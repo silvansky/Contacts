@@ -16,6 +16,6 @@ public:
 	virtual IFileStream *sendFile(const Jid &AStreamJid, const Jid &AContactJid, const QString &AFileName = QString::null, const QString &AFileDesc = QString::null) =0;
 };
 
-Q_DECLARE_INTERFACE(IFileTransfer,"Vacuum.Plugin.IFileTransfer/1.0")
+Q_DECLARE_INTERFACE(IFileTransfer,"Virtus.Plugin.IFileTransfer/1.0")
 
 #endif // IFILETRANSFER_H

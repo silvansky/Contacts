@@ -44,6 +44,6 @@ protected:
 	virtual void notificationAppended(int ANotifyId, const INotification &ANotification) =0;
 };
 
-Q_DECLARE_INTERFACE(INotifications,"Vacuum.Plugin.INotifications/1.0")
+Q_DECLARE_INTERFACE(INotifications,"Virtus.Plugin.INotifications/1.0")
 
 #endif

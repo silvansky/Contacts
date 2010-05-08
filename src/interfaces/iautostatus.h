@@ -30,6 +30,6 @@ protected:
 	virtual void ruleActivated(const QUuid &ARuleId) =0;
 };
 
-Q_DECLARE_INTERFACE(IAutoStatus,"Vacuum.Plugin.IAutoStatus/1.0")
+Q_DECLARE_INTERFACE(IAutoStatus,"Virtus.Plugin.IAutoStatus/1.0")
 
 #endif

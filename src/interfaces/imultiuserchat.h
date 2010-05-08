@@ -206,9 +206,9 @@ protected:
 	virtual void multiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu) =0;
 };
 
-Q_DECLARE_INTERFACE(IMultiUser,"Vacuum.Plugin.IMultiUser/1.0")
-Q_DECLARE_INTERFACE(IMultiUserChat,"Vacuum.Plugin.IMultiUserChat/1.0")
-Q_DECLARE_INTERFACE(IMultiUserChatWindow,"Vacuum.Plugin.IMultiUserChatWindow/1.0")
-Q_DECLARE_INTERFACE(IMultiUserChatPlugin,"Vacuum.Plugin.IMultiUserChatPlugin/1.0")
+Q_DECLARE_INTERFACE(IMultiUser,"Virtus.Plugin.IMultiUser/1.0")
+Q_DECLARE_INTERFACE(IMultiUserChat,"Virtus.Plugin.IMultiUserChat/1.0")
+Q_DECLARE_INTERFACE(IMultiUserChatWindow,"Virtus.Plugin.IMultiUserChatWindow/1.0")
+Q_DECLARE_INTERFACE(IMultiUserChatPlugin,"Virtus.Plugin.IMultiUserChatPlugin/1.0")
 
 #endif

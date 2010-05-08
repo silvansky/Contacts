@@ -72,7 +72,7 @@ protected:
 	virtual void sessionTerminated(const IStanzaSession &ASession) =0;
 };
 
-Q_DECLARE_INTERFACE(ISessionNegotiator,"Vacuum.Plugin.ISessionNegotiator/1.0")
-Q_DECLARE_INTERFACE(ISessionNegotiation,"Vacuum.Plugin.ISessionNegotiation/1.0")
+Q_DECLARE_INTERFACE(ISessionNegotiator,"Virtus.Plugin.ISessionNegotiator/1.0")
+Q_DECLARE_INTERFACE(ISessionNegotiation,"Virtus.Plugin.ISessionNegotiation/1.0")
 
 #endif

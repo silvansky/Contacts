@@ -22,6 +22,6 @@ protected:
 	virtual void avatarChanged(const Jid &AContactJid) =0;
 };
 
-Q_DECLARE_INTERFACE(IAvatars,"Vacuum.Plugin.IAvatars/1.0")
+Q_DECLARE_INTERFACE(IAvatars,"Virtus.Plugin.IAvatars/1.0")
 
 #endif

@@ -109,8 +109,8 @@ protected:
 	virtual void styleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext) const =0;
 };
 
-Q_DECLARE_INTERFACE(IMessageStyle,"Vacuum.Plugin.IMessageStyle/1.0")
-Q_DECLARE_INTERFACE(IMessageStylePlugin,"Vacuum.Plugin.IMessageStylePlugin/1.0")
-Q_DECLARE_INTERFACE(IMessageStyles,"Vacuum.Plugin.IMessageStyles/1.0")
+Q_DECLARE_INTERFACE(IMessageStyle,"Virtus.Plugin.IMessageStyle/1.0")
+Q_DECLARE_INTERFACE(IMessageStylePlugin,"Virtus.Plugin.IMessageStylePlugin/1.0")
+Q_DECLARE_INTERFACE(IMessageStyles,"Virtus.Plugin.IMessageStyles/1.0")
 
 #endif

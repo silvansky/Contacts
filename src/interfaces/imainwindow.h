@@ -31,7 +31,7 @@ public:
 	virtual IMainWindow *mainWindow() const = 0;
 };
 
-Q_DECLARE_INTERFACE(IMainWindow,"Vacuum.Plugin.IMainWindow/1.0")
-Q_DECLARE_INTERFACE(IMainWindowPlugin,"Vacuum.Plugin.IMainWindowPlugin/1.0")
+Q_DECLARE_INTERFACE(IMainWindow,"Virtus.Plugin.IMainWindow/1.0")
+Q_DECLARE_INTERFACE(IMainWindowPlugin,"Virtus.Plugin.IMainWindowPlugin/1.0")
 
 #endif

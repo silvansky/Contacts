@@ -41,7 +41,7 @@ protected:
 	virtual void localConnectionAccepted(const QString &AKey, QTcpSocket *ATcpSocket) =0;
 };
 
-Q_DECLARE_INTERFACE(ISocksStream,"Vacuum.Plugin.ISocksStream/1.0")
-Q_DECLARE_INTERFACE(ISocksStreams,"Vacuum.Plugin.ISocksStreams/1.0")
+Q_DECLARE_INTERFACE(ISocksStream,"Virtus.Plugin.ISocksStream/1.0")
+Q_DECLARE_INTERFACE(ISocksStreams,"Virtus.Plugin.ISocksStreams/1.0")
 
 #endif // ISOCKSSTREAMS_H

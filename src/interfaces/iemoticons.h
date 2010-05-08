@@ -17,6 +17,6 @@ public:
 	virtual QString keyByUrl(const QUrl &AUrl) const =0;
 };
 
-Q_DECLARE_INTERFACE(IEmoticons,"Vacuum.Plugin.IEmoticons/1.0")
+Q_DECLARE_INTERFACE(IEmoticons,"Virtus.Plugin.IEmoticons/1.0")
 
 #endif

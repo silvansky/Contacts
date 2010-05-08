@@ -53,6 +53,6 @@ protected:
 	virtual void searchError(const QString &AId, const QString &AError) =0;
 };
 
-Q_DECLARE_INTERFACE(IJabberSearch,"Vacuum.Plugin.IJabberSearch/1.0")
+Q_DECLARE_INTERFACE(IJabberSearch,"Virtus.Plugin.IJabberSearch/1.0")
 
 #endif

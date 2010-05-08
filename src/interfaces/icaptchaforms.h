@@ -20,6 +20,6 @@ protected:
 	virtual void challengeCanceled(const QString &AChallengeId) =0;
 };
 
-Q_DECLARE_INTERFACE(ICaptchaForms,"Vacuum.Plugin.ICaptchaForms/1.0")
+Q_DECLARE_INTERFACE(ICaptchaForms,"Virtus.Plugin.ICaptchaForms/1.0")
 
 #endif

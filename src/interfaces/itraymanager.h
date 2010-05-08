@@ -31,6 +31,6 @@ protected:
 	virtual void notifyRemoved(int ANotifyId) =0;
 };
 
-Q_DECLARE_INTERFACE(ITrayManager,"Vacuum.Plugin.ITrayManager/1.0")
+Q_DECLARE_INTERFACE(ITrayManager,"Virtus.Plugin.ITrayManager/1.0")
 
 #endif

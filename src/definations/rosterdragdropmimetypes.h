@@ -2,6 +2,6 @@
 #define DEF_ROSTERDRAGDROPMIMETYPES_H
 
 //QMap<int,QVariant>
-#define DDT_ROSTERSVIEW_INDEX_DATA        "vacuum/x-roster-index-data"
+#define DDT_ROSTERSVIEW_INDEX_DATA        "virtus/x-roster-index-data"
 
 #endif

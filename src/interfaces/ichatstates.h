@@ -36,6 +36,6 @@ protected:
 	virtual void selfChatStateChanged(const Jid &AStreamJid, const Jid &AContactJid, int AState) const =0;
 };
 
-Q_DECLARE_INTERFACE(IChatStates,"Vacuum.Plugin.IChatStates/1.0")
+Q_DECLARE_INTERFACE(IChatStates,"Virtus.Plugin.IChatStates/1.0")
 
 #endif

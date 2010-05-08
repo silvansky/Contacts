@@ -142,9 +142,9 @@ protected:
 	virtual void discoItemsReceived(const IDiscoItems &ADiscoItems) =0;
 };
 
-Q_DECLARE_INTERFACE(IDiscoHandler,"Vacuum.Plugin.IDiscoHandler/1.0")
-Q_DECLARE_INTERFACE(IDiscoFeatureHandler,"Vacuum.Plugin.IDiscoFeatureHandler/1.0")
-Q_DECLARE_INTERFACE(IDiscoItemsWindow,"Vacuum.Plugin.IDiscoItemsWindow/1.0")
-Q_DECLARE_INTERFACE(IServiceDiscovery,"Vacuum.Plugin.IServiceDiscovery/1.0")
+Q_DECLARE_INTERFACE(IDiscoHandler,"Virtus.Plugin.IDiscoHandler/1.0")
+Q_DECLARE_INTERFACE(IDiscoFeatureHandler,"Virtus.Plugin.IDiscoFeatureHandler/1.0")
+Q_DECLARE_INTERFACE(IDiscoItemsWindow,"Virtus.Plugin.IDiscoItemsWindow/1.0")
+Q_DECLARE_INTERFACE(IServiceDiscovery,"Virtus.Plugin.IServiceDiscovery/1.0")
 
 #endif

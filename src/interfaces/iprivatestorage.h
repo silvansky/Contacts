@@ -24,6 +24,6 @@ protected:
 	virtual void storageClosed(const Jid &AStreamJid) =0;
 };
 
-Q_DECLARE_INTERFACE(IPrivateStorage,"Vacuum.Plugin.IPrivateStorage/1.0")
+Q_DECLARE_INTERFACE(IPrivateStorage,"Virtus.Plugin.IPrivateStorage/1.0")
 
 #endif

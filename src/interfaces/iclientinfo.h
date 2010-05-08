@@ -48,6 +48,6 @@ protected:
 	virtual void entityTimeChanged(const Jid &AContactJid) =0;
 };
 
-Q_DECLARE_INTERFACE(IClientInfo,"Vacuum.Plugin.IClientInfo/1.0")
+Q_DECLARE_INTERFACE(IClientInfo,"Virtus.Plugin.IClientInfo/1.0")
 
 #endif

@@ -79,8 +79,8 @@ protected:
 	virtual void defaultProxyChanged(const QUuid &AProxyId) =0;
 };
 
-Q_DECLARE_INTERFACE(IConnection,"Vacuum.Plugin.IConnection/1.0")
-Q_DECLARE_INTERFACE(IConnectionPlugin,"Vacuum.Plugin.IConnectionPlugin/1.0")
-Q_DECLARE_INTERFACE(IConnectionManager,"Vacuum.Plugin.IConnectionManager/1.0")
+Q_DECLARE_INTERFACE(IConnection,"Virtus.Plugin.IConnection/1.0")
+Q_DECLARE_INTERFACE(IConnectionPlugin,"Virtus.Plugin.IConnectionPlugin/1.0")
+Q_DECLARE_INTERFACE(IConnectionManager,"Virtus.Plugin.IConnectionManager/1.0")
 
 #endif

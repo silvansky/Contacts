@@ -90,9 +90,9 @@ protected:
 	virtual void optionsDialogNodeRemoved(const IOptionsDialogNode &ANode) =0;
 };
 
-Q_DECLARE_INTERFACE(IOptionsWidget,"Vacuum.Plugin.IOptionsWidget/1.0")
-Q_DECLARE_INTERFACE(IOptionsContainer,"Vacuum.Plugin.IOptionsContainer/1.0")
-Q_DECLARE_INTERFACE(IOptionsHolder,"Vacuum.Plugin.IOptionsHolder/1.0")
-Q_DECLARE_INTERFACE(IOptionsManager,"Vacuum.Plugin.IOptionsManager/1.0")
+Q_DECLARE_INTERFACE(IOptionsWidget,"Virtus.Plugin.IOptionsWidget/1.0")
+Q_DECLARE_INTERFACE(IOptionsContainer,"Virtus.Plugin.IOptionsContainer/1.0")
+Q_DECLARE_INTERFACE(IOptionsHolder,"Virtus.Plugin.IOptionsHolder/1.0")
+Q_DECLARE_INTERFACE(IOptionsManager,"Virtus.Plugin.IOptionsManager/1.0")
 
 #endif //IOPTIONSMANAGER_H

@@ -56,8 +56,8 @@ protected:
 	virtual void subscriptionDialogCreated(ISubscriptionDialog *ADialog) =0;
 };
 
-Q_DECLARE_INTERFACE(IAddContactDialog,"Vacuum.Plugin.IAddContactDialog/1.0")
-Q_DECLARE_INTERFACE(ISubscriptionDialog,"Vacuum.Plugin.ISubscriptionDialog/1.0")
-Q_DECLARE_INTERFACE(IRosterChanger,"Vacuum.Plugin.IRosterChanger/1.0")
+Q_DECLARE_INTERFACE(IAddContactDialog,"Virtus.Plugin.IAddContactDialog/1.0")
+Q_DECLARE_INTERFACE(ISubscriptionDialog,"Virtus.Plugin.ISubscriptionDialog/1.0")
+Q_DECLARE_INTERFACE(IRosterChanger,"Virtus.Plugin.IRosterChanger/1.0")
 
 #endif

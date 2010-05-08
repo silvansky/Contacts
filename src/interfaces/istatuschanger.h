@@ -51,6 +51,6 @@ protected:
 	virtual void statusItemRemoved(int AStatusId) =0;
 };
 
-Q_DECLARE_INTERFACE(IStatusChanger,"Vacuum.Plugin.IStatusChanger/1.0")
+Q_DECLARE_INTERFACE(IStatusChanger,"Virtus.Plugin.IStatusChanger/1.0")
 
 #endif

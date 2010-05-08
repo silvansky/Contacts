@@ -30,6 +30,6 @@ protected:
 	virtual void bookmarksError(const QString &AId, const QString &AError) =0;
 };
 
-Q_DECLARE_INTERFACE(IBookMarks,"Vacuum.Plugin.IBookMarks/1.0")
+Q_DECLARE_INTERFACE(IBookMarks,"Virtus.Plugin.IBookMarks/1.0")
 
 #endif

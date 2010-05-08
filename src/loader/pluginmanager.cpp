@@ -11,7 +11,7 @@
 #include <QSettings>
 
 #define ORGANIZATION_NAME           "JRuDevels"
-#define APPLICATION_NAME            "VacuumIM"
+#define APPLICATION_NAME            "Virtus"
 
 #define FILE_PLUGINS_SETTINGS       "plugins.xml"
 
@@ -32,7 +32,7 @@
 #  define PATH_APP_DATA             ORGANIZATION_NAME"/"DIR_APP_DATA
 #elif defined(Q_WS_X11)
 #  define ENV_APP_DATA              "HOME"
-#  define DIR_APP_DATA              ".vacuum"
+#  define DIR_APP_DATA              ".virtus"
 #  define PATH_APP_DATA             DIR_APP_DATA
 #elif defined(Q_WS_MAC)
 #  define ENV_APP_DATA              "HOME"
@@ -498,10 +498,10 @@ QList<QUuid> PluginManager::getConflicts(const QUuid AUuid) const
 
 void PluginManager::loadCoreTranslations(const QString &ADir)
 {
-	if (FLoaderTranslator->load("vacuum",ADir))
+	if (FLoaderTranslator->load("virtus",ADir))
 		qApp->installTranslator(FLoaderTranslator);
 
-	if (FUtilsTranslator->load("vacuumutils",ADir))
+	if (FUtilsTranslator->load("virtusutils",ADir))
 		qApp->installTranslator(FUtilsTranslator);
 
 	if (FQtTranslator->load("qt_"+QLocale().name(),ADir))

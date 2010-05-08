@@ -268,12 +268,12 @@ protected:
 	virtual void urlLoadFailed(const QUrl &AUrl, const QString &AError) =0;
 };
 
-Q_DECLARE_INTERFACE(IDataTableWidget,"Vacuum.Plugin.IDataTableWidget/1.0")
-Q_DECLARE_INTERFACE(IDataMediaWidget,"Vacuum.Plugin.IDataMediaWidget/1.0")
-Q_DECLARE_INTERFACE(IDataFieldWidget,"Vacuum.Plugin.IDataFieldWidget/1.0")
-Q_DECLARE_INTERFACE(IDataFormWidget,"Vacuum.Plugin.IDataFormWidget/1.0")
-Q_DECLARE_INTERFACE(IDataDialogWidget,"Vacuum.Plugin.IDataDialogWidget/1.0")
-Q_DECLARE_INTERFACE(IDataLocalizer,"Vacuum.Plugin.IDataLocalizer/1.0")
-Q_DECLARE_INTERFACE(IDataForms,"Vacuum.Plugin.IDataForms/1.0")
+Q_DECLARE_INTERFACE(IDataTableWidget,"Virtus.Plugin.IDataTableWidget/1.0")
+Q_DECLARE_INTERFACE(IDataMediaWidget,"Virtus.Plugin.IDataMediaWidget/1.0")
+Q_DECLARE_INTERFACE(IDataFieldWidget,"Virtus.Plugin.IDataFieldWidget/1.0")
+Q_DECLARE_INTERFACE(IDataFormWidget,"Virtus.Plugin.IDataFormWidget/1.0")
+Q_DECLARE_INTERFACE(IDataDialogWidget,"Virtus.Plugin.IDataDialogWidget/1.0")
+Q_DECLARE_INTERFACE(IDataLocalizer,"Virtus.Plugin.IDataLocalizer/1.0")
+Q_DECLARE_INTERFACE(IDataForms,"Virtus.Plugin.IDataForms/1.0")
 
 #endif

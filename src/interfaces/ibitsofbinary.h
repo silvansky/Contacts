@@ -26,6 +26,6 @@ protected:
 	virtual void binaryRemoved(const QString &AContentId) =0;
 };
 
-Q_DECLARE_INTERFACE(IBitsOfBinary,"Vacuum.Plugin.IBitsOfBinary/1.0")
+Q_DECLARE_INTERFACE(IBitsOfBinary,"Virtus.Plugin.IBitsOfBinary/1.0")
 
 #endif

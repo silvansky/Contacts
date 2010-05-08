@@ -116,11 +116,11 @@ protected:
 	virtual void featureRegistered(IXmppFeaturesPlugin *AFeaturePlugin, const QString &AFeatureNS, int AOrder) =0;
 };
 
-Q_DECLARE_INTERFACE(IXmppDataHandler,"Vacuum.Plugin.IXmppDataHandler/1.0");
-Q_DECLARE_INTERFACE(IXmppStanzaHadler,"Vacuum.Plugin.IXmppStanzaHadler/1.0");
-Q_DECLARE_INTERFACE(IXmppFeature,"Vacuum.Plugin.IXmppFeature/1.0");
-Q_DECLARE_INTERFACE(IXmppFeaturesPlugin,"Vacuum.Plugin.IXmppFeaturesPlugin/1.0");
-Q_DECLARE_INTERFACE(IXmppStream, "Vacuum.Plugin.IXmppStream/1.0")
-Q_DECLARE_INTERFACE(IXmppStreams,"Vacuum.Plugin.IXmppStreams/1.0")
+Q_DECLARE_INTERFACE(IXmppDataHandler,"Virtus.Plugin.IXmppDataHandler/1.0");
+Q_DECLARE_INTERFACE(IXmppStanzaHadler,"Virtus.Plugin.IXmppStanzaHadler/1.0");
+Q_DECLARE_INTERFACE(IXmppFeature,"Virtus.Plugin.IXmppFeature/1.0");
+Q_DECLARE_INTERFACE(IXmppFeaturesPlugin,"Virtus.Plugin.IXmppFeaturesPlugin/1.0");
+Q_DECLARE_INTERFACE(IXmppStream, "Virtus.Plugin.IXmppStream/1.0")
+Q_DECLARE_INTERFACE(IXmppStreams,"Virtus.Plugin.IXmppStreams/1.0")
 
 #endif

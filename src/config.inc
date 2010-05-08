@@ -1,5 +1,5 @@
-TARGET_LOADER            = vacuum
-TARGET_UTILS             = vacuumutils
+TARGET_LOADER            = virtus
+TARGET_UTILS             = virtusutils
 
 macx:CONFIG             += x86
 
@@ -11,9 +11,9 @@ isEmpty(INSTALL_PREFIX) {
 }
 
 isEmpty(INSTALL_APP_DIR) {
-  win32:INSTALL_APP_DIR  = vacuum
-  unix: INSTALL_APP_DIR  = vacuum
-  macx: INSTALL_APP_DIR  = vacuum.app
+  win32:INSTALL_APP_DIR  = virtus
+  unix: INSTALL_APP_DIR  = virtus
+  macx: INSTALL_APP_DIR  = virtus.app
 }
 
 isEmpty(INSTALL_LIB_DIR) {

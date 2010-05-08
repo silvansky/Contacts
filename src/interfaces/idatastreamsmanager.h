@@ -106,9 +106,9 @@ protected:
 	virtual void settingsProfileRemoved(const QUuid &AProfileId) =0;
 };
 
-Q_DECLARE_INTERFACE(IDataStreamSocket,"Vacuum.Plugin.IDataStreamSocket/1.0")
-Q_DECLARE_INTERFACE(IDataStreamMethod,"Vacuum.Plugin.IDataStreamMethod/1.0")
-Q_DECLARE_INTERFACE(IDataStreamProfile,"Vacuum.Plugin.IDataStreamProfile/1.0")
-Q_DECLARE_INTERFACE(IDataStreamsManager,"Vacuum.Plugin.IDataStreamsManager/1.0")
+Q_DECLARE_INTERFACE(IDataStreamSocket,"Virtus.Plugin.IDataStreamSocket/1.0")
+Q_DECLARE_INTERFACE(IDataStreamMethod,"Virtus.Plugin.IDataStreamMethod/1.0")
+Q_DECLARE_INTERFACE(IDataStreamProfile,"Virtus.Plugin.IDataStreamProfile/1.0")
+Q_DECLARE_INTERFACE(IDataStreamsManager,"Virtus.Plugin.IDataStreamsManager/1.0")
 
 #endif  //IDATASTREAMSMANAGER_H

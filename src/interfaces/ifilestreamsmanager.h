@@ -90,8 +90,8 @@ protected:
 	virtual void streamDestroyed(IFileStream *AStream) =0;
 };
 
-Q_DECLARE_INTERFACE(IFileStream,"Vacuum.Plugin.IFileStream/1.0")
-Q_DECLARE_INTERFACE(IFileStreamsHandler,"Vacuum.Plugin.IFileStreamsHandler/1.0")
-Q_DECLARE_INTERFACE(IFileStreamsManager,"Vacuum.Plugin.IFileStreamsManager/1.0")
+Q_DECLARE_INTERFACE(IFileStream,"Virtus.Plugin.IFileStream/1.0")
+Q_DECLARE_INTERFACE(IFileStreamsHandler,"Virtus.Plugin.IFileStreamsHandler/1.0")
+Q_DECLARE_INTERFACE(IFileStreamsManager,"Virtus.Plugin.IFileStreamsManager/1.0")
 
 #endif // IFILESTREAMSMANAGER_H

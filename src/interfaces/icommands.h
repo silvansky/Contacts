@@ -108,8 +108,8 @@ protected:
 	virtual void commandsUpdated(const Jid &AstreamJid, const Jid &AContactJid, const QList<ICommand> &ACommands) =0;
 };
 
-Q_DECLARE_INTERFACE(ICommandServer,"Vacuum.Plugin.ICommandServer/1.0")
-Q_DECLARE_INTERFACE(ICommandClient,"Vacuum.Plugin.ICommandClient/1.0")
-Q_DECLARE_INTERFACE(ICommands,"Vacuum.Plugin.ICommands/1.0")
+Q_DECLARE_INTERFACE(ICommandServer,"Virtus.Plugin.ICommandServer/1.0")
+Q_DECLARE_INTERFACE(ICommandClient,"Virtus.Plugin.ICommandClient/1.0")
+Q_DECLARE_INTERFACE(ICommands,"Virtus.Plugin.ICommands/1.0")
 
 #endif

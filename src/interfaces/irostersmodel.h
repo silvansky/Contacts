@@ -101,8 +101,8 @@ protected:
 	virtual void defaultDataHolderRemoved(IRosterDataHolder *ADataHolder) =0;
 };
 
-Q_DECLARE_INTERFACE(IRosterDataHolder,"Vacuum.Plugin.IRosterDataHolder/1.0");
-Q_DECLARE_INTERFACE(IRosterIndex,"Vacuum.Plugin.IRosterIndex/1.0");
-Q_DECLARE_INTERFACE(IRostersModel,"Vacuum.Plugin.IRostersModel/1.0");
+Q_DECLARE_INTERFACE(IRosterDataHolder,"Virtus.Plugin.IRosterDataHolder/1.0");
+Q_DECLARE_INTERFACE(IRosterIndex,"Virtus.Plugin.IRosterIndex/1.0");
+Q_DECLARE_INTERFACE(IRostersModel,"Virtus.Plugin.IRostersModel/1.0");
 
 #endif

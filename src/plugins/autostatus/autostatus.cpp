@@ -29,7 +29,7 @@ void AutoStatus::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to change the status in accordance with the time of inactivity");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://www.vacuum-im.org";
+	APluginInfo->homePage = "http://virtus.rambler.ru";
 	APluginInfo->dependences.append(STATUSCHANGER_UUID);
 	APluginInfo->dependences.append(ACCOUNTMANAGER_UUID);
 }

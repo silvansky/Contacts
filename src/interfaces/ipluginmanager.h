@@ -56,7 +56,7 @@ protected:
 	virtual void aboutToQuit() =0;
 };
 
-Q_DECLARE_INTERFACE(IPlugin,"Vacuum.Core.IPlugin/1.0")
-Q_DECLARE_INTERFACE(IPluginManager,"Vacuum.Core.IPluginManager/1.0")
+Q_DECLARE_INTERFACE(IPlugin,"Virtus.Core.IPlugin/1.0")
+Q_DECLARE_INTERFACE(IPluginManager,"Virtus.Core.IPluginManager/1.0")
 
 #endif

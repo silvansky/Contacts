@@ -98,6 +98,6 @@ protected:
 	virtual void requestFailed(const QString &AId, const QString &AError) =0;
 };
 
-Q_DECLARE_INTERFACE(IPrivacyLists,"Vacuum.Plugin.IPrivacyLists/1.0")
+Q_DECLARE_INTERFACE(IPrivacyLists,"Virtus.Plugin.IPrivacyLists/1.0")
 
 #endif

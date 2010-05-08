@@ -52,7 +52,7 @@ protected:
 	virtual void destroyed(const QUuid &AAccountId) =0;
 };
 
-Q_DECLARE_INTERFACE(IAccount,"Vacuum.Plugin.IAccount/1.0")
-Q_DECLARE_INTERFACE(IAccountManager,"Vacuum.Plugin.IAccountManager/1.0")
+Q_DECLARE_INTERFACE(IAccount,"Virtus.Plugin.IAccount/1.0")
+Q_DECLARE_INTERFACE(IAccountManager,"Virtus.Plugin.IAccountManager/1.0")
 
 #endif

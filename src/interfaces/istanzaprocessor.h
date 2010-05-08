@@ -59,8 +59,8 @@ protected:
 	virtual void stanzaHandleRemoved(int AHandleId, const IStanzaHandle &AHandle) =0;
 };
 
-Q_DECLARE_INTERFACE(IStanzaHandler,"Vacuum.Plugin.IStanzaHandler/1.0");
-Q_DECLARE_INTERFACE(IStanzaRequestOwner,"Vacuum.Plugin.IStanzaRequestOwner/1.0");
-Q_DECLARE_INTERFACE(IStanzaProcessor,"Vacuum.Plugin.IStanzaProcessor/1.0");
+Q_DECLARE_INTERFACE(IStanzaHandler,"Virtus.Plugin.IStanzaHandler/1.0");
+Q_DECLARE_INTERFACE(IStanzaRequestOwner,"Virtus.Plugin.IStanzaRequestOwner/1.0");
+Q_DECLARE_INTERFACE(IStanzaProcessor,"Virtus.Plugin.IStanzaProcessor/1.0");
 
 #endif

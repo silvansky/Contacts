@@ -56,6 +56,6 @@ protected:
 	virtual void registerError(const QString &AId, const QString &AError) =0;
 };
 
-Q_DECLARE_INTERFACE(IRegistration,"Vacuum.Plugin.IRegistration/1.0")
+Q_DECLARE_INTERFACE(IRegistration,"Virtus.Plugin.IRegistration/1.0")
 
 #endif

@@ -41,7 +41,7 @@ public:
 	virtual QObject *instance() =0;
 };
 
-Q_DECLARE_INTERFACE(IDefaultConnection,"Vacuum.Plugin.IDefaultConnection/1.0")
-Q_DECLARE_INTERFACE(IDefaultConnectionPlugin,"Vacuum.Plugin.IDefaultConnectionPlugin/1.0")
+Q_DECLARE_INTERFACE(IDefaultConnection,"Virtus.Plugin.IDefaultConnection/1.0")
+Q_DECLARE_INTERFACE(IDefaultConnectionPlugin,"Virtus.Plugin.IDefaultConnectionPlugin/1.0")
 
 #endif

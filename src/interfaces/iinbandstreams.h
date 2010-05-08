@@ -33,7 +33,7 @@ public:
 	virtual QObject *instance() =0;
 };
 
-Q_DECLARE_INTERFACE(IInBandStream,"Vacuum.Plugin.IInBandStream/1.0")
-Q_DECLARE_INTERFACE(IInBandStreams,"Vacuum.Plugin.IInBandStreams/1.0")
+Q_DECLARE_INTERFACE(IInBandStream,"Virtus.Plugin.IInBandStream/1.0")
+Q_DECLARE_INTERFACE(IInBandStreams,"Virtus.Plugin.IInBandStreams/1.0")
 
 #endif // IINBANDSTREAMS_H

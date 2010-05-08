@@ -24,6 +24,6 @@ protected:
 	virtual void annotationModified(const Jid &AStreamJid, const Jid &AContactJid) =0;
 };
 
-Q_DECLARE_INTERFACE(IAnnotations,"Vacuum.Plugin.IAnnotations/1.0")
+Q_DECLARE_INTERFACE(IAnnotations,"Virtus.Plugin.IAnnotations/1.0")
 
 #endif

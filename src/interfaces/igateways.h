@@ -27,6 +27,6 @@ protected:
 	virtual void errorReceived(const QString &AId, const QString &AError) =0;
 };
 
-Q_DECLARE_INTERFACE(IGateways,"Vacuum.Plugin.IGateways/1.0")
+Q_DECLARE_INTERFACE(IGateways,"Virtus.Plugin.IGateways/1.0")
 
 #endif

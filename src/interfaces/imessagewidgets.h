@@ -328,19 +328,19 @@ protected:
 	virtual void viewUrlHandlerRemoved(IViewUrlHandler *AHandler, int AOrder) =0;
 };
 
-Q_DECLARE_INTERFACE(IInfoWidget,"Vacuum.Plugin.IInfoWidget/1.0")
-Q_DECLARE_INTERFACE(IViewWidget,"Vacuum.Plugin.IViewWidget/1.0")
-Q_DECLARE_INTERFACE(IEditWidget,"Vacuum.Plugin.IEditWidget/1.0")
-Q_DECLARE_INTERFACE(IReceiversWidget,"Vacuum.Plugin.IReceiversWidget/1.0")
-Q_DECLARE_INTERFACE(IMenuBarWidget,"Vacuum.Plugin.IMenuBarWidget/1.0")
-Q_DECLARE_INTERFACE(IToolBarWidget,"Vacuum.Plugin.IToolBarWidget/1.0")
-Q_DECLARE_INTERFACE(IStatusBarWidget,"Vacuum.Plugin.IStatusBarWidget/1.0")
-Q_DECLARE_INTERFACE(ITabWindowPage,"Vacuum.Plugin.ITabWindowPage/1.0")
-Q_DECLARE_INTERFACE(ITabWindow,"Vacuum.Plugin.ITabWindow/1.0")
-Q_DECLARE_INTERFACE(IChatWindow,"Vacuum.Plugin.IChatWindow/1.0")
-Q_DECLARE_INTERFACE(IMessageWindow,"Vacuum.Plugin.IMessageWindow/1.0")
-Q_DECLARE_INTERFACE(IViewDropHandler,"Vacuum.Plugin.IViewDropHandler/1.0")
-Q_DECLARE_INTERFACE(IViewUrlHandler,"Vacuum.Plugin.IViewUrlHandler/1.0")
-Q_DECLARE_INTERFACE(IMessageWidgets,"Vacuum.Plugin.IMessageWidgets/1.0")
+Q_DECLARE_INTERFACE(IInfoWidget,"Virtus.Plugin.IInfoWidget/1.0")
+Q_DECLARE_INTERFACE(IViewWidget,"Virtus.Plugin.IViewWidget/1.0")
+Q_DECLARE_INTERFACE(IEditWidget,"Virtus.Plugin.IEditWidget/1.0")
+Q_DECLARE_INTERFACE(IReceiversWidget,"Virtus.Plugin.IReceiversWidget/1.0")
+Q_DECLARE_INTERFACE(IMenuBarWidget,"Virtus.Plugin.IMenuBarWidget/1.0")
+Q_DECLARE_INTERFACE(IToolBarWidget,"Virtus.Plugin.IToolBarWidget/1.0")
+Q_DECLARE_INTERFACE(IStatusBarWidget,"Virtus.Plugin.IStatusBarWidget/1.0")
+Q_DECLARE_INTERFACE(ITabWindowPage,"Virtus.Plugin.ITabWindowPage/1.0")
+Q_DECLARE_INTERFACE(ITabWindow,"Virtus.Plugin.ITabWindow/1.0")
+Q_DECLARE_INTERFACE(IChatWindow,"Virtus.Plugin.IChatWindow/1.0")
+Q_DECLARE_INTERFACE(IMessageWindow,"Virtus.Plugin.IMessageWindow/1.0")
+Q_DECLARE_INTERFACE(IViewDropHandler,"Virtus.Plugin.IViewDropHandler/1.0")
+Q_DECLARE_INTERFACE(IViewUrlHandler,"Virtus.Plugin.IViewUrlHandler/1.0")
+Q_DECLARE_INTERFACE(IMessageWidgets,"Virtus.Plugin.IMessageWidgets/1.0")
 
 #endif

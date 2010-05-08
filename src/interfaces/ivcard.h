@@ -54,7 +54,7 @@ protected:
 	virtual void vcardError(const Jid &AContactJid, const QString &AError) =0;
 };
 
-Q_DECLARE_INTERFACE(IVCard,"Vacuum.Plugin.IVCard/1.0")
-Q_DECLARE_INTERFACE(IVCardPlugin,"Vacuum.Plugin.IVCardPlugin/1.0")
+Q_DECLARE_INTERFACE(IVCard,"Virtus.Plugin.IVCard/1.0")
+Q_DECLARE_INTERFACE(IVCardPlugin,"Virtus.Plugin.IVCardPlugin/1.0")
 
 #endif

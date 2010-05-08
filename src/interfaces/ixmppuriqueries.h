@@ -25,7 +25,7 @@ protected:
 	virtual void uriHandlerRemoved(IXmppUriHandler *AHandler, int AOrder) =0;
 };
 
-Q_DECLARE_INTERFACE(IXmppUriHandler,"Vacuum.Plugin.IXmppUriHandler/1.0")
-Q_DECLARE_INTERFACE(IXmppUriQueries,"Vacuum.Plugin.IXmppUriQueries/1.0")
+Q_DECLARE_INTERFACE(IXmppUriHandler,"Virtus.Plugin.IXmppUriHandler/1.0")
+Q_DECLARE_INTERFACE(IXmppUriQueries,"Virtus.Plugin.IXmppUriQueries/1.0")
 
 #endif

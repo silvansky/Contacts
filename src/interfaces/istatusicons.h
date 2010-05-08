@@ -35,6 +35,6 @@ protected:
 	virtual void statusIconsChanged() =0;
 };
 
-Q_DECLARE_INTERFACE(IStatusIcons,"Vacuum.Plugin.IStatusIcons/1.0")
+Q_DECLARE_INTERFACE(IStatusIcons,"Virtus.Plugin.IStatusIcons/1.0")
 
 #endif

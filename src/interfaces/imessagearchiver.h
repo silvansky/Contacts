@@ -249,8 +249,8 @@ protected:
 	virtual void archiveWindowDestroyed(IArchiveWindow *AWindow) =0;
 };
 
-Q_DECLARE_INTERFACE(IArchiveHandler,"Vacuum.Plugin.IArchiveHandler/1.0")
-Q_DECLARE_INTERFACE(IArchiveWindow,"Vacuum.Plugin.IArchiveWindow/1.0")
-Q_DECLARE_INTERFACE(IMessageArchiver,"Vacuum.Plugin.IMessageArchiver/1.0")
+Q_DECLARE_INTERFACE(IArchiveHandler,"Virtus.Plugin.IArchiveHandler/1.0")
+Q_DECLARE_INTERFACE(IArchiveWindow,"Virtus.Plugin.IArchiveWindow/1.0")
+Q_DECLARE_INTERFACE(IMessageArchiver,"Virtus.Plugin.IMessageArchiver/1.0")
 
 #endif

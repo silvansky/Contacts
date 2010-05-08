@@ -28,6 +28,6 @@ protected:
 	virtual void searchFieldRemoved(int ADataRole) =0;
 };
 
-Q_DECLARE_INTERFACE(IRosterSearch,"Vacuum.Plugin.IRosterSearch/1.0")
+Q_DECLARE_INTERFACE(IRosterSearch,"Virtus.Plugin.IRosterSearch/1.0")
 
 #endif

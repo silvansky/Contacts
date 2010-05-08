@@ -7,8 +7,8 @@
 #define ADR_NEW_SERVICE_JID   Action::DR_Parametr2
 #define ADR_LOG_IN            Action::DR_Parametr3
 
-#define PSN_GATEWAYS_KEEP         "vacuum:gateways:keep"
-#define PSN_GATEWAYS_SUBSCRIBE    "vacuum:gateways:subscribe"
+#define PSN_GATEWAYS_KEEP         "virtus:gateways:keep"
+#define PSN_GATEWAYS_SUBSCRIBE    "virtus:gateways:subscribe"
 #define PST_GATEWAYS_SERVICES     "services"
 
 #define KEEP_INTERVAL             120000
@@ -41,7 +41,7 @@ void Gateways::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to simplify the interaction with transports to other IM systems");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://www.vacuum-im.org";
+	APluginInfo->homePage = "http://virtus.rambler.ru";
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 
