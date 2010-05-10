@@ -353,6 +353,7 @@ void RostersViewPlugin::onViewModelAboutToBeReset()
 
 void RostersViewPlugin::onViewModelReset()
 {
+	FRostersView->setRootIndex(FRostersView->model()->index(0,0));
 	restoreExpandState();
 	if (FViewSavedState.currentIndex != NULL)
 	{
@@ -377,6 +378,7 @@ void RostersViewPlugin::onViewModelChanged(QAbstractItemModel *AModel)
 	Q_UNUSED(AModel);
 	if (FRostersView->model())
 	{
+		FRostersView->setRootIndex(FRostersView->model()->index(0,0));
 		connect(FRostersView->model(),SIGNAL(modelAboutToBeReset()),SLOT(onViewModelAboutToBeReset()));
 		connect(FRostersView->model(),SIGNAL(modelReset()),SLOT(onViewModelReset()));
 		connect(FRostersView->model(),SIGNAL(rowsInserted(const QModelIndex &, int , int )),SLOT(onViewRowsInserted(const QModelIndex &, int , int )));
@@ -386,6 +388,8 @@ void RostersViewPlugin::onViewModelChanged(QAbstractItemModel *AModel)
 
 void RostersViewPlugin::onViewRowsInserted(const QModelIndex &AParent, int AStart, int AEnd)
 {
+	if (!AParent.isValid())
+		FRostersView->setRootIndex(FRostersView->model()->index(0,0));
 	if (AStart == 0)
 		loadExpandState(AParent);
 	for (int row=AStart; row<=AEnd; row++)
