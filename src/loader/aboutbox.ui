@@ -6,17 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
-    <height>149</height>
+    <width>342</width>
+    <height>139</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>About the programm</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
-    <number>5</number>
-   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -84,21 +81,25 @@
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="lblHomePage">
-     <property name="text">
-      <string notr="true">&lt;a href='http://virtus.rambler.ru'&gt;virtus.rambler.ru&lt;/a&gt;</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="lblVersion">
-     <property name="text">
-      <string notr="true">Version: 1.0.0.0 Revision: 0000</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="lblVersion">
+       <property name="text">
+        <string notr="true">Version: 1.0.0.0 Revision: 0000</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblHomePage">
+       <property name="text">
+        <string notr="true">&lt;a href='http://virtus.rambler.ru'&gt;virtus.rambler.ru&lt;/a&gt;</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QLabel" name="lblCopyright">

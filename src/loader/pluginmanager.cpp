@@ -1,7 +1,5 @@
 #include "pluginmanager.h"
 
-#include <QtDebug>
-
 #include <QDir>
 #include <QTimer>
 #include <QStack>
@@ -10,7 +8,7 @@
 #include <QFileInfo>
 #include <QSettings>
 
-#define ORGANIZATION_NAME           "JRuDevels"
+#define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Virtus"
 
 #define FILE_PLUGINS_SETTINGS       "plugins.xml"
@@ -360,7 +358,6 @@ void PluginManager::loadPlugins()
 	}
 	else
 	{
-		qDebug() << tr("Plugins directory not found");
 		quit();
 	}
 }

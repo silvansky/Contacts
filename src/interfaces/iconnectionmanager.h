@@ -27,6 +27,7 @@ public:
 	virtual bool isEncrypted() const =0;
 	virtual bool connectToHost() =0;
 	virtual void disconnectFromHost() =0;
+	virtual QString errorString() const =0;
 	virtual qint64 write(const QByteArray &AData) =0;
 	virtual QByteArray read(qint64 ABytes) =0;
 protected:
@@ -34,7 +35,7 @@ protected:
 	virtual void connected() =0;
 	virtual void encrypted() =0;
 	virtual void readyRead(qint64 ABytes) =0;
-	virtual void error(const QString &AMessage) =0;
+	virtual void error(const QString &AError) =0;
 	virtual void aboutToDisconnect() =0;
 	virtual void disconnected() =0;
 	virtual void connectionDestroyed() =0;

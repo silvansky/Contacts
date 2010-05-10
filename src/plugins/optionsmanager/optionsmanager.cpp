@@ -15,7 +15,6 @@
 #define FILE_BLOCKER                    "blocked"
 
 #define PROFILE_VERSION                 "1.0"
-#define DEFAULT_PROFILE                 "Default"
 
 #define ADR_PROFILE                     Action::DR_Parametr1
 
@@ -108,12 +107,6 @@ bool OptionsManager::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
 
-	if (profiles().count() == 0)
-		importOldSettings();
-
-	if (profiles().count() == 0)
-		addProfile(DEFAULT_PROFILE, QString::null);
-
 	IOptionsDialogNode dnode = { ONO_MISC, OPN_MISC, tr("Misc"), tr("Extra options"), MNI_OPTIONS_DIALOG };
 	insertOptionsDialogNode(dnode);
 	insertOptionsHolder(this);
@@ -123,13 +116,9 @@ bool OptionsManager::initSettings()
 
 bool OptionsManager::startPlugin()
 {
-	QStringList args = qApp->arguments();
-	int profIndex = args.indexOf(CLO_PROFILE);
-	int passIndex = args.indexOf(CLO_PROFILE_PASSWORD);
-	QString profile = profIndex>0 ? args.value(profIndex+1) : lastActiveProfile();
-	QString password = passIndex>0 ? args.value(passIndex+1) : QString::null;
-	if (profile.isEmpty() || !setCurrentProfile(profile, password))
-		showLoginDialog();
+	LoginDialog *dialog = qobject_cast<LoginDialog *>(showLoginDialog());
+	if (dialog)
+		dialog->connectIfReady();
 	return true;
 }
 
@@ -167,7 +156,7 @@ QString OptionsManager::profilePath(const QString &AProfile) const
 QString OptionsManager::lastActiveProfile() const
 {
 	QDateTime lastModified;
-	QString lastProfile = DEFAULT_PROFILE;
+	QString lastProfile;
 	foreach(QString profile, profiles())
 	{
 		QFileInfo info(profilePath(profile) + "/" FILE_OPTIONS);
@@ -366,7 +355,7 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 {
 	if (FLoginDialog.isNull())
 	{
-		FLoginDialog = new LoginDialog(this,AParent);
+		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
 	}
 	FLoginDialog->show();

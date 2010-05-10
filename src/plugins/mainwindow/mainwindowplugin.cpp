@@ -96,9 +96,9 @@ IMainWindow *MainWindowPlugin::mainWindow() const
 
 void MainWindowPlugin::updateTitle()
 {
-	if (FOptionsManager && FOptionsManager->isOpened())
-		FMainWindow->setWindowTitle(CLIENT_NAME" - "+FOptionsManager->currentProfile());
-	else
+	//if (FOptionsManager && FOptionsManager->isOpened())
+	//	FMainWindow->setWindowTitle(CLIENT_NAME" - "+FOptionsManager->currentProfile());
+	//else
 		FMainWindow->setWindowTitle(CLIENT_NAME);
 }
 
@@ -114,8 +114,8 @@ void MainWindowPlugin::onOptionsOpened()
 	FMainWindow->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
 	FMainWindow->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	updateTitle();
-	if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
-		showMainWindow();
+	//if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
+	//	showMainWindow();
 }
 
 void MainWindowPlugin::onOptionsClosed()

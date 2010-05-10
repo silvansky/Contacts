@@ -84,14 +84,14 @@ bool XmppStream::open()
 {
 	if (FConnection && FStreamState==SS_OFFLINE)
 	{
-		bool hasPassword = !FPassword.isEmpty() || !FSessionPassword.isEmpty();
-		if (!hasPassword)
-		{
-			FSessionPassword = QInputDialog::getText(NULL,tr("Password request"),tr("Enter password for <b>%1</b>").arg(FStreamJid.hBare()),
-			                   QLineEdit::Password,FSessionPassword,&hasPassword,Qt::Dialog);
-		}
+		//bool hasPassword = !FPassword.isEmpty() || !FSessionPassword.isEmpty();
+		//if (!hasPassword)
+		//{
+		//	FSessionPassword = QInputDialog::getText(NULL,tr("Password request"),tr("Enter password for <b>%1</b>").arg(FStreamJid.hBare()),
+		//	                   QLineEdit::Password,FSessionPassword,&hasPassword,Qt::Dialog);
+		//}
 
-		if (hasPassword)
+		if (true/*hasPassword*/)
 		{
 			if (FConnection->connectToHost())
 			{

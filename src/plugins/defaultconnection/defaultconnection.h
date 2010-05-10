@@ -20,6 +20,7 @@ public:
 	virtual IConnectionPlugin *ownerPlugin() const { return FPlugin; }
 	virtual bool isOpen() const;
 	virtual bool isEncrypted() const;
+	virtual QString errorString() const;
 	virtual bool connectToHost();
 	virtual void disconnectFromHost();
 	virtual qint64 write(const QByteArray &AData);
@@ -52,6 +53,7 @@ signals:
 	void proxyChanged(const QNetworkProxy &AProxy);
 protected:
 	void connectToNextHost();
+	void setError(const QString &AError);
 protected slots:
 	void onDnsResultsReady(int AId, const QJDns::Response &AResults);
 	void onDnsError(int AId, QJDns::Error AError);
@@ -74,6 +76,7 @@ private:
 	bool FIgnoreSSLErrors;
 	QSslSocket FSocket;
 private:
+	QString FErrorString;
 	QMap<int, QVariant> FOptions;
 };
 

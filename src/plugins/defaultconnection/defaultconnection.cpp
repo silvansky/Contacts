@@ -42,6 +42,11 @@ bool DefaultConnection::isEncrypted() const
 	return FSocket.isEncrypted();
 }
 
+QString DefaultConnection::errorString() const
+{
+	return FErrorString;
+}
+
 bool DefaultConnection::connectToHost()
 {
 	if (FSrvQueryId==START_QUERY_ID && FSocket.state()==QAbstractSocket::UnconnectedState)
@@ -50,6 +55,7 @@ bool DefaultConnection::connectToHost()
 
 		FRecords.clear();
 		FSSLError = false;
+		FErrorString = QString::null;
 
 		QString host = option(IDefaultConnection::COR_HOST).toString();
 		quint16 port = option(IDefaultConnection::COR_PORT).toInt();
@@ -103,7 +109,7 @@ void DefaultConnection::disconnectFromHost()
 
 	if (FSocket.state()!=QSslSocket::UnconnectedState && !FSocket.waitForDisconnected(DISCONNECT_TIMEOUT))
 	{
-		emit error(tr("Disconnection timed out"));
+		setError(tr("Disconnection timed out"));
 		emit disconnected();
 	}
 }
@@ -199,6 +205,12 @@ void DefaultConnection::connectToNextHost()
 	}
 }
 
+void DefaultConnection::setError(const QString &AError)
+{
+	FErrorString = AError;
+	emit error(FErrorString);
+}
+
 void DefaultConnection::onDnsResultsReady(int AId, const QJDns::Response &AResults)
 {
 	if (FSrvQueryId == AId)
@@ -267,11 +279,11 @@ void DefaultConnection::onSocketError(QAbstractSocket::SocketError)
 	{
 		if (FSocket.state()!=QSslSocket::ConnectedState || FSSLError)
 		{
-			emit error(FSocket.errorString());
+			setError(FSocket.errorString());
 			emit disconnected();
 		}
 		else
-			emit error(FSocket.errorString());
+			setError(FSocket.errorString());
 	}
 	else
 		connectToNextHost();
