@@ -12,7 +12,7 @@ include(loader.pri)
 
 #Appication icon
 win32:RC_FILE      = loader.rc
-macx:ICON          = ../../vacuum.icns
+macx:ICON = ../../virtus.icns
 
 #SVN Info
 SVN_REVISION=$$system(svnversion -n -c ./../../)

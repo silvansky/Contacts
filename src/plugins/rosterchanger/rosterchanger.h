@@ -24,6 +24,8 @@
 #include <interfaces/inotifications.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/ixmppuriqueries.h>
+#include <interfaces/imainwindow.h>
+#include <interfaces/iaccountmanager.h>
 #include "addcontactdialog.h"
 #include "subscriptiondialog.h"
 
@@ -84,7 +86,7 @@ signals:
 protected:
 	QString subscriptionNotify(int ASubsType, const Jid &AContactJid) const;
 	Menu *createGroupMenu(const QHash<int,QVariant> &AData, const QSet<QString> &AExceptGroups,
-	                      bool ANewGroup, bool ARootGroup, const char *ASlot, Menu *AParent);
+			      bool ANewGroup, bool ARootGroup, const char *ASlot, Menu *AParent);
 	SubscriptionDialog *findSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid) const;
 	SubscriptionDialog *createSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANotify, const QString &AMessage);
 protected slots:
@@ -124,6 +126,8 @@ private:
 	IOptionsManager *FOptionsManager;
 	IXmppUriQueries *FXmppUriQueries;
 	IMultiUserChatPlugin *FMultiUserChatPlugin;
+	IMainWindowPlugin * FMainWindowPlugin;
+	IAccountManager * accountManager;
 private:
 	QMap<int, SubscriptionDialog *> FNotifyDialog;
 	QMap<Jid, QMap<Jid, AutoSubscription> > FAutoSubscriptions;

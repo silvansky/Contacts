@@ -1,23 +1,89 @@
 #ifndef DEF_ROSTERINDEXTYPEROLE_H
 #define DEF_ROSTERINDEXTYPEROLE_H
 
-enum RosterIndexTypes {
+/**
+* @brief типы элементов ростера
+* @enum RosterIndexTypes
+*/
+enum RosterIndexTypes
+{
+	/**
+	* @brief любой тип
+	* @var RIT_ANY_TYPE
+	*/
 	RIT_ANY_TYPE,
+	/**
+	* @brief корневой элемент
+	* @var RIT_ROOT
+	*/
 	RIT_ROOT,
+	/**
+	* @brief корневой элемент потока
+	* @var RIT_STREAM_ROOT
+	*/
 	RIT_STREAM_ROOT,
-	RIT_GROUP,
+	/**
+	* @brief группа
+	* @var RIT_GROUP
+	*/
 	RIT_GROUP_BLANK,
+	/**
+	* @brief группа "не в списке"
+	* @var RIT_GROUP_NOT_IN_ROSTER
+	*/
+	RIT_GROUP,
+	/**
+	* @brief пустая группа
+	* @var RIT_GROUP_BLANK
+	*/
 	RIT_GROUP_NOT_IN_ROSTER,
+	/**
+	* @brief группа "мои ресурсы"
+	* @var RIT_GROUP_MY_RESOURCES
+	*/
 	RIT_GROUP_MY_RESOURCES,
+	/**
+	* @brief группа "агенты" (транспорты)
+	* @var RIT_GROUP_AGENTS
+	*/
 	RIT_GROUP_AGENTS,
+	/**
+	* @brief контакт
+	* @var RIT_CONTACT
+	*/
 	RIT_CONTACT,
+	/**
+	* @brief агент (транспорт)
+	* @var RIT_AGENT
+	*/
 	RIT_AGENT,
+	/**
+	* @brief мой ресурс
+	* @var RIT_MY_RESOURCE
+	*/
 	RIT_MY_RESOURCE
 };
 
-enum RosterIndexDataRoles {
+/**
+* @brief типы данных элементов ростера
+* @enum RosterIndexDataRoles
+*/
+enum RosterIndexDataRoles
+{
+	/**
+	* @brief любая роль
+	* @var RDR_ANY_ROLE
+	*/
 	RDR_ANY_ROLE = 32,
+	/**
+	* @brief тип элемента
+	* @var RDR_TYPE
+	*/
 	RDR_TYPE,
+	/**
+	* @brief индекс
+	* @var RDR_INDEX_ID
+	*/
 	RDR_INDEX_ID,
 	//XMPP Roles
 	RDR_STREAM_JID,

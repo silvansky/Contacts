@@ -7,15 +7,16 @@ RosterSearch::RosterSearch()
 
 	FSearchEdit = NULL;
 	FFieldsMenu = NULL;
-	FSearchToolBarChanger = NULL;
+	//FSearchToolBarChanger = NULL;
 
 	FEditTimeout.setSingleShot(true);
-	FEditTimeout.setInterval(1000);
+	FEditTimeout.setInterval(500);
 	connect(&FEditTimeout,SIGNAL(timeout()),SLOT(onEditTimedOut()));
 
 	setDynamicSortFilter(false);
 	setFilterCaseSensitivity(Qt::CaseInsensitive);
 
+	/*
 	QToolBar *searchToolBar = new QToolBar(tr("Search toolbar"));
 	searchToolBar->setAllowedAreas(Qt::TopToolBarArea);
 	searchToolBar->setMovable(false);
@@ -23,14 +24,9 @@ RosterSearch::RosterSearch()
 	FSearchToolBarChanger->setManageVisibility(false);
 	FSearchToolBarChanger->setSeparatorsVisible(false);
 
-	FFieldsMenu = new Menu(searchToolBar);
-	FFieldsMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_ROSTERSEARCH_MENU);
-	FSearchToolBarChanger->insertAction(FFieldsMenu->menuAction());
+	*/
+	//FSearchToolBarChanger->insertAction(FFieldsMenu->menuAction());
 
-	FSearchEdit = new QLineEdit(searchToolBar);
-	FSearchEdit->setToolTip(tr("Search by regular expression"));
-	connect(FSearchEdit,SIGNAL(textChanged(const QString &)),&FEditTimeout,SLOT(start()));
-	FSearchToolBarChanger->insertWidget(FSearchEdit);
 }
 
 RosterSearch::~RosterSearch()
@@ -72,18 +68,30 @@ bool RosterSearch::initObjects()
 {
 	if (FMainWindow)
 	{
+		/*
 		Action *searchAction = new Action(FMainWindow->topToolBarChanger());
 		searchAction->setIcon(RSR_STORAGE_MENUICONS,MNI_ROSTERSEARCH_MENU);
 		searchAction->setToolTip(tr("Show search toolbar"));
 		searchAction->setCheckable(true);
 		connect(searchAction,SIGNAL(triggered(bool)),SLOT(onSearchActionTriggered(bool)));
-		FMainWindow->topToolBarChanger()->insertAction(searchAction,TBG_MWTTB_ROSTERSEARCH);
+		*/
+		//FMainWindow->topToolBarChanger()->insertAction(searchAction, TBG_MWTTB_ROSTERSEARCH);
 
-		FMainWindow->instance()->addToolBar(FSearchToolBarChanger->toolBar());
-		FMainWindow->instance()->insertToolBarBreak(FSearchToolBarChanger->toolBar());
+		//FMainWindow->instance()->addToolBar(FSearchToolBarChanger->toolBar());
+		//FMainWindow->instance()->insertToolBarBreak(FSearchToolBarChanger->toolBar());
 
-		FSearchToolBarChanger->toolBar()->setVisible(false);
+		//FSearchToolBarChanger->toolBar()->setVisible(false);
+		FFieldsMenu = new Menu(FMainWindow->topToolBarChanger()->toolBar());
+		FFieldsMenu->setVisible(false);
+		FFieldsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERSEARCH_MENU);
+		FSearchEdit = new QLineEdit(FMainWindow->topToolBarChanger()->toolBar());
+		FSearchEdit->setToolTip(tr("Search in roster"));
+		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), &FEditTimeout, SLOT(start()));
+		FMainWindow->topToolBarChanger()->insertWidget(FSearchEdit);
+		setSearchEnabled(true);
 	}
+	if (FRostersViewPlugin)
+		FRostersViewPlugin->rostersView()->insertProxyModel(this, RPO_ROSTERSEARCH_FILTER);
 
 	insertSearchField(RDR_NAME,tr("Name"),true);
 	insertSearchField(RDR_STATUS,tr("Status"),true);
@@ -114,7 +122,7 @@ void RosterSearch::setSearchPattern(const QString &APattern)
 
 bool RosterSearch::isSearchEnabled() const
 {
-	return FSearchToolBarChanger->toolBar()->isVisible();
+	return true;//FSearchToolBarChanger->toolBar()->isVisible();
 }
 
 void RosterSearch::setSearchEnabled(bool AEnabled)
@@ -128,7 +136,7 @@ void RosterSearch::setSearchEnabled(bool AEnabled)
 			else
 				FRostersViewPlugin->rostersView()->removeProxyModel(this);
 		}
-		FSearchToolBarChanger->toolBar()->setVisible(AEnabled);
+		//FSearchToolBarChanger->toolBar()->setVisible(AEnabled);
 		emit searchStateChanged(AEnabled);
 	}
 }

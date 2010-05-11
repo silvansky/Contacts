@@ -8,22 +8,60 @@
 
 #define ROSTERSVIEW_UUID "{BDD12B32-9C88-4e3c-9B36-2DCB5075288F}"
 
+//! интерфейс обработчика кликов на элементе ростера
 class IRostersClickHooker
 {
 public:
+	/**
+	* @brief обработка события клика на элементе ростера
+	* @param AIndex индекс кликнутого объекта
+	* @param AOrder порядок
+	* @return bool
+	*/
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder) =0;
 };
 
+//! интерфейс обработчика драг-н-дропа для ростера. реализуется классами @ref FileTransfer и @ref RosterChanger.
 class IRostersDragDropHandler
 {
 public:
+	/**
+	* @brief возвращает тип дропа
+	* @param AEvent событие
+	* @param AIndex индекс в модели
+	* @param ADrag собственно драг
+	* @return Qt::DropActions
+	*/
 	virtual Qt::DropActions rosterDragStart(const QMouseEvent *AEvent, const QModelIndex &AIndex, QDrag *ADrag) =0;
+	/**
+	* @brief проверка, будет ли плагин обрабатывать этот дроп
+	* @param AEvent событие
+	* @return bool
+	*/
 	virtual bool rosterDragEnter(const QDragEnterEvent *AEvent) =0;
+	/**
+	* @brief проверка, будет ли плагин принимать этот дроп для данного индекса в модели
+	* @param AEvent событие
+	* @param AHover индекс в модели, над которым проходит дроп
+	* @return bool
+	*/
 	virtual bool rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover) =0;
+	/**
+	* @brief обработка события выхода драга из виджета
+	* @param AEvent событие
+	*/
 	virtual void rosterDragLeave(const QDragLeaveEvent *AEvent) =0;
+	/**
+	* @brief обработка собственно дропа на индекс модели
+	* @param AEvent событие
+	* @param AIndex индекс в модели, на который дропают
+	* @param AMenu меню (?)
+	* @return bool
+	*/
 	virtual bool rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu) =0;
 };
 
+//! интерфейс для вью ростера. для реализации классом @ref RostersView
 class IRostersView
 {
 public:
@@ -34,15 +72,52 @@ public:
 	};
 public:
 	//--RostersModel
+	/**
+	* @brief возвращает объект (класс @ref RostersView реализует интерфейс @ref IRostersView, а так же наследует класс QTreeView)
+	* @return QTreeView*
+	*/
 	virtual QTreeView *instance() = 0;
+	/**
+	* @brief возвращает модель ростера
+	* @return IRostersModel*
+	*/
 	virtual IRostersModel *rostersModel() const =0;
+	/**
+	* @brief устанавливает модель ростера
+	*/
 	virtual void setRostersModel(IRostersModel *AModel) =0;
+	/**
+	* @brief перерисовывает элемент ростера
+	* @param AIndex индекс модели, который надо перерисовать
+	* @return bool
+	*/
 	virtual bool repaintRosterIndex(IRosterIndex *AIndex) =0;
+	/**
+	* @brief раскрывает всех родителей индекса в дереве
+	* @param AIndex индекс модели
+	*/
 	virtual void expandIndexParents(IRosterIndex *AIndex) =0;
+	/**
+	* @brief раскрывает всех родителей индекса в дереве
+	* @param AIndex индекс модели
+	*/
 	virtual void expandIndexParents(const QModelIndex &AIndex) =0;
 	//--ProxyModels
+	/**
+	* @brief вставка прокси-модели (для сортировки/фильтрования)
+	* @param AProxyModel вставляемая модель
+	* @param AOrder порядок модели (приоритет)
+	*/
 	virtual void insertProxyModel(QAbstractProxyModel *AProxyModel, int AOrder) =0;
+	/**
+	* @brief возвращает список установленных прокси-моделей
+	* @return QList<QAbstractProxyModel *>
+	*/
 	virtual QList<QAbstractProxyModel *> proxyModels() const =0;
+	/**
+	* @brief удаляет прокси-модель
+	* @param AProxyModel модель, которую следует удалить
+	*/
 	virtual void removeProxyModel(QAbstractProxyModel *AProxyModel) =0;
 	virtual QModelIndex mapToModel(const QModelIndex &AProxyIndex) const=0;
 	virtual QModelIndex mapFromModel(const QModelIndex &AModelIndex) const=0;
@@ -62,21 +137,45 @@ public:
 	virtual void updateNotify(int ANotifyId, const QIcon &AIcon, const QString &AToolTip, int AFlags=0) =0;
 	virtual void removeNotify(int ANotifyId) =0;
 	//--ClickHookers
+	/**
+	* @brief вставка обработчика кликов
+	* @param AOrder порядок
+	* @param AHooker обработчик (должен реализовывать интерфейс @ref IRostersClickHooker)
+	*/
 	virtual void insertClickHooker(int AOrder, IRostersClickHooker *AHooker) =0;
+	/**
+	* @brief удаление обработчика кликов
+	* @param AOrder порядок
+	* @param AHooker обработчик (должен реализовывать интерфейс @ref IRostersClickHooker)
+	*/
 	virtual void removeClickHooker(int AOrder, IRostersClickHooker *AHooker) =0;
 	//--DragDrop
+	/**
+	* @brief вставка обработчика драг-н-дропов
+	* @param AHandler обработчик (должен реализовывать интерфейс @ref IRostersDragDropHandler)
+	*/
 	virtual void insertDragDropHandler(IRostersDragDropHandler *AHandler) =0;
+	/**
+	* @brief удаление обработчика драг-н-дропов
+	* @param AHandler обработчик (должен реализовывать интерфейс @ref IRostersDragDropHandler)
+	*/
 	virtual void removeDragDropHandler(IRostersDragDropHandler *AHandler) =0;
 	//--FooterText
 	virtual void insertFooterText(int AOrderAndId, const QVariant &AValue, IRosterIndex *AIndex) =0;
 	virtual void removeFooterText(int AOrderAndId, IRosterIndex *AIndex) =0;
 	//--ContextMenu
+	/**
+	* @brief
+	* @param AIndex
+	* @param ALabelId
+	* @param AMenu
+	*/
 	virtual void contextMenuForIndex(IRosterIndex *AIndex, int ALabelId, Menu *AMenu) =0;
 	//--ClipboardMenu
 	virtual void clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu) =0;
 protected:
-	virtual void modelAboutToBeSeted(IRostersModel *AIndex) =0;
-	virtual void modelSeted(IRostersModel *AIndex) =0;
+	virtual void modelAboutToBeSet(IRostersModel *AIndex) = 0;
+	virtual void modelSet(IRostersModel *AIndex) = 0;
 	virtual void proxyModelAboutToBeInserted(QAbstractProxyModel *AProxyModel, int AOrder) =0;
 	virtual void proxyModelInserted(QAbstractProxyModel *AProxyModel) =0;
 	virtual void proxyModelAboutToBeRemoved(QAbstractProxyModel *AProxyModel) =0;
@@ -96,10 +195,19 @@ protected:
 	virtual void dragDropHandlerRemoved(IRostersDragDropHandler *AHandler) =0;
 };
 
+//! интерфейс плагина для вью ростера
 class IRostersViewPlugin
 {
 public:
+	/**
+	* @brief возвращает указатель на QObject для использования сигналов/слотов
+	* @return QObject*
+	*/
 	virtual QObject *instance() = 0;
+	/**
+	* @brief возвращает указатель на @ref IRostersView
+	* @return IRostersView*
+	*/
 	virtual IRostersView *rostersView() =0;
 	virtual void startRestoreExpandState() =0;
 	virtual void restoreExpandState(const QModelIndex &AParent = QModelIndex()) =0;

@@ -67,7 +67,7 @@ void RostersView::setRostersModel(IRostersModel *AModel)
 {
 	if (FRostersModel != AModel)
 	{
-		emit modelAboutToBeSeted(AModel);
+		emit modelAboutToBeSet(AModel);
 
 		if (FRostersModel)
 		{
@@ -93,7 +93,7 @@ void RostersView::setRostersModel(IRostersModel *AModel)
 		else
 			FProxyModels.values().first()->setSourceModel(FRostersModel!=NULL ? FRostersModel->instance() : NULL);
 
-		emit modelSeted(FRostersModel);
+		emit modelSet(FRostersModel);
 	}
 }
 
@@ -571,7 +571,7 @@ void RostersView::removeFooterText(int AOrderAndId, IRosterIndex *AIndex)
 
 void RostersView::contextMenuForIndex(IRosterIndex *AIndex, int ALabelId, Menu *AMenu)
 {
-	if (AIndex!=NULL && AMenu!=NULL)
+	if (AIndex && AMenu)
 	{
 		if (FNotifyLabelItems.contains(ALabelId))
 			emit notifyContextMenu(AIndex,FNotifyLabelItems.value(ALabelId).first(),AMenu);
@@ -584,7 +584,7 @@ void RostersView::contextMenuForIndex(IRosterIndex *AIndex, int ALabelId, Menu *
 
 void RostersView::clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu)
 {
-	if (AIndex!=NULL && AMenu!=NULL)
+	if (AIndex && AMenu)
 	{
 		if (!AIndex->data(RDR_JID).toString().isEmpty())
 		{
@@ -699,6 +699,7 @@ void RostersView::setDropIndicatorRect(const QRect &ARect)
 	if (FDropIndicatorRect != ARect)
 	{
 		FDropIndicatorRect = ARect;
+		FDropIndicatorRect.setHeight(1);
 		viewport()->update();
 	}
 }
@@ -723,7 +724,7 @@ bool RostersView::viewportEvent(QEvent *AEvent)
 
 			QModelIndex modelIndex = mapToModel(viewIndex);
 			IRosterIndex *index = static_cast<IRosterIndex *>(modelIndex.internalPointer());
-			if (index != NULL)
+			if (index)
 			{
 				emit labelToolTips(index,labelId,toolTipsMap);
 				if (labelId!=RLID_DISPLAY && toolTipsMap.isEmpty())
@@ -868,7 +869,8 @@ void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 
 			QByteArray data;
 			QDataStream stream(&data,QIODevice::WriteOnly);
-			operator<<(stream,model()->itemData(FPressedIndex));
+			//operator << (stream,model()->itemData(FPressedIndex));
+			stream << model()->itemData(FPressedIndex);
 			drag->mimeData()->setData(DDT_ROSTERSVIEW_INDEX_DATA,data);
 
 			setState(DraggingState);
@@ -974,7 +976,13 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 	else
 		FDragExpandTimer.stop();
 
-	setDropIndicatorRect(visualRect(index));
+	QRect vRect = visualRect(index), highlightRect;
+	highlightRect = vRect;
+	if ((vRect.y() + vRect.height() / 2) < AEvent->pos().y())
+	{
+		highlightRect.setTop(vRect.bottom());
+	}
+	setDropIndicatorRect(highlightRect);
 }
 
 void RostersView::dragLeaveEvent(QDragLeaveEvent *AEvent)

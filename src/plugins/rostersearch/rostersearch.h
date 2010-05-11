@@ -67,7 +67,7 @@ private:
 	Menu *FFieldsMenu;
 	QTimer FEditTimeout;
 	QLineEdit *FSearchEdit;
-	ToolBarChanger *FSearchToolBarChanger;
+	//ToolBarChanger *FSearchToolBarChanger;
 	QHash<int,Action *> FFieldActions;
 };
 

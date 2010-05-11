@@ -139,11 +139,11 @@ QMap<int, QVariant> RostersModel::itemData(const QModelIndex &AIndex) const
 IRosterIndex *RostersModel::addStream(const Jid &AStreamJid)
 {
 	IRosterIndex *streamIndex = FStreamsRoot.value(AStreamJid);
-	if (streamIndex == NULL)
+	if (!streamIndex)
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-		IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
-		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountByStream(AStreamJid) : NULL;
+		IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+		IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+		IAccount *account = FAccountManager ? FAccountManager->accountByStream(AStreamJid) : NULL;
 
 		if (roster || presence)
 		{

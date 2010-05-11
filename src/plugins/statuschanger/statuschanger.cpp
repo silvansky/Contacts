@@ -2,6 +2,7 @@
 
 #include <QTimer>
 #include <QToolButton>
+#include <definations/vcardvaluenames.h>
 
 #define MAX_TEMP_STATUS_ID                  -10
 
@@ -9,6 +10,8 @@
 #define ADR_STATUS_CODE                     Action::DR_Parametr1
 
 #define NOTIFICATOR_ID                      "StatusChanger"
+
+#include "ui_statuswidget.h"
 
 StatusChanger::StatusChanger()
 {
@@ -27,6 +30,8 @@ StatusChanger::StatusChanger()
 	FStatusIcons = NULL;
 	FConnectingLabel = RLID_NULL;
 	FChangingPresence = NULL;
+
+	statusWidget = NULL;
 }
 
 StatusChanger::~StatusChanger()
@@ -58,11 +63,11 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &/*AInit
 		if (FPresencePlugin)
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceAdded(IPresence *)),
-			        SLOT(onPresenceAdded(IPresence *)));
+				SLOT(onPresenceAdded(IPresence *)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceChanged(IPresence *, int, const QString &, int)),
-			        SLOT(onPresenceChanged(IPresence *, int, const QString &, int)));
+				SLOT(onPresenceChanged(IPresence *, int, const QString &, int)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceRemoved(IPresence *)),
-			        SLOT(onPresenceRemoved(IPresence *)));
+				SLOT(onPresenceRemoved(IPresence *)));
 		}
 	}
 
@@ -92,7 +97,7 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &/*AInit
 		if (FRostersModel)
 		{
 			connect(FRostersModel->instance(),SIGNAL(streamJidChanged(const Jid &, const Jid &)),
-			        SLOT(onStreamJidChanged(const Jid &, const Jid &)));
+				SLOT(onStreamJidChanged(const Jid &, const Jid &)));
 		}
 	}
 
@@ -103,7 +108,7 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &/*AInit
 		if (FAccountManager)
 		{
 			connect(FAccountManager->instance(),SIGNAL(changed(IAccount *, const OptionsNode &)),
-			        SLOT(onAccountOptionsChanged(IAccount *, const OptionsNode &)));
+				SLOT(onAccountOptionsChanged(IAccount *, const OptionsNode &)));
 		}
 	}
 
@@ -144,6 +149,19 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &/*AInit
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
+	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0, NULL);
+	if (plugin)
+	{
+		vCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
+		connect(vCardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)), SLOT(onVcardReceived(const Jid &)));
+	}
+	plugin = APluginManager->pluginInterface("IAvatars").value(0, NULL);
+	if (plugin)
+		avatars = qobject_cast<IAvatars*>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IAccountManager").value(0, NULL);
+	if (plugin)
+		accountManager = qobject_cast<IAccountManager*>(plugin->instance());
 
 	return FPresencePlugin!=NULL;
 }
@@ -174,10 +192,18 @@ bool StatusChanger::initObjects()
 	if (FMainWindowPlugin)
 	{
 		ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->bottomToolBarChanger();
+		statusWidget = new ::StatusWidget(changer->toolBar());
+		statusWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		changer->insertWidget(statusWidget);
+		statusWidget->ui->statusToolButton->addAction(FMainMenu->menuAction());
+		statusWidget->ui->statusToolButton->setDefaultAction(FMainMenu->menuAction());
+		connect(statusWidget, SIGNAL(avatarChanged(const QImage&)), SLOT(onAvatarChanged(const QImage&)));
+		/*
 		QToolButton *button = changer->insertAction(FMainMenu->menuAction());
 		button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 		button->setPopupMode(QToolButton::InstantPopup);
 		button->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+		*/
 	}
 
 	if (FRostersViewPlugin)
@@ -672,6 +698,7 @@ void StatusChanger::createStreamMenu(IPresence *APresence)
 		if (account)
 		{
 			sMenu->setTitle(account->name());
+			//connect(account->instance(),SIGNAL(changed(const QString &, const QVariant &)),SLOT(onAccountChanged(const QString &, const QVariant &)));
 		}
 		else
 			sMenu->setTitle(APresence->streamJid().hFull());
@@ -1131,6 +1158,14 @@ void StatusChanger::onProfileOpened(const QString &AProfile)
 			setStreamStatus(presence->streamJid(), statusId);
 		}
 	}
+	if (vCardPlugin)
+	{
+		if (vCardPlugin->requestVCard(AProfile, AProfile))
+		{
+			IVCard * vcard = vCardPlugin->vcard(AProfile);
+			updateVCardInfo(vcard);
+		};
+	}
 }
 
 void StatusChanger::onReconnectTimer()
@@ -1183,6 +1218,38 @@ void StatusChanger::onNotificationActivated(int ANotifyId)
 {
 	if (FNotifyId.values().contains(ANotifyId))
 		FNotifications->removeNotification(ANotifyId);
+}
+
+void StatusChanger::onVcardReceived(const Jid & jid)
+{
+	if (accountManager)
+	{
+		if (jid.bare() == accountManager->accounts().first()->xmppStream()->streamJid().bare())
+		{
+			IVCard * vcard = vCardPlugin->vcard(jid);
+			updateVCardInfo(vcard);
+		}
+	}
+}
+
+void StatusChanger::updateVCardInfo(const IVCard* vcard)
+{
+	if (vcard)
+	{
+		statusWidget->ui->avatarLabel->setPixmap(QPixmap::fromImage(vcard->photoImage().scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
+		QString name = vcard->value(VVN_NICKNAME);
+		statusWidget->ui->nameLabel->setText(name.isEmpty() ? accountManager->accounts().first()->xmppStream()->streamJid().bare() : name);
+	}
+}
+
+void StatusChanger::onAvatarChanged(const QImage & image)
+{
+	//QString profile = FSettingsPlugin->profile();
+	Jid jid = accountManager->accounts().first()->xmppStream()->streamJid();
+	if (avatars)
+		avatars->setAvatar(jid, image);
+	if (vCardPlugin)
+		updateVCardInfo(vCardPlugin->vcard(jid.bare()));
 }
 
 Q_EXPORT_PLUGIN2(plg_statuschanger, StatusChanger)

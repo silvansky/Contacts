@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include <QApplication>
+#include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *AParent, Qt::WindowFlags AFlags) : QMainWindow(AParent,AFlags)
 {
@@ -63,12 +64,20 @@ void MainWindow::createLayouts()
 
 void MainWindow::createToolBars()
 {
-	QToolBar *toolbar = new QToolBar(tr("Top toolbar"), this);
+	QToolBar *toolbar =  new QToolBar(tr("Bottom toolbar"), this);
+	toolbar->setFloatable(false);
+	toolbar->setMovable(false);
+	addToolBar(Qt::TopToolBarArea, toolbar);
+	FBottomToolBarChanger = new ToolBarChanger(toolbar);
+	FBottomToolBarChanger->setSeparatorsVisible(false);
+
+	toolbar = new QToolBar(tr("Top toolbar"), this);
 	toolbar->setFloatable(false);
 	toolbar->setMovable(false);
 	addToolBar(Qt::TopToolBarArea,toolbar);
 	FTopToolBarChanger = new ToolBarChanger(toolbar);
 	FTopToolBarChanger->setSeparatorsVisible(false);
+	insertToolBarBreak(toolbar);
 
 	toolbar = new QToolBar(tr("Left toolbar"), this);
 	toolbar->setFloatable(false);
@@ -76,13 +85,6 @@ void MainWindow::createToolBars()
 	addToolBar(Qt::LeftToolBarArea,toolbar);
 	FLeftToolBarChanger = new ToolBarChanger(toolbar);
 	FLeftToolBarChanger->setSeparatorsVisible(false);
-
-	toolbar =  new QToolBar(tr("Bottom toolbar"), this);
-	toolbar->setFloatable(false);
-	toolbar->setMovable(false);
-	addToolBar(Qt::BottomToolBarArea,toolbar);
-	FBottomToolBarChanger = new ToolBarChanger(toolbar);
-	FBottomToolBarChanger->setSeparatorsVisible(false);
 }
 
 void MainWindow::createMenus()
@@ -90,7 +92,7 @@ void MainWindow::createMenus()
 	FMainMenu = new Menu(this);
 	FMainMenu->setTitle(tr("Menu"));
 	FMainMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_MENU);
-	QToolButton *button = FBottomToolBarChanger->insertAction(FMainMenu->menuAction());
+	QToolButton *button = FTopToolBarChanger->insertAction(FMainMenu->menuAction(), TBG_ALLIGN_CHANGE);
 	button->setPopupMode(QToolButton::InstantPopup);
 }
 
@@ -101,4 +103,11 @@ void MainWindow::onStackedWidgetRemoved(int /*AIndex*/)
 		FUpperWidget->setVisible(FUpperWidget->count() > 0);
 	else if (widget == FBottomWidget)
 		FBottomWidget->setVisible(FBottomWidget->count() > 0);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent * event)
+{
+	if (event->key() == Qt::Key_Escape)
+		close();
+	QWidget::keyPressEvent(event);
 }

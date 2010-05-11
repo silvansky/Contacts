@@ -29,8 +29,11 @@
 #include <interfaces/istatusicons.h>
 #include <interfaces/inotifications.h>
 #include <utils/options.h>
+#include <interfaces/ivcard.h>
+#include <interfaces/iavatars.h>
 #include "editstatusdialog.h"
 #include "modifystatusdialog.h"
+#include "statuswidget.h"
 
 struct StatusItem {
 	int code;
@@ -131,6 +134,10 @@ protected slots:
 	void onModifyStatusAction(bool);
 	void onAccountOptionsChanged(IAccount *AAccount, const OptionsNode &ANode);
 	void onNotificationActivated(int ANotifyId);
+//	void onProfileOpened(const QString& profile);
+	void onVcardReceived(const Jid & jid);
+	void updateVCardInfo(const IVCard* vcard);
+	void onAvatarChanged(const QImage & image);
 private:
 	IPresencePlugin *FPresencePlugin;
 	IRosterPlugin *FRosterPlugin;
@@ -143,11 +150,15 @@ private:
 	IAccountManager *FAccountManager;
 	IStatusIcons *FStatusIcons;
 	INotifications *FNotifications;
+	IVCardPlugin * vCardPlugin;
+	IAvatars * avatars;
+	IAccountManager * accountManager;
 private:
 	Menu *FMainMenu;
 	Action *FModifyStatus;
 	QMap<IPresence *, Menu *> FStreamMenu;
 	QMap<IPresence *, Action *> FMainStatusActions;
+	::StatusWidget * statusWidget;
 private:
 	int FConnectingLabel;
 	IPresence *FChangingPresence;

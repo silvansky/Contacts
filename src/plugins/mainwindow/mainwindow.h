@@ -30,6 +30,7 @@ protected:
 	void createLayouts();
 	void createToolBars();
 	void createMenus();
+	void keyPressEvent(QKeyEvent * event);
 protected slots:
 	void onStackedWidgetRemoved(int AIndex);
 private:

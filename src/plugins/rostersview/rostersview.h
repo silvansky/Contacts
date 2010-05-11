@@ -77,8 +77,8 @@ public:
 	//--ClipboardMenu
 	virtual void clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu);
 signals:
-	void modelAboutToBeSeted(IRostersModel *AModel);
-	void modelSeted(IRostersModel *AModel);
+	void modelAboutToBeSet(IRostersModel *AModel);
+	void modelSet(IRostersModel *AModel);
 	void proxyModelAboutToBeInserted(QAbstractProxyModel *AProxyModel, int AOrder);
 	void proxyModelInserted(QAbstractProxyModel *AProxyModel);
 	void proxyModelAboutToBeRemoved(QAbstractProxyModel *AProxyModel);
