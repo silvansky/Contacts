@@ -28,6 +28,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	initialize(APluginManager);
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
+
 	connect(ui.lblRegister,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblHelp,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblForgotPassword,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
@@ -216,6 +218,12 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 		FReconnectTimer.stop();
 		if (!ui.lblReconnect->text().isEmpty())
 			ui.lblReconnect->setText(tr("Reconnecting..."));
+		QTimer::singleShot(3000,this,SLOT(onShowConnectingAnimation()));
+	}
+	else
+	{
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblConnecting);
+		ui.lblConnecting->clear();
 	}
 
 	ui.lneNode->setEnabled(AEnabled);
@@ -504,4 +512,11 @@ void LoginDialog::loadCurrentProfileSettings()
 		}
 		login.close();
 	}
+}
+
+void LoginDialog::onShowConnectingAnimation()
+{
+	if (!ui.pbtConnect->isEnabled())
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblConnecting,MNI_OPTIONS_LOGIN_ANIMATION,0,0,"pixmap");
+	ui.lblConnecting->adjustSize();
 }

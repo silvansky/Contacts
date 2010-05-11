@@ -16,4 +16,12 @@
     <key>optionsEditProfiles</key>
     <object mime="image/png">optionseditprofiles.png</object>
   </icon>
+  <icon>
+    <key>optionsLoginLogo</key>
+    <object mime="image/png">optionsloginlogo.png</object>
+  </icon>
+  <icon>
+    <key>optionsLoginAnimation</key>
+    <object mime="image/gif">optionsloginanimation.gif</object>
+  </icon>
 </icondef>

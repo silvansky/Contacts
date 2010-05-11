@@ -163,6 +163,9 @@
 #define MNI_OPTIONS_PROFILE             "optionsProfile"
 #define MNI_OPTIONS_PROFILES            "optionsProfiles"
 #define MNI_OPTIONS_EDIT_PROFILES       "optionsEditProfiles"
+#define MNI_OPTIONS_LOGIN_LOGO          "optionsLoginLogo"
+#define MNI_OPTIONS_LOGIN_ANIMATION     "optionsLoginAnimation"
+
 
 //PrivacyLists
 #define MNI_PRIVACYLISTS                "privacylists"

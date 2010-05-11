@@ -6,6 +6,8 @@
 #include <QTimer>
 #include <QDialog>
 #include <definations/version.h>
+#include <definations/resources.h>
+#include <definations/menuicons.h>
 #include <definations/optionvalues.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ioptionsmanager.h>
@@ -15,6 +17,7 @@
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/imainwindow.h>
 #include <utils/options.h>
+#include <utils/iconstorage.h>
 #include "ui_logindialog.h"
 
 class LoginDialog :
@@ -51,6 +54,7 @@ protected slots:
 	void onCompleterActivated(const QString &AText);
 	void onDomainCurrentIntexChanged(int AIndex);
 	void onLabelLinkActivated(const QString &ALink);
+	void onShowConnectingAnimation();
 private:
 	Ui::LoginDialogClass ui;
 private:
