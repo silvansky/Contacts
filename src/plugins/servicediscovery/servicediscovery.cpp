@@ -90,7 +90,7 @@ bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &/*AI
 		if (FPresencePlugin)
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
-			        SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
+				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
 		}
 	}
 
@@ -101,7 +101,7 @@ bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &/*AI
 		if (FRosterPlugin)
 		{
 			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &)),
-			        SLOT(onRosterItemReceived(IRoster *, const IRosterItem &)));
+				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &)));
 		}
 	}
 
@@ -112,9 +112,9 @@ bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &/*AI
 		if (FMultiUserChatPlugin)
 		{
 			connect(FMultiUserChatPlugin->instance(),SIGNAL(multiUserChatCreated(IMultiUserChat *)),
-			        SLOT(onMultiUserChatCreated(IMultiUserChat *)));
+				SLOT(onMultiUserChatCreated(IMultiUserChat *)));
 			connect(FMultiUserChatPlugin->instance(),SIGNAL(multiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)),
-			        SLOT(onMultiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)));
+				SLOT(onMultiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)));
 		}
 	}
 
@@ -165,7 +165,7 @@ bool ServiceDiscovery::initObjects()
 		FRostersView->insertClickHooker(RCHO_SERVICEDISCOVERY,this);
 		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 		connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &)),
-		        SLOT(onRosterLabelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &)));
+			SLOT(onRosterLabelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &)));
 	}
 
 	if (FTrayManager)
@@ -175,9 +175,9 @@ bool ServiceDiscovery::initObjects()
 
 	if (FMainWindowPlugin)
 	{
-		ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->topToolBarChanger();
-		QToolButton *button = changer->insertAction(FDiscoMenu->menuAction(),TBG_MWTTB_DISCOVERY);
-		button->setPopupMode(QToolButton::InstantPopup);
+		//ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->topToolBarChanger();
+		//QToolButton *button = changer->insertAction(FDiscoMenu->menuAction(),TBG_MWTTB_DISCOVERY);
+		//button->setPopupMode(QToolButton::InstantPopup);
 	}
 
 	if (FXmppUriQueries)

@@ -39,6 +39,19 @@
        <number>5</number>
       </property>
       <item>
+       <widget class="QPushButton" name="profileButton">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>Manage my profile</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="uploadButton">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>

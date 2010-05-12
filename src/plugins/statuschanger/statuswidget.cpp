@@ -43,7 +43,11 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 	if (obj == ui->statusToolButton)
 	{
 		if (ui->statusToolButton->defaultAction())
-			ui->statusLabel->setPixmap(ui->statusToolButton->defaultAction()->icon().pixmap(16, 16));
+		{
+			//			ui->statusLabel->setPixmap(ui->statusToolButton->defaultAction()->icon().pixmap(16, 16));
+			ui->statusToolButton->setText(ui->statusToolButton->defaultAction()->text());
+			ui->statusToolButton->setText(userName + " - " + ui->statusToolButton->text());
+		}
 	}
 	if (obj == ui->avatarLabel)
 	{
@@ -67,7 +71,6 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 					icon->paint(&painter, paintEvent->rect(), Qt::AlignCenter, QIcon::Selected, QIcon::On);
 					delete icon;
 				}
-				//painter.drawPixmap(paintEvent->rect().topLeft(), pm);
 				painter.setPen(QColor::fromRgb(0, 0, 255, 50));
 				QRect rect = paintEvent->rect();
 				rect.setWidth(rect.width() - 1);
@@ -112,4 +115,9 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 void StatusWidget::onAvatarChanged(const QImage & img)
 {
 	ui->avatarLabel->setPixmap(QPixmap::fromImage(img.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
+}
+
+void StatusWidget::setUserName(const QString& name)
+{
+	userName = name;
 }

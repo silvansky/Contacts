@@ -51,8 +51,8 @@ public:
 	static bool isNull();
 	static QString filesPath();
 	static QByteArray cryptKey();
-	static QString cleanNSpaces(const QString &APath);
-	static OptionsNode node(const QString &APath, const QString &ANSpace = QString::null);
+	static QString cleanNSpaces(const QString &APath); // account[uid].name -> account.name
+	static OptionsNode node(const QString &APath, const QString &ANSpace = QString::null); // ANSpace - account id
 	static QVariant fileValue(const QString &APath, const QString &ANSpace = QString::null);
 	static void setFileValue(const QVariant &AValue, const QString &APath, const QString &ANSpace = QString::null);
 	static void setOptions(QDomDocument AOptions, const QString &AFilesPath, const QByteArray &ACryptKey);

@@ -134,7 +134,6 @@ protected slots:
 	void onModifyStatusAction(bool);
 	void onAccountOptionsChanged(IAccount *AAccount, const OptionsNode &ANode);
 	void onNotificationActivated(int ANotifyId);
-//	void onProfileOpened(const QString& profile);
 	void onVcardReceived(const Jid & jid);
 	void updateVCardInfo(const IVCard* vcard);
 	void onAvatarChanged(const QImage & image);

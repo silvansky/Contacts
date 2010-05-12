@@ -9,7 +9,7 @@
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>
-#else ifdef Q_WS_X11
+#elif Q_WS_X11
 #	include <X11/XKBlib.h>
 #	undef KeyPress
 #	undef FocusIn
@@ -123,7 +123,7 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			ui.cmbDomain->showPopup();
 		}
-		if (AWatched == ui.lneNode || AWatched == ui.cmbDomain || AWatched == ui.cmbDomain->lineEdit() 
+		if (AWatched == ui.lneNode || AWatched == ui.cmbDomain || AWatched == ui.cmbDomain->lineEdit()
 			|| AWatched == ui.lnePassword || AWatched == ui.chbSavePassword || AWatched == ui.chbAutoRun)
 		{
 			stopReconnection();
@@ -187,9 +187,9 @@ void LoginDialog::initialize(IPluginManager *APluginManager)
 
 bool LoginDialog::isCapsLockOn() const
 {
-#ifdef Q_OS_WIN32
+#ifdef Q_WS_WIN
 	return GetKeyState(VK_CAPITAL) == 1;
-#else ifdef Q_OS_LINUX
+#elif Q_WS_X11
 	Display * d = XOpenDisplay((char*)0);
 	bool caps_state = false;
 	if (d)
@@ -282,7 +282,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	message += message.isEmpty() || AError.isEmpty() ? AError : "<br>" + AError;
 	message += message.isEmpty() || AHint.isEmpty() ? AHint : "<br>" + AHint;
 	ui.lblXmppError->setText(message);
-	
+
 	if (FNewProfile)
 		ui.frmLogin->setStyleSheet("QFrame#frmLogin { border: 1px solid red; }");
 	ui.frmPassword->setStyleSheet("QFrame#frmPassword { border: 1px solid red; }");
@@ -372,7 +372,7 @@ void LoginDialog::onXmppStreamClosed()
 	}
 	else if (account)
 	{
-		showXmppStreamError(tr("Unable to login on server"),account->xmppStream()->errorString(), 
+		showXmppStreamError(tr("Unable to login on server"),account->xmppStream()->errorString(),
 			FNewProfile ? tr("Entered login or password is not correct") : tr("Maybe entered password is not correct"));
 	}
 
@@ -417,7 +417,7 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		dialog->setWindowTitle("Add custom domain");
 		dialog->setLabelText(tr("Enter custom domain address"));
 		dialog->setOkButtonText(tr("Add"));
-		
+
 		if (dialog->exec() && !dialog->textValue().trimmed().isEmpty())
 		{
 			Jid domain = dialog->textValue().trimmed();

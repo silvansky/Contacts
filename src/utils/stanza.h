@@ -24,7 +24,7 @@ public:
 	Stanza(const QString &ATagName = "message");
 	Stanza(const QDomElement &AElem);
 	~Stanza();
-	void detach();
+	void detach(); // as in shared data
 	bool isValid() const;
 	QDomDocument document() const;
 	QDomElement element() const;
@@ -44,7 +44,7 @@ public:
 	Stanza &setLang(const QString &ALang);
 	bool canReplyError() const;
 	Stanza replyError(const QString &ACondition, const QString &ANamespace = EHN_DEFAULT,
-	                  int ACode = ErrorHandler::SERVICE_UNAVAILABLE, const QString &AText = QString::null) const;
+			  int ACode = ErrorHandler::SERVICE_UNAVAILABLE, const QString &AText = QString::null) const;
 	QDomElement firstElement(const QString &ATagName = QString::null, const QString ANamespace = QString::null) const;
 	QDomElement addElement(const QString &ATagName, const QString &ANamespace = QString::null);
 	QDomElement createElement(const QString &ATagName, const QString &ANamespace = QString::null);

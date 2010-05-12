@@ -25,10 +25,12 @@ private:
 	Ui::StatusWidget *ui;
 	bool avatarHovered;
 	::SelectAvatarWidget * selectAvatarWidget;
+	QString userName;
 signals:
 	void avatarChanged(const QImage &);
 public slots:
 	void onAvatarChanged(const QImage &);
+	void setUserName(const QString& name);
 };
 
 #endif // STATUSWIDGET_H

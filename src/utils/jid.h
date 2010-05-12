@@ -32,9 +32,9 @@ public:
 	bool isValid() const;
 	bool isEmpty() const;
 	QString node() const;
-	QString hNode() const;
-	QString eNode() const;
-	QString pNode() const;
+	QString hNode() const; // html escaped
+	QString eNode() const; // escaped
+	QString pNode() const; // prepared
 	void setNode(const QString &ANode);
 	QString domain() const;
 	QString pDomain() const;
@@ -56,16 +56,16 @@ public:
 	bool operator ==(const QString &AJidStr) const;
 	bool operator !=(const Jid &AJid) const;
 	bool operator !=(const QString &AJidStr) const;
-	bool operator &&(const Jid &AJid) const;
+	bool operator &&(const Jid &AJid) const; // equv w/o resource
 	bool operator &&(const QString &AJidStr) const;
 	bool operator <(const Jid &AJid) const;
 	bool operator >(const Jid &AJid) const;
 public:
-	static QString encode(const QString &AJidStr);
+	static QString encode(const QString &AJidStr); // for filename
 	static QString decode(const QString &AEncJid);
 	static QString encode822(const QString &AJidStr);
 	static QString decode822(const QString &AEncJid);
-	static QString escape106(const QString &ANode);
+	static QString escape106(const QString &ANode); // xep-106 for escaping (eFull())
 	static QString unescape106(const QString &AEscNode);
 	static QString stringPrepare(const Stringprep_profile *AProfile, const QString &AString);
 	static QString nodePrepare(const QString &ANode);

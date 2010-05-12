@@ -1238,7 +1238,8 @@ void StatusChanger::updateVCardInfo(const IVCard* vcard)
 	{
 		statusWidget->ui->avatarLabel->setPixmap(QPixmap::fromImage(vcard->photoImage().scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
 		QString name = vcard->value(VVN_NICKNAME);
-		statusWidget->ui->nameLabel->setText(name.isEmpty() ? accountManager->accounts().first()->xmppStream()->streamJid().bare() : name);
+		statusWidget->setUserName(name);
+		statusWidget->ui->statusToolButton->setText((name.isEmpty() ? accountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + statusWidget->ui->statusToolButton->text());
 	}
 }
 

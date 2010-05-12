@@ -50,7 +50,7 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &/*AInit
 		if (FTrayManager)
 		{
 			connect(FTrayManager->instance(),SIGNAL(notifyActivated(int, QSystemTrayIcon::ActivationReason)),
-			        SLOT(onTrayNotifyActivated(int, QSystemTrayIcon::ActivationReason)));
+				SLOT(onTrayNotifyActivated(int, QSystemTrayIcon::ActivationReason)));
 			connect(FTrayManager->instance(),SIGNAL(notifyRemoved(int)),SLOT(onTrayNotifyRemoved(int)));
 		}
 	}
@@ -62,9 +62,9 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &/*AInit
 		if (FRostersViewPlugin)
 		{
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(notifyActivated(IRosterIndex *, int)),
-			        SLOT(onRosterNotifyActivated(IRosterIndex *, int)));
+				SLOT(onRosterNotifyActivated(IRosterIndex *, int)));
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(notifyRemovedByIndex(IRosterIndex *, int)),
-			        SLOT(onRosterNotifyRemoved(IRosterIndex *, int)));
+				SLOT(onRosterNotifyRemoved(IRosterIndex *, int)));
 		}
 	}
 
@@ -135,7 +135,7 @@ bool Notifications::initObjects()
 
 	if (FMainWindowPlugin)
 	{
-		FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(FSoundOnOff,TBG_MWTTB_NOTIFICATIONS_SOUND);
+		//FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(FSoundOnOff,TBG_MWTTB_NOTIFICATIONS_SOUND);
 	}
 
 	return true;
