@@ -23,6 +23,7 @@ private:
 	Ui::SelectAvatarWidget *ui;
 
 private slots:
+    void on_profileButton_clicked();
     void on_uploadButton_clicked();
 };
 

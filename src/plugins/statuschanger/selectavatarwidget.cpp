@@ -1,6 +1,8 @@
 #include "selectavatarwidget.h"
 #include "ui_selectavatarwidget.h"
 #include <QFileDialog>
+#include <QDesktopServices>
+#include <QUrl>
 
 SelectAvatarWidget::SelectAvatarWidget(QWidget *parent) :
 		QWidget(parent),
@@ -70,4 +72,9 @@ void SelectAvatarWidget::on_uploadButton_clicked()
 			hide();
 		}
 	}
+}
+
+void SelectAvatarWidget::on_profileButton_clicked()
+{
+	QDesktopServices::openUrl(QUrl("id.rambler.ru"));
 }

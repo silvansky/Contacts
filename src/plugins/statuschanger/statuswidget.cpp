@@ -4,6 +4,8 @@
 #include <QPaintEvent>
 #include <QDebug>
 
+#define DEFAULT_MOOD_TEXT "<i><font color=grey>Tell your friends about your mood</font></i>"
+
 StatusWidget::StatusWidget(QWidget *parent) :
 		QWidget(parent),
 		ui(new Ui::StatusWidget)
@@ -18,6 +20,9 @@ StatusWidget::StatusWidget(QWidget *parent) :
 	selectAvatarWidget->setWindowFlags(Qt::ToolTip);
 	selectAvatarWidget->installEventFilter(this);
 	connect(selectAvatarWidget, SIGNAL(avatarSelected(const QImage&)), SIGNAL(avatarChanged(const QImage&)));
+	ui->moodEdit->setVisible(false);
+	ui->moodEdit->installEventFilter(this);
+	ui->moodLabel->installEventFilter(this);
 }
 
 StatusWidget::~StatusWidget()
@@ -109,7 +114,23 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 	}
 	if (obj == selectAvatarWidget && event->type() == QEvent::FocusOut)
 		selectAvatarWidget->hide();
+	if ((obj == ui->moodLabel) && (event->type() == QEvent::MouseButtonPress))
+	{
+		QMouseEvent * mouseEvent = (QMouseEvent*)event;
+		if (mouseEvent->button() == Qt::LeftButton)
+		{
+			ui->moodLabel->setVisible(false);
+			ui->moodEdit->setText(userMood);
+			ui->moodEdit->selectAll();
+			ui->moodEdit->setVisible(true);
+		}
+	}
 	return QWidget::eventFilter(obj, event);
+}
+
+void StatusWidget::updateMoodText()
+{
+	ui->moodLabel->setText(userMood.isEmpty() ? DEFAULT_MOOD_TEXT : userMood);
 }
 
 void StatusWidget::onAvatarChanged(const QImage & img)
@@ -120,4 +141,9 @@ void StatusWidget::onAvatarChanged(const QImage & img)
 void StatusWidget::setUserName(const QString& name)
 {
 	userName = name;
+}
+
+void StatusWidget::setMoodText(const QString &mood)
+{
+	userMood = mood;
 }

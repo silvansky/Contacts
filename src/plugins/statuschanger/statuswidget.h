@@ -2,6 +2,7 @@
 #define STATUSWIDGET_H
 
 #include <QWidget>
+#include <QLineEdit>
 #include "selectavatarwidget.h"
 
 namespace Ui
@@ -20,17 +21,21 @@ public:
 protected:
 	void changeEvent(QEvent *e);
 	bool eventFilter(QObject *, QEvent *);
+	void updateMoodText();
 
 private:
 	Ui::StatusWidget *ui;
 	bool avatarHovered;
 	::SelectAvatarWidget * selectAvatarWidget;
 	QString userName;
+	QString userMood;
+	QLineEdit * moodEditor;
 signals:
 	void avatarChanged(const QImage &);
 public slots:
 	void onAvatarChanged(const QImage &);
 	void setUserName(const QString& name);
+	void setMoodText(const QString& mood);
 };
 
 #endif // STATUSWIDGET_H
