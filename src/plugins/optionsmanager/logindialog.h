@@ -17,6 +17,7 @@
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/imainwindow.h>
 #include <utils/options.h>
+#include <utils/balloontip.h>
 #include <utils/iconstorage.h>
 #include "ui_logindialog.h"
 
@@ -28,7 +29,9 @@ public:
 	LoginDialog(IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~LoginDialog();
 public:
+	void loadLastProfile();
 	void connectIfReady();
+	Jid currentStreamJid() const;
 public slots:
 	virtual void reject();
 protected:

@@ -118,7 +118,10 @@ bool OptionsManager::startPlugin()
 {
 	LoginDialog *dialog = qobject_cast<LoginDialog *>(showLoginDialog());
 	if (dialog)
+	{
+		dialog->loadLastProfile();
 		dialog->connectIfReady();
+	}
 	return true;
 }
 

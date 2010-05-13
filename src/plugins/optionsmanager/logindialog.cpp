@@ -2,10 +2,16 @@
 
 #include <QDir>
 #include <QFile>
+#include <QPainter>
+#include <QKeyEvent>
 #include <QCompleter>
+#include <QTextCursor>
 #include <QInputDialog>
 #include <QDomDocument>
+#include <QItemDelegate>
+#include <QTextDocument>
 #include <QDesktopServices>
+#include <QAbstractTextDocumentLayout>
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>
@@ -18,6 +24,47 @@
 
 #define FILE_LOGIN		"login.xml"
 
+class CompleterDelegate : 
+			public QItemDelegate
+{
+public:
+	CompleterDelegate(QObject *AParent): QItemDelegate(AParent) {};
+	virtual void paint(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+	{
+		APainter->save();
+
+		QStyleOptionViewItemV4 option = QItemDelegate::setOptions(AIndex, AOption);
+		APainter->setClipRect(option.rect);
+		QItemDelegate::drawBackground(APainter,option,AIndex);
+
+		Jid streamJid = AIndex.data(Qt::DisplayRole).toString();
+		bool isSelected = (option.state & QStyle::State_Selected) > 0;
+
+		QTextDocument doc;
+		QTextCursor cursor(&doc);
+
+		QTextCharFormat nodeFormat = cursor.charFormat();
+		nodeFormat.setForeground(option.palette.brush(QPalette::Normal, isSelected ? QPalette::HighlightedText : QPalette::Text));
+		cursor.insertText(streamJid.node(),nodeFormat);
+
+		QTextCharFormat domainFormat = cursor.charFormat();
+		domainFormat.setForeground(option.palette.brush(QPalette::Disabled, isSelected ? QPalette::HighlightedText : QPalette::Text));
+		cursor.insertText("@",domainFormat);
+		cursor.insertText(streamJid.domain(),domainFormat);
+
+		QStyle *style = option.widget ? option.widget->style() : QApplication::style();
+		const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin,0,option.widget) + 1;
+		const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin,0,option.widget) + 1;
+
+		QAbstractTextDocumentLayout::PaintContext context;
+		context.palette = option.palette;
+		APainter->translate(option.rect.x()+hMargin, option.rect.y()-vMargin);
+		doc.documentLayout()->draw(APainter, context);
+
+		APainter->restore();
+	}
+};
+
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
@@ -28,19 +75,19 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	initialize(APluginManager);
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblHelp,MNI_OPTIONS_LOGIN_HELP,0,0,"pixmap");
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
 
 	connect(ui.lblRegister,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblHelp,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblForgotPassword,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 
-	ui.cmbDomain->lineEdit()->setReadOnly(true);
-	ui.cmbDomain->addItem("rambler.ru");
-	ui.cmbDomain->addItem("lenta.ru");
-	ui.cmbDomain->addItem("myrambler.ru");
-	ui.cmbDomain->addItem("autorambler.ru");
-	ui.cmbDomain->addItem("ro.ru");
-	ui.cmbDomain->addItem("r0.ru");
+	ui.cmbDomain->addItem("@rambler.ru",QString("rambler.ru"));
+	ui.cmbDomain->addItem("@lenta.ru",QString("lenta.ru"));
+	ui.cmbDomain->addItem("@myrambler.ru",QString("myrambler.ru"));
+	ui.cmbDomain->addItem("@autorambler.ru",QString("autorambler.ru"));
+	ui.cmbDomain->addItem("@ro.ru",QString("ro.ru"));
+	ui.cmbDomain->addItem("@r0.ru",QString("r0.ru"));
 
 	QStringList profiles;
 	foreach(QString profile, FOptionsManager->profiles())
@@ -48,34 +95,26 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 		Jid streamJid = Jid::decode(profile);
 		if (streamJid.isValid() && !streamJid.node().isEmpty())
 		{
-			if (ui.cmbDomain->findText(streamJid.pDomain())<0)
-				ui.cmbDomain->insertItem(0,streamJid.pDomain());
-			profiles.append(streamJid.full());
+			if (ui.cmbDomain->findData(streamJid.pDomain())<0)
+				ui.cmbDomain->insertItem(0,"@"+streamJid.pDomain(),streamJid.pDomain());
+			profiles.append(streamJid.bare());
 		}
 	}
-	ui.cmbDomain->addItem(tr("Custom..."),QString("custom"));
+	ui.cmbDomain->addItem(tr("Custom..."));
 	connect(ui.cmbDomain,SIGNAL(currentIndexChanged(int)),SLOT(onDomainCurrentIntexChanged(int)));
 
 	QCompleter *completer = new QCompleter(profiles,ui.lneNode);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	completer->setCompletionMode(QCompleter::PopupCompletion);
 	completer->popup()->setAlternatingRowColors(true);
+	completer->popup()->setItemDelegate(new CompleterDelegate(completer));
 	connect(completer,SIGNAL(activated(const QString &)),SLOT(onCompleterActivated(const QString &)));
 	connect(completer,SIGNAL(highlighted(const QString &)),SLOT(onCompleterHighLighted(const QString &)));
 	ui.lneNode->setCompleter(completer);
 
-	Jid lastStreamJid = Jid::decode(FOptionsManager->lastActiveProfile());
-	if (lastStreamJid.isValid())
-	{
-		ui.lneNode->setText(lastStreamJid.pNode());
-		ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findText(lastStreamJid.pDomain()));
-	}
-	loadCurrentProfileSettings();
-
 	ui.lneNode->installEventFilter(this);
 	ui.lneNode->completer()->popup()->installEventFilter(this);
 	ui.cmbDomain->installEventFilter(this);
-	ui.cmbDomain->lineEdit()->installEventFilter(this);
 	ui.lnePassword->installEventFilter(this);
 	ui.chbSavePassword->installEventFilter(this);
 	ui.chbAutoRun->installEventFilter(this);
@@ -98,10 +137,27 @@ LoginDialog::~LoginDialog()
 
 }
 
+void LoginDialog::loadLastProfile()
+{
+	Jid lastStreamJid = Jid::decode(FOptionsManager->lastActiveProfile());
+	if (lastStreamJid.isValid())
+	{
+		ui.lneNode->setText(lastStreamJid.pNode());
+		ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(lastStreamJid.pDomain()));
+		loadCurrentProfileSettings();
+	}
+}
+
 void LoginDialog::connectIfReady()
 {
 	if (ui.chbSavePassword->isChecked() && !ui.lnePassword->text().isEmpty())
 		onConnectClicked();
+}
+
+Jid LoginDialog::currentStreamJid() const
+{
+	Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString(),CLIENT_NAME);
+	return streamJid;
 }
 
 void LoginDialog::reject()
@@ -119,12 +175,7 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::MouseButtonPress)
 	{
-		if (AWatched == ui.cmbDomain->lineEdit())
-		{
-			ui.cmbDomain->showPopup();
-		}
-		if (AWatched == ui.lneNode || AWatched == ui.cmbDomain || AWatched == ui.cmbDomain->lineEdit()
-			|| AWatched == ui.lnePassword || AWatched == ui.chbSavePassword || AWatched == ui.chbAutoRun)
+		if (AWatched == ui.lneNode || AWatched == ui.cmbDomain || AWatched == ui.lnePassword || AWatched == ui.chbSavePassword || AWatched == ui.chbAutoRun)
 		{
 			stopReconnection();
 		}
@@ -137,6 +188,27 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			disconnect(ui.lneNode->completer(),0,ui.lneNode,0);
 			ui.lneNode->completer()->complete();
 			return true;
+		}
+		else if (AWatched == ui.lnePassword && isCapsLockOn())
+		{
+			BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning),tr("Caps Lock is ON"),
+				tr("CapsLock is ON\nPassword can be entered incorrectly. Turn off <CapsLock> before entering password."),
+				ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft()),0);
+		}
+	}
+	else if (AEvent->type() == QEvent::FocusOut)
+	{
+		if (AWatched == ui.lnePassword)
+		{
+			BalloonTip::hideBalloon();
+		}
+	}
+	else if (AEvent->type() == QEvent::KeyPress)
+	{
+		QKeyEvent *keyEvent = static_cast<QKeyEvent *>(AEvent);
+		if (keyEvent->key() == Qt::Key_CapsLock && !isCapsLockOn())
+		{
+			BalloonTip::hideBalloon();
 		}
 	}
 	else if (AEvent->type() == QEvent::Show)
@@ -292,7 +364,7 @@ void LoginDialog::onConnectClicked()
 {
 	if (ui.pbtConnect->isEnabled())
 	{
-		Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->currentText(),CLIENT_NAME);
+		Jid streamJid = currentStreamJid();
 		QString profile = Jid::encode(streamJid.pBare());
 		if (FOptionsManager->currentProfile() != profile)
 			closeCurrentProfile();
@@ -322,7 +394,7 @@ void LoginDialog::onConnectClicked()
 							FAccountId = account->accountId();
 							connect(account->xmppStream()->instance(),SIGNAL(opened()),SLOT(onXmppStreamOpened()));
 							connect(account->xmppStream()->instance(),SIGNAL(closed()),SLOT(onXmppStreamClosed()));
-							FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(), STATUS_ONLINE);
+							FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(), account->optionsNode().value("status.last-online").toInt());
 						}
 						else
 							showXmppStreamError(tr("Unable to activate account"), QString::null, tr("Internal error, contact support"));
@@ -398,7 +470,7 @@ void LoginDialog::onCompleterHighLighted(const QString &AText)
 {
 	Jid streamJid = AText;
 	ui.lneNode->setText(streamJid.node());
-	ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findText(streamJid.pDomain()));
+	ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(streamJid.pDomain()));
 }
 
 void LoginDialog::onCompleterActivated(const QString &AText)
@@ -410,7 +482,7 @@ void LoginDialog::onCompleterActivated(const QString &AText)
 void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 {
 	static int prevIndex = 0;
-	if (ui.cmbDomain->itemData(AIndex).toString() == "custom")
+	if (ui.cmbDomain->itemData(AIndex).toString().isEmpty())
 	{
 		QInputDialog *dialog = new QInputDialog(this);
 		dialog->setInputMode(QInputDialog::TextInput);
@@ -418,15 +490,29 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		dialog->setLabelText(tr("Enter custom domain address"));
 		dialog->setOkButtonText(tr("Add"));
 
+		QBoxLayout *layout = qobject_cast<QBoxLayout *>(dialog->layout());
+		foreach(QObject *object, dialog->children())
+		{
+			QLineEdit *editor = qobject_cast<QLineEdit *>(object);
+			if (layout && editor)
+			{
+				QLabel *label = new QLabel(dialog);
+				label->setText(tr("<a href=' '>How to connect your domain to Rambler?</a>"));
+				layout->insertWidget(layout->indexOf(editor)+1,label);
+				connect(label,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
+				break;
+			}
+		}
+		
 		if (dialog->exec() && !dialog->textValue().trimmed().isEmpty())
 		{
 			Jid domain = dialog->textValue().trimmed();
-			int index = ui.cmbDomain->findText(domain.pDomain());
+			int index = ui.cmbDomain->findData(domain.pDomain());
 			if (index < 0)
 			{
 				index = 0;
 				ui.cmbDomain->blockSignals(true);
-				ui.cmbDomain->insertItem(0,domain.pDomain());
+				ui.cmbDomain->insertItem(0,"@"+domain.pDomain(),domain.pDomain());
 				ui.cmbDomain->blockSignals(false);
 			}
 			ui.cmbDomain->setCurrentIndex(index);
@@ -448,7 +534,7 @@ void LoginDialog::onLabelLinkActivated(const QString &ALink)
 
 void LoginDialog::saveCurrentProfileSettings()
 {
-	Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->currentText(),CLIENT_NAME);
+	Jid streamJid = currentStreamJid();
 	QString profile = Jid::encode(streamJid.pBare());
 	if (FOptionsManager->profiles().contains(profile))
 	{
@@ -480,7 +566,7 @@ void LoginDialog::saveCurrentProfileSettings()
 
 void LoginDialog::loadCurrentProfileSettings()
 {
-	Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->currentText(),CLIENT_NAME);
+	Jid streamJid = currentStreamJid();
 	QString profile = Jid::encode(streamJid.pBare());
 	if (FOptionsManager->profiles().contains(profile))
 	{

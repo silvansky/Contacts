@@ -17,6 +17,10 @@
     <object mime="image/png">optionseditprofiles.png</object>
   </icon>
   <icon>
+    <key>optionsLoginHelp</key>
+    <object mime="image/png">optionsloginhelp.png</object>
+  </icon>
+  <icon>
     <key>optionsLoginLogo</key>
     <object mime="image/png">optionsloginlogo.png</object>
   </icon>
