@@ -1,7 +1,7 @@
 #ifndef DEF_OPTIONWIDGETORDERS_H
 #define DEF_OPTIONWIDGETORDERS_H
 
-//Node = ON_ACCOUNTS"::<AccountId>
+//Node = ON_ACCOUNTS.<AccountId>
 #define OWO_ACCOUNT_OPTIONS                       500
 #define OWO_ACCOUNT_CONNECTION                    600
 #define OWO_ACCOUNT_REGISTER                      800

@@ -10,6 +10,7 @@
 #include <QDomDocument>
 #include <QItemDelegate>
 #include <QTextDocument>
+#include <QDialogButtonBox>
 #include <QDesktopServices>
 #include <QAbstractTextDocumentLayout>
 
@@ -81,6 +82,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	connect(ui.lblRegister,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblHelp,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblForgotPassword,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
+	connect(ui.lblConnectSettings,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 
 	ui.cmbDomain->addItem("@rambler.ru",QString("rambler.ru"));
 	ui.cmbDomain->addItem("@lenta.ru",QString("lenta.ru"));
@@ -255,6 +257,13 @@ void LoginDialog::initialize(IPluginManager *APluginManager)
 	{
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
 	}
+
+	FConnectionManager = NULL;
+	plugin = APluginManager->pluginInterface("IConnectionManager").value(0,NULL);
+	if (plugin)
+	{
+		FConnectionManager = qobject_cast<IConnectionManager *>(plugin->instance());
+	}
 }
 
 bool LoginDialog::isCapsLockOn() const
@@ -321,10 +330,39 @@ void LoginDialog::stopReconnection()
 	}
 }
 
+void LoginDialog::showConnectionSettings()
+{
+	stopReconnection();
+	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+	IOptionsHolder *holder = FConnectionManager!=NULL ? qobject_cast<IOptionsHolder *>(FConnectionManager->instance()) : NULL;
+	if (holder && account && account->streamJid() == currentStreamJid()) 
+	{
+		QDialog *dialog = new QDialog(this);
+		dialog->setAttribute(Qt::WA_DeleteOnClose,true);
+		dialog->setLayout(new QVBoxLayout);
+		dialog->layout()->setMargin(5);
+		dialog->setWindowTitle(tr("Connection settings"));
+
+		int order;
+		IOptionsWidget *widget = holder->optionsWidget(OPN_ACCOUNTS"."+FAccountId.toString(),order,dialog);
+		dialog->layout()->addWidget(widget->instance());
+		connect(dialog,SIGNAL(accepted()),widget->instance(),SLOT(apply()));
+
+		QDialogButtonBox *buttons = new QDialogButtonBox(dialog);
+		buttons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+		dialog->layout()->addWidget(buttons);
+		connect(buttons,SIGNAL(accepted()),dialog,SLOT(accept()));
+		connect(buttons,SIGNAL(rejected()),dialog,SLOT(reject()));
+
+		dialog->exec();
+	}
+}
+
 void LoginDialog::hideConnectionError()
 {
 	ui.lblConnectError->setText(QString::null);
 	ui.lblReconnect->setText(QString::null);
+	ui.lblConnectSettings->setText(QString::null);
 }
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
@@ -335,8 +373,17 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	message += message.isEmpty() || AError.isEmpty() ? AError : "<br>" + AError;
 	ui.lblConnectError->setText(message);
 
-	FReconnectTimer.start(0);
-	FReconnectTimer.setProperty("ticks",10);
+	ui.lblConnectSettings->setText(QString("<a href='virtus.connection.settings'>%1</a>").arg(tr("Connection settings")));
+
+	int tries = FReconnectTimer.property("tries").toInt();
+	if (tries > 0)
+	{
+		FReconnectTimer.start(0);
+		FReconnectTimer.setProperty("ticks",10);
+		FReconnectTimer.setProperty("tries",tries-1);
+	}
+	else
+		ui.lblReconnect->setText(tr("Reconnection failed"));
 }
 
 void LoginDialog::hideXmppStreamError()
@@ -367,7 +414,10 @@ void LoginDialog::onConnectClicked()
 		Jid streamJid = currentStreamJid();
 		QString profile = Jid::encode(streamJid.pBare());
 		if (FOptionsManager->currentProfile() != profile)
+		{
 			closeCurrentProfile();
+			FReconnectTimer.setProperty("tries",20);
+		}
 
 		if (streamJid.isValid() && !streamJid.node().isEmpty())
 		{
@@ -456,7 +506,7 @@ void LoginDialog::onReconnectTimerTimeout()
 	int ticks = FReconnectTimer.property("ticks").toInt();
 	if (ticks > 0)
 	{
-		ui.lblReconnect->setText(tr("Reconnect after %1 secs").arg(ticks));
+		ui.lblReconnect->setText(tr("Reconnect after <b>%1</b> secs").arg(ticks));
 		FReconnectTimer.setProperty("ticks",ticks-1);
 		FReconnectTimer.start(1000);
 	}
@@ -477,6 +527,8 @@ void LoginDialog::onCompleterActivated(const QString &AText)
 {
 	onCompleterHighLighted(AText);
 	loadCurrentProfileSettings();
+	hideXmppStreamError();
+	hideConnectionError();
 }
 
 void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
@@ -503,7 +555,7 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 				break;
 			}
 		}
-		
+
 		if (dialog->exec() && !dialog->textValue().trimmed().isEmpty())
 		{
 			Jid domain = dialog->textValue().trimmed();
@@ -529,7 +581,10 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 
 void LoginDialog::onLabelLinkActivated(const QString &ALink)
 {
-	QDesktopServices::openUrl(ALink);
+	if (ALink == "virtus.connection.settings")
+		showConnectionSettings();
+	else
+		QDesktopServices::openUrl(ALink);
 }
 
 void LoginDialog::saveCurrentProfileSettings()

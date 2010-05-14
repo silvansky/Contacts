@@ -9,6 +9,8 @@
 #include <definations/resources.h>
 #include <definations/menuicons.h>
 #include <definations/optionvalues.h>
+#include <definations/optionnodes.h>
+#include <definations/optionwidgetorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/iaccountmanager.h>
@@ -16,6 +18,7 @@
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/imainwindow.h>
+#include <interfaces/iconnectionmanager.h>
 #include <utils/options.h>
 #include <utils/balloontip.h>
 #include <utils/iconstorage.h>
@@ -32,8 +35,8 @@ public:
 	void loadLastProfile();
 	void connectIfReady();
 	Jid currentStreamJid() const;
-public slots:
-	virtual void reject();
+	public slots:
+		virtual void reject();
 protected:
 	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected:
@@ -42,6 +45,7 @@ protected:
 	void closeCurrentProfile();
 	void setConnectEnabled(bool AEnabled);
 	void stopReconnection();
+	void showConnectionSettings();
 	void hideConnectionError();
 	void showConnectionError(const QString &ACaption, const QString &AError);
 	void hideXmppStreamError();
@@ -65,6 +69,7 @@ private:
 	IOptionsManager *FOptionsManager;
 	IStatusChanger *FStatusChanger;
 	IMainWindowPlugin *FMainWindowPlugin;
+	IConnectionManager *FConnectionManager;
 private:
 	bool FNewProfile;
 	QUuid FAccountId;
