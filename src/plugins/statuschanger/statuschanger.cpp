@@ -198,6 +198,7 @@ bool StatusChanger::initObjects()
 		statusWidget->ui->statusToolButton->addAction(FMainMenu->menuAction());
 		statusWidget->ui->statusToolButton->setDefaultAction(FMainMenu->menuAction());
 		connect(statusWidget, SIGNAL(avatarChanged(const QImage&)), SLOT(onAvatarChanged(const QImage&)));
+		connect(statusWidget, SIGNAL(moodSet(const QString&)), SLOT(onMoodSet(const QString&)));
 		/*
 		QToolButton *button = changer->insertAction(FMainMenu->menuAction());
 		button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -384,6 +385,8 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 					else
 						presence->xmppStream()->close();
 
+					if (statusWidget)
+						statusWidget->setMoodText(newStatus.text);
 					emit statusChanged(presence->streamJid(), newStatus.code);
 				}
 			}
@@ -539,23 +542,25 @@ void StatusChanger::createDefaultStatus()
 	status.code = STATUS_ONLINE;
 	status.name = nameByShow(IPresence::Online);
 	status.show = IPresence::Online;
-	status.text = tr("Online");
+	//status.text = tr("Online");
+	status.text.clear();
 	status.priority = 30;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
 
-	status.code = STATUS_CHAT;
-	status.name = nameByShow(IPresence::Chat);
-	status.show = IPresence::Chat;
-	status.text = tr("Free for chat");
-	status.priority = 25;
-	FStatusItems.insert(status.code,status);
-	createStatusActions(status.code);
+//	status.code = STATUS_CHAT;
+//	status.name = nameByShow(IPresence::Chat);
+//	status.show = IPresence::Chat;
+//	status.text = tr("Free for chat");
+//	status.priority = 25;
+//	FStatusItems.insert(status.code,status);
+//	createStatusActions(status.code);
 
 	status.code = STATUS_AWAY;
 	status.name = nameByShow(IPresence::Away);
 	status.show = IPresence::Away;
-	status.text = tr("I`am away from my desk");
+	//status.text = tr("I`m away from my desk");
+	status.text.clear();
 	status.priority = 20;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
@@ -563,31 +568,33 @@ void StatusChanger::createDefaultStatus()
 	status.code = STATUS_DND;
 	status.name = nameByShow(IPresence::DoNotDisturb);
 	status.show = IPresence::DoNotDisturb;
-	status.text = tr("Do not disturb");
+	//status.text = tr("Do not disturb");
+	status.text.clear();
 	status.priority = 15;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
 
-	status.code = STATUS_EXAWAY;
-	status.name = nameByShow(IPresence::ExtendedAway);
-	status.show = IPresence::ExtendedAway;
-	status.text = tr("Not available");
-	status.priority = 10;
-	FStatusItems.insert(status.code,status);
-	createStatusActions(status.code);
-
-	status.code = STATUS_INVISIBLE;
-	status.name = nameByShow(IPresence::Invisible);
-	status.show = IPresence::Invisible;
-	status.text = tr("Disconnected");
-	status.priority = 5;
-	FStatusItems.insert(status.code,status);
-	createStatusActions(status.code);
+//	status.code = STATUS_EXAWAY;
+//	status.name = nameByShow(IPresence::ExtendedAway);
+//	status.show = IPresence::ExtendedAway;
+//	status.text = tr("Not available");
+//	status.priority = 10;
+//	FStatusItems.insert(status.code,status);
+//	createStatusActions(status.code);
+//
+//	status.code = STATUS_INVISIBLE;
+//	status.name = nameByShow(IPresence::Invisible);
+//	status.show = IPresence::Invisible;
+//	status.text = tr("Disconnected");
+//	status.priority = 5;
+//	FStatusItems.insert(status.code,status);
+//	createStatusActions(status.code);
 
 	status.code = STATUS_OFFLINE;
 	status.name = nameByShow(IPresence::Offline);
 	status.show = IPresence::Offline;
-	status.text = tr("Disconnected");
+	//status.text = tr("Disconnected");
+	status.text.clear();
 	status.priority = 0;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
@@ -1245,12 +1252,18 @@ void StatusChanger::updateVCardInfo(const IVCard* vcard)
 
 void StatusChanger::onAvatarChanged(const QImage & image)
 {
-	//QString profile = FSettingsPlugin->profile();
 	Jid jid = accountManager->accounts().first()->xmppStream()->streamJid();
 	if (avatars)
 		avatars->setAvatar(jid, image);
 	if (vCardPlugin)
 		updateVCardInfo(vCardPlugin->vcard(jid.bare()));
+}
+
+void StatusChanger::onMoodSet(const QString & mood)
+{
+	int curr_status = mainStatus();
+	StatusItem si = FStatusItems.value(curr_status);
+	updateStatusItem(curr_status, si.name, si.show, mood, si.priority);
 }
 
 Q_EXPORT_PLUGIN2(plg_statuschanger, StatusChanger)

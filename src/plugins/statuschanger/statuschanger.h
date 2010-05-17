@@ -137,6 +137,7 @@ protected slots:
 	void onVcardReceived(const Jid & jid);
 	void updateVCardInfo(const IVCard* vcard);
 	void onAvatarChanged(const QImage & image);
+	void onMoodSet(const QString & mood);
 private:
 	IPresencePlugin *FPresencePlugin;
 	IRosterPlugin *FRosterPlugin;

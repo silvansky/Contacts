@@ -119,18 +119,42 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 		QMouseEvent * mouseEvent = (QMouseEvent*)event;
 		if (mouseEvent->button() == Qt::LeftButton)
 		{
-			ui->moodLabel->setVisible(false);
-			ui->moodEdit->setText(userMood);
-			ui->moodEdit->selectAll();
-			ui->moodEdit->setVisible(true);
+			startEditMood();
 		}
+	}
+	if (obj == ui->moodEdit)
+	{
+		if (event->type() == QEvent::KeyPress)
+		{
+			QKeyEvent * keyEvent = (QKeyEvent*)event;
+			switch(keyEvent->key())
+			{
+			case Qt::Key_Enter:
+			case Qt::Key_Return:
+				if (keyEvent->modifiers() == Qt::NoModifier)
+				{
+					finishEditMood();
+				}
+				break;
+		case Qt::Key_Escape:
+				cancelEditMood();
+				return true;
+				break;
+			}
+		}
+		if (event->type() == QEvent::FocusOut)
+			if (ui->moodEdit->isVisible())
+				finishEditMood();
 	}
 	return QWidget::eventFilter(obj, event);
 }
 
 void StatusWidget::updateMoodText()
 {
-	ui->moodLabel->setText(userMood.isEmpty() ? DEFAULT_MOOD_TEXT : userMood);
+	if (userMood.length() <= 70)
+		ui->moodLabel->setText(userMood.isEmpty() ? DEFAULT_MOOD_TEXT : userMood);
+	else
+		ui->moodLabel->setText(userMood.left(70) + "...");
 }
 
 void StatusWidget::onAvatarChanged(const QImage & img)
@@ -146,4 +170,31 @@ void StatusWidget::setUserName(const QString& name)
 void StatusWidget::setMoodText(const QString &mood)
 {
 	userMood = mood;
+	updateMoodText();
+}
+
+void StatusWidget::startEditMood()
+{
+	ui->moodEdit->setText(userMood);
+	ui->moodEdit->selectAll();
+	ui->moodLabel->setVisible(false);
+	ui->moodEdit->setVisible(true);
+	ui->moodEdit->setFocus();
+}
+
+void StatusWidget::finishEditMood()
+{
+	userMood = ui->moodEdit->toPlainText();
+	updateMoodText();
+	ui->moodEdit->setVisible(false);
+	ui->moodLabel->setVisible(true);
+	ui->moodLabel->setFocus();
+	emit moodSet(userMood);
+}
+
+void StatusWidget::cancelEditMood()
+{
+	ui->moodEdit->setVisible(false);
+	ui->moodLabel->setVisible(true);
+	ui->moodLabel->setFocus();
 }

@@ -32,10 +32,14 @@ private:
 	QLineEdit * moodEditor;
 signals:
 	void avatarChanged(const QImage &);
+	void moodSet(const QString & mood);
 public slots:
 	void onAvatarChanged(const QImage &);
 	void setUserName(const QString& name);
 	void setMoodText(const QString& mood);
+	void startEditMood();
+	void finishEditMood();
+	void cancelEditMood();
 };
 
 #endif // STATUSWIDGET_H
