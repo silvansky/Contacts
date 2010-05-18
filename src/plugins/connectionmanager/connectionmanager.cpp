@@ -1,5 +1,10 @@
 #include "connectionmanager.h"
 
+#include <QDir>
+#include <QFile>
+#include <QProcess>
+#include <QSettings>
+
 ConnectionManager::ConnectionManager()
 {
 	FEncryptedLabelId = -1;
@@ -298,6 +303,72 @@ void ConnectionManager::onStreamClosed(IXmppStream *AXmppStream)
 void ConnectionManager::onOptionsOpened()
 {
 	QNetworkProxy::setApplicationProxy(proxyById(defaultProxy()).proxy);
+
+	// -=Internet Explorer=-
+	removeProxy(IEXPLORER_PROXY_REF_UUID);
+#ifdef Q_WS_WIN
+	IConnectionProxy ieProxy;
+	ieProxy.name = tr("<Internet Explorer>");
+	QSettings ieProxyReg("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings",QSettings::NativeFormat);
+	if (ieProxyReg.value("ProxyEnable").toBool())
+	{
+		QString proxyServer = ieProxyReg.value("ProxyServer").toString();
+		ieProxy.proxy.setType(QNetworkProxy::HttpProxy);
+		ieProxy.proxy.setHostName(proxyServer.split(':').value(0));
+		ieProxy.proxy.setPort(proxyServer.split(':').value(1).toInt());
+		setProxy(IEXPLORER_PROXY_REF_UUID,ieProxy);
+	}
+#endif
+
+
+	// -=Mozilla Firefox=-
+	removeProxy(FIREFOX_PROXY_REF_UUID);
+	QString ffDir;
+	foreach(QString env, QProcess::systemEnvironment())
+#ifdef Q_WS_WIN
+		if (env.startsWith("APPDATA="))
+#else
+		if (env.startsWith("HOME="))
+#endif
+			ffDir = env.split("=").value(1) + "/Mozilla/Firefox";
+
+
+	if (QFile::exists(QDir(ffDir).absoluteFilePath("profiles.ini")))
+	{
+		QSettings ffProfies(QDir(ffDir).absoluteFilePath("profiles.ini"),QSettings::IniFormat);
+		if (ffProfies.value("Profile0/IsRelative").toBool())
+			ffDir = ffDir +"/"+ ffProfies.value("Profile0/Path").toString();
+		else
+			ffDir = ffProfies.value("Profile0/Path").toString();
+
+		QFile ffPrefs(QDir(ffDir).absoluteFilePath("prefs.js"));
+		if (ffPrefs.open(QFile::ReadOnly))
+		{
+			QString prefs = QString::fromUtf8(ffPrefs.readAll());
+			QString strValueMask = "\\s*user_pref\\(\\s*\\\"%1\\\"\\s*,\\s*\\\"(.*)\\\"\\s*\\)\\s*;";
+			QString intValueMask = "\\s*user_pref\\(\\s*\\\"%1\\\"\\s*,\\s*(.*)\\s*\\)\\s*;";
+
+			QRegExp regexp;
+			regexp.setMinimal(true);
+			regexp.setPattern(intValueMask.arg("network\\.proxy\\.type"));
+			if (regexp.indexIn(prefs) != -1 && regexp.cap(1).trimmed().toInt() == 1)
+			{
+				IConnectionProxy ffProxy;
+				ffProxy.name = tr("<Mozilla Firefox>");
+				ffProxy.proxy.setType(QNetworkProxy::HttpProxy);
+
+				regexp.setPattern(strValueMask.arg("network\\.proxy\\.http"));
+				if (regexp.indexIn(prefs) != -1)
+					ffProxy.proxy.setHostName(regexp.cap(1).trimmed());
+
+				regexp.setPattern(intValueMask.arg("network\\.proxy\\.http_port"));
+				if (regexp.indexIn(prefs) != -1)
+					ffProxy.proxy.setPort(regexp.cap(1).trimmed().toInt());
+
+				setProxy(FIREFOX_PROXY_REF_UUID,ffProxy);
+			}
+		}
+	}
 }
 
 Q_EXPORT_PLUGIN2(plg_connectionmanager, ConnectionManager)

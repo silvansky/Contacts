@@ -1,14 +1,17 @@
 #ifndef ICONNECTIONMANAGER_H
 #define ICONNECTIONMANAGER_H
 
-#define CONNECTIONMANAGER_UUID      "{B54F3B5E-3595-48c2-AB6F-249D4AD18327}"
-#define APPLICATION_PROXY_REF_UUID  "{b919d5c9-6def-43ba-87aa-892d49b9ac67}"
-
 #include <QUuid>
 #include <QDialog>
 #include <QNetworkProxy>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
+
+#define CONNECTIONMANAGER_UUID			"{B54F3B5E-3595-48c2-AB6F-249D4AD18327}"
+
+#define FIREFOX_PROXY_REF_UUID			"{b785520d-6d46-43f0-83d8-09ed0b078ec4}"
+#define IEXPLORER_PROXY_REF_UUID		"{4a68fd74-bba7-4222-901d-dd3169fe49a1}"
+#define APPLICATION_PROXY_REF_UUID	"{b919d5c9-6def-43ba-87aa-892d49b9ac67}"
 
 class IConnectionPlugin;
 
