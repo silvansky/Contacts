@@ -25,6 +25,13 @@
 
 #define FILE_LOGIN		"login.xml"
 
+enum ConnectionSettings {
+	CS_DEFAULT,
+	CS_IE_PROXY,
+	CS_FF_PROXY,
+	CS_COUNT
+};
+
 class CompleterDelegate : 
 			public QItemDelegate
 {
@@ -73,6 +80,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	setAttribute(Qt::WA_DeleteOnClose, true);
 
 	FNewProfile = true;
+	FConnectionSettings = CS_DEFAULT;
 	initialize(APluginManager);
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
@@ -222,6 +230,8 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		else if (FMainWindowPlugin && AWatched == FMainWindowPlugin->mainWindow()->instance())
 		{
 			QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(),SLOT(close()));
+			WidgetManager::raiseWidget(this);
+			activateWindow();
 		}
 	}
 
@@ -290,6 +300,49 @@ void LoginDialog::closeCurrentProfile()
 		FOptionsManager->setCurrentProfile(QString::null,QString::null);
 	else if (FOptionsManager->isOpened())
 		FOptionsManager->removeProfile(FOptionsManager->currentProfile());
+}
+
+bool LoginDialog::tryNextConnectionSettings()
+{
+	if (FNewProfile)
+	{
+		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+		IConnection *connection = account!=NULL && account->isActive() ? account->xmppStream()->connection() : NULL;
+		if (connection)
+		{
+			IDefaultConnection *defConnection = qobject_cast<IDefaultConnection *>(connection->instance());
+			if (defConnection)
+			{
+				FConnectionSettings++;
+				if (FConnectionSettings == CS_IE_PROXY)
+				{
+					if (FConnectionManager && FConnectionManager->proxyList().contains(IEXPLORER_PROXY_REF_UUID))
+					{
+						IConnectionProxy proxy = FConnectionManager->proxyById(IEXPLORER_PROXY_REF_UUID);
+						defConnection->setProxy(proxy.proxy);
+						return true;
+					}
+					return tryNextConnectionSettings();
+				}
+				else if (FConnectionSettings == CS_FF_PROXY)
+				{
+					if (FConnectionManager && FConnectionManager->proxyList().contains(FIREFOX_PROXY_REF_UUID))
+					{
+						IConnectionProxy proxy = FConnectionManager->proxyById(FIREFOX_PROXY_REF_UUID);
+						defConnection->setProxy(proxy.proxy);
+						return true;
+					}
+					return tryNextConnectionSettings();
+				}
+				else
+				{
+					FConnectionSettings = CS_DEFAULT;
+					connection->ownerPlugin()->loadConnectionSettings(connection,account->optionsNode().node("connection",connection->ownerPlugin()->pluginId()));
+				}
+			}
+		}
+	}
+	return false;
 }
 
 void LoginDialog::setConnectEnabled(bool AEnabled)
@@ -442,6 +495,7 @@ void LoginDialog::onConnectClicked()
 						{
 							setConnectEnabled(false);
 							FAccountId = account->accountId();
+							disconnect(account->xmppStream()->instance(),0,this,0);
 							connect(account->xmppStream()->instance(),SIGNAL(opened()),SLOT(onXmppStreamOpened()));
 							connect(account->xmppStream()->instance(),SIGNAL(closed()),SLOT(onXmppStreamClosed()));
 							FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(), account->optionsNode().value("status.last-online").toInt());
@@ -467,8 +521,15 @@ void LoginDialog::onXmppStreamOpened()
 {
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
 	if (account && !ui.chbSavePassword->isChecked())
-	{
 		account->setPassword(QString::null);
+
+	if (account && FConnectionSettings!=CS_DEFAULT)
+	{
+		OptionsNode coptions = account->optionsNode().node("connection",account->xmppStream()->connection()->ownerPlugin()->pluginId());
+		if (FConnectionSettings == CS_IE_PROXY)
+			coptions.setValue(IEXPLORER_PROXY_REF_UUID,"proxy");
+		else if (FConnectionSettings == CS_FF_PROXY)
+			coptions.setValue(FIREFOX_PROXY_REF_UUID,"proxy");
 	}
 	Options::node(OPV_MISC_AUTOSTART).setValue(ui.chbAutoRun->isChecked());
 
@@ -488,9 +549,20 @@ void LoginDialog::onXmppStreamClosed()
 	if (account && !ui.chbSavePassword->isChecked())
 		account->setPassword(QString::null);
 
-	if (account && !account->xmppStream()->connection()->errorString().isEmpty())
+	if (account && account->xmppStream()->connection() == NULL)
 	{
-		showConnectionError(tr("Unable to connect to server"),account->xmppStream()->connection()->errorString());
+		showConnectionError(tr("Unable to set connection"), tr("Internal error, contact support"));
+		stopReconnection();
+	}
+	else if (account && !account->xmppStream()->connection()->errorString().isEmpty())
+	{
+		if (tryNextConnectionSettings())
+		{
+			QTimer::singleShot(0,this,SLOT(onConnectClicked()));
+			return;
+		}
+		else
+			showConnectionError(tr("Unable to connect to server"),account->xmppStream()->connection()->errorString());
 	}
 	else if (account)
 	{

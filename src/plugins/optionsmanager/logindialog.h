@@ -19,9 +19,11 @@
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/iconnectionmanager.h>
+#include <interfaces/idefaultconnection.h>
 #include <utils/options.h>
 #include <utils/balloontip.h>
 #include <utils/iconstorage.h>
+#include <utils/widgetmanager.h>
 #include "ui_logindialog.h"
 
 class LoginDialog :
@@ -35,14 +37,15 @@ public:
 	void loadLastProfile();
 	void connectIfReady();
 	Jid currentStreamJid() const;
-	public slots:
-		virtual void reject();
+public slots:
+	virtual void reject();
 protected:
 	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected:
 	void initialize(IPluginManager *APluginManager);
 	bool isCapsLockOn() const;
 	void closeCurrentProfile();
+	bool tryNextConnectionSettings();
 	void setConnectEnabled(bool AEnabled);
 	void stopReconnection();
 	void showConnectionSettings();
@@ -74,6 +77,7 @@ private:
 	bool FNewProfile;
 	QUuid FAccountId;
 	QTimer FReconnectTimer;
+	int FConnectionSettings;
 };
 
 #endif // LOGINDIALOG_H
