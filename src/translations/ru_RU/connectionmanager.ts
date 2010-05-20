@@ -19,6 +19,14 @@
         <source>New Proxy</source>
         <translation>Новый прокси</translation>
     </message>
+    <message>
+        <source>&lt;Internet Explorer&gt;</source>
+        <translation>&lt;Internet Explorer&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;Mozilla Firefox&gt;</source>
+        <translation>&lt;Mozilla Firefox&gt;</translation>
+    </message>
 </context>
 <context>
     <name>ConnectionOptionsWidgetClass</name>

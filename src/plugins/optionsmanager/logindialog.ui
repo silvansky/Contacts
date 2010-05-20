@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>267</width>
-    <height>429</height>
+    <height>435</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,6 +91,9 @@
       <item>
        <widget class="QFrame" name="frmLogin">
         <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>3</number>
+         </property>
          <property name="margin">
           <number>0</number>
          </property>
@@ -122,7 +125,7 @@
       <item>
        <widget class="QLabel" name="lblForgotPassword">
         <property name="text">
-         <string>&lt;a href=&quot; &quot;&gt;Forgot your password?&lt;/a&gt;</string>
+         <string>&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;Forgot your password?&lt;/a&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -210,8 +213,38 @@
        <layout class="QGridLayout" name="gridLayout" columnstretch="1,4,1">
         <item row="0" column="1">
          <widget class="QPushButton" name="pbtConnect">
-          <property name="text">
-           <string>Connect</string>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="styleSheet">
+           <string>:!hover:enabled {
+	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(255, 128, 8, 255), stop:1 rgba(255, 188, 56, 255));
+}
+:hover:enabled {
+	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(253, 174, 45, 255), stop:1 rgba(255, 218, 46, 255));
+
+}
+:!enabled {
+	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(208, 208, 208, 255), stop:1 rgba(240, 240, 240, 255));
+	border: 1px solid lightgray;
+}
+</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
           </property>
          </widget>
         </item>

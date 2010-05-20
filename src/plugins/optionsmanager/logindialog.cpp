@@ -110,7 +110,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 			profiles.append(streamJid.bare());
 		}
 	}
-	ui.cmbDomain->addItem(tr("Custom..."));
+	ui.cmbDomain->addItem(tr("Custom domain..."));
 	connect(ui.cmbDomain,SIGNAL(currentIndexChanged(int)),SLOT(onDomainCurrentIntexChanged(int)));
 
 	QCompleter *completer = new QCompleter(profiles,ui.lneNode);
@@ -140,6 +140,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	ui.pbtConnect->setFocus();
 	connect(ui.pbtConnect,SIGNAL(clicked()),SLOT(onConnectClicked()));
+
+	setConnectEnabled(true);
 }
 
 LoginDialog::~LoginDialog()
@@ -202,7 +204,7 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		else if (AWatched == ui.lnePassword && isCapsLockOn())
 		{
 			BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning),tr("Caps Lock is ON"),
-				tr("CapsLock is ON\nPassword can be entered incorrectly. Turn off <CapsLock> before entering password."),
+				tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
 				ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft()),0);
 		}
 	}
@@ -367,7 +369,7 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 	ui.chbAutoRun->setEnabled(AEnabled);
 
 	ui.pbtConnect->setEnabled(AEnabled);
-	ui.pbtConnect->setText(AEnabled ? tr("Connect") : tr("Connecting..."));
+	ui.pbtConnect->setText(AEnabled ? tr("Enter") : tr("Connecting..."));
 }
 
 void LoginDialog::stopReconnection()
@@ -610,7 +612,7 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 	{
 		QInputDialog *dialog = new QInputDialog(this);
 		dialog->setInputMode(QInputDialog::TextInput);
-		dialog->setWindowTitle("Add custom domain");
+		dialog->setWindowTitle(tr("Add custom domain"));
 		dialog->setLabelText(tr("Enter custom domain address"));
 		dialog->setOkButtonText(tr("Add"));
 

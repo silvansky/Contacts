@@ -110,39 +110,157 @@
 <context>
     <name>LoginDialog</name>
     <message>
-        <source>Profile Blocked</source>
-        <translation>Профиль заблокирован</translation>
+        <source>Caps Lock is ON</source>
+        <translation>Caps Lock включен</translation>
     </message>
     <message>
-        <source>This profile is now blocked by another program</source>
-        <translation>Этот профиль сейчас заблокирован другой программой</translation>
+        <source>Reconnecting...</source>
+        <translation>Повторное подключение...</translation>
     </message>
     <message>
-        <source>Wrong Password</source>
-        <translation>Неверный пароль</translation>
+        <source>Connecting...</source>
+        <translation>Подключение...</translation>
     </message>
     <message>
-        <source>Entered profile password is not correct</source>
-        <translation>Введен неверный пароль профиля</translation>
+        <source>Connection settings</source>
+        <translation>Настройки подключения</translation>
+    </message>
+    <message>
+        <source>Reconnection failed</source>
+        <translation>Повторное подключение не удалось</translation>
+    </message>
+    <message>
+        <source>Unable to activate account</source>
+        <translation>Неудалось активировать аккаунт</translation>
+    </message>
+    <message>
+        <source>Internal error, contact support</source>
+        <translation>Внутренняя ошибка, обратитесь в поддержку</translation>
+    </message>
+    <message>
+        <source>Unable to create account</source>
+        <translation>Не удалось создать аккаунт</translation>
+    </message>
+    <message>
+        <source>Unable to open profile</source>
+        <translation>Не удалось открыть профиль</translation>
+    </message>
+    <message>
+        <source>This profile is already opened by another Virtus instance</source>
+        <translation>Этот профиль уже открыть другим экземпляром Virtus-а</translation>
+    </message>
+    <message>
+        <source>Unable to create profile</source>
+        <translation>Не удалось создать профиль</translation>
+    </message>
+    <message>
+        <source>Check your system permissions to create folders</source>
+        <translation>Проверте ваши права на создание папок</translation>
+    </message>
+    <message>
+        <source>Invalid login</source>
+        <translation>Неверный логин</translation>
+    </message>
+    <message>
+        <source>Check your user name and domain</source>
+        <translation>Проверте имя пользователя и домен</translation>
+    </message>
+    <message>
+        <source>Unable to set connection</source>
+        <translation>Не удалось задать поключение</translation>
+    </message>
+    <message>
+        <source>Unable to connect to server</source>
+        <translation>Не удалось подключиться к серверу</translation>
+    </message>
+    <message>
+        <source>Unable to login on server</source>
+        <translation>Не удалось авторизоваться на сервере</translation>
+    </message>
+    <message>
+        <source>Entered login or password is not correct</source>
+        <translation>Пароль не подходит к логину</translation>
+    </message>
+    <message>
+        <source>Maybe entered password is not correct</source>
+        <translation>Возможно пароль не подходит к логину</translation>
+    </message>
+    <message>
+        <source>Reconnect after &lt;b&gt;%1&lt;/b&gt; secs</source>
+        <translation>Повторное подключение через &lt;b&gt;%1&lt;/b&gt; сек</translation>
+    </message>
+    <message>
+        <source>Enter custom domain address</source>
+        <translation>Введите адрес своего домена</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&apos; &apos;&gt;How to connect your domain to Rambler?&lt;/a&gt;</source>
+        <translation>&lt;a href=&apos; &apos;&gt;Как подключить свой домен к Рамблеру&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Password can be entered incorrectly because of &lt;CapsLock&gt; key is pressed.
+Turn off &lt;CapsLock&gt; before entering password.</source>
+        <translation>Пароль может быть введен не правильно из-за нажатой клавиши &lt;CapsLock&gt;.
+
+Отключите &lt;CapsLock&gt; перед тем как вводить пароль.</translation>
+    </message>
+    <message>
+        <source>Enter</source>
+        <translation>Войти</translation>
+    </message>
+    <message>
+        <source>Add custom domain</source>
+        <translation>Добавить свой домен</translation>
+    </message>
+    <message>
+        <source>Custom domain...</source>
+        <translation>Свой домен...</translation>
     </message>
 </context>
 <context>
     <name>LoginDialogClass</name>
     <message>
-        <source>Open Profile</source>
-        <translation>Открыть профиль</translation>
+        <source>Virtus</source>
+        <translation>Виртус</translation>
     </message>
     <message>
-        <source>Profile:</source>
-        <translation>Профиль:</translation>
+        <source>&lt;h2&gt;Enter your rambler login and password&lt;/h2&gt;</source>
+        <translation>&lt;h2&gt;Введите ваш логин и пароль на Рамблере&lt;/h2&gt;</translation>
     </message>
     <message>
-        <source>Password:</source>
-        <translation>Пароль:</translation>
+        <source>If you dont have rambler account you can register it &lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;here&lt;/a&gt;</source>
+        <translation>Если у вас нет логина на Рамблере вы можете &lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;получить его тут&lt;/a&gt;</translation>
     </message>
     <message>
-        <source>Profiles</source>
-        <translation>Профили</translation>
+        <source>Save password</source>
+        <translation>Сохранить пароль</translation>
+    </message>
+    <message>
+        <source>Launch with computer</source>
+        <translation>Запускать вместе с компьютером</translation>
+    </message>
+    <message>
+        <source>:!hover:enabled {
+	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(255, 128, 8, 255), stop:1 rgba(255, 188, 56, 255));
+}
+:hover:enabled {
+	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(253, 174, 45, 255), stop:1 rgba(255, 218, 46, 255));
+
+}
+:!enabled {
+	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(208, 208, 208, 255), stop:1 rgba(240, 240, 240, 255));
+	border: 1px solid lightgray;
+}
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;Forgot your password?&lt;/a&gt;</source>
+        <translation type="unfinished">&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;Забыли пароль?&lt;/a&gt;</translation>
     </message>
 </context>
 <context>

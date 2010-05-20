@@ -49,10 +49,6 @@
         <source>About the program</source>
         <translation>О Программе</translation>
     </message>
-    <message>
-        <source>Plugins directory not found</source>
-        <translation>Директория с плагинами не найдена</translation>
-    </message>
 </context>
 <context>
     <name>SetupPluginsDialog</name>
