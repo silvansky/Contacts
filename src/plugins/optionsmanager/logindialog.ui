@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>257</width>
-    <height>411</height>
+    <height>421</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -186,6 +186,19 @@
          <string>Launch with computer</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout" columnstretch="1,4,1">
