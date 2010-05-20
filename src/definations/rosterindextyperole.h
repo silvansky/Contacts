@@ -23,18 +23,23 @@ enum RosterIndexTypes
 	*/
 	RIT_STREAM_ROOT,
 	/**
-	* @brief группа
-	* @var RIT_GROUP
+	* @brief основная группа
+	* @var RIT_GROUP_BLANK
 	*/
 	RIT_GROUP_BLANK,
 	/**
-	* @brief группа "не в списке"
-	* @var RIT_GROUP_NOT_IN_ROSTER
+	* @brief группа
+	* @var RIT_GROUP
+	*/
+	RIT_CONTACT,
+	/**
+	* @brief агент (транспорт)
+	* @var RIT_AGENT
 	*/
 	RIT_GROUP,
 	/**
-	* @brief пустая группа
-	* @var RIT_GROUP_BLANK
+	* @brief группа "не в списке"
+	* @var RIT_GROUP_NOT_IN_ROSTER
 	*/
 	RIT_GROUP_NOT_IN_ROSTER,
 	/**
@@ -51,17 +56,22 @@ enum RosterIndexTypes
 	* @brief контакт
 	* @var RIT_CONTACT
 	*/
-	RIT_CONTACT,
-	/**
-	* @brief агент (транспорт)
-	* @var RIT_AGENT
-	*/
 	RIT_AGENT,
 	/**
 	* @brief мой ресурс
 	* @var RIT_MY_RESOURCE
 	*/
-	RIT_MY_RESOURCE
+	RIT_MY_RESOURCE,
+	/**
+	* @brief заглушка "Контакты не найдены"
+	* @var RIT_SEARCH_EMPTY
+	*/
+	RIT_SEARCH_EMPTY,
+	/**
+	* @brief ссылка на поиск
+	* @var RIT_SEARCH_LINK
+	*/
+	RIT_SEARCH_LINK
 };
 
 /**
@@ -113,7 +123,12 @@ enum RosterIndexDataRoles
 	RDR_AVATAR_HASH,
 	RDR_AVATAR_IMAGE,
 	//Annotations
-	RDR_ANNOTATIONS
+	RDR_ANNOTATIONS,
+	//Search
+	RDR_SEARCH_LINK,
+	RDR_SEARCH_CAPTION,
+	//DND
+	RDR_IS_DRAGGED
 };
 
 #endif

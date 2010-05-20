@@ -14,6 +14,7 @@
 #include <interfaces/irostersearch.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/irostersview.h>
+#include <interfaces/irostersmodel.h>
 #include <utils/action.h>
 #include <utils/toolbarchanger.h>
 
@@ -60,15 +61,28 @@ protected slots:
 	void onFieldActionTriggered(bool);
 	void onSearchActionTriggered(bool AChecked);
 	void onEditTimedOut();
+	void onSearchTextChanged(const QString &text);
+	void createSearchLinks();
+	void destroySearchLinks();
+	void createNotFoundItem();
+	void destroyNotFoundItem();
+	void indexClicked(IRosterIndex *AIndex, int ALabelId);
 private:
 	IMainWindow *FMainWindow;
 	IRostersViewPlugin *FRostersViewPlugin;
+	IRostersModel * rostersModel;
+	IRosterIndex *searchInHistory;
+	IRosterIndex *searchInRambler;
+	IRosterIndex *searchNotFound;
 private:
 	Menu *FFieldsMenu;
 	QTimer FEditTimeout;
 	QLineEdit *FSearchEdit;
 	//ToolBarChanger *FSearchToolBarChanger;
 	QHash<int,Action *> FFieldActions;
+	bool searchEnabled;
+	int searchInRamblerLabel, searchInHistoryLabel, searchNotFoundLabel;
+	mutable int foundItems;
 };
 
 #endif // ROSTERSEARCH_H

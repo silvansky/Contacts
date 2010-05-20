@@ -13,15 +13,15 @@ RostersModel::RostersModel()
 	FRootIndex = new RosterIndex(RIT_ROOT,"IT_Root");
 	FRootIndex->setParent(this);
 	connect(FRootIndex,SIGNAL(dataChanged(IRosterIndex *, int)),
-	        SLOT(onIndexDataChanged(IRosterIndex *, int)));
+		SLOT(onIndexDataChanged(IRosterIndex *, int)));
 	connect(FRootIndex,SIGNAL(childAboutToBeInserted(IRosterIndex *)),
-	        SLOT(onIndexChildAboutToBeInserted(IRosterIndex *)));
+		SLOT(onIndexChildAboutToBeInserted(IRosterIndex *)));
 	connect(FRootIndex,SIGNAL(childInserted(IRosterIndex *)),
-	        SLOT(onIndexChildInserted(IRosterIndex *)));
+		SLOT(onIndexChildInserted(IRosterIndex *)));
 	connect(FRootIndex,SIGNAL(childAboutToBeRemoved(IRosterIndex *)),
-	        SLOT(onIndexChildAboutToBeRemoved(IRosterIndex *)));
+		SLOT(onIndexChildAboutToBeRemoved(IRosterIndex *)));
 	connect(FRootIndex,SIGNAL(childRemoved(IRosterIndex *)),
-	        SLOT(onIndexChildRemoved(IRosterIndex *)));
+		SLOT(onIndexChildRemoved(IRosterIndex *)));
 }
 
 RostersModel::~RostersModel()
@@ -47,11 +47,11 @@ bool RostersModel::initConnections(IPluginManager *APluginManager, int &/*AInitO
 		if (FRosterPlugin)
 		{
 			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &)),
-			        SLOT(onRosterItemReceived(IRoster *, const IRosterItem &)));
+				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterItemRemoved(IRoster *, const IRosterItem &)),
-			        SLOT(onRosterItemRemoved(IRoster *, const IRosterItem &)));
+				SLOT(onRosterItemRemoved(IRoster *, const IRosterItem &)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterStreamJidChanged(IRoster *, const Jid &)),
-			        SLOT(onRosterStreamJidChanged(IRoster *, const Jid &)));
+				SLOT(onRosterStreamJidChanged(IRoster *, const Jid &)));
 		}
 	}
 
@@ -62,9 +62,9 @@ bool RostersModel::initConnections(IPluginManager *APluginManager, int &/*AInitO
 		if (FPresencePlugin)
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceChanged(IPresence *, int, const QString &, int)),
-			        SLOT(onPresenceChanged(IPresence *, int , const QString &, int)));
+				SLOT(onPresenceChanged(IPresence *, int , const QString &, int)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
-			        SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
+				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
 		}
 	}
 
@@ -263,7 +263,8 @@ void RostersModel::insertRosterIndex(IRosterIndex *AIndex, IRosterIndex *AParent
 
 void RostersModel::removeRosterIndex(IRosterIndex *AIndex)
 {
-	AIndex->setParentIndex(NULL);
+	if (AIndex)
+		AIndex->setParentIndex(NULL);
 }
 
 QList<IRosterIndex *> RostersModel::getContactIndexList(const Jid &AStreamJid, const Jid &AContactJid, bool ACreate)
@@ -322,7 +323,7 @@ IRosterIndex *RostersModel::findRosterIndex(int AType, const QString &AId, IRost
 }
 
 IRosterIndex *RostersModel::findGroup(const QString &AName, const QString &AGroupDelim,
-                                      int AType, IRosterIndex *AParent) const
+				      int AType, IRosterIndex *AParent) const
 {
 	int i = 0;
 	IRosterIndex *index = AParent;
@@ -728,15 +729,15 @@ void RostersModel::onIndexChildAboutToBeInserted(IRosterIndex *AIndex)
 	emit indexAboutToBeInserted(AIndex);
 	beginInsertRows(modelIndexByRosterIndex(AIndex->parentIndex()),AIndex->parentIndex()->childCount(),AIndex->parentIndex()->childCount());
 	connect(AIndex->instance(),SIGNAL(dataChanged(IRosterIndex *, int)),
-	        SLOT(onIndexDataChanged(IRosterIndex *, int)));
+		SLOT(onIndexDataChanged(IRosterIndex *, int)));
 	connect(AIndex->instance(),SIGNAL(childAboutToBeInserted(IRosterIndex *)),
-	        SLOT(onIndexChildAboutToBeInserted(IRosterIndex *)));
+		SLOT(onIndexChildAboutToBeInserted(IRosterIndex *)));
 	connect(AIndex->instance(),SIGNAL(childInserted(IRosterIndex *)),
-	        SLOT(onIndexChildInserted(IRosterIndex *)));
+		SLOT(onIndexChildInserted(IRosterIndex *)));
 	connect(AIndex->instance(),SIGNAL(childAboutToBeRemoved(IRosterIndex *)),
-	        SLOT(onIndexChildAboutToBeRemoved(IRosterIndex *)));
+		SLOT(onIndexChildAboutToBeRemoved(IRosterIndex *)));
 	connect(AIndex->instance(),SIGNAL(childRemoved(IRosterIndex *)),
-	        SLOT(onIndexChildRemoved(IRosterIndex *)));
+		SLOT(onIndexChildRemoved(IRosterIndex *)));
 }
 
 void RostersModel::onIndexChildInserted(IRosterIndex *AIndex)
@@ -755,15 +756,15 @@ void RostersModel::onIndexChildAboutToBeRemoved(IRosterIndex *AIndex)
 void RostersModel::onIndexChildRemoved(IRosterIndex *AIndex)
 {
 	disconnect(AIndex->instance(),SIGNAL(dataChanged(IRosterIndex *, int)),
-	           this,SLOT(onIndexDataChanged(IRosterIndex *, int)));
+		   this,SLOT(onIndexDataChanged(IRosterIndex *, int)));
 	disconnect(AIndex->instance(),SIGNAL(childAboutToBeInserted(IRosterIndex *)),
-	           this,SLOT(onIndexChildAboutToBeInserted(IRosterIndex *)));
+		   this,SLOT(onIndexChildAboutToBeInserted(IRosterIndex *)));
 	disconnect(AIndex->instance(),SIGNAL(childInserted(IRosterIndex *)),
-	           this,SLOT(onIndexChildInserted(IRosterIndex *)));
+		   this,SLOT(onIndexChildInserted(IRosterIndex *)));
 	disconnect(AIndex->instance(),SIGNAL(childAboutToBeRemoved(IRosterIndex *)),
-	           this,SLOT(onIndexChildAboutToBeRemoved(IRosterIndex *)));
+		   this,SLOT(onIndexChildAboutToBeRemoved(IRosterIndex *)));
 	disconnect(AIndex->instance(),SIGNAL(childRemoved(IRosterIndex *)),
-	           this,SLOT(onIndexChildRemoved(IRosterIndex *)));
+		   this,SLOT(onIndexChildRemoved(IRosterIndex *)));
 	endRemoveRows();
 	emit indexRemoved(AIndex);
 }
