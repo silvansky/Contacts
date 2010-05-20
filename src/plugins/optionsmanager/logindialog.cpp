@@ -16,7 +16,7 @@
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>
-#elif Q_WS_X11
+#elif defined Q_WS_X11
 #	include <X11/XKBlib.h>
 #	undef KeyPress
 #	undef FocusIn
@@ -141,6 +141,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.pbtConnect->setFocus();
 	connect(ui.pbtConnect,SIGNAL(clicked()),SLOT(onConnectClicked()));
 
+	hideXmppStreamError();
+	hideConnectionError();
 	setConnectEnabled(true);
 }
 
@@ -181,6 +183,22 @@ void LoginDialog::reject()
 			closeCurrentProfile();
 	}
 	QDialog::reject();
+}
+
+void LoginDialog::showEvent(QShowEvent *AEvent)
+{
+	QDialog::showEvent(AEvent);
+	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
+}
+
+void LoginDialog::keyPressEvent(QKeyEvent *AEvent)
+{
+	if (AEvent->key()==Qt::Key_Return || AEvent->key()==Qt::Key_Enter)
+	{
+		if (ui.pbtConnect->isEnabled())
+			QTimer::singleShot(0,this,SLOT(onConnectClicked()));
+	}
+	QDialog::keyPressEvent(AEvent);
 }
 
 bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
@@ -282,7 +300,7 @@ bool LoginDialog::isCapsLockOn() const
 {
 #ifdef Q_WS_WIN
 	return GetKeyState(VK_CAPITAL) == 1;
-#elif Q_WS_X11
+#elif defined Q_WS_X11
 	Display * d = XOpenDisplay((char*)0);
 	bool caps_state = false;
 	if (d)
@@ -415,9 +433,9 @@ void LoginDialog::showConnectionSettings()
 
 void LoginDialog::hideConnectionError()
 {
-	ui.lblConnectError->setText(QString::null);
-	ui.lblReconnect->setText(QString::null);
-	ui.lblConnectSettings->setText(QString::null);
+	ui.lblConnectError->setVisible(false);
+	ui.lblReconnect->setVisible(false);
+	ui.lblConnectSettings->setVisible(false);
 }
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
@@ -439,13 +457,17 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	}
 	else
 		ui.lblReconnect->setText(tr("Reconnection failed"));
+
+	ui.lblConnectError->setVisible(true);
+	ui.lblReconnect->setVisible(true);
+	ui.lblConnectSettings->setVisible(true);
 }
 
 void LoginDialog::hideXmppStreamError()
 {
-	ui.lblXmppError->setText(QString::null);
 	ui.frmLogin->setStyleSheet(QString::null);
 	ui.frmPassword->setStyleSheet(QString::null);
+	ui.lblXmppError->setVisible(false);
 }
 
 void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint)
@@ -460,6 +482,8 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	if (FNewProfile)
 		ui.frmLogin->setStyleSheet("QFrame#frmLogin { border: 1px solid red; }");
 	ui.frmPassword->setStyleSheet("QFrame#frmPassword { border: 1px solid red; }");
+
+	ui.lblXmppError->setVisible(true);
 }
 
 void LoginDialog::onConnectClicked()
@@ -573,6 +597,7 @@ void LoginDialog::onXmppStreamClosed()
 	}
 
 	setConnectEnabled(true);
+	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
 
 void LoginDialog::onReconnectTimerTimeout()
@@ -734,4 +759,9 @@ void LoginDialog::onShowConnectingAnimation()
 	if (!ui.pbtConnect->isEnabled())
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblConnecting,MNI_OPTIONS_LOGIN_ANIMATION,0,0,"pixmap");
 	ui.lblConnecting->adjustSize();
+}
+
+void LoginDialog::onAdjustDialogSize()
+{
+	adjustSize();
 }

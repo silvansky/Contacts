@@ -40,6 +40,8 @@ public:
 public slots:
 	virtual void reject();
 protected:
+	virtual void showEvent(QShowEvent *AEvent);
+	virtual void keyPressEvent(QKeyEvent *AEvent);
 	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected:
 	void initialize(IPluginManager *APluginManager);
@@ -65,6 +67,7 @@ protected slots:
 	void onDomainCurrentIntexChanged(int AIndex);
 	void onLabelLinkActivated(const QString &ALink);
 	void onShowConnectingAnimation();
+	void onAdjustDialogSize();
 private:
 	Ui::LoginDialogClass ui;
 private:
