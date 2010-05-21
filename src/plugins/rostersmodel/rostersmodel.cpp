@@ -171,8 +171,8 @@ IRosterIndex *RostersModel::addStream(const Jid &AStreamJid)
 
 			if (roster)
 			{
-				foreach(IRosterItem item, roster->rosterItems())
-				onRosterItemReceived(roster,item);
+				foreach(IRosterItem item, roster->rosterItems()) {
+					onRosterItemReceived(roster,item); }
 			}
 		}
 	}
@@ -340,11 +340,11 @@ void RostersModel::insertDefaultDataHolder(IRosterDataHolder *ADataHolder)
 	{
 		QMultiHash<int,QVariant> data;
 		foreach(int type, ADataHolder->rosterDataTypes())
-		data.insertMulti(RDR_TYPE,type);
+			data.insertMulti(RDR_TYPE,type);
 
 		QList<IRosterIndex *> indexes = FRootIndex->findChild(data,true);
 		foreach(IRosterIndex *index,indexes)
-		index->insertDataHolder(ADataHolder);
+			index->insertDataHolder(ADataHolder);
 
 		FDataHolders.append(ADataHolder);
 		emit defaultDataHolderInserted(ADataHolder);
@@ -357,11 +357,11 @@ void RostersModel::removeDefaultDataHolder(IRosterDataHolder *ADataHolder)
 	{
 		QMultiHash<int,QVariant> data;
 		foreach(int type, ADataHolder->rosterDataTypes())
-		data.insertMulti(RDR_TYPE,type);
+			data.insertMulti(RDR_TYPE,type);
 
 		QList<IRosterIndex *> indexes = FRootIndex->findChild(data,true);
 		foreach(IRosterIndex *index, indexes)
-		index->removeDataHolder(ADataHolder);
+			index->removeDataHolder(ADataHolder);
 
 		FDataHolders.removeAt(FDataHolders.indexOf(ADataHolder));
 		emit defaultDataHolderRemoved(ADataHolder);
@@ -390,18 +390,18 @@ void RostersModel::emitDelayedDataChanged(IRosterIndex *AIndex)
 
 	QList<IRosterIndex *> childs;
 	foreach(IRosterIndex *index, FChangedIndexes)
-	if (index->parentIndex() == AIndex)
-		childs.append(index);
+		if (index->parentIndex() == AIndex)
+			childs.append(index);
 
 	foreach(IRosterIndex *index, childs)
-	emitDelayedDataChanged(index);
+		emitDelayedDataChanged(index);
 }
 
 void RostersModel::insertDefaultDataHolders(IRosterIndex *AIndex)
 {
 	foreach(IRosterDataHolder *dataHolder, FDataHolders)
-	if (dataHolder->rosterDataTypes().contains(AIndex->type()))
-		AIndex->insertDataHolder(dataHolder);
+		if (dataHolder->rosterDataTypes().contains(AIndex->type()))
+			AIndex->insertDataHolder(dataHolder);
 }
 
 void RostersModel::onAccountShown(IAccount *AAccount)
@@ -463,7 +463,7 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &ARo
 
 		QSet<QString> curGroups;
 		foreach(IRosterIndex *index, curItemList)
-		curGroups.insert(index->data(RDR_GROUP).toString());
+			curGroups.insert(index->data(RDR_GROUP).toString());
 		QSet<QString> newGroups = itemGroups - curGroups;
 		QSet<QString> oldGroups = curGroups - itemGroups;
 
@@ -541,8 +541,8 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &ARo
 		}
 
 		foreach(IRosterIndex *index,curItemList)
-		if (!itemList.contains(index))
-			removeRosterIndex(index);
+			if (!itemList.contains(index))
+				removeRosterIndex(index);
 	}
 }
 
@@ -557,7 +557,7 @@ void RostersModel::onRosterItemRemoved(IRoster *ARoster, const IRosterItem &ARos
 		data.insert(RDR_BARE_JID,ARosterItem.itemJid.pBare());
 		QList<IRosterIndex *> itemList = streamIndex->findChild(data,true);
 		foreach(IRosterIndex *index, itemList)
-		removeRosterIndex(index);
+			removeRosterIndex(index);
 	}
 }
 
@@ -572,7 +572,7 @@ void RostersModel::onRosterStreamJidChanged(IRoster *ARoster, const Jid &ABefore
 		data.insert(RDR_STREAM_JID,ABefore.pFull());
 		QList<IRosterIndex *> itemList = FRootIndex->findChild(data,true);
 		foreach(IRosterIndex *index, itemList)
-		index->setData(RDR_STREAM_JID,after.pFull());
+			index->setData(RDR_STREAM_JID,after.pFull());
 
 		streamIndex->setData(RDR_INDEX_ID,after.pFull());
 		streamIndex->setData(RDR_JID,after.full());

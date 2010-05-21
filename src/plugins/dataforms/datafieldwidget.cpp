@@ -243,7 +243,7 @@ void DataFieldWidget::setValue(const QVariant &AValue)
 	{
 		FTextEdit->clear();
 		foreach(QString line, AValue.toStringList())
-		FTextEdit->append(Jid(line).full());
+			FTextEdit->append(Jid(line).full());
 	}
 	else if (!FReadOnly && FField.type == DATAFIELD_TYPE_LISTSINGLE)
 	{
@@ -266,7 +266,7 @@ void DataFieldWidget::setValue(const QVariant &AValue)
 	{
 		FTextEdit->clear();
 		foreach(QString line, AValue.toStringList())
-		FTextEdit->append(line);
+			FTextEdit->append(line);
 	}
 	else if (FField.validate.type == DATAVALIDATE_TYPE_DATE)
 	{

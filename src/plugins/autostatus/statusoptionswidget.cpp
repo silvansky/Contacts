@@ -197,7 +197,7 @@ void StatusOptionsWidget::apply()
 	}
 
 	foreach(QUuid ruleId, oldRules)
-	FAutoStatus->removeRule(ruleId);
+		FAutoStatus->removeRule(ruleId);
 
 	emit childApply();
 }

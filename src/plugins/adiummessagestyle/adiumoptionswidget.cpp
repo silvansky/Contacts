@@ -14,7 +14,7 @@ AdiumOptionsWidget::AdiumOptionsWidget(AdiumMessageStylePlugin *APlugin, const O
 	FMessageType = AMessageType;
 
 	foreach(QString styleId, FStylePlugin->styles())
-	ui.cmbStyle->addItem(styleId,styleId);
+		ui.cmbStyle->addItem(styleId,styleId);
 	ui.cmbStyle->setCurrentIndex(-1);
 
 	ui.cmbBackgoundColor->addItem(tr("Default"));
