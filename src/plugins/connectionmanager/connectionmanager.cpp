@@ -327,10 +327,11 @@ void ConnectionManager::onOptionsOpened()
 	foreach(QString env, QProcess::systemEnvironment())
 #ifdef Q_WS_WIN
 		if (env.startsWith("APPDATA="))
+			ffDir = env.split("=").value(1) + "/Mozilla/Firefox";
 #else
 		if (env.startsWith("HOME="))
+			ffDir = env.split("=").value(1) + "/.mozilla/firefox";
 #endif
-			ffDir = env.split("=").value(1) + "/Mozilla/Firefox";
 
 
 	if (QFile::exists(QDir(ffDir).absoluteFilePath("profiles.ini")))
@@ -345,8 +346,8 @@ void ConnectionManager::onOptionsOpened()
 		if (ffPrefs.open(QFile::ReadOnly))
 		{
 			QString prefs = QString::fromUtf8(ffPrefs.readAll());
-			QString strValueMask = "\\s*user_pref\\(\\s*\\\"%1\\\"\\s*,\\s*\\\"(.*)\\\"\\s*\\)\\s*;";
-			QString intValueMask = "\\s*user_pref\\(\\s*\\\"%1\\\"\\s*,\\s*(.*)\\s*\\)\\s*;";
+			const QString strValueMask = "\\s*user_pref\\(\\s*\\\"%1\\\"\\s*,\\s*\\\"(.*)\\\"\\s*\\)\\s*;";
+			const QString intValueMask = "\\s*user_pref\\(\\s*\\\"%1\\\"\\s*,\\s*(.*)\\s*\\)\\s*;";
 
 			QRegExp regexp;
 			regexp.setMinimal(true);
