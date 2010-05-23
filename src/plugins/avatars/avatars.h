@@ -2,6 +2,8 @@
 #define AVATARS_H
 
 #include <QDir>
+#include <QTimer>
+#include <QImageReader>
 #include <definations/namespaces.h>
 #include <definations/actiongroups.h>
 #include <definations/stanzahandlerorders.h>
@@ -14,6 +16,7 @@
 #include <definations/optionwidgetorders.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/vcardvaluenames.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/iavatars.h>
 #include <interfaces/ixmppstreams.h>
@@ -25,6 +28,25 @@
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
+
+struct AnimateAvatarParams 
+{
+	AnimateAvatarParams() { timer = new QTimer; reader = NULL; }
+	~AnimateAvatarParams() { timer->deleteLater(); delete reader; }
+	int frameIndex;
+	QTimer *timer;
+	QImageReader *reader;
+};
+
+struct AutoAvatarParams 
+{
+	AutoAvatarParams() { animation = NULL; }
+	~AutoAvatarParams() { delete animation; }
+	Jid contact;
+	QSize size;
+	QString prop;
+	AnimateAvatarParams *animation;
+};
 
 class Avatars :
 			public QObject,
@@ -69,9 +91,11 @@ public:
 	virtual QString saveAvatar(const QByteArray &AImageData) const;
 	virtual QString saveAvatar(const QImage &AImage, const char *AFormat = NULL) const;
 	virtual QString avatarHash(const Jid &AContactJid) const;
-	virtual QImage avatarImage(const Jid &AContactJid) const;
+	virtual QImage avatarImage(const Jid &AContactJid, bool ANullImage = true) const;
 	virtual bool setAvatar(const Jid &AStreamJid, const QImage &AImage, const char *AFormat = NULL);
 	virtual QString setCustomPictire(const Jid &AContactJid, const QString &AImageFile);
+	virtual void insertAutoAvatar(QObject *AObject, const Jid &AContactJid, const QSize &ASize = QSize(), const QString &AProperty = "icon");
+	virtual void removeAutoAvatar(QObject *AObject);
 signals:
 	void avatarChanged(const Jid &AContactJid);
 	//IRosterDataHolder
@@ -82,6 +106,8 @@ protected:
 	void updateDataHolder(const Jid &AContactJid = Jid());
 	bool updateVCardAvatar(const Jid &AContactJid, const QString &AHash, bool AFromVCard);
 	bool updateIqAvatar(const Jid &AContactJid, const QString &AHash);
+	void updateAvatarObject(QObject *AObject);
+	void updateAutoAvatar(const Jid &AContactJid);
 protected slots:
 	void onStreamOpened(IXmppStream *AXmppStream);
 	void onStreamClosed(IXmppStream *AXmppStream);
@@ -95,6 +121,8 @@ protected slots:
 	void onOptionsOpened();
 	void onOptionsClosed();
 	void onOptionsChanged(const OptionsNode &ANode);
+	void onAvatarObjectTimerTimeout();
+	void onAvatarObjectDestroyed(QObject *AObject);
 private:
 	IPluginManager *FPluginManager;
 	IXmppStreams *FXmppStreams;
@@ -114,16 +142,18 @@ private:
 	QHash<Jid, QString> FIqAvatars;
 	QMap<QString, Jid> FIqAvatarRequests;
 private:
-	QSize FAvatarSize;
 	bool FAvatarsVisible;
 	bool FShowEmptyAvatars;
 	QMap<Jid, QString> FCustomPictures;
 private:
 	int FRosterLabelId;
 	QDir FAvatarsDir;
-	QImage FEmptyAvatar;
+	QImage FEmptyMaleAvatar;
+	QImage FEmptyFemaleAvatar;
 	QMap<Jid, QString> FStreamAvatars;
+	mutable QHash<Jid, bool> FContactGender;
 	mutable QHash<QString, QImage> FAvatarImages;
+	QHash<QObject *, AutoAvatarParams> FAutoAvatars;
 };
 
 #endif // AVATARS_H

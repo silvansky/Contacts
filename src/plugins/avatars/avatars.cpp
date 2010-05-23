@@ -35,7 +35,6 @@ Avatars::Avatars()
 	FRosterLabelId = -1;
 	FAvatarsVisible = false;
 	FShowEmptyAvatars = true;
-	FAvatarSize = QSize(32,32);
 }
 
 Avatars::~Avatars()
@@ -309,10 +308,7 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 {
 	if (ARole == RDR_AVATAR_IMAGE)
 	{
-		QImage avatar = avatarImage(AIndex->data(RDR_JID).toString());
-		if (avatar.isNull() && FShowEmptyAvatars)
-			avatar = FEmptyAvatar;
-		return avatar;
+		return avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars).scaled(32,32,Qt::KeepAspectRatio,Qt::FastTransformation);
 	}
 	else if (ARole == RDR_AVATAR_HASH)
 	{
@@ -395,21 +391,40 @@ QString Avatars::avatarHash(const Jid &AContactJid) const
 	return hash;
 }
 
-QImage Avatars::avatarImage(const Jid &AContactJid) const
+QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 {
 	QString hash = avatarHash(AContactJid);
-	if (!hash.isEmpty() && !FAvatarImages.contains(hash))
+	QImage image = FAvatarImages.value(hash);
+	if (image.isNull() && !hash.isEmpty())
 	{
 		QString fileName = avatarFileName(hash);
 		if (QFile::exists(fileName))
 		{
-			QImage image = QImage(fileName).scaled(FAvatarSize,Qt::KeepAspectRatio,Qt::FastTransformation);
+			image = QImage(fileName);
 			if (!image.isNull())
 				FAvatarImages.insert(hash,image);
-			return image;
 		}
 	}
-	return FAvatarImages.value(hash);
+	if (image.isNull() && !ANullImage)
+	{
+		if (FContactGender.contains(AContactJid.bare()))
+		{
+			image = FContactGender.value(AContactJid.bare()) ? FEmptyMaleAvatar : FEmptyFemaleAvatar;
+		}
+		else if (FVCardPlugin && FVCardPlugin->hasVCard(AContactJid.bare()))
+		{
+			IVCard *vcard = FVCardPlugin->vcard(AContactJid.bare());
+			bool maleGender = vcard->value(VVN_GENDER).toLower()!="female";
+			vcard->unlock();
+			image = maleGender ? FEmptyMaleAvatar : FEmptyFemaleAvatar;
+			FContactGender.insert(AContactJid.bare(),maleGender);
+		}
+		else
+		{
+			image = FEmptyMaleAvatar;
+		}
+	}
+	return image;
 }
 
 bool Avatars::setAvatar(const Jid &AStreamJid, const QImage &AImage, const char *AFormat)
@@ -451,6 +466,34 @@ QString Avatars::setCustomPictire(const Jid &AContactJid, const QString &AImageF
 		updateDataHolder(contactJid);
 	}
 	return EMPTY_AVATAR;
+}
+
+void Avatars::insertAutoAvatar(QObject *AObject, const Jid &AContactJid, const QSize &ASize, const QString &AProperty)
+{
+	AutoAvatarParams &params = FAutoAvatars[AObject];
+	params.contact = AContactJid;
+	params.size = ASize;
+	params.prop = AProperty;
+	delete params.animation;
+	params.animation = NULL;
+
+	QString file = avatarFileName(avatarHash(params.contact));
+	if (QFile::exists(file))
+	{
+		params.animation = new AnimateAvatarParams;
+		params.animation->frameIndex = 0;
+		params.animation->reader = new QImageReader(file);
+		params.animation->timer->setSingleShot(true);
+		connect(params.animation->timer,SIGNAL(timeout()),SLOT(onAvatarObjectTimerTimeout()));
+	}
+	updateAvatarObject(AObject);
+	connect(AObject,SIGNAL(destroyed(QObject *)),SLOT(onAvatarObjectDestroyed(QObject *)));
+}
+
+void Avatars::removeAutoAvatar(QObject *AObject)
+{
+	FAutoAvatars.remove(AObject);
+	disconnect(AObject,SIGNAL(destroyed(QObject *)),this,SLOT(onAvatarObjectDestroyed(QObject *)));
 }
 
 QByteArray Avatars::loadAvatarFromVCard(const Jid &AContactJid) const
@@ -523,10 +566,11 @@ bool Avatars::updateVCardAvatar(const Jid &AContactJid, const QString &AHash, bo
 	Jid contactJid = AContactJid.bare();
 	if (FVCardAvatars.value(contactJid) != AHash)
 	{
-		FVCardAvatars[contactJid] = AHash;
 		if (AHash.isEmpty() || hasAvatar(AHash))
 		{
+			FVCardAvatars[contactJid] = AHash;
 			updateDataHolder(contactJid);
+			updateAutoAvatar(AContactJid);
 			emit avatarChanged(contactJid);
 		}
 		else if (!AHash.isEmpty())
@@ -542,10 +586,11 @@ bool Avatars::updateIqAvatar(const Jid &AContactJid, const QString &AHash)
 {
 	if (FIqAvatars.value(AContactJid) != AHash)
 	{
-		FIqAvatars[AContactJid] = AHash;
 		if (AHash.isEmpty() || hasAvatar(AHash))
 		{
+			FIqAvatars[AContactJid] = AHash;
 			updateDataHolder(AContactJid);
+			updateAutoAvatar(AContactJid);
 			emit avatarChanged(AContactJid);
 		}
 		else if (!AHash.isEmpty())
@@ -554,6 +599,54 @@ bool Avatars::updateIqAvatar(const Jid &AContactJid, const QString &AHash)
 		}
 	}
 	return true;
+}
+
+void Avatars::updateAvatarObject(QObject *AObject)
+{
+	QImage image;
+	AutoAvatarParams &params = FAutoAvatars[AObject];
+	if (params.animation != NULL)
+	{
+		image = params.animation->reader->read();
+		if (image.isNull())
+		{
+			if (params.animation->frameIndex > 1)
+			{
+				params.animation->frameIndex = 0;
+				params.animation->reader->setFileName(params.animation->reader->fileName());
+				image = params.animation->reader->read();
+			}
+			else
+			{
+				delete params.animation;
+				params.animation = NULL;
+			}
+		}
+		if (!image.isNull())
+		{
+			params.animation->frameIndex++;
+			params.animation->timer->start(params.animation->reader->nextImageDelay());
+		}
+	}
+	if (image.isNull())
+	{
+		image = avatarImage(params.contact,false);
+	}
+	if (!image.isNull())
+	{
+		QPixmap pixmap = !params.size.isEmpty() ? QPixmap::fromImage(image.scaled(params.size,Qt::KeepAspectRatio,Qt::FastTransformation)) : QPixmap::fromImage(image);
+		if (params.prop == "pixmap")
+			AObject->setProperty(params.prop.toLatin1(),pixmap);
+		else
+			AObject->setProperty(params.prop.toLatin1(),QIcon(pixmap));
+	}
+}
+
+void Avatars::updateAutoAvatar(const Jid &AContactJid)
+{
+	for (QHash<QObject *, AutoAvatarParams>::const_iterator it = FAutoAvatars.constBegin(); it != FAutoAvatars.constEnd(); it++)
+		if (it.value().contact && AContactJid)
+			insertAutoAvatar(it.key(),it.value().contact,it.value().size,it.value().prop);
 }
 
 void Avatars::onStreamOpened(IXmppStream *AXmppStream)
@@ -601,6 +694,7 @@ void Avatars::onStreamClosed(IXmppStream *AXmppStream)
 
 void Avatars::onVCardChanged(const Jid &AContactJid)
 {
+	FContactGender.remove(AContactJid.bare());
 	QString hash = saveAvatar(loadAvatarFromVCard(AContactJid));
 	updateVCardAvatar(AContactJid,hash,true);
 }
@@ -727,7 +821,8 @@ void Avatars::onClearAvatarByAction(bool)
 
 void Avatars::onIconStorageChanged()
 {
-	FEmptyAvatar = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY)).scaled(FAvatarSize,Qt::KeepAspectRatio,Qt::FastTransformation);
+	FEmptyMaleAvatar = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_MALE));
+	FEmptyFemaleAvatar = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_FEMALE));
 }
 
 void Avatars::onOptionsOpened()
@@ -792,6 +887,24 @@ void Avatars::onOptionsChanged(const OptionsNode &ANode)
 		FShowEmptyAvatars = ANode.value().toBool();
 		updateDataHolder();
 	}
+}
+
+void Avatars::onAvatarObjectTimerTimeout()
+{
+	QTimer *timer = qobject_cast<QTimer *>(sender());
+	for (QHash<QObject *, AutoAvatarParams>::const_iterator it = FAutoAvatars.constBegin(); it != FAutoAvatars.constEnd(); it++)
+	{
+		if (it.value().animation!=NULL && it.value().animation->timer == timer)
+		{
+			updateAvatarObject(it.key());
+			break;
+		}
+	}
+}
+
+void Avatars::onAvatarObjectDestroyed(QObject *AObject)
+{
+	removeAutoAvatar(AObject);
 }
 
 Q_EXPORT_PLUGIN2(plg_avatars, Avatars)
