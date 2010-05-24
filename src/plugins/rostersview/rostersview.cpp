@@ -706,7 +706,17 @@ void RostersView::setDropIndicatorRect(const QRect &ARect)
 	if (FDropIndicatorRect != ARect)
 	{
 		FDropIndicatorRect = ARect;
-		FDropIndicatorRect.setHeight(1);
+		//FDropIndicatorRect.setHeight(1);
+		viewport()->update();
+	}
+}
+
+void RostersView::setInsertIndicatorRect(const QRect & rect)
+{
+	if (insertIndicatorRect != rect)
+	{
+		insertIndicatorRect = rect;
+		insertIndicatorRect.setHeight(1);
 		viewport()->update();
 	}
 }
@@ -762,6 +772,14 @@ void RostersView::paintEvent(QPaintEvent *AEvent)
 		QStyleOption option;
 		option.init(this);
 		option.rect = FDropIndicatorRect.adjusted(0,0,-1,-1);
+		QPainter painter(viewport());
+		style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
+	}
+	if (!insertIndicatorRect.isNull())
+	{
+		QStyleOption option;
+		option.init(this);
+		option.rect = insertIndicatorRect.adjusted(0,0,-1,-1);
 		QPainter painter(viewport());
 		style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
 	}
@@ -945,6 +963,7 @@ void RostersView::dropEvent(QDropEvent *AEvent)
 	delete dropMenu;
 	stopAutoScroll();
 	setDropIndicatorRect(QRect());
+	setInsertIndicatorRect(QRect());
 }
 
 void RostersView::dragEnterEvent(QDragEnterEvent *AEvent)
@@ -987,11 +1006,26 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 
 	QRect vRect = visualRect(index), highlightRect;
 	highlightRect = vRect;
+	int indexType = index.data(RDR_TYPE).toInt();
 	if ((vRect.y() + vRect.height() / 2) < AEvent->pos().y())
 	{
-		highlightRect.setTop(vRect.bottom());
+		highlightRect.setTop(vRect.bottom() + 1);
 	}
-	setDropIndicatorRect(highlightRect);
+	if (indexType == RIT_CONTACT || indexType == RIT_GROUP)
+	{
+		QModelIndex group = indexType == RIT_CONTACT ? index.parent() : index;
+		vRect = visualRect(group);
+		int irow = 0;
+		QModelIndex child;
+		while ((child = group.child(irow, 0)).isValid())
+		{
+			if (child.data(RDR_TYPE).toInt() == RIT_CONTACT)
+				vRect = vRect.united(visualRect(child));
+			irow++;
+		}
+	}
+	setDropIndicatorRect(vRect);
+	setInsertIndicatorRect(highlightRect);
 }
 
 void RostersView::dragLeaveEvent(QDragLeaveEvent *AEvent)
@@ -1000,6 +1034,7 @@ void RostersView::dragLeaveEvent(QDragLeaveEvent *AEvent)
 		handler->rosterDragLeave(AEvent);
 	stopAutoScroll();
 	setDropIndicatorRect(QRect());
+	setInsertIndicatorRect(QRect());
 }
 
 void RostersView::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)

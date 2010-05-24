@@ -105,6 +105,7 @@ protected:
 	QString intId2StringId(int AIntId);
 	void removeLabels();
 	void setDropIndicatorRect(const QRect &ARect);
+	void setInsertIndicatorRect(const QRect & rect);
 protected:
 	//QTreeView
 	virtual void drawBranches(QPainter *APainter, const QRect &ARect, const QModelIndex &AIndex) const;
@@ -161,6 +162,7 @@ private:
 	bool FStartDragFailed;
 	QTimer FDragExpandTimer;
 	QRect FDropIndicatorRect;
+	QRect insertIndicatorRect;
 	QList<IRostersDragDropHandler *> FDragDropHandlers;
 	QList<IRostersDragDropHandler *> FActiveDragHandlers;
 };
