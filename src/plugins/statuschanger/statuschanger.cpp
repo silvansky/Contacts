@@ -1173,6 +1173,8 @@ void StatusChanger::onProfileOpened(const QString &AProfile)
 			updateVCardInfo(vcard);
 		};
 	}
+	if (avatars && !accountManager->accounts().isEmpty() && accountManager->accounts().first()->xmppStream())
+		avatars->insertAutoAvatar(statusWidget->ui->avatarLabel, accountManager->accounts().first()->xmppStream()->streamJid(), QSize(64, 64), "pixmap");
 }
 
 void StatusChanger::onReconnectTimer()
@@ -1243,7 +1245,7 @@ void StatusChanger::updateVCardInfo(const IVCard* vcard)
 {
 	if (vcard)
 	{
-		statusWidget->ui->avatarLabel->setPixmap(QPixmap::fromImage(vcard->photoImage().scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
+		//statusWidget->ui->avatarLabel->setPixmap(QPixmap::fromImage(vcard->photoImage().scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
 		QString name = vcard->value(VVN_NICKNAME);
 		statusWidget->setUserName(name);
 		statusWidget->ui->statusToolButton->setText((name.isEmpty() ? accountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + statusWidget->ui->statusToolButton->text());

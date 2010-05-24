@@ -56,6 +56,9 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	connect(this,SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)),
 		SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)));
 	connect(this,SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+	setMouseTracking(true);
+	connect(this, SIGNAL(entered(const QModelIndex&)), SLOT(onEntered(const QModelIndex&)));
+	connect(this, SIGNAL(viewportEntered()), SLOT(onViewportEntered()));
 }
 
 RostersView::~RostersView()
@@ -172,6 +175,8 @@ void RostersView::insertProxyModel(QAbstractProxyModel *AProxyModel, int AOrder)
 			emit viewModelChanged(model());
 
 		emit proxyModelInserted(AProxyModel);
+		if (model() && model()->columnCount()>0)
+			header()->resizeSection(0, width());
 	}
 }
 
@@ -189,29 +194,29 @@ void RostersView::removeProxyModel(QAbstractProxyModel *AProxyModel)
 		QList<QAbstractProxyModel *> proxies = FProxyModels.values();
 		int index = proxies.indexOf(AProxyModel);
 
-		QAbstractProxyModel *befour = proxies.value(index-1,NULL);
+		QAbstractProxyModel *before = proxies.value(index-1,NULL);
 		QAbstractProxyModel *after = proxies.value(index+1,NULL);
 
 		bool changeViewModel = after==NULL;
 		if (changeViewModel)
 		{
-			if (befour!=NULL)
-				emit viewModelAboutToBeChanged(befour);
+			if (before!=NULL)
+				emit viewModelAboutToBeChanged(before);
 			else
 				emit viewModelAboutToBeChanged(FRostersModel!=NULL ? FRostersModel->instance() : NULL);
 		}
 
 		FProxyModels.remove(FProxyModels.key(AProxyModel),AProxyModel);
 
-		if (after == NULL && befour == NULL)
+		if (after == NULL && before == NULL)
 		{
 			QTreeView::setModel(FRostersModel!=NULL ? FRostersModel->instance() : NULL);
 		}
 		else if (after == NULL)
 		{
-			QTreeView::setModel(befour);
+			QTreeView::setModel(before);
 		}
-		else if (befour == NULL)
+		else if (before == NULL)
 		{
 			after->setSourceModel(NULL);
 			after->setSourceModel(FRostersModel!=NULL ? FRostersModel->instance() : NULL);
@@ -219,7 +224,7 @@ void RostersView::removeProxyModel(QAbstractProxyModel *AProxyModel)
 		else
 		{
 			after->setSourceModel(NULL);
-			after->setSourceModel(befour);
+			after->setSourceModel(before);
 		}
 
 		AProxyModel->setSourceModel(NULL);
@@ -1106,4 +1111,14 @@ void RostersView::onDragExpandTimer()
 {
 	QModelIndex index = indexAt(FDropIndicatorRect.center());
 	setExpanded(index,true);
+}
+
+void RostersView::onEntered(const QModelIndex & index)
+{
+	setCursor(QCursor(Qt::CursorShape(index.data(RDR_MOUSE_CURSOR).toInt())));
+}
+
+void RostersView::onViewportEntered()
+{
+	setCursor(QCursor(Qt::ArrowCursor));
 }

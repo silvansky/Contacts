@@ -219,12 +219,17 @@ bool RosterChanger::rosterDragMove(const QDragMoveEvent *AEvent, const QModelInd
 {
 	Q_UNUSED(AEvent);
 	int indexType = AHover.data(RDR_TYPE).toInt();
-	if (indexType==RIT_GROUP || indexType==RIT_STREAM_ROOT)
+//	if (indexType==RIT_GROUP || indexType==RIT_STREAM_ROOT)
+//	{
+//		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AHover.data(RDR_STREAM_JID).toString()) : NULL;
+//		if (roster && roster->isOpen())
+//			return true;
+//	}
+	if ((indexType == RIT_GROUP) || (AHover.parent().isValid() && AHover.parent().data(RDR_TYPE).toInt() == RIT_GROUP))
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AHover.data(RDR_STREAM_JID).toString()) : NULL;
-		if (roster && roster->isOpen())
-			return true;
+		return true;
 	}
+
 	return false;
 }
 
@@ -236,7 +241,7 @@ void RosterChanger::rosterDragLeave(const QDragLeaveEvent *AEvent)
 bool RosterChanger::rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu)
 {
 	int hoverType = AIndex.data(RDR_TYPE).toInt();
-	if (AEvent->dropAction()!=Qt::IgnoreAction && (hoverType==RIT_GROUP || hoverType==RIT_STREAM_ROOT))
+	if (AEvent->dropAction()!=Qt::IgnoreAction && (hoverType==RIT_GROUP || hoverType==RIT_STREAM_ROOT || hoverType == RIT_CONTACT))
 	{
 		Jid hoverStreamJid = AIndex.data(RDR_STREAM_JID).toString();
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(hoverStreamJid) : NULL;
@@ -256,12 +261,12 @@ bool RosterChanger::rosterDropAction(const QDropEvent *AEvent, const QModelIndex
 				Action *copyAction = new Action(AMenu);
 				copyAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_COPY_GROUP);
 				copyAction->setData(ADR_STREAM_JID,hoverStreamJid.full());
-				copyAction->setData(ADR_TO_GROUP,hoverType==RIT_GROUP ? AIndex.data(RDR_GROUP) : QVariant(QString("")));
+				copyAction->setData(ADR_TO_GROUP,hoverType==RIT_GROUP ? AIndex.data(RDR_GROUP) : AIndex.parent().data(RDR_GROUP));
 
 				Action *moveAction = new Action(AMenu);
 				moveAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_MOVE_GROUP);
 				moveAction->setData(ADR_STREAM_JID,hoverStreamJid.full());
-				moveAction->setData(ADR_TO_GROUP,hoverType==RIT_GROUP ? AIndex.data(RDR_GROUP) : QVariant(QString("")));
+				moveAction->setData(ADR_TO_GROUP,hoverType==RIT_GROUP ? AIndex.data(RDR_GROUP) : AIndex.parent().data(RDR_GROUP));
 
 				if (indexType == RIT_CONTACT)
 				{
@@ -599,9 +604,9 @@ SubscriptionDialog *RosterChanger::createSubscriptionDialog(const Jid &AStreamJi
 void RosterChanger::onShowAddContactDialog(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
-	if (action)
+	if ((action) && (!accountManager->accounts().empty() && accountManager->accounts().first()->xmppStream()))
 	{
-		IAddContactDialog *dialog = showAddContactDialog(action->data(ADR_STREAM_JID).toString());
+		IAddContactDialog *dialog = showAddContactDialog(accountManager->accounts().first()->xmppStream()->streamJid().full());
 		if (dialog)
 		{
 			dialog->setContactJid(action->data(ADR_CONTACT_JID).toString());

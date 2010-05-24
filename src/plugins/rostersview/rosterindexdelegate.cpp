@@ -127,16 +127,25 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 
 	QRect paintRect(option.rect.adjusted(hMargin,vMargin,-hMargin,-vMargin));
 
-	if ((AIndex.data(RDR_TYPE).toInt() == RIT_SEARCH_EMPTY) || (AIndex.data(RDR_TYPE).toInt() == RIT_SEARCH_LINK))
+	bool isDragged = AIndex.data(RDR_IS_DRAGGED).toBool();
+	int type = AIndex.data(RDR_TYPE).toInt();
+
+	if ((type == RIT_SEARCH_EMPTY) || (type == RIT_SEARCH_LINK) || isDragged)
 	{
 		if (option.state & QStyle::State_Selected)
 			option.state ^= QStyle::State_Selected;
 	}
 
-	if ((AIndex.data(RDR_TYPE).toInt() == RIT_SEARCH_LINK) && APainter)
+	if ((type == RIT_SEARCH_LINK) && APainter)
 	{
 		option.font.setUnderline(true);
 		option.palette.setColor(QPalette::Text, AOption.palette.link().color());
+	}
+
+	if (type == RIT_SEARCH_EMPTY)
+	{
+		option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Disabled, QPalette::Text));
+		option.displayAlignment = Qt::AlignHCenter;
 	}
 
 	if (APainter)
@@ -144,16 +153,31 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		APainter->save();
 		APainter->setClipping(true);
 		APainter->setClipRect(option.rect);
-		drawBackground(APainter,option);
+		drawBackground(APainter, option);
+		if (isDragged)
+		{
+			QPoint points[5] = {
+				option.rect.topLeft(),
+				option.rect.topRight(),
+				option.rect.bottomRight(),
+				option.rect.bottomLeft(),
+				option.rect.topLeft() };
+			QPen oldpen = APainter->pen();
+			QPen newpen = oldpen;
+			newpen.setColor(option.palette.color(QPalette::Disabled, QPalette::Text));
+			newpen.setStyle(Qt::DashLine);
+			APainter->setPen(newpen);
+			APainter->drawPolyline(points, 5);
+			APainter->setPen(oldpen);
+		}
 	}
-	bool draw = !AIndex.data(RDR_IS_DRAGGED).toBool();
 
 	if (AIndex.parent().isValid() && AIndex.model()->hasChildren(AIndex))
 	{
 		QStyleOption brachOption(option);
 		brachOption.state |= QStyle::State_Children;
 		brachOption.rect = QStyle::alignedRect(option.direction,Qt::AlignVCenter|Qt::AlignLeft,QSize(BRANCH_WIDTH,BRANCH_WIDTH),paintRect);
-		if (APainter && draw)
+		if (APainter && !isDragged)
 			style->drawPrimitive(QStyle::PE_IndicatorBranch, &brachOption, APainter);
 		removeWidth(paintRect,BRANCH_WIDTH,AOption.direction==Qt::LeftToRight);
 		rectHash.insert(RLID_INDICATORBRANCH,brachOption.rect);
@@ -173,7 +197,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		Qt::Alignment align = Qt::AlignLeft | Qt::AlignVCenter;
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,paintRect).intersected(paintRect);
 		removeWidth(paintRect, label.rect.width(), AOption.direction == Qt::LeftToRight);
-		if (APainter && draw)
+		if (APainter && !isDragged)
 			drawLabelItem(APainter, option, label);
 		rectHash.insert(label.id, label.rect);
 	}
@@ -185,7 +209,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		Qt::Alignment align = Qt::AlignRight | Qt::AlignVCenter;
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,paintRect).intersected(paintRect);
 		removeWidth(paintRect,label.rect.width(),AOption.direction!=Qt::LeftToRight);
-		if (APainter && draw)
+		if (APainter && !isDragged)
 			drawLabelItem(APainter,option,label);
 		rectHash.insert(label.id,label.rect);
 	}
@@ -220,12 +244,12 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		Qt::Alignment align = Qt::AlignVCenter | Qt::AlignLeft;
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,topRect).intersected(topRect);
 		removeWidth(topRect,label.rect.width(),option.direction==Qt::LeftToRight);
-		if (APainter && draw)
+		if (APainter && !isDragged)
 			drawLabelItem(APainter,option,label);
 		rectHash.insert(label.id,label.rect);
 	}
 
-	for (; leftIndex<=rightIndex && labels.at(rightIndex).order>=RLAP_RIGHT_TOP;rightIndex--)
+	for (; leftIndex <= rightIndex && labels.at(rightIndex).order >= RLAP_RIGHT_TOP; rightIndex--)
 	{
 		LabelItem &label = labels[rightIndex];
 		if (label.id == RLID_DISPLAY)
@@ -233,7 +257,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		Qt::Alignment align = Qt::AlignVCenter | Qt::AlignRight;
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,topRect).intersected(topRect);
 		removeWidth(topRect,label.rect.width(),option.direction!=Qt::LeftToRight);
-		if (APainter && draw)
+		if (APainter && !isDragged)
 			drawLabelItem(APainter,option,label);
 		rectHash.insert(label.id,label.rect);
 	}
@@ -243,8 +267,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		LabelItem &label = footers[i];
 		label.rect = QStyle::alignedRect(option.direction,Qt::AlignTop|Qt::AlignLeft,label.size,bottomRect).intersected(bottomRect);
 		bottomRect.setTop(label.rect.bottom());
-		if (APainter && draw)
-			drawLabelItem(APainter,indexFooterOptions(option),label);
+		if (APainter && !isDragged)
+			drawLabelItem(APainter,indexFooterOptions(option), label);
 		rectHash.insert(label.id,label.rect);
 	}
 

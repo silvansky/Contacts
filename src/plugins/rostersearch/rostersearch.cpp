@@ -110,7 +110,7 @@ bool RosterSearch::initObjects()
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), &FEditTimeout, SLOT(start()));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), SLOT(onSearchTextChanged(const QString&)));
 		FMainWindow->topToolBarChanger()->insertWidget(FSearchEdit);
-		setSearchEnabled(false);
+		setSearchEnabled(true);
 	}
 	if (FRostersViewPlugin)
 		FRostersViewPlugin->rostersView()->insertProxyModel(this, RPO_ROSTERSEARCH_FILTER);
@@ -126,11 +126,17 @@ void RosterSearch::startSearch()
 {
 	foundItems = 0;
 	setFilterRegExp(FSearchEdit->text());
+	if (!FSearchEdit->text().isEmpty())
+		createSearchLinks();
+	else
+	{
+		destroyNotFoundItem();
+		destroySearchLinks();
+	}
 	invalidate();
-	createSearchLinks();
 	if (FRostersViewPlugin)
 		FRostersViewPlugin->restoreExpandState();
-	if (!foundItems)
+	if (!(foundItems || FSearchEdit->text().isEmpty()))
 		createNotFoundItem();
 	emit searchResultUpdated();
 }
@@ -282,12 +288,14 @@ void RosterSearch::onEditTimedOut()
 
 void RosterSearch::onSearchTextChanged(const QString &text)
 {
-	setSearchEnabled(!text.isEmpty());
-	if (!searchEnabled)
+	//setSearchEnabled(!text.isEmpty());
+	if (!text.isEmpty())
 	{
 		destroyNotFoundItem();
 		destroySearchLinks();
 	}
+	else
+		createSearchLinks();
 }
 
 void RosterSearch::createSearchLinks()
@@ -296,11 +304,10 @@ void RosterSearch::createSearchLinks()
 	{
 		//destroySearchLinks();
 		QString searchText = FSearchEdit->text();
-		qDebug() << "searchText == " + searchText;
+		//qDebug() << "searchText == " + searchText;
 
-		if (!searchText.isEmpty())
+		if (!(searchText.isEmpty() || rostersModel->streams().isEmpty()))
 		{
-
 			searchInHistory = rostersModel->createRosterIndex(RIT_SEARCH_LINK, "searchInHistory", rostersModel->streamRoot(rostersModel->streams().first()));
 			rostersModel->insertRosterIndex(searchInHistory, rostersModel->streamRoot(rostersModel->streams().first()));
 
@@ -308,7 +315,9 @@ void RosterSearch::createSearchLinks()
 			rostersModel->insertRosterIndex(searchInRambler, rostersModel->streamRoot(rostersModel->streams().first()));
 
 			searchInHistory->setData(RDR_SEARCH_LINK, "http://rambler.ru");
+			searchInHistory->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
 			searchInRambler->setData(RDR_SEARCH_LINK, "http://nova.rambler.ru/search?query=" + searchText);
+			searchInRambler->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
 
 			if (!searchInHistoryLabel)
 				searchInHistoryLabel = FRostersViewPlugin->rostersView()->createIndexLabel(0, "");
@@ -324,7 +333,7 @@ void RosterSearch::createSearchLinks()
 
 void RosterSearch::destroySearchLinks()
 {
-	if (rostersModel)
+	if (rostersModel && !rostersModel->streams().isEmpty())
 	{
 		if (searchInHistory)
 		{
@@ -341,7 +350,7 @@ void RosterSearch::destroySearchLinks()
 
 void RosterSearch::createNotFoundItem()
 {
-	if (rostersModel)
+	if (rostersModel && !rostersModel->streams().isEmpty())
 	{
 		destroyNotFoundItem();
 		searchNotFound = rostersModel->createRosterIndex(RIT_SEARCH_EMPTY, "searchNotFound", rostersModel->streamRoot(rostersModel->streams().first()));
@@ -354,7 +363,7 @@ void RosterSearch::createNotFoundItem()
 
 void RosterSearch::destroyNotFoundItem()
 {
-	if (searchNotFound && rostersModel)
+	if (searchNotFound && rostersModel && !rostersModel->streams().isEmpty())
 	{
 		rostersModel->removeRosterIndex(rostersModel->findRosterIndex(searchNotFound->type(), searchNotFound->id(), rostersModel->streamRoot(rostersModel->streams().first())));
 		searchNotFound = NULL;

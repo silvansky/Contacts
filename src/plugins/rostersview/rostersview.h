@@ -130,6 +130,8 @@ protected slots:
 	void onIndexDestroyed(IRosterIndex *AIndex);
 	void onBlinkTimer();
 	void onDragExpandTimer();
+	void onEntered(const QModelIndex & index);
+	void onViewportEntered();
 private:
 	IRostersModel *FRostersModel;
 private:

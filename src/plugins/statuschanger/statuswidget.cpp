@@ -159,7 +159,7 @@ void StatusWidget::updateMoodText()
 
 void StatusWidget::onAvatarChanged(const QImage & img)
 {
-	ui->avatarLabel->setPixmap(QPixmap::fromImage(img.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
+	//ui->avatarLabel->setPixmap(QPixmap::fromImage(img.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
 }
 
 void StatusWidget::setUserName(const QString& name)

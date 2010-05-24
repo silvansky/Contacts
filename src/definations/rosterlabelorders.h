@@ -1,21 +1,25 @@
 #ifndef DEF_ROSTERLABELORDERS_H
 #define DEF_ROSTERLABELORDERS_H
 
-//РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… Р»СЌР№Р±Р»РѕРІ
+//Идентификаторы стандартных лэйблов
 #define RLID_FOOTER_TEXT                          -5
 #define RLID_DISPLAY                              -4
 #define RLID_DECORATION                           -3
 #define RLID_INDICATORBRANCH                      -2
 #define RLID_NULL                                 -1
 
-//Р›СЌР№Р±Р» РІС‹СЂР°РІРЅРёРІР°РµС‚СЃСЏ СЃР»РµРІР° РїРѕ С†РµРЅС‚СЂСѓ
-#define RLAP_LEFT_CENTER                          00000
-//Р›СЌР№Р±Р» РІС‹СЂР°РІРЅРёРІР°РµС‚СЃСЏ СЃР»РµРІР°
-#define RLAP_LEFT_TOP                             10000
-//Р›СЌР№Р±Р» РІС‹СЂР°РІРЅРёРІР°РµС‚СЃСЏ СЃРїСЂР°РІР°
-#define RLAP_RIGHT_TOP                            20000
-//Р›СЌР№Р±Р» РІС‹СЂР°РІРЅРёРІР°РµС‚СЃСЏ СЃРїСЂР°РІР° РїРѕ С†РµРЅС‚СЂСѓ
-#define RLAP_RIGHT_CENTER                         30000
+//Лэйбл выравнивается слева по центру
+#define RLAP_LEFT_CENTER			0
+//Лэйбл выравнивается слева
+#define RLAP_LEFT_TOP				10000
+//Лэйбл выравнивается справа
+#define RLAP_RIGHT_TOP				20000
+//Лэйбл выравнивается справа по центру
+#define RLAP_RIGHT_CENTER			30000
+//Лэйбл выравнивается по центру сверху
+#define RLAP_CENTER_TOP				40000
+//Лэйбл выравнивается по центру
+#define RLAP_CENTER_CENTER			50000
 
 /*************************************************************************/
 #define RLO_DECORATION                            RLAP_LEFT_CENTER + 500

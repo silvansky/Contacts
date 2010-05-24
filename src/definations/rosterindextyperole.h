@@ -128,7 +128,9 @@ enum RosterIndexDataRoles
 	RDR_SEARCH_LINK,
 	RDR_SEARCH_CAPTION,
 	//DND
-	RDR_IS_DRAGGED
+	RDR_IS_DRAGGED,
+	//Mouse cursor
+	RDR_MOUSE_CURSOR
 };
 
 #endif
