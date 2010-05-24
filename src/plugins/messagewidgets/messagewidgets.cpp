@@ -38,7 +38,7 @@ bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &/*AIni
 		if (FXmppStreams)
 		{
 			connect(FXmppStreams->instance(),SIGNAL(jidAboutToBeChanged(IXmppStream *, const Jid &)),
-			        SLOT(onStreamJidAboutToBeChanged(IXmppStream *, const Jid &)));
+				SLOT(onStreamJidAboutToBeChanged(IXmppStream *, const Jid &)));
 			connect(FXmppStreams->instance(),SIGNAL(removed(IXmppStream *)),SLOT(onStreamRemoved(IXmppStream *)));
 		}
 	}
@@ -148,7 +148,6 @@ IToolBarWidget *MessageWidgets::newToolBarWidget(IInfoWidget *AInfo, IViewWidget
 {
 	IToolBarWidget *widget = new ToolBarWidget(AInfo,AView,AEdit,AReceivers);
 	FCleanupHandler.add(widget->instance());
-	insertQuoteAction(widget);
 	emit toolBarWidgetCreated(widget);
 	return widget;
 }
@@ -364,18 +363,6 @@ void MessageWidgets::removeViewUrlHandler(IViewUrlHandler *AHandler, int AOrder)
 	}
 }
 
-void MessageWidgets::insertQuoteAction(IToolBarWidget *AWidget)
-{
-	if (AWidget->viewWidget() && AWidget->editWidget())
-	{
-		Action *action = new Action(AWidget->instance());
-		action->setToolTip(tr("Quote selected text"));
-		action->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_QUOTE);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onQuoteActionTriggered(bool)));
-		AWidget->toolBarChanger()->insertAction(action,TBG_MWTBW_MESSAGEWIDGETS_QUOTE);
-	}
-}
-
 void MessageWidgets::deleteWindows()
 {
 	foreach(ITabWindow *window, tabWindows())
@@ -403,28 +390,6 @@ void MessageWidgets::onViewWidgetUrlClicked(const QUrl &AUrl)
 		for (QMap<int,IViewUrlHandler *>::const_iterator it = FViewUrlHandlers.constBegin(); it!=FViewUrlHandlers.constEnd(); it++)
 			if (it.value()->viewUrlOpen(widget,AUrl,it.key()))
 				break;
-	}
-}
-
-void MessageWidgets::onQuoteActionTriggered(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	IToolBarWidget *widget = action!=NULL ? qobject_cast<IToolBarWidget *>(action->parent()) : NULL;
-	if (widget && widget->viewWidget() && widget->viewWidget()->messageStyle() && widget->editWidget())
-	{
-		QTextDocumentFragment fragment = widget->viewWidget()->messageStyle()->selection(widget->viewWidget()->styleWidget());
-		if (!fragment.toPlainText().trimmed().isEmpty())
-		{
-			QTextEdit *editor = widget->editWidget()->textEdit();
-			editor->textCursor().beginEditBlock();
-			if (!editor->textCursor().atBlockStart())
-				editor->textCursor().insertText("\n");
-			editor->textCursor().insertText(">----\n");
-			editor->textCursor().insertFragment(fragment);
-			editor->textCursor().insertText("\n----<\n");
-			editor->textCursor().endEditBlock();
-			editor->setFocus();
-		}
 	}
 }
 

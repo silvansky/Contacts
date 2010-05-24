@@ -77,4 +77,8 @@
 #define AG_BMM_BOOKMARKS_ITEMS                                  700
 #define AG_BBM_BOOKMARKS_TOOLS                                  900
 
+//ViewWidget - ContextMenu
+#define AG_VWCM_MESSAGEWIDGETS_COPY                             500
+#define AG_VWCM_MESSAGEWIDGETS_QUOTE                            500
+
 #endif

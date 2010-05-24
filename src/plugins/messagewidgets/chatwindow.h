@@ -1,6 +1,9 @@
 #ifndef CHATWINDOW_H
 #define CHATWINDOW_H
 
+#include <definations/resources.h>
+#include <definations/menuicons.h>
+#include <definations/actiongroups.h>
 #include <definations/optionvalues.h>
 #include <definations/messagedataroles.h>
 #include <interfaces/imessagewidgets.h>
@@ -60,6 +63,8 @@ protected slots:
 	void onMessageReady();
 	void onStreamJidChanged(const Jid &ABefour);
 	void onOptionsChanged(const OptionsNode &ANode);
+	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
+	void onQuoteActionTriggered(bool);
 private:
 	Ui::ChatWindowClass ui;
 private:

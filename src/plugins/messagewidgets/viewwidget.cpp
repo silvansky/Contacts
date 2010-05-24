@@ -1,10 +1,10 @@
 #include "viewwidget.h"
 
+#include <QClipboard>
 #include <QTextFrame>
 #include <QTextTable>
 #include <QScrollBar>
 #include <QVBoxLayout>
-#include <QTextDocumentFragment>
 
 ViewWidget::ViewWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
 {
@@ -69,7 +69,7 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 		if (befour)
 		{
 			disconnect(befour->instance(),SIGNAL(contentAppended(QWidget *, const QString &, const IMessageContentOptions &)),
-			           this, SLOT(onContentAppended(QWidget *, const QString &, const IMessageContentOptions &)));
+				this, SLOT(onContentAppended(QWidget *, const QString &, const IMessageContentOptions &)));
 			disconnect(befour->instance(),SIGNAL(urlClicked(QWidget *, const QUrl &)),this,SLOT(onUrlClicked(QWidget *, const QUrl &)));
 			ui.wdtViewer->layout()->removeWidget(FStyleWidget);
 			FStyleWidget->deleteLater();
@@ -78,10 +78,12 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 		if (FMessageStyle)
 		{
 			FStyleWidget = FMessageStyle->createWidget(AOptions,ui.wdtViewer);
-			connect(FMessageStyle->instance(),SIGNAL(contentAppended(QWidget *, const QString &, const IMessageContentOptions &)),
-			        SLOT(onContentAppended(QWidget *, const QString &, const IMessageContentOptions &)));
-			connect(FMessageStyle->instance(),SIGNAL(urlClicked(QWidget *, const QUrl &)),SLOT(onUrlClicked(QWidget *, const QUrl &)));
+			FStyleWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+			connect(FStyleWidget,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onCustomContextMenuRequested(const QPoint &)));
 			ui.wdtViewer->layout()->addWidget(FStyleWidget);
+			connect(FMessageStyle->instance(),SIGNAL(contentAppended(QWidget *, const QString &, const IMessageContentOptions &)),
+				SLOT(onContentAppended(QWidget *, const QString &, const IMessageContentOptions &)));
+			connect(FMessageStyle->instance(),SIGNAL(urlClicked(QWidget *, const QUrl &)),SLOT(onUrlClicked(QWidget *, const QUrl &)));
 		}
 		emit messageStyleChanged(befour,AOptions);
 	}
@@ -190,4 +192,31 @@ void ViewWidget::onUrlClicked(QWidget *AWidget, const QUrl &AUrl)
 {
 	if (AWidget == FStyleWidget)
 		emit urlClicked(AUrl);
+}
+
+void ViewWidget::onCustomContextMenuRequested(const QPoint &APosition)
+{
+	Menu *menu = new Menu(this);
+	menu->setAttribute(Qt::WA_DeleteOnClose, true);
+
+	QTextDocumentFragment selected = FMessageStyle->selection(FStyleWidget);
+	if (!selected.isEmpty())
+	{
+		Action *copyAction = new Action(menu);
+		copyAction->setText(tr("Copy"));
+		copyAction->setShortcut(QKeySequence::Copy);
+		connect(copyAction,SIGNAL(triggered(bool)),SLOT(onCopyActionTriggered(bool)));
+		menu->addAction(copyAction,AG_VWCM_MESSAGEWIDGETS_COPY);
+	}
+	emit contextMenuRequested(APosition,selected,menu);
+
+	if (!menu->isEmpty())
+		menu->popup(FStyleWidget->mapToGlobal(APosition));
+	else
+		delete menu;
+}
+
+void ViewWidget::onCopyActionTriggered(bool)
+{
+	QApplication::clipboard()->setText(FMessageStyle->selection(FStyleWidget).toPlainText());
 }

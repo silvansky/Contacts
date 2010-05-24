@@ -24,6 +24,8 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	ui.wdtView->setLayout(new QVBoxLayout);
 	ui.wdtView->layout()->setMargin(0);
 	ui.wdtView->layout()->addWidget(FViewWidget->instance());
+	connect(FViewWidget->instance(),SIGNAL(contextMenuRequested(const QPoint &, const QTextDocumentFragment &, Menu *)),
+		SLOT(onViewWidgetContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)));
 
 	FEditWidget = FMessageWidgets->newEditWidget(AStreamJid,AContactJid);
 	ui.wdtEdit->setLayout(new QVBoxLayout);
@@ -221,6 +223,35 @@ void ChatWindow::onOptionsChanged(const OptionsNode &ANode)
 {
 	if (ANode.path() == OPV_MESSAGES_SHOWINFOWIDGET)
 	{
-		FInfoWidget->instance()->setVisible(ANode.value().toBool());
+		ui.wdtInfo->setVisible(ANode.value().toBool());
+	}
+}
+
+void ChatWindow::onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
+{
+	Q_UNUSED(APosition);
+	if (!ASelection.toPlainText().trimmed().isEmpty())
+	{
+		Action *action = new Action(AMenu);
+		action->setText(tr("Quote"));
+		action->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_QUOTE);
+		connect(action,SIGNAL(triggered(bool)),SLOT(onQuoteActionTriggered(bool)));
+		AMenu->addAction(action,AG_VWCM_MESSAGEWIDGETS_QUOTE,true);
+	}
+}
+
+void ChatWindow::onQuoteActionTriggered(bool)
+{
+	QTextDocumentFragment fragment = viewWidget()->messageStyle()->selection(viewWidget()->styleWidget());
+	if (!fragment.toPlainText().trimmed().isEmpty())
+	{
+		QTextEdit *editor = editWidget()->textEdit();
+		editor->textCursor().beginEditBlock();
+		if (!editor->textCursor().atBlockStart())
+			editor->textCursor().insertText("\n");
+		editor->textCursor().insertText("> ");
+		editor->textCursor().insertFragment(fragment);
+		editor->textCursor().endEditBlock();
+		editor->setFocus();
 	}
 }

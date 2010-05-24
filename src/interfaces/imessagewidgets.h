@@ -5,6 +5,7 @@
 #include <QMultiMap>
 #include <QTextBrowser>
 #include <QTextDocument>
+#include <QTextDocumentFragment>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imessagestyles.h>
 #include <utils/jid.h>
@@ -68,6 +69,7 @@ protected:
 	virtual void contactJidChanged(const Jid &ABefour) =0;
 	virtual void messageStyleChanged(IMessageStyle *ABefour, const IMessageStyleOptions &AOptions) =0;
 	virtual void contentAppended(const QString &AMessage, const IMessageContentOptions &AOptions) =0;
+	virtual void contextMenuRequested(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu) =0;
 	virtual void urlClicked(const QUrl &AUrl) const =0;
 };
 

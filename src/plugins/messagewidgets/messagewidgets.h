@@ -8,7 +8,6 @@
 #include <definations/optionnodeorders.h>
 #include <definations/optionwidgetorders.h>
 #include <definations/viewurlhandlerorders.h>
-#include <definations/toolbargroups.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/ioptionsmanager.h>
@@ -101,12 +100,10 @@ signals:
 	void viewUrlHandlerInserted(IViewUrlHandler *AHandler, int AOrder);
 	void viewUrlHandlerRemoved(IViewUrlHandler *AHandler, int AOrder);
 protected:
-	void insertQuoteAction(IToolBarWidget *AWidget);
 	void deleteWindows();
 	void deleteStreamWindows(const Jid &AStreamJid);
 protected slots:
 	void onViewWidgetUrlClicked(const QUrl &AUrl);
-	void onQuoteActionTriggered(bool);
 	void onMessageWindowDestroyed();
 	void onChatWindowDestroyed();
 	void onTabWindowPageAdded(ITabWindowPage *APage);
