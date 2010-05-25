@@ -163,6 +163,7 @@ private:
 	QTimer FDragExpandTimer;
 	QRect FDropIndicatorRect;
 	QRect insertIndicatorRect;
+	QRect dragRect;
 	QList<IRostersDragDropHandler *> FDragDropHandlers;
 	QList<IRostersDragDropHandler *> FActiveDragHandlers;
 };

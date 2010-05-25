@@ -1165,14 +1165,6 @@ void StatusChanger::onProfileOpened(const QString &AProfile)
 			setStreamStatus(presence->streamJid(), statusId);
 		}
 	}
-	if (vCardPlugin)
-	{
-		if (vCardPlugin->requestVCard(AProfile, AProfile))
-		{
-			IVCard * vcard = vCardPlugin->vcard(AProfile);
-			updateVCardInfo(vcard);
-		};
-	}
 	if (avatars && !accountManager->accounts().isEmpty() && accountManager->accounts().first()->xmppStream())
 		avatars->insertAutoAvatar(statusWidget->ui->avatarLabel, accountManager->accounts().first()->xmppStream()->streamJid(), QSize(64, 64), "pixmap");
 }
@@ -1237,6 +1229,7 @@ void StatusChanger::onVcardReceived(const Jid & jid)
 		{
 			IVCard * vcard = vCardPlugin->vcard(jid);
 			updateVCardInfo(vcard);
+			vcard->unlock();
 		}
 	}
 }

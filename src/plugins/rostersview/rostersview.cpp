@@ -1004,28 +1004,38 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 	else
 		FDragExpandTimer.stop();
 
-	QRect vRect = visualRect(index), highlightRect;
-	highlightRect = vRect;
-	int indexType = index.data(RDR_TYPE).toInt();
-	if ((vRect.y() + vRect.height() / 2) < AEvent->pos().y())
+	if (index != FPressedIndex)
 	{
-		highlightRect.setTop(vRect.bottom() + 1);
-	}
-	if (indexType == RIT_CONTACT || indexType == RIT_GROUP)
-	{
-		QModelIndex group = indexType == RIT_CONTACT ? index.parent() : index;
-		vRect = visualRect(group);
-		int irow = 0;
-		QModelIndex child;
-		while ((child = group.child(irow, 0)).isValid())
+
+		QRect vRect = visualRect(index), highlightRect;
+		highlightRect = vRect;
+		dragRect = vRect;
+		int indexType = index.data(RDR_TYPE).toInt();
+		if ((vRect.y() + vRect.height() / 2) < AEvent->pos().y())
 		{
-			if (child.data(RDR_TYPE).toInt() == RIT_CONTACT)
-				vRect = vRect.united(visualRect(child));
-			irow++;
+			highlightRect.setTop(vRect.bottom() + 1);
 		}
+		if (indexType == RIT_CONTACT || indexType == RIT_GROUP)
+		{
+			QModelIndex group = indexType == RIT_CONTACT ? index.parent() : index;
+			vRect = visualRect(group);
+			int irow = 0;
+			QModelIndex child;
+			while ((child = group.child(irow, 0)).isValid())
+			{
+				if (child.data(RDR_TYPE).toInt() == RIT_CONTACT)
+					vRect = vRect.united(visualRect(child));
+				irow++;
+			}
+		}
+		setDropIndicatorRect(vRect);
+		setInsertIndicatorRect(highlightRect);
 	}
-	setDropIndicatorRect(vRect);
-	setInsertIndicatorRect(highlightRect);
+	else
+	{
+		setDropIndicatorRect(QRect());
+		setInsertIndicatorRect(QRect());
+	}
 }
 
 void RostersView::dragLeaveEvent(QDragLeaveEvent *AEvent)
@@ -1144,7 +1154,7 @@ void RostersView::onBlinkTimer()
 
 void RostersView::onDragExpandTimer()
 {
-	QModelIndex index = indexAt(FDropIndicatorRect.center());
+	QModelIndex index = indexAt(dragRect.center());
 	setExpanded(index,true);
 }
 
