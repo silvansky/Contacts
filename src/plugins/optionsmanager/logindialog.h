@@ -14,6 +14,7 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/iaccountmanager.h>
+#include <interfaces/ipresence.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/iconnectionmanager.h>

@@ -524,7 +524,12 @@ void LoginDialog::onConnectClicked()
 							disconnect(account->xmppStream()->instance(),0,this,0);
 							connect(account->xmppStream()->instance(),SIGNAL(opened()),SLOT(onXmppStreamOpened()));
 							connect(account->xmppStream()->instance(),SIGNAL(closed()),SLOT(onXmppStreamClosed()));
-							FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(), account->optionsNode().value("status.last-online").toInt());
+
+							FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(), STATUS_MAIN_ID);
+
+							int mainShow = FStatusChanger->statusItemShow(FStatusChanger->mainStatus());
+							if (mainShow==IPresence::Offline || mainShow==IPresence::Error)
+								FStatusChanger->setMainStatus(STATUS_ONLINE);
 						}
 						else
 							showXmppStreamError(tr("Unable to activate account"), QString::null, tr("Internal error, contact support"));
