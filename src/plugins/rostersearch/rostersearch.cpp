@@ -105,7 +105,7 @@ bool RosterSearch::initObjects()
 		FFieldsMenu = new Menu(FMainWindow->topToolBarChanger()->toolBar());
 		FFieldsMenu->setVisible(false);
 		FFieldsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERSEARCH_MENU);
-		FSearchEdit = new QLineEdit(FMainWindow->topToolBarChanger()->toolBar());
+		FSearchEdit = new SearchEdit(FMainWindow->topToolBarChanger()->toolBar());
 		FSearchEdit->setToolTip(tr("Search in roster"));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), &FEditTimeout, SLOT(start()));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), SLOT(onSearchTextChanged(const QString&)));

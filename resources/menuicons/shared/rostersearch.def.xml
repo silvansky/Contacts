@@ -4,4 +4,16 @@
     <key>rostersearchMenu</key>
     <object mime="image/png">rostersearch.png</object>
   </icon>
+  <icon>
+    <key>rostersearchIconGlass</key>
+    <object mime="image/png">rostersearchIconGlass.png</object>
+  </icon>
+  <icon>
+    <key>rostersearchIconCross</key>
+    <object mime="image/png">rostersearchIconCross.png</object>
+  </icon>
+  <icon>
+    <key>rostersearchIconCrossHover</key>
+    <object mime="image/png">rostersearchIconCrossHover.png</object>
+  </icon>
 </icondef>

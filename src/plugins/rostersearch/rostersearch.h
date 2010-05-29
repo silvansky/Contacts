@@ -17,6 +17,7 @@
 #include <interfaces/irostersmodel.h>
 #include <utils/action.h>
 #include <utils/toolbarchanger.h>
+#include "searchedit.h"
 
 class RosterSearch :
 			public QSortFilterProxyModel,
@@ -77,7 +78,7 @@ private:
 private:
 	Menu *FFieldsMenu;
 	QTimer FEditTimeout;
-	QLineEdit *FSearchEdit;
+	SearchEdit *FSearchEdit;
 	//ToolBarChanger *FSearchToolBarChanger;
 	QHash<int,Action *> FFieldActions;
 	bool searchEnabled;
