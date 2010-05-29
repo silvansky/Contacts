@@ -20,6 +20,7 @@ public:
 
 protected:
 	void changeEvent(QEvent *e);
+	void paintEvent(QPaintEvent *);
 	bool eventFilter(QObject *, QEvent *);
 	void updateMoodText();
 
@@ -29,6 +30,7 @@ private:
 	::SelectAvatarWidget * selectAvatarWidget;
 	QString userName;
 	QString userMood;
+	QImage logo;
 	QLineEdit * moodEditor;
 signals:
 	void avatarChanged(const QImage &);

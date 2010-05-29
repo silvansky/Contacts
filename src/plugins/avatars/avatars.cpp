@@ -103,9 +103,9 @@ bool Avatars::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*
 		if (FRostersViewPlugin)
 		{
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
-			        SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)),
-			        SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)));
+				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)));
 		}
 	}
 
@@ -634,7 +634,7 @@ void Avatars::updateAvatarObject(QObject *AObject)
 	}
 	if (!image.isNull())
 	{
-		QPixmap pixmap = !params.size.isEmpty() ? QPixmap::fromImage(image.scaled(params.size,Qt::KeepAspectRatio,Qt::FastTransformation)) : QPixmap::fromImage(image);
+		QPixmap pixmap = !params.size.isEmpty() ? QPixmap::fromImage(image.scaled(params.size,Qt::KeepAspectRatio,Qt::SmoothTransformation)) : QPixmap::fromImage(image);
 		if (params.prop == "pixmap")
 			AObject->setProperty(params.prop.toLatin1(),pixmap);
 		else

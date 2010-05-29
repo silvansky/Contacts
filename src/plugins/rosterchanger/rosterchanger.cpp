@@ -154,9 +154,9 @@ bool RosterChanger::initObjects()
 		action->setText(tr("Add group"));
 		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_GROUP);
 		addMenu->addAction(action);
-		QToolButton * button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(addMenu->menuAction(), TBG_ALLIGN_CHANGE);
+		QToolButton * button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(addMenu->menuAction(), TBG_ALLIGN_CHANGE - 1);
 		button->setPopupMode(QToolButton::InstantPopup);
-		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+		button->setToolButtonStyle(Qt::ToolButtonTextOnly);
 		button->setDefaultAction(addMenu->menuAction());
 	}
 	return true;

@@ -1166,7 +1166,7 @@ void StatusChanger::onProfileOpened(const QString &AProfile)
 		}
 	}
 	if (avatars && !accountManager->accounts().isEmpty() && accountManager->accounts().first()->xmppStream())
-		avatars->insertAutoAvatar(statusWidget->ui->avatarLabel, accountManager->accounts().first()->xmppStream()->streamJid(), QSize(64, 64), "pixmap");
+		avatars->insertAutoAvatar(statusWidget->ui->avatarLabel, accountManager->accounts().first()->xmppStream()->streamJid(), QSize(32, 32), "pixmap");
 }
 
 void StatusChanger::onReconnectTimer()

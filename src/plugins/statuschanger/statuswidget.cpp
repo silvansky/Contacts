@@ -3,6 +3,9 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QDebug>
+#include <utils/iconstorage.h>
+#include <definations/menuicons.h>
+#include <definations/resources.h>
 
 #define DEFAULT_MOOD_TEXT "<i><font color=grey>Tell your friends about your mood</font></i>"
 
@@ -23,6 +26,8 @@ StatusWidget::StatusWidget(QWidget *parent) :
 	ui->moodEdit->setVisible(false);
 	ui->moodEdit->installEventFilter(this);
 	ui->moodLabel->installEventFilter(this);
+	QString logoPath = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTER_LOGO);
+	logo.load(logoPath);
 }
 
 StatusWidget::~StatusWidget()
@@ -40,6 +45,16 @@ void StatusWidget::changeEvent(QEvent *e)
 		break;
 	default:
 		break;
+	}
+}
+
+void StatusWidget::paintEvent(QPaintEvent * event)
+{
+	QWidget::paintEvent(event);
+	if (!logo.isNull())
+	{
+		QPainter painter(this);
+		painter.drawImage(rect().right() - logo.width(), 0, logo);
 	}
 }
 
