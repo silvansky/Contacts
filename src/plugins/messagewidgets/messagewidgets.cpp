@@ -510,7 +510,7 @@ void MessageWidgets::onViewContextSearchActionTriggered(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		QUrl url = "http://nova.rambler.ru/search";
+		QUrl url = QString("http://nova.rambler.ru/search");
 		url.setQueryItems(QList<QPair<QString,QString> >() << qMakePair<QString,QString>(QString("query"),action->data(ADR_CONTEXT_DATA).toString()));
 		QDesktopServices::openUrl(url);
 	}
