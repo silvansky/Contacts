@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>262</height>
+    <width>404</width>
+    <height>244</height>
    </rect>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -17,6 +17,9 @@
     </property>
     <item>
      <widget class="TabWidget" name="twtTabs">
+      <property name="tabPosition">
+       <enum>QTabWidget::South</enum>
+      </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
         <string>Tab 1</string>

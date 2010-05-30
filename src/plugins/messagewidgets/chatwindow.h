@@ -33,6 +33,7 @@ public:
 	virtual void setContactJid(const Jid &AContactJid);
 	virtual IInfoWidget *infoWidget() const { return FInfoWidget; }
 	virtual IViewWidget *viewWidget() const { return FViewWidget; }
+	virtual INoticeWidget *noticeWidget() const { return FNoticeWidget; }
 	virtual IEditWidget *editWidget() const { return FEditWidget; }
 	virtual IMenuBarWidget *menuBarWidget() const { return FMenuBarWidget; }
 	virtual IToolBarWidget *toolBarWidget() const { return FToolBarWidget; }
@@ -64,7 +65,8 @@ protected slots:
 	void onStreamJidChanged(const Jid &ABefour);
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
-	void onQuoteActionTriggered(bool);
+	void onViewContextQuoteActionTriggered(bool);
+	void onNoticeActivated(int ANoticeId);
 private:
 	Ui::ChatWindowClass ui;
 private:
@@ -73,6 +75,7 @@ private:
 private:
 	IInfoWidget *FInfoWidget;
 	IViewWidget *FViewWidget;
+	INoticeWidget *FNoticeWidget;
 	IEditWidget *FEditWidget;
 	IMenuBarWidget *FMenuBarWidget;
 	IToolBarWidget *FToolBarWidget;

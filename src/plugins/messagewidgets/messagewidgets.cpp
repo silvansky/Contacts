@@ -1,5 +1,11 @@
 #include "messagewidgets.h"
 
+#include <QTextBlock>
+#include <QClipboard>
+#include <QDesktopServices>
+
+#define ADR_CONTEXT_DATA							Action::DR_Parametr1
+
 MessageWidgets::MessageWidgets()
 {
 	FPluginManager = NULL;
@@ -114,9 +120,19 @@ IInfoWidget *MessageWidgets::newInfoWidget(const Jid &AStreamJid, const Jid &ACo
 IViewWidget *MessageWidgets::newViewWidget(const Jid &AStreamJid, const Jid &AContactJid)
 {
 	IViewWidget *widget = new ViewWidget(this,AStreamJid,AContactJid);
+	connect(widget->instance(),SIGNAL(viewContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)),
+		SLOT(onViewWidgetContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)));
 	connect(widget->instance(),SIGNAL(urlClicked(const QUrl &)),SLOT(onViewWidgetUrlClicked(const QUrl &)));
 	FCleanupHandler.add(widget->instance());
 	emit viewWidgetCreated(widget);
+	return widget;
+}
+
+INoticeWidget * MessageWidgets::newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid)
+{
+	INoticeWidget *widget = new NoticeWidget(this,AStreamJid,AContactJid);
+	FCleanupHandler.add(widget->instance());
+	emit noticeWidgetCreated(widget);
 	return widget;
 }
 
@@ -382,6 +398,34 @@ void MessageWidgets::deleteStreamWindows(const Jid &AStreamJid)
 			delete window->instance();
 }
 
+QString MessageWidgets::selectionHref(const QTextDocumentFragment &ASelection) const
+{
+	QString href;
+
+	QTextDocument doc;
+	doc.setHtml(ASelection.toHtml());
+
+	QTextBlock block = doc.firstBlock();
+	while (block.isValid())
+	{
+		for (QTextBlock::iterator it = block.begin(); !it.atEnd(); it++)
+		{
+			if (it.fragment().charFormat().isAnchor())
+			{
+				if (href.isNull())
+					href = it.fragment().charFormat().anchorHref();
+				else if (href != it.fragment().charFormat().anchorHref())
+					return QString::null;
+			}
+			else
+				return QString::null;
+		}
+		block = block.next();
+	}
+	
+	return href;
+}
+
 void MessageWidgets::onViewWidgetUrlClicked(const QUrl &AUrl)
 {
 	IViewWidget *widget = qobject_cast<IViewWidget *>(sender());
@@ -390,6 +434,85 @@ void MessageWidgets::onViewWidgetUrlClicked(const QUrl &AUrl)
 		for (QMap<int,IViewUrlHandler *>::const_iterator it = FViewUrlHandlers.constBegin(); it!=FViewUrlHandlers.constEnd(); it++)
 			if (it.value()->viewUrlOpen(widget,AUrl,it.key()))
 				break;
+	}
+}
+
+void MessageWidgets::onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
+{
+	Q_UNUSED(APosition);
+	if (!ASelection.isEmpty())
+	{
+		Action *copyAction = new Action(AMenu);
+		copyAction->setText(tr("Copy"));
+		copyAction->setShortcut(QKeySequence::Copy);
+		copyAction->setData(ADR_CONTEXT_DATA,ASelection.toHtml());
+		connect(copyAction,SIGNAL(triggered(bool)),SLOT(onViewContextCopyActionTriggered(bool)));
+		AMenu->addAction(copyAction,AG_VWCM_MESSAGEWIDGETS_COPY,true);
+	
+		QUrl href = selectionHref(ASelection);
+		if (href.isValid() && !href.isEmpty())
+		{
+			Action *urlAction = new Action(AMenu);
+			urlAction->setText(href.scheme()=="mailto" ? tr("Send mail") : tr("Open link"));
+			urlAction->setData(ADR_CONTEXT_DATA,href.toString());
+			connect(urlAction,SIGNAL(triggered(bool)),SLOT(onViewContextUrlActionTriggered(bool)));
+			AMenu->addAction(urlAction,AG_VWCM_MESSAGEWIDGETS_URL,true);
+			AMenu->setDefaultAction(urlAction);
+
+		  Action *copyHrefAction = new Action(AMenu);
+			copyHrefAction->setText(href.scheme()=="mailto" ? tr("Copy e-mail address") : tr("Copy link address"));
+			copyHrefAction->setData(ADR_CONTEXT_DATA,href.toString());
+			connect(copyHrefAction,SIGNAL(triggered(bool)),SLOT(onViewContextCopyActionTriggered(bool)));
+			AMenu->addAction(copyHrefAction,AG_VWCM_MESSAGEWIDGETS_COPY,true);
+		}
+
+		if (!href.isValid() || href.scheme()=="mailto")
+		{
+			Action *searchAction = new Action(AMenu);
+			if (href.scheme()=="mailto")
+			{
+				searchAction->setText(tr("Search on Rambler '%1'").arg(href.path()));
+				searchAction->setData(ADR_CONTEXT_DATA,href.path());
+			}
+			else
+			{
+				searchAction->setText(tr("Search on Rambler"));
+				searchAction->setData(ADR_CONTEXT_DATA,ASelection.toPlainText());
+			}
+			connect(searchAction,SIGNAL(triggered(bool)),SLOT(onViewContextSearchActionTriggered(bool)));
+			AMenu->addAction(searchAction,AG_VWCM_MESSAGEWIDGETS_SEARCH,true);
+		}
+	}
+}
+
+void MessageWidgets::onViewContextCopyActionTriggered(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QMimeData *data = new QMimeData;
+		data->setHtml(action->data(ADR_CONTEXT_DATA).toString());
+		QApplication::clipboard()->setMimeData(data);
+	}
+}
+
+void MessageWidgets::onViewContextUrlActionTriggered(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QDesktopServices::openUrl(action->data(ADR_CONTEXT_DATA).toString());
+	}
+}
+
+void MessageWidgets::onViewContextSearchActionTriggered(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QUrl url = "http://nova.rambler.ru/search";
+		url.setQueryItems(QList<QPair<QString,QString> >() << qMakePair<QString,QString>(QString("query"),action->data(ADR_CONTEXT_DATA).toString()));
+		QDesktopServices::openUrl(url);
 	}
 }
 

@@ -109,9 +109,10 @@ bool RosterSearch::initObjects()
 		FSearchEdit->setToolTip(tr("Search in roster"));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), &FEditTimeout, SLOT(start()));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), SLOT(onSearchTextChanged(const QString&)));
-		FMainWindow->topToolBarChanger()->insertWidget(FSearchEdit);
+		FMainWindow->topToolBarChanger()->insertWidget(FSearchEdit, TBG_MWTTB_ROSTERSEARCH);
 		setSearchEnabled(true);
 	}
+
 	if (FRostersViewPlugin)
 		FRostersViewPlugin->rostersView()->insertProxyModel(this, RPO_ROSTERSEARCH_FILTER);
 

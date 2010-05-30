@@ -2813,9 +2813,9 @@ void MessageArchiver::onToolBarWidgetCreated(IToolBarWidget *AWidget)
 		viewButton->setMenu(setupMenu);
 		connect(setupMenu,SIGNAL(aboutToShow()),SLOT(onToolBarSettingsMenuAboutToShow()));
 
-		ChatWindowMenu *chatMenu = new ChatWindowMenu(this,AWidget,AWidget->toolBarChanger()->toolBar());
-		QToolButton *chatButton = AWidget->toolBarChanger()->insertAction(chatMenu->menuAction(), TBG_MWTBW_ARCHIVE_SETTINGS);
-		chatButton->setPopupMode(QToolButton::InstantPopup);
+		//ChatWindowMenu *chatMenu = new ChatWindowMenu(this,AWidget,AWidget->toolBarChanger()->toolBar());
+		//QToolButton *chatButton = AWidget->toolBarChanger()->insertAction(chatMenu->menuAction(), TBG_MWTBW_ARCHIVE_SETTINGS);
+		//chatButton->setPopupMode(QToolButton::InstantPopup);
 	}
 }
 

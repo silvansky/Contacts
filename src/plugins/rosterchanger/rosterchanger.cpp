@@ -18,6 +18,17 @@
 #define ADR_GROUP           Action::DR_Parametr3
 #define ADR_REQUEST         Action::DR_Parametr4
 #define ADR_TO_GROUP        Action::DR_Parametr4
+#define ADR_NOTICE_ID				Action::DR_UserDefined+1
+
+enum NoticeActions 
+{
+	NA_NO_ACTIONS          = 0x00,
+	NA_ADD_CONTACT         = 0x01,
+	NA_ASK_SUBSCRIBE       = 0x02,
+	NA_SUBSCRIBE           = 0x04,
+	NA_UNSUBSCRIBE         = 0x08,
+	NA_CLOSE               = 0x10
+};
 
 RosterChanger::RosterChanger()
 {
@@ -30,6 +41,9 @@ RosterChanger::RosterChanger()
 	FOptionsManager = NULL;
 	FXmppUriQueries = NULL;
 	FMultiUserChatPlugin = NULL;
+	FAccountManager = NULL;
+	FMessageWidgets = NULL;
+	FMessageProcessor = NULL;
 }
 
 RosterChanger::~RosterChanger()
@@ -117,7 +131,22 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &/*AInit
 
 	plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);
 	if (plugin)
-		accountManager = qobject_cast<IAccountManager *>(plugin->instance());
+		FAccountManager = qobject_cast<IAccountManager *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
+	if (plugin)
+	{
+		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
+		if (FMessageWidgets)
+		{
+			connect(FMessageWidgets->instance(),SIGNAL(chatWindowCreated(IChatWindow *)),SLOT(onChatWindowCreated(IChatWindow *)));
+			connect(FMessageWidgets->instance(),SIGNAL(chatWindowDestroyed(IChatWindow *)),SLOT(onChatWindowDestroyed(IChatWindow *)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
+	if (plugin)
+		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 
 	return FRosterPlugin!=NULL;
 }
@@ -140,21 +169,22 @@ bool RosterChanger::initObjects()
 	}
 	if (FMainWindowPlugin)
 	{
-		Menu * addMenu = new Menu(FMainWindowPlugin->mainWindow()->topToolBarChanger()->toolBar());
+		Menu *addMenu = new Menu(FMainWindowPlugin->mainWindow()->topToolBarChanger()->toolBar());
 		addMenu->setTitle("Add...");
 		addMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_CONTACT);
-		Action *action = new Action(FMainWindowPlugin->mainWindow()->topToolBarChanger()->toolBar());
+
+		Action *action = new Action(addMenu);
 		action->setText(tr("Add contact"));
 		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_CONTACT);
-		//if (!accountManager->accounts().empty() && accountManager->accounts().first()->xmppStream())
-		//	action->setData(ADR_STREAM_JID, accountManager->accounts().first()->xmppStream()->streamJid().full());
 		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddContactDialog(bool)));
 		addMenu->addAction(action);
-		action = new Action(FMainWindowPlugin->mainWindow()->topToolBarChanger()->toolBar());
+
+		action = new Action(addMenu);
 		action->setText(tr("Add group"));
 		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_GROUP);
 		addMenu->addAction(action);
-		QToolButton * button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(addMenu->menuAction(), TBG_ALLIGN_CHANGE - 1);
+
+		QToolButton *button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(addMenu->menuAction(), TBG_MWTTB_ROSTERCHANGER_ADDCONTACT);
 		button->setPopupMode(QToolButton::InstantPopup);
 		button->setToolButtonStyle(Qt::ToolButtonTextOnly);
 		button->setDefaultAction(addMenu->menuAction());
@@ -472,24 +502,28 @@ IAddContactDialog *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 	return NULL;
 }
 
-QString RosterChanger::subscriptionNotify(int ASubsType, const Jid &AContactJid) const
+QString RosterChanger::subscriptionNotify(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const
 {
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRosterItem ritem = roster!=NULL ? roster->rosterItem(AContactJid) : IRosterItem();
+	QString name = ritem.isValid && !ritem.name.isEmpty() ? ritem.name : AContactJid.bare();
+
 	switch (ASubsType)
 	{
 	case IRoster::Subscribe:
-		return tr("%1 wants to subscribe to your presence.").arg(AContactJid.hBare());
+		return tr("%1 wants to subscribe to your presence").arg(name);
 	case IRoster::Subscribed:
-		return tr("You are now subscribed for %1 presence.").arg(AContactJid.hBare());
+		return tr("You are now subscribed for %1 presence").arg(name);
 	case IRoster::Unsubscribe:
-		return tr("%1 unsubscribed from your presence.").arg(AContactJid.hBare());
+		return tr("%1 unsubscribed from your presence").arg(name);
 	case IRoster::Unsubscribed:
-		return tr("You are now unsubscribed from %1 presence.").arg(AContactJid.hBare());
+		return tr("You are now unsubscribed from %1 presence").arg(name);
 	}
+
 	return QString::null;
 }
 
-Menu *RosterChanger::createGroupMenu(const QHash<int,QVariant> &AData, const QSet<QString> &AExceptGroups,
-				     bool ANewGroup, bool ARootGroup, const char *ASlot, Menu *AParent)
+Menu *RosterChanger::createGroupMenu(const QHash<int,QVariant> &AData, const QSet<QString> &AExceptGroups, bool ANewGroup, bool ARootGroup, const char *ASlot, Menu *AParent)
 {
 	Menu *menu = new Menu(AParent);
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AData.value(ADR_STREAM_JID).toString()) : NULL;
@@ -576,43 +610,122 @@ Menu *RosterChanger::createGroupMenu(const QHash<int,QVariant> &AData, const QSe
 	return menu;
 }
 
-SubscriptionDialog *RosterChanger::findSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid) const
+SubscriptionDialog *RosterChanger::createSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANotify, const QString &AMessage)
 {
-	foreach (SubscriptionDialog *dialog, FNotifyDialog)
-		if (dialog && dialog->streamJid()==AStreamJid && dialog->contactJid()==AContactJid)
-			return dialog;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	if (roster && roster->isOpen())
+	{
+		SubscriptionDialog *dialog = new SubscriptionDialog(this,FPluginManager,AStreamJid,AContactJid,ANotify,AMessage);
+		connect(roster->instance(),SIGNAL(closed()),dialog->instance(),SLOT(reject()));
+		emit subscriptionDialogCreated(dialog);
+		return dialog;
+	}
 	return NULL;
 }
 
-SubscriptionDialog *RosterChanger::createSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANotify, const QString &AMessage)
+void RosterChanger::showNotifyInChatWindow(IChatWindow *AWindow, const QString &ANotify, const QString &AText) const
 {
-	SubscriptionDialog *dialog = findSubscriptionDialog(AStreamJid,AContactJid);
-	if (dialog == NULL)
+	IMessageContentOptions options;
+	options.kind = IMessageContentOptions::Status;
+	options.type |= IMessageContentOptions::Notification;
+	options.direction = IMessageContentOptions::DirectionIn;
+	options.time = QDateTime::currentDateTime();
+
+	QString message = !AText.isEmpty() ? ANotify +" (" +AText+ ")" : ANotify;
+	AWindow->viewWidget()->appendText(message,options);
+}
+
+INotice RosterChanger::createNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const
+{
+	INotice notice;
+	notice.priority = APriority;
+	notice.iconKey = MNI_RCHANGER_SUBSCRIBTION;
+	notice.message = !AText.isEmpty() ? ANotify+"<br>"+Qt::escape(AText) : ANotify;
+
+	if (AActions & NA_ADD_CONTACT)
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-		if (roster && roster->isOpen())
-		{
-			dialog = new SubscriptionDialog(this,FPluginManager,AStreamJid,AContactJid,ANotify,AMessage);
-			connect(roster->instance(),SIGNAL(closed()),dialog->instance(),SLOT(reject()));
-			connect(dialog,SIGNAL(dialogDestroyed()),SLOT(onSubscriptionDialogDestroyed()));
-			emit subscriptionDialogCreated(dialog);
-		}
+		Action *addAction = new Action;
+		addAction->setText(tr("Add Contact"));
+		connect(addAction,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
+		notice.actions.append(addAction);
 	}
-	return dialog;
+	if (AActions & NA_ASK_SUBSCRIBE)
+	{
+		Action *authAction = new Action;
+		authAction->setText(tr("Request authorization"));
+		authAction->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+		connect(authAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
+		notice.actions.append(authAction);
+	}
+	if (AActions & NA_SUBSCRIBE)
+	{
+		Action *authAction = new Action;
+		authAction->setText(tr("Authorize"));
+		authAction->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+		connect(authAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
+		notice.actions.append(authAction);
+	}
+	if (AActions & NA_UNSUBSCRIBE)
+	{
+		Action *noauthAction = new Action;
+		noauthAction->setText(tr("Don`t Authorize"));
+		noauthAction->setData(ADR_SUBSCRIPTION,IRoster::Unsubscribe);
+		connect(noauthAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
+		notice.actions.append(noauthAction);
+	}
+	if (AActions & NA_CLOSE)
+	{
+		Action *closeAction = new Action;
+		closeAction->setText(tr("Close"));
+		connect(closeAction,SIGNAL(triggered(bool)),SLOT(onNoticeClose(bool)));
+		notice.actions.append(closeAction);
+	}
+	
+	return notice;
+}
+
+int RosterChanger::insertNotice(IChatWindow *AWindow, const INotice &ANotice)
+{
+	int noticeId = -1;
+	if (AWindow && FMessageWidgets)
+	{
+		noticeId = AWindow->noticeWidget()->insertNotice(ANotice);
+		foreach(Action *action, ANotice.actions)
+		{
+			action->setData(ADR_STREAM_JID,AWindow->streamJid().full());
+			action->setData(ADR_CONTACT_JID,AWindow->contactJid().bare());
+			action->setData(ADR_NOTICE_ID, noticeId);
+		}
+		FNoticeWindow.insert(noticeId, AWindow);
+	}
+	return noticeId;
+}
+
+void RosterChanger::removeNotice(Action *AAction)
+{
+	if (AAction)
+	{
+		int noticeId = AAction->data(ADR_NOTICE_ID).toInt();
+		IChatWindow *window = FNoticeWindow.take(noticeId);
+		if (window)
+			window->noticeWidget()->removeNotice(noticeId);
+	}
 }
 
 void RosterChanger::onShowAddContactDialog(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
-	if ((action) && (!accountManager->accounts().empty() && accountManager->accounts().first()->xmppStream()))
+	IAccount *account = FAccountManager!=NULL ? FAccountManager->accounts().value(0) : NULL;
+	if (action && account && account->isActive())
 	{
-		IAddContactDialog *dialog = showAddContactDialog(accountManager->accounts().first()->xmppStream()->streamJid().full());
+		IAddContactDialog *dialog = showAddContactDialog(account->xmppStream()->streamJid());
 		if (dialog)
 		{
 			dialog->setContactJid(action->data(ADR_CONTACT_JID).toString());
 			dialog->setNickName(action->data(ADR_NICK).toString());
 			dialog->setGroup(action->data(ADR_GROUP).toString());
-			dialog->setSubscriptionMessage(action->data(Action::DR_Parametr4).toString());
+			dialog->setSubscriptionMessage(action->data(ADR_REQUEST).toString());
+			removeNotice(action);
 		}
 	}
 }
@@ -814,6 +927,7 @@ void RosterChanger::onContactSubscription(bool)
 				subscribeContact(streamJid,contactJid);
 			else if (subsType == IRoster::Unsubscribe)
 				unsubscribeContact(streamJid,contactJid);
+			removeNotice(action);
 		}
 	}
 }
@@ -834,12 +948,12 @@ void RosterChanger::onSendSubscription(bool)
 	}
 }
 
-void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJid, int ASubsType, const QString &AMessage)
+void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJid, int ASubsType, const QString &AText)
 {
 	INotification notify;
 	if (FNotifications)
 	{
-		notify.kinds = INotification::PopupWindow;
+		notify.kinds = INotification::PopupWindow|INotification::PlaySound;
 		notify.data.insert(NDR_ICON,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCRIBTION));
 		notify.data.insert(NDR_TOOLTIP,tr("Subscription message from %1").arg(FNotifications->contactName(ARoster->streamJid(),AContactJid)));
 		notify.data.insert(NDR_ROSTER_STREAM_JID,ARoster->streamJid().full());
@@ -848,31 +962,27 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 		notify.data.insert(NDR_WINDOW_CAPTION, tr("Subscription message"));
 		notify.data.insert(NDR_WINDOW_TITLE,FNotifications->contactName(ARoster->streamJid(),AContactJid));
 		notify.data.insert(NDR_WINDOW_IMAGE, FNotifications->contactAvatar(AContactJid));
-		notify.data.insert(NDR_WINDOW_TEXT,subscriptionNotify(ASubsType,AContactJid));
+		notify.data.insert(NDR_WINDOW_TEXT,subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType));
 		notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
+		notify.data.insert(NDR_SUBSCRIPTION_TEXT,AText);
 	}
 
 	int notifyId = -1;
-	SubscriptionDialog *dialog = NULL;
+	bool showNotice = false;
+	int noticeActions = NA_NO_ACTIONS;
 	const IRosterItem &ritem = ARoster->rosterItem(AContactJid);
 	if (ASubsType == IRoster::Subscribe)
 	{
 		bool autoSubscribe = isAutoSubscribe(ARoster->streamJid(),AContactJid);
 		if (!autoSubscribe && ritem.subscription!=SUBSCRIPTION_FROM && ritem.subscription!=SUBSCRIPTION_BOTH)
 		{
-			dialog = createSubscriptionDialog(ARoster->streamJid(),AContactJid,subscriptionNotify(ASubsType,AContactJid),AMessage);
-			if (dialog!=NULL && !FNotifyDialog.values().contains(dialog))
+			if (FNotifications)
 			{
-				if (FNotifications)
-				{
-					notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
-					notifyId = FNotifications->appendNotification(notify);
-				}
-				else
-				{
-					dialog->instance()->show();
-				}
+				notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
+				notifyId = FNotifications->appendNotification(notify);
 			}
+			showNotice = true;
+			noticeActions = NA_SUBSCRIBE|NA_UNSUBSCRIBE|NA_CLOSE;
 		}
 		else
 		{
@@ -883,25 +993,80 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 	}
 	else if (ASubsType == IRoster::Unsubscribed)
 	{
-		if (FNotifications && !isSilentSubsctiption(ARoster->streamJid(),AContactJid))
-			notifyId = FNotifications->appendNotification(notify);
+		if (!isSilentSubsctiption(ARoster->streamJid(),AContactJid))
+		{
+			if (FNotifications)
+			{
+				notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
+				notifyId = FNotifications->appendNotification(notify);
+			}
+			showNotice = true;
+			noticeActions = NA_ASK_SUBSCRIBE|NA_CLOSE;
+		}
 
 		if (isAutoUnsubscribe(ARoster->streamJid(),AContactJid))
 			ARoster->sendSubscription(AContactJid,IRoster::Unsubscribed);
 	}
 	else  if (ASubsType == IRoster::Subscribed)
 	{
-		if (FNotifications && !isSilentSubsctiption(ARoster->streamJid(),AContactJid))
-			notifyId = FNotifications->appendNotification(notify);
+		if (!isSilentSubsctiption(ARoster->streamJid(),AContactJid))
+		{
+			if (FNotifications)
+				notifyId = FNotifications->appendNotification(notify);
+			showNotice = true;
+		}
 	}
 	else if (ASubsType == IRoster::Unsubscribe)
 	{
-		if (FNotifications && !isSilentSubsctiption(ARoster->streamJid(),AContactJid))
-			notifyId = FNotifications->appendNotification(notify);
+		if (!isSilentSubsctiption(ARoster->streamJid(),AContactJid))
+		{
+			if (FNotifications)
+				notifyId = FNotifications->appendNotification(notify);
+			showNotice = true;
+		}
 	}
 
-	if (notifyId>0 || dialog!=NULL)
-		FNotifyDialog.insert(notifyId,dialog);
+	int noticeId = -1;
+	if (FMessageWidgets && showNotice)
+	{
+		IChatWindow *chatWindow = NULL;
+		foreach(IChatWindow *window, FMessageWidgets->chatWindows())
+		{
+			if (window->streamJid()==ARoster->streamJid() && window->contactJid().pBare()==AContactJid.pBare())
+			{
+				chatWindow = window;
+				break;
+			}
+		}
+
+		if (chatWindow)
+		{
+			if (noticeActions != NA_NO_ACTIONS)
+			{
+				chatWindow->noticeWidget()->removeNotice(FNoticeWindow.key(chatWindow));
+				noticeId = insertNotice(chatWindow,createNotice(NTP_SUBSCRIPTION,noticeActions,subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType),AText));
+			}
+			else
+			{
+				noticeId = qrand()+1;
+				showNotifyInChatWindow(chatWindow,subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType),AText);
+			}
+			FNoticeWindow.insert(noticeId,chatWindow);
+		}
+		else
+		{
+			PendingNotice pnotice;
+			pnotice.notifyId = notifyId;
+			pnotice.priority = NTP_SUBSCRIPTION;
+			pnotice.actions = noticeActions;
+			pnotice.notify = subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType);
+			pnotice.text = AText;
+			FPendingNotice[ARoster->streamJid()].insert(AContactJid.bare(),pnotice);
+		}
+	}
+
+	if (notifyId > 0)
+		FNotifyNotice.insert(notifyId,noticeId);
 }
 
 void RosterChanger::onAddItemToGroup(bool)
@@ -941,8 +1106,7 @@ void RosterChanger::onRenameItem(bool)
 			Jid rosterJid = action->data(ADR_CONTACT_JID).toString();
 			QString oldName = action->data(ADR_NICK).toString();
 			bool ok = false;
-			QString newName = QInputDialog::getText(NULL,tr("Rename contact"),tr("Enter name for: <b>%1</b>").arg(rosterJid.hBare()),
-								QLineEdit::Normal,oldName,&ok);
+			QString newName = QInputDialog::getText(NULL,tr("Rename contact"),tr("Enter name for: <b>%1</b>").arg(rosterJid.hBare()),QLineEdit::Normal,oldName,&ok);
 			if (ok && !newName.isEmpty() && newName != oldName)
 				roster->renameItem(rosterJid,newName);
 		}
@@ -964,8 +1128,7 @@ void RosterChanger::onCopyItemToGroup(bool)
 			if (groupName.endsWith(groupDelim))
 			{
 				bool ok = false;
-				QString newGroupName = QInputDialog::getText(NULL,tr("Create new group"),tr("Enter group name:"),
-						       QLineEdit::Normal,QString(),&ok);
+				QString newGroupName = QInputDialog::getText(NULL,tr("Create new group"),tr("Enter group name:"), QLineEdit::Normal,QString(),&ok);
 				if (ok && !newGroupName.isEmpty())
 				{
 					if (groupName == groupDelim)
@@ -997,8 +1160,7 @@ void RosterChanger::onMoveItemToGroup(bool)
 			if (moveToGroup.endsWith(groupDelim))
 			{
 				bool ok = false;
-				QString newGroupName = QInputDialog::getText(NULL,tr("Create new group"),tr("Enter group name:"),
-						       QLineEdit::Normal,QString(),&ok);
+				QString newGroupName = QInputDialog::getText(NULL,tr("Create new group"),tr("Enter group name:"),QLineEdit::Normal,QString(),&ok);
 				if (ok && !newGroupName.isEmpty())
 				{
 					if (moveToGroup == groupDelim)
@@ -1254,42 +1416,121 @@ void RosterChanger::onRosterItemRemoved(IRoster *ARoster, const IRosterItem &ARo
 
 void RosterChanger::onRosterClosed(IRoster *ARoster)
 {
+	FPendingNotice.remove(ARoster->streamJid());
 	FAutoSubscriptions.remove(ARoster->streamJid());
 }
 
 void RosterChanger::onNotificationActivated(int ANotifyId)
 {
-	if (FNotifyDialog.contains(ANotifyId))
+	if (FNotifyNotice.contains(ANotifyId))
 	{
-		SubscriptionDialog *dialog = FNotifyDialog.value(ANotifyId);
-		if (dialog)
-			dialog->show();
+		INotification notify = FNotifications->notificationById(ANotifyId);
+		Jid streamJid = notify.data.value(NDR_ROSTER_STREAM_JID).toString();
+		Jid contctJid = notify.data.value(NDR_ROSTER_CONTACT_JID).toString();
+
+		IChatWindow *window = FNoticeWindow.value(FNotifyNotice.value(ANotifyId));
+		if (window)
+		{
+			window->showWindow();
+		}
+		else if (FMessageProcessor==NULL || !FMessageProcessor->openWindow(streamJid,contctJid,Message::Chat))
+		{
+			SubscriptionDialog *dialog = createSubscriptionDialog(streamJid,contctJid,notify.data.value(NDR_WINDOW_TEXT).toString(),notify.data.value(NDR_SUBSCRIPTION_TEXT).toString());
+			if (dialog)
+				dialog->instance()->show();
+		}
 		FNotifications->removeNotification(ANotifyId);
 	}
 }
 
 void RosterChanger::onNotificationRemoved(int ANotifyId)
 {
-	if (FNotifyDialog.contains(ANotifyId))
+	if (FNotifyNotice.contains(ANotifyId))
 	{
-		SubscriptionDialog *dialog = FNotifyDialog.take(ANotifyId);
-		if (dialog && !dialog->isVisible())
-			dialog->reject();
+		FNotifyNotice.remove(ANotifyId);
 	}
 }
 
-void RosterChanger::onSubscriptionDialogDestroyed()
+void RosterChanger::onChatWindowActivated()
 {
-	SubscriptionDialog *dialog = static_cast<SubscriptionDialog *>(sender());
-	if (dialog)
+	if (FNotifications)
 	{
-		int notifyId = FNotifyDialog.key(dialog);
-		FNotifications->removeNotification(notifyId);
+		IChatWindow *window = qobject_cast<IChatWindow *>(sender());
+		if (window)
+		{
+			int notifyId = FNotifyNotice.key(FNoticeWindow.key(window));
+			if (notifyId > 0)
+				FNotifications->removeNotification(notifyId);
+			else
+				FNotifications->removeNotification(FPendingNotice.value(window->streamJid()).value(window->contactJid().bare()).notifyId);
+		}
 	}
 }
 
-void RosterChanger::onMultiUserContextMenu(IMultiUserChatWindow * /*AWindow*/, IMultiUser *AUser, Menu *AMenu)
+void RosterChanger::onChatWindowCreated(IChatWindow *AWindow)
 {
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AWindow->streamJid()) : NULL;
+	IRosterItem ritem = roster!=NULL ? roster->rosterItem(AWindow->contactJid()) : IRosterItem();
+	if (roster && !ritem.isValid)
+	{
+		insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ADD_CONTACT|NA_CLOSE,tr("This contact is not added to your roster"),QString::null));
+	}
+	else if (roster && ritem.ask!=SUBSCRIPTION_SUBSCRIBE && ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO)
+	{
+		insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ASK_SUBSCRIBE|NA_CLOSE,tr("Request authorization from contact to see his status"),QString::null));
+	}
+
+	FPendingChatWindows.append(AWindow);
+	QTimer::singleShot(0,this,SLOT(onShowPendingNotices()));
+
+	connect(AWindow->instance(),SIGNAL(windowActivated()),SLOT(onChatWindowActivated()));
+	connect(AWindow->noticeWidget()->instance(),SIGNAL(noticeRemoved(int)),SLOT(onNoticeRemoved(int)));
+}
+
+void RosterChanger::onChatWindowDestroyed(IChatWindow *AWindow)
+{
+	FPendingChatWindows.removeAll(AWindow);
+}
+
+void RosterChanger::onShowPendingNotices()
+{
+	foreach(IChatWindow *window, FPendingChatWindows)
+	{
+		PendingNotice pnotice = FPendingNotice[window->streamJid()].take(window->contactJid().bare());
+		if (pnotice.priority>0 && !FNoticeWindow.values().contains(window))
+		{
+			int noticeId = -1;
+			if (pnotice.actions != NA_NO_ACTIONS)
+			{
+				noticeId = insertNotice(window,createNotice(pnotice.priority,pnotice.actions,pnotice.notify,pnotice.text));
+			}
+			else
+			{
+				noticeId = qrand() + 1;
+				showNotifyInChatWindow(window,pnotice.notify,pnotice.text);
+			}
+			//FNoticeWindow.insert(noticeId,window);
+			//FNotifyNotice.insert(pnotice.notifyId,noticeId);
+		}
+	}
+	FPendingChatWindows.clear();
+}
+
+void RosterChanger::onNoticeClose(bool)
+{
+	removeNotice(qobject_cast<Action *>(sender()));
+}
+
+void RosterChanger::onNoticeRemoved(int ANoticeId)
+{
+	if (FNotifications)
+		FNotifications->removeNotification(FNotifyNotice.key(ANoticeId));
+	FNoticeWindow.remove(ANoticeId);
+}
+
+void RosterChanger::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu)
+{
+	Q_UNUSED(AWindow);
 	if (!AUser->data(MUDR_REAL_JID).toString().isEmpty())
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AUser->data(MUDR_STREAM_JID).toString()) : NULL;
@@ -1308,4 +1549,3 @@ void RosterChanger::onMultiUserContextMenu(IMultiUserChatWindow * /*AWindow*/, I
 }
 
 Q_EXPORT_PLUGIN2(plg_rosterchanger, RosterChanger)
-

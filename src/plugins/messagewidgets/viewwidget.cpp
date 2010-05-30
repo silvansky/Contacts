@@ -1,6 +1,5 @@
 #include "viewwidget.h"
 
-#include <QClipboard>
 #include <QTextFrame>
 #include <QTextTable>
 #include <QScrollBar>
@@ -113,6 +112,11 @@ void ViewWidget::appendMessage(const Message &AMessage, const IMessageContentOpt
 	appendHtml(getHtmlBody(messageDoc.toHtml()),AOptions);
 }
 
+void ViewWidget::contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
+{
+	emit viewContextMenu(APosition,ASelection,AMenu);
+}
+
 void ViewWidget::initialize()
 {
 	IPlugin *plugin = FMessageWidgets->pluginManager()->pluginInterface("IMessageProcessor").value(0,NULL);
@@ -199,24 +203,10 @@ void ViewWidget::onCustomContextMenuRequested(const QPoint &APosition)
 	Menu *menu = new Menu(this);
 	menu->setAttribute(Qt::WA_DeleteOnClose, true);
 
-	QTextDocumentFragment selected = FMessageStyle->selection(FStyleWidget);
-	if (!selected.isEmpty())
-	{
-		Action *copyAction = new Action(menu);
-		copyAction->setText(tr("Copy"));
-		copyAction->setShortcut(QKeySequence::Copy);
-		connect(copyAction,SIGNAL(triggered(bool)),SLOT(onCopyActionTriggered(bool)));
-		menu->addAction(copyAction,AG_VWCM_MESSAGEWIDGETS_COPY);
-	}
-	emit contextMenuRequested(APosition,selected,menu);
+	contextMenuForView(APosition,FMessageStyle->selection(FStyleWidget),menu);
 
 	if (!menu->isEmpty())
 		menu->popup(FStyleWidget->mapToGlobal(APosition));
 	else
 		delete menu;
-}
-
-void ViewWidget::onCopyActionTriggered(bool)
-{
-	QApplication::clipboard()->setText(FMessageStyle->selection(FStyleWidget).toPlainText());
 }

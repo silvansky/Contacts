@@ -24,6 +24,8 @@
 #include "selecticonmenu.h"
 #include "emoticonsoptions.h"
 
+class EmoticonsContainer;
+
 class Emoticons :
 			public QObject,
 			public IPlugin,
@@ -61,12 +63,11 @@ protected:
 	void insertSelectIconMenu(const QString &ASubStorage);
 	void removeSelectIconMenu(const QString &ASubStorage);
 protected slots:
-	void onToolBarWidgetCreated(IToolBarWidget *AWidget);
-	void onToolBarWidgetDestroyed(QObject *AObject);
 	void onEditWidgetCreated(IEditWidget *AEditWidget);
 	void onEditWidgetContentsChanged(int APosition, int ARemoved, int AAdded);
-	void onIconSelected(const QString &ASubStorage, const QString &AIconKey);
+	void onEmoticonsContainerDestroyed(QObject *AObject);
 	void onSelectIconMenuDestroyed(QObject *AObject);
+	void onIconSelected(const QString &ASubStorage, const QString &AIconKey);
 	void onOptionsOpened();
 	void onOptionsChanged(const OptionsNode &ANode);
 private:
@@ -76,8 +77,8 @@ private:
 private:
 	QHash<QString, QUrl> FUrlByKey;
 	QMap<QString, IconStorage *> FStorages;
-	QList<IToolBarWidget *> FToolBarsWidgets;
-	QMap<SelectIconMenu *, IToolBarWidget *> FToolBarWidgetByMenu;
+	QList<EmoticonsContainer *> FContainers;
+	QMap<SelectIconMenu *, EmoticonsContainer *> FContainerByMenu;
 };
 
 #endif // EMOTICONS_H

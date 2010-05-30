@@ -31,6 +31,11 @@ void SelectIconMenu::setIconset(const QString &ASubStorage)
 	}
 }
 
+IconStorage *SelectIconMenu::iconStorage() const
+{
+	return FStorage;
+}
+
 QSize SelectIconMenu::sizeHint() const
 {
 	return FLayout->sizeHint();

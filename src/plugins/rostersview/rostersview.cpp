@@ -35,6 +35,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	header()->hide();
 	header()->setStretchLastSection(false);
 
+	setAnimated(true);
 	setIndentation(4);
 	setAutoScroll(true);
 	setAcceptDrops(true);

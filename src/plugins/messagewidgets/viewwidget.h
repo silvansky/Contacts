@@ -5,7 +5,6 @@
 #include <QDragMoveEvent>
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
-#include <definations/actiongroups.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
 #include "ui_viewwidget.h"
@@ -30,12 +29,13 @@ public:
 	virtual void appendHtml(const QString &AHtml, const IMessageContentOptions &AOptions);
 	virtual void appendText(const QString &AText, const IMessageContentOptions &AOptions);
 	virtual void appendMessage(const Message &AMessage, const IMessageContentOptions &AOptions);
+	virtual void contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
 signals:
 	void streamJidChanged(const Jid &ABefour);
 	void contactJidChanged(const Jid &ABefour);
 	void messageStyleChanged(IMessageStyle *ABefour, const IMessageStyleOptions &AOptions);
 	void contentAppended(const QString &AMessage, const IMessageContentOptions &AOptions);
-	void contextMenuRequested(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
+	void viewContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
 	void urlClicked(const QUrl &AUrl) const;
 protected:
 	void initialize();
@@ -49,7 +49,6 @@ protected slots:
 	void onContentAppended(QWidget *AWidget, const QString &AMessage, const IMessageContentOptions &AOptions);
 	void onUrlClicked(QWidget *AWidget, const QUrl &AUrl);
 	void onCustomContextMenuRequested(const QPoint &APosition);
-	void onCopyActionTriggered(bool);
 private:
 	Ui::ViewWidgetClass ui;
 private:

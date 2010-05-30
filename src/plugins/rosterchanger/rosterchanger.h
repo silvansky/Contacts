@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <definations/actiongroups.h>
+#include <definations/noticepriorities.h>
 #include <definations/rosterlabelorders.h>
 #include <definations/rosterindextyperole.h>
 #include <definations/multiuserdataroles.h>
@@ -26,6 +27,9 @@
 #include <interfaces/ixmppuriqueries.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/iaccountmanager.h>
+#include <interfaces/imessagewidgets.h>
+#include <interfaces/imessageprocessor.h>
+#include <utils/action.h>
 #include "addcontactdialog.h"
 #include "subscriptiondialog.h"
 
@@ -38,6 +42,18 @@ struct AutoSubscription {
 	bool silent;
 	bool autoSubscribe;
 	bool autoUnsubscribe;
+};
+
+struct PendingNotice
+{
+	PendingNotice() { 
+		priority=-1; 
+	}
+	int notifyId;
+	int priority;
+	int actions;
+	QString notify;
+	QString text;
 };
 
 class RosterChanger :
@@ -84,16 +100,19 @@ signals:
 	void addContactDialogCreated(IAddContactDialog *ADialog);
 	void subscriptionDialogCreated(ISubscriptionDialog *ADialog);
 protected:
-	QString subscriptionNotify(int ASubsType, const Jid &AContactJid) const;
+	QString subscriptionNotify(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const;
 	Menu *createGroupMenu(const QHash<int,QVariant> &AData, const QSet<QString> &AExceptGroups,
-			      bool ANewGroup, bool ARootGroup, const char *ASlot, Menu *AParent);
-	SubscriptionDialog *findSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid) const;
+		bool ANewGroup, bool ARootGroup, const char *ASlot, Menu *AParent);
 	SubscriptionDialog *createSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANotify, const QString &AMessage);
+	void showNotifyInChatWindow(IChatWindow *AWindow, const QString &ANotify, const QString &AText) const;
+	INotice createNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const;
+	int insertNotice(IChatWindow *AWindow, const INotice &ANotice);
+	void removeNotice(Action *AAction);
 protected slots:
 	//Operations on subscription
 	void onContactSubscription(bool);
 	void onSendSubscription(bool);
-	void onReceiveSubscription(IRoster *ARoster, const Jid &AContactJid, int ASubsType, const QString &AMessage);
+	void onReceiveSubscription(IRoster *ARoster, const Jid &AContactJid, int ASubsType, const QString &AText);
 	//Operations on items
 	void onAddItemToGroup(bool);
 	void onRenameItem(bool);
@@ -115,7 +134,12 @@ protected slots:
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
-	void onSubscriptionDialogDestroyed();
+	void onChatWindowActivated();
+	void onChatWindowCreated(IChatWindow *AWindow);
+	void onChatWindowDestroyed(IChatWindow *AWindow);
+	void onShowPendingNotices();
+	void onNoticeClose(bool);
+	void onNoticeRemoved(int ANoticeId);
 	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 private:
 	IPluginManager *FPluginManager;
@@ -127,9 +151,14 @@ private:
 	IXmppUriQueries *FXmppUriQueries;
 	IMultiUserChatPlugin *FMultiUserChatPlugin;
 	IMainWindowPlugin * FMainWindowPlugin;
-	IAccountManager * accountManager;
+	IAccountManager * FAccountManager;
+	IMessageWidgets *FMessageWidgets;
+	IMessageProcessor *FMessageProcessor;
 private:
-	QMap<int, SubscriptionDialog *> FNotifyDialog;
+	QMap<int, int> FNotifyNotice;
+	QMap<int, IChatWindow *> FNoticeWindow;
+	QList<IChatWindow *> FPendingChatWindows;
+	QMap<Jid, QMap<Jid, PendingNotice> > FPendingNotice;
 	QMap<Jid, QMap<Jid, AutoSubscription> > FAutoSubscriptions;
 };
 

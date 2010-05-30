@@ -17,6 +17,7 @@ public:
 	QWidget *instance() { return this; }
 	QString iconset() const;
 	void setIconset(const QString &ASubStorage);
+	IconStorage *iconStorage() const;
 signals:
 	void iconSelected(const QString &ASubStorage, const QString &AIconKey);
 public:

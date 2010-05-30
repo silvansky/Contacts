@@ -3,6 +3,7 @@
 
 #include <QDesktopServices>
 #include <QObjectCleanupHandler>
+#include <definations/actiongroups.h>
 #include <definations/optionvalues.h>
 #include <definations/optionnodes.h>
 #include <definations/optionnodeorders.h>
@@ -13,8 +14,9 @@
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 #include "infowidget.h"
-#include "editwidget.h"
 #include "viewwidget.h"
+#include "editwidget.h"
+#include "noticewidget.h"
 #include "receiverswidget.h"
 #include "menubarwidget.h"
 #include "toolbarwidget.h"
@@ -52,6 +54,7 @@ public:
 	virtual IPluginManager *pluginManager() const { return FPluginManager; }
 	virtual IInfoWidget *newInfoWidget(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual IViewWidget *newViewWidget(const Jid &AStreamJid, const Jid &AContactJid);
+	virtual INoticeWidget *newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual IEditWidget *newEditWidget(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual IReceiversWidget *newReceiversWidget(const Jid &AStreamJid);
 	virtual IMenuBarWidget *newMenuBarWidget(IInfoWidget *AInfo, IViewWidget *AView, IEditWidget *AEdit, IReceiversWidget *AReceivers);
@@ -81,6 +84,7 @@ public:
 signals:
 	void infoWidgetCreated(IInfoWidget *AInfoWidget);
 	void viewWidgetCreated(IViewWidget *AViewWidget);
+	void noticeWidgetCreated(INoticeWidget *ANoticeWidget);
 	void editWidgetCreated(IEditWidget *AEditWidget);
 	void receiversWidgetCreated(IReceiversWidget *AReceiversWidget);
 	void menuBarWidgetCreated(IMenuBarWidget *AMenuBarWidget);
@@ -102,8 +106,13 @@ signals:
 protected:
 	void deleteWindows();
 	void deleteStreamWindows(const Jid &AStreamJid);
+	QString selectionHref(const QTextDocumentFragment &ASelection) const;
 protected slots:
 	void onViewWidgetUrlClicked(const QUrl &AUrl);
+	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
+	void onViewContextCopyActionTriggered(bool);
+	void onViewContextUrlActionTriggered(bool);
+	void onViewContextSearchActionTriggered(bool);
 	void onMessageWindowDestroyed();
 	void onChatWindowDestroyed();
 	void onTabWindowPageAdded(ITabWindowPage *APage);

@@ -18,7 +18,9 @@ HEADERS  = utilsexport.h \
            widgetmanager.h \
            options.h \
            autosizetextedit.h \
-           balloontip.h
+           balloontip.h \
+           closebutton.h \
+           actionbutton.h
           
 
 SOURCES  = jid.cpp \
@@ -40,4 +42,6 @@ SOURCES  = jid.cpp \
            widgetmanager.cpp \
            options.cpp \
            autosizetextedit.cpp \
-           balloontip.cpp
+           balloontip.cpp \
+           closebutton.cpp \
+           actionbutton.cpp

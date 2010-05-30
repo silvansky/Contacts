@@ -26,9 +26,8 @@
 #include <interfaces/istatusicons.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
-#include <interfaces/ipresence.h>
-#include <interfaces/ivcard.h>
 #include <interfaces/iavatars.h>
+#include <interfaces/ipresence.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ixmppuriqueries.h>
 #include <utils/options.h>
@@ -100,6 +99,7 @@ private:
 	IMessageArchiver *FMessageArchiver;
 	IRostersView *FRostersView;
 	IRostersModel *FRostersModel;
+	IAvatars *FAvatars;
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
 	IXmppUriQueries *FXmppUriQueries;

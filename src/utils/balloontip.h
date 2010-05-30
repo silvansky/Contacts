@@ -5,7 +5,7 @@
 #include "utilsexport.h"
 
 class UTILS_EXPORT BalloonTip : 
-	public QWidget
+			public QWidget
 {
 	Q_OBJECT;
 public:

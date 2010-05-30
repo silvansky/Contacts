@@ -64,13 +64,48 @@ public:
 	virtual void appendHtml(const QString &AHtml, const IMessageContentOptions &AOptions) =0;
 	virtual void appendText(const QString &AText, const IMessageContentOptions &AOptions) =0;
 	virtual void appendMessage(const Message &AMessage, const IMessageContentOptions &AOptions) =0;
+	virtual void contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu) =0;
 protected:
 	virtual void streamJidChanged(const Jid &ABefour) =0;
 	virtual void contactJidChanged(const Jid &ABefour) =0;
 	virtual void messageStyleChanged(IMessageStyle *ABefour, const IMessageStyleOptions &AOptions) =0;
 	virtual void contentAppended(const QString &AMessage, const IMessageContentOptions &AOptions) =0;
-	virtual void contextMenuRequested(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu) =0;
+	virtual void viewContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu) =0;
 	virtual void urlClicked(const QUrl &AUrl) const =0;
+};
+
+struct INotice
+{
+	INotice() {
+		priority = -1;
+		timeout = 0; 
+	}
+	int priority;
+	int timeout;
+	QString iconKey;
+	QString message;
+	QList<Action *> actions;
+};
+
+class INoticeWidget
+{
+public:
+	virtual QWidget *instance() = 0;
+	virtual const Jid &streamJid() const =0;
+	virtual void setStreamJid(const Jid &AStreamJid) =0;
+	virtual const Jid &contactJid() const =0;
+	virtual void setContactJid(const Jid &AContactJid) =0;
+	virtual int activeNotice() const =0;
+	virtual QList<int> noticeQueue() const =0;
+	virtual INotice noticeById(int ANoticeId) const =0;
+	virtual int insertNotice(const INotice &ANotice) =0;
+	virtual void removeNotice(int ANoticeId) =0;
+protected:
+	virtual void streamJidChanged(const Jid &ABefour) =0;
+	virtual void contactJidChanged(const Jid &ABefour) =0;
+	virtual void noticeInserted(int ANoticeId) =0;
+	virtual void noticeActivated(int ANoticeId) =0;
+	virtual void noticeRemoved(int ANoticeId) =0;
 };
 
 class IEditWidget
@@ -203,6 +238,7 @@ public:
 	virtual void setContactJid(const Jid &AContactJid) =0;
 	virtual IInfoWidget *infoWidget() const =0;
 	virtual IViewWidget *viewWidget() const =0;
+	virtual INoticeWidget *noticeWidget() const =0;
 	virtual IEditWidget *editWidget() const =0;
 	virtual IMenuBarWidget *menuBarWidget() const =0;
 	virtual IToolBarWidget *toolBarWidget() const =0;
@@ -281,6 +317,7 @@ public:
 	virtual IPluginManager *pluginManager() const =0;
 	virtual IInfoWidget *newInfoWidget(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual IViewWidget *newViewWidget(const Jid &AStreamJid, const Jid &AContactJid) =0;
+	virtual INoticeWidget *newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual IEditWidget *newEditWidget(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual IReceiversWidget *newReceiversWidget(const Jid &AStreamJid) =0;
 	virtual IMenuBarWidget *newMenuBarWidget(IInfoWidget *AInfo, IViewWidget *AView, IEditWidget *AEdit, IReceiversWidget *AReceivers) =0;
@@ -310,6 +347,7 @@ public:
 protected:
 	virtual void infoWidgetCreated(IInfoWidget *AInfoWidget) =0;
 	virtual void viewWidgetCreated(IViewWidget *AViewWidget) =0;
+	virtual void noticeWidgetCreated(INoticeWidget *ANoticeWidget) =0;
 	virtual void editWidgetCreated(IEditWidget *AEditWidget) =0;
 	virtual void receiversWidgetCreated(IReceiversWidget *AReceiversWidget) =0;
 	virtual void menuBarWidgetCreated(IMenuBarWidget *AMenuBarWidget) =0;
@@ -333,6 +371,7 @@ protected:
 Q_DECLARE_INTERFACE(IInfoWidget,"Virtus.Plugin.IInfoWidget/1.0")
 Q_DECLARE_INTERFACE(IViewWidget,"Virtus.Plugin.IViewWidget/1.0")
 Q_DECLARE_INTERFACE(IEditWidget,"Virtus.Plugin.IEditWidget/1.0")
+Q_DECLARE_INTERFACE(INoticeWidget,"Virtus.Plugin.INoticeWidget/1.0")
 Q_DECLARE_INTERFACE(IReceiversWidget,"Virtus.Plugin.IReceiversWidget/1.0")
 Q_DECLARE_INTERFACE(IMenuBarWidget,"Virtus.Plugin.IMenuBarWidget/1.0")
 Q_DECLARE_INTERFACE(IToolBarWidget,"Virtus.Plugin.IToolBarWidget/1.0")

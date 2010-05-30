@@ -12,7 +12,7 @@
 TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 {
 	ui.setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose,true);
+	setAttribute(Qt::WA_DeleteOnClose,false);
 
 	ui.twtTabs->widget(0)->deleteLater();
 	ui.twtTabs->removeTab(0);
@@ -20,11 +20,9 @@ TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 
 	FWindowId = AWindowId;
 	FMessageWidgets = AMessageWidgets;
-	connect(FMessageWidgets->instance(),SIGNAL(tabWindowAppended(const QUuid &, const QString &)),
-	        SLOT(onTabWindowAppended(const QUuid &, const QString &)));
-	connect(FMessageWidgets->instance(),SIGNAL(tabWindowNameChanged(const QUuid &, const QString &)),
-	        SLOT(onTabWindowNameChanged(const QUuid &, const QString &)));
-	connect(FMessageWidgets->instance(),SIGNAL(tabWindowDeleted(const QUuid &)),SLOT(onTabWindowDeleted(const QUuid &)));
+
+	initialize();
+	loadWindowState();
 
 	QPushButton *menuButton = new QPushButton(ui.twtTabs);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(menuButton,MNI_MESSAGEWIDGETS_TAB_MENU);
@@ -33,13 +31,16 @@ TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 	FWindowMenu = new Menu(menuButton);
 	menuButton->setMenu(FWindowMenu);
 	ui.twtTabs->setCornerWidget(menuButton);
-
-	initialize();
-	loadWindowState();
 	createActions();
 
 	connect(ui.twtTabs,SIGNAL(currentChanged(int)),SLOT(onTabChanged(int)));
 	connect(ui.twtTabs,SIGNAL(tabCloseRequested(int)),SLOT(onTabCloseRequested(int)));
+
+	connect(FMessageWidgets->instance(),SIGNAL(tabWindowAppended(const QUuid &, const QString &)),
+		SLOT(onTabWindowAppended(const QUuid &, const QString &)));
+	connect(FMessageWidgets->instance(),SIGNAL(tabWindowNameChanged(const QUuid &, const QString &)),
+		SLOT(onTabWindowNameChanged(const QUuid &, const QString &)));
+	connect(FMessageWidgets->instance(),SIGNAL(tabWindowDeleted(const QUuid &)),SLOT(onTabWindowDeleted(const QUuid &)));
 }
 
 TabWindow::~TabWindow()
@@ -164,6 +165,7 @@ void TabWindow::createActions()
 	FWindowMenu->addAction(FCloseTab,AG_MWTW_MWIDGETS_TAB_ACTIONS);
 	connect(FCloseTab,SIGNAL(triggered(bool)),SLOT(onActionTriggered(bool)));
 
+/*
 	FDetachWindow = new Action(FWindowMenu);
 	FDetachWindow->setText(tr("Detach to Separate Window"));
 	FWindowMenu->addAction(FDetachWindow,AG_MWTW_MWIDGETS_TAB_ACTIONS);
@@ -203,6 +205,7 @@ void TabWindow::createActions()
 	FDeleteWindow->setText(tr("Delete Tab Window"));
 	FWindowMenu->addAction(FDeleteWindow,AG_MWTW_MWIDGETS_WINDOW_OPTIONS);
 	connect(FDeleteWindow,SIGNAL(triggered(bool)),SLOT(onActionTriggered(bool)));
+*/
 
 	onOptionsChanged(Options::node(OPV_MESSAGES_TABWINDOWS_DEFAULT));
 }
@@ -231,7 +234,7 @@ void TabWindow::updateWindow()
 	if (widget)
 	{
 		setWindowIcon(widget->windowIcon());
-		setWindowTitle(widget->windowTitle()+" - "+windowName());
+		setWindowTitle(widget->windowTitle()/*+" - "+windowName()*/);
 		emit windowChanged();
 	}
 }
@@ -246,8 +249,9 @@ void TabWindow::updateTab(int AIndex)
 	}
 }
 
-void TabWindow::onTabChanged(int /*AIndex*/)
+void TabWindow::onTabChanged(int AIndex)
 {
+	Q_UNUSED(AIndex);
 	updateWindow();
 	emit currentPageChanged(currentPage());
 }
@@ -325,8 +329,8 @@ void TabWindow::onOptionsChanged( const OptionsNode &ANode )
 {
 	if (ANode.path() == OPV_MESSAGES_TABWINDOWS_DEFAULT)
 	{
-		FSetAsDefault->setChecked(FWindowId==ANode.value().toString());
-		FDeleteWindow->setVisible(!FSetAsDefault->isChecked());
+		//FSetAsDefault->setChecked(FWindowId==ANode.value().toString());
+		//FDeleteWindow->setVisible(!FSetAsDefault->isChecked());
 	}
 }
 

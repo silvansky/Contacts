@@ -20,6 +20,7 @@ ChatMessageHandler::ChatMessageHandler()
 	FMessageArchiver = NULL;
 	FRostersView = NULL;
 	FRostersModel = NULL;
+	FAvatars = NULL;
 	FStatusIcons = NULL;
 	FStatusChanger = NULL;
 	FXmppUriQueries = NULL;
@@ -60,7 +61,7 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 		if (FMessageStyles)
 		{
 			connect(FMessageStyles->instance(),SIGNAL(styleOptionsChanged(const IMessageStyleOptions &, int, const QString &)),
-			        SLOT(onStyleOptionsChanged(const IMessageStyleOptions &, int, const QString &)));
+				SLOT(onStyleOptionsChanged(const IMessageStyleOptions &, int, const QString &)));
 		}
 	}
 
@@ -81,7 +82,7 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 		if (FPresencePlugin)
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
-			        SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
+				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
 		}
 	}
 
@@ -115,6 +116,10 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 	plugin = APluginManager->pluginInterface("IRostersModel").value(0,NULL);
 	if (plugin)
 		FRostersModel = qobject_cast<IRostersModel *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
+	if (plugin)
+		FAvatars = qobject_cast<IAvatars *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
 	if (plugin)
@@ -175,7 +180,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 bool ChatMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 {
 	Q_UNUSED(AOrder);
-	if (AMessage.type()==Message::Chat && !AMessage.body().isEmpty())
+	if (/*AMessage.type()==Message::Chat && */!AMessage.body().isEmpty())
 		return true;
 	return false;
 }
@@ -265,9 +270,13 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 			if (FRostersView && FRostersModel)
 			{
 				UserContextMenu *menu = new UserContextMenu(FRostersModel,FRostersView,window);
-				menu->menuAction()->setIcon(RSR_STORAGE_MENUICONS, MNI_CHAT_MHANDLER_USER_MENU);
+				if (FAvatars)
+					FAvatars->insertAutoAvatar(menu->menuAction(),AContactJid,QSize(48,48));
+				else
+					menu->menuAction()->setIcon(RSR_STORAGE_MENUICONS, MNI_CHAT_MHANDLER_USER_MENU);
 				QToolButton *button = window->toolBarWidget()->toolBarChanger()->insertAction(menu->menuAction(),TBG_CWTBW_USER_TOOLS);
 				button->setPopupMode(QToolButton::InstantPopup);
+				button->setFixedSize(QSize(48,48));
 			}
 			setMessageStyle(window);
 			showHistory(window);
@@ -294,8 +303,11 @@ void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 	else if (FStatusIcons)
 		icon = FStatusIcons->iconByJid(AWindow->streamJid(),AWindow->contactJid());
 
-	QString contactName = AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
-	AWindow->updateWindow(icon,contactName,tr("%1 - Chat").arg(contactName));
+	QString name = AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
+	QString resource = AWindow->contactJid().resource();
+	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
+	QString title = (!resource.isEmpty() ? name+"/"+resource : name) + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+	AWindow->updateWindow(icon,name,title);
 }
 
 void ChatMessageHandler::removeActiveMessages(IChatWindow *AWindow)

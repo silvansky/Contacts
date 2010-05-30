@@ -38,7 +38,8 @@ void SelectIconWidget::createLabels()
 		label->setAlignment(Qt::AlignCenter);
 		label->setFrameShape(QFrame::Box);
 		label->setFrameShadow(QFrame::Sunken);
-		label->setToolTip(key);
+		QString comment = FStorage->fileOption(key,"comment");
+		label->setToolTip(!comment.isEmpty() ? key+"\n"+comment : key);
 		label->installEventFilter(this);
 		FStorage->insertAutoIcon(label,key,0,0,"pixmap");
 		FKeyByLabel.insert(label,key);

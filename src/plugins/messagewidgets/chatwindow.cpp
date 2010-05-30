@@ -24,8 +24,15 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	ui.wdtView->setLayout(new QVBoxLayout);
 	ui.wdtView->layout()->setMargin(0);
 	ui.wdtView->layout()->addWidget(FViewWidget->instance());
-	connect(FViewWidget->instance(),SIGNAL(contextMenuRequested(const QPoint &, const QTextDocumentFragment &, Menu *)),
+	connect(FViewWidget->instance(),SIGNAL(viewContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)),
 		SLOT(onViewWidgetContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)));
+
+	FNoticeWidget = FMessageWidgets->newNoticeWidget(AStreamJid,AContactJid);
+	ui.wdtNotice->setLayout(new QVBoxLayout);
+	ui.wdtNotice->layout()->setMargin(0);
+	ui.wdtNotice->layout()->addWidget(FNoticeWidget->instance());
+	ui.wdtNotice->setVisible(false);
+	connect(FNoticeWidget->instance(),SIGNAL(noticeActivated(int)),SLOT(onNoticeActivated(int)));
 
 	FEditWidget = FMessageWidgets->newEditWidget(AStreamJid,AContactJid);
 	ui.wdtEdit->setLayout(new QVBoxLayout);
@@ -38,6 +45,7 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 
 	FToolBarWidget = FMessageWidgets->newToolBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
 	FToolBarWidget->toolBarChanger()->setSeparatorsVisible(false);
+	FToolBarWidget->toolBarChanger()->toolBar()->setIconSize(QSize(32,32));
 	ui.wdtToolBar->setLayout(new QVBoxLayout);
 	ui.wdtToolBar->layout()->setMargin(0);
 	ui.wdtToolBar->layout()->addWidget(FToolBarWidget->instance());
@@ -235,12 +243,12 @@ void ChatWindow::onViewWidgetContextMenu(const QPoint &APosition, const QTextDoc
 		Action *action = new Action(AMenu);
 		action->setText(tr("Quote"));
 		action->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_QUOTE);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onQuoteActionTriggered(bool)));
+		connect(action,SIGNAL(triggered(bool)),SLOT(onViewContextQuoteActionTriggered(bool)));
 		AMenu->addAction(action,AG_VWCM_MESSAGEWIDGETS_QUOTE,true);
 	}
 }
 
-void ChatWindow::onQuoteActionTriggered(bool)
+void ChatWindow::onViewContextQuoteActionTriggered(bool)
 {
 	QTextDocumentFragment fragment = viewWidget()->messageStyle()->selection(viewWidget()->styleWidget());
 	if (!fragment.toPlainText().trimmed().isEmpty())
@@ -251,7 +259,13 @@ void ChatWindow::onQuoteActionTriggered(bool)
 			editor->textCursor().insertText("\n");
 		editor->textCursor().insertText("> ");
 		editor->textCursor().insertFragment(fragment);
+		editor->textCursor().insertText("\n");
 		editor->textCursor().endEditBlock();
 		editor->setFocus();
 	}
+}
+
+void ChatWindow::onNoticeActivated(int ANoticeId)
+{
+	ui.wdtNotice->setVisible(ANoticeId > 0);
 }

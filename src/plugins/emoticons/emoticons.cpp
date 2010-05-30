@@ -2,8 +2,43 @@
 
 #include <QSet>
 #include <QTextBlock>
+#include <QPushButton>
 
 #define DEFAULT_ICONSET                 "kolobok_dark"
+
+class EmoticonsContainer : public QWidget
+{
+public:
+	EmoticonsContainer(IEditWidget *AParent):QWidget(AParent->instance()) {
+		FEditWidget = AParent;
+		setLayout(new QVBoxLayout);
+		layout()->setMargin(0);
+	}
+	IEditWidget *editWidget() const {
+		return FEditWidget;
+	}
+	void insertMenu(SelectIconMenu *AMenu) {
+		if (!FWidgets.contains(AMenu))
+		{
+			QPushButton *button = new QPushButton(this);
+			button->setMenu(AMenu);
+			button->setFlat(true);
+			if (AMenu->iconStorage())
+				AMenu->iconStorage()->insertAutoIcon(button,AMenu->iconStorage()->fileKeys().value(0));
+			FWidgets.insert(AMenu,button);
+			layout()->addWidget(button);
+		}
+	}
+	void removeMenu(SelectIconMenu *AMenu) {
+		if (FWidgets.contains(AMenu))
+		{
+			delete FWidgets.take(AMenu);
+		}
+	}
+private:
+	IEditWidget *FEditWidget;
+	QMap<SelectIconMenu *, QPushButton *> FWidgets;
+};
 
 Emoticons::Emoticons()
 {
@@ -41,7 +76,6 @@ bool Emoticons::initConnections(IPluginManager *APluginManager, int &/*AInitOrde
 		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
 		if (FMessageWidgets)
 		{
-			connect(FMessageWidgets->instance(),SIGNAL(toolBarWidgetCreated(IToolBarWidget *)),SLOT(onToolBarWidgetCreated(IToolBarWidget *)));
 			connect(FMessageWidgets->instance(),SIGNAL(editWidgetCreated(IEditWidget *)),SLOT(onEditWidgetCreated(IEditWidget *)));
 		}
 	}
@@ -187,27 +221,24 @@ SelectIconMenu *Emoticons::createSelectIconMenu(const QString &ASubStorage, QWid
 
 void Emoticons::insertSelectIconMenu(const QString &ASubStorage)
 {
-	foreach(IToolBarWidget *widget, FToolBarsWidgets)
+	foreach(EmoticonsContainer *container, FContainers)
 	{
-		SelectIconMenu *menu = createSelectIconMenu(ASubStorage,widget->instance());
-		FToolBarWidgetByMenu.insert(menu,widget);
-		QToolButton *button = widget->toolBarChanger()->insertAction(menu->menuAction(),TBG_MWTBW_EMOTICONS);
-		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
-		button->setPopupMode(QToolButton::InstantPopup);
+		SelectIconMenu *menu = createSelectIconMenu(ASubStorage,container);
+		FContainerByMenu.insert(menu,container);
+		container->insertMenu(menu);
 	}
 }
 
 void Emoticons::removeSelectIconMenu(const QString &ASubStorage)
 {
-	QMap<SelectIconMenu *,IToolBarWidget *>::iterator it = FToolBarWidgetByMenu.begin();
-	while (it != FToolBarWidgetByMenu.end())
+	QMap<SelectIconMenu *,EmoticonsContainer *>::iterator it = FContainerByMenu.begin();
+	while (it != FContainerByMenu.end())
 	{
 		SelectIconMenu *menu = it.key();
-		IToolBarWidget *widget = it.value();
 		if (menu->iconset() == ASubStorage)
 		{
-			widget->toolBarChanger()->removeItem(widget->toolBarChanger()->actionHandle(menu->menuAction()));
-			it = FToolBarWidgetByMenu.erase(it);
+			it.value()->removeMenu(menu);
+			it = FContainerByMenu.erase(it);
 			delete menu;
 		}
 		else
@@ -215,38 +246,26 @@ void Emoticons::removeSelectIconMenu(const QString &ASubStorage)
 	}
 }
 
-void Emoticons::onToolBarWidgetCreated(IToolBarWidget *AWidget)
-{
-	if (AWidget->editWidget() != NULL)
-	{
-		FToolBarsWidgets.append(AWidget);
-		foreach(QString substorage, activeIconsets())
-		{
-			SelectIconMenu *menu = createSelectIconMenu(substorage,AWidget->instance());
-			FToolBarWidgetByMenu.insert(menu,AWidget);
-			QToolButton *button = AWidget->toolBarChanger()->insertAction(menu->menuAction(),TBG_MWTBW_EMOTICONS);
-			button->setToolButtonStyle(Qt::ToolButtonIconOnly);
-			button->setPopupMode(QToolButton::InstantPopup);
-		}
-		connect(AWidget->instance(),SIGNAL(destroyed(QObject *)),SLOT(onToolBarWidgetDestroyed(QObject *)));
-	}
-}
-
-void Emoticons::onToolBarWidgetDestroyed(QObject *AObject)
-{
-	QList<IToolBarWidget *>::iterator it = FToolBarsWidgets.begin();
-	while (it != FToolBarsWidgets.end())
-	{
-		if (qobject_cast<QObject *>((*it)->instance()) == AObject)
-			it = FToolBarsWidgets.erase(it);
-		else
-			it++;
-	}
-}
-
 void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 {
+	EmoticonsContainer *container = new EmoticonsContainer(AEditWidget);
+	FContainers.append(container);
+
+	foreach(QString substorage, activeIconsets())
+	{
+		SelectIconMenu *menu = createSelectIconMenu(substorage,container);
+		container->insertMenu(menu);
+		FContainerByMenu.insert(menu,container);
+	}
+
+	QHBoxLayout *layout = new QHBoxLayout;
+	AEditWidget->textEdit()->setLayout(layout);
+	layout->setMargin(1);
+	layout->addStretch();
+	layout->addWidget(container);
+
 	connect(AEditWidget->textEdit()->document(),SIGNAL(contentsChange(int,int,int)),SLOT(onEditWidgetContentsChanged(int,int,int)));
+	connect(container,SIGNAL(destroyed(QObject *)),SLOT(onEmoticonsContainerDestroyed(QObject *)));
 }
 
 void Emoticons::onEditWidgetContentsChanged(int APosition, int ARemoved, int AAdded)
@@ -280,35 +299,42 @@ void Emoticons::onEditWidgetContentsChanged(int APosition, int ARemoved, int AAd
 	}
 }
 
-void Emoticons::onIconSelected(const QString &ASubStorage, const QString &AIconKey)
+void Emoticons::onEmoticonsContainerDestroyed(QObject *AObject)
 {
-	Q_UNUSED(ASubStorage);
-	SelectIconMenu *menu = qobject_cast<SelectIconMenu *>(sender());
-	if (FToolBarWidgetByMenu.contains(menu))
+	QList<EmoticonsContainer *>::iterator it = FContainers.begin();
+	while (it != FContainers.end())
 	{
-		IEditWidget *widget = FToolBarWidgetByMenu.value(menu)->editWidget();
-		if (widget)
-		{
-			QUrl url = FUrlByKey.value(AIconKey);
-			if (!url.isEmpty())
-			{
-				QTextEdit *editor = widget->textEdit();
-				editor->document()->addResource(QTextDocument::ImageResource,url,QImage(url.toLocalFile()));
-				editor->textCursor().beginEditBlock();
-				editor->textCursor().insertImage(url.toString());
-				editor->textCursor().insertText(" ");
-				editor->textCursor().endEditBlock();
-				editor->setFocus();
-			}
-		}
+		if (qobject_cast<QObject *>(*it) == AObject)
+			it = FContainers.erase(it);
+		else
+			it++;
 	}
 }
 
 void Emoticons::onSelectIconMenuDestroyed(QObject *AObject)
 {
-	foreach(SelectIconMenu *menu, FToolBarWidgetByMenu.keys())
+	foreach(SelectIconMenu *menu, FContainerByMenu.keys())
 		if (qobject_cast<QObject *>(menu) == AObject)
-			FToolBarWidgetByMenu.remove(menu);
+			FContainerByMenu.remove(menu);
+}
+
+void Emoticons::onIconSelected(const QString &ASubStorage, const QString &AIconKey)
+{
+	Q_UNUSED(ASubStorage);
+	SelectIconMenu *menu = qobject_cast<SelectIconMenu *>(sender());
+	if (FContainerByMenu.contains(menu))
+	{
+		IEditWidget *widget = FContainerByMenu.value(menu)->editWidget();
+		if (widget)
+		{
+			QTextEdit *editor = widget->textEdit();
+			editor->textCursor().beginEditBlock();
+			editor->textCursor().insertText(AIconKey);
+			editor->textCursor().insertText(" ");
+			editor->textCursor().endEditBlock();
+			editor->setFocus();
+		}
+	}
 }
 
 void Emoticons::onOptionsOpened()
