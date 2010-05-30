@@ -1,5 +1,6 @@
 FORMS = infowidget.ui \
         viewwidget.ui \
+        noticewidget.ui \
         editwidget.ui \
         receiverswidget.ui \
         chatwindow.ui \
@@ -11,6 +12,7 @@ HEADERS = messagewidgets.h \
           messageeditor.h \
           infowidget.h \
           viewwidget.h \
+          noticewidget.h \
           editwidget.h \
           receiverswidget.h \
           menubarwidget.h \
@@ -26,6 +28,7 @@ SOURCES = messagewidgets.cpp \
           messageeditor.cpp \
           infowidget.cpp \
           viewwidget.cpp \
+          noticewidget.cpp \
           editwidget.cpp \
           receiverswidget.cpp \
           menubarwidget.cpp \
