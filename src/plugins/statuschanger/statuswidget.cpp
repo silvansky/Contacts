@@ -6,6 +6,7 @@
 #include <utils/iconstorage.h>
 #include <definations/menuicons.h>
 #include <definations/resources.h>
+#include <QTextDocument>
 
 #define DEFAULT_MOOD_TEXT "<i><font color=grey>Tell your friends about your mood</font></i>"
 
@@ -66,7 +67,8 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 		{
 			//			ui->statusLabel->setPixmap(ui->statusToolButton->defaultAction()->icon().pixmap(16, 16));
 			ui->statusToolButton->setText(ui->statusToolButton->defaultAction()->text());
-			ui->statusToolButton->setText("<b><font size=+2>" + userName + "</font></b> - <font size=-1>" + ui->statusToolButton->text() + "</font>");
+			//ui->statusToolButton->setText("<b><font size=+2>" + userName + "</font></b> - <font size=-1>" + ui->statusToolButton->text() + "</font>");
+			ui->statusToolButton->setText(fitCaptionToWidth(userName, ui->statusToolButton->text(), ui->statusToolButton->width() - ui->statusToolButton->iconSize().width() - 5));
 		}
 	}
 	if (obj == ui->avatarLabel)
@@ -212,4 +214,18 @@ void StatusWidget::cancelEditMood()
 	ui->moodEdit->setVisible(false);
 	ui->moodLabel->setVisible(true);
 	ui->moodLabel->setFocus();
+}
+
+QString StatusWidget::fitCaptionToWidth(const QString & name, const QString & status, const int width) const
+{
+	QTextDocument doc;
+	QString newName = name;
+	const QString f1 = "<b><font size=+2>", f2 = "</font></b> - <font size=-1>", f3 = "</font>";
+	doc.setHtml(f1 + name + f2 + status + f3);
+	while ((doc.size().width() > width) && newName.length() > 1)
+	{
+		newName = newName.left(newName.length() - 1);
+		doc.setHtml(f1 + newName  + "..." + f2 + status + f3);
+	}
+	return doc.toHtml();
 }

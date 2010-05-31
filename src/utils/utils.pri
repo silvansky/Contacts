@@ -21,7 +21,7 @@ HEADERS = utilsexport.h \
     balloontip.h \
     closebutton.h \
     actionbutton.h \
-    qhtmltoolbutton.h
+    htmltoolbutton.h
 SOURCES = jid.cpp \
     versionparser.cpp \
     errorhandler.cpp \
@@ -44,4 +44,4 @@ SOURCES = jid.cpp \
     balloontip.cpp \
     closebutton.cpp \
     actionbutton.cpp \
-    qhtmltoolbutton.cpp
+    htmltoolbutton.cpp

@@ -29,7 +29,7 @@
       <number>1</number>
      </property>
      <item row="0" column="0">
-      <widget class="QHtmlToolButton" name="statusToolButton">
+      <widget class="HtmlToolButton" name="statusToolButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -45,7 +45,7 @@
         </font>
        </property>
        <property name="text">
-        <string>&lt;b&gt;V.Pupkin&lt;/b&gt; - online</string>
+        <string/>
        </property>
        <property name="popupMode">
         <enum>QToolButton::InstantPopup</enum>
@@ -144,9 +144,9 @@
    <header location="global">utils/autosizetextedit.h</header>
   </customwidget>
   <customwidget>
-   <class>QHtmlToolButton</class>
+   <class>HtmlToolButton</class>
    <extends>QToolButton</extends>
-   <header location="global">utils\qhtmltoolbutton.h</header>
+   <header location="global">utils\htmltoolbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

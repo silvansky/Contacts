@@ -42,6 +42,8 @@ public slots:
 	void startEditMood();
 	void finishEditMood();
 	void cancelEditMood();
+private:
+	QString fitCaptionToWidth(const QString & name, const QString & status, const int width) const;
 };
 
 #endif // STATUSWIDGET_H

@@ -6,14 +6,14 @@
   </icon>
   <icon>
     <key>rostersearchIconGlass</key>
-    <object mime="image/png">rostersearchIconGlass.png</object>
+    <object mime="image/png">rostersearchiconglass.png</object>
   </icon>
   <icon>
     <key>rostersearchIconCross</key>
-    <object mime="image/png">rostersearchIconCross.png</object>
+    <object mime="image/png">rostersearchiconcross.png</object>
   </icon>
   <icon>
     <key>rostersearchIconCrossHover</key>
-    <object mime="image/png">rostersearchIconCrossHover.png</object>
+    <object mime="image/png">rostersearchiconcrosshover.png</object>
   </icon>
 </icondef>
