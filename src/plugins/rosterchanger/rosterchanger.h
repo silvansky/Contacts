@@ -105,6 +105,7 @@ protected:
 		bool ANewGroup, bool ARootGroup, const char *ASlot, Menu *AParent);
 	SubscriptionDialog *createSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANotify, const QString &AMessage);
 	void showNotifyInChatWindow(IChatWindow *AWindow, const QString &ANotify, const QString &AText) const;
+	void removeChatWindowNotifications(IChatWindow *AWindow);
 	INotice createNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const;
 	int insertNotice(IChatWindow *AWindow, const INotice &ANotice);
 	void removeNotice(Action *AAction);
@@ -138,7 +139,7 @@ protected slots:
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onChatWindowDestroyed(IChatWindow *AWindow);
 	void onShowPendingNotices();
-	void onNoticeClose(bool);
+	void onNoticeCloseActionTriggered(bool);
 	void onNoticeRemoved(int ANoticeId);
 	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 private:

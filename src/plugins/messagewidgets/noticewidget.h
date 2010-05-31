@@ -3,6 +3,7 @@
 
 #include <QTimer>
 #include <QWidget>
+#include <QObjectCleanupHandler>
 #include <definations/resources.h>
 #include <interfaces/imessagewidgets.h>
 #include <utils/actionbutton.h>
@@ -54,6 +55,7 @@ private:
 	QTimer FCloseTimer;
 	QMap<int, INotice> FNotices;
 	QMultiMap<int, int> FNoticeQueue;
+	QObjectCleanupHandler FButtonsCleanup;
 };
 
 #endif // NOTICEWIDGET_H

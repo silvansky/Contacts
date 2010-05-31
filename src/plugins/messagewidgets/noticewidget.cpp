@@ -1,22 +1,17 @@
 #include "noticewidget.h"
 
-#include <QToolTip>
-#include <QToolButton>
 #include <QDesktopServices>
 
 NoticeWidget::NoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
 {
 	ui.setupUi(this);
 	setVisible(false);
-	setPalette(QToolTip::palette());
 
 	FMessageWidgets = AMessageWidgets;
 	FStreamJid = AStreamJid;
 	FContactJid = AContactJid;
-	FActiveNotice = -1;
 
-	ui.btbButtons->setCenterButtons(true);
-	connect(ui.lblMessage,SIGNAL(linkActivated(const QString &)),SLOT(onMessageLinkActivated(const QString &)));
+	FActiveNotice = -1;
 
 	FUpdateTimer.setSingleShot(true);
 	connect(&FUpdateTimer,SIGNAL(timeout()),SLOT(onUpdateTimerTimeout()));
@@ -25,12 +20,13 @@ NoticeWidget::NoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJ
 	connect(&FCloseTimer,SIGNAL(timeout()),SLOT(onCloseTimerTimeout()));
 
 	connect(ui.cbtClose,SIGNAL(clicked(bool)),SLOT(onCloseButtonClicked(bool)));
+	connect(ui.lblMessage,SIGNAL(linkActivated(const QString &)),SLOT(onMessageLinkActivated(const QString &)));
 }
 
 NoticeWidget::~NoticeWidget()
 {
-	foreach(int noticeId, FNotices.keys())
-		removeNotice(noticeId);
+	foreach(int noticeId, FNotices.keys()) {
+		removeNotice(noticeId); }
 }
 
 const Jid &NoticeWidget::streamJid() const
@@ -115,7 +111,7 @@ void NoticeWidget::updateWidgets(int ANoticeId)
 {
 	if (FActiveNotice != ANoticeId)
 	{
-		ui.btbButtons->clear();
+		FButtonsCleanup.clear();
 		if (ANoticeId > 0)
 		{
 			const INotice &notice = FNotices.value(ANoticeId);
@@ -129,8 +125,9 @@ void NoticeWidget::updateWidgets(int ANoticeId)
 
 			foreach(Action *action, notice.actions)
 			{
-				ActionButton *button = new ActionButton(action, ui.btbButtons);
-				ui.btbButtons->addButton(button, QDialogButtonBox::ActionRole);
+				ActionButton *button = new ActionButton(action, ui.wdtButtons);
+				ui.hltButtonsLayout->insertWidget(ui.hltButtonsLayout->count()-1,button);
+				FButtonsCleanup.add(button);
 			}
 
 			setVisible(true);
