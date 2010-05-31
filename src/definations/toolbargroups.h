@@ -6,8 +6,8 @@
 #define TBG_MWTTB_DISCOVERY                                     200
 #define TBG_MWTTB_MULTIUSERCHAT                                 500
 #define TBG_MWTTB_BOOKMARKS                                     700
-#define TBG_MWTTB_MAINWINDOW_MAINMENU                           800
-#define TBG_MWTTB_ROSTERCHANGER_ADDCONTACT                      900
+#define TBG_MWTTB_ROSTERCHANGER_ADDCONTACT                      800
+#define TBG_MWTTB_MAINWINDOW_MAINMENU                           900
 #define TBG_MWTTB_ROSTERSVIEW                                   10200
 #define TBG_MWTTB_NOTIFICATIONS_SOUND                           10500
 

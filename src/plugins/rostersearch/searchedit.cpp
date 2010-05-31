@@ -31,9 +31,13 @@ void SearchEdit::mouseMoveEvent(QMouseEvent * event)
 {
 	if (iconLabel->geometry().contains(event->pos()))
 	{
-		setCursor(QCursor(Qt::ArrowCursor));
 		if (!text().isEmpty())
+		{
+			setCursor(QCursor(Qt::PointingHandCursor));
 			updateIcon(Hover);
+		}
+		else
+			setCursor(QCursor(Qt::ArrowCursor));
 	}
 	else
 	{

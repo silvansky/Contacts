@@ -42,6 +42,6 @@
   </icon>
   <icon>
     <key>rosterLogo</key>
-    <object mime="image/png">rosterLogo.png</object>
+    <object mime="image/png">rosterlogo.png</object>
   </icon>
 </icondef>

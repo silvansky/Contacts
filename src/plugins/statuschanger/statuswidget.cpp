@@ -66,7 +66,7 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 		{
 			//			ui->statusLabel->setPixmap(ui->statusToolButton->defaultAction()->icon().pixmap(16, 16));
 			ui->statusToolButton->setText(ui->statusToolButton->defaultAction()->text());
-			ui->statusToolButton->setText(userName + " - " + ui->statusToolButton->text());
+			ui->statusToolButton->setText("<b><font size=+2>" + userName + "</font></b> - <font size=-1>" + ui->statusToolButton->text() + "</font>");
 		}
 	}
 	if (obj == ui->avatarLabel)
