@@ -146,7 +146,7 @@
   <customwidget>
    <class>HtmlToolButton</class>
    <extends>QToolButton</extends>
-   <header location="global">utils\htmltoolbutton.h</header>
+   <header location="global">utils/htmltoolbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
