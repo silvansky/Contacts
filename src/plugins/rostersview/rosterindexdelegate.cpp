@@ -111,6 +111,13 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 {
 	QHash<int,QRect> rectHash;
 
+	QVector<int> groupTypes;
+	groupTypes.append(RIT_GROUP);
+	groupTypes.append(RIT_GROUP_AGENTS);
+	groupTypes.append(RIT_GROUP_BLANK);
+	groupTypes.append(RIT_GROUP_MY_RESOURCES);
+	groupTypes.append(RIT_GROUP_NOT_IN_ROSTER);
+
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
 	QStyle *style = option.widget ? option.widget->style() : QApplication::style();
 
@@ -130,7 +137,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	bool isDragged = AIndex.data(RDR_IS_DRAGGED).toBool();
 	int type = AIndex.data(RDR_TYPE).toInt();
 
-	if ((type == RIT_SEARCH_EMPTY) || (type == RIT_SEARCH_LINK) || isDragged)
+	if ((type == RIT_SEARCH_EMPTY) || (type == RIT_SEARCH_LINK) || isDragged || groupTypes.contains(type))
 	{
 		if (option.state & QStyle::State_Selected)
 			option.state ^= QStyle::State_Selected;
@@ -170,17 +177,32 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 			APainter->drawPolyline(points, 5);
 			APainter->setPen(oldpen);
 		}
+		else if (groupTypes.contains(type))
+		{
+			QLinearGradient gradient(option.rect.bottomLeft(), option.rect.topLeft());
+			QGradientStops stops;
+			stops.append(QGradientStop(0.0, QColor::fromRgb(140, 140, 140)));
+			stops.append(QGradientStop(0.2, QColor::fromRgb(180, 180, 180)));
+			stops.append(QGradientStop(1.0, QColor::fromRgb(230, 230, 230)));
+			gradient.setStops(stops);
+			QBrush b(gradient);
+			//APainter->fillRect(option.rect, b);
+			QPainterPath path;
+			//path.addRoundRect(option.rect, 5);
+			path.addRoundedRect(option.rect, 2.0, 2.0, Qt::AbsoluteSize);
+			APainter->fillPath(path, b);
+		}
 	}
 
 	if (AIndex.parent().isValid() && AIndex.model()->hasChildren(AIndex))
 	{
 		QStyleOption brachOption(option);
 		brachOption.state |= QStyle::State_Children;
-		brachOption.rect = QStyle::alignedRect(option.direction,Qt::AlignVCenter|Qt::AlignLeft,QSize(BRANCH_WIDTH,BRANCH_WIDTH),paintRect);
+		brachOption.rect = QStyle::alignedRect(option.direction, Qt::AlignVCenter | Qt::AlignLeft, QSize(BRANCH_WIDTH, BRANCH_WIDTH), paintRect);
 		if (APainter && !isDragged)
 			style->drawPrimitive(QStyle::PE_IndicatorBranch, &brachOption, APainter);
-		removeWidth(paintRect,BRANCH_WIDTH,AOption.direction==Qt::LeftToRight);
-		rectHash.insert(RLID_INDICATORBRANCH,brachOption.rect);
+		removeWidth(paintRect, BRANCH_WIDTH, AOption.direction == Qt::LeftToRight);
+		rectHash.insert(RLID_INDICATORBRANCH, brachOption.rect);
 	}
 
 	QList<LabelItem> labels = itemLabels(AIndex);
@@ -289,33 +311,33 @@ void RosterIndexDelegate::drawLabelItem(QPainter *APainter, const QStyleOptionVi
 	switch (ALabel.value.type())
 	{
 	case QVariant::Pixmap:
-	{
-		QPixmap pixmap = qvariant_cast<QPixmap>(ALabel.value);
-		style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
-		break;
-	}
+		{
+			QPixmap pixmap = qvariant_cast<QPixmap>(ALabel.value);
+			style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
+			break;
+		}
 	case QVariant::Image:
-	{
-		QImage image = qvariant_cast<QImage>(ALabel.value);
-		APainter->drawImage(ALabel.rect.topLeft(),image);
-		break;
-	}
+		{
+			QImage image = qvariant_cast<QImage>(ALabel.value);
+			APainter->drawImage(ALabel.rect.topLeft(),image);
+			break;
+		}
 	case QVariant::Icon:
-	{
-		QIcon icon = qvariant_cast<QIcon>(ALabel.value);
-		QPixmap pixmap = style->generatedIconPixmap(getIconMode(AOption.state),icon.pixmap(AOption.decorationSize),&AOption);
-		style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
-		break;
-	}
+		{
+			QIcon icon = qvariant_cast<QIcon>(ALabel.value);
+			QPixmap pixmap = style->generatedIconPixmap(getIconMode(AOption.state),icon.pixmap(AOption.decorationSize),&AOption);
+			style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
+			break;
+		}
 	case QVariant::String:
-	{
-		APainter->setFont(AOption.font);
-		int flags = AOption.direction | Qt::TextSingleLine;
-		QPalette::ColorRole role = AOption.state & QStyle::State_Selected ? QPalette::HighlightedText : QPalette::Text;
-		QString text = AOption.fontMetrics.elidedText(prepareText(ALabel.value.toString()),Qt::ElideRight,ALabel.rect.width(),flags);
-		style->drawItemText(APainter,ALabel.rect,flags,AOption.palette,(AOption.state &  QStyle::State_Enabled)>0,text,role);
-		break;
-	}
+		{
+			APainter->setFont(AOption.font);
+			int flags = AOption.direction | Qt::TextSingleLine;
+			QPalette::ColorRole role = AOption.state & QStyle::State_Selected ? QPalette::HighlightedText : QPalette::Text;
+			QString text = AOption.fontMetrics.elidedText(prepareText(ALabel.value.toString()),Qt::ElideRight,ALabel.rect.width(),flags);
+			style->drawItemText(APainter,ALabel.rect,flags,AOption.palette,(AOption.state &  QStyle::State_Enabled)>0,text,role);
+			break;
+		}
 	default:
 		break;
 	}
@@ -391,7 +413,8 @@ QStyleOptionViewItemV4 RosterIndexDelegate::indexFooterOptions(const QStyleOptio
 
 	option.font.setPointSize(option.font.pointSize()-1);
 	option.font.setBold(false);
-	option.font.setItalic(true);
+	//option.font.setItalic(true);
+	option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Disabled, QPalette::Text));
 
 	option.fontMetrics = QFontMetrics(option.font);
 

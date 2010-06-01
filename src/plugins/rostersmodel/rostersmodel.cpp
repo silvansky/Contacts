@@ -258,7 +258,8 @@ IRosterIndex *RostersModel::createGroup(const QString &AName, const QString &AGr
 
 void RostersModel::insertRosterIndex(IRosterIndex *AIndex, IRosterIndex *AParent)
 {
-	AIndex->setParentIndex(AParent);
+	if (AIndex)
+		AIndex->setParentIndex(AParent);
 }
 
 void RostersModel::removeRosterIndex(IRosterIndex *AIndex)

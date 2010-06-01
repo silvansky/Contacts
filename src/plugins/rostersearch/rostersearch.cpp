@@ -2,6 +2,7 @@
 
 #include <QDesktopServices>
 #include <QDebug>
+#include <utils/iconstorage.h>
 
 RosterSearch::RosterSearch()
 {
@@ -105,11 +106,22 @@ bool RosterSearch::initObjects()
 		FFieldsMenu = new Menu(FMainWindow->topToolBarChanger()->toolBar());
 		FFieldsMenu->setVisible(false);
 		FFieldsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERSEARCH_MENU);
-		FSearchEdit = new SearchEdit(FMainWindow->topToolBarChanger()->toolBar());
+		QFrame * searchFrame = new QFrame(FMainWindow->topToolBarChanger()->toolBar());
+		QHBoxLayout * layout = new QHBoxLayout(searchFrame);
+		layout->setSpacing(0);
+		layout->setMargin(0);
+		searchFrame->setLayout(layout);
+		searchFrame->setObjectName("searchFrame");
+		QString borderImageFileName = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERSEARCH_BORDER);
+		searchFrame->setStyleSheet(QString("QFrame#searchFrame { border-width: 4px; border-image: url(%1); }").arg(borderImageFileName));
+		searchFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+		FSearchEdit = new SearchEdit;
+		FSearchEdit->setStyleSheet("SearchEdit { border: 0px; }");
+		layout->insertWidget(0, FSearchEdit);
 		FSearchEdit->setToolTip(tr("Search in roster"));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), &FEditTimeout, SLOT(start()));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), SLOT(onSearchTextChanged(const QString&)));
-		FMainWindow->topToolBarChanger()->insertWidget(FSearchEdit, TBG_MWTTB_ROSTERSEARCH);
+		FMainWindow->topToolBarChanger()->insertWidget(searchFrame, TBG_MWTTB_ROSTERSEARCH);
 		setSearchEnabled(true);
 	}
 
