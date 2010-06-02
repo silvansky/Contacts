@@ -228,14 +228,6 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <translation>Виртус</translation>
     </message>
     <message>
-        <source>&lt;h2&gt;Enter your rambler login and password&lt;/h2&gt;</source>
-        <translation>&lt;h2&gt;Введите ваш логин и пароль на Рамблере&lt;/h2&gt;</translation>
-    </message>
-    <message>
-        <source>If you dont have rambler account you can register it &lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;here&lt;/a&gt;</source>
-        <translation>Если у вас нет логина на Рамблере вы можете &lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;получить его тут&lt;/a&gt;</translation>
-    </message>
-    <message>
         <source>Save password</source>
         <translation>Сохранить пароль</translation>
     </message>
@@ -244,23 +236,12 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <translation>Запускать вместе с компьютером</translation>
     </message>
     <message>
-        <source>:!hover:enabled {
-	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(255, 128, 8, 255), stop:1 rgba(255, 188, 56, 255));
-}
-:hover:enabled {
-	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(253, 174, 45, 255), stop:1 rgba(255, 218, 46, 255));
-
-}
-:!enabled {
-	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(208, 208, 208, 255), stop:1 rgba(240, 240, 240, 255));
-	border: 1px solid lightgray;
-}
-</source>
-        <translation type="unfinished"></translation>
+        <source>&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;Forgot your password?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;Забыли пароль?&lt;/a&gt;</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;Forgot your password?&lt;/a&gt;</source>
-        <translation type="unfinished">&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;Забыли пароль?&lt;/a&gt;</translation>
+        <source>or&lt;br&gt;&lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;get new Rambler login...&lt;/a&gt;</source>
+        <translation>или&lt;br&gt;&lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;получить новый Рамблер логин...&lt;/a&gt;</translation>
     </message>
 </context>
 <context>

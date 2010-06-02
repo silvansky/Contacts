@@ -21,6 +21,8 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/idefaultconnection.h>
+#include <interfaces/itraymanager.h>
+#include <interfaces/inotifications.h>
 #include <utils/options.h>
 #include <utils/balloontip.h>
 #include <utils/iconstorage.h>
@@ -67,8 +69,12 @@ protected slots:
 	void onCompleterActivated(const QString &AText);
 	void onDomainCurrentIntexChanged(int AIndex);
 	void onLabelLinkActivated(const QString &ALink);
+	void onLoginOrPasswordTextChanged();
 	void onShowConnectingAnimation();
 	void onAdjustDialogSize();
+	void onNotificationAppend(int ANotifyId, INotification &ANotification);
+	void onNotificationAppended(int ANotifyId, const INotification &ANotification);
+	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 private:
 	Ui::LoginDialogClass ui;
 private:
@@ -77,8 +83,11 @@ private:
 	IStatusChanger *FStatusChanger;
 	IMainWindowPlugin *FMainWindowPlugin;
 	IConnectionManager *FConnectionManager;
+	INotifications *FNotifications;
+	ITrayManager *FTrayManager;
 private:
 	bool FNewProfile;
+	bool FFirstConnect;
 	QUuid FAccountId;
 	QTimer FReconnectTimer;
 	int FConnectionSettings;

@@ -92,6 +92,9 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	connect(ui.lblForgotPassword,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblConnectSettings,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 
+	connect(ui.lneNode,SIGNAL(textChanged(const QString &)),SLOT(onLoginOrPasswordTextChanged()));
+	connect(ui.lnePassword,SIGNAL(textChanged(const QString &)),SLOT(onLoginOrPasswordTextChanged()));
+
 	ui.cmbDomain->addItem("@rambler.ru",QString("rambler.ru"));
 	ui.cmbDomain->addItem("@lenta.ru",QString("lenta.ru"));
 	ui.cmbDomain->addItem("@myrambler.ru",QString("myrambler.ru"));
@@ -144,6 +147,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	hideXmppStreamError();
 	hideConnectionError();
 	setConnectEnabled(true);
+	onLoginOrPasswordTextChanged();
 }
 
 LoginDialog::~LoginDialog()
@@ -250,8 +254,6 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		else if (FMainWindowPlugin && AWatched == FMainWindowPlugin->mainWindow()->instance())
 		{
 			QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(),SLOT(close()));
-			WidgetManager::raiseWidget(this);
-			activateWindow();
 		}
 	}
 
@@ -294,6 +296,30 @@ void LoginDialog::initialize(IPluginManager *APluginManager)
 	{
 		FConnectionManager = qobject_cast<IConnectionManager *>(plugin->instance());
 	}
+
+	FTrayManager = NULL;
+	plugin = APluginManager->pluginInterface("ITrayManager").value(0,NULL);
+	if (plugin)
+	{
+		FTrayManager = qobject_cast<ITrayManager *>(plugin->instance());
+		if (FTrayManager)
+		{
+			connect(FTrayManager->instance(),SIGNAL(notifyActivated(int, QSystemTrayIcon::ActivationReason)),
+				SLOT(onTrayNotifyActivated(int,QSystemTrayIcon::ActivationReason)));
+		}
+	}
+
+	FNotifications = NULL;
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+	{
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
+		if (FNotifications)
+		{
+			connect(FNotifications->instance(),SIGNAL(notificationAppend(int, INotification &)),SLOT(onNotificationAppend(int, INotification &)));
+			connect(FNotifications->instance(),SIGNAL(notificationAppended(int, const INotification &)),SLOT(onNotificationAppended(int, const INotification &)));
+		}
+	}
 }
 
 bool LoginDialog::isCapsLockOn() const
@@ -324,7 +350,7 @@ void LoginDialog::closeCurrentProfile()
 
 bool LoginDialog::tryNextConnectionSettings()
 {
-	if (FNewProfile)
+	if (FNewProfile && FFirstConnect)
 	{
 		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
 		IConnection *connection = account!=NULL && account->isActive() ? account->xmppStream()->connection() : NULL;
@@ -372,12 +398,13 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 		FReconnectTimer.stop();
 		if (!ui.lblReconnect->text().isEmpty())
 			ui.lblReconnect->setText(tr("Reconnecting..."));
+		BalloonTip::hideBalloon();
 		QTimer::singleShot(3000,this,SLOT(onShowConnectingAnimation()));
 	}
 	else
 	{
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblConnecting);
-		ui.lblConnecting->clear();
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.pbtConnect);
+		ui.pbtConnect->setIcon(QIcon());
 	}
 
 	ui.lneNode->setEnabled(AEnabled);
@@ -386,7 +413,10 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 	ui.chbSavePassword->setEnabled(AEnabled);
 	ui.chbAutoRun->setEnabled(AEnabled);
 
-	ui.pbtConnect->setEnabled(AEnabled);
+	if (AEnabled)
+		onLoginOrPasswordTextChanged();
+	else
+		ui.pbtConnect->setEnabled(AEnabled);
 	ui.pbtConnect->setText(AEnabled ? tr("Enter") : tr("Connecting..."));
 }
 
@@ -494,6 +524,7 @@ void LoginDialog::onConnectClicked()
 		QString profile = Jid::encode(streamJid.pBare());
 		if (FOptionsManager->currentProfile() != profile)
 		{
+			FFirstConnect = true;
 			closeCurrentProfile();
 			FReconnectTimer.setProperty("tries",20);
 		}
@@ -562,10 +593,16 @@ void LoginDialog::onXmppStreamOpened()
 		else if (FConnectionSettings == CS_FF_PROXY)
 			coptions.setValue(FIREFOX_PROXY_REF_UUID,"proxy");
 	}
+
 	Options::node(OPV_MISC_AUTOSTART).setValue(ui.chbAutoRun->isChecked());
 
 	if (FMainWindowPlugin)
 	{
+		if (FNewProfile)
+		{
+			FMainWindowPlugin->mainWindow()->instance()->resize(size());
+			FMainWindowPlugin->mainWindow()->instance()->move(pos());
+		}
 		FMainWindowPlugin->mainWindow()->instance()->removeEventFilter(this);
 		FMainWindowPlugin->mainWindow()->instance()->show();
 	}
@@ -601,6 +638,7 @@ void LoginDialog::onXmppStreamClosed()
 			FNewProfile ? tr("Entered login or password is not correct") : tr("Maybe entered password is not correct"));
 	}
 
+	FFirstConnect = false;
 	setConnectEnabled(true);
 	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
@@ -759,14 +797,39 @@ void LoginDialog::loadCurrentProfileSettings()
 	}
 }
 
+void LoginDialog::onLoginOrPasswordTextChanged()
+{
+	ui.pbtConnect->setEnabled(!ui.lneNode->text().isEmpty() && !ui.lnePassword->text().isEmpty());
+}
+
 void LoginDialog::onShowConnectingAnimation()
 {
 	if (!ui.pbtConnect->isEnabled())
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblConnecting,MNI_OPTIONS_LOGIN_ANIMATION,0,0,"pixmap");
-	ui.lblConnecting->adjustSize();
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.pbtConnect,MNI_OPTIONS_LOGIN_ANIMATION);
 }
 
 void LoginDialog::onAdjustDialogSize()
 {
-	adjustSize();
+	resize(minimumSizeHint());
+}
+
+void LoginDialog::onNotificationAppend(int ANotifyId, INotification &ANotification)
+{
+	Q_UNUSED(ANotifyId);
+	ANotification.kinds = 0;
+}
+
+void LoginDialog::onNotificationAppended(int ANotifyId, const INotification &ANotification)
+{
+	Q_UNUSED(ANotification);
+	FNotifications->removeNotification(ANotifyId);
+}
+
+void LoginDialog::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
+{
+	if (ANotifyId==0 && AReason==QSystemTrayIcon::Trigger)
+	{
+		WidgetManager::raiseWidget(this);
+		activateWindow();
+	}
 }

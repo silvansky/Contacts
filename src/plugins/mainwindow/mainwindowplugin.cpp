@@ -138,7 +138,7 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 {
 	if (ANotifyId==0 && AReason==QSystemTrayIcon::Trigger)
 	{
-		if (!FMainWindow->isVisible())
+		if (!FMainWindow->isVisible() && !Options::isNull())
 			showMainWindow();
 		else
 			FMainWindow->close();
