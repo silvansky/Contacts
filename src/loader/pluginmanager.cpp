@@ -7,6 +7,7 @@
 #include <QLibrary>
 #include <QFileInfo>
 #include <QSettings>
+#include <definations/stylesheets.h>
 
 #define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Virtus"
@@ -250,6 +251,16 @@ void PluginManager::loadSettings()
 	{
 		FPluginsSetup.clear();
 		FPluginsSetup.appendChild(FPluginsSetup.createElement("plugins"));
+	}
+
+	QString mainStyleSheet = FileStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(SS_MAIN_STYLESHEET);
+	if (!mainStyleSheet.isEmpty())
+	{
+		QFile file(mainStyleSheet);
+		file.open(QIODevice::ReadOnly);
+		file.seek(0);
+		QByteArray ba = file.readAll();
+		((QApplication*)parent())->setStyleSheet(QString(ba));
 	}
 }
 

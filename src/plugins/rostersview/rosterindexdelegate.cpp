@@ -6,9 +6,19 @@
 
 #define BRANCH_WIDTH  10
 
+QVector<int> RosterIndexDelegate::groupTypes;
+
 RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QAbstractItemDelegate(AParent)
 {
 	FShowBlinkLabels = true;
+	if (groupTypes.isEmpty())
+	{
+		groupTypes.append(RIT_GROUP);
+		groupTypes.append(RIT_GROUP_AGENTS);
+		groupTypes.append(RIT_GROUP_BLANK);
+		groupTypes.append(RIT_GROUP_MY_RESOURCES);
+		groupTypes.append(RIT_GROUP_NOT_IN_ROSTER);
+	}
 }
 
 RosterIndexDelegate::~RosterIndexDelegate()
@@ -79,6 +89,8 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 
 	if (AIndex.data(RDR_TYPE).toInt() == RIT_SEARCH_EMPTY)
 		hint.setHeight(hint.height() * 2);
+	if (groupTypes.contains(AIndex.data(RDR_TYPE).toInt()))
+		hint.setHeight(hint.height() * 1.5);
 
 	return hint;
 }
@@ -110,13 +122,6 @@ void RosterIndexDelegate::setShowBlinkLabels(bool AShow)
 QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 {
 	QHash<int,QRect> rectHash;
-
-	QVector<int> groupTypes;
-	groupTypes.append(RIT_GROUP);
-	groupTypes.append(RIT_GROUP_AGENTS);
-	groupTypes.append(RIT_GROUP_BLANK);
-	groupTypes.append(RIT_GROUP_MY_RESOURCES);
-	groupTypes.append(RIT_GROUP_NOT_IN_ROSTER);
 
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
 	QStyle *style = option.widget ? option.widget->style() : QApplication::style();
@@ -181,9 +186,9 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		{
 			QLinearGradient gradient(option.rect.bottomLeft(), option.rect.topLeft());
 			QGradientStops stops;
-			stops.append(QGradientStop(0.0, QColor::fromRgb(140, 140, 140)));
-			stops.append(QGradientStop(0.2, QColor::fromRgb(180, 180, 180)));
-			stops.append(QGradientStop(1.0, QColor::fromRgb(230, 230, 230)));
+			stops.append(QGradientStop(0.0, QColor::fromRgb(159, 159, 159)));
+			stops.append(QGradientStop(0.05, QColor::fromRgb(217, 217, 217)));
+			stops.append(QGradientStop(1.0, QColor::fromRgb(234, 234, 234)));
 			gradient.setStops(stops);
 			QBrush b(gradient);
 			//APainter->fillRect(option.rect, b);

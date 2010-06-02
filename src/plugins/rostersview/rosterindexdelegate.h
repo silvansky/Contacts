@@ -53,6 +53,7 @@ private:
 	QIcon::State getIconState(QStyle::State AState) const;
 private:
 	bool FShowBlinkLabels;
+	static QVector<int> groupTypes;
 private:
 	static const int spacing = 2;
 };
