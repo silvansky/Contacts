@@ -54,8 +54,6 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	setDragEnabled(true);
 	setDropIndicatorShown(true);
 	setAlternatingRowColors(true);
-	QPalette pal = palette();
-	pal.setColor(QPalette::AlternateBase, QColor::fromRgb(239, 239, 239));
 
 	connect(this,SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)),
 		SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)));

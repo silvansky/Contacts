@@ -112,8 +112,6 @@ bool RosterSearch::initObjects()
 		layout->setMargin(0);
 		searchFrame->setLayout(layout);
 		searchFrame->setObjectName("searchFrame");
-		QString borderImageFileName = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERSEARCH_BORDER);
-		searchFrame->setStyleSheet(QString("QFrame#searchFrame { border-width: 4px; border-image: url(%1); }").arg(borderImageFileName));
 		searchFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 		FSearchEdit = new SearchEdit;
 		FSearchEdit->setStyleSheet("SearchEdit { border: 0px; }");

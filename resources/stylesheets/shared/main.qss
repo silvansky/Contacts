@@ -1,7 +1,19 @@
+/*
+use %IMAGES_PATH% macro to load images, for example:
+  image: url(%IMAGES_PATH%/arrows/down.png);
+the loader will replace this macro with something like that:
+  /hove/var/images/virtus
+*/
+
+/***************
+ * QToolButton *
+ ***************/
+
 QToolButton
 {
 	color: rgb(102, 102, 102);
 	border-radius: 2px;
+	min-height: 22px;
 	border-top: 1px solid rgb(153, 153, 153);
 	border-left: 1px solid rgb(153, 153, 153);
 	border-right: 1px solid rgb(204, 204, 204);
@@ -12,9 +24,96 @@ QToolButton:hover
 {
 	color: rgb(102, 102, 102);
 	border-radius: 2px;
+	min-height: 22px;
 	border-top: 1px solid rgb(153, 153, 153);
 	border-left: 1px solid rgb(153, 153, 153);
 	border-right: 1px solid rgb(204, 204, 204);
 	border-bottom: 1px solid rgb(204, 204, 204);
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(237, 237, 237, 255), stop:1 rgba(255, 255, 255, 255));
+}
+QToolButton:pressed
+{
+	top: 1px;
+	left: 1px;
+}
+QToolButton[popupMode="1"]
+{
+	padding-right: 20px;
+}
+QToolButton[popupMode="1"]:open
+{
+	padding-right: 20px;
+	padding-top: 2px;
+	padding-left: 1px;
+}
+QToolButton[popupMode="2"]
+{
+	padding-right: 10px;
+}
+QToolButton[popupMode="2"]:open
+{
+	padding-right: 10px;
+	padding-top: 2px;
+	padding-left: 1px;
+}
+QToolButton::menu-indicator
+{
+	image: url("%IMAGES_PATH%/arrows/down.png");
+	subcontrol-origin: padding;
+	subcontrol-position: center right;
+}
+QToolButton::menu-indicator:open, QToolButton::menu-indicator:pressed
+{
+	image: url("%IMAGES_PATH%/arrows/up.png");
+	subcontrol-origin: padding;
+	subcontrol-position: center right;
+}
+QToolButton::menu-arrow
+{
+	image: url("%IMAGES_PATH%/arrows/down.png");
+}
+QToolButton::menu-arrow:open
+{
+	image: url("%IMAGES_PATH%/arrows/up.png");
+}
+
+/*************
+ * QTreeView *
+ *************/
+
+QTreeView
+{
+	alternate-background-color: rgb(239, 239, 239);
+}
+
+QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings
+{
+	border-image: none;
+	image: url(%IMAGES_PATH%/closed_group.png);
+}
+
+QTreeView::branch:open:has-children:!has-siblings, QTreeView::branch:open:has-children:has-siblings
+{
+	border-image: none;
+	image: url(%IMAGES_PATH%/opened-group.png);
+}
+
+/**************
+ * SearchEdit *
+ **************/
+
+SearchEdit
+{
+	min-height: 17px;
+	max-height: 17px;
+}
+
+/**********
+ * QFrame *
+ **********/
+
+QFrame#searchFrame
+{
+	border-width: 4px;
+	border-image: url(%IMAGES_PATH%/rostersearchborder.png);
 }

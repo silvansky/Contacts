@@ -7,4 +7,9 @@
     <object mime='text/css'>main.qss</object>
   </file>
 
+  <file>
+    <key>imagesPath</key>
+    <object mime='folder'>images</object>
+  </file>
+
 </sounddef>

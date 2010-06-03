@@ -260,7 +260,7 @@ void PluginManager::loadSettings()
 		file.open(QIODevice::ReadOnly);
 		file.seek(0);
 		QByteArray ba = file.readAll();
-		((QApplication*)parent())->setStyleSheet(QString(ba));
+		((QApplication*)parent())->setStyleSheet(QString(ba).replace(SS_IMAGE_PATH_MACRO, FileStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(SS_IMAGE_PATH)));
 	}
 }
 
