@@ -218,7 +218,6 @@
 #define MNI_ROSTERSEARCH_ICON_GLASS	"rostersearchIconGlass"
 #define MNI_ROSTERSEARCH_ICON_CROSS	"rostersearchIconCross"
 #define MNI_ROSTERSEARCH_ICON_CROSS_HOVER	"rostersearchIconCrossHover"
-#define MNI_ROSTERSEARCH_BORDER		"rostersearchBorder"
 
 //RosterView
 #define MNI_ROSTERVIEW_OPTIONS          "rosterviewOptions"

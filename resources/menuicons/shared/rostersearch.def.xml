@@ -16,8 +16,4 @@
     <key>rostersearchIconCrossHover</key>
     <object mime="image/png">rostersearchiconcrosshover.png</object>
   </icon>
-  <icon>
-    <key>rostersearchBorder</key>
-    <object mime="image/png">rostersearchborder.png</object>
-  </icon>
 </icondef>

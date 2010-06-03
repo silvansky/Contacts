@@ -221,10 +221,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		brachOption.state |= QStyle::State_Children;
 		brachOption.rect = QStyle::alignedRect(option.direction, Qt::AlignVCenter | Qt::AlignLeft, QSize(BRANCH_WIDTH, BRANCH_WIDTH), paintRect);
 		if (APainter && !isDragged)
-		{
 			APainter->drawImage(brachOption.rect.topLeft(), (brachOption.state & QStyle::State_Open) ? groupOpenedIndicator : groupClosedIndicator);
-			//style->drawPrimitive(QStyle::PE_IndicatorBranch, &brachOption, APainter);
-		}
 		removeWidth(paintRect, BRANCH_WIDTH, AOption.direction == Qt::LeftToRight);
 		rectHash.insert(RLID_INDICATORBRANCH, brachOption.rect);
 	}
