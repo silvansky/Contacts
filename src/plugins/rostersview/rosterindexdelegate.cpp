@@ -3,10 +3,18 @@
 #include <QPainter>
 #include <QApplication>
 #include <QWindowsVistaStyle>
+#include <utils/iconstorage.h>
+#include <definations/resources.h>
+#include <definations/menuicons.h>
 
 #define BRANCH_WIDTH  10
 
+// static members
 QVector<int> RosterIndexDelegate::groupTypes;
+QImage RosterIndexDelegate::groupOpenedIndicator;
+QImage RosterIndexDelegate::groupClosedIndicator;
+
+// ...
 
 RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QAbstractItemDelegate(AParent)
 {
@@ -18,6 +26,14 @@ RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QAbstractItemDelega
 		groupTypes.append(RIT_GROUP_BLANK);
 		groupTypes.append(RIT_GROUP_MY_RESOURCES);
 		groupTypes.append(RIT_GROUP_NOT_IN_ROSTER);
+	}
+	if (groupOpenedIndicator.isNull())
+	{
+		groupOpenedIndicator.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERVIEW_GROUP_OPENED));
+	}
+	if (groupClosedIndicator.isNull())
+	{
+		groupClosedIndicator.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERVIEW_GROUP_CLOSED));
 	}
 }
 
@@ -205,7 +221,10 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		brachOption.state |= QStyle::State_Children;
 		brachOption.rect = QStyle::alignedRect(option.direction, Qt::AlignVCenter | Qt::AlignLeft, QSize(BRANCH_WIDTH, BRANCH_WIDTH), paintRect);
 		if (APainter && !isDragged)
-			style->drawPrimitive(QStyle::PE_IndicatorBranch, &brachOption, APainter);
+		{
+			APainter->drawImage(brachOption.rect.topLeft(), (brachOption.state & QStyle::State_Open) ? groupOpenedIndicator : groupClosedIndicator);
+			//style->drawPrimitive(QStyle::PE_IndicatorBranch, &brachOption, APainter);
+		}
 		removeWidth(paintRect, BRANCH_WIDTH, AOption.direction == Qt::LeftToRight);
 		rectHash.insert(RLID_INDICATORBRANCH, brachOption.rect);
 	}

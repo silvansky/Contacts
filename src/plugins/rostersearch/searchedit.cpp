@@ -24,7 +24,7 @@ SearchEdit::SearchEdit(QWidget *parent) :
 void SearchEdit::resizeEvent(QResizeEvent * event)
 {
 	QLineEdit::resizeEvent(event);
-	iconLabel->move(event->size().width() - 18, 2);
+	iconLabel->move(event->size().width() - 18, 0);
 }
 
 void SearchEdit::mouseMoveEvent(QMouseEvent * event)

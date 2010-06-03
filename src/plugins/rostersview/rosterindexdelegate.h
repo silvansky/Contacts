@@ -54,6 +54,8 @@ private:
 private:
 	bool FShowBlinkLabels;
 	static QVector<int> groupTypes;
+	static QImage groupOpenedIndicator;
+	static QImage groupClosedIndicator;
 private:
 	static const int spacing = 2;
 };

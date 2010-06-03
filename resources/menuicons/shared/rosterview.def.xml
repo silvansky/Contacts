@@ -16,4 +16,12 @@
     <key>rosterviewClipboard</key>
     <object mime="image/png">rosterviewclipboard.png</object>
   </icon>
+  <icon>
+    <key>rosterviewGroupOpenedIndicator</key>
+    <object mime="image/png">rosterviewgroupopenedindicator.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewGroupClosedIndicator</key>
+    <object mime="image/png">rosterviewgroupclosedindicator.png</object>
+  </icon>
 </icondef>
