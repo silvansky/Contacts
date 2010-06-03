@@ -61,15 +61,16 @@ void StatusWidget::paintEvent(QPaintEvent * event)
 
 bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 {
-	if (obj == ui->statusToolButton)
+	if ((obj == ui->statusToolButton) && (event->type() == QEvent::ActionChanged))
 	{
-		if (ui->statusToolButton->defaultAction())
+		//QWidget::eventFilter(obj, event);
+		QActionEvent * actionEvent = (QActionEvent*)event;
+		if (actionEvent->action())
 		{
-			//			ui->statusLabel->setPixmap(ui->statusToolButton->defaultAction()->icon().pixmap(16, 16));
-			ui->statusToolButton->setText(ui->statusToolButton->defaultAction()->text());
-			//ui->statusToolButton->setText("<b><font size=+2>" + userName + "</font></b> - <font size=-1>" + ui->statusToolButton->text() + "</font>");
-			ui->statusToolButton->setText(fitCaptionToWidth(userName, ui->statusToolButton->text(), ui->statusToolButton->width() - ui->statusToolButton->iconSize().width() - 5));
+			ui->statusToolButton->setIcon(actionEvent->action()->icon());
+			ui->statusToolButton->setText(fitCaptionToWidth(userName, actionEvent->action()->text(), ui->statusToolButton->width() - ui->statusToolButton->iconSize().width() - 5));
 		}
+		return true;
 	}
 	if (obj == ui->avatarLabel)
 	{
@@ -129,7 +130,7 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 			break;
 		}
 	}
-	if (obj == selectAvatarWidget && event->type() == QEvent::FocusOut)
+	if ((obj == selectAvatarWidget) && (event->type() == QEvent::FocusOut))
 		selectAvatarWidget->hide();
 	if ((obj == ui->moodLabel) && (event->type() == QEvent::MouseButtonPress))
 	{

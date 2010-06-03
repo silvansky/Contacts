@@ -21,6 +21,7 @@ protected:
 	void resizeEvent(QResizeEvent *);
 	void mouseMoveEvent(QMouseEvent *);
 	void mousePressEvent(QMouseEvent *);
+	void leaveEvent(QEvent *);
 private:
 	IconStorage * iconStorage;
 	QIcon currentIcon;

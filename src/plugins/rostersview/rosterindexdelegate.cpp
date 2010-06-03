@@ -127,7 +127,7 @@ int RosterIndexDelegate::labelAt(const QPoint &APoint, const QStyleOptionViewIte
 
 QRect RosterIndexDelegate::labelRect(int ALabelId, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 {
-	return drawIndex(NULL,AOption,AIndex).value(ALabelId);
+	return drawIndex(NULL, AOption, AIndex).value(ALabelId);
 }
 
 void RosterIndexDelegate::setShowBlinkLabels(bool AShow)
@@ -164,7 +164,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 			option.state ^= QStyle::State_Selected;
 	}
 
-	if ((type == RIT_SEARCH_LINK) && APainter)
+	option.palette.setColor(QPalette::HighlightedText, AOption.palette.text().color());
+	if (type == RIT_SEARCH_LINK)
 	{
 		option.font.setUnderline(true);
 		option.palette.setColor(QPalette::Text, AOption.palette.link().color());

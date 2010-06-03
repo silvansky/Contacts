@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>htmltoolbuttonUpIndicator</key>
+    <object mime="image/png">htmltoolbuttonupindicator.png</object>
+  </icon>
+  <icon>
+    <key>htmltoolbuttonDownIndicator</key>
+    <object mime="image/png">htmltoolbuttondownindicator.png</object>
+  </icon>
+</icondef>

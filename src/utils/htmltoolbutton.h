@@ -1,5 +1,5 @@
-#ifndef QHTMLTOOLBUTTON_H
-#define QHTMLTOOLBUTTON_H
+#ifndef HTMLTOOLBUTTON_H
+#define HTMLTOOLBUTTON_H
 
 #include <QToolButton>
 #include "utilsexport.h"
@@ -16,6 +16,8 @@ protected:
 public slots:
 	void setHtml(const QString & html);
 private:
+	static QImage menuIndicatorUp;
+	static QImage menuIndicatorDown;
 };
 
-#endif // QHTMLTOOLBUTTON_H
+#endif // HTMLTOOLBUTTON_H

@@ -5,6 +5,13 @@
 #include <QStyleOptionFocusRect>
 #include <QPainter>
 #include <QApplication>
+#include <definations/resources.h>
+#include <definations/menuicons.h>
+#include <utils/iconstorage.h>
+
+// statics
+QImage HtmlToolButton::menuIndicatorUp;
+QImage HtmlToolButton::menuIndicatorDown;
 
 // piece of code from qt\src\gui\styles\qcommonstyle.cpp
 static void drawArrow(const QStyle *style, const QStyleOptionToolButton *toolbutton,
@@ -38,6 +45,14 @@ static void drawArrow(const QStyle *style, const QStyleOptionToolButton *toolbut
 HtmlToolButton::HtmlToolButton(QWidget *parent) :
 		QToolButton(parent)
 {
+	if (menuIndicatorUp.isNull())
+	{
+		menuIndicatorUp.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_MENU_INDICATOR_UP));
+	}
+	if (menuIndicatorDown.isNull())
+	{
+		menuIndicatorDown.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_MENU_INDICATOR_DOWN));
+	}
 }
 
 QString HtmlToolButton::html() const
@@ -167,6 +182,11 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 		shiftX = paintStyle->pixelMetric(QStyle::PM_ButtonShiftHorizontal, &label, this);
 		shiftY = paintStyle->pixelMetric(QStyle::PM_ButtonShiftVertical, &label, this);
 	}
+	if (isDown())
+	{
+		shiftX += 1;
+		shiftY += 1;
+	}
 	// Arrow type always overrules and is always shown
 	bool hasArrow = label.features & QStyleOptionToolButton::Arrow;
 	if (((!hasArrow && label.icon.isNull()) && !label.text.isEmpty()) || label.toolButtonStyle == Qt::ToolButtonTextOnly)
@@ -239,7 +259,8 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 			tr.translate(shiftX, shiftY);
 			tr = QStyle::visualRect(opt->direction, rect, tr);
 			p->save();
-			p->translate(tr.x(), -1);
+			p->translate(tr.x(), shiftY);
+			rect.translate(shiftX, shiftY);
 			doc.drawContents(p, rect);
 			p->restore();
 		}
@@ -264,15 +285,17 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 		tool.state = mflags;
 		if (mflags & (QStyle::State_Sunken | QStyle::State_On | QStyle::State_Raised))
 			paintStyle->drawPrimitive(QStyle::PE_IndicatorButtonDropDown, &tool, p, this);
-		paintStyle->drawPrimitive(QStyle::PE_IndicatorArrowDown, &tool, p, this);
+		//paintStyle->drawPrimitive(QStyle::PE_IndicatorArrowDown, &tool, p, this);
+		p->drawImage(tool.rect.topLeft(), isDown() ? menuIndicatorUp : menuIndicatorDown);
 	}
 	else if (opt->features & QStyleOptionToolButton::HasMenu)
 	{
-		int mbi = paintStyle->pixelMetric(QStyle::PM_MenuButtonIndicator, opt, this);
+		int mbi = 12;//paintStyle->pixelMetric(QStyle::PM_MenuButtonIndicator, opt, this);
 		QRect ir = opt->rect;
 		QStyleOptionToolButton newBtn = *opt;
-		newBtn.rect = QRect(ir.right() + 5 - mbi, ir.y() + ir.height() - mbi + 4, mbi - 6, mbi - 6);
-		paintStyle->drawPrimitive(QStyle::PE_IndicatorArrowDown, &newBtn, p, this);
+		newBtn.rect = QRect(sizeHint().width() - mbi, ir.y() + ir.height() / 2 - 2, mbi - 6, mbi - 6);
+		//paintStyle->drawPrimitive(QStyle::PE_IndicatorArrowDown, &newBtn, p, this);
+		p->drawImage(newBtn.rect.topLeft(), isDown() ? menuIndicatorUp : menuIndicatorDown);
 	}
 	p->end();
 	delete p;

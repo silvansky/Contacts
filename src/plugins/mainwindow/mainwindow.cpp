@@ -74,6 +74,8 @@ void MainWindow::createToolBars()
 	toolbar = new QToolBar(tr("Top toolbar"), this);
 	toolbar->setFloatable(false);
 	toolbar->setMovable(false);
+	if (toolbar->layout())
+		toolbar->layout()->setSpacing(2);
 	addToolBar(Qt::TopToolBarArea,toolbar);
 	FTopToolBarChanger = new ToolBarChanger(toolbar);
 	FTopToolBarChanger->setSeparatorsVisible(false);

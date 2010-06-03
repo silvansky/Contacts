@@ -250,4 +250,9 @@
 //VCard
 #define MNI_VCARD                       "VCard"
 
+//HtmlToolButton
+#define MNI_MENU_INDICATOR_DOWN		"htmltoolbuttonDownIndicator"
+#define MNI_MENU_INDICATOR_UP		"htmltoolbuttonUpIndicator"
+
+
 #endif

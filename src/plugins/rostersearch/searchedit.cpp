@@ -56,6 +56,14 @@ void SearchEdit::mousePressEvent(QMouseEvent *event)
 		setText("");
 }
 
+void SearchEdit::leaveEvent(QEvent *)
+{
+	if (text().isEmpty())
+		updateIcon(Ready);
+	else
+		updateIcon(InProgress);
+}
+
 void SearchEdit::onTextChanged(const QString &newText)
 {
 	if (newText.isEmpty())

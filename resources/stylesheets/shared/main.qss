@@ -77,25 +77,53 @@ QToolButton::menu-arrow:open
 	image: url("%IMAGES_PATH%/arrows/up.png");
 }
 
+/******************
+ * HtmlToolButton *
+ ******************/
+
+HtmlToolButton:pressed
+{
+	top: 0px;
+	left: 0px;
+}
+HtmlToolButton[popupMode="1"]
+{
+	padding-right: 20px;
+}
+HtmlToolButton[popupMode="1"]:open
+{
+	padding-right: 20px;
+	padding-top: 0px;
+	padding-left: 0px;
+}
+HtmlToolButton[popupMode="2"]
+{
+	padding-right: 10px;
+}
+HtmlToolButton[popupMode="2"]:open
+{
+	padding-right: 10px;
+	padding-top: 0px;
+	padding-left: 0px;
+}
+
 /*************
  * QTreeView *
  *************/
 
 QTreeView
 {
+	background-color: rgb(255, 255, 255);
 	alternate-background-color: rgb(239, 239, 239);
 }
-
-QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings
+QTreeView::item
 {
-	border-image: none;
-	image: url(%IMAGES_PATH%/closed_group.png);
+	color: rgb(1, 1, 1);
 }
-
-QTreeView::branch:open:has-children:!has-siblings, QTreeView::branch:open:has-children:has-siblings
+QTreeView::item:selected
 {
-	border-image: none;
-	image: url(%IMAGES_PATH%/opened-group.png);
+	background-color: rgb(144, 209, 249);
+	color: rgb(1, 1, 1);
 }
 
 /**************
