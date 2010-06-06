@@ -16,16 +16,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="TabWidget" name="twtTabs">
-      <property name="tabPosition">
-       <enum>QTabWidget::South</enum>
-      </property>
-      <widget class="QWidget" name="tab">
-       <attribute name="title">
-        <string>Tab 1</string>
-       </attribute>
-      </widget>
-     </widget>
+     <widget class="TabWidget" name="twtTabs" native="true"/>
     </item>
    </layout>
   </widget>
@@ -34,7 +25,7 @@
  <customwidgets>
   <customwidget>
    <class>TabWidget</class>
-   <extends>QTabWidget</extends>
+   <extends>QWidget</extends>
    <header>tabwidget.h</header>
    <container>1</container>
   </customwidget>

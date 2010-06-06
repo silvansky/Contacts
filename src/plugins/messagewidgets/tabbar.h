@@ -1,23 +1,21 @@
-#ifndef TABWIDGET_H
-#define TABWIDGET_H
+#ifndef TABBAR_H
+#define TABBAR_H
 
-#include <QStackedWidget>
-#include "tabbar.h"
+#include <QFrame>
+#include <QMouseEvent>
+#include "tabbarlayout.h"
+#include "tabbaritem.h"
 
-class TabWidget :
-			public QWidget
+class TabBar : 
+			public QFrame
 {
 	Q_OBJECT;
 public:
-	TabWidget(QWidget *AParent = NULL);
-	~TabWidget();
+	TabBar(QWidget *AParent = NULL);
+	~TabBar();
 	int count() const;
 	int currentIndex() const;
 	void setCurrentIndex(int AIndex);
-	QWidget *currentWidget() const;
-	void setCurrentWidget(QWidget *AWidget);
-	QWidget *widget(int AIndex) const;
-	int indexOf(QWidget *AWidget) const;
 	QIcon tabIcon(int AIndex) const;
 	void setTabIcon(int AIndex, const QIcon &AIcon);
 	QString tabIconKey(int AIndex) const;
@@ -28,17 +26,26 @@ public:
 	void setTabToolTip(int AIndex, const QString &AToolTip);
 	bool tabsClosable() const;
 	void setTabsClosable(bool ACloseable);
-	int addTab(QWidget *AWidget, const QString &ALabel, const QString &AToolTip = QString::null);
+	int tabAt(const QPoint &APosition) const;
+	int addTab(const QString &AText, const QString &AToolTip = QString::null);
 	void removeTab(int AIndex);
 signals:
 	void currentChanged(int AIndex);
 	void tabMenuRequested(int AIndex);
 	void tabCloseRequested(int AIndex);
 protected slots:
-	void onCurrentTabChanged(int AIndex);
+	void onCloseButtonClicked();
+protected:
+	virtual void enterEvent(QEvent *AEvent);
+	virtual void leaveEvent(QEvent *AEvent);
+	virtual void mousePressEvent(QMouseEvent *AEvent);
+	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
 private:
-	TabBar *FTabBar;
-	QStackedWidget *FStack;
+	int FActiveIndex;
+	int FPressedIndex;
+	bool FTabsCloseable;
+	TabBarLayout *FLayout;
+	QList<TabBarItem *> FItems;
 };
 
-#endif // TABWIDGET_H
+#endif // TABBAR_H

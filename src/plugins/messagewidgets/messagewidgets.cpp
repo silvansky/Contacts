@@ -65,7 +65,7 @@ bool MessageWidgets::initSettings()
 {
 	Options::setDefaultValue(OPV_MESSAGES_SHOWSTATUS,true);
 	Options::setDefaultValue(OPV_MESSAGES_EDITORAUTORESIZE,true);
-	Options::setDefaultValue(OPV_MESSAGES_SHOWINFOWIDGET,true);
+	Options::setDefaultValue(OPV_MESSAGES_SHOWINFOWIDGET,false);
 	Options::setDefaultValue(OPV_MESSAGES_EDITORMINIMUMLINES,1);
 	Options::setDefaultValue(OPV_MESSAGES_EDITORSENDKEY,QKeySequence(Qt::Key_Return));
 	Options::setDefaultValue(OPV_MESSAGES_TABWINDOWS_ENABLE,true);

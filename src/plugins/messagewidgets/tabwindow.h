@@ -49,6 +49,7 @@ protected:
 	void updateTab(int AIndex);
 protected slots:
 	void onTabChanged(int AIndex);
+	void onTabMenuRequested(int AIndex);
 	void onTabCloseRequested(int AIndex);
 	void onTabPageShow();
 	void onTabPageClose();
@@ -57,8 +58,9 @@ protected slots:
 	void onTabWindowAppended(const QUuid &AWindowId, const QString &AName);
 	void onTabWindowNameChanged(const QUuid &AWindowId, const QString &AName);
 	void onTabWindowDeleted(const QUuid &AWindowId);
+	void onTabMenuActionTriggered(bool);
+	void onWindowMenuActionTriggered(bool);
 	void onOptionsChanged(const OptionsNode &ANode);
-	void onActionTriggered(bool);
 private:
 	Ui::TabWindowClass ui;
 private:
@@ -67,6 +69,7 @@ private:
 	Menu *FWindowMenu;
 	Menu *FJoinMenu;
 	Action *FCloseTab;
+	Action *FCloseAllTabs;
 	Action *FNextTab;
 	Action *FPrevTab;
 	Action *FNewTab;
@@ -74,6 +77,7 @@ private:
 	Action *FShowCloseButtons;
 	Action *FSetAsDefault;
 	Action *FRenameWindow;
+	Action *FCloseWindow;
 	Action *FDeleteWindow;
 private:
 	QUuid FWindowId;
