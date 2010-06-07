@@ -56,27 +56,19 @@
 #include <QtGui/QSyntaxHighlighter>
 //#include "shared_global_p.h"
 
-QT_BEGIN_NAMESPACE
-
-namespace qdesigner_internal {
-
 class CssHighlighter : public QSyntaxHighlighter
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit CssHighlighter(QTextDocument *document);
+	explicit CssHighlighter(QTextDocument *document);
 
 protected:
-    void highlightBlock(const QString&);
-    void highlight(const QString&, int, int, int/*State*/);
+	void highlightBlock(const QString&);
+	void highlight(const QString&, int, int, int/*State*/);
 
 private:
-    enum State { Selector, Property, Value, Pseudo, Pseudo1, Pseudo2, Quote,
-		 MaybeComment, Comment, MaybeCommentEnd };
+	enum State { Selector, Property, Value, Pseudo, Pseudo1, Pseudo2, Quote,
+		     MaybeComment, Comment, MaybeCommentEnd };
 };
-
-} // namespace qdesigner_internal
-
-QT_END_NAMESPACE
 
 #endif // CSSHIGHLIGHTER_H

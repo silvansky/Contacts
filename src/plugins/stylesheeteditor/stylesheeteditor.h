@@ -58,67 +58,57 @@
 #include <QtGui/QLabel>
 #include "qtgradientmanager.h"
 
-QT_BEGIN_NAMESPACE
-
-//class QDesignerFormWindowInterface;
-//class QDesignerFormEditorInterface;
-
 #include <QDialogButtonBox>
 
-namespace qdesigner_internal {
+class StyleSheetEditor : public QTextEdit
+{
+	Q_OBJECT
+public:
+	StyleSheetEditor(QWidget *parent = 0);
+};
 
-	class StyleSheetEditor : public QTextEdit
-	{
-		Q_OBJECT
-	public:
-		StyleSheetEditor(QWidget *parent = 0);
-	};
+// Edit a style sheet.
+class StyleSheetEditorDialog : public QDialog
+{
+	Q_OBJECT
+public:
+	StyleSheetEditorDialog(QWidget *parent);
+	~StyleSheetEditorDialog();
+	QString text() const;
+	void setText(const QString &t);
 
-	// Edit a style sheet.
-	class StyleSheetEditorDialog : public QDialog
-	{
-		Q_OBJECT
-	public:
-		StyleSheetEditorDialog(QWidget *parent);
-		~StyleSheetEditorDialog();
-		QString text() const;
-		void setText(const QString &t);
-
-		static bool isStyleSheetValid(const QString &styleSheet);
+	static bool isStyleSheetValid(const QString &styleSheet);
 
 
-	private slots:
-		void validateStyleSheet();
-		void slotContextMenuRequested(const QPoint &pos);
-		void slotAddGradient(const QString &property);
-		void slotAddColor(const QString &property);
-		void slotAddFont();
-		void slotClicked(QAbstractButton*);
-	signals:
-		void styleSheetChanged(const QString&);
-		void fileOpened(const QString&);
-		void resetStyleSheet();
+private slots:
+	void validateStyleSheet();
+	void slotContextMenuRequested(const QPoint &pos);
+	void slotAddGradient(const QString &property);
+	void slotAddColor(const QString &property);
+	void slotAddFont();
+	void slotClicked(QAbstractButton*);
+signals:
+	void styleSheetChanged(const QString&);
+	void fileOpened(const QString&);
+	void resetStyleSheet();
 
-	protected:
-		QDialogButtonBox *buttonBox() const;
-		void setOkButtonEnabled(bool v);
+protected:
+	QDialogButtonBox *buttonBox() const;
+	void setOkButtonEnabled(bool v);
 
-	private:
-		void insertCssProperty(const QString &name, const QString &value);
+private:
+	void insertCssProperty(const QString &name, const QString &value);
 
-		QDialogButtonBox *m_buttonBox;
-		StyleSheetEditor *m_editor;
-		QLabel *m_validityLabel;
-		QAction *m_addGradientAction;
-		QAction *m_addColorAction;
-		QAction *m_addFontAction;
-		QtGradientManager * gm;
-		QPushButton * pbOpen, * pbClose, * pbPreview, * pbSave, * pbReset;
-		QString activeFileName;
-	};
+	QDialogButtonBox *m_buttonBox;
+	StyleSheetEditor *m_editor;
+	QLabel *m_validityLabel;
+	QAction *m_addGradientAction;
+	QAction *m_addColorAction;
+	QAction *m_addFontAction;
+	QtGradientManager * gm;
+	QPushButton * pbOpen, * pbClose, * pbPreview, * pbSave, * pbReset;
+	QString activeFileName;
+};
 
-} // namespace qdesigner_internal
-
-QT_END_NAMESPACE
 
 #endif // STYLESHEETEDITOR_H

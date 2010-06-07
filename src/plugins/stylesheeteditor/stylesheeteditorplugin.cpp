@@ -32,7 +32,7 @@ bool StyleSheetEditorPlugin::initConnections(IPluginManager *APluginManager, int
 
 bool StyleSheetEditorPlugin::initObjects()
 {
-	editor = new qdesigner_internal::StyleSheetEditorDialog(0);
+	editor = new StyleSheetEditorDialog(0);
 	connect(editor, SIGNAL(styleSheetChanged(const QString&)), SLOT(styleSheetChanged(const QString&)));
 	connect(editor, SIGNAL(resetStyleSheet()), SLOT(resetStyleSheet()));
 	return true;

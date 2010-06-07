@@ -66,324 +66,318 @@
 #include <QFile>
 #include <QByteArray>
 
-QT_BEGIN_NAMESPACE
 
 static const char *styleSheetProperty = "styleSheet";
 static const char *StyleSheetDialogC = "StyleSheetDialog";
 static const char *Geometry = "Geometry";
 
-namespace qdesigner_internal {
+StyleSheetEditor::StyleSheetEditor(QWidget *parent)
+	: QTextEdit(parent)
+{
+	setFontFamily("Courier");
+	setFontPointSize(10);
+	setTabStopWidth(fontMetrics().width(QLatin1Char(' ')) * 8);
+	new CssHighlighter(document());
+}
 
-	StyleSheetEditor::StyleSheetEditor(QWidget *parent)
-		: QTextEdit(parent)
-	{
-		setFontFamily("Courier");
-		setFontPointSize(10);
-		setTabStopWidth(fontMetrics().width(QLatin1Char(' ')) * 8);
-		new CssHighlighter(document());
+// --- StyleSheetEditorDialog
+StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
+		QDialog(parent),
+		m_buttonBox(new QDialogButtonBox()),
+		m_editor(new StyleSheetEditor),
+		m_validityLabel(new QLabel(tr("Valid Style Sheet"))),
+		m_addGradientAction(new QAction(tr("Add Gradient..."), this)),
+		m_addColorAction(new QAction(tr("Add Color..."), this)),
+		m_addFontAction(new QAction(tr("Add Font..."), this))
+{
+
+	// buttons
+	pbOpen = new QPushButton(tr("Open"));
+	pbClose = new QPushButton(tr("Close"));
+	pbPreview = new QPushButton(tr("Preview"));
+	pbSave = new QPushButton(tr("Save"));
+	pbReset = new QPushButton(tr("Reset"));
+
+	m_buttonBox->addButton(pbOpen, QDialogButtonBox::ActionRole);
+	m_buttonBox->addButton(pbPreview, QDialogButtonBox::ActionRole);
+	m_buttonBox->addButton(pbSave, QDialogButtonBox::ActionRole);
+	m_buttonBox->addButton(pbReset, QDialogButtonBox::ActionRole);
+	m_buttonBox->addButton(pbClose, QDialogButtonBox::ActionRole);
+
+	// ...
+	gm = new QtGradientManager;
+	setWindowTitle(tr("Edit Style Sheet"));
+	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+	connect(m_buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(slotClicked(QAbstractButton*)));
+
+	connect(m_editor, SIGNAL(textChanged()), this, SLOT(validateStyleSheet()));
+
+	QToolBar *toolBar = new QToolBar;
+
+	QGridLayout *layout = new QGridLayout;
+	layout->addWidget(toolBar, 0, 0, 1, 2);
+	layout->addWidget(m_editor, 1, 0, 1, 2);
+	layout->addWidget(m_validityLabel, 2, 0, 1, 1);
+	layout->addWidget(m_buttonBox, 2, 1, 1, 1);
+	setLayout(layout);
+
+	m_editor->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(m_editor, SIGNAL(customContextMenuRequested(QPoint)),
+		this, SLOT(slotContextMenuRequested(QPoint)));
+
+	//QSignalMapper *resourceActionMapper = new QSignalMapper(this);
+	QSignalMapper *gradientActionMapper = new QSignalMapper(this);
+	QSignalMapper *colorActionMapper = new QSignalMapper(this);
+
+	gradientActionMapper->setMapping(m_addGradientAction, QString());
+	colorActionMapper->setMapping(m_addColorAction, QString());
+
+	connect(m_addGradientAction, SIGNAL(triggered()), gradientActionMapper, SLOT(map()));
+	connect(m_addColorAction, SIGNAL(triggered()), colorActionMapper, SLOT(map()));
+	connect(m_addFontAction, SIGNAL(triggered()), this, SLOT(slotAddFont()));
+
+	const char * const colorProperties[] = {
+		"color",
+		"background-color",
+		"alternate-background-color",
+		"border-color",
+		"border-top-color",
+		"border-right-color",
+		"border-bottom-color",
+		"border-left-color",
+		"gridline-color",
+		"selection-color",
+		"selection-background-color",
+		0
+	};
+
+	QMenu *gradientActionMenu = new QMenu(this);
+	QMenu *colorActionMenu = new QMenu(this);
+
+	for (int colorProperty = 0; colorProperties[colorProperty]; ++colorProperty) {
+		QAction *gradientAction = gradientActionMenu->addAction(QLatin1String(colorProperties[colorProperty]));
+		QAction *colorAction = colorActionMenu->addAction(QLatin1String(colorProperties[colorProperty]));
+		connect(gradientAction, SIGNAL(triggered()), gradientActionMapper, SLOT(map()));
+		connect(colorAction, SIGNAL(triggered()), colorActionMapper, SLOT(map()));
+		gradientActionMapper->setMapping(gradientAction, QLatin1String(colorProperties[colorProperty]));
+		colorActionMapper->setMapping(colorAction, QLatin1String(colorProperties[colorProperty]));
 	}
 
-	// --- StyleSheetEditorDialog
-	StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
-			QDialog(parent),
-			m_buttonBox(new QDialogButtonBox()),
-			m_editor(new StyleSheetEditor),
-			m_validityLabel(new QLabel(tr("Valid Style Sheet"))),
-			m_addGradientAction(new QAction(tr("Add Gradient..."), this)),
-			m_addColorAction(new QAction(tr("Add Color..."), this)),
-			m_addFontAction(new QAction(tr("Add Font..."), this))
-	{
+	connect(gradientActionMapper, SIGNAL(mapped(QString)), this, SLOT(slotAddGradient(QString)));
+	connect(colorActionMapper, SIGNAL(mapped(QString)), this, SLOT(slotAddColor(QString)));
 
-		// buttons
-		pbOpen = new QPushButton(tr("Open"));
-		pbClose = new QPushButton(tr("Close"));
-		pbPreview = new QPushButton(tr("Preview"));
-		pbSave = new QPushButton(tr("Save"));
-		pbReset = new QPushButton(tr("Reset"));
+	m_addGradientAction->setMenu(gradientActionMenu);
+	m_addColorAction->setMenu(colorActionMenu);
 
-		m_buttonBox->addButton(pbOpen, QDialogButtonBox::ActionRole);
-		m_buttonBox->addButton(pbPreview, QDialogButtonBox::ActionRole);
-		m_buttonBox->addButton(pbSave, QDialogButtonBox::ActionRole);
-		m_buttonBox->addButton(pbReset, QDialogButtonBox::ActionRole);
-		m_buttonBox->addButton(pbClose, QDialogButtonBox::ActionRole);
+	toolBar->addAction(m_addGradientAction);
+	toolBar->addAction(m_addColorAction);
+	toolBar->addAction(m_addFontAction);
+	setMinimumSize(640, 480);
 
-		// ...
-		gm = new QtGradientManager;
-		setWindowTitle(tr("Edit Style Sheet"));
-		setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+	m_editor->setFocus();
+}
 
-		connect(m_buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(slotClicked(QAbstractButton*)));
+StyleSheetEditorDialog::~StyleSheetEditorDialog()
+{
+}
 
-		connect(m_editor, SIGNAL(textChanged()), this, SLOT(validateStyleSheet()));
+void StyleSheetEditorDialog::setOkButtonEnabled(bool v)
+{
+	pbPreview->setEnabled(v);
+}
 
-		QToolBar *toolBar = new QToolBar;
+void StyleSheetEditorDialog::slotContextMenuRequested(const QPoint &pos)
+{
+	QMenu *menu = m_editor->createStandardContextMenu();
+	menu->addSeparator();
+	menu->exec(mapToGlobal(pos));
+	delete menu;
+}
 
-		QGridLayout *layout = new QGridLayout;
-		layout->addWidget(toolBar, 0, 0, 1, 2);
-		layout->addWidget(m_editor, 1, 0, 1, 2);
-		layout->addWidget(m_validityLabel, 2, 0, 1, 1);
-		layout->addWidget(m_buttonBox, 2, 1, 1, 1);
-		setLayout(layout);
+void StyleSheetEditorDialog::slotAddGradient(const QString &property)
+{
+	bool ok;
+	const QGradient grad = QtGradientViewDialog::getGradient(&ok, gm, this);
+	if (ok)
+		insertCssProperty(property, QtGradientUtils::styleSheetCode(grad));
+}
 
-		m_editor->setContextMenuPolicy(Qt::CustomContextMenu);
-		connect(m_editor, SIGNAL(customContextMenuRequested(QPoint)),
-			this, SLOT(slotContextMenuRequested(QPoint)));
+void StyleSheetEditorDialog::slotAddColor(const QString &property)
+{
+	const QColor color = QColorDialog::getColor(0xffffffff, this, QString(), QColorDialog::ShowAlphaChannel);
+	if (!color.isValid())
+		return;
 
-		//QSignalMapper *resourceActionMapper = new QSignalMapper(this);
-		QSignalMapper *gradientActionMapper = new QSignalMapper(this);
-		QSignalMapper *colorActionMapper = new QSignalMapper(this);
+	QString colorStr;
 
-		gradientActionMapper->setMapping(m_addGradientAction, QString());
-		colorActionMapper->setMapping(m_addColorAction, QString());
+	if (color.alpha() == 255) {
+		colorStr = QString(QLatin1String("rgb(%1, %2, %3)")).arg(
+				color.red()).arg(color.green()).arg(color.blue());
+	} else {
+		colorStr = QString(QLatin1String("rgba(%1, %2, %3, %4)")).arg(
+				color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha());
+	}
 
-		connect(m_addGradientAction, SIGNAL(triggered()), gradientActionMapper, SLOT(map()));
-		connect(m_addColorAction, SIGNAL(triggered()), colorActionMapper, SLOT(map()));
-		connect(m_addFontAction, SIGNAL(triggered()), this, SLOT(slotAddFont()));
+	insertCssProperty(property, colorStr);
+}
 
-		const char * const colorProperties[] = {
-			"color",
-			"background-color",
-			"alternate-background-color",
-			"border-color",
-			"border-top-color",
-			"border-right-color",
-			"border-bottom-color",
-			"border-left-color",
-			"gridline-color",
-			"selection-color",
-			"selection-background-color",
-			0
-		};
-
-		QMenu *gradientActionMenu = new QMenu(this);
-		QMenu *colorActionMenu = new QMenu(this);
-
-		for (int colorProperty = 0; colorProperties[colorProperty]; ++colorProperty) {
-			QAction *gradientAction = gradientActionMenu->addAction(QLatin1String(colorProperties[colorProperty]));
-			QAction *colorAction = colorActionMenu->addAction(QLatin1String(colorProperties[colorProperty]));
-			connect(gradientAction, SIGNAL(triggered()), gradientActionMapper, SLOT(map()));
-			connect(colorAction, SIGNAL(triggered()), colorActionMapper, SLOT(map()));
-			gradientActionMapper->setMapping(gradientAction, QLatin1String(colorProperties[colorProperty]));
-			colorActionMapper->setMapping(colorAction, QLatin1String(colorProperties[colorProperty]));
+void StyleSheetEditorDialog::slotAddFont()
+{
+	bool ok;
+	QFont font = QFontDialog::getFont(&ok, this);
+	if (ok) {
+		QString fontStr;
+		if (font.weight() != QFont::Normal) {
+			fontStr += QString::number(font.weight());
+			fontStr += QLatin1Char(' ');
 		}
 
-		connect(gradientActionMapper, SIGNAL(mapped(QString)), this, SLOT(slotAddGradient(QString)));
-		connect(colorActionMapper, SIGNAL(mapped(QString)), this, SLOT(slotAddColor(QString)));
+		switch (font.style()) {
+		case QFont::StyleItalic:
+			fontStr += QLatin1String("italic ");
+			break;
+		case QFont::StyleOblique:
+			fontStr += QLatin1String("oblique ");
+			break;
+		default:
+			break;
+		}
+		fontStr += QString::number(font.pointSize());
+		fontStr += QLatin1String("pt \"");
+		fontStr += font.family();
+		fontStr += QLatin1Char('"');
 
-		m_addGradientAction->setMenu(gradientActionMenu);
-		m_addColorAction->setMenu(colorActionMenu);
-
-		toolBar->addAction(m_addGradientAction);
-		toolBar->addAction(m_addColorAction);
-		toolBar->addAction(m_addFontAction);
-		setMinimumSize(640, 480);
-
-		m_editor->setFocus();
+		insertCssProperty(QLatin1String("font"), fontStr);
+		QString decoration;
+		if (font.underline())
+			decoration += QLatin1String("underline");
+		if (font.strikeOut()) {
+			if (!decoration.isEmpty())
+				decoration += QLatin1Char(' ');
+			decoration += QLatin1String("line-through");
+		}
+		insertCssProperty(QLatin1String("text-decoration"), decoration);
 	}
+}
 
-	StyleSheetEditorDialog::~StyleSheetEditorDialog()
-	{
-	}
+void StyleSheetEditorDialog::insertCssProperty(const QString &name, const QString &value)
+{
+	if (!value.isEmpty()) {
+		QTextCursor cursor = m_editor->textCursor();
+		if (!name.isEmpty()) {
+			cursor.beginEditBlock();
+			cursor.removeSelectedText();
+			cursor.movePosition(QTextCursor::EndOfLine);
 
-	void StyleSheetEditorDialog::setOkButtonEnabled(bool v)
-	{
-		pbPreview->setEnabled(v);
-	}
-
-	void StyleSheetEditorDialog::slotContextMenuRequested(const QPoint &pos)
-	{
-		QMenu *menu = m_editor->createStandardContextMenu();
-		menu->addSeparator();
-		menu->exec(mapToGlobal(pos));
-		delete menu;
-	}
-
-	void StyleSheetEditorDialog::slotAddGradient(const QString &property)
-	{
-		bool ok;
-		const QGradient grad = QtGradientViewDialog::getGradient(&ok, gm, this);
-		if (ok)
-			insertCssProperty(property, QtGradientUtils::styleSheetCode(grad));
-	}
-
-	void StyleSheetEditorDialog::slotAddColor(const QString &property)
-	{
-		const QColor color = QColorDialog::getColor(0xffffffff, this, QString(), QColorDialog::ShowAlphaChannel);
-		if (!color.isValid())
-			return;
-
-		QString colorStr;
-
-		if (color.alpha() == 255) {
-			colorStr = QString(QLatin1String("rgb(%1, %2, %3)")).arg(
-					color.red()).arg(color.green()).arg(color.blue());
+			// Simple check to see if we're in a selector scope
+			const QTextDocument *doc = m_editor->document();
+			const QTextCursor closing = doc->find(QLatin1String("}"), cursor, QTextDocument::FindBackward);
+			const QTextCursor opening = doc->find(QLatin1String("{"), cursor, QTextDocument::FindBackward);
+			const bool inSelector = !opening.isNull() && (closing.isNull() ||
+								      closing.position() < opening.position());
+			QString insertion;
+			if (m_editor->textCursor().block().length() != 1)
+				insertion += QLatin1Char('\n');
+			if (inSelector)
+				insertion += QLatin1Char('\t');
+			insertion += name;
+			insertion += QLatin1String(": ");
+			insertion += value;
+			insertion += QLatin1Char(';');
+			cursor.insertText(insertion);
+			cursor.endEditBlock();
 		} else {
-			colorStr = QString(QLatin1String("rgba(%1, %2, %3, %4)")).arg(
-					color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha());
-		}
-
-		insertCssProperty(property, colorStr);
-	}
-
-	void StyleSheetEditorDialog::slotAddFont()
-	{
-		bool ok;
-		QFont font = QFontDialog::getFont(&ok, this);
-		if (ok) {
-			QString fontStr;
-			if (font.weight() != QFont::Normal) {
-				fontStr += QString::number(font.weight());
-				fontStr += QLatin1Char(' ');
-			}
-
-			switch (font.style()) {
-			case QFont::StyleItalic:
-				fontStr += QLatin1String("italic ");
-				break;
-			case QFont::StyleOblique:
-				fontStr += QLatin1String("oblique ");
-				break;
-			default:
-				break;
-			}
-			fontStr += QString::number(font.pointSize());
-			fontStr += QLatin1String("pt \"");
-			fontStr += font.family();
-			fontStr += QLatin1Char('"');
-
-			insertCssProperty(QLatin1String("font"), fontStr);
-			QString decoration;
-			if (font.underline())
-				decoration += QLatin1String("underline");
-			if (font.strikeOut()) {
-				if (!decoration.isEmpty())
-					decoration += QLatin1Char(' ');
-				decoration += QLatin1String("line-through");
-			}
-			insertCssProperty(QLatin1String("text-decoration"), decoration);
+			cursor.insertText(value);
 		}
 	}
+}
 
-	void StyleSheetEditorDialog::insertCssProperty(const QString &name, const QString &value)
+void StyleSheetEditorDialog::slotClicked(QAbstractButton* button)
+{
+	QPushButton *pb = qobject_cast<QPushButton*>(button);
+	if (pb == pbClose)
 	{
-		if (!value.isEmpty()) {
-			QTextCursor cursor = m_editor->textCursor();
-			if (!name.isEmpty()) {
-				cursor.beginEditBlock();
-				cursor.removeSelectedText();
-				cursor.movePosition(QTextCursor::EndOfLine);
-
-				// Simple check to see if we're in a selector scope
-				const QTextDocument *doc = m_editor->document();
-				const QTextCursor closing = doc->find(QLatin1String("}"), cursor, QTextDocument::FindBackward);
-				const QTextCursor opening = doc->find(QLatin1String("{"), cursor, QTextDocument::FindBackward);
-				const bool inSelector = !opening.isNull() && (closing.isNull() ||
-									      closing.position() < opening.position());
-				QString insertion;
-				if (m_editor->textCursor().block().length() != 1)
-					insertion += QLatin1Char('\n');
-				if (inSelector)
-					insertion += QLatin1Char('\t');
-				insertion += name;
-				insertion += QLatin1String(": ");
-				insertion += value;
-				insertion += QLatin1Char(';');
-				cursor.insertText(insertion);
-				cursor.endEditBlock();
-			} else {
-				cursor.insertText(value);
-			}
-		}
+		reject();
 	}
-
-	void StyleSheetEditorDialog::slotClicked(QAbstractButton* button)
+	if (pb == pbOpen)
 	{
-		QPushButton *pb = qobject_cast<QPushButton*>(button);
-		if (pb == pbClose)
+		QString filename = QFileDialog::getOpenFileName(this, "Select QSS file", ".", "Qt Style Sheets (*.qss)");
+		if (!filename.isEmpty())
 		{
-			reject();
+			QFile f(filename);
+			f.open(QIODevice::ReadOnly);
+			f.seek(0);
+			QByteArray ba = f.readAll();
+			f.close();
+			QString stylesheet = QString::fromLatin1(ba.data());
+			setText(stylesheet);
+			activeFileName = filename;
+			setWindowTitle(filename + " - Style Sheet Editor");
+			emit fileOpened(filename);
+			emit styleSheetChanged(stylesheet);
 		}
-		if (pb == pbOpen)
+	}
+	if (pb == pbPreview)
+	{
+		emit styleSheetChanged(m_editor->toPlainText());
+	}
+	if (pb == pbSave)
+	{
+		QString filename = QFileDialog::getSaveFileName(this, "Select QSS file to save in", ".", "Qt Style Sheets (*.qss)");
+		if (!filename.isEmpty())
 		{
-			QString filename = QFileDialog::getOpenFileName(this, "Select QSS file", ".", "Qt Style Sheets (*.qss)");
-			if (!filename.isEmpty())
-			{
-				QFile f(filename);
-				f.open(QIODevice::ReadOnly);
-				f.seek(0);
-				QByteArray ba = f.readAll();
-				f.close();
-				QString stylesheet = QString::fromLatin1(ba.data());
-				setText(stylesheet);
-				activeFileName = filename;
-				setWindowTitle(filename + " - Style Sheet Editor");
-				emit fileOpened(filename);
-				emit styleSheetChanged(stylesheet);
-			}
-		}
-		if (pb == pbPreview)
-		{
-			emit styleSheetChanged(m_editor->toPlainText());
-		}
-		if (pb == pbSave)
-		{
-			QString filename = QFileDialog::getSaveFileName(this, "Select QSS file to save in", ".", "Qt Style Sheets (*.qss)");
-			if (!filename.isEmpty())
-			{
-				QFile f(filename);
-				f.open(QIODevice::WriteOnly | QIODevice::Truncate);
-				f.write(text().toLatin1());
-				f.close();
-			}
-		}
-		if (pb == pbReset)
-		{
-			emit resetStyleSheet();
+			QFile f(filename);
+			f.open(QIODevice::WriteOnly | QIODevice::Truncate);
+			f.write(text().toLatin1());
+			f.close();
 		}
 	}
-
-	QDialogButtonBox * StyleSheetEditorDialog::buttonBox() const
+	if (pb == pbReset)
 	{
-		return m_buttonBox;
+		emit resetStyleSheet();
 	}
+}
 
-	QString StyleSheetEditorDialog::text() const
-	{
-		return m_editor->toPlainText();
+QDialogButtonBox * StyleSheetEditorDialog::buttonBox() const
+{
+	return m_buttonBox;
+}
+
+QString StyleSheetEditorDialog::text() const
+{
+	return m_editor->toPlainText();
+}
+
+void StyleSheetEditorDialog::setText(const QString &t)
+{
+	m_editor->setText(t);
+}
+
+bool StyleSheetEditorDialog::isStyleSheetValid(const QString &styleSheet)
+{
+	QString correctStyleSheet = styleSheet;
+	correctStyleSheet.replace("%IMAGES_PATH%", "/home/me");
+	QCss::Parser parser(correctStyleSheet);
+	QCss::StyleSheet sheet;
+	if (parser.parse(&sheet))
+		return true;
+	QString fullSheet = QLatin1String("* { ");
+	fullSheet += correctStyleSheet;
+	fullSheet += QLatin1Char('}');
+	QCss::Parser parser2(fullSheet);
+	return parser2.parse(&sheet);
+}
+
+void StyleSheetEditorDialog::validateStyleSheet()
+{
+	const bool valid = isStyleSheetValid(m_editor->toPlainText());
+	setOkButtonEnabled(valid);
+	if (valid) {
+		m_validityLabel->setText(tr("Valid Style Sheet"));
+		m_validityLabel->setStyleSheet(QLatin1String("color: green"));
+	} else {
+		m_validityLabel->setText(tr("Invalid Style Sheet"));
+		m_validityLabel->setStyleSheet(QLatin1String("color: red"));
 	}
-
-	void StyleSheetEditorDialog::setText(const QString &t)
-	{
-		m_editor->setText(t);
-	}
-
-	bool StyleSheetEditorDialog::isStyleSheetValid(const QString &styleSheet)
-	{
-		QString correctStyleSheet = styleSheet;
-		correctStyleSheet.replace("%IMAGES_PATH%", "/home/me");
-		QCss::Parser parser(correctStyleSheet);
-		QCss::StyleSheet sheet;
-		if (parser.parse(&sheet))
-			return true;
-		QString fullSheet = QLatin1String("* { ");
-		fullSheet += correctStyleSheet;
-		fullSheet += QLatin1Char('}');
-		QCss::Parser parser2(fullSheet);
-		return parser2.parse(&sheet);
-	}
-
-	void StyleSheetEditorDialog::validateStyleSheet()
-	{
-		const bool valid = isStyleSheetValid(m_editor->toPlainText());
-		setOkButtonEnabled(valid);
-		if (valid) {
-			m_validityLabel->setText(tr("Valid Style Sheet"));
-			m_validityLabel->setStyleSheet(QLatin1String("color: green"));
-		} else {
-			m_validityLabel->setText(tr("Invalid Style Sheet"));
-			m_validityLabel->setStyleSheet(QLatin1String("color: red"));
-		}
-	}
-} // namespace qdesigner_internal
-
-QT_END_NAMESPACE
+}

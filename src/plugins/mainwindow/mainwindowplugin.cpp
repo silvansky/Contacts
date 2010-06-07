@@ -1,5 +1,7 @@
 #include "mainwindowplugin.h"
 
+#include <loader/svninfo.h>
+
 MainWindowPlugin::MainWindowPlugin()
 {
 	FPluginManager = NULL;
@@ -34,7 +36,7 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &/*AI
 		if (FOptionsManager)
 		{
 			connect(FOptionsManager->instance(), SIGNAL(profileRenamed(const QString &, const QString &)),
-			        SLOT(onProfileRenamed(const QString &, const QString &)));
+				SLOT(onProfileRenamed(const QString &, const QString &)));
 		}
 	}
 
@@ -45,7 +47,7 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &/*AI
 		if (FTrayManager)
 		{
 			connect(FTrayManager->instance(),SIGNAL(notifyActivated(int, QSystemTrayIcon::ActivationReason)),
-			        SLOT(onTrayNotifyActivated(int,QSystemTrayIcon::ActivationReason)));
+				SLOT(onTrayNotifyActivated(int,QSystemTrayIcon::ActivationReason)));
 		}
 	}
 
@@ -99,7 +101,8 @@ void MainWindowPlugin::updateTitle()
 	//if (FOptionsManager && FOptionsManager->isOpened())
 	//	FMainWindow->setWindowTitle(CLIENT_NAME" - "+FOptionsManager->currentProfile());
 	//else
-		FMainWindow->setWindowTitle(CLIENT_NAME);
+	QString svnRevision(SVN_REVISION);
+	FMainWindow->setWindowTitle(CLIENT_NAME" | R" + QString(SVN_REVISION).mid(2, svnRevision.length() - 3));
 }
 
 void MainWindowPlugin::showMainWindow()

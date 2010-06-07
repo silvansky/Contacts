@@ -25,7 +25,7 @@ public:
 	virtual bool startPlugin();
 private:
 	IPluginManager * pluginManager;
-	qdesigner_internal::StyleSheetEditorDialog * editor;
+	StyleSheetEditorDialog * editor;
 protected slots:
 	void styleSheetChanged(const QString&);
 	void resetStyleSheet();

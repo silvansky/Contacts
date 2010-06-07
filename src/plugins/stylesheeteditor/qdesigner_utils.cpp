@@ -66,10 +66,7 @@
 #include <QtGui/QTableWidget>
 #include <QtGui/QComboBox>
 
-QT_BEGIN_NAMESPACE
 
-namespace qdesigner_internal
-{
     void designerWarning(const QString &message)
     {
 	qWarning("Designer: %s", qPrintable(message));
@@ -729,6 +726,3 @@ namespace qdesigner_internal
 	    m_widget->setUpdatesEnabled(true);
     }
 
-} // namespace qdesigner_internal
-
-QT_END_NAMESPACE
