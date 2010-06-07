@@ -20,7 +20,7 @@ public:
 	virtual QStackedWidget *bottomWidget() const = 0;
 	virtual ToolBarChanger *topToolBarChanger() const =0;
 	virtual ToolBarChanger *leftToolBarChanger() const =0;
-	virtual ToolBarChanger *bottomToolBarChanger() const =0;
+	virtual ToolBarChanger *statusToolBarChanger() const =0;
 	virtual Menu *mainMenu() const = 0;
 };
 

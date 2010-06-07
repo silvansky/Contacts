@@ -52,6 +52,8 @@ public:
 	virtual const IPluginInfo *pluginInfo(const QUuid &AUuid) const;
 	virtual QList<QUuid> pluginDependencesOn(const QUuid &AUuid) const;
 	virtual QList<QUuid> pluginDependencesFor(const QUuid &AUuid) const;
+	virtual QString styleSheet() const;
+	virtual void setStyleSheet(const QString&);
 public slots:
 	virtual void quit();
 	virtual void restart();
@@ -94,6 +96,8 @@ private:
 	QList<QString> FBlockedPlugins;
 	QHash<QUuid, PluginItem> FPluginItems;
 	mutable QMultiHash<QString, IPlugin *> FPlugins;
+	// decorated stylesheet
+	QString FStyleSheet;
 };
 
 #endif

@@ -161,6 +161,19 @@ QList<QUuid> PluginManager::pluginDependencesFor(const QUuid &AUuid) const
 	return plugins;
 }
 
+QString PluginManager::styleSheet() const
+{
+	return FStyleSheet;
+}
+
+void PluginManager::setStyleSheet(const QString& newStyleSheet)
+{
+	FStyleSheet = newStyleSheet;
+	QApplication * application = qobject_cast<QApplication*>(parent());
+	if (application)
+		application->setStyleSheet(QString(FStyleSheet).replace(SS_IMAGE_PATH_MACRO, FileStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(SS_IMAGE_PATH)));
+}
+
 void PluginManager::quit()
 {
 	QTimer::singleShot(0,qApp,SLOT(quit()));
@@ -260,7 +273,8 @@ void PluginManager::loadSettings()
 		file.open(QIODevice::ReadOnly);
 		file.seek(0);
 		QByteArray ba = file.readAll();
-		((QApplication*)parent())->setStyleSheet(QString(ba).replace(SS_IMAGE_PATH_MACRO, FileStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(SS_IMAGE_PATH)));
+		//((QApplication*)parent())->setStyleSheet(QString(ba).replace(SS_IMAGE_PATH_MACRO, FileStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(SS_IMAGE_PATH)));
+		setStyleSheet(ba);
 	}
 }
 

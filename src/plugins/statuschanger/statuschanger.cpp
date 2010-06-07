@@ -191,7 +191,7 @@ bool StatusChanger::initObjects()
 
 	if (FMainWindowPlugin)
 	{
-		ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->bottomToolBarChanger();
+		ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->statusToolBarChanger();
 		statusWidget = new ::StatusWidget(changer->toolBar());
 		statusWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 		changer->insertWidget(statusWidget);

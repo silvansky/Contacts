@@ -125,6 +125,10 @@ QTreeView::item:selected
 	background-color: rgb(144, 209, 249);
 	color: rgb(1, 1, 1);
 }
+QTreeView::item:hover
+{
+	background-color: rgba(144, 209, 249, 150);
+}
 
 /**************
  * SearchEdit *
@@ -153,4 +157,22 @@ QFrame#searchFrame
 QToolBar
 {
 	background-color: rgb(240, 240, 240);
+}
+
+/***************
+ * QPushButton *
+ ***************/
+
+QPushButton:!hover:enabled#pbtConnect
+{
+	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(8, 137, 211, 255), stop:1 rgba(66, 177, 243, 255))	
+}
+QPushButton:hover:enabled#pbtConnect
+{
+	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(66, 177, 242, 255), stop:1 rgba(204, 235, 254, 255));
+}
+QPushButton:!enabled#pbtConnect
+{
+	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(208, 208, 208, 255), stop:1 rgba(240, 240, 240, 255));
+	border: 1px solid lightgray;
 }

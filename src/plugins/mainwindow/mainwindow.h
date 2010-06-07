@@ -23,7 +23,7 @@ public:
 	virtual QStackedWidget *bottomWidget() const { return FBottomWidget; }
 	virtual ToolBarChanger *topToolBarChanger() const { return FTopToolBarChanger; }
 	virtual ToolBarChanger *leftToolBarChanger() const { return FLeftToolBarChanger; }
-	virtual ToolBarChanger *bottomToolBarChanger() const { return FBottomToolBarChanger; }
+	virtual ToolBarChanger *statusToolBarChanger() const { return FStatusToolBarChanger; }
 	virtual Menu *mainMenu() const { return FMainMenu; }
 public:
 	virtual QMenu *createPopupMenu();
@@ -38,7 +38,7 @@ private:
 	Menu           *FMainMenu;
 	ToolBarChanger *FTopToolBarChanger;
 	ToolBarChanger *FLeftToolBarChanger;
-	ToolBarChanger *FBottomToolBarChanger;
+	ToolBarChanger *FStatusToolBarChanger;
 private:
 	QVBoxLayout    *FMainLayout;
 	QStackedWidget *FUpperWidget;

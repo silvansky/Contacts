@@ -64,12 +64,12 @@ void MainWindow::createLayouts()
 
 void MainWindow::createToolBars()
 {
-	QToolBar *toolbar =  new QToolBar(tr("Bottom toolbar"), this);
+	QToolBar *toolbar =  new QToolBar(tr("Status toolbar"), this);
 	toolbar->setFloatable(false);
 	toolbar->setMovable(false);
 	addToolBar(Qt::TopToolBarArea, toolbar);
-	FBottomToolBarChanger = new ToolBarChanger(toolbar);
-	FBottomToolBarChanger->setSeparatorsVisible(false);
+	FStatusToolBarChanger = new ToolBarChanger(toolbar);
+	FStatusToolBarChanger->setSeparatorsVisible(false);
 
 	toolbar = new QToolBar(tr("Top toolbar"), this);
 	toolbar->setFloatable(false);

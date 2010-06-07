@@ -63,12 +63,12 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 {
 	if ((obj == ui->statusToolButton) && (event->type() == QEvent::ActionChanged))
 	{
-		//QWidget::eventFilter(obj, event);
 		QActionEvent * actionEvent = (QActionEvent*)event;
 		if (actionEvent->action())
 		{
 			ui->statusToolButton->setIcon(actionEvent->action()->icon());
 			ui->statusToolButton->setText(fitCaptionToWidth(userName, actionEvent->action()->text(), ui->statusToolButton->width() - ui->statusToolButton->iconSize().width() - 5));
+			ui->statusToolButton->setToolTip(actionEvent->action()->text());
 		}
 		return true;
 	}
