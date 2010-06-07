@@ -18,7 +18,7 @@ TabWidget::TabWidget(QWidget *AParent) : QWidget(AParent)
 
 TabWidget::~TabWidget()
 {
-	while (count())
+	while (count()>0)
 		removeTab(0);
 }
 

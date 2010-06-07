@@ -4,7 +4,6 @@
 #include <QSize>
 #include <QLabel>
 #include <QFrame>
-#include <QStyleOptionTabV3>
 #include <definations/resources.h>
 #include <utils/closebutton.h>
 #include <utils/iconstorage.h>
@@ -41,8 +40,6 @@ protected:
 	virtual void enterEvent(QEvent *AEvent);
 	virtual void leaveEvent(QEvent *AEvent);
 	virtual void paintEvent(QPaintEvent *AEvent);
-protected:
-	void initStyleOption(QStyleOptionTabV3 *AOption);
 private:
 	QLabel *FIcon;
 	QLabel *FLabel;

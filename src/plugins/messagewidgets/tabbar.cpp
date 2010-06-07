@@ -5,9 +5,6 @@ TabBar::TabBar(QWidget *AParent) : QFrame(AParent)
 	FActiveIndex = -1;
 	FTabsCloseable = true;
 
-	setFrameShadow(QFrame::Plain);
-	setFrameShape(QFrame::StyledPanel);
-
 	setLayout(FLayout = new TabBarLayout);
 
 	int minItemWidth, maxItemWidth;
@@ -23,7 +20,7 @@ TabBar::TabBar(QWidget *AParent) : QFrame(AParent)
 
 TabBar::~TabBar()
 {
-	while (FItems.count() > 0)
+	while (count()>0)
 		removeTab(0);
 }
 

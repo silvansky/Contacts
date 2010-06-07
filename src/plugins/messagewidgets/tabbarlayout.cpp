@@ -16,9 +16,8 @@ TabBarLayout::TabBarLayout(QWidget *AParent) : QLayout(AParent)
 
 TabBarLayout::~TabBarLayout()
 {
-	QLayoutItem *item;
-	while (item =takeAt(0))
-		delete item;
+	while (count()>0)
+		delete takeAt(0);
 }
 
 int TabBarLayout::minimumItemWidth() const

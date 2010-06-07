@@ -8,8 +8,8 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 {
 	FIconSize = QSize(15,15);
 
-	setFrameShadow(QFrame::Plain);
-	setFrameShape(QFrame::StyledPanel);
+	setFrameShape(QFrame::Box);
+	setFrameShadow(QFrame::Sunken);
 
 	setLayout(new QHBoxLayout);
 	layout()->setMargin(2);
@@ -132,36 +132,28 @@ void TabBarItem::leaveEvent(QEvent *AEvent)
 
 void TabBarItem::paintEvent(QPaintEvent *AEvent)
 {
-	QStyleOptionTabV3 option;
-	initStyleOption(&option);
-	QStylePainter p(this);
-	p.drawControl(QStyle::CE_TabBarTab, option);
-	QFrame::paintEvent(AEvent);
-}
+	QPalette pal = palette();
+	QRect rect = QRect(0,0,width(),height());
 
-void TabBarItem::initStyleOption(QStyleOptionTabV3 *AOption)
-{
-	AOption->initFrom(this);
-	AOption->state &= ~(QStyle::State_HasFocus | QStyle::State_MouseOver);
-	AOption->rect = QRect(0,0,width(),height()+1);
-	AOption->row = 0;
-
+	QLinearGradient background(rect.topLeft(),rect.bottomLeft());
 	if (active())
-		AOption->state |= QStyle::State_Selected;
-	if (active() && hasFocus())
-		AOption->state |= QStyle::State_HasFocus;
-	if (!isEnabled())
-		AOption->state &= ~QStyle::State_Enabled;
-	if (isActiveWindow())
-		AOption->state |= QStyle::State_Active;
-	if (underMouse())
-		AOption->state |= QStyle::State_MouseOver;
-	AOption->shape = QTabBar::RoundedSouth;
+	{
+		background.setColorAt(0.0,pal.color(QPalette::Base));
+		background.setColorAt(1.0,pal.color(QPalette::Window));
+	}
+	else if (underMouse())
+	{
+		background.setColorAt(0.0,pal.color(QPalette::Window));
+		background.setColorAt(1.0,pal.color(QPalette::Dark).lighter(120));
+	}
+	else
+	{
+		background.setColorAt(0.0,pal.color(QPalette::Window));
+		background.setColorAt(1.0,pal.color(QPalette::Dark));
+	}
+	
+	QStylePainter p(this);
+	p.fillRect(rect,background);
 
-	AOption->iconSize = FIconSize;  // Will get the default value then.
-	AOption->leftButtonSize = FIcon->size();
-	AOption->rightButtonSize = FClose->size();
-	AOption->documentMode = true;
-	AOption->selectedPosition = QStyleOptionTab::NotAdjacent;
-	AOption->position = QStyleOptionTab::Middle;
+	QFrame::paintEvent(AEvent);
 }

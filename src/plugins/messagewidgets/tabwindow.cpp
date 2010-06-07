@@ -272,7 +272,7 @@ void TabWindow::onTabMenuRequested(int AIndex)
 	tabMenu->addAction(action);
 
 	action = new Action(tabMenu);
-	action->setText(tr("Close Other Tab"));
+	action->setText(tr("Close Other Tabs"));
 	action->setData(ADR_TAB_INDEX, AIndex);
 	action->setData(ADR_CLOSE_OTHER, true);
 	action->setEnabled(ui.twtTabs->count()>1);
