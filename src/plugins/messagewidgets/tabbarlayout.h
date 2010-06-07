@@ -17,6 +17,9 @@ public:
 	void setMinMaxItemWidth(int AMin, int AMax);
 	void blockUpdate(bool ABlock);
 	void updateLayout();
+	int itemToOrder(int AIndex) const;
+	int orderToItem(int AOrder) const;
+	void moveItem(int ATarget, int ADestination);
 	// QLayout
 	virtual int count() const;
 	virtual void addItem(QLayoutItem *AItem);
@@ -38,6 +41,7 @@ private:
 	bool FStreatch;
 	bool FUpdateBlocked;
 	QList<QLayoutItem *> FItems;
+	QList<QLayoutItem *> FItemsOrder;
 };
 
 #endif // TABBARLAYOUT_H

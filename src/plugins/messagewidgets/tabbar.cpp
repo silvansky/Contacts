@@ -1,10 +1,16 @@
 #include "tabbar.h"
 
+#include <QCursor>
+#include <QApplication>
+
+#define MIME_TABITEM_INDEX         "virtus/x-tabitem-index"
+
 TabBar::TabBar(QWidget *AParent) : QFrame(AParent)
 {
 	FActiveIndex = -1;
 	FTabsCloseable = true;
 
+	setAcceptDrops(true);
 	setLayout(FLayout = new TabBarLayout);
 
 	int minItemWidth, maxItemWidth;
@@ -173,7 +179,8 @@ void TabBar::leaveEvent(QEvent *AEvent)
 
 void TabBar::mousePressEvent(QMouseEvent *AEvent)
 {
-	FPressedIndex = tabAt(AEvent->pos());
+	FPressedPos = AEvent->pos();
+	FPressedIndex = tabAt(FPressedPos);
 	QWidget::mousePressEvent(AEvent);
 }
 
@@ -199,10 +206,51 @@ void TabBar::mouseReleaseEvent(QMouseEvent *AEvent)
 	QWidget::mouseReleaseEvent(AEvent);
 }
 
+void TabBar::mouseMoveEvent(QMouseEvent *AEvent)
+{
+	if (AEvent->buttons()!=Qt::NoButton && FPressedIndex>=0 && count()>1 && (AEvent->pos()-FPressedPos).manhattanLength() > QApplication::startDragDistance())
+	{
+		TabBarItem *item = FItems.at(FPressedIndex);
+		QDrag *drag = new QDrag(this);
+		drag->setMimeData(new QMimeData);
+		drag->mimeData()->setData(MIME_TABITEM_INDEX,QByteArray::number(FPressedIndex));
+
+		drag->setPixmap(QPixmap::grabWidget(item));
+		drag->setHotSpot(FPressedPos - item->geometry().topLeft());
+		FDragCenterDistance = mapFromGlobal(QCursor::pos()) - item->geometry().center();
+
+		item->setDragged(true);
+		drag->exec(Qt::MoveAction);
+		item->setDragged(false);
+	}
+}
+
+void TabBar::dragEnterEvent(QDragEnterEvent *AEvent)
+{
+	if (AEvent->mimeData()->hasFormat(MIME_TABITEM_INDEX))
+		AEvent->acceptProposedAction();
+	else
+		AEvent->ignore();
+}
+
+void TabBar::dragMoveEvent(QDragMoveEvent *AEvent)
+{
+	QPoint dragItemCenter = mapFromGlobal(QCursor::pos()) - FDragCenterDistance;
+	int destination = tabAt(dragItemCenter);
+	FLayout->moveItem(FPressedIndex, destination>=0 ? destination : FLayout->orderToItem(count()-1));
+	AEvent->acceptProposedAction();
+	QFrame::dragMoveEvent(AEvent);
+}
+
+void TabBar::dragLeaveEvent(QDragLeaveEvent *AEvent)
+{
+	FLayout->moveItem(FPressedIndex, FLayout->orderToItem(count()-1));
+	QFrame::dragLeaveEvent(AEvent);
+}
+
 void TabBar::onCloseButtonClicked()
 {
 	TabBarItem *item = qobject_cast<TabBarItem *>(sender());
 	if (item)
 		emit tabCloseRequested(FItems.indexOf(item));
 }
-

@@ -34,12 +34,14 @@ public:
 	void setText(const QString &AText);
 	bool isCloseable() const;
 	void setCloseable(bool ACloseable);
+	void setDragged(bool ADragged);
 signals:
 	void closeButtonClicked();
 protected:
 	virtual void enterEvent(QEvent *AEvent);
 	virtual void leaveEvent(QEvent *AEvent);
 	virtual void paintEvent(QPaintEvent *AEvent);
+	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
 private:
 	QLabel *FIcon;
 	QLabel *FLabel;
@@ -47,6 +49,7 @@ private:
 private:
 	int FState;
 	bool FActive;
+	bool FDragged;
 	QSize FIconSize;
 	QString FIconKey;
 };

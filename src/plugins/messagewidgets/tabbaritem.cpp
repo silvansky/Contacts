@@ -19,11 +19,16 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	layout()->addWidget(FLabel = new QLabel(this));
 	layout()->addWidget(FClose = new CloseButton(this));
 
+	FIcon->installEventFilter(this);
+	FLabel->installEventFilter(this);
+	FClose->installEventFilter(this);
+
 	FIcon->setFixedSize(FIconSize);
 	FLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	connect(FClose,SIGNAL(clicked()),SIGNAL(closeButtonClicked()));
 
 	setActive(false);
+	setDragged(false);
 	setState(TPS_NORMAL);
 }
 
@@ -118,6 +123,12 @@ void TabBarItem::setCloseable(bool ACloseable)
 	update();
 }
 
+void TabBarItem::setDragged(bool ADragged)
+{
+	FDragged = ADragged;
+	update();
+}
+
 void TabBarItem::enterEvent(QEvent *AEvent)
 {
 	QFrame::enterEvent(AEvent);
@@ -132,28 +143,38 @@ void TabBarItem::leaveEvent(QEvent *AEvent)
 
 void TabBarItem::paintEvent(QPaintEvent *AEvent)
 {
-	QPalette pal = palette();
-	QRect rect = QRect(0,0,width(),height());
+	if (!FDragged)
+	{
+		QPalette pal = palette();
+		QRect rect = QRect(0,0,width(),height());
 
-	QLinearGradient background(rect.topLeft(),rect.bottomLeft());
-	if (active())
-	{
-		background.setColorAt(0.0,pal.color(QPalette::Base));
-		background.setColorAt(1.0,pal.color(QPalette::Window));
-	}
-	else if (underMouse())
-	{
-		background.setColorAt(0.0,pal.color(QPalette::Window));
-		background.setColorAt(1.0,pal.color(QPalette::Dark).lighter(120));
-	}
-	else
-	{
-		background.setColorAt(0.0,pal.color(QPalette::Window));
-		background.setColorAt(1.0,pal.color(QPalette::Dark));
-	}
-	
-	QStylePainter p(this);
-	p.fillRect(rect,background);
+		QLinearGradient background(rect.topLeft(),rect.bottomLeft());
+		if (active())
+		{
+			background.setColorAt(0.0,pal.color(QPalette::Base));
+			background.setColorAt(1.0,pal.color(QPalette::Window));
+		}
+		else if (underMouse())
+		{
+			background.setColorAt(0.0,pal.color(QPalette::Window));
+			background.setColorAt(1.0,pal.color(QPalette::Dark).lighter(120));
+		}
+		else
+		{
+			background.setColorAt(0.0,pal.color(QPalette::Window));
+			background.setColorAt(1.0,pal.color(QPalette::Dark));
+		}
 
-	QFrame::paintEvent(AEvent);
+		QStylePainter p(this);
+		p.fillRect(rect,background);
+
+		QFrame::paintEvent(AEvent);
+	}
+}
+
+bool TabBarItem::eventFilter(QObject *AObject, QEvent *AEvent)
+{
+	if (FDragged && AEvent->type()==QEvent::Paint)
+		return true;
+	return QFrame::eventFilter(AObject,AEvent);
 }

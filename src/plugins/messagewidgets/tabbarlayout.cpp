@@ -58,6 +58,25 @@ void TabBarLayout::updateLayout()
 	doLayout(geometry(),FItemsWidth,FStreatch,true);
 }
 
+int TabBarLayout::itemToOrder(int AIndex) const
+{
+	return FItemsOrder.indexOf(FItems.value(AIndex));
+}
+
+int TabBarLayout::orderToItem(int AOrder) const
+{
+	return FItems.indexOf(FItemsOrder.value(AOrder));
+}
+
+void TabBarLayout::moveItem(int ATarget, int ADestination)
+{
+	if (ATarget!=ADestination && ATarget>=0 && ATarget<FItems.count() && ADestination>=0 && ADestination<FItems.count())
+	{
+		FItemsOrder.move(FItemsOrder.indexOf(FItems.at(ATarget)), FItemsOrder.indexOf(FItems.at(ADestination)));
+		updateLayout();
+	}
+}
+
 int TabBarLayout::count() const
 {
 	return FItems.count();
@@ -66,6 +85,7 @@ int TabBarLayout::count() const
 void TabBarLayout::addItem(QLayoutItem *AItem)
 {
 	FItems.append(AItem);
+	FItemsOrder.append(AItem);
 	updateLayout();
 }
 
@@ -76,7 +96,13 @@ QLayoutItem *TabBarLayout::itemAt(int AIndex) const
 
 QLayoutItem *TabBarLayout::takeAt(int AIndex)
 {
-	return AIndex>=0 && AIndex<FItems.count() ? FItems.takeAt(AIndex) : NULL;
+	QLayoutItem *item = NULL;
+	if (AIndex>=0 && AIndex<FItems.count())
+	{
+		item = FItems.takeAt(AIndex);
+		FItemsOrder.removeAll(item);
+	}
+	return item;
 }
 
 QSize TabBarLayout::sizeHint() const
@@ -85,7 +111,7 @@ QSize TabBarLayout::sizeHint() const
 	getContentsMargins(&left, &top, &right, &bottom);
 
 	int height = 0;
-	foreach(QLayoutItem *item, FItems)
+	foreach(QLayoutItem *item, FItemsOrder)
 		height = qMax(height, item->sizeHint().height());
 	int width = (FMaxWidth + spacing()) * FItems.count() - spacing();
 
@@ -148,7 +174,7 @@ int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStreatch, bool ARe
 	int lineHeight = 0;
 
 	int counter =0;
-	foreach(QLayoutItem *item, FItems)
+	foreach(QLayoutItem *item, FItemsOrder)
 	{
 		counter++;
 		QRect itemRect = QRect(x,y,AItemWidth,item->sizeHint().height());
