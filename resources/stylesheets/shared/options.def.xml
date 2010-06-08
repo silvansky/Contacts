@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>optionsLoginDialog</key>
+    <object mime='text/css'>optionslogindialog.qss</object>
+  </file>
+</styledef>
