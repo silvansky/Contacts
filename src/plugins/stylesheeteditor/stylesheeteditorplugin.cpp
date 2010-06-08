@@ -26,6 +26,7 @@ void StyleSheetEditorPlugin::pluginInfo(IPluginInfo *APluginInfo)
 
 bool StyleSheetEditorPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	pluginManager = APluginManager;
 	return (pluginManager);
 }

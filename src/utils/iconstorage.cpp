@@ -109,7 +109,7 @@ void IconStorage::initAnimation(QObject *AObject, IconUpdateParams *AParams)
 		QString file = fileFullName(AParams->key,AParams->index);
 		if (iconCount > 1)
 		{
-			int interval = AParams->animate > 0 ? AParams->animate : fileOption(AParams->key,OPTION_ANIMATE).toInt();
+			int interval = AParams->animate > 0 ? AParams->animate : fileOption(AParams->key,ICON_STORAGE_OPTION_ANIMATE).toInt();
 			if (interval > 0)
 			{
 				AParams->animation = new IconAnimateParams;

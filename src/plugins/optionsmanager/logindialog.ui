@@ -207,19 +207,6 @@
         <property name="cursor">
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
-        <property name="styleSheet">
-         <string notr="true">:!hover:enabled {
-	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(8, 137, 211, 255), stop:1 rgba(66, 177, 243, 255))	
-}
-:hover:enabled {
-	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(66, 177, 242, 255), stop:1 rgba(204, 235, 254, 255));
-}
-:!enabled {
-	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(208, 208, 208, 255), stop:1 rgba(240, 240, 240, 255));
-	border: 1px solid lightgray;
-}
-</string>
-        </property>
         <property name="autoDefault">
          <bool>false</bool>
         </property>

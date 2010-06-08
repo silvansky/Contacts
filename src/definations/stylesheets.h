@@ -1,8 +1,9 @@
-#ifndef STYLESHEETS_H
-#define STYLESHEETS_H
+#ifndef DEF_STYLESHEETS_H
+#define DEF_STYLESHEETS_H
 
-#define SS_MAIN_STYLESHEET	"mainStyleSheet"
-#define SS_IMAGE_PATH		"imagesPath"
-#define SS_IMAGE_PATH_MACRO	"%IMAGES_PATH%"
+#define STS_APPLICATION                               "application"
 
-#endif // STYLESHEETS_H
+//OptionsManager
+#define STS_OPTIONS_LOGINDIALOG                       "optionsLoginDialog"
+
+#endif // DEF_STYLESHEETS_H

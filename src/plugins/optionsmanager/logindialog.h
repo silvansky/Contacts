@@ -8,6 +8,7 @@
 #include <definations/version.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/stylesheets.h>
 #include <definations/optionvalues.h>
 #include <definations/optionnodes.h>
 #include <definations/optionwidgetorders.h>
@@ -26,6 +27,7 @@
 #include <utils/options.h>
 #include <utils/balloontip.h>
 #include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
 #include "ui_logindialog.h"
 

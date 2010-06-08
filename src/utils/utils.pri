@@ -12,6 +12,7 @@ HEADERS = utilsexport.h \
     datetime.h \
     filestorage.h \
     iconstorage.h \
+    stylestorage.h \
     menubarchanger.h \
     statusbarchanger.h \
     ringbuffer.h \
@@ -35,6 +36,7 @@ SOURCES = jid.cpp \
     datetime.cpp \
     filestorage.cpp \
     iconstorage.cpp \
+    stylestorage.cpp \
     menubarchanger.cpp \
     statusbarchanger.cpp \
     ringbuffer.cpp \

@@ -7,7 +7,7 @@
 #include <QImageReader>
 #include "filestorage.h"
 
-#define OPTION_ANIMATE      "animate"
+#define ICON_STORAGE_OPTION_ANIMATE "animate"
 
 class UTILS_EXPORT IconStorage :
 			public FileStorage

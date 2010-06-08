@@ -14,11 +14,12 @@
 #include <definations/menuicons.h>
 #include <definations/resources.h>
 #include <definations/version.h>
+#include <definations/stylesheets.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/itraymanager.h>
 #include <utils/widgetmanager.h>
-#include <utils/filestorage.h>
+#include <utils/stylestorage.h>
 #include <utils/action.h>
 #include "setuppluginsdialog.h"
 #include "aboutbox.h"
@@ -53,7 +54,7 @@ public:
 	virtual QList<QUuid> pluginDependencesOn(const QUuid &AUuid) const;
 	virtual QList<QUuid> pluginDependencesFor(const QUuid &AUuid) const;
 	virtual QString styleSheet() const;
-	virtual void setStyleSheet(const QString&);
+	virtual void setStyleSheet(const QString &AStyle);
 public slots:
 	virtual void quit();
 	virtual void restart();

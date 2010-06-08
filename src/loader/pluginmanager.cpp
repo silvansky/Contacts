@@ -7,7 +7,6 @@
 #include <QLibrary>
 #include <QFileInfo>
 #include <QSettings>
-#include <definations/stylesheets.h>
 
 #define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Virtus"
@@ -169,9 +168,7 @@ QString PluginManager::styleSheet() const
 void PluginManager::setStyleSheet(const QString& newStyleSheet)
 {
 	FStyleSheet = newStyleSheet;
-	QApplication * application = qobject_cast<QApplication*>(parent());
-	if (application)
-		application->setStyleSheet(QString(FStyleSheet).replace(SS_IMAGE_PATH_MACRO, FileStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(SS_IMAGE_PATH)));
+	qApp->setStyleSheet(QString(FStyleSheet).replace("%IMAGES_PATH%", qApp->applicationDirPath()+"/resources/stylesheets/shared/images"));
 }
 
 void PluginManager::quit()
@@ -266,16 +263,11 @@ void PluginManager::loadSettings()
 		FPluginsSetup.appendChild(FPluginsSetup.createElement("plugins"));
 	}
 
-	QString mainStyleSheet = FileStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(SS_MAIN_STYLESHEET);
-	if (!mainStyleSheet.isEmpty())
-	{
-		QFile file(mainStyleSheet);
-		file.open(QIODevice::ReadOnly);
-		file.seek(0);
-		QByteArray ba = file.readAll();
-		//((QApplication*)parent())->setStyleSheet(QString(ba).replace(SS_IMAGE_PATH_MACRO, FileStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(SS_IMAGE_PATH)));
-		setStyleSheet(ba);
-	}
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(qApp, STS_APPLICATION);
+
+	QFile sheetFile(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(STS_APPLICATION));
+	sheetFile.open(QFile::ReadOnly);
+	FStyleSheet = QString::fromUtf8(sheetFile.readAll());
 }
 
 void PluginManager::saveSettings()
