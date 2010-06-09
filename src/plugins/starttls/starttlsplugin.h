@@ -8,7 +8,7 @@
 #include <interfaces/idefaultconnection.h>
 #include "starttls.h"
 
-#define STARTTLS_UUID "{F554544C-0851-4e2a-9158-99191911E468}"
+#define STARTTLS_UUID "{0b68d138-7dea-4609-bf32-8ce2b325e22a}"
 
 class StartTLSPlugin :
 			public QObject,

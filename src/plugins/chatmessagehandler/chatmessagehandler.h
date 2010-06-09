@@ -1,7 +1,7 @@
 #ifndef CHATMESSAGEHANDLER_H
 #define CHATMESSAGEHANDLER_H
 
-#define CHATMESSAGEHANDLER_UUID "{b60cc0e4-8006-4909-b926-fcb3cbc506f0}"
+#define CHATMESSAGEHANDLER_UUID "{b921f55e-e19b-4567-af26-0d783909c630}"
 
 #include <QTimer>
 #include <definations/messagehandlerorders.h>

@@ -9,7 +9,7 @@
 #include <interfaces/ixmppstreams.h>
 #include "compression.h"
 
-#define COMPRESS_UUID "{061D0687-B954-416d-B690-D1BA7D845D83}"
+#define COMPRESS_UUID "{e34791d9-be7a-4ab1-917f-6897d11a5116}"
 
 class CompressPlugin :
 			public QObject,

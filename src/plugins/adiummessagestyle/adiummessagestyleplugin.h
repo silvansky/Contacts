@@ -11,7 +11,7 @@
 #include "adiummessagestyle.h"
 #include "adiumoptionswidget.h"
 
-#define ADIUMMESSAGESTYLE_UUID    "{703bae73-1905-4840-a186-c70b359d4f21}"
+#define ADIUMMESSAGESTYLE_UUID    "{91da3fcb-5c20-4b52-a4a5-80722eef6ea2}"
 
 class AdiumMessageStylePlugin :
 			public QObject,

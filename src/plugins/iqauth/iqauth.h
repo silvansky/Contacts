@@ -12,7 +12,7 @@
 #include <utils/stanza.h>
 #include <utils/jid.h>
 
-#define IQAUTH_UUID "{1E3645BC-313F-49e9-BD00-4CC062EE76A7}"
+#define IQAUTH_UUID "{6d1651fd-0975-4f71-8018-6abad96ca952}"
 
 class IqAuth :
 			public QObject,

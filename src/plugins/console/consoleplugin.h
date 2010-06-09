@@ -12,7 +12,7 @@
 #include <utils/action.h>
 #include "consolewidget.h"
 
-#define CONSOLE_UUID  "{2572D474-5F3E-8d24-B10A-BAA57C2BC693}"
+#define CONSOLE_UUID  "{89daf2bb-29bb-49b7-94df-8134452d1103}"
 
 class ConsolePlugin :
 			public QObject,

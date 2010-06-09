@@ -11,7 +11,7 @@
 #include "saslbind.h"
 #include "saslsession.h"
 
-#define SASLAUTH_UUID "{E583F155-BE87-4919-8769-5C87088F0F57}"
+#define SASLAUTH_UUID "{4f54258f-b3e6-43b7-901f-e2291c49e0db}"
 
 class SASLPlugin :
 			public QObject,
