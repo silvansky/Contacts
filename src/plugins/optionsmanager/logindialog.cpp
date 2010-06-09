@@ -521,6 +521,10 @@ void LoginDialog::onConnectClicked()
 {
 	if (ui.pbtConnect->isEnabled())
 	{
+		bool connecting = false;
+		setConnectEnabled(false);
+		QApplication::processEvents();
+
 		Jid streamJid = currentStreamJid();
 		QString profile = Jid::encode(streamJid.pBare());
 		if (FOptionsManager->currentProfile() != profile)
@@ -551,7 +555,7 @@ void LoginDialog::onConnectClicked()
 						account->setActive(true);
 						if (FStatusChanger && account->isActive())
 						{
-							setConnectEnabled(false);
+							connecting = true;
 							FAccountId = account->accountId();
 							disconnect(account->xmppStream()->instance(),0,this,0);
 							connect(account->xmppStream()->instance(),SIGNAL(opened()),SLOT(onXmppStreamOpened()));
@@ -577,6 +581,8 @@ void LoginDialog::onConnectClicked()
 		}
 		else
 			showXmppStreamError(tr("Invalid login"), QString::null ,tr("Check your user name and domain"));
+
+		setConnectEnabled(!connecting);
 	}
 }
 
