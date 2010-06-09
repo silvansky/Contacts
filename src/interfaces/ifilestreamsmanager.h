@@ -8,7 +8,7 @@
 #include <utils/stanza.h>
 #include <utils/options.h>
 
-#define FILESTREAMSMANAGER_UUID       "{ea9ea27a-5ad7-40e3-82b3-db8ac3bdc288}"
+#define FILESTREAMSMANAGER_UUID       "{c3942f71-ccdd-4e63-ad20-df20519d6f5b}"
 
 class IFileStream
 {

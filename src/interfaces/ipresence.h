@@ -5,7 +5,7 @@
 #include <interfaces/ixmppstreams.h>
 #include <utils/jid.h>
 
-#define PRESENCE_UUID "{511A07C4-FFA4-43ce-93B0-8C50409AFC0E}"
+#define PRESENCE_UUID "{10e0fe9c-821d-44ba-a1c3-106307a98743}"
 
 struct IPresenceItem {
 	IPresenceItem() { isValid = false; show = 0; priority = 0; }

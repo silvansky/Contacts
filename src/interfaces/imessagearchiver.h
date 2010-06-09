@@ -11,7 +11,7 @@
 #include "../utils/menu.h"
 #include "../utils/jid.h"
 
-#define MESSAGEARCHIVER_UUID    "{66FEAE08-BE4D-4fd4-BCEA-494F3A70997A}"
+#define MESSAGEARCHIVER_UUID    "{39c8f347-a96d-4878-b092-beb7771f6aef}"
 
 #define ARCHIVE_OTR_APPROVE     "approve"   //the user MUST explicitly approve off-the-record communication.
 #define ARCHIVE_OTR_CONCEDE     "concede"   //communications MAY be off the record if requested by another user.

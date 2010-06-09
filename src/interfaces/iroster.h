@@ -6,7 +6,7 @@
 #include <interfaces/ixmppstreams.h>
 #include <utils/jid.h>
 
-#define ROSTER_UUID "{5306971C-2488-40d9-BA8E-C83327B2EED5}"
+#define ROSTER_UUID "{7e5a628e-39cb-4e4b-b202-e96580b59f22}"
 
 #define SUBSCRIPTION_BOTH             "both"
 #define SUBSCRIPTION_TO               "to"

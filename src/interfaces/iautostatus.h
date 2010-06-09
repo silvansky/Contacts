@@ -3,7 +3,7 @@
 
 #include <QUuid>
 
-#define AUTOSTATUS_UUID   "{89687A92-B483-4d7a-B2CF-267A05D6CC5D}"
+#define AUTOSTATUS_UUID   "{fd40e2ac-6c76-4510-979b-b56f1e9d3026}"
 
 struct IAutoStatusRule {
 	int time;

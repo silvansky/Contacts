@@ -4,7 +4,7 @@
 #include <QDateTime>
 #include <utils/jid.h>
 
-#define CLIENTINFO_UUID "{3E2A0C1D-B347-43f5-B90B-5E7F87D7D8B0}"
+#define CLIENTINFO_UUID "{8b8abf23-7bd2-4d18-9769-f34dbbef4a67}"
 
 class IClientInfo
 {

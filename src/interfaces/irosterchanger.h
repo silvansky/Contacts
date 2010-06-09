@@ -6,7 +6,7 @@
 #include <utils/jid.h>
 #include <utils/toolbarchanger.h>
 
-#define ROSTERCHANGER_UUID "{018E7891-2743-4155-8A70-EAB430573500}"
+#define ROSTERCHANGER_UUID "{8d7070c2-46db-4ad1-ac51-eaeed11408fc}"
 
 class IAddContactDialog 
 {

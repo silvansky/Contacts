@@ -9,7 +9,7 @@
 #include <utils/jid.h>
 #include <utils/toolbarchanger.h>
 
-#define SERVICEDISCOVERY_UUID "{CF0D99D1-A2D8-4583-87FD-E584E0915BCC}"
+#define SERVICEDISCOVERY_UUID "{0b20c50d-ceb2-46ca-89b7-10244f6c8576}"
 
 struct IDiscoIdentity
 {

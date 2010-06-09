@@ -5,7 +5,7 @@
 #include <QAbstractItemModel>
 #include <utils/jid.h>
 
-#define ROSTERSMODEL_UUID "{C1A1BBAB-06AF-41c8-BFBE-959F1065D80D}"
+#define ROSTERSMODEL_UUID "{fd6f4419-3835-4d64-b710-77a8110d9c5a}"
 
 class IRosterIndex;
 

@@ -16,7 +16,7 @@
 #include <utils/toolbarchanger.h>
 #include <utils/statusbarchanger.h>
 
-#define MESSAGEWIDGETS_UUID "{89de35ee-bd44-49fc-8495-edd2cfebb685}"
+#define MESSAGEWIDGETS_UUID "{fe5f3695-2343-4642-92f1-ab745fb26e13}"
 
 class IInfoWidget
 {

@@ -6,7 +6,7 @@
 #include <utils/jid.h>
 #include <utils/stanza.h>
 
-#define XMPPSTREAMS_UUID "{8074A197-3B77-4bb0-9BD3-6F06D5CB8D15}"
+#define XMPPSTREAMS_UUID "{00b13ccb-7cc2-43b7-96dc-0973ec396d41}"
 
 class IXmppStream;
 class IConnection;

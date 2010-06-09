@@ -1,7 +1,7 @@
 #ifndef IPRIVATESTORAGE_H
 #define IPRIVATESTORAGE_H
 
-#define PRIVATESTORAGE_UUID "{E601766D-8867-47c5-B639-92DDEC224B33}"
+#define PRIVATESTORAGE_UUID "{592c5e29-f370-4abd-a1d0-6f84831e35dd}"
 
 #include <QDomElement>
 #include <utils/jid.h>

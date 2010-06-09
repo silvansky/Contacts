@@ -6,7 +6,7 @@
 #include <QString>
 #include <QStringList>
 
-#define EMOTICONS_UUID "{B22901A6-4CDC-4218-A0C9-831131DDC8BA}"
+#define EMOTICONS_UUID "{567dda17-ae34-4392-b6f1-d21320af994b}"
 
 class IEmoticons
 {

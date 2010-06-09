@@ -5,7 +5,7 @@
 #include <interfaces/idataforms.h>
 #include <utils/jid.h>
 
-#define COMMANDS_UUID "{6453DC15-3D01-4b60-840F-0EDD75A7D9D2}"
+#define COMMANDS_UUID "{9d8d6e36-8fa3-45dd-9eaa-dad69b4586c1}"
 
 #define COMMAND_STATUS_EXECUTING        "executing"
 #define COMMAND_STATUS_COMPLETED        "completed"

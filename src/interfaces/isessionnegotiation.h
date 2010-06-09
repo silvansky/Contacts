@@ -5,7 +5,7 @@
 #include "../interfaces/idataforms.h"
 #include "../utils/jid.h"
 
-#define SESSIONNEGOTIATION_UUID       "{D4908366-6204-4199-AFB8-BA0CB4CAC91C}"
+#define SESSIONNEGOTIATION_UUID       "{48da8d2c-b115-4d9e-a25f-3227c7f3f868}"
 
 #define SESSION_FIELD_ACCEPT          "accept"
 #define SESSION_FIELD_CONTINUE        "continue"

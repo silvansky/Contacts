@@ -5,7 +5,7 @@
 #include <QString>
 #include <utils/jid.h>
 
-#define STATUSICONS_UUID "{E477B0F3-5683-4a4f-883D-7E7D1ADF25FE}"
+#define STATUSICONS_UUID "{d779cc49-78ec-4a7b-a4a2-8b8260f8a60b}"
 
 class IStatusIcons
 {

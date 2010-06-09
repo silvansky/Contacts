@@ -8,7 +8,7 @@
 #include <QDomDocument>
 #include <utils/jid.h>
 
-#define VCARD_UUID "{8AD31549-AD09-4e84-BD6F-41928B3BDA7E}"
+#define VCARD_UUID "{eb9d19fd-0109-48aa-9d9f-23321067e932}"
 
 class IVCard {
 public:

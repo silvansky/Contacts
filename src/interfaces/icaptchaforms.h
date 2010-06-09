@@ -4,7 +4,7 @@
 #include <QString>
 struct IDataForm;
 
-#define CAPTCHAFORMS_UUID   "{f733885c-2a25-438f-bfdb-dc7d139a222f}"
+#define CAPTCHAFORMS_UUID   "{b6f038a4-03ff-4d98-a91f-ef6fe7a488a3}"
 
 class ICaptchaForms
 {

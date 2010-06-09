@@ -8,7 +8,7 @@
 class Jid;
 class Stanza;
 
-#define BITSOFBINARY_UUID       "{44d5c538-2254-4ae3-a78d-0c20a76ef87b}"
+#define BITSOFBINARY_UUID       "{2100ab72-9e46-43f9-a6c7-fd4810436a52}"
 
 class IBitsOfBinary
 {

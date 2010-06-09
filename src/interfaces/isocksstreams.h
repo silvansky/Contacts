@@ -6,7 +6,7 @@
 #include <QNetworkProxy>
 #include <interfaces/idatastreamsmanager.h>
 
-#define SOCKSSTREAMS_UUID       "{6c7cb01e-64c5-4644-97ba-1d00b8c417c2}"
+#define SOCKSSTREAMS_UUID       "{4ef90e90-4069-4265-8149-3a778132e060}"
 
 class ISocksStream :
 			public IDataStreamSocket

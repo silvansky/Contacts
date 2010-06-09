@@ -5,7 +5,7 @@
 #include <interfaces/idataforms.h>
 #include <utils/jid.h>
 
-#define REGISTRATION_UUID         "{441F0DD4-C2DF-4417-B2F7-1D180C125EE3}"
+#define REGISTRATION_UUID         "{5481c161-2cbe-4d5f-ab5b-927c58a2ba8f}"
 
 struct IRegisterFields {
 	enum Fields {

@@ -5,7 +5,7 @@
 #include <utils/jid.h>
 #include <interfaces/iservicediscovery.h>
 
-#define GATEWAYS_UUID "{BF34165C-DD9A-43eb-949B-926DD411E1A8}"
+#define GATEWAYS_UUID "{2a3ce0cd-bf67-4f15-8907-b7d0706be4b4}"
 
 class IGateways
 {

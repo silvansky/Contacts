@@ -6,7 +6,7 @@
 class Jid;
 class IFileStream;
 
-#define FILETRANSFER_UUID     "{6e1cc70e-5604-4857-b742-ba185323bb4b}"
+#define FILETRANSFER_UUID     "{344ce5b1-5ea5-4316-a0cd-bf51543e38f1}"
 
 class IFileTransfer
 {

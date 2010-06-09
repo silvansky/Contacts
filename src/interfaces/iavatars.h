@@ -4,7 +4,7 @@
 #include <QImage>
 #include "../utils/jid.h"
 
-#define AVATARTS_UUID "{22F84EAF-683E-4a20-B5E5-1FE363FD206C}"
+#define AVATARTS_UUID "{d4bb94bd-2ea6-4c6e-910b-6e6b46a712ca}"
 
 class IAvatars {
 public:

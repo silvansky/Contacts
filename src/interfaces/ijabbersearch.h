@@ -1,7 +1,7 @@
 #ifndef IJABBERSEARCH_H
 #define IJABBERSEARCH_H
 
-#define JABBERSEARCH_UUID   "{F66BCFC9-F6BB-43b2-8101-8CA41EF227AF}"
+#define JABBERSEARCH_UUID   "{dd244961-6b23-44c0-8d8c-b1531e70e193}"
 
 #include "../interfaces/idataforms.h"
 #include "../utils/jid.h"

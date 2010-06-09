@@ -11,7 +11,7 @@
 #include <utils/jid.h>
 #include <utils/options.h>
 
-#define MESSAGESTYLES_UUID  "{e3ab1bc7-35a6-431a-9b91-c778451b1eb1}"
+#define MESSAGESTYLES_UUID  "{6329de5c-ff9b-4814-a4c8-855c9127bf13}"
 
 struct IMessageStyleOptions
 {

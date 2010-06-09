@@ -5,7 +5,7 @@
 #include "../interfaces/iroster.h"
 #include "../utils/jid.h"
 
-#define PRIVACYLISTS_UUID             "{B7B7F21A-DF0E-4f3e-B0C2-AA14976B546F}"
+#define PRIVACYLISTS_UUID             "{acccaae3-1b79-4ba4-926f-2b2a21055684}"
 
 #define PRIVACY_TYPE_JID              "jid"
 #define PRIVACY_TYPE_GROUP            "group"

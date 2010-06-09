@@ -5,7 +5,7 @@
 #include <utils/jid.h>
 #include <utils/stanza.h>
 
-#define STANZAPROCESSOR_UUID  "{1175D470-5D4A-4c29-A69E-EDA46C2BC387}"
+#define STANZAPROCESSOR_UUID  "{45ec0cb3-e19c-4eeb-b5ab-8e5a04f37630}"
 
 #define SHO_DEFAULT           1000
 

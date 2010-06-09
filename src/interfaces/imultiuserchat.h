@@ -9,7 +9,7 @@
 #include <utils/message.h>
 #include <utils/menubarchanger.h>
 
-#define MULTIUSERCHAT_UUID              "{EB960F92-59A9-4322-A646-F9AB4913706C}"
+#define MULTIUSERCHAT_UUID              "{cb1e74d5-cab9-43f6-a894-78ccbb8fab53}"
 
 #define MUC_ROLE_NONE                   "none"
 #define MUC_ROLE_VISITOR                "visitor"

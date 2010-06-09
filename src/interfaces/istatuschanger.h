@@ -4,7 +4,7 @@
 #include <utils/jid.h>
 #include <utils/menu.h>
 
-#define STATUSCHANGER_UUID "{F0D57BD2-0CD4-4606-9CEE-15977423F8DC}"
+#define STATUSCHANGER_UUID "{f88f5f75-a6ff-4282-abf2-fa3cf8ddafc9}"
 
 #define STATUS_NULL_ID                      0
 #define STATUS_CONNECTING_ID                -3

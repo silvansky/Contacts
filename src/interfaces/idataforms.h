@@ -8,7 +8,7 @@
 #include <QDialogButtonBox>
 #include <utils/toolbarchanger.h>
 
-#define DATAFORMS_UUID                  "{2B8F89D0-EAA7-46eb-B2FD-AE30DF60E440}"
+#define DATAFORMS_UUID                  "{d2fc0ebd-a7f2-4978-8ad9-364fa68eb63f}"
 
 #define DATAVALIDATE_TYPE_STRING        "xs:string"
 #define DATAVALIDATE_TYPE_URI           "xs:anyURI"

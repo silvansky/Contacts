@@ -6,7 +6,7 @@
 #include <QImage>
 #include <utils/jid.h>
 
-#define NOTIFICATIONS_UUID  "{59887A91-A483-4a7c-A2DE-227A01D6BC5E}"
+#define NOTIFICATIONS_UUID  "{57208da0-40a7-4aa3-9428-3056115d2ef8}"
 
 struct INotification {
 	enum NotifyKinds {

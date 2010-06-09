@@ -4,7 +4,7 @@
 #include <QSystemTrayIcon>
 #include <utils/menu.h>
 
-#define TRAYMANAGER_UUID "{DF738BB8-B22B-4307-9EF8-F5833D7D2204}"
+#define TRAYMANAGER_UUID "{47d2e04f-fb5c-44e3-93ea-5d296b211293}"
 
 class ITrayManager {
 public:

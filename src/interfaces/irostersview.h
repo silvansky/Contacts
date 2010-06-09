@@ -6,7 +6,7 @@
 #include <interfaces/irostersmodel.h>
 #include <utils/menu.h>
 
-#define ROSTERSVIEW_UUID "{BDD12B32-9C88-4e3c-9B36-2DCB5075288F}"
+#define ROSTERSVIEW_UUID "{81ebf318-5ecd-4e4b-8f4a-cac65f7a911c}"
 
 //! интерфейс обработчика кликов на элементе ростера
 class IRostersClickHooker

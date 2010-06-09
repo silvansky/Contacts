@@ -4,7 +4,7 @@
 #include <QDateTime>
 #include <utils/jid.h>
 
-#define ANNOTATIONS_UUID  "{529e8149-5e10-465b-a026-f7d08c637955}"
+#define ANNOTATIONS_UUID  "{de95ad60-d1fe-4768-bd75-e6570e1178f4}"
 
 class IAnnotations {
 public:

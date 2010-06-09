@@ -10,7 +10,7 @@
 #include <utils/stanza.h>
 #include <utils/options.h>
 
-#define DATASTREAMSMANAGER_UUID "{b293dfe1-d8c3-445f-8e7f-b94cc78ec51b}"
+#define DATASTREAMSMANAGER_UUID "{83b05d35-6d58-4e68-b198-5c43d17cebe1}"
 
 class IDataStreamSocket
 {
