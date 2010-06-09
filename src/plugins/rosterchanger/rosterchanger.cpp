@@ -20,7 +20,7 @@
 #define ADR_TO_GROUP        Action::DR_Parametr4
 #define ADR_NOTICE_ID				Action::DR_UserDefined+1
 
-enum NoticeActions 
+enum NoticeActions
 {
 	NA_NO_ACTIONS          = 0x00,
 	NA_ADD_CONTACT         = 0x01,
@@ -688,7 +688,7 @@ INotice RosterChanger::createNotice(int APriority, int AActions, const QString &
 		connect(closeAction,SIGNAL(triggered(bool)),SLOT(onNoticeCloseActionTriggered(bool)));
 		notice.actions.append(closeAction);
 	}
-	
+
 	return notice;
 }
 
@@ -1115,7 +1115,7 @@ void RosterChanger::onRenameItem(bool)
 			Jid rosterJid = action->data(ADR_CONTACT_JID).toString();
 			QString oldName = action->data(ADR_NICK).toString();
 			bool ok = false;
-			QString newName = QInputDialog::getText(NULL,tr("Rename contact"),tr("Enter name for: <b>%1</b>").arg(rosterJid.hBare()),QLineEdit::Normal,oldName,&ok);
+			QString newName = QInputDialog::getText(NULL,tr("Contact name"),tr("Enter name for contact"), QLineEdit::Normal, oldName, &ok);
 			if (ok && !newName.isEmpty() && newName != oldName)
 				roster->renameItem(rosterJid,newName);
 		}

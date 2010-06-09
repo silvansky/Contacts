@@ -66,6 +66,8 @@
 #define NS_ARCHIVE_PREF                         "urn:xmpp:archive:pref"
 #define NS_ARCHIVE_ENCRYPT                      "urn:xmpp:archive:encrypt"
 
+#define NS_RAMBLER_AVATAR			"rambler:avatar"
+
 #define NS_ARCHIVE_OLD                          "http://www.xmpp.org/extensions/xep-0136.html#ns"
 #define NS_ARCHIVE_OLD_AUTO                     "http://www.xmpp.org/extensions/xep-0136.html#ns-auto"
 #define NS_ARCHIVE_OLD_MANAGE                   "http://www.xmpp.org/extensions/xep-0136.html#ns-manage"

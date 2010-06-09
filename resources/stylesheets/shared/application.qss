@@ -1,10 +1,15 @@
 /*
 use %IMAGES_PATH% macro to load images, for example:
-  image: url(%IMAGES_PATH%/arrows/down.png);
+	image: url("%IMAGES_PATH%/arrows/down.png");
 the loader will replace this macro with something like that:
-  /hove/var/images/virtus
+	image: url("/home/var/images/virtus/arrows/down.png");
 */
 
+*
+{
+	/* font fix */
+	font: 8pt "MS Shell Dlg 2";
+}
 /***************
  * QToolButton *
  ***************/
@@ -147,7 +152,7 @@ SearchEdit
 QFrame#searchFrame
 {
 	border-width: 4px;
-	border-image: url(%IMAGES_PATH%/rostersearchborder.png);
+	border-image: url("%IMAGES_PATH%/rostersearchborder.png");
 }
 
 /************
@@ -156,9 +161,7 @@ QFrame#searchFrame
 
 QToolBar
 {
+	padding: 2px;
 	background-color: rgb(240, 240, 240);
+	spacing: 2px;
 }
-
-/***************
- * QPushButton *
- ***************/

@@ -98,11 +98,8 @@ IMainWindow *MainWindowPlugin::mainWindow() const
 
 void MainWindowPlugin::updateTitle()
 {
-	//if (FOptionsManager && FOptionsManager->isOpened())
-	//	FMainWindow->setWindowTitle(CLIENT_NAME" - "+FOptionsManager->currentProfile());
-	//else
 	QString svnRevision(SVN_REVISION);
-	FMainWindow->setWindowTitle(CLIENT_NAME" | R" + QString(SVN_REVISION).mid(2, svnRevision.length() - 3));
+	FMainWindow->setWindowTitle(CLIENT_NAME" | R" + svnRevision.right(svnRevision.length() - 2));
 }
 
 void MainWindowPlugin::showMainWindow()

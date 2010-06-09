@@ -1,3 +1,7 @@
+/***************
+ * QPushButton *
+ ***************/
+
 QPushButton:!hover:enabled#pbtConnect
 {
 	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(8, 137, 211, 255), stop:1 rgba(66, 177, 243, 255))	

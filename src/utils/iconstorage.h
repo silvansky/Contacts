@@ -35,6 +35,7 @@ public:
 	IconStorage(const QString &AStorage, const QString &ASubStorage = QString::null, QObject *AParent = NULL);
 	~IconStorage();
 	QIcon getIcon(const QString AKey, int AIndex = 0) const;
+	QImage getImage(const QString AKey, int AIndex = 0) const;
 	void insertAutoIcon(QObject *AObject, const QString AKey, int AIndex = 0, int AAnimate = 0, const QString &AProperty = "icon");
 	void removeAutoIcon(QObject *AObject);
 public:
@@ -54,6 +55,7 @@ private:
 	QHash<QObject*, IconUpdateParams*> FUpdateParams;
 private:
 	static QHash<QString, QHash<QString,QIcon> > FIconCache;
+	static QHash<QString, QHash<QString,QImage> > FImageCache;
 	static QHash<QString, IconStorage*> FStaticStorages;
 	static QHash<QObject*, IconStorage*> FObjectStorage;
 };

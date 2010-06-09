@@ -35,6 +35,8 @@ public:
 	int labelAt(const QPoint &APoint, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	QRect labelRect(int ALabelId, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	void setShowBlinkLabels(bool AShow);
+	virtual QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
 protected:
 	QHash<int,QRect> drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	void drawLabelItem(QPainter *APainter, const QStyleOptionViewItemV4 &AOption, const LabelItem &ALabel) const;

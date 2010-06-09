@@ -204,7 +204,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	record.notification = ANotification;
 	emit notificationAppend(notifyId, record.notification);
 
-	bool isDND = FStatusChanger!=NULL ? FStatusChanger->statusItemShow(STATUS_MAIN_ID)==IPresence::DoNotDisturb : false;
+	bool isDND = FStatusChanger ? FStatusChanger->statusItemShow(STATUS_MAIN_ID) == IPresence::DoNotDisturb : false;
 
 	QIcon icon = qvariant_cast<QIcon>(record.notification.data.value(NDR_ICON));
 	QString toolTip = record.notification.data.value(NDR_TOOLTIP).toString();

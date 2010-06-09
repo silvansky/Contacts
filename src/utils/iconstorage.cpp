@@ -6,6 +6,7 @@
 #include <QApplication>
 
 QHash<QString, QHash<QString,QIcon> > IconStorage::FIconCache;
+QHash<QString, QHash<QString,QImage> > IconStorage::FImageCache;
 QHash<QString, IconStorage*> IconStorage::FStaticStorages;
 QHash<QObject*, IconStorage*> IconStorage::FObjectStorage;
 
@@ -35,6 +36,22 @@ QIcon IconStorage::getIcon(const QString AKey, int AIndex) const
 		}
 	}
 	return icon;
+}
+
+QImage IconStorage::getImage(const QString AKey, int AIndex) const
+{
+	QImage image;
+	QString key = fileCacheKey(AKey,AIndex);
+	if (!key.isEmpty())
+	{
+		image = FImageCache[storage()].value(key);
+		if (image.isNull())
+		{
+			image.load(fileFullName(AKey,AIndex));
+			FImageCache[storage()].insert(key,image);
+		}
+	}
+	return image;
 }
 
 void IconStorage::clearIconCache()

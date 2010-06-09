@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QApplication>
 #include <QWindowsVistaStyle>
+#include <QLineEdit>
 #include <utils/iconstorage.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
@@ -135,6 +136,16 @@ void RosterIndexDelegate::setShowBlinkLabels(bool AShow)
 	FShowBlinkLabels = AShow;
 }
 
+QWidget * RosterIndexDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+	return new QLineEdit(parent);
+}
+
+void RosterIndexDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+
+}
+
 QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 {
 	QHash<int,QRect> rectHash;
@@ -162,6 +173,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	{
 		if (option.state & QStyle::State_Selected)
 			option.state ^= QStyle::State_Selected;
+		if (option.state & QStyle::State_MouseOver)
+			option.state ^= QStyle::State_MouseOver;
 	}
 
 	option.palette.setColor(QPalette::HighlightedText, AOption.palette.text().color());
@@ -208,11 +221,13 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 			stops.append(QGradientStop(1.0, QColor::fromRgb(234, 234, 234)));
 			gradient.setStops(stops);
 			QBrush b(gradient);
-			//APainter->fillRect(option.rect, b);
 			QPainterPath path;
-			//path.addRoundRect(option.rect, 5);
 			path.addRoundedRect(option.rect, 2.0, 2.0, Qt::AbsoluteSize);
 			APainter->fillPath(path, b);
+			QPen oldPen = APainter->pen();
+			APainter->setPen(option.palette.base().color());
+			APainter->drawLine(option.rect.left() + 2, option.rect.top(), option.rect.right() - 2, option.rect.top());
+			APainter->setPen(oldPen);
 		}
 	}
 
@@ -357,7 +372,7 @@ void RosterIndexDelegate::drawLabelItem(QPainter *APainter, const QStyleOptionVi
 			int flags = AOption.direction | Qt::TextSingleLine;
 			QPalette::ColorRole role = AOption.state & QStyle::State_Selected ? QPalette::HighlightedText : QPalette::Text;
 			QString text = AOption.fontMetrics.elidedText(prepareText(ALabel.value.toString()),Qt::ElideRight,ALabel.rect.width(),flags);
-			style->drawItemText(APainter,ALabel.rect,flags,AOption.palette,(AOption.state &  QStyle::State_Enabled)>0,text,role);
+			style->drawItemText(APainter, ALabel.rect, flags, AOption.palette, (AOption.state &  QStyle::State_Enabled) > 0, text, role);
 			break;
 		}
 	default:

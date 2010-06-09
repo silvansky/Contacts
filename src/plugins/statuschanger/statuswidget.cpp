@@ -67,9 +67,14 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 		if (actionEvent->action())
 		{
 			ui->statusToolButton->setIcon(actionEvent->action()->icon());
-			ui->statusToolButton->setText(fitCaptionToWidth(userName, actionEvent->action()->text(), ui->statusToolButton->width() - ui->statusToolButton->iconSize().width() - 5));
+			ui->statusToolButton->setText(fitCaptionToWidth(userName, actionEvent->action()->text(), ui->statusToolButton->width() - ui->statusToolButton->iconSize().width() - 12));
 			ui->statusToolButton->setToolTip(actionEvent->action()->text());
 		}
+		return true;
+	}
+	if ((obj == ui->statusToolButton) && (event->type() == QEvent::Resize))
+	{
+		ui->statusToolButton->setText(fitCaptionToWidth(userName, ui->statusToolButton->defaultAction()->text(), ui->statusToolButton->width() - ui->statusToolButton->iconSize().width() - 12));
 		return true;
 	}
 	if (obj == ui->avatarLabel)
@@ -173,11 +178,6 @@ void StatusWidget::updateMoodText()
 		ui->moodLabel->setText(userMood.isEmpty() ? DEFAULT_MOOD_TEXT : userMood);
 	else
 		ui->moodLabel->setText(userMood.left(70) + "...");
-}
-
-void StatusWidget::onAvatarChanged(const QImage & img)
-{
-	//ui->avatarLabel->setPixmap(QPixmap::fromImage(img.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
 }
 
 void StatusWidget::setUserName(const QString& name)
