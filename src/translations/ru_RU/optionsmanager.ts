@@ -225,7 +225,7 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     <name>LoginDialogClass</name>
     <message>
         <source>Virtus</source>
-        <translation>Виртус</translation>
+        <translation>Virtus</translation>
     </message>
     <message>
         <source>Save password</source>

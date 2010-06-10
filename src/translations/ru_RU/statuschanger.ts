@@ -91,6 +91,29 @@
     </message>
 </context>
 <context>
+    <name>SelectAvatarWidget</name>
+    <message>
+        <source>Open image</source>
+        <translation>Открыть изображение</translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.bmp *.gif)</source>
+        <translation>Файлв изображений (*.png *.jpg *.bmp *.gif)</translation>
+    </message>
+    <message>
+        <source>Select Avatar</source>
+        <translation>Выберите аватар</translation>
+    </message>
+    <message>
+        <source>Manage my profile</source>
+        <translation>Изменить профиль</translation>
+    </message>
+    <message>
+        <source>Upload new avatar...</source>
+        <translation>Загрузить новый аватар...</translation>
+    </message>
+</context>
+<context>
     <name>StatusChanger</name>
     <message>
         <source>Connection errors</source>
@@ -133,22 +156,6 @@
         <translation>Неизвестный статус</translation>
     </message>
     <message>
-        <source>Free for chat</source>
-        <translation>Поболтать</translation>
-    </message>
-    <message>
-        <source>I`am away from my desk</source>
-        <translation>Отошел</translation>
-    </message>
-    <message>
-        <source>Not available</source>
-        <translation>Не доступен</translation>
-    </message>
-    <message>
-        <source>Disconnected</source>
-        <translation>Отключен</translation>
-    </message>
-    <message>
         <source>%1 - %2</source>
         <translation>%1 - %2</translation>
     </message>
@@ -187,6 +194,13 @@
     <message>
         <source>Auto reconnect if disconnected</source>
         <translation>Автоматически восстанавливать соединение</translation>
+    </message>
+</context>
+<context>
+    <name>StatusWidget</name>
+    <message>
+        <source>Click to edit...</source>
+        <translation>Нажмите для редактирования...</translation>
     </message>
 </context>
 </TS>

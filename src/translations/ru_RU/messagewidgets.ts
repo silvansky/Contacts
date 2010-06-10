@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>ChatWindow</name>
+    <message>
+        <source>Quote</source>
+        <translation>Цитировать</translation>
+    </message>
+</context>
+<context>
     <name>EditWidgetClass</name>
     <message>
         <source>Send</source>
@@ -35,10 +42,6 @@
         <translation>Позволяет другим модулям использовать стандартные виджеты для обмена сообщениями</translation>
     </message>
     <message>
-        <source>Quote selected text</source>
-        <translation>Цитировать выделенный текст</translation>
-    </message>
-    <message>
         <source>Tab Window</source>
         <translation>Окно  со вкладками</translation>
     </message>
@@ -57,6 +60,34 @@
     <message>
         <source>Show contact information in chat windows</source>
         <translation>Показывать информацию о контакте в окне чата</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Копировать</translation>
+    </message>
+    <message>
+        <source>Send mail</source>
+        <translation>Написать письмо</translation>
+    </message>
+    <message>
+        <source>Open link</source>
+        <translation>Открыть ссылку</translation>
+    </message>
+    <message>
+        <source>Copy e-mail address</source>
+        <translation>Копировать адрес почты</translation>
+    </message>
+    <message>
+        <source>Copy link address</source>
+        <translation>Копировать адрес ссылки</translation>
+    </message>
+    <message>
+        <source>Search on Rambler &apos;%1&apos;</source>
+        <translation>Искать в Рамблере %1</translation>
+    </message>
+    <message>
+        <source>Search on Rambler</source>
+        <translation>Искать в Рамблере</translation>
     </message>
 </context>
 <context>
@@ -201,24 +232,8 @@
         <translation>Пред. вкладка</translation>
     </message>
     <message>
-        <source>Tabs Closable</source>
-        <translation>Закрываемые вкладки</translation>
-    </message>
-    <message>
-        <source>Detach to Separate Window</source>
-        <translation>Отцепить в отдельное окно</translation>
-    </message>
-    <message>
-        <source>Join to</source>
-        <translation>Присоединить к</translation>
-    </message>
-    <message>
         <source>New Tab Window</source>
         <translation>Новое окно со вкладкми</translation>
-    </message>
-    <message>
-        <source>Use as Default Tab Window</source>
-        <translation>Использовать как окно по умолчанию</translation>
     </message>
     <message>
         <source>Rename Tab Window</source>
@@ -236,12 +251,41 @@
         <source>Are you sure you want to delete this tab window?</source>
         <translation>Вы уверены что хотите удалить это окно со вкладками?</translation>
     </message>
-</context>
-<context>
-    <name>TabWindowClass</name>
     <message>
-        <source>Tab 1</source>
-        <translation>Tab 1</translation>
+        <source>Ctrl+PgDown</source>
+        <translation>Ctrl+PgDown</translation>
+    </message>
+    <message>
+        <source>Ctrl+PgUp</source>
+        <translation>Ctrl+PgUp</translation>
+    </message>
+    <message>
+        <source>Ctrl+W</source>
+        <translation>Ctrl+W</translation>
+    </message>
+    <message>
+        <source>Ctrl+F4</source>
+        <translation>Ctrl+F4</translation>
+    </message>
+    <message>
+        <source>Close All Tabs</source>
+        <translation>Закрыть все вкладки</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+W</source>
+        <translation>Ctrl+Shift+W</translation>
+    </message>
+    <message>
+        <source>Close Window</source>
+        <translation>Закрыть окно</translation>
+    </message>
+    <message>
+        <source>Alt+F4</source>
+        <translation>Alt+F4</translation>
+    </message>
+    <message>
+        <source>Close Other Tabs</source>
+        <translation>Закрыть другие вкладки</translation>
     </message>
 </context>
 </TS>

@@ -86,18 +86,6 @@
         <translation>Запросы авторизации</translation>
     </message>
     <message>
-        <source>%1 wants to subscribe to your presence.</source>
-        <translation>%1 хочет подписаться на ваш статус.</translation>
-    </message>
-    <message>
-        <source>%1 unsubscribed from your presence.</source>
-        <translation>%1 отписался от вашего статуса.</translation>
-    </message>
-    <message>
-        <source>You are now unsubscribed from %1 presence.</source>
-        <translation>%1 удалил вашу авторизацию на получение статуса.</translation>
-    </message>
-    <message>
         <source>This group</source>
         <translation>В эту группу</translation>
     </message>
@@ -182,14 +170,6 @@
         <translation>Сообщение авторизации</translation>
     </message>
     <message>
-        <source>Rename contact</source>
-        <translation>Переименовать контакт</translation>
-    </message>
-    <message>
-        <source>Enter name for: &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation>Введите имя для: &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>Create new group</source>
         <translation>Создать новую группу</translation>
     </message>
@@ -216,10 +196,6 @@
     <message>
         <source>You are assured that wish to remove %1 contact(s) from roster?</source>
         <translation>Вы уверены, что хотите удалить %1 контакт(ов) из контакт-листа?</translation>
-    </message>
-    <message>
-        <source>You are now subscribed for %1 presence.</source>
-        <translation>%1 авторизовал вас на получение статуса.</translation>
     </message>
     <message>
         <source>Add contact</source>
@@ -264,6 +240,62 @@
     <message>
         <source>Auto unsubscribe contacts</source>
         <translation>Автоматически удалять авторизацию</translation>
+    </message>
+    <message>
+        <source>Add group</source>
+        <translation>Добавить группу</translation>
+    </message>
+    <message>
+        <source>%1 wants to subscribe to your presence</source>
+        <translation>%1 хочет подписаться на получение вашего статуса</translation>
+    </message>
+    <message>
+        <source>You are now subscribed for %1 presence</source>
+        <translation>Вы подписаны на получение статуса от %1</translation>
+    </message>
+    <message>
+        <source>%1 unsubscribed from your presence</source>
+        <translation>%1 отписался от получения вашего статуса</translation>
+    </message>
+    <message>
+        <source>You are now unsubscribed from %1 presence</source>
+        <translation>Вы не подписаны на получение статуса от %1</translation>
+    </message>
+    <message>
+        <source>Add Contact</source>
+        <translation>Добавить контакт</translation>
+    </message>
+    <message>
+        <source>Request authorization</source>
+        <translation>Запросить авторизацию</translation>
+    </message>
+    <message>
+        <source>Authorize</source>
+        <translation>Авторизовать</translation>
+    </message>
+    <message>
+        <source>Don`t Authorize</source>
+        <translation>Не авторизовывать</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>Contact name</source>
+        <translation>Имя контакта</translation>
+    </message>
+    <message>
+        <source>Enter name for contact</source>
+        <translation>Введите имя контакта</translation>
+    </message>
+    <message>
+        <source>This contact is not added to your roster</source>
+        <translation>Этот контакт не добавлен в ваш ростер</translation>
+    </message>
+    <message>
+        <source>Request authorization from contact to see his status</source>
+        <translation>Запросите авторизацию у контакта, чтобы видеть его статус</translation>
     </message>
 </context>
 <context>

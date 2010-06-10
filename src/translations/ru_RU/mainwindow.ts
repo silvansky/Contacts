@@ -12,12 +12,12 @@
         <translation>Левая панель</translation>
     </message>
     <message>
-        <source>Bottom toolbar</source>
-        <translation>Правая панель</translation>
-    </message>
-    <message>
         <source>Menu</source>
         <translation>Меню</translation>
+    </message>
+    <message>
+        <source>Status toolbar</source>
+        <translation>Панель статуса</translation>
     </message>
 </context>
 <context>
