@@ -37,6 +37,7 @@ struct WindowStatus
 {
 	QDateTime startTime;
 	QDateTime createTime;
+	QDateTime lastMessageTime;
 	QString lastStatusShow;
 };
 
@@ -78,6 +79,7 @@ protected:
 	void showHistory(IChatWindow *AWindow);
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
+	void showDateSeparator(IChatWindow *AWindow, const QDateTime &AMessageTime);
 	void showStyledStatus(IChatWindow *AWindow, const QString &AMessage);
 	void showStyledMessage(IChatWindow *AWindow, const Message &AMessage);
 protected slots:

@@ -31,7 +31,8 @@ struct IMessageContentOptions
 		History         =0x02,
 		Event           =0x04,
 		Mention         =0x08,
-		Notification    =0x10
+		Notification    =0x10,
+		DateSeparator   =0x20
 	};
 	enum ContentDirection {
 		DirectionIn,

@@ -390,6 +390,35 @@ void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageConten
 	}
 }
 
+void ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDateTime &AMessageTime)
+{
+	static const QList<QString> mnames = QList<QString>() << tr("January") << tr("February") <<  tr("March") <<  tr("April") 
+		<< tr("May") << tr("June") << tr("July") << tr("August") << tr("September") << tr("October") << tr("November") << tr("December");
+	static const QList<QString> dnames = QList<QString>() << tr("Monday") << tr("Tuesday") <<  tr("Wednesday") <<  tr("Thursday") 
+		<< tr("Friday") << tr("Saturday") << tr("Sunday");
+
+	IMessageContentOptions options;
+	options.kind = IMessageContentOptions::Status;
+	options.direction = IMessageContentOptions::DirectionIn;
+	options.type = IMessageContentOptions::DateSeparator;
+
+	QString message;
+	WindowStatus &wstatus = FWindowStatus[AWindow->viewWidget()];
+	if (wstatus.lastMessageTime.date() != AMessageTime.date())
+	{
+		wstatus.lastMessageTime = AMessageTime;
+		QDate messageDate = AMessageTime.date();
+		QDate currentDate = QDate::currentDate();
+		if (messageDate == currentDate)
+			message = AMessageTime.date().toString(tr("%1, %2 dd")).arg(tr("Today")).arg(mnames.value(messageDate.month()-1));
+		else if (messageDate.year() == currentDate.year())
+			message = AMessageTime.date().toString(tr("%1, %2 dd")).arg(dnames.value(messageDate.dayOfWeek()-1)).arg(mnames.value(AMessageTime.date().month()-1));
+		else
+			message = AMessageTime.date().toString(tr("%1, %2 dd, yyyy")).arg(dnames.value(messageDate.dayOfWeek()-1)).arg(mnames.value(AMessageTime.date().month()-1));
+		AWindow->viewWidget()->appendText(message,options);
+	}
+}
+
 void ChatMessageHandler::showStyledStatus(IChatWindow *AWindow, const QString &AMessage)
 {
 	IMessageContentOptions options;
@@ -416,6 +445,7 @@ void ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message &
 		options.type |= IMessageContentOptions::History;
 
 	fillContentOptions(AWindow,options);
+	showDateSeparator(AWindow,AMessage.dateTime());
 	AWindow->viewWidget()->appendMessage(AMessage,options);
 }
 
@@ -569,6 +599,7 @@ void ChatMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOpti
 			IMessageStyle *style = window->viewWidget()!=NULL ? window->viewWidget()->messageStyle() : NULL;
 			if (style==NULL || !style->changeOptions(window->viewWidget()->styleWidget(),AOptions,false))
 			{
+				FWindowStatus[window->viewWidget()].lastMessageTime = QDateTime();
 				setMessageStyle(window);
 				showHistory(window);
 			}

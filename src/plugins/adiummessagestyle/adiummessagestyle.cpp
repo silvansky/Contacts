@@ -20,11 +20,11 @@
 #define STYLE_RESOURCES_PATH                STYLE_CONTENTS_PATH"/Resources"
 
 #define APPEND_MESSAGE_WITH_SCROLL          "checkIfScrollToBottomIsNeeded(); appendMessage(\"%1\"); scrollToBottomIfNeeded();"
-#define APPEND_NEXT_MESSAGE_WITH_SCROLL	    "checkIfScrollToBottomIsNeeded(); appendNextMessage(\"%1\"); scrollToBottomIfNeeded();"
+#define APPEND_NEXT_MESSAGE_WITH_SCROLL     "checkIfScrollToBottomIsNeeded(); appendNextMessage(\"%1\"); scrollToBottomIfNeeded();"
 #define APPEND_MESSAGE                      "appendMessage(\"%1\");"
 #define APPEND_NEXT_MESSAGE                 "appendNextMessage(\"%1\");"
 #define APPEND_MESSAGE_NO_SCROLL            "appendMessageNoScroll(\"%1\");"
-#define	APPEND_NEXT_MESSAGE_NO_SCROLL       "appendNextMessageNoScroll(\"%1\");"
+#define APPEND_NEXT_MESSAGE_NO_SCROLL       "appendNextMessageNoScroll(\"%1\");"
 #define REPLACE_LAST_MESSAGE                "replaceLastMessage(\"%1\");"
 
 #define TOPIC_MAIN_DIV	                    "<div id=\"topic\"></div>"
@@ -397,6 +397,8 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 		messageClasses << MSMC_MENTION;
 	if (AOptions.type & IMessageContentOptions::Notification)
 		messageClasses << MSMC_NOTIFICATION;
+	if (AOptions.type & IMessageContentOptions::DateSeparator)
+		messageClasses << MSSK_DATE_SEPARATOR;
 
 	if (isDirectionIn)
 		messageClasses << MSMC_INCOMING;
