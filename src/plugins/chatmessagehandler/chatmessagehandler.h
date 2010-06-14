@@ -13,10 +13,12 @@
 #include <definations/actiongroups.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/stylesheets.h>
 #include <definations/soundfiles.h>
 #include <definations/optionvalues.h>
 #include <definations/toolbargroups.h>
 #include <definations/xmppurihandlerorders.h>
+#include <definations/tabpagenotifypriorities.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imessagewidgets.h>
@@ -67,10 +69,10 @@ public:
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 	//IMessageHandler
 	virtual bool checkMessage(int AOrder, const Message &AMessage);
-	virtual void showMessage(int AMessageId);
-	virtual void receiveMessage(int AMessageId);
+	virtual bool showMessage(int AMessageId);
+	virtual bool receiveMessage(int AMessageId);
 	virtual INotification notification(INotifications *ANotifications, const Message &AMessage);
-	virtual bool openWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType);
+	virtual bool createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);

@@ -1,0 +1,6 @@
+/* TabBarItem */
+
+[isActive="false"]
+{
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 gold, stop:1 palette(window));
+}

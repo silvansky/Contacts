@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>419</width>
-    <height>47</height>
+    <height>29</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -37,6 +37,13 @@
        <widget class="QCheckBox" name="chbPopup">
         <property name="text">
          <string>Popup</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chbChat">
+        <property name="text">
+         <string>Chat</string>
         </property>
        </widget>
       </item>

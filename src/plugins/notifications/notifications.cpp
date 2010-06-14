@@ -13,6 +13,8 @@ Notifications::Notifications()
 	FTrayManager = NULL;
 	FRostersModel = NULL;
 	FRostersViewPlugin = NULL;
+	FMessageWidgets = NULL;
+	FMessageProcessor = NULL;
 	FOptionsManager = NULL;
 	FMainWindowPlugin = NULL;
 
@@ -96,6 +98,14 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &/*AInit
 	if (plugin)
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
+	if (plugin)
+		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
+	if (plugin)
+		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
@@ -146,6 +156,7 @@ bool Notifications::initSettings()
 	Options::setDefaultValue(OPV_NOTIFICATIONS_SOUND,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_ROSTERICON,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_POPUPWINDOW,true);
+	Options::setDefaultValue(OPV_NOTIFICATIONS_CHATWINDOW,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_TRAYICON,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_TRAYACTION,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_AUTOACTIVATE,true);
@@ -207,13 +218,13 @@ int Notifications::appendNotification(const INotification &ANotification)
 	bool isDND = FStatusChanger ? FStatusChanger->statusItemShow(STATUS_MAIN_ID) == IPresence::DoNotDisturb : false;
 
 	QIcon icon = qvariant_cast<QIcon>(record.notification.data.value(NDR_ICON));
-	QString toolTip = record.notification.data.value(NDR_TOOLTIP).toString();
+	QString toolTip = record.notification.data.value(NDR_ROSTER_TOOLTIP).toString();
 
 	if (FRostersModel && FRostersViewPlugin && Options::node(OPV_NOTIFICATIONS_ROSTERICON).value().toBool() &&
 	    (record.notification.kinds & INotification::RosterIcon)>0)
 	{
-		Jid streamJid = record.notification.data.value(NDR_ROSTER_STREAM_JID).toString();
-		Jid contactJid = record.notification.data.value(NDR_ROSTER_CONTACT_JID).toString();
+		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
+		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
 		int order = record.notification.data.value(NDR_ROSTER_NOTIFY_ORDER).toInt();
 		int flags = IRostersView::LabelBlink|IRostersView::LabelVisible;
 		flags = flags | (Options::node(OPV_NOTIFICATIONS_EXPANDGROUP).value().toBool() ? IRostersView::LabelExpandParents : 0);
@@ -228,6 +239,27 @@ int Notifications::appendNotification(const INotification &ANotification)
 		connect(record.widget,SIGNAL(notifyRemoved()),SLOT(onWindowNotifyRemoved()));
 		connect(record.widget,SIGNAL(windowDestroyed()),SLOT(onWindowNotifyDestroyed()));
 		record.widget->appear();
+	}
+
+	if (FMessageWidgets && FMessageProcessor && Options::node(OPV_NOTIFICATIONS_CHATWINDOW).value().toBool() && (record.notification.kinds & INotification::ChatWindow)>0)
+	{
+		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
+		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
+		if (FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_ADD_TAB))
+		{
+			IChatWindow *window = FMessageWidgets->findChatWindow(streamJid,contactJid);
+			if (window && window->tabPageNotifier()!=NULL)
+			{
+				ITabPageNotify notify;
+				notify.iconKey = ANotification.data.value(NDR_ICONKEY).toString();
+				notify.priority = ANotification.data.value(NDR_TABPAGENOTIFY_PRIORITY).toInt();
+				notify.iconBlink = ANotification.data.value(NDR_TABPAGENOTIFY_ICONBLINK).toBool();
+				notify.toolTip = ANotification.data.value(NDR_TABPAGENOTIFY_TOOLTIP).toString();
+				notify.styleKey = ANotification.data.value(NDR_TABPAGENOTIFY_STYLEKEY).toString();
+				record.tabPageId = window->tabPageNotifier()->insertNotify(notify);
+				record.tabPageNotifier = window->tabPageNotifier()->instance();
+			}
+		}
 	}
 
 	if (FTrayManager)
@@ -294,6 +326,12 @@ void Notifications::removeNotification(int ANotifyId)
 		if (FRostersViewPlugin && record.rosterId!=0)
 		{
 			FRostersViewPlugin->rostersView()->removeNotify(record.rosterId);
+		}
+		if (!record.tabPageNotifier.isNull())
+		{
+			ITabPageNotifier *notifier =  qobject_cast<ITabPageNotifier *>(record.tabPageNotifier);
+			if (notifier)
+				notifier->removeNotify(record.tabPageId);
 		}
 		if (FTrayManager && record.trayId!=0)
 		{

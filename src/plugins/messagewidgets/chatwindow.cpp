@@ -6,6 +6,8 @@
 ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, const Jid &AContactJid)
 {
 	ui.setupUi(this);
+	setAttribute(Qt::WA_DeleteOnClose, false);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_CHATWINDOW);
 
 	FStatusChanger = NULL;
 	FMessageWidgets = AMessageWidgets;
@@ -13,6 +15,8 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	FStreamJid = AStreamJid;
 	FContactJid = AContactJid;
 	FShownDetached = false;
+
+	FTabPageNotifier = NULL;
 
 	FInfoWidget = FMessageWidgets->newInfoWidget(AStreamJid,AContactJid);
 	ui.wdtInfo->setLayout(new QVBoxLayout);
@@ -58,21 +62,19 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 
 ChatWindow::~ChatWindow()
 {
-	emit windowDestroyed();
+	emit tabPageDestroyed();
+	if (FTabPageNotifier)
+		delete FTabPageNotifier->instance();
 	delete FInfoWidget->instance();
 	delete FViewWidget->instance();
+	delete FNoticeWidget->instance();
 	delete FEditWidget->instance();
 	delete FMenuBarWidget->instance();
 	delete FToolBarWidget->instance();
 	delete FStatusBarWidget->instance();
 }
 
-QString ChatWindow::tabPageId() const
-{
-	return "ChatWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
-}
-
-void ChatWindow::showWindow()
+void ChatWindow::showTabPage()
 {
 	if (isWindow() && !isVisible())
 		FMessageWidgets->assignTabWindowPage(this);
@@ -83,15 +85,36 @@ void ChatWindow::showWindow()
 		WidgetManager::raiseWidget(this);
 	}
 	else
-		emit windowShow();
+		emit tabPageShow();
 }
 
-void ChatWindow::closeWindow()
+void ChatWindow::closeTabPage()
 {
 	if (isWindow())
 		close();
 	else
-		emit windowClose();
+		emit tabPageClose();
+}
+
+QString ChatWindow::tabPageId() const
+{
+	return "ChatWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
+}
+
+ITabPageNotifier *ChatWindow::tabPageNotifier() const
+{
+	return FTabPageNotifier;
+}
+
+void ChatWindow::setTabPageNotifier(ITabPageNotifier *ANotifier)
+{
+	if (FTabPageNotifier != ANotifier)
+	{
+		if (FTabPageNotifier)
+			delete FTabPageNotifier->instance();
+		FTabPageNotifier = ANotifier;
+		emit tabPageNotifierChanged();
+	}
 }
 
 void ChatWindow::setContactJid(const Jid &AContactJid)
@@ -102,6 +125,7 @@ void ChatWindow::setContactJid(const Jid &AContactJid)
 		FContactJid = AContactJid;
 		FInfoWidget->setContactJid(FContactJid);
 		FViewWidget->setContactJid(FContactJid);
+		FNoticeWidget->setContactJid(FContactJid);
 		FEditWidget->setContactJid(FContactJid);
 		emit contactJidChanged(befour);
 	}
@@ -117,7 +141,7 @@ void ChatWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, cons
 	setWindowIcon(AIcon);
 	setWindowIconText(AIconText);
 	setWindowTitle(ATitle);
-	emit windowChanged();
+	emit tabPageChanged();
 }
 
 void ChatWindow::initialize()
@@ -217,6 +241,7 @@ void ChatWindow::onStreamJidChanged(const Jid &ABefour)
 			FStreamJid = xmppStream->streamJid();
 			FInfoWidget->setStreamJid(FStreamJid);
 			FViewWidget->setStreamJid(FStreamJid);
+			FNoticeWidget->setStreamJid(FStreamJid);
 			FEditWidget->setStreamJid(FStreamJid);
 			emit streamJidChanged(ABefour);
 		}
@@ -269,3 +294,4 @@ void ChatWindow::onNoticeActivated(int ANoticeId)
 {
 	ui.wdtNotice->setVisible(ANoticeId > 0);
 }
+

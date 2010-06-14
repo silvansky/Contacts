@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>messagewidgetsTabWindow</key>
+    <object mime='text/css'>messagewidgetstabwindow.qss</object>
+  </file>
+  <file>
+    <key>messagewidgetsChatWindow</key>
+    <object mime='text/css'>messagewidgetschatwindow.qss</object>
+  </file>
+  <file>
+    <key>messagewidgetsMessageWindow</key>
+    <object mime='text/css'>messagewidgetsmessagewindow.qss</object>
+  </file>
+</styledef>

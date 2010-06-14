@@ -40,6 +40,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="chbEnableChatWindows">
+          <property name="text">
+           <string>Chat</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QCheckBox" name="chbEnableTrayIcons">
           <property name="text">
            <string>Tray</string>

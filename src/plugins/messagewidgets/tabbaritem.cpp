@@ -2,34 +2,36 @@
 
 #include <QPaintEvent>
 #include <QHBoxLayout>
-#include <QStylePainter>
+
+#define BLINK_VISIBLE_TIME      750
+#define BLINK_INVISIBLE_TIME    250
 
 TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 {
 	FIconSize = QSize(15,15);
 
-	setFrameShape(QFrame::Box);
-	setFrameShadow(QFrame::Sunken);
-
 	setLayout(new QHBoxLayout);
 	layout()->setMargin(2);
 	layout()->setSpacing(2);
 
-	layout()->addWidget(FIcon = new QLabel(this));
-	layout()->addWidget(FLabel = new QLabel(this));
-	layout()->addWidget(FClose = new CloseButton(this));
+	layout()->addWidget(FIconLabel = new QLabel(this));
+	layout()->addWidget(FTextLabel = new QLabel(this));
+	layout()->addWidget(FCloseButton = new CloseButton(this));
 
-	FIcon->installEventFilter(this);
-	FLabel->installEventFilter(this);
-	FClose->installEventFilter(this);
+	FIconLabel->installEventFilter(this);
+	FTextLabel->installEventFilter(this);
+	FCloseButton->installEventFilter(this);
 
-	FIcon->setFixedSize(FIconSize);
-	FLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-	connect(FClose,SIGNAL(clicked()),SIGNAL(closeButtonClicked()));
+	FIconLabel->setFixedSize(FIconSize);
+	FTextLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+	connect(FCloseButton,SIGNAL(clicked()),SIGNAL(closeButtonClicked()));
+
+	FIconHidden = false;
+	FBlinkTimer.setSingleShot(true);
+	connect(&FBlinkTimer,SIGNAL(timeout()),SLOT(onBlinkTimerTimeout()));
 
 	setActive(false);
-	setDragged(false);
-	setState(TPS_NORMAL);
+	setDraging(false);
 }
 
 TabBarItem::~TabBarItem()
@@ -37,18 +39,7 @@ TabBarItem::~TabBarItem()
 
 }
 
-int TabBarItem::state() const
-{
-	return FState;
-}
-
-void TabBarItem::setState(int AState)
-{
-	FState = AState;
-	update();
-}
-
-bool TabBarItem::active() const
+bool TabBarItem::isActive() const
 {
 	return FActive;
 }
@@ -56,7 +47,30 @@ bool TabBarItem::active() const
 void TabBarItem::setActive(bool AActive)
 {
 	FActive = AActive;
+	setStyleSheet(styleSheet());
 	update();
+}
+
+bool TabBarItem::isDraging() const
+{
+	return FDraging;
+}
+
+void TabBarItem::setDraging(bool ADragged)
+{
+	FDraging = ADragged;
+	setStyleSheet(styleSheet());
+	update();
+}
+
+bool TabBarItem::isCloseable() const
+{
+	return FCloseButton->isVisible();
+}
+
+void TabBarItem::setCloseable(bool ACloseable)
+{
+	FCloseButton->setVisible(ACloseable);
 }
 
 QSize TabBarItem::iconSize() const
@@ -66,21 +80,23 @@ QSize TabBarItem::iconSize() const
 
 void TabBarItem::setIconSize(const QSize &ASize)
 {
-	FIcon->setFixedSize(ASize);
+	FIconLabel->setFixedSize(ASize);
 	FIconSize = ASize;
 }
 
 QIcon TabBarItem::icon() const
 {
-	QIcon icon;
-	icon.addPixmap(*FIcon->pixmap());
-	return icon;
+	return FIcon;
 }
 
 void TabBarItem::setIcon(const QIcon &AIcon)
 {
-	setIconKey(QString::null);
-	FIcon->setPixmap(AIcon.pixmap(FIconSize));
+	if (FNotify.priority < 0)
+	{
+		setIconKey(QString::null);
+		showIcon(AIcon);
+	}
+	FIcon = AIcon;
 }
 
 QString TabBarItem::iconKey() const
@@ -90,43 +106,104 @@ QString TabBarItem::iconKey() const
 
 void TabBarItem::setIconKey(const QString &AIconKey)
 {
-	if (!AIconKey.isEmpty())
-	{
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(FIcon,AIconKey,0,0,"pixmap");
-	}
-	else
-	{
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(FIcon);
-		FIcon->clear();
-	}
+	if (FNotify.priority < 0)
+		showIconKey(AIconKey);
 	FIconKey = AIconKey;
 }
 
 QString TabBarItem::text() const
 {
-	return FLabel->text();
+	return FText;
 }
 
 void TabBarItem::setText(const QString &AText)
 {
-	FLabel->setText(AText);
+	if (FNotify.priority < 0)
+		showText(AText);
+	FText = AText;
 }
 
-bool TabBarItem::isCloseable() const
+QString TabBarItem::toolTip() const
 {
-	return FClose->isVisible();
+	return FToolTip;
 }
 
-void TabBarItem::setCloseable(bool ACloseable)
+void TabBarItem::setToolTip(const QString &AToolTip)
 {
-	FClose->setVisible(ACloseable);
+	if (FNotify.priority < 0)
+		showToolTip(AToolTip);
+	FToolTip = AToolTip;
+}
+
+ITabPageNotify TabBarItem::notify() const
+{
+	return FNotify;
+}
+
+void TabBarItem::setNotify(const ITabPageNotify &ANotify)
+{
+	FNotify = ANotify;
+	FIconHidden = false;
+	FBlinkTimer.stop();
+	if (FNotify.priority > 0)
+	{
+		if (FNotify.iconBlink)
+			FBlinkTimer.start(BLINK_VISIBLE_TIME);
+		showIconKey(FNotify.iconKey);
+		showToolTip(FNotify.toolTip);
+		showStyleKey(FNotify.styleKey);
+	}
+	else
+	{
+		if (!FIconKey.isEmpty())
+			showIconKey(FIconKey);
+		else
+			showIcon(FIcon);
+		showText(FText);
+		showToolTip(FToolTip);
+		showStyleKey(QString::null);
+	}
 	update();
 }
 
-void TabBarItem::setDragged(bool ADragged)
+void TabBarItem::showIcon(const QIcon &AIcon)
 {
-	FDragged = ADragged;
-	update();
+	if (!AIcon.isNull())
+		FIconLabel->setPixmap(AIcon.pixmap(FIconSize));
+	else
+		FIconLabel->clear();
+}
+
+void TabBarItem::showIconKey(const QString &AIconKey)
+{
+	if (!AIconKey.isEmpty())
+	{
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(FIconLabel,AIconKey,0,0,"pixmap");
+	}
+	else
+	{
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(FIconLabel);
+		FIconLabel->clear();
+	}
+}
+
+void TabBarItem::showText(const QString &AText)
+{
+	FTextLabel->setText(AText);
+}
+
+void TabBarItem::showToolTip(const QString &AToolTip)
+{
+	QString tip = !AToolTip.isEmpty() ? QString("<span>%1<br>%2</span>").arg(Qt::escape(FText)).arg(Qt::escape(AToolTip)) : QString("<span>%1</span>").arg(Qt::escape(FText));
+	QFrame::setToolTip(tip);
+}
+
+void TabBarItem::showStyleKey(const QString &AStyleKey)
+{
+	if (!AStyleKey.isEmpty())
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,AStyleKey);
+	else
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->removeAutoStyle(this);
 }
 
 void TabBarItem::enterEvent(QEvent *AEvent)
@@ -143,38 +220,25 @@ void TabBarItem::leaveEvent(QEvent *AEvent)
 
 void TabBarItem::paintEvent(QPaintEvent *AEvent)
 {
-	if (!FDragged)
-	{
-		QPalette pal = palette();
-		QRect rect = QRect(0,0,width(),height());
-
-		QLinearGradient background(rect.topLeft(),rect.bottomLeft());
-		if (active())
-		{
-			background.setColorAt(0.0,pal.color(QPalette::Base));
-			background.setColorAt(1.0,pal.color(QPalette::Window));
-		}
-		else if (underMouse())
-		{
-			background.setColorAt(0.0,pal.color(QPalette::Window));
-			background.setColorAt(1.0,pal.color(QPalette::Dark).lighter(120));
-		}
-		else
-		{
-			background.setColorAt(0.0,pal.color(QPalette::Window));
-			background.setColorAt(1.0,pal.color(QPalette::Dark));
-		}
-
-		QStylePainter p(this);
-		p.fillRect(rect,background);
-
+	if (!FDraging) 
 		QFrame::paintEvent(AEvent);
-	}
 }
 
 bool TabBarItem::eventFilter(QObject *AObject, QEvent *AEvent)
 {
-	if (FDragged && AEvent->type()==QEvent::Paint)
+	if (FDraging && AEvent->type()==QEvent::Paint)
+		return true;
+	if (FIconHidden && AObject==FIconLabel && AEvent->type()==QEvent::Paint)
 		return true;
 	return QFrame::eventFilter(AObject,AEvent);
+}
+
+void TabBarItem::onBlinkTimerTimeout()
+{
+	FIconHidden = !FIconHidden;
+	if (FIconHidden)
+		FBlinkTimer.start(BLINK_INVISIBLE_TIME);
+	else
+		FBlinkTimer.start(BLINK_VISIBLE_TIME);
+	update(FIconLabel->geometry());
 }

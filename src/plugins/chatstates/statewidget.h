@@ -5,6 +5,7 @@
 #include <QToolButton>
 #include <definations/menuicons.h>
 #include <definations/resources.h>
+#include <definations/tabpagenotifypriorities.h>
 #include <interfaces/ichatstates.h>
 #include <interfaces/imessagewidgets.h>
 #include <utils/menu.h>
@@ -26,6 +27,7 @@ private:
 	IChatStates *FChatStates;
 private:
 	Menu *FMenu;
+	int FTabNotifyId;
 };
 
 #endif // SATEWIDGET_H

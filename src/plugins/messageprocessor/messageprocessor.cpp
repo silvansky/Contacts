@@ -131,9 +131,16 @@ int MessageProcessor::receiveMessage(const Message &AMessage)
 		FHandlerForMessage.insert(messageId,handler);
 
 		emit messageReceive(message);
-		notifyMessage(messageId);
-		handler->receiveMessage(messageId);
-		emit messageReceived(message);
+		if (handler->receiveMessage(messageId))
+		{
+			notifyMessage(messageId);
+			emit messageReceived(message);
+		}
+		else
+		{
+			emit messageReceived(message);
+			removeMessage(messageId);
+		}
 	}
 	return messageId;
 }
@@ -215,10 +222,10 @@ void MessageProcessor::messageToText(QTextDocument *ADocument, const Message &AM
 	}
 }
 
-bool MessageProcessor::openWindow(const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType) const
+bool MessageProcessor::createWindow(const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) const
 {
 	for (QMultiMap<int, IMessageHandler *>::const_iterator it = FMessageHandlers.constBegin(); it!=FMessageHandlers.constEnd(); it++)
-		if (it.value()->openWindow(it.key(),AStreamJid,AContactJid,AType))
+		if (it.value()->createWindow(it.key(),AStreamJid,AContactJid,AType,AShowMode))
 			return true;
 	return false;
 }

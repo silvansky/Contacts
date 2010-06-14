@@ -1,6 +1,8 @@
 #ifndef MESSAGEWINDOW_H
 #define MESSAGEWINDOW_H
 
+#include <definations/resources.h>
+#include <definations/stylesheets.h>
 #include <definations/messagedataroles.h>
 #include <definations/rosterindextyperole.h>
 #include <interfaces/imessagewidgets.h>
@@ -9,6 +11,7 @@
 #include <interfaces/ipresence.h>
 #include <interfaces/istatusicons.h>
 #include <utils/options.h>
+#include <utils/stylestorage.h>
 #include <utils/errorhandler.h>
 #include <utils/widgetmanager.h>
 #include "ui_messagewindow.h"
@@ -18,15 +21,17 @@ class MessageWindow :
 			public IMessageWindow
 {
 	Q_OBJECT;
-	Q_INTERFACES(IMessageWindow ITabWindowPage);
+	Q_INTERFACES(IMessageWindow ITabPage);
 public:
 	MessageWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, const Jid &AContactJid, Mode AMode);
 	virtual ~MessageWindow();
 	virtual QMainWindow *instance() { return this; }
-	//ITabWindowPage
+	//ITabPage
+	virtual void showTabPage();
+	virtual void closeTabPage();
 	virtual QString tabPageId() const;
-	virtual void showWindow();
-	virtual void closeWindow();
+	virtual ITabPageNotifier *tabPageNotifier() const;
+	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier);
 	//IMessageWindow
 	virtual const Jid &streamJid() const { return FStreamJid; }
 	virtual const Jid &contactJid() const { return FContactJid; }
@@ -50,11 +55,12 @@ public:
 	virtual void setNextCount(int ACount);
 	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle);
 signals:
-	//ITabWindowPage
-	void windowShow();
-	void windowClose();
-	void windowChanged();
-	void windowDestroyed();
+	//ITabPage
+	void tabPageShow();
+	void tabPageClose();
+	void tabPageChanged();
+	void tabPageDestroyed();
+	void tabPageNotifierChanged();
 	//IMessageWindow
 	void showNextMessage();
 	void replyMessage();
@@ -90,6 +96,7 @@ private:
 	IReceiversWidget *FReceiversWidget;
 	IToolBarWidget *FViewToolBarWidget;
 	IToolBarWidget *FEditToolBarWidget;
+	ITabPageNotifier *FTabPageNotifier;
 private:
 	IMessageWidgets *FMessageWidgets;
 private:

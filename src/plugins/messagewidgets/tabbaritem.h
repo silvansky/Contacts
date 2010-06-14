@@ -4,26 +4,30 @@
 #include <QSize>
 #include <QLabel>
 #include <QFrame>
+#include <QTimer>
 #include <definations/resources.h>
+#include <definations/stylesheets.h>
+#include <interfaces/imessagewidgets.h>
 #include <utils/closebutton.h>
 #include <utils/iconstorage.h>
-
-enum TabPageStates
-{
-	TPS_NORMAL   =0x00
-};
+#include <utils/stylestorage.h>
 
 class TabBarItem : 
 			public QFrame
 {
 	Q_OBJECT;
+	Q_PROPERTY(bool isActive READ isActive WRITE setActive);
+	Q_PROPERTY(bool isDraging READ isDraging WRITE setDraging);
+	Q_PROPERTY(bool isCloseable READ isCloseable WRITE setCloseable);
 public:
 	TabBarItem(QWidget *AParent);
-	~TabBarItem();
-	int state() const;
-	void setState(int AState);
-	bool active() const;
+	virtual ~TabBarItem();
+	bool isActive() const;
 	void setActive(bool AActive);
+	bool isDraging() const;
+	void setDraging(bool ADraging);
+	bool isCloseable() const;
+	void setCloseable(bool ACloseable);
 	QSize iconSize() const;
 	void setIconSize(const QSize &ASize);
 	QIcon icon() const;
@@ -32,26 +36,41 @@ public:
 	void setIconKey(const QString &AIconKey);
 	QString text() const;
 	void setText(const QString &AText);
-	bool isCloseable() const;
-	void setCloseable(bool ACloseable);
-	void setDragged(bool ADragged);
+	QString toolTip() const;
+	void setToolTip(const QString &AToolTip);
+	ITabPageNotify notify() const;
+	void setNotify(const ITabPageNotify &ANotify);
 signals:
 	void closeButtonClicked();
+protected:
+	void showIcon(const QIcon &AIcon);
+	void showIconKey(const QString &AIconKey);
+	void showText(const QString &AText);
+	void showToolTip(const QString &AToolTip);
+	void showStyleKey(const QString &AStyleKey);
 protected:
 	virtual void enterEvent(QEvent *AEvent);
 	virtual void leaveEvent(QEvent *AEvent);
 	virtual void paintEvent(QPaintEvent *AEvent);
 	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
+protected slots:
+	void onBlinkTimerTimeout();
 private:
-	QLabel *FIcon;
-	QLabel *FLabel;
-	CloseButton *FClose;
+	QLabel *FIconLabel;
+	QLabel *FTextLabel;
+	CloseButton *FCloseButton;
 private:
-	int FState;
 	bool FActive;
-	bool FDragged;
+	bool FDraging;
+	QIcon FIcon;
 	QSize FIconSize;
 	QString FIconKey;
+	QString FText;
+	QString FToolTip;
+private:
+	bool FIconHidden;
+	QTimer FBlinkTimer;
+	ITabPageNotify FNotify;
 };
 
 #endif // TABBARITEM_H

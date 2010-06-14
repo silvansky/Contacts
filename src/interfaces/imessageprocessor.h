@@ -12,11 +12,17 @@
 class IMessageHandler
 {
 public:
+	enum ShowMode {
+		SM_HIDE,
+		SM_SHOW,
+		SM_ADD_TAB
+	};
+public:
 	virtual bool checkMessage(int AOrder, const Message &AMessage) =0;
-	virtual void showMessage(int AMessageId) =0;
-	virtual void receiveMessage(int AMessageId) =0;
+	virtual bool showMessage(int AMessageId) =0;
+	virtual bool receiveMessage(int AMessageId) =0;
 	virtual INotification notification(INotifications *ANotifications, const Message &AMessage) =0;
-	virtual bool openWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType) =0;
+	virtual bool createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) =0;
 };
 
 class IMessageWriter
@@ -38,7 +44,7 @@ public:
 	virtual QList<int> messages(const Jid &AStreamJid, const Jid &AFromJid = Jid(), int AMesTypes = Message::AnyType) =0;
 	virtual void textToMessage(Message &AMessage, const QTextDocument *ADocument, const QString &ALang = "") const =0;
 	virtual void messageToText(QTextDocument *ADocument, const Message &AMessage, const QString &ALang = "") const =0;
-	virtual bool openWindow(const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType) const =0;
+	virtual bool createWindow(const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) const =0;
 	virtual void insertMessageHandler(IMessageHandler *AHandler, int AOrder) =0;
 	virtual void removeMessageHandler(IMessageHandler *AHandler, int AOrder) =0;
 	virtual void insertMessageWriter(IMessageWriter *AWriter, int AOrder) =0;

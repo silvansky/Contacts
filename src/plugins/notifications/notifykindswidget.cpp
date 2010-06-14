@@ -10,12 +10,14 @@ NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QStri
 
 	ui.chbRoster->setEnabled(AKindMask & INotification::RosterIcon);
 	ui.chbPopup->setEnabled(AKindMask & INotification::PopupWindow);
+	ui.chbChat->setEnabled(AKindMask & INotification::ChatWindow);
 	ui.chbTray->setEnabled(AKindMask & INotification::TrayIcon);
 	ui.chbSound->setEnabled(AKindMask & INotification::PlaySound);
 	ui.chbActivate->setEnabled(AKindMask & INotification::AutoActivate);
 
 	connect(ui.chbRoster,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.chbPopup,SIGNAL(stateChanged(int)),SIGNAL(modified()));
+	connect(ui.chbChat,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.chbTray,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.chbSound,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.chbActivate,SIGNAL(stateChanged(int)),SIGNAL(modified()));
@@ -35,6 +37,8 @@ void NotifyKindsWidget::apply()
 		kinds |= INotification::RosterIcon;
 	if (ui.chbPopup->isChecked())
 		kinds |= INotification::PopupWindow;
+	if (ui.chbChat->isChecked())
+		kinds |= INotification::ChatWindow;
 	if (ui.chbTray->isChecked())
 		kinds |= INotification::TrayIcon|INotification::TrayAction;
 	if (ui.chbSound->isChecked())
@@ -50,6 +54,7 @@ void NotifyKindsWidget::reset()
 	uchar kinds = FNotifications->notificatorKinds(FNotificatorId);
 	ui.chbRoster->setChecked(kinds & INotification::RosterIcon);
 	ui.chbPopup->setChecked(kinds & INotification::PopupWindow);
+	ui.chbChat->setChecked(kinds & INotification::ChatWindow);
 	ui.chbTray->setChecked(kinds & INotification::TrayIcon);
 	ui.chbSound->setChecked(kinds & INotification::PlaySound);
 	ui.chbActivate->setChecked(kinds & INotification::AutoActivate);

@@ -3,6 +3,7 @@
 
 #include <QTimer>
 #include <QSound>
+#include <QPointer>
 #include <definations/notificationdataroles.h>
 #include <definations/actiongroups.h>
 #include <definations/toolbargroups.h>
@@ -23,6 +24,8 @@
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/imainwindow.h>
+#include <interfaces/imessagewidgets.h>
+#include <interfaces/imessageprocessor.h>
 #include <utils/action.h>
 #include <utils/options.h>
 #include "notifywidget.h"
@@ -33,14 +36,17 @@ struct NotifyRecord {
 	NotifyRecord() {
 		trayId=0;
 		rosterId=0;
+		tabPageId=0;
 		widget=NULL;
 		action=NULL;
 	}
 	int trayId;
 	int rosterId;
+	int tabPageId;
 	Action *action;
 	NotifyWidget *widget;
 	INotification notification;
+	QPointer<QObject> tabPageNotifier;
 };
 
 struct Notificator {
@@ -117,6 +123,8 @@ private:
 	ITrayManager *FTrayManager;
 	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
+	IMessageWidgets *FMessageWidgets;
+	IMessageProcessor *FMessageProcessor;
 	IOptionsManager *FOptionsManager;
 	IMainWindowPlugin *FMainWindowPlugin;
 private:

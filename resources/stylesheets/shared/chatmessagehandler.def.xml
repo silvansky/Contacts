@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>chatmessagehandlerTabBarItemNewMessage</key>
+    <object mime='text/css'>chatmessagehandlertabbaritemnewmessage.qss</object>
+  </file>
+</styledef>

@@ -6,6 +6,7 @@ MessageWindow::MessageWindow(IMessageWidgets *AMessageWidgets, const Jid& AStrea
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_MESSAGEWINDOW);
 
 	FMessageWidgets = AMessageWidgets;
 
@@ -15,6 +16,8 @@ MessageWindow::MessageWindow(IMessageWidgets *AMessageWidgets, const Jid& AStrea
 	FStreamJid = AStreamJid;
 	FContactJid = AContactJid;
 	FCurrentThreadId = QUuid::createUuid().toString();
+
+	FTabPageNotifier = NULL;
 
 	FInfoWidget = FMessageWidgets->newInfoWidget(AStreamJid,AContactJid);
 	ui.wdtInfo->setLayout(new QVBoxLayout(ui.wdtInfo));
@@ -59,7 +62,9 @@ MessageWindow::MessageWindow(IMessageWidgets *AMessageWidgets, const Jid& AStrea
 
 MessageWindow::~MessageWindow()
 {
-	emit windowDestroyed();
+	emit tabPageDestroyed();
+	if (FTabPageNotifier)
+		delete FTabPageNotifier->instance();
 	delete FInfoWidget->instance();
 	delete FViewWidget->instance();
 	delete FEditWidget->instance();
@@ -68,12 +73,7 @@ MessageWindow::~MessageWindow()
 	delete FEditToolBarWidget->instance();
 }
 
-QString MessageWindow::tabPageId() const
-{
-	return "MessageWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
-}
-
-void MessageWindow::showWindow()
+void MessageWindow::showTabPage()
 {
 	if (isWindow())
 	{
@@ -81,15 +81,36 @@ void MessageWindow::showWindow()
 		WidgetManager::raiseWidget(this);
 	}
 	else
-		emit windowShow();
+		emit tabPageShow();
 }
 
-void MessageWindow::closeWindow()
+void MessageWindow::closeTabPage()
 {
 	if (isWindow())
 		close();
 	else
-		emit windowClose();
+		emit tabPageClose();
+}
+
+QString MessageWindow::tabPageId() const
+{
+	return "MessageWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
+}
+
+ITabPageNotifier *MessageWindow::tabPageNotifier() const
+{
+	return FTabPageNotifier;
+}
+
+void MessageWindow::setTabPageNotifier(ITabPageNotifier *ANotifier)
+{
+	if (FTabPageNotifier != ANotifier)
+	{
+		if (FTabPageNotifier)
+			delete FTabPageNotifier->instance();
+		FTabPageNotifier = ANotifier;
+		emit tabPageNotifierChanged();
+	}
 }
 
 void MessageWindow::setContactJid(const Jid &AContactJid)
@@ -212,7 +233,7 @@ void MessageWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, c
 	setWindowIcon(AIcon);
 	setWindowIconText(AIconText);
 	setWindowTitle(ATitle);
-	emit windowChanged();
+	emit tabPageChanged();
 }
 
 bool MessageWindow::event(QEvent *AEvent)

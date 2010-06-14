@@ -110,6 +110,19 @@ void TabBar::setTabToolTip(int AIndex, const QString &AToolTip)
 		item->setToolTip(AToolTip);
 }
 
+ITabPageNotify TabBar::tabNotify(int AIndex) const
+{
+	TabBarItem *item = FItems.value(AIndex);
+	return item!=NULL ? item->notify() : ITabPageNotify();
+}
+
+void TabBar::setTabNotify(int AIndex, const ITabPageNotify &ANotify)
+{
+	TabBarItem *item = FItems.value(AIndex);
+	if (item)
+		item->setNotify(ANotify);
+}
+
 bool TabBar::tabsClosable() const
 {
 	return FTabsCloseable;
@@ -131,11 +144,10 @@ int TabBar::tabAt(const QPoint &APosition) const
 	return index;
 }
 
-int TabBar::addTab(const QString &AText, const QString &AToolTip)
+int TabBar::addTab(const QString &AText)
 {
 	TabBarItem *item = new TabBarItem(this);
 	item->setText(AText);
-	item->setToolTip(AToolTip);
 	item->setCloseable(FTabsCloseable);
 	FItems.append(item);
 	layout()->addWidget(item);
@@ -219,9 +231,9 @@ void TabBar::mouseMoveEvent(QMouseEvent *AEvent)
 		drag->setHotSpot(FPressedPos - item->geometry().topLeft());
 		FDragCenterDistance = mapFromGlobal(QCursor::pos()) - item->geometry().center();
 
-		item->setDragged(true);
+		item->setDraging(true);
 		drag->exec(Qt::MoveAction);
-		item->setDragged(false);
+		item->setDraging(false);
 	}
 }
 
@@ -254,3 +266,4 @@ void TabBar::onCloseButtonClicked()
 	if (item)
 		emit tabCloseRequested(FItems.indexOf(item));
 }
+

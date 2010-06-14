@@ -3,6 +3,7 @@
 
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/stylesheets.h>
 #include <definations/actiongroups.h>
 #include <definations/optionvalues.h>
 #include <definations/messagedataroles.h>
@@ -10,6 +11,7 @@
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/istatuschanger.h>
 #include <utils/options.h>
+#include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
 #include "ui_chatwindow.h"
 
@@ -18,15 +20,17 @@ class ChatWindow :
 			public IChatWindow
 {
 	Q_OBJECT;
-	Q_INTERFACES(IChatWindow ITabWindowPage);
+	Q_INTERFACES(IChatWindow ITabPage);
 public:
 	ChatWindow(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid);
 	virtual ~ChatWindow();
 	virtual QMainWindow *instance() { return this; }
-	//ITabWindowPage
+	//ITabPage
+	virtual void showTabPage();
+	virtual void closeTabPage();
 	virtual QString tabPageId() const;
-	virtual void showWindow();
-	virtual void closeWindow();
+	virtual ITabPageNotifier *tabPageNotifier() const;
+	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier);
 	//IChatWindow
 	virtual const Jid &streamJid() const { return FStreamJid; }
 	virtual const Jid &contactJid() const { return FContactJid; }
@@ -41,11 +45,12 @@ public:
 	virtual bool isActive() const;
 	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle);
 signals:
-	//ITabWindowPage
-	void windowShow();
-	void windowClose();
-	void windowChanged();
-	void windowDestroyed();
+	//ITabPage
+	void tabPageShow();
+	void tabPageClose();
+	void tabPageChanged();
+	void tabPageDestroyed();
+	void tabPageNotifierChanged();
 	//IChatWindow
 	void messageReady();
 	void streamJidChanged(const Jid &ABefour);
@@ -80,6 +85,7 @@ private:
 	IMenuBarWidget *FMenuBarWidget;
 	IToolBarWidget *FToolBarWidget;
 	IStatusBarWidget *FStatusBarWidget;
+	ITabPageNotifier *FTabPageNotifier;
 private:
 	Jid FStreamJid;
 	Jid FContactJid;

@@ -21,6 +21,7 @@
 #include "menubarwidget.h"
 #include "toolbarwidget.h"
 #include "statusbarwidget.h"
+#include "tabpagenotifier.h"
 #include "messagewindow.h"
 #include "chatwindow.h"
 #include "tabwindow.h"
@@ -60,6 +61,7 @@ public:
 	virtual IMenuBarWidget *newMenuBarWidget(IInfoWidget *AInfo, IViewWidget *AView, IEditWidget *AEdit, IReceiversWidget *AReceivers);
 	virtual IToolBarWidget *newToolBarWidget(IInfoWidget *AInfo, IViewWidget *AView, IEditWidget *AEdit, IReceiversWidget *AReceivers);
 	virtual IStatusBarWidget *newStatusBarWidget(IInfoWidget *AInfo, IViewWidget *AView, IEditWidget *AEdit, IReceiversWidget *AReceivers);
+	virtual ITabPageNotifier *newTabPageNotifier(ITabPage *ATabPage);
 	virtual QList<IMessageWindow *> messageWindows() const;
 	virtual IMessageWindow *newMessageWindow(const Jid &AStreamJid, const Jid &AContactJid, IMessageWindow::Mode AMode);
 	virtual IMessageWindow *findMessageWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
@@ -72,9 +74,9 @@ public:
 	virtual QString tabWindowName(const QUuid &AWindowId) const;
 	virtual void setTabWindowName(const QUuid &AWindowId, const QString &AName);
 	virtual QList<ITabWindow *> tabWindows() const;
-	virtual ITabWindow *openTabWindow(const QUuid &AWindowId);
+	virtual ITabWindow *createTabWindow(const QUuid &AWindowId);
 	virtual ITabWindow *findTabWindow(const QUuid &AWindowId) const;
-	virtual void assignTabWindowPage(ITabWindowPage *APage);
+	virtual ITabWindow *assignTabWindowPage(ITabPage *APage);
 	virtual QList<IViewDropHandler *> viewDropHandlers() const;
 	virtual void insertViewDropHandler(IViewDropHandler *AHandler);
 	virtual void removeViewDropHandler(IViewDropHandler *AHandler);
@@ -90,6 +92,7 @@ signals:
 	void menuBarWidgetCreated(IMenuBarWidget *AMenuBarWidget);
 	void toolBarWidgetCreated(IToolBarWidget *AToolBarWidget);
 	void statusBarWidgetCreated(IStatusBarWidget *AStatusBarWidget);
+	void tabPageNotifierCreated(ITabPageNotifier *ANotifier);
 	void messageWindowCreated(IMessageWindow *AWindow);
 	void messageWindowDestroyed(IMessageWindow *AWindow);
 	void chatWindowCreated(IChatWindow *AWindow);
@@ -115,7 +118,7 @@ protected slots:
 	void onViewContextSearchActionTriggered(bool);
 	void onMessageWindowDestroyed();
 	void onChatWindowDestroyed();
-	void onTabWindowPageAdded(ITabWindowPage *APage);
+	void onTabPageAdded(ITabPage *APage);
 	void onTabWindowDestroyed();
 	void onStreamJidAboutToBeChanged(IXmppStream *AXmppStream, const Jid &AAfter);
 	void onStreamRemoved(IXmppStream *AXmppStream);

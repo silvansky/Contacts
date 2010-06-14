@@ -97,6 +97,16 @@ void TabWidget::setTabToolTip(int AIndex, const QString &AToolTip)
 	FTabBar->setTabToolTip(AIndex, AToolTip);
 }
 
+ITabPageNotify TabWidget::tabNotify(int AIndex) const
+{
+	return FTabBar->tabNotify(AIndex);
+}
+
+void TabWidget::setTabNotify(int AIndex, const ITabPageNotify &ANotify)
+{
+	FTabBar->setTabNotify(AIndex,ANotify);
+}
+
 bool TabWidget::tabsClosable() const
 {
 	return FTabBar->tabsClosable();
@@ -107,10 +117,10 @@ void TabWidget::setTabsClosable(bool ACloseable)
 	FTabBar->setTabsClosable(ACloseable);
 }
 
-int TabWidget::addTab(QWidget *AWidget, const QString &ALabel, const QString &AToolTip)
+int TabWidget::addTab(QWidget *AWidget, const QString &ALabel)
 {
 	FStack->addWidget(AWidget);
-	return FTabBar->addTab(ALabel,AToolTip);
+	return FTabBar->addTab(ALabel);
 }
 
 void TabWidget::removeTab(int AIndex)

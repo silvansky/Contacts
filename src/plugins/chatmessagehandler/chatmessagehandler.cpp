@@ -96,8 +96,8 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 		INotifications *notifications = qobject_cast<INotifications *>(plugin->instance());
 		if (notifications)
 		{
-			uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate;
-			uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
+			uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate;
+			uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
 			notifications->insertNotificator(CHAT_NOTIFICATOR_ID,tr("Chat Messages"),kindMask,kindDefs);
 		}
 	}
@@ -158,7 +158,7 @@ bool ChatMessageHandler::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJ
 		{
 			IChatWindow *window = getWindow(AStreamJid, AContactJid);
 			window->editWidget()->textEdit()->setPlainText(AParams.value("body"));
-			window->showWindow();
+			window->showTabPage();
 			return true;
 		}
 	}
@@ -172,7 +172,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		Jid contactJid = AIndex->data(RDR_JID).toString();
-		return openWindow(MHO_CHATMESSAGEHANDLER,streamJid,contactJid,Message::Chat);
+		return createWindow(MHO_CHATMESSAGEHANDLER,streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
 	}
 	return false;
 }
@@ -185,15 +185,13 @@ bool ChatMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 	return false;
 }
 
-void ChatMessageHandler::showMessage(int AMessageId)
+bool ChatMessageHandler::showMessage(int AMessageId)
 {
 	Message message = FMessageProcessor->messageById(AMessageId);
-	Jid streamJid = message.to();
-	Jid contactJid = message.from();
-	openWindow(MHO_CHATMESSAGEHANDLER,streamJid,contactJid,message.type());
+	return createWindow(MHO_CHATMESSAGEHANDLER,message.to(),message.from(),message.type(),IMessageHandler::SM_SHOW);
 }
 
-void ChatMessageHandler::receiveMessage(int AMessageId)
+bool ChatMessageHandler::receiveMessage(int AMessageId)
 {
 	Message message = FMessageProcessor->messageById(AMessageId);
 	IChatWindow *window = getWindow(message.to(),message.from());
@@ -204,35 +202,44 @@ void ChatMessageHandler::receiveMessage(int AMessageId)
 		{
 			FActiveMessages.insertMulti(window, AMessageId);
 			updateWindow(window);
+			return true;
 		}
 		else
+		{
 			FMessageProcessor->removeMessage(AMessageId);
+		}
 	}
+	return false;
 }
 
 INotification ChatMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
 {
+	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
 	IconStorage *storage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	QIcon icon =  storage->getIcon(MNI_CHAT_MHANDLER_MESSAGE);
 	QString name= ANotifications->contactName(AMessage.to(),AMessage.from());
 
 	INotification notify;
 	notify.kinds = ANotifications->notificatorKinds(CHAT_NOTIFICATOR_ID);
+	notify.data.insert(NDR_STREAM_JID,AMessage.to());
+	notify.data.insert(NDR_CONTACT_JID,AMessage.from());
 	notify.data.insert(NDR_ICON,icon);
-	notify.data.insert(NDR_TOOLTIP,tr("Message from %1").arg(name));
-	notify.data.insert(NDR_ROSTER_STREAM_JID,AMessage.to());
-	notify.data.insert(NDR_ROSTER_CONTACT_JID,AMessage.from());
+	notify.data.insert(NDR_ICONKEY, MNI_CHAT_MHANDLER_MESSAGE);
 	notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_MESSAGE);
-	notify.data.insert(NDR_WINDOW_IMAGE,ANotifications->contactAvatar(AMessage.from()));
-	notify.data.insert(NDR_WINDOW_CAPTION, tr("Message received"));
-	notify.data.insert(NDR_WINDOW_TITLE,name);
-	notify.data.insert(NDR_WINDOW_TEXT,AMessage.body());
+	notify.data.insert(NDR_ROSTER_TOOLTIP,tr("Message from %1").arg(name));
+	notify.data.insert(NDR_TABPAGENOTIFY_PRIORITY, TPNP_NEW_MESSAGE);
+	notify.data.insert(NDR_TABPAGENOTIFY_ICONBLINK,true);
+	notify.data.insert(NDR_TABPAGENOTIFY_TOOLTIP, window!=NULL ? tr("%n message(s)","",FActiveMessages.values(window).count()) : QString());
+	notify.data.insert(NDR_TABPAGENOTIFY_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
+	notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
+	notify.data.insert(NDR_POPUP_CAPTION,tr("Message received"));
+	notify.data.insert(NDR_POPUP_TITLE,name);
+	notify.data.insert(NDR_POPUP_TEXT,AMessage.body());
 	notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
-
 	return notify;
 }
 
-bool ChatMessageHandler::openWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType)
+bool ChatMessageHandler::createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
 {
 	Q_UNUSED(AOrder);
 	if (AType == Message::Chat)
@@ -240,7 +247,10 @@ bool ChatMessageHandler::openWindow(int AOrder, const Jid &AStreamJid, const Jid
 		IChatWindow *window = getWindow(AStreamJid,AContactJid);
 		if (window)
 		{
-			window->showWindow();
+			if (AShowMode==IMessageHandler::SM_SHOW)
+				window->showTabPage();
+			else if (!window->instance()->isVisible() && AShowMode==IMessageHandler::SM_ADD_TAB)
+				FMessageWidgets->assignTabWindowPage(window);
 			return true;
 		}
 	}
@@ -256,12 +266,13 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 		if (window)
 		{
 			window->infoWidget()->autoUpdateFields();
+			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 			connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 			connect(window->infoWidget()->instance(),SIGNAL(fieldChanged(IInfoWidget::InfoField, const QVariant &)),
-			        SLOT(onInfoFieldChanged(IInfoWidget::InfoField, const QVariant &)));
+				SLOT(onInfoFieldChanged(IInfoWidget::InfoField, const QVariant &)));
 			connect(window->instance(),SIGNAL(windowActivated()),SLOT(onWindowActivated()));
 			connect(window->instance(),SIGNAL(windowClosed()),SLOT(onWindowClosed()));
-			connect(window->instance(),SIGNAL(windowDestroyed()),SLOT(onWindowDestroyed()));
+			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
 
 			FWindows.append(window);
 			FWindowStatus[window->viewWidget()].createTime = QDateTime::currentDateTime();
@@ -282,7 +293,9 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 			showHistory(window);
 		}
 		else
+		{
 			window = findWindow(AStreamJid,AContactJid);
+		}
 	}
 	return window;
 }
@@ -545,7 +558,7 @@ void ChatMessageHandler::onShowWindowAction(bool)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-		openWindow(MHO_CHATMESSAGEHANDLER,streamJid,contactJid,Message::Chat);
+		createWindow(MHO_CHATMESSAGEHANDLER,streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
 	}
 }
 

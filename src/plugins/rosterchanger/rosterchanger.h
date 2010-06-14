@@ -14,8 +14,10 @@
 #include <definations/optionwidgetorders.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/stylesheets.h>
 #include <definations/soundfiles.h>
 #include <definations/xmppurihandlerorders.h>
+#include <definations/tabpagenotifypriorities.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irostersmodel.h>

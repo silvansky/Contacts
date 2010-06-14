@@ -9,6 +9,7 @@ StateWidget::StateWidget(IChatStates *AChatStates, IChatWindow *AWindow, QWidget
 	FWindow = AWindow;
 	FChatStates = AChatStates;
 
+	FTabNotifyId = -1;
 	FMenu = new Menu(this);
 
 	Action *action = new Action(FMenu);
@@ -36,9 +37,9 @@ StateWidget::StateWidget(IChatStates *AChatStates, IChatWindow *AWindow, QWidget
 	setToolTip(tr("User chat status"));
 
 	connect(FChatStates->instance(),SIGNAL(permitStatusChanged(const Jid &, int)),
-	        SLOT(onPermitStatusChanged(const Jid &, int)));
+		SLOT(onPermitStatusChanged(const Jid &, int)));
 	connect(FChatStates->instance(),SIGNAL(userChatStateChanged(const Jid &, const Jid &, int)),
-	        SLOT(onUserChatStateChanged(const Jid &, const Jid &, int)));
+		SLOT(onUserChatStateChanged(const Jid &, const Jid &, int)));
 
 	onPermitStatusChanged(FWindow->contactJid(),FChatStates->permitStatus(FWindow->contactJid()));
 	onUserChatStateChanged(FWindow->streamJid(),FWindow->contactJid(),FChatStates->userChatState(FWindow->streamJid(),FWindow->contactJid()));
@@ -108,5 +109,22 @@ void StateWidget::onUserChatStateChanged(const Jid &AStreamJid, const Jid &ACont
 
 		setText(state);
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,iconKey);
+
+		if (FWindow->tabPageNotifier()!=NULL)
+		{
+			if (AState==IChatStates::StateComposing && FTabNotifyId<0)
+			{
+				ITabPageNotify notify;
+				notify.priority = TPNP_CHATSTATE_TYPING;
+				notify.iconKey = MNI_CHATSTATES_COMPOSING;
+				notify.toolTip = tr("Typing...");
+				FTabNotifyId = FWindow->tabPageNotifier()->insertNotify(notify);
+			}
+			else if (AState!=IChatStates::StateComposing && FTabNotifyId>0)
+			{
+				FWindow->tabPageNotifier()->removeNotify(FTabNotifyId);
+				FTabNotifyId = -1;
+			}
+		}
 	}
 }

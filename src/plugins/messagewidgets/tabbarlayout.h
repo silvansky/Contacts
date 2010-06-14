@@ -10,7 +10,7 @@ class TabBarLayout :
 	Q_OBJECT;
 public:
 	TabBarLayout(QWidget *AParent = NULL);
-	~TabBarLayout();
+	virtual ~TabBarLayout();
 	// TabBarLayout
 	int minimumItemWidth() const;
 	int maximumItemWidth() const;

@@ -155,8 +155,8 @@ bool RosterChanger::initObjects()
 {
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterIcon|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound|INotification::AutoActivate;
-		uchar kindDefs = INotification::RosterIcon|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound;
+		uchar kindMask = INotification::RosterIcon|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound|INotification::AutoActivate;
+		uchar kindDefs = INotification::RosterIcon|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound;
 		FNotifications->insertNotificator(NOTIFICATOR_ID,tr("Subscription requests"),kindMask,kindDefs);
 	}
 	if (FRostersView)
@@ -959,18 +959,38 @@ void RosterChanger::onSendSubscription(bool)
 void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJid, int ASubsType, const QString &AText)
 {
 	INotification notify;
+	IChatWindow *chatWindow = NULL;
+	QString notifyMessage = subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType);
+
+	if (FMessageWidgets)
+	{
+		foreach(IChatWindow *window, FMessageWidgets->chatWindows())
+		{
+			if (window->streamJid()==ARoster->streamJid() && window->contactJid().pBare()==AContactJid.pBare())
+			{
+				chatWindow = window;
+				break;
+			}
+		}
+	}
+
 	if (FNotifications)
 	{
 		notify.kinds = INotification::PopupWindow|INotification::PlaySound;
+		notify.data.insert(NDR_STREAM_JID,ARoster->streamJid().full());
+		notify.data.insert(NDR_CONTACT_JID,chatWindow!=NULL ? chatWindow->contactJid().full() : AContactJid.full());
 		notify.data.insert(NDR_ICON,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCRIBTION));
-		notify.data.insert(NDR_TOOLTIP,tr("Subscription message from %1").arg(FNotifications->contactName(ARoster->streamJid(),AContactJid)));
-		notify.data.insert(NDR_ROSTER_STREAM_JID,ARoster->streamJid().full());
-		notify.data.insert(NDR_ROSTER_CONTACT_JID,AContactJid.full());
+		notify.data.insert(NDR_ICONKEY,MNI_RCHANGER_SUBSCRIBTION);
 		notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_SUBSCRIBTION);
-		notify.data.insert(NDR_WINDOW_CAPTION, tr("Subscription message"));
-		notify.data.insert(NDR_WINDOW_TITLE,FNotifications->contactName(ARoster->streamJid(),AContactJid));
-		notify.data.insert(NDR_WINDOW_IMAGE, FNotifications->contactAvatar(AContactJid));
-		notify.data.insert(NDR_WINDOW_TEXT,subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType));
+		notify.data.insert(NDR_ROSTER_TOOLTIP,tr("Subscription message from %1").arg(FNotifications->contactName(ARoster->streamJid(),AContactJid)));
+		notify.data.insert(NDR_TABPAGENOTIFY_PRIORITY,TPNP_SUBSCRIPTION);
+		notify.data.insert(NDR_TABPAGENOTIFY_ICONBLINK,true);
+		notify.data.insert(NDR_TABPAGENOTIFY_TOOLTIP,notifyMessage);
+		notify.data.insert(NDR_TABPAGENOTIFY_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
+		notify.data.insert(NDR_POPUP_CAPTION, tr("Subscription message"));
+		notify.data.insert(NDR_POPUP_TITLE,FNotifications->contactName(ARoster->streamJid(),AContactJid));
+		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AContactJid));
+		notify.data.insert(NDR_POPUP_TEXT,notifyMessage);
 		notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
 		notify.data.insert(NDR_SUBSCRIPTION_TEXT,AText);
 	}
@@ -1035,30 +1055,20 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 	}
 
 	int noticeId = -1;
-	if (FMessageWidgets && showNotice)
+	if (showNotice)
 	{
-		IChatWindow *chatWindow = NULL;
-		foreach(IChatWindow *window, FMessageWidgets->chatWindows())
-		{
-			if (window->streamJid()==ARoster->streamJid() && window->contactJid().pBare()==AContactJid.pBare())
-			{
-				chatWindow = window;
-				break;
-			}
-		}
-
 		if (chatWindow)
 		{
 			if (noticeActions != NA_NO_ACTIONS)
 			{
 				foreach(int noticeId, FNoticeWindow.keys(chatWindow))
 					chatWindow->noticeWidget()->removeNotice(noticeId);
-				noticeId = insertNotice(chatWindow,createNotice(NTP_SUBSCRIPTION,noticeActions,subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType),AText));
+				noticeId = insertNotice(chatWindow,createNotice(NTP_SUBSCRIPTION,noticeActions,notifyMessage,AText));
 			}
 			else
 			{
 				noticeId = qrand()+1;
-				showNotifyInChatWindow(chatWindow,subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType),AText);
+				showNotifyInChatWindow(chatWindow,notifyMessage,AText);
 				FNoticeWindow.insert(noticeId,chatWindow);
 			}
 		}
@@ -1068,7 +1078,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 			pnotice.notifyId = notifyId;
 			pnotice.priority = NTP_SUBSCRIPTION;
 			pnotice.actions = noticeActions;
-			pnotice.notify = subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType);
+			pnotice.notify = notifyMessage;
 			pnotice.text = AText;
 			FPendingNotice[ARoster->streamJid()].insert(AContactJid.bare(),pnotice);
 		}
@@ -1434,17 +1444,17 @@ void RosterChanger::onNotificationActivated(int ANotifyId)
 	if (FNotifyNotice.contains(ANotifyId))
 	{
 		INotification notify = FNotifications->notificationById(ANotifyId);
-		Jid streamJid = notify.data.value(NDR_ROSTER_STREAM_JID).toString();
-		Jid contactJid = notify.data.value(NDR_ROSTER_CONTACT_JID).toString();
+		Jid streamJid = notify.data.value(NDR_STREAM_JID).toString();
+		Jid contactJid = notify.data.value(NDR_CONTACT_JID).toString();
 
 		IChatWindow *window = FNoticeWindow.value(FNotifyNotice.value(ANotifyId));
 		if (window)
 		{
-			window->showWindow();
+			window->showTabPage();
 		}
-		else if (FMessageProcessor==NULL || !FMessageProcessor->openWindow(streamJid,contactJid,Message::Chat))
+		else if (FMessageProcessor==NULL || !FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW))
 		{
-			SubscriptionDialog *dialog = createSubscriptionDialog(streamJid,contactJid,notify.data.value(NDR_WINDOW_TEXT).toString(),notify.data.value(NDR_SUBSCRIPTION_TEXT).toString());
+			SubscriptionDialog *dialog = createSubscriptionDialog(streamJid,contactJid,notify.data.value(NDR_POPUP_TEXT).toString(),notify.data.value(NDR_SUBSCRIPTION_TEXT).toString());
 			if (dialog)
 				dialog->instance()->show();
 		}

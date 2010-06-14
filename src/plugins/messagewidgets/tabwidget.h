@@ -10,7 +10,7 @@ class TabWidget :
 	Q_OBJECT;
 public:
 	TabWidget(QWidget *AParent = NULL);
-	~TabWidget();
+	virtual ~TabWidget();
 	int count() const;
 	int currentIndex() const;
 	void setCurrentIndex(int AIndex);
@@ -26,9 +26,11 @@ public:
 	void setTabText(int AIndex, const QString &AText);
 	QString tabToolTip(int AIndex) const;
 	void setTabToolTip(int AIndex, const QString &AToolTip);
+	ITabPageNotify tabNotify(int AIndex) const;
+	void setTabNotify(int AIndex, const ITabPageNotify &ANotify);
 	bool tabsClosable() const;
 	void setTabsClosable(bool ACloseable);
-	int addTab(QWidget *AWidget, const QString &ALabel, const QString &AToolTip = QString::null);
+	int addTab(QWidget *AWidget, const QString &ALabel);
 	void removeTab(int AIndex);
 signals:
 	void currentChanged(int AIndex);

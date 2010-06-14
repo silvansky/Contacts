@@ -1,0 +1,21 @@
+/* TabWindow */
+
+TabBarItem
+{
+	border: 1px solid palette(mid);
+}
+
+TabBarItem[isActive="true"]
+{
+	background-color: palette(base);
+}
+
+TabBarItem[isActive="false"]:!hover
+{
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 palette(dark), stop:1 palette(window));
+}
+
+TabBarItem[isActive="false"]:hover
+{
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 palette(dark), stop:1 palette(base));
+}

@@ -159,10 +159,9 @@ protected:
 };
 
 class IMultiUserChatWindow :
-			public ITabWindowPage
+			public ITabPage
 {
 public:
-	//virtual QMainWindow *instance() =0;
 	virtual Jid streamJid() const =0;
 	virtual Jid roomJid() const =0;
 	virtual bool isActive() const =0;
