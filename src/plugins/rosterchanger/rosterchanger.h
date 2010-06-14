@@ -49,7 +49,9 @@ struct AutoSubscription {
 struct PendingNotice
 {
 	PendingNotice() { 
-		priority=-1; 
+		notifyId=-1;
+		priority=-1;
+		actions=0;
 	}
 	int notifyId;
 	int priority;

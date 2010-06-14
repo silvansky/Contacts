@@ -1075,8 +1075,8 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 		else
 		{
 			PendingNotice pnotice;
-			pnotice.notifyId = notifyId;
 			pnotice.priority = NTP_SUBSCRIPTION;
+			pnotice.notifyId = notifyId;
 			pnotice.actions = noticeActions;
 			pnotice.notify = notifyMessage;
 			pnotice.text = AText;

@@ -43,6 +43,7 @@ int TabPageNotifier::insertNotify(const ITabPageNotify &ANotify)
 		while (notifyId<=0 || FNotifies.contains(notifyId))
 			notifyId = qrand();
 		FNotifies.insert(notifyId,ANotify);
+		FNotifyIdByPriority.insertMulti(ANotify.priority, notifyId);
 		FUpdateTimer.start();
 		emit notifyInserted(notifyId);
 		return notifyId;
@@ -54,7 +55,8 @@ void TabPageNotifier::removeNotify(int ANotifyId)
 {
 	if (FNotifies.contains(ANotifyId))
 	{
-		FNotifies.remove(ANotifyId);
+		ITabPageNotify notify = FNotifies.take(ANotifyId);
+		FNotifyIdByPriority.remove(notify.priority, ANotifyId);
 		FUpdateTimer.start();
 		emit notifyRemoved(ANotifyId);
 	}
@@ -62,17 +64,7 @@ void TabPageNotifier::removeNotify(int ANotifyId)
 
 void TabPageNotifier::onUpdateTimerTimeout()
 {
-	int priority = -1;
-	int notifyId = -1;
-	for (QMap<int, ITabPageNotify>::const_iterator it = FNotifies.constBegin(); it!=FNotifies.constEnd(); it++)
-	{
-		if (it.value().priority > priority)
-		{
-			notifyId = it.key();
-			priority = it.value().priority;
-		}
-	}
-
+	int notifyId = !FNotifyIdByPriority.isEmpty() ? FNotifyIdByPriority.value(FNotifyIdByPriority.keys().last()) : -1;
 	if (notifyId != FActiveNotify)
 	{
 		FActiveNotify = notifyId;

@@ -1,6 +1,7 @@
 #ifndef TABPAGENOTIFIER_H
 #define TABPAGENOTIFIER_H
 
+#include <QMultiMap>
 #include <interfaces/imessagewidgets.h>
 
 class TabPageNotifier : 
@@ -31,6 +32,7 @@ private:
 	int FActiveNotify;
 	QTimer FUpdateTimer;
 	QMap<int, ITabPageNotify> FNotifies;
+	QMultiMap<int, int> FNotifyIdByPriority;
 };
 
 #endif // TABPAGENOTIFIER_H
