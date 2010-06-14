@@ -58,6 +58,10 @@
         <source>Activate</source>
         <translation>Открыть</translation>
     </message>
+    <message>
+        <source>Chat</source>
+        <translation>Чат</translation>
+    </message>
 </context>
 <context>
     <name>NotifyWidget</name>
@@ -99,6 +103,10 @@
     <message>
         <source>Disable sounds when status is &apos;Do not disturb&apos;</source>
         <translation>Отключать звуки, когда установлен статус &apos;Не беспокоить&apos;</translation>
+    </message>
+    <message>
+        <source>Chat</source>
+        <translation>Чат</translation>
     </message>
 </context>
 </TS>

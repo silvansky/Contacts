@@ -70,5 +70,9 @@
         <source>Gone %1</source>
         <translation>Ушел %1</translation>
     </message>
+    <message>
+        <source>Typing...</source>
+        <translation>Печатает...</translation>
+    </message>
 </context>
 </TS>

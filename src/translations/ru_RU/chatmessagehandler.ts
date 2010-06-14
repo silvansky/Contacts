@@ -115,5 +115,13 @@
         <source>%1, %2 dd, yyyy</source>
         <translation>%1, dd %2, yyyy</translation>
     </message>
+    <message numerus="yes">
+        <source>%n message(s)</source>
+        <translation>
+            <numerusform>%n сообщение</numerusform>
+            <numerusform>%n сообщения</numerusform>
+            <numerusform>%n сообщений</numerusform>
+        </translation>
+    </message>
 </context>
 </TS>
