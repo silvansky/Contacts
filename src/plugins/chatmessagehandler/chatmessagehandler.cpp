@@ -262,39 +262,54 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 	IChatWindow *window = NULL;
 	if (AStreamJid.isValid() && AContactJid.isValid())
 	{
-		window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
-		if (window)
+		if (AContactJid.resource().isEmpty())
 		{
-			window->infoWidget()->autoUpdateFields();
-			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
-			connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
-			connect(window->infoWidget()->instance(),SIGNAL(fieldChanged(IInfoWidget::InfoField, const QVariant &)),
-				SLOT(onInfoFieldChanged(IInfoWidget::InfoField, const QVariant &)));
-			connect(window->instance(),SIGNAL(windowActivated()),SLOT(onWindowActivated()));
-			connect(window->instance(),SIGNAL(windowClosed()),SLOT(onWindowClosed()));
-			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
-
-			FWindows.append(window);
-			FWindowStatus[window->viewWidget()].createTime = QDateTime::currentDateTime();
-			updateWindow(window);
-
-			if (FRostersView && FRostersModel)
+			foreach(IChatWindow *chatWindow, FWindows)
 			{
-				UserContextMenu *menu = new UserContextMenu(FRostersModel,FRostersView,window);
-				if (FAvatars)
-					FAvatars->insertAutoAvatar(menu->menuAction(),AContactJid,QSize(48,48));
-				else
-					menu->menuAction()->setIcon(RSR_STORAGE_MENUICONS, MNI_CHAT_MHANDLER_USER_MENU);
-				QToolButton *button = window->toolBarWidget()->toolBarChanger()->insertAction(menu->menuAction(),TBG_CWTBW_USER_TOOLS);
-				button->setPopupMode(QToolButton::InstantPopup);
-				button->setFixedSize(QSize(48,48));
+				if (chatWindow->streamJid()==AStreamJid && chatWindow->contactJid().pBare()==AContactJid.pBare())
+				{
+					window = chatWindow;
+					break;
+				}
 			}
-			setMessageStyle(window);
-			showHistory(window);
 		}
-		else
+		if (window == NULL)
 		{
 			window = findWindow(AStreamJid,AContactJid);
+		}
+		if (window == NULL)
+		{
+			window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
+			if (window)
+			{
+				window->infoWidget()->autoUpdateFields();
+				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
+				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
+				connect(window->infoWidget()->instance(),SIGNAL(fieldChanged(IInfoWidget::InfoField, const QVariant &)),
+					SLOT(onInfoFieldChanged(IInfoWidget::InfoField, const QVariant &)));
+				connect(window->instance(),SIGNAL(windowActivated()),SLOT(onWindowActivated()));
+				connect(window->instance(),SIGNAL(windowClosed()),SLOT(onWindowClosed()));
+				connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
+
+				FWindows.append(window);
+				FWindowStatus[window->viewWidget()].createTime = QDateTime::currentDateTime();
+				updateWindow(window);
+
+				if (FRostersView && FRostersModel)
+				{
+					UserContextMenu *menu = new UserContextMenu(FRostersModel,FRostersView,window);
+					if (FAvatars)
+						FAvatars->insertAutoAvatar(menu->menuAction(),AContactJid,QSize(48,48));
+					else
+						menu->menuAction()->setIcon(RSR_STORAGE_MENUICONS, MNI_CHAT_MHANDLER_USER_MENU);
+					QToolButton *button = window->toolBarWidget()->toolBarChanger()->insertAction(menu->menuAction(),TBG_CWTBW_USER_TOOLS);
+					button->setPopupMode(QToolButton::InstantPopup);
+					button->setFixedSize(QSize(48,48));
+				}
+
+				setMessageStyle(window);
+				showHistory(window);
+			}
 		}
 	}
 	return window;
@@ -591,11 +606,11 @@ void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenc
 	IChatWindow *window = findWindow(streamJid,contactJid);
 	if (!window && !contactJid.resource().isEmpty())
 	{
-		window = findWindow(streamJid,contactJid.bare());
-		if (window)
-			window->setContactJid(contactJid);
+		IChatWindow *bareWindow = findWindow(streamJid,contactJid.bare());
+		if (bareWindow)
+			bareWindow->setContactJid(contactJid);
 	}
-	else if (window && !contactJid.resource().isEmpty())
+	if (window && !contactJid.resource().isEmpty())
 	{
 		IChatWindow *bareWindow = findWindow(streamJid,contactJid.bare());
 		if (bareWindow)
