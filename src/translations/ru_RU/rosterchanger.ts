@@ -246,22 +246,6 @@
         <translation>Добавить группу</translation>
     </message>
     <message>
-        <source>%1 wants to subscribe to your presence</source>
-        <translation>%1 хочет подписаться на получение вашего статуса</translation>
-    </message>
-    <message>
-        <source>You are now subscribed for %1 presence</source>
-        <translation>Вы подписаны на получение статуса от %1</translation>
-    </message>
-    <message>
-        <source>%1 unsubscribed from your presence</source>
-        <translation>%1 отписался от получения вашего статуса</translation>
-    </message>
-    <message>
-        <source>You are now unsubscribed from %1 presence</source>
-        <translation>Вы не подписаны на получение статуса от %1</translation>
-    </message>
-    <message>
         <source>Add Contact</source>
         <translation>Добавить контакт</translation>
     </message>
@@ -290,12 +274,28 @@
         <translation>Введите имя контакта</translation>
     </message>
     <message>
-        <source>This contact is not added to your roster</source>
-        <translation>Этот контакт не добавлен в ваш ростер</translation>
+        <source>%1 requests authorization (permission to see your status and mood).</source>
+        <translation>%1 запрашивает авторизацию (разрешение видеть ваш статус и настроение).</translation>
     </message>
     <message>
-        <source>Request authorization from contact to see his status</source>
-        <translation>Запросите авторизацию у контакта, чтобы видеть его статус</translation>
+        <source>%1 refused authorization to see your status and mood.</source>
+        <translation>%1 отказался от авторизации на просмотр вашего статуса и настроения.</translation>
+    </message>
+    <message>
+        <source>%1 removed your authorization to view its status and mood.</source>
+        <translation>%1 удалит вашу авторизацию на просмотр его статуса и настроения.</translation>
+    </message>
+    <message>
+        <source>This contact is not added to your roster.</source>
+        <translation>Этот контакт не добавлен в ваш список контактов.</translation>
+    </message>
+    <message>
+        <source>Request authorization from contact to see his status and mood.</source>
+        <translation>Запросите авторизацию у контакта, чтобы видеть его статус и настроение.</translation>
+    </message>
+    <message>
+        <source>%1 authorized you to see its status and mood.</source>
+        <translation>%1 авторизовал вас на просмотр его статуса и настроения.</translation>
     </message>
 </context>
 <context>

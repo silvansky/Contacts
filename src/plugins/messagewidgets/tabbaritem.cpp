@@ -19,7 +19,9 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	layout()->addWidget(FCloseButton = new CloseButton(this));
 
 	FIconLabel->installEventFilter(this);
+	FIconLabel->setTextInteractionFlags(Qt::NoTextInteraction);
 	FTextLabel->installEventFilter(this);
+	FTextLabel->setTextInteractionFlags(Qt::NoTextInteraction);
 	FCloseButton->installEventFilter(this);
 
 	FIconLabel->setFixedSize(FIconSize);
@@ -189,7 +191,7 @@ void TabBarItem::showIconKey(const QString &AIconKey)
 
 void TabBarItem::showText(const QString &AText)
 {
-	FTextLabel->setText(AText);
+	FTextLabel->setText(Qt::escape(AText));
 }
 
 void TabBarItem::showToolTip(const QString &AToolTip)

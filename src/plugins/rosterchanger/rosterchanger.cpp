@@ -507,18 +507,18 @@ QString RosterChanger::subscriptionNotify(const Jid &AStreamJid, const Jid &ACon
 {
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	IRosterItem ritem = roster!=NULL ? roster->rosterItem(AContactJid) : IRosterItem();
-	QString name = ritem.isValid && !ritem.name.isEmpty() ? ritem.name : AContactJid.bare();
+	QString name = Qt::escape(ritem.isValid && !ritem.name.isEmpty() ? ritem.name : AContactJid.bare());
 
 	switch (ASubsType)
 	{
 	case IRoster::Subscribe:
-		return tr("%1 wants to subscribe to your presence").arg(name);
+		return tr("%1 requests authorization (permission to see your status and mood).").arg(name);
 	case IRoster::Subscribed:
-		return tr("You are now subscribed for %1 presence").arg(name);
+		return tr("%1 authorized you to see its status and mood.").arg(name);
 	case IRoster::Unsubscribe:
-		return tr("%1 unsubscribed from your presence").arg(name);
+		return tr("%1 refused authorization to see your status and mood.").arg(name);
 	case IRoster::Unsubscribed:
-		return tr("You are now unsubscribed from %1 presence").arg(name);
+		return tr("%1 removed your authorization to view its status and mood.").arg(name);
 	}
 
 	return QString::null;
@@ -1491,11 +1491,11 @@ void RosterChanger::onChatWindowCreated(IChatWindow *AWindow)
 	IRosterItem ritem = roster!=NULL ? roster->rosterItem(AWindow->contactJid()) : IRosterItem();
 	if (roster && !ritem.isValid && AWindow->streamJid().pBare()!=AWindow->contactJid().pBare())
 	{
-		insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ADD_CONTACT|NA_CLOSE,tr("This contact is not added to your roster"),QString::null));
+		insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ADD_CONTACT|NA_CLOSE,tr("This contact is not added to your roster."),QString::null));
 	}
 	else if (roster && ritem.isValid && ritem.ask!=SUBSCRIPTION_SUBSCRIBE && ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO)
 	{
-		insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ASK_SUBSCRIBE|NA_CLOSE,tr("Request authorization from contact to see his status"),QString::null));
+		insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ASK_SUBSCRIBE|NA_CLOSE,tr("Request authorization from contact to see his status and mood."),QString::null));
 	}
 
 	if (FPendingChatWindows.isEmpty())
