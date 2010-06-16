@@ -109,6 +109,8 @@ void IconStorage::removeAutoIcon(QObject *AObject)
 {
 	if (FUpdateParams.contains(AObject))
 	{
+		IconUpdateParams *params = FUpdateParams.value(AObject);
+		AObject->setProperty(params->prop.toLatin1(),QVariant());
 		removeObject(AObject);
 		disconnect(AObject,SIGNAL(destroyed(QObject *)),this,SLOT(onObjectDestroyed(QObject *)));
 	}
