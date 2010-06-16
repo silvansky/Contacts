@@ -51,13 +51,13 @@ protected slots:
 	void onAnimateTimer();
 	void onObjectDestroyed(QObject *AObject);
 private:
-	QHash<QTimer*, QObject*> FTimerObject;
-	QHash<QObject*, IconUpdateParams*> FUpdateParams;
+	QHash<QTimer *, QObject *> FTimerObject;
+	QHash<QObject *, IconUpdateParams *> FUpdateParams;
 private:
-	static QHash<QString, QHash<QString,QIcon> > FIconCache;
-	static QHash<QString, QHash<QString,QImage> > FImageCache;
-	static QHash<QString, IconStorage*> FStaticStorages;
-	static QHash<QObject*, IconStorage*> FObjectStorage;
+	static QHash<QString, QHash<QString, QIcon> > FIconCache;
+	static QHash<QString, QHash<QString, QImage> > FImageCache;
+	static QHash<QString, IconStorage *> FStaticStorages;
+	static QHash<QObject *, IconStorage *> FObjectStorage;
 };
 
 #endif // ICONSTORAGE_H

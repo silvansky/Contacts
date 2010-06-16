@@ -5,10 +5,10 @@
 #include <QVariant>
 #include <QApplication>
 
-QHash<QString, QHash<QString,QIcon> > IconStorage::FIconCache;
-QHash<QString, QHash<QString,QImage> > IconStorage::FImageCache;
-QHash<QString, IconStorage*> IconStorage::FStaticStorages;
-QHash<QObject*, IconStorage*> IconStorage::FObjectStorage;
+QHash<QString, QHash<QString, QIcon> > IconStorage::FIconCache;
+QHash<QString, QHash<QString, QImage> > IconStorage::FImageCache;
+QHash<QString, IconStorage *> IconStorage::FStaticStorages;
+QHash<QObject *, IconStorage *> IconStorage::FObjectStorage;
 
 IconStorage::IconStorage(const QString &AStorage, const QString &ASubStorage, QObject *AParent) : FileStorage(AStorage,ASubStorage,AParent)
 {
@@ -17,8 +17,7 @@ IconStorage::IconStorage(const QString &AStorage, const QString &ASubStorage, QO
 
 IconStorage::~IconStorage()
 {
-	QList<QObject*> objects = FUpdateParams.keys();
-	foreach(QObject *object, objects) {
+	foreach(QObject *object, FUpdateParams.keys()) {
 		removeObject(object); }
 }
 
@@ -218,7 +217,7 @@ void IconStorage::removeObject(QObject *AObject)
 void IconStorage::onStorageChanged()
 {
 	FTimerObject.clear();
-	for (QHash<QObject*,IconUpdateParams*>::iterator it=FUpdateParams.begin(); it!=FUpdateParams.end(); it++)
+	for (QHash<QObject *,IconUpdateParams *>::iterator it=FUpdateParams.begin(); it!=FUpdateParams.end(); it++)
 	{
 		initAnimation(it.key(),it.value());
 		updateObject(it.key());
@@ -241,4 +240,3 @@ void IconStorage::onObjectDestroyed(QObject *AObject)
 {
 	removeObject(AObject);
 }
-

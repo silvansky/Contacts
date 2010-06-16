@@ -11,15 +11,17 @@
 #define IMAGES_FOLDER_PATH     "%IMAGES_PATH%"
 
 QHash<QString, StyleStorage *> StyleStorage::FStaticStorages;
+QHash<QObject *, StyleStorage *> StyleStorage::FObjectStorage;
 
 StyleStorage::StyleStorage(const QString &AStorage, const QString &ASubStorage, QObject *AParent) : FileStorage(AStorage,ASubStorage,AParent)
 {
-
+	connect(this,SIGNAL(storageChanged()),SLOT(onStorageChanged()));
 }
 
 StyleStorage::~StyleStorage()
 {
-
+	foreach(QObject *object, FUpdateParams.keys()) {
+		removeObject(object); }
 }
 
 QString StyleStorage::getStyle(const QString &AKey, int AIndex) const
@@ -38,19 +40,54 @@ QString StyleStorage::getStyle(const QString &AKey, int AIndex) const
 
 void StyleStorage::insertAutoStyle(QObject *AObject, const QString &AKey, int AIndex)
 {
-	if (AObject)
+	StyleStorage *oldStorage = FObjectStorage.value(AObject);
+	if (oldStorage!=NULL && oldStorage!=this)
+		oldStorage->removeAutoStyle(AObject);
+
+	if (AObject && !AKey.isEmpty())
 	{
-		QString style = getStyle(AKey,AIndex);
-		AObject->setProperty("styleSheet",style);
+		StyleUpdateParams *params;
+		if (oldStorage != this)
+		{
+			params = new StyleUpdateParams;
+			FObjectStorage.insert(AObject,this);
+			FUpdateParams.insert(AObject,params);
+		}
+		else
+		{
+			params = FUpdateParams.value(AObject);
+		}
+		params->key = AKey;
+		params->index = AIndex;
+		updateObject(AObject);
+		connect(AObject,SIGNAL(destroyed(QObject *)),SLOT(onObjectDestroyed(QObject *)));
+	}
+	else if (AObject != NULL)
+	{
+		removeAutoStyle(AObject);
 	}
 }
 
 void StyleStorage::removeAutoStyle(QObject *AObject)
 {
-	if (AObject)
+	if (FUpdateParams.contains(AObject))
 	{
-		QString style;
-		AObject->setProperty("styleSheet",style);
+		removeObject(AObject);
+		disconnect(AObject,SIGNAL(destroyed(QObject *)),this,SLOT(onObjectDestroyed(QObject *)));
+	}
+}
+
+void StyleStorage::previewReset()
+{
+	onStorageChanged();
+}
+
+void StyleStorage::previewStyle(const QString &AStyleSheet, const QString &AKey, int AIndex)
+{
+	for (QHash<QObject *, StyleUpdateParams *>::iterator it=FUpdateParams.begin(); it!=FUpdateParams.end(); it++)
+	{
+		if (it.value()->key==AKey && it.value()->index==AIndex)
+			it.key()->setProperty("styleSheet", AStyleSheet);
 	}
 }
 
@@ -63,4 +100,29 @@ StyleStorage *StyleStorage::staticStorage(const QString &AStorage)
 		FStaticStorages.insert(AStorage,styleStorage);
 	}
 	return styleStorage;
+}
+
+void StyleStorage::updateObject(QObject *AObject)
+{
+	StyleUpdateParams *params = FUpdateParams.value(AObject);
+	QString style = getStyle(params->key,params->index);
+	AObject->setProperty("styleSheet",style);
+}
+
+void StyleStorage::removeObject(QObject *AObject)
+{
+	FObjectStorage.remove(AObject);
+	StyleUpdateParams *params = FUpdateParams.take(AObject);
+	delete params;
+}
+
+void StyleStorage::onStorageChanged()
+{
+	for (QHash<QObject *, StyleUpdateParams *>::iterator it=FUpdateParams.begin(); it!=FUpdateParams.end(); it++)
+		updateObject(it.key());
+}
+
+void StyleStorage::onObjectDestroyed(QObject *AObject)
+{
+	removeObject(AObject);
 }
