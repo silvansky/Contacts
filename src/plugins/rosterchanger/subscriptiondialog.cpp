@@ -65,12 +65,12 @@ void SubscriptionDialog::initialize(IPluginManager *APluginManager)
 			FToolBarChanger->insertAction(FShowChat,TBG_RCSRD_ROSTERCHANGER);
 			connect(FShowChat,SIGNAL(triggered(bool)),SLOT(onToolBarActionTriggered(bool)));
 
-			FSendMessage = new Action(FToolBarChanger->toolBar());
-			FSendMessage->setText(tr("Message"));
-			FSendMessage->setToolTip(tr("Send Message"));
-			FSendMessage->setIcon(RSR_STORAGE_MENUICONS,MNI_NORMAL_MHANDLER_MESSAGE);
-			FToolBarChanger->insertAction(FSendMessage,TBG_RCSRD_ROSTERCHANGER);
-			connect(FSendMessage,SIGNAL(triggered(bool)),SLOT(onToolBarActionTriggered(bool)));
+			//FSendMessage = new Action(FToolBarChanger->toolBar());
+			//FSendMessage->setText(tr("Message"));
+			//FSendMessage->setToolTip(tr("Send Message"));
+			//FSendMessage->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
+			//FToolBarChanger->insertAction(FSendMessage,TBG_RCSRD_ROSTERCHANGER);
+			//connect(FSendMessage,SIGNAL(triggered(bool)),SLOT(onToolBarActionTriggered(bool)));
 		}
 	}
 

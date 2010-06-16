@@ -74,7 +74,7 @@ bool MessageWidgets::initSettings()
 
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), tr("Message window options"), MNI_NORMAL_MHANDLER_MESSAGE };
+		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), tr("Message window options"), MNI_CHAT_MHANDLER_MESSAGE };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
