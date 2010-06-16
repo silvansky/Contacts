@@ -72,7 +72,7 @@ void StyleStorage::removeAutoStyle(QObject *AObject)
 {
 	if (FUpdateParams.contains(AObject))
 	{
-		AObject->setProperty("styleSheet",QVariant());
+		AObject->setProperty("styleSheet",QString());
 		removeObject(AObject);
 		disconnect(AObject,SIGNAL(destroyed(QObject *)),this,SLOT(onObjectDestroyed(QObject *)));
 	}

@@ -110,7 +110,10 @@ void IconStorage::removeAutoIcon(QObject *AObject)
 	if (FUpdateParams.contains(AObject))
 	{
 		IconUpdateParams *params = FUpdateParams.value(AObject);
-		AObject->setProperty(params->prop.toLatin1(),QVariant());
+		if (params->prop == "pixmap")
+			AObject->setProperty(params->prop.toLatin1(),QPixmap());
+		else
+			AObject->setProperty(params->prop.toLatin1(),QIcon());
 		removeObject(AObject);
 		disconnect(AObject,SIGNAL(destroyed(QObject *)),this,SLOT(onObjectDestroyed(QObject *)));
 	}
