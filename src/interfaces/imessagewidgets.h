@@ -82,7 +82,9 @@ struct INotice
 	}
 	int priority;
 	int timeout;
+	QIcon icon;
 	QString iconKey;
+	QString iconStorage;
 	QString message;
 	QList<Action *> actions;
 };
@@ -196,11 +198,13 @@ struct ITabPageNotify
 {
 	ITabPageNotify() {
 		priority = -1;
-		iconBlink = true;
+		blink = true;
 	}
 	int priority;
-	bool iconBlink;
+	bool blink;
+	QIcon icon;
 	QString iconKey;
+	QString iconStorage;
 	QString toolTip;
 	QString styleKey;
 };

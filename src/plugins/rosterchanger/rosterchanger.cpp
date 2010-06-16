@@ -668,6 +668,7 @@ INotice RosterChanger::createNotice(int APriority, int AActions, const QString &
 	INotice notice;
 	notice.priority = APriority;
 	notice.iconKey = MNI_RCHANGER_SUBSCRIBTION;
+	notice.iconStorage = RSR_STORAGE_MENUICONS;
 	notice.message = !AText.isEmpty() ? ANotify+"<br>"+Qt::escape(AText) : ANotify;
 
 	if (AActions & NA_ADD_CONTACT)
@@ -987,8 +988,8 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 		notify.kinds = INotification::PopupWindow|INotification::PlaySound;
 		notify.data.insert(NDR_STREAM_JID,ARoster->streamJid().full());
 		notify.data.insert(NDR_CONTACT_JID,chatWindow!=NULL ? chatWindow->contactJid().full() : AContactJid.full());
-		notify.data.insert(NDR_ICON,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCRIBTION));
-		notify.data.insert(NDR_ICONKEY,MNI_RCHANGER_SUBSCRIBTION);
+		notify.data.insert(NDR_ICON_KEY,MNI_RCHANGER_SUBSCRIBTION);
+		notify.data.insert(NDR_ICON_STORAGE, RSR_STORAGE_MENUICONS);
 		notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_SUBSCRIBTION);
 		notify.data.insert(NDR_ROSTER_TOOLTIP,tr("Subscription message from %1").arg(FNotifications->contactName(ARoster->streamJid(),AContactJid)));
 		notify.data.insert(NDR_TABPAGENOTIFY_PRIORITY,TPNP_SUBSCRIPTION);

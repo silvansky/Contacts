@@ -625,25 +625,29 @@ void PluginManager::createMenuActions()
 		connect(pluginsDialog,SIGNAL(triggered(bool)),SLOT(onShowSetupPluginsDialog(bool)));
 		pluginsDialog->setText(tr("Setup plugins"));
 
+		Action *aboutQt = new Action(mainWindowPligin->mainWindow()->mainMenu());
+		aboutQt->setText(tr("About Qt"));
+		aboutQt->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT_QT);
+		connect(aboutQt,SIGNAL(triggered()),QApplication::instance(),SLOT(aboutQt()));
+
+		Action *about = new Action(mainWindowPligin->mainWindow()->mainMenu());
+		about->setText(tr("About the program"));
+		about->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT);
+		connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
+
 		if (mainWindowPligin)
 		{
-			Action *aboutQt = new Action(mainWindowPligin->mainWindow()->mainMenu());
-			aboutQt->setText(tr("About Qt"));
-			aboutQt->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT_QT);
-			connect(aboutQt,SIGNAL(triggered()),QApplication::instance(),SLOT(aboutQt()));
 			mainWindowPligin->mainWindow()->mainMenu()->addAction(aboutQt,AG_MMENU_PLUGINMANAGER_ABOUT);
-
-			Action *about = new Action(mainWindowPligin->mainWindow()->mainMenu());
-			about->setText(tr("About the program"));
-			about->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT);
-			connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
 			mainWindowPligin->mainWindow()->mainMenu()->addAction(about,AG_MMENU_PLUGINMANAGER_ABOUT);
-
 			mainWindowPligin->mainWindow()->mainMenu()->addAction(pluginsDialog,AG_MMENU_PLUGINMANAGER_SETUP,true);
 		}
 
 		if (trayManager)
-			trayManager->addAction(pluginsDialog,AG_TMTM_PLUGINMANAGER,true);
+		{
+			trayManager->contextMenu()->addAction(aboutQt,AG_TMTM_PLUGINMANAGER);
+			trayManager->contextMenu()->addAction(about,AG_TMTM_PLUGINMANAGER);
+			trayManager->contextMenu()->addAction(pluginsDialog,AG_TMTM_PLUGINMANAGER);
+		}
 	}
 	else
 		onShowSetupPluginsDialog(false);

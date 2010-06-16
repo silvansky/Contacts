@@ -115,7 +115,12 @@ void NoticeWidget::updateWidgets(int ANoticeId)
 		if (ANoticeId > 0)
 		{
 			const INotice &notice = FNotices.value(ANoticeId);
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,notice.iconKey,0,0,"pixmap");
+			if (!notice.iconKey.isEmpty() && !notice.iconStorage.isEmpty())
+				IconStorage::staticStorage(notice.iconStorage)->insertAutoIcon(ui.lblIcon,notice.iconKey,0,0,"pixmap");
+			else if (!notice.icon.isNull())
+				ui.lblIcon->setPixmap(notice.icon.pixmap(notice.icon.availableSizes().value(0)));
+			else
+				ui.lblIcon->clear();
 			ui.lblMessage->setText(notice.message);
 
 			if (notice.timeout > 0)

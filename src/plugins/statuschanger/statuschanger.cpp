@@ -199,12 +199,11 @@ bool StatusChanger::initObjects()
 		statusWidget->ui->statusToolButton->setDefaultAction(FMainMenu->menuAction());
 		connect(statusWidget, SIGNAL(avatarChanged(const QImage&)), SLOT(onAvatarChanged(const QImage&)));
 		connect(statusWidget, SIGNAL(moodSet(const QString&)), SLOT(onMoodSet(const QString&)));
-		/*
-		QToolButton *button = changer->insertAction(FMainMenu->menuAction());
-		button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-		button->setPopupMode(QToolButton::InstantPopup);
-		button->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-		*/
+
+		//QToolButton *button = changer->insertAction(FMainMenu->menuAction());
+		//button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+		//button->setPopupMode(QToolButton::InstantPopup);
+		//button->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	}
 
 	if (FRostersViewPlugin)
@@ -216,7 +215,7 @@ bool StatusChanger::initObjects()
 
 	if (FTrayManager)
 	{
-		FTrayManager->addAction(FMainMenu->menuAction(),AG_TMTM_STATUSCHANGER,true);
+		FTrayManager->contextMenu()->addAction(FMainMenu->menuAction(),AG_TMTM_STATUSCHANGER,true);
 	}
 
 	if (FNotifications)
@@ -794,10 +793,23 @@ void StatusChanger::updateMainMenu()
 	else
 		FMainMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_SCHANGER_CONNECTING);
 	FMainMenu->setTitle(statusItemName(statusId));
-	FMainMenu->menuAction()->setEnabled(!FCurrentStatus.isEmpty());
+	FMainMenu->menuAction()->setVisible(!FCurrentStatus.isEmpty());
 
 	if (FTrayManager)
-		FTrayManager->setMainIcon(iconByShow(statusItemShow(statusId)));
+	{
+		if (statusId != STATUS_CONNECTING_ID)
+		{
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(FTrayManager->instance());
+			FTrayManager->setIcon(iconByShow(statusItemShow(statusId)));
+		}
+		else
+		{
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(FTrayManager->instance(),MNI_SCHANGER_CONNECTING);
+		}
+
+		QString trayToolTip = QString(tr("Virtus - %1")).arg(statusItemName(visibleMainStatusId()));
+		FTrayManager->setToolTip(trayToolTip);
+	}
 }
 
 void StatusChanger::updateTrayToolTip()
@@ -813,7 +825,7 @@ void StatusChanger::updateTrayToolTip()
 		it++;
 	}
 	if (FTrayManager)
-		FTrayManager->setMainToolTip(trayToolTip);
+		FTrayManager->setToolTip(trayToolTip);
 }
 
 void StatusChanger::updateMainStatusActions()
@@ -969,7 +981,7 @@ void StatusChanger::onPresenceAdded(IPresence *APresence)
 
 	updateStreamMenu(APresence);
 	updateMainMenu();
-	updateTrayToolTip();
+	//updateTrayToolTip();
 }
 
 void StatusChanger::onPresenceChanged(IPresence *APresence, int AShow, const QString &AText, int APriority)
@@ -998,7 +1010,7 @@ void StatusChanger::onPresenceChanged(IPresence *APresence, int AShow, const QSt
 			removeConnectingLabel(APresence);
 			FConnectStatus.remove(APresence);
 		}
-		updateTrayToolTip();
+		//updateTrayToolTip();
 	}
 }
 
@@ -1022,7 +1034,7 @@ void StatusChanger::onPresenceRemoved(IPresence *APresence)
 		FStreamMenu.value(FStreamMenu.keys().first())->menuAction()->setVisible(false);
 
 	updateMainMenu();
-	updateTrayToolTip();
+	//updateTrayToolTip();
 }
 
 void StatusChanger::onRosterOpened(IRoster *ARoster)

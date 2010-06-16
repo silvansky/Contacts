@@ -8,6 +8,7 @@ MainWindowPlugin::MainWindowPlugin()
 	FOptionsManager = NULL;
 	FTrayManager = NULL;
 
+	FOpenAction = NULL;
 	FMainWindow = new MainWindow(new QWidget, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 }
 
@@ -65,14 +66,14 @@ bool MainWindowPlugin::initObjects()
 	connect(action,SIGNAL(triggered()),FPluginManager->instance(),SLOT(quit()));
 	FMainWindow->mainMenu()->addAction(action,AG_MMENU_MAINWINDOW,true);
 
+	FOpenAction = new Action(this);
+	FOpenAction->setVisible(false);
+	FOpenAction->setText(tr("Show roster"));
+	FOpenAction->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_SHOW_ROSTER);
+	connect(FOpenAction,SIGNAL(triggered(bool)),SLOT(onShowMainWindowByAction(bool)));
+
 	if (FTrayManager)
-	{
-		action = new Action(this);
-		action->setText(tr("Show roster"));
-		action->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_SHOW_ROSTER);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onShowMainWindowByAction(bool)));
-		FTrayManager->addAction(action,AG_TMTM_MAINWINDOW,true);
-	}
+		FTrayManager->contextMenu()->addAction(FOpenAction,AG_TMTM_MAINWINDOW,true);
 
 	return true;
 }
@@ -114,6 +115,7 @@ void MainWindowPlugin::onOptionsOpened()
 	FMainWindow->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
 	FMainWindow->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	updateTitle();
+	FOpenAction->setVisible(true);
 	//if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
 	//	showMainWindow();
 }
@@ -125,6 +127,7 @@ void MainWindowPlugin::onOptionsClosed()
 	Options::node(OPV_MAINWINDOW_POSITION).setValue(FMainWindow->pos());
 	updateTitle();
 	FMainWindow->close();
+	FOpenAction->setVisible(false);
 }
 
 void MainWindowPlugin::onProfileRenamed(const QString &AProfile, const QString &ANewName)
@@ -136,7 +139,7 @@ void MainWindowPlugin::onProfileRenamed(const QString &AProfile, const QString &
 
 void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
-	if (ANotifyId==0 && AReason==QSystemTrayIcon::Trigger)
+	if (ANotifyId<0 && AReason==QSystemTrayIcon::Trigger)
 	{
 		if (!FMainWindow->isVisible() && !Options::isNull())
 			showMainWindow();

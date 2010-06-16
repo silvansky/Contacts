@@ -109,7 +109,7 @@ QString TabBarItem::iconKey() const
 void TabBarItem::setIconKey(const QString &AIconKey)
 {
 	if (FNotify.priority < 0)
-		showIconKey(AIconKey);
+		showIconKey(AIconKey, RSR_STORAGE_MENUICONS);
 	FIconKey = AIconKey;
 }
 
@@ -149,16 +149,19 @@ void TabBarItem::setNotify(const ITabPageNotify &ANotify)
 	FBlinkTimer.stop();
 	if (FNotify.priority > 0)
 	{
-		if (FNotify.iconBlink)
+		if (FNotify.blink)
 			FBlinkTimer.start(BLINK_VISIBLE_TIME);
-		showIconKey(FNotify.iconKey);
+		if (!FNotify.iconKey.isEmpty() && !FNotify.iconStorage.isEmpty())
+			showIconKey(FNotify.iconKey,FNotify.iconStorage);
+		else
+			showIcon(FNotify.icon);
 		showToolTip(FNotify.toolTip);
 		showStyleKey(FNotify.styleKey);
 	}
 	else
 	{
 		if (!FIconKey.isEmpty())
-			showIconKey(FIconKey);
+			showIconKey(FIconKey, RSR_STORAGE_MENUICONS);
 		else
 			showIcon(FIcon);
 		showText(FText);
@@ -176,15 +179,18 @@ void TabBarItem::showIcon(const QIcon &AIcon)
 		FIconLabel->clear();
 }
 
-void TabBarItem::showIconKey(const QString &AIconKey)
+void TabBarItem::showIconKey(const QString &AIconKey, const QString &AIconStorage)
 {
 	if (!AIconKey.isEmpty())
 	{
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(FIconLabel,AIconKey,0,0,"pixmap");
+		IconStorage::staticStorage(AIconStorage)->insertAutoIcon(FIconLabel,AIconKey,0,0,"pixmap");
+	}
+	else if (!AIconStorage.isEmpty())
+	{
+		IconStorage::staticStorage(AIconStorage)->removeAutoIcon(FIconLabel);
 	}
 	else
 	{
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(FIconLabel);
 		FIconLabel->clear();
 	}
 }

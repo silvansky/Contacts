@@ -27,6 +27,8 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 	FAnimateStep = -1;
 
 	QIcon icon = qvariant_cast<QIcon>(ANotification.data.value(NDR_ICON));
+	QString iconKey = ANotification.data.value(NDR_ICON_KEY).toString();
+	QString iconStorage = ANotification.data.value(NDR_ICON_STORAGE).toString();
 	QImage image = qvariant_cast<QImage>(ANotification.data.value(NDR_POPUP_IMAGE));
 	QString caption = ANotification.data.value(NDR_POPUP_CAPTION,tr("Notification")).toString();
 	QString title = ANotification.data.value(NDR_POPUP_TITLE).toString();
@@ -38,8 +40,10 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 	else
 		ui.lblCaption->setVisible(false);
 
-	if (!icon.isNull())
-		ui.lblIcon->setPixmap(icon.pixmap(QSize(32,32)));
+	if (!iconKey.isEmpty() && !iconStorage.isEmpty())
+		IconStorage::staticStorage(iconStorage)->insertAutoIcon(ui.lblIcon,iconKey,0,0,"pixmap");
+	else if (!icon.isNull())
+		ui.lblIcon->setPixmap(icon.pixmap(icon.availableSizes().value(0)));
 	else
 		ui.lblIcon->setVisible(false);
 

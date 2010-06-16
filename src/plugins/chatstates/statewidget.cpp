@@ -117,6 +117,7 @@ void StateWidget::onUserChatStateChanged(const Jid &AStreamJid, const Jid &ACont
 				ITabPageNotify notify;
 				notify.priority = TPNP_CHATSTATE_TYPING;
 				notify.iconKey = MNI_CHATSTATES_COMPOSING;
+				notify.iconStorage = RSR_STORAGE_MENUICONS;
 				notify.toolTip = tr("Typing...");
 				FTabNotifyId = FWindow->tabPageNotifier()->insertNotify(notify);
 			}

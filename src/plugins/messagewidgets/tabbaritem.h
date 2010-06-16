@@ -44,7 +44,7 @@ signals:
 	void closeButtonClicked();
 protected:
 	void showIcon(const QIcon &AIcon);
-	void showIconKey(const QString &AIconKey);
+	void showIconKey(const QString &AIconKey, const QString &AIconStorage);
 	void showText(const QString &AText);
 	void showToolTip(const QString &AToolTip);
 	void showStyleKey(const QString &AStyleKey);

@@ -215,16 +215,14 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 INotification ChatMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
 {
 	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
-	IconStorage *storage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
-	QIcon icon =  storage->getIcon(MNI_CHAT_MHANDLER_MESSAGE);
 	QString name= ANotifications->contactName(AMessage.to(),AMessage.from());
 
 	INotification notify;
 	notify.kinds = ANotifications->notificatorKinds(CHAT_NOTIFICATOR_ID);
 	notify.data.insert(NDR_STREAM_JID,AMessage.to());
 	notify.data.insert(NDR_CONTACT_JID,AMessage.from());
-	notify.data.insert(NDR_ICON,icon);
-	notify.data.insert(NDR_ICONKEY, MNI_CHAT_MHANDLER_MESSAGE);
+	notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
+	notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 	notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_MESSAGE);
 	notify.data.insert(NDR_ROSTER_TOOLTIP,tr("Message from %1").arg(name));
 	notify.data.insert(NDR_TABPAGENOTIFY_PRIORITY, TPNP_NEW_MESSAGE);

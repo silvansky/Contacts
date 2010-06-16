@@ -28,9 +28,9 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/inotifications.h>
-#include <utils/options.h>
 #include <interfaces/ivcard.h>
 #include <interfaces/iavatars.h>
+#include <utils/options.h>
 #include "editstatusdialog.h"
 #include "modifystatusdialog.h"
 #include "statuswidget.h"

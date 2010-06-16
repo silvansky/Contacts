@@ -83,7 +83,7 @@ bool OptionsManager::initObjects()
 	connect(FChangeProfileAction,SIGNAL(triggered(bool)),SLOT(onChangeProfileByAction(bool)));
 
 	FShowOptionsDialogAction = new Action(this);
-	FShowOptionsDialogAction->setEnabled(false);
+	FShowOptionsDialogAction->setVisible(false);
 	FShowOptionsDialogAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_DIALOG);
 	FShowOptionsDialogAction->setText(tr("Options"));
 	connect(FShowOptionsDialogAction,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
@@ -96,8 +96,8 @@ bool OptionsManager::initObjects()
 
 	if (FTrayManager)
 	{
-		FTrayManager->addAction(FChangeProfileAction,AG_TMTM_OPTIONS,true);
-		FTrayManager->addAction(FShowOptionsDialogAction,AG_TMTM_OPTIONS,true);
+		//FTrayManager->contextMenu()->addAction(FChangeProfileAction,AG_TMTM_OPTIONS,true);
+		FTrayManager->contextMenu()->addAction(FShowOptionsDialogAction,AG_TMTM_OPTIONS,true);
 	}
 
 	return true;
@@ -462,7 +462,7 @@ void OptionsManager::openProfile(const QString &AProfile, const QString &APasswo
 		FProfileKey = profileKey(AProfile, APassword);
 		Options::setOptions(FProfileOptions, profilePath(AProfile) + "/" DIR_BINARY, FProfileKey);
 		FAutoSaveTimer.start();
-		FShowOptionsDialogAction->setEnabled(true);
+		FShowOptionsDialogAction->setVisible(true);
 		emit profileOpened(AProfile);
 	}
 }
@@ -478,7 +478,7 @@ void OptionsManager::closeProfile()
 			FOptionsDialog->reject();
 			delete FOptionsDialog;
 		}
-		FShowOptionsDialogAction->setEnabled(false);
+		FShowOptionsDialogAction->setVisible(false);
 		Options::setOptions(QDomDocument(), QString::null, QByteArray());
 		saveOptions();
 		FProfile.clear();

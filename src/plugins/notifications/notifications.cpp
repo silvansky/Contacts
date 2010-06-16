@@ -138,9 +138,9 @@ bool Notifications::initObjects()
 
 	if (FTrayManager)
 	{
-		FTrayManager->addAction(FActivateAll,AG_TMTM_NOTIFICATIONS,false);
-		FTrayManager->addAction(FRemoveAll,AG_TMTM_NOTIFICATIONS,false);
-		FTrayManager->addAction(FNotifyMenu->menuAction(),AG_TMTM_NOTIFICATIONS,false);
+		//FTrayManager->contextMenu()->addAction(FActivateAll,AG_TMTM_NOTIFICATIONS,false);
+		//FTrayManager->contextMenu()->addAction(FRemoveAll,AG_TMTM_NOTIFICATIONS,false);
+		//FTrayManager->contextMenu()->addAction(FNotifyMenu->menuAction(),AG_TMTM_NOTIFICATIONS,false);
 	}
 
 	if (FMainWindowPlugin)
@@ -217,7 +217,14 @@ int Notifications::appendNotification(const INotification &ANotification)
 
 	bool isDND = FStatusChanger ? FStatusChanger->statusItemShow(STATUS_MAIN_ID) == IPresence::DoNotDisturb : false;
 
-	QIcon icon = qvariant_cast<QIcon>(record.notification.data.value(NDR_ICON));
+	QIcon icon;
+	QString iconKey = record.notification.data.value(NDR_ICON_KEY).toString();
+	QString iconStorage = record.notification.data.value(NDR_ICON_STORAGE).toString();
+	if (!iconKey.isEmpty() && !iconStorage.isEmpty())
+		icon = IconStorage::staticStorage(iconStorage)->getIcon(iconKey);
+	else
+		icon = qvariant_cast<QIcon>(record.notification.data.value(NDR_ICON));
+
 	QString toolTip = record.notification.data.value(NDR_ROSTER_TOOLTIP).toString();
 
 	if (FRostersModel && FRostersViewPlugin && Options::node(OPV_NOTIFICATIONS_ROSTERICON).value().toBool() &&
@@ -251,9 +258,11 @@ int Notifications::appendNotification(const INotification &ANotification)
 			if (window && window->tabPageNotifier()!=NULL)
 			{
 				ITabPageNotify notify;
-				notify.iconKey = ANotification.data.value(NDR_ICONKEY).toString();
 				notify.priority = ANotification.data.value(NDR_TABPAGENOTIFY_PRIORITY).toInt();
-				notify.iconBlink = ANotification.data.value(NDR_TABPAGENOTIFY_ICONBLINK).toBool();
+				notify.blink = ANotification.data.value(NDR_TABPAGENOTIFY_ICONBLINK).toBool();
+				notify.icon = icon;
+				notify.iconKey = iconKey;
+				notify.iconStorage = iconStorage;
 				notify.toolTip = ANotification.data.value(NDR_TABPAGENOTIFY_TOOLTIP).toString();
 				notify.styleKey = ANotification.data.value(NDR_TABPAGENOTIFY_STYLEKEY).toString();
 				record.tabPageId = window->tabPageNotifier()->insertNotify(notify);
@@ -265,13 +274,24 @@ int Notifications::appendNotification(const INotification &ANotification)
 	if (FTrayManager)
 	{
 		if (Options::node(OPV_NOTIFICATIONS_TRAYICON).value().toBool() && (record.notification.kinds & INotification::TrayIcon)>0)
-			record.trayId = FTrayManager->appendNotify(icon,toolTip,true);
+		{
+			ITrayNotify notify;
+			notify.blink = true;
+			notify.icon = icon;
+			notify.iconKey = iconKey;
+			notify.iconStorage = iconStorage;
+			notify.toolTip = toolTip;
+			record.trayId = FTrayManager->appendNotify(notify);
+		}
 
 		if (!toolTip.isEmpty() && Options::node(OPV_NOTIFICATIONS_TRAYACTION).value().toBool() &&
 		    (record.notification.kinds & INotification::TrayAction)>0)
 		{
 			record.action = new Action(FNotifyMenu);
-			record.action->setIcon(icon);
+			if (!iconKey.isEmpty())
+				record.action->setIcon(RSR_STORAGE_MENUICONS,iconKey);
+			else
+				record.action->setIcon(icon);
 			record.action->setText(toolTip);
 			record.action->setData(ADR_NOTIFYID,notifyId);
 			connect(record.action,SIGNAL(triggered(bool)),SLOT(onActionNotifyActivated(bool)));

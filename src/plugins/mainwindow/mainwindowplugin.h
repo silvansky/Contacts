@@ -49,6 +49,7 @@ private:
 	IOptionsManager *FOptionsManager;
 	ITrayManager *FTrayManager;
 private:
+	Action *FOpenAction;
 	MainWindow *FMainWindow;
 };
 
