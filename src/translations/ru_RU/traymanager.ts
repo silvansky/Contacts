@@ -4,16 +4,16 @@
 <context>
     <name>TrayManager</name>
     <message>
-        <source>Quit</source>
-        <translation>Выход</translation>
-    </message>
-    <message>
         <source>Tray Icon</source>
         <translation>Инонка трея</translation>
     </message>
     <message>
         <source>Allows other modules to access the icon and context menu in the tray</source>
         <translation>Позволяет другим модулям получать доступ к иконке и контекстному меню в трее</translation>
+    </message>
+    <message>
+        <source>Exit Virtus</source>
+        <translation>Выйти из Virtus</translation>
     </message>
 </context>
 </TS>

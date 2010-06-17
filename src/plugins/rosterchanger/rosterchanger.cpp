@@ -669,7 +669,7 @@ INotice RosterChanger::createNotice(int APriority, int AActions, const QString &
 	notice.priority = APriority;
 	notice.iconKey = MNI_RCHANGER_SUBSCRIBTION;
 	notice.iconStorage = RSR_STORAGE_MENUICONS;
-	notice.message = !AText.isEmpty() ? ANotify+"<br>"+Qt::escape(AText) : ANotify;
+	notice.message = !AText.isEmpty() ? Qt::escape(ANotify)+"<br>"+Qt::escape(AText) : Qt::escape(ANotify);
 
 	if (AActions & NA_ADD_CONTACT)
 	{

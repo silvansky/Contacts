@@ -8,10 +8,6 @@
         <translation>Чат сообщения</translation>
     </message>
     <message>
-        <source>Message from %1</source>
-        <translation>Сообщение от %1</translation>
-    </message>
-    <message>
         <source>Message received</source>
         <translation>Получено сообщение</translation>
     </message>

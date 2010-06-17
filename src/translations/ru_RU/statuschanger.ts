@@ -195,6 +195,10 @@
         <source>Auto reconnect if disconnected</source>
         <translation>Автоматически восстанавливать соединение</translation>
     </message>
+    <message>
+        <source>Virtus - %1</source>
+        <translation>Virtus - %1</translation>
+    </message>
 </context>
 <context>
     <name>StatusWidget</name>

@@ -20,14 +20,6 @@
         <translation>Открыть окно чата</translation>
     </message>
     <message>
-        <source>Message</source>
-        <translation>Сообщение</translation>
-    </message>
-    <message>
-        <source>Send Message</source>
-        <translation>Послать сообщение</translation>
-    </message>
-    <message>
         <source>VCard</source>
         <translation>vCard</translation>
     </message>
@@ -162,14 +154,6 @@
         <translation>Удалить контакты</translation>
     </message>
     <message>
-        <source>Subscription message from %1</source>
-        <translation>Сообщение авторизации от %1</translation>
-    </message>
-    <message>
-        <source>Subscription message</source>
-        <translation>Сообщение авторизации</translation>
-    </message>
-    <message>
         <source>Create new group</source>
         <translation>Создать новую группу</translation>
     </message>
@@ -283,7 +267,7 @@
     </message>
     <message>
         <source>%1 removed your authorization to view its status and mood.</source>
-        <translation>%1 удалит вашу авторизацию на просмотр его статуса и настроения.</translation>
+        <translation>%1 удалил вашу авторизацию на просмотр его статуса и настроения.</translation>
     </message>
     <message>
         <source>This contact is not added to your roster.</source>
@@ -296,6 +280,14 @@
     <message>
         <source>%1 authorized you to see its status and mood.</source>
         <translation>%1 авторизовал вас на просмотр его статуса и настроения.</translation>
+    </message>
+    <message>
+        <source>%1 - authorization</source>
+        <translation>%1 - авторизация</translation>
+    </message>
+    <message>
+        <source>Authorization message</source>
+        <translation>Сообщение авторизации</translation>
     </message>
 </context>
 <context>
@@ -311,14 +303,6 @@
     <message>
         <source>Open chat window</source>
         <translation>Открыть окно чата</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Сообщение</translation>
-    </message>
-    <message>
-        <source>Send Message</source>
-        <translation>Послать сообщение</translation>
     </message>
     <message>
         <source>VCard</source>
