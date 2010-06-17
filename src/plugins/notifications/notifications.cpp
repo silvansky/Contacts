@@ -225,13 +225,13 @@ int Notifications::appendNotification(const INotification &ANotification)
 	else
 		icon = qvariant_cast<QIcon>(record.notification.data.value(NDR_ICON));
 
-	QString toolTip = record.notification.data.value(NDR_ROSTER_TOOLTIP).toString();
 
 	if (FRostersModel && FRostersViewPlugin && Options::node(OPV_NOTIFICATIONS_ROSTERICON).value().toBool() &&
 	    (record.notification.kinds & INotification::RosterIcon)>0)
 	{
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
 		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
+		QString toolTip = record.notification.data.value(NDR_ROSTER_TOOLTIP).toString();
 		int order = record.notification.data.value(NDR_ROSTER_NOTIFY_ORDER).toInt();
 		int flags = IRostersView::LabelBlink|IRostersView::LabelVisible;
 		flags = flags | (Options::node(OPV_NOTIFICATIONS_EXPANDGROUP).value().toBool() ? IRostersView::LabelExpandParents : 0);
@@ -258,13 +258,13 @@ int Notifications::appendNotification(const INotification &ANotification)
 			if (window && window->tabPageNotifier()!=NULL)
 			{
 				ITabPageNotify notify;
-				notify.priority = ANotification.data.value(NDR_TABPAGENOTIFY_PRIORITY).toInt();
-				notify.blink = ANotification.data.value(NDR_TABPAGENOTIFY_ICONBLINK).toBool();
+				notify.priority = ANotification.data.value(NDR_TABPAGE_PRIORITY).toInt();
+				notify.blink = ANotification.data.value(NDR_TABPAGE_ICONBLINK).toBool();
 				notify.icon = icon;
 				notify.iconKey = iconKey;
 				notify.iconStorage = iconStorage;
-				notify.toolTip = ANotification.data.value(NDR_TABPAGENOTIFY_TOOLTIP).toString();
-				notify.styleKey = ANotification.data.value(NDR_TABPAGENOTIFY_STYLEKEY).toString();
+				notify.toolTip = ANotification.data.value(NDR_TABPAGE_TOOLTIP).toString();
+				notify.styleKey = ANotification.data.value(NDR_TABPAGE_STYLEKEY).toString();
 				record.tabPageId = window->tabPageNotifier()->insertNotify(notify);
 				record.tabPageNotifier = window->tabPageNotifier()->instance();
 			}
@@ -273,6 +273,8 @@ int Notifications::appendNotification(const INotification &ANotification)
 
 	if (FTrayManager)
 	{
+		QString toolTip = record.notification.data.value(NDR_TRAY_TOOLTIP).toString();
+
 		if (Options::node(OPV_NOTIFICATIONS_TRAYICON).value().toBool() && (record.notification.kinds & INotification::TrayIcon)>0)
 		{
 			ITrayNotify notify;

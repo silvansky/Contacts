@@ -215,7 +215,8 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 INotification ChatMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
 {
 	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
-	QString name= ANotifications->contactName(AMessage.to(),AMessage.from());
+	QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
+	QString messages = tr("%n message(s)","",FActiveMessages.values(window).count());
 
 	INotification notify;
 	notify.kinds = ANotifications->notificatorKinds(CHAT_NOTIFICATOR_ID);
@@ -224,16 +225,24 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 	notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
 	notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 	notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_MESSAGE);
-	notify.data.insert(NDR_ROSTER_TOOLTIP,tr("Message from %1").arg(name));
-	notify.data.insert(NDR_TABPAGENOTIFY_PRIORITY, TPNP_NEW_MESSAGE);
-	notify.data.insert(NDR_TABPAGENOTIFY_ICONBLINK,true);
-	notify.data.insert(NDR_TABPAGENOTIFY_TOOLTIP, window!=NULL ? tr("%n message(s)","",FActiveMessages.values(window).count()) : QString());
-	notify.data.insert(NDR_TABPAGENOTIFY_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
+	notify.data.insert(NDR_ROSTER_TOOLTIP,messages);
+	notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name).arg(messages));
+	notify.data.insert(NDR_TABPAGE_PRIORITY, TPNP_NEW_MESSAGE);
+	notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+	notify.data.insert(NDR_TABPAGE_TOOLTIP, messages);
+	notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
 	notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
 	notify.data.insert(NDR_POPUP_CAPTION,tr("Message received"));
 	notify.data.insert(NDR_POPUP_TITLE,name);
-	notify.data.insert(NDR_POPUP_TEXT,AMessage.body());
+	notify.data.insert(NDR_POPUP_TEXT,Qt::escape(AMessage.body()));
 	notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
+
+	QList<QVariant> unnotify;
+	foreach(int messageId, FActiveMessages.values(window))
+		if (messageId != AMessage.data(MDR_MESSAGE_ID).toInt())
+			unnotify.append(QVariant(messageId));
+	notify.data.insert(NDR_UNNOTIFY_MESSAGES,unnotify);
+
 	return notify;
 }
 

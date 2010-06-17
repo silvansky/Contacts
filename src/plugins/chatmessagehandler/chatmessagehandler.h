@@ -4,6 +4,8 @@
 #define CHATMESSAGEHANDLER_UUID "{b921f55e-e19b-4567-af26-0d783909c630}"
 
 #include <QTimer>
+#include <QVariant>
+#include <definations/messagedataroles.h>
 #include <definations/messagehandlerorders.h>
 #include <definations/rosterindextyperole.h>
 #include <definations/rosterlabelorders.h>

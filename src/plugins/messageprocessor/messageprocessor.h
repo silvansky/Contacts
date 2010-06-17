@@ -3,6 +3,7 @@
 
 #include <definations/messagedataroles.h>
 #include <definations/messagewriterorders.h>
+#include <definations/notificationdataroles.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/ixmppstreams.h>
@@ -81,12 +82,12 @@ private:
 	INotifications *FNotifications;
 	IStanzaProcessor *FStanzaProcessor;
 private:
-	QHash<Jid,int> FSHIMessages;
-	QMap<int,Message> FMessages;
-	QHash<int,int> FNotifyId2MessageId;
-	QHash<int,IMessageHandler *> FHandlerForMessage;
-	QMultiMap<int,IMessageHandler *> FMessageHandlers;
-	QMultiMap<int,IMessageWriter *> FMessageWriters;
+	QMap<Jid, int> FSHIMessages;
+	QMap<int, Message> FMessages;
+	QMap<int, int> FNotifyId2MessageId;
+	QMap<int, IMessageHandler *> FHandlerForMessage;
+	QMultiMap<int, IMessageHandler *> FMessageHandlers;
+	QMultiMap<int, IMessageWriter *> FMessageWriters;
 };
 
 #endif // MESSAGEPROCESSOR_H

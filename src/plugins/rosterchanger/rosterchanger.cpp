@@ -507,7 +507,7 @@ QString RosterChanger::subscriptionNotify(const Jid &AStreamJid, const Jid &ACon
 {
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	IRosterItem ritem = roster!=NULL ? roster->rosterItem(AContactJid) : IRosterItem();
-	QString name = Qt::escape(ritem.isValid && !ritem.name.isEmpty() ? ritem.name : AContactJid.bare());
+	QString name = ritem.isValid && !ritem.name.isEmpty() ? ritem.name : AContactJid.bare();
 
 	switch (ASubsType)
 	{
@@ -981,6 +981,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 {
 	INotification notify;
 	IChatWindow *chatWindow = findNoticeWindow(ARoster->streamJid(),AContactJid);
+	QString name = FNotifications->contactName(ARoster->streamJid(),AContactJid);
 	QString notifyMessage = subscriptionNotify(ARoster->streamJid(),AContactJid,ASubsType);
 
 	if (FNotifications)
@@ -991,15 +992,16 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 		notify.data.insert(NDR_ICON_KEY,MNI_RCHANGER_SUBSCRIBTION);
 		notify.data.insert(NDR_ICON_STORAGE, RSR_STORAGE_MENUICONS);
 		notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_SUBSCRIBTION);
-		notify.data.insert(NDR_ROSTER_TOOLTIP,tr("Subscription message from %1").arg(FNotifications->contactName(ARoster->streamJid(),AContactJid)));
-		notify.data.insert(NDR_TABPAGENOTIFY_PRIORITY,TPNP_SUBSCRIPTION);
-		notify.data.insert(NDR_TABPAGENOTIFY_ICONBLINK,true);
-		notify.data.insert(NDR_TABPAGENOTIFY_TOOLTIP,notifyMessage);
-		notify.data.insert(NDR_TABPAGENOTIFY_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
-		notify.data.insert(NDR_POPUP_CAPTION, tr("Subscription message"));
-		notify.data.insert(NDR_POPUP_TITLE,FNotifications->contactName(ARoster->streamJid(),AContactJid));
+		notify.data.insert(NDR_ROSTER_TOOLTIP,Qt::escape(notifyMessage));
+		notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name));
+		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SUBSCRIPTION);
+		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+		notify.data.insert(NDR_TABPAGE_TOOLTIP,Qt::escape(notifyMessage));
+		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
+		notify.data.insert(NDR_POPUP_CAPTION, tr("Authorization message"));
+		notify.data.insert(NDR_POPUP_TITLE,name);
 		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AContactJid));
-		notify.data.insert(NDR_POPUP_TEXT,notifyMessage);
+		notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));
 		notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
 		notify.data.insert(NDR_SUBSCRIPTION_TEXT,AText);
 	}

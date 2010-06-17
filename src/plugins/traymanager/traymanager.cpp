@@ -144,6 +144,15 @@ void TrayManager::showMessage(const QString &ATitle, const QString &AMessage, QS
 
 void TrayManager::updateTray()
 {
+	QString trayToolTip = FToolTip;
+	for (int i=0; i<10 && i<FNotifyOrder.count(); i++)
+	{
+		QString notifyToolTip = FNotifyItems.value(FNotifyOrder.at(i)).toolTip;
+		if (!notifyToolTip.isEmpty())
+			trayToolTip += '\n' + notifyToolTip;
+	}
+	FSystemIcon.setToolTip(trayToolTip);
+
 	int notifyId = !FNotifyOrder.isEmpty() ? FNotifyOrder.last() : -1;
 	if (notifyId != FActiveNotify)
 	{
@@ -165,11 +174,6 @@ void TrayManager::updateTray()
 		{
 			FSystemIcon.setIcon(FIcon);
 		}
-
-		QString trayToolTip = FToolTip;
-		for (int i=0; i<10 && i<FNotifyOrder.count(); i++)
-			trayToolTip += '\n' + FNotifyItems.value(FNotifyOrder.at(i)).toolTip;
-		FSystemIcon.setToolTip(trayToolTip);
 
 		emit activeNotifyChanged(notifyId);
 	}

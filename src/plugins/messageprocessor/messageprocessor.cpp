@@ -1,5 +1,6 @@
 #include "messageprocessor.h"
 
+#include <QVariant>
 #include <QTextCursor>
 
 #define SHC_MESSAGE         "/message"
@@ -37,9 +38,9 @@ bool MessageProcessor::initConnections(IPluginManager *APluginManager, int &/*AI
 		{
 			connect(FXmppStreams->instance(),SIGNAL(opened(IXmppStream *)),SLOT(onStreamOpened(IXmppStream *)));
 			connect(FXmppStreams->instance(),SIGNAL(jidAboutToBeChanged(IXmppStream *, const Jid &)),
-			        SLOT(onStreamJidAboutToBeChanged(IXmppStream *, const Jid &)));
+				SLOT(onStreamJidAboutToBeChanged(IXmppStream *, const Jid &)));
 			connect(FXmppStreams->instance(),SIGNAL(jidChanged(IXmppStream *, const Jid &)),
-			        SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
+				SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
 			connect(FXmppStreams->instance(),SIGNAL(closed(IXmppStream *)),SLOT(onStreamClosed(IXmppStream *)));
 			connect(FXmppStreams->instance(),SIGNAL(removed(IXmppStream *)),SLOT(onStreamRemoved(IXmppStream *)));
 		}
@@ -83,8 +84,7 @@ bool MessageProcessor::stanzaRead(int AHandlerId, const Jid &AStreamJid, const S
 	if (FSHIMessages.value(AStreamJid) == AHandlerId)
 	{
 		Message message(AStanza);
-		bool received = receiveMessage(message) > 0;
-		AAccept = AAccept || received;
+		AAccept = receiveMessage(message)>0 || AAccept;
 	}
 	return false;
 }
@@ -286,13 +286,17 @@ void MessageProcessor::notifyMessage(int AMessageId)
 	{
 		if (FNotifications)
 		{
-			Message &message = FMessages[AMessageId];
+			const Message &message = FMessages.value(AMessageId);
 			IMessageHandler *handler = FHandlerForMessage.value(AMessageId);
 			INotification notify = handler->notification(FNotifications, message);
 			if (notify.kinds > 0)
 			{
 				int notifyId = FNotifications->appendNotification(notify);
 				FNotifyId2MessageId.insert(notifyId,AMessageId);
+			}
+			foreach(QVariant messageId, notify.data.value(NDR_UNNOTIFY_MESSAGES).toList()) 
+			{
+				unNotifyMessage(messageId.toInt()); 
 			}
 		}
 		emit messageNotified(AMessageId);
