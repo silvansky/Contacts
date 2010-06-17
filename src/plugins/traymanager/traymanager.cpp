@@ -1,5 +1,7 @@
 #include "traymanager.h"
 
+#include <QApplication>
+
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250
 
@@ -15,6 +17,10 @@ TrayManager::TrayManager()
 
 	FBlinkTimer.setSingleShot(true);
 	connect(&FBlinkTimer,SIGNAL(timeout()),SLOT(onBlinkTimerTimeout()));
+
+	FTriggerTimer.setInterval(qApp->doubleClickInterval()+1);
+	FTriggerTimer.setSingleShot(true);
+	connect(&FTriggerTimer,SIGNAL(timeout()),SLOT(onTriggerTimerTimeout()));
 	
 	connect(&FSystemIcon,SIGNAL(messageClicked()), SIGNAL(messageClicked()));
 	connect(&FSystemIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -171,7 +177,12 @@ void TrayManager::updateTray()
 
 void TrayManager::onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason)
 {
-	emit notifyActivated(FActiveNotify,AReason);
+	if (AReason != QSystemTrayIcon::Trigger)
+		emit notifyActivated(FActiveNotify,AReason);
+	else if (!FTriggerTimer.isActive())
+		FTriggerTimer.start();
+	else
+		FTriggerTimer.stop();
 }
 
 void TrayManager::onBlinkTimerTimeout()
@@ -188,6 +199,11 @@ void TrayManager::onBlinkTimerTimeout()
 		FSystemIcon.setIcon(QIcon());
 	}
 	FIconHidden = !FIconHidden;
+}
+
+void TrayManager::onTriggerTimerTimeout()
+{
+	emit notifyActivated(FActiveNotify,QSystemTrayIcon::Trigger);
 }
 
 Q_EXPORT_PLUGIN2(plg_traymanager, TrayManager)

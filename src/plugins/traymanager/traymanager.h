@@ -53,6 +53,7 @@ protected:
 protected slots:
 	void onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason);
 	void onBlinkTimerTimeout();
+	void onTriggerTimerTimeout();
 private:
 	IPluginManager *FPluginManager;
 private:
@@ -66,6 +67,7 @@ private:
 	QIcon FIcon;
 	QString FToolTip;
 	QList<int> FNotifyOrder;
+	QTimer FTriggerTimer;
 	QMap<int, ITrayNotify> FNotifyItems;
 };
 
