@@ -241,10 +241,19 @@ int Notifications::appendNotification(const INotification &ANotification)
 
 	if (Options::node(OPV_NOTIFICATIONS_POPUPWINDOW).value().toBool() && (record.notification.kinds & INotification::PopupWindow)>0)
 	{
-		record.widget = new NotifyWidget(record.notification);
+		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
+		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
+		if (!(streamJid.isValid() && contactJid.isValid() && (record.widget = findNotifyWidget(streamJid, contactJid))))
+			record.widget = new NotifyWidget(record.notification);
+		else
+		{
+			record.widget->appendText(record.notification.data.value(NDR_POPUP_TEXT).toString());
+		}
 		connect(record.widget,SIGNAL(notifyActivated()),SLOT(onWindowNotifyActivated()));
 		connect(record.widget,SIGNAL(notifyRemoved()),SLOT(onWindowNotifyRemoved()));
 		connect(record.widget,SIGNAL(windowDestroyed()),SLOT(onWindowNotifyDestroyed()));
+		connect(record.widget,SIGNAL(closeButtonCLicked()), record.widget, SLOT(close()));
+		connect(record.widget,SIGNAL(settingsButtonCLicked()), SLOT(showSettings()));
 		record.widget->appear();
 	}
 
@@ -470,6 +479,11 @@ int Notifications::notifyIdByWidget(NotifyWidget *AWidget) const
 	return -1;
 }
 
+NotifyWidget* Notifications::findNotifyWidget(Jid AStreamJid, Jid AContactJid) const
+{
+	return NotifyWidget::findNotifyWidget(AStreamJid, AContactJid);
+}
+
 void Notifications::onActivateDelayedActivations()
 {
 	foreach(int notifyId, FDelayedActivations)
@@ -561,6 +575,12 @@ void Notifications::onOptionsChanged(const OptionsNode &ANode)
 	{
 		FSoundOnOff->setIcon(RSR_STORAGE_MENUICONS, ANode.value().toBool() ? MNI_NOTIFICATIONS_SOUND_ON : MNI_NOTIFICATIONS_SOUND_OFF);
 	}
+}
+
+void Notifications::showSettings()
+{
+	if (FOptionsManager)
+		FOptionsManager->showOptionsDialog(OPN_NOTIFICATIONS);
 }
 
 Q_EXPORT_PLUGIN2(plg_notifications, Notifications)

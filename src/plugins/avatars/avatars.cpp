@@ -516,7 +516,7 @@ QByteArray Avatars::loadAvatarFromVCard(const Jid &AContactJid) const
 
 void Avatars::updatePresence(const Jid &AStreamJid) const
 {
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
 	if (presence && presence->isOpen())
 		presence->setPresence(presence->show(),presence->status(),presence->priority());
 }
@@ -660,17 +660,17 @@ void Avatars::onStreamOpened(IXmppStream *AXmppStream)
 		shandle.order = SHO_PI_AVATARS;
 		shandle.direction = IStanzaHandle::DirectionIn;
 		shandle.conditions.append(SHC_PRESENCE);
-		FSHIPresenceIn.insert(shandle.streamJid,FStanzaProcessor->insertStanzaHandle(shandle));
+		FSHIPresenceIn.insert(shandle.streamJid, FStanzaProcessor->insertStanzaHandle(shandle));
 
 		shandle.order = SHO_DEFAULT;
 		shandle.direction = IStanzaHandle::DirectionOut;
-		FSHIPresenceOut.insert(shandle.streamJid,FStanzaProcessor->insertStanzaHandle(shandle));
+		FSHIPresenceOut.insert(shandle.streamJid, FStanzaProcessor->insertStanzaHandle(shandle));
 
 		shandle.order = SHO_DEFAULT;
 		shandle.direction = IStanzaHandle::DirectionIn;
 		shandle.conditions.clear();
 		shandle.conditions.append(SHC_IQ_AVATAR);
-		FSHIIqAvatarIn.insert(shandle.streamJid,FStanzaProcessor->insertStanzaHandle(shandle));
+		FSHIIqAvatarIn.insert(shandle.streamJid, FStanzaProcessor->insertStanzaHandle(shandle));
 	}
 	FStreamAvatars.insert(AXmppStream->streamJid(),UNKNOWN_AVATAR);
 

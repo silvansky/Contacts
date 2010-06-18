@@ -101,6 +101,7 @@ protected:
 	int notifyIdByRosterId(int ARosterId) const;
 	int notifyIdByTrayId(int ATrayId) const;
 	int notifyIdByWidget(NotifyWidget *AWidget) const;
+	NotifyWidget* findNotifyWidget(Jid AStreamJid, Jid AContactJid) const;
 protected slots:
 	void onActivateDelayedActivations();
 	void onSoundOnOffActionTriggered(bool);
@@ -115,6 +116,7 @@ protected slots:
 	void onActionNotifyActivated(bool);
 	void onOptionsOpened();
 	void onOptionsChanged(const OptionsNode &ANode);
+	void showSettings();
 private:
 	IAvatars *FAvatars;
 	IRosterPlugin *FRosterPlugin;

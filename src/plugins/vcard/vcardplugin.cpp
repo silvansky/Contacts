@@ -4,10 +4,11 @@
 #include <QFile>
 #include <QDomDocument>
 
-#define VCARD_DIRNAME             "vcards"
-#define VCARD_TIMEOUT             60000
-#define ADR_STREAM_JID            Action::DR_StreamJid
-#define ADR_CONTACT_JID           Action::DR_Parametr1
+#define VCARD_DIRNAME		"vcards"
+#define VCARD_TIMEOUT		60000
+#define AVATARS_TIMEOUT		120000
+#define ADR_STREAM_JID		Action::DR_StreamJid
+#define ADR_CONTACT_JID		Action::DR_Parametr1
 
 VCardPlugin::VCardPlugin()
 {
@@ -34,6 +35,7 @@ void VCardPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->author = "Potapov S.A. aka Lion";
 	APluginInfo->version = "1.0";
 	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->dependences.append(BITSOFBINARY_UUID);
 }
 
 bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -65,7 +67,7 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 		if (FMultiUserChatPlugin)
 		{
 			connect(FMultiUserChatPlugin->instance(),SIGNAL(multiUserContextMenu(IMultiUserChatWindow *,IMultiUser *, Menu *)),
-			        SLOT(onMultiUserContextMenu(IMultiUserChatWindow *,IMultiUser *, Menu *)));
+				SLOT(onMultiUserContextMenu(IMultiUserChatWindow *,IMultiUser *, Menu *)));
 		}
 	}
 
@@ -89,6 +91,13 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 		{
 			connect(FMessageWidgets->instance(), SIGNAL(chatWindowCreated(IChatWindow *)),SLOT(onChatWindowCreated(IChatWindow *)));
 		}
+	}
+
+	plugin = APluginManager->pluginInterface("IBitsOfBinary").value(0,NULL);
+	if (plugin)
+	{
+		FBitsOfBinary = qobject_cast<IBitsOfBinary*>(plugin->instance());
+		connect(FBitsOfBinary->instance(), SIGNAL(binaryCached(const QString &, const QString &, const QByteArray &, quint64)), SLOT(onBinaryCached(const QString &, const QString &, const QByteArray &, quint64)));
 	}
 
 	return true;
@@ -142,7 +151,40 @@ void VCardPlugin::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStan
 		else if (AStanza.type() == "error")
 		{
 			ErrorHandler err(AStanza.element());
-			emit vcardError(fromJid,err.message());
+			emit vcardError(fromJid, err.message());
+		}
+	}
+	else if (FAvatarsRequestId.contains(AStanza.id()))
+	{
+		Jid fromJid = FAvatarsRequestId.take(AStanza.id());
+		QDomElement elem = AStanza.firstElement("query", NS_RAMBLER_AVATAR);
+		Stanza avatarRequest("iq");
+		avatarRequest.setTo("avatar.rambler.ru").setType("get").setId(FStanzaProcessor->newId());
+		for (QDomElement child = elem.firstChildElement("avatar"); !child.isNull(); child = child.nextSiblingElement("avatar"))
+		{
+			QDomAttr src = child.attributeNode("src");
+			if (!src.isNull())
+			{
+				QString cidString = src.nodeValue();
+				int	left = cidString.indexOf(':') + 1,
+					right = cidString.indexOf('@') - 1;
+				cidString = cidString.mid(left, right - left);
+				if (!FBitsOfBinary->hasBinary(cidString))
+				{
+					FAvatarsBinaryCids.insert(cidString, AStreamJid);
+					FBitsOfBinary->loadBinary(cidString, AStreamJid, "avatar.rambler.ru");
+				}
+			}
+		}
+		if (AStanza.type()=="result")
+		{
+			saveVCardFile(elem,fromJid);
+			emit avatarsRecieved(fromJid);
+		}
+		else if (AStanza.type()=="error")
+		{
+			ErrorHandler err(AStanza.element());
+			emit avatarsError(fromJid, err.message());
 		}
 	}
 }
@@ -212,6 +254,22 @@ bool VCardPlugin::requestVCard(const Jid &AStreamJid, const Jid &AContactJid)
 				FVCardRequestId.insert(request.id(),AContactJid);
 				return true;
 			};
+		}
+		else if (FAvatarsRequestId.key(AContactJid).isEmpty())
+		{
+			// if my vCard is requested
+			if (AStreamJid && AContactJid)
+			{
+				// requesting default avatars from the rambler server
+				Stanza request("iq");
+				request.setTo(AContactJid.eFull()).setType("get").setId(FStanzaProcessor->newId());
+				request.addElement("query", NS_RAMBLER_AVATAR);
+				if (FStanzaProcessor->sendStanzaRequest(this, AStreamJid, request, AVATARS_TIMEOUT))
+				{
+					FAvatarsRequestId.insert(request.id(),AContactJid);
+					return true;
+				};
+			}
 		}
 		else
 			return true;
@@ -398,6 +456,15 @@ void VCardPlugin::onChatWindowCreated(IChatWindow *AWindow)
 	//	connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogByChatWindowAction(bool)));
 	//	AWindow->toolBarWidget()->toolBarChanger()->insertAction(action,TBG_MWTBW_VCARD_VIEW);
 	//}
+}
+
+void VCardPlugin::onBinaryCached(const QString &AContentId, const QString &AType, const QByteArray &AData, quint64 AMaxAge)
+{
+	if (FAvatarsBinaryCids.contains(AContentId))
+	{
+		Jid streamJid = FAvatarsBinaryCids.take(AContentId);
+		QImage img = QImage::fromData(AData, AType.toStdString().c_str());
+	}
 }
 
 Q_EXPORT_PLUGIN2(plg_vcard, VCardPlugin)

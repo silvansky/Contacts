@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QLineEdit>
 #include "selectavatarwidget.h"
+#include <utils/menu.h>
 
 namespace Ui
 {
@@ -32,6 +33,7 @@ private:
 	QString userMood;
 	QImage logo;
 	QLineEdit * moodEditor;
+	Menu * profileMenu;
 signals:
 	void avatarChanged(const QImage &);
 	void moodSet(const QString & mood);
@@ -41,6 +43,8 @@ public slots:
 	void startEditMood();
 	void finishEditMood();
 	void cancelEditMood();
+protected slots:
+	void profileMenuAboutToHide();
 private:
 	QString fitCaptionToWidth(const QString & name, const QString & status, const int width) const;
 };

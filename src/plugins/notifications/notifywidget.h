@@ -18,12 +18,19 @@ public:
 	~NotifyWidget();
 	void appear();
 	void animateTo(int AYPos);
+	INotification notification() const;
+	void setNotification(const INotification & notification);
+	void appendText(const QString & text);
+	static NotifyWidget* findNotifyWidget(Jid AStreamJid, Jid AContactJid);
 signals:
 	void notifyActivated();
 	void notifyRemoved();
 	void windowDestroyed();
+	void closeButtonCLicked();
+	void settingsButtonCLicked();
 protected:
 	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
+	virtual void resizeEvent(QResizeEvent *);
 protected slots:
 	void onAnimateStep();
 private:
@@ -32,6 +39,9 @@ private:
 	int FYPos;
 	int FTimeOut;
 	int FAnimateStep;
+	INotification FNotification;
+	QStringList FTextMessages;
+	QTimer * deleteTimer;
 private:
 	static void layoutWidgets();
 	static QDesktopWidget *FDesktop;

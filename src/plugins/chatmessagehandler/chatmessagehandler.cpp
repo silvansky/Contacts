@@ -241,7 +241,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 	foreach(int messageId, FActiveMessages.values(window))
 		if (messageId != AMessage.data(MDR_MESSAGE_ID).toInt())
 			unnotify.append(QVariant(messageId));
-	notify.data.insert(NDR_UNNOTIFY_MESSAGES,unnotify);
+	//notify.data.insert(NDR_UNNOTIFY_MESSAGES,unnotify);
 
 	return notify;
 }
@@ -427,9 +427,9 @@ void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageConten
 
 void ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDateTime &AMessageTime)
 {
-	static const QList<QString> mnames = QList<QString>() << tr("January") << tr("February") <<  tr("March") <<  tr("April") 
+	static const QList<QString> mnames = QList<QString>() << tr("January") << tr("February") <<  tr("March") <<  tr("April")
 		<< tr("May") << tr("June") << tr("July") << tr("August") << tr("September") << tr("October") << tr("November") << tr("December");
-	static const QList<QString> dnames = QList<QString>() << tr("Monday") << tr("Tuesday") <<  tr("Wednesday") <<  tr("Thursday") 
+	static const QList<QString> dnames = QList<QString>() << tr("Monday") << tr("Tuesday") <<  tr("Wednesday") <<  tr("Thursday")
 		<< tr("Friday") << tr("Saturday") << tr("Sunday");
 
 	IMessageContentOptions options;

@@ -23,12 +23,22 @@ StatusWidget::StatusWidget(QWidget *parent) :
 	selectAvatarWidget->setAttribute(Qt::WA_DeleteOnClose, false);
 	selectAvatarWidget->setWindowFlags(Qt::ToolTip);
 	selectAvatarWidget->installEventFilter(this);
+	//selectAvatarWidget->adjustSize();
 	connect(selectAvatarWidget, SIGNAL(avatarSelected(const QImage&)), SIGNAL(avatarChanged(const QImage&)));
 	ui->moodEdit->setVisible(false);
 	ui->moodEdit->installEventFilter(this);
 	ui->moodLabel->installEventFilter(this);
 	QString logoPath = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTER_LOGO);
 	logo.load(logoPath);
+	profileMenu = new Menu();
+	Action * manageProfileAction = new Action(profileMenu);
+	manageProfileAction->setText(tr("Manage my profile"));
+	profileMenu->addAction(manageProfileAction);
+	Action * addAvatarAction = new Action(profileMenu);
+	addAvatarAction->setText(tr("Add new photo..."));
+	profileMenu->addAction(addAvatarAction);
+	profileMenu->setBottomWidget(selectAvatarWidget);
+	connect(profileMenu, SIGNAL(aboutToHide()), SLOT(profileMenuAboutToHide()));
 }
 
 StatusWidget::~StatusWidget()
@@ -88,7 +98,7 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 			avatarHovered = false;
 			break;
 		case QEvent::Paint:
-			if (avatarHovered || selectAvatarWidget->isVisible())
+			if (avatarHovered || profileMenu->isVisible())
 			{
 				QPaintEvent *paintEvent = (QPaintEvent*)event;
 				QPainter painter(ui->avatarLabel);
@@ -120,23 +130,24 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 				QPoint point = mapToGlobal(ui->avatarLabel->pos());
 				point.setX(point.x() - selectAvatarWidget->width() / 2);
 				point.setY(point.y() + ui->avatarLabel->height());
-				selectAvatarWidget->move(point);
-				if (!selectAvatarWidget->isVisible())
-				{
-					selectAvatarWidget->show();
-					selectAvatarWidget->activateWindow();
-					selectAvatarWidget->setFocus(Qt::MouseFocusReason);
-				}
-				else
-					selectAvatarWidget->hide();
+//				selectAvatarWidget->move(point);
+//				if (!selectAvatarWidget->isVisible())
+//				{
+//					selectAvatarWidget->show();
+//					selectAvatarWidget->activateWindow();
+//					selectAvatarWidget->setFocus(Qt::MouseFocusReason);
+//				}
+//				else
+//					selectAvatarWidget->hide();
+				profileMenu->popup(point);
 				break;
 			}
 		default:
 			break;
 		}
 	}
-	if ((obj == selectAvatarWidget) && (event->type() == QEvent::FocusOut))
-		selectAvatarWidget->hide();
+	//if ((obj == selectAvatarWidget) && (event->type() == QEvent::FocusOut))
+	//	selectAvatarWidget->hide();
 	if ((obj == ui->moodLabel) && (event->type() == QEvent::MouseButtonPress))
 	{
 		QMouseEvent * mouseEvent = (QMouseEvent*)event;
@@ -215,6 +226,11 @@ void StatusWidget::cancelEditMood()
 	ui->moodEdit->setVisible(false);
 	ui->moodLabel->setVisible(true);
 	ui->moodLabel->setFocus();
+}
+
+void StatusWidget::profileMenuAboutToHide()
+{
+	avatarHovered = false;
 }
 
 QString StatusWidget::fitCaptionToWidth(const QString & name, const QString & status, const int width) const

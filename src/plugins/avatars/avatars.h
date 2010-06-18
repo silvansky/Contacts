@@ -29,7 +29,7 @@
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 
-struct AnimateAvatarParams 
+struct AnimateAvatarParams
 {
 	AnimateAvatarParams() { timer = new QTimer; reader = NULL; }
 	~AnimateAvatarParams() { timer->deleteLater(); delete reader; }
@@ -38,7 +38,7 @@ struct AnimateAvatarParams
 	QImageReader *reader;
 };
 
-struct AutoAvatarParams 
+struct AutoAvatarParams
 {
 	AutoAvatarParams() { animation = NULL; }
 	~AutoAvatarParams() { delete animation; }

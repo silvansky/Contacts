@@ -32,6 +32,11 @@ public:
 	void setIcon(const QIcon &AIcon);
 	void setIcon(const QString &AStorageName, const QString &AIconKey, int AIconIndex = 0);
 	void setTitle(const QString &ATitle);
+	virtual QSize sizeHint() const;
+	void setBottomWidget(QWidget * widget);
+	QWidget * bottomWidget() const;
+protected:
+	void resizeEvent(QResizeEvent *);
 signals:
 	void actionInserted(QAction *ABefour, Action *AAction, int AGroup, bool ASort);
 	void actionRemoved(Action *AAction);
@@ -46,6 +51,7 @@ private:
 private:
 	QMultiMap<int, Action *> FActions;
 	QMap<int, QAction *> FSeparators;
+	QWidget * FBottomWidget;
 };
 
 #endif // MENU_H

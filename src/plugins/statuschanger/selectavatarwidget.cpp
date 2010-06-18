@@ -60,7 +60,7 @@ bool SelectAvatarWidget::eventFilter(QObject *obj, QEvent * event)
 	return QWidget::eventFilter(obj, event);
 }
 
-void SelectAvatarWidget::on_uploadButton_clicked()
+/*void SelectAvatarWidget::on_uploadButton_clicked()
 {
 	QString filename = QFileDialog::getOpenFileName(this, tr("Open image"), "", tr("Image Files (*.png *.jpg *.bmp *.gif)"));
 	if (!filename.isEmpty())
@@ -78,3 +78,4 @@ void SelectAvatarWidget::on_profileButton_clicked()
 {
 	QDesktopServices::openUrl(QUrl("id.rambler.ru"));
 }
+*/

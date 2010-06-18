@@ -18,6 +18,7 @@
 #include <interfaces/iservicediscovery.h>
 #include <interfaces/ixmppuriqueries.h>
 #include <interfaces/imessagewidgets.h>
+#include <interfaces/ibitsofbinary.h>
 #include <utils/widgetmanager.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
@@ -68,6 +69,8 @@ signals:
 	void vcardReceived(const Jid &AContactJid);
 	void vcardPublished(const Jid &AContactJid);
 	void vcardError(const Jid &AContactJid, const QString &AError);
+	void avatarsRecieved(const Jid &AContactJid);
+	void avatarsError(const Jid &AContactJid, const QString &AError);
 protected:
 	void unlockVCard(const Jid &AContactJid);
 	void saveVCardFile(const QDomElement &AElem, const Jid &AContactJid) const;
@@ -81,6 +84,7 @@ protected slots:
 	void onVCardDialogDestroyed(QObject *ADialog);
 	void onXmppStreamRemoved(IXmppStream *AXmppStream);
 	void onChatWindowCreated(IChatWindow *AWindow);
+	void onBinaryCached(const QString &, const QString &, const QByteArray &, quint64);
 private:
 	IPluginManager *FPluginManager;
 	IXmppStreams *FXmppStreams;
@@ -91,12 +95,15 @@ private:
 	IServiceDiscovery *FDiscovery;
 	IXmppUriQueries *FXmppUriQueries;
 	IMessageWidgets *FMessageWidgets;
+	IBitsOfBinary * FBitsOfBinary;
 private:
 	QMap<Jid, VCardItem> FVCards;
 	QMap<QString, Jid> FVCardRequestId;
 	QMap<QString, QString> FVCardPublishId;
 	QMap<QString, Stanza> FVCardPublishStanza;
 	QMap<Jid, VCardDialog *> FVCardDialogs;
+	QMap<QString, Jid> FAvatarsRequestId;
+	QMap<QString, Jid> FAvatarsBinaryCids;
 };
 
 #endif // VCARDPLUGIN_H

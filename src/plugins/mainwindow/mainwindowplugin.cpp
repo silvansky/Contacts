@@ -1,7 +1,5 @@
 #include "mainwindowplugin.h"
 
-#include <loader/svninfo.h>
-
 MainWindowPlugin::MainWindowPlugin()
 {
 	FPluginManager = NULL;
@@ -99,8 +97,7 @@ IMainWindow *MainWindowPlugin::mainWindow() const
 
 void MainWindowPlugin::updateTitle()
 {
-	QString svnRevision(SVN_REVISION);
-	FMainWindow->setWindowTitle(CLIENT_NAME" | R" + svnRevision.right(svnRevision.length() - 2));
+	FMainWindow->setWindowTitle(CLIENT_NAME" | R" + FPluginManager->revision());
 }
 
 void MainWindowPlugin::showMainWindow()

@@ -1,4 +1,5 @@
 #include "menu.h"
+#include <QResizeEvent>
 
 Menu::Menu(QWidget *AParent) : QMenu(AParent)
 {
@@ -8,12 +9,15 @@ Menu::Menu(QWidget *AParent) : QMenu(AParent)
 	FMenuAction->setMenu(this);
 
 	setSeparatorsCollapsible(true);
+	FBottomWidget = 0;
 }
 
 Menu::~Menu()
 {
 	if (FIconStorage)
 		FIconStorage->removeAutoIcon(this);
+	if (FBottomWidget)
+		FBottomWidget->deleteLater();
 	emit menuDestroyed(this);
 }
 
@@ -208,6 +212,40 @@ void Menu::setTitle(const QString &ATitle)
 {
 	FMenuAction->setText(ATitle);
 	QMenu::setTitle(ATitle);
+}
+
+QSize Menu::sizeHint() const
+{
+	QSize sz = QMenu::sizeHint();
+	if (FBottomWidget)
+		sz = sz.expandedTo(FBottomWidget->sizeHint());
+	return sz;
+}
+
+void Menu::setBottomWidget(QWidget * widget)
+{
+	if (FBottomWidget)
+		FBottomWidget->deleteLater();
+	FBottomWidget = widget;
+	FBottomWidget->setParent(this);
+	QMargins margins = contentsMargins();
+	margins.setBottom(margins.top());
+	margins.setBottom(margins.bottom() * 2 + FBottomWidget->sizeHint().height());
+	setContentsMargins(margins);
+}
+
+QWidget * Menu::bottomWidget() const
+{
+	return FBottomWidget;
+}
+
+void Menu::resizeEvent(QResizeEvent * event)
+{
+	if (FBottomWidget)
+	{
+		QMargins margins = contentsMargins();
+		FBottomWidget->setGeometry(margins.left(), event->size().height() - margins.top() * 2 - FBottomWidget->sizeHint().height(), FBottomWidget->sizeHint().width(), FBottomWidget->sizeHint().height());
+	}
 }
 
 void Menu::onActionDestroyed(Action *AAction)

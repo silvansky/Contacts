@@ -25,46 +25,10 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 
 	FYPos = -1;
 	FAnimateStep = -1;
-
-	QIcon icon = qvariant_cast<QIcon>(ANotification.data.value(NDR_ICON));
-	QString iconKey = ANotification.data.value(NDR_ICON_KEY).toString();
-	QString iconStorage = ANotification.data.value(NDR_ICON_STORAGE).toString();
-	QImage image = qvariant_cast<QImage>(ANotification.data.value(NDR_POPUP_IMAGE));
-	QString caption = ANotification.data.value(NDR_POPUP_CAPTION,tr("Notification")).toString();
-	QString title = ANotification.data.value(NDR_POPUP_TITLE).toString();
-	QString text = ANotification.data.value(NDR_POPUP_TEXT).toString();
-	FTimeOut = ANotification.data.value(NDR_POPUP_TIMEOUT,DEFAUTL_TIMEOUT).toInt();
-
-	if (!caption.isEmpty())
-		ui.lblCaption->setText(caption);
-	else
-		ui.lblCaption->setVisible(false);
-
-	if (!iconKey.isEmpty() && !iconStorage.isEmpty())
-		IconStorage::staticStorage(iconStorage)->insertAutoIcon(ui.lblIcon,iconKey,0,0,"pixmap");
-	else if (!icon.isNull())
-		ui.lblIcon->setPixmap(icon.pixmap(icon.availableSizes().value(0)));
-	else
-		ui.lblIcon->setVisible(false);
-
-	if (!title.isEmpty())
-		ui.lblTitle->setText(title);
-	else
-		ui.lblTitle->setVisible(false);
-
-	if (!text.isEmpty())
-	{
-		if (!image.isNull())
-			ui.lblImage->setPixmap(QPixmap::fromImage(image.scaled(ui.lblImage->maximumSize(),Qt::KeepAspectRatio)));
-		else
-			ui.lblImage->setVisible(false);
-		ui.lblText->setText(text);
-	}
-	else
-	{
-		ui.lblImage->setVisible(false);
-		ui.lblText->setVisible(false);
-	}
+	setNotification(ANotification);
+	connect(ui.closeButton, SIGNAL(clicked()), SIGNAL(closeButtonCLicked()));
+	connect(ui.settingsButton, SIGNAL(clicked()), SIGNAL(settingsButtonCLicked()));
+	deleteTimer = new QTimer(this);
 }
 
 NotifyWidget::~NotifyWidget()
@@ -85,7 +49,12 @@ void NotifyWidget::appear()
 		connect(timer,SIGNAL(timeout()),SLOT(onAnimateStep()));
 
 		if (FTimeOut > 0)
-			QTimer::singleShot(FTimeOut,this,SLOT(deleteLater()));
+		{
+			deleteTimer->setSingleShot(true);
+			deleteTimer->setInterval(FTimeOut);
+			connect(deleteTimer, SIGNAL(timeout()), SLOT(deleteLater()));
+			deleteTimer->start();
+		}
 
 		setWindowOpacity(ANIMATE_OPACITY_START);
 
@@ -103,6 +72,90 @@ void NotifyWidget::animateTo(int AYPos)
 	}
 }
 
+INotification NotifyWidget::notification() const
+{
+	return FNotification;
+}
+
+void NotifyWidget::setNotification(const INotification & notification)
+{
+	FNotification = notification;
+	QIcon icon = qvariant_cast<QIcon>(FNotification.data.value(NDR_ICON));
+	QString iconKey = FNotification.data.value(NDR_ICON_KEY).toString();
+	QString iconStorage = FNotification.data.value(NDR_ICON_STORAGE).toString();
+	QImage image = qvariant_cast<QImage>(FNotification.data.value(NDR_POPUP_IMAGE));
+	QString caption = FNotification.data.value(NDR_POPUP_CAPTION,tr("Notification")).toString();
+	QString title = FNotification.data.value(NDR_POPUP_TITLE).toString();
+	QString text = FNotification.data.value(NDR_POPUP_TEXT).toString();
+	FTimeOut = FNotification.data.value(NDR_POPUP_TIMEOUT,DEFAUTL_TIMEOUT).toInt();
+
+	if (!caption.isEmpty())
+		ui.notifyCaption->setText(caption);
+	else
+		ui.notifyCaption->setVisible(false);
+
+	if (!iconKey.isEmpty() && !iconStorage.isEmpty())
+		IconStorage::staticStorage(iconStorage)->insertAutoIcon(ui.lblIcon,iconKey,0,0,"pixmap");
+	else if (!icon.isNull())
+		ui.lblIcon->setPixmap(icon.pixmap(icon.availableSizes().value(0)));
+	else
+		ui.lblIcon->setVisible(false);
+
+	if (!title.isEmpty())
+		ui.lblTitle->setText(title);
+	else
+		ui.lblTitle->setVisible(false);
+
+	if (!text.isEmpty())
+	{
+		FTextMessages.append(text);
+		if (!image.isNull())
+			ui.lblImage->setPixmap(QPixmap::fromImage(image.scaled(ui.lblImage->maximumSize(),Qt::KeepAspectRatio)));
+		else
+			ui.lblImage->setVisible(false);
+		ui.lblText->setText(text);
+	}
+	else
+	{
+		ui.lblImage->setVisible(false);
+		ui.lblText->setVisible(false);
+	}
+}
+
+void NotifyWidget::appendText(const QString & text)
+{
+	FTextMessages.append(text);
+	if (FTextMessages.count() > 3)
+		FTextMessages.takeFirst();
+	QString fullText = FTextMessages.join("\n\n");
+	//QRect oldGeometry = geometry();
+	if (!fullText.isEmpty())
+	{
+		ui.lblText->setText(fullText);
+	}
+	else
+	{
+		ui.lblImage->setVisible(false);
+		ui.lblText->setVisible(false);
+	}
+	if (deleteTimer->isActive())
+	{
+		deleteTimer->stop();
+		deleteTimer->start();
+	}
+	adjustSize();
+	//setGeometry(oldGeometry.translated(0, geometry().bottom() - oldGeometry.bottom()));
+	//layoutWidgets();
+}
+
+NotifyWidget* NotifyWidget::findNotifyWidget(Jid AStreamJid, Jid AContactJid)
+{
+	foreach(NotifyWidget * widget, FWidgets)
+		if (((Jid(widget->notification().data.value(NDR_STREAM_JID).toString()) && AStreamJid)) && (Jid(widget->notification().data.value(NDR_CONTACT_JID).toString()) && AContactJid))
+			return widget;
+	return 0;
+}
+
 void NotifyWidget::mouseReleaseEvent(QMouseEvent *AEvent)
 {
 	QWidget::mouseReleaseEvent(AEvent);
@@ -110,6 +163,12 @@ void NotifyWidget::mouseReleaseEvent(QMouseEvent *AEvent)
 		emit notifyActivated();
 	else if (AEvent->button() == Qt::RightButton)
 		emit notifyRemoved();
+}
+
+void NotifyWidget::resizeEvent(QResizeEvent * event)
+{
+	QWidget::resizeEvent(event);
+	layoutWidgets();
 }
 
 void NotifyWidget::onAnimateStep()
