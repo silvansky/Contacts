@@ -237,12 +237,6 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 	notify.data.insert(NDR_POPUP_TEXT,Qt::escape(AMessage.body()));
 	notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
 
-	QList<QVariant> unnotify;
-	foreach(int messageId, FActiveMessages.values(window))
-		if (messageId != AMessage.data(MDR_MESSAGE_ID).toInt())
-			unnotify.append(QVariant(messageId));
-	//notify.data.insert(NDR_UNNOTIFY_MESSAGES,unnotify);
-
 	return notify;
 }
 

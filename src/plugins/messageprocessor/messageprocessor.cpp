@@ -294,10 +294,6 @@ void MessageProcessor::notifyMessage(int AMessageId)
 				int notifyId = FNotifications->appendNotification(notify);
 				FNotifyId2MessageId.insert(notifyId,AMessageId);
 			}
-			foreach(QVariant messageId, notify.data.value(NDR_UNNOTIFY_MESSAGES).toList()) 
-			{
-				unNotifyMessage(messageId.toInt()); 
-			}
 		}
 		emit messageNotified(AMessageId);
 	}
