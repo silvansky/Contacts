@@ -1,6 +1,7 @@
 #include "traymanager.h"
 
 #include <QApplication>
+#include <QContextMenuEvent>
 
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250
@@ -18,7 +19,6 @@ TrayManager::TrayManager()
 	FBlinkTimer.setSingleShot(true);
 	connect(&FBlinkTimer,SIGNAL(timeout()),SLOT(onBlinkTimerTimeout()));
 
-	FTriggerTimer.setInterval(qApp->doubleClickInterval()+1);
 	FTriggerTimer.setSingleShot(true);
 	connect(&FTriggerTimer,SIGNAL(timeout()),SLOT(onTriggerTimerTimeout()));
 	
@@ -63,6 +63,11 @@ bool TrayManager::startPlugin()
 {
 	FSystemIcon.show();
 	return true;
+}
+
+QRect TrayManager::geometry() const
+{
+	return FSystemIcon.geometry();
 }
 
 Menu *TrayManager::contextMenu() const
@@ -184,7 +189,7 @@ void TrayManager::onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason)
 	if (AReason != QSystemTrayIcon::Trigger)
 		emit notifyActivated(FActiveNotify,AReason);
 	else if (!FTriggerTimer.isActive())
-		FTriggerTimer.start();
+		FTriggerTimer.start(qApp->doubleClickInterval());
 	else
 		FTriggerTimer.stop();
 }

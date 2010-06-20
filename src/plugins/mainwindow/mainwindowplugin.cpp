@@ -66,7 +66,7 @@ bool MainWindowPlugin::initObjects()
 
 	FOpenAction = new Action(this);
 	FOpenAction->setVisible(false);
-	FOpenAction->setText(tr("Show roster"));
+	FOpenAction->setText(tr("Open Virtus"));
 	FOpenAction->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_SHOW_ROSTER);
 	connect(FOpenAction,SIGNAL(triggered(bool)),SLOT(onShowMainWindowByAction(bool)));
 
@@ -136,7 +136,7 @@ void MainWindowPlugin::onProfileRenamed(const QString &AProfile, const QString &
 
 void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
-	if (ANotifyId<0 && AReason==QSystemTrayIcon::Trigger)
+	if (ANotifyId<0 && AReason==QSystemTrayIcon::DoubleClick)
 	{
 		if (!FMainWindow->isVisible() && !Options::isNull())
 			showMainWindow();

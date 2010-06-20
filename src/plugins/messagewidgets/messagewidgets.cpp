@@ -10,6 +10,7 @@ MessageWidgets::MessageWidgets()
 {
 	FPluginManager = NULL;
 	FXmppStreams = NULL;
+	FTrayManager = NULL;
 	FOptionsManager = NULL;
 }
 
@@ -46,6 +47,18 @@ bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &/*AIni
 			connect(FXmppStreams->instance(),SIGNAL(jidAboutToBeChanged(IXmppStream *, const Jid &)),
 				SLOT(onStreamJidAboutToBeChanged(IXmppStream *, const Jid &)));
 			connect(FXmppStreams->instance(),SIGNAL(removed(IXmppStream *)),SLOT(onStreamRemoved(IXmppStream *)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("ITrayManager").value(0,NULL);
+	if (plugin)
+	{
+		FTrayManager = qobject_cast<ITrayManager *>(plugin->instance());
+		if (FTrayManager)
+		{
+			connect(FTrayManager->instance(),SIGNAL(notifyActivated(int, QSystemTrayIcon::ActivationReason)),
+				SLOT(onTrayNotifyActivated(int,QSystemTrayIcon::ActivationReason)));
+			connect(FTrayManager->contextMenu(),SIGNAL(aboutToShow()),SLOT(onTrayContextMenuAboutToShow()));
 		}
 	}
 
@@ -331,7 +344,7 @@ ITabWindow *MessageWidgets::assignTabWindowPage(ITabPage *APage)
 	if (Options::node(OPV_MESSAGES_TABWINDOWS_ENABLE).value().toBool())
 	{
 		QList<QUuid> availWindows = tabWindowList();
-		QUuid windowId = FPageWindows.value(APage->tabPageId());
+		QUuid windowId = FTabPageWindow.value(APage->tabPageId());
 		if (!availWindows.contains(windowId))
 			windowId = Options::node(OPV_MESSAGES_TABWINDOWS_DEFAULT).value().toString();
 		if (!availWindows.contains(windowId))
@@ -349,7 +362,7 @@ QList<IViewDropHandler *> MessageWidgets::viewDropHandlers() const
 
 void MessageWidgets::insertViewDropHandler(IViewDropHandler *AHandler)
 {
-	if (!FViewDropHandlers.contains(AHandler))
+	if (AHandler && !FViewDropHandlers.contains(AHandler))
 	{
 		FViewDropHandlers.append(AHandler);
 		emit viewDropHandlerInserted(AHandler);
@@ -372,7 +385,7 @@ QMultiMap<int, IViewUrlHandler *> MessageWidgets::viewUrlHandlers() const
 
 void MessageWidgets::insertViewUrlHandler(IViewUrlHandler *AHandler, int AOrder)
 {
-	if (!FViewUrlHandlers.values(AOrder).contains(AHandler))
+	if (AHandler && !FViewUrlHandlers.values(AOrder).contains(AHandler))
 	{
 		FViewUrlHandlers.insertMulti(AOrder,AHandler);
 		emit viewUrlHandlerInserted(AHandler,AOrder);
@@ -385,6 +398,31 @@ void MessageWidgets::removeViewUrlHandler(IViewUrlHandler *AHandler, int AOrder)
 	{
 		FViewUrlHandlers.remove(AOrder,AHandler);
 		emit viewUrlHandlerRemoved(AHandler,AOrder);
+	}
+}
+
+QList<ITabPageHandler *> MessageWidgets::tabPageHandlers() const
+{
+	return FTabPageHandlers;
+}
+
+void MessageWidgets::insertTabPageHandler(ITabPageHandler *AHandler)
+{
+	if (AHandler && !FTabPageHandlers.contains(AHandler))
+	{
+		FTabPageHandlers.append(AHandler);
+		connect(AHandler->instance(),SIGNAL(tabPageCreated(ITabPage *)),SLOT(onTabPageCreated(ITabPage *)));
+		emit tabPageHandlerInserted(AHandler);
+	}
+}
+
+void MessageWidgets::removeTabPageHandler(ITabPageHandler *AHandler)
+{
+	if (FTabPageHandlers.contains(AHandler))
+	{
+		FTabPageHandlers.removeAll(AHandler);
+		disconnect(AHandler->instance(),SIGNAL(tabPageCreated(ITabPage *)),this,SLOT(onTabPageCreated(ITabPage *)));
+		emit tabPageHandlerRemoved(AHandler);
 	}
 }
 
@@ -433,6 +471,49 @@ QString MessageWidgets::selectionHref(const QTextDocumentFragment &ASelection) c
 	}
 	
 	return href;
+}
+
+Menu *MessageWidgets::createLastTabPagesMenu()
+{
+	Menu *menu = new Menu;
+	menu->setAttribute(Qt::WA_DeleteOnClose, true);
+	menu->setTitle(tr("Last Contacts"));
+	menu->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_LAST_TABS);
+
+	Action *showAll = new Action(menu);
+	showAll->setText(tr("Open All"));
+	showAll->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_LAST_OPEN_ALL);
+	menu->addAction(showAll,AG_DEFAULT-1);
+	
+	QList<Action *> actions;
+	for (int i = 0; actions.count()<10 && i<FLastTabPages.count(); i++)
+	{
+		foreach(ITabPageHandler *handler, FTabPageHandlers)
+		{
+			Action *action = handler->tabPageAction(FLastTabPages.at(i), menu);
+			if (action)
+			{
+				actions.prepend(action);
+				break;
+			}
+		}
+	}
+
+	if (actions.count() > 0)
+	{
+		foreach (Action *action, actions)
+		{
+			menu->addAction(action);
+			connect(showAll,SIGNAL(triggered()),action,SLOT(trigger()));
+		}
+	}
+	else if (actions.count() == 0)
+	{
+		delete menu;
+		menu = NULL;
+	}
+
+	return menu;
 }
 
 void MessageWidgets::onViewWidgetUrlClicked(const QUrl &AUrl)
@@ -551,9 +632,24 @@ void MessageWidgets::onTabPageAdded(ITabPage *APage)
 	if (window)
 	{
 		if (window->windowId() != Options::node(OPV_MESSAGES_TABWINDOWS_DEFAULT).value().toString())
-			FPageWindows.insert(APage->tabPageId(), window->windowId());
+			FTabPageWindow.insert(APage->tabPageId(), window->windowId());
 		else
-			FPageWindows.remove(APage->tabPageId());
+			FTabPageWindow.remove(APage->tabPageId());
+	}
+}
+
+void MessageWidgets::onTabPageCreated(ITabPage *APage)
+{
+	connect(APage->instance(),SIGNAL(tabPageActivated()),SLOT(onTabPageActivated()));
+}
+
+void MessageWidgets::onTabPageActivated()
+{
+	ITabPage *page = qobject_cast<ITabPage *>(sender());
+	if (page /*&& !FLastTabPages.contains(page->tabPageId())*/)
+	{
+		FLastTabPages.removeAll(page->tabPageId());
+		FLastTabPages.prepend(page->tabPageId());
 	}
 }
 
@@ -578,6 +674,29 @@ void MessageWidgets::onStreamRemoved(IXmppStream *AXmppStream)
 	deleteStreamWindows(AXmppStream->streamJid());
 }
 
+void MessageWidgets::onTrayContextMenuAboutToShow()
+{
+	Menu *menu = createLastTabPagesMenu();
+	if (menu)
+	{
+		FTrayManager->contextMenu()->addAction(menu->menuAction(),AG_TMTM_MESSAGEWIDGETS_LASTTABS);
+		connect(FTrayManager->contextMenu(),SIGNAL(aboutToHide()),menu,SLOT(deleteLater()));
+	}
+}
+
+void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
+{
+	if (ANotifyId<0 && AReason==QSystemTrayIcon::Trigger && !FTabPageHandlers.isEmpty())
+	{
+		Menu *menu = createLastTabPagesMenu();
+		if (menu)
+		{
+			menu->popup(QCursor::pos());
+			connect(FTrayManager->instance(),SIGNAL(notifyActivated(int,QSystemTrayIcon::ActivationReason)),menu,SLOT(deleteLater()));
+		}
+	}
+}
+
 void MessageWidgets::onOptionsOpened()
 {
 	if (tabWindowList().isEmpty())
@@ -587,16 +706,25 @@ void MessageWidgets::onOptionsOpened()
 		Options::node(OPV_MESSAGES_TABWINDOWS_DEFAULT).setValue(tabWindowList().value(0).toString());
 
 	QByteArray data = Options::fileValue("messages.tab-window-pages").toByteArray();
-	QDataStream stream(data);
-	stream >> FPageWindows;
+	QDataStream stream1(data);
+	stream1 >> FTabPageWindow;
+
+	data = Options::fileValue("messages.last-tab-pages").toByteArray();
+	QDataStream stream2(data);
+	stream2 >> FLastTabPages;
 }
 
 void MessageWidgets::onOptionsClosed()
 {
 	QByteArray data;
 	QDataStream stream(&data, QIODevice::WriteOnly);
-	stream << FPageWindows;
+	stream << FTabPageWindow;
 	Options::setFileValue(data,"messages.tab-window-pages");
+
+	data.clear();
+	QDataStream stream1(&data, QIODevice::WriteOnly);
+	stream1 << FLastTabPages;
+	Options::setFileValue(data,"messages.last-tab-pages");
 
 	deleteWindows();
 }

@@ -48,15 +48,15 @@ signals:
 	//ITabPage
 	void tabPageShow();
 	void tabPageClose();
+	void tabPageClosed();
 	void tabPageChanged();
+	void tabPageActivated();
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
 	//IChatWindow
 	void messageReady();
 	void streamJidChanged(const Jid &ABefour);
 	void contactJidChanged(const Jid &ABefour);
-	void windowActivated();
-	void windowClosed();
 protected:
 	void initialize();
 	void saveWindowGeometry();

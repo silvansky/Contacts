@@ -590,9 +590,9 @@ void ChatStates::onChatWindowCreated(IChatWindow *AWindow)
 	widget->setPopupMode(QToolButton::InstantPopup);
 
 	FChatByEditor.insert(AWindow->editWidget()->textEdit(),AWindow);
-	connect(AWindow->instance(),SIGNAL(windowActivated()),SLOT(onChatWindowActivated()));
+	connect(AWindow->instance(),SIGNAL(tabPageActivated()),SLOT(onChatWindowActivated()));
 	connect(AWindow->editWidget()->textEdit(),SIGNAL(textChanged()),SLOT(onChatWindowTextChanged()));
-	connect(AWindow->instance(),SIGNAL(windowClosed()),SLOT(onChatWindowClosed()));
+	connect(AWindow->instance(),SIGNAL(tabPageClosed()),SLOT(onChatWindowClosed()));
 }
 
 void ChatStates::onChatWindowActivated()

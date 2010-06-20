@@ -12,10 +12,6 @@
         <translation>Параметры уведомления</translation>
     </message>
     <message>
-        <source>Activate All Notifications</source>
-        <translation>Активировать все уведомления</translation>
-    </message>
-    <message>
         <source>Remove All Notifications</source>
         <translation>Удалить все уведомления</translation>
     </message>
@@ -34,6 +30,10 @@
     <message>
         <source>Enable/Disable notifications sound</source>
         <translation>Включить/Выключить звук уведомлений</translation>
+    </message>
+    <message>
+        <source>New messages</source>
+        <translation>Новые сообщения</translation>
     </message>
 </context>
 <context>
@@ -68,6 +68,17 @@
     <message>
         <source>Notification</source>
         <translation>Уведомление</translation>
+    </message>
+</context>
+<context>
+    <name>NotifyWidgetClass</name>
+    <message>
+        <source>X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>*</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -31,12 +31,12 @@
         <translation>Выход</translation>
     </message>
     <message>
-        <source>Show roster</source>
-        <translation>Показать список контактов</translation>
-    </message>
-    <message>
         <source>Allows other modules to place their widgets in the main window</source>
         <translation>Позволяет другим модулям размещать свои виджеты в главном окне</translation>
+    </message>
+    <message>
+        <source>Open Virtus</source>
+        <translation>Открыть Virtus</translation>
     </message>
 </context>
 </TS>

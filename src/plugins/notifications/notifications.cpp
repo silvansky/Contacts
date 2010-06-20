@@ -121,7 +121,7 @@ bool Notifications::initObjects()
 
 	FActivateAll = new Action(this);
 	FActivateAll->setVisible(false);
-	FActivateAll->setText(tr("Activate All Notifications"));
+	FActivateAll->setText(tr("New messages"));
 	FActivateAll->setIcon(RSR_STORAGE_MENUICONS,MNI_NOTIFICATIONS_ACTIVATE_ALL);
 	connect(FActivateAll,SIGNAL(triggered(bool)),SLOT(onTrayActionTriggered(bool)));
 
@@ -138,7 +138,7 @@ bool Notifications::initObjects()
 
 	if (FTrayManager)
 	{
-		//FTrayManager->contextMenu()->addAction(FActivateAll,AG_TMTM_NOTIFICATIONS,false);
+		FTrayManager->contextMenu()->addAction(FActivateAll,AG_TMTM_NOTIFICATIONS,false);
 		//FTrayManager->contextMenu()->addAction(FRemoveAll,AG_TMTM_NOTIFICATIONS,false);
 		//FTrayManager->contextMenu()->addAction(FNotifyMenu->menuAction(),AG_TMTM_NOTIFICATIONS,false);
 	}
@@ -526,7 +526,7 @@ void Notifications::onRosterNotifyRemoved(IRosterIndex *AIndex, int ANotifyId)
 
 void Notifications::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
-	if (AReason == QSystemTrayIcon::Trigger)
+	if (ANotifyId>0 && AReason==QSystemTrayIcon::Trigger)
 	{
 		activateNotification(notifyIdByTrayId(ANotifyId));
 	}

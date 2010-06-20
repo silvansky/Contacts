@@ -19,6 +19,7 @@ class ITrayManager
 {
 public:
 	virtual QObject *instance() =0;
+	virtual QRect geometry() const =0;
 	virtual Menu *contextMenu() const =0;
 	virtual QIcon icon() const =0;
 	virtual void setIcon(const QIcon &AIcon) =0;

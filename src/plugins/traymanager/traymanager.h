@@ -30,6 +30,7 @@ public:
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin();
 	//ITrayManager
+	virtual QRect geometry() const;
 	virtual Menu *contextMenu() const;
 	virtual QIcon icon() const;
 	virtual void setIcon(const QIcon &AIcon);

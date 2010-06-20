@@ -1505,7 +1505,7 @@ void RosterChanger::onChatWindowCreated(IChatWindow *AWindow)
 		QTimer::singleShot(0,this,SLOT(onShowPendingNotices()));
 	FPendingChatWindows.append(AWindow);
 
-	connect(AWindow->instance(),SIGNAL(windowActivated()),SLOT(onChatWindowActivated()));
+	connect(AWindow->instance(),SIGNAL(tabPageActivated()),SLOT(onChatWindowActivated()));
 	connect(AWindow->noticeWidget()->instance(),SIGNAL(noticeRemoved(int)),SLOT(onNoticeRemoved(int)));
 }
 

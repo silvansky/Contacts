@@ -11,6 +11,7 @@
 #include <definations/viewurlhandlerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imessagewidgets.h>
+#include <interfaces/itraymanager.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 #include "infowidget.h"
@@ -83,6 +84,9 @@ public:
 	virtual QMultiMap<int, IViewUrlHandler *> viewUrlHandlers() const;
 	virtual void insertViewUrlHandler(IViewUrlHandler *AHandler, int AOrder);
 	virtual void removeViewUrlHandler(IViewUrlHandler *AHandler, int AOrder);
+	virtual QList<ITabPageHandler *> tabPageHandlers() const;
+	virtual void insertTabPageHandler(ITabPageHandler *AHandler);
+	virtual void removeTabPageHandler(ITabPageHandler *AHandler);
 signals:
 	void infoWidgetCreated(IInfoWidget *AInfoWidget);
 	void viewWidgetCreated(IViewWidget *AViewWidget);
@@ -106,10 +110,13 @@ signals:
 	void viewDropHandlerRemoved(IViewDropHandler *AHandler);
 	void viewUrlHandlerInserted(IViewUrlHandler *AHandler, int AOrder);
 	void viewUrlHandlerRemoved(IViewUrlHandler *AHandler, int AOrder);
+	void tabPageHandlerInserted(ITabPageHandler *AHandler);
+	void tabPageHandlerRemoved(ITabPageHandler *AHandler);
 protected:
 	void deleteWindows();
 	void deleteStreamWindows(const Jid &AStreamJid);
 	QString selectionHref(const QTextDocumentFragment &ASelection) const;
+	Menu *createLastTabPagesMenu();
 protected slots:
 	void onViewWidgetUrlClicked(const QUrl &AUrl);
 	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
@@ -119,14 +126,19 @@ protected slots:
 	void onMessageWindowDestroyed();
 	void onChatWindowDestroyed();
 	void onTabPageAdded(ITabPage *APage);
+	void onTabPageCreated(ITabPage *APage);
+	void onTabPageActivated();
 	void onTabWindowDestroyed();
 	void onStreamJidAboutToBeChanged(IXmppStream *AXmppStream, const Jid &AAfter);
 	void onStreamRemoved(IXmppStream *AXmppStream);
+	void onTrayContextMenuAboutToShow();
+	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onOptionsOpened();
 	void onOptionsClosed();
 private:
 	IPluginManager *FPluginManager;
 	IXmppStreams *FXmppStreams;
+	ITrayManager *FTrayManager;
 	IOptionsManager *FOptionsManager;
 private:
 	QList<ITabWindow *> FTabWindows;
@@ -134,7 +146,9 @@ private:
 	QList<IMessageWindow *> FMessageWindows;
 	QObjectCleanupHandler FCleanupHandler;
 private:
-	QMap<QString, QUuid> FPageWindows;
+	QList<QString> FLastTabPages;
+	QHash<QString, QUuid> FTabPageWindow;
+	QList<ITabPageHandler *> FTabPageHandlers;
 	QList<IViewDropHandler *> FViewDropHandlers;
 	QMultiMap<int,IViewUrlHandler *> FViewUrlHandlers;
 };

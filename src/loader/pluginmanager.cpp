@@ -646,7 +646,7 @@ void PluginManager::createMenuActions()
 		{
 			trayManager->contextMenu()->addAction(aboutQt,AG_TMTM_PLUGINMANAGER);
 			trayManager->contextMenu()->addAction(about,AG_TMTM_PLUGINMANAGER);
-			trayManager->contextMenu()->addAction(pluginsDialog,AG_TMTM_PLUGINMANAGER);
+			//trayManager->contextMenu()->addAction(pluginsDialog,AG_TMTM_PLUGINMANAGER);
 		}
 	}
 	else

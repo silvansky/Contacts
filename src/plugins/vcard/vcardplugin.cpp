@@ -460,10 +460,11 @@ void VCardPlugin::onChatWindowCreated(IChatWindow *AWindow)
 
 void VCardPlugin::onBinaryCached(const QString &AContentId, const QString &AType, const QByteArray &AData, quint64 AMaxAge)
 {
+	Q_UNUSED(AMaxAge);
 	if (FAvatarsBinaryCids.contains(AContentId))
 	{
 		Jid streamJid = FAvatarsBinaryCids.take(AContentId);
-		QImage img = QImage::fromData(AData, AType.toStdString().c_str());
+		QImage img = QImage::fromData(AData, AType.toLatin1().data());
 	}
 }
 

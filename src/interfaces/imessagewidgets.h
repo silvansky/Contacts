@@ -238,7 +238,9 @@ public:
 protected:
 	virtual void tabPageShow() =0;
 	virtual void tabPageClose() =0;
+	virtual void tabPageClosed() =0;
 	virtual void tabPageChanged() =0;
+	virtual void tabPageActivated() =0;
 	virtual void tabPageDestroyed() =0;
 	virtual void tabPageNotifierChanged() =0;
 };
@@ -286,8 +288,6 @@ protected:
 	virtual void messageReady() =0;
 	virtual void streamJidChanged(const Jid &ABefour) =0;
 	virtual void contactJidChanged(const Jid &ABefour) =0;
-	virtual void windowActivated() =0;
-	virtual void windowClosed() =0;
 };
 
 class IMessageWindow :
@@ -328,8 +328,6 @@ protected:
 	virtual void messageReady() =0;
 	virtual void streamJidChanged(const Jid &ABefour) =0;
 	virtual void contactJidChanged(const Jid &ABefour) =0;
-	virtual void windowActivated() =0;
-	virtual void windowClosed() =0;
 };
 
 class IViewDropHandler
@@ -345,6 +343,19 @@ class IViewUrlHandler
 {
 public:
 	virtual bool viewUrlOpen(IViewWidget *AWidget, const QUrl &AUrl, int AOrder) =0;
+};
+
+class ITabPageHandler
+{
+public:
+	virtual QObject *instance() = 0;
+	virtual bool tabPageAvail(const QString &ATabPageId) const =0;
+	virtual ITabPage *tabPageFind(const QString &ATabPageId) const =0;
+	virtual ITabPage *tabPageCreate(const QString &ATabPageId) =0;
+	virtual Action *tabPageAction(const QString &ATabPageId, QObject *AParent) =0;
+protected:
+	virtual void tabPageCreated(ITabPage *ATabPage) =0;
+	virtual void tabPageDestroyed(ITabPage *ATabPage) =0;
 };
 
 class IMessageWidgets
@@ -382,6 +393,9 @@ public:
 	virtual QMultiMap<int, IViewUrlHandler *> viewUrlHandlers() const =0;
 	virtual void insertViewUrlHandler(IViewUrlHandler *AHandler, int AOrder) =0;
 	virtual void removeViewUrlHandler(IViewUrlHandler *AHandler, int AOrder) =0;
+	virtual QList<ITabPageHandler *> tabPageHandlers() const =0;
+	virtual void insertTabPageHandler(ITabPageHandler *AHandler) =0;
+	virtual void removeTabPageHandler(ITabPageHandler *AHandler) =0;
 protected:
 	virtual void infoWidgetCreated(IInfoWidget *AInfoWidget) =0;
 	virtual void viewWidgetCreated(IViewWidget *AViewWidget) =0;
@@ -405,6 +419,8 @@ protected:
 	virtual void viewDropHandlerRemoved(IViewDropHandler *AHandler) =0;
 	virtual void viewUrlHandlerInserted(IViewUrlHandler *AHandler, int AOrder) =0;
 	virtual void viewUrlHandlerRemoved(IViewUrlHandler *AHandler, int AOrder) =0;
+	virtual void tabPageHandlerInserted(ITabPageHandler *AHandler) =0;
+	virtual void tabPageHandlerRemoved(ITabPageHandler *AHandler) =0;
 };
 
 Q_DECLARE_INTERFACE(IInfoWidget,"Virtus.Plugin.IInfoWidget/1.0")
@@ -422,6 +438,7 @@ Q_DECLARE_INTERFACE(IChatWindow,"Virtus.Plugin.IChatWindow/1.0")
 Q_DECLARE_INTERFACE(IMessageWindow,"Virtus.Plugin.IMessageWindow/1.0")
 Q_DECLARE_INTERFACE(IViewDropHandler,"Virtus.Plugin.IViewDropHandler/1.0")
 Q_DECLARE_INTERFACE(IViewUrlHandler,"Virtus.Plugin.IViewUrlHandler/1.0")
+Q_DECLARE_INTERFACE(ITabPageHandler,"Virtus.Plugin.ITabPageHandler/1.0")
 Q_DECLARE_INTERFACE(IMessageWidgets,"Virtus.Plugin.IMessageWidgets/1.0")
 
 #endif

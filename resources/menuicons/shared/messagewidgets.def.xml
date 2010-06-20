@@ -9,6 +9,14 @@
     <object mime="image/png">messagewidgetstabmenu.png</object>
   </icon>
   <icon>
+    <key>messagewidgetsLastTabs</key>
+    <object mime="image/png">messagewidgetslasttabs.png</object>
+  </icon>
+  <icon>
+    <key>messagewidgetsLastOpenAll</key>
+    <object mime="image/png">messagewidgetslastopenall.png</object>
+  </icon>
+  <icon>
     <key>messagewidgetsQuote</key>
     <object mime="image/png">messagewidgetsquote.png</object>
   </icon>

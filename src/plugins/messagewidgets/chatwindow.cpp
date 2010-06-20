@@ -203,7 +203,7 @@ bool ChatWindow::event(QEvent *AEvent)
 	}
 	else if (AEvent->type() == QEvent::WindowActivate)
 	{
-		emit windowActivated();
+		emit tabPageActivated();
 	}
 	return QMainWindow::event(AEvent);
 }
@@ -215,7 +215,7 @@ void ChatWindow::showEvent(QShowEvent *AEvent)
 	FShownDetached = isWindow();
 	QMainWindow::showEvent(AEvent);
 	FEditWidget->textEdit()->setFocus();
-	emit windowActivated();
+	emit tabPageActivated();
 }
 
 void ChatWindow::closeEvent(QCloseEvent *AEvent)
@@ -223,7 +223,7 @@ void ChatWindow::closeEvent(QCloseEvent *AEvent)
 	if (FShownDetached)
 		saveWindowGeometry();
 	QMainWindow::closeEvent(AEvent);
-	emit windowClosed();
+	emit tabPageClosed();
 }
 
 void ChatWindow::onMessageReady()

@@ -89,6 +89,14 @@
         <source>Search on Rambler</source>
         <translation>Искать в Рамблере</translation>
     </message>
+    <message>
+        <source>Last Contacts</source>
+        <translation>Последние контакты</translation>
+    </message>
+    <message>
+        <source>Open All</source>
+        <translation>Открыть все</translation>
+    </message>
 </context>
 <context>
     <name>MessageWindow</name>

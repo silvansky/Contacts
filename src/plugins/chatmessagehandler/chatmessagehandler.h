@@ -45,15 +45,24 @@ struct WindowStatus
 	QString lastStatusShow;
 };
 
+struct TabPageInfo
+{
+	Jid streamJid;
+	Jid contactJid;
+	ITabPage *page;
+	QDateTime lastActive;
+};
+
 class ChatMessageHandler :
 			public QObject,
 			public IPlugin,
 			public IMessageHandler,
+			public ITabPageHandler,
 			public IXmppUriHandler,
 			public IRostersClickHooker
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMessageHandler IRostersClickHooker IXmppUriHandler);
+	Q_INTERFACES(IPlugin IMessageHandler ITabPageHandler IXmppUriHandler IRostersClickHooker);
 public:
 	ChatMessageHandler();
 	~ChatMessageHandler();
@@ -65,6 +74,11 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
+	//ITabPageHandler
+	virtual bool tabPageAvail(const QString &ATabPageId) const;
+	virtual ITabPage *tabPageFind(const QString &ATabPageId) const;
+	virtual ITabPage *tabPageCreate(const QString &ATabPageId);
+	virtual Action *tabPageAction(const QString &ATabPageId, QObject *AParent);
 	//IXmppUriHandler
 	virtual bool xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, const QString &AAction, const QMultiMap<QString, QString> &AParams);
 	//IRostersClickHooker
@@ -75,11 +89,17 @@ public:
 	virtual bool receiveMessage(int AMessageId);
 	virtual INotification notification(INotifications *ANotifications, const Message &AMessage);
 	virtual bool createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
+signals:
+	//ITabPageHandler
+	void tabPageCreated(ITabPage *ATabPage);
+	void tabPageDestroyed(ITabPage *ATabPage);
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	void updateWindow(IChatWindow *AWindow);
 	void removeActiveMessages(IChatWindow *AWindow);
+	IPresence *findPresence(const Jid &AStreamJid) const;
+	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
 	void showHistory(IChatWindow *AWindow);
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
@@ -94,9 +114,14 @@ protected slots:
 	void onWindowDestroyed();
 	void onStatusIconsChanged();
 	void onShowWindowAction(bool);
+	void onOpenTabPageAction(bool);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onPresenceAdded(IPresence *APresence);
 	void onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem);
+	void onPresenceRemoved(IPresence *APresence);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
+	void onOptionsOpened();
+	void onOptionsClosed();
 private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
@@ -109,6 +134,10 @@ private:
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
 	IXmppUriQueries *FXmppUriQueries;
+	INotifications *FNotifications;
+private:
+	QList<IPresence *> FPrecences;
+	QHash<QString, TabPageInfo> FTabPages;
 private:
 	QList<IChatWindow *> FWindows;
 	QMultiMap<IChatWindow *,int> FActiveMessages;

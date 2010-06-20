@@ -239,7 +239,7 @@ void MessageWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, c
 bool MessageWindow::event(QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::WindowActivate)
-		emit windowActivated();
+		emit tabPageActivated();
 	return QMainWindow::event(AEvent);
 }
 
@@ -251,7 +251,7 @@ void MessageWindow::showEvent(QShowEvent *AEvent)
 	QMainWindow::showEvent(AEvent);
 	if (FMode == WriteMode)
 		FEditWidget->textEdit()->setFocus();
-	emit windowActivated();
+	emit tabPageActivated();
 }
 
 void MessageWindow::closeEvent(QCloseEvent *AEvent)
@@ -259,7 +259,7 @@ void MessageWindow::closeEvent(QCloseEvent *AEvent)
 	if (FShownDetached)
 		saveWindowGeometry();
 	QMainWindow::closeEvent(AEvent);
-	emit windowClosed();
+	emit tabPageClosed();
 }
 
 void MessageWindow::onStreamJidChanged(const Jid &ABefour)

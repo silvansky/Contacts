@@ -28,7 +28,7 @@ StatusWidget::StatusWidget(QWidget *parent) :
 	ui->moodEdit->setVisible(false);
 	ui->moodEdit->installEventFilter(this);
 	ui->moodLabel->installEventFilter(this);
-	QString logoPath = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTER_LOGO);
+	QString logoPath = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_SCHANGER_ROSTER_LOGO);
 	logo.load(logoPath);
 	profileMenu = new Menu();
 	Action * manageProfileAction = new Action(profileMenu);

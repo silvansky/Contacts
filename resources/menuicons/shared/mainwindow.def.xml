@@ -40,8 +40,4 @@
     <key>mainwindowShowRoster</key>
     <object mime="image/png">mainwindowshowroster.png</object>
   </icon>
-  <icon>
-    <key>rosterLogo</key>
-    <object mime="image/png">rosterlogo.png</object>
-  </icon>
 </icondef>

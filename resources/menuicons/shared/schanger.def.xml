@@ -12,4 +12,8 @@
     <key>schangerConnecting</key>
     <object mime="image/png">schangerconnecting.png</object>
   </icon>
+  <icon>
+    <key>schangerRosterLogo</key>
+    <object mime="image/png">schangerrosterlogo.png</object>
+  </icon>
 </icondef>

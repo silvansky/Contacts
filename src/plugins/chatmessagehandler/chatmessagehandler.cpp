@@ -8,8 +8,24 @@
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_CONTACT_JID           Action::DR_Parametr1
+#define ADR_TAB_PAGE_ID           Action::DR_Parametr2
 
 #define CHAT_NOTIFICATOR_ID       "ChatMessages"
+
+QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
+{
+	AStream << AInfo.streamJid;
+	AStream << AInfo.contactJid;
+	return AStream;
+}
+
+QDataStream &operator>>(QDataStream &AStream, TabPageInfo &AInfo)
+{
+	AStream >> AInfo.streamJid;
+	AStream >> AInfo.contactJid;
+	AInfo.page = NULL;
+	return AStream;
+}
 
 ChatMessageHandler::ChatMessageHandler()
 {
@@ -24,6 +40,7 @@ ChatMessageHandler::ChatMessageHandler()
 	FStatusIcons = NULL;
 	FStatusChanger = NULL;
 	FXmppUriQueries = NULL;
+	FNotifications = NULL;
 }
 
 ChatMessageHandler::~ChatMessageHandler()
@@ -81,8 +98,10 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 		if (FPresencePlugin)
 		{
+			connect(FPresencePlugin->instance(),SIGNAL(presenceAdded(IPresence *)),SLOT(onPresenceAdded(IPresence *)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
 				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceRemoved(IPresence *)),SLOT(onPresenceRemoved(IPresence *)));
 		}
 	}
 
@@ -129,11 +148,22 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 	if (plugin)
 		FXmppUriQueries = qobject_cast<IXmppUriQueries *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
+
+	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
+	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
+
 	return FMessageProcessor!=NULL && FMessageWidgets!=NULL && FMessageStyles!=NULL;
 }
 
 bool ChatMessageHandler::initObjects()
 {
+	if (FMessageWidgets)
+	{
+		FMessageWidgets->insertTabPageHandler(this);
+	}
 	if (FRostersView)
 	{
 		FRostersView->insertClickHooker(RCHO_CHATMESSAGEHANDLER,this);
@@ -147,6 +177,89 @@ bool ChatMessageHandler::initObjects()
 		FXmppUriQueries->insertUriHandler(this, XUHO_DEFAULT);
 	}
 	return true;
+}
+
+bool ChatMessageHandler::tabPageAvail(const QString &ATabPageId) const
+{
+	if (FTabPages.contains(ATabPageId))
+	{
+		const TabPageInfo &pageInfo = FTabPages.value(ATabPageId);
+		return pageInfo.page!=NULL || findPresence(pageInfo.streamJid)!=NULL;
+	}
+	return false;
+}
+
+ITabPage *ChatMessageHandler::tabPageFind(const QString &ATabPageId) const
+{
+	return FTabPages.contains(ATabPageId) ? FTabPages.value(ATabPageId).page : NULL;
+}
+
+ITabPage *ChatMessageHandler::tabPageCreate(const QString &ATabPageId)
+{
+	ITabPage *page = tabPageFind(ATabPageId);
+	if (page==NULL && tabPageAvail(ATabPageId))
+	{
+		TabPageInfo &pageInfo = FTabPages[ATabPageId];
+		IPresence *presence = findPresence(pageInfo.streamJid);
+		if (presence)
+		{
+			IPresenceItem pitem = findPresenceItem(presence,pageInfo.contactJid);
+			if (pitem.isValid)
+				page = getWindow(presence->streamJid(), pitem.itemJid);
+			else
+				page = getWindow(presence->streamJid(), pageInfo.contactJid);
+			pageInfo.page = page;
+		}
+	}
+	return page;
+}
+
+Action *ChatMessageHandler::tabPageAction(const QString &ATabPageId, QObject *AParent)
+{
+	if (tabPageAvail(ATabPageId))
+	{
+		const TabPageInfo &pageInfo = FTabPages.value(ATabPageId);
+		IPresence *presence = findPresence(pageInfo.streamJid);
+		if (presence && presence->isOpen())
+		{
+			ITabPage *page = tabPageFind(ATabPageId);
+			Action *action = new Action(AParent);
+			if (page)
+			{
+				if (page->tabPageNotifier() && page->tabPageNotifier()->activeNotify()>0)
+				{
+					ITabPageNotify notify = page->tabPageNotifier()->notifyById(page->tabPageNotifier()->activeNotify());
+					if (!notify.iconKey.isEmpty() && !notify.iconStorage.isEmpty())
+						action->setIcon(notify.iconStorage, notify.iconKey);
+					else
+						action->setIcon(notify.icon);
+				}
+				else
+				{
+					action->setIcon(page->instance()->windowIcon());
+				}
+				action->setText(FNotifications!=NULL ? FNotifications->contactName(pageInfo.streamJid,pageInfo.contactJid) : pageInfo.contactJid.bare());
+			}
+			else
+			{
+				IPresenceItem pitem = findPresenceItem(presence,pageInfo.contactJid);
+				if (pitem.isValid)
+				{
+					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(presence->streamJid(), pitem.itemJid) : QIcon());
+					action->setText(FNotifications!=NULL ? FNotifications->contactName(presence->streamJid(),pitem.itemJid) : pageInfo.contactJid.bare());
+				}
+				else
+				{
+					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(pageInfo.streamJid,pageInfo.contactJid) : QIcon());
+					action->setText(pageInfo.contactJid.bare());
+				}
+			}
+			action->setData(ADR_TAB_PAGE_ID, ATabPageId);
+			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenTabPageAction(bool)));
+			return action;
+		}
+	}
+	return NULL;
 }
 
 bool ChatMessageHandler::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, const QString &AAction, const QMultiMap<QString, QString> &AParams)
@@ -285,15 +398,16 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 			{
 				window->infoWidget()->autoUpdateFields();
 				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
+				FWindowStatus[window->viewWidget()].createTime = QDateTime::currentDateTime();
+
 				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 				connect(window->infoWidget()->instance(),SIGNAL(fieldChanged(IInfoWidget::InfoField, const QVariant &)),
 					SLOT(onInfoFieldChanged(IInfoWidget::InfoField, const QVariant &)));
-				connect(window->instance(),SIGNAL(windowActivated()),SLOT(onWindowActivated()));
-				connect(window->instance(),SIGNAL(windowClosed()),SLOT(onWindowClosed()));
+				connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
+				connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
 				connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
 
 				FWindows.append(window);
-				FWindowStatus[window->viewWidget()].createTime = QDateTime::currentDateTime();
 				updateWindow(window);
 
 				if (FRostersView && FRostersModel)
@@ -309,6 +423,9 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 				}
 
 				setMessageStyle(window);
+
+				emit tabPageCreated(window);
+
 				showHistory(window);
 			}
 		}
@@ -349,6 +466,25 @@ void ChatMessageHandler::removeActiveMessages(IChatWindow *AWindow)
 		FActiveMessages.remove(AWindow);
 		updateWindow(AWindow);
 	}
+}
+
+IPresence *ChatMessageHandler::findPresence(const Jid &AStreamJid) const
+{
+	IPresence *precsence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	for (int i=0; precsence==NULL && i<FPrecences.count(); i++)
+		if (AStreamJid && FPrecences.at(i)->streamJid())
+			precsence = FPrecences.at(i);
+	return precsence;
+}
+
+IPresenceItem ChatMessageHandler::findPresenceItem(IPresence *APresence, const Jid &AContactJid) const
+{
+	IPresenceItem pitem = APresence!=NULL ? APresence->presenceItem(AContactJid) : IPresenceItem();
+	QList<IPresenceItem> pitems = APresence!=NULL ? APresence->presenceItems() : QList<IPresenceItem>();
+	for (int i=0; !pitem.isValid && i<pitems.count(); i++)
+		if (AContactJid && pitems.at(i).itemJid)
+			pitem = pitems.at(i);
+	return pitem;
 }
 
 void ChatMessageHandler::showHistory(IChatWindow *AWindow)
@@ -526,9 +662,14 @@ void ChatMessageHandler::onWindowActivated()
 	IChatWindow *window = qobject_cast<IChatWindow *>(sender());
 	if (window)
 	{
-		removeActiveMessages(window);
+		TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+		pageInfo.streamJid = window->streamJid();
+		pageInfo.contactJid = window->contactJid();
+		pageInfo.page = window;
+
 		if (FWindowTimers.contains(window))
 			delete FWindowTimers.take(window);
+		removeActiveMessages(window);
 	}
 }
 
@@ -551,13 +692,16 @@ void ChatMessageHandler::onWindowClosed()
 void ChatMessageHandler::onWindowDestroyed()
 {
 	IChatWindow *window = qobject_cast<IChatWindow *>(sender());
-	if (FWindows.contains(window))
+	if (window)
 	{
-		removeActiveMessages(window);
+		if (FTabPages.contains(window->tabPageId()))
+			FTabPages[window->tabPageId()].page = NULL;
 		if (FWindowTimers.contains(window))
 			delete FWindowTimers.take(window);
-		FWindows.removeAt(FWindows.indexOf(window));
+		removeActiveMessages(window);
+		FWindows.removeAll(window);
 		FWindowStatus.remove(window->viewWidget());
+		emit tabPageDestroyed(window);
 	}
 }
 
@@ -575,6 +719,17 @@ void ChatMessageHandler::onShowWindowAction(bool)
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
 		createWindow(MHO_CHATMESSAGEHANDLER,streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
+	}
+}
+
+void ChatMessageHandler::onOpenTabPageAction(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		ITabPage *page = tabPageCreate(action->data(ADR_TAB_PAGE_ID).toString());
+		if (page)
+			page->showTabPage();
 	}
 }
 
@@ -600,6 +755,11 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AM
 	}
 }
 
+void ChatMessageHandler::onPresenceAdded(IPresence *APresence)
+{
+	FPrecences.append(APresence);
+}
+
 void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem)
 {
 	Jid streamJid = APresence->streamJid();
@@ -619,6 +779,11 @@ void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenc
 	}
 }
 
+void ChatMessageHandler::onPresenceRemoved( IPresence *APresence )
+{
+	FPrecences.removeAll(APresence);
+}
+
 void ChatMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext)
 {
 	if (AMessageType==Message::Chat && AContext.isEmpty())
@@ -634,6 +799,21 @@ void ChatMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOpti
 			}
 		}
 	}
+}
+
+void ChatMessageHandler::onOptionsOpened()
+{
+	QByteArray data = Options::fileValue("messages.last-chat-tab-pages").toByteArray();
+	QDataStream stream(data);
+	stream >> FTabPages;
+}
+
+void ChatMessageHandler::onOptionsClosed()
+{
+	QByteArray data;
+	QDataStream stream(&data, QIODevice::WriteOnly);
+	stream << FTabPages;
+	Options::setFileValue(data,"messages.last-chat-tab-pages");
 }
 
 Q_EXPORT_PLUGIN2(plg_chatmessagehandler, ChatMessageHandler)

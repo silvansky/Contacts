@@ -93,24 +93,8 @@
 <context>
     <name>SelectAvatarWidget</name>
     <message>
-        <source>Open image</source>
-        <translation>Открыть изображение</translation>
-    </message>
-    <message>
-        <source>Image Files (*.png *.jpg *.bmp *.gif)</source>
-        <translation>Файлв изображений (*.png *.jpg *.bmp *.gif)</translation>
-    </message>
-    <message>
         <source>Select Avatar</source>
         <translation>Выберите аватар</translation>
-    </message>
-    <message>
-        <source>Manage my profile</source>
-        <translation>Изменить профиль</translation>
-    </message>
-    <message>
-        <source>Upload new avatar...</source>
-        <translation>Загрузить новый аватар...</translation>
     </message>
 </context>
 <context>
@@ -205,6 +189,14 @@
     <message>
         <source>Click to edit...</source>
         <translation>Нажмите для редактирования...</translation>
+    </message>
+    <message>
+        <source>Manage my profile</source>
+        <translation>Изменить профиль</translation>
+    </message>
+    <message>
+        <source>Add new photo...</source>
+        <translation>Добавить новое фото...</translation>
     </message>
 </context>
 </TS>
