@@ -692,7 +692,7 @@ void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Activ
 		if (menu)
 		{
 			menu->popup(QCursor::pos());
-			connect(FTrayManager->instance(),SIGNAL(notifyActivated(int,QSystemTrayIcon::ActivationReason)),menu,SLOT(deleteLater()));
+			menu->activateWindow();
 		}
 	}
 }
