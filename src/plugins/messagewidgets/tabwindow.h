@@ -85,6 +85,7 @@ private:
 	Action *FDeleteWindow;
 private:
 	QUuid FWindowId;
+	QString FLastClosedTab;
 };
 
 #endif // TABWINDOW_H

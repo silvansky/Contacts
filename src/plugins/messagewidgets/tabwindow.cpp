@@ -6,6 +6,7 @@
 
 #define ADR_TAB_INDEX               Action::DR_Parametr1
 #define ADR_CLOSE_OTHER             Action::DR_Parametr2
+#define ADR_OPEN_LAST               Action::DR_Parametr3
 #define ADR_TABWINDOWID             Action::DR_Parametr1
 
 TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
@@ -120,6 +121,7 @@ void TabWindow::removeTabPage(ITabPage *APage)
 		if (APage->tabPageNotifier())
 			disconnect(APage->tabPageNotifier()->instance(),SIGNAL(activeNotifyChanged(int)),this,SLOT(onTabPageNotifierActiveNotifyChanged(int)));
 		disconnect(APage->instance(),SIGNAL(tabPageNotifierChanged()),this,SLOT(onTabPageNotifierChanged()));
+		FLastClosedTab = APage->tabPageId();
 		emit tabPageRemoved(APage);
 		if (ui.twtTabs->count() == 0)
 			close();
@@ -287,6 +289,13 @@ void TabWindow::onTabMenuRequested(int AIndex)
 	connect(action,SIGNAL(triggered(bool)),SLOT(onTabMenuActionTriggered(bool)));
 	tabMenu->addAction(action);
 
+	action = new Action(tabMenu);
+	action->setText(tr("Open Closed Tab"));
+	action->setData(ADR_OPEN_LAST, true);
+	action->setEnabled(!FLastClosedTab.isEmpty());
+	connect(action,SIGNAL(triggered(bool)),SLOT(onTabMenuActionTriggered(bool)));
+	tabMenu->addAction(action,AG_DEFAULT+1);
+
 	tabMenu->popup(QCursor::pos());
 }
 
@@ -384,7 +393,18 @@ void TabWindow::onTabMenuActionTriggered(bool)
 	if (action)
 	{
 		int index = action->data(ADR_TAB_INDEX).toInt();
-		if (action->data(ADR_CLOSE_OTHER).toBool())
+		if (action->data(ADR_OPEN_LAST).toBool())
+		{
+			foreach(ITabPageHandler *handler, FMessageWidgets->tabPageHandlers())
+			{
+				ITabPage *page = handler->tabPageCreate(FLastClosedTab);
+				if (page)
+					page->showTabPage();
+				break;
+			}
+			FLastClosedTab.clear();
+		}
+		else if (action->data(ADR_CLOSE_OTHER).toBool())
 		{
 			while (index+1 < ui.twtTabs->count())
 				onTabCloseRequested(index+1);

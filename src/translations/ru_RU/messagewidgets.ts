@@ -295,5 +295,9 @@
         <source>Close Other Tabs</source>
         <translation>Закрыть другие вкладки</translation>
     </message>
+    <message>
+        <source>Open Closed Tab</source>
+        <translation>Открыть закрытую вкладку</translation>
+    </message>
 </context>
 </TS>
