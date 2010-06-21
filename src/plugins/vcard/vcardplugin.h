@@ -27,7 +27,10 @@
 
 struct VCardItem
 {
-	VCardItem() { vcard = NULL; locks = 0; }
+	VCardItem() { 
+		vcard = NULL; 
+		locks = 0; 
+	}
 	VCard *vcard;
 	int locks;
 };
@@ -84,7 +87,7 @@ protected slots:
 	void onVCardDialogDestroyed(QObject *ADialog);
 	void onXmppStreamRemoved(IXmppStream *AXmppStream);
 	void onChatWindowCreated(IChatWindow *AWindow);
-	void onBinaryCached(const QString &, const QString &, const QByteArray &, quint64);
+	void onBinaryCached(const QString &AContentId, const QString &AType, const QByteArray &AData, quint64 AMaxAge);
 private:
 	IPluginManager *FPluginManager;
 	IXmppStreams *FXmppStreams;

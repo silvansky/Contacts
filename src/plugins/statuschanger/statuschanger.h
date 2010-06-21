@@ -150,9 +150,8 @@ private:
 	IAccountManager *FAccountManager;
 	IStatusIcons *FStatusIcons;
 	INotifications *FNotifications;
-	IVCardPlugin * vCardPlugin;
-	IAvatars * avatars;
-	IAccountManager * accountManager;
+	IVCardPlugin * FVCardPlugin;
+	IAvatars * FAvatars;
 private:
 	Menu *FMainMenu;
 	Action *FModifyStatus;

@@ -25,6 +25,8 @@ StatusChanger::StatusChanger()
 	FOptionsManager = NULL;
 	FAccountManager = NULL;
 	FNotifications = NULL;
+	FVCardPlugin = NULL;
+	FAvatars = NULL;
 
 	FMainMenu = NULL;
 	FStatusIcons = NULL;
@@ -146,22 +148,20 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &/*AInit
 		}
 	}
 
-	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
-	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
-	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0, NULL);
 	if (plugin)
 	{
-		vCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
-		connect(vCardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)), SLOT(onVcardReceived(const Jid &)));
+		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
+		connect(FVCardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)), SLOT(onVcardReceived(const Jid &)));
 	}
+
 	plugin = APluginManager->pluginInterface("IAvatars").value(0, NULL);
 	if (plugin)
-		avatars = qobject_cast<IAvatars*>(plugin->instance());
+		FAvatars = qobject_cast<IAvatars *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("IAccountManager").value(0, NULL);
-	if (plugin)
-		accountManager = qobject_cast<IAccountManager*>(plugin->instance());
+	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
+	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
+	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
 	return FPresencePlugin!=NULL;
 }
@@ -1176,8 +1176,8 @@ void StatusChanger::onProfileOpened(const QString &AProfile)
 			setStreamStatus(presence->streamJid(), statusId);
 		}
 	}
-	if (avatars && !accountManager->accounts().isEmpty() && accountManager->accounts().first()->xmppStream())
-		avatars->insertAutoAvatar(statusWidget->ui->avatarLabel, accountManager->accounts().first()->xmppStream()->streamJid(), QSize(32, 32), "pixmap");
+	if (FAvatars && !FAccountManager->accounts().isEmpty() && FAccountManager->accounts().first()->xmppStream())
+		FAvatars->insertAutoAvatar(statusWidget->ui->avatarLabel, FAccountManager->accounts().first()->xmppStream()->streamJid(), QSize(32, 32), "pixmap");
 }
 
 void StatusChanger::onReconnectTimer()
@@ -1234,11 +1234,11 @@ void StatusChanger::onNotificationActivated(int ANotifyId)
 
 void StatusChanger::onVcardReceived(const Jid & jid)
 {
-	if (accountManager)
+	if (FAccountManager)
 	{
-		if (jid.bare() == accountManager->accounts().first()->xmppStream()->streamJid().bare())
+		if (jid.bare() == FAccountManager->accounts().first()->xmppStream()->streamJid().bare())
 		{
-			IVCard * vcard = vCardPlugin->vcard(jid);
+			IVCard * vcard = FVCardPlugin->vcard(jid);
 			updateVCardInfo(vcard);
 			vcard->unlock();
 		}
@@ -1251,17 +1251,17 @@ void StatusChanger::updateVCardInfo(const IVCard* vcard)
 	{
 		QString name = vcard->value(VVN_NICKNAME);
 		statusWidget->setUserName(name);
-		statusWidget->ui->statusToolButton->setText((name.isEmpty() ? accountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + statusWidget->ui->statusToolButton->text());
+		statusWidget->ui->statusToolButton->setText((name.isEmpty() ? FAccountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + statusWidget->ui->statusToolButton->text());
 	}
 }
 
 void StatusChanger::onAvatarChanged(const QImage & image)
 {
-	Jid jid = accountManager->accounts().first()->xmppStream()->streamJid();
-	if (avatars)
-		avatars->setAvatar(jid, image);
-	if (vCardPlugin)
-		updateVCardInfo(vCardPlugin->vcard(jid.bare()));
+	Jid jid = FAccountManager->accounts().first()->xmppStream()->streamJid();
+	if (FAvatars)
+		FAvatars->setAvatar(jid, image);
+	if (FVCardPlugin)
+		updateVCardInfo(FVCardPlugin->vcard(jid.bare()));
 }
 
 void StatusChanger::onMoodSet(const QString & mood)

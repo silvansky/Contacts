@@ -97,7 +97,10 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 	if (plugin)
 	{
 		FBitsOfBinary = qobject_cast<IBitsOfBinary*>(plugin->instance());
-		connect(FBitsOfBinary->instance(), SIGNAL(binaryCached(const QString &, const QString &, const QByteArray &, quint64)), SLOT(onBinaryCached(const QString &, const QString &, const QByteArray &, quint64)));
+		if (FBitsOfBinary)
+		{
+			connect(FBitsOfBinary->instance(), SIGNAL(binaryCached(const QString &, const QString &, const QByteArray &, quint64)), SLOT(onBinaryCached(const QString &, const QString &, const QByteArray &, quint64)));
+		}
 	}
 
 	return true;
