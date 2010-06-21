@@ -9,6 +9,7 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/itraymanager.h>
 #include <utils/iconstorage.h>
+#include <utils/versionparser.h>
 
 class TrayManager :
 			public QObject,

@@ -1,7 +1,6 @@
 #include "traymanager.h"
 
 #include <QApplication>
-#include <QContextMenuEvent>
 
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250
@@ -187,7 +186,11 @@ void TrayManager::updateTray()
 void TrayManager::onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason)
 {
 	if (AReason != QSystemTrayIcon::Trigger)
+	{
+		if (VersionParser(qVersion()) >= VersionParser("4.6.0"))
+			FTriggerTimer.stop();
 		emit notifyActivated(FActiveNotify,AReason);
+	}
 	else if (!FTriggerTimer.isActive())
 		FTriggerTimer.start(qApp->doubleClickInterval());
 	else

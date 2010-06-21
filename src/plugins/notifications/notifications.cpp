@@ -526,7 +526,7 @@ void Notifications::onRosterNotifyRemoved(IRosterIndex *AIndex, int ANotifyId)
 
 void Notifications::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
-	if (ANotifyId>0 && AReason==QSystemTrayIcon::Trigger)
+	if (ANotifyId>0 && AReason==QSystemTrayIcon::DoubleClick)
 	{
 		activateNotification(notifyIdByTrayId(ANotifyId));
 	}

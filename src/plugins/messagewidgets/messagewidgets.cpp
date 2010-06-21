@@ -485,29 +485,21 @@ Menu *MessageWidgets::createLastTabPagesMenu()
 	showAll->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_LAST_OPEN_ALL);
 	menu->addAction(showAll,AG_DEFAULT-1);
 	
-	QList<Action *> actions;
-	for (int i = 0; actions.count()<10 && i<FLastTabPages.count(); i++)
+	for (int i = 0; i<FLastTabPages.count(); i++)
 	{
 		foreach(ITabPageHandler *handler, FTabPageHandlers)
 		{
 			Action *action = handler->tabPageAction(FLastTabPages.at(i), menu);
 			if (action)
 			{
-				actions.prepend(action);
+				menu->addAction(action);
+				connect(showAll,SIGNAL(triggered()),action,SLOT(trigger()));
 				break;
 			}
 		}
 	}
 
-	if (actions.count() > 0)
-	{
-		foreach (Action *action, actions)
-		{
-			menu->addAction(action);
-			connect(showAll,SIGNAL(triggered()),action,SLOT(trigger()));
-		}
-	}
-	else if (actions.count() == 0)
+	if (menu->groupActions(AG_DEFAULT).isEmpty())
 	{
 		delete menu;
 		menu = NULL;
@@ -646,10 +638,11 @@ void MessageWidgets::onTabPageCreated(ITabPage *APage)
 void MessageWidgets::onTabPageActivated()
 {
 	ITabPage *page = qobject_cast<ITabPage *>(sender());
-	if (page /*&& !FLastTabPages.contains(page->tabPageId())*/)
+	if (page && !FLastTabPages.contains(page->tabPageId()))
 	{
-		FLastTabPages.removeAll(page->tabPageId());
-		FLastTabPages.prepend(page->tabPageId());
+		while (FLastTabPages.count() >= 10)
+			FLastTabPages.takeFirst();
+		FLastTabPages.append(page->tabPageId());
 	}
 }
 
@@ -686,7 +679,7 @@ void MessageWidgets::onTrayContextMenuAboutToShow()
 
 void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
-	if (ANotifyId<0 && AReason==QSystemTrayIcon::Trigger && !FTabPageHandlers.isEmpty())
+	if (AReason==QSystemTrayIcon::Trigger && !FTabPageHandlers.isEmpty())
 	{
 		Menu *menu = createLastTabPagesMenu();
 		if (menu)

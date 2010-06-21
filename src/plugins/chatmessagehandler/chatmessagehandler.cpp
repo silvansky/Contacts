@@ -419,6 +419,8 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 
 				setMessageStyle(window);
 
+				TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+				pageInfo.page = window;
 				emit tabPageCreated(window);
 
 				showHistory(window);
