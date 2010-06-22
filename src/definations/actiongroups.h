@@ -37,14 +37,14 @@
 //TrayManager - TrayMenu
 #define AG_TMTM_MAINWINDOW                                      300
 #define AG_TMTM_NOTIFICATIONS                                   300
-#define AG_TMTM_OPTIONS                                         500
+#define AG_TMTM_OPTIONS                                         300
 #define AG_TMTM_SKINMANAGER                                     500
 #define AG_TMTM_DISCOVERY                                       500
 #define AG_TMTM_MULTIUSERCHAT                                   500
 #define AG_TMTM_BOOKMARKS                                       500
 #define AG_TMTM_FILESTREAMSMANAGER                              500
 #define AG_TMTM_STATUSCHANGER                                   700
-#define AG_TMTM_MESSAGEWIDGETS_LASTTABS                         700
+#define AG_TMTM_MESSAGEWIDGETS_LASTTABS                         800
 #define AG_TMTM_PLUGINMANAGER                                   900
 #define AG_TMTM_TRAYMANAGER                                     1000
 

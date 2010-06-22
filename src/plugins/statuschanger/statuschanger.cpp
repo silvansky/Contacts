@@ -116,7 +116,14 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &/*AInit
 
 	plugin = APluginManager->pluginInterface("ITrayManager").value(0,NULL);
 	if (plugin)
+	{
 		FTrayManager = qobject_cast<ITrayManager *>(plugin->instance());
+		if (FTrayManager)
+		{
+			connect(FTrayManager->contextMenu(),SIGNAL(aboutToShow()),SLOT(onTrayContextMenuAboutToShow()));
+			connect(FTrayManager->contextMenu(),SIGNAL(aboutToHide()),SLOT(onTrayContextMenuAboutToHide()));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
 	if (plugin)
@@ -213,10 +220,10 @@ bool StatusChanger::initObjects()
 		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)), SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 	}
 
-	if (FTrayManager)
-	{
-		FTrayManager->contextMenu()->addAction(FMainMenu->menuAction(),AG_TMTM_STATUSCHANGER,true);
-	}
+	//if (FTrayManager)
+	//{
+	//	FTrayManager->contextMenu()->addAction(FMainMenu->menuAction(),AG_TMTM_STATUSCHANGER,true);
+	//}
 
 	if (FNotifications)
 	{
@@ -1214,6 +1221,18 @@ void StatusChanger::onEditStatusAction(bool)
 void StatusChanger::onModifyStatusAction(bool)
 {
 	Options::node(OPV_STATUSES_MODIFY).setValue(FModifyStatus->isChecked());
+}
+
+void StatusChanger::onTrayContextMenuAboutToShow()
+{
+	foreach(Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
+		FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER,true);
+}
+
+void StatusChanger::onTrayContextMenuAboutToHide()
+{
+	foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER))
+		FTrayManager->contextMenu()->removeAction(action);
 }
 
 void StatusChanger::onAccountOptionsChanged(IAccount *AAccount, const OptionsNode &ANode)

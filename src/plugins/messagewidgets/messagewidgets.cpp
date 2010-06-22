@@ -473,39 +473,22 @@ QString MessageWidgets::selectionHref(const QTextDocumentFragment &ASelection) c
 	return href;
 }
 
-Menu *MessageWidgets::createLastTabPagesMenu()
+QList<Action *> MessageWidgets::createLastTabPagesActions(QObject *AParent) const
 {
-	Menu *menu = new Menu;
-	menu->setAttribute(Qt::WA_DeleteOnClose, true);
-	menu->setTitle(tr("Last Contacts"));
-	menu->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_LAST_TABS);
-
-	Action *showAll = new Action(menu);
-	showAll->setText(tr("Open All"));
-	showAll->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_LAST_OPEN_ALL);
-	menu->addAction(showAll,AG_DEFAULT-1);
-	
+	QList<Action *> actions;
 	for (int i = 0; i<FLastTabPages.count(); i++)
 	{
 		foreach(ITabPageHandler *handler, FTabPageHandlers)
 		{
-			Action *action = handler->tabPageAction(FLastTabPages.at(i), menu);
+			Action *action = handler->tabPageAction(FLastTabPages.at(i), AParent);
 			if (action)
 			{
-				menu->addAction(action);
-				connect(showAll,SIGNAL(triggered()),action,SLOT(trigger()));
+				actions.append(action);
 				break;
 			}
 		}
 	}
-
-	if (menu->groupActions(AG_DEFAULT).isEmpty())
-	{
-		delete menu;
-		menu = NULL;
-	}
-
-	return menu;
+	return actions;
 }
 
 void MessageWidgets::onViewWidgetUrlClicked(const QUrl &AUrl)
@@ -669,23 +652,42 @@ void MessageWidgets::onStreamRemoved(IXmppStream *AXmppStream)
 
 void MessageWidgets::onTrayContextMenuAboutToShow()
 {
-	Menu *menu = createLastTabPagesMenu();
-	if (menu)
+	QList<Action *> actions = createLastTabPagesActions(FTrayManager->contextMenu());
+	foreach(Action *action, actions)
 	{
-		FTrayManager->contextMenu()->addAction(menu->menuAction(),AG_TMTM_MESSAGEWIDGETS_LASTTABS);
-		connect(FTrayManager->contextMenu(),SIGNAL(aboutToHide()),menu,SLOT(deleteLater()));
+		FTrayManager->contextMenu()->addAction(action,AG_TMTM_MESSAGEWIDGETS_LASTTABS);
+		connect(FTrayManager->contextMenu(),SIGNAL(aboutToHide()),action,SLOT(deleteLater()));
 	}
 }
 
 void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
+	Q_UNUSED(ANotifyId);
 	if (AReason==QSystemTrayIcon::Trigger && !FTabPageHandlers.isEmpty())
 	{
-		Menu *menu = createLastTabPagesMenu();
-		if (menu)
+		Menu *menu = new Menu;
+		menu->setAttribute(Qt::WA_DeleteOnClose, true);
+
+		QList<Action *> actions = createLastTabPagesActions(menu);
+		if (!actions.isEmpty())
 		{
+			Action *showAll = new Action(menu);
+			showAll->setText(tr("Open All"));
+			showAll->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_LAST_OPEN_ALL);
+			menu->addAction(showAll,AG_DEFAULT-1);
+
+			foreach(Action *action, actions)
+			{
+				menu->addAction(action);
+				connect(showAll,SIGNAL(triggered()),action,SLOT(trigger()));
+			}
+
 			menu->popup(QCursor::pos());
 			menu->activateWindow();
+		}
+		else
+		{
+			delete menu;
 		}
 	}
 }

@@ -132,6 +132,8 @@ protected slots:
 	void onReconnectTimer();
 	void onEditStatusAction(bool);
 	void onModifyStatusAction(bool);
+	void onTrayContextMenuAboutToShow();
+	void onTrayContextMenuAboutToHide();
 	void onAccountOptionsChanged(IAccount *AAccount, const OptionsNode &ANode);
 	void onNotificationActivated(int ANotifyId);
 	void onVcardReceived(const Jid & jid);

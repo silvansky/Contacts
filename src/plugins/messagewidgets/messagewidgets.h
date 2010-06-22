@@ -116,7 +116,7 @@ protected:
 	void deleteWindows();
 	void deleteStreamWindows(const Jid &AStreamJid);
 	QString selectionHref(const QTextDocumentFragment &ASelection) const;
-	Menu *createLastTabPagesMenu();
+	QList<Action *> createLastTabPagesActions(QObject *AParent) const;
 protected slots:
 	void onViewWidgetUrlClicked(const QUrl &AUrl);
 	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
