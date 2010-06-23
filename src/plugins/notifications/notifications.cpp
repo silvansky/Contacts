@@ -246,14 +246,12 @@ int Notifications::appendNotification(const INotification &ANotification)
 		if (!(streamJid.isValid() && contactJid.isValid() && (record.widget = findNotifyWidget(streamJid, contactJid))))
 			record.widget = new NotifyWidget(record.notification);
 		else
-		{
 			record.widget->appendText(record.notification.data.value(NDR_POPUP_TEXT).toString());
-		}
 		connect(record.widget,SIGNAL(notifyActivated()),SLOT(onWindowNotifyActivated()));
 		connect(record.widget,SIGNAL(notifyRemoved()),SLOT(onWindowNotifyRemoved()));
 		connect(record.widget,SIGNAL(windowDestroyed()),SLOT(onWindowNotifyDestroyed()));
-		connect(record.widget,SIGNAL(closeButtonCLicked()), record.widget, SLOT(close()));
-		connect(record.widget,SIGNAL(settingsButtonCLicked()), SLOT(showSettings()));
+		connect(record.widget,SIGNAL(closeButtonClicked()), record.widget, SLOT(close()));
+		connect(record.widget,SIGNAL(settingsButtonClicked()), SLOT(showSettings()));
 		record.widget->appear();
 	}
 
@@ -484,6 +482,29 @@ NotifyWidget* Notifications::findNotifyWidget(Jid AStreamJid, Jid AContactJid) c
 	return NotifyWidget::findNotifyWidget(AStreamJid, AContactJid);
 }
 
+void Notifications::activateAllNotifications()
+{
+	bool chatActivated = false;
+	foreach(int notifyId, FNotifyRecords.keys())
+	{
+		const NotifyRecord &record = FNotifyRecords.value(notifyId);
+		if (record.notification.kinds & INotification::ChatWindow)
+		{
+			if (!chatActivated)
+				activateNotification(notifyId);
+			chatActivated = true;
+		}
+		else
+			activateNotification(notifyId);
+	}
+}
+
+void Notifications::removeAllNotifications()
+{
+	foreach(int notifyId, FNotifyRecords.keys())
+		removeNotification(notifyId);
+}
+
 void Notifications::onActivateDelayedActivations()
 {
 	foreach(int notifyId, FDelayedActivations)
@@ -500,16 +521,10 @@ void Notifications::onSoundOnOffActionTriggered(bool)
 void Notifications::onTrayActionTriggered(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		foreach(int notifyId, FNotifyRecords.keys())
-		{
-			if (action == FActivateAll)
-				activateNotification(notifyId);
-			else if (action == FRemoveAll)
-				removeNotification(notifyId);
-		}
-	}
+	if (action == FActivateAll)
+		activateAllNotifications();
+	else if (action == FRemoveAll)
+		removeAllNotifications();
 }
 
 void Notifications::onRosterNotifyActivated(IRosterIndex *AIndex, int ANotifyId)
@@ -527,9 +542,7 @@ void Notifications::onRosterNotifyRemoved(IRosterIndex *AIndex, int ANotifyId)
 void Notifications::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
 	if (ANotifyId>0 && AReason==QSystemTrayIcon::DoubleClick)
-	{
-		activateNotification(notifyIdByTrayId(ANotifyId));
-	}
+		activateAllNotifications();
 }
 
 void Notifications::onTrayNotifyRemoved(int ANotifyId)

@@ -26,8 +26,8 @@ signals:
 	void notifyActivated();
 	void notifyRemoved();
 	void windowDestroyed();
-	void closeButtonCLicked();
-	void settingsButtonCLicked();
+	void closeButtonClicked();
+	void settingsButtonClicked();
 protected:
 	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
 	virtual void resizeEvent(QResizeEvent *);

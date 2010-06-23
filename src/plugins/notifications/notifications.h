@@ -102,6 +102,8 @@ protected:
 	int notifyIdByTrayId(int ATrayId) const;
 	int notifyIdByWidget(NotifyWidget *AWidget) const;
 	NotifyWidget* findNotifyWidget(Jid AStreamJid, Jid AContactJid) const;
+	void activateAllNotifications();
+	void removeAllNotifications();
 protected slots:
 	void onActivateDelayedActivations();
 	void onSoundOnOffActionTriggered(bool);

@@ -1,6 +1,7 @@
 #ifndef MAINWINDOWPLUGIN_H
 #define MAINWINDOWPLUGIN_H
 
+#include <QTime>
 #include <definations/actiongroups.h>
 #include <definations/version.h>
 #include <definations/resources.h>
@@ -38,6 +39,8 @@ public:
 protected:
 	void updateTitle();
 	void showMainWindow();
+protected:
+	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected slots:
 	void onOptionsOpened();
 	void onOptionsClosed();
@@ -51,6 +54,8 @@ private:
 private:
 	Action *FOpenAction;
 	MainWindow *FMainWindow;
+private:
+	QTime FActivationChanged;
 };
 
 #endif // MAINWINDOW_H

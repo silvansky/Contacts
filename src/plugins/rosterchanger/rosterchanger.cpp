@@ -993,7 +993,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 		notify.data.insert(NDR_ICON_STORAGE, RSR_STORAGE_MENUICONS);
 		notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_SUBSCRIBTION);
 		notify.data.insert(NDR_ROSTER_TOOLTIP,Qt::escape(notifyMessage));
-		notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name));
+		notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name.split(" ").value(0)));
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SUBSCRIPTION);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,Qt::escape(notifyMessage));

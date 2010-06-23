@@ -26,8 +26,8 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 	FYPos = -1;
 	FAnimateStep = -1;
 	setNotification(ANotification);
-	connect(ui.closeButton, SIGNAL(clicked()), SIGNAL(closeButtonCLicked()));
-	connect(ui.settingsButton, SIGNAL(clicked()), SIGNAL(settingsButtonCLicked()));
+	connect(ui.closeButton, SIGNAL(clicked()), SIGNAL(closeButtonClicked()));
+	connect(ui.settingsButton, SIGNAL(clicked()), SIGNAL(settingsButtonClicked()));
 	deleteTimer = new QTimer(this);
 }
 

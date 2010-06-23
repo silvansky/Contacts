@@ -333,7 +333,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 	notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 	notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_MESSAGE);
 	notify.data.insert(NDR_ROSTER_TOOLTIP,messages);
-	notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name).arg(messages));
+	notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
 	notify.data.insert(NDR_TABPAGE_PRIORITY, TPNP_NEW_MESSAGE);
 	notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 	notify.data.insert(NDR_TABPAGE_TOOLTIP, messages);
