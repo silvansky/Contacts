@@ -146,11 +146,13 @@ private:
 	QList<IMessageWindow *> FMessageWindows;
 	QObjectCleanupHandler FCleanupHandler;
 private:
-	QList<QString> FLastTabPages;
 	QHash<QString, QUuid> FTabPageWindow;
 	QList<ITabPageHandler *> FTabPageHandlers;
 	QList<IViewDropHandler *> FViewDropHandlers;
 	QMultiMap<int,IViewUrlHandler *> FViewUrlHandlers;
+private:
+	QList<QString> FLastPagesOrder;
+	QMap<QString, QDateTime> FLastPagesActivity;
 };
 
 #endif // MESSAGEWIDGETS_H

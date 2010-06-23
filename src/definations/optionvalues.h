@@ -74,6 +74,7 @@
 #define OPV_MESSAGES_ROOT                               "messages"
 #define OPV_MESSAGES_SHOWSTATUS                         "messages.show-status-changes"
 #define OPV_MESSAGES_SHOWINFOWIDGET                     "messages.show-info-widget"
+#define OPV_MESSAGES_LASTTABPAGESCOUNT                  "messages.last-tab-pages-count"
 #define OPV_MESSAGES_EDITORAUTORESIZE                   "messages.editor-auto-resize"
 #define OPV_MESSAGES_EDITORMINIMUMLINES                 "messages.editor-minimum-lines"
 #define OPV_MESSAGES_EDITORSENDKEY                      "messages.editor-send-key"

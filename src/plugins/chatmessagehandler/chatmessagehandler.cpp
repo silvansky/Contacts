@@ -238,7 +238,6 @@ Action *ChatMessageHandler::tabPageAction(const QString &ATabPageId, QObject *AP
 				{
 					action->setIcon(page->instance()->windowIcon());
 				}
-				action->setText(FNotifications!=NULL ? FNotifications->contactName(presence->streamJid(),pageInfo.contactJid) : pageInfo.contactJid.bare());
 			}
 			else
 			{
@@ -247,9 +246,9 @@ Action *ChatMessageHandler::tabPageAction(const QString &ATabPageId, QObject *AP
 					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(presence->streamJid(),pitem.itemJid) : QIcon());
 				else
 					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(presence->streamJid(),pageInfo.contactJid) : QIcon());
-				action->setText(FNotifications!=NULL ? FNotifications->contactName(presence->streamJid(),pageInfo.contactJid) : pageInfo.contactJid.bare());
 			}
 			action->setData(ADR_TAB_PAGE_ID, ATabPageId);
+			action->setText(FNotifications!=NULL ? FNotifications->contactName(presence->streamJid(),pageInfo.contactJid) : pageInfo.contactJid.bare());
 			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenTabPageAction(bool)));
 			return action;
 		}

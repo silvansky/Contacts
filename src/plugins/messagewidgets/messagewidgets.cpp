@@ -79,6 +79,7 @@ bool MessageWidgets::initSettings()
 	Options::setDefaultValue(OPV_MESSAGES_SHOWSTATUS,true);
 	Options::setDefaultValue(OPV_MESSAGES_EDITORAUTORESIZE,true);
 	Options::setDefaultValue(OPV_MESSAGES_SHOWINFOWIDGET,false);
+	Options::setDefaultValue(OPV_MESSAGES_LASTTABPAGESCOUNT,10);
 	Options::setDefaultValue(OPV_MESSAGES_EDITORMINIMUMLINES,1);
 	Options::setDefaultValue(OPV_MESSAGES_EDITORSENDKEY,QKeySequence(Qt::Key_Return));
 	Options::setDefaultValue(OPV_MESSAGES_TABWINDOWS_ENABLE,true);
@@ -476,11 +477,11 @@ QString MessageWidgets::selectionHref(const QTextDocumentFragment &ASelection) c
 QList<Action *> MessageWidgets::createLastTabPagesActions(QObject *AParent) const
 {
 	QList<Action *> actions;
-	for (int i = 0; i<FLastTabPages.count(); i++)
+	for (int i = 0; i<FLastPagesOrder.count(); i++)
 	{
 		foreach(ITabPageHandler *handler, FTabPageHandlers)
 		{
-			Action *action = handler->tabPageAction(FLastTabPages.at(i), AParent);
+			Action *action = handler->tabPageAction(FLastPagesOrder.at(i), AParent);
 			if (action)
 			{
 				actions.append(action);
@@ -621,11 +622,21 @@ void MessageWidgets::onTabPageCreated(ITabPage *APage)
 void MessageWidgets::onTabPageActivated()
 {
 	ITabPage *page = qobject_cast<ITabPage *>(sender());
-	if (page && !FLastTabPages.contains(page->tabPageId()))
+	if (page)
 	{
-		while (FLastTabPages.count() >= 10)
-			FLastTabPages.takeFirst();
-		FLastTabPages.append(page->tabPageId());
+		if (!FLastPagesOrder.contains(page->tabPageId()))
+		{
+			while (FLastPagesOrder.count() >= Options::node(OPV_MESSAGES_LASTTABPAGESCOUNT).value().toInt())
+			{
+				QList<QDateTime> times = FLastPagesActivity.values();
+				qSort(times);
+				QString pageId = FLastPagesActivity.key(times.value(0));
+				FLastPagesOrder.removeAll(pageId);
+				FLastPagesActivity.remove(pageId);
+			}
+			FLastPagesOrder.append(page->tabPageId());
+		}
+		FLastPagesActivity[page->tabPageId()] = QDateTime::currentDateTime();
 	}
 }
 
@@ -688,8 +699,8 @@ void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Activ
 		else
 		{
 			delete menu;
-		}
 	}
+}
 }
 
 void MessageWidgets::onOptionsOpened()
@@ -704,24 +715,34 @@ void MessageWidgets::onOptionsOpened()
 	QDataStream stream1(data);
 	stream1 >> FTabPageWindow;
 
-	data = Options::fileValue("messages.last-tab-pages").toByteArray();
+	data = Options::fileValue("messages.last-tab-pages-order").toByteArray();
 	QDataStream stream2(data);
-	stream2 >> FLastTabPages;
+	stream2 >> FLastPagesOrder;
+
+	data = Options::fileValue("messages.last-tab-pages-activity").toByteArray();
+	QDataStream stream3(data);
+	stream3 >> FLastPagesActivity;
+
 }
 
 void MessageWidgets::onOptionsClosed()
 {
 	QByteArray data;
-	QDataStream stream(&data, QIODevice::WriteOnly);
-	stream << FTabPageWindow;
+	QDataStream stream1(&data, QIODevice::WriteOnly);
+	stream1 << FTabPageWindow;
 	Options::setFileValue(data,"messages.tab-window-pages");
 
 	data.clear();
-	QDataStream stream1(&data, QIODevice::WriteOnly);
-	stream1 << FLastTabPages;
-	Options::setFileValue(data,"messages.last-tab-pages");
+	QDataStream stream2(&data, QIODevice::WriteOnly);
+	stream2 << FLastPagesOrder;
+	Options::setFileValue(data,"messages.last-tab-pages-order");
 
-	deleteWindows();
+	data.clear();
+	QDataStream stream3(&data, QIODevice::WriteOnly);
+	stream3 << FLastPagesActivity;
+	Options::setFileValue(data,"messages.last-tab-pages-activity");
+
+   deleteWindows();
 }
 
 Q_EXPORT_PLUGIN2(plg_messagewidgets, MessageWidgets)

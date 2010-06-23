@@ -1225,8 +1225,9 @@ void StatusChanger::onModifyStatusAction(bool)
 
 void StatusChanger::onTrayContextMenuAboutToShow()
 {
-	foreach(Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
-		FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER,true);
+   if (FMainMenu->menuAction()->isVisible())
+	   foreach(Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
+   		FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER,true);
 }
 
 void StatusChanger::onTrayContextMenuAboutToHide()
