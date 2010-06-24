@@ -3,6 +3,7 @@
 TabPageNotifier::TabPageNotifier(ITabPage *ATabPage) : QObject(ATabPage->instance())
 {
 	FTabPage = ATabPage;
+	FActiveNotify = -1;
 
 	FUpdateTimer.setInterval(0);
 	FUpdateTimer.setSingleShot(true);
