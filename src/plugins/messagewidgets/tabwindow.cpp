@@ -151,13 +151,13 @@ void TabWindow::createActions()
 	FNextTab->setText(tr("Next Tab"));
 	FNextTab->setShortcuts(QList<QKeySequence>() << tr("Ctrl+Tab") << tr("Ctrl+PgDown"));
 	FWindowMenu->addAction(FNextTab,AG_MWTW_MWIDGETS_TAB_ACTIONS);
-	connect(FNextTab,SIGNAL(triggered(bool)),SLOT(onWindowMenuActionTriggered(bool)));
+	connect(FNextTab,SIGNAL(triggered()),ui.twtTabs,SLOT(showNextTab()));
 
 	FPrevTab = new Action(FWindowMenu);
 	FPrevTab->setText(tr("Prev. Tab"));
 	FPrevTab->setShortcuts(QList<QKeySequence>() << tr("Ctrl+Shift+Tab") << tr("Ctrl+PgUp"));
 	FWindowMenu->addAction(FPrevTab,AG_MWTW_MWIDGETS_TAB_ACTIONS);
-	connect(FPrevTab,SIGNAL(triggered(bool)),SLOT(onWindowMenuActionTriggered(bool)));
+	connect(FPrevTab,SIGNAL(triggered()),ui.twtTabs,SLOT(showPrevTab()));
 
 	FCloseTab = new Action(FWindowMenu);
 	FCloseTab->setText(tr("Close Tab"));
@@ -409,7 +409,7 @@ void TabWindow::onTabMenuActionTriggered(bool)
 			while (index+1 < ui.twtTabs->count())
 				onTabCloseRequested(index+1);
 			for (int i=0; i<index; i++)
-				onTabCloseRequested(i);
+				onTabCloseRequested(0);
 		}
 		else
 		{
@@ -429,14 +429,6 @@ void TabWindow::onWindowMenuActionTriggered(bool)
 	{
 		clear();
 		close();
-	}
-	else if (action == FNextTab)
-	{
-		ui.twtTabs->setCurrentIndex((ui.twtTabs->currentIndex()+1) % ui.twtTabs->count());
-	}
-	else if (action == FPrevTab)
-	{
-		ui.twtTabs->setCurrentIndex(ui.twtTabs->currentIndex()>0 ? ui.twtTabs->currentIndex()-1 : ui.twtTabs->count()-1);
 	}
 	else if (action == FDetachWindow)
 	{

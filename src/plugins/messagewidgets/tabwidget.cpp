@@ -132,6 +132,16 @@ void TabWidget::removeTab(int AIndex)
 	}
 }
 
+void TabWidget::showNextTab()
+{
+	FTabBar->showNextTab();
+}
+
+void TabWidget::showPrevTab()
+{
+	FTabBar->showPrevTab();
+}
+
 void TabWidget::onCurrentTabChanged(int AIndex)
 {
 	FStack->setCurrentIndex(AIndex);

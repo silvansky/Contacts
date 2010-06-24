@@ -54,16 +54,18 @@ void TabBarLayout::updateLayout()
 		calcLayoutParams(geometry().width(),fakeItemWidth,FStreatch);
 	}
 	else
+	{
 		calcLayoutParams(geometry().width(),FItemsWidth,FStreatch);
+	}
 	doLayout(geometry(),FItemsWidth,FStreatch,true);
 }
 
-int TabBarLayout::itemToOrder(int AIndex) const
+int TabBarLayout::indexToOrder(int AIndex) const
 {
 	return FItemsOrder.indexOf(FItems.value(AIndex));
 }
 
-int TabBarLayout::orderToItem(int AOrder) const
+int TabBarLayout::orderToIndex(int AOrder) const
 {
 	return FItems.indexOf(FItemsOrder.value(AOrder));
 }
@@ -142,6 +144,7 @@ void TabBarLayout::setGeometry(const QRect &ARect)
 	updateLayout();
 }
 
+#define LINES(itms,ipl) ((ipl)>0 ? (itms)/(ipl) + ((itms)%(ipl)>0 ? 1 : 0) : 1)
 void TabBarLayout::calcLayoutParams(int AWidth, int &AItemWidth, bool &AStreatch) const
 {
 	int left, right;
@@ -149,10 +152,13 @@ void TabBarLayout::calcLayoutParams(int AWidth, int &AItemWidth, bool &AStreatch
 
 	int availWidth = AWidth - left - right - 1;
 
-	if ((FMaxWidth + spacing()) * FItems.count() - spacing() >= availWidth)
+	if (!FItems.isEmpty() && (FMaxWidth + spacing()) * FItems.count() - spacing() >= availWidth)
 	{
-		int itemsPerLine = qMin(availWidth / (FMinWidth + spacing()),FItems.count());
-		AItemWidth = itemsPerLine >0 ? (availWidth - spacing()*(itemsPerLine-1)) / itemsPerLine : FMinWidth;
+		int itemsPerLine = qMin(availWidth / (FMinWidth + spacing()), FItems.count());
+		int lines = LINES(FItems.count(), itemsPerLine);
+		while (itemsPerLine>1 && lines==LINES(FItems.count(),itemsPerLine-1))
+			itemsPerLine--;
+		AItemWidth = itemsPerLine>0 ? (availWidth-((itemsPerLine-1)*spacing())) / itemsPerLine : FMinWidth;
 		AStreatch = true;
 	}
 	else
@@ -173,17 +179,15 @@ int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStreatch, bool ARe
 	int y = availRect.top();
 	int lineHeight = 0;
 
-	int counter =0;
 	foreach(QLayoutItem *item, FItemsOrder)
 	{
-		counter++;
 		QRect itemRect = QRect(x,y,AItemWidth,item->sizeHint().height());
 		lineHeight = qMax(lineHeight, itemRect.height());
 		x += AItemWidth + spacing();
 
 		if ( x + AItemWidth - spacing() > availRect.right() )
 		{
-			if (item != FItems.last())
+			if (item != FItemsOrder.last())
 			{
 				y += lineHeight + spacing();
 				lineHeight = 0;

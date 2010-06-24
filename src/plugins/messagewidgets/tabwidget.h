@@ -32,6 +32,9 @@ public:
 	void setTabsClosable(bool ACloseable);
 	int addTab(QWidget *AWidget, const QString &ALabel);
 	void removeTab(int AIndex);
+public slots:
+	void showNextTab();
+	void showPrevTab();
 signals:
 	void currentChanged(int AIndex);
 	void tabMenuRequested(int AIndex);

@@ -7,7 +7,7 @@
 
 TabBar::TabBar(QWidget *AParent) : QFrame(AParent)
 {
-	FActiveIndex = -1;
+	FCurrentIndex = -1;
 	FTabsCloseable = true;
 
 	setAcceptDrops(true);
@@ -37,18 +37,18 @@ int TabBar::count() const
 
 int TabBar::currentIndex() const
 {
-	return FActiveIndex;
+	return FCurrentIndex;
 }
 
 void TabBar::setCurrentIndex(int AIndex)
 {
 	if (AIndex>=0 && AIndex<FItems.count())
 	{
-		TabBarItem *item = FItems.value(FActiveIndex);
+		TabBarItem *item = FItems.value(FCurrentIndex);
 		if (item)
 			item->setActive(false);
 
-		FActiveIndex = AIndex;
+		FCurrentIndex = AIndex;
 
 		item = FItems.value(AIndex);
 		if (item)
@@ -164,13 +164,32 @@ void TabBar::removeTab(int AIndex)
 {
 	if (AIndex>=0 && AIndex<FItems.count())
 	{
-		int activeIndex = FActiveIndex;
-		if (AIndex == activeIndex)
-			activeIndex = activeIndex>0 ? activeIndex-1 : activeIndex+1;
-		if (AIndex < activeIndex)
-			activeIndex--;
+		int index = FCurrentIndex;
+		if (AIndex == index)
+			index = index>0 ? index-1 : index+1;
+		if (AIndex < index)
+			index--;
 		delete FItems.takeAt(AIndex);
-		setCurrentIndex(activeIndex);
+		setCurrentIndex(index);
+	}
+}
+
+void TabBar::showNextTab()
+{
+	if (count() > 1)
+	{
+		int newOrder = (FLayout->indexToOrder(FCurrentIndex) + 1) % count();
+		setCurrentIndex(FLayout->orderToIndex(newOrder));
+	}
+}
+
+void TabBar::showPrevTab()
+{
+	if (count() > 1)
+	{
+		int newOrder = FLayout->indexToOrder(FCurrentIndex);
+		newOrder = newOrder>0 ? newOrder-1 : count()-1;
+		setCurrentIndex(FLayout->orderToIndex(newOrder));
 	}
 }
 
@@ -229,7 +248,7 @@ void TabBar::mouseMoveEvent(QMouseEvent *AEvent)
 
 		drag->setPixmap(QPixmap::grabWidget(item));
 		drag->setHotSpot(FPressedPos - item->geometry().topLeft());
-		FDragCenterDistance = mapFromGlobal(QCursor::pos()) - item->geometry().center();
+		FDragCenterDistance = FPressedPos - item->geometry().center();
 
 		item->setDraging(true);
 		drag->exec(Qt::MoveAction);
@@ -248,15 +267,14 @@ void TabBar::dragEnterEvent(QDragEnterEvent *AEvent)
 void TabBar::dragMoveEvent(QDragMoveEvent *AEvent)
 {
 	QPoint dragItemCenter = mapFromGlobal(QCursor::pos()) - FDragCenterDistance;
-	int destination = tabAt(dragItemCenter);
-	FLayout->moveItem(FPressedIndex, destination>=0 ? destination : FLayout->orderToItem(count()-1));
+	FLayout->moveItem(FPressedIndex, tabAt(dragItemCenter));
 	AEvent->acceptProposedAction();
 	QFrame::dragMoveEvent(AEvent);
 }
 
 void TabBar::dragLeaveEvent(QDragLeaveEvent *AEvent)
 {
-	FLayout->moveItem(FPressedIndex, FLayout->orderToItem(count()-1));
+	FLayout->moveItem(FPressedIndex, FLayout->orderToIndex(count()-1));
 	QFrame::dragLeaveEvent(AEvent);
 }
 
@@ -266,4 +284,3 @@ void TabBar::onCloseButtonClicked()
 	if (item)
 		emit tabCloseRequested(FItems.indexOf(item));
 }
-

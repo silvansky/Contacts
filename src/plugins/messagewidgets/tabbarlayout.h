@@ -17,8 +17,8 @@ public:
 	void setMinMaxItemWidth(int AMin, int AMax);
 	void blockUpdate(bool ABlock);
 	void updateLayout();
-	int itemToOrder(int AIndex) const;
-	int orderToItem(int AOrder) const;
+	int indexToOrder(int AIndex) const;
+	int orderToIndex(int AOrder) const;
 	void moveItem(int ATarget, int ADestination);
 	// QLayout
 	virtual int count() const;

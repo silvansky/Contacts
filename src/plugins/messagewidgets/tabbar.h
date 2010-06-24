@@ -31,6 +31,9 @@ public:
 	int tabAt(const QPoint &APosition) const;
 	int addTab(const QString &AText);
 	void removeTab(int AIndex);
+public slots:
+	void showNextTab();
+	void showPrevTab();
 signals:
 	void currentChanged(int AIndex);
 	void tabMenuRequested(int AIndex);
@@ -51,7 +54,7 @@ private:
 	QPoint FPressedPos;
 	QPoint FDragCenterDistance;
 private:
-	int FActiveIndex;
+	int FCurrentIndex;
 	bool FTabsCloseable;
 	TabBarLayout *FLayout;
 	QList<TabBarItem *> FItems;
