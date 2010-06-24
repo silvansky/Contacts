@@ -37,13 +37,16 @@ class CompleterDelegate :
 {
 public:
 	CompleterDelegate(QObject *AParent): QItemDelegate(AParent) {};
-	virtual void paint(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+	QSize drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
-		APainter->save();
-
 		QStyleOptionViewItemV4 option = QItemDelegate::setOptions(AIndex, AOption);
-		APainter->setClipRect(option.rect);
-		QItemDelegate::drawBackground(APainter,option,AIndex);
+
+		if (APainter)
+		{
+			APainter->save();
+			APainter->setClipRect(option.rect);
+			QItemDelegate::drawBackground(APainter,option,AIndex);
+		}
 
 		Jid streamJid = AIndex.data(Qt::DisplayRole).toString();
 		bool isSelected = (option.state & QStyle::State_Selected) > 0;
@@ -60,16 +63,24 @@ public:
 		cursor.insertText("@",domainFormat);
 		cursor.insertText(streamJid.domain(),domainFormat);
 
-		QStyle *style = option.widget ? option.widget->style() : QApplication::style();
-		const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin,0,option.widget) + 1;
-		const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin,0,option.widget) + 1;
+		if (APainter)
+		{
+			QAbstractTextDocumentLayout::PaintContext context;
+			context.palette = option.palette;
+			APainter->translate(option.rect.topLeft());
+			doc.documentLayout()->draw(APainter, context);
+			APainter->restore();
+		}
 
-		QAbstractTextDocumentLayout::PaintContext context;
-		context.palette = option.palette;
-		APainter->translate(option.rect.x()+hMargin, option.rect.y()-vMargin);
-		doc.documentLayout()->draw(APainter, context);
-
-		APainter->restore();
+		return doc.documentLayout()->documentSize().toSize();
+	}
+	virtual void paint(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+	{
+		drawIndex(APainter,AOption,AIndex);
+	}
+	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+	{
+		return drawIndex(NULL,AOption,AIndex);
 	}
 };
 
