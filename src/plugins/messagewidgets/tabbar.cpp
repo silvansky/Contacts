@@ -218,7 +218,7 @@ void TabBar::mousePressEvent(QMouseEvent *AEvent)
 void TabBar::mouseReleaseEvent(QMouseEvent *AEvent)
 {
 	int index = tabAt(AEvent->pos());
-	if (index>=0 && index == FPressedIndex)
+	if (index == FPressedIndex)
 	{
 		if (AEvent->button() == Qt::LeftButton)
 		{

@@ -274,22 +274,32 @@ void TabWindow::onTabMenuRequested(int AIndex)
 	Menu *tabMenu = new Menu(this);
 	tabMenu->setAttribute(Qt::WA_DeleteOnClose, true);
 
+	if (AIndex >= 0)
+	{
+		Action *action = new Action(tabMenu);
+		action->setText(tr("Close Tab"));
+		action->setData(ADR_TAB_INDEX, AIndex);
+		action->setData(ADR_CLOSE_OTHER, false);
+		connect(action,SIGNAL(triggered(bool)),SLOT(onTabMenuActionTriggered(bool)));
+		tabMenu->addAction(action);
+
+		action = new Action(tabMenu);
+		action->setText(tr("Close Other Tabs"));
+		action->setData(ADR_TAB_INDEX, AIndex);
+		action->setData(ADR_CLOSE_OTHER, true);
+		action->setEnabled(ui.twtTabs->count()>1);
+		connect(action,SIGNAL(triggered(bool)),SLOT(onTabMenuActionTriggered(bool)));
+		tabMenu->addAction(action);
+	}
+	else
+	{
+		Action *action = new Action(tabMenu);
+		action->setText(tr("Close Window"));
+		connect(action,SIGNAL(triggered()),SLOT(close()));
+		tabMenu->addAction(action,AG_DEFAULT+1);
+	}
+
 	Action *action = new Action(tabMenu);
-	action->setText(tr("Close Tab"));
-	action->setData(ADR_TAB_INDEX, AIndex);
-	action->setData(ADR_CLOSE_OTHER, false);
-	connect(action,SIGNAL(triggered(bool)),SLOT(onTabMenuActionTriggered(bool)));
-	tabMenu->addAction(action);
-
-	action = new Action(tabMenu);
-	action->setText(tr("Close Other Tabs"));
-	action->setData(ADR_TAB_INDEX, AIndex);
-	action->setData(ADR_CLOSE_OTHER, true);
-	action->setEnabled(ui.twtTabs->count()>1);
-	connect(action,SIGNAL(triggered(bool)),SLOT(onTabMenuActionTriggered(bool)));
-	tabMenu->addAction(action);
-
-	action = new Action(tabMenu);
 	action->setText(tr("Open Closed Tab"));
 	action->setData(ADR_OPEN_LAST, true);
 	action->setEnabled(!FLastClosedTab.isEmpty());
