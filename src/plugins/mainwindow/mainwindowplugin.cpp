@@ -9,6 +9,7 @@ MainWindowPlugin::MainWindowPlugin()
 	FTrayManager = NULL;
 
 	FOpenAction = NULL;
+	FActivationChanged = QTime::currentTime();
 	FMainWindow = new MainWindow(new QWidget, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 	FMainWindow->installEventFilter(this);
 }
@@ -151,7 +152,7 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 {
 	if (ANotifyId<0 && AReason==QSystemTrayIcon::DoubleClick)
 	{
-		if (FMainWindow->isActiveWindow() || FActivationChanged.msecsTo(QTime::currentTime())<qApp->doubleClickInterval())
+		if (FMainWindow->isActiveWindow() || qAbs(FActivationChanged.msecsTo(QTime::currentTime()))<qApp->doubleClickInterval())
 			FMainWindow->close();
 		else
 			showMainWindow();
