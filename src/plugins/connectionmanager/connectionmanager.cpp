@@ -101,7 +101,7 @@ bool ConnectionManager::initSettings()
 {
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_CONNECTIONS, ONO_CONNECTIONS, tr("Connection"),tr("Select the way you connected to internet"), MNI_CONNECTION };
+		IOptionsDialogNode dnode = { ONO_CONNECTIONS, OPN_CONNECTIONS, tr("Connection"),tr("Select the way you connected to internet"), MNI_CONNECTION };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
