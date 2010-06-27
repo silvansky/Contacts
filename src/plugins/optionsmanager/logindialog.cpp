@@ -458,10 +458,11 @@ void LoginDialog::showConnectionSettings()
 		dialog->layout()->setMargin(5);
 		dialog->setWindowTitle(tr("Connection settings"));
 
-		int order;
-		IOptionsWidget *widget = holder->optionsWidget(OPN_ACCOUNTS"."+FAccountId.toString(),order,dialog);
-		dialog->layout()->addWidget(widget->instance());
-		connect(dialog,SIGNAL(accepted()),widget->instance(),SLOT(apply()));
+		foreach(IOptionsWidget *widget, holder->optionsWidgets(OPN_ACCOUNTS "." + FAccountId.toString(), dialog))
+		{
+			dialog->layout()->addWidget(widget->instance());
+			connect(dialog,SIGNAL(accepted()),widget->instance(),SLOT(apply()));
+		}
 
 		QDialogButtonBox *buttons = new QDialogButtonBox(dialog);
 		buttons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);

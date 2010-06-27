@@ -132,28 +132,26 @@ bool RostersViewPlugin::initSettings()
 
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_ROSTER, OPN_ROSTER, tr("Roster"),tr("Roster view options"), MNI_ROSTERVIEW_OPTIONS };
+		IOptionsDialogNode dnode = { ONO_ROSTER, OPN_ROSTER, tr("Contact List"),tr("Contact list"), MNI_ROSTERVIEW_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
 }
 
-IOptionsWidget *RostersViewPlugin::optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent)
+QMultiMap<int, IOptionsWidget *> RostersViewPlugin::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
+	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_ROSTER)
 	{
-		AOrder = OWO_ROSTER;
+		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contact"), AParent));
+		widgets.insertMulti(OWO_ROSTER_ORDER_KIND, new RosterOptionsWidget(AParent));
 
-		IOptionsContainer *container = FOptionsManager->optionsContainer(AParent);
-		container->appendChild(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contact"));
-		container->appendChild(Options::node(OPV_ROSTER_SHOWRESOURCE),tr("Show contact resource in roster"));
-		container->appendChild(Options::node(OPV_ROSTER_SHOWSTATUSTEXT),tr("Show status message in roster"));
-		container->appendChild(Options::node(OPV_ROSTER_SORTBYSTATUS),tr("Sort contacts by status"));
-		return container;
-
+		//container->appendChild(Options::node(OPV_ROSTER_SHOWRESOURCE),tr("Show contact resource in roster"));
+		//container->appendChild(Options::node(OPV_ROSTER_SHOWSTATUSTEXT),tr("Show status message in roster"));
+		//container->appendChild(Options::node(OPV_ROSTER_SORTBYSTATUS),tr("Sort contacts by status"));
 	}
-	return NULL;
+	return widgets;
 }
 
 int RostersViewPlugin::rosterDataOrder() const

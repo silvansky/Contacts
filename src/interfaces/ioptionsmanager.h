@@ -4,6 +4,7 @@
 #include <QList>
 #include <QString>
 #include <QDialog>
+#include <QMultiMap>
 #include <QByteArray>
 #include <QDomElement>
 #include <utils/options.h>
@@ -43,7 +44,7 @@ public:
 class IOptionsHolder
 {
 public:
-	virtual IOptionsWidget *optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent) =0;
+	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent) =0;
 };
 
 class IOptionsManager

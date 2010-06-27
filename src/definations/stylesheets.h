@@ -13,6 +13,7 @@
 
 //OptionsManager
 #define STS_OPTIONS_LOGINDIALOG                                         "optionsLoginDialog"
+#define STS_OPTIONS_OPTIONSDIALOG                                       "optionsOptionsDialog"
 
 //RosterChanger
 #define STS_RCHANGER_TABBARITEM_SUBSCRIPTION                            "rchangerTabBarItemSubscription"

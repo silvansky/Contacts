@@ -4,4 +4,8 @@
     <key>optionsLoginDialog</key>
     <object mime='text/css'>optionslogindialog.qss</object>
   </file>
+  <file>
+    <key>optionsOptionsDialog</key>
+    <object mime='text/css'>optionsoptionsdialog.qss</object>
+  </file>
 </styledef>

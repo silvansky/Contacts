@@ -126,14 +126,14 @@ bool StatusIcons::initSettings()
 	return true;
 }
 
-IOptionsWidget *StatusIcons::optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent)
+QMultiMap<int, IOptionsWidget *> StatusIcons::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
+	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_STATUSICONS)
 	{
-		AOrder = OWO_STATUSICONS;
-		return new IconsOptionsWidget(this,AParent);
+		widgets.insertMulti(OWO_STATUSICONS, new IconsOptionsWidget(this,AParent));
 	}
-	return NULL;
+	return widgets;
 }
 
 int StatusIcons::rosterDataOrder() const

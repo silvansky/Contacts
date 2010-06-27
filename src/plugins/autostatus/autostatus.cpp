@@ -69,6 +69,7 @@ bool AutoStatus::initObjects()
 
 bool AutoStatus::initSettings()
 {
+	Options::setDefaultValue(OPV_AUTOSTARTUS_AWAYONLOCK,true);
 	Options::setDefaultValue(OPV_AUTOSTARTUS_RULE_ENABLED,false);
 	Options::setDefaultValue(OPV_AUTOSTARTUS_RULE_TIME,15*60);
 	Options::setDefaultValue(OPV_AUTOSTARTUS_RULE_SHOW,IPresence::Away);
@@ -89,14 +90,18 @@ bool AutoStatus::startPlugin()
 	return true;
 }
 
-IOptionsWidget *AutoStatus::optionsWidget(const QString &ANode, int &AOrder, QWidget *AParent)
+QMultiMap<int, IOptionsWidget *> AutoStatus::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
-	if (ANode == OPN_AUTO_STATUS)
+	QMultiMap<int, IOptionsWidget *> widgets;
+	if (ANodeId == OPN_COMMON)
 	{
-		AOrder = OWO_AUTOSTATUS;
-		return new StatusOptionsWidget(this,FStatusChanger,AParent);
+		widgets.insertMulti(OWO_COMMON_AUTOSTATUS, FOptionsManager->optionsNodeWidget(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK),tr("Automatically change status to 'Away' if screen saver is on or system is locked"),AParent));
 	}
-	return NULL;
+	else if (ANodeId == OPN_AUTO_STATUS)
+	{
+		widgets.insertMulti(OWO_AUTOSTATUS, new StatusOptionsWidget(this,FStatusChanger,AParent));
+	}
+	return widgets;
 }
 
 int AutoStatus::idleSeconds() const

@@ -4,4 +4,8 @@
     <key>connectionEncrypted</key>
     <object mime="image/png">connectionencrypted.png</object>
   </icon>
+  <icon>
+    <key>connection</key>
+    <object mime="image/png">connection.png</object>
+  </icon>
 </icondef>

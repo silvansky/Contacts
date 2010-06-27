@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <definations/optionvalues.h>
 #include <definations/optionnodes.h>
+#include <definations/optionnodeorders.h>
 #include <definations/optionwidgetorders.h>
 #include <definations/rosterlabelorders.h>
 #include <definations/resources.h>
@@ -40,7 +41,7 @@ public:
 	virtual bool initSettings();
 	virtual bool startPlugin() { return true; }
 	//IOptionsHolder
-	virtual IOptionsWidget *optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent);
+	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IConnectionManager
 	virtual QList<QString> pluginList() const;
 	virtual IConnectionPlugin *pluginById(const QString &APluginId) const;

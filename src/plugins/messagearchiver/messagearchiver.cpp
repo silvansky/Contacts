@@ -491,19 +491,19 @@ void MessageArchiver::stanzaRequestTimeout(const Jid &AStreamJid, const QString 
 	emit requestFailed(AStanzaId,ErrorHandler(ErrorHandler::REQUEST_TIMEOUT).message());
 }
 
-IOptionsWidget *MessageArchiver::optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent)
+QMultiMap<int, IOptionsWidget *> MessageArchiver::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
+	QMultiMap<int, IOptionsWidget *> widgets;
 	QStringList nodeTree = ANodeId.split(".",QString::SkipEmptyParts);
 	if (nodeTree.count()==2 && nodeTree.at(0)==OPN_HISTORY)
 	{
-		AOrder = OWO_HISTORY;
 		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(nodeTree.at(1)) : NULL;
 		if (account && account->isActive() && isReady(account->xmppStream()->streamJid()))
 		{
-			return new ArchiveOptions(this,account->xmppStream()->streamJid(),AParent);
+			widgets.insertMulti(OWO_HISTORY, new ArchiveOptions(this,account->xmppStream()->streamJid(),AParent));
 		}
 	}
-	return NULL;
+	return widgets;
 }
 
 int MessageArchiver::sessionInit(const IStanzaSession &ASession, IDataForm &ARequest)

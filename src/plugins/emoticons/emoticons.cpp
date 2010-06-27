@@ -130,14 +130,14 @@ void Emoticons::writeText(int AOrder, Message &AMessage, QTextDocument *ADocumen
 		replaceTextToImage(ADocument);
 }
 
-IOptionsWidget *Emoticons::optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent)
+QMultiMap<int, IOptionsWidget *> Emoticons::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
+	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_EMOTICONS)
 	{
-		AOrder = OWO_EMOTICONS;
-		return new EmoticonsOptions(this,AParent);
+		widgets.insertMulti(OWO_EMOTICONS, new EmoticonsOptions(this,AParent));
 	}
-	return NULL;
+	return widgets;
 }
 
 QList<QString> Emoticons::activeIconsets() const

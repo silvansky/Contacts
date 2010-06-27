@@ -107,7 +107,7 @@ bool OptionsManager::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
 
-	IOptionsDialogNode dnode = { ONO_MISC, OPN_MISC, tr("Misc"), tr("Extra options"), MNI_OPTIONS_DIALOG };
+	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), tr("Common settings"), MNI_OPTIONS_DIALOG };
 	insertOptionsDialogNode(dnode);
 	insertOptionsHolder(this);
 
@@ -125,14 +125,14 @@ bool OptionsManager::startPlugin()
 	return true;
 }
 
-IOptionsWidget *OptionsManager::optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent)
+QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
-	if (ANodeId == OPN_MISC)
+	QMultiMap<int, IOptionsWidget *> widgets;
+	if (ANodeId == OPN_COMMON)
 	{
-		AOrder = OWO_MISC_AUTOSTART;
-		return optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Auto run on system startup"), AParent);
+		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
 	}
-	return NULL;
+	return widgets;
 }
 
 bool OptionsManager::isOpened() const

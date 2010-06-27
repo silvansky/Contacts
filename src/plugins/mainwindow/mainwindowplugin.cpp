@@ -56,6 +56,7 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &/*AI
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
+	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
 	return true;
 }
@@ -85,6 +86,13 @@ bool MainWindowPlugin::initSettings()
 	Options::setDefaultValue(OPV_MAINWINDOW_SHOW,true);
 	Options::setDefaultValue(OPV_MAINWINDOW_SIZE,QSize(200,500));
 	Options::setDefaultValue(OPV_MAINWINDOW_POSITION,QPoint(0,0));
+	Options::setDefaultValue(OPV_MAINWINDOW_STAYONTOP,false);
+
+	if (FOptionsManager)
+	{
+		FOptionsManager->insertOptionsHolder(this);
+	}
+
 	return true;
 }
 
@@ -92,6 +100,16 @@ bool MainWindowPlugin::startPlugin()
 {
 	updateTitle();
 	return true;
+}
+
+QMultiMap<int, IOptionsWidget *> MainWindowPlugin::optionsWidgets(const QString &ANodeId, QWidget *AParent)
+{
+	QMultiMap<int, IOptionsWidget *> widgets;
+	if (FOptionsManager && ANodeId == OPN_ROSTER)
+	{
+		widgets.insertMulti(OWO_ROSTER_MAINWINDOW, FOptionsManager->optionsNodeWidget(Options::node(OPV_MAINWINDOW_STAYONTOP),tr("Stay on top of other windows"),AParent));
+	}
+	return widgets;
 }
 
 IMainWindow *MainWindowPlugin::mainWindow() const
@@ -129,6 +147,7 @@ void MainWindowPlugin::onOptionsOpened()
 	FOpenAction->setVisible(true);
 	//if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
 	//	showMainWindow();
+	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 }
 
 void MainWindowPlugin::onOptionsClosed()
@@ -139,6 +158,20 @@ void MainWindowPlugin::onOptionsClosed()
 	updateTitle();
 	FMainWindow->close();
 	FOpenAction->setVisible(false);
+}
+
+void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
+{
+	if (ANode.path() == OPV_MAINWINDOW_STAYONTOP)
+	{
+		bool show = FMainWindow->isVisible();
+		if (ANode.value().toBool())
+			FMainWindow->setWindowFlags(FMainWindow->windowFlags() | Qt::WindowStaysOnTopHint);
+		else
+			FMainWindow->setWindowFlags(FMainWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
+		if (show)
+			showMainWindow();
+	}
 }
 
 void MainWindowPlugin::onProfileRenamed(const QString &AProfile, const QString &ANewName)

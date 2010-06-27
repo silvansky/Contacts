@@ -6,6 +6,8 @@
 #include <definations/version.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/optionnodes.h>
+#include <definations/optionwidgetorders.h>
 #include <definations/optionvalues.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imainwindow.h>
@@ -19,10 +21,11 @@
 class MainWindowPlugin :
 			public QObject,
 			public IPlugin,
+			public IOptionsHolder,
 			public IMainWindowPlugin
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMainWindowPlugin);
+	Q_INTERFACES(IPlugin IOptionsHolder IMainWindowPlugin);
 public:
 	MainWindowPlugin();
 	~MainWindowPlugin();
@@ -34,6 +37,8 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings();
 	virtual bool startPlugin();
+	//IOptionsHolder
+	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IMainWindowPlugin
 	virtual IMainWindow *mainWindow() const;
 protected:
@@ -44,6 +49,7 @@ protected:
 protected slots:
 	void onOptionsOpened();
 	void onOptionsClosed();
+	void onOptionsChanged(const OptionsNode &ANode);
 	void onProfileRenamed(const QString &AProfile, const QString &ANewName);
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowMainWindowByAction(bool);

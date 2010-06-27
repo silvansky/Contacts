@@ -23,6 +23,7 @@
 #include <utils/options.h>
 #include "rostersview.h"
 #include "sortfilterproxymodel.h"
+#include "rosteroptionswidget.h"
 
 class RostersViewPlugin :
 			public QObject,
@@ -45,7 +46,7 @@ public:
 	virtual bool initSettings();
 	virtual bool startPlugin() { return true; }
 	//IOptionsHolder
-	virtual IOptionsWidget *optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent);
+	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IRosterDataHolder
 	virtual int rosterDataOrder() const;
 	virtual QList<int> rosterDataRoles() const;

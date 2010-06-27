@@ -79,14 +79,14 @@ bool MessageStyles::initSettings()
 	return true;
 }
 
-IOptionsWidget *MessageStyles::optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent)
+QMultiMap<int, IOptionsWidget *> MessageStyles::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
+	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_MESSAGE_STYLES && !FStylePlugins.isEmpty())
 	{
-		AOrder = OWO_MESSAGE_STYLES;
-		return new StyleOptionsWidget(this,AParent);
+		widgets.insertMulti(OWO_MESSAGE_STYLES, new StyleOptionsWidget(this,AParent));
 	}
-	return NULL;
+	return widgets;
 }
 
 QList<QString> MessageStyles::pluginList() const

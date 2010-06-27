@@ -48,6 +48,7 @@
 #define MNI_COMMANDS                             "commands"
 
 //ConnectionManager
+#define MNI_CONNECTION                           "connection"
 #define MNI_CONNECTION_ENCRYPTED                 "connectionEncrypted"
 
 //Console

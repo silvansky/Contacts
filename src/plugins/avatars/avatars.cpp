@@ -325,17 +325,19 @@ bool Avatars::setRosterData(IRosterIndex *AIndex, int ARole, const QVariant &AVa
 	return false;
 }
 
-IOptionsWidget *Avatars::optionsWidget(const QString &ANodeId, int &AOrder, QWidget *AParent)
+QMultiMap<int, IOptionsWidget *> Avatars::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
-	if (FOptionsManager && ANodeId == OPN_ROSTER)
-	{
-		AOrder = OWO_ROSTER_AVATARS;
-		IOptionsContainer *container = FOptionsManager->optionsContainer(AParent);
-		container->appendChild(Options::node(OPV_AVATARS_SHOW),tr("Show avatars"));
-		container->appendChild(Options::node(OPV_AVATARS_SHOWEMPTY),tr("Show empty avatars"));
-		return container;
-	}
-	return NULL;
+	Q_UNUSED(ANodeId); Q_UNUSED(AParent);
+	QMultiMap<int, IOptionsWidget *> widgets;
+	//if (FOptionsManager && ANodeId == OPN_ROSTER)
+	//{
+	//	AOrder = OWO_ROSTER_AVATARS;
+	//	IOptionsContainer *container = FOptionsManager->optionsContainer(AParent);
+	//	container->appendChild(Options::node(OPV_AVATARS_SHOW),tr("Show avatars"));
+	//	container->appendChild(Options::node(OPV_AVATARS_SHOWEMPTY),tr("Show empty avatars"));
+	//	return container;
+	//}
+	return widgets;
 }
 
 QString Avatars::avatarFileName(const QString &AHash) const

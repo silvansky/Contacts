@@ -6,18 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>508</width>
+    <width>522</width>
     <height>498</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <property name="margin">
-    <number>3</number>
+    <number>5</number>
    </property>
    <item>
     <widget class="QSplitter" name="sprSplitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
      </property>
      <widget class="QTreeView" name="trvNodes">
       <property name="editTriggers">
@@ -26,42 +29,36 @@
       <property name="indentation">
        <number>12</number>
       </property>
+      <property name="rootIsDecorated">
+       <bool>false</bool>
+      </property>
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
       <attribute name="headerVisible">
        <bool>false</bool>
       </attribute>
+      <attribute name="headerVisible">
+       <bool>false</bool>
+      </attribute>
      </widget>
-     <widget class="QWidget" name="wdtRightWidget" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+     <widget class="QFrame" name="frmWidgets">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="margin">
-        <number>0</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QLabel" name="lblInfo">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::Box</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Sunken</enum>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QScrollArea" name="scaScroll">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -70,8 +67,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>92</width>
-            <height>434</height>
+            <width>111</width>
+            <height>420</height>
            </rect>
           </property>
          </widget>
@@ -93,7 +90,6 @@
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>trvNodes</tabstop>
-  <tabstop>scaScroll</tabstop>
   <tabstop>dbbButtons</tabstop>
  </tabstops>
  <resources/>

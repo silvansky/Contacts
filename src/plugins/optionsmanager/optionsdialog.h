@@ -6,8 +6,10 @@
 #include <QObjectCleanupHandler>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/stylesheets.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
+#include <utils/stylestorage.h>
 #include <utils/iconstorage.h>
 #include "ui_optionsdialog.h"
 
@@ -34,7 +36,6 @@ signals:
 	void applied();
 	void reseted();
 protected:
-	QString nodeFullName(const QString &ANodeId);
 	QWidget *createNodeWidget(const QString &ANodeId);
 	QStandardItem *createNodeItem(const QString &ANodeId);
 	bool canExpandVertically(const QWidget *AWidget) const;

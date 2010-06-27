@@ -69,6 +69,7 @@
 #define OPV_MAINWINDOW_SHOW                             "mainwindow.show"
 #define OPV_MAINWINDOW_SIZE                             "mainwindow.size"
 #define OPV_MAINWINDOW_POSITION                         "mainwindow.position"
+#define OPV_MAINWINDOW_STAYONTOP                        "mainwindow.stay-on-top"
 
 // MessageWidgets
 #define OPV_MESSAGES_ROOT                               "messages"
@@ -158,6 +159,7 @@
 #define OPV_STATUS_PRIORITY                             "statuses.status.priority"
 // AutoStatus
 #define OPV_AUTOSTARTUS_ROOT                            "statuses.autostatus"
+#define OPV_AUTOSTARTUS_AWAYONLOCK                      "statuses.autostatus.away-on-lock"
 #define OPV_AUTOSTARTUS_RULE_ITEM                       "statuses.autostatus.rule"
 #define OPV_AUTOSTARTUS_RULE_ENABLED                    "statuses.autostatus.rule.enabled"
 #define OPV_AUTOSTARTUS_RULE_TIME                       "statuses.autostatus.rule.time"
