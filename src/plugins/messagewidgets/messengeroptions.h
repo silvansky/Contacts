@@ -1,9 +1,8 @@
 #ifndef MESSENGEROPTIONS_H
 #define MESSENGEROPTIONS_H
 
-#include <QShortcut>
+#include <QKeySequence>
 #include <definations/optionvalues.h>
-#include <interfaces/imessagewidgets.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 #include "ui_messengeroptions.h"
@@ -15,7 +14,7 @@ class MessengerOptions :
 	Q_OBJECT;
 	Q_INTERFACES(IOptionsWidget);
 public:
-	MessengerOptions(IMessageWidgets *AMessageWidgets, QWidget *AParent);
+	MessengerOptions(QWidget *AParent);
 	~MessengerOptions();
 	virtual QWidget* instance() { return this; }
 public slots:
@@ -25,14 +24,8 @@ signals:
 	void modified();
 	void childApply();
 	void childReset();
-protected:
-	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
 private:
 	Ui::MessengerOptionsClass ui;
-private:
-	IMessageWidgets *FMessageWidgets;
-private:
-	QKeySequence FSendKey;
 };
 
 #endif // MESSENGEROPTIONS_H

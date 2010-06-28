@@ -85,6 +85,13 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 		insertCaption(ACaption,FLineEdit);
 		layout()->addWidget(FLineEdit);
 	}
+	else
+	{
+		QGroupBox *box = new QGroupBox(this);
+		box->setFlat(true);
+		box->setTitle(ACaption);
+		layout()->addWidget(box);
+	}
 }
 
 OptionsWidget::~OptionsWidget()

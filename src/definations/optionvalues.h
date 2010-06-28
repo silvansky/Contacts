@@ -87,6 +87,7 @@
 #define OPV_MESSAGES_TABWINDOW_TABSCLOSABLE             "messages.tab-windows.window.tabs-closable"
 // Emoticons
 #define OPV_MESSAGES_EMOTICONS                          "messages.emoticons"
+#define OPV_MESSAGES_EMOTICONS_ENABLED                  "messages.emoticons.enabled"
 // ChatStates
 #define OPV_MESSAGES_CHATSTATESENABLED                  "messages.chatstates-enabled"
 

@@ -32,7 +32,8 @@
 #define OWO_COMMON_CLIENTINFO                     700
 
 //Node = OPN_MESSAGES
-#define OWO_MESSAGES                              500
+#define OWO_MESSAGES                              300
+#define OWO_MESSAGES_EMOTICONS                    500
 #define OWO_MESSAGES_CHATSTATES                   700
 
 //Node = OPN_MESSAGE_STYLES

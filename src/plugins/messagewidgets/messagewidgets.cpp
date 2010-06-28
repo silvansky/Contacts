@@ -88,7 +88,7 @@ bool MessageWidgets::initSettings()
 
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), tr("Message window options"), MNI_CHAT_MHANDLER_MESSAGE };
+		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), tr("Select the method of sending messages"), MNI_CHAT_MHANDLER_MESSAGE };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
@@ -100,11 +100,11 @@ QMultiMap<int, IOptionsWidget *> MessageWidgets::optionsWidgets(const QString &A
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_MESSAGES)
 	{
-		widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_TABWINDOWS_ENABLE),tr("Enable tab windows"),AParent));
-		widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_SHOWSTATUS),tr("Show status changes in chat windows"),AParent));
-		widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_EDITORAUTORESIZE),tr("Auto resize input field"),AParent));
-		widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_SHOWINFOWIDGET),tr("Show contact information in chat windows"),AParent));
-		widgets.insertMulti(OWO_MESSAGES, new MessengerOptions(this,AParent));
+		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_TABWINDOWS_ENABLE),tr("Enable tab windows"),AParent));
+		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_SHOWSTATUS),tr("Show status changes in chat windows"),AParent));
+		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_EDITORAUTORESIZE),tr("Auto resize input field"),AParent));
+		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_SHOWINFOWIDGET),tr("Show contact information in chat windows"),AParent));
+		widgets.insertMulti(OWO_MESSAGES, new MessengerOptions(AParent));
 	}
 	return widgets;
 }
@@ -735,7 +735,7 @@ void MessageWidgets::onOptionsClosed()
 	stream3 << FLastPagesActivity;
 	Options::setFileValue(data,"messages.last-tab-pages-activity");
 
-   deleteWindows();
+	deleteWindows();
 }
 
 Q_EXPORT_PLUGIN2(plg_messagewidgets, MessageWidgets)

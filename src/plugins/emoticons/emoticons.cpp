@@ -94,16 +94,13 @@ bool Emoticons::initConnections(IPluginManager *APluginManager, int &/*AInitOrde
 
 bool Emoticons::initObjects()
 {
-	if (FMessageProcessor)
-	{
-		FMessageProcessor->insertMessageWriter(this,MWO_EMOTICONS);
-	}
 	return true;
 }
 
 bool Emoticons::initSettings()
 {
 	Options::setDefaultValue(OPV_MESSAGES_EMOTICONS,QStringList() << DEFAULT_ICONSET);
+	Options::setDefaultValue(OPV_MESSAGES_EMOTICONS_ENABLED, true);
 
 	if (FOptionsManager)
 	{
@@ -116,16 +113,14 @@ bool Emoticons::initSettings()
 
 void Emoticons::writeMessage(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang)
 {
-	Q_UNUSED(AMessage);
-	Q_UNUSED(ALang);
+	Q_UNUSED(AMessage);	Q_UNUSED(ALang);
 	if (AOrder == MWO_EMOTICONS)
 		replaceImageToText(ADocument);
 }
 
 void Emoticons::writeText(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang)
 {
-	Q_UNUSED(AMessage);
-	Q_UNUSED(ALang);
+	Q_UNUSED(AMessage);	Q_UNUSED(ALang);
 	if (AOrder == MWO_EMOTICONS)
 		replaceTextToImage(ADocument);
 }
@@ -133,7 +128,12 @@ void Emoticons::writeText(int AOrder, Message &AMessage, QTextDocument *ADocumen
 QMultiMap<int, IOptionsWidget *> Emoticons::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
 	QMultiMap<int, IOptionsWidget *> widgets;
-	if (ANodeId == OPN_EMOTICONS)
+	if (FOptionsManager && ANodeId == OPN_MESSAGES)
+	{
+		widgets.insertMulti(OWO_MESSAGES_EMOTICONS, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Smiley usage in messages"),AParent));
+		widgets.insertMulti(OWO_MESSAGES_EMOTICONS, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_EMOTICONS_ENABLED), tr("Automatically convert text smiles to graphical"),AParent));
+	}
+	else if (ANodeId == OPN_EMOTICONS)
 	{
 		widgets.insertMulti(OWO_EMOTICONS, new EmoticonsOptions(this,AParent));
 	}
@@ -340,11 +340,22 @@ void Emoticons::onIconSelected(const QString &ASubStorage, const QString &AIconK
 void Emoticons::onOptionsOpened()
 {
 	onOptionsChanged(Options::node(OPV_MESSAGES_EMOTICONS));
+	onOptionsChanged(Options::node(OPV_MESSAGES_EMOTICONS_ENABLED));
 }
 
 void Emoticons::onOptionsChanged(const OptionsNode &ANode)
 {
-	if (ANode.path() == OPV_MESSAGES_EMOTICONS)
+	if (ANode.path() == OPV_MESSAGES_EMOTICONS_ENABLED)
+	{
+		if (FMessageProcessor)
+		{
+			if (ANode.value().toBool())
+				FMessageProcessor->insertMessageWriter(this,MWO_EMOTICONS);
+			else
+				FMessageProcessor->removeMessageWriter(this,MWO_EMOTICONS);
+		}
+	}
+	else if (ANode.path() == OPV_MESSAGES_EMOTICONS)
 	{
 		QList<QString> oldStorages = FStorages.keys();
 		QList<QString> availStorages = IconStorage::availSubStorages(RSR_STORAGE_EMOTICONS);
