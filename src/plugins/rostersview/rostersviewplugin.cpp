@@ -126,9 +126,10 @@ bool RostersViewPlugin::initObjects()
 bool RostersViewPlugin::initSettings()
 {
 	Options::setDefaultValue(OPV_ROSTER_SHOWOFFLINE,true);
-	Options::setDefaultValue(OPV_ROSTER_SHOWRESOURCE,true);
+	Options::setDefaultValue(OPV_ROSTER_SHOWRESOURCE,false);
 	Options::setDefaultValue(OPV_ROSTER_SHOWSTATUSTEXT,true);
 	Options::setDefaultValue(OPV_ROSTER_SORTBYSTATUS,false);
+	Options::setDefaultValue(OPV_ROSTER_GROUPCONTACTS,true);
 
 	if (FOptionsManager)
 	{
@@ -144,10 +145,11 @@ QMultiMap<int, IOptionsWidget *> RostersViewPlugin::optionsWidgets(const QString
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_ROSTER)
 	{
-		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contact"), AParent));
+		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contacts"), AParent));
+		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"), AParent));
 		widgets.insertMulti(OWO_ROSTER_ORDER_KIND, new RosterOptionsWidget(AParent));
 
-		//container->appendChild(Options::node(OPV_ROSTER_SHOWRESOURCE),tr("Show contact resource in roster"));
+		//widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWRESOURCE),tr("Show contacts resource"),AParent));
 		//container->appendChild(Options::node(OPV_ROSTER_SHOWSTATUSTEXT),tr("Show status message in roster"));
 		//container->appendChild(Options::node(OPV_ROSTER_SORTBYSTATUS),tr("Sort contacts by status"));
 	}

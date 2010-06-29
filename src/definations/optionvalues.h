@@ -141,6 +141,7 @@
 #define OPV_ROSTER_SHOWRESOURCE                         "roster.show-resource"
 #define OPV_ROSTER_SHOWSTATUSTEXT                       "roster.show-status-text"
 #define OPV_ROSTER_SORTBYSTATUS                         "roster.sort-by-status"
+#define OPV_ROSTER_GROUPCONTACTS                        "roster.group-contacts"
 // RosterChanger
 #define OPV_ROSTER_AUTOSUBSCRIBE                        "roster.auto-subscribe"
 #define OPV_ROSTER_AUTOUNSUBSCRIBE                      "roster.auto-unsubscribe"

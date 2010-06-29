@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>354</width>
-    <height>174</height>
+    <height>184</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -55,7 +55,7 @@
       <item>
        <widget class="QRadioButton" name="rbtOrderManualy">
         <property name="text">
-         <string>Manual Order</string>
+         <string>Manual</string>
         </property>
        </widget>
       </item>

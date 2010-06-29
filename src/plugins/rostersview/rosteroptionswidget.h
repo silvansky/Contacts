@@ -3,8 +3,11 @@
 
 #include <QWidget>
 #include <definations/optionvalues.h>
+#include <definations/resources.h>
+#include <definations/menuicons.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
+#include <utils/iconstorage.h>
 #include "ui_rosteroptionswidget.h"
 
 class RosterOptionsWidget : 

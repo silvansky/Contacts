@@ -13,6 +13,18 @@
     <object mime="image/png">rosterviewhideoffline.png</object>
   </icon>
   <icon>
+    <key>rosterviewViewFull</key>
+    <object mime="image/png">rosterviewviewfull.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewViewSimplified</key>
+    <object mime="image/png">rosterviewviewsimplified.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewViewCompact</key>
+    <object mime="image/png">rosterviewviewcompact.png</object>
+  </icon>
+  <icon>
     <key>rosterviewClipboard</key>
     <object mime="image/png">rosterviewclipboard.png</object>
   </icon>
