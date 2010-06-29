@@ -67,9 +67,9 @@
 #include <QByteArray>
 
 
-static const char *styleSheetProperty = "styleSheet";
-static const char *StyleSheetDialogC = "StyleSheetDialog";
-static const char *Geometry = "Geometry";
+//static const char *styleSheetProperty = "styleSheet";
+//static const char *StyleSheetDialogC = "StyleSheetDialog";
+//static const char *Geometry = "Geometry";
 
 StyleSheetEditor::StyleSheetEditor(QWidget *parent)
 	: QTextEdit(parent)

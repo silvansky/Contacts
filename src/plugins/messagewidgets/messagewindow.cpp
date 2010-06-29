@@ -165,7 +165,8 @@ void MessageWindow::setMode(Mode AMode)
 		ui.wdtToolBar->layout()->addWidget(FEditToolBarWidget->instance());
 		FViewWidget->instance()->setParent(NULL);
 		FViewToolBarWidget->instance()->setParent(NULL);
-		addTabWidget(FReceiversWidget->instance());
+		//addTabWidget(FReceiversWidget->instance());
+		centralWidget()->layout()->addWidget(FReceiversWidget->instance());
 	}
 	ui.wdtReceivers->setVisible(FMode == WriteMode);
 	ui.wdtInfo->setVisible(FMode == ReadMode);

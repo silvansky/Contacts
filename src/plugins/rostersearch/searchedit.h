@@ -4,6 +4,7 @@
 #include <QLineEdit>
 #include <utils/iconstorage.h>
 #include <QLabel>
+#include <QKeyEvent>
 
 class SearchEdit : public QLineEdit
 {
@@ -16,6 +17,7 @@ public:
 		InProgress,
 		Hover
 	};
+	void processKeyPressEvent(QKeyEvent * event);
 
 protected:
 	void resizeEvent(QResizeEvent *);

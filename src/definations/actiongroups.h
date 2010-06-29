@@ -14,15 +14,16 @@
 //RostersView - ContextMenu
 #define AG_RVCM_CHATMESSAGEHANDLER                              200
 #define AG_RVCM_NORMALMESSAGEHANDLER                            200
+#define AG_RVCM_ROSTERCHANGER_SUBSCRIPTION                      200
 #define AG_RVCM_STATUSCHANGER                                   300
 #define AG_RVCM_ROSTERCHANGER_ADD_CONTACT                       300
+#define AG_RVCM_ROSTERCHANGER                                   300
 #define AG_RVCM_GATEWAYS_ADD_LEGACY_USER                        300
 #define AG_RVCM_GATEWAYS_LOGIN                                  350
 #define AG_RVCM_CLIENTINFO                                      400
 #define AG_RVCM_DISCOVERY_FEATURES                              400
 #define AG_RVCM_ACCOUNTMANAGER                                  500
 #define AG_RVCM_STATUSICONS                                     500
-#define AG_RVCM_VCARD                                           500
 #define AG_RVCM_DISCOVERY                                       500
 #define AG_RVCM_MULTIUSERCHAT                                   500
 #define AG_RVCM_GATEWAYS_RESOLVE                                500
@@ -30,9 +31,10 @@
 #define AG_RVCM_AVATARS                                         500
 #define AG_RVCM_ANNOTATIONS                                     500
 #define AG_RVCM_ARCHIVER                                        500
-#define AG_RVCM_ROSTERSVIEW_CLIPBOARD                           500
-#define AG_RVCM_ROSTERCHANGER_SUBSCRIPTION                      700
-#define AG_RVCM_ROSTERCHANGER                                   700
+#define AG_RVCM_ROSTERSVIEW_CLIPBOARD                           600
+#define AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT                    600
+#define AG_RVCM_ROSTERCHANGER_RENAME                            600
+#define AG_RVCM_VCARD                                           700
 
 //TrayManager - TrayMenu
 #define AG_TMTM_MAINWINDOW                                      300

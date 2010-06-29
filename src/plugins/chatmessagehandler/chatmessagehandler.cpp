@@ -343,6 +343,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 	notify.data.insert(NDR_POPUP_TITLE,name);
 	notify.data.insert(NDR_POPUP_TEXT,Qt::escape(AMessage.body()));
 	notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
+	notify.data.insert(NDR_TYPE, NT_CHATMESSAGE);
 
 	return notify;
 }

@@ -55,7 +55,7 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		if (FDiscovery)
 		{
 			connect(FDiscovery->instance(),SIGNAL(discoItemsWindowCreated(IDiscoItemsWindow *)),
-			        SLOT(onDiscoItemsWindowCreated(IDiscoItemsWindow *)));
+				SLOT(onDiscoItemsWindowCreated(IDiscoItemsWindow *)));
 		}
 	}
 
@@ -71,9 +71,9 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		{
 			connect(FRosterPlugin->instance(),SIGNAL(rosterOpened(IRoster *)),SLOT(onRosterOpened(IRoster *)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscription(IRoster *, const Jid &, int , const QString &)),
-			        SLOT(onRosterSubscription(IRoster *, const Jid &, int , const QString &)));
+				SLOT(onRosterSubscription(IRoster *, const Jid &, int , const QString &)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterStreamJidAboutToBeChanged(IRoster *, const Jid &)),
-			        SLOT(onRosterStreamJidAboutToBeChanged(IRoster *, const Jid &)));
+				SLOT(onRosterStreamJidAboutToBeChanged(IRoster *, const Jid &)));
 		}
 	}
 
@@ -85,7 +85,7 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceOpened(IPresence *)),SLOT(onPresenceOpened(IPresence *)));
 			connect(FPresencePlugin->instance(),SIGNAL(contactStateChanged(const Jid &, const Jid &, bool)),
-			        SLOT(onContactStateChanged(const Jid &, const Jid &, bool)));
+				SLOT(onContactStateChanged(const Jid &, const Jid &, bool)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceClosed(IPresence *)),SLOT(onPresenceClosed(IPresence *)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceRemoved(IPresence *)),SLOT(onPresenceRemoved(IPresence *)));
 		}
@@ -118,7 +118,7 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		{
 			connect(FPrivateStorage->instance(),SIGNAL(storageOpened(const Jid &)),SLOT(onPrivateStorateOpened(const Jid &)));
 			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
-			        SLOT(onPrivateStorageLoaded(const QString &, const Jid &, const QDomElement &)));
+				SLOT(onPrivateStorageLoaded(const QString &, const Jid &, const QDomElement &)));
 		}
 	}
 
@@ -133,9 +133,9 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		if (FRegistration)
 		{
 			connect(FRegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
-			        SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
+				SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
 			connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
-			        SLOT(onRegisterError(const QString &, const QString &)));
+				SLOT(onRegisterError(const QString &, const QString &)));
 		}
 	}
 
@@ -152,7 +152,7 @@ bool Gateways::initObjects()
 	if (FRostersViewPlugin)
 	{
 		connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
-		        SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+			SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 	}
 	return true;
 }
@@ -326,7 +326,7 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 		IRosterItem ritemOld = roster->rosterItem(AServiceFrom);
 		IRosterItem ritemNew = roster->rosterItem(AServiceTo);
 
-		//Разлогиниваемся на старом транспорте
+		//� азлогиниваемся на старом транспорте
 		if (!presence->presenceItems(AServiceFrom).isEmpty())
 			sendLogPresence(AStreamJid,AServiceFrom,false);
 
@@ -612,7 +612,7 @@ void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 		}
 	}
 
-	if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
+	/*if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		Jid contactJid = AIndex->data(RDR_JID).toString();
@@ -627,7 +627,7 @@ void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 			connect(action,SIGNAL(triggered(bool)),SLOT(onResolveActionTriggered(bool)));
 			AMenu->addAction(action,AG_RVCM_GATEWAYS_RESOLVE,true);
 		}
-	}
+	}*/
 }
 
 void Gateways::onPresenceOpened(IPresence *APresence)
@@ -795,7 +795,7 @@ void Gateways::onVCardError(const Jid &AContactJid, const QString &AError)
 void Gateways::onDiscoItemsWindowCreated(IDiscoItemsWindow *AWindow)
 {
 	connect(AWindow->instance(),SIGNAL(indexContextMenu(const QModelIndex &, Menu *)),
-	        SLOT(onDiscoItemContextMenu(const QModelIndex &, Menu *)));
+		SLOT(onDiscoItemContextMenu(const QModelIndex &, Menu *)));
 }
 
 void Gateways::onDiscoItemContextMenu(QModelIndex AIndex, Menu *AMenu)

@@ -58,6 +58,7 @@ signals:
 	void searchFieldRemoved(int ADataRole);
 protected:
 	virtual bool filterAcceptsRow(int ARow, const QModelIndex &AParent) const;
+	bool eventFilter(QObject *, QEvent *);
 protected slots:
 	void onFieldActionTriggered(bool);
 	void onSearchActionTriggered(bool AChecked);
@@ -79,7 +80,6 @@ private:
 	Menu *FFieldsMenu;
 	QTimer FEditTimeout;
 	SearchEdit *FSearchEdit;
-	//ToolBarChanger *FSearchToolBarChanger;
 	QHash<int,Action *> FFieldActions;
 	bool searchEnabled;
 	int searchInRamblerLabel, searchInHistoryLabel, searchNotFoundLabel;

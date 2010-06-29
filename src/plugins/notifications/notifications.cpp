@@ -232,7 +232,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	{
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
 		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
-		if (!(streamJid.isValid() && contactJid.isValid() && (record.widget = findNotifyWidget(streamJid, contactJid))))
+		if ((!(streamJid.isValid() && contactJid.isValid() && (record.widget = findNotifyWidget(streamJid, contactJid)))) || (ANotification.data.value(NDR_TYPE).toInt() == NT_AUTH))
 			record.widget = new NotifyWidget(record.notification);
 		else
 			record.widget->appendText(record.notification.data.value(NDR_POPUP_TEXT).toString());

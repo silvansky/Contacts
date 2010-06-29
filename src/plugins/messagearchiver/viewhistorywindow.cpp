@@ -58,7 +58,7 @@ bool SortFilterProxyModel::filterAcceptsRow(int ARow, const QModelIndex &AParent
 }
 
 //ViewHistoryWindow
-ViewHistoryWindow::ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &AStreamJid, QWidget *AParent) : QMainWindow(AParent)
+ViewHistoryWindow::ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &AStreamJid, Type AType, QWidget *AParent) : QMainWindow(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
@@ -109,7 +109,7 @@ ViewHistoryWindow::ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &ASt
 	ui.trvCollections->header()->setResizeMode(1,QHeaderView::ResizeToContents);
 	ui.trvCollections->header()->setResizeMode(2,QHeaderView::Stretch);
 	connect(ui.trvCollections->selectionModel(),SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-	        SLOT(onCurrentItemChanged(const QModelIndex &, const QModelIndex &)));
+		SLOT(onCurrentItemChanged(const QModelIndex &, const QModelIndex &)));
 	connect(ui.trvCollections,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onItemContextMenuRequested(const QPoint &)));
 
 	FInvalidateTimer.setInterval(0);
@@ -117,19 +117,19 @@ ViewHistoryWindow::ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &ASt
 	connect(&FInvalidateTimer,SIGNAL(timeout()),SLOT(onInvalidateTimeout()));
 
 	connect(FArchiver->instance(),SIGNAL(archivePrefsChanged(const Jid &, const IArchiveStreamPrefs &)),
-	        SLOT(onArchivePrefsChanged(const Jid &, const IArchiveStreamPrefs &)));
+		SLOT(onArchivePrefsChanged(const Jid &, const IArchiveStreamPrefs &)));
 	connect(FArchiver->instance(),SIGNAL(localCollectionSaved(const Jid &, const IArchiveHeader &)),
-	        SLOT(onLocalCollectionSaved(const Jid &, const IArchiveHeader &)));
+		SLOT(onLocalCollectionSaved(const Jid &, const IArchiveHeader &)));
 	connect(FArchiver->instance(),SIGNAL(localCollectionRemoved(const Jid &, const IArchiveHeader &)),
-	        SLOT(onLocalCollectionRemoved(const Jid &, const IArchiveHeader &)));
+		SLOT(onLocalCollectionRemoved(const Jid &, const IArchiveHeader &)));
 	connect(FArchiver->instance(),SIGNAL(serverHeadersLoaded(const QString &, const QList<IArchiveHeader> &, const IArchiveResultSet &)),
-	        SLOT(onServerHeadersLoaded(const QString &, const QList<IArchiveHeader> &, const IArchiveResultSet &)));
+		SLOT(onServerHeadersLoaded(const QString &, const QList<IArchiveHeader> &, const IArchiveResultSet &)));
 	connect(FArchiver->instance(),SIGNAL(serverCollectionLoaded(const QString &, const IArchiveCollection &, const IArchiveResultSet &)),
-	        SLOT(onServerCollectionLoaded(const QString &, const IArchiveCollection &, const IArchiveResultSet &)));
+		SLOT(onServerCollectionLoaded(const QString &, const IArchiveCollection &, const IArchiveResultSet &)));
 	connect(FArchiver->instance(),SIGNAL(serverCollectionSaved(const QString &, const IArchiveHeader &)),
-	        SLOT(onServerCollectionSaved(const QString &, const IArchiveHeader &)));
+		SLOT(onServerCollectionSaved(const QString &, const IArchiveHeader &)));
 	connect(FArchiver->instance(),SIGNAL(serverCollectionsRemoved(const QString &, const IArchiveRequest &)),
-	        SLOT(onServerCollectionsRemoved(const QString &, const IArchiveRequest &)));
+		SLOT(onServerCollectionsRemoved(const QString &, const IArchiveRequest &)));
 	connect(FArchiver->instance(),SIGNAL(requestFailed(const QString &, const QString &)),SLOT(onRequestFailed(const QString &, const QString &)));
 
 	connect(ui.pbtApply,SIGNAL(clicked()),SLOT(onApplyFilterClicked()));
@@ -147,6 +147,12 @@ ViewHistoryWindow::ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &ASt
 	if (FStatusIcons)
 		icon = FStatusIcons->iconByJidStatus(AStreamJid,IPresence::Online,SUBSCRIPTION_BOTH,false);
 	ui.cmbContact->addItem(icon,tr(" <All contacts> "),QString(""));
+	if (AType == Simple)
+	{
+		ui.lblCollectionInfo->setVisible(false);
+		ui.dkwConversations->setVisible(false);
+		ui.dkwFilter->setVisible(false);
+	}
 }
 
 ViewHistoryWindow::~ViewHistoryWindow()
@@ -356,7 +362,7 @@ QList<IArchiveRequest> ViewHistoryWindow::createRequests(const IArchiveFilter &A
 }
 
 void ViewHistoryWindow::divideRequests(const QList<IArchiveRequest> &ARequests, QList<IArchiveRequest> &ALocal,
-                                       QList<IArchiveRequest> &AServer) const
+				       QList<IArchiveRequest> &AServer) const
 {
 	QDateTime replPoint = FArchiver->replicationPoint(FStreamJid);
 	if (FSource == AS_LOCAL_ARCHIVE || !FArchiver->isSupported(FStreamJid))
@@ -1176,8 +1182,8 @@ void ViewHistoryWindow::onHeaderActionTriggered(bool)
 		{
 			QString title = FCurrentHeaders.count() > 1 ? tr("Remove collection") : tr("Remove collections");
 			QString message = FCurrentHeaders.count() > 1 ?
-			                  tr("Do you really want to remove %1 collections with messages?").arg(FCurrentHeaders.count())
-			                  : tr("Do you really want to remove this collection with messages?");
+					  tr("Do you really want to remove %1 collections with messages?").arg(FCurrentHeaders.count())
+					  : tr("Do you really want to remove this collection with messages?");
 			if (QMessageBox::question(this,title, message, QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
 			{
 				QList<IArchiveHeader> headers = FCurrentHeaders;

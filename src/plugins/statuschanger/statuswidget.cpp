@@ -7,8 +7,13 @@
 #include <definations/menuicons.h>
 #include <definations/resources.h>
 #include <QTextDocument>
+#include <QWidgetAction>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QFileDialog>
 
 #define DEFAULT_MOOD_TEXT "<i><font color=grey>Tell your friends about your mood</font></i>"
+#define NO_AVATARS_HISTORY
 
 StatusWidget::StatusWidget(QWidget *parent) :
 		QWidget(parent),
@@ -19,12 +24,6 @@ StatusWidget::StatusWidget(QWidget *parent) :
 	ui->avatarLabel->installEventFilter(this);
 	ui->avatarLabel->setAttribute(Qt::WA_Hover, true);
 	avatarHovered = false;
-	selectAvatarWidget = new SelectAvatarWidget(0);
-	selectAvatarWidget->setAttribute(Qt::WA_DeleteOnClose, false);
-	selectAvatarWidget->setWindowFlags(Qt::ToolTip);
-	selectAvatarWidget->installEventFilter(this);
-	//selectAvatarWidget->adjustSize();
-	connect(selectAvatarWidget, SIGNAL(avatarSelected(const QImage&)), SIGNAL(avatarChanged(const QImage&)));
 	ui->moodEdit->setVisible(false);
 	ui->moodEdit->installEventFilter(this);
 	ui->moodLabel->installEventFilter(this);
@@ -34,10 +33,22 @@ StatusWidget::StatusWidget(QWidget *parent) :
 	Action * manageProfileAction = new Action(profileMenu);
 	manageProfileAction->setText(tr("Manage my profile"));
 	profileMenu->addAction(manageProfileAction);
+	connect(manageProfileAction, SIGNAL(triggered()), SLOT(onManageProfileTriggered()));
 	Action * addAvatarAction = new Action(profileMenu);
 	addAvatarAction->setText(tr("Add new photo..."));
 	profileMenu->addAction(addAvatarAction);
-	profileMenu->setBottomWidget(selectAvatarWidget);
+	connect(addAvatarAction, SIGNAL(triggered()), SLOT(onAddAvatarTriggered()));
+#ifndef NO_AVATARS_HISTORY
+	//profileMenu->setBottomWidget(selectAvatarWidget);
+	selectAvatarWidget = new SelectAvatarWidget(0);
+	selectAvatarWidget->setAttribute(Qt::WA_DeleteOnClose, false);
+	selectAvatarWidget->setWindowFlags(Qt::ToolTip);
+	selectAvatarWidget->installEventFilter(this);
+	connect(selectAvatarWidget, SIGNAL(avatarSelected(const QImage&)), SIGNAL(avatarChanged(const QImage&)));
+	QWidgetAction * wa = new QWidgetAction(profileMenu);
+	wa->setDefaultWidget(selectAvatarWidget);
+	profileMenu->addWidgetActiion(wa);
+#endif
 	connect(profileMenu, SIGNAL(aboutToHide()), SLOT(profileMenuAboutToHide()));
 }
 
@@ -128,17 +139,9 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 		case QEvent::MouseButtonRelease:
 			{
 				QPoint point = mapToGlobal(ui->avatarLabel->pos());
-				point.setX(point.x() - selectAvatarWidget->width() / 2);
+				int dx = selectAvatarWidget ? selectAvatarWidget->width() / 2 : profileMenu->sizeHint().width() / 2;
+				point.setX(point.x() - dx);
 				point.setY(point.y() + ui->avatarLabel->height());
-//				selectAvatarWidget->move(point);
-//				if (!selectAvatarWidget->isVisible())
-//				{
-//					selectAvatarWidget->show();
-//					selectAvatarWidget->activateWindow();
-//					selectAvatarWidget->setFocus(Qt::MouseFocusReason);
-//				}
-//				else
-//					selectAvatarWidget->hide();
 				profileMenu->popup(point);
 				break;
 			}
@@ -231,6 +234,22 @@ void StatusWidget::cancelEditMood()
 void StatusWidget::profileMenuAboutToHide()
 {
 	avatarHovered = false;
+}
+
+void StatusWidget::onManageProfileTriggered()
+{
+	QDesktopServices::openUrl(QUrl("http://id-planet.rambler.ru/"));
+}
+
+void StatusWidget::onAddAvatarTriggered()
+{
+	QString filename = QFileDialog::getOpenFileName(this, tr("Select new avatar image"), "", tr("Image files %1").arg("(*.jpg *.bmp *.png)"));
+	if (!filename.isEmpty())
+	{
+		QImage newAvatar;
+		if (newAvatar.load(filename))
+			emit avatarChanged(newAvatar);
+	}
 }
 
 QString StatusWidget::fitCaptionToWidth(const QString & name, const QString & status, const int width) const

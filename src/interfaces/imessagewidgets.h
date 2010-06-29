@@ -27,7 +27,7 @@ public:
 		ContactShow         =4,
 		ContactStatus       =8,
 		ContactAvatar       =16
-	};
+			     };
 public:
 	virtual QWidget *instance() = 0;
 	virtual const Jid &streamJid() const =0;
@@ -78,7 +78,7 @@ struct INotice
 {
 	INotice() {
 		priority = -1;
-		timeout = 0; 
+		timeout = 0;
 	}
 	int priority;
 	int timeout;
@@ -269,7 +269,7 @@ protected:
 };
 
 class IChatWindow :
-			public ITabPage
+		public ITabPage
 {
 public:
 	virtual const Jid &streamJid() const =0;
@@ -291,13 +291,15 @@ protected:
 };
 
 class IMessageWindow :
-			public ITabPage
+		public ITabPage
 {
 public:
-	enum Mode {
+	enum Mode
+	{
 		ReadMode    =1,
 		WriteMode   =2
 	};
+
 public:
 	virtual const Jid &streamJid() const =0;
 	virtual const Jid &contactJid() const =0;
@@ -328,6 +330,17 @@ protected:
 	virtual void messageReady() =0;
 	virtual void streamJidChanged(const Jid &ABefour) =0;
 	virtual void contactJidChanged(const Jid &ABefour) =0;
+};
+
+class IMassSendDialog :
+		public ITabPage
+{
+public:
+	virtual const Jid &streamJid() const =0;
+	//virtual IInfoWidget *infoWidget() const =0;
+	virtual IViewWidget *viewWidget() const =0;
+	virtual IEditWidget *editWidget() const =0;
+	virtual IReceiversWidget *receiversWidget() const =0;
 };
 
 class IViewDropHandler
@@ -375,6 +388,9 @@ public:
 	virtual QList<IMessageWindow *> messageWindows() const =0;
 	virtual IMessageWindow *newMessageWindow(const Jid &AStreamJid, const Jid &AContactJid, IMessageWindow::Mode AMode) =0;
 	virtual IMessageWindow *findMessageWindow(const Jid &AStreamJid, const Jid &AContactJid) const =0;
+	virtual QList<IMassSendDialog*> massSendDialogs() const =0;
+	virtual IMassSendDialog * newMassSendDialog(const Jid & AStreamJid) =0;
+	virtual IMassSendDialog * findMassSendDialog(const Jid & AStreamJid) =0;
 	virtual QList<IChatWindow *> chatWindows() const =0;
 	virtual IChatWindow *newChatWindow(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual IChatWindow *findChatWindow(const Jid &AStreamJid, const Jid &AContactJid) const =0;
@@ -408,6 +424,8 @@ protected:
 	virtual void tabPageNotifierCreated(ITabPageNotifier *ANotifier) =0;
 	virtual void messageWindowCreated(IMessageWindow *AWindow) =0;
 	virtual void messageWindowDestroyed(IMessageWindow *AWindow) =0;
+	virtual void massSendDialogCreated(IMassSendDialog*) =0;
+	virtual void massSendDialogDestroyed(IMassSendDialog*) =0;
 	virtual void chatWindowCreated(IChatWindow *AWindow) =0;
 	virtual void chatWindowDestroyed(IChatWindow *AWindow) =0;
 	virtual void tabWindowAppended(const QUuid &AWindowId, const QString &AName) =0;
@@ -436,6 +454,7 @@ Q_DECLARE_INTERFACE(ITabPageNotifier,"Virtus.Plugin.ITabPageNotifier/1.0")
 Q_DECLARE_INTERFACE(ITabWindow,"Virtus.Plugin.ITabWindow/1.0")
 Q_DECLARE_INTERFACE(IChatWindow,"Virtus.Plugin.IChatWindow/1.0")
 Q_DECLARE_INTERFACE(IMessageWindow,"Virtus.Plugin.IMessageWindow/1.0")
+Q_DECLARE_INTERFACE(IMassSendDialog,"Virtus.Plugin.IMassSendDialog/1.0")
 Q_DECLARE_INTERFACE(IViewDropHandler,"Virtus.Plugin.IViewDropHandler/1.0")
 Q_DECLARE_INTERFACE(IViewUrlHandler,"Virtus.Plugin.IViewUrlHandler/1.0")
 Q_DECLARE_INTERFACE(ITabPageHandler,"Virtus.Plugin.ITabPageHandler/1.0")

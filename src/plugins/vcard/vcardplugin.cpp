@@ -383,7 +383,7 @@ void VCardPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 	if (AIndex->type() == RIT_STREAM_ROOT || AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
 	{
 		Action *action = new Action(AMenu);
-		action->setText(tr("vCard"));
+		action->setText(tr("Contact info"));
 		action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
 		action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
 		action->setData(ADR_CONTACT_JID,Jid(AIndex->data(RDR_JID).toString()).bare());

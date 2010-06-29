@@ -8,7 +8,7 @@
 
 #define NOTIFICATIONS_UUID  "{57208da0-40a7-4aa3-9428-3056115d2ef8}"
 
-struct INotification 
+struct INotification
 {
 	enum NotifyKinds {
 		RosterIcon    = 0x01,
@@ -24,7 +24,7 @@ struct INotification
 	QMap<int, QVariant> data;
 };
 
-class INotifications 
+class INotifications
 {
 public:
 	virtual QObject *instance() =0;

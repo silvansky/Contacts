@@ -45,7 +45,12 @@ class ViewHistoryWindow :
 	Q_OBJECT;
 	Q_INTERFACES(IArchiveWindow);
 public:
-	ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &AStreamJid, QWidget *AParent = NULL);
+	enum Type
+	{
+		Full,
+		Simple
+	};
+	ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &AStreamJid, Type AType = Full, QWidget *AParent = NULL);
 	~ViewHistoryWindow();
 	virtual QMainWindow *instance() { return this; }
 	virtual const Jid &streamJid() const { return FStreamJid; }

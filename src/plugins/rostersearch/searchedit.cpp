@@ -21,6 +21,11 @@ SearchEdit::SearchEdit(QWidget *parent) :
 		iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
 }
 
+void SearchEdit::processKeyPressEvent(QKeyEvent * event)
+{
+	keyPressEvent(event);
+}
+
 void SearchEdit::resizeEvent(QResizeEvent * event)
 {
 	QLineEdit::resizeEvent(event);

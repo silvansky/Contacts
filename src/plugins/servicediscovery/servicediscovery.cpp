@@ -1304,7 +1304,7 @@ void ServiceDiscovery::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMu
 
 void ServiceDiscovery::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
-	int itype = AIndex->type();
+	/*int itype = AIndex->type();
 	if (itype == RIT_STREAM_ROOT || itype == RIT_CONTACT || itype == RIT_AGENT || itype == RIT_MY_RESOURCE)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
@@ -1328,7 +1328,7 @@ void ServiceDiscovery::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMen
 			foreach(Action *action, createFeatureActions(streamJid,feature,dinfo,AMenu))
 				AMenu->addAction(action,AG_RVCM_DISCOVERY_FEATURES,true);
 		}
-	}
+	}*/
 }
 
 void ServiceDiscovery::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips)

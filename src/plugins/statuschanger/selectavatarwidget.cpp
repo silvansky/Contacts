@@ -55,7 +55,7 @@ bool SelectAvatarWidget::eventFilter(QObject *obj, QEvent * event)
 			QImage img = clickedLabel->pixmap()->toImage();
 			emit avatarSelected(img);
 		}
-		hide();
+//		hide();
 	}
 	return QWidget::eventFilter(obj, event);
 }

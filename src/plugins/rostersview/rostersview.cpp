@@ -14,6 +14,7 @@
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <QContextMenuEvent>
+#include <QKeyEvent>
 
 #define ADR_CLIPBOARD_DATA      Action::DR_Parametr1
 
@@ -621,6 +622,18 @@ void RostersView::clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu)
 		}
 		emit indexClipboardMenu(AIndex, AMenu);
 	}
+}
+
+void RostersView::selectFirstItem()
+{
+	QKeyEvent *event = new QKeyEvent(QEvent::KeyPress, Qt::Key_Home, Qt::NoModifier);
+	keyPressEvent(event);
+	delete event;
+	QModelIndexList selection;
+	event = new QKeyEvent(QEvent::KeyPress, Qt::Key_Down, Qt::NoModifier);
+	while (!((selection = selectedIndexes()).empty()) && RosterIndexDelegate::groupTypes.contains(selection.first().data(RDR_TYPE).toInt()))
+		keyPressEvent(event);
+	delete event;
 }
 
 void RostersView::updateStatusText(IRosterIndex *AIndex)

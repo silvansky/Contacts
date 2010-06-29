@@ -84,7 +84,7 @@ bool MessageArchiver::initConnections(IPluginManager *APluginManager, int &/*AIn
 			connect(FXmppStreams->instance(),SIGNAL(opened(IXmppStream *)),SLOT(onStreamOpened(IXmppStream *)));
 			connect(FXmppStreams->instance(),SIGNAL(closed(IXmppStream *)),SLOT(onStreamClosed(IXmppStream *)));
 			connect(FXmppStreams->instance(),SIGNAL(jidChanged(IXmppStream *, const Jid &)),
-			        SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
+				SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
 		}
 	}
 
@@ -103,11 +103,11 @@ bool MessageArchiver::initConnections(IPluginManager *APluginManager, int &/*AIn
 		if (FPrivateStorage)
 		{
 			connect(FPrivateStorage->instance(),SIGNAL(dataSaved(const QString &, const Jid &, const QDomElement &)),
-			        SLOT(onPrivateDataChanged(const QString &, const Jid &, const QDomElement &)));
+				SLOT(onPrivateDataChanged(const QString &, const Jid &, const QDomElement &)));
 			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
-			        SLOT(onPrivateDataChanged(const QString &, const Jid &, const QDomElement &)));
+				SLOT(onPrivateDataChanged(const QString &, const Jid &, const QDomElement &)));
 			connect(FPrivateStorage->instance(),SIGNAL(dataError(const QString &, const QString &)),
-			        SLOT(onPrivateDataError(const QString &, const QString &)));
+				SLOT(onPrivateDataError(const QString &, const QString &)));
 		}
 	}
 
@@ -119,7 +119,7 @@ bool MessageArchiver::initConnections(IPluginManager *APluginManager, int &/*AIn
 		{
 			connect(FAccountManager->instance(),SIGNAL(hidden(IAccount *)),SLOT(onAccountHidden(IAccount *)));
 			connect(FAccountManager->instance(),SIGNAL(changed(IAccount *, const OptionsNode &)),
-			        SLOT(onAccountOptionsChanged(IAccount *, const OptionsNode &)));
+				SLOT(onAccountOptionsChanged(IAccount *, const OptionsNode &)));
 		}
 	}
 
@@ -130,7 +130,7 @@ bool MessageArchiver::initConnections(IPluginManager *APluginManager, int &/*AIn
 		if (FRostersViewPlugin)
 		{
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
-			        SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 		}
 	}
 
@@ -165,9 +165,9 @@ bool MessageArchiver::initConnections(IPluginManager *APluginManager, int &/*AIn
 		if (FSessionNegotiation)
 		{
 			connect(FSessionNegotiation->instance(),SIGNAL(sessionActivated(const IStanzaSession &)),
-			        SLOT(onStanzaSessionActivated(const IStanzaSession &)));
+				SLOT(onStanzaSessionActivated(const IStanzaSession &)));
 			connect(FSessionNegotiation->instance(),SIGNAL(sessionTerminated(const IStanzaSession &)),
-			        SLOT(onStanzaSessionTerminated(const IStanzaSession &)));
+				SLOT(onStanzaSessionTerminated(const IStanzaSession &)));
 		}
 	}
 
@@ -182,7 +182,7 @@ bool MessageArchiver::initConnections(IPluginManager *APluginManager, int &/*AIn
 		if (FMultiUserChatPlugin)
 		{
 			connect(FMultiUserChatPlugin->instance(),SIGNAL(multiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)),
-			        SLOT(onMultiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)));
+				SLOT(onMultiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)));
 		}
 	}
 
@@ -939,8 +939,8 @@ QString MessageArchiver::setArchivePrefs(const Jid &AStreamJid, const IArchiveSt
 		QDomElement prefElem = save.addElement("pref",!storage ? FNamespaces.value(AStreamJid) : NS_ARCHIVE);
 
 		bool defChanged = oldPrefs.defaultPrefs.save   != newPrefs.defaultPrefs.save ||
-		                  oldPrefs.defaultPrefs.otr    != newPrefs.defaultPrefs.otr  ||
-		                  oldPrefs.defaultPrefs.expire != newPrefs.defaultPrefs.expire;
+				  oldPrefs.defaultPrefs.otr    != newPrefs.defaultPrefs.otr  ||
+				  oldPrefs.defaultPrefs.expire != newPrefs.defaultPrefs.expire;
 		if (storage || defChanged)
 		{
 			QDomElement defElem = prefElem.appendChild(save.createElement("default")).toElement();
@@ -951,8 +951,8 @@ QString MessageArchiver::setArchivePrefs(const Jid &AStreamJid, const IArchiveSt
 		}
 
 		bool methodChanged = oldPrefs.methodAuto   != newPrefs.methodAuto  ||
-		                     oldPrefs.methodLocal  != newPrefs.methodLocal ||
-		                     oldPrefs.methodManual != newPrefs.methodManual;
+				     oldPrefs.methodLocal  != newPrefs.methodLocal ||
+				     oldPrefs.methodManual != newPrefs.methodManual;
 		if (!storage && methodChanged)
 		{
 			QDomElement methodAuto = prefElem.appendChild(save.createElement("method")).toElement();
@@ -971,8 +971,8 @@ QString MessageArchiver::setArchivePrefs(const Jid &AStreamJid, const IArchiveSt
 			IArchiveItemPrefs newItemPrefs = newPrefs.itemPrefs.value(itemJid);
 			IArchiveItemPrefs oldItemPrefs = oldPrefs.itemPrefs.value(itemJid);
 			bool itemChanged = oldItemPrefs.save   != newItemPrefs.save ||
-			                   oldItemPrefs.otr    != newItemPrefs.otr ||
-			                   oldItemPrefs.expire != newItemPrefs.expire;
+					   oldItemPrefs.otr    != newItemPrefs.otr ||
+					   oldItemPrefs.expire != newItemPrefs.expire;
 			if (storage || itemChanged)
 			{
 				QDomElement itemElem = prefElem.appendChild(save.createElement("item")).toElement();
@@ -1034,7 +1034,7 @@ IArchiveWindow *MessageArchiver::showArchiveWindow(const Jid &AStreamJid, const 
 	ViewHistoryWindow *window = FArchiveWindows.value(AStreamJid);
 	if (!window)
 	{
-		window = new ViewHistoryWindow(this,AStreamJid,AParent);
+		window = new ViewHistoryWindow(this,AStreamJid, ViewHistoryWindow::Full, AParent);
 		connect(window,SIGNAL(windowDestroyed(IArchiveWindow *)),SLOT(onArchiveWindowDestroyed(IArchiveWindow *)));
 		FArchiveWindows.insert(AStreamJid,window);
 		emit archiveWindowCreated(window);
@@ -1640,7 +1640,7 @@ QString MessageArchiver::collectionFilePath(const Jid &AStreamJid, const Jid &AW
 }
 
 QMultiMap<QString,QString> MessageArchiver::filterCollectionFiles(const QStringList &AFiles, const IArchiveRequest &ARequest,
-    const QString &APrefix) const
+								  const QString &APrefix) const
 {
 	QMultiMap<QString,QString> filesMap;
 	if (!AFiles.isEmpty())
@@ -2628,14 +2628,14 @@ void MessageArchiver::onCollectionWriterDestroyed(CollectionWriter *AWriter)
 
 void MessageArchiver::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
-	if (AIndex->type()==RIT_STREAM_ROOT || AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_AGENT)
+	/*if (AIndex->type()==RIT_STREAM_ROOT || AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_AGENT)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		Jid contactJid = AIndex->data(RDR_JID).toString();
 		Menu *menu = createContextMenu(streamJid,AIndex->type()==RIT_STREAM_ROOT ? contactJid : contactJid.bare(),AMenu);
 		if (menu)
 			AMenu->addAction(menu->menuAction(),AG_RVCM_ARCHIVER,true);
-	}
+	}*/
 }
 
 void MessageArchiver::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu)

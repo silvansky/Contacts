@@ -84,15 +84,21 @@ void NotifyWidget::setNotification(const INotification & notification)
 	QString iconKey = FNotification.data.value(NDR_ICON_KEY).toString();
 	QString iconStorage = FNotification.data.value(NDR_ICON_STORAGE).toString();
 	QImage image = qvariant_cast<QImage>(FNotification.data.value(NDR_POPUP_IMAGE));
-	QString caption = FNotification.data.value(NDR_POPUP_CAPTION,tr("Notification")).toString();
+	//QString caption = FNotification.data.value(NDR_POPUP_CAPTION,tr("Notification")).toString();
 	QString title = FNotification.data.value(NDR_POPUP_TITLE).toString();
 	QString text = FNotification.data.value(NDR_POPUP_TEXT).toString();
 	FTimeOut = FNotification.data.value(NDR_POPUP_TIMEOUT,DEFAUTL_TIMEOUT).toInt();
+	if (FNotification.data.value(NDR_TYPE).toInt() != NT_AUTH)
+	{
+		ui.authoriseButton->setVisible(false);
+		ui.cancelButton->setVisible(false);
+	}
 
-	if (!caption.isEmpty())
-		ui.notifyCaption->setText(caption);
-	else
+//	if (!caption.isEmpty())
+//		ui.notifyCaption->setText(caption);
+//	else
 		ui.notifyCaption->setVisible(false);
+		ui.line->setVisible(false);
 
 	if (!iconKey.isEmpty() && !iconStorage.isEmpty())
 		IconStorage::staticStorage(iconStorage)->insertAutoIcon(ui.lblIcon,iconKey,0,0,"pixmap");

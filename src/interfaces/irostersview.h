@@ -173,6 +173,8 @@ public:
 	virtual void contextMenuForIndex(IRosterIndex *AIndex, int ALabelId, Menu *AMenu) =0;
 	//--ClipboardMenu
 	virtual void clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu) =0;
+	//--Others
+	virtual void selectFirstItem() = 0;
 protected:
 	virtual void modelAboutToBeSet(IRostersModel *AIndex) = 0;
 	virtual void modelSet(IRostersModel *AIndex) = 0;

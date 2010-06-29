@@ -36,7 +36,7 @@ private:
 	Menu * profileMenu;
 signals:
 	void avatarChanged(const QImage &);
-	void moodSet(const QString & mood);
+	void moodSet(const QString &);
 public slots:
 	void setUserName(const QString& name);
 	void setMoodText(const QString& mood);
@@ -45,6 +45,8 @@ public slots:
 	void cancelEditMood();
 protected slots:
 	void profileMenuAboutToHide();
+	void onManageProfileTriggered();
+	void onAddAvatarTriggered();
 private:
 	QString fitCaptionToWidth(const QString & name, const QString & status, const int width) const;
 };

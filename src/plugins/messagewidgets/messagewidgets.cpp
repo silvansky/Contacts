@@ -61,6 +61,29 @@ bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &/*AIni
 			connect(FTrayManager->contextMenu(),SIGNAL(aboutToShow()),SLOT(onTrayContextMenuAboutToShow()));
 		}
 	}
+	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FMainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
+		if (FMainWindowPlugin)
+		{
+			Action * action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
+			action->setText(tr("Mass send"));
+			FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action);
+			connect(action, SIGNAL(triggered()), SLOT(onMassSend()));
+		}
+	}
+	plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);
+	if (plugin)
+	{
+		FAccountManager = qobject_cast<IAccountManager*>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IMessageArchiver").value(0,NULL);
+	if (plugin)
+	{
+		FMessageArchiver = qobject_cast<IMessageArchiver*>(plugin->instance());
+	}
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -198,12 +221,12 @@ QList<IMessageWindow *> MessageWidgets::messageWindows() const
 
 IMessageWindow *MessageWidgets::newMessageWindow(const Jid &AStreamJid, const Jid &AContactJid, IMessageWindow::Mode AMode)
 {
-	IMessageWindow *window = findMessageWindow(AStreamJid,AContactJid);
+	IMessageWindow *window = findMessageWindow(AStreamJid, AContactJid);
 	if (!window)
 	{
-		window = new MessageWindow(this,AStreamJid,AContactJid,AMode);
+		window = new MessageWindow(this, AStreamJid, AContactJid, AMode);
 		FMessageWindows.append(window);
-		connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onMessageWindowDestroyed()));
+		connect(window->instance(), SIGNAL(tabPageDestroyed()), SLOT(onMessageWindowDestroyed()));
 		FCleanupHandler.add(window->instance());
 		emit messageWindowCreated(window);
 		return window;
@@ -217,6 +240,33 @@ IMessageWindow *MessageWidgets::findMessageWindow(const Jid &AStreamJid, const J
 		if (window->streamJid() == AStreamJid && window->contactJid() == AContactJid)
 			return window;
 	return NULL;
+}
+
+QList<IMassSendDialog*> MessageWidgets::massSendDialogs() const
+{
+	return FMassSendDialogs;
+}
+
+IMassSendDialog * MessageWidgets::newMassSendDialog(const Jid & AStreamJid)
+{
+	IMassSendDialog * dlg = findMassSendDialog(AStreamJid);
+	if (!dlg)
+	{
+		dlg = new MassSendDialog(AStreamJid);
+		FMassSendDialogs.append(dlg);
+		FCleanupHandler.add(dlg->instance());
+		emit massSendDialogCreated(dlg);
+		return dlg;
+	}
+	return 0;
+}
+
+IMassSendDialog * MessageWidgets::findMassSendDialog(const Jid & AStreamJid)
+{
+	foreach (IMassSendDialog* dialog, FMassSendDialogs)
+		if (dialog->streamJid() == AStreamJid)
+			return dialog;
+	return 0;
 }
 
 QList<IChatWindow *> MessageWidgets::chatWindows() const
@@ -463,7 +513,7 @@ QString MessageWidgets::selectionHref(const QTextDocumentFragment &ASelection) c
 		}
 		block = block.next();
 	}
-	
+
 	return href;
 }
 
@@ -507,7 +557,7 @@ void MessageWidgets::onViewWidgetContextMenu(const QPoint &APosition, const QTex
 		copyAction->setData(ADR_CONTEXT_DATA,ASelection.toHtml());
 		connect(copyAction,SIGNAL(triggered(bool)),SLOT(onViewContextCopyActionTriggered(bool)));
 		AMenu->addAction(copyAction,AG_VWCM_MESSAGEWIDGETS_COPY,true);
-	
+
 		QUrl href = selectionHref(ASelection);
 		if (href.isValid() && !href.isEmpty())
 		{
@@ -736,6 +786,12 @@ void MessageWidgets::onOptionsClosed()
 	Options::setFileValue(data,"messages.last-tab-pages-activity");
 
 	deleteWindows();
+}
+
+void MessageWidgets::onMassSend()
+{
+	IMessageWindow * window = newMessageWindow(FAccountManager->accounts().first()->xmppStream()->streamJid(), Jid(), IMessageWindow::WriteMode);
+	window->instance()->show();
 }
 
 Q_EXPORT_PLUGIN2(plg_messagewidgets, MessageWidgets)

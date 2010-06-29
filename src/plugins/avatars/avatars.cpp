@@ -739,7 +739,7 @@ void Avatars::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 
 		AMenu->addAction(avatar->menuAction(),AG_RVCM_AVATARS,true);
 	}
-	else if (AIndex->type() == RIT_CONTACT)
+	/*else if (AIndex->type() == RIT_CONTACT)
 	{
 		Menu *picture = new Menu(AMenu);
 		picture->setTitle(tr("Custom picture"));
@@ -762,7 +762,7 @@ void Avatars::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 		picture->addAction(clear,AG_DEFAULT,false);
 
 		AMenu->addAction(picture->menuAction(),AG_RVCM_AVATARS,true);
-	}
+	}*/
 }
 
 void Avatars::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips)

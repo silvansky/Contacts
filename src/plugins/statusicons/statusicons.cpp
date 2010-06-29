@@ -61,7 +61,7 @@ bool StatusIcons::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 		if (FRostersViewPlugin)
 		{
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *,Menu*)),
-			        SLOT(onRosterIndexContextMenu(IRosterIndex *,Menu *)));
+				SLOT(onRosterIndexContextMenu(IRosterIndex *,Menu *)));
 		}
 	}
 
@@ -78,7 +78,7 @@ bool StatusIcons::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 		if (FMultiUserChatPlugin)
 		{
 			connect(FMultiUserChatPlugin->instance(),SIGNAL(multiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)),
-			        SLOT(onMultiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)));
+				SLOT(onMultiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)));
 		}
 	}
 
@@ -144,17 +144,17 @@ int StatusIcons::rosterDataOrder() const
 QList<int> StatusIcons::rosterDataRoles() const
 {
 	static QList<int> dataRoles = QList<int>()
-	                              << Qt::DecorationRole;
+				      << Qt::DecorationRole;
 	return dataRoles;
 }
 
 QList<int> StatusIcons::rosterDataTypes() const
 {
 	static QList<int> indexTypes = QList<int>()
-	                               << RIT_STREAM_ROOT
-	                               << RIT_CONTACT
-	                               << RIT_AGENT
-	                               << RIT_MY_RESOURCE;
+				       << RIT_STREAM_ROOT
+				       << RIT_CONTACT
+				       << RIT_AGENT
+				       << RIT_MY_RESOURCE;
 	return indexTypes;
 }
 
@@ -430,12 +430,12 @@ void StatusIcons::onStatusIconsChangedTimer()
 
 void StatusIcons::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
-	if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
+	/*if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
 	{
 		updateCustomIconMenu(QRegExp::escape(AIndex->data(RDR_BARE_JID).toString()));
 		FCustomIconMenu->setIcon(iconByJidStatus(AIndex->data(RDR_JID).toString(),IPresence::Online,SUBSCRIPTION_BOTH,false));
 		AMenu->addAction(FCustomIconMenu->menuAction(),AG_RVCM_STATUSICONS,true);
-	}
+	}*/
 }
 
 void StatusIcons::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu)

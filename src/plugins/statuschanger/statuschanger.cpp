@@ -933,6 +933,7 @@ void StatusChanger::insertStatusNotification(IPresence *APresence)
 		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(APresence->streamJid()));
 		notify.data.insert(NDR_POPUP_TEXT,Qt::escape(APresence->status()));
 		notify.data.insert(NDR_SOUND_FILE,SDF_SCHANGER_CONNECTION_ERROR);
+		notify.data.insert(NDR_TYPE, NT_ERROR);
 		FNotifyId.insert(APresence,FNotifications->appendNotification(notify));
 	}
 }
@@ -1274,7 +1275,11 @@ void StatusChanger::updateVCardInfo(const IVCard* vcard)
 
 void StatusChanger::onAvatarChanged(const QImage & image)
 {
-	Jid jid = FAccountManager->accounts().first()->xmppStream()->streamJid();
+	Jid jid;
+	if (FAccountManager->accounts().first()->xmppStream())
+		jid = FAccountManager->accounts().first()->xmppStream()->streamJid();
+	else
+		jid = FAccountManager->accounts().first()->streamJid();
 	if (FAvatars)
 		FAvatars->setAvatar(jid, image);
 	if (FVCardPlugin)

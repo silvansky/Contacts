@@ -1,7 +1,7 @@
 #include "rostersearch.h"
 
 #include <QDesktopServices>
-#include <QDebug>
+#include <QKeyEvent>
 #include <utils/iconstorage.h>
 
 RosterSearch::RosterSearch()
@@ -11,7 +11,6 @@ RosterSearch::RosterSearch()
 
 	FSearchEdit = NULL;
 	FFieldsMenu = NULL;
-	//FSearchToolBarChanger = NULL;
 
 	FEditTimeout.setSingleShot(true);
 	FEditTimeout.setInterval(500);
@@ -22,16 +21,6 @@ RosterSearch::RosterSearch()
 
 	searchNotFound = searchInHistory = searchInRambler = 0;
 	searchInRamblerLabel = searchInHistoryLabel = searchNotFoundLabel = 0;
-
-	/*
-	QToolBar *searchToolBar = new QToolBar(tr("Search toolbar"));
-	searchToolBar->setAllowedAreas(Qt::TopToolBarArea);
-	searchToolBar->setMovable(false);
-	FSearchToolBarChanger = new ToolBarChanger(searchToolBar);
-	FSearchToolBarChanger->setManageVisibility(false);
-	FSearchToolBarChanger->setSeparatorsVisible(false);
-	*/
-	//FSearchToolBarChanger->insertAction(FFieldsMenu->menuAction());
 
 	foundItems = 0;
 }
@@ -66,7 +55,10 @@ bool RosterSearch::initConnections(IPluginManager *APluginManager, int &/*AInitO
 	{
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (FRostersViewPlugin->rostersView())
+		{
 			connect(FRostersViewPlugin->rostersView()->instance(), SIGNAL(labelClicked(IRosterIndex *, int)), SLOT(indexClicked(IRosterIndex *, int)));
+			FRostersViewPlugin->rostersView()->instance()->installEventFilter(this);
+		}
 	}
 
 	plugin = APluginManager->pluginInterface("IRostersModel").value(0,NULL);
@@ -80,6 +72,7 @@ bool RosterSearch::initConnections(IPluginManager *APluginManager, int &/*AInitO
 		if (mainWindowPlugin)
 		{
 			FMainWindow = mainWindowPlugin->mainWindow();
+			FMainWindow->instance()->installEventFilter(this);
 		}
 	}
 
@@ -90,19 +83,6 @@ bool RosterSearch::initObjects()
 {
 	if (FMainWindow)
 	{
-		/*
-		Action *searchAction = new Action(FMainWindow->topToolBarChanger());
-		searchAction->setIcon(RSR_STORAGE_MENUICONS,MNI_ROSTERSEARCH_MENU);
-		searchAction->setToolTip(tr("Show search toolbar"));
-		searchAction->setCheckable(true);
-		connect(searchAction,SIGNAL(triggered(bool)),SLOT(onSearchActionTriggered(bool)));
-		*/
-		//FMainWindow->topToolBarChanger()->insertAction(searchAction, TBG_MWTTB_ROSTERSEARCH);
-
-		//FMainWindow->instance()->addToolBar(FSearchToolBarChanger->toolBar());
-		//FMainWindow->instance()->insertToolBarBreak(FSearchToolBarChanger->toolBar());
-
-		//FSearchToolBarChanger->toolBar()->setVisible(false);
 		FFieldsMenu = new Menu(FMainWindow->topToolBarChanger()->toolBar());
 		FFieldsMenu->setVisible(false);
 		FFieldsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERSEARCH_MENU);
@@ -119,6 +99,7 @@ bool RosterSearch::initObjects()
 		FSearchEdit->setToolTip(tr("Search in roster"));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), &FEditTimeout, SLOT(start()));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), SLOT(onSearchTextChanged(const QString&)));
+		FSearchEdit->installEventFilter(this);
 		FMainWindow->topToolBarChanger()->insertWidget(searchFrame, TBG_MWTTB_ROSTERSEARCH);
 		setSearchEnabled(true);
 	}
@@ -264,6 +245,7 @@ bool RosterSearch::filterAcceptsRow(int ARow, const QModelIndex &AParent) const
 		case RIT_GROUP_AGENTS:
 		case RIT_GROUP_BLANK:
 		case RIT_GROUP_NOT_IN_ROSTER:
+		case RIT_GROUP_MY_RESOURCES:
 			{
 				for (int childRow = 0; index.child(childRow,0).isValid(); childRow++)
 					if (filterAcceptsRow(childRow,index))
@@ -279,6 +261,40 @@ bool RosterSearch::filterAcceptsRow(int ARow, const QModelIndex &AParent) const
 		}
 	}
 	return true;
+}
+
+bool RosterSearch::eventFilter(QObject * obj, QEvent * event)
+{
+	if (obj == FSearchEdit)
+	{
+		if (event->type() == QEvent::KeyPress)
+		{
+			QKeyEvent * keyEvent = (QKeyEvent*)event;
+			if (keyEvent)
+			{
+				if (keyEvent->key() == Qt::Key_Down)
+				{
+					IRostersView * view = FRostersViewPlugin->rostersView();
+					if (view)
+					{
+						view->selectFirstItem();
+						view->instance()->setFocus();
+					}
+				}
+			}
+		}
+	}
+	if (((obj == FMainWindow->instance()) || (FRostersViewPlugin->rostersView() && (obj == FRostersViewPlugin->rostersView()->instance()))) &&
+	    (event->type() == QEvent::KeyPress))
+	{
+		QKeyEvent * keyEvent = (QKeyEvent*)event;
+		if ((keyEvent->key() >= Qt::Key_Space && keyEvent->key() <= Qt::Key_AsciiTilde) || (keyEvent->key() == Qt::Key_F && keyEvent->modifiers() == Qt::ShiftModifier))
+		{
+			FSearchEdit->processKeyPressEvent(keyEvent);
+			FSearchEdit->setFocus();
+		}
+	}
+	return QSortFilterProxyModel::eventFilter(obj, event);
 }
 
 void RosterSearch::onFieldActionTriggered(bool)
@@ -299,7 +315,6 @@ void RosterSearch::onEditTimedOut()
 
 void RosterSearch::onSearchTextChanged(const QString &text)
 {
-	//setSearchEnabled(!text.isEmpty());
 	if (!text.isEmpty())
 	{
 		destroyNotFoundItem();
@@ -313,10 +328,7 @@ void RosterSearch::createSearchLinks()
 {
 	if (rostersModel)
 	{
-		//destroySearchLinks();
 		QString searchText = FSearchEdit->text();
-		//qDebug() << "searchText == " + searchText;
-
 		if (!(searchText.isEmpty() || rostersModel->streams().isEmpty()))
 		{
 			searchInHistory = rostersModel->createRosterIndex(RIT_SEARCH_LINK, "searchInHistory", rostersModel->streamRoot(rostersModel->streams().first()));
@@ -325,7 +337,7 @@ void RosterSearch::createSearchLinks()
 			searchInRambler = rostersModel->createRosterIndex(RIT_SEARCH_LINK, "searchInRambler", rostersModel->streamRoot(rostersModel->streams().first()));
 			rostersModel->insertRosterIndex(searchInRambler, rostersModel->streamRoot(rostersModel->streams().first()));
 
-			searchInHistory->setData(RDR_SEARCH_LINK, "http://rambler.ru");
+			searchInHistory->setData(RDR_SEARCH_LINK, "http://id-planet.rambler.ru");
 			searchInHistory->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
 			searchInRambler->setData(RDR_SEARCH_LINK, "http://nova.rambler.ru/search?query=" + searchText);
 			searchInRambler->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);

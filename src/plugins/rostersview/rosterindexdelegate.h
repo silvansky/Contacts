@@ -25,6 +25,7 @@ class RosterIndexDelegate :
 			public QAbstractItemDelegate
 {
 	Q_OBJECT;
+	friend class RostersView;
 public:
 	RosterIndexDelegate(QObject *AParent);
 	~RosterIndexDelegate();
@@ -55,11 +56,12 @@ private:
 	QIcon::State getIconState(QStyle::State AState) const;
 private:
 	bool FShowBlinkLabels;
-	static QVector<int> groupTypes;
 	static QImage groupOpenedIndicator;
 	static QImage groupClosedIndicator;
 private:
 	static const int spacing = 2;
+protected:
+	static QVector<int> groupTypes;
 };
 
 #endif // ROSTERINDEXDELEGATE_H
