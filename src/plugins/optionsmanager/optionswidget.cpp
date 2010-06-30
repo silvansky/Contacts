@@ -91,6 +91,7 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 		box->setFlat(true);
 		box->setTitle(ACaption);
 		layout()->addWidget(box);
+		layout()->setContentsMargins(0,layout()->spacing()*2,0,0);
 	}
 }
 

@@ -3,24 +3,18 @@
 NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QString &AId, const QString &ATitle, uchar AKindMask, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
-	ui.grbKinds->setTitle(ATitle);
+	ui.lblTitle->setText(ATitle);
 
 	FNotifications = ANotifications;
 	FNotificatorId = AId;
+	FNotificatorKindMask = AKindMask;
 
-	ui.chbRoster->setEnabled(AKindMask & INotification::RosterIcon);
 	ui.chbPopup->setEnabled(AKindMask & INotification::PopupWindow);
-	ui.chbChat->setEnabled(AKindMask & INotification::ChatWindow);
-	ui.chbTray->setEnabled(AKindMask & INotification::TrayIcon);
 	ui.chbSound->setEnabled(AKindMask & INotification::PlaySound);
-	ui.chbActivate->setEnabled(AKindMask & INotification::AutoActivate);
 
-	connect(ui.chbRoster,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.chbPopup,SIGNAL(stateChanged(int)),SIGNAL(modified()));
-	connect(ui.chbChat,SIGNAL(stateChanged(int)),SIGNAL(modified()));
-	connect(ui.chbTray,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.chbSound,SIGNAL(stateChanged(int)),SIGNAL(modified()));
-	connect(ui.chbActivate,SIGNAL(stateChanged(int)),SIGNAL(modified()));
+	connect(ui.lblTest,SIGNAL(linkActivated(const QString &)),SLOT(onTestLinkActivated(const QString &)));
 
 	reset();
 }
@@ -32,19 +26,17 @@ NotifyKindsWidget::~NotifyKindsWidget()
 
 void NotifyKindsWidget::apply()
 {
-	uchar kinds = 0;
-	if (ui.chbRoster->isChecked())
-		kinds |= INotification::RosterIcon;
+	uchar kinds = FNotifications->notificatorKinds(FNotificatorId);
 	if (ui.chbPopup->isChecked())
 		kinds |= INotification::PopupWindow;
-	if (ui.chbChat->isChecked())
-		kinds |= INotification::ChatWindow;
-	if (ui.chbTray->isChecked())
-		kinds |= INotification::TrayIcon|INotification::TrayAction;
+	else
+		kinds &= ~INotification::PopupWindow;
+	
 	if (ui.chbSound->isChecked())
 		kinds |= INotification::PlaySound;
-	if (ui.chbActivate->isChecked())
-		kinds |= INotification::AutoActivate;
+	else
+		kinds &= ~INotification::PlaySound;
+
 	FNotifications->setNotificatorKinds(FNotificatorId,kinds);
 	emit childApply();
 }
@@ -52,11 +44,12 @@ void NotifyKindsWidget::apply()
 void NotifyKindsWidget::reset()
 {
 	uchar kinds = FNotifications->notificatorKinds(FNotificatorId);
-	ui.chbRoster->setChecked(kinds & INotification::RosterIcon);
 	ui.chbPopup->setChecked(kinds & INotification::PopupWindow);
-	ui.chbChat->setChecked(kinds & INotification::ChatWindow);
-	ui.chbTray->setChecked(kinds & INotification::TrayIcon);
 	ui.chbSound->setChecked(kinds & INotification::PlaySound);
-	ui.chbActivate->setChecked(kinds & INotification::AutoActivate);
 	emit childReset();
+}
+
+void NotifyKindsWidget::onTestLinkActivated(const QString &ALink)
+{
+	Q_UNUSED(ALink);
 }

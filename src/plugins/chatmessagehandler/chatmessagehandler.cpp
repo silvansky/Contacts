@@ -117,7 +117,7 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 		{
 			uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate;
 			uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-			notifications->insertNotificator(CHAT_NOTIFICATOR_ID,tr("Chat Messages"),kindMask,kindDefs);
+			notifications->insertNotificator(CHAT_NOTIFICATOR_ID,tr("New messages"),kindMask,kindDefs);
 		}
 	}
 

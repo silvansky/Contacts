@@ -23,12 +23,15 @@ signals:
 	void modified();
 	void childApply();
 	void childReset();
+protected slots:
+	void onTestLinkActivated(const QString &ALink);
 private:
 	Ui::NotifyKindsWidgetClass ui;
 private:
 	INotifications *FNotifications;
 private:
 	QString FNotificatorId;
+	uchar FNotificatorKindMask;
 };
 
 #endif // NOTIFYKINDSWIDGET_H

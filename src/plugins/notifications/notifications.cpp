@@ -161,11 +161,13 @@ bool Notifications::initSettings()
 	Options::setDefaultValue(OPV_NOTIFICATIONS_TRAYACTION,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_AUTOACTIVATE,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_EXPANDGROUP,true);
-	Options::setDefaultValue(OPV_NOTIFICATIONS_NOSOUNDIFDND,false);
+	Options::setDefaultValue(OPV_NOTIFICATIONS_NONOTIFYIFAWAY,true);
+	Options::setDefaultValue(OPV_NOTIFICATIONS_NONOTIFYIFDND,true);
+	Options::setDefaultValue(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN,true);
 
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_NOTIFICATIONS, OPN_NOTIFICATIONS, tr("Notifications"),tr("Notification options"), MNI_NOTIFICATIONS };
+		IOptionsDialogNode dnode = { ONO_NOTIFICATIONS, OPN_NOTIFICATIONS, tr("Notifications"),tr("Choose your method of notification"), MNI_NOTIFICATIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
@@ -177,12 +179,22 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_NOTIFICATIONS)
 	{
-		widgets.insertMulti(OWO_NOTIFICATIONS, new OptionsWidget(this, AParent));
 		foreach(QString id, FNotificators.keys())
 		{
 			Notificator notificator = FNotificators.value(id);
-			widgets.insertMulti(OWO_NOTIFICATIONS, new NotifyKindsWidget(this,id,notificator.title,notificator.kindMask,AParent));
+			if (!notificator.title.isEmpty())
+				widgets.insertMulti(OWO_NOTIFICATIONS, new NotifyKindsWidget(this,id,notificator.title,notificator.kindMask,AParent));
 		}
+
+		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(OptionsNode(),tr("If status 'Away' or 'Do not disturb'"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY),
+			tr("Turn of all popup windows and sounds if status is 'Away'"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND),
+			tr("Turn of all popup windows and sounds if status is 'Busy'"),AParent));
+		
+		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Full screen mode"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN),
+			tr("Temporarily disable all popup windows and sounds when working\nany full screen application (films, games, presentations)"),AParent));
 	}
 	return widgets;
 }
@@ -204,7 +216,12 @@ int Notifications::appendNotification(const INotification &ANotification)
 	record.notification = ANotification;
 	emit notificationAppend(notifyId, record.notification);
 
+	bool isAway = FStatusChanger ? FStatusChanger->statusItemShow(STATUS_MAIN_ID) == IPresence::Away : false;
 	bool isDND = FStatusChanger ? FStatusChanger->statusItemShow(STATUS_MAIN_ID) == IPresence::DoNotDisturb : false;
+	
+	bool blockPopupAndSound = Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY).value().toBool() && isAway;
+	blockPopupAndSound |= Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND).value().toBool() && isDND;
+
 
 	QIcon icon;
 	QString iconKey = record.notification.data.value(NDR_ICON_KEY).toString();
@@ -228,7 +245,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		record.rosterId = FRostersViewPlugin->rostersView()->appendNotify(indexes,order,icon,toolTip,flags);
 	}
 
-	if (Options::node(OPV_NOTIFICATIONS_POPUPWINDOW).value().toBool() && (record.notification.kinds & INotification::PopupWindow)>0)
+	if (!blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_POPUPWINDOW).value().toBool() && (record.notification.kinds & INotification::PopupWindow)>0)
 	{
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
 		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
@@ -297,8 +314,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (QSound::isAvailable() && !(isDND && Options::node(OPV_NOTIFICATIONS_NOSOUNDIFDND).value().toBool()) &&
-	    Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() && (record.notification.kinds & INotification::PlaySound)>0)
+	if (QSound::isAvailable() && !blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() && (record.notification.kinds & INotification::PlaySound)>0)
 	{
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
@@ -376,15 +392,12 @@ void Notifications::removeNotification(int ANotifyId)
 
 void Notifications::insertNotificator(const QString &AId, const QString &ATitle, uchar AKindMask, uchar ADefault)
 {
-	if (!FNotificators.contains(AId))
-	{
-		Notificator notificator;
-		notificator.title = ATitle;
-		notificator.kinds = 0xFF;
-		notificator.defaults = ADefault;
-		notificator.kindMask = AKindMask;
-		FNotificators.insert(AId,notificator);
-	}
+	Notificator notificator;
+	notificator.title = ATitle;
+	notificator.kinds = 0xFF;
+	notificator.defaults = ADefault;
+	notificator.kindMask = AKindMask;
+	FNotificators.insert(AId,notificator);
 }
 
 uchar Notifications::notificatorKinds(const QString &AId) const
@@ -394,7 +407,7 @@ uchar Notifications::notificatorKinds(const QString &AId) const
 		Notificator &notificator = FNotificators[AId];
 		if (notificator.kinds == 0xFF)
 		{
-			if (Options::node(OPV_NOTIFICATIONS_ROOT).hasValue("notificator",AId))
+			if (Options::node(OPV_NOTIFICATIONS_NOTIFICATORS_ROOT).hasValue("notificator",AId))
 				notificator.kinds = Options::node(OPV_NOTIFICATIONS_NOTIFICATOR_ITEM,AId).value().toInt() & notificator.kindMask;
 			else
 				notificator.kinds = notificator.defaults;
@@ -417,7 +430,7 @@ void Notifications::setNotificatorKinds(const QString &AId, uchar AKinds)
 void Notifications::removeNotificator(const QString &AId)
 {
 	FNotificators.remove(AId);
-	Options::node(OPV_NOTIFICATIONS_ROOT).removeChilds("notificator",AId);
+	Options::node(OPV_NOTIFICATIONS_NOTIFICATORS_ROOT).removeChilds("notificator",AId);
 }
 
 QImage Notifications::contactAvatar(const Jid &AContactJid) const

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>419</width>
+    <width>400</width>
     <height>29</height>
    </rect>
   </property>
@@ -19,52 +19,42 @@
    </property>
    <item>
     <widget class="QGroupBox" name="grbKinds">
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QGridLayout" name="gridLayout">
       <property name="margin">
        <number>5</number>
       </property>
-      <item>
-       <widget class="QCheckBox" name="chbRoster">
-        <property name="text">
-         <string>Roster</string>
+      <item row="0" column="0">
+       <widget class="QLabel" name="lblTitle">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="0" column="1">
        <widget class="QCheckBox" name="chbPopup">
         <property name="text">
-         <string>Popup</string>
+         <string>Popup window</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="chbChat">
-        <property name="text">
-         <string>Chat</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chbTray">
-        <property name="text">
-         <string>Tray</string>
-        </property>
-       </widget>
-      </item>
-      <item>
+      <item row="0" column="2">
        <widget class="QCheckBox" name="chbSound">
         <property name="text">
-         <string>Sound</string>
+         <string>Sound signal</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="chbActivate">
+      <item row="0" column="3">
+       <widget class="QLabel" name="lblTest">
         <property name="text">
-         <string>Activate</string>
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;test:notify&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Test&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>

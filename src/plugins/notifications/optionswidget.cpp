@@ -31,7 +31,7 @@ void OptionsWidget::apply()
 	Options::node(OPV_NOTIFICATIONS_SOUND).setValue(ui.chbEnableSounds->isChecked());
 	Options::node(OPV_NOTIFICATIONS_AUTOACTIVATE).setValue(ui.chbEnableAutoActivate->isChecked());
 	Options::node(OPV_NOTIFICATIONS_EXPANDGROUP).setValue(ui.chbExpandRosterGroups->isChecked());
-	Options::node(OPV_NOTIFICATIONS_NOSOUNDIFDND).setValue(ui.chbDisableSoundsWhenDND->isChecked());
+	Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND).setValue(ui.chbDisableSoundsWhenDND->isChecked());
 	emit childApply();
 }
 
@@ -44,6 +44,6 @@ void OptionsWidget::reset()
 	ui.chbEnableSounds->setChecked(Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool());
 	ui.chbEnableAutoActivate->setChecked(Options::node(OPV_NOTIFICATIONS_AUTOACTIVATE).value().toBool());
 	ui.chbExpandRosterGroups->setChecked(Options::node(OPV_NOTIFICATIONS_EXPANDGROUP).value().toBool());
-	ui.chbDisableSoundsWhenDND->setChecked(Options::node(OPV_NOTIFICATIONS_NOSOUNDIFDND).value().toBool());
+	ui.chbDisableSoundsWhenDND->setChecked(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND).value().toBool());
 	emit childReset();
 }

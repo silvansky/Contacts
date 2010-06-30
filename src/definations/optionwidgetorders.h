@@ -25,6 +25,8 @@
 
 //Node = OPN_NOTIFICATIONS
 #define OWO_NOTIFICATIONS                         500
+#define OWO_NOTIFICATIONS_IF_STATUS               600
+#define OWO_NOTIFICATIONS_FULLSCREEN              700
 
 //Node = OPN_COMMON
 #define OWO_COMMON_AUTOSTART                      400
