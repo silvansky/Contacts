@@ -6,6 +6,8 @@
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/istatusicons.h>
+#include <interfaces/ioptionsmanager.h>
+#include <interfaces/ivcard.h>
 #include "ui_receiverswidget.h"
 
 class ReceiversWidget :
@@ -15,7 +17,7 @@ class ReceiversWidget :
 	Q_OBJECT;
 	Q_INTERFACES(IReceiversWidget);
 public:
-	ReceiversWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid);
+	ReceiversWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, IVCardPlugin * AVCardPlugin);
 	~ReceiversWidget();
 	virtual QWidget *instance() { return this; }
 	virtual const Jid &streamJid() const { return FStreamJid; }
@@ -42,6 +44,10 @@ protected slots:
 	void onSelectNoneClicked();
 	void onAddClicked();
 	void onUpdateClicked();
+	void onLastChoiceAction();
+	void onAvailableAction();
+	void onAllMaleAction();
+	void onAllFemaleAction();
 private:
 	Ui::ReceiversWidgetClass ui;
 private:
@@ -49,6 +55,7 @@ private:
 	IRoster *FRoster;
 	IPresence *FPresence;
 	IStatusIcons *FStatusIcons;
+	IVCardPlugin * FVCardPlugin;
 private:
 	Jid FStreamJid;
 	QList<Jid> FReceivers;

@@ -85,6 +85,12 @@ bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &/*AIni
 		FMessageArchiver = qobject_cast<IMessageArchiver*>(plugin->instance());
 	}
 
+	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FVCardPlugin = qobject_cast<IVCardPlugin*>(plugin->instance());
+	}
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 
@@ -176,7 +182,7 @@ IEditWidget *MessageWidgets::newEditWidget(const Jid &AStreamJid, const Jid &ACo
 
 IReceiversWidget *MessageWidgets::newReceiversWidget(const Jid &AStreamJid)
 {
-	IReceiversWidget *widget = new ReceiversWidget(this,AStreamJid);
+	IReceiversWidget *widget = new ReceiversWidget(this,AStreamJid,FVCardPlugin);
 	FCleanupHandler.add(widget->instance());
 	emit receiversWidgetCreated(widget);
 	return widget;
@@ -252,13 +258,12 @@ IMassSendDialog * MessageWidgets::newMassSendDialog(const Jid & AStreamJid)
 	IMassSendDialog * dlg = findMassSendDialog(AStreamJid);
 	if (!dlg)
 	{
-		dlg = new MassSendDialog(AStreamJid);
+		dlg = new MassSendDialog(this, AStreamJid);
 		FMassSendDialogs.append(dlg);
 		FCleanupHandler.add(dlg->instance());
 		emit massSendDialogCreated(dlg);
-		return dlg;
 	}
-	return 0;
+	return dlg;
 }
 
 IMassSendDialog * MessageWidgets::findMassSendDialog(const Jid & AStreamJid)
@@ -790,8 +795,8 @@ void MessageWidgets::onOptionsClosed()
 
 void MessageWidgets::onMassSend()
 {
-	IMessageWindow * window = newMessageWindow(FAccountManager->accounts().first()->xmppStream()->streamJid(), Jid(), IMessageWindow::WriteMode);
-	window->instance()->show();
+	IMassSendDialog * dlg = newMassSendDialog(FAccountManager->accounts().first()->xmppStream()->streamJid());
+	dlg->instance()->show();
 }
 
 Q_EXPORT_PLUGIN2(plg_messagewidgets, MessageWidgets)

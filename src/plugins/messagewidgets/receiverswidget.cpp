@@ -2,13 +2,17 @@
 
 #include <QHeaderView>
 #include <QInputDialog>
+#include <utils/menu.h>
+#include <definations/vcardvaluenames.h>
 
-ReceiversWidget::ReceiversWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid)
+ReceiversWidget::ReceiversWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, IVCardPlugin * AVCardPlugin)
 {
 	ui.setupUi(this);
 
 	FMessageWidgets = AMessageWidgets;
 	FStreamJid = AStreamJid;
+
+	FVCardPlugin = AVCardPlugin;
 
 	FPresence = NULL;
 	FStatusIcons = NULL;
@@ -20,7 +24,31 @@ ReceiversWidget::ReceiversWidget(IMessageWidgets *AMessageWidgets, const Jid &AS
 	connect(ui.pbtSelectNone,SIGNAL(clicked()),SLOT(onSelectNoneClicked()));
 	connect(ui.pbtAdd,SIGNAL(clicked()),SLOT(onAddClicked()));
 	connect(ui.pbtUpdate,SIGNAL(clicked()),SLOT(onUpdateClicked()));
-
+	Menu * menu = new Menu(ui.fastSelectButton);
+	Action * action = new Action(menu);
+	action->setText(tr("Last choice"));
+	connect(action, SIGNAL(triggered()), SLOT(onLastChoiceAction()));
+	// not implemented yet
+	action->setVisible(false);
+	menu->addAction(action);
+	action = new Action(menu);
+	action->setText(tr("Avalable (online, away)"));
+	connect(action, SIGNAL(triggered()), SLOT(onAvailableAction()));
+	menu->addAction(action);
+	action = new Action(menu);
+	action->setText(tr("All male"));
+	connect(action, SIGNAL(triggered()), SLOT(onAllMaleAction()));
+	menu->addAction(action);
+	action = new Action(menu);
+	action->setText(tr("All female"));
+	connect(action, SIGNAL(triggered()), SLOT(onAllFemaleAction()));
+	menu->addAction(action);
+	menu->addSeparator();
+	action = new Action(menu);
+	action->setText(tr("Everyone"));
+	connect(action, SIGNAL(triggered()), SLOT(onSelectAllClicked()));
+	menu->addAction(action);
+	ui.fastSelectButton->setMenu(menu);
 	initialize();
 }
 
@@ -299,3 +327,52 @@ void ReceiversWidget::onUpdateClicked()
 		addReceiver(receiver);
 }
 
+void ReceiversWidget::onLastChoiceAction()
+{
+
+}
+
+void ReceiversWidget::onAvailableAction()
+{
+	foreach(QTreeWidgetItem *treeItem,FContactItems)
+		if (treeItem->data(0, RDR_TYPE).toInt() == RIT_CONTACT)
+		{
+			Jid contactJid = treeItem->data(0, RDR_JID).toString();
+			QList<IPresenceItem> pitems = FPresence->presenceItems(contactJid);
+			foreach(IPresenceItem pitem, pitems)
+			{
+				if (pitem.show == IPresence::Online || pitem.show == IPresence::Away)
+					treeItem->setCheckState(0, Qt::Checked);
+				else
+					treeItem->setCheckState(0, Qt::Unchecked);
+			}
+		}
+}
+
+void ReceiversWidget::onAllMaleAction()
+{
+	foreach(QTreeWidgetItem *treeItem,FContactItems)
+		if (treeItem->data(0, RDR_TYPE).toInt() == RIT_CONTACT)
+		{
+			Jid contactJid = treeItem->data(0, RDR_JID).toString();
+			IVCard *vcard = FVCardPlugin->vcard(contactJid);
+			if (vcard->value(VVN_GENDER).toLower() != "female")
+				treeItem->setCheckState(0, Qt::Checked);
+			else
+				treeItem->setCheckState(0, Qt::Unchecked);
+		}
+}
+
+void ReceiversWidget::onAllFemaleAction()
+{
+	foreach(QTreeWidgetItem *treeItem,FContactItems)
+		if (treeItem->data(0, RDR_TYPE).toInt() == RIT_CONTACT)
+		{
+			Jid contactJid = treeItem->data(0, RDR_JID).toString();
+			IVCard *vcard = FVCardPlugin->vcard(contactJid);
+			if (vcard->value(VVN_GENDER).toLower() == "female")
+				treeItem->setCheckState(0, Qt::Checked);
+			else
+				treeItem->setCheckState(0, Qt::Unchecked);
+		}
+}

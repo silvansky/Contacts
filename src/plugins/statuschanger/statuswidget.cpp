@@ -48,6 +48,8 @@ StatusWidget::StatusWidget(QWidget *parent) :
 	QWidgetAction * wa = new QWidgetAction(profileMenu);
 	wa->setDefaultWidget(selectAvatarWidget);
 	profileMenu->addWidgetActiion(wa);
+#else
+	selectAvatarWidget = 0;
 #endif
 	connect(profileMenu, SIGNAL(aboutToHide()), SLOT(profileMenuAboutToHide()));
 }

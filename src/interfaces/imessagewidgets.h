@@ -336,6 +336,7 @@ class IMassSendDialog :
 		public ITabPage
 {
 public:
+	virtual QDialog * instance() =0;
 	virtual const Jid &streamJid() const =0;
 	//virtual IInfoWidget *infoWidget() const =0;
 	virtual IViewWidget *viewWidget() const =0;

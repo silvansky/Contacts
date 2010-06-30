@@ -15,10 +15,10 @@ class MassSendDialog : public QDialog, public IMassSendDialog
 	Q_OBJECT
 	Q_INTERFACES(IMassSendDialog ITabPage);
 public:
-	explicit MassSendDialog(const Jid & AStreamJid, QWidget *parent = 0);
+	explicit MassSendDialog(IMessageWidgets *AMessageWidgets, const Jid & AStreamJid, QWidget *parent = 0);
 	~MassSendDialog();
 	// ITabPage
-	virtual QWidget *instance() { return this; }
+	virtual QDialog *instance() { return this; }
 	virtual void showTabPage();
 	virtual void closeTabPage();
 	virtual QString tabPageId() const;
@@ -73,6 +73,7 @@ private:
 	IEditWidget * FEditWidget;
 	IReceiversWidget * FReceiversWidget;
 	ITabPageNotifier * FTabPageNotifier;
+	IMessageWidgets * FMessageWidgets;
 };
 
 #endif // MASSSENDDIALOG_H

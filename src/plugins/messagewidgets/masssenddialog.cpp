@@ -2,12 +2,20 @@
 #include "ui_masssenddialog.h"
 #include <utils/widgetmanager.h>
 
-MassSendDialog::MassSendDialog(const Jid & AStreamJid, QWidget *parent) :
+MassSendDialog::MassSendDialog(IMessageWidgets *AMessageWidgets, const Jid & AStreamJid, QWidget *parent) :
 		QDialog(parent),
 		ui(new Ui::MassSendDialog),
 		FStreamJid(AStreamJid)
 {
 	ui->setupUi(this);
+	FMessageWidgets = AMessageWidgets;
+	FViewWidget = FMessageWidgets->newViewWidget(AStreamJid, Jid());
+	FEditWidget = FMessageWidgets->newEditWidget(AStreamJid, Jid());
+	FReceiversWidget = FMessageWidgets->newReceiversWidget(AStreamJid);
+	FTabPageNotifier = FMessageWidgets->newTabPageNotifier(this);
+	ui->messagingLayout->addWidget(FViewWidget->instance());
+	ui->messagingLayout->addWidget(FEditWidget->instance());
+	ui->recieversLayout->addWidget(FReceiversWidget->instance());
 }
 
 MassSendDialog::~MassSendDialog()
@@ -42,7 +50,8 @@ QString MassSendDialog::tabPageId() const
 void MassSendDialog::changeEvent(QEvent *e)
 {
 	QDialog::changeEvent(e);
-	switch (e->type()) {
+	switch (e->type())
+	{
 	case QEvent::LanguageChange:
 		ui->retranslateUi(this);
 		break;
@@ -50,3 +59,4 @@ void MassSendDialog::changeEvent(QEvent *e)
 		break;
 	}
 }
+;

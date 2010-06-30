@@ -16,6 +16,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/iaccountmanager.h>
 #include <interfaces/imessagearchiver.h>
+#include <interfaces/ivcard.h>
 #include <utils/options.h>
 #include "infowidget.h"
 #include "viewwidget.h"
@@ -153,6 +154,7 @@ private:
 	IMainWindowPlugin * FMainWindowPlugin;
 	IAccountManager * FAccountManager;
 	IMessageArchiver * FMessageArchiver;
+	IVCardPlugin * FVCardPlugin;
 private:
 	QList<ITabWindow *> FTabWindows;
 	QList<IChatWindow *> FChatWindows;
