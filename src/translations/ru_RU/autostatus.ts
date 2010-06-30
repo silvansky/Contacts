@@ -23,6 +23,11 @@
         <source>Allows to change the status in accordance with the time of inactivity</source>
         <translation>Позволяет менять статус в зависимости от времени бездействия</translation>
     </message>
+    <message>
+        <source>Automatically change status to &apos;Away&apos; if screen saver is on or system is locked</source>
+        <translation>Автоматически изменять статус на &apos;Отошел&apos;, если включена
+экранная заставка или компьютер заблокирован</translation>
+    </message>
 </context>
 <context>
     <name>StatusOptionsWidget</name>

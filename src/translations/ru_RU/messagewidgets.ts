@@ -16,14 +16,17 @@
     </message>
 </context>
 <context>
+    <name>MassSendDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Диалог</translation>
+    </message>
+</context>
+<context>
     <name>MessageWidgets</name>
     <message>
         <source>Messages</source>
         <translation>Сообщения</translation>
-    </message>
-    <message>
-        <source>Message window options</source>
-        <translation>Настройки сообщений</translation>
     </message>
     <message>
         <source>Tab Window %1</source>
@@ -44,22 +47,6 @@
     <message>
         <source>Tab Window</source>
         <translation>Окно  со вкладками</translation>
-    </message>
-    <message>
-        <source>Enable tab windows</source>
-        <translation>Использовать окна со вкладками</translation>
-    </message>
-    <message>
-        <source>Show status changes in chat windows</source>
-        <translation>Показывать изменения статуса в окне чата</translation>
-    </message>
-    <message>
-        <source>Auto resize input field</source>
-        <translation>Автоматически изменять размер поля ввода</translation>
-    </message>
-    <message>
-        <source>Show contact information in chat windows</source>
-        <translation>Показывать информацию о контакте в окне чата</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -90,12 +77,16 @@
         <translation>Искать в Рамблере</translation>
     </message>
     <message>
-        <source>Last Contacts</source>
-        <translation>Последние контакты</translation>
-    </message>
-    <message>
         <source>Open All</source>
         <translation>Открыть все</translation>
+    </message>
+    <message>
+        <source>Mass send</source>
+        <translation>Рассылка сообщений</translation>
+    </message>
+    <message>
+        <source>Select the method of sending messages</source>
+        <translation>Выберите способ отправки сообщений</translation>
     </message>
 </context>
 <context>
@@ -147,12 +138,12 @@
 <context>
     <name>MessengerOptionsClass</name>
     <message>
-        <source>Send message key sequence:</source>
-        <translation>Комбинация клавиш для отправки сообщения:</translation>
+        <source>Send messages by pressing Enter</source>
+        <translation>Отправлять сообщения по нажатию Enter</translation>
     </message>
     <message>
-        <source>Minimum input field lines:</source>
-        <translation>Минимальное число строк в поле воода:</translation>
+        <source>Send messages by pressing Ctrl+Enter</source>
+        <translation>Отправлять сообщения по нажатию Ctrl+Enter</translation>
     </message>
 </context>
 <context>
@@ -193,6 +184,26 @@
         <source>Enter valid contact jid:</source>
         <translation>Введите корректный JID:</translation>
     </message>
+    <message>
+        <source>Last choice</source>
+        <translation>Последний выбор</translation>
+    </message>
+    <message>
+        <source>Avalable (online, away)</source>
+        <translation>Не заняты (в сети, отошел)</translation>
+    </message>
+    <message>
+        <source>All male</source>
+        <translation>Все мужчины</translation>
+    </message>
+    <message>
+        <source>All female</source>
+        <translation>Все женщины</translation>
+    </message>
+    <message>
+        <source>Everyone</source>
+        <translation>Всем</translation>
+    </message>
 </context>
 <context>
     <name>ReceiversWidgetClass</name>
@@ -211,6 +222,10 @@
     <message>
         <source>None</source>
         <translation>Никого</translation>
+    </message>
+    <message>
+        <source>Fast select</source>
+        <translation>Быстрый выбор</translation>
     </message>
 </context>
 <context>

@@ -62,14 +62,6 @@
         <translation>Поддерживать соединение</translation>
     </message>
     <message>
-        <source>Resolve nick names</source>
-        <translation>Определить все ники</translation>
-    </message>
-    <message>
-        <source>Resolve nick name</source>
-        <translation>Определить ник</translation>
-    </message>
-    <message>
         <source>Use instead of</source>
         <translation>Использовать вместо</translation>
     </message>

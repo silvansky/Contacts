@@ -15,5 +15,13 @@
         <source>Select emoticons iconsets</source>
         <translation>Выберите набор смайликов</translation>
     </message>
+    <message>
+        <source>Smiley usage in messages</source>
+        <translation>Использование смайлов в сообщениях</translation>
+    </message>
+    <message>
+        <source>Automatically convert text smiles to graphical</source>
+        <translation>Автоматически превращать текстовые смайлы в графические</translation>
+    </message>
 </context>
 </TS>

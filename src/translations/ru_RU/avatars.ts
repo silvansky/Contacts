@@ -16,18 +16,6 @@
         <translation>Очистить аватар</translation>
     </message>
     <message>
-        <source>Custom picture</source>
-        <translation>Картинка пользователя</translation>
-    </message>
-    <message>
-        <source>Set custom picture</source>
-        <translation>Установить картинку пользователя</translation>
-    </message>
-    <message>
-        <source>Clear custom picture</source>
-        <translation>Очистить картинку пользователя</translation>
-    </message>
-    <message>
         <source>Select avatar image</source>
         <translation>Выбрать картинку аватара</translation>
     </message>
@@ -42,14 +30,6 @@
     <message>
         <source>Allows to set and display avatars</source>
         <translation>Позволяет устанавливать и отображать аватары</translation>
-    </message>
-    <message>
-        <source>Show avatars</source>
-        <translation>Показывать аватары</translation>
-    </message>
-    <message>
-        <source>Show empty avatars</source>
-        <translation>Показывать пустые аватары</translation>
     </message>
 </context>
 </TS>

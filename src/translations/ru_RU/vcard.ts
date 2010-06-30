@@ -228,5 +228,9 @@
         <source>Supports the requesting of the personal contact information</source>
         <translation>Поддерживает запросы личной информации о контакте</translation>
     </message>
+    <message>
+        <source>Contact info</source>
+        <translation>Информация о контакте</translation>
+    </message>
 </context>
 </TS>

@@ -198,5 +198,13 @@
         <source>Add new photo...</source>
         <translation>Добавить новое фото...</translation>
     </message>
+    <message>
+        <source>Select new avatar image</source>
+        <translation>Выберите новое изображение аватара</translation>
+    </message>
+    <message>
+        <source>Image files %1</source>
+        <translation>Файлы изображений %1</translation>
+    </message>
 </context>
 </TS>

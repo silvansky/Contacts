@@ -77,7 +77,7 @@
       <item row="0" column="0">
        <widget class="QRadioButton" name="rdbViewFull">
         <property name="text">
-         <string>Full View</string>
+         <string>Full</string>
         </property>
        </widget>
       </item>
@@ -91,7 +91,7 @@
       <item row="1" column="0">
        <widget class="QRadioButton" name="rdbViewSimplified">
         <property name="text">
-         <string>Simplified View</string>
+         <string>Simplified</string>
         </property>
        </widget>
       </item>
@@ -105,7 +105,7 @@
       <item row="2" column="0">
        <widget class="QRadioButton" name="rdbViewCompact">
         <property name="text">
-         <string>Compact View</string>
+         <string>Compact</string>
         </property>
        </widget>
       </item>

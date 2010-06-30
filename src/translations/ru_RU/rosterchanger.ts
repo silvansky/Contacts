@@ -218,14 +218,6 @@
         <translation>Позволяет редактировать ростер</translation>
     </message>
     <message>
-        <source>Auto accept subscription requests</source>
-        <translation>Автоматически принимать запросы на авторизации</translation>
-    </message>
-    <message>
-        <source>Auto unsubscribe contacts</source>
-        <translation>Автоматически удалять авторизацию</translation>
-    </message>
-    <message>
         <source>Add group</source>
         <translation>Добавить группу</translation>
     </message>

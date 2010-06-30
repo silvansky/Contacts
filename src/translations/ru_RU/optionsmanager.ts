@@ -250,10 +250,6 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <source>Options</source>
         <translation>Настройки</translation>
     </message>
-    <message>
-        <source>No Settings Available</source>
-        <translation>Настройки недоступны</translation>
-    </message>
 </context>
 <context>
     <name>OptionsManager</name>
@@ -270,20 +266,20 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <translation>Сменить профиль</translation>
     </message>
     <message>
-        <source>Misc</source>
-        <translation>Разное</translation>
-    </message>
-    <message>
-        <source>Extra options</source>
-        <translation>Дополнительные настройки</translation>
-    </message>
-    <message>
-        <source>Auto run on system startup</source>
-        <translation>Автоматически запускать при старте системы</translation>
-    </message>
-    <message>
         <source>Options</source>
         <translation>Настройки</translation>
+    </message>
+    <message>
+        <source>Common Settings</source>
+        <translation>Общие настройки</translation>
+    </message>
+    <message>
+        <source>Common settings</source>
+        <translation>Общие настройки</translation>
+    </message>
+    <message>
+        <source>Launch application on system start up</source>
+        <translation>Запускать приложение при включении компьютера</translation>
     </message>
 </context>
 </TS>

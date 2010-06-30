@@ -8,10 +8,6 @@
         <translation>Уведомления</translation>
     </message>
     <message>
-        <source>Notification options</source>
-        <translation>Параметры уведомления</translation>
-    </message>
-    <message>
         <source>Remove All Notifications</source>
         <translation>Удалить все уведомления</translation>
     </message>
@@ -35,50 +31,65 @@
         <source>New messages</source>
         <translation>Новые сообщения</translation>
     </message>
+    <message>
+        <source>Choose your method of notification</source>
+        <translation>Выберите подходящий способ уведомления</translation>
+    </message>
+    <message>
+        <source>Turn of all popup windows and sounds if status is &apos;Away&apos;</source>
+        <translation>Если выбран статус  &apos;Отошел&apos;, то отключать все звуки и всплывающие окна</translation>
+    </message>
+    <message>
+        <source>Turn of all popup windows and sounds if status is &apos;Busy&apos;</source>
+        <translation>Если выбран статус  &apos;Занят&apos;, то отключать все звуки и всплывающие окна</translation>
+    </message>
+    <message>
+        <source>Full screen mode</source>
+        <translation>Полноэкранный режим работы</translation>
+    </message>
+    <message>
+        <source>Temporarily disable all popup windows and sounds when working
+any full screen application (films, games, presentations)</source>
+        <translation>Временно отключать все всплывающие окна и звуки, когда работает
+какое-либо полноэкранное приложение (фильмы, игры, презентации)</translation>
+    </message>
+    <message>
+        <source>If status &apos;Away&apos; or &apos;Busy&apos;</source>
+        <translation>Если статус &apos;Отошел&apos; или &apos;Занят&apos;</translation>
+    </message>
 </context>
 <context>
     <name>NotifyKindsWidgetClass</name>
     <message>
-        <source>Roster</source>
-        <translation>Контакт-лист</translation>
+        <source>Popup window</source>
+        <translation>Всплывающее окно</translation>
     </message>
     <message>
-        <source>Popup</source>
-        <translation>Всплыв. окно</translation>
+        <source>Sound signal</source>
+        <translation>Звук. сигнал</translation>
     </message>
     <message>
-        <source>Tray</source>
-        <translation>Трей</translation>
-    </message>
-    <message>
-        <source>Sound</source>
-        <translation>Звук</translation>
-    </message>
-    <message>
-        <source>Activate</source>
-        <translation>Открыть</translation>
-    </message>
-    <message>
-        <source>Chat</source>
-        <translation>Чат</translation>
-    </message>
-</context>
-<context>
-    <name>NotifyWidget</name>
-    <message>
-        <source>Notification</source>
-        <translation>Уведомление</translation>
+        <source>&lt;a href=&quot;test:notify&quot;&gt;Test&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;test:notify&quot;&gt;Тест&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
     <name>NotifyWidgetClass</name>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>*</source>
-        <translation type="unfinished"></translation>
+        <translation>*</translation>
+    </message>
+    <message>
+        <source>Authorise</source>
+        <translation>Авторизовать</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>

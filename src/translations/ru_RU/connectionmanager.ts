@@ -27,6 +27,14 @@
         <source>&lt;Mozilla Firefox&gt;</source>
         <translation>&lt;Mozilla Firefox&gt;</translation>
     </message>
+    <message>
+        <source>Connection</source>
+        <translation>Подключение</translation>
+    </message>
+    <message>
+        <source>Select the way you connected to internet</source>
+        <translation>Выберите способ подключения к интернету</translation>
+    </message>
 </context>
 <context>
     <name>ConnectionOptionsWidgetClass</name>

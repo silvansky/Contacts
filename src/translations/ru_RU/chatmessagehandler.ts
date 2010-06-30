@@ -119,5 +119,9 @@
             <numerusform>%n сообщений</numerusform>
         </translation>
     </message>
+    <message>
+        <source>New messages</source>
+        <translation>Новые сообщения</translation>
+    </message>
 </context>
 </TS>

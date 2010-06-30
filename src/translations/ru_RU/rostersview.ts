@@ -2,6 +2,41 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>RosterOptionsWidgetClass</name>
+    <message>
+        <source>Contacts Order</source>
+        <translation>Упорядочить контакты</translation>
+    </message>
+    <message>
+        <source>By Name (A-&gt;Z)</source>
+        <translation>По имени (А-&gt;Я)</translation>
+    </message>
+    <message>
+        <source>By Status</source>
+        <translation>По статусу</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation>Ручной порядок</translation>
+    </message>
+    <message>
+        <source>Contacts View</source>
+        <translation>Вид списка контактов</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation>Полный</translation>
+    </message>
+    <message>
+        <source>Simplified</source>
+        <translation>Упрощенный</translation>
+    </message>
+    <message>
+        <source>Compact</source>
+        <translation>Компактный</translation>
+    </message>
+</context>
+<context>
     <name>RostersView</name>
     <message>
         <source>Priority: %1</source>
@@ -35,14 +70,6 @@
 <context>
     <name>RostersViewPlugin</name>
     <message>
-        <source>Roster</source>
-        <translation>Контакт-лист</translation>
-    </message>
-    <message>
-        <source>Roster view options</source>
-        <translation>Настройки отображения контакт-листа</translation>
-    </message>
-    <message>
         <source>Show/Hide offline contacts</source>
         <translation>Скрыть/показать отключенные контакты</translation>
     </message>
@@ -55,20 +82,20 @@
         <translation>Отображает иерархическую модель ростера</translation>
     </message>
     <message>
-        <source>Show offline contact</source>
-        <translation>Показывать отключенные контакты</translation>
+        <source>Contact List</source>
+        <translation>Список контактов</translation>
     </message>
     <message>
-        <source>Show contact resource in roster</source>
-        <translation>Показывать ресурс контактов</translation>
+        <source>Contact list</source>
+        <translation>Список контактов</translation>
     </message>
     <message>
-        <source>Show status message in roster</source>
-        <translation>Показывать статус контактов</translation>
+        <source>Show offline contacts</source>
+        <translation>Показывать отключенных (&apos;не в сети&apos;)</translation>
     </message>
     <message>
-        <source>Sort contacts by status</source>
-        <translation>Сортировать контакты по статусу</translation>
+        <source>Group contacts</source>
+        <translation>Группировать контакты</translation>
     </message>
 </context>
 </TS>
