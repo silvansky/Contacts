@@ -59,4 +59,3 @@ void MassSendDialog::changeEvent(QEvent *e)
 		break;
 	}
 }
-;

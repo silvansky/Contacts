@@ -39,4 +39,5 @@ SUBDIRS = optionsmanager \
 	  chatstates \
 	  xmppuriqueries \
 	  stylesheeteditor \
-	  bitsofbinary
+	  bitsofbinary \
+	  masssendhandler

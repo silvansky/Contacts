@@ -2,7 +2,7 @@ include(../config.inc)
 
 TARGET             = $$TARGET_LOADER
 TEMPLATE           = app
-QT                += xml
+QT                += xml network
 LIBS              += -L../libs
 LIBS              += -l$$TARGET_UTILS
 DEPENDPATH        += ..
@@ -61,7 +61,7 @@ macx {
 
   lib_utils.path   = $$INSTALL_LIBS
   lib_utils.extra  = cp -f ../libs/$$UTILS_LIB_NAME $(INSTALL_ROOT)$$INSTALL_LIBS/$$UTILS_LIB_NAME && \
-                     ln -sf $$UTILS_LIB_NAME $(INSTALL_ROOT)$$INSTALL_LIBS/$$UTILS_LIB_LINK
+		     ln -sf $$UTILS_LIB_NAME $(INSTALL_ROOT)$$INSTALL_LIBS/$$UTILS_LIB_LINK
   INSTALLS        += lib_utils
 
   name_tool.path   = $$INSTALL_BINS

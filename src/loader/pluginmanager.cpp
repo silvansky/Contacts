@@ -58,7 +58,7 @@ PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 	connect(AParent,SIGNAL(commitDataRequest(QSessionManager &)),SLOT(onApplicationCommitDataRequested(QSessionManager &)));
 
 	FUpdater = new Updater(this);
-	connect(FUpdater, SIGNAL(forceUpdate), this, SLOT(forceUpdate));
+	connect(FUpdater, SIGNAL(forceUpdate()), this, SLOT(forceUpdate()));
 	updateme = false;
 }
 
@@ -90,7 +90,7 @@ PluginManager::~PluginManager()
 //	QString fullName = appDir + appName;
 //
 //	std::wstring applicationName = fullName.toStdWString();
-//	
+//
 //	QString tmpStr;
 //	foreach(QString str, args)
 //	{
@@ -121,20 +121,20 @@ PluginManager::~PluginManager()
 //
 //
 //
-//	dwErr = CredUIPromptForCredentials( 
-//		NULL,//&cui, 
-//		0,//&applicationName[0],//_T("Tool.exe"), 
-//		NULL, 
-//		0, 
-//		szName, 
-//		CREDUI_MAX_USERNAME_LENGTH+1, 
-//		szPwd, 
-//		CREDUI_MAX_PASSWORD_LENGTH+1, 
-//		&fSave, 
+//	dwErr = CredUIPromptForCredentials(
+//		NULL,//&cui,
+//		0,//&applicationName[0],//_T("Tool.exe"),
+//		NULL,
+//		0,
+//		szName,
+//		CREDUI_MAX_USERNAME_LENGTH+1,
+//		szPwd,
+//		CREDUI_MAX_PASSWORD_LENGTH+1,
+//		&fSave,
 //		CREDUI_FLAGS_USERNAME_TARGET_CREDENTIALS |
 //		CREDUI_FLAGS_REQUEST_ADMINISTRATOR |
-//		CREDUI_FLAGS_EXPECT_CONFIRMATION 
-//		); 
+//		CREDUI_FLAGS_EXPECT_CONFIRMATION
+//		);
 //
 //	if (!dwErr)
 //	{
@@ -157,12 +157,12 @@ PluginManager::~PluginManager()
 //		ZeroMemory(&strctProcInfo, sizeof(PROCESS_INFORMATION));
 //
 //		CreateProcessWithLogonW(
-//			szUserName, 
-//			szDomainName, 
-//			szPwd, 
+//			szUserName,
+//			szDomainName,
+//			szPwd,
 //			LOGON_WITH_PROFILE,
 //			&applicationName[0], //NULL,
-//			&arguments[0], //&strCommandLine[0], 
+//			&arguments[0], //&strCommandLine[0],
 //			0,
 //			NULL,
 //			NULL,
@@ -786,15 +786,15 @@ void PluginManager::createMenuActions()
 			connect(comments,SIGNAL(triggered()),SLOT(onShowCommentsDialog()));
 			mainWindowPligin->mainWindow()->mainMenu()->addAction(comments, AG_MMENU_PLUGINMANAGER_COMMENTS);
 
-			
-			
+
+
 
 
 			mainWindowPligin->mainWindow()->mainMenu()->addAction(pluginsDialog, AG_MMENU_PLUGINMANAGER_SETUP, true);
 		}
 
-		if (trayManager)
-			trayManager->addAction(pluginsDialog,AG_TMTM_PLUGINMANAGER,true);
+		//if (trayManager)
+		//	trayManager->addAction(pluginsDialog,AG_TMTM_PLUGINMANAGER,true);
 	}
 	else
 		onShowSetupPluginsDialog(false);
