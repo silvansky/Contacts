@@ -165,6 +165,12 @@ bool Updater::setUpdate()
 	QString uFileName = getUpdateFilename();
 	if(uFileName.isNull() || uFileName.isEmpty())
 	{
+		if(downloader != NULL)
+		{
+			delete downloader;
+			downloader = 0;
+		}
+
 		emit updateFinished(tr("Update filename is empty!"), false);
 		return false;
 	}
@@ -175,6 +181,16 @@ bool Updater::setUpdate()
 	//UnzipFile* uz = new UnzipFile(qApp->applicationDirPath() + "/update/virtus.zip");
 	//UnzipFile* uz = new UnzipFile(qApp->applicationDirPath() + "/update/" + uFileName);
 	UnzipFile* uz = new UnzipFile(updatePath + uFileName);
+	if(!uz->isValid())
+	{
+		if(uz != NULL)
+		{
+			delete uz;
+			uz = NULL;
+		}
+		emit updateFinished(tr("%1 is broken!").arg(uFileName), false);
+		return false;
+	}
 	QList<QString> files = uz->fileNames();
 
 	QString updaterName;
@@ -189,8 +205,20 @@ bool Updater::setUpdate()
 
 	if(updaterName.isEmpty())
 	{
+		if(downloader != NULL)
+		{
+			delete downloader;
+			downloader = 0;
+		}
 		emit updateFinished(tr("UpdateVirtus.exe not found!"), false);
 		//emit cancelUpdate(tr("UpdateVirtus.exe not found!"));
+		
+		if(uz != NULL)
+		{
+			delete uz;
+			uz = NULL;
+		}
+		
 		return false;
 	}
 
@@ -205,8 +233,18 @@ bool Updater::setUpdate()
 	QFile* updaterFile = new QFile(updaterFullName);
 	if (!updaterFile->open(QIODevice::WriteOnly))
 	{
+		if(downloader != NULL)
+		{
+			delete downloader;
+			downloader = 0;
+		}
 		delete updaterFile;
 		updaterFile = 0;
+		if(uz != NULL)
+		{
+			delete uz;
+			uz = NULL;
+		}
 		emit cancelUpdate(tr("UpdateVirtus.exe is broken!"));
 		return false;
 	}
@@ -218,7 +256,17 @@ bool Updater::setUpdate()
 	delete updaterFile;
 	updaterFile = 0;
 
+	if(uz != NULL)
+	{
+		delete uz;
+		uz = NULL;
+	}
 
+	if(downloader != NULL)
+	{
+		delete downloader;
+		downloader = 0;
+	}
   // Скачали обновление, вытащили из архива обнвитель и отправляем сигнал.
 	// По этому сигналу закрывается загрузчик Виртуса и запускается обновитель
 	emit updateFinished(tr("Update in progress!"), true);

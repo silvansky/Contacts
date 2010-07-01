@@ -27,6 +27,11 @@ Downloader::~Downloader()
 		delete progressDialog;
 		progressDialog = NULL;
 	}
+	if(manager != NULL)
+	{
+		delete manager;
+		manager = NULL;
+	}
 }
 
 void Downloader::downloadFile()
@@ -47,8 +52,11 @@ void Downloader::downloadFile()
 			tr("There already exists a file called %1 in the current directory. Overwrite?").arg(fileName),
 			QMessageBox::Yes|QMessageBox::No, QMessageBox::No)
 			== QMessageBox::No)
+		{
+			emit downloadFinished();
 			return;
-		QFile::remove(fileName);
+		}
+		QFile::remove(directory + fileName);
 	}
 
 	downloadedFile = new QFile(directory + fileName);
@@ -67,9 +75,9 @@ void Downloader::downloadFile()
 	QNetworkRequest req(url);
 
 	reply = manager->get(req);
+	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(downloadError(QNetworkReply::NetworkError)));
 	connect(reply, SIGNAL(finished()),this, SLOT(getReplyFinished()));
 	connect(reply, SIGNAL(readyRead()), this, SLOT(readyReadReply()));
-	connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(downloadError(QNetworkReply::NetworkError)));
 	connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(downloadProgress(qint64, qint64)));
 
 	progressDialog->setWindowTitle(tr("Download progress..."));
@@ -83,18 +91,39 @@ void Downloader::readyReadReply()
 }
 void Downloader::getReplyFinished()
 {
-	downloadedFile->flush();
-	downloadedFile->close();
-	delete downloadedFile;
-	downloadedFile = 0;
-	reply->deleteLater();
-	emit downloadFinished();
+	if(reply->error())
+	{
+		if(downloadedFile != NULL)
+		{
+			downloadedFile->flush();
+			downloadedFile->remove();
+			downloadedFile->close();
+			delete downloadedFile;
+			downloadedFile = 0;
+		}
+		progressDialog->hide();
+		reply->deleteLater();
+		emit downloadCanceled(reply->errorString());
+	}
+	else
+	{
+		if(downloadedFile != NULL)
+		{
+			downloadedFile->flush();
+			downloadedFile->close();
+			delete downloadedFile;
+			downloadedFile = 0;
+		}
+		progressDialog->hide();
+		reply->deleteLater();
+		emit downloadFinished();
+	}
 }
 
 void Downloader::downloadError(QNetworkReply::NetworkError err)
 {
-	QString reason = tr("Update canceled!");
-	emit downloadCanceled(reason);
+	//QString reason = tr("Update canceled! ") + reply->errorString();
+	//emit downloadCanceled(reason);
 }
 void Downloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {

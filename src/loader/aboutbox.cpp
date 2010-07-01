@@ -30,8 +30,9 @@ AboutBox::AboutBox(IPluginManager *APluginManager, Updater* updater, QWidget *AP
 	connect(ui.lblHomePage,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.pbtSendComment, SIGNAL(clicked()), APluginManager->instance(), SLOT(onShowCommentsDialog()));
 
-	connect(ui.pbtUpdate, SIGNAL(clicked()), updater, SLOT(update()));
 	connect(ui.pbtUpdate, SIGNAL(clicked()), this, SLOT(startUpdate()));
+	connect(ui.pbtUpdate, SIGNAL(clicked()), updater, SLOT(update()));
+	
 
 	connect(updater, SIGNAL(updateFinished(QString, bool)), this, SLOT(updateFinish(QString, bool)));
 	//connect(updater, SIGNAL(updateCanceled(QString)), this, SLOT(updateFinish(QString)));
@@ -86,7 +87,8 @@ void AboutBox::startUpdate()
 
 void AboutBox::updateFinish(QString reason, bool state)
 {
-	ui.pbtUpdate->setEnabled(true);
+	
 	if(state == false)
 		QMessageBox::information(this, tr("Update"), reason);
+	ui.pbtUpdate->setEnabled(true);
 }
