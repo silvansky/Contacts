@@ -104,7 +104,7 @@ void Updater::getReplyFinished()
 void Updater::replyFinished(QNetworkReply* reply)
 {
 	QString answer = QString::fromUtf8(reply->readAll());
-	QMessageBox::information(NULL, "", answer);
+	//QMessageBox::information(NULL, "", answer);
 
 	QString errMsg; int errLine=0, errCol=0;
 
