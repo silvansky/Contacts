@@ -1,12 +1,19 @@
 FORMS   = setuppluginsdialog.ui \
-          aboutbox.ui
+          aboutbox.ui \
+		  commentdialog.ui
 
 HEADERS = pluginmanager.h \
           setuppluginsdialog.h \
-          aboutbox.h
+          aboutbox.h \
+		  commentdialog.h \
+		  downloader.h \
+		  updater.h
 
 SOURCES = main.cpp \
           pluginmanager.cpp \
           setuppluginsdialog.cpp \
-          aboutbox.cpp
+          aboutbox.cpp \
+		  commentdialog.cpp \
+		  downloader.cpp \
+		  updater.cpp
 

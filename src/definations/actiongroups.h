@@ -9,6 +9,7 @@
 #define AG_MMENU_FILESTREAMSMANAGER                             500
 #define AG_MMENU_PLUGINMANAGER_SETUP                            800
 #define AG_MMENU_PLUGINMANAGER_ABOUT                            900
+#define AG_MMENU_PLUGINMANAGER_COMMENTS                         950
 #define AG_MMENU_MAINWINDOW                                     1000
 
 //RostersView - ContextMenu

@@ -18,11 +18,16 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/itraymanager.h>
+#include <interfaces/ivcard.h> // ононб
+#include <interfaces/iaccountmanager.h> // ононб
+
 #include <utils/widgetmanager.h>
 #include <utils/stylestorage.h>
 #include <utils/action.h>
 #include "setuppluginsdialog.h"
 #include "aboutbox.h"
+#include "commentdialog.h" // ононб
+#include "updater.h" // ононб
 
 struct PluginItem
 {
@@ -58,6 +63,7 @@ public:
 public slots:
 	virtual void quit();
 	virtual void restart();
+	void forceUpdate();
 signals:
 	void aboutToQuit();
 protected:
@@ -85,9 +91,14 @@ protected slots:
 	void onShowSetupPluginsDialog(bool);
 	void onSetupPluginsDialogAccepted();
 	void onShowAboutBoxDialog();
+  void onShowCommentsDialog(); // ононб
+	void updateMe(QString, bool);
 private:
 	QPointer<AboutBox> FAboutDialog;
+	QPointer<CommentDialog> FCommentDialog;
 	QPointer<SetupPluginsDialog> FPluginsDialog;
+	QPointer<Updater> FUpdater; // ононб
+	bool updateme;
 private:
 	QString FDataPath;
 	QDomDocument FPluginsSetup;

@@ -8,6 +8,9 @@
 #include <QFileInfo>
 #include <QSettings>
 
+//#include "windows.h"
+//#include "WinCred.h"
+
 #define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Virtus"
 
@@ -44,6 +47,7 @@
 #  define LIB_PREFIX_SIZE           3
 #endif
 
+//void startProcess(QString appName, QString appDir, QStringList args);
 
 PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 {
@@ -52,12 +56,128 @@ PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 	FLoaderTranslator = new QTranslator(this);
 	connect(AParent,SIGNAL(aboutToQuit()),SLOT(onApplicationAboutToQuit()));
 	connect(AParent,SIGNAL(commitDataRequest(QSessionManager &)),SLOT(onApplicationCommitDataRequested(QSessionManager &)));
+
+	FUpdater = new Updater(this);
+	connect(FUpdater, SIGNAL(forceUpdate), this, SLOT(forceUpdate));
+	updateme = false;
 }
 
 PluginManager::~PluginManager()
 {
+	if(updateme)
+	{
+		QString uFileName = FUpdater->getUpdateFilename();
+		//uFileName = "virtus.zip";
+		// Запускаем сторонний процесс по обновлению файлов
+		QStringList args;
+		args << qApp->applicationDirPath();
+		args << "virtus.exe";
+		args << uFileName;
 
+		//startProcess("UpdateVirtus.exe", qApp->applicationDirPath() + "/update/", args);
+
+		QString updatePath = QDir::tempPath() + "\\virtus\\update\\";
+		QProcess* updateProcess = new QProcess();
+		//updateProcess->setWorkingDirectory(qApp->applicationDirPath() + "/update");
+		//updateProcess->startDetached(qApp->applicationDirPath() + "/update/UpdateVirtus.exe", args);
+		updateProcess->setWorkingDirectory(updatePath);
+		updateProcess->startDetached(updatePath + "UpdateVirtus.exe", args);
+	}
 }
+
+//void startProcess(QString appName, QString appDir, QStringList args)
+//{
+//	QString fullName = appDir + appName;
+//
+//	std::wstring applicationName = fullName.toStdWString();
+//	
+//	QString tmpStr;
+//	foreach(QString str, args)
+//	{
+//		tmpStr += str + " ";
+//	}
+//	tmpStr = tmpStr.simplified();
+//	std::wstring arguments = tmpStr.toStdWString();
+//
+//
+//	CREDUI_INFO cui;
+//	cui.cbSize = sizeof(CREDUI_INFO);
+//	cui.hwndParent = NULL;
+//	cui.pszMessageText = NULL;// QString("Enter login and password").toStdWString().c_str();
+//	cui.pszCaptionText = NULL;//QString("Login Credentials").toStdWString().c_str();
+//	cui.hbmBanner = NULL;
+//
+//	//TCHAR pszName[CREDUI_MAX_USERNAME_LENGTH] = _T("");
+//	//TCHAR pszPwd[CREDUI_MAX_PASSWORD_LENGTH] = _T("");
+//	//BOOL fSave = FALSE;
+//
+//	TCHAR szName[CREDUI_MAX_USERNAME_LENGTH]; szName[0]=0;
+//	TCHAR szPwd[CREDUI_MAX_USERNAME_LENGTH]; szPwd[0]=0;
+//	BOOL fSave = FALSE;
+//	DWORD dwErr = 0;
+//
+//
+//		//ERROR_INVALID_PARAMETER
+//
+//
+//
+//	dwErr = CredUIPromptForCredentials( 
+//		NULL,//&cui, 
+//		0,//&applicationName[0],//_T("Tool.exe"), 
+//		NULL, 
+//		0, 
+//		szName, 
+//		CREDUI_MAX_USERNAME_LENGTH+1, 
+//		szPwd, 
+//		CREDUI_MAX_PASSWORD_LENGTH+1, 
+//		&fSave, 
+//		CREDUI_FLAGS_USERNAME_TARGET_CREDENTIALS |
+//		CREDUI_FLAGS_REQUEST_ADMINISTRATOR |
+//		CREDUI_FLAGS_EXPECT_CONFIRMATION 
+//		); 
+//
+//	if (!dwErr)
+//	{
+//		TCHAR szUserName[CREDUI_MAX_USERNAME_LENGTH + 1];
+//		TCHAR szDomainName[CREDUI_MAX_DOMAIN_TARGET_LENGTH + 1];
+//
+//		DWORD dwError = CredUIParseUserName(szName,
+//			szUserName,
+//			CREDUI_MAX_USERNAME_LENGTH,
+//			szDomainName,
+//			CREDUI_MAX_DOMAIN_TARGET_LENGTH);
+//
+//		std::wstring strCommandLine(L"Tool.exe");
+//
+//		STARTUPINFO strctStartInfo;
+//		ZeroMemory(&strctStartInfo, sizeof(STARTUPINFO));
+//		strctStartInfo.cb = sizeof(STARTUPINFO);
+//
+//		PROCESS_INFORMATION strctProcInfo;
+//		ZeroMemory(&strctProcInfo, sizeof(PROCESS_INFORMATION));
+//
+//		CreateProcessWithLogonW(
+//			szUserName, 
+//			szDomainName, 
+//			szPwd, 
+//			LOGON_WITH_PROFILE,
+//			&applicationName[0], //NULL,
+//			&arguments[0], //&strCommandLine[0], 
+//			0,
+//			NULL,
+//			NULL,
+//			&strctStartInfo,
+//			&strctProcInfo);
+//
+//		CloseHandle(strctProcInfo.hThread);
+//		CloseHandle(strctProcInfo.hProcess);
+//
+//		//SecureZeroMemory(pszName, sizeof(pszName));
+//		//SecureZeroMemory(pszPwd, sizeof(pszPwd));
+//	}
+//}
+
+
 
 QString PluginManager::version() const
 {
@@ -186,9 +306,15 @@ void PluginManager::restart()
 		saveSettings();
 		createMenuActions();
 		startPlugins();
+		FUpdater->checkUpdate(); // ПОПОВ проверка обновления
 	}
 	else
 		QTimer::singleShot(0,this,SLOT(restart()));
+}
+
+void PluginManager::forceUpdate()
+{
+
 }
 
 void PluginManager::loadSettings()
@@ -418,6 +544,12 @@ void PluginManager::startPlugins()
 		pluginItem.plugin->startPlugin();
 }
 
+
+
+
+
+
+
 void PluginManager::removePluginItem(const QUuid &AUuid, const QString &AError)
 {
 	if (FPluginItems.contains(AUuid))
@@ -618,6 +750,14 @@ void PluginManager::createMenuActions()
 	plugin = pluginInterface("ITrayManager").value(0);
 	ITrayManager *trayManager = plugin!=NULL ? qobject_cast<ITrayManager *>(plugin->instance()) : NULL;
 
+	//plugin = pluginInterface("IAccountManager").value(0);
+	//IAccountManager *accountManager = plugin != NULL ? qobject_cast<IAccountManager *>(plugin->instance()) : NULL;
+	//IAccount *account = accountManager->accounts().value(0);
+
+	//plugin = pluginInterface("IVCardPlugin").value(0);
+	//IVCardPlugin *vCardPlugin = plugin != NULL ? qobject_cast<IVCardPlugin *>(plugin->instance()) : NULL;
+
+
 	if (mainWindowPligin || trayManager)
 	{
 		Action *pluginsDialog = new Action(mainWindowPligin!=NULL ? mainWindowPligin->instance() : trayManager->instance());
@@ -625,29 +765,36 @@ void PluginManager::createMenuActions()
 		connect(pluginsDialog,SIGNAL(triggered(bool)),SLOT(onShowSetupPluginsDialog(bool)));
 		pluginsDialog->setText(tr("Setup plugins"));
 
-		Action *aboutQt = new Action(mainWindowPligin->mainWindow()->mainMenu());
-		aboutQt->setText(tr("About Qt"));
-		aboutQt->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT_QT);
-		connect(aboutQt,SIGNAL(triggered()),QApplication::instance(),SLOT(aboutQt()));
-
-		Action *about = new Action(mainWindowPligin->mainWindow()->mainMenu());
-		about->setText(tr("About the program"));
-		about->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT);
-		connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
-
 		if (mainWindowPligin)
 		{
+			Action *aboutQt = new Action(mainWindowPligin->mainWindow()->mainMenu());
+			aboutQt->setText(tr("About Qt"));
+			aboutQt->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT_QT);
+			connect(aboutQt,SIGNAL(triggered()),QApplication::instance(),SLOT(aboutQt()));
 			mainWindowPligin->mainWindow()->mainMenu()->addAction(aboutQt,AG_MMENU_PLUGINMANAGER_ABOUT);
+
+			Action *about = new Action(mainWindowPligin->mainWindow()->mainMenu());
+			about->setText(tr("About the program"));
+			about->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT);
+			connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
 			mainWindowPligin->mainWindow()->mainMenu()->addAction(about,AG_MMENU_PLUGINMANAGER_ABOUT);
-			mainWindowPligin->mainWindow()->mainMenu()->addAction(pluginsDialog,AG_MMENU_PLUGINMANAGER_SETUP,true);
+
+			// ПОПОВ
+			Action *comments = new Action(mainWindowPligin->mainWindow()->mainMenu());
+			comments->setText(tr("User Comments"));
+			comments->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_ABOUT);
+			connect(comments,SIGNAL(triggered()),SLOT(onShowCommentsDialog()));
+			mainWindowPligin->mainWindow()->mainMenu()->addAction(comments, AG_MMENU_PLUGINMANAGER_COMMENTS);
+
+			
+			
+
+
+			mainWindowPligin->mainWindow()->mainMenu()->addAction(pluginsDialog, AG_MMENU_PLUGINMANAGER_SETUP, true);
 		}
 
 		if (trayManager)
-		{
-			trayManager->contextMenu()->addAction(aboutQt,AG_TMTM_PLUGINMANAGER);
-			trayManager->contextMenu()->addAction(about,AG_TMTM_PLUGINMANAGER);
-			//trayManager->contextMenu()->addAction(pluginsDialog,AG_TMTM_PLUGINMANAGER);
-		}
+			trayManager->addAction(pluginsDialog,AG_TMTM_PLUGINMANAGER,true);
 	}
 	else
 		onShowSetupPluginsDialog(false);
@@ -660,6 +807,9 @@ void PluginManager::onApplicationAboutToQuit()
 
 	if (!FAboutDialog.isNull())
 		FAboutDialog->reject();
+
+	if (!FCommentDialog.isNull())
+		FCommentDialog->reject();
 
 	emit aboutToQuit();
 
@@ -697,8 +847,27 @@ void PluginManager::onSetupPluginsDialogAccepted()
 void PluginManager::onShowAboutBoxDialog()
 {
 	if (FAboutDialog.isNull())
-		FAboutDialog = new AboutBox(this);
+		FAboutDialog = new AboutBox(this, FUpdater);
+
 	FAboutDialog->show();
 	WidgetManager::raiseWidget(FAboutDialog);
 	FAboutDialog->activateWindow();
+}
+
+void PluginManager::onShowCommentsDialog()
+{
+	if (FCommentDialog.isNull())
+		FCommentDialog = new CommentDialog(this);
+	FCommentDialog->show();
+	WidgetManager::raiseWidget(FCommentDialog);
+	FCommentDialog->activateWindow();
+}
+
+void PluginManager::updateMe(QString message, bool state)
+{
+	updateme = state;
+	if(updateme)
+	{
+		quit();
+	}
 }
