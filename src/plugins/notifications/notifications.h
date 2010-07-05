@@ -50,6 +50,7 @@ struct NotifyRecord {
 };
 
 struct Notificator {
+	int order;
 	QString title;
 	uchar kinds;
 	uchar defaults;
@@ -84,19 +85,20 @@ public:
 	virtual void activateNotification(int ANotifyId);
 	virtual void removeNotification(int ANotifyId);
 	//Kind options for notificators
-	virtual void insertNotificator(const QString &AId, const QString &ATitle, uchar AKindMask, uchar ADefault);
-	virtual uchar notificatorKinds(const QString &AId) const;
-	virtual void setNotificatorKinds(const QString &AId, uchar AKinds);
-	virtual void removeNotificator(const QString &AId);
+	virtual void insertNotificator(const QString &ANotificatorId, int AWidgetOrder, const QString &ATitle, uchar AKindMask, uchar ADefault);
+	virtual uchar notificatorKinds(const QString &ANotificatorId) const;
+	virtual void setNotificatorKinds(const QString &ANotificatorId, uchar AKinds);
+	virtual void removeNotificator(const QString &ANotificatorId);
 	//Notification Utilities
 	virtual QImage contactAvatar(const Jid &AContactJid) const;
 	virtual QIcon contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual QString contactName(const Jid &AStreamJId, const Jid &AContactJid) const;
 signals:
-	void notificationActivated(int ANotifyId);
-	void notificationRemoved(int ANotifyId);
 	void notificationAppend(int ANotifyId, INotification &ANotification);
 	void notificationAppended(int ANotifyId, const INotification &ANotification);
+	void notificationActivated(int ANotifyId);
+	void notificationRemoved(int ANotifyId);
+	void notificationTest(const QString &ANotificatorId, uchar AKinds);
 protected:
 	int notifyIdByRosterId(int ARosterId) const;
 	int notifyIdByTrayId(int ATrayId) const;
@@ -116,6 +118,7 @@ protected slots:
 	void onWindowNotifyRemoved();
 	void onWindowNotifyDestroyed();
 	void onActionNotifyActivated(bool);
+	void onTestNotificationTimerTimedOut();
 	void onOptionsOpened();
 	void onOptionsChanged(const OptionsNode &ANode);
 	void showSettings();
@@ -138,7 +141,9 @@ private:
 	Menu *FNotifyMenu;
 private:
 	int FNotifyId;
+	int FTestNotifyId;
 	QSound *FSound;
+	QTimer FTestNotifyTimer;
 	QList<int> FDelayedActivations;
 	QMap<int, NotifyRecord> FNotifyRecords;
 	mutable QMap<QString, Notificator> FNotificators;

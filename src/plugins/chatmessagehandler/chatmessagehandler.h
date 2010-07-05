@@ -18,6 +18,7 @@
 #include <definations/stylesheets.h>
 #include <definations/soundfiles.h>
 #include <definations/optionvalues.h>
+#include <definations/optionwidgetorders.h>
 #include <definations/toolbargroups.h>
 #include <definations/xmppurihandlerorders.h>
 #include <definations/tabpagenotifypriorities.h>
@@ -120,6 +121,7 @@ protected slots:
 	void onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem);
 	void onPresenceRemoved(IPresence *APresence);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
+	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
 	void onOptionsOpened();
 	void onOptionsClosed();
 private:

@@ -13,7 +13,7 @@ class NotifyKindsWidget :
 	Q_OBJECT;
 	Q_INTERFACES(IOptionsWidget);
 public:
-	NotifyKindsWidget(INotifications *ANotifications, const QString &AId, const QString &ATitle, uchar AKindMask, QWidget *AParent);
+	NotifyKindsWidget(INotifications *ANotifications, const QString &ANotificatorId, const QString &ATitle, uchar AKindMask, QWidget *AParent);
 	~NotifyKindsWidget();
 	virtual QWidget* instance() { return this; }
 public slots:
@@ -23,6 +23,10 @@ signals:
 	void modified();
 	void childApply();
 	void childReset();
+signals:
+	void notificationTest(const QString &ANotificatorId, uchar AKinds);
+protected:
+	uchar changedKinds(uchar AActiveKinds) const;
 protected slots:
 	void onTestLinkActivated(const QString &ALink);
 private:

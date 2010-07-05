@@ -8,6 +8,7 @@
 #include <definations/rosterindextyperole.h>
 #include <definations/rosterlabelorders.h>
 #include <definations/notificationdataroles.h>
+#include <definations/optionwidgetorders.h>
 #include <definations/actiongroups.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>

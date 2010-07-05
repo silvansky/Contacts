@@ -157,7 +157,7 @@ bool RosterChanger::initObjects()
 	{
 		uchar kindMask = INotification::RosterIcon|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound|INotification::AutoActivate;
 		uchar kindDefs = INotification::RosterIcon|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound;
-		FNotifications->insertNotificator(NOTIFICATOR_ID,tr("Subscription requests"),kindMask,kindDefs);
+		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_SUBSCRIPTIONS,tr("Subscription requests"),kindMask,kindDefs);
 	}
 	if (FRostersView)
 	{

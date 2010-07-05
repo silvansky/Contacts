@@ -10,7 +10,7 @@
 #define ADR_CONTACT_JID           Action::DR_Parametr1
 #define ADR_TAB_PAGE_ID           Action::DR_Parametr2
 
-#define CHAT_NOTIFICATOR_ID       "ChatMessages"
+#define NOTIFICATOR_ID            "ChatMessages"
 
 QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
 {
@@ -112,12 +112,11 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
 	if (plugin)
 	{
-		INotifications *notifications = qobject_cast<INotifications *>(plugin->instance());
-		if (notifications)
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
+		if (FNotifications)
 		{
-			uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate;
-			uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-			notifications->insertNotificator(CHAT_NOTIFICATOR_ID,tr("New messages"),kindMask,kindDefs);
+			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, uchar)),
+				SLOT(onNotificationTest(const QString &, uchar)));
 		}
 	}
 
@@ -148,10 +147,6 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 	if (plugin)
 		FXmppUriQueries = qobject_cast<IXmppUriQueries *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
-	if (plugin)
-		FNotifications = qobject_cast<INotifications *>(plugin->instance());
-
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 
@@ -175,6 +170,12 @@ bool ChatMessageHandler::initObjects()
 	if (FXmppUriQueries)
 	{
 		FXmppUriQueries->insertUriHandler(this, XUHO_DEFAULT);
+	}
+	if (FNotifications)
+	{
+		uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate|INotification::TestNotify;
+		uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
+		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_CHAT_MESSAGES,tr("New messages"),kindMask,kindDefs);
 	}
 	return true;
 }
@@ -326,7 +327,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 	QString messages = tr("%n message(s)","",FActiveMessages.values(window).count());
 
 	INotification notify;
-	notify.kinds = ANotifications->notificatorKinds(CHAT_NOTIFICATOR_ID);
+	notify.kinds = ANotifications->notificatorKinds(NOTIFICATOR_ID);
 	notify.data.insert(NDR_STREAM_JID,AMessage.to());
 	notify.data.insert(NDR_CONTACT_JID,AMessage.from());
 	notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
@@ -794,6 +795,36 @@ void ChatMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOpti
 				setMessageStyle(window);
 				showHistory(window);
 			}
+		}
+	}
+}
+
+void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar AKinds)
+{
+	if (ANotificatorId == NOTIFICATOR_ID)
+	{
+		INotification notify;
+		notify.kinds = AKinds;
+		if (AKinds & INotification::PopupWindow)
+		{
+			Jid contsctJid = "virtus@virtus/virtus";
+			notify.data.insert(NDR_STREAM_JID,contsctJid.full());
+			notify.data.insert(NDR_CONTACT_JID,contsctJid.full());
+			notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
+			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
+			notify.data.insert(NDR_POPUP_CAPTION,tr("Message received"));
+			notify.data.insert(NDR_POPUP_TITLE,tr("Virtus Virtusovich"));
+			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! How are you?!"));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
+		}
+		if (AKinds & INotification::PlaySound)
+		{
+			notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
+		}
+		if (!notify.data.isEmpty())
+		{
+			notify.data.insert(NDR_TYPE, NT_CHATMESSAGE);
+			FNotifications->appendNotification(notify);
 		}
 	}
 }

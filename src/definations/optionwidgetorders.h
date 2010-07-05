@@ -24,7 +24,12 @@
 #define OWO_HISTORY                               500
 
 //Node = OPN_NOTIFICATIONS
-#define OWO_NOTIFICATIONS                         500
+#define OWO_NOTIFICATIONS_CHAT_MESSAGES           310
+#define OWO_NOTIFICATIONS_NORMAL_MESSAGES         320
+#define OWO_NOTIFICATIONS_STATUS_CHANGES          330
+#define OWO_NOTIFICATIONS_MOOD_CHANGES            340
+#define OWO_NOTIFICATIONS_SUBSCRIPTIONS           350
+#define OWO_NOTIFICATIONS_CONNECTION              360
 #define OWO_NOTIFICATIONS_IF_STATUS               600
 #define OWO_NOTIFICATIONS_FULLSCREEN              700
 

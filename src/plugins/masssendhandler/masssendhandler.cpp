@@ -1,6 +1,6 @@
 #include "masssendhandler.h"
 
-#define NORMAL_NOTIFICATOR_ID     "NormalMessages"
+#define NOTIFICATOR_ID            "NormalMessages"
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_CONTACT_JID           Action::DR_Parametr1
@@ -84,7 +84,7 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		{
 			uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate;
 			uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-			notifications->insertNotificator(NORMAL_NOTIFICATOR_ID,tr("Single Messages"),kindMask,kindDefs);
+			notifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_NORMAL_MESSAGES,tr("Single Messages"),kindMask,kindDefs);
 		}
 	}
 
@@ -157,7 +157,7 @@ INotification MassSendHandler::notification(INotifications *ANotifications, cons
 	QString name= ANotifications->contactName(AMessage.to(),AMessage.from());
 
 	INotification notify;
-	notify.kinds = ANotifications->notificatorKinds(NORMAL_NOTIFICATOR_ID);
+	notify.kinds = ANotifications->notificatorKinds(NOTIFICATOR_ID);
 //	notify.data.insert(NDR_ICON,icon);
 //	notify.data.insert(NDR_TOOLTIP,tr("Message from %1").arg(name));
 //	notify.data.insert(NDR_ROSTER_STREAM_JID,AMessage.to());

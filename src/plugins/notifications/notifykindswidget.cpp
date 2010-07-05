@@ -1,16 +1,17 @@
 #include "notifykindswidget.h"
 
-NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QString &AId, const QString &ATitle, uchar AKindMask, QWidget *AParent) : QWidget(AParent)
+NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QString &ANotificatorId, const QString &ATitle, uchar AKindMask, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	ui.lblTitle->setText(ATitle);
 
 	FNotifications = ANotifications;
-	FNotificatorId = AId;
+	FNotificatorId = ANotificatorId;
 	FNotificatorKindMask = AKindMask;
 
 	ui.chbPopup->setEnabled(AKindMask & INotification::PopupWindow);
 	ui.chbSound->setEnabled(AKindMask & INotification::PlaySound);
+	ui.lblTest->setEnabled(AKindMask & INotification::TestNotify);
 
 	connect(ui.chbPopup,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.chbSound,SIGNAL(stateChanged(int)),SIGNAL(modified()));
@@ -26,18 +27,7 @@ NotifyKindsWidget::~NotifyKindsWidget()
 
 void NotifyKindsWidget::apply()
 {
-	uchar kinds = FNotifications->notificatorKinds(FNotificatorId);
-	if (ui.chbPopup->isChecked())
-		kinds |= INotification::PopupWindow;
-	else
-		kinds &= ~INotification::PopupWindow;
-	
-	if (ui.chbSound->isChecked())
-		kinds |= INotification::PlaySound;
-	else
-		kinds &= ~INotification::PlaySound;
-
-	FNotifications->setNotificatorKinds(FNotificatorId,kinds);
+	FNotifications->setNotificatorKinds(FNotificatorId,changedKinds(FNotifications->notificatorKinds(FNotificatorId)));
 	emit childApply();
 }
 
@@ -49,7 +39,25 @@ void NotifyKindsWidget::reset()
 	emit childReset();
 }
 
+uchar NotifyKindsWidget::changedKinds(uchar AActiveKinds) const
+{
+	uchar kinds = AActiveKinds;
+
+	if (ui.chbPopup->isChecked())
+		kinds |= INotification::PopupWindow;
+	else
+		kinds &= ~INotification::PopupWindow;
+
+	if (ui.chbSound->isChecked())
+		kinds |= INotification::PlaySound;
+	else
+		kinds &= ~INotification::PlaySound;
+
+	return kinds;
+}
+
 void NotifyKindsWidget::onTestLinkActivated(const QString &ALink)
 {
 	Q_UNUSED(ALink);
+	emit notificationTest(FNotificatorId,changedKinds(0)|INotification::TestNotify);
 }

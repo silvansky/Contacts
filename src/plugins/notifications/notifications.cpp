@@ -2,6 +2,8 @@
 
 #include <QVBoxLayout>
 
+#define TEST_NOTIFY_TIMEOUT             10000
+
 #define ADR_NOTIFYID                    Action::DR_Parametr1
 
 Notifications::Notifications()
@@ -23,7 +25,12 @@ Notifications::Notifications()
 	FNotifyMenu = NULL;
 
 	FNotifyId = 0;
+	FTestNotifyId = -1;
 	FSound = NULL;
+
+	FTestNotifyTimer.setSingleShot(true);
+	FTestNotifyTimer.setInterval(TEST_NOTIFY_TIMEOUT);
+	connect(&FTestNotifyTimer,SIGNAL(timeout()),SLOT(onTestNotificationTimerTimedOut()));
 }
 
 Notifications::~Notifications()
@@ -183,7 +190,11 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 		{
 			Notificator notificator = FNotificators.value(id);
 			if (!notificator.title.isEmpty())
-				widgets.insertMulti(OWO_NOTIFICATIONS, new NotifyKindsWidget(this,id,notificator.title,notificator.kindMask,AParent));
+			{
+				NotifyKindsWidget *widget = new NotifyKindsWidget(this,id,notificator.title,notificator.kindMask,AParent);
+				connect(widget,SIGNAL(notificationTest(const QString &, uchar)),SIGNAL(notificationTest(const QString &, uchar)));
+				widgets.insertMulti(notificator.order, widget);
+			}
 		}
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(OptionsNode(),tr("If status 'Away' or 'Busy'"),AParent));
@@ -222,7 +233,6 @@ int Notifications::appendNotification(const INotification &ANotification)
 	bool blockPopupAndSound = Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY).value().toBool() && isAway;
 	blockPopupAndSound |= Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND).value().toBool() && isDND;
 
-
 	QIcon icon;
 	QString iconKey = record.notification.data.value(NDR_ICON_KEY).toString();
 	QString iconStorage = record.notification.data.value(NDR_ICON_STORAGE).toString();
@@ -230,7 +240,6 @@ int Notifications::appendNotification(const INotification &ANotification)
 		icon = IconStorage::staticStorage(iconStorage)->getIcon(iconKey);
 	else
 		icon = qvariant_cast<QIcon>(record.notification.data.value(NDR_ICON));
-
 
 	if (FRostersModel && FRostersViewPlugin && Options::node(OPV_NOTIFICATIONS_ROSTERICON).value().toBool() &&
 	    (record.notification.kinds & INotification::RosterIcon)>0)
@@ -332,6 +341,13 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QTimer::singleShot(0,this,SLOT(onActivateDelayedActivations()));
 	}
 
+	if ((record.notification.kinds & INotification::TestNotify)>0)
+	{
+		removeNotification(FTestNotifyId);
+		FTestNotifyId = notifyId;
+		FTestNotifyTimer.start();
+	}
+	
 	if (FNotifyRecords.isEmpty())
 	{
 		FActivateAll->setVisible(true);
@@ -348,7 +364,10 @@ void Notifications::activateNotification(int ANotifyId)
 {
 	if (FNotifyRecords.contains(ANotifyId))
 	{
-		emit notificationActivated(ANotifyId);
+		if (FTestNotifyId == ANotifyId)
+			removeNotification(FTestNotifyId);
+		else
+			emit notificationActivated(ANotifyId);
 	}
 }
 
@@ -390,25 +409,26 @@ void Notifications::removeNotification(int ANotifyId)
 	}
 }
 
-void Notifications::insertNotificator(const QString &AId, const QString &ATitle, uchar AKindMask, uchar ADefault)
+void Notifications::insertNotificator(const QString &ANotificatorId, int AWidgetOrder, const QString &ATitle, uchar AKindMask, uchar ADefault)
 {
 	Notificator notificator;
+	notificator.order = AWidgetOrder;
 	notificator.title = ATitle;
 	notificator.kinds = 0xFF;
 	notificator.defaults = ADefault;
 	notificator.kindMask = AKindMask;
-	FNotificators.insert(AId,notificator);
+	FNotificators.insert(ANotificatorId,notificator);
 }
 
-uchar Notifications::notificatorKinds(const QString &AId) const
+uchar Notifications::notificatorKinds(const QString &ANotificatorId) const
 {
-	if (FNotificators.contains(AId))
+	if (FNotificators.contains(ANotificatorId))
 	{
-		Notificator &notificator = FNotificators[AId];
+		Notificator &notificator = FNotificators[ANotificatorId];
 		if (notificator.kinds == 0xFF)
 		{
-			if (Options::node(OPV_NOTIFICATIONS_NOTIFICATORS_ROOT).hasValue("notificator",AId))
-				notificator.kinds = Options::node(OPV_NOTIFICATIONS_NOTIFICATOR_ITEM,AId).value().toInt() & notificator.kindMask;
+			if (Options::node(OPV_NOTIFICATIONS_NOTIFICATORS_ROOT).hasValue("notificator",ANotificatorId))
+				notificator.kinds = Options::node(OPV_NOTIFICATIONS_NOTIFICATOR_ITEM,ANotificatorId).value().toInt() & notificator.kindMask;
 			else
 				notificator.kinds = notificator.defaults;
 		}
@@ -417,25 +437,25 @@ uchar Notifications::notificatorKinds(const QString &AId) const
 	return 0xFF;
 }
 
-void Notifications::setNotificatorKinds(const QString &AId, uchar AKinds)
+void Notifications::setNotificatorKinds(const QString &ANotificatorId, uchar AKinds)
 {
-	if (FNotificators.contains(AId))
+	if (FNotificators.contains(ANotificatorId))
 	{
-		Notificator &notificator = FNotificators[AId];
+		Notificator &notificator = FNotificators[ANotificatorId];
 		notificator.kinds = AKinds & notificator.kindMask;
-		Options::node(OPV_NOTIFICATIONS_NOTIFICATOR_ITEM,AId).setValue(notificator.kinds);
+		Options::node(OPV_NOTIFICATIONS_NOTIFICATOR_ITEM,ANotificatorId).setValue(notificator.kinds);
 	}
 }
 
-void Notifications::removeNotificator(const QString &AId)
+void Notifications::removeNotificator(const QString &ANotificatorId)
 {
-	FNotificators.remove(AId);
-	Options::node(OPV_NOTIFICATIONS_NOTIFICATORS_ROOT).removeChilds("notificator",AId);
+	FNotificators.remove(ANotificatorId);
+	Options::node(OPV_NOTIFICATIONS_NOTIFICATORS_ROOT).removeChilds("notificator",ANotificatorId);
 }
 
 QImage Notifications::contactAvatar(const Jid &AContactJid) const
 {
-	return FAvatars!=NULL ? FAvatars->avatarImage(AContactJid) : QImage();
+	return FAvatars!=NULL ? FAvatars->avatarImage(AContactJid, false) : QImage();
 }
 
 QIcon Notifications::contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const
@@ -577,6 +597,11 @@ void Notifications::onActionNotifyActivated(bool)
 		int notifyId = action->data(ADR_NOTIFYID).toInt();
 		activateNotification(notifyId);
 	}
+}
+
+void Notifications::onTestNotificationTimerTimedOut()
+{
+	removeNotification(FTestNotifyId);
 }
 
 void Notifications::onOptionsOpened()
