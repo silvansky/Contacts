@@ -5,7 +5,7 @@
 #define OPN_ROSTER              "Roster"
 #define OPN_MESSAGES            "Messages"
 #define OPN_NOTIFICATIONS       "Notifications"
-#define OPN_CONNECTIONS         "Connections"
+#define OPN_CONNECTION          "Connections"
 #define OPN_ACCOUNTS            "Accounts"
 
 #define OPN_STATUSICONS         "StatusIcons"

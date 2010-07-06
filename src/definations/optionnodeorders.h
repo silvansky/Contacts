@@ -6,7 +6,7 @@
 #define ONO_ROSTER                200
 #define ONO_MESSAGES              300
 #define ONO_NOTIFICATIONS         400
-#define ONO_CONNECTIONS           500
+#define ONO_CONNECTION            500
 #define ONO_ACCOUNTS              600
 
 #define ONO_MESSAGE_STYLES        1350

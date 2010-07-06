@@ -19,6 +19,7 @@
 #include <utils/widgetmanager.h>
 #include "editproxydialog.h"
 #include "proxysettingswidget.h"
+#include "proxyoptionswidget.h"
 #include "connectionoptionswidget.h"
 
 class ConnectionManager :

@@ -38,6 +38,9 @@
 #define OWO_COMMON_AUTOSTATUS                     500
 #define OWO_COMMON_CLIENTINFO                     700
 
+//Node = OPN_CONNECTION
+#define OWO_CONNECTION                            200
+
 //Node = OPN_MESSAGES
 #define OWO_MESSAGES                              300
 #define OWO_MESSAGES_EMOTICONS                    500
