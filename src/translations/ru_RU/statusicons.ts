@@ -43,14 +43,6 @@
         <translation>Статус-иконка</translation>
     </message>
     <message>
-        <source>Status icons</source>
-        <translation>Статус-иконки</translation>
-    </message>
-    <message>
-        <source>Configure status icons</source>
-        <translation>Настройка статус-иконкок</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>

@@ -106,6 +106,33 @@
     </message>
 </context>
 <context>
+    <name>ProxyOptionsWidget</name>
+    <message>
+        <source>Manual Proxy</source>
+        <translation>Ручной прокси</translation>
+    </message>
+    <message>
+        <source>Automatic connection</source>
+        <translation>Автоматическое подключение</translation>
+    </message>
+    <message>
+        <source>Import proxy settings from Internet Explorer</source>
+        <translation>Импортировать настройки прокси из Internet Explorer</translation>
+    </message>
+    <message>
+        <source>Import proxy settings from Mozilla Firefox</source>
+        <translation>Импортировать настройки прокси из Mozilla Firefox</translation>
+    </message>
+    <message>
+        <source>Specify the proxy manually</source>
+        <translation>Указать прокси-сервер вручную</translation>
+    </message>
+    <message>
+        <source>Name and password is required to connect</source>
+        <translation>Для подключения требуется имя и пароль</translation>
+    </message>
+</context>
+<context>
     <name>ProxySettingsWidget</name>
     <message>
         <source>&lt;Default Proxy&gt;</source>

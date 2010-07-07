@@ -123,5 +123,13 @@
         <source>New messages</source>
         <translation>Новые сообщения</translation>
     </message>
+    <message>
+        <source>Vasilisa Premudraya</source>
+        <translation>Василиса Премудрая</translation>
+    </message>
+    <message>
+        <source>Hi! Come on www.rambler.ru :)</source>
+        <translation>Привет! Заходи на www.rambler.ru :)</translation>
+    </message>
 </context>
 </TS>

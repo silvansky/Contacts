@@ -12,10 +12,6 @@
         <translation>Позволяет использовать изображения смайликов в сообщениях</translation>
     </message>
     <message>
-        <source>Select emoticons iconsets</source>
-        <translation>Выберите набор смайликов</translation>
-    </message>
-    <message>
         <source>Smiley usage in messages</source>
         <translation>Использование смайлов в сообщениях</translation>
     </message>

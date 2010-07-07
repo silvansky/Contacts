@@ -15,10 +15,6 @@
         <source>Update</source>
         <translation>Обновление</translation>
     </message>
-    <message>
-        <source>You use latest version</source>
-        <translation>Вы используете последнюю версию</translation>
-    </message>
 </context>
 <context>
     <name>AboutBoxClass</name>
@@ -40,11 +36,19 @@
     </message>
     <message>
         <source>Your comments</source>
-        <translation>Оставить отзыв о программе...</translation>
+        <translation>Оставить отзыв о программе</translation>
     </message>
     <message>
         <source>Home page:</source>
         <translation>Домашняя страница:</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;virtus.rambler.ru&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;What&apos;s New&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -59,11 +63,11 @@
     </message>
     <message>
         <source>Thank you for your comment.</source>
-        <translation>Спасибо за ваше сообщение!</translation>
+        <translation>Спасибо за ваше сообщение.</translation>
     </message>
     <message>
         <source>Message was not delivered. May be internet connection was lost.</source>
-        <translation>Отзыв не отправлен. Возможно, отсутствует интернет-соединение</translation>
+        <translation>Отзыв не отправлен. Возможно, отсутствует интернет-соединение.</translation>
     </message>
     <message>
         <source>Send comment</source>
@@ -78,11 +82,11 @@
     </message>
     <message>
         <source>Left your comment about program.</source>
-        <translation>Оставьте ваш отзыв о программе</translation>
+        <translation>Оставьте ваш отзыв о программе.</translation>
     </message>
     <message>
         <source>Your own opinion very important for us</source>
-        <translation>Ваше мнение очень важно для нас.</translation>
+        <translation>Ваше мнение очень важно для нас</translation>
     </message>
     <message>
         <source>Your name:</source>
@@ -130,10 +134,6 @@
     <message>
         <source>Downloading %1.</source>
         <translation>Загружается %1.</translation>
-    </message>
-    <message>
-        <source>Update canceled!</source>
-        <translation>Обновление отменено!</translation>
     </message>
 </context>
 <context>
@@ -240,24 +240,24 @@
 <context>
     <name>Updater</name>
     <message>
-        <source>Update complete!</source>
-        <translation type="obsolete">Обновление завершено успешно!</translation>
-    </message>
-    <message>
         <source>Update filename is empty!</source>
         <translation>Пустое имя файла обновления!</translation>
     </message>
     <message>
         <source>UpdateVirtus.exe not found!</source>
-        <translation>UpdateVirtus.exe не найден</translation>
+        <translation>UpdateVirtus.exe не найден!</translation>
     </message>
     <message>
         <source>UpdateVirtus.exe is broken!</source>
-        <translation>UpdateVirtus.exe не может быть сохранен</translation>
+        <translation>UpdateVirtus.exe не может быть сохранен!</translation>
     </message>
     <message>
         <source>Update in progress!</source>
-        <translation>Обновление в процессе</translation>
+        <translation>Обновление в процессе!</translation>
+    </message>
+    <message>
+        <source>%1 is broken!</source>
+        <translation>%1 не может быть сохранен!</translation>
     </message>
 </context>
 </TS>
