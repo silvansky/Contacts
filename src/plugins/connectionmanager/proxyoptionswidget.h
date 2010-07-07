@@ -1,7 +1,10 @@
 #ifndef PROXYOPTIONSWIDGET_H
 #define PROXYOPTIONSWIDGET_H
 
+#include <definations/optionvalues.h>
+#include <interfaces/iconnectionmanager.h>
 #include <interfaces/ioptionsmanager.h>
+#include <utils/options.h>
 #include "ui_proxyoptionswidget.h"
 
 class ProxyOptionsWidget :
@@ -11,7 +14,7 @@ class ProxyOptionsWidget :
 	Q_OBJECT;
 	Q_INTERFACES(IOptionsWidget);
 public:
-	ProxyOptionsWidget(QWidget *AParent = NULL);
+	ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode ANode, QWidget *AParent = NULL);
 	virtual QWidget* instance() { return this; }
 public slots:
 	void apply();
@@ -22,6 +25,10 @@ signals:
 	void childReset();
 private:
 	Ui::ProxyOptionsWidget ui;
+private:
+	IConnectionManager *FManager;
+private:
+	OptionsNode FConnectionNode;
 };
 
 #endif // PROXYOPTIONSWIDGET_H

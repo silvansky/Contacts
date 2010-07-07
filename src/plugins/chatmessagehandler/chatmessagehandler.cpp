@@ -807,14 +807,14 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 		notify.kinds = AKinds;
 		if (AKinds & INotification::PopupWindow)
 		{
-			Jid contsctJid = "virtus@virtus/virtus";
+			Jid contsctJid = "vasilisa@rambler/virtus";
 			notify.data.insert(NDR_STREAM_JID,contsctJid.full());
 			notify.data.insert(NDR_CONTACT_JID,contsctJid.full());
 			notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
 			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 			notify.data.insert(NDR_POPUP_CAPTION,tr("Message received"));
-			notify.data.insert(NDR_POPUP_TITLE,tr("Virtus Virtusovich"));
-			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! How are you?!"));
+			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
+			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on www.rambler.ru :)"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 		}
 		if (AKinds & INotification::PlaySound)

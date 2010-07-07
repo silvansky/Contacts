@@ -62,8 +62,8 @@ bool AccountManager::initSettings()
 {
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode miscNode = { ONO_ACCOUNTS, OPN_ACCOUNTS, tr("Accounts"),tr("Creating and removing accounts"), MNI_ACCOUNT_LIST };
-		FOptionsManager->insertOptionsDialogNode(miscNode);
+//		IOptionsDialogNode node = { ONO_ACCOUNTS, OPN_ACCOUNTS, tr("Accounts"),tr("Creating and removing accounts"), MNI_ACCOUNT_LIST };
+//		FOptionsManager->insertOptionsDialogNode(node);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 
@@ -72,6 +72,7 @@ bool AccountManager::initSettings()
 
 QMultiMap<int, IOptionsWidget *> AccountManager::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
+	Q_UNUSED(ANodeId); Q_UNUSED(AParent);
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId.startsWith(OPN_ACCOUNTS))
 	{
@@ -173,12 +174,13 @@ void AccountManager::showAccountOptionsDialog(const QUuid &AAccountId)
 
 void AccountManager::openAccountOptionsNode(const QUuid &AAccountId, const QString &AName)
 {
-	if (FOptionsManager)
-	{
-		QString node = OPN_ACCOUNTS "." + AAccountId.toString();
-		IOptionsDialogNode dnode = { ONO_ACCOUNTS, node, AName, tr("Account options"), MNI_ACCOUNT };
-		FOptionsManager->insertOptionsDialogNode(dnode);
-	}
+	Q_UNUSED(AAccountId); Q_UNUSED(AName);
+//	if (FOptionsManager)
+//	{
+//		QString node = OPN_ACCOUNTS "." + AAccountId.toString();
+//		IOptionsDialogNode dnode = { ONO_ACCOUNTS, node, AName, tr("Account options"), MNI_ACCOUNT };
+//		FOptionsManager->insertOptionsDialogNode(dnode);
+//	}
 }
 
 void AccountManager::closeAccountOptionsNode(const QUuid &AAccountId)

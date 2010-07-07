@@ -221,8 +221,8 @@ bool MessageArchiver::initSettings()
 
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_HISTORY, OPN_HISTORY, tr("History"), tr("Common history settings"), MNI_HISTORY };
-		FOptionsManager->insertOptionsDialogNode(dnode);
+//		IOptionsDialogNode dnode = { ONO_HISTORY, OPN_HISTORY, tr("History"), tr("Common history settings"), MNI_HISTORY };
+//		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
@@ -1973,12 +1973,13 @@ bool MessageArchiver::processMessage(const Jid &AStreamJid, Message &AMessage, b
 
 void MessageArchiver::openHistoryOptionsNode(const Jid &AStreamJid)
 {
-	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountByStream(AStreamJid) : NULL;
-	if (FOptionsManager && account)
-	{
-		IOptionsDialogNode node = { ONO_HISTORY, OPN_HISTORY"." + account->accountId().toString(), account->name(), tr("Message archiving preferences"), MNI_HISTORY };
-		FOptionsManager->insertOptionsDialogNode(node);
-	}
+	Q_UNUSED(AStreamJid);
+//	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountByStream(AStreamJid) : NULL;
+//	if (FOptionsManager && account)
+//	{
+//		IOptionsDialogNode node = { ONO_HISTORY, OPN_HISTORY"." + account->accountId().toString(), account->name(), tr("Message archiving preferences"), MNI_HISTORY };
+//		FOptionsManager->insertOptionsDialogNode(node);
+//	}
 }
 
 void MessageArchiver::closeHistoryOptionsNode(const Jid &AStreamJid)
@@ -2628,6 +2629,7 @@ void MessageArchiver::onCollectionWriterDestroyed(CollectionWriter *AWriter)
 
 void MessageArchiver::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
+	Q_UNUSED(AIndex); Q_UNUSED(AMenu);
 	/*if (AIndex->type()==RIT_STREAM_ROOT || AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_AGENT)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();

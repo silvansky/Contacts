@@ -448,9 +448,8 @@ void LoginDialog::stopReconnection()
 void LoginDialog::showConnectionSettings()
 {
 	stopReconnection();
-	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
 	IOptionsHolder *holder = FConnectionManager!=NULL ? qobject_cast<IOptionsHolder *>(FConnectionManager->instance()) : NULL;
-	if (holder && account && account->streamJid() == currentStreamJid()) 
+	if (holder)
 	{
 		QDialog *dialog = new QDialog(this);
 		dialog->setAttribute(Qt::WA_DeleteOnClose,true);
@@ -458,7 +457,7 @@ void LoginDialog::showConnectionSettings()
 		dialog->layout()->setMargin(5);
 		dialog->setWindowTitle(tr("Connection settings"));
 
-		foreach(IOptionsWidget *widget, holder->optionsWidgets(OPN_ACCOUNTS "." + FAccountId.toString(), dialog))
+		foreach(IOptionsWidget *widget, holder->optionsWidgets(OPN_CONNECTION, dialog))
 		{
 			dialog->layout()->addWidget(widget->instance());
 			connect(dialog,SIGNAL(accepted()),widget->instance(),SLOT(apply()));

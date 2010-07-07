@@ -6,12 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>269</width>
-    <height>145</height>
+    <width>251</width>
+    <height>191</height>
    </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="margin">
@@ -24,6 +21,20 @@
      </property>
      <property name="checked">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="rdbExplorerProxy">
+     <property name="text">
+      <string>Import proxy settings from Internet Explorer</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="rdbFireFoxProxy">
+     <property name="text">
+      <string>Import proxy settings from Mozilla Firefox</string>
      </property>
     </widget>
    </item>

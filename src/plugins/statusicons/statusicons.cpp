@@ -119,8 +119,8 @@ bool StatusIcons::initSettings()
 
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_STATUSICONS, OPN_STATUSICONS, tr("Status icons"),tr("Configure status icons"), MNI_STATUSICONS_OPTIONS };
-		FOptionsManager->insertOptionsDialogNode(dnode);
+//		IOptionsDialogNode dnode = { ONO_STATUSICONS, OPN_STATUSICONS, tr("Status icons"),tr("Configure status icons"), MNI_STATUSICONS_OPTIONS };
+//		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
@@ -430,6 +430,7 @@ void StatusIcons::onStatusIconsChangedTimer()
 
 void StatusIcons::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
+	Q_UNUSED(AIndex); Q_UNUSED(AMenu);
 	/*if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
 	{
 		updateCustomIconMenu(QRegExp::escape(AIndex->data(RDR_BARE_JID).toString()));

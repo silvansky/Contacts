@@ -7,11 +7,11 @@
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 
-#define CONNECTIONMANAGER_UUID			"{2f8ee0bf-4feb-420d-bd7c-ce1d2a910b5a}"
+#define CONNECTIONMANAGER_UUID      "{2f8ee0bf-4feb-420d-bd7c-ce1d2a910b5a}"
 
-#define FIREFOX_PROXY_REF_UUID			"{baccbfb0-581d-4820-ac02-3980afd3969d}"
-#define IEXPLORER_PROXY_REF_UUID		"{a99556f6-59ba-48eb-9021-22e9fa3ea95c}"
-#define APPLICATION_PROXY_REF_UUID		"{6c456899-7a50-4cd1-b31d-3cbe49423ed1}"
+#define FIREFOX_PROXY_REF_UUID      "{baccbfb0-581d-4820-ac02-3980afd3969d}"
+#define IEXPLORER_PROXY_REF_UUID    "{a99556f6-59ba-48eb-9021-22e9fa3ea95c}"
+#define APPLICATION_PROXY_REF_UUID  "{6c456899-7a50-4cd1-b31d-3cbe49423ed1}"
 
 class IConnectionPlugin;
 

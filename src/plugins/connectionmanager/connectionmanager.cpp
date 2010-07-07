@@ -118,7 +118,9 @@ QMultiMap<int, IOptionsWidget *> ConnectionManager::optionsWidgets(const QString
 	}
 	else if (ANodeId == OPN_CONNECTION)
 	{
-		widgets.insertMulti(OWO_CONNECTION, new ProxyOptionsWidget(AParent));
+		IAccount *account = FAccountManager->accounts().value(0);
+		OptionsNode cnode = account!=NULL ? account->optionsNode().node("connection", account->optionsNode().node("connection-type").value().toString()) : OptionsNode();
+		widgets.insertMulti(OWO_CONNECTION, new ProxyOptionsWidget(this, cnode, AParent));
 	}
 	return widgets;
 }

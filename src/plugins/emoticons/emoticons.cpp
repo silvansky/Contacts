@@ -104,8 +104,8 @@ bool Emoticons::initSettings()
 
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_EMOTICONS, OPN_EMOTICONS, tr("Emoticons"), tr("Select emoticons iconsets"), MNI_EMOTICONS };
-		FOptionsManager->insertOptionsDialogNode(dnode);
+//		IOptionsDialogNode dnode = { ONO_EMOTICONS, OPN_EMOTICONS, tr("Emoticons"), tr("Select emoticons iconsets"), MNI_EMOTICONS };
+//		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
