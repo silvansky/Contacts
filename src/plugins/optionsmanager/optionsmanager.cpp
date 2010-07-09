@@ -1,7 +1,5 @@
 #include "optionsmanager.h"
 
-#include <QtDebug>
-
 #include <QSettings>
 #include <QFileInfo>
 #include <QDateTime>
@@ -18,14 +16,18 @@
 
 #define ADR_PROFILE                     Action::DR_Parametr1
 
+#define PST_OPTIONS                     "options"
+#define PSN_OPTIONS                     "virtus:options"
+
 OptionsManager::OptionsManager()
 {
 	FPluginManager = NULL;
 	FTrayManager = NULL;
 	FMainWindowPlugin = NULL;
+	FPrivateStorage = NULL;
 
-	FAutoSaveTimer.setInterval(5*60*1000);
-	FAutoSaveTimer.setSingleShot(false);
+	FAutoSaveTimer.setInterval(30*1000);
+	FAutoSaveTimer.setSingleShot(true);
 	connect(&FAutoSaveTimer, SIGNAL(timeout()),SLOT(onAutoSaveTimerTimeout()));
 
 	qsrand(QDateTime::currentDateTime().toTime_t());
@@ -63,6 +65,19 @@ bool OptionsManager::initConnections(IPluginManager *APluginManager, int &AInitO
 	if (plugin)
 	{
 		FTrayManager = qobject_cast<ITrayManager *>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IPrivateStorage").value(0,NULL);
+	if (plugin)
+	{
+		FPrivateStorage = qobject_cast<IPrivateStorage *>(plugin->instance());
+		if (FPrivateStorage)
+		{
+			connect(FPrivateStorage->instance(),SIGNAL(storageOpened(const Jid &)),SLOT(onPrivateStorageOpened(const Jid &)));
+			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
+				SLOT(onPrivateStorageDataLoaded(const QString &, const Jid &, const QDomElement &)));
+			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorageAboutToClose(const Jid &)));
+		}
 	}
 
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -354,6 +369,22 @@ bool OptionsManager::removeProfile(const QString &AProfile)
 	return false;
 }
 
+QList<QString> OptionsManager::serverOptions() const
+{
+	return FServerOptions;
+}
+
+void OptionsManager::insertServerOption(const QString &APath)
+{
+	if (!APath.isEmpty() && !FServerOptions.contains(APath))
+		FServerOptions.append(APath);
+}
+
+void OptionsManager::removeServerOption(const QString &APath)
+{
+	FServerOptions.removeAll(APath);
+}
+
 QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 {
 	if (FLoginDialog.isNull())
@@ -461,10 +492,21 @@ void OptionsManager::openProfile(const QString &AProfile, const QString &APasswo
 		FProfile = AProfile;
 		FProfileKey = profileKey(AProfile, APassword);
 		Options::setOptions(FProfileOptions, profilePath(AProfile) + "/" DIR_BINARY, FProfileKey);
-		FAutoSaveTimer.start();
 		FShowOptionsDialogAction->setVisible(true);
 		emit profileOpened(AProfile);
 	}
+}
+
+bool OptionsManager::saveProfile(const QString &AProfile, const QDomDocument &AProfileDoc) const
+{
+	QFile file(profilePath(AProfile) + "/" FILE_PROFILE);
+	if (file.open(QFile::WriteOnly|QFile::Truncate))
+	{
+		file.write(AProfileDoc.toString(2).toUtf8());
+		file.close();
+		return true;
+	}
+	return false;
 }
 
 void OptionsManager::closeProfile()
@@ -506,14 +548,23 @@ bool OptionsManager::saveOptions() const
 	return false;
 }
 
-bool OptionsManager::saveProfile(const QString &AProfile, const QDomDocument &AProfileDoc) const
+bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 {
-	QFile file(profilePath(AProfile) + "/" FILE_PROFILE);
-	if (file.open(QFile::WriteOnly|QFile::Truncate))
+	if (FPrivateStorage && AStreamJid.isValid())
 	{
-		file.write(AProfileDoc.toString(2).toUtf8());
-		file.close();
-		return true;
+		QDomDocument doc;
+		doc.appendChild(doc.createElement("options"));
+	
+		if (FPrivateStorage->hasData(AStreamJid,PST_OPTIONS,PSN_OPTIONS))
+			doc.documentElement().appendChild(FPrivateStorage->getData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).cloneNode());
+		else
+			doc.documentElement().appendChild(doc.createElementNS(PSN_OPTIONS,PST_OPTIONS)).toElement();
+
+		QDomElement root = doc.documentElement().firstChildElement();
+		foreach(QString path, FServerOptions)
+			Options::exportNode(path,root);
+
+		FPrivateStorage->saveData(AStreamJid,root);
 	}
 	return false;
 }
@@ -602,6 +653,7 @@ void OptionsManager::onOptionsChanged(const OptionsNode &ANode)
 			reg.remove(CLIENT_NAME);
 #endif
 	}
+	FAutoSaveTimer.start();
 }
 
 void OptionsManager::onOptionsDialogApplied()
@@ -628,6 +680,26 @@ void OptionsManager::onLoginDialogRejected()
 void OptionsManager::onAutoSaveTimerTimeout()
 {
 	saveOptions();
+}
+
+void OptionsManager::onPrivateStorageOpened(const Jid &AStreamJid)
+{
+	FPrivateStorage->loadData(AStreamJid,PST_OPTIONS,PSN_OPTIONS);
+}
+
+void OptionsManager::onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
+{
+	Q_UNUSED(AId); Q_UNUSED(AStreamJid);
+	if (AElement.tagName()==PST_OPTIONS && AElement.namespaceURI()==PSN_OPTIONS)
+	{
+		foreach(QString path, FServerOptions)
+			Options::importNode(path,AElement);
+	}
+}
+
+void OptionsManager::onPrivateStorageAboutToClose(const Jid &AStreamJid)
+{
+	saveServerOptions(AStreamJid);
 }
 
 void OptionsManager::onAboutToQuit()

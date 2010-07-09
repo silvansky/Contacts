@@ -174,6 +174,11 @@ bool Notifications::initSettings()
 
 	if (FOptionsManager)
 	{
+		FOptionsManager->insertServerOption(OPV_NOTIFICATIONS_NOTIFICATORS_ROOT);
+		FOptionsManager->insertServerOption(OPV_NOTIFICATIONS_NONOTIFYIFAWAY);
+		FOptionsManager->insertServerOption(OPV_NOTIFICATIONS_NONOTIFYIFDND);
+		FOptionsManager->insertServerOption(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN);
+
 		IOptionsDialogNode dnode = { ONO_NOTIFICATIONS, OPN_NOTIFICATIONS, tr("Notifications"),tr("Choose your method of notification"), MNI_NOTIFICATIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);

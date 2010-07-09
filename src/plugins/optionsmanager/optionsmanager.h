@@ -18,6 +18,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/itraymanager.h>
+#include <interfaces/iprivatestorage.h>
 #include <utils/action.h>
 #include <utils/widgetmanager.h>
 #include <thirdparty/qtlockedfile/qtlockedfile.h>
@@ -62,6 +63,9 @@ public:
 	virtual bool addProfile(const QString &AProfile, const QString &APassword);
 	virtual bool renameProfile(const QString &AProfile, const QString &ANewName);
 	virtual bool removeProfile(const QString &AProfile);
+	virtual QList<QString> serverOptions() const;
+	virtual void insertServerOption(const QString &APath);
+	virtual void removeServerOption(const QString &APath);
 	virtual QDialog *showLoginDialog(QWidget *AParent = NULL);
 	virtual QDialog *showEditProfilesDialog(QWidget *AParent = NULL);
 	virtual QList<IOptionsHolder *> optionsHolders() const;
@@ -86,9 +90,10 @@ signals:
 	void optionsDialogNodeRemoved(const IOptionsDialogNode &ANode);
 protected:
 	void openProfile(const QString &AProfile, const QString &APassword);
+	bool saveProfile(const QString &AProfile, const QDomDocument &AProfileDoc) const;
 	void closeProfile();
 	bool saveOptions() const;
-	bool saveProfile(const QString &AProfile, const QDomDocument &AProfileDoc) const;
+	bool saveServerOptions(const Jid &AStreamJid);
 	QDomDocument profileDocument(const QString &AProfile) const;
 	void importOldSettings();
 protected slots:
@@ -98,11 +103,15 @@ protected slots:
 	void onShowOptionsDialogByAction(bool);
 	void onLoginDialogRejected();
 	void onAutoSaveTimerTimeout();
+	void onPrivateStorageOpened(const Jid &AStreamJid);
+	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
+	void onPrivateStorageAboutToClose(const Jid &AStreamJid);
 	void onAboutToQuit();
 private:
 	IPluginManager *FPluginManager;
 	ITrayManager *FTrayManager;
 	IMainWindowPlugin *FMainWindowPlugin;
+	IPrivateStorage *FPrivateStorage;
 private:
 	QDir FProfilesDir;
 	QTimer FAutoSaveTimer;
@@ -111,6 +120,8 @@ private:
 	QByteArray FProfileKey;
 	QDomDocument FProfileOptions;
 	QtLockedFile *FProfileLocker;
+private:
+	QList<QString> FServerOptions;
 private:
 	Action *FChangeProfileAction;
 	QPointer<LoginDialog> FLoginDialog;

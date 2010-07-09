@@ -90,6 +90,7 @@ bool MainWindowPlugin::initSettings()
 
 	if (FOptionsManager)
 	{
+		FOptionsManager->insertServerOption(OPV_MAINWINDOW_STAYONTOP);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 

@@ -52,6 +52,7 @@ public:
 	static QString filesPath();
 	static QByteArray cryptKey();
 	static QString cleanNSpaces(const QString &APath); // account[uid].name -> account.name
+	static bool hasNode(const QString &APath, const QString &ANSpace = QString::null);
 	static OptionsNode node(const QString &APath, const QString &ANSpace = QString::null); // ANSpace - account id
 	static QVariant fileValue(const QString &APath, const QString &ANSpace = QString::null);
 	static void setFileValue(const QVariant &AValue, const QString &APath, const QString &ANSpace = QString::null);
@@ -60,6 +61,8 @@ public:
 	static void setDefaultValue(const QString &APath, const QVariant &ADefault);
 	static QByteArray encrypt(const QVariant &AValue, const QByteArray &AKey = cryptKey());
 	static QVariant decrypt(const QByteArray &AData, const QByteArray &AKey = cryptKey());
+	static void exportNode(const QString &APath, QDomElement &AToElem);
+	static void importNode(const QString &APath, const QDomElement &AFromElem);
 signals:
 	void optionsOpened();
 	void optionsClosed();

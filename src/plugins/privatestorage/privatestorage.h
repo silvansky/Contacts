@@ -1,6 +1,7 @@
 #ifndef PRIVATESTORAGE_H
 #define PRIVATESTORAGE_H
 
+#include <QMap>
 #include <definations/namespaces.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/iprivatestorage.h>
@@ -42,6 +43,7 @@ signals:
 	void dataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void dataRemoved(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void dataError(const QString &AId, const QString &AError);
+	void storageAboutToClose(const Jid &AStreamJid);
 	void storageClosed(const Jid &AStreamJid);
 protected:
 	QDomElement getStreamElement(const Jid &AStreamJid);
@@ -50,15 +52,16 @@ protected:
 	void removeElement(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 protected slots:
 	void onStreamOpened(IXmppStream *AXmppStream);
+	void onStreamAboutToClose(IXmppStream *AXmppStream);
 	void onStreamClosed(IXmppStream *AXmppStream);
 private:
 	IStanzaProcessor *FStanzaProcessor;
 private:
 	QDomDocument FStorage;
-	QHash<Jid, QDomElement> FStreamElements;
-	QHash<QString, QDomElement> FSaveRequests;
-	QHash<QString, QDomElement> FLoadRequests;
-	QHash<QString, QDomElement> FRemoveRequests;
+	QMap<Jid, QDomElement> FStreamElements;
+	QMap<QString, QDomElement> FSaveRequests;
+	QMap<QString, QDomElement> FLoadRequests;
+	QMap<QString, QDomElement> FRemoveRequests;
 };
 
 #endif // PRIVATESTORAGE_H

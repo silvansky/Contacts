@@ -146,6 +146,7 @@ bool Avatars::initSettings()
 
 	if (FOptionsManager)
 	{
+		FOptionsManager->insertServerOption(OPV_AVATARS_SHOW);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;

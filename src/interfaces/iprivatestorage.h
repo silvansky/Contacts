@@ -21,6 +21,7 @@ protected:
 	virtual void dataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement) =0;
 	virtual void dataRemoved(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement) =0;
 	virtual void dataError(const QString &AId, const QString &AError) =0;
+	virtual void storageAboutToClose(const Jid &AStreamJid) =0;
 	virtual void storageClosed(const Jid &AStreamJid) =0;
 };
 

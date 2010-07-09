@@ -104,6 +104,8 @@ bool Emoticons::initSettings()
 
 	if (FOptionsManager)
 	{
+		FOptionsManager->insertServerOption(OPV_MESSAGES_EMOTICONS_ENABLED);
+
 //		IOptionsDialogNode dnode = { ONO_EMOTICONS, OPN_EMOTICONS, tr("Emoticons"), tr("Select emoticons iconsets"), MNI_EMOTICONS };
 //		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);

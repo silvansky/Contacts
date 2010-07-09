@@ -133,6 +133,12 @@ bool RostersViewPlugin::initSettings()
 
 	if (FOptionsManager)
 	{
+		FOptionsManager->insertServerOption(OPV_ROSTER_SHOWOFFLINE);
+		FOptionsManager->insertServerOption(OPV_ROSTER_SHOWRESOURCE);
+		FOptionsManager->insertServerOption(OPV_ROSTER_SHOWSTATUSTEXT);
+		FOptionsManager->insertServerOption(OPV_ROSTER_SORTBYSTATUS);
+		FOptionsManager->insertServerOption(OPV_ROSTER_GROUPCONTACTS);
+
 		IOptionsDialogNode dnode = { ONO_ROSTER, OPN_ROSTER, tr("Contact List"),tr("Contact list"), MNI_ROSTERVIEW_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);

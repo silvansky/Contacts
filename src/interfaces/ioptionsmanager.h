@@ -65,6 +65,9 @@ public:
 	virtual bool addProfile(const QString &AProfile, const QString &APassword) =0;
 	virtual bool renameProfile(const QString &AProfile, const QString &ANewName) =0;
 	virtual bool removeProfile(const QString &AProfile) =0;
+	virtual QList<QString> serverOptions() const =0;
+	virtual void insertServerOption(const QString &APath) =0;
+	virtual void removeServerOption(const QString &APath) =0;
 	virtual QDialog *showLoginDialog(QWidget *AParent = NULL) =0;
 	virtual QDialog *showEditProfilesDialog(QWidget *AParent = NULL) =0;
 	//OptionsDialog

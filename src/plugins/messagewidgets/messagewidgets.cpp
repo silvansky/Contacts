@@ -117,6 +117,8 @@ bool MessageWidgets::initSettings()
 
 	if (FOptionsManager)
 	{
+		FOptionsManager->insertServerOption(OPV_MESSAGES_EDITORSENDKEY);
+
 		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), tr("Select the method of sending messages"), MNI_CHAT_MHANDLER_MESSAGE };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);

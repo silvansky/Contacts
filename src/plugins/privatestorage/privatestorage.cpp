@@ -31,6 +31,7 @@ bool PrivateStorage::initConnections(IPluginManager *APluginManager, int &/*AIni
 	if (plugin)
 	{
 		connect(plugin->instance(), SIGNAL(opened(IXmppStream *)), SLOT(onStreamOpened(IXmppStream *)));
+		connect(plugin->instance(), SIGNAL(aboutToClose(IXmppStream *)), SLOT(onStreamAboutToClose(IXmppStream *)));
 		connect(plugin->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onStreamClosed(IXmppStream *)));
 	}
 
@@ -178,6 +179,11 @@ void PrivateStorage::removeElement(const Jid &AStreamJid, const QString &ATagNam
 void PrivateStorage::onStreamOpened(IXmppStream *AXmppStream)
 {
 	emit storageOpened(AXmppStream->streamJid());
+}
+
+void PrivateStorage::onStreamAboutToClose(IXmppStream *AXmppStream)
+{
+	emit storageAboutToClose(AXmppStream->streamJid());
 }
 
 void PrivateStorage::onStreamClosed(IXmppStream *AXmppStream)
