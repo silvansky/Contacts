@@ -12,6 +12,9 @@
 #include <definations/discoitemdataroles.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/optionnodes.h>
+#include <definations/optionnodeorders.h>
+#include <definations/optionwidgetorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/igateways.h>
 #include <interfaces/istanzaprocessor.h>
@@ -23,20 +26,24 @@
 #include <interfaces/iprivatestorage.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/iregistraton.h>
+#include <interfaces/ioptionsmanager.h>
 #include <utils/errorhandler.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
 #include "addlegacycontactdialog.h"
+#include "addlegacyaccountoptions.h"
+#include "managelegacyaccountsoptions.h"
 
 class Gateways :
 			public QObject,
 			public IPlugin,
 			public IGateways,
+			public IOptionsHolder,
 			public IStanzaRequestOwner,
 			public IDiscoFeatureHandler
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IGateways IStanzaRequestOwner IDiscoFeatureHandler);
+	Q_INTERFACES(IPlugin IGateways IOptionsHolder IStanzaRequestOwner IDiscoFeatureHandler);
 public:
 	Gateways();
 	~Gateways();
@@ -46,8 +53,10 @@ public:
 	virtual void pluginInfo(IPluginInfo *APluginInfo);
 	virtual bool initConnections(IPluginManager *APluginManager, int &AInitOrder);
 	virtual bool initObjects();
-	virtual bool initSettings() { return true; }
+	virtual bool initSettings();
 	virtual bool startPlugin() { return true; }
+	//IOptionsHolder
+	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
 	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
@@ -107,9 +116,9 @@ private:
 	IPrivateStorage *FPrivateStorage;
 	IStatusIcons *FStatusIcons;
 	IRegistration *FRegistration;
+	IOptionsManager *FOptionsManager;
 private:
 	QTimer FKeepTimer;
-private:
 	QString FKeepRequest;
 	QList<QString> FPromptRequests;
 	QList<QString> FUserJidRequests;

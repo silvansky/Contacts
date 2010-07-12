@@ -6,8 +6,9 @@
 #define OPN_MESSAGES            "Messages"
 #define OPN_NOTIFICATIONS       "Notifications"
 #define OPN_CONNECTION          "Connections"
-#define OPN_ACCOUNTS            "Accounts"
+#define OPN_GATEWAYS_ACCOUNTS   "GatewaysAccounts"
 
+#define OPN_ACCOUNTS            "Accounts"
 #define OPN_STATUSICONS         "StatusIcons"
 #define OPN_EMOTICONS           "Emoticons"
 #define OPN_HISTORY             "History"

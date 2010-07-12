@@ -1,16 +1,15 @@
 #include "gateways.h"
 
-#define GATEWAY_TIMEOUT       30000
-
-#define ADR_STREAM_JID        Action::DR_StreamJid
-#define ADR_SERVICE_JID       Action::DR_Parametr1
-#define ADR_NEW_SERVICE_JID   Action::DR_Parametr2
-#define ADR_LOG_IN            Action::DR_Parametr3
+#define ADR_STREAM_JID            Action::DR_StreamJid
+#define ADR_SERVICE_JID           Action::DR_Parametr1
+#define ADR_NEW_SERVICE_JID       Action::DR_Parametr2
+#define ADR_LOG_IN                Action::DR_Parametr3
 
 #define PSN_GATEWAYS_KEEP         "virtus:gateways:keep"
 #define PSN_GATEWAYS_SUBSCRIBE    "virtus:gateways:subscribe"
 #define PST_GATEWAYS_SERVICES     "services"
 
+#define GATEWAY_TIMEOUT           30000
 #define KEEP_INTERVAL             120000
 
 Gateways::Gateways()
@@ -25,6 +24,7 @@ Gateways::Gateways()
 	FPrivateStorage = NULL;
 	FStatusIcons = NULL;
 	FRegistration = NULL;
+	FOptionsManager = NULL;
 
 	FKeepTimer.setSingleShot(false);
 	connect(&FKeepTimer,SIGNAL(timeout()),SLOT(onKeepTimerTimeout()));
@@ -139,6 +139,10 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
+	if (plugin)
+		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+
 	return FStanzaProcessor!=NULL;
 }
 
@@ -155,6 +159,29 @@ bool Gateways::initObjects()
 			SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 	}
 	return true;
+}
+
+bool Gateways::initSettings()
+{
+	if (FOptionsManager)
+	{
+		IOptionsDialogNode dnode = { ONO_GATEWAYS_ACCOUNTS, OPN_GATEWAYS_ACCOUNTS, tr("Accounts"), tr("Linked accounts"), MNI_GATEWAYS_ACCOUNTS };
+		FOptionsManager->insertOptionsDialogNode(dnode);
+		FOptionsManager->insertOptionsHolder(this);
+	}
+	return true;
+}
+
+QMultiMap<int, IOptionsWidget *> Gateways::optionsWidgets(const QString &ANodeId, QWidget *AParent)
+{
+	QMultiMap<int, IOptionsWidget *> widgets;
+	if (ANodeId == OPN_GATEWAYS_ACCOUNTS)
+	{
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(AParent));
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Append account"),AParent));
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(AParent));
+	}
+	return widgets;
 }
 
 void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
@@ -300,7 +327,9 @@ QList<Jid> Gateways::streamServices(const Jid &AStreamJid, const IDiscoIdentity 
 				}
 			}
 			else
+			{
 				services.append(ritem.itemJid);
+			}
 		}
 	}
 	return services;
@@ -326,19 +355,15 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 		IRosterItem ritemOld = roster->rosterItem(AServiceFrom);
 		IRosterItem ritemNew = roster->rosterItem(AServiceTo);
 
-		//� азлогиниваемся на старом транспорте
 		if (!presence->presenceItems(AServiceFrom).isEmpty())
 			sendLogPresence(AStreamJid,AServiceFrom,false);
 
-		//Удаляем регистрацию на старом транспорте
 		if (FRegistration && ARemove)
 			FRegistration->sendUnregiterRequest(AStreamJid,AServiceFrom);
 
-		//Удаляем подписку у старого транспорта
 		if (ritemOld.isValid && !ARemove)
 			FRosterChanger->unsubscribeContact(AStreamJid,AServiceFrom,"",true);
 
-		//Добавляем контакты нового транспорта и удаляем старые
 		QList<IRosterItem> newItems, oldItems, curItems;
 		foreach(IRosterItem ritem, roster->rosterItems())
 		{
@@ -360,7 +385,6 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 		roster->removeItems(oldItems);
 		roster->setItems(newItems);
 
-		//Запрашиваем подписку у нового транспорта и контактов
 		if (ASubscribe)
 		{
 			FSubscribeServices.remove(AStreamJid,AServiceFrom.bare());

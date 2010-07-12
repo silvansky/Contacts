@@ -81,6 +81,7 @@
 #define MNI_GATEWAYS_KEEP_CONNECTION             "gatewaysKeepConnection"
 #define MNI_GATEWAYS_CHANGE                      "gatewaysChange"
 #define MNI_GATEWAYS_RESOLVE                     "gatewaysResolve"
+#define MNI_GATEWAYS_ACCOUNTS                    "gatewaysAccounts"
 
 //JabberSearch
 #define MNI_JSEARCH                              "jsearch"

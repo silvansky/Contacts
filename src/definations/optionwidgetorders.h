@@ -59,4 +59,8 @@
 //Node = OPN_AUTOSTATUS
 #define OWO_AUTOSTATUS                            500
 
+//Node = OPN_GATEWAYS_ACCOUNTS
+#define OWO_GATEWAYS_ACCOUNTS_MANAGE              300
+#define OWO_GATEWAYS_ACCOUNTS_APPEND              600
+
 #endif
