@@ -14,7 +14,9 @@
 
 Gateways::Gateways()
 {
+	FPluginManager = NULL;
 	FDiscovery = NULL;
+	FXmppStreams = NULL;
 	FStanzaProcessor = NULL;
 	FRosterPlugin = NULL;
 	FPresencePlugin = NULL;
@@ -48,14 +50,29 @@ void Gateways::pluginInfo(IPluginInfo *APluginInfo)
 bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
 	Q_UNUSED(AInitOrder);
+	FPluginManager = APluginManager;
+
 	IPlugin *plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
 	if (plugin)
 	{
 		FDiscovery = qobject_cast<IServiceDiscovery *>(plugin->instance());
 		if (FDiscovery)
 		{
+			connect(FDiscovery->instance(),SIGNAL(discoItemsReceived(const IDiscoItems &)),
+				SLOT(onDiscoItemsReceived(const IDiscoItems &)));
 			connect(FDiscovery->instance(),SIGNAL(discoItemsWindowCreated(IDiscoItemsWindow *)),
 				SLOT(onDiscoItemsWindowCreated(IDiscoItemsWindow *)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
+	if (plugin)
+	{
+		FXmppStreams = qobject_cast<IXmppStreams *>(plugin->instance());
+		if (FXmppStreams)
+		{
+			connect(FXmppStreams->instance(),SIGNAL(opened(IXmppStream *)),SLOT(onXmppStreamOpened(IXmppStream *)));
+			connect(FXmppStreams->instance(),SIGNAL(closed(IXmppStream *)),SLOT(onXmppStreamClosed(IXmppStream *)));
 		}
 	}
 
@@ -72,8 +89,6 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 			connect(FRosterPlugin->instance(),SIGNAL(rosterOpened(IRoster *)),SLOT(onRosterOpened(IRoster *)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscription(IRoster *, const Jid &, int , const QString &)),
 				SLOT(onRosterSubscription(IRoster *, const Jid &, int , const QString &)));
-			connect(FRosterPlugin->instance(),SIGNAL(rosterStreamJidAboutToBeChanged(IRoster *, const Jid &)),
-				SLOT(onRosterStreamJidAboutToBeChanged(IRoster *, const Jid &)));
 		}
 	}
 
@@ -83,30 +98,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 		if (FPresencePlugin)
 		{
-			connect(FPresencePlugin->instance(),SIGNAL(presenceOpened(IPresence *)),SLOT(onPresenceOpened(IPresence *)));
 			connect(FPresencePlugin->instance(),SIGNAL(contactStateChanged(const Jid &, const Jid &, bool)),
 				SLOT(onContactStateChanged(const Jid &, const Jid &, bool)));
-			connect(FPresencePlugin->instance(),SIGNAL(presenceClosed(IPresence *)),SLOT(onPresenceClosed(IPresence *)));
-			connect(FPresencePlugin->instance(),SIGNAL(presenceRemoved(IPresence *)),SLOT(onPresenceRemoved(IPresence *)));
-		}
-	}
-
-	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
-	if (plugin)
-		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
-	if (plugin)
-		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
-	if (plugin)
-	{
-		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
-		if (FVCardPlugin)
-		{
-			connect(FVCardPlugin->instance(),SIGNAL(vcardReceived(const Jid &)),SLOT(onVCardReceived(const Jid &)));
-			connect(FVCardPlugin->instance(),SIGNAL(vcardError(const Jid &, const QString &)),SLOT(onVCardError(const Jid &, const QString &)));
 		}
 	}
 
@@ -119,12 +112,10 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 			connect(FPrivateStorage->instance(),SIGNAL(storageOpened(const Jid &)),SLOT(onPrivateStorateOpened(const Jid &)));
 			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
 				SLOT(onPrivateStorageLoaded(const QString &, const Jid &, const QDomElement &)));
+			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorateAboutToClose(const Jid &)));
+			connect(FPrivateStorage->instance(),SIGNAL(storageClosed(const Jid &)),SLOT(onPrivateStorateClosed(const Jid &)));
 		}
 	}
-
-	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
-	if (plugin)
-		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IRegistration").value(0,NULL);
 	if (plugin)
@@ -139,6 +130,36 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
+	if (plugin)
+		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
+		if (FRostersViewPlugin)
+		{
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
+		if (FVCardPlugin)
+		{
+			connect(FVCardPlugin->instance(),SIGNAL(vcardReceived(const Jid &)),SLOT(onVCardReceived(const Jid &)));
+			connect(FVCardPlugin->instance(),SIGNAL(vcardError(const Jid &, const QString &)),SLOT(onVCardError(const Jid &, const QString &)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
+	if (plugin)
+		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
+
 	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
 	if (plugin)
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
@@ -152,11 +173,6 @@ bool Gateways::initObjects()
 	{
 		registerDiscoFeatures();
 		FDiscovery->insertFeatureHandler(NS_JABBER_GATEWAY,this,DFO_DEFAULT);
-	}
-	if (FRostersViewPlugin)
-	{
-		connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
-			SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 	}
 	return true;
 }
@@ -290,19 +306,44 @@ void Gateways::sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bo
 
 QList<Jid> Gateways::keepConnections(const Jid &AStreamJid) const
 {
-	return FKeepConnections.values(AStreamJid);
+	return FKeepConnections.value(AStreamJid).toList();
 }
 
 void Gateways::setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
 {
 	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
-	if (presence)
+	if (presence && presence->isOpen())
 	{
 		if (AEnabled)
-			FKeepConnections.insertMulti(presence->streamJid(),AServiceJid);
+			FKeepConnections[AStreamJid] += AServiceJid;
 		else
-			FKeepConnections.remove(presence->streamJid(),AServiceJid);
+			FKeepConnections[AStreamJid] -= AServiceJid;
 	}
+}
+
+QList<Jid> Gateways::availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity) const
+{
+	QList<Jid> services;
+	foreach (IDiscoItem ditem, FStreamDiscoItems.value(AStreamJid).items)
+	{
+		if (FDiscovery && (!AIdentity.category.isEmpty() || !AIdentity.type.isEmpty()))
+		{
+			IDiscoInfo dinfo = FDiscovery->discoInfo(AStreamJid, ditem.itemJid);
+			foreach(IDiscoIdentity identity, dinfo.identity)
+			{
+				if ((AIdentity.category.isEmpty() || AIdentity.category == identity.category) && (AIdentity.type.isEmpty() || AIdentity.type == identity.type))
+				{
+					services.append(ditem.itemJid);
+					break;
+				}
+			}
+		}
+		else
+		{
+			services.append(ditem.itemJid);
+		}
+	}
+	return services;
 }
 
 QList<Jid> Gateways::streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity) const
@@ -435,6 +476,19 @@ QString Gateways::sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJ
 	return QString::null;
 }
 
+QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)
+{
+	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	if (presence && presence->isOpen())
+	{
+		AddLegacyAccountDialog *dialog = new AddLegacyAccountDialog(FPluginManager,AStreamJid,AServiceJid,AParent);
+		connect(presence->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
+		dialog->show();
+		return dialog;
+	}
+	return NULL;
+}
+
 QDialog *Gateways::showAddLegacyContactDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)
 {
 	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
@@ -457,20 +511,6 @@ void Gateways::registerDiscoFeatures()
 	dfeature.name = tr("Gateway Interaction");
 	dfeature.description = tr("Supports the adding of the contact by the username of the legacy system");
 	FDiscovery->insertDiscoFeature(dfeature);
-}
-
-void Gateways::savePrivateStorageKeep(const Jid &AStreamJid)
-{
-	if (FPrivateStorage && FPrivateStorageKeep.contains(AStreamJid))
-	{
-		QDomDocument doc;
-		doc.appendChild(doc.createElement("services"));
-		QDomElement elem = doc.documentElement().appendChild(doc.createElementNS(PSN_GATEWAYS_KEEP,PST_GATEWAYS_SERVICES)).toElement();
-		QSet<Jid> services = FPrivateStorageKeep.value(AStreamJid);
-		foreach(Jid service, services)
-			elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.eBare()));
-		FPrivateStorage->saveData(AStreamJid,elem);
-	}
 }
 
 void Gateways::savePrivateStorageSubscribe(const Jid &AStreamJid)
@@ -505,7 +545,7 @@ void Gateways::onLogActionTriggered(bool)
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid serviceJid = action->data(ADR_SERVICE_JID).toString();
 		bool logIn = action->data(ADR_LOG_IN).toBool();
-		if (FPrivateStorageKeep.value(streamJid).contains(serviceJid))
+		if (!logIn)
 			setKeepConnection(streamJid,serviceJid,logIn);
 		sendLogPresence(streamJid,serviceJid,logIn);
 	}
@@ -536,14 +576,6 @@ void Gateways::onKeepActionTriggered(bool)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid serviceJid = action->data(ADR_SERVICE_JID).toString();
-		if (FPrivateStorageKeep.contains(streamJid) && FPrivateStorageKeep.value(streamJid).contains(serviceJid)!=action->isChecked())
-		{
-			if (action->isChecked())
-				FPrivateStorageKeep[streamJid] += serviceJid;
-			else
-				FPrivateStorageKeep[streamJid] -= serviceJid;
-			savePrivateStorageKeep(streamJid);
-		}
 		setKeepConnection(streamJid,serviceJid,action->isChecked());
 	}
 }
@@ -560,9 +592,123 @@ void Gateways::onChangeActionTriggered(bool)
 		{
 			QString id = FRegistration!=NULL ?  FRegistration->sendRegiterRequest(streamJid,serviceTo) : QString::null;
 			if (!id.isEmpty())
-				FRegisterRequests.insert(id,streamJid);
+				FShowRegisterRequests.insert(id,streamJid);
 		}
 	}
+}
+
+void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
+{
+	if (FDiscovery)
+		FDiscovery->requestDiscoItems(AXmppStream->streamJid(),AXmppStream->streamJid().domain());
+}
+
+void Gateways::onXmppStreamClosed(IXmppStream *AXmppStream)
+{
+	FResolveNicks.remove(AXmppStream->streamJid());
+	FStreamDiscoItems.remove(AXmppStream->streamJid());
+}
+
+void Gateways::onRosterOpened(IRoster *ARoster)
+{
+	if (FRosterChanger)
+	{
+		foreach(Jid serviceJid, FSubscribeServices.values(ARoster->streamJid()))
+			foreach(Jid contactJid, serviceContacts(ARoster->streamJid(),serviceJid))
+				FRosterChanger->insertAutoSubscribe(ARoster->streamJid(),contactJid,true,true,false);
+	}
+	if (FDiscovery)
+	{
+		foreach(IRosterItem ritem, ARoster->rosterItems())
+			if (ritem.itemJid.node().isEmpty() && !FDiscovery->hasDiscoInfo(ARoster->streamJid(),ritem.itemJid))
+				FDiscovery->requestDiscoInfo(ARoster->streamJid(),ritem.itemJid);
+	}
+}
+
+void Gateways::onRosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
+{
+	Q_UNUSED(AText);
+	if (ASubsType==IRoster::Subscribed && FSubscribeServices.contains(ARoster->streamJid(),AItemJid))
+	{
+		sendLogPresence(ARoster->streamJid(),AItemJid,true);
+	}
+}
+
+void Gateways::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline)
+{
+	if (AStateOnline && FSubscribeServices.contains(AStreamJid,AContactJid.bare()))
+	{
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+		if (roster)
+		{
+			FSubscribeServices.remove(AStreamJid,AContactJid.bare());
+			savePrivateStorageSubscribe(AStreamJid);
+			foreach(IRosterItem ritem, roster->rosterItems())
+			{
+				if (ritem.itemJid.pDomain()==AContactJid.pDomain())
+				{
+					if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
+						roster->sendSubscription(ritem.itemJid,IRoster::Subscribe);
+				}
+			}
+		}
+	}
+}
+
+void Gateways::onPrivateStorateOpened(const Jid &AStreamJid)
+{
+	FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
+	FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_SUBSCRIBE);
+	FKeepTimer.start(KEEP_INTERVAL);
+}
+
+void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
+{
+	Q_UNUSED(AId);
+	if (AElement.tagName() == PST_GATEWAYS_SERVICES && AElement.namespaceURI() == PSN_GATEWAYS_KEEP)
+	{
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+		if (roster)
+		{
+			QDomElement elem = AElement.firstChildElement("service");
+			while (!elem.isNull())
+			{
+				Jid service = elem.text();
+				if (roster->rosterItem(service).isValid)
+					setKeepConnection(AStreamJid,service,true);
+				elem = elem.nextSiblingElement("service");
+			}
+		}
+	}
+	else if (AElement.tagName() == PST_GATEWAYS_SERVICES && AElement.namespaceURI() == PSN_GATEWAYS_SUBSCRIBE)
+	{
+		QDomElement elem = AElement.firstChildElement("service");
+		while (!elem.isNull())
+		{
+			Jid serviceJid = elem.text();
+			FSubscribeServices.insertMulti(AStreamJid,serviceJid);
+			QString id = FRegistration!=NULL ? FRegistration->sendRegiterRequest(AStreamJid,serviceJid) : QString::null;
+			if (!id.isEmpty())
+				FShowRegisterRequests.insert(id,AStreamJid);
+			elem = elem.nextSiblingElement("service");
+		}
+	}
+}
+
+void Gateways::onPrivateStorateAboutToClose(const Jid &AStreamJid)
+{
+	QDomDocument doc;
+	doc.appendChild(doc.createElement("services"));
+	QDomElement elem = doc.documentElement().appendChild(doc.createElementNS(PSN_GATEWAYS_KEEP,PST_GATEWAYS_SERVICES)).toElement();
+	foreach(Jid service, FKeepConnections.value(AStreamJid))
+		elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.eBare()));
+	FPrivateStorage->saveData(AStreamJid,elem);
+}
+
+void Gateways::onPrivateStorateClosed(const Jid &AStreamJid)
+{
+	FKeepConnections.remove(AStreamJid);
+	FSubscribeServices.remove(AStreamJid);
 }
 
 void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
@@ -621,18 +767,15 @@ void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 			connect(action,SIGNAL(triggered(bool)),SLOT(onLogActionTriggered(bool)));
 			AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
 
-			if (FPrivateStorageKeep.contains(streamJid))
-			{
-				Action *action = new Action(AMenu);
-				action->setText(tr("Keep connection"));
-				action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_KEEP_CONNECTION);
-				action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-				action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
-				action->setCheckable(true);
-				action->setChecked(FKeepConnections.contains(streamJid,AIndex->data(RDR_BARE_JID).toString()));
-				connect(action,SIGNAL(triggered(bool)),SLOT(onKeepActionTriggered(bool)));
-				AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
-			}
+			action = new Action(AMenu);
+			action->setText(tr("Keep connection"));
+			action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_KEEP_CONNECTION);
+			action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
+			action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
+			action->setCheckable(true);
+			action->setChecked(FKeepConnections.value(streamJid).contains(AIndex->data(RDR_BARE_JID).toString()));
+			connect(action,SIGNAL(triggered(bool)),SLOT(onKeepActionTriggered(bool)));
+			AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
 		}
 	}
 
@@ -654,135 +797,15 @@ void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 	}*/
 }
 
-void Gateways::onPresenceOpened(IPresence *APresence)
-{
-	if (FPrivateStorage)
-		FPrivateStorage->loadData(APresence->streamJid(),PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
-	FKeepTimer.start(KEEP_INTERVAL);
-}
-
-void Gateways::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline)
-{
-	if (AStateOnline && FSubscribeServices.contains(AStreamJid,AContactJid.bare()))
-	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-		if (roster)
-		{
-			FSubscribeServices.remove(AStreamJid,AContactJid.bare());
-			savePrivateStorageSubscribe(AStreamJid);
-			foreach(IRosterItem ritem, roster->rosterItems())
-			{
-				if (ritem.itemJid.pDomain()==AContactJid.pDomain())
-				{
-					if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
-						roster->sendSubscription(ritem.itemJid,IRoster::Subscribe);
-				}
-			}
-		}
-	}
-}
-
-void Gateways::onPresenceClosed(IPresence *APresence)
-{
-	FResolveNicks.remove(APresence->streamJid());
-	FSubscribeServices.remove(APresence->streamJid());
-}
-
-void Gateways::onPresenceRemoved(IPresence *APresence)
-{
-	FKeepConnections.remove(APresence->streamJid());
-	FPrivateStorageKeep.remove(APresence->streamJid());
-}
-
-void Gateways::onRosterOpened(IRoster *ARoster)
-{
-	if (FRosterChanger)
-	{
-		foreach(Jid serviceJid, FSubscribeServices.values(ARoster->streamJid()))
-			foreach(Jid contactJid, serviceContacts(ARoster->streamJid(),serviceJid))
-				FRosterChanger->insertAutoSubscribe(ARoster->streamJid(),contactJid,true,true,false);
-	}
-}
-
-void Gateways::onRosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
-{
-	Q_UNUSED(AText);
-	if (ASubsType==IRoster::Subscribed && FSubscribeServices.contains(ARoster->streamJid(),AItemJid))
-	{
-		sendLogPresence(ARoster->streamJid(),AItemJid,true);
-	}
-}
-
-void Gateways::onRosterStreamJidAboutToBeChanged(IRoster *ARoster, const Jid &AAfter)
-{
-	Q_UNUSED(AAfter);
-	FKeepConnections.remove(ARoster->streamJid());
-	FPrivateStorageKeep.remove(ARoster->streamJid());
-}
-
-void Gateways::onPrivateStorateOpened(const Jid &AStreamJid)
-{
-	FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_SUBSCRIBE);
-}
-
-void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
-{
-	Q_UNUSED(AId);
-	if (AElement.tagName() == PST_GATEWAYS_SERVICES && AElement.namespaceURI() == PSN_GATEWAYS_KEEP)
-	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-		if (roster)
-		{
-			QSet<Jid> services;
-			bool changed = false;
-			QDomElement elem = AElement.firstChildElement("service");
-			while (!elem.isNull())
-			{
-				Jid service = elem.text();
-				if (roster->rosterItem(service).isValid)
-				{
-					services += service;
-					setKeepConnection(AStreamJid,service,true);
-				}
-				else
-					changed = true;
-				elem = elem.nextSiblingElement("service");
-			}
-
-			QSet<Jid> oldServices = FPrivateStorageKeep.value(AStreamJid) - services;
-			foreach(Jid service, oldServices)
-				setKeepConnection(AStreamJid,service,false);
-			FPrivateStorageKeep[AStreamJid] = services;
-
-			if (changed)
-				savePrivateStorageKeep(AStreamJid);
-		}
-	}
-	else if (AElement.tagName() == PST_GATEWAYS_SERVICES && AElement.namespaceURI() == PSN_GATEWAYS_SUBSCRIBE)
-	{
-		QDomElement elem = AElement.firstChildElement("service");
-		while (!elem.isNull())
-		{
-			Jid serviceJid = elem.text();
-			FSubscribeServices.insertMulti(AStreamJid,serviceJid);
-			QString id = FRegistration!=NULL ? FRegistration->sendRegiterRequest(AStreamJid,serviceJid) : QString::null;
-			if (!id.isEmpty())
-				FRegisterRequests.insert(id,AStreamJid);
-			elem = elem.nextSiblingElement("service");
-		}
-	}
-}
-
 void Gateways::onKeepTimerTimeout()
 {
-	QList<Jid> streamJids = FKeepConnections.uniqueKeys();
-	foreach(Jid streamJid, streamJids)
+	foreach(Jid streamJid, FKeepConnections.keys())
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
 		IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
 		if (roster && presence && presence->isOpen())
 		{
-			QList<Jid> services = FKeepConnections.values(streamJid);
+			QSet<Jid> services = FKeepConnections.value(streamJid);
 			foreach(Jid service, services)
 			{
 				if (roster->rosterItem(service).isValid)
@@ -814,6 +837,17 @@ void Gateways::onVCardError(const Jid &AContactJid, const QString &AError)
 {
 	Q_UNUSED(AError);
 	FResolveNicks.remove(AContactJid);
+}
+
+void Gateways::onDiscoItemsReceived(const IDiscoItems &AItems)
+{
+	if (AItems.contactJid==AItems.streamJid.domain() && AItems.node.isEmpty())
+	{
+		foreach(IDiscoItem ditem, AItems.items)
+			if (!FDiscovery->hasDiscoInfo(AItems.streamJid,ditem.itemJid))
+				FDiscovery->requestDiscoInfo(AItems.streamJid,ditem.itemJid);
+		FStreamDiscoItems.insert(AItems.streamJid,AItems);
+	}
 }
 
 void Gateways::onDiscoItemsWindowCreated(IDiscoItemsWindow *AWindow)
@@ -867,9 +901,9 @@ void Gateways::onDiscoItemContextMenu(QModelIndex AIndex, Menu *AMenu)
 
 void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFields)
 {
-	if (FRegisterRequests.contains(AId))
+	if (FShowRegisterRequests.contains(AId))
 	{
-		Jid streamJid = FRegisterRequests.take(AId);
+		Jid streamJid = FShowRegisterRequests.take(AId);
 		if (!AFields.registered && FSubscribeServices.contains(streamJid,AFields.serviceJid))
 			FRegistration->showRegisterDialog(streamJid,AFields.serviceJid,IRegistration::Register);
 	}
@@ -878,7 +912,7 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 void Gateways::onRegisterError(const QString &AId, const QString &AError)
 {
 	Q_UNUSED(AError);
-	FRegisterRequests.remove(AId);
+	FShowRegisterRequests.remove(AId);
 }
 
 Q_EXPORT_PLUGIN2(plg_gateways, Gateways)

@@ -17,6 +17,7 @@
 #include <definations/optionwidgetorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/igateways.h>
+#include <interfaces/ixmppstreams.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
@@ -30,6 +31,7 @@
 #include <utils/errorhandler.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
+#include "addlegacyaccountdialog.h"
 #include "addlegacycontactdialog.h"
 #include "addlegacyaccountoptions.h"
 #include "managelegacyaccountsoptions.h"
@@ -68,11 +70,13 @@ public:
 	virtual void sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bool ALogIn);
 	virtual QList<Jid> keepConnections(const Jid &AStreamJid) const;
 	virtual void setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
+	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe);
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID);
+	virtual QDialog *showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
 	virtual QDialog *showAddLegacyContactDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
 signals:
 	void promptReceived(const QString &AId, const QString &ADesc, const QString &APrompt);
@@ -80,7 +84,6 @@ signals:
 	void errorReceived(const QString &AId, const QString &AError);
 protected:
 	void registerDiscoFeatures();
-	void savePrivateStorageKeep(const Jid &AStreamJid);
 	void savePrivateStorageSubscribe(const Jid &AStreamJid);
 protected slots:
 	void onAddLegacyUserActionTriggered(bool);
@@ -88,45 +91,49 @@ protected slots:
 	void onResolveActionTriggered(bool);
 	void onKeepActionTriggered(bool);
 	void onChangeActionTriggered(bool);
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
-	void onPresenceOpened(IPresence *APresence);
-	void onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline);
-	void onPresenceClosed(IPresence *APresence);
-	void onPresenceRemoved(IPresence *APresence);
+	void onXmppStreamOpened(IXmppStream *AXmppStream);
+	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onRosterOpened(IRoster *ARoster);
 	void onRosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
-	void onRosterStreamJidAboutToBeChanged(IRoster *ARoster, const Jid &AAfter);
+	void onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline);
 	void onPrivateStorateOpened(const Jid &AStreamJid);
 	void onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
+	void onPrivateStorateAboutToClose(const Jid &AStreamJid);
+	void onPrivateStorateClosed(const Jid &AStreamJid);
+	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void onKeepTimerTimeout();
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
+	void onDiscoItemsReceived(const IDiscoItems &AItems);
 	void onDiscoItemsWindowCreated(IDiscoItemsWindow *AWindow);
 	void onDiscoItemContextMenu(const QModelIndex AIndex, Menu *AMenu);
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
 	void onRegisterError(const QString &AId, const QString &AError);
 private:
+	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;
+	IXmppStreams *FXmppStreams;
 	IStanzaProcessor *FStanzaProcessor;
 	IRosterPlugin *FRosterPlugin;
 	IPresencePlugin *FPresencePlugin;
+	IPrivateStorage *FPrivateStorage;
+	IRegistration *FRegistration;
 	IRosterChanger *FRosterChanger;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IVCardPlugin *FVCardPlugin;
-	IPrivateStorage *FPrivateStorage;
 	IStatusIcons *FStatusIcons;
-	IRegistration *FRegistration;
 	IOptionsManager *FOptionsManager;
 private:
 	QTimer FKeepTimer;
-	QString FKeepRequest;
+	QMap<Jid, QSet<Jid> > FKeepConnections;
+private:
 	QList<QString> FPromptRequests;
 	QList<QString> FUserJidRequests;
-	QMap<QString, Jid> FRegisterRequests;
 	QMultiMap<Jid, Jid> FResolveNicks;
 	QMultiMap<Jid, Jid> FSubscribeServices;
-	QMultiMap<Jid, Jid> FKeepConnections;
-	QMap<Jid, QSet<Jid> > FPrivateStorageKeep;
+	QMap<QString, Jid> FShowRegisterRequests;
+private:
+	QMap<Jid, IDiscoItems> FStreamDiscoItems;
 };
 
 #endif // GATEWAYS_H

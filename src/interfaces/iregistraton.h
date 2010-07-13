@@ -7,7 +7,8 @@
 
 #define REGISTRATION_UUID         "{5481c161-2cbe-4d5f-ab5b-927c58a2ba8f}"
 
-struct IRegisterFields {
+struct IRegisterFields 
+{
 	enum Fields {
 		Username  = 1,
 		Password  = 2,
@@ -26,7 +27,8 @@ struct IRegisterFields {
 	IDataForm form;
 };
 
-struct IRegisterSubmit {
+struct IRegisterSubmit 
+{
 	int fieldMask;
 	Jid serviceJid;
 	QString username;
@@ -36,7 +38,8 @@ struct IRegisterSubmit {
 	IDataForm form;
 };
 
-class IRegistration {
+class IRegistration 
+{
 public:
 	enum RegisterOperation {
 		Register,

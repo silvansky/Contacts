@@ -8,7 +8,7 @@ the loader will replace this macro with something like that:
 *
 {
 	/* font fix */
-	font: 8pt "MS Shell Dlg 2";
+	/* font: 8pt "MS Shell Dlg 2"; */
 }
 /***************
  * QToolButton *
