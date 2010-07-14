@@ -211,7 +211,7 @@ void ArchiveOptions::apply()
 		{
 			if (!FTableItems.contains(itemJid))
 			{
-				if (FArchiver->isSupported(FStreamJid))
+				if (FArchiver->isSupported(FStreamJid,NS_ARCHIVE_PREF))
 				{
 					QString requestId = FArchiver->removeArchiveItemPrefs(FStreamJid,itemJid);
 					if (!requestId.isEmpty())
@@ -277,6 +277,7 @@ void ArchiveOptions::updateWidget()
 	if (!FSaveRequests.isEmpty())
 	{
 		ui.grbMethod->setEnabled(false);
+		ui.grbAuto->setEnabled(false);
 		ui.grbDefault->setEnabled(false);
 		ui.grbIndividual->setEnabled(false);
 		ui.lblStatus->setVisible(true);
@@ -285,6 +286,7 @@ void ArchiveOptions::updateWidget()
 	else
 	{
 		ui.grbMethod->setEnabled(true);
+		ui.grbAuto->setEnabled(true);
 		ui.grbDefault->setEnabled(true);
 		ui.grbIndividual->setEnabled(true);
 		if (!FLastError.isEmpty())
@@ -338,16 +340,16 @@ void ArchiveOptions::onArchivePrefsChanged(const Jid &AStreamJid, const IArchive
 	if (AStreamJid == FStreamJid)
 	{
 		onArchiveAutoSaveChanged(AStreamJid,APrefs.autoSave);
+		ui.grbAuto->setVisible(FArchiver->isSupported(FStreamJid,NS_ARCHIVE_AUTO));
 
 		ui.cmbMethodLocal->setCurrentIndex(ui.cmbMethodLocal->findData(APrefs.methodLocal));
 		ui.cmbMethodAuto->setCurrentIndex(ui.cmbMethodAuto->findData(APrefs.methodAuto));
 		ui.cmbMethodManual->setCurrentIndex(ui.cmbMethodManual->findData(APrefs.methodManual));
-		ui.grbMethod->setEnabled(true);
+		ui.grbMethod->setVisible(FArchiver->isSupported(FStreamJid,NS_ARCHIVE_PREF));
 
 		ui.cmbModeOTR->setCurrentIndex(ui.cmbModeOTR->findData(APrefs.defaultPrefs.otr));
 		ui.cmbModeSave->setCurrentIndex(ui.cmbModeSave->findData(APrefs.defaultPrefs.save));
 		ui.cmbExpireTime->lineEdit()->setText(QString::number(APrefs.defaultPrefs.expire/ONE_DAY));
-		ui.grbMethod->setVisible(FArchiver->isSupported(FStreamJid));
 	}
 }
 
@@ -407,5 +409,6 @@ void ArchiveOptions::onArchiveRequestFailed(const QString &AId, const QString &A
 		FLastError = AError;
 		FSaveRequests.removeAt(FSaveRequests.indexOf(AId));
 		updateWidget();
+		emit modified();
 	}
 }

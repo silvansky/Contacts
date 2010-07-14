@@ -58,7 +58,7 @@ bool SortFilterProxyModel::filterAcceptsRow(int ARow, const QModelIndex &AParent
 }
 
 //ViewHistoryWindow
-ViewHistoryWindow::ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &AStreamJid, Type AType, QWidget *AParent) : QMainWindow(AParent)
+ViewHistoryWindow::ViewHistoryWindow(IMessageArchiver *AArchiver, IPluginManager *APluginManager, const Jid &AStreamJid, QWidget *AParent) : QMainWindow(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
@@ -135,7 +135,7 @@ ViewHistoryWindow::ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &ASt
 	connect(ui.pbtApply,SIGNAL(clicked()),SLOT(onApplyFilterClicked()));
 	connect(ui.lneSearch,SIGNAL(returnPressed()),SLOT(onApplyFilterClicked()));
 
-	initialize();
+	initialize(APluginManager);
 	createGroupKindMenu();
 	createSourceMenu();
 	createHeaderActions();
@@ -143,16 +143,8 @@ ViewHistoryWindow::ViewHistoryWindow(IMessageArchiver *AArchiver, const Jid &ASt
 	FViewOptions.isGroupchat = false;
 	setMessageStyle();
 
-	QIcon icon;
-	if (FStatusIcons)
-		icon = FStatusIcons->iconByJidStatus(AStreamJid,IPresence::Online,SUBSCRIPTION_BOTH,false);
+	QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByJidStatus(AStreamJid,IPresence::Online,SUBSCRIPTION_BOTH,false) : QIcon();
 	ui.cmbContact->addItem(icon,tr(" <All contacts> "),QString(""));
-	if (AType == Simple)
-	{
-		ui.lblCollectionInfo->setVisible(false);
-		ui.dkwConversations->setVisible(false);
-		ui.dkwFilter->setVisible(false);
-	}
 }
 
 ViewHistoryWindow::~ViewHistoryWindow()
@@ -260,11 +252,9 @@ void ViewHistoryWindow::reload()
 	FInvalidateTimer.start();
 }
 
-void ViewHistoryWindow::initialize()
+void ViewHistoryWindow::initialize(IPluginManager *APluginManager)
 {
-	IPluginManager *manager = FArchiver->pluginManager();
-
-	IPlugin *plugin = manager->pluginInterface("IRosterPlugin").value(0);
+	IPlugin *plugin = APluginManager->pluginInterface("IRosterPlugin").value(0);
 	if (plugin)
 	{
 		FRoster = qobject_cast<IRosterPlugin *>(plugin->instance())->getRoster(FStreamJid);
@@ -272,7 +262,7 @@ void ViewHistoryWindow::initialize()
 			connect(FRoster->xmppStream()->instance(),SIGNAL(closed()),SLOT(onStreamClosed()));
 	}
 
-	plugin = manager->pluginInterface("IMessageWidgets").value(0);
+	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0);
 	if (plugin)
 	{
 		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
@@ -287,11 +277,11 @@ void ViewHistoryWindow::initialize()
 		}
 	}
 
-	plugin = manager->pluginInterface("IMessageStyles").value(0,NULL);
+	plugin = APluginManager->pluginInterface("IMessageStyles").value(0,NULL);
 	if (plugin)
 		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
 
-	plugin = manager->pluginInterface("IStatusIcons").value(0);
+	plugin = APluginManager->pluginInterface("IStatusIcons").value(0);
 	if (plugin)
 		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
 
@@ -365,7 +355,7 @@ void ViewHistoryWindow::divideRequests(const QList<IArchiveRequest> &ARequests, 
 				       QList<IArchiveRequest> &AServer) const
 {
 	QDateTime replPoint = FArchiver->replicationPoint(FStreamJid);
-	if (FSource == AS_LOCAL_ARCHIVE || !FArchiver->isSupported(FStreamJid))
+	if (FSource == AS_LOCAL_ARCHIVE || !FArchiver->isSupported(FStreamJid,NS_ARCHIVE_MANAGE))
 	{
 		ALocal = ARequests;
 	}
@@ -898,7 +888,7 @@ void ViewHistoryWindow::createSourceMenu()
 	QToolButton *button = FCollectionTools->insertAction(FSourceMenu->menuAction(),TBG_MAVHG_ARCHIVE_GROUPING);
 	button->setPopupMode(QToolButton::InstantPopup);
 
-	FSourceMenu->setEnabled(FArchiver->isSupported(FStreamJid));
+	FSourceMenu->setEnabled(FArchiver->isSupported(FStreamJid,NS_ARCHIVE_MANAGE));
 }
 
 void ViewHistoryWindow::createHeaderActions()
@@ -1158,7 +1148,7 @@ void ViewHistoryWindow::onHeaderActionTriggered(bool)
 		QString subject = QInputDialog::getText(this,tr("Enter new collection subject"),tr("Subject:"),QLineEdit::Normal,FCurrentHeaders.at(0).subject,&ok);
 		if (ok)
 		{
-			if (FArchiver->isSupported(FStreamJid))
+			if (FArchiver->isSupported(FStreamJid,NS_ARCHIVE_MANUAL))
 			{
 				IArchiveCollection collection;
 				collection.header = FCurrentHeaders.at(0);
@@ -1189,7 +1179,7 @@ void ViewHistoryWindow::onHeaderActionTriggered(bool)
 				QList<IArchiveHeader> headers = FCurrentHeaders;
 				foreach(IArchiveHeader header, headers)
 				{
-					if (FArchiver->isSupported(FStreamJid))
+					if (FArchiver->isSupported(FStreamJid,NS_ARCHIVE_MANAGE))
 					{
 						IArchiveRequest request;
 						request.with = header.with;
@@ -1215,7 +1205,7 @@ void ViewHistoryWindow::onHeaderActionTriggered(bool)
 void ViewHistoryWindow::onArchivePrefsChanged(const Jid &AStreamJid, const IArchiveStreamPrefs &/*APrefs*/)
 {
 	if (AStreamJid == FStreamJid)
-		FSourceMenu->setEnabled(FArchiver->isSupported(FStreamJid));
+		FSourceMenu->setEnabled(FArchiver->isSupported(FStreamJid,NS_ARCHIVE_PREF));
 }
 
 void ViewHistoryWindow::onStreamClosed()

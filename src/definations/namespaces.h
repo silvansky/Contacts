@@ -30,6 +30,8 @@
 
 #define NS_STORAGE_BOOKMARKS                    "storage:bookmarks"
 
+#define NS_RAMBLER_AVATAR                       "rambler:avatar"
+
 #define NS_FEATURE_IQAUTH                       "http://jabber.org/features/iq-auth"
 #define NS_FEATURE_SASL                         "urn:ietf:params:xml:ns:xmpp-sasl"
 #define NS_FEATURE_BIND                         "urn:ietf:params:xml:ns:xmpp-bind"
@@ -64,15 +66,6 @@
 #define NS_ARCHIVE_MANAGE                       "urn:xmpp:archive:manage"
 #define NS_ARCHIVE_MANUAL                       "urn:xmpp:archive:manual"
 #define NS_ARCHIVE_PREF                         "urn:xmpp:archive:pref"
-#define NS_ARCHIVE_ENCRYPT                      "urn:xmpp:archive:encrypt"
-
-#define NS_RAMBLER_AVATAR			"rambler:avatar"
-
-#define NS_ARCHIVE_OLD                          "http://www.xmpp.org/extensions/xep-0136.html#ns"
-#define NS_ARCHIVE_OLD_AUTO                     "http://www.xmpp.org/extensions/xep-0136.html#ns-auto"
-#define NS_ARCHIVE_OLD_MANAGE                   "http://www.xmpp.org/extensions/xep-0136.html#ns-manage"
-#define NS_ARCHIVE_OLD_MANUAL                   "http://www.xmpp.org/extensions/xep-0136.html#ns-manual"
-#define NS_ARCHIVE_OLD_PREF                     "http://www.xmpp.org/extensions/xep-0136.html#ns-pref"
 
 #define NS_RESULTSET                            "http://jabber.org/protocol/rsm"
 

@@ -4,12 +4,12 @@
 #include <QRegExp>
 #include <QMainWindow>
 #include <QStandardItemModel>
-#include "../interfaces/ipluginmanager.h"
-#include "../utils/toolbarchanger.h"
-#include "../utils/datetime.h"
-#include "../utils/message.h"
-#include "../utils/menu.h"
-#include "../utils/jid.h"
+#include <interfaces/ipluginmanager.h>
+#include <utils/toolbarchanger.h>
+#include <utils/datetime.h>
+#include <utils/message.h>
+#include <utils/menu.h>
+#include <utils/jid.h>
 
 #define MESSAGEARCHIVER_UUID    "{39c8f347-a96d-4878-b092-beb7771f6aef}"
 
@@ -184,9 +184,8 @@ class IMessageArchiver
 {
 public:
 	virtual QObject *instance() =0;
-	virtual IPluginManager *pluginManager() const =0;
 	virtual bool isReady(const Jid &AStreamJid) const =0;
-	virtual bool isSupported(const Jid &AStreamJid) const =0;
+	virtual bool isSupported(const Jid &AStreamJid, const QString &AFeatureNS) const =0;
 	virtual bool isAutoArchiving(const Jid &AStreamJid) const =0;
 	virtual bool isManualArchiving(const Jid &AStreamJid) const =0;
 	virtual bool isLocalArchiving(const Jid &AStreamJid) const =0;
