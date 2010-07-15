@@ -129,7 +129,7 @@ void Registration::stanzaRequestResult(const Jid &AStreamJid, const Stanza &ASta
 
 		if (FSubmitRequests.contains(AStanza.id()) && AStanza.type() == "result")
 		{
-			emit registerSuccessful(AStanza.id());
+			emit registerSuccess(AStanza.id());
 		}
 		else if (AStanza.type() == "result" || !formElem.isNull())
 		{

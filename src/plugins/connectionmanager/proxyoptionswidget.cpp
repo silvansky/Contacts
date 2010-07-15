@@ -8,10 +8,6 @@ ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode
 	FManager = AManager;
 	FConnectionNode = ANode;
 
-	QList<QUuid> proxies = FManager->proxyList();
-	ui.rdbExplorerProxy->setVisible(proxies.contains(IEXPLORER_PROXY_REF_UUID));
-	ui.rdbFireFoxProxy->setVisible(proxies.contains(FIREFOX_PROXY_REF_UUID));
-
 	connect(ui.rdbAutoProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.rdbExplorerProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.rdbFireFoxProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
@@ -50,12 +46,16 @@ void ProxyOptionsWidget::apply()
 
 void ProxyOptionsWidget::reset()
 {
+	QList<QUuid> proxies = FManager->proxyList();
+	ui.rdbExplorerProxy->setVisible(proxies.contains(IEXPLORER_PROXY_REF_UUID));
+	ui.rdbFireFoxProxy->setVisible(proxies.contains(FIREFOX_PROXY_REF_UUID));
+
 	QString proxyId = FConnectionNode.node("proxy").value().toString();
 	if (proxyId == APPLICATION_PROXY_REF_UUID)
 		ui.rdbAutoProxy->setChecked(true);
-	else if (proxyId==IEXPLORER_PROXY_REF_UUID && ui.rdbExplorerProxy->isVisible())
+	else if (proxyId==IEXPLORER_PROXY_REF_UUID && proxies.contains(IEXPLORER_PROXY_REF_UUID))
 		ui.rdbExplorerProxy->setChecked(true);
-	else if (proxyId==FIREFOX_PROXY_REF_UUID && ui.rdbFireFoxProxy->isVisible())
+	else if (proxyId==FIREFOX_PROXY_REF_UUID && proxies.contains(FIREFOX_PROXY_REF_UUID))
 		ui.rdbFireFoxProxy->setChecked(true);
 	else
 		ui.rdbManualProxy->setChecked(true);

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>374</width>
-    <height>178</height>
+    <height>181</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -127,7 +127,7 @@
       </widget>
      </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="lnlAccountIcon">
+      <widget class="QLabel" name="lblIcon">
        <property name="minimumSize">
         <size>
          <width>32</width>

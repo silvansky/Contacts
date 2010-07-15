@@ -25,7 +25,7 @@ RegisterDialog::RegisterDialog(IRegistration *ARegistration, IDataForms *ADataFo
 	connect(ARegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
 	        SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
 	connect(ARegistration->instance(),SIGNAL(registerSuccessful(const QString &)),
-	        SLOT(onRegisterSuccessful(const QString &)));
+	        SLOT(onRegisterSuccess(const QString &)));
 	connect(ARegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
 	        SLOT(onRegisterError(const QString &, const QString &)));
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonsClicked(QAbstractButton *)));
@@ -138,7 +138,7 @@ void RegisterDialog::onRegisterFields(const QString &AId, const IRegisterFields 
 	}
 }
 
-void RegisterDialog::onRegisterSuccessful(const QString &AId)
+void RegisterDialog::onRegisterSuccess(const QString &AId)
 {
 	if (FRequestId == AId)
 	{

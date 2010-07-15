@@ -3,9 +3,30 @@
 
 #include <QDialog>
 #include <utils/jid.h>
+#include <interfaces/iregistraton.h>
 #include <interfaces/iservicediscovery.h>
 
 #define GATEWAYS_UUID "{2a3ce0cd-bf67-4f15-8907-b7d0706be4b4}"
+
+struct IGateRegisterLabel
+{
+	IGateRegisterLabel() { valid = false; }
+	bool valid;
+	QIcon icon;
+	QString name;
+	QString loginLabel;
+	QList<QString> domains;
+};
+
+struct IGateRegisterLogin
+{
+	IGateRegisterLogin() { valid = false; }
+	bool valid;
+	QString login;
+	QString domain;
+	QString password;
+	IRegisterFields fields;
+};
 
 class IGateways
 {
@@ -18,6 +39,9 @@ public:
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
+	virtual IGateRegisterLabel registerLabel(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
+	virtual IGateRegisterLogin registerLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const =0;
+	virtual IRegisterSubmit registerSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateRegisterLogin &ALogin) const =0;
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe) =0;
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid) =0;
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID) =0;

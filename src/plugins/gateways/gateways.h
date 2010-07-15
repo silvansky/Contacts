@@ -73,6 +73,9 @@ public:
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	virtual IGateRegisterLabel registerLabel(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	virtual IGateRegisterLogin registerLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const;
+	virtual IRegisterSubmit registerSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateRegisterLogin &ALogin) const;
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe);
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID);
@@ -133,6 +136,7 @@ private:
 	QMultiMap<Jid, Jid> FSubscribeServices;
 	QMap<QString, Jid> FShowRegisterRequests;
 private:
+	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
 };
 

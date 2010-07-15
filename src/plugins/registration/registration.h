@@ -77,7 +77,7 @@ signals:
 	void featureDestroyed(IXmppFeature *AStreamFeature);
 	//IRegistration
 	void registerFields(const QString &AId, const IRegisterFields &AFields);
-	void registerSuccessful(const QString &AId);
+	void registerSuccess(const QString &AId);
 	void registerError(const QString &AId, const QString &AError);
 protected:
 	void registerDiscoFeatures();

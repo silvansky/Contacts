@@ -181,8 +181,6 @@ bool Gateways::initSettings()
 {
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_GATEWAYS_ACCOUNTS, OPN_GATEWAYS_ACCOUNTS, tr("Accounts"), tr("Linked accounts"), MNI_GATEWAYS_ACCOUNTS };
-		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
@@ -194,8 +192,11 @@ QMultiMap<int, IOptionsWidget *> Gateways::optionsWidgets(const QString &ANodeId
 	if (ANodeId == OPN_GATEWAYS_ACCOUNTS)
 	{
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(AParent));
-		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Append account"),AParent));
-		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(AParent));
+		if (FDiscovery)
+		{
+			widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Append account"),AParent));
+			widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(this,FDiscovery,FOptionsStreamJid,AParent));
+		}
 	}
 	return widgets;
 }
@@ -387,6 +388,70 @@ QList<Jid> Gateways::serviceContacts(const Jid &AStreamJid, const Jid &AServiceJ
 	return contacts;
 }
 
+IGateRegisterLabel Gateways::registerLabel(const Jid &AStreamJid, const Jid &AServiceJid) const
+{
+	IGateRegisterLabel grlabel;
+	if (FDiscovery)
+	{
+		IDiscoInfo dinfo = FDiscovery->discoInfo(AStreamJid, AServiceJid);
+		int index = FDiscovery->findIdentity(dinfo.identity,"gateway",QString::null);
+		if (index >= 0)
+		{
+			IDiscoIdentity ident = dinfo.identity.at(index);
+			QString identType = ident.type.toLower();
+			grlabel.icon = FDiscovery->identityIcon(dinfo.identity);
+			if (identType == "icq")
+			{
+				grlabel.valid = true;
+				grlabel.name = tr("ICQ");
+			}
+			else if (identType == "mrim")
+			{
+				grlabel.valid = true;
+				grlabel.name = tr("Agent@Mail.ru");
+				grlabel.loginLabel = tr("E-mail");
+			}
+			else if (identType == "xmpp")
+			{
+				QString domain = AServiceJid.pDomain();
+				if (domain.startsWith("yandex."))
+				{
+					grlabel.valid = true;
+					grlabel.name = tr("Y.Online");
+					grlabel.loginLabel = tr("E-mail");
+					grlabel.domains.append("@yandex");
+				}
+				else if (domain.startsWith("gtalk."))
+				{
+					grlabel.valid = true;
+					grlabel.name = tr("GTalk");
+					grlabel.loginLabel = tr("E-mail");
+				}
+				else
+				{
+					grlabel.valid = true;
+					grlabel.name = tr("Jabber");
+				}
+			}
+		}
+	}
+	return grlabel;
+}
+
+IGateRegisterLogin Gateways::registerLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const
+{
+	IGateRegisterLogin grlogin;
+
+	return grlogin;
+}
+
+IRegisterSubmit Gateways::registerSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateRegisterLogin &ALogin) const
+{
+	IRegisterSubmit rsubmit;
+
+	return rsubmit;
+}
+
 bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe)
 {
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
@@ -479,9 +544,9 @@ QString Gateways::sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJ
 QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)
 {
 	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
-	if (presence && presence->isOpen())
+	if (FRegistration && presence && presence->isOpen())
 	{
-		AddLegacyAccountDialog *dialog = new AddLegacyAccountDialog(FPluginManager,AStreamJid,AServiceJid,AParent);
+		AddLegacyAccountDialog *dialog = new AddLegacyAccountDialog(this,FRegistration,AStreamJid,AServiceJid,AParent);
 		connect(presence->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
 		dialog->show();
 		return dialog;
@@ -599,12 +664,24 @@ void Gateways::onChangeActionTriggered(bool)
 
 void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
 {
+	if (FOptionsManager)
+	{
+		FOptionsStreamJid = AXmppStream->streamJid();
+		IOptionsDialogNode dnode = { ONO_GATEWAYS_ACCOUNTS, OPN_GATEWAYS_ACCOUNTS, tr("Accounts"), tr("Linked accounts"), MNI_GATEWAYS_ACCOUNTS };
+		FOptionsManager->insertOptionsDialogNode(dnode);
+	}
 	if (FDiscovery)
+	{
 		FDiscovery->requestDiscoItems(AXmppStream->streamJid(),AXmppStream->streamJid().domain());
+	}
 }
 
 void Gateways::onXmppStreamClosed(IXmppStream *AXmppStream)
 {
+	if (FOptionsManager)
+	{
+		FOptionsManager->removeOptionsDialogNode(OPN_GATEWAYS_ACCOUNTS);
+	}
 	FResolveNicks.remove(AXmppStream->streamJid());
 	FStreamDiscoItems.remove(AXmppStream->streamJid());
 }
