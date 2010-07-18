@@ -111,7 +111,7 @@ public:
 	virtual QString senderColor(const QString &ASenderId) const;
 	virtual QTextDocumentFragment selection(QWidget *AWidget) const;
 	virtual bool changeOptions(QWidget *AWidget, const IMessageStyleOptions &AOptions, bool AClean = true);
-	virtual bool appendContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions);
+	virtual bool changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions);
 	//AdiumMessageStyle
 	virtual int version() const;
 	virtual QMap<QString, QVariant> infoValues() const;
@@ -120,7 +120,7 @@ signals:
 	void widgetAdded(QWidget *AWidget) const;
 	void widgetRemoved(QWidget *AWidget) const;
 	void optionsChanged(QWidget *AWidget, const IMessageStyleOptions &AOptions, bool AClean) const;
-	void contentAppended(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) const;
+	void contentChanged(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) const;
 	void urlClicked(QWidget *AWidget, const QUrl &AUrl) const;
 public:
 	static QList<QString> styleVariants(const QString &AStylePath);
@@ -154,6 +154,15 @@ private:
 	QString FOut_NextContentHTML;
 	QString FOut_ContextHTML;
 	QString FOut_NextContextHTML;
+private:
+	QString FIn_UnreadHTML;
+	QString FIn_NextUnreadHTML;
+	QString FIn_OfflineHTML;
+	QString FIn_NextOfflineHTML;
+	QString FOut_UnreadHTML;
+	QString FOut_NextUnreadHTML;
+	QString FOut_OfflineHTML;
+	QString FOut_NextOfflineHTML;
 private:
 	bool FCombineConsecutive;
 	bool FAllowCustomBackground;

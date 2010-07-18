@@ -19,16 +19,23 @@
 #define STYLE_CONTENTS_PATH                 "Contents"
 #define STYLE_RESOURCES_PATH                STYLE_CONTENTS_PATH"/Resources"
 
-#define APPEND_MESSAGE_WITH_SCROLL          "checkIfScrollToBottomIsNeeded(); appendMessage(\"%1\"); scrollToBottomIfNeeded();"
-#define APPEND_NEXT_MESSAGE_WITH_SCROLL     "checkIfScrollToBottomIsNeeded(); appendNextMessage(\"%1\"); scrollToBottomIfNeeded();"
-#define APPEND_MESSAGE                      "appendMessage(\"%1\");"
-#define APPEND_NEXT_MESSAGE                 "appendNextMessage(\"%1\");"
-#define APPEND_MESSAGE_NO_SCROLL            "appendMessageNoScroll(\"%1\");"
-#define APPEND_NEXT_MESSAGE_NO_SCROLL       "appendNextMessageNoScroll(\"%1\");"
+#define APPEND_MESSAGE_WITH_SCROLL          "checkIfScrollToBottomIsNeeded(); appendCustumMessage(\"%1\",\"appendMessage\",%2,%3); scrollToBottomIfNeeded();"
+#define APPEND_NEXT_MESSAGE_WITH_SCROLL     "checkIfScrollToBottomIsNeeded(); appendCustumMessage(\"%1\",\"appendNextMessage\",%2,%3); scrollToBottomIfNeeded();"
+#define APPEND_MESSAGE                      "appendCustumMessage(\"%1\",\"appendMessage\",%2,%3);"
+#define APPEND_NEXT_MESSAGE                 "appendCustumMessage(\"%1\",\"appendNextMessage\",%2,%3);"
+#define APPEND_MESSAGE_NO_SCROLL            "appendCustumMessage(\"%1\",\"appendMessageNoScroll\",%2,%3);"
+#define APPEND_NEXT_MESSAGE_NO_SCROLL       "appendCustumMessage(\"%1\",\"appendNextMessageNoScroll\",%2,%3);"
 #define REPLACE_LAST_MESSAGE                "replaceLastMessage(\"%1\");"
 
 #define TOPIC_MAIN_DIV	                    "<div id=\"topic\"></div>"
 #define TOPIC_INDIVIDUAL_WRAPPER            "<span id=\"topicEdit\" ondblclick=\"this.setAttribute('contentEditable', true); this.focus();\">%1</span>"
+
+#define CONSECUTIVE_TIMEOUT									2*60
+
+#define CAC_APPEND                          -1
+#define CAC_INSERT                          0
+#define CAC_REPLACE                         1
+#define CAC_REMOVE                          1
 
 static const char *SenderColors[] =  {
 	"blue", "blueviolet", "brown", "cadetblue", "chocolate", "coral", "cornflowerblue", "crimson",
@@ -139,7 +146,7 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 	return false;
 }
 
-bool AdiumMessageStyle::appendContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions)
+bool AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions)
 {
 	StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget) : NULL;
 	if (view)
@@ -152,15 +159,27 @@ bool AdiumMessageStyle::appendContent(QWidget *AWidget, const QString &AHtml, co
 		if (AOptions.kind == IMessageContentOptions::Topic)
 			html.replace("%topic%",QString(TOPIC_INDIVIDUAL_WRAPPER).arg(AHtml));
 
+		int actionCommand = CAC_APPEND;
+		if (AOptions.action == IMessageContentOptions::Insert)
+			actionCommand = CAC_INSERT;
+		else if (AOptions.action == IMessageContentOptions::Replace)
+			actionCommand = CAC_REPLACE;
+		else if (AOptions.action == IMessageContentOptions::Remove)
+			actionCommand = CAC_REPLACE;
+
 		escapeStringForScript(html);
-		view->page()->mainFrame()->evaluateJavaScript(scriptForAppendContent(sameSender,AOptions.noScroll).arg(html));
+		QString script = scriptForAppendContent(sameSender,AOptions.noScroll).arg(html).arg(AOptions.actionIndex).arg(actionCommand);
+		view->page()->mainFrame()->evaluateJavaScript(script);
 
-		WidgetStatus &wstatus = FWidgetStatus[AWidget];
-		wstatus.lastKind = AOptions.kind;
-		wstatus.lastId = AOptions.senderId;
-		wstatus.lastTime = AOptions.time;
+		if (actionCommand == CAC_APPEND)
+		{
+			WidgetStatus &wstatus = FWidgetStatus[AWidget];
+			wstatus.lastKind = AOptions.kind;
+			wstatus.lastId = AOptions.senderId;
+			wstatus.lastTime = AOptions.time;
+		}
 
-		emit contentAppended(AWidget,AHtml,AOptions);
+		emit contentChanged(AWidget,AHtml,AOptions);
 		return true;
 	}
 	return false;
@@ -239,7 +258,7 @@ bool AdiumMessageStyle::isSameSender(QWidget *AWidget, const IMessageContentOpti
 		return false;
 	if (wstatus.lastId != AOptions.senderId)
 		return false;
-	if (wstatus.lastTime.secsTo(AOptions.time)>2*60)
+	if (wstatus.lastTime.secsTo(AOptions.time) > CONSECUTIVE_TIMEOUT)
 		return false;
 
 	return true;
@@ -345,32 +364,50 @@ void AdiumMessageStyle::fillStyleKeywords(QString &AHtml, const IMessageStyleOpt
 QString AdiumMessageStyle::makeContentTemplate(const IMessageContentOptions &AOptions, bool ASameSender) const
 {
 	QString html;
-	if (false && AOptions.kind == IMessageContentOptions::Topic && !FTopicHTML.isEmpty())
+	if (false && !FTopicHTML.isEmpty() && AOptions.kind==IMessageContentOptions::Topic)
 	{
 		html = FTopicHTML;
 	}
-	else if (AOptions.kind == IMessageContentOptions::Status && !FStatusHTML.isEmpty())
+	else if (!FStatusHTML.isEmpty() && AOptions.kind==IMessageContentOptions::Status)
 	{
 		html = FStatusHTML;
 	}
+	else if (AOptions.type & IMessageContentOptions::History)
+	{
+		if (AOptions.direction == IMessageContentOptions::DirectionIn)
+			html = ASameSender ? FIn_NextContextHTML : FIn_ContextHTML;
+		else
+			html = ASameSender ? FOut_NextContextHTML : FOut_ContextHTML;
+	}
+	else if (AOptions.direction == IMessageContentOptions::DirectionIn)
+	{
+		html = ASameSender ? FIn_NextContentHTML : FIn_ContentHTML;
+	}
 	else
 	{
-		if (AOptions.type & IMessageContentOptions::History)
-		{
-			if (AOptions.direction == IMessageContentOptions::DirectionIn)
-				html = ASameSender ? FIn_NextContextHTML : FIn_ContextHTML;
-			else
-				html = ASameSender ? FOut_NextContextHTML : FOut_ContextHTML;
-		}
-		else if (AOptions.direction == IMessageContentOptions::DirectionIn)
-		{
-			html = ASameSender ? FIn_NextContentHTML : FIn_ContentHTML;
-		}
-		else
-		{
-			html = ASameSender ? FOut_NextContentHTML : FOut_ContentHTML;
-		}
+		html = ASameSender ? FOut_NextContentHTML : FOut_ContentHTML;
 	}
+	
+	if (AOptions.extensions & IMessageContentOptions::Unreaded)
+	{
+		QString templ;
+		if (AOptions.direction == IMessageContentOptions::DirectionIn)
+			templ = ASameSender ? FIn_NextUnreadHTML : FIn_UnreadHTML;
+		else
+			templ = ASameSender ? FOut_NextUnreadHTML : FOut_UnreadHTML;
+		html = templ.replace("%html%",html);
+	}
+
+	if (AOptions.extensions & IMessageContentOptions::Offline)
+	{
+		QString templ;
+		if (AOptions.direction == IMessageContentOptions::DirectionIn)
+			templ = ASameSender ? FIn_NextOfflineHTML : FIn_OfflineHTML;
+		else
+			templ = ASameSender ? FOut_NextOfflineHTML : FOut_OfflineHTML;
+		html = templ.replace("%html%",html);
+	}
+
 	return html;
 }
 
@@ -557,18 +594,40 @@ QString AdiumMessageStyle::loadFileData(const QString &AFileName, const QString 
 
 void AdiumMessageStyle::loadTemplates()
 {
+	FStatusHTML =          loadFileData(FResourcePath+"/Status.html",FIn_ContentHTML);
+	FTopicHTML =           loadFileData(FResourcePath+"/Topic.html",QString::null);
+
 	FIn_ContentHTML =      loadFileData(FResourcePath+"/Incoming/Content.html",QString::null);
 	FIn_NextContentHTML =  loadFileData(FResourcePath+"/Incoming/NextContent.html",FIn_ContentHTML);
+	
 	FIn_ContextHTML =      loadFileData(FResourcePath+"/Incoming/Context.html",FIn_ContentHTML);
 	FIn_NextContextHTML =  loadFileData(FResourcePath+"/Incoming/NextContext.html",FIn_NextContentHTML);
-
+	
 	FOut_ContentHTML =     loadFileData(FResourcePath+"/Outgoing/Content.html",FIn_ContentHTML);
 	FOut_NextContentHTML = loadFileData(FResourcePath+"/Outgoing/NextContent.html",FOut_ContentHTML);
+
 	FOut_ContextHTML =     loadFileData(FResourcePath+"/Outgoing/Context.html",FOut_ContentHTML);
 	FOut_NextContextHTML = loadFileData(FResourcePath+"/Outgoing/NextContext.html",FOut_NextContentHTML);
 
-	FStatusHTML =          loadFileData(FResourcePath+"/Status.html",FIn_ContentHTML);
-	FTopicHTML =           loadFileData(FResourcePath+"/Topic.html",QString::null);
+	FIn_UnreadHTML =       loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/Unread.html", QString::null);
+	FIn_UnreadHTML =       loadFileData(FResourcePath+"/Incoming/Unread.html",FIn_UnreadHTML);
+	FIn_NextUnreadHTML =   loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/NextUnread.html", FIn_UnreadHTML);
+	FIn_NextUnreadHTML =   loadFileData(FResourcePath+"/Incoming/NextUnread.html",FIn_NextUnreadHTML);
+
+	FIn_OfflineHTML =      loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/Offline.html", QString::null);
+	FIn_OfflineHTML =      loadFileData(FResourcePath+"/Incoming/Offline.html",FIn_OfflineHTML);
+	FIn_NextOfflineHTML =  loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/NextOffline.html", FIn_OfflineHTML);
+	FIn_NextOfflineHTML =  loadFileData(FResourcePath+"/Incoming/NextOffline.html",FIn_NextOfflineHTML);
+
+	FOut_UnreadHTML =      loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/Unread.html", FIn_UnreadHTML);
+	FOut_UnreadHTML =      loadFileData(FResourcePath+"/Outgoing/Unread.html",FOut_UnreadHTML);
+	FOut_NextUnreadHTML =  loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/NextUnread.html", FOut_UnreadHTML);
+	FOut_NextUnreadHTML =  loadFileData(FResourcePath+"/Outgoing/NextUnread.html",FOut_NextUnreadHTML);
+
+	FOut_OfflineHTML =     loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/Offline.html", FIn_OfflineHTML);
+	FOut_OfflineHTML =     loadFileData(FResourcePath+"/Outgoing/Offline.html",FOut_OfflineHTML);
+	FOut_NextOfflineHTML = loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/NextOffline.html", FOut_OfflineHTML);
+	FOut_NextOfflineHTML = loadFileData(FResourcePath+"/Outgoing/NextOffline.html",FOut_NextOfflineHTML);
 }
 
 void AdiumMessageStyle::loadSenderColors()

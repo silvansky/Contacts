@@ -27,21 +27,42 @@ struct IMessageContentOptions
 		Topic
 	};
 	enum ContentType {
-		Groupchat       =0x01,
-		History         =0x02,
-		Event           =0x04,
-		Mention         =0x08,
-		Notification    =0x10,
-		DateSeparator   =0x20
+		Groupchat       = 0x01,
+		History         = 0x02,
+		Event           = 0x04,
+		Mention         = 0x08,
+		Notification    = 0x10,
+		DateSeparator   = 0x20
 	};
 	enum ContentDirection {
 		DirectionIn,
 		DirectionOut
 	};
-	IMessageContentOptions() { kind=Message; type=0; direction=DirectionIn; noScroll=false; }
+	enum ContentAction {
+		Append,
+		Insert,
+		Replace,
+		Remove          
+	};
+	enum ContentExtension {
+		Unreaded        = 0x01,
+		Offline         = 0x02
+	};
+	IMessageContentOptions() { 
+		kind            = Message;
+		type            = 0;
+		direction       = DirectionIn;
+		action          = Append;
+		actionIndex     = -1;
+		extensions      = 0;
+		noScroll        = false;
+	}
 	int kind;
 	int type;
 	int direction;
+	int action;
+	int actionIndex;
+	int extensions;
 	bool noScroll;
 	QDateTime time;
 	QString timeFormat;
@@ -64,12 +85,12 @@ public:
 	virtual QString senderColor(const QString &ASenderId) const =0;
 	virtual QTextDocumentFragment selection(QWidget *AWidget) const =0;
 	virtual bool changeOptions(QWidget *AWidget, const IMessageStyleOptions &AOptions, bool AClean = true) =0;
-	virtual bool appendContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) =0;
+	virtual bool changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) =0;
 protected:
 	virtual void widgetAdded(QWidget *AWidget) const =0;
 	virtual void widgetRemoved(QWidget *AWidget) const =0;
 	virtual void optionsChanged(QWidget *AWidget, const IMessageStyleOptions &AOptions, bool AClean) const =0;
-	virtual void contentAppended(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) const =0;
+	virtual void contentChanged(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) const =0;
 	virtual void urlClicked(QWidget *AWidget, const QUrl &AUrl) const =0;
 };
 

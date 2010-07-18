@@ -116,14 +116,14 @@ void StyleOptionsWidget::createViewContent()
 				QString html = "<b>"+tr("The message with a error code %1 is received").arg(999)+"</b>";
 				html += "<p style='color:red;'>"+tr("Error description")+"</p>";
 				html += "<hr>";
-				FActiveStyle->appendContent(FActiveView,html,i_options);
+				FActiveStyle->changeContent(FActiveView,html,i_options);
 			}
 
 			i_options.kind = IMessageContentOptions::Topic;
-			FActiveStyle->appendContent(FActiveView,tr("Subject: Message subject"),i_options);
+			FActiveStyle->changeContent(FActiveView,tr("Subject: Message subject"),i_options);
 
 			i_options.kind = IMessageContentOptions::Message;
-			FActiveStyle->appendContent(FActiveView,tr("Message body line 1")+"<br>"+tr("Message body line 2"),i_options);
+			FActiveStyle->changeContent(FActiveView,tr("Message body line 1")+"<br>"+tr("Message body line 2"),i_options);
 		}
 		else if (curMessageType==Message::Chat || curMessageType==Message::GroupChat)
 		{
@@ -136,21 +136,21 @@ void StyleOptionsWidget::createViewContent()
 			i_options.type = IMessageContentOptions::History;
 			i_options.time = QDateTime::currentDateTime().addDays(-1);
 			i_options.timeFormat = FMessageStyles->timeFormat(i_options.time);
-			FActiveStyle->appendContent(FActiveView,tr("Incoming history message"),i_options);
+			FActiveStyle->changeContent(FActiveView,tr("Incoming history message"),i_options);
 
 			i_options.time = QDateTime::currentDateTime().addDays(-1).addSecs(80);
-			FActiveStyle->appendContent(FActiveView,tr("Incoming history consecutive message"),i_options);
+			FActiveStyle->changeContent(FActiveView,tr("Incoming history consecutive message"),i_options);
 
 			i_options.kind = IMessageContentOptions::Status;
-			FActiveStyle->appendContent(FActiveView,tr("Incoming status message"),i_options);
+			FActiveStyle->changeContent(FActiveView,tr("Incoming status message"),i_options);
 
 			o_options.type = IMessageContentOptions::History;
 			o_options.time = QDateTime::currentDateTime().addDays(-1).addSecs(100);
 			o_options.timeFormat = FMessageStyles->timeFormat(o_options.time);
-			FActiveStyle->appendContent(FActiveView,tr("Outgoing history message"),o_options);
+			FActiveStyle->changeContent(FActiveView,tr("Outgoing history message"),o_options);
 
 			o_options.kind = IMessageContentOptions::Status;
-			FActiveStyle->appendContent(FActiveView,tr("Outgoing status message"),o_options);
+			FActiveStyle->changeContent(FActiveView,tr("Outgoing status message"),o_options);
 
 			if (curMessageType==Message::GroupChat)
 			{
@@ -158,37 +158,37 @@ void StyleOptionsWidget::createViewContent()
 				i_options.type = 0;
 				i_options.time = QDateTime::currentDateTime();
 				i_options.timeFormat = FMessageStyles->timeFormat(i_options.time);
-				FActiveStyle->appendContent(FActiveView,tr("Groupchat topic"),i_options);
+				FActiveStyle->changeContent(FActiveView,tr("Groupchat topic"),i_options);
 			}
 
 			i_options.time = QDateTime::currentDateTime();
 			i_options.timeFormat = FMessageStyles->timeFormat(i_options.time);
 			i_options.kind = IMessageContentOptions::Message;
 			i_options.type = 0;
-			FActiveStyle->appendContent(FActiveView,tr("Incoming message"),i_options);
+			FActiveStyle->changeContent(FActiveView,tr("Incoming message"),i_options);
 
 			i_options.type = IMessageContentOptions::Event;
 			i_options.kind = IMessageContentOptions::Status;
-			FActiveStyle->appendContent(FActiveView,tr("Incoming event"),i_options);
+			FActiveStyle->changeContent(FActiveView,tr("Incoming event"),i_options);
 
 			i_options.type = IMessageContentOptions::Notification;
-			FActiveStyle->appendContent(FActiveView,tr("Incoming notification"),i_options);
+			FActiveStyle->changeContent(FActiveView,tr("Incoming notification"),i_options);
 
 			if (curMessageType==Message::GroupChat)
 			{
 				i_options.kind = IMessageContentOptions::Message;
 				i_options.type = IMessageContentOptions::Mention;
-				FActiveStyle->appendContent(FActiveView,tr("Incoming mention message"),i_options);
+				FActiveStyle->changeContent(FActiveView,tr("Incoming mention message"),i_options);
 			}
 
 			o_options.time = QDateTime::currentDateTime();
 			o_options.timeFormat = FMessageStyles->timeFormat(o_options.time);
 			o_options.kind = IMessageContentOptions::Message;
 			o_options.type = 0;
-			FActiveStyle->appendContent(FActiveView,tr("Outgoing message"),o_options);
+			FActiveStyle->changeContent(FActiveView,tr("Outgoing message"),o_options);
 
 			o_options.time = QDateTime::currentDateTime().addSecs(5);
-			FActiveStyle->appendContent(FActiveView,tr("Outgoing consecutive message"),o_options);
+			FActiveStyle->changeContent(FActiveView,tr("Outgoing consecutive message"),o_options);
 		}
 	}
 }

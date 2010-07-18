@@ -67,8 +67,8 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 		FMessageStyle = AStyle;
 		if (befour)
 		{
-			disconnect(befour->instance(),SIGNAL(contentAppended(QWidget *, const QString &, const IMessageContentOptions &)),
-				this, SLOT(onContentAppended(QWidget *, const QString &, const IMessageContentOptions &)));
+			disconnect(befour->instance(),SIGNAL(contentChanged(QWidget *, const QString &, const IMessageContentOptions &)),
+				this, SLOT(onContentChanged(QWidget *, const QString &, const IMessageContentOptions &)));
 			disconnect(befour->instance(),SIGNAL(urlClicked(QWidget *, const QUrl &)),this,SLOT(onUrlClicked(QWidget *, const QUrl &)));
 			ui.wdtViewer->layout()->removeWidget(FStyleWidget);
 			FStyleWidget->deleteLater();
@@ -80,8 +80,8 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 			FStyleWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(FStyleWidget,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onCustomContextMenuRequested(const QPoint &)));
 			ui.wdtViewer->layout()->addWidget(FStyleWidget);
-			connect(FMessageStyle->instance(),SIGNAL(contentAppended(QWidget *, const QString &, const IMessageContentOptions &)),
-				SLOT(onContentAppended(QWidget *, const QString &, const IMessageContentOptions &)));
+			connect(FMessageStyle->instance(),SIGNAL(contentChanged(QWidget *, const QString &, const IMessageContentOptions &)),
+				SLOT(onContentChanged(QWidget *, const QString &, const IMessageContentOptions &)));
 			connect(FMessageStyle->instance(),SIGNAL(urlClicked(QWidget *, const QUrl &)),SLOT(onUrlClicked(QWidget *, const QUrl &)));
 		}
 		emit messageStyleChanged(befour,AOptions);
@@ -91,7 +91,7 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 void ViewWidget::appendHtml(const QString &AHtml, const IMessageContentOptions &AOptions)
 {
 	if (FMessageStyle)
-		FMessageStyle->appendContent(FStyleWidget,AHtml,AOptions);
+		FMessageStyle->changeContent(FStyleWidget,AHtml,AOptions);
 }
 
 void ViewWidget::appendText(const QString &AText, const IMessageContentOptions &AOptions)
@@ -186,10 +186,10 @@ void ViewWidget::dragLeaveEvent(QDragLeaveEvent *AEvent)
 		handler->viewDragLeave(this, AEvent);
 }
 
-void ViewWidget::onContentAppended(QWidget *AWidget, const QString &AMessage, const IMessageContentOptions &AOptions)
+void ViewWidget::onContentChanged(QWidget *AWidget, const QString &AMessage, const IMessageContentOptions &AOptions)
 {
 	if (AWidget == FStyleWidget)
-		emit contentAppended(AMessage,AOptions);
+		emit contentChanged(AMessage,AOptions);
 }
 
 void ViewWidget::onUrlClicked(QWidget *AWidget, const QUrl &AUrl)

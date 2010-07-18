@@ -34,7 +34,7 @@ signals:
 	void streamJidChanged(const Jid &ABefour);
 	void contactJidChanged(const Jid &ABefour);
 	void messageStyleChanged(IMessageStyle *ABefour, const IMessageStyleOptions &AOptions);
-	void contentAppended(const QString &AMessage, const IMessageContentOptions &AOptions);
+	void contentChanged(const QString &AMessage, const IMessageContentOptions &AOptions);
 	void viewContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
 	void urlClicked(const QUrl &AUrl) const;
 protected:
@@ -46,7 +46,7 @@ protected:
 	virtual void dragMoveEvent(QDragMoveEvent *AEvent);
 	virtual void dragLeaveEvent(QDragLeaveEvent *AEvent);
 protected slots:
-	void onContentAppended(QWidget *AWidget, const QString &AMessage, const IMessageContentOptions &AOptions);
+	void onContentChanged(QWidget *AWidget, const QString &AMessage, const IMessageContentOptions &AOptions);
 	void onUrlClicked(QWidget *AWidget, const QUrl &AUrl);
 	void onCustomContextMenuRequested(const QPoint &APosition);
 private:
