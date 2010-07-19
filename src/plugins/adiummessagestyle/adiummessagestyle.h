@@ -94,10 +94,14 @@ public:
 		ImageTitleCenter,
 		ImageScale
 	};
+	struct ContentParams {
+		int kind;
+		QDateTime time;
+		QString senderId;
+		QString contentId;
+	};
 	struct WidgetStatus {
-		int lastKind;
-		QString lastId;
-		QDateTime lastTime;
+		QList<ContentParams> content;
 	};
 public:
 	AdiumMessageStyle(const QString &AStylePath, QObject *AParent);
@@ -111,7 +115,7 @@ public:
 	virtual QString senderColor(const QString &ASenderId) const;
 	virtual QTextDocumentFragment selection(QWidget *AWidget) const;
 	virtual bool changeOptions(QWidget *AWidget, const IMessageStyleOptions &AOptions, bool AClean = true);
-	virtual bool changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions);
+	virtual QUuid changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions);
 	//AdiumMessageStyle
 	virtual int version() const;
 	virtual QMap<QString, QVariant> infoValues() const;
@@ -120,13 +124,15 @@ signals:
 	void widgetAdded(QWidget *AWidget) const;
 	void widgetRemoved(QWidget *AWidget) const;
 	void optionsChanged(QWidget *AWidget, const IMessageStyleOptions &AOptions, bool AClean) const;
-	void contentChanged(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) const;
+	void contentChanged(QWidget *AWidget, const QUuid &AContentId, const QString &AHtml, const IMessageContentOptions &AOptions) const;
 	void urlClicked(QWidget *AWidget, const QUrl &AUrl) const;
 public:
 	static QList<QString> styleVariants(const QString &AStylePath);
 	static QMap<QString, QVariant> styleInfo(const QString &AStylePath);
 protected:
-	bool isSameSender(QWidget *AWidget, const IMessageContentOptions &AOptions) const;
+	int scriptActionCommand(const IMessageContentOptions &AOptions) const;
+	int scriptActionIndex(QWidget *AWidget, const IMessageContentOptions &AOptions) const;
+	bool isSameSender(QWidget *AWidget, const IMessageContentOptions &AOptions, int AIndex) const;
 	void setVariant(QWidget *AWidget, const QString  &AVariant);
 	QString makeStyleTemplate(const IMessageStyleOptions &AOptions) const;
 	void fillStyleKeywords(QString &AHtml, const IMessageStyleOptions &AOptions) const;

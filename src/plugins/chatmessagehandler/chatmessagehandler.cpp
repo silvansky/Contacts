@@ -564,6 +564,9 @@ void ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDateTime
 	options.kind = IMessageContentOptions::Status;
 	options.direction = IMessageContentOptions::DirectionIn;
 	options.type = IMessageContentOptions::DateSeparator;
+	options.time.setDate(AMessageTime.date());
+	options.time.setTime(QTime(0,0));
+	options.timeFormat = " ";
 
 	QString message;
 	WindowStatus &wstatus = FWindowStatus[AWindow->viewWidget()];

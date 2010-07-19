@@ -2,6 +2,7 @@
 #define IMESSAGESTYLES_H
 
 #include <QUrl>
+#include <QUuid>
 #include <QString>
 #include <QVariant>
 #include <QDateTime>
@@ -39,8 +40,8 @@ struct IMessageContentOptions
 		DirectionOut
 	};
 	enum ContentAction {
-		Append,
-		Insert,
+		InsertAfter,
+		InsertBefore,
 		Replace,
 		Remove          
 	};
@@ -52,8 +53,7 @@ struct IMessageContentOptions
 		kind            = Message;
 		type            = 0;
 		direction       = DirectionIn;
-		action          = Append;
-		actionIndex     = -1;
+		action          = InsertAfter;
 		extensions      = 0;
 		noScroll        = false;
 	}
@@ -61,9 +61,9 @@ struct IMessageContentOptions
 	int type;
 	int direction;
 	int action;
-	int actionIndex;
 	int extensions;
 	bool noScroll;
+	QUuid contentId;
 	QDateTime time;
 	QString timeFormat;
 	QString senderId;
@@ -85,12 +85,12 @@ public:
 	virtual QString senderColor(const QString &ASenderId) const =0;
 	virtual QTextDocumentFragment selection(QWidget *AWidget) const =0;
 	virtual bool changeOptions(QWidget *AWidget, const IMessageStyleOptions &AOptions, bool AClean = true) =0;
-	virtual bool changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) =0;
+	virtual QUuid changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) =0;
 protected:
 	virtual void widgetAdded(QWidget *AWidget) const =0;
 	virtual void widgetRemoved(QWidget *AWidget) const =0;
 	virtual void optionsChanged(QWidget *AWidget, const IMessageStyleOptions &AOptions, bool AClean) const =0;
-	virtual void contentChanged(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) const =0;
+	virtual void contentChanged(QWidget *AWidget, const QUuid &AContentId, const QString &AHtml, const IMessageContentOptions &AOptions) const =0;
 	virtual void urlClicked(QWidget *AWidget, const QUrl &AUrl) const =0;
 };
 
