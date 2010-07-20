@@ -140,7 +140,7 @@ protected:
 	void fillContentKeywords(QString &AHtml, const IMessageContentOptions &AOptions, bool ASameSender) const;
 	QString processCommands(const QString &AHtml, const IMessageContentOptions &AOptions) const;
 	void escapeStringForScript(QString &AText) const;
-	QString scriptForAppendContent(bool ASameSender, bool ANoScroll) const;
+	QString scriptForAppendContent(const IMessageContentOptions &AOptions, bool ASameSender) const;
 	QString loadFileData(const QString &AFileName, const QString &DefValue) const;
 	void loadTemplates();
 	void loadSenderColors();

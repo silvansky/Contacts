@@ -209,11 +209,14 @@
 			debugCon.appendChild(node);
 		}
 		
+	
 		//Appending new content to the message view
 		function appendMessage(html) {
-			//var shouldScroll = nearBottom();
+			var shouldScroll = nearBottom();
+			
 			//Remove any existing insertion point
 			var insert = document.getElementById("insert");
+			
 			if(insert) insert.parentNode.removeChild(insert);
 			
 			//Append the new message to the bottom of our chat block
@@ -221,9 +224,9 @@
 			var range = document.createRange();
 			range.selectNode(chat);
 			var documentFragment = range.createContextualFragment(html);
-			var myFrag = chat.appendChild(documentFragment);
+            var myFrag = chat.appendChild(documentFragment);
             var frag = document.getElementById("insert").parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
-           
+            
             try {
                 var fader = new Fadomatic(frag, 9, 0, 0, 95);
             } catch(e) {
@@ -233,60 +236,10 @@
             
 			alignChat(true);
 		}
-
-		var messages = [];
-		function appendCustumMessage(html,type,index,past) {
-			var id = Math.round(Math.random()*10000)+'_'+Math.round(Math.random()*10000),getSib = function(which,el){
-				el = el[which+'Sibling'];
-				while (el && el.nodeType!=1) el = el[which+'Sibling'];
-				return el;
-			}, funcs = [function(nid,ind,ht,range){
-				var ael,ains,newNode,sib,add=0, ins, curins;
-				(curins = document.getElementById('insert') || {}).id = '_temp_insert_';
-				ael = document.getElementById(messages[index]);
-				ains = document.getElementById('old_insert_'+messages[index]);
-				sib = messages[index+1]? document.getElementById(messages[index+1]) : 0;
-				range.selectNode(ael.parentNode);
-				newNode = range.createContextualFragment(ht);
-				ains && (add = (sib && sib.parentNode===ains.parentNode));
-				ael.parentNode.replaceChild(newNode,ael);
-				ins = document.getElementById('insert');
-				messages[ind] = nid;
-				if (ins) {
-					add && ins.parentNode.replaceChild(sib,ins);
-					sib && ins.parentNode.removeChild(sib);
-				}
-				curins.id = 'insert';
-			}, function(nid,ind,ht,range){
-				var ael,ains,newNode,sib,add=0, ins, curins;
-				(curins = document.getElementById('insert') || {}).id = '_temp_insert_';
-				ael = document.getElementById(messages[index]);
-				ains = messages[index-1]? document.getElementById('old_insert_'+messages[index-1]) : 0;
-				range.selectNode(ael.parentNode);
-				newNode = range.createContextualFragment(ht);
-				ind? messages.splice(ind-1,0,nid) : messages.unshift(nid);
-				if (ains.parentNode===ael.parentNode) {
-					ael.parentNode.replaceChild(newNode,ael);
-					ins = document.getElementById('insert');
-					ins.parentNode.replaceChild(ael,ins);
-				} else {
-					ael.parentNode.insertBefore(newNode,ael);
-				}
-				curins.id = 'insert';
-			}],_ind = html.search(/(\<\w+\s+id\s*=\s*[\'\"]?insert[\'\"]?[^\>]*\>)/);
-			_ind>-1 && (html = html.substring(0,_ind)+'<span style="display:none" id="old_insert_'+id+'"></span>'+html.substring(_ind));
-			//.replace(re,'<span style="display:none" id="old_insert_'+id+'"></span>'+(RegExp.$1+''));
-			html = '<span id="'+id+'">'+html+'</span>';
-			if (!messages[index]) messages.push(id)&&window[type](html);
-			else {
-				past = past||0;
-				var shouldScroll = nearBottom();				
-				funcs[past](id,index,html,document.createRange());
-				alignChat(shouldScroll);
-			}
-		}		
+		
+		
 		function appendNextMessage(html){
-			//var shouldScroll = nearBottom();
+			var shouldScroll = nearBottom();
 			
 			//Locate the insertion point
 			var insert = document.getElementById("insert");
@@ -295,6 +248,7 @@
 			range = document.createRange();
 			range.selectNode(insert.parentNode);
 			newNode = range.createContextualFragment(html);
+			
 			//swap
 			var pointer = insert.parentNode;
 			insert.parentNode.replaceChild(newNode,insert);
@@ -303,28 +257,6 @@
 			alignChat(true);
 		}
 		
-		function replaceLastMessage(html){
-			shouldScroll = nearBottom();
-			//Retrieve the current insertion point, then remove it
-			//This requires that there have been an insertion point... is there a better way to retrieve the last element? -evands
-			html = '<span id="'+Math.round(Math.random()*10000)+'">'+html+'</span>';
-			var insert = document.getElementById("insert");
-			if(insert){
-				var parentNode = insert.parentNode;
-				var lastMessage = insert.previousSibling;
-				parentNode.removeChild(insert);
-				parentNode.removeChild(lastMessage);
-			}
-
-			//Now append the message itself
-			var range = document.createRange();
-			var chat = document.getElementById("Chat");
-			range.selectNode(chat);
-			documentFragment = range.createContextualFragment(html);
-			chat.appendChild(documentFragment);
-
-			alignChat(shouldScroll);
-		}
 		
 		//Auto-scroll to bottom.  Use nearBottom to determine if a scrollToBottom is desired.
 		function nearBottom() {
@@ -418,20 +350,7 @@
 		//]]>
 	</script>
 
-	<style type="text/css">
-		.actionMessageUserName { display:none; }
-		.actionMessageBody:before { content:"*"; }
-		.actionMessageBody:after { content:"*"; }
-		hr#focus { border: 0; border-bottom: 1px solid red; width: 25%%; margin: 0 auto 0 auto; }
-		* { word-wrap:break-word; }
-		img.scaledToFitImage { height: auto; width: 100%%; }
-	</style>
-
-	<!-- Although we call this mainStyle for legacy reasons, it's actually the variant style !-->
-	<style id="mainStyle" type="text/css" media="screen,print">
-		@import url( "%@" );
-	</style>
-
+	<style id="mainStyle" type="text/css" media="screen,print">	@import url( "%@" ); </style>
 
 </head>
 <body style="==bodyBackground==" id="bodyNode" onload="initEvents()">

@@ -1,5 +1,7 @@
 #include "adiummessagestyle.h"
 
+#include <QtDebug>
+
 #include <QUrl>
 #include <QDir>
 #include <QFile>
@@ -26,14 +28,16 @@
 #define APPEND_MESSAGE_NO_SCROLL            "appendCustumMessage(\"%1\",\"appendMessageNoScroll\",%2,%3);"
 #define APPEND_NEXT_MESSAGE_NO_SCROLL       "appendCustumMessage(\"%1\",\"appendNextMessageNoScroll\",%2,%3);"
 #define REPLACE_LAST_MESSAGE                "replaceLastMessage(\"%1\");"
+#define DELETE_MESSAGE                      "deleteMessage(%1);"
 
 #define TOPIC_MAIN_DIV	                    "<div id=\"topic\"></div>"
 #define TOPIC_INDIVIDUAL_WRAPPER            "<span id=\"topicEdit\" ondblclick=\"this.setAttribute('contentEditable', true); this.focus();\">%1</span>"
 
 #define CONSECUTIVE_TIMEOUT                 2*60
 
-#define CAC_INSERT                          1
 #define CAC_REPLACE                         0
+#define CAC_INSERT_BEFORE                   1
+#define CAC_INSERT_AFTER                    2
 
 static const char *SenderColors[] =  {
 	"blue", "blueviolet", "brown", "cadetblue", "chocolate", "coral", "cornflowerblue", "crimson",
@@ -148,38 +152,54 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 		int actionIndex = scriptActionIndex(AWidget,AOptions);
 		if (actionIndex >= 0)
 		{
-			int actionCommand = scriptActionCommand(AOptions);
-			bool sameSender = isSameSender(AWidget,AOptions,actionIndex);
-			QString html = makeContentTemplate(AOptions,sameSender);
-			fillContentKeywords(html,AOptions,sameSender);
-
-			html.replace("%message%",processCommands(AHtml,AOptions));
-			if (AOptions.kind == IMessageContentOptions::Topic)
-				html.replace("%topic%",QString(TOPIC_INDIVIDUAL_WRAPPER).arg(AHtml));
-
-			escapeStringForScript(html);
-			QString script = scriptForAppendContent(sameSender,AOptions.noScroll).arg(html).arg(actionIndex).arg(actionCommand);
-			view->page()->mainFrame()->evaluateJavaScript(script);
-
-			ContentParams cparams;
-			cparams.kind = AOptions.kind;
-			cparams.senderId = AOptions.senderId;
-			cparams.time = AOptions.time;
-
-			QList<ContentParams> &content = FWidgetStatus[AWidget].content;
-			if (actionCommand == CAC_INSERT)
+			QUuid contentId;
+			if (AOptions.action != IMessageContentOptions::Remove)
 			{
-				cparams.contentId = QUuid::createUuid();
-				content.insert(actionIndex,cparams);
+				int actionCommand = scriptActionCommand(AOptions);
+				bool sameSender = isSameSender(AWidget,AOptions,actionIndex);
+				QString html = makeContentTemplate(AOptions,sameSender);
+				fillContentKeywords(html,AOptions,sameSender);
+
+				html.replace("%message%",processCommands(AHtml,AOptions));
+				if (AOptions.kind == IMessageContentOptions::Topic)
+					html.replace("%topic%",QString(TOPIC_INDIVIDUAL_WRAPPER).arg(AHtml));
+
+				escapeStringForScript(html);
+				QString script = scriptForAppendContent(AOptions,sameSender);//.arg(html).arg(actionIndex).arg(actionCommand);
+
+				qDebug() << script << actionIndex << actionCommand<< AHtml;
+
+				script = script.arg(html).arg(actionIndex).arg(actionCommand);
+				view->page()->mainFrame()->evaluateJavaScript(script);
+
+				ContentParams cparams;
+				cparams.kind = AOptions.kind;
+				cparams.senderId = AOptions.senderId;
+				cparams.time = AOptions.time;
+
+				QList<ContentParams> &content = FWidgetStatus[AWidget].content;
+				if (AOptions.action != IMessageContentOptions::Replace)
+				{
+					cparams.contentId = QUuid::createUuid();
+					content.insert(actionIndex,cparams);
+				}
+				else
+				{
+					cparams.contentId = content.at(actionIndex).contentId;
+					content.replace(actionIndex,cparams);
+				}
+				contentId = cparams.contentId;
 			}
 			else
 			{
-				cparams.contentId = content.at(actionIndex).contentId;
-				content.replace(actionIndex,cparams);
-			}
+				view->page()->mainFrame()->evaluateJavaScript(QString(DELETE_MESSAGE).arg(actionIndex));
 
-			emit contentChanged(AWidget,cparams.contentId,AHtml,AOptions);
-			return cparams.contentId;
+				QList<ContentParams> &content = FWidgetStatus[AWidget].content;
+				contentId = content.value(actionIndex).contentId;
+				content.removeAt(actionIndex);
+			}
+			emit contentChanged(AWidget,contentId,AHtml,AOptions);
+			return contentId;
 		}
 	}
 	return QUuid();
@@ -250,12 +270,10 @@ int AdiumMessageStyle::scriptActionCommand(const IMessageContentOptions &AOption
 {
 	int command = -1;
 	if (AOptions.action == IMessageContentOptions::InsertAfter)
-		command = CAC_INSERT;
+		command = CAC_INSERT_BEFORE;
 	else if (AOptions.action == IMessageContentOptions::InsertBefore)
-		command = CAC_INSERT;
+		command = CAC_INSERT_BEFORE;
 	else if (AOptions.action == IMessageContentOptions::Replace)
-		command = CAC_REPLACE;
-	else if (AOptions.action == IMessageContentOptions::Remove)
 		command = CAC_REPLACE;
 	return command;
 }
@@ -263,7 +281,6 @@ int AdiumMessageStyle::scriptActionCommand(const IMessageContentOptions &AOption
 int AdiumMessageStyle::scriptActionIndex(QWidget *AWidget, const IMessageContentOptions &AOptions) const
 {
 	int index = -1;
-
 	if (!AOptions.contentId.isNull() || AOptions.time.isValid())
 	{
 		const QList<ContentParams> &content = FWidgetStatus.value(AWidget).content;
@@ -280,7 +297,9 @@ int AdiumMessageStyle::scriptActionIndex(QWidget *AWidget, const IMessageContent
 			if (AOptions.contentId == content.at(index).contentId)
 			{
 				if (AOptions.action == IMessageContentOptions::InsertAfter)
+				{
 					index++;
+				}
 			}
 			else
 			{
@@ -289,19 +308,24 @@ int AdiumMessageStyle::scriptActionIndex(QWidget *AWidget, const IMessageContent
 		}
 		else if (AOptions.contentId.isNull() && AOptions.time.isValid())
 		{
-			if (AOptions.action==IMessageContentOptions::InsertAfter)
+			if (AOptions.action == IMessageContentOptions::InsertAfter)
+			{
 				index = 0;
-			else if (AOptions.action==IMessageContentOptions::InsertBefore)
+			}
+			else if (AOptions.action == IMessageContentOptions::InsertBefore)
+			{
 				index = 0;
+			}
 		}
 	}
-
 	return index;
 }
 
 bool AdiumMessageStyle::isSameSender(QWidget *AWidget, const IMessageContentOptions &AOptions, int AIndex) const
 {
 	if (!FCombineConsecutive)
+		return false;
+	if (AOptions.kind!=IMessageContentOptions::Message)
 		return false;
 	if (AOptions.senderId.isEmpty())
 		return false;
@@ -348,6 +372,9 @@ QString AdiumMessageStyle::makeStyleTemplate(const IMessageStyleOptions &AOption
 	QString html = loadFileData(htmlFileName,QString::null);
 	if (!html.isEmpty())
 	{
+		static QString extendScripts = loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Extension.js",QString::null);
+		html.insert(html.indexOf("<script ",0,Qt::CaseInsensitive),QString("<script type='text/javascript'>%1</script>").arg(extendScripts));
+
 		QString headerHTML;
 		if (AOptions.extended.value(MSO_HEADER_TYPE).toInt() == AdiumMessageStyle::HeaderTopic)
 			headerHTML = TOPIC_MAIN_DIV;
@@ -608,20 +635,20 @@ void AdiumMessageStyle::escapeStringForScript(QString &AText) const
 	AText.replace("\r","<br>");
 }
 
-QString AdiumMessageStyle::scriptForAppendContent(bool ASameSender, bool ANoScroll) const
+QString AdiumMessageStyle::scriptForAppendContent(const IMessageContentOptions &AOptions, bool ASameSender) const
 {
 	QString script;
 
 	if (version() >= 4)
 	{
-		if (ANoScroll)
+		if (AOptions.noScroll)
 			script = (FCombineConsecutive && ASameSender ? APPEND_NEXT_MESSAGE_NO_SCROLL : APPEND_MESSAGE_NO_SCROLL);
 		else
 			script = (FCombineConsecutive && ASameSender ? APPEND_NEXT_MESSAGE : APPEND_MESSAGE);
 	}
 	else if (version() >= 3)
 	{
-		if (ANoScroll)
+		if (AOptions.noScroll)
 			script = (FCombineConsecutive && ASameSender ? APPEND_NEXT_MESSAGE_NO_SCROLL : APPEND_MESSAGE_NO_SCROLL);
 		else
 			script = (FCombineConsecutive && ASameSender ? APPEND_NEXT_MESSAGE : APPEND_MESSAGE);
@@ -722,4 +749,3 @@ void AdiumMessageStyle::onStyleWidgetDestroyed(QObject *AObject)
 	FWidgetStatus.remove((QWidget *)AObject);
 	emit widgetRemoved((QWidget *)AObject);
 }
-

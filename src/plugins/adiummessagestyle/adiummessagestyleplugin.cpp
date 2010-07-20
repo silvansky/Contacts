@@ -79,6 +79,7 @@ IMessageStyle *AdiumMessageStylePlugin::styleForOptions(const IMessageStyleOptio
 
 IMessageStyleOptions AdiumMessageStylePlugin::styleOptions(const OptionsNode &ANode, int AMessageType) const
 {
+	Q_UNUSED(AMessageType);
 	IMessageStyleOptions soptions;
 	QVariant &styleId = soptions.extended[MSO_STYLE_ID];
 
