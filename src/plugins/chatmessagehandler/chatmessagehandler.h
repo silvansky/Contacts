@@ -40,10 +40,10 @@
 
 struct WindowStatus
 {
-	QDateTime startTime;
 	QDateTime createTime;
-	QDateTime lastMessageTime;
+	QDateTime historyTime;
 	QString lastStatusShow;
+	QList<QDate> separators;
 };
 
 struct TabPageInfo
@@ -101,14 +101,16 @@ protected:
 	void removeActiveMessages(IChatWindow *AWindow);
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
-	void showHistory(IChatWindow *AWindow);
+	void showStaticMessages(IChatWindow *AWindow);
+	void showHistoryMessages(IChatWindow *AWindow, bool AShowAll = false);
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
-	void showDateSeparator(IChatWindow *AWindow, const QDateTime &AMessageTime);
+	void showDateSeparator(IChatWindow *AWindow, const QDate &AMessageDate);
 	void showStyledStatus(IChatWindow *AWindow, const QString &AMessage);
 	void showStyledMessage(IChatWindow *AWindow, const Message &AMessage);
 protected slots:
 	void onMessageReady();
+	void onUrlClicked(const QUrl &AUrl);
 	void onInfoFieldChanged(IInfoWidget::InfoField AField, const QVariant &AValue);
 	void onWindowActivated();
 	void onWindowClosed();

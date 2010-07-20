@@ -1,7 +1,7 @@
 #include "chatmessagehandler.h"
 
-#define HISTORY_MESSAGES          10
 #define HISTORY_TIME_PAST         5
+#define HISTORY_MESSAGES          5
 
 #define DESTROYWINDOW_TIMEOUT     30*60*1000
 #define CONSECUTIVE_TIMEOUT       2*60
@@ -11,6 +11,9 @@
 #define ADR_TAB_PAGE_ID           Action::DR_Parametr2
 
 #define NOTIFICATOR_ID            "ChatMessages"
+
+#define SHOW_HISTORY_URL          "rambler:history:show"
+#define SHOW_MESSAGES_URL         "rambler:history:show-messages"
 
 QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
 {
@@ -394,11 +397,14 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 			{
 				window->infoWidget()->autoUpdateFields();
 				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
-				FWindowStatus[window->viewWidget()].createTime = QDateTime::currentDateTime();
+
+				WindowStatus &wstatus = FWindowStatus[window->viewWidget()];
+				wstatus.createTime = QDateTime::currentDateTime();
 
 				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 				connect(window->infoWidget()->instance(),SIGNAL(fieldChanged(IInfoWidget::InfoField, const QVariant &)),
 					SLOT(onInfoFieldChanged(IInfoWidget::InfoField, const QVariant &)));
+				connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
 				connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
 				connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
 				connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
@@ -424,7 +430,8 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 				pageInfo.page = window;
 				emit tabPageCreated(window);
 
-				showHistory(window);
+				wstatus.historyTime = wstatus.createTime.addSecs(-HISTORY_TIME_PAST);
+				//showHistoryMessages(window);
 			}
 		}
 	}
@@ -485,7 +492,22 @@ IPresenceItem ChatMessageHandler::findPresenceItem(IPresence *APresence, const J
 	return pitem;
 }
 
-void ChatMessageHandler::showHistory(IChatWindow *AWindow)
+void ChatMessageHandler::showStaticMessages(IChatWindow *AWindow)
+{
+	static QString urlMask = QString("<a href='%1'>%2</a>");
+	if (FMessageArchiver)
+	{
+		IMessageContentOptions options;
+		options.kind = IMessageContentOptions::Status;
+		options.time = QDateTime::fromTime_t(0);
+		options.timeFormat = " ";
+		//options.noScroll = true;
+		QString message = urlMask.arg(SHOW_HISTORY_URL).arg(tr("Chat history")) + "<br>" + urlMask.arg(SHOW_MESSAGES_URL).arg(tr("Show previous messages"));
+		AWindow->viewWidget()->appendHtml(message,options);
+	}
+}
+
+void ChatMessageHandler::showHistoryMessages(IChatWindow *AWindow, bool AShowAll)
 {
 	if (FMessageArchiver)
 	{
@@ -494,20 +516,20 @@ void ChatMessageHandler::showHistory(IChatWindow *AWindow)
 		request.order = Qt::DescendingOrder;
 
 		WindowStatus &wstatus = FWindowStatus[AWindow->viewWidget()];
-		if (wstatus.createTime.secsTo(QDateTime::currentDateTime()) < HISTORY_TIME_PAST)
+		if (!AShowAll)
 		{
 			request.count = HISTORY_MESSAGES;
-			request.end = QDateTime::currentDateTime().addSecs(-HISTORY_TIME_PAST);
+			request.end = wstatus.historyTime;
 		}
 		else
 		{
-			request.start = wstatus.startTime.isValid() ? wstatus.startTime : wstatus.createTime;
+			request.start = wstatus.historyTime;
 			request.end = QDateTime::currentDateTime();
 		}
 
 		QList<Message> history;
 		QList<IArchiveHeader> headers = FMessageArchiver->loadLocalHeaders(AWindow->streamJid(), request);
-		for (int i=0; history.count()<HISTORY_MESSAGES && i<headers.count(); i++)
+		for (int i=0; (AShowAll || history.count()<HISTORY_MESSAGES) && i<headers.count(); i++)
 		{
 			IArchiveCollection collection = FMessageArchiver->loadLocalCollection(AWindow->streamJid(), headers.at(i));
 			history = collection.messages + history;
@@ -519,7 +541,8 @@ void ChatMessageHandler::showHistory(IChatWindow *AWindow)
 			showStyledMessage(AWindow,message);
 		}
 
-		wstatus.startTime = history.value(0).dateTime();
+		if (!AShowAll && !history.isEmpty())
+			wstatus.historyTime = history.first().dateTime().addSecs(-1);
 	}
 }
 
@@ -528,6 +551,7 @@ void ChatMessageHandler::setMessageStyle(IChatWindow *AWindow)
 	IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
 	IMessageStyle *style = FMessageStyles->styleForOptions(soptions);
 	AWindow->viewWidget()->setMessageStyle(style,soptions);
+	showStaticMessages(AWindow);
 }
 
 void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const
@@ -553,35 +577,35 @@ void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageConten
 	}
 }
 
-void ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDateTime &AMessageTime)
+void ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDate &AMessageDate)
 {
 	static const QList<QString> mnames = QList<QString>() << tr("January") << tr("February") <<  tr("March") <<  tr("April")
 		<< tr("May") << tr("June") << tr("July") << tr("August") << tr("September") << tr("October") << tr("November") << tr("December");
 	static const QList<QString> dnames = QList<QString>() << tr("Monday") << tr("Tuesday") <<  tr("Wednesday") <<  tr("Thursday")
 		<< tr("Friday") << tr("Saturday") << tr("Sunday");
 
-	IMessageContentOptions options;
-	options.kind = IMessageContentOptions::Status;
-	options.direction = IMessageContentOptions::DirectionIn;
-	options.type = IMessageContentOptions::DateSeparator;
-	options.time.setDate(AMessageTime.date());
-	options.time.setTime(QTime(0,0));
-	options.timeFormat = " ";
-
-	QString message;
 	WindowStatus &wstatus = FWindowStatus[AWindow->viewWidget()];
-	if (wstatus.lastMessageTime.date() != AMessageTime.date())
+	if (!wstatus.separators.contains(AMessageDate))
 	{
-		wstatus.lastMessageTime = AMessageTime;
-		QDate messageDate = AMessageTime.date();
+		IMessageContentOptions options;
+		options.kind = IMessageContentOptions::Status;
+		options.direction = IMessageContentOptions::DirectionIn;
+		options.type = IMessageContentOptions::DateSeparator;
+		options.time.setDate(AMessageDate);
+		options.time.setTime(QTime(0,0));
+		options.timeFormat = " ";
+		//options.noScroll = true;
+
+		QString message;
 		QDate currentDate = QDate::currentDate();
-		if (messageDate == currentDate)
-			message = AMessageTime.date().toString(tr("%1, %2 dd")).arg(tr("Today")).arg(mnames.value(messageDate.month()-1));
-		else if (messageDate.year() == currentDate.year())
-			message = AMessageTime.date().toString(tr("%1, %2 dd")).arg(dnames.value(messageDate.dayOfWeek()-1)).arg(mnames.value(AMessageTime.date().month()-1));
+		if (AMessageDate == currentDate)
+			message = AMessageDate.toString(tr("%1, %2 dd")).arg(tr("Today")).arg(mnames.value(AMessageDate.month()-1));
+		else if (AMessageDate.year() == currentDate.year())
+			message = AMessageDate.toString(tr("%1, %2 dd")).arg(dnames.value(AMessageDate.dayOfWeek()-1)).arg(mnames.value(AMessageDate.month()-1));
 		else
-			message = AMessageTime.date().toString(tr("%1, %2 dd, yyyy")).arg(dnames.value(messageDate.dayOfWeek()-1)).arg(mnames.value(AMessageTime.date().month()-1));
+			message = AMessageDate.toString(tr("%1, %2 dd, yyyy")).arg(dnames.value(AMessageDate.dayOfWeek()-1)).arg(mnames.value(AMessageDate.month()-1));
 		AWindow->viewWidget()->appendText(message,options);
+		wstatus.separators.append(AMessageDate);
 	}
 }
 
@@ -608,10 +632,13 @@ void ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message &
 		options.direction = IMessageContentOptions::DirectionOut;
 
 	if (options.time.secsTo(FWindowStatus.value(AWindow->viewWidget()).createTime)>HISTORY_TIME_PAST)
+	{
+		//options.noScroll = true;
 		options.type |= IMessageContentOptions::History;
+	}
 
 	fillContentOptions(AWindow,options);
-	showDateSeparator(AWindow,AMessage.dateTime());
+	showDateSeparator(AWindow,AMessage.dateTime().date());
 	AWindow->viewWidget()->appendMessage(AMessage,options);
 }
 
@@ -628,6 +655,17 @@ void ChatMessageHandler::onMessageReady()
 			window->editWidget()->clearEditor();
 			showStyledMessage(window,message);
 		}
+	}
+}
+
+void ChatMessageHandler::onUrlClicked(const QUrl &AUrl)
+{
+	if (AUrl.toString() == SHOW_MESSAGES_URL)
+	{
+		IViewWidget *widget = qobject_cast<IViewWidget *>(sender());
+		IChatWindow *window = widget!=NULL ? findWindow(widget->streamJid(),widget->contactJid()) : NULL;
+		if (window)
+			showHistoryMessages(window);
 	}
 }
 
@@ -794,9 +832,9 @@ void ChatMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOpti
 			IMessageStyle *style = window->viewWidget()!=NULL ? window->viewWidget()->messageStyle() : NULL;
 			if (style==NULL || !style->changeOptions(window->viewWidget()->styleWidget(),AOptions,false))
 			{
-				FWindowStatus[window->viewWidget()].lastMessageTime = QDateTime();
+				FWindowStatus[window->viewWidget()].separators.clear();
 				setMessageStyle(window);
-				showHistory(window);
+				showHistoryMessages(window,true);
 			}
 		}
 	}

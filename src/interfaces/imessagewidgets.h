@@ -27,7 +27,7 @@ public:
 		ContactShow         =4,
 		ContactStatus       =8,
 		ContactAvatar       =16
-			     };
+	};
 public:
 	virtual QWidget *instance() = 0;
 	virtual const Jid &streamJid() const =0;
