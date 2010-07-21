@@ -5,6 +5,7 @@
 #include <QAbstractProxyModel>
 #include <interfaces/irostersmodel.h>
 #include <utils/menu.h>
+#include <utils/toolbarchanger.h>
 
 #define ROSTERSVIEW_UUID "{81ebf318-5ecd-4e4b-8f4a-cac65f7a911c}"
 
@@ -187,7 +188,7 @@ protected:
 	virtual void indexContextMenu(IRosterIndex *AIndex, Menu *AMenu) =0;
 	virtual void indexClipboardMenu(IRosterIndex *AIndex, Menu *AMenu) =0;
 	virtual void labelContextMenu(IRosterIndex *AIndex, int ALabelId, Menu *AMenu) =0;
-	virtual void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips) =0;
+	virtual void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger * AToolBarChanger) =0;
 	virtual void labelClicked(IRosterIndex *AIndex, int ALabelId) =0;
 	virtual void labelDoubleClicked(IRosterIndex *AIndex, int ALabelId, bool &AAccepted) =0;
 	virtual void notifyContextMenu(IRosterIndex *AIndex, int ANotifyId, Menu *AMenu) =0;
@@ -213,6 +214,17 @@ public:
 	virtual IRostersView *rostersView() =0;
 	virtual void startRestoreExpandState() =0;
 	virtual void restoreExpandState(const QModelIndex &AParent = QModelIndex()) =0;
+};
+
+class IRosterToolTip
+{
+public:
+	virtual QWidget * instance() =0;
+	virtual ToolBarChanger * sideBarChanger() =0;
+	virtual QString caption() const =0;
+	virtual void setCaption(const QString &) =0;
+	virtual IRosterIndex * rosterIndex() const =0;
+	virtual void setRosterIndex(IRosterIndex *) =0;
 };
 
 Q_DECLARE_INTERFACE(IRostersClickHooker,"Virtus.Plugin.IRostersClickHooker/1.0");

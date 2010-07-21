@@ -67,10 +67,10 @@ bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &/*AIni
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
 		if (FMainWindowPlugin)
 		{
-			Action * action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
-			action->setText(tr("Mass send"));
-			FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action);
-			connect(action, SIGNAL(triggered()), SLOT(onMassSend()));
+//			Action * action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
+//			action->setText(tr("Mass send"));
+//			FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action);
+//			connect(action, SIGNAL(triggered()), SLOT(onMassSend()));
 		}
 	}
 	plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);

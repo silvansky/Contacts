@@ -342,6 +342,8 @@ public:
 	virtual IViewWidget *viewWidget() const =0;
 	virtual IEditWidget *editWidget() const =0;
 	virtual IReceiversWidget *receiversWidget() const =0;
+protected:
+	virtual void messageReady() =0;
 };
 
 class IViewDropHandler

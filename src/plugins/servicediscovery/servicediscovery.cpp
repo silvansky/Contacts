@@ -164,7 +164,7 @@ bool ServiceDiscovery::initObjects()
 		FRostersView = FRostersViewPlugin->rostersView();
 		FRostersView->insertClickHooker(RCHO_SERVICEDISCOVERY,this);
 		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
-		connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &)),
+		connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &, ToolBarChanger*)),
 			SLOT(onRosterLabelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &)));
 	}
 
@@ -205,7 +205,7 @@ bool ServiceDiscovery::stanzaRead(int AHandlerId, const Jid &AStreamJid, const S
 	bool hooked = false;
 	if (FSHIInfo.value(AStreamJid) == AHandlerId)
 	{
-		QDomElement query = AStanza.firstElement("query",NS_DISCO_INFO);
+		QDomElement query = AStanza.firstElement("query", NS_DISCO_INFO);
 		IDiscoInfo dinfo = selfDiscoInfo(AStreamJid,query.attribute("node"));
 
 		if (dinfo.error.code >= 0)

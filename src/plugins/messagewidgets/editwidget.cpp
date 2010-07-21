@@ -137,7 +137,7 @@ bool EditWidget::eventFilter(QObject *AWatched, QEvent *AEvent)
 	if (AWatched==ui.medEditor && AEvent->type()==QEvent::KeyPress)
 	{
 		QKeyEvent *keyEvent = static_cast<QKeyEvent *>(AEvent);
-		emit keyEventReceived(keyEvent,hooked);
+		emit keyEventReceived(keyEvent, hooked);
 
 		if (!hooked && keyEvent->modifiers()==Qt::CTRL && keyEvent->key()==Qt::Key_Up)
 		{

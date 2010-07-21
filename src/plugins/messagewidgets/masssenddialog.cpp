@@ -11,6 +11,8 @@ MassSendDialog::MassSendDialog(IMessageWidgets *AMessageWidgets, const Jid & ASt
 	FMessageWidgets = AMessageWidgets;
 	FViewWidget = FMessageWidgets->newViewWidget(AStreamJid, Jid());
 	FEditWidget = FMessageWidgets->newEditWidget(AStreamJid, Jid());
+	connect(FEditWidget->instance(), SIGNAL(messageReady()), SLOT(onMessageReady()));
+	FEditWidget->setSendKey(QKeySequence(Qt::Key_Return));
 	FReceiversWidget = FMessageWidgets->newReceiversWidget(AStreamJid);
 	FTabPageNotifier = FMessageWidgets->newTabPageNotifier(this);
 	ui->messagingLayout->addWidget(FViewWidget->instance());
@@ -58,4 +60,9 @@ void MassSendDialog::changeEvent(QEvent *e)
 	default:
 		break;
 	}
+}
+
+void MassSendDialog::onMessageReady()
+{
+	emit messageReady();
 }

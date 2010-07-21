@@ -62,8 +62,12 @@ signals:
 	void tabPageActivated();
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
+	// IMassSendDialog
+	void messageReady();
 protected:
 	void changeEvent(QEvent *e);
+protected slots:
+	void onMessageReady();
 
 private:
 	Ui::MassSendDialog *ui;

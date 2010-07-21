@@ -1,6 +1,6 @@
 #include "masssendhandler.h"
 
-#define NOTIFICATOR_ID            "NormalMessages"
+#define NORMAL_NOTIFICATOR_ID     "MassSend"
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_CONTACT_JID           Action::DR_Parametr1
@@ -24,11 +24,11 @@ MassSendHandler::~MassSendHandler()
 
 void MassSendHandler::pluginInfo(IPluginInfo *APluginInfo)
 {
-	APluginInfo->name = tr("Normal Messages");
-	APluginInfo->description = tr("Allows to exchange normal messages");
+	APluginInfo->name = tr("Mass Send");
+	APluginInfo->description = tr("Allows to send messagesages to multiple users");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://www.vacuum-im.org";
+	APluginInfo->homePage = "http://virtus.rambler.ru";
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 	APluginInfo->dependences.append(MESSAGEPROCESSOR_UUID);
 	APluginInfo->dependences.append(MESSAGESTYLES_UUID);
@@ -36,15 +36,15 @@ void MassSendHandler::pluginInfo(IPluginInfo *APluginInfo)
 
 bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
 {
-	IPlugin *plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
+	IPlugin *plugin = APluginManager->pluginInterface("IMessageWidgets").value(0, NULL);
 	if (plugin)
 		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0, NULL);
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("IMessageStyles").value(0,NULL);
+	plugin = APluginManager->pluginInterface("IMessageStyles").value(0, NULL);
 	if (plugin)
 	{
 		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
@@ -55,7 +55,7 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
+	plugin = APluginManager->pluginInterface("IStatusIcons").value(0, NULL);
 	if (plugin)
 	{
 		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
@@ -65,7 +65,7 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
+	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0, NULL);
 	if (plugin)
 	{
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
@@ -76,7 +76,7 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	plugin = APluginManager->pluginInterface("INotifications").value(0, NULL);
 	if (plugin)
 	{
 		INotifications *notifications = qobject_cast<INotifications *>(plugin->instance());
@@ -84,11 +84,11 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		{
 			uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate;
 			uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-			notifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_NORMAL_MESSAGES,tr("Single Messages"),kindMask,kindDefs);
+			notifications->insertNotificator(NORMAL_NOTIFICATOR_ID,tr("Single Messages"),kindMask,kindDefs);
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
+	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0, NULL);
 	if (plugin)
 	{
 		IRostersViewPlugin *rostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
@@ -99,18 +99,34 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("IXmppUriQueries").value(0,NULL);
+	plugin = APluginManager->pluginInterface("IXmppUriQueries").value(0, NULL);
 	if (plugin)
 		FXmppUriQueries = qobject_cast<IXmppUriQueries *>(plugin->instance());
 
-	return FMessageProcessor!=NULL && FMessageWidgets!=NULL && FMessageStyles!=NULL;
+	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0, NULL);
+	if (plugin)
+	{
+		FMainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
+		if (FMainWindowPlugin)
+		{
+			Action * action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
+			action->setText(tr("Mass send"));
+			connect(action, SIGNAL(triggered()), SLOT(onMassSendAction()));
+			FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action);
+		}
+	}
+	plugin = APluginManager->pluginInterface("IAccountManager").value(0, NULL);
+	if (plugin)
+		FAccountManager = qobject_cast<IAccountManager *>(plugin->instance());
+
+	return FMessageProcessor && FMessageWidgets && FMessageStyles;
 }
 
 bool MassSendHandler::initObjects()
 {
 	if (FMessageProcessor)
 	{
-		FMessageProcessor->insertMessageHandler(this,MHO_NORMALMESSAGEHANDLER);
+		FMessageProcessor->insertMessageHandler(this, MHO_NORMALMESSAGEHANDLER);
 	}
 //	if (FXmppUriQueries)
 //	{
@@ -139,7 +155,7 @@ bool MassSendHandler::showMessage(int AMessageId)
 bool MassSendHandler::receiveMessage(int AMessageId)
 {
 	Message message = FMessageProcessor->messageById(AMessageId);
-	IMessageWindow *window = findWindow(message.to(),message.from());
+	IMassSendDialog *window = findWindow(message.from());
 	if (window)
 	{
 		FActiveMessages.insertMulti(window,AMessageId);
@@ -157,7 +173,7 @@ INotification MassSendHandler::notification(INotifications *ANotifications, cons
 	QString name= ANotifications->contactName(AMessage.to(),AMessage.from());
 
 	INotification notify;
-	notify.kinds = ANotifications->notificatorKinds(NOTIFICATOR_ID);
+	notify.kinds = ANotifications->notificatorKinds(NORMAL_NOTIFICATOR_ID);
 //	notify.data.insert(NDR_ICON,icon);
 //	notify.data.insert(NDR_TOOLTIP,tr("Message from %1").arg(name));
 //	notify.data.insert(NDR_ROSTER_STREAM_JID,AMessage.to());
@@ -175,7 +191,7 @@ INotification MassSendHandler::notification(INotifications *ANotifications, cons
 bool MassSendHandler::createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
 {
 	Q_UNUSED(AOrder);
-	IMessageWindow *window = getWindow(AStreamJid,AContactJid,IMessageWindow::WriteMode);
+	IMassSendDialog *window = getWindow(AStreamJid);
 	if (window)
 	{
 		showWindow(window);
@@ -184,45 +200,45 @@ bool MassSendHandler::createWindow(int AOrder, const Jid &AStreamJid, const Jid 
 	return false;
 }
 
-IMessageWindow *MassSendHandler::getWindow(const Jid &AStreamJid, const Jid &AContactJid, IMessageWindow::Mode AMode)
+IMassSendDialog *MassSendHandler::getWindow(const Jid &AStreamJid)
 {
-	IMessageWindow *window = NULL;
-	if (AStreamJid.isValid() && (AContactJid.isValid() || AMode == IMessageWindow::WriteMode))
+	IMassSendDialog *window = NULL;
+	if (AStreamJid.isValid())
 	{
-		window = FMessageWidgets->newMessageWindow(AStreamJid,AContactJid,AMode);
+		window = FMessageWidgets->newMassSendDialog(AStreamJid);
 		if (window)
 		{
-			window->infoWidget()->autoUpdateFields();
+//			window->infoWidget()->autoUpdateFields();
 			connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
-			connect(window->instance(),SIGNAL(showNextMessage()),SLOT(onShowNextMessage()));
-			connect(window->instance(),SIGNAL(replyMessage()),SLOT(onReplyMessage()));
-			connect(window->instance(),SIGNAL(forwardMessage()),SLOT(onForwardMessage()));
-			connect(window->instance(),SIGNAL(showChatWindow()),SLOT(onShowChatWindow()));
-			connect(window->instance(),SIGNAL(windowDestroyed()),SLOT(onWindowDestroyed()));
+//			connect(window->instance(),SIGNAL(showNextMessage()),SLOT(onShowNextMessage()));
+//			connect(window->instance(),SIGNAL(replyMessage()),SLOT(onReplyMessage()));
+//			connect(window->instance(),SIGNAL(forwardMessage()),SLOT(onForwardMessage()));
+//			connect(window->instance(),SIGNAL(showChatWindow()),SLOT(onShowChatWindow()));
+//			connect(window->instance(),SIGNAL(windowDestroyed()),SLOT(onWindowDestroyed()));
 			FWindows.append(window);
 			loadActiveMessages(window);
 			showNextMessage(window);
 		}
 		else
-			window = findWindow(AStreamJid,AContactJid);
+			window = findWindow(AStreamJid);
 	}
 	return window;
 }
 
-IMessageWindow *MassSendHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid)
+IMassSendDialog *MassSendHandler::findWindow(const Jid &AStreamJid)
 {
-	foreach(IMessageWindow *window,FWindows)
-		if (window->streamJid() == AStreamJid && window->contactJid() == AContactJid)
+	foreach(IMassSendDialog *window, FWindows)
+		if (window->streamJid() == AStreamJid)
 			return window;
 	return NULL;
 }
 
-void MassSendHandler::showWindow(IMessageWindow *AWindow)
+void MassSendHandler::showWindow(IMassSendDialog *AWindow)
 {
 	//AWindow->showWindow();
 }
 
-void MassSendHandler::showNextMessage(IMessageWindow *AWindow)
+void MassSendHandler::showNextMessage(IMassSendDialog *AWindow)
 {
 	if (FActiveMessages.contains(AWindow))
 	{
@@ -236,13 +252,13 @@ void MassSendHandler::showNextMessage(IMessageWindow *AWindow)
 	updateWindow(AWindow);
 }
 
-void MassSendHandler::loadActiveMessages(IMessageWindow *AWindow)
+void MassSendHandler::loadActiveMessages(IMassSendDialog *AWindow)
 {
 	QList<int> messagesId = FActiveMessages.values(NULL);
 	foreach(int messageId, messagesId)
 	{
 		Message message = FMessageProcessor->messageById(messageId);
-		if (AWindow->streamJid() == message.to() && AWindow->contactJid() == message.from())
+		if (AWindow->streamJid() == message.to())
 		{
 			FActiveMessages.insertMulti(AWindow,messageId);
 			FActiveMessages.remove(NULL,messageId);
@@ -250,9 +266,9 @@ void MassSendHandler::loadActiveMessages(IMessageWindow *AWindow)
 	}
 }
 
-void MassSendHandler::updateWindow(IMessageWindow *AWindow)
+void MassSendHandler::updateWindow(IMassSendDialog *AWindow)
 {
-	QIcon icon;
+/*	QIcon icon;
 	if (FActiveMessages.contains(AWindow))
 		icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_NORMAL_MHANDLER_MESSAGE);
 	else if (FStatusIcons)
@@ -263,9 +279,10 @@ void MassSendHandler::updateWindow(IMessageWindow *AWindow)
 		title = tr("%1 - Message").arg(AWindow->infoWidget()->field(IInfoWidget::ContactName).toString());
 	AWindow->updateWindow(icon,title,title);
 	AWindow->setNextCount(FActiveMessages.count(AWindow));
+	*/
 }
 
-void MassSendHandler::setMessageStyle(IMessageWindow *AWindow)
+void MassSendHandler::setMessageStyle(IMassSendDialog *AWindow)
 {
 	IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Normal);
 	IMessageStyle *style = FMessageStyles->styleForOptions(soptions);
@@ -275,16 +292,16 @@ void MassSendHandler::setMessageStyle(IMessageWindow *AWindow)
 		AWindow->viewWidget()->messageStyle()->changeOptions(AWindow->viewWidget()->styleWidget(),soptions);
 }
 
-void MassSendHandler::fillContentOptions(IMessageWindow *AWindow, IMessageContentOptions &AOptions) const
+void MassSendHandler::fillContentOptions(IMassSendDialog *AWindow, IMessageContentOptions &AOptions) const
 {
-	AOptions.senderColor = "blue";
-	AOptions.senderId = AWindow->contactJid().full();
-	AOptions.senderName = Qt::escape(FMessageStyles->userName(AWindow->streamJid(),AWindow->contactJid()));
-	AOptions.senderAvatar = FMessageStyles->userAvatar(AWindow->contactJid());
-	AOptions.senderIcon = FMessageStyles->userIcon(AWindow->streamJid(),AWindow->contactJid());
+//	AOptions.senderColor = "blue";
+//	AOptions.senderId = AWindow->contactJid().full();
+//	AOptions.senderName = Qt::escape(FMessageStyles->userName(AWindow->streamJid(),AWindow->contactJid()));
+//	AOptions.senderAvatar = FMessageStyles->userAvatar(AWindow->contactJid());
+//	AOptions.senderIcon = FMessageStyles->userIcon(AWindow->streamJid(),AWindow->contactJid());
 }
 
-void MassSendHandler::showStyledMessage(IMessageWindow *AWindow, const Message &AMessage)
+void MassSendHandler::showStyledMessage(IMassSendDialog *AWindow, const Message &AMessage)
 {
 	IMessageContentOptions options;
 	options.time = AMessage.dateTime();
@@ -293,9 +310,9 @@ void MassSendHandler::showStyledMessage(IMessageWindow *AWindow, const Message &
 	options.noScroll = true;
 	fillContentOptions(AWindow,options);
 
-	AWindow->setMode(IMessageWindow::ReadMode);
-	AWindow->setSubject(AMessage.subject());
-	AWindow->setThreadId(AMessage.threadId());
+//	AWindow->setMode(IMessageWindow::ReadMode);
+//	AWindow->setSubject(AMessage.subject());
+//	AWindow->setThreadId(AMessage.threadId());
 
 	setMessageStyle(AWindow);
 
@@ -317,14 +334,14 @@ void MassSendHandler::showStyledMessage(IMessageWindow *AWindow, const Message &
 
 void MassSendHandler::onMessageReady()
 {
-/*	IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
+	IMassSendDialog *window = qobject_cast<IMassSendDialog*>(sender());
 	if (window)
 	{
 		Message message;
-		message.setType(Message::Normal);
-		message.setSubject(window->subject());
-		message.setThreadId(window->threadId());
-		FMessageProcessor->textToMessage(message,window->editWidget()->document());
+		message.setType(Message::Chat);
+//		message.setSubject(window->subject());
+//		message.setThreadId(window->threadId());
+		FMessageProcessor->textToMessage(message, window->editWidget()->document());
 		if (!message.body().isEmpty())
 		{
 			bool sended = false;
@@ -338,62 +355,62 @@ void MassSendHandler::onMessageReady()
 			{
 				if (FActiveMessages.contains(window))
 					showNextMessage(window);
-				else
-					window->closeWindow();
+//				else
+//					window->closeWindow();
 			}
 		}
-	}*/
-}
-
-void MassSendHandler::onShowNextMessage()
-{
-	IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
-	if (window)
-	{
-		showNextMessage(window);
-		updateWindow(window);
 	}
 }
 
-void MassSendHandler::onReplyMessage()
-{
-	IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
-	if (window)
-	{
-		window->setMode(IMessageWindow::WriteMode);
-		window->setSubject(tr("Re: %1").arg(window->subject()));
-		window->editWidget()->clearEditor();
-		window->editWidget()->instance()->setFocus();
-		updateWindow(window);
-	}
-}
+//void MassSendHandler::onShowNextMessage()
+//{
+//	IMassSendDialog *window = qobject_cast<IMassSendDialog*>(sender());
+//	if (window)
+//	{
+////		showNextMessage(window);
+//		updateWindow(window);
+//	}
+//}
 
-void MassSendHandler::onForwardMessage()
-{
-	IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
-	if (FLastMessages.contains(window))
-	{
-		Message message = FLastMessages.value(window);
-		window->setMode(IMessageWindow::WriteMode);
-		window->setSubject(tr("Fw: %1").arg(message.subject()));
-		window->setThreadId(message.threadId());
-		FMessageProcessor->messageToText(window->editWidget()->document(),message);
-		window->receiversWidget()->clear();
-		window->setCurrentTabWidget(window->receiversWidget()->instance());
-		updateWindow(window);
-	}
-}
+//void MassSendHandler::onReplyMessage()
+//{
+//	IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
+//	if (window)
+//	{
+//		window->setMode(IMessageWindow::WriteMode);
+//		window->setSubject(tr("Re: %1").arg(window->subject()));
+//		window->editWidget()->clearEditor();
+//		window->editWidget()->instance()->setFocus();
+//		updateWindow(window);
+//	}
+//}
 
-void MassSendHandler::onShowChatWindow()
-{
-	//IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
-	//if (FMessageProcessor && window)
-	//	FMessageProcessor->openWindow(window->streamJid(),window->contactJid(),Message::Chat);
-}
+//void MassSendHandler::onForwardMessage()
+//{
+//	IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
+//	if (FLastMessages.contains(window))
+//	{
+//		Message message = FLastMessages.value(window);
+//		window->setMode(IMessageWindow::WriteMode);
+//		window->setSubject(tr("Fw: %1").arg(message.subject()));
+//		window->setThreadId(message.threadId());
+//		FMessageProcessor->messageToText(window->editWidget()->document(),message);
+//		window->receiversWidget()->clear();
+//		window->setCurrentTabWidget(window->receiversWidget()->instance());
+//		updateWindow(window);
+//	}
+//}
+
+//void MassSendHandler::onShowChatWindow()
+//{
+//	//IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
+//	//if (FMessageProcessor && window)
+//	//	FMessageProcessor->openWindow(window->streamJid(),window->contactJid(),Message::Chat);
+//}
 
 void MassSendHandler::onWindowDestroyed()
 {
-	IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
+	IMassSendDialog *window = qobject_cast<IMassSendDialog*>(sender());
 	if (FWindows.contains(window))
 	{
 		QList<int> messagesId = FActiveMessages.values(window);
@@ -407,7 +424,7 @@ void MassSendHandler::onWindowDestroyed()
 
 void MassSendHandler::onStatusIconsChanged()
 {
-	foreach(IMessageWindow *window, FWindows)
+	foreach(IMassSendDialog *window, FWindows)
 		updateWindow(window);
 }
 
@@ -457,7 +474,7 @@ void MassSendHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu
 
 void MassSendHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem)
 {
-	IMessageWindow *messageWindow = findWindow(APresence->streamJid(),APresenceItem.itemJid);
+	IMassSendDialog *messageWindow = findWindow(APresence->streamJid());
 	if (messageWindow)
 		updateWindow(messageWindow);
 }
@@ -466,7 +483,7 @@ void MassSendHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptions
 {
 	if (AContext.isEmpty())
 	{
-		foreach (IMessageWindow *window, FWindows)
+		foreach (IMassSendDialog *window, FWindows)
 		{
 			if (FLastMessages.value(window).type()==AMessageType && window->viewWidget() && window->viewWidget()->messageStyle())
 			{
@@ -474,6 +491,15 @@ void MassSendHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptions
 			}
 		}
 	}
+}
+
+void MassSendHandler::onMassSendAction()
+{
+	Jid streamJid;
+	if (FAccountManager->accounts().first()->xmppStream())
+		streamJid = FAccountManager->accounts().first()->xmppStream()->streamJid();
+	FMassSendDialog = FMessageWidgets->newMassSendDialog(streamJid);
+	FMassSendDialog->instance()->show();
 }
 
 Q_EXPORT_PLUGIN2(plg_masssendhandler, MassSendHandler)

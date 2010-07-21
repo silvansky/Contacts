@@ -20,6 +20,7 @@
 
 RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 {
+	currentToolTip = 0;
 	FNotifyId = 1;
 	FLabelIdCounter = 1;
 
@@ -56,7 +57,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	setDropIndicatorShown(true);
 	setAlternatingRowColors(true);
 
-	connect(this,SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)),
+	connect(this,SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger*)),
 		SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)));
 	connect(this,SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 	setMouseTracking(true);
@@ -66,6 +67,8 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 
 RostersView::~RostersView()
 {
+	if (currentToolTip)
+		currentToolTip->deleteLater();
 	removeLabels();
 }
 
@@ -753,19 +756,33 @@ bool RostersView::viewportEvent(QEvent *AEvent)
 		{
 			QMultiMap<int,QString> toolTipsMap;
 			const int labelId = labelAt(helpEvent->pos(),viewIndex);
-
 			QModelIndex modelIndex = mapToModel(viewIndex);
 			IRosterIndex *index = static_cast<IRosterIndex *>(modelIndex.internalPointer());
+			RosterToolTip * oldToolTip = currentToolTip;
+			if (!currentToolTip)
+				currentToolTip = new RosterToolTip(0);
 			if (index)
 			{
-				emit labelToolTips(index,labelId,toolTipsMap);
+				emit labelToolTips(index, labelId, toolTipsMap, currentToolTip->sideBarChanger());
 				if (labelId!=RLID_DISPLAY && toolTipsMap.isEmpty())
-					emit labelToolTips(index,RLID_DISPLAY,toolTipsMap);
+					emit labelToolTips(index, RLID_DISPLAY, toolTipsMap, currentToolTip->sideBarChanger());
 
 				if (!toolTipsMap.isEmpty())
-					QToolTip::showText(helpEvent->globalPos(),"<span>"+QStringList(toolTipsMap.values()).join("<p/>")+"</span>",this);
-
-				return true;
+				{
+					QString toolTipText = "<span>" + QStringList(toolTipsMap.values()).join("<br/>") + "</span>";
+					if (currentToolTip->caption().compare(toolTipText))
+					{
+						if (oldToolTip && (oldToolTip != currentToolTip))
+							oldToolTip->deleteLater();
+						currentToolTip->setCaption(toolTipText);
+						QRect geometry = currentToolTip->geometry();
+						geometry.moveTo(helpEvent->globalPos());
+						currentToolTip->setGeometry(geometry);
+						currentToolTip->show();
+						currentToolTip->adjustSize();
+						return true;
+					}
+				}
 			}
 		}
 	}
@@ -1080,12 +1097,13 @@ void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMul
 	{
 		QString name = AIndex->data(RDR_NAME).toString();
 		if (!name.isEmpty())
-			AToolTips.insert(RTTO_CONTACT_NAME, Qt::escape(name));
+			AToolTips.insert(RTTO_CONTACT_NAME, "<b>" + Qt::escape(name) + "</b>");
 
 		QString jid = AIndex->data(RDR_JID).toString();
 		if (!jid.isEmpty())
-			AToolTips.insert(RTTO_CONTACT_JID, Qt::escape(jid));
+			AToolTips.insert(RTTO_CONTACT_JID, "<font color=grey>" + Qt::escape(jid) + "</font>");
 
+		/*
 		QString priority = AIndex->data(RDR_PRIORITY).toString();
 		if (!priority.isEmpty())
 			AToolTips.insert(RTTO_CONTACT_PRIORITY, tr("Priority: %1").arg(priority.toInt()));
@@ -1094,6 +1112,7 @@ void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMul
 		QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
 		if (!subscription.isEmpty())
 			AToolTips.insert(RTTO_CONTACT_SUBSCRIPTION, tr("Subscription: %1 %2").arg(Qt::escape(subscription)).arg(Qt::escape(ask)));
+		*/
 
 		QString status = AIndex->data(RDR_STATUS).toString();
 		if (!status.isEmpty())

@@ -1,6 +1,9 @@
 include(../config.inc)
 
 TARGET             = $$TARGET_UTILS
+
+#VERSION = 1.0.1.0
+
 TEMPLATE           = lib
 CONFIG            += dll
 QT                += xml

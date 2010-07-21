@@ -15,6 +15,7 @@
 #include <interfaces/irostersmodel.h>
 #include <utils/options.h>
 #include "rosterindexdelegate.h"
+#include "rostertooltip.h"
 
 struct NotifyItem
 {
@@ -90,7 +91,7 @@ signals:
 	void indexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void indexClipboardMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void labelContextMenu(IRosterIndex *AIndex, int ALabelId, Menu *AMenu);
-	void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips);
+	void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger * AToolBarChanger);
 	void labelClicked(IRosterIndex *AIndex, int ALabelId);
 	void labelDoubleClicked(IRosterIndex *AIndex, int ALabelId, bool &AAccepted);
 	void notifyContextMenu(IRosterIndex *AIndex, int ANotifyId, Menu *AMenu);
@@ -155,6 +156,7 @@ private:
 	QHash<int, NotifyItem> FNotifyItems;
 	QHash<int, QList<int> > FNotifyLabelItems;
 	QHash<IRosterIndex *, QHash<int, int> > FNotifyIndexOrderLabel;
+	RosterToolTip * currentToolTip;
 private:
 	QMultiMap<int, IRostersClickHooker *> FClickHookers;
 private:

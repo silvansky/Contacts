@@ -75,11 +75,13 @@ void StatusWidget::changeEvent(QEvent *e)
 void StatusWidget::paintEvent(QPaintEvent * event)
 {
 	QWidget::paintEvent(event);
+/*
 	if (!logo.isNull())
 	{
 		QPainter painter(this);
 		painter.drawImage(rect().right() - logo.width(), 0, logo);
 	}
+*/
 }
 
 bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
@@ -147,6 +149,11 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 				profileMenu->popup(point);
 				break;
 			}
+		case QEvent::MouseButtonPress:
+			{
+				if (profileMenu->isVisible())
+					profileMenu->hide();
+			}
 		default:
 			break;
 		}
@@ -157,9 +164,7 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 	{
 		QMouseEvent * mouseEvent = (QMouseEvent*)event;
 		if (mouseEvent->button() == Qt::LeftButton)
-		{
 			startEditMood();
-		}
 	}
 	if (obj == ui->moodEdit)
 	{
@@ -171,11 +176,9 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 			case Qt::Key_Enter:
 			case Qt::Key_Return:
 				if (keyEvent->modifiers() == Qt::NoModifier)
-				{
 					finishEditMood();
-				}
 				break;
-		case Qt::Key_Escape:
+			case Qt::Key_Escape:
 				cancelEditMood();
 				return true;
 				break;

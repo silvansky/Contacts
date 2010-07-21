@@ -104,7 +104,7 @@ bool Avatars::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*
 		{
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
 				SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)),
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger*)),
 				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)));
 		}
 	}

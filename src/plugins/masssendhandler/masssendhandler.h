@@ -22,6 +22,8 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/ixmppuriqueries.h>
+#include <interfaces/imainwindow.h>
+#include <interfaces/iaccountmanager.h>
 #include <utils/errorhandler.h>
 
 class MassSendHandler :
@@ -49,39 +51,43 @@ public:
 	virtual INotification notification(INotifications *ANotifications, const Message &AMessage);
 	virtual bool createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
 protected:
-	IMessageWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid, IMessageWindow::Mode AMode);
-	IMessageWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
-	void showWindow(IMessageWindow *AWindow);
-	void showNextMessage(IMessageWindow *AWindow);
-	void loadActiveMessages(IMessageWindow *AWindow);
-	void updateWindow(IMessageWindow *AWindow);
-	void setMessageStyle(IMessageWindow *AWindow);
-	void fillContentOptions(IMessageWindow *AWindow, IMessageContentOptions &AOptions) const;
-	void showStyledMessage(IMessageWindow *AWindow, const Message &AMessage);
+	IMassSendDialog *getDialog(const Jid &AStreamJid);
+	IMassSendDialog *findDialog(const Jid &AStreamJid);
+	void showDialog(IMassSendDialog *ADialog);
+//	void showNextMessage(IMassSendDialog *AWindow);
+//	void loadActiveMessages(IMassSendDialog *AWindow);
+	void updateDialog(IMassSendDialog *ADialog);
+	void setMessageStyle(IMassSendDialog *ADialog);
+	void fillContentOptions(IMassSendDialog *ADialog, IMessageContentOptions &AOptions) const;
+	void showStyledMessage(IMassSendDialog *ADialog, const Message &AMessage);
 protected slots:
 	void onMessageReady();
-	void onShowNextMessage();
-	void onReplyMessage();
-	void onForwardMessage();
-	void onShowChatWindow();
+//	void onShowNextMessage();
+//	void onReplyMessage();
+//	void onForwardMessage();
+//	void onShowChatWindow();
 	void onWindowDestroyed();
 	void onStatusIconsChanged();
 	void onShowWindowAction(bool);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
+	void onMassSendAction();
 private:
 	IMessageWidgets *FMessageWidgets;
+	IMassSendDialog * FMassSendDialog;
 	IMessageProcessor *FMessageProcessor;
 	IMessageStyles *FMessageStyles;
 	IStatusIcons *FStatusIcons;
 	IPresencePlugin *FPresencePlugin;
 	IRostersView *FRostersView;
 	IXmppUriQueries *FXmppUriQueries;
+	IMainWindowPlugin * FMainWindowPlugin;
+	IAccountManager * FAccountManager;
 private:
-	QList<IMessageWindow *> FWindows;
-	QMap<IMessageWindow *, Message> FLastMessages;
-	QMultiMap<IMessageWindow *, int> FActiveMessages;
+	QList<IMassSendDialog *> FDialogs;
+	//QMap<IMassSendDialog *, Message> FLastMessages;
+	//QMultiMap<IMassSendDialog *, int> FActiveMessages;
 };
 
 #endif // NORMALMESSAGEHANDLER_H
