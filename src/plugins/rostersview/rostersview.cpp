@@ -58,7 +58,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	setAlternatingRowColors(true);
 
 	connect(this,SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger*)),
-		SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)));
+		SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger*)));
 	connect(this,SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 	setMouseTracking(true);
 	connect(this, SIGNAL(entered(const QModelIndex&)), SLOT(onEntered(const QModelIndex&)));
@@ -763,14 +763,20 @@ bool RostersView::viewportEvent(QEvent *AEvent)
 				currentToolTip = new RosterToolTip(0);
 			if (index)
 			{
+				currentToolTip->sideBarChanger()->clear();
+				currentToolTip->setRosterIndex(index);
 				emit labelToolTips(index, labelId, toolTipsMap, currentToolTip->sideBarChanger());
 				if (labelId!=RLID_DISPLAY && toolTipsMap.isEmpty())
 					emit labelToolTips(index, RLID_DISPLAY, toolTipsMap, currentToolTip->sideBarChanger());
+				// event filters for children of toolbar
+				ToolBarChanger * changer = currentToolTip->sideBarChanger();
+				foreach(QWidget * widget, changer->childWidgets())
+					widget->installEventFilter(currentToolTip->instance());
 
 				if (!toolTipsMap.isEmpty())
 				{
 					QString toolTipText = "<span>" + QStringList(toolTipsMap.values()).join("<br/>") + "</span>";
-					if (currentToolTip->caption().compare(toolTipText))
+					if (!currentToolTip->isVisible() || currentToolTip->caption().compare(toolTipText))
 					{
 						if (oldToolTip && (oldToolTip != currentToolTip))
 							oldToolTip->deleteLater();
@@ -779,7 +785,7 @@ bool RostersView::viewportEvent(QEvent *AEvent)
 						geometry.moveTo(helpEvent->globalPos());
 						currentToolTip->setGeometry(geometry);
 						currentToolTip->show();
-						currentToolTip->adjustSize();
+						//currentToolTip->adjustSize();
 						return true;
 					}
 				}
@@ -1091,7 +1097,7 @@ void RostersView::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 		delete clipMenu;
 }
 
-void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips)
+void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger* AToolBarChanger)
 {
 	if (ALabelId == RLID_DISPLAY)
 	{

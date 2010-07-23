@@ -2,6 +2,7 @@
 #define ROSTERTOOLTIP_H
 
 #include <QWidget>
+#include <QTimer>
 #include <utils/toolbarchanger.h>
 #include <interfaces/irostersview.h>
 
@@ -23,8 +24,14 @@ public:
 	virtual void setCaption(const QString &);
 	virtual IRosterIndex * rosterIndex() const;
 	virtual void setRosterIndex(IRosterIndex *);
+	// QWidget
+	virtual void setVisible(bool visible);
 protected:
 	void changeEvent(QEvent *e);
+	bool eventFilter(QObject *, QEvent *);
+
+protected slots:
+	void onTimer();
 
 private:
 	Ui::RosterToolTip *ui;
@@ -32,6 +39,7 @@ private:
 	QString tipCaption;
 	ToolBarChanger * rightToolBarChanger;
 	IRosterIndex * index;
+	QTimer * timer;
 };
 
 #endif // ROSTERTOOLTIP_H

@@ -119,6 +119,7 @@ protected slots:
 	void onShowWindowAction(bool);
 	void onOpenTabPageAction(bool);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onRosterLabelToolTips(IRosterIndex * AIndex, int ALabelId, QMultiMap<int,QString> & AToolTips, ToolBarChanger * AToolBarChanger);
 	void onPresenceAdded(IPresence *APresence);
 	void onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem);
 	void onPresenceRemoved(IPresence *APresence);

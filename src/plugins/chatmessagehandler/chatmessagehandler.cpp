@@ -131,6 +131,8 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 		{
 			FRostersView = rostersViewPlugin->rostersView();
 			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+			connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)),
+				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)));
 		}
 	}
 
@@ -580,9 +582,9 @@ void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageConten
 void ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDate &AMessageDate)
 {
 	static const QList<QString> mnames = QList<QString>() << tr("January") << tr("February") <<  tr("March") <<  tr("April")
-		<< tr("May") << tr("June") << tr("July") << tr("August") << tr("September") << tr("October") << tr("November") << tr("December");
+					     << tr("May") << tr("June") << tr("July") << tr("August") << tr("September") << tr("October") << tr("November") << tr("December");
 	static const QList<QString> dnames = QList<QString>() << tr("Monday") << tr("Tuesday") <<  tr("Wednesday") <<  tr("Thursday")
-		<< tr("Friday") << tr("Saturday") << tr("Sunday");
+					     << tr("Friday") << tr("Saturday") << tr("Sunday");
 
 	WindowStatus &wstatus = FWindowStatus[AWindow->viewWidget()];
 	if (!wstatus.separators.contains(AMessageDate))
@@ -777,7 +779,7 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AM
 	static QList<int> chatActionTypes = QList<int>() << RIT_CONTACT << RIT_AGENT << RIT_MY_RESOURCE;
 
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
 	if (presence && presence->isOpen())
 	{
 		Jid contactJid = AIndex->data(RDR_JID).toString();
@@ -789,6 +791,28 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AM
 			action->setData(ADR_STREAM_JID,streamJid.full());
 			action->setData(ADR_CONTACT_JID,contactJid.full());
 			AMenu->addAction(action,AG_RVCM_CHATMESSAGEHANDLER,true);
+			connect(action,SIGNAL(triggered(bool)),SLOT(onShowWindowAction(bool)));
+		}
+	}
+}
+
+void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex * AIndex, int ALabelId, QMultiMap<int,QString> & AToolTips, ToolBarChanger * AToolBarChanger)
+{
+	static QList<int> chatActionTypes = QList<int>() << RIT_CONTACT << RIT_AGENT << RIT_MY_RESOURCE;
+
+	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
+	if (presence && presence->isOpen())
+	{
+		Jid contactJid = AIndex->data(RDR_JID).toString();
+		if (chatActionTypes.contains(AIndex->type()) && (ALabelId == RLID_DISPLAY))
+		{
+			Action *action = new Action();
+			action->setText(tr("Chat"));
+			action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
+			action->setData(ADR_STREAM_JID,streamJid.full());
+			action->setData(ADR_CONTACT_JID,contactJid.full());
+			AToolBarChanger->insertAction(action);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onShowWindowAction(bool)));
 		}
 	}
