@@ -30,9 +30,9 @@ function appendCustumMessage(html,type,index,past) {
 	}, funcs = [function(nid,ind,ht,range,t){
 		var ael,ains,newNode,sib,add=0, ins, curins;
 		(curins = document.getElementById('insert') || {}).id = '_temp_insert_';
-		ael = document.getElementById(messages[index]);
-		ains = document.getElementById('old_insert_'+messages[index]);
-		sib = messages[index+1]? document.getElementById(messages[index+1]) : 0;
+		ael = document.getElementById(messages[ind]);
+		ains = document.getElementById('old_insert_'+messages[ind]);
+		sib = messages[ind+1]? document.getElementById(messages[ind+1]) : 0;
 		range.selectNode(ael.parentNode);
 		newNode = range.createContextualFragment(ht);
 		ains && (add = (sib && sib.parentNode===ains.parentNode));
@@ -47,9 +47,9 @@ function appendCustumMessage(html,type,index,past) {
 	}, function(nid,ind,ht,range,t){
 		var ael,ains,newNode,sib,add=0, ins, curins;
 		(curins = document.getElementById('insert') || {}).id = '_temp_insert_';
-		ael = document.getElementById(messages[index]);
-		ains = messages[index-1]? document.getElementById('old_insert_'+messages[index-1]) : {parentNode:0};
-		ind? messages.splice(ind-1,0,nid) : messages.unshift(nid);
+		ael = document.getElementById(messages[ind]);
+		ains = messages[ind-1]? document.getElementById('old_insert_'+messages[ind-1]) : {parentNode:0};
+		ind? messages.splice(ind,0,nid) : messages.unshift(nid);
 		if (ains.parentNode===ael.parentNode) {
 			range.selectNode(ael.parentNode);
 			newNode = range.createContextualFragment(ht);
@@ -76,7 +76,7 @@ function appendCustumMessage(html,type,index,past) {
 		}
 	}, _ind = html.search(/(\<\w+\s+id\s*=\s*[\'\"]?insert[\'\"]?[^\>]*\>)/);
 	_ind>-1 && (html = html.substring(0,_ind)+'<span style="display:none" id="old_insert_'+id+'"></span>'+html.substring(_ind));
-	html = '<span id="'+id+'">'+html+'</span>';
+	html = '<messagecont style="display:block;width:100%;" id="'+id+'">'+html+'</messagecont>';
 	past==2 && !messages[index+1] && (index = -1);
 	if (!messages[index]) messages.push(id)&&window[type](html);
 	else {

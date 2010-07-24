@@ -301,7 +301,7 @@ bool ChatMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 bool ChatMessageHandler::showMessage(int AMessageId)
 {
 	Message message = FMessageProcessor->messageById(AMessageId);
-	return createWindow(MHO_CHATMESSAGEHANDLER,message.to(),message.from(),message.type(),IMessageHandler::SM_SHOW);
+	return createWindow(MHO_CHATMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
 }
 
 bool ChatMessageHandler::receiveMessage(int AMessageId)
@@ -433,7 +433,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 				emit tabPageCreated(window);
 
 				wstatus.historyTime = wstatus.createTime.addSecs(-HISTORY_TIME_PAST);
-				//showHistoryMessages(window);
+				showHistoryMessages(window);
 			}
 		}
 	}
@@ -796,8 +796,9 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AM
 	}
 }
 
-void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex * AIndex, int ALabelId, QMultiMap<int,QString> & AToolTips, ToolBarChanger * AToolBarChanger)
+void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger)
 {
+	Q_UNUSED(AToolTips);
 	static QList<int> chatActionTypes = QList<int>() << RIT_CONTACT << RIT_AGENT << RIT_MY_RESOURCE;
 
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
@@ -807,7 +808,7 @@ void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex * AIndex, int ALabel
 		Jid contactJid = AIndex->data(RDR_JID).toString();
 		if (chatActionTypes.contains(AIndex->type()) && (ALabelId == RLID_DISPLAY))
 		{
-			Action *action = new Action();
+			Action *action = new Action(AToolBarChanger->toolBar());
 			action->setText(tr("Chat"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
 			action->setData(ADR_STREAM_JID,streamJid.full());

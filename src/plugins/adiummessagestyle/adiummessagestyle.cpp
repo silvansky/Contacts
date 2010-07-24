@@ -1,7 +1,5 @@
 #include "adiummessagestyle.h"
 
-#include <QtDebug>
-
 #include <QUrl>
 #include <QDir>
 #include <QFile>
@@ -163,9 +161,6 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 				html.replace("%message%",processCommands(AHtml,AOptions));
 				if (AOptions.kind == IMessageContentOptions::Topic)
 					html.replace("%topic%",QString(TOPIC_INDIVIDUAL_WRAPPER).arg(AHtml));
-
-				QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(AHtml);
-				qDebug() << scriptForAppendContent(AOptions,sameSender) << fragment.toPlainText() << actionIndex << actionCommand;
 
 				escapeStringForScript(html);
 				QString script = scriptForAppendContent(AOptions,sameSender).arg(html).arg(actionIndex).arg(actionCommand);
