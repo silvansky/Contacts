@@ -1495,13 +1495,15 @@ void RosterChanger::onChatWindowCreated(IChatWindow *AWindow)
 {
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AWindow->streamJid()) : NULL;
 	IRosterItem ritem = roster!=NULL ? roster->rosterItem(AWindow->contactJid()) : IRosterItem();
-	if (roster && !ritem.isValid && AWindow->streamJid().pBare()!=AWindow->contactJid().pBare())
+	if (roster && !ritem.isValid)
 	{
-		insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ADD_CONTACT|NA_CLOSE,tr("This contact is not added to your roster."),QString::null));
+		if (!AWindow->contactJid().node().isEmpty() && AWindow->streamJid().pBare()!=AWindow->contactJid().pBare())
+			insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ADD_CONTACT|NA_CLOSE,tr("This contact is not added to your roster."),QString::null));
 	}
-	else if (roster && ritem.isValid && ritem.ask!=SUBSCRIPTION_SUBSCRIBE && ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO)
+	else if (roster && ritem.isValid)
 	{
-		insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ASK_SUBSCRIBE|NA_CLOSE,tr("Request authorization from contact to see his status and mood."),QString::null));
+		if (ritem.ask!=SUBSCRIPTION_SUBSCRIBE && ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO)
+			insertNotice(AWindow,createNotice(NTP_SUBSCRIPTION,NA_ASK_SUBSCRIBE|NA_CLOSE,tr("Request authorization from contact to see his status and mood."),QString::null));
 	}
 
 	if (FPendingChatWindows.isEmpty())
