@@ -32,4 +32,40 @@
     <key>gatewaysAccounts</key>
     <object mime="image/png">gatewaysaccounts.png</object>
   </icon>
+  <icon>
+    <key>gatewaysServiceIcq</key>
+    <object mime="image/png">gatewaysserviceicq.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceYOnline</key>
+    <object mime="image/png">gatewaysserviceyonline.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceOdnoklasniki</key>
+    <object mime="image/png">gatewaysserviceodnoklasniki.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceMAgent</key>
+    <object mime="image/png">gatewaysservicemagent.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceGTalk</key>
+    <object mime="image/png">gatewaysservicegtalk.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceRambler</key>
+    <object mime="image/png">gatewaysservicerambler.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceFacebook</key>
+    <object mime="image/png">gatewaysservicefacebook.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceQip</key>
+    <object mime="image/png">gatewaysserviceqip.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceJabber</key>
+    <object mime="image/png">gatewaysservicejabber.png</object>
+  </icon>
 </icondef>

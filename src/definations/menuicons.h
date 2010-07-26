@@ -82,6 +82,15 @@
 #define MNI_GATEWAYS_CHANGE                      "gatewaysChange"
 #define MNI_GATEWAYS_RESOLVE                     "gatewaysResolve"
 #define MNI_GATEWAYS_ACCOUNTS                    "gatewaysAccounts"
+#define MNI_GATEWAYS_SERVICE_ICQ                 "gatewaysServiceIcq"
+#define MNI_GATEWAYS_SERVICE_YONLINE             "gatewaysServiceYOnline"
+#define MNI_GATEWAYS_SERVICE_ODNOKLASNIKI        "gatewaysServiceOdnoklasniki"
+#define MNI_GATEWAYS_SERVICE_MAGENT              "gatewaysServiceMAgent"
+#define MNI_GATEWAYS_SERVICE_GTALK               "gatewaysServiceGTalk"
+#define MNI_GATEWAYS_SERVICE_RAMBLER             "gatewaysServiceRambler"
+#define MNI_GATEWAYS_SERVICE_FACEBOOK            "gatewaysServiceFacebook"
+#define MNI_GATEWAYS_SERVICE_QIP                 "gatewaysServiceQip"
+#define MNI_GATEWAYS_SERVICE_JABBER              "gatewaysServiceJabber"
 
 //JabberSearch
 #define MNI_JSEARCH                              "jsearch"

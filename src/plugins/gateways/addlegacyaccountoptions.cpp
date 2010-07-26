@@ -5,13 +5,19 @@
 
 #define ADR_GATEJID				Action::DR_Parametr1
 
-AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, IServiceDiscovery *ADiscovery, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
+AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, IRosterPlugin *ARosterPlugin, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 
 	FGateways = AGateways;
-	FDiscovery = ADiscovery;
 	FStreamJid = AStreamJid;
+
+	IRoster *roster = ARosterPlugin!=NULL ? ARosterPlugin->getRoster(FStreamJid) : NULL;
+	if (roster)
+	{
+		connect(roster->instance(),SIGNAL(received(const IRosterItem &)),SLOT(onRosterItemChanged(const IRosterItem &)));
+		connect(roster->instance(),SIGNAL(removed(const IRosterItem &)),SLOT(onRosterItemChanged(const IRosterItem &)));
+	}
 
 	createButtons();
 }
@@ -44,8 +50,8 @@ void AddLegacyAccountOptions::createButtons()
 
 	foreach(Jid gateJid, availGates)
 	{
-		IGateRegisterLabel grlabel = FGateways->registerLabel(FStreamJid,gateJid);
-		if (grlabel.valid)
+		IGateServiceLabel slabel = FGateways->serviceLabel(FStreamJid,gateJid);
+		if (slabel.valid)
 		{
 			QWidget *widget = new QWidget(ui.wdtGateways);
 			widget->setLayout(new QVBoxLayout);
@@ -56,12 +62,12 @@ void AddLegacyAccountOptions::createButtons()
 			button->setIconSize(QSize(32,32));
 			button->setFixedSize(32,32);
 
-			QLabel *label = new QLabel(grlabel.name,widget);
+			QLabel *label = new QLabel(slabel.name,widget);
 			label->setAlignment(Qt::AlignCenter);
 
 			Action *action = new Action(button);
-			action->setIcon(grlabel.icon);
-			action->setText(grlabel.name);
+			action->setIcon(RSR_STORAGE_MENUICONS,slabel.iconKey);
+			action->setText(slabel.name);
 			action->setData(ADR_GATEJID,gateJid.full());
 			connect(action,SIGNAL(triggered(bool)),SLOT(onGateActionTriggeted(bool)));
 			button->setDefaultAction(action);
@@ -95,4 +101,10 @@ void AddLegacyAccountOptions::onGateActionTriggeted(bool)
 		Jid gateJid = action->data(ADR_GATEJID).toString();
 		FGateways->showAddLegacyAccountDialog(FStreamJid,gateJid,this);
 	}
+}
+
+void AddLegacyAccountOptions::onRosterItemChanged(const IRosterItem &ARosterItem)
+{
+	if (ARosterItem.itemJid.node().isEmpty())
+		updateButtons();
 }

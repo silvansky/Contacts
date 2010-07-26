@@ -28,6 +28,7 @@
 #include <interfaces/istatusicons.h>
 #include <interfaces/iregistraton.h>
 #include <interfaces/ioptionsmanager.h>
+#include <interfaces/idataforms.h>
 #include <utils/errorhandler.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
@@ -73,10 +74,13 @@ public:
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;
-	virtual IGateRegisterLabel registerLabel(const Jid &AStreamJid, const Jid &AServiceJid) const;
-	virtual IGateRegisterLogin registerLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const;
-	virtual IRegisterSubmit registerSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateRegisterLogin &ALogin) const;
+	virtual IGateServiceLabel serviceLabel(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	virtual IGateServiceLogin serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const;
+	virtual IRegisterSubmit serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const;
+	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	virtual bool setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe);
+	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID);
 	virtual QDialog *showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
@@ -88,6 +92,7 @@ signals:
 protected:
 	void registerDiscoFeatures();
 	void savePrivateStorageSubscribe(const Jid &AStreamJid);
+	IGateServiceDescriptor findGateDescriptor(const IDiscoInfo &AInfo) const;
 protected slots:
 	void onAddLegacyUserActionTriggered(bool);
 	void onLogActionTriggered(bool);
@@ -126,6 +131,7 @@ private:
 	IVCardPlugin *FVCardPlugin;
 	IStatusIcons *FStatusIcons;
 	IOptionsManager *FOptionsManager;
+	IDataForms *FDataForms;
 private:
 	QTimer FKeepTimer;
 	QMap<Jid, QSet<Jid> > FKeepConnections;
@@ -138,6 +144,7 @@ private:
 private:
 	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
+	QList<IGateServiceDescriptor> FGateDescriptors;
 };
 
 #endif // GATEWAYS_H

@@ -27,6 +27,7 @@ Gateways::Gateways()
 	FStatusIcons = NULL;
 	FRegistration = NULL;
 	FOptionsManager = NULL;
+	FDataForms = NULL;
 
 	FKeepTimer.setSingleShot(false);
 	connect(&FKeepTimer,SIGNAL(timeout()),SLOT(onKeepTimerTimeout()));
@@ -164,16 +165,76 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	if (plugin)
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IDataForms").value(0,NULL);
+	if (plugin)
+		FDataForms = qobject_cast<IDataForms *>(plugin->instance());
+
 	return FStanzaProcessor!=NULL;
 }
 
 bool Gateways::initObjects()
 {
+	IGateServiceDescriptor icq;
+	icq.valid = true;
+	icq.type = "icq";
+	icq.name = tr("ICQ");
+	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
+	icq.loginLabel = tr("Login");
+	FGateDescriptors.append(icq);
+
+	IGateServiceDescriptor magent;
+	magent.valid = true;
+	magent.type = "mrim";
+	magent.name = tr("Agent@Mail");
+	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
+	magent.loginLabel = tr("E-mail");
+	FGateDescriptors.append(magent);
+
+	IGateServiceDescriptor gtalk;
+	gtalk.valid = true;
+	gtalk.type = "xmpp";
+	gtalk.prefix = "gtalk.";
+	gtalk.name = tr("GTalk");
+	gtalk.iconKey = MNI_GATEWAYS_SERVICE_GTALK;
+	gtalk.loginLabel = tr("E-mail");
+	gtalk.loginField = "username";
+	gtalk.domainField = "server";
+	gtalk.passwordField = "password";
+	gtalk.domainSeparator = "@";
+	FGateDescriptors.append(gtalk);
+
+	IGateServiceDescriptor yonline;
+	yonline.valid = true;
+	yonline.type = "xmpp";
+	yonline.prefix = "yonline.";
+	yonline.name = tr("Y.Online");
+	yonline.iconKey = MNI_GATEWAYS_SERVICE_YONLINE;
+	yonline.loginLabel = tr("E-mail");
+	yonline.domains.append("ya.ru");
+	yonline.loginField = "username";
+	yonline.domainField = "server";
+	yonline.passwordField = "password";
+	yonline.domainSeparator = "@";
+	FGateDescriptors.append(yonline);
+
+	IGateServiceDescriptor jabber;
+	jabber.valid = true;
+	jabber.type = "xmpp";
+	jabber.name = tr("Jabber");
+	jabber.iconKey = MNI_GATEWAYS_SERVICE_JABBER;
+	jabber.loginLabel = tr("Login");
+	jabber.loginField = "username";
+	jabber.domainField = "server";
+	jabber.passwordField = "password";
+	jabber.domainSeparator = "@";
+	FGateDescriptors.append(jabber);
+
 	if (FDiscovery)
 	{
 		registerDiscoFeatures();
 		FDiscovery->insertFeatureHandler(NS_JABBER_GATEWAY,this,DFO_DEFAULT);
 	}
+
 	return true;
 }
 
@@ -191,11 +252,11 @@ QMultiMap<int, IOptionsWidget *> Gateways::optionsWidgets(const QString &ANodeId
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_GATEWAYS_ACCOUNTS)
 	{
-		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(AParent));
-		if (FDiscovery)
+		if (FRosterPlugin)
 		{
+			widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(this,FRosterPlugin,FOptionsStreamJid,AParent));
 			widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Append account"),AParent));
-			widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(this,FDiscovery,FOptionsStreamJid,AParent));
+			widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(this,FRosterPlugin,FOptionsStreamJid,AParent));
 		}
 	}
 	return widgets;
@@ -388,68 +449,138 @@ QList<Jid> Gateways::serviceContacts(const Jid &AStreamJid, const Jid &AServiceJ
 	return contacts;
 }
 
-IGateRegisterLabel Gateways::registerLabel(const Jid &AStreamJid, const Jid &AServiceJid) const
+IGateServiceLabel Gateways::serviceLabel(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
-	IGateRegisterLabel grlabel;
-	if (FDiscovery)
+	return FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
+}
+
+IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const
+{
+	IGateServiceLogin login;
+	IGateServiceDescriptor descriptor = FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
+	if (descriptor.valid)
 	{
-		IDiscoInfo dinfo = FDiscovery->discoInfo(AStreamJid, AServiceJid);
-		int index = FDiscovery->findIdentity(dinfo.identity,"gateway",QString::null);
-		if (index >= 0)
+		if (AFields.fieldMask > 0)
 		{
-			IDiscoIdentity ident = dinfo.identity.at(index);
-			QString identType = ident.type.toLower();
-			grlabel.icon = FDiscovery->identityIcon(dinfo.identity);
-			if (identType == "icq")
+			login.valid = true;
+			login.login = AFields.fieldMask & IRegisterFields::Username ? AFields.username : AFields.email;
+			login.password = AFields.password;
+			login.fields = AFields;
+			if (!descriptor.domains.isEmpty())
 			{
-				grlabel.valid = true;
-				grlabel.name = tr("ICQ");
+				QStringList parts = login.login.split(descriptor.domainSeparator);
+				login.login = parts.value(0);
+				login.domain = parts.value(1);
+				login.valid = login.domain.isEmpty() || descriptor.domains.contains(login.domain);
 			}
-			else if (identType == "mrim")
+		}
+		else if (FDataForms && FDataForms->isFormValid(AFields.form))
+		{
+			login.valid = true;
+			login.login = FDataForms->fieldValue(descriptor.loginField, AFields.form.fields).toString();
+			login.password = FDataForms->fieldValue(descriptor.passwordField, AFields.form.fields).toString();
+			login.domain = FDataForms->fieldValue(descriptor.domainField, AFields.form.fields).toString();
+			login.fields = AFields;
+			if (!descriptor.domains.isEmpty())
 			{
-				grlabel.valid = true;
-				grlabel.name = tr("Agent@Mail.ru");
-				grlabel.loginLabel = tr("E-mail");
+				login.valid = login.domain.isEmpty() || descriptor.domains.contains(login.domain);
 			}
-			else if (identType == "xmpp")
+			else if (!descriptor.domainField.isEmpty() && !login.domain.isEmpty())
 			{
-				QString domain = AServiceJid.pDomain();
-				if (domain.startsWith("yandex."))
-				{
-					grlabel.valid = true;
-					grlabel.name = tr("Y.Online");
-					grlabel.loginLabel = tr("E-mail");
-					grlabel.domains.append("@yandex");
-				}
-				else if (domain.startsWith("gtalk."))
-				{
-					grlabel.valid = true;
-					grlabel.name = tr("GTalk");
-					grlabel.loginLabel = tr("E-mail");
-				}
-				else
-				{
-					grlabel.valid = true;
-					grlabel.name = tr("Jabber");
-				}
+				login.login = login.login + descriptor.domainSeparator + login.domain;
+				login.domain = QString::null;
 			}
 		}
 	}
-	return grlabel;
+	return login;
 }
 
-IGateRegisterLogin Gateways::registerLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const
+IRegisterSubmit Gateways::serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const
 {
-	IGateRegisterLogin grlogin;
+	IRegisterSubmit submit;
+	IGateServiceDescriptor descriptor = FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
+	if (descriptor.valid)
+	{
+		submit.fieldMask = ALogin.fields.fieldMask;
+		submit.key = ALogin.fields.key;
+		if (ALogin.fields.fieldMask > 0)
+		{
+			QString login = !ALogin.domain.isEmpty() ? ALogin.login + descriptor.domainSeparator + ALogin.domain : ALogin.login;
+			if (ALogin.fields.fieldMask & IRegisterFields::Username)
+				submit.username =  login;
+			else
+				submit.email = login;
+			submit.password = ALogin.password;
+			submit.serviceJid = AServiceJid;
+		}
+		else if (FDataForms)
+		{
+			QString login = ALogin.login;
+			QString domain = ALogin.domain;
+			if (!descriptor.domainField.isEmpty() && descriptor.domains.isEmpty())
+			{
+				QStringList parts = login.split(descriptor.domainSeparator);
+				login = parts.value(0);
+				domain = parts.value(1);
+			}
 
-	return grlogin;
+			QMap<QString, QVariant> fields = descriptor.extraFields;
+			fields.insert(descriptor.loginField,login);
+			fields.insert(descriptor.domainField,domain);
+			fields.insert(descriptor.passwordField, ALogin.password);
+			
+			IDataForm form = ALogin.fields.form;
+			QMap<QString, QVariant>::const_iterator it = fields.constBegin();
+			while (it != fields.constEnd())
+			{
+				int index = FDataForms->fieldIndex(it.key(),form.fields);
+				if (index >= 0)
+					form.fields[index].value = it.value();
+				it++;
+			}
+
+			submit.form = FDataForms->dataSubmit(form);
+			if (FDataForms->isSubmitValid(form,submit.form))
+				submit.serviceJid = AServiceJid;
+		}
+	}
+	return submit;
 }
 
-IRegisterSubmit Gateways::registerSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateRegisterLogin &ALogin) const
+bool Gateways::isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
-	IRegisterSubmit rsubmit;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	if (roster)
+	{
+		IRosterItem ritem = roster->rosterItem(AServiceJid);
+		return ritem.isValid && ritem.subscription!=SUBSCRIPTION_NONE;
+	}
+	return false;
+}
 
-	return rsubmit;
+bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
+{
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	if (roster && roster->isOpen())
+	{
+		if (AEnabled)
+		{
+			if (FRosterChanger)
+				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,true,false);
+			roster->sendSubscription(AServiceJid,IRoster::Subscribe);
+			setKeepConnection(AStreamJid,AServiceJid,true);
+		}
+		else
+		{
+			if (FRosterChanger)
+				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
+			setKeepConnection(AStreamJid,AServiceJid,false);
+			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
+			roster->sendSubscription(AServiceJid,IRoster::Unsubscribed);
+		}
+		return true;
+	}
+	return false;
 }
 
 bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe)
@@ -512,6 +643,23 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 		return true;
 	}
 	return false;
+}
+
+bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid)
+{
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	if (roster && roster->isOpen())
+	{
+		QList<IRosterItem> ritems;
+		foreach(IRosterItem ritem, roster->rosterItems())
+		{
+			if (ritem.itemJid.pDomain() == AServiceJid.pDomain())
+				ritems.append(ritem);
+		}
+		roster->removeItems(ritems);
+		return true;
+	}
+	return false;	
 }
 
 QString Gateways::sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid)
@@ -589,6 +737,26 @@ void Gateways::savePrivateStorageSubscribe(const Jid &AStreamJid)
 			elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.eBare()));
 		FPrivateStorage->saveData(AStreamJid,elem);
 	}
+}
+
+IGateServiceDescriptor Gateways::findGateDescriptor(const IDiscoInfo &AInfo) const
+{
+	IGateServiceDescriptor grdescriptor;
+	int index = FDiscovery!=NULL ? FDiscovery->findIdentity(AInfo.identity,"gateway",QString::null) : -1;
+	if (index >= 0)
+	{
+		QString domain = AInfo.contactJid.pDomain();
+		QString identType = AInfo.identity.at(index).type.toLower();
+		foreach (IGateServiceDescriptor descriptor, FGateDescriptors)
+		{
+			if (descriptor.type == identType && (descriptor.prefix.isEmpty() || domain.startsWith(descriptor.prefix)))
+			{
+				grdescriptor = descriptor;
+				break;
+			}
+		}
+	}
+	return grdescriptor;
 }
 
 void Gateways::onAddLegacyUserActionTriggered(bool)

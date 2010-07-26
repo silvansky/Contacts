@@ -8,24 +8,36 @@
 
 #define GATEWAYS_UUID "{2a3ce0cd-bf67-4f15-8907-b7d0706be4b4}"
 
-struct IGateRegisterLabel
+struct IGateServiceLabel
 {
-	IGateRegisterLabel() { valid = false; }
+	IGateServiceLabel() { valid = false; }
 	bool valid;
-	QIcon icon;
+	QString iconKey;
 	QString name;
 	QString loginLabel;
 	QList<QString> domains;
 };
 
-struct IGateRegisterLogin
+struct IGateServiceLogin
 {
-	IGateRegisterLogin() { valid = false; }
+	IGateServiceLogin() { valid = false; }
 	bool valid;
 	QString login;
 	QString domain;
 	QString password;
 	IRegisterFields fields;
+};
+
+struct IGateServiceDescriptor : public IGateServiceLabel
+{
+	IGateServiceDescriptor() { valid = false; }
+	QString type;
+	QString prefix;
+	QString loginField;
+	QString domainField;
+	QString passwordField;
+	QString domainSeparator;
+	QMap<QString, QVariant> extraFields;
 };
 
 class IGateways
@@ -39,10 +51,13 @@ public:
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
-	virtual IGateRegisterLabel registerLabel(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
-	virtual IGateRegisterLogin registerLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const =0;
-	virtual IRegisterSubmit registerSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateRegisterLogin &ALogin) const =0;
+	virtual IGateServiceLabel serviceLabel(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
+	virtual IGateServiceLogin serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const =0;
+	virtual IRegisterSubmit serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const =0;
+	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
+	virtual bool setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled) =0;
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe) =0;
+	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid) =0;
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid) =0;
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID) =0;
 	virtual QDialog *showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL) =0;
