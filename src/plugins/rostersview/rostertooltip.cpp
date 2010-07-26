@@ -1,5 +1,7 @@
 #include "rostertooltip.h"
 #include "ui_rostertooltip.h"
+#include <QDebug>
+#include <QFocusEvent>
 
 #define TIP_SHOW_TIME 3000
 
@@ -25,6 +27,8 @@ RosterToolTip::RosterToolTip(QWidget *parent) :
 	rightToolBar->setOrientation(Qt::Vertical);
 	rightToolBar->installEventFilter(this);
 	ui->frame->layout()->addWidget(rightToolBar);
+	qApp->installEventFilter(this);
+	hovered = false;
 }
 
 RosterToolTip::~RosterToolTip()
@@ -94,15 +98,49 @@ void RosterToolTip::changeEvent(QEvent *e)
 
 bool RosterToolTip::eventFilter(QObject * obj, QEvent * event)
 {
-	if (event->type() == QEvent::HoverEnter || event->type() == QEvent::HoverMove)
+	switch(event->type())
 	{
+	case QEvent::HoverEnter:
+	case QEvent::Enter:
+		hovered = true;
+	case QEvent::HoverMove:
 		timer->stop();
-	}
-	if (event->type() == QEvent::HoverLeave)
-	{
-		timer->start();
+		break;
+	case QEvent::HoverLeave:
+	case QEvent::Leave:
+		hovered = false;
+		hideTip();
+		break;
+	case QEvent::MouseButtonRelease:
+		if (rightToolBarChanger->childWidgets().contains((QWidget*)obj))
+		{
+			hovered = false;
+			break;
+		}
+	case QEvent::WindowActivate:
+	case QEvent::WindowDeactivate:
+	case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonDblClick:
+	case QEvent::FocusIn:
+	case QEvent::FocusOut:
+	case QEvent::Wheel:
+		if (!hovered)
+			hideTipImmediately();
+		break;
+	default:
+		break;
 	}
 	return QWidget::eventFilter(obj, event);
+}
+
+void RosterToolTip::hideTipImmediately()
+{
+	hide();
+}
+
+void RosterToolTip::hideTip()
+{
+	timer->start();
 }
 
 void RosterToolTip::onTimer()

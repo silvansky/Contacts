@@ -30,6 +30,9 @@ protected:
 	void changeEvent(QEvent *e);
 	bool eventFilter(QObject *, QEvent *);
 
+private:
+	void hideTipImmediately();
+	void hideTip();
 protected slots:
 	void onTimer();
 
@@ -40,6 +43,7 @@ private:
 	ToolBarChanger * rightToolBarChanger;
 	IRosterIndex * index;
 	QTimer * timer;
+	bool hovered;
 };
 
 #endif // ROSTERTOOLTIP_H
