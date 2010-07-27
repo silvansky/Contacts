@@ -19,17 +19,22 @@
 #include <interfaces/ixmppuriqueries.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/ibitsofbinary.h>
+#include <interfaces/istatusicons.h>
+#include <interfaces/iavatars.h>
+#include <interfaces/iroster.h>
+#include <interfaces/ipresence.h>
 #include <utils/widgetmanager.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
 #include "vcard.h"
 #include "vcarddialog.h"
+#include "simplevcarddialog.h"
 
 struct VCardItem
 {
-	VCardItem() { 
-		vcard = NULL; 
-		locks = 0; 
+	VCardItem() {
+		vcard = NULL;
+		locks = 0;
 	}
 	VCard *vcard;
 	int locks;
@@ -68,6 +73,7 @@ public:
 	virtual bool requestVCard(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual bool publishVCard(IVCard *AVCard, const Jid &AStreamJid);
 	virtual void showVCardDialog(const Jid &AStreamJid, const Jid &AContactJid);
+	virtual void showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AContactJid);
 signals:
 	void vcardReceived(const Jid &AContactJid);
 	void vcardPublished(const Jid &AContactJid);
@@ -85,6 +91,7 @@ protected slots:
 	void onShowVCardDialogByAction(bool);
 	void onShowVCardDialogByChatWindowAction(bool);
 	void onVCardDialogDestroyed(QObject *ADialog);
+	void onSimpleVCardDialogDestroyed(QObject *ADialog);
 	void onXmppStreamRemoved(IXmppStream *AXmppStream);
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onBinaryCached(const QString &AContentId, const QString &AType, const QByteArray &AData, quint64 AMaxAge);
@@ -99,12 +106,17 @@ private:
 	IXmppUriQueries *FXmppUriQueries;
 	IMessageWidgets *FMessageWidgets;
 	IBitsOfBinary * FBitsOfBinary;
+	IStatusIcons * FStatusIcons;
+	IAvatars * FAvatars;
+	IRosterPlugin * FRosterPlugin;
+	IPresencePlugin * FPresencePlugin;
 private:
 	QMap<Jid, VCardItem> FVCards;
 	QMap<QString, Jid> FVCardRequestId;
 	QMap<QString, QString> FVCardPublishId;
 	QMap<QString, Stanza> FVCardPublishStanza;
 	QMap<Jid, VCardDialog *> FVCardDialogs;
+	QMap<Jid, SimpleVCardDialog *> FSimpleVCardDialogs;
 	QMap<QString, Jid> FAvatarsRequestId;
 	QMap<QString, Jid> FAvatarsBinaryCids;
 };

@@ -103,6 +103,30 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
+	if (plugin)
+	{
+		FStatusIcons = qobject_cast<IStatusIcons*>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
+	if (plugin)
+	{
+		FAvatars = qobject_cast<IAvatars*>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IRosterPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FRosterPlugin = qobject_cast<IRosterPlugin*>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
+	if (plugin)
+	{
+		FPresencePlugin = qobject_cast<IPresencePlugin*>(plugin->instance());
+	}
+
 	return true;
 }
 
@@ -213,7 +237,7 @@ bool VCardPlugin::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, con
 	Q_UNUSED(AParams);
 	if (AAction == "vcard")
 	{
-		showVCardDialog(AStreamJid, AContactJid);
+		showSimpleVCardDialog(AStreamJid, AContactJid);
 		return true;
 	}
 	return false;
@@ -321,6 +345,24 @@ void VCardPlugin::showVCardDialog(const Jid &AStreamJid, const Jid &AContactJid)
 	}
 }
 
+void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AContactJid)
+{
+	if (FSimpleVCardDialogs.contains(AContactJid))
+	{
+		SimpleVCardDialog *dialog = FSimpleVCardDialogs.value(AContactJid);
+		dialog->show();
+		WidgetManager::raiseWidget(dialog);
+		dialog->activateWindow();
+	}
+	else if (AStreamJid.isValid() && AContactJid.isValid())
+	{
+		SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons, FRosterPlugin, FPresencePlugin, AStreamJid, AContactJid);
+		connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onSimpleVCardDialogDestroyed(QObject *)));
+		FSimpleVCardDialogs.insert(AContactJid,dialog);
+		dialog->show();
+	}
+}
+
 void VCardPlugin::unlockVCard(const Jid &AContactJid)
 {
 	VCardItem &vcardItem = FVCards[AContactJid];
@@ -413,7 +455,7 @@ void VCardPlugin::onShowVCardDialogByAction(bool)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-		showVCardDialog(streamJid,contactJid);
+		showSimpleVCardDialog(streamJid,contactJid);
 	}
 }
 
@@ -430,7 +472,7 @@ void VCardPlugin::onShowVCardDialogByChatWindowAction(bool)
 			QList<IMultiUserChatWindow *> windows = FMultiUserChatPlugin!=NULL ? FMultiUserChatPlugin->multiChatWindows() : QList<IMultiUserChatWindow *>();
 			for (int i=0; !isMucUser && i<windows.count(); i++)
 				isMucUser = windows.at(i)->findChatWindow(contactJid)!=NULL;
-			showVCardDialog(toolBarWidget->viewWidget()->streamJid(), isMucUser ? contactJid : contactJid.bare());
+			showSimpleVCardDialog(toolBarWidget->viewWidget()->streamJid(), isMucUser ? contactJid : contactJid.bare());
 		}
 	}
 }
@@ -439,6 +481,12 @@ void VCardPlugin::onVCardDialogDestroyed(QObject *ADialog)
 {
 	VCardDialog *dialog = static_cast<VCardDialog *>(ADialog);
 	FVCardDialogs.remove(FVCardDialogs.key(dialog));
+}
+
+void VCardPlugin::onSimpleVCardDialogDestroyed(QObject *ADialog)
+{
+	SimpleVCardDialog *dialog = static_cast<SimpleVCardDialog *>(ADialog);
+	FSimpleVCardDialogs.remove(FSimpleVCardDialogs.key(dialog));
 }
 
 void VCardPlugin::onXmppStreamRemoved(IXmppStream *AXmppStream)

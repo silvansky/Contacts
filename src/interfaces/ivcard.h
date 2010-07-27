@@ -19,12 +19,12 @@ public:
 	virtual QDomElement vcardElem() const =0;
 	virtual QDateTime loadDateTime() const =0;
 	virtual QString value(const QString &AName, const QStringList &ATags = QStringList(),
-	                      const QStringList &ATagList = QStringList()) const =0;
+			      const QStringList &ATagList = QStringList()) const =0;
 	virtual QMultiHash<QString,QStringList> values(const QString &AName, const QStringList &ATagList) const =0;
 	virtual void setTagsForValue(const QString &AName, const QString &AValue, const QStringList &ATags = QStringList(),
-	                             const QStringList &ATagList = QStringList()) =0;
+				     const QStringList &ATagList = QStringList()) =0;
 	virtual void setValueForTags(const QString &AName, const QString &AValue, const QStringList &ATags = QStringList(),
-	                             const QStringList &ATagList = QStringList()) =0;
+				     const QStringList &ATagList = QStringList()) =0;
 	virtual QImage logoImage() const =0;
 	virtual void setLogoImage(const QImage &AImage, const QByteArray &AFormat = QByteArray()) =0;
 	virtual QImage photoImage() const =0;
@@ -48,6 +48,7 @@ public:
 	virtual IVCard *vcard(const Jid &AContactJid) =0;
 	virtual bool publishVCard(IVCard *AVCard, const Jid &AStreamJid) =0;
 	virtual void showVCardDialog(const Jid &AStreamJid, const Jid &AContactJid) =0;
+	virtual void showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AContactJid) =0;
 protected:
 	virtual void vcardReceived(const Jid &AContactJid) =0;
 	virtual void vcardPublished(const Jid &AContactJid) =0;
