@@ -22,9 +22,9 @@ Roster::Roster(IXmppStream *AXmppStream, IStanzaProcessor *AStanzaProcessor) : Q
 	connect(FXmppStream->instance(),SIGNAL(opened()),SLOT(onStreamOpened()));
 	connect(FXmppStream->instance(),SIGNAL(closed()),SLOT(onStreamClosed()));
 	connect(FXmppStream->instance(),SIGNAL(jidAboutToBeChanged(const Jid &)),
-	        SLOT(onStreamJidAboutToBeChanged(const Jid &)));
+		SLOT(onStreamJidAboutToBeChanged(const Jid &)));
 	connect(FXmppStream->instance(),SIGNAL(jidChanged(const Jid &)),
-	        SLOT(onStreamJidChanged(const Jid &)));
+		SLOT(onStreamJidChanged(const Jid &)));
 }
 
 Roster::~Roster()
@@ -192,14 +192,14 @@ void Roster::setItem(const Jid &AItemJid, const QString &AName, const QSet<QStri
 {
 	Stanza query("iq");
 	query.setType("set").setId(FStanzaProcessor->newId());
-	QDomElement itemElem = query.addElement("query",NS_JABBER_ROSTER).appendChild(query.createElement("item")).toElement();
+	QDomElement itemElem = query.addElement("query", NS_JABBER_ROSTER).appendChild(query.createElement("item")).toElement();
 	itemElem.setAttribute("jid", AItemJid.eBare());
 	if (!AName.isEmpty())
-		itemElem.setAttribute("name",AName);
-	foreach (QString groupName,AGroups)
+		itemElem.setAttribute("name", AName);
+	foreach (QString groupName, AGroups)
 		if (!groupName.isEmpty())
 			itemElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(groupName));
-	FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),query);
+	FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(), query);
 }
 
 void Roster::setItems(const QList<IRosterItem> &AItems)
@@ -322,7 +322,7 @@ void Roster::renameItem(const Jid &AItemJid, const QString &AName)
 {
 	IRosterItem ritem = rosterItem(AItemJid);
 	if (ritem.isValid && ritem.name!=AName)
-		setItem(AItemJid,AName,ritem.groups);
+		setItem(AItemJid, AName, ritem.groups);
 }
 
 void Roster::copyItemToGroup(const Jid &AItemJid, const QString &AGroup)

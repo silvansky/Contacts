@@ -1138,7 +1138,7 @@ void RosterChanger::onRenameItem(bool)
 			bool ok = false;
 			QString newName = QInputDialog::getText(NULL,tr("Contact name"),tr("Enter name for contact"), QLineEdit::Normal, oldName, &ok);
 			if (ok && !newName.isEmpty() && newName != oldName)
-				roster->renameItem(rosterJid,newName);
+				roster->renameItem(rosterJid, newName);
 		}
 	}
 }

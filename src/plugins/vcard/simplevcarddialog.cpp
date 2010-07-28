@@ -1,13 +1,13 @@
 #include "simplevcarddialog.h"
 #include "ui_simplevcarddialog.h"
 #include <QMessageBox>
+#include <QInputDialog>
 
 SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars, IStatusIcons *AStatusIcons, IRosterPlugin * ARosterPlugin, IPresencePlugin * APresencePlugin, const Jid &AStreamJid, const Jid &AContactJid) :
 		ui(new Ui::SimpleVCardDialog)
 {
 	ui->setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-	setWindowTitle(tr("vCard - %1").arg(AContactJid.full()));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_VCARD,0,0,"windowIcon");
 
 	FContactJid = AContactJid;
@@ -17,9 +17,10 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 	FStatusIcons = AStatusIcons;
 	FRosterPlugin = ARosterPlugin;
 	FVCard = FVCardPlugin->vcard(FContactJid);
-	connect(FVCard->instance(),SIGNAL(vcardUpdated()),SLOT(onVCardUpdated()));
-	connect(FVCard->instance(),SIGNAL(vcardError(const QString &)),SLOT(onVCardError(const QString &)));
+	connect(FVCard->instance(), SIGNAL(vcardUpdated()), SLOT(onVCardUpdated()));
+	connect(FVCard->instance(), SIGNAL(vcardError(const QString &)), SLOT(onVCardError(const QString &)));
 	FRoster = FRosterPlugin->getRoster(AStreamJid);
+	connect(FRoster->instance(), SIGNAL(received(const IRosterItem&)), SLOT(onRosterItemReceived(const IRosterItem&)));
 	FRosterItem = FRoster->rosterItem(FContactJid);
 	if (FRosterItem.isValid)
 		ui->addToRosterButton->setVisible(false);
@@ -63,7 +64,7 @@ void SimpleVCardDialog::updateDialog()
 	if (FRosterItem.isValid)
 		ui->name->setText(FRosterItem.name);
 	else
-		ui->name->setText(FVCard->value(VVN_FULL_NAME));
+		ui->name->setText(FVCard->value(VVN_FULL_NAME).isEmpty() ? FContactJid.bare() : FVCard->value(VVN_FULL_NAME));
 	ui->jid->setText(FContactJid.bare());
 	FAvatars->insertAutoAvatar(ui->avatarLabel, FContactJid, QSize(100, 100), "pixmap");
 	QList<IPresenceItem> presenceItems = FPresence->presenceItems(FContactJid);
@@ -74,13 +75,21 @@ void SimpleVCardDialog::updateDialog()
 	QDate birthday = QDate::fromString(FVCard->value(VVN_BIRTHDAY),Qt::ISODate);
 	if (!birthday.isValid())
 		birthday = QDate::fromString(FVCard->value(VVN_BIRTHDAY),Qt::TextDate);
-	QString birthdayString = birthday.toString(Qt::SystemLocaleLongDate);
+	QString birthdayString = birthday.isValid() ? birthday.toString(Qt::SystemLocaleLongDate) : "<font color=grey>" + tr("not assigned") + "</font>";
 	ui->birthDateLabel->setText(birthdayString);
-	ui->remarkLabel->setText(FVCard->value(VVN_DESCRIPTION));
+	QString remarkString = FVCard->value(VVN_DESCRIPTION);
+	if (!remarkString.isEmpty())
+		ui->remarkLabel->setText(remarkString);
+	else
+	{
+		ui->remarkCaption->setVisible(false);
+		ui->remarkLabel->setVisible(false);
+	}
 	static const QStringList phoneTagList = QStringList() << "HOME" << "WORK" << "CELL" << "MODEM";
 	QHash<QString,QStringList> phones = FVCard->values(VVN_TELEPHONE, phoneTagList);
 	QStringList list(phones.keys());
-	ui->phoneLabel->setText(list.join("<br>"));
+	ui->phoneLabel->setText(list.isEmpty() ? "<font color=grey>" + tr("not assigned") + "</font>" : list.join("<br>"));
+	setWindowTitle(tr("Profile: %1").arg(ui->name->text()));
 }
 
 void SimpleVCardDialog::onVCardUpdated()
@@ -90,5 +99,29 @@ void SimpleVCardDialog::onVCardUpdated()
 
 void SimpleVCardDialog::onVCardError(const QString &AError)
 {
-	QMessageBox::critical(this,tr("vCard error"),tr("vCard request or publish failed.<br>%1").arg(AError));
+	QMessageBox::critical(this,tr("vCard error"), tr("vCard request failed.<br>%1").arg(AError));
+}
+
+void SimpleVCardDialog::onRosterItemReceived(const IRosterItem &ARosterItem)
+{
+	if (ARosterItem.itemJid && FContactJid)
+		FRosterItem = ARosterItem;
+	updateDialog();
+}
+
+void SimpleVCardDialog::on_renameButton_clicked()
+{
+	QString oldName = FRoster->rosterItem(FContactJid).name;
+	bool ok = false;
+	QString newName = QInputDialog::getText(NULL, tr("Contact name"), tr("Enter name for contact"), QLineEdit::Normal, oldName, &ok);
+	if (ok && !newName.isEmpty() && newName != oldName)
+	{
+		FRoster->renameItem(FContactJid, newName);
+		FRosterItem = FRoster->rosterItem(FContactJid);
+	}
+}
+
+void SimpleVCardDialog::on_addToRosterButton_clicked()
+{
+	FRoster->setItem(FContactJid, ui->name->text(), QSet<QString>());
 }

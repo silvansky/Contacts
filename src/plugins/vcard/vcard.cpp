@@ -14,13 +14,12 @@ VCard::VCard(const Jid &AContactJid, VCardPlugin *APlugin) : QObject(APlugin)
 	connect(FVCardPlugin,SIGNAL(vcardReceived(const Jid &)),SLOT(onVCardReceived(const Jid &)));
 	connect(FVCardPlugin,SIGNAL(vcardPublished(const Jid &)),SLOT(onVCardPublished(const Jid &)));
 	connect(FVCardPlugin,SIGNAL(vcardError(const Jid &, const QString &)),
-	        SLOT(onVCardError(const Jid &, const QString &)));
+		SLOT(onVCardError(const Jid &, const QString &)));
 	loadVCardFile();
 }
 
 VCard::~VCard()
 {
-
 }
 
 QString VCard::value(const QString &AName, const QStringList &ATags, const QStringList &ATagList) const
@@ -37,7 +36,7 @@ QString VCard::value(const QString &AName, const QStringList &ATags, const QStri
 			if ((tagElem.isNull() && ATags.contains(tag)) || (!tagElem.isNull() && !ATags.contains(tag)))
 			{
 				tagsFaild = true;
-				elem = nextElementByName(AName,elem);
+				elem = nextElementByName(AName, elem);
 				break;
 			}
 		}
@@ -66,7 +65,7 @@ QMultiHash<QString,QStringList> VCard::values(const QString &AName, const QStrin
 }
 
 void VCard::setTagsForValue(const QString &AName, const QString &AValue, const QStringList &ATags,
-                            const QStringList &ATagList)
+			    const QStringList &ATagList)
 {
 	QDomElement elem = firstElementByName(AName);
 	while (!elem.isNull() && elem.text()!=AValue)
@@ -97,7 +96,7 @@ void VCard::setTagsForValue(const QString &AName, const QString &AValue, const Q
 }
 
 void VCard::setValueForTags(const QString &AName, const QString &AValue, const QStringList &ATags,
-                            const QStringList &ATagList)
+			    const QStringList &ATagList)
 {
 	bool tagsFaild = true;
 	QDomElement elem = firstElementByName(AName);
@@ -241,7 +240,7 @@ QString VCard::formatToType(const QByteArray &AFormat) const
 }
 
 QDomElement VCard::createElementByName(const QString AName, const QStringList &ATags,
-                                       const QStringList &ATagList)
+				       const QStringList &ATagList)
 {
 	QStringList tagTree = AName.split('/',QString::SkipEmptyParts);
 	QDomElement elem = vcardElem().firstChildElement(tagTree.at(0));

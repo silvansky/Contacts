@@ -32,6 +32,7 @@ protected:
 protected slots:
 	void onVCardUpdated();
 	void onVCardError(const QString &AError);
+	void onRosterItemReceived(const IRosterItem &ARosterItem);
 private:
 	Ui::SimpleVCardDialog *ui;
 private:
@@ -46,6 +47,10 @@ private:
 	IRosterItem FRosterItem;
 	IPresencePlugin * FPresencePlugin;
 	IPresence * FPresence;
+
+private slots:
+    void on_addToRosterButton_clicked();
+    void on_renameButton_clicked();
 };
 
 #endif // SIMPLEVCARDDIALOG_H
