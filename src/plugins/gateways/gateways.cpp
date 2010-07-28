@@ -59,6 +59,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FDiscovery = qobject_cast<IServiceDiscovery *>(plugin->instance());
 		if (FDiscovery)
 		{
+			connect(FDiscovery->instance(),SIGNAL(discoInfoReceived(const IDiscoInfo &)),
+				SLOT(onDiscoInfoReceived(const IDiscoInfo &)));
 			connect(FDiscovery->instance(),SIGNAL(discoItemsReceived(const IDiscoItems &)),
 				SLOT(onDiscoItemsReceived(const IDiscoItems &)));
 			connect(FDiscovery->instance(),SIGNAL(discoItemsWindowCreated(IDiscoItemsWindow *)),
@@ -90,6 +92,10 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 			connect(FRosterPlugin->instance(),SIGNAL(rosterOpened(IRoster *)),SLOT(onRosterOpened(IRoster *)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscription(IRoster *, const Jid &, int , const QString &)),
 				SLOT(onRosterSubscription(IRoster *, const Jid &, int , const QString &)));
+			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &)),
+				SLOT(onRosterItemChanged(IRoster *, const IRosterItem &)));
+			connect(FRosterPlugin->instance(),SIGNAL(rosterItemRemoved(IRoster *, const IRosterItem &)),
+				SLOT(onRosterItemChanged(IRoster *, const IRosterItem &)));
 		}
 	}
 
@@ -101,6 +107,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(contactStateChanged(const Jid &, const Jid &, bool)),
 				SLOT(onContactStateChanged(const Jid &, const Jid &, bool)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
+				SLOT(onPresenceItemReceived(IPresence *, const IPresenceItem &)));
 		}
 	}
 
@@ -252,12 +260,9 @@ QMultiMap<int, IOptionsWidget *> Gateways::optionsWidgets(const QString &ANodeId
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_GATEWAYS_ACCOUNTS)
 	{
-		if (FRosterPlugin)
-		{
-			widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(this,FRosterPlugin,FOptionsStreamJid,AParent));
-			widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Append account"),AParent));
-			widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(this,FRosterPlugin,FOptionsStreamJid,AParent));
-		}
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(this,FOptionsStreamJid,AParent));
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Append account"),AParent));
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(this,FOptionsStreamJid,AParent));
 	}
 	return widgets;
 }
@@ -449,6 +454,12 @@ QList<Jid> Gateways::serviceContacts(const Jid &AStreamJid, const Jid &AServiceJ
 	return contacts;
 }
 
+IPresenceItem Gateways::servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const
+{
+	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	return presence!=NULL ? presence->presenceItem(AServiceJid) : IPresenceItem();
+}
+
 IGateServiceLabel Gateways::serviceLabel(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
 	return FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
@@ -567,14 +578,18 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 		{
 			if (FRosterChanger)
 				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,true,false);
+			FSubscribeServices.insertMulti(AStreamJid,AServiceJid);
 			roster->sendSubscription(AServiceJid,IRoster::Subscribe);
+			sendLogPresence(AStreamJid,AServiceJid,true);
 			setKeepConnection(AStreamJid,AServiceJid,true);
 		}
 		else
 		{
 			if (FRosterChanger)
 				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
+			FSubscribeServices.remove(AStreamJid,AServiceJid);
 			setKeepConnection(AStreamJid,AServiceJid,false);
+			sendLogPresence(AStreamJid,AServiceJid,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribed);
 		}
@@ -650,6 +665,9 @@ bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid)
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
+		if (FRegistration)
+			FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid);
+
 		QList<IRosterItem> ritems;
 		foreach(IRosterItem ritem, roster->rosterItems())
 		{
@@ -870,6 +888,18 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 	}
 }
 
+void Gateways::onRosterItemChanged(IRoster *ARoster, const IRosterItem &AItem)
+{
+	if (AItem.itemJid.node().isEmpty())
+	{
+		if (AItem.subscription!=SUBSCRIPTION_NONE && AItem.subscription!=SUBSCRIPTION_REMOVE)
+			emit serviceEnableChanged(ARoster->streamJid(),AItem.itemJid,true);
+		else
+			emit serviceEnableChanged(ARoster->streamJid(),AItem.itemJid,false);
+		emit streamServicesChanged(ARoster->streamJid());
+	}
+}
+
 void Gateways::onRosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
 {
 	Q_UNUSED(AText);
@@ -897,6 +927,14 @@ void Gateways::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJ
 				}
 			}
 		}
+	}
+}
+
+void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem)
+{
+	if (AItem.itemJid.node().isEmpty())
+	{
+		emit servicePresenceChanged(APresence->streamJid(),AItem.itemJid,AItem);
 	}
 }
 
@@ -1084,6 +1122,17 @@ void Gateways::onVCardError(const Jid &AContactJid, const QString &AError)
 	FResolveNicks.remove(AContactJid);
 }
 
+void Gateways::onDiscoInfoReceived(const IDiscoInfo &AInfo)
+{
+	if (AInfo.contactJid.node().isEmpty() && AInfo.node.isEmpty())
+	{
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AInfo.streamJid) : NULL;
+		if (roster && roster->rosterItem(AInfo.contactJid).isValid)
+			emit streamServicesChanged(AInfo.streamJid);
+		emit availServicesChanged(AInfo.streamJid);
+	}
+}
+
 void Gateways::onDiscoItemsReceived(const IDiscoItems &AItems)
 {
 	if (AItems.contactJid==AItems.streamJid.domain() && AItems.node.isEmpty())
@@ -1092,6 +1141,7 @@ void Gateways::onDiscoItemsReceived(const IDiscoItems &AItems)
 			if (!FDiscovery->hasDiscoInfo(AItems.streamJid,ditem.itemJid))
 				FDiscovery->requestDiscoInfo(AItems.streamJid,ditem.itemJid);
 		FStreamDiscoItems.insert(AItems.streamJid,AItems);
+		emit availServicesChanged(AItems.streamJid);
 	}
 }
 

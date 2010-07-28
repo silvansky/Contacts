@@ -10,13 +10,13 @@
 #include "ui_managelegacyaccountsoptions.h"
 
 class ManageLegacyAccountsOptions : 
-			public QWidget,
-			public IOptionsWidget
+	public QWidget,
+	public IOptionsWidget
 {
 	Q_OBJECT;
 	Q_INTERFACES(IOptionsWidget);
 public:
-	ManageLegacyAccountsOptions(IGateways *AGateways, IRosterPlugin *ARosterPlugin, const Jid &AStreamJid, QWidget *AParent = NULL);
+	ManageLegacyAccountsOptions(IGateways *AGateways, const Jid &AStreamJid, QWidget *AParent = NULL);
 	~ManageLegacyAccountsOptions();
 	virtual QWidget* instance() { return this; }
 public slots:
@@ -30,7 +30,7 @@ protected:
 	void appendServiceOptions(const Jid &AServiceJid);
 	void removeServiceOptions(const Jid &AServiceJid);
 protected slots:
-	void onRosteritemChanged(const IRosterItem &AItem);
+	void onStreamServicesChanged(const Jid &AStreamJid);
 private:
 	Ui::ManageLegacyAccountsOptionsClass ui;
 private:

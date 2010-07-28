@@ -1,27 +1,18 @@
 #include "managelegacyaccountsoptions.h"
 
-ManageLegacyAccountsOptions::ManageLegacyAccountsOptions(IGateways *AGateways, IRosterPlugin *ARosterPlugin, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
+ManageLegacyAccountsOptions::ManageLegacyAccountsOptions(IGateways *AGateways, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	FGateways = AGateways;
 	FStreamJid = AStreamJid;
 
-	FLayout = new QVBoxLayout(ui.wdtAccounts);
+	connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onStreamServicesChanged(const Jid &)));
+
+	FLayout = new QVBoxLayout();
+	ui.wdtAccounts->setLayout(FLayout);
 	FLayout->setMargin(0);
 
-	IRoster *roster = ARosterPlugin!=NULL ? ARosterPlugin->getRoster(FStreamJid) : NULL;
-	if (roster)
-	{
-		connect(roster->instance(),SIGNAL(received(const IRosterItem &)),SLOT(onRosterItemChanged(const IRosterItem &)));
-		connect(roster->instance(),SIGNAL(removed(const IRosterItem &)),SLOT(onRosterItemChanged(const IRosterItem &)));
-	}
-
-	IDiscoIdentity identity;
-	identity.category = "gateway";
-	foreach(Jid serviceJid, FGateways->streamServices(FStreamJid,identity))
-		appendServiceOptions(serviceJid);
-
-	ui.lblNoAccount->setVisible(FOptions.isEmpty());
+	onStreamServicesChanged(FStreamJid);
 }
 
 ManageLegacyAccountsOptions::~ManageLegacyAccountsOptions()
@@ -59,10 +50,21 @@ void ManageLegacyAccountsOptions::removeServiceOptions(const Jid &AServiceJid)
 	}
 }
 
-void ManageLegacyAccountsOptions::onRosteritemChanged(const IRosterItem &AItem)
+void ManageLegacyAccountsOptions::onStreamServicesChanged( const Jid &AStreamJid )
 {
-	if (AItem.subscription == SUBSCRIPTION_REMOVE)
+	if (FStreamJid == AStreamJid)
 	{
-		removeServiceOptions(AItem.itemJid);
+		IDiscoIdentity identity;
+		identity.category = "gateway";
+
+		QList<Jid> curGates = FGateways->streamServices(FStreamJid,identity);
+
+		foreach(Jid serviceJid, curGates)
+			appendServiceOptions(serviceJid);
+
+		foreach(Jid serviceJid, FOptions.keys().toSet() - curGates.toSet())
+			removeServiceOptions(serviceJid);
+
+		ui.lblNoAccount->setVisible(FOptions.isEmpty());
 	}
 }

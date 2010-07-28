@@ -2,9 +2,10 @@
 #define IGATEWAYS_H
 
 #include <QDialog>
-#include <utils/jid.h>
 #include <interfaces/iregistraton.h>
+#include <interfaces/ipresence.h>
 #include <interfaces/iservicediscovery.h>
+#include <utils/jid.h>
 
 #define GATEWAYS_UUID "{2a3ce0cd-bf67-4f15-8907-b7d0706be4b4}"
 
@@ -51,6 +52,7 @@ public:
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
+	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IGateServiceLabel serviceLabel(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IGateServiceLogin serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const =0;
 	virtual IRegisterSubmit serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const =0;
@@ -63,6 +65,10 @@ public:
 	virtual QDialog *showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL) =0;
 	virtual QDialog *showAddLegacyContactDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL) =0;
 protected:
+	virtual void availServicesChanged(const Jid &AStreamJid) =0;
+	virtual void streamServicesChanged(const Jid &AStreamJid) =0;
+	virtual void serviceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled) =0;
+	virtual void servicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem) =0;
 	virtual void promptReceived(const QString &AId, const QString &ADesc, const QString &APrompt) =0;
 	virtual void userJidReceived(const QString &AId, const Jid &AUserJid) =0;
 	virtual void errorReceived(const QString &AId, const QString &AError) =0;

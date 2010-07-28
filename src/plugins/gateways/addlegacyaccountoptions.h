@@ -2,6 +2,7 @@
 #define ADDLEGACYACCOUNTOPTIONS_H
 
 #include <QWidget>
+#include <QHBoxLayout>
 #include <definations/resources.h>
 #include <interfaces/igateways.h>
 #include <interfaces/iroster.h>
@@ -10,13 +11,13 @@
 #include "ui_addlegacyaccountoptions.h"
 
 class AddLegacyAccountOptions : 
-			public QWidget,
-			public IOptionsWidget
+	public QWidget,
+	public IOptionsWidget
 {
 	Q_OBJECT;
 	Q_INTERFACES(IOptionsWidget);
 public:
-	AddLegacyAccountOptions(IGateways *AGateways, IRosterPlugin *ARosterPlugin, const Jid &AStreamJid, QWidget *AParent=NULL);
+	AddLegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, QWidget *AParent=NULL);
 	~AddLegacyAccountOptions();
 	virtual QWidget* instance() { return this; }
 public slots:
@@ -27,18 +28,19 @@ signals:
 	void childApply();
 	void childReset();
 protected:
-	void createButtons();
-	void updateButtons();
+	void appendServiceButton(const Jid &AServiceJid);
+	void removeServiceButton(const Jid &AServiceJid);
 protected slots:
 	void onGateActionTriggeted(bool);
-	void onRosterItemChanged(const IRosterItem &ARosterItem);
+	void onServicesChanged(const Jid &AStreamJid);
 private:
 	Ui::AddLegacyAccountOptionsClass ui;
 private:
 	IGateways *FGateways;
 private:
 	Jid FStreamJid;
-	QList<Action *> FGateActions;
+	QHBoxLayout *FLayout;
+	QMap<Jid, QWidget *> FWidgets;
 };
 
 #endif // ADDLEGACYACCOUNTOPTIONS_H

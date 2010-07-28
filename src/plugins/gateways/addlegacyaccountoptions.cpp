@@ -1,25 +1,23 @@
 #include "addlegacyaccountoptions.h"
 
-#include <QHBoxLayout>
 #include <QToolButton>
 
 #define ADR_GATEJID				Action::DR_Parametr1
 
-AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, IRosterPlugin *ARosterPlugin, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
+AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 
 	FGateways = AGateways;
 	FStreamJid = AStreamJid;
 
-	IRoster *roster = ARosterPlugin!=NULL ? ARosterPlugin->getRoster(FStreamJid) : NULL;
-	if (roster)
-	{
-		connect(roster->instance(),SIGNAL(received(const IRosterItem &)),SLOT(onRosterItemChanged(const IRosterItem &)));
-		connect(roster->instance(),SIGNAL(removed(const IRosterItem &)),SLOT(onRosterItemChanged(const IRosterItem &)));
-	}
+	connect(FGateways->instance(),SIGNAL(availServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
+	connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
 
-	createButtons();
+	FLayout = new QHBoxLayout(ui.wdtGateways);
+	FLayout->addStretch();
+
+	onServicesChanged(FStreamJid);
 }
 
 AddLegacyAccountOptions::~AddLegacyAccountOptions()
@@ -37,59 +35,51 @@ void AddLegacyAccountOptions::reset()
 	emit childReset();
 }
 
-void AddLegacyAccountOptions::createButtons()
+void AddLegacyAccountOptions::appendServiceButton( const Jid &AServiceJid )
 {
-	QHBoxLayout *hblayout = new QHBoxLayout(ui.wdtGateways);
-	hblayout->addStretch();
-
-	IDiscoIdentity identity;
-	identity.category = "gateway";
-
-	QList<Jid> availGates = FGateways->availServices(FStreamJid,identity);
-	qSort(availGates);
-
-	foreach(Jid gateJid, availGates)
+	IGateServiceLabel slabel = FGateways->serviceLabel(FStreamJid,AServiceJid);
+	if (!FWidgets.contains(AServiceJid) && slabel.valid)
 	{
-		IGateServiceLabel slabel = FGateways->serviceLabel(FStreamJid,gateJid);
-		if (slabel.valid)
-		{
-			QWidget *widget = new QWidget(ui.wdtGateways);
-			widget->setLayout(new QVBoxLayout);
-			widget->layout()->setMargin(0);
+		QWidget *widget = new QWidget(ui.wdtGateways);
+		widget->setLayout(new QVBoxLayout);
+		widget->layout()->setMargin(0);
 
-			QToolButton *button = new QToolButton(widget);
-			button->setToolButtonStyle(Qt::ToolButtonIconOnly);
-			button->setIconSize(QSize(32,32));
-			button->setFixedSize(32,32);
+		QToolButton *button = new QToolButton(widget);
+		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+		button->setIconSize(QSize(32,32));
+		button->setFixedSize(32,32);
 
-			QLabel *label = new QLabel(slabel.name,widget);
-			label->setAlignment(Qt::AlignCenter);
+		QLabel *label = new QLabel(slabel.name,widget);
+		label->setAlignment(Qt::AlignCenter);
 
-			Action *action = new Action(button);
-			action->setIcon(RSR_STORAGE_MENUICONS,slabel.iconKey);
-			action->setText(slabel.name);
-			action->setData(ADR_GATEJID,gateJid.full());
-			connect(action,SIGNAL(triggered(bool)),SLOT(onGateActionTriggeted(bool)));
-			button->setDefaultAction(action);
-			FGateActions.append(action);
+		Action *action = new Action(button);
+		action->setIcon(RSR_STORAGE_MENUICONS,slabel.iconKey);
+		action->setText(slabel.name);
+		action->setData(ADR_GATEJID,AServiceJid.full());
+		connect(action,SIGNAL(triggered(bool)),SLOT(onGateActionTriggeted(bool)));
+		button->setDefaultAction(action);
 
-			widget->layout()->addWidget(button);
-			widget->layout()->addWidget(label);
-			hblayout->addWidget(widget);
-			hblayout->addStretch();
-		}
+		widget->layout()->addWidget(button);
+		widget->layout()->addWidget(label);
+		FLayout->addWidget(widget);
+		FLayout->addStretch();
+
+		FWidgets.insert(AServiceJid,widget);
 	}
-
-	updateButtons();
 }
 
-void AddLegacyAccountOptions::updateButtons()
+void AddLegacyAccountOptions::removeServiceButton(const Jid &AServiceJid)
 {
-	QList<Jid> usedGates = FGateways->streamServices(FStreamJid);
-	foreach(Action *action, FGateActions)
+	if (FWidgets.contains(AServiceJid))
 	{
-		Jid gateJid = action->data(ADR_GATEJID).toString();
-		action->setEnabled(!usedGates.contains(gateJid));
+		QWidget *widget = FWidgets.take(AServiceJid);
+		int index = FLayout->indexOf(widget);
+		QLayoutItem *litem = FLayout->itemAt(index+1);
+		if (litem)
+			FLayout->removeItem(litem);
+		delete litem;
+		FLayout->removeWidget(widget);
+		widget->deleteLater();
 	}
 }
 
@@ -103,8 +93,30 @@ void AddLegacyAccountOptions::onGateActionTriggeted(bool)
 	}
 }
 
-void AddLegacyAccountOptions::onRosterItemChanged(const IRosterItem &ARosterItem)
+void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 {
-	if (ARosterItem.itemJid.node().isEmpty())
-		updateButtons();
+	if (FStreamJid == AStreamJid)
+	{
+		IDiscoIdentity identity;
+		identity.category = "gateway";
+
+		QList<Jid> usedGates = FGateways->streamServices(FStreamJid);
+		QList<Jid> availGates = FGateways->availServices(FStreamJid,identity);
+
+		foreach(Jid serviceJid, availGates)
+		{
+			if (!usedGates.contains(serviceJid))
+				appendServiceButton(serviceJid);
+			else
+				removeServiceButton(serviceJid);
+		}
+
+		foreach(Jid serviceJid, FWidgets.keys().toSet() - availGates.toSet())
+			removeServiceButton(serviceJid);
+
+		if (!FWidgets.isEmpty())
+			ui.lblInfo->setText(tr("You can link multiple accounts and communicate with your friends on other services"));
+		else
+			ui.lblInfo->setText(tr("All available accounts are already linked"));
+	}
 }

@@ -511,6 +511,7 @@ void Roster::removeRosterItem(const Jid &AItemJid)
 	if (FRosterItems.contains(AItemJid))
 	{
 		IRosterItem ritem = FRosterItems.take(AItemJid);
+		ritem.subscription = SUBSCRIPTION_REMOVE;
 		emit removed(ritem);
 	}
 }

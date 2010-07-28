@@ -73,8 +73,8 @@ void OptionsDialog::showNode(const QString &ANodeId)
 QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 {
 	QWidget *nodeWidget = new QWidget;
-	nodeWidget->setLayout(new QVBoxLayout);
-	nodeWidget->layout()->setMargin(0);
+	QVBoxLayout *vblayout = new QVBoxLayout(nodeWidget);
+	vblayout->setMargin(0);
 
 	QMultiMap<int, IOptionsWidget *> orderedWidgets;
 	foreach(IOptionsHolder *optionsHolder,FManager->optionsHolders())
@@ -90,10 +90,10 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 	}
 
 	foreach(IOptionsWidget *widget, orderedWidgets)
-		nodeWidget->layout()->addWidget(widget->instance());
+		vblayout->addWidget(widget->instance());
 
 	if (!canExpandVertically(nodeWidget))
-		nodeWidget->setMaximumHeight(nodeWidget->sizeHint().height());
+		vblayout->addStretch();
 
 	FCleanupHandler.add(nodeWidget);
 	return nodeWidget;
@@ -176,7 +176,7 @@ void OptionsDialog::onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode)
 		if (item->parent())
 			item->parent()->removeRow(item->row());
 		else
-			delete FItemsModel->takeItem(item->row());
+			qDeleteAll(FItemsModel->takeRow(item->row()));
 		delete FItemWidgets.take(item);
 	}
 }

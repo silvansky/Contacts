@@ -82,6 +82,7 @@ void AddLegacyAccountDialog::setError(const QString &AMessage)
 	ui.lblError->setText(AMessage);
 	ui.lblError->setVisible(!AMessage.isEmpty());
 	ui.chbShowPassword->setVisible(!AMessage.isEmpty());
+	ui.lnePassword->setFocus();
 	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
 

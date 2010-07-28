@@ -74,6 +74,7 @@ public:
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IGateServiceLabel serviceLabel(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IGateServiceLogin serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const;
 	virtual IRegisterSubmit serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const;
@@ -86,6 +87,10 @@ public:
 	virtual QDialog *showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
 	virtual QDialog *showAddLegacyContactDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
 signals:
+	void availServicesChanged(const Jid &AStreamJid);
+	void streamServicesChanged(const Jid &AStreamJid);
+	void serviceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
+	void servicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
 	void promptReceived(const QString &AId, const QString &ADesc, const QString &APrompt);
 	void userJidReceived(const QString &AId, const Jid &AUserJid);
 	void errorReceived(const QString &AId, const QString &AError);
@@ -102,8 +107,10 @@ protected slots:
 	void onXmppStreamOpened(IXmppStream *AXmppStream);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onRosterOpened(IRoster *ARoster);
+	void onRosterItemChanged(IRoster *ARoster, const IRosterItem &AItem);
 	void onRosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
 	void onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline);
+	void onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem);
 	void onPrivateStorateOpened(const Jid &AStreamJid);
 	void onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void onPrivateStorateAboutToClose(const Jid &AStreamJid);
@@ -112,6 +119,7 @@ protected slots:
 	void onKeepTimerTimeout();
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
+	void onDiscoInfoReceived(const IDiscoInfo &AInfo);
 	void onDiscoItemsReceived(const IDiscoItems &AItems);
 	void onDiscoItemsWindowCreated(IDiscoItemsWindow *AWindow);
 	void onDiscoItemContextMenu(const QModelIndex AIndex, Menu *AMenu);
