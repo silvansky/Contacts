@@ -6,6 +6,7 @@
 #include <definations/namespaces.h>
 #include <definations/actiongroups.h>
 #include <definations/toolbargroups.h>
+#include <definations/rosterproxyorders.h>
 #include <definations/rosterindextyperole.h>
 #include <definations/discofeaturehandlerorders.h>
 #include <definations/vcardvaluenames.h>
@@ -36,6 +37,7 @@
 #include "addlegacycontactdialog.h"
 #include "addlegacyaccountoptions.h"
 #include "managelegacyaccountsoptions.h"
+#include "legacyaccountfilter.h"
 
 class Gateways :
 			public QObject,
@@ -82,6 +84,7 @@ public:
 	virtual bool setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe);
 	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid);
+	virtual QString sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID);
 	virtual QDialog *showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
@@ -91,6 +94,7 @@ signals:
 	void streamServicesChanged(const Jid &AStreamJid);
 	void serviceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void servicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
+	void loginReceived(const QString &AId, const QString &ALogin);
 	void promptReceived(const QString &AId, const QString &ADesc, const QString &APrompt);
 	void userJidReceived(const QString &AId, const Jid &AUserJid);
 	void errorReceived(const QString &AId, const QString &AError);
@@ -148,6 +152,7 @@ private:
 	QList<QString> FUserJidRequests;
 	QMultiMap<Jid, Jid> FResolveNicks;
 	QMultiMap<Jid, Jid> FSubscribeServices;
+	QMap<QString, Jid> FLoginRequests;
 	QMap<QString, Jid> FShowRegisterRequests;
 private:
 	Jid FOptionsStreamJid;

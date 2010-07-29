@@ -18,7 +18,9 @@ protected slots:
 	void onEnableButtonClicked(bool);
 	void onDisableButtonClicked(bool);
 	void onChangeLinkActivated(const QString &ALink);
+	void onChangeDialogAccepted();
 	void onDeleteButtonClicked(bool);
+	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
 private:
@@ -28,6 +30,7 @@ private:
 private:
 	Jid FStreamJid;
 	Jid FServiceJid;
+	QString FLoginRequest;
 };
 
 #endif // LEGACYACCOUNTOPTIONS_H

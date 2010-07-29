@@ -1,8 +1,8 @@
 #include "addlegacyaccountdialog.h"
 
 #include <QTimer>
-#include <QPushButton>
 #include <QMessageBox>
+#include <QPushButton>
 
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {

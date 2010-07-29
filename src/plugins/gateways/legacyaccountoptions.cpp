@@ -8,16 +8,22 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 	FGateways = AGateways;
 	FStreamJid = AStreamJid;
 	FServiceJid = AServiceJid;
-
+	
 	IGateServiceLabel gslabel = FGateways->serviceLabel(FStreamJid,FServiceJid);
+	if (gslabel.valid)
+		ui.lblLogin->setText(gslabel.name);
+	else
+		ui.lblLogin->setText(FServiceJid.full());
+	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,gslabel.iconKey,0,0,"pixmap");
-	ui.lblLogin->setText(gslabel.name);
 
 	connect(ui.pbtEnable,SIGNAL(clicked(bool)),SLOT(onEnableButtonClicked(bool)));
 	connect(ui.pbtDisable,SIGNAL(clicked(bool)),SLOT(onDisableButtonClicked(bool)));
 	connect(ui.lblChange,SIGNAL(linkActivated(const QString &)),SLOT(onChangeLinkActivated(const QString &)));
 	connect(ui.cbtDelete,SIGNAL(clicked(bool)),SLOT(onDeleteButtonClicked(bool)));
 
+	connect(FGateways->instance(),SIGNAL(loginReceived(const QString &, const QString &)),
+		SLOT(onServiceLoginReceived(const QString &, const QString &)));
 	connect(FGateways->instance(),SIGNAL(serviceEnableChanged(const Jid &, const Jid &, bool)),
 		SLOT(onServiceEnableChanged(const Jid &, const Jid &, bool)));
 	connect(FGateways->instance(),SIGNAL(servicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)),
@@ -54,7 +60,13 @@ void LegacyAccountOptions::onDisableButtonClicked(bool)
 void LegacyAccountOptions::onChangeLinkActivated(const QString &ALink)
 {
 	Q_UNUSED(ALink);
-	FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid,this);
+	QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid,this);
+	connect(dialog,SIGNAL(accepted()),SLOT(onChangeDialogAccepted()));
+}
+
+void LegacyAccountOptions::onChangeDialogAccepted()
+{
+	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
 }
 
 void LegacyAccountOptions::onDeleteButtonClicked(bool)
@@ -64,6 +76,14 @@ void LegacyAccountOptions::onDeleteButtonClicked(bool)
 	{
 		setEnabled(false);
 		FGateways->removeService(FStreamJid,FServiceJid);
+	}
+}
+
+void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QString &ALogin)
+{
+	if (AId == FLoginRequest)
+	{
+		ui.lblLogin->setText(ALogin);
 	}
 }
 

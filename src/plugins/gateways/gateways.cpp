@@ -243,6 +243,12 @@ bool Gateways::initObjects()
 		FDiscovery->insertFeatureHandler(NS_JABBER_GATEWAY,this,DFO_DEFAULT);
 	}
 
+	if (FRostersViewPlugin)
+	{
+		LegacyAccountFilter *filter = new LegacyAccountFilter(this,this);
+		FRostersViewPlugin->rostersView()->insertProxyModel(filter,RPO_GATEWAYS_ACCOUNT_FILTER);
+	}
+
 	return true;
 }
 
@@ -378,8 +384,8 @@ QList<Jid> Gateways::keepConnections(const Jid &AStreamJid) const
 
 void Gateways::setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
 {
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
-	if (presence && presence->isOpen())
+	IXmppStream *stream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
+	if (stream && stream->isOpen())
 	{
 		if (AEnabled)
 			FKeepConnections[AStreamJid] += AServiceJid;
@@ -680,6 +686,20 @@ bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid)
 	return false;	
 }
 
+QString Gateways::sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid)
+{
+	if (FRegistration)
+	{
+		QString requestId = FRegistration->sendRegiterRequest(AStreamJid,AServiceJid);
+		if (!requestId.isEmpty())
+		{
+			FLoginRequests.insert(requestId, AStreamJid);
+			return requestId;
+		}
+	}
+	return QString::null;
+}
+
 QString Gateways::sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid)
 {
 	Stanza request("iq");
@@ -886,6 +906,8 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 			if (ritem.itemJid.node().isEmpty() && !FDiscovery->hasDiscoInfo(ARoster->streamJid(),ritem.itemJid))
 				FDiscovery->requestDiscoInfo(ARoster->streamJid(),ritem.itemJid);
 	}
+	if (FPrivateStorage)
+		FPrivateStorage->loadData(ARoster->streamJid(),PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
 }
 
 void Gateways::onRosterItemChanged(IRoster *ARoster, const IRosterItem &AItem)
@@ -894,7 +916,7 @@ void Gateways::onRosterItemChanged(IRoster *ARoster, const IRosterItem &AItem)
 	{
 		if (AItem.subscription!=SUBSCRIPTION_NONE && AItem.subscription!=SUBSCRIPTION_REMOVE)
 			emit serviceEnableChanged(ARoster->streamJid(),AItem.itemJid,true);
-		else
+		else if (AItem.ask != SUBSCRIPTION_SUBSCRIBE)
 			emit serviceEnableChanged(ARoster->streamJid(),AItem.itemJid,false);
 		emit streamServicesChanged(ARoster->streamJid());
 	}
@@ -940,7 +962,6 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 
 void Gateways::onPrivateStorateOpened(const Jid &AStreamJid)
 {
-	FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
 	FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_SUBSCRIBE);
 	FKeepTimer.start(KEEP_INTERVAL);
 }
@@ -956,9 +977,13 @@ void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid,
 			QDomElement elem = AElement.firstChildElement("service");
 			while (!elem.isNull())
 			{
-				Jid service = elem.text();
-				if (roster->rosterItem(service).isValid)
-					setKeepConnection(AStreamJid,service,true);
+				IRosterItem ritem = roster->rosterItem(elem.text());
+				if (ritem.isValid)
+				{
+					if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_FROM)
+						sendLogPresence(AStreamJid,ritem.itemJid,true);
+					setKeepConnection(AStreamJid,ritem.itemJid,true);
+				}
 				elem = elem.nextSiblingElement("service");
 			}
 		}
@@ -1196,7 +1221,23 @@ void Gateways::onDiscoItemContextMenu(QModelIndex AIndex, Menu *AMenu)
 
 void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFields)
 {
-	if (FShowRegisterRequests.contains(AId))
+	if (FLoginRequests.contains(AId))
+	{
+		Jid streamJid = FLoginRequests.take(AId);
+		IGateServiceLogin gslogin = serviceLogin(streamJid,AFields.serviceJid,AFields);
+		if (gslogin.valid)
+		{
+			QString login = gslogin.login;
+			if (!gslogin.domain.isEmpty())
+				login += "@" + gslogin.domain;
+			emit loginReceived(AId, login);
+		}
+		else
+		{
+			emit errorReceived(AId, tr("Unsupported gateway type"));
+		}
+	}
+	else if (FShowRegisterRequests.contains(AId))
 	{
 		Jid streamJid = FShowRegisterRequests.take(AId);
 		if (!AFields.registered && FSubscribeServices.contains(streamJid,AFields.serviceJid))
@@ -1206,8 +1247,8 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 
 void Gateways::onRegisterError(const QString &AId, const QString &AError)
 {
-	Q_UNUSED(AError);
 	FShowRegisterRequests.remove(AId);
+	emit errorReceived(AId,AError);
 }
 
 Q_EXPORT_PLUGIN2(plg_gateways, Gateways)

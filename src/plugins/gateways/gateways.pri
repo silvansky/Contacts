@@ -9,6 +9,7 @@ HEADERS = addlegacyaccountdialog.h \
           addlegacyaccountoptions.h \
           legacyaccountoptions.h \
           managelegacyaccountsoptions.h \
+          legacyaccountfilter.h \
           gateways.h
 
 SOURCES = addlegacyaccountdialog.cpp \
@@ -16,4 +17,5 @@ SOURCES = addlegacyaccountdialog.cpp \
           addlegacyaccountoptions.cpp \
           legacyaccountoptions.cpp \
           managelegacyaccountsoptions.cpp \
+          legacyaccountfilter.cpp \
           gateways.cpp
