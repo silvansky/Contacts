@@ -268,7 +268,7 @@ void MassSendHandler::fillContentOptions(IMassSendDialog *ADialog, IMessageConte
 {
 	AOptions.senderColor = "blue";
 	AOptions.senderId = ADialog->streamJid().bare();
-	AOptions.senderName = Qt::escape(FMessageStyles->userName(ADialog->streamJid(), ADialog->streamJid()));
+	AOptions.senderName = tr("Mass send message for %1 contacts").arg(ADialog->receiversWidget()->receivers().count());
 	AOptions.senderAvatar = FMessageStyles->userAvatar(ADialog->streamJid());
 	AOptions.senderIcon = FMessageStyles->userIcon(ADialog->streamJid(), ADialog->streamJid());
 }
