@@ -64,5 +64,8 @@ void MassSendDialog::changeEvent(QEvent *e)
 
 void MassSendDialog::onMessageReady()
 {
+//	IMessageContentOptions options;
+//	options.direction = IMessageContentOptions::DirectionOut;
+//	FViewWidget->appendText(FEditWidget->textEdit()->toPlainText(), options);
 	emit messageReady();
 }

@@ -54,18 +54,12 @@ protected:
 	IMassSendDialog *getDialog(const Jid &AStreamJid);
 	IMassSendDialog *findDialog(const Jid &AStreamJid);
 	void showDialog(IMassSendDialog *ADialog);
-//	void showNextMessage(IMassSendDialog *AWindow);
-//	void loadActiveMessages(IMassSendDialog *AWindow);
 	void updateDialog(IMassSendDialog *ADialog);
 	void setMessageStyle(IMassSendDialog *ADialog);
 	void fillContentOptions(IMassSendDialog *ADialog, IMessageContentOptions &AOptions) const;
 	void showStyledMessage(IMassSendDialog *ADialog, const Message &AMessage);
 protected slots:
 	void onMessageReady();
-//	void onShowNextMessage();
-//	void onReplyMessage();
-//	void onForwardMessage();
-//	void onShowChatWindow();
 	void onWindowDestroyed();
 	void onStatusIconsChanged();
 	void onShowWindowAction(bool);
@@ -86,8 +80,6 @@ private:
 	IAccountManager * FAccountManager;
 private:
 	QList<IMassSendDialog *> FDialogs;
-	//QMap<IMassSendDialog *, Message> FLastMessages;
-	//QMultiMap<IMassSendDialog *, int> FActiveMessages;
 };
 
 #endif // NORMALMESSAGEHANDLER_H

@@ -8,7 +8,7 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 {
 	ui->setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_VCARD,0,0,"windowIcon");
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this, MNI_VCARD, 0, 0, "windowIcon");
 
 	FContactJid = AContactJid;
 	FStreamJid = AStreamJid;
@@ -26,7 +26,6 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 		ui->addToRosterButton->setVisible(false);
 	else
 		ui->renameButton->setVisible(false);
-
 	FPresencePlugin = APresencePlugin;
 	FPresence = FPresencePlugin->getPresence(FStreamJid);
 	updateDialog();
@@ -99,7 +98,7 @@ void SimpleVCardDialog::onVCardUpdated()
 
 void SimpleVCardDialog::onVCardError(const QString &AError)
 {
-	QMessageBox::critical(this,tr("vCard error"), tr("vCard request failed.<br>%1").arg(AError));
+	QMessageBox::critical(this, tr("vCard error"), tr("vCard request failed.<br>%1").arg(AError));
 }
 
 void SimpleVCardDialog::onRosterItemReceived(const IRosterItem &ARosterItem)

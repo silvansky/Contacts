@@ -238,34 +238,6 @@ void MassSendHandler::showDialog(IMassSendDialog *AWindow)
 	//AWindow->showWindow();
 }
 
-/*void MassSendHandler::showNextMessage(IMassSendDialog *AWindow)
-{
-	if (FActiveMessages.contains(AWindow))
-	{
-		int messageId = FActiveMessages.value(AWindow);
-		Message message = FMessageProcessor->messageById(messageId);
-		showStyledMessage(AWindow,message);
-		FLastMessages.insert(AWindow,message);
-		FMessageProcessor->removeMessage(messageId);
-		FActiveMessages.remove(AWindow,messageId);
-	}
-	updateWindow(AWindow);
-}
-
-void MassSendHandler::loadActiveMessages(IMassSendDialog *AWindow)
-{
-	QList<int> messagesId = FActiveMessages.values(NULL);
-	foreach(int messageId, messagesId)
-	{
-		Message message = FMessageProcessor->messageById(messageId);
-		if (AWindow->streamJid() == message.to())
-		{
-			FActiveMessages.insertMulti(AWindow,messageId);
-			FActiveMessages.remove(NULL,messageId);
-		}
-	}
-}*/
-
 void MassSendHandler::updateDialog(IMassSendDialog *AWindow)
 {
 /*	QIcon icon;
@@ -284,7 +256,7 @@ void MassSendHandler::updateDialog(IMassSendDialog *AWindow)
 
 void MassSendHandler::setMessageStyle(IMassSendDialog *AWindow)
 {
-	IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Normal);
+	IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
 	IMessageStyle *style = FMessageStyles->styleForOptions(soptions);
 	if (style != AWindow->viewWidget()->messageStyle())
 		AWindow->viewWidget()->setMessageStyle(style,soptions);
@@ -292,29 +264,23 @@ void MassSendHandler::setMessageStyle(IMassSendDialog *AWindow)
 		AWindow->viewWidget()->messageStyle()->changeOptions(AWindow->viewWidget()->styleWidget(),soptions);
 }
 
-void MassSendHandler::fillContentOptions(IMassSendDialog *AWindow, IMessageContentOptions &AOptions) const
+void MassSendHandler::fillContentOptions(IMassSendDialog *ADialog, IMessageContentOptions &AOptions) const
 {
-//	AOptions.senderColor = "blue";
-//	AOptions.senderId = AWindow->contactJid().full();
-//	AOptions.senderName = Qt::escape(FMessageStyles->userName(AWindow->streamJid(),AWindow->contactJid()));
-//	AOptions.senderAvatar = FMessageStyles->userAvatar(AWindow->contactJid());
-//	AOptions.senderIcon = FMessageStyles->userIcon(AWindow->streamJid(),AWindow->contactJid());
+	AOptions.senderColor = "blue";
+	AOptions.senderId = ADialog->streamJid().bare();
+	AOptions.senderName = Qt::escape(FMessageStyles->userName(ADialog->streamJid(), ADialog->streamJid()));
+	AOptions.senderAvatar = FMessageStyles->userAvatar(ADialog->streamJid());
+	AOptions.senderIcon = FMessageStyles->userIcon(ADialog->streamJid(), ADialog->streamJid());
 }
 
-void MassSendHandler::showStyledMessage(IMassSendDialog *AWindow, const Message &AMessage)
+void MassSendHandler::showStyledMessage(IMassSendDialog *ADialog, const Message &AMessage)
 {
 	IMessageContentOptions options;
 	options.time = AMessage.dateTime();
 	options.timeFormat = FMessageStyles->timeFormat(options.time);
-	options.direction = IMessageContentOptions::DirectionIn;
+	options.direction = IMessageContentOptions::DirectionOut;
 	options.noScroll = true;
-	fillContentOptions(AWindow,options);
-
-//	AWindow->setMode(IMessageWindow::ReadMode);
-//	AWindow->setSubject(AMessage.subject());
-//	AWindow->setThreadId(AMessage.threadId());
-
-	setMessageStyle(AWindow);
+	fillContentOptions(ADialog, options);
 
 	if (AMessage.type() == Message::Error)
 	{
@@ -323,90 +289,38 @@ void MassSendHandler::showStyledMessage(IMassSendDialog *AWindow, const Message 
 		html += "<p style='color:red;'>"+Qt::escape(err.message())+"</p>";
 		html += "<hr>";
 		options.kind = IMessageContentOptions::Message;
-		AWindow->viewWidget()->appendHtml(html,options);
+		ADialog->viewWidget()->appendHtml(html,options);
 	}
 
-	options.kind = IMessageContentOptions::Topic;
-	AWindow->viewWidget()->appendText(tr("Subject: %1").arg(!AMessage.subject().isEmpty() ? AMessage.subject() : tr("<no subject>")),options);
 	options.kind = IMessageContentOptions::Message;
-	AWindow->viewWidget()->appendMessage(AMessage,options);
+	ADialog->viewWidget()->appendMessage(AMessage, options);
 }
 
 void MassSendHandler::onMessageReady()
 {
-	IMassSendDialog *window = qobject_cast<IMassSendDialog*>(sender());
-	if (window)
+	IMassSendDialog *dlg = qobject_cast<IMassSendDialog*>(sender());
+	if (dlg)
 	{
 		Message message;
 		message.setType(Message::Chat);
-//		message.setSubject(window->subject());
-//		message.setThreadId(window->threadId());
-		FMessageProcessor->textToMessage(message, window->editWidget()->document());
+		FMessageProcessor->textToMessage(message, dlg->editWidget()->document());
 		if (!message.body().isEmpty())
 		{
 			bool sended = false;
-			QList<Jid> receiversList = window->receiversWidget()->receivers();
+			QList<Jid> receiversList = dlg->receiversWidget()->receivers();
 			foreach(Jid receiver, receiversList)
 			{
 				message.setTo(receiver.eFull());
-				sended = FMessageProcessor->sendMessage(window->streamJid(),message) ? true : sended;
+				sended = FMessageProcessor->sendMessage(dlg->streamJid(), message) ? true : sended;
 			}
+			message.setTo(tr("Mass send message for %1 contacts").arg(receiversList.count()));
+			message.setFrom(FAccountManager->accounts().first()->xmppStream()->streamJid().bare());
+			showStyledMessage(dlg, message);
 			if (sended)
-			{
-//				if (FActiveMessages.contains(window))
-//					showNextMessage(window);
-//				else
-//					window->closeWindow();
-			}
+				dlg->editWidget()->clearEditor();
 		}
 	}
 }
-
-//void MassSendHandler::onShowNextMessage()
-//{
-//	IMassSendDialog *window = qobject_cast<IMassSendDialog*>(sender());
-//	if (window)
-//	{
-////		showNextMessage(window);
-//		updateWindow(window);
-//	}
-//}
-
-//void MassSendHandler::onReplyMessage()
-//{
-//	IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
-//	if (window)
-//	{
-//		window->setMode(IMessageWindow::WriteMode);
-//		window->setSubject(tr("Re: %1").arg(window->subject()));
-//		window->editWidget()->clearEditor();
-//		window->editWidget()->instance()->setFocus();
-//		updateWindow(window);
-//	}
-//}
-
-//void MassSendHandler::onForwardMessage()
-//{
-//	IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
-//	if (FLastMessages.contains(window))
-//	{
-//		Message message = FLastMessages.value(window);
-//		window->setMode(IMessageWindow::WriteMode);
-//		window->setSubject(tr("Fw: %1").arg(message.subject()));
-//		window->setThreadId(message.threadId());
-//		FMessageProcessor->messageToText(window->editWidget()->document(),message);
-//		window->receiversWidget()->clear();
-//		window->setCurrentTabWidget(window->receiversWidget()->instance());
-//		updateWindow(window);
-//	}
-//}
-
-//void MassSendHandler::onShowChatWindow()
-//{
-//	//IMessageWindow *window = qobject_cast<IMessageWindow *>(sender());
-//	//if (FMessageProcessor && window)
-//	//	FMessageProcessor->openWindow(window->streamJid(),window->contactJid(),Message::Chat);
-//}
 
 void MassSendHandler::onWindowDestroyed()
 {
@@ -498,7 +412,8 @@ void MassSendHandler::onMassSendAction()
 	Jid streamJid;
 	if (FAccountManager->accounts().first()->xmppStream())
 		streamJid = FAccountManager->accounts().first()->xmppStream()->streamJid();
-	FMassSendDialog = FMessageWidgets->newMassSendDialog(streamJid);
+	FMassSendDialog = getDialog(streamJid);
+	setMessageStyle(FMassSendDialog);
 	FMassSendDialog->instance()->show();
 }
 

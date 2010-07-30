@@ -204,12 +204,18 @@
        <property name="text">
         <string>Add to roster</string>
        </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="renameButton">
        <property name="text">
         <string>Rename</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

@@ -655,7 +655,7 @@ void ChatMessageHandler::onMessageReady()
 		if (!message.body().isEmpty() && FMessageProcessor->sendMessage(window->streamJid(),message))
 		{
 			window->editWidget()->clearEditor();
-			showStyledMessage(window,message);
+			showStyledMessage(window, message);
 		}
 	}
 }
