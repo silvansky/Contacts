@@ -131,5 +131,13 @@
         <source>Hi! Come on www.rambler.ru :)</source>
         <translation>Привет! Заходи на www.rambler.ru :)</translation>
     </message>
+    <message>
+        <source>Chat history</source>
+        <translation>История чата</translation>
+    </message>
+    <message>
+        <source>Show previous messages</source>
+        <translation>Показать предыдущие сообщения</translation>
+    </message>
 </context>
 </TS>

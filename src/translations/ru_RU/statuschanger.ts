@@ -100,10 +100,6 @@
 <context>
     <name>StatusChanger</name>
     <message>
-        <source>Connection errors</source>
-        <translation>Ошибки подключения</translation>
-    </message>
-    <message>
         <source>Offline</source>
         <translation>Не в сети</translation>
     </message>

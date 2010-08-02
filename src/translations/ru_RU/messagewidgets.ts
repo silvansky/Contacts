@@ -81,10 +81,6 @@
         <translation>Открыть все</translation>
     </message>
     <message>
-        <source>Mass send</source>
-        <translation>Рассылка сообщений</translation>
-    </message>
-    <message>
         <source>Select the method of sending messages</source>
         <translation>Выберите способ отправки сообщений</translation>
     </message>

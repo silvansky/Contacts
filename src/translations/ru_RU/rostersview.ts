@@ -2,11 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
-    <name>RosterOptionsWidgetClass</name>
-    <message>
-        <source>Contacts Order</source>
-        <translation>Упорядочить контакты</translation>
-    </message>
+    <name>RosterContactOrderOptionsClass</name>
     <message>
         <source>By Name (A-&gt;Z)</source>
         <translation>По имени (А-&gt;Я)</translation>
@@ -19,10 +15,9 @@
         <source>Manual</source>
         <translation>Ручной порядок</translation>
     </message>
-    <message>
-        <source>Contacts View</source>
-        <translation>Вид списка контактов</translation>
-    </message>
+</context>
+<context>
+    <name>RosterContactViewOptionsClass</name>
     <message>
         <source>Full</source>
         <translation>Полный</translation>
@@ -37,15 +32,14 @@
     </message>
 </context>
 <context>
+    <name>RosterToolTip</name>
+    <message>
+        <source>Form</source>
+        <translation>От</translation>
+    </message>
+</context>
+<context>
     <name>RostersView</name>
-    <message>
-        <source>Priority: %1</source>
-        <translation>Приоритет: %1</translation>
-    </message>
-    <message>
-        <source>Subscription: %1 %2</source>
-        <translation>Авторизация: %1 %2</translation>
-    </message>
     <message>
         <source>Status:</source>
         <translation>Статус:</translation>
@@ -96,6 +90,14 @@
     <message>
         <source>Group contacts</source>
         <translation>Группировать контакты</translation>
+    </message>
+    <message>
+        <source>Contacts Order</source>
+        <translation>Упорядочить контакты</translation>
+    </message>
+    <message>
+        <source>Contacts View</source>
+        <translation>Вид списка контактов</translation>
     </message>
 </context>
 </TS>

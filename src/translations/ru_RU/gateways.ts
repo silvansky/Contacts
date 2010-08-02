@@ -8,14 +8,6 @@
         <translation>Добавить</translation>
     </message>
     <message>
-        <source>Required plugins not found</source>
-        <translation>Необходимые плагины не найдены</translation>
-    </message>
-    <message>
-        <source>Gateway information request failed</source>
-        <translation>Не удалось запросить информацию о транспорте</translation>
-    </message>
-    <message>
         <source>Error connecting account</source>
         <translation>Ошибка подключения учётной записи</translation>
     </message>
@@ -24,6 +16,38 @@
 %1</source>
         <translation>Не удалось подключить учётную запись  из-за ошибки:
 %1</translation>
+    </message>
+    <message>
+        <source>Account: %1</source>
+        <translation>Учётная запись: %1</translation>
+    </message>
+    <message>
+        <source>Gateway registration request failed</source>
+        <translation>Запрос регистрации завершился с ошибкой</translation>
+    </message>
+    <message>
+        <source>Waiting for host response...</source>
+        <translation>Ошидание ответа хоста...</translation>
+    </message>
+    <message>
+        <source>Unsupported gateway type</source>
+        <translation>Неподдерживаемый тип транспорта</translation>
+    </message>
+    <message>
+        <source>Enter the username and password to your %1 account</source>
+        <translation>Укажите именя пользователя и пароль к вашей учётной записи %1</translation>
+    </message>
+    <message>
+        <source>Invalid registration params</source>
+        <translation>Неверные параметры регистрации</translation>
+    </message>
+    <message>
+        <source>Unsupported gateway registration form</source>
+        <translation>Неподдерживаемая форма регистрации на транспорте</translation>
+    </message>
+    <message>
+        <source>Connection to gateway is lost</source>
+        <translation>Подключение к транспорту потеряно</translation>
     </message>
 </context>
 <context>
@@ -39,6 +63,17 @@
     <message>
         <source>Show input password</source>
         <translation>Показывать вводимый пароль</translation>
+    </message>
+</context>
+<context>
+    <name>AddLegacyAccountOptions</name>
+    <message>
+        <source>You can link multiple accounts and communicate with your friends on other services</source>
+        <translation>Вы можете подключить несколько учётных записей и общаться со своими друзьями на других сервисах</translation>
+    </message>
+    <message>
+        <source>All available accounts are already linked</source>
+        <translation>Все возможные учётные записи уже подключены</translation>
     </message>
 </context>
 <context>
@@ -124,6 +159,87 @@
     <message>
         <source>Append account</source>
         <translation>Добавить учётную запись</translation>
+    </message>
+    <message>
+        <source>ICQ</source>
+        <translation>ICQ</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Логин</translation>
+    </message>
+    <message>
+        <source>Agent@Mail</source>
+        <translation>Агент@Mail</translation>
+    </message>
+    <message>
+        <source>E-mail</source>
+        <translation>E-mail</translation>
+    </message>
+    <message>
+        <source>GTalk</source>
+        <translation>GTalk</translation>
+    </message>
+    <message>
+        <source>Y.Online</source>
+        <translation>Я.Онлайн</translation>
+    </message>
+    <message>
+        <source>Jabber</source>
+        <translation>Jabber</translation>
+    </message>
+    <message>
+        <source>Unsupported gateway type</source>
+        <translation>Неподдерживаемый тип транспорта</translation>
+    </message>
+</context>
+<context>
+    <name>LegacyAccountOptions</name>
+    <message>
+        <source>Enabling</source>
+        <translation>Включение</translation>
+    </message>
+    <message>
+        <source>Disabling</source>
+        <translation>Отключение</translation>
+    </message>
+    <message>
+        <source>Account Deletion</source>
+        <translation>Удаление учётной записи</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete &lt;b&gt;%1&lt;/b&gt; account?</source>
+        <translation>Вы действительно хотите удалить учётную запись &lt;b&gt;%1&lt;/b&gt;?</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Включено</translation>
+    </message>
+    <message>
+        <source>Disable</source>
+        <translation>Выключить</translation>
+    </message>
+    <message>
+        <source>Enable</source>
+        <translation>Включить</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Выключено</translation>
+    </message>
+</context>
+<context>
+    <name>LegacyAccountOptionsClass</name>
+    <message>
+        <source>&lt;a href=&apos;account:change&apos;&gt;Change...&lt;/a&gt;</source>
+        <translation>&lt;a href=&apos;account:change&apos;&gt;Изменить...&lt;/a&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>ManageLegacyAccountsOptionsClass</name>
+    <message>
+        <source>You have no linked accounts</source>
+        <translation>У вас нет подключенных учётных записей</translation>
     </message>
 </context>
 </TS>

@@ -9,6 +9,65 @@
     </message>
 </context>
 <context>
+    <name>SimpleVCardDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Диалог</translation>
+    </message>
+    <message>
+        <source>Birth date:</source>
+        <translation>Дата  рождения:</translation>
+    </message>
+    <message>
+        <source>Phone number:</source>
+        <translation>Телефон:</translation>
+    </message>
+    <message>
+        <source>Remark:</source>
+        <translation>Примечания:</translation>
+    </message>
+    <message>
+        <source>Full name:</source>
+        <translation>Полное имя:</translation>
+    </message>
+    <message>
+        <source>Add to roster</source>
+        <translation>Добавить в контакт лист</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Переименовать</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>not assigned</source>
+        <translation>не указан</translation>
+    </message>
+    <message>
+        <source>Profile: %1</source>
+        <translation>Провиль: %1</translation>
+    </message>
+    <message>
+        <source>vCard error</source>
+        <translation>Ошибка vCard</translation>
+    </message>
+    <message>
+        <source>vCard request failed.&lt;br&gt;%1</source>
+        <translation>Запрос vCard завершился с ошибкой. &lt;br&gt;%1</translation>
+    </message>
+    <message>
+        <source>Contact name</source>
+        <translation>Имя контакта</translation>
+    </message>
+    <message>
+        <source>Enter name for contact</source>
+        <translation>Укажите имя контакта</translation>
+    </message>
+</context>
+<context>
     <name>VCardDialog</name>
     <message>
         <source>vCard - %1</source>
