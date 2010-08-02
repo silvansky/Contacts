@@ -24,7 +24,7 @@ RegisterDialog::RegisterDialog(IRegistration *ARegistration, IDataForms *ADataFo
 
 	connect(ARegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
 	        SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
-	connect(ARegistration->instance(),SIGNAL(registerSuccessful(const QString &)),
+	connect(ARegistration->instance(),SIGNAL(registerSuccess(const QString &)),
 	        SLOT(onRegisterSuccess(const QString &)));
 	connect(ARegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
 	        SLOT(onRegisterError(const QString &, const QString &)));

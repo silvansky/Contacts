@@ -907,7 +907,10 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 				FDiscovery->requestDiscoInfo(ARoster->streamJid(),ritem.itemJid);
 	}
 	if (FPrivateStorage)
+	{
 		FPrivateStorage->loadData(ARoster->streamJid(),PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
+		FKeepTimer.start(KEEP_INTERVAL);
+	}
 }
 
 void Gateways::onRosterItemChanged(IRoster *ARoster, const IRosterItem &AItem)
@@ -926,9 +929,7 @@ void Gateways::onRosterSubscription(IRoster *ARoster, const Jid &AItemJid, int A
 {
 	Q_UNUSED(AText);
 	if (ASubsType==IRoster::Subscribed && FSubscribeServices.contains(ARoster->streamJid(),AItemJid))
-	{
 		sendLogPresence(ARoster->streamJid(),AItemJid,true);
-	}
 }
 
 void Gateways::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline)
@@ -962,8 +963,8 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 
 void Gateways::onPrivateStorateOpened(const Jid &AStreamJid)
 {
-	FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_SUBSCRIBE);
-	FKeepTimer.start(KEEP_INTERVAL);
+	Q_UNUSED(AStreamJid);
+	//FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_SUBSCRIBE);
 }
 
 void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)

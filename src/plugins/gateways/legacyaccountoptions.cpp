@@ -9,13 +9,10 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 	FStreamJid = AStreamJid;
 	FServiceJid = AServiceJid;
 	
-	IGateServiceLabel gslabel = FGateways->serviceLabel(FStreamJid,FServiceJid);
-	if (gslabel.valid)
-		ui.lblLogin->setText(gslabel.name);
-	else
-		ui.lblLogin->setText(FServiceJid.full());
+	FGateLabel = FGateways->serviceLabel(FStreamJid,FServiceJid);
+	ui.lblLogin->setText(FGateLabel.valid ? FGateLabel.name : FServiceJid.full());
 	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,gslabel.iconKey,0,0,"pixmap");
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,0,0,"pixmap");
 
 	connect(ui.pbtEnable,SIGNAL(clicked(bool)),SLOT(onEnableButtonClicked(bool)));
 	connect(ui.pbtDisable,SIGNAL(clicked(bool)),SLOT(onDisableButtonClicked(bool)));
@@ -61,7 +58,10 @@ void LegacyAccountOptions::onChangeLinkActivated(const QString &ALink)
 {
 	Q_UNUSED(ALink);
 	QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid,this);
-	connect(dialog,SIGNAL(accepted()),SLOT(onChangeDialogAccepted()));
+	if (dialog)
+	{
+		connect(dialog,SIGNAL(accepted()),SLOT(onChangeDialogAccepted()));
+	}
 }
 
 void LegacyAccountOptions::onChangeDialogAccepted()
@@ -83,7 +83,10 @@ void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QStr
 {
 	if (AId == FLoginRequest)
 	{
-		ui.lblLogin->setText(ALogin);
+		if (!ALogin.isEmpty())
+			ui.lblLogin->setText(ALogin);
+		else
+			ui.lblLogin->setText(FGateLabel.valid ? FGateLabel.name : FServiceJid.full());
 	}
 }
 

@@ -41,7 +41,7 @@ void LegacyAccountFilter::onStreamServicesChanged(const Jid &AStreamJid)
 	if (newServices != oldServices)
 	{
 		FStreamGates.insert(AStreamJid.bare(),newServices);
-		invalidate();
+		reset();
 	}
 }
 
@@ -51,11 +51,11 @@ void LegacyAccountFilter::onServiceEnableChanged(const Jid &AStreamJid, const Ji
 	if (AEnabled && !services.contains(AServiceJid))
 	{
 		services += AServiceJid;
-		invalidate();
+		reset();
 	}
 	else if (!AEnabled && services.contains(AServiceJid))
 	{
 		services -= AServiceJid;
-		invalidate();
+		reset();
 	}
 }

@@ -27,6 +27,7 @@ private:
 	Ui::LegacyAccountOptionsClass ui;
 private:
 	IGateways *FGateways;
+	IGateServiceLabel FGateLabel;
 private:
 	Jid FStreamJid;
 	Jid FServiceJid;
