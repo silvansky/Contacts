@@ -1,6 +1,6 @@
 #include "masssendhandler.h"
 
-#define NORMAL_NOTIFICATOR_ID     "MassSend"
+#define MASSSEND_NOTIFICATOR_ID     "MassSend"
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_CONTACT_JID           Action::DR_Parametr1
@@ -84,7 +84,7 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		{
 			uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate;
 			uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-			notifications->insertNotificator(NORMAL_NOTIFICATOR_ID, 0, tr("Single Messages"), kindMask, kindDefs);
+			notifications->insertNotificator(MASSSEND_NOTIFICATOR_ID, 0, tr("Single Messages"), kindMask, kindDefs);
 		}
 	}
 
@@ -173,7 +173,7 @@ INotification MassSendHandler::notification(INotifications *ANotifications, cons
 	QString name= ANotifications->contactName(AMessage.to(),AMessage.from());
 
 	INotification notify;
-	notify.kinds = ANotifications->notificatorKinds(NORMAL_NOTIFICATOR_ID);
+	notify.kinds = ANotifications->notificatorKinds(MASSSEND_NOTIFICATOR_ID);
 //	notify.data.insert(NDR_ICON,icon);
 //	notify.data.insert(NDR_TOOLTIP,tr("Message from %1").arg(name));
 //	notify.data.insert(NDR_ROSTER_STREAM_JID,AMessage.to());
@@ -208,16 +208,8 @@ IMassSendDialog *MassSendHandler::getDialog(const Jid &AStreamJid)
 		window = FMessageWidgets->newMassSendDialog(AStreamJid);
 		if (window)
 		{
-//			window->infoWidget()->autoUpdateFields();
 			connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
-//			connect(window->instance(),SIGNAL(showNextMessage()),SLOT(onShowNextMessage()));
-//			connect(window->instance(),SIGNAL(replyMessage()),SLOT(onReplyMessage()));
-//			connect(window->instance(),SIGNAL(forwardMessage()),SLOT(onForwardMessage()));
-//			connect(window->instance(),SIGNAL(showChatWindow()),SLOT(onShowChatWindow()));
-//			connect(window->instance(),SIGNAL(windowDestroyed()),SLOT(onWindowDestroyed()));
 			FDialogs.append(window);
-//			loadActiveMessages(window);
-//			showNextMessage(window);
 		}
 		else
 			window = findDialog(AStreamJid);
@@ -349,7 +341,7 @@ void MassSendHandler::onShowWindowAction(bool)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-		createWindow(MHO_NORMALMESSAGEHANDLER,streamJid,contactJid,Message::Normal, 0);
+		createWindow(MHO_NORMALMESSAGEHANDLER, streamJid, contactJid, Message::Normal, 0);
 
 		QString group = action->data(ADR_GROUP).toString();
 		if (!group.isEmpty())

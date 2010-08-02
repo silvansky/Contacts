@@ -49,20 +49,23 @@ ReceiversWidget::ReceiversWidget(IMessageWidgets *AMessageWidgets, const Jid &AS
 	connect(action, SIGNAL(triggered()), SLOT(onSelectAllClicked()));
 	menu->addAction(action);
 	ui.fastSelectButton->setMenu(menu);
+	ui.pbtAdd->setVisible(false);
+	ui.pbtSelectAll->setVisible(false);
+	ui.pbtSelectNone->setVisible(false);
+	ui.pbtUpdate->setVisible(false);
 	initialize();
 }
 
 ReceiversWidget::~ReceiversWidget()
 {
-
 }
 
 void ReceiversWidget::setStreamJid(const Jid &AStreamJid)
 {
-	Jid befour = FStreamJid;
+	Jid before = FStreamJid;
 	FStreamJid = AStreamJid;
 	initialize();
-	emit streamJidChanged(befour);
+	emit streamJidChanged(before);
 }
 
 QString ReceiversWidget::receiverName(const Jid &AReceiver) const
