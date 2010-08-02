@@ -3,6 +3,7 @@
 #include <QKeyEvent>
 #include <QHBoxLayout>
 #include <QKeySequence>
+#include <QTextDocument>
 #include <QIntValidator>
 #include <QDoubleValidator>
 
@@ -87,10 +88,10 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 	}
 	else
 	{
-		QGroupBox *box = new QGroupBox(this);
-		box->setFlat(true);
-		box->setTitle(ACaption);
-		layout()->addWidget(box);
+		QLabel *label = new QLabel(this);
+		label->setTextFormat(Qt::RichText);
+		label->setText(QString("<h3>%1</h3>").arg(Qt::escape(ACaption)));
+		layout()->addWidget(label);
 		layout()->setContentsMargins(0,layout()->spacing()*2,0,0);
 	}
 }

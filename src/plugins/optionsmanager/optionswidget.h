@@ -7,7 +7,6 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QComboBox>
-#include <QGroupBox>
 #include <QFontComboBox>
 #include <QDateTimeEdit>
 #include <interfaces/ioptionsmanager.h>

@@ -121,6 +121,7 @@ bool OptionsManager::initObjects()
 bool OptionsManager::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
+	Options::setDefaultValue(OPV_OPTIONSMANAGER_DIALOG_LASTNODE, QString(OPN_COMMON));
 
 	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), tr("Common settings"), MNI_OPTIONS_DIALOG };
 	insertOptionsDialogNode(dnode);
@@ -467,7 +468,7 @@ QDialog *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 			FOptionsDialog = new OptionsDialog(this,AParent);
 			connect(FOptionsDialog,SIGNAL(applied()),SLOT(onOptionsDialogApplied()));
 		}
-		FOptionsDialog->showNode(ANodeId);
+		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_OPTIONSMANAGER_DIALOG_LASTNODE).value().toString() : ANodeId);
 		FOptionsDialog->show();
 		WidgetManager::raiseWidget(FOptionsDialog);
 		FOptionsDialog->activateWindow();

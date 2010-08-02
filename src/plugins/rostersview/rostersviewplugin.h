@@ -23,7 +23,8 @@
 #include <utils/options.h>
 #include "rostersview.h"
 #include "sortfilterproxymodel.h"
-#include "rosteroptionswidget.h"
+#include "rostercontactorderoptions.h"
+#include "rostercontactviewoptions.h"
 
 class RostersViewPlugin :
 			public QObject,

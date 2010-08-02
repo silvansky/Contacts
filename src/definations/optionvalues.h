@@ -110,6 +110,7 @@
 #define OPV_MISC_ROOT                                   "misc"
 #define OPV_MISC_AUTOSTART                              "misc.autostart"
 #define OPV_MISC_SHAREOSVERSION                         "misc.share-os-version"
+#define OPV_OPTIONSMANAGER_DIALOG_LASTNODE              "optionsmanager.dialog.last-node"
 
 // Notifications
 #define OPV_NOTIFICATIONS_ROOT                          "notifications"

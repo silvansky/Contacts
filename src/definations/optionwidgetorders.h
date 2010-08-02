@@ -13,7 +13,8 @@
 //Node = OPN_ROSTER
 #define OWO_ROSTER_MAINWINDOW                     200
 #define OWO_ROSTER_VIEW                           400
-#define OWO_ROSTER_ORDER_KIND                     700
+#define OWO_ROSTER_CONTACTS_ORDER                 600
+#define OWO_ROSTER_CONTACTS_VIEW                  700
 #define OWO_ROSTER_AVATARS                        800
 #define OWO_ROSTER_CHANGER                        900
 

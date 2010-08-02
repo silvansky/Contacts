@@ -229,7 +229,7 @@ bool StatusChanger::initObjects()
 	{
 		uchar kindMask = INotification::PopupWindow|INotification::PlaySound;
 		uchar kindDefs = INotification::PopupWindow|INotification::PlaySound;
-		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_CONNECTION,tr("Connection errors"),kindMask,kindDefs);
+		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_CONNECTION,QString::null/*tr("Connection errors")*/,kindMask,kindDefs);
 	}
 
 	return true;

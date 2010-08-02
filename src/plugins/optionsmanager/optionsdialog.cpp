@@ -201,6 +201,7 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 	{
 		ui.scaScroll->takeWidget();
 	}
+	Options::node(OPV_OPTIONSMANAGER_DIALOG_LASTNODE).setValue(nodeID);
 }
 
 void OptionsDialog::onOptionsWidgetModified()

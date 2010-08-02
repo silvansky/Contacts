@@ -84,7 +84,7 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		{
 			uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate;
 			uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-			notifications->insertNotificator(MASSSEND_NOTIFICATOR_ID, 0, tr("Single Messages"), kindMask, kindDefs);
+			//notifications->insertNotificator(MASSSEND_NOTIFICATOR_ID, 0, tr("Single Messages"), kindMask, kindDefs);
 		}
 	}
 
