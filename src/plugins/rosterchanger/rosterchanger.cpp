@@ -182,6 +182,7 @@ bool RosterChanger::initObjects()
 		action = new Action(addMenu);
 		action->setText(tr("Add group"));
 		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_GROUP);
+		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddGroupDialog(bool)));
 		addMenu->addAction(action);
 
 		QToolButton *button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(addMenu->menuAction(), TBG_MWTTB_ROSTERCHANGER_ADDCONTACT);
@@ -493,7 +494,7 @@ void RosterChanger::unsubscribeContact(const Jid &AStreamJid, const Jid &AContac
 
 IAddContactDialog *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
 		AddContactDialog *dialog = new AddContactDialog(this,FPluginManager,AStreamJid);
@@ -746,7 +747,7 @@ void RosterChanger::removeNotice(Action *AAction)
 void RosterChanger::onShowAddContactDialog(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
-	IAccount *account = FAccountManager!=NULL ? FAccountManager->accounts().value(0) : NULL;
+	IAccount *account = FAccountManager ? FAccountManager->accounts().first() : NULL;
 	if (action && account && account->isActive())
 	{
 		IAddContactDialog *dialog = showAddContactDialog(account->xmppStream()->streamJid());
@@ -761,10 +762,21 @@ void RosterChanger::onShowAddContactDialog(bool)
 	}
 }
 
+void RosterChanger::onShowAddGroupDialog(bool)
+{
+	bool ok = false;
+	QString newGroupName = QInputDialog::getText(0, tr("Add group"), tr("Enter new group name"), QLineEdit::Normal, "", &ok);
+	if (ok && !newGroupName.isEmpty())
+	{
+		Jid streamJid = FAccountManager->accounts().first()->xmppStream()->streamJid();
+		FRostersModel->createGroup(newGroupName, FRosterPlugin->getRoster(streamJid)->groupDelimiter(), RIT_GROUP, FRostersModel->streamRoot(streamJid));
+	}
+}
+
 void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
 	QString streamJid = AIndex->data(RDR_STREAM_JID).toString();
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+	IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(streamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
 		int itemType = AIndex->data(RDR_TYPE).toInt();

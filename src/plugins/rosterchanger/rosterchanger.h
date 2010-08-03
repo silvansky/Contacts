@@ -48,7 +48,7 @@ struct AutoSubscription {
 
 struct PendingNotice
 {
-	PendingNotice() { 
+	PendingNotice() {
 		notifyId=-1;
 		priority=-1;
 		actions=0;
@@ -135,6 +135,7 @@ protected slots:
 	void onRemoveGroupItems(bool);
 protected slots:
 	void onShowAddContactDialog(bool);
+	void onShowAddGroupDialog(bool);
 	void onRosterItemRemoved(IRoster *ARoster, const IRosterItem &ARosterItem);
 	void onRosterClosed(IRoster *ARoster);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);

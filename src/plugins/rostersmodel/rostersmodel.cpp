@@ -216,7 +216,7 @@ IRosterIndex *RostersModel::createRosterIndex(int AType, const QString &AId, IRo
 
 IRosterIndex *RostersModel::createGroup(const QString &AName, const QString &AGroupDelim, int AType, IRosterIndex *AParent)
 {
-	IRosterIndex *index = findGroup(AName,AGroupDelim,AType,AParent);
+	IRosterIndex *index = findGroup(AName, AGroupDelim, AType, AParent);
 	if (!index)
 	{
 		int i = 0;
@@ -228,14 +228,14 @@ IRosterIndex *RostersModel::createGroup(const QString &AName, const QString &AGr
 		if (AParent && AParent->data(RDR_GROUP).isValid())
 			group = AParent->data(RDR_GROUP).toString();
 
-		while (newIndex && i<groupTree.count())
+		while (newIndex && i < groupTree.count())
 		{
 			if (group.isEmpty())
 				group = groupTree.at(i);
 			else
 				group += AGroupDelim + groupTree.at(i);
 
-			newIndex = findGroup(groupTree.at(i),AGroupDelim,AType,index);
+			newIndex = findGroup(groupTree.at(i), AGroupDelim, AType, index);
 			if (newIndex)
 			{
 				index = newIndex;
@@ -243,12 +243,12 @@ IRosterIndex *RostersModel::createGroup(const QString &AName, const QString &AGr
 			}
 		}
 
-		while (i<groupTree.count())
+		while (i < groupTree.count())
 		{
-			newIndex = createRosterIndex(AType,groupTree.at(i),index);
-			newIndex->setData(RDR_GROUP,group);
-			newIndex->setData(RDR_NAME,groupTree.at(i));
-			insertRosterIndex(newIndex,index);
+			newIndex = createRosterIndex(AType, groupTree.at(i), index);
+			newIndex->setData(RDR_GROUP, group);
+			newIndex->setData(RDR_NAME, groupTree.at(i));
+			insertRosterIndex(newIndex, index);
 			index = newIndex;
 			group += AGroupDelim + groupTree.value(++i);
 		}
@@ -616,7 +616,7 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 			QHash<int,QVariant> findData;
 			findData.insert(RDR_TYPE,itemType);
 			findData.insert(RDR_PJID,APresenceItem.itemJid.pFull());
-			QList<IRosterIndex *> itemList = streamIndex->findChild(findData,true);
+			QList<IRosterIndex *> itemList = streamIndex->findChild(findData, true);
 			int pitemsCount = APresence->presenceItems(APresenceItem.itemJid).count();
 			foreach (IRosterIndex *index,itemList)
 			{
