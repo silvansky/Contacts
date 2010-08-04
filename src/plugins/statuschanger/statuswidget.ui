@@ -57,6 +57,9 @@
      </item>
      <item row="1" column="0">
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="leftMargin">
+        <number>32</number>
+       </property>
        <item>
         <widget class="QLabel" name="moodLabel">
          <property name="sizePolicy">
@@ -64,6 +67,11 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <italic>true</italic>
+          </font>
          </property>
          <property name="cursor">
           <cursorShape>PointingHandCursor</cursorShape>

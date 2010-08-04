@@ -45,6 +45,7 @@ public slots:
 	void cancelEditMood();
 protected slots:
 	void profileMenuAboutToHide();
+	void profileMenuAboutToShow();
 	void onManageProfileTriggered();
 	void onAddAvatarTriggered();
 private:

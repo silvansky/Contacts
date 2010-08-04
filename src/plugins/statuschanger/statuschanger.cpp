@@ -181,14 +181,14 @@ bool StatusChanger::initObjects()
 	FModifyStatus->setCheckable(true);
 	FModifyStatus->setText(tr("Modify Status"));
 	FModifyStatus->setIcon(RSR_STORAGE_MENUICONS, MNI_SCHANGER_MODIFY_STATUS);
-	FMainMenu->addAction(FModifyStatus,AG_SCSM_STATUSCHANGER_ACTIONS,false);
+	//FMainMenu->addAction(FModifyStatus,AG_SCSM_STATUSCHANGER_ACTIONS,false);
 	connect(FModifyStatus,SIGNAL(triggered(bool)),SLOT(onModifyStatusAction(bool)));
 
 	Action *editStatus = new Action(FMainMenu);
 	editStatus->setText(tr("Edit Statuses"));
 	editStatus->setIcon(RSR_STORAGE_MENUICONS,MNI_SCHANGER_EDIT_STATUSES);
 	connect(editStatus,SIGNAL(triggered(bool)), SLOT(onEditStatusAction(bool)));
-	FMainMenu->addAction(editStatus,AG_SCSM_STATUSCHANGER_ACTIONS,false);
+	//FMainMenu->addAction(editStatus,AG_SCSM_STATUSCHANGER_ACTIONS,false);
 
 	createDefaultStatus();
 	setMainStatusId(STATUS_OFFLINE);
@@ -1225,7 +1225,7 @@ void StatusChanger::onTrayContextMenuAboutToShow()
 {
    if (FMainMenu->menuAction()->isVisible())
 	   foreach(Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
-   		FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER,true);
+		FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER,true);
 }
 
 void StatusChanger::onTrayContextMenuAboutToHide()

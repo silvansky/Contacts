@@ -20,6 +20,7 @@ StatusWidget::StatusWidget(QWidget *parent) :
 		ui(new Ui::StatusWidget)
 {
 	ui->setupUi(this);
+//	qApp->installEventFilter(this);
 	ui->statusToolButton->installEventFilter(this);
 	ui->avatarLabel->installEventFilter(this);
 	ui->avatarLabel->setAttribute(Qt::WA_Hover, true);
@@ -52,6 +53,7 @@ StatusWidget::StatusWidget(QWidget *parent) :
 	selectAvatarWidget = 0;
 #endif
 	connect(profileMenu, SIGNAL(aboutToHide()), SLOT(profileMenuAboutToHide()));
+	connect(profileMenu, SIGNAL(aboutToShow()), SLOT(profileMenuAboutToShow()));
 }
 
 StatusWidget::~StatusWidget()
@@ -188,6 +190,13 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 			if (ui->moodEdit->isVisible())
 				finishEditMood();
 	}
+	if (obj == qApp)
+	{
+		if (event->type() == QEvent::Close)
+		{
+			avatarHovered = false;
+		}
+	}
 	return QWidget::eventFilter(obj, event);
 }
 
@@ -239,6 +248,13 @@ void StatusWidget::cancelEditMood()
 void StatusWidget::profileMenuAboutToHide()
 {
 	avatarHovered = false;
+	ui->avatarLabel->repaint();
+}
+
+void StatusWidget::profileMenuAboutToShow()
+{
+	avatarHovered = true;
+	ui->avatarLabel->repaint();
 }
 
 void StatusWidget::onManageProfileTriggered()
