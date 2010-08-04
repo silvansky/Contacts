@@ -1268,6 +1268,12 @@ void StatusChanger::updateVCardInfo(const IVCard* vcard)
 	if (vcard)
 	{
 		QString name = vcard->value(VVN_NICKNAME);
+		if (name.isEmpty())
+			name = vcard->value(VVN_FULL_NAME);
+		if (name.isEmpty())
+			name = vcard->value(VVN_GIVEN_NAME);
+		if (name.isEmpty())
+			name = vcard->contactJid().node();
 		statusWidget->setUserName(name);
 		statusWidget->ui->statusToolButton->setText((name.isEmpty() ? FAccountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + statusWidget->ui->statusToolButton->text());
 	}
