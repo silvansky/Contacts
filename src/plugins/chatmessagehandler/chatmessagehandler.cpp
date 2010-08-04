@@ -102,6 +102,7 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 		if (FPresencePlugin)
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceAdded(IPresence *)),SLOT(onPresenceAdded(IPresence *)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceOpened(IPresence *)),SLOT(onPresenceOpened(IPresence *)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
 				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceRemoved(IPresence *)),SLOT(onPresenceRemoved(IPresence *)));
@@ -306,30 +307,36 @@ bool ChatMessageHandler::showMessage(int AMessageId)
 
 bool ChatMessageHandler::receiveMessage(int AMessageId)
 {
+	bool notify = false;
 	Message message = FMessageProcessor->messageById(AMessageId);
 	IChatWindow *window = getWindow(message.to(),message.from());
 	if (window)
 	{
-		showStyledMessage(window,message);
+		StyleExtension extension;
+		WindowStatus &wstatus = FWindowStatus[window];
 		if (!window->isActive())
 		{
-			FActiveMessages.insertMulti(window, AMessageId);
+			notify = true;
+			extension.extensions = IMessageContentOptions::Unread;
+			wstatus.notified.append(AMessageId);
 			updateWindow(window);
-			return true;
 		}
-		else
+
+		QUuid contentId = showStyledMessage(window,message,extension);
+		if (!contentId.isNull() && notify)
 		{
-			FMessageProcessor->removeMessage(AMessageId);
+			message.setData(MDR_STYLE_CONTENT_ID,contentId.toString());
+			wstatus.unread.append(message);
 		}
 	}
-	return false;
+	return notify;
 }
 
 INotification ChatMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
 {
 	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
 	QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
-	QString messages = tr("%n message(s)","",FActiveMessages.values(window).count());
+	QString messages = tr("%n message(s)","",FWindowStatus.value(window).notified.count());
 
 	INotification notify;
 	notify.kinds = ANotifications->notificatorKinds(NOTIFICATOR_ID);
@@ -400,7 +407,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 				window->infoWidget()->autoUpdateFields();
 				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
-				WindowStatus &wstatus = FWindowStatus[window->viewWidget()];
+				WindowStatus &wstatus = FWindowStatus[window];
 				wstatus.createTime = QDateTime::currentDateTime();
 
 				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
@@ -434,6 +441,8 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 
 				wstatus.historyTime = wstatus.createTime.addSecs(-HISTORY_TIME_PAST);
 				showHistoryMessages(window);
+
+				window->instance()->installEventFilter(this);
 			}
 		}
 	}
@@ -451,7 +460,7 @@ IChatWindow *ChatMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AC
 void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 {
 	QIcon icon;
-	if (FActiveMessages.contains(AWindow))
+	if (!FWindowStatus.value(AWindow).notified.isEmpty())
 		icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE);
 	else if (FStatusIcons)
 		icon = FStatusIcons->iconByJid(AWindow->streamJid(),AWindow->contactJid());
@@ -463,15 +472,56 @@ void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 	AWindow->updateWindow(icon,name,title);
 }
 
-void ChatMessageHandler::removeActiveMessages(IChatWindow *AWindow)
+void ChatMessageHandler::removeMessageNotifications(IChatWindow *AWindow)
 {
-	if (FActiveMessages.contains(AWindow))
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	if (!wstatus.notified.isEmpty())
 	{
-		QList<int> messageIds = FActiveMessages.values(AWindow);
-		foreach(int messageId, messageIds)
+		foreach(int messageId, wstatus.notified)
 			FMessageProcessor->removeMessage(messageId);
-		FActiveMessages.remove(AWindow);
+		wstatus.notified.clear();
 		updateWindow(AWindow);
+	}
+}
+
+void ChatMessageHandler::replaceUnreadMessages(IChatWindow *AWindow)
+{
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	if (!wstatus.unread.isEmpty())
+	{
+		StyleExtension extension;
+		extension.action = IMessageContentOptions::Replace;
+		foreach (Message message, wstatus.unread)
+		{
+			extension.contentId = message.data(MDR_STYLE_CONTENT_ID).toString();
+			showStyledMessage(AWindow, message, extension);
+		}
+		wstatus.unread.clear();
+	}
+}
+
+void ChatMessageHandler::sendOfflineMessages(IChatWindow *AWindow)
+{
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	if (!wstatus.offline.isEmpty())
+	{
+		StyleExtension extension;
+		extension.action = IMessageContentOptions::Replace;
+		while (!wstatus.offline.isEmpty())
+		{
+			Message message = wstatus.offline.at(0);
+			message.setTo(AWindow->contactJid().eFull());
+			if (FMessageProcessor->sendMessage(AWindow->streamJid(),message))
+			{
+				extension.contentId = message.data(MDR_STYLE_CONTENT_ID).toString();
+				showStyledMessage(AWindow, message, extension);
+				wstatus.offline.removeAt(0);
+			}
+			else
+			{
+				break;
+			}
+		}
 	}
 }
 
@@ -503,9 +553,9 @@ void ChatMessageHandler::showStaticMessages(IChatWindow *AWindow)
 		options.kind = IMessageContentOptions::Status;
 		options.time = QDateTime::fromTime_t(0);
 		options.timeFormat = " ";
-		//options.noScroll = true;
+		options.noScroll = true;
 		QString message = urlMask.arg(SHOW_HISTORY_URL).arg(tr("Chat history")) + "<br>" + urlMask.arg(SHOW_MESSAGES_URL).arg(tr("Show previous messages"));
-		AWindow->viewWidget()->appendHtml(message,options);
+		AWindow->viewWidget()->changeContentHtml(message,options);
 	}
 }
 
@@ -517,7 +567,7 @@ void ChatMessageHandler::showHistoryMessages(IChatWindow *AWindow, bool AShowAll
 		request.with = AWindow->contactJid().bare();
 		request.order = Qt::DescendingOrder;
 
-		WindowStatus &wstatus = FWindowStatus[AWindow->viewWidget()];
+		WindowStatus &wstatus = FWindowStatus[AWindow];
 		if (!AShowAll)
 		{
 			request.count = HISTORY_MESSAGES;
@@ -579,39 +629,40 @@ void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageConten
 	}
 }
 
-void ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDate &AMessageDate)
+QUuid ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDate &ADate)
 {
 	static const QList<QString> mnames = QList<QString>() << tr("January") << tr("February") <<  tr("March") <<  tr("April")
-					     << tr("May") << tr("June") << tr("July") << tr("August") << tr("September") << tr("October") << tr("November") << tr("December");
+		<< tr("May") << tr("June") << tr("July") << tr("August") << tr("September") << tr("October") << tr("November") << tr("December");
 	static const QList<QString> dnames = QList<QString>() << tr("Monday") << tr("Tuesday") <<  tr("Wednesday") <<  tr("Thursday")
-					     << tr("Friday") << tr("Saturday") << tr("Sunday");
+		<< tr("Friday") << tr("Saturday") << tr("Sunday");
 
-	WindowStatus &wstatus = FWindowStatus[AWindow->viewWidget()];
-	if (!wstatus.separators.contains(AMessageDate))
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	if (!wstatus.separators.contains(ADate))
 	{
 		IMessageContentOptions options;
 		options.kind = IMessageContentOptions::Status;
 		options.direction = IMessageContentOptions::DirectionIn;
 		options.type = IMessageContentOptions::DateSeparator;
-		options.time.setDate(AMessageDate);
+		options.time.setDate(ADate);
 		options.time.setTime(QTime(0,0));
 		options.timeFormat = " ";
-		//options.noScroll = true;
+		options.noScroll = true;
 
 		QString message;
 		QDate currentDate = QDate::currentDate();
-		if (AMessageDate == currentDate)
-			message = AMessageDate.toString(tr("%1, %2 dd")).arg(tr("Today")).arg(mnames.value(AMessageDate.month()-1));
-		else if (AMessageDate.year() == currentDate.year())
-			message = AMessageDate.toString(tr("%1, %2 dd")).arg(dnames.value(AMessageDate.dayOfWeek()-1)).arg(mnames.value(AMessageDate.month()-1));
+		if (ADate == currentDate)
+			message = ADate.toString(tr("%1, %2 dd")).arg(tr("Today")).arg(mnames.value(ADate.month()-1));
+		else if (ADate.year() == currentDate.year())
+			message = ADate.toString(tr("%1, %2 dd")).arg(dnames.value(ADate.dayOfWeek()-1)).arg(mnames.value(ADate.month()-1));
 		else
-			message = AMessageDate.toString(tr("%1, %2 dd, yyyy")).arg(dnames.value(AMessageDate.dayOfWeek()-1)).arg(mnames.value(AMessageDate.month()-1));
-		AWindow->viewWidget()->appendText(message,options);
-		wstatus.separators.append(AMessageDate);
+			message = ADate.toString(tr("%1, %2 dd, yyyy")).arg(dnames.value(ADate.dayOfWeek()-1)).arg(mnames.value(ADate.month()-1));
+		wstatus.separators.append(ADate);
+		return AWindow->viewWidget()->changeContentText(message,options);
 	}
+	return QUuid();
 }
 
-void ChatMessageHandler::showStyledStatus(IChatWindow *AWindow, const QString &AMessage)
+QUuid ChatMessageHandler::showStyledStatus(IChatWindow *AWindow, const QString &AMessage)
 {
 	IMessageContentOptions options;
 	options.kind = IMessageContentOptions::Status;
@@ -619,29 +670,45 @@ void ChatMessageHandler::showStyledStatus(IChatWindow *AWindow, const QString &A
 	options.timeFormat = FMessageStyles->timeFormat(options.time);
 	options.direction = IMessageContentOptions::DirectionIn;
 	fillContentOptions(AWindow,options);
-	AWindow->viewWidget()->appendText(AMessage,options);
+	return AWindow->viewWidget()->changeContentText(AMessage,options);
 }
 
-void ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message &AMessage)
+QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message &AMessage, const StyleExtension &AExtension)
 {
 	IMessageContentOptions options;
 	options.kind = IMessageContentOptions::Message;
 	options.time = AMessage.dateTime();
 	options.timeFormat = FMessageStyles->timeFormat(options.time);
+
 	if (AWindow->streamJid() && AWindow->contactJid() ? AWindow->contactJid() != AMessage.to() : !(AWindow->contactJid() && AMessage.to()))
 		options.direction = IMessageContentOptions::DirectionIn;
 	else
 		options.direction = IMessageContentOptions::DirectionOut;
 
-	if (options.time.secsTo(FWindowStatus.value(AWindow->viewWidget()).createTime)>HISTORY_TIME_PAST)
+	if (options.time.secsTo(FWindowStatus.value(AWindow).createTime) > HISTORY_TIME_PAST)
 	{
-		//options.noScroll = true;
+		options.noScroll = true;
 		options.type |= IMessageContentOptions::History;
 	}
 
+	options.action = AExtension.action;
+	options.extensions = AExtension.extensions;
+	options.contentId = AExtension.contentId;
+
 	fillContentOptions(AWindow,options);
 	showDateSeparator(AWindow,AMessage.dateTime().date());
-	AWindow->viewWidget()->appendMessage(AMessage,options);
+	return AWindow->viewWidget()->changeContentMessage(AMessage,options);
+}
+
+bool ChatMessageHandler::eventFilter(QObject *AObject, QEvent *AEvent)
+{
+	if (AEvent->type()==QEvent::WindowDeactivate || AEvent->type()==QEvent::Hide)
+	{
+		IChatWindow *window = qobject_cast<IChatWindow *>(AObject);
+		if (window)
+			replaceUnreadMessages(window);
+	}
+	return QObject::eventFilter(AObject,AEvent);
 }
 
 void ChatMessageHandler::onMessageReady()
@@ -652,10 +719,21 @@ void ChatMessageHandler::onMessageReady()
 		Message message;
 		message.setTo(window->contactJid().eFull()).setType(Message::Chat);
 		FMessageProcessor->textToMessage(message,window->editWidget()->document());
-		if (!message.body().isEmpty() && FMessageProcessor->sendMessage(window->streamJid(),message))
+		if (!message.body().isEmpty())
 		{
+			StyleExtension extension;
+			if (!FMessageProcessor->sendMessage(window->streamJid(),message))
+				extension.extensions = IMessageContentOptions::Offline;
+
+			QUuid contentId = showStyledMessage(window, message, extension);
+			if (!contentId.isNull() && extension.extensions==IMessageContentOptions::Offline)
+			{
+				message.setData(MDR_STYLE_CONTENT_ID, contentId.toString());
+				FWindowStatus[window].offline.append(message);
+			}
+
+			replaceUnreadMessages(window);
 			window->editWidget()->clearEditor();
-			showStyledMessage(window, message);
 		}
 	}
 }
@@ -685,7 +763,7 @@ void ChatMessageHandler::onInfoFieldChanged(IInfoWidget::InfoField AField, const
 			{
 				QString status = AValue.toString();
 				QString show = FStatusChanger ? FStatusChanger->nameByShow(widget->field(IInfoWidget::ContactShow).toInt()) : QString::null;
-				WindowStatus &wstatus = FWindowStatus[window->viewWidget()];
+				WindowStatus &wstatus = FWindowStatus[window];
 				if (wstatus.lastStatusShow != status+show)
 				{
 					wstatus.lastStatusShow = status+show;
@@ -710,7 +788,7 @@ void ChatMessageHandler::onWindowActivated()
 
 		if (FWindowTimers.contains(window))
 			delete FWindowTimers.take(window);
-		removeActiveMessages(window);
+		removeMessageNotifications(window);
 	}
 }
 
@@ -739,9 +817,9 @@ void ChatMessageHandler::onWindowDestroyed()
 			FTabPages[window->tabPageId()].page = NULL;
 		if (FWindowTimers.contains(window))
 			delete FWindowTimers.take(window);
-		removeActiveMessages(window);
+		removeMessageNotifications(window);
 		FWindows.removeAll(window);
-		FWindowStatus.remove(window->viewWidget());
+		FWindowStatus.remove(window);
 		emit tabPageDestroyed(window);
 	}
 }
@@ -824,6 +902,13 @@ void ChatMessageHandler::onPresenceAdded(IPresence *APresence)
 	FPrecences.append(APresence);
 }
 
+void ChatMessageHandler::onPresenceOpened(IPresence *APresence)
+{
+	foreach(IChatWindow *window, FWindows)
+		if (window->streamJid() == APresence->streamJid())
+			sendOfflineMessages(window);
+}
+
 void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem)
 {
 	Jid streamJid = APresence->streamJid();
@@ -857,7 +942,10 @@ void ChatMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOpti
 			IMessageStyle *style = window->viewWidget()!=NULL ? window->viewWidget()->messageStyle() : NULL;
 			if (style==NULL || !style->changeOptions(window->viewWidget()->styleWidget(),AOptions,false))
 			{
-				FWindowStatus[window->viewWidget()].separators.clear();
+				WindowStatus &wstatus = FWindowStatus[window];
+				wstatus.separators.clear();
+				wstatus.unread.clear();
+				wstatus.offline.clear();
 				setMessageStyle(window);
 				showHistoryMessages(window,true);
 			}

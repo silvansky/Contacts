@@ -468,7 +468,7 @@ QString AdiumMessageStyle::makeContentTemplate(const IMessageContentOptions &AOp
 		html = ASameSender ? FOut_NextContentHTML : FOut_ContentHTML;
 	}
 	
-	if (AOptions.extensions & IMessageContentOptions::Unreaded)
+	if (AOptions.extensions & IMessageContentOptions::Unread)
 	{
 		QString templ;
 		if (AOptions.direction == IMessageContentOptions::DirectionIn)

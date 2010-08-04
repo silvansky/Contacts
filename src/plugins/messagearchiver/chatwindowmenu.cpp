@@ -239,7 +239,7 @@ void ChatWindowMenu::onRequestFailed(const QString &AId, const QString &AError)
 			options.type |= IMessageContentOptions::Event;
 			options.direction = IMessageContentOptions::DirectionIn;
 			options.time = QDateTime::currentDateTime();
-			FToolBarWidget->viewWidget()->appendText(tr("Changing archive preferences failed: %1").arg(AError),options);
+			FToolBarWidget->viewWidget()->changeContentText(tr("Changing archive preferences failed: %1").arg(AError),options);
 		}
 		if (FSessionRequest == AId)
 			FSessionRequest.clear();

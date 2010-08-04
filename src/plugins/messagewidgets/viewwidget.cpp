@@ -88,28 +88,26 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 	}
 }
 
-void ViewWidget::appendHtml(const QString &AHtml, const IMessageContentOptions &AOptions)
+QUuid ViewWidget::changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions)
 {
-	if (FMessageStyle)
-		FMessageStyle->changeContent(FStyleWidget,AHtml,AOptions);
+	return FMessageStyle!=NULL ? FMessageStyle->changeContent(FStyleWidget,AHtml,AOptions) : QUuid();
 }
 
-void ViewWidget::appendText(const QString &AText, const IMessageContentOptions &AOptions)
+QUuid ViewWidget::changeContentText(const QString &AText, const IMessageContentOptions &AOptions)
 {
 	Message message;
 	message.setBody(AText);
-	appendMessage(message,AOptions);
+	return changeContentMessage(message,AOptions);
 }
 
-void ViewWidget::appendMessage(const Message &AMessage, const IMessageContentOptions &AOptions)
+QUuid ViewWidget::changeContentMessage(const Message &AMessage, const IMessageContentOptions &AOptions)
 {
 	QTextDocument messageDoc;
 	if (FMessageProcessor)
 		FMessageProcessor->messageToText(&messageDoc,AMessage);
 	else
 		messageDoc.setPlainText(AMessage.body());
-
-	appendHtml(getHtmlBody(messageDoc.toHtml()),AOptions);
+	return changeContentHtml(getHtmlBody(messageDoc.toHtml()),AOptions);
 }
 
 void ViewWidget::contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)

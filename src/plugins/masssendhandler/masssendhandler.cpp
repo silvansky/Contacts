@@ -281,11 +281,11 @@ void MassSendHandler::showStyledMessage(IMassSendDialog *ADialog, const Message 
 		html += "<p style='color:red;'>"+Qt::escape(err.message())+"</p>";
 		html += "<hr>";
 		options.kind = IMessageContentOptions::Message;
-		ADialog->viewWidget()->appendHtml(html,options);
+		ADialog->viewWidget()->changeContentHtml(html,options);
 	}
 
 	options.kind = IMessageContentOptions::Message;
-	ADialog->viewWidget()->appendMessage(AMessage, options);
+	ADialog->viewWidget()->changeContentMessage(AMessage, options);
 }
 
 void MassSendHandler::onMessageReady()

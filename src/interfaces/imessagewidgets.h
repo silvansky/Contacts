@@ -61,9 +61,9 @@ public:
 	virtual QWidget *styleWidget() const =0;
 	virtual IMessageStyle *messageStyle() const =0;
 	virtual void setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptions &AOptions) =0;
-	virtual void appendHtml(const QString &AHtml, const IMessageContentOptions &AOptions) =0;
-	virtual void appendText(const QString &AText, const IMessageContentOptions &AOptions) =0;
-	virtual void appendMessage(const Message &AMessage, const IMessageContentOptions &AOptions) =0;
+	virtual QUuid changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions) =0;
+	virtual QUuid changeContentText(const QString &AText, const IMessageContentOptions &AOptions) =0;
+	virtual QUuid changeContentMessage(const Message &AMessage, const IMessageContentOptions &AOptions) =0;
 	virtual void contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu) =0;
 protected:
 	virtual void streamJidChanged(const Jid &ABefour) =0;

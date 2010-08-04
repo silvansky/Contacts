@@ -652,7 +652,7 @@ void ViewHistoryWindow::showNotification(const QString &AMessage)
 		options.direction = IMessageContentOptions::DirectionIn;
 		options.time = QDateTime::currentDateTime();
 		options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
-		FViewWidget->appendText(AMessage,options);
+		FViewWidget->changeContentText(AMessage,options);
 	}
 }
 
@@ -716,7 +716,7 @@ void ViewHistoryWindow::processCollection(const IArchiveCollection &ACollection,
 		{
 			options.time = it.key();
 			options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
-			FViewWidget->appendText(it.value(),options);
+			FViewWidget->changeContentText(it.value(),options);
 			it++;
 		}
 
@@ -752,7 +752,7 @@ void ViewHistoryWindow::processCollection(const IArchiveCollection &ACollection,
 				options.senderColor = "red";
 			}
 
-			FViewWidget->appendMessage(message,options);
+			FViewWidget->changeContentMessage(message,options);
 		}
 	}
 }

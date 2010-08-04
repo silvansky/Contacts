@@ -26,9 +26,9 @@ public:
 	virtual QWidget *styleWidget() const;
 	virtual IMessageStyle *messageStyle() const;
 	virtual void setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptions &AOptions);
-	virtual void appendHtml(const QString &AHtml, const IMessageContentOptions &AOptions);
-	virtual void appendText(const QString &AText, const IMessageContentOptions &AOptions);
-	virtual void appendMessage(const Message &AMessage, const IMessageContentOptions &AOptions);
+	virtual QUuid changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions);
+	virtual QUuid changeContentText(const QString &AText, const IMessageContentOptions &AOptions);
+	virtual QUuid changeContentMessage(const Message &AMessage, const IMessageContentOptions &AOptions);
 	virtual void contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
 signals:
 	void streamJidChanged(const Jid &ABefour);

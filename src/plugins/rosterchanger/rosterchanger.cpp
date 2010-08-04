@@ -636,7 +636,7 @@ void RosterChanger::showNotifyInChatWindow(IChatWindow *AWindow, const QString &
 	options.time = QDateTime::currentDateTime();
 
 	QString message = !AText.isEmpty() ? ANotify +" (" +AText+ ")" : ANotify;
-	AWindow->viewWidget()->appendText(message,options);
+	AWindow->viewWidget()->changeContentText(message,options);
 }
 
 void RosterChanger::removeChatWindowNotifications(IChatWindow *AWindow)

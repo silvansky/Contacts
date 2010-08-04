@@ -44,6 +44,9 @@ struct WindowStatus
 	QDateTime historyTime;
 	QString lastStatusShow;
 	QList<QDate> separators;
+	QList<int> notified;
+	QList<Message> unread;
+	QList<Message> offline;
 };
 
 struct TabPageInfo
@@ -51,7 +54,17 @@ struct TabPageInfo
 	Jid streamJid;
 	Jid contactJid;
 	ITabPage *page;
-	QDateTime lastActive;
+};
+
+struct StyleExtension
+{
+	StyleExtension() {
+		action = IMessageContentOptions::InsertAfter;
+		extensions = 0;
+	}
+	int action;
+	int extensions;
+	QString contentId;
 };
 
 class ChatMessageHandler :
@@ -98,16 +111,20 @@ protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	void updateWindow(IChatWindow *AWindow);
-	void removeActiveMessages(IChatWindow *AWindow);
+	void removeMessageNotifications(IChatWindow *AWindow);
+	void replaceUnreadMessages(IChatWindow *AWindow);
+	void sendOfflineMessages(IChatWindow *AWindow);
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
 	void showStaticMessages(IChatWindow *AWindow);
 	void showHistoryMessages(IChatWindow *AWindow, bool AShowAll = false);
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
-	void showDateSeparator(IChatWindow *AWindow, const QDate &AMessageDate);
-	void showStyledStatus(IChatWindow *AWindow, const QString &AMessage);
-	void showStyledMessage(IChatWindow *AWindow, const Message &AMessage);
+	QUuid showDateSeparator(IChatWindow *AWindow, const QDate &ADate);
+	QUuid showStyledStatus(IChatWindow *AWindow, const QString &AMessage);
+	QUuid showStyledMessage(IChatWindow *AWindow, const Message &AMessage, const StyleExtension &AExtension = StyleExtension());
+protected:
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onMessageReady();
 	void onUrlClicked(const QUrl &AUrl);
@@ -121,6 +138,7 @@ protected slots:
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex * AIndex, int ALabelId, QMultiMap<int,QString> & AToolTips, ToolBarChanger * AToolBarChanger);
 	void onPresenceAdded(IPresence *APresence);
+	void onPresenceOpened(IPresence *APresence);
 	void onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem);
 	void onPresenceRemoved(IPresence *APresence);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
@@ -145,9 +163,8 @@ private:
 	QHash<QString, TabPageInfo> FTabPages;
 private:
 	QList<IChatWindow *> FWindows;
-	QMultiMap<IChatWindow *,int> FActiveMessages;
-	QMap<IViewWidget *, WindowStatus> FWindowStatus;
 	QMap<IChatWindow *, QTimer *> FWindowTimers;
+	QMap<IChatWindow *, WindowStatus> FWindowStatus;
 };
 
 #endif // CHATMESSAGEHANDLER_H

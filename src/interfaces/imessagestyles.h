@@ -46,7 +46,7 @@ struct IMessageContentOptions
 		Remove          
 	};
 	enum ContentExtension {
-		Unreaded        = 0x01,
+		Unread          = 0x01,
 		Offline         = 0x02
 	};
 	IMessageContentOptions() { 
