@@ -153,19 +153,6 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 			QUuid contentId;
 			if (AOptions.action != IMessageContentOptions::Remove)
 			{
-				int actionCommand = scriptActionCommand(AOptions);
-				bool sameSender = isSameSender(AWidget,AOptions,actionIndex);
-				QString html = makeContentTemplate(AOptions,sameSender);
-				fillContentKeywords(html,AOptions,sameSender);
-
-				html.replace("%message%",processCommands(AHtml,AOptions));
-				if (AOptions.kind == IMessageContentOptions::Topic)
-					html.replace("%topic%",QString(TOPIC_INDIVIDUAL_WRAPPER).arg(AHtml));
-
-				escapeStringForScript(html);
-				QString script = scriptForAppendContent(AOptions,sameSender).arg(html).arg(actionIndex).arg(actionCommand);
-				view->page()->mainFrame()->evaluateJavaScript(script);
-
 				ContentParams cparams;
 				cparams.kind = AOptions.kind;
 				cparams.senderId = AOptions.senderId;
@@ -183,6 +170,20 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 					content.replace(actionIndex,cparams);
 				}
 				contentId = cparams.contentId;
+
+				int actionCommand = scriptActionCommand(AOptions);
+				bool sameSender = isSameSender(AWidget,AOptions,actionIndex);
+				QString html = makeContentTemplate(AOptions,sameSender);
+				fillContentKeywords(html,AOptions,sameSender);
+
+				html.replace("%message%",processCommands(AHtml,AOptions));
+				if (AOptions.kind == IMessageContentOptions::Topic)
+					html.replace("%topic%",QString(TOPIC_INDIVIDUAL_WRAPPER).arg(AHtml));
+				html.replace("%contentId%",cparams.contentId);
+
+				escapeStringForScript(html);
+				QString script = scriptForAppendContent(AOptions,sameSender).arg(html).arg(actionIndex).arg(actionCommand);
+				view->page()->mainFrame()->evaluateJavaScript(script);
 			}
 			else
 			{

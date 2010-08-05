@@ -114,6 +114,7 @@ protected:
 	void removeMessageNotifications(IChatWindow *AWindow);
 	void replaceUnreadMessages(IChatWindow *AWindow);
 	void sendOfflineMessages(IChatWindow *AWindow);
+	void removeOfflineMessage(IChatWindow *AWindow, const QUuid &AContentId);
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
 	void showStaticMessages(IChatWindow *AWindow);

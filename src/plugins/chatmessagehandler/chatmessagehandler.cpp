@@ -12,8 +12,9 @@
 
 #define NOTIFICATOR_ID            "ChatMessages"
 
-#define SHOW_HISTORY_URL          "rambler:history:show"
-#define SHOW_MESSAGES_URL         "rambler:history:show-messages"
+#define URL_SCHEME_ACTION         "action"
+#define URL_PATH_HISTORY          "history"
+#define URL_PATH_CONTENT          "content"
 
 QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
 {
@@ -525,6 +526,23 @@ void ChatMessageHandler::sendOfflineMessages(IChatWindow *AWindow)
 	}
 }
 
+void ChatMessageHandler::removeOfflineMessage(IChatWindow *AWindow, const QUuid &AContentId)
+{
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	for (int index=0; index<wstatus.offline.count(); index++)
+	{
+		if (wstatus.offline.at(index).data(MDR_STYLE_CONTENT_ID).toString() == AContentId.toString())
+		{
+			IMessageContentOptions options;
+			options.action = IMessageContentOptions::Remove;
+			options.contentId = AContentId;
+			AWindow->viewWidget()->changeContentHtml(QString::null,options);
+			wstatus.offline.removeAt(index);
+			break;
+		}
+	}
+}
+
 IPresence *ChatMessageHandler::findPresence(const Jid &AStreamJid) const
 {
 	IPresence *precsence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
@@ -554,7 +572,18 @@ void ChatMessageHandler::showStaticMessages(IChatWindow *AWindow)
 		options.time = QDateTime::fromTime_t(0);
 		options.timeFormat = " ";
 		options.noScroll = true;
-		QString message = urlMask.arg(SHOW_HISTORY_URL).arg(tr("Chat history")) + "<br>" + urlMask.arg(SHOW_MESSAGES_URL).arg(tr("Show previous messages"));
+		
+		QUrl showWindowUrl;
+		showWindowUrl.setScheme(URL_SCHEME_ACTION);
+		showWindowUrl.setPath(URL_PATH_HISTORY);
+		showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
+
+		QUrl showMesagesUrl;
+		showMesagesUrl.setScheme(URL_SCHEME_ACTION);
+		showMesagesUrl.setPath(URL_PATH_HISTORY);
+		showMesagesUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("messages")));
+
+		QString message = urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history")) + "<br>" + urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages"));
 		AWindow->viewWidget()->changeContentHtml(message,options);
 	}
 }
@@ -740,12 +769,36 @@ void ChatMessageHandler::onMessageReady()
 
 void ChatMessageHandler::onUrlClicked(const QUrl &AUrl)
 {
-	if (AUrl.toString() == SHOW_MESSAGES_URL)
+	if (AUrl.scheme() == URL_SCHEME_ACTION)
 	{
 		IViewWidget *widget = qobject_cast<IViewWidget *>(sender());
 		IChatWindow *window = widget!=NULL ? findWindow(widget->streamJid(),widget->contactJid()) : NULL;
 		if (window)
-			showHistoryMessages(window);
+		{
+			if (AUrl.path() == URL_PATH_HISTORY)
+			{
+				QString keyValue = AUrl.queryItemValue("show");
+				if (keyValue == "messages")
+				{
+					showHistoryMessages(window);
+				}
+				else if (FMessageArchiver && keyValue == "window")
+				{
+					IArchiveFilter filter;
+					filter.with = window->streamJid().bare();
+					filter.start = QDateTime::currentDateTime().addMonths(-3);
+					FMessageArchiver->showArchiveWindow(window->streamJid(),filter,IArchiveWindow::GK_NO_GROUPS,window->instance());
+				}
+			}
+			else if (AUrl.path() == URL_PATH_CONTENT)
+			{
+				QUuid contentId = AUrl.queryItemValue("remove");
+				if (!contentId.isNull())
+				{
+					removeOfflineMessage(window,contentId);
+				}
+			}
+		}
 	}
 }
 
