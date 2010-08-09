@@ -225,6 +225,39 @@ bool Gateways::initObjects()
 	yonline.domainSeparator = "@";
 	FGateDescriptors.append(yonline);
 
+	IGateServiceDescriptor qip;
+	qip.valid = true;
+	qip.type = "xmpp";
+	qip.prefix = "qip.";
+	qip.name = tr("QIP");
+	qip.iconKey = MNI_GATEWAYS_SERVICE_QIP;
+	qip.loginLabel = tr("Login");
+	qip.domains.append("qip.ru");
+	qip.loginField = "username";
+	qip.domainField = "server";
+	qip.passwordField = "password";
+	qip.domainSeparator = "@";
+	FGateDescriptors.append(qip);
+
+	IGateServiceDescriptor rambler;
+	rambler.valid = true;
+	rambler.type = "xmpp";
+	rambler.prefix = "rambler.";
+	rambler.name = tr("Rambler");
+	rambler.iconKey = MNI_GATEWAYS_SERVICE_RAMBLER;
+	rambler.loginLabel = tr("Login");
+	rambler.domains.append("rambler.ru");
+	rambler.domains.append("lenta.ru");
+	rambler.domains.append("myrambler.ru");
+	rambler.domains.append("autorambler.ru");
+	rambler.domains.append("ro.ru");
+	rambler.domains.append("r0.ru");
+	rambler.loginField = "username";
+	rambler.domainField = "server";
+	rambler.passwordField = "password";
+	rambler.domainSeparator = "@";
+	FGateDescriptors.append(rambler);
+
 	IGateServiceDescriptor jabber;
 	jabber.valid = true;
 	jabber.type = "xmpp";

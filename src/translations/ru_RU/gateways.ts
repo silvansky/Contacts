@@ -49,6 +49,10 @@
         <source>Connection to gateway is lost</source>
         <translation>Подключение к транспорту потеряно</translation>
     </message>
+    <message>
+        <source>Change</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AddLegacyAccountDialogClass</name>
@@ -191,6 +195,14 @@
     <message>
         <source>Unsupported gateway type</source>
         <translation>Неподдерживаемый тип транспорта</translation>
+    </message>
+    <message>
+        <source>QIP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rambler</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

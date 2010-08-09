@@ -20,7 +20,6 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 
 	ui.lblError->setVisible(false);
 	ui.chbShowPassword->setVisible(false);
-	ui.btbButtons->button(QDialogButtonBox::Ok)->setText(tr("Append"));
 	connect(ui.btbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
 
 	connect(ui.lneLogin,SIGNAL(textChanged(const QString &)),SLOT(onLineEditTextChanged(const QString &)));
@@ -32,7 +31,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	if (FGateLabel.valid)
 	{
 		setWindowTitle(tr("Account: %1").arg(FGateLabel.name));
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogin,FGateLabel.iconKey,0,0,"pixmap");
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,2,0,"pixmap");
 		ui.lblLogin->setText(!FGateLabel.loginLabel.isEmpty() ? FGateLabel.loginLabel : ui.lblLogin->text());
 		ui.cmbDomains->addItems(FGateLabel.domains);
 		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());
@@ -97,7 +96,7 @@ void AddLegacyAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
 	}
 	else
 	{
-		ui.lblCaption->setText(tr("Enter the username and password to your %1 account").arg(FGateLabel.name));
+		ui.lblCaption->setText(QString("<h3>%1</h3>").arg(tr("Enter the username and password to your %1 account").arg(FGateLabel.name)));
 		onLineEditTextChanged(QString::null);
 	}
 	ui.lneLogin->setEnabled(!AWait);
@@ -169,6 +168,11 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 			ui.lnePassword->setText(FGateLogin.password);
 			if (!FGateLogin.domain.isEmpty())
 				ui.cmbDomains->setCurrentIndex(ui.cmbDomains->findText(FGateLogin.domain));
+			
+			if (FGateLogin.login.isEmpty())
+				ui.btbButtons->button(QDialogButtonBox::Ok)->setText(tr("Append"));
+			else
+				ui.btbButtons->button(QDialogButtonBox::Ok)->setText(tr("Change"));
 		}
 		else
 		{

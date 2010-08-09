@@ -281,6 +281,10 @@
         <source>Authorization message</source>
         <translation>Сообщение авторизации</translation>
     </message>
+    <message>
+        <source>Enter new group name</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SubscriptionDialog</name>

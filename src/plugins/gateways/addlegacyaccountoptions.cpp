@@ -47,13 +47,12 @@ void AddLegacyAccountOptions::appendServiceButton( const Jid &AServiceJid )
 		QToolButton *button = new QToolButton(widget);
 		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
 		button->setIconSize(QSize(32,32));
-		button->setFixedSize(32,32);
 
 		QLabel *label = new QLabel(slabel.name,widget);
 		label->setAlignment(Qt::AlignCenter);
 
 		Action *action = new Action(button);
-		action->setIcon(RSR_STORAGE_MENUICONS,slabel.iconKey);
+		action->setIcon(RSR_STORAGE_MENUICONS,slabel.iconKey,1);
 		action->setText(slabel.name);
 		action->setData(ADR_GATEJID,AServiceJid.full());
 		connect(action,SIGNAL(triggered(bool)),SLOT(onGateActionTriggeted(bool)));
