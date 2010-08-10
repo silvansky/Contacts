@@ -40,4 +40,5 @@ SUBDIRS = optionsmanager \
 	  xmppuriqueries \
 	  stylesheeteditor \
 	  bitsofbinary \
-	  masssendhandler
+	  masssendhandler \
+          registration
