@@ -44,6 +44,7 @@ public:
 protected:
 	void updateTitle();
 	void showMainWindow();
+	void correctWindowPosition();
 protected:
 	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected slots:

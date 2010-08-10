@@ -1,6 +1,7 @@
 #include "mainwindowplugin.h"
 
 #include <QApplication>
+#include <QDesktopWidget>
 
 MainWindowPlugin::MainWindowPlugin()
 {
@@ -28,8 +29,9 @@ void MainWindowPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->homePage = "http://virtus.rambler.ru";
 }
 
-bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
 
 	IPlugin *plugin = FPluginManager->pluginInterface("IOptionsManager").value(0,NULL);
@@ -128,8 +130,27 @@ void MainWindowPlugin::showMainWindow()
 	if (!Options::isNull())
 	{
 		FMainWindow->show();
+		correctWindowPosition();
 		WidgetManager::raiseWidget(FMainWindow);
 		FMainWindow->activateWindow();
+	}
+}
+
+void MainWindowPlugin::correctWindowPosition()
+{
+	QRect windowRect = FMainWindow->geometry();
+	QRect screenRect = qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(windowRect.topLeft()));
+	if (!screenRect.isEmpty() && !screenRect.adjusted(10,10,-10,-10).intersects(windowRect))
+	{
+		if (windowRect.right() <= screenRect.left())
+			windowRect.moveLeft(screenRect.left());
+		else if (windowRect.left() >= screenRect.right())
+			windowRect.moveRight(screenRect.right());
+		if (windowRect.top() >= screenRect.bottom())
+			windowRect.moveBottom(screenRect.bottom());
+		else if (windowRect.bottom() <= screenRect.top())
+			windowRect.moveTop(screenRect.top());
+		FMainWindow->move(windowRect.topLeft());
 	}
 }
 
@@ -144,11 +165,11 @@ void MainWindowPlugin::onOptionsOpened()
 {
 	FMainWindow->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
 	FMainWindow->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
-	updateTitle();
 	FOpenAction->setVisible(true);
 	//if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
 	//	showMainWindow();
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
+	updateTitle();
 }
 
 void MainWindowPlugin::onOptionsClosed()
