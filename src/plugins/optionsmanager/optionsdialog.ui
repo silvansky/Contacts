@@ -6,23 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>522</width>
-    <height>498</height>
+    <width>710</width>
+    <height>448</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
-    <number>5</number>
-   </property>
    <item>
     <widget class="QSplitter" name="sprSplitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="childrenCollapsible">
-      <bool>false</bool>
-     </property>
      <widget class="QTreeView" name="trvNodes">
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
       </property>
@@ -38,46 +35,24 @@
       <attribute name="headerVisible">
        <bool>false</bool>
       </attribute>
+      <attribute name="headerVisible">
+       <bool>false</bool>
+      </attribute>
      </widget>
-     <widget class="QFrame" name="frmWidgets">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+     <widget class="QScrollArea" name="scaScroll">
+      <property name="widgetResizable">
+       <bool>true</bool>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="margin">
-        <number>5</number>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>69</width>
+         <height>399</height>
+        </rect>
        </property>
-       <item>
-        <widget class="QLabel" name="lblInfo">
-         <property name="textFormat">
-          <enum>Qt::RichText</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QScrollArea" name="scaScroll">
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>91</width>
-            <height>422</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </item>
-      </layout>
+      </widget>
      </widget>
     </widget>
    </item>

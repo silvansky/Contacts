@@ -299,8 +299,9 @@ QMultiMap<int, IOptionsWidget *> Gateways::optionsWidgets(const QString &ANodeId
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_GATEWAYS_ACCOUNTS)
 	{
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, FOptionsManager->optionsHeaderWidget(QString::null,tr("Linked accounts"),AParent));
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(this,FOptionsStreamJid,AParent));
-		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Append account"),AParent));
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsHeaderWidget(QString::null,tr("Append account"),AParent));
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(this,FOptionsStreamJid,AParent));
 	}
 	return widgets;
@@ -906,7 +907,7 @@ void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
 	if (FOptionsManager)
 	{
 		FOptionsStreamJid = AXmppStream->streamJid();
-		IOptionsDialogNode dnode = { ONO_GATEWAYS_ACCOUNTS, OPN_GATEWAYS_ACCOUNTS, tr("Accounts"), tr("Linked accounts"), MNI_GATEWAYS_ACCOUNTS };
+		IOptionsDialogNode dnode = { ONO_GATEWAYS_ACCOUNTS, OPN_GATEWAYS_ACCOUNTS, tr("Accounts"), MNI_GATEWAYS_ACCOUNTS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 	}
 	if (FDiscovery)

@@ -132,7 +132,7 @@ QMultiMap<int, IOptionsWidget *> Emoticons::optionsWidgets(const QString &ANodeI
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_MESSAGES)
 	{
-		widgets.insertMulti(OWO_MESSAGES_EMOTICONS, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Smiley usage in messages"),AParent));
+		widgets.insertMulti(OWO_MESSAGES_EMOTICONS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Smiley usage in messages"),AParent));
 		widgets.insertMulti(OWO_MESSAGES_EMOTICONS, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_EMOTICONS_ENABLED), tr("Automatically convert text smiles to graphical"),AParent));
 	}
 	else if (ANodeId == OPN_EMOTICONS)

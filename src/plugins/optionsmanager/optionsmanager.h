@@ -25,6 +25,7 @@
 #include "logindialog.h"
 #include "editprofilesdialog.h"
 #include "optionswidget.h"
+#include "optionsheader.h"
 #include "optionscontainer.h"
 #include "optionsdialog.h"
 
@@ -77,6 +78,7 @@ public:
 	virtual void removeOptionsDialogNode(const QString &ANodeId);
 	virtual QDialog *showOptionsDialog(const QString &ANodeId = QString::null, QWidget *AParent = NULL);
 	virtual IOptionsContainer *optionsContainer(QWidget *AParent) const;
+	virtual IOptionsWidget *optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const;
 	virtual IOptionsWidget *optionsNodeWidget(const OptionsNode &ANode, const QString &ACaption, QWidget *AParent) const;
 signals:
 	void profileAdded(const QString &AProfile);

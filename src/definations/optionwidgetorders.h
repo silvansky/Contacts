@@ -11,8 +11,8 @@
 #define OWO_STATUSICONS                           500
 
 //Node = OPN_ROSTER
-#define OWO_ROSTER_MAINWINDOW                     200
-#define OWO_ROSTER_VIEW                           400
+#define OWO_ROSTER_VIEW                           200
+#define OWO_ROSTER_MAINWINDOW                     400
 #define OWO_ROSTER_CONTACTS_ORDER                 600
 #define OWO_ROSTER_CONTACTS_VIEW                  700
 #define OWO_ROSTER_AVATARS                        800
@@ -25,6 +25,7 @@
 #define OWO_HISTORY                               500
 
 //Node = OPN_NOTIFICATIONS
+#define OWO_NOTIFICATIONS_ITEM_OPTIONS            300
 #define OWO_NOTIFICATIONS_CHAT_MESSAGES           310
 #define OWO_NOTIFICATIONS_NORMAL_MESSAGES         320
 #define OWO_NOTIFICATIONS_STATUS_CHANGES          330

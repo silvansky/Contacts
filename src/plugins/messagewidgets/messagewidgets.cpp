@@ -119,7 +119,7 @@ bool MessageWidgets::initSettings()
 	{
 		FOptionsManager->insertServerOption(OPV_MESSAGES_EDITORSENDKEY);
 
-		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), tr("Select the method of sending messages"), MNI_CHAT_MHANDLER_MESSAGE };
+		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), MNI_CHAT_MHANDLER_MESSAGE };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
@@ -135,6 +135,7 @@ QMultiMap<int, IOptionsWidget *> MessageWidgets::optionsWidgets(const QString &A
 		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_SHOWSTATUS),tr("Show status changes in chat windows"),AParent));
 		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_EDITORAUTORESIZE),tr("Auto resize input field"),AParent));
 		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_SHOWINFOWIDGET),tr("Show contact information in chat windows"),AParent));
+		widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsHeaderWidget(QString::null,tr("Select the method of sending messages"),AParent));
 		widgets.insertMulti(OWO_MESSAGES, new MessengerOptions(AParent));
 	}
 	return widgets;

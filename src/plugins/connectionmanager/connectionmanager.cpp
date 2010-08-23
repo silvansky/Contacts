@@ -101,7 +101,7 @@ bool ConnectionManager::initSettings()
 {
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_CONNECTION, OPN_CONNECTION, tr("Connection"),tr("Select the way you connected to internet"), MNI_CONNECTION };
+		IOptionsDialogNode dnode = { ONO_CONNECTION, OPN_CONNECTION, tr("Connection"), MNI_CONNECTION };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
@@ -120,6 +120,7 @@ QMultiMap<int, IOptionsWidget *> ConnectionManager::optionsWidgets(const QString
 	{
 		IAccount *account = FAccountManager->accounts().value(0);
 		OptionsNode cnode = account!=NULL ? account->optionsNode().node("connection", account->optionsNode().node("connection-type").value().toString()) : OptionsNode();
+		widgets.insertMulti(OWO_CONNECTION, FOptionsManager->optionsHeaderWidget(QString::null,tr("Select the way you connected to internet"),AParent));
 		widgets.insertMulti(OWO_CONNECTION, new ProxyOptionsWidget(this, cnode, AParent));
 	}
 	return widgets;

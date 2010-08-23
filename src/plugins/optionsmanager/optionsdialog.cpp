@@ -50,6 +50,7 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 
 	ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(false);
 	ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
+	ui.dbbButtons->button(QDialogButtonBox::Reset)->setVisible(false);
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
 
 	foreach (const IOptionsDialogNode &node, FManager->optionsDialogNodes()) {
@@ -73,8 +74,10 @@ void OptionsDialog::showNode(const QString &ANodeId)
 QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 {
 	QWidget *nodeWidget = new QWidget;
+	nodeWidget->setObjectName("wdtNodeWidget");
+
 	QVBoxLayout *vblayout = new QVBoxLayout(nodeWidget);
-	vblayout->setMargin(0);
+	vblayout->setMargin(5);
 
 	QMultiMap<int, IOptionsWidget *> orderedWidgets;
 	foreach(IOptionsHolder *optionsHolder,FManager->optionsHolders())
@@ -90,7 +93,15 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 	}
 
 	foreach(IOptionsWidget *widget, orderedWidgets)
+	{
+		if (widget->instance()->layout() && widget->instance()->objectName() != "wdtOptionsHeader")
+		{
+			int l,t,r,b;
+			widget->instance()->layout()->getContentsMargins(&l,&t,&r,&b);
+			widget->instance()->layout()->setContentsMargins(l + 16 + layout()->spacing(),t,r,b);
+		}
 		vblayout->addWidget(widget->instance());
+	}
 
 	if (!canExpandVertically(nodeWidget))
 		vblayout->addStretch();
@@ -153,7 +164,6 @@ void OptionsDialog::onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode)
 		QStandardItem *item = FNodeItems.contains(ANode.nodeId) ? FNodeItems.value(ANode.nodeId) : createNodeItem(ANode.nodeId);
 		item->setData(ANode.order, IDR_ORDER);
 		item->setText(ANode.name);
-		item->setWhatsThis(ANode.description);
 		item->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(ANode.iconkey));
 	}
 }
@@ -185,7 +195,6 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 {
 	Q_UNUSED(APrevious);
 	QStandardItem *curItem = FItemsModel->itemFromIndex(FProxyModel->mapToSource(ACurrent));
-	ui.lblInfo->setText(curItem!=NULL ? QString("<h3>%1</h3>").arg(Qt::escape(curItem->whatsThis())) : QString::null);
 
 	QString nodeID = FNodeItems.key(curItem);
 	if (curItem && !FItemWidgets.contains(curItem))

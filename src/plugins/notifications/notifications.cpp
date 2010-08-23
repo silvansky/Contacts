@@ -179,7 +179,7 @@ bool Notifications::initSettings()
 		FOptionsManager->insertServerOption(OPV_NOTIFICATIONS_NONOTIFYIFDND);
 		FOptionsManager->insertServerOption(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN);
 
-		IOptionsDialogNode dnode = { ONO_NOTIFICATIONS, OPN_NOTIFICATIONS, tr("Notifications"),tr("Choose your method of notification"), MNI_NOTIFICATIONS };
+		IOptionsDialogNode dnode = { ONO_NOTIFICATIONS, OPN_NOTIFICATIONS, tr("Notifications"), MNI_NOTIFICATIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
@@ -191,6 +191,7 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_NOTIFICATIONS)
 	{
+		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Choose your method of notification"),AParent));
 		foreach(QString id, FNotificators.keys())
 		{
 			Notificator notificator = FNotificators.value(id);
@@ -202,13 +203,13 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 			}
 		}
 
-		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(OptionsNode(),tr("If status 'Away' or 'Busy'"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsHeaderWidget(QString::null,tr("If status 'Away' or 'Busy'"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY),
 			tr("Turn of all popup windows and sounds if status is 'Away'"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND),
 			tr("Turn of all popup windows and sounds if status is 'Busy'"),AParent));
 		
-		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Full screen mode"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsHeaderWidget(QString::null,tr("Full screen mode"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN),
 			tr("Temporarily disable all popup windows and sounds when working\nany full screen application (films, games, presentations)"),AParent));
 	}

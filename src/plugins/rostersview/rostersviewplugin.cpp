@@ -139,7 +139,7 @@ bool RostersViewPlugin::initSettings()
 		FOptionsManager->insertServerOption(OPV_ROSTER_SORTBYSTATUS);
 		FOptionsManager->insertServerOption(OPV_ROSTER_GROUPCONTACTS);
 
-		IOptionsDialogNode dnode = { ONO_ROSTER, OPN_ROSTER, tr("Contact List"),tr("Contact list"), MNI_ROSTERVIEW_OPTIONS };
+		IOptionsDialogNode dnode = { ONO_ROSTER, OPN_ROSTER, tr("Contact List"),MNI_ROSTERVIEW_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
@@ -151,13 +151,14 @@ QMultiMap<int, IOptionsWidget *> RostersViewPlugin::optionsWidgets(const QString
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_ROSTER)
 	{
-		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contacts"), AParent));
-		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"), AParent));
+		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contact list"),AParent));
+		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contacts"),AParent));
+		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"),AParent));
 
-		widgets.insertMulti(OWO_ROSTER_CONTACTS_ORDER, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Contacts Order"),AParent));
+		widgets.insertMulti(OWO_ROSTER_CONTACTS_ORDER, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contacts Order"),AParent));
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_ORDER, new RosterContactOrderOptions(AParent));
 
-		widgets.insertMulti(OWO_ROSTER_CONTACTS_VIEW, FOptionsManager->optionsNodeWidget(OptionsNode(),tr("Contacts View"),AParent));
+		widgets.insertMulti(OWO_ROSTER_CONTACTS_VIEW, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contacts View"),AParent));
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_VIEW, new RosterContactViewOptions(AParent));
 
 		//widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWRESOURCE),tr("Show contacts resource"),AParent));

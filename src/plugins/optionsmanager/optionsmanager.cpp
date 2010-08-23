@@ -123,7 +123,7 @@ bool OptionsManager::initSettings()
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
 	Options::setDefaultValue(OPV_OPTIONSMANAGER_DIALOG_LASTNODE, QString(OPN_COMMON));
 
-	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), tr("Common settings"), MNI_OPTIONS_DIALOG };
+	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), MNI_OPTIONS_DIALOG };
 	insertOptionsDialogNode(dnode);
 	insertOptionsHolder(this);
 
@@ -146,6 +146,7 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_COMMON)
 	{
+		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsHeaderWidget(QString::null,tr("Common settings"),AParent));
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
 	}
 	return widgets;
@@ -479,6 +480,11 @@ QDialog *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 IOptionsContainer *OptionsManager::optionsContainer(QWidget *AParent) const
 {
 	return new OptionsContainer(this,AParent);
+}
+
+IOptionsWidget *OptionsManager::optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const
+{
+	return new OptionsHeader(AIconKey,ACaption,AParent);
 }
 
 IOptionsWidget *OptionsManager::optionsNodeWidget(const OptionsNode &ANode, const QString &ACaption, QWidget *AParent) const

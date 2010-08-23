@@ -16,7 +16,6 @@ struct IOptionsDialogNode
 	int order;
 	QString nodeId;
 	QString name;
-	QString description;
 	QString iconkey;
 };
 
@@ -81,6 +80,7 @@ public:
 	virtual QDialog *showOptionsDialog(const QString &ANodeId = QString::null, QWidget *AParent = NULL) =0;
 	//OptionsWidgets
 	virtual IOptionsContainer *optionsContainer(QWidget *AParent) const =0;
+	virtual IOptionsWidget *optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const =0;
 	virtual IOptionsWidget *optionsNodeWidget(const OptionsNode &ANode, const QString &ACaption, QWidget *AParent) const =0;
 protected:
 	virtual void profileAdded(const QString &AProfile) =0;
