@@ -79,4 +79,6 @@
 #define NS_INBAND_BYTESTREAMS                   "http://jabber.org/protocol/ibb"
 #define NS_SOCKS5_BYTESTREAMS                   "http://jabber.org/protocol/bytestreams"
 
+#define NS_RAMBLER_ARCHIVE                      "urn:xmpp:archive:rambler"
+
 #endif

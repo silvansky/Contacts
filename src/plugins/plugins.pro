@@ -41,4 +41,5 @@ SUBDIRS = optionsmanager \
 	  stylesheeteditor \
 	  bitsofbinary \
 	  masssendhandler \
-          registration
+	  registration \
+	  ramblerhistory

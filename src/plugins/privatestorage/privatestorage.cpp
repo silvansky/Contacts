@@ -25,8 +25,9 @@ void PrivateStorage::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 
-bool PrivateStorage::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool PrivateStorage::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	IPlugin *plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
 	if (plugin)
 	{

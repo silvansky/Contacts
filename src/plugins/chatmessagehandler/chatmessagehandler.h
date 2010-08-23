@@ -26,7 +26,7 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessagestyles.h>
-#include <interfaces/imessagearchiver.h>
+#include <interfaces/iramblerhistory.h>
 #include <interfaces/inotifications.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/irostersview.h>
@@ -115,10 +115,10 @@ protected:
 	void replaceUnreadMessages(IChatWindow *AWindow);
 	void sendOfflineMessages(IChatWindow *AWindow);
 	void removeOfflineMessage(IChatWindow *AWindow, const QUuid &AContentId);
+	void requestHistoryMessages(IChatWindow *AWindow, int ACount);
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
 	void showStaticMessages(IChatWindow *AWindow);
-	void showHistoryMessages(IChatWindow *AWindow, bool AShowAll = false);
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
 	QUuid showDateSeparator(IChatWindow *AWindow, const QDate &ADate);
@@ -144,6 +144,8 @@ protected slots:
 	void onPresenceRemoved(IPresence *APresence);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
 	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
+	void onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages);
+	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onOptionsOpened();
 	void onOptionsClosed();
 private:
@@ -151,7 +153,7 @@ private:
 	IMessageProcessor *FMessageProcessor;
 	IMessageStyles *FMessageStyles;
 	IPresencePlugin *FPresencePlugin;
-	IMessageArchiver *FMessageArchiver;
+	IRamblerHistory *FRamblerHistory;
 	IRostersView *FRostersView;
 	IRostersModel *FRostersModel;
 	IAvatars *FAvatars;
@@ -166,6 +168,8 @@ private:
 	QList<IChatWindow *> FWindows;
 	QMap<IChatWindow *, QTimer *> FWindowTimers;
 	QMap<IChatWindow *, WindowStatus> FWindowStatus;
+private:
+	QMap<QString, IChatWindow *> FHistoryRequests;
 };
 
 #endif // CHATMESSAGEHANDLER_H
