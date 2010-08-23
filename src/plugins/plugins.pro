@@ -30,7 +30,6 @@ SUBDIRS = optionsmanager \
 	  dataforms \
 	  servicediscovery \
 	  gateways \
-	  messagearchiver \
 	  avatars \
 	  notifications \
 	  autostatus \
