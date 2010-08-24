@@ -39,6 +39,9 @@
 #define OWO_COMMON_AUTOSTART                      400
 #define OWO_COMMON_AUTOSTATUS                     500
 #define OWO_COMMON_CLIENTINFO                     700
+#define OWO_COMMON_SINC                           800
+#define OWO_COMMON_SINC_HISTORY                   830
+#define OWO_COMMON_SINC_OPTIONS                   860
 
 //Node = OPN_CONNECTION
 #define OWO_CONNECTION                            200

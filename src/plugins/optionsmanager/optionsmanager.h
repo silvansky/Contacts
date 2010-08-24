@@ -95,6 +95,7 @@ protected:
 	bool saveProfile(const QString &AProfile, const QDomDocument &AProfileDoc) const;
 	void closeProfile();
 	bool saveOptions() const;
+	bool loadServerOptions(const Jid &AStreamJid);
 	bool saveServerOptions(const Jid &AStreamJid);
 	QDomDocument profileDocument(const QString &AProfile) const;
 	void importOldSettings();

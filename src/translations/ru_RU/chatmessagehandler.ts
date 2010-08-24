@@ -139,5 +139,9 @@
         <source>Show previous messages</source>
         <translation>Показать предыдущие сообщения</translation>
     </message>
+    <message>
+        <source>Failed to load history messages from server: %1</source>
+        <translation>Не удалось загрузить историю сообщений с сервера: %1</translation>
+    </message>
 </context>
 </TS>

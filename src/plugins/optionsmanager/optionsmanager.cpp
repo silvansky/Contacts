@@ -121,7 +121,8 @@ bool OptionsManager::initObjects()
 bool OptionsManager::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
-	Options::setDefaultValue(OPV_OPTIONSMANAGER_DIALOG_LASTNODE, QString(OPN_COMMON));
+	Options::setDefaultValue(OPV_MISC_OPTIONS_SAVE_ON_SERVER, true);
+	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_COMMON));
 
 	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), MNI_OPTIONS_DIALOG };
 	insertOptionsDialogNode(dnode);
@@ -148,6 +149,9 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 	{
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsHeaderWidget(QString::null,tr("Common settings"),AParent));
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
+
+		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(MNI_OPTIONS_OPTIONS_SYNC,tr("Backing store your chat history and preferences"),AParent));
+		widgets.insertMulti(OWO_COMMON_SINC_OPTIONS, optionsNodeWidget(Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER), tr("Sync preferences on my several computers"), AParent));
 	}
 	return widgets;
 }
@@ -469,7 +473,7 @@ QDialog *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 			FOptionsDialog = new OptionsDialog(this,AParent);
 			connect(FOptionsDialog,SIGNAL(applied()),SLOT(onOptionsDialogApplied()));
 		}
-		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_OPTIONSMANAGER_DIALOG_LASTNODE).value().toString() : ANodeId);
+		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
 		FOptionsDialog->show();
 		WidgetManager::raiseWidget(FOptionsDialog);
 		FOptionsDialog->activateWindow();
@@ -555,6 +559,15 @@ bool OptionsManager::saveOptions() const
 	return false;
 }
 
+bool OptionsManager::loadServerOptions(const Jid &AStreamJid)
+{
+	if (FPrivateStorage && AStreamJid.isValid())
+	{
+		return !FPrivateStorage->loadData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).isEmpty();
+	}
+	return false;
+}
+
 bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 {
 	if (FPrivateStorage && AStreamJid.isValid())
@@ -563,7 +576,7 @@ bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 		doc.appendChild(doc.createElement("options"));
 	
 		if (FPrivateStorage->hasData(AStreamJid,PST_OPTIONS,PSN_OPTIONS))
-			doc.documentElement().appendChild(FPrivateStorage->getData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).cloneNode());
+			doc.documentElement().appendChild(FPrivateStorage->getData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).cloneNode(true));
 		else
 			doc.documentElement().appendChild(doc.createElementNS(PSN_OPTIONS,PST_OPTIONS)).toElement();
 
@@ -571,7 +584,7 @@ bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 		foreach(QString path, FServerOptions)
 			Options::exportNode(path,root);
 
-		FPrivateStorage->saveData(AStreamJid,root);
+		return !FPrivateStorage->saveData(AStreamJid,root).isEmpty();
 	}
 	return false;
 }
@@ -691,7 +704,8 @@ void OptionsManager::onAutoSaveTimerTimeout()
 
 void OptionsManager::onPrivateStorageOpened(const Jid &AStreamJid)
 {
-	FPrivateStorage->loadData(AStreamJid,PST_OPTIONS,PSN_OPTIONS);
+	if (Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
+		loadServerOptions(AStreamJid);
 }
 
 void OptionsManager::onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
@@ -706,7 +720,8 @@ void OptionsManager::onPrivateStorageDataLoaded(const QString &AId, const Jid &A
 
 void OptionsManager::onPrivateStorageAboutToClose(const Jid &AStreamJid)
 {
-	saveServerOptions(AStreamJid);
+	if (Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
+		saveServerOptions(AStreamJid);
 }
 
 void OptionsManager::onAboutToQuit()

@@ -281,5 +281,13 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <source>Launch application on system start up</source>
         <translation>Запускать приложение при включении компьютера</translation>
     </message>
+    <message>
+        <source>Backing store your chat history and preferences</source>
+        <translation>Резервное хранение истории чата и настроек</translation>
+    </message>
+    <message>
+        <source>Sync preferences on my several computers</source>
+        <translation>Синхронизировать настройки на нескольких моих компьютерах</translation>
+    </message>
 </context>
 </TS>

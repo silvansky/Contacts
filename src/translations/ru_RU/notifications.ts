@@ -37,11 +37,11 @@
     </message>
     <message>
         <source>Turn of all popup windows and sounds if status is &apos;Away&apos;</source>
-        <translation>Если выбран статус  &apos;Отошел&apos;, то отключать все звуки и всплывающие окна</translation>
+        <translation type="unfinished">Если выбран статус &quot;Отошел&quot;, то отключать все звуки и всплывающие окна</translation>
     </message>
     <message>
         <source>Turn of all popup windows and sounds if status is &apos;Busy&apos;</source>
-        <translation>Если выбран статус  &apos;Занят&apos;, то отключать все звуки и всплывающие окна</translation>
+        <translation>Если выбран статус &quot;Занят&quot;, то отключать все звуки и всплывающие окна</translation>
     </message>
     <message>
         <source>Full screen mode</source>
@@ -55,7 +55,7 @@ any full screen application (films, games, presentations)</source>
     </message>
     <message>
         <source>If status &apos;Away&apos; or &apos;Busy&apos;</source>
-        <translation>Если статус &apos;Отошел&apos; или &apos;Занят&apos;</translation>
+        <translation>Если статус &quot;Отошел&quot; или &quot;Занят&quot;</translation>
     </message>
 </context>
 <context>
@@ -124,7 +124,7 @@ any full screen application (films, games, presentations)</source>
     </message>
     <message>
         <source>Disable sounds when status is &apos;Do not disturb&apos;</source>
-        <translation>Отключать звуки, когда установлен статус &apos;Не беспокоить&apos;</translation>
+        <translation>Отключать звуки, когда установлен статус &quot;Занят&quot;</translation>
     </message>
     <message>
         <source>Chat</source>

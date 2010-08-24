@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Automatically change status to &apos;Away&apos; if screen saver is on or system is locked</source>
-        <translation>Автоматически изменять статус на &apos;Отошел&apos;, если включена
+        <translation>Автоматически изменять статус на &quot;Отошел&quot;, если включена
 экранная заставка или компьютер заблокирован</translation>
     </message>
 </context>

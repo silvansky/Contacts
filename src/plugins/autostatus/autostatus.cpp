@@ -78,9 +78,8 @@ bool AutoStatus::initSettings()
 	if (FOptionsManager)
 	{
 		FOptionsManager->insertServerOption(OPV_AUTOSTARTUS_AWAYONLOCK);
-
-//		IOptionsDialogNode dnode = { ONO_AUTO_STATUS, OPN_AUTO_STATUS, tr("Auto status"),tr("Edit auto status rules"), MNI_AUTOSTATUS };
-//		FOptionsManager->insertOptionsDialogNode(dnode);
+		//IOptionsDialogNode dnode = { ONO_AUTO_STATUS, OPN_AUTO_STATUS, tr("Auto status"),tr("Edit auto status rules"), MNI_AUTOSTATUS };
+		//FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;

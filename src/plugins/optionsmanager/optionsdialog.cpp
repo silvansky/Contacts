@@ -98,7 +98,7 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 		{
 			int l,t,r,b;
 			widget->instance()->layout()->getContentsMargins(&l,&t,&r,&b);
-			widget->instance()->layout()->setContentsMargins(l + 16 + layout()->spacing(),t,r,b);
+			widget->instance()->layout()->setContentsMargins(l + 20 + layout()->spacing(),t,r,b);
 		}
 		vblayout->addWidget(widget->instance());
 	}
@@ -210,7 +210,7 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 	{
 		ui.scaScroll->takeWidget();
 	}
-	Options::node(OPV_OPTIONSMANAGER_DIALOG_LASTNODE).setValue(nodeID);
+	Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).setValue(nodeID);
 }
 
 void OptionsDialog::onOptionsWidgetModified()

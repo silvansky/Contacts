@@ -151,7 +151,7 @@ QMultiMap<int, IOptionsWidget *> RostersViewPlugin::optionsWidgets(const QString
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_ROSTER)
 	{
-		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contact list"),AParent));
+		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contact List"),AParent));
 		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contacts"),AParent));
 		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"),AParent));
 

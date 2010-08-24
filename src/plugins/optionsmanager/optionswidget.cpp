@@ -86,14 +86,6 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 		insertCaption(ACaption,FLineEdit);
 		layout()->addWidget(FLineEdit);
 	}
-	else
-	{
-		QLabel *label = new QLabel(this);
-		label->setTextFormat(Qt::RichText);
-		label->setText(QString("<h3>%1</h3>").arg(Qt::escape(ACaption)));
-		layout()->addWidget(label);
-		layout()->setContentsMargins(0,layout()->spacing()*2,0,0);
-	}
 }
 
 OptionsWidget::~OptionsWidget()

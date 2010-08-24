@@ -28,4 +28,8 @@
     <key>optionsLoginAnimation</key>
     <object mime="image/gif">optionsloginanimation.gif</object>
   </icon>
+  <icon>
+    <key>optionsOptionsSync</key>
+    <object mime="image/png">optionsoptionssync.png</object>
+  </icon>
 </icondef>

@@ -180,6 +180,7 @@
 #define MNI_OPTIONS_LOGIN_HELP                   "optionsLoginHelp"
 #define MNI_OPTIONS_LOGIN_LOGO                   "optionsLoginLogo"
 #define MNI_OPTIONS_LOGIN_ANIMATION              "optionsLoginAnimation"
+#define MNI_OPTIONS_OPTIONS_SYNC                 "optionsOptionsSync"
 
 //PrivacyLists
 #define MNI_PRIVACYLISTS                         "privacylists"

@@ -4,6 +4,7 @@
 
 RamblerHistory::RamblerHistory()
 {
+	FOptionsManager = NULL;
 	FStanzaProcessor = NULL;
 }
 
@@ -30,7 +31,36 @@ bool RamblerHistory::initConnections(IPluginManager *APluginManager, int &AInitO
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
+	if (plugin)
+		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+		
 	return FStanzaProcessor!=NULL;
+}
+
+bool RamblerHistory::initObjects()
+{
+	if (FOptionsManager)
+	{
+		FOptionsManager->insertOptionsHolder(this);
+	}
+	return true;
+}
+
+bool RamblerHistory::initSettings()
+{
+	Options::setDefaultValue(OPV_MISC_HISTORY_SAVE_ON_SERVER, true);
+	return true;
+}
+
+QMultiMap<int, IOptionsWidget *> RamblerHistory::optionsWidgets(const QString &ANodeId, QWidget *AParent)
+{
+	QMultiMap<int, IOptionsWidget *> widgets;
+	if (ANodeId == OPN_COMMON)
+	{
+		widgets.insertMulti(OWO_COMMON_SINC_HISTORY,FOptionsManager->optionsNodeWidget(Options::node(OPV_MISC_HISTORY_SAVE_ON_SERVER),tr("Store the history of communication in my Rambler.Pochta"),AParent));
+	}
+	return widgets;
 }
 
 void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)

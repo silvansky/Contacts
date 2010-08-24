@@ -134,12 +134,12 @@
 <context>
     <name>MessengerOptionsClass</name>
     <message>
-        <source>Send messages by pressing Enter</source>
-        <translation>Отправлять сообщения по нажатию Enter</translation>
+        <source>By pressing Enter</source>
+        <translation>По нажатию Enter</translation>
     </message>
     <message>
-        <source>Send messages by pressing Ctrl+Enter</source>
-        <translation>Отправлять сообщения по нажатию Ctrl+Enter</translation>
+        <source>By pressing Ctrl+Enter</source>
+        <translation>По нажатию Ctrl+Enter</translation>
     </message>
 </context>
 <context>

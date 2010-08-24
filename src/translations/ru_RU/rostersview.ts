@@ -80,12 +80,8 @@
         <translation>Список контактов</translation>
     </message>
     <message>
-        <source>Contact list</source>
-        <translation>Список контактов</translation>
-    </message>
-    <message>
         <source>Show offline contacts</source>
-        <translation>Показывать отключенных (&apos;не в сети&apos;)</translation>
+        <translation>Показывать отключенных (&quot;Не в сети&quot;)</translation>
     </message>
     <message>
         <source>Group contacts</source>

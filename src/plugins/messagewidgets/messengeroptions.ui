@@ -17,14 +17,14 @@
    <item>
     <widget class="QRadioButton" name="rdbSendByEnter">
      <property name="text">
-      <string>Send messages by pressing Enter</string>
+      <string>By pressing Enter</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QRadioButton" name="rdbSendByCtrlEnter">
      <property name="text">
-      <string>Send messages by pressing Ctrl+Enter</string>
+      <string>By pressing Ctrl+Enter</string>
      </property>
     </widget>
    </item>
