@@ -1,0 +1,4 @@
+QLabel#lblEmoticon:hover
+{
+	background-color:  rgba(144, 209, 249, 150);
+}

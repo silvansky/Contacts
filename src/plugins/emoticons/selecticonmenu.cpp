@@ -2,13 +2,13 @@
 
 SelectIconMenu::SelectIconMenu(const QString &AIconset, QWidget *AParent) : Menu(AParent)
 {
-	FStorage = NULL;
-	setIconset(AIconset);
-
 	FLayout = new QVBoxLayout(this);
 	FLayout->setMargin(0);
 	setAttribute(Qt::WA_AlwaysShowToolTips,true);
 	connect(this,SIGNAL(aboutToShow()),SLOT(onAboutToShow()));
+
+	FStorage = NULL;
+	setIconset(AIconset);
 }
 
 SelectIconMenu::~SelectIconMenu()
@@ -38,13 +38,14 @@ IconStorage *SelectIconMenu::iconStorage() const
 
 QSize SelectIconMenu::sizeHint() const
 {
-	return FLayout->sizeHint();
+	return FSizeHint;
 }
 
 void SelectIconMenu::onAboutToShow()
 {
 	QWidget *widget = new SelectIconWidget(FStorage,this);
 	FLayout->addWidget(widget);
+	FSizeHint = FLayout->sizeHint();
 	connect(this,SIGNAL(aboutToHide()),widget,SLOT(deleteLater()));
 	connect(widget,SIGNAL(iconSelected(const QString &, const QString &)),SIGNAL(iconSelected(const QString &, const QString &)));
 }

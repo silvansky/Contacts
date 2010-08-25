@@ -27,6 +27,8 @@ protected slots:
 private:
 	QVBoxLayout *FLayout;
 	IconStorage *FStorage;
+private:
+	QSize FSizeHint;
 };
 
 #endif // SELECTICONMENU_H

@@ -4,7 +4,7 @@
 #include <QTextBlock>
 #include <QPushButton>
 
-#define DEFAULT_ICONSET                 "kolobok_dark"
+#define DEFAULT_ICONSET                 "smiles"
 
 class EmoticonsContainer : public QWidget
 {
