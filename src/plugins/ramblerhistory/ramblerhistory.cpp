@@ -34,7 +34,11 @@ bool RamblerHistory::initConnections(IPluginManager *APluginManager, int &AInitO
 	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
 	if (plugin)
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-		
+
+	plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
+	if (plugin)
+		FDiscovery = qobject_cast<IServiceDiscovery *>(plugin->instance());
+
 	return FStanzaProcessor!=NULL;
 }
 
@@ -77,18 +81,23 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 			QDomElement elem = chatElem.firstChildElement();
 			while (!elem.isNull())
 			{
-				Message message;
-				message.setType(Message::Chat);
-				message.setDateTime(DateTime(elem.attribute("utc")).toLocal());
+				if (elem.tagName() == "to" || elem.tagName() == "from")
+				{
+					Message message;
+					message.setType(Message::Chat);
+					message.setDateTime(DateTime(elem.attribute("ctime")).toLocal());
 
-				if (elem.tagName() == "to")
-					message.setTo(result.with.eFull());
-				else
-					message.setFrom(result.with.eFull());
+					if (elem.tagName() == "to")
+						message.setTo(result.with.eFull());
+					else
+						message.setFrom(result.with.eFull());
 
-				message.setBody(elem.firstChildElement("body").text());
-				result.messages.append(message);
+					message.setBody(elem.firstChildElement("body").text());
+					result.messages.append(message);
 
+					result.beforeId = elem.attribute("id");
+					result.beforeTime = message.dateTime();
+				}
 				elem = elem.nextSiblingElement();
 			}
 			emit serverMessagesLoaded(AStanza.id(), result);
@@ -112,6 +121,11 @@ void RamblerHistory::stanzaRequestTimeout(const Jid &AStreamJid, const QString &
 	}
 }
 
+bool RamblerHistory::isSupported(const Jid &AStreamJid) const
+{
+	return FDiscovery==NULL || !FDiscovery->hasDiscoInfo(AStreamJid, AStreamJid.domain()) || FDiscovery->discoInfo(AStreamJid,AStreamJid.domain()).features.contains(NS_RAMBLER_ARCHIVE);
+}
+
 QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IRamblerHistoryRetrieve &ARetrieve)
 {
 	if (FStanzaProcessor)
@@ -120,10 +134,13 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IRambler
 		retrieve.setType("get").setId(FStanzaProcessor->newId());
 		QDomElement retrieveElem = retrieve.addElement("retrieve",NS_RAMBLER_ARCHIVE);
 		retrieveElem.setAttribute("with",ARetrieve.with.eFull());
-		if (ARetrieve.count > 0)
-			retrieveElem.setAttribute("last",ARetrieve.count);
-		if(!ARetrieve.before.isNull())
-			retrieveElem.setAttribute("before",DateTime(ARetrieve.before).toX85DateTime());
+		retrieveElem.setAttribute("last",ARetrieve.count);
+		if (!ARetrieve.beforeId.isEmpty())
+		{
+			QDomElement before = retrieveElem.appendChild(retrieve.createElement("before")).toElement();
+			before.setAttribute("id",ARetrieve.beforeId);
+			before.setAttribute("ctime",DateTime(ARetrieve.beforeTime).toX85DateTime(true));
+		}
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,retrieve,ARCHIVE_TIMEOUT))
 		{
 			FRetrieveRequests.append(retrieve.id());

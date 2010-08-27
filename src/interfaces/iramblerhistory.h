@@ -11,12 +11,15 @@ struct IRamblerHistoryRetrieve
 {
 	Jid with;
 	int count;
-	QDateTime before;
+	QString beforeId;
+	QDateTime beforeTime;
 };
 
 struct IRamblerHistoryMessages 
 {
 	Jid with;
+	QString beforeId;
+	QDateTime beforeTime;
 	QList<Message> messages;
 };
 
@@ -24,6 +27,7 @@ class IRamblerHistory
 {
 public:
 	virtual QObject *instance() = 0;
+	virtual bool isSupported(const Jid &AStreamJid) const =0;
 	virtual QString loadServerMessages(const Jid &AStreamJid, const IRamblerHistoryRetrieve &ARetrieve) =0;
 protected:
 	virtual void serverMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages) =0;

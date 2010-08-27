@@ -143,5 +143,9 @@
         <source>Failed to load history messages from server: %1</source>
         <translation>Не удалось загрузить историю сообщений с сервера: %1</translation>
     </message>
+    <message>
+        <source>Loading messages from server...</source>
+        <translation>Загрузка сообщений с сервера...</translation>
+    </message>
 </context>
 </TS>

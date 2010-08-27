@@ -41,7 +41,9 @@
 struct WindowStatus
 {
 	QDateTime createTime;
+	QString historyId;
 	QDateTime historyTime;
+	QUuid historyLinkId;
 	QString lastStatusShow;
 	QList<QDate> separators;
 	QList<int> notified;
@@ -65,6 +67,12 @@ struct StyleExtension
 	int action;
 	int extensions;
 	QString contentId;
+};
+
+enum HisloryLoadState {
+	HLS_READY,
+	HLS_WAITING,
+	HLS_FINISHED
 };
 
 class ChatMessageHandler :
@@ -118,7 +126,7 @@ protected:
 	void requestHistoryMessages(IChatWindow *AWindow, int ACount);
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
-	void showStaticMessages(IChatWindow *AWindow);
+	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState);
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
 	QUuid showDateSeparator(IChatWindow *AWindow, const QDate &ADate);

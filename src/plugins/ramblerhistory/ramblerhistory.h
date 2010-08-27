@@ -9,6 +9,7 @@
 #include <interfaces/iramblerhistory.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/ioptionsmanager.h>
+#include <interfaces/iservicediscovery.h>
 #include <utils/stanza.h>
 #include <utils/options.h>
 #include <utils/datetime.h>
@@ -40,11 +41,13 @@ public:
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
 	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//IRamblerHistory
+	virtual bool isSupported(const Jid &AStreamJid) const;
 	virtual QString loadServerMessages(const Jid &AStreamJid, const IRamblerHistoryRetrieve &ARetrieve);
 signals:
 	void serverMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages);
 	void requestFailed(const QString &AId, const QString &AError);
 private:
+	IServiceDiscovery *FDiscovery;
 	IOptionsManager *FOptionsManager;
 	IStanzaProcessor *FStanzaProcessor;
 private:
