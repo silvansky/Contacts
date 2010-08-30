@@ -66,7 +66,7 @@ bool PresencePlugin::initObjects()
 	if (FNotifications)
 	{
 		uchar kindMask = INotification::PopupWindow|INotification::PlaySound|INotification::TestNotify;
-		uchar kindDefs = INotification::PopupWindow|INotification::PlaySound;
+		uchar kindDefs = 0;
 		FNotifications->insertNotificator(STATE_NOTIFICATOR_ID,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),kindMask,kindDefs);
 		FNotifications->insertNotificator(MOOD_NOTIFICATOR_ID,OWO_NOTIFICATIONS_MOOD_CHANGES,tr("Mood Changes"),kindMask,kindDefs);
 	}
