@@ -104,8 +104,8 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceAdded(IPresence *)),SLOT(onPresenceAdded(IPresence *)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceOpened(IPresence *)),SLOT(onPresenceOpened(IPresence *)));
-			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
-				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
+				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceRemoved(IPresence *)),SLOT(onPresenceRemoved(IPresence *)));
 		}
 	}
@@ -975,10 +975,11 @@ void ChatMessageHandler::onPresenceOpened(IPresence *APresence)
 			sendOfflineMessages(window);
 }
 
-void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem)
+void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
+	Q_UNUSED(ABefore);
 	Jid streamJid = APresence->streamJid();
-	Jid contactJid = APresenceItem.itemJid;
+	Jid contactJid = AItem.itemJid;
 	IChatWindow *window = findWindow(streamJid,contactJid);
 	if (!window && !contactJid.resource().isEmpty())
 	{

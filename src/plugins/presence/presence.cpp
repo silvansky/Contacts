@@ -28,6 +28,15 @@ Presence::~Presence()
 	FStanzaProcessor->removeStanzaHandle(FSHIPresence);
 }
 
+bool Presence::stanzaEdit(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
+{
+	Q_UNUSED(AHandlerId);
+	Q_UNUSED(AStreamJid);
+	Q_UNUSED(AStanza);
+	Q_UNUSED(AAccept);
+	return false;
+}
+
 bool Presence::stanzaRead(int AHandlerId, const Jid &AStreamJid, const Stanza &AStanza, bool &AAccept)
 {
 	if (AHandlerId == FSHIPresence)
@@ -75,12 +84,16 @@ bool Presence::stanzaRead(int AHandlerId, const Jid &AStreamJid, const Stanza &A
 			Jid fromJid = AStanza.from();
 
 			IPresenceItem &pitem = FItems[fromJid];
+			IPresenceItem before = pitem;
+
 			pitem.isValid = true;
 			pitem.itemJid = fromJid;
 			pitem.show = show;
 			pitem.priority = priority;
 			pitem.status = status;
-			emit received(pitem);
+
+			if (pitem.isValid!=before.isValid || pitem.show!=before.show || pitem.status!=before.status || pitem.priority!=before.priority)
+				emit received(pitem, before);
 
 			if (show == Offline)
 				FItems.remove(fromJid);
@@ -97,6 +110,11 @@ bool Presence::stanzaRead(int AHandlerId, const Jid &AStreamJid, const Stanza &A
 	return false;
 }
 
+IPresenceItem Presence::presenceItem(const Jid &AItemJid) const
+{
+	return FItems.value(AItemJid);
+}
+
 QList<IPresenceItem> Presence::presenceItems(const Jid &AItemJid) const
 {
 	if (!AItemJid.isEmpty())
@@ -110,14 +128,44 @@ QList<IPresenceItem> Presence::presenceItems(const Jid &AItemJid) const
 	return FItems.values();
 }
 
+Jid Presence::streamJid() const
+{
+	return FXmppStream->streamJid();
+}
+
+IXmppStream *Presence::xmppStream() const
+{
+	return FXmppStream;
+}
+
+bool Presence::isOpen() const
+{
+	return FOpened;
+}
+
+int Presence::show() const
+{
+	return FShow;
+}
+
 bool Presence::setShow(int AShow)
 {
 	return setPresence(AShow,FStatus,FPriority);
 }
 
+QString Presence::status() const
+{
+	return FStatus;
+}
+
 bool Presence::setStatus(const QString &AStatus)
 {
 	return setPresence(FShow,AStatus,FPriority);
+}
+
+int Presence::priority() const
+{
+	return FPriority;
 }
 
 bool Presence::setPriority(int APriority)
@@ -284,10 +332,11 @@ void Presence::clearItems()
 	foreach(Jid itemJid, items)
 	{
 		IPresenceItem &pitem = FItems[itemJid];
+		IPresenceItem before = pitem;
 		pitem.show = Offline;
 		pitem.priority = 0;
 		pitem.status.clear();
-		emit received(pitem);
+		emit received(pitem,before);
 		FItems.remove(itemJid);
 	}
 }

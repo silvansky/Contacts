@@ -194,22 +194,17 @@ void OptionsDialog::onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode)
 void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QModelIndex &APrevious)
 {
 	Q_UNUSED(APrevious);
-	QStandardItem *curItem = FItemsModel->itemFromIndex(FProxyModel->mapToSource(ACurrent));
+	ui.scaScroll->takeWidget();
 
+	QStandardItem *curItem = FItemsModel->itemFromIndex(FProxyModel->mapToSource(ACurrent));
 	QString nodeID = FNodeItems.key(curItem);
 	if (curItem && !FItemWidgets.contains(curItem))
 		FItemWidgets.insert(curItem,createNodeWidget(nodeID));
 
 	QWidget *curWidget = FItemWidgets.value(curItem);
 	if (curWidget)
-	{
-		ui.scaScroll->takeWidget();
 		ui.scaScroll->setWidget(curWidget);
-	}
-	else if (curItem)
-	{
-		ui.scaScroll->takeWidget();
-	}
+
 	Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).setValue(nodeID);
 }
 

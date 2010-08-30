@@ -11,7 +11,9 @@ enum NotificationTypes {
 	NT_INVITATION,
 	NT_MESSAGE,
 	NT_PRIVATE_MESSAGE,
-	NT_ERROR
+	NT_ERROR,
+	NT_MOOD,
+	NT_STATE
 };
 
 enum NotificationDataRoles {

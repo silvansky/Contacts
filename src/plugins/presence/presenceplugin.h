@@ -2,9 +2,14 @@
 #define PRESENCEPLUGIN_H
 
 #include <QSet>
+#include <QVariant>
 #include <QObjectCleanupHandler>
+#include <definations/optionwidgetorders.h>
+#include <definations/notificationdataroles.h>
+#include <definations/soundfiles.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ipresence.h>
+#include <interfaces/inotifications.h>
 #include "presence.h"
 
 class PresencePlugin :
@@ -22,15 +27,15 @@ public:
 	virtual QUuid pluginUuid() const { return PRESENCE_UUID; }
 	virtual void pluginInfo(IPluginInfo *APluginInfo);
 	virtual bool initConnections(IPluginManager *APluginManager, int &AInitOrder);
-	virtual bool initObjects() { return true; }
+	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
 	//IPresencePlugin
 	virtual IPresence *addPresence(IXmppStream *AXmppStream);
 	virtual IPresence *getPresence(const Jid &AStreamJid) const;
-	virtual bool isContactOnline(const Jid &AContactJid) const { return FContactPresences.contains(AContactJid); }
-	virtual QList<Jid> contactsOnline() const { return FContactPresences.keys(); }
-	virtual QList<IPresence *> contactPresences(const Jid &AContactJid) const { return FContactPresences.value(AContactJid).toList(); }
+	virtual bool isContactOnline(const Jid &AContactJid) const;
+	virtual QList<Jid> contactsOnline() const;
+	virtual QList<IPresence *> contactPresences(const Jid &AContactJid) const;
 	virtual void removePresence(IXmppStream *AXmppStream);
 signals:
 	void streamStateChanged(const Jid &AStreamJid, bool AStateOnline);
@@ -38,28 +43,36 @@ signals:
 	void presenceAdded(IPresence *APresence);
 	void presenceOpened(IPresence *APresence);
 	void presenceChanged(IPresence *APresence, int AShow, const QString &AStatus, int APriotity);
-	void presenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem);
+	void presenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void presenceSent(IPresence *APresence, const Jid &AContactJid, int AShow, const QString &AStatus, int APriotity);
 	void presenceAboutToClose(IPresence *APresence, int AShow, const QString &AStatus);
 	void presenceClosed(IPresence *APresence);
 	void presenceRemoved(IPresence *APresence);
+protected:
+	void notifyMoodChanged(IPresence *APresence, const IPresenceItem &AItem);
+	void notifyStateChanged(IPresence *APresence, const IPresenceItem &AItem);
 protected slots:
 	void onPresenceOpened();
 	void onPresenceChanged(int AShow, const QString &AStatus, int APriority);
-	void onPresenceReceived(const IPresenceItem &APresenceItem);
+	void onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onPresenceSent(const Jid &AContactJid, int AShow, const QString &AStatus, int APriority);
 	void onPresenceAboutToClose(int AShow, const QString &AStatus);
 	void onPresenceClosed();
 	void onPresenceDestroyed(QObject *AObject);
 	void onStreamAdded(IXmppStream *AXmppStream);
 	void onStreamRemoved(IXmppStream *AXmppStream);
+	void onNotificationActivatedOrRemoved(int ANotifyId);
+	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
 private:
 	IXmppStreams *FXmppStreams;
+	INotifications *FNotifications;
 	IStanzaProcessor *FStanzaProcessor;
 private:
 	QList<IPresence *> FPresences;
 	QObjectCleanupHandler FCleanupHandler;
 	QHash<Jid, QSet<IPresence *> > FContactPresences;
+private:
+	QList<int> FNotifies;
 };
 
 #endif // PRESENCEPLUGIN_H

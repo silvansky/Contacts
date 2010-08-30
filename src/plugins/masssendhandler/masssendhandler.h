@@ -64,7 +64,7 @@ protected slots:
 	void onStatusIconsChanged();
 	void onShowWindowAction(bool);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
-	void onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem);
+	void onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
 	void onMassSendAction();
 private:

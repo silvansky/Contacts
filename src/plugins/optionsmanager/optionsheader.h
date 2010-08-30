@@ -11,6 +11,7 @@ class OptionsHeader :
 	public IOptionsWidget
 {
 	Q_OBJECT;
+	Q_INTERFACES(IOptionsWidget);
 public:
 	OptionsHeader(const QString &AIconKey, const QString &ACaption, QWidget *AParent);
 	~OptionsHeader();

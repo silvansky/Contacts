@@ -18,6 +18,10 @@
 #define SDF_MUC_DATA_MESSAGE              "mucDataMessage"
 #define SDF_MUC_INVITE_MESSAGE            "mucInviteMessage"
 
+//Presence
+#define SDF_PRESENCE_MOOD_CHANGED         "presenceMoodChanged"
+#define SDF_PRESENCE_STATE_CHANGED        "presenceStateChanged"
+
 //RosterChanger
 #define SDF_RCHANGER_SUBSCRIPTION         "rchangerSubscription"
 

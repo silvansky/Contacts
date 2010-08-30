@@ -2,13 +2,18 @@
 #define IPRESENCE_H
 
 #include <QList>
+#include <QDateTime>
 #include <interfaces/ixmppstreams.h>
 #include <utils/jid.h>
 
 #define PRESENCE_UUID "{10e0fe9c-821d-44ba-a1c3-106307a98743}"
 
 struct IPresenceItem {
-	IPresenceItem() { isValid = false; show = 0; priority = 0; }
+	IPresenceItem() { 
+		isValid = false;
+		show = 0;
+		priority = 0; 
+	}
 	bool isValid;
 	Jid itemJid;
 	int show;
@@ -47,7 +52,7 @@ public:
 protected:
 	virtual void opened() =0;
 	virtual void changed(int AShow, const QString &AStatus, int APriority) =0;
-	virtual void received(const IPresenceItem &APresenceItem) =0;
+	virtual void received(const IPresenceItem &AItem, const IPresenceItem &ABefore) =0;
 	virtual void sent(const Jid &AContactJid, int AShow, const QString &AStatus, int APriority) =0;
 	virtual void aboutToClose(int AShow, const QString &AStatus) =0;
 	virtual void closed() =0;
@@ -69,7 +74,7 @@ protected:
 	virtual void presenceAdded(IPresence *APresence) =0;
 	virtual void presenceOpened(IPresence *APresence) =0;
 	virtual void presenceChanged(IPresence *APresence, int AShow, const QString &AStatus, int APriority) =0;
-	virtual void presenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem) =0;
+	virtual void presenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore) =0;
 	virtual void presenceSent(IPresence *APresence, const Jid &AContactJid, int AShow, const QString &AStatus, int APriotity) =0;
 	virtual void presenceAboutToClose(IPresence *APresence, int AShow, const QString &AStatus) =0;
 	virtual void presenceClosed(IPresence *APresence) =0;

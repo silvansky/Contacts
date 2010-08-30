@@ -83,7 +83,7 @@ protected slots:
 	void onRosterItemRemoved(IRoster *ARoster, const IRosterItem &ARosterItem);
 	void onRosterStreamJidChanged(IRoster *ARoster, const Jid &ABefore);
 	void onPresenceChanged(IPresence *APresence, int AShow, const QString &AStatus, int APriority);
-	void onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem);
+	void onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onIndexDataChanged(IRosterIndex *AIndex, int ARole);
 	void onIndexChildAboutToBeInserted(IRosterIndex *AIndex);
 	void onIndexChildInserted(IRosterIndex *AIndex);

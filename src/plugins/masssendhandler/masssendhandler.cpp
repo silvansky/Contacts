@@ -71,8 +71,8 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 		if (FPresencePlugin)
 		{
-			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
-				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
+				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 		}
 	}
 
@@ -378,8 +378,9 @@ void MassSendHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu
 	}
 }
 
-void MassSendHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem)
+void MassSendHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
+	Q_UNUSED(ABefore);
 	IMassSendDialog *messageWindow = findDialog(APresence->streamJid());
 	if (messageWindow)
 		updateDialog(messageWindow);

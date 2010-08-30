@@ -1,8 +1,14 @@
 #include "presenceplugin.h"
 
+#include <QTextDocument>
+
+#define MOOD_NOTIFICATOR_ID      "MoodChanged"
+#define STATE_NOTIFICATOR_ID     "StateChanged"
+
 PresencePlugin::PresencePlugin()
 {
 	FXmppStreams = NULL;
+	FNotifications = NULL;
 	FStanzaProcessor = NULL;
 }
 
@@ -23,8 +29,9 @@ void PresencePlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 
-bool PresencePlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool PresencePlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	IPlugin *plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
 	if (plugin)
 	{
@@ -40,9 +47,31 @@ bool PresencePlugin::initConnections(IPluginManager *APluginManager, int &/*AIni
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+	{
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
+		if (FNotifications)
+		{
+			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivatedOrRemoved(int)));
+			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationActivatedOrRemoved(int)));
+			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, uchar)),SLOT(onNotificationTest(const QString &, uchar)));
+		}
+	}
 	return FXmppStreams!=NULL && FStanzaProcessor!=NULL;
 }
 
+bool PresencePlugin::initObjects()
+{
+	if (FNotifications)
+	{
+		uchar kindMask = INotification::PopupWindow|INotification::PlaySound|INotification::TestNotify;
+		uchar kindDefs = INotification::PopupWindow|INotification::PlaySound;
+		FNotifications->insertNotificator(STATE_NOTIFICATOR_ID,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),kindMask,kindDefs);
+		FNotifications->insertNotificator(MOOD_NOTIFICATOR_ID,OWO_NOTIFICATIONS_MOOD_CHANGES,tr("Mood Changes"),kindMask,kindDefs);
+	}
+	return true;
+}
 
 //IPresencePlugin
 IPresence *PresencePlugin::addPresence(IXmppStream *AXmppStream)
@@ -66,6 +95,21 @@ IPresence *PresencePlugin::getPresence(const Jid &AStreamJid) const
 	return NULL;
 }
 
+bool PresencePlugin::isContactOnline( const Jid &AContactJid ) const
+{
+	return FContactPresences.contains(AContactJid);
+}
+
+QList<Jid> PresencePlugin::contactsOnline() const
+{
+	return FContactPresences.keys();
+}
+
+QList<IPresence *> PresencePlugin::contactPresences(const Jid &AContactJid) const
+{
+	return FContactPresences.value(AContactJid).toList();
+}
+
 void PresencePlugin::removePresence(IXmppStream *AXmppStream)
 {
 	IPresence *presence = getPresence(AXmppStream->streamJid());
@@ -74,6 +118,44 @@ void PresencePlugin::removePresence(IXmppStream *AXmppStream)
 		disconnect(presence->instance(),SIGNAL(destroyed(QObject *)),this,SLOT(onPresenceDestroyed(QObject *)));
 		FPresences.removeAt(FPresences.indexOf(presence));
 		delete presence->instance();
+	}
+}
+
+void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem &AItem)
+{
+	if (FNotifications && APresence->isOpen() && !AItem.itemJid.node().isEmpty())
+	{
+		INotification notify;
+		notify.kinds = FNotifications->notificatorKinds(MOOD_NOTIFICATOR_ID);
+		notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
+		notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
+		notify.data.insert(NDR_POPUP_CAPTION, tr("Contact mood changed"));
+		notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
+		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
+		notify.data.insert(NDR_POPUP_TEXT, tr("Mood:")+"<br>"+Qt::escape(AItem.status));
+		notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_MOOD_CHANGED);
+		notify.data.insert(NDR_TYPE, NT_MOOD);
+		FNotifies.append(FNotifications->appendNotification(notify));
+	}
+}
+
+void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceItem &AItem)
+{
+	if (FNotifications && APresence->isOpen() && !AItem.itemJid.node().isEmpty())
+	{
+		bool isOnline = AItem.show!=IPresence::Offline && AItem.show!=IPresence::Error;
+
+		INotification notify;
+		notify.kinds = FNotifications->notificatorKinds(STATE_NOTIFICATOR_ID);
+		notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
+		notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
+		notify.data.insert(NDR_POPUP_CAPTION, tr("Contact state changed"));
+		notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
+		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
+		notify.data.insert(NDR_POPUP_TEXT, Qt::escape(isOnline ? tr("Connected") : tr("Disconnected")));
+		notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_STATE_CHANGED);
+		notify.data.insert(NDR_TYPE, NT_STATE);
+		FNotifies.append(FNotifications->appendNotification(notify));
 	}
 }
 
@@ -94,29 +176,38 @@ void PresencePlugin::onPresenceChanged(int AShow, const QString &AStatus, int AP
 		emit presenceChanged(presence,AShow,AStatus,APriority);
 }
 
-void PresencePlugin::onPresenceReceived(const IPresenceItem &APresenceItem)
+void PresencePlugin::onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
+	Q_UNUSED(ABefore);
 	Presence *presence = qobject_cast<Presence *>(sender());
 	if (presence)
 	{
-		if (APresenceItem.show != IPresence::Offline && APresenceItem.show != IPresence::Error)
+		if (AItem.show==ABefore.show && AItem.status!=ABefore.status)
 		{
-			QSet<IPresence *> &presences = FContactPresences[APresenceItem.itemJid];
+			notifyMoodChanged(presence,AItem);
+		}
+		else if (AItem.show != IPresence::Offline && AItem.show != IPresence::Error)
+		{
+			QSet<IPresence *> &presences = FContactPresences[AItem.itemJid];
 			if (presences.isEmpty())
-				emit contactStateChanged(presence->streamJid(),APresenceItem.itemJid,true);
+			{
+				notifyStateChanged(presence,AItem);
+				emit contactStateChanged(presence->streamJid(),AItem.itemJid,true);
+			}
 			presences += presence;
 		}
-		else if (FContactPresences.contains(APresenceItem.itemJid))
+		else if (FContactPresences.contains(AItem.itemJid))
 		{
-			QSet<IPresence *> &presences = FContactPresences[APresenceItem.itemJid];
+			QSet<IPresence *> &presences = FContactPresences[AItem.itemJid];
 			presences -= presence;
 			if (presences.isEmpty())
 			{
-				FContactPresences.remove(APresenceItem.itemJid);
-				emit contactStateChanged(presence->streamJid(),APresenceItem.itemJid,false);
+				FContactPresences.remove(AItem.itemJid);
+				notifyStateChanged(presence,AItem);
+				emit contactStateChanged(presence->streamJid(),AItem.itemJid,false);
 			}
 		}
-		emit presenceReceived(presence,APresenceItem);
+		emit presenceReceived(presence,AItem,ABefore);
 	}
 }
 
@@ -154,14 +245,10 @@ void PresencePlugin::onStreamAdded(IXmppStream *AXmppStream)
 {
 	IPresence *presence = addPresence(AXmppStream);
 	connect(presence->instance(),SIGNAL(opened()),SLOT(onPresenceOpened()));
-	connect(presence->instance(),SIGNAL(changed(int, const QString &, int)),
-	        SLOT(onPresenceChanged(int, const QString &, int)));
-	connect(presence->instance(),SIGNAL(received(const IPresenceItem &)),
-	        SLOT(onPresenceReceived(const IPresenceItem &)));
-	connect(presence->instance(),SIGNAL(sent(const Jid &, int, const QString &, int)),
-	        SLOT(onPresenceSent(const Jid &, int, const QString &, int)));
-	connect(presence->instance(),SIGNAL(aboutToClose(int,const QString &)),
-	        SLOT(onPresenceAboutToClose(int,const QString &)));
+	connect(presence->instance(),SIGNAL(changed(int, const QString &, int)),SLOT(onPresenceChanged(int, const QString &, int)));
+	connect(presence->instance(),SIGNAL(received(const IPresenceItem &, const IPresenceItem &)),SLOT(onPresenceReceived(const IPresenceItem &, const IPresenceItem &)));
+	connect(presence->instance(),SIGNAL(sent(const Jid &, int, const QString &, int)),SLOT(onPresenceSent(const Jid &, int, const QString &, int)));
+	connect(presence->instance(),SIGNAL(aboutToClose(int,const QString &)),SLOT(onPresenceAboutToClose(int,const QString &)));
 	connect(presence->instance(),SIGNAL(closed()),SLOT(onPresenceClosed()));
 	emit presenceAdded(presence);
 }
@@ -173,6 +260,64 @@ void PresencePlugin::onStreamRemoved(IXmppStream *AXmppStream)
 	{
 		emit presenceRemoved(presence);
 		removePresence(AXmppStream);
+	}
+}
+
+void PresencePlugin::onNotificationActivatedOrRemoved(int ANotifyId)
+{
+	FNotifications->removeNotification(ANotifyId);
+	FNotifies.removeAll(ANotifyId);
+}
+
+void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKinds)
+{
+	if (ANotificatorId == MOOD_NOTIFICATOR_ID)
+	{
+		INotification notify;
+		notify.kinds = AKinds;
+		if (AKinds & INotification::PopupWindow)
+		{
+			Jid contactJid = "vasilisa@rambler/virtus";
+			notify.data.insert(NDR_STREAM_JID,contactJid.full());
+			notify.data.insert(NDR_CONTACT_JID,contactJid.full());
+			notify.data.insert(NDR_POPUP_CAPTION, tr("Contact mood changed"));
+			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
+			notify.data.insert(NDR_POPUP_TEXT,tr("Mood:")+"<br>"+Qt::escape(tr("Whatever was done, all the better")));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
+		}
+		if (AKinds & INotification::PlaySound)
+		{
+			notify.data.insert(NDR_SOUND_FILE,SDF_PRESENCE_MOOD_CHANGED);
+		}
+		if (!notify.data.isEmpty())
+		{
+			notify.data.insert(NDR_TYPE, NT_MOOD);
+			FNotifies.append(FNotifications->appendNotification(notify));
+		}
+	}
+	else if (ANotificatorId == STATE_NOTIFICATOR_ID)
+	{
+		INotification notify;
+		notify.kinds = AKinds;
+		if (AKinds & INotification::PopupWindow)
+		{
+			Jid contactJid = "vasilisa@rambler/virtus";
+			notify.data.insert(NDR_STREAM_JID,contactJid.full());
+			notify.data.insert(NDR_CONTACT_JID,contactJid.full());
+			notify.data.insert(NDR_POPUP_CAPTION, tr("Contact state changed"));
+			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
+			notify.data.insert(NDR_POPUP_TEXT,Qt::escape(tr("Connected")));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
+		}
+		if (AKinds & INotification::PlaySound)
+		{
+			notify.data.insert(NDR_SOUND_FILE,SDF_PRESENCE_STATE_CHANGED);
+		}
+		if (!notify.data.isEmpty())
+		{
+			notify.data.insert(NDR_TYPE, NT_STATE);
+			FNotifies.append(FNotifications->appendNotification(notify));
+		}
 	}
 }
 

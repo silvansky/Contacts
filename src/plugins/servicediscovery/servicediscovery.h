@@ -156,7 +156,7 @@ protected:
 protected slots:
 	void onStreamOpened(IXmppStream *AXmppStream);
 	void onStreamClosed(IXmppStream *AXmppStream);
-	void onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem);
+	void onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &ARosterItem);
 	void onDiscoInfoReceived(const IDiscoInfo &ADiscoInfo);
 	void onMultiUserPresence(IMultiUser *AUser, int AShow, const QString &AStatus);

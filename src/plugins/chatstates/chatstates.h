@@ -94,7 +94,7 @@ protected:
 	void registerDiscoFeatures();
 protected slots:
 	void onPresenceOpened(IPresence *APresence);
-	void onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem);
+	void onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onPresenceClosed(IPresence *APresence);
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onChatWindowActivated();

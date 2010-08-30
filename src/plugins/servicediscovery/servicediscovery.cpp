@@ -89,8 +89,8 @@ bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &/*AI
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 		if (FPresencePlugin)
 		{
-			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
-				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
+				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 		}
 	}
 
@@ -1227,19 +1227,20 @@ void ServiceDiscovery::onStreamClosed(IXmppStream *AXmppStream)
 	FDiscoInfo.remove(AXmppStream->streamJid());
 }
 
-void ServiceDiscovery::onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem)
+void ServiceDiscovery::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
-	if (APresenceItem.show==IPresence::Offline || APresenceItem.show==IPresence::Error)
+	Q_UNUSED(ABefore);
+	if (AItem.show==IPresence::Offline || AItem.show==IPresence::Error)
 	{
-		if (!APresenceItem.itemJid.node().isEmpty())
+		if (!AItem.itemJid.node().isEmpty())
 		{
 			DiscoveryRequest request;
 			request.streamJid = APresence->streamJid();
-			request.contactJid = APresenceItem.itemJid;
+			request.contactJid = AItem.itemJid;
 			removeQueuedRequest(request);
-			removeDiscoInfo(APresence->streamJid(),APresenceItem.itemJid);
+			removeDiscoInfo(APresence->streamJid(),AItem.itemJid);
 		}
-		FEntityCaps[APresence->streamJid()].remove(APresenceItem.itemJid);
+		FEntityCaps[APresence->streamJid()].remove(AItem.itemJid);
 	}
 }
 

@@ -11,5 +11,41 @@
         <source>Allows other modules to obtain information about the status of contacts in the roster</source>
         <translation>Позволяет другим модулям получать информацию о статусе контактов в ростере</translation>
     </message>
+    <message>
+        <source>State Changes</source>
+        <translation>Вошел или вышел из сети</translation>
+    </message>
+    <message>
+        <source>Mood Changes</source>
+        <translation>Смена настроений</translation>
+    </message>
+    <message>
+        <source>Contact mood changed</source>
+        <translation>Настроение контакта изменилось</translation>
+    </message>
+    <message>
+        <source>Mood:</source>
+        <translation>Настроение:</translation>
+    </message>
+    <message>
+        <source>Contact state changed</source>
+        <translation>Статус контакта изменился</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Подключился к сети</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <translation>Отключился от сети</translation>
+    </message>
+    <message>
+        <source>Vasilisa Premudraya</source>
+        <translation>Василиса Премудрая</translation>
+    </message>
+    <message>
+        <source>Whatever was done, all the better</source>
+        <translation>Чтобы ни делалось, все к лучшему</translation>
+    </message>
 </context>
 </TS>

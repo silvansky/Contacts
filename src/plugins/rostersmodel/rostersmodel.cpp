@@ -63,8 +63,8 @@ bool RostersModel::initConnections(IPluginManager *APluginManager, int &/*AInitO
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceChanged(IPresence *, int, const QString &, int)),
 				SLOT(onPresenceChanged(IPresence *, int , const QString &, int)));
-			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
-				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
+				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 		}
 	}
 
@@ -600,24 +600,25 @@ void RostersModel::onPresenceChanged(IPresence *APresence, int AShow, const QStr
 	}
 }
 
-void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem &APresenceItem)
+void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
+	Q_UNUSED(ABefore);
 	IRosterIndex *streamIndex = FStreamsRoot.value(APresence->streamJid());
 	if (streamIndex)
 	{
 		int itemType = RIT_CONTACT;
-		if (APresenceItem.itemJid.node().isEmpty())
+		if (AItem.itemJid.node().isEmpty())
 			itemType = RIT_AGENT;
-		else if (APresenceItem.itemJid && APresence->streamJid())
+		else if (AItem.itemJid && APresence->streamJid())
 			itemType = RIT_MY_RESOURCE;
 
-		if (APresenceItem.show == IPresence::Offline)
+		if (AItem.show == IPresence::Offline)
 		{
 			QHash<int,QVariant> findData;
 			findData.insert(RDR_TYPE,itemType);
-			findData.insert(RDR_PJID,APresenceItem.itemJid.pFull());
+			findData.insert(RDR_PJID,AItem.itemJid.pFull());
 			QList<IRosterIndex *> itemList = streamIndex->findChild(findData, true);
-			int pitemsCount = APresence->presenceItems(APresenceItem.itemJid).count();
+			int pitemsCount = APresence->presenceItems(AItem.itemJid).count();
 			foreach (IRosterIndex *index,itemList)
 			{
 				if (itemType == RIT_MY_RESOURCE || pitemsCount > 1)
@@ -626,25 +627,25 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 				}
 				else
 				{
-					index->setData(RDR_INDEX_ID,APresenceItem.itemJid.pBare());
-					index->setData(RDR_JID,APresenceItem.itemJid.bare());
-					index->setData(RDR_PJID,APresenceItem.itemJid.pBare());
-					index->setData(RDR_SHOW,APresenceItem.show);
-					index->setData(RDR_STATUS,APresenceItem.status);
+					index->setData(RDR_INDEX_ID,AItem.itemJid.pBare());
+					index->setData(RDR_JID,AItem.itemJid.bare());
+					index->setData(RDR_PJID,AItem.itemJid.pBare());
+					index->setData(RDR_SHOW,AItem.show);
+					index->setData(RDR_STATUS,AItem.status);
 					index->setData(RDR_PRIORITY,QVariant());
 				}
 			}
 		}
-		else if (APresenceItem.show == IPresence::Error)
+		else if (AItem.show == IPresence::Error)
 		{
 			QHash<int,QVariant> findData;
 			findData.insert(RDR_TYPE,itemType);
-			findData.insert(RDR_BARE_JID,APresenceItem.itemJid.pBare());
+			findData.insert(RDR_BARE_JID,AItem.itemJid.pBare());
 			QList<IRosterIndex *> itemList = streamIndex->findChild(findData,true);
 			foreach(IRosterIndex *index,itemList)
 			{
-				index->setData(RDR_SHOW,APresenceItem.show);
-				index->setData(RDR_STATUS,APresenceItem.status);
+				index->setData(RDR_SHOW,AItem.show);
+				index->setData(RDR_STATUS,AItem.status);
 				index->setData(RDR_PRIORITY,QVariant());
 			}
 		}
@@ -652,12 +653,12 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 		{
 			QHash<int,QVariant> findData;
 			findData.insert(RDR_TYPE,itemType);
-			findData.insert(RDR_PJID,APresenceItem.itemJid.pFull());
+			findData.insert(RDR_PJID,AItem.itemJid.pFull());
 			QList<IRosterIndex *> itemList = streamIndex->findChild(findData,true);
 			if (itemList.isEmpty())
 			{
 				IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(APresence->streamJid()) : NULL;
-				IRosterItem ritem = roster!=NULL ? roster->rosterItem(APresenceItem.itemJid) : IRosterItem();
+				IRosterItem ritem = roster!=NULL ? roster->rosterItem(AItem.itemJid) : IRosterItem();
 				QString groupDelim = roster!=NULL ? roster->groupDelimiter() : "::";
 
 				QSet<QString> itemGroups;
@@ -682,11 +683,11 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 
 					if (groupIndex)
 					{
-						IRosterIndex *index = findRosterIndex(itemType,APresenceItem.itemJid.pBare(),groupIndex);
+						IRosterIndex *index = findRosterIndex(itemType,AItem.itemJid.pBare(),groupIndex);
 						if (!index)
 						{
-							index = createRosterIndex(itemType,APresenceItem.itemJid.pFull(),groupIndex);
-							index->setData(RDR_BARE_JID,APresenceItem.itemJid.pBare());
+							index = createRosterIndex(itemType,AItem.itemJid.pFull(),groupIndex);
+							index->setData(RDR_BARE_JID,AItem.itemJid.pBare());
 							index->setData(RDR_GROUP,group);
 							if (ritem.isValid)
 							{
@@ -696,22 +697,22 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 							}
 						}
 						else
-							index->setData(RDR_INDEX_ID,APresenceItem.itemJid.pFull());
+							index->setData(RDR_INDEX_ID,AItem.itemJid.pFull());
 
-						index->setData(RDR_JID,APresenceItem.itemJid.full());
-						index->setData(RDR_PJID,APresenceItem.itemJid.pFull());
-						index->setData(RDR_SHOW,APresenceItem.show);
-						index->setData(RDR_STATUS,APresenceItem.status);
-						index->setData(RDR_PRIORITY,APresenceItem.priority);
+						index->setData(RDR_JID,AItem.itemJid.full());
+						index->setData(RDR_PJID,AItem.itemJid.pFull());
+						index->setData(RDR_SHOW,AItem.show);
+						index->setData(RDR_STATUS,AItem.status);
+						index->setData(RDR_PRIORITY,AItem.priority);
 						insertRosterIndex(index,groupIndex);
 					}
 				}
 			}
 			else foreach(IRosterIndex *index,itemList)
 			{
-				index->setData(RDR_SHOW,APresenceItem.show);
-				index->setData(RDR_STATUS,APresenceItem.status);
-				index->setData(RDR_PRIORITY,APresenceItem.priority);
+				index->setData(RDR_SHOW,AItem.show);
+				index->setData(RDR_STATUS,AItem.status);
+				index->setData(RDR_PRIORITY,AItem.priority);
 			}
 		}
 	}

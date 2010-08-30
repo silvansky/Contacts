@@ -114,7 +114,7 @@ protected slots:
 	void onRosterItemChanged(IRoster *ARoster, const IRosterItem &AItem);
 	void onRosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
 	void onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline);
-	void onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem);
+	void onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onPrivateStorateOpened(const Jid &AStreamJid);
 	void onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void onPrivateStorateAboutToClose(const Jid &AStreamJid);

@@ -107,8 +107,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(contactStateChanged(const Jid &, const Jid &, bool)),
 				SLOT(onContactStateChanged(const Jid &, const Jid &, bool)));
-			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &)),
-				SLOT(onPresenceItemReceived(IPresence *, const IPresenceItem &)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
+				SLOT(onPresenceItemReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 		}
 	}
 
@@ -987,8 +987,9 @@ void Gateways::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJ
 	}
 }
 
-void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem)
+void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
+	Q_UNUSED(ABefore);
 	if (AItem.itemJid.node().isEmpty())
 	{
 		emit servicePresenceChanged(APresence->streamJid(),AItem.itemJid,AItem);

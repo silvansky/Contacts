@@ -216,13 +216,13 @@ void InfoWidget::initialize()
 		{
 			if (FPresence)
 			{
-				disconnect(FPresence->instance(),SIGNAL(received(const IPresenceItem &)), this, SLOT(onPresenceReceived(const IPresenceItem &)));
+				disconnect(FPresence->instance(),SIGNAL(received(const IPresenceItem &, const IPresenceItem &)), this, SLOT(onPresenceReceived(const IPresenceItem &, const IPresenceItem &)));
 			}
 
 			FPresence = presencePlugin->getPresence(FStreamJid);
 			if (FPresence)
 			{
-				connect(FPresence->instance(),SIGNAL(received(const IPresenceItem &)), SLOT(onPresenceReceived(const IPresenceItem &)));
+				connect(FPresence->instance(),SIGNAL(received(const IPresenceItem &, const IPresenceItem &)), SLOT(onPresenceReceived(const IPresenceItem &, const IPresenceItem &)));
 			}
 		}
 	}
@@ -309,14 +309,15 @@ void InfoWidget::onRosterItemReceived(const IRosterItem &ARosterItem)
 		autoUpdateField(ContactName);
 }
 
-void InfoWidget::onPresenceReceived(const IPresenceItem &APresenceItem)
+void InfoWidget::onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
-	if (APresenceItem.itemJid == FContactJid)
+	Q_UNUSED(ABefore);
+	if (AItem.itemJid == FContactJid)
 	{
 		if (isFiledAutoUpdated(ContactShow))
-			setField(ContactShow,APresenceItem.show);
+			setField(ContactShow,AItem.show);
 		if (isFiledAutoUpdated(ContactStatus))
-			setField(ContactStatus,APresenceItem.status);
+			setField(ContactStatus,AItem.status);
 	}
 }
 

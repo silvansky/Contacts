@@ -42,7 +42,7 @@ protected:
 protected slots:
 	void onAccountChanged(const OptionsNode &ANode);
 	void onRosterItemReceived(const IRosterItem &ARosterItem);
-	void onPresenceReceived(const IPresenceItem &APresenceItem);
+	void onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onAvatarChanged(const Jid &AContactJid);
 private:
 	Ui::InfoWidgetClass ui;
