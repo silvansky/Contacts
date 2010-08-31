@@ -4,6 +4,7 @@
 
 RamblerHistory::RamblerHistory()
 {
+	FDiscovery = NULL;
 	FOptionsManager = NULL;
 	FStanzaProcessor = NULL;
 }
@@ -84,22 +85,26 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 				if (elem.tagName() == "to" || elem.tagName() == "from")
 				{
 					Message message;
-					message.setType(Message::Chat);
-					message.setDateTime(DateTime(elem.attribute("ctime")).toLocal());
-
 					if (elem.tagName() == "to")
 						message.setTo(result.with.eFull());
 					else
 						message.setFrom(result.with.eFull());
 
+					message.setType(Message::Chat);
+					message.setDateTime(DateTime(elem.attribute("ctime")).toLocal());
 					message.setBody(elem.firstChildElement("body").text());
-					result.messages.append(message);
 
-					result.beforeId = elem.attribute("id");
-					result.beforeTime = message.dateTime();
+					result.messages.append(message);
 				}
 				elem = elem.nextSiblingElement();
 			}
+
+         elem = chatElem.firstChildElement("first");
+         while (!elem.isNull() && elem.namespaceURI()!=NS_RAMBLER_ARCHIVE_RSM)
+            elem = elem.nextSiblingElement("first");
+         result.beforeId = elem.firstChildElement("id").text();
+         result.beforeTime = DateTime(elem.firstChildElement("ctime").text()).toLocal();
+
 			emit serverMessagesLoaded(AStanza.id(), result);
 		}
 		else
