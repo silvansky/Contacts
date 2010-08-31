@@ -1097,8 +1097,10 @@ void RostersView::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 		delete clipMenu;
 }
 
-void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger* AToolBarChanger)
+void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger)
 {
+	Q_UNUSED(AToolBarChanger);
+
 	if (ALabelId == RLID_DISPLAY)
 	{
 		QString name = AIndex->data(RDR_NAME).toString();

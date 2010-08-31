@@ -122,9 +122,11 @@ void Downloader::getReplyFinished()
 
 void Downloader::downloadError(QNetworkReply::NetworkError err)
 {
+	Q_UNUSED(err);
 	//QString reason = tr("Update canceled! ") + reply->errorString();
 	//emit downloadCanceled(reason);
 }
+
 void Downloader::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
 	progressDialog->setMaximum(bytesTotal);

@@ -1305,6 +1305,8 @@ void ServiceDiscovery::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMu
 
 void ServiceDiscovery::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
+	Q_UNUSED(AIndex);
+	Q_UNUSED(AMenu);
 	/*int itype = AIndex->type();
 	if (itype == RIT_STREAM_ROOT || itype == RIT_CONTACT || itype == RIT_AGENT || itype == RIT_MY_RESOURCE)
 	{

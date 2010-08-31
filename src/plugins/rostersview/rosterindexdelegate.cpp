@@ -136,14 +136,17 @@ void RosterIndexDelegate::setShowBlinkLabels(bool AShow)
 	FShowBlinkLabels = AShow;
 }
 
-QWidget * RosterIndexDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget *RosterIndexDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+	Q_UNUSED(option);
+	Q_UNUSED(index);
 	return new QLineEdit(parent);
 }
 
 void RosterIndexDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-
+	Q_UNUSED(editor);
+	Q_UNUSED(index);
 }
 
 QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const

@@ -76,18 +76,6 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("INotifications").value(0, NULL);
-	if (plugin)
-	{
-		INotifications *notifications = qobject_cast<INotifications *>(plugin->instance());
-		if (notifications)
-		{
-			uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate;
-			uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-			//notifications->insertNotificator(MASSSEND_NOTIFICATOR_ID, 0, tr("Single Messages"), kindMask, kindDefs);
-		}
-	}
-
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0, NULL);
 	if (plugin)
 	{
@@ -191,6 +179,9 @@ INotification MassSendHandler::notification(INotifications *ANotifications, cons
 bool MassSendHandler::createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
 {
 	Q_UNUSED(AOrder);
+	Q_UNUSED(AContactJid)
+	Q_UNUSED(AType);
+	Q_UNUSED(AShowMode);
 	IMassSendDialog *window = getDialog(AStreamJid);
 	if (window)
 	{
@@ -227,11 +218,13 @@ IMassSendDialog *MassSendHandler::findDialog(const Jid &AStreamJid)
 
 void MassSendHandler::showDialog(IMassSendDialog *AWindow)
 {
+	Q_UNUSED(AWindow);
 	//AWindow->showWindow();
 }
 
 void MassSendHandler::updateDialog(IMassSendDialog *AWindow)
 {
+	Q_UNUSED(AWindow);
 /*	QIcon icon;
 	if (FActiveMessages.contains(AWindow))
 		icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_NORMAL_MHANDLER_MESSAGE);
@@ -380,6 +373,7 @@ void MassSendHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu
 
 void MassSendHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
+	Q_UNUSED(AItem);
 	Q_UNUSED(ABefore);
 	IMassSendDialog *messageWindow = findDialog(APresence->streamJid());
 	if (messageWindow)
@@ -388,16 +382,19 @@ void MassSendHandler::onPresenceReceived(IPresence *APresence, const IPresenceIt
 
 void MassSendHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext)
 {
-	if (AContext.isEmpty())
-	{
-//		foreach (IMassSendDialog *window, FDialogs)
-		{
-//			if (FLastMessages.value(window).type()==AMessageType && window->viewWidget() && window->viewWidget()->messageStyle())
-//			{
-//				window->viewWidget()->messageStyle()->changeOptions(window->viewWidget()->styleWidget(),AOptions,false);
-//			}
-		}
-	}
+	Q_UNUSED(AOptions);
+	Q_UNUSED(AMessageType);
+	Q_UNUSED(AContext);
+	//if (AContext.isEmpty())
+	//{
+	//	foreach (IMassSendDialog *window, FDialogs)
+	//	{
+	//		if (FLastMessages.value(window).type()==AMessageType && window->viewWidget() && window->viewWidget()->messageStyle())
+	//		{
+	//			window->viewWidget()->messageStyle()->changeOptions(window->viewWidget()->styleWidget(),AOptions,false);
+	//		}
+	//	}
+	//}
 }
 
 void MassSendHandler::onMassSendAction()
