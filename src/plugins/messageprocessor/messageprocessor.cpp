@@ -57,6 +57,7 @@ bool MessageProcessor::initConnections(IPluginManager *APluginManager, int &/*AI
 		if (FNotifications)
 		{
 			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivated(int)));
+			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
 		}
 	}
 
@@ -177,6 +178,16 @@ void MessageProcessor::removeMessage(int AMessageId)
 	}
 }
 
+int MessageProcessor::notifyByMessage(int AMessageId) const
+{
+	return FNotifyId2MessageId.key(AMessageId,-1);
+}
+
+int MessageProcessor::messageByNotify(int ANotifyId) const
+{
+	return FNotifyId2MessageId.value(ANotifyId,-1);
+}
+
 Message MessageProcessor::messageById(int AMessageId) const
 {
 	return FMessages.value(AMessageId);
@@ -284,6 +295,7 @@ void MessageProcessor::notifyMessage(int AMessageId)
 {
 	if (FMessages.contains(AMessageId))
 	{
+		int notifyId = -1;
 		if (FNotifications)
 		{
 			const Message &message = FMessages.value(AMessageId);
@@ -291,11 +303,11 @@ void MessageProcessor::notifyMessage(int AMessageId)
 			INotification notify = handler->notification(FNotifications, message);
 			if (notify.kinds > 0)
 			{
-				int notifyId = FNotifications->appendNotification(notify);
+				notifyId = FNotifications->appendNotification(notify);
 				FNotifyId2MessageId.insert(notifyId,AMessageId);
 			}
 		}
-		emit messageNotified(AMessageId);
+		emit messageNotified(AMessageId, notifyId);
 	}
 }
 
@@ -303,13 +315,14 @@ void MessageProcessor::unNotifyMessage(int AMessageId)
 {
 	if (FMessages.contains(AMessageId))
 	{
+		int notifyId = -1;
 		if (FNotifications)
 		{
-			int notifyId = FNotifyId2MessageId.key(AMessageId);
+			notifyId = FNotifyId2MessageId.key(AMessageId);
 			FNotifications->removeNotification(notifyId);
 			FNotifyId2MessageId.remove(notifyId);
 		}
-		emit messageUnNotified(AMessageId);
+		emit messageUnNotified(AMessageId, notifyId);
 	}
 }
 
@@ -395,6 +408,12 @@ void MessageProcessor::onNotificationActivated(int ANotifyId)
 {
 	if (FNotifyId2MessageId.contains(ANotifyId))
 		showMessage(FNotifyId2MessageId.value(ANotifyId));
+}
+
+void MessageProcessor::onNotificationRemoved( int ANotifyId )
+{
+	if (FNotifyId2MessageId.contains(ANotifyId))
+		removeMessage(FNotifyId2MessageId.value(ANotifyId));
 }
 
 Q_EXPORT_PLUGIN2(plg_messageprocessor, MessageProcessor)

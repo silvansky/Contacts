@@ -40,6 +40,8 @@ public:
 	virtual bool sendMessage(const Jid &AStreamJid, const Message &AMessage) =0;
 	virtual void showMessage(int AMessageId) =0;
 	virtual void removeMessage(int AMessageId) =0;
+	virtual int notifyByMessage(int AMessageId) const =0;
+	virtual int messageByNotify(int ANotifyId) const =0;
 	virtual Message messageById(int AMessageId) const =0;
 	virtual QList<int> messages(const Jid &AStreamJid, const Jid &AFromJid = Jid(), int AMesTypes = Message::AnyType) =0;
 	virtual void textToMessage(Message &AMessage, const QTextDocument *ADocument, const QString &ALang = "") const =0;
@@ -54,8 +56,8 @@ protected:
 	virtual void messageReceived(const Message &AMessage) =0;
 	virtual void messageSend(Message &AMessage) =0;
 	virtual void messageSent(const Message &AMessage) =0;
-	virtual void messageNotified(int AMessageId) =0;
-	virtual void messageUnNotified(int AMessageId) =0;
+	virtual void messageNotified(int AMessageId, int ANotifyId) =0;
+	virtual void messageUnNotified(int AMessageId, int ANotifyId) =0;
 	virtual void messageRemoved(const Message &AMessage) =0;
 	virtual void messageHandlerInserted(IMessageHandler *AHandler, int AOrder) =0;
 	virtual void messageHandlerRemoved(IMessageHandler *AHandler, int AOrder) =0;

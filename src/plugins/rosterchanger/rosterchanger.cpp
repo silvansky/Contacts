@@ -1004,7 +1004,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 		notify.data.insert(NDR_STREAM_JID,ARoster->streamJid().full());
 		notify.data.insert(NDR_CONTACT_JID,chatWindow!=NULL ? chatWindow->contactJid().full() : AContactJid.full());
 		notify.data.insert(NDR_ICON_KEY,MNI_RCHANGER_SUBSCRIBTION);
-		notify.data.insert(NDR_ICON_STORAGE, RSR_STORAGE_MENUICONS);
+		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 		notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_SUBSCRIBTION);
 		notify.data.insert(NDR_ROSTER_TOOLTIP,Qt::escape(notifyMessage));
 		notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name.split(" ").value(0)));
@@ -1012,13 +1012,12 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,Qt::escape(notifyMessage));
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
-		notify.data.insert(NDR_POPUP_CAPTION, tr("Authorization message"));
+		notify.data.insert(NDR_POPUP_CAPTION,tr("Subscription"));
+		notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AContactJid));
 		notify.data.insert(NDR_POPUP_TITLE,name);
-		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AContactJid));
 		notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));
 		notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
 		notify.data.insert(NDR_SUBSCRIPTION_TEXT,AText);
-		notify.data.insert(NDR_TYPE, NT_AUTH);
 	}
 
 	int notifyId = -1;

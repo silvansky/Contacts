@@ -928,12 +928,11 @@ void StatusChanger::insertStatusNotification(IPresence *APresence)
 		INotification notify;
 		notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
 		notify.data.insert(NDR_ICON,FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Error,"","") : QIcon());
-		notify.data.insert(NDR_POPUP_CAPTION, tr("Connection error"));
-		notify.data.insert(NDR_POPUP_TITLE,FAccountManager!=NULL ? FAccountManager->accountByStream(APresence->streamJid())->name() : APresence->streamJid().full());
+		notify.data.insert(NDR_POPUP_CAPTION,tr("Warning"));
 		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(APresence->streamJid()));
-		notify.data.insert(NDR_POPUP_TEXT,Qt::escape(APresence->status()));
+		notify.data.insert(NDR_POPUP_TITLE,tr("Temporary connection failure"));
+		notify.data.insert(NDR_POPUP_TEXT,tr("Sending and receiving messages is hold") + "<br>" + Qt::escape(APresence->status()));
 		notify.data.insert(NDR_SOUND_FILE,SDF_SCHANGER_CONNECTION_ERROR);
-		notify.data.insert(NDR_TYPE, NT_ERROR);
 		FNotifyId.insert(APresence,FNotifications->appendNotification(notify));
 	}
 }

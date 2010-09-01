@@ -41,6 +41,8 @@ public:
 	virtual bool sendMessage(const Jid &AStreamJid, const Message &AMessage);
 	virtual void showMessage(int AMessageId);
 	virtual void removeMessage(int AMessageId);
+	virtual int notifyByMessage(int AMessageId) const;
+	virtual int messageByNotify(int ANotifyId) const;
 	virtual Message messageById(int AMessageId) const;
 	virtual QList<int> messages(const Jid &AStreamJid, const Jid &AFromJid = Jid(), int AMesTypes = Message::AnyType);
 	virtual void textToMessage(Message &AMessage, const QTextDocument *ADocument, const QString &ALang = "") const;
@@ -55,8 +57,8 @@ signals:
 	void messageReceived(const Message &AMessage);
 	void messageSend(Message &AMessage);
 	void messageSent(const Message &AMessage);
-	void messageNotified(int AMessageId);
-	void messageUnNotified(int AMessageId);
+	void messageNotified(int AMessageId, int ANotifyId);
+	void messageUnNotified(int AMessageId, int ANotifyId);
 	void messageRemoved(const Message &AMessage);
 	void messageHandlerInserted(IMessageHandler *AHandler, int AOrder);
 	void messageHandlerRemoved(IMessageHandler *AHandler, int AOrder);
@@ -77,6 +79,7 @@ protected slots:
 	void onStreamClosed(IXmppStream *AXmppStream);
 	void onStreamRemoved(IXmppStream *AXmppStream);
 	void onNotificationActivated(int ANotifyId);
+	void onNotificationRemoved(int ANotifyId);
 private:
 	IXmppStreams *FXmppStreams;
 	INotifications *FNotifications;

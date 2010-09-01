@@ -1,16 +1,21 @@
 #ifndef NOTIFYWIDGET_H
 #define NOTIFYWIDGET_H
 
+#include <QFrame>
 #include <QMouseEvent>
 #include <QDesktopWidget>
+#include <definations/resources.h>
+#include <definations/menuicons.h>
+#include <definations/stylesheets.h>
 #include <definations/notificationdataroles.h>
 #include <interfaces/inotifications.h>
 #include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
 #include "ui_notifywidget.h"
 
 class NotifyWidget :
-			public QWidget
+			public QFrame
 {
 	Q_OBJECT;
 public:
@@ -18,19 +23,17 @@ public:
 	~NotifyWidget();
 	void appear();
 	void animateTo(int AYPos);
-	INotification notification() const;
-	void setNotification(const INotification & notification);
-	void appendText(const QString & text);
-	static NotifyWidget* findNotifyWidget(Jid AStreamJid, Jid AContactJid);
+	void appendNotification(const INotification &ANotification);
+public slots:
+	void adjustHeight();
 signals:
+	void showOptions();
 	void notifyActivated();
 	void notifyRemoved();
 	void windowDestroyed();
-	void closeButtonClicked();
-	void settingsButtonClicked();
 protected:
 	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
-	virtual void resizeEvent(QResizeEvent *);
+	virtual void resizeEvent(QResizeEvent *AEvent);
 protected slots:
 	void onAnimateStep();
 private:
@@ -39,9 +42,8 @@ private:
 	int FYPos;
 	int FTimeOut;
 	int FAnimateStep;
-	INotification FNotification;
+	QTimer *FCloseTimer;
 	QStringList FTextMessages;
-	QTimer * deleteTimer;
 private:
 	static void layoutWidgets();
 	static QDesktopWidget *FDesktop;

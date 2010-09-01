@@ -345,8 +345,10 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 INotification ChatMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
 {
 	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
+	WindowStatus &wstatus = FWindowStatus[window];
+
 	QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
-	QString messages = tr("%n message(s)","",FWindowStatus.value(window).notified.count());
+	QString messages = tr("%n message(s)","",wstatus.notified.count());
 
 	INotification notify;
 	notify.kinds = ANotifications->notificatorKinds(NOTIFICATOR_ID);
@@ -357,16 +359,21 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 	notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_MESSAGE);
 	notify.data.insert(NDR_ROSTER_TOOLTIP,messages);
 	notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
-	notify.data.insert(NDR_TABPAGE_PRIORITY, TPNP_NEW_MESSAGE);
+	notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
 	notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-	notify.data.insert(NDR_TABPAGE_TOOLTIP, messages);
+	notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
 	notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
+	notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
 	notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
-	notify.data.insert(NDR_POPUP_CAPTION,tr("Message received"));
 	notify.data.insert(NDR_POPUP_TITLE,name);
-	notify.data.insert(NDR_POPUP_TEXT,Qt::escape(AMessage.body()));
 	notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
-	notify.data.insert(NDR_TYPE, NT_CHATMESSAGE);
+
+	QTextDocument doc;
+	FMessageProcessor->messageToText(&doc,AMessage);
+	notify.data.insert(NDR_POPUP_TEXT,getDocumentBody(doc));
+
+	if (wstatus.notified.count() > 1)
+		notify.data.insert(NDR_REPLACE_NOTIFY, FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2)));
 
 	return notify;
 }
@@ -995,7 +1002,7 @@ void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenc
 	}
 }
 
-void ChatMessageHandler::onPresenceRemoved( IPresence *APresence )
+void ChatMessageHandler::onPresenceRemoved(IPresence *APresence)
 {
 	FPrecences.removeAll(APresence);
 }
@@ -1029,10 +1036,10 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 			notify.data.insert(NDR_CONTACT_JID,contsctJid.full());
 			notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
 			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-			notify.data.insert(NDR_POPUP_CAPTION,tr("Message received"));
+			notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on www.rambler.ru :)"));
-			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 		}
 		if (AKinds & INotification::PlaySound)
 		{
@@ -1040,7 +1047,6 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 		}
 		if (!notify.data.isEmpty())
 		{
-			notify.data.insert(NDR_TYPE, NT_CHATMESSAGE);
 			FNotifications->appendNotification(notify);
 		}
 	}

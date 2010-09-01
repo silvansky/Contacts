@@ -171,6 +171,7 @@
 #define MNI_NOTIFICATIONS_REMOVE_ALL             "notificationsRemoveAll"
 #define MNI_NOTIFICATIONS_SOUND_ON               "notificationsSoundOn"
 #define MNI_NOTIFICATIONS_SOUND_OFF              "notificationsSoundOff"
+#define MNI_NOTIFICATIONS_POPUP_OPTIONS          "notificationsPopupOptions"
 
 //OptionsManager
 #define MNI_OPTIONS_DIALOG                       "optionsDialog"

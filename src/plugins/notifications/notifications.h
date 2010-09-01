@@ -32,27 +32,28 @@
 #include "optionswidget.h"
 #include "notifykindswidget.h"
 
-struct NotifyRecord {
+struct NotifyRecord 
+{
 	NotifyRecord() {
 		trayId=0;
 		rosterId=0;
 		tabPageId=0;
-		widget=NULL;
 		action=NULL;
+		widget=NULL;
 	}
 	int trayId;
 	int rosterId;
 	int tabPageId;
 	Action *action;
-	NotifyWidget *widget;
 	INotification notification;
+	QPointer<NotifyWidget> widget;
 	QPointer<QObject> tabPageNotifier;
 };
 
-struct Notificator {
+struct Notificator 
+{
 	int order;
 	QString title;
-	uchar kinds;
 	uchar defaults;
 	uchar kindMask;
 };
@@ -103,11 +104,11 @@ protected:
 	int notifyIdByRosterId(int ARosterId) const;
 	int notifyIdByTrayId(int ATrayId) const;
 	int notifyIdByWidget(NotifyWidget *AWidget) const;
-	NotifyWidget* findNotifyWidget(Jid AStreamJid, Jid AContactJid) const;
 	void activateAllNotifications();
 	void removeAllNotifications();
 protected slots:
 	void onActivateDelayedActivations();
+	void onActivateDelayedReplaces();
 	void onSoundOnOffActionTriggered(bool);
 	void onTrayActionTriggered(bool);
 	void onRosterNotifyActivated(IRosterIndex *AIndex, int ANotifyId);
@@ -116,12 +117,12 @@ protected slots:
 	void onTrayNotifyRemoved(int ANotifyId);
 	void onWindowNotifyActivated();
 	void onWindowNotifyRemoved();
+	void onWindowNotifyOptions();
 	void onWindowNotifyDestroyed();
 	void onActionNotifyActivated(bool);
 	void onTestNotificationTimerTimedOut();
 	void onOptionsOpened();
 	void onOptionsChanged(const OptionsNode &ANode);
-	void showSettings();
 private:
 	IAvatars *FAvatars;
 	IRosterPlugin *FRosterPlugin;
@@ -144,9 +145,10 @@ private:
 	int FTestNotifyId;
 	QSound *FSound;
 	QTimer FTestNotifyTimer;
+	QList<int> FDelayedReplaces;
 	QList<int> FDelayedActivations;
 	QMap<int, NotifyRecord> FNotifyRecords;
-	mutable QMap<QString, Notificator> FNotificators;
+	QMap<QString, Notificator> FNotificators;
 };
 
 #endif // NOTIFICATIONS_H

@@ -2,33 +2,57 @@
 
 #include <QTimer>
 
-#define DEFAUTL_TIMEOUT           8000
-#define ANIMATE_STEPS             17
-#define ANIMATE_TIME              700
+#define DEFAUTL_TIMEOUT           9000
+#define ANIMATE_STEPS             20
+#define ANIMATE_TIME              1000
 #define ANIMATE_STEP_TIME         (ANIMATE_TIME/ANIMATE_STEPS)
 #define ANIMATE_OPACITY_START     0.0
-#define ANIMATE_OPACITY_END       0.9
+#define ANIMATE_OPACITY_END       1.0
 #define ANIMATE_OPACITY_STEP      (ANIMATE_OPACITY_END - ANIMATE_OPACITY_START)/ANIMATE_STEPS
+
+#define IMAGE_SIZE                QSize(32,32)
 
 QList<NotifyWidget *> NotifyWidget::FWidgets;
 QDesktopWidget *NotifyWidget::FDesktop = new QDesktopWidget;
 
-NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Qt::ToolTip|Qt::WindowStaysOnTopHint)
+NotifyWidget::NotifyWidget(const INotification &ANotification) : QFrame(NULL, Qt::ToolTip|Qt::WindowStaysOnTopHint)
 {
 	ui.setupUi(this);
 	setFocusPolicy(Qt::NoFocus);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-
-	QPalette pallete = ui.frmWindowFrame->palette();
-	pallete.setColor(QPalette::Window, pallete.color(QPalette::Base));
-	ui.frmWindowFrame->setPalette(pallete);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_NOTIFICATION_NOTIFYWIDGET);
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbOptions,MNI_NOTIFICATIONS_POPUP_OPTIONS);
+	
+	ui.tbrText->setMaxHeight(FDesktop->availableGeometry().height() / 6);
+	ui.tbrText->setContentsMargins(0,0,0,0);
 
 	FYPos = -1;
 	FAnimateStep = -1;
-	setNotification(ANotification);
-	connect(ui.closeButton, SIGNAL(clicked()), SIGNAL(closeButtonClicked()));
-	connect(ui.settingsButton, SIGNAL(clicked()), SIGNAL(settingsButtonClicked()));
-	deleteTimer = new QTimer(this);
+	FTimeOut = ANotification.data.value(NDR_POPUP_TIMEOUT,DEFAUTL_TIMEOUT).toInt();
+
+	FCloseTimer = new QTimer(this);
+	FCloseTimer->setSingleShot(true);
+	connect(FCloseTimer, SIGNAL(timeout()), SLOT(close()));
+
+	ui.lblIcon->setVisible(false);
+	ui.lblCaption->setText(ANotification.data.value(NDR_POPUP_CAPTION).toString());
+	ui.lblTitle->setText(ANotification.data.value(NDR_POPUP_TITLE).toString());
+
+	QImage image = qvariant_cast<QImage>(ANotification.data.value(NDR_POPUP_IMAGE));
+	if (!image.isNull())
+	{
+		ui.lblImage->setFixedWidth(IMAGE_SIZE.width());
+		ui.lblImage->setPixmap(QPixmap::fromImage(image.scaled(IMAGE_SIZE,Qt::KeepAspectRatio,Qt::SmoothTransformation)));
+	}
+	else
+	{
+		ui.lblImage->setVisible(false);
+	}
+
+	connect(ui.clbClose, SIGNAL(clicked()), SIGNAL(notifyRemoved()));
+	connect(ui.tlbOptions, SIGNAL(clicked()), SIGNAL(showOptions()));
+
+	appendNotification(ANotification);
 }
 
 NotifyWidget::~NotifyWidget()
@@ -49,12 +73,7 @@ void NotifyWidget::appear()
 		connect(timer,SIGNAL(timeout()),SLOT(onAnimateStep()));
 
 		if (FTimeOut > 0)
-		{
-			deleteTimer->setSingleShot(true);
-			deleteTimer->setInterval(FTimeOut);
-			connect(deleteTimer, SIGNAL(timeout()), SLOT(deleteLater()));
-			deleteTimer->start();
-		}
+			FCloseTimer->start(FTimeOut);
 
 		setWindowOpacity(ANIMATE_OPACITY_START);
 
@@ -72,94 +91,24 @@ void NotifyWidget::animateTo(int AYPos)
 	}
 }
 
-INotification NotifyWidget::notification() const
+void NotifyWidget::appendNotification(const INotification &ANotification)
 {
-	return FNotification;
-}
-
-void NotifyWidget::setNotification(const INotification & notification)
-{
-	FNotification = notification;
-	QIcon icon = qvariant_cast<QIcon>(FNotification.data.value(NDR_ICON));
-	QString iconKey = FNotification.data.value(NDR_ICON_KEY).toString();
-	QString iconStorage = FNotification.data.value(NDR_ICON_STORAGE).toString();
-	QImage image = qvariant_cast<QImage>(FNotification.data.value(NDR_POPUP_IMAGE));
-	//QString caption = FNotification.data.value(NDR_POPUP_CAPTION,tr("Notification")).toString();
-	QString title = FNotification.data.value(NDR_POPUP_TITLE).toString();
-	QString text = FNotification.data.value(NDR_POPUP_TEXT).toString();
-	FTimeOut = FNotification.data.value(NDR_POPUP_TIMEOUT,DEFAUTL_TIMEOUT).toInt();
-	if (FNotification.data.value(NDR_TYPE).toInt() != NT_AUTH)
-	{
-		ui.authoriseButton->setVisible(false);
-		ui.cancelButton->setVisible(false);
-	}
-
-//	if (!caption.isEmpty())
-//		ui.notifyCaption->setText(caption);
-//	else
-		ui.notifyCaption->setVisible(false);
-		ui.line->setVisible(false);
-
-	if (!iconKey.isEmpty() && !iconStorage.isEmpty())
-		IconStorage::staticStorage(iconStorage)->insertAutoIcon(ui.lblIcon,iconKey,0,0,"pixmap");
-	else if (!icon.isNull())
-		ui.lblIcon->setPixmap(icon.pixmap(icon.availableSizes().value(0)));
-	else
-		ui.lblIcon->setVisible(false);
-
-	if (!title.isEmpty())
-		ui.lblTitle->setText(title);
-	else
-		ui.lblTitle->setVisible(false);
-
+	QString text = ANotification.data.value(NDR_POPUP_TEXT).toString().trimmed();
 	if (!text.isEmpty())
 	{
 		FTextMessages.append(text);
-		if (!image.isNull())
-			ui.lblImage->setPixmap(QPixmap::fromImage(image.scaled(ui.lblImage->maximumSize(),Qt::KeepAspectRatio)));
-		else
-			ui.lblImage->setVisible(false);
-		ui.lblText->setText(text);
+		if (FTextMessages.count() > 3)
+			FTextMessages.removeAt(0);
 	}
-	else
-	{
-		ui.lblImage->setVisible(false);
-		ui.lblText->setVisible(false);
-	}
+	QString html = FTextMessages.join("<br>");
+	ui.tbrText->setHtml(html);
+	ui.tbrText->setVisible(!html.isEmpty());
+	QTimer::singleShot(0,this,SLOT(adjustHeight()));
 }
 
-void NotifyWidget::appendText(const QString & text)
+void NotifyWidget::adjustHeight()
 {
-	FTextMessages.append(text);
-	if (FTextMessages.count() > 3)
-		FTextMessages.takeFirst();
-	QString fullText = FTextMessages.join("\n\n");
-	//QRect oldGeometry = geometry();
-	if (!fullText.isEmpty())
-	{
-		ui.lblText->setText(fullText);
-	}
-	else
-	{
-		ui.lblImage->setVisible(false);
-		ui.lblText->setVisible(false);
-	}
-	if (deleteTimer->isActive())
-	{
-		deleteTimer->stop();
-		deleteTimer->start();
-	}
-	adjustSize();
-	//setGeometry(oldGeometry.translated(0, geometry().bottom() - oldGeometry.bottom()));
-	//layoutWidgets();
-}
-
-NotifyWidget* NotifyWidget::findNotifyWidget(Jid AStreamJid, Jid AContactJid)
-{
-	foreach(NotifyWidget * widget, FWidgets)
-		if (((Jid(widget->notification().data.value(NDR_STREAM_JID).toString()) && AStreamJid)) && (Jid(widget->notification().data.value(NDR_CONTACT_JID).toString()) && AContactJid))
-			return widget;
-	return 0;
+	resize(width(),sizeHint().height());
 }
 
 void NotifyWidget::mouseReleaseEvent(QMouseEvent *AEvent)
@@ -171,9 +120,9 @@ void NotifyWidget::mouseReleaseEvent(QMouseEvent *AEvent)
 		emit notifyRemoved();
 }
 
-void NotifyWidget::resizeEvent(QResizeEvent * event)
+void NotifyWidget::resizeEvent(QResizeEvent *AEvent)
 {
-	QWidget::resizeEvent(event);
+	QWidget::resizeEvent(AEvent);
 	layoutWidgets();
 }
 
@@ -206,8 +155,9 @@ void NotifyWidget::layoutWidgets()
 			widget->show();
 			WidgetManager::raiseWidget(widget);
 			widget->move(display.right() - widget->frameGeometry().width(), display.bottom());
+			QTimer::singleShot(0,widget,SLOT(adjustHeight()));
 		}
-		ypos -=  widget->frameGeometry().height();
+		ypos -=  widget->frameGeometry().height() + 2;
 		widget->animateTo(ypos);
 	}
 }

@@ -20,4 +20,8 @@
     <key>notificationsSoundOff</key>
     <object mime="image/png">notificationssoundoff.png</object>
   </icon>
+  <icon>
+    <key>notificationsPopupOptions</key>
+    <object mime="image/png">notificationspopupoptions.png</object>
+  </icon>
 </icondef>

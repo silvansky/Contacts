@@ -1,0 +1,8 @@
+NotifyTextBrowser {
+	background-color: palette(window);
+}
+
+QLabel#lblTitle {
+	font-size: 12px;
+	font-weight: bold;
+}

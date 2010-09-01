@@ -11,6 +11,9 @@
 #define STS_MESSAGEWIDGETS_CHATWINDOW                                   "messagewidgetsChatWindow"
 #define STS_MESSAGEWIDGETS_MESSAGEWINDOW                                "messagewidgetsMessageWindow"
 
+//Notifications
+#define STS_NOTIFICATION_NOTIFYWIDGET                                   "notificationsNotifyWidget"
+
 //OptionsManager
 #define STS_OPTIONS_LOGINDIALOG                                         "optionsLoginDialog"
 #define STS_OPTIONS_OPTIONSDIALOG                                       "optionsOptionsDialog"
