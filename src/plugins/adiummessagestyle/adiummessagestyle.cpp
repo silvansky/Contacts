@@ -15,6 +15,8 @@
 #include <QApplication>
 #include <QTextDocument>
 
+#include <QDebug>
+
 #define SHARED_STYLE_PATH                   RESOURCES_DIR"/"RSR_STORAGE_ADIUMMESSAGESTYLES"/"STORAGE_SHARED_DIR
 #define STYLE_CONTENTS_PATH                 "Contents"
 #define STYLE_RESOURCES_PATH                STYLE_CONTENTS_PATH"/Resources"
@@ -406,7 +408,7 @@ void AdiumMessageStyle::fillStyleKeywords(QString &AHtml, const IMessageStyleOpt
 	AHtml.replace("%incomingColor%",AOptions.extended.value(MSO_CONTACT_COLOR).toString());
 	AHtml.replace("%serviceIconPath%", AOptions.extended.value(MSO_SERVICE_ICON_PATH).toString());
 	AHtml.replace("%serviceIconImg%", QString("<img class=\"serviceIcon\" src=\"%1\">")
-	              .arg(AOptions.extended.value(MSO_SERVICE_ICON_PATH,"outgoing_icon.png").toString()));
+		      .arg(AOptions.extended.value(MSO_SERVICE_ICON_PATH,"outgoing_icon.png").toString()));
 
 	QString background;
 	if (FAllowCustomBackground)
@@ -468,7 +470,7 @@ QString AdiumMessageStyle::makeContentTemplate(const IMessageContentOptions &AOp
 	{
 		html = ASameSender ? FOut_NextContentHTML : FOut_ContentHTML;
 	}
-	
+
 	if (AOptions.extensions & IMessageContentOptions::Unread)
 	{
 		QString templ;
@@ -680,10 +682,10 @@ void AdiumMessageStyle::loadTemplates()
 
 	FIn_ContentHTML =      loadFileData(FResourcePath+"/Incoming/Content.html",QString::null);
 	FIn_NextContentHTML =  loadFileData(FResourcePath+"/Incoming/NextContent.html",FIn_ContentHTML);
-	
+
 	FIn_ContextHTML =      loadFileData(FResourcePath+"/Incoming/Context.html",FIn_ContentHTML);
 	FIn_NextContextHTML =  loadFileData(FResourcePath+"/Incoming/NextContext.html",FIn_NextContentHTML);
-	
+
 	FOut_ContentHTML =     loadFileData(FResourcePath+"/Outgoing/Content.html",FIn_ContentHTML);
 	FOut_NextContentHTML = loadFileData(FResourcePath+"/Outgoing/NextContent.html",FOut_ContentHTML);
 
@@ -743,4 +745,11 @@ void AdiumMessageStyle::onStyleWidgetDestroyed(QObject *AObject)
 {
 	FWidgetStatus.remove((QWidget *)AObject);
 	emit widgetRemoved((QWidget *)AObject);
+}
+
+void AdiumMessageStyle::reloadTemplates()
+{
+	qDebug() << "AdiumMessageStyle::reloadTemplates()";
+	QWebSettings::clearMemoryCaches();
+	loadTemplates();
 }

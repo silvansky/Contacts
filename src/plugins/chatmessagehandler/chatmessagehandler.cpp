@@ -1,5 +1,8 @@
 #include "chatmessagehandler.h"
 
+#include <QDebug>
+#include <QEventLoop>
+
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    5
 
@@ -414,6 +417,10 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 			window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
 			if (window)
 			{
+				Action * actionReloadStyle = new Action(window->toolBarWidget()->instance());
+				actionReloadStyle->setText("Reload style");
+				window->toolBarWidget()->toolBarChanger()->insertAction(actionReloadStyle);
+				connect(actionReloadStyle, SIGNAL(triggered()), SLOT(updateMessageStyles()));
 				window->infoWidget()->autoUpdateFields();
 				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
@@ -602,7 +609,7 @@ void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState
 		options.time = QDateTime::fromTime_t(0);
 		options.timeFormat = " ";
 		options.noScroll = true;
-		
+
 		QString message;
 
 		QUrl showWindowUrl;
@@ -638,7 +645,13 @@ void ChatMessageHandler::setMessageStyle(IChatWindow *AWindow)
 {
 	IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
 	IMessageStyle *style = FMessageStyles->styleForOptions(soptions);
+	// works only on adium styles
+	QTimer::singleShot(0, style->instance(), SLOT(reloadTemplates()));
+	QEventLoop loop;
+	QTimer::singleShot(10, &loop, SLOT(quit()));
+	loop.exec();
 	AWindow->viewWidget()->setMessageStyle(style,soptions);
+	requestHistoryMessages(AWindow, 10);
 
 	WindowStatus &wstatus = FWindowStatus[AWindow];
 	wstatus.separators.clear();
@@ -1104,6 +1117,13 @@ void ChatMessageHandler::onOptionsClosed()
 	QDataStream stream(&data, QIODevice::WriteOnly);
 	stream << FTabPages;
 	Options::setFileValue(data,"messages.last-chat-tab-pages");
+}
+
+void ChatMessageHandler::updateMessageStyles()
+{
+	qDebug() << "ChatMessageHandler::updateMessageStyles()";
+	foreach (IChatWindow *window, FWindows)
+		setMessageStyle(window);
 }
 
 Q_EXPORT_PLUGIN2(plg_chatmessagehandler, ChatMessageHandler)

@@ -4,6 +4,7 @@
 #include <QTextTable>
 #include <QScrollBar>
 #include <QVBoxLayout>
+#include <QDebug>
 
 ViewWidget::ViewWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
 {
@@ -61,8 +62,9 @@ IMessageStyle *ViewWidget::messageStyle() const
 
 void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptions &AOptions)
 {
-	if (FMessageStyle != AStyle)
+	//if (FMessageStyle != AStyle)
 	{
+		qDebug() << "ViewWidget::setMessageStyle(): " + AStyle->styleId();
 		IMessageStyle *befour = FMessageStyle;
 		FMessageStyle = AStyle;
 		if (befour)

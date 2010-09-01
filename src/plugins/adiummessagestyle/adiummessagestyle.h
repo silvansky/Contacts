@@ -149,6 +149,8 @@ protected slots:
 	void onLinkClicked(const QUrl &AUrl);
 	void onStyleWidgetAdded(IMessageStyle *AStyle, QWidget *AWidget);
 	void onStyleWidgetDestroyed(QObject *AObject);
+public slots:
+	void reloadTemplates();
 private:
 	QString FTopicHTML;
 	QString FStatusHTML;

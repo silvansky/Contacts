@@ -156,6 +156,7 @@ protected slots:
 	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onOptionsOpened();
 	void onOptionsClosed();
+	void updateMessageStyles();
 private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
