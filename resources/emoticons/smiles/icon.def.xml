@@ -48,9 +48,7 @@
   <text>*lol*</text>
   <text>*ROFL*</text>
   <text>*rofl*</text>
-  <text>*лопну</text>
-  <text>от</text>
-  <text>смеха*</text>
+  <text>*лопну-от-смеха*</text>
   <comment>Смеюсь</comment>
   <object mime="image/gif">yhyy.gif</object>
  </icon>
@@ -416,7 +414,7 @@
   <text>:-~</text>
   <text>;-~</text>
   <text>+o(</text>
-  <text>:-&amp;</text>
+  <text>:-&;</text>
   <text>*sick*</text>
   <text>*SICK*</text>
   <text>*буэ*</text>
@@ -439,7 +437,6 @@
   <text>*ВИНО*</text>
   <text>*wine*</text>
   <text>*WINE*</text>
-  <text></text>
   <comment>Вино</comment>
   <object mime="image/gif">wine.gif</object>
  </icon>
