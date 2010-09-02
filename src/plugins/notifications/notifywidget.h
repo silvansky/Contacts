@@ -9,6 +9,7 @@
 #include <definations/stylesheets.h>
 #include <definations/notificationdataroles.h>
 #include <interfaces/inotifications.h>
+#include <utils/actionbutton.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
@@ -23,6 +24,7 @@ public:
 	~NotifyWidget();
 	void appear();
 	void animateTo(int AYPos);
+	void appendAction(Action *AAction);
 	void appendNotification(const INotification &ANotification);
 public slots:
 	void adjustHeight();

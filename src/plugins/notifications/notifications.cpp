@@ -287,6 +287,10 @@ int Notifications::appendNotification(const INotification &ANotification)
 		{
 			record.widget->appendNotification(record.notification);
 		}
+		foreach(Action *action, record.notification.actions)
+		{
+			record.widget->appendAction(action);
+		}
 	}
 
 	if (FMessageWidgets && FMessageProcessor && Options::node(OPV_NOTIFICATIONS_CHATWINDOW).value().toBool() && 
@@ -433,6 +437,7 @@ void Notifications::removeNotification(int ANotifyId)
 			FActivateAll->setVisible(false);
 			FRemoveAll->setVisible(false);
 		}
+		qDeleteAll(record.notification.actions);
 		FNotifyMenu->menuAction()->setVisible(!FNotifyMenu->isEmpty());
 		emit notificationRemoved(ANotifyId);
 	}

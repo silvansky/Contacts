@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>375</width>
+    <width>304</width>
     <height>137</height>
    </rect>
   </property>
@@ -156,26 +156,13 @@ p, li { white-space: pre-wrap; }
        <number>0</number>
       </property>
       <item>
-       <spacer name="hspActionsLeft">
+       <spacer name="hspSpacerActions">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
           <width>172</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <spacer name="hspActionsRight">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>171</width>
           <height>0</height>
          </size>
         </property>

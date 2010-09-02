@@ -113,7 +113,7 @@ protected:
 	IChatWindow *findNoticeWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	INotice createNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const;
 	int insertNotice(IChatWindow *AWindow, const INotice &ANotice);
-	void removeNotice(Action *AAction);
+	QList<Action *> createNotifyActions(int AActions);
 protected slots:
 	//Operations on subscription
 	void onContactSubscription(bool);
@@ -141,11 +141,12 @@ protected slots:
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
+	void onNotificationActionTriggered(bool);
 	void onChatWindowActivated();
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onChatWindowDestroyed(IChatWindow *AWindow);
 	void onShowPendingNotices();
-	void onNoticeCloseActionTriggered(bool);
+	void onNoticeActionTriggered(bool);
 	void onNoticeRemoved(int ANoticeId);
 	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 private:

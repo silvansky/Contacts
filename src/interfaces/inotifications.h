@@ -5,6 +5,7 @@
 #include <QIcon>
 #include <QImage>
 #include <utils/jid.h>
+#include <utils/action.h>
 
 #define NOTIFICATIONS_UUID  "{57208da0-40a7-4aa3-9428-3056115d2ef8}"
 
@@ -22,6 +23,7 @@ struct INotification
 	};
 	INotification() { kinds = 0; }
 	uchar kinds;
+	QList<Action *> actions;
 	QMap<int, QVariant> data;
 };
 

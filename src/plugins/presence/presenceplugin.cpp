@@ -262,8 +262,11 @@ void PresencePlugin::onStreamRemoved(IXmppStream *AXmppStream)
 
 void PresencePlugin::onNotificationActivatedOrRemoved(int ANotifyId)
 {
-	FNotifications->removeNotification(ANotifyId);
-	FNotifies.removeAll(ANotifyId);
+	if (FNotifies.contains(ANotifyId))
+	{
+		FNotifications->removeNotification(ANotifyId);
+		FNotifies.removeAll(ANotifyId);
+	}
 }
 
 void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKinds)

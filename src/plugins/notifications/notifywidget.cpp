@@ -91,6 +91,12 @@ void NotifyWidget::animateTo(int AYPos)
 	}
 }
 
+void NotifyWidget::appendAction(Action *AAction)
+{
+	ActionButton *button = new ActionButton(AAction,ui.wdtButtons);
+	ui.wdtButtons->layout()->addWidget(button);
+}
+
 void NotifyWidget::appendNotification(const INotification &ANotification)
 {
 	QString text = ANotification.data.value(NDR_POPUP_TEXT).toString().trimmed();
