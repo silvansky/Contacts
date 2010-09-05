@@ -260,6 +260,8 @@
 #define MNI_SCHANGER_EDIT_STATUSES               "schangerEditStatuses"
 #define MNI_SCHANGER_CONNECTING                  "schangerConnecting"
 #define MNI_SCHANGER_ROSTER_LOGO                 "schangerRosterLogo"
+#define MNI_SCHANGER_CONNECTION_ERROR            "schangerConnectionError"
+#define MNI_SCHANGER_CONNECTION_RESTORE          "schangerConnectionRestore"
 
 //StatusIcons
 #define MNI_STATUSICONS_OPTIONS                  "statusiconsOptions"
@@ -268,8 +270,8 @@
 #define MNI_VCARD                                "VCard"
 
 //HtmlToolButton
-#define MNI_MENU_INDICATOR_DOWN                  "htmltoolbuttonDownIndicator"
-#define MNI_MENU_INDICATOR_UP                    "htmltoolbuttonUpIndicator"
+//#define MNI_MENU_INDICATOR_DOWN                  "htmltoolbuttonDownIndicator"
+//#define MNI_MENU_INDICATOR_UP                    "htmltoolbuttonUpIndicator"
 
 
 #endif

@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Turn of all popup windows and sounds if status is &apos;Away&apos;</source>
-        <translation type="unfinished">Если выбран статус &quot;Отошел&quot;, то отключать все звуки и всплывающие окна</translation>
+        <translation>Если выбран статус &quot;Отошел&quot;, то отключать все звуки и всплывающие окна</translation>
     </message>
     <message>
         <source>Turn of all popup windows and sounds if status is &apos;Busy&apos;</source>
@@ -76,20 +76,8 @@ any full screen application (films, games, presentations)</source>
 <context>
     <name>NotifyWidgetClass</name>
     <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>*</source>
-        <translation>*</translation>
-    </message>
-    <message>
-        <source>Authorise</source>
-        <translation>Авторизовать</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
+        <source>Setup Notifications</source>
+        <translation>Настроить уведомления</translation>
     </message>
 </context>
 <context>

@@ -140,10 +140,6 @@
         <translation>%1 - %2</translation>
     </message>
     <message>
-        <source>Connection error</source>
-        <translation>Ошибка подключения</translation>
-    </message>
-    <message>
         <source>Status</source>
         <translation>Статус</translation>
     </message>
@@ -178,6 +174,22 @@
     <message>
         <source>Virtus - %1</source>
         <translation>Virtus - %1</translation>
+    </message>
+    <message>
+        <source>Temporary connection failure</source>
+        <translation>Временный сбой соединения</translation>
+    </message>
+    <message>
+        <source>Connection restored</source>
+        <translation>Соединение восстановлено</translation>
+    </message>
+    <message>
+        <source>Problem</source>
+        <translation>Проблема</translation>
+    </message>
+    <message>
+        <source>Problem persists</source>
+        <translation>Проблема устранена</translation>
     </message>
 </context>
 <context>

@@ -4,20 +4,21 @@
 #include <QToolButton>
 #include "utilsexport.h"
 
-class UTILS_EXPORT HtmlToolButton : public QToolButton
+class UTILS_EXPORT HtmlToolButton : 
+	public QToolButton
 {
-	Q_OBJECT
+	Q_OBJECT;
 public:
-	explicit HtmlToolButton(QWidget *parent = 0);
+	explicit HtmlToolButton(QWidget *AParent = NULL);
 	QString html() const;
-	QSize sizeHint() const;
-protected:
-	void paintEvent(QPaintEvent *);
+	virtual QSize sizeHint() const;
 public slots:
-	void setHtml(const QString & html);
-private:
-	static QImage menuIndicatorUp;
-	static QImage menuIndicatorDown;
+	void setHtml(const QString &AHtml);
+protected:
+	void paintEvent(QPaintEvent *AEvent);
+//private:
+//	static QImage menuIndicatorUp;
+//	static QImage menuIndicatorDown;
 };
 
 #endif // HTMLTOOLBUTTON_H

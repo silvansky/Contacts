@@ -1,6 +1,7 @@
 #ifndef DEF_STYLESHEETS_H
 #define DEF_STYLESHEETS_H
 
+//PluginManager
 #define STS_APPLICATION                                                 "application"
 
 //ChatMessageHandler
@@ -20,6 +21,10 @@
 
 //RosterChanger
 #define STS_RCHANGER_TABBARITEM_SUBSCRIPTION                            "rchangerTabBarItemSubscription"
+#define STS_RCHANGER_NOTIFYWIDGET_SUBSCRIPTION                          "rchangerNotifyWidgetSubscription"
 
+//StatusChanger
+#define STS_SCHANGER_NOTIFYWIDGET_CONNECTION_ERROR                      "schangerNotifyWidgetConnectionError"
+#define STS_SCHANGER_NOTIFYWIDGET_CONNECTION_RESTORE                    "schangerNotifyWidgetConnectionRestore"
 
 #endif // DEF_STYLESHEETS_H

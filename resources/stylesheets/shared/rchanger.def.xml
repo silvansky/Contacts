@@ -4,4 +4,8 @@
     <key>rchangerTabBarItemSubscription</key>
     <object mime='text/css'>rchangertabbaritemsubscription.qss</object>
   </file>
+  <file>
+    <key>rchangerNotifyWidgetSubscription</key>
+    <object mime='text/css'>rchangernotifywidgetsubscription.qss</object>
+  </file>
 </styledef>

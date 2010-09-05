@@ -80,7 +80,7 @@ private:
 	QSharedDataPointer<MessageData> d;
 };
 
-UTILS_EXPORT QString getDocumentBody(const QTextDocument &ADocument);
+UTILS_EXPORT QString getHtmlBody(const QString &AHtml);
 
 Q_DECLARE_METATYPE(Message);
 #define MESSAGE_METATYPE_ID qMetaTypeId<Message>()

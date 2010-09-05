@@ -790,7 +790,7 @@ void RosterChanger::onShowAddContactDialog(bool)
 void RosterChanger::onShowAddGroupDialog(bool)
 {
 	bool ok = false;
-	QString newGroupName = QInputDialog::getText(0, tr("Add group"), tr("Enter new group name"), QLineEdit::Normal, "", &ok);
+	QString newGroupName = QInputDialog::getText(0, tr("Add group"), tr("Enter new group name:"), QLineEdit::Normal, "", &ok);
 	if (ok && !newGroupName.isEmpty())
 	{
 		Jid streamJid = FAccountManager->accounts().first()->xmppStream()->streamJid();
@@ -1040,6 +1040,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 		notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AContactJid));
 		notify.data.insert(NDR_POPUP_TITLE,name);
 		notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));
+		notify.data.insert(NDR_POPUP_STYLEKEY, STS_RCHANGER_NOTIFYWIDGET_SUBSCRIPTION);
 		notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
 		notify.data.insert(NDR_SUBSCRIPTION_TEXT,AText);
 	}
@@ -1050,8 +1051,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 	const IRosterItem &ritem = ARoster->rosterItem(AContactJid);
 	if (ASubsType == IRoster::Subscribe)
 	{
-		bool autoSubscribe = isAutoSubscribe(ARoster->streamJid(),AContactJid);
-		if (!autoSubscribe && ritem.subscription!=SUBSCRIPTION_FROM && ritem.subscription!=SUBSCRIPTION_BOTH)
+		if (!isAutoSubscribe(ARoster->streamJid(),AContactJid) && ritem.subscription!=SUBSCRIPTION_FROM && ritem.subscription!=SUBSCRIPTION_BOTH)
 		{
 			if (FNotifications)
 			{
@@ -1065,7 +1065,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 		else
 		{
 			ARoster->sendSubscription(AContactJid,IRoster::Subscribed);
-			if (autoSubscribe && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_BOTH)
+			if (isAutoSubscribe(ARoster->streamJid(),AContactJid) && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_BOTH)
 				ARoster->sendSubscription(AContactJid,IRoster::Subscribe);
 		}
 	}
@@ -1082,7 +1082,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 			noticeActions = NTA_ASK_SUBSCRIBE|NTA_CLOSE;
 		}
 
-		if (isAutoUnsubscribe(ARoster->streamJid(),AContactJid))
+		if (isAutoUnsubscribe(ARoster->streamJid(),AContactJid) && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_BOTH)
 			ARoster->sendSubscription(AContactJid,IRoster::Unsubscribed);
 	}
 	else  if (ASubsType == IRoster::Subscribed)

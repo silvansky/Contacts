@@ -16,6 +16,7 @@
 #include <definations/resources.h>
 #include <definations/menuicons.h>
 #include <definations/soundfiles.h>
+#include <definations/stylesheets.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ipresence.h>
@@ -113,7 +114,7 @@ protected:
 	void removeTempStatus(IPresence *APresence);
 	void resendUpdatedStatus(int AStatusId);
 	void removeAllCustomStatuses();
-	void insertStatusNotification(IPresence *APresence);
+	void updateStatusNotification(IPresence *APresence);
 	void removeStatusNotification(IPresence *APresence);
 protected slots:
 	void onSetStatusByAction(bool);
@@ -157,9 +158,9 @@ private:
 private:
 	Menu *FMainMenu;
 	Action *FModifyStatus;
+	::StatusWidget * FStatusWidget;
 	QMap<IPresence *, Menu *> FStreamMenu;
 	QMap<IPresence *, Action *> FMainStatusActions;
-	::StatusWidget * statusWidget;
 private:
 	int FConnectingLabel;
 	IPresence *FChangingPresence;
@@ -169,7 +170,7 @@ private:
 	QMap<IPresence *, int> FCurrentStatus;
 	QMap<IPresence *, int> FConnectStatus;
 	QMap<IPresence *, int> FTempStatus;
-	QMap<IPresence *, int> FNotifyId;
+	QMap<IPresence *, int> FConnectNotifyId;
 	QMap<IPresence *, QPair<QDateTime,int> > FPendingReconnect;
 	QPointer<EditStatusDialog> FEditStatusDialog;
 	QPointer<ModifyStatusDialog> FModifyStatusDialog;

@@ -1,5 +1,9 @@
+QWidget#frmPopup {
+	border: 1px solid palette(shadow);
+}
+
 NotifyTextBrowser {
-	background-color: palette(window);
+	background-color: transparent;
 }
 
 QLabel#lblTitle {

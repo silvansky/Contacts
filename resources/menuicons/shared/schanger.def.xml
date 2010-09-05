@@ -16,4 +16,12 @@
     <key>schangerRosterLogo</key>
     <object mime="image/png">schangerrosterlogo.png</object>
   </icon>
+  <icon>
+    <key>schangerConnectionError</key>
+    <object mime="image/png">schangerconnectionerror.png</object>
+  </icon>
+  <icon>
+    <key>schangerConnectionRestore</key>
+    <object mime="image/png">schangerconnectionrestore.png</object>
+  </icon>
 </icondef>

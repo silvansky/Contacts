@@ -8,10 +8,6 @@
         <translation>Чат сообщения</translation>
     </message>
     <message>
-        <source>Message received</source>
-        <translation>Получено сообщение</translation>
-    </message>
-    <message>
         <source>Chat</source>
         <translation>Чат</translation>
     </message>
@@ -146,6 +142,10 @@
     <message>
         <source>Loading messages from server...</source>
         <translation>Загрузка сообщений с сервера...</translation>
+    </message>
+    <message>
+        <source>Writing...</source>
+        <translation>Пишет...</translation>
     </message>
 </context>
 </TS>

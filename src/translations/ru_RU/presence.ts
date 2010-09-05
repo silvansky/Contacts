@@ -20,16 +20,8 @@
         <translation>Смена настроений</translation>
     </message>
     <message>
-        <source>Contact mood changed</source>
-        <translation>Настроение контакта изменилось</translation>
-    </message>
-    <message>
         <source>Mood:</source>
         <translation>Настроение:</translation>
-    </message>
-    <message>
-        <source>Contact state changed</source>
-        <translation>Статус контакта изменился</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -46,6 +38,10 @@
     <message>
         <source>Whatever was done, all the better</source>
         <translation>Чтобы ни делалось, все к лучшему</translation>
+    </message>
+    <message>
+        <source>Changed mood</source>
+        <translation>Изменено настроение</translation>
     </message>
 </context>
 </TS>

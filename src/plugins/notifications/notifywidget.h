@@ -1,7 +1,6 @@
 #ifndef NOTIFYWIDGET_H
 #define NOTIFYWIDGET_H
 
-#include <QFrame>
 #include <QMouseEvent>
 #include <QDesktopWidget>
 #include <definations/resources.h>
@@ -9,6 +8,7 @@
 #include <definations/stylesheets.h>
 #include <definations/notificationdataroles.h>
 #include <interfaces/inotifications.h>
+#include <utils/message.h>
 #include <utils/actionbutton.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
@@ -16,7 +16,7 @@
 #include "ui_notifywidget.h"
 
 class NotifyWidget :
-			public QFrame
+			public QWidget
 {
 	Q_OBJECT;
 public:
@@ -28,16 +28,20 @@ public:
 	void appendNotification(const INotification &ANotification);
 public slots:
 	void adjustHeight();
+	void updateElidedText();
 signals:
 	void showOptions();
 	void notifyActivated();
 	void notifyRemoved();
 	void windowDestroyed();
 protected:
+	virtual void enterEvent(QEvent *AEvent);
+	virtual void leaveEvent(QEvent *AEvent);
 	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
 	virtual void resizeEvent(QResizeEvent *AEvent);
 protected slots:
 	void onAnimateStep();
+	void onCloseTimerTimeout();
 private:
 	Ui::NotifyWidgetClass ui;
 private:
@@ -45,6 +49,9 @@ private:
 	int FTimeOut;
 	int FAnimateStep;
 	QTimer *FCloseTimer;
+private:
+	QString FTitle;
+	QString FCaption;
 	QStringList FTextMessages;
 private:
 	static void layoutWidgets();

@@ -1,8 +1,11 @@
 #include "notifywidget.h"
 
 #include <QTimer>
+#include <QTextFrame>
+#include <QFontMetrics>
+#include <QTextDocumentFragment>
 
-#define DEFAUTL_TIMEOUT           9000
+#define DEFAUTL_TIMEOUT           9
 #define ANIMATE_STEPS             20
 #define ANIMATE_TIME              1000
 #define ANIMATE_STEP_TIME         (ANIMATE_TIME/ANIMATE_STEPS)
@@ -11,11 +14,12 @@
 #define ANIMATE_OPACITY_STEP      (ANIMATE_OPACITY_END - ANIMATE_OPACITY_START)/ANIMATE_STEPS
 
 #define IMAGE_SIZE                QSize(32,32)
+#define MAX_MESSAGES              3
 
 QList<NotifyWidget *> NotifyWidget::FWidgets;
 QDesktopWidget *NotifyWidget::FDesktop = new QDesktopWidget;
 
-NotifyWidget::NotifyWidget(const INotification &ANotification) : QFrame(NULL, Qt::ToolTip|Qt::WindowStaysOnTopHint)
+NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Qt::ToolTip|Qt::WindowStaysOnTopHint)
 {
 	ui.setupUi(this);
 	setFocusPolicy(Qt::NoFocus);
@@ -31,12 +35,14 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QFrame(NULL, Qt
 	FTimeOut = ANotification.data.value(NDR_POPUP_TIMEOUT,DEFAUTL_TIMEOUT).toInt();
 
 	FCloseTimer = new QTimer(this);
-	FCloseTimer->setSingleShot(true);
-	connect(FCloseTimer, SIGNAL(timeout()), SLOT(close()));
+	FCloseTimer->setInterval(1000);
+	FCloseTimer->setSingleShot(false);
+	connect(FCloseTimer, SIGNAL(timeout()), SLOT(onCloseTimerTimeout()));
 
 	ui.lblIcon->setVisible(false);
-	ui.lblCaption->setText(ANotification.data.value(NDR_POPUP_CAPTION).toString());
-	ui.lblTitle->setText(ANotification.data.value(NDR_POPUP_TITLE).toString());
+	FCaption = ANotification.data.value(NDR_POPUP_CAPTION).toString();
+	FTitle = ANotification.data.value(NDR_POPUP_TITLE).toString();
+	updateElidedText();
 
 	QImage image = qvariant_cast<QImage>(ANotification.data.value(NDR_POPUP_IMAGE));
 	if (!image.isNull())
@@ -48,6 +54,10 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QFrame(NULL, Qt
 	{
 		ui.lblImage->setVisible(false);
 	}
+
+	QString styleKey = ANotification.data.value(NDR_POPUP_STYLEKEY).toString();
+	if (!styleKey.isEmpty())
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(ui.frmPopup,styleKey);
 
 	connect(ui.clbClose, SIGNAL(clicked()), SIGNAL(notifyRemoved()));
 	connect(ui.tlbOptions, SIGNAL(clicked()), SIGNAL(showOptions()));
@@ -73,7 +83,7 @@ void NotifyWidget::appear()
 		connect(timer,SIGNAL(timeout()),SLOT(onAnimateStep()));
 
 		if (FTimeOut > 0)
-			FCloseTimer->start(FTimeOut);
+			FCloseTimer->start();
 
 		setWindowOpacity(ANIMATE_OPACITY_START);
 
@@ -102,8 +112,20 @@ void NotifyWidget::appendNotification(const INotification &ANotification)
 	QString text = ANotification.data.value(NDR_POPUP_TEXT).toString().trimmed();
 	if (!text.isEmpty())
 	{
+		QTextDocument doc;
+		doc.setHtml(text);
+		if (doc.rootFrame()->lastPosition() > 140)
+		{
+			QTextCursor cursor(&doc);
+			cursor.movePosition(QTextCursor::NextCharacter,QTextCursor::MoveAnchor,120);
+			cursor.movePosition(QTextCursor::End,QTextCursor::KeepAnchor);
+			cursor.removeSelectedText();
+			cursor.insertText("...");
+			text = getHtmlBody(doc.toHtml());
+		}
+
 		FTextMessages.append(text);
-		if (FTextMessages.count() > 3)
+		while(FTextMessages.count() > MAX_MESSAGES)
 			FTextMessages.removeAt(0);
 	}
 	QString html = FTextMessages.join("<br>");
@@ -115,6 +137,24 @@ void NotifyWidget::appendNotification(const INotification &ANotification)
 void NotifyWidget::adjustHeight()
 {
 	resize(width(),sizeHint().height());
+}
+
+void NotifyWidget::updateElidedText()
+{
+	ui.lblCaption->setText(ui.lblCaption->fontMetrics().elidedText(FCaption,Qt::ElideRight,ui.lblCaption->width() - ui.lblCaption->frameWidth()*2));
+	ui.lblTitle->setText(ui.lblTitle->fontMetrics().elidedText(FTitle,Qt::ElideRight,ui.lblTitle->width() - ui.lblTitle->frameWidth()*2));
+}
+
+void NotifyWidget::enterEvent(QEvent *AEvent)
+{
+	FTimeOut += 14;
+	QWidget::enterEvent(AEvent);
+}
+
+void NotifyWidget::leaveEvent(QEvent *AEvent)
+{
+	FTimeOut -= 14;
+	QWidget::leaveEvent(AEvent);
 }
 
 void NotifyWidget::mouseReleaseEvent(QMouseEvent *AEvent)
@@ -129,6 +169,7 @@ void NotifyWidget::mouseReleaseEvent(QMouseEvent *AEvent)
 void NotifyWidget::resizeEvent(QResizeEvent *AEvent)
 {
 	QWidget::resizeEvent(AEvent);
+	updateElidedText();
 	layoutWidgets();
 }
 
@@ -149,6 +190,14 @@ void NotifyWidget::onAnimateStep()
 	}
 }
 
+void NotifyWidget::onCloseTimerTimeout()
+{
+	if (FTimeOut > 0)
+		FTimeOut--;
+	else
+		close();
+}
+
 void NotifyWidget::layoutWidgets()
 {
 	QRect display = FDesktop->availableGeometry();
@@ -162,8 +211,10 @@ void NotifyWidget::layoutWidgets()
 			WidgetManager::raiseWidget(widget);
 			widget->move(display.right() - widget->frameGeometry().width(), display.bottom());
 			QTimer::singleShot(0,widget,SLOT(adjustHeight()));
+			QTimer::singleShot(10,widget,SLOT(adjustHeight()));
 		}
-		ypos -=  widget->frameGeometry().height() + 2;
-		widget->animateTo(ypos);
+		ypos -=  widget->frameGeometry().height();
+		widget->animateTo(ypos--);
 	}
 }
+

@@ -326,12 +326,11 @@ QDomElement Message::setTextToElem(QDomElement &AElem, const QString &AText) con
 	return AElem;
 }
 
-QString getDocumentBody(const QTextDocument &ADocument)
+QString getHtmlBody(const QString &AHtml)
 {
 	QRegExp body("<body.*>(.*)</body>");
 	body.setMinimal(false);
-	QString html = ADocument.toHtml();
-	html = html.indexOf(body)>=0 ? body.cap(1).trimmed() : html;
+	QString html = AHtml.indexOf(body)>=0 ? body.cap(1).trimmed() : AHtml;
 
 	// XXX Replace <P> inserted by QTextDocument with <SPAN>
 	if (html.leftRef(3).compare("<p ", Qt::CaseInsensitive) == 0 &&

@@ -1,17 +1,18 @@
 #include "htmltoolbutton.h"
+
 #include <QTextDocument>
 #include <QAbstractTextDocumentLayout>
 #include <QStyle>
 #include <QStyleOptionFocusRect>
 #include <QPainter>
 #include <QApplication>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
-#include <utils/iconstorage.h>
+//#include <definations/resources.h>
+//#include <definations/menuicons.h>
+//#include <utils/iconstorage.h>
 
 // statics
-QImage HtmlToolButton::menuIndicatorUp;
-QImage HtmlToolButton::menuIndicatorDown;
+//QImage HtmlToolButton::menuIndicatorUp;
+//QImage HtmlToolButton::menuIndicatorDown;
 
 // piece of code from qt\src\gui\styles\qcommonstyle.cpp
 static void drawArrow(const QStyle *style, const QStyleOptionToolButton *toolbutton,
@@ -45,14 +46,14 @@ static void drawArrow(const QStyle *style, const QStyleOptionToolButton *toolbut
 HtmlToolButton::HtmlToolButton(QWidget *parent) :
 		QToolButton(parent)
 {
-	if (menuIndicatorUp.isNull())
-	{
-		menuIndicatorUp.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_MENU_INDICATOR_UP));
-	}
-	if (menuIndicatorDown.isNull())
-	{
-		menuIndicatorDown.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_MENU_INDICATOR_DOWN));
-	}
+	//if (menuIndicatorUp.isNull())
+	//{
+	//	menuIndicatorUp.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_MENU_INDICATOR_UP));
+	//}
+	//if (menuIndicatorDown.isNull())
+	//{
+	//	menuIndicatorDown.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_MENU_INDICATOR_DOWN));
+	//}
 }
 
 QString HtmlToolButton::html() const
@@ -109,11 +110,16 @@ QSize HtmlToolButton::sizeHint() const
 	return style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this).expandedTo(QApplication::globalStrut());
 }
 
+void HtmlToolButton::setHtml(const QString &AHtml)
+{
+	setText(AHtml);
+}
+
 void HtmlToolButton::paintEvent(QPaintEvent *)
 {
 	QStyleOptionToolButton *opt = new QStyleOptionToolButton;
 	initStyleOption(opt);
-	QPainter * p = new QPainter(this);
+	QPainter *painter = new QPainter(this);
 #if QT_VERSION >= 0x040600
 	const QStyle * paintStyle = style()->proxy();
 #else
@@ -149,7 +155,7 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 		{
 			tool.rect = button;
 			tool.state = bflags;
-			paintStyle->drawPrimitive(QStyle::PE_PanelButtonTool, &tool, p, this);
+			paintStyle->drawPrimitive(QStyle::PE_PanelButtonTool, &tool, painter, this);
 		}
 	}
 
@@ -160,7 +166,7 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 		fr.rect.adjust(3, 3, -3, -3);
 		if (opt->features & QStyleOptionToolButton::MenuButtonPopup)
 			fr.rect.adjust(0, 0, -paintStyle->pixelMetric(QStyle::PM_MenuButtonIndicator, opt, this), 0);
-		paintStyle->drawPrimitive(QStyle::PE_FrameFocusRect, &fr, p, this);
+		paintStyle->drawPrimitive(QStyle::PE_FrameFocusRect, &fr, painter, this);
 	}
 	QStyleOptionToolButton label = *opt;
 	label.state = bflags;
@@ -169,7 +175,7 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 
 	// here is the drawing of the label
 	// the original version:
-	// paintStyle->drawControl(QStyle::CE_ToolButtonLabel, &label, p, this);
+	// paintStyle->drawControl(QStyle::CE_ToolButtonLabel, &label, painter, this);
 	// new version:
 	QTextDocument doc;
 	doc.setHtml(html());
@@ -195,8 +201,8 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 		if (!paintStyle->styleHint(QStyle::SH_UnderlineShortcut, &label, this))
 			alignment |= Qt::TextHideMnemonic;
 		rect.translate(shiftX, shiftY);
-		p->setFont(label.font);
-		doc.drawContents(p, rect);
+		painter->setFont(label.font);
+		doc.drawContents(painter, rect);
 	}
 	else
 	{
@@ -219,7 +225,7 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 
 		if (label.toolButtonStyle != Qt::ToolButtonIconOnly)
 		{
-			p->setFont(label.font);
+			painter->setFont(label.font);
 			QRect pr = rect,
 			tr = rect;
 			int alignment = Qt::TextShowMnemonic;
@@ -233,11 +239,11 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 				pr.translate(shiftX, shiftY);
 				if (!hasArrow)
 				{
-					paintStyle->drawItemPixmap(p, pr, Qt::AlignCenter, pm);
+					paintStyle->drawItemPixmap(painter, pr, Qt::AlignCenter, pm);
 				}
 				else
 				{
-					drawArrow(style(), &label, pr, p, this);
+					drawArrow(style(), &label, pr, painter, this);
 				}
 				alignment |= Qt::AlignCenter;
 			}
@@ -248,32 +254,32 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 				pr.translate(shiftX, shiftY);
 				if (!hasArrow)
 				{
-					paintStyle->drawItemPixmap(p, QStyle::visualRect(label.direction, rect, pr), Qt::AlignCenter, pm);
+					paintStyle->drawItemPixmap(painter, QStyle::visualRect(label.direction, rect, pr), Qt::AlignCenter, pm);
 				}
 				else
 				{
-					drawArrow(style(), &label, pr, p, this);
+					drawArrow(style(), &label, pr, painter, this);
 				}
 				alignment |= Qt::AlignLeft | Qt::AlignVCenter;
 			}
 			tr.translate(shiftX, shiftY);
 			tr = QStyle::visualRect(opt->direction, rect, tr);
-			p->save();
-			p->translate(tr.x(), shiftY);
+			painter->save();
+			painter->translate(tr.x(), shiftY);
 			rect.translate(shiftX, shiftY);
-			doc.drawContents(p, rect);
-			p->restore();
+			doc.drawContents(painter, rect);
+			painter->restore();
 		}
 		else
 		{
 			rect.translate(shiftX, shiftY);
 			if (hasArrow)
 			{
-				drawArrow(style(), &label, rect, p, this);
+				drawArrow(style(), &label, rect, painter, this);
 			}
 			else
 			{
-				paintStyle->drawItemPixmap(p, rect, Qt::AlignCenter, pm);
+				paintStyle->drawItemPixmap(painter, rect, Qt::AlignCenter, pm);
 			}
 		}
 	}
@@ -284,9 +290,9 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 		tool.rect = menuarea;
 		tool.state = mflags;
 		if (mflags & (QStyle::State_Sunken | QStyle::State_On | QStyle::State_Raised))
-			paintStyle->drawPrimitive(QStyle::PE_IndicatorButtonDropDown, &tool, p, this);
-		//paintStyle->drawPrimitive(QStyle::PE_IndicatorArrowDown, &tool, p, this);
-		p->drawImage(tool.rect.topLeft(), isDown() ? menuIndicatorUp : menuIndicatorDown);
+			paintStyle->drawPrimitive(QStyle::PE_IndicatorButtonDropDown, &tool, painter, this);
+		paintStyle->drawPrimitive(isDown() ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, &tool, painter, this);
+		//painter->drawImage(tool.rect.topLeft(), isDown() ? menuIndicatorUp : menuIndicatorDown);
 	}
 	else if (opt->features & QStyleOptionToolButton::HasMenu)
 	{
@@ -294,14 +300,9 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 		QRect ir = opt->rect;
 		QStyleOptionToolButton newBtn = *opt;
 		newBtn.rect = QRect(sizeHint().width() - mbi, ir.y() + ir.height() / 2 - 2, mbi - 6, mbi - 6);
-		//paintStyle->drawPrimitive(QStyle::PE_IndicatorArrowDown, &newBtn, p, this);
-		p->drawImage(newBtn.rect.topLeft(), isDown() ? menuIndicatorUp : menuIndicatorDown);
+		paintStyle->drawPrimitive(isDown() ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, &newBtn, painter, this);
+		//painter->drawImage(newBtn.rect.topLeft(), isDown() ? menuIndicatorUp : menuIndicatorDown);
 	}
-	p->end();
-	delete p;
-}
-
-void HtmlToolButton::setHtml(const QString & html)
-{
-	setText(html);
+	painter->end();
+	delete painter;
 }

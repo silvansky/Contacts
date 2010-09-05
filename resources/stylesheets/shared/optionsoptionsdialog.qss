@@ -6,13 +6,13 @@ QTreeView#trvNodes
 
 QTreeView#trvNodes::item
 {
-	min-height : 32 px;
+	min-height : 32px;
 	background-color: palette(window);
 } 
 
 QTreeView#trvNodes::item:selected
 {
-	border : 1px solid pallete(shadow);
+	border : 1px solid palette(shadow);
 	background-color: palette(base);
 }
 

@@ -33,7 +33,7 @@ StatusChanger::StatusChanger()
 	FConnectingLabel = RLID_NULL;
 	FChangingPresence = NULL;
 
-	statusWidget = NULL;
+	FStatusWidget = NULL;
 }
 
 StatusChanger::~StatusChanger()
@@ -199,13 +199,13 @@ bool StatusChanger::initObjects()
 	if (FMainWindowPlugin)
 	{
 		ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->statusToolBarChanger();
-		statusWidget = new ::StatusWidget(changer->toolBar());
-		statusWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-		changer->insertWidget(statusWidget);
-		statusWidget->ui->statusToolButton->addAction(FMainMenu->menuAction());
-		statusWidget->ui->statusToolButton->setDefaultAction(FMainMenu->menuAction());
-		connect(statusWidget, SIGNAL(avatarChanged(const QImage&)), SLOT(onAvatarChanged(const QImage&)));
-		connect(statusWidget, SIGNAL(moodSet(const QString&)), SLOT(onMoodSet(const QString&)));
+		FStatusWidget = new ::StatusWidget(changer->toolBar());
+		FStatusWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		changer->insertWidget(FStatusWidget);
+		FStatusWidget->ui->statusToolButton->addAction(FMainMenu->menuAction());
+		FStatusWidget->ui->statusToolButton->setDefaultAction(FMainMenu->menuAction());
+		connect(FStatusWidget, SIGNAL(avatarChanged(const QImage&)), SLOT(onAvatarChanged(const QImage&)));
+		connect(FStatusWidget, SIGNAL(moodSet(const QString&)), SLOT(onMoodSet(const QString&)));
 
 		//QToolButton *button = changer->insertAction(FMainMenu->menuAction());
 		//button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -229,7 +229,7 @@ bool StatusChanger::initObjects()
 	{
 		uchar kindMask = INotification::PopupWindow|INotification::PlaySound;
 		uchar kindDefs = INotification::PopupWindow|INotification::PlaySound;
-		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_CONNECTION,QString::null/*tr("Connection errors")*/,kindMask,kindDefs);
+		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_CONNECTION,QString::null,kindMask,kindDefs);
 	}
 
 	return true;
@@ -388,8 +388,8 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 					else
 						presence->xmppStream()->close();
 
-					if (statusWidget)
-						statusWidget->setMoodText(newStatus.text);
+					if (FStatusWidget)
+						FStatusWidget->setMoodText(newStatus.text);
 					emit statusChanged(presence->streamJid(), newStatus.code);
 				}
 			}
@@ -639,15 +639,13 @@ void StatusChanger::setStreamStatusId(IPresence *APresence, int AStatusId)
 		{
 			if (index)
 				FRostersView->insertFooterText(FTO_ROSTERSVIEW_STATUS,APresence->status(),index);
-			if (!FNotifyId.contains(APresence))
-				insertStatusNotification(APresence);
 		}
 		else
 		{
 			if (index)
 				FRostersView->removeFooterText(FTO_ROSTERSVIEW_STATUS,index);
-			removeStatusNotification(APresence);
 		}
+		updateStatusNotification(APresence);
 	}
 }
 
@@ -920,28 +918,41 @@ void StatusChanger::removeAllCustomStatuses()
 			removeStatusItem(statusId);
 }
 
-void StatusChanger::insertStatusNotification(IPresence *APresence)
+void StatusChanger::updateStatusNotification(IPresence *APresence)
 {
-	removeStatusNotification(APresence);
-	if (FNotifications)
+	if (FNotifications && FCurrentStatus.value(APresence)!=STATUS_CONNECTING_ID)
 	{
-		INotification notify;
-		notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
-		notify.data.insert(NDR_ICON,FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Error,"","") : QIcon());
-		notify.data.insert(NDR_POPUP_CAPTION,tr("Warning"));
-		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(APresence->streamJid()));
-		notify.data.insert(NDR_POPUP_TITLE,tr("Temporary connection failure"));
-		notify.data.insert(NDR_POPUP_TEXT,tr("Sending and receiving messages is hold") + "<br>" + Qt::escape(APresence->status()));
-		notify.data.insert(NDR_SOUND_FILE,SDF_SCHANGER_CONNECTION_ERROR);
-		FNotifyId.insert(APresence,FNotifications->appendNotification(notify));
+		int notifyId = FConnectNotifyId.value(APresence,0);
+		bool isFailed = APresence->show()==IPresence::Error && notifyId>=0;
+		bool isRestored = APresence->show()!=IPresence::Error && APresence->show()!=IPresence::Offline && notifyId<0;
+		if (isFailed || isRestored)
+		{
+			INotification notify;
+			notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
+			notify.data.insert(NDR_ICON,FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Error,QString::null,false) : QIcon());
+			notify.data.insert(NDR_POPUP_CAPTION,isFailed ? tr("Problem") : tr("Problem persists"));
+			notify.data.insert(NDR_POPUP_IMAGE, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(isFailed ? MNI_SCHANGER_CONNECTION_ERROR : MNI_SCHANGER_CONNECTION_RESTORE));
+			notify.data.insert(NDR_POPUP_TITLE,isFailed ? tr("Temporary connection failure") : tr("Connection restored"));
+			notify.data.insert(NDR_POPUP_TEXT,isFailed ? Qt::escape(APresence->status()) : QString());
+			notify.data.insert(NDR_POPUP_STYLEKEY,isFailed ? STS_SCHANGER_NOTIFYWIDGET_CONNECTION_ERROR : STS_SCHANGER_NOTIFYWIDGET_CONNECTION_RESTORE);
+			notify.data.insert(NDR_SOUND_FILE,isFailed ? SDF_SCHANGER_CONNECTION_ERROR : SDF_SCHANGER_CONNECTION_RESTORE);
+
+			removeStatusNotification(APresence);
+			notifyId = FNotifications->appendNotification(notify);
+			FConnectNotifyId.insert(APresence, isFailed ? 0-notifyId : notifyId);
+		}
+		else if (APresence->show()==IPresence::Offline && notifyId<0)
+		{
+			removeStatusNotification(APresence);
+		}
 	}
 }
 
 void StatusChanger::removeStatusNotification(IPresence *APresence)
 {
-	if (FNotifications && FNotifyId.contains(APresence))
+	if (FNotifications && FConnectNotifyId.contains(APresence))
 	{
-		FNotifications->removeNotification(FNotifyId.take(APresence));
+		FNotifications->removeNotification(qAbs(FConnectNotifyId.take(APresence)));
 	}
 }
 
@@ -1181,7 +1192,7 @@ void StatusChanger::onProfileOpened(const QString &AProfile)
 		}
 	}
 	if (FAvatars && !FAccountManager->accounts().isEmpty() && FAccountManager->accounts().first()->xmppStream())
-		FAvatars->insertAutoAvatar(statusWidget->ui->avatarLabel, FAccountManager->accounts().first()->xmppStream()->streamJid(), QSize(32, 32), "pixmap");
+		FAvatars->insertAutoAvatar(FStatusWidget->ui->avatarLabel, FAccountManager->accounts().first()->xmppStream()->streamJid(), QSize(32, 32), "pixmap");
 }
 
 void StatusChanger::onReconnectTimer()
@@ -1245,7 +1256,7 @@ void StatusChanger::onAccountOptionsChanged(IAccount *AAccount, const OptionsNod
 
 void StatusChanger::onNotificationActivated(int ANotifyId)
 {
-	if (FNotifyId.values().contains(ANotifyId))
+	if (FConnectNotifyId.values().contains(ANotifyId))
 		FNotifications->removeNotification(ANotifyId);
 }
 
@@ -1273,8 +1284,8 @@ void StatusChanger::updateVCardInfo(const IVCard* vcard)
 			name = vcard->value(VVN_GIVEN_NAME);
 		if (name.isEmpty())
 			name = vcard->contactJid().node();
-		statusWidget->setUserName(name);
-		statusWidget->ui->statusToolButton->setText((name.isEmpty() ? FAccountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + statusWidget->ui->statusToolButton->text());
+		FStatusWidget->setUserName(name);
+		FStatusWidget->ui->statusToolButton->setText((name.isEmpty() ? FAccountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + FStatusWidget->ui->statusToolButton->text());
 	}
 }
 

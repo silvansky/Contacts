@@ -618,7 +618,14 @@ void Notifications::onWindowNotifyOptions()
 
 void Notifications::onWindowNotifyDestroyed()
 {
-	//int notifyId = notifyIdByWidget(qobject_cast<NotifyWidget*>(sender()));
+	int notifyId = notifyIdByWidget(qobject_cast<NotifyWidget*>(sender()));
+	if (FNotifyRecords.contains(notifyId))
+	{
+		uchar kinds = FNotifyRecords.value(notifyId).notification.kinds;
+		kinds &= ~(INotification::PopupWindow|INotification::PlaySound|INotification::TestNotify);
+		if (kinds == 0)
+			removeNotification(notifyId);
+	}
 }
 
 void Notifications::onActionNotifyActivated(bool)

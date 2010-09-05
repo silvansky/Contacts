@@ -61,7 +61,8 @@ protected slots:
 	void onPresenceDestroyed(QObject *AObject);
 	void onStreamAdded(IXmppStream *AXmppStream);
 	void onStreamRemoved(IXmppStream *AXmppStream);
-	void onNotificationActivatedOrRemoved(int ANotifyId);
+	void onNotificationActivated(int ANotifyId);
+	void onNotificationRemoved(int ANotifyId);
 	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
 private:
 	IXmppStreams *FXmppStreams;
@@ -70,9 +71,10 @@ private:
 private:
 	QList<IPresence *> FPresences;
 	QObjectCleanupHandler FCleanupHandler;
+	QMap<IPresence *, QDateTime> FConnectTime;
 	QHash<Jid, QSet<IPresence *> > FContactPresences;
 private:
-	QList<int> FNotifies;
+	QMultiMap<IPresence *, int> FNotifies;
 };
 
 #endif // PRESENCEPLUGIN_H

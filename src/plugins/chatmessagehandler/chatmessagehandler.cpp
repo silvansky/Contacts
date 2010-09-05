@@ -370,7 +370,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 
 	QTextDocument doc;
 	FMessageProcessor->messageToText(&doc,AMessage);
-	notify.data.insert(NDR_POPUP_TEXT,getDocumentBody(doc));
+	notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
 
 	if (wstatus.notified.count() > 1)
 		notify.data.insert(NDR_REPLACE_NOTIFY, FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2)));

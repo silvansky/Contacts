@@ -4,6 +4,7 @@
 
 NotifyTextBrowser::NotifyTextBrowser(QWidget *AParent) : QTextBrowser(AParent)
 {
+	setFixedHeight(0);
 	FMaxHeight = QWIDGETSIZE_MAX;
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()),Qt::QueuedConnection);
 }

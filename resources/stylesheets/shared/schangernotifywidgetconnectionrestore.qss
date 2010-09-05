@@ -1,0 +1,3 @@
+QWidget#frmPopup {
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 skyblue, stop:1 palette(window));
+}
