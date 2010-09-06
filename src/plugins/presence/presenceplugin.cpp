@@ -128,14 +128,17 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 	{
 		INotification notify;
 		notify.kinds = FNotifications->notificatorKinds(MOOD_NOTIFICATOR_ID);
-		notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
-		notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
-		notify.data.insert(NDR_POPUP_CAPTION,tr("Changed mood"));
-		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
-		notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
-		notify.data.insert(NDR_POPUP_TEXT, tr("Mood:")+"<br>"+Qt::escape(AItem.status));
-		notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_MOOD_CHANGED);
-		FNotifies.insertMulti(APresence,FNotifications->appendNotification(notify));
+		if (notify.kinds > 0)
+		{
+			notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
+			notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
+			notify.data.insert(NDR_POPUP_CAPTION,tr("Changed mood"));
+			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
+			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
+			notify.data.insert(NDR_POPUP_TEXT, tr("Mood:")+"<br>"+Qt::escape(AItem.status));
+			notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_MOOD_CHANGED);
+			FNotifies.insertMulti(APresence,FNotifications->appendNotification(notify));
+		}
 	}
 }
 
@@ -147,13 +150,16 @@ void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceIte
 
 		INotification notify;
 		notify.kinds = FNotifications->notificatorKinds(STATE_NOTIFICATOR_ID);
-		notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
-		notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
-		notify.data.insert(NDR_POPUP_CAPTION, isOnline ? tr("Connected") : tr("Disconnected"));
-		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
-		notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
-		notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_STATE_CHANGED);
-		FNotifies.insert(APresence,FNotifications->appendNotification(notify));
+		if (notify.kinds > 0)
+		{
+			notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
+			notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
+			notify.data.insert(NDR_POPUP_CAPTION, isOnline ? tr("Connected") : tr("Disconnected"));
+			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
+			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
+			notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_STATE_CHANGED);
+			FNotifies.insertMulti(APresence,FNotifications->appendNotification(notify));
+		}
 	}
 }
 

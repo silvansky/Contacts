@@ -1024,7 +1024,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 
 	if (FNotifications)
 	{
-		notify.kinds = INotification::PopupWindow|INotification::PlaySound;
+		notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
 		notify.data.insert(NDR_STREAM_JID,ARoster->streamJid().full());
 		notify.data.insert(NDR_CONTACT_JID,chatWindow!=NULL ? chatWindow->contactJid().full() : AContactJid.full());
 		notify.data.insert(NDR_ICON_KEY,MNI_RCHANGER_SUBSCRIBTION);
@@ -1053,9 +1053,8 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 	{
 		if (!isAutoSubscribe(ARoster->streamJid(),AContactJid) && ritem.subscription!=SUBSCRIPTION_FROM && ritem.subscription!=SUBSCRIPTION_BOTH)
 		{
-			if (FNotifications)
+			if (FNotifications && notify.kinds>0)
 			{
-				notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
 				notify.actions = createNotifyActions(NFA_SUBSCRIBE|NFA_UNSUBSCRIBE);
 				notifyId = FNotifications->appendNotification(notify);
 			}
@@ -1073,11 +1072,8 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 	{
 		if (!isSilentSubsctiption(ARoster->streamJid(),AContactJid))
 		{
-			if (FNotifications)
-			{
-				notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
+			if (FNotifications && notify.kinds>0)
 				notifyId = FNotifications->appendNotification(notify);
-			}
 			showNotice = true;
 			noticeActions = NTA_ASK_SUBSCRIBE|NTA_CLOSE;
 		}
@@ -1089,7 +1085,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 	{
 		if (!isSilentSubsctiption(ARoster->streamJid(),AContactJid))
 		{
-			if (FNotifications)
+			if (FNotifications && notify.kinds>0)
 				notifyId = FNotifications->appendNotification(notify);
 			showNotice = true;
 		}
@@ -1098,7 +1094,7 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 	{
 		if (!isSilentSubsctiption(ARoster->streamJid(),AContactJid))
 		{
-			if (FNotifications)
+			if (FNotifications && notify.kinds>0)
 				notifyId = FNotifications->appendNotification(notify);
 			showNotice = true;
 		}

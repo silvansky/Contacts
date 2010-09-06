@@ -927,19 +927,23 @@ void StatusChanger::updateStatusNotification(IPresence *APresence)
 		bool isRestored = APresence->show()!=IPresence::Error && APresence->show()!=IPresence::Offline && notifyId<0;
 		if (isFailed || isRestored)
 		{
+			removeStatusNotification(APresence);
+
 			INotification notify;
 			notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
-			notify.data.insert(NDR_ICON,FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Error,QString::null,false) : QIcon());
-			notify.data.insert(NDR_POPUP_CAPTION,isFailed ? tr("Problem") : tr("Problem persists"));
-			notify.data.insert(NDR_POPUP_IMAGE, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(isFailed ? MNI_SCHANGER_CONNECTION_ERROR : MNI_SCHANGER_CONNECTION_RESTORE));
-			notify.data.insert(NDR_POPUP_TITLE,isFailed ? tr("Temporary connection failure") : tr("Connection restored"));
-			notify.data.insert(NDR_POPUP_TEXT,isFailed ? Qt::escape(APresence->status()) : QString());
-			notify.data.insert(NDR_POPUP_STYLEKEY,isFailed ? STS_SCHANGER_NOTIFYWIDGET_CONNECTION_ERROR : STS_SCHANGER_NOTIFYWIDGET_CONNECTION_RESTORE);
-			notify.data.insert(NDR_SOUND_FILE,isFailed ? SDF_SCHANGER_CONNECTION_ERROR : SDF_SCHANGER_CONNECTION_RESTORE);
+			if (notify.kinds > 0)
+			{
+				notify.data.insert(NDR_ICON,FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Error,QString::null,false) : QIcon());
+				notify.data.insert(NDR_POPUP_CAPTION,isFailed ? tr("Problem") : tr("Problem persists"));
+				notify.data.insert(NDR_POPUP_IMAGE, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(isFailed ? MNI_SCHANGER_CONNECTION_ERROR : MNI_SCHANGER_CONNECTION_RESTORE));
+				notify.data.insert(NDR_POPUP_TITLE,isFailed ? tr("Temporary connection failure") : tr("Connection restored"));
+				notify.data.insert(NDR_POPUP_TEXT,isFailed ? Qt::escape(APresence->status()) : QString());
+				notify.data.insert(NDR_POPUP_STYLEKEY,isFailed ? STS_SCHANGER_NOTIFYWIDGET_CONNECTION_ERROR : STS_SCHANGER_NOTIFYWIDGET_CONNECTION_RESTORE);
+				notify.data.insert(NDR_SOUND_FILE,isFailed ? SDF_SCHANGER_CONNECTION_ERROR : SDF_SCHANGER_CONNECTION_RESTORE);
 
-			removeStatusNotification(APresence);
-			notifyId = FNotifications->appendNotification(notify);
-			FConnectNotifyId.insert(APresence, isFailed ? 0-notifyId : notifyId);
+				notifyId = FNotifications->appendNotification(notify);
+				FConnectNotifyId.insert(APresence, isFailed ? 0-notifyId : notifyId);
+			}
 		}
 		else if (APresence->show()==IPresence::Offline && notifyId<0)
 		{
