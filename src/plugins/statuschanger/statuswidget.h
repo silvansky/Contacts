@@ -3,8 +3,13 @@
 
 #include <QWidget>
 #include <QLineEdit>
-#include "selectavatarwidget.h"
+#include <definations/menuicons.h>
+#include <definations/resources.h>
+#include <definations/stylesheets.h>
 #include <utils/menu.h>
+#include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
+#include "selectavatarwidget.h"
 
 namespace Ui
 {

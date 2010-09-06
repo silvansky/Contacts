@@ -13,6 +13,12 @@
 QHash<QString, StyleStorage *> StyleStorage::FStaticStorages;
 QHash<QObject *, StyleStorage *> StyleStorage::FObjectStorage;
 
+struct StyleStorage::StyleUpdateParams 
+{
+	QString key;
+	int index;
+};
+
 StyleStorage::StyleStorage(const QString &AStorage, const QString &ASubStorage, QObject *AParent) : FileStorage(AStorage,ASubStorage,AParent)
 {
 	connect(this,SIGNAL(storageChanged()),SLOT(onStorageChanged()));

@@ -8,6 +8,8 @@ MassSendDialog::MassSendDialog(IMessageWidgets *AMessageWidgets, const Jid & ASt
 		FStreamJid(AStreamJid)
 {
 	ui->setupUi(this);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_MASSENDDIALOG);
+
 	FMessageWidgets = AMessageWidgets;
 	FViewWidget = FMessageWidgets->newViewWidget(AStreamJid, Jid());
 	FEditWidget = FMessageWidgets->newEditWidget(AStreamJid, Jid());

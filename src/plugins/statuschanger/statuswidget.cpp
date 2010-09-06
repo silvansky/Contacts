@@ -1,16 +1,13 @@
 #include "statuswidget.h"
 #include "ui_statuswidget.h"
+
+#include <QUrl>
 #include <QPainter>
+#include <QFileDialog>
 #include <QPaintEvent>
-#include <QDebug>
-#include <utils/iconstorage.h>
-#include <definations/menuicons.h>
-#include <definations/resources.h>
 #include <QTextDocument>
 #include <QWidgetAction>
 #include <QDesktopServices>
-#include <QUrl>
-#include <QFileDialog>
 
 #define DEFAULT_MOOD_TEXT "<i><font color=grey>Tell your friends about your mood</font></i>"
 #define NO_AVATARS_HISTORY
@@ -20,6 +17,8 @@ StatusWidget::StatusWidget(QWidget *parent) :
 		ui(new Ui::StatusWidget)
 {
 	ui->setupUi(this);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_STATUSWIDGET);
+
 //	qApp->installEventFilter(this);
 	ui->statusToolButton->installEventFilter(this);
 	ui->avatarLabel->installEventFilter(this);

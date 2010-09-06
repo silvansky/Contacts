@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <styledef>
   <file>
-    <key>application</key>
-    <object mime='text/css'>application.qss</object>
+    <key>pluginmanagerApplication</key>
+    <object mime='text/css'>pluginmanagerapplication.qss</object>
   </file>
 </styledef>

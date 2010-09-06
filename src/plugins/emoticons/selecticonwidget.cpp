@@ -6,6 +6,8 @@
 
 SelectIconWidget::SelectIconWidget(IconStorage *AStorage, QWidget *AParent) : QWidget(AParent)
 {
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_EMOTICONS_SELECTICONWIDGET);
+
 	FPressed = NULL;
 	FStorage = AStorage;
 

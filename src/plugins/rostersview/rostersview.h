@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/stylesheets.h>
 #include <definations/actiongroups.h>
 #include <definations/optionvalues.h>
 #include <definations/rostertooltiporders.h>
@@ -14,6 +15,7 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
 #include <utils/options.h>
+#include <utils/stylestorage.h>
 #include "rosterindexdelegate.h"
 #include "rostertooltip.h"
 

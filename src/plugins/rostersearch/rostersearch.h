@@ -10,12 +10,14 @@
 #include <definations/rosterproxyorders.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/stylesheets.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irostersearch.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
 #include <utils/action.h>
+#include <utils/stylestorage.h>
 #include <utils/toolbarchanger.h>
 #include "searchedit.h"
 

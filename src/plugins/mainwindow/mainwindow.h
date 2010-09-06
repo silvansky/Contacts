@@ -4,7 +4,9 @@
 #include <interfaces/imainwindow.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
+#include <definations/stylesheets.h>
 #include <definations/toolbargroups.h>
+#include <utils/stylestorage.h>
 
 class MainWindow :
 			public QMainWindow,

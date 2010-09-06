@@ -1,10 +1,12 @@
 #ifndef SEARCHEDIT_H
 #define SEARCHEDIT_H
 
-#include <QLineEdit>
-#include <utils/iconstorage.h>
 #include <QLabel>
 #include <QKeyEvent>
+#include <QLineEdit>
+#include <definations/resources.h>
+#include <definations/menuicons.h>
+#include <utils/iconstorage.h>
 
 class SearchEdit : public QLineEdit
 {

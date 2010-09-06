@@ -1,7 +1,6 @@
 #include "searchedit.h"
+
 #include <QPainter>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
 #include <QResizeEvent>
 
 SearchEdit::SearchEdit(QWidget *parent) :

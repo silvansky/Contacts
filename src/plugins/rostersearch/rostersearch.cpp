@@ -94,12 +94,12 @@ bool RosterSearch::initObjects()
 		searchFrame->setObjectName("searchFrame");
 		searchFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 		FSearchEdit = new SearchEdit;
-		FSearchEdit->setStyleSheet("SearchEdit { border: 0px; }");
 		layout->insertWidget(0, FSearchEdit);
 		FSearchEdit->setToolTip(tr("Search in roster"));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), &FEditTimeout, SLOT(start()));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), SLOT(onSearchTextChanged(const QString&)));
 		FSearchEdit->installEventFilter(this);
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(searchFrame,STS_ROSTERSEARCH_SEARCHFRAME);
 		FMainWindow->topToolBarChanger()->insertWidget(searchFrame, TBG_MWTTB_ROSTERSEARCH);
 		setSearchEnabled(true);
 	}

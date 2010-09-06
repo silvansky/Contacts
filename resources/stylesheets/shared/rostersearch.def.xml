@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>rostersearchSearchFrame</key>
+    <object mime='text/css'>rostersearchsearchframe.qss</object>
+  </file>
+</styledef>

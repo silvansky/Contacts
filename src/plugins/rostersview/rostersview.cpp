@@ -20,6 +20,8 @@
 
 RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 {
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_ROSTERVIEW_ROSTER);
+
 	currentToolTip = 0;
 	FNotifyId = 1;
 	FLabelIdCounter = 1;

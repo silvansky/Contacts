@@ -5,9 +5,10 @@
 #include <QLabel>
 #include <QEvent>
 #include <QGridLayout>
+#include <definations/resources.h>
+#include <definations/stylesheets.h>
 #include <utils/iconstorage.h>
-
-#include <QMainWindow>
+#include <utils/stylestorage.h>
 
 class SelectIconWidget :
 			public QWidget

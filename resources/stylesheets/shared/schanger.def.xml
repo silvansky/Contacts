@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <styledef>
   <file>
-    <key>schangerNotifyWidgetConnectionError</key>
-    <object mime='text/css'>schangernotifywidgetconnectionerror.qss</object>
+    <key>schangerStatusWidget</key>
+    <object mime='text/css'>schangerstatuswidget.qss</object>
   </file>
   <file>
-    <key>schangerNotifyWidgetConnectionRestore</key>
-    <object mime='text/css'>schangernotifywidgetconnectionrestore.qss</object>
+    <key>schangerNotifyWidgetConnectionError</key>
+    <object mime='text/css'>schangernotifywidgetconnectionerror.qss</object>
   </file>
 </styledef>

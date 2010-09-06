@@ -389,9 +389,9 @@ void PluginManager::loadSettings()
 		FPluginsSetup.appendChild(FPluginsSetup.createElement("plugins"));
 	}
 
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(qApp, STS_APPLICATION);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(qApp, STS_PLUGINMANAGER_APPLICATION);
 
-	QFile sheetFile(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(STS_APPLICATION));
+	QFile sheetFile(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(STS_PLUGINMANAGER_APPLICATION));
 	sheetFile.open(QFile::ReadOnly);
 	FStyleSheet = QString::fromUtf8(sheetFile.readAll());
 }

@@ -1,0 +1,26 @@
+/******************
+ * HtmlToolButton *
+ ******************/
+HtmlToolButton:pressed
+{
+	top: 0px;
+	left: 0px;
+}
+HtmlToolButton[popupMode="1"]
+{
+	padding-right: 20px;
+}
+HtmlToolButton[popupMode="1"]:open
+{
+	padding-top: 0px;
+	padding-left: 0px;
+}
+HtmlToolButton[popupMode="2"]
+{
+	padding-right: 10px;
+}
+HtmlToolButton[popupMode="2"]:open
+{
+	padding-top: 0px;
+	padding-left: 0px;
+}
