@@ -1,12 +1,15 @@
-QWidget#frmPopup {
+QWidget#frmPopup 
+{
 	border: 1px solid palette(shadow);
 }
 
-NotifyTextBrowser {
+NotifyTextBrowser 
+{
 	background-color: transparent;
 }
 
-QLabel#lblTitle {
+QLabel#lblTitle 
+{
 	font-size: 12px;
 	font-weight: bold;
 }

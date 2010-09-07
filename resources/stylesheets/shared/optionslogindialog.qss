@@ -1,7 +1,6 @@
 /***************
  * QPushButton *
  ***************/
-
 QPushButton#pbtConnect
 {
 	font : bold large;

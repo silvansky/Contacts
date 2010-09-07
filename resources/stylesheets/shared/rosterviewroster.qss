@@ -3,17 +3,16 @@
  *************/
 QTreeView
 {
-	background-color: rgb(255, 255, 255);
+	background-color: white;
 	alternate-background-color: rgb(239, 239, 239);
 }
 QTreeView::item
 {
-	color: rgb(1, 1, 1);
+	color: black;
 }
 QTreeView::item:selected
 {
 	background-color: rgb(144, 209, 249);
-	color: rgb(1, 1, 1);
 }
 QTreeView::item:hover
 {

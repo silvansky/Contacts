@@ -1,3 +1,13 @@
+/************
+ * QToolBar *
+ ************/
+QToolBar
+{
+	padding: 2px;
+	spacing: 2px;
+	background-color: rgb(240, 240, 240);
+}
+
 /***************
  * QToolButton *
  ***************/
@@ -56,15 +66,4 @@ QToolButton::menu-arrow
 QToolButton::menu-arrow:open
 {
 	image: url("%IMAGES_PATH%/buttonarrowup.png");
-}
-
-
-/************
- * QToolBar *
- ************/
-QToolBar
-{
-	padding: 2px;
-	background-color: rgb(240, 240, 240);
-	spacing: 2px;
 }
