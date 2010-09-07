@@ -2,16 +2,12 @@
 
 #include <QTimer>
 #include <QToolButton>
-#include <definations/vcardvaluenames.h>
+#include "ui_statuswidget.h"
 
 #define MAX_TEMP_STATUS_ID                  -10
 
 #define ADR_STREAMJID                       Action::DR_StreamJid
 #define ADR_STATUS_CODE                     Action::DR_Parametr1
-
-#define NOTIFICATOR_ID                      "StatusChanger"
-
-#include "ui_statuswidget.h"
 
 StatusChanger::StatusChanger()
 {
@@ -229,7 +225,7 @@ bool StatusChanger::initObjects()
 	{
 		uchar kindMask = INotification::PopupWindow|INotification::PlaySound;
 		uchar kindDefs = INotification::PopupWindow|INotification::PlaySound;
-		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_CONNECTION,QString::null,kindMask,kindDefs);
+		FNotifications->insertNotificator(NID_CONNECTION_STATE,OWO_NOTIFICATIONS_CONNECTION,QString::null,kindMask,kindDefs);
 	}
 
 	return true;
@@ -930,9 +926,10 @@ void StatusChanger::updateStatusNotification(IPresence *APresence)
 			removeStatusNotification(APresence);
 
 			INotification notify;
-			notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
+			notify.kinds = FNotifications->notificatorKinds(NID_CONNECTION_STATE);
 			if (notify.kinds > 0)
 			{
+				notify.notificatior = NID_CONNECTION_STATE;
 				notify.data.insert(NDR_ICON,FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Error,QString::null,false) : QIcon());
 				notify.data.insert(NDR_POPUP_CAPTION,isFailed ? tr("Problem") : tr("Problem persists"));
 				notify.data.insert(NDR_POPUP_IMAGE, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(isFailed ? MNI_SCHANGER_CONNECTION_ERROR : MNI_SCHANGER_CONNECTION_RESTORE));
@@ -1260,7 +1257,7 @@ void StatusChanger::onAccountOptionsChanged(IAccount *AAccount, const OptionsNod
 
 void StatusChanger::onNotificationActivated(int ANotifyId)
 {
-	if (FConnectNotifyId.values().contains(ANotifyId))
+	if (FConnectNotifyId.values().contains(ANotifyId) || FConnectNotifyId.values().contains(0-ANotifyId))
 		FNotifications->removeNotification(ANotifyId);
 }
 

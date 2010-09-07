@@ -23,6 +23,7 @@ struct INotification
 	};
 	INotification() { kinds = 0; }
 	uchar kinds;
+	QString notificatior;
 	QList<Action *> actions;
 	QMap<int, QVariant> data;
 };

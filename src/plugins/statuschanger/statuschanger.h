@@ -12,11 +12,13 @@
 #include <definations/optionwidgetorders.h>
 #include <definations/rosterindextyperole.h>
 #include <definations/rosterfootertextorders.h>
+#include <definations/notificators.h>
 #include <definations/notificationdataroles.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
 #include <definations/soundfiles.h>
 #include <definations/stylesheets.h>
+#include <definations/vcardvaluenames.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ipresence.h>

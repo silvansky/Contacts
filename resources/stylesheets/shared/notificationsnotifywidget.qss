@@ -1,6 +1,10 @@
 QWidget#frmPopup 
 {
-	border: 1px solid palette(shadow);
+	border: 1px solid palette(dark);
+}
+QWidget#frmPopup:hover
+{
+	border: 1px solid palette(brighttext);
 }
 
 NotifyTextBrowser 

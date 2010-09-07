@@ -10,6 +10,7 @@
 #include <definations/rosterindextyperole.h>
 #include <definations/rosterlabelorders.h>
 #include <definations/rosterclickhookerorders.h>
+#include <definations/notificators.h>
 #include <definations/notificationdataroles.h>
 #include <definations/vcardvaluenames.h>
 #include <definations/actiongroups.h>

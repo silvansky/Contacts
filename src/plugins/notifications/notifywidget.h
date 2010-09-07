@@ -20,7 +20,7 @@ class NotifyWidget :
 {
 	Q_OBJECT;
 public:
-	NotifyWidget(const INotification &ANotification);
+	NotifyWidget(const INotification &ANotification, bool AOptionsAvailable);
 	~NotifyWidget();
 	void appear();
 	void animateTo(int AYPos);

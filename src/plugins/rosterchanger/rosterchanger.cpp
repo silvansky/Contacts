@@ -8,8 +8,6 @@
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 
-#define NOTIFICATOR_ID      "RosterChanger"
-
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_CONTACT_JID     Action::DR_Parametr1
 #define ADR_FROM_STREAM_JID Action::DR_Parametr2
@@ -166,7 +164,7 @@ bool RosterChanger::initObjects()
 	{
 		uchar kindMask = INotification::RosterIcon|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound|INotification::AutoActivate;
 		uchar kindDefs = INotification::RosterIcon|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound;
-		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_SUBSCRIPTIONS,tr("Subscription requests"),kindMask,kindDefs);
+		FNotifications->insertNotificator(NID_SUBSCRIPTION,OWO_NOTIFICATIONS_SUBSCRIPTIONS,QString::null,kindMask,kindDefs);
 	}
 	if (FRostersView)
 	{
@@ -1024,7 +1022,8 @@ void RosterChanger::onReceiveSubscription(IRoster *ARoster, const Jid &AContactJ
 
 	if (FNotifications)
 	{
-		notify.kinds = FNotifications->notificatorKinds(NOTIFICATOR_ID);
+		notify.kinds = FNotifications->notificatorKinds(NID_SUBSCRIPTION);
+		notify.notificatior = NID_SUBSCRIPTION;
 		notify.data.insert(NDR_STREAM_JID,ARoster->streamJid().full());
 		notify.data.insert(NDR_CONTACT_JID,chatWindow!=NULL ? chatWindow->contactJid().full() : AContactJid.full());
 		notify.data.insert(NDR_ICON_KEY,MNI_RCHANGER_SUBSCRIBTION);

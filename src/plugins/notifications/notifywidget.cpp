@@ -19,7 +19,7 @@
 QList<NotifyWidget *> NotifyWidget::FWidgets;
 QDesktopWidget *NotifyWidget::FDesktop = new QDesktopWidget;
 
-NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Qt::ToolTip|Qt::WindowStaysOnTopHint)
+NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvailable) : QWidget(NULL, Qt::ToolTip|Qt::WindowStaysOnTopHint)
 {
 	ui.setupUi(this);
 	setFocusPolicy(Qt::NoFocus);
@@ -59,8 +59,9 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 	if (!styleKey.isEmpty())
 		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(ui.frmPopup,styleKey);
 
-	connect(ui.clbClose, SIGNAL(clicked()), SIGNAL(notifyRemoved()));
+	ui.tlbOptions->setVisible(AOptionsAvailable);
 	connect(ui.tlbOptions, SIGNAL(clicked()), SIGNAL(showOptions()));
+	connect(ui.clbClose, SIGNAL(clicked()), SIGNAL(notifyRemoved()));
 
 	appendNotification(ANotification);
 }

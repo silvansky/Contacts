@@ -5,10 +5,13 @@
 #include <QVariant>
 #include <QObjectCleanupHandler>
 #include <definations/optionwidgetorders.h>
+#include <definations/notificators.h>
 #include <definations/notificationdataroles.h>
 #include <definations/soundfiles.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ipresence.h>
+#include <interfaces/iroster.h>
+#include <interfaces/istatusicons.h>
 #include <interfaces/inotifications.h>
 #include "presence.h"
 
@@ -66,6 +69,7 @@ protected slots:
 	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
 private:
 	IXmppStreams *FXmppStreams;
+	IStatusIcons *FStatusIcons;
 	INotifications *FNotifications;
 	IStanzaProcessor *FStanzaProcessor;
 private:
@@ -75,6 +79,8 @@ private:
 	QHash<Jid, QSet<IPresence *> > FContactPresences;
 private:
 	QMultiMap<IPresence *, int> FNotifies;
+	QHash<Jid, QDateTime> FLastMoodNotify;
+	QHash<Jid, QDateTime> FLastStateNotify;
 };
 
 #endif // PRESENCEPLUGIN_H

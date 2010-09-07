@@ -162,6 +162,7 @@ INotification MassSendHandler::notification(INotifications *ANotifications, cons
 
 	INotification notify;
 	notify.kinds = ANotifications->notificatorKinds(MASSSEND_NOTIFICATOR_ID);
+	notify.notificatior = MASSSEND_NOTIFICATOR_ID;
 //	notify.data.insert(NDR_ICON,icon);
 //	notify.data.insert(NDR_TOOLTIP,tr("Message from %1").arg(name));
 //	notify.data.insert(NDR_ROSTER_STREAM_JID,AMessage.to());

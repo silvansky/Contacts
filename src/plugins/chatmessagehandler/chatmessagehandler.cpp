@@ -10,8 +10,6 @@
 #define ADR_CONTACT_JID           Action::DR_Parametr1
 #define ADR_TAB_PAGE_ID           Action::DR_Parametr2
 
-#define NOTIFICATOR_ID            "ChatMessages"
-
 #define URL_SCHEME_ACTION         "action"
 #define URL_PATH_HISTORY          "history"
 #define URL_PATH_CONTENT          "content"
@@ -191,7 +189,7 @@ bool ChatMessageHandler::initObjects()
 	{
 		uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate|INotification::TestNotify;
 		uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_CHAT_MESSAGES,tr("New messages"),kindMask,kindDefs);
+		FNotifications->insertNotificator(NID_CHAT_MESSAGE,OWO_NOTIFICATIONS_CHAT_MESSAGES,tr("New messages"),kindMask,kindDefs);
 	}
 	return true;
 }
@@ -351,29 +349,38 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 	QString messages = tr("%n message(s)","",wstatus.notified.count());
 
 	INotification notify;
-	notify.kinds = ANotifications->notificatorKinds(NOTIFICATOR_ID);
-	notify.data.insert(NDR_STREAM_JID,AMessage.to());
-	notify.data.insert(NDR_CONTACT_JID,AMessage.from());
-	notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
-	notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-	notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_MESSAGE);
-	notify.data.insert(NDR_ROSTER_TOOLTIP,messages);
-	notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
-	notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
-	notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-	notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
-	notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
-	notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
-	notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
-	notify.data.insert(NDR_POPUP_TITLE,name);
-	notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
+	notify.kinds = ANotifications->notificatorKinds(NID_CHAT_MESSAGE);
+	if (notify.kinds > 0)
+	{
+		notify.notificatior = NID_CHAT_MESSAGE;
+		notify.data.insert(NDR_STREAM_JID,AMessage.to());
+		notify.data.insert(NDR_CONTACT_JID,AMessage.from());
+		notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
+		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
+		notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_MESSAGE);
+		notify.data.insert(NDR_ROSTER_TOOLTIP,messages);
+		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
+		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
+		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
+		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
+		notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
+		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
+		notify.data.insert(NDR_POPUP_TITLE,name);
+		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
 
-	QTextDocument doc;
-	FMessageProcessor->messageToText(&doc,AMessage);
-	notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
+		QTextDocument doc;
+		FMessageProcessor->messageToText(&doc,AMessage);
+		notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
 
-	if (wstatus.notified.count() > 1)
-		notify.data.insert(NDR_REPLACE_NOTIFY, FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2)));
+		if (wstatus.notified.count() > 1)
+		{
+			QList<int> notifies = ANotifications->notifications();
+			int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
+			if (!notifies.isEmpty() && notifies.last()==replNotify)
+				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
+		}
+	}
 
 	return notify;
 }
@@ -1025,10 +1032,11 @@ void ChatMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOpti
 
 void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar AKinds)
 {
-	if (ANotificatorId == NOTIFICATOR_ID)
+	if (ANotificatorId == NID_CHAT_MESSAGE)
 	{
 		INotification notify;
 		notify.kinds = AKinds;
+		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contsctJid = "vasilisa@rambler/virtus";

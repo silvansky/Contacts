@@ -10,6 +10,9 @@
     <height>137</height>
    </rect>
   </property>
+  <property name="cursor">
+   <cursorShape>PointingHandCursor</cursorShape>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <property name="margin">
     <number>0</number>
@@ -123,6 +126,9 @@
            </item>
            <item>
             <widget class="NotifyTextBrowser" name="tbrText">
+             <property name="cursor" stdset="0">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
              </property>

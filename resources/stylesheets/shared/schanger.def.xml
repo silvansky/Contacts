@@ -8,4 +8,8 @@
     <key>schangerNotifyWidgetConnectionError</key>
     <object mime='text/css'>schangernotifywidgetconnectionerror.qss</object>
   </file>
+  <file>
+    <key>schangerNotifyWidgetConnectionRestore</key>
+    <object mime='text/css'>schangernotifywidgetconnectionrestore.qss</object>
+  </file>
 </styledef>
