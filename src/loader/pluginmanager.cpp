@@ -735,7 +735,7 @@ void PluginManager::removePluginsInfo(const QStringList &ACurFiles)
 		{
 			QDomElement oldElem = pluginElem;
 			pluginElem = pluginElem.nextSiblingElement();
-			pluginElem.parentNode().removeChild(oldElem);
+			oldElem.parentNode().removeChild(oldElem);
 		}
 		else
 			pluginElem = pluginElem.nextSiblingElement();
