@@ -1258,7 +1258,11 @@ void StatusChanger::onAccountOptionsChanged(IAccount *AAccount, const OptionsNod
 void StatusChanger::onNotificationActivated(int ANotifyId)
 {
 	if (FConnectNotifyId.values().contains(ANotifyId) || FConnectNotifyId.values().contains(0-ANotifyId))
+	{
+		if (FMainWindowPlugin)
+			FMainWindowPlugin->showMainWindow();
 		FNotifications->removeNotification(ANotifyId);
+	}
 }
 
 void StatusChanger::onVcardReceived(const Jid & jid)

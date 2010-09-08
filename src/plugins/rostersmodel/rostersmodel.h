@@ -79,8 +79,7 @@ protected slots:
 	void onAccountShown(IAccount *AAccount);
 	void onAccountHidden(IAccount *AAccount);
 	void onAccountOptionsChanged(const OptionsNode &ANode);
-	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &ARosterItem);
-	void onRosterItemRemoved(IRoster *ARoster, const IRosterItem &ARosterItem);
+	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onRosterStreamJidChanged(IRoster *ARoster, const Jid &ABefore);
 	void onPresenceChanged(IPresence *APresence, int AShow, const QString &AStatus, int APriority);
 	void onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);

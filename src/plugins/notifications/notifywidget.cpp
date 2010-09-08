@@ -39,10 +39,14 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 	FCloseTimer->setSingleShot(false);
 	connect(FCloseTimer, SIGNAL(timeout()), SLOT(onCloseTimerTimeout()));
 
-	ui.lblIcon->setVisible(false);
 	FCaption = ANotification.data.value(NDR_POPUP_CAPTION).toString();
 	FTitle = ANotification.data.value(NDR_POPUP_TITLE).toString();
-	updateElidedText();
+
+	QIcon icon = qvariant_cast<QIcon>(ANotification.data.value(NDR_POPUP_ICON));
+	if (!icon.isNull())
+		ui.lblIcon->setPixmap(icon.pixmap(QSize(16,16)));
+	else
+		ui.lblIcon->setVisible(false);
 
 	QImage image = qvariant_cast<QImage>(ANotification.data.value(NDR_POPUP_IMAGE));
 	if (!image.isNull())
@@ -64,6 +68,7 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 	connect(ui.clbClose, SIGNAL(clicked()), SIGNAL(notifyRemoved()));
 
 	appendNotification(ANotification);
+	updateElidedText();
 }
 
 NotifyWidget::~NotifyWidget()

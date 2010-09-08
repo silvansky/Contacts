@@ -22,6 +22,9 @@
 #define SDF_PRESENCE_MOOD_CHANGED                         "presenceMoodChanged"
 #define SDF_PRESENCE_STATE_CHANGED                        "presenceStateChanged"
 
+//Roster
+#define SDF_ROSTER_CONTACT_ADDED                          "rosterContactAdded"
+
 //RosterChanger
 #define SDF_RCHANGER_SUBSCRIPTION                         "rchangerSubscription"
 

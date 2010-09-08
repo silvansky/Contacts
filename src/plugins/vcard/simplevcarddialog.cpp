@@ -20,7 +20,8 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 	connect(FVCard->instance(), SIGNAL(vcardUpdated()), SLOT(onVCardUpdated()));
 	connect(FVCard->instance(), SIGNAL(vcardError(const QString &)), SLOT(onVCardError(const QString &)));
 	FRoster = FRosterPlugin->getRoster(AStreamJid);
-	connect(FRoster->instance(), SIGNAL(received(const IRosterItem&)), SLOT(onRosterItemReceived(const IRosterItem&)));
+	connect(FRoster->instance(), SIGNAL(received(const IRosterItem &, const IRosterItem &)), 
+		SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 	FRosterItem = FRoster->rosterItem(FContactJid);
 	if (FRosterItem.isValid)
 		ui->addToRosterButton->setVisible(false);
@@ -101,10 +102,11 @@ void SimpleVCardDialog::onVCardError(const QString &AError)
 	QMessageBox::critical(this, tr("vCard error"), tr("vCard request failed.<br>%1").arg(AError));
 }
 
-void SimpleVCardDialog::onRosterItemReceived(const IRosterItem &ARosterItem)
+void SimpleVCardDialog::onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore)
 {
-	if (ARosterItem.itemJid && FContactJid)
-		FRosterItem = ARosterItem;
+	Q_UNUSED(ABefore);
+	if (AItem.itemJid && FContactJid)
+		FRosterItem = AItem;
 	updateDialog();
 }
 

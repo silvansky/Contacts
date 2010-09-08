@@ -32,7 +32,7 @@ protected:
 protected slots:
 	void onVCardUpdated();
 	void onVCardError(const QString &AError);
-	void onRosterItemReceived(const IRosterItem &ARosterItem);
+	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 private:
 	Ui::SimpleVCardDialog *ui;
 private:

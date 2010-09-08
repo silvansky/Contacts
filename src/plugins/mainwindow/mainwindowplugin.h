@@ -41,10 +41,10 @@ public:
 	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IMainWindowPlugin
 	virtual IMainWindow *mainWindow() const;
+	virtual void showMainWindow() const;
 protected:
 	void updateTitle();
-	void showMainWindow();
-	void correctWindowPosition();
+	void correctWindowPosition() const;
 protected:
 	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected slots:

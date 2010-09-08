@@ -92,10 +92,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 			connect(FRosterPlugin->instance(),SIGNAL(rosterOpened(IRoster *)),SLOT(onRosterOpened(IRoster *)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscription(IRoster *, const Jid &, int , const QString &)),
 				SLOT(onRosterSubscription(IRoster *, const Jid &, int , const QString &)));
-			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &)),
-				SLOT(onRosterItemChanged(IRoster *, const IRosterItem &)));
-			connect(FRosterPlugin->instance(),SIGNAL(rosterItemRemoved(IRoster *, const IRosterItem &)),
-				SLOT(onRosterItemChanged(IRoster *, const IRosterItem &)));
+			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)),
+				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)));
 		}
 	}
 
@@ -947,8 +945,9 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 	}
 }
 
-void Gateways::onRosterItemChanged(IRoster *ARoster, const IRosterItem &AItem)
+void Gateways::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore)
 {
+	Q_UNUSED(ABefore);
 	if (AItem.itemJid.node().isEmpty())
 	{
 		if (AItem.subscription!=SUBSCRIPTION_NONE && AItem.subscription!=SUBSCRIPTION_REMOVE)

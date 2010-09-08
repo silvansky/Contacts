@@ -4,10 +4,11 @@
 
   <file>
     <key>default</key>
-    <object mime='sound/wav'>default.wav</object>
     <key>presenceMoodChanged</key>
     <key>presenceStateChanged</key>
+    <key>rosterContactAdded</key>
     <key>schangerConnectionRestore</key>
+    <object mime='sound/wav'>default.wav</object>
   </file>
 
   <file>

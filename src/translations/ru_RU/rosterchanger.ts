@@ -74,10 +74,6 @@
 <context>
     <name>RosterChanger</name>
     <message>
-        <source>Subscription requests</source>
-        <translation>Запросы авторизации</translation>
-    </message>
-    <message>
         <source>This group</source>
         <translation>В эту группу</translation>
     </message>

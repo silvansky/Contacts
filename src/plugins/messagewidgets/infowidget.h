@@ -41,7 +41,7 @@ protected:
 	void updateFieldLabel(IInfoWidget::InfoField AField);
 protected slots:
 	void onAccountChanged(const OptionsNode &ANode);
-	void onRosterItemReceived(const IRosterItem &ARosterItem);
+	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onAvatarChanged(const Jid &AContactJid);
 private:

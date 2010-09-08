@@ -81,8 +81,8 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &/*AInit
 		{
 			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscription(IRoster *, const Jid &, int, const QString &)),
 				SLOT(onReceiveSubscription(IRoster *, const Jid &, int, const QString &)));
-			connect(FRosterPlugin->instance(),SIGNAL(rosterItemRemoved(IRoster *, const IRosterItem &)),
-				SLOT(onRosterItemRemoved(IRoster *, const IRosterItem &)));
+			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)),
+				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterClosed(IRoster *)),SLOT(onRosterClosed(IRoster *)));
 		}
 	}
@@ -1476,12 +1476,16 @@ void RosterChanger::onRemoveGroupItems(bool)
 	}
 }
 
-void RosterChanger::onRosterItemRemoved(IRoster *ARoster, const IRosterItem &ARosterItem)
+void RosterChanger::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore)
 {
-	if (isSilentSubsctiption(ARoster->streamJid(), ARosterItem.itemJid))
-		insertAutoSubscribe(ARoster->streamJid(), ARosterItem.itemJid, true, false, false);
-	else
-		removeAutoSubscribe(ARoster->streamJid(), ARosterItem.itemJid);
+	Q_UNUSED(ABefore);
+	if (AItem.subscription == SUBSCRIPTION_REMOVE)
+	{
+		if (isSilentSubsctiption(ARoster->streamJid(), AItem.itemJid))
+			insertAutoSubscribe(ARoster->streamJid(), AItem.itemJid, true, false, false);
+		else
+			removeAutoSubscribe(ARoster->streamJid(), AItem.itemJid);
+	}
 }
 
 void RosterChanger::onRosterClosed(IRoster *ARoster)

@@ -142,6 +142,26 @@ bool Roster::xmppStanzaOut(IXmppStream *AXmppStream, Stanza &AStanza, int AOrder
 	return false;
 }
 
+Jid Roster::streamJid() const
+{
+	return FXmppStream->streamJid();
+}
+
+IXmppStream *Roster::xmppStream() const
+{
+	return FXmppStream;
+}
+
+bool Roster::isOpen() const
+{
+	return FOpened;
+}
+
+QString Roster::groupDelimiter() const
+{
+	return FGroupDelim;
+}
+
 IRosterItem Roster::rosterItem(const Jid &AItemJid) const
 {
 	foreach(IRosterItem ritem, FRosterItems)
@@ -469,16 +489,18 @@ void Roster::processItemsElement(const QDomElement &AItemsElem, bool ACompleteRo
 		while (!itemElem.isNull())
 		{
 			Jid itemJid = itemElem.attribute("jid");
-			if (itemJid.isValid() && itemJid.resource().isEmpty())
+			QString subs = itemElem.attribute("subscription");
+			if (subs==SUBSCRIPTION_BOTH || subs==SUBSCRIPTION_TO || subs==SUBSCRIPTION_FROM || subs==SUBSCRIPTION_NONE)
 			{
-				QString subs = itemElem.attribute("subscription");
-				if (subs==SUBSCRIPTION_BOTH || subs==SUBSCRIPTION_TO || subs==SUBSCRIPTION_FROM || subs==SUBSCRIPTION_NONE)
+				if (itemJid.isValid() && itemJid.resource().isEmpty())
 				{
 					IRosterItem &ritem = FRosterItems[itemJid];
+					IRosterItem before = ritem;
+
 					ritem.isValid = true;
 					ritem.itemJid = itemJid;
 					ritem.name = itemElem.attribute("name");
-					ritem.subscription = subs;
+					ritem.subscription = itemElem.attribute("subscription");
 					ritem.ask = itemElem.attribute("ask");
 					oldItems -= ritem.itemJid;
 
@@ -491,35 +513,35 @@ void Roster::processItemsElement(const QDomElement &AItemsElem, bool ACompleteRo
 					}
 					ritem.groups = allItemGroups;
 
-					emit received(ritem);
+					emit received(ritem,before);
 				}
-				else if (subs == SUBSCRIPTION_REMOVE)
-				{
-					removeRosterItem(itemJid);
-				}
+			}
+			else if (subs==SUBSCRIPTION_REMOVE && FRosterItems.contains(itemJid))
+			{
+				oldItems += itemJid;
 			}
 			itemElem = itemElem.nextSiblingElement("item");
 		}
 
-		foreach(Jid itemJid,oldItems)
-			removeRosterItem(itemJid);
-	}
-}
-
-void Roster::removeRosterItem(const Jid &AItemJid)
-{
-	if (FRosterItems.contains(AItemJid))
-	{
-		IRosterItem ritem = FRosterItems.take(AItemJid);
-		ritem.subscription = SUBSCRIPTION_REMOVE;
-		emit removed(ritem);
+		foreach(Jid itemJid, oldItems) 
+		{
+			IRosterItem ritem = FRosterItems.take(itemJid);
+			IRosterItem before = ritem;
+			ritem.subscription = SUBSCRIPTION_REMOVE;
+			emit received(ritem,before);
+		}
 	}
 }
 
 void Roster::clearItems()
 {
-	foreach(Jid itemJid,FRosterItems.keys())
-		removeRosterItem(itemJid);
+	foreach(Jid itemJid, FRosterItems.keys())
+	{
+		IRosterItem ritem = FRosterItems.take(itemJid);
+		IRosterItem before = ritem;
+		ritem.subscription = SUBSCRIPTION_REMOVE;
+		emit received(ritem,before);
+	}
 	FRosterVer.clear();
 }
 

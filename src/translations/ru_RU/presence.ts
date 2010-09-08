@@ -20,10 +20,6 @@
         <translation>Смена настроений</translation>
     </message>
     <message>
-        <source>Mood:</source>
-        <translation>Настроение:</translation>
-    </message>
-    <message>
         <source>Connected</source>
         <translation>Подключился к сети</translation>
     </message>

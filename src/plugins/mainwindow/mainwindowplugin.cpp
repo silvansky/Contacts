@@ -120,12 +120,7 @@ IMainWindow *MainWindowPlugin::mainWindow() const
 	return FMainWindow;
 }
 
-void MainWindowPlugin::updateTitle()
-{
-	FMainWindow->setWindowTitle(CLIENT_NAME" | R" + FPluginManager->revision());
-}
-
-void MainWindowPlugin::showMainWindow()
+void MainWindowPlugin::showMainWindow() const
 {
 	if (!Options::isNull())
 	{
@@ -136,7 +131,12 @@ void MainWindowPlugin::showMainWindow()
 	}
 }
 
-void MainWindowPlugin::correctWindowPosition()
+void MainWindowPlugin::updateTitle()
+{
+	FMainWindow->setWindowTitle(CLIENT_NAME" | R" + FPluginManager->revision());
+}
+
+void MainWindowPlugin::correctWindowPosition() const
 {
 	QRect windowRect = FMainWindow->geometry();
 	QRect screenRect = qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(windowRect.topLeft()));

@@ -6,7 +6,9 @@ RosterPlugin::RosterPlugin()
 {
 	FPluginManager = NULL;
 	FXmppStreams = NULL;
+	FNotifications = NULL;
 	FStanzaProcessor = NULL;
+	FMessageProcessor = NULL;
 }
 
 RosterPlugin::~RosterPlugin()
@@ -44,7 +46,33 @@ bool RosterPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitO
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+	{
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
+		if (FNotifications)
+		{
+			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivated(int)));
+			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
+	if (plugin)
+		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
+
 	return FXmppStreams!=NULL && FStanzaProcessor!=NULL;
+}
+
+bool RosterPlugin::initObjects()
+{
+	if (FNotifications)
+	{
+		uchar kindMask = INotification::PopupWindow|INotification::PlaySound;
+		uchar kindDefs = INotification::PopupWindow|INotification::PlaySound;
+		FNotifications->insertNotificator(NID_CONTACT_ADDED,OWO_NOTIFICATIONS_CONTACT_ADDED,QString::null,kindMask,kindDefs);
+	}
+	return true;
 }
 
 //IRosterPlugin
@@ -90,6 +118,26 @@ void RosterPlugin::removeRoster(IXmppStream *AXmppStream)
 	}
 }
 
+void RosterPlugin::notifyContactAdded(IRoster *ARoster, const IRosterItem &AItem)
+{
+	if (FNotifications && ARoster->isOpen() && !AItem.itemJid.node().isEmpty())
+	{
+		INotification notify;
+		notify.kinds = FNotifications->notificatorKinds(NID_CONTACT_ADDED);
+		if (notify.kinds > 0)
+		{
+			notify.notificatior = NID_CONTACT_ADDED;
+			notify.data.insert(NDR_STREAM_JID, ARoster->streamJid().full());
+			notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
+			notify.data.insert(NDR_POPUP_CAPTION,tr("Added to the contacts list"));
+			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
+			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(ARoster->streamJid(),AItem.itemJid));
+			notify.data.insert(NDR_SOUND_FILE, SDF_ROSTER_CONTACT_ADDED);
+			FNotifies.insertMulti(ARoster,FNotifications->appendNotification(notify));
+		}
+	}
+}
+
 void RosterPlugin::onRosterOpened()
 {
 	Roster *roster = qobject_cast<Roster *>(sender());
@@ -97,18 +145,15 @@ void RosterPlugin::onRosterOpened()
 		emit rosterOpened(roster);
 }
 
-void RosterPlugin::onRosterItemReceived(const IRosterItem &ARosterItem)
+void RosterPlugin::onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore)
 {
 	Roster *roster = qobject_cast<Roster *>(sender());
 	if (roster)
-		emit rosterItemReceived(roster,ARosterItem);
-}
-
-void RosterPlugin::onRosterItemRemoved(const IRosterItem &ARosterItem)
-{
-	Roster *roster = qobject_cast<Roster *>(sender());
-	if (roster)
-		emit rosterItemRemoved(roster,ARosterItem);
+	{
+		if (AItem.subscription!=SUBSCRIPTION_REMOVE && !ABefore.isValid)
+			notifyContactAdded(roster,AItem);
+		emit rosterItemReceived(roster,AItem,ABefore);
+	}
 }
 
 void RosterPlugin::onRosterSubscription(const Jid &AItemJid, int ASubsType, const QString &AText)
@@ -122,7 +167,11 @@ void RosterPlugin::onRosterClosed()
 {
 	Roster *roster = qobject_cast<Roster *>(sender());
 	if (roster)
+	{
+		foreach(int notifyId, FNotifies.values(roster))
+			FNotifications->removeNotification(notifyId);
 		emit rosterClosed(roster);
+	}
 }
 
 void RosterPlugin::onRosterStreamJidAboutToBeChanged(const Jid &AAfter)
@@ -159,8 +208,7 @@ void RosterPlugin::onStreamAdded(IXmppStream *AXmppStream)
 	connect(roster->instance(),SIGNAL(streamJidAboutToBeChanged(const Jid &)),SLOT(onRosterStreamJidAboutToBeChanged(const Jid &)));
 	connect(roster->instance(),SIGNAL(streamJidChanged(const Jid &)),SLOT(onRosterStreamJidChanged(const Jid &)));
 	connect(roster->instance(),SIGNAL(opened()),SLOT(onRosterOpened()));
-	connect(roster->instance(),SIGNAL(received(const IRosterItem &)),SLOT(onRosterItemReceived(const IRosterItem &)));
-	connect(roster->instance(),SIGNAL(removed(const IRosterItem &)),SLOT(onRosterItemRemoved(const IRosterItem &)));
+	connect(roster->instance(),SIGNAL(received(const IRosterItem &,const IRosterItem &)),SLOT(onRosterItemReceived(const IRosterItem &,const IRosterItem &)));
 	connect(roster->instance(),SIGNAL(subscription(const Jid &, int, const QString &)),
 	        SLOT(onRosterSubscription(const Jid &, int, const QString &)));
 	connect(roster->instance(),SIGNAL(closed()),SLOT(onRosterClosed()));
@@ -177,6 +225,24 @@ void RosterPlugin::onStreamRemoved(IXmppStream *AXmppStream)
 		emit rosterRemoved(roster);
 		removeRoster(AXmppStream);
 	}
+}
+
+void RosterPlugin::onNotificationActivated(int ANotifyId)
+{
+	if (FNotifies.values().contains(ANotifyId))
+	{
+		if (FMessageProcessor)
+		{
+			INotification notify = FNotifications->notificationById(ANotifyId);
+			FMessageProcessor->createWindow(notify.data.value(NDR_STREAM_JID).toString(),notify.data.value(NDR_CONTACT_JID).toString(),Message::Chat,IMessageHandler::SM_SHOW);
+		}
+		FNotifications->removeNotification(ANotifyId);
+	}
+}
+
+void RosterPlugin::onNotificationRemoved(int ANotifyId)
+{
+	FNotifies.remove(FNotifies.key(ANotifyId),ANotifyId);
 }
 
 Q_EXPORT_PLUGIN2(plg_roster, RosterPlugin)

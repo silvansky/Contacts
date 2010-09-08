@@ -13,6 +13,7 @@
 #include <interfaces/iroster.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/inotifications.h>
+#include <interfaces/imessageprocessor.h>
 #include "presence.h"
 
 class PresencePlugin :
@@ -72,6 +73,7 @@ private:
 	IStatusIcons *FStatusIcons;
 	INotifications *FNotifications;
 	IStanzaProcessor *FStanzaProcessor;
+	IMessageProcessor *FMessageProcessor;
 private:
 	QList<IPresence *> FPresences;
 	QObjectCleanupHandler FCleanupHandler;

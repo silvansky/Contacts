@@ -100,8 +100,8 @@ bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &/*AI
 		FRosterPlugin = qobject_cast<IRosterPlugin *>(plugin->instance());
 		if (FRosterPlugin)
 		{
-			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &)),
-				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &)));
+			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)),
+				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)));
 		}
 	}
 
@@ -1244,13 +1244,14 @@ void ServiceDiscovery::onPresenceReceived(IPresence *APresence, const IPresenceI
 	}
 }
 
-void ServiceDiscovery::onRosterItemReceived(IRoster *ARoster, const IRosterItem &ARosterItem)
+void ServiceDiscovery::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore)
 {
-	if (ARosterItem.itemJid.node().isEmpty() && ARoster->isOpen() && !hasDiscoInfo(ARoster->streamJid(), ARosterItem.itemJid))
+	Q_UNUSED(ABefore);
+	if (AItem.subscription!=SUBSCRIPTION_REMOVE && AItem.itemJid.node().isEmpty() && ARoster->isOpen() && !hasDiscoInfo(ARoster->streamJid(), AItem.itemJid))
 	{
 		DiscoveryRequest request;
 		request.streamJid = ARoster->streamJid();
-		request.contactJid = ARosterItem.itemJid;
+		request.contactJid = AItem.itemJid;
 		appendQueuedRequest(QUEUE_REQUEST_START,request);
 	}
 }

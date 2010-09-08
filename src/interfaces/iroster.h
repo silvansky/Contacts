@@ -18,8 +18,12 @@
 #define SUBSCRIPTION_UNSUBSCRIBED     "unsubscribed"
 #define SUBSCRIPTION_REMOVE           "remove"
 
-struct IRosterItem {
-	IRosterItem() { isValid = false; subscription = SUBSCRIPTION_NONE; }
+struct IRosterItem 
+{
+	IRosterItem() { 
+		isValid = false;
+		subscription = SUBSCRIPTION_NONE;
+	}
 	bool isValid;
 	Jid itemJid;
 	QString name;
@@ -67,8 +71,7 @@ public:
 	virtual void removeGroup(const QString &AGroup) =0;
 protected:
 	virtual void opened() =0;
-	virtual void received(const IRosterItem &ARosterItem) =0;
-	virtual void removed(const IRosterItem &ARosterItem) =0;
+	virtual void received(const IRosterItem &AItem, const IRosterItem &ABefore) =0;
 	virtual void subscription(const Jid &AItemJid, int ASubsType, const QString &AText) =0;
 	virtual void closed() =0;
 	virtual void streamJidAboutToBeChanged(const Jid &AAfter) =0;
@@ -85,8 +88,7 @@ public:
 protected:
 	virtual void rosterAdded(IRoster *ARoster) =0;
 	virtual void rosterOpened(IRoster *ARoster) =0;
-	virtual void rosterItemReceived(IRoster *ARoster, const IRosterItem &ARosterItem) =0;
-	virtual void rosterItemRemoved(IRoster *ARoster, const IRosterItem &ARosterItem) =0;
+	virtual void rosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore) =0;
 	virtual void rosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText) =0;
 	virtual void rosterClosed(IRoster *ARoster) =0;
 	virtual void rosterStreamJidAboutToBeChanged(IRoster *ARoster, const Jid &AAfter) =0;

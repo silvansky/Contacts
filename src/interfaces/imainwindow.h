@@ -29,6 +29,7 @@ class IMainWindowPlugin
 public:
 	virtual QObject *instance() = 0;
 	virtual IMainWindow *mainWindow() const = 0;
+	virtual void showMainWindow() const =0;
 };
 
 Q_DECLARE_INTERFACE(IMainWindow,"Virtus.Plugin.IMainWindow/1.0")

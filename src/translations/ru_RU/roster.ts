@@ -18,5 +18,9 @@
         <source>Allows other modules to get information about contacts in the roster</source>
         <translation>Позволяет другим модулям получать информацию о контактах в ростере</translation>
     </message>
+    <message>
+        <source>Added to the contacts list</source>
+        <translation>Добавлен в контакт лист</translation>
+    </message>
 </context>
 </TS>

@@ -30,10 +30,10 @@ public:
 	virtual bool xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrder);
 	virtual bool xmppStanzaOut(IXmppStream *AXmppStream, Stanza &AStanza, int AOrder);
 	//IRoster
-	virtual Jid streamJid() const { return FXmppStream->streamJid(); }
-	virtual IXmppStream *xmppStream() const { return FXmppStream; }
-	virtual bool isOpen() const { return FOpened; }
-	virtual QString groupDelimiter() const { return FGroupDelim; }
+	virtual Jid streamJid() const;
+	virtual IXmppStream *xmppStream() const;
+	virtual bool isOpen() const;
+	virtual QString groupDelimiter() const;
 	virtual IRosterItem rosterItem(const Jid &AItemJid) const;
 	virtual QList<IRosterItem> rosterItems() const;
 	virtual QSet<QString> groups() const;
@@ -58,15 +58,13 @@ public:
 	virtual void removeGroup(const QString &AGroup);
 signals:
 	void opened();
-	void received(const IRosterItem &ARosterItem);
-	void removed(const IRosterItem &ARosterItem);
+	void received(const IRosterItem &AItem, const IRosterItem &ABefore);
 	void subscription(const Jid &AItemJid, int ASubsType, const QString &AText);
 	void closed();
 	void streamJidAboutToBeChanged(const Jid &AAfter);
 	void streamJidChanged(const Jid &ABefore);
 protected:
 	void processItemsElement(const QDomElement &AItemsElem, bool ACompleteRoster);
-	void removeRosterItem(const Jid &AItemJid);
 	void requestGroupDelimiter();
 	void setGroupDelimiter(const QString &ADelimiter);
 	void requestRosterItems();

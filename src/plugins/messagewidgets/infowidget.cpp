@@ -197,13 +197,13 @@ void InfoWidget::initialize()
 		{
 			if (FRoster)
 			{
-				disconnect(FRoster->instance(),SIGNAL(received(const IRosterItem &)), this, SLOT(onRosterItemReceived(const IRosterItem &)));
+				disconnect(FRoster->instance(),SIGNAL(received(const IRosterItem &, const IRosterItem &)), this, SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 			}
 
 			FRoster = rosterPlugin->getRoster(FStreamJid);
 			if (FRoster)
 			{
-				connect(FRoster->instance(),SIGNAL(received(const IRosterItem &)), SLOT(onRosterItemReceived(const IRosterItem &)));
+				connect(FRoster->instance(),SIGNAL(received(const IRosterItem &, const IRosterItem &)), SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 			}
 		}
 	}
@@ -303,9 +303,10 @@ void InfoWidget::onAccountChanged(const OptionsNode &ANode)
 		autoUpdateField(AccountName);
 }
 
-void InfoWidget::onRosterItemReceived(const IRosterItem &ARosterItem)
+void InfoWidget::onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore)
 {
-	if (isFiledAutoUpdated(ContactName) && (ARosterItem.itemJid && FContactJid))
+	Q_UNUSED(ABefore);
+	if (isFiledAutoUpdated(ContactName) && (AItem.itemJid && FContactJid))
 		autoUpdateField(ContactName);
 }
 

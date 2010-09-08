@@ -15,6 +15,7 @@ PresencePlugin::PresencePlugin()
 	FStatusIcons = NULL;
 	FNotifications = NULL;
 	FStanzaProcessor = NULL;
+	FMessageProcessor = NULL;
 }
 
 PresencePlugin::~PresencePlugin()
@@ -67,6 +68,10 @@ bool PresencePlugin::initConnections(IPluginManager *APluginManager, int &AInitO
 	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
 	if (plugin)
 		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
+	if (plugin)
+		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 
 	return FXmppStreams!=NULL && FStanzaProcessor!=NULL;
 }
@@ -150,7 +155,7 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 				notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
 				notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_MOOD_CHANGED);
 				
-				QString text = tr("Mood:")+"<br>"+Qt::escape(AItem.status);
+				QString text = Qt::escape(AItem.status);
 				if (FStatusIcons)
 				{
 					QString file =FStatusIcons->iconFileName(FStatusIcons->iconsetByJid(AItem.itemJid),FStatusIcons->iconKeyByJid(APresence->streamJid(),AItem.itemJid));
@@ -180,6 +185,7 @@ void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceIte
 				notify.notificatior = NID_CONTACT_STATE;
 				notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
 				notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
+				notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(isOnline ? IPresence::Online : IPresence::Offline, SUBSCRIPTION_BOTH, false) :QVariant());
 				notify.data.insert(NDR_POPUP_CAPTION, isOnline ? tr("Connected") : tr("Disconnected"));
 				notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
 				notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
@@ -304,12 +310,19 @@ void PresencePlugin::onStreamRemoved(IXmppStream *AXmppStream)
 void PresencePlugin::onNotificationActivated(int ANotifyId)
 {
 	if (FNotifies.values().contains(ANotifyId))
+	{
+		if (FMessageProcessor)
+		{
+			INotification notify = FNotifications->notificationById(ANotifyId);
+			FMessageProcessor->createWindow(notify.data.value(NDR_STREAM_JID).toString(),notify.data.value(NDR_CONTACT_JID).toString(),Message::Chat,IMessageHandler::SM_SHOW);
+		}
 		FNotifications->removeNotification(ANotifyId);
+	}
 }
 
 void PresencePlugin::onNotificationRemoved(int ANotifyId)
 {
-	FNotifies.remove(FNotifies.key(ANotifyId));
+	FNotifies.remove(FNotifies.key(ANotifyId),ANotifyId);
 }
 
 void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKinds)
@@ -322,13 +335,11 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contactJid = "vasilisa@rambler/virtus";
-			notify.data.insert(NDR_STREAM_JID,contactJid.full());
-			notify.data.insert(NDR_CONTACT_JID,contactJid.full());
 			notify.data.insert(NDR_POPUP_CAPTION,tr("Changed mood"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			
-			QString text = tr("Mood:")+"<br>"+Qt::escape(tr("Whatever was done, all the better"));
+			QString text = Qt::escape(tr("Whatever was done, all the better"));
 			if (FStatusIcons)
 			{
 				QString file =FStatusIcons->iconFileName(FStatusIcons->iconsetByJid(contactJid),FStatusIcons->iconKeyByStatus(IPresence::Online,SUBSCRIPTION_BOTH,false));
@@ -354,8 +365,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contactJid = "vasilisa@rambler/virtus";
-			notify.data.insert(NDR_STREAM_JID,contactJid.full());
-			notify.data.insert(NDR_CONTACT_JID,contactJid.full());
+			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Online, SUBSCRIPTION_BOTH, false) :QVariant());
 			notify.data.insert(NDR_POPUP_CAPTION,tr("Connected"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
