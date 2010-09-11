@@ -59,7 +59,8 @@ public:
 signals:
 	void opened();
 	void received(const IRosterItem &AItem, const IRosterItem &ABefore);
-	void subscription(const Jid &AItemJid, int ASubsType, const QString &AText);
+	void subscriptionSent(const Jid &AItemJid, int ASubsType, const QString &AText);
+	void subscriptionReceived(const Jid &AItemJid, int ASubsType, const QString &AText);
 	void closed();
 	void streamJidAboutToBeChanged(const Jid &AAfter);
 	void streamJidChanged(const Jid &ABefore);

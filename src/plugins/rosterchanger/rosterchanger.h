@@ -109,17 +109,21 @@ protected:
 	Menu *createGroupMenu(const QHash<int,QVariant> &AData, const QSet<QString> &AExceptGroups,
 		bool ANewGroup, bool ARootGroup, const char *ASlot, Menu *AParent);
 	SubscriptionDialog *createSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANotify, const QString &AMessage);
-	void showNotifyInChatWindow(IChatWindow *AWindow, const QString &ANotify, const QString &AText) const;
-	void removeChatWindowNotifications(IChatWindow *AWindow);
 	IChatWindow *findNoticeWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	INotice createNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const;
 	int insertNotice(IChatWindow *AWindow, const INotice &ANotice);
+	void removeObsoleteNotices(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent);
+	QList<int> findNotifies(const Jid &AStreamJid, const Jid &AContactJid) const;
 	QList<Action *> createNotifyActions(int AActions);
+	void showNotifyInChatWindow(IChatWindow *AWindow, const QString &ANotify, const QString &AText) const;
+	void removeChatWindowNotifies(IChatWindow *AWindow);
+	void removeObsoleteNotifies(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent);
 protected slots:
 	//Operations on subscription
 	void onContactSubscription(bool);
 	void onSendSubscription(bool);
-	void onReceiveSubscription(IRoster *ARoster, const Jid &AContactJid, int ASubsType, const QString &AText);
+	void onSubscriptionSent(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
+	void onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
 	//Operations on items
 	void onAddItemToGroup(bool);
 	void onRenameItem(bool);
@@ -159,15 +163,16 @@ private:
 	IOptionsManager *FOptionsManager;
 	IXmppUriQueries *FXmppUriQueries;
 	IMultiUserChatPlugin *FMultiUserChatPlugin;
-	IMainWindowPlugin * FMainWindowPlugin;
-	IAccountManager * FAccountManager;
+	IMainWindowPlugin *FMainWindowPlugin;
+	IAccountManager *FAccountManager;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 private:
 	QMap<int, int> FNotifyNotice;
+	QMap<int, int> FNoticeActions;
 	QMap<int, IChatWindow *> FNoticeWindow;
 	QList<IChatWindow *> FPendingChatWindows;
-	QMap<Jid, QMap<Jid, PendingNotice> > FPendingNotice;
+	QMap<Jid, QMap<Jid, PendingNotice> > FPendingNotices;
 	QMap<Jid, QMap<Jid, AutoSubscription> > FAutoSubscriptions;
 };
 

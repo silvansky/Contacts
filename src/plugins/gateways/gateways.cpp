@@ -90,8 +90,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		if (FRosterPlugin)
 		{
 			connect(FRosterPlugin->instance(),SIGNAL(rosterOpened(IRoster *)),SLOT(onRosterOpened(IRoster *)));
-			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscription(IRoster *, const Jid &, int , const QString &)),
-				SLOT(onRosterSubscription(IRoster *, const Jid &, int , const QString &)));
+			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscriptionReceived(IRoster *, const Jid &, int , const QString &)),
+				SLOT(onRosterSubscriptionReceived(IRoster *, const Jid &, int , const QString &)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)),
 				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)));
 		}
@@ -958,7 +958,7 @@ void Gateways::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, 
 	}
 }
 
-void Gateways::onRosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
+void Gateways::onRosterSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
 {
 	Q_UNUSED(AText);
 	if (ASubsType==IRoster::Subscribed && FSubscribeServices.contains(ARoster->streamJid(),AItemJid))

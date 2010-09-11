@@ -112,7 +112,7 @@ protected slots:
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onRosterOpened(IRoster *ARoster);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
-	void onRosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
+	void onRosterSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
 	void onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline);
 	void onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onPrivateStorateOpened(const Jid &AStreamJid);

@@ -156,11 +156,18 @@ void RosterPlugin::onRosterItemReceived(const IRosterItem &AItem, const IRosterI
 	}
 }
 
-void RosterPlugin::onRosterSubscription(const Jid &AItemJid, int ASubsType, const QString &AText)
+void RosterPlugin::onRosterSubscriptionSent(const Jid &AItemJid, int ASubsType, const QString &AText)
 {
 	Roster *roster = qobject_cast<Roster *>(sender());
 	if (roster)
-		emit rosterSubscription(roster,AItemJid,ASubsType,AText);
+		emit rosterSubscriptionSent(roster,AItemJid,ASubsType,AText);
+}
+
+void RosterPlugin::onRosterSubscriptionReceived(const Jid &AItemJid, int ASubsType, const QString &AText)
+{
+	Roster *roster = qobject_cast<Roster *>(sender());
+	if (roster)
+		emit rosterSubscriptionReceived(roster,AItemJid,ASubsType,AText);
 }
 
 void RosterPlugin::onRosterClosed()
@@ -205,13 +212,15 @@ void RosterPlugin::onRosterDestroyed(QObject *AObject)
 void RosterPlugin::onStreamAdded(IXmppStream *AXmppStream)
 {
 	IRoster *roster = addRoster(AXmppStream);
-	connect(roster->instance(),SIGNAL(streamJidAboutToBeChanged(const Jid &)),SLOT(onRosterStreamJidAboutToBeChanged(const Jid &)));
-	connect(roster->instance(),SIGNAL(streamJidChanged(const Jid &)),SLOT(onRosterStreamJidChanged(const Jid &)));
 	connect(roster->instance(),SIGNAL(opened()),SLOT(onRosterOpened()));
 	connect(roster->instance(),SIGNAL(received(const IRosterItem &,const IRosterItem &)),SLOT(onRosterItemReceived(const IRosterItem &,const IRosterItem &)));
-	connect(roster->instance(),SIGNAL(subscription(const Jid &, int, const QString &)),
-	        SLOT(onRosterSubscription(const Jid &, int, const QString &)));
+	connect(roster->instance(),SIGNAL(subscriptionSent(const Jid &, int, const QString &)),
+	        SLOT(onRosterSubscriptionSent(const Jid &, int, const QString &)));
+	connect(roster->instance(),SIGNAL(subscriptionReceived(const Jid &, int, const QString &)),
+		SLOT(onRosterSubscriptionReceived(const Jid &, int, const QString &)));
 	connect(roster->instance(),SIGNAL(closed()),SLOT(onRosterClosed()));
+	connect(roster->instance(),SIGNAL(streamJidAboutToBeChanged(const Jid &)),SLOT(onRosterStreamJidAboutToBeChanged(const Jid &)));
+	connect(roster->instance(),SIGNAL(streamJidChanged(const Jid &)),SLOT(onRosterStreamJidChanged(const Jid &)));
 	emit rosterAdded(roster);
 	roster->loadRosterItems(rosterFileName(roster->streamJid()));
 }

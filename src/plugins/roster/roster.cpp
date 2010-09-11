@@ -61,22 +61,22 @@ bool Roster::stanzaRead(int AHandlerId, const Jid &AStreamJid, const Stanza &ASt
 		QString status = AStanza.firstElement("status").text();
 		if (AStanza.type() == SUBSCRIPTION_SUBSCRIBE)
 		{
-			emit subscription(AStanza.from(),IRoster::Subscribe,status);
+			emit subscriptionReceived(AStanza.from(),IRoster::Subscribe,status);
 			AAccept = true;
 		}
 		else if (AStanza.type() == SUBSCRIPTION_SUBSCRIBED)
 		{
-			emit subscription(AStanza.from(),IRoster::Subscribed,status);
+			emit subscriptionReceived(AStanza.from(),IRoster::Subscribed,status);
 			AAccept = true;
 		}
 		else if (AStanza.type() == SUBSCRIPTION_UNSUBSCRIBE)
 		{
-			emit subscription(AStanza.from(),IRoster::Unsubscribe,status);
+			emit subscriptionReceived(AStanza.from(),IRoster::Unsubscribe,status);
 			AAccept = true;
 		}
 		else if (AStanza.type() == SUBSCRIPTION_UNSUBSCRIBED)
 		{
-			emit subscription(AStanza.from(),IRoster::Unsubscribed,status);
+			emit subscriptionReceived(AStanza.from(),IRoster::Unsubscribed,status);
 			AAccept = true;
 		}
 	}
@@ -254,13 +254,16 @@ void Roster::sendSubscription(const Jid &AItemJid, int ASubsType, const QString 
 		type = SUBSCRIPTION_UNSUBSCRIBE;
 	else if (ASubsType == IRoster::Unsubscribed)
 		type = SUBSCRIPTION_UNSUBSCRIBED;
-	else return;
 
-	Stanza subscr("presence");
-	subscr.setTo(AItemJid.eBare()).setType(type);
-	if (!AText.isEmpty())
-		subscr.addElement("status").appendChild(subscr.createTextNode(AText));
-	FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),subscr);
+	if (!type.isEmpty())
+	{
+		Stanza subscr("presence");
+		subscr.setTo(AItemJid.eBare()).setType(type);
+		if (!AText.isEmpty())
+			subscr.addElement("status").appendChild(subscr.createTextNode(AText));
+		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),subscr))
+			emit subscriptionSent(AItemJid.bare(),ASubsType,AText);
+	}
 }
 
 void Roster::removeItem(const Jid &AItemJid)

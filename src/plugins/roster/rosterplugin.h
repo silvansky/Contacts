@@ -39,7 +39,8 @@ signals:
 	void rosterAdded(IRoster *ARoster);
 	void rosterOpened(IRoster *ARoster);
 	void rosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
-	void rosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
+	void rosterSubscriptionSent(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
+	void rosterSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
 	void rosterClosed(IRoster *ARoster);
 	void rosterStreamJidAboutToBeChanged(IRoster *ARoster, const Jid &AAfter);
 	void rosterStreamJidChanged(IRoster *ARoster, const Jid &ABefore);
@@ -49,7 +50,8 @@ protected:
 protected slots:
 	void onRosterOpened();
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
-	void onRosterSubscription(const Jid &AItemJid, int ASubsType, const QString &AText);
+	void onRosterSubscriptionSent(const Jid &AItemJid, int ASubsType, const QString &AText);
+	void onRosterSubscriptionReceived(const Jid &AItemJid, int ASubsType, const QString &AText);
 	void onRosterClosed();
 	void onRosterStreamJidAboutToBeChanged(const Jid &AAfter);
 	void onRosterStreamJidChanged(const Jid &ABefour);

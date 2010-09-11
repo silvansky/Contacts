@@ -72,7 +72,8 @@ public:
 protected:
 	virtual void opened() =0;
 	virtual void received(const IRosterItem &AItem, const IRosterItem &ABefore) =0;
-	virtual void subscription(const Jid &AItemJid, int ASubsType, const QString &AText) =0;
+	virtual void subscriptionSent(const Jid &AItemJid, int ASubsType, const QString &AText) =0;
+	virtual void subscriptionReceived(const Jid &AItemJid, int ASubsType, const QString &AText) =0;
 	virtual void closed() =0;
 	virtual void streamJidAboutToBeChanged(const Jid &AAfter) =0;
 	virtual void streamJidChanged(const Jid &ABefore) =0;
@@ -89,7 +90,8 @@ protected:
 	virtual void rosterAdded(IRoster *ARoster) =0;
 	virtual void rosterOpened(IRoster *ARoster) =0;
 	virtual void rosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore) =0;
-	virtual void rosterSubscription(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText) =0;
+	virtual void rosterSubscriptionSent(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText) =0;
+	virtual void rosterSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText) =0;
 	virtual void rosterClosed(IRoster *ARoster) =0;
 	virtual void rosterStreamJidAboutToBeChanged(IRoster *ARoster, const Jid &AAfter) =0;
 	virtual void rosterStreamJidChanged(IRoster *ARoster, const Jid &ABefore) =0;
