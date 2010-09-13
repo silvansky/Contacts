@@ -504,7 +504,10 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 		messageClasses << MSMC_STATUS;
 	else
 		messageClasses << MSMC_MESSAGE;
-
+	if (isDirectionIn)
+		messageClasses << MSMC_INCOMING;
+	else
+		messageClasses << MSMC_OUTGOING;
 	if (AOptions.type & IMessageContentOptions::Groupchat)
 		messageClasses << MSMC_GROUPCHAT;
 	if (AOptions.type & IMessageContentOptions::History)
@@ -515,13 +518,14 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 		messageClasses << MSMC_MENTION;
 	if (AOptions.type & IMessageContentOptions::Notification)
 		messageClasses << MSMC_NOTIFICATION;
-	if (AOptions.type & IMessageContentOptions::DateSeparator)
-		messageClasses << MSSK_DATE_SEPARATOR;
 
-	if (isDirectionIn)
-		messageClasses << MSMC_INCOMING;
-	else
-		messageClasses << MSMC_OUTGOING;
+	QString messageStatus;
+	if (AOptions.status == IMessageContentOptions::DateSeparator)
+		messageStatus = MSSK_DATE_SEPARATOR;
+	else if (AOptions.status == IMessageContentOptions::HistoryLinks)
+		messageStatus = MSSK_HISTORY_LINKS;
+	if (!messageStatus.isEmpty())
+		messageClasses << messageStatus;
 
 	AHtml.replace("%messageClasses%", messageClasses.join(" "));
 
@@ -558,7 +562,7 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 
 	if (AOptions.kind == IMessageContentOptions::Status)
 	{
-		AHtml.replace("%status%","");
+		AHtml.replace("%status%",messageStatus);
 		AHtml.replace("%statusSender%",AOptions.senderName);
 	}
 	else

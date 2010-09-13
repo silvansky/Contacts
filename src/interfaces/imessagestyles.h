@@ -33,7 +33,10 @@ struct IMessageContentOptions
 		Event           = 0x04,
 		Mention         = 0x08,
 		Notification    = 0x10,
-		DateSeparator   = 0x20
+	};
+	enum ContentStatus {
+		DateSeparator,
+		HistoryLinks
 	};
 	enum ContentDirection {
 		DirectionIn,
@@ -52,6 +55,7 @@ struct IMessageContentOptions
 	IMessageContentOptions() { 
 		kind            = Message;
 		type            = 0;
+		status          = 0;
 		direction       = DirectionIn;
 		action          = InsertAfter;
 		extensions      = 0;
@@ -59,6 +63,7 @@ struct IMessageContentOptions
 	}
 	int kind;
 	int type;
+	int status;
 	int direction;
 	int action;
 	int extensions;

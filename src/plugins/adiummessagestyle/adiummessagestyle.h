@@ -54,6 +54,8 @@
 #define MSSK_ENCRYPTION                     "encryption"
 #define MSSK_FILETRANSFER_BEGAN             "fileTransferBegan"
 #define MSSK_FILETRANSFER_CONPLETE          "fileTransferComplete"
+//Rambler only
+#define MSSK_HISTORY_LINKS                  "history_links"
 
 //Message Style Options
 #define MSO_STYLE_ID                        "styleId"

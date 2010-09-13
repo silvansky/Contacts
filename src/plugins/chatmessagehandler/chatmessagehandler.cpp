@@ -581,10 +581,6 @@ void ChatMessageHandler::requestHistoryMessages(IChatWindow *AWindow, int ACount
 			showHistoryLinks(AWindow,HLS_WAITING);
 		}
 	}
-	else
-	{
-		showHistoryLinks(AWindow,HLS_FINISHED);
-	}
 }
 
 IPresence *ChatMessageHandler::findPresence(const Jid &AStreamJid) const
@@ -609,10 +605,11 @@ IPresenceItem ChatMessageHandler::findPresenceItem(IPresence *APresence, const J
 void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState)
 {
 	static QString urlMask = QString("<a href='%1'>%2</a>");
-	if (FRamblerHistory)
+	if (FRamblerHistory && FRamblerHistory->isSupported(AWindow->streamJid()))
 	{
 		IMessageContentOptions options;
 		options.kind = IMessageContentOptions::Status;
+		options.status = IMessageContentOptions::HistoryLinks;
 		options.time = QDateTime::fromTime_t(0);
 		options.timeFormat = " ";
 		options.noScroll = true;
@@ -700,8 +697,8 @@ QUuid ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDate &A
 	{
 		IMessageContentOptions options;
 		options.kind = IMessageContentOptions::Status;
+		options.status = IMessageContentOptions::DateSeparator;
 		options.direction = IMessageContentOptions::DirectionIn;
-		options.type = IMessageContentOptions::DateSeparator;
 		options.time.setDate(ADate);
 		options.time.setTime(QTime(0,0));
 		options.timeFormat = " ";
