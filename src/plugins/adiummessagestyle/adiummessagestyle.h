@@ -55,7 +55,8 @@
 #define MSSK_FILETRANSFER_BEGAN             "fileTransferBegan"
 #define MSSK_FILETRANSFER_CONPLETE          "fileTransferComplete"
 //Rambler only
-#define MSSK_HISTORY_LINKS                  "history_links"
+#define MSSK_HISTORY_SHOW                   "history_show"
+#define MSSK_HISTORY_REQUEST                "history_request"
 
 //Message Style Options
 #define MSO_STYLE_ID                        "styleId"
@@ -133,7 +134,7 @@ public:
 	static QMap<QString, QVariant> styleInfo(const QString &AStylePath);
 protected:
 	int scriptActionCommand(const IMessageContentOptions &AOptions) const;
-	int scriptActionIndex(QWidget *AWidget, const IMessageContentOptions &AOptions) const;
+	int scriptContentIndex(QWidget *AWidget, const IMessageContentOptions &AOptions) const;
 	bool isSameSender(QWidget *AWidget, const IMessageContentOptions &AOptions, int AIndex) const;
 	void setVariant(QWidget *AWidget, const QString  &AVariant);
 	QString makeStyleTemplate(const IMessageStyleOptions &AOptions) const;

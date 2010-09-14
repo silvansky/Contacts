@@ -36,7 +36,8 @@ struct IMessageContentOptions
 	};
 	enum ContentStatus {
 		DateSeparator,
-		HistoryLinks
+		HistoryShow,
+		HistoryRequest
 	};
 	enum ContentDirection {
 		DirectionIn,

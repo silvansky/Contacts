@@ -147,8 +147,8 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 	StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget) : NULL;
 	if (view)
 	{
-		int actionIndex = scriptActionIndex(AWidget,AOptions);
-		if (actionIndex >= 0)
+		int contentIndex = scriptContentIndex(AWidget,AOptions);
+		if (contentIndex >= 0)
 		{
 			QUuid contentId;
 			if (AOptions.action != IMessageContentOptions::Remove)
@@ -162,17 +162,17 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 				if (AOptions.action != IMessageContentOptions::Replace)
 				{
 					cparams.contentId = QUuid::createUuid();
-					content.insert(actionIndex,cparams);
+					content.insert(contentIndex, cparams);
 				}
 				else
 				{
-					cparams.contentId = content.at(actionIndex).contentId;
-					content.replace(actionIndex,cparams);
+					cparams.contentId = content.at(contentIndex).contentId;
+					content.replace(contentIndex,cparams);
 				}
 				contentId = cparams.contentId;
 
 				int actionCommand = scriptActionCommand(AOptions);
-				bool sameSender = isSameSender(AWidget,AOptions,actionIndex);
+				bool sameSender = isSameSender(AWidget,AOptions,contentIndex);
 				QString html = makeContentTemplate(AOptions,sameSender);
 				fillContentKeywords(html,AOptions,sameSender);
 
@@ -182,16 +182,15 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 				html.replace("%contentId%",cparams.contentId);
 
 				escapeStringForScript(html);
-				QString script = scriptForAppendContent(AOptions,sameSender).arg(html).arg(actionIndex).arg(actionCommand);
+				QString script = scriptForAppendContent(AOptions,sameSender).arg(html).arg(contentIndex).arg(actionCommand);
 				view->page()->mainFrame()->evaluateJavaScript(script);
 			}
 			else
 			{
-				view->page()->mainFrame()->evaluateJavaScript(QString(DELETE_MESSAGE).arg(actionIndex));
-
 				QList<ContentParams> &content = FWidgetStatus[AWidget].content;
-				contentId = content.value(actionIndex).contentId;
-				content.removeAt(actionIndex);
+				contentId = content.value(contentIndex).contentId;
+				content.removeAt(contentIndex);
+				view->page()->mainFrame()->evaluateJavaScript(QString(DELETE_MESSAGE).arg(contentIndex));
 			}
 			emit contentChanged(AWidget,contentId,AHtml,AOptions);
 			return contentId;
@@ -273,44 +272,38 @@ int AdiumMessageStyle::scriptActionCommand(const IMessageContentOptions &AOption
 	return command;
 }
 
-int AdiumMessageStyle::scriptActionIndex(QWidget *AWidget, const IMessageContentOptions &AOptions) const
+int AdiumMessageStyle::scriptContentIndex(QWidget *AWidget, const IMessageContentOptions &AOptions) const
 {
 	int index = -1;
-	if (!AOptions.contentId.isNull() || AOptions.time.isValid())
+	bool timeValid = AOptions.time.isValid();
+	bool contentValid = !AOptions.contentId.isNull();
+	if (timeValid || contentValid)
 	{
 		const QList<ContentParams> &content = FWidgetStatus.value(AWidget).content;
-		for (index=content.count()-1; index>=0; index--)
+		for (int i = content.count()-1; index<0 && i>=0; i--)
 		{
-			if (!AOptions.contentId.isNull() && AOptions.contentId==content.at(index).contentId)
-				break;
-			else if (AOptions.time.isValid() && AOptions.time>=content.at(index).time)
-				break;
-		}
-
-		if (index >= 0)
-		{
-			if (AOptions.contentId == content.at(index).contentId)
+			if (contentValid)
 			{
-				if (AOptions.action == IMessageContentOptions::InsertAfter)
-				{
-					index++;
-				}
+				if (AOptions.contentId == content.at(i).contentId)
+					index = i;
 			}
 			else
 			{
-				index++;
+				if (AOptions.time>=content.at(i).time)
+					index = i;
 			}
 		}
-		else if (AOptions.contentId.isNull() && AOptions.time.isValid())
+
+		if (index<0 && !contentValid)
 		{
 			if (AOptions.action == IMessageContentOptions::InsertAfter)
-			{
 				index = 0;
-			}
 			else if (AOptions.action == IMessageContentOptions::InsertBefore)
-			{
 				index = 0;
-			}
+		}
+		else if (index>=0 && AOptions.action==IMessageContentOptions::InsertAfter)
+		{
+			index++;
 		}
 	}
 	return index;
@@ -331,7 +324,7 @@ bool AdiumMessageStyle::isSameSender(QWidget *AWidget, const IMessageContentOpti
 	if (wstatus.content.isEmpty())
 		return false;
 
-	const ContentParams &cparams = AIndex<wstatus.content.count() ? wstatus.content.at(AIndex-1) : wstatus.content.last();
+	const ContentParams &cparams = wstatus.content.at(AIndex-1);
 	if (cparams.kind != AOptions.kind)
 		return false;
 	if (cparams.senderId != AOptions.senderId)
@@ -522,8 +515,10 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 	QString messageStatus;
 	if (AOptions.status == IMessageContentOptions::DateSeparator)
 		messageStatus = MSSK_DATE_SEPARATOR;
-	else if (AOptions.status == IMessageContentOptions::HistoryLinks)
-		messageStatus = MSSK_HISTORY_LINKS;
+	else if (AOptions.status == IMessageContentOptions::HistoryShow)
+		messageStatus = MSSK_HISTORY_SHOW;
+	else if (AOptions.status == IMessageContentOptions::HistoryRequest)
+		messageStatus = MSSK_HISTORY_REQUEST;
 	if (!messageStatus.isEmpty())
 		messageClasses << messageStatus;
 

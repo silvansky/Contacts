@@ -44,7 +44,7 @@ struct WindowStatus
 	QDateTime createTime;
 	QString historyId;
 	QDateTime historyTime;
-	QUuid historyLinkId;
+	QUuid historyRequestId;
 	QString lastStatusShow;
 	QList<QDate> separators;
 	QList<int> notified;
@@ -127,7 +127,7 @@ protected:
 	void requestHistoryMessages(IChatWindow *AWindow, int ACount);
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
-	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState);
+	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit = false);
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
 	QUuid showDateSeparator(IChatWindow *AWindow, const QDate &ADate);

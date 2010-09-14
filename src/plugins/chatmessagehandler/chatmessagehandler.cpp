@@ -602,46 +602,49 @@ IPresenceItem ChatMessageHandler::findPresenceItem(IPresence *APresence, const J
 	return pitem;
 }
 
-void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState)
+void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit)
 {
 	static QString urlMask = QString("<a href='%1'>%2</a>");
 	if (FRamblerHistory && FRamblerHistory->isSupported(AWindow->streamJid()))
 	{
 		IMessageContentOptions options;
 		options.kind = IMessageContentOptions::Status;
-		options.status = IMessageContentOptions::HistoryLinks;
 		options.time = QDateTime::fromTime_t(0);
 		options.timeFormat = " ";
 		options.noScroll = true;
 		
+		if (AInit)
+		{
+			QUrl showWindowUrl;
+			showWindowUrl.setScheme(URL_SCHEME_ACTION);
+			showWindowUrl.setPath(URL_PATH_HISTORY);
+			showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
+			options.status = IMessageContentOptions::HistoryShow;
+			AWindow->viewWidget()->changeContentHtml(urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history")),options);
+		}
+
 		QString message;
-
-		QUrl showWindowUrl;
-		showWindowUrl.setScheme(URL_SCHEME_ACTION);
-		showWindowUrl.setPath(URL_PATH_HISTORY);
-		showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
-		message += (!message.isEmpty() ? QString("<br>") : QString::null) + urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history"));
-
+		options.status = IMessageContentOptions::HistoryRequest;
 		if (AState == HLS_READY)
 		{
 			QUrl showMesagesUrl;
 			showMesagesUrl.setScheme(URL_SCHEME_ACTION);
 			showMesagesUrl.setPath(URL_PATH_HISTORY);
 			showMesagesUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("messages")));
-			message += (!message.isEmpty() ? QString("<br>") : QString::null) + urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages"));
+			message = urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages"));
 		}
 		else if (AState == HLS_WAITING)
 		{
-			message += (!message.isEmpty() ? QString("<br>") : QString::null) + tr("Loading messages from server...");
+			message = tr("Loading messages from server...");
 		}
 
 		WindowStatus &wstatus = FWindowStatus[AWindow];
-		if (!wstatus.historyLinkId.isNull())
+		if (!wstatus.historyRequestId.isNull())
 		{
-			options.action = IMessageContentOptions::Replace;
-			options.contentId = wstatus.historyLinkId;
+			options.action = AState!=HLS_FINISHED ? IMessageContentOptions::Replace : IMessageContentOptions::Remove;
+			options.contentId = wstatus.historyRequestId;
 		}
-		wstatus.historyLinkId =  AWindow->viewWidget()->changeContentHtml(message,options);
+		wstatus.historyRequestId =  AWindow->viewWidget()->changeContentHtml(message,options);
 	}
 }
 
@@ -657,9 +660,9 @@ void ChatMessageHandler::setMessageStyle(IChatWindow *AWindow)
 	wstatus.offline.clear();
 	wstatus.historyId = QString::null;
 	wstatus.historyTime = QDateTime();
-	wstatus.historyLinkId = QUuid();
+	wstatus.historyRequestId = QUuid();
 
-	showHistoryLinks(AWindow, HLS_READY);
+	showHistoryLinks(AWindow, HLS_READY, true);
 }
 
 void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const
