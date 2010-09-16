@@ -176,7 +176,7 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 				QString html = makeContentTemplate(AOptions,sameSender);
 				fillContentKeywords(html,AOptions,sameSender);
 
-				html.replace("%message%",processCommands(AHtml,AOptions));
+				html.replace("%message%",prepareMessageHtml(AHtml,AOptions));
 				if (AOptions.kind == IMessageContentOptions::Topic)
 					html.replace("%topic%",QString(TOPIC_INDIVIDUAL_WRAPPER).arg(AHtml));
 				html.replace("%contentId%",cparams.contentId);
@@ -593,32 +593,45 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 	}
 }
 
-QString AdiumMessageStyle::processCommands(const QString &AHtml, const IMessageContentOptions &AOptions) const
+QString AdiumMessageStyle::prepareMessageHtml(const QString &AHtml, const IMessageContentOptions &AOptions) const
 {
 	bool changed = false;
+
 	QTextDocument message;
 	message.setHtml(AHtml);
+	QTextCursor cursor(&message);
 
 	// "/me" command
 	if (!AOptions.senderName.isEmpty())
 	{
-		QRegExp me("^/me\\s");
-		for (QTextCursor cursor = message.find(me); !cursor.isNull();  cursor = message.find(me,cursor))
+		static const QRegExp mePattern("^/me\\s");
+		for (cursor = message.find(mePattern); !cursor.isNull();  cursor = message.find(mePattern,cursor))
 		{
 			changed = true;
 			cursor.insertHtml("*&nbsp;<i>"+AOptions.senderName+"&nbsp;</i>");
 		}
 	}
 
-	if (changed)
+	// word breaks
+	static const QRegExp wordPattern("\\S+");
+	static const int breakWordLength = 8;
+	static const int breakPerChar = 3;
+	static const QString breakMark = "%WBR%";
+	static const QString breakHtml = "<wbr>";
+	static const int breakMarkLength = breakMark.length();
+	for (cursor = message.find(wordPattern); !cursor.isNull();  cursor = message.find(wordPattern,cursor))
 	{
-		QString html = message.toHtml();
-		QRegExp body("<body.*>(.*)</body>");
-		body.setMinimal(false);
-		return html.indexOf(body)>=0 ? body.cap(1).trimmed() : html;
+		QString word = cursor.selectedText();
+		if (word.length() >= breakWordLength)
+		{
+			for (int pos = breakPerChar; pos+1<word.length(); pos+=breakPerChar+breakMarkLength)
+				word.insert(pos,breakMark);
+			cursor.insertText(word);
+			changed = true;
+		}
 	}
 
-	return AHtml;
+	return changed ? getHtmlBody(message.toHtml()).replace(breakMark,breakHtml) : AHtml;
 }
 
 void AdiumMessageStyle::escapeStringForScript(QString &AText) const

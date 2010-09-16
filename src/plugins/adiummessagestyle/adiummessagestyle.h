@@ -6,6 +6,7 @@
 #include <definations/resources.h>
 #include <interfaces/imessagestyles.h>
 #include <utils/filestorage.h>
+#include <utils/message.h>
 #include "styleviewer.h"
 
 //Message Style Info Values
@@ -141,7 +142,7 @@ protected:
 	void fillStyleKeywords(QString &AHtml, const IMessageStyleOptions &AOptions) const;
 	QString makeContentTemplate(const IMessageContentOptions &AOptions, bool ASameSender) const;
 	void fillContentKeywords(QString &AHtml, const IMessageContentOptions &AOptions, bool ASameSender) const;
-	QString processCommands(const QString &AHtml, const IMessageContentOptions &AOptions) const;
+	QString prepareMessageHtml(const QString &AHtml, const IMessageContentOptions &AOptions) const;
 	void escapeStringForScript(QString &AText) const;
 	QString scriptForAppendContent(const IMessageContentOptions &AOptions, bool ASameSender) const;
 	QString loadFileData(const QString &AFileName, const QString &DefValue) const;
