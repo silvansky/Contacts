@@ -14,7 +14,6 @@
 #define ADR_SUBSCRIPTION    Action::DR_Parametr2
 #define ADR_NICK            Action::DR_Parametr2
 #define ADR_GROUP           Action::DR_Parametr3
-#define ADR_REQUEST         Action::DR_Parametr4
 #define ADR_TO_GROUP        Action::DR_Parametr4
 #define ADR_NOTICE_ID       Action::DR_UserDefined+1
 #define ADR_NOTIFY_ID       Action::DR_UserDefined+2
@@ -882,7 +881,6 @@ void RosterChanger::onShowAddContactDialog(bool)
 			dialog->setContactJid(action->data(ADR_CONTACT_JID).toString());
 			dialog->setNickName(action->data(ADR_NICK).toString());
 			dialog->setGroup(action->data(ADR_GROUP).toString());
-			dialog->setSubscriptionMessage(action->data(ADR_REQUEST).toString());
 		}
 	}
 }

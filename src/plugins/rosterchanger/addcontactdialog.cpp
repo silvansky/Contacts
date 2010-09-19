@@ -1,34 +1,34 @@
 #include "addcontactdialog.h"
 
 #include <QSet>
+#include <QPushButton>
 #include <QMessageBox>
+#include <QInputDialog>
+
+#define GROUP_NEW         ":group_new:"
+#define GROUP_EMPTY       ":empty_group:"
 
 AddContactDialog::AddContactDialog(IRosterChanger *ARosterChanger, IPluginManager *APluginManager, const Jid &AStreamJid, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-	setWindowTitle(tr("Add contact - %1").arg(AStreamJid.bare()));
+	setWindowTitle(tr("Add contact"));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_RCHANGER_ADD_CONTACT,0,0,"windowIcon");
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDCONTACTDIALOG);
 
 	FRoster = NULL;
 	FVcardPlugin = NULL;
-	FMessageProcessor = NULL;
-	FResolving = false;
-
 	FRosterChanger = ARosterChanger;
 	FStreamJid = AStreamJid;
 
-	QToolBar *toolBar = new QToolBar(this);
-	toolBar->setIconSize(QSize(16,16));
-	ui.lytMainLayout->setMenuBar(toolBar);
-	FToolBarChanger = new ToolBarChanger(toolBar);
-
-	setSubscriptionMessage(tr("Please, authorize me to your presence."));
-
 	initialize(APluginManager);
+	initGroups();
+	initGateways();
 
 	connect(ui.dbbButtons,SIGNAL(accepted()),SLOT(onDialogAccepted()));
 	connect(ui.dbbButtons,SIGNAL(rejected()),SLOT(reject()));
+	ui.dbbButtons->button(QDialogButtonBox::Ok)->setEnabled(false);
+	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add contact"));
 }
 
 AddContactDialog::~AddContactDialog()
@@ -53,17 +53,17 @@ void AddContactDialog::setContactJid(const Jid &AContactJid)
 
 QString AddContactDialog::nickName() const
 {
-	return ui.lneNickName->text();
+	return ui.lneNick->text();
 }
 
 void AddContactDialog::setNickName(const QString &ANick)
 {
-	ui.lneNickName->setText(ANick);
+	ui.lneNick->setText(ANick);
 }
 
 QString AddContactDialog::group() const
 {
-	return ui.cmbGroup->currentText();
+	return ui.cmbGroup->itemData(ui.cmbGroup->currentIndex()).isNull() ? ui.cmbGroup->currentText() : QString::null;
 }
 
 void AddContactDialog::setGroup(const QString &AGroup)
@@ -71,29 +71,14 @@ void AddContactDialog::setGroup(const QString &AGroup)
 	ui.cmbGroup->setEditText(AGroup);
 }
 
-QString AddContactDialog::subscriptionMessage() const
+Jid AddContactDialog::gatewayJid() const
 {
-	return ui.tedMessage->toPlainText();
+	return ui.cmbProfile->itemData(ui.cmbProfile->currentIndex()).toString();
 }
 
-void AddContactDialog::setSubscriptionMessage(const QString &AText)
+void AddContactDialog::setGatewayJid(const Jid &AGatewayJid)
 {
-	ui.tedMessage->setPlainText(AText);
-}
 
-bool AddContactDialog::subscribeContact() const
-{
-	return ui.chbSubscribe->isChecked();
-}
-
-void AddContactDialog::setSubscribeContact(bool ASubscribe)
-{
-	ui.chbSubscribe->setCheckState(ASubscribe ? Qt::Checked : Qt::Unchecked);
-}
-
-ToolBarChanger *AddContactDialog::toolBarChanger() const
-{
-	return FToolBarChanger;
 }
 
 void AddContactDialog::initialize(IPluginManager *APluginManager)
@@ -103,60 +88,57 @@ void AddContactDialog::initialize(IPluginManager *APluginManager)
 	{
 		IRosterPlugin *rosterPlugin = qobject_cast<IRosterPlugin *>(plugin->instance());
 		FRoster = rosterPlugin!=NULL ? rosterPlugin->getRoster(FStreamJid) : NULL;
-		if (FRoster)
-		{
-			ui.cmbGroup->addItems(FRoster->groups().toList());
-			ui.cmbGroup->model()->sort(0,Qt::AscendingOrder);
-			ui.cmbGroup->setCurrentIndex(-1);
-			ui.lblGroupDelim->setText(tr("* nested group delimiter - '%1'").arg(Qt::escape(FRoster->groupDelimiter())));
-		}
-	}
-
-	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
-	if (plugin)
-	{
-		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
-		if (FMessageProcessor)
-		{
-			FShowChat = new Action(FToolBarChanger->toolBar());
-			FShowChat->setText(tr("Chat"));
-			FShowChat->setToolTip(tr("Open chat window"));
-			FShowChat->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
-			FToolBarChanger->insertAction(FShowChat,TBG_RCACD_ROSTERCHANGER);
-			connect(FShowChat,SIGNAL(triggered(bool)),SLOT(onToolBarActionTriggered(bool)));
-
-			//FSendMessage = new Action(FToolBarChanger->toolBar());
-			//FSendMessage->setText(tr("Message"));
-			//FSendMessage->setToolTip(tr("Send Message"));
-			//FSendMessage->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
-			//FToolBarChanger->insertAction(FSendMessage,TBG_RCACD_ROSTERCHANGER);
-			//connect(FSendMessage,SIGNAL(triggered(bool)),SLOT(onToolBarActionTriggered(bool)));
-		}
 	}
 
 	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
 	if (plugin)
 	{
 		FVcardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
-		if (FVcardPlugin)
+	}
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+	{
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+		if (FGateways)
 		{
-			FShowVCard = new Action(FToolBarChanger->toolBar());
-			FShowVCard->setText(tr("VCard"));
-			FShowVCard->setToolTip(tr("Show VCard"));
-			FShowVCard->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
-			FToolBarChanger->insertAction(FShowVCard,TBG_RCACD_ROSTERCHANGER);
-			connect(FShowVCard,SIGNAL(triggered(bool)),SLOT(onToolBarActionTriggered(bool)));
-
-			FResolve = new Action(FToolBarChanger->toolBar());
-			FResolve->setText(tr("Nick"));
-			FResolve->setToolTip(tr("Resolve nick name"));
-			FResolve->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_RESOLVE);
-			FToolBarChanger->insertAction(FResolve,TBG_RCACD_ROSTERCHANGER);
-			connect(FResolve,SIGNAL(triggered(bool)),SLOT(onToolBarActionTriggered(bool)));
-
-			connect(FVcardPlugin->instance(),SIGNAL(vcardReceived(const Jid &)),SLOT(onVCardReceived(const Jid &)));
+			connect(FGateways->instance(),SIGNAL(loginReceived(const QString &, const QString &)),SLOT(onServiceLoginReceived(const QString &, const QString &)));
+			connect(FGateways->instance(),SIGNAL(errorReceived(const QString &, const QString &)),SLOT(onServiceErrorReceived(const QString &, const QString &)));
 		}
 	}
+}
+
+void AddContactDialog::initGroups()
+{
+	QList<QString> groups = FRoster!=NULL ? FRoster->groups().toList() : QList<QString>();
+	qSort(groups);
+	ui.cmbGroup->addItem(tr("<Common Group>"),QString(GROUP_EMPTY));
+	ui.cmbGroup->addItems(groups);
+	ui.cmbGroup->addItem(tr("New Group..."),QString(GROUP_NEW));
+
+	int last = ui.cmbGroup->findText(Options::node(OPV_ROSTER_ADDCONTACTDIALOG_LASTGROUP).value().toString());
+	if (last>=0 && last<ui.cmbGroup->count()-1)
+		ui.cmbGroup->setCurrentIndex(last);
+	connect(ui.cmbGroup,SIGNAL(currentIndexChanged(int)),SLOT(onGroupCurrentIndexChanged(int)));
+}
+
+void AddContactDialog::initGateways()
+{
+	if (FGateways)
+	{
+		ui.cmbProfile->clear();
+		ui.cmbProfile->addItem(FStreamJid.bare());
+
+		IDiscoIdentity identity;
+		identity.category = "gateway";
+		QList<Jid> services = FGateways->streamServices(FStreamJid,identity);
+		foreach(Jid serviceJid, services)
+		{
+			QString id = FGateways->sendLoginRequest(FStreamJid,serviceJid);
+			if (!id.isEmpty())
+				FLoginRequests.insert(id,serviceJid);
+		}
+	}	
 }
 
 void AddContactDialog::onDialogAccepted()
@@ -169,8 +151,7 @@ void AddContactDialog::onDialogAccepted()
 			if (!group().isEmpty())
 				groups += group();
 			FRoster->setItem(contactJid().bare(),nickName(),groups);
-			if (subscribeContact())
-				FRosterChanger->subscribeContact(FStreamJid,contactJid(),subscriptionMessage());
+			FRosterChanger->subscribeContact(FStreamJid,contactJid(),QString::null);
 			accept();
 		}
 		else
@@ -180,49 +161,51 @@ void AddContactDialog::onDialogAccepted()
 	}
 	else if (!contactJid().isEmpty())
 	{
-		QMessageBox::warning(this,FStreamJid.bare(),
-		                     tr("Can`t add contact '<b>%1</b>' because it is not a valid Jaber ID").arg(contactJid().hBare()));
+		QMessageBox::warning(this,FStreamJid.bare(),tr("Can`t add contact '<b>%1</b>' because it is not a valid Jaber ID").arg(contactJid().hBare()));
 	}
 }
 
-void AddContactDialog::onToolBarActionTriggered(bool)
+void AddContactDialog::onGroupCurrentIndexChanged(int AIndex)
 {
-	Action *action = qobject_cast<Action *>(sender());
-	if (action!=NULL && contactJid().isValid())
+	if (ui.cmbGroup->itemData(AIndex).toString() == GROUP_NEW)
 	{
-		if (action == FShowChat)
+		int index = 0;
+		QString newGroup = QInputDialog::getText(this,tr("Create group"),tr("New group name")).trimmed();
+		if (!newGroup.isEmpty())
 		{
-			FMessageProcessor->createWindow(FStreamJid,contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+			index = ui.cmbGroup->findText(newGroup);
+			if (index < 0)
+			{
+				ui.cmbGroup->blockSignals(true);
+				ui.cmbGroup->insertItem(1,newGroup);
+				ui.cmbGroup->blockSignals(false);
+				index = 1;
+			}
+			else if (!ui.cmbGroup->itemData(AIndex).isNull())
+			{
+				index = 0;
+			}
 		}
-		else if (action == FSendMessage)
-		{
-			FMessageProcessor->createWindow(FStreamJid,contactJid(),Message::Normal,IMessageHandler::SM_SHOW);
-		}
-		else if (action == FShowVCard)
-		{
-			FVcardPlugin->showVCardDialog(FStreamJid,contactJid().bare());
-		}
-		else if (action == FResolve)
-		{
-			FResolving = true;
-			if (FVcardPlugin->hasVCard(contactJid().bare()))
-				onVCardReceived(contactJid());
-			else
-				FVcardPlugin->requestVCard(FStreamJid,contactJid());
-		}
+		ui.cmbGroup->setCurrentIndex(index);
 	}
 }
 
 void AddContactDialog::onVCardReceived(const Jid &AContactJid)
 {
-	if (FResolving && (AContactJid && contactJid()))
+	Q_UNUSED(AContactJid);
+}
+
+void AddContactDialog::onServiceLoginReceived(const QString &AId, const QString &ALogin)
+{
+	if (FLoginRequests.contains(AId))
 	{
-		IVCard *vcard = FVcardPlugin->vcard(AContactJid.bare());
-		if (vcard)
-		{
-			setNickName(vcard->value(VVN_NICKNAME));
-			vcard->unlock();
-		}
-		FResolving = false;
+		Jid serviceJid = FLoginRequests.take(AId);
+		ui.cmbProfile->addItem(ALogin,serviceJid.full());
 	}
+}
+
+void AddContactDialog::onServiceErrorReceived(const QString &AId, const QString &AError)
+{
+	Q_UNUSED(AError);
+	FLoginRequests.remove(AId);
 }

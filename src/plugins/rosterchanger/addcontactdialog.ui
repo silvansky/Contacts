@@ -6,104 +6,178 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>369</width>
-    <height>291</height>
+    <width>393</width>
+    <height>267</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="lytMainLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <property name="margin">
     <number>5</number>
    </property>
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="lblContact">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="1" colspan="3">
+      <widget class="QLabel" name="lblInfo">
        <property name="text">
-        <string>Contact:</string>
+        <string>You can add friends and acquaintances who use one of the following services:</string>
        </property>
-       <property name="buddy">
-        <cstring>lneContact</cstring>
+       <property name="wordWrap">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
+     <item row="2" column="0" rowspan="2">
+      <widget class="QLabel" name="lblPhoto">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>50</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="text">
+        <string notr="true">lblPhoto</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="3">
+      <widget class="QWidget" name="wdtGateways" native="true"/>
+     </item>
+     <item row="3" column="1" colspan="3">
       <widget class="QLineEdit" name="lneContact"/>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="lblNickName">
+     <item row="4" column="1" colspan="3">
+      <widget class="QLabel" name="lblError">
        <property name="text">
-        <string>Nick:</string>
+        <string notr="true">lblNotification</string>
        </property>
-       <property name="buddy">
-        <cstring>lneNickName</cstring>
+       <property name="wordWrap">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lneNickName"/>
+     <item row="5" column="1" colspan="3">
+      <widget class="QLabel" name="lblAction">
+       <property name="text">
+        <string notr="true">lblActionLink</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
-     <item row="2" column="0">
+     <item row="6" column="0">
+      <widget class="QLabel" name="lblNickName">
+       <property name="text">
+        <string>Name:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring>lneNick</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLineEdit" name="lneNick"/>
+     </item>
+     <item row="6" column="3">
+      <widget class="QLabel" name="lblSearchNick">
+       <property name="text">
+        <string>search...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
       <widget class="QLabel" name="lblGroup">
        <property name="text">
-        <string>Group:</string>
+        <string>To group:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buddy">
         <cstring>cmbGroup</cstring>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="cmbGroup">
-       <property name="editable">
-        <bool>true</bool>
+     <item row="7" column="1">
+      <widget class="QComboBox" name="cmbGroup"/>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="lblProfile">
+       <property name="text">
+        <string>To profile:</string>
        </property>
-       <property name="duplicatesEnabled">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="buddy">
+        <cstring>cmbProfile</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QComboBox" name="cmbProfile"/>
+     </item>
+     <item row="6" column="2">
+      <widget class="QLabel" name="lblSearchAnimate">
+       <property name="minimumSize">
+        <size>
+         <width>15</width>
+         <height>15</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="3">
+      <widget class="QLabel" name="lblCaption">
+       <property name="text">
+        <string>Enter the address of new contact</string>
+       </property>
+       <property name="wordWrap">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QLabel" name="lblGroupDelim">
-       <property name="text">
-        <string/>
+     <item row="7" column="3">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-      </widget>
+       <property name="sizeType">
+        <enum>QSizePolicy::Minimum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="grbSubscription">
-     <property name="title">
-      <string>Subscription</string>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="margin">
-       <number>5</number>
-      </property>
-      <item>
-       <widget class="QCheckBox" name="chbSubscribe">
-        <property name="text">
-         <string>Subscribe to contact presence</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTextEdit" name="tedMessage">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="acceptRichText">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
    <item>
@@ -121,29 +195,11 @@
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>lneContact</tabstop>
-  <tabstop>lneNickName</tabstop>
+  <tabstop>lneNick</tabstop>
   <tabstop>cmbGroup</tabstop>
-  <tabstop>chbSubscribe</tabstop>
-  <tabstop>tedMessage</tabstop>
+  <tabstop>cmbProfile</tabstop>
   <tabstop>dbbButtons</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>chbSubscribe</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>tedMessage</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>311</x>
-     <y>124</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>299</x>
-     <y>134</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

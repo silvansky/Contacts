@@ -19,11 +19,6 @@ public:
 	virtual void setNickName(const QString &ANick) =0;
 	virtual QString group() const =0;
 	virtual void setGroup(const QString &AGroup) =0;
-	virtual bool subscribeContact() const =0;
-	virtual void setSubscribeContact(bool ASubscribe) =0;
-	virtual QString subscriptionMessage() const =0;
-	virtual void setSubscriptionMessage(const QString &AMessage) =0;
-	virtual ToolBarChanger *toolBarChanger() const =0;
 protected:
 	virtual void dialogDestroyed() =0;
 };

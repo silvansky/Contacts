@@ -152,6 +152,8 @@
 // RosterChanger
 #define OPV_ROSTER_AUTOSUBSCRIBE                        "roster.auto-subscribe"
 #define OPV_ROSTER_AUTOUNSUBSCRIBE                      "roster.auto-unsubscribe"
+#define OPV_ROSTER_ADDCONTACTDIALOG_LASTGROUP           "roster.add-contact-dialog.last-group"
+#define OPV_ROSTER_ADDCONTACTDIALOG_LASTPROFILE         "roster.add-contact-dialog.last-profile"
 // Avatars
 #define OPV_AVATARS_SHOW                                "roster.avatars.show"
 #define OPV_AVATARS_SHOWEMPTY                           "roster.avatars.show-empty"
