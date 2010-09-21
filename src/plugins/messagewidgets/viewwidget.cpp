@@ -92,6 +92,7 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 
 QUuid ViewWidget::changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions)
 {
+	FLastHtml = AHtml;
 	return FMessageStyle!=NULL ? FMessageStyle->changeContent(FStyleWidget,AHtml,AOptions) : QUuid();
 }
 
@@ -115,6 +116,11 @@ QUuid ViewWidget::changeContentMessage(const Message &AMessage, const IMessageCo
 void ViewWidget::contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
 {
 	emit viewContextMenu(APosition,ASelection,AMenu);
+}
+
+QString ViewWidget::currentHtml() const
+{
+	return FLastHtml;
 }
 
 void ViewWidget::initialize()

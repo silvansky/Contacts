@@ -10,6 +10,7 @@
 #include <definations/rosterindextyperole.h>
 #include <definations/rosterlabelorders.h>
 #include <definations/rosterclickhookerorders.h>
+#include <definations/notificators.h>
 #include <definations/notificationdataroles.h>
 #include <definations/vcardvaluenames.h>
 #include <definations/actiongroups.h>
@@ -43,7 +44,7 @@ struct WindowStatus
 	QDateTime createTime;
 	QString historyId;
 	QDateTime historyTime;
-	QUuid historyLinkId;
+	QUuid historyRequestId;
 	QString lastStatusShow;
 	QList<QDate> separators;
 	QList<int> notified;
@@ -126,7 +127,7 @@ protected:
 	void requestHistoryMessages(IChatWindow *AWindow, int ACount);
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
-	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState);
+	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit = false);
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
 	QUuid showDateSeparator(IChatWindow *AWindow, const QDate &ADate);
@@ -137,6 +138,7 @@ protected:
 protected slots:
 	void onMessageReady();
 	void onUrlClicked(const QUrl &AUrl);
+	void onHtmlChanged(QWidget *, const QString &);
 	void onInfoFieldChanged(IInfoWidget::InfoField AField, const QVariant &AValue);
 	void onWindowActivated();
 	void onWindowClosed();
@@ -157,6 +159,7 @@ protected slots:
 	void onOptionsOpened();
 	void onOptionsClosed();
 	void updateMessageStyles();
+	void showMessageSource();
 private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
@@ -179,6 +182,7 @@ private:
 	QMap<IChatWindow *, WindowStatus> FWindowStatus;
 private:
 	QMap<QString, IChatWindow *> FHistoryRequests;
+	QMap<QWidget *, QString> FMessagesSources;
 };
 
 #endif // CHATMESSAGEHANDLER_H

@@ -13,8 +13,6 @@
 #define ADR_CONTACT_JID           Action::DR_Parametr1
 #define ADR_TAB_PAGE_ID           Action::DR_Parametr2
 
-#define NOTIFICATOR_ID            "ChatMessages"
-
 #define URL_SCHEME_ACTION         "action"
 #define URL_PATH_HISTORY          "history"
 #define URL_PATH_CONTENT          "content"
@@ -194,7 +192,7 @@ bool ChatMessageHandler::initObjects()
 	{
 		uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound|INotification::AutoActivate|INotification::TestNotify;
 		uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-		FNotifications->insertNotificator(NOTIFICATOR_ID,OWO_NOTIFICATIONS_CHAT_MESSAGES,tr("New messages"),kindMask,kindDefs);
+		FNotifications->insertNotificator(NID_CHAT_MESSAGE,OWO_NOTIFICATIONS_CHAT_MESSAGES,tr("New messages"),kindMask,kindDefs);
 	}
 	return true;
 }
@@ -348,28 +346,44 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 INotification ChatMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
 {
 	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
+	WindowStatus &wstatus = FWindowStatus[window];
+
 	QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
-	QString messages = tr("%n message(s)","",FWindowStatus.value(window).notified.count());
+	QString messages = tr("%n message(s)","",wstatus.notified.count());
 
 	INotification notify;
-	notify.kinds = ANotifications->notificatorKinds(NOTIFICATOR_ID);
-	notify.data.insert(NDR_STREAM_JID,AMessage.to());
-	notify.data.insert(NDR_CONTACT_JID,AMessage.from());
-	notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
-	notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-	notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_MESSAGE);
-	notify.data.insert(NDR_ROSTER_TOOLTIP,messages);
-	notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
-	notify.data.insert(NDR_TABPAGE_PRIORITY, TPNP_NEW_MESSAGE);
-	notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-	notify.data.insert(NDR_TABPAGE_TOOLTIP, messages);
-	notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
-	notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
-	notify.data.insert(NDR_POPUP_CAPTION,tr("Message received"));
-	notify.data.insert(NDR_POPUP_TITLE,name);
-	notify.data.insert(NDR_POPUP_TEXT,Qt::escape(AMessage.body()));
-	notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
-	notify.data.insert(NDR_TYPE, NT_CHATMESSAGE);
+	notify.kinds = ANotifications->notificatorKinds(NID_CHAT_MESSAGE);
+	if (notify.kinds > 0)
+	{
+		notify.notificatior = NID_CHAT_MESSAGE;
+		notify.data.insert(NDR_STREAM_JID,AMessage.to());
+		notify.data.insert(NDR_CONTACT_JID,AMessage.from());
+		notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
+		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
+		notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_MESSAGE);
+		notify.data.insert(NDR_ROSTER_TOOLTIP,messages);
+		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
+		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
+		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
+		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
+		notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
+		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
+		notify.data.insert(NDR_POPUP_TITLE,name);
+		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
+
+		QTextDocument doc;
+		FMessageProcessor->messageToText(&doc,AMessage);
+		notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
+
+		if (wstatus.notified.count() > 1)
+		{
+			QList<int> notifies = ANotifications->notifications();
+			int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
+			if (!notifies.isEmpty() && notifies.last()==replNotify)
+				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
+		}
+	}
 
 	return notify;
 }
@@ -418,9 +432,15 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 			if (window)
 			{
 				Action * actionReloadStyle = new Action(window->toolBarWidget()->instance());
-				actionReloadStyle->setText("Reload style");
+				actionReloadStyle->setText(tr("Reload style"));
 				window->toolBarWidget()->toolBarChanger()->insertAction(actionReloadStyle);
 				connect(actionReloadStyle, SIGNAL(triggered()), SLOT(updateMessageStyles()));
+
+				//Action * actionShowSource = new Action(window->toolBarWidget()->instance());
+				//actionReloadStyle->setText(tr("Show source"));
+				//window->toolBarWidget()->toolBarChanger()->insertAction(actionShowSource);
+				//connect(actionShowSource, SIGNAL(triggered()), SLOT(showMessageSource()));
+
 				window->infoWidget()->autoUpdateFields();
 				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
@@ -430,7 +450,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 				connect(window->infoWidget()->instance(),SIGNAL(fieldChanged(IInfoWidget::InfoField, const QVariant &)),
 					SLOT(onInfoFieldChanged(IInfoWidget::InfoField, const QVariant &)));
-				connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
+				connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl &)),SLOT(onUrlClicked(const QUrl &)));
 				connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
 				connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
 				connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
@@ -451,6 +471,8 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 				}
 
 				setMessageStyle(window);
+				// works only on adium styles
+				connect(window->viewWidget()->messageStyle()->instance(),SIGNAL(htmlChanged(QWidget *, const QString &)),SLOT(onHtmlChanged(QWidget *, const QString &)));
 
 				TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
 				pageInfo.page = window;
@@ -574,10 +596,6 @@ void ChatMessageHandler::requestHistoryMessages(IChatWindow *AWindow, int ACount
 			showHistoryLinks(AWindow,HLS_WAITING);
 		}
 	}
-	else
-	{
-		showHistoryLinks(AWindow,HLS_FINISHED);
-	}
 }
 
 IPresence *ChatMessageHandler::findPresence(const Jid &AStreamJid) const
@@ -599,10 +617,10 @@ IPresenceItem ChatMessageHandler::findPresenceItem(IPresence *APresence, const J
 	return pitem;
 }
 
-void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState)
+void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit)
 {
 	static QString urlMask = QString("<a href='%1'>%2</a>");
-	if (FRamblerHistory)
+	if (FRamblerHistory && FRamblerHistory->isSupported(AWindow->streamJid()))
 	{
 		IMessageContentOptions options;
 		options.kind = IMessageContentOptions::Status;
@@ -610,34 +628,38 @@ void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState
 		options.timeFormat = " ";
 		options.noScroll = true;
 
+		if (AInit)
+		{
+			QUrl showWindowUrl;
+			showWindowUrl.setScheme(URL_SCHEME_ACTION);
+			showWindowUrl.setPath(URL_PATH_HISTORY);
+			showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
+			options.status = IMessageContentOptions::HistoryShow;
+			AWindow->viewWidget()->changeContentHtml(urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history")),options);
+		}
+
 		QString message;
-
-		QUrl showWindowUrl;
-		showWindowUrl.setScheme(URL_SCHEME_ACTION);
-		showWindowUrl.setPath(URL_PATH_HISTORY);
-		showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
-		message += (!message.isEmpty() ? QString("<br>") : QString::null) + urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history"));
-
+		options.status = IMessageContentOptions::HistoryRequest;
 		if (AState == HLS_READY)
 		{
 			QUrl showMesagesUrl;
 			showMesagesUrl.setScheme(URL_SCHEME_ACTION);
 			showMesagesUrl.setPath(URL_PATH_HISTORY);
 			showMesagesUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("messages")));
-			message += (!message.isEmpty() ? QString("<br>") : QString::null) + urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages"));
+			message = urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages"));
 		}
 		else if (AState == HLS_WAITING)
 		{
-			message += (!message.isEmpty() ? QString("<br>") : QString::null) + tr("Loading messages from server...");
+			message = tr("Loading messages from server...");
 		}
 
 		WindowStatus &wstatus = FWindowStatus[AWindow];
-		if (!wstatus.historyLinkId.isNull())
+		if (!wstatus.historyRequestId.isNull())
 		{
-			options.action = IMessageContentOptions::Replace;
-			options.contentId = wstatus.historyLinkId;
+			options.action = AState!=HLS_FINISHED ? IMessageContentOptions::Replace : IMessageContentOptions::Remove;
+			options.contentId = wstatus.historyRequestId;
 		}
-		wstatus.historyLinkId =  AWindow->viewWidget()->changeContentHtml(message,options);
+		wstatus.historyRequestId =  AWindow->viewWidget()->changeContentHtml(message,options);
 	}
 }
 
@@ -659,9 +681,9 @@ void ChatMessageHandler::setMessageStyle(IChatWindow *AWindow)
 	wstatus.offline.clear();
 	wstatus.historyId = QString::null;
 	wstatus.historyTime = QDateTime();
-	wstatus.historyLinkId = QUuid();
+	wstatus.historyRequestId = QUuid();
 
-	showHistoryLinks(AWindow, HLS_READY);
+	showHistoryLinks(AWindow, HLS_READY, true);
 }
 
 void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const
@@ -699,8 +721,8 @@ QUuid ChatMessageHandler::showDateSeparator(IChatWindow *AWindow, const QDate &A
 	{
 		IMessageContentOptions options;
 		options.kind = IMessageContentOptions::Status;
+		options.status = IMessageContentOptions::DateSeparator;
 		options.direction = IMessageContentOptions::DirectionIn;
-		options.type = IMessageContentOptions::DateSeparator;
 		options.time.setDate(ADate);
 		options.time.setTime(QTime(0,0));
 		options.timeFormat = " ";
@@ -826,6 +848,12 @@ void ChatMessageHandler::onUrlClicked(const QUrl &AUrl)
 			}
 		}
 	}
+}
+
+void ChatMessageHandler::onHtmlChanged(QWidget * widget, const QString & html)
+{
+	FMessagesSources.insert(widget, html);
+	showMessageSource();
 }
 
 void ChatMessageHandler::onInfoFieldChanged(IInfoWidget::InfoField AField, const QVariant &AValue)
@@ -1008,7 +1036,7 @@ void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenc
 	}
 }
 
-void ChatMessageHandler::onPresenceRemoved( IPresence *APresence )
+void ChatMessageHandler::onPresenceRemoved(IPresence *APresence)
 {
 	FPrecences.removeAll(APresence);
 }
@@ -1031,10 +1059,11 @@ void ChatMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOpti
 
 void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar AKinds)
 {
-	if (ANotificatorId == NOTIFICATOR_ID)
+	if (ANotificatorId == NID_CHAT_MESSAGE)
 	{
 		INotification notify;
 		notify.kinds = AKinds;
+		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contsctJid = "vasilisa@rambler/virtus";
@@ -1042,10 +1071,10 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 			notify.data.insert(NDR_CONTACT_JID,contsctJid.full());
 			notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
 			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-			notify.data.insert(NDR_POPUP_CAPTION,tr("Message received"));
+			notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on www.rambler.ru :)"));
-			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 		}
 		if (AKinds & INotification::PlaySound)
 		{
@@ -1053,7 +1082,6 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 		}
 		if (!notify.data.isEmpty())
 		{
-			notify.data.insert(NDR_TYPE, NT_CHATMESSAGE);
 			FNotifications->appendNotification(notify);
 		}
 	}
@@ -1124,6 +1152,23 @@ void ChatMessageHandler::updateMessageStyles()
 	qDebug() << "ChatMessageHandler::updateMessageStyles()";
 	foreach (IChatWindow *window, FWindows)
 		setMessageStyle(window);
+}
+
+void ChatMessageHandler::showMessageSource()
+{
+	static QTextEdit * sourceView = 0;
+	if (!sourceView)
+	{
+		sourceView = new QTextEdit(0);
+		sourceView->setReadOnly(true);
+		sourceView->show();
+	}
+	QString src;
+	foreach (IChatWindow *window, FWindows)
+	{
+		src += QString("<pre><font color=red size=+2><b>%1</b></font>\r\n\r\n%2\r\n</pre>").arg(Qt::escape(window->viewWidget()->contactJid().full())).arg(Qt::escape(FMessagesSources.value(window->viewWidget()->styleWidget())));
+	}
+	sourceView->setHtml(src);
 }
 
 Q_EXPORT_PLUGIN2(plg_chatmessagehandler, ChatMessageHandler)

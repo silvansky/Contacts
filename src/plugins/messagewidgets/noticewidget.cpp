@@ -120,7 +120,7 @@ void NoticeWidget::updateWidgets(int ANoticeId)
 			else if (!notice.icon.isNull())
 				ui.lblIcon->setPixmap(notice.icon.pixmap(notice.icon.availableSizes().value(0)));
 			else
-				ui.lblIcon->clear();
+				ui.lblIcon->setVisible(false);
 			ui.lblMessage->setText(notice.message);
 
 			if (notice.timeout > 0)

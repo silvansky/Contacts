@@ -30,6 +30,7 @@ public:
 	virtual QUuid changeContentText(const QString &AText, const IMessageContentOptions &AOptions);
 	virtual QUuid changeContentMessage(const Message &AMessage, const IMessageContentOptions &AOptions);
 	virtual void contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
+	virtual QString currentHtml() const;
 signals:
 	void streamJidChanged(const Jid &ABefour);
 	void contactJidChanged(const Jid &ABefour);
@@ -60,6 +61,7 @@ private:
 	Jid FContactJid;
 	QWidget *FStyleWidget;
 	QList<IViewDropHandler *> FActiveDropHandlers;
+	QString FLastHtml;
 };
 
 #endif // VIEWWIDGET_H
