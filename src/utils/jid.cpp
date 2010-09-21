@@ -6,6 +6,8 @@ QList<QChar> Jid::escChars = QList<QChar>()       << 0x20 << 0x22 << 0x26 << 0x2
 QList<QString> Jid::escStrings = QList<QString>() <<"\\20"<<"\\22"<<"\\26"<<"\\27"<<"\\2f"<<"\\3a"<<"\\3c"<<"\\3e"<<"\\40"; //<<"\\5c";
 QHash<QString,Jid> Jid::FCache = QHash<QString,Jid>();
 
+Jid Jid::null = Jid();
+
 JidData::JidData()
 {
 	FNodeValid = true;

@@ -61,6 +61,7 @@ public:
 	bool operator <(const Jid &AJid) const;
 	bool operator >(const Jid &AJid) const;
 public:
+	static Jid null;
 	static QString encode(const QString &AJidStr); // for filename
 	static QString decode(const QString &AEncJid);
 	static QString encode822(const QString &AJidStr);
