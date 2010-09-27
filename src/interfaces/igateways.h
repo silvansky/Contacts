@@ -11,17 +11,21 @@
 
 struct IGateServiceLabel
 {
-	IGateServiceLabel() { valid = false; }
+	IGateServiceLabel() { 
+		valid = false; 
+	}
 	bool valid;
-	QString iconKey;
 	QString name;
+	QString iconKey;
 	QString loginLabel;
 	QList<QString> domains;
 };
 
 struct IGateServiceLogin
 {
-	IGateServiceLogin() { valid = false; }
+	IGateServiceLogin() { 
+		valid = false; 
+	}
 	bool valid;
 	QString login;
 	QString domain;
@@ -31,13 +35,19 @@ struct IGateServiceLogin
 
 struct IGateServiceDescriptor : public IGateServiceLabel
 {
-	IGateServiceDescriptor() { valid = false; }
+	IGateServiceDescriptor() { 
+		valid = false;
+		gateRequired = true;
+	}
+	bool gateRequired;
 	QString type;
 	QString prefix;
 	QString loginField;
 	QString domainField;
 	QString passwordField;
 	QString domainSeparator;
+	QString homeContactRegexp;
+	QString availContactRegexp;
 	QMap<QString, QVariant> extraFields;
 };
 
@@ -49,6 +59,10 @@ public:
 	virtual void sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bool ALogIn) =0;
 	virtual QList<Jid> keepConnections(const Jid &AStreamJid) const =0;
 	virtual void setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled) =0;
+	virtual QList<QString> availDescriptors() const =0;
+	virtual IGateServiceDescriptor descriptorByName(const QString &AServiceName) const =0;
+	virtual IGateServiceDescriptor descriptorByContact(const QString &AContact) const =0;
+	virtual QList<IGateServiceDescriptor> descriptorsByContact(const QString &AContact) const =0;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const =0;

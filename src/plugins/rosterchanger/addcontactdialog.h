@@ -1,6 +1,8 @@
 #ifndef ADDCONTACTDIALOG_H
 #define ADDCONTACTDIALOG_H
 
+#include <QUrl>
+#include <QTimer>
 #include <QDialog>
 #include <definations/vcardvaluenames.h>
 #include <definations/resources.h>
@@ -11,8 +13,10 @@
 #include <interfaces/irosterchanger.h>
 #include <interfaces/iroster.h>
 #include <interfaces/igateways.h>
+#include <interfaces/iavatars.h>
 #include <interfaces/ivcard.h>
 #include <utils/options.h>
+#include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include "ui_addcontactdialog.h"
 
@@ -30,6 +34,8 @@ public:
 	virtual Jid streamJid() const;
 	virtual Jid contactJid() const;
 	virtual void setContactJid(const Jid &AContactJid);
+	virtual QString contactText() const;
+	virtual void setContactText(const QString &AText);
 	virtual QString nickName() const;
 	virtual void setNickName(const QString &ANick);
 	virtual QString group() const;
@@ -42,22 +48,59 @@ protected:
 	void initialize(IPluginManager *APluginManager);
 	void initGroups();
 	void initGateways();
+	void updateServices(const Jid AServiceJid = Jid::null);
+protected:
+	QString normalContactText(const QString &AText) const;
+	QString defaultContactNick(const Jid &AContactJid) const;
+	QList<Jid> suitableServices(const IGateServiceDescriptor &ADescriptor) const;
+	QList<Jid> suitableServices(const QList<IGateServiceDescriptor> &ADescriptors) const;
+protected:
+	void setInfoMessage(const QString &AMessage);
+	void setErrorMessage(const QString &AError);
+	void setActionLink(const QString &AMessage, const QUrl &AUrl);
+	void setGatewaysEnabled(bool AEnabled);
+	void setContactAcceptable(bool AAcceptable);
+	void setResolveNickState(bool AResole);
+protected slots:
+	void resolveServiceJid();
+	void resolveContactJid();
+	void resolveContactName();
+protected:
+	virtual void showEvent(QShowEvent *AEvent);
 protected slots:
 	void onDialogAccepted();
+	void onAdjustDialogSize();
+	void onContactTextEditingFinished();
+	void onContactTextEdited(const QString &AText);
+	void onContactNickEdited(const QString &AText);
 	void onGroupCurrentIndexChanged(int AIndex);
+	void onProfileCurrentIndexChanged(int AIndex);
 	void onVCardReceived(const Jid &AContactJid);
+	void onVCardError(const Jid &AContactJid, const QString &AError);
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
-	void onServiceErrorReceived(const QString &AId, const QString &AError);
+	void onContactJidReceived(const QString &AId, const Jid &AUserJid);
+	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 private:
 	Ui::AddContactDialogClass ui;
 private:
 	IRoster *FRoster;
+	IAvatars *FAvatars;
 	IGateways *FGateways;
 	IVCardPlugin *FVcardPlugin;
 	IRosterChanger *FRosterChanger;
 private:
+	QLabel *FServiceIcon;
+private:
 	Jid FStreamJid;
+	Jid FContactJid;
+private:
+	bool FShown;
+	bool FResolveNick;
+	QTimer FStartTimer;
+	QString FContactJidRequest;
+	QMap<QString, Jid> FServices;
 	QMap<QString, Jid> FLoginRequests;
+	QMap<Jid, QString> FEnabledGateways;
 };
 
 #endif // ADDCONTACTDIALOG_H

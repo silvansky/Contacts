@@ -4,71 +4,79 @@
 <context>
     <name>AddContactDialog</name>
     <message>
-        <source>Please, authorize me to your presence.</source>
-        <translation>Пожалуйста, авторизуйте меня.</translation>
+        <source>Add contact</source>
+        <translation>Добавить контакт</translation>
     </message>
     <message>
-        <source>Add contact - %1</source>
-        <translation>Добавить конакт - %1</translation>
+        <source>&lt;Common Group&gt;</source>
+        <translation>&lt;Основная группа&gt;</translation>
     </message>
     <message>
-        <source>Chat</source>
-        <translation>Чат</translation>
+        <source>New Group...</source>
+        <translation>Новая группа...</translation>
     </message>
     <message>
-        <source>Open chat window</source>
-        <translation>Открыть окно чата</translation>
+        <source>To add a user to %1, you must enter your %1 account.</source>
+        <translation>Чтобы добавлять пользователей %1, вам необходимо ввести свою учётную запись %1.</translation>
     </message>
     <message>
-        <source>VCard</source>
-        <translation>vCard</translation>
+        <source>Invalid address. Please check the address and try again.</source>
+        <translation>Указан недопустимый адрес. Пожалуйста, проверте адрес и повторите попытку.</translation>
     </message>
     <message>
-        <source>Show VCard</source>
-        <translation>Показать vCard</translation>
+        <source>You cannot add this contact to selected profile</source>
+        <translation>Вы не можете добавить этот контакт в выбранный профиль</translation>
     </message>
     <message>
-        <source>Nick</source>
-        <translation>Ник</translation>
+        <source>Unable to determine the contact ID</source>
+        <translation>Не удалось определить идентификатор контакта</translation>
     </message>
     <message>
-        <source>Resolve nick name</source>
-        <translation>Определить ник</translation>
+        <source>Selected profile is not acceptable</source>
+        <translation>Выбран недопустимый профиль</translation>
     </message>
     <message>
-        <source>Contact &lt;b&gt;%1&lt;/b&gt; already exists.</source>
-        <translation>Контакт &lt;b&gt;%1&lt;/b&gt; уже существует.</translation>
+        <source>This address is already in your contact-list.</source>
+        <translation>Этот адрес уже есть в вашем контакт листе.</translation>
     </message>
     <message>
-        <source>Can`t add contact &apos;&lt;b&gt;%1&lt;/b&gt;&apos; because it is not a valid Jaber ID</source>
-        <translation>Невозможно добавить контакт &apos;&lt;b&gt;%1&lt;/b&gt;&apos;, т.к. он не является правильным JID</translation>
+        <source>Create group</source>
+        <translation>Создать группу</translation>
     </message>
     <message>
-        <source>* nested group delimiter - &apos;%1&apos;</source>
-        <translation>* разделитель вложенных групп - &apos;%1&apos;</translation>
+        <source>New group name</source>
+        <translation>Имя новой группы</translation>
+    </message>
+    <message>
+        <source>Unable to determine the contact ID: %1</source>
+        <translation>Не удалось определить идентификатор контакта: %1</translation>
     </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>
     <message>
-        <source>Nick:</source>
-        <translation>Ник:</translation>
+        <source>You can add friends and acquaintances who use one of the following services:</source>
+        <translation>Вы можете добавлять ваших знакомых и друзей, которые пользуются одним из указанных сервисов:</translation>
     </message>
     <message>
-        <source>Group:</source>
-        <translation>Группа:</translation>
+        <source>Name:</source>
+        <translation>Имя:</translation>
     </message>
     <message>
-        <source>Contact:</source>
-        <translation>Контакт:</translation>
+        <source>Search...</source>
+        <translation>Поиск...</translation>
     </message>
     <message>
-        <source>Subscription</source>
-        <translation>Авторизация</translation>
+        <source>To group:</source>
+        <translation>В группу:</translation>
     </message>
     <message>
-        <source>Subscribe to contact presence</source>
-        <translation>Запросить авторизацию</translation>
+        <source>To profile:</source>
+        <translation>В профиль:</translation>
+    </message>
+    <message>
+        <source>Enter the address of new contact</source>
+        <translation>Укажите адрес нового контакта</translation>
     </message>
 </context>
 <context>

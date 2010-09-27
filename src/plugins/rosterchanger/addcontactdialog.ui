@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>267</height>
+    <width>421</width>
+    <height>301</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -17,7 +17,7 @@
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="1" column="1" colspan="3">
-      <widget class="QLabel" name="lblInfo">
+      <widget class="QLabel" name="lblNote">
        <property name="text">
         <string>You can add friends and acquaintances who use one of the following services:</string>
        </property>
@@ -60,27 +60,27 @@
      <item row="3" column="1" colspan="3">
       <widget class="QLineEdit" name="lneContact"/>
      </item>
-     <item row="4" column="1" colspan="3">
+     <item row="5" column="1" colspan="3">
       <widget class="QLabel" name="lblError">
        <property name="text">
-        <string notr="true">lblNotification</string>
+        <string notr="true">lblError</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="5" column="1" colspan="3">
+     <item row="6" column="1" colspan="3">
       <widget class="QLabel" name="lblAction">
        <property name="text">
-        <string notr="true">lblActionLink</string>
+        <string notr="true">lblAction</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="lblNickName">
        <property name="text">
         <string>Name:</string>
@@ -93,17 +93,17 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="7" column="1">
       <widget class="QLineEdit" name="lneNick"/>
      </item>
-     <item row="6" column="3">
+     <item row="7" column="3">
       <widget class="QLabel" name="lblSearchNick">
        <property name="text">
-        <string>search...</string>
+        <string>Search...</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="lblGroup">
        <property name="text">
         <string>To group:</string>
@@ -116,10 +116,10 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="8" column="1">
       <widget class="QComboBox" name="cmbGroup"/>
      </item>
-     <item row="8" column="0">
+     <item row="9" column="0">
       <widget class="QLabel" name="lblProfile">
        <property name="text">
         <string>To profile:</string>
@@ -132,10 +132,10 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="9" column="1">
       <widget class="QComboBox" name="cmbProfile"/>
      </item>
-     <item row="6" column="2">
+     <item row="7" column="2">
       <widget class="QLabel" name="lblSearchAnimate">
        <property name="minimumSize">
         <size>
@@ -155,7 +155,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="3">
+     <item row="8" column="3">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -170,6 +170,42 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="4" column="0" rowspan="3">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="8" column="2">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Minimum</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>16</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="1" colspan="3">
+      <widget class="QLabel" name="lblInfo">
+       <property name="text">
+        <string notr="true">lblInfo</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

@@ -740,8 +740,8 @@ void ServiceDiscovery::discoInfoFromElem(const QDomElement &AElem, IDiscoInfo &A
 	while (!elem.isNull())
 	{
 		IDiscoIdentity identity;
-		identity.category = elem.attribute("category");
-		identity.type = elem.attribute("type");
+		identity.category = elem.attribute("category").toLower();
+		identity.type = elem.attribute("type").toLower();
 		identity.lang = elem.attribute("lang");
 		identity.name = elem.attribute("name");
 		AInfo.identity.append(identity);

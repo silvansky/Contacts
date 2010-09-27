@@ -73,6 +73,10 @@ public:
 	virtual void sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bool ALogIn);
 	virtual QList<Jid> keepConnections(const Jid &AStreamJid) const;
 	virtual void setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
+	virtual QList<QString> availDescriptors() const;
+	virtual IGateServiceDescriptor descriptorByName(const QString &AServiceName) const;
+	virtual IGateServiceDescriptor descriptorByContact(const QString &AContact) const;
+	virtual QList<IGateServiceDescriptor> descriptorsByContact(const QString &AContact) const;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;
@@ -157,7 +161,7 @@ private:
 private:
 	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
-	QList<IGateServiceDescriptor> FGateDescriptors;
+	QMap<QString, IGateServiceDescriptor> FGateDescriptors;
 };
 
 #endif // GATEWAYS_H

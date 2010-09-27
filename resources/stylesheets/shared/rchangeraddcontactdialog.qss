@@ -1,0 +1,15 @@
+QLabel#lblCaption 
+{
+	font-size: 12px;
+	font-weight: bold;
+}
+
+QLabel#lblInfo
+{
+	color: blue;
+}
+
+QLabel#lblError
+{
+	color: darkred;
+}
