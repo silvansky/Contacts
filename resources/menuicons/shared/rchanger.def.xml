@@ -77,6 +77,14 @@
     <object mime="image/png">rchangersubscriptionrefuse.png</object>
   </icon>
   <icon>
+    <key>rchangerAddContactInfo</key>
+    <object mime="image/png">rchangeraddcontactinfo.png</object>
+  </icon>
+  <icon>
+    <key>rchangerAddContactError</key>
+    <object mime="image/png">rchangeraddcontacterror.png</object>
+  </icon>
+  <icon>
     <key>rchangerAddContactSearchNick</key>
     <object mime="image/gif">rchangeraddcontactsearchnick.gif</object>
   </icon>

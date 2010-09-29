@@ -47,16 +47,17 @@ signals:
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void initGroups();
-	void initGateways();
-	void updateServices(const Jid AServiceJid = Jid::null);
+	void updateGateways();
+	void updateServices(const Jid &AServiceJid = Jid::null);
 protected:
 	QString normalContactText(const QString &AText) const;
 	QString defaultContactNick(const Jid &AContactJid) const;
 	QList<Jid> suitableServices(const IGateServiceDescriptor &ADescriptor) const;
 	QList<Jid> suitableServices(const QList<IGateServiceDescriptor> &ADescriptors) const;
 protected:
+	void startResolve(int ATimeout);
 	void setInfoMessage(const QString &AMessage);
-	void setErrorMessage(const QString &AError);
+	void setErrorMessage(const QString &AMessage);
 	void setActionLink(const QString &AMessage, const QUrl &AUrl);
 	void setGatewaysEnabled(bool AEnabled);
 	void setContactAcceptable(bool AAcceptable);
@@ -70,15 +71,16 @@ protected:
 protected slots:
 	void onDialogAccepted();
 	void onAdjustDialogSize();
-	void onContactTextEditingFinished();
 	void onContactTextEdited(const QString &AText);
 	void onContactNickEdited(const QString &AText);
 	void onGroupCurrentIndexChanged(int AIndex);
 	void onProfileCurrentIndexChanged(int AIndex);
+	void onActionLinkActivated(const QString &ALink);
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
-	void onContactJidReceived(const QString &AId, const Jid &AUserJid);
+	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
+	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 private:
 	Ui::AddContactDialogClass ui;
@@ -96,7 +98,7 @@ private:
 private:
 	bool FShown;
 	bool FResolveNick;
-	QTimer FStartTimer;
+	QTimer FResolveTimer;
 	QString FContactJidRequest;
 	QMap<QString, Jid> FServices;
 	QMap<QString, Jid> FLoginRequests;

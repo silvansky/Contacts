@@ -225,6 +225,8 @@
 #define MNI_RCHANGER_SUBSCR_REQUEST              "rchangerSubscriptionRequest"
 #define MNI_RCHANGER_SUBSCR_REMOVE               "rchangerSubscriptionRemove"
 #define MNI_RCHANGER_SUBSCR_REFUSE               "rchangerSubscriptionRefuse"
+#define MNI_RCHANGER_ADDCONTACT_INFO             "rchangerAddContactInfo"
+#define MNI_RCHANGER_ADDCONTACT_ERROR            "rchangerAddContactError"
 #define MNI_RCHANGER_ADDCONTACT_SEARCH_NICK      "rchangerAddContactSearchNick"
 
 //RosterSearch

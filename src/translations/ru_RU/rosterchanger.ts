@@ -51,6 +51,10 @@
         <source>Unable to determine the contact ID: %1</source>
         <translation>Не удалось определить идентификатор контакта: %1</translation>
     </message>
+    <message>
+        <source>Enter your %1 account</source>
+        <translation>Ввести свою учётную запись %1</translation>
+    </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>
