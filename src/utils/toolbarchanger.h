@@ -35,10 +35,6 @@ public:
 	QToolButton *insertAction(Action *AAction, int AGroup = TBG_DEFAULT);
 	void removeItem(QAction *AHandle);
 	void clear();
-	QList<QWidget *> childWidgets()
-	{
-		return FWidgets.values();
-	};
 signals:
 	void itemInserted(QAction *ABefour, QAction *AHandle, Action *AAction, QWidget *AWidget, int AGroup);
 	void itemRemoved(QAction *AHandle);

@@ -964,7 +964,7 @@ void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelI
 	if (presence && presence->isOpen())
 	{
 		Jid contactJid = AIndex->data(RDR_JID).toString();
-		if (chatActionTypes.contains(AIndex->type()) && (ALabelId == RLID_DISPLAY))
+		if (AToolBarChanger && chatActionTypes.contains(AIndex->type()) && (ALabelId == RLID_DISPLAY))
 		{
 			Action *action = new Action(AToolBarChanger->toolBar());
 			action->setText(tr("Chat"));

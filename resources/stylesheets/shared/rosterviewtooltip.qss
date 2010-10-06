@@ -1,0 +1,5 @@
+QToolBar 
+{
+	border: none;
+	border-left: 1px solid palette(dark);
+}

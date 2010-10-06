@@ -22,7 +22,6 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 {
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_ROSTERVIEW_ROSTER);
 
-	currentToolTip = 0;
 	FNotifyId = 1;
 	FLabelIdCounter = 1;
 
@@ -69,8 +68,6 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 
 RostersView::~RostersView()
 {
-	if (currentToolTip)
-		currentToolTip->deleteLater();
 	removeLabels();
 }
 
@@ -756,41 +753,22 @@ bool RostersView::viewportEvent(QEvent *AEvent)
 		QModelIndex viewIndex = indexAt(helpEvent->pos());
 		if (viewIndex.isValid())
 		{
-			QMultiMap<int,QString> toolTipsMap;
-			const int labelId = labelAt(helpEvent->pos(),viewIndex);
 			QModelIndex modelIndex = mapToModel(viewIndex);
 			IRosterIndex *index = static_cast<IRosterIndex *>(modelIndex.internalPointer());
-			RosterToolTip * oldToolTip = currentToolTip;
-			if (!currentToolTip)
-				currentToolTip = new RosterToolTip(0);
 			if (index)
 			{
-				currentToolTip->sideBarChanger()->clear();
-				currentToolTip->setRosterIndex(index);
-				emit labelToolTips(index, labelId, toolTipsMap, currentToolTip->sideBarChanger());
-				if (labelId!=RLID_DISPLAY && toolTipsMap.isEmpty())
-					emit labelToolTips(index, RLID_DISPLAY, toolTipsMap, currentToolTip->sideBarChanger());
-				// event filters for children of toolbar
-				ToolBarChanger * changer = currentToolTip->sideBarChanger();
-				foreach(QWidget * widget, changer->childWidgets())
-					widget->installEventFilter(currentToolTip->instance());
+				RosterToolTip::createInstance(helpEvent->globalPos(),this);
+				RosterToolTip::toolBarChanger()->clear();
 
+				QMultiMap<int,QString> toolTipsMap;
+				emit labelToolTips(index, RLID_DISPLAY, toolTipsMap, RosterToolTip::toolBarChanger());
+			
 				if (!toolTipsMap.isEmpty())
-				{
-					QString toolTipText = "<span>" + QStringList(toolTipsMap.values()).join("<br/>") + "</span>";
-					if (!currentToolTip->isVisible() || currentToolTip->caption().compare(toolTipText))
-					{
-						if (oldToolTip && (oldToolTip != currentToolTip))
-							oldToolTip->deleteLater();
-						currentToolTip->setCaption(toolTipText);
-						QRect geometry = currentToolTip->geometry();
-						geometry.moveTo(helpEvent->globalPos());
-						currentToolTip->setGeometry(geometry);
-						currentToolTip->show();
-						//currentToolTip->adjustSize();
-						return true;
-					}
-				}
+					RosterToolTip::showTip(helpEvent->globalPos(),"<span>"+QStringList(toolTipsMap.values()).join("<br>")+"</span>",this);
+				else
+					RosterToolTip::showTip(helpEvent->globalPos(),QString::null,this);
+
+				return true;
 			}
 		}
 	}
@@ -1103,7 +1081,7 @@ void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMul
 {
 	Q_UNUSED(AToolBarChanger);
 
-	if (ALabelId == RLID_DISPLAY)
+	if (ALabelId==RLID_DISPLAY && AIndex->data(RDR_TYPE).toInt()==RIT_CONTACT)
 	{
 		QString name = AIndex->data(RDR_NAME).toString();
 		if (!name.isEmpty())

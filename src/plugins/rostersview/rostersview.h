@@ -158,7 +158,6 @@ private:
 	QHash<int, NotifyItem> FNotifyItems;
 	QHash<int, QList<int> > FNotifyLabelItems;
 	QHash<IRosterIndex *, QHash<int, int> > FNotifyIndexOrderLabel;
-	RosterToolTip * currentToolTip;
 private:
 	QMultiMap<int, IRostersClickHooker *> FClickHookers;
 private:

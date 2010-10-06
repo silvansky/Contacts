@@ -36,6 +36,7 @@
 
 //RosterView
 #define STS_ROSTERVIEW_ROSTER                                           "rosterviewRoster"
+#define STS_ROSTERVIEW_TOOLTIP                                          "rosterviewToolTip"
 
 //StatusChanger
 #define STS_SCHANGER_STATUSWIDGET                                       "schangerStatusWidget"

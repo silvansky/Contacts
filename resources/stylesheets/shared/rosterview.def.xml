@@ -4,4 +4,8 @@
     <key>rosterviewRoster</key>
     <object mime='text/css'>rosterviewroster.qss</object>
   </file>
+  <file>
+    <key>rosterviewToolTip</key>
+    <object mime='text/css'>rosterviewtooltip.qss</object>
+  </file>
 </styledef>

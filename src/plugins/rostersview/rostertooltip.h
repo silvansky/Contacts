@@ -1,49 +1,52 @@
 #ifndef ROSTERTOOLTIP_H
 #define ROSTERTOOLTIP_H
 
-#include <QWidget>
-#include <QTimer>
+#include <QFrame>
+#include <QBasicTimer>
+#include <definations/resources.h>
+#include <definations/stylesheets.h>
+#include <utils/stylestorage.h>
 #include <utils/toolbarchanger.h>
-#include <interfaces/irostersview.h>
+#include "ui_rostertooltip.h"
 
-namespace Ui
+class RosterToolTip : 
+	public QFrame
 {
-	class RosterToolTip;
-}
-
-class RosterToolTip : public QWidget, public IRosterToolTip
-{
-	Q_OBJECT
+	Q_OBJECT;
 public:
-	RosterToolTip(QWidget *parent = 0);
+	RosterToolTip(QWidget *AParent);
 	~RosterToolTip();
-	//IRosterToolTip
-	virtual QWidget * instance();
-	virtual ToolBarChanger * sideBarChanger();
-	virtual QString caption() const;
-	virtual void setCaption(const QString &);
-	virtual IRosterIndex * rosterIndex() const;
-	virtual void setRosterIndex(IRosterIndex *);
-	// QWidget
-	virtual void setVisible(bool visible);
+	static void createInstance(const QPoint &APos, QWidget *AWidget);
+	static ToolBarChanger *toolBarChanger();
+	static void showTip(const QPoint &APos, const QString &AText, QWidget *AWidget, const QRect &ARect = QRect());
 protected:
-	void changeEvent(QEvent *e);
-	bool eventFilter(QObject *, QEvent *);
-
-private:
-	void hideTipImmediately();
 	void hideTip();
-protected slots:
-	void onTimer();
-
+	void hideTipImmediately();
+	void restartExpireTimer();
+	void reuseTip(const QString &AText);
+	void placeTip(const QPoint &APos, QWidget *AWidget);
+	void setTipRect(QWidget *AWidget, const QRect &ARect);
+	bool isTipChanged(const QPoint &APos, const QString &AText, QObject *AObject);
+	static int getTipScreen(const QPoint &APos, QWidget *AWidget);
+protected:
+	void paintEvent(QPaintEvent *AEvent);
+	void resizeEvent(QResizeEvent *AEvent);
+	void timerEvent(QTimerEvent *AEvent);
+	void enterEvent(QEvent *AEvent);
+	void leaveEvent(QEvent *AEvent);
+	void mouseMoveEvent(QMouseEvent *AEvent);
+	bool eventFilter(QObject *AWatch, QEvent *AEvent);
 private:
-	Ui::RosterToolTip *ui;
-	QToolBar * rightToolBar;
-	QString tipCaption;
-	ToolBarChanger * rightToolBarChanger;
-	IRosterIndex * index;
-	QTimer * timer;
-	bool hovered;
+	Ui::RosterToolTipClass ui;
+private:
+	static RosterToolTip *instance;
+private:
+	bool FMouseOver;
+	QRect FRect;
+	QWidget *FWidget;
+	QBasicTimer FHideTimer;
+	QBasicTimer FExpireTimer;
+	ToolBarChanger *FToolBarChanger;
 };
 
 #endif // ROSTERTOOLTIP_H

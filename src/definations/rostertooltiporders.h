@@ -2,9 +2,9 @@
 #define DEF_ROSTERTOOLTIPORDERS_H
 
 //Display
+#define RTTO_CONTACT_NAME                 50
 #define RTTO_AVATAR_IMAGE                 100
 #define RTTO_CONTACT_NOTIFY               200
-#define RTTO_CONTACT_NAME                 210
 #define RTTO_CONTACT_JID                  220
 #define RTTO_CONTACT_PRIORITY             230
 #define RTTO_CONTACT_SUBSCRIPTION         240

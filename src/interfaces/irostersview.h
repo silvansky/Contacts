@@ -216,17 +216,6 @@ public:
 	virtual void restoreExpandState(const QModelIndex &AParent = QModelIndex()) =0;
 };
 
-class IRosterToolTip
-{
-public:
-	virtual QWidget * instance() =0;
-	virtual ToolBarChanger * sideBarChanger() =0;
-	virtual QString caption() const =0;
-	virtual void setCaption(const QString &) =0;
-	virtual IRosterIndex * rosterIndex() const =0;
-	virtual void setRosterIndex(IRosterIndex *) =0;
-};
-
 Q_DECLARE_INTERFACE(IRostersClickHooker,"Virtus.Plugin.IRostersClickHooker/1.0");
 Q_DECLARE_INTERFACE(IRostersDragDropHandler,"Virtus.Plugin.IRostersDragDropHandler/1.0");
 Q_DECLARE_INTERFACE(IRostersView,"Virtus.Plugin.IRostersView/1.0");
