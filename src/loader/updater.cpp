@@ -3,7 +3,7 @@
 #include <QFileInfo>
 #include <QUrl>
 #include <QApplication>
-#include <Qdir>
+#include <QDir>
 #include <QProcess>
 
 #include "../utils/unzipfile.h"

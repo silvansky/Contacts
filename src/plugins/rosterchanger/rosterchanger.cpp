@@ -745,26 +745,26 @@ void RosterChanger::removeObsoleteNotices(const Jid &AStreamJid, const Jid &ACon
 			if (ASubsType == IRoster::Subscribe)
 			{
 				if (ASent)
-					obsolete = (actions & NTA_ADD_CONTACT|NTA_ASK_SUBSCRIBE)>0;
+					obsolete = (actions & (NTA_ADD_CONTACT|NTA_ASK_SUBSCRIBE))>0;
 			}
 			else if (ASubsType == IRoster::Subscribed)
 			{
 				if (ASent)
-					obsolete = (actions & NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE)>0;
+					obsolete = (actions & (NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE))>0;
 				else
-					obsolete = (actions & NTA_ADD_CONTACT|NTA_ASK_SUBSCRIBE)>0;
+					obsolete = (actions & (NTA_ADD_CONTACT|NTA_ASK_SUBSCRIBE))>0;
 			}
 			else if (ASubsType == IRoster::Unsubscribe)
 			{
 				if (ASent)
 					obsolete = (actions & NTA_ASK_SUBSCRIBE)>0;
 				else
-					obsolete = (actions & NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE)>0;
+					obsolete = (actions & (NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE))>0;
 			}
 			else if (ASubsType == IRoster::Unsubscribed)
 			{
 				if (ASent)
-					obsolete = (actions & NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE)>0;
+					obsolete = (actions & (NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE))>0;
 			}
 
 			if (obsolete)
