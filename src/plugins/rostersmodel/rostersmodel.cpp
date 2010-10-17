@@ -178,6 +178,11 @@ IRosterIndex *RostersModel::addStream(const Jid &AStreamJid)
 	return streamIndex;
 }
 
+QList<Jid> RostersModel::streams() const
+{
+	return FStreamsRoot.keys();
+}
+
 void RostersModel::removeStream(const Jid &AStreamJid)
 {
 	IRosterIndex *streamIndex = FStreamsRoot.take(AStreamJid);
@@ -191,6 +196,11 @@ void RostersModel::removeStream(const Jid &AStreamJid)
 		removeRosterIndex(streamIndex);
 		emit streamRemoved(AStreamJid);
 	}
+}
+
+IRosterIndex *RostersModel::rootIndex() const
+{
+	return FRootIndex;
 }
 
 IRosterIndex *RostersModel::streamRoot(const Jid &AStreamJid) const
@@ -338,12 +348,11 @@ void RostersModel::insertDefaultDataHolder(IRosterDataHolder *ADataHolder)
 {
 	if (ADataHolder && !FDataHolders.contains(ADataHolder))
 	{
-		QMultiHash<int,QVariant> data;
+		QMultiHash<int,QVariant> findData;
 		foreach(int type, ADataHolder->rosterDataTypes())
-			data.insertMulti(RDR_TYPE,type);
+			findData.insertMulti(RDR_TYPE,type);
 
-		QList<IRosterIndex *> indexes = FRootIndex->findChild(data,true);
-		foreach(IRosterIndex *index,indexes)
+		foreach(IRosterIndex *index, FRootIndex->findChild(findData,true))
 			index->insertDataHolder(ADataHolder);
 
 		FDataHolders.append(ADataHolder);
@@ -353,17 +362,17 @@ void RostersModel::insertDefaultDataHolder(IRosterDataHolder *ADataHolder)
 
 void RostersModel::removeDefaultDataHolder(IRosterDataHolder *ADataHolder)
 {
-	if (ADataHolder && FDataHolders.contains(ADataHolder))
+	if (FDataHolders.contains(ADataHolder))
 	{
-		QMultiHash<int,QVariant> data;
+		QMultiHash<int,QVariant> findData;
 		foreach(int type, ADataHolder->rosterDataTypes())
-			data.insertMulti(RDR_TYPE,type);
+			findData.insertMulti(RDR_TYPE,type);
 
-		QList<IRosterIndex *> indexes = FRootIndex->findChild(data,true);
+		QList<IRosterIndex *> indexes = FRootIndex->findChild(findData,true);
 		foreach(IRosterIndex *index, indexes)
 			index->removeDataHolder(ADataHolder);
 
-		FDataHolders.removeAt(FDataHolders.indexOf(ADataHolder));
+		FDataHolders.removeAll(ADataHolder);
 		emit defaultDataHolderRemoved(ADataHolder);
 	}
 }
@@ -400,7 +409,7 @@ void RostersModel::emitDelayedDataChanged(IRosterIndex *AIndex)
 void RostersModel::insertDefaultDataHolders(IRosterIndex *AIndex)
 {
 	foreach(IRosterDataHolder *dataHolder, FDataHolders)
-		if (dataHolder->rosterDataTypes().contains(AIndex->type()))
+		if (dataHolder->rosterDataTypes().contains(RIT_ANY_TYPE) || dataHolder->rosterDataTypes().contains(AIndex->type()))
 			AIndex->insertDataHolder(dataHolder);
 }
 

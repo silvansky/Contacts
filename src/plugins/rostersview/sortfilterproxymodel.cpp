@@ -44,21 +44,18 @@ bool SortFilterProxyModel::filterAcceptsRow(int AModelRow, const QModelIndex &AM
 	QModelIndex index = sourceModel()->index(AModelRow,0,AModelParent);
 	if (index.isValid())
 	{
+		if (index.data(RDR_ALLWAYS_INVISIBLE).toInt() > 0)
+			return false;
+		else if (index.data(RDR_ALLWAYS_VISIBLE).toInt() > 0)
+			return true;
+
 		int indexType = index.data(RDR_TYPE).toInt();
 		switch (indexType)
 		{
-		case RIT_AGENT:
-			{
-				return true;
-			}
 		case RIT_CONTACT:
 			{
-				if (!FShowOffline)
+				if (!FShowOffline )
 				{
-					QList<QVariant> labelFlags = index.data(RDR_LABEL_FLAGS).toList();
-					foreach(QVariant flag, labelFlags)
-						if ((flag.toInt() & IRostersView::LabelVisible) > 0)
-							return true;
 					int indexShow = index.data(RDR_SHOW).toInt();
 					return indexShow!=IPresence::Offline && indexShow!=IPresence::Error;
 				}
@@ -76,6 +73,8 @@ bool SortFilterProxyModel::filterAcceptsRow(int AModelRow, const QModelIndex &AM
 						return true;
 				return false;
 			}
+		default:
+			return true;
 		}
 	}
 	return true;

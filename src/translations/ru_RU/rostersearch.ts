@@ -12,10 +12,6 @@
         <translation>Имя</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Статус</translation>
-    </message>
-    <message>
         <source>Jabber ID</source>
         <translation>Jabber ID</translation>
     </message>
@@ -30,14 +26,6 @@
     <message>
         <source>Search &quot;%1&quot; in history</source>
         <translation>Искать &quot;%1&quot; в истории</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Искать</translation>
-    </message>
-    <message>
-        <source>in Rambler</source>
-        <translation>в Рамблере</translation>
     </message>
     <message>
         <source>Search &quot;%1&quot; in Rambler</source>

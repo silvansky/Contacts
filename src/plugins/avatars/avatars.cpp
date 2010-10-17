@@ -710,7 +710,7 @@ void Avatars::onRosterIndexInserted(IRosterIndex *AIndex)
 		if (!FVCardAvatars.contains(contactJid))
 			onVCardChanged(contactJid);
 		if (FAvatarsVisible)
-			FRostersViewPlugin->rostersView()->insertIndexLabel(FRosterLabelId, AIndex);
+			FRostersViewPlugin->rostersView()->insertLabel(FRosterLabelId, AIndex);
 	}
 }
 
@@ -873,13 +873,16 @@ void Avatars::onOptionsChanged(const OptionsNode &ANode)
 					findData.insertMulti(RDR_TYPE,type);
 				QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChild(findData, true);
 
-				FRosterLabelId = FRostersViewPlugin->rostersView()->createIndexLabel(RLO_AVATAR_IMAGE, RDR_AVATAR_IMAGE);
+				IRostersLabel rlabel;
+				rlabel.order = RLO_AVATAR_IMAGE;
+				rlabel.label = RDR_AVATAR_IMAGE;
+				FRosterLabelId = FRostersViewPlugin->rostersView()->registerLabel(rlabel);
 				foreach (IRosterIndex *index, indexes)
-					FRostersViewPlugin->rostersView()->insertIndexLabel(FRosterLabelId, index);
+					FRostersViewPlugin->rostersView()->insertLabel(FRosterLabelId, index);
 			}
 			else
 			{
-				FRostersViewPlugin->rostersView()->destroyIndexLabel(FRosterLabelId);
+				FRostersViewPlugin->rostersView()->destroyLabel(FRosterLabelId);
 				FRosterLabelId = -1;
 				FAvatarImages.clear();
 			}

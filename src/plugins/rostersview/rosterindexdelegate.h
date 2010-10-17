@@ -7,9 +7,11 @@
 #include <definations/rosterindextyperole.h>
 #include <interfaces/irostersview.h>
 
+typedef QMap<int, IRostersLabel> RostersLabelItems;
+Q_DECLARE_METATYPE(RostersLabelItems);
+
 struct LabelItem
 {
-	LabelItem() { id = -1; order = 0; flags = 0; }
 	int id;
 	int order;
 	int flags;
@@ -36,7 +38,7 @@ public:
 	int labelAt(const QPoint &APoint, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	QRect labelRect(int ALabelId, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	void setShowBlinkLabels(bool AShow);
-	virtual QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	virtual QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
 protected:
 	QHash<int,QRect> drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
@@ -56,12 +58,10 @@ private:
 	QIcon::State getIconState(QStyle::State AState) const;
 private:
 	bool FShowBlinkLabels;
-	static QImage groupOpenedIndicator;
-	static QImage groupClosedIndicator;
+	//static QImage groupOpenedIndicator;
+	//static QImage groupClosedIndicator;
 private:
 	static const int spacing = 2;
-protected:
-	static QVector<int> groupTypes;
 };
 
 #endif // ROSTERINDEXDELEGATE_H

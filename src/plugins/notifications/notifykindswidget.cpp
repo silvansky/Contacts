@@ -1,6 +1,6 @@
 #include "notifykindswidget.h"
 
-NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QString &ANotificatorId, const QString &ATitle, uchar AKindMask, QWidget *AParent) : QWidget(AParent)
+NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QString &ANotificatorId, const QString &ATitle, uchar AKindMask, uchar AKindDefs, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	ui.lblTitle->setText(ATitle);
@@ -8,6 +8,7 @@ NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QStri
 	FNotifications = ANotifications;
 	FNotificatorId = ANotificatorId;
 	FNotificatorKindMask = AKindMask;
+	FNotificatorKindDefs = AKindDefs;
 
 	ui.chbPopup->setEnabled(AKindMask & INotification::PopupWindow);
 	ui.chbSound->setEnabled(AKindMask & INotification::PlaySound);
@@ -27,7 +28,7 @@ NotifyKindsWidget::~NotifyKindsWidget()
 
 void NotifyKindsWidget::apply()
 {
-	FNotifications->setNotificatorKinds(FNotificatorId,changedKinds(FNotifications->notificatorKinds(FNotificatorId)));
+	FNotifications->setNotificatorKinds(FNotificatorId,changedKinds(FNotificatorKindDefs));
 	emit childApply();
 }
 
@@ -42,6 +43,7 @@ void NotifyKindsWidget::reset()
 uchar NotifyKindsWidget::changedKinds(uchar AActiveKinds) const
 {
 	uchar kinds = AActiveKinds;
+	kinds &= ~INotification::TestNotify;
 
 	if (ui.chbPopup->isChecked())
 		kinds |= INotification::PopupWindow;

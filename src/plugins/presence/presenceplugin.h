@@ -7,6 +7,7 @@
 #include <definations/optionwidgetorders.h>
 #include <definations/notificators.h>
 #include <definations/notificationdataroles.h>
+#include <definations/rosternotifyorders.h>
 #include <definations/soundfiles.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ipresence.h>

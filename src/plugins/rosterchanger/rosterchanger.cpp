@@ -180,7 +180,7 @@ bool RosterChanger::initObjects()
 	if (FMainWindowPlugin)
 	{
 		Menu *addMenu = new Menu(FMainWindowPlugin->mainWindow()->topToolBarChanger()->toolBar());
-		addMenu->setTitle("Add...");
+		addMenu->setTitle(tr("Add..."));
 		addMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_CONTACT);
 
 		Action *action = new Action(addMenu);
@@ -1139,8 +1139,11 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 		notify.data.insert(NDR_CONTACT_JID,chatWindow!=NULL ? chatWindow->contactJid().full() : AItemJid.full());
 		notify.data.insert(NDR_ICON_KEY,MNI_RCHANGER_SUBSCRIBTION);
 		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-		notify.data.insert(NDR_ROSTER_NOTIFY_ORDER,RLO_SUBSCRIBTION);
-		notify.data.insert(NDR_ROSTER_TOOLTIP,Qt::escape(notifyMessage));
+		notify.data.insert(NDR_ROSTER_ORDER,RNO_RCHANGER_SUBSCRIPTION);
+		notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink|IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
+		notify.data.insert(NDR_ROSTER_HOOKCLICK,true);
+		notify.data.insert(NDR_ROSTER_FOOTER,notifyMessage);
+		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::magenta));
 		notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name.split(" ").value(0)));
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SUBSCRIPTION);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);

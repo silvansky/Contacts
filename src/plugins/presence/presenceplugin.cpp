@@ -5,6 +5,7 @@
 
 #define MOOD_NOTIFY_TIMEOUT           60
 #define STATE_NOTIFY_TIMEOUT          60
+#define STATE_ROSTERNOTIFY_TIMEOUT    2000
 #define CONNECTION_NOTIFY_TIMEOUT     10
 
 static const QString HtmlIconMask = "<img src=\"%1\"/>";
@@ -80,10 +81,11 @@ bool PresencePlugin::initObjects()
 {
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::PlaySound|INotification::TestNotify;
-		uchar kindDefs = 0;
-		FNotifications->insertNotificator(NID_CONTACT_STATE,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),kindMask,kindDefs);
-		FNotifications->insertNotificator(NID_CONTACT_MOOD,OWO_NOTIFICATIONS_MOOD_CHANGES,tr("Mood Changes"),kindMask,kindDefs);
+		uchar stateKindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::PlaySound|INotification::TestNotify;
+		FNotifications->insertNotificator(NID_CONTACT_STATE,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),stateKindMask,INotification::RosterIcon);
+
+		uchar moodKindMask = INotification::PopupWindow|INotification::PlaySound|INotification::TestNotify;
+		FNotifications->insertNotificator(NID_CONTACT_MOOD,OWO_NOTIFICATIONS_MOOD_CHANGES,tr("Mood Changes"),moodKindMask,0);
 	}
 	return true;
 }
@@ -174,25 +176,30 @@ void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceIte
 {
 	if (FNotifications && !AItem.itemJid.node().isEmpty() && FConnectTime.contains(APresence) && FConnectTime.value(APresence).secsTo(QDateTime::currentDateTime())>CONNECTION_NOTIFY_TIMEOUT)
 	{
+		INotification notify;
+		notify.kinds = FNotifications->notificatorKinds(NID_CONTACT_STATE);
+
 		QDateTime lastNotify = FLastStateNotify.value(AItem.itemJid);
 		if (lastNotify.isNull() || lastNotify.secsTo(QDateTime::currentDateTime())>=STATE_NOTIFY_TIMEOUT)
-		{
-			INotification notify;
-			notify.kinds = FNotifications->notificatorKinds(NID_CONTACT_STATE);
-			if (notify.kinds > 0)
-			{
-				bool isOnline = AItem.show!=IPresence::Offline && AItem.show!=IPresence::Error;
-				notify.notificatior = NID_CONTACT_STATE;
-				notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
-				notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
-				notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(isOnline ? IPresence::Online : IPresence::Offline, SUBSCRIPTION_BOTH, false) :QVariant());
-				notify.data.insert(NDR_POPUP_CAPTION, isOnline ? tr("Connected") : tr("Disconnected"));
-				notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
-				notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
-				notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_STATE_CHANGED);
-				FNotifies.insertMulti(APresence,FNotifications->appendNotification(notify));
-			}
 			FLastStateNotify.insert(AItem.itemJid,QDateTime::currentDateTime());
+		else
+			notify.kinds = notify.kinds & INotification::RosterIcon;
+
+		if (notify.kinds > 0)
+		{
+			bool isOnline = AItem.show!=IPresence::Offline && AItem.show!=IPresence::Error;
+			notify.notificatior = NID_CONTACT_STATE;
+			notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
+			notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
+			notify.data.insert(NDR_ROSTER_ORDER,RNO_PRESENCE_CONTACT_STATE);
+			notify.data.insert(NDR_ROSTER_TIMEOUT, STATE_ROSTERNOTIFY_TIMEOUT);
+			notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(isOnline ? Qt::cyan : Qt::lightGray));
+			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(isOnline ? IPresence::Online : IPresence::Offline, SUBSCRIPTION_BOTH, false) : QVariant());
+			notify.data.insert(NDR_POPUP_CAPTION, isOnline ? tr("Connected") : tr("Disconnected"));
+			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
+			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
+			notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_STATE_CHANGED);
+			FNotifies.insertMulti(APresence,FNotifications->appendNotification(notify));
 		}
 	}
 }

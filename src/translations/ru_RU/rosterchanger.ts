@@ -285,6 +285,10 @@
         <source>%1 - authorization</source>
         <translation>%1 - авторизация</translation>
     </message>
+    <message>
+        <source>Add...</source>
+        <translation>Добавить...</translation>
+    </message>
 </context>
 <context>
     <name>SubscriptionDialog</name>

@@ -43,7 +43,7 @@ public:
 	virtual void removeDataHolder(IRosterDataHolder *ADataHolder) =0;
 	virtual QVariant data(int ARole) const =0;
 	virtual QMap<int, QVariant> data() const =0;
-	virtual void setData(int ARole, const QVariant &) =0;
+	virtual void setData(int ARole, const QVariant &AData) =0;
 	virtual QList<IRosterIndex *> findChild(const QMultiHash<int, QVariant> AData, bool ASearchInChilds = false) const =0;
 	virtual bool removeOnLastChildRemoved() const=0;
 	virtual void setRemoveOnLastChildRemoved(bool ARemove) =0;
@@ -69,8 +69,8 @@ public:
 	virtual IRosterIndex *addStream(const Jid &AStreamJid) =0;
 	virtual QList<Jid> streams() const =0;
 	virtual void removeStream(const Jid &AStreamJid) =0;
-	virtual IRosterIndex *streamRoot(const Jid &AStreamJid) const =0;
 	virtual IRosterIndex *rootIndex() const =0;
+	virtual IRosterIndex *streamRoot(const Jid &AStreamJid) const =0;
 	virtual IRosterIndex *createRosterIndex(int AType, const QString &AId, IRosterIndex *AParent) =0;
 	virtual IRosterIndex *createGroup(const QString &AName, const QString &AGroupDelim, int AType, IRosterIndex *AParent) =0;
 	virtual void insertRosterIndex(IRosterIndex *AIndex, IRosterIndex *AParent) =0;

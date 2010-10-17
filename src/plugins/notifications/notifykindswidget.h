@@ -13,7 +13,7 @@ class NotifyKindsWidget :
 	Q_OBJECT;
 	Q_INTERFACES(IOptionsWidget);
 public:
-	NotifyKindsWidget(INotifications *ANotifications, const QString &ANotificatorId, const QString &ATitle, uchar AKindMask, QWidget *AParent);
+	NotifyKindsWidget(INotifications *ANotifications, const QString &ANotificatorId, const QString &ATitle, uchar AKindMask, uchar AKindDefs, QWidget *AParent);
 	~NotifyKindsWidget();
 	virtual QWidget* instance() { return this; }
 public slots:
@@ -36,6 +36,7 @@ private:
 private:
 	QString FNotificatorId;
 	uchar FNotificatorKindMask;
+	uchar FNotificatorKindDefs;
 };
 
 #endif // NOTIFYKINDSWIDGET_H

@@ -1,5 +1,6 @@
 #include "rosterindexdelegate.h"
 
+#include <QMetaType>
 #include <QPainter>
 #include <QApplication>
 #include <QWindowsVistaStyle>
@@ -10,32 +11,16 @@
 
 #define BRANCH_WIDTH  10
 
-// static members
-QVector<int> RosterIndexDelegate::groupTypes;
-QImage RosterIndexDelegate::groupOpenedIndicator;
-QImage RosterIndexDelegate::groupClosedIndicator;
-
-// ...
+//QImage RosterIndexDelegate::groupOpenedIndicator;
+//QImage RosterIndexDelegate::groupClosedIndicator;
 
 RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QAbstractItemDelegate(AParent)
 {
 	FShowBlinkLabels = true;
-	if (groupTypes.isEmpty())
-	{
-		groupTypes.append(RIT_GROUP);
-		groupTypes.append(RIT_GROUP_AGENTS);
-		groupTypes.append(RIT_GROUP_BLANK);
-		groupTypes.append(RIT_GROUP_MY_RESOURCES);
-		groupTypes.append(RIT_GROUP_NOT_IN_ROSTER);
-	}
-	if (groupOpenedIndicator.isNull())
-	{
-		groupOpenedIndicator.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERVIEW_GROUP_OPENED));
-	}
-	if (groupClosedIndicator.isNull())
-	{
-		groupClosedIndicator.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERVIEW_GROUP_CLOSED));
-	}
+	//if (groupOpenedIndicator.isNull())
+	//	groupOpenedIndicator.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERVIEW_GROUP_OPENED));
+	//if (groupClosedIndicator.isNull())
+	//	groupClosedIndicator.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERVIEW_GROUP_CLOSED));
 }
 
 RosterIndexDelegate::~RosterIndexDelegate()
@@ -106,8 +91,6 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 
 	if (AIndex.data(RDR_TYPE).toInt() == RIT_SEARCH_EMPTY)
 		hint.setHeight(hint.height() * 2);
-	if (groupTypes.contains(AIndex.data(RDR_TYPE).toInt()))
-		hint.setHeight(hint.height() * 1.5);
 
 	return hint;
 }
@@ -118,9 +101,8 @@ int RosterIndexDelegate::labelAt(const QPoint &APoint, const QStyleOptionViewIte
 		return RLID_NULL;
 
 	QHash<int,QRect> rectHash = drawIndex(NULL,AOption,AIndex);
-	QHash<int,QRect>::const_iterator it = rectHash.constBegin();
-	for (; it != rectHash.constEnd(); it++)
-		if (it.value().contains(APoint))
+	for (QHash<int,QRect>::const_iterator it = rectHash.constBegin(); it != rectHash.constEnd(); it++)
+		if (it->contains(APoint))
 			return it.key();
 
 	return RLID_DISPLAY;
@@ -157,7 +139,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	QStyle *style = option.widget ? option.widget->style() : QApplication::style();
 
 #if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSVISTA)
-	if (APainter && qobject_cast<QWindowsVistaStyle *>(style))
+	if (APainter && qobject_cast<QWindowsVistaStyle *>(QApplication::style()))
 	{
 		option.palette.setColor(QPalette::All, QPalette::HighlightedText, option.palette.color(QPalette::Active, QPalette::Text));
 		option.palette.setColor(QPalette::All, QPalette::Highlight, option.palette.base().color().darker(108));
@@ -170,28 +152,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	QRect paintRect(option.rect.adjusted(hMargin,vMargin,-hMargin,-vMargin));
 
 	bool isDragged = AIndex.data(RDR_IS_DRAGGED).toBool();
-	int type = AIndex.data(RDR_TYPE).toInt();
-
-	if ((type == RIT_SEARCH_EMPTY) || (type == RIT_SEARCH_LINK) || isDragged || groupTypes.contains(type))
-	{
-		if (option.state & QStyle::State_Selected)
-			option.state ^= QStyle::State_Selected;
-		if (option.state & QStyle::State_MouseOver)
-			option.state ^= QStyle::State_MouseOver;
-	}
-
-	option.palette.setColor(QPalette::HighlightedText, AOption.palette.text().color());
-	if (type == RIT_SEARCH_LINK)
-	{
-		option.font.setUnderline(true);
-		option.palette.setColor(QPalette::Text, AOption.palette.link().color());
-	}
-
-	if (type == RIT_SEARCH_EMPTY)
-	{
-		option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Disabled, QPalette::Text));
-		option.displayAlignment = Qt::AlignHCenter;
-	}
+	if (isDragged)
+		option.state &= ~(QStyle::State_Selected|QStyle::State_MouseOver);
 
 	if (APainter)
 	{
@@ -201,46 +163,23 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		drawBackground(APainter, option);
 		if (isDragged)
 		{
-			QPoint points[5] = {
-				option.rect.topLeft(),
-				option.rect.topRight(),
-				option.rect.bottomRight(),
-				option.rect.bottomLeft(),
-				option.rect.topLeft() };
-			QPen oldpen = APainter->pen();
-			QPen newpen = oldpen;
-			newpen.setColor(option.palette.color(QPalette::Disabled, QPalette::Text));
-			newpen.setStyle(Qt::DashLine);
-			APainter->setPen(newpen);
-			APainter->drawPolyline(points, 5);
-			APainter->setPen(oldpen);
-		}
-		else if (groupTypes.contains(type))
-		{
-			QLinearGradient gradient(option.rect.bottomLeft(), option.rect.topLeft());
-			QGradientStops stops;
-			stops.append(QGradientStop(0.0, QColor::fromRgb(159, 159, 159)));
-			stops.append(QGradientStop(0.05, QColor::fromRgb(217, 217, 217)));
-			stops.append(QGradientStop(1.0, QColor::fromRgb(234, 234, 234)));
-			gradient.setStops(stops);
-			QBrush b(gradient);
-			QPainterPath path;
-			path.addRoundedRect(option.rect, 2.0, 2.0, Qt::AbsoluteSize);
-			APainter->fillPath(path, b);
-			QPen oldPen = APainter->pen();
-			APainter->setPen(option.palette.base().color());
-			APainter->drawLine(option.rect.left() + 2, option.rect.top(), option.rect.right() - 2, option.rect.top());
-			APainter->setPen(oldPen);
+			APainter->save();
+			QPen pen = APainter->pen();
+			pen.setStyle(Qt::DashLine);
+			pen.setColor(option.palette.color(QPalette::Disabled, QPalette::Text));
+			APainter->setPen(pen);
+			APainter->drawRect(paintRect);
+			APainter->restore();
 		}
 	}
 
 	if (AIndex.parent().isValid() && AIndex.model()->hasChildren(AIndex))
 	{
-		QStyleOption brachOption(option);
+		QStyleOptionViewItemV4 brachOption(option);
 		brachOption.state |= QStyle::State_Children;
 		brachOption.rect = QStyle::alignedRect(option.direction, Qt::AlignVCenter | Qt::AlignLeft, QSize(BRANCH_WIDTH, BRANCH_WIDTH), paintRect);
 		if (APainter && !isDragged)
-			APainter->drawImage(brachOption.rect.topLeft(), (brachOption.state & QStyle::State_Open) ? groupOpenedIndicator : groupClosedIndicator);
+			style->drawPrimitive(QStyle::PE_IndicatorBranch, &brachOption, APainter);
 		removeWidth(paintRect, BRANCH_WIDTH, AOption.direction == Qt::LeftToRight);
 		rectHash.insert(RLID_INDICATORBRANCH, brachOption.rect);
 	}
@@ -342,7 +281,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 
 void RosterIndexDelegate::drawLabelItem(QPainter *APainter, const QStyleOptionViewItemV4 &AOption, const LabelItem &ALabel) const
 {
-	if (ALabel.rect.isEmpty() || ALabel.value.isNull() || ((ALabel.flags&IRostersView::LabelBlink)>0 && !FShowBlinkLabels))
+	if (ALabel.rect.isEmpty() || ALabel.value.isNull() || ((ALabel.flags & IRostersLabel::Blink)>0 && !FShowBlinkLabels))
 		return;
 
 	APainter->setClipRect(ALabel.rect);
@@ -433,6 +372,14 @@ QStyleOptionViewItemV4 RosterIndexDelegate::indexOptions(const QModelIndex &AInd
 	if (data.isValid())
 		option.font.setUnderline(data.toBool());
 
+	data = AIndex.data(RDR_STATES_FORCE_ON);
+	if (data.isValid())
+		option.state |= (QStyle::State)data.toInt();
+
+	data = AIndex.data(RDR_STATES_FORCE_OFF);
+	if (data.isValid())
+		option.state &= ~(QStyle::State)data.toInt();
+
 	data = AIndex.data(Qt::ForegroundRole);
 	if (qVariantCanConvert<QBrush>(data))
 		option.palette.setBrush(QPalette::Text, qvariant_cast<QBrush>(data));
@@ -450,47 +397,38 @@ QStyleOptionViewItemV4 RosterIndexDelegate::indexOptions(const QModelIndex &AInd
 QStyleOptionViewItemV4 RosterIndexDelegate::indexFooterOptions(const QStyleOptionViewItemV4 &AOption) const
 {
 	QStyleOptionViewItemV4 option = AOption;
-
-	option.font.setPointSize(option.font.pointSize()-1);
 	option.font.setBold(false);
-	//option.font.setItalic(true);
-	option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Disabled, QPalette::Text));
-
+	option.font.setPointSize(option.font.pointSize()-1);
 	option.fontMetrics = QFontMetrics(option.font);
-
+	option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Disabled, QPalette::Text));
 	return option;
 }
 
 QList<LabelItem> RosterIndexDelegate::itemLabels(const QModelIndex &AIndex) const
 {
 	QList<LabelItem> labels;
-
-	QList<QVariant> labelIds = AIndex.data(RDR_LABEL_ID).toList();
-	QList<QVariant> labelOrders = AIndex.data(RDR_LABEL_ORDERS).toList();
-	QList<QVariant> labelFlags = AIndex.data(RDR_LABEL_FLAGS).toList();
-	QList<QVariant> labelValues = AIndex.data(RDR_LABEL_VALUES).toList();
-
-	for (int i = 0; i < labelOrders.count(); i++)
+	RostersLabelItems rlItems = AIndex.data(RDR_LABEL_ITEMS).value<RostersLabelItems>();
+	for (RostersLabelItems::const_iterator it = rlItems.constBegin(); it != rlItems.constEnd(); it++)
 	{
 		LabelItem label;
-		label.id = labelIds.at(i).toInt();
-		label.order = labelOrders.at(i).toInt();
-		label.flags = labelFlags.at(i).toInt();
-		label.value = labelValues.at(i).type()==QVariant::Int ? AIndex.data(labelValues.at(i).toInt()) : labelValues.at(i);
+		label.id = it.key();
+		label.order = it->order;
+		label.flags = it->flags;
+		label.value = it->label.type()==QVariant::Int ? AIndex.data(it->label.toInt()) : it->label;
 		labels.append(label);
 	}
 
 	LabelItem decoration;
 	decoration.id = RLID_DECORATION;
 	decoration.order = RLO_DECORATION;
-	decoration.flags = 0;
+	decoration.flags = AIndex.data(RDR_DECORATION_FLAGS).toInt();
 	decoration.value = AIndex.data(Qt::DecorationRole);
 	labels.append(decoration);
 
 	LabelItem display;
 	display.id = RLID_DISPLAY;
 	display.order = RLO_DISPLAY;
-	display.flags = 0;
+	display.flags = AIndex.data(RDR_DISPLAY_FLAGS).toInt();
 	display.value = AIndex.data(Qt::DisplayRole);
 	labels.append(display);
 

@@ -32,13 +32,6 @@
     </message>
 </context>
 <context>
-    <name>RosterToolTip</name>
-    <message>
-        <source>Form</source>
-        <translation>От</translation>
-    </message>
-</context>
-<context>
     <name>RostersView</name>
     <message>
         <source>Status:</source>

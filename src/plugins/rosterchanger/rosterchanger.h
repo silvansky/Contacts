@@ -4,12 +4,12 @@
 #include <QDateTime>
 #include <definations/actiongroups.h>
 #include <definations/noticepriorities.h>
-#include <definations/rosterlabelorders.h>
+#include <definations/rosternotifyorders.h>
 #include <definations/rosterindextyperole.h>
+#include <definations/rosterdragdropmimetypes.h>
 #include <definations/multiuserdataroles.h>
 #include <definations/notificators.h>
 #include <definations/notificationdataroles.h>
-#include <definations/rosterdragdropmimetypes.h>
 #include <definations/optionvalues.h>
 #include <definations/optionnodes.h>
 #include <definations/optionwidgetorders.h>

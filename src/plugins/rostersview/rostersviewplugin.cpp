@@ -176,25 +176,26 @@ int RostersViewPlugin::rosterDataOrder() const
 QList<int> RostersViewPlugin::rosterDataRoles() const
 {
 	static QList<int> dataRoles  = QList<int>()
-				       << Qt::DisplayRole
-				       << Qt::BackgroundColorRole
-				       << Qt::ForegroundRole
-				       << RDR_FONT_WEIGHT;
+		<< Qt::DisplayRole 
+		<< Qt::BackgroundColorRole 
+		<< Qt::ForegroundRole 
+		<< RDR_FONT_WEIGHT
+		<< RDR_FONT_SIZE;
 	return dataRoles;
 }
 
 QList<int> RostersViewPlugin::rosterDataTypes() const
 {
 	static QList<int> indexTypes  = QList<int>()
-					<< RIT_STREAM_ROOT
-					<< RIT_GROUP
-					<< RIT_GROUP_BLANK
-					<< RIT_GROUP_AGENTS
-					<< RIT_GROUP_MY_RESOURCES
-					<< RIT_GROUP_NOT_IN_ROSTER
-					<< RIT_CONTACT
-					<< RIT_AGENT
-					<< RIT_MY_RESOURCE;
+		<< RIT_STREAM_ROOT 
+		<< RIT_GROUP
+		<< RIT_GROUP_BLANK
+		<< RIT_GROUP_AGENTS
+		<< RIT_GROUP_MY_RESOURCES
+		<< RIT_GROUP_NOT_IN_ROSTER
+		<< RIT_CONTACT
+		<< RIT_AGENT
+		<< RIT_MY_RESOURCE;
 	return indexTypes;
 }
 
@@ -213,9 +214,9 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 				return display;
 			}
 		case Qt::ForegroundRole:
-			return Qt::white;
+			return FRostersView->palette().color(QPalette::Active, QPalette::BrightText);
 		case Qt::BackgroundColorRole:
-			return Qt::gray;
+			return FRostersView->palette().color(QPalette::Active, QPalette::Dark);
 		case RDR_FONT_WEIGHT:
 			return QFont::Bold;
 		}
@@ -230,8 +231,8 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		{
 		case Qt::DisplayRole:
 			return AIndex->data(RDR_NAME);
-		case Qt::ForegroundRole:
-			return QColor::fromRgb(80, 80, 80, 200);
+		case Qt::BackgroundColorRole:
+			return FRostersView->palette().color(QPalette::Active, QPalette::AlternateBase);
 		case RDR_FONT_WEIGHT:
 			return QFont::DemiBold;
 		}

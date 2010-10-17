@@ -40,9 +40,9 @@ public:
 	virtual QMap<int, QVariant> itemData(const QModelIndex &AIndex) const;
 	//IRostersModel
 	virtual IRosterIndex *addStream(const Jid &AStreamJid);
-	virtual QList<Jid> streams() const { return FStreamsRoot.keys(); }
+	virtual QList<Jid> streams() const;
 	virtual void removeStream(const Jid &AStreamJid);
-	virtual IRosterIndex *rootIndex() const { return FRootIndex; }
+	virtual IRosterIndex *rootIndex() const;
 	virtual IRosterIndex *streamRoot(const Jid &AStreamJid) const;
 	virtual IRosterIndex *createRosterIndex(int AType, const QString &AId, IRosterIndex *AParent);
 	virtual IRosterIndex *createGroup(const QString &AName, const QString &AGroupDelim, int AType, IRosterIndex *AParent);
@@ -96,7 +96,7 @@ private:
 	IAccountManager *FAccountManager;
 private:
 	RosterIndex *FRootIndex;
-	QHash<Jid,IRosterIndex *> FStreamsRoot;
+	QMap<Jid,IRosterIndex *> FStreamsRoot;
 	QSet<IRosterIndex *> FChangedIndexes;
 	QList<IRosterDataHolder *> FDataHolders;
 };
