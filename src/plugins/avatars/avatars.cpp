@@ -528,7 +528,7 @@ void Avatars::updateDataHolder(const Jid &AContactJid)
 {
 	if (FRostersModel)
 	{
-		QMultiHash<int,QVariant> findData;
+		QMultiMap<int,QVariant> findData;
 		foreach(int type, rosterDataTypes())
 			findData.insert(RDR_TYPE,type);
 		if (!AContactJid.isEmpty())
@@ -868,7 +868,7 @@ void Avatars::onOptionsChanged(const OptionsNode &ANode)
 		{
 			if (FAvatarsVisible)
 			{
-				QMultiHash<int,QVariant> findData;
+				QMultiMap<int,QVariant> findData;
 				foreach(int type, rosterDataTypes())
 					findData.insertMulti(RDR_TYPE,type);
 				QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChild(findData, true);

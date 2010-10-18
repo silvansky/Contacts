@@ -36,7 +36,7 @@ public:
 	virtual QVariant data(int ARole) const;
 	virtual QMap<int,QVariant> data() const;
 	virtual void setData(int ARole, const QVariant &AData);
-	virtual QList<IRosterIndex *> findChild(const QMultiHash<int, QVariant> AFindData, bool ASearchInChilds = false) const;
+	virtual QList<IRosterIndex *> findChild(const QMultiMap<int, QVariant> AFindData, bool ASearchInChilds = false) const;
 	virtual bool removeOnLastChildRemoved() const;
 	virtual void setRemoveOnLastChildRemoved(bool ARemove);
 	virtual bool removeChildsOnRemoved() const;

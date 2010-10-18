@@ -7,6 +7,7 @@
 #define NID_SUBSCRIPTION             "Subscription"
 #define NID_CONNECTION_STATE         "ConnectionState"
 #define NID_CONTACT_ADDED            "ContactAdded"
+#define NID_CHATSTATE_TYPING         "ChatStateTyping"
 
 
 #endif // DEF_NOTIFICATORS_H

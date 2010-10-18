@@ -289,21 +289,21 @@ QList<IRosterIndex *> RostersModel::getContactIndexList(const Jid &AStreamJid, c
 		else if (AContactJid && AStreamJid)
 			type = RIT_MY_RESOURCE;
 
-		QHash<int,QVariant> data;
-		data.insert(RDR_TYPE, type);
+		QMultiMap<int,QVariant> findData;
+		findData.insert(RDR_TYPE, type);
 		if (AContactJid.resource().isEmpty())
-			data.insert(RDR_BARE_JID, AContactJid.pBare());
+			findData.insert(RDR_BARE_JID, AContactJid.pBare());
 		else
-			data.insert(RDR_PJID, AContactJid.pFull());
-		indexList = streamIndex->findChild(data,true);
+			findData.insert(RDR_PJID, AContactJid.pFull());
+		indexList = streamIndex->findChild(findData,true);
 
 		if (indexList.isEmpty() && !AContactJid.resource().isEmpty())
 		{
-			data.insert(RDR_PJID, AContactJid.pBare());
-			indexList = streamIndex->findChild(data,true);
+			findData.insert(RDR_PJID, AContactJid.pBare());
+			indexList = streamIndex->findChild(findData,true);
 		}
 
-		if (indexList.isEmpty() && ACreate)
+		if (ACreate && indexList.isEmpty())
 		{
 			IRosterIndex *group;
 			if (type == RIT_MY_RESOURCE)
@@ -324,12 +324,12 @@ QList<IRosterIndex *> RostersModel::getContactIndexList(const Jid &AStreamJid, c
 
 IRosterIndex *RostersModel::findRosterIndex(int AType, const QString &AId, IRosterIndex *AParent) const
 {
-	QHash<int,QVariant> data;
-	data.insert(RDR_TYPE,AType);
-	data.insert(RDR_INDEX_ID,AId);
+	QMultiMap<int,QVariant> findData;
+	findData.insert(RDR_TYPE,AType);
+	findData.insert(RDR_INDEX_ID,AId);
 	if (AParent)
-		return AParent->findChild(data).value(0,NULL);
-	return FRootIndex->findChild(data).value(0,NULL) ;
+		return AParent->findChild(findData).value(0,NULL);
+	return FRootIndex->findChild(findData).value(0,NULL) ;
 }
 
 IRosterIndex *RostersModel::findGroup(const QString &AName, const QString &AGroupDelim,
@@ -348,7 +348,7 @@ void RostersModel::insertDefaultDataHolder(IRosterDataHolder *ADataHolder)
 {
 	if (ADataHolder && !FDataHolders.contains(ADataHolder))
 	{
-		QMultiHash<int,QVariant> findData;
+		QMultiMap<int,QVariant> findData;
 		foreach(int type, ADataHolder->rosterDataTypes())
 			findData.insertMulti(RDR_TYPE,type);
 
@@ -364,7 +364,7 @@ void RostersModel::removeDefaultDataHolder(IRosterDataHolder *ADataHolder)
 {
 	if (FDataHolders.contains(ADataHolder))
 	{
-		QMultiHash<int,QVariant> findData;
+		QMultiMap<int,QVariant> findData;
 		foreach(int type, ADataHolder->rosterDataTypes())
 			findData.insertMulti(RDR_TYPE,type);
 
@@ -466,7 +466,7 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 			itemGroups = AItem.groups;
 		}
 
-		QHash<int,QVariant> findData;
+		QMultiMap<int,QVariant> findData;
 		findData.insert(RDR_TYPE,itemType);
 		findData.insert(RDR_BARE_JID,AItem.itemJid.pBare());
 		QList<IRosterIndex *> curItemList = streamIndex->findChild(findData,true);
@@ -566,9 +566,9 @@ void RostersModel::onRosterStreamJidChanged(IRoster *ARoster, const Jid &ABefore
 	{
 		Jid after = ARoster->streamJid();
 
-		QHash<int,QVariant> data;
-		data.insert(RDR_STREAM_JID,ABefore.pFull());
-		QList<IRosterIndex *> itemList = FRootIndex->findChild(data,true);
+		QMultiMap<int,QVariant> findData;
+		findData.insert(RDR_STREAM_JID,ABefore.pFull());
+		QList<IRosterIndex *> itemList = FRootIndex->findChild(findData,true);
 		foreach(IRosterIndex *index, itemList)
 			index->setData(RDR_STREAM_JID,after.pFull());
 
@@ -611,7 +611,7 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 
 		if (AItem.show == IPresence::Offline)
 		{
-			QHash<int,QVariant> findData;
+			QMultiMap<int,QVariant> findData;
 			findData.insert(RDR_TYPE,itemType);
 			findData.insert(RDR_PJID,AItem.itemJid.pFull());
 			QList<IRosterIndex *> itemList = streamIndex->findChild(findData, true);
@@ -635,7 +635,7 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 		}
 		else if (AItem.show == IPresence::Error)
 		{
-			QHash<int,QVariant> findData;
+			QMultiMap<int,QVariant> findData;
 			findData.insert(RDR_TYPE,itemType);
 			findData.insert(RDR_BARE_JID,AItem.itemJid.pBare());
 			QList<IRosterIndex *> itemList = streamIndex->findChild(findData,true);
@@ -648,7 +648,7 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 		}
 		else
 		{
-			QHash<int,QVariant> findData;
+			QMultiMap<int,QVariant> findData;
 			findData.insert(RDR_TYPE,itemType);
 			findData.insert(RDR_PJID,AItem.itemJid.pFull());
 			QList<IRosterIndex *> itemList = streamIndex->findChild(findData,true);

@@ -547,9 +547,12 @@ void RostersView::removeNotify(int ANotifyId)
 		removeBlinkItem(-1,ANotifyId);
 
 		QTimer *timer = FNotifyTimer.key(ANotifyId,NULL);
-		timer->deleteLater();
-		FNotifyTimer.remove(timer);
 		bool timeout = timer!=NULL ? !timer->isActive() : false;
+		if (timer)
+		{
+			timer->deleteLater();
+			FNotifyTimer.remove(timer);
+		}
 
 		FNotifyItems.remove(ANotifyId);
 		QTimer::singleShot(0,this,SLOT(onUpdateIndexNotifyTimeout()));
@@ -666,7 +669,7 @@ void RostersView::updateStatusText(IRosterIndex *AIndex)
 	QList<IRosterIndex *> indexes;
 	if (AIndex == NULL)
 	{
-		QMultiHash<int,QVariant> findData;
+		QMultiMap<int,QVariant> findData;
 		foreach(int type, statusTypes)
 			findData.insert(RDR_TYPE,type);
 		indexes = FRostersModel!=NULL ? FRostersModel->rootIndex()->findChild(findData,true) : QList<IRosterIndex *>();

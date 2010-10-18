@@ -100,17 +100,20 @@ signals:
 	void notificationRemoved(int ANotifyId);
 	void notificationTest(const QString &ANotificatorId, uchar AKinds);
 protected:
+	bool isInvisibleNotify(int ANotifyId) const;
 	int notifyIdByRosterId(int ARosterId) const;
 	int notifyIdByTrayId(int ATrayId) const;
 	int notifyIdByWidget(NotifyWidget *AWidget) const;
 	void activateAllNotifications();
 	void removeAllNotifications();
+	void removeInvisibleNotification(int ANotifyId);
 protected slots:
 	void onActivateDelayedActivations();
 	void onActivateDelayedReplaces();
 	void onSoundOnOffActionTriggered(bool);
 	void onTrayActionTriggered(bool);
 	void onRosterNotifyActivated(int ANotifyId);
+	void onRosterNotifyTimeout(int ANotifyId);
 	void onRosterNotifyRemoved(int ANotifyId);
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onTrayNotifyRemoved(int ANotifyId);
@@ -140,7 +143,6 @@ private:
 	Action *FRemoveAll;
 	Menu *FNotifyMenu;
 private:
-	int FNotifyId;
 	int FTestNotifyId;
 	QSound *FSound;
 	QTimer FTestNotifyTimer;

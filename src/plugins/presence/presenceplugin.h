@@ -12,6 +12,7 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/iroster.h>
+#include <interfaces/irostersview.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/inotifications.h>
 #include <interfaces/imessageprocessor.h>

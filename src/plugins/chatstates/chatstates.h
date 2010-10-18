@@ -10,6 +10,9 @@
 #include <definations/optionvalues.h>
 #include <definations/optionnodes.h>
 #include <definations/optionwidgetorders.h>
+#include <definations/rosternotifyorders.h>
+#include <definations/notificators.h>
+#include <definations/notificationdataroles.h>
 #include <definations/sessionnegotiatororders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ichatstates.h>
@@ -21,6 +24,8 @@
 #include <interfaces/imessagearchiver.h>
 #include <interfaces/idataforms.h>
 #include <interfaces/isessionnegotiation.h>
+#include <interfaces/irostersview.h>
+#include <interfaces/inotifications.h>
 #include <utils/options.h>
 #include "statewidget.h"
 
@@ -31,11 +36,13 @@ struct ChatParams
 		selfState = IChatStates::StateUnknown;
 		selfLastActive = 0;
 		canSendStates = false;
+		notifyId = 0;
 	}
 	int userState;
 	int selfState;
 	uint selfLastActive;
 	bool canSendStates;
+	int notifyId;
 };
 
 class ChatStates :
@@ -91,6 +98,7 @@ protected:
 	void setSupported(const Jid &AStreamJid, const Jid &AContactJid, bool ASupported);
 	void setUserState(const Jid &AStreamJid, const Jid &AContactJid, int AState);
 	void setSelfState(const Jid &AStreamJid, const Jid &AContactJid, int AState, bool ASend = true);
+	void notifyUserState(const Jid &AStreamJid, const Jid &AContactJid);
 	void registerDiscoFeatures();
 protected slots:
 	void onPresenceOpened(IPresence *APresence);
@@ -114,6 +122,7 @@ private:
 	IServiceDiscovery *FDiscovery;
 	IMessageArchiver *FMessageArchiver;
 	IDataForms *FDataForms;
+	INotifications *FNotifications;
 	ISessionNegotiation *FSessionNegotiation;
 private:
 	QMap<Jid,int> FSHIMessagesIn;

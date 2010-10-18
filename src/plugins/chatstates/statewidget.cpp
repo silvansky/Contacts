@@ -109,23 +109,5 @@ void StateWidget::onUserChatStateChanged(const Jid &AStreamJid, const Jid &ACont
 
 		setText(state);
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,iconKey);
-
-		if (FWindow->tabPageNotifier()!=NULL)
-		{
-			if (AState==IChatStates::StateComposing && FTabNotifyId<0)
-			{
-				ITabPageNotify notify;
-				notify.priority = TPNP_CHATSTATE_TYPING;
-				notify.iconKey = MNI_CHATSTATES_COMPOSING;
-				notify.iconStorage = RSR_STORAGE_MENUICONS;
-				notify.toolTip = tr("Typing...");
-				FTabNotifyId = FWindow->tabPageNotifier()->insertNotify(notify);
-			}
-			else if (AState!=IChatStates::StateComposing && FTabNotifyId>0)
-			{
-				FWindow->tabPageNotifier()->removeNotify(FTabNotifyId);
-				FTabNotifyId = -1;
-			}
-		}
 	}
 }

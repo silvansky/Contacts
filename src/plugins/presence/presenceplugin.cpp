@@ -192,6 +192,7 @@ void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceIte
 			notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
 			notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
 			notify.data.insert(NDR_ROSTER_ORDER,RNO_PRESENCE_CONTACT_STATE);
+			notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::AllwaysVisible);
 			notify.data.insert(NDR_ROSTER_TIMEOUT, STATE_ROSTERNOTIFY_TIMEOUT);
 			notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(isOnline ? Qt::cyan : Qt::lightGray));
 			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(isOnline ? IPresence::Online : IPresence::Offline, SUBSCRIPTION_BOTH, false) : QVariant());
@@ -228,6 +229,7 @@ void PresencePlugin::onPresenceReceived(const IPresenceItem &AItem, const IPrese
 	Presence *presence = qobject_cast<Presence *>(sender());
 	if (presence)
 	{
+		emit presenceReceived(presence,AItem,ABefore);
 		if (AItem.show==ABefore.show && AItem.status!=ABefore.status)
 		{
 			notifyMoodChanged(presence,AItem);
@@ -253,7 +255,6 @@ void PresencePlugin::onPresenceReceived(const IPresenceItem &AItem, const IPrese
 				emit contactStateChanged(presence->streamJid(),AItem.itemJid,false);
 			}
 		}
-		emit presenceReceived(presence,AItem,ABefore);
 	}
 }
 

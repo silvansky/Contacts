@@ -165,8 +165,8 @@ bool RosterChanger::initObjects()
 {
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterIcon|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound|INotification::AutoActivate;
-		uchar kindDefs = INotification::RosterIcon|INotification::ChatWindow|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound;
+		uchar kindMask = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound|INotification::AutoActivate;
+		uchar kindDefs = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound;
 		FNotifications->insertNotificator(NID_SUBSCRIPTION,OWO_NOTIFICATIONS_SUBSCRIPTIONS,QString::null,kindMask,kindDefs);
 	}
 	if (FRostersView)
@@ -1141,11 +1141,13 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 		notify.data.insert(NDR_ROSTER_ORDER,RNO_RCHANGER_SUBSCRIPTION);
 		notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink|IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
-		notify.data.insert(NDR_ROSTER_HOOKCLICK,true);
+		notify.data.insert(NDR_ROSTER_HOOK_CLICK,true);
+		notify.data.insert(NDR_ROSTER_CREATE_INDEX,true);
 		notify.data.insert(NDR_ROSTER_FOOTER,notifyMessage);
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::magenta));
 		notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name.split(" ").value(0)));
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SUBSCRIPTION);
+		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,Qt::escape(notifyMessage));
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
@@ -1391,12 +1393,12 @@ void RosterChanger::onRemoveItemFromRoster(bool)
 			}
 			else if (FRostersModel)
 			{
-				QMultiHash<int, QVariant> data;
-				data.insert(RDR_TYPE,RIT_CONTACT);
-				data.insert(RDR_TYPE,RIT_AGENT);
-				data.insert(RDR_BARE_JID,rosterJid.pBare());
+				QMultiMap<int, QVariant> findData;
+				findData.insert(RDR_TYPE,RIT_CONTACT);
+				findData.insert(RDR_TYPE,RIT_AGENT);
+				findData.insert(RDR_BARE_JID,rosterJid.pBare());
 				IRosterIndex *streamIndex = FRostersModel->streamRoot(streamJid);
-				foreach(IRosterIndex *index, streamIndex->findChild(data,true))
+				foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
 					FRostersModel->removeRosterIndex(index);
 			}
 		}

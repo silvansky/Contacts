@@ -23,6 +23,10 @@
         <source>Supports the exchanging of the information about the user&apos;s activity in the chat</source>
         <translation>Поддерживает обмен информацией об активности пользователя в чате</translation>
     </message>
+    <message>
+        <source>Typing...</source>
+        <translation>Печатает...</translation>
+    </message>
 </context>
 <context>
     <name>StateWidget</name>
@@ -65,10 +69,6 @@
     <message>
         <source>Gone %1</source>
         <translation>Ушел %1</translation>
-    </message>
-    <message>
-        <source>Typing...</source>
-        <translation>Печатает...</translation>
     </message>
 </context>
 </TS>

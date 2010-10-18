@@ -18,7 +18,7 @@ struct INotification
 		TrayAction    = 0x08,
 		PlaySound     = 0x10,
 		AutoActivate  = 0x20,
-		ChatWindow    = 0x40,
+		TabPage       = 0x40,
 		TestNotify    = 0x80
 	};
 	INotification() { kinds = 0; }

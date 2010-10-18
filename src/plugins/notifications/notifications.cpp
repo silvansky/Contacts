@@ -24,7 +24,6 @@ Notifications::Notifications()
 	FRemoveAll = NULL;
 	FNotifyMenu = NULL;
 
-	FNotifyId = 0;
 	FTestNotifyId = -1;
 	FSound = NULL;
 
@@ -73,6 +72,8 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &AInitOr
 		{
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(notifyActivated(int)),
 				SLOT(onRosterNotifyActivated(int)));
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(notifyTimeout(int)),
+				SLOT(onRosterNotifyTimeout(int)));
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(notifyRemoved(int)),
 				SLOT(onRosterNotifyRemoved(int)));
 		}
@@ -229,8 +230,11 @@ INotification Notifications::notificationById(int ANotifyId) const
 
 int Notifications::appendNotification(const INotification &ANotification)
 {
+	int notifyId = 0;
+	while (notifyId <=0 || FNotifyRecords.contains(notifyId))
+		notifyId = qrand();
+
 	NotifyRecord record;
-	int notifyId = ++FNotifyId;
 	record.notification = ANotification;
 	emit notificationAppend(notifyId, record.notification);
 
@@ -248,16 +252,17 @@ int Notifications::appendNotification(const INotification &ANotification)
 	else
 		icon = qvariant_cast<QIcon>(record.notification.data.value(NDR_ICON));
 
-	int replaceNotifyId = ANotification.data.value(NDR_REPLACE_NOTIFY).toInt();
+	int replaceNotifyId = record.notification.data.value(NDR_REPLACE_NOTIFY).toInt();
 	if (!FNotifyRecords.contains(replaceNotifyId))
 		replaceNotifyId = -1;
 
 	if (FRostersModel && FRostersViewPlugin && Options::node(OPV_NOTIFICATIONS_ROSTERICON).value().toBool() &&
 	    (record.notification.kinds & INotification::RosterIcon)>0)
 	{
+		bool createIndex = record.notification.data.value(NDR_ROSTER_CREATE_INDEX).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
 		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
-		QList<IRosterIndex *> indexes = FRostersModel->getContactIndexList(streamJid,contactJid,true);
+		QList<IRosterIndex *> indexes = FRostersModel->getContactIndexList(streamJid,contactJid,createIndex);
 		if (!indexes.isEmpty())
 		{
 			IRostersNotify rnotify;
@@ -265,7 +270,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 			rnotify.order = record.notification.data.value(NDR_ROSTER_ORDER).toInt();
 			rnotify.flags = record.notification.data.value(NDR_ROSTER_FLAGS).toInt();
 			rnotify.timeout = record.notification.data.value(NDR_ROSTER_TIMEOUT).toInt();
-			rnotify.hookClick = record.notification.data.value(NDR_ROSTER_TIMEOUT).toBool();
+			rnotify.hookClick = record.notification.data.value(NDR_ROSTER_HOOK_CLICK).toBool();
 			rnotify.footer = record.notification.data.value(NDR_ROSTER_FOOTER).toString();
 			rnotify.background = record.notification.data.value(NDR_ROSTER_BACKGROUND).value<QBrush>();
 			record.rosterId = FRostersViewPlugin->rostersView()->insertNotify(rnotify,indexes);
@@ -301,23 +306,24 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (FMessageWidgets && FMessageProcessor && Options::node(OPV_NOTIFICATIONS_CHATWINDOW).value().toBool() && 
-		(record.notification.kinds & INotification::ChatWindow)>0)
+		(record.notification.kinds & INotification::TabPage)>0)
 	{
+		bool createTab = record.notification.data.value(NDR_TABPAGE_CREATE_TAB).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
 		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
-		if (FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_ADD_TAB))
+		if (!createTab || FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_ADD_TAB))
 		{
 			IChatWindow *window = FMessageWidgets->findChatWindow(streamJid,contactJid);
 			if (window && window->tabPageNotifier()!=NULL)
 			{
 				ITabPageNotify notify;
-				notify.priority = ANotification.data.value(NDR_TABPAGE_PRIORITY).toInt();
-				notify.blink = ANotification.data.value(NDR_TABPAGE_ICONBLINK).toBool();
+				notify.priority = record.notification.data.value(NDR_TABPAGE_PRIORITY).toInt();
+				notify.blink = record.notification.data.value(NDR_TABPAGE_ICONBLINK).toBool();
 				notify.icon = icon;
 				notify.iconKey = iconKey;
 				notify.iconStorage = iconStorage;
-				notify.toolTip = ANotification.data.value(NDR_TABPAGE_TOOLTIP).toString();
-				notify.styleKey = ANotification.data.value(NDR_TABPAGE_STYLEKEY).toString();
+				notify.toolTip = record.notification.data.value(NDR_TABPAGE_TOOLTIP).toString();
+				notify.styleKey = record.notification.data.value(NDR_TABPAGE_STYLEKEY).toString();
 				record.tabPageId = window->tabPageNotifier()->insertNotify(notify);
 				record.tabPageNotifier = window->tabPageNotifier()->instance();
 			}
@@ -388,7 +394,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		FTestNotifyTimer.start();
 	}
 	
-	if (FNotifyRecords.isEmpty())
+	if (!FNotifyRecords.isEmpty())
 	{
 		FActivateAll->setVisible(true);
 		FRemoveAll->setVisible(true);
@@ -505,6 +511,22 @@ QString Notifications::contactName(const Jid &AStreamJId, const Jid &AContactJid
 	return name;
 }
 
+bool Notifications::isInvisibleNotify(int ANotifyId) const
+{
+	NotifyRecord record = FNotifyRecords.value(ANotifyId);
+	if (record.trayId != 0)
+		return false;
+	if (record.rosterId != 0)
+		return false;
+	if (record.tabPageId != 0)
+		return false;
+	if (record.action != NULL)
+		return false;
+	if (record.widget != NULL)
+		return false;
+	return true;
+}
+
 int Notifications::notifyIdByRosterId(int ARosterId) const
 {
 	QMap<int,NotifyRecord>::const_iterator it = FNotifyRecords.constBegin();
@@ -538,7 +560,7 @@ void Notifications::activateAllNotifications()
 	foreach(int notifyId, FNotifyRecords.keys())
 	{
 		const NotifyRecord &record = FNotifyRecords.value(notifyId);
-		if (record.notification.kinds & INotification::ChatWindow)
+		if (record.notification.kinds & INotification::TabPage)
 		{
 			if (!chatActivated)
 				activateNotification(notifyId);
@@ -553,6 +575,12 @@ void Notifications::removeAllNotifications()
 {
 	foreach(int notifyId, FNotifyRecords.keys())
 		removeNotification(notifyId);
+}
+
+void Notifications::removeInvisibleNotification(int ANotifyId)
+{
+	if (isInvisibleNotify(ANotifyId))
+		removeNotification(ANotifyId);
 }
 
 void Notifications::onActivateDelayedActivations()
@@ -587,6 +615,16 @@ void Notifications::onTrayActionTriggered(bool)
 void Notifications::onRosterNotifyActivated(int ANotifyId)
 {
 	activateNotification(notifyIdByRosterId(ANotifyId));
+}
+
+void Notifications::onRosterNotifyTimeout(int ANotifyId)
+{
+	int notifyId = notifyIdByRosterId(ANotifyId);
+	if (FNotifyRecords.contains(notifyId))
+	{
+		FNotifyRecords[notifyId].rosterId = 0;
+		removeInvisibleNotification(notifyId);
+	}
 }
 
 void Notifications::onRosterNotifyRemoved(int ANotifyId)
@@ -626,10 +664,8 @@ void Notifications::onWindowNotifyDestroyed()
 	int notifyId = notifyIdByWidget(qobject_cast<NotifyWidget*>(sender()));
 	if (FNotifyRecords.contains(notifyId))
 	{
-		uchar kinds = FNotifyRecords.value(notifyId).notification.kinds;
-		kinds &= ~(INotification::PopupWindow|INotification::PlaySound|INotification::TestNotify);
-		if (kinds == 0)
-			removeNotification(notifyId);
+		FNotifyRecords[notifyId].widget = NULL;
+		removeInvisibleNotification(notifyId);
 	}
 }
 

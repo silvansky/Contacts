@@ -210,7 +210,7 @@ void RosterIndex::setData(int ARole, const QVariant &AData)
 	emit dataChanged(this, ARole);
 }
 
-QList<IRosterIndex *> RosterIndex::findChild(const QMultiHash<int, QVariant> AFindData, bool ASearchInChilds) const
+QList<IRosterIndex *> RosterIndex::findChild(const QMultiMap<int, QVariant> AFindData, bool ASearchInChilds) const
 {
 	QList<IRosterIndex *> indexes;
 	foreach (IRosterIndex *index, FChilds)
@@ -220,19 +220,23 @@ QList<IRosterIndex *> RosterIndex::findChild(const QMultiHash<int, QVariant> AFi
 		for (int i=0; acceptable && i<findRoles.count(); i++)
 		{
 			int role = findRoles.at(i);
+			QList<QVariant> findValues = AFindData.values(role);
 			if (role == RDR_ANY_ROLE)
 			{
 				bool found = false;
 				QList<QVariant> indexValues = index->data().values();
-				QList<QVariant> findValues = AFindData.values(role);
 				for (int j=0; !found && j<indexValues.count(); j++)
 					found = findValues.contains(indexValues.at(j));
 				acceptable = found;
 			}
-			else if (role==RDR_TYPE && AFindData.values(role).contains(RIT_ANY_TYPE))
+			else if (role==RDR_TYPE && findValues.contains(RIT_ANY_TYPE))
+			{
 				acceptable = true;
+			}
 			else
-				acceptable = AFindData.values(role).contains(index->data(role));
+			{
+				acceptable = findValues.contains(index->data(role));
+			}
 		}
 		if (acceptable)
 			indexes.append(index);

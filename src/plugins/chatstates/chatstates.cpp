@@ -29,6 +29,7 @@ ChatStates::ChatStates()
 	FDiscovery = NULL;
 	FMessageArchiver = NULL;
 	FDataForms = NULL;
+	FNotifications = NULL;
 	FSessionNegotiation = NULL;
 
 	FUpdateTimer.setSingleShot(false);
@@ -80,7 +81,7 @@ bool ChatStates::initConnections(IPluginManager *APluginManager, int &/*AInitOrd
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceOpened(IPresence *)),SLOT(onPresenceOpened(IPresence *)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
-			        SLOT(onPresenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
+				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceClosed(IPresence *)),SLOT(onPresenceClosed(IPresence *)));
 		}
 	}
@@ -114,8 +115,14 @@ bool ChatStates::initConnections(IPluginManager *APluginManager, int &/*AInitOrd
 		if (FSessionNegotiation && FDataForms)
 		{
 			connect(FSessionNegotiation->instance(),SIGNAL(sessionTerminated(const IStanzaSession &)),
-			        SLOT(onStanzaSessionTerminated(const IStanzaSession &)));
+				SLOT(onStanzaSessionTerminated(const IStanzaSession &)));
 		}
+	}
+
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+	{
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
 	}
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
@@ -138,6 +145,12 @@ bool ChatStates::initObjects()
 	if (FSessionNegotiation && FDataForms)
 	{
 		FSessionNegotiation->insertNegotiator(this,SNO_DEFAULT);
+	}
+	if (FNotifications)
+	{
+		uchar kindMask = INotification::RosterIcon|INotification::TabPage;
+		FNotifications->insertNotificator(NID_CHATSTATE_TYPING,OWO_NOTIFICATIONS_CHATSTATE,QString::null,kindMask,kindMask);
+
 	}
 	return true;
 }
@@ -500,6 +513,7 @@ void ChatStates::setUserState(const Jid &AStreamJid, const Jid &AContactJid, int
 		{
 			params.userState = AState;
 			emit userChatStateChanged(AStreamJid,AContactJid,AState);
+			notifyUserState(AStreamJid,AContactJid);
 		}
 	}
 }
@@ -516,6 +530,38 @@ void ChatStates::setSelfState(const Jid &AStreamJid, const Jid &AContactJid, int
 			if (ASend)
 				sendStateMessage(AStreamJid,AContactJid,AState);
 			emit selfChatStateChanged(AStreamJid,AContactJid,AState);
+		}
+	}
+}
+
+void ChatStates::notifyUserState(const Jid &AStreamJid, const Jid &AContactJid)
+{
+	if (FNotifications)
+	{
+		ChatParams &params = FChatParams[AStreamJid][AContactJid];
+		if (params.userState==IChatStates::StateComposing && params.notifyId<=0)
+		{
+			INotification notify;
+			notify.kinds = FNotifications->notificatorKinds(NID_CHATSTATE_TYPING);
+			if (notify.kinds > 0)
+			{
+				notify.notificatior = NID_CHATSTATE_TYPING;
+				notify.data.insert(NDR_STREAM_JID, AStreamJid.full());
+				notify.data.insert(NDR_CONTACT_JID, AContactJid.full());
+				notify.data.insert(NDR_ICON_KEY, MNI_CHATSTATES_COMPOSING);
+				notify.data.insert(NDR_ICON_STORAGE, RSR_STORAGE_MENUICONS);
+				notify.data.insert(NDR_ROSTER_ORDER,RNO_CHATSTATES_TYPING);
+				notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink);
+				notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_CHATSTATE_TYPING);
+				notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+				notify.data.insert(NDR_TABPAGE_TOOLTIP,tr("Typing..."));
+				params.notifyId = FNotifications->appendNotification(notify);
+			}
+		}
+		else if (params.userState!=IChatStates::StateComposing && params.notifyId>0)
+		{
+			FNotifications->removeNotification(params.notifyId);
+			params.notifyId = 0;
 		}
 	}
 }
