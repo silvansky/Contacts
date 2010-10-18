@@ -95,8 +95,8 @@ IMessageStyleOptions AdiumMessageStylePlugin::styleOptions(const OptionsNode &AN
 
 	if (!FStylePaths.isEmpty() && !FStylePaths.contains(styleId.toString()))
 	{
-		styleId = QString("Renkoo");
-		soptions.extended.insert(MSO_VARIANT,QString("Blue on Green"));
+		styleId = QString("Dialog");
+		soptions.extended.insert(MSO_VARIANT,QString(""));
 		if (!FStylePaths.contains(styleId.toString()))
 			styleId = FStylePaths.keys().first();
 	}
