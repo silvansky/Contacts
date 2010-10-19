@@ -12,12 +12,14 @@
 #include <definations/resources.h>
 #include <definations/menuicons.h>
 #include <definations/stylesheets.h>
+#include <definations/optionvalues.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irostersearch.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
 #include <utils/action.h>
+#include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/toolbarchanger.h>
@@ -83,6 +85,7 @@ protected slots:
 	void onEditTimedOut();
 	void onSearchTextChanged(const QString &text);
 	void onRosterLabelClicked(IRosterIndex *AIndex, int ALabelId);
+	void onOptionsChanged(const OptionsNode &ANode);
 private:
 	IMainWindow *FMainWindow;
 	IRostersModel * FRostersModel;
@@ -94,6 +97,7 @@ private:
 private:
 	bool FSearchEnabled;
 	mutable bool FItemsFound;
+	bool FLastShowOffline;
 	Menu *FFieldsMenu;
 	QTimer FEditTimeout;
 	SearchEdit *FSearchEdit;

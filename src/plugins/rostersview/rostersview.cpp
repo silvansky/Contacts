@@ -900,7 +900,7 @@ void RostersView::mousePressEvent(QMouseEvent *AEvent)
 		if (FPressedIndex.isValid())
 		{
 			FPressedLabel = labelAt(AEvent->pos(),FPressedIndex);
-			if (AEvent->button()==Qt::LeftButton && FPressedLabel==RLID_INDICATORBRANCH)
+			if (itemsExpandable() && AEvent->button()==Qt::LeftButton && FPressedLabel==RLID_INDICATORBRANCH)
 				setExpanded(FPressedIndex,!isExpanded(FPressedIndex));
 		}
 	}

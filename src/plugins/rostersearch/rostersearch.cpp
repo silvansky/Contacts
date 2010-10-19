@@ -70,6 +70,8 @@ bool RosterSearch::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		}
 	}
 
+	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
+
 	return FRostersViewPlugin!=NULL && FMainWindow!=NULL;
 }
 
@@ -183,11 +185,24 @@ void RosterSearch::startSearch()
 		else
 			destroyNotFoundItem();
 		createSearchLinks();
+		if (FRostersViewPlugin)
+		{
+			FLastShowOffline = Options::node(OPV_ROSTER_SHOWOFFLINE).value().toBool();
+			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(true);
+			FRostersViewPlugin->rostersView()->instance()->expandAll();
+			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(false);
+		}
 	}
 	else
 	{
 		destroyNotFoundItem();
 		destroySearchLinks();
+		if (FRostersViewPlugin)
+		{
+			FRostersViewPlugin->startRestoreExpandState();
+			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(true);
+			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(FLastShowOffline);
+		}
 	}
 
 	emit searchResultUpdated();
@@ -440,6 +455,15 @@ void RosterSearch::onRosterLabelClicked(IRosterIndex *AIndex, int ALabelId)
 	if (AIndex == FSearchHistory || AIndex == FSearchRambler)
 	{
 		QDesktopServices::openUrl(QUrl(AIndex->data(RDR_SEARCH_LINK).toString()));
+	}
+}
+
+void RosterSearch::onOptionsChanged(const OptionsNode &ANode)
+{
+	if (ANode.path() == OPV_ROSTER_SHOWOFFLINE)
+	{
+		if (!searchPattern().isEmpty() && !ANode.value().toBool())
+			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(true);
 	}
 }
 
