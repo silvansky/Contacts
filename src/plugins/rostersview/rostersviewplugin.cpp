@@ -3,6 +3,8 @@
 #include <QTimer>
 #include <QScrollBar>
 
+const QList<int> GroupsWithCounter = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK << RIT_GROUP_NOT_IN_ROSTER;
+
 RostersViewPlugin::RostersViewPlugin()
 {
 	FRostersModel = NULL;
@@ -27,6 +29,7 @@ RostersViewPlugin::RostersViewPlugin()
 		SLOT(onViewModelChanged(QAbstractItemModel *)));
 	connect(FRostersView,SIGNAL(collapsed(const QModelIndex &)),SLOT(onViewIndexCollapsed(const QModelIndex &)));
 	connect(FRostersView,SIGNAL(expanded(const QModelIndex &)),SLOT(onViewIndexExpanded(const QModelIndex &)));
+	connect(FRostersView,SIGNAL(modelAboutToBeSet(IRostersModel *)),SLOT(onRosterModelAboutToBeSet(IRostersModel *)));
 	connect(FRostersView,SIGNAL(destroyed(QObject *)), SLOT(onRostersViewDestroyed(QObject *)));
 }
 
@@ -96,6 +99,11 @@ bool RostersViewPlugin::initConnections(IPluginManager *APluginManager, int &/*A
 
 bool RostersViewPlugin::initObjects()
 {
+	IRostersLabel counter;
+	counter.order = RLO_GROUP_COUNTER;
+	counter.label = RDR_GROUP_COUNTER;
+	FGroupCounterLabel = FRostersView->registerLabel(counter);
+
 	FSortFilterProxyModel = new SortFilterProxyModel(this, this);
 	FSortFilterProxyModel->setSortLocaleAware(true);
 	FSortFilterProxyModel->setDynamicSortFilter(true);
@@ -180,7 +188,8 @@ QList<int> RostersViewPlugin::rosterDataRoles() const
 		<< Qt::BackgroundColorRole 
 		<< Qt::ForegroundRole 
 		<< RDR_FONT_WEIGHT
-		<< RDR_FONT_SIZE;
+		<< RDR_FONT_SIZE
+		<< RDR_GROUP_COUNTER;
 	return dataRoles;
 }
 
@@ -235,6 +244,8 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 			return FRostersView->palette().color(QPalette::Active, QPalette::AlternateBase);
 		case RDR_FONT_WEIGHT:
 			return QFont::DemiBold;
+		case RDR_GROUP_COUNTER:
+			return groupCounterLabel(AIndex);
 		}
 		break;
 
@@ -348,6 +359,35 @@ void RostersViewPlugin::saveExpandState(const QModelIndex &AIndex)
 	}
 }
 
+QString RostersViewPlugin::groupCounterLabel(const IRosterIndex *AIndex) const
+{
+	QMultiMap<int, QVariant> findData;
+	findData.insert(RDR_TYPE, RIT_CONTACT);
+
+	int total =0;
+	int active = 0;
+	foreach(IRosterIndex *index, AIndex->findChild(findData,true))
+	{
+		int show = index->data(RDR_SHOW).toInt();
+		if (show!=IPresence::Offline && show!=IPresence::Error)
+			active++;
+		total++;
+	}
+
+	return QString("  %1/%2").arg(active).arg(total);
+}
+
+void RostersViewPlugin::updateGroupCounter(IRosterIndex *AIndex)
+{
+	IRosterIndex *parent = AIndex->parentIndex();
+	while (parent)
+	{
+		if (GroupsWithCounter.contains(parent->type()))
+			emit rosterDataChanged(parent, RDR_GROUP_COUNTER);
+		parent = parent->parentIndex();
+	}
+}
+
 void RostersViewPlugin::onRostersViewDestroyed(QObject *AObject)
 {
 	Q_UNUSED(AObject);
@@ -418,6 +458,50 @@ void RostersViewPlugin::onViewIndexCollapsed(const QModelIndex &AIndex)
 void RostersViewPlugin::onViewIndexExpanded(const QModelIndex &AIndex)
 {
 	saveExpandState(AIndex);
+}
+
+void RostersViewPlugin::onRosterModelAboutToBeSet(IRostersModel *AModel)
+{
+	if (FRostersView->rostersModel())
+	{
+		disconnect(FRostersView->rostersModel()->instance(),SIGNAL(indexInserted(IRosterIndex *)),this,SLOT(onRosterIndexInserted(IRosterIndex *)));
+		disconnect(FRostersView->rostersModel()->instance(),SIGNAL(indexRemoved(IRosterIndex *)),this,SLOT(onRosterIndexRemoved(IRosterIndex *)));
+		disconnect(FRostersView->rostersModel()->instance(),SIGNAL(indexDataChanged(IRosterIndex *, int)),this,SLOT(onRosterIndexDataChanged(IRosterIndex *, int)));
+	}
+	if (AModel)
+	{
+		connect(AModel->instance(),SIGNAL(indexInserted(IRosterIndex *)),SLOT(onRosterIndexInserted(IRosterIndex *)));
+		connect(AModel->instance(),SIGNAL(indexRemoved(IRosterIndex *)),SLOT(onRosterIndexRemoved(IRosterIndex *)));
+		connect(AModel->instance(),SIGNAL(indexDataChanged(IRosterIndex *, int)),SLOT(onRosterIndexDataChanged(IRosterIndex *, int)));
+	}
+}
+
+void RostersViewPlugin::onRosterIndexInserted(IRosterIndex *AIndex)
+{
+	if (GroupsWithCounter.contains(AIndex->type()))
+	{
+		FRostersView->insertLabel(FGroupCounterLabel,AIndex);
+	}
+}
+
+void RostersViewPlugin::onRosterIndexRemoved(IRosterIndex *AIndex)
+{
+	if (GroupsWithCounter.contains(AIndex->type()))
+	{
+		FRostersView->removeLabel(FGroupCounterLabel,AIndex);
+	}
+	else if (AIndex->type() == RIT_CONTACT)
+	{
+		updateGroupCounter(AIndex);
+	}
+}
+
+void RostersViewPlugin::onRosterIndexDataChanged(IRosterIndex *AIndex, int ARole)
+{
+	if (AIndex->type()==RIT_CONTACT && ARole==RDR_SHOW)
+	{
+		updateGroupCounter(AIndex);
+	}
 }
 
 void RostersViewPlugin::onRosterStreamJidAboutToBeChanged(IRoster *ARoster, const Jid &AAfter)

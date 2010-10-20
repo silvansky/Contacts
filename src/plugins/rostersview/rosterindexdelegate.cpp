@@ -509,7 +509,7 @@ QString RosterIndexDelegate::prepareText(const QString &AText) const
 {
 	QString ptext = AText;
 	ptext.replace('\n',' ');
-	return ptext.trimmed();
+	return ptext;
 }
 
 QIcon::Mode RosterIndexDelegate::getIconMode(QStyle::State AState) const

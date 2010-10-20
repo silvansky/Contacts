@@ -62,7 +62,9 @@ enum RosterIndexDataRoles
 	RDR_ALLWAYS_INVISIBLE,
 	//IndexStates
 	RDR_STATES_FORCE_ON,
-	RDR_STATES_FORCE_OFF
+	RDR_STATES_FORCE_OFF,
+	// Group Labels
+	RDR_GROUP_COUNTER
 };
 
 #endif

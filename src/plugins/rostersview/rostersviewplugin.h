@@ -64,6 +64,8 @@ signals:
 protected:
 	void loadExpandState(const QModelIndex &AIndex);
 	void saveExpandState(const QModelIndex &AIndex);
+	QString groupCounterLabel(const IRosterIndex *AIndex) const;
+	void updateGroupCounter(IRosterIndex *AIndex);
 protected slots:
 	void onRostersViewDestroyed(QObject *AObject);
 	void onViewModelAboutToBeReset();
@@ -73,6 +75,10 @@ protected slots:
 	void onViewRowsInserted(const QModelIndex &AParent, int AStart, int AEnd);
 	void onViewIndexCollapsed(const QModelIndex &AIndex);
 	void onViewIndexExpanded(const QModelIndex &AIndex);
+	void onRosterModelAboutToBeSet(IRostersModel *AModel);
+	void onRosterIndexInserted(IRosterIndex *AIndex);
+	void onRosterIndexRemoved(IRosterIndex *AIndex);
+	void onRosterIndexDataChanged(IRosterIndex *AIndex, int ARole);
 	void onRosterStreamJidAboutToBeChanged(IRoster *ARoster, const Jid &AAfter);
 	void onAccountShown(IAccount *AAccount);
 	void onAccountHidden(IAccount *AAccount);
@@ -90,11 +96,12 @@ private:
 private:
 	bool FShowResource;
 	bool FStartRestoreExpandState;
+	int FGroupCounterLabel;
 	Action *FShowOfflineAction;
 	RostersView *FRostersView;
 	QAbstractItemModel *FLastModel;
 	SortFilterProxyModel *FSortFilterProxyModel;
-	QMap<Jid, QHash<QString,bool> > FExpandState;
+	QMap<Jid, QHash<QString, bool> > FExpandState;
 	struct { int sliderPos; IRosterIndex *currentIndex; } FViewSavedState;
 };
 
