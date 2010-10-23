@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 
-#include <QApplication>
 #include <QKeyEvent>
 
 MainWindow::MainWindow(QWidget *AParent, Qt::WindowFlags AFlags) : QMainWindow(AParent,AFlags)
@@ -99,6 +98,13 @@ void MainWindow::createMenus()
 	button->setPopupMode(QToolButton::InstantPopup);
 }
 
+void MainWindow::keyPressEvent(QKeyEvent * AEvent)
+{
+	if (AEvent->key() == Qt::Key_Escape)
+		close();
+	QMainWindow::keyPressEvent(AEvent);
+}
+
 void MainWindow::onStackedWidgetRemoved(int AIndex)
 {
 	Q_UNUSED(AIndex);
@@ -109,9 +115,3 @@ void MainWindow::onStackedWidgetRemoved(int AIndex)
 		FBottomWidget->setVisible(FBottomWidget->count() > 0);
 }
 
-void MainWindow::keyPressEvent(QKeyEvent * event)
-{
-	if (event->key() == Qt::Key_Escape)
-		close();
-	QWidget::keyPressEvent(event);
-}

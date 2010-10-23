@@ -7,7 +7,9 @@
 class UTILS_EXPORT WidgetManager
 {
 public:
+	static WidgetManager *instance();
 	static void raiseWidget(QWidget *AWidget);
+	static void setWindowSticky(QWidget *AWindow, bool ASticky);
 };
 
 #endif //WIDGETMANAGER_H

@@ -13,6 +13,7 @@ MainWindowPlugin::MainWindowPlugin()
 	FActivationChanged = QTime::currentTime();
 	FMainWindow = new MainWindow(new QWidget, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 	FMainWindow->installEventFilter(this);
+	WidgetManager::setWindowSticky(FMainWindow,true);
 }
 
 MainWindowPlugin::~MainWindowPlugin()

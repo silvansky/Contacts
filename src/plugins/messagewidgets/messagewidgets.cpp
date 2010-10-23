@@ -375,6 +375,7 @@ ITabWindow *MessageWidgets::createTabWindow(const QUuid &AWindowId)
 	{
 		window = new TabWindow(this,AWindowId);
 		FTabWindows.append(window);
+		WidgetManager::setWindowSticky(window->instance(),true);
 		connect(window->instance(),SIGNAL(tabPageAdded(ITabPage *)),SLOT(onTabPageAdded(ITabPage *)));
 		connect(window->instance(),SIGNAL(windowDestroyed()),SLOT(onTabWindowDestroyed()));
 		emit tabWindowCreated(window);

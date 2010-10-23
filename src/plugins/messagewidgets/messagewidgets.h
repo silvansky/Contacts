@@ -18,6 +18,7 @@
 #include <interfaces/imessagearchiver.h>
 #include <interfaces/ivcard.h>
 #include <utils/options.h>
+#include <utils/widgetmanager.h>
 #include "infowidget.h"
 #include "viewwidget.h"
 #include "editwidget.h"

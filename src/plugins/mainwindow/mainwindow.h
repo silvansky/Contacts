@@ -33,7 +33,8 @@ protected:
 	void createLayouts();
 	void createToolBars();
 	void createMenus();
-	void keyPressEvent(QKeyEvent * event);
+protected:
+	void keyPressEvent(QKeyEvent *AEvent);
 protected slots:
 	void onStackedWidgetRemoved(int AIndex);
 private:
