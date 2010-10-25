@@ -74,9 +74,9 @@ protected:
 	virtual void urlClicked(const QUrl &AUrl) const =0;
 };
 
-struct INotice
+struct IChatNotice
 {
-	INotice() {
+	IChatNotice() {
 		priority = -1;
 		timeout = 0;
 	}
@@ -89,7 +89,7 @@ struct INotice
 	QList<Action *> actions;
 };
 
-class INoticeWidget
+class IChatNoticeWidget
 {
 public:
 	virtual QWidget *instance() = 0;
@@ -99,8 +99,8 @@ public:
 	virtual void setContactJid(const Jid &AContactJid) =0;
 	virtual int activeNotice() const =0;
 	virtual QList<int> noticeQueue() const =0;
-	virtual INotice noticeById(int ANoticeId) const =0;
-	virtual int insertNotice(const INotice &ANotice) =0;
+	virtual IChatNotice noticeById(int ANoticeId) const =0;
+	virtual int insertNotice(const IChatNotice &ANotice) =0;
 	virtual void removeNotice(int ANoticeId) =0;
 protected:
 	virtual void streamJidChanged(const Jid &ABefour) =0;
@@ -277,7 +277,7 @@ public:
 	virtual void setContactJid(const Jid &AContactJid) =0;
 	virtual IInfoWidget *infoWidget() const =0;
 	virtual IViewWidget *viewWidget() const =0;
-	virtual INoticeWidget *noticeWidget() const =0;
+	virtual IChatNoticeWidget *noticeWidget() const =0;
 	virtual IEditWidget *editWidget() const =0;
 	virtual IMenuBarWidget *menuBarWidget() const =0;
 	virtual IToolBarWidget *toolBarWidget() const =0;
@@ -381,7 +381,7 @@ public:
 	virtual IPluginManager *pluginManager() const =0;
 	virtual IInfoWidget *newInfoWidget(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual IViewWidget *newViewWidget(const Jid &AStreamJid, const Jid &AContactJid) =0;
-	virtual INoticeWidget *newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid) =0;
+	virtual IChatNoticeWidget *newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual IEditWidget *newEditWidget(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual IReceiversWidget *newReceiversWidget(const Jid &AStreamJid) =0;
 	virtual IMenuBarWidget *newMenuBarWidget(IInfoWidget *AInfo, IViewWidget *AView, IEditWidget *AEdit, IReceiversWidget *AReceivers) =0;
@@ -418,7 +418,7 @@ public:
 protected:
 	virtual void infoWidgetCreated(IInfoWidget *AInfoWidget) =0;
 	virtual void viewWidgetCreated(IViewWidget *AViewWidget) =0;
-	virtual void noticeWidgetCreated(INoticeWidget *ANoticeWidget) =0;
+	virtual void noticeWidgetCreated(IChatNoticeWidget *ANoticeWidget) =0;
 	virtual void editWidgetCreated(IEditWidget *AEditWidget) =0;
 	virtual void receiversWidgetCreated(IReceiversWidget *AReceiversWidget) =0;
 	virtual void menuBarWidgetCreated(IMenuBarWidget *AMenuBarWidget) =0;
@@ -447,7 +447,7 @@ protected:
 Q_DECLARE_INTERFACE(IInfoWidget,"Virtus.Plugin.IInfoWidget/1.0")
 Q_DECLARE_INTERFACE(IViewWidget,"Virtus.Plugin.IViewWidget/1.0")
 Q_DECLARE_INTERFACE(IEditWidget,"Virtus.Plugin.IEditWidget/1.0")
-Q_DECLARE_INTERFACE(INoticeWidget,"Virtus.Plugin.INoticeWidget/1.0")
+Q_DECLARE_INTERFACE(IChatNoticeWidget,"Virtus.Plugin.IChatNoticeWidget/1.0")
 Q_DECLARE_INTERFACE(IReceiversWidget,"Virtus.Plugin.IReceiversWidget/1.0")
 Q_DECLARE_INTERFACE(IMenuBarWidget,"Virtus.Plugin.IMenuBarWidget/1.0")
 Q_DECLARE_INTERFACE(IToolBarWidget,"Virtus.Plugin.IToolBarWidget/1.0")

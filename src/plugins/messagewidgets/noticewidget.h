@@ -12,10 +12,10 @@
 
 class NoticeWidget : 
 			public QWidget,
-			public INoticeWidget
+			public IChatNoticeWidget
 {
 	Q_OBJECT;
-	Q_INTERFACES(INoticeWidget);
+	Q_INTERFACES(IChatNoticeWidget);
 public:
 	NoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid);
 	~NoticeWidget();
@@ -26,8 +26,8 @@ public:
 	virtual void setContactJid(const Jid &AContactJid);
 	virtual int activeNotice() const;
 	virtual QList<int> noticeQueue() const;
-	virtual INotice noticeById(int ANoticeId) const;
-	virtual int insertNotice(const INotice &ANotice);
+	virtual IChatNotice noticeById(int ANoticeId) const;
+	virtual int insertNotice(const IChatNotice &ANotice);
 	virtual void removeNotice(int ANoticeId);
 signals:
 	void streamJidChanged(const Jid &ABefour);
@@ -53,7 +53,7 @@ private:
 	int FActiveNotice;
 	QTimer FUpdateTimer;
 	QTimer FCloseTimer;
-	QMap<int, INotice> FNotices;
+	QMap<int, IChatNotice> FNotices;
 	QMultiMap<int, int> FNoticeQueue;
 	QObjectCleanupHandler FButtonsCleanup;
 };

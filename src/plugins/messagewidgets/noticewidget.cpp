@@ -69,12 +69,12 @@ QList<int> NoticeWidget::noticeQueue() const
 	return FNoticeQueue.values();
 }
 
-INotice NoticeWidget::noticeById(int ANoticeId) const
+IChatNotice NoticeWidget::noticeById(int ANoticeId) const
 {
 	return FNotices.value(ANoticeId);
 }
 
-int NoticeWidget::insertNotice(const INotice &ANotice)
+int NoticeWidget::insertNotice(const IChatNotice &ANotice)
 {
 	int noticeId = -1;
 	if (ANotice.priority>0)
@@ -94,7 +94,7 @@ void NoticeWidget::removeNotice(int ANoticeId)
 {
 	if (FNotices.contains(ANoticeId))
 	{
-		INotice notice = FNotices.take(ANoticeId);
+		IChatNotice notice = FNotices.take(ANoticeId);
 		FNoticeQueue.remove(notice.priority,ANoticeId);
 		qDeleteAll(notice.actions);
 		emit noticeRemoved(ANoticeId);
@@ -114,7 +114,7 @@ void NoticeWidget::updateWidgets(int ANoticeId)
 		FButtonsCleanup.clear();
 		if (ANoticeId > 0)
 		{
-			const INotice &notice = FNotices.value(ANoticeId);
+			const IChatNotice &notice = FNotices.value(ANoticeId);
 			if (!notice.iconKey.isEmpty() && !notice.iconStorage.isEmpty())
 				IconStorage::staticStorage(notice.iconStorage)->insertAutoIcon(ui.lblIcon,notice.iconKey,0,0,"pixmap");
 			else if (!notice.icon.isNull())

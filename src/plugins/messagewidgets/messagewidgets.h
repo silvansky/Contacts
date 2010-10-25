@@ -62,7 +62,7 @@ public:
 	virtual IPluginManager *pluginManager() const { return FPluginManager; }
 	virtual IInfoWidget *newInfoWidget(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual IViewWidget *newViewWidget(const Jid &AStreamJid, const Jid &AContactJid);
-	virtual INoticeWidget *newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid);
+	virtual IChatNoticeWidget *newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual IEditWidget *newEditWidget(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual IReceiversWidget *newReceiversWidget(const Jid &AStreamJid);
 	virtual IMenuBarWidget *newMenuBarWidget(IInfoWidget *AInfo, IViewWidget *AView, IEditWidget *AEdit, IReceiversWidget *AReceivers);
@@ -99,7 +99,7 @@ public:
 signals:
 	void infoWidgetCreated(IInfoWidget *AInfoWidget);
 	void viewWidgetCreated(IViewWidget *AViewWidget);
-	void noticeWidgetCreated(INoticeWidget *ANoticeWidget);
+	void noticeWidgetCreated(IChatNoticeWidget *ANoticeWidget);
 	void editWidgetCreated(IEditWidget *AEditWidget);
 	void receiversWidgetCreated(IReceiversWidget *AReceiversWidget);
 	void menuBarWidgetCreated(IMenuBarWidget *AMenuBarWidget);

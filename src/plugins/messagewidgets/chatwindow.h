@@ -37,7 +37,7 @@ public:
 	virtual void setContactJid(const Jid &AContactJid);
 	virtual IInfoWidget *infoWidget() const { return FInfoWidget; }
 	virtual IViewWidget *viewWidget() const { return FViewWidget; }
-	virtual INoticeWidget *noticeWidget() const { return FNoticeWidget; }
+	virtual IChatNoticeWidget *noticeWidget() const { return FNoticeWidget; }
 	virtual IEditWidget *editWidget() const { return FEditWidget; }
 	virtual IMenuBarWidget *menuBarWidget() const { return FMenuBarWidget; }
 	virtual IToolBarWidget *toolBarWidget() const { return FToolBarWidget; }
@@ -80,7 +80,7 @@ private:
 private:
 	IInfoWidget *FInfoWidget;
 	IViewWidget *FViewWidget;
-	INoticeWidget *FNoticeWidget;
+	IChatNoticeWidget *FNoticeWidget;
 	IEditWidget *FEditWidget;
 	IMenuBarWidget *FMenuBarWidget;
 	IToolBarWidget *FToolBarWidget;

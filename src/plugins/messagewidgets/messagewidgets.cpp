@@ -167,9 +167,9 @@ IViewWidget *MessageWidgets::newViewWidget(const Jid &AStreamJid, const Jid &ACo
 	return widget;
 }
 
-INoticeWidget * MessageWidgets::newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid)
+IChatNoticeWidget * MessageWidgets::newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	INoticeWidget *widget = new NoticeWidget(this,AStreamJid,AContactJid);
+	IChatNoticeWidget *widget = new NoticeWidget(this,AStreamJid,AContactJid);
 	FCleanupHandler.add(widget->instance());
 	emit noticeWidgetCreated(widget);
 	return widget;
