@@ -13,13 +13,11 @@ Q_DECLARE_METATYPE(RostersLabelItems);
 struct LabelItem
 {
 	int id;
-	int order;
-	int flags;
 	QSize size;
 	QRect rect;
-	QVariant value;
+	IRostersLabel item;
 	bool operator <(const LabelItem &AItem) const {
-		return order < AItem.order;
+		return item.order < AItem.item.order;
 	}
 };
 
