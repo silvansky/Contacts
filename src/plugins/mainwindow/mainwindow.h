@@ -19,6 +19,7 @@ public:
 	~MainWindow();
 	//IMainWindow
 	virtual QMainWindow *instance() { return this; }
+	virtual Menu *mainMenu() const { return FMainMenu; }
 	virtual QVBoxLayout *mainLayout() const { return FMainLayout; }
 	virtual QStackedWidget *upperWidget() const { return FUpperWidget; }
 	virtual QStackedWidget *rostersWidget() const { return FRostersWidget; }
@@ -26,7 +27,6 @@ public:
 	virtual ToolBarChanger *topToolBarChanger() const { return FTopToolBarChanger; }
 	virtual ToolBarChanger *leftToolBarChanger() const { return FLeftToolBarChanger; }
 	virtual ToolBarChanger *statusToolBarChanger() const { return FStatusToolBarChanger; }
-	virtual Menu *mainMenu() const { return FMainMenu; }
 public:
 	virtual QMenu *createPopupMenu();
 protected:
@@ -36,7 +36,7 @@ protected:
 protected:
 	void keyPressEvent(QKeyEvent *AEvent);
 protected slots:
-	void onStackedWidgetRemoved(int AIndex);
+	void onStackedWidgetChanged(int AIndex);
 private:
 	Menu           *FMainMenu;
 	ToolBarChanger *FTopToolBarChanger;

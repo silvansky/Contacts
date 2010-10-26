@@ -37,19 +37,17 @@ QMenu *MainWindow::createPopupMenu()
 void MainWindow::createLayouts()
 {
 	FUpperWidget = new QStackedWidget(this);
-	FUpperWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-	FUpperWidget->layout()->setSizeConstraint(QLayout::SetFixedSize);
 	FUpperWidget->setVisible(false);
-	connect(FUpperWidget,SIGNAL(widgetRemoved(int)),SLOT(onStackedWidgetRemoved(int)));
+	FUpperWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+	connect(FUpperWidget,SIGNAL(currentChanged(int)),SLOT(onStackedWidgetChanged(int)));
 
 	FRostersWidget = new QStackedWidget(this);
 	FRostersWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
 	FBottomWidget = new QStackedWidget(this);
-	FBottomWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-	FBottomWidget->layout()->setSizeConstraint(QLayout::SetFixedSize);
 	FBottomWidget->setVisible(false);
-	connect(FBottomWidget,SIGNAL(widgetRemoved(int)),SLOT(onStackedWidgetRemoved(int)));
+	FBottomWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+	connect(FBottomWidget,SIGNAL(currentChanged(int)),SLOT(onStackedWidgetChanged(int)));
 
 	FMainLayout = new QVBoxLayout;
 	FMainLayout->setMargin(2);
@@ -74,8 +72,6 @@ void MainWindow::createToolBars()
 	toolbar = new QToolBar(tr("Top toolbar"), this);
 	toolbar->setFloatable(false);
 	toolbar->setMovable(false);
-	if (toolbar->layout())
-		toolbar->layout()->setSpacing(2);
 	addToolBar(Qt::TopToolBarArea,toolbar);
 	FTopToolBarChanger = new ToolBarChanger(toolbar);
 	FTopToolBarChanger->setSeparatorsVisible(false);
@@ -105,13 +101,16 @@ void MainWindow::keyPressEvent(QKeyEvent * AEvent)
 	QMainWindow::keyPressEvent(AEvent);
 }
 
-void MainWindow::onStackedWidgetRemoved(int AIndex)
+void MainWindow::onStackedWidgetChanged(int AIndex)
 {
-	Q_UNUSED(AIndex);
 	QStackedWidget *widget = qobject_cast<QStackedWidget *>(sender());
-	if (widget == FUpperWidget)
-		FUpperWidget->setVisible(FUpperWidget->count() > 0);
-	else if (widget == FBottomWidget)
-		FBottomWidget->setVisible(FBottomWidget->count() > 0);
+	if (AIndex >= 0)
+	{
+		widget->setMaximumHeight(widget->currentWidget()->sizeHint().height());
+		widget->setVisible(true);
+	}
+	else
+	{
+		widget->setVisible(false);
+	}
 }
-

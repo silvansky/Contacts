@@ -1,62 +1,31 @@
 #include "noticewidget.h"
 
-#include <QDesktopServices>
+#include <QHBoxLayout>
 
-NoticeWidget::NoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
+NoticeWidget::NoticeWidget(QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
-	setVisible(false);
-
-	FMessageWidgets = AMessageWidgets;
-	FStreamJid = AStreamJid;
-	FContactJid = AContactJid;
+	ui.wdtActions->setLayout(new QHBoxLayout);
+	ui.wdtActions->layout()->setMargin(0);
 
 	FActiveNotice = -1;
+	FEmptySince = QDateTime::currentDateTime();
 
+	FUpdateTimer.setInterval(0);
 	FUpdateTimer.setSingleShot(true);
 	connect(&FUpdateTimer,SIGNAL(timeout()),SLOT(onUpdateTimerTimeout()));
 
-	FCloseTimer.setSingleShot(true);
-	connect(&FCloseTimer,SIGNAL(timeout()),SLOT(onCloseTimerTimeout()));
-
 	connect(ui.cbtClose,SIGNAL(clicked(bool)),SLOT(onCloseButtonClicked(bool)));
-	connect(ui.lblMessage,SIGNAL(linkActivated(const QString &)),SLOT(onMessageLinkActivated(const QString &)));
 }
 
 NoticeWidget::~NoticeWidget()
 {
-	foreach(int noticeId, FNotices.keys()) {
-		removeNotice(noticeId); }
+
 }
 
-const Jid &NoticeWidget::streamJid() const
+QDateTime NoticeWidget::emptySince() const
 {
-	return FStreamJid;
-}
-
-void NoticeWidget::setStreamJid(const Jid &AStreamJid)
-{
-	if (AStreamJid != FStreamJid)
-	{
-		Jid befour = FStreamJid;
-		FStreamJid = AStreamJid;
-		emit streamJidChanged(befour);
-	}
-}
-
-const Jid & NoticeWidget::contactJid() const
-{
-	return FContactJid;
-}
-
-void NoticeWidget::setContactJid(const Jid &AContactJid)
-{
-	if (AContactJid != FContactJid)
-	{
-		Jid befour = FContactJid;
-		FContactJid = AContactJid;
-		emit contactJidChanged(befour);
-	}
+	return FActiveNotice>0 ? QDateTime::currentDateTime() : FEmptySince;
 }
 
 int NoticeWidget::activeNotice() const
@@ -69,12 +38,12 @@ QList<int> NoticeWidget::noticeQueue() const
 	return FNoticeQueue.values();
 }
 
-IChatNotice NoticeWidget::noticeById(int ANoticeId) const
+IInternalNotice NoticeWidget::noticeById(int ANoticeId) const
 {
 	return FNotices.value(ANoticeId);
 }
 
-int NoticeWidget::insertNotice(const IChatNotice &ANotice)
+int NoticeWidget::insertNotice(const IInternalNotice &ANotice)
 {
 	int noticeId = -1;
 	if (ANotice.priority>0)
@@ -94,14 +63,13 @@ void NoticeWidget::removeNotice(int ANoticeId)
 {
 	if (FNotices.contains(ANoticeId))
 	{
-		IChatNotice notice = FNotices.take(ANoticeId);
+		IInternalNotice notice = FNotices.take(ANoticeId);
 		FNoticeQueue.remove(notice.priority,ANoticeId);
 		qDeleteAll(notice.actions);
 		emit noticeRemoved(ANoticeId);
 		updateNotice();
 	}
 }
-
 void NoticeWidget::updateNotice()
 {
 	FUpdateTimer.start();
@@ -114,33 +82,34 @@ void NoticeWidget::updateWidgets(int ANoticeId)
 		FButtonsCleanup.clear();
 		if (ANoticeId > 0)
 		{
-			const IChatNotice &notice = FNotices.value(ANoticeId);
+			const IInternalNotice &notice = FNotices.value(ANoticeId);
 			if (!notice.iconKey.isEmpty() && !notice.iconStorage.isEmpty())
 				IconStorage::staticStorage(notice.iconStorage)->insertAutoIcon(ui.lblIcon,notice.iconKey,0,0,"pixmap");
 			else if (!notice.icon.isNull())
 				ui.lblIcon->setPixmap(notice.icon.pixmap(notice.icon.availableSizes().value(0)));
 			else
 				ui.lblIcon->setVisible(false);
-			ui.lblMessage->setText(notice.message);
 
-			if (notice.timeout > 0)
-				FCloseTimer.start(notice.timeout);
-			else
-				FCloseTimer.stop();
+			ui.lblCaption->setText(notice.caption);
+			ui.lblMessage->setText(notice.message);
 
 			foreach(Action *action, notice.actions)
 			{
-				ActionButton *button = new ActionButton(action, ui.wdtButtons);
-				ui.hltButtonsLayout->insertWidget(ui.hltButtonsLayout->count()-1,button);
-				FButtonsCleanup.add(button);
+				QLabel *label = new QLabel(ui.wdtActions);
+				label->setTextFormat(Qt::RichText);
+				label->setText(QString("<a href='link'>%1</a>").arg(action->text()));
+				connect(label,SIGNAL(linkActivated(const QString &)),action,SLOT(trigger()));
+				ui.wdtActions->layout()->addWidget(label);
+				FButtonsCleanup.add(label);
 			}
+			ui.wdtActions->setVisible(!notice.actions.isEmpty());
 
 			setVisible(true);
 		}
 		else
 		{
-			FCloseTimer.stop();
 			setVisible(false);
+			FEmptySince = QDateTime::currentDateTime();
 		}
 		FActiveNotice = ANoticeId;
 		emit noticeActivated(ANoticeId);
@@ -152,20 +121,7 @@ void NoticeWidget::onUpdateTimerTimeout()
 	updateWidgets(!FNoticeQueue.isEmpty() ? FNoticeQueue.values().first() : -1);
 }
 
-void NoticeWidget::onCloseTimerTimeout()
-{
-	if (!underMouse())
-		removeNotice(FActiveNotice);
-	else
-		FCloseTimer.start(500);
-}
-
 void NoticeWidget::onCloseButtonClicked(bool)
 {
 	removeNotice(FActiveNotice);
-}
-
-void NoticeWidget::onMessageLinkActivated(const QString &ALink)
-{
-	QDesktopServices::openUrl(ALink);
 }

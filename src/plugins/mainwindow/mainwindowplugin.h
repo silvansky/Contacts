@@ -17,6 +17,7 @@
 #include <utils/action.h>
 #include <utils/options.h>
 #include "mainwindow.h"
+#include "noticewidget.h"
 
 class MainWindowPlugin :
 			public QObject,
@@ -42,6 +43,7 @@ public:
 	//IMainWindowPlugin
 	virtual IMainWindow *mainWindow() const;
 	virtual void showMainWindow() const;
+	virtual IInternalNoticeWidget *noticeWidget() const;
 protected:
 	void updateTitle();
 	void correctWindowPosition() const;
@@ -54,6 +56,8 @@ protected slots:
 	void onProfileRenamed(const QString &AProfile, const QString &ANewName);
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowMainWindowByAction(bool);
+	void onInternalNoticeInserted(int ANoticeId);
+	void onInternalNoticeRemoved(int ANoticeId);
 private:
 	IPluginManager *FPluginManager;
 	IOptionsManager *FOptionsManager;
@@ -63,6 +67,8 @@ private:
 	MainWindow *FMainWindow;
 private:
 	QTime FActivationChanged;
+private:
+	NoticeWidget *FNoticeWidget;
 };
 
 #endif // MAINWINDOW_H
