@@ -7,6 +7,7 @@
 #include <definations/stylesheets.h>
 #include <definations/toolbargroups.h>
 #include <utils/stylestorage.h>
+#include "noticewidget.h"
 
 class MainWindow :
 			public QMainWindow,
@@ -24,6 +25,7 @@ public:
 	virtual QStackedWidget *upperWidget() const { return FUpperWidget; }
 	virtual QStackedWidget *rostersWidget() const { return FRostersWidget; }
 	virtual QStackedWidget *bottomWidget() const { return FBottomWidget; }
+	virtual IInternalNoticeWidget *noticeWidget() const {return FNoticeWidget; }
 	virtual ToolBarChanger *topToolBarChanger() const { return FTopToolBarChanger; }
 	virtual ToolBarChanger *leftToolBarChanger() const { return FLeftToolBarChanger; }
 	virtual ToolBarChanger *statusToolBarChanger() const { return FStatusToolBarChanger; }
@@ -37,16 +39,18 @@ protected:
 	void keyPressEvent(QKeyEvent *AEvent);
 protected slots:
 	void onStackedWidgetChanged(int AIndex);
+	void onInternalNoticeChanged(int ANoticeId);
 private:
-	Menu           *FMainMenu;
+	Menu *FMainMenu;
 	ToolBarChanger *FTopToolBarChanger;
 	ToolBarChanger *FLeftToolBarChanger;
 	ToolBarChanger *FStatusToolBarChanger;
 private:
-	QVBoxLayout    *FMainLayout;
+	QVBoxLayout *FMainLayout;
 	QStackedWidget *FUpperWidget;
 	QStackedWidget *FRostersWidget;
 	QStackedWidget *FBottomWidget;
+	NoticeWidget *FNoticeWidget;
 };
 
 #endif // MAINWINDOW_H

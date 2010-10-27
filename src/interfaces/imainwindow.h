@@ -49,6 +49,7 @@ public:
 	virtual QStackedWidget *upperWidget() const = 0;
 	virtual QStackedWidget *rostersWidget() const = 0;
 	virtual QStackedWidget *bottomWidget() const = 0;
+	virtual IInternalNoticeWidget *noticeWidget() const =0;
 	virtual ToolBarChanger *topToolBarChanger() const =0;
 	virtual ToolBarChanger *leftToolBarChanger() const =0;
 	virtual ToolBarChanger *statusToolBarChanger() const =0;
@@ -60,7 +61,6 @@ public:
 	virtual QObject *instance() = 0;
 	virtual IMainWindow *mainWindow() const = 0;
 	virtual void showMainWindow() const =0;
-	virtual IInternalNoticeWidget *noticeWidget() const =0;
 };
 
 Q_DECLARE_INTERFACE(IInternalNoticeWidget,"Virtus.Plugin.IInternalNoticeWidget/1.0")

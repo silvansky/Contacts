@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>299</width>
-    <height>107</height>
+    <height>69</height>
    </rect>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -15,20 +15,16 @@
     <number>5</number>
    </property>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0">
      <item>
       <widget class="QLabel" name="lblIcon">
        <property name="text">
         <string notr="true">Icon</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+       <property name="alignment">
+        <set>Qt::AlignHCenter|Qt::AlignTop</set>
        </property>
-      </spacer>
+      </widget>
      </item>
     </layout>
    </item>
@@ -62,20 +58,11 @@
      </item>
      <item>
       <widget class="QLabel" name="lblMessage">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="text">
         <string notr="true">Message</string>
        </property>
        <property name="textFormat">
         <enum>Qt::RichText</enum>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
@@ -94,7 +81,7 @@
   <customwidget>
    <class>CloseButton</class>
    <extends>QToolButton</extends>
-   <header>utils/closebutton.h</header>
+   <header location="global">utils/closebutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

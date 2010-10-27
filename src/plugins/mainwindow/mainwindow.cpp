@@ -49,11 +49,17 @@ void MainWindow::createLayouts()
 	FBottomWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	connect(FBottomWidget,SIGNAL(currentChanged(int)),SLOT(onStackedWidgetChanged(int)));
 
+	FNoticeWidget = new NoticeWidget(this);
+	FNoticeWidget->setVisible(false);
+	connect(FNoticeWidget,SIGNAL(noticeInserted(int)),SLOT(onInternalNoticeChanged(int)));
+	connect(FNoticeWidget,SIGNAL(noticeRemoved(int)),SLOT(onInternalNoticeChanged(int)));
+
 	FMainLayout = new QVBoxLayout;
 	FMainLayout->setMargin(2);
 	FMainLayout->addWidget(FUpperWidget);
 	FMainLayout->addWidget(FRostersWidget);
 	FMainLayout->addWidget(FBottomWidget);
+	FMainLayout->addWidget(FNoticeWidget);
 
 	QWidget *centralWidget = new QWidget(this);
 	centralWidget->setLayout(FMainLayout);
@@ -113,4 +119,10 @@ void MainWindow::onStackedWidgetChanged(int AIndex)
 	{
 		widget->setVisible(false);
 	}
+}
+
+void MainWindow::onInternalNoticeChanged( int ANoticeId )
+{
+	Q_UNUSED(ANoticeId);
+	FNoticeWidget->setVisible(!FNoticeWidget->noticeQueue().isEmpty());
 }

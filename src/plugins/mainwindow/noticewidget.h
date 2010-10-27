@@ -4,7 +4,10 @@
 #include <QTimer>
 #include <QWidget>
 #include <QObjectCleanupHandler>
+#include <definations/resources.h>
+#include <definations/stylesheets.h>
 #include <interfaces/imainwindow.h>
+#include <utils/stylestorage.h>
 #include "ui_noticewidget.h"
 
 class NoticeWidget : 

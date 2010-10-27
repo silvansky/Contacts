@@ -14,10 +14,6 @@ MainWindowPlugin::MainWindowPlugin()
 	FMainWindow = new MainWindow(new QWidget, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 	FMainWindow->installEventFilter(this);
 	WidgetManager::setWindowSticky(FMainWindow,true);
-
-	FNoticeWidget = new NoticeWidget(NULL);
-	connect(FNoticeWidget,SIGNAL(noticeInserted(int)),SLOT(onInternalNoticeInserted(int)));
-	connect(FNoticeWidget,SIGNAL(noticeRemoved(int)),SLOT(onInternalNoticeRemoved(int)));
 }
 
 MainWindowPlugin::~MainWindowPlugin()
@@ -106,11 +102,6 @@ bool MainWindowPlugin::initSettings()
 
 bool MainWindowPlugin::startPlugin()
 {
-	IInternalNotice notice;
-	notice.priority = 100;
-	notice.caption = "caption";
-	notice.message = "message asdfk asldkfj asldkfj asldkfj asldkfj asldfkj asdlfkj asldkfj";
-	noticeWidget()->insertNotice(notice);
 	updateTitle();
 	return true;
 }
@@ -139,11 +130,6 @@ void MainWindowPlugin::showMainWindow() const
 		WidgetManager::raiseWidget(FMainWindow);
 		FMainWindow->activateWindow();
 	}
-}
-
-IInternalNoticeWidget *MainWindowPlugin::noticeWidget() const
-{
-	return FNoticeWidget;
 }
 
 void MainWindowPlugin::updateTitle()
@@ -181,8 +167,6 @@ void MainWindowPlugin::onOptionsOpened()
 	FMainWindow->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
 	FMainWindow->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
-	//if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
-	//	showMainWindow();
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 	updateTitle();
 }
@@ -232,25 +216,6 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 void MainWindowPlugin::onShowMainWindowByAction(bool)
 {
 	showMainWindow();
-}
-
-void MainWindowPlugin::onInternalNoticeInserted(int ANoticeId)
-{
-	Q_UNUSED(ANoticeId);
-	if (FMainWindow->bottomWidget()->indexOf(FNoticeWidget->instance()) < 0)
-	{
-		FMainWindow->bottomWidget()->addWidget(FNoticeWidget->instance());
-		FMainWindow->bottomWidget()->setVisible(true);
-	}
-}
-
-void MainWindowPlugin::onInternalNoticeRemoved(int ANoticeId)
-{
-	Q_UNUSED(ANoticeId);
-	if (FNoticeWidget->noticeQueue().isEmpty())
-	{
-		FMainWindow->bottomWidget()->removeWidget(FNoticeWidget->instance());
-	}
 }
 
 Q_EXPORT_PLUGIN2(plg_mainwindow, MainWindowPlugin)

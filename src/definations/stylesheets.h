@@ -12,6 +12,7 @@
 
 //MainWindow
 #define STS_MAINWINDOW_WINDOW                                           "mainwindowWindow"
+#define STS_MAINWINDOW_NOTICEWIDGET                                     "mainwindowNoticeWidget"
 
 //MessageWidgets
 #define STS_MESSAGEWIDGETS_TABWINDOW                                    "messagewidgetsTabWindow"

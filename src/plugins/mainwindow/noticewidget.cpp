@@ -5,6 +5,8 @@
 NoticeWidget::NoticeWidget(QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MAINWINDOW_NOTICEWIDGET);
+
 	ui.wdtActions->setLayout(new QHBoxLayout);
 	ui.wdtActions->layout()->setMargin(0);
 
@@ -97,6 +99,7 @@ void NoticeWidget::updateWidgets(int ANoticeId)
 			{
 				QLabel *label = new QLabel(ui.wdtActions);
 				label->setTextFormat(Qt::RichText);
+				label->setWordWrap(true);
 				label->setText(QString("<a href='link'>%1</a>").arg(action->text()));
 				connect(label,SIGNAL(linkActivated(const QString &)),action,SLOT(trigger()));
 				ui.wdtActions->layout()->addWidget(label);
