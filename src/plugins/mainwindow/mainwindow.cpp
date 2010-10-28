@@ -49,7 +49,7 @@ void MainWindow::createLayouts()
 	FBottomWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	connect(FBottomWidget,SIGNAL(currentChanged(int)),SLOT(onStackedWidgetChanged(int)));
 
-	FNoticeWidget = new NoticeWidget(this);
+	FNoticeWidget = new InternalNoticeWidget(this);
 	FNoticeWidget->setVisible(false);
 	connect(FNoticeWidget,SIGNAL(noticeInserted(int)),SLOT(onInternalNoticeChanged(int)));
 	connect(FNoticeWidget,SIGNAL(noticeRemoved(int)),SLOT(onInternalNoticeChanged(int)));

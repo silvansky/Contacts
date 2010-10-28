@@ -2,7 +2,7 @@
 
 #include <QDesktopServices>
 
-NoticeWidget::NoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
+ChatNoticeWidget::ChatNoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
 {
 	ui.setupUi(this);
 	setVisible(false);
@@ -23,18 +23,18 @@ NoticeWidget::NoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJ
 	connect(ui.lblMessage,SIGNAL(linkActivated(const QString &)),SLOT(onMessageLinkActivated(const QString &)));
 }
 
-NoticeWidget::~NoticeWidget()
+ChatNoticeWidget::~ChatNoticeWidget()
 {
 	foreach(int noticeId, FNotices.keys()) {
 		removeNotice(noticeId); }
 }
 
-const Jid &NoticeWidget::streamJid() const
+const Jid &ChatNoticeWidget::streamJid() const
 {
 	return FStreamJid;
 }
 
-void NoticeWidget::setStreamJid(const Jid &AStreamJid)
+void ChatNoticeWidget::setStreamJid(const Jid &AStreamJid)
 {
 	if (AStreamJid != FStreamJid)
 	{
@@ -44,12 +44,12 @@ void NoticeWidget::setStreamJid(const Jid &AStreamJid)
 	}
 }
 
-const Jid & NoticeWidget::contactJid() const
+const Jid & ChatNoticeWidget::contactJid() const
 {
 	return FContactJid;
 }
 
-void NoticeWidget::setContactJid(const Jid &AContactJid)
+void ChatNoticeWidget::setContactJid(const Jid &AContactJid)
 {
 	if (AContactJid != FContactJid)
 	{
@@ -59,22 +59,22 @@ void NoticeWidget::setContactJid(const Jid &AContactJid)
 	}
 }
 
-int NoticeWidget::activeNotice() const
+int ChatNoticeWidget::activeNotice() const
 {
 	return FActiveNotice;
 }
 
-QList<int> NoticeWidget::noticeQueue() const
+QList<int> ChatNoticeWidget::noticeQueue() const
 {
 	return FNoticeQueue.values();
 }
 
-IChatNotice NoticeWidget::noticeById(int ANoticeId) const
+IChatNotice ChatNoticeWidget::noticeById(int ANoticeId) const
 {
 	return FNotices.value(ANoticeId);
 }
 
-int NoticeWidget::insertNotice(const IChatNotice &ANotice)
+int ChatNoticeWidget::insertNotice(const IChatNotice &ANotice)
 {
 	int noticeId = -1;
 	if (ANotice.priority>0)
@@ -90,7 +90,7 @@ int NoticeWidget::insertNotice(const IChatNotice &ANotice)
 	return noticeId;
 }
 
-void NoticeWidget::removeNotice(int ANoticeId)
+void ChatNoticeWidget::removeNotice(int ANoticeId)
 {
 	if (FNotices.contains(ANoticeId))
 	{
@@ -102,12 +102,12 @@ void NoticeWidget::removeNotice(int ANoticeId)
 	}
 }
 
-void NoticeWidget::updateNotice()
+void ChatNoticeWidget::updateNotice()
 {
 	FUpdateTimer.start();
 }
 
-void NoticeWidget::updateWidgets(int ANoticeId)
+void ChatNoticeWidget::updateWidgets(int ANoticeId)
 {
 	if (FActiveNotice != ANoticeId)
 	{
@@ -147,12 +147,12 @@ void NoticeWidget::updateWidgets(int ANoticeId)
 	}
 }
 
-void NoticeWidget::onUpdateTimerTimeout()
+void ChatNoticeWidget::onUpdateTimerTimeout()
 {
 	updateWidgets(!FNoticeQueue.isEmpty() ? FNoticeQueue.values().first() : -1);
 }
 
-void NoticeWidget::onCloseTimerTimeout()
+void ChatNoticeWidget::onCloseTimerTimeout()
 {
 	if (!underMouse())
 		removeNotice(FActiveNotice);
@@ -160,12 +160,12 @@ void NoticeWidget::onCloseTimerTimeout()
 		FCloseTimer.start(500);
 }
 
-void NoticeWidget::onCloseButtonClicked(bool)
+void ChatNoticeWidget::onCloseButtonClicked(bool)
 {
 	removeNotice(FActiveNotice);
 }
 
-void NoticeWidget::onMessageLinkActivated(const QString &ALink)
+void ChatNoticeWidget::onMessageLinkActivated(const QString &ALink)
 {
 	QDesktopServices::openUrl(ALink);
 }

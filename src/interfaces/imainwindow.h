@@ -28,13 +28,14 @@ class IInternalNoticeWidget
 {
 public:
 	virtual QWidget *instance() = 0;
-	virtual QDateTime emptySince() const =0;
+	virtual bool isEmpty() const =0;
 	virtual int activeNotice() const =0;
 	virtual QList<int> noticeQueue() const =0;
 	virtual IInternalNotice noticeById(int ANoticeId) const =0;
 	virtual int insertNotice(const IInternalNotice &ANotice) =0;
 	virtual void removeNotice(int ANoticeId) =0;
 protected:
+	virtual void noticeWidgetReady() =0;
 	virtual void noticeInserted(int ANoticeId) =0;
 	virtual void noticeActivated(int ANoticeId) =0;
 	virtual void noticeRemoved(int ANoticeId) =0;

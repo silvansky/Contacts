@@ -65,6 +65,11 @@
 #define OPV_FILETRANSFER_HIDEONSTART                    "filestreams.filetransfer.hide-dialog-on-start"
 #define OPV_FILETRANSFER_REMOVEONFINISH                 "filestreams.filetransfer.remove-stream-on-finish"
 
+//Gateways
+#define OPV_GATEWAYS_NOTICE_SHOWCOUNT                   "gateways.notice.show-count"
+#define OPV_GATEWAYS_NOTICE_SHOWLAST                    "gateways.notice.show-last"
+#define OPV_GATEWAYS_NOTICE_REMOVECOUNT                 "gateways.notice.remove-count"
+
 // MainWindow
 #define OPV_MAINWINDOW_SHOW                             "mainwindow.show"
 #define OPV_MAINWINDOW_SIZE                             "mainwindow.size"

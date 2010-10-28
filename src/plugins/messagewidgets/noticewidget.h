@@ -10,15 +10,15 @@
 #include <utils/iconstorage.h>
 #include "ui_noticewidget.h"
 
-class NoticeWidget : 
+class ChatNoticeWidget : 
 			public QWidget,
 			public IChatNoticeWidget
 {
 	Q_OBJECT;
 	Q_INTERFACES(IChatNoticeWidget);
 public:
-	NoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid);
-	~NoticeWidget();
+	ChatNoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid);
+	~ChatNoticeWidget();
 	virtual QWidget *instance() { return this; }
 	virtual const Jid &streamJid() const;
 	virtual void setStreamJid(const Jid &AStreamJid);

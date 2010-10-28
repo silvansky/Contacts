@@ -2,7 +2,7 @@
 
 #include <QHBoxLayout>
 
-NoticeWidget::NoticeWidget(QWidget *AParent) : QWidget(AParent)
+InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MAINWINDOW_NOTICEWIDGET);
@@ -11,7 +11,11 @@ NoticeWidget::NoticeWidget(QWidget *AParent) : QWidget(AParent)
 	ui.wdtActions->layout()->setMargin(0);
 
 	FActiveNotice = -1;
-	FEmptySince = QDateTime::currentDateTime();
+
+	FReadyTimer.setInterval(10*1000);
+	FReadyTimer.setSingleShot(false);
+	connect(&FReadyTimer,SIGNAL(timeout()),SLOT(onReadyTimerTimeout()));
+	FReadyTimer.start();
 
 	FUpdateTimer.setInterval(0);
 	FUpdateTimer.setSingleShot(true);
@@ -20,32 +24,32 @@ NoticeWidget::NoticeWidget(QWidget *AParent) : QWidget(AParent)
 	connect(ui.cbtClose,SIGNAL(clicked(bool)),SLOT(onCloseButtonClicked(bool)));
 }
 
-NoticeWidget::~NoticeWidget()
+InternalNoticeWidget::~InternalNoticeWidget()
 {
 
 }
 
-QDateTime NoticeWidget::emptySince() const
+bool InternalNoticeWidget::isEmpty() const
 {
-	return FActiveNotice>0 ? QDateTime::currentDateTime() : FEmptySince;
+	return FNotices.isEmpty();
 }
 
-int NoticeWidget::activeNotice() const
+int InternalNoticeWidget::activeNotice() const
 {
 	return FActiveNotice;
 }
 
-QList<int> NoticeWidget::noticeQueue() const
+QList<int> InternalNoticeWidget::noticeQueue() const
 {
 	return FNoticeQueue.values();
 }
 
-IInternalNotice NoticeWidget::noticeById(int ANoticeId) const
+IInternalNotice InternalNoticeWidget::noticeById(int ANoticeId) const
 {
 	return FNotices.value(ANoticeId);
 }
 
-int NoticeWidget::insertNotice(const IInternalNotice &ANotice)
+int InternalNoticeWidget::insertNotice(const IInternalNotice &ANotice)
 {
 	int noticeId = -1;
 	if (ANotice.priority>0)
@@ -61,7 +65,7 @@ int NoticeWidget::insertNotice(const IInternalNotice &ANotice)
 	return noticeId;
 }
 
-void NoticeWidget::removeNotice(int ANoticeId)
+void InternalNoticeWidget::removeNotice(int ANoticeId)
 {
 	if (FNotices.contains(ANoticeId))
 	{
@@ -72,12 +76,12 @@ void NoticeWidget::removeNotice(int ANoticeId)
 		updateNotice();
 	}
 }
-void NoticeWidget::updateNotice()
+void InternalNoticeWidget::updateNotice()
 {
 	FUpdateTimer.start();
 }
 
-void NoticeWidget::updateWidgets(int ANoticeId)
+void InternalNoticeWidget::updateWidgets(int ANoticeId)
 {
 	if (FActiveNotice != ANoticeId)
 	{
@@ -102,29 +106,41 @@ void NoticeWidget::updateWidgets(int ANoticeId)
 				label->setWordWrap(true);
 				label->setText(QString("<a href='link'>%1</a>").arg(action->text()));
 				connect(label,SIGNAL(linkActivated(const QString &)),action,SLOT(trigger()));
+				connect(action,SIGNAL(triggered()),SLOT(onNoticeActionTriggered()));
 				ui.wdtActions->layout()->addWidget(label);
 				FButtonsCleanup.add(label);
 			}
 			ui.wdtActions->setVisible(!notice.actions.isEmpty());
 
 			setVisible(true);
+			FReadyTimer.stop();
 		}
 		else
 		{
 			setVisible(false);
-			FEmptySince = QDateTime::currentDateTime();
+			FReadyTimer.start();
 		}
 		FActiveNotice = ANoticeId;
 		emit noticeActivated(ANoticeId);
 	}
 }
 
-void NoticeWidget::onUpdateTimerTimeout()
+void InternalNoticeWidget::onReadyTimerTimeout()
+{
+	emit noticeWidgetReady();
+}
+
+void InternalNoticeWidget::onUpdateTimerTimeout()
 {
 	updateWidgets(!FNoticeQueue.isEmpty() ? FNoticeQueue.values().first() : -1);
 }
 
-void NoticeWidget::onCloseButtonClicked(bool)
+void InternalNoticeWidget::onNoticeActionTriggered()
+{
+	removeNotice(FActiveNotice);
+}
+
+void InternalNoticeWidget::onCloseButtonClicked(bool)
 {
 	removeNotice(FActiveNotice);
 }

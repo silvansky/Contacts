@@ -10,23 +10,24 @@
 #include <utils/stylestorage.h>
 #include "ui_noticewidget.h"
 
-class NoticeWidget : 
+class InternalNoticeWidget : 
 	public QWidget,
 	public IInternalNoticeWidget
 {
 	Q_OBJECT;
 	Q_INTERFACES(IInternalNoticeWidget);
 public:
-	NoticeWidget(QWidget *AParent = NULL);
-	~NoticeWidget();
+	InternalNoticeWidget(QWidget *AParent = NULL);
+	~InternalNoticeWidget();
 	virtual QWidget *instance() { return this; }
-	virtual QDateTime emptySince() const;
+	virtual bool isEmpty() const;
 	virtual int activeNotice() const;
 	virtual QList<int> noticeQueue() const;
 	virtual IInternalNotice noticeById(int ANoticeId) const;
 	virtual int insertNotice(const IInternalNotice &ANotice);
 	virtual void removeNotice(int ANoticeId);
 signals:
+	void noticeWidgetReady();
 	void noticeInserted(int ANoticeId);
 	void noticeActivated(int ANoticeId);
 	void noticeRemoved(int ANoticeId);
@@ -34,14 +35,16 @@ protected:
 	void updateNotice();
 	void updateWidgets(int ANoticeId);
 protected slots:
+	void onReadyTimerTimeout();
 	void onUpdateTimerTimeout();
+	void onNoticeActionTriggered();
 	void onCloseButtonClicked(bool);
 private:
 	Ui::NoticeWidgetClass ui;
 private:
 	int FActiveNotice;
+	QTimer FReadyTimer;
 	QTimer FUpdateTimer;
-	QDateTime FEmptySince;
 	QMultiMap<int, int> FNoticeQueue;
 	QMap<int, IInternalNotice> FNotices;
 	QObjectCleanupHandler FButtonsCleanup;

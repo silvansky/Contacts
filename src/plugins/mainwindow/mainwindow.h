@@ -50,7 +50,7 @@ private:
 	QStackedWidget *FUpperWidget;
 	QStackedWidget *FRostersWidget;
 	QStackedWidget *FBottomWidget;
-	NoticeWidget *FNoticeWidget;
+	InternalNoticeWidget *FNoticeWidget;
 };
 
 #endif // MAINWINDOW_H
