@@ -1,6 +1,7 @@
 #include "gateways.h"
 
 #include <QRegExp>
+#include <QTextDocument>
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_SERVICE_JID           Action::DR_Parametr1
@@ -30,6 +31,9 @@ Gateways::Gateways()
 	FRegistration = NULL;
 	FOptionsManager = NULL;
 	FDataForms = NULL;
+	FMainWindowPlugin = NULL;
+
+	FInternalNoticeId = -1;
 
 	FKeepTimer.setSingleShot(false);
 	connect(&FKeepTimer,SIGNAL(timeout()),SLOT(onKeepTimerTimeout()));
@@ -176,6 +180,17 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	plugin = APluginManager->pluginInterface("IDataForms").value(0,NULL);
 	if (plugin)
 		FDataForms = qobject_cast<IDataForms *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+		if (FMainWindowPlugin)
+		{
+			connect(FMainWindowPlugin->mainWindow()->noticeWidget()->instance(),SIGNAL(noticeWidgetReady()),SLOT(onInternalNoticeReady()));
+			connect(FMainWindowPlugin->mainWindow()->noticeWidget()->instance(),SIGNAL(noticeRemoved(int)),SLOT(onInternalNoticeRemoved(int)));
+		}
+	}
 
 	return FStanzaProcessor!=NULL;
 }
@@ -1358,6 +1373,53 @@ void Gateways::onRegisterError(const QString &AId, const QString &AError)
 {
 	FShowRegisterRequests.remove(AId);
 	emit errorReceived(AId,AError);
+}
+
+void Gateways::onInternalNoticeReady()
+{
+	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
+	if (widget->isEmpty())
+	{
+		int showCount = Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).value().toInt();
+		int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
+		QDateTime showLast = Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).value().toDateTime();
+		if (showCount < 3 && (!showLast.isValid() || showLast.daysTo(QDateTime::currentDateTime())>=7*removeCount))
+		{
+			IInternalNotice notice;
+			notice.priority = INP_DEFAULT;
+			notice.iconKey = MNI_GATEWAYS_ACCOUNTS;
+			notice.iconStorage = RSR_STORAGE_MENUICONS;
+			notice.caption = tr("Add your accounts");
+			notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
+
+			Action *action = new Action(this);
+			action->setText(tr("Add my accounts..."));
+			connect(action,SIGNAL(triggered()),SLOT(onInternalNoticeActionTriggered()));
+			notice.actions.append(action);
+
+			FInternalNoticeId = widget->insertNotice(notice);
+			Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).setValue(showCount+1);
+			Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).setValue(QDateTime::currentDateTime());
+		}
+	}
+}
+
+void Gateways::onInternalNoticeActionTriggered()
+{
+	if (FOptionsManager)
+	{
+		FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
+	}
+}
+
+void Gateways::onInternalNoticeRemoved(int ANoticeId)
+{
+	if (ANoticeId>0 && ANoticeId==FInternalNoticeId)
+	{
+		int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
+		Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).setValue(removeCount+1);
+		FInternalNoticeId = -1;
+	}
 }
 
 Q_EXPORT_PLUGIN2(plg_gateways, Gateways)

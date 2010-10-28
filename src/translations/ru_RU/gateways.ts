@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить</translation>
     </message>
 </context>
 <context>
@@ -198,11 +198,23 @@
     </message>
     <message>
         <source>QIP</source>
-        <translation type="unfinished"></translation>
+        <translation>QIP</translation>
     </message>
     <message>
         <source>Rambler</source>
-        <translation type="unfinished"></translation>
+        <translation>Rambler</translation>
+    </message>
+    <message>
+        <source>Add your accounts</source>
+        <translation>Добавьте ваши учетные записи</translation>
+    </message>
+    <message>
+        <source>Add your accounts and send messages to your friends on these services</source>
+        <translation>Подключите свои учетные записи и отправляйте сообщения вашим друзьям на этих сервисах</translation>
+    </message>
+    <message>
+        <source>Add my accounts...</source>
+        <translation>Добавить мои учетные записи...</translation>
     </message>
 </context>
 <context>

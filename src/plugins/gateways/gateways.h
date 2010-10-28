@@ -14,8 +14,10 @@
 #include <definations/resources.h>
 #include <definations/menuicons.h>
 #include <definations/optionnodes.h>
+#include <definations/optionvalues.h>
 #include <definations/optionnodeorders.h>
 #include <definations/optionwidgetorders.h>
+#include <definations/internalnoticepriorities.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/igateways.h>
 #include <interfaces/ixmppstreams.h>
@@ -30,9 +32,11 @@
 #include <interfaces/iregistraton.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/idataforms.h>
+#include <interfaces/imainwindow.h>
 #include <utils/errorhandler.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
+#include <utils/options.h>
 #include "addlegacyaccountdialog.h"
 #include "addlegacycontactdialog.h"
 #include "addlegacyaccountoptions.h"
@@ -133,6 +137,9 @@ protected slots:
 	void onDiscoItemContextMenu(const QModelIndex AIndex, Menu *AMenu);
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
 	void onRegisterError(const QString &AId, const QString &AError);
+	void onInternalNoticeReady();
+	void onInternalNoticeActionTriggered();
+	void onInternalNoticeRemoved(int ANoticeId);
 private:
 	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;
@@ -148,6 +155,7 @@ private:
 	IStatusIcons *FStatusIcons;
 	IOptionsManager *FOptionsManager;
 	IDataForms *FDataForms;
+	IMainWindowPlugin *FMainWindowPlugin;
 private:
 	QTimer FKeepTimer;
 	QMap<Jid, QSet<Jid> > FKeepConnections;
@@ -159,6 +167,7 @@ private:
 	QMap<QString, Jid> FLoginRequests;
 	QMap<QString, Jid> FShowRegisterRequests;
 private:
+	int FInternalNoticeId;
 	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
 	QMap<QString, IGateServiceDescriptor> FGateDescriptors;

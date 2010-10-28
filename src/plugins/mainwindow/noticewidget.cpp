@@ -12,7 +12,7 @@ InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 
 	FActiveNotice = -1;
 
-	FReadyTimer.setInterval(10*1000);
+	FReadyTimer.setInterval(60*60*1000);
 	FReadyTimer.setSingleShot(false);
 	connect(&FReadyTimer,SIGNAL(timeout()),SLOT(onReadyTimerTimeout()));
 	FReadyTimer.start();
