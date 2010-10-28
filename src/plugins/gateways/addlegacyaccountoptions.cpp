@@ -99,7 +99,7 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 		IDiscoIdentity identity;
 		identity.category = "gateway";
 
-		QList<Jid> usedGates = FGateways->streamServices(FStreamJid);
+		QList<Jid> usedGates = FGateways->streamServices(FStreamJid,identity);
 		QList<Jid> availGates = FGateways->availServices(FStreamJid,identity);
 
 		foreach(Jid serviceJid, availGates)

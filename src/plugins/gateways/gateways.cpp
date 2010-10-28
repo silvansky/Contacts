@@ -1380,26 +1380,31 @@ void Gateways::onInternalNoticeReady()
 	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 	if (widget->isEmpty())
 	{
-		int showCount = Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).value().toInt();
-		int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
-		QDateTime showLast = Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).value().toDateTime();
-		if (showCount < 3 && (!showLast.isValid() || showLast.daysTo(QDateTime::currentDateTime())>=7*removeCount))
+		IDiscoIdentity identity;
+		identity.category = "gateway";
+		if (streamServices(FOptionsStreamJid,identity).isEmpty() && !availServices(FOptionsStreamJid,identity).isEmpty())
 		{
-			IInternalNotice notice;
-			notice.priority = INP_DEFAULT;
-			notice.iconKey = MNI_GATEWAYS_ACCOUNTS;
-			notice.iconStorage = RSR_STORAGE_MENUICONS;
-			notice.caption = tr("Add your accounts");
-			notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
+			int showCount = Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).value().toInt();
+			int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
+			QDateTime showLast = Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).value().toDateTime();
+			if (showCount <= 3 && (!showLast.isValid() || showLast.daysTo(QDateTime::currentDateTime())>=7*removeCount))
+			{
+				IInternalNotice notice;
+				notice.priority = INP_DEFAULT;
+				notice.iconKey = MNI_GATEWAYS_ACCOUNTS;
+				notice.iconStorage = RSR_STORAGE_MENUICONS;
+				notice.caption = tr("Add your accounts");
+				notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
 
-			Action *action = new Action(this);
-			action->setText(tr("Add my accounts..."));
-			connect(action,SIGNAL(triggered()),SLOT(onInternalNoticeActionTriggered()));
-			notice.actions.append(action);
+				Action *action = new Action(this);
+				action->setText(tr("Add my accounts..."));
+				connect(action,SIGNAL(triggered()),SLOT(onInternalNoticeActionTriggered()));
+				notice.actions.append(action);
 
-			FInternalNoticeId = widget->insertNotice(notice);
-			Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).setValue(showCount+1);
-			Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).setValue(QDateTime::currentDateTime());
+				FInternalNoticeId = widget->insertNotice(notice);
+				Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).setValue(showCount+1);
+				Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).setValue(QDateTime::currentDateTime());
+			}
 		}
 	}
 }
