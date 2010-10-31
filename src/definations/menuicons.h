@@ -207,6 +207,7 @@
 //RosterChanger
 #define MNI_RCHANGER_ADD_CONTACT                 "rchangerAddContact"
 #define MNI_RCHANGER_ADD_GROUP                   "rchangerAddGroup"
+#define MNI_RCHANGER_ADD_ACCOUNT                 "rchangerAddAccount"
 #define MNI_RCHANGER_GROUP                       "rchangerGroup"
 #define MNI_RCHANGER_ROOT_GROUP                  "rchangerRootGroup"
 #define MNI_RCHANGER_THIS_GROUP                  "rchangerThisGroup"

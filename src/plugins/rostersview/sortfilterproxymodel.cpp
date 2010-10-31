@@ -66,8 +66,6 @@ bool SortFilterProxyModel::filterAcceptsRow(int AModelRow, const QModelIndex &AM
 		case RIT_GROUP_BLANK:
 		case RIT_GROUP_NOT_IN_ROSTER:
 			{
-				if (!index.child(0, 0).isValid())
-					return true;
 				for (int childRow = 0; index.child(childRow,0).isValid(); childRow++)
 					if (filterAcceptsRow(childRow,index))
 						return true;

@@ -141,9 +141,12 @@ protected slots:
 protected slots:
 	void onShowAddContactDialog(bool);
 	void onShowAddGroupDialog(bool);
+	void onShowAddAccountDialog(bool);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onRosterClosed(IRoster *ARoster);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onEmptyGroupChildInserted(IRosterIndex *AIndex);
+	void onEmptyGroupIndexDestroyed(IRosterIndex *AIndex);
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
 	void onNotificationActionTriggered(bool);
@@ -168,6 +171,7 @@ private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 private:
+	QList<QString> FEmptyGroups;
 	QMap<int, int> FNotifyChatNotice;
 	QMap<int, int> FChatNoticeActions;
 	QMap<int, IChatWindow *> FChatNoticeWindow;

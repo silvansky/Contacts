@@ -1,7 +1,7 @@
 #ifndef DEF_ACTIONGROUPS_H
 #define DEF_ACTIONGROUPS_H
 
-//MainWindow  - MainMenu
+//MainWindow - MainMenu
 #define AG_MMENU_OPTIONS                                        500
 #define AG_MMENU_ACCOUNTMANAGER                                 500
 #define AG_MMENU_SKINMANAGER                                    500
@@ -11,6 +11,11 @@
 #define AG_MMENU_PLUGINMANAGER_ABOUT                            900
 #define AG_MMENU_PLUGINMANAGER_COMMENTS                         950
 #define AG_MMENU_MAINWINDOW                                     1000
+
+//MainWindow - AddMenu
+#define AG_MWAM_RCHAGER_ADD_CONTACT                             300
+#define AG_MWAM_RCHAGER_ADD_GROUP                               500
+#define AG_MWAM_RCHAGER_ADD_ACCOUNT                             500
 
 //RostersView - ContextMenu
 #define AG_RVCM_CHATMESSAGEHANDLER                              200

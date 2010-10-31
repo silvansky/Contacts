@@ -289,6 +289,10 @@
         <source>Add...</source>
         <translation>Добавить...</translation>
     </message>
+    <message>
+        <source>Add account</source>
+        <translation>Добавить учётную запись</translation>
+    </message>
 </context>
 <context>
     <name>SubscriptionDialog</name>

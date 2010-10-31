@@ -5,6 +5,14 @@
     <object mime="image/png">rchangeraddcontact.png</object>
   </icon>
   <icon>
+    <key>rchangerAddGroup</key>
+    <object mime="image/png">rchangeraddgroup.png</object>
+  </icon>
+  <icon>
+    <key>rchangerAddAccount</key>
+    <object mime="image/png">rchangeraddaccount.png</object>
+  </icon>
+  <icon>
     <key>rchangerGroup</key>
     <object mime="image/png">rchangergroup.png</object>
   </icon>

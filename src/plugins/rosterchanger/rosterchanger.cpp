@@ -181,24 +181,28 @@ bool RosterChanger::initObjects()
 	{
 		Menu *addMenu = new Menu(FMainWindowPlugin->mainWindow()->topToolBarChanger()->toolBar());
 		addMenu->setTitle(tr("Add..."));
-		addMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_CONTACT);
+		QToolButton *button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(addMenu->menuAction(), TBG_MWTTB_ROSTERCHANGER_ADDCONTACT);
+		button->setPopupMode(QToolButton::InstantPopup);
+		button->setToolButtonStyle(Qt::ToolButtonTextOnly);
+		button->setDefaultAction(addMenu->menuAction());
 
 		Action *action = new Action(addMenu);
 		action->setText(tr("Add contact"));
 		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_CONTACT);
 		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddContactDialog(bool)));
-		addMenu->addAction(action);
+		addMenu->addAction(action,AG_MWAM_RCHAGER_ADD_CONTACT);
 
 		action = new Action(addMenu);
 		action->setText(tr("Add group"));
 		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_GROUP);
 		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddGroupDialog(bool)));
-		addMenu->addAction(action);
+		addMenu->addAction(action,AG_MWAM_RCHAGER_ADD_GROUP);
 
-		QToolButton *button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(addMenu->menuAction(), TBG_MWTTB_ROSTERCHANGER_ADDCONTACT);
-		button->setPopupMode(QToolButton::InstantPopup);
-		button->setToolButtonStyle(Qt::ToolButtonTextOnly);
-		button->setDefaultAction(addMenu->menuAction());
+		action = new Action(addMenu);
+		action->setText(tr("Add account"));
+		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_ACCOUNT);
+		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddAccountDialog(bool)));
+		addMenu->addAction(action,AG_MWAM_RCHAGER_ADD_ACCOUNT);
 	}
 	qsrand(QDateTime::currentDateTime().toTime_t());
 	return true;
@@ -546,7 +550,7 @@ Menu *RosterChanger::createGroupMenu(const QHash<int,QVariant> &AData, const QSe
 		QString group;
 		QString groupDelim = roster->groupDelimiter();
 		QHash<QString,Menu *> menus;
-		QSet<QString> allGroups = roster->groups();
+		QSet<QString> allGroups = roster->groups() + FEmptyGroups.toSet();
 		foreach(group,allGroups)
 		{
 			Menu *parentMenu = menu;
@@ -887,12 +891,30 @@ void RosterChanger::onShowAddContactDialog(bool)
 
 void RosterChanger::onShowAddGroupDialog(bool)
 {
-	bool ok = false;
-	QString newGroupName = QInputDialog::getText(0, tr("Add group"), tr("Enter new group name:"), QLineEdit::Normal, "", &ok);
-	if (ok && !newGroupName.isEmpty())
+	IAccount *account = FAccountManager!=NULL ? FAccountManager->accounts().value(0) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(account!=NULL ? account->xmppStream()->streamJid() : Jid::null) : NULL;
+	if (FRostersModel && roster)
 	{
-		Jid streamJid = FAccountManager->accounts().first()->xmppStream()->streamJid();
-		FRostersModel->createGroup(newGroupName, FRosterPlugin->getRoster(streamJid)->groupDelimiter(), RIT_GROUP, FRostersModel->streamRoot(streamJid));
+		QString newGroupName = QInputDialog::getText(NULL, tr("Add group"), tr("Enter new group name:"));
+		if (!newGroupName.isEmpty() && !newGroupName.contains(roster->groupDelimiter()) && FRostersModel->findGroup(newGroupName,roster->groupDelimiter(),RIT_GROUP,FRostersModel->streamRoot(roster->streamJid()))==NULL)
+		{
+			IRosterIndex *group = FRostersModel->createGroup(newGroupName,roster->groupDelimiter(),RIT_GROUP,FRostersModel->streamRoot(roster->streamJid()));
+			if (group)
+			{
+				FEmptyGroups.append(newGroupName);
+				group->setData(RDR_ALLWAYS_VISIBLE, group->data(RDR_ALLWAYS_VISIBLE).toInt()+1);
+				connect(group->instance(),SIGNAL(childInserted(IRosterIndex *)),SLOT(onEmptyGroupChildInserted(IRosterIndex *)));
+				connect(group->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onEmptyGroupIndexDestroyed(IRosterIndex *)));
+			}
+		}
+	}
+}
+
+void RosterChanger::onShowAddAccountDialog(bool)
+{
+	if (FOptionsManager)
+	{
+		FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
 	}
 }
 
@@ -996,10 +1018,10 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 
 				if (itemType == RIT_CONTACT)
 				{
-					/*Menu *copyItem = createGroupMenu(data,exceptGroups,true,false,SLOT(onCopyItemToGroup(bool)),AMenu);
+					Menu *copyItem = createGroupMenu(data,exceptGroups,true,false,SLOT(onCopyItemToGroup(bool)),AMenu);
 					copyItem->setTitle(tr("Copy to group"));
 					copyItem->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_COPY_GROUP);
-					AMenu->addAction(copyItem->menuAction(),AG_RVCM_ROSTERCHANGER);*/
+					AMenu->addAction(copyItem->menuAction(),AG_RVCM_ROSTERCHANGER);
 
 					Menu *moveItem = createGroupMenu(data,exceptGroups,true,false,SLOT(onMoveItemToGroup(bool)),AMenu);
 					moveItem->setTitle(tr("Move to group"));
@@ -1471,15 +1493,28 @@ void RosterChanger::onRenameGroup(bool)
 			QString groupName = action->data(ADR_GROUP).toString();
 			QList<QString> groupTree = groupName.split(groupDelim,QString::SkipEmptyParts);
 
-			QString newGroupPart = QInputDialog::getText(NULL,tr("Rename group"),tr("Enter new group name:"),
-					       QLineEdit::Normal,groupTree.last(),&ok);
-
+			QString newGroupPart = QInputDialog::getText(NULL,tr("Rename group"),tr("Enter new group name:"),QLineEdit::Normal,groupTree.last(),&ok);
 			if (ok && !newGroupPart.isEmpty())
 			{
 				QString newGroupName = groupName;
 				newGroupName.chop(groupTree.last().size());
 				newGroupName += newGroupPart;
-				roster->renameGroup(groupName,newGroupName);
+				if (FEmptyGroups.contains(groupName))
+				{
+					IRosterIndex *index = FRostersModel!=NULL ? FRostersModel->findGroup(groupName,roster->groupDelimiter(),RIT_GROUP,FRostersModel->streamRoot(streamJid)) : NULL;
+					if (index && !roster->groups().contains(newGroupName))
+					{
+						index->setData(RDR_INDEX_ID, newGroupPart);
+						index->setData(RDR_GROUP,newGroupName);
+						index->setData(RDR_NAME,newGroupPart);
+						FEmptyGroups.removeAll(groupName);
+						FEmptyGroups.append(newGroupName);
+					}
+				}
+				else
+				{
+					roster->renameGroup(groupName,newGroupName);
+				}
 			}
 		}
 	}
@@ -1559,7 +1594,16 @@ void RosterChanger::onRemoveGroup(bool)
 		if (roster && roster->isOpen())
 		{
 			QString groupName = action->data(ADR_GROUP).toString();
-			roster->removeGroup(groupName);
+			if (FEmptyGroups.contains(groupName))
+			{
+				IRosterIndex *group = FRostersModel!=NULL ? FRostersModel->findGroup(groupName,roster->groupDelimiter(),RIT_GROUP,FRostersModel->streamRoot(streamJid)) : NULL;
+				if (group)
+				{
+					group->instance()->deleteLater();
+				}
+			}
+			else
+				roster->removeGroup(groupName);
 		}
 	}
 }
@@ -1618,6 +1662,24 @@ void RosterChanger::onRosterClosed(IRoster *ARoster)
 
 	FPendingChatNotices.remove(ARoster->streamJid());
 	FAutoSubscriptions.remove(ARoster->streamJid());
+}
+
+void RosterChanger::onEmptyGroupChildInserted(IRosterIndex *AIndex)
+{
+	Q_UNUSED(AIndex);
+	IRosterIndex *group = qobject_cast<IRosterIndex *>(sender());
+	if (group)
+	{
+		FEmptyGroups.removeAll(group->data(RDR_GROUP).toString());
+		group->setData(RDR_ALLWAYS_VISIBLE, group->data(RDR_ALLWAYS_VISIBLE).toInt()-1);
+		disconnect(group->instance(),SIGNAL(childInserted(IRosterIndex *)),this,SLOT(onEmptyGroupChildInserted(IRosterIndex *)));
+		disconnect(group->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),this,SLOT(onEmptyGroupIndexDestroyed(IRosterIndex *)));
+	}
+}
+
+void RosterChanger::onEmptyGroupIndexDestroyed(IRosterIndex *AIndex)
+{
+	FEmptyGroups.removeAll(AIndex->data(RDR_GROUP).toString());
 }
 
 void RosterChanger::onNotificationActivated(int ANotifyId)
