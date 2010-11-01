@@ -13,9 +13,11 @@ RostersViewPlugin::RostersViewPlugin()
 	FRosterPlugin = NULL;
 	FAccountManager = NULL;
 
+	FShowOfflineAction = NULL;
+	FGroupContactsAction = NULL;
+
 	FSortFilterProxyModel = NULL;
 	FLastModel = NULL;
-	FShowOfflineAction = NULL;
 	FShowResource = true;
 	FStartRestoreExpandState = false;
 
@@ -114,10 +116,19 @@ bool RostersViewPlugin::initObjects()
 	if (FMainWindowPlugin)
 	{
 		FShowOfflineAction = new Action(this);
-		FShowOfflineAction->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERVIEW_HIDE_OFFLINE);
-		FShowOfflineAction->setToolTip(tr("Show/Hide offline contacts"));
-		connect(FShowOfflineAction,SIGNAL(triggered(bool)),SLOT(onShowOfflineContactsAction(bool)));
-		//FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(FShowOfflineAction,TBG_MWTTB_ROSTERSVIEW);
+		FShowOfflineAction->setCheckable(true);
+		FShowOfflineAction->setText(tr("Show Offline"));
+		FShowOfflineAction->setShortcut(tr("Ctrl+O"));
+		FShowOfflineAction->setData(Action::DR_SortString,QString("100"));
+		connect(FShowOfflineAction,SIGNAL(triggered(bool)),SLOT(onShowOfflinesAction(bool)));
+		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FShowOfflineAction,AG_MMENU_ROSTERSVIEW_SHOWOFFLINE,true);
+
+		FGroupContactsAction = new Action(this);
+		FGroupContactsAction->setCheckable(true);
+		FGroupContactsAction->setText(tr("Group Contacts"));
+		FGroupContactsAction->setData(Action::DR_SortString,QString("200"));
+		connect(FGroupContactsAction,SIGNAL(triggered(bool)),SLOT(onGroupContactsAction(bool)));
+		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
 
 		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0,FRostersView);
 	}
@@ -553,16 +564,17 @@ void RostersViewPlugin::onOptionsOpened()
 	onOptionsChanged(Options::node(OPV_ROSTER_SHOWRESOURCE));
 	onOptionsChanged(Options::node(OPV_ROSTER_SHOWSTATUSTEXT));
 	onOptionsChanged(Options::node(OPV_ROSTER_SORTBYSTATUS));
+	onOptionsChanged(Options::node(OPV_ROSTER_GROUPCONTACTS));
 }
 
 void RostersViewPlugin::onOptionsChanged(const OptionsNode &ANode)
 {
 	if (ANode.path() == OPV_ROSTER_SHOWOFFLINE)
 	{
-		FShowOfflineAction->setIcon(RSR_STORAGE_MENUICONS, ANode.value().toBool() ? MNI_ROSTERVIEW_SHOW_OFFLINE : MNI_ROSTERVIEW_HIDE_OFFLINE);
 		FSortFilterProxyModel->invalidate();
 		if (ANode.value().toBool())
 			restoreExpandState();
+		FShowOfflineAction->setChecked(ANode.value().toBool());
 	}
 	else if (ANode.path() == OPV_ROSTER_SHOWRESOURCE)
 	{
@@ -578,12 +590,20 @@ void RostersViewPlugin::onOptionsChanged(const OptionsNode &ANode)
 	{
 		FSortFilterProxyModel->invalidate();
 	}
+	else if (ANode.path() == OPV_ROSTER_GROUPCONTACTS)
+	{
+		FGroupContactsAction->setChecked(ANode.value().toBool());
+	}
 }
 
-void RostersViewPlugin::onShowOfflineContactsAction(bool)
+void RostersViewPlugin::onShowOfflinesAction(bool AChecked)
 {
-	OptionsNode node = Options::node(OPV_ROSTER_SHOWOFFLINE);
-	node.setValue(!node.value().toBool());
+	Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(AChecked);
+}
+
+void RostersViewPlugin::onGroupContactsAction(bool AChecked)
+{
+	Options::node(OPV_ROSTER_GROUPCONTACTS).setValue(AChecked);
 }
 
 Q_EXPORT_PLUGIN2(plg_rostersview, RostersViewPlugin)

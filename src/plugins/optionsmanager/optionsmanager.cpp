@@ -93,20 +93,24 @@ bool OptionsManager::initObjects()
 	FProfilesDir.cd(DIR_PROFILES);
 
 	FChangeProfileAction = new Action(this);
-	FChangeProfileAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_PROFILES);
-	FChangeProfileAction->setText(tr("Change Profile"));
+	//FChangeProfileAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_PROFILES);
+	FChangeProfileAction->setText(tr("Change User"));
+	FChangeProfileAction->setData(Action::DR_SortString,QString("100"));
 	connect(FChangeProfileAction,SIGNAL(triggered(bool)),SLOT(onChangeProfileByAction(bool)));
 
 	FShowOptionsDialogAction = new Action(this);
 	FShowOptionsDialogAction->setVisible(false);
 	FShowOptionsDialogAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_DIALOG);
 	FShowOptionsDialogAction->setText(tr("Options"));
+	FShowOptionsDialogAction->setShortcut(tr("Ctrl+P"));
+	FShowOptionsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
+	FShowOptionsDialogAction->setData(Action::DR_SortString,QString("300"));
 	connect(FShowOptionsDialogAction,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
 
 	if (FMainWindowPlugin)
 	{
-		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FChangeProfileAction,AG_MMENU_OPTIONS,true);
-		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FShowOptionsDialogAction,AG_MMENU_OPTIONS,true);
+		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FShowOptionsDialogAction,AG_MMENU_OPTIONS_SHOWDIALOG,true);
+		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FChangeProfileAction,AG_MMENU_OPTIONS_CHANGEPROFILE,true);
 	}
 
 	if (FTrayManager)
@@ -504,6 +508,7 @@ void OptionsManager::openProfile(const QString &AProfile, const QString &APasswo
 		FProfileKey = profileKey(AProfile, APassword);
 		Options::setOptions(FProfileOptions, profilePath(AProfile) + "/" DIR_BINARY, FProfileKey);
 		FShowOptionsDialogAction->setVisible(true);
+		FChangeProfileAction->setText(tr("Change User (%1)").arg(Jid(Jid::decode(AProfile)).node()));
 		emit profileOpened(AProfile);
 	}
 }
@@ -532,6 +537,7 @@ void OptionsManager::closeProfile()
 			delete FOptionsDialog;
 		}
 		FShowOptionsDialogAction->setVisible(false);
+		FChangeProfileAction->setText(tr("Change User"));
 		Options::setOptions(QDomDocument(), QString::null, QByteArray());
 		saveOptions();
 		FProfile.clear();

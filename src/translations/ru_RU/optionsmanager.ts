@@ -262,10 +262,6 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <translation>Позволяет сохранять, загружать и управлячть настройками пользователя</translation>
     </message>
     <message>
-        <source>Change Profile</source>
-        <translation>Сменить профиль</translation>
-    </message>
-    <message>
         <source>Options</source>
         <translation>Настройки</translation>
     </message>
@@ -288,6 +284,18 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     <message>
         <source>Sync preferences on my several computers</source>
         <translation>Синхронизировать настройки на нескольких моих компьютерах</translation>
+    </message>
+    <message>
+        <source>Change User</source>
+        <translation>Сменить пользователя</translation>
+    </message>
+    <message>
+        <source>Ctrl+P</source>
+        <translation>Ctrl+P</translation>
+    </message>
+    <message>
+        <source>Change User (%1)</source>
+        <translation>Сменить пользователя (%1)</translation>
     </message>
 </context>
 </TS>

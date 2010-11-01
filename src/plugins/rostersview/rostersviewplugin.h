@@ -86,7 +86,8 @@ protected slots:
 	void onRestoreExpandState();
 	void onOptionsOpened();
 	void onOptionsChanged(const OptionsNode &ANode);
-	void onShowOfflineContactsAction(bool AChecked);
+	void onShowOfflinesAction(bool AChecked);
+	void onGroupContactsAction(bool AChecked);
 private:
 	IRosterPlugin *FRosterPlugin;
 	IRostersModel *FRostersModel;
@@ -95,9 +96,11 @@ private:
 	IOptionsManager *FOptionsManager;
 private:
 	bool FShowResource;
+	Action *FShowOfflineAction;
+	Action *FGroupContactsAction;
+private:
 	bool FStartRestoreExpandState;
 	int FGroupCounterLabel;
-	Action *FShowOfflineAction;
 	RostersView *FRostersView;
 	QAbstractItemModel *FLastModel;
 	SortFilterProxyModel *FSortFilterProxyModel;

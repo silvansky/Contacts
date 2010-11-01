@@ -747,57 +747,26 @@ void PluginManager::createMenuActions()
 	IPlugin *plugin = pluginInterface("IMainWindowPlugin").value(0);
 	IMainWindowPlugin *mainWindowPligin = plugin!=NULL ? qobject_cast<IMainWindowPlugin *>(plugin->instance()) : NULL;
 
-	plugin = pluginInterface("ITrayManager").value(0);
-	ITrayManager *trayManager = plugin!=NULL ? qobject_cast<ITrayManager *>(plugin->instance()) : NULL;
-
-	//plugin = pluginInterface("IAccountManager").value(0);
-	//IAccountManager *accountManager = plugin != NULL ? qobject_cast<IAccountManager *>(plugin->instance()) : NULL;
-	//IAccount *account = accountManager->accounts().value(0);
-
-	//plugin = pluginInterface("IVCardPlugin").value(0);
-	//IVCardPlugin *vCardPlugin = plugin != NULL ? qobject_cast<IVCardPlugin *>(plugin->instance()) : NULL;
-
-
-	if (mainWindowPligin || trayManager)
+	if (mainWindowPligin)
 	{
-		Action *pluginsDialog = new Action(mainWindowPligin!=NULL ? mainWindowPligin->instance() : trayManager->instance());
+		Action *comments = new Action(mainWindowPligin->mainWindow()->mainMenu());
+		comments->setText(tr("User Comments"));
+		//comments->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_ABOUT);
+		connect(comments,SIGNAL(triggered()),SLOT(onShowCommentsDialog()));
+		mainWindowPligin->mainWindow()->mainMenu()->addAction(comments, AG_MMENU_PLUGINMANAGER_COMMENTS);
+
+		Action *about = new Action(mainWindowPligin->mainWindow()->mainMenu());
+		about->setText(tr("About the program"));
+		//about->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT);
+		connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
+		mainWindowPligin->mainWindow()->mainMenu()->addAction(about,AG_MMENU_PLUGINMANAGER_ABOUT);
+
+		Action *pluginsDialog = new Action(mainWindowPligin->mainWindow()->mainMenu());
+		pluginsDialog->setText(tr("Setup plugins"));
 		pluginsDialog->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_SETUP);
 		connect(pluginsDialog,SIGNAL(triggered(bool)),SLOT(onShowSetupPluginsDialog(bool)));
-		pluginsDialog->setText(tr("Setup plugins"));
-
-		if (mainWindowPligin)
-		{
-			Action *aboutQt = new Action(mainWindowPligin->mainWindow()->mainMenu());
-			aboutQt->setText(tr("About Qt"));
-			aboutQt->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT_QT);
-			connect(aboutQt,SIGNAL(triggered()),QApplication::instance(),SLOT(aboutQt()));
-			mainWindowPligin->mainWindow()->mainMenu()->addAction(aboutQt,AG_MMENU_PLUGINMANAGER_ABOUT);
-
-			Action *about = new Action(mainWindowPligin->mainWindow()->mainMenu());
-			about->setText(tr("About the program"));
-			about->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT);
-			connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
-			mainWindowPligin->mainWindow()->mainMenu()->addAction(about,AG_MMENU_PLUGINMANAGER_ABOUT);
-
-			// ононб
-			Action *comments = new Action(mainWindowPligin->mainWindow()->mainMenu());
-			comments->setText(tr("User Comments"));
-			comments->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_ABOUT);
-			connect(comments,SIGNAL(triggered()),SLOT(onShowCommentsDialog()));
-			mainWindowPligin->mainWindow()->mainMenu()->addAction(comments, AG_MMENU_PLUGINMANAGER_COMMENTS);
-
-
-
-
-
-			mainWindowPligin->mainWindow()->mainMenu()->addAction(pluginsDialog, AG_MMENU_PLUGINMANAGER_SETUP, true);
-		}
-
-		//if (trayManager)
-		//	trayManager->addAction(pluginsDialog,AG_TMTM_PLUGINMANAGER,true);
+		mainWindowPligin->mainWindow()->mainMenu()->addAction(pluginsDialog, AG_MMENU_PLUGINMANAGER_SETUP, true);
 	}
-	else
-		onShowSetupPluginsDialog(false);
 }
 
 void PluginManager::onApplicationAboutToQuit()

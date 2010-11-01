@@ -57,10 +57,6 @@
 <context>
     <name>RostersViewPlugin</name>
     <message>
-        <source>Show/Hide offline contacts</source>
-        <translation>Скрыть/показать отключенные контакты</translation>
-    </message>
-    <message>
         <source>Roster View</source>
         <translation>Отображение ростера</translation>
     </message>
@@ -87,6 +83,18 @@
     <message>
         <source>Contacts View</source>
         <translation>Вид списка контактов</translation>
+    </message>
+    <message>
+        <source>Show Offline</source>
+        <translation>Показывать отключенных</translation>
+    </message>
+    <message>
+        <source>Ctrl+O</source>
+        <translation>Ctrl+O</translation>
+    </message>
+    <message>
+        <source>Group Contacts</source>
+        <translation>Группировать контакты</translation>
     </message>
 </context>
 </TS>

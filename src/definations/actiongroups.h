@@ -2,15 +2,19 @@
 #define DEF_ACTIONGROUPS_H
 
 //MainWindow - MainMenu
-#define AG_MMENU_OPTIONS                                        500
-#define AG_MMENU_ACCOUNTMANAGER                                 500
-#define AG_MMENU_SKINMANAGER                                    500
-#define AG_MMENU_CONSOLE                                        500
-#define AG_MMENU_FILESTREAMSMANAGER                             500
-#define AG_MMENU_PLUGINMANAGER_SETUP                            800
-#define AG_MMENU_PLUGINMANAGER_ABOUT                            900
-#define AG_MMENU_PLUGINMANAGER_COMMENTS                         950
-#define AG_MMENU_MAINWINDOW                                     1000
+#define AG_MMENU_CONSOLE_SHOW                                   200
+#define AG_MMENU_PLUGINMANAGER_SETUP                            200
+#define AG_MMENU_ROSTERSVIEW_SHOWOFFLINE                        500
+#define AG_MMENU_ROSTERSVIEW_GROUPCONTACTS                      500
+#define AG_MMENU_OPTIONS_SHOWDIALOG                             500
+#define AG_MMENU_MASSSEND_SHOWDIALOG                            600
+#define AG_MMENU_PLUGINMANAGER_COMMENTS                         700
+#define AG_MMENU_PLUGINMANAGER_ABOUT                            700
+#define AG_MMENU_OPTIONS_CHANGEPROFILE                          1000
+#define AG_MMENU_MAINWINDOW_QUIT                                1000
+//#define AG_MMENU_FILESTREAMSMANAGER                             500
+//#define AG_MMENU_ACCOUNTMANAGER                                 500
+//#define AG_MMENU_PLUGINMANAGER_SETUP                            800
 
 //MainWindow - AddMenu
 #define AG_MWAM_RCHAGER_ADD_CONTACT                             300

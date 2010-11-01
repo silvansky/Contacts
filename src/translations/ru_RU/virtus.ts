@@ -163,10 +163,6 @@ p, li { white-space: pre-wrap; }
         <translation>Настроить плагины</translation>
     </message>
     <message>
-        <source>About Qt</source>
-        <translation>О Qt</translation>
-    </message>
-    <message>
         <source>About the program</source>
         <translation>О Программе</translation>
     </message>

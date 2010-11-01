@@ -68,9 +68,10 @@ bool MainWindowPlugin::initObjects()
 {
 	Action *action = new Action(this);
 	action->setText(tr("Quit"));
-	action->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_QUIT);
+	action->setData(Action::DR_SortString,QString("900"));
+	//action->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_QUIT);
 	connect(action,SIGNAL(triggered()),FPluginManager->instance(),SLOT(quit()));
-	FMainWindow->mainMenu()->addAction(action,AG_MMENU_MAINWINDOW,true);
+	FMainWindow->mainMenu()->addAction(action,AG_MMENU_MAINWINDOW_QUIT,true);
 
 	FOpenAction = new Action(this);
 	FOpenAction->setVisible(false);
