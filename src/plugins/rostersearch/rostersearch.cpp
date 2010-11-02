@@ -10,9 +10,10 @@ RosterSearch::RosterSearch()
 	FRostersViewPlugin = NULL;
 
 	FSearchEdit = NULL;
-	FFieldsMenu = NULL;
+	FSearchFieldsMenu = NULL;
 
 	FItemsFound = false;
+	FSearchStarted = false;
 	FSearchEnabled = false;
 	FSearchNotFound = FSearchHistory = FSearchRambler = NULL;
 
@@ -79,9 +80,9 @@ bool RosterSearch::initObjects()
 {
 	if (FMainWindow)
 	{
-		FFieldsMenu = new Menu(FMainWindow->topToolBarChanger()->toolBar());
-		FFieldsMenu->setVisible(false);
-		FFieldsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERSEARCH_MENU);
+		FSearchFieldsMenu = new Menu(FMainWindow->topToolBarChanger()->toolBar());
+		FSearchFieldsMenu->setVisible(false);
+		FSearchFieldsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERSEARCH_MENU);
 
 		QFrame *searchFrame = new QFrame(FMainWindow->topToolBarChanger()->toolBar());
 		QHBoxLayout *layout = new QHBoxLayout(searchFrame);
@@ -109,8 +110,8 @@ bool RosterSearch::initObjects()
 		FRostersModel->insertDefaultDataHolder(this);
 	}
 
-	insertSearchField(RDR_NAME,tr("Name"),true);
-	insertSearchField(RDR_JID,tr("Jabber ID"),true);
+	setSearchField(RDR_NAME,tr("Name"),true);
+	setSearchField(RDR_BARE_JID,tr("Address"),true);
 
 	return true;
 }
@@ -123,13 +124,13 @@ int RosterSearch::rosterDataOrder() const
 QList<int> RosterSearch::rosterDataRoles() const
 {
 	static QList<int> dataRoles = QList<int>() 
-		<< RDR_FONT_UNDERLINE << RDR_STATES_FORCE_OFF << Qt::ForegroundRole; 
+		<< RDR_FONT_UNDERLINE << RDR_STATES_FORCE_OFF << RDR_FOOTER_TEXT << Qt::ForegroundRole; 
 	return dataRoles;
 }
 
 QList<int> RosterSearch::rosterDataTypes() const
 {
-	static QList<int> dataTypes = QList<int>() << RIT_SEARCH_LINK << RIT_SEARCH_EMPTY;
+	static QList<int> dataTypes = QList<int>() << RIT_CONTACT << RIT_SEARCH_LINK << RIT_SEARCH_EMPTY;
 	return dataTypes;
 }
 
@@ -146,12 +147,35 @@ QVariant RosterSearch::rosterData(const IRosterIndex *AIndex, int ARole) const
 	}
 	else if (ARole == RDR_STATES_FORCE_OFF)
 	{
-		static bool block = false;
-		if (!block)
+		if (type==RIT_SEARCH_LINK || type==RIT_SEARCH_EMPTY)
 		{
-			block = true;
-			data = AIndex->data(RDR_STATES_FORCE_OFF).toInt() | QStyle::State_Selected | QStyle::State_MouseOver;
-			block = false;
+			static bool block = false;
+			if (!block)
+			{
+				block = true;
+				data = AIndex->data(RDR_STATES_FORCE_OFF).toInt() | QStyle::State_Selected | QStyle::State_MouseOver;
+				block = false;
+			}
+		}
+	}
+	else if (ARole == RDR_FOOTER_TEXT)
+	{
+		if (type == RIT_CONTACT)
+		{
+			static bool block = false;
+			if (!block && FRostersModel && FSearchStarted)
+			{
+				block = true;
+				int field = findAcceptableField(FRostersModel->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex)));
+				if (field >= 0)
+				{
+					QVariantMap footer = AIndex->data(ARole).toMap();
+					QString note = QString("%1: %2").arg(FSearchFields.value(field).name).arg(AIndex->data(field).toString());
+					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),note);
+					data = footer;
+				}
+				block = false;
+			}
 		}
 	}
 	else if (ARole == Qt::ForegroundRole)
@@ -185,24 +209,26 @@ void RosterSearch::startSearch()
 		else
 			destroyNotFoundItem();
 		createSearchLinks();
-		if (FRostersViewPlugin)
+		if (!FSearchStarted && FRostersViewPlugin)
 		{
 			FLastShowOffline = Options::node(OPV_ROSTER_SHOWOFFLINE).value().toBool();
 			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(true);
 			FRostersViewPlugin->rostersView()->instance()->expandAll();
 			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(false);
 		}
+		FSearchStarted = true;
 	}
 	else
 	{
 		destroyNotFoundItem();
 		destroySearchLinks();
-		if (FRostersViewPlugin)
+		if (FSearchStarted && FRostersViewPlugin)
 		{
 			FRostersViewPlugin->startRestoreExpandState();
 			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(true);
 			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(FLastShowOffline);
 		}
+		FSearchStarted = false;
 	}
 
 	emit searchResultUpdated();
@@ -240,53 +266,53 @@ void RosterSearch::setSearchEnabled(bool AEnabled)
 	}
 }
 
-void RosterSearch::insertSearchField(int ADataRole, const QString &AName, bool AEnabled)
-{
-	Action *action = FFieldActions.value(ADataRole,NULL);
-	if (action == NULL)
-	{
-		action = new Action(FFieldsMenu);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onFieldActionTriggered(bool)));
-		FFieldActions.insert(ADataRole,action);
-		FFieldsMenu->addAction(action,AG_DEFAULT,true);
-	}
-	action->setText(AName);
-	action->setCheckable(true);
-	action->setChecked(AEnabled);
-	emit searchFieldInserted(ADataRole,AName);
-}
-
 Menu *RosterSearch::searchFieldsMenu() const
 {
-	return FFieldsMenu;
+	return FSearchFieldsMenu;
 }
 
 QList<int> RosterSearch::searchFields() const
 {
-	return FFieldActions.keys();
+	return FSearchFields.keys();
 }
 
 bool RosterSearch::isSearchFieldEnabled(int ADataRole) const
 {
-	return FFieldActions.contains(ADataRole) && FFieldActions.value(ADataRole)->isChecked();
+	return FSearchFields.value(ADataRole).enabled;
 }
 
-void RosterSearch::setSearchFieldEnabled(int ADataRole, bool AEnabled)
+QString RosterSearch::searchFieldName(int ADataRole) const
 {
-	if (FFieldActions.contains(ADataRole))
+	return FSearchFields.value(ADataRole).name;
+}
+
+void RosterSearch::setSearchField(int ADataRole, const QString &AName, bool AEnabled)
+{
+	if (ADataRole>=0 && !AName.isEmpty())
 	{
-		FFieldActions.value(ADataRole)->setChecked(AEnabled);
+		SearchField &field = FSearchFields[ADataRole];
+		field.name = AName;
+		field.enabled = AEnabled;
+		if (field.action == NULL)
+		{
+			field.action = new Action(FSearchFieldsMenu);
+			field.action->setCheckable(true);
+			connect(field.action,SIGNAL(triggered(bool)),SLOT(onFieldActionTriggered(bool)));
+			FSearchFieldsMenu->addAction(field.action,AG_DEFAULT,true);
+		}
+		field.action->setText(AName);
+		field.action->setChecked(AEnabled);
 		emit searchFieldChanged(ADataRole);
 	}
 }
 
 void RosterSearch::removeSearchField(int ADataRole)
 {
-	if (FFieldActions.contains(ADataRole))
+	if (FSearchFields.contains(ADataRole))
 	{
-		Action *action = FFieldActions.take(ADataRole);
-		FFieldsMenu->removeAction(action);
-		delete action;
+		SearchField field = FSearchFields.take(ADataRole);
+		FSearchFieldsMenu->removeAction(field.action);
+		delete field.action;
 		emit searchFieldRemoved(ADataRole);
 	}
 }
@@ -299,40 +325,29 @@ bool RosterSearch::filterAcceptsRow(int ARow, const QModelIndex &AParent) const
 		switch (index.data(RDR_TYPE).toInt())
 		{
 		case RIT_CONTACT:
-		case RIT_AGENT:
-		case RIT_MY_RESOURCE:
 			{
-				bool accept = true;
-				foreach(int dataField, FFieldActions.keys())
-				{
-					if (isSearchFieldEnabled(dataField))
-					{
-						accept = false;
-						if (filterRegExp().indexIn(index.data(dataField).toString())>=0)
-							return true;
-					}
-				}
+				bool accept = findAcceptableField(index)>=0;
 				FItemsFound |= accept;
 				return accept;
 			}
 		case RIT_GROUP:
-		case RIT_GROUP_AGENTS:
 		case RIT_GROUP_BLANK:
 		case RIT_GROUP_NOT_IN_ROSTER:
-		case RIT_GROUP_MY_RESOURCES:
 			{
 				for (int childRow = 0; index.child(childRow,0).isValid(); childRow++)
-				{
 					if (filterAcceptsRow(childRow,index))
-					{
-						FItemsFound = true;
 						return true;
-					}
-				}
 				return false;
 			}
+		case RIT_AGENT:
+		case RIT_MY_RESOURCE:
+		case RIT_GROUP_AGENTS:
+		case RIT_GROUP_MY_RESOURCES:
+			return false;
 		case RIT_SEARCH_LINK:
 		case RIT_SEARCH_EMPTY:
+			return true;
+		default:
 			return true;
 		}
 	}
@@ -368,6 +383,15 @@ bool RosterSearch::eventFilter(QObject *AWatched, QEvent *AEvent)
 		}
 	}
 	return QSortFilterProxyModel::eventFilter(AWatched, AEvent);
+}
+
+int RosterSearch::findAcceptableField(const QModelIndex &AIndex) const
+{
+	const QString pattern = searchPattern();
+	for(QMap<int,SearchField>::const_iterator it = FSearchFields.constBegin(); it!=FSearchFields.constEnd(); it++)
+		if (it->enabled && AIndex.data(it.key()).toString().contains(pattern,Qt::CaseInsensitive))
+			return it.key();
+	return -1;
 }
 
 void RosterSearch::createSearchLinks()

@@ -9,6 +9,7 @@
 #include <definations/rosterdataholderorders.h>
 #include <definations/rosterindextyperole.h>
 #include <definations/rosterproxyorders.h>
+#include <definations/rosterfootertextorders.h>
 #include <definations/resources.h>
 #include <definations/menuicons.h>
 #include <definations/stylesheets.h>
@@ -24,6 +25,17 @@
 #include <utils/stylestorage.h>
 #include <utils/toolbarchanger.h>
 #include "searchedit.h"
+
+struct SearchField
+{
+	SearchField() {
+		enabled = false;
+		action = NULL;
+	}
+	bool enabled;
+	QString name;
+	Action *action;
+};
 
 class RosterSearch :
 			public QSortFilterProxyModel,
@@ -56,17 +68,16 @@ public:
 	virtual void setSearchPattern(const QString &APattern);
 	virtual bool isSearchEnabled() const;
 	virtual void setSearchEnabled(bool AEnabled);
-	virtual void insertSearchField(int ADataRole, const QString &AName, bool AEnabled);
 	virtual Menu *searchFieldsMenu() const;
 	virtual QList<int> searchFields() const;
 	virtual bool isSearchFieldEnabled(int ADataRole) const;
-	virtual void setSearchFieldEnabled(int ADataRole, bool AEnabled);
+	virtual QString searchFieldName(int ADataRole) const;
+	virtual void setSearchField(int ADataRole, const QString &AName, bool AEnabled);
 	virtual void removeSearchField(int ADataRole);
 signals:
 	void searchResultUpdated();
 	void searchStateChanged(bool AEnabled);
 	void searchPatternChanged(const QString &APattern);
-	void searchFieldInserted(int ADataRole, const QString &AName);
 	void searchFieldChanged(int ADataRole);
 	void searchFieldRemoved(int ADataRole);
 	//IRosterDataHolder
@@ -74,6 +85,8 @@ signals:
 protected:
 	virtual bool filterAcceptsRow(int ARow, const QModelIndex &AParent) const;
 	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
+protected:
+	int findAcceptableField(const QModelIndex &AIndex) const;
 protected:
 	void createSearchLinks();
 	void destroySearchLinks();
@@ -88,7 +101,7 @@ protected slots:
 	void onOptionsChanged(const OptionsNode &ANode);
 private:
 	IMainWindow *FMainWindow;
-	IRostersModel * FRostersModel;
+	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
 private:
 	IRosterIndex *FSearchHistory;
@@ -96,12 +109,13 @@ private:
 	IRosterIndex *FSearchNotFound;
 private:
 	bool FSearchEnabled;
-	mutable bool FItemsFound;
+	bool FSearchStarted;
 	bool FLastShowOffline;
-	Menu *FFieldsMenu;
+	mutable bool FItemsFound;
 	QTimer FEditTimeout;
 	SearchEdit *FSearchEdit;
-	QMap<int, Action *> FFieldActions;
+	Menu *FSearchFieldsMenu;
+	QMap<int, SearchField> FSearchFields;
 };
 
 #endif // ROSTERSEARCH_H

@@ -12,10 +12,6 @@
         <translation>Имя</translation>
     </message>
     <message>
-        <source>Jabber ID</source>
-        <translation>Jabber ID</translation>
-    </message>
-    <message>
         <source>Allows to search for contacts in the roster</source>
         <translation>Позволяет искать контакты в ростере</translation>
     </message>
@@ -34,6 +30,10 @@
     <message>
         <source>Contacts not found</source>
         <translation>Контакты не найдены</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Адрес</translation>
     </message>
 </context>
 </TS>
