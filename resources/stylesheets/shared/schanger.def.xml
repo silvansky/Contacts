@@ -5,6 +5,10 @@
     <object mime='text/css'>schangerstatuswidget.qss</object>
   </file>
   <file>
+    <key>schangerCustomStatusDialog</key>
+    <object mime='text/css'>schangercustomstatusdialog.qss</object>
+  </file>
+  <file>
     <key>schangerNotifyWidgetConnectionError</key>
     <object mime='text/css'>schangernotifywidgetconnectionerror.qss</object>
   </file>

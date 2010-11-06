@@ -65,6 +65,7 @@
 #define AG_SCSM_STATUSCHANGER_STREAMS                           300
 #define AG_SCSM_STATUSCHANGER_CUSTOM_STATUS                     400
 #define AG_SCSM_STATUSCHANGER_DEFAULT_STATUS                    500
+#define AG_SCSM_STATUSCHANGER_CUSTOM_ACTIONS                    700
 
 //MessageWidgets - TabWindowMenu
 #define AG_MWTW_MWIDGETS_TAB_ACTIONS                            500

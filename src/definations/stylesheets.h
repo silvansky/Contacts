@@ -41,6 +41,7 @@
 
 //StatusChanger
 #define STS_SCHANGER_STATUSWIDGET                                       "schangerStatusWidget"
+#define STS_SCHANGER_CUSTOMSTATUSDIALOG                                 "schangerCustomStatusDialog"
 #define STS_SCHANGER_NOTIFYWIDGET_CONNECTION_ERROR                      "schangerNotifyWidgetConnectionError"
 #define STS_SCHANGER_NOTIFYWIDGET_CONNECTION_RESTORE                    "schangerNotifyWidgetConnectionRestore"
 

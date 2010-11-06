@@ -37,13 +37,20 @@
 #include "editstatusdialog.h"
 #include "modifystatusdialog.h"
 #include "statuswidget.h"
+#include "customstatusdialog.h"
 
 struct StatusItem {
+	StatusItem() {
+		code = STATUS_NULL_ID;
+		show = IPresence::Offline;
+		priority = 0;
+	}
 	int code;
 	QString name;
 	int show;
 	QString text;
 	int priority;
+	QDateTime lastActive;
 };
 
 class StatusChanger :
@@ -107,17 +114,18 @@ protected:
 	void removeStreamMenu(IPresence *APresence);
 	int visibleMainStatusId() const;
 	void updateMainMenu();
-	void updateTrayToolTip();
 	void updateMainStatusActions();
+	int createTempStatus(IPresence *APresence, int AShow, const QString &AText, int APriority);
+	void removeTempStatus(IPresence *APresence);
 	void insertConnectingLabel(IPresence *APresence);
 	void removeConnectingLabel(IPresence *APresence);
 	void autoReconnect(IPresence *APresence);
-	int createTempStatus(IPresence *APresence, int AShow, const QString &AText, int APriority);
-	void removeTempStatus(IPresence *APresence);
 	void resendUpdatedStatus(int AStatusId);
 	void removeAllCustomStatuses();
+	void removeRedundantCustomStatuses();
 	void updateStatusNotification(IPresence *APresence);
 	void removeStatusNotification(IPresence *APresence);
+	void updateVCardInfo(const IVCard* vcard);
 protected slots:
 	void onSetStatusByAction(bool);
 	void onPresenceAdded(IPresence *APresence);
@@ -135,12 +143,13 @@ protected slots:
 	void onReconnectTimer();
 	void onEditStatusAction(bool);
 	void onModifyStatusAction(bool);
+	void onCustomStatusAction(bool);
+	void onClearCustomStatusAction(bool);
 	void onTrayContextMenuAboutToShow();
 	void onTrayContextMenuAboutToHide();
 	void onAccountOptionsChanged(IAccount *AAccount, const OptionsNode &ANode);
 	void onNotificationActivated(int ANotifyId);
-	void onVcardReceived(const Jid & jid);
-	void updateVCardInfo(const IVCard* vcard);
+	void onVCardReceived(const Jid & jid);
 	void onAvatarChanged(const QImage & image);
 	void onMoodSet(const QString & mood);
 private:
@@ -176,6 +185,7 @@ private:
 	QMap<IPresence *, QPair<QDateTime,int> > FPendingReconnect;
 	QPointer<EditStatusDialog> FEditStatusDialog;
 	QPointer<ModifyStatusDialog> FModifyStatusDialog;
+	QPointer<CustomStatusDialog> FCustomStatusDialog;
 };
 
 #endif // STATUSCHANGER_H

@@ -173,6 +173,7 @@
 #define OPV_STATUS_SHOW                                 "statuses.status.show"
 #define OPV_STATUS_TEXT                                 "statuses.status.text"
 #define OPV_STATUS_PRIORITY                             "statuses.status.priority"
+#define OPV_STATUS_LASTACTIVE                           "statuses.status.last-active"
 // AutoStatus
 #define OPV_AUTOSTARTUS_ROOT                            "statuses.autostatus"
 #define OPV_AUTOSTARTUS_AWAYONLOCK                      "statuses.autostatus.away-on-lock"

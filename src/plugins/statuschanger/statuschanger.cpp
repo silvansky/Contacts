@@ -5,6 +5,7 @@
 #include "ui_statuswidget.h"
 
 #define MAX_TEMP_STATUS_ID                  -10
+#define MAX_CUSTOM_STATUS_PER_SHOW          3
 
 #define ADR_STREAMJID                       Action::DR_StreamJid
 #define ADR_STATUS_CODE                     Action::DR_Parametr1
@@ -52,8 +53,9 @@ void StatusChanger::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->dependences.append(PRESENCE_UUID);
 }
 
-bool StatusChanger::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool StatusChanger::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	IPlugin *plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
 	if (plugin)
 	{
@@ -155,7 +157,7 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &/*AInit
 	if (plugin)
 	{
 		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
-		connect(FVCardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)), SLOT(onVcardReceived(const Jid &)));
+		connect(FVCardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)), SLOT(onVCardReceived(const Jid &)));
 	}
 
 	plugin = APluginManager->pluginInterface("IAvatars").value(0, NULL);
@@ -185,6 +187,16 @@ bool StatusChanger::initObjects()
 	editStatus->setIcon(RSR_STORAGE_MENUICONS,MNI_SCHANGER_EDIT_STATUSES);
 	connect(editStatus,SIGNAL(triggered(bool)), SLOT(onEditStatusAction(bool)));
 	//FMainMenu->addAction(editStatus,AG_SCSM_STATUSCHANGER_ACTIONS,false);
+
+	Action *customStatus = new Action(FMainMenu);
+	customStatus->setText(tr("My Status..."));
+	connect(customStatus,SIGNAL(triggered(bool)), SLOT(onCustomStatusAction(bool)));
+	FMainMenu->addAction(customStatus,AG_SCSM_STATUSCHANGER_CUSTOM_ACTIONS,false);
+
+	Action *clearCustomStatus = new Action(FMainMenu);
+	clearCustomStatus->setText(tr("Clear My Statuses"));
+	connect(clearCustomStatus,SIGNAL(triggered(bool)), SLOT(onClearCustomStatusAction(bool)));
+	FMainMenu->addAction(clearCustomStatus,AG_SCSM_STATUSCHANGER_CUSTOM_ACTIONS,false);
 
 	createDefaultStatus();
 	setMainStatusId(STATUS_OFFLINE);
@@ -300,7 +312,7 @@ int StatusChanger::mainStatus() const
 
 void StatusChanger::setMainStatus(int AStatusId)
 {
-	setStreamStatus(Jid(), AStatusId);
+	setStreamStatus(Jid::null, AStatusId);
 }
 
 int StatusChanger::streamStatus(const Jid &AStreamJid) const
@@ -391,6 +403,7 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 
 					if (FStatusWidget)
 						FStatusWidget->setMoodText(newStatus.text);
+
 					emit statusChanged(presence->streamJid(), newStatus.code);
 				}
 			}
@@ -437,45 +450,51 @@ QList<int> StatusChanger::activeStatusItems() const
 {
 	QList<int> active;
 	foreach (int statusId, FCurrentStatus)
-		active.append(statusId == STATUS_MAIN_ID ? FStatusItems.value(STATUS_MAIN_ID).code : statusId);
+		active.append(statusId > STATUS_NULL_ID ? statusId: FStatusItems.value(statusId).code);
 	return active;
 }
 
 QList<int> StatusChanger::statusByShow(int AShow) const
 {
 	QList<int> statuses;
-	foreach(StatusItem status, FStatusItems)
-		if (status.show == AShow)
-			statuses.append(status.code);
+	for (QMap<int, StatusItem>::const_iterator it = FStatusItems.constBegin(); it!=FStatusItems.constEnd(); it++)
+	{
+		if (it.key()>STATUS_NULL_ID && it->show==AShow)
+			statuses.append(it->code);
+	}
 	return statuses;
 }
 
 int StatusChanger::statusByName(const QString &AName) const
 {
-	foreach(StatusItem status, FStatusItems)
-		if (status.name.toLower() == AName.toLower())
-			return status.code;
+	for (QMap<int, StatusItem>::const_iterator it = FStatusItems.constBegin(); it!=FStatusItems.constEnd(); it++)
+	{
+		if (it->name.toLower() == AName.toLower())
+			return it->code;
+	}
 	return STATUS_NULL_ID;
 }
 
 int StatusChanger::addStatusItem(const QString &AName, int AShow, const QString &AText, int APriority)
 {
 	int statusId = statusByName(AName);
-	if (statusId == 0 && !AName.isEmpty())
+	if (statusId==STATUS_NULL_ID && !AName.isEmpty())
 	{
 		while (statusId<=STATUS_MAX_STANDART_ID || FStatusItems.contains(statusId))
-			statusId = qrand() + (qrand() << 16);
+			statusId = qrand();
 		StatusItem status;
 		status.code = statusId;
 		status.name = AName;
 		status.show = AShow;
 		status.text = AText;
 		status.priority = APriority;
+		status.lastActive = QDateTime::currentDateTime();
 		FStatusItems.insert(statusId,status);
 		createStatusActions(statusId);
 		emit statusItemAdded(statusId);
+		removeRedundantCustomStatuses();
 	}
-	else if (statusId > 0)
+	else if (statusId > STATUS_NULL_ID)
 	{
 		updateStatusItem(statusId,AName,AShow,AText,APriority);
 	}
@@ -502,11 +521,27 @@ void StatusChanger::updateStatusItem(int AStatusId, const QString &AName, int AS
 
 void StatusChanger::removeStatusItem(int AStatusId)
 {
-	if (AStatusId>STATUS_MAX_STANDART_ID && FStatusItems.contains(AStatusId) && !activeStatusItems().contains(AStatusId))
+	if (AStatusId>STATUS_MAX_STANDART_ID && FStatusItems.contains(AStatusId))
 	{
-		emit statusItemRemoved(AStatusId);
-		removeStatusActions(AStatusId);
-		FStatusItems.remove(AStatusId);
+		if (mainStatus() == AStatusId)
+		{
+			int newStatusId = statusByShow(FStatusItems.value(AStatusId).show).value(0);
+			setMainStatus(newStatusId);
+		}
+		for (QMap<IPresence *, int>::const_iterator it = FCurrentStatus.constBegin(); it!=FCurrentStatus.constEnd(); it++)
+		{
+			if(it.value() == AStatusId)
+			{
+				int newStatusId = statusByShow(FStatusItems.value(AStatusId).show).value(0);
+				setStreamStatus(it.key()->streamJid(), newStatusId);
+			}
+		}
+		if (!activeStatusItems().contains(AStatusId))
+		{
+			emit statusItemRemoved(AStatusId);
+			removeStatusActions(AStatusId);
+			FStatusItems.remove(AStatusId);
+		}
 	}
 }
 
@@ -635,6 +670,8 @@ void StatusChanger::setStreamStatusId(IPresence *APresence, int AStatusId)
 		if (AStatusId > MAX_TEMP_STATUS_ID)
 			removeTempStatus(APresence);
 
+		FStatusItems[FStatusItems.value(AStatusId).code].lastActive = QDateTime::currentDateTime();
+
 		IRosterIndex *index = FRostersView && FRostersModel ? FRostersModel->streamRoot(APresence->streamJid()) : NULL;
 		if (index)
 		{
@@ -670,9 +707,9 @@ void StatusChanger::updateStatusAction(int AStatusId, Action *AAction) const
 
 void StatusChanger::createStatusActions(int AStatusId)
 {
-	int group = AStatusId > STATUS_MAX_STANDART_ID ? AG_SCSM_STATUSCHANGER_CUSTOM_STATUS : AG_SCSM_STATUSCHANGER_DEFAULT_STATUS;
-
-	FMainMenu->addAction(createStatusAction(AStatusId,Jid(),FMainMenu),group,true);
+	//int group = AStatusId > STATUS_MAX_STANDART_ID ? AG_SCSM_STATUSCHANGER_CUSTOM_STATUS : AG_SCSM_STATUSCHANGER_DEFAULT_STATUS;
+	int group = AG_SCSM_STATUSCHANGER_DEFAULT_STATUS;
+	FMainMenu->addAction(createStatusAction(AStatusId,Jid::null,FMainMenu),group,true);
 	for (QMap<IPresence *, Menu *>::const_iterator it = FStreamMenu.constBegin(); it!=FStreamMenu.constEnd(); it++)
 		it.value()->addAction(createStatusAction(AStatusId,it.key()->streamJid(),it.value()),group,true);
 }
@@ -740,6 +777,10 @@ void StatusChanger::updateStreamMenu(IPresence *APresence)
 	Action *mAction = FMainStatusActions.value(APresence);
 	if (mAction)
 		mAction->setVisible(FCurrentStatus.value(APresence) != STATUS_MAIN_ID);
+
+	int statusCode = FStatusItems.value(statusId).code;
+	foreach (Action *action, sMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
+		action->setEnabled(action->data(ADR_STATUS_CODE).toInt() != statusCode);
 }
 
 void StatusChanger::removeStreamMenu(IPresence *APresence)
@@ -795,6 +836,10 @@ void StatusChanger::updateMainMenu()
 	FMainMenu->setTitle(statusItemName(statusId));
 	FMainMenu->menuAction()->setVisible(!FCurrentStatus.isEmpty());
 
+	int statusCode = FStatusItems.value(statusId).code;
+	foreach (Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
+		action->setEnabled(action->data(ADR_STATUS_CODE).toInt() != statusCode);
+
 	if (FTrayManager)
 	{
 		if (statusId != STATUS_CONNECTING_ID)
@@ -812,22 +857,6 @@ void StatusChanger::updateMainMenu()
 	}
 }
 
-void StatusChanger::updateTrayToolTip()
-{
-	QString trayToolTip;
-	QMap<IPresence *, int>::const_iterator it = FCurrentStatus.constBegin();
-	while (it != FCurrentStatus.constEnd())
-	{
-		IAccount *account = FAccountManager->accountByStream(it.key()->streamJid());
-		if (!trayToolTip.isEmpty())
-			trayToolTip+="\n";
-		trayToolTip += tr("%1 - %2").arg(account->name()).arg(it.key()->status());
-		it++;
-	}
-	if (FTrayManager)
-		FTrayManager->setToolTip(trayToolTip);
-}
-
 void StatusChanger::updateMainStatusActions()
 {
 	QIcon icon = iconByShow(statusItemShow(STATUS_MAIN_ID));
@@ -837,6 +866,30 @@ void StatusChanger::updateMainStatusActions()
 		action->setIcon(icon);
 		action->setText(name);
 	}
+}
+
+int StatusChanger::createTempStatus(IPresence *APresence, int AShow, const QString &AText, int APriority)
+{
+	removeTempStatus(APresence);
+
+	StatusItem status;
+	status.name = nameByShow(AShow).append('*');
+	status.show = AShow;
+	status.text = AText;
+	status.priority = APriority;
+	status.code = MAX_TEMP_STATUS_ID;
+	while (FStatusItems.contains(status.code))
+		status.code--;
+	FStatusItems.insert(status.code,status);
+	FTempStatus.insert(APresence,status.code);
+	return status.code;
+}
+
+void StatusChanger::removeTempStatus(IPresence *APresence)
+{
+	if (FTempStatus.contains(APresence))
+		if (!activeStatusItems().contains(FTempStatus.value(APresence)))
+			FStatusItems.remove(FTempStatus.take(APresence));
 }
 
 void StatusChanger::insertConnectingLabel(IPresence *APresence)
@@ -875,30 +928,6 @@ void StatusChanger::autoReconnect(IPresence *APresence)
 	}
 }
 
-int StatusChanger::createTempStatus(IPresence *APresence, int AShow, const QString &AText, int APriority)
-{
-	removeTempStatus(APresence);
-
-	StatusItem status;
-	status.name = nameByShow(AShow).append('*');
-	status.show = AShow;
-	status.text = AText;
-	status.priority = APriority;
-	status.code = MAX_TEMP_STATUS_ID;
-	while (FStatusItems.contains(status.code))
-		status.code--;
-	FStatusItems.insert(status.code,status);
-	FTempStatus.insert(APresence,status.code);
-	return status.code;
-}
-
-void StatusChanger::removeTempStatus(IPresence *APresence)
-{
-	if (FTempStatus.contains(APresence))
-		if (!activeStatusItems().contains(FTempStatus.value(APresence)))
-			FStatusItems.remove(FTempStatus.take(APresence));
-}
-
 void StatusChanger::resendUpdatedStatus(int AStatusId)
 {
 	if (FStatusItems[STATUS_MAIN_ID].code == AStatusId)
@@ -914,6 +943,29 @@ void StatusChanger::removeAllCustomStatuses()
 	foreach (int statusId, FStatusItems.keys())
 		if (statusId > STATUS_MAX_STANDART_ID)
 			removeStatusItem(statusId);
+}
+
+void StatusChanger::removeRedundantCustomStatuses()
+{
+	QMap<int, QMap<QDateTime, int> > statuses;
+	for (QMap<int, StatusItem>::const_iterator it = FStatusItems.constBegin(); it!=FStatusItems.constEnd(); it++)
+	{
+		if (it.key() > STATUS_MAX_STANDART_ID)
+		{
+			if (it->lastActive.isValid())
+				statuses[it->show].insert(it->lastActive,it->code);
+			else 
+				statuses[it->show].insert(QDateTime::fromTime_t(0),it->code);
+		}
+	}
+	foreach(int show, statuses.keys())
+	{
+		QList<int> showStatuses = statuses.value(show).values();
+		while(showStatuses.count() > MAX_CUSTOM_STATUS_PER_SHOW)
+		{
+			removeStatusItem(showStatuses.takeFirst());
+		}
+	}
 }
 
 void StatusChanger::updateStatusNotification(IPresence *APresence)
@@ -959,6 +1011,22 @@ void StatusChanger::removeStatusNotification(IPresence *APresence)
 	}
 }
 
+void StatusChanger::updateVCardInfo(const IVCard* vcard)
+{
+	if (vcard)
+	{
+		QString name = vcard->value(VVN_NICKNAME);
+		if (name.isEmpty())
+			name = vcard->value(VVN_FULL_NAME);
+		if (name.isEmpty())
+			name = vcard->value(VVN_GIVEN_NAME);
+		if (name.isEmpty())
+			name = vcard->contactJid().node();
+		FStatusWidget->setUserName(name);
+		FStatusWidget->ui->statusToolButton->setText((name.isEmpty() ? FAccountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + FStatusWidget->ui->statusToolButton->text());
+	}
+}
+
 void StatusChanger::onSetStatusByAction(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -998,7 +1066,6 @@ void StatusChanger::onPresenceAdded(IPresence *APresence)
 
 	updateStreamMenu(APresence);
 	updateMainMenu();
-	//updateTrayToolTip();
 }
 
 void StatusChanger::onPresenceChanged(IPresence *APresence, int AShow, const QString &AText, int APriority)
@@ -1027,7 +1094,6 @@ void StatusChanger::onPresenceChanged(IPresence *APresence, int AShow, const QSt
 			removeConnectingLabel(APresence);
 			FConnectStatus.remove(APresence);
 		}
-		//updateTrayToolTip();
 	}
 }
 
@@ -1051,7 +1117,6 @@ void StatusChanger::onPresenceRemoved(IPresence *APresence)
 		FStreamMenu.value(FStreamMenu.keys().first())->menuAction()->setVisible(false);
 
 	updateMainMenu();
-	//updateTrayToolTip();
 }
 
 void StatusChanger::onRosterOpened(IRoster *ARoster)
@@ -1124,6 +1189,7 @@ void StatusChanger::onOptionsOpened()
 				status.show = (IPresence::Show)soptions.value("show").toInt();
 				status.text = soptions.value("text").toString();
 				status.priority = soptions.value("priority").toInt();
+				status.lastActive = soptions.value("last-active").toDateTime();
 				FStatusItems.insert(status.code,status);
 				createStatusActions(status.code);
 			}
@@ -1138,6 +1204,7 @@ void StatusChanger::onOptionsOpened()
 			updateStatusActions(statusId);
 		}
 	}
+	removeRedundantCustomStatuses();
 
 	FModifyStatus->setChecked(Options::node(OPV_STATUSES_MODIFY).value().toBool());
 	setMainStatusId(Options::node(OPV_STATUSES_MAINSTATUS).value().toInt());
@@ -1155,7 +1222,10 @@ void StatusChanger::onOptionsClosed()
 		{
 			OptionsNode soptions = Options::node(OPV_STATUS_ITEM, QString::number(status.code));
 			if (status.code > STATUS_MAX_STANDART_ID)
+			{
 				soptions.setValue(status.show,"show");
+				soptions.setValue(status.lastActive,"last-active");
+			}
 			soptions.setValue(status.name,"name");
 			soptions.setValue(status.text,"text");
 			soptions.setValue(status.priority,"priority");
@@ -1221,12 +1291,8 @@ void StatusChanger::onReconnectTimer()
 void StatusChanger::onEditStatusAction(bool)
 {
 	if (FEditStatusDialog.isNull())
-	{
 		FEditStatusDialog = new EditStatusDialog(this);
-		FEditStatusDialog->show();
-	}
-	else
-		FEditStatusDialog->show();
+	FEditStatusDialog->show();
 }
 
 void StatusChanger::onModifyStatusAction(bool)
@@ -1234,17 +1300,29 @@ void StatusChanger::onModifyStatusAction(bool)
 	Options::node(OPV_STATUSES_MODIFY).setValue(FModifyStatus->isChecked());
 }
 
+void StatusChanger::onCustomStatusAction(bool)
+{
+	if (FCustomStatusDialog.isNull())
+		FCustomStatusDialog = new CustomStatusDialog(this,Jid::null);
+	FCustomStatusDialog->show();
+}
+
+void StatusChanger::onClearCustomStatusAction(bool)
+{
+	removeAllCustomStatuses();
+}
+
 void StatusChanger::onTrayContextMenuAboutToShow()
 {
-   if (FMainMenu->menuAction()->isVisible())
-	   foreach(Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
-		FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER,true);
+	if (FMainMenu->menuAction()->isVisible())
+		foreach(Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS)) {
+			FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER,true); }
 }
 
 void StatusChanger::onTrayContextMenuAboutToHide()
 {
-	foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER))
-		FTrayManager->contextMenu()->removeAction(action);
+	foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER)) {
+		FTrayManager->contextMenu()->removeAction(action); }
 }
 
 void StatusChanger::onAccountOptionsChanged(IAccount *AAccount, const OptionsNode &ANode)
@@ -1267,7 +1345,7 @@ void StatusChanger::onNotificationActivated(int ANotifyId)
 	}
 }
 
-void StatusChanger::onVcardReceived(const Jid & jid)
+void StatusChanger::onVCardReceived(const Jid & jid)
 {
 	if (FAccountManager)
 	{
@@ -1277,22 +1355,6 @@ void StatusChanger::onVcardReceived(const Jid & jid)
 			updateVCardInfo(vcard);
 			vcard->unlock();
 		}
-	}
-}
-
-void StatusChanger::updateVCardInfo(const IVCard* vcard)
-{
-	if (vcard)
-	{
-		QString name = vcard->value(VVN_NICKNAME);
-		if (name.isEmpty())
-			name = vcard->value(VVN_FULL_NAME);
-		if (name.isEmpty())
-			name = vcard->value(VVN_GIVEN_NAME);
-		if (name.isEmpty())
-			name = vcard->contactJid().node();
-		FStatusWidget->setUserName(name);
-		FStatusWidget->ui->statusToolButton->setText((name.isEmpty() ? FAccountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + FStatusWidget->ui->statusToolButton->text());
 	}
 }
 

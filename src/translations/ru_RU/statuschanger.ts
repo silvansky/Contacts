@@ -2,6 +2,40 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>CustomStatusDialog</name>
+    <message>
+        <source>%1 characters left</source>
+        <translation>Осталось %1 символов</translation>
+    </message>
+    <message>
+        <source>&lt;span style=&apos;color: red;&apos;&gt;%1&lt;/span&gt; characters left</source>
+        <translation>Осталось &lt;span style=&apos;color: red;&apos;&gt;%1&lt;/span&gt; символов</translation>
+    </message>
+</context>
+<context>
+    <name>CustomStatusDialogClass</name>
+    <message>
+        <source>My Status</source>
+        <translation>Свой статус</translation>
+    </message>
+    <message>
+        <source>Define your status and text for it</source>
+        <translation>Задайте свой статус и текст для него</translation>
+    </message>
+    <message>
+        <source>Statuses can tell your friends what you are interested in or what you&apos;re doing.</source>
+        <translation>Статусы позволяют рассказать вашим знакомым, что вас сейчас интересует или чем вы сейчас занимаетесь.</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Заголовок:</translation>
+    </message>
+    <message>
+        <source>For example, &quot;Who wants to the rink tomorrow?&quot;</source>
+        <translation>Например, &quot;Кто хочет на каток завтра?&quot;</translation>
+    </message>
+</context>
+<context>
     <name>EditStatusDialog</name>
     <message>
         <source>Name</source>
@@ -136,10 +170,6 @@
         <translation>Неизвестный статус</translation>
     </message>
     <message>
-        <source>%1 - %2</source>
-        <translation>%1 - %2</translation>
-    </message>
-    <message>
         <source>Status</source>
         <translation>Статус</translation>
     </message>
@@ -190,6 +220,14 @@
     <message>
         <source>Problem persists</source>
         <translation>Проблема устранена</translation>
+    </message>
+    <message>
+        <source>My Status...</source>
+        <translation>Свой статус...</translation>
+    </message>
+    <message>
+        <source>Clear My Statuses</source>
+        <translation>Очистить свои статусы</translation>
     </message>
 </context>
 <context>
