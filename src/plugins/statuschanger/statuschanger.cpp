@@ -2,7 +2,6 @@
 
 #include <QTimer>
 #include <QToolButton>
-#include "ui_statuswidget.h"
 
 #define MAX_TEMP_STATUS_ID                  -10
 #define MAX_CUSTOM_STATUS_PER_SHOW          3
@@ -24,13 +23,12 @@ StatusChanger::StatusChanger()
 	FNotifications = NULL;
 	FVCardPlugin = NULL;
 	FAvatars = NULL;
+	FStatusIcons = NULL;
 
 	FMainMenu = NULL;
-	FStatusIcons = NULL;
+	FStatusWidget = NULL;
 	FConnectingLabel = RLID_NULL;
 	FChangingPresence = NULL;
-
-	FStatusWidget = NULL;
 }
 
 StatusChanger::~StatusChanger()
@@ -155,10 +153,7 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 
 	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0, NULL);
 	if (plugin)
-	{
 		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
-		connect(FVCardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)), SLOT(onVCardReceived(const Jid &)));
-	}
 
 	plugin = APluginManager->pluginInterface("IAvatars").value(0, NULL);
 	if (plugin)
@@ -182,21 +177,21 @@ bool StatusChanger::initObjects()
 	//FMainMenu->addAction(FModifyStatus,AG_SCSM_STATUSCHANGER_ACTIONS,false);
 	connect(FModifyStatus,SIGNAL(triggered(bool)),SLOT(onModifyStatusAction(bool)));
 
-	Action *editStatus = new Action(FMainMenu);
-	editStatus->setText(tr("Edit Statuses"));
-	editStatus->setIcon(RSR_STORAGE_MENUICONS,MNI_SCHANGER_EDIT_STATUSES);
-	connect(editStatus,SIGNAL(triggered(bool)), SLOT(onEditStatusAction(bool)));
+	//Action *editStatus = new Action(FMainMenu);
+	//editStatus->setText(tr("Edit Statuses"));
+	//editStatus->setIcon(RSR_STORAGE_MENUICONS,MNI_SCHANGER_EDIT_STATUSES);
+	//connect(editStatus,SIGNAL(triggered(bool)), SLOT(onEditStatusAction(bool)));
 	//FMainMenu->addAction(editStatus,AG_SCSM_STATUSCHANGER_ACTIONS,false);
 
-	Action *customStatus = new Action(FMainMenu);
-	customStatus->setText(tr("My Status..."));
-	connect(customStatus,SIGNAL(triggered(bool)), SLOT(onCustomStatusAction(bool)));
-	FMainMenu->addAction(customStatus,AG_SCSM_STATUSCHANGER_CUSTOM_ACTIONS,false);
+	//Action *customStatus = new Action(FMainMenu);
+	//customStatus->setText(tr("My Status..."));
+	//connect(customStatus,SIGNAL(triggered(bool)), SLOT(onCustomStatusAction(bool)));
+	//FMainMenu->addAction(customStatus,AG_SCSM_STATUSCHANGER_CUSTOM_ACTIONS,false);
 
-	Action *clearCustomStatus = new Action(FMainMenu);
-	clearCustomStatus->setText(tr("Clear My Statuses"));
-	connect(clearCustomStatus,SIGNAL(triggered(bool)), SLOT(onClearCustomStatusAction(bool)));
-	FMainMenu->addAction(clearCustomStatus,AG_SCSM_STATUSCHANGER_CUSTOM_ACTIONS,false);
+	//Action *clearCustomStatus = new Action(FMainMenu);
+	//clearCustomStatus->setText(tr("Clear My Statuses"));
+	//connect(clearCustomStatus,SIGNAL(triggered(bool)), SLOT(onClearCustomStatusAction(bool)));
+	//FMainMenu->addAction(clearCustomStatus,AG_SCSM_STATUSCHANGER_CUSTOM_ACTIONS,false);
 
 	createDefaultStatus();
 	setMainStatusId(STATUS_OFFLINE);
@@ -207,13 +202,8 @@ bool StatusChanger::initObjects()
 	if (FMainWindowPlugin)
 	{
 		ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->statusToolBarChanger();
-		FStatusWidget = new ::StatusWidget(changer->toolBar());
-		FStatusWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		FStatusWidget = new StatusWidget(this,FAvatars,FVCardPlugin,changer->toolBar());
 		changer->insertWidget(FStatusWidget);
-		FStatusWidget->ui->statusToolButton->addAction(FMainMenu->menuAction());
-		FStatusWidget->ui->statusToolButton->setDefaultAction(FMainMenu->menuAction());
-		connect(FStatusWidget, SIGNAL(avatarChanged(const QImage&)), SLOT(onAvatarChanged(const QImage&)));
-		connect(FStatusWidget, SIGNAL(moodSet(const QString&)), SLOT(onMoodSet(const QString&)));
 
 		//QToolButton *button = changer->insertAction(FMainMenu->menuAction());
 		//button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -401,9 +391,6 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 					else
 						presence->xmppStream()->close();
 
-					if (FStatusWidget)
-						FStatusWidget->setMoodText(newStatus.text);
-
 					emit statusChanged(presence->streamJid(), newStatus.code);
 				}
 			}
@@ -582,7 +569,6 @@ void StatusChanger::createDefaultStatus()
 	status.name = nameByShow(IPresence::Online);
 	status.show = IPresence::Online;
 	//status.text = tr("Online");
-	status.text.clear();
 	status.priority = 30;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
@@ -599,7 +585,6 @@ void StatusChanger::createDefaultStatus()
 	status.name = nameByShow(IPresence::Away);
 	status.show = IPresence::Away;
 	//status.text = tr("I`m away from my desk");
-	status.text.clear();
 	status.priority = 20;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
@@ -608,7 +593,6 @@ void StatusChanger::createDefaultStatus()
 	status.name = nameByShow(IPresence::DoNotDisturb);
 	status.show = IPresence::DoNotDisturb;
 	//status.text = tr("Do not disturb");
-	status.text.clear();
 	status.priority = 15;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
@@ -633,7 +617,6 @@ void StatusChanger::createDefaultStatus()
 	status.name = nameByShow(IPresence::Offline);
 	status.show = IPresence::Offline;
 	//status.text = tr("Disconnected");
-	status.text.clear();
 	status.priority = 0;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
@@ -641,14 +624,12 @@ void StatusChanger::createDefaultStatus()
 	status.code = STATUS_ERROR_ID;
 	status.name = nameByShow(IPresence::Error);
 	status.show = IPresence::Error;
-	status.text.clear();
 	status.priority = 0;
 	FStatusItems.insert(status.code,status);
 
 	status.code = STATUS_CONNECTING_ID;
 	status.name = tr("Connecting...");
 	status.show = IPresence::Offline;
-	status.text.clear();
 	status.priority = 0;
 	FStatusItems.insert(status.code,status);
 }
@@ -707,7 +688,6 @@ void StatusChanger::updateStatusAction(int AStatusId, Action *AAction) const
 
 void StatusChanger::createStatusActions(int AStatusId)
 {
-	//int group = AStatusId > STATUS_MAX_STANDART_ID ? AG_SCSM_STATUSCHANGER_CUSTOM_STATUS : AG_SCSM_STATUSCHANGER_DEFAULT_STATUS;
 	int group = AG_SCSM_STATUSCHANGER_DEFAULT_STATUS;
 	FMainMenu->addAction(createStatusAction(AStatusId,Jid::null,FMainMenu),group,true);
 	for (QMap<IPresence *, Menu *>::const_iterator it = FStreamMenu.constBegin(); it!=FStreamMenu.constEnd(); it++)
@@ -739,12 +719,9 @@ void StatusChanger::createStreamMenu(IPresence *APresence)
 
 		Menu *sMenu = new Menu(FMainMenu);
 		if (account)
-		{
 			sMenu->setTitle(account->name());
-			//connect(account->instance(),SIGNAL(changed(const QString &, const QVariant &)),SLOT(onAccountChanged(const QString &, const QVariant &)));
-		}
 		else
-			sMenu->setTitle(APresence->streamJid().hFull());
+			sMenu->setTitle(APresence->streamJid().full());
 		FStreamMenu.insert(APresence,sMenu);
 
 		QMap<int, StatusItem>::const_iterator it = FStatusItems.constBegin();
@@ -1011,22 +988,6 @@ void StatusChanger::removeStatusNotification(IPresence *APresence)
 	}
 }
 
-void StatusChanger::updateVCardInfo(const IVCard* vcard)
-{
-	if (vcard)
-	{
-		QString name = vcard->value(VVN_NICKNAME);
-		if (name.isEmpty())
-			name = vcard->value(VVN_FULL_NAME);
-		if (name.isEmpty())
-			name = vcard->value(VVN_GIVEN_NAME);
-		if (name.isEmpty())
-			name = vcard->contactJid().node();
-		FStatusWidget->setUserName(name);
-		FStatusWidget->ui->statusToolButton->setText((name.isEmpty() ? FAccountManager->accounts().first()->xmppStream()->streamJid().bare() : name) + FStatusWidget->ui->statusToolButton->text());
-	}
-}
-
 void StatusChanger::onSetStatusByAction(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -1063,6 +1024,9 @@ void StatusChanger::onPresenceAdded(IPresence *APresence)
 			FMainStatusStreams += APresence;
 		FLastOnlineStatus.insert(APresence, account->optionsNode().value("status.last-online").toInt());
 	}
+
+	if (FStatusWidget)
+		FStatusWidget->setStreamJid(APresence->streamJid());
 
 	updateStreamMenu(APresence);
 	updateMainMenu();
@@ -1140,6 +1104,9 @@ void StatusChanger::onStreamJidChanged(const Jid &ABefour, const Jid &AAfter)
 	QList<Action *> actionList = FMainMenu->findActions(data,true);
 	foreach (Action *action, actionList)
 		action->setData(ADR_STREAMJID,AAfter.full());
+	
+	if (FStatusWidget && FStatusWidget->streamJid()==ABefour)
+		FStatusWidget->setStreamJid(AAfter);
 }
 
 void StatusChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
@@ -1199,7 +1166,7 @@ void StatusChanger::onOptionsOpened()
 			StatusItem &status = FStatusItems[statusId];
 			if (!statusName.isEmpty())
 				status.name = statusName;
-			status.text = soptions.hasValue("text") ? soptions.value("text").toString() : status.text;
+			status.text = soptions.hasValue("text") ? soptions.value("text").toString() : QString::null;
 			status.priority = soptions.hasValue("priority") ? soptions.value("priority").toInt() : status.priority;
 			updateStatusActions(statusId);
 		}
@@ -1264,8 +1231,6 @@ void StatusChanger::onProfileOpened(const QString &AProfile)
 			setStreamStatus(presence->streamJid(), statusId);
 		}
 	}
-	if (FAvatars && !FAccountManager->accounts().isEmpty() && FAccountManager->accounts().first()->xmppStream())
-		FAvatars->insertAutoAvatar(FStatusWidget->ui->avatarLabel, FAccountManager->accounts().first()->xmppStream()->streamJid(), QSize(32, 32), "pixmap");
 }
 
 void StatusChanger::onReconnectTimer()
@@ -1343,39 +1308,6 @@ void StatusChanger::onNotificationActivated(int ANotifyId)
 			FMainWindowPlugin->showMainWindow();
 		FNotifications->removeNotification(ANotifyId);
 	}
-}
-
-void StatusChanger::onVCardReceived(const Jid & jid)
-{
-	if (FAccountManager)
-	{
-		if (jid.bare() == FAccountManager->accounts().first()->xmppStream()->streamJid().bare())
-		{
-			IVCard * vcard = FVCardPlugin->vcard(jid);
-			updateVCardInfo(vcard);
-			vcard->unlock();
-		}
-	}
-}
-
-void StatusChanger::onAvatarChanged(const QImage & image)
-{
-	Jid jid;
-	if (FAccountManager->accounts().first()->xmppStream())
-		jid = FAccountManager->accounts().first()->xmppStream()->streamJid();
-	else
-		jid = FAccountManager->accounts().first()->streamJid();
-	if (FAvatars)
-		FAvatars->setAvatar(jid, image);
-	if (FVCardPlugin)
-		updateVCardInfo(FVCardPlugin->vcard(jid.bare()));
-}
-
-void StatusChanger::onMoodSet(const QString & mood)
-{
-	int curr_status = mainStatus();
-	StatusItem si = FStatusItems.value(curr_status);
-	updateStatusItem(curr_status, si.name, si.show, mood, si.priority);
 }
 
 Q_EXPORT_PLUGIN2(plg_statuschanger, StatusChanger)

@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>StatusWidget</class>
- <widget class="QWidget" name="StatusWidget">
+ <class>StatusWidgetClass</class>
+ <widget class="QWidget" name="StatusWidgetClass">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>222</width>
-    <height>119</height>
+    <height>126</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="margin">
@@ -26,20 +32,12 @@
       <number>1</number>
      </property>
      <item row="0" column="0">
-      <widget class="HtmlToolButton" name="statusToolButton">
+      <widget class="HtmlToolButton" name="tlbStatus">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+        <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-         <stylestrategy>NoAntialias</stylestrategy>
-        </font>
        </property>
        <property name="text">
         <string/>
@@ -61,17 +59,12 @@
         <number>32</number>
        </property>
        <item>
-        <widget class="QLabel" name="moodLabel">
+        <widget class="QLabel" name="lblMood">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <italic>true</italic>
-          </font>
          </property>
          <property name="cursor">
           <cursorShape>PointingHandCursor</cursorShape>
@@ -79,19 +72,8 @@
          <property name="toolTip">
           <string>Click to edit...</string>
          </property>
-         <property name="styleSheet">
-          <string notr="true">QLabel:hover {
-	background-color: rgb(255, 255, 127);
-}</string>
-         </property>
          <property name="text">
           <string/>
-         </property>
-         <property name="scaledContents">
-          <bool>true</bool>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -99,7 +81,7 @@
         </widget>
        </item>
        <item>
-        <widget class="AutoSizeTextEdit" name="moodEdit">
+        <widget class="AutoSizeTextEdit" name="tedMood">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
            <horstretch>0</horstretch>
@@ -111,7 +93,7 @@
       </layout>
      </item>
      <item row="1" column="1">
-      <widget class="QLabel" name="avatarLabel">
+      <widget class="QLabel" name="lblAvatar">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>

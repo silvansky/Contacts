@@ -6,55 +6,56 @@
 #include <definations/menuicons.h>
 #include <definations/resources.h>
 #include <definations/stylesheets.h>
+#include <definations/vcardvaluenames.h>
+#include <interfaces/istatuschanger.h>
+#include <interfaces/iavatars.h>
+#include <interfaces/ivcard.h>
 #include <utils/menu.h>
+#include <utils/message.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include "ui_statuswidget.h"
 #include "selectavatarwidget.h"
 
-namespace Ui
+class StatusWidget : 
+	public QWidget
 {
-	class StatusWidget;
-}
-
-class StatusWidget : public QWidget
-{
-	Q_OBJECT
-	friend class StatusChanger;
+	Q_OBJECT;
 public:
-	StatusWidget(QWidget *parent = 0);
+	StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, IVCardPlugin *AVCardPlugin, QWidget *AParent = NULL);
 	~StatusWidget();
-
+public:
+	Jid streamJid() const;
+	void setStreamJid(const Jid &AStreamJid);
 protected:
-	void changeEvent(QEvent *e);
-	void paintEvent(QPaintEvent *);
-	bool eventFilter(QObject *, QEvent *);
-	void updateMoodText();
-
-private:
-	Ui::StatusWidget *ui;
-	bool avatarHovered;
-	::SelectAvatarWidget * selectAvatarWidget;
-	QString userName;
-	QString userMood;
-	QImage logo;
-	QLineEdit * moodEditor;
-	Menu * profileMenu;
-signals:
-	void avatarChanged(const QImage &);
-	void moodSet(const QString &);
-public slots:
-	void setUserName(const QString& name);
-	void setMoodText(const QString& mood);
 	void startEditMood();
 	void finishEditMood();
 	void cancelEditMood();
+	void setUserName(const QString &AName);
+	void setMoodText(const QString &AMood);
+	QString fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const;
+protected:
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
-	void profileMenuAboutToHide();
-	void profileMenuAboutToShow();
-	void onManageProfileTriggered();
 	void onAddAvatarTriggered();
+	void onManageProfileTriggered();
+	void onProfileMenuAboutToHide();
+	void onProfileMenuAboutToShow();
+	void onVCardReceived(const Jid &AContactJid);
+	void onStatusChanged(const Jid &AStreamJid, int AStatusId);
 private:
-	QString fitCaptionToWidth(const QString & name, const QString & status, const int width) const;
+	Ui::StatusWidgetClass ui;
+private:
+	IAvatars *FAvatars;
+	IVCardPlugin *FVCardPlugin;
+	IStatusChanger *FStatusChanger;
+private:
+	bool FAvatarHovered;
+	Jid FStreamJid;
+	QString FUserName;
+	QString FUserMood;
+	Menu *FProfileMenu;
+	SelectAvatarWidget *FSelectAvatarWidget;
 };
 
 #endif // STATUSWIDGET_H

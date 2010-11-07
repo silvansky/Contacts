@@ -190,10 +190,6 @@
         <translation>Изменять статус</translation>
     </message>
     <message>
-        <source>Edit Statuses</source>
-        <translation>Редактировать статусы</translation>
-    </message>
-    <message>
         <source>Auto connect on startup</source>
         <translation>Автоподключение при старте</translation>
     </message>
@@ -221,21 +217,9 @@
         <source>Problem persists</source>
         <translation>Проблема устранена</translation>
     </message>
-    <message>
-        <source>My Status...</source>
-        <translation>Свой статус...</translation>
-    </message>
-    <message>
-        <source>Clear My Statuses</source>
-        <translation>Очистить свои статусы</translation>
-    </message>
 </context>
 <context>
     <name>StatusWidget</name>
-    <message>
-        <source>Click to edit...</source>
-        <translation>Нажмите для редактирования...</translation>
-    </message>
     <message>
         <source>Manage my profile</source>
         <translation>Изменить профиль</translation>
@@ -251,6 +235,17 @@
     <message>
         <source>Image files %1</source>
         <translation>Файлы изображений %1</translation>
+    </message>
+    <message>
+        <source>Tell your friends about your mood</source>
+        <translation>Расскажите друзьям о своем настроении</translation>
+    </message>
+</context>
+<context>
+    <name>StatusWidgetClass</name>
+    <message>
+        <source>Click to edit...</source>
+        <translation>Нажмите для редактирования...</translation>
     </message>
 </context>
 </TS>

@@ -18,7 +18,6 @@
 #include <definations/menuicons.h>
 #include <definations/soundfiles.h>
 #include <definations/stylesheets.h>
-#include <definations/vcardvaluenames.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ipresence.h>
@@ -125,7 +124,6 @@ protected:
 	void removeRedundantCustomStatuses();
 	void updateStatusNotification(IPresence *APresence);
 	void removeStatusNotification(IPresence *APresence);
-	void updateVCardInfo(const IVCard* vcard);
 protected slots:
 	void onSetStatusByAction(bool);
 	void onPresenceAdded(IPresence *APresence);
@@ -149,9 +147,6 @@ protected slots:
 	void onTrayContextMenuAboutToHide();
 	void onAccountOptionsChanged(IAccount *AAccount, const OptionsNode &ANode);
 	void onNotificationActivated(int ANotifyId);
-	void onVCardReceived(const Jid & jid);
-	void onAvatarChanged(const QImage & image);
-	void onMoodSet(const QString & mood);
 private:
 	IPresencePlugin *FPresencePlugin;
 	IRosterPlugin *FRosterPlugin;
@@ -169,7 +164,7 @@ private:
 private:
 	Menu *FMainMenu;
 	Action *FModifyStatus;
-	::StatusWidget * FStatusWidget;
+	StatusWidget *FStatusWidget;
 	QMap<IPresence *, Menu *> FStreamMenu;
 	QMap<IPresence *, Action *> FMainStatusActions;
 private:

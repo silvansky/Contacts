@@ -1,6 +1,8 @@
 #include "statuswidget.h"
 #include "ui_statuswidget.h"
 
+#include <QtDebug>
+
 #include <QUrl>
 #include <QPainter>
 #include <QFileDialog>
@@ -9,119 +11,171 @@
 #include <QWidgetAction>
 #include <QDesktopServices>
 
-#define DEFAULT_MOOD_TEXT "<i><font color=grey>Tell your friends about your mood</font></i>"
-#define NO_AVATARS_HISTORY
+#define MAX_CHARACTERS  140
 
-StatusWidget::StatusWidget(QWidget *parent) :
-		QWidget(parent),
-		ui(new Ui::StatusWidget)
+StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, IVCardPlugin *AVCardPlugin, QWidget *AParent) : QWidget(AParent)
 {
-	ui->setupUi(this);
+	ui.setupUi(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_STATUSWIDGET);
 
-//	qApp->installEventFilter(this);
-	ui->statusToolButton->installEventFilter(this);
-	ui->avatarLabel->installEventFilter(this);
-	ui->avatarLabel->setAttribute(Qt::WA_Hover, true);
-	avatarHovered = false;
-	ui->moodEdit->setVisible(false);
-	ui->moodEdit->installEventFilter(this);
-	ui->moodLabel->installEventFilter(this);
-	QString logoPath = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_SCHANGER_ROSTER_LOGO);
-	logo.load(logoPath);
-	profileMenu = new Menu();
-	Action * manageProfileAction = new Action(profileMenu);
+	FAvatars = AAvatars;
+	FVCardPlugin = AVCardPlugin;
+	FStatusChanger = AStatusChanger;
+
+	FAvatarHovered = false;
+	FSelectAvatarWidget = NULL;
+
+	ui.tlbStatus->installEventFilter(this);
+	ui.lblAvatar->installEventFilter(this);
+	ui.tedMood->installEventFilter(this);
+	ui.lblMood->installEventFilter(this);
+
+	ui.tedMood->setVisible(false);
+	ui.lblAvatar->setAttribute(Qt::WA_Hover, true);
+
+	ui.tlbStatus->addAction(FStatusChanger->statusMenu()->menuAction());
+	ui.tlbStatus->setDefaultAction(FStatusChanger->statusMenu()->menuAction());
+
+	FProfileMenu = new Menu();
+	connect(FProfileMenu, SIGNAL(aboutToHide()), SLOT(onProfileMenuAboutToHide()));
+	connect(FProfileMenu, SIGNAL(aboutToShow()), SLOT(onProfileMenuAboutToShow()));
+
+	Action *manageProfileAction = new Action(FProfileMenu);
 	manageProfileAction->setText(tr("Manage my profile"));
-	profileMenu->addAction(manageProfileAction);
 	connect(manageProfileAction, SIGNAL(triggered()), SLOT(onManageProfileTriggered()));
-	Action * addAvatarAction = new Action(profileMenu);
-	addAvatarAction->setText(tr("Add new photo..."));
-	profileMenu->addAction(addAvatarAction);
-	connect(addAvatarAction, SIGNAL(triggered()), SLOT(onAddAvatarTriggered()));
-#ifndef NO_AVATARS_HISTORY
-	//profileMenu->setBottomWidget(selectAvatarWidget);
-	selectAvatarWidget = new SelectAvatarWidget(0);
-	selectAvatarWidget->setAttribute(Qt::WA_DeleteOnClose, false);
-	selectAvatarWidget->setWindowFlags(Qt::ToolTip);
-	selectAvatarWidget->installEventFilter(this);
-	connect(selectAvatarWidget, SIGNAL(avatarSelected(const QImage&)), SIGNAL(avatarChanged(const QImage&)));
-	QWidgetAction * wa = new QWidgetAction(profileMenu);
-	wa->setDefaultWidget(selectAvatarWidget);
-	profileMenu->addWidgetActiion(wa);
-#else
-	selectAvatarWidget = 0;
-#endif
-	connect(profileMenu, SIGNAL(aboutToHide()), SLOT(profileMenuAboutToHide()));
-	connect(profileMenu, SIGNAL(aboutToShow()), SLOT(profileMenuAboutToShow()));
+	FProfileMenu->addAction(manageProfileAction);
+
+	if (FAvatars)
+	{
+		Action *addAvatarAction = new Action(FProfileMenu);
+		addAvatarAction->setText(tr("Add new photo..."));
+		connect(addAvatarAction, SIGNAL(triggered()), SLOT(onAddAvatarTriggered()));
+		FProfileMenu->addAction(addAvatarAction);
+
+		/*
+		QWidgetAction *widgetAction = new QWidgetAction(FProfileMenu);
+		FSelectAvatarWidget = new SelectAvatarWidget(FProfileMenu);
+		widgetAction->setDefaultWidget(FSelectAvatarWidget);
+		FProfileMenu->addWidgetActiion(widgetAction);
+		*/
+	}
+
+	if (FVCardPlugin)
+		connect(FVCardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)), SLOT(onVCardReceived(const Jid &)));
+	connect(FStatusChanger->instance(),SIGNAL(statusChanged(const Jid &, int)),SLOT(onStatusChanged(const Jid &, int)));
 }
 
 StatusWidget::~StatusWidget()
 {
-	delete ui;
+
 }
 
-void StatusWidget::changeEvent(QEvent *e)
+Jid StatusWidget::streamJid() const
 {
-	QWidget::changeEvent(e);
-	switch (e->type())
+	return FStreamJid;
+}
+
+void StatusWidget::setStreamJid(const Jid &AStreamJid)
+{
+	FStreamJid = AStreamJid;
+	if (FAvatars)
+		FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(32, 32), "pixmap");
+	if (FVCardPlugin)
+		onVCardReceived(FStreamJid);
+}
+
+void StatusWidget::startEditMood()
+{
+	ui.lblMood->setVisible(false);
+	ui.tedMood->setVisible(true);
+	ui.tedMood->setText(FUserMood);
+	ui.tedMood->setFocus();
+	ui.tedMood->selectAll();
+}
+
+void StatusWidget::finishEditMood()
+{
+	ui.lblMood->setVisible(true);
+	ui.tedMood->setVisible(false);
+	ui.lblMood->setFocus();
+
+	int statusId = FStatusChanger->mainStatus();
+	QString mood = ui.tedMood->toPlainText().left(MAX_CHARACTERS).trimmed();
+	FStatusChanger->updateStatusItem(statusId,FStatusChanger->statusItemName(statusId),FStatusChanger->statusItemShow(statusId),mood,FStatusChanger->statusItemPriority(statusId));
+}
+
+void StatusWidget::cancelEditMood()
+{
+	ui.tedMood->setVisible(false);
+	ui.lblMood->setVisible(true);
+	ui.lblMood->setFocus();
+}
+
+void StatusWidget::setUserName(const QString &AName)
+{
+	FUserName = AName;
+	ui.tlbStatus->setText(fitCaptionToWidth(FUserName, ui.tlbStatus->defaultAction()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
+}
+
+void StatusWidget::setMoodText(const QString &AMood)
+{
+	FUserMood = AMood;
+	if (AMood.length() <= 70)
+		ui.lblMood->setText(AMood.isEmpty() ? tr("Tell your friends about your mood") : AMood);
+	else
+		ui.lblMood->setText(AMood.left(70) + "...");
+}
+
+QString StatusWidget::fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const
+{
+	QTextDocument doc;
+	QString newName = AName;
+	const QString f1 = "<b><font size=+2>", f2 = "</font></b> - <font size=-1>", f3 = "</font>";
+	doc.setHtml(f1 + AName + f2 + AStatus + f3);
+	while ((doc.size().width() > AWidth) && newName.length() > 1)
 	{
-	case QEvent::LanguageChange:
-		ui->retranslateUi(this);
-		break;
-	default:
-		break;
+		newName = newName.left(newName.length() - 1);
+		doc.setHtml(f1 + newName  + "..." + f2 + AStatus + f3);
 	}
+	return getHtmlBody(doc.toHtml());
 }
 
-void StatusWidget::paintEvent(QPaintEvent * event)
+bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 {
-	QWidget::paintEvent(event);
-/*
-	if (!logo.isNull())
+	if ((AObject == ui.tlbStatus) && (AEvent->type() == QEvent::ActionChanged))
 	{
-		QPainter painter(this);
-		painter.drawImage(rect().right() - logo.width(), 0, logo);
-	}
-*/
-}
-
-bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
-{
-	if ((obj == ui->statusToolButton) && (event->type() == QEvent::ActionChanged))
-	{
-		QActionEvent * actionEvent = (QActionEvent*)event;
-		if (actionEvent->action())
+		QActionEvent *actionEvent = static_cast<QActionEvent*>(AEvent);
+		if (actionEvent && actionEvent->action())
 		{
-			ui->statusToolButton->setIcon(actionEvent->action()->icon());
-			ui->statusToolButton->setText(fitCaptionToWidth(userName, actionEvent->action()->text(), ui->statusToolButton->width() - ui->statusToolButton->iconSize().width() - 12));
-			ui->statusToolButton->setToolTip(actionEvent->action()->text());
+			ui.tlbStatus->setIcon(actionEvent->action()->icon());
+			ui.tlbStatus->setText(fitCaptionToWidth(FUserName, actionEvent->action()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
+			ui.tlbStatus->setToolTip(actionEvent->action()->text());
+			return true;
 		}
-		return true;
 	}
-	if ((obj == ui->statusToolButton) && (event->type() == QEvent::Resize))
+	else if ((AObject == ui.tlbStatus) && (AEvent->type() == QEvent::Resize))
 	{
-		ui->statusToolButton->setText(fitCaptionToWidth(userName, ui->statusToolButton->defaultAction()->text(), ui->statusToolButton->width() - ui->statusToolButton->iconSize().width() - 12));
-		return true;
+		ui.tlbStatus->setText(fitCaptionToWidth(FUserName, ui.tlbStatus->defaultAction()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
 	}
-	if (obj == ui->avatarLabel)
+	else if (AObject == ui.lblAvatar)
 	{
-		switch ((int)event->type())
+		switch ((int)AEvent->type())
 		{
 		case QEvent::HoverEnter:
-			avatarHovered = true;
+			FAvatarHovered = true;
 			break;
 		case QEvent::HoverLeave:
-			avatarHovered = false;
+			FAvatarHovered = false;
 			break;
 		case QEvent::Paint:
-			if (avatarHovered || profileMenu->isVisible())
+			if (FAvatarHovered || FProfileMenu->isVisible())
 			{
-				QPaintEvent *paintEvent = (QPaintEvent*)event;
-				QPainter painter(ui->avatarLabel);
+				QPaintEvent *paintEvent = (QPaintEvent*)AEvent;
+				QPainter painter(ui.lblAvatar);
 				QIcon * icon = 0;
-				if (ui->avatarLabel->pixmap())
+				if (ui.lblAvatar->pixmap())
 				{
-					icon = new QIcon((*(ui->avatarLabel->pixmap())));
+					icon = new QIcon((*(ui.lblAvatar->pixmap())));
 					icon->paint(&painter, paintEvent->rect(), Qt::AlignCenter, QIcon::Selected, QIcon::On);
 					delete icon;
 				}
@@ -143,35 +197,28 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 			break;
 		case QEvent::MouseButtonRelease:
 			{
-				QPoint point = mapToGlobal(ui->avatarLabel->pos());
-				int dx = selectAvatarWidget ? selectAvatarWidget->width() / 2 : profileMenu->sizeHint().width() / 2;
+				QPoint point = mapToGlobal(ui.lblAvatar->pos());
+				int dx = FSelectAvatarWidget ? FSelectAvatarWidget->width() / 2 : FProfileMenu->sizeHint().width() / 2;
 				point.setX(point.x() - dx);
-				point.setY(point.y() + ui->avatarLabel->height());
-				profileMenu->popup(point);
-				break;
+				point.setY(point.y() + ui.lblAvatar->height());
+				FProfileMenu->popup(point);
 			}
-		case QEvent::MouseButtonPress:
-			{
-				if (profileMenu->isVisible())
-					profileMenu->hide();
-			}
+			break;
 		default:
 			break;
 		}
 	}
-	//if ((obj == selectAvatarWidget) && (event->type() == QEvent::FocusOut))
-	//	selectAvatarWidget->hide();
-	if ((obj == ui->moodLabel) && (event->type() == QEvent::MouseButtonPress))
+	else if ((AObject == ui.lblMood) && (AEvent->type() == QEvent::MouseButtonPress))
 	{
-		QMouseEvent * mouseEvent = (QMouseEvent*)event;
-		if (mouseEvent->button() == Qt::LeftButton)
+		QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(AEvent);
+		if (mouseEvent && mouseEvent->button() == Qt::LeftButton)
 			startEditMood();
 	}
-	if (obj == ui->moodEdit)
+	else if (AObject == ui.tedMood)
 	{
-		if (event->type() == QEvent::KeyPress)
+		if (AEvent->type() == QEvent::KeyPress)
 		{
-			QKeyEvent * keyEvent = (QKeyEvent*)event;
+			QKeyEvent *keyEvent = static_cast<QKeyEvent*>(AEvent);
 			switch(keyEvent->key())
 			{
 			case Qt::Key_Enter:
@@ -182,83 +229,20 @@ bool StatusWidget::eventFilter(QObject * obj, QEvent * event)
 			case Qt::Key_Escape:
 				cancelEditMood();
 				return true;
+			default:
+				QChar keyChar(keyEvent->key());
+				if (keyChar.isPrint() && ui.tedMood->toPlainText().length()>=MAX_CHARACTERS)
+					return true;
 				break;
 			}
 		}
-		if (event->type() == QEvent::FocusOut)
-			if (ui->moodEdit->isVisible())
-				finishEditMood();
-	}
-	if (obj == qApp)
-	{
-		if (event->type() == QEvent::Close)
+		else if (AEvent->type() == QEvent::FocusOut)
 		{
-			avatarHovered = false;
+			if (ui.tedMood->isVisible())
+				finishEditMood();
 		}
 	}
-	return QWidget::eventFilter(obj, event);
-}
-
-void StatusWidget::updateMoodText()
-{
-	if (userMood.length() <= 70)
-		ui->moodLabel->setText(userMood.isEmpty() ? DEFAULT_MOOD_TEXT : userMood);
-	else
-		ui->moodLabel->setText(userMood.left(70) + "...");
-}
-
-void StatusWidget::setUserName(const QString& name)
-{
-	userName = name;
-}
-
-void StatusWidget::setMoodText(const QString &mood)
-{
-	userMood = mood;
-	updateMoodText();
-}
-
-void StatusWidget::startEditMood()
-{
-	ui->moodEdit->setText(userMood);
-	ui->moodEdit->selectAll();
-	ui->moodLabel->setVisible(false);
-	ui->moodEdit->setVisible(true);
-	ui->moodEdit->setFocus();
-}
-
-void StatusWidget::finishEditMood()
-{
-	userMood = ui->moodEdit->toPlainText();
-	updateMoodText();
-	ui->moodEdit->setVisible(false);
-	ui->moodLabel->setVisible(true);
-	ui->moodLabel->setFocus();
-	emit moodSet(userMood);
-}
-
-void StatusWidget::cancelEditMood()
-{
-	ui->moodEdit->setVisible(false);
-	ui->moodLabel->setVisible(true);
-	ui->moodLabel->setFocus();
-}
-
-void StatusWidget::profileMenuAboutToHide()
-{
-	avatarHovered = false;
-	ui->avatarLabel->repaint();
-}
-
-void StatusWidget::profileMenuAboutToShow()
-{
-	avatarHovered = true;
-	ui->avatarLabel->repaint();
-}
-
-void StatusWidget::onManageProfileTriggered()
-{
-	QDesktopServices::openUrl(QUrl("http://id-planet.rambler.ru/"));
+	return QWidget::eventFilter(AObject, AEvent);
 }
 
 void StatusWidget::onAddAvatarTriggered()
@@ -266,22 +250,51 @@ void StatusWidget::onAddAvatarTriggered()
 	QString filename = QFileDialog::getOpenFileName(this, tr("Select new avatar image"), "", tr("Image files %1").arg("(*.jpg *.bmp *.png)"));
 	if (!filename.isEmpty())
 	{
-		QImage newAvatar;
-		if (newAvatar.load(filename))
-			emit avatarChanged(newAvatar);
+		QImage avatar;
+		if (avatar.load(filename))
+			FAvatars->setAvatar(FStreamJid,avatar);
 	}
 }
 
-QString StatusWidget::fitCaptionToWidth(const QString & name, const QString & status, const int width) const
+void StatusWidget::onManageProfileTriggered()
 {
-	QTextDocument doc;
-	QString newName = name;
-	const QString f1 = "<b><font size=+2>", f2 = "</font></b> - <font size=-1>", f3 = "</font>";
-	doc.setHtml(f1 + name + f2 + status + f3);
-	while ((doc.size().width() > width) && newName.length() > 1)
+	QDesktopServices::openUrl(QUrl("http://id-planet.rambler.ru/"));
+}
+
+void StatusWidget::onProfileMenuAboutToHide()
+{
+	FAvatarHovered = false;
+	ui.lblAvatar->repaint();
+}
+
+void StatusWidget::onProfileMenuAboutToShow()
+{
+	FAvatarHovered = true;
+	ui.lblAvatar->repaint();
+}
+
+void StatusWidget::onVCardReceived(const Jid &AContactJid)
+{
+	if (FStreamJid && AContactJid)
 	{
-		newName = newName.left(newName.length() - 1);
-		doc.setHtml(f1 + newName  + "..." + f2 + status + f3);
+		IVCard *vcard = FVCardPlugin->vcard(AContactJid);
+		if (vcard)
+		{
+			QString name = vcard->value(VVN_NICKNAME);
+			if (name.isEmpty())
+				name = vcard->value(VVN_FULL_NAME);
+			if (name.isEmpty())
+				name = vcard->value(VVN_GIVEN_NAME);
+			if (name.isEmpty())
+				name = vcard->contactJid().node();
+			setUserName(name);
+			vcard->unlock();
+		}
 	}
-	return doc.toHtml();
+}
+
+void StatusWidget::onStatusChanged(const Jid &AStreamJid, int AStatusId)
+{
+	if (AStreamJid == FStreamJid)
+		setMoodText(FStatusChanger->statusItemText(AStatusId));
 }

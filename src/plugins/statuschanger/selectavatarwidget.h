@@ -2,29 +2,21 @@
 #define SELECTAVATARWIDGET_H
 
 #include <QWidget>
+#include "ui_selectavatarwidget.h"
 
-namespace Ui {
-	class SelectAvatarWidget;
-}
-
-class SelectAvatarWidget : public QWidget {
-	Q_OBJECT
+class SelectAvatarWidget : 
+	public QWidget 
+{
+	Q_OBJECT;
 public:
-	SelectAvatarWidget(QWidget *parent = 0);
+	SelectAvatarWidget(QWidget *AParent = NULL);
 	~SelectAvatarWidget();
-
 protected:
-	void changeEvent(QEvent *e);
-	bool eventFilter(QObject *, QEvent *);
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
 signals:
 	void avatarSelected(const QImage&);
-
 private:
-	Ui::SelectAvatarWidget *ui;
-
-private slots:
-    //void on_profileButton_clicked();
-    //void on_uploadButton_clicked();
+	Ui::SelectAvatarWidgetClass ui;
 };
 
 #endif // SELECTAVATARWIDGET_H
