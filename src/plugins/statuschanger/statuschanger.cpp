@@ -467,8 +467,9 @@ int StatusChanger::addStatusItem(const QString &AName, int AShow, const QString 
 	int statusId = statusByName(AName);
 	if (statusId==STATUS_NULL_ID && !AName.isEmpty())
 	{
-		while (statusId<=STATUS_MAX_STANDART_ID || FStatusItems.contains(statusId))
-			statusId = qrand();
+		statusId = qrand();
+		while(statusId<=STATUS_MAX_STANDART_ID || FStatusItems.contains(statusId))
+			statusId = (statusId > STATUS_MAX_STANDART_ID) ? statusId+1 : STATUS_MAX_STANDART_ID+1;
 		StatusItem status;
 		status.code = statusId;
 		status.name = AName;
