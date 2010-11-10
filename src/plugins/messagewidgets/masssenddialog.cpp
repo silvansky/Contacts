@@ -30,10 +30,7 @@ MassSendDialog::~MassSendDialog()
 void MassSendDialog::showTabPage()
 {
 	if (isWindow())
-	{
-		isVisible() ? (isMinimized() ? showNormal() : activateWindow()) : show();
-		WidgetManager::raiseWidget(this);
-	}
+		WidgetManager::showActivateRaiseWindow(this);
 	else
 		emit tabPageShow();
 }

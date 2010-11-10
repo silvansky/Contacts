@@ -847,7 +847,6 @@ void LoginDialog::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Activati
 {
 	if (ANotifyId<0 && AReason==QSystemTrayIcon::DoubleClick)
 	{
-		WidgetManager::raiseWidget(this);
-		activateWindow();
+		WidgetManager::showActivateRaiseWindow(this);
 	}
 }

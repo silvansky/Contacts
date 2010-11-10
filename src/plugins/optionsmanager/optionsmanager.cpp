@@ -402,9 +402,7 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
 	}
-	FLoginDialog->show();
-	WidgetManager::raiseWidget(FLoginDialog);
-	FLoginDialog->activateWindow();
+	WidgetManager::showActivateRaiseWindow(FLoginDialog);
 	return FLoginDialog;
 }
 
@@ -412,9 +410,7 @@ QDialog *OptionsManager::showEditProfilesDialog(QWidget *AParent)
 {
 	if (FEditProfilesDialog.isNull())
 		FEditProfilesDialog = new EditProfilesDialog(this,AParent);
-	FEditProfilesDialog->show();
-	WidgetManager::raiseWidget(FEditProfilesDialog);
-	FEditProfilesDialog->activateWindow();
+	WidgetManager::showActivateRaiseWindow(FEditProfilesDialog);
 	return FEditProfilesDialog;
 }
 
@@ -478,9 +474,7 @@ QDialog *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 			connect(FOptionsDialog,SIGNAL(applied()),SLOT(onOptionsDialogApplied()));
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
-		FOptionsDialog->show();
-		WidgetManager::raiseWidget(FOptionsDialog);
-		FOptionsDialog->activateWindow();
+		WidgetManager::showActivateRaiseWindow(FOptionsDialog);
 	}
 	return FOptionsDialog;
 }

@@ -80,10 +80,7 @@ void ChatWindow::showTabPage()
 		FMessageWidgets->assignTabWindowPage(this);
 
 	if (isWindow())
-	{
-		isVisible() ? (isMinimized() ? showNormal() : activateWindow()) : show();
-		WidgetManager::raiseWidget(this);
-	}
+		WidgetManager::showActivateRaiseWindow(this);
 	else
 		emit tabPageShow();
 }

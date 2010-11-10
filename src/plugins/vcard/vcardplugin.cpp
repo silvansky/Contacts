@@ -332,9 +332,7 @@ void VCardPlugin::showVCardDialog(const Jid &AStreamJid, const Jid &AContactJid)
 	if (FVCardDialogs.contains(AContactJid))
 	{
 		VCardDialog *dialog = FVCardDialogs.value(AContactJid);
-		dialog->show();
-		WidgetManager::raiseWidget(dialog);
-		dialog->activateWindow();
+		WidgetManager::showActivateRaiseWindow(dialog);
 	}
 	else if (AStreamJid.isValid() && AContactJid.isValid())
 	{
@@ -350,9 +348,7 @@ void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AConta
 	if (FSimpleVCardDialogs.contains(AContactJid))
 	{
 		SimpleVCardDialog *dialog = FSimpleVCardDialogs.value(AContactJid);
-		dialog->show();
-		WidgetManager::raiseWidget(dialog);
-		dialog->activateWindow();
+		WidgetManager::showActivateRaiseWindow(dialog);
 	}
 	else if (AStreamJid.isValid() && AContactJid.isValid())
 	{

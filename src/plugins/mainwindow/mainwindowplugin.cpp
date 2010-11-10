@@ -128,8 +128,7 @@ void MainWindowPlugin::showMainWindow() const
 	{
 		FMainWindow->show();
 		correctWindowPosition();
-		WidgetManager::raiseWidget(FMainWindow);
-		FMainWindow->activateWindow();
+		WidgetManager::showActivateRaiseWindow(FMainWindow);
 	}
 }
 
