@@ -125,7 +125,7 @@
     </message>
 </context>
 <context>
-    <name>SelectAvatarWidget</name>
+    <name>SelectAvatarWidgetClass</name>
     <message>
         <source>Select Avatar</source>
         <translation>Выберите аватар</translation>
