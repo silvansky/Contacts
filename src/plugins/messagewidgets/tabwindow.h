@@ -3,11 +3,11 @@
 
 #include <QMainWindow>
 #include <QPushButton>
-#include <definations/optionvalues.h>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
-#include <definations/stylesheets.h>
-#include <definations/actiongroups.h>
+#include <definitions/optionvalues.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/stylesheets.h>
+#include <definitions/actiongroups.h>
 #include <interfaces/imessagewidgets.h>
 #include <utils/options.h>
 #include <utils/stylestorage.h>

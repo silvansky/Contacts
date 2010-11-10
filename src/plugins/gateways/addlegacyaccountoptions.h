@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QHBoxLayout>
-#include <definations/resources.h>
+#include <definitions/resources.h>
 #include <interfaces/igateways.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ioptionsmanager.h>

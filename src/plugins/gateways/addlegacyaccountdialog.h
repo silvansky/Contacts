@@ -2,7 +2,7 @@
 #define ADDLEGACYACCOUNTDIALOG_H
 
 #include <QDialog>
-#include <definations/resources.h>
+#include <definitions/resources.h>
 #include <interfaces/igateways.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/iregistraton.h>

@@ -3,10 +3,10 @@
 
 #include <QWidget>
 #include <QLineEdit>
-#include <definations/menuicons.h>
-#include <definations/resources.h>
-#include <definations/stylesheets.h>
-#include <definations/vcardvaluenames.h>
+#include <definitions/menuicons.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
+#include <definitions/vcardvaluenames.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/iavatars.h>
 #include <interfaces/ivcard.h>

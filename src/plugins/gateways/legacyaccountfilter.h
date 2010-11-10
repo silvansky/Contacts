@@ -2,7 +2,7 @@
 #define LEGACYACCOUNTFILTER_H
 
 #include <QSortFilterProxyModel>
-#include <definations/rosterindextyperole.h>
+#include <definitions/rosterindextyperole.h>
 #include <interfaces/igateways.h>
 #include <interfaces/iservicediscovery.h>
 

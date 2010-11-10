@@ -5,8 +5,8 @@
 #include <QLabel>
 #include <QEvent>
 #include <QGridLayout>
-#include <definations/resources.h>
-#include <definations/stylesheets.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 

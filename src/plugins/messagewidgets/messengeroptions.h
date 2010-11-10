@@ -2,7 +2,7 @@
 #define MESSENGEROPTIONS_H
 
 #include <QKeySequence>
-#include <definations/optionvalues.h>
+#include <definitions/optionvalues.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 #include "ui_messengeroptions.h"

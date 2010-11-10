@@ -2,8 +2,8 @@
 #define MASSSENDDIALOG_H
 
 #include <QDialog>
-#include <definations/resources.h>
-#include <definations/stylesheets.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
 #include <interfaces/imessagewidgets.h>
 #include <utils/jid.h>
 #include <utils/stylestorage.h>

@@ -4,11 +4,11 @@
 #include <QUrl>
 #include <QTimer>
 #include <QDialog>
-#include <definations/vcardvaluenames.h>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
-#include <definations/optionvalues.h>
-#include <definations/stylesheets.h>
+#include <definitions/vcardvaluenames.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/optionvalues.h>
+#include <definitions/stylesheets.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/iroster.h>

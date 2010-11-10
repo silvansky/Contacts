@@ -3,10 +3,10 @@
 
 #include <QMouseEvent>
 #include <QDesktopWidget>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
-#include <definations/stylesheets.h>
-#include <definations/notificationdataroles.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/stylesheets.h>
+#include <definitions/notificationdataroles.h>
 #include <interfaces/inotifications.h>
 #include <utils/message.h>
 #include <utils/actionbutton.h>

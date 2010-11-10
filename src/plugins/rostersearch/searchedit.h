@@ -4,8 +4,8 @@
 #include <QLabel>
 #include <QKeyEvent>
 #include <QLineEdit>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
 #include <utils/iconstorage.h>
 
 class SearchEdit : public QLineEdit

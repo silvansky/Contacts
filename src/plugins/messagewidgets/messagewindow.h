@@ -1,10 +1,10 @@
 #ifndef MESSAGEWINDOW_H
 #define MESSAGEWINDOW_H
 
-#include <definations/resources.h>
-#include <definations/stylesheets.h>
-#include <definations/messagedataroles.h>
-#include <definations/rosterindextyperole.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
+#include <definitions/messagedataroles.h>
+#include <definitions/rosterindextyperole.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/ixmppstreams.h>

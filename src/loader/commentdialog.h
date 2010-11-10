@@ -2,13 +2,13 @@
 #define COMMENTDIALOG_H
 
 #include <QDialog>
-#include <definations/version.h>
+#include <definitions/version.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/iaccountmanager.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/ivcard.h>
-#include <definations/vcardvaluenames.h>
+#include <definitions/vcardvaluenames.h>
 #include "ui_commentdialog.h"
 
 class CommentDialog : public QDialog

@@ -5,8 +5,8 @@
 #include <QLabel>
 #include <QFrame>
 #include <QTimer>
-#include <definations/resources.h>
-#include <definations/stylesheets.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
 #include <interfaces/imessagewidgets.h>
 #include <utils/closebutton.h>
 #include <utils/iconstorage.h>

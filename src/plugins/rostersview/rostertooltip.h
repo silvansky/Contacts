@@ -3,8 +3,8 @@
 
 #include <QFrame>
 #include <QBasicTimer>
-#include <definations/resources.h>
-#include <definations/stylesheets.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
 #include <utils/stylestorage.h>
 #include <utils/toolbarchanger.h>
 #include "ui_rostertooltip.h"

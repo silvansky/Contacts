@@ -3,9 +3,9 @@
 
 #include <QLabel>
 #include <QToolButton>
-#include <definations/menuicons.h>
-#include <definations/resources.h>
-#include <definations/tabpagenotifypriorities.h>
+#include <definitions/menuicons.h>
+#include <definitions/resources.h>
+#include <definitions/tabpagenotifypriorities.h>
 #include <interfaces/ichatstates.h>
 #include <interfaces/imessagewidgets.h>
 #include <utils/menu.h>

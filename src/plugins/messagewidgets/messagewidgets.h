@@ -3,12 +3,12 @@
 
 #include <QDesktopServices>
 #include <QObjectCleanupHandler>
-#include <definations/actiongroups.h>
-#include <definations/optionvalues.h>
-#include <definations/optionnodes.h>
-#include <definations/optionnodeorders.h>
-#include <definations/optionwidgetorders.h>
-#include <definations/viewurlhandlerorders.h>
+#include <definitions/actiongroups.h>
+#include <definitions/optionvalues.h>
+#include <definitions/optionnodes.h>
+#include <definitions/optionnodeorders.h>
+#include <definitions/optionwidgetorders.h>
+#include <definitions/viewurlhandlerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imainwindow.h>

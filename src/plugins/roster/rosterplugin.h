@@ -2,10 +2,10 @@
 #define ROSTERPLUGIN_H
 
 #include <QObjectCleanupHandler>
-#include <definations/notificators.h>
-#include <definations/notificationdataroles.h>
-#include <definations/optionwidgetorders.h>
-#include <definations/soundfiles.h>
+#include <definitions/notificators.h>
+#include <definitions/notificationdataroles.h>
+#include <definitions/optionwidgetorders.h>
+#include <definitions/soundfiles.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/inotifications.h>

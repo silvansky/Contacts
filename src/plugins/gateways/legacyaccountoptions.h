@@ -2,7 +2,7 @@
 #define LEGACYACCOUNTOPTIONS_H
 
 #include <QWidget>
-#include <definations/resources.h>
+#include <definitions/resources.h>
 #include <interfaces/igateways.h>
 #include <utils/iconstorage.h>
 #include "ui_legacyaccountoptions.h"

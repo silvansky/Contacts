@@ -4,16 +4,16 @@
 #define MASSSENDHANDLER_UUID "{d803d748-c95a-4631-bd04-952cf8e1031c}"
 
 #include <QMultiMap>
-#include <definations/messagehandlerorders.h>
-#include <definations/rosterindextyperole.h>
-#include <definations/rosterlabelorders.h>
-#include <definations/notificationdataroles.h>
-#include <definations/optionwidgetorders.h>
-#include <definations/actiongroups.h>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
-#include <definations/soundfiles.h>
-#include <definations/xmppurihandlerorders.h>
+#include <definitions/messagehandlerorders.h>
+#include <definitions/rosterindextyperole.h>
+#include <definitions/rosterlabelorders.h>
+#include <definitions/notificationdataroles.h>
+#include <definitions/optionwidgetorders.h>
+#include <definitions/actiongroups.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/soundfiles.h>
+#include <definitions/xmppurihandlerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imessagewidgets.h>

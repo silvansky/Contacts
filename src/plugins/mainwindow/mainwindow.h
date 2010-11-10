@@ -2,10 +2,10 @@
 #define MAINWINDOW_H
 
 #include <interfaces/imainwindow.h>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
-#include <definations/stylesheets.h>
-#include <definations/toolbargroups.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/stylesheets.h>
+#include <definitions/toolbargroups.h>
 #include <utils/stylestorage.h>
 #include "noticewidget.h"
 

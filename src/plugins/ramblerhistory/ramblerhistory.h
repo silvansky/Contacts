@@ -1,10 +1,10 @@
 #ifndef RAMBLERHISTORY_H
 #define RAMBLERHISTORY_H
 
-#include <definations/namespaces.h>
-#include <definations/optionnodes.h>
-#include <definations/optionvalues.h>
-#include <definations/optionwidgetorders.h>
+#include <definitions/namespaces.h>
+#include <definitions/optionnodes.h>
+#include <definitions/optionvalues.h>
+#include <definitions/optionwidgetorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/iramblerhistory.h>
 #include <interfaces/istanzaprocessor.h>

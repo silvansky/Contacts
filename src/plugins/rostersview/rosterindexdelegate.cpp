@@ -6,8 +6,8 @@
 #include <QWindowsVistaStyle>
 #include <QLineEdit>
 #include <utils/iconstorage.h>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
 
 #define BRANCH_WIDTH  10
 

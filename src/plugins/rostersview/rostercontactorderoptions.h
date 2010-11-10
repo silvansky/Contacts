@@ -2,7 +2,7 @@
 #define ROSTERCONTACTORDEROPTIONS_H
 
 #include <QWidget>
-#include <definations/optionvalues.h>
+#include <definitions/optionvalues.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 #include "ui_rostercontactorderoptions.h"

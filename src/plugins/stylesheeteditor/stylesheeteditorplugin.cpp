@@ -1,8 +1,8 @@
 #include "stylesheeteditorplugin.h"
 #include "stylesheeteditor.h"
 #include <utils/filestorage.h>
-#include <definations/stylesheets.h>
-#include <definations/resources.h>
+#include <definitions/stylesheets.h>
+#include <definitions/resources.h>
 #include <QApplication>
 
 StyleSheetEditorPlugin::StyleSheetEditorPlugin()

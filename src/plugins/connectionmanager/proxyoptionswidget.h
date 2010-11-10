@@ -1,7 +1,7 @@
 #ifndef PROXYOPTIONSWIDGET_H
 #define PROXYOPTIONSWIDGET_H
 
-#include <definations/optionvalues.h>
+#include <definitions/optionvalues.h>
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>

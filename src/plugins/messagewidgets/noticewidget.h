@@ -4,7 +4,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <QObjectCleanupHandler>
-#include <definations/resources.h>
+#include <definitions/resources.h>
 #include <interfaces/imessagewidgets.h>
 #include <utils/actionbutton.h>
 #include <utils/iconstorage.h>

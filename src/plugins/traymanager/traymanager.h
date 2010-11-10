@@ -3,9 +3,9 @@
 
 #include <QMap>
 #include <QTimer>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
-#include <definations/actiongroups.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/actiongroups.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/itraymanager.h>
 #include <utils/iconstorage.h>

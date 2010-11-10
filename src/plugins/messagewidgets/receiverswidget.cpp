@@ -3,7 +3,7 @@
 #include <QHeaderView>
 #include <QInputDialog>
 #include <utils/menu.h>
-#include <definations/vcardvaluenames.h>
+#include <definitions/vcardvaluenames.h>
 
 ReceiversWidget::ReceiversWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, IVCardPlugin * AVCardPlugin)
 {

@@ -2,9 +2,9 @@
 #define ROSTERCONTACTVIEWOPTIONS_H
 
 #include <QWidget>
-#include <definations/optionvalues.h>
-#include <definations/resources.h>
-#include <definations/menuicons.h>
+#include <definitions/optionvalues.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>

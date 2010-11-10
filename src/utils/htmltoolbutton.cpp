@@ -6,8 +6,8 @@
 #include <QStyleOptionFocusRect>
 #include <QPainter>
 #include <QApplication>
-//#include <definations/resources.h>
-//#include <definations/menuicons.h>
+//#include <definitions/resources.h>
+//#include <definitions/menuicons.h>
 //#include <utils/iconstorage.h>
 
 // statics

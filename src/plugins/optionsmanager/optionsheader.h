@@ -2,7 +2,7 @@
 #define OPTIONSHEADER_H
 
 #include <QFrame>
-#include <definations/resources.h>
+#include <definitions/resources.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/iconstorage.h>
 
