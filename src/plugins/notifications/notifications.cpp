@@ -173,6 +173,7 @@ bool Notifications::initSettings()
 	Options::setDefaultValue(OPV_NOTIFICATIONS_NONOTIFYIFAWAY,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_NONOTIFYIFDND,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN,true);
+	Options::setDefaultValue(OPV_NOTIFICATIONS_SOUND_COMMAND,QString("aplay"));
 
 	if (FOptionsManager)
 	{
@@ -366,11 +367,20 @@ int Notifications::appendNotification(const INotification &ANotification)
 	{
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
-		if (!soundFile.isEmpty() && (FSound==NULL || FSound->isFinished()))
+		if (!soundFile.isEmpty())
 		{
-			delete FSound;
-			FSound = new QSound(soundFile);
-			FSound->play();
+			if (QSound::isAvailable())
+			{
+				delete FSound;
+				FSound = new QSound(soundFile);
+				FSound->play();
+			}
+#ifdef Q_WS_X11
+			else
+			{
+				QProcess::startDetached(Options::node(OPV_NOTIFICATIONS_SOUND_COMMAND).value().toString(),QStringList()<<soundFile);
+			}
+#endif
 		}
 	}
 

@@ -133,6 +133,7 @@
 #define OPV_NOTIFICATIONS_NONOTIFYIFDND                 "notifications.no-notify-if-dnd"
 #define OPV_NOTIFICATIONS_NONOTIFYIFAWAY                "notifications.no-notify-if-away"
 #define OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN          "notifications.no-notify-if-fullscreen"
+#define OPV_NOTIFICATIONS_SOUND_COMMAND                 "notifications.sound-command"
 #define OPV_NOTIFICATIONS_NOTIFICATORS_ROOT             "notifications.notificators"
 #define OPV_NOTIFICATIONS_NOTIFICATOR_ITEM              "notifications.notificators.notificator"
 
