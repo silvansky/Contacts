@@ -179,6 +179,9 @@ void RostersView::setRostersModel(IRostersModel *AModel)
 	{
 		emit modelAboutToBeSet(AModel);
 
+		if (selectionModel())
+			selectionModel()->clear();
+
 		if (FRostersModel)
 		{
 			disconnect(FRostersModel->instance(),SIGNAL(indexInserted(IRosterIndex *)),this,SLOT(onIndexInserted(IRosterIndex *)));
@@ -255,6 +258,10 @@ void RostersView::insertProxyModel(QAbstractProxyModel *AProxyModel, int AOrder)
 		if (changeViewModel)
 			emit viewModelAboutToBeChanged(AProxyModel);
 
+		IRosterIndex *selectedIndex = FRostersModel!=NULL ? FRostersModel->rosterIndexByModelIndex(selectionModel()!=NULL ? mapToModel(selectionModel()->currentIndex()) : QModelIndex()) : NULL;
+		if (selectionModel())
+			selectionModel()->clear();
+
 		FProxyModels.insert(AOrder,AProxyModel);
 		QList<QAbstractProxyModel *> proxies = FProxyModels.values();
 		int index = proxies.indexOf(AProxyModel);
@@ -279,6 +286,9 @@ void RostersView::insertProxyModel(QAbstractProxyModel *AProxyModel, int AOrder)
 		{
 			QTreeView::setModel(AProxyModel);
 		}
+
+		if (selectedIndex)
+			setCurrentIndex(mapFromModel(FRostersModel->modelIndexByRosterIndex(selectedIndex)));
 
 		if (changeViewModel)
 			emit viewModelChanged(model());
@@ -315,6 +325,10 @@ void RostersView::removeProxyModel(QAbstractProxyModel *AProxyModel)
 				emit viewModelAboutToBeChanged(FRostersModel!=NULL ? FRostersModel->instance() : NULL);
 		}
 
+		IRosterIndex *selectedIndex = FRostersModel!=NULL ? FRostersModel->rosterIndexByModelIndex(selectionModel()!=NULL ? mapToModel(selectionModel()->currentIndex()) : QModelIndex()) : NULL;
+		if (selectionModel())
+			selectionModel()->clear();
+
 		FProxyModels.remove(FProxyModels.key(AProxyModel),AProxyModel);
 
 		if (after == NULL && before == NULL)
@@ -337,6 +351,9 @@ void RostersView::removeProxyModel(QAbstractProxyModel *AProxyModel)
 		}
 
 		AProxyModel->setSourceModel(NULL);
+
+		if (selectedIndex)
+			setCurrentIndex(mapFromModel(FRostersModel->modelIndexByRosterIndex(selectedIndex)));
 
 		if (changeViewModel)
 			emit viewModelChanged(model());

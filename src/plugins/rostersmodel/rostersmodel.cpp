@@ -82,7 +82,7 @@ bool RostersModel::initConnections(IPluginManager *APluginManager, int &/*AInitO
 
 QModelIndex RostersModel::index(int ARow, int AColumn, const QModelIndex &AParent) const
 {
-	IRosterIndex *parentIndex = AParent.isValid() ? reinterpret_cast<IRosterIndex *>(AParent.internalPointer()) : FRootIndex;
+	IRosterIndex *parentIndex = rosterIndexByModelIndex(AParent);
 
 	IRosterIndex *childIndex = parentIndex->child(ARow);
 	if (childIndex)
@@ -94,19 +94,19 @@ QModelIndex RostersModel::index(int ARow, int AColumn, const QModelIndex &AParen
 QModelIndex RostersModel::parent(const QModelIndex &AIndex) const
 {
 	if (AIndex.isValid())
-		return modelIndexByRosterIndex(reinterpret_cast<IRosterIndex *>(AIndex.internalPointer())->parentIndex());
+		return modelIndexByRosterIndex(rosterIndexByModelIndex(AIndex)->parentIndex());
 	return QModelIndex();
 }
 
 bool RostersModel::hasChildren(const QModelIndex &AParent) const
 {
-	IRosterIndex *parentIndex = AParent.isValid() ? reinterpret_cast<IRosterIndex *>(AParent.internalPointer()) : FRootIndex;
+	IRosterIndex *parentIndex = rosterIndexByModelIndex(AParent);
 	return parentIndex->childCount() > 0;
 }
 
 int RostersModel::rowCount(const QModelIndex &AParent) const
 {
-	IRosterIndex *parentIndex = AParent.isValid() ? reinterpret_cast<IRosterIndex *>(AParent.internalPointer()) : FRootIndex;
+	IRosterIndex *parentIndex = rosterIndexByModelIndex(AParent);
 	return parentIndex->childCount();
 }
 
@@ -118,19 +118,19 @@ int RostersModel::columnCount(const QModelIndex &AParent) const
 
 Qt::ItemFlags RostersModel::flags(const QModelIndex &AIndex) const
 {
-	IRosterIndex *rosterIndex = AIndex.isValid() ? reinterpret_cast<IRosterIndex *>(AIndex.internalPointer()) : FRootIndex;
+	IRosterIndex *rosterIndex = rosterIndexByModelIndex(AIndex);
 	return rosterIndex->flags();
 }
 
 QVariant RostersModel::data(const QModelIndex &AIndex, int ARole) const
 {
-	IRosterIndex *index = AIndex.isValid() ? reinterpret_cast<IRosterIndex *>(AIndex.internalPointer()) : FRootIndex;
+	IRosterIndex *index = rosterIndexByModelIndex(AIndex);
 	return index->data(ARole);
 }
 
 QMap<int, QVariant> RostersModel::itemData(const QModelIndex &AIndex) const
 {
-	IRosterIndex *index = AIndex.isValid() ? reinterpret_cast<IRosterIndex *>(AIndex.internalPointer()) : FRootIndex;
+	IRosterIndex *index = rosterIndexByModelIndex(AIndex);
 	return index->data();
 }
 
@@ -384,7 +384,7 @@ QModelIndex RostersModel::modelIndexByRosterIndex(IRosterIndex *AIndex) const
 
 IRosterIndex *RostersModel::rosterIndexByModelIndex(const QModelIndex &AIndex) const
 {
-	return reinterpret_cast<IRosterIndex *>(AIndex.internalPointer());
+	return AIndex.isValid() ? reinterpret_cast<IRosterIndex *>(AIndex.internalPointer()) : FRootIndex;
 }
 
 void RostersModel::emitDelayedDataChanged(IRosterIndex *AIndex)
