@@ -76,6 +76,7 @@ private:
 	IOptionsManager *FOptionsManager;
 private:
 	QHash<QString, QUrl> FUrlByKey;
+	QHash<QString, QString> FKeyByUrl;
 	QMap<QString, IconStorage *> FStorages;
 	QList<EmoticonsContainer *> FContainers;
 	QMap<SelectIconMenu *, EmoticonsContainer *> FContainerByMenu;
