@@ -28,16 +28,7 @@ Presence::~Presence()
 	FStanzaProcessor->removeStanzaHandle(FSHIPresence);
 }
 
-bool Presence::stanzaEdit(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
-{
-	Q_UNUSED(AHandlerId);
-	Q_UNUSED(AStreamJid);
-	Q_UNUSED(AStanza);
-	Q_UNUSED(AAccept);
-	return false;
-}
-
-bool Presence::stanzaRead(int AHandlerId, const Jid &AStreamJid, const Stanza &AStanza, bool &AAccept)
+bool Presence::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
 {
 	if (AHandlerId == FSHIPresence)
 	{
