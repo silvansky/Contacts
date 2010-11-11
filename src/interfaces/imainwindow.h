@@ -45,6 +45,7 @@ class IMainWindow
 {
 public:
 	virtual QMainWindow *instance() =0;
+	virtual bool isActive() const =0;
 	virtual Menu *mainMenu() const = 0;
 	virtual QVBoxLayout *mainLayout() const =0;
 	virtual QStackedWidget *upperWidget() const = 0;

@@ -29,6 +29,59 @@ MainWindow::~MainWindow()
 
 }
 
+bool MainWindow::isActive() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
+Menu *MainWindow::mainMenu() const
+{
+	return FMainMenu;
+}
+
+QVBoxLayout *MainWindow::mainLayout() const
+{
+	return FMainLayout;
+}
+
+QStackedWidget *MainWindow::upperWidget() const
+{
+	return FUpperWidget;
+}
+
+QStackedWidget *MainWindow::rostersWidget() const
+{
+	return FRostersWidget;
+}
+
+QStackedWidget *MainWindow::bottomWidget() const
+{
+	return FBottomWidget;
+}
+
+IInternalNoticeWidget *MainWindow::noticeWidget() const
+{
+	return FNoticeWidget;
+}
+
+ToolBarChanger *MainWindow::topToolBarChanger() const
+{
+	return FTopToolBarChanger;
+}
+
+ToolBarChanger *MainWindow::leftToolBarChanger() const
+{
+	return FLeftToolBarChanger;
+}
+
+ToolBarChanger *MainWindow::statusToolBarChanger() const
+{
+	return FStatusToolBarChanger;
+}
+
 QMenu *MainWindow::createPopupMenu()
 {
 	return NULL;
