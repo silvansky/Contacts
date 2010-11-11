@@ -19,8 +19,8 @@ DataFieldWidget::DataFieldWidget(IDataForms *ADataForms, const IDataField &AFiel
 		layout()->addWidget(FMediaWidget->instance());
 	}
 
-	QString desc = Qt::escape(FField.desc);
-	QString label = !FField.label.isEmpty() ? Qt::escape(FField.label) : desc;
+	QString label = !FField.label.isEmpty() ? FField.label : FField.desc;
+	QString desc = !FField.desc.isEmpty() ? QString("<span>%1</span>").arg(Qt::escape(FField.desc)) : QString::null;
 	if (!FReadOnly && FField.type == DATAFIELD_TYPE_BOOLEAN)
 	{
 		FCheckBox = new QCheckBox(this);
@@ -33,6 +33,7 @@ DataFieldWidget::DataFieldWidget(IDataForms *ADataForms, const IDataField &AFiel
 	{
 		FLabel = new QLabel(this);
 		FLabel->setWordWrap(true);
+		FLabel->setTextFormat(Qt::PlainText);
 		layout()->addWidget(FLabel);
 		FField.value = FField.label.isEmpty() ? FField.value : FField.label;
 	}
@@ -40,10 +41,8 @@ DataFieldWidget::DataFieldWidget(IDataForms *ADataForms, const IDataField &AFiel
 	{
 		FComboBox = new QComboBox(this);
 		appendLabel(label,FComboBox);
-		foreach(IDataOption option, FField.options)
-		{
-			FComboBox->addItem(option.label, option.value);
-		}
+		foreach(IDataOption option, FField.options) {
+			FComboBox->addItem(option.label, option.value); }
 		if (FField.validate.method == DATAVALIDATE_METHOD_OPEN)
 		{
 			FComboBox->setEditable(true);
@@ -233,7 +232,7 @@ void DataFieldWidget::setValue(const QVariant &AValue)
 	}
 	else if (FField.type == DATAFIELD_TYPE_FIXED)
 	{
-		FLabel->setText(Qt::escape(AValue.toString()));
+		FLabel->setText(AValue.toString());
 	}
 	else if (FField.type == DATAFIELD_TYPE_JIDSINGLE)
 	{
@@ -295,8 +294,10 @@ void DataFieldWidget::appendLabel(const QString &AText, QWidget *ABuddy)
 {
 	if (!AText.isEmpty())
 	{
-		FLabel = new QLabel(AText, this);
+		FLabel = new QLabel(this);
 		FLabel->setWordWrap(true);
+		FLabel->setTextFormat(Qt::PlainText);
+		FLabel->setText(AText);
 		FLabel->setBuddy(ABuddy);
 		layout()->addWidget(FLabel);
 	}

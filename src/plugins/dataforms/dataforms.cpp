@@ -353,7 +353,8 @@ void DataForms::xmlField(const IDataField &AField, QDomElement &AFormElem, const
 	if (AField.value.type()==QVariant::StringList && !AField.value.toStringList().isEmpty())
 	{
 		foreach(QString value, AField.value.toStringList()) {
-			fieldElem.appendChild(doc.createElement("value")).appendChild(doc.createTextNode(value)); }
+			fieldElem.appendChild(doc.createElement("value")).appendChild(doc.createTextNode(value));
+		}
 	}
 	else if (AField.value.type() == QVariant::Bool)
 	{
@@ -443,9 +444,8 @@ void DataForms::xmlForm(const IDataForm &AForm, QDomElement &AParentElem) const
 	foreach(IDataLayout layout, AForm.pages) {
 		xmlPage(layout,AParentElem); }
 
-	if (!AForm.tabel.columns.isEmpty()) {
+	if (!AForm.tabel.columns.isEmpty()) 
 		xmlTable(AForm.tabel,formElem);
-	}
 
 	foreach(IDataField field, AForm.fields) {
 		xmlField(field,formElem,AForm.type); }
@@ -1072,8 +1072,9 @@ void DataForms::onNetworkReplyFinished()
 	}
 }
 
-void DataForms::onNetworkReplyError(QNetworkReply::NetworkError /*ACode*/)
+void DataForms::onNetworkReplyError(QNetworkReply::NetworkError ACode)
 {
+	Q_UNUSED(ACode);
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	if (reply)
 	{
@@ -1083,14 +1084,15 @@ void DataForms::onNetworkReplyError(QNetworkReply::NetworkError /*ACode*/)
 	}
 }
 
-void DataForms::onNetworkReplySSLErrors(const QList<QSslError> &/*AErrors*/)
+void DataForms::onNetworkReplySSLErrors(const QList<QSslError> &AErrors)
 {
+	Q_UNUSED(AErrors);
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	if (reply)
 		reply->ignoreSslErrors();
 }
 
-#if QT_VERSION < 040700
+#if QT_VERSION < 0x040700
 uint qHash(const QUrl &key)
 {
 	return qHash(key.toEncoded((QUrl::FormattingOptions)0x100));

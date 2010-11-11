@@ -2,11 +2,33 @@
 
 #include <QLabel>
 #include <QGroupBox>
+#include <QScrollBar>
 #include <QScrollArea>
 #include <QVBoxLayout>
 #include <QTabWidget>
 #include <QTextDocument>
 #include <QMessageBox>
+
+class ScrollArea : 
+	public QScrollArea
+{
+public:
+	ScrollArea(QWidget *AParent = NULL): QScrollArea(AParent)
+	{
+
+	}
+	virtual QSize sizeHint() const 
+	{
+		QSize sh(2*frameWidth()+1,2*frameWidth()+1);
+		if (verticalScrollBar())
+			sh.setWidth(sh.width() + verticalScrollBar()->sizeHint().width());
+		if (horizontalScrollBar())
+			sh.setHeight(sh.height() + horizontalScrollBar()->sizeHint().height());
+		if (widget())
+			sh += widgetResizable() ? widget()->sizeHint() : widget()->size();
+		return sh;
+	}
+};
 
 DataFormWidget::DataFormWidget(IDataForms *ADataForms, const IDataForm &AForm, QWidget *AParent) : QWidget(AParent)
 {
@@ -38,15 +60,16 @@ DataFormWidget::DataFormWidget(IDataForms *ADataForms, const IDataForm &AForm, Q
 	foreach(QString text, FForm.instructions)
 	{
 		QLabel *label = new QLabel(this);
-		label->setText(text);
 		label->setWordWrap(true);
+		label->setTextFormat(Qt::PlainText);
 		label->setAlignment(Qt::AlignCenter);
+		label->setText(text);
 		layout()->addWidget(label);
 	}
 
 	if (FForm.pages.count() < 2)
 	{
-		QScrollArea *scroll = new QScrollArea(this);
+		ScrollArea *scroll = new ScrollArea(this);
 		scroll->setWidgetResizable(true);
 		scroll->setFrameShape(QFrame::NoFrame);
 		layout()->addWidget(scroll);
@@ -87,7 +110,7 @@ DataFormWidget::DataFormWidget(IDataForms *ADataForms, const IDataForm &AForm, Q
 
 		foreach(IDataLayout page, FForm.pages)
 		{
-			QScrollArea *scroll = new QScrollArea(tabs);
+			ScrollArea *scroll = new ScrollArea(tabs);
 			scroll->setWidgetResizable(true);
 			scroll->setFrameShape(QFrame::NoFrame);
 			tabs->addTab(scroll, !page.label.isEmpty() ? page.label : tr("Page %1").arg(tabs->count()+1));
@@ -138,6 +161,11 @@ bool DataFormWidget::checkForm(bool AAllowInvalid) const
 	return true;
 }
 
+IDataTableWidget *DataFormWidget::tableWidget() const
+{
+	return FTableWidget;
+}
+
 IDataFieldWidget *DataFormWidget::fieldWidget(int AIndex) const
 {
 	return FFieldWidgets.value(AIndex);
@@ -154,6 +182,11 @@ IDataForm DataFormWidget::userDataForm() const
 	for (int i=0; i<FFieldWidgets.count(); i++)
 		form.fields[i] = FFieldWidgets.at(i)->userDataField();
 	return form;
+}
+
+const IDataForm &DataFormWidget::dataForm() const
+{
+	return FForm;
 }
 
 bool DataFormWidget::isStretch(IDataFieldWidget *AWidget) const
@@ -174,6 +207,7 @@ bool DataFormWidget::insertLayout(const IDataLayout &ALayout, QWidget *AWidget)
 		{
 			QLabel *label = new QLabel(AWidget);
 			label->setWordWrap(true);
+			label->setTextFormat(Qt::PlainText);
 			label->setText(ALayout.text.value(textCounter++));
 			AWidget->layout()->addWidget(label);
 		}
@@ -223,4 +257,3 @@ void DataFormWidget::onFieldFocusOut(Qt::FocusReason AReason)
 	if (fwidget)
 		emit fieldFocusOut(fwidget,AReason);
 }
-
