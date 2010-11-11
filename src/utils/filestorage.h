@@ -22,6 +22,7 @@ class UTILS_EXPORT FileStorage :
 			public QObject
 {
 	Q_OBJECT;
+	struct StorageObject;
 public:
 	FileStorage(const QString &AStorage, const QString &ASubStorage = STORAGE_SHARED_DIR, QObject *AParent = NULL);
 	virtual ~FileStorage();
@@ -42,36 +43,31 @@ signals:
 public:
 	static QList<QString> availStorages();
 	static QList<QString> availSubStorages(const QString &AStorage, bool ACheckDefs = true);
-	static QString subStorageDir(const QString &AStorage, const QString &ASubStorage);
+	static QList<QString> subStorageDirs(const QString &AStorage, const QString &ASubStorage);
 	static QList<QString> resourcesDirs();
 	static void setResourcesDirs(const QList<QString> &ADirs);
 	static FileStorage *staticStorage(const QString &AStorage);
 protected:
-	void loadDefinations(const QString &ADefFile, bool AShared);
+	void updateDefinitions();
+	void loadDefinitions(const QString &ADefFile, int APrefixIndex);
 private:
 	QString FStorage;
 	QString FSubStorage;
-	QString FSubPrefix;
-	QString FSharedPrefix;
+	QList<QString> FPrefixes;
 private:
-	struct StorageObject {
-		bool shared;
-		QList<int> fileTypes;
-		QList<QString> fileNames;
-		QHash<QString, QString> fileOptions;
-	};
 	QList<QString> FKeys;
-	QHash<QString, uint> FKey2Object;
 	QList<StorageObject> FObjects;
+	QHash<QString, uint> FKey2Object;
 	QHash<QString, QString> FOptions;
 private:
 	static QList<QString> FMimeTypes;
 	static QList<QString> FResourceDirs;
+	static QList<FileStorage *> FInstances;
 	static QHash<QString, FileStorage *> FStaticStorages;
 private:
-	static QList<QString> FObjectTags;
 	static QList<QString> FKeyTags;
 	static QList<QString> FFileTags;
+	static QList<QString> FObjectTags;
 };
 
 #endif // FILESTORAGE_H
