@@ -48,6 +48,14 @@ QString MassSendDialog::tabPageId() const
 	return "MassSendDialog|"+FStreamJid.pBare();
 }
 
+bool MassSendDialog::isActive() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
 void MassSendDialog::changeEvent(QEvent *e)
 {
 	QDialog::changeEvent(e);

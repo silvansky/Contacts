@@ -25,6 +25,7 @@ public:
 	virtual void showTabPage();
 	virtual void closeTabPage();
 	virtual QString tabPageId() const;
+	virtual bool isActive() const;
 	virtual ITabPageNotifier *tabPageNotifier() const
 	{
 		return FTabPageNotifier;
@@ -63,6 +64,7 @@ signals:
 	void tabPageClosed();
 	void tabPageChanged();
 	void tabPageActivated();
+	void tabPageDeactivated();
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
 	// IMassSendDialog
@@ -71,7 +73,6 @@ protected:
 	void changeEvent(QEvent *e);
 protected slots:
 	void onMessageReady();
-
 private:
 	Ui::MassSendDialog *ui;
 private:

@@ -235,6 +235,7 @@ public:
 	virtual void showTabPage() =0;
 	virtual void closeTabPage() =0;
 	virtual QString tabPageId() const =0;
+	virtual bool isActive() const =0;
 	virtual ITabPageNotifier *tabPageNotifier() const =0;
 	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier) =0;
 protected:
@@ -243,6 +244,7 @@ protected:
 	virtual void tabPageClosed() =0;
 	virtual void tabPageChanged() =0;
 	virtual void tabPageActivated() =0;
+	virtual void tabPageDeactivated() =0;
 	virtual void tabPageDestroyed() =0;
 	virtual void tabPageNotifierChanged() =0;
 };
@@ -284,7 +286,6 @@ public:
 	virtual IMenuBarWidget *menuBarWidget() const =0;
 	virtual IToolBarWidget *toolBarWidget() const =0;
 	virtual IStatusBarWidget *statusBarWidget() const =0;
-	virtual bool isActive() const =0;
 	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle) =0;
 protected:
 	virtual void messageReady() =0;

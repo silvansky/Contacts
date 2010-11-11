@@ -31,6 +31,7 @@ public:
 	virtual void showTabPage();
 	virtual void closeTabPage();
 	virtual QString tabPageId() const;
+	virtual bool isActive() const;
 	virtual ITabPageNotifier *tabPageNotifier() const;
 	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier);
 	//IMessageWindow
@@ -62,6 +63,7 @@ signals:
 	void tabPageClosed();
 	void tabPageChanged();
 	void tabPageActivated();
+	void tabPageDeactivated();
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
 	//IMessageWindow

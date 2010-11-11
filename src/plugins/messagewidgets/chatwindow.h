@@ -29,6 +29,7 @@ public:
 	virtual void showTabPage();
 	virtual void closeTabPage();
 	virtual QString tabPageId() const;
+	virtual bool isActive() const;
 	virtual ITabPageNotifier *tabPageNotifier() const;
 	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier);
 	//IChatWindow
@@ -42,7 +43,6 @@ public:
 	virtual IMenuBarWidget *menuBarWidget() const { return FMenuBarWidget; }
 	virtual IToolBarWidget *toolBarWidget() const { return FToolBarWidget; }
 	virtual IStatusBarWidget *statusBarWidget() const { return FStatusBarWidget; }
-	virtual bool isActive() const;
 	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle);
 signals:
 	//ITabPage
@@ -51,6 +51,7 @@ signals:
 	void tabPageClosed();
 	void tabPageChanged();
 	void tabPageActivated();
+	void tabPageDeactivated();
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
 	//IChatWindow

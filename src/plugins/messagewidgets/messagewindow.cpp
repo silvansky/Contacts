@@ -94,6 +94,14 @@ QString MessageWindow::tabPageId() const
 	return "MessageWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
 }
 
+bool MessageWindow::isActive() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
 ITabPageNotifier *MessageWindow::tabPageNotifier() const
 {
 	return FTabPageNotifier;
@@ -237,7 +245,13 @@ void MessageWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, c
 bool MessageWindow::event(QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::WindowActivate)
+	{
 		emit tabPageActivated();
+	}
+	else if (AEvent->type() == QEvent::WindowDeactivate)
+	{
+		emit tabPageDeactivated();
+	}
 	return QMainWindow::event(AEvent);
 }
 

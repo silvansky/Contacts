@@ -98,6 +98,14 @@ QString ChatWindow::tabPageId() const
 	return "ChatWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
 }
 
+bool ChatWindow::isActive() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
 ITabPageNotifier *ChatWindow::tabPageNotifier() const
 {
 	return FTabPageNotifier;
@@ -126,11 +134,6 @@ void ChatWindow::setContactJid(const Jid &AContactJid)
 		FEditWidget->setContactJid(FContactJid);
 		emit contactJidChanged(befour);
 	}
-}
-
-bool ChatWindow::isActive() const
-{
-	return isVisible() && isActiveWindow();
 }
 
 void ChatWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle)
@@ -201,6 +204,10 @@ bool ChatWindow::event(QEvent *AEvent)
 	else if (AEvent->type() == QEvent::WindowActivate)
 	{
 		emit tabPageActivated();
+	}
+	else if (AEvent->type() == QEvent::WindowDeactivate)
+	{
+		emit tabPageDeactivated();
 	}
 	return QMainWindow::event(AEvent);
 }
