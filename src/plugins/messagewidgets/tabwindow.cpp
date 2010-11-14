@@ -19,7 +19,7 @@ TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 	FMessageWidgets = AMessageWidgets;
 
 	initialize();
-	loadWindowState();
+	loadWindowStateAndGeometry();
 
 	FWindowMenu = new Menu(this);
 	createActions();
@@ -39,7 +39,7 @@ TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 TabWindow::~TabWindow()
 {
 	clear();
-	saveWindowState();
+	saveWindowStateAndGeometry();
 	emit windowDestroyed();
 }
 
@@ -221,20 +221,29 @@ void TabWindow::createActions()
 	onOptionsChanged(Options::node(OPV_MESSAGES_TABWINDOWS_DEFAULT));
 }
 
-void TabWindow::saveWindowState()
+void TabWindow::saveWindowStateAndGeometry()
 {
 	if (FMessageWidgets->tabWindowList().contains(FWindowId))
 	{
-		Options::setFileValue(saveGeometry(),"messages.tabwindows.window.geometry",FWindowId.toString());
+		if (isWindow())
+		{
+			Options::setFileValue(saveState(),"messages.tabwindows.window.state",FWindowId.toString());
+			Options::setFileValue(saveGeometry(),"messages.tabwindows.window.geometry",FWindowId.toString());
+		}
 		Options::node(OPV_MESSAGES_TABWINDOW_ITEM,FWindowId.toString()).setValue(ui.twtTabs->tabsClosable(),"tabs-closable");
 	}
 }
 
-void TabWindow::loadWindowState()
+void TabWindow::loadWindowStateAndGeometry()
 {
 	if (FMessageWidgets->tabWindowList().contains(FWindowId))
 	{
-		restoreGeometry(Options::fileValue("messages.tabwindows.window.geometry",FWindowId.toString()).toByteArray());
+		if (isWindow())
+		{
+			if (!restoreGeometry(Options::fileValue("messages.tabwindows.window.geometry",FWindowId.toString()).toByteArray()))
+				setGeometry(WidgetManager::alignGeometry(QSize(640,480),this));
+			restoreState(Options::fileValue("messages.tabwindows.window.state",FWindowId.toString()).toByteArray());
+		}
 		ui.twtTabs->setTabsClosable(Options::node(OPV_MESSAGES_TABWINDOW_ITEM,FWindowId.toString()).value("tabs-closable").toBool());
 	}
 }

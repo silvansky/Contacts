@@ -173,6 +173,7 @@ void ChatWindow::saveWindowGeometry()
 {
 	if (isWindow())
 	{
+		Options::setFileValue(saveState(),"messages.chatwindow.state",tabPageId());
 		Options::setFileValue(saveGeometry(),"messages.chatwindow.geometry",tabPageId());
 	}
 }
@@ -181,7 +182,9 @@ void ChatWindow::loadWindowGeometry()
 {
 	if (isWindow())
 	{
-		restoreGeometry(Options::fileValue("messages.chatwindow.geometry",tabPageId()).toByteArray());
+		if (!restoreGeometry(Options::fileValue("messages.chatwindow.geometry",tabPageId()).toByteArray()))
+			setGeometry(WidgetManager::alignGeometry(QSize(640,480),this));
+		restoreState(Options::fileValue("messages.chatwindow.state",tabPageId()).toByteArray());
 	}
 }
 

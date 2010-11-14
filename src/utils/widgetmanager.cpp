@@ -1,5 +1,6 @@
 #include "widgetmanager.h"
 
+#include <QStyle>
 #include <QCursor>
 #include <QApplication>
 #include <QDesktopWidget>
@@ -179,4 +180,10 @@ void WidgetManager::setWindowSticky(QWidget *AWindow, bool ASticky)
 	Q_UNUSED(AWindow);
 	Q_UNUSED(ASticky);
 #endif
+}
+
+QRect WidgetManager::alignGeometry(const QSize &ASize, const QWidget *AWidget, Qt::Alignment AAlign)
+{
+	QRect availRect = AWidget!=NULL ? QApplication::desktop()->availableGeometry(AWidget) : QApplication::desktop()->availableGeometry();
+	return QStyle::alignedRect(Qt::LeftToRight,AAlign,ASize.boundedTo(availRect.size()),availRect);
 }
