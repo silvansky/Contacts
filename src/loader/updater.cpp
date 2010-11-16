@@ -5,8 +5,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QProcess>
-
-#include "../utils/unzipfile.h"
+#include <utils/unzipfile.h>
 
 Updater::Updater(QObject *parent)
 : QObject(parent)

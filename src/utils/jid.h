@@ -7,7 +7,7 @@
 #include <QMetaType>
 #include <QSharedData>
 #include "utilsexport.h"
-#include "../thirdparty/idn/stringprep.h"
+#include <thirdparty/idn/stringprep.h>
 
 class JidData :
 			public QSharedData

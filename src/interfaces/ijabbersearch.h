@@ -3,8 +3,8 @@
 
 #define JABBERSEARCH_UUID   "{dd244961-6b23-44c0-8d8c-b1531e70e193}"
 
-#include "../interfaces/idataforms.h"
-#include "../utils/jid.h"
+#include <interfaces/idataforms.h>
+#include <utils/jid.h>
 
 struct ISearchItem {
 	Jid itemJid;

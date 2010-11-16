@@ -2,8 +2,8 @@
 #define ISESSIONNEGOTIATION_H
 
 #include <QHash>
-#include "../interfaces/idataforms.h"
-#include "../utils/jid.h"
+#include <interfaces/idataforms.h>
+#include <utils/jid.h>
 
 #define SESSIONNEGOTIATION_UUID       "{48da8d2c-b115-4d9e-a25f-3227c7f3f868}"
 

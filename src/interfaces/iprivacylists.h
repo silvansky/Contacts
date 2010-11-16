@@ -2,8 +2,8 @@
 #define IPRIVACYLISTS_H
 
 #include <QDialog>
-#include "../interfaces/iroster.h"
-#include "../utils/jid.h"
+#include <interfaces/iroster.h>
+#include <utils/jid.h>
 
 #define PRIVACYLISTS_UUID             "{acccaae3-1b79-4ba4-926f-2b2a21055684}"
 

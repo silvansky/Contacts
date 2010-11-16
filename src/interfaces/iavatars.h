@@ -2,7 +2,7 @@
 #define IAVATARS_H
 
 #include <QImage>
-#include "../utils/jid.h"
+#include <utils/jid.h>
 
 #define AVATARTS_UUID "{d4bb94bd-2ea6-4c6e-910b-6e6b46a712ca}"
 
