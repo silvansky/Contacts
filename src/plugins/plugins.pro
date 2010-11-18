@@ -41,4 +41,5 @@ SUBDIRS = optionsmanager \
 	  bitsofbinary \
 	  masssendhandler \
 	  registration \
-	  ramblerhistory
+	  ramblerhistory \
+          birthdayreminder

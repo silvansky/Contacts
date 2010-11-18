@@ -27,6 +27,10 @@
 // MessageArchiver
 #define OPV_ACCOUNT_ARCHIVEREPLICATION                  "accounts.account.archive-replication"
 
+//BirthdayReminder
+#define OPV_BIRTHDAY_NOTICE_SHOWCOUNT                   "birthday.notice.show-count"
+#define OPV_BIRTHDAY_NOTICE_SHOWLAST                    "birthday.notice.show-last"
+
 // Console
 #define OPV_CONSOLE_ROOT                                "console"
 #define OPV_CONSOLE_CONTEXT_ITEM                        "console.context"

@@ -45,4 +45,7 @@
 #define STS_SCHANGER_NOTIFYWIDGET_CONNECTION_ERROR                      "schangerNotifyWidgetConnectionError"
 #define STS_SCHANGER_NOTIFYWIDGET_CONNECTION_RESTORE                    "schangerNotifyWidgetConnectionRestore"
 
+//BirthdayReminder
+#define STS_BIRTHDAYREMINDER_NOTIFYWIDGET                               "birthdayreminderNotifyWidget"
+
 #endif // DEF_STYLESHEETS_H

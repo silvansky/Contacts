@@ -8,6 +8,7 @@
 #define NID_CONNECTION_STATE         "ConnectionState"
 #define NID_CONTACT_ADDED            "ContactAdded"
 #define NID_CHATSTATE_TYPING         "ChatStateTyping"
+#define NID_BIRTHDAY_REMIND          "BirthdayRemind"
 
 
 #endif // DEF_NOTIFICATORS_H

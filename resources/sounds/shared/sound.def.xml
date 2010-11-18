@@ -8,6 +8,7 @@
     <key>presenceStateChanged</key>
     <key>rosterContactAdded</key>
     <key>schangerConnectionRestore</key>
+    <key>birthdayreminderRemind</key>
     <object mime='sound/wav'>default.wav</object>
   </file>
 

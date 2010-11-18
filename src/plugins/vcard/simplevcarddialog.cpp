@@ -30,8 +30,7 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 	FPresencePlugin = APresencePlugin;
 	FPresence = FPresencePlugin->getPresence(FStreamJid);
 	updateDialog();
-	if (FVCard->isEmpty())
-		reloadVCard();
+	reloadVCard();
 
 	connect(ui->closeButton, SIGNAL(clicked()), SLOT(close()));
 }

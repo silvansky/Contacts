@@ -20,6 +20,11 @@
 #define MNI_AVATAR_EMPTY_MALE                    "avatarEmptyMale"
 #define MNI_AVATAR_EMPTY_FEMALE                  "avatarEmptyFemale"
 
+//BirthdayReminder
+#define MNI_BIRTHDAYREMINDER_NOTICE              "birthdayreminderNotice"
+#define MNI_BIRTHDAYREMINDER_NOTIFY              "birthdayreminderNotify"
+#define MNI_BIRTHDAYREMINDER_AVATAR_CAKE         "birthdayreminderAvatarCake"
+
 //Bookmarks
 #define MNI_BOOKMARKS                            "bookmarks"
 #define MNI_BOOKMARKS_ADD                        "bookmarksAdd"

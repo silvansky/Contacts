@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>birthdayreminderNotice</key>
+    <object mime="image/png">birthdayremindernotice.png</object>
+  </icon>
+  <icon>
+    <key>birthdayreminderNotify</key>
+    <object mime="image/png">birthdayremindernotify.png</object>
+  </icon>
+  <icon>
+    <key>birthdayreminderAvatarCake</key>
+    <object mime="image/png">birthdayreminderavatarcake.png</object>
+  </icon>
+</icondef>
