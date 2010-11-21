@@ -82,4 +82,6 @@
 #define NS_RAMBLER_ARCHIVE                      "urn:xmpp:archive:rambler"
 #define NS_RAMBLER_ARCHIVE_RSM                  "urn:xmpp:archive:rambler:rsm"
 
+#define NS_RAMBLER_METACONTACTS                 "rambler:roster:mc"
+
 #endif

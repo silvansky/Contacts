@@ -18,4 +18,7 @@
 //Iq Message Presence In
 #define SHO_IMPI_BITSOFBINARY         100
 
+//Iq Out
+#define  SHO_QO_METAROSTER            500
+
 #endif

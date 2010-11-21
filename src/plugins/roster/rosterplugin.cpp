@@ -215,7 +215,7 @@ void RosterPlugin::onStreamAdded(IXmppStream *AXmppStream)
 	connect(roster->instance(),SIGNAL(opened()),SLOT(onRosterOpened()));
 	connect(roster->instance(),SIGNAL(received(const IRosterItem &,const IRosterItem &)),SLOT(onRosterItemReceived(const IRosterItem &,const IRosterItem &)));
 	connect(roster->instance(),SIGNAL(subscriptionSent(const Jid &, int, const QString &)),
-	        SLOT(onRosterSubscriptionSent(const Jid &, int, const QString &)));
+		SLOT(onRosterSubscriptionSent(const Jid &, int, const QString &)));
 	connect(roster->instance(),SIGNAL(subscriptionReceived(const Jid &, int, const QString &)),
 		SLOT(onRosterSubscriptionReceived(const Jid &, int, const QString &)));
 	connect(roster->instance(),SIGNAL(closed()),SLOT(onRosterClosed()));

@@ -2,9 +2,11 @@
 #define METACONTACTS_H
 
 #include <QObject>
+#include <QObjectCleanupHandler>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istanzaprocessor.h>
+#include "metaroster.h"
 
 class MetaContacts : 
 	public QObject,
@@ -25,9 +27,28 @@ public:
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
 	//IMetaContacts
+	virtual IMetaRoster *newMetaRoster(IRoster *ARoster);
+	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;
+	virtual void removeMetaRoster(IRoster *ARoster);
+signals:
+	void metaRosterAdded(IMetaRoster *AMetaRoster);
+	void metaRosterOpened(IMetaRoster *AMetaRoster);
+	void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
+	void metaRosterClosed(IMetaRoster *AMetaRoster);
+	void metaRosterRemoved(IMetaRoster *AMetaRoster);
+protected slots:
+	void onMetaRosterOpened();
+	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
+	void onMetaRosterClosed();
+	void onMetaRosterDestroyed(QObject *AObject);
+	void onRosterAdded(IRoster *ARoster);
+	void onRosterRemoved(IRoster *ARoster);
 private:
 	IRosterPlugin *FRosterPlugin;
 	IStanzaProcessor *FStanzaProcessor;
+private:
+	QList<IMetaRoster *> FMetaRosters;
+	QObjectCleanupHandler FCleanupHandler;
 };
 
 #endif // METACONTACTS_H
