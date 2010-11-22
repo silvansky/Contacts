@@ -226,9 +226,9 @@ int BirthdayReminder::contactBithdayDaysLeft(const Jid &AContactJid) const
 	return -1;
 }
 
-QImage BirthdayReminder::avatarWithCake(const Jid &AContactJid, QImage &AAvatar) const
+QImage BirthdayReminder::avatarWithCake(const Jid &AContactJid, const QImage &AAvatar) const
 {
-	QImage &avatar = AAvatar;
+	QImage avatar = AAvatar;
 	if (FAvatars && avatar.isNull())
 		avatar = FAvatars->avatarImage(AContactJid);
 

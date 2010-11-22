@@ -13,7 +13,7 @@ public:
 	virtual QObject *instance() =0;
 	virtual QDate contactBithday(const Jid &AContactJid) const =0;
 	virtual int contactBithdayDaysLeft(const Jid &AContactJid) const =0;
-	virtual QImage avatarWithCake(const Jid &AContactJid, QImage &AAvatar = QImage()) const =0;
+	virtual QImage avatarWithCake(const Jid &AContactJid, const QImage &AAvatar = QImage()) const =0;
 };
 
 Q_DECLARE_INTERFACE(IBirthdayReminder,"Virtus.Plugin.IBirthdayReminer/1.0")

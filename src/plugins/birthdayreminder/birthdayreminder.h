@@ -61,7 +61,7 @@ public:
 	//IBirthdayReminder
 	virtual QDate contactBithday(const Jid &AContactJid) const;
 	virtual int contactBithdayDaysLeft(const Jid &AContactJid) const;
-	virtual QImage avatarWithCake(const Jid &AContactJid, QImage &AAvatar = QImage()) const;
+	virtual QImage avatarWithCake(const Jid &AContactJid, const QImage &AAvatar = QImage()) const;
 signals:
 	//IRosterDataHolder
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);
