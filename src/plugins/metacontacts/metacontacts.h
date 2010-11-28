@@ -3,10 +3,13 @@
 
 #include <QObject>
 #include <QObjectCleanupHandler>
+#include <definitions/rosterproxyorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istanzaprocessor.h>
+#include <interfaces/irostersview.h>
 #include "metaroster.h"
+#include "metaproxymodel.h"
 
 class MetaContacts : 
 	public QObject,
@@ -23,7 +26,7 @@ public:
 	virtual QUuid pluginUuid() const { return METACONTACTS_UUID; }
 	virtual void pluginInfo(IPluginInfo *APluginInfo);
 	virtual bool initConnections(IPluginManager *APluginManager, int &AInitOrder);
-	virtual bool initObjects() { return true; }
+	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
 	//IMetaContacts
@@ -46,6 +49,7 @@ protected slots:
 private:
 	IRosterPlugin *FRosterPlugin;
 	IStanzaProcessor *FStanzaProcessor;
+	IRostersViewPlugin *FRostersViewPlugin;
 private:
 	QList<IMetaRoster *> FMetaRosters;
 	QObjectCleanupHandler FCleanupHandler;

@@ -4,6 +4,7 @@ MetaContacts::MetaContacts()
 {
 	FRosterPlugin = NULL;
 	FStanzaProcessor = NULL;
+	FRostersViewPlugin = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -41,7 +42,21 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
+	if (plugin)
+		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
+
 	return FRosterPlugin!=NULL && FStanzaProcessor!=NULL;
+}
+
+bool MetaContacts::initObjects()
+{
+	if (FRostersViewPlugin)
+	{
+		MetaProxyModel *proxyModel = new MetaProxyModel(this, FRostersViewPlugin->rostersView());
+		FRostersViewPlugin->rostersView()->insertProxyModel(proxyModel, RPO_METACONTACTS_MODIFIER);
+	}
+	return true;
 }
 
 IMetaRoster *MetaContacts::newMetaRoster(IRoster *ARoster)

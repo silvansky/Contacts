@@ -162,7 +162,6 @@ QList<IMetaContact> MetaRoster::groupContacts(const QString &AGroup) const
 		}
 	}
 	return contacts;
-
 }
 
 void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRoster)

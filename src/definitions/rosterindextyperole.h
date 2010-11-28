@@ -14,8 +14,11 @@ enum RosterIndexTypes
 	RIT_GROUP_AGENTS,
 	RIT_AGENT,
 	RIT_MY_RESOURCE,
+	//RosterSearch
 	RIT_SEARCH_EMPTY,
-	RIT_SEARCH_LINK
+	RIT_SEARCH_LINK,
+	//MetaContacts
+	RIT_METACONTACT
 };
 
 enum RosterIndexDataRoles
