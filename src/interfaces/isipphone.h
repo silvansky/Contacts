@@ -2,6 +2,7 @@
 #define ISIPPHONE_H
 
 #include <QUuid>
+#include <utils/jid.h>
 
 #define SIPPHONE_UUID "{28686B71-6E29-4065-8D2E-6116F2491394}"
 

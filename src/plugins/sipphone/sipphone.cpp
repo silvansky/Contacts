@@ -196,17 +196,18 @@ bool SipPhone::acceptStream(const QString &AStreamId)
 {
 	if (FStanzaProcessor && FPendingRequests.contains(AStreamId))
 	{
+		ISipStream &stream = FStreams[AStreamId];
+
 		Stanza opened("iq");
 		opened.setType("result").setId(FPendingRequests.value(AStreamId)).setTo(stream.contactJid.eFull());
 		QDomElement openedElem = opened.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(opened.createElement("opened")).toElement();
 		openedElem.setAttribute("sid",AStreamId);
 
-		ISipStream &stream = FStreams[AStreamId];
 		if (FStanzaProcessor->sendStanzaOut(stream.streamJid,opened))
 		{
 			FPendingRequests.remove(AStreamId);
 			stream.state = ISipStream::SS_OPENED;
-			emit streamStateChanged(AStreamId);
+			emit streamStateChanged(AStreamId, stream.state);
 			return true;
 		}
 	}
@@ -228,7 +229,7 @@ void SipPhone::closeStream(const QString &AStreamId)
 			{
 				//Отправлен запрос на закрытие соединения
 				stream.state = ISipStream::SS_CLOSE;
-				emit streamStateChanged(AStreamId);
+				emit streamStateChanged(AStreamId,stream.state);
 			}
 			else
 			{
