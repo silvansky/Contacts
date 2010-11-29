@@ -43,4 +43,5 @@ SUBDIRS = optionsmanager \
 	  registration \
 	  ramblerhistory \
 	  birthdayreminder \
-	  metacontacts
+	  metacontacts \
+          sipphone
