@@ -25,19 +25,23 @@ public:
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
 	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//IMetaRoster
+	virtual bool isEnabled() const;
 	virtual Jid streamJid() const;
 	virtual IRoster *roster() const;
 	virtual bool isOpen() const;
 	virtual QList<Jid> metaContacts() const;
+	virtual Jid itemMetaContact(const Jid &AItemJid) const;
 	virtual IMetaContact metaContact(const Jid &AMetaId) const;
-	virtual IMetaContact itemMetaContact(const Jid &AItemJid) const;
 	virtual QSet<QString> groups() const;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const;
 signals:
 	void metaRosterOpened();
 	void metaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void metaRosterClosed();
+	void metaRosterEnabled(bool AEnabled);
 protected:
+	void setEnabled(bool AEnabled);
+	void removeMetaContact(const Jid &AMetaId);
 	void processMetasElement(QDomElement AMetasElement, bool ACompleteRoster);
 	Stanza convertMetaElemToRosterStanza(QDomElement AMetaElem) const;
 	Stanza convertRosterElemToMetaStanza(QDomElement ARosterElem) const;
@@ -58,6 +62,7 @@ private:
 	QList<QString> FBlockResults;
 private:
 	bool FOpened;
+	bool FEnabled;
 	QHash<Jid, Jid> FItemMetaId;
 	QHash<Jid, IMetaContact> FMetaContacts;
 };

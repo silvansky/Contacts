@@ -6,11 +6,16 @@ MetaProxyModel::MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARost
 	FRostersView = ARostersView;
 	FMetaContacts = AMetaContacts;
 
+	FInvalidateTimer.setInterval(0);
+	FInvalidateTimer.setSingleShot(true);
+	connect(&FInvalidateTimer,SIGNAL(timeout()),SLOT(onInvalidateTimerTimeout()));
+
 	onRostersModelSet(FRostersView->rostersModel());
 	connect(FRostersView->instance(),SIGNAL(modelSet(IRostersModel *)),SLOT(onRostersModelSet(IRostersModel *)));
 
 	connect(FMetaContacts->instance(),SIGNAL(metaContactReceived(IMetaRoster *, const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(IMetaRoster *, const IMetaContact &, const IMetaContact &)));
+	connect(FMetaContacts->instance(),SIGNAL(metaRosterEnabled(IMetaRoster *, bool)), SLOT(onMetaRosterEnabled(IMetaRoster *, bool)));
 }
 
 MetaProxyModel::~MetaProxyModel()
@@ -42,7 +47,10 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 	case RIT_METACONTACT:
 		if (ARole == Qt::DisplayRole)
 		{
-
+			QString name = AIndex->data(RDR_NAME).toString();
+			if (name.isEmpty())
+				name = Jid(AIndex->data(RDR_INDEX_ID).toString()).node();
+			data = name;
 		}
 		break;
 	default:
@@ -67,10 +75,38 @@ bool MetaProxyModel::filterAcceptsRow(int ASourceRow, const QModelIndex &ASource
 		int indexType = index.data(RDR_TYPE).toInt();
 		if (indexType==RIT_CONTACT || indexType==RIT_AGENT)
 		{
-
+			IMetaRoster *mroster = FMetaContacts->findMetaRoster(index.data(RDR_STREAM_JID).toString());
+			return mroster==NULL || !mroster->isEnabled() || !mroster->itemMetaContact(index.data(RDR_BARE_JID).toString()).isValid();
 		}
 	}
 	return true;
+}
+
+QMap<QString, IRosterIndex *> MetaProxyModel::findContactIndexes(IMetaRoster *AMetaRoster, const IMetaContact &AContact) const
+{
+	QMap<QString, IRosterIndex *> indexes;
+	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
+	if (streamIndex && !AContact.groups.isEmpty())
+	{
+		int groupType = !AContact.groups.isEmpty() ? RIT_GROUP : RIT_GROUP_BLANK;
+		QSet<QString> groups = !AContact.groups.isEmpty() ? AContact.groups : QSet<QString>() << FRostersModel->blankGroupName();
+		foreach(QString group, groups)
+		{
+			IRosterIndex *groupIndex = FRostersModel->findGroup(group,AMetaRoster->roster()->groupDelimiter(),groupType,streamIndex);
+			if (groupIndex)
+			{
+				IRosterIndex *index = FRostersModel->findRosterIndex(RIT_METACONTACT,AContact.id.pBare(),groupIndex);
+				if (index)
+					indexes.insert(group,index);
+			}
+		}
+	}
+	return indexes;
+}
+
+void MetaProxyModel::onInvalidateTimerTimeout()
+{
+	invalidateFilter();
 }
 
 void MetaProxyModel::onRostersModelSet(IRostersModel *AModel)
@@ -93,10 +129,100 @@ void MetaProxyModel::onRostersModelSet(IRostersModel *AModel)
 	}
 }
 
+void MetaProxyModel::onMetaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled)
+{
+	if (!AEnabled)
+	{
+		IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
+		if (streamIndex)
+		{
+			QMultiMap<int,QVariant> findData;
+			findData.insert(RDR_TYPE,RIT_METACONTACT);
+			foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
+			{
+				FRostersModel->removeRosterIndex(index);
+				index->instance()->deleteLater();
+			}
+		}
+	}
+	FInvalidateTimer.start();
+}
+
 void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore)
 {
-	if (FRostersModel)
+	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
+	if (streamIndex)
 	{
+		QMultiMap<int,QVariant> findData;
+		findData.insert(RDR_TYPE,RIT_METACONTACT);
+		findData.insert(RDR_INDEX_ID,AContact.id.pBare());
+		QList<IRosterIndex *> curItemList = streamIndex->findChild(findData,true);
+		QList<IRosterIndex *> oldItemList = curItemList;
 
+		if (!AContact.items.isEmpty())
+		{
+			QSet<QString> curGroups;
+			foreach(IRosterIndex *index, curItemList)
+				curGroups.insert(index->data(RDR_GROUP).toString());
+			
+			QSet<QString> itemGroups = AContact.groups;
+			if (itemGroups.isEmpty())
+				itemGroups += QString::null;
+
+			QSet<QString> newGroups = itemGroups - curGroups;
+			QSet<QString> oldGroups = curGroups - itemGroups;
+
+			QString groupDelim = AMetaRoster->roster()->groupDelimiter();
+			foreach(QString group, itemGroups)
+			{
+				int groupType = !group.isEmpty() ? RIT_GROUP : RIT_GROUP_BLANK;
+				QString groupName = !group.isEmpty() ? group : FRostersModel->blankGroupName();
+				IRosterIndex *groupIndex = FRostersModel->createGroup(groupName,groupDelim,groupType,streamIndex);
+
+				IRosterIndex *groupItemIndex = NULL;
+				if (newGroups.contains(group) && !oldGroups.isEmpty())
+				{
+					IRosterIndex *oldGroupIndex;
+					QString oldGroup = oldGroups.values().value(0);
+					if (!oldGroup.isEmpty())
+						oldGroupIndex = FRostersModel->findGroup(oldGroup,groupDelim,RIT_GROUP,streamIndex);
+					else
+						oldGroupIndex = FRostersModel->findGroup(FRostersModel->blankGroupName(),groupDelim,RIT_GROUP_BLANK,streamIndex);
+					
+					groupItemIndex = oldGroupIndex!=NULL ? oldGroupIndex->findChild(findData).value(0) : NULL;
+					if (groupItemIndex)
+					{
+						groupItemIndex->setData(RDR_GROUP,group);
+						groupItemIndex->setParentIndex(groupIndex);
+					}
+
+					oldGroups -= oldGroup;
+				}
+				else
+				{
+					groupItemIndex = groupIndex->findChild(findData).value(0);
+				}
+
+				if (groupItemIndex == NULL)
+				{
+					groupItemIndex = FRostersModel->createRosterIndex(RIT_METACONTACT,AContact.id.pBare(),groupIndex);
+					groupItemIndex->setData(RDR_GROUP,group);
+					FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
+				}
+				groupItemIndex->setData(RDR_NAME,AContact.name);
+
+				oldItemList.removeAll(groupItemIndex);
+			}
+		}
+
+		foreach(IRosterIndex *index, oldItemList)
+		{
+			FRostersModel->removeRosterIndex(index);
+			index->instance()->deleteLater();
+			FInvalidateTimer.start();
+		}
+
+		if (AContact.items != ABefore.items)
+			FInvalidateTimer.start();
 	}
 }

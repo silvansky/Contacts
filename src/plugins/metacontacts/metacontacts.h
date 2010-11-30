@@ -38,11 +38,13 @@ signals:
 	void metaRosterOpened(IMetaRoster *AMetaRoster);
 	void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
 	void metaRosterClosed(IMetaRoster *AMetaRoster);
+	void metaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled);
 	void metaRosterRemoved(IMetaRoster *AMetaRoster);
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaRosterClosed();
+	void onMetaRosterEnabled(bool AEnabled);
 	void onMetaRosterDestroyed(QObject *AObject);
 	void onRosterAdded(IRoster *ARoster);
 	void onRosterRemoved(IRoster *ARoster);

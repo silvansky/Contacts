@@ -18,18 +18,20 @@ class IMetaRoster
 {
 public:
 	virtual QObject *instance() =0;
+	virtual bool isEnabled() const =0;
 	virtual Jid streamJid() const =0;
 	virtual IRoster *roster() const =0;
 	virtual bool isOpen() const =0;
 	virtual QList<Jid> metaContacts() const =0;
+	virtual Jid itemMetaContact(const Jid &AItemJid) const =0;
 	virtual IMetaContact metaContact(const Jid &AMetaId) const =0;
-	virtual IMetaContact itemMetaContact(const Jid &AItemJid) const =0;
 	virtual QSet<QString> groups() const =0;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const =0;
 protected:
 	virtual void metaRosterOpened() =0;
 	virtual void metaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore) =0;
 	virtual void metaRosterClosed() =0;
+	virtual void metaRosterEnabled(bool AEnabled) =0;
 };
 
 class IMetaContacts
@@ -44,6 +46,7 @@ protected:
 	virtual void metaRosterOpened(IMetaRoster *AMetaRoster) =0;
 	virtual void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore) =0;
 	virtual void metaRosterClosed(IMetaRoster *AMetaRoster) =0;
+	virtual void metaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled) =0;
 	virtual void metaRosterRemoved(IMetaRoster *AMetaRoster) =0;
 };
 

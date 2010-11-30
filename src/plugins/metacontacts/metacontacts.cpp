@@ -112,6 +112,13 @@ void MetaContacts::onMetaRosterClosed()
 		emit metaRosterClosed(mroster);
 }
 
+void MetaContacts::onMetaRosterEnabled(bool AEnabled)
+{
+	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
+	if (mroster)
+		emit metaRosterEnabled(mroster,AEnabled);
+}
+
 void MetaContacts::onMetaRosterDestroyed(QObject *AObject)
 {
 	for (QList<IMetaRoster *>::iterator it = FMetaRosters.begin(); it!=FMetaRosters.end(); it++)
@@ -128,6 +135,7 @@ void MetaContacts::onRosterAdded(IRoster *ARoster)
 	connect(mroster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 	connect(mroster->instance(),SIGNAL(metaRosterClosed()),SLOT(onMetaRosterClosed()));
+	connect(mroster->instance(),SIGNAL(metaRosterEnabled(bool)),SLOT(onMetaRosterEnabled(bool)));
 	emit metaRosterAdded(mroster);
 }
 

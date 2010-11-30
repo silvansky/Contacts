@@ -12,6 +12,7 @@ MetaRoster::MetaRoster(IRoster *ARoster, IStanzaProcessor *AStanzaProcessor) : Q
 	FStanzaProcessor = AStanzaProcessor;
 
 	FOpened = false;
+	FEnabled = false;
 	FSHIMetaContacts = -1;
 
 	connect(FRoster->xmppStream()->instance(),SIGNAL(closed()),SLOT(onStreamClosed()));
@@ -81,6 +82,7 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 	{
 		if (AStanza.type() == "result")
 		{
+			setEnabled(true);
 			QDomElement metasElem = AStanza.firstElement("query",NS_RAMBLER_METACONTACTS);
 
 			Stanza rosterStanza = convertMetaElemToRosterStanza(metasElem);
@@ -93,6 +95,7 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 		}
 		else
 		{
+			setEnabled(false);
 			removeStanzaHandlers();
 			FStanzaProcessor->sendStanzaOut(AStreamJid,FRosterRequest);
 		}
@@ -103,9 +106,15 @@ void MetaRoster::stanzaRequestTimeout(const Jid &AStreamJid, const QString &ASta
 {
 	if (FOpenRequestId == AStanzaId)
 	{
+		setEnabled(false);
 		removeStanzaHandlers();
 		FStanzaProcessor->sendStanzaOut(AStreamJid,FRosterRequest);
 	}
+}
+
+bool MetaRoster::isEnabled() const
+{
+	return FEnabled;
 }
 
 Jid MetaRoster::streamJid() const
@@ -128,14 +137,14 @@ QList<Jid> MetaRoster::metaContacts() const
 	return FMetaContacts.keys();
 }
 
+Jid MetaRoster::itemMetaContact(const Jid &AItemJid) const
+{
+	return FItemMetaId.value(AItemJid);
+}
+
 IMetaContact MetaRoster::metaContact(const Jid &AMetaId) const
 {
 	return FMetaContacts.value(AMetaId);
-}
-
-IMetaContact MetaRoster::itemMetaContact(const Jid &AItemJid) const
-{
-	return metaContact(FItemMetaId.value(AItemJid));
 }
 
 QSet<QString> MetaRoster::groups() const
@@ -162,6 +171,30 @@ QList<IMetaContact> MetaRoster::groupContacts(const QString &AGroup) const
 		}
 	}
 	return contacts;
+}
+
+void MetaRoster::setEnabled(bool AEnabled)
+{
+	if (FEnabled != AEnabled)
+	{
+		if (!AEnabled)
+		{
+			foreach(Jid metaId, FMetaContacts.keys()) {
+				removeMetaContact(metaId); }
+		}
+		FEnabled = AEnabled;
+		emit metaRosterEnabled(AEnabled);
+	}
+}
+
+void MetaRoster::removeMetaContact(const Jid &AMetaId)
+{
+	IMetaContact contact = FMetaContacts.take(AMetaId);
+	IMetaContact before = contact;
+	contact.items.clear();
+	contact.groups.clear();
+	contact.name.clear();
+	emit metaContactReceived(contact,before);
 }
 
 void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRoster)
@@ -214,15 +247,8 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 			mcElem = mcElem.nextSiblingElement("mc");
 		}
 
-		foreach(Jid metaId, oldContacts) 
-		{
-			IMetaContact contact = FMetaContacts.take(metaId);
-			IMetaContact before = contact;
-			contact.items.clear();
-			contact.groups.clear();
-			contact.name.clear();
-			emit metaContactReceived(contact,before);
-		}
+		foreach(Jid metaId, oldContacts) {
+			removeMetaContact(metaId); }
 	}
 }
 

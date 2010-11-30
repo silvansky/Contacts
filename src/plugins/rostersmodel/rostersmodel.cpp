@@ -504,6 +504,7 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 							index->setParentIndex(groupIndex);
 						}
 					}
+					oldGroups -= group;
 				}
 				else
 					groupItemList = groupIndex->findChild(findData);
