@@ -1,10 +1,13 @@
 #include "metacontacts.h"
 
+#include <QDir>
+
 MetaContacts::MetaContacts()
 {
 	FRosterPlugin = NULL;
 	FStanzaProcessor = NULL;
 	FRostersViewPlugin = NULL;
+	FPluginManager = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -26,6 +29,7 @@ void MetaContacts::pluginInfo(IPluginInfo *APluginInfo)
 bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
 	Q_UNUSED(AInitOrder);
+	FPluginManager = APluginManager;
 
 	IPlugin *plugin = APluginManager->pluginInterface("IRosterPlugin").value(0,NULL);
 	if (plugin)
@@ -91,6 +95,15 @@ void MetaContacts::removeMetaRoster(IRoster *ARoster)
 	}
 }
 
+QString MetaContacts::metaRosterFileName(const Jid &AStreamJid) const
+{
+	QDir dir(FPluginManager->homePath());
+	if (!dir.exists("metarosters"))
+		dir.mkdir("metarosters");
+	dir.cd("metarosters");
+	return dir.absoluteFilePath(Jid::encode(AStreamJid.pBare())+".xml");
+}
+
 void MetaContacts::onMetaRosterOpened()
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
@@ -119,6 +132,28 @@ void MetaContacts::onMetaRosterEnabled(bool AEnabled)
 		emit metaRosterEnabled(mroster,AEnabled);
 }
 
+void MetaContacts::onMetaRosterStreamJidAboutToBeChanged(const Jid &AAfter)
+{
+	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
+	if (mroster)
+	{
+		if (!(mroster->streamJid() && AAfter))
+			mroster->saveMetaContacts(metaRosterFileName(mroster->streamJid()));
+		emit metaRosterStreamJidAboutToBeChanged(mroster, AAfter);
+	}
+}
+
+void MetaContacts::onMetaRosterStreamJidChanged(const Jid &ABefore)
+{
+	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
+	if (mroster)
+	{
+		emit metaRosterStreamJidChanged(mroster, ABefore);
+		if (!(mroster->streamJid() && ABefore))
+			mroster->loadMetaContacts(metaRosterFileName(mroster->streamJid()));
+	}
+}
+
 void MetaContacts::onMetaRosterDestroyed(QObject *AObject)
 {
 	for (QList<IMetaRoster *>::iterator it = FMetaRosters.begin(); it!=FMetaRosters.end(); it++)
@@ -136,7 +171,12 @@ void MetaContacts::onRosterAdded(IRoster *ARoster)
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 	connect(mroster->instance(),SIGNAL(metaRosterClosed()),SLOT(onMetaRosterClosed()));
 	connect(mroster->instance(),SIGNAL(metaRosterEnabled(bool)),SLOT(onMetaRosterEnabled(bool)));
+	connect(mroster->instance(),SIGNAL(metaRosterStreamJidAboutToBeChanged(const Jid &)),SLOT(onMetaRosterStreamJidAboutToBeChanged(const Jid &)));
+	connect(mroster->instance(),SIGNAL(metaRosterStreamJidChanged(const Jid &)),SLOT(onMetaRosterStreamJidChanged(const Jid &)));
 	emit metaRosterAdded(mroster);
+
+	FLoadQueue.append(mroster);
+	QTimer::singleShot(0,this,SLOT(onLoadMetaRosters()));
 }
 
 void MetaContacts::onRosterRemoved(IRoster *ARoster)
@@ -144,9 +184,17 @@ void MetaContacts::onRosterRemoved(IRoster *ARoster)
 	IMetaRoster *mroster = findMetaRoster(ARoster->streamJid());
 	if (mroster)
 	{
+		mroster->saveMetaContacts(metaRosterFileName(mroster->streamJid()));
 		emit metaRosterRemoved(mroster);
 		removeMetaRoster(ARoster);
 	}
+}
+
+void MetaContacts::onLoadMetaRosters()
+{
+	foreach(IMetaRoster *mroster, FLoadQueue)
+		mroster->loadMetaContacts(metaRosterFileName(mroster->streamJid()));
+	FLoadQueue.clear();
 }
 
 Q_EXPORT_PLUGIN2(plg_metacontacts, MetaContacts)

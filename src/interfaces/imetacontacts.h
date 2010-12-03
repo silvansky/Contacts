@@ -27,11 +27,15 @@ public:
 	virtual IMetaContact metaContact(const Jid &AMetaId) const =0;
 	virtual QSet<QString> groups() const =0;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const =0;
+	virtual void saveMetaContacts(const QString &AFileName) const =0;
+	virtual void loadMetaContacts(const QString &AFileName) =0;
 protected:
 	virtual void metaRosterOpened() =0;
 	virtual void metaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore) =0;
 	virtual void metaRosterClosed() =0;
 	virtual void metaRosterEnabled(bool AEnabled) =0;
+	virtual void metaRosterStreamJidAboutToBeChanged(const Jid &AAfter) =0;
+	virtual void metaRosterStreamJidChanged(const Jid &ABefore) =0;
 };
 
 class IMetaContacts
@@ -41,6 +45,7 @@ public:
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster) =0;
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const =0;
 	virtual void removeMetaRoster(IRoster *ARoster) =0;
+	virtual QString metaRosterFileName(const Jid &AStreamJid) const =0;
 protected:
 	virtual void metaRosterAdded(IMetaRoster *AMetaRoster) =0;
 	virtual void metaRosterOpened(IMetaRoster *AMetaRoster) =0;

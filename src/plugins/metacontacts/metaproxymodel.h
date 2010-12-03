@@ -31,8 +31,6 @@ signals:
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);
 protected:
 	virtual bool filterAcceptsRow(int ASourceRow, const QModelIndex &ASourceParent) const;
-protected:
-	QMap<QString, IRosterIndex *> findContactIndexes(IMetaRoster *AMetaRoster, const IMetaContact &AContact) const;
 protected slots:
 	void onInvalidateTimerTimeout();
 	void onRostersModelSet(IRostersModel *AModel);

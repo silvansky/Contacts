@@ -82,28 +82,6 @@ bool MetaProxyModel::filterAcceptsRow(int ASourceRow, const QModelIndex &ASource
 	return true;
 }
 
-QMap<QString, IRosterIndex *> MetaProxyModel::findContactIndexes(IMetaRoster *AMetaRoster, const IMetaContact &AContact) const
-{
-	QMap<QString, IRosterIndex *> indexes;
-	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
-	if (streamIndex && !AContact.groups.isEmpty())
-	{
-		int groupType = !AContact.groups.isEmpty() ? RIT_GROUP : RIT_GROUP_BLANK;
-		QSet<QString> groups = !AContact.groups.isEmpty() ? AContact.groups : QSet<QString>() << FRostersModel->blankGroupName();
-		foreach(QString group, groups)
-		{
-			IRosterIndex *groupIndex = FRostersModel->findGroup(group,AMetaRoster->roster()->groupDelimiter(),groupType,streamIndex);
-			if (groupIndex)
-			{
-				IRosterIndex *index = FRostersModel->findRosterIndex(RIT_METACONTACT,AContact.id.pBare(),groupIndex);
-				if (index)
-					indexes.insert(group,index);
-			}
-		}
-	}
-	return indexes;
-}
-
 void MetaProxyModel::onInvalidateTimerTimeout()
 {
 	invalidateFilter();

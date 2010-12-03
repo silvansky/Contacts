@@ -33,26 +33,35 @@ public:
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster);
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;
 	virtual void removeMetaRoster(IRoster *ARoster);
+	virtual QString metaRosterFileName(const Jid &AStreamJid) const;
 signals:
 	void metaRosterAdded(IMetaRoster *AMetaRoster);
 	void metaRosterOpened(IMetaRoster *AMetaRoster);
 	void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
 	void metaRosterClosed(IMetaRoster *AMetaRoster);
 	void metaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled);
+	void metaRosterStreamJidAboutToBeChanged(IMetaRoster *AMetaRoster, const Jid &AAfter);
+	void metaRosterStreamJidChanged(IMetaRoster *AMetaRoster, const Jid &ABefore);
 	void metaRosterRemoved(IMetaRoster *AMetaRoster);
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaRosterClosed();
 	void onMetaRosterEnabled(bool AEnabled);
+	void onMetaRosterStreamJidAboutToBeChanged(const Jid &AAfter);
+	void onMetaRosterStreamJidChanged(const Jid &ABefour);
 	void onMetaRosterDestroyed(QObject *AObject);
 	void onRosterAdded(IRoster *ARoster);
 	void onRosterRemoved(IRoster *ARoster);
+protected slots:
+	void onLoadMetaRosters();
 private:
 	IRosterPlugin *FRosterPlugin;
 	IStanzaProcessor *FStanzaProcessor;
 	IRostersViewPlugin *FRostersViewPlugin;
+	IPluginManager *FPluginManager;
 private:
+	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;
 	QObjectCleanupHandler FCleanupHandler;
 };

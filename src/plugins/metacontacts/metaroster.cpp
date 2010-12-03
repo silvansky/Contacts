@@ -1,5 +1,8 @@
 #include "metaroster.h"
 
+#include <QFile>
+#include <QDomDocument>
+
 #define REQUEST_TIMEOUT       30000
 
 #define SHC_ROSTER_RESULT     "/iq[@type='result']"
@@ -16,12 +19,15 @@ MetaRoster::MetaRoster(IRoster *ARoster, IStanzaProcessor *AStanzaProcessor) : Q
 	FSHIMetaContacts = -1;
 
 	connect(FRoster->xmppStream()->instance(),SIGNAL(closed()),SLOT(onStreamClosed()));
+	connect(FRoster->instance(),SIGNAL(streamJidAboutToBeChanged(const Jid &)),SLOT(onStreamJidAboutToBeChanged(const Jid &)));
+	connect(FRoster->instance(),SIGNAL(streamJidChanged(const Jid &)),SLOT(onStreamJidChanged(const Jid &)));
 
 	insertStanzaHandlers();
 }
 
 MetaRoster::~MetaRoster()
 {
+	clearMetaContacts();
 	removeStanzaHandlers();
 }
 
@@ -173,18 +179,80 @@ QList<IMetaContact> MetaRoster::groupContacts(const QString &AGroup) const
 	return contacts;
 }
 
+void MetaRoster::saveMetaContacts(const QString &AFileName) const
+{
+	if (isEnabled())
+	{
+		QDomDocument xml;
+		QDomElement metasElem = xml.appendChild(xml.createElement("metacontacts")).toElement();
+		metasElem.setAttribute("streamJid",streamJid().pBare());
+		metasElem.setAttribute("groupDelimiter",roster()->groupDelimiter());
+		foreach(IMetaContact contact, FMetaContacts)
+		{
+			QDomElement mcElem = metasElem.appendChild(xml.createElement("mc")).toElement();
+			mcElem.setAttribute("id",contact.id.eBare());
+			mcElem.setAttribute("name",contact.name);
+			foreach(Jid itemJid, contact.items)
+			{
+				IRosterItem ritem = roster()->rosterItem(itemJid);
+				QDomElement itemElem = mcElem.appendChild(xml.createElement("item")).toElement();
+				itemElem.setAttribute("jid", itemJid.eBare());
+				itemElem.setAttribute("subscription",ritem.subscription);
+				itemElem.setAttribute("ask",ritem.ask);
+			}
+			foreach(QString group, contact.groups)
+			{
+				mcElem.appendChild(xml.createElement("group")).appendChild(xml.createTextNode(group));
+			}
+		}
+
+		QFile metaFile(AFileName);
+		if (metaFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
+		{
+			metaFile.write(xml.toByteArray());
+			metaFile.close();
+		}
+	}
+}
+
+void MetaRoster::loadMetaContacts(const QString &AFileName)
+{
+	if (!isOpen())
+	{
+		QFile metaFile(AFileName);
+		if (metaFile.exists() && metaFile.open(QIODevice::ReadOnly))
+		{
+			QDomDocument xml;
+			if (xml.setContent(metaFile.readAll()))
+			{
+				QDomElement metasElem = xml.firstChildElement("metacontacts");
+				if (!metasElem.isNull() && metasElem.attribute("streamJid")==streamJid().pBare() && metasElem.attribute("groupDelimiter")==roster()->groupDelimiter())
+				{
+					setEnabled(true);
+					processRosterStanza(streamJid(),convertMetaElemToRosterStanza(metasElem));
+					processMetasElement(metasElem,true);
+				}
+			}
+			metaFile.close();
+		}
+	}
+}
+
 void MetaRoster::setEnabled(bool AEnabled)
 {
 	if (FEnabled != AEnabled)
 	{
 		if (!AEnabled)
-		{
-			foreach(Jid metaId, FMetaContacts.keys()) {
-				removeMetaContact(metaId); }
-		}
+			clearMetaContacts();
 		FEnabled = AEnabled;
 		emit metaRosterEnabled(AEnabled);
 	}
+}
+
+void MetaRoster::clearMetaContacts()
+{
+	foreach(Jid metaId, FMetaContacts.keys()) {
+		removeMetaContact(metaId); }
 }
 
 void MetaRoster::removeMetaContact(const Jid &AMetaId)
@@ -209,7 +277,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 			QString action = mcElem.attribute("action");
 			if (id.isValid() && action.isEmpty())
 			{
-				IMetaContact contact = FMetaContacts[id];
+				IMetaContact &contact = FMetaContacts[id];
 				IMetaContact before = contact;
 
 				contact.id = id;
@@ -356,4 +424,16 @@ void MetaRoster::onStreamClosed()
 		emit metaRosterClosed();
 	}
 	insertStanzaHandlers();
+}
+
+void MetaRoster::onStreamJidAboutToBeChanged(const Jid &AAfter)
+{
+	emit metaRosterStreamJidAboutToBeChanged(AAfter);
+	if (!(FRoster->streamJid() && AAfter))
+		clearMetaContacts();
+}
+
+void MetaRoster::onStreamJidChanged(const Jid &ABefore)
+{
+	emit metaRosterStreamJidChanged(ABefore);
 }
