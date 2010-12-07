@@ -4,10 +4,11 @@
 
 MetaContacts::MetaContacts()
 {
-	FRosterPlugin = NULL;
-	FStanzaProcessor = NULL;
-	FRostersViewPlugin = NULL;
 	FPluginManager = NULL;
+	FRosterPlugin = NULL;
+	FRostersViewPlugin = NULL;
+	FStanzaProcessor = NULL;
+	FMessageWidgets = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -17,7 +18,7 @@ MetaContacts::~MetaContacts()
 
 void MetaContacts::pluginInfo(IPluginInfo *APluginInfo)
 {
-	APluginInfo->name = tr("Meta Contact");
+	APluginInfo->name = tr("Meta Contacts");
 	APluginInfo->description = tr("Allows other modules to get information about meta contacts in roster");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
@@ -50,6 +51,10 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 	if (plugin)
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
+	if (plugin)
+		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
+
 	return FRosterPlugin!=NULL && FStanzaProcessor!=NULL;
 }
 
@@ -59,8 +64,19 @@ bool MetaContacts::initObjects()
 	{
 		MetaProxyModel *proxyModel = new MetaProxyModel(this, FRostersViewPlugin->rostersView());
 		FRostersViewPlugin->rostersView()->insertProxyModel(proxyModel, RPO_METACONTACTS_MODIFIER);
+		FRostersViewPlugin->rostersView()->insertClickHooker(RCHO_DEFAULT,this);
 	}
 	return true;
+}
+
+bool MetaContacts::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
+{
+	Q_UNUSED(AOrder);
+	if (AIndex->type() == RIT_METACONTACT)
+	{
+
+	}
+	return false;
 }
 
 IMetaRoster *MetaContacts::newMetaRoster(IRoster *ARoster)

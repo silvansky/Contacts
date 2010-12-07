@@ -4,20 +4,23 @@
 #include <QObject>
 #include <QObjectCleanupHandler>
 #include <definitions/rosterproxyorders.h>
+#include <definitions/rosterclickhookerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/irostersview.h>
+#include <interfaces/imessagewidgets.h>
 #include "metaroster.h"
 #include "metaproxymodel.h"
 
 class MetaContacts : 
 	public QObject,
 	public IPlugin,
-	public IMetaContacts
+	public IMetaContacts,
+	public IRostersClickHooker
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMetaContacts);
+	Q_INTERFACES(IPlugin IMetaContacts IRostersClickHooker);
 public:
 	MetaContacts();
 	~MetaContacts();
@@ -29,6 +32,8 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
+	//IRostersClickHooker
+	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 	//IMetaContacts
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster);
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;
@@ -56,10 +61,11 @@ protected slots:
 protected slots:
 	void onLoadMetaRosters();
 private:
-	IRosterPlugin *FRosterPlugin;
-	IStanzaProcessor *FStanzaProcessor;
-	IRostersViewPlugin *FRostersViewPlugin;
 	IPluginManager *FPluginManager;
+	IRosterPlugin *FRosterPlugin;
+	IRostersViewPlugin *FRostersViewPlugin;
+	IStanzaProcessor *FStanzaProcessor;
+	IMessageWidgets *FMessageWidgets;
 private:
 	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;

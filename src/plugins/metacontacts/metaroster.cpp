@@ -145,7 +145,7 @@ QList<Jid> MetaRoster::metaContacts() const
 
 Jid MetaRoster::itemMetaContact(const Jid &AItemJid) const
 {
-	return FItemMetaId.value(AItemJid);
+	return FItemMetaId.value(AItemJid.bare());
 }
 
 IMetaContact MetaRoster::metaContact(const Jid &AMetaId) const
@@ -288,7 +288,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 				QDomElement itemElem = mcElem.firstChildElement("item");
 				while (!itemElem.isNull())
 				{
-					Jid itemJid = itemElem.attribute("jid");
+					Jid itemJid = Jid(itemElem.attribute("jid")).bare();
 					contact.items += itemJid;
 					FItemMetaId.insert(itemJid,id);
 					itemElem = itemElem.nextSiblingElement("item");

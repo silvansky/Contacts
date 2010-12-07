@@ -1,7 +1,6 @@
 #ifndef DEF_ROSTERCLICKHOOKERORDERS_H
 #define DEF_ROSTERCLICKHOOKERORDERS_H
 
-#define RCHO_CHATMESSAGEHANDLER             400
-#define RCHO_SERVICEDISCOVERY               500
+#define RCHO_DEFAULT                        500
 
 #endif

@@ -162,7 +162,7 @@ bool ServiceDiscovery::initObjects()
 	if (FRostersViewPlugin)
 	{
 		FRostersView = FRostersViewPlugin->rostersView();
-		FRostersView->insertClickHooker(RCHO_SERVICEDISCOVERY,this);
+		FRostersView->insertClickHooker(RCHO_DEFAULT,this);
 		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
 		connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &, ToolBarChanger*)),
 			SLOT(onRosterLabelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &)));

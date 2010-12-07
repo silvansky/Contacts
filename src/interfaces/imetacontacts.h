@@ -38,6 +38,14 @@ protected:
 	virtual void metaRosterStreamJidChanged(const Jid &ABefore) =0;
 };
 
+class IMetaTabWidget
+{
+public:
+	virtual QObject *instance() =0;
+	virtual Jid metaId() const =0;
+	virtual IMetaRoster *metaRoster() const =0;
+};
+
 class IMetaContacts
 {
 public:
@@ -56,6 +64,7 @@ protected:
 };
 
 Q_DECLARE_INTERFACE(IMetaRoster,"Virtus.Plugin.IMetaRoster/1.0")
+Q_DECLARE_INTERFACE(IMetaTabWidget,"Virtus.Plugin.IMetaTabWidget/1.0")
 Q_DECLARE_INTERFACE(IMetaContacts,"Virtus.Plugin.IMetaContacts/1.0")
 
 #endif

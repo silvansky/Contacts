@@ -175,7 +175,7 @@ bool ChatMessageHandler::initObjects()
 	}
 	if (FRostersView)
 	{
-		FRostersView->insertClickHooker(RCHO_CHATMESSAGEHANDLER,this);
+		FRostersView->insertClickHooker(RCHO_DEFAULT,this);
 	}
 	if (FMessageProcessor)
 	{
