@@ -20,6 +20,9 @@
 #define STS_MESSAGEWIDGETS_MESSAGEWINDOW                                "messagewidgetsMessageWindow"
 #define STS_MESSAGEWIDGETS_MASSENDDIALOG                                "messagewidgetsMassSendDialog"
 
+//MetaContacts
+#define STS_METACONTACTS_METATABWINDOW                                  "metacontactsMetaTabWindow"
+
 //Notifications
 #define STS_NOTIFICATION_NOTIFYWIDGET                                   "notificationsNotifyWidget"
 

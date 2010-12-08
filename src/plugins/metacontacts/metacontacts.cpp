@@ -9,11 +9,12 @@ MetaContacts::MetaContacts()
 	FRostersViewPlugin = NULL;
 	FStanzaProcessor = NULL;
 	FMessageWidgets = NULL;
+	FMessageProcessor = NULL;
 }
 
 MetaContacts::~MetaContacts()
 {
-
+	FCleanupHandler.clear();
 }
 
 void MetaContacts::pluginInfo(IPluginInfo *APluginInfo)
@@ -47,13 +48,23 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
+	if (plugin)
+		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
+
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
 	if (plugin)
+	{
 		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
+		if (FMessageWidgets)
+		{
+			connect(FMessageWidgets->instance(),SIGNAL(chatWindowCreated(IChatWindow *)),SLOT(onChatWindowCreated(IChatWindow *)));
+		}
+	}
 
 	return FRosterPlugin!=NULL && FStanzaProcessor!=NULL;
 }
@@ -74,7 +85,13 @@ bool MetaContacts::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 	Q_UNUSED(AOrder);
 	if (AIndex->type() == RIT_METACONTACT)
 	{
-
+		IMetaRoster *mroster = findMetaRoster(AIndex->data(RDR_STREAM_JID).toString());
+		if (FMessageWidgets && mroster && mroster->isEnabled())
+		{
+			Jid metaId = AIndex->data(RDR_INDEX_ID).toString();
+			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
+			window->showTabPage();
+		}
 	}
 	return false;
 }
@@ -118,6 +135,40 @@ QString MetaContacts::metaRosterFileName(const Jid &AStreamJid) const
 		dir.mkdir("metarosters");
 	dir.cd("metarosters");
 	return dir.absoluteFilePath(Jid::encode(AStreamJid.pBare())+".xml");
+}
+
+QList<IMetaTabWindow *> MetaContacts::metaTabWindows() const
+{
+	return FMetaTabWindows;
+}
+
+IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId)
+{
+	IMetaTabWindow *window = findMetaTabWindow(AStreamJid,AMetaId);
+	if (!window)
+	{
+		IMetaRoster *mroster = findMetaRoster(AStreamJid);
+		if (mroster && mroster->isEnabled() && mroster->metaContact(AMetaId).id.isValid())
+		{
+			window = new MetaTabWindow(FMessageWidgets,mroster,AMetaId);
+			connect(window->instance(),SIGNAL(itemPageRequested(const Jid &)),SLOT(onMetaTabWindowItemPageRequested(const Jid &)));
+			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onMetaTabWindowDestroyed()));
+			FCleanupHandler.add(window->instance());
+			FMetaTabWindows.append(window);
+			emit metaTabWindowCreated(window);
+		}
+	}
+	return window;
+}
+
+IMetaTabWindow *MetaContacts::findMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId) const
+{
+	foreach(IMetaTabWindow *window, FMetaTabWindows)
+	{
+		if (window->metaId()==AMetaId && window->metaRoster()->streamJid()==AStreamJid)
+			return window;
+	}
+	return NULL;
 }
 
 void MetaContacts::onMetaRosterOpened()
@@ -206,11 +257,44 @@ void MetaContacts::onRosterRemoved(IRoster *ARoster)
 	}
 }
 
+void MetaContacts::onMetaTabWindowItemPageRequested(const Jid &AItemJid)
+{
+	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
+	if (window)
+	{
+		FMessageProcessor->createWindow(window->metaRoster()->streamJid(),AItemJid,Message::Chat,IMessageHandler::SM_ADD_TAB);
+	}
+}
+
+void MetaContacts::onMetaTabWindowDestroyed()
+{
+	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
+	if (window)
+	{
+		FMetaTabWindows.removeAll(window);
+		emit metaTabWindowDestroyed(window);
+	}
+}
+
 void MetaContacts::onLoadMetaRosters()
 {
 	foreach(IMetaRoster *mroster, FLoadQueue)
 		mroster->loadMetaContacts(metaRosterFileName(mroster->streamJid()));
 	FLoadQueue.clear();
+}
+
+void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
+{
+	IMetaRoster *mroster = findMetaRoster(AWindow->streamJid());
+	if (mroster && mroster->isEnabled())
+	{
+		Jid metaId = mroster->itemMetaContact(AWindow->contactJid());
+		if (metaId.isValid())
+		{
+			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
+			window->setItemPage(AWindow->contactJid(),AWindow);
+		}
+	}
 }
 
 Q_EXPORT_PLUGIN2(plg_metacontacts, MetaContacts)

@@ -1,7 +1,7 @@
 #ifndef METACONTACTS_H
 #define METACONTACTS_H
 
-#include <QObject>
+#include <QMultiMap>
 #include <QObjectCleanupHandler>
 #include <definitions/rosterproxyorders.h>
 #include <definitions/rosterclickhookerorders.h>
@@ -10,8 +10,10 @@
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/imessagewidgets.h>
+#include <interfaces/imessageprocessor.h>
 #include "metaroster.h"
 #include "metaproxymodel.h"
+#include "metatabwindow.h"
 
 class MetaContacts : 
 	public QObject,
@@ -39,6 +41,9 @@ public:
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;
 	virtual void removeMetaRoster(IRoster *ARoster);
 	virtual QString metaRosterFileName(const Jid &AStreamJid) const;
+	virtual QList<IMetaTabWindow *> metaTabWindows() const;
+	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId);
+	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId) const;
 signals:
 	void metaRosterAdded(IMetaRoster *AMetaRoster);
 	void metaRosterOpened(IMetaRoster *AMetaRoster);
@@ -48,6 +53,8 @@ signals:
 	void metaRosterStreamJidAboutToBeChanged(IMetaRoster *AMetaRoster, const Jid &AAfter);
 	void metaRosterStreamJidChanged(IMetaRoster *AMetaRoster, const Jid &ABefore);
 	void metaRosterRemoved(IMetaRoster *AMetaRoster);
+	void metaTabWindowCreated(IMetaTabWindow *AWindow);
+	void metaTabWindowDestroyed(IMetaTabWindow *AWindow);
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
@@ -59,17 +66,24 @@ protected slots:
 	void onRosterAdded(IRoster *ARoster);
 	void onRosterRemoved(IRoster *ARoster);
 protected slots:
+	void onMetaTabWindowItemPageRequested(const Jid &AItemJid);
+	void onMetaTabWindowDestroyed();
+protected slots:
 	void onLoadMetaRosters();
+	void onChatWindowCreated(IChatWindow *AWindow);
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IStanzaProcessor *FStanzaProcessor;
 	IMessageWidgets *FMessageWidgets;
+	IMessageProcessor *FMessageProcessor;
 private:
 	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;
 	QObjectCleanupHandler FCleanupHandler;
+private:
+	QList<IMetaTabWindow *> FMetaTabWindows;
 };
 
 #endif // METACONTACTS_H

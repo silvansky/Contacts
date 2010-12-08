@@ -1,12 +1,12 @@
-FORMS = metatabwidget.ui
+FORMS = metatabwindow.ui
 
 HEADERS = metacontacts.h \
           metaroster.h \
-          metaproxymodel.h \
-					metatabwidget.h
+          metaproxymodel.h \ 
+          metatabwindow.h
 
 SOURCES = metacontacts.cpp \
           metaroster.cpp \
-          metaproxymodel.cpp \
-					metatabwidget.cpp
+          metaproxymodel.cpp \ 
+          metatabwindow.cpp
 
