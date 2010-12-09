@@ -25,6 +25,7 @@
 #define AG_RVCM_CHATMESSAGEHANDLER                              200
 #define AG_RVCM_NORMALMESSAGEHANDLER                            200
 #define AG_RVCM_ROSTERCHANGER_SUBSCRIPTION                      200
+#define AG_RVCM_SIPPHONE_CALL                                   200
 #define AG_RVCM_STATUSCHANGER                                   300
 #define AG_RVCM_ROSTERCHANGER_ADD_CONTACT                       300
 #define AG_RVCM_ROSTERCHANGER                                   300

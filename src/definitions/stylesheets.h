@@ -42,6 +42,10 @@
 #define STS_ROSTERVIEW_ROSTER                                           "rosterviewRoster"
 #define STS_ROSTERVIEW_TOOLTIP                                          "rosterviewToolTip"
 
+//SipPhone
+#define STS_SIPPHONE_TABBARITEM_CALL                                    "sipphoneTabBarItemCall"
+#define STS_SIPPHONE_NOTIFYWIDGET_CALL                                  "sipphoneNotifyWidgetCall"
+
 //StatusChanger
 #define STS_SCHANGER_STATUSWIDGET                                       "schangerStatusWidget"
 #define STS_SCHANGER_CUSTOMSTATUSDIALOG                                 "schangerCustomStatusDialog"

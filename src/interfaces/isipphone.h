@@ -33,7 +33,9 @@ class ISipPhone
 {
 	virtual QObject *instance() =0;
 	virtual bool isSupported(const Jid &AStreamJid, const Jid &AContactJid) const =0;
+	virtual QList<QString> streams() const =0;
 	virtual ISipStream streamById(const QString &AStreamId) const =0;
+	virtual QString findStream(const Jid &AStreamJid, const Jid &AContactJid) const =0;
 	virtual QString openStream(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual bool acceptStream(const QString &AStreamId) =0;
 	virtual void closeStream(const QString &AStreamId) =0;

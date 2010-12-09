@@ -1,9 +1,10 @@
 #ifndef DEF_ROSTERNOTIFYORDERS_H
 #define DEF_ROSTERNOTIFYORDERS_H
 
+#define RNO_SIPPHONE_CALL                         200
 #define RNO_CHAT_MHANDLER_MESSAGE                 300
 #define RNO_RCHANGER_SUBSCRIPTION                 500
-#define RNO_CHATSTATES_TYPING                      900
+#define RNO_CHATSTATES_TYPING                     900
 #define RNO_PRESENCE_CONTACT_STATE                1000
 
 #endif // DEF_ROSTERNOTIFYORDERS_H

@@ -2,11 +2,27 @@
 #define SIPPHONE_H
 
 #include <definitions/namespaces.h>
+#include <definitions/menuicons.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
+#include <definitions/soundfiles.h>
+#include <definitions/rosternotifyorders.h>
+#include <definitions/tabpagenotifypriorities.h>
+#include <definitions/actiongroups.h>
+#include <definitions/toolbargroups.h>
+#include <definitions/rosterlabelorders.h>
+#include <definitions/rosterindextyperole.h>
+#include <definitions/notificators.h>
+#include <definitions/notificationdataroles.h>
+#include <definitions/optionwidgetorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/isipphone.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/iservicediscovery.h>
+#include <interfaces/irostersview.h>
+#include <interfaces/inotifications.h>
 #include <utils/errorhandler.h>
+#include <utils/action.h>
 
 class SipPhone : 
 	public QObject,
@@ -35,7 +51,9 @@ public:
 	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//ISipPhone
 	virtual bool isSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
+	virtual QList<QString> streams() const;
 	virtual ISipStream streamById(const QString &AStreamId) const;
+	virtual QString findStream(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual QString openStream(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual bool acceptStream(const QString &AStreamId);
 	virtual void closeStream(const QString &AStreamId);
@@ -44,10 +62,22 @@ signals:
 	void streamStateChanged(const QString &AStreamId, int AState);
 	void streamRemoved(const QString &AStreamId);
 protected:
+	virtual void insertNotify(const ISipStream &AStream);
+	virtual void removeNotify(const QString &AStreamId);
 	virtual void removeStream(const QString &AStreamId);
+protected slots:
+	void onOpenStreamByAction(bool);
+	void onAcceptStreamByAction(bool);
+	void onCloseStreamByAction(bool);
+	void onNotificationActivated(int ANotifyId);
+	void onNotificationRemoved(int ANotifyId);
+	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
 private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
+	INotifications *FNotifications;
+	IRostersViewPlugin *FRostersViewPlugin;
 private:
 	int FSHISipRequest;
 	QMap<QString, QString> FOpenRequests;
@@ -55,6 +85,7 @@ private:
 	QMap<QString, QString> FPendingRequests;
 private:
 	QMap<QString, ISipStream> FStreams;
+	QMap<int, QString> FNotifies;
 };
 
 #endif // SIPPHONE_H

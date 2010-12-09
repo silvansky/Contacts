@@ -264,6 +264,9 @@
 #define MNI_SNEGOTIATION_INIT                    "snegotiationInit"
 #define MNI_SNEGOTIATION_TERMINATE               "snegotiationTerminate"
 
+//SipPhone
+#define MNI_SIPPHONE_CALL                        "sipphoneCall"
+
 //StatusChanger
 #define MNI_SCHANGER_MODIFY_STATUS               "schangerModifyStatus"
 #define MNI_SCHANGER_EDIT_STATUSES               "schangerEditStatuses"

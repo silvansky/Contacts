@@ -84,6 +84,6 @@
 
 #define NS_RAMBLER_METACONTACTS                 "rambler:roster:mc"
 
-#define NS_RAMBLER_SIP_PHONE                    "ramvler:sip:phone"
+#define NS_RAMBLER_SIP_PHONE                    "rambler:sip:phone"
 
 #endif

@@ -34,6 +34,9 @@
 //SessionNegotiation
 #define SDF_SNEGOTIATION_REQUEST                          "snegotiationRequest"
 
+//SipPhone
+#define SDF_SIPPHONE_CALL                                 "sipphoneCall"
+
 //StatusChanger
 #define SDF_SCHANGER_CONNECTION_ERROR                     "schangerConnectionError"
 #define SDF_SCHANGER_CONNECTION_RESTORE                   "schangerConnectionRestore"

@@ -19,6 +19,7 @@
     <key>mucDataMessage</key>
     <key>mucPrivateMessage</key>
     <key>mucInviteMessage</key>
+    <key>sipphoneCall</key>
     <object mime='sound/wav'>message.wav</object>
   </file>
 
