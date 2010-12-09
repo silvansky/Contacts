@@ -401,8 +401,10 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 	{
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
+		CustomBorderContainer *border = new CustomBorderContainer(FLoginDialog);
+		border->loadFile("c:\\Qt\\Projects\\Virtus\\wb.xml");
+		WidgetManager::showActivateRaiseWindow(border);
 	}
-	WidgetManager::showActivateRaiseWindow(FLoginDialog);
 	return FLoginDialog;
 }
 

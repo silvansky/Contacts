@@ -21,6 +21,7 @@
 #include <interfaces/iprivatestorage.h>
 #include <utils/action.h>
 #include <utils/widgetmanager.h>
+#include <utils/custombordercontainer.h>
 #include <thirdparty/qtlockedfile/qtlockedfile.h>
 #include "logindialog.h"
 #include "editprofilesdialog.h"
