@@ -16,14 +16,6 @@
         <translation>Аудио и видео звонки через SIP</translation>
     </message>
     <message>
-        <source>Calling you</source>
-        <translation>Звонит вам</translation>
-    </message>
-    <message>
-        <source>Calling...</source>
-        <translation>Звонит...</translation>
-    </message>
-    <message>
         <source>Accept</source>
         <translation>Принять</translation>
     </message>
@@ -34,6 +26,10 @@
     <message>
         <source>Call</source>
         <translation>Позвонить</translation>
+    </message>
+    <message>
+        <source>Calling you...</source>
+        <translation>Звонит вам...</translation>
     </message>
 </context>
 </TS>

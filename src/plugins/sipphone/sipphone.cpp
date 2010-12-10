@@ -329,7 +329,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 	notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_CHAT_MESSAGE) : 0;
 	if (notify.kinds > 0)
 	{
-		QString message = tr("Calling you");
+		QString message = tr("Calling you...");
 		QString name = FNotifications->contactName(AStream.streamJid,AStream.contactJid);
 
 		notify.notificatior = NID_SIPPHONE_CALL;
@@ -349,7 +349,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,message);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_SIPPHONE_TABBARITEM_CALL);
-		notify.data.insert(NDR_POPUP_CAPTION,tr("Calling..."));
+		notify.data.insert(NDR_POPUP_CAPTION,message);
 		notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AStream.contactJid));
 		notify.data.insert(NDR_POPUP_TITLE,name);
 		notify.data.insert(NDR_POPUP_STYLEKEY,STS_SIPPHONE_NOTIFYWIDGET_CALL);
