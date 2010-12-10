@@ -44,6 +44,11 @@ public:
 	virtual IToolBarWidget *toolBarWidget() const { return FToolBarWidget; }
 	virtual IStatusBarWidget *statusBarWidget() const { return FStatusBarWidget; }
 	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle);
+	// Расширен функционал IChatWindow. Позволяет добавлять виджеты в окно чата
+	virtual void insertTopWidget(int AOrder, QWidget *AWidget);
+	virtual void removeTopWidget(QWidget *AWidget);
+	virtual void insertBottomWidget(int AOrder, QWidget *AWidget);
+	virtual void removeBottomWidget(QWidget *AWidget);
 signals:
 	//ITabPage
 	void tabPageShow();
@@ -58,6 +63,11 @@ signals:
 	void messageReady();
 	void streamJidChanged(const Jid &ABefour);
 	void contactJidChanged(const Jid &ABefour);
+	// Попов С.А.
+	void topWidgetInserted(int AOrder, QWidget *AWidget);
+	void topWidgetRemoved(QWidget *AWidget);
+	void bottomWidgetInserted(int AOrder, QWidget *AWidget);
+	void bottomWidgetRemoved(QWidget *AWidget);
 protected:
 	void initialize();
 	void saveWindowGeometry();

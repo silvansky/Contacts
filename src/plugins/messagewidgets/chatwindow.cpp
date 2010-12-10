@@ -54,6 +54,12 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	ui.wdtToolBar->layout()->setMargin(0);
 	ui.wdtToolBar->layout()->addWidget(FToolBarWidget->instance());
 
+	// Попов С.А. Два новых контейнера для лайоутов
+	ui.wdtTopWidgets->setLayout(new QVBoxLayout);
+	ui.wdtTopWidgets->layout()->setMargin(0);
+	ui.wdtBottomWidgets->setLayout(new QVBoxLayout);
+	ui.wdtBottomWidgets->layout()->setMargin(0);
+
 	FStatusBarWidget = FMessageWidgets->newStatusBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
 	setStatusBar(FStatusBarWidget->instance());
 
@@ -142,6 +148,35 @@ void ChatWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, cons
 	setWindowIconText(AIconText);
 	setWindowTitle(ATitle);
 	emit tabPageChanged();
+}
+
+void ChatWindow::insertTopWidget(int AOrder, QWidget *AWidget)
+{
+	QBoxLayout* boxLayout = (QBoxLayout*)ui.wdtTopWidgets->layout();
+	if(boxLayout)
+	{
+		boxLayout->insertWidget(AOrder, AWidget);
+		emit topWidgetInserted(AOrder, AWidget);
+	}
+}
+void ChatWindow::removeTopWidget(QWidget *AWidget)
+{
+	ui.wdtBottomWidgets->layout()->removeWidget(AWidget);
+	emit topWidgetRemoved(AWidget);
+}
+void ChatWindow::insertBottomWidget(int AOrder, QWidget *AWidget)
+{
+	QBoxLayout* boxLayout = (QBoxLayout*)ui.wdtBottomWidgets->layout();
+	if(boxLayout)
+	{
+		boxLayout->insertWidget(AOrder, AWidget);
+		emit bottomWidgetInserted(AOrder, AWidget);
+	}
+}
+void ChatWindow::removeBottomWidget(QWidget *AWidget)
+{
+	ui.wdtBottomWidgets->layout()->removeWidget(AWidget);
+	emit bottomWidgetRemoved(AWidget);
 }
 
 void ChatWindow::initialize()

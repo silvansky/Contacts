@@ -465,6 +465,7 @@ void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiM
 			{
 				Action *action = new Action(AToolBarChanger->toolBar());
 				action->setText(tr("Call"));
+				action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
 				action->setData(ADR_STREAM_JID,streamJid.full());
 				action->setData(ADR_CONTACT_JID,contactJid.full());
 				connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
