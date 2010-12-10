@@ -595,6 +595,7 @@ void LoginDialog::onConnectClicked()
 
 		setConnectEnabled(!connecting);
 	}
+	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
 
 void LoginDialog::onXmppStreamOpened()
@@ -616,11 +617,6 @@ void LoginDialog::onXmppStreamOpened()
 
 	if (FMainWindowPlugin)
 	{
-		if (FNewProfile)
-		{
-			FMainWindowPlugin->mainWindow()->instance()->resize(size());
-			FMainWindowPlugin->mainWindow()->instance()->move(pos());
-		}
 		FMainWindowPlugin->mainWindow()->instance()->removeEventFilter(this);
 		FMainWindowPlugin->mainWindow()->instance()->show();
 	}
