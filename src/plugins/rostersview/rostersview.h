@@ -140,11 +140,15 @@ protected slots:
 	void onBlinkTimerTimeout();
 	void onDragExpandTimer();
 	void onViewportEntered();
+	void onChangeGroupState();
+	void onExpandAllGroups();
+	void onCollapseAllGroups();
 private:
 	IRostersModel *FRostersModel;
 private:
 	int FPressedLabel;
 	QPoint FPressedPos;
+	QModelIndex FGroupIndex;
 	QModelIndex FPressedIndex;
 private:
 	bool FBlinkVisible;

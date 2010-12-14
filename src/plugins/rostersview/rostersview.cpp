@@ -21,6 +21,8 @@
 
 #define ADR_CLIPBOARD_DATA      Action::DR_Parametr1
 
+static const QList<int> groupIndexes = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK << RIT_GROUP_NOT_IN_ROSTER << RIT_GROUP_MY_RESOURCES << RIT_GROUP_AGENTS;
+
 QDataStream &operator<<(QDataStream &AStream, const IRostersLabel &ALabel)
 {
 	AStream << ALabel.order << ALabel.flags << ALabel.label;
@@ -86,7 +88,7 @@ RostersView::~RostersView()
 
 int RostersView::rosterDataOrder() const
 {
-	return RDHO_DEFAULT;
+	return RDHO_ROSTER_NOTIFY;
 }
 
 QList<int> RostersView::rosterDataRoles() const
@@ -1108,14 +1110,30 @@ void RostersView::dragLeaveEvent(QDragLeaveEvent *AEvent)
 
 void RostersView::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
-	Menu *clipMenu = new Menu(AMenu);
-	clipMenu->setTitle(tr("Copy to clipboard"));
-	clipMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERVIEW_CLIPBOARD);
-	clipboardMenuForIndex(AIndex, clipMenu);
-	if (!clipMenu->isEmpty())
-		AMenu->addAction(clipMenu->menuAction(), AG_RVCM_ROSTERSVIEW_CLIPBOARD, true);
-	else
-		delete clipMenu;
+	if (groupIndexes.contains(AIndex->type()))
+	{
+		QModelIndex index = mapFromModel(FRostersModel->modelIndexByRosterIndex(AIndex));
+		if (index.isValid())
+		{
+			FGroupIndex = index;
+
+			Action *changeAction = new Action(AMenu);
+			changeAction->setText(isExpanded(index) ? tr("Collapse group") : tr("Expand group"));
+			connect(changeAction,SIGNAL(triggered()),SLOT(onChangeGroupState()));
+			AMenu->addAction(changeAction,AG_RVCM_ROSTERSVIEW_GROUP_STATE);
+			AMenu->setDefaultAction(changeAction);
+
+			Action *expandAction = new Action(AMenu);
+			expandAction->setText(tr("Expand all groups"));
+			connect(expandAction,SIGNAL(triggered()),SLOT(onExpandAllGroups()));
+			AMenu->addAction(expandAction,AG_RVCM_ROSTERSVIEW_GROUPS_STATE);
+
+			Action *collapseAction = new Action(AMenu);
+			collapseAction->setText(tr("Collapse all groups"));
+			connect(collapseAction,SIGNAL(triggered()),SLOT(onCollapseAllGroups()));
+			AMenu->addAction(collapseAction,AG_RVCM_ROSTERSVIEW_GROUPS_STATE);
+		}
+	}
 }
 
 void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger)
@@ -1236,4 +1254,36 @@ void RostersView::onDragExpandTimer()
 void RostersView::onViewportEntered()
 {
 	setCursor(QCursor(Qt::ArrowCursor));
+}
+
+void RostersView::onChangeGroupState()
+{
+	if (isExpanded(FGroupIndex))
+		collapse(FGroupIndex);
+	else
+		expand(FGroupIndex);
+}
+
+void RostersView::onExpandAllGroups()
+{
+	if (FRostersModel)
+	{
+		QMultiMap<int, QVariant> findData;
+		foreach(int type, groupIndexes)
+			findData.insert(RDR_TYPE,type);
+		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChild(findData,true)) {
+			expand(mapFromModel(FRostersModel->modelIndexByRosterIndex(index))); }
+	}
+}
+
+void RostersView::onCollapseAllGroups()
+{
+	if (FRostersModel)
+	{
+		QMultiMap<int, QVariant> findData;
+		foreach(int type, groupIndexes)
+			findData.insert(RDR_TYPE,type);
+		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChild(findData,true)) {
+			collapse(mapFromModel(FRostersModel->modelIndexByRosterIndex(index))); }
+	}
 }

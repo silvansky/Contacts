@@ -7,6 +7,8 @@
 #include <definitions/rosternotifyorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterdragdropmimetypes.h>
+#include <definitions/rosterdataholderorders.h>
+#include <definitions/rosterfootertextorders.h>
 #include <definitions/multiuserdataroles.h>
 #include <definitions/notificators.h>
 #include <definitions/notificationdataroles.h>
@@ -33,6 +35,7 @@
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
 #include <utils/action.h>
+#include <utils/iconstorage.h>
 #include "addcontactdialog.h"
 #include "subscriptiondialog.h"
 
@@ -61,16 +64,28 @@ struct PendingChatNotice
 	QString text;
 };
 
+class GroupMenu : 
+	public Menu
+{
+	Q_OBJECT;
+public:
+	GroupMenu(QWidget* AParent = NULL) : Menu(AParent) { }
+	virtual ~GroupMenu() {}
+protected:
+	void mouseReleaseEvent(QMouseEvent *AEvent);
+};
+
 class RosterChanger :
 			public QObject,
 			public IPlugin,
 			public IRosterChanger,
 			public IOptionsHolder,
+			public IRosterDataHolder,
 			public IRostersDragDropHandler,
 			public IXmppUriHandler
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IRosterChanger IOptionsHolder IRostersDragDropHandler IXmppUriHandler);
+	Q_INTERFACES(IPlugin IRosterChanger IOptionsHolder IRosterDataHolder IRostersDragDropHandler IXmppUriHandler);
 public:
 	RosterChanger();
 	~RosterChanger();
@@ -84,6 +99,12 @@ public:
 	virtual bool startPlugin() { return true; }
 	//IOptionsHolder
 	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
+	//IRosterDataHolder
+	virtual int rosterDataOrder() const;
+	virtual QList<int> rosterDataRoles() const;
+	virtual QList<int> rosterDataTypes() const;
+	virtual QVariant rosterData(const IRosterIndex *AIndex, int ARole) const;
+	virtual bool setRosterData(IRosterIndex *AIndex, int ARole, const QVariant &AValue);
 	//IRostersDragDropHandler
 	virtual Qt::DropActions rosterDragStart(const QMouseEvent *AEvent, const QModelIndex &AIndex, QDrag *ADrag);
 	virtual bool rosterDragEnter(const QDragEnterEvent *AEvent);
@@ -104,6 +125,8 @@ public:
 signals:
 	void addContactDialogCreated(IAddContactDialog *ADialog);
 	void subscriptionDialogCreated(ISubscriptionDialog *ADialog);
+	//IRosterDataHolder
+	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);
 protected:
 	QString subscriptionNotify(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const;
 	Menu *createGroupMenu(const QHash<int,QVariant> &AData, const QSet<QString> &AExceptGroups,
@@ -131,6 +154,7 @@ protected slots:
 	void onMoveItemToGroup(bool);
 	void onRemoveItemFromGroup(bool);
 	void onRemoveItemFromRoster(bool);
+	void onChangeItemGroups(bool AChecked);
 	//Operations on group
 	void onAddGroupToGroup(bool);
 	void onRenameGroup(bool);
@@ -176,6 +200,7 @@ private:
 	QMap<int, int> FChatNoticeActions;
 	QMap<int, IChatWindow *> FChatNoticeWindow;
 	QList<IChatWindow *> FPendingChatWindows;
+	QMultiMap<Jid, Jid> FSubscriptionRequests;
 	QMap<Jid, QMap<Jid, PendingChatNotice> > FPendingChatNotices;
 	QMap<Jid, QMap<Jid, AutoSubscription> > FAutoSubscriptions;
 };

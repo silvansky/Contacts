@@ -69,6 +69,10 @@
     <object mime="image/png">rchangerunsubscribe.png</object>
   </icon>
   <icon>
+    <key>rchangerSubscriptionNone</key>
+    <object mime="image/png">rchangersubscriptionnone.png</object>
+  </icon>
+  <icon>
     <key>rchangerSubscriptionSend</key>
     <object mime="image/png">rchangersubscriptionsend.png</object>
   </icon>

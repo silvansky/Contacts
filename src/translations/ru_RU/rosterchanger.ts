@@ -102,18 +102,6 @@
         <translation>Авторизация</translation>
     </message>
     <message>
-        <source>Send</source>
-        <translation>Отправить</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <source>Request</source>
-        <translation>Запросить</translation>
-    </message>
-    <message>
         <source>Copy contact</source>
         <translation>Копировать контакт</translation>
     </message>
@@ -130,32 +118,8 @@
         <translation>Переместить группу</translation>
     </message>
     <message>
-        <source>Refuse</source>
-        <translation>Отказаться</translation>
-    </message>
-    <message>
         <source>Rename...</source>
         <translation>Переименовать...</translation>
-    </message>
-    <message>
-        <source>Copy to group</source>
-        <translation>Копировать в группу</translation>
-    </message>
-    <message>
-        <source>Move to group</source>
-        <translation>Переместить в группу</translation>
-    </message>
-    <message>
-        <source>Remove from group</source>
-        <translation>Удалить из группы</translation>
-    </message>
-    <message>
-        <source>Remove from roster</source>
-        <translation>Удалить из контакт-листа</translation>
-    </message>
-    <message>
-        <source>Remove group</source>
-        <translation>Удалить группу</translation>
     </message>
     <message>
         <source>Remove contacts</source>
@@ -192,14 +156,6 @@
     <message>
         <source>Add contact</source>
         <translation>Добавить контакт</translation>
-    </message>
-    <message>
-        <source>Subscribe contact</source>
-        <translation>Авторизовать контакт</translation>
-    </message>
-    <message>
-        <source>Unsubscribe contact</source>
-        <translation>Удалить авторизацию</translation>
     </message>
     <message>
         <source>Subscribe for contact presence</source>
@@ -292,6 +248,38 @@
     <message>
         <source>Add account</source>
         <translation>Добавить учётную запись</translation>
+    </message>
+    <message>
+        <source>Requests authorization</source>
+        <translation>Запрашивает авторизацию</translation>
+    </message>
+    <message>
+        <source>Sent an authorization request</source>
+        <translation>Отправлен запрос авторизации</translation>
+    </message>
+    <message>
+        <source>Not authorized</source>
+        <translation>Не авторизован</translation>
+    </message>
+    <message>
+        <source>Remove authorization</source>
+        <translation>Удалить авторизацию</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Rename group...</source>
+        <translation>Переименовать группу...</translation>
+    </message>
+    <message>
+        <source>Groups</source>
+        <translation>Группы</translation>
+    </message>
+    <message>
+        <source>New group...</source>
+        <translation>Новая группа...</translation>
     </message>
 </context>
 <context>

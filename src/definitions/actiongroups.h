@@ -24,11 +24,13 @@
 //RostersView - ContextMenu
 #define AG_RVCM_CHATMESSAGEHANDLER                              200
 #define AG_RVCM_NORMALMESSAGEHANDLER                            200
-#define AG_RVCM_ROSTERCHANGER_SUBSCRIPTION                      200
+#define AG_RVCM_ROSTERCHANGER_GRAND_AUTH                        200
+#define AG_RVCM_ROSTERCHANGER_REMOVE_AUTH                       200
 #define AG_RVCM_SIPPHONE_CALL                                   200
+#define AG_RVCM_ROSTERCHANGER_ADD_CONTACT                       200
+#define AG_RVCM_ROSTERSVIEW_GROUP_STATE                         200
 #define AG_RVCM_STATUSCHANGER                                   300
-#define AG_RVCM_ROSTERCHANGER_ADD_CONTACT                       300
-#define AG_RVCM_ROSTERCHANGER                                   300
+#define AG_RVCM_ROSTERCHANGER_GROUP                             300
 #define AG_RVCM_GATEWAYS_ADD_LEGACY_USER                        300
 #define AG_RVCM_GATEWAYS_LOGIN                                  350
 #define AG_RVCM_CLIENTINFO                                      400
@@ -42,6 +44,7 @@
 #define AG_RVCM_AVATARS                                         500
 #define AG_RVCM_ANNOTATIONS                                     500
 #define AG_RVCM_ARCHIVER                                        500
+#define AG_RVCM_ROSTERSVIEW_GROUPS_STATE                        500
 #define AG_RVCM_ROSTERSVIEW_CLIPBOARD                           600
 #define AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT                    600
 #define AG_RVCM_ROSTERCHANGER_RENAME                            600

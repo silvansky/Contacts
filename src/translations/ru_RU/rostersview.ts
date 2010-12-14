@@ -46,12 +46,24 @@
         <translation>Статус</translation>
     </message>
     <message>
-        <source>Copy to clipboard</source>
-        <translation>Копировать в буфер</translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation>Имя</translation>
+    </message>
+    <message>
+        <source>Collapse group</source>
+        <translation>Свернуть группу</translation>
+    </message>
+    <message>
+        <source>Expand group</source>
+        <translation>Развернуть группу</translation>
+    </message>
+    <message>
+        <source>Expand all groups</source>
+        <translation>Развернуть все группы</translation>
+    </message>
+    <message>
+        <source>Collapse all groups</source>
+        <translation>Свернуть все группы</translation>
     </message>
 </context>
 <context>

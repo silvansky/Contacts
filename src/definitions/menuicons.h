@@ -227,6 +227,7 @@
 #define MNI_RCHANGER_SUBSCRIBTION                "rchangerSubscription"
 #define MNI_RCHANGER_SUBSCRIBE                   "rchangerSubscribe"
 #define MNI_RCHANGER_UNSUBSCRIBE                 "rchangerUnsubscribe"
+#define MNI_RCHANGER_SUBSCR_NONE                 "rchangerSubscriptionNone"
 #define MNI_RCHANGER_SUBSCR_SEND                 "rchangerSubscriptionSend"
 #define MNI_RCHANGER_SUBSCR_REQUEST              "rchangerSubscriptionRequest"
 #define MNI_RCHANGER_SUBSCR_REMOVE               "rchangerSubscriptionRemove"

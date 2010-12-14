@@ -147,5 +147,9 @@
         <source>Writing...</source>
         <translation>Пишет...</translation>
     </message>
+    <message>
+        <source>Open dialog</source>
+        <translation>Открыть диалог</translation>
+    </message>
 </context>
 </TS>

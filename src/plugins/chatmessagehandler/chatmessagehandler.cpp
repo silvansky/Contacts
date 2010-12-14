@@ -949,10 +949,11 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AM
 		if (chatActionTypes.contains(AIndex->type()))
 		{
 			Action *action = new Action(AMenu);
-			action->setText(tr("Chat"));
-			action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
+			action->setText(tr("Open dialog"));
+			//action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
 			action->setData(ADR_STREAM_JID,streamJid.full());
 			action->setData(ADR_CONTACT_JID,contactJid.full());
+			AMenu->setDefaultAction(action);
 			AMenu->addAction(action,AG_RVCM_CHATMESSAGEHANDLER,true);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onShowWindowAction(bool)));
 		}
