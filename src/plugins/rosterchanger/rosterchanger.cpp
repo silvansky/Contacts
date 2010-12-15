@@ -193,30 +193,25 @@ bool RosterChanger::initObjects()
 	}
 	if (FMainWindowPlugin)
 	{
-		Menu *addMenu = new Menu(FMainWindowPlugin->mainWindow()->topToolBarChanger()->toolBar());
-		addMenu->setTitle(tr("Add..."));
-		QToolButton *button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(addMenu->menuAction(), TBG_MWTTB_ROSTERCHANGER_ADDCONTACT);
-		button->setPopupMode(QToolButton::InstantPopup);
-		button->setToolButtonStyle(Qt::ToolButtonTextOnly);
-		button->setDefaultAction(addMenu->menuAction());
+		Menu *mmenu = FMainWindowPlugin->mainWindow()->mainMenu();
 
-		Action *action = new Action(addMenu);
-		action->setText(tr("Add contact"));
-		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_CONTACT);
-		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddContactDialog(bool)));
-		addMenu->addAction(action,AG_MWAM_RCHAGER_ADD_CONTACT);
-
-		action = new Action(addMenu);
+		Action *action = new Action(mmenu);
 		action->setText(tr("Add group"));
 		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_GROUP);
 		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddGroupDialog(bool)));
-		addMenu->addAction(action,AG_MWAM_RCHAGER_ADD_GROUP);
+		mmenu->addAction(action,AG_MMENU_RCHAGER_ADD_GROUP);
 
-		action = new Action(addMenu);
+		action = new Action(mmenu);
+		action->setText(tr("Add contact"));
+		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_CONTACT);
+		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddContactDialog(bool)));
+		mmenu->addAction(action,AG_MMENU_RCHAGER_ADD_CONTACT);
+
+		action = new Action(mmenu);
 		action->setText(tr("Add account"));
 		action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_ACCOUNT);
 		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddAccountDialog(bool)));
-		addMenu->addAction(action,AG_MWAM_RCHAGER_ADD_ACCOUNT);
+		mmenu->addAction(action,AG_MMENU_RCHAGER_ADD_ACCOUNT);
 	}
 	qsrand(QDateTime::currentDateTime().toTime_t());
 	return true;

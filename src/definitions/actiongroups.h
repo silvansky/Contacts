@@ -2,24 +2,22 @@
 #define DEF_ACTIONGROUPS_H
 
 //MainWindow - MainMenu
-#define AG_MMENU_CONSOLE_SHOW                                   200
-#define AG_MMENU_PLUGINMANAGER_SETUP                            200
+#define AG_MMENU_RCHAGER_ADD_GROUP                              300
+#define AG_MMENU_RCHAGER_ADD_CONTACT                            300
+#define AG_MMENU_RCHAGER_ADD_ACCOUNT                            300
 #define AG_MMENU_ROSTERSVIEW_SHOWOFFLINE                        500
 #define AG_MMENU_ROSTERSVIEW_GROUPCONTACTS                      500
 #define AG_MMENU_OPTIONS_SHOWDIALOG                             500
 #define AG_MMENU_MASSSEND_SHOWDIALOG                            600
 #define AG_MMENU_PLUGINMANAGER_COMMENTS                         700
 #define AG_MMENU_PLUGINMANAGER_ABOUT                            700
+#define AG_MMENU_CONSOLE_SHOW                                   900
+#define AG_MMENU_PLUGINMANAGER_SETUP                            900
 #define AG_MMENU_OPTIONS_CHANGEPROFILE                          1000
 #define AG_MMENU_MAINWINDOW_QUIT                                1000
 //#define AG_MMENU_FILESTREAMSMANAGER                             500
 //#define AG_MMENU_ACCOUNTMANAGER                                 500
 //#define AG_MMENU_PLUGINMANAGER_SETUP                            800
-
-//MainWindow - AddMenu
-#define AG_MWAM_RCHAGER_ADD_CONTACT                             300
-#define AG_MWAM_RCHAGER_ADD_GROUP                               500
-#define AG_MWAM_RCHAGER_ADD_ACCOUNT                             500
 
 //RostersView - ContextMenu
 #define AG_RVCM_CHATMESSAGEHANDLER                              200
