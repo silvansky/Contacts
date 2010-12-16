@@ -1,7 +1,7 @@
 #include "chatmessagehandler.h"
 
 #define HISTORY_TIME_PAST         5
-#define HISTORY_MESSAGES_COUNT    5
+#define HISTORY_MESSAGES_COUNT    25
 
 #define DESTROYWINDOW_TIMEOUT     30*60*1000
 #define CONSECUTIVE_TIMEOUT       2*60
