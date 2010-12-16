@@ -3,7 +3,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 
-SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars, IStatusIcons *AStatusIcons, IRosterPlugin * ARosterPlugin, IPresencePlugin * APresencePlugin, const Jid &AStreamJid, const Jid &AContactJid) :
+SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars, IStatusIcons *AStatusIcons, IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin, IRosterChanger *ARosterChanger, const Jid &AStreamJid, const Jid &AContactJid) :
 		ui(new Ui::SimpleVCardDialog)
 {
 	ui->setupUi(this);
@@ -12,27 +12,30 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 
 	FContactJid = AContactJid;
 	FStreamJid = AStreamJid;
-	FVCardPlugin = AVCardPlugin;
 	FAvatars = AAvatars;
 	FStatusIcons = AStatusIcons;
-	FRosterPlugin = ARosterPlugin;
-	FVCard = FVCardPlugin->vcard(FContactJid);
+	FRosterChanger = ARosterChanger;
+	
+	FPresence = APresencePlugin->getPresence(FStreamJid);
+
+	FVCard = AVCardPlugin->vcard(FContactJid);
 	connect(FVCard->instance(), SIGNAL(vcardUpdated()), SLOT(onVCardUpdated()));
 	connect(FVCard->instance(), SIGNAL(vcardError(const QString &)), SLOT(onVCardError(const QString &)));
-	FRoster = FRosterPlugin->getRoster(AStreamJid);
+	
+	FRoster = ARosterPlugin->getRoster(AStreamJid);
 	connect(FRoster->instance(), SIGNAL(received(const IRosterItem &, const IRosterItem &)), 
 		SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
+
 	FRosterItem = FRoster->rosterItem(FContactJid);
 	if (FRosterItem.isValid)
 		ui->addToRosterButton->setVisible(false);
 	else
 		ui->renameButton->setVisible(false);
-	FPresencePlugin = APresencePlugin;
-	FPresence = FPresencePlugin->getPresence(FStreamJid);
+	
+	connect(ui->closeButton, SIGNAL(clicked()), SLOT(close()));
+
 	updateDialog();
 	reloadVCard();
-
-	connect(ui->closeButton, SIGNAL(clicked()), SLOT(close()));
 }
 
 SimpleVCardDialog::~SimpleVCardDialog()
@@ -40,17 +43,9 @@ SimpleVCardDialog::~SimpleVCardDialog()
 	delete ui;
 }
 
-void SimpleVCardDialog::changeEvent(QEvent *e)
+Jid SimpleVCardDialog::streamJid() const
 {
-	QDialog::changeEvent(e);
-	switch (e->type())
-	{
-	case QEvent::LanguageChange:
-		ui->retranslateUi(this);
-		break;
-	default:
-		break;
-	}
+	return FStreamJid;
 }
 
 void SimpleVCardDialog::reloadVCard()
@@ -123,5 +118,7 @@ void SimpleVCardDialog::on_renameButton_clicked()
 
 void SimpleVCardDialog::on_addToRosterButton_clicked()
 {
-	FRoster->setItem(FContactJid, ui->name->text(), QSet<QString>());
+	IAddContactDialog *dialog = FRosterChanger!=NULL ? FRosterChanger->showAddContactDialog(FStreamJid) : NULL;
+	if (dialog)
+		dialog->setContactJid(FContactJid.bare());
 }

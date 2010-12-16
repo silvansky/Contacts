@@ -23,6 +23,7 @@
 #include <interfaces/iavatars.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
+#include <interfaces/irosterchanger.h>
 #include <utils/widgetmanager.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
@@ -92,7 +93,7 @@ protected slots:
 	void onShowVCardDialogByChatWindowAction(bool);
 	void onVCardDialogDestroyed(QObject *ADialog);
 	void onSimpleVCardDialogDestroyed(QObject *ADialog);
-	void onXmppStreamRemoved(IXmppStream *AXmppStream);
+	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onBinaryCached(const QString &AContentId, const QString &AType, const QByteArray &AData, quint64 AMaxAge);
 private:
@@ -105,11 +106,12 @@ private:
 	IServiceDiscovery *FDiscovery;
 	IXmppUriQueries *FXmppUriQueries;
 	IMessageWidgets *FMessageWidgets;
-	IBitsOfBinary * FBitsOfBinary;
-	IStatusIcons * FStatusIcons;
-	IAvatars * FAvatars;
-	IRosterPlugin * FRosterPlugin;
-	IPresencePlugin * FPresencePlugin;
+	IBitsOfBinary *FBitsOfBinary;
+	IStatusIcons *FStatusIcons;
+	IAvatars *FAvatars;
+	IRosterPlugin *FRosterPlugin;
+	IPresencePlugin *FPresencePlugin;
+	IRosterChanger *FRosterChanger;
 private:
 	QMap<Jid, VCardItem> FVCards;
 	QMap<QString, Jid> FVCardRequestId;

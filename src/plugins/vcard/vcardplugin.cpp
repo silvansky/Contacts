@@ -21,6 +21,12 @@ VCardPlugin::VCardPlugin()
 	FDiscovery = NULL;
 	FXmppUriQueries = NULL;
 	FMessageWidgets = NULL;
+	FBitsOfBinary = NULL;
+	FStatusIcons = NULL;
+	FAvatars = NULL;
+	FRosterPlugin = NULL;
+	FPresencePlugin = NULL;
+	FRosterChanger = NULL;
 }
 
 VCardPlugin::~VCardPlugin()
@@ -52,7 +58,7 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 		FXmppStreams = qobject_cast<IXmppStreams *>(plugin->instance());
 		if (FXmppStreams)
 		{
-			connect(FXmppStreams->instance(),SIGNAL(removed(IXmppStream *)),SLOT(onXmppStreamRemoved(IXmppStream *)));
+			connect(FXmppStreams->instance(),SIGNAL(closed(IXmppStream *)),SLOT(onXmppStreamClosed(IXmppStream *)));
 		}
 	}
 
@@ -125,6 +131,12 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 	if (plugin)
 	{
 		FPresencePlugin = qobject_cast<IPresencePlugin*>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
+	if (plugin)
+	{
+		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
 	}
 
 	return true;
@@ -345,17 +357,21 @@ void VCardPlugin::showVCardDialog(const Jid &AStreamJid, const Jid &AContactJid)
 
 void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	if (FSimpleVCardDialogs.contains(AContactJid))
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	if (roster && roster->isOpen())
 	{
-		SimpleVCardDialog *dialog = FSimpleVCardDialogs.value(AContactJid);
-		WidgetManager::showActivateRaiseWindow(dialog);
-	}
-	else if (AStreamJid.isValid() && AContactJid.isValid())
-	{
-		SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons, FRosterPlugin, FPresencePlugin, AStreamJid, AContactJid);
-		connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onSimpleVCardDialogDestroyed(QObject *)));
-		FSimpleVCardDialogs.insert(AContactJid,dialog);
-		dialog->show();
+		if (FSimpleVCardDialogs.contains(AContactJid))
+		{
+			SimpleVCardDialog *dialog = FSimpleVCardDialogs.value(AContactJid);
+			WidgetManager::showActivateRaiseWindow(dialog);
+		}
+		else if (AStreamJid.isValid() && AContactJid.isValid())
+		{
+			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons, FRosterPlugin, FPresencePlugin, FRosterChanger, AStreamJid, AContactJid);
+			connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onSimpleVCardDialogDestroyed(QObject *)));
+			FSimpleVCardDialogs.insert(AContactJid,dialog);
+			WidgetManager::showActivateRaiseWindow(dialog);
+		}
 	}
 }
 
@@ -485,9 +501,13 @@ void VCardPlugin::onSimpleVCardDialogDestroyed(QObject *ADialog)
 	FSimpleVCardDialogs.remove(FSimpleVCardDialogs.key(dialog));
 }
 
-void VCardPlugin::onXmppStreamRemoved(IXmppStream *AXmppStream)
+void VCardPlugin::onXmppStreamClosed(IXmppStream *AXmppStream)
 {
 	foreach(VCardDialog *dialog, FVCardDialogs.values())
+		if (dialog->streamJid() == AXmppStream->streamJid())
+			delete dialog;
+
+	foreach(SimpleVCardDialog *dialog, FSimpleVCardDialogs.values())
 		if (dialog->streamJid() == AXmppStream->streamJid())
 			delete dialog;
 }
