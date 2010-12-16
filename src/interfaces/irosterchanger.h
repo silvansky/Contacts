@@ -15,10 +15,14 @@ public:
 	virtual Jid streamJid() const =0;
 	virtual Jid contactJid() const =0;
 	virtual void setContactJid(const Jid &AContactJid) =0;
+	virtual QString contactText() const =0;
+	virtual void setContactText(const QString &AText) =0;
 	virtual QString nickName() const =0;
 	virtual void setNickName(const QString &ANick) =0;
 	virtual QString group() const =0;
 	virtual void setGroup(const QString &AGroup) =0;
+	virtual Jid gatewayJid() const =0;
+	virtual void setGatewayJid(const Jid &AGatewayJid) =0;
 protected:
 	virtual void dialogDestroyed() =0;
 };

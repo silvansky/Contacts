@@ -61,6 +61,7 @@ protected:
 	void setActionLink(const QString &AMessage, const QUrl &AUrl);
 	void setGatewaysEnabled(bool AEnabled);
 	void setContactAcceptable(bool AAcceptable);
+	void setRealContactJid(const Jid &AContactJid);
 	void setResolveNickState(bool AResole);
 protected slots:
 	void resolveServiceJid();
@@ -95,14 +96,16 @@ private:
 private:
 	Jid FStreamJid;
 	Jid FContactJid;
+	Jid FPreferGateJid;
 private:
 	bool FShown;
 	bool FResolveNick;
 	QTimer FResolveTimer;
 	QString FContactJidRequest;
+	QList<Jid> FEnabledGateways;
+	QList<Jid> FDisabledGateways;
 	QMap<QString, Jid> FServices;
 	QMap<QString, Jid> FLoginRequests;
-	QMap<Jid, QString> FEnabledGateways;
 };
 
 #endif // ADDCONTACTDIALOG_H

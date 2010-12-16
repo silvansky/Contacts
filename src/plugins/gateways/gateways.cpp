@@ -807,6 +807,17 @@ bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid)
 	return false;	
 }
 
+QString Gateways::legacyIdFromUserJid(const Jid &AUserJid) const
+{
+	QString legacyId = AUserJid.node();
+	for (int i=1; i<legacyId.length(); i++)
+	{
+		if (legacyId.at(i)=='%' && legacyId.at(i-1)!='\\')
+			legacyId[i] = '@';
+	}
+	return legacyId;
+}
+
 QString Gateways::sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid)
 {
 	if (FRegistration)

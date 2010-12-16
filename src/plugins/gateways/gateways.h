@@ -92,6 +92,7 @@ public:
 	virtual bool setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe);
 	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid);
+	virtual QString legacyIdFromUserJid(const Jid &AUserJid) const;
 	virtual QString sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID);
