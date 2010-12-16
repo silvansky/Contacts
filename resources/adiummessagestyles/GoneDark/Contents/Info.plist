@@ -24,5 +24,7 @@
 	<integer>1</integer>
 	<key>ShowsUserIcons</key>
 	<true/>
+	<key>DefaultVariant</key>
+	<string>Mutation</string>
 </dict>
 </plist>

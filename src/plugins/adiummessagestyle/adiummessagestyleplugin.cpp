@@ -4,6 +4,9 @@
 #include <QTimer>
 #include <QCoreApplication>
 
+#define DEFAULT_STYLE     "GoneDark"
+#define DEFAULT_VARIANT   ""
+
 AdiumMessageStylePlugin::AdiumMessageStylePlugin()
 {
 
@@ -95,8 +98,8 @@ IMessageStyleOptions AdiumMessageStylePlugin::styleOptions(const OptionsNode &AN
 
 	if (!FStylePaths.isEmpty() && !FStylePaths.contains(styleId.toString()))
 	{
-		styleId = QString("Dialog");
-		soptions.extended.insert(MSO_VARIANT,QString(""));
+		styleId = QString(DEFAULT_STYLE);
+		soptions.extended.insert(MSO_VARIANT,QString(DEFAULT_VARIANT));
 		if (!FStylePaths.contains(styleId.toString()))
 			styleId = FStylePaths.keys().first();
 	}

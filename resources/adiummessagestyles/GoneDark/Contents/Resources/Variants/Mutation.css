@@ -1,7 +1,7 @@
 @import url('../main.css');
 
 body {
-	background: url(../images/backgroundMutation.jpg) repeat-y center top #000 fixed;
+	/*background: url(../images/backgroundMutation.jpg) repeat-y center top #000 fixed;*/
 }
 
 .message1 .userName, .message1 .date {
@@ -46,5 +46,4 @@ body {
 .message2 a:hover {
 	color: #ffc863;
 }
-
 

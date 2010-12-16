@@ -1,7 +1,7 @@
 @import url('../main.css');
 
 body {
-	background: url(../images/backgroundCosmic.jpg) repeat-y center top #000 fixed;
+	/*background: url(../images/backgroundCosmic.jpg) repeat-y center top #000 fixed;*/
 }
 
 .message1 .userName, .message1 .date {

@@ -612,6 +612,7 @@ QString AdiumMessageStyle::prepareMessageHtml(const QString &AHtml, const IMessa
 		}
 	}
 
+	/*
 	// word breaks
 	static const QRegExp wordPattern("\\S+");
 	static const int breakWordLength = 8;
@@ -630,8 +631,8 @@ QString AdiumMessageStyle::prepareMessageHtml(const QString &AHtml, const IMessa
 			changed = true;
 		}
 	}
-
-	return changed ? getHtmlBody(message.toHtml()).replace(breakMark,breakHtml) : AHtml;
+	*/
+	return changed ? getHtmlBody(message.toHtml())/*.replace(breakMark,breakHtml)*/ : AHtml;
 }
 
 void AdiumMessageStyle::escapeStringForScript(QString &AText) const

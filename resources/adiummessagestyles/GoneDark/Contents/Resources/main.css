@@ -1,7 +1,8 @@
 body {
 	margin: 0;
 	padding: 0;
-	background: url(images/background.jpg) repeat-y center top #000 fixed;
+	background-color: dimgray;
+	/*background: url(images/background.jpg) repeat-y center top #000 fixed;*/
 }
 
 #header {
@@ -50,7 +51,7 @@ body {
 	margin-right: 20px;
 	margin-bottom: -3px;
 	/*text-shadow: 1px 0px 0px #000*/
-	text-shadow: 0px -1px 5px #000;	
+	/*text-shadow: 0px -1px 5px #000;*/	
 }
 
 .service {
@@ -78,6 +79,7 @@ body {
 	background: url(images/transGrey.png);
 	word-wrap: break-word;
 }
+
 
 .message1 a {
 	color: #b4fe2b;
@@ -115,7 +117,7 @@ body {
 	font-size: 10px;
 	margin-right: 20px;
 	padding-top: 5px;
-	text-shadow: #000 2px 2px 0px;
+	/*text-shadow: #000 2px 2px 0px;*/
 }
 
 .message2 .userName, .message2 .date {
