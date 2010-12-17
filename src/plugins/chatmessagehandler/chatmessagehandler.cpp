@@ -34,6 +34,7 @@ ChatMessageHandler::ChatMessageHandler()
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FMessageStyles = NULL;
+	FRosterPlugin = NULL;
 	FPresencePlugin = NULL;
 	FRamblerHistory = NULL;
 	FRostersView = NULL;
@@ -93,6 +94,10 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 			connect(FStatusIcons->instance(),SIGNAL(statusIconsChanged()),SLOT(onStatusIconsChanged()));
 		}
 	}
+
+	plugin = APluginManager->pluginInterface("IRosterPlugin").value(0,NULL);
+	if (plugin)
+		FRosterPlugin = qobject_cast<IRosterPlugin *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
 	if (plugin)
@@ -370,13 +375,13 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
 		notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
-		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
 		notify.data.insert(NDR_POPUP_TITLE,name);
+		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
 		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
 
-		QTextDocument doc;
-		FMessageProcessor->messageToText(&doc,AMessage);
-		notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AMessage.to()) : NULL;
+		if (roster && !roster->rosterItem(AMessage.from()).isValid)
+			notify.data.insert(NDR_POPUP_NOTICE,tr("Not in roster"));
 
 		if (wstatus.notified.count() > 1)
 		{
@@ -385,6 +390,10 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 			if (!notifies.isEmpty() && notifies.last()==replNotify)
 				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
 		}
+
+		QTextDocument doc;
+		FMessageProcessor->messageToText(&doc,AMessage);
+		notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
 	}
 
 	return notify;

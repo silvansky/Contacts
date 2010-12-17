@@ -41,6 +41,7 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 
 	FCaption = ANotification.data.value(NDR_POPUP_CAPTION).toString();
 	FTitle = ANotification.data.value(NDR_POPUP_TITLE).toString();
+	FNotice = ANotification.data.value(NDR_POPUP_NOTICE).toString();
 
 	QIcon icon = qvariant_cast<QIcon>(ANotification.data.value(NDR_POPUP_ICON));
 	if (!icon.isNull())
@@ -58,6 +59,9 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 	{
 		ui.lblImage->setVisible(false);
 	}
+	ui.lblCaption->setVisible(!FCaption.isEmpty());
+	ui.lblTitle->setVisible(!FTitle.isEmpty());
+	ui.lblNotice->setVisible(!FNotice.isEmpty());
 
 	QString styleKey = ANotification.data.value(NDR_POPUP_STYLEKEY).toString();
 	if (!styleKey.isEmpty())
@@ -149,6 +153,7 @@ void NotifyWidget::updateElidedText()
 {
 	ui.lblCaption->setText(ui.lblCaption->fontMetrics().elidedText(FCaption,Qt::ElideRight,ui.lblCaption->width() - ui.lblCaption->frameWidth()*2));
 	ui.lblTitle->setText(ui.lblTitle->fontMetrics().elidedText(FTitle,Qt::ElideRight,ui.lblTitle->width() - ui.lblTitle->frameWidth()*2));
+	ui.lblNotice->setText(ui.lblNotice->fontMetrics().elidedText(FNotice,Qt::ElideRight,ui.lblNotice->width() - ui.lblNotice->frameWidth()*2));
 }
 
 void NotifyWidget::enterEvent(QEvent *AEvent)

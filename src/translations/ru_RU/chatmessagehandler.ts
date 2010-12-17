@@ -151,5 +151,9 @@
         <source>Open dialog</source>
         <translation>Открыть диалог</translation>
     </message>
+    <message>
+        <source>Not in roster</source>
+        <translation>Не в контакт-листе</translation>
+    </message>
 </context>
 </TS>

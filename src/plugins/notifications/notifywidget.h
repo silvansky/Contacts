@@ -51,6 +51,7 @@ private:
 	QTimer *FCloseTimer;
 private:
 	QString FTitle;
+	QString FNotice;
 	QString FCaption;
 	QStringList FTextMessages;
 private:

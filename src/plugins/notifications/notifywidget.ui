@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>300</width>
-    <height>137</height>
+    <height>140</height>
    </rect>
   </property>
   <property name="cursor">
@@ -115,6 +115,19 @@
             <widget class="QLabel" name="lblTitle">
              <property name="text">
               <string notr="true">Title</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+             <property name="indent">
+              <number>3</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblNotice">
+             <property name="text">
+              <string notr="true">Notice</string>
              </property>
              <property name="textFormat">
               <enum>Qt::PlainText</enum>

@@ -17,3 +17,9 @@ QLabel#lblTitle
 	font-size: 12px;
 	font-weight: bold;
 }
+
+QLabel#lblNotice
+{
+	font-size: 10px;
+	font-style: italic;
+}

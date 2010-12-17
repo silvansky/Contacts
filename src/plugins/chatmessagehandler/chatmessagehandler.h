@@ -33,6 +33,7 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/iavatars.h>
+#include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ixmppuriqueries.h>
@@ -161,6 +162,7 @@ private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 	IMessageStyles *FMessageStyles;
+	IRosterPlugin *FRosterPlugin;
 	IPresencePlugin *FPresencePlugin;
 	IRamblerHistory *FRamblerHistory;
 	IRostersView *FRostersView;
