@@ -152,8 +152,8 @@
         <translation>Открыть диалог</translation>
     </message>
     <message>
-        <source>Not in roster</source>
-        <translation>Не в контакт-листе</translation>
+        <source>Not in contact list</source>
+        <translation>Нет в контакт-листе</translation>
     </message>
 </context>
 </TS>

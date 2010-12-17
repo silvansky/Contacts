@@ -59,31 +59,37 @@ void SimpleVCardDialog::updateDialog()
 		ui->name->setText(FRosterItem.name);
 	else
 		ui->name->setText(FVCard->value(VVN_FULL_NAME).isEmpty() ? FContactJid.bare() : FVCard->value(VVN_FULL_NAME));
+	setWindowTitle(tr("Profile: %1").arg(ui->name->text()));
+
 	ui->jid->setText(FContactJid.bare());
+
 	FAvatars->insertAutoAvatar(ui->avatarLabel, FContactJid, QSize(100, 100), "pixmap");
-	QList<IPresenceItem> presenceItems = FPresence->presenceItems(FContactJid);
-	IPresenceItem presence = presenceItems.isEmpty() ? *(new IPresenceItem) : presenceItems.first();
-	ui->mood->setText(presence.status);
-	ui->status->setPixmap(FStatusIcons->iconByJidStatus(FContactJid, presence.show, SUBSCRIPTION_BOTH, false).pixmap(100));
+	
+	IPresenceItem presence = FPresence->presenceItems(FContactJid).value(0);
+	ui->mood->setText(FRosterItem.isValid ? presence.status : tr("Not in contact list"));
 	ui->fullName->setText(FVCard->value(VVN_FULL_NAME));
+	ui->status->setPixmap(FStatusIcons->iconByJidStatus(FContactJid, presence.show, SUBSCRIPTION_BOTH, false).pixmap(100));
+
 	QDate birthday = QDate::fromString(FVCard->value(VVN_BIRTHDAY),Qt::ISODate);
 	if (!birthday.isValid())
 		birthday = QDate::fromString(FVCard->value(VVN_BIRTHDAY),Qt::TextDate);
 	QString birthdayString = birthday.isValid() ? birthday.toString(Qt::SystemLocaleLongDate) : "<font color=grey>" + tr("not assigned") + "</font>";
 	ui->birthDateLabel->setText(birthdayString);
+
 	QString remarkString = FVCard->value(VVN_DESCRIPTION);
 	if (!remarkString.isEmpty())
+	{
 		ui->remarkLabel->setText(remarkString);
+	}
 	else
 	{
 		ui->remarkCaption->setVisible(false);
 		ui->remarkLabel->setVisible(false);
 	}
+
 	static const QStringList phoneTagList = QStringList() << "HOME" << "WORK" << "CELL" << "MODEM";
-	QHash<QString,QStringList> phones = FVCard->values(VVN_TELEPHONE, phoneTagList);
-	QStringList list(phones.keys());
-	ui->phoneLabel->setText(list.isEmpty() ? "<font color=grey>" + tr("not assigned") + "</font>" : list.join("<br>"));
-	setWindowTitle(tr("Profile: %1").arg(ui->name->text()));
+	QStringList phoneList = FVCard->values(VVN_TELEPHONE, phoneTagList).keys();
+	ui->phoneLabel->setText(phoneList.isEmpty() ? "<font color=grey>" + tr("not assigned") + "</font>" : phoneList.join("<br>"));
 }
 
 void SimpleVCardDialog::onVCardUpdated()

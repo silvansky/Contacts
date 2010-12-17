@@ -66,6 +66,10 @@
         <source>Enter name for contact</source>
         <translation>Укажите имя контакта</translation>
     </message>
+    <message>
+        <source>Not in contact list</source>
+        <translation>Нет в контакт-листе</translation>
+    </message>
 </context>
 <context>
     <name>VCardDialog</name>

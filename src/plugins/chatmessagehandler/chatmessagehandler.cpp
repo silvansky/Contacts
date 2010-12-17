@@ -381,7 +381,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AMessage.to()) : NULL;
 		if (roster && !roster->rosterItem(AMessage.from()).isValid)
-			notify.data.insert(NDR_POPUP_NOTICE,tr("Not in roster"));
+			notify.data.insert(NDR_POPUP_NOTICE,tr("Not in contact list"));
 
 		if (wstatus.notified.count() > 1)
 		{
