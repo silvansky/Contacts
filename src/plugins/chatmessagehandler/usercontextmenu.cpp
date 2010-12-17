@@ -39,15 +39,9 @@ void UserContextMenu::updateMenu()
 {
 	if (FRosterIndex)
 	{
+		Jid jid = FChatWindow->contactJid();
 		QString name = FRosterIndex->data(RDR_NAME).toString();
-		if (name.isEmpty())
-			name = FChatWindow->contactJid().bare();
-
-		Jid jid = FRosterIndex->data(RDR_PJID).toString();
-		if (!jid.resource().isEmpty())
-			name += "/" + jid.resource();
-
-		setTitle(name);
+		setTitle(!name.isEmpty() ? QString("<b>%1</b><br>%2").arg(name).arg(jid.bare()): jid.bare());
 		menuAction()->setVisible(true);
 	}
 	else
@@ -109,7 +103,8 @@ void UserContextMenu::onRosterIndexRemoved(IRosterIndex *AIndex)
 	}
 }
 
-void UserContextMenu::onChatWindowContactJidChanged(const Jid &/*ABefour*/)
+void UserContextMenu::onChatWindowContactJidChanged(const Jid &ABefour)
 {
+	Q_UNUSED(ABefour);
 	onRosterIndexRemoved(FRosterIndex);
 }

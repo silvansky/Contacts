@@ -503,10 +503,9 @@ void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 		icon = FStatusIcons->iconByJid(AWindow->streamJid(),AWindow->contactJid());
 
 	QString name = AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
-	QString resource = AWindow->contactJid().resource();
 	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
-	QString title = (!resource.isEmpty() ? name+"/"+resource : name) + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
-	AWindow->updateWindow(icon,name,title);
+	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+	AWindow->updateWindow(icon,name,title,show);
 }
 
 void ChatMessageHandler::removeMessageNotifications(IChatWindow *AWindow)

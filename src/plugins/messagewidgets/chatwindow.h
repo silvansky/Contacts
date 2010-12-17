@@ -43,7 +43,7 @@ public:
 	virtual IMenuBarWidget *menuBarWidget() const { return FMenuBarWidget; }
 	virtual IToolBarWidget *toolBarWidget() const { return FToolBarWidget; }
 	virtual IStatusBarWidget *statusBarWidget() const { return FStatusBarWidget; }
-	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle);
+	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle, const QString &AToolTip);
 	// Расширен функционал IChatWindow. Позволяет добавлять виджеты в окно чата
 	virtual void insertTopWidget(int AOrder, QWidget *AWidget);
 	virtual void removeTopWidget(QWidget *AWidget);

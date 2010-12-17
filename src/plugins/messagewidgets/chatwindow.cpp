@@ -142,11 +142,12 @@ void ChatWindow::setContactJid(const Jid &AContactJid)
 	}
 }
 
-void ChatWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle)
+void ChatWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle, const QString &AToolTip)
 {
 	setWindowIcon(AIcon);
 	setWindowIconText(AIconText);
 	setWindowTitle(ATitle);
+	setToolTip(AToolTip);
 	emit tabPageChanged();
 }
 
