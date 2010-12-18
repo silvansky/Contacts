@@ -234,8 +234,11 @@ public:
 	virtual QWidget *instance() =0;
 	virtual void showTabPage() =0;
 	virtual void closeTabPage() =0;
-	virtual QString tabPageId() const =0;
 	virtual bool isActive() const =0;
+	virtual QString tabPageId() const =0;
+	virtual QIcon tabPageIcon() const =0;
+	virtual QString tabPageCaption() const =0;
+	virtual QString tabPageToolTip() const =0;
 	virtual ITabPageNotifier *tabPageNotifier() const =0;
 	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier) =0;
 protected:
@@ -307,7 +310,6 @@ public:
 		ReadMode    =1,
 		WriteMode   =2
 	};
-
 public:
 	virtual const Jid &streamJid() const =0;
 	virtual const Jid &contactJid() const =0;
@@ -329,7 +331,7 @@ public:
 	virtual void setThreadId(const QString &AThreadId) =0;
 	virtual int nextCount() const =0;
 	virtual void setNextCount(int ACount) =0;
-	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle) =0;
+	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle, const QString &AToolTip) =0;
 protected:
 	virtual void showNextMessage() =0;
 	virtual void replyMessage() =0;
@@ -340,13 +342,11 @@ protected:
 	virtual void contactJidChanged(const Jid &ABefour) =0;
 };
 
-class IMassSendDialog :
-		public ITabPage
+class IMassSendDialog
 {
 public:
 	virtual QDialog * instance() =0;
 	virtual const Jid &streamJid() const =0;
-	//virtual IInfoWidget *infoWidget() const =0;
 	virtual IViewWidget *viewWidget() const =0;
 	virtual IEditWidget *editWidget() const =0;
 	virtual IReceiversWidget *receiversWidget() const =0;

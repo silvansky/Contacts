@@ -30,8 +30,11 @@ public:
 	//ITabPage
 	virtual void showTabPage();
 	virtual void closeTabPage();
-	virtual QString tabPageId() const;
 	virtual bool isActive() const;
+	virtual QString tabPageId() const;
+	virtual QIcon tabPageIcon() const;
+	virtual QString tabPageCaption() const;
+	virtual QString tabPageToolTip() const;
 	virtual ITabPageNotifier *tabPageNotifier() const;
 	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier);
 	//IMessageWindow
@@ -55,7 +58,7 @@ public:
 	virtual void setThreadId(const QString &AThreadId);
 	virtual int nextCount() const { return FNextCount; }
 	virtual void setNextCount(int ACount);
-	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle);
+	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle, const QString &AToolTip);
 signals:
 	//ITabPage
 	void tabPageShow();
@@ -108,6 +111,7 @@ private:
 	Jid FStreamJid;
 	Jid FContactJid;
 	bool FShownDetached;
+	QString FTabPageToolTip;
 	QString FCurrentThreadId;
 };
 

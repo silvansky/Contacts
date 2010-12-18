@@ -16,7 +16,6 @@ MassSendDialog::MassSendDialog(IMessageWidgets *AMessageWidgets, const Jid & ASt
 	connect(FEditWidget->instance(), SIGNAL(messageReady()), SLOT(onMessageReady()));
 	FEditWidget->setSendKey(QKeySequence(Qt::Key_Return));
 	FReceiversWidget = FMessageWidgets->newReceiversWidget(AStreamJid);
-	FTabPageNotifier = FMessageWidgets->newTabPageNotifier(this);
 	ui->messagingLayout->addWidget(FViewWidget->instance());
 	ui->messagingLayout->addWidget(FEditWidget->instance());
 	ui->recieversLayout->addWidget(FReceiversWidget->instance());
@@ -27,52 +26,27 @@ MassSendDialog::~MassSendDialog()
 	delete ui;
 }
 
-void MassSendDialog::showTabPage()
+const Jid &MassSendDialog::streamJid() const
 {
-	if (isWindow())
-		WidgetManager::showActivateRaiseWindow(this);
-	else
-		emit tabPageShow();
+	return FStreamJid;
 }
 
-void MassSendDialog::closeTabPage()
+IViewWidget *MassSendDialog::viewWidget() const
 {
-	if (isWindow())
-		close();
-	else
-		emit tabPageClose();
+	return FViewWidget;
 }
 
-QString MassSendDialog::tabPageId() const
+IEditWidget *MassSendDialog::editWidget() const
 {
-	return "MassSendDialog|"+FStreamJid.pBare();
+	return FEditWidget;
 }
 
-bool MassSendDialog::isActive() const
+IReceiversWidget *MassSendDialog::receiversWidget() const
 {
-	const QWidget *widget = this;
-	while (widget->parentWidget())
-		widget = widget->parentWidget();
-	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
-}
-
-void MassSendDialog::changeEvent(QEvent *e)
-{
-	QDialog::changeEvent(e);
-	switch (e->type())
-	{
-	case QEvent::LanguageChange:
-		ui->retranslateUi(this);
-		break;
-	default:
-		break;
-	}
+	return FReceiversWidget;
 }
 
 void MassSendDialog::onMessageReady()
 {
-//	IMessageContentOptions options;
-//	options.direction = IMessageContentOptions::DirectionOut;
-//	FViewWidget->appendText(FEditWidget->textEdit()->toPlainText(), options);
 	emit messageReady();
 }

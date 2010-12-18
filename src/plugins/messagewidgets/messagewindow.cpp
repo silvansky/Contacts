@@ -89,17 +89,32 @@ void MessageWindow::closeTabPage()
 		emit tabPageClose();
 }
 
-QString MessageWindow::tabPageId() const
-{
-	return "MessageWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
-}
-
 bool MessageWindow::isActive() const
 {
 	const QWidget *widget = this;
 	while (widget->parentWidget())
 		widget = widget->parentWidget();
 	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
+QString MessageWindow::tabPageId() const
+{
+	return "MessageWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
+}
+
+QIcon MessageWindow::tabPageIcon() const
+{
+	return windowIcon();
+}
+
+QString MessageWindow::tabPageCaption() const
+{
+	return windowIconText();
+}
+
+QString MessageWindow::tabPageToolTip() const
+{
+	return FTabPageToolTip;
 }
 
 ITabPageNotifier *MessageWindow::tabPageNotifier() const
@@ -237,11 +252,12 @@ void MessageWindow::loadWindowGeometry()
 	}
 }
 
-void MessageWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle)
+void MessageWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle, const QString &AToolTip)
 {
 	setWindowIcon(AIcon);
 	setWindowIconText(AIconText);
 	setWindowTitle(ATitle);
+	FTabPageToolTip = AToolTip;
 	emit tabPageChanged();
 }
 

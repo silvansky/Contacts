@@ -99,17 +99,32 @@ void ChatWindow::closeTabPage()
 		emit tabPageClose();
 }
 
-QString ChatWindow::tabPageId() const
-{
-	return "ChatWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
-}
-
 bool ChatWindow::isActive() const
 {
 	const QWidget *widget = this;
 	while (widget->parentWidget())
 		widget = widget->parentWidget();
 	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
+QString ChatWindow::tabPageId() const
+{
+	return "ChatWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
+}
+
+QIcon ChatWindow::tabPageIcon() const
+{
+	return windowIcon();
+}
+
+QString ChatWindow::tabPageCaption() const
+{
+	return windowIconText();
+}
+
+QString ChatWindow::tabPageToolTip() const
+{
+	return FTabPageToolTip;
 }
 
 ITabPageNotifier *ChatWindow::tabPageNotifier() const
@@ -147,7 +162,7 @@ void ChatWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, cons
 	setWindowIcon(AIcon);
 	setWindowIconText(AIconText);
 	setWindowTitle(ATitle);
-	setToolTip(AToolTip);
+	FTabPageToolTip = AToolTip;
 	emit tabPageChanged();
 }
 
@@ -160,11 +175,13 @@ void ChatWindow::insertTopWidget(int AOrder, QWidget *AWidget)
 		emit topWidgetInserted(AOrder, AWidget);
 	}
 }
+
 void ChatWindow::removeTopWidget(QWidget *AWidget)
 {
 	ui.wdtBottomWidgets->layout()->removeWidget(AWidget);
 	emit topWidgetRemoved(AWidget);
 }
+
 void ChatWindow::insertBottomWidget(int AOrder, QWidget *AWidget)
 {
 	QBoxLayout* boxLayout = (QBoxLayout*)ui.wdtBottomWidgets->layout();
@@ -174,6 +191,7 @@ void ChatWindow::insertBottomWidget(int AOrder, QWidget *AWidget)
 		emit bottomWidgetInserted(AOrder, AWidget);
 	}
 }
+
 void ChatWindow::removeBottomWidget(QWidget *AWidget)
 {
 	ui.wdtBottomWidgets->layout()->removeWidget(AWidget);
@@ -337,4 +355,3 @@ void ChatWindow::onNoticeActivated(int ANoticeId)
 {
 	ui.wdtNotice->setVisible(ANoticeId > 0);
 }
-

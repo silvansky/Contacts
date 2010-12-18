@@ -28,8 +28,11 @@ public:
 	//ITabPage
 	virtual void showTabPage();
 	virtual void closeTabPage();
-	virtual QString tabPageId() const;
 	virtual bool isActive() const;
+	virtual QString tabPageId() const;
+	virtual QIcon tabPageIcon() const;
+	virtual QString tabPageCaption() const;
+	virtual QString tabPageToolTip() const;
 	virtual ITabPageNotifier *tabPageNotifier() const;
 	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier);
 	//IChatWindow
@@ -101,6 +104,7 @@ private:
 	Jid FStreamJid;
 	Jid FContactJid;
 	bool FShownDetached;
+	QString FTabPageToolTip;
 };
 
 #endif // CHATWINDOW_H

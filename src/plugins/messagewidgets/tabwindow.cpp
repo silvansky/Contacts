@@ -261,12 +261,12 @@ void TabWindow::updateWindow()
 
 void TabWindow::updateTab(int AIndex)
 {
-	QWidget *widget = ui.twtTabs->widget(AIndex);
-	if (widget)
+	ITabPage *page = qobject_cast<ITabPage *>(ui.twtTabs->widget(AIndex));
+	if (page)
 	{
-		ui.twtTabs->setTabIcon(AIndex,widget->windowIcon());
-		ui.twtTabs->setTabText(AIndex,widget->windowIconText());
-		ui.twtTabs->setTabToolTip(AIndex,widget->toolTip());
+		ui.twtTabs->setTabIcon(AIndex,page->tabPageIcon());
+		ui.twtTabs->setTabText(AIndex,page->tabPageCaption());
+		ui.twtTabs->setTabToolTip(AIndex,page->tabPageToolTip());
 	}
 }
 

@@ -202,7 +202,7 @@ void TabBarItem::showText(const QString &AText)
 
 void TabBarItem::showToolTip(const QString &AToolTip)
 {
-	QString tip = !AToolTip.isEmpty() ? QString("<b>%1</b><br>%2").arg(Qt::escape(FText)).arg(Qt::escape(AToolTip)) : QString("<b>%1</b>").arg(Qt::escape(FText));
+	QString tip = !AToolTip.isEmpty() ? QString("<b>%1</b><br>%2").arg(Qt::escape(FText)).arg(Qt::escape(AToolTip)) : Qt::escape(FText);
 	QFrame::setToolTip(tip);
 }
 

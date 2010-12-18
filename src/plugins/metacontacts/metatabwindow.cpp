@@ -49,17 +49,32 @@ void MetaTabWindow::closeTabPage()
 		emit tabPageClose();
 }
 
-QString MetaTabWindow::tabPageId() const
-{
-	return "MetaTabWidget|"+FMetaRoster->streamJid().pBare()+"|"+FMetaId.pBare();
-}
-
 bool MetaTabWindow::isActive() const
 {
 	const QWidget *widget = this;
 	while (widget->parentWidget())
 		widget = widget->parentWidget();
 	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
+QString MetaTabWindow::tabPageId() const
+{
+	return "MetaTabWidget|"+FMetaRoster->streamJid().pBare()+"|"+FMetaId.pBare();
+}
+
+QIcon MetaTabWindow::tabPageIcon() const
+{
+	return windowIcon();
+}
+
+QString MetaTabWindow::tabPageCaption() const
+{
+	return windowIconText();
+}
+
+QString MetaTabWindow::tabPageToolTip() const
+{
+	return FTabPageToolTip;
 }
 
 ITabPageNotifier *MetaTabWindow::tabPageNotifier() const
