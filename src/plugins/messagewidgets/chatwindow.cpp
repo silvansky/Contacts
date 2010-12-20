@@ -9,7 +9,6 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	setAttribute(Qt::WA_DeleteOnClose, false);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_CHATWINDOW);
 
-	FStatusChanger = NULL;
 	FMessageWidgets = AMessageWidgets;
 
 	FStreamJid = AStreamJid;
@@ -54,11 +53,13 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	ui.wdtToolBar->layout()->setMargin(0);
 	ui.wdtToolBar->layout()->addWidget(FToolBarWidget->instance());
 
-	// Попов С.А. Два новых контейнера для лайоутов
 	ui.wdtTopWidgets->setLayout(new QVBoxLayout);
 	ui.wdtTopWidgets->layout()->setMargin(0);
+	ui.wdtTopWidgets->setVisible(false);
+
 	ui.wdtBottomWidgets->setLayout(new QVBoxLayout);
 	ui.wdtBottomWidgets->layout()->setMargin(0);
+	ui.wdtBottomWidgets->setVisible(false);
 
 	FStatusBarWidget = FMessageWidgets->newStatusBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
 	setStatusBar(FStatusBarWidget->instance());
@@ -168,34 +169,62 @@ void ChatWindow::updateWindow(const QIcon &AIcon, const QString &AIconText, cons
 
 void ChatWindow::insertTopWidget(int AOrder, QWidget *AWidget)
 {
-	QBoxLayout* boxLayout = (QBoxLayout*)ui.wdtTopWidgets->layout();
-	if(boxLayout)
+	QBoxLayout *boxLayout = qobject_cast<QBoxLayout *>(ui.wdtBottomWidgets->layout());
+	if (AWidget && boxLayout && !FTopWidgets.values().contains(AWidget))
 	{
-		boxLayout->insertWidget(AOrder, AWidget);
+		QMultiMap<int, QWidget *>::const_iterator it = FTopWidgets.lowerBound(AOrder);
+		if (it != FTopWidgets.constEnd())
+			boxLayout->insertWidget(boxLayout->indexOf(it.value()), AWidget);
+		else
+			boxLayout->addWidget(AWidget);
+		FTopWidgets.insertMulti(AOrder,AWidget);
+		if (FTopWidgets.count()==1)
+			ui.wdtTopWidgets->setVisible(true);
+		connect(AWidget,SIGNAL(destroyed(QObject *)),SLOT(onTopOrBottomWidgetDestroyed(QObject *)));
 		emit topWidgetInserted(AOrder, AWidget);
 	}
 }
 
 void ChatWindow::removeTopWidget(QWidget *AWidget)
 {
-	ui.wdtBottomWidgets->layout()->removeWidget(AWidget);
-	emit topWidgetRemoved(AWidget);
+	if (FTopWidgets.values().contains(AWidget))
+	{
+		FTopWidgets.remove(FTopWidgets.key(AWidget),AWidget);
+		ui.wdtTopWidgets->layout()->removeWidget(AWidget);
+		if (FTopWidgets.count() == 0)
+		ui.wdtTopWidgets->setVisible(false);
+		emit topWidgetRemoved(AWidget);
+	}
 }
 
 void ChatWindow::insertBottomWidget(int AOrder, QWidget *AWidget)
 {
-	QBoxLayout* boxLayout = (QBoxLayout*)ui.wdtBottomWidgets->layout();
-	if(boxLayout)
+	QBoxLayout *boxLayout = qobject_cast<QBoxLayout *>(ui.wdtBottomWidgets->layout());
+	if (AWidget && boxLayout && !FBottomWidgets.values().contains(AWidget))
 	{
-		boxLayout->insertWidget(AOrder, AWidget);
+		QMultiMap<int, QWidget *>::const_iterator it = FBottomWidgets.lowerBound(AOrder);
+		if (it != FBottomWidgets.constEnd())
+			boxLayout->insertWidget(boxLayout->indexOf(it.value()), AWidget);
+		else
+			boxLayout->addWidget(AWidget);
+		FBottomWidgets.insertMulti(AOrder,AWidget);
+		if (FBottomWidgets.count() == 1)
+			ui.wdtBottomWidgets->setVisible(true);
+		connect(AWidget,SIGNAL(destroyed(QObject *)),SLOT(onTopOrBottomWidgetDestroyed(QObject *)));
 		emit bottomWidgetInserted(AOrder, AWidget);
 	}
 }
 
 void ChatWindow::removeBottomWidget(QWidget *AWidget)
 {
-	ui.wdtBottomWidgets->layout()->removeWidget(AWidget);
-	emit bottomWidgetRemoved(AWidget);
+	if (FBottomWidgets.values().contains(AWidget))
+	{
+		FBottomWidgets.remove(FBottomWidgets.key(AWidget),AWidget);
+		ui.wdtBottomWidgets->layout()->removeWidget(AWidget);
+		if (FBottomWidgets.count() == 0)
+			ui.wdtBottomWidgets->setVisible(false);
+		emit bottomWidgetRemoved(AWidget);
+	}
 }
 
 void ChatWindow::initialize()
@@ -212,12 +241,6 @@ void ChatWindow::initialize()
 				connect(xmppStream->instance(),SIGNAL(jidChanged(const Jid &)), SLOT(onStreamJidChanged(const Jid &)));
 			}
 		}
-	}
-
-	plugin = FMessageWidgets->pluginManager()->pluginInterface("IStatusChanger").value(0,NULL);
-	if (plugin)
-	{
-		FStatusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
 	}
 
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -354,4 +377,11 @@ void ChatWindow::onViewContextQuoteActionTriggered(bool)
 void ChatWindow::onNoticeActivated(int ANoticeId)
 {
 	ui.wdtNotice->setVisible(ANoticeId > 0);
+}
+
+void ChatWindow::onTopOrBottomWidgetDestroyed(QObject *AObject)
+{
+	QWidget *widget = static_cast<QWidget *>(AObject);
+	removeTopWidget(widget);
+	removeBottomWidget(widget);
 }

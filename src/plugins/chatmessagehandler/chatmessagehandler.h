@@ -129,13 +129,14 @@ protected:
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
 	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit = false);
+protected:
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
 	QUuid showDateSeparator(IChatWindow *AWindow, const QDate &ADate);
 	QUuid showStyledStatus(IChatWindow *AWindow, const QString &AMessage);
 	QUuid showStyledMessage(IChatWindow *AWindow, const Message &AMessage, const StyleExtension &AExtension = StyleExtension());
 protected:
-	bool eventFilter(QObject *AObject, QEvent *AEvent);
+	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onMessageReady();
 	void onUrlClicked(const QUrl &AUrl);
@@ -147,7 +148,7 @@ protected slots:
 	void onShowWindowAction(bool);
 	void onOpenTabPageAction(bool);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
-	void onRosterLabelToolTips(IRosterIndex * AIndex, int ALabelId, QMultiMap<int,QString> & AToolTips, ToolBarChanger * AToolBarChanger);
+	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
 	void onPresenceAdded(IPresence *APresence);
 	void onPresenceOpened(IPresence *APresence);
 	void onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);

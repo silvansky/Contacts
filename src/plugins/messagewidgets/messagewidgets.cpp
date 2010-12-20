@@ -109,7 +109,7 @@ bool MessageWidgets::initSettings()
 	Options::setDefaultValue(OPV_MESSAGES_EDITORAUTORESIZE,true);
 	Options::setDefaultValue(OPV_MESSAGES_SHOWINFOWIDGET,false);
 	Options::setDefaultValue(OPV_MESSAGES_LASTTABPAGESCOUNT,10);
-	Options::setDefaultValue(OPV_MESSAGES_EDITORMINIMUMLINES,3);
+	Options::setDefaultValue(OPV_MESSAGES_EDITORMINIMUMLINES,2);
 	Options::setDefaultValue(OPV_MESSAGES_EDITORSENDKEY,QKeySequence(Qt::Key_Return));
 	Options::setDefaultValue(OPV_MESSAGES_TABWINDOWS_ENABLE,true);
 	Options::setDefaultValue(OPV_MESSAGES_TABWINDOW_NAME,tr("Tab Window"));

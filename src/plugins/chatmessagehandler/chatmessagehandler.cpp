@@ -299,7 +299,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		Jid contactJid = AIndex->data(RDR_JID).toString();
-		return createWindow(MHO_CHATMESSAGEHANDLER,streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
+		return FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
 	}
 	return false;
 }
@@ -307,9 +307,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 bool ChatMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 {
 	Q_UNUSED(AOrder);
-	if (/*AMessage.type()==Message::Chat && */!AMessage.body().isEmpty())
-		return true;
-	return false;
+	return !AMessage.body().isEmpty();
 }
 
 bool ChatMessageHandler::showMessage(int AMessageId)
@@ -626,7 +624,7 @@ void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState
 		options.timeFormat = " ";
 		options.noScroll = true;
 		
-		if (AInit)
+		if (AInit && false)
 		{
 			QUrl showWindowUrl;
 			showWindowUrl.setScheme(URL_SCHEME_ACTION);
@@ -930,7 +928,7 @@ void ChatMessageHandler::onShowWindowAction(bool)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-		createWindow(MHO_CHATMESSAGEHANDLER,streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
+		FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
 	}
 }
 

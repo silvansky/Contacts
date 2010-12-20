@@ -47,7 +47,6 @@ public:
 	virtual IToolBarWidget *toolBarWidget() const { return FToolBarWidget; }
 	virtual IStatusBarWidget *statusBarWidget() const { return FStatusBarWidget; }
 	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle, const QString &AToolTip);
-	// Расширен функционал IChatWindow. Позволяет добавлять виджеты в окно чата
 	virtual void insertTopWidget(int AOrder, QWidget *AWidget);
 	virtual void removeTopWidget(QWidget *AWidget);
 	virtual void insertBottomWidget(int AOrder, QWidget *AWidget);
@@ -66,7 +65,6 @@ signals:
 	void messageReady();
 	void streamJidChanged(const Jid &ABefour);
 	void contactJidChanged(const Jid &ABefour);
-	// Попов С.А.
 	void topWidgetInserted(int AOrder, QWidget *AWidget);
 	void topWidgetRemoved(QWidget *AWidget);
 	void bottomWidgetInserted(int AOrder, QWidget *AWidget);
@@ -86,11 +84,11 @@ protected slots:
 	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
 	void onViewContextQuoteActionTriggered(bool);
 	void onNoticeActivated(int ANoticeId);
+	void onTopOrBottomWidgetDestroyed(QObject *QObject);
 private:
 	Ui::ChatWindowClass ui;
 private:
 	IMessageWidgets *FMessageWidgets;
-	IStatusChanger *FStatusChanger;
 private:
 	IInfoWidget *FInfoWidget;
 	IViewWidget *FViewWidget;
@@ -105,6 +103,8 @@ private:
 	Jid FContactJid;
 	bool FShownDetached;
 	QString FTabPageToolTip;
+	QMultiMap<int, QWidget *> FTopWidgets;
+	QMultiMap<int, QWidget *> FBottomWidgets;
 };
 
 #endif // CHATWINDOW_H

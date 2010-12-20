@@ -3,6 +3,7 @@
 
 #define MHO_MULTIUSERCHAT_INVITE              500
 #define MHO_MULTIUSERCHAT_GROUPCHAT           600
+#define MHO_SMSMESSAGEHANDLER                 800
 #define MHO_CHATMESSAGEHANDLER                900
 #define MHO_NORMALMESSAGEHANDLER              1000
 

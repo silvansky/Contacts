@@ -44,4 +44,5 @@ SUBDIRS = optionsmanager \
 	  ramblerhistory \
 	  birthdayreminder \
 	  metacontacts \
-          sipphone
+     sipphone \
+     smsmessagehandler
