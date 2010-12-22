@@ -1,13 +1,14 @@
 #ifndef SMSMESSAGEHANDLER_H
 #define SMSMESSAGEHANDLER_H
 
-#define SMSMESSAGEHANDLER_UUID "{7A7DBF1A-4C1C-4ba5-9A82-ACD7A204A438}"
-
 #include <QTimer>
+#include <definitions/namespaces.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <definitions/soundfiles.h>
+#include <definitions/stanzahandlerorders.h>
+#include <definitions/chatwindowwidgetorders.h>
 #include <definitions/messagedataroles.h>
 #include <definitions/messagehandlerorders.h>
 #include <definitions/notificators.h>
@@ -15,6 +16,7 @@
 #include <definitions/rosternotifyorders.h>
 #include <definitions/tabpagenotifypriorities.h>
 #include <interfaces/ipluginmanager.h>
+#include <interfaces/ismsmessagehandler.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessagestyles.h>
@@ -23,6 +25,10 @@
 #include <interfaces/istatusicons.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/irostersview.h>
+#include <interfaces/ixmppstreams.h>
+#include <interfaces/istanzaprocessor.h>
+#include <utils/stanza.h>
+#include "smsinfowidget.h"
 
 struct WindowStatus
 {
@@ -57,10 +63,13 @@ enum HisloryLoadState {
 class SmsMessageHandler :
 	public QObject,
 	public IPlugin,
-	public IMessageHandler
+	public ISmsMessageHandler,
+	public IMessageHandler,
+	public IStanzaHandler,
+	public IStanzaRequestOwner
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMessageHandler);
+	Q_INTERFACES(IPlugin ISmsMessageHandler IMessageHandler IStanzaHandler IStanzaRequestOwner);
 public:
 	SmsMessageHandler();
 	~SmsMessageHandler();
@@ -72,6 +81,11 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
+	//IStanzaHandler
+	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
+	//IStanzaRequestOwner
+	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
+	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//IMessageHandler
 	virtual bool checkMessage(int AOrder, const Message &AMessage);
 	virtual bool showMessage(int AMessageId);
@@ -80,6 +94,13 @@ public:
 	virtual bool createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
 	//SmsMessageHandler
 	virtual bool isSmsContact(const Jid &AStreamJid, const Jid &AContactJid) const;
+	virtual int smsBalance(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	virtual bool requestSmsBalance(const Jid &AStreamJid, const Jid &AServiceJid);
+signals:
+	void smsBalanceChanged(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance);
+protected:
+	int smsBalanceFromStanza(const Stanza &AStanza) const;
+	void setSmsBalance(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance);
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
@@ -107,20 +128,28 @@ protected slots:
 	void onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages);
 	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
+	void onXmppStreamOpened(IXmppStream *AXmppStream);
+	void onXmppStreamClosed(IXmppStream *AXmppStream);
 private:
 	IMessageStyles *FMessageStyles;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 	IRamblerHistory *FRamblerHistory;
+	IXmppStreams *FXmppStreams;
 	IServiceDiscovery *FDiscovery;
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
+	IStanzaProcessor *FStanzaProcessor;
 private:
 	QList<IChatWindow *> FWindows;
 	QMap<IChatWindow *, QTimer *> FWindowTimers;
 	QMap<IChatWindow *, WindowStatus> FWindowStatus;
 private:
 	QMap<QString, IChatWindow *> FHistoryRequests;
+private:
+	QMap<Jid, int> FSHISmsBalance;
+	QMap<QString, Jid> FSmsBalanceRequests;
+	QMap<Jid, QMap<Jid, int> > FSmsBalance;
 };
 
 #endif // SMSMESSAGEHANDLER_H

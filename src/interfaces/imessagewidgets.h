@@ -130,6 +130,8 @@ public:
 	virtual void setSendKey(const QKeySequence &AKey) =0;
 	virtual bool sendButtonVisible() const =0;
 	virtual void setSendButtonVisible(bool AVisible) =0;
+	virtual bool sendButtonEnabled() const =0;
+	virtual void setSendButtonEnabled(bool AEnabled) =0;
 	virtual bool textFormatEnabled() const =0;
 	virtual void setTextFormatEnabled(bool AEnabled) =0;
 protected:

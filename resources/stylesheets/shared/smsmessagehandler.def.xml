@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>smsmessagehandlerInfoWidget</key>
+    <object mime='text/css'>smsmessagehandlerinfowidget.qss</object>
+  </file>
+</styledef>

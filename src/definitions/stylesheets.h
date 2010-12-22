@@ -55,4 +55,7 @@
 //BirthdayReminder
 #define STS_BIRTHDAYREMINDER_NOTIFYWIDGET                               "birthdayreminderNotifyWidget"
 
+//SmsMessageHandler
+#define STS_SMSMESSAGEHANDLER_INFOWIDGET                                "smsmessagehandlerInfoWidget"
+
 #endif // DEF_STYLESHEETS_H

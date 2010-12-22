@@ -1156,6 +1156,8 @@ void Gateways::onPrivateStorateClosed(const Jid &AStreamJid)
 
 void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
+	Q_UNUSED(AIndex); Q_UNUSED(AMenu);
+	/*
 	if (AIndex->type() == RIT_STREAM_ROOT)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
@@ -1222,7 +1224,7 @@ void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 		}
 	}
 
-	/*if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
+	if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		Jid contactJid = AIndex->data(RDR_JID).toString();
@@ -1237,7 +1239,8 @@ void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 			connect(action,SIGNAL(triggered(bool)),SLOT(onResolveActionTriggered(bool)));
 			AMenu->addAction(action,AG_RVCM_GATEWAYS_RESOLVE,true);
 		}
-	}*/
+	}
+	*/
 }
 
 void Gateways::onKeepTimerTimeout()

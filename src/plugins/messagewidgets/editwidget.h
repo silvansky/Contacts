@@ -35,9 +35,10 @@ public:
 	virtual void setSendKey(const QKeySequence &AKey);
 	virtual bool sendButtonVisible() const;
 	virtual void setSendButtonVisible(bool AVisible);
+	virtual bool sendButtonEnabled() const;
+	virtual void setSendButtonEnabled(bool AEnabled);
 	virtual bool textFormatEnabled() const;
 	virtual void setTextFormatEnabled(bool AEnabled);
-signals:
 signals:
 	void keyEventReceived(QKeyEvent *AKeyEvent, bool &AHook);
 	void messageAboutToBeSend();

@@ -137,6 +137,16 @@ void EditWidget::setSendButtonVisible(bool AVisible)
 	ui.tlbSend->setVisible(AVisible);
 }
 
+bool EditWidget::sendButtonEnabled() const
+{
+	return ui.tlbSend->isEnabled();
+}
+
+void EditWidget::setSendButtonEnabled(bool AEnabled)
+{
+	ui.tlbSend->setEnabled(AEnabled);
+}
+
 bool EditWidget::textFormatEnabled() const
 {
 	return FFormatEnabled;

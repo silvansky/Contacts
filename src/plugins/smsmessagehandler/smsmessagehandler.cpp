@@ -4,6 +4,7 @@
 #define HISTORY_MESSAGES_COUNT    25
 
 #define DESTROYWINDOW_TIMEOUT     30*60*1000
+#define BALANCE_REQUEST_TIMEOUT   30*1000
 
 #define URL_SCHEME_ACTION         "action"
 #define URL_PATH_HISTORY          "history"
@@ -12,15 +13,19 @@
 #define SMS_DISCO_TYPE            "sms"
 #define SMS_DISCO_CATEGORY        "gateway"
 
+#define SHC_SMS_BALANCE           "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SMS_BALANCE "'"
+
 SmsMessageHandler::SmsMessageHandler()
 {
 	FMessageStyles = NULL;
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FRamblerHistory = NULL;
+	FXmppStreams = NULL;
 	FDiscovery = NULL;
 	FStatusIcons = NULL;
 	FStatusChanger = NULL;
+	FStanzaProcessor = NULL;
 }
 
 SmsMessageHandler::~SmsMessageHandler()
@@ -33,11 +38,12 @@ void SmsMessageHandler::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->name = tr("SMS Messages");
 	APluginInfo->description = tr("Allows to exchange SMS messages via gateway");
 	APluginInfo->version = "1.0";
-	APluginInfo->author = "Popov S.A.";
+	APluginInfo->author = "Potapov S.A.";
 	APluginInfo->homePage = "http://virtus.rambler.ru";
 	APluginInfo->dependences.append(MESSAGESTYLES_UUID);
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 	APluginInfo->dependences.append(MESSAGEPROCESSOR_UUID);
+	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 
 bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AInitOrder)
@@ -50,6 +56,21 @@ bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AIn
 	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0,NULL);
+	if (plugin)
+		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
+	if (plugin)
+	{
+		FXmppStreams = qobject_cast<IXmppStreams *>(plugin->instance());
+		if (FXmppStreams)
+		{
+			connect(FXmppStreams->instance(),SIGNAL(opened(IXmppStream *)),SLOT(onXmppStreamOpened(IXmppStream *)));
+			connect(FXmppStreams->instance(),SIGNAL(closed(IXmppStream *)),SLOT(onXmppStreamClosed(IXmppStream *)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IMessageStyles").value(0,NULL);
 	if (plugin)
@@ -103,6 +124,34 @@ bool SmsMessageHandler::initObjects()
 		FMessageProcessor->insertMessageHandler(this,MHO_SMSMESSAGEHANDLER);
 	}
 	return true;
+}
+
+bool SmsMessageHandler::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
+{
+	if (FSHISmsBalance.value(AStreamJid) == AHandleId)
+	{
+		AAccept = true;
+		setSmsBalance(AStreamJid,AStanza.from(),smsBalanceFromStanza(AStanza));
+	}
+	return false;
+}
+
+void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
+{
+	if (FSmsBalanceRequests.contains(AStanza.id()))
+	{
+		Jid serviceJid = FSmsBalanceRequests.take(AStanza.id());
+		setSmsBalance(AStreamJid,serviceJid,smsBalanceFromStanza(AStanza));
+	}
+}
+
+void SmsMessageHandler::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
+{
+	if (FSmsBalanceRequests.contains(AStanzaId))
+	{
+		Jid serviceJid = FSmsBalanceRequests.take(AStanzaId);
+		setSmsBalance(AStreamJid,serviceJid,-1);
+	}
 }
 
 bool SmsMessageHandler::checkMessage(int AOrder, const Message &AMessage)
@@ -196,7 +245,7 @@ INotification SmsMessageHandler::notification(INotifications *ANotifications, co
 bool SmsMessageHandler::createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
 {
 	Q_UNUSED(AOrder);
-	if (AType == Message::Chat)
+	if (AType==Message::Chat && isSmsContact(AStreamJid,AContactJid))
 	{
 		IChatWindow *window = getWindow(AStreamJid,AContactJid);
 		if (window)
@@ -213,12 +262,55 @@ bool SmsMessageHandler::createWindow(int AOrder, const Jid &AStreamJid, const Ji
 
 bool SmsMessageHandler::isSmsContact(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	if (FDiscovery && FDiscovery->hasDiscoInfo(AStreamJid,AContactJid))
+	if (!AContactJid.node().isEmpty() && AContactJid.pDomain().endsWith("."+AStreamJid.pDomain()))
 	{
-		IDiscoIdentity ident = FDiscovery->discoInfo(AStreamJid,AContactJid).identity.value(0);
-		return ident.category==SMS_DISCO_CATEGORY && ident.type==SMS_DISCO_TYPE;
+		//if (FDiscovery && FDiscovery->hasDiscoInfo(AStreamJid,AContactJid.domain()))
+		//{
+		//	IDiscoIdentity ident = FDiscovery->discoInfo(AStreamJid,AContactJid.domain()).identity.value(0);
+		//	return ident.category==SMS_DISCO_CATEGORY && ident.type==SMS_DISCO_TYPE;
+		//}
+		return AContactJid.pDomain().startsWith("sms.");
 	}
-	return AContactJid.pDomain().endsWith("."+AStreamJid.pDomain()) && AContactJid.pDomain().startsWith("sms.");
+	return false;
+}
+
+int SmsMessageHandler::smsBalance(const Jid &AStreamJid, const Jid &AServiceJid) const
+{
+	return FSmsBalance.value(AStreamJid).value(AServiceJid,-1);
+}
+
+bool SmsMessageHandler::requestSmsBalance(const Jid &AStreamJid, const Jid &AServiceJid)
+{
+	if (FStanzaProcessor)
+	{
+		Stanza request;
+		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
+		request.addElement("query",NS_RAMBLER_SMS_BALANCE);
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_REQUEST_TIMEOUT))
+		{
+			FSmsBalanceRequests.insert(request.id(),AServiceJid);
+			return true;
+		}
+	}
+	return false;
+}
+
+int SmsMessageHandler::smsBalanceFromStanza(const Stanza &AStanza) const
+{
+	QDomElement balanceElem = AStanza.firstElement("query",NS_RAMBLER_SMS_BALANCE).firstChildElement("balance");
+	return !balanceElem.isNull() ? balanceElem.text().toInt() : -1;
+}
+
+void SmsMessageHandler::setSmsBalance(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance)
+{
+	if (FSmsBalance.contains(AStreamJid))
+	{
+		if (ABalance >= 0)
+			FSmsBalance[AStreamJid].insert(AServiceJid,ABalance);
+		else
+			FSmsBalance[AStreamJid].remove(AServiceJid);
+		emit smsBalanceChanged(AStreamJid,AServiceJid,ABalance);
+	}
 }
 
 IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &AContactJid)
@@ -230,6 +322,7 @@ IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACon
 		if (window)
 		{
 			window->infoWidget()->autoUpdateFields();
+			window->editWidget()->setSendKey(QKeySequence::UnknownKey);
 			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
 			WindowStatus &wstatus = FWindowStatus[window];
@@ -244,6 +337,9 @@ IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACon
 			FWindows.append(window);
 			updateWindow(window);
 			setMessageStyle(window);
+
+			SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
+			window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
 
 			//TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
 			//pageInfo.page = window;
@@ -501,18 +597,21 @@ void SmsMessageHandler::onMessageReady()
 		Message message;
 		message.setTo(window->contactJid().eFull()).setType(Message::Chat);
 		FMessageProcessor->textToMessage(message,window->editWidget()->document());
-		if (!message.body().isEmpty())
+		message.stanza().addElement("request",NS_RECEIPTS);
+
+		if (!message.body().isEmpty() && FMessageProcessor->sendMessage(window->streamJid(),message))
 		{
 			StyleExtension extension;
-			if (!FMessageProcessor->sendMessage(window->streamJid(),message))
-				extension.extensions = IMessageContentOptions::Offline;
+			showStyledMessage(window, message, extension);
+			//if (!FMessageProcessor->sendMessage(window->streamJid(),message))
+			//	extension.extensions = IMessageContentOptions::Offline;
 
-			QUuid contentId = showStyledMessage(window, message, extension);
-			if (!contentId.isNull() && extension.extensions==IMessageContentOptions::Offline)
-			{
-				message.setData(MDR_STYLE_CONTENT_ID, contentId.toString());
-				FWindowStatus[window].offline.append(message);
-			}
+			//QUuid contentId = showStyledMessage(window, message, extension);
+			//if (!contentId.isNull() && extension.extensions==IMessageContentOptions::Offline)
+			//{
+			//	message.setData(MDR_STYLE_CONTENT_ID, contentId.toString());
+			//	FWindowStatus[window].offline.append(message);
+			//}
 
 			replaceUnreadMessages(window);
 			window->editWidget()->clearEditor();
@@ -655,7 +754,7 @@ void SmsMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptio
 {
 	if (AMessageType==Message::Chat && AContext.isEmpty())
 	{
-		foreach (IChatWindow *window, FWindows)
+		foreach(IChatWindow *window, FWindows)
 		{
 			IMessageStyle *style = window->viewWidget()!=NULL ? window->viewWidget()->messageStyle() : NULL;
 			if (style==NULL || !style->changeOptions(window->viewWidget()->styleWidget(),AOptions,false))
@@ -664,6 +763,34 @@ void SmsMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptio
 				requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
 			}
 		}
+	}
+}
+
+void SmsMessageHandler::onXmppStreamOpened(IXmppStream *AXmppStream)
+{
+	if (FStanzaProcessor)
+	{
+		IStanzaHandle handle;
+		handle.handler = this;
+		handle.order = SHO_DEFAULT;
+		handle.direction = IStanzaHandle::DirectionIn;
+		handle.streamJid = AXmppStream->streamJid();
+		handle.conditions.append(SHC_SMS_BALANCE);
+		FSHISmsBalance.insert(AXmppStream->streamJid(),FStanzaProcessor->insertStanzaHandle(handle));
+	}
+	FSmsBalance[AXmppStream->streamJid()].clear();
+}
+
+void SmsMessageHandler::onXmppStreamClosed(IXmppStream *AXmppStream)
+{
+	QMap<Jid, int> balances = FSmsBalance.take(AXmppStream->streamJid());
+	for (QMap<Jid, int>::const_iterator it = balances.constBegin(); it!=balances.constEnd(); it++)
+	{
+		emit smsBalanceChanged(AXmppStream->streamJid(),it.key(),-1);
+	}
+	if (FStanzaProcessor)
+	{
+		FStanzaProcessor->removeStanzaHandle(FSHISmsBalance.take(AXmppStream->streamJid()));
 	}
 }
 

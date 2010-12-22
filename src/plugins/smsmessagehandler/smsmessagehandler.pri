@@ -1,3 +1,7 @@
-HEADERS = smsmessagehandler.h
+FORMS = smsinfowidget.ui
 
-SOURCES = smsmessagehandler.cpp
+HEADERS = smsmessagehandler.h \
+          smsinfowidget.h
+
+SOURCES = smsmessagehandler.cpp \
+          smsinfowidget.h
