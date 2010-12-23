@@ -528,6 +528,7 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 	AHtml.replace("%senderStatusIcon%",AOptions.senderIcon);
 	AHtml.replace("%shortTime%", Qt::escape(AOptions.time.toString(tr("hh:mm"))));
 	AHtml.replace("%service%","");
+	AHtml.replace("%notice%",AOptions.notice);
 
 	QString avatar = AOptions.senderAvatar;
 	if (!QFile::exists(avatar))

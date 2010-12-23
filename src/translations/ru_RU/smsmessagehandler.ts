@@ -2,6 +2,29 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>SmsInfoWidget</name>
+    <message>
+        <source>Refill</source>
+        <translation>Пополнить</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1&lt;/b&gt; from %2 characters</source>
+        <translation>&lt;b&gt;%1&lt;/b&gt; из %2 знаков</translation>
+    </message>
+    <message>
+        <source>Balance: &lt;b&gt;%1 SMS&lt;/b&gt;</source>
+        <translation>Баланс: &lt;b&gt;%1 SMS&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>You have run out of SMS</source>
+        <translation>У вас закончились SMS</translation>
+    </message>
+    <message>
+        <source>SMS service is unavailable</source>
+        <translation>SMS сервис недоступен</translation>
+    </message>
+</context>
+<context>
     <name>SmsMessageHandler</name>
     <message>
         <source>SMS Messages</source>
@@ -126,6 +149,14 @@
     <message>
         <source>SMS history</source>
         <translation>История SMS</translation>
+    </message>
+    <message>
+        <source>SMS not sent!</source>
+        <translation>SMS не отправлено!</translation>
+    </message>
+    <message>
+        <source>Sending...</source>
+        <translation>Отправка...</translation>
     </message>
 </context>
 </TS>

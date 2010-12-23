@@ -133,14 +133,6 @@
         <translation>Отключить</translation>
     </message>
     <message>
-        <source>Log In</source>
-        <translation>Подключить</translation>
-    </message>
-    <message>
-        <source>Keep connection</source>
-        <translation>Поддерживать соединение</translation>
-    </message>
-    <message>
         <source>Use instead of</source>
         <translation>Использовать вместо</translation>
     </message>

@@ -15,6 +15,7 @@
 #include <definitions/notificationdataroles.h>
 #include <definitions/rosternotifyorders.h>
 #include <definitions/tabpagenotifypriorities.h>
+#include <definitions/stanzahandlerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ismsmessagehandler.h>
 #include <interfaces/imessageprocessor.h>
@@ -41,6 +42,14 @@ struct WindowStatus
 	QList<int> notified;
 	QList<Message> unread;
 	QList<Message> offline;
+	QList<Message> requested;
+};
+
+struct TabPageInfo
+{
+	Jid streamJid;
+	Jid contactJid;
+	ITabPage *page;
 };
 
 struct StyleExtension
@@ -52,6 +61,7 @@ struct StyleExtension
 	int action;
 	int extensions;
 	QString contentId;
+	QString notice;
 };
 
 enum HisloryLoadState {
@@ -66,10 +76,11 @@ class SmsMessageHandler :
 	public ISmsMessageHandler,
 	public IMessageHandler,
 	public IStanzaHandler,
-	public IStanzaRequestOwner
+	public IStanzaRequestOwner,
+	public ITabPageHandler
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin ISmsMessageHandler IMessageHandler IStanzaHandler IStanzaRequestOwner);
+	Q_INTERFACES(IPlugin ISmsMessageHandler IMessageHandler IStanzaHandler IStanzaRequestOwner ITabPageHandler);
 public:
 	SmsMessageHandler();
 	~SmsMessageHandler();
@@ -80,12 +91,17 @@ public:
 	virtual bool initConnections(IPluginManager *APluginManager, int &AInitOrder);
 	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
-	virtual bool startPlugin() { return true; }
+	virtual bool startPlugin();
 	//IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
 	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
+	//ITabPageHandler
+	virtual bool tabPageAvail(const QString &ATabPageId) const;
+	virtual ITabPage *tabPageFind(const QString &ATabPageId) const;
+	virtual ITabPage *tabPageCreate(const QString &ATabPageId);
+	virtual Action *tabPageAction(const QString &ATabPageId, QObject *AParent);
 	//IMessageHandler
 	virtual bool checkMessage(int AOrder, const Message &AMessage);
 	virtual bool showMessage(int AMessageId);
@@ -98,6 +114,9 @@ public:
 	virtual bool requestSmsBalance(const Jid &AStreamJid, const Jid &AServiceJid);
 signals:
 	void smsBalanceChanged(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance);
+	//ITabPageHandler
+	void tabPageCreated(ITabPage *ATabPage);
+	void tabPageDestroyed(ITabPage *ATabPage);
 protected:
 	int smsBalanceFromStanza(const Stanza &AStanza) const;
 	void setSmsBalance(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance);
@@ -107,6 +126,7 @@ protected:
 	void updateWindow(IChatWindow *AWindow);
 	void removeMessageNotifications(IChatWindow *AWindow);
 	void replaceUnreadMessages(IChatWindow *AWindow);
+	void replaceRequestedMessage(IChatWindow *AWindow, const QString &AMessageId, bool AReceived);
 protected:
 	void requestHistoryMessages(IChatWindow *AWindow, int ACount);
 	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit = false);
@@ -125,6 +145,7 @@ protected slots:
 	void onWindowClosed();
 	void onWindowDestroyed();
 	void onStatusIconsChanged();
+	void onNotReceivedTimerTimeout();
 	void onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages);
 	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
@@ -141,13 +162,17 @@ private:
 	IStatusChanger *FStatusChanger;
 	IStanzaProcessor *FStanzaProcessor;
 private:
+	QHash<QString, TabPageInfo> FTabPages;
+private:
 	QList<IChatWindow *> FWindows;
 	QMap<IChatWindow *, QTimer *> FWindowTimers;
 	QMap<IChatWindow *, WindowStatus> FWindowStatus;
 private:
 	QMap<QString, IChatWindow *> FHistoryRequests;
 private:
+	QTimer FNotReceivedTimer;
 	QMap<Jid, int> FSHISmsBalance;
+	QMap<Jid, int> FSHIMessageReceipts;
 	QMap<QString, Jid> FSmsBalanceRequests;
 	QMap<Jid, QMap<Jid, int> > FSmsBalance;
 };

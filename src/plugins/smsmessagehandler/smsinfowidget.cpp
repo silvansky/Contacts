@@ -8,13 +8,19 @@ SmsInfoWidget::SmsInfoWidget(ISmsMessageHandler *ASmsHandler, IChatWindow *AWind
 	FChatWindow = AWindow;
 	FSmsHandler = ASmsHandler;
 
+	FSendKey = FChatWindow->editWidget()->sendKey();
+
 	ui.lblRefill->setText(QString("<a href='%1'>%2</a>").arg("http://id.rambler.ru").arg(tr("Refill")));
 
 	connect(FChatWindow->editWidget()->textEdit(),SIGNAL(textChanged()),SLOT(onEditWidgetTextChanged()));
 	connect(FSmsHandler->instance(),SIGNAL(smsBalanceChanged(const Jid &, const Jid &, int)),SLOT(onSmsBalanceChanged(const Jid &, const Jid &, int)));
 
+	int balance = FSmsHandler->smsBalance(FChatWindow->streamJid(),FChatWindow->contactJid().domain());
+	if (balance < 0)
+		FSmsHandler->requestSmsBalance(FChatWindow->streamJid(),FChatWindow->contactJid().domain());
+
 	onEditWidgetTextChanged();
-	onSmsBalanceChanged(FChatWindow->streamJid(),FChatWindow->contactJid().domain(),FSmsHandler->smsBalance(FChatWindow->streamJid(),FChatWindow->contactJid().domain()));
+	onSmsBalanceChanged(FChatWindow->streamJid(),FChatWindow->contactJid().domain(),balance);
 }
 
 SmsInfoWidget::~SmsInfoWidget()
@@ -37,6 +43,7 @@ void SmsInfoWidget::onEditWidgetTextChanged()
 	ui.lblCharacters->setText(tr("<b>%1</b> from %2 characters").arg(chars).arg(maxChars));
 	ui.lblCharacters->setVisible(!sms.isEmpty());
 	FChatWindow->editWidget()->setSendButtonEnabled(chars>0 && chars<=maxChars);
+	FChatWindow->editWidget()->setSendKey(chars>0 && chars<=maxChars ? FSendKey : QKeySequence::UnknownKey);
 }
 
 void SmsInfoWidget::onSmsBalanceChanged(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance)

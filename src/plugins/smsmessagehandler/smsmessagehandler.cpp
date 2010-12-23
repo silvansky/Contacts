@@ -3,6 +3,7 @@
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    25
 
+#define WAIT_RECEIVE_TIMEOUT      60
 #define DESTROYWINDOW_TIMEOUT     30*60*1000
 #define BALANCE_REQUEST_TIMEOUT   30*1000
 
@@ -13,7 +14,23 @@
 #define SMS_DISCO_TYPE            "sms"
 #define SMS_DISCO_CATEGORY        "gateway"
 
-#define SHC_SMS_BALANCE           "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SMS_BALANCE "'"
+#define SHC_SMS_BALANCE           "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SMS_BALANCE "']"
+#define SHC_MESSAGE_RECEIPTS      "/message/received[@xmlns='" NS_RECEIPTS "']"
+
+QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
+{
+	AStream << AInfo.streamJid;
+	AStream << AInfo.contactJid;
+	return AStream;
+}
+
+QDataStream &operator>>(QDataStream &AStream, TabPageInfo &AInfo)
+{
+	AStream >> AInfo.streamJid;
+	AStream >> AInfo.contactJid;
+	AInfo.page = NULL;
+	return AStream;
+}
 
 SmsMessageHandler::SmsMessageHandler()
 {
@@ -26,6 +43,9 @@ SmsMessageHandler::SmsMessageHandler()
 	FStatusIcons = NULL;
 	FStatusChanger = NULL;
 	FStanzaProcessor = NULL;
+
+	FNotReceivedTimer.setInterval(1000);
+	connect(&FNotReceivedTimer,SIGNAL(timeout()),SLOT(onNotReceivedTimerTimeout()));
 }
 
 SmsMessageHandler::~SmsMessageHandler()
@@ -119,10 +139,20 @@ bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AIn
 
 bool SmsMessageHandler::initObjects()
 {
+	if (FMessageWidgets)
+	{
+		FMessageWidgets->insertTabPageHandler(this);
+	}
 	if (FMessageProcessor)
 	{
 		FMessageProcessor->insertMessageHandler(this,MHO_SMSMESSAGEHANDLER);
 	}
+	return true;
+}
+
+bool SmsMessageHandler::startPlugin()
+{
+	FNotReceivedTimer.start();
 	return true;
 }
 
@@ -132,6 +162,21 @@ bool SmsMessageHandler::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, St
 	{
 		AAccept = true;
 		setSmsBalance(AStreamJid,AStanza.from(),smsBalanceFromStanza(AStanza));
+		
+		Stanza result("iq");
+		result.setType("result").setId(AStanza.id()).setTo(AStanza.from());
+		FStanzaProcessor->sendStanzaOut(AStreamJid,result);
+	}
+	else if (FSHIMessageReceipts.value(AStreamJid) == AHandleId)
+	{
+		IChatWindow *window = FMessageWidgets!=NULL ? FMessageWidgets->findChatWindow(AStreamJid,AStanza.from()) : NULL;
+		if (FWindows.contains(window))
+		{
+			AAccept = true;
+			QString messageId = AStanza.firstElement("received",NS_RECEIPTS).attribute("id");
+			replaceRequestedMessage(window,messageId,true);
+			return true;
+		}
 	}
 	return false;
 }
@@ -152,6 +197,27 @@ void SmsMessageHandler::stanzaRequestTimeout(const Jid &AStreamJid, const QStrin
 		Jid serviceJid = FSmsBalanceRequests.take(AStanzaId);
 		setSmsBalance(AStreamJid,serviceJid,-1);
 	}
+}
+
+bool SmsMessageHandler::tabPageAvail(const QString &ATabPageId) const
+{
+	return false;
+}
+
+ITabPage *SmsMessageHandler::tabPageFind(const QString &ATabPageId) const
+{
+	return FTabPages.contains(ATabPageId) ? FTabPages.value(ATabPageId).page : NULL;
+}
+
+ITabPage *SmsMessageHandler::tabPageCreate(const QString &ATabPageId)
+{
+	ITabPage *page = tabPageFind(ATabPageId);
+	return page;
+}
+
+Action *SmsMessageHandler::tabPageAction(const QString &ATabPageId, QObject *AParent)
+{
+	return NULL;
 }
 
 bool SmsMessageHandler::checkMessage(int AOrder, const Message &AMessage)
@@ -283,7 +349,7 @@ bool SmsMessageHandler::requestSmsBalance(const Jid &AStreamJid, const Jid &ASer
 {
 	if (FStanzaProcessor)
 	{
-		Stanza request;
+		Stanza request("iq");
 		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
 		request.addElement("query",NS_RAMBLER_SMS_BALANCE);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_REQUEST_TIMEOUT))
@@ -322,7 +388,7 @@ IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACon
 		if (window)
 		{
 			window->infoWidget()->autoUpdateFields();
-			window->editWidget()->setSendKey(QKeySequence::UnknownKey);
+			//window->editWidget()->setSendKey(QKeySequence::UnknownKey);
 			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
 			WindowStatus &wstatus = FWindowStatus[window];
@@ -341,9 +407,9 @@ IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACon
 			SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
 			window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
 
-			//TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
-			//pageInfo.page = window;
-			//emit tabPageCreated(window);
+			TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+			pageInfo.page = window;
+			emit tabPageCreated(window);
 
 			requestHistoryMessages(window, HISTORY_MESSAGES_COUNT);
 
@@ -400,6 +466,28 @@ void SmsMessageHandler::replaceUnreadMessages(IChatWindow *AWindow)
 			showStyledMessage(AWindow, message, extension);
 		}
 		wstatus.unread.clear();
+	}
+}
+
+void SmsMessageHandler::replaceRequestedMessage(IChatWindow *AWindow, const QString &AMessageId, bool AReceived)
+{
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	if (!wstatus.requested.isEmpty())
+	{
+		StyleExtension extension;
+		extension.action = IMessageContentOptions::Replace;
+		for(int i=0; i<wstatus.requested.count(); i++)
+		{
+			Message message = wstatus.requested.at(i);
+			if (message.id() == AMessageId)
+			{
+				extension.notice = !AReceived ? tr("SMS not sent!") : QString::null;
+				extension.contentId = message.data(MDR_STYLE_CONTENT_ID).toString();
+				showStyledMessage(AWindow, message, extension);
+				wstatus.requested.removeAt(i);
+				break;
+			}
+		}
 	}
 }
 
@@ -572,6 +660,7 @@ QUuid SmsMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message &
 	options.action = AExtension.action;
 	options.extensions = AExtension.extensions;
 	options.contentId = AExtension.contentId;
+	options.notice = AExtension.notice;
 
 	fillContentOptions(AWindow,options);
 	showDateSeparator(AWindow,AMessage.dateTime().date());
@@ -595,24 +684,20 @@ void SmsMessageHandler::onMessageReady()
 	if (window)
 	{
 		Message message;
-		message.setTo(window->contactJid().eFull()).setType(Message::Chat);
+		message.setFrom(window->streamJid().eFull()).setTo(window->contactJid().eFull()).setType(Message::Chat).setId(FStanzaProcessor->newId());
 		FMessageProcessor->textToMessage(message,window->editWidget()->document());
 		message.stanza().addElement("request",NS_RECEIPTS);
-
 		if (!message.body().isEmpty() && FMessageProcessor->sendMessage(window->streamJid(),message))
 		{
 			StyleExtension extension;
-			showStyledMessage(window, message, extension);
-			//if (!FMessageProcessor->sendMessage(window->streamJid(),message))
-			//	extension.extensions = IMessageContentOptions::Offline;
-
-			//QUuid contentId = showStyledMessage(window, message, extension);
-			//if (!contentId.isNull() && extension.extensions==IMessageContentOptions::Offline)
-			//{
-			//	message.setData(MDR_STYLE_CONTENT_ID, contentId.toString());
-			//	FWindowStatus[window].offline.append(message);
-			//}
-
+			extension.notice = tr("Sending...");
+			QUuid contentId = showStyledMessage(window, message, extension);
+			if (!contentId.isNull())
+			{
+				message.setData(MDR_STYLE_CONTENT_ID, contentId.toString());
+				message.setData(MDR_SMS_REQUEST_TIME,QDateTime::currentDateTime());
+				FWindowStatus[window].requested.append(message);
+			}
 			replaceUnreadMessages(window);
 			window->editWidget()->clearEditor();
 		}
@@ -656,10 +741,10 @@ void SmsMessageHandler::onWindowActivated()
 	IChatWindow *window = qobject_cast<IChatWindow *>(sender());
 	if (window)
 	{
-		//TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
-		//pageInfo.streamJid = window->streamJid();
-		//pageInfo.contactJid = window->contactJid();
-		//pageInfo.page = window;
+		TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+		pageInfo.streamJid = window->streamJid();
+		pageInfo.contactJid = window->contactJid();
+		pageInfo.page = window;
 
 		if (FWindowTimers.contains(window))
 			delete FWindowTimers.take(window);
@@ -688,14 +773,14 @@ void SmsMessageHandler::onWindowDestroyed()
 	IChatWindow *window = qobject_cast<IChatWindow *>(sender());
 	if (window)
 	{
-		//if (FTabPages.contains(window->tabPageId()))
-		//	FTabPages[window->tabPageId()].page = NULL;
+		if (FTabPages.contains(window->tabPageId()))
+			FTabPages[window->tabPageId()].page = NULL;
 		if (FWindowTimers.contains(window))
 			delete FWindowTimers.take(window);
 		removeMessageNotifications(window);
 		FWindows.removeAll(window);
 		FWindowStatus.remove(window);
-		//emit tabPageDestroyed(window);
+		emit tabPageDestroyed(window);
 	}
 }
 
@@ -703,6 +788,22 @@ void SmsMessageHandler::onStatusIconsChanged()
 {
 	foreach(IChatWindow *window, FWindows)
 		updateWindow(window);
+}
+
+void SmsMessageHandler::onNotReceivedTimerTimeout()
+{
+	QDateTime curDT = QDateTime::currentDateTime();
+	for (QMap<IChatWindow *, WindowStatus>::iterator it = FWindowStatus.begin(); it!=FWindowStatus.end(); it++)
+	{
+		for(int i=0; i<it->requested.count(); i++)
+		{
+			if (it->requested.at(i).data(MDR_SMS_REQUEST_TIME).toDateTime().secsTo(curDT) > WAIT_RECEIVE_TIMEOUT)
+			{
+				replaceRequestedMessage(it.key(),it->requested.at(i).id(),false);
+				i--;
+			}
+		}
+	}
 }
 
 void SmsMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages)
@@ -777,6 +878,11 @@ void SmsMessageHandler::onXmppStreamOpened(IXmppStream *AXmppStream)
 		handle.streamJid = AXmppStream->streamJid();
 		handle.conditions.append(SHC_SMS_BALANCE);
 		FSHISmsBalance.insert(AXmppStream->streamJid(),FStanzaProcessor->insertStanzaHandle(handle));
+
+		handle.order = SHO_MI_SMSRECEIPTS;
+		handle.conditions.clear();
+		handle.conditions.append(SHC_MESSAGE_RECEIPTS);
+		FSHIMessageReceipts.insert(AXmppStream->streamJid(),FStanzaProcessor->insertStanzaHandle(handle));
 	}
 	FSmsBalance[AXmppStream->streamJid()].clear();
 }
@@ -791,6 +897,7 @@ void SmsMessageHandler::onXmppStreamClosed(IXmppStream *AXmppStream)
 	if (FStanzaProcessor)
 	{
 		FStanzaProcessor->removeStanzaHandle(FSHISmsBalance.take(AXmppStream->streamJid()));
+		FStanzaProcessor->removeStanzaHandle(FSHIMessageReceipts.take(AXmppStream->streamJid()));
 	}
 }
 

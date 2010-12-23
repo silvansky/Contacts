@@ -25,6 +25,8 @@ private:
 private:
 	IChatWindow *FChatWindow;
 	ISmsMessageHandler *FSmsHandler;
+private:
+	QKeySequence FSendKey;
 };
 
 #endif // SMSINFOWIDGET_H

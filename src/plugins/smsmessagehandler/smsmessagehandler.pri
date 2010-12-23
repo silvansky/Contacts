@@ -4,4 +4,4 @@ HEADERS = smsmessagehandler.h \
           smsinfowidget.h
 
 SOURCES = smsmessagehandler.cpp \
-          smsinfowidget.h
+          smsinfowidget.cpp

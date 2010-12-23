@@ -78,6 +78,7 @@ struct IMessageContentOptions
 	QString senderColor;
 	QString senderIcon;
 	QString textBGColor;
+	QString notice;
 };
 
 class IMessageStyle

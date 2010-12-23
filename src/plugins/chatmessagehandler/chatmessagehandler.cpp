@@ -256,7 +256,7 @@ Action *ChatMessageHandler::tabPageAction(const QString &ATabPageId, QObject *AP
 				}
 				else
 				{
-					action->setIcon(page->instance()->windowIcon());
+					action->setIcon(page->tabPageIcon());
 				}
 			}
 			else

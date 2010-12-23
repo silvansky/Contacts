@@ -3,7 +3,8 @@
 
 enum MessageDataRoles {
 	MDR_MESSAGE_ID,
-	MDR_STYLE_CONTENT_ID
+	MDR_STYLE_CONTENT_ID,
+	MDR_SMS_REQUEST_TIME
 };
 
 #endif
