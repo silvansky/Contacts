@@ -227,7 +227,7 @@ ITabPage *ChatMessageHandler::tabPageCreate(const QString &ATabPageId)
 			if (pitem.isValid)
 				page = getWindow(presence->streamJid(), pitem.itemJid);
 			else
-				page = getWindow(presence->streamJid(), pageInfo.contactJid);
+				page = getWindow(presence->streamJid(), pageInfo.contactJid.bare());
 			pageInfo.page = page;
 		}
 	}
@@ -242,8 +242,12 @@ Action *ChatMessageHandler::tabPageAction(const QString &ATabPageId, QObject *AP
 		IPresence *presence = findPresence(pageInfo.streamJid);
 		if (presence && presence->isOpen())
 		{
-			ITabPage *page = tabPageFind(ATabPageId);
 			Action *action = new Action(AParent);
+			action->setData(ADR_TAB_PAGE_ID, ATabPageId);
+			action->setText(FNotifications!=NULL ? FNotifications->contactName(presence->streamJid(),pageInfo.contactJid) : pageInfo.contactJid.bare());
+			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenTabPageAction(bool)));
+
+			ITabPage *page = tabPageFind(ATabPageId);
 			if (page)
 			{
 				if (page->tabPageNotifier() && page->tabPageNotifier()->activeNotify()>0)
@@ -265,11 +269,8 @@ Action *ChatMessageHandler::tabPageAction(const QString &ATabPageId, QObject *AP
 				if (pitem.isValid)
 					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(presence->streamJid(),pitem.itemJid) : QIcon());
 				else
-					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(presence->streamJid(),pageInfo.contactJid) : QIcon());
+					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(presence->streamJid(),pageInfo.contactJid.bare()) : QIcon());
 			}
-			action->setData(ADR_TAB_PAGE_ID, ATabPageId);
-			action->setText(FNotifications!=NULL ? FNotifications->contactName(presence->streamJid(),pageInfo.contactJid) : pageInfo.contactJid.bare());
-			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenTabPageAction(bool)));
 			return action;
 		}
 	}

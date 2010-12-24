@@ -7,6 +7,8 @@
 #define DESTROYWINDOW_TIMEOUT     30*60*1000
 #define BALANCE_REQUEST_TIMEOUT   30*1000
 
+#define ADR_TAB_PAGE_ID           Action::DR_Parametr2
+
 #define URL_SCHEME_ACTION         "action"
 #define URL_PATH_HISTORY          "history"
 #define URL_PATH_CONTENT          "content"
@@ -43,6 +45,8 @@ SmsMessageHandler::SmsMessageHandler()
 	FStatusIcons = NULL;
 	FStatusChanger = NULL;
 	FStanzaProcessor = NULL;
+	FRosterPlugin = NULL;
+	FPresencePlugin = NULL;
 
 	FNotReceivedTimer.setInterval(1000);
 	connect(&FNotReceivedTimer,SIGNAL(timeout()),SLOT(onNotReceivedTimerTimeout()));
@@ -134,6 +138,24 @@ bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AIn
 	if (plugin)
 		FStatusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IRosterPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FRosterPlugin = qobject_cast<IRosterPlugin *>(plugin->instance());
+		if (FRosterPlugin)
+		{
+			connect(FRosterPlugin->instance(),SIGNAL(rosterAdded(IRoster *)),SLOT(onRosterAdded(IRoster *)));
+			connect(FRosterPlugin->instance(),SIGNAL(rosterRemoved(IRoster *)),SLOT(onRosterRemoved(IRoster *)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
+	if (plugin)
+		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
+
+	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
+	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
+
 	return FMessageWidgets!=NULL && FMessageProcessor!=NULL && FMessageStyles!=NULL;
 }
 
@@ -201,6 +223,11 @@ void SmsMessageHandler::stanzaRequestTimeout(const Jid &AStreamJid, const QStrin
 
 bool SmsMessageHandler::tabPageAvail(const QString &ATabPageId) const
 {
+	if (FTabPages.contains(ATabPageId))
+	{
+		const TabPageInfo &pageInfo = FTabPages.value(ATabPageId);
+		return pageInfo.page!=NULL || findRosterItem(pageInfo.streamJid,pageInfo.contactJid).isValid;
+	}
 	return false;
 }
 
@@ -212,11 +239,65 @@ ITabPage *SmsMessageHandler::tabPageFind(const QString &ATabPageId) const
 ITabPage *SmsMessageHandler::tabPageCreate(const QString &ATabPageId)
 {
 	ITabPage *page = tabPageFind(ATabPageId);
+	if (page==NULL && tabPageAvail(ATabPageId))
+	{
+		TabPageInfo &pageInfo = FTabPages[ATabPageId];
+		IRoster *roster = findRoster(pageInfo.streamJid);
+		if (roster)
+		{
+			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(roster->streamJid()) : NULL;
+			IPresenceItem pitem = findPresenceItem(presence,pageInfo.contactJid);
+			if (pitem.isValid)
+				page = getWindow(roster->streamJid(), pitem.itemJid);
+			else
+				page = getWindow(roster->streamJid(), pageInfo.contactJid);
+			pageInfo.page = page;
+		}
+	}
 	return page;
 }
 
 Action *SmsMessageHandler::tabPageAction(const QString &ATabPageId, QObject *AParent)
 {
+	if (tabPageAvail(ATabPageId))
+	{
+		const TabPageInfo &pageInfo = FTabPages.value(ATabPageId);
+		IRoster *roster = findRoster(pageInfo.streamJid);
+		if (roster && roster->isOpen())
+		{
+			Action *action = new Action(AParent);
+			action->setText(pageInfo.contactJid.node());
+			action->setData(ADR_TAB_PAGE_ID, ATabPageId);
+			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenTabPageAction(bool)));
+
+			ITabPage *page = tabPageFind(ATabPageId);
+			if (page)
+			{
+				if (page->tabPageNotifier() && page->tabPageNotifier()->activeNotify()>0)
+				{
+					ITabPageNotify notify = page->tabPageNotifier()->notifyById(page->tabPageNotifier()->activeNotify());
+					if (!notify.iconKey.isEmpty() && !notify.iconStorage.isEmpty())
+						action->setIcon(notify.iconStorage, notify.iconKey);
+					else
+						action->setIcon(notify.icon);
+				}
+				else
+				{
+					action->setIcon(page->tabPageIcon());
+				}
+			}
+			else
+			{
+				IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(roster->streamJid()) : NULL;
+				IPresenceItem pitem = findPresenceItem(presence,pageInfo.contactJid);
+				if (pitem.isValid)
+					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(presence->streamJid(),pitem.itemJid) : QIcon());
+				else
+					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(presence->streamJid(),pageInfo.contactJid.bare()) : QIcon());
+			}
+			return action;
+		}
+	}
 	return NULL;
 }
 
@@ -379,6 +460,31 @@ void SmsMessageHandler::setSmsBalance(const Jid &AStreamJid, const Jid &AService
 	}
 }
 
+IRoster *SmsMessageHandler::findRoster(const Jid &AStreamJid) const
+{
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	for (int i=0; roster==NULL && i<FRosters.count(); i++)
+		if (AStreamJid && FRosters.at(i)->streamJid())
+			roster = FRosters.at(i);
+	return roster;
+}
+
+IRosterItem SmsMessageHandler::findRosterItem(const Jid &AStreamJid, const Jid &AContactJid) const
+{
+	IRoster *roster = findRoster(AStreamJid);
+	return roster!=NULL ? roster->rosterItem(AContactJid) : IRosterItem();
+}
+
+IPresenceItem SmsMessageHandler::findPresenceItem(IPresence *APresence, const Jid &AContactJid) const
+{
+	IPresenceItem pitem = APresence!=NULL ? APresence->presenceItem(AContactJid) : IPresenceItem();
+	QList<IPresenceItem> pitems = APresence!=NULL ? APresence->presenceItems() : QList<IPresenceItem>();
+	for (int i=0; !pitem.isValid && i<pitems.count(); i++)
+		if (AContactJid && pitems.at(i).itemJid)
+			pitem = pitems.at(i);
+	return pitem;
+}
+
 IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &AContactJid)
 {
 	IChatWindow *window = findWindow(AStreamJid,AContactJid);
@@ -388,7 +494,7 @@ IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACon
 		if (window)
 		{
 			window->infoWidget()->autoUpdateFields();
-			//window->editWidget()->setSendKey(QKeySequence::UnknownKey);
+			window->editWidget()->setSendKey(QKeySequence::UnknownKey);
 			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
 			WindowStatus &wstatus = FWindowStatus[window];
@@ -687,7 +793,7 @@ void SmsMessageHandler::onMessageReady()
 		message.setFrom(window->streamJid().eFull()).setTo(window->contactJid().eFull()).setType(Message::Chat).setId(FStanzaProcessor->newId());
 		FMessageProcessor->textToMessage(message,window->editWidget()->document());
 		message.stanza().addElement("request",NS_RECEIPTS);
-		if (!message.body().isEmpty() && FMessageProcessor->sendMessage(window->streamJid(),message))
+		if (!message.body().trimmed().isEmpty() && FMessageProcessor->sendMessage(window->streamJid(),message))
 		{
 			StyleExtension extension;
 			extension.notice = tr("Sending...");
@@ -719,10 +825,10 @@ void SmsMessageHandler::onUrlClicked(const QUrl &AUrl)
 				{
 					requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
 				}
-				else if (keyValue == "window")
-				{
+				//else if (keyValue == "window")
+				//{
 
-				}
+				//}
 			}
 			//else if (AUrl.path() == URL_PATH_CONTENT)
 			//{
@@ -788,6 +894,17 @@ void SmsMessageHandler::onStatusIconsChanged()
 {
 	foreach(IChatWindow *window, FWindows)
 		updateWindow(window);
+}
+
+void SmsMessageHandler::onOpenTabPageAction(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		ITabPage *page = tabPageCreate(action->data(ADR_TAB_PAGE_ID).toString());
+		if (page)
+			page->showTabPage();
+	}
 }
 
 void SmsMessageHandler::onNotReceivedTimerTimeout()
@@ -899,6 +1016,31 @@ void SmsMessageHandler::onXmppStreamClosed(IXmppStream *AXmppStream)
 		FStanzaProcessor->removeStanzaHandle(FSHISmsBalance.take(AXmppStream->streamJid()));
 		FStanzaProcessor->removeStanzaHandle(FSHIMessageReceipts.take(AXmppStream->streamJid()));
 	}
+}
+
+void SmsMessageHandler::onRosterAdded(IRoster *ARoster)
+{
+	FRosters.append(ARoster);
+}
+
+void SmsMessageHandler::onRosterRemoved(IRoster *ARoster)
+{
+	FRosters.removeAll(ARoster);
+}
+
+void SmsMessageHandler::onOptionsOpened()
+{
+	QByteArray data = Options::fileValue("messages.last-sms-tab-pages").toByteArray();
+	QDataStream stream(data);
+	stream >> FTabPages;
+}
+
+void SmsMessageHandler::onOptionsClosed()
+{
+	QByteArray data;
+	QDataStream stream(&data, QIODevice::WriteOnly);
+	stream << FTabPages;
+	Options::setFileValue(data,"messages.last-sms-tab-pages");
 }
 
 Q_EXPORT_PLUGIN2(plg_smsmessagehandler, SmsMessageHandler)

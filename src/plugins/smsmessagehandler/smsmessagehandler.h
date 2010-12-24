@@ -28,6 +28,8 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/istanzaprocessor.h>
+#include <interfaces/iroster.h>
+#include <interfaces/ipresence.h>
 #include <utils/stanza.h>
 #include "smsinfowidget.h"
 
@@ -121,6 +123,10 @@ protected:
 	int smsBalanceFromStanza(const Stanza &AStanza) const;
 	void setSmsBalance(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance);
 protected:
+	IRoster *findRoster(const Jid &AStreamJid) const;
+	IRosterItem findRosterItem(const Jid &AStreamJid, const Jid &AContactJid) const;
+	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
+protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	void updateWindow(IChatWindow *AWindow);
@@ -145,12 +151,17 @@ protected slots:
 	void onWindowClosed();
 	void onWindowDestroyed();
 	void onStatusIconsChanged();
+	void onOpenTabPageAction(bool);
 	void onNotReceivedTimerTimeout();
 	void onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages);
 	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
 	void onXmppStreamOpened(IXmppStream *AXmppStream);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
+	void onRosterAdded(IRoster *ARoster);
+	void onRosterRemoved(IRoster *ARoster);
+	void onOptionsOpened();
+	void onOptionsClosed();
 private:
 	IMessageStyles *FMessageStyles;
 	IMessageWidgets *FMessageWidgets;
@@ -161,7 +172,10 @@ private:
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
 	IStanzaProcessor *FStanzaProcessor;
+	IRosterPlugin *FRosterPlugin;
+	IPresencePlugin *FPresencePlugin;
 private:
+	QList<IRoster *> FRosters;
 	QHash<QString, TabPageInfo> FTabPages;
 private:
 	QList<IChatWindow *> FWindows;
