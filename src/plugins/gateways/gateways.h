@@ -85,7 +85,7 @@ public:
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const;
-	virtual IGateServiceLabel serviceLabel(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	virtual IGateServiceDescriptor serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IGateServiceLogin serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const;
 	virtual IRegisterSubmit serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const;
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const;
@@ -171,7 +171,7 @@ private:
 	int FInternalNoticeId;
 	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
-	QMap<QString, IGateServiceDescriptor> FGateDescriptors;
+	QList<IGateServiceDescriptor> FGateDescriptors;
 };
 
 #endif // GATEWAYS_H

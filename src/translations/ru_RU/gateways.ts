@@ -208,6 +208,14 @@
         <source>Add my accounts...</source>
         <translation>Добавить мои учетные записи...</translation>
     </message>
+    <message>
+        <source>SMS</source>
+        <translation>SMS</translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation>Телефон</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>

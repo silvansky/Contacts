@@ -33,6 +33,12 @@
     <object mime="image/png">gatewaysaccounts.png</object>
   </icon>
   <icon>
+    <key>gatewaysServiceSms</key>
+    <object mime="image/png">gatewaysservicesms20.png</object>
+    <object mime="image/png">gatewaysservicesms39.png</object>
+    <object mime="image/png">gatewaysservicesms50.png</object>
+  </icon>
+  <icon>
     <key>gatewaysServiceIcq</key>
     <object mime="image/png">gatewaysserviceicq20.png</object>
     <object mime="image/png">gatewaysserviceicq39.png</object>

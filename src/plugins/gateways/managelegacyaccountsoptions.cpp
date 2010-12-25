@@ -34,9 +34,13 @@ void ManageLegacyAccountsOptions::appendServiceOptions(const Jid &AServiceJid)
 {
 	if (!FOptions.contains(AServiceJid))
 	{
-		LegacyAccountOptions *options = new LegacyAccountOptions(FGateways,FStreamJid,AServiceJid,ui.wdtAccounts);
-		FLayout->addWidget(options);
-		FOptions.insert(AServiceJid,options);
+		IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(FStreamJid,AServiceJid);
+		if (descriptor.valid && descriptor.needLogin)
+		{
+			LegacyAccountOptions *options = new LegacyAccountOptions(FGateways,FStreamJid,AServiceJid,ui.wdtAccounts);
+			FLayout->addWidget(options);
+			FOptions.insert(AServiceJid,options);
+		}
 	}
 }
 
@@ -50,7 +54,7 @@ void ManageLegacyAccountsOptions::removeServiceOptions(const Jid &AServiceJid)
 	}
 }
 
-void ManageLegacyAccountsOptions::onStreamServicesChanged( const Jid &AStreamJid )
+void ManageLegacyAccountsOptions::onStreamServicesChanged(const Jid &AStreamJid)
 {
 	if (FStreamJid == AStreamJid)
 	{

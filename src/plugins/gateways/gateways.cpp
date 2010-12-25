@@ -199,31 +199,46 @@ bool Gateways::initObjects()
 {
 	static const QString JabberContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@([a-z0-9]|\\-|\\.)+$";
 
+	IGateServiceDescriptor sms;
+	sms.valid = true;
+	sms.needGate = true;
+	sms.needLogin = false;
+	sms.type = "sms";
+	sms.name = tr("SMS");
+	sms.iconKey = MNI_GATEWAYS_SERVICE_SMS;
+	sms.loginLabel = tr("Phone");
+	sms.homeContactRegexp = "^\\+\\d{11,11}$";
+	sms.availContactRegexp = sms.homeContactRegexp;
+	FGateDescriptors.append(sms);
+
 	IGateServiceDescriptor icq;
 	icq.valid = true;
-	icq.gateRequired = true;
+	icq.needGate = true;
+	icq.needLogin = true;
 	icq.type = "icq";
 	icq.name = tr("ICQ");
 	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
 	icq.loginLabel = tr("Login");
 	icq.homeContactRegexp = "^\\d+$";
 	icq.availContactRegexp = icq.homeContactRegexp;
-	//FGateDescriptors.insert(icq.name,icq);
+	//FGateDescriptors.append(icq);
 
 	IGateServiceDescriptor magent;
 	magent.valid = true;
-	magent.gateRequired = true;
+	magent.needGate = true;
+	magent.needLogin = true;
 	magent.type = "mrim";
 	magent.name = tr("Agent@Mail");
 	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
 	magent.loginLabel = tr("E-mail");
 	magent.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
 	magent.availContactRegexp = magent.homeContactRegexp;
-	FGateDescriptors.insert(magent.name,magent);
+	FGateDescriptors.append(magent);
 
 	IGateServiceDescriptor gtalk;
 	gtalk.valid = true;
-	gtalk.gateRequired = false;
+	gtalk.needGate = false;
+	gtalk.needLogin = true;
 	gtalk.type = "xmpp";
 	gtalk.prefix = "gtalk.";
 	gtalk.name = tr("GTalk");
@@ -235,11 +250,12 @@ bool Gateways::initObjects()
 	gtalk.domainSeparator = "@";
 	gtalk.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@(gmail\\.com|googlemail\\.com)$";
 	gtalk.availContactRegexp = JabberContactRegexp;
-	FGateDescriptors.insert(gtalk.name,gtalk);
+	FGateDescriptors.append(gtalk);
 
 	IGateServiceDescriptor yonline;
 	yonline.valid = true;
-	yonline.gateRequired = false;
+	yonline.needGate = false;
+	yonline.needLogin = true;
 	yonline.type = "xmpp";
 	yonline.prefix = "yonline.";
 	yonline.name = tr("Y.Online");
@@ -252,11 +268,12 @@ bool Gateways::initObjects()
 	yonline.domainSeparator = "@";
 	yonline.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@ya\\.ru$";
 	yonline.availContactRegexp = JabberContactRegexp;
-	FGateDescriptors.insert(yonline.name,yonline);
+	FGateDescriptors.append(yonline);
 
 	IGateServiceDescriptor qip;
 	qip.valid = true;
-	qip.gateRequired = false;
+	qip.needGate = false;
+	qip.needLogin = true;
 	qip.type = "xmpp";
 	qip.prefix = "qip.";
 	qip.name = tr("QIP");
@@ -269,11 +286,12 @@ bool Gateways::initObjects()
 	qip.domainSeparator = "@";
 	qip.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@qip\\.ru$";
 	qip.availContactRegexp = JabberContactRegexp;
-	FGateDescriptors.insert(qip.name,qip);
+	FGateDescriptors.append(qip);
 
 	IGateServiceDescriptor rambler;
 	rambler.valid = true;
-	rambler.gateRequired = false;
+	rambler.needGate = false;
+	rambler.needLogin = true;
 	rambler.type = "xmpp";
 	rambler.prefix = "rambler.";
 	rambler.name = tr("Rambler");
@@ -291,11 +309,12 @@ bool Gateways::initObjects()
 	rambler.domainSeparator = "@";
 	rambler.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
 	rambler.availContactRegexp = JabberContactRegexp;
-	FGateDescriptors.insert(rambler.name,rambler);
+	FGateDescriptors.append(rambler);
 
 	IGateServiceDescriptor jabber;
 	jabber.valid = true;
-	jabber.gateRequired = false;
+	jabber.needGate = false;
+	jabber.needLogin = true;
 	jabber.type = "xmpp";
 	jabber.name = tr("Jabber");
 	jabber.iconKey = MNI_GATEWAYS_SERVICE_JABBER;
@@ -306,7 +325,7 @@ bool Gateways::initObjects()
 	jabber.domainSeparator = "@";
 	jabber.homeContactRegexp = QString::null;
 	jabber.availContactRegexp = JabberContactRegexp;
-	FGateDescriptors.insert(jabber.name,jabber);
+	FGateDescriptors.append(jabber);
 
 	if (FDiscovery)
 	{
@@ -468,12 +487,18 @@ void Gateways::setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, 
 
 QList<QString> Gateways::availDescriptors() const
 {
-	return FGateDescriptors.keys();
+	QList<QString> names;
+	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
+		names.append(it->name);
+	return names;
 }
 
 IGateServiceDescriptor Gateways::descriptorByName(const QString &AServiceName) const
 {
-	return FGateDescriptors.value(AServiceName);
+	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
+		if (it->name == AServiceName)
+			return *it;
+	return IGateServiceDescriptor();
 }
 
 IGateServiceDescriptor Gateways::descriptorByContact(const QString &AContact) const
@@ -481,16 +506,14 @@ IGateServiceDescriptor Gateways::descriptorByContact(const QString &AContact) co
 	QRegExp regexp;
 	regexp.setCaseSensitivity(Qt::CaseInsensitive);
 
-	QMap<QString, IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin();
-	while (it != FGateDescriptors.constEnd())
+	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
 	{
 		if (!it->homeContactRegexp.isEmpty())
 		{
 			regexp.setPattern(it->homeContactRegexp);
 			if (AContact.contains(regexp))
-				return it.value();
+				return *it;
 		}
-		it++;
 	}
 	return IGateServiceDescriptor();
 }
@@ -501,16 +524,14 @@ QList<IGateServiceDescriptor> Gateways::descriptorsByContact(const QString &ACon
 	regexp.setCaseSensitivity(Qt::CaseInsensitive);
 
 	QList<IGateServiceDescriptor> descriptors;
-	QMap<QString, IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin();
-	while (it != FGateDescriptors.constEnd())
+	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
 	{
 		if (!it->availContactRegexp.isEmpty())
 		{
 			regexp.setPattern(it->availContactRegexp);
 			if (AContact.contains(regexp))
-				descriptors.append(it.value());
+				descriptors.append(*it);
 		}
-		it++;
 	}
 	return descriptors;
 }
@@ -587,7 +608,7 @@ IPresenceItem Gateways::servicePresence(const Jid &AStreamJid, const Jid &AServi
 	return presence!=NULL ? presence->presenceItem(AServiceJid) : IPresenceItem();
 }
 
-IGateServiceLabel Gateways::serviceLabel(const Jid &AStreamJid, const Jid &AServiceJid) const
+IGateServiceDescriptor Gateways::serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
 	return FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
 }
@@ -911,22 +932,16 @@ void Gateways::savePrivateStorageSubscribe(const Jid &AStreamJid)
 
 IGateServiceDescriptor Gateways::findGateDescriptor(const IDiscoInfo &AInfo) const
 {
-	IGateServiceDescriptor gsdescriptor;
 	int index = FDiscovery!=NULL ? FDiscovery->findIdentity(AInfo.identity,"gateway",QString::null) : -1;
 	if (index >= 0)
 	{
 		QString domain = AInfo.contactJid.pDomain();
 		QString identType = AInfo.identity.at(index).type.toLower();
-		foreach (IGateServiceDescriptor descriptor, FGateDescriptors)
-		{
-			if (descriptor.type == identType && (descriptor.prefix.isEmpty() || domain.startsWith(descriptor.prefix)))
-			{
-				gsdescriptor = descriptor;
-				break;
-			}
-		}
+		for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
+			if (it->type==identType && (it->prefix.isEmpty() || domain.startsWith(it->prefix)))
+				return *it;
 	}
-	return gsdescriptor;
+	return IGateServiceDescriptor();
 }
 
 void Gateways::onAddLegacyUserActionTriggered(bool)

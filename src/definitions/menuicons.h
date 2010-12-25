@@ -87,6 +87,7 @@
 #define MNI_GATEWAYS_CHANGE                      "gatewaysChange"
 #define MNI_GATEWAYS_RESOLVE                     "gatewaysResolve"
 #define MNI_GATEWAYS_ACCOUNTS                    "gatewaysAccounts"
+#define MNI_GATEWAYS_SERVICE_SMS                 "gatewaysServiceSms"
 #define MNI_GATEWAYS_SERVICE_ICQ                 "gatewaysServiceIcq"
 #define MNI_GATEWAYS_SERVICE_YONLINE             "gatewaysServiceYOnline"
 #define MNI_GATEWAYS_SERVICE_ODNOKLASNIKI        "gatewaysServiceOdnoklasniki"

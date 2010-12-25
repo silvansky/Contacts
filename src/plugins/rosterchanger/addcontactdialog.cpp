@@ -243,19 +243,20 @@ void AddContactDialog::updateGateways()
 		IDiscoIdentity identity;
 		identity.category = "gateway";
 		QList<Jid> removeList = FEnabledGateways;
-		foreach(Jid serviceJid, FGateways->streamServices(FStreamJid,identity))
+		foreach(Jid serviceJid, FGateways->availServices(FStreamJid,identity))
 		{
-			if (!FDisabledGateways.contains(serviceJid) && FGateways->isServiceEnabled(FStreamJid, serviceJid))
+			IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(FStreamJid,serviceJid);
+			if (!FDisabledGateways.contains(serviceJid) && (!descriptor.needLogin || FGateways->isServiceEnabled(FStreamJid, serviceJid)))
 			{
 				if (!FEnabledGateways.contains(serviceJid))
 				{
-					if (!FLoginRequests.values().contains(serviceJid))
+					if (descriptor.needLogin && !FLoginRequests.values().contains(serviceJid))
 					{
 						QString id = FGateways->sendLoginRequest(FStreamJid,serviceJid);
 						if (!id.isEmpty())
 							FLoginRequests.insert(id,serviceJid);
 					}
-					QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(FGateways->serviceLabel(FStreamJid,serviceJid).iconKey);
+					QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(descriptor.iconKey);
 					ui.cmbProfile->addItem(icon,serviceJid.pDomain(),serviceJid.pDomain());
 					FEnabledGateways.append(serviceJid);
 				}
@@ -302,7 +303,7 @@ void AddContactDialog::updateServices(const Jid &AServiceJid)
 			{
 				bool show = false;
 				IGateServiceDescriptor descriptor = FGateways->descriptorByName(name);
-				if (descriptor.gateRequired)
+				if (descriptor.needGate)
 				{
 					IDiscoIdentity identity;
 					identity.category = "gateway";
@@ -339,6 +340,7 @@ QString AddContactDialog::normalContactText(const QString &AText) const
 QString AddContactDialog::defaultContactNick(const Jid &AContactJid) const
 {
 	QString nick = AContactJid.node();
+	nick = nick.isEmpty() ? AContactJid.full() : nick;
 	if (!nick.isEmpty())
 	{
 		nick[0] = nick[0].toUpper();
@@ -357,10 +359,11 @@ QList<Jid> AddContactDialog::suitableServices(const IGateServiceDescriptor &ADes
 	IDiscoIdentity identity;
 	identity.category = "gateway";
 	identity.type = ADescriptor.type;
-	QList<Jid> gates = (FEnabledGateways.toSet() & (FGateways!=NULL ? FGateways->streamServices(FStreamJid,identity) : QList<Jid>()).toSet()).toList();
+	QList<Jid> services = FGateways!=NULL ? (ADescriptor.needLogin ? FGateways->streamServices(FStreamJid,identity) : FGateways->availServices(FStreamJid,identity)) : QList<Jid>();
+	QList<Jid> gates = (FEnabledGateways.toSet() & services.toSet()).toList();
 	
 	QList<Jid>::iterator it = gates.begin();
-	while (it!=gates.end())
+	while (it != gates.end())
 	{
 		if (!ADescriptor.prefix.isEmpty() && !it->pDomain().startsWith(ADescriptor.prefix))
 			it = gates.erase(it);
@@ -476,19 +479,25 @@ void AddContactDialog::resolveServiceJid()
 			Jid gate = !FPreferGateJid.isValid() ? Options::node(OPV_ROSTER_ADDCONTACTDIALOG_LASTPROFILE).value().toString() : FPreferGateJid;
 			setGatewayJid(gateways.contains(gate) ? gate : gateways.first());
 		}
-		else if (!descriptor.gateRequired)
+		else if (!descriptor.needGate)
 		{
 			nextResolve = true;
 			offerAccount = true;
 			setGatewayJid(Jid::null);
 		}
-		else
+		else if (descriptor.needLogin)
 		{
 			offerAccount = true;
 			errMessage = tr("To add a user to %1, you must enter your %1 account.").arg(descriptor.name);
 			setGatewayJid(Jid::null);
 		}
-		if (FGateways && offerAccount)
+		else
+		{
+			offerAccount = false;
+			errMessage = tr("%1 service is unavailable").arg(descriptor.name);
+			setGatewayJid(Jid::null);
+		}
+		if (FGateways && offerAccount && descriptor.needLogin)
 		{
 			IDiscoIdentity identity;
 			identity.category = "gateway";
@@ -535,6 +544,7 @@ void AddContactDialog::resolveContactJid()
 	bool nextResolve = false;
 
 	QString contact = normalContactText(contactText());
+	Jid userJid = contact;
 
 	Jid gateJid = gatewayJid();
 	QList<Jid> gateways = suitableServices(FGateways!=NULL ? FGateways->descriptorsByContact(contact) : QList<IGateServiceDescriptor>());
@@ -548,7 +558,7 @@ void AddContactDialog::resolveContactJid()
 		if (FContactJidRequest.isEmpty())
 			errMessage = tr("Unable to determine the contact ID");
 	}
-	else if (gateJid.isEmpty())
+	else if (gateJid.isEmpty() && userJid.isValid() && !userJid.node().isEmpty())
 	{
 		nextResolve = true;
 		setRealContactJid(contact);

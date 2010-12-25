@@ -37,8 +37,8 @@ void AddLegacyAccountOptions::reset()
 
 void AddLegacyAccountOptions::appendServiceButton( const Jid &AServiceJid )
 {
-	IGateServiceLabel slabel = FGateways->serviceLabel(FStreamJid,AServiceJid);
-	if (!FWidgets.contains(AServiceJid) && slabel.valid)
+	IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(FStreamJid,AServiceJid);
+	if (!FWidgets.contains(AServiceJid) && descriptor.valid && descriptor.needLogin)
 	{
 		QWidget *widget = new QWidget(ui.wdtGateways);
 		widget->setLayout(new QVBoxLayout);
@@ -48,12 +48,12 @@ void AddLegacyAccountOptions::appendServiceButton( const Jid &AServiceJid )
 		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
 		button->setIconSize(QSize(32,32));
 
-		QLabel *label = new QLabel(slabel.name,widget);
+		QLabel *label = new QLabel(descriptor.name,widget);
 		label->setAlignment(Qt::AlignCenter);
 
 		Action *action = new Action(button);
-		action->setIcon(RSR_STORAGE_MENUICONS,slabel.iconKey,1);
-		action->setText(slabel.name);
+		action->setIcon(RSR_STORAGE_MENUICONS,descriptor.iconKey,1);
+		action->setText(descriptor.name);
 		action->setData(ADR_GATEJID,AServiceJid.full());
 		connect(action,SIGNAL(triggered(bool)),SLOT(onGateActionTriggeted(bool)));
 		button->setDefaultAction(action);

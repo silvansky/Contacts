@@ -33,13 +33,16 @@ struct IGateServiceLogin
 	IRegisterFields fields;
 };
 
-struct IGateServiceDescriptor : public IGateServiceLabel
+struct IGateServiceDescriptor : 
+	public IGateServiceLabel
 {
 	IGateServiceDescriptor() { 
 		valid = false;
-		gateRequired = true;
+		needGate = true;
+		needLogin = true;
 	}
-	bool gateRequired;
+	bool needGate;
+	bool needLogin;
 	QString type;
 	QString prefix;
 	QString loginField;
@@ -67,7 +70,7 @@ public:
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
-	virtual IGateServiceLabel serviceLabel(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
+	virtual IGateServiceDescriptor serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IGateServiceLogin serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const =0;
 	virtual IRegisterSubmit serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const =0;
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const =0;

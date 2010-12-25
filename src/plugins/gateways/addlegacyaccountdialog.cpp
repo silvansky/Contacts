@@ -27,7 +27,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	connect(ui.chbShowPassword,SIGNAL(stateChanged(int)),SLOT(onShowPasswordStateChanged(int)));
 	onLineEditTextChanged(QString::null);
 
-	FGateLabel = FGateways->serviceLabel(FStreamJid, FServiceJid);
+	FGateLabel = FGateways->serviceDescriptor(FStreamJid, FServiceJid);
 	if (FGateLabel.valid)
 	{
 		setWindowTitle(tr("Account: %1").arg(FGateLabel.name));

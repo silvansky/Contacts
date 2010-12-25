@@ -55,6 +55,10 @@
         <source>Enter your %1 account</source>
         <translation>Ввести свою учётную запись %1</translation>
     </message>
+    <message>
+        <source>%1 service is unavailable</source>
+        <translation>%1 сервис недоступен</translation>
+    </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>
