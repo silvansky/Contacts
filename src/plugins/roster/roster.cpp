@@ -352,11 +352,13 @@ void Roster::copyItemToGroup(const Jid &AItemJid, const QString &AGroup)
 void Roster::moveItemToGroup(const Jid &AItemJid, const QString &AGroupFrom, const QString &AGroupTo)
 {
 	IRosterItem ritem = rosterItem(AItemJid);
-	if (ritem.isValid && !AGroupTo.isEmpty() && !ritem.groups.contains(AGroupTo))
+	if (ritem.isValid && !ritem.groups.contains(AGroupTo))
 	{
 		QSet<QString> allItemGroups = ritem.groups;
+		if (!AGroupTo.isEmpty())
+			allItemGroups += AGroupTo;
 		allItemGroups -= AGroupFrom;
-		setItem(AItemJid,ritem.name,allItemGroups += AGroupTo);
+		setItem(AItemJid,ritem.name,allItemGroups);
 	}
 }
 

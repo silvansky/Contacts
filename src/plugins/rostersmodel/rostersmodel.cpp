@@ -255,7 +255,7 @@ IRosterIndex *RostersModel::createGroup(const QString &AName, const QString &AGr
 		while (i < groupTree.count())
 		{
 			newIndex = createRosterIndex(AType, groupTree.at(i), index);
-			newIndex->setData(RDR_GROUP, group);
+			newIndex->setData(RDR_GROUP, AType==RIT_GROUP ? group : QVariant(QString("")));
 			newIndex->setData(RDR_NAME, groupTree.at(i));
 			insertRosterIndex(newIndex, index);
 			index = newIndex;

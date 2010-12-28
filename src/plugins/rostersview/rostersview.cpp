@@ -1076,7 +1076,7 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 		{
 			highlightRect.setTop(vRect.bottom() + 1);
 		}
-		if (indexType == RIT_CONTACT || indexType == RIT_GROUP)
+		if (indexType == RIT_CONTACT || indexType == RIT_GROUP || indexType == RIT_GROUP_BLANK)
 		{
 			QModelIndex group = indexType == RIT_CONTACT ? index.parent() : index;
 			vRect = visualRect(group);
