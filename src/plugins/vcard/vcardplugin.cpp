@@ -341,17 +341,21 @@ bool VCardPlugin::publishVCard(IVCard *AVCard, const Jid &AStreamJid)
 
 void VCardPlugin::showVCardDialog(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	if (FVCardDialogs.contains(AContactJid))
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	if (roster && roster->isOpen())
 	{
-		VCardDialog *dialog = FVCardDialogs.value(AContactJid);
-		WidgetManager::showActivateRaiseWindow(dialog);
-	}
-	else if (AStreamJid.isValid() && AContactJid.isValid())
-	{
-		VCardDialog *dialog = new VCardDialog(this,AStreamJid,AContactJid);
-		connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onVCardDialogDestroyed(QObject *)));
-		FVCardDialogs.insert(AContactJid,dialog);
-		dialog->show();
+		if (FVCardDialogs.contains(AContactJid))
+		{
+			VCardDialog *dialog = FVCardDialogs.value(AContactJid);
+			WidgetManager::showActivateRaiseWindow(dialog);
+		}
+		else if (AStreamJid.isValid() && AContactJid.isValid())
+		{
+			VCardDialog *dialog = new VCardDialog(this,AStreamJid,AContactJid);
+			connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onVCardDialogDestroyed(QObject *)));
+			FVCardDialogs.insert(AContactJid,dialog);
+			dialog->show();
+		}
 	}
 }
 
@@ -434,15 +438,19 @@ void VCardPlugin::registerDiscoFeatures()
 
 void VCardPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
-	if (AIndex->type() == RIT_STREAM_ROOT || AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
+	if (AIndex->type()==RIT_STREAM_ROOT || AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_AGENT)
 	{
-		Action *action = new Action(AMenu);
-		action->setText(tr("Contact info"));
-		action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
-		action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-		action->setData(ADR_CONTACT_JID,Jid(AIndex->data(RDR_JID).toString()).bare());
-		AMenu->addAction(action,AG_RVCM_VCARD,true);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogByAction(bool)));
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AIndex->data(RDR_STREAM_JID).toString()) : NULL;
+		if (roster && roster->isOpen())
+		{
+			Action *action = new Action(AMenu);
+			action->setText(tr("Contact info"));
+			action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
+			action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
+			action->setData(ADR_CONTACT_JID,Jid(AIndex->data(RDR_JID).toString()).bare());
+			AMenu->addAction(action,AG_RVCM_VCARD,true);
+			connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogByAction(bool)));
+		}
 	}
 }
 
