@@ -402,7 +402,7 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
 		CustomBorderContainer *border = new CustomBorderContainer(FLoginDialog);
-		border->loadFile("c:\\Qt\\Projects\\Virtus\\wb.xml");
+		border->loadFile("d:\\projects\\virtus_custom_border\\wb.xml");
 		WidgetManager::showActivateRaiseWindow(border);
 	}
 	return FLoginDialog;
@@ -576,7 +576,7 @@ bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 	{
 		QDomDocument doc;
 		doc.appendChild(doc.createElement("options"));
-	
+
 		if (FPrivateStorage->hasData(AStreamJid,PST_OPTIONS,PSN_OPTIONS))
 			doc.documentElement().appendChild(FPrivateStorage->getData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).cloneNode(true));
 		else

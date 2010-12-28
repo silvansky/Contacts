@@ -15,6 +15,7 @@ public:
 	~CustomBorderContainerPrivate();
 	void parseFile(const QString & fileName);
 private:
+	void setAllDefaults();
 	QGradient * parseGradient(const QDomElement & element);
 	ImageFillingStyle parseImageFillingStyle(const QString & style);
 	void setDefaultBorder(Border & border);

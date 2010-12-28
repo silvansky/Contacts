@@ -20,6 +20,7 @@ public:
 	{
 		return containedWidget;
 	}
+	// WARNING! the old widget will be deleted!
 	void setWidget(QWidget * widget);
 	void loadFile(const QString & fileName);
 protected:
@@ -68,16 +69,22 @@ protected:
 		TopBorder,
 		BottomBorder
 	};
-	void mouseMove(const QPoint & p);
+	void mouseMove(const QPoint & p, QWidget * widget);
+	void mousePress(const QPoint & p, QWidget * widget);
+	void mouseRelease(const QPoint & p, QWidget * widget);
+	void mouseDoubleClick(const QPoint & p, QWidget * widget);
 	bool pointInBorder(BorderType border, const QPoint & p);
 	void checkResizeCondition(const QPoint & p);
 	void checkMoveCondition(const QPoint & p);
-	void updateCursor();
+	void updateCursor(QWidget * widget = 0);
 	void updateShape();
 	void setLayoutMargins();
 	void drawHeader(QPainter * p);
+	void drawIcon(QPainter * p);
+	void drawTitle(QPainter * p);
 	void drawBorders(QPainter * p);
 	void drawCorners(QPainter * p);
+	QPoint mapFromWidget(QWidget * widget, const QPoint &point);
 private:
 	// widgets/layouts
 	QWidget * containedWidget;

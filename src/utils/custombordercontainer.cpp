@@ -8,20 +8,25 @@
 #include <QGradientStop>
 #include <QPainter>
 #include <QApplication>
+#include <QTextDocument>
+#include <QTextCursor>
 
 
 static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 {
-	if (object->isWidgetType()) {
-		if (install) 
+	if (object->isWidgetType())
+	{
+		if (install)
 			object->installEventFilter(watcher);
-		else 
+		else
 			object->removeEventFilter(watcher);
-		QWidget *widget = qobject_cast<QWidget*>(object);
+		QWidget * widget = qobject_cast<QWidget*>(object);
 #if 0
 		//Тут надо как-то доработать, чтобы возвращать оригинальную настройку этого параметра при снятии фильтра
 #endif
 		widget->setAutoFillBackground(true);
+		widget->setMouseTracking(true);
+		widget->setProperty("defaultCursorShape", widget->cursor().shape());
 	}
 	QObjectList children = object->children();
 	foreach(QObject *child, children) {
@@ -36,6 +41,7 @@ static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 CustomBorderContainerPrivate::CustomBorderContainerPrivate(CustomBorderContainer *parent)
 {
 	p = parent;
+	setAllDefaults();
 }
 
 void CustomBorderContainerPrivate::parseFile(const QString &fileName)
@@ -84,8 +90,10 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 				// minimize button
 				QDomElement button = root.firstChildElement("minimize-button");
 				parseHeaderButton(button, minimize);
+				// maximize button
 				button = root.firstChildElement("maximize-button");
 				parseHeaderButton(button, maximize);
+				// close button
 				button = root.firstChildElement("close-button");
 				parseHeaderButton(button, close);
 			}
@@ -103,6 +111,25 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 	{
 		qDebug() << QString("Can\'t open file %1!").arg(fileName);
 	}
+}
+
+void CustomBorderContainerPrivate::setAllDefaults()
+{
+	setDefaultBorder(left);
+	setDefaultBorder(right);
+	setDefaultBorder(top);
+	setDefaultBorder(bottom);
+	setDefaultCorner(topLeft);
+	setDefaultCorner(topRight);
+	setDefaultCorner(bottomLeft);
+	setDefaultCorner(bottomRight);
+	setDefaultHeader(header);
+	setDefaultHeaderTitle(title);
+	setDefaultWindowIcon(icon);
+	setDefaultWindowControls(controls);
+	setDefaultHeaderButton(minimize);
+	setDefaultHeaderButton(maximize);
+	setDefaultHeaderButton(close);
 }
 
 // HINT: only linear gradients are supported for now
@@ -181,7 +208,6 @@ void CustomBorderContainerPrivate::setDefaultBorder(Border & border)
 
 void CustomBorderContainerPrivate::parseBorder(const QDomElement & borderElement, Border & border)
 {
-	setDefaultBorder(border);
 	if (!borderElement.isNull())
 	{
 		qDebug() << QString("parsing border...");
@@ -213,7 +239,6 @@ void CustomBorderContainerPrivate::parseBorder(const QDomElement & borderElement
 
 void CustomBorderContainerPrivate::setDefaultCorner(Corner & corner)
 {
-	// zero-sized corner
 	corner.width = 10;
 	corner.height = 10;
 	corner.gradient = new QLinearGradient(0.0, 0.0, 1.0, 0.0);
@@ -222,12 +247,11 @@ void CustomBorderContainerPrivate::setDefaultCorner(Corner & corner)
 	corner.imageFillingStyle = Stretch;
 	corner.radius = 10;
 	corner.resizeLeft = corner.resizeRight = corner.resizeTop = corner.resizeBottom = 0;
-	corner.resizeWidth = corner.resizeHeight = 5;
+	corner.resizeWidth = corner.resizeHeight = 10;
 }
 
 void CustomBorderContainerPrivate::parseCorner(const QDomElement & cornerElement, Corner & corner)
 {
-	setDefaultCorner(corner);
 	if (!cornerElement.isNull())
 	{
 		qDebug() << "parsing corner";
@@ -317,7 +341,6 @@ void CustomBorderContainerPrivate::setDefaultHeader(Header & header)
 
 void CustomBorderContainerPrivate::parseHeader(const QDomElement & headerElement, Header & header)
 {
-	setDefaultHeader(header);
 	if (!headerElement.isNull())
 	{
 		QDomElement height = headerElement.firstChildElement("height");
@@ -359,12 +382,11 @@ void CustomBorderContainerPrivate::parseHeader(const QDomElement & headerElement
 void CustomBorderContainerPrivate::setDefaultHeaderTitle(HeaderTitle & title)
 {
 	title.color = QColor(255, 255, 255);
-	title.text = QString::null;
+	title.text = "Sample title";
 }
 
 void CustomBorderContainerPrivate::parseHeaderTitle(const QDomElement & titleElement, HeaderTitle & title)
 {
-	setDefaultHeaderTitle(title);
 	if (!titleElement.isNull())
 	{
 		title.color = QColor(titleElement.attribute("color"));
@@ -381,7 +403,6 @@ void CustomBorderContainerPrivate::setDefaultWindowIcon(WindowIcon & windowIcon)
 
 void CustomBorderContainerPrivate::parseWindowIcon(const QDomElement & iconElement, WindowIcon & windowIcon)
 {
-	setDefaultWindowIcon(windowIcon);
 	if (!iconElement.isNull())
 	{
 		QDomElement width = iconElement.firstChildElement("width");
@@ -409,7 +430,6 @@ void CustomBorderContainerPrivate::setDefaultWindowControls(WindowControls & win
 
 void CustomBorderContainerPrivate::parseWindowControls(const QDomElement & controlsElement, WindowControls & windowControls)
 {
-	setDefaultWindowControls(windowControls);
 	if (!controlsElement.isNull())
 	{
 		windowControls.spacing = controlsElement.attribute("spacing").toInt();
@@ -452,7 +472,6 @@ void CustomBorderContainerPrivate::setDefaultHeaderButton(HeaderButton & button)
 
 void CustomBorderContainerPrivate::parseHeaderButton(const QDomElement & buttonElement, HeaderButton & button)
 {
-	setDefaultHeaderButton(button);
 	if (!buttonElement.isNull())
 	{
 		QDomElement width = buttonElement.firstChildElement("width");
@@ -575,6 +594,9 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 		//containedWidget->setPalette(pal);
 		containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
 		//adjustSize();
+		setMinimumSize(containedWidget->minimumSize());
+		setWindowTitle(containedWidget->windowTitle());
+		// WTF?
 		connect(containedWidget,SIGNAL(destroyed(QObject *)),SLOT(deleteLater()));
 	}
 }
@@ -601,36 +623,25 @@ void CustomBorderContainer::resizeEvent(QResizeEvent * event)
 void CustomBorderContainer::mousePressEvent(QMouseEvent * event)
 {
 	if (event->button() == Qt::LeftButton)
-	{
-		if (resizeBorder != NoneBorder && !canMove)
-			setGeometryState(Resizing);
-		else if (canMove)
-		{
-			oldPressPoint = mapToGlobal(event->pos());
-			setGeometryState(Moving);
-		}
-		oldGeometry = geometry();
-	}
+		mousePress(event->pos(), this);
 	QWidget::mousePressEvent(event);
 }
 
 void CustomBorderContainer::mouseMoveEvent(QMouseEvent * event)
 {
-	mouseMove(event->pos());
+	mouseMove(event->globalPos(), this);
 	QWidget::mouseMoveEvent(event);
 }
 
 void CustomBorderContainer::mouseReleaseEvent(QMouseEvent * event)
 {
-	setGeometryState(None);
-	resizeBorder = NoneBorder;
-	canMove = false;
-	updateCursor();
+	mouseRelease(event->pos(), this);
 	QWidget::mouseReleaseEvent(event);
 }
 
 void CustomBorderContainer::mouseDoubleClickEvent(QMouseEvent * event)
 {
+	mouseDoubleClick(event->pos(), this);
 	QWidget::mouseDoubleClickEvent(event);
 }
 
@@ -689,42 +700,47 @@ bool CustomBorderContainer::event(QEvent * evt)
 
 bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 {
-	//if (object == containedWidget)
+
+	QWidget *widget = qobject_cast<QWidget*>(object);
+	switch (event->type())
 	{
-		switch (event->type())
-		{
-		case QEvent::MouseMove:
-			mouseMove(containedWidget->mapToParent(((QMouseEvent*)event)->pos()));
-			break;
-		case QEvent::Paint:
-			{
-				QWidget *widget = qobject_cast<QWidget*>(object);
-				//widget->setAutoFillBackground(false);
-				object->removeEventFilter(this);
-				QApplication::sendEvent(object,event);
-				object->installEventFilter(this);
-				//widget->setAutoFillBackground(true);
+	case QEvent::MouseMove:
+		mouseMove(((QMouseEvent*)event)->globalPos(), widget);
+		break;
+	case QEvent::MouseButtonPress:
+		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
+			mousePress(((QMouseEvent*)event)->pos(), widget);
+		break;
+	case QEvent::MouseButtonRelease:
+		mouseRelease(((QMouseEvent*)event)->pos(), widget);
+		break;
+	case QEvent::Paint:
+	{
+		//widget->setAutoFillBackground(false);
+		object->removeEventFilter(this);
+		QApplication::sendEvent(object,event);
+		object->installEventFilter(this);
+		//widget->setAutoFillBackground(true);
 
-				QPoint point = widget->pos();
-				while(widget && (widget->parentWidget() != this)) {
-					widget = widget->parentWidget();
-					point += widget->pos();
-				}
-
-				widget = qobject_cast<QWidget*>(object);
-				QRect r = widget->rect().translated(point);
-
-				QPainter p(widget);
-				p.setWindow(r);
-				//p.translate(containedWidget->mapFromParent(QPoint(0, 0)));
-				//p.fillRect(0, 0, 100, 100, QColor(255, 255, 0, 255));
-				drawCorners(&p);
-				return true;
-			}
-			break;
-		default:
-			break;
+		QPoint point = widget->pos();
+		while(widget && (widget->parentWidget() != this)) {
+			widget = widget->parentWidget();
+			point += widget->pos();
 		}
+
+		widget = qobject_cast<QWidget*>(object);
+		QRect r = widget->rect().translated(point);
+
+		QPainter p(widget);
+		p.setWindow(r);
+		//p.translate(containedWidget->mapFromParent(QPoint(0, 0)));
+		//p.fillRect(0, 0, 100, 100, QColor(255, 255, 0, 255));
+		drawCorners(&p);
+		return true;
+	}
+		break;
+	default:
+		break;
 	}
 	return QWidget::eventFilter(object, event);
 }
@@ -774,37 +790,94 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 	case None:
 		break;
 	}
-	if (oldGeometry.isValid() && (oldGeometry.width() >= minimumWidth()) && (oldGeometry.height() >= minimumHeight()) && (oldGeometry.width() <= maximumWidth()) && (oldGeometry.height() <= maximumHeight()))
+	if (oldGeometry.isValid())
 	{
+		// left border is changing
+		if (resizeBorder == LeftBorder || resizeBorder == TopLeftCorner || resizeBorder == BottomLeftCorner)
+		{
+			if (oldGeometry.width() < minimumWidth())
+				oldGeometry.setLeft(oldGeometry.right() - minimumWidth());
+			if (oldGeometry.width() > maximumWidth())
+				oldGeometry.setLeft(oldGeometry.right() - maximumWidth());
+		}
+		// top border is changing
+		if (resizeBorder == TopBorder || resizeBorder == TopLeftCorner || resizeBorder == TopRightCorner)
+		{
+			if (oldGeometry.height() < minimumHeight())
+				oldGeometry.setTop(oldGeometry.bottom() - minimumHeight());
+			if (oldGeometry.height() > maximumHeight())
+				oldGeometry.setTop(oldGeometry.bottom() - maximumHeight());
+		}
+		// right border is changing
+		if (resizeBorder == RightBorder || resizeBorder == TopRightCorner || resizeBorder == BottomRightCorner)
+		{
+			if (oldGeometry.width() < minimumWidth())
+				oldGeometry.setWidth(minimumWidth());
+			if (oldGeometry.width() > maximumWidth())
+				oldGeometry.setHeight(maximumHeight());
+		}
+		// bottom border is changing
+		if (resizeBorder == BottomBorder || resizeBorder == BottomLeftCorner || resizeBorder == BottomRightCorner)
+		{
+			if (oldGeometry.height() < minimumHeight())
+				oldGeometry.setHeight(minimumHeight());
+			if (oldGeometry.height() > maximumHeight())
+				oldGeometry.setHeight(maximumHeight());
+		}
 		setGeometry(oldGeometry);
 		QApplication::flush();
-		//updateShape();
 	}
 }
 
-void CustomBorderContainer::mouseMove(const QPoint & point)
+void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 {
 	if (geometryState() != None)
 	{
-		QPoint p = mapToGlobal(point);
-		updateGeometry(p);
+		//QPoint p = widget->mapToGlobal(point);
+		updateGeometry(point);
 		return;
 	}
 	else
 	{
 		if (geometryState() != Resizing)
 		{
-			checkResizeCondition(point);
+			checkResizeCondition(mapFromGlobal(point));
 		}
 		if (geometryState() != Moving)
 		{
-			checkMoveCondition(point);
+			checkMoveCondition(mapFromGlobal(point));
 		}
 	}
 }
 
+void CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
+{
+	if (resizeBorder != NoneBorder)
+		setGeometryState(Resizing);
+	else if (canMove)
+	{
+		oldPressPoint = widget->mapToGlobal(p);
+		setGeometryState(Moving);
+	}
+	oldGeometry = geometry();
+}
+
+void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget)
+{
+	setGeometryState(None);
+	resizeBorder = NoneBorder;
+	canMove = false;
+	updateCursor(widget);
+}
+
+void CustomBorderContainer::mouseDoubleClick(const QPoint & p, QWidget * widget)
+{
+
+}
+
 bool CustomBorderContainer::pointInBorder(BorderType border, const QPoint & p)
 {
+	// NOTE: it is suggested that point is local for "this" widget
 	Corner c;
 	Border b;
 	QRect cornerRect;
@@ -878,40 +951,44 @@ void CustomBorderContainer::checkResizeCondition(const QPoint & p)
 			resizeBorder = (BorderType)b;
 			break;
 		}
-	updateCursor();
+	updateCursor(QApplication::widgetAt(mapToGlobal(p)));
 }
 
 void CustomBorderContainer::checkMoveCondition(const QPoint & p)
 {
 	int lb = myPrivate->left.resizeWidth, tb = myPrivate->top.resizeWidth, rb = myPrivate->right.resizeWidth;
-	QRect headerRect(lb, tb, width() - lb - rb, myPrivate->header.height);
+	QRect headerRect(lb, tb, width() - lb - rb, myPrivate->header.moveHeight);
 	canMove = headerRect.contains(p);
 }
 
-void CustomBorderContainer::updateCursor()
+void CustomBorderContainer::updateCursor(QWidget * widget)
 {
+	if (!widget)
+		widget = this;
+	QCursor newCursor;
 	switch(resizeBorder)
 	{
 	case TopLeftCorner:
 	case BottomRightCorner:
-		setCursor(QCursor(Qt::SizeFDiagCursor));
+		newCursor.setShape(Qt::SizeFDiagCursor);
 		break;
 	case TopRightCorner:
 	case BottomLeftCorner:
-		setCursor(QCursor(Qt::SizeBDiagCursor));
+		newCursor.setShape(Qt::SizeBDiagCursor);
 		break;
 	case LeftBorder:
 	case RightBorder:
-		setCursor(QCursor(Qt::SizeHorCursor));
+		newCursor.setShape(Qt::SizeHorCursor);
 		break;
 	case TopBorder:
 	case BottomBorder:
-		setCursor(QCursor(Qt::SizeVerCursor));
+		newCursor.setShape(Qt::SizeVerCursor);
 		break;
 	default:
-		setCursor(QCursor(Qt::ArrowCursor));
+		newCursor.setShape((Qt::CursorShape)widget->property("defaultCursorShape").toInt());
 		break;
 	}
+	widget->setCursor(newCursor);
 }
 
 void CustomBorderContainer::updateShape()
@@ -967,6 +1044,32 @@ void CustomBorderContainer::drawHeader(QPainter * p)
 	lg.setColorAt(0.5, QColor(150, 255, 0, 150));
 	lg.setColorAt(1.0, QColor(0, 255, 0, 50));
 	p->fillPath(path, QBrush(lg));
+	drawIcon(p);
+	drawTitle(p);
+}
+
+void CustomBorderContainer::drawIcon(QPainter * p)
+{
+	// TODO: load and draw icon here
+}
+
+void CustomBorderContainer::drawTitle(QPainter * p)
+{
+	QTextDocument doc;
+	doc.setHtml(QString("<font size=+1 color=%1><b>%2</b></font>").arg(myPrivate->title.color.name(), windowTitle()));
+	// center title in header rect
+	QRect headerRect(0, 0, width(), myPrivate->header.height);
+	p->save();
+	qreal dx, dy;
+	dx = (headerRect.width() - doc.size().width()) / 2;
+	dy = (headerRect.height() - doc.size().height()) / 2;
+	if (dx < 0.0)
+		dx = 0.0;
+	if (dy < 0.0)
+		dy = 0.0;
+	p->translate(dx, dy);
+	doc.drawContents(p, QRectF(headerRect));
+	p->restore();
 }
 
 void CustomBorderContainer::drawBorders(QPainter * p)
@@ -993,4 +1096,9 @@ void CustomBorderContainer::drawCorners(QPainter * p)
 	p->fillRect(cornerRect, Qt::red);
 	cornerRect = QRect(width() - myPrivate->bottomRight.width, height() - myPrivate->bottomRight.height, myPrivate->bottomRight.width, myPrivate->bottomRight.height);
 	p->fillRect(cornerRect, Qt::red);
+}
+
+QPoint CustomBorderContainer::mapFromWidget(QWidget * widget, const QPoint &point)
+{
+	return mapFromGlobal(widget->mapToGlobal(point));
 }
