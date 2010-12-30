@@ -25,7 +25,8 @@ HEADERS = utilsexport.h \
     htmltoolbutton.h \
     borderstructs.h \
     custombordercontainer.h \
-    custombordercontainer_p.h
+    custombordercontainer_p.h \
+    customborderstorage.h
 
 SOURCES = jid.cpp \
     versionparser.cpp \
@@ -51,4 +52,5 @@ SOURCES = jid.cpp \
     closebutton.cpp \
     actionbutton.cpp \
     htmltoolbutton.cpp \
-    custombordercontainer.cpp
+    custombordercontainer.cpp \
+    customborderstorage.cpp

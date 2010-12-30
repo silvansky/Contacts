@@ -12,6 +12,7 @@ class CustomBorderContainerPrivate
 	friend class CustomBorderContainer;
 public:
 	CustomBorderContainerPrivate(CustomBorderContainer * parent);
+	CustomBorderContainerPrivate(const CustomBorderContainerPrivate&);
 	~CustomBorderContainerPrivate();
 	void parseFile(const QString & fileName);
 private:

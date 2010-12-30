@@ -11,6 +11,7 @@
 #include <QTextDocument>
 #include <QTextCursor>
 
+// internal functions
 
 static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 {
@@ -42,6 +43,23 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(CustomBorderContainer
 {
 	p = parent;
 	setAllDefaults();
+}
+
+CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderContainerPrivate& other)
+{
+	topLeft = other.topLeft, topRight = other.topRight, bottomLeft = other.bottomLeft, bottomRight = other.bottomRight;
+	left = other.left, right = other.right, top = other.top, bottom = other.bottom;
+	header = other.header;
+	title = other.title;
+	icon = other.icon;
+	controls = other.controls;
+	minimize = other.minimize, maximize = other.minimize, close = other.close;
+	headerButtons = other.headerButtons;
+}
+
+CustomBorderContainerPrivate::~CustomBorderContainerPrivate()
+{
+
 }
 
 void CustomBorderContainerPrivate::parseFile(const QString &fileName)
@@ -542,39 +560,31 @@ void CustomBorderContainerPrivate::parseHeaderButton(const QDomElement & buttonE
  *******************************/
 
 CustomBorderContainer::CustomBorderContainer(QWidget * widgetToContain) :
-	QWidget(0)
+	QWidget(NULL)
 {
-	containedWidget = NULL;
-	setWindowFlags(Qt::FramelessWindowHint);
-	setAttribute(Qt::WA_TranslucentBackground);
-	containerLayout = new QVBoxLayout;
-	setLayout(containerLayout);
-	//setAutoFillBackground(true);
-	setMouseTracking(true);
-	setMinimumWidth(100);
-	setMinimumHeight(100);
-	resizeBorder = NoneBorder;
-	canMove = false;
+	init();
 	myPrivate = new CustomBorderContainerPrivate(this);
 	setWidget(widgetToContain);
-	QPalette pal = palette();
-	pal.setColor(QPalette::Base, Qt::transparent);
-	//setPalette(pal);
+}
+
+CustomBorderContainer::CustomBorderContainer(const CustomBorderContainerPrivate &style) :
+	QWidget(NULL)
+{
+	init();
+	myPrivate = new CustomBorderContainerPrivate(style);
+	myPrivate->p = this;
 }
 
 CustomBorderContainer::~CustomBorderContainer()
 {
+	setWidget(NULL);
 }
 
 void CustomBorderContainer::setWidget(QWidget * widget)
 {
-	qDebug() << QString::number((int)widget, 16);
 	if (containedWidget)
 	{
-		childsRecursive(containedWidget,this,false);
-		containedWidget->removeEventFilter(this);
-		containerLayout->removeWidget(containedWidget);
-		containedWidget->deleteLater();
+		releaseWidget()->deleteLater();
 	}
 	if (widget)
 	{
@@ -596,9 +606,24 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 		//adjustSize();
 		setMinimumSize(containedWidget->minimumSize());
 		setWindowTitle(containedWidget->windowTitle());
-		// WTF?
 		connect(containedWidget,SIGNAL(destroyed(QObject *)),SLOT(deleteLater()));
 	}
+}
+
+QWidget * CustomBorderContainer::releaseWidget()
+{
+	if (containedWidget)
+	{
+		disconnect(containedWidget, SIGNAL(destroyed(QObject*)), this, SLOT(deleteLater()));
+		childsRecursive(containedWidget,this,false);
+		containedWidget->removeEventFilter(this);
+		containerLayout->removeWidget(containedWidget);
+		QWidget * w = containedWidget;
+		containedWidget = NULL;
+		return w;
+	}
+	else
+		return NULL;
 }
 
 void CustomBorderContainer::loadFile(const QString & fileName)
@@ -743,6 +768,23 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		break;
 	}
 	return QWidget::eventFilter(object, event);
+}
+
+void CustomBorderContainer::init()
+{
+	// vars
+	containedWidget = NULL;
+	resizeBorder = NoneBorder;
+	canMove = false;
+	// window props
+	setWindowFlags(Qt::FramelessWindowHint);
+	setAttribute(Qt::WA_TranslucentBackground);
+	setMouseTracking(true);
+	// layout
+	containerLayout = new QVBoxLayout;
+	setLayout(containerLayout);
+	setMinimumWidth(100);
+	setMinimumHeight(100);
 }
 
 void CustomBorderContainer::updateGeometry(const QPoint & p)

@@ -15,13 +15,15 @@ class UTILS_EXPORT CustomBorderContainer : public QWidget
 
 public:
 	explicit CustomBorderContainer(QWidget * widgetToContain = 0);
+	CustomBorderContainer(const CustomBorderContainerPrivate &style);
 	~CustomBorderContainer();
 	QWidget * widget() const
 	{
 		return containedWidget;
 	}
-	// WARNING! the old widget will be deleted!
+	// WARNING! the old widget will be deleted! use releaseWidget() to just unset widget
 	void setWidget(QWidget * widget);
+	QWidget * releaseWidget();
 	void loadFile(const QString & fileName);
 protected:
 	// event handlers
@@ -42,6 +44,8 @@ protected:
 	bool event(QEvent *);
 	bool eventFilter(QObject *, QEvent *);
 protected:
+	// common initialization
+	void init();
 	enum GeometryState
 	{
 		None,
