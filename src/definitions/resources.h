@@ -9,5 +9,6 @@
 #define RSR_STORAGE_ADIUMMESSAGESTYLES      "adiummessagestyles"
 #define RSR_STORAGE_SIMPLEMESSAGESTYLES     "simplemessagestyles"
 #define RSR_STORAGE_STYLESHEETS             "stylesheets"
+#define RSR_STORAGE_CUSTOMBORDER            "customborder"
 
 #endif

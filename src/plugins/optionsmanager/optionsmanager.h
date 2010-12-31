@@ -9,6 +9,7 @@
 #include <definitions/commandline.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/customborder.h>
 #include <definitions/optionvalues.h>
 #include <definitions/optionnodes.h>
 #include <definitions/optionnodeorders.h>
@@ -21,7 +22,7 @@
 #include <interfaces/iprivatestorage.h>
 #include <utils/action.h>
 #include <utils/widgetmanager.h>
-#include <utils/custombordercontainer.h>
+#include <utils/customborderstorage.h>
 #include <thirdparty/qtlockedfile/qtlockedfile.h>
 #include "logindialog.h"
 #include "editprofilesdialog.h"

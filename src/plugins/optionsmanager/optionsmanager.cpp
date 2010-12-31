@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QApplication>
 #include <QCryptographicHash>
+#include <definitions/customborder.h>
 
 #define DIR_PROFILES                    "profiles"
 #define DIR_BINARY                      "binary"
@@ -401,9 +402,10 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 	{
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
-		CustomBorderContainer *border = new CustomBorderContainer(FLoginDialog);
-		border->loadFile("d:\\projects\\virtus_custom_border\\wb.xml");
-		WidgetManager::showActivateRaiseWindow(border);
+		//CustomBorderContainer *border = new CustomBorderContainer(FLoginDialog);
+		//border->loadFile("d:\\projects\\virtus_custom_border\\wb.xml");
+		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, "dialog");
+		WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)FLoginDialog);
 	}
 	return FLoginDialog;
 }

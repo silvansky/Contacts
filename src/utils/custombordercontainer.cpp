@@ -47,14 +47,24 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(CustomBorderContainer
 
 CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderContainerPrivate& other)
 {
-	topLeft = other.topLeft, topRight = other.topRight, bottomLeft = other.bottomLeft, bottomRight = other.bottomRight;
-	left = other.left, right = other.right, top = other.top, bottom = other.bottom;
+	setAllDefaults();
+	topLeft = other.topLeft;
+	topRight = other.topRight;
+	bottomLeft = other.bottomLeft;
+	bottomRight = other.bottomRight;
+	left = other.left;
+	right = other.right;
+	top = other.top;
+	bottom = other.bottom;
 	header = other.header;
 	title = other.title;
 	icon = other.icon;
 	controls = other.controls;
-	minimize = other.minimize, maximize = other.minimize, close = other.close;
+	minimize = other.minimize;
+	maximize = other.minimize;
+	close = other.close;
 	headerButtons = other.headerButtons;
+	p = NULL;
 }
 
 CustomBorderContainerPrivate::~CustomBorderContainerPrivate()
@@ -571,8 +581,10 @@ CustomBorderContainer::CustomBorderContainer(const CustomBorderContainerPrivate 
 	QWidget(NULL)
 {
 	init();
+	setWidget(NULL);
 	myPrivate = new CustomBorderContainerPrivate(style);
 	myPrivate->p = this;
+	containerLayout->setContentsMargins(myPrivate->left.width, myPrivate->top.width, myPrivate->right.width, myPrivate->bottom.width);
 }
 
 CustomBorderContainer::~CustomBorderContainer()
@@ -782,6 +794,7 @@ void CustomBorderContainer::init()
 	setMouseTracking(true);
 	// layout
 	containerLayout = new QVBoxLayout;
+	containerLayout->setContentsMargins(0, 0, 0, 0);
 	setLayout(containerLayout);
 	setMinimumWidth(100);
 	setMinimumHeight(100);

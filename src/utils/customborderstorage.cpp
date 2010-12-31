@@ -27,10 +27,15 @@ CustomBorderContainer * CustomBorderStorage::addBorder(QWidget *widget, const QS
 			}
 		}
 	}
-	CustomBorderContainer * container = new CustomBorderContainer(*style);
-	container->setWidget(widget);
-	borderCache.insert(widget, container);
-	return container;
+	if (style)
+	{
+		CustomBorderContainer * container = new CustomBorderContainer(*style);
+		container->setWidget(widget);
+		borderCache.insert(widget, container);
+		return container;
+	}
+	else
+		return NULL;
 }
 
 void CustomBorderStorage::removeBorder(QWidget *widget)

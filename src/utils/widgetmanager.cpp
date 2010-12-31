@@ -16,8 +16,8 @@
 #define MESSAGE_SOURCE_PAGER          2
 #endif //Q_WS_X11
 
-class WindowSticker : 
-	public QObject
+class WindowSticker :
+		public QObject
 {
 public:
 	WindowSticker();
@@ -151,22 +151,25 @@ void WidgetManager::raiseWidget(QWidget *AWidget)
 
 void WidgetManager::showActivateRaiseWindow(QWidget *AWindow)
 {
-	if (AWindow->isVisible())
+	if (AWindow)
 	{
-		if (AWindow->isMinimized())
+		if (AWindow->isVisible())
 		{
-			if (AWindow->isMaximized())
-				AWindow->showMaximized();
-			else
-				AWindow->showNormal();
+			if (AWindow->isMinimized())
+			{
+				if (AWindow->isMaximized())
+					AWindow->showMaximized();
+				else
+					AWindow->showNormal();
+			}
 		}
+		else
+		{
+			AWindow->show();
+		}
+		AWindow->activateWindow();
+		WidgetManager::raiseWidget(AWindow);
 	}
-	else
-	{
-		AWindow->show();
-	}
-	AWindow->activateWindow();
-	WidgetManager::raiseWidget(AWindow);
 }
 
 void WidgetManager::setWindowSticky(QWidget *AWindow, bool ASticky)
