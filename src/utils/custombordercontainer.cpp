@@ -584,7 +584,7 @@ CustomBorderContainer::CustomBorderContainer(const CustomBorderContainerPrivate 
 	setWidget(NULL);
 	myPrivate = new CustomBorderContainerPrivate(style);
 	myPrivate->p = this;
-	containerLayout->setContentsMargins(myPrivate->left.width, myPrivate->top.width, myPrivate->right.width, myPrivate->bottom.width);
+	setLayoutMargins();
 }
 
 CustomBorderContainer::~CustomBorderContainer()
