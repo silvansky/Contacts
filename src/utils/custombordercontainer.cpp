@@ -635,7 +635,7 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 		//adjustSize();
 		setMinimumSize(containedWidget->minimumSize());
 		setWindowTitle(containedWidget->windowTitle());
-		connect(containedWidget,SIGNAL(destroyed(QObject *)),SLOT(deleteLater()));
+		//connect(containedWidget,SIGNAL(destroyed(QObject *)),SLOT(deleteLater()));
 	}
 }
 
@@ -643,7 +643,7 @@ QWidget * CustomBorderContainer::releaseWidget()
 {
 	if (containedWidget)
 	{
-		disconnect(containedWidget, SIGNAL(destroyed(QObject*)), this, SLOT(deleteLater()));
+		//disconnect(containedWidget, SIGNAL(destroyed(QObject*)), this, SLOT(deleteLater()));
 		childsRecursive(containedWidget,this,false);
 		containedWidget->removeEventFilter(this);
 		containerLayout->removeWidget(containedWidget);
@@ -714,12 +714,12 @@ void CustomBorderContainer::paintEvent(QPaintEvent * event)
 	painter.setClipRegion(mask());
 	// header
 	drawHeader(&painter);
+	// borders
+	drawBorders(&painter);
+	// corners
+	drawCorners(&painter);
 	// buttons
 	drawButtons(&painter);
-	// borders (black for debug)
-	drawBorders(&painter);
-	// corners (red for debug)
-	drawCorners(&painter);
 
 	painter.end();
 }
@@ -808,6 +808,7 @@ void CustomBorderContainer::init()
 	containedWidget = NULL;
 	resizeBorder = NoneBorder;
 	canMove = false;
+	buttonsFlags = MinimizeVisible | MaximizeVisible | CloseVisible | MinimizeEnabled | MaximizeEnabled | CloseEnabled;
 	// window props
 	setWindowFlags(Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground);
@@ -1199,6 +1200,7 @@ void CustomBorderContainer::drawTitle(QPainter * p)
 	// center title in header rect
 	QRect headerRect(0, 0, width(), myPrivate->header.height);
 	p->save();
+	p->setClipRect(headerRect);
 	qreal dx, dy;
 	dx = (headerRect.width() - doc.size().width()) / 2;
 	dy = (headerRect.height() - doc.size().height()) / 2;
@@ -1215,7 +1217,7 @@ void CustomBorderContainer::drawBorders(QPainter * p)
 {
 	QRect borderRect;
 	borderRect = QRect(0, 0, myPrivate->left.width, height());
-	p->fillRect(borderRect, Qt::black);
+	p->fillRect(borderRect, QBrush(*(myPrivate->left.gradient)));
 	borderRect = QRect(width() - myPrivate->right.width, 0, myPrivate->right.width, height());
 	p->fillRect(borderRect, Qt::black);
 	borderRect = QRect(0, 0, width(), myPrivate->top.width);
@@ -1226,6 +1228,7 @@ void CustomBorderContainer::drawBorders(QPainter * p)
 
 void CustomBorderContainer::drawCorners(QPainter * p)
 {
+	/*
 	QRect cornerRect;
 	cornerRect = QRect(0, 0, myPrivate->topLeft.width, myPrivate->topLeft.height);
 	p->fillRect(cornerRect, Qt::red);
@@ -1235,6 +1238,7 @@ void CustomBorderContainer::drawCorners(QPainter * p)
 	p->fillRect(cornerRect, Qt::red);
 	cornerRect = QRect(width() - myPrivate->bottomRight.width, height() - myPrivate->bottomRight.height, myPrivate->bottomRight.width, myPrivate->bottomRight.height);
 	p->fillRect(cornerRect, Qt::red);
+	*/
 }
 
 QPoint CustomBorderContainer::mapFromWidget(QWidget * widget, const QPoint &point)

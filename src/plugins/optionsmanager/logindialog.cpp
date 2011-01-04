@@ -13,6 +13,9 @@
 #include <QDialogButtonBox>
 #include <QDesktopServices>
 #include <QAbstractTextDocumentLayout>
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>
@@ -32,11 +35,11 @@ enum ConnectionSettings {
 	CS_COUNT
 };
 
-class CompleterDelegate : 
+class CompleterDelegate :
 			public QItemDelegate
 {
 public:
-	CompleterDelegate(QObject *AParent): QItemDelegate(AParent) {};
+	CompleterDelegate(QObject *AParent): QItemDelegate(AParent) {}
 	QSize drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
 		QStyleOptionViewItemV4 option = QItemDelegate::setOptions(AIndex, AOption);
@@ -87,6 +90,7 @@ public:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.wdtHelp->setVisible(false);
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
@@ -697,10 +701,17 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 	if (ui.cmbDomain->itemData(AIndex).toString().isEmpty())
 	{
 		QInputDialog *dialog = new QInputDialog(this);
+		dialog->setStyleSheet(styleSheet());
 		dialog->setInputMode(QInputDialog::TextInput);
 		dialog->setWindowTitle(tr("Add custom domain"));
 		dialog->setLabelText(tr("Enter custom domain address"));
 		dialog->setOkButtonText(tr("Add"));
+		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+		if (border)
+		{
+			border->setAttribute(Qt::WA_ShowModal, true);
+			border->show();
+		}
 
 		QBoxLayout *layout = qobject_cast<QBoxLayout *>(dialog->layout());
 		foreach(QObject *object, dialog->children())
@@ -733,7 +744,10 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		{
 			ui.cmbDomain->setCurrentIndex(prevIndex);
 		}
-		dialog->deleteLater();
+		if (border)
+			border->deleteLater();
+		else
+			dialog->deleteLater();
 	}
 	else
 		prevIndex = AIndex;

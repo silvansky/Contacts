@@ -26,6 +26,7 @@ OptionsManager::OptionsManager()
 	FTrayManager = NULL;
 	FMainWindowPlugin = NULL;
 	FPrivateStorage = NULL;
+	FLoginDialog = NULL;
 
 	FAutoSaveTimer.setInterval(30*1000);
 	FAutoSaveTimer.setSingleShot(true);
@@ -398,7 +399,7 @@ void OptionsManager::removeServerOption(const QString &APath)
 
 QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 {
-	if (FLoginDialog.isNull())
+	if (!FLoginDialog)
 	{
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));

@@ -70,6 +70,105 @@ protected:
 		Disabled,
 		PressedDisabled
 	};
+public:
+	enum HeaderButtonsFlag
+	{
+		MinimizeVisible = 0x01,
+		MaximizeVisible = 0x02,
+		CloseVisible = 0x04,
+		MinimizeEnabled = 0x08,
+		MaximizeEnabled = 0x10,
+		CloseEnabled = 0x20
+	};
+	Q_DECLARE_FLAGS(HeaderButtonsFlags, HeaderButtonsFlag)
+	HeaderButtonsFlags headerButtonsFlags() const
+	{
+		return buttonsFlags;
+	}
+	void setHeaderButtonFlags(HeaderButtonsFlag flags)
+	{
+		buttonsFlags = HeaderButtonsFlags(flags);
+	}
+	// minimize button
+	bool isMinimizeButtonVisible() const
+	{
+		return buttonsFlags.testFlag(MinimizeVisible);
+	}
+	void setMinimizeButtonVisible(bool visible = true)
+	{
+		if (visible)
+			addHeaderButtonFlag(MinimizeVisible);
+		else
+			removeHeaderButtonFlag(MinimizeVisible);
+	}
+	bool isMinimizeButtonEnabled() const
+	{
+		return buttonsFlags.testFlag(MinimizeEnabled);
+	}
+	void setMinimizeButtonEnabled(bool enabled = true)
+	{
+		if (enabled)
+			addHeaderButtonFlag(MinimizeEnabled);
+		else
+			removeHeaderButtonFlag(MinimizeEnabled);
+	}
+	// maximize button
+	bool isMaximizeButtonVisible() const
+	{
+		return buttonsFlags.testFlag(MaximizeVisible);
+	}
+	void setMaximizeButtonVisible(bool visible = true)
+	{
+		if (visible)
+			addHeaderButtonFlag(MaximizeVisible);
+		else
+			removeHeaderButtonFlag(MaximizeVisible);
+	}
+	bool isMaximizeButtonEnabled() const
+	{
+		return buttonsFlags.testFlag(MaximizeEnabled);
+	}
+	void setMaximizeButtonEnabled(bool enabled = true)
+	{
+		if (enabled)
+			addHeaderButtonFlag(MaximizeEnabled);
+		else
+			removeHeaderButtonFlag(MaximizeEnabled);
+	}
+	// close button
+	bool isCloseButtonVisible() const
+	{
+		return buttonsFlags.testFlag(CloseVisible);
+	}
+	void setCloseButtonVisible(bool visible = true)
+	{
+		if (visible)
+			addHeaderButtonFlag(CloseVisible);
+		else
+			removeHeaderButtonFlag(CloseVisible);
+	}
+	bool isCloseButtonEnabled() const
+	{
+		return buttonsFlags.testFlag(CloseEnabled);
+	}
+	void setCloseButtonEnabled(bool enabled = true)
+	{
+		if (enabled)
+			addHeaderButtonFlag(CloseEnabled);
+		else
+			removeHeaderButtonFlag(CloseEnabled);
+	}
+protected:
+	// header button flags manipulations
+	void addHeaderButtonFlag(HeaderButtonsFlag flag)
+	{
+		buttonsFlags |= flag;
+	}
+	void removeHeaderButtonFlag(HeaderButtonsFlag flag)
+	{
+		if (buttonsFlags.testFlag(flag))
+			buttonsFlags ^= flag;
+	}
 	enum BorderType
 	{
 		NoneBorder = 0,
@@ -114,6 +213,9 @@ private:
 	CustomBorderContainerPrivate * myPrivate;
 	BorderType resizeBorder;
 	bool canMove;
+	HeaderButtonsFlags buttonsFlags;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(CustomBorderContainer::HeaderButtonsFlags)
 
 #endif // CUSTOMBORDERCONTAINER_H
