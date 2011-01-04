@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QTextDocument>
 #include <QTextCursor>
+#include "iconstorage.h"
 
 // internal functions
 
@@ -32,6 +33,22 @@ static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 	QObjectList children = object->children();
 	foreach(QObject *child, children) {
 		childsRecursive(child, watcher, install);
+	}
+}
+
+static void repaintRecursive(QWidget *widget, const QRect & globalRect)
+{
+	if (widget)
+	{
+		QPoint topleft = widget->mapFromGlobal(globalRect.topLeft());
+		QRect newRect = globalRect;
+		newRect.moveTopLeft(topleft);
+		widget->repaint(newRect);
+		QObjectList children = widget->children();
+		foreach(QObject *child, children)
+		{
+			repaintRecursive(qobject_cast<QWidget*>(child), globalRect);
+		}
 	}
 }
 
@@ -61,7 +78,7 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderCon
 	icon = other.icon;
 	controls = other.controls;
 	minimize = other.minimize;
-	maximize = other.minimize;
+	maximize = other.maximize;
 	close = other.close;
 	headerButtons = other.headerButtons;
 	p = NULL;
@@ -697,6 +714,8 @@ void CustomBorderContainer::paintEvent(QPaintEvent * event)
 	painter.setClipRegion(mask());
 	// header
 	drawHeader(&painter);
+	// buttons
+	drawButtons(&painter);
 	// borders (black for debug)
 	drawBorders(&painter);
 	// corners (red for debug)
@@ -772,10 +791,11 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		p.setWindow(r);
 		//p.translate(containedWidget->mapFromParent(QPoint(0, 0)));
 		//p.fillRect(0, 0, 100, 100, QColor(255, 255, 0, 255));
+		drawButtons(&p);
 		drawCorners(&p);
 		return true;
 	}
-		break;
+	break;
 	default:
 		break;
 	}
@@ -798,6 +818,7 @@ void CustomBorderContainer::init()
 	setLayout(containerLayout);
 	setMinimumWidth(100);
 	setMinimumHeight(100);
+	setGeometryState(None);
 }
 
 void CustomBorderContainer::updateGeometry(const QPoint & p)
@@ -886,6 +907,7 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 {
+	lastMousePosition = mapFromGlobal(point);
 	if (geometryState() != None)
 	{
 		//QPoint p = widget->mapToGlobal(point);
@@ -901,6 +923,11 @@ void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 		if (geometryState() != Moving)
 		{
 			checkMoveCondition(mapFromGlobal(point));
+			int lb = myPrivate->left.width, tb = myPrivate->top.width, rb = myPrivate->right.width;
+			QRect headerRect(lb, tb, width() - lb - rb, myPrivate->header.moveHeight);
+			repaint(headerRect);
+			headerRect.moveTopLeft(mapToGlobal(headerRect.topLeft()));
+			repaintRecursive(containedWidget, headerRect);
 		}
 	}
 }
@@ -995,6 +1022,13 @@ bool CustomBorderContainer::pointInBorder(BorderType border, const QPoint & p)
 		break;
 	}
 	return false;
+}
+
+bool CustomBorderContainer::pointInHeader(const QPoint & p)
+{
+	int lb = myPrivate->left.resizeWidth, tb = myPrivate->top.resizeWidth, rb = myPrivate->right.resizeWidth;
+	QRect headerRect(lb, tb, width() - lb - rb, myPrivate->header.moveHeight);
+	return headerRect.contains(p);
 }
 
 void CustomBorderContainer::checkResizeCondition(const QPoint & p)
@@ -1103,6 +1137,56 @@ void CustomBorderContainer::drawHeader(QPainter * p)
 	drawTitle(p);
 }
 
+void CustomBorderContainer::drawButton(HeaderButton & button, QPainter * p, HeaderButtonState state)
+{
+	QImage img;
+	switch(state)
+	{
+	case Normal:
+	case Disabled:
+		img = loadImage(button.imageNormal);
+		if (img.isNull())
+			p->fillRect(0, 0, button.width, button.height, QColor::fromRgb(0, 0, 0));
+		else
+			p->drawImage(0, 0, img);
+		break;
+	default:
+		img = loadImage(button.imageHover);
+		if (img.isNull())
+			p->fillRect(0, 0, button.width, button.height, QColor::fromRgb(50, 50, 50));
+		else
+			p->drawImage(0, 0, img);
+		break;
+	}
+}
+
+void CustomBorderContainer::drawButtons(QPainter * p)
+{
+	// drawing all buttons for debug
+	int numButtons = 3;
+	int startX = width() - myPrivate->right.width - myPrivate->header.margins.right() - (numButtons - 1) * myPrivate->controls.spacing - myPrivate->minimize.width - myPrivate->maximize.width - myPrivate->close.width;
+	int startY = myPrivate->top.width + myPrivate->header.margins.top();
+	QRect buttonRect;
+	HeaderButtonState state;
+	p->save();
+	p->translate(startX, startY);
+	// minimize button
+	buttonRect = QRect(startX, startY, myPrivate->minimize.width, myPrivate->minimize.height);
+	state = buttonRect.contains(lastMousePosition) ? NormalHover : Normal;
+	drawButton(myPrivate->minimize, p, state);
+	// maximize button
+	buttonRect = QRect(startX + myPrivate->minimize.width + myPrivate->controls.spacing, startY, myPrivate->maximize.width, myPrivate->maximize.height);
+	state = buttonRect.contains(lastMousePosition) ? NormalHover : Normal;
+	p->translate(myPrivate->minimize.width + myPrivate->controls.spacing, 0);
+	drawButton(myPrivate->maximize, p, state);
+	// close button
+	buttonRect = QRect(startX + myPrivate->minimize.width + myPrivate->maximize.width + 2 * myPrivate->controls.spacing, startY, myPrivate->close.width, myPrivate->close.height);
+	state = buttonRect.contains(lastMousePosition) ? NormalHover : Normal;
+	p->translate(myPrivate->maximize.width + myPrivate->controls.spacing, 0);
+	drawButton(myPrivate->close, p, state);
+	p->restore();
+}
+
 void CustomBorderContainer::drawIcon(QPainter * p)
 {
 	// TODO: load and draw icon here
@@ -1156,4 +1240,14 @@ void CustomBorderContainer::drawCorners(QPainter * p)
 QPoint CustomBorderContainer::mapFromWidget(QWidget * widget, const QPoint &point)
 {
 	return mapFromGlobal(widget->mapToGlobal(point));
+}
+
+QImage CustomBorderContainer::loadImage(const QString & key)
+{
+	QStringList list = key.split("/");
+	if (list.count() != 2)
+		return QImage();
+	QString storage = list[0];
+	QString imageKey = list[1];
+	return IconStorage::staticStorage(storage)->getImage(imageKey);
 }

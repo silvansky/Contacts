@@ -1,6 +1,10 @@
 #ifndef CUSTOMBORDERCONTAINER_P_H
 #define CUSTOMBORDERCONTAINER_P_H
 
+/*
+  NOTE: this file shouldn't be included directly anywhere outside utils. Use customcorderstorage.h.
+*/
+
 #include "borderstructs.h"
 #include "custombordercontainer.h"
 #include <QDomDocument>

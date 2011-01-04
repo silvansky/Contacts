@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>minimizeButtonNormal</key>
+    <object mime="image/png">minimizebutton.png</object>
+  </icon>
+  <icon>
+    <key>minimizeButtonHighlighted</key>
+    <object mime="image/png">minimizebuttonhighlighted.png</object>
+  </icon>
+  <icon>
+    <key>maximizeButtonNormal</key>
+    <object mime="image/png">maximizebutton.png</object>
+  </icon>
+  <icon>
+    <key>maximizeButtonHighlighted</key>
+    <object mime="image/png">maximizebuttonhighlighted.png</object>
+  </icon>
+  <icon>
+    <key>closeButtonNormal</key>
+    <object mime="image/png">closebutton.png</object>
+  </icon>
+  <icon>
+    <key>closeButtonHighlighted</key>
+    <object mime="image/png">closebuttonhighlighted.png</object>
+  </icon>
+</icondef>

@@ -404,7 +404,7 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
 		//CustomBorderContainer *border = new CustomBorderContainer(FLoginDialog);
 		//border->loadFile("d:\\projects\\virtus_custom_border\\wb.xml");
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, "dialog");
+		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
 		WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)FLoginDialog);
 	}
 	return FLoginDialog;

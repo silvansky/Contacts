@@ -7,6 +7,7 @@
 #include "utilsexport.h"
 
 class CustomBorderContainerPrivate;
+struct HeaderButton;
 
 class UTILS_EXPORT CustomBorderContainer : public QWidget
 {
@@ -61,6 +62,14 @@ protected:
 		currentGeometryState = newGeometryState;
 	}
 	void updateGeometry(const QPoint & p);
+	enum HeaderButtonState
+	{
+		Normal,
+		NormalHover,
+		Pressed,
+		Disabled,
+		PressedDisabled
+	};
 	enum BorderType
 	{
 		NoneBorder = 0,
@@ -78,17 +87,21 @@ protected:
 	void mouseRelease(const QPoint & p, QWidget * widget);
 	void mouseDoubleClick(const QPoint & p, QWidget * widget);
 	bool pointInBorder(BorderType border, const QPoint & p);
+	bool pointInHeader(const QPoint & p);
 	void checkResizeCondition(const QPoint & p);
 	void checkMoveCondition(const QPoint & p);
 	void updateCursor(QWidget * widget = 0);
 	void updateShape();
 	void setLayoutMargins();
 	void drawHeader(QPainter * p);
+	void drawButton(HeaderButton & button, QPainter * p, HeaderButtonState state = Normal);
+	void drawButtons(QPainter * p);
 	void drawIcon(QPainter * p);
 	void drawTitle(QPainter * p);
 	void drawBorders(QPainter * p);
 	void drawCorners(QPainter * p);
 	QPoint mapFromWidget(QWidget * widget, const QPoint &point);
+	QImage loadImage(const QString & key);
 private:
 	// widgets/layouts
 	QWidget * containedWidget;
@@ -97,6 +110,7 @@ private:
 	GeometryState currentGeometryState;
 	QRect oldGeometry;
 	QPoint oldPressPoint;
+	QPoint lastMousePosition;
 	CustomBorderContainerPrivate * myPrivate;
 	BorderType resizeBorder;
 	bool canMove;

@@ -1,6 +1,10 @@
 #ifndef BORDERSTRUCTS_H
 #define BORDERSTRUCTS_H
 
+/*
+  NOTE: this file shouldn't be included directly anywhere outside utils. Use customcorderstorage.h.
+*/
+
 #include <QGradient>
 #include <QString>
 #include <QMargins>
