@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QTextDocument>
 #include <QTextCursor>
+#include <QDesktopWidget>
 #include "iconstorage.h"
 
 // internal functions
@@ -809,6 +810,8 @@ void CustomBorderContainer::init()
 	resizeBorder = NoneBorder;
 	canMove = false;
 	buttonsFlags = MinimizeVisible | MaximizeVisible | CloseVisible | MinimizeEnabled | MaximizeEnabled | CloseEnabled;
+	pressedHeaderButton = NoneButton;
+	isMaximized = false;
 	// window props
 	setWindowFlags(Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground);
@@ -820,6 +823,10 @@ void CustomBorderContainer::init()
 	setMinimumWidth(100);
 	setMinimumHeight(100);
 	setGeometryState(None);
+	// connections
+	connect(this, SIGNAL(minimizeClicked()), SLOT(minimizeWidget()));
+	connect(this, SIGNAL(maximizeClicked()), SLOT(maximizeWidget()));
+	connect(this, SIGNAL(closeClicked()), SLOT(closeWidget()));
 }
 
 void CustomBorderContainer::updateGeometry(const QPoint & p)
@@ -906,6 +913,76 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 	}
 }
 
+int CustomBorderContainer::headerButtonsCount() const
+{
+	return (isMinimizeButtonVisible() ? 1 : 0) + (isMaximizeButtonVisible() ? 1 : 0) + (isCloseButtonVisible() ? 1 : 0);
+}
+
+QRect CustomBorderContainer::headerButtonRect(HeaderButtons button) const
+{
+	int numButtons = headerButtonsCount();
+	int startX = width() - myPrivate->right.width - myPrivate->header.margins.right() - (numButtons - 1) * myPrivate->controls.spacing;
+	startX -= (isMinimizeButtonVisible() ? myPrivate->minimize.width : 0) + (isMaximizeButtonVisible() ? myPrivate->maximize.width : 0) + (isCloseButtonVisible() ? myPrivate->close.width : 0);
+	int startY = myPrivate->top.width + myPrivate->header.margins.top();
+	int dx = 0;
+	QRect buttonRect;
+	switch (button)
+	{
+	case MinimizeButton:
+		if (isMinimizeButtonVisible())
+			buttonRect = QRect(startX, startY, myPrivate->minimize.width, myPrivate->minimize.height);
+		break;
+	case MaximizeButton:
+		if (isMaximizeButtonVisible())
+		{
+			if (isMinimizeButtonVisible())
+				dx = myPrivate->minimize.width + myPrivate->controls.spacing;
+			buttonRect = QRect(startX + dx, startY, myPrivate->maximize.width, myPrivate->maximize.height);
+		}
+		break;
+	case CloseButton:
+		if (isCloseButtonVisible())
+		{
+			if (isMinimizeButtonVisible())
+				dx = myPrivate->minimize.width + myPrivate->controls.spacing;
+			if (isMaximizeButtonVisible())
+				dx += myPrivate->maximize.width + myPrivate->controls.spacing;
+			buttonRect = QRect(startX + dx, startY, myPrivate->close.width, myPrivate->close.height);
+		}
+		break;
+	default:
+		break;
+	}
+	return buttonRect;
+}
+
+bool CustomBorderContainer::minimizeButtonUnderMouse() const
+{
+	return isMinimizeButtonVisible() && headerButtonRect(MinimizeButton).contains(lastMousePosition);
+}
+
+bool CustomBorderContainer::maximizeButtonUnderMouse() const
+{
+	return isMaximizeButtonVisible() && headerButtonRect(MaximizeButton).contains(lastMousePosition);
+}
+
+bool CustomBorderContainer::closeButtonUnderMouse() const
+{
+	return isCloseButtonVisible() && headerButtonRect(CloseButton).contains(lastMousePosition);
+}
+
+CustomBorderContainer::HeaderButtons CustomBorderContainer::headerButtonUnderMouse() const
+{
+	if (minimizeButtonUnderMouse())
+		return MinimizeButton;
+	else if (maximizeButtonUnderMouse())
+		return MaximizeButton;
+	else if (closeButtonUnderMouse())
+		return CloseButton;
+	else
+		return NoneButton;
+}
+
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 {
 	lastMousePosition = mapFromGlobal(point);
@@ -935,22 +1012,49 @@ void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 
 void CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
 {
-	if (resizeBorder != NoneBorder)
-		setGeometryState(Resizing);
-	else if (canMove)
+	pressedHeaderButton = headerButtonUnderMouse();
+	if (pressedHeaderButton == NoneButton)
 	{
-		oldPressPoint = widget->mapToGlobal(p);
-		setGeometryState(Moving);
+		if (resizeBorder != NoneBorder)
+			setGeometryState(Resizing);
+		else if (canMove)
+		{
+			oldPressPoint = widget->mapToGlobal(p);
+			setGeometryState(Moving);
+		}
+		oldGeometry = geometry();
 	}
-	oldGeometry = geometry();
 }
 
 void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget)
 {
-	setGeometryState(None);
-	resizeBorder = NoneBorder;
-	canMove = false;
-	updateCursor(widget);
+	if (pressedHeaderButton == NoneButton)
+	{
+		setGeometryState(None);
+		resizeBorder = NoneBorder;
+		canMove = false;
+		updateCursor(widget);
+	}
+	else
+	{
+		if (headerButtonUnderMouse() == pressedHeaderButton)
+		{
+			switch (pressedHeaderButton)
+			{
+			case MinimizeButton:
+				emit minimizeClicked();
+				break;
+			case MaximizeButton:
+				emit maximizeClicked();
+				break;
+			case CloseButton:
+				emit closeClicked();
+				break;
+			default:
+				break;
+			}
+		}
+	}
 }
 
 void CustomBorderContainer::mouseDoubleClick(const QPoint & p, QWidget * widget)
@@ -1083,40 +1187,51 @@ void CustomBorderContainer::updateCursor(QWidget * widget)
 
 void CustomBorderContainer::updateShape()
 {
-	// base rect
-	QRegion shape(0, 0, width(), height());
-	QRegion rect, circle;
-	int rad;
-	QRect g = geometry();
-	int w = g.width();
-	int h = g.height();
-	// for each corner we substract rect and add circle
-	// top-left
-	rad = myPrivate->topLeft.radius;
-	rect = QRegion(0, 0, rad, rad);
-	circle = QRegion(0, 0, 2 * rad, 2 * rad, QRegion::Ellipse);
-	shape -= rect;
-	shape |= circle;
-	// top-right
-	rad = myPrivate->topRight.radius;
-	rect = QRegion(w - rad, 0, rad, rad);
-	circle = QRegion(w - 2 * rad - 1, 0, 2 * rad, 2 * rad, QRegion::Ellipse);
-	shape -= rect;
-	shape |= circle;
-	// bottom-left
-	rad = myPrivate->bottomLeft.radius;
-	rect = QRegion(0, h - rad, rad, rad);
-	circle = QRegion(0, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
-	shape -= rect;
-	shape |= circle;
-	// bottom-right
-	rad = myPrivate->bottomRight.radius;
-	rect = QRegion(w - rad, h - rad, rad, rad);
-	circle = QRegion(w - 2 * rad - 1, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
-	shape -= rect;
-	shape |= circle;
-	// setting mask
-	setMask(shape);
+	qDebug() << "updateShape():";
+	if (!isMaximized)
+	{
+		qDebug() << "normal";
+		// base rect
+		QRegion shape(0, 0, width(), height());
+		QRegion rect, circle;
+		int rad;
+		QRect g = geometry();
+		int w = g.width();
+		int h = g.height();
+		// for each corner we substract rect and add circle
+		// top-left
+		rad = myPrivate->topLeft.radius;
+		rect = QRegion(0, 0, rad, rad);
+		circle = QRegion(0, 0, 2 * rad, 2 * rad, QRegion::Ellipse);
+		shape -= rect;
+		shape |= circle;
+		// top-right
+		rad = myPrivate->topRight.radius;
+		rect = QRegion(w - rad, 0, rad, rad);
+		circle = QRegion(w - 2 * rad - 1, 0, 2 * rad, 2 * rad, QRegion::Ellipse);
+		shape -= rect;
+		shape |= circle;
+		// bottom-left
+		rad = myPrivate->bottomLeft.radius;
+		rect = QRegion(0, h - rad, rad, rad);
+		circle = QRegion(0, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
+		shape -= rect;
+		shape |= circle;
+		// bottom-right
+		rad = myPrivate->bottomRight.radius;
+		rect = QRegion(w - rad, h - rad, rad, rad);
+		circle = QRegion(w - 2 * rad - 1, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
+		shape -= rect;
+		shape |= circle;
+		// setting mask
+		setMask(shape);
+	}
+	else
+	{
+		qDebug() << "maximized";
+		// clearing window mask if it is maximized
+		clearMask();
+	}
 }
 
 void CustomBorderContainer::setLayoutMargins()
@@ -1163,29 +1278,34 @@ void CustomBorderContainer::drawButton(HeaderButton & button, QPainter * p, Head
 
 void CustomBorderContainer::drawButtons(QPainter * p)
 {
-	// drawing all buttons for debug
-	int numButtons = 3;
-	int startX = width() - myPrivate->right.width - myPrivate->header.margins.right() - (numButtons - 1) * myPrivate->controls.spacing - myPrivate->minimize.width - myPrivate->maximize.width - myPrivate->close.width;
-	int startY = myPrivate->top.width + myPrivate->header.margins.top();
-	QRect buttonRect;
 	HeaderButtonState state;
-	p->save();
-	p->translate(startX, startY);
 	// minimize button
-	buttonRect = QRect(startX, startY, myPrivate->minimize.width, myPrivate->minimize.height);
-	state = buttonRect.contains(lastMousePosition) ? NormalHover : Normal;
-	drawButton(myPrivate->minimize, p, state);
+	if (isMinimizeButtonVisible())
+	{
+		p->save();
+		p->translate(headerButtonRect(MinimizeButton).topLeft());
+		state = minimizeButtonUnderMouse() ? NormalHover : Normal;
+		drawButton(myPrivate->minimize, p, state);
+		p->restore();
+	}
 	// maximize button
-	buttonRect = QRect(startX + myPrivate->minimize.width + myPrivate->controls.spacing, startY, myPrivate->maximize.width, myPrivate->maximize.height);
-	state = buttonRect.contains(lastMousePosition) ? NormalHover : Normal;
-	p->translate(myPrivate->minimize.width + myPrivate->controls.spacing, 0);
-	drawButton(myPrivate->maximize, p, state);
+	if (isMaximizeButtonVisible())
+	{
+		p->save();
+		p->translate(headerButtonRect(MaximizeButton).topLeft());
+		state = maximizeButtonUnderMouse() ? NormalHover : Normal;
+		drawButton(myPrivate->maximize, p, state);
+		p->restore();
+	}
 	// close button
-	buttonRect = QRect(startX + myPrivate->minimize.width + myPrivate->maximize.width + 2 * myPrivate->controls.spacing, startY, myPrivate->close.width, myPrivate->close.height);
-	state = buttonRect.contains(lastMousePosition) ? NormalHover : Normal;
-	p->translate(myPrivate->maximize.width + myPrivate->controls.spacing, 0);
-	drawButton(myPrivate->close, p, state);
-	p->restore();
+	if (isCloseButtonVisible())
+	{
+		p->save();
+		p->translate(headerButtonRect(CloseButton).topLeft());
+		state = closeButtonUnderMouse() ? NormalHover : Normal;
+		drawButton(myPrivate->close, p, state);
+		p->restore();
+	}
 }
 
 void CustomBorderContainer::drawIcon(QPainter * p)
@@ -1229,16 +1349,16 @@ void CustomBorderContainer::drawBorders(QPainter * p)
 void CustomBorderContainer::drawCorners(QPainter * p)
 {
 	/*
-	QRect cornerRect;
-	cornerRect = QRect(0, 0, myPrivate->topLeft.width, myPrivate->topLeft.height);
-	p->fillRect(cornerRect, Qt::red);
-	cornerRect = QRect(width() - myPrivate->topRight.width, 0, myPrivate->topRight.width, myPrivate->topRight.height);
-	p->fillRect(cornerRect, Qt::red);
-	cornerRect = QRect(0, height() - myPrivate->bottomLeft.height, myPrivate->bottomLeft.width, myPrivate->bottomLeft.height);
-	p->fillRect(cornerRect, Qt::red);
-	cornerRect = QRect(width() - myPrivate->bottomRight.width, height() - myPrivate->bottomRight.height, myPrivate->bottomRight.width, myPrivate->bottomRight.height);
-	p->fillRect(cornerRect, Qt::red);
-	*/
+ QRect cornerRect;
+ cornerRect = QRect(0, 0, myPrivate->topLeft.width, myPrivate->topLeft.height);
+ p->fillRect(cornerRect, Qt::red);
+ cornerRect = QRect(width() - myPrivate->topRight.width, 0, myPrivate->topRight.width, myPrivate->topRight.height);
+ p->fillRect(cornerRect, Qt::red);
+ cornerRect = QRect(0, height() - myPrivate->bottomLeft.height, myPrivate->bottomLeft.width, myPrivate->bottomLeft.height);
+ p->fillRect(cornerRect, Qt::red);
+ cornerRect = QRect(width() - myPrivate->bottomRight.width, height() - myPrivate->bottomRight.height, myPrivate->bottomRight.width, myPrivate->bottomRight.height);
+ p->fillRect(cornerRect, Qt::red);
+ */
 }
 
 QPoint CustomBorderContainer::mapFromWidget(QWidget * widget, const QPoint &point)
@@ -1254,4 +1374,28 @@ QImage CustomBorderContainer::loadImage(const QString & key)
 	QString storage = list[0];
 	QString imageKey = list[1];
 	return IconStorage::staticStorage(storage)->getImage(imageKey);
+}
+
+void CustomBorderContainer::minimizeWidget()
+{
+	showMinimized();
+}
+
+void CustomBorderContainer::maximizeWidget()
+{
+	isMaximized = !isMaximized;
+	if (!isMaximized)
+	{
+		setGeometry(normalGeometry);
+	}
+	else
+	{
+		normalGeometry = geometry();
+		setGeometry(qApp->desktop()->availableGeometry(this));
+	}
+}
+
+void CustomBorderContainer::closeWidget()
+{
+	close();
 }

@@ -26,6 +26,14 @@ public:
 	void setWidget(QWidget * widget);
 	QWidget * releaseWidget();
 	void loadFile(const QString & fileName);
+signals:
+	void minimizeClicked();
+	void maximizeClicked();
+	void closeClicked();
+	void iconClicked();
+	void minimized();
+	void maximized();
+	void closed();
 protected:
 	// event handlers
 	void changeEvent(QEvent *e);
@@ -70,6 +78,14 @@ protected:
 		Disabled,
 		PressedDisabled
 	};
+	enum HeaderButtons
+	{
+		NoneButton,
+		MinimizeButton,
+		MaximizeButton,
+		CloseButton
+	};
+
 public:
 	enum HeaderButtonsFlag
 	{
@@ -169,6 +185,14 @@ protected:
 		if (buttonsFlags.testFlag(flag))
 			buttonsFlags ^= flag;
 	}
+	// header buttons under mouse
+	int headerButtonsCount() const;
+	QRect headerButtonRect(HeaderButtons button) const;
+	bool minimizeButtonUnderMouse() const;
+	bool maximizeButtonUnderMouse() const;
+	bool closeButtonUnderMouse() const;
+	HeaderButtons headerButtonUnderMouse() const;
+	// etc...
 	enum BorderType
 	{
 		NoneBorder = 0,
@@ -201,6 +225,10 @@ protected:
 	void drawCorners(QPainter * p);
 	QPoint mapFromWidget(QWidget * widget, const QPoint &point);
 	QImage loadImage(const QString & key);
+protected slots:
+	void minimizeWidget();
+	void maximizeWidget();
+	void closeWidget();
 private:
 	// widgets/layouts
 	QWidget * containedWidget;
@@ -214,6 +242,9 @@ private:
 	BorderType resizeBorder;
 	bool canMove;
 	HeaderButtonsFlags buttonsFlags;
+	HeaderButtons pressedHeaderButton;
+	bool isMaximized;
+	QRect normalGeometry;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CustomBorderContainer::HeaderButtonsFlags)

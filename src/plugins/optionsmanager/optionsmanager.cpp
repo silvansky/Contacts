@@ -406,6 +406,11 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		//CustomBorderContainer *border = new CustomBorderContainer(FLoginDialog);
 		//border->loadFile("d:\\projects\\virtus_custom_border\\wb.xml");
 		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
+		//border->setMinimizeButtonVisible(false);
+		//border->setMaximizeButtonVisible(false);
+		//border->setCloseButtonVisible(false);
+		if (border)
+			connect(border, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
 		WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)FLoginDialog);
 	}
 	return FLoginDialog;
