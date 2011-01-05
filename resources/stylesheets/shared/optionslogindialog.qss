@@ -1,3 +1,4 @@
+/* background */
 QDialog
 {
 	background-color: rgba(65, 70, 77, 235);

@@ -842,7 +842,7 @@ void LoginDialog::onShowConnectingAnimation()
 
 void LoginDialog::onAdjustDialogSize()
 {
-	resize(minimumSizeHint());
+	//resize(minimumSizeHint());
 }
 
 void LoginDialog::onNotificationAppend(int ANotifyId, INotification &ANotification)

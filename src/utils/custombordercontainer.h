@@ -9,6 +9,8 @@
 class CustomBorderContainerPrivate;
 struct HeaderButton;
 
+// NOTE: QWidget::isMaximized() will return false even if widget is maximized. I will try to fix it later.
+
 class UTILS_EXPORT CustomBorderContainer : public QWidget
 {
 	Q_OBJECT
@@ -192,6 +194,8 @@ protected:
 	bool maximizeButtonUnderMouse() const;
 	bool closeButtonUnderMouse() const;
 	HeaderButtons headerButtonUnderMouse() const;
+	QRect headerButtonsRect() const;
+	void repaintHeaderButtons();
 	// etc...
 	enum BorderType
 	{

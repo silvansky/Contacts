@@ -412,6 +412,10 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		if (border)
 			connect(border, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
 		WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)FLoginDialog);
+		if (border)
+			border->adjustSize();
+		else
+			FLoginDialog->adjustSize();
 	}
 	return FLoginDialog;
 }

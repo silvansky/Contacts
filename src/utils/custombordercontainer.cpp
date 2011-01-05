@@ -707,6 +707,8 @@ void CustomBorderContainer::moveEvent(QMoveEvent * event)
 
 void CustomBorderContainer::paintEvent(QPaintEvent * event)
 {
+	//qDebug() << "paintEvent rect: " << event->rect();
+	//qDebug() << "geometry rect: " << geometry();
 	QWidget::paintEvent(event);
 
 	// painter
@@ -732,6 +734,8 @@ void CustomBorderContainer::enterEvent(QEvent * event)
 
 void CustomBorderContainer::leaveEvent(QEvent * event)
 {
+	lastMousePosition = QPoint(-1, -1);
+	repaintHeaderButtons();
 	QWidget::leaveEvent(event);
 }
 
@@ -983,12 +987,32 @@ CustomBorderContainer::HeaderButtons CustomBorderContainer::headerButtonUnderMou
 		return NoneButton;
 }
 
+QRect CustomBorderContainer::headerButtonsRect() const
+{
+	int tb = myPrivate->top.width + myPrivate->header.margins.top(), rb = myPrivate->right.width + myPrivate->header.margins.right();
+	int numButtons = headerButtonsCount();
+	int lb = width() - myPrivate->right.width - myPrivate->header.margins.right() - (numButtons - 1) * myPrivate->controls.spacing;
+	lb -= (isMinimizeButtonVisible() ? myPrivate->minimize.width : 0) + (isMaximizeButtonVisible() ? myPrivate->maximize.width : 0) + (isCloseButtonVisible() ? myPrivate->close.width : 0);
+	int h = qMax(qMax((isMinimizeButtonVisible() ? myPrivate->minimize.height: 0), (isMaximizeButtonVisible() ? myPrivate->maximize.height: 0)), (isCloseButtonVisible() ? myPrivate->close.height: 0)) + 1;
+	return QRect(lb, tb, width() - lb - rb, h);
+}
+
+void CustomBorderContainer::repaintHeaderButtons()
+{
+	QRect rect = headerButtonsRect();
+	repaint(rect);
+	rect.moveTopLeft(mapToGlobal(rect.topLeft()));
+	repaintRecursive(containedWidget, rect);
+}
+
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 {
+	bool needToRepaintHeaderButtons = (!headerButtonsRect().contains(mapFromGlobal(point))) && headerButtonsRect().contains(lastMousePosition);
 	lastMousePosition = mapFromGlobal(point);
+	if (needToRepaintHeaderButtons)
+		repaintHeaderButtons();
 	if (geometryState() != None)
 	{
-		//QPoint p = widget->mapToGlobal(point);
 		updateGeometry(point);
 		return;
 	}
@@ -1001,11 +1025,6 @@ void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 		if (geometryState() != Moving)
 		{
 			checkMoveCondition(mapFromGlobal(point));
-			int lb = myPrivate->left.width, tb = myPrivate->top.width, rb = myPrivate->right.width;
-			QRect headerRect(lb, tb, width() - lb - rb, myPrivate->header.moveHeight);
-			repaint(headerRect);
-			headerRect.moveTopLeft(mapToGlobal(headerRect.topLeft()));
-			repaintRecursive(containedWidget, headerRect);
 		}
 	}
 }
@@ -1139,12 +1158,13 @@ bool CustomBorderContainer::pointInHeader(const QPoint & p)
 void CustomBorderContainer::checkResizeCondition(const QPoint & p)
 {
 	resizeBorder = NoneBorder;
-	for (int b = TopLeftCorner; b <= BottomBorder; b++)
-		if (pointInBorder((BorderType)b, p))
-		{
-			resizeBorder = (BorderType)b;
-			break;
-		}
+	if (!isMaximized)
+		for (int b = TopLeftCorner; b <= BottomBorder; b++)
+			if (pointInBorder((BorderType)b, p))
+			{
+				resizeBorder = (BorderType)b;
+				break;
+			}
 	updateCursor(QApplication::widgetAt(mapToGlobal(p)));
 }
 
@@ -1152,7 +1172,14 @@ void CustomBorderContainer::checkMoveCondition(const QPoint & p)
 {
 	int lb = myPrivate->left.resizeWidth, tb = myPrivate->top.resizeWidth, rb = myPrivate->right.resizeWidth;
 	QRect headerRect(lb, tb, width() - lb - rb, myPrivate->header.moveHeight);
-	canMove = headerRect.contains(p);
+	if (headerRect.contains(p))
+	{
+		repaintHeaderButtons();
+	}
+	if (isMaximized)
+		canMove = false;
+	else
+		canMove = headerRect.contains(p);
 }
 
 void CustomBorderContainer::updateCursor(QWidget * widget)
@@ -1187,10 +1214,8 @@ void CustomBorderContainer::updateCursor(QWidget * widget)
 
 void CustomBorderContainer::updateShape()
 {
-	qDebug() << "updateShape():";
 	if (!isMaximized)
 	{
-		qDebug() << "normal";
 		// base rect
 		QRegion shape(0, 0, width(), height());
 		QRegion rect, circle;
@@ -1228,7 +1253,6 @@ void CustomBorderContainer::updateShape()
 	}
 	else
 	{
-		qDebug() << "maximized";
 		// clearing window mask if it is maximized
 		clearMask();
 	}
@@ -1378,11 +1402,13 @@ QImage CustomBorderContainer::loadImage(const QString & key)
 
 void CustomBorderContainer::minimizeWidget()
 {
+	lastMousePosition = QPoint(-1, -1);
 	showMinimized();
 }
 
 void CustomBorderContainer::maximizeWidget()
 {
+	lastMousePosition = QPoint(-1, -1);
 	isMaximized = !isMaximized;
 	if (!isMaximized)
 	{
