@@ -711,6 +711,7 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		{
 			border->setAttribute(Qt::WA_ShowModal, true);
 			border->show();
+			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
 		}
 
 		QBoxLayout *layout = qobject_cast<QBoxLayout *>(dialog->layout());

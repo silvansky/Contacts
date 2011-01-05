@@ -1403,6 +1403,7 @@ QImage CustomBorderContainer::loadImage(const QString & key)
 void CustomBorderContainer::minimizeWidget()
 {
 	lastMousePosition = QPoint(-1, -1);
+	repaintHeaderButtons();
 	showMinimized();
 }
 
