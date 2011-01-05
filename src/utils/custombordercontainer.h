@@ -220,6 +220,8 @@ protected:
 	void updateCursor(QWidget * widget = 0);
 	void updateShape();
 	void setLayoutMargins();
+	QRect headerRect() const;
+	QRect headerMoveRect() const;
 	void drawHeader(QPainter * p);
 	void drawButton(HeaderButton & button, QPainter * p, HeaderButtonState state = Normal);
 	void drawButtons(QPainter * p);

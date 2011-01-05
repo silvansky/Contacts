@@ -21,6 +21,7 @@ public:
 	void parseFile(const QString & fileName);
 private:
 	void setAllDefaults();
+	QColor parseColor(const QString & name);
 	QGradient * parseGradient(const QDomElement & element);
 	ImageFillingStyle parseImageFillingStyle(const QString & style);
 	void setDefaultBorder(Border & border);

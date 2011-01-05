@@ -178,6 +178,30 @@ void CustomBorderContainerPrivate::setAllDefaults()
 	setDefaultHeaderButton(close);
 }
 
+QColor CustomBorderContainerPrivate::parseColor(const QString & name)
+{
+	QColor color;
+	if (QColor::isValidColor(name))
+		color.setNamedColor(name);
+	else
+	{
+		// trying to parse "#RRGGBBAA" color
+		if (name.length() == 9)
+		{
+			QString solidColor = name.left(7);
+			if (QColor::isValidColor(solidColor))
+			{
+				color.setNamedColor(solidColor);
+				int alpha = name.right(2).toInt(0, 16);
+				color.setAlpha(alpha);
+			}
+		}
+	}
+	if (!color.isValid())
+		qDebug() << "Can\'t parse color: " << name;
+	return color;
+}
+
 // HINT: only linear gradients are supported for now
 QGradient * CustomBorderContainerPrivate::parseGradient(const QDomElement & element)
 {
@@ -190,8 +214,10 @@ QGradient * CustomBorderContainerPrivate::parseGradient(const QDomElement & elem
 			// detecting single color
 			if (!element.attribute("color").isEmpty())
 			{
+				qDebug() << "single-color gradient from " << element.attribute("color");
 				gradient = new QLinearGradient(0.0, 0.0, 1.0, 0.0);
-				gradient->stops().append(QGradientStop(0.0, QColor(element.attribute("color"))));
+				gradient->setColorAt(0.0, parseColor(element.attribute("color")));
+				gradient->setSpread(QGradient::RepeatSpread);
 				return gradient;
 			}
 			QDomElement direction = element.firstChildElement("direction");
@@ -213,17 +239,15 @@ QGradient * CustomBorderContainerPrivate::parseGradient(const QDomElement & elem
 			QDomElement gradientStop = element.firstChildElement("gradient-stop");
 			while (!gradientStop.isNull())
 			{
-				QGradientStop stop;
-				stop.first = gradientStop.attribute("at").toFloat();
-				stop.second = QColor(gradientStop.attribute("color"));
-				gradient->stops().append(stop);
+				gradient->setColorAt(gradientStop.attribute("at").toFloat(), parseColor(gradientStop.attribute("color")));
 				gradientStop = gradientStop.nextSiblingElement("gradient-stop");
 			}
+			gradient->setSpread(QGradient::ReflectSpread);
 			return gradient;
 		}
 	}
 	QLinearGradient * lg = new QLinearGradient(0.0, 0.0, 1.0, 0.0);
-	lg->stops().append(QGradientStop(0.0, QColor::fromRgb(0, 0, 0)));
+	lg->setColorAt(0.0, QColor::fromRgb(0, 0, 0));
 	return lg;
 }
 
@@ -428,7 +452,7 @@ void CustomBorderContainerPrivate::parseHeader(const QDomElement & headerElement
 void CustomBorderContainerPrivate::setDefaultHeaderTitle(HeaderTitle & title)
 {
 	title.color = QColor(255, 255, 255);
-	title.text = "Sample title";
+	title.text = "";
 }
 
 void CustomBorderContainerPrivate::parseHeaderTitle(const QDomElement & titleElement, HeaderTitle & title)
@@ -534,7 +558,7 @@ void CustomBorderContainerPrivate::parseHeaderButton(const QDomElement & buttonE
 		if (!border.isNull())
 		{
 			button.borderWidth = border.attribute("width").toInt();
-			button.borderColor = QColor(border.attribute("color"));
+			button.borderColor = parseColor(border.attribute("color"));
 			button.borderRadius = border.attribute("radius").toInt();
 			button.borderImage = border.attribute("image");
 		}
@@ -696,7 +720,8 @@ void CustomBorderContainer::mouseReleaseEvent(QMouseEvent * event)
 
 void CustomBorderContainer::mouseDoubleClickEvent(QMouseEvent * event)
 {
-	mouseDoubleClick(event->pos(), this);
+	if (event->button() == Qt::LeftButton)
+		mouseDoubleClick(event->pos(), this);
 	QWidget::mouseDoubleClickEvent(event);
 }
 
@@ -707,14 +732,13 @@ void CustomBorderContainer::moveEvent(QMoveEvent * event)
 
 void CustomBorderContainer::paintEvent(QPaintEvent * event)
 {
-	//qDebug() << "paintEvent rect: " << event->rect();
-	//qDebug() << "geometry rect: " << geometry();
-	QWidget::paintEvent(event);
-
 	// painter
 	QPainter painter;
 	painter.begin(this);
-	painter.setClipRegion(mask());
+	if (!mask().isEmpty())
+		painter.setClipRegion(mask());
+	else
+		painter.setClipRect(geometry());
 	// header
 	drawHeader(&painter);
 	// borders
@@ -774,6 +798,10 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		break;
 	case QEvent::MouseButtonRelease:
 		mouseRelease(((QMouseEvent*)event)->pos(), widget);
+		break;
+	case QEvent::MouseButtonDblClick:
+		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
+			mouseDoubleClick(((QMouseEvent*)event)->pos(), widget);
 		break;
 	case QEvent::Paint:
 	{
@@ -925,9 +953,9 @@ int CustomBorderContainer::headerButtonsCount() const
 QRect CustomBorderContainer::headerButtonRect(HeaderButtons button) const
 {
 	int numButtons = headerButtonsCount();
-	int startX = width() - myPrivate->right.width - myPrivate->header.margins.right() - (numButtons - 1) * myPrivate->controls.spacing;
+	int startX = width() - (isMaximized ? 0 : myPrivate->right.width) - myPrivate->header.margins.right() - (numButtons - 1) * myPrivate->controls.spacing;
 	startX -= (isMinimizeButtonVisible() ? myPrivate->minimize.width : 0) + (isMaximizeButtonVisible() ? myPrivate->maximize.width : 0) + (isCloseButtonVisible() ? myPrivate->close.width : 0);
-	int startY = myPrivate->top.width + myPrivate->header.margins.top();
+	int startY = (isMaximized ? 0 : myPrivate->top.width) + myPrivate->header.margins.top();
 	int dx = 0;
 	QRect buttonRect;
 	switch (button)
@@ -989,9 +1017,9 @@ CustomBorderContainer::HeaderButtons CustomBorderContainer::headerButtonUnderMou
 
 QRect CustomBorderContainer::headerButtonsRect() const
 {
-	int tb = myPrivate->top.width + myPrivate->header.margins.top(), rb = myPrivate->right.width + myPrivate->header.margins.right();
+	int tb = (isMaximized ? 0 : myPrivate->top.width) + myPrivate->header.margins.top(), rb = (isMaximized ? 0 : myPrivate->right.width) + myPrivate->header.margins.right();
 	int numButtons = headerButtonsCount();
-	int lb = width() - myPrivate->right.width - myPrivate->header.margins.right() - (numButtons - 1) * myPrivate->controls.spacing;
+	int lb = width() - (isMaximized ? 0 : myPrivate->right.width) - myPrivate->header.margins.right() - (numButtons - 1) * myPrivate->controls.spacing;
 	lb -= (isMinimizeButtonVisible() ? myPrivate->minimize.width : 0) + (isMaximizeButtonVisible() ? myPrivate->maximize.width : 0) + (isCloseButtonVisible() ? myPrivate->close.width : 0);
 	int h = qMax(qMax((isMinimizeButtonVisible() ? myPrivate->minimize.height: 0), (isMaximizeButtonVisible() ? myPrivate->maximize.height: 0)), (isCloseButtonVisible() ? myPrivate->close.height: 0)) + 1;
 	return QRect(lb, tb, width() - lb - rb, h);
@@ -1078,7 +1106,8 @@ void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget)
 
 void CustomBorderContainer::mouseDoubleClick(const QPoint & p, QWidget * widget)
 {
-
+	if (headerMoveRect().contains(mapFromWidget(widget, p)) && headerButtonUnderMouse() == NoneButton)
+		maximizeWidget();
 }
 
 bool CustomBorderContainer::pointInBorder(BorderType border, const QPoint & p)
@@ -1170,16 +1199,16 @@ void CustomBorderContainer::checkResizeCondition(const QPoint & p)
 
 void CustomBorderContainer::checkMoveCondition(const QPoint & p)
 {
-	int lb = myPrivate->left.resizeWidth, tb = myPrivate->top.resizeWidth, rb = myPrivate->right.resizeWidth;
-	QRect headerRect(lb, tb, width() - lb - rb, myPrivate->header.moveHeight);
-	if (headerRect.contains(p))
+//	int lb = myPrivate->left.resizeWidth, tb = myPrivate->top.resizeWidth, rb = myPrivate->right.resizeWidth;
+//	QRect headerRect(lb, tb, width() - lb - rb, myPrivate->header.moveHeight);
+	if (headerButtonsRect().contains(p))
 	{
 		repaintHeaderButtons();
 	}
 	if (isMaximized)
 		canMove = false;
 	else
-		canMove = headerRect.contains(p);
+		canMove = headerMoveRect().contains(p);
 }
 
 void CustomBorderContainer::updateCursor(QWidget * widget)
@@ -1260,19 +1289,36 @@ void CustomBorderContainer::updateShape()
 
 void CustomBorderContainer::setLayoutMargins()
 {
-	layout()->setContentsMargins(myPrivate->left.width, myPrivate->top.width + myPrivate->header.height, myPrivate->right.width, myPrivate->bottom.width);
+	if (isMaximized)
+		layout()->setContentsMargins(0, myPrivate->header.height, 0, 0);
+	else
+		layout()->setContentsMargins(myPrivate->left.width, myPrivate->top.width + myPrivate->header.height, myPrivate->right.width, myPrivate->bottom.width);
+}
+
+QRect CustomBorderContainer::headerRect() const
+{
+	if (isMaximized)
+		return QRect(0, 0, width(), myPrivate->header.height);
+	else
+		return QRect(myPrivate->left.width, myPrivate->top.width, width() - myPrivate->right.width, myPrivate->header.height);
+}
+
+QRect CustomBorderContainer::headerMoveRect() const
+{
+	if (isMaximized)
+		return QRect(0, 0, width(), myPrivate->header.moveHeight);
+	else
+		return QRect(myPrivate->left.width, myPrivate->top.width, width() - myPrivate->right.width, myPrivate->header.moveHeight);
 }
 
 void CustomBorderContainer::drawHeader(QPainter * p)
 {
 	QPainterPath path;
-	QRect headerRect = QRect(myPrivate->left.width, myPrivate->top.width, width() - myPrivate->right.width, myPrivate->header.height);
-	path.addRegion(mask() & headerRect);
-	QLinearGradient lg(headerRect.left(), headerRect.top(), headerRect.left(), headerRect.bottom());
-	lg.setColorAt(0.0, QColor(0, 255, 0, 50));
-	lg.setColorAt(0.5, QColor(150, 255, 0, 150));
-	lg.setColorAt(1.0, QColor(0, 255, 0, 50));
-	p->fillPath(path, QBrush(lg));
+	if (!mask().isEmpty())
+		path.addRegion(mask() & headerRect());
+	else
+		path.addRegion(headerRect());
+	p->fillPath(path, QBrush(*(myPrivate->header.gradient)));
 	drawIcon(p);
 	drawTitle(p);
 }
@@ -1342,32 +1388,38 @@ void CustomBorderContainer::drawTitle(QPainter * p)
 	QTextDocument doc;
 	doc.setHtml(QString("<font size=+1 color=%1><b>%2</b></font>").arg(myPrivate->title.color.name(), windowTitle()));
 	// center title in header rect
-	QRect headerRect(0, 0, width(), myPrivate->header.height);
 	p->save();
-	p->setClipRect(headerRect);
+	p->setClipRect(headerRect());
 	qreal dx, dy;
-	dx = (headerRect.width() - doc.size().width()) / 2;
-	dy = (headerRect.height() - doc.size().height()) / 2;
+	dx = (headerRect().width() - doc.size().width()) / 2.0 + headerRect().left();
+	dy = (headerRect().height() - doc.size().height()) / 2.0 + headerRect().top();
 	if (dx < 0.0)
 		dx = 0.0;
 	if (dy < 0.0)
 		dy = 0.0;
 	p->translate(dx, dy);
-	doc.drawContents(p, QRectF(headerRect));
+	doc.drawContents(p, QRectF(headerRect().translated(-headerRect().topLeft())));
 	p->restore();
 }
 
 void CustomBorderContainer::drawBorders(QPainter * p)
 {
-	QRect borderRect;
-	borderRect = QRect(0, 0, myPrivate->left.width, height());
-	p->fillRect(borderRect, QBrush(*(myPrivate->left.gradient)));
-	borderRect = QRect(width() - myPrivate->right.width, 0, myPrivate->right.width, height());
-	p->fillRect(borderRect, Qt::black);
-	borderRect = QRect(0, 0, width(), myPrivate->top.width);
-	p->fillRect(borderRect, Qt::black);
-	borderRect = QRect(0, height() - myPrivate->bottom.width, width(), myPrivate->bottom.width);
-	p->fillRect(borderRect, Qt::black);
+	if (!isMaximized)
+	{
+		QRect borderRect;
+		// left
+		borderRect = QRect(0, myPrivate->topLeft.height, myPrivate->left.width, height() - myPrivate->bottomLeft.height);
+		p->fillRect(borderRect, QBrush(*(myPrivate->left.gradient)));
+		// right
+		borderRect = QRect(width() - myPrivate->right.width, myPrivate->topRight.height, myPrivate->right.width, height() - myPrivate->bottomRight.height);
+		p->fillRect(borderRect, QBrush(*(myPrivate->right.gradient)));
+		// top
+		borderRect = QRect(myPrivate->topLeft.width, 0, width() - myPrivate->topRight.width, myPrivate->top.width);
+		p->fillRect(borderRect, QBrush(*(myPrivate->top.gradient)));
+		// bottom
+		borderRect = QRect(myPrivate->bottomLeft.width, height() - myPrivate->bottom.width, width() - myPrivate->bottomRight.width, myPrivate->bottom.width);
+		p->fillRect(borderRect, QBrush(*(myPrivate->bottom.gradient)));
+	}
 }
 
 void CustomBorderContainer::drawCorners(QPainter * p)
@@ -1387,7 +1439,10 @@ void CustomBorderContainer::drawCorners(QPainter * p)
 
 QPoint CustomBorderContainer::mapFromWidget(QWidget * widget, const QPoint &point)
 {
-	return mapFromGlobal(widget->mapToGlobal(point));
+	if (widget == this)
+		return point;
+	else
+		return mapFromGlobal(widget->mapToGlobal(point));
 }
 
 QImage CustomBorderContainer::loadImage(const QString & key)
@@ -1413,11 +1468,13 @@ void CustomBorderContainer::maximizeWidget()
 	isMaximized = !isMaximized;
 	if (!isMaximized)
 	{
+		setLayoutMargins();
 		setGeometry(normalGeometry);
 	}
 	else
 	{
 		normalGeometry = geometry();
+		setLayoutMargins();
 		setGeometry(qApp->desktop()->availableGeometry(this));
 	}
 }

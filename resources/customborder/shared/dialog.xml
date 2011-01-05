@@ -3,10 +3,12 @@
  <left-border>
    <width>0</width>
    <resize-width>5</resize-width>
+   <gradient color="#FF000066" />
  </left-border>
  <top-border>
    <width>0</width>
    <resize-width>5</resize-width>
+   <gradient color="#FF000066" />
  </top-border>
  <right-border>
    <width>0</width>
@@ -57,10 +59,17 @@
    <height>0</height>
    <move-height>26</move-height>
    <margins left="2" right="5" top="3" bottom="2" />
+   <gradient type="linear">
+     <direction x1="0" y1="0" x2="0" y2="26" />
+     <gradient-stop at="0.0" color="#00FF0032" />
+     <gradient-stop at="0.5" color="#96FF0096" />
+     <gradient-stop at="1.0" color="#00FF0032" />
+   </gradient>
  </header>
  <window-icon>
    <width>16</width>
    <height>16</height>
+   <icon src="menuicons/mainwindowLogo16" />
  </window-icon>
  <title color="#FF00FF" />
  <window-controls spacing="2" />
