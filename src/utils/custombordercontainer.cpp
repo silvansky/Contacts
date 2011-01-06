@@ -1061,6 +1061,14 @@ QRect CustomBorderContainer::windowIconRect() const
 	return QRect(x, y, myPrivate->icon.width, myPrivate->icon.height);
 }
 
+void CustomBorderContainer::showWindowMenu(const QPoint & p)
+{
+	minimizeAction->setEnabled(isMinimizeButtonVisible() && isMinimizeButtonEnabled());
+	maximizeAction->setEnabled(isMaximizeButtonVisible() && isMaximizeButtonEnabled());
+	closeAction->setEnabled(isCloseButtonVisible() && isCloseButtonEnabled());
+	windowMenu->popup(p);
+}
+
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 {
 	bool needToRepaintHeaderButtons = (!headerButtonsRect().contains(mapFromGlobal(point))) && headerButtonsRect().contains(lastMousePosition);
@@ -1094,7 +1102,7 @@ void CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
 			setGeometryState(Resizing);
 		else if (windowIconRect().contains(mapFromWidget(widget, p)) && headerRect().contains(mapFromWidget(widget, p)))
 		{
-			windowMenu->popup(mapToGlobal(windowIconRect().bottomLeft()));
+			showWindowMenu(mapToGlobal(windowIconRect().bottomLeft()));
 			return;
 		}
 		else if (canMove)
@@ -1124,13 +1132,16 @@ void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt:
 				switch (pressedHeaderButton)
 				{
 				case MinimizeButton:
-					emit minimizeClicked();
+					if (isMinimizeButtonEnabled())
+						emit minimizeClicked();
 					break;
 				case MaximizeButton:
-					emit maximizeClicked();
+					if (isMaximizeButtonEnabled())
+						emit maximizeClicked();
 					break;
 				case CloseButton:
-					emit closeClicked();
+					if (isCloseButtonEnabled())
+						emit closeClicked();
 					break;
 				default:
 					break;
@@ -1140,16 +1151,16 @@ void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt:
 	}
 	else if (button == Qt::RightButton)
 	{
-		if (headerRect().contains(mapFromWidget(widget, p)) && !headerButtonsRect().contains(mapFromWidget(widget, p)))
+		if (headerMoveRect().contains(mapFromWidget(widget, p)) && !headerButtonsRect().contains(mapFromWidget(widget, p)))
 		{
-			windowMenu->popup(widget->mapToGlobal(p));
+			showWindowMenu(widget->mapToGlobal(p));
 		}
 	}
 }
 
 void CustomBorderContainer::mouseDoubleClick(const QPoint & p, QWidget * widget)
 {
-	if (headerMoveRect().contains(mapFromWidget(widget, p)) && headerButtonUnderMouse() == NoneButton)
+	if (headerMoveRect().contains(mapFromWidget(widget, p)) && headerButtonUnderMouse() == NoneButton && isMaximizeButtonVisible() && isMaximizeButtonEnabled())
 		emit maximizeClicked();
 }
 

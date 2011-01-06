@@ -198,6 +198,7 @@ protected:
 	QRect headerButtonsRect() const;
 	void repaintHeaderButtons();
 	QRect windowIconRect() const;
+	void showWindowMenu(const QPoint & p);
 	// etc...
 	enum BorderType
 	{
