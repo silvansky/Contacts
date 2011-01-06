@@ -5,6 +5,7 @@
 #include <QLayout>
 #include <QDebug>
 #include "utilsexport.h"
+#include "menu.h"
 
 class CustomBorderContainerPrivate;
 struct HeaderButton;
@@ -196,6 +197,7 @@ protected:
 	HeaderButtons headerButtonUnderMouse() const;
 	QRect headerButtonsRect() const;
 	void repaintHeaderButtons();
+	QRect windowIconRect() const;
 	// etc...
 	enum BorderType
 	{
@@ -211,7 +213,7 @@ protected:
 	};
 	void mouseMove(const QPoint & p, QWidget * widget);
 	void mousePress(const QPoint & p, QWidget * widget);
-	void mouseRelease(const QPoint & p, QWidget * widget);
+	void mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button = Qt::LeftButton);
 	void mouseDoubleClick(const QPoint & p, QWidget * widget);
 	bool pointInBorder(BorderType border, const QPoint & p);
 	bool pointInHeader(const QPoint & p);
@@ -219,6 +221,7 @@ protected:
 	void checkMoveCondition(const QPoint & p);
 	void updateCursor(QWidget * widget = 0);
 	void updateShape();
+	void updateIcons();
 	void setLayoutMargins();
 	QRect headerRect() const;
 	QRect headerMoveRect() const;
@@ -231,6 +234,7 @@ protected:
 	void drawCorners(QPainter * p);
 	QPoint mapFromWidget(QWidget * widget, const QPoint &point);
 	QImage loadImage(const QString & key);
+	QIcon loadIcon(const QString & key);
 protected slots:
 	void minimizeWidget();
 	void maximizeWidget();
@@ -251,6 +255,10 @@ private:
 	HeaderButtons pressedHeaderButton;
 	bool isMaximized;
 	QRect normalGeometry;
+	Menu * windowMenu;
+	Action * minimizeAction;
+	Action * maximizeAction;
+	Action * closeAction;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CustomBorderContainer::HeaderButtonsFlags)

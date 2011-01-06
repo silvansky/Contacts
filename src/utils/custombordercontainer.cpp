@@ -11,6 +11,7 @@
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QDesktopWidget>
+#include <QStyle>
 #include "iconstorage.h"
 
 // internal functions
@@ -626,6 +627,7 @@ CustomBorderContainer::CustomBorderContainer(const CustomBorderContainerPrivate 
 	setWidget(NULL);
 	myPrivate = new CustomBorderContainerPrivate(style);
 	myPrivate->p = this;
+	updateIcons();
 	setLayoutMargins();
 }
 
@@ -683,6 +685,7 @@ QWidget * CustomBorderContainer::releaseWidget()
 void CustomBorderContainer::loadFile(const QString & fileName)
 {
 	myPrivate->parseFile(fileName);
+	updateIcons();
 	repaint();
 	setLayoutMargins();
 	updateShape();
@@ -714,7 +717,7 @@ void CustomBorderContainer::mouseMoveEvent(QMouseEvent * event)
 
 void CustomBorderContainer::mouseReleaseEvent(QMouseEvent * event)
 {
-	mouseRelease(event->pos(), this);
+	mouseRelease(event->pos(), this, event->button());
 	QWidget::mouseReleaseEvent(event);
 }
 
@@ -797,7 +800,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 			mousePress(((QMouseEvent*)event)->pos(), widget);
 		break;
 	case QEvent::MouseButtonRelease:
-		mouseRelease(((QMouseEvent*)event)->pos(), widget);
+		mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
 		break;
 	case QEvent::MouseButtonDblClick:
 		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
@@ -812,7 +815,8 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		//widget->setAutoFillBackground(true);
 
 		QPoint point = widget->pos();
-		while(widget && (widget->parentWidget() != this)) {
+		while(widget && (widget->parentWidget() != this))
+		{
 			widget = widget->parentWidget();
 			point += widget->pos();
 		}
@@ -844,6 +848,23 @@ void CustomBorderContainer::init()
 	buttonsFlags = MinimizeVisible | MaximizeVisible | CloseVisible | MinimizeEnabled | MaximizeEnabled | CloseEnabled;
 	pressedHeaderButton = NoneButton;
 	isMaximized = false;
+	// window menu
+	windowMenu = new Menu(this);
+	minimizeAction = new Action();
+	maximizeAction = new Action();
+	closeAction = new Action();
+	minimizeAction->setText(tr("Minimize"));
+	minimizeAction->setIcon(style()->standardIcon(QStyle::SP_TitleBarMinButton));
+	maximizeAction->setText(tr("Maximize"));
+	maximizeAction->setIcon(style()->standardIcon(QStyle::SP_TitleBarMaxButton));
+	closeAction->setText(tr("Close"));
+	closeAction->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
+	windowMenu->addAction(minimizeAction);
+	windowMenu->addAction(maximizeAction);
+	windowMenu->addAction(closeAction);
+	connect(minimizeAction, SIGNAL(triggered()), SIGNAL(minimizeClicked()));
+	connect(maximizeAction, SIGNAL(triggered()), SIGNAL(maximizeClicked()));
+	connect(closeAction, SIGNAL(triggered()), SIGNAL(closeClicked()));
 	// window props
 	setWindowFlags(Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground);
@@ -1033,6 +1054,13 @@ void CustomBorderContainer::repaintHeaderButtons()
 	repaintRecursive(containedWidget, rect);
 }
 
+QRect CustomBorderContainer::windowIconRect() const
+{
+	int x = (isMaximized ? 0 : myPrivate->left.width) + myPrivate->header.margins.left();
+	int y = (isMaximized ? 0 : myPrivate->top.width) + myPrivate->header.margins.top();
+	return QRect(x, y, myPrivate->icon.width, myPrivate->icon.height);
+}
+
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 {
 	bool needToRepaintHeaderButtons = (!headerButtonsRect().contains(mapFromGlobal(point))) && headerButtonsRect().contains(lastMousePosition);
@@ -1064,6 +1092,11 @@ void CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
 	{
 		if (resizeBorder != NoneBorder)
 			setGeometryState(Resizing);
+		else if (windowIconRect().contains(mapFromWidget(widget, p)) && headerRect().contains(mapFromWidget(widget, p)))
+		{
+			windowMenu->popup(mapToGlobal(windowIconRect().bottomLeft()));
+			return;
+		}
 		else if (canMove)
 		{
 			oldPressPoint = widget->mapToGlobal(p);
@@ -1073,33 +1106,43 @@ void CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
 	}
 }
 
-void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget)
+void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button)
 {
-	if (pressedHeaderButton == NoneButton)
+	if (button == Qt::LeftButton)
 	{
-		setGeometryState(None);
-		resizeBorder = NoneBorder;
-		canMove = false;
-		updateCursor(widget);
-	}
-	else
-	{
-		if (headerButtonUnderMouse() == pressedHeaderButton)
+		if (pressedHeaderButton == NoneButton)
 		{
-			switch (pressedHeaderButton)
+			setGeometryState(None);
+			resizeBorder = NoneBorder;
+			canMove = false;
+			updateCursor(widget);
+		}
+		else
+		{
+			if (headerButtonUnderMouse() == pressedHeaderButton)
 			{
-			case MinimizeButton:
-				emit minimizeClicked();
-				break;
-			case MaximizeButton:
-				emit maximizeClicked();
-				break;
-			case CloseButton:
-				emit closeClicked();
-				break;
-			default:
-				break;
+				switch (pressedHeaderButton)
+				{
+				case MinimizeButton:
+					emit minimizeClicked();
+					break;
+				case MaximizeButton:
+					emit maximizeClicked();
+					break;
+				case CloseButton:
+					emit closeClicked();
+					break;
+				default:
+					break;
+				}
 			}
+		}
+	}
+	else if (button == Qt::RightButton)
+	{
+		if (headerRect().contains(mapFromWidget(widget, p)) && !headerButtonsRect().contains(mapFromWidget(widget, p)))
+		{
+			windowMenu->popup(widget->mapToGlobal(p));
 		}
 	}
 }
@@ -1107,7 +1150,7 @@ void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget)
 void CustomBorderContainer::mouseDoubleClick(const QPoint & p, QWidget * widget)
 {
 	if (headerMoveRect().contains(mapFromWidget(widget, p)) && headerButtonUnderMouse() == NoneButton)
-		maximizeWidget();
+		emit maximizeClicked();
 }
 
 bool CustomBorderContainer::pointInBorder(BorderType border, const QPoint & p)
@@ -1199,8 +1242,6 @@ void CustomBorderContainer::checkResizeCondition(const QPoint & p)
 
 void CustomBorderContainer::checkMoveCondition(const QPoint & p)
 {
-//	int lb = myPrivate->left.resizeWidth, tb = myPrivate->top.resizeWidth, rb = myPrivate->right.resizeWidth;
-//	QRect headerRect(lb, tb, width() - lb - rb, myPrivate->header.moveHeight);
 	if (headerButtonsRect().contains(p))
 	{
 		repaintHeaderButtons();
@@ -1285,6 +1326,14 @@ void CustomBorderContainer::updateShape()
 		// clearing window mask if it is maximized
 		clearMask();
 	}
+}
+
+void CustomBorderContainer::updateIcons()
+{
+	setWindowIcon(loadIcon(myPrivate->icon.icon));
+	minimizeAction->setIcon(loadIcon(myPrivate->minimize.imageNormal));
+	maximizeAction->setIcon(loadIcon(myPrivate->maximize.imageNormal));
+	closeAction->setIcon(loadIcon(myPrivate->close.imageNormal));
 }
 
 void CustomBorderContainer::setLayoutMargins()
@@ -1380,7 +1429,11 @@ void CustomBorderContainer::drawButtons(QPainter * p)
 
 void CustomBorderContainer::drawIcon(QPainter * p)
 {
-	// TODO: load and draw icon here
+	QIcon icon = windowIcon().isNull() ? qApp->windowIcon() : windowIcon();
+	p->save();
+	p->setClipRect(headerRect());
+	icon.paint(p, windowIconRect());
+	p->restore();
 }
 
 void CustomBorderContainer::drawTitle(QPainter * p)
@@ -1453,6 +1506,16 @@ QImage CustomBorderContainer::loadImage(const QString & key)
 	QString storage = list[0];
 	QString imageKey = list[1];
 	return IconStorage::staticStorage(storage)->getImage(imageKey);
+}
+
+QIcon CustomBorderContainer::loadIcon(const QString & key)
+{
+	QStringList list = key.split("/");
+	if (list.count() != 2)
+		return QIcon();
+	QString storage = list[0];
+	QString iconKey = list[1];
+	return IconStorage::staticStorage(storage)->getIcon(iconKey);
 }
 
 void CustomBorderContainer::minimizeWidget()

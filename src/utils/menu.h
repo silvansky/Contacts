@@ -16,7 +16,7 @@ class Action;
 class UTILS_EXPORT Menu :
 			public QMenu
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	Menu(QWidget *AParent = NULL);
 	~Menu();
