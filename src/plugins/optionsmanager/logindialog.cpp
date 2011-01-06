@@ -482,6 +482,8 @@ void LoginDialog::hideConnectionError()
 	ui.lblConnectError->setVisible(false);
 	ui.lblReconnect->setVisible(false);
 	ui.lblConnectSettings->setVisible(false);
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
@@ -507,13 +509,18 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	ui.lblConnectError->setVisible(true);
 	ui.lblReconnect->setVisible(true);
 	ui.lblConnectSettings->setVisible(true);
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void LoginDialog::hideXmppStreamError()
 {
-	ui.frmLogin->setStyleSheet(QString::null);
-	ui.frmPassword->setStyleSheet(QString::null);
+	ui.lneNode->setProperty("error", false);
+	ui.lnePassword->setProperty("error", false);
+	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(false);
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint)
@@ -526,10 +533,12 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	ui.lblXmppError->setText(message);
 
 	if (FNewProfile)
-		ui.frmLogin->setStyleSheet("QFrame#frmLogin { border: 1px solid red; }");
-	ui.frmPassword->setStyleSheet("QFrame#frmPassword { border: 1px solid red; }");
-
+		ui.lneNode->setProperty("error", true);
+	ui.lnePassword->setProperty("error", true);
+	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(true);
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void LoginDialog::onConnectClicked()

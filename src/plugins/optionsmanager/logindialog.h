@@ -34,7 +34,7 @@
 class LoginDialog :
 			public QDialog
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	LoginDialog(IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~LoginDialog();

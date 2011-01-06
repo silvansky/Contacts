@@ -645,24 +645,15 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 	if (widget)
 	{
 		containedWidget = widget;
-		//containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
-		//containedWidget->setParent(this);
 		setAttribute(Qt::WA_WindowPropagation, false);
 		containedWidget->setAutoFillBackground(true);
 		containedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		//containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
 		containerLayout->addWidget(containedWidget);
-		//containedWidget->installEventFilter(this);
 		childsRecursive(containedWidget,this,true);
 		containedWidget->setMouseTracking(true);
-		QPalette pal = containedWidget->palette();
-		pal.setColor(QPalette::Base, Qt::white);
-		//containedWidget->setPalette(pal);
 		containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
-		//adjustSize();
 		setMinimumSize(containedWidget->minimumSize());
 		setWindowTitle(containedWidget->windowTitle());
-		//connect(containedWidget,SIGNAL(destroyed(QObject *)),SLOT(deleteLater()));
 	}
 }
 
@@ -670,7 +661,6 @@ QWidget * CustomBorderContainer::releaseWidget()
 {
 	if (containedWidget)
 	{
-		//disconnect(containedWidget, SIGNAL(destroyed(QObject*)), this, SLOT(deleteLater()));
 		childsRecursive(containedWidget,this,false);
 		containedWidget->removeEventFilter(this);
 		containerLayout->removeWidget(containedWidget);
@@ -925,10 +915,12 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 		oldGeometry.moveTo(oldGeometry.left() + dx, oldGeometry.top() + dy);
 		break;
 	case None:
+		oldGeometry = QRect();
 		break;
 	}
 	if (oldGeometry.isValid())
 	{
+		qDebug() << minimumSize();
 		// left border is changing
 		if (resizeBorder == LeftBorder || resizeBorder == TopLeftCorner || resizeBorder == BottomLeftCorner)
 		{
@@ -1160,7 +1152,9 @@ void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt:
 
 void CustomBorderContainer::mouseDoubleClick(const QPoint & p, QWidget * widget)
 {
-	if (headerMoveRect().contains(mapFromWidget(widget, p)) && headerButtonUnderMouse() == NoneButton && isMaximizeButtonVisible() && isMaximizeButtonEnabled())
+	if (windowIconRect().contains(mapFromWidget(widget, p)) && headerRect().contains(mapFromWidget(widget, p)))
+		emit closeClicked();
+	else if (headerMoveRect().contains(mapFromWidget(widget, p)) && headerButtonUnderMouse() == NoneButton && isMaximizeButtonVisible() && isMaximizeButtonEnabled())
 		emit maximizeClicked();
 }
 

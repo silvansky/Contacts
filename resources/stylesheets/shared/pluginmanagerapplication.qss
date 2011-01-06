@@ -1,0 +1,88 @@
+/*************
+ * QCheckBox *
+ *************/
+
+QCheckBox
+{
+	spacing: 5px;
+}
+
+QCheckBox::indicator
+{
+	width: 14px;
+	height: 14px;
+}
+
+QCheckBox::indicator:unchecked
+{
+	image: url(%IMAGES_PATH%/checkboxunselected.png);
+}
+
+QCheckBox::indicator:unchecked:hover
+{
+	image: url(%IMAGES_PATH%/checkboxunselectedhover.png);
+}
+
+QCheckBox::indicator:checked
+{
+	image: url(%IMAGES_PATH%/checkboxselected.png);
+}
+
+QCheckBox::indicator:checked:hover
+{
+	image: url(%IMAGES_PATH%/checkboxselectedhover.png);
+}
+
+/****************
+ * QRadioButton *
+ ****************/
+
+QRadioButton::indicator
+{
+	width: 14px;
+	height: 14px;
+}
+
+QRadioButton::indicator::unchecked
+{
+	image: url(%IMAGES_PATH%/radiounselected.png);
+}
+
+QRadioButton::indicator:unchecked:hover
+{
+	image: url(%IMAGES_PATH%/radiounselectedhover.png);
+}
+
+QRadioButton::indicator::checked
+{
+	image: url(%IMAGES_PATH%/radioselected.png);
+}
+
+QRadioButton::indicator:checked:hover
+{
+	image: url(%IMAGES_PATH%/radioselectedhover.png);
+}
+
+/*************
+ * QLineEdit *
+ *************/
+
+QLineEdit
+{
+	border-left: 10px;
+	border-top: 10px;
+	border-right: 10px;
+	border-bottom: 10px;
+	background-color: transparent;
+	border-image: url(%IMAGES_PATH%/editborder.png);
+}
+
+QLineEdit:focus
+{
+	border-image: url(%IMAGES_PATH%/editborderfocused.png);
+}
+
+QLineEdit[error="true"], QLineEdit:focus[error="true"]
+{
+	border-image: url(%IMAGES_PATH%/editbordererror.png);
+}
