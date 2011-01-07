@@ -31,16 +31,22 @@ QLabel, QCheckBox
 
 QComboBox[error="true"]:!editable
 {
-	border: 0px solid black;
+	border: 0px solid transparent;
+	border-radius: 3px;
 }
 
-/***************
- * QPushButton *
- ***************/
+/******************
+ * Connect Button *
+ ******************/
 
 QPushButton#pbtConnect
 {
-	font : bold large;
+	font: bold large;
 	min-height: 34px;
 	min-width: 80px;
+}
+
+QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #387598);
 }

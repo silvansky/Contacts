@@ -13,6 +13,7 @@
 #include <QDialogButtonBox>
 #include <QDesktopServices>
 #include <QAbstractTextDocumentLayout>
+#include <QListView>
 #include <utils/customborderstorage.h>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
@@ -90,6 +91,10 @@ public:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.cmbDomain->setView(new QListView());
+	//((QListView*)ui.cmbDomain->view())->setSelectionRectVisible(false);
+	//ui.cmbDomain->view()->setFocusPolicy(Qt::NoFocus);
+	//ui.cmbDomain->view()->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.wdtHelp->setVisible(false);
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);
@@ -432,7 +437,11 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 	if (AEnabled)
 		onLoginOrPasswordTextChanged();
 	else
+	{
 		ui.pbtConnect->setEnabled(AEnabled);
+		ui.pbtConnect->setProperty("connecting", true);
+		setStyleSheet(styleSheet());
+	}
 	ui.pbtConnect->setText(AEnabled ? tr("Enter") : tr("Connecting..."));
 }
 
@@ -848,6 +857,8 @@ void LoginDialog::loadCurrentProfileSettings()
 void LoginDialog::onLoginOrPasswordTextChanged()
 {
 	ui.pbtConnect->setEnabled(!ui.lneNode->text().isEmpty() && !ui.lnePassword->text().isEmpty());
+	ui.pbtConnect->setProperty("connecting", false);
+	setStyleSheet(styleSheet());
 }
 
 void LoginDialog::onShowConnectingAnimation()
