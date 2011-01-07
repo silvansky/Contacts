@@ -86,3 +86,189 @@ QLineEdit[error="true"], QLineEdit:focus[error="true"]
 {
 	border-image: url(%IMAGES_PATH%/editbordererror.png);
 }
+
+/***************
+ * QPushButton *
+ ***************/
+
+QPushButton
+{
+	border-left: 1px solid rgba(0, 0, 0, 200);
+	border-top: 1px solid rgba(0, 0, 0, 180);
+	border-right: 1px solid rgba(0, 0, 0, 200);
+	border-bottom: 1px solid rgba(0, 0, 0, 200);
+	color: white;
+	border-radius: 3px;
+	min-height: 27px;
+	min-width: 80px;
+}
+
+QPushButton:!hover:enabled
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #32373d, stop:1 #74787c)
+}
+
+QPushButton:hover:enabled
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #3b4148, stop:1 #8e9297);
+}
+
+QPushButton:enabled:pressed
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #606469, stop:1 #31363c);
+}
+
+QPushButton[default="true"]
+{
+}
+
+QPushButton[default="true"]:!hover:enabled
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #15384c, stop:1 #5187a5)
+}
+
+QPushButton[default="true"]:hover:enabled
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #69a2bc, stop:1 #194259);
+}
+
+QPushButton:!enabled
+{
+	color: #72797f;
+	background-color: #41464d;
+}
+
+QPushButton[default="true"]:enabled:pressed
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #387598);
+}
+
+/*********
+ * QMenu *
+ *********/
+
+QMenu
+{
+	background-color: rgba(65, 70, 77, 235);
+	margin: 0px;
+	color: white;
+	border: 1px solid #1f2329;
+}
+
+QMenu::item
+{
+	background-color: transparent;
+	border-bottom: 1px solid transparent;
+	padding-left: 20px;
+	padding-right: 20px;
+	min-height: 22px;
+}
+
+QMenu::icon
+{
+	position: absolute;
+	top: 1px;
+	left: 2px;
+	width: 17px;
+	height: 16px;
+}
+
+QMenu::icon:checked
+{
+/*	subcontrol-origin: padding;
+	subcontrol-position: right;*/
+	width: 14px;
+	height: 13px;
+	image: url(%IMAGES_PATH%/menuchecked.png)
+}
+
+QMenu::indicator:non-exclusive:checked, QMenu::indicator:exclusive:checked
+{
+	subcontrol-origin: padding;
+	subcontrol-position: right;
+	image: url(%IMAGES_PATH%/menuchecked.png);
+}
+
+QMenu::item:!enabled
+{
+	color: #72797f;
+}
+
+QMenu::item:selected
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #5187a5, stop:1 #16384d);
+	border-bottom: 1px solid #5e6369;
+}
+
+/*************
+ * QComboBox *
+ *************/
+
+QComboBox
+{
+	border: 1px solid #22272d;
+	border-radius: 3px;
+	padding: 1px 18px 1px 3px;
+	min-width: 6em;
+	min-height: 27px;
+	color: white;
+}
+
+QComboBox:editable
+{
+	background: white;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+			stop: 0 #74787c, stop: 1.0 #32373d);
+}
+
+QComboBox:!editable:hover, QComboBox::drop-down:editable:hover
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+			stop: 0 #8e9297, stop: 1.0 #3b4148);
+}
+
+QComboBox:!editable:on, QComboBox::drop-down:editable:on
+{
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+			stop: 0 #31363c, stop: 1.0 #5c6065);
+}
+
+QComboBox:on
+{
+	padding-top: 3px;
+	padding-left: 4px;
+}
+
+QComboBox::drop-down
+{
+	subcontrol-origin: padding;
+	subcontrol-position: top right;
+	width: 15px;
+	border-left: 0px;
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow
+{
+	image: url(%IMAGES_PATH%/combodownarrow.png)
+}
+
+QComboBox::down-arrow:on
+{
+	top: 1px;
+	left: 1px;
+}
+
+QComboBox QAbstractItemView
+{
+	border: 1px solid #22272d;
+	border-radius: 3px;
+	background-color: transparent;
+	background: transparent;
+	selection-background-color: lightgray;
+}

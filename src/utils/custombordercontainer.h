@@ -111,6 +111,7 @@ public:
 	void setHeaderButtonFlags(HeaderButtonsFlag flags)
 	{
 		buttonsFlags = HeaderButtonsFlags(flags);
+		repaintHeaderButtons();
 	}
 	// minimize button
 	bool isMinimizeButtonVisible() const

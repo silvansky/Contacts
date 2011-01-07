@@ -517,6 +517,8 @@ void LoginDialog::hideXmppStreamError()
 {
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
+	ui.cmbDomain->setProperty("error", false);
+	ui.frmDomain->setProperty("error", false);
 	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(false);
 	if (parentWidget())
@@ -533,7 +535,11 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	ui.lblXmppError->setText(message);
 
 	if (FNewProfile)
+	{
 		ui.lneNode->setProperty("error", true);
+		ui.frmDomain->setProperty("error", true);
+		ui.cmbDomain->setProperty("error", true);
+	}
 	ui.lnePassword->setProperty("error", true);
 	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(true);

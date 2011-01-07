@@ -12,6 +12,7 @@
 #include <QTextCursor>
 #include <QDesktopWidget>
 #include <QStyle>
+#include <QBitmap>
 #include "iconstorage.h"
 
 // internal functions
@@ -886,6 +887,7 @@ void CustomBorderContainer::init()
 	windowMenu->addAction(minimizeAction);
 	windowMenu->addAction(maximizeAction);
 	windowMenu->addAction(closeAction);
+	maximizeAction->setCheckable(true);
 	connect(minimizeAction, SIGNAL(triggered()), SIGNAL(minimizeClicked()));
 	connect(maximizeAction, SIGNAL(triggered()), SIGNAL(maximizeClicked()));
 	connect(closeAction, SIGNAL(triggered()), SIGNAL(closeClicked()));
@@ -1332,6 +1334,9 @@ void CustomBorderContainer::updateShape()
 {
 	if (!isMaximized)
 	{
+// uncomment this define to enable old version of this method
+//#define QREGION_ROUNDING
+#ifdef QREGION_ROUNDING
 		// base rect
 		QRegion shape(0, 0, width(), height());
 		QRegion rect, circle;
@@ -1343,7 +1348,7 @@ void CustomBorderContainer::updateShape()
 		// top-left
 		rad = myPrivate->topLeft.radius;
 		rect = QRegion(0, 0, rad, rad);
-		circle = QRegion(0, 0, 2 * rad, 2 * rad, QRegion::Ellipse);
+		circle = QRegion(0, 0, 2 * rad + 1, 2 * rad + 1, QRegion::Ellipse);
 		shape -= rect;
 		shape |= circle;
 		// top-right
@@ -1355,7 +1360,7 @@ void CustomBorderContainer::updateShape()
 		// bottom-left
 		rad = myPrivate->bottomLeft.radius;
 		rect = QRegion(0, h - rad, rad, rad);
-		circle = QRegion(0, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
+		circle = QRegion(1, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
 		shape -= rect;
 		shape |= circle;
 		// bottom-right
@@ -1366,6 +1371,36 @@ void CustomBorderContainer::updateShape()
 		shape |= circle;
 		// setting mask
 		setMask(shape);
+#else
+		QPixmap pixmap(geometry().size());
+		pixmap.fill(Qt::transparent);
+		QPainter p(&pixmap);
+		p.setBrush(QBrush(Qt::black));
+		p.setPen(QPen());
+		QRect rect;
+		QRect g = geometry();
+		int w = g.width();
+		int h = g.height();
+		int rad;
+		// top-left
+		rad = myPrivate->topLeft.radius;
+		rect = QRect(0, 0, w / 2 + rad, h / 2 + rad);
+		p.drawRoundedRect(rect, rad, rad);
+		// top-right
+		rad = myPrivate->topRight.radius;
+		rect = QRect(w / 2 - rad - 1, 0, w / 2 + rad, h / 2 + rad);
+		p.drawRoundedRect(rect, rad, rad);
+		// bottom-left
+		rad = myPrivate->bottomLeft.radius;
+		rect = QRect(0, h / 2 - rad - 1, w / 2 + rad, h / 2 + rad);
+		p.drawRoundedRect(rect, rad, rad);
+		// bottom-right
+		rad = myPrivate->bottomRight.radius;
+		rect = QRect(w / 2 - rad - 1, h / 2 - rad - 1, w / 2 + rad, h / 2 + rad);
+		p.drawRoundedRect(rect, rad, rad);
+		p.end();
+		setMask(pixmap.mask());
+#endif
 	}
 	else
 	{
@@ -1586,6 +1621,7 @@ void CustomBorderContainer::maximizeWidget()
 		setLayoutMargins();
 		setGeometry(qApp->desktop()->availableGeometry(this));
 	}
+	maximizeAction->setChecked(isMaximized);
 }
 
 void CustomBorderContainer::closeWidget()

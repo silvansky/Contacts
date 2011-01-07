@@ -19,36 +19,36 @@
    <resize-width>5</resize-width>
  </bottom-border>
  <top-left-corner>
-   <width>5</width>
-   <height>5</height>
-   <radius>5</radius>
+   <width>4</width>
+   <height>4</height>
+   <radius>4</radius>
    <resize-left>0</resize-left>
    <resize-width>10</resize-width>
    <resize-top>0</resize-top>
    <resize-height>10</resize-height>
  </top-left-corner>
  <top-right-corner>
-   <width>5</width>
-   <height>5</height>
-   <radius>5</radius>
+   <width>4</width>
+   <height>4</height>
+   <radius>4</radius>
    <resize-right>0</resize-right>
    <resize-width>10</resize-width>
    <resize-top>0</resize-top>
    <resize-height>10</resize-height>
  </top-right-corner>
  <bottom-left-corner>
-   <width>5</width>
-   <height>5</height>
-   <radius>5</radius>
+   <width>4</width>
+   <height>4</height>
+   <radius>4</radius>
    <resize-left>0</resize-left>
    <resize-width>10</resize-width>
    <resize-bottom>0</resize-bottom>
    <resize-height>10</resize-height>
  </bottom-left-corner>
  <bottom-right-corner>
-   <width>5</width>
-   <height>5</height>
-   <radius>5</radius>
+   <width>4</width>
+   <height>4</height>
+   <radius>4</radius>
    <resize-right>0</resize-right>
    <resize-width>10</resize-width>
    <resize-bottom>0</resize-bottom>
@@ -58,7 +58,7 @@
    <spacing>5</spacing>
    <height>0</height>
    <move-height>26</move-height>
-   <margins left="5" right="5" top="3" bottom="2" />
+   <margins left="5" right="5" top="7" bottom="2" />
    <gradient type="linear">
      <direction x1="0" y1="0" x2="0" y2="26" />
      <gradient-stop at="0.0" color="#00FF0032" />
