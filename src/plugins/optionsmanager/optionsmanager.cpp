@@ -406,6 +406,7 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
 		if (border)
 		{
+			border->setResizable(false);
 			border->setMinimizeButtonVisible(false);
 			border->setMaximizeButtonVisible(false);
 			connect(border, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));

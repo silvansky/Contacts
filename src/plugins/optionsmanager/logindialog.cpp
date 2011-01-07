@@ -718,7 +718,7 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 		if (border)
 		{
-			border->setAttribute(Qt::WA_ShowModal, true);
+			border->setWindowModality(Qt::ApplicationModal);
 			border->show();
 			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
 		}

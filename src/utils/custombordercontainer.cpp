@@ -653,6 +653,7 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 		containedWidget->setMouseTracking(true);
 		containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
 		setMinimumSize(containedWidget->minimumSize());
+		//setMinimumSize(containedWidget->minimumSizeHint());
 		setWindowTitle(containedWidget->windowTitle());
 	}
 }
@@ -679,6 +680,37 @@ void CustomBorderContainer::loadFile(const QString & fileName)
 	repaint();
 	setLayoutMargins();
 	updateShape();
+}
+
+bool CustomBorderContainer::isMovable() const
+{
+	return movable;
+}
+
+void CustomBorderContainer::setMovable(bool movable)
+{
+	this->movable = movable;
+	if (!movable)
+	{
+		canMove = false;
+		setGeometryState(None);
+	}
+}
+
+bool CustomBorderContainer::isResizable() const
+{
+	return resizable;
+}
+
+void CustomBorderContainer::setResizable(bool resizable)
+{
+	this->resizable = resizable;
+	if (!resizable)
+	{
+		resizeBorder = NoneBorder;
+		updateCursor(QApplication::widgetAt(lastMousePosition));
+		setGeometryState(None);
+	}
 }
 
 void CustomBorderContainer::changeEvent(QEvent *e)
@@ -835,6 +867,8 @@ void CustomBorderContainer::init()
 	containedWidget = NULL;
 	resizeBorder = NoneBorder;
 	canMove = false;
+	movable = true;
+	resizable = true;
 	buttonsFlags = MinimizeVisible | MaximizeVisible | CloseVisible | MinimizeEnabled | MaximizeEnabled | CloseEnabled;
 	pressedHeaderButton = NoneButton;
 	isMaximized = false;
@@ -858,6 +892,7 @@ void CustomBorderContainer::init()
 	// window props
 	setWindowFlags(Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground);
+	setFocusPolicy(Qt::NoFocus);
 	setMouseTracking(true);
 	// layout
 	containerLayout = new QVBoxLayout;
@@ -920,7 +955,13 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 	}
 	if (oldGeometry.isValid())
 	{
-		qDebug() << minimumSize();
+		// HACK: can't understand why minimumSize is set to (0, 0) sometimes...
+		if (minimumSize().width() == 0)
+		{
+			qDebug() << "hacking minimum size...";
+			setMinimumSize(containedWidget->minimumSizeHint());
+			qDebug() << minimumSize();
+		}
 		// left border is changing
 		if (resizeBorder == LeftBorder || resizeBorder == TopLeftCorner || resizeBorder == BottomLeftCorner)
 		{
@@ -1235,7 +1276,7 @@ bool CustomBorderContainer::pointInHeader(const QPoint & p)
 void CustomBorderContainer::checkResizeCondition(const QPoint & p)
 {
 	resizeBorder = NoneBorder;
-	if (!isMaximized)
+	if (!isMaximized && resizable)
 		for (int b = TopLeftCorner; b <= BottomBorder; b++)
 			if (pointInBorder((BorderType)b, p))
 			{
@@ -1251,7 +1292,7 @@ void CustomBorderContainer::checkMoveCondition(const QPoint & p)
 	{
 		repaintHeaderButtons();
 	}
-	if (isMaximized)
+	if (isMaximized || !movable)
 		canMove = false;
 	else
 		canMove = headerMoveRect().contains(p);

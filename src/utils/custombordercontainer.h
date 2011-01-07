@@ -29,6 +29,10 @@ public:
 	void setWidget(QWidget * widget);
 	QWidget * releaseWidget();
 	void loadFile(const QString & fileName);
+	bool isMovable() const;
+	void setMovable(bool movable = true);
+	bool isResizable() const;
+	void setResizable(bool resizable = true);
 signals:
 	void minimizeClicked();
 	void maximizeClicked();
@@ -252,6 +256,8 @@ private:
 	CustomBorderContainerPrivate * myPrivate;
 	BorderType resizeBorder;
 	bool canMove;
+	bool movable;
+	bool resizable;
 	HeaderButtonsFlags buttonsFlags;
 	HeaderButtons pressedHeaderButton;
 	bool isMaximized;
