@@ -410,6 +410,8 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 			//border->setMinimizeButtonVisible(false);
 			//border->setMaximizeButtonVisible(false);
 			connect(border, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
+			connect(this, SIGNAL(accepted()), border, SLOT(close()));
+			connect(this, SIGNAL(rejected()), border, SLOT(close()));
 		}
 		WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)FLoginDialog);
 		if (border)

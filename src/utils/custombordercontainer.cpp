@@ -41,7 +41,7 @@ static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 
 static void repaintRecursive(QWidget *widget, const QRect & globalRect)
 {
-	if (widget)
+	if (widget && widget->isVisible())
 	{
 		QPoint topleft = widget->mapFromGlobal(globalRect.topLeft());
 		QRect newRect = globalRect;
@@ -785,7 +785,8 @@ void CustomBorderContainer::enterEvent(QEvent * event)
 void CustomBorderContainer::leaveEvent(QEvent * event)
 {
 	lastMousePosition = QPoint(-1, -1);
-	repaintHeaderButtons();
+	if (isVisible())
+		repaintHeaderButtons();
 	QWidget::leaveEvent(event);
 }
 
