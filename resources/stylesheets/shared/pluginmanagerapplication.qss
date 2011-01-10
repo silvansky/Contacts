@@ -264,6 +264,12 @@ QComboBox::down-arrow:on
 	left: 1px;
 }
 
+QComboBox:!enabled
+{
+	color: #72797f;
+	background-color: #41464d;
+}
+
 QComboBox QListView
 {
 	border: 1px solid #22272d;
