@@ -55,6 +55,8 @@ signals:
 	void metaRosterRemoved(IMetaRoster *AMetaRoster);
 	void metaTabWindowCreated(IMetaTabWindow *AWindow);
 	void metaTabWindowDestroyed(IMetaTabWindow *AWindow);
+protected:
+	void deleteMetaRosterWindows(IMetaRoster *AMetaRoster);
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);

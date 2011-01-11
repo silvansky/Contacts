@@ -171,6 +171,14 @@ IMetaTabWindow *MetaContacts::findMetaTabWindow(const Jid &AStreamJid, const Jid
 	return NULL;
 }
 
+void MetaContacts::deleteMetaRosterWindows(IMetaRoster *AMetaRoster)
+{
+	QList<IMetaTabWindow *> windows = FMetaTabWindows;
+	foreach(IMetaTabWindow *window, windows)
+		if (window->metaRoster() == AMetaRoster)
+			delete window->instance();
+}
+
 void MetaContacts::onMetaRosterOpened()
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
@@ -223,11 +231,8 @@ void MetaContacts::onMetaRosterStreamJidChanged(const Jid &ABefore)
 
 void MetaContacts::onMetaRosterDestroyed(QObject *AObject)
 {
-	for (QList<IMetaRoster *>::iterator it = FMetaRosters.begin(); it!=FMetaRosters.end(); it++)
-	{
-		if ((*it)->instance() == AObject)
-			it = FMetaRosters.erase(it);
-	}
+	MetaRoster *mroster = static_cast<MetaRoster *>(AObject);
+	FMetaRosters.removeAll(mroster);
 }
 
 void MetaContacts::onRosterAdded(IRoster *ARoster)
@@ -251,6 +256,7 @@ void MetaContacts::onRosterRemoved(IRoster *ARoster)
 	IMetaRoster *mroster = findMetaRoster(ARoster->streamJid());
 	if (mroster)
 	{
+		deleteMetaRosterWindows(mroster);
 		mroster->saveMetaContacts(metaRosterFileName(mroster->streamJid()));
 		emit metaRosterRemoved(mroster);
 		removeMetaRoster(ARoster);
