@@ -192,16 +192,32 @@ void Emoticons::createIconsetUrls()
 	}
 }
 
+bool Emoticons::isWordBoundary(const QString &AText) const
+{
+	return !AText.isEmpty() ? AText.at(0).isSpace() : true;
+}
+
 void Emoticons::replaceTextToImage(QTextDocument *ADocument) const
 {
-	static const QRegExp regexp("\\S+");
-	for (QTextCursor cursor = ADocument->find(regexp); !cursor.isNull();  cursor = ADocument->find(regexp,cursor))
+	for (QHash<QString, QUrl>::const_iterator it = FUrlByKey.constBegin(); it!= FUrlByKey.constEnd(); it++)
 	{
-		QUrl url = FUrlByKey.value(cursor.selectedText());
-		if (!url.isEmpty())
+		QRegExp smile(QString("(^|\\s)(%1)(\\s|$)").arg(QRegExp::escape(it.key())));
+		for (QTextCursor cursor = ADocument->find(smile); !cursor.isNull();  cursor = ADocument->find(smile,cursor))
 		{
-			ADocument->addResource(QTextDocument::ImageResource,url,QImage(url.toLocalFile()));
-			cursor.insertImage(url.toString());
+			ADocument->addResource(QTextDocument::ImageResource,it.value(),QImage(it.value().toLocalFile()));
+
+			bool startSpace = cursor.selectedText().startsWith(" ");
+			bool endSpace = cursor.selectedText().endsWith(" ");
+			if (startSpace)
+			{
+				cursor.insertText(" ");
+			}
+			cursor.insertImage(it.value().toString());
+			if (endSpace)
+			{
+				cursor.insertText(" ");
+				cursor.setPosition(cursor.position()-1);
+			}
 		}
 	}
 }
@@ -216,8 +232,25 @@ void Emoticons::replaceImageToText(QTextDocument *ADocument) const
 			QString key = FKeyByUrl.value(cursor.charFormat().toImageFormat().name());
 			if (!key.isEmpty())
 			{
+				cursor.removeSelectedText();
+
+				if (cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::KeepAnchor,1))
+				{
+					bool space = !isWordBoundary(cursor.selectedText());
+					cursor.movePosition(QTextCursor::NextCharacter,QTextCursor::MoveAnchor,1);
+					if (space)
+						cursor.insertText(" ");
+				}
+
 				cursor.insertText(key);
-				cursor.insertText(" ");
+
+				if (cursor.movePosition(QTextCursor::NextCharacter,QTextCursor::KeepAnchor,1))
+				{
+					bool space = !isWordBoundary(cursor.selectedText());
+					cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::MoveAnchor,1);
+					if (space)
+						cursor.insertText(" ");
+				}
 			}
 		}
 	}
@@ -394,4 +427,5 @@ void Emoticons::onOptionsChanged(const OptionsNode &ANode)
 		createIconsetUrls();
 	}
 }
+
 Q_EXPORT_PLUGIN2(plg_emoticons, Emoticons)
