@@ -8,7 +8,9 @@ QT                += xml
 DEFINES           += UTILS_DLL
 LIBS              += -L../libs
 LIBS              += -lidn -lminizip -lzlib -lidle
-unix:!macx {
+macx: {
+  QMAKE_LFLAGS    += -framework Carbon
+} else:unix {
   LIBS            += -lXss
   CONFIG          += x11
 } else:win32 {
