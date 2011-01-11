@@ -22,7 +22,9 @@ HEADERS = utilsexport.h \
     balloontip.h \
     closebutton.h \
     actionbutton.h \
-    htmltoolbutton.h
+    htmltoolbutton.h \
+    systemmanager.h
+
 SOURCES = jid.cpp \
     versionparser.cpp \
     errorhandler.cpp \
@@ -46,4 +48,5 @@ SOURCES = jid.cpp \
     balloontip.cpp \
     closebutton.cpp \
     actionbutton.cpp \
-    htmltoolbutton.cpp
+    htmltoolbutton.cpp \
+    systemmanager.cpp

@@ -2,21 +2,23 @@ include(../config.inc)
 
 TARGET             = $$TARGET_UTILS
 
-#VERSION = 1.0.1.0
-
 TEMPLATE           = lib
 CONFIG            += dll
 QT                += xml
 DEFINES           += UTILS_DLL
 LIBS              += -L../libs
-LIBS              += -lidn -lminizip -lzlib
-DEPENDPATH        += ..
-INCLUDEPATH       += ..
-win32 {
-  DLLDESTDIR       = ../..
-  QMAKE_DISTCLEAN += $${DLLDESTDIR}/$${TARGET}.dll
+LIBS              += -lidn -lminizip -lzlib -lidle
+unix:!macx {
+  LIBS            += -lXss
+  CONFIG          += x11
+} else:win32 {
+  LIBS            += -luser32
+  DLLDESTDIR       = ..\\..
+  QMAKE_DISTCLEAN += $${DLLDESTDIR}\\$${TARGET}.dll
 }
-DESTDIR       = ../libs
+DEPENDPATH        += ..
+INCLUDEPATH       += .. ../thirdparty/zlib
+DESTDIR            = ../libs
 include(utils.pri)
 
 #Translation
