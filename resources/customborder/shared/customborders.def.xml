@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<borderdef>
+  <file>
+    <key>dialog</key>
+    <object mime="text/xml">dialog.xml</object>
+  </file>
+  <file>
+    <key>roster</key>
+    <object mime="text/xml">roster.xml</object>
+  </file>
+</borderdef>
+

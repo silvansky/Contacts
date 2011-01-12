@@ -23,6 +23,10 @@ HEADERS = utilsexport.h \
     closebutton.h \
     actionbutton.h \
     htmltoolbutton.h \
+    borderstructs.h \
+    custombordercontainer.h \
+    custombordercontainer_p.h \
+    customborderstorage.h \
     systemmanager.h
 
 SOURCES = jid.cpp \
@@ -49,4 +53,7 @@ SOURCES = jid.cpp \
     closebutton.cpp \
     actionbutton.cpp \
     htmltoolbutton.cpp \
+    custombordercontainer.cpp \
+    customborderstorage.cpp \
     systemmanager.cpp
+

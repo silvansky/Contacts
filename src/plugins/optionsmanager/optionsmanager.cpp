@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QApplication>
 #include <QCryptographicHash>
+#include <definitions/customborder.h>
 
 #define DIR_PROFILES                    "profiles"
 #define DIR_BINARY                      "binary"
@@ -25,6 +26,7 @@ OptionsManager::OptionsManager()
 	FTrayManager = NULL;
 	FMainWindowPlugin = NULL;
 	FPrivateStorage = NULL;
+	FLoginDialog = NULL;
 
 	FAutoSaveTimer.setInterval(30*1000);
 	FAutoSaveTimer.setSingleShot(true);
@@ -397,12 +399,26 @@ void OptionsManager::removeServerOption(const QString &APath)
 
 QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 {
-	if (FLoginDialog.isNull())
+	if (!FLoginDialog)
 	{
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
+		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
+		if (border)
+		{
+			//border->setResizable(false);
+			//border->setMinimizeButtonVisible(false);
+			//border->setMaximizeButtonVisible(false);
+			connect(border, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
+			connect(FLoginDialog, SIGNAL(accepted()), border, SLOT(close()));
+			connect(FLoginDialog, SIGNAL(rejected()), border, SLOT(close()));
+		}
+		WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)FLoginDialog);
+		if (border)
+			border->adjustSize();
+		else
+			FLoginDialog->adjustSize();
 	}
-	WidgetManager::showActivateRaiseWindow(FLoginDialog);
 	return FLoginDialog;
 }
 
@@ -574,7 +590,7 @@ bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 	{
 		QDomDocument doc;
 		doc.appendChild(doc.createElement("options"));
-	
+
 		if (FPrivateStorage->hasData(AStreamJid,PST_OPTIONS,PSN_OPTIONS))
 			doc.documentElement().appendChild(FPrivateStorage->getData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).cloneNode(true));
 		else

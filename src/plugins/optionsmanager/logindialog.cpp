@@ -13,6 +13,10 @@
 #include <QDialogButtonBox>
 #include <QDesktopServices>
 #include <QAbstractTextDocumentLayout>
+#include <QListView>
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>
@@ -32,11 +36,11 @@ enum ConnectionSettings {
 	CS_COUNT
 };
 
-class CompleterDelegate : 
+class CompleterDelegate :
 			public QItemDelegate
 {
 public:
-	CompleterDelegate(QObject *AParent): QItemDelegate(AParent) {};
+	CompleterDelegate(QObject *AParent): QItemDelegate(AParent) {}
 	QSize drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
 		QStyleOptionViewItemV4 option = QItemDelegate::setOptions(AIndex, AOption);
@@ -87,6 +91,11 @@ public:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.cmbDomain->setView(new QListView());
+	//((QListView*)ui.cmbDomain->view())->setSelectionRectVisible(false);
+	//ui.cmbDomain->view()->setFocusPolicy(Qt::NoFocus);
+	//ui.cmbDomain->view()->setSelectionBehavior(QAbstractItemView::SelectRows);
+	ui.wdtHelp->setVisible(false);
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
@@ -428,7 +437,11 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 	if (AEnabled)
 		onLoginOrPasswordTextChanged();
 	else
+	{
 		ui.pbtConnect->setEnabled(AEnabled);
+		ui.pbtConnect->setProperty("connecting", true);
+		setStyleSheet(styleSheet());
+	}
 	ui.pbtConnect->setText(AEnabled ? tr("Enter") : tr("Connecting..."));
 }
 
@@ -478,6 +491,8 @@ void LoginDialog::hideConnectionError()
 	ui.lblConnectError->setVisible(false);
 	ui.lblReconnect->setVisible(false);
 	ui.lblConnectSettings->setVisible(false);
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
@@ -503,13 +518,20 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	ui.lblConnectError->setVisible(true);
 	ui.lblReconnect->setVisible(true);
 	ui.lblConnectSettings->setVisible(true);
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void LoginDialog::hideXmppStreamError()
 {
-	ui.frmLogin->setStyleSheet(QString::null);
-	ui.frmPassword->setStyleSheet(QString::null);
+	ui.lneNode->setProperty("error", false);
+	ui.lnePassword->setProperty("error", false);
+	ui.cmbDomain->setProperty("error", false);
+	ui.frmDomain->setProperty("error", false);
+	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(false);
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint)
@@ -522,10 +544,16 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	ui.lblXmppError->setText(message);
 
 	if (FNewProfile)
-		ui.frmLogin->setStyleSheet("QFrame#frmLogin { border: 1px solid red; }");
-	ui.frmPassword->setStyleSheet("QFrame#frmPassword { border: 1px solid red; }");
-
+	{
+		ui.lneNode->setProperty("error", true);
+		ui.frmDomain->setProperty("error", true);
+		ui.cmbDomain->setProperty("error", true);
+	}
+	ui.lnePassword->setProperty("error", true);
+	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(true);
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void LoginDialog::onConnectClicked()
@@ -693,10 +721,18 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 	if (ui.cmbDomain->itemData(AIndex).toString().isEmpty())
 	{
 		QInputDialog *dialog = new QInputDialog(this);
+		dialog->setStyleSheet(styleSheet());
 		dialog->setInputMode(QInputDialog::TextInput);
 		dialog->setWindowTitle(tr("Add custom domain"));
 		dialog->setLabelText(tr("Enter custom domain address"));
 		dialog->setOkButtonText(tr("Add"));
+		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+		if (border)
+		{
+			border->setWindowModality(Qt::ApplicationModal);
+			border->show();
+			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+		}
 
 		QBoxLayout *layout = qobject_cast<QBoxLayout *>(dialog->layout());
 		foreach(QObject *object, dialog->children())
@@ -729,7 +765,10 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		{
 			ui.cmbDomain->setCurrentIndex(prevIndex);
 		}
-		dialog->deleteLater();
+		if (border)
+			border->deleteLater();
+		else
+			dialog->deleteLater();
 	}
 	else
 		prevIndex = AIndex;
@@ -814,6 +853,8 @@ void LoginDialog::loadCurrentProfileSettings()
 void LoginDialog::onLoginOrPasswordTextChanged()
 {
 	ui.pbtConnect->setEnabled(!ui.lneNode->text().isEmpty() && !ui.lnePassword->text().isEmpty());
+	ui.pbtConnect->setProperty("connecting", false);
+	setStyleSheet(styleSheet());
 }
 
 void LoginDialog::onShowConnectingAnimation()
@@ -824,7 +865,7 @@ void LoginDialog::onShowConnectingAnimation()
 
 void LoginDialog::onAdjustDialogSize()
 {
-	resize(minimumSizeHint());
+	//resize(minimumSizeHint());
 }
 
 void LoginDialog::onNotificationAppend(int ANotifyId, INotification &ANotification)

@@ -1,20 +1,52 @@
-/***************
- * QPushButton *
- ***************/
+/* background */
+
+QDialog
+{
+	background-color: rgba(65, 70, 77, 235);
+}
+
+#wdtContent, #wdtHelp, QFrame, QLabel, QCheckBox, QDialogButtonBox
+{
+	background-color: transparent;
+}
+
+QLabel, QCheckBox
+{
+	color: rgb(255, 255, 255);
+}
+
+/********************
+ * Domain Combo Box *
+ ********************/
+
+#frmDomain[error="true"]
+{
+	border-left: 4px;
+	border-top: 4px;
+	border-right: 4px;
+	border-bottom: 4px;
+	border-image: url(%IMAGES_PATH%/comboboxerrorborder.png);
+	border-radius: 0px;
+}
+
+QComboBox[error="true"]:!editable
+{
+	border: 0px solid transparent;
+	border-radius: 3px;
+}
+
+/******************
+ * Connect Button *
+ ******************/
+
 QPushButton#pbtConnect
 {
-	font : bold large;
+	font: bold large;
+	min-height: 34px;
+	min-width: 80px;
 }
-QPushButton:!hover:enabled#pbtConnect
+
+QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect
 {
-	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(8, 137, 211, 255), stop:1 rgba(66, 177, 243, 255))	
-}
-QPushButton:hover:enabled#pbtConnect
-{
-	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(66, 177, 242, 255), stop:1 rgba(204, 235, 254, 255));
-}
-QPushButton:!enabled#pbtConnect
-{
-	background-color: qlineargradient(spread:pad, x1:0.517045, y1:1, x2:0.511364, y2:0, stop:0 rgba(208, 208, 208, 255), stop:1 rgba(240, 240, 240, 255));
-	border: 1px solid lightgray;
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #387598);
 }

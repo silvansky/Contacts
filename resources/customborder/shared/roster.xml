@@ -1,0 +1,65 @@
+<window-border-style>
+ <left-border>
+   <width>1</width>
+   <resize-width>5</resize-width>
+   <gradient type="linear">
+     <direction x1="0" y1="0" x2="1" y2="0" />
+     <gradient-stop at="0" color="#FF0000" />
+     <gradient-stop at="1" color="#00FF00" />
+   </gradient>
+ </left-border>
+ <top-left-corner>
+   <width>10</width>
+   <height>10</height>
+   <radius>10</radius>
+   <resize-left>0</resize-left>
+   <resize-width>10</resize-width>
+   <resize-top>0</resize-top>
+   <resize-height>10</resize-height>
+ </top-left-corner>
+ <top-right-corner>
+   <width>10</width>
+   <height>10</height>
+   <radius>10</radius>
+   <resize-right>0</resize-right>
+   <resize-width>10</resize-width>
+   <resize-top>0</resize-top>
+   <resize-height>10</resize-height>
+ </top-right-corner>
+ <bottom-left-corner>
+   <width>10</width>
+   <height>10</height>
+   <radius>10</radius>
+   <resize-left>0</resize-left>
+   <resize-width>10</resize-width>
+   <resize-bottom>0</resize-bottom>
+   <resize-height>10</resize-height>
+ </bottom-left-corner>
+ <bottom-right-corner>
+   <width>10</width>
+   <height>10</height>
+   <radius>10</radius>
+   <resize-right>0</resize-right>
+   <resize-width>10</resize-width>
+   <resize-bottom>0</resize-bottom>
+   <resize-height>10</resize-height>
+ </bottom-right-corner>
+ <header>
+   <spacing>5</spacing>
+   <height>0</height>
+   <move-height>26</move-height>
+   <margins left="2" right="2" top="3" bottom="2" />
+ </header>
+ <window-icon>
+   <width>16</width>
+   <height>16</height>
+ </window-icon>
+ <title color="#FF00FF" />
+ <window-controls spacing="2" />
+ <minimize-button>
+   <width>6</width>
+   <height>6</height>
+   <border width="1" color="#000000" radius="0" image="" />
+ </minimize-button>
+</window-border-style>
+ 
