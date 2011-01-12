@@ -17,10 +17,10 @@
 #include "ui_statuswidget.h"
 #include "selectavatarwidget.h"
 
-class StatusWidget : 
+class StatusWidget :
 	public QWidget
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, IVCardPlugin *AVCardPlugin, QWidget *AParent = NULL);
 	~StatusWidget();

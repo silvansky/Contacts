@@ -25,8 +25,8 @@ class RostersView :
 			public IRostersView,
 			public IRosterDataHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IRostersView IRosterDataHolder);
+	Q_OBJECT
+	Q_INTERFACES(IRostersView IRosterDataHolder)
 public:
 	RostersView(QWidget *AParent = NULL);
 	~RostersView();

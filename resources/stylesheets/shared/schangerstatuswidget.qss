@@ -3,19 +3,23 @@ HtmlToolButton:pressed
 	top: 0px;
 	left: 0px;
 }
+
 HtmlToolButton[popupMode="1"]
 {
 	padding-right: 20px;
 }
+
 HtmlToolButton[popupMode="1"]:open
 {
 	padding-top: 0px;
 	padding-left: 0px;
 }
+
 HtmlToolButton[popupMode="2"]
 {
 	padding-right: 10px;
 }
+
 HtmlToolButton[popupMode="2"]:open
 {
 	padding-top: 0px;
@@ -24,9 +28,10 @@ HtmlToolButton[popupMode="2"]:open
 
 QLabel#lblMood
 {
-	font-style: italic;
+	padding-left: 2px;
+	color: #72797f;
 }
-QLabel#lblMood:hover 
+QLabel#lblMood:hover
 {
-	background-color: rgb(255, 255, 127);
+	border: 2px solid rgba(50, 50, 150, 200);
 }

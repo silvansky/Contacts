@@ -63,6 +63,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	setAlternatingRowColors(false);
 	setSelectionMode(SingleSelection);
 	setContextMenuPolicy(Qt::DefaultContextMenu);
+	setFrameShape(QFrame::NoFrame);
 
 	FRosterIndexDelegate = new RosterIndexDelegate(this);
 	setItemDelegate(FRosterIndexDelegate);
@@ -93,8 +94,8 @@ int RostersView::rosterDataOrder() const
 
 QList<int> RostersView::rosterDataRoles() const
 {
-	static QList<int> dataRoles = QList<int>() 
-		<< RDR_LABEL_ITEMS 
+	static QList<int> dataRoles = QList<int>()
+		<< RDR_LABEL_ITEMS
 		<< RDR_FOOTER_TEXT << RDR_ALLWAYS_VISIBLE << RDR_DECORATION_FLAGS << Qt::DecorationRole << Qt::BackgroundColorRole;
 	return dataRoles;
 }
@@ -111,8 +112,8 @@ QVariant RostersView::rosterData(const IRosterIndex *AIndex, int ARole) const
 	if (ARole == RDR_LABEL_ITEMS)
 	{
 		RostersLabelItems labelItems;
-		foreach(int labelId, FIndexLabels.values(const_cast<IRosterIndex *>(AIndex))) 
-			labelItems.insert(labelId,FLabelItems.value(labelId)); 
+		foreach(int labelId, FIndexLabels.values(const_cast<IRosterIndex *>(AIndex)))
+			labelItems.insert(labelId,FLabelItems.value(labelId));
 		data.setValue(labelItems);
 	}
 	else if (FActiveNotifies.contains(const_cast<IRosterIndex *>(AIndex)))
@@ -490,7 +491,7 @@ void RostersView::destroyLabel(int ALabelId)
 	if (FLabelItems.contains(ALabelId))
 	{
 		FLabelItems.remove(ALabelId);
-		foreach (IRosterIndex *index, FIndexLabels.keys(ALabelId)) 
+		foreach (IRosterIndex *index, FIndexLabels.keys(ALabelId))
 			removeLabel(ALabelId, index);
 		removeBlinkItem(ALabelId,-1);
 	}
@@ -717,7 +718,7 @@ QStyleOptionViewItemV4 RostersView::indexOption(const QModelIndex &AIndex) const
 	option.locale = locale();
 	option.locale.setNumberOptions(QLocale::OmitGroupSeparator);
 	option.showDecorationSelected |= selectionBehavior() & SelectRows;
-	
+
 	if (wordWrap())
 		option.features = QStyleOptionViewItemV2::WrapText;
 
@@ -732,7 +733,7 @@ QStyleOptionViewItemV4 RostersView::indexOption(const QModelIndex &AIndex) const
 		option.state |= QStyle::State_MouseOver;
 	option.state |= (QStyle::State)AIndex.data(RDR_STATES_FORCE_ON).toInt();
 	option.state &= ~(QStyle::State)AIndex.data(RDR_STATES_FORCE_OFF).toInt();
-	
+
 	return option;
 }
 
@@ -761,7 +762,7 @@ QString RostersView::intId2StringId(int AIntId) const
 
 void RostersView::removeLabels()
 {
-	foreach(int labelId, FLabelItems.keys()) 
+	foreach(int labelId, FLabelItems.keys())
 	{
 		foreach(IRosterIndex *index, FIndexLabels.keys(labelId))
 			removeLabel(labelId,index);
@@ -810,7 +811,7 @@ bool RostersView::viewportEvent(QEvent *AEvent)
 
 				QMultiMap<int,QString> toolTipsMap;
 				emit labelToolTips(index, RLID_DISPLAY, toolTipsMap, RosterToolTip::toolBarChanger());
-			
+
 				if (!toolTipsMap.isEmpty())
 					RosterToolTip::showTip(helpEvent->globalPos(),"<span>"+QStringList(toolTipsMap.values()).join("<br>")+"</span>",this);
 				else

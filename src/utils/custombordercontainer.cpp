@@ -23,7 +23,6 @@ static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 	// ensure object is widget but not a menu
 	if (object->isWidgetType() && !qobject_cast<QMenu*>(object))
 	{
-		qDebug() << "childsRecursive: " << object->objectName();
 		if (install)
 			object->installEventFilter(watcher);
 		else
@@ -752,6 +751,7 @@ void CustomBorderContainer::paintEvent(QPaintEvent * event)
 	// painter
 	QPainter painter;
 	painter.begin(this);
+	painter.setClipRect(event->rect());
 	if (!mask().isEmpty())
 		painter.setClipRegion(mask());
 	else
@@ -804,13 +804,15 @@ bool CustomBorderContainer::event(QEvent * evt)
 bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 {
 	QWidget *widget = qobject_cast<QWidget*>(object);
+	bool handled = false;
 	switch (event->type())
 	{
 	case QEvent::MouseMove:
 		mouseMove(((QMouseEvent*)event)->globalPos(), widget);
 		break;
 	case QEvent::MouseButtonPress:
-		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
+		handled = QWidget::eventFilter(object, event);
+		if (!handled && (((QMouseEvent*)event)->button() == Qt::LeftButton))
 			mousePress(((QMouseEvent*)event)->pos(), widget);
 		break;
 	case QEvent::MouseButtonRelease:
@@ -854,7 +856,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 	default:
 		break;
 	}
-	return QWidget::eventFilter(object, event);
+	return handled ? handled : QWidget::eventFilter(object, event);
 }
 
 void CustomBorderContainer::init()
@@ -869,7 +871,7 @@ void CustomBorderContainer::init()
 	pressedHeaderButton = NoneButton;
 	isMaximized = false;
 	// window menu
-	windowMenu = new Menu(this);
+	windowMenu = new Menu();
 	minimizeAction = new Action();
 	maximizeAction = new Action();
 	closeAction = new Action();
@@ -1101,6 +1103,7 @@ void CustomBorderContainer::showWindowMenu(const QPoint & p)
 
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 {
+	Q_UNUSED(widget)
 	bool needToRepaintHeaderButtons = (!headerButtonsRect().contains(mapFromGlobal(point))) && headerButtonsRect().contains(lastMousePosition);
 	lastMousePosition = mapFromGlobal(point);
 	if (needToRepaintHeaderButtons)
@@ -1297,8 +1300,7 @@ void CustomBorderContainer::checkMoveCondition(const QPoint & p)
 
 void CustomBorderContainer::updateCursor(QWidget * widget)
 {
-	if (!widget)
-		widget = this;
+	Q_UNUSED(widget)
 	QCursor newCursor;
 	switch(resizeBorder)
 	{
@@ -1319,10 +1321,11 @@ void CustomBorderContainer::updateCursor(QWidget * widget)
 		newCursor.setShape(Qt::SizeVerCursor);
 		break;
 	default:
-		newCursor.setShape((Qt::CursorShape)widget->property("defaultCursorShape").toInt());
+		QApplication::restoreOverrideCursor();
+		return;
 		break;
 	}
-	widget->setCursor(newCursor);
+	QApplication::setOverrideCursor(newCursor);
 }
 
 void CustomBorderContainer::updateShape()
@@ -1553,6 +1556,7 @@ void CustomBorderContainer::drawBorders(QPainter * p)
 
 void CustomBorderContainer::drawCorners(QPainter * p)
 {
+	Q_UNUSED(p)
 	/*
  QRect cornerRect;
  cornerRect = QRect(0, 0, myPrivate->topLeft.width, myPrivate->topLeft.height);

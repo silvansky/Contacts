@@ -115,7 +115,8 @@ void StatusWidget::cancelEditMood()
 void StatusWidget::setUserName(const QString &AName)
 {
 	FUserName = AName;
-	ui.tlbStatus->setText(fitCaptionToWidth(FUserName, ui.tlbStatus->defaultAction()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
+	//ui.tlbStatus->setText(fitCaptionToWidth(FUserName, ui.tlbStatus->defaultAction()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
+	ui.lblName->setText(AName);
 }
 
 void StatusWidget::setMoodText(const QString &AMood)
@@ -149,14 +150,14 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 		if (actionEvent && actionEvent->action())
 		{
 			ui.tlbStatus->setIcon(actionEvent->action()->icon());
-			ui.tlbStatus->setText(fitCaptionToWidth(FUserName, actionEvent->action()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
+			//ui.tlbStatus->setText(fitCaptionToWidth(FUserName, actionEvent->action()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
 			ui.tlbStatus->setToolTip(actionEvent->action()->text());
 			return true;
 		}
 	}
 	else if ((AObject == ui.tlbStatus) && (AEvent->type() == QEvent::Resize))
 	{
-		ui.tlbStatus->setText(fitCaptionToWidth(FUserName, ui.tlbStatus->defaultAction()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
+		//ui.tlbStatus->setText(fitCaptionToWidth(FUserName, ui.tlbStatus->defaultAction()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
 	}
 	else if (AObject == ui.lblAvatar)
 	{
