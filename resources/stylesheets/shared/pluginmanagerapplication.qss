@@ -5,6 +5,8 @@
 QCheckBox
 {
 	spacing: 5px;
+	color: white;
+	background-color: transparent;
 }
 
 QCheckBox::indicator
@@ -87,11 +89,11 @@ QLineEdit[error="true"], QLineEdit:focus[error="true"]
 	border-image: url(%IMAGES_PATH%/editbordererror.png);
 }
 
-/***************
- * QPushButton *
- ***************/
+/****************************
+ * QPushButton, QToolButton *
+ ****************************/
 
-QPushButton
+QPushButton, QToolButton
 {
 	border-left: 1px solid rgba(0, 0, 0, 200);
 	border-top: 1px solid rgba(0, 0, 0, 180);
@@ -103,44 +105,94 @@ QPushButton
 	min-width: 80px;
 }
 
-QPushButton:!hover:enabled
+QToolButton
+{
+	min-width: 27px;
+}
+
+QPushButton:!hover:enabled, QToolButton:!hover:enabled
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #32373d, stop:1 #74787c)
 }
 
-QPushButton:hover:enabled
+QPushButton:hover:enabled, QToolButton:hover:enabled
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #3b4148, stop:1 #8e9297);
 }
 
-QPushButton:enabled:pressed
+QPushButton:enabled:pressed, QToolButton:enabled:pressed
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #606469, stop:1 #31363c);
 }
 
-QPushButton[default="true"]
+QPushButton[default="true"], QToolButton[default="true"]
 {
 }
 
-QPushButton[default="true"]:!hover:enabled
+QPushButton[default="true"]:!hover:enabled, QToolButton[default="true"]:!hover:enabled
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #15384c, stop:1 #5187a5)
 }
 
-QPushButton[default="true"]:hover:enabled
+QPushButton[default="true"]:hover:enabled, QToolButton[default="true"]:hover:enabled
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #69a2bc, stop:1 #194259);
 }
 
-QPushButton:!enabled
+QPushButton:!enabled, QToolButton:!enabled
 {
 	color: #72797f;
 	background-color: #41464d;
 }
 
-QPushButton[default="true"]:enabled:pressed
+QPushButton[default="true"]:enabled:pressed, QToolButton[default="true"]:enabled:pressed
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #387598);
+}
+
+QToolButton[popupMode="1"]
+{
+	padding-right: 20px;
+}
+
+QToolButton[popupMode="1"]:open
+{
+	padding-top: 2px;
+	padding-left: 1px;
+}
+
+QToolButton[popupMode="2"]
+{
+	padding-right: 10px;
+}
+
+QToolButton[popupMode="2"]:open
+{
+	padding-top: 2px;
+	padding-left: 1px;
+}
+
+QToolButton::menu-indicator
+{
+	image: url("%IMAGES_PATH%/buttonarrowdown.png");
+	subcontrol-origin: padding;
+	subcontrol-position: center right;
+	right: 3px;
+}
+
+QToolButton::menu-indicator:open, QToolButton::menu-indicator:pressed
+{
+	image: url("%IMAGES_PATH%/buttonarrowup.png");
+}
+
+QToolButton::menu-arrow
+{
+	image: url("%IMAGES_PATH%/buttonarrowdown.png");
+}
+
+QToolButton::menu-arrow:open
+{
+	image: url("%IMAGES_PATH%/buttonarrowup.png");
 }
 
 /*********

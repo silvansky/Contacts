@@ -13,8 +13,8 @@ class MainWindow :
 			public QMainWindow,
 			public IMainWindow
 {
-	Q_OBJECT;
-	Q_INTERFACES(IMainWindow);
+	Q_OBJECT
+	Q_INTERFACES(IMainWindow)
 public:
 	MainWindow(QWidget *AParent = NULL, Qt::WindowFlags AFlags = 0);
 	~MainWindow();

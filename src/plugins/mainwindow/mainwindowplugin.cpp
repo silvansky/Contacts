@@ -2,6 +2,8 @@
 
 #include <QApplication>
 #include <QDesktopWidget>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 MainWindowPlugin::MainWindowPlugin()
 {
@@ -16,13 +18,23 @@ MainWindowPlugin::MainWindowPlugin()
 #else
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 #endif
+	FMainWindow->setObjectName("mainWindow");
+	FMainWindowBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FMainWindow, CBS_ROSTER);
+	if (FMainWindowBorder)
+	{
+		FMainWindowBorder->setMaximizeButtonVisible(false);
+		FMainWindowBorder->setMinimizeButtonVisible(false);
+	}
 	FMainWindow->installEventFilter(this);
-	WidgetManager::setWindowSticky(FMainWindow,true);
+	WidgetManager::setWindowSticky(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow, true);
 }
 
 MainWindowPlugin::~MainWindowPlugin()
 {
-	delete FMainWindow;
+	if (FMainWindowBorder)
+		FMainWindowBorder->deleteLater();
+	else
+		FMainWindow->deleteLater();
 }
 
 void MainWindowPlugin::pluginInfo(IPluginInfo *APluginInfo)
@@ -130,9 +142,12 @@ void MainWindowPlugin::showMainWindow() const
 {
 	if (!Options::isNull())
 	{
-		FMainWindow->show();
+		if (FMainWindowBorder)
+			FMainWindowBorder->show();
+		else
+			FMainWindow->show();
 		correctWindowPosition();
-		WidgetManager::showActivateRaiseWindow(FMainWindow);
+		WidgetManager::showActivateRaiseWindow(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow);
 	}
 }
 
@@ -143,7 +158,7 @@ void MainWindowPlugin::updateTitle()
 
 void MainWindowPlugin::correctWindowPosition() const
 {
-	QRect windowRect = FMainWindow->geometry();
+	QRect windowRect = FMainWindowBorder ? FMainWindowBorder->geometry() : FMainWindow->geometry();
 	QRect screenRect = qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(windowRect.topLeft()));
 	if (!screenRect.isEmpty() && !screenRect.adjusted(10,10,-10,-10).intersects(windowRect))
 	{
@@ -155,7 +170,7 @@ void MainWindowPlugin::correctWindowPosition() const
 			windowRect.moveBottom(screenRect.bottom());
 		else if (windowRect.bottom() <= screenRect.top())
 			windowRect.moveTop(screenRect.top());
-		FMainWindow->move(windowRect.topLeft());
+		FMainWindowBorder ? FMainWindowBorder->move(windowRect.topLeft()) : FMainWindow->move(windowRect.topLeft());
 	}
 }
 
@@ -168,8 +183,9 @@ bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 
 void MainWindowPlugin::onOptionsOpened()
 {
-	FMainWindow->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
-	FMainWindow->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
+	QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
+	widget->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
+	widget->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 	updateTitle();
@@ -177,23 +193,25 @@ void MainWindowPlugin::onOptionsOpened()
 
 void MainWindowPlugin::onOptionsClosed()
 {
-	Options::node(OPV_MAINWINDOW_SHOW).setValue(FMainWindow->isVisible());
-	Options::node(OPV_MAINWINDOW_SIZE).setValue(FMainWindow->size());
-	Options::node(OPV_MAINWINDOW_POSITION).setValue(FMainWindow->pos());
+	QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
+	Options::node(OPV_MAINWINDOW_SHOW).setValue(widget->isVisible());
+	Options::node(OPV_MAINWINDOW_SIZE).setValue(widget->size());
+	Options::node(OPV_MAINWINDOW_POSITION).setValue(widget->pos());
 	updateTitle();
-	FMainWindow->close();
+	widget->close();
 	FOpenAction->setVisible(false);
 }
 
 void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 {
+	QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 	if (ANode.path() == OPV_MAINWINDOW_STAYONTOP)
 	{
-		bool show = FMainWindow->isVisible();
+		bool show = widget->isVisible();
 		if (ANode.value().toBool())
-			FMainWindow->setWindowFlags(FMainWindow->windowFlags() | Qt::WindowStaysOnTopHint);
+			widget->setWindowFlags(widget->windowFlags() | Qt::WindowStaysOnTopHint);
 		else
-			FMainWindow->setWindowFlags(FMainWindow->windowFlags() & ~Qt::WindowStaysOnTopHint);
+			widget->setWindowFlags(widget->windowFlags() & ~Qt::WindowStaysOnTopHint);
 		if (show)
 			showMainWindow();
 	}
@@ -210,8 +228,9 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 {
 	if (ANotifyId<0 && AReason==QSystemTrayIcon::DoubleClick)
 	{
+		QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 		if (FMainWindow->isActive() || qAbs(FActivationChanged.msecsTo(QTime::currentTime()))<qApp->doubleClickInterval())
-			FMainWindow->close();
+			widget->close();
 		else
 			showMainWindow();
 	}

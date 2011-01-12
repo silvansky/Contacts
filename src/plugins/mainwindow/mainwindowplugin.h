@@ -16,6 +16,7 @@
 #include <utils/widgetmanager.h>
 #include <utils/action.h>
 #include <utils/options.h>
+#include <utils/customborderstorage.h>
 #include "mainwindow.h"
 
 class MainWindowPlugin :
@@ -24,8 +25,8 @@ class MainWindowPlugin :
 			public IOptionsHolder,
 			public IMainWindowPlugin
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IOptionsHolder IMainWindowPlugin);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IOptionsHolder IMainWindowPlugin)
 public:
 	MainWindowPlugin();
 	~MainWindowPlugin();
@@ -61,6 +62,7 @@ private:
 private:
 	Action *FOpenAction;
 	MainWindow *FMainWindow;
+	CustomBorderContainer *FMainWindowBorder;
 	QTime FActivationChanged;
 };
 

@@ -28,7 +28,7 @@ void SearchEdit::processKeyPressEvent(QKeyEvent * event)
 void SearchEdit::resizeEvent(QResizeEvent * event)
 {
 	QLineEdit::resizeEvent(event);
-	iconLabel->move(event->size().width() - 18, 0);
+	iconLabel->move(event->size().width() - 22, (event->size().height() - 16) / 2);
 }
 
 void SearchEdit::mouseMoveEvent(QMouseEvent * event)

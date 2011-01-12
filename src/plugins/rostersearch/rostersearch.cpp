@@ -73,7 +73,7 @@ bool RosterSearch::initConnections(IPluginManager *APluginManager, int &AInitOrd
 
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
-	return FRostersViewPlugin!=NULL && FMainWindow!=NULL;
+	return FRostersViewPlugin && FMainWindow;
 }
 
 bool RosterSearch::initObjects()
@@ -91,14 +91,16 @@ bool RosterSearch::initObjects()
 		searchFrame->setLayout(layout);
 		searchFrame->setObjectName("searchFrame");
 		searchFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-		
+
 		FSearchEdit = new SearchEdit;
+		FSearchEdit->setObjectName("searchEdit");
 		layout->insertWidget(0, FSearchEdit);
 		FSearchEdit->setToolTip(tr("Search in roster"));
+		FSearchEdit->setPlaceholderText(tr("Search"));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), &FEditTimeout, SLOT(start()));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), SLOT(onSearchTextChanged(const QString&)));
 		FSearchEdit->installEventFilter(this);
-		
+
 		FMainWindow->topToolBarChanger()->insertWidget(searchFrame, TBG_MWTTB_ROSTERSEARCH);
 		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(searchFrame,STS_ROSTERSEARCH_SEARCHFRAME);
 
@@ -123,8 +125,8 @@ int RosterSearch::rosterDataOrder() const
 
 QList<int> RosterSearch::rosterDataRoles() const
 {
-	static QList<int> dataRoles = QList<int>() 
-		<< RDR_FONT_UNDERLINE << RDR_STATES_FORCE_OFF << RDR_FOOTER_TEXT << Qt::ForegroundRole; 
+	static QList<int> dataRoles = QList<int>()
+		<< RDR_FONT_UNDERLINE << RDR_STATES_FORCE_OFF << RDR_FOOTER_TEXT << Qt::ForegroundRole;
 	return dataRoles;
 }
 
@@ -201,7 +203,7 @@ void RosterSearch::startSearch()
 {
 	FItemsFound = false;
 	setFilterRegExp(searchPattern());
-	
+
 	if (!searchPattern().isEmpty())
 	{
 		if (!FItemsFound)
@@ -371,7 +373,7 @@ bool RosterSearch::eventFilter(QObject *AWatched, QEvent *AEvent)
 			}
 		}
 	}
-	else if (AWatched==(FMainWindow!=NULL ? FMainWindow->instance() : NULL) || AWatched==(FRostersViewPlugin!=NULL ? FRostersViewPlugin->rostersView()->instance() : NULL)) 
+	else if (AWatched==(FMainWindow!=NULL ? FMainWindow->instance() : NULL) || AWatched==(FRostersViewPlugin!=NULL ? FRostersViewPlugin->rostersView()->instance() : NULL))
 	{
 		if ( AEvent->type() == QEvent::KeyPress)
 		{

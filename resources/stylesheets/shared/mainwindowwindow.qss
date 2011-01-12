@@ -1,69 +1,23 @@
+/* background */
+
+MainWindow
+{
+	background-color: rgba(65, 70, 77, 235);
+}
+
+#upperWidget, #rostersWidget, #bottomWidget, #noticeWidget, #StatusWidgetClass, #searchFrame
+{
+	background-color: transparent;
+}
+
 /************
  * QToolBar *
  ************/
+
 QToolBar
 {
 	padding: 2px;
 	spacing: 2px;
-	background-color: rgb(240, 240, 240);
+	background-color: transparent;
 }
 
-/***************
- * QToolButton *
- ***************/
-QToolButton
-{
-	color: rgb(102, 102, 102);
-	border-radius: 2px;
-	min-height: 22px;
-	border-top: 1px solid rgb(153, 153, 153);
-	border-left: 1px solid rgb(153, 153, 153);
-	border-right: 1px solid rgb(204, 204, 204);
-	border-bottom: 1px solid rgb(204, 204, 204);
-	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(227, 227, 227, 255), stop:1 rgba(255, 255, 255, 255));
-}
-QToolButton:hover
-{
-	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(237, 237, 237, 255), stop:1 rgba(255, 255, 255, 255));
-}
-QToolButton:pressed
-{
-	top: 1px;
-	left: 1px;
-}
-QToolButton[popupMode="1"]
-{
-	padding-right: 20px;
-}
-QToolButton[popupMode="1"]:open
-{
-	padding-top: 2px;
-	padding-left: 1px;
-}
-QToolButton[popupMode="2"]
-{
-	padding-right: 10px;
-}
-QToolButton[popupMode="2"]:open
-{
-	padding-top: 2px;
-	padding-left: 1px;
-}
-QToolButton::menu-indicator
-{
-	image: url("%IMAGES_PATH%/buttonarrowdown.png");
-	subcontrol-origin: padding;
-	subcontrol-position: center right;
-}
-QToolButton::menu-indicator:open, QToolButton::menu-indicator:pressed
-{
-	image: url("%IMAGES_PATH%/buttonarrowup.png");
-}
-QToolButton::menu-arrow
-{
-	image: url("%IMAGES_PATH%/buttonarrowdown.png");
-}
-QToolButton::menu-arrow:open
-{
-	image: url("%IMAGES_PATH%/buttonarrowup.png");
-}

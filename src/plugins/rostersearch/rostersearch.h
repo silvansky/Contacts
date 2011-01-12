@@ -43,8 +43,8 @@ class RosterSearch :
 			public IRosterSearch,
 			public IRosterDataHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IRosterSearch IRosterDataHolder);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IRosterSearch IRosterDataHolder)
 public:
 	RosterSearch();
 	~RosterSearch();

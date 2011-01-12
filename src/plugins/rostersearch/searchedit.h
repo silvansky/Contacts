@@ -35,7 +35,6 @@ signals:
 public slots:
 	void onTextChanged(const QString & newText);
 	void updateIcon(IconState iconState);
-
 };
 
 #endif // SEARCHEDIT_H

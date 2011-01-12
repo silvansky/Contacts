@@ -90,19 +90,23 @@ QMenu *MainWindow::createPopupMenu()
 void MainWindow::createLayouts()
 {
 	FUpperWidget = new QStackedWidget(this);
+	FUpperWidget->setObjectName("upperWidget");
 	FUpperWidget->setVisible(false);
 	FUpperWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	connect(FUpperWidget,SIGNAL(currentChanged(int)),SLOT(onStackedWidgetChanged(int)));
 
 	FRostersWidget = new QStackedWidget(this);
+	FRostersWidget->setObjectName("rostersWidget");
 	FRostersWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
 	FBottomWidget = new QStackedWidget(this);
+	FBottomWidget->setObjectName("bottomWidget");
 	FBottomWidget->setVisible(false);
 	FBottomWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	connect(FBottomWidget,SIGNAL(currentChanged(int)),SLOT(onStackedWidgetChanged(int)));
 
 	FNoticeWidget = new InternalNoticeWidget(this);
+	FNoticeWidget->setObjectName("noticeWidget");
 	FNoticeWidget->setVisible(false);
 	connect(FNoticeWidget,SIGNAL(noticeInserted(int)),SLOT(onInternalNoticeChanged(int)));
 	connect(FNoticeWidget,SIGNAL(noticeRemoved(int)),SLOT(onInternalNoticeChanged(int)));

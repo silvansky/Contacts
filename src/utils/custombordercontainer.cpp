@@ -13,14 +13,17 @@
 #include <QDesktopWidget>
 #include <QStyle>
 #include <QBitmap>
+#include <QChildEvent>
 #include "iconstorage.h"
 
 // internal functions
 
 static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 {
-	if (object->isWidgetType())
+	// ensure object is widget but not a menu
+	if (object->isWidgetType() && !qobject_cast<QMenu*>(object))
 	{
+		qDebug() << "childsRecursive: " << object->objectName();
 		if (install)
 			object->installEventFilter(watcher);
 		else
@@ -34,7 +37,8 @@ static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 		widget->setProperty("defaultCursorShape", widget->cursor().shape());
 	}
 	QObjectList children = object->children();
-	foreach(QObject *child, children) {
+	foreach(QObject *child, children)
+	{
 		childsRecursive(child, watcher, install);
 	}
 }
@@ -799,7 +803,6 @@ bool CustomBorderContainer::event(QEvent * evt)
 
 bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 {
-
 	QWidget *widget = qobject_cast<QWidget*>(object);
 	switch (event->type())
 	{
@@ -844,6 +847,10 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		return true;
 	}
 	break;
+	case QEvent::ChildAdded:
+	case QEvent::ChildRemoved:
+		childsRecursive(widget, this, true);
+		break;
 	default:
 		break;
 	}
