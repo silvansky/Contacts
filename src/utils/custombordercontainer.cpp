@@ -216,7 +216,6 @@ QGradient * CustomBorderContainerPrivate::parseGradient(const QDomElement & elem
 			// detecting single color
 			if (!element.attribute("color").isEmpty())
 			{
-				qDebug() << "single-color gradient from " << element.attribute("color");
 				gradient = new QLinearGradient(0.0, 0.0, 1.0, 0.0);
 				gradient->setColorAt(0.0, parseColor(element.attribute("color")));
 				gradient->setSpread(QGradient::RepeatSpread);
@@ -282,18 +281,15 @@ void CustomBorderContainerPrivate::parseBorder(const QDomElement & borderElement
 {
 	if (!borderElement.isNull())
 	{
-		qDebug() << QString("parsing border...");
 		QDomElement width = borderElement.firstChildElement("width");
 		if (!width.isNull())
 		{
 			border.width = width.text().toInt();
-			qDebug() << border.width;
 		}
 		QDomElement resizeWidth = borderElement.firstChildElement("resize-width");
 		if (!resizeWidth.isNull())
 		{
 			border.resizeWidth = resizeWidth.text().toInt();
-			qDebug() << border.resizeWidth;
 		}
 		QDomElement gradient = borderElement.firstChildElement("gradient");
 		if (!gradient.isNull())
@@ -326,18 +322,15 @@ void CustomBorderContainerPrivate::parseCorner(const QDomElement & cornerElement
 {
 	if (!cornerElement.isNull())
 	{
-		qDebug() << "parsing corner";
 		QDomElement width = cornerElement.firstChildElement("width");
 		if (!width.isNull())
 		{
 			corner.width = width.text().toInt();
-			qDebug() << corner.width;
 		}
 		QDomElement height = cornerElement.firstChildElement("height");
 		if (!height.isNull())
 		{
 			corner.height = height.text().toInt();
-			qDebug() << corner.height;
 		}
 		QDomElement gradient = cornerElement.firstChildElement("gradient");
 		if (!gradient.isNull())
@@ -359,37 +352,31 @@ void CustomBorderContainerPrivate::parseCorner(const QDomElement & cornerElement
 		if (!resizeLeft.isNull())
 		{
 			corner.resizeLeft = resizeLeft.text().toInt();
-			qDebug() << corner.resizeLeft;
 		}
 		QDomElement resizeRight = cornerElement.firstChildElement("resize-right");
 		if (!resizeRight.isNull())
 		{
 			corner.resizeRight = resizeRight.text().toInt();
-			qDebug() << corner.resizeRight;
 		}
 		QDomElement resizeTop = cornerElement.firstChildElement("resize-top");
 		if (!resizeTop.isNull())
 		{
 			corner.resizeTop = resizeTop.text().toInt();
-			qDebug() << corner.resizeTop;
 		}
 		QDomElement resizeBottom = cornerElement.firstChildElement("resize-bottom");
 		if (!resizeBottom.isNull())
 		{
 			corner.resizeBottom = resizeBottom.text().toInt();
-			qDebug() << corner.resizeBottom;
 		}
 		QDomElement resizeWidth = cornerElement.firstChildElement("resize-width");
 		if (!resizeWidth.isNull())
 		{
 			corner.resizeWidth = resizeWidth.text().toInt();
-			qDebug() << corner.resizeWidth;
 		}
 		QDomElement resizeHeight = cornerElement.firstChildElement("resize-height");
 		if (!resizeHeight.isNull())
 		{
 			corner.resizeHeight = resizeHeight.text().toInt();
-			qDebug() << corner.resizeHeight;
 		}
 	}
 }

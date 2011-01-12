@@ -175,8 +175,6 @@ QMenu::icon
 
 QMenu::icon:checked
 {
-/*	subcontrol-origin: padding;
-	subcontrol-position: right;*/
 	width: 14px;
 	height: 13px;
 	image: url(%IMAGES_PATH%/menuchecked.png)
@@ -297,4 +295,14 @@ QComboBox QListView::item:selected
 	border-top: 0px;
 	border-right: 0px;
 	border-bottom: 1px solid #5e6369;
+}
+
+/**********
+ * QLabel *
+ **********/
+
+QLabel
+{
+	background-color: transparent;
+	color: white;
 }
