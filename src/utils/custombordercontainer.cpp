@@ -399,6 +399,7 @@ void CustomBorderContainerPrivate::setDefaultHeader(Header & header)
 	header.imageFillingStyle = Stretch;
 	header.spacing = 5;
 	header.moveHeight = header.height;
+	header.moveLeft = header.moveRight = header.moveTop = 0;
 }
 
 void CustomBorderContainerPrivate::parseHeader(const QDomElement & headerElement, Header & header)
@@ -414,6 +415,21 @@ void CustomBorderContainerPrivate::parseHeader(const QDomElement & headerElement
 		if (!moveHeight.isNull())
 		{
 			header.moveHeight = moveHeight.text().toInt();
+		}
+		QDomElement moveLeft = headerElement.firstChildElement("move-left");
+		if (!moveLeft.isNull())
+		{
+			header.moveLeft = moveLeft.text().toInt();
+		}
+		QDomElement moveRight = headerElement.firstChildElement("move-right");
+		if (!moveRight.isNull())
+		{
+			header.moveRight = moveRight.text().toInt();
+		}
+		QDomElement moveTop= headerElement.firstChildElement("move-top");
+		if (!moveTop.isNull())
+		{
+			header.moveTop = moveTop.text().toInt();
 		}
 		QDomElement spacing = headerElement.firstChildElement("spacing");
 		if (!spacing.isNull())
@@ -627,6 +643,11 @@ CustomBorderContainer::~CustomBorderContainer()
 	setWidget(NULL);
 }
 
+QWidget * CustomBorderContainer::widget() const
+{
+	return containedWidget;
+}
+
 void CustomBorderContainer::setWidget(QWidget * widget)
 {
 	if (containedWidget)
@@ -804,6 +825,7 @@ bool CustomBorderContainer::event(QEvent * evt)
 bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 {
 	QWidget *widget = qobject_cast<QWidget*>(object);
+	// TODO: make mousePress return bool (true if resize event occurs, then no need to call QWidget::eventFilter())
 	bool handled = false;
 	switch (event->type())
 	{
@@ -811,9 +833,9 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		mouseMove(((QMouseEvent*)event)->globalPos(), widget);
 		break;
 	case QEvent::MouseButtonPress:
-		handled = QWidget::eventFilter(object, event);
-		if (!handled && (((QMouseEvent*)event)->button() == Qt::LeftButton))
-			mousePress(((QMouseEvent*)event)->pos(), widget);
+		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
+			handled = mousePress(((QMouseEvent*)event)->pos(), widget);
+		qDebug() << "handled = " << handled << " " << widget->objectName() << " of class " << widget->metaObject()->className();
 		break;
 	case QEvent::MouseButtonRelease:
 		mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
@@ -853,9 +875,14 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 	case QEvent::ChildRemoved:
 		childsRecursive(widget, this, true);
 		break;
+	case QEvent::WindowTitleChange:
+		if (widget == containedWidget)
+			setWindowTitle(containedWidget->windowTitle());
+		break;
 	default:
 		break;
 	}
+	handled = (handled || (geometryState() != None)) && (event->type() != QEvent::Resize);
 	return handled ? handled : QWidget::eventFilter(object, event);
 }
 
@@ -904,6 +931,16 @@ void CustomBorderContainer::init()
 	connect(this, SIGNAL(minimizeClicked()), SLOT(minimizeWidget()));
 	connect(this, SIGNAL(maximizeClicked()), SLOT(maximizeWidget()));
 	connect(this, SIGNAL(closeClicked()), SLOT(closeWidget()));
+}
+
+CustomBorderContainer::GeometryState CustomBorderContainer::geometryState() const
+{
+	return currentGeometryState;
+}
+
+void CustomBorderContainer::setGeometryState(GeometryState newGeometryState)
+{
+	currentGeometryState = newGeometryState;
 }
 
 void CustomBorderContainer::updateGeometry(const QPoint & p)
@@ -996,6 +1033,106 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 		setGeometry(oldGeometry);
 		QApplication::flush();
 	}
+}
+
+CustomBorderContainer::HeaderButtonsFlags CustomBorderContainer::headerButtonsFlags() const
+{
+	return buttonsFlags;
+}
+
+void CustomBorderContainer::setHeaderButtonFlags(HeaderButtonsFlag flags)
+{
+	buttonsFlags = HeaderButtonsFlags(flags);
+	repaintHeaderButtons();
+}
+
+bool CustomBorderContainer::isMinimizeButtonVisible() const
+{
+	return buttonsFlags.testFlag(MinimizeVisible);
+}
+
+void CustomBorderContainer::setMinimizeButtonVisible(bool visible)
+{
+	if (visible)
+		addHeaderButtonFlag(MinimizeVisible);
+	else
+		removeHeaderButtonFlag(MinimizeVisible);
+}
+
+bool CustomBorderContainer::isMinimizeButtonEnabled() const
+{
+	return buttonsFlags.testFlag(MinimizeEnabled);
+}
+
+void CustomBorderContainer::setMinimizeButtonEnabled(bool enabled)
+{
+	if (enabled)
+		addHeaderButtonFlag(MinimizeEnabled);
+	else
+		removeHeaderButtonFlag(MinimizeEnabled);
+}
+
+bool CustomBorderContainer::isMaximizeButtonVisible() const
+{
+	return buttonsFlags.testFlag(MaximizeVisible);
+}
+
+void CustomBorderContainer::setMaximizeButtonVisible(bool visible)
+{
+	if (visible)
+		addHeaderButtonFlag(MaximizeVisible);
+	else
+		removeHeaderButtonFlag(MaximizeVisible);
+}
+
+bool CustomBorderContainer::isMaximizeButtonEnabled() const
+{
+	return buttonsFlags.testFlag(MaximizeEnabled);
+}
+
+void CustomBorderContainer::setMaximizeButtonEnabled(bool enabled)
+{
+	if (enabled)
+		addHeaderButtonFlag(MaximizeEnabled);
+	else
+		removeHeaderButtonFlag(MaximizeEnabled);
+}
+
+bool CustomBorderContainer::isCloseButtonVisible() const
+{
+	return buttonsFlags.testFlag(CloseVisible);
+}
+
+void CustomBorderContainer::setCloseButtonVisible(bool visible)
+{
+	if (visible)
+		addHeaderButtonFlag(CloseVisible);
+	else
+		removeHeaderButtonFlag(CloseVisible);
+}
+
+bool CustomBorderContainer::isCloseButtonEnabled() const
+{
+	return buttonsFlags.testFlag(CloseEnabled);
+}
+
+void CustomBorderContainer::setCloseButtonEnabled(bool enabled)
+{
+	if (enabled)
+		addHeaderButtonFlag(CloseEnabled);
+	else
+		removeHeaderButtonFlag(CloseEnabled);
+}
+
+void CustomBorderContainer::addHeaderButtonFlag(HeaderButtonsFlag flag)
+{
+	buttonsFlags |= flag;
+}
+
+void CustomBorderContainer::removeHeaderButtonFlag(HeaderButtonsFlag flag)
+{
+	if (buttonsFlags.testFlag(flag))
+		buttonsFlags ^= flag;
 }
 
 int CustomBorderContainer::headerButtonsCount() const
@@ -1126,25 +1263,31 @@ void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 	}
 }
 
-void CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
+bool CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
 {
+	bool handled = false;
 	pressedHeaderButton = headerButtonUnderMouse();
 	if (pressedHeaderButton == NoneButton)
 	{
 		if (resizeBorder != NoneBorder)
+		{
 			setGeometryState(Resizing);
+			handled = true;
+		}
 		else if (windowIconRect().contains(mapFromWidget(widget, p)) && headerRect().contains(mapFromWidget(widget, p)))
 		{
 			showWindowMenu(mapToGlobal(windowIconRect().bottomLeft()));
-			return;
+			handled = true;
 		}
 		else if (canMove)
 		{
 			oldPressPoint = widget->mapToGlobal(p);
 			setGeometryState(Moving);
+			handled = true;
 		}
 		oldGeometry = geometry();
 	}
+	return handled;
 }
 
 void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button)
@@ -1434,9 +1577,9 @@ QRect CustomBorderContainer::headerRect() const
 QRect CustomBorderContainer::headerMoveRect() const
 {
 	if (isMaximized)
-		return QRect(0, 0, width(), myPrivate->header.moveHeight);
+		return QRect(myPrivate->header.moveLeft, myPrivate->header.moveTop, width() - myPrivate->header.moveRight, myPrivate->header.moveHeight);
 	else
-		return QRect(myPrivate->left.width, myPrivate->top.width, width() - myPrivate->right.width, myPrivate->header.moveHeight);
+		return QRect(myPrivate->left.width + myPrivate->header.moveLeft, myPrivate->top.width + myPrivate->header.moveTop, width() - myPrivate->right.width - myPrivate->header.moveRight, myPrivate->header.moveHeight);
 }
 
 void CustomBorderContainer::drawHeader(QPainter * p)

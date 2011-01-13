@@ -65,26 +65,29 @@ QRadioButton::indicator:checked:hover
 	image: url(%IMAGES_PATH%/radioselectedhover.png);
 }
 
-/*************
- * QLineEdit *
- *************/
+/************************
+ * QLineEdit, QTextEdit *
+ ************************/
 
-QLineEdit
+QLineEdit, QTextEdit
 {
 	border-left: 10px;
 	border-top: 10px;
 	border-right: 10px;
 	border-bottom: 10px;
+	padding-top: -10px;
+	padding-bottom: -10px;
+	min-height: 33px;
 	background-color: transparent;
 	border-image: url(%IMAGES_PATH%/editborder.png);
 }
 
-QLineEdit:focus
+QLineEdit:focus, QTextEdit:focus
 {
 	border-image: url(%IMAGES_PATH%/editborderfocused.png);
 }
 
-QLineEdit[error="true"], QLineEdit:focus[error="true"]
+QLineEdit[error="true"], QLineEdit:focus[error="true"], QTextEdit[error="true"], QTextEdit:focus[error="true"]
 {
 	border-image: url(%IMAGES_PATH%/editbordererror.png);
 }
@@ -108,6 +111,7 @@ QPushButton, QToolButton
 QToolButton
 {
 	min-width: 27px;
+	min-height: 22px;
 }
 
 QPushButton:!hover:enabled, QToolButton:!hover:enabled
@@ -357,4 +361,75 @@ QLabel
 {
 	background-color: transparent;
 	color: white;
+}
+
+/**************
+ * QScrollBar *
+ **************/
+
+QScrollBar:vertical
+{
+	border: 0px solid grey;
+	width: 14px;
+	margin: 13px 0 13px 0;
+	border-top: 4px;
+	border-bottom: 4px;
+	border-right: 0px;
+	border-left: 0px;
+	border-image: url(%IMAGES_PATH%/scrollbarbordervertical.png);
+	padding-top: -4px;
+	padding-bottom: -4px;
+}
+
+QScrollBar::handle:vertical
+{
+	border-top: 5px;
+	border-bottom: 5px;
+	border-right: 0px;
+	border-left: 0px;
+	border-image: url(%IMAGES_PATH%/scrollbarhandlevertical.png);
+	min-height: 40px;
+}
+
+QScrollBar::add-line:vertical
+{
+	border: 1px solid #2f343b;
+	border-top: 0px;
+	background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #72767a, stop:1 #363b41);
+	height: 13px;
+	subcontrol-position: bottom;
+	subcontrol-origin: margin;
+	padding-left: -1px;
+}
+
+QScrollBar::sub-line:vertical
+{
+	border: 1px solid #2f343b;
+	border-bottom: 0px;
+	background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #72767a, stop:1 #363b41);
+	height: 13px;
+	subcontrol-position: top;
+	subcontrol-origin: margin;
+	padding-left: -1px;
+}
+
+QScrollBar::up-arrow:vertical
+{
+	border: 0px;
+	width: 6px;
+	height: 4px;
+	background: url(%IMAGES_PATH%/scrollbaruparrow.png);
+}
+
+QScrollBar::down-arrow:vertical
+{
+	border: 0px;
+	width: 6px;
+	height: 4px;
+	background: url(%IMAGES_PATH%/scrollbardownarrow.png);
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+{
+	background: none;
 }

@@ -16,6 +16,7 @@ MainWindow
 
 QToolBar
 {
+	border: 0px solid transparent;
 	padding: 2px;
 	spacing: 2px;
 	background-color: transparent;

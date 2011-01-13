@@ -22,10 +22,7 @@ public:
 	explicit CustomBorderContainer(QWidget * widgetToContain = 0);
 	CustomBorderContainer(const CustomBorderContainerPrivate &style);
 	~CustomBorderContainer();
-	QWidget * widget() const
-	{
-		return containedWidget;
-	}
+	QWidget * widget() const;
 	// WARNING! the old widget will be deleted! use releaseWidget() to just unset widget
 	void setWidget(QWidget * widget);
 	QWidget * releaseWidget();
@@ -69,14 +66,8 @@ protected:
 		Resizing,
 		Moving
 	};
-	GeometryState geometryState() const
-	{
-		return currentGeometryState;
-	}
-	void setGeometryState(GeometryState newGeometryState)
-	{
-		currentGeometryState = newGeometryState;
-	}
+	GeometryState geometryState() const;
+	void setGeometryState(GeometryState newGeometryState);
 	void updateGeometry(const QPoint & p);
 	enum HeaderButtonState
 	{
@@ -105,95 +96,27 @@ public:
 		CloseEnabled = 0x20
 	};
 	Q_DECLARE_FLAGS(HeaderButtonsFlags, HeaderButtonsFlag)
-	HeaderButtonsFlags headerButtonsFlags() const
-	{
-		return buttonsFlags;
-	}
-	void setHeaderButtonFlags(HeaderButtonsFlag flags)
-	{
-		buttonsFlags = HeaderButtonsFlags(flags);
-		repaintHeaderButtons();
-	}
+	HeaderButtonsFlags headerButtonsFlags() const;
+	void setHeaderButtonFlags(HeaderButtonsFlag flags);
 	// minimize button
-	bool isMinimizeButtonVisible() const
-	{
-		return buttonsFlags.testFlag(MinimizeVisible);
-	}
-	void setMinimizeButtonVisible(bool visible = true)
-	{
-		if (visible)
-			addHeaderButtonFlag(MinimizeVisible);
-		else
-			removeHeaderButtonFlag(MinimizeVisible);
-	}
-	bool isMinimizeButtonEnabled() const
-	{
-		return buttonsFlags.testFlag(MinimizeEnabled);
-	}
-	void setMinimizeButtonEnabled(bool enabled = true)
-	{
-		if (enabled)
-			addHeaderButtonFlag(MinimizeEnabled);
-		else
-			removeHeaderButtonFlag(MinimizeEnabled);
-	}
+	bool isMinimizeButtonVisible() const;
+	void setMinimizeButtonVisible(bool visible = true);
+	bool isMinimizeButtonEnabled() const;
+	void setMinimizeButtonEnabled(bool enabled = true);
 	// maximize button
-	bool isMaximizeButtonVisible() const
-	{
-		return buttonsFlags.testFlag(MaximizeVisible);
-	}
-	void setMaximizeButtonVisible(bool visible = true)
-	{
-		if (visible)
-			addHeaderButtonFlag(MaximizeVisible);
-		else
-			removeHeaderButtonFlag(MaximizeVisible);
-	}
-	bool isMaximizeButtonEnabled() const
-	{
-		return buttonsFlags.testFlag(MaximizeEnabled);
-	}
-	void setMaximizeButtonEnabled(bool enabled = true)
-	{
-		if (enabled)
-			addHeaderButtonFlag(MaximizeEnabled);
-		else
-			removeHeaderButtonFlag(MaximizeEnabled);
-	}
+	bool isMaximizeButtonVisible() const;
+	void setMaximizeButtonVisible(bool visible = true);
+	bool isMaximizeButtonEnabled() const;
+	void setMaximizeButtonEnabled(bool enabled = true);
 	// close button
-	bool isCloseButtonVisible() const
-	{
-		return buttonsFlags.testFlag(CloseVisible);
-	}
-	void setCloseButtonVisible(bool visible = true)
-	{
-		if (visible)
-			addHeaderButtonFlag(CloseVisible);
-		else
-			removeHeaderButtonFlag(CloseVisible);
-	}
-	bool isCloseButtonEnabled() const
-	{
-		return buttonsFlags.testFlag(CloseEnabled);
-	}
-	void setCloseButtonEnabled(bool enabled = true)
-	{
-		if (enabled)
-			addHeaderButtonFlag(CloseEnabled);
-		else
-			removeHeaderButtonFlag(CloseEnabled);
-	}
+	bool isCloseButtonVisible() const;
+	void setCloseButtonVisible(bool visible = true);
+	bool isCloseButtonEnabled() const;
+	void setCloseButtonEnabled(bool enabled = true);
 protected:
 	// header button flags manipulations
-	void addHeaderButtonFlag(HeaderButtonsFlag flag)
-	{
-		buttonsFlags |= flag;
-	}
-	void removeHeaderButtonFlag(HeaderButtonsFlag flag)
-	{
-		if (buttonsFlags.testFlag(flag))
-			buttonsFlags ^= flag;
-	}
+	void addHeaderButtonFlag(HeaderButtonsFlag flag);
+	void removeHeaderButtonFlag(HeaderButtonsFlag flag);
 	// header buttons under mouse
 	int headerButtonsCount() const;
 	QRect headerButtonRect(HeaderButtons button) const;
@@ -219,7 +142,7 @@ protected:
 		BottomBorder
 	};
 	void mouseMove(const QPoint & p, QWidget * widget);
-	void mousePress(const QPoint & p, QWidget * widget);
+	bool mousePress(const QPoint & p, QWidget * widget);
 	void mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button = Qt::LeftButton);
 	void mouseDoubleClick(const QPoint & p, QWidget * widget);
 	bool pointInBorder(BorderType border, const QPoint & p);

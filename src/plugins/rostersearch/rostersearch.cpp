@@ -324,7 +324,7 @@ bool RosterSearch::filterAcceptsRow(int ARow, const QModelIndex &AParent) const
 {
 	if (!searchPattern().isEmpty())
 	{
-		QModelIndex index = sourceModel()!=NULL ? sourceModel()->index(ARow,0,AParent) : QModelIndex();
+		QModelIndex index = sourceModel() ? sourceModel()->index(ARow,0,AParent) : QModelIndex();
 		switch (index.data(RDR_TYPE).toInt())
 		{
 		case RIT_CONTACT:
@@ -373,7 +373,7 @@ bool RosterSearch::eventFilter(QObject *AWatched, QEvent *AEvent)
 			}
 		}
 	}
-	else if (AWatched==(FMainWindow!=NULL ? FMainWindow->instance() : NULL) || AWatched==(FRostersViewPlugin!=NULL ? FRostersViewPlugin->rostersView()->instance() : NULL))
+	else if (AWatched==(FMainWindow ? FMainWindow->instance() : NULL) || AWatched==(FRostersViewPlugin ? FRostersViewPlugin->rostersView()->instance() : NULL))
 	{
 		if ( AEvent->type() == QEvent::KeyPress)
 		{

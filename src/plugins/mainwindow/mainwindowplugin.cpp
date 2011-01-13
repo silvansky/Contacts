@@ -142,10 +142,10 @@ void MainWindowPlugin::showMainWindow() const
 {
 	if (!Options::isNull())
 	{
-		if (FMainWindowBorder)
-			FMainWindowBorder->show();
-		else
-			FMainWindow->show();
+//		if (FMainWindowBorder)
+//			FMainWindowBorder->show();
+//		else
+//			FMainWindow->show();
 		correctWindowPosition();
 		WidgetManager::showActivateRaiseWindow(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow);
 	}

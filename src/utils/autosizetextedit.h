@@ -7,7 +7,7 @@
 class UTILS_EXPORT AutoSizeTextEdit :
 	public QTextEdit
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	AutoSizeTextEdit(QWidget *AParent);
 	~AutoSizeTextEdit();

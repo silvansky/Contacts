@@ -112,7 +112,7 @@ void MainWindow::createLayouts()
 	connect(FNoticeWidget,SIGNAL(noticeRemoved(int)),SLOT(onInternalNoticeChanged(int)));
 
 	FMainLayout = new QVBoxLayout;
-	FMainLayout->setMargin(2);
+	FMainLayout->setMargin(0);
 	FMainLayout->addWidget(FUpperWidget);
 	FMainLayout->addWidget(FRostersWidget);
 	FMainLayout->addWidget(FBottomWidget);

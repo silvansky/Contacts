@@ -54,6 +54,9 @@ struct Header
 	ImageFillingStyle imageFillingStyle;
 	int spacing;
 	int moveHeight;
+	int moveLeft;
+	int moveRight;
+	int moveTop;
 };
 
 struct HeaderTitle

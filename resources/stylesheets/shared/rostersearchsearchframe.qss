@@ -12,7 +12,18 @@
  **************/
 SearchEdit
 {
-	/*border: none;*/
-	min-height: 17px;
-	max-height: 17px;
+	border-left: 12px;
+	border-right: 12px;
+	border-top: 10px;
+	border-bottom: 10px;
+	border-image: url(%IMAGES_PATH%/searchborder.png);
+	min-height: 26px;
+	height: 26px;
+	padding-top: -10px;
+	padding-bottom: -10px;
+}
+
+SearchEdit:focus
+{
+	border-image: url(%IMAGES_PATH%/searchborderfocus.png);
 }
