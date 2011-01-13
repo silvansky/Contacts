@@ -92,9 +92,6 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 {
 	ui.setupUi(this);
 	ui.cmbDomain->setView(new QListView());
-	//((QListView*)ui.cmbDomain->view())->setSelectionRectVisible(false);
-	//ui.cmbDomain->view()->setFocusPolicy(Qt::NoFocus);
-	//ui.cmbDomain->view()->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.wdtHelp->setVisible(false);
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);

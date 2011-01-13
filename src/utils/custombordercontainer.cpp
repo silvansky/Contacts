@@ -798,7 +798,12 @@ void CustomBorderContainer::leaveEvent(QEvent * event)
 {
 	lastMousePosition = QPoint(-1, -1);
 	if (isVisible())
+	{
 		repaintHeaderButtons();
+		setGeometryState(None);
+		resizeBorder = NoneBorder;
+		updateCursor();
+	}
 	QWidget::leaveEvent(event);
 }
 
@@ -853,7 +858,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		//widget->setAutoFillBackground(true);
 
 		QPoint point = widget->pos();
-		while(widget && (widget->parentWidget() != this))
+		while (widget && (widget->parentWidget() != this) && widget->parentWidget())
 		{
 			widget = widget->parentWidget();
 			point += widget->pos();
@@ -1444,6 +1449,7 @@ void CustomBorderContainer::checkMoveCondition(const QPoint & p)
 void CustomBorderContainer::updateCursor(QWidget * widget)
 {
 	Q_UNUSED(widget)
+	static bool overrideCursorSet = false;
 	QCursor newCursor;
 	switch(resizeBorder)
 	{
@@ -1463,12 +1469,23 @@ void CustomBorderContainer::updateCursor(QWidget * widget)
 	case BottomBorder:
 		newCursor.setShape(Qt::SizeVerCursor);
 		break;
+	case NoneBorder:
 	default:
-		QApplication::restoreOverrideCursor();
+		if (overrideCursorSet)
+		{
+			QApplication::restoreOverrideCursor();
+			overrideCursorSet = false;
+		}
 		return;
 		break;
 	}
-	QApplication::setOverrideCursor(newCursor);
+	if (!overrideCursorSet || (QApplication::overrideCursor() && (QApplication::overrideCursor()->shape() != newCursor.shape())))
+	{
+		if (overrideCursorSet)
+			QApplication::restoreOverrideCursor();
+		QApplication::setOverrideCursor(newCursor);
+		overrideCursorSet = true;
+	}
 }
 
 void CustomBorderContainer::updateShape()

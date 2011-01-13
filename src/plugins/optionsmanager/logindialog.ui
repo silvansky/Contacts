@@ -120,7 +120,7 @@ p, li { white-space: pre-wrap; }
        <widget class="QFrame" name="frmLogin">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="spacing">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="margin">
           <number>0</number>
@@ -144,7 +144,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QComboBox" name="cmbDomain">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>

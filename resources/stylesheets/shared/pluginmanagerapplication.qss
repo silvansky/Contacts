@@ -77,7 +77,7 @@ QLineEdit, QTextEdit
 	border-bottom: 10px;
 	padding-top: -10px;
 	padding-bottom: -10px;
-	min-height: 33px;
+	min-height: 31px;
 	background-color: transparent;
 	border-image: url(%IMAGES_PATH%/editborder.png);
 }
@@ -262,7 +262,7 @@ QComboBox
 {
 	border: 1px solid #22272d;
 	border-radius: 3px;
-	padding: 1px 18px 1px 3px;
+	padding: -1px 18px -1px 3px;
 	min-width: 6em;
 	min-height: 27px;
 	color: white;

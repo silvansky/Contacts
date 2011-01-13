@@ -1,4 +1,6 @@
-/* background */
+/**************
+ * background *
+ **************/
 
 QDialog
 {
@@ -42,7 +44,7 @@ QComboBox[error="true"]:!editable
 QPushButton#pbtConnect
 {
 	font: bold large;
-	min-height: 34px;
+	min-height: 32px;
 	min-width: 80px;
 }
 
