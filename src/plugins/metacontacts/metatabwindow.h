@@ -3,6 +3,7 @@
 
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
+#include <definitions/toolbargroups.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imetacontacts.h>
 #include <utils/options.h>
@@ -73,6 +74,9 @@ protected slots:
 	void onItemButtonActionTriggered();
 	void onCurrentWidgetChanged(int AIndex);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
+protected slots:
+	void onChatWindowToolBarItemInserted(QAction *ABefour, QAction *AHandle, Action *AAction, QWidget *AWidget, int AGroup);
+	void onChatWindowToolBarItemRemoved(QAction *AHandle);
 private:
 	Ui::MetaTabWindowClass ui;
 private:

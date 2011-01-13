@@ -48,4 +48,7 @@
 //RosterChanger - SubscriptionRequestDialog
 #define TBG_RCSRD_ROSTERCHANGER                                 500
 
+//MetaContacts - MetaTabWindow
+#define TBG_MCMTW_USER_TOOLS                                    10900
+
 #endif
