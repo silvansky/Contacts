@@ -24,4 +24,36 @@
     <key>closeButtonHighlighted</key>
     <object mime="image/png">closebuttonhighlighted.png</object>
   </icon>
+  <icon>
+    <key>leftShadow</key>
+    <object mime="image/png">leftshadow.png</object>
+  </icon>
+  <icon>
+    <key>topLeftShadow</key>
+    <object mime="image/png">topleftshadow.png</object>
+  </icon>
+  <icon>
+    <key>topShadow</key>
+    <object mime="image/png">topshadow.png</object>
+  </icon>
+  <icon>
+    <key>topRightShadow</key>
+    <object mime="image/png">toprightshadow.png</object>
+  </icon>
+  <icon>
+    <key>rightShadow</key>
+    <object mime="image/png">rightshadow.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadow</key>
+    <object mime="image/png">bottomrightshadow.png</object>
+  </icon>
+  <icon>
+    <key>bottomShadow</key>
+    <object mime="image/png">bottomshadow.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadow</key>
+    <object mime="image/png">bottomleftshadow.png</object>
+  </icon>
 </icondef>

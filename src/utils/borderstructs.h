@@ -25,6 +25,7 @@ struct Border
 	QString image;
 	ImageFillingStyle imageFillingStyle;
 	int resizeWidth;
+	int resizeMargin;
 };
 
 struct Corner

@@ -1,58 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window-border-style>
  <left-border>
-   <width>0</width>
+   <width>28</width>
    <resize-width>5</resize-width>
-   <gradient color="#FF000066" />
+   <resize-margin>28</resize-margin>
+   <image src="menuicons/leftShadow" />
  </left-border>
  <top-border>
-   <width>0</width>
+   <width>28</width>
    <resize-width>5</resize-width>
-   <gradient color="#FF000066" />
+   <resize-margin>28</resize-margin>
+   <image src="menuicons/topShadow" />
  </top-border>
  <right-border>
-   <width>0</width>
+   <width>28</width>
    <resize-width>5</resize-width>
+   <resize-margin>28</resize-margin>
+   <image src="menuicons/rightShadow" />
  </right-border>
  <bottom-border>
-   <width>0</width>
+   <width>28</width>
    <resize-width>5</resize-width>
+   <resize-margin>28</resize-margin>
+   <image src="menuicons/bottomShadow" />
  </bottom-border>
  <top-left-corner>
-   <width>4</width>
-   <height>4</height>
+   <width>55</width>
+   <height>59</height>
    <radius>4</radius>
-   <resize-left>0</resize-left>
+   <resize-left>28</resize-left>
    <resize-width>10</resize-width>
-   <resize-top>0</resize-top>
+   <resize-top>28</resize-top>
    <resize-height>10</resize-height>
+   <image src="menuicons/topLeftShadow" />
  </top-left-corner>
  <top-right-corner>
-   <width>4</width>
-   <height>4</height>
+   <width>57</width>
+   <height>61</height>
    <radius>4</radius>
-   <resize-right>0</resize-right>
+   <resize-right>28</resize-right>
    <resize-width>10</resize-width>
-   <resize-top>0</resize-top>
+   <resize-top>28</resize-top>
    <resize-height>10</resize-height>
+   <image src="menuicons/topRightShadow" />
  </top-right-corner>
  <bottom-left-corner>
-   <width>4</width>
-   <height>4</height>
+   <width>55</width>
+   <height>49</height>
    <radius>4</radius>
-   <resize-left>0</resize-left>
+   <resize-left>28</resize-left>
    <resize-width>10</resize-width>
-   <resize-bottom>0</resize-bottom>
+   <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
+   <image src="menuicons/bottomLeftShadow" />
  </bottom-left-corner>
  <bottom-right-corner>
-   <width>4</width>
-   <height>4</height>
+   <width>57</width>
+   <height>51</height>
    <radius>4</radius>
-   <resize-right>0</resize-right>
+   <resize-right>28</resize-right>
    <resize-width>10</resize-width>
-   <resize-bottom>0</resize-bottom>
+   <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
+   <image src="menuicons/bottomRightShadow" />
  </bottom-right-corner>
  <header>
    <spacing>5</spacing>

@@ -98,10 +98,7 @@ QLineEdit[error="true"], QLineEdit:focus[error="true"], QTextEdit[error="true"],
 
 QPushButton, QToolButton
 {
-	border-left: 1px solid rgba(0, 0, 0, 200);
-	border-top: 1px solid rgba(0, 0, 0, 180);
-	border-right: 1px solid rgba(0, 0, 0, 200);
-	border-bottom: 1px solid rgba(0, 0, 0, 200);
+	border: 1px solid #22272d;
 	color: white;
 	border-radius: 3px;
 	min-height: 27px;
