@@ -8,5 +8,9 @@
     <key>roster</key>
     <object mime="text/xml">roster.xml</object>
   </file>
+  <file>
+    <key>window</key>
+    <object mime="text/xml">window.xml</object>
+  </file>
 </borderdef>
 

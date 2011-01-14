@@ -39,6 +39,13 @@ QCheckBox::indicator:checked:hover
  * QRadioButton *
  ****************/
 
+QRadioButton
+{
+	spacing: 5px;
+	color: white;
+	background-color: transparent;
+}
+
 QRadioButton::indicator
 {
 	width: 14px;

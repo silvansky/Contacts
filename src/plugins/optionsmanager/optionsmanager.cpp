@@ -704,7 +704,10 @@ void OptionsManager::onChangeProfileByAction(bool)
 
 void OptionsManager::onShowOptionsDialogByAction(bool)
 {
-	showOptionsDialog();
+	QDialog * dialog = showOptionsDialog();
+	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_WINDOW);
+	if (border)
+		border->show();
 }
 
 void OptionsManager::onLoginDialogRejected()

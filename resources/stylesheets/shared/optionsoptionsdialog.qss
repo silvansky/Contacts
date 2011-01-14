@@ -7,7 +7,7 @@ QTreeView#trvNodes::item
 {
 	min-height : 32px;
 	background-color: palette(window);
-} 
+}
 QTreeView#trvNodes::item:selected
 {
 	border : 1px solid palette(shadow);
@@ -17,4 +17,14 @@ QTreeView#trvNodes::item:selected
 QWidget#wdtNodeWidget
 {
 	background-color: palette(base);
+}
+
+#scrollAreaWidgetContents, QFrame, QLabel, QCheckBox, QDialogButtonBox, OptionsDialog
+{
+	background-color: transparent;
+}
+
+QDialog
+{
+	background-color: rgba(65, 70, 77, 235);
 }

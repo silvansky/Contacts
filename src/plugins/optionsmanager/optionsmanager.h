@@ -37,8 +37,8 @@ class OptionsManager :
 			public IOptionsManager,
 			public IOptionsHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IOptionsManager IOptionsHolder);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IOptionsManager IOptionsHolder)
 public:
 	OptionsManager();
 	~OptionsManager();

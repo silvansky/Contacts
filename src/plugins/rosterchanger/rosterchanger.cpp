@@ -8,6 +8,9 @@
 #include <QDragMoveEvent>
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
+#include <utils/customborderstorage.h>
+#include <definitions/customborder.h>
+#include <definitions/resources.h>
 
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_CONTACT_JID     Action::DR_Parametr1
@@ -254,8 +257,8 @@ int RosterChanger::rosterDataOrder() const
 
 QList<int> RosterChanger::rosterDataRoles() const
 {
-	static QList<int> dataRoles = QList<int>() 
-		<< RDR_FOOTER_TEXT << Qt::DecorationRole; 
+	static QList<int> dataRoles = QList<int>()
+		<< RDR_FOOTER_TEXT << Qt::DecorationRole;
 	return dataRoles;
 }
 
@@ -999,7 +1002,10 @@ void RosterChanger::onShowAddAccountDialog(bool)
 {
 	if (FOptionsManager)
 	{
-		FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
+		QDialog * dialog = FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
+		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_WINDOW);
+		if (border)
+			border->show();
 	}
 }
 
@@ -1075,7 +1081,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 				action->setData(data);
 				connect(action,SIGNAL(triggered(bool)),SLOT(onRenameItem(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
-				
+
 				if (AIndex->type() == RIT_CONTACT)
 				{
 					GroupMenu *groupMenu = new GroupMenu(AMenu);
@@ -1769,8 +1775,8 @@ void RosterChanger::onRosterClosed(IRoster *ARoster)
 	{
 		if (window->streamJid() == ARoster->streamJid())
 		{
-			foreach(int chatNoticeId, FChatNoticeWindow.keys(window)) 
-				window->noticeWidget()->removeNotice(chatNoticeId); 
+			foreach(int chatNoticeId, FChatNoticeWindow.keys(window))
+				window->noticeWidget()->removeNotice(chatNoticeId);
 		}
 	}
 

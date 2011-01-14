@@ -1562,7 +1562,6 @@ void CustomBorderContainer::updateShape()
 		rect = QRect(w / 2 - rad - dx, h / 2 - rad - dy, w / 2 + rad, h / 2 + rad);
 		p.drawRoundedRect(rect, rad, rad);
 		p.end();
-		pixmap.save("mask.png");
 		containedWidget->setMask(pixmap.mask());
 #endif // Q_WS_X11
 	}

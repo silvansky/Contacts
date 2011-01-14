@@ -1,6 +1,9 @@
 #include "notifications.h"
 
 #include <QVBoxLayout>
+#include <utils/customborderstorage.h>
+#include <definitions/customborder.h>
+#include <definitions/resources.h>
 
 #define TEST_NOTIFY_TIMEOUT             10000
 
@@ -211,7 +214,7 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 			tr("Turn of all popup windows and sounds if status is 'Away'"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND),
 			tr("Turn of all popup windows and sounds if status is 'Busy'"),AParent));
-		
+
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsHeaderWidget(QString::null,tr("Full screen mode"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN),
 			tr("Temporarily disable all popup windows and sounds when working\nany full screen application (films, games, presentations)"),AParent));
@@ -241,7 +244,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 
 	bool isAway = FStatusChanger ? FStatusChanger->statusItemShow(STATUS_MAIN_ID) == IPresence::Away : false;
 	bool isDND = FStatusChanger ? FStatusChanger->statusItemShow(STATUS_MAIN_ID) == IPresence::DoNotDisturb : false;
-	
+
 	bool blockPopupAndSound = Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY).value().toBool() && isAway;
 	blockPopupAndSound |= Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND).value().toBool() && isDND;
 
@@ -278,7 +281,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (!blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_POPUPWINDOW).value().toBool() && 
+	if (!blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_POPUPWINDOW).value().toBool() &&
 		(record.notification.kinds & INotification::PopupWindow)>0)
 	{
 		if (replaceNotifyId > 0)
@@ -306,7 +309,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (FMessageWidgets && FMessageProcessor && Options::node(OPV_NOTIFICATIONS_CHATWINDOW).value().toBool() && 
+	if (FMessageWidgets && FMessageProcessor && Options::node(OPV_NOTIFICATIONS_CHATWINDOW).value().toBool() &&
 		(record.notification.kinds & INotification::TabPage)>0)
 	{
 		bool createTab = record.notification.data.value(NDR_TABPAGE_CREATE_TAB).toBool();
@@ -335,7 +338,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	{
 		QString toolTip = record.notification.data.value(NDR_TRAY_TOOLTIP).toString();
 
-		if (Options::node(OPV_NOTIFICATIONS_TRAYICON).value().toBool() && 
+		if (Options::node(OPV_NOTIFICATIONS_TRAYICON).value().toBool() &&
 			(record.notification.kinds & INotification::TrayIcon)>0)
 		{
 			ITrayNotify notify;
@@ -362,7 +365,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (QSound::isAvailable() && !blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() && 
+	if (QSound::isAvailable() && !blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() &&
 		(record.notification.kinds & INotification::PlaySound)>0)
 	{
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
@@ -384,7 +387,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (Options::node(OPV_NOTIFICATIONS_AUTOACTIVATE).value().toBool() && 
+	if (Options::node(OPV_NOTIFICATIONS_AUTOACTIVATE).value().toBool() &&
 		(record.notification.kinds & INotification::AutoActivate)>0)
 	{
 		FDelayedActivations.append(notifyId);
@@ -403,7 +406,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		FTestNotifyId = notifyId;
 		FTestNotifyTimer.start();
 	}
-	
+
 	if (!FNotifyRecords.isEmpty())
 	{
 		FActivateAll->setVisible(true);
@@ -666,7 +669,12 @@ void Notifications::onWindowNotifyRemoved()
 void Notifications::onWindowNotifyOptions()
 {
 	if (FOptionsManager)
-		FOptionsManager->showOptionsDialog(OPN_NOTIFICATIONS);
+	{
+		QDialog * dialog = FOptionsManager->showOptionsDialog(OPN_NOTIFICATIONS);
+		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_WINDOW);
+		if (border)
+			border->show();
+	}
 }
 
 void Notifications::onWindowNotifyDestroyed()
