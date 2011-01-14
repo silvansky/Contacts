@@ -1495,6 +1495,42 @@ void CustomBorderContainer::updateShape()
 		return;
 	if (!isMaximized)
 	{
+#ifdef Q_WS_X11 // i don't know why this works well on X11 and bad on WIN...
+		// base rect
+		QRegion shape(0, 0, containedWidget->width(), containedWidget->height());
+		QRegion rect, circle;
+		int rad;
+		QRect g = containedWidget->geometry();
+		int w = g.width();
+		int h = g.height();
+		// for each corner we substract rect and add circle
+		// top-left
+		rad = borderStyle->topLeft.radius;
+		rect = QRegion(0, 0, rad, rad);
+		circle = QRegion(0, 0, 2 * rad + 1, 2 * rad + 1, QRegion::Ellipse);
+		shape -= rect;
+		shape |= circle;
+		// top-right
+		rad = borderStyle->topRight.radius;
+		rect = QRegion(w - rad, 0, rad, rad);
+		circle = QRegion(w - 2 * rad - 1, 0, 2 * rad, 2 * rad, QRegion::Ellipse);
+		shape -= rect;
+		shape |= circle;
+		// bottom-left
+		rad = borderStyle->bottomLeft.radius;
+		rect = QRegion(0, h - rad, rad, rad);
+		circle = QRegion(1, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
+		shape -= rect;
+		shape |= circle;
+		// bottom-right
+		rad = borderStyle->bottomRight.radius;
+		rect = QRegion(w - rad, h - rad, rad, rad);
+		circle = QRegion(w - 2 * rad - 1, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
+		shape -= rect;
+		shape |= circle;
+		// setting mask
+		containedWidget->setMask(shape);
+#else
 		QPixmap pixmap(containedWidget->geometry().size());
 		pixmap.fill(Qt::transparent);
 		QPainter p(&pixmap);
@@ -1506,6 +1542,8 @@ void CustomBorderContainer::updateShape()
 		int h = g.height();
 		w += (1 - w % 2);
 		h += (1 - h % 2);
+		int dx = w % 2;
+		int dy = h % 2;
 		int rad;
 		// top-left
 		rad = borderStyle->topLeft.radius;
@@ -1513,18 +1551,20 @@ void CustomBorderContainer::updateShape()
 		p.drawRoundedRect(rect, rad, rad);
 		// top-right
 		rad = borderStyle->topRight.radius;
-		rect = QRect(w / 2 - rad - 1, 0, w / 2 + rad, h / 2 + rad);
+		rect = QRect(w / 2 - rad - dx, 0, w / 2 + rad, h / 2 + rad);
 		p.drawRoundedRect(rect, rad, rad);
 		// bottom-left
 		rad = borderStyle->bottomLeft.radius;
-		rect = QRect(0, h / 2 - rad - 1, w / 2 + rad, h / 2 + rad);
+		rect = QRect(0, h / 2 - rad - dy, w / 2 + rad, h / 2 + rad);
 		p.drawRoundedRect(rect, rad, rad);
 		// bottom-right
 		rad = borderStyle->bottomRight.radius;
-		rect = QRect(w / 2 - rad - 1, h / 2 - rad - 1, w / 2 + rad, h / 2 + rad);
+		rect = QRect(w / 2 - rad - dx, h / 2 - rad - dy, w / 2 + rad, h / 2 + rad);
 		p.drawRoundedRect(rect, rad, rad);
 		p.end();
+		pixmap.save("mask.png");
 		containedWidget->setMask(pixmap.mask());
+#endif // Q_WS_X11
 	}
 	else
 	{
@@ -1667,13 +1707,15 @@ void CustomBorderContainer::drawBorders(QPainter * p)
 
 	if (!isMaximized)
 	{
-		// angry hack
 		int dx = 0, dy = 0;
+#ifdef Q_WS_WIN
+		// angry hack
 		if (containedWidget)
 		{
 			dx = containedWidget->width() % 2;
 			dy = containedWidget->height() % 2;
 		}
+#endif
 		QRect borderRect;
 		// left
 		borderRect = QRect(0, borderStyle->topLeft.height, borderStyle->left.width, height() - borderStyle->bottomLeft.height - borderStyle->topLeft.height - dy);
@@ -1707,13 +1749,15 @@ void CustomBorderContainer::drawCorners(QPainter * p)
 	// note: image is preferred to draw corners
 	// only stretch image is supported for now
 
-	// angry hack
 	int dx = 0, dy = 0;
+#ifdef Q_WS_WIN
+	// angry hack
 	if (containedWidget)
 	{
 		dx = containedWidget->width() % 2;
 		dy = containedWidget->height() % 2;
 	}
+#endif
 	QRect cornerRect;
 	// top-left
 	cornerRect = QRect(0, 0, borderStyle->topLeft.width, borderStyle->topLeft.height);
