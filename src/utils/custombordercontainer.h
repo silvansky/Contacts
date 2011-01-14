@@ -178,7 +178,7 @@ private:
 	QRect oldGeometry;
 	QPoint oldPressPoint;
 	QPoint lastMousePosition;
-	CustomBorderContainerPrivate * myPrivate;
+	CustomBorderContainerPrivate * borderStyle;
 	BorderType resizeBorder;
 	bool canMove;
 	bool movable;
