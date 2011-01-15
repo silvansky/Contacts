@@ -2,9 +2,6 @@
 
 #include <QRegExp>
 #include <QTextDocument>
-#include <utils/customborderstorage.h>
-#include <definitions/customborder.h>
-#include <definitions/resources.h>
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_SERVICE_JID           Action::DR_Parametr1
@@ -1445,10 +1442,7 @@ void Gateways::onInternalNoticeActionTriggered()
 {
 	if (FOptionsManager)
 	{
-		QDialog * dialog = FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
-		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_WINDOW);
-		if (border)
-			border->show();
+		FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
 	}
 }
 

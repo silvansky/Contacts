@@ -664,6 +664,7 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 	{
 		containedWidget = widget;
 		setAttribute(Qt::WA_WindowPropagation, false);
+		containedWidget->setAttribute(Qt::WA_DeleteOnClose, false);
 		containedWidget->setAutoFillBackground(true);
 		containedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		containerLayout->addWidget(containedWidget);
@@ -929,6 +930,7 @@ void CustomBorderContainer::init()
 	setAttribute(Qt::WA_TranslucentBackground);
 	setFocusPolicy(Qt::NoFocus);
 	setMouseTracking(true);
+	setAttribute(Qt::WA_DeleteOnClose, false);
 	// layout
 	containerLayout = new QVBoxLayout;
 	containerLayout->setContentsMargins(0, 0, 0, 0);

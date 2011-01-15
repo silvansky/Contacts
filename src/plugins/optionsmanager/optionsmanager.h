@@ -78,7 +78,7 @@ public:
 	virtual IOptionsDialogNode optionsDialogNode(const QString &ANodeId) const;
 	virtual void insertOptionsDialogNode(const IOptionsDialogNode &ANode);
 	virtual void removeOptionsDialogNode(const QString &ANodeId);
-	virtual QDialog *showOptionsDialog(const QString &ANodeId = QString::null, QWidget *AParent = NULL);
+	virtual QWidget *showOptionsDialog(const QString &ANodeId = QString::null, QWidget *AParent = NULL);
 	virtual IOptionsContainer *optionsContainer(QWidget *AParent) const;
 	virtual IOptionsWidget *optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const;
 	virtual IOptionsWidget *optionsNodeWidget(const OptionsNode &ANode, const QString &ACaption, QWidget *AParent) const;
@@ -135,7 +135,8 @@ private:
 	Action *FShowOptionsDialogAction;
 	QList<IOptionsHolder *> FOptionsHolders;
 	QMap<QString, IOptionsDialogNode> FOptionsDialogNodes;
-	QPointer<OptionsDialog> FOptionsDialog;
+	OptionsDialog *FOptionsDialog;
+	CustomBorderContainer *FOptionsDialogContainer;
 };
 
 #endif // OPTIONSMANAGER_H

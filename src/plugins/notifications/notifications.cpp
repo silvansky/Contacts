@@ -1,9 +1,6 @@
 #include "notifications.h"
 
 #include <QVBoxLayout>
-#include <utils/customborderstorage.h>
-#include <definitions/customborder.h>
-#include <definitions/resources.h>
 
 #define TEST_NOTIFY_TIMEOUT             10000
 
@@ -670,10 +667,7 @@ void Notifications::onWindowNotifyOptions()
 {
 	if (FOptionsManager)
 	{
-		QDialog * dialog = FOptionsManager->showOptionsDialog(OPN_NOTIFICATIONS);
-		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_WINDOW);
-		if (border)
-			border->show();
+		FOptionsManager->showOptionsDialog(OPN_NOTIFICATIONS);
 	}
 }
 

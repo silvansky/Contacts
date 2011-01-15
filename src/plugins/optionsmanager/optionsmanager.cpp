@@ -27,6 +27,8 @@ OptionsManager::OptionsManager()
 	FMainWindowPlugin = NULL;
 	FPrivateStorage = NULL;
 	FLoginDialog = NULL;
+	FOptionsDialog = NULL;
+	FOptionsDialogContainer = NULL;
 
 	FAutoSaveTimer.setInterval(30*1000);
 	FAutoSaveTimer.setSingleShot(true);
@@ -37,7 +39,10 @@ OptionsManager::OptionsManager()
 
 OptionsManager::~OptionsManager()
 {
-
+	if (FOptionsDialogContainer)
+		FOptionsDialogContainer->deleteLater();
+	else
+		delete FOptionsDialog;
 }
 
 void OptionsManager::pluginInfo(IPluginInfo *APluginInfo)
@@ -480,19 +485,26 @@ void OptionsManager::removeOptionsDialogNode(const QString &ANodeId)
 	}
 }
 
-QDialog *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *AParent)
+QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *AParent)
 {
 	if (isOpened())
 	{
-		if (FOptionsDialog.isNull())
+		if (!FOptionsDialog)
 		{
 			FOptionsDialog = new OptionsDialog(this,AParent);
 			connect(FOptionsDialog,SIGNAL(applied()),SLOT(onOptionsDialogApplied()));
+			FOptionsDialogContainer = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FOptionsDialog, CBS_WINDOW);
+			if (FOptionsDialogContainer)
+			{
+				connect(FOptionsDialog, SIGNAL(accepted()), FOptionsDialogContainer, SLOT(closeWidget()));
+				connect(FOptionsDialog, SIGNAL(rejected()), FOptionsDialogContainer, SLOT(closeWidget()));
+				connect(FOptionsDialogContainer, SIGNAL(closeClicked()), FOptionsDialog, SLOT(reject()));
+			}
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
-		WidgetManager::showActivateRaiseWindow(FOptionsDialog);
+		WidgetManager::showActivateRaiseWindow(FOptionsDialogContainer ? (QWidget*)FOptionsDialogContainer : (QWidget*)FOptionsDialog);
 	}
-	return FOptionsDialog;
+	return FOptionsDialogContainer ? (QWidget*)FOptionsDialogContainer : (QWidget*)FOptionsDialog;
 }
 
 IOptionsContainer *OptionsManager::optionsContainer(QWidget *AParent) const
@@ -541,10 +553,12 @@ void OptionsManager::closeProfile()
 	{
 		emit profileClosed(currentProfile());
 		FAutoSaveTimer.stop();
-		if (!FOptionsDialog.isNull())
+		if (FOptionsDialog)
 		{
-			FOptionsDialog->reject();
-			delete FOptionsDialog;
+			if (FOptionsDialogContainer)
+				FOptionsDialogContainer->close();
+			else
+				FOptionsDialog->close();
 		}
 		FShowOptionsDialogAction->setVisible(false);
 		FChangeProfileAction->setText(tr("Change User"));
@@ -704,10 +718,7 @@ void OptionsManager::onChangeProfileByAction(bool)
 
 void OptionsManager::onShowOptionsDialogByAction(bool)
 {
-	QDialog * dialog = showOptionsDialog();
-	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_WINDOW);
-	if (border)
-		border->show();
+	showOptionsDialog();
 }
 
 void OptionsManager::onLoginDialogRejected()

@@ -17,9 +17,9 @@
 class SortFilterProxyModel :
 			public QSortFilterProxyModel
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
-	SortFilterProxyModel(QObject *AParent) : QSortFilterProxyModel(AParent) {};
+	SortFilterProxyModel(QObject *AParent) : QSortFilterProxyModel(AParent) {}
 protected:
 	virtual bool lessThan(const QModelIndex &ALeft, const QModelIndex &ARight) const;
 };
@@ -27,7 +27,7 @@ protected:
 class OptionsDialog :
 			public QDialog
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent = NULL);
 	~OptionsDialog();

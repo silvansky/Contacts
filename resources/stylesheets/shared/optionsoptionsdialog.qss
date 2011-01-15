@@ -14,17 +14,27 @@ QTreeView#trvNodes::item:selected
 	background-color: palette(base);
 }
 
-QWidget#wdtNodeWidget
+/*#wdtNodeWidget, #wdtOptionsHeader, #scaScroll, #sprSplitter, #qt_scrollarea_viewport
 {
-	background-color: palette(base);
+	background-color: transparent;
+}*/
+
+QGroupBox
+{
+	background-color: transparent;
+	border: 0px;
 }
 
-#scrollAreaWidgetContents, QFrame, QLabel, QCheckBox, QDialogButtonBox, OptionsDialog
+#scrollAreaWidgetContents, QFrame, QDialogButtonBox, NotifyKindsWidget,
+#wdtNodeWidget, QScrollArea, QSplitter, ProxyOptionsWidget, AddLegacyAccountOptions,
+ManageLegacyAccountsOptions, StyleOptionsWidget, OptionsWidget,
+RosterContactOrderOptions, RosterContactViewOptions, MessengerOptions,
+#wdtManualProxy, #wdtGateways, #wdtStyleOptions, AdiumOptionsWidget
 {
 	background-color: transparent;
 }
 
-QDialog
+OptionsDialog
 {
 	background-color: rgba(65, 70, 77, 235);
 }
