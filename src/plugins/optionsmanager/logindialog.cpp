@@ -543,6 +543,7 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	ui.lblConnectError->setVisible(true);
 	ui.lblReconnect->setVisible(true);
 	ui.lblConnectSettings->setVisible(true);
+	ui.chbShowPassword->setVisible(false);
 	QPoint p = ui.pbtConnect->mapToGlobal(ui.pbtConnect->rect().topLeft());
 	p.setY(p.y() + ui.pbtConnect->height() / 2);
 	BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowRight);
@@ -577,6 +578,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	ui.lnePassword->setProperty("error", true);
 	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(true);
+	ui.chbShowPassword->setVisible(true);
 	QPoint p;
 	if (FNewProfile)
 	{
