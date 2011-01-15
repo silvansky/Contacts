@@ -1,4 +1,5 @@
 #include "sipphone.h"
+#include <QMessageBox>
 
 #define SHC_SIP_REQUEST "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SIP_PHONE "']"
 
@@ -17,11 +18,17 @@ SipPhone::SipPhone()
 	FRostersViewPlugin = NULL;
 
 	FSHISipRequest = -1;
+
+	FSipPhoneProxy = NULL;
 }
 
 SipPhone::~SipPhone()
 {
-
+	if(FSipPhoneProxy != NULL)
+	{
+		delete FSipPhoneProxy;
+		FSipPhoneProxy = NULL;
+	}
 }
 
 void SipPhone::pluginInfo(IPluginInfo *APluginInfo)
@@ -74,6 +81,14 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
+	if (plugin)
+	{
+		connect(plugin->instance(), SIGNAL(opened(IXmppStream *)), SLOT(onStreamOpened(IXmppStream *)));
+		//connect(plugin->instance(), SIGNAL(aboutToClose(IXmppStream *)), SLOT(onStreamAboutToClose(IXmppStream *)));
+		connect(plugin->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onStreamClosed(IXmppStream *)));
+	}
+
 	return FStanzaProcessor!=NULL;
 }
 
@@ -99,12 +114,76 @@ bool SipPhone::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
-		uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySound;
+		uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySoundNotification;
+		uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySoundNotification;
 		FNotifications->insertNotificator(NID_SIPPHONE_CALL,OWO_NOTIFICATIONS_SIPPHONE,QString::null,kindMask,kindDefs);
 	}
+
 	return true;
 }
+
+
+void SipPhone::onStreamOpened(IXmppStream * AXmppStream)
+{
+	QString hostAddress;
+	IDefaultConnection *defConnection = qobject_cast<IDefaultConnection *>(AXmppStream->connection()->instance());
+	if (defConnection)
+	{
+		hostAddress = defConnection->localAddress();
+	}
+
+	//QMessageBox::information(NULL, "debug", hostAddress);
+
+	userJid = AXmppStream->streamJid();
+	//sipUri = userJid.pNode() + "@sip." + userJid.pDomain();
+	sipUri = userJid.pNode() + "@" + userJid.pDomain();
+	username = userJid.pNode();
+	pass = AXmppStream->password();
+
+
+	//if(username == "rvoip-1")
+	//{
+	//	sipUri = "\"ramtest1\" <sip:ramtest1@talkpad.ru>";
+	//	username = "ramtest1";
+	//	pass = "ramtest1";
+	//}
+	//else if(username == "spendtime" || username == "rvoip-2")
+	//{
+	//	sipUri = "\"ramtest2\" <sip:ramtest2@talkpad.ru>";
+	//	username = "ramtest2";
+	//	pass = "ramtest2";
+	//}
+
+	//QString res;
+	//res += "username: " + username + " pass: " + pass + " sipUri: " + sipUri;
+
+	//QMessageBox::information(NULL, "debug", res);
+
+	FSipPhoneProxy = new SipPhoneProxy(hostAddress, sipUri, username, pass, this);
+	if(FSipPhoneProxy)
+	{
+		FSipPhoneProxy->initRegistrationData();
+		connect(this, SIGNAL(sipSendInvite(const QString &)), FSipPhoneProxy, SLOT(makeNewCall(const QString&)));
+		//connect(FSipPhoneProxy, SIGNAL(), this, SLOT());
+		connect(this, SIGNAL(sipSendUnRegister()), FSipPhoneProxy, SLOT(makeClearRegisterProxySlot()));
+		connect(FSipPhoneProxy, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
+	}
+	connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(sipClearRegistration(const QString&)));
+	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
+	
+	
+}
+
+void SipPhone::onStreamClosed(IXmppStream *)
+{
+	if(FSipPhoneProxy != NULL)
+	{
+		delete FSipPhoneProxy;
+		FSipPhoneProxy = NULL;
+	}
+}
+
+
 
 bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
 {
@@ -163,17 +242,34 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			if (actionElem.tagName()=="opened" && actionElem.attribute("sid")==sid)
 			{
 				// Удаленный пользователь принял звонок, устанавливаем соединение
+				// Для протокола SIP это означает следующие действия в этом месте:
+				// -1) Регистрация на сарвере SIP уже должна быть выполнена!
+				// 1) Отправка запроса INVITE
+				//connect(this, SIGNAL(sipSendInvite(const QString&)),
+				//				this, SLOT(sipSendInviteSlot(const QString&)));
+				//emit sipSendInvite((username == "ramtest1") ? "ramtest2@talkpad.ru" : "ramtest1@talkpad.ru");
+				QString uri = AStanza.from();
+				int indexSlash = uri.indexOf("/");
+				uri = uri.left(indexSlash);
+				//QMessageBox::information(NULL, "", uri);
+				emit sipSendInvite(uri);
+				// 2) Получение акцепта на запрос INVITE
+				// 3) Установка соединения
 			}
 			else
 			{
 				// Пользователь отказался принимать звонок
 				removeStream(sid);
+				// Здесь нужно выполнить отмену регистрации SIP
+				//emit sipSendUnRegister();
 			}
 		}
 		else
 		{
 			// Получили ошибку, по её коду можно определить причину, уведомляем пользоователя в окне звонка и закрываем сессию
 			removeStream(sid);
+			// Здесь нужно выполнить отмену регистрации SIP
+			//emit sipSendUnRegister();
 		}
 	}
 	else if (FCloseRequests.contains(AStanza.id()))
@@ -181,7 +277,49 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		// Получили ответ на закрытие сессии, есть ошибка или нет уже не важно
 		QString sid = FCloseRequests.take(AStanza.id());
 		removeStream(sid);
+		// Здесь нужно выполнить отмену регистрации SIP
+		//emit sipSendUnRegister();
 	}
+}
+
+
+//void SipPhone::sipSendInviteSlot(const QString &AClientSIP)
+//{
+//	sipActionAfterInviteAnswer(true, AClientSIP);
+//}
+//
+void SipPhone::sipActionAfterInviteAnswer(bool AInviteStatus, const QString &AClientSIP)
+{
+	if(AInviteStatus == true)
+	{
+
+	}
+	else
+	{
+		// Получили отказ. Закрываем соединение.
+	}
+}
+
+void SipPhone::sipCallDeletedSlot(bool initiator)
+{
+	emit sipSendUnRegister();
+	if(initiator)
+	{
+		QString str = "closeStream(" + streamId + ")";
+		//QMessageBox::information(NULL, "debug", str);
+		closeStream(streamId);
+		//removeStream(streamId);
+	}
+}
+void SipPhone::sipClearRegistration(const QString&)
+{
+	//emit sipSendUnRegister();
+}
+
+void SipPhone::onStreamCreated(const QString& sid)
+{
+	//QMessageBox::information(NULL, "debug", sid);
+	streamId = sid;
 }
 
 void SipPhone::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
@@ -230,14 +368,56 @@ QString SipPhone::openStream(const Jid &AStreamJid, const Jid &AContactJid)
 {
 	if (FStanzaProcessor && isSupported(AStreamJid,AContactJid))
 	{
+		connect(this, SIGNAL(sipSendRegisterAsInitiator(const Jid&,const Jid&)),
+						FSipPhoneProxy, SLOT(makeRegisterProxySlot(const Jid&, const Jid&)));
+
+		connect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const Jid&, const Jid&)),
+						this, SLOT(sipActionAfterRegistrationAsInitiator(bool, const Jid&, const Jid&)));
+
+		emit sipSendRegisterAsInitiator(AStreamJid, AContactJid);
+
+		//Stanza open("iq");
+		//open.setType("set").setId(FStanzaProcessor->newId()).setTo(AContactJid.eFull());
+		//QDomElement openElem = open.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(open.createElement("open")).toElement();
+		//
+		//QString sid = QUuid::createUuid().toString();
+		//openElem.setAttribute("sid",sid);
+		//// Здесь добавляем нужные параметры для установки соединения в элемент open
+		//
+		//if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,open,REQUEST_TIMEOUT))
+		//{
+		//	ISipStream stream;
+		//	stream.sid = sid;
+		//	stream.streamJid = AStreamJid;
+		//	stream.contactJid = AContactJid;
+		//	stream.kind = ISipStream::SK_INITIATOR;
+		//	stream.state = ISipStream::SS_OPEN;
+		//	FStreams.insert(sid,stream);
+		//	FOpenRequests.insert(open.id(),sid);
+		//	emit streamCreated(sid);
+		//	return sid;
+		//}
+	}
+	return QString::null;
+}
+
+void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, const Jid& AStreamJid, const Jid& AContactJid)
+{
+	disconnect(this, SIGNAL(sipSendRegisterAsInitiator(const Jid&,const Jid&)), 0, 0);
+	disconnect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const Jid&, const Jid&)), 0, 0);
+
+
+	if(ARegistrationResult)
+	{
+		//QMessageBox::information(NULL, "debug", "sipActionAfterRegistrationAsInitiator:: true");
 		Stanza open("iq");
 		open.setType("set").setId(FStanzaProcessor->newId()).setTo(AContactJid.eFull());
 		QDomElement openElem = open.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(open.createElement("open")).toElement();
-		
+
 		QString sid = QUuid::createUuid().toString();
 		openElem.setAttribute("sid",sid);
 		// Здесь добавляем нужные параметры для установки соединения в элемент open
-		
+
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,open,REQUEST_TIMEOUT))
 		{
 			ISipStream stream;
@@ -249,16 +429,64 @@ QString SipPhone::openStream(const Jid &AStreamJid, const Jid &AContactJid)
 			FStreams.insert(sid,stream);
 			FOpenRequests.insert(open.id(),sid);
 			emit streamCreated(sid);
-			return sid;
+			//return sid;
 		}
 	}
-	return QString::null;
+	else
+	{
+		//QMessageBox::information(NULL, "debug", "sipActionAfterRegistrationAsInitiator:: false");
+		QMessageBox::information(NULL, "SIP Reistration", "SIP registration failed.");
+		// НОТИФИКАЦИЯ О НЕУДАЧНОЙ РЕГИСТРАЦИИ
+	}
 }
 
+//void SipPhone::sipRegisterInitiatorSlot(const Jid& AStreamJid, const Jid& AContactJid)
+//{
+//	sipActionAfterRegistrationAsInitiator(true, AStreamJid, AContactJid);
+//}
+
+
+
+// Responder part
 bool SipPhone::acceptStream(const QString &AStreamId)
 {
 	if (FStanzaProcessor && FPendingRequests.contains(AStreamId))
 	{
+		connect(this, SIGNAL(sipSendRegisterAsResponder(const QString&)),
+			FSipPhoneProxy, SLOT(makeRegisterResponderProxySlot(const QString&)));
+
+		connect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const QString&)),
+			this, SLOT(sipActionAfterRegistrationAsResponder(bool, const QString&)));
+
+		emit sipSendRegisterAsResponder(AStreamId);
+
+		//ISipStream &stream = FStreams[AStreamId];
+
+		//Stanza opened("iq");
+		//opened.setType("result").setId(FPendingRequests.value(AStreamId)).setTo(stream.contactJid.eFull());
+		//QDomElement openedElem = opened.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(opened.createElement("opened")).toElement();
+		//openedElem.setAttribute("sid",AStreamId);
+
+		//if (FStanzaProcessor->sendStanzaOut(stream.streamJid,opened))
+		//{
+		//	FPendingRequests.remove(AStreamId);
+		//	stream.state = ISipStream::SS_OPENED;
+		//	removeNotify(AStreamId);
+		//	emit streamStateChanged(AStreamId, stream.state);
+		//	return true;
+		//}
+	}
+	return false;
+}
+
+void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult, const QString &AStreamId)
+{
+	disconnect(this, SIGNAL(sipSendRegisterAsResponder(const QString&)), 0, 0);
+	disconnect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const QString&)), 0, 0);
+
+	if(ARegistrationResult)
+	{
+		//QMessageBox::information(NULL, "", "sipActionAfterRegistrationAsResponder");
 		ISipStream &stream = FStreams[AStreamId];
 
 		Stanza opened("iq");
@@ -272,11 +500,23 @@ bool SipPhone::acceptStream(const QString &AStreamId)
 			stream.state = ISipStream::SS_OPENED;
 			removeNotify(AStreamId);
 			emit streamStateChanged(AStreamId, stream.state);
-			return true;
+			//return true;
 		}
 	}
-	return false;
 }
+//
+//void SipPhone::sipRegisterResponderSlot(const QString& AStreamId)
+//{
+//	sipActionAfterRegistrationAsResponder(true, AStreamId );
+//}
+
+void SipPhone::finalActionAfterHangup()
+{
+
+}
+
+
+
 
 void SipPhone::closeStream(const QString &AStreamId)
 {
@@ -304,11 +544,14 @@ void SipPhone::closeStream(const QString &AStreamId)
 			{
 				if (!isResult)
 				{
+					FCloseRequests.insert(close.id(),AStreamId);
 					stream.state = ISipStream::SS_CLOSE;
 					emit streamStateChanged(AStreamId,stream.state);
 				}
 				else
 				{
+					//QString str = "Remove " + AStreamId;
+					//QMessageBox::information(NULL, "debug", str);
 					removeStream(AStreamId);
 				}
 			}
@@ -474,5 +717,10 @@ void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiM
 		}
 	}
 }
+
+
+
+
+
 
 Q_EXPORT_PLUGIN2(plg_sipphone, SipPhone)

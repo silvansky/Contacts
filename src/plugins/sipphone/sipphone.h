@@ -21,8 +21,16 @@
 #include <interfaces/iservicediscovery.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/inotifications.h>
+#include <interfaces/ixmppstreams.h>
+#include <interfaces/iconnectionmanager.h>
+#include <interfaces/idefaultconnection.h>
 #include <utils/errorhandler.h>
 #include <utils/action.h>
+
+//#include "sipphonewidget.h"
+#include "sipphoneproxy.h"
+
+
 
 class SipPhone : 
 	public QObject,
@@ -57,14 +65,48 @@ public:
 	virtual QString openStream(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual bool acceptStream(const QString &AStreamId);
 	virtual void closeStream(const QString &AStreamId);
+
 signals:
 	void streamCreated(const QString &AStreamId);
 	void streamStateChanged(const QString &AStreamId, int AState);
 	void streamRemoved(const QString &AStreamId);
+
+
+	// Сигналы относящиеся к взаимодействию с SIP протоколом
+signals:
+	void sipSendRegisterAsInitiator(const Jid &AStreamJid, const Jid &AContactJid);
+	void sipSendRegisterAsResponder(const QString& AStreamId);
+
+	void sipSendInvite(const QString &AClientSIP);
+	void sipSendBye(const QString &AClientSIP);
+	void sipSendUnRegister();
+
+protected slots:
+	// Действие после получения ответа на регистрацию. Регистрация инициатора.
+	void sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, const Jid& AStreamJid, const Jid& AContactJid);
+	// Действие после получения ответа на регистрацию. Регистрация на принимающей стороне
+	void sipActionAfterRegistrationAsResponder(bool ARegistrationResult, const QString &AStreamId);
+	// Действие в случае ответа пользователя на INVITE
+	void sipActionAfterInviteAnswer(bool AInviteStatus, const QString &AClientSIP);
+	void finalActionAfterHangup();
+
+	// Слот обработки завершения звонка
+	void sipCallDeletedSlot(bool);
+
+	void sipClearRegistration(const QString&);
+//
+//	// ЗАГЛУШКИ
+//	void sipRegisterInitiatorSlot(, const Jid& AStreamJid, const Jid& AContactJid);
+//	void sipRegisterResponderSlot(const QString &AStreamId);
+//	//void sipSendInviteSlot(const QString &AClientSIP);
+
+
+
 protected:
 	virtual void insertNotify(const ISipStream &AStream);
 	virtual void removeNotify(const QString &AStreamId);
 	virtual void removeStream(const QString &AStreamId);
+
 protected slots:
 	void onOpenStreamByAction(bool);
 	void onAcceptStreamByAction(bool);
@@ -73,6 +115,12 @@ protected slots:
 	void onNotificationRemoved(int ANotifyId);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
+
+	void onStreamOpened(IXmppStream *);
+	void onStreamClosed(IXmppStream *);
+
+	void onStreamCreated(const QString&);
+
 private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
@@ -86,6 +134,14 @@ private:
 private:
 	QMap<QString, ISipStream> FStreams;
 	QMap<int, QString> FNotifies;
+
+	SipPhoneProxy* FSipPhoneProxy;
+
+	Jid userJid;
+	QString sipUri;
+	QString username;
+	QString pass;
+	QString streamId;
 };
 
 #endif // SIPPHONE_H
