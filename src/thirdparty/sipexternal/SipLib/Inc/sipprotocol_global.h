@@ -1,0 +1,12 @@
+#ifndef SIPPROTOCOL_GLOBAL_H
+#define SIPPROTOCOL_GLOBAL_H
+
+#include <Qt/qglobal.h>
+
+#ifdef SIPPROTOCOL_LIB
+# define SIPPROTOCOL_EXPORT Q_DECL_EXPORT
+#else
+# define SIPPROTOCOL_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // SIPPROTOCOL_GLOBAL_H
