@@ -1603,7 +1603,7 @@ QRect CustomBorderContainer::headerMoveRect() const
 	if (isMaximized)
 		return QRect(borderStyle->header.moveLeft, borderStyle->header.moveTop, width() - borderStyle->header.moveRight, borderStyle->header.moveHeight);
 	else
-		return QRect(borderStyle->left.width + borderStyle->header.moveLeft, borderStyle->top.width + borderStyle->header.moveTop, width() - borderStyle->right.width - borderStyle->header.moveRight, borderStyle->header.moveHeight);
+		return QRect(borderStyle->left.width + borderStyle->header.moveLeft, borderStyle->top.width + borderStyle->header.moveTop, width() - borderStyle->right.width - borderStyle->left.width - borderStyle->header.moveRight, borderStyle->header.moveHeight);
 }
 
 void CustomBorderContainer::drawHeader(QPainter * p)
@@ -1750,40 +1750,43 @@ void CustomBorderContainer::drawCorners(QPainter * p)
 	// note: image is preferred to draw corners
 	// only stretch image is supported for now
 
-	int dx = 0, dy = 0;
-#ifdef Q_WS_WIN
-	// angry hack
-	if (containedWidget)
+	if (!isMaximized)
 	{
-		dx = containedWidget->width() % 2;
-		dy = containedWidget->height() % 2;
-	}
+		int dx = 0, dy = 0;
+#ifdef Q_WS_WIN
+		// angry hack
+		if (containedWidget)
+		{
+			dx = containedWidget->width() % 2;
+			dy = containedWidget->height() % 2;
+		}
 #endif
-	QRect cornerRect;
-	// top-left
-	cornerRect = QRect(0, 0, borderStyle->topLeft.width, borderStyle->topLeft.height);
-	if (borderStyle->topLeft.image.isEmpty())
-		p->fillRect(cornerRect, QBrush(*(borderStyle->topLeft.gradient)));
-	else
-		p->drawImage(cornerRect, loadImage(borderStyle->topLeft.image));
-	// top-right
-	cornerRect = QRect(width() - borderStyle->topRight.width - dx, 0, borderStyle->topRight.width, borderStyle->topRight.height);
-	if (borderStyle->topRight.image.isEmpty())
-		p->fillRect(cornerRect, QBrush(*(borderStyle->topRight.gradient)));
-	else
-		p->drawImage(cornerRect, loadImage(borderStyle->topRight.image));
-	// bottom-left
-	cornerRect = QRect(0, height() - borderStyle->bottomLeft.height - dy, borderStyle->bottomLeft.width, borderStyle->bottomLeft.height);
-	if (borderStyle->bottomLeft.image.isEmpty())
-		p->fillRect(cornerRect, QBrush(*(borderStyle->bottomLeft.gradient)));
-	else
-		p->drawImage(cornerRect, loadImage(borderStyle->bottomLeft.image));
-	// bottom-right
-	cornerRect = QRect(width() - borderStyle->bottomRight.width - dx, height() - borderStyle->bottomRight.height - dy, borderStyle->bottomRight.width, borderStyle->bottomRight.height);
-	if (borderStyle->bottomRight.image.isEmpty())
-		p->fillRect(cornerRect, QBrush(*(borderStyle->bottomRight.gradient)));
-	else
-		p->drawImage(cornerRect, loadImage(borderStyle->bottomRight.image));
+		QRect cornerRect;
+		// top-left
+		cornerRect = QRect(0, 0, borderStyle->topLeft.width, borderStyle->topLeft.height);
+		if (borderStyle->topLeft.image.isEmpty())
+			p->fillRect(cornerRect, QBrush(*(borderStyle->topLeft.gradient)));
+		else
+			p->drawImage(cornerRect, loadImage(borderStyle->topLeft.image));
+		// top-right
+		cornerRect = QRect(width() - borderStyle->topRight.width - dx, 0, borderStyle->topRight.width, borderStyle->topRight.height);
+		if (borderStyle->topRight.image.isEmpty())
+			p->fillRect(cornerRect, QBrush(*(borderStyle->topRight.gradient)));
+		else
+			p->drawImage(cornerRect, loadImage(borderStyle->topRight.image));
+		// bottom-left
+		cornerRect = QRect(0, height() - borderStyle->bottomLeft.height - dy, borderStyle->bottomLeft.width, borderStyle->bottomLeft.height);
+		if (borderStyle->bottomLeft.image.isEmpty())
+			p->fillRect(cornerRect, QBrush(*(borderStyle->bottomLeft.gradient)));
+		else
+			p->drawImage(cornerRect, loadImage(borderStyle->bottomLeft.image));
+		// bottom-right
+		cornerRect = QRect(width() - borderStyle->bottomRight.width - dx, height() - borderStyle->bottomRight.height - dy, borderStyle->bottomRight.width, borderStyle->bottomRight.height);
+		if (borderStyle->bottomRight.image.isEmpty())
+			p->fillRect(cornerRect, QBrush(*(borderStyle->bottomRight.gradient)));
+		else
+			p->drawImage(cornerRect, loadImage(borderStyle->bottomRight.image));
+	}
 }
 
 QPoint CustomBorderContainer::mapFromWidget(QWidget * widget, const QPoint &point)

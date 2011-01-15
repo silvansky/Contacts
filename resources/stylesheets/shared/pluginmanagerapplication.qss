@@ -437,3 +437,12 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
 {
 	background: none;
 }
+
+/**************
+ * BalloonTip *
+ **************/
+
+BalloonTip
+{
+	background-color: rgba(0, 0, 0, 220);
+}

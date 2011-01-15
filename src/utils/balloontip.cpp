@@ -14,17 +14,30 @@ static BalloonTip *theSolitaryBalloonTip = NULL;
 
 bool BalloonTip::isBalloonVisible()
 {
-	return theSolitaryBalloonTip!=NULL;
+	return theSolitaryBalloonTip;
 }
 
 QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString& message,
-														 const QPoint& pos, int timeout, bool showArrow)
+				 const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition)
 {
 	hideBalloon();
 	if (!message.isEmpty() && !title.isEmpty())
 	{
 		theSolitaryBalloonTip = new BalloonTip(icon, title, message);
-		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow);
+		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow, arrowPosition);
+		theSolitaryBalloonTip->show();
+	}
+	return theSolitaryBalloonTip;
+}
+
+QWidget *BalloonTip::showBalloon(QIcon icon, QWidget * messageWidget,
+	const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition)
+{
+	hideBalloon();
+	if (messageWidget)
+	{
+		theSolitaryBalloonTip = new BalloonTip(icon, messageWidget);
+		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow, arrowPosition);
 		theSolitaryBalloonTip->show();
 	}
 	return theSolitaryBalloonTip;
@@ -39,10 +52,24 @@ void BalloonTip::hideBalloon()
 	}
 }
 
-BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message) : QWidget(0, Qt::ToolTip), timerId(-1)
+void BalloonTip::init()
 {
 	setFocusPolicy(Qt::NoFocus);
-	setAttribute(Qt::WA_DeleteOnClose,true);
+	setAttribute(Qt::WA_DeleteOnClose, true);
+	setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
+	setAttribute(Qt::WA_TranslucentBackground, true);
+	setAutoFillBackground(true);
+	setMaximumWidth(250);
+	QPalette pal = palette();
+	pal.setColor(QPalette::Window, pal.toolTipBase().color());
+	pal.setColor(QPalette::WindowText, pal.toolTipText().color());
+	setPalette(pal);
+	widget = NULL;
+}
+
+BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message) : QWidget(0, Qt::ToolTip), timerId(-1)
+{
+	init();
 
 	QLabel *titleLabel = new QLabel;
 	titleLabel->installEventFilter(this);
@@ -75,7 +102,7 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message)
 #ifdef Q_WS_WINCE
 	int limit = QApplication::desktop()->availableGeometry(msgLabel).size().width() / 2;
 #else
-	int limit = QApplication::desktop()->availableGeometry(msgLabel).size().width() / 3;
+	int limit = 200; // QApplication::desktop()->availableGeometry(msgLabel).size().width() / 4;
 #endif
 	if (msgLabel->sizeHint().width() > limit)
 	{
@@ -111,42 +138,102 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message)
 	layout->setSizeConstraint(QLayout::SetFixedSize);
 	layout->setMargin(3);
 	setLayout(layout);
+}
 
-	QPalette pal = palette();
-	pal.setColor(QPalette::Window, pal.toolTipBase().color());
-	pal.setColor(QPalette::WindowText, pal.toolTipText().color());
-	setPalette(pal);
+BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget) : QWidget(0, Qt::ToolTip), timerId(-1)
+{
+	init();
+	widget = messageWidget;
+	QIcon si = icon;
+	QGridLayout *layout = new QGridLayout;
+#ifdef Q_WS_WINCE
+	const int iconSize = style()->pixelMetric(QStyle::PM_SmallIconSize);
+#else
+	const int iconSize = 18;
+#endif
+	if (!si.isNull())
+	{
+		QLabel *iconLabel = new QLabel;
+		iconLabel->setPixmap(si.pixmap(iconSize, iconSize));
+		iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		iconLabel->setMargin(2);
+		layout->addWidget(iconLabel, 0, 0);
+		layout->addWidget(widget, 0, 1);
+	}
+	else
+	{
+		layout->addWidget(widget, 0, 0, 1, 2);
+	}
+	layout->setSizeConstraint(QLayout::SetFixedSize);
+	layout->setMargin(3);
+	setLayout(layout);
 }
 
 BalloonTip::~BalloonTip()
 {
+	if (widget)
+	{
+		widget->setParent(0);
+		widget = NULL;
+	}
 	theSolitaryBalloonTip = NULL;
 	emit closed();
 }
 
-void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow)
+void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, ArrowPosition arrowPosition)
 {
 	QRect scr = QApplication::desktop()->screenGeometry(pos);
 	QSize sh = sizeHint();
-	const int border = 1;
-	const int ah = 18, ao = 18, aw = 18, rc = 7;
+	const int border = 0;
+	int ah = 18, ao = 18, aw = 18, rc = 7;
+	if (arrowPosition == ArrowLeft || arrowPosition == ArrowRight)
+	{
+		ah = 10, ao = 14, aw = 5;
+	}
+	// determining arrow position (only top and bottom are auto)
+	if (arrowPosition == AutoArrow)
+	{
+		if (pos.y() + sh.height() + ah < scr.height())
+			arrowPosition = ArrowTop;
+		else
+			arrowPosition = ArrowBottom;
+	}
+	// vertical alignment for left and right arrow position
 	bool arrowAtTop = (pos.y() + sh.height() + ah < scr.height());
+	// horisontal alignment for top and bottom arrow position
 	bool arrowAtLeft = (pos.x() + sh.width() - ao < scr.width());
-	setContentsMargins(border + 3,  border + (arrowAtTop ? ah : 0) + 2, border + 3, border + (arrowAtTop ? 0 : ah) + 2);
+	setContentsMargins(border + (arrowPosition == ArrowLeft ? aw : 0) + 3,  border + (arrowPosition == ArrowTop ? ah : 0) + 2, border + (arrowPosition == ArrowRight ? aw : 0) + 3, border + (arrowPosition == ArrowBottom ? ah : 0) + 2);
 	updateGeometry();
 	sh  = sizeHint();
 
 	int ml, mr, mt, mb;
 	QSize sz = sizeHint();
-	if (!arrowAtTop) {
-		ml = mt = 0;
+	switch (arrowPosition)
+	{
+	case ArrowLeft:
+		ml = aw;
+		mt = 0;
 		mr = sz.width() - 1;
-		mb = sz.height() - ah - 1;
-	} else {
+		mb = sz.height() - 1;
+		break;
+	case ArrowRight:
+		ml = mt = 0;
+		mr = sz.width() - aw - 1;
+		mb = sz.height() - 1;
+		break;
+	case ArrowTop:
 		ml = 0;
 		mt = ah;
 		mr = sz.width() - 1;
 		mb = sz.height() - 1;
+		break;
+	case ArrowBottom:
+		ml = mt = 0;
+		mr = sz.width() - 1;
+		mb = sz.height() - ah - 1;
+		break;
+	default:
+		break;
 	}
 
 	QPainterPath path;
@@ -161,15 +248,20 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow)
 	move(qMax(pos.x() - sz.width(), scr.left()), pos.y());
 #else
 	path.moveTo(ml + rc, mt);
-	if (arrowAtTop && arrowAtLeft) {
-		if (showArrow) {
+	if ((arrowPosition == ArrowTop) && arrowAtLeft)
+	{
+		if (showArrow)
+		{
 			path.lineTo(ml + ao, mt);
 			path.lineTo(ml + ao, mt - ah);
 			path.lineTo(ml + ao + aw, mt);
 		}
 		move(qMax(pos.x() - ao, scr.left() + 2), pos.y());
-	} else if (arrowAtTop && !arrowAtLeft) {
-		if (showArrow) {
+	}
+	else if ((arrowPosition == ArrowTop) && !arrowAtLeft)
+	{
+		if (showArrow)
+		{
 			path.lineTo(mr - ao - aw, mt);
 			path.lineTo(mr - ao, mt - ah);
 			path.lineTo(mr - ao, mt);
@@ -178,18 +270,43 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow)
 	}
 	path.lineTo(mr - rc, mt);
 	path.arcTo(QRect(mr - rc*2, mt, rc*2, rc*2), 90, -90);
+	if ((arrowPosition == ArrowRight) && arrowAtTop)
+	{
+		if (showArrow)
+		{
+			path.lineTo(mr, mt + rc + ao);
+			path.lineTo(mr + aw, mt + rc + ao + ah/2);
+			path.lineTo(mr, mt + rc + ao + ah);
+		}
+		move(pos.x() - sh.width(), pos.y() - ao - rc - ah/2);
+	}
+	else if ((arrowPosition == ArrowRight) && !arrowAtTop)
+	{
+		if (showArrow)
+		{
+			path.lineTo(mr, mb - rc - ao - ah);
+			path.lineTo(mr + aw, mb - rc - ao - ah/2);
+			path.lineTo(mr, mb - rc - ao);
+		}
+		move(pos.x() - sh.width(), pos.y() - (sh.height() - ao - rc - ah/2));
+	}
 	path.lineTo(mr, mb - rc);
 	path.arcTo(QRect(mr - rc*2, mb - rc*2, rc*2, rc*2), 0, -90);
-	if (!arrowAtTop && !arrowAtLeft) {
-		if (showArrow) {
+	if ((arrowPosition == ArrowBottom) && !arrowAtLeft)
+	{
+		if (showArrow)
+		{
 			path.lineTo(mr - ao, mb);
 			path.lineTo(mr - ao, mb + ah);
 			path.lineTo(mr - ao - aw, mb);
 		}
 		move(qMin(pos.x() - sh.width() + ao, scr.right() - sh.width() - 2),
-			pos.y() - sh.height());
-	} else if (!arrowAtTop && arrowAtLeft) {
-		if (showArrow) {
+		     pos.y() - sh.height());
+	}
+	else if ((arrowPosition == ArrowBottom) && arrowAtLeft)
+	{
+		if (showArrow)
+		{
 			path.lineTo(ao + aw, mb);
 			path.lineTo(ao, mb + ah);
 			path.lineTo(ao, mb);
@@ -198,6 +315,26 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow)
 	}
 	path.lineTo(ml + rc, mb);
 	path.arcTo(QRect(ml, mb - rc*2, rc*2, rc*2), -90, -90);
+	if ((arrowPosition == ArrowLeft) && arrowAtTop)
+	{
+		if (showArrow)
+		{
+			path.lineTo(ml, mt + rc + ao + ah);
+			path.lineTo(ml - aw, mt + rc + ao + ah/2);
+			path.lineTo(ml, mt + rc + ao);
+		}
+		move(pos.x(), pos.y() - ao - rc - ah/2);
+	}
+	else if ((arrowPosition == ArrowLeft) && !arrowAtTop)
+	{
+		if (showArrow)
+		{
+			path.lineTo(ml, mb - rc - ao);
+			path.lineTo(ml - aw, mb - rc - ao - ah/2);
+			path.lineTo(ml, mb - rc - ao - ah);
+		}
+		move(pos.x(), pos.y() - (sh.height() - ao - rc - ah/2));
+	}
 	path.lineTo(ml, mt + rc);
 	path.arcTo(QRect(ml, mt, rc*2, rc*2), 180, -90);
 

@@ -48,6 +48,7 @@ protected:
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void keyPressEvent(QKeyEvent *AEvent);
 	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
+	void mousePressEvent(QMouseEvent *);
 protected:
 	void initialize(IPluginManager *APluginManager);
 	bool isCapsLockOn() const;
@@ -77,6 +78,7 @@ protected slots:
 	void onNotificationAppend(int ANotifyId, INotification &ANotification);
 	void onNotificationAppended(int ANotifyId, const INotification &ANotification);
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
+	void onShowPasswordToggled(int state);
 private:
 	Ui::LoginDialogClass ui;
 private:
@@ -93,6 +95,7 @@ private:
 	QUuid FAccountId;
 	QTimer FReconnectTimer;
 	int FConnectionSettings;
+	QWidget * FConnectionErrorWidget;
 };
 
 #endif // LOGINDIALOG_H

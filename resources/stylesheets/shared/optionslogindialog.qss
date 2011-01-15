@@ -12,11 +12,6 @@ QDialog
 	background-color: transparent;
 }
 
-QLabel, QCheckBox
-{
-	color: rgb(255, 255, 255);
-}
-
 /********************
  * Domain Combo Box *
  ********************/
@@ -45,10 +40,58 @@ QPushButton#pbtConnect
 {
 	font: bold large;
 	min-height: 32px;
-	min-width: 80px;
+	min-width: 124px;
+	margin-top: 12px;
 }
 
 QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #387598);
+}
+
+/****************************
+ * sizes, margins, paddings *
+ ****************************/
+
+#lblRegister, #lblLogo
+{
+	margin-left: 3px;
+}
+
+#lblRegister
+{
+	padding-top: 14px;
+}
+
+QCheckBox
+{
+	margin-left: 2px;
+	font-size: 12px;
+}
+
+#frmLogin
+{
+	padding-top: 14px;
+	padding-right: 3px;
+}
+
+#chbSavePassword
+{
+	padding-top: 8px;
+}
+
+#chbAutoRun
+{
+	padding-top: 2px;
+}
+
+#lblForgotPassword
+{
+	padding-top: 5px;
+}
+
+#cmbDomain
+{
+	min-width: 73px;
+	max-width: 73px;
 }

@@ -91,6 +91,21 @@ public:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	connect(ui.chbShowPassword, SIGNAL(stateChanged(int)), SLOT(onShowPasswordToggled(int)));
+	FConnectionErrorWidget = new QWidget;
+	QVBoxLayout * vlayout = new QVBoxLayout;
+	vlayout->setSpacing(4);
+	vlayout->setContentsMargins(0, 0, 0, 0);
+	vlayout->addWidget(ui.lblConnectError);
+	vlayout->addWidget(ui.lblConnectSettings);
+	vlayout->addWidget(ui.lblXmppError);
+	vlayout->addWidget(ui.lblReconnect);
+	vlayout->addWidget(ui.chbShowPassword);
+	FConnectionErrorWidget->setLayout(vlayout);
+	ui.lneNode->setProperty("error", false);
+	ui.lnePassword->setProperty("error", false);
+	ui.cmbDomain->setProperty("error", false);
+	ui.frmDomain->setProperty("error", false);
 	ui.cmbDomain->setView(new QListView());
 	ui.wdtHelp->setVisible(false);
 	setWindowModality(Qt::WindowModal);
@@ -149,6 +164,10 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lnePassword->installEventFilter(this);
 	ui.chbSavePassword->installEventFilter(this);
 	ui.chbAutoRun->installEventFilter(this);
+	ui.lblLogo->installEventFilter(this);
+	ui.lblForgotPassword->installEventFilter(this);
+	ui.lblRegister->installEventFilter(this);
+	ui.wdtContent->installEventFilter(this);
 
 	if (FMainWindowPlugin)
 	{
@@ -231,6 +250,8 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			stopReconnection();
 		}
+		if ( AWatched != ui.lnePassword)
+			BalloonTip::hideBalloon();
 	}
 	else if (AEvent->type() == QEvent::FocusIn)
 	{
@@ -243,9 +264,11 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		}
 		else if (AWatched == ui.lnePassword && isCapsLockOn())
 		{
-			BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning),tr("Caps Lock is ON"),
+			QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
+			p.setY(p.y() - ui.lnePassword->height() / 2);
+			BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), tr("Caps Lock is ON"),
 				tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
-				ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft()),0);
+				p, 0, true, BalloonTip::ArrowRight);
 		}
 	}
 	else if (AEvent->type() == QEvent::FocusOut)
@@ -276,6 +299,12 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 	}
 
 	return QDialog::eventFilter(AWatched, AEvent);
+}
+
+void LoginDialog::mousePressEvent(QMouseEvent * event)
+{
+	BalloonTip::hideBalloon();
+	QDialog::mousePressEvent(event);
 }
 
 void LoginDialog::initialize(IPluginManager *APluginManager)
@@ -488,8 +517,7 @@ void LoginDialog::hideConnectionError()
 	ui.lblConnectError->setVisible(false);
 	ui.lblReconnect->setVisible(false);
 	ui.lblConnectSettings->setVisible(false);
-	if (parentWidget())
-		parentWidget()->adjustSize();
+	BalloonTip::hideBalloon();
 }
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
@@ -515,8 +543,9 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	ui.lblConnectError->setVisible(true);
 	ui.lblReconnect->setVisible(true);
 	ui.lblConnectSettings->setVisible(true);
-	if (parentWidget())
-		parentWidget()->adjustSize();
+	QPoint p = ui.pbtConnect->mapToGlobal(ui.pbtConnect->rect().topLeft());
+	p.setY(p.y() + ui.pbtConnect->height() / 2);
+	BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowRight);
 }
 
 void LoginDialog::hideXmppStreamError()
@@ -527,8 +556,7 @@ void LoginDialog::hideXmppStreamError()
 	ui.frmDomain->setProperty("error", false);
 	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(false);
-	if (parentWidget())
-		parentWidget()->adjustSize();
+	BalloonTip::hideBalloon();
 }
 
 void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint)
@@ -549,8 +577,18 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	ui.lnePassword->setProperty("error", true);
 	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(true);
-	if (parentWidget())
-		parentWidget()->adjustSize();
+	QPoint p;
+	if (FNewProfile)
+	{
+		p = ui.cmbDomain->mapToGlobal(ui.cmbDomain->rect().topRight());
+		p.setY(p.y() + ui.cmbDomain->height() / 2);
+	}
+	else
+	{
+		p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().topRight());
+		p.setY(p.y() + ui.lnePassword->height() / 2);
+	}
+	BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft);
 }
 
 void LoginDialog::onConnectClicked()
@@ -883,4 +921,12 @@ void LoginDialog::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Activati
 	{
 		WidgetManager::showActivateRaiseWindow(this);
 	}
+}
+
+void LoginDialog::onShowPasswordToggled(int state)
+{
+	if (state == Qt::Checked)
+		ui.lnePassword->setEchoMode(QLineEdit::Normal);
+	else
+		ui.lnePassword->setEchoMode(QLineEdit::Password);
 }
