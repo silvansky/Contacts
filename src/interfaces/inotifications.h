@@ -16,7 +16,7 @@ struct INotification
 		PopupWindow   = 0x02,
 		TrayIcon      = 0x04,
 		TrayAction    = 0x08,
-		PlaySound     = 0x10,
+		PlaySoundNotification     = 0x10,
 		AutoActivate  = 0x20,
 		TabPage       = 0x40,
 		TestNotify    = 0x80

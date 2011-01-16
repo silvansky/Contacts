@@ -29,6 +29,7 @@ public:
 	virtual void setProxy(const QNetworkProxy &AProxy) =0;
 	virtual QVariant option(int ARole) const =0;
 	virtual void setOption(int ARole, const QVariant &AValue) =0;
+	virtual QString localAddress() =0;
 protected:
 	virtual void modeChanged(QSslSocket::SslMode AMode) =0;
 	virtual void sslErrors(const QList<QSslError> &AErrors) =0;

@@ -189,6 +189,16 @@ void DefaultConnection::setOption(int ARole, const QVariant &AValue)
 	FOptions.insert(ARole, AValue);
 }
 
+QString DefaultConnection::localAddress()
+{
+	QHostAddress hostAddress = FSocket.localAddress();
+	if(hostAddress != QHostAddress::Null)
+	{
+		return hostAddress.toString();
+	}
+	return "";
+}
+
 void DefaultConnection::connectToNextHost()
 {
 	if (!FRecords.isEmpty())

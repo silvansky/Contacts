@@ -230,8 +230,8 @@ bool StatusChanger::initObjects()
 
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::PlaySound;
-		uchar kindDefs = INotification::PopupWindow|INotification::PlaySound;
+		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification;
+		uchar kindDefs = INotification::PopupWindow|INotification::PlaySoundNotification;
 		FNotifications->insertNotificator(NID_CONNECTION_STATE,OWO_NOTIFICATIONS_CONNECTION,QString::null,kindMask,kindDefs);
 	}
 

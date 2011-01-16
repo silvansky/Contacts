@@ -177,8 +177,8 @@ bool RosterChanger::initObjects()
 {
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound|INotification::AutoActivate;
-		uchar kindDefs = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySound;
+		uchar kindMask = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySoundNotification|INotification::AutoActivate;
+		uchar kindDefs = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PopupWindow|INotification::PlaySoundNotification;
 		FNotifications->insertNotificator(NID_SUBSCRIPTION,OWO_NOTIFICATIONS_SUBSCRIPTIONS,QString::null,kindMask,kindDefs);
 	}
 	if (FRostersView)
@@ -1194,7 +1194,7 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 	removeObsoleteNotifies(ARoster->streamJid(),AItemJid,ASubsType,false);
 	notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_SUBSCRIPTION) : 0;
 	if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribe)
-		notify.kinds &= INotification::PopupWindow|INotification::PlaySound;
+		notify.kinds &= INotification::PopupWindow|INotification::PlaySoundNotification;
 	if (notify.kinds > 0)
 	{
 		notify.notificatior = NID_SUBSCRIPTION;

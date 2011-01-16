@@ -38,6 +38,7 @@ public:
 	virtual void setProxy(const QNetworkProxy &AProxy);
 	virtual QVariant option(int ARole) const;
 	virtual void setOption(int ARole, const QVariant &AValue);
+	virtual QString localAddress();
 signals:
 	void aboutToConnect();
 	void connected();

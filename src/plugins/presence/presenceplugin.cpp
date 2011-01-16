@@ -81,10 +81,10 @@ bool PresencePlugin::initObjects()
 {
 	if (FNotifications)
 	{
-		uchar stateKindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::PlaySound|INotification::TestNotify;
+		uchar stateKindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::PlaySoundNotification|INotification::TestNotify;
 		FNotifications->insertNotificator(NID_CONTACT_STATE,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),stateKindMask,INotification::RosterIcon);
 
-		uchar moodKindMask = INotification::PopupWindow|INotification::PlaySound|INotification::TestNotify;
+		uchar moodKindMask = INotification::PopupWindow|INotification::PlaySoundNotification|INotification::TestNotify;
 		FNotifications->insertNotificator(NID_CONTACT_MOOD,OWO_NOTIFICATIONS_MOOD_CHANGES,tr("Mood Changes"),moodKindMask,0);
 	}
 	return true;
@@ -356,7 +356,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 			}
 			notify.data.insert(NDR_POPUP_TEXT, text);
 		}
-		if (AKinds & INotification::PlaySound)
+		if (AKinds & INotification::PlaySoundNotification)
 		{
 			notify.data.insert(NDR_SOUND_FILE,SDF_PRESENCE_MOOD_CHANGED);
 		}
@@ -378,7 +378,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 		}
-		if (AKinds & INotification::PlaySound)
+		if (AKinds & INotification::PlaySoundNotification)
 		{
 			notify.data.insert(NDR_SOUND_FILE,SDF_PRESENCE_STATE_CHANGED);
 		}

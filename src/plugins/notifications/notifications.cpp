@@ -363,7 +363,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (QSound::isAvailable() && !blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() &&
-		(record.notification.kinds & INotification::PlaySound)>0)
+		(record.notification.kinds & INotification::PlaySoundNotification)>0)
 	{
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
