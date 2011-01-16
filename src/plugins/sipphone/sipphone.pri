@@ -1,4 +1,5 @@
-FORMS = sipphonewidget.ui
+FORMS = sipphonewidget.ui\
+		formIdentity.ui
 
 HEADERS = sipphone.h\
 		callaudio.h\
