@@ -193,6 +193,13 @@ void MetaContacts::onMetaContactReceived(const IMetaContact &AContact, const IMe
 		emit metaContactReceived(mroster,AContact,ABefore);
 }
 
+void MetaContacts::onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
+{
+	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
+	if (mroster)
+		emit metaActionResult(mroster,AActionId,AErrCond,AErrMessage);
+}
+
 void MetaContacts::onMetaRosterClosed()
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
@@ -241,6 +248,8 @@ void MetaContacts::onRosterAdded(IRoster *ARoster)
 	connect(mroster->instance(),SIGNAL(metaRosterOpened()),SLOT(onMetaRosterOpened()));
 	connect(mroster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
+	connect(mroster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
+		SLOT(onMetaActionResult(const QString &, const QString &, const QString &)));
 	connect(mroster->instance(),SIGNAL(metaRosterClosed()),SLOT(onMetaRosterClosed()));
 	connect(mroster->instance(),SIGNAL(metaRosterEnabled(bool)),SLOT(onMetaRosterEnabled(bool)));
 	connect(mroster->instance(),SIGNAL(metaRosterStreamJidAboutToBeChanged(const Jid &)),SLOT(onMetaRosterStreamJidAboutToBeChanged(const Jid &)));

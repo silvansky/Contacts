@@ -6,6 +6,7 @@
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istanzaprocessor.h>
 #include <utils/stanza.h>
+#include <utils/errorhandler.h>
 
 class MetaRoster : 
 	public QObject,
@@ -34,11 +35,17 @@ public:
 	virtual IMetaContact metaContact(const Jid &AMetaId) const;
 	virtual QSet<QString> groups() const;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const;
+	virtual QString releaseContactItem(const Jid &AMetaId, const Jid &AItemJid);
+	virtual QString deleteContactItem(const Jid &AMetaId, const Jid &AItemJid);
+	virtual QString mergeContacts(const Jid &AMetaDestId, const Jid &AMetaId);
+	virtual QString renameContact(const Jid &AMetaId, const QString &ANewName);
+	virtual QString deleteContact(const Jid &AMetaId);
 	virtual void saveMetaContacts(const QString &AFileName) const;
 	virtual void loadMetaContacts(const QString &AFileName);
 signals:
 	void metaRosterOpened();
 	void metaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
+	void metaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void metaRosterClosed();
 	void metaRosterEnabled(bool AEnabled);
 	void metaRosterStreamJidAboutToBeChanged(const Jid &AAfter);
@@ -67,6 +74,7 @@ private:
 	QString FOpenRequestId;
 	Stanza FRosterRequest;
 	QList<QString> FBlockResults;
+	QList<QString> FActionRequests;
 private:
 	bool FOpened;
 	bool FEnabled;

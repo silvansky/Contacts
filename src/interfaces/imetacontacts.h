@@ -29,11 +29,17 @@ public:
 	virtual IMetaContact metaContact(const Jid &AMetaId) const =0;
 	virtual QSet<QString> groups() const =0;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const =0;
+	virtual QString releaseContactItem(const Jid &AMetaId, const Jid &AItemJid) =0;
+	virtual QString deleteContactItem(const Jid &AMetaId, const Jid &AItemJid) =0;
+	virtual QString mergeContacts(const Jid &AMetaDestId, const Jid &AMetaId) =0;
+	virtual QString renameContact(const Jid &AMetaId, const QString &ANewName) =0;
+	virtual QString deleteContact(const Jid &AMetaId) =0;
 	virtual void saveMetaContacts(const QString &AFileName) const =0;
 	virtual void loadMetaContacts(const QString &AFileName) =0;
 protected:
 	virtual void metaRosterOpened() =0;
 	virtual void metaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore) =0;
+	virtual void metaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage) =0;
 	virtual void metaRosterClosed() =0;
 	virtual void metaRosterEnabled(bool AEnabled) =0;
 	virtual void metaRosterStreamJidAboutToBeChanged(const Jid &AAfter) =0;
@@ -72,6 +78,7 @@ protected:
 	virtual void metaRosterAdded(IMetaRoster *AMetaRoster) =0;
 	virtual void metaRosterOpened(IMetaRoster *AMetaRoster) =0;
 	virtual void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore) =0;
+	virtual void metaActionResult(IMetaRoster *AMetaRoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage) =0;
 	virtual void metaRosterClosed(IMetaRoster *AMetaRoster) =0;
 	virtual void metaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled) =0;
 	virtual void metaRosterRemoved(IMetaRoster *AMetaRoster) =0;

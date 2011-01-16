@@ -48,6 +48,7 @@ signals:
 	void metaRosterAdded(IMetaRoster *AMetaRoster);
 	void metaRosterOpened(IMetaRoster *AMetaRoster);
 	void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
+	void metaActionResult(IMetaRoster *AMetaRoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void metaRosterClosed(IMetaRoster *AMetaRoster);
 	void metaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled);
 	void metaRosterStreamJidAboutToBeChanged(IMetaRoster *AMetaRoster, const Jid &AAfter);
@@ -60,6 +61,7 @@ protected:
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
+	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void onMetaRosterClosed();
 	void onMetaRosterEnabled(bool AEnabled);
 	void onMetaRosterStreamJidAboutToBeChanged(const Jid &AAfter);
