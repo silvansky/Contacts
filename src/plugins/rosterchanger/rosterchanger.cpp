@@ -1235,6 +1235,13 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 			if (FNotifications && notify.kinds>0)
 			{
 				notify.actions = createNotifyActions(NFA_SUBSCRIBE|NFA_UNSUBSCRIBE);
+				foreach(Action *action, notify.actions)
+				{
+					action->setData(ADR_STREAM_JID,ARoster->streamJid().full());
+					action->setData(ADR_CONTACT_JID,AItemJid.full());
+					action->setData(ADR_NOTIFY_ID, notifyId);
+					connect(action,SIGNAL(triggered(bool)),SLOT(onNotificationActionTriggered(bool)));
+				}
 				notifyId = FNotifications->appendNotification(notify);
 			}
 			showNotice = true;
@@ -1303,13 +1310,6 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 
 	if (notifyId > 0)
 	{
-		foreach(Action *action, notify.actions)
-		{
-			action->setData(ADR_STREAM_JID,ARoster->streamJid().full());
-			action->setData(ADR_CONTACT_JID,AItemJid.full());
-			action->setData(ADR_NOTIFY_ID, notifyId);
-			connect(action,SIGNAL(triggered(bool)),SLOT(onNotificationActionTriggered(bool)));
-		}
 		FNotifyChatNotice.insert(notifyId,chatNoticeId);
 	}
 
