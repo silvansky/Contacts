@@ -56,4 +56,20 @@
     <key>bottomLeftShadow</key>
     <object mime="image/png">bottomleftshadow.png</object>
   </icon>
+  <icon>
+    <key>topLeftMask</key>
+    <object mime="image/png">topleftmask.png</object>
+  </icon>
+  <icon>
+    <key>topRightMask</key>
+    <object mime="image/png">toprightmask.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftMask</key>
+    <object mime="image/png">bottomleftmask.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMask</key>
+    <object mime="image/png">bottomrightmask.png</object>
+  </icon>
 </icondef>

@@ -39,19 +39,26 @@ QComboBox[error="true"]:!editable
 QPushButton#pbtConnect
 {
 	font: bold large;
-	min-height: 32px;
+	min-height: 31px;
 	min-width: 124px;
-	margin-top: 12px;
+	margin-left: 2px;
 }
 
 QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect
 {
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #387598);
+	color: white;
+	border-image: url(%IMAGES_PATH%/buttonborderdefaultclick.png);
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #397699);
 }
 
 /****************************
  * sizes, margins, paddings *
  ****************************/
+
+#chbAutoRun
+{
+	padding-bottom: 14px;
+}
 
 #lblRegister, #lblLogo
 {

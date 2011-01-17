@@ -152,6 +152,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	QCompleter *completer = new QCompleter(profiles,ui.lneNode);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	completer->setCompletionMode(QCompleter::PopupCompletion);
+	completer->setPopup(new QListView);
+	completer->popup()->setObjectName("completerPopUp");
 	completer->popup()->setAlternatingRowColors(true);
 	completer->popup()->setItemDelegate(new CompleterDelegate(completer));
 	connect(completer,SIGNAL(activated(const QString &)),SLOT(onCompleterActivated(const QString &)));
@@ -514,10 +516,10 @@ void LoginDialog::showConnectionSettings()
 
 void LoginDialog::hideConnectionError()
 {
+	BalloonTip::hideBalloon();
 	ui.lblConnectError->setVisible(false);
 	ui.lblReconnect->setVisible(false);
 	ui.lblConnectSettings->setVisible(false);
-	BalloonTip::hideBalloon();
 }
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
@@ -536,6 +538,7 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 		FReconnectTimer.start(0);
 		FReconnectTimer.setProperty("ticks",10);
 		FReconnectTimer.setProperty("tries",tries-1);
+		ui.lblReconnect->setText(tr("Reconnect after <b>%1</b> secs").arg(10));
 	}
 	else
 		ui.lblReconnect->setText(tr("Reconnection failed"));

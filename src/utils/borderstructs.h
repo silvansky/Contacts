@@ -34,6 +34,7 @@ struct Corner
 	int height;
 	QGradient * gradient;
 	QString image;
+	QString mask;
 	ImageFillingStyle imageFillingStyle;
 	int radius;
 	int resizeLeft;

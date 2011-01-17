@@ -320,7 +320,7 @@ void CustomBorderContainerPrivate::setDefaultCorner(Corner & corner)
 	corner.height = 10;
 	corner.gradient = new QLinearGradient(0.0, 0.0, 1.0, 0.0);
 	corner.gradient->stops().append(QGradientStop(0.0, QColor::fromRgb(0, 0, 0)));
-	corner.image = QString::null;
+	corner.image = corner.mask = QString::null;
 	corner.imageFillingStyle = Stretch;
 	corner.radius = 10;
 	corner.resizeLeft = corner.resizeRight = corner.resizeTop = corner.resizeBottom = 0;
@@ -356,6 +356,11 @@ void CustomBorderContainerPrivate::parseCorner(const QDomElement & cornerElement
 		if (!radius.isNull())
 		{
 			corner.radius = radius.text().toInt();
+		}
+		QDomElement mask = cornerElement.firstChildElement("mask");
+		if (!mask.isNull())
+		{
+			corner.mask = mask.attribute("src");
 		}
 		QDomElement resizeLeft = cornerElement.firstChildElement("resize-left");
 		if (!resizeLeft.isNull())
@@ -1493,79 +1498,136 @@ void CustomBorderContainer::updateCursor(QWidget * widget)
 
 void CustomBorderContainer::updateShape()
 {
+	// cached masks
+	static QPixmap topLeftMask, topRightMask, bottomLeftMask, bottomRightMask;
 	if (!containedWidget)
 		return;
 	if (!isMaximized)
 	{
+		if (borderStyle->topLeft.mask.isEmpty())
+		{
 #ifdef Q_WS_X11 // i don't know why this works well on X11 and bad on WIN...
-		// base rect
-		QRegion shape(0, 0, containedWidget->width(), containedWidget->height());
-		QRegion rect, circle;
-		int rad;
-		QRect g = containedWidget->geometry();
-		int w = g.width();
-		int h = g.height();
-		// for each corner we substract rect and add circle
-		// top-left
-		rad = borderStyle->topLeft.radius;
-		rect = QRegion(0, 0, rad, rad);
-		circle = QRegion(0, 0, 2 * rad + 1, 2 * rad + 1, QRegion::Ellipse);
-		shape -= rect;
-		shape |= circle;
-		// top-right
-		rad = borderStyle->topRight.radius;
-		rect = QRegion(w - rad, 0, rad, rad);
-		circle = QRegion(w - 2 * rad - 1, 0, 2 * rad, 2 * rad, QRegion::Ellipse);
-		shape -= rect;
-		shape |= circle;
-		// bottom-left
-		rad = borderStyle->bottomLeft.radius;
-		rect = QRegion(0, h - rad, rad, rad);
-		circle = QRegion(1, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
-		shape -= rect;
-		shape |= circle;
-		// bottom-right
-		rad = borderStyle->bottomRight.radius;
-		rect = QRegion(w - rad, h - rad, rad, rad);
-		circle = QRegion(w - 2 * rad - 1, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
-		shape -= rect;
-		shape |= circle;
-		// setting mask
-		containedWidget->setMask(shape);
+			// base rect
+			QRegion shape(0, 0, containedWidget->width(), containedWidget->height());
+			QRegion rect, circle;
+			int rad;
+			QRect g = containedWidget->geometry();
+			int w = g.width();
+			int h = g.height();
+			// for each corner we substract rect and add circle
+			// top-left
+			rad = borderStyle->topLeft.radius;
+			rect = QRegion(0, 0, rad, rad);
+			circle = QRegion(0, 0, 2 * rad + 1, 2 * rad + 1, QRegion::Ellipse);
+			shape -= rect;
+			shape |= circle;
+			// top-right
+			rad = borderStyle->topRight.radius;
+			rect = QRegion(w - rad, 0, rad, rad);
+			circle = QRegion(w - 2 * rad - 1, 0, 2 * rad, 2 * rad, QRegion::Ellipse);
+			shape -= rect;
+			shape |= circle;
+			// bottom-left
+			rad = borderStyle->bottomLeft.radius;
+			rect = QRegion(0, h - rad, rad, rad);
+			circle = QRegion(1, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
+			shape -= rect;
+			shape |= circle;
+			// bottom-right
+			rad = borderStyle->bottomRight.radius;
+			rect = QRegion(w - rad, h - rad, rad, rad);
+			circle = QRegion(w - 2 * rad - 1, h - 2 * rad - 1, 2 * rad, 2 * rad, QRegion::Ellipse);
+			shape -= rect;
+			shape |= circle;
+			// setting mask
+			containedWidget->setMask(shape);
 #else
-		QPixmap pixmap(containedWidget->geometry().size());
-		pixmap.fill(Qt::transparent);
-		QPainter p(&pixmap);
-		p.setBrush(QBrush(Qt::black));
-		p.setPen(QPen());
-		QRect rect;
-		QRect g = containedWidget->geometry();
-		int w = g.width();
-		int h = g.height();
-		w += (1 - w % 2);
-		h += (1 - h % 2);
-		int dx = w % 2;
-		int dy = h % 2;
-		int rad;
-		// top-left
-		rad = borderStyle->topLeft.radius;
-		rect = QRect(0, 0, w / 2 + rad, h / 2 + rad);
-		p.drawRoundedRect(rect, rad, rad);
-		// top-right
-		rad = borderStyle->topRight.radius;
-		rect = QRect(w / 2 - rad - dx, 0, w / 2 + rad, h / 2 + rad);
-		p.drawRoundedRect(rect, rad, rad);
-		// bottom-left
-		rad = borderStyle->bottomLeft.radius;
-		rect = QRect(0, h / 2 - rad - dy, w / 2 + rad, h / 2 + rad);
-		p.drawRoundedRect(rect, rad, rad);
-		// bottom-right
-		rad = borderStyle->bottomRight.radius;
-		rect = QRect(w / 2 - rad - dx, h / 2 - rad - dy, w / 2 + rad, h / 2 + rad);
-		p.drawRoundedRect(rect, rad, rad);
-		p.end();
-		containedWidget->setMask(pixmap.mask());
+			QPixmap pixmap(containedWidget->geometry().size());
+			pixmap.fill(Qt::transparent);
+			QPainter p(&pixmap);
+			p.setBrush(QBrush(Qt::black));
+			p.setPen(QPen());
+			QRect rect;
+			QRect g = containedWidget->geometry();
+			int w = g.width();
+			int h = g.height();
+			w += (1 - w % 2);
+			h += (1 - h % 2);
+			int dx = w % 2;
+			int dy = h % 2;
+			int rad;
+			// top-left
+			rad = borderStyle->topLeft.radius;
+			rect = QRect(0, 0, w / 2 + rad, h / 2 + rad);
+			p.drawRoundedRect(rect, rad, rad);
+			// top-right
+			rad = borderStyle->topRight.radius;
+			rect = QRect(w / 2 - rad - dx, 0, w / 2 + rad, h / 2 + rad);
+			p.drawRoundedRect(rect, rad, rad);
+			// bottom-left
+			rad = borderStyle->bottomLeft.radius;
+			rect = QRect(0, h / 2 - rad - dy, w / 2 + rad, h / 2 + rad);
+			p.drawRoundedRect(rect, rad, rad);
+			// bottom-right
+			rad = borderStyle->bottomRight.radius;
+			rect = QRect(w / 2 - rad - dx, h / 2 - rad - dy, w / 2 + rad, h / 2 + rad);
+			p.drawRoundedRect(rect, rad, rad);
+			p.end();
+			containedWidget->setMask(pixmap.mask());
 #endif // Q_WS_X11
+		}
+		else
+		{
+			// using mask images
+			if (topLeftMask.isNull())
+			{
+				// caching mask images
+				topLeftMask = loadPixmap(borderStyle->topLeft.mask);
+				topRightMask = loadPixmap(borderStyle->topRight.mask);
+				bottomLeftMask = loadPixmap(borderStyle->bottomLeft.mask);
+				bottomRightMask = loadPixmap(borderStyle->bottomRight.mask);
+				topLeftMask.save("topleft.png");
+				topRightMask.save("topright.png");
+				bottomLeftMask.save("bottomleft.png");
+				bottomRightMask.save("bottomright.png");
+			}
+			QPixmap pixmap(containedWidget->geometry().size());
+			pixmap.fill(Qt::transparent);
+			QPainter p(&pixmap);
+			p.setBrush(QBrush(Qt::black));
+			p.setPen(QPen());
+			QRect cornerRectTL, cornerRectTR, cornerRectBL, cornerRectBR;
+			QRect g = containedWidget->geometry();
+			g.moveTopLeft(QPoint(0, 0));
+			int w = g.width();
+			int h = g.height();
+			cornerRectTL = QRect(0, 0,
+					     borderStyle->topLeft.width - borderStyle->topLeft.resizeLeft, borderStyle->topLeft.height - borderStyle->topLeft.resizeTop);
+			cornerRectTR = QRect(w - (borderStyle->topRight.width - borderStyle->topRight.resizeRight), 0,
+					     borderStyle->topRight.width - borderStyle->topRight.resizeRight, borderStyle->topRight.height - borderStyle->topRight.resizeTop);
+			cornerRectBL = QRect(0, h - (borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom),
+					     borderStyle->bottomLeft.width - borderStyle->bottomLeft.resizeLeft, borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom);
+			cornerRectBR = QRect(w - (borderStyle->bottomRight.width - borderStyle->bottomRight.resizeRight), h - (borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom),
+					     borderStyle->bottomRight.width - borderStyle->bottomRight.resizeRight, borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom);
+			QRegion reg(g);
+			reg -= cornerRectTL;
+			reg -= cornerRectTR;
+			reg -= cornerRectBL;
+			reg -= cornerRectBR;
+			QPainterPath path;
+			path.addRegion(reg);
+			p.drawPath(path);
+			// top-left mask
+			p.drawPixmap(-borderStyle->topLeft.resizeLeft, -borderStyle->topLeft.resizeTop, topLeftMask);
+			// top-right mask
+			p.drawPixmap(w - cornerRectTR.width(), -borderStyle->topRight.resizeTop, topRightMask);
+			// bottom-left mask
+			p.drawPixmap(-borderStyle->bottomLeft.resizeLeft, h - cornerRectBL.height(), bottomLeftMask);
+			// bottom-right mask
+			p.drawPixmap(w - cornerRectBR.width(), h - cornerRectBR.height(), bottomRightMask);
+			p.end();
+			containedWidget->setMask(pixmap.mask());
+		}
 	}
 	else
 	{
@@ -1711,7 +1773,7 @@ void CustomBorderContainer::drawBorders(QPainter * p)
 		int dx = 0, dy = 0;
 #ifdef Q_WS_WIN
 		// angry hack
-		if (containedWidget)
+		if (containedWidget && borderStyle->topLeft.mask.isEmpty())
 		{
 			dx = containedWidget->width() % 2;
 			dy = containedWidget->height() % 2;
@@ -1755,7 +1817,7 @@ void CustomBorderContainer::drawCorners(QPainter * p)
 		int dx = 0, dy = 0;
 #ifdef Q_WS_WIN
 		// angry hack
-		if (containedWidget)
+		if (containedWidget && borderStyle->topLeft.mask.isEmpty())
 		{
 			dx = containedWidget->width() % 2;
 			dy = containedWidget->height() % 2;
@@ -1815,6 +1877,11 @@ QIcon CustomBorderContainer::loadIcon(const QString & key)
 	QString storage = list[0];
 	QString iconKey = list[1];
 	return IconStorage::staticStorage(storage)->getIcon(iconKey);
+}
+
+QPixmap CustomBorderContainer::loadPixmap(const QString & key)
+{
+	return QPixmap::fromImage(loadImage(key));
 }
 
 void CustomBorderContainer::minimizeWidget()

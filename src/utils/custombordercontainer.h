@@ -165,6 +165,7 @@ protected:
 	QPoint mapFromWidget(QWidget * widget, const QPoint &point);
 	QImage loadImage(const QString & key);
 	QIcon loadIcon(const QString & key);
+	QPixmap loadPixmap(const QString & key);
 protected slots:
 	void minimizeWidget();
 	void maximizeWidget();

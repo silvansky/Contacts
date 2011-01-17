@@ -33,6 +33,7 @@
    <resize-top>28</resize-top>
    <resize-height>10</resize-height>
    <image src="menuicons/topLeftShadow" />
+   <mask src="menuicons/topLeftMask" />
  </top-left-corner>
  <top-right-corner>
    <width>57</width>
@@ -43,6 +44,7 @@
    <resize-top>28</resize-top>
    <resize-height>10</resize-height>
    <image src="menuicons/topRightShadow" />
+   <mask src="menuicons/topRightMask" />
  </top-right-corner>
  <bottom-left-corner>
    <width>55</width>
@@ -53,6 +55,7 @@
    <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
    <image src="menuicons/bottomLeftShadow" />
+   <mask src="menuicons/bottomLeftMask" />
  </bottom-left-corner>
  <bottom-right-corner>
    <width>57</width>
@@ -63,6 +66,7 @@
    <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
    <image src="menuicons/bottomRightShadow" />
+   <mask src="menuicons/bottomRightMask" />
  </bottom-right-corner>
  <header>
    <spacing>5</spacing>
