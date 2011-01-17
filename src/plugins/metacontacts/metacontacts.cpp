@@ -1,6 +1,13 @@
 #include "metacontacts.h"
 
 #include <QDir>
+#include <QMessageBox>
+#include <QInputDialog>
+
+#define ADR_STREAM_JID      Action::DR_StreamJid
+#define ADR_META_ID         Action::DR_Parametr1
+#define ADR_NAME            Action::DR_Parametr2
+#define ADR_GROUP           Action::DR_Parametr3
 
 MetaContacts::MetaContacts()
 {
@@ -54,7 +61,13 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
+	{
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
+		if (FRostersViewPlugin)
+		{
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
 	if (plugin)
@@ -308,6 +321,80 @@ void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
 		{
 			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
 			window->setItemPage(AWindow->contactJid(),AWindow);
+		}
+	}
+}
+
+void MetaContacts::onRenameContact(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QString streamJid = action->data(ADR_STREAM_JID).toString();
+		IMetaRoster *mroster = findMetaRoster(streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			Jid metaId = action->data(ADR_META_ID).toString();
+			QString oldName = action->data(ADR_NAME).toString();
+			bool ok = false;
+			QString newName = QInputDialog::getText(NULL,tr("Contact name"),tr("Enter name for contact"), QLineEdit::Normal, oldName, &ok);
+			if (ok && !newName.isEmpty() && newName != oldName)
+				mroster->renameContact(metaId, newName);
+		}
+	}
+}
+
+void MetaContacts::onDeleteContact(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QString streamJid = action->data(ADR_STREAM_JID).toString();
+		IMetaRoster *mroster = findMetaRoster(streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			Jid metaId = action->data(ADR_META_ID).toString();
+			IMetaContact contact = mroster->metaContact(metaId);
+			if (QMessageBox::question(NULL,tr("Remove contact"),
+				tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(!contact.name.isEmpty() ? contact.name : contact.id.node()),
+				QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+			{
+				mroster->deleteContact(metaId);
+			}
+		}
+	}
+}
+
+void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+{
+	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+	IMetaRoster *mroster = findMetaRoster(streamJid);
+	if (mroster && mroster->isOpen())
+	{
+		int itemType = AIndex->data(RDR_TYPE).toInt();
+		if (itemType == RIT_METACONTACT)
+		{
+			Jid metaId = AIndex->data(RDR_INDEX_ID).toString();
+			const IMetaContact &contact = mroster->metaContact(metaId);
+
+			QHash<int,QVariant> data;
+			data.insert(ADR_STREAM_JID,streamJid.full());
+			data.insert(ADR_META_ID,metaId.full());
+			data.insert(ADR_NAME, contact.name);
+
+			Action *action = new Action(AMenu);
+			action->setText(tr("Rename..."));
+			action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_RENAME);
+			action->setData(data);
+			connect(action,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
+			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
+
+			action = new Action(AMenu);
+			action->setText(tr("Delete"));
+			action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
+			action->setData(data);
+			connect(action,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
+			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 		}
 	}
 }

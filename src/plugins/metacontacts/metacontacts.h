@@ -3,7 +3,11 @@
 
 #include <QMultiMap>
 #include <QObjectCleanupHandler>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/actiongroups.h>
 #include <definitions/rosterproxyorders.h>
+#include <definitions/rosterindextyperole.h>
 #include <definitions/rosterclickhookerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
@@ -75,6 +79,11 @@ protected slots:
 protected slots:
 	void onLoadMetaRosters();
 	void onChatWindowCreated(IChatWindow *AWindow);
+protected slots:
+	void onRenameContact(bool);
+	void onDeleteContact(bool);
+protected slots:
+	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
