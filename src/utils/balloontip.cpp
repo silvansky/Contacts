@@ -156,7 +156,6 @@ BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget) : QWidget(0, Qt::Too
 		QLabel *iconLabel = new QLabel;
 		iconLabel->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 		iconLabel->setPixmap(si.pixmap(iconSize, iconSize));
-		iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		iconLabel->setMargin(2);
 		layout->addWidget(iconLabel, 0, 0);
 		layout->addWidget(widget, 0, 1);

@@ -38,7 +38,7 @@ QComboBox[error="true"]:!editable
 
 QPushButton#pbtConnect
 {
-	font: bold large;
+	font-size: 16px;
 	min-height: 31px;
 	min-width: 124px;
 	margin-left: 2px;
@@ -73,7 +73,6 @@ QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect
 QCheckBox
 {
 	margin-left: 2px;
-	font-size: 12px;
 }
 
 #frmLogin
@@ -99,6 +98,6 @@ QCheckBox
 
 #cmbDomain
 {
-	min-width: 73px;
-	max-width: 73px;
+	min-width: 75px;
+	max-width: 75px;
 }

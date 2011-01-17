@@ -760,12 +760,12 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 	static int prevIndex = 0;
 	if (ui.cmbDomain->itemData(AIndex).toString().isEmpty())
 	{
-		QInputDialog *dialog = new QInputDialog(this);
-		dialog->setStyleSheet(styleSheet());
+		QInputDialog *dialog = new QInputDialog();
 		dialog->setInputMode(QInputDialog::TextInput);
 		dialog->setWindowTitle(tr("Add custom domain"));
 		dialog->setLabelText(tr("Enter custom domain address"));
 		dialog->setOkButtonText(tr("Add"));
+		dialog->setStyleSheet(styleSheet());
 		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 		if (border)
 		{

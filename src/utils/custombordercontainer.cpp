@@ -14,6 +14,7 @@
 #include <QStyle>
 #include <QBitmap>
 #include <QChildEvent>
+#include <QPushButton>
 #include "iconstorage.h"
 
 // internal functions
@@ -846,11 +847,12 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 	{
 	case QEvent::MouseMove:
 		mouseMove(((QMouseEvent*)event)->globalPos(), widget);
+
 		break;
 	case QEvent::MouseButtonPress:
 		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
 			handled = mousePress(((QMouseEvent*)event)->pos(), widget);
-		qDebug() << "handled = " << handled << " " << widget->objectName() << " of class " << widget->metaObject()->className();
+		qDebug() << "handled = " << handled << " " << widget->objectName() << " of class " << widget->metaObject()->className() << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
 		break;
 	case QEvent::MouseButtonRelease:
 		mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
@@ -1787,10 +1789,11 @@ void CustomBorderContainer::drawBorders(QPainter * p)
 		else
 			p->drawImage(borderRect, loadImage(borderStyle->left.image));
 		// right
-		borderRect = QRect(width() - borderStyle->right.width - 1, borderStyle->topRight.height, borderStyle->right.width, height() - borderStyle->bottomRight.height - borderStyle->topRight.height - dy);
+		borderRect = QRect(width() - borderStyle->right.width, borderStyle->topRight.height, borderStyle->right.width, height() - borderStyle->bottomRight.height - borderStyle->topRight.height - dy);
 		if (borderStyle->right.image.isEmpty())
 			p->fillRect(borderRect, QBrush(*(borderStyle->right.gradient)));
 		else
+			//p->fillRect(borderRect, QBrush(QColor::fromRgb(255, 0, 0, 200)));
 			p->drawImage(borderRect, loadImage(borderStyle->right.image));
 		// top
 		borderRect = QRect(borderStyle->topLeft.width, 0, width() - borderStyle->topRight.width - borderStyle->topLeft.width - dx, borderStyle->top.width);
@@ -1799,10 +1802,11 @@ void CustomBorderContainer::drawBorders(QPainter * p)
 		else
 			p->drawImage(borderRect, loadImage(borderStyle->top.image));
 		// bottom
-		borderRect = QRect(borderStyle->bottomLeft.width, height() - borderStyle->bottom.width - 1, width() - borderStyle->bottomRight.width - borderStyle->bottomLeft.width - dx, borderStyle->bottom.width);
+		borderRect = QRect(borderStyle->bottomLeft.width, height() - borderStyle->bottom.width, width() - borderStyle->bottomRight.width - borderStyle->bottomLeft.width - dx, borderStyle->bottom.width);
 		if (borderStyle->bottom.image.isEmpty())
 			p->fillRect(borderRect, QBrush(*(borderStyle->bottom.gradient)));
 		else
+			//p->fillRect(borderRect, QBrush(QColor::fromRgb(255, 0, 0, 200)));
 			p->drawImage(borderRect, loadImage(borderStyle->bottom.image));
 	}
 }

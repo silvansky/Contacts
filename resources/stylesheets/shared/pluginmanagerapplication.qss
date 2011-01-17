@@ -6,6 +6,7 @@ QCheckBox
 {
 	spacing: 5px;
 	color: white;
+	font-size: 12px;
 	background-color: transparent;
 }
 
@@ -43,6 +44,7 @@ QRadioButton
 {
 	spacing: 5px;
 	color: white;
+	font-size: 12px;
 	background-color: transparent;
 }
 
@@ -87,6 +89,13 @@ QLineEdit, QTextEdit
 	min-height: 31px;
 	background-color: transparent;
 	border-image: url(%IMAGES_PATH%/editborder.png);
+	color: #333333;
+	font-size: 12px;
+}
+
+QLineEdit:!enabled, QTextEdit:!enabled
+{
+	color: #acacac;
 }
 
 QLineEdit:focus, QTextEdit:focus
@@ -191,26 +200,23 @@ QPushButton[default="true"]:enabled:pressed, QToolButton[default="true"]:enabled
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #397699);
 }
 
-QToolButton[popupMode="1"]
+QToolButton[popupMode="1"]:enabled, QToolButton[popupMode="2"]:enabled
 {
-	padding-right: 20px;
-}
-
-QToolButton[popupMode="1"]:open
-{
-	padding-top: 2px;
-	padding-left: 1px;
-}
-
-QToolButton[popupMode="2"]
-{
+	padding-left: -2px;
+	padding-top: -2px;
+	padding-bottom: -2px;
 	padding-right: 10px;
 }
 
-QToolButton[popupMode="2"]:open
+QToolButton[popupMode="1"]:hover:enabled, QToolButton[popupMode="2"]:hover:enabled
 {
-	padding-top: 2px;
-	padding-left: 1px;
+	padding-left: -15px;
+}
+
+QToolButton[popupMode="1"]:open, QToolButton[popupMode="2"]:open
+{
+
+	background-clip: border;
 }
 
 QToolButton::menu-indicator
@@ -218,7 +224,13 @@ QToolButton::menu-indicator
 	image: url("%IMAGES_PATH%/buttonarrowdown.png");
 	subcontrol-origin: padding;
 	subcontrol-position: center right;
+	width: 7px;
 	right: 3px;
+}
+
+QToolButton::menu-indicator:hover
+{
+	right: 1px;
 }
 
 QToolButton::menu-indicator:open, QToolButton::menu-indicator:pressed
@@ -299,7 +311,7 @@ QComboBox
 {
 	border: 1px solid #22272d;
 	border-radius: 3px;
-	padding: -1px 18px -1px 3px;
+	padding: -1px 10px -1px 8px;
 	min-width: 6em;
 	min-height: 27px;
 	color: white;
@@ -335,6 +347,7 @@ QComboBox::drop-down
 {
 	subcontrol-origin: padding;
 	subcontrol-position: top right;
+	right: 2px;
 	width: 15px;
 	border-left: 0px;
 	border-top-right-radius: 3px;
