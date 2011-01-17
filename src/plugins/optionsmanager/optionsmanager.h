@@ -129,7 +129,7 @@ private:
 	QList<QString> FServerOptions;
 private:
 	Action *FChangeProfileAction;
-	LoginDialog * FLoginDialog;
+	QPointer<LoginDialog> FLoginDialog;
 	QPointer<EditProfilesDialog> FEditProfilesDialog;
 private:
 	Action *FShowOptionsDialogAction;

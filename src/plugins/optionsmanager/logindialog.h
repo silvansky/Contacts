@@ -63,6 +63,9 @@ protected:
 	void showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint);
 	void saveCurrentProfileSettings();
 	void loadCurrentProfileSettings();
+protected:
+	virtual void hideEvent(QHideEvent *AEvent);
+	virtual void closeEvent(QCloseEvent *AEvent);
 protected slots:
 	void onConnectClicked();
 	void onXmppStreamOpened();

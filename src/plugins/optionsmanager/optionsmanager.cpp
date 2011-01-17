@@ -26,7 +26,6 @@ OptionsManager::OptionsManager()
 	FTrayManager = NULL;
 	FMainWindowPlugin = NULL;
 	FPrivateStorage = NULL;
-	FLoginDialog = NULL;
 	FOptionsDialog = NULL;
 	FOptionsDialogContainer = NULL;
 
@@ -404,7 +403,7 @@ void OptionsManager::removeServerOption(const QString &APath)
 
 QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 {
-	if (!FLoginDialog)
+	if (FLoginDialog.isNull())
 	{
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));

@@ -596,6 +596,18 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft);
 }
 
+void LoginDialog::hideEvent(QHideEvent *AEvent)
+{
+	deleteLater();
+	QDialog::hideEvent(AEvent);
+}
+
+void LoginDialog::closeEvent(QCloseEvent *AEvent)
+{
+	deleteLater();
+	QDialog::closeEvent(AEvent);
+}
+
 void LoginDialog::onConnectClicked()
 {
 	if (ui.pbtConnect->isEnabled())
