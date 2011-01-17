@@ -55,7 +55,7 @@ public:
   void setDefault( bool newDefault );
 
 signals:
-  void update( void );
+  void updateForm( void );
 
 public Q_SLOTS:
   virtual void accept();

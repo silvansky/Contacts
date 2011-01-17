@@ -68,7 +68,7 @@ public slots:
 	void localStatusUpdate( void );
 	void stateUpdated( int id );
 	void registrationStatus( bool status );
-	void trueRegistrationStatusSlot(bool state);
+	//void trueRegistrationStatusSlot(bool state);
 
 public slots:
 	void makeNewCall( const QString& uri );

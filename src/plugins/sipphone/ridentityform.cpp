@@ -112,7 +112,7 @@ void RIdentityForm::accept()
   }
   else
   {
-    emit RIdentityForm::update();
+    emit RIdentityForm::updateForm();
     QDialog::accept();
   }
 }
@@ -136,7 +136,7 @@ RSipRegistrations::RSipRegistrations(const SipRegistrationData& regData, SipClie
   _useStun = false;
 
   _pIdentityForm = new RIdentityForm( _parentWidget, _userPrefix.toLatin1(), this );
-  connect( _pIdentityForm, SIGNAL( update() ), this, SLOT( update() ) );
+  connect( _pIdentityForm, SIGNAL( updateForm() ), this, SLOT( update() ) );
 
   _sipRegister = 0;
 

@@ -111,7 +111,7 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 	//_pSipUser = new SipUser( _pSipClient, SipUri( uriStr ) );
 	_pSipUser = new SipUser( _pSipClient, userURI );
 
-	connect( _pSipClient, SIGNAL( updateSubscribes() ), this, SLOT( updateSubscribes() ) );
+	//connect( _pSipClient, SIGNAL( updateSubscribes() ), this, SLOT( updateSubscribes() ) );
 	connect( _pSipClient, SIGNAL( incomingSubscribe( SipCallMember *, bool ) ), this, SLOT( incomingSubscribe( SipCallMember *, bool ) ) );
 	connect( _pSipClient, SIGNAL( incomingCall( SipCall *, QString ) ), this, SLOT( incomingCall( SipCall *, QString ) ) );
 	connect( _pSipClient, SIGNAL( hideCallWidget( SipCall * ) ), this, SLOT( hideCallWidget( SipCall * ) ) );
@@ -295,7 +295,7 @@ bool SipPhoneProxy::initRegistrationData( void )
 	regData.autoRegister = false;
 
 
-	connect(this, SIGNAL(proxyTrueRegistrationStatus(bool)), this, SLOT(registrationStatus(bool)));
+	//connect(this, SIGNAL(proxyTrueRegistrationStatus(bool)), this, SLOT(registrationStatus(bool)));
 
 	registrations = new RSipRegistrations(regData, _pSipClient, this);
 	
@@ -336,11 +336,11 @@ bool SipPhoneProxy::initRegistrationData( void )
 	return true;
 }
 
-void SipPhoneProxy::trueRegistrationStatusSlot(bool state)
-{
-	//emit proxyTrueRegistrationStatus(state);
-	//QMessageBox::information(NULL, "debug", "SipPhoneProxy::trueRegistrationStatusSlot");
-}
+//void SipPhoneProxy::trueRegistrationStatusSlot(bool state)
+//{
+//	//emit proxyTrueRegistrationStatus(state);
+//	//QMessageBox::information(NULL, "debug", "SipPhoneProxy::trueRegistrationStatusSlot");
+//}
 
 
 void SipPhoneProxy::registrationStatus( bool status )
