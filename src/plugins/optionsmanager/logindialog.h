@@ -95,6 +95,7 @@ private:
 private:
 	bool FNewProfile;
 	bool FFirstConnect;
+	bool FMainWindowVisible;
 	QUuid FAccountId;
 	QTimer FReconnectTimer;
 	int FConnectionSettings;

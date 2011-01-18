@@ -14,7 +14,7 @@ MainWindowPlugin::MainWindowPlugin()
 	FOpenAction = NULL;
 	FActivationChanged = QTime::currentTime();
 #ifdef Q_WS_WIN
-	FMainWindow = new MainWindow(new QWidget, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
+	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 #else
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 #endif
@@ -138,16 +138,18 @@ IMainWindow *MainWindowPlugin::mainWindow() const
 	return FMainWindow;
 }
 
+CustomBorderContainer * MainWindowPlugin::mainWindowBorder() const
+{
+	return FMainWindowBorder;
+}
+
 void MainWindowPlugin::showMainWindow() const
 {
 	if (!Options::isNull())
 	{
-//		if (FMainWindowBorder)
-//			FMainWindowBorder->show();
-//		else
-//			FMainWindow->show();
 		correctWindowPosition();
 		WidgetManager::showActivateRaiseWindow(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow);
+		QApplication::processEvents();
 	}
 }
 
@@ -188,6 +190,8 @@ void MainWindowPlugin::onOptionsOpened()
 	widget->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
+	if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
+		showMainWindow();
 	updateTitle();
 }
 

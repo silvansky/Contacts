@@ -679,8 +679,8 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 		containedWidget->setMouseTracking(true);
 		containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
 		setMinimumSize(containedWidget->minimumSize());
-		//setMinimumSize(containedWidget->minimumSizeHint());
 		setWindowTitle(containedWidget->windowTitle());
+		containedWidget->setVisible(true);
 	}
 }
 
@@ -746,8 +746,6 @@ void CustomBorderContainer::changeEvent(QEvent *e)
 
 void CustomBorderContainer::resizeEvent(QResizeEvent * event)
 {
-	qDebug() << "new size: " << event->size();
-	updateShape();
 	QWidget::resizeEvent(event);
 }
 
@@ -896,6 +894,14 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 	case QEvent::WindowTitleChange:
 		if (widget == containedWidget)
 			setWindowTitle(containedWidget->windowTitle());
+		break;
+	case QEvent::Resize:
+		if (object == containedWidget)
+		{
+			handled = QWidget::eventFilter(object, event);
+			updateShape();
+			return handled;
+		}
 		break;
 	default:
 		break;

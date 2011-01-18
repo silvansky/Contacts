@@ -42,6 +42,7 @@ public:
 	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IMainWindowPlugin
 	virtual IMainWindow *mainWindow() const;
+	virtual CustomBorderContainer * mainWindowBorder() const;
 	virtual void showMainWindow() const;
 protected:
 	void updateTitle();

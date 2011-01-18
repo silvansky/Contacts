@@ -7,6 +7,7 @@
 #include <QStackedWidget>
 #include <utils/menu.h>
 #include <utils/toolbarchanger.h>
+#include <utils/custombordercontainer.h>
 
 #define MAINWINDOW_UUID "{a11424f5-279b-4e53-a1eb-ca938683c2ab}"
 
@@ -24,7 +25,7 @@ struct IInternalNotice
 	QList<Action *> actions;
 };
 
-class IInternalNoticeWidget 
+class IInternalNoticeWidget
 {
 public:
 	virtual QWidget *instance() = 0;
@@ -62,6 +63,7 @@ class IMainWindowPlugin
 public:
 	virtual QObject *instance() = 0;
 	virtual IMainWindow *mainWindow() const = 0;
+	virtual CustomBorderContainer * mainWindowBorder() const = 0;
 	virtual void showMainWindow() const =0;
 };
 

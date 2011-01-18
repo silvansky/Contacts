@@ -173,8 +173,18 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	if (FMainWindowPlugin)
 	{
-		FMainWindowPlugin->mainWindow()->instance()->installEventFilter(this);
-		FMainWindowPlugin->mainWindow()->instance()->hide();
+		if (FMainWindowPlugin->mainWindowBorder())
+		{
+			FMainWindowPlugin->mainWindowBorder()->installEventFilter(this);
+			FMainWindowVisible = FMainWindowPlugin->mainWindowBorder()->isVisible();
+			FMainWindowPlugin->mainWindowBorder()->hide();
+		}
+		else
+		{
+			FMainWindowPlugin->mainWindow()->instance()->installEventFilter(this);
+			FMainWindowVisible = FMainWindowPlugin->mainWindow()->instance()->isVisible();
+			FMainWindowPlugin->mainWindow()->instance()->hide();
+		}
 	}
 
 	FReconnectTimer.setSingleShot(true);
@@ -294,9 +304,13 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			ui.lneNode->completer()->popup()->setFixedWidth(ui.frmLogin->width());
 		}
-		else if (FMainWindowPlugin && AWatched == FMainWindowPlugin->mainWindow()->instance())
+		else if (FMainWindowPlugin && (AWatched == FMainWindowPlugin->mainWindow()->instance() || AWatched == FMainWindowPlugin->mainWindowBorder()))
 		{
-			QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(),SLOT(close()));
+			FMainWindowVisible = true;
+			if (AWatched == FMainWindowPlugin->mainWindow()->instance())
+				QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(), SLOT(close()));
+			else
+				QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(close()));
 		}
 	}
 
@@ -697,8 +711,18 @@ void LoginDialog::onXmppStreamOpened()
 
 	if (FMainWindowPlugin)
 	{
-		FMainWindowPlugin->mainWindow()->instance()->removeEventFilter(this);
-		FMainWindowPlugin->mainWindow()->instance()->show();
+		if (FMainWindowPlugin->mainWindowBorder())
+		{
+			FMainWindowPlugin->mainWindowBorder()->removeEventFilter(this);
+			if (FMainWindowVisible)
+				FMainWindowPlugin->mainWindowBorder()->show();
+		}
+		else
+		{
+			FMainWindowPlugin->mainWindow()->instance()->removeEventFilter(this);
+			if (FMainWindowVisible)
+				FMainWindowPlugin->mainWindow()->instance()->show();
+		}
 	}
 
 	saveCurrentProfileSettings();
