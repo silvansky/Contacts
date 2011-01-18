@@ -22,6 +22,7 @@
 
 //MetaContacts
 #define STS_METACONTACTS_METATABWINDOW                                  "metacontactsMetaTabWindow"
+#define STS_METACONTACTS_MERGECONTACTSDIALOG                            "metacontactsMergeContactsDialog"
 
 //Notifications
 #define STS_NOTIFICATION_NOTIFYWIDGET                                   "notificationsNotifyWidget"

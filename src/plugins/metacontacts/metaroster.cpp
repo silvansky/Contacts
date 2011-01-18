@@ -256,25 +256,6 @@ QString MetaRoster::renameContact(const Jid &AMetaId, const QString &ANewName)
 	return QString::null;
 }
 
-QString MetaRoster::mergeContacts(const Jid &AMetaDestId, const Jid &AMetaId)
-{
-	if (isOpen() && isEnabled() && FMetaContacts.contains(AMetaId) && FMetaContacts.contains(AMetaDestId))
-	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-		mcElem.setAttribute("action","merge");
-		mcElem.setAttribute("id",AMetaDestId.eFull());
-		mcElem.appendChild(query.createElement("mc")).toElement().setAttribute("id",AMetaId.eFull());
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
-		{
-			FActionRequests.append(query.id());
-			return query.id();
-		}
-	}
-	return QString::null;
-}
-
 QString MetaRoster::deleteContact(const Jid &AMetaId)
 {
 	if (isOpen() && isEnabled() && FMetaContacts.contains(AMetaId))
@@ -284,6 +265,26 @@ QString MetaRoster::deleteContact(const Jid &AMetaId)
 		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 		mcElem.setAttribute("action","delete");
 		mcElem.setAttribute("id",AMetaId.eFull());
+		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		{
+			FActionRequests.append(query.id());
+			return query.id();
+		}
+	}
+	return QString::null;
+}
+
+QString MetaRoster::mergeContacts(const Jid &AParentId, const QList<Jid> &AChildsId)
+{
+	if (isOpen() && isEnabled() && FMetaContacts.contains(AParentId) && !AChildsId.isEmpty())
+	{
+		Stanza query("iq");
+		query.setType("set").setId(FStanzaProcessor->newId());
+		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+		mcElem.setAttribute("action","merge");
+		mcElem.setAttribute("id",AParentId.eFull());
+		foreach(Jid metaId, AChildsId)
+			mcElem.appendChild(query.createElement("mc")).toElement().setAttribute("id",metaId.eFull());
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
 			FActionRequests.append(query.id());

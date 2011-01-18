@@ -4,4 +4,8 @@
     <key>metacontactsMetaTabWindow</key>
     <object mime='text/css'>metacontactsmetatabwindow.qss</object>
   </file>
+  <file>
+    <key>metacontactsMergeContactsDialog</key>
+    <object mime='text/css'>metacontactsmergecontactsdialog.qss</object>
+  </file>
 </styledef>

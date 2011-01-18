@@ -9,24 +9,28 @@
 #include <definitions/rosterproxyorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterclickhookerorders.h>
+#include <definitions/rosterdragdropmimetypes.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
+#include <utils/widgetmanager.h>
 #include "metaroster.h"
 #include "metaproxymodel.h"
 #include "metatabwindow.h"
+#include "mergecontactsdialog.h"
 
 class MetaContacts : 
 	public QObject,
 	public IPlugin,
 	public IMetaContacts,
-	public IRostersClickHooker
+	public IRostersClickHooker,
+	public IRostersDragDropHandler
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMetaContacts IRostersClickHooker);
+	Q_INTERFACES(IPlugin IMetaContacts IRostersClickHooker IRostersDragDropHandler);
 public:
 	MetaContacts();
 	~MetaContacts();
@@ -40,6 +44,12 @@ public:
 	virtual bool startPlugin() { return true; }
 	//IRostersClickHooker
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
+	//IRostersDragDropHandler
+	virtual Qt::DropActions rosterDragStart(const QMouseEvent *AEvent, const QModelIndex &AIndex, QDrag *ADrag);
+	virtual bool rosterDragEnter(const QDragEnterEvent *AEvent);
+	virtual bool rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover);
+	virtual void rosterDragLeave(const QDragLeaveEvent *AEvent);
+	virtual bool rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu);
 	//IMetaContacts
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster);
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;
@@ -82,6 +92,7 @@ protected slots:
 protected slots:
 	void onRenameContact(bool);
 	void onDeleteContact(bool);
+	void onMergeContacts(bool);
 protected slots:
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 private:

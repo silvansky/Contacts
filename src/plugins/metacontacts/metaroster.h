@@ -37,9 +37,9 @@ public:
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const;
 	virtual QString releaseContactItem(const Jid &AMetaId, const Jid &AItemJid);
 	virtual QString deleteContactItem(const Jid &AMetaId, const Jid &AItemJid);
-	virtual QString mergeContacts(const Jid &AMetaDestId, const Jid &AMetaId);
 	virtual QString renameContact(const Jid &AMetaId, const QString &ANewName);
 	virtual QString deleteContact(const Jid &AMetaId);
+	virtual QString mergeContacts(const Jid &AParentId, const QList<Jid> &AChildsId);
 	virtual void saveMetaContacts(const QString &AFileName) const;
 	virtual void loadMetaContacts(const QString &AFileName);
 signals:

@@ -1,13 +1,20 @@
 #include "metacontacts.h"
 
 #include <QDir>
+#include <QMimeData>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QDragMoveEvent>
+#include <QDragEnterEvent>
+#include <QDragLeaveEvent>
 
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_META_ID         Action::DR_Parametr1
+#define ADR_CHILD_META_IDS  Action::DR_Parametr2
 #define ADR_NAME            Action::DR_Parametr2
 #define ADR_GROUP           Action::DR_Parametr3
+
+static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
 
 MetaContacts::MetaContacts()
 {
@@ -89,6 +96,7 @@ bool MetaContacts::initObjects()
 		MetaProxyModel *proxyModel = new MetaProxyModel(this, FRostersViewPlugin->rostersView());
 		FRostersViewPlugin->rostersView()->insertProxyModel(proxyModel, RPO_METACONTACTS_MODIFIER);
 		FRostersViewPlugin->rostersView()->insertClickHooker(RCHO_DEFAULT,this);
+		FRostersViewPlugin->rostersView()->insertDragDropHandler(this);
 	}
 	return true;
 }
@@ -104,6 +112,83 @@ bool MetaContacts::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 			Jid metaId = AIndex->data(RDR_INDEX_ID).toString();
 			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
 			window->showTabPage();
+		}
+	}
+	return false;
+}
+
+Qt::DropActions MetaContacts::rosterDragStart(const QMouseEvent *AEvent, const QModelIndex &AIndex, QDrag *ADrag)
+{
+	Q_UNUSED(AEvent);
+	Q_UNUSED(ADrag);
+	if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
+		return Qt::CopyAction;
+	return Qt::IgnoreAction;
+}
+
+bool MetaContacts::rosterDragEnter(const QDragEnterEvent *AEvent)
+{
+	if (AEvent->mimeData()->hasFormat(DDT_ROSTERSVIEW_INDEX_DATA))
+	{
+		QMap<int, QVariant> indexData;
+		QDataStream stream(AEvent->mimeData()->data(DDT_ROSTERSVIEW_INDEX_DATA));
+		stream >> indexData;
+
+		if (indexData.value(RDR_TYPE).toInt() == RIT_METACONTACT)
+			return true;
+	}
+	return false;
+}
+
+bool MetaContacts::rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover)
+{
+	Q_UNUSED(AEvent);
+	if (AHover.data(RDR_TYPE).toInt() == RIT_METACONTACT)
+	{
+		IMetaRoster *mroster = findMetaRoster(AHover.data(RDR_STREAM_JID).toString());
+		if (mroster && mroster->isOpen())
+			return true;
+	}
+	return false;
+}
+
+void MetaContacts::rosterDragLeave(const QDragLeaveEvent *AEvent)
+{
+	Q_UNUSED(AEvent);
+}
+
+bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu)
+{
+	if (AEvent->dropAction() == Qt::CopyAction)
+	{
+		IMetaRoster *mroster = findMetaRoster(AIndex.data(RDR_STREAM_JID).toString());
+		if (mroster && mroster->isOpen())
+		{
+			QMap<int, QVariant> indexData;
+			QDataStream stream(AEvent->mimeData()->data(DDT_ROSTERSVIEW_INDEX_DATA));
+			stream >> indexData;
+			Jid indexMetaId = indexData.value(RDR_INDEX_ID).toString();
+
+			if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
+			{
+				Jid hoverMetaId = AIndex.data(RDR_INDEX_ID).toString();
+				if (hoverMetaId != indexMetaId)
+				{
+					Action *mergeAction = new Action(AMenu);
+					mergeAction->setText(tr("Merge contacts"));
+					mergeAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
+					mergeAction->setData(ADR_META_ID,hoverMetaId.full());
+					mergeAction->setData(ADR_CHILD_META_IDS,QList<QVariant>() << indexMetaId.full());
+					connect(mergeAction,SIGNAL(triggered(bool)),SLOT(onMergeContacts(bool)));
+					AMenu->addAction(mergeAction,AG_DEFAULT,true);
+					AMenu->setDefaultAction(mergeAction);
+					return true;
+				}
+				else
+				{
+
+				}
+			}
 		}
 	}
 	return false;
@@ -360,6 +445,30 @@ void MetaContacts::onDeleteContact(bool)
 				QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 			{
 				mroster->deleteContact(metaId);
+			}
+		}
+	}
+}
+
+void MetaContacts::onMergeContacts(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QString streamJid = action->data(ADR_STREAM_JID).toString();
+		IMetaRoster *mroster = findMetaRoster(streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			QList<Jid> metaIds;
+			metaIds.append(action->data(ADR_META_ID).toString());
+			foreach(QVariant metaId, action->data(ADR_CHILD_META_IDS).toList())
+				metaIds.append(metaId.toString());
+
+			if (metaIds.count() > 1)
+			{
+				MergeContactsDialog *dialog = new MergeContactsDialog(mroster,metaIds);
+				connect(mroster->instance(),SIGNAL(metaRosterClosed()),dialog,SLOT(reject()));
+				WidgetManager::showActivateRaiseWindow(dialog);
 			}
 		}
 	}
