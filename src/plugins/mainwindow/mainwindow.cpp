@@ -160,7 +160,12 @@ void MainWindow::createMenus()
 void MainWindow::keyPressEvent(QKeyEvent * AEvent)
 {
 	if (AEvent->key() == Qt::Key_Escape)
-		close();
+	{
+		if (parentWidget())
+			parentWidget()->close();
+		else
+			close();
+	}
 	QMainWindow::keyPressEvent(AEvent);
 }
 

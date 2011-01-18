@@ -7,6 +7,7 @@ AutoSizeTextEdit::AutoSizeTextEdit(QWidget *AParent) : QTextEdit(AParent)
 {
 	FAutoResize = true;
 	FMinimumLines = 1;
+	document()->setDocumentMargin(7);
 
 	setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()));

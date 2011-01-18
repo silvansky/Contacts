@@ -149,8 +149,8 @@ void StatusWidget::resizeEvent(QResizeEvent * event)
 	{
 		QPoint p = ui.tlbStatus->geometry().topRight();
 		p = mapToGlobal(p);
-		p = FMainWindowPlugin->mainWindowBorder()->mapFromGlobal(p);
-		FMainWindowPlugin->mainWindowBorder()->setHeaderMoveLeft(p.x() + 1 - FMainWindowPlugin->mainWindowBorder()->leftBorderWidth());
+		p = FMainWindowPlugin->mainWindowBorder()->widget()->mapFromGlobal(p);
+		FMainWindowPlugin->mainWindowBorder()->setHeaderMoveLeft(p.x() + 1);
 	}
 	QWidget::resizeEvent(event);
 }

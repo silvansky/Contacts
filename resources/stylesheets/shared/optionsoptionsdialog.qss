@@ -1,40 +1,56 @@
-QTreeView#trvNodes
-{
-	border : none;
-	background-color: palette(window);
-}
-QTreeView#trvNodes::item
-{
-	min-height : 32px;
-	background-color: palette(window);
-}
-QTreeView#trvNodes::item:selected
-{
-	border : 1px solid palette(shadow);
-	background-color: palette(base);
-}
-
-/*#wdtNodeWidget, #wdtOptionsHeader, #scaScroll, #sprSplitter, #qt_scrollarea_viewport
-{
-	background-color: transparent;
-}*/
-
-QGroupBox
-{
-	background-color: transparent;
-	border: 0px;
-}
+/*background*/
 
 #scrollAreaWidgetContents, QFrame, QDialogButtonBox, NotifyKindsWidget,
 #wdtNodeWidget, QScrollArea, QSplitter, ProxyOptionsWidget, AddLegacyAccountOptions,
 ManageLegacyAccountsOptions, StyleOptionsWidget, OptionsWidget,
 RosterContactOrderOptions, RosterContactViewOptions, MessengerOptions,
-#wdtManualProxy, #wdtGateways, #wdtStyleOptions, AdiumOptionsWidget
+#wdtManualProxy, #wdtGateways, #wdtStyleOptions, AdiumOptionsWidget, QSplitterHandle,
+#qt_scrollarea_viewport, #sprSplitter, #wdtRightWidget
 {
 	background-color: transparent;
 }
 
 OptionsDialog
 {
-	background-color: rgba(65, 70, 77, 235);
+	background-color: rgba(65, 70, 77, 245);
+}
+
+/*#trvNodes*/
+
+QTreeView
+{
+	border-left: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
+	border-right: 29px;
+	border-image: url(%IMAGES_PATH%/leftshadow.png);
+	padding-right: -29px;
+	background-color: transparent;
+	font-size: 12px;
+}
+
+QTreeView::item
+{
+	min-height : 34px;
+	background-color: transparent;
+	border-bottom: 2px;
+	border-right: 0px;
+	border-left: 0px;
+	border-top: 0px;
+	border-image: url(%IMAGES_PATH%/treeviewitembottomborder.png);
+	color: white;
+}
+
+QTreeView::item:selected
+{
+	min-height : 36px;
+	border: none;
+	border-image: none;
+	background-color: rgba(89, 98, 104, 255);
+}
+
+QGroupBox
+{
+	background-color: transparent;
+	border: 0px;
 }

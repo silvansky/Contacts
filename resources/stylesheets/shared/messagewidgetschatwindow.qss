@@ -4,10 +4,3 @@ QToolBar
 	padding: 2px;
 	spacing: 2px;
 }
-
-MessageEditor#medEditor 
-{
-	background-color: palette(base);
-	border-width: 4px;
-	border-image: url("%IMAGES_PATH%/inputtextborder.png") 4 repeat;
-}

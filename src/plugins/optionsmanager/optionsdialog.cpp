@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QTextDocument>
+#include <QDebug>
 
 static const QString NodeDelimiter = ".";
 
@@ -21,6 +22,7 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	connect(ui.sprSplitter, SIGNAL(splitterMoved(int,int)), SIGNAL(splitterMoved(int,int)));
+	ui.trvNodes->installEventFilter(this);
 	setWindowTitle(tr("Options"));
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_OPTIONSDIALOG);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_OPTIONS_DIALOG,0,0,"windowIcon");
@@ -70,7 +72,6 @@ void OptionsDialog::showNode(const QString &ANodeId)
 	if (item)
 		ui.trvNodes->setCurrentIndex(FProxyModel->mapFromSource(FItemsModel->indexFromItem(item)));
 	ui.trvNodes->expandAll();
-	emit splitterMoved(ui.trvNodes->width(), 1);
 }
 
 QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
@@ -157,6 +158,17 @@ bool OptionsDialog::canExpandVertically(const QWidget *AWidget) const
 				expanding = canExpandVertically(qobject_cast<QWidget *>(childs.at(i)));
 	}
 	return expanding;
+}
+
+bool OptionsDialog::eventFilter(QObject * obj, QEvent * evt)
+{
+	if (obj == ui.trvNodes && evt->type() == QEvent::Resize)
+	{
+		bool h = QDialog::eventFilter(obj, evt);
+		emit splitterMoved(ui.trvNodes->width(), 1);
+		return h;
+	}
+	return QDialog::eventFilter(obj, evt);
 }
 
 void OptionsDialog::onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode)

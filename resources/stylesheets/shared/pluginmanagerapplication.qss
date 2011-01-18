@@ -194,7 +194,7 @@ QPushButton:!enabled, QToolButton:!enabled
 	background-color: #41464d;
 }
 
-QPushButton:default:enabled:pressed, QToolButton[default="true"]:enabled:pressed
+QPushButton:default:enabled:pressed, QToolButton:default:enabled:pressed
 {
 	border-image: url(%IMAGES_PATH%/buttonborderdefaultclick.png);
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #397699);
@@ -210,7 +210,6 @@ QToolButton[popupMode="1"]:enabled, QToolButton[popupMode="2"]:enabled
 
 QToolButton[popupMode="1"]:hover:enabled, QToolButton[popupMode="2"]:hover:enabled
 {
-	padding-left: -15px;
 }
 
 QToolButton[popupMode="1"]:open, QToolButton[popupMode="2"]:open
@@ -408,6 +407,7 @@ QLabel
 {
 	background-color: transparent;
 	color: white;
+	font-size: 12px;
 }
 
 /**************

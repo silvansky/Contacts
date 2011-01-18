@@ -8,7 +8,7 @@
 class UTILS_EXPORT StyleStorage :
 			public FileStorage
 {
-	Q_OBJECT;
+	Q_OBJECT
 	struct StyleUpdateParams;
 public:
 	StyleStorage(const QString &AStorage, const QString &ASubStorage = STORAGE_SHARED_DIR, QObject *AParent = NULL);
