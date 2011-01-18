@@ -113,6 +113,16 @@ public:
 	void setCloseButtonVisible(bool visible = true);
 	bool isCloseButtonEnabled() const;
 	void setCloseButtonEnabled(bool enabled = true);
+	// some public parameters
+	// header move rect controls
+	int headerMoveLeft() const;
+	void setHeaderMoveLeft(int left);
+	int headerMoveRight() const;
+	void setHeaderMoveRight(int right);
+	int headerMoveTop() const;
+	void setHeaderMoveTop(int top);
+	int headerMoveHeight() const;
+	void setHeaderMoveHeight(int height);
 protected:
 	// header button flags manipulations
 	void addHeaderButtonFlag(HeaderButtonsFlag flag);

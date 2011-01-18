@@ -12,5 +12,8 @@
     <key>window</key>
     <object mime="text/xml">window.xml</object>
   </file>
+  <file>
+    <key>optionsDialog</key>
+    <object mime="text/xml">optionsdialog.xml</object>
+  </file>
 </borderdef>
-

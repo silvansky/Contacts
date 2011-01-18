@@ -104,6 +104,7 @@ protected:
 protected slots:
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onOptionsDialogApplied();
+	void onOptionsDialogClosed();
 	void onChangeProfileByAction(bool);
 	void onShowOptionsDialogByAction(bool);
 	void onLoginDialogRejected();
@@ -113,6 +114,7 @@ protected slots:
 	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void onPrivateStorageAboutToClose(const Jid &AStreamJid);
 	void onAboutToQuit();
+	void onOpdionsDialogSplitterMoved(int pos, int index);
 private:
 	IPluginManager *FPluginManager;
 	ITrayManager *FTrayManager;
@@ -138,7 +140,7 @@ private:
 	QList<IOptionsHolder *> FOptionsHolders;
 	QMap<QString, IOptionsDialogNode> FOptionsDialogNodes;
 	OptionsDialog *FOptionsDialog;
-	CustomBorderContainer *FOptionsDialogContainer;
+	CustomBorderContainer *FOptionsDialogBorder;
 };
 
 #endif // OPTIONSMANAGER_H

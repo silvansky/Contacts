@@ -36,6 +36,7 @@ public:
 signals:
 	void applied();
 	void reseted();
+	void splitterMoved(int, int);
 protected:
 	QWidget *createNodeWidget(const QString &ANodeId);
 	QStandardItem *createNodeItem(const QString &ANodeId);

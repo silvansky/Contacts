@@ -899,6 +899,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		if (object == containedWidget)
 		{
 			handled = QWidget::eventFilter(object, event);
+			qDebug() << "new size: " << ((QResizeEvent*)event)->size();
 			updateShape();
 			return handled;
 		}
@@ -1021,8 +1022,10 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 	{
 		int bordersWidth = borderStyle->left.width + borderStyle->right.width;
 		int bordersHeight = borderStyle->top.width + borderStyle->bottom.width;
-		int minWidth = containedWidget->sizeHint().width() + bordersWidth, minHeight = containedWidget->sizeHint().height() + bordersHeight;
-		int maxWidth = containedWidget->maximumWidth() + bordersWidth, maxHeight = containedWidget->maximumHeight() + bordersHeight;
+		int minWidth = containedWidget->minimumWidth() + bordersWidth;
+		int minHeight = containedWidget->minimumHeight() + bordersHeight;
+		int maxWidth = containedWidget->maximumWidth() + bordersWidth;
+		int maxHeight = containedWidget->maximumHeight() + bordersHeight;
 		// left border is changing
 		if (resizeBorder == LeftBorder || resizeBorder == TopLeftCorner || resizeBorder == BottomLeftCorner)
 		{
@@ -1147,6 +1150,46 @@ void CustomBorderContainer::setCloseButtonEnabled(bool enabled)
 		addHeaderButtonFlag(CloseEnabled);
 	else
 		removeHeaderButtonFlag(CloseEnabled);
+}
+
+int CustomBorderContainer::headerMoveLeft() const
+{
+	return borderStyle->header.moveLeft;
+}
+
+void CustomBorderContainer::setHeaderMoveLeft(int left)
+{
+	borderStyle->header.moveLeft = left;
+}
+
+int CustomBorderContainer::headerMoveRight() const
+{
+	return borderStyle->header.moveRight;
+}
+
+void CustomBorderContainer::setHeaderMoveRight(int right)
+{
+	borderStyle->header.moveRight = right;
+}
+
+int CustomBorderContainer::headerMoveTop() const
+{
+	return borderStyle->header.moveTop;
+}
+
+void CustomBorderContainer::setHeaderMoveTop(int top)
+{
+	borderStyle->header.moveTop = top;
+}
+
+int CustomBorderContainer::headerMoveHeight() const
+{
+	return borderStyle->header.moveHeight;
+}
+
+void CustomBorderContainer::setHeaderMoveHeight(int height)
+{
+	borderStyle->header.moveHeight = height;
 }
 
 void CustomBorderContainer::addHeaderButtonFlag(HeaderButtonsFlag flag)

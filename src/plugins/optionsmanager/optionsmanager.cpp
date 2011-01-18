@@ -27,7 +27,7 @@ OptionsManager::OptionsManager()
 	FMainWindowPlugin = NULL;
 	FPrivateStorage = NULL;
 	FOptionsDialog = NULL;
-	FOptionsDialogContainer = NULL;
+	FOptionsDialogBorder = NULL;
 	FLoginDialog = NULL;
 	FLoginDialogBorder = NULL;
 
@@ -40,8 +40,8 @@ OptionsManager::OptionsManager()
 
 OptionsManager::~OptionsManager()
 {
-	if (FOptionsDialogContainer)
-		FOptionsDialogContainer->deleteLater();
+	if (FOptionsDialogBorder)
+		FOptionsDialogBorder->deleteLater();
 	else
 		delete FOptionsDialog;
 }
@@ -413,9 +413,9 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		if (FLoginDialogBorder)
 			FLoginDialogBorder->deleteLater();
 		FLoginDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
-		FLoginDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
 		if (FLoginDialogBorder)
 		{
+			FLoginDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
 			FLoginDialogBorder->setResizable(false);
 			FLoginDialogBorder->setMinimizeButtonVisible(false);
 			FLoginDialogBorder->setMaximizeButtonVisible(false);
@@ -497,19 +497,23 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		if (!FOptionsDialog)
 		{
 			FOptionsDialog = new OptionsDialog(this,AParent);
-			connect(FOptionsDialog,SIGNAL(applied()),SLOT(onOptionsDialogApplied()));
-			FOptionsDialogContainer = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FOptionsDialog, CBS_WINDOW);
-			if (FOptionsDialogContainer)
+			connect(FOptionsDialog, SIGNAL(applied()), SLOT(onOptionsDialogApplied()));
+			connect(FOptionsDialog, SIGNAL(finished(int)), SLOT(onOptionsDialogClosed()));
+			connect(FOptionsDialog, SIGNAL(splitterMoved(int,int)), SLOT(onOpdionsDialogSplitterMoved(int,int)));
+			FOptionsDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FOptionsDialog, CBS_OPTIONSDIALOG);
+			if (FOptionsDialogBorder)
 			{
-				connect(FOptionsDialog, SIGNAL(accepted()), FOptionsDialogContainer, SLOT(closeWidget()));
-				connect(FOptionsDialog, SIGNAL(rejected()), FOptionsDialogContainer, SLOT(closeWidget()));
-				connect(FOptionsDialogContainer, SIGNAL(closeClicked()), FOptionsDialog, SLOT(reject()));
+				FOptionsDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
+				connect(FOptionsDialog, SIGNAL(accepted()), FOptionsDialogBorder, SLOT(closeWidget()));
+				connect(FOptionsDialog, SIGNAL(rejected()), FOptionsDialogBorder, SLOT(closeWidget()));
+				connect(FOptionsDialogBorder, SIGNAL(closeClicked()), FOptionsDialog, SLOT(reject()));
 			}
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
-		WidgetManager::showActivateRaiseWindow(FOptionsDialogContainer ? (QWidget*)FOptionsDialogContainer : (QWidget*)FOptionsDialog);
+		WidgetManager::showActivateRaiseWindow(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog);
+		(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog)->adjustSize();
 	}
-	return FOptionsDialogContainer ? (QWidget*)FOptionsDialogContainer : (QWidget*)FOptionsDialog;
+	return FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog;
 }
 
 IOptionsContainer *OptionsManager::optionsContainer(QWidget *AParent) const
@@ -560,8 +564,8 @@ void OptionsManager::closeProfile()
 		FAutoSaveTimer.stop();
 		if (FOptionsDialog)
 		{
-			if (FOptionsDialogContainer)
-				FOptionsDialogContainer->close();
+			if (FOptionsDialogBorder)
+				FOptionsDialogBorder->close();
 			else
 				FOptionsDialog->close();
 		}
@@ -716,6 +720,12 @@ void OptionsManager::onOptionsDialogApplied()
 	saveOptions();
 }
 
+void OptionsManager::onOptionsDialogClosed()
+{
+	FOptionsDialog = NULL;
+	FOptionsDialogBorder = NULL;
+}
+
 void OptionsManager::onChangeProfileByAction(bool)
 {
 	showLoginDialog();
@@ -770,6 +780,12 @@ void OptionsManager::onPrivateStorageAboutToClose(const Jid &AStreamJid)
 void OptionsManager::onAboutToQuit()
 {
 	closeProfile();
+}
+
+void OptionsManager::onOpdionsDialogSplitterMoved(int pos, int index)
+{
+	if (FOptionsDialogBorder && (index == 1))
+		FOptionsDialogBorder->setHeaderMoveLeft(pos + FOptionsDialog->layout()->contentsMargins().left() + 6);
 }
 
 Q_EXPORT_PLUGIN2(plg_optionsmanager, OptionsManager)
