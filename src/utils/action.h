@@ -13,7 +13,7 @@ class Menu;
 class UTILS_EXPORT Action :
 			public QAction
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	enum DataRoles {
 		DR_Parametr1,
@@ -22,7 +22,7 @@ public:
 		DR_Parametr4,
 		DR_StreamJid,
 		DR_SortString,
-		DR_UserDefined = 64,
+		DR_UserDefined = 64
 	};
 public:
 	Action(QObject *AParent = NULL);

@@ -162,17 +162,17 @@ QPushButton:enabled:pressed, QToolButton:enabled:pressed
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #61656a, stop:1 #31363c);
 }
 
-QPushButton[default="true"], QToolButton[default="true"]
+QPushButton:default, QToolButton:default
 {
 	border-image: url(%IMAGES_PATH%/buttonborderdefault.png);
 }
 
-QPushButton[default="true"]:!hover:enabled, QToolButton[default="true"]:!hover:enabled
+QPushButton:default:!hover:enabled, QToolButton:default:!hover:enabled
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #15374b, stop:1 #397699);
 }
 
-QPushButton[default="true"]:hover:enabled, QToolButton[default="true"]:hover:enabled
+QPushButton:default:hover:enabled, QToolButton:default:hover:enabled
 {
 	border-top: 5px;
 	border-right: 5px;
@@ -194,7 +194,7 @@ QPushButton:!enabled, QToolButton:!enabled
 	background-color: #41464d;
 }
 
-QPushButton[default="true"]:enabled:pressed, QToolButton[default="true"]:enabled:pressed
+QPushButton:default:enabled:pressed, QToolButton[default="true"]:enabled:pressed
 {
 	border-image: url(%IMAGES_PATH%/buttonborderdefaultclick.png);
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #397699);

@@ -652,6 +652,7 @@ CustomBorderContainer::CustomBorderContainer(const CustomBorderContainerPrivate 
 
 CustomBorderContainer::~CustomBorderContainer()
 {
+	qDebug() << "CustomBorderContainer::~CustomBorderContainer()";
 	setWidget(NULL);
 }
 
@@ -915,10 +916,13 @@ void CustomBorderContainer::init()
 	pressedHeaderButton = NoneButton;
 	isMaximized = false;
 	// window menu
-	windowMenu = new Menu();
-	minimizeAction = new Action();
-	maximizeAction = new Action();
-	closeAction = new Action();
+	windowMenu = new Menu(this);
+	minimizeAction = new Action(this);
+	maximizeAction = new Action(this);
+	closeAction = new Action(this);
+	addAction(minimizeAction);
+	addAction(maximizeAction);
+	addAction(closeAction);
 	minimizeAction->setText(tr("Minimize"));
 	minimizeAction->setIcon(style()->standardIcon(QStyle::SP_TitleBarMinButton));
 	maximizeAction->setText(tr("Maximize"));

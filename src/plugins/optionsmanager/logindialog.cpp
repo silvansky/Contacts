@@ -598,13 +598,13 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 
 void LoginDialog::hideEvent(QHideEvent *AEvent)
 {
-	deleteLater();
+	//deleteLater();
 	QDialog::hideEvent(AEvent);
 }
 
 void LoginDialog::closeEvent(QCloseEvent *AEvent)
 {
-	deleteLater();
+	//deleteLater();
 	QDialog::closeEvent(AEvent);
 }
 

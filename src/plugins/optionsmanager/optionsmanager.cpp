@@ -28,6 +28,8 @@ OptionsManager::OptionsManager()
 	FPrivateStorage = NULL;
 	FOptionsDialog = NULL;
 	FOptionsDialogContainer = NULL;
+	FLoginDialog = NULL;
+	FLoginDialogBorder = NULL;
 
 	FAutoSaveTimer.setInterval(30*1000);
 	FAutoSaveTimer.setSingleShot(true);
@@ -403,23 +405,27 @@ void OptionsManager::removeServerOption(const QString &APath)
 
 QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 {
-	if (FLoginDialog.isNull())
+	if (!FLoginDialog)
 	{
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
-		if (border)
+		connect(FLoginDialog,SIGNAL(accepted()),SLOT(onLoginDialogAccepted()));
+		if (FLoginDialogBorder)
+			FLoginDialogBorder->deleteLater();
+		FLoginDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
+		FLoginDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
+		if (FLoginDialogBorder)
 		{
-			border->setResizable(false);
-			border->setMinimizeButtonVisible(false);
-			border->setMaximizeButtonVisible(false);
-			connect(border, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
-			connect(FLoginDialog, SIGNAL(accepted()), border, SLOT(close()));
-			connect(FLoginDialog, SIGNAL(rejected()), border, SLOT(close()));
+			FLoginDialogBorder->setResizable(false);
+			FLoginDialogBorder->setMinimizeButtonVisible(false);
+			FLoginDialogBorder->setMaximizeButtonVisible(false);
+			connect(FLoginDialogBorder, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
+			connect(FLoginDialog, SIGNAL(accepted()), FLoginDialogBorder, SLOT(close()));
+			connect(FLoginDialog, SIGNAL(rejected()), FLoginDialogBorder, SLOT(close()));
 		}
-		WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)FLoginDialog);
-		if (border)
-			border->adjustSize();
+		WidgetManager::showActivateRaiseWindow(FLoginDialogBorder ? (QWidget*)FLoginDialogBorder: (QWidget*)FLoginDialog);
+		if (FLoginDialogBorder)
+			FLoginDialogBorder->adjustSize();
 		else
 			FLoginDialog->adjustSize();
 	}
@@ -722,8 +728,16 @@ void OptionsManager::onShowOptionsDialogByAction(bool)
 
 void OptionsManager::onLoginDialogRejected()
 {
+	FLoginDialog = NULL;
+	FLoginDialogBorder = NULL;
 	if (!isOpened())
 		FPluginManager->quit();
+}
+
+void OptionsManager::onLoginDialogAccepted()
+{
+	FLoginDialog = NULL;
+	FLoginDialogBorder = NULL;
 }
 
 void OptionsManager::onAutoSaveTimerTimeout()
