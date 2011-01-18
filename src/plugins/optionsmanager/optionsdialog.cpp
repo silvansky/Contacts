@@ -70,6 +70,7 @@ void OptionsDialog::showNode(const QString &ANodeId)
 	if (item)
 		ui.trvNodes->setCurrentIndex(FProxyModel->mapFromSource(FItemsModel->indexFromItem(item)));
 	ui.trvNodes->expandAll();
+	emit splitterMoved(ui.trvNodes->width(), 1);
 }
 
 QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)

@@ -10,6 +10,7 @@
 #include <interfaces/istatuschanger.h>
 #include <interfaces/iavatars.h>
 #include <interfaces/ivcard.h>
+#include <interfaces/imainwindow.h>
 #include <utils/menu.h>
 #include <utils/message.h>
 #include <utils/iconstorage.h>
@@ -22,7 +23,7 @@ class StatusWidget :
 {
 	Q_OBJECT
 public:
-	StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, IVCardPlugin *AVCardPlugin, QWidget *AParent = NULL);
+	StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, IVCardPlugin *AVCardPlugin, IMainWindowPlugin * AMainWindowPlugin, QWidget *AParent = NULL);
 	~StatusWidget();
 public:
 	Jid streamJid() const;
@@ -35,6 +36,7 @@ protected:
 	void setMoodText(const QString &AMood);
 	QString fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const;
 protected:
+	void resizeEvent(QResizeEvent *);
 	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onAddAvatarTriggered();
@@ -49,6 +51,7 @@ private:
 	IAvatars *FAvatars;
 	IVCardPlugin *FVCardPlugin;
 	IStatusChanger *FStatusChanger;
+	IMainWindowPlugin * FMainWindowPlugin;
 private:
 	bool FAvatarHovered;
 	Jid FStreamJid;

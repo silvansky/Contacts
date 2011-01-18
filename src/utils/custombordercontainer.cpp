@@ -1192,6 +1192,26 @@ void CustomBorderContainer::setHeaderMoveHeight(int height)
 	borderStyle->header.moveHeight = height;
 }
 
+int CustomBorderContainer::leftBorderWidth() const
+{
+	return borderStyle->left.width;
+}
+
+int CustomBorderContainer::rightBorderWidth() const
+{
+	return borderStyle->right.width;
+}
+
+int CustomBorderContainer::topBorderWidth() const
+{
+	return borderStyle->top.width;
+}
+
+int CustomBorderContainer::bottomBorderWidth() const
+{
+	return borderStyle->bottom.width;
+}
+
 void CustomBorderContainer::addHeaderButtonFlag(HeaderButtonsFlag flag)
 {
 	buttonsFlags |= flag;
@@ -1641,10 +1661,6 @@ void CustomBorderContainer::updateShape()
 				topRightMask = loadPixmap(borderStyle->topRight.mask);
 				bottomLeftMask = loadPixmap(borderStyle->bottomLeft.mask);
 				bottomRightMask = loadPixmap(borderStyle->bottomRight.mask);
-				topLeftMask.save("topleft.png");
-				topRightMask.save("topright.png");
-				bottomLeftMask.save("bottomleft.png");
-				bottomRightMask.save("bottomright.png");
 			}
 			QPixmap pixmap(containedWidget->geometry().size());
 			pixmap.fill(Qt::transparent);

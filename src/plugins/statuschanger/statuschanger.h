@@ -38,8 +38,10 @@
 #include "statuswidget.h"
 #include "customstatusdialog.h"
 
-struct StatusItem {
-	StatusItem() {
+struct StatusItem
+{
+	StatusItem()
+	{
 		code = STATUS_NULL_ID;
 		show = IPresence::Offline;
 		priority = 0;
@@ -58,8 +60,8 @@ class StatusChanger :
 			public IStatusChanger,
 			public IOptionsHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IStatusChanger IOptionsHolder);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IStatusChanger IOptionsHolder)
 public:
 	StatusChanger();
 	~StatusChanger();

@@ -123,6 +123,11 @@ public:
 	void setHeaderMoveTop(int top);
 	int headerMoveHeight() const;
 	void setHeaderMoveHeight(int height);
+	// border widths
+	int leftBorderWidth() const;
+	int rightBorderWidth() const;
+	int topBorderWidth() const;
+	int bottomBorderWidth() const;
 protected:
 	// header button flags manipulations
 	void addHeaderButtonFlag(HeaderButtonsFlag flag);

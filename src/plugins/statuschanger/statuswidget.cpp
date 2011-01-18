@@ -13,7 +13,7 @@
 
 #define MAX_CHARACTERS  140
 
-StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, IVCardPlugin *AVCardPlugin, QWidget *AParent) : QWidget(AParent)
+StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, IVCardPlugin *AVCardPlugin, IMainWindowPlugin* AMainWindowPlugin, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_STATUSWIDGET);
@@ -21,6 +21,7 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	FAvatars = AAvatars;
 	FVCardPlugin = AVCardPlugin;
 	FStatusChanger = AStatusChanger;
+	FMainWindowPlugin = AMainWindowPlugin;
 
 	FAvatarHovered = false;
 	FSelectAvatarWidget = NULL;
@@ -140,6 +141,18 @@ QString StatusWidget::fitCaptionToWidth(const QString &AName, const QString &ASt
 		doc.setHtml(f1 + newName  + "..." + f2 + AStatus + f3);
 	}
 	return getHtmlBody(doc.toHtml());
+}
+
+void StatusWidget::resizeEvent(QResizeEvent * event)
+{
+	if (FMainWindowPlugin && FMainWindowPlugin->mainWindowBorder())
+	{
+		QPoint p = ui.tlbStatus->geometry().topRight();
+		p = mapToGlobal(p);
+		p = FMainWindowPlugin->mainWindowBorder()->mapFromGlobal(p);
+		FMainWindowPlugin->mainWindowBorder()->setHeaderMoveLeft(p.x() + 1 - FMainWindowPlugin->mainWindowBorder()->leftBorderWidth());
+	}
+	QWidget::resizeEvent(event);
 }
 
 bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)

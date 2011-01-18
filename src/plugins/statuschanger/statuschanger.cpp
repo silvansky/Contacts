@@ -202,13 +202,8 @@ bool StatusChanger::initObjects()
 	if (FMainWindowPlugin)
 	{
 		ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->statusToolBarChanger();
-		FStatusWidget = new StatusWidget(this,FAvatars,FVCardPlugin,changer->toolBar());
+		FStatusWidget = new StatusWidget(this, FAvatars, FVCardPlugin, FMainWindowPlugin, changer->toolBar());
 		changer->insertWidget(FStatusWidget);
-
-		//QToolButton *button = changer->insertAction(FMainMenu->menuAction());
-		//button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-		//button->setPopupMode(QToolButton::InstantPopup);
-		//button->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 	}
 
 	if (FRostersViewPlugin)
@@ -932,7 +927,7 @@ void StatusChanger::removeRedundantCustomStatuses()
 		{
 			if (it->lastActive.isValid())
 				statuses[it->show].insert(it->lastActive,it->code);
-			else 
+			else
 				statuses[it->show].insert(QDateTime::fromTime_t(0),it->code);
 		}
 	}
@@ -1105,7 +1100,7 @@ void StatusChanger::onStreamJidChanged(const Jid &ABefour, const Jid &AAfter)
 	QList<Action *> actionList = FMainMenu->findActions(data,true);
 	foreach (Action *action, actionList)
 		action->setData(ADR_STREAMJID,AAfter.full());
-	
+
 	if (FStatusWidget && FStatusWidget->streamJid()==ABefour)
 		FStatusWidget->setStreamJid(AAfter);
 }
