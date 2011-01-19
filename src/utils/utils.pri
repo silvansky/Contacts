@@ -27,7 +27,8 @@ HEADERS = utilsexport.h \
     custombordercontainer.h \
     custombordercontainer_p.h \
     customborderstorage.h \
-    systemmanager.h
+    systemmanager.h \
+    graphicseffectsstorage.h
 
 SOURCES = jid.cpp \
     versionparser.cpp \
@@ -55,5 +56,5 @@ SOURCES = jid.cpp \
     htmltoolbutton.cpp \
     custombordercontainer.cpp \
     customborderstorage.cpp \
-    systemmanager.cpp
-
+    systemmanager.cpp \
+    graphicseffectsstorage.cpp

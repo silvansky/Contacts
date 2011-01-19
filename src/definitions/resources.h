@@ -10,5 +10,6 @@
 #define RSR_STORAGE_SIMPLEMESSAGESTYLES     "simplemessagestyles"
 #define RSR_STORAGE_STYLESHEETS             "stylesheets"
 #define RSR_STORAGE_CUSTOMBORDER            "customborder"
+#define RSR_STORAGE_GRAPHICSEFFECTS         "graphicseffects"
 
 #endif

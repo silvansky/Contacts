@@ -1,4 +1,6 @@
-/*background*/
+/**************
+ * background *
+ **************/
 
 #scrollAreaWidgetContents, QFrame, QDialogButtonBox, NotifyKindsWidget,
 #wdtNodeWidget, QScrollArea, QSplitter, ProxyOptionsWidget, AddLegacyAccountOptions,
@@ -10,12 +12,20 @@ RosterContactOrderOptions, RosterContactViewOptions, MessengerOptions,
 	background-color: transparent;
 }
 
+QGroupBox
+{
+	background-color: transparent;
+	border: 0px;
+}
+
 OptionsDialog
 {
 	background-color: rgba(65, 70, 77, 245);
 }
 
-/*#trvNodes*/
+/*************
+ * #trvNodes *
+ *************/
 
 QTreeView
 {
@@ -50,10 +60,4 @@ QTreeView::item:selected
 	border-bottom: 0px;
 	border-image: url(%IMAGES_PATH%/leftshadow.png);
 	background-color: rgba(89, 98, 104, 255);
-}
-
-QGroupBox
-{
-	background-color: transparent;
-	border: 0px;
 }

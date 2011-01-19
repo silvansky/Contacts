@@ -8,7 +8,7 @@ class CustomBorderContainerPrivate;
 
 class UTILS_EXPORT CustomBorderStorage : public FileStorage
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	CustomBorderStorage(const QString &AStorage, const QString &ASubStorage = QString::null, QObject *AParent = NULL);
 	~CustomBorderStorage();

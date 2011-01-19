@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<effectsdef>
+  <file>
+    <key>labels</key>
+    <object mime="text/xml">labels.xml</object>
+  </file>
+</effectsdef>

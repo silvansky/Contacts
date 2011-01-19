@@ -15,8 +15,10 @@
 #include <QAbstractTextDocumentLayout>
 #include <QListView>
 #include <utils/customborderstorage.h>
+#include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
+#include <definitions/graphicseffects.h>
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>
@@ -111,6 +113,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
 	FNewProfile = true;
 	FConnectionSettings = CS_DEFAULT;

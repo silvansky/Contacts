@@ -1,0 +1,6 @@
+#ifndef DEF_GRAPHICSEFFECTS_H
+#define DEF_GRAPHICSEFFECTS_H
+
+#define GFX_LABELS	"labels"
+
+#endif // DEF_GRAPHICSEFFECTS_H

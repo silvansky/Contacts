@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<graphics-effects>
+  <effect type="shadow">
+    <classes>
+      <class>QCheckBox</class>
+    </classes>
+    <names>
+      <name>lblRegister</name>
+    </names>
+    <color>#333333</color>
+    <offset x="1" y="-1" />
+    <blur radius="0" />
+  </effect>
+</graphics-effects>
