@@ -22,9 +22,9 @@ QTreeView
 	border-left: 0px;
 	border-top: 0px;
 	border-bottom: 0px;
-	border-right: 29px;
+	border-right: 24px;
 	border-image: url(%IMAGES_PATH%/leftshadow.png);
-	padding-right: -29px;
+	padding-right: -24px;
 	background-color: transparent;
 	font-size: 12px;
 }
@@ -44,8 +44,11 @@ QTreeView::item
 QTreeView::item:selected
 {
 	min-height : 36px;
-	border: none;
-	border-image: none;
+	border-left: 0px;
+	border-right: 24px;
+	border-top: 0px;
+	border-bottom: 0px;
+	border-image: url(%IMAGES_PATH%/leftshadow.png);
 	background-color: rgba(89, 98, 104, 255);
 }
 
