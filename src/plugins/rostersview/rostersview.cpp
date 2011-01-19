@@ -53,14 +53,14 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	header()->setStretchLastSection(false);
 
 	setAnimated(true);
-	setIndentation(4);
+	setIndentation(0);
 	setAutoScroll(true);
 	setDragEnabled(true);
 	setAcceptDrops(true);
 	setMouseTracking(true);
 	setRootIsDecorated(false);
 	setDropIndicatorShown(true);
-	setAlternatingRowColors(false);
+	setAlternatingRowColors(true);
 	setSelectionMode(SingleSelection);
 	setContextMenuPolicy(Qt::DefaultContextMenu);
 	setFrameShape(QFrame::NoFrame);

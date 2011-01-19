@@ -1,0 +1,17 @@
+QTreeView
+{
+	background-color: white;
+	alternate-background-color: #f2f9fc;
+}
+
+QTreeView::item
+{
+	background-color: transparent;
+	color: black;
+}
+
+QTreeView::item:selected
+{
+	background-color: #c5d9e7;
+	color: black;
+}
