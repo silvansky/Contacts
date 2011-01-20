@@ -199,6 +199,48 @@ QList<IMetaContact> MetaRoster::groupContacts(const QString &AGroup) const
 	return contacts;
 }
 
+QSet<QString> MetaRoster::contactGroups(const Jid &AMetaId) const
+{
+	return FMetaContacts.value(AMetaId).groups;
+}
+
+QString MetaRoster::setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups)
+{
+	IMetaContact contact = FMetaContacts.value(AMetaId);
+	if (isOpen() && isEnabled() && contact.id.isValid() && contact.groups!=AGroups)
+	{
+		/*
+		Stanza query("iq");
+		query.setType("set").setId(FStanzaProcessor->newId());
+		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+
+		mcElem.setAttribute("id",contact.id.full());
+		mcElem.setAttribute("name",contact.name);
+
+		foreach(Jid itemJid, contact.items)
+		{
+			IRosterItem ritem = FRoster->rosterItem(itemJid);
+			QDomElement itemElem = mcElem.appendChild(query.createElement("item")).toElement();
+			itemElem.setAttribute("jid",itemJid.eFull());
+			itemElem.setAttribute("subscription",ritem.subscription);
+			itemElem.setAttribute("ask",ritem.ask);
+		}
+
+		foreach(QString group, AGroups)
+		{
+			mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
+		}
+
+		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		{
+			FActionRequests.append(query.id());
+			return query.id();
+		}
+		*/
+	}
+	return QString::null;
+}
+
 QString MetaRoster::releaseContactItem(const Jid &AMetaId, const Jid &AItemJid)
 {
 	if (isOpen() && isEnabled() && itemMetaContact(AItemJid)==AMetaId)
@@ -375,7 +417,8 @@ void MetaRoster::removeMetaContact(const Jid &AMetaId)
 	IMetaContact contact = FMetaContacts.take(AMetaId);
 	IMetaContact before = contact;
 	foreach(Jid itemJid, contact.items)
-		FItemMetaId.remove(itemJid);
+		if (FItemMetaId.value(itemJid) == AMetaId)
+			FItemMetaId.remove(itemJid);
 	contact.items.clear();
 	contact.groups.clear();
 	contact.name.clear();
@@ -402,10 +445,14 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 				oldContacts -= metaId;
 
 				contact.items.clear();
+				QSet<Jid> modContacts;
 				QDomElement metaItem = mcElem.firstChildElement("item");
 				while (!metaItem.isNull())
 				{
 					Jid itemJid = Jid(metaItem.attribute("jid")).bare();
+					Jid prevMetaId = FItemMetaId.value(itemJid);
+					if (prevMetaId.isValid() && prevMetaId!=metaId)
+						modContacts += prevMetaId;
 					contact.items += itemJid;
 					FItemMetaId.insert(itemJid,metaId);
 					metaItem = metaItem.nextSiblingElement("item");
@@ -421,6 +468,17 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 				{
 					contact.groups += groupElem.text();
 					groupElem = groupElem.nextSiblingElement("group");
+				}
+
+				foreach(Jid modMetaId, modContacts)
+				{
+					IMetaContact &modContact = FMetaContacts[modMetaId];
+					IMetaContact modBefore = modContact;
+					modContact.items -= contact.items;
+					if (!modContact.items.isEmpty())
+						emit metaContactReceived(modContact,modBefore);
+					else
+						removeMetaContact(modMetaId);
 				}
 
 				emit metaContactReceived(contact,before);
@@ -457,7 +515,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 			}
 			mcElem = mcElem.nextSiblingElement("mc");
 		}
-
+		
 		foreach(Jid metaId, oldContacts) {
 			removeMetaContact(metaId); }
 	}

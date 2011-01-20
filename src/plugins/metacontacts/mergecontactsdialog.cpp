@@ -27,8 +27,11 @@ MergeContactsDialog::MergeContactsDialog(IMetaRoster *AMetaRoster, const QList<J
 		}
 		
 		QListWidgetItem *item = new QListWidgetItem(avatar,name);
+		item->setData(Qt::UserRole, metaId.full());
 		ui.ltwContacts->addItem(item);
 	}
+
+	connect(ui.lneName,SIGNAL(textChanged(const QString &)),SLOT(onContactNameChanged(const QString &)));
 
 	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Merge contacts"));
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
@@ -37,6 +40,11 @@ MergeContactsDialog::MergeContactsDialog(IMetaRoster *AMetaRoster, const QList<J
 MergeContactsDialog::~MergeContactsDialog()
 {
 
+}
+
+void MergeContactsDialog::onContactNameChanged(const QString &AText)
+{
+	ui.dbbButtons->button(QDialogButtonBox::Ok)->setEnabled(!AText.trimmed().isEmpty());
 }
 
 void MergeContactsDialog::onDialogButtonClicked(QAbstractButton *AButton)

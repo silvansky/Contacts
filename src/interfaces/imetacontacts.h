@@ -29,6 +29,8 @@ public:
 	virtual IMetaContact metaContact(const Jid &AMetaId) const =0;
 	virtual QSet<QString> groups() const =0;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const =0;
+	virtual QSet<QString> contactGroups(const Jid &AMetaId) const =0;
+	virtual QString setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups) =0;
 	virtual QString releaseContactItem(const Jid &AMetaId, const Jid &AItemJid) =0;
 	virtual QString deleteContactItem(const Jid &AMetaId, const Jid &AItemJid) =0;
 	virtual QString renameContact(const Jid &AMetaId, const QString &ANewName) =0;

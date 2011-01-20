@@ -10,11 +10,22 @@
 
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_META_ID         Action::DR_Parametr1
-#define ADR_CHILD_META_IDS  Action::DR_Parametr2
 #define ADR_NAME            Action::DR_Parametr2
 #define ADR_GROUP           Action::DR_Parametr3
+#define ADR_TO_GROUP        Action::DR_Parametr3
+#define ADR_RELEASE_ITEMS   Action::DR_Parametr3
+#define ADR_CHILD_META_IDS  Action::DR_Parametr3
 
 static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
+
+void GroupMenu::mouseReleaseEvent(QMouseEvent *AEvent)
+{
+	QAction *action = actionAt(AEvent->pos());
+	if (action)
+		action->trigger();
+	else
+		Menu::mouseReleaseEvent(AEvent);
+}
 
 MetaContacts::MetaContacts()
 {
@@ -474,6 +485,87 @@ void MetaContacts::onMergeContacts(bool)
 	}
 }
 
+void MetaContacts::onReleaseContactItems(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QString streamJid = action->data(ADR_STREAM_JID).toString();
+		IMetaRoster *mroster = findMetaRoster(streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			Jid metaId = action->data(ADR_META_ID).toString();
+			foreach(QVariant itemJid, action->data(ADR_RELEASE_ITEMS).toList())
+				mroster->releaseContactItem(metaId,itemJid.toString());
+		}
+	}
+}
+
+void MetaContacts::onChangeContactGroups(bool AChecked)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QString streamJid = action->data(ADR_STREAM_JID).toString();
+		IMetaRoster *mroster = findMetaRoster(streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
+			if (contact.id.isValid())
+			{
+				bool checkBlank = false;
+				bool uncheckBlank = false;
+				bool uncheckGroups = false;
+				QString group = action->data(ADR_TO_GROUP).toString();
+				if (group == mroster->roster()->groupDelimiter())
+				{
+					group = QInputDialog::getText(NULL,tr("Create new group"),tr("Enter group name:"));
+					if (!group.isEmpty())
+					{
+						uncheckBlank = contact.groups.isEmpty();
+						mroster->setContactGroups(contact.id,contact.groups += group);
+					}
+				}
+				else if (group.isEmpty())
+				{
+					if (!contact.groups.isEmpty())
+					{
+						uncheckGroups = true;
+						mroster->setContactGroups(contact.id,QSet<QString>());
+					}
+					action->setChecked(true);
+				}
+				else if (AChecked)
+				{
+					uncheckBlank = contact.groups.isEmpty();
+					mroster->setContactGroups(contact.id,contact.groups += group);
+				}
+				else
+				{
+					checkBlank = (contact.groups-=group).isEmpty();
+					mroster->setContactGroups(contact.id,contact.groups -= group);
+				}
+
+				Menu *menu = qobject_cast<Menu *>(action->parent());
+				if (menu && (checkBlank || uncheckBlank || uncheckGroups))
+				{
+					Action *blankAction = menu->groupActions(AG_DEFAULT-1).value(0);
+					if (blankAction && checkBlank)
+						blankAction->setChecked(true);
+					else if (blankAction && uncheckBlank)
+						blankAction->setChecked(false);
+
+					foreach(Action *groupAction, menu->groupActions(AG_DEFAULT))
+					{
+						if (uncheckGroups)
+							groupAction->setChecked(false);
+					}
+				}
+			}
+		}
+	}
+}
+
 void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
@@ -489,9 +581,72 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 			QHash<int,QVariant> data;
 			data.insert(ADR_STREAM_JID,streamJid.full());
 			data.insert(ADR_META_ID,metaId.full());
-			data.insert(ADR_NAME, contact.name);
+			data.insert(ADR_NAME,contact.name);
 
-			Action *action = new Action(AMenu);
+			// Change group menu
+			GroupMenu *groupMenu = new GroupMenu(AMenu);
+			groupMenu->setTitle(tr("Groups"));
+
+			Action *blankGroupAction = new Action(groupMenu);
+			blankGroupAction->setText(FRostersViewPlugin->rostersView()->rostersModel()->blankGroupName());
+			blankGroupAction->setData(data);
+			blankGroupAction->setCheckable(true);
+			blankGroupAction->setChecked(contact.groups.isEmpty());
+			connect(blankGroupAction,SIGNAL(triggered(bool)),SLOT(onChangeContactGroups(bool)));
+			groupMenu->addAction(blankGroupAction,AG_DEFAULT-1,true);
+
+			foreach (QString group, mroster->groups())
+			{
+				Action *action = new Action(groupMenu);
+				action->setText(group);
+				action->setData(data);
+				action->setData(ADR_TO_GROUP, group);
+				action->setCheckable(true);
+				action->setChecked(contact.groups.contains(group));
+				connect(action,SIGNAL(triggered(bool)),SLOT(onChangeContactGroups(bool)));
+				groupMenu->addAction(action,AG_DEFAULT,true);
+			}
+
+			Action *action = new Action(groupMenu);
+			action->setText(tr("New group..."));
+			action->setData(data);
+			action->setData(ADR_TO_GROUP, mroster->roster()->groupDelimiter());
+			connect(action,SIGNAL(triggered(bool)),SLOT(onChangeContactGroups(bool)));
+			groupMenu->addAction(action,AG_DEFAULT+1,true);
+
+			AMenu->addAction(groupMenu->menuAction(),AG_RVCM_ROSTERCHANGER_GROUP);
+
+			// Release items menu
+			if (contact.items.count() > 1)
+			{
+				Menu *releaseMenu = new Menu(AMenu);
+				releaseMenu->setTitle(tr("Separate contact"));
+				AMenu->addAction(releaseMenu->menuAction(),AG_RVCM_METACONTACTS_RELEASE);
+
+				QList<QVariant> allItems;
+				foreach(Jid itemJid, contact.items)
+				{
+					Action *action = new Action(releaseMenu);
+					action->setText(itemJid.bare());
+					action->setData(data);
+					action->setData(ADR_RELEASE_ITEMS,QList<QVariant>() << itemJid.full());
+					connect(action,SIGNAL(triggered(bool)),SLOT(onReleaseContactItems(bool)));
+					releaseMenu->addAction(action,AG_DEFAULT,true);
+					allItems.append(itemJid.full());
+				}
+
+				if (allItems.count() > 2)
+				{
+					Action *action = new Action(releaseMenu);
+					action->setText(tr("Separate all contacts"));
+					action->setData(data);
+					action->setData(ADR_RELEASE_ITEMS,allItems);
+					connect(action,SIGNAL(triggered(bool)),SLOT(onReleaseContactItems(bool)));
+					releaseMenu->addAction(action,AG_DEFAULT+1);
+				}
+			}
+
+			action = new Action(AMenu);
 			action->setText(tr("Rename..."));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_RENAME);
 			action->setData(data);

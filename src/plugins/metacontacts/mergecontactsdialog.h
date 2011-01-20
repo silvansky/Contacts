@@ -16,6 +16,7 @@ public:
 	MergeContactsDialog(IMetaRoster *AMetaRoster, const QList<Jid> AMetaIds, QWidget *AParent = NULL);
 	~MergeContactsDialog();
 protected slots:
+	void onContactNameChanged(const QString &AText);
 	void onDialogButtonClicked(QAbstractButton *AButton);
 private:
 	Ui::MergeContactsDialog ui;

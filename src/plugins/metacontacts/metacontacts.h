@@ -22,6 +22,17 @@
 #include "metatabwindow.h"
 #include "mergecontactsdialog.h"
 
+class GroupMenu : 
+	public Menu
+{
+	Q_OBJECT;
+public:
+	GroupMenu(QWidget* AParent = NULL) : Menu(AParent) { }
+	virtual ~GroupMenu() {}
+protected:
+	void mouseReleaseEvent(QMouseEvent *AEvent);
+};
+
 class MetaContacts : 
 	public QObject,
 	public IPlugin,
@@ -93,6 +104,8 @@ protected slots:
 	void onRenameContact(bool);
 	void onDeleteContact(bool);
 	void onMergeContacts(bool);
+	void onReleaseContactItems(bool);
+	void onChangeContactGroups(bool AChecked);
 protected slots:
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 private:
