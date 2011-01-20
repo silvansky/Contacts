@@ -1,4 +1,15 @@
-QLabel#lblCaption 
+QDialog
+{
+	background-color: rgba(65, 70, 77, 235);
+}
+
+#wdtGateways, QDialogButtonBox
+{
+	background-color: transparent;
+}
+
+
+QLabel#lblCaption
 {
 	font-size: 12px;
 	font-weight: bold;

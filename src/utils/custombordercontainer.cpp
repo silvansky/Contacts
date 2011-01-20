@@ -22,7 +22,7 @@
 static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 {
 	// ensure object is widget but not a menu
-	if (object->isWidgetType() && !qobject_cast<QMenu*>(object))
+	if (object->isWidgetType() && !qobject_cast<QMenu*>(object) && !qobject_cast<Menu*>(object))
 	{
 		if (install)
 			object->installEventFilter(watcher);

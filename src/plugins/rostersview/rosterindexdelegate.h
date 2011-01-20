@@ -16,7 +16,8 @@ struct LabelItem
 	QSize size;
 	QRect rect;
 	IRostersLabel item;
-	bool operator <(const LabelItem &AItem) const {
+	bool operator <(const LabelItem &AItem) const
+	{
 		return item.order < AItem.item.order;
 	}
 };
@@ -24,7 +25,7 @@ struct LabelItem
 class RosterIndexDelegate :
 			public QAbstractItemDelegate
 {
-	Q_OBJECT;
+	Q_OBJECT
 	friend class RostersView;
 public:
 	RosterIndexDelegate(QObject *AParent);

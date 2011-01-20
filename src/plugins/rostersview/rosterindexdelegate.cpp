@@ -9,6 +9,8 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 
+#include <QDebug>
+
 #define BRANCH_WIDTH  10
 
 //QImage RosterIndexDelegate::groupOpenedIndicator;
@@ -160,7 +162,19 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		APainter->save();
 		APainter->setClipping(true);
 		APainter->setClipRect(option.rect);
-		drawBackground(APainter, option);
+		if (AIndex.parent().isValid() && AIndex.model()->hasChildren(AIndex))
+		{
+			if (parent())
+			{
+				option.backgroundBrush = parent()->property("groupBrush").value<QBrush>();
+				QColor c = parent()->property("groupColor").value<QColor>();
+				option.palette.setColor(QPalette::Text, c);
+				option.palette.setColor(QPalette::HighlightedText, c);
+			}
+			APainter->fillRect(option.rect, option.backgroundBrush);
+		}
+		else
+			drawBackground(APainter, option);
 		if (isDragged)
 		{
 			APainter->save();
@@ -179,7 +193,10 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		brachOption.state |= QStyle::State_Children;
 		brachOption.rect = QStyle::alignedRect(option.direction, Qt::AlignVCenter | Qt::AlignLeft, QSize(BRANCH_WIDTH, BRANCH_WIDTH), paintRect);
 		if (APainter && !isDragged)
-			style->drawPrimitive(QStyle::PE_IndicatorBranch, &brachOption, APainter);
+		{
+			//style->drawPrimitive(QStyle::PE_IndicatorBranch, &brachOption, APainter);
+			APainter->drawImage(brachOption.rect, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(brachOption.state & QStyle::State_Open ? MNI_ROSTERVIEW_GROUP_OPENED : MNI_ROSTERVIEW_GROUP_CLOSED));
+		}
 		removeWidth(paintRect, BRANCH_WIDTH, AOption.direction == Qt::LeftToRight);
 		rectHash.insert(RLID_INDICATORBRANCH, brachOption.rect);
 	}
@@ -290,33 +307,33 @@ void RosterIndexDelegate::drawLabelItem(QPainter *APainter, const QStyleOptionVi
 	switch (ALabel.item.label.type())
 	{
 	case QVariant::Pixmap:
-		{
-			QPixmap pixmap = qvariant_cast<QPixmap>(ALabel.item.label);
-			style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
-			break;
-		}
+	{
+		QPixmap pixmap = qvariant_cast<QPixmap>(ALabel.item.label);
+		style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
+		break;
+	}
 	case QVariant::Image:
-		{
-			QImage image = qvariant_cast<QImage>(ALabel.item.label);
-			APainter->drawImage(ALabel.rect.topLeft(),image);
-			break;
-		}
+	{
+		QImage image = qvariant_cast<QImage>(ALabel.item.label);
+		APainter->drawImage(ALabel.rect.topLeft(),image);
+		break;
+	}
 	case QVariant::Icon:
-		{
-			QIcon icon = qvariant_cast<QIcon>(ALabel.item.label);
-			QPixmap pixmap = style->generatedIconPixmap(getIconMode(AOption.state),icon.pixmap(AOption.decorationSize),&AOption);
-			style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
-			break;
-		}
+	{
+		QIcon icon = qvariant_cast<QIcon>(ALabel.item.label);
+		QPixmap pixmap = style->generatedIconPixmap(getIconMode(AOption.state),icon.pixmap(AOption.decorationSize),&AOption);
+		style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
+		break;
+	}
 	case QVariant::String:
-		{
-			APainter->setFont(AOption.font);
-			int flags = AOption.direction | Qt::TextSingleLine;
-			QPalette::ColorRole role = AOption.state & QStyle::State_Selected ? QPalette::HighlightedText : QPalette::Text;
-			QString text = AOption.fontMetrics.elidedText(prepareText(ALabel.item.label.toString()),Qt::ElideRight,ALabel.rect.width(),flags);
-			style->drawItemText(APainter, ALabel.rect, flags, AOption.palette, (AOption.state &  QStyle::State_Enabled) > 0, text, role);
-			break;
-		}
+	{
+		APainter->setFont(AOption.font);
+		int flags = AOption.direction | Qt::TextSingleLine;
+		QPalette::ColorRole role = AOption.state & QStyle::State_Selected ? QPalette::HighlightedText : QPalette::Text;
+		QString text = AOption.fontMetrics.elidedText(prepareText(ALabel.item.label.toString()),Qt::ElideRight,ALabel.rect.width(),flags);
+		style->drawItemText(APainter, ALabel.rect, flags, AOption.palette, (AOption.state &  QStyle::State_Enabled) > 0, text, role);
+		break;
+	}
 	default:
 		break;
 	}

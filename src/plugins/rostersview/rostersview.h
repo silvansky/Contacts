@@ -27,6 +27,8 @@ class RostersView :
 {
 	Q_OBJECT
 	Q_INTERFACES(IRostersView IRosterDataHolder)
+	Q_PROPERTY(QBrush groupBrush READ groupBrush WRITE setGroupBrush)
+	Q_PROPERTY(QColor groupColor READ groupColor WRITE setGroupColor)
 public:
 	RostersView(QWidget *AParent = NULL);
 	~RostersView();
@@ -78,6 +80,11 @@ public:
 	virtual void contextMenuForIndex(IRosterIndex *AIndex, int ALabelId, Menu *AMenu);
 	//--ClipboardMenu
 	virtual void clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu);
+	// props
+	QBrush groupBrush() const;
+	void setGroupBrush(const QBrush & newBrush);
+	QColor groupColor() const;
+	void setGroupColor(const QColor& newColor);
 signals:
 	void modelAboutToBeSet(IRostersModel *AModel);
 	void modelSet(IRostersModel *AModel);
@@ -177,6 +184,8 @@ private:
 	QRect FInsertIndicatorRect;
 	QList<IRostersDragDropHandler *> FDragDropHandlers;
 	QList<IRostersDragDropHandler *> FActiveDragHandlers;
+	QBrush groupBackground;
+	QColor groupForeground;
 };
 
 #endif // ROSTERSVIEW_H

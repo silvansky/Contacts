@@ -25,6 +25,7 @@ RostersViewPlugin::RostersViewPlugin()
 	FViewSavedState.currentIndex = NULL;
 
 	FRostersView = new RostersView;
+	FRostersView->setObjectName("rostersView");
 	connect(FRostersView,SIGNAL(viewModelAboutToBeChanged(QAbstractItemModel *)),SLOT(onViewModelAboutToBeChanged(QAbstractItemModel *)));
 	connect(FRostersView,SIGNAL(viewModelChanged(QAbstractItemModel *)),SLOT(onViewModelChanged(QAbstractItemModel *)));
 	connect(FRostersView,SIGNAL(collapsed(const QModelIndex &)),SLOT(onViewIndexCollapsed(const QModelIndex &)));
@@ -193,9 +194,9 @@ int RostersViewPlugin::rosterDataOrder() const
 QList<int> RostersViewPlugin::rosterDataRoles() const
 {
 	static QList<int> dataRoles  = QList<int>()
-		<< Qt::DisplayRole 
-		<< Qt::BackgroundColorRole 
-		<< Qt::ForegroundRole 
+		<< Qt::DisplayRole
+		<< Qt::BackgroundColorRole
+		<< Qt::ForegroundRole
 		<< RDR_FONT_WEIGHT
 		<< RDR_FONT_SIZE
 		<< RDR_GROUP_COUNTER;
@@ -205,7 +206,7 @@ QList<int> RostersViewPlugin::rosterDataRoles() const
 QList<int> RostersViewPlugin::rosterDataTypes() const
 {
 	static QList<int> indexTypes  = QList<int>()
-		<< RIT_STREAM_ROOT 
+		<< RIT_STREAM_ROOT
 		<< RIT_GROUP
 		<< RIT_GROUP_BLANK
 		<< RIT_GROUP_AGENTS

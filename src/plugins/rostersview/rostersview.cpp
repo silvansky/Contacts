@@ -16,6 +16,8 @@
 #include <QDragLeaveEvent>
 #include <QContextMenuEvent>
 
+#include <QDebug>
+
 #define BLINK_VISIBLE           750
 #define BLINK_INVISIBLE         250
 
@@ -680,6 +682,27 @@ void RostersView::clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu)
 		}
 		emit indexClipboardMenu(AIndex, AMenu);
 	}
+}
+
+QBrush RostersView::groupBrush() const
+{
+	return groupBackground;
+}
+
+void RostersView::setGroupBrush(const QBrush & newBrush)
+{
+	qDebug() << newBrush;
+	groupBackground = newBrush;
+}
+
+QColor RostersView::groupColor() const
+{
+	return groupForeground;
+}
+
+void RostersView::setGroupColor(const QColor& newColor)
+{
+	groupForeground = newColor;
 }
 
 void RostersView::updateStatusText(IRosterIndex *AIndex)
