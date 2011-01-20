@@ -1,7 +1,8 @@
 #include "subscriptiondialog.h"
+#include <utils/custombordercontainer.h>
 
 SubscriptionDialog::SubscriptionDialog(IRosterChanger *ARosterChanger, IPluginManager *APluginManager, const Jid &AStreamJid, const Jid &AContactJid,
-                                       const QString &ANotify, const QString &AMessage, QWidget *AParent) : QDialog(AParent)
+				       const QString &ANotify, const QString &AMessage, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
@@ -94,11 +95,20 @@ void SubscriptionDialog::onDialogAccepted()
 {
 	if (ui.rbtAddToRoster->isChecked())
 	{
-		IAddContactDialog *dialog = FRosterChanger->showAddContactDialog(FStreamJid);
-		if (dialog)
+		IAddContactDialog * dialog = NULL;
+		QWidget * widget = FRosterChanger->showAddContactDialog(FStreamJid);
+		if (widget)
 		{
-			dialog->setContactJid(FContactJid);
-			dialog->setNickName(FContactJid.node());
+			if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+			{
+				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+					dialog = qobject_cast<IAddContactDialog*>(border->widget());
+			}
+			if (dialog)
+			{
+				dialog->setContactJid(FContactJid);
+				dialog->setNickName(FContactJid.node());
+			}
 		}
 	}
 	else if (ui.rbtSendAndRequest->isChecked())

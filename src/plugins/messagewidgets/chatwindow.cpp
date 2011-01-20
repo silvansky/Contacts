@@ -18,12 +18,14 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	FTabPageNotifier = NULL;
 
 	FInfoWidget = FMessageWidgets->newInfoWidget(AStreamJid,AContactJid);
+	FInfoWidget->instance()->setObjectName("infoWidget");
 	ui.wdtInfo->setLayout(new QVBoxLayout);
 	ui.wdtInfo->layout()->setMargin(0);
 	ui.wdtInfo->layout()->addWidget(FInfoWidget->instance());
 	onOptionsChanged(Options::node(OPV_MESSAGES_SHOWINFOWIDGET));
 
 	FViewWidget = FMessageWidgets->newViewWidget(AStreamJid,AContactJid);
+	FViewWidget->instance()->setObjectName("viewWidget");
 	ui.wdtView->setLayout(new QVBoxLayout);
 	ui.wdtView->layout()->setMargin(0);
 	ui.wdtView->layout()->addWidget(FViewWidget->instance());
@@ -31,6 +33,7 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 		SLOT(onViewWidgetContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)));
 
 	FNoticeWidget = FMessageWidgets->newNoticeWidget(AStreamJid,AContactJid);
+	FNoticeWidget->instance()->setObjectName("noticeWidget");
 	ui.wdtNotice->setLayout(new QVBoxLayout);
 	ui.wdtNotice->layout()->setMargin(0);
 	ui.wdtNotice->layout()->addWidget(FNoticeWidget->instance());
@@ -38,15 +41,18 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	connect(FNoticeWidget->instance(),SIGNAL(noticeActivated(int)),SLOT(onNoticeActivated(int)));
 
 	FEditWidget = FMessageWidgets->newEditWidget(AStreamJid,AContactJid);
+	FEditWidget->instance()->setObjectName("editWidget");
 	ui.wdtEdit->setLayout(new QVBoxLayout);
 	ui.wdtEdit->layout()->setMargin(0);
 	ui.wdtEdit->layout()->addWidget(FEditWidget->instance());
 	connect(FEditWidget->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 
 	FMenuBarWidget = FMessageWidgets->newMenuBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
+	FMenuBarWidget->instance()->setObjectName("menuBarWidget");
 	setMenuBar(FMenuBarWidget->instance());
 
 	FToolBarWidget = FMessageWidgets->newToolBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
+	FToolBarWidget->instance()->setObjectName("toolBarWidget");
 	FToolBarWidget->toolBarChanger()->setSeparatorsVisible(false);
 	FToolBarWidget->toolBarChanger()->toolBar()->setIconSize(QSize(32,32));
 	ui.wdtToolBar->setLayout(new QVBoxLayout);
@@ -62,6 +68,7 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	ui.wdtBottomWidgets->setVisible(false);
 
 	FStatusBarWidget = FMessageWidgets->newStatusBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
+	FStatusBarWidget->instance()->setObjectName("statusBarWidget");
 	setStatusBar(FStatusBarWidget->instance());
 
 	initialize();

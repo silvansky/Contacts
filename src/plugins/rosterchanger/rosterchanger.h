@@ -64,7 +64,7 @@ struct PendingChatNotice
 	QString text;
 };
 
-class GroupMenu : 
+class GroupMenu :
 	public Menu
 {
 	Q_OBJECT;
@@ -121,7 +121,7 @@ public:
 	virtual void removeAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
 	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
-	virtual IAddContactDialog *showAddContactDialog(const Jid &AStreamJid);
+	virtual QWidget *showAddContactDialog(const Jid &AStreamJid);
 signals:
 	void addContactDialogCreated(IAddContactDialog *ADialog);
 	void subscriptionDialogCreated(ISubscriptionDialog *ADialog);

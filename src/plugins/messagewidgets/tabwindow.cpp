@@ -13,6 +13,8 @@ TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,false);
+	setMinimumSize(500, 400);
+	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_TABWINDOW);
 
 	FWindowId = AWindowId;
@@ -45,7 +47,7 @@ TabWindow::~TabWindow()
 
 void TabWindow::showWindow()
 {
-	WidgetManager::showActivateRaiseWindow(this);
+	WidgetManager::showActivateRaiseWindow(parentWidget() ? parentWidget() : this);
 }
 
 QUuid TabWindow::windowId() const
@@ -123,7 +125,12 @@ void TabWindow::removeTabPage(ITabPage *APage)
 		FLastClosedTab = APage->tabPageId();
 		emit tabPageRemoved(APage);
 		if (ui.twtTabs->count() == 0)
-			close();
+		{
+			if (parentWidget())
+				parentWidget()->close();
+			else
+				close();
+		}
 	}
 }
 
@@ -480,12 +487,15 @@ void TabWindow::onWindowMenuActionTriggered(bool)
 	}
 	else if (action == FCloseWindow)
 	{
-		close();
+		if (parentWidget())
+			parentWidget()->close();
+		else
+			close();
 	}
 	else if (action == FDeleteWindow)
 	{
 		if (QMessageBox::question(this,tr("Delete Tab Window"),tr("Are you sure you want to delete this tab window?"),
-		                          QMessageBox::Ok|QMessageBox::Cancel) == QMessageBox::Ok)
+					  QMessageBox::Ok|QMessageBox::Cancel) == QMessageBox::Ok)
 		{
 			FMessageWidgets->deleteTabWindow(FWindowId);
 		}

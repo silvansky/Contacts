@@ -2,6 +2,7 @@
 #include "ui_simplevcarddialog.h"
 #include <QMessageBox>
 #include <QInputDialog>
+#include <utils/custombordercontainer.h>
 
 SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars, IStatusIcons *AStatusIcons, IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin, IRosterChanger *ARosterChanger, const Jid &AStreamJid, const Jid &AContactJid) :
 		ui(new Ui::SimpleVCardDialog)
@@ -15,15 +16,15 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 	FAvatars = AAvatars;
 	FStatusIcons = AStatusIcons;
 	FRosterChanger = ARosterChanger;
-	
+
 	FPresence = APresencePlugin->getPresence(FStreamJid);
 
 	FVCard = AVCardPlugin->vcard(FContactJid);
 	connect(FVCard->instance(), SIGNAL(vcardUpdated()), SLOT(onVCardUpdated()));
 	connect(FVCard->instance(), SIGNAL(vcardError(const QString &)), SLOT(onVCardError(const QString &)));
-	
+
 	FRoster = ARosterPlugin->getRoster(AStreamJid);
-	connect(FRoster->instance(), SIGNAL(received(const IRosterItem &, const IRosterItem &)), 
+	connect(FRoster->instance(), SIGNAL(received(const IRosterItem &, const IRosterItem &)),
 		SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 
 	FRosterItem = FRoster->rosterItem(FContactJid);
@@ -31,7 +32,7 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 		ui->addToRosterButton->setVisible(false);
 	else
 		ui->renameButton->setVisible(false);
-	
+
 	connect(ui->closeButton, SIGNAL(clicked()), SLOT(close()));
 
 	updateDialog();
@@ -64,7 +65,7 @@ void SimpleVCardDialog::updateDialog()
 	ui->jid->setText(FContactJid.bare());
 
 	FAvatars->insertAutoAvatar(ui->avatarLabel, FContactJid, QSize(100, 100), "pixmap");
-	
+
 	IPresenceItem presence = FPresence->presenceItems(FContactJid).value(0);
 	ui->mood->setText(FRosterItem.isValid ? presence.status : tr("Not in contact list"));
 	ui->fullName->setText(FVCard->value(VVN_FULL_NAME));
@@ -124,7 +125,16 @@ void SimpleVCardDialog::on_renameButton_clicked()
 
 void SimpleVCardDialog::on_addToRosterButton_clicked()
 {
-	IAddContactDialog *dialog = FRosterChanger!=NULL ? FRosterChanger->showAddContactDialog(FStreamJid) : NULL;
-	if (dialog)
-		dialog->setContactJid(FContactJid.bare());
+	IAddContactDialog * dialog = NULL;
+	QWidget * widget = FRosterChanger ? FRosterChanger->showAddContactDialog(FStreamJid) : NULL;
+	if (widget)
+	{
+		if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+		{
+			if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+				dialog = qobject_cast<IAddContactDialog*>(border->widget());
+		}
+		if (dialog)
+			dialog->setContactJid(FContactJid.bare());
+	}
 }

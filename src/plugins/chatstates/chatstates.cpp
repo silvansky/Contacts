@@ -324,7 +324,7 @@ bool ChatStates::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 		Jid contactJid = AStanza.to();
 		if (isSupported(AStreamJid,contactJid))
 		{
-			IChatWindow *window = FMessageWidgets!=NULL ? FMessageWidgets->findChatWindow(AStreamJid,contactJid) : NULL;
+			IChatWindow *window = FMessageWidgets ? FMessageWidgets->findChatWindow(AStreamJid,contactJid) : NULL;
 			if (window)
 			{
 				stateSent = true;
@@ -625,6 +625,7 @@ void ChatStates::onPresenceClosed(IPresence *APresence)
 void ChatStates::onChatWindowCreated(IChatWindow *AWindow)
 {
 	StateWidget *widget = new StateWidget(this,AWindow,AWindow->toolBarWidget()->toolBarChanger()->toolBar());
+	widget->setObjectName("stateWidget");
 	AWindow->toolBarWidget()->toolBarChanger()->insertWidget(widget,TBG_MWTBW_CHATSTATES)->setVisible(false);
 	widget->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	widget->setPopupMode(QToolButton::InstantPopup);

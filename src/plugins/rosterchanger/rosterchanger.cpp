@@ -8,6 +8,8 @@
 #include <QDragMoveEvent>
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
+#include <utils/customborderstorage.h>
+#include <definitions/customborder.h>
 
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_CONTACT_JID     Action::DR_Parametr1
@@ -468,13 +470,22 @@ bool RosterChanger::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, c
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 		if (roster && roster->isOpen() && !roster->rosterItem(AContactJid).isValid)
 		{
-			IAddContactDialog *dialog = showAddContactDialog(AStreamJid);
-			if (dialog)
+			IAddContactDialog * dialog = NULL;
+			QWidget * widget = showAddContactDialog(AStreamJid);
+			if (widget)
 			{
-				dialog->setContactJid(AContactJid);
-				dialog->setNickName(AParams.contains("name") ? AParams.value("name") : AContactJid.node());
-				dialog->setGroup(AParams.contains("group") ? AParams.value("group") : QString::null);
-				dialog->instance()->show();
+				if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+				{
+					if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+						dialog = qobject_cast<IAddContactDialog*>(border->widget());
+				}
+				if (dialog)
+				{
+					dialog->setContactJid(AContactJid);
+					dialog->setNickName(AParams.contains("name") ? AParams.value("name") : AContactJid.node());
+					dialog->setGroup(AParams.contains("group") ? AParams.value("group") : QString::null);
+					dialog->instance()->show();
+				}
 			}
 		}
 		return true;
@@ -591,7 +602,7 @@ void RosterChanger::unsubscribeContact(const Jid &AStreamJid, const Jid &AContac
 	}
 }
 
-IAddContactDialog *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
+QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 {
 	IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
@@ -599,8 +610,19 @@ IAddContactDialog *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 		AddContactDialog *dialog = new AddContactDialog(this,FPluginManager,AStreamJid);
 		connect(roster->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
 		emit addContactDialogCreated(dialog);
-		dialog->show();
-		return dialog;
+		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+		if (border)
+		{
+			border->setAttribute(Qt::WA_DeleteOnClose, true);
+			border->setMaximizeButtonVisible(false);
+			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+			connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
+			connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
+			border->show();
+		}
+		else
+			dialog->show();
+		return border ? (QWidget*)border : (QWidget*)dialog;
 	}
 	return NULL;
 }
@@ -964,12 +986,21 @@ void RosterChanger::onShowAddContactDialog(bool)
 	IAccount *account = FAccountManager ? FAccountManager->accounts().first() : NULL;
 	if (action && account && account->isActive())
 	{
-		IAddContactDialog *dialog = showAddContactDialog(account->xmppStream()->streamJid());
-		if (dialog)
+		IAddContactDialog * dialog = NULL;
+		QWidget * widget = showAddContactDialog(account->xmppStream()->streamJid());
+		if (widget)
 		{
-			dialog->setContactJid(action->data(ADR_CONTACT_JID).toString());
-			dialog->setNickName(action->data(ADR_NICK).toString());
-			dialog->setGroup(action->data(ADR_GROUP).toString());
+			if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+			{
+				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+					dialog = qobject_cast<IAddContactDialog*>(border->widget());
+			}
+			if (dialog)
+			{
+				dialog->setContactJid(action->data(ADR_CONTACT_JID).toString());
+				dialog->setNickName(action->data(ADR_NICK).toString());
+				dialog->setGroup(action->data(ADR_GROUP).toString());
+			}
 		}
 	}
 }

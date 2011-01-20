@@ -13,8 +13,8 @@ class EditWidget :
 			public QWidget,
 			public IEditWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IEditWidget);
+	Q_OBJECT
+	Q_INTERFACES(IEditWidget)
 public:
 	EditWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid);
 	~EditWidget();

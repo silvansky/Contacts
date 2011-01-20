@@ -3,6 +3,9 @@
 #include <QTextBlock>
 #include <QClipboard>
 #include <QDesktopServices>
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 #define ADR_CONTEXT_DATA							Action::DR_Parametr1
 
@@ -375,7 +378,11 @@ ITabWindow *MessageWidgets::createTabWindow(const QUuid &AWindowId)
 	{
 		window = new TabWindow(this,AWindowId);
 		FTabWindows.append(window);
-		WidgetManager::setWindowSticky(window->instance(),true);
+		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window->instance(), CBS_WINDOW);
+		if (border)
+			WidgetManager::setWindowSticky(border, true);
+		else
+			WidgetManager::setWindowSticky(window->instance(),true);
 		connect(window->instance(),SIGNAL(tabPageAdded(ITabPage *)),SLOT(onTabPageAdded(ITabPage *)));
 		connect(window->instance(),SIGNAL(windowDestroyed()),SLOT(onTabWindowDestroyed()));
 		emit tabWindowCreated(window);

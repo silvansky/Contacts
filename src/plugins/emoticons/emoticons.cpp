@@ -21,6 +21,7 @@ public:
 		if (!FWidgets.contains(AMenu))
 		{
 			QPushButton *button = new QPushButton(this);
+			button->setObjectName("emoticonsButton");
 			button->setMenu(AMenu);
 			button->setFlat(true);
 			if (AMenu->iconStorage())
@@ -180,7 +181,7 @@ void Emoticons::createIconsetUrls()
 
 			foreach(QString key, storage->fileKeys())
 			{
-				if (!FUrlByKey.contains(key)) 
+				if (!FUrlByKey.contains(key))
 				{
 					QString file = storage->fileFullName(key);
 					QUrl url = QUrl::fromLocalFile(file);
@@ -294,6 +295,7 @@ void Emoticons::removeSelectIconMenu(const QString &ASubStorage)
 void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 {
 	EmoticonsContainer *container = new EmoticonsContainer(AEditWidget);
+	container->setObjectName("emoticonsContainer");
 	FContainers.append(container);
 
 	foreach(QString substorage, activeIconsets())

@@ -19,8 +19,8 @@ class ChatWindow :
 			public QMainWindow,
 			public IChatWindow
 {
-	Q_OBJECT;
-	Q_INTERFACES(IChatWindow ITabPage);
+	Q_OBJECT
+	Q_INTERFACES(IChatWindow ITabPage)
 public:
 	ChatWindow(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid);
 	virtual ~ChatWindow();

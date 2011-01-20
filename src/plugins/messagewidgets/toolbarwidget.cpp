@@ -7,6 +7,7 @@ ToolBarWidget::ToolBarWidget(IInfoWidget *AInfo, IViewWidget *AView, IEditWidget
 	FEditWidget = AEdit;
 	FReceiversWidget = AReceivers;
 	FToolBarChanger = new ToolBarChanger(this);
+	FToolBarChanger->setObjectName("toolBarChanger");
 	setIconSize(QSize(16,16));
 }
 

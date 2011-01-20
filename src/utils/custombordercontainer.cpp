@@ -680,7 +680,9 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 		containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
 		setMinimumSize(containedWidget->minimumSize());
 		setWindowTitle(containedWidget->windowTitle());
+		connect(containedWidget, SIGNAL(destroyed(QObject*)), SLOT(onContainedWidgetDestroyed(QObject*)));
 		containedWidget->setVisible(true);
+		adjustSize();
 	}
 }
 
@@ -690,6 +692,7 @@ QWidget * CustomBorderContainer::releaseWidget()
 	{
 		childsRecursive(containedWidget,this,false);
 		containedWidget->removeEventFilter(this);
+		disconnect(containedWidget, SIGNAL(destroyed(QObject*)), this, SLOT(onContainedWidgetDestroyed(QObject*)));
 		containerLayout->removeWidget(containedWidget);
 		QWidget * w = containedWidget;
 		containedWidget = NULL;
@@ -1985,4 +1988,13 @@ void CustomBorderContainer::maximizeWidget()
 void CustomBorderContainer::closeWidget()
 {
 	close();
+}
+
+void CustomBorderContainer::onContainedWidgetDestroyed(QObject* obj)
+{
+	if (obj == containedWidget)
+	{
+		containedWidget = NULL;
+		deleteLater();
+	}
 }

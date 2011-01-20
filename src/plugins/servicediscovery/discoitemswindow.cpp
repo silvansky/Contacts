@@ -2,6 +2,7 @@
 
 #include <QRegExp>
 #include <QLineEdit>
+#include <utils/custombordercontainer.h>
 
 bool SortFilterProxyModel::hasChildren( const QModelIndex &AParent ) const
 {
@@ -86,7 +87,7 @@ DiscoItemsWindow::DiscoItemsWindow(IServiceDiscovery *ADiscovery, const Jid &ASt
 
 	connect(ui.trvItems,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onViewContextMenu(const QPoint &)));
 	connect(ui.trvItems->selectionModel(),SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-	        SLOT(onCurrentIndexChanged(const QModelIndex &, const QModelIndex &)));
+		SLOT(onCurrentIndexChanged(const QModelIndex &, const QModelIndex &)));
 
 	connect(FDiscovery->instance(),SIGNAL(discoInfoReceived(const IDiscoInfo &)),SLOT(onDiscoInfoReceived(const IDiscoInfo &)));
 	connect(FDiscovery->instance(),SIGNAL(discoItemsReceived(const IDiscoItems &)),SLOT(onDiscoItemsReceived(const IDiscoItems &)));
@@ -327,11 +328,20 @@ void DiscoItemsWindow::onToolBarActionTriggered(bool)
 		QModelIndex index = ui.trvItems->currentIndex();
 		if (index.isValid())
 		{
-			IAddContactDialog *dialog = FRosterChanger->showAddContactDialog(FStreamJid);
-			if (dialog)
+			IAddContactDialog * dialog = NULL;
+			QWidget * widget = FRosterChanger->showAddContactDialog(FStreamJid);
+			if (widget)
 			{
-				dialog->setContactJid(index.data(DIDR_JID).toString());
-				dialog->setNickName(index.data(DIDR_NAME).toString());
+				if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+				{
+					if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+						dialog = qobject_cast<IAddContactDialog*>(border->widget());
+				}
+				if (dialog)
+				{
+					dialog->setContactJid(index.data(DIDR_JID).toString());
+					dialog->setNickName(index.data(DIDR_NAME).toString());
+				}
 			}
 		}
 	}

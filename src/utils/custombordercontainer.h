@@ -185,6 +185,7 @@ protected slots:
 	void minimizeWidget();
 	void maximizeWidget();
 	void closeWidget();
+	void onContainedWidgetDestroyed(QObject*);
 private:
 	// widgets/layouts
 	QWidget * containedWidget;

@@ -8,7 +8,7 @@
 
 #define ROSTERCHANGER_UUID "{8d7070c2-46db-4ad1-ac51-eaeed11408fc}"
 
-class IAddContactDialog 
+class IAddContactDialog
 {
 public:
 	virtual QDialog *instance() =0;
@@ -50,7 +50,7 @@ public:
 	virtual void removeAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false) =0;
 	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false) =0;
-	virtual IAddContactDialog *showAddContactDialog(const Jid &AStreamJid) =0;
+	virtual QWidget *showAddContactDialog(const Jid &AStreamJid) =0;
 protected:
 	virtual void addContactDialogCreated(IAddContactDialog *ADialog) =0;
 	virtual void subscriptionDialogCreated(ISubscriptionDialog *ADialog) =0;

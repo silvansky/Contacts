@@ -18,8 +18,8 @@ class TabWindow :
 			public QMainWindow,
 			public ITabWindow
 {
-	Q_OBJECT;
-	Q_INTERFACES(ITabWindow);
+	Q_OBJECT
+	Q_INTERFACES(ITabWindow)
 public:
 	TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId);
 	virtual ~TabWindow();

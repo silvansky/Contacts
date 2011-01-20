@@ -1,6 +1,7 @@
 #include "addlegacycontactdialog.h"
 
 #include <QTextDocument>
+#include <utils/custombordercontainer.h>
 
 AddLegacyContactDialog::AddLegacyContactDialog(IGateways *AGateways, IRosterChanger *ARosterChanger, const Jid &AStreamJid,
     const Jid &AServiceJid, QWidget *AParent) : QDialog(AParent)
@@ -16,11 +17,11 @@ AddLegacyContactDialog::AddLegacyContactDialog(IGateways *AGateways, IRosterChan
 	FServiceJid = AServiceJid;
 
 	connect(FGateways->instance(),SIGNAL(promptReceived(const QString &,const QString &,const QString &)),
-	        SLOT(onPromptReceived(const QString &,const QString &,const QString &)));
+		SLOT(onPromptReceived(const QString &,const QString &,const QString &)));
 	connect(FGateways->instance(),SIGNAL(userJidReceived(const QString &, const Jid &)),
-	        SLOT(onUserJidReceived(const QString &, const Jid &)));
+		SLOT(onUserJidReceived(const QString &, const Jid &)));
 	connect(FGateways->instance(),SIGNAL(errorReceived(const QString &, const QString &)),
-	        SLOT(onErrorReceived(const QString &, const QString &)));
+		SLOT(onErrorReceived(const QString &, const QString &)));
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonsClicked(QAbstractButton *)));
 
 	requestPrompt();
@@ -85,12 +86,21 @@ void AddLegacyContactDialog::onUserJidReceived(const QString &AId, const Jid &AU
 			ui.lblDescription->setText(tr("Jabber ID for %1 is %2").arg(FContactId).arg(AUserJid.full()));
 			if (FRosterChanger)
 			{
-				IAddContactDialog *dialog = FRosterChanger!=NULL ? FRosterChanger->showAddContactDialog(FStreamJid) : NULL;
-				if (dialog)
+				IAddContactDialog * dialog = NULL;
+				QWidget * widget = FRosterChanger ? FRosterChanger->showAddContactDialog(FStreamJid) : NULL;
+				if (widget)
 				{
-					dialog->setContactJid(AUserJid);
-					dialog->setNickName(FContactId);
-					accept();
+					if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+					{
+						if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+							dialog = qobject_cast<IAddContactDialog*>(border->widget());
+					}
+					if (dialog)
+					{
+						dialog->setContactJid(AUserJid);
+						dialog->setNickName(FContactId);
+						accept();
+					}
 				}
 			}
 		}

@@ -85,8 +85,8 @@ class ChatMessageHandler :
 			public IXmppUriHandler,
 			public IRostersClickHooker
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMessageHandler ITabPageHandler IXmppUriHandler IRostersClickHooker);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IMessageHandler ITabPageHandler IXmppUriHandler IRostersClickHooker)
 public:
 	ChatMessageHandler();
 	~ChatMessageHandler();
