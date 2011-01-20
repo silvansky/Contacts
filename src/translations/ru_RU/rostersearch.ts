@@ -35,5 +35,9 @@
         <source>Address</source>
         <translation>Адрес</translation>
     </message>
+    <message>
+        <source>Search</source>
+        <translation>Поиск</translation>
+    </message>
 </context>
 </TS>

@@ -236,12 +236,32 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <translation>Запускать вместе с компьютером</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;Forgot your password?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;Забыли пароль?&lt;/a&gt;</translation>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Enter your Rambler login and password, or &lt;/span&gt;&lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;&lt;span style=&quot; font-size:9pt; text-decoration: underline; color:#ffffff;&quot;&gt;register&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>or&lt;br&gt;&lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;get new Rambler login...&lt;/a&gt;</source>
-        <translation>или&lt;br&gt;&lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;получить новый Рамблер логин...&lt;/a&gt;</translation>
+        <source>Login</source>
+        <translation>Логин</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>Показать пароль</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;&lt;span style=&quot; font-size:9pt; text-decoration: underline; color:#acacac;&quot;&gt;Forgot your password?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
