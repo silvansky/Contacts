@@ -202,12 +202,8 @@ QString MetaRoster::metaAvatarHash(const Jid &AMetaId) const
 	if (FAvatars && FMetaContacts.contains(AMetaId))
 	{
 		IMetaContact contact = FMetaContacts.value(AMetaId);
-		foreach(const Jid &itemJid, contact.items)
-		{
-			hash = FAvatars->avatarHash(itemJid);
-			if (!hash.isEmpty())
-				return hash;
-		}
+		for (QSet<Jid>::const_iterator it=contact.items.constBegin() ; hash.isEmpty() && it!=contact.items.constEnd(); it++)
+			hash = FAvatars->avatarHash(*it);
 	}
 	return hash;
 }
@@ -218,15 +214,12 @@ QImage MetaRoster::metaAvatarImage(const Jid &AMetaId, bool ANullImage) const
 	if (FAvatars && FMetaContacts.contains(AMetaId))
 	{
 		IMetaContact contact = FMetaContacts.value(AMetaId);
-		foreach(const Jid &itemJid, contact.items)
-		{
-			image = FAvatars->avatarImage(itemJid,false);
-			if (!image.isNull())
-				return image;
-		}
-		image = FAvatars->avatarImage(AMetaId, ANullImage);
+		for (QSet<Jid>::const_iterator it=contact.items.constBegin() ; image.isNull() && it!=contact.items.constEnd(); it++)
+			image = FAvatars->avatarImage(*it,false);
+		if (image.isNull() && ANullImage)
+			image = FAvatars->avatarImage(AMetaId, ANullImage);
 	}
-	return image;
+	return image.scaled(32,32,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 }
 
 QSet<QString> MetaRoster::groups() const
