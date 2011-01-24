@@ -401,7 +401,7 @@ ITabWindow *MessageWidgets::findTabWindow(const QUuid &AWindowId) const
 ITabWindow *MessageWidgets::assignTabWindowPage(ITabPage *APage)
 {
 	ITabWindow *window = NULL;
-	if (Options::node(OPV_MESSAGES_TABWINDOWS_ENABLE).value().toBool())
+	if (APage->instance()->isWindow() && Options::node(OPV_MESSAGES_TABWINDOWS_ENABLE).value().toBool())
 	{
 		QList<QUuid> availWindows = tabWindowList();
 		QUuid windowId = FTabPageWindow.value(APage->tabPageId());

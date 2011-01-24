@@ -59,6 +59,7 @@ protected:
 protected:
 	void updateWindow();
 	void updateItemButtons(const QSet<Jid> &AItems);
+	void setPageToolBarChanger(ToolBarChanger *AChanger);
 protected:
 	virtual bool event(QEvent *AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
@@ -71,7 +72,7 @@ protected slots:
 	void onTabPageNotifierChanged();
 	void onTabPageNotifierActiveNotifyChanged(int ANotifyId);
 protected slots:
-	void onItemButtonActionTriggered();
+	void onItemButtonActionTriggered(bool);
 	void onCurrentWidgetChanged(int AIndex);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 protected slots:
@@ -88,6 +89,8 @@ private:
 	bool FShownDetached;
 	QString FTabPageToolTip;
 	ToolBarChanger *FToolBarChanger;
+	ToolBarChanger *FPageToolBarChanger;
+	QList<QAction *> FPageToolBarActions;
 	QMap<Jid, ITabPage *> FItemTabPages;
 	QMap<Jid, QToolButton *> FItemButtons;
 };
