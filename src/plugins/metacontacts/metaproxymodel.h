@@ -35,6 +35,8 @@ protected slots:
 	void onInvalidateTimerTimeout();
 	void onRostersModelSet(IRostersModel *AModel);
 	void onMetaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled);
+	void onMetaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
+	void onMetaPresenceChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
 	void onMetaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
 private:
 	IRostersView *FRostersView;

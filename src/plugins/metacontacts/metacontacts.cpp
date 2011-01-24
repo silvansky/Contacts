@@ -32,7 +32,6 @@ MetaContacts::MetaContacts()
 	FPluginManager = NULL;
 	FRosterPlugin = NULL;
 	FRostersViewPlugin = NULL;
-	FStanzaProcessor = NULL;
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 }
@@ -69,10 +68,6 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0,NULL);
-	if (plugin)
-		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
-
 	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
@@ -97,7 +92,7 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		}
 	}
 
-	return FRosterPlugin!=NULL && FStanzaProcessor!=NULL;
+	return FRosterPlugin!=NULL;
 }
 
 bool MetaContacts::initObjects()
@@ -210,7 +205,7 @@ IMetaRoster *MetaContacts::newMetaRoster(IRoster *ARoster)
 	IMetaRoster *mroster = findMetaRoster(ARoster->streamJid());
 	if (mroster == NULL)
 	{
-		mroster = new MetaRoster(ARoster,FStanzaProcessor);
+		mroster = new MetaRoster(ARoster,FPluginManager);
 		connect(mroster->instance(),SIGNAL(destroyed(QObject *)),SLOT(onMetaRosterDestroyed(QObject *)));
 		FCleanupHandler.add(mroster->instance());
 		FMetaRosters.append(mroster);
@@ -295,6 +290,20 @@ void MetaContacts::onMetaRosterOpened()
 		emit metaRosterOpened(mroster);
 }
 
+void MetaContacts::onMetaAvatarChanged( const Jid &AMetaId )
+{
+	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
+	if (mroster)
+		emit metaAvatarChanged(mroster,AMetaId);
+}
+
+void MetaContacts::onMetaPresenceChanged(const Jid &AMetaId)
+{
+	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
+	if (mroster)
+		emit metaPresenceChanged(mroster,AMetaId);
+}
+
 void MetaContacts::onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore)
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
@@ -355,6 +364,8 @@ void MetaContacts::onRosterAdded(IRoster *ARoster)
 {
 	IMetaRoster *mroster = newMetaRoster(ARoster);
 	connect(mroster->instance(),SIGNAL(metaRosterOpened()),SLOT(onMetaRosterOpened()));
+	connect(mroster->instance(),SIGNAL(metaAvatarChanged(const Jid &)),SLOT(onMetaAvatarChanged(const Jid &)));
+	connect(mroster->instance(),SIGNAL(metaPresenceChanged(const Jid &)),SLOT(onMetaPresenceChanged(const Jid &)));
 	connect(mroster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 	connect(mroster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),

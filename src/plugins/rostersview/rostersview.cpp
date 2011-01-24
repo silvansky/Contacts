@@ -707,7 +707,7 @@ void RostersView::setGroupColor(const QColor& newColor)
 
 void RostersView::updateStatusText(IRosterIndex *AIndex)
 {
-	const static QList<int> statusTypes = QList<int>() << RIT_STREAM_ROOT << RIT_CONTACT << RIT_AGENT;
+	const static QList<int> statusTypes = QList<int>() << RIT_STREAM_ROOT << RIT_CONTACT << RIT_AGENT << RIT_METACONTACT;
 
 	QList<IRosterIndex *> indexes;
 	if (AIndex == NULL)

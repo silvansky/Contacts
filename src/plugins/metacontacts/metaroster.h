@@ -3,8 +3,10 @@
 
 #include <definitions/namespaces.h>
 #include <definitions/stanzahandlerorders.h>
+#include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istanzaprocessor.h>
+#include <interfaces/iavatars.h>
 #include <utils/stanza.h>
 #include <utils/errorhandler.h>
 
@@ -17,7 +19,7 @@ class MetaRoster :
 	Q_OBJECT;
 	Q_INTERFACES(IMetaRoster IStanzaHandler IStanzaRequestOwner);
 public:
-	MetaRoster(IRoster *ARoster, IStanzaProcessor *AStanzaProcessor);
+	MetaRoster(IRoster *ARoster, IPluginManager *APluginManager);
 	~MetaRoster();
 	virtual QObject *instance() { return this; }
 	//IStanzaHandler
@@ -33,6 +35,9 @@ public:
 	virtual QList<Jid> metaContacts() const;
 	virtual Jid itemMetaContact(const Jid &AItemJid) const;
 	virtual IMetaContact metaContact(const Jid &AMetaId) const;
+	virtual IPresenceItem metaPresence(const Jid &AMetaId) const;
+	virtual QString metaAvatarHash(const Jid &AMetaId) const;
+	virtual QImage metaAvatarImage(const Jid &AMetaId, bool ANullImage = true) const;
 	virtual QSet<QString> groups() const;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const;
 	virtual QSet<QString> contactGroups(const Jid &AMetaId) const;
@@ -46,6 +51,8 @@ public:
 	virtual void loadMetaContacts(const QString &AFileName);
 signals:
 	void metaRosterOpened();
+	void metaAvatarChanged(const Jid &AMetaId);
+	void metaPresenceChanged(const Jid &AMetaId);
 	void metaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void metaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void metaRosterClosed();
@@ -53,6 +60,7 @@ signals:
 	void metaRosterStreamJidAboutToBeChanged(const Jid &AAfter);
 	void metaRosterStreamJidChanged(const Jid &ABefore);
 protected:
+	void initialize(IPluginManager *APluginManager);
 	void setEnabled(bool AEnabled);
 	void clearMetaContacts();
 	void removeMetaContact(const Jid &AMetaId);
@@ -66,8 +74,14 @@ protected slots:
 	void onStreamClosed();
 	void onStreamJidAboutToBeChanged(const Jid &AAfter);
 	void onStreamJidChanged(const Jid &ABefore);
+	void onPresenceAdded(IPresence *APresence);
+	void onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore);
+	void onPresenceRemoved(IPresence *APresence);
+	void onAvatarChanged(const Jid &AContactJid);
 private:
 	IRoster *FRoster;
+	IAvatars *FAvatars;
+	IPresence *FPresence;
 	IStanzaProcessor *FStanzaProcessor;
 private:
 	int FSHIMetaContacts;

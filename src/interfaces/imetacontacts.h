@@ -4,6 +4,7 @@
 #include <QSet>
 #include <QMainWindow>
 #include <interfaces/iroster.h>
+#include <interfaces/ipresence.h>
 #include <interfaces/imessagewidgets.h>
 
 #define METACONTACTS_UUID "{D2E1D146-F98F-4868-89C0-308F72062BFA}"
@@ -27,6 +28,9 @@ public:
 	virtual QList<Jid> metaContacts() const =0;
 	virtual Jid itemMetaContact(const Jid &AItemJid) const =0;
 	virtual IMetaContact metaContact(const Jid &AMetaId) const =0;
+	virtual IPresenceItem metaPresence(const Jid &AMetaId) const =0;
+	virtual QString metaAvatarHash(const Jid &AMetaId) const =0;
+	virtual QImage metaAvatarImage(const Jid &AMetaId, bool ANullImage = true) const =0;
 	virtual QSet<QString> groups() const =0;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const =0;
 	virtual QSet<QString> contactGroups(const Jid &AMetaId) const =0;
@@ -40,6 +44,8 @@ public:
 	virtual void loadMetaContacts(const QString &AFileName) =0;
 protected:
 	virtual void metaRosterOpened() =0;
+	virtual void metaAvatarChanged(const Jid &AMetaId) =0;
+	virtual void metaPresenceChanged(const Jid &AMetaId) =0;
 	virtual void metaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore) =0;
 	virtual void metaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage) =0;
 	virtual void metaRosterClosed() =0;
@@ -79,6 +85,8 @@ public:
 protected:
 	virtual void metaRosterAdded(IMetaRoster *AMetaRoster) =0;
 	virtual void metaRosterOpened(IMetaRoster *AMetaRoster) =0;
+	virtual void metaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId) =0;
+	virtual void metaPresenceChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId) =0;
 	virtual void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore) =0;
 	virtual void metaActionResult(IMetaRoster *AMetaRoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage) =0;
 	virtual void metaRosterClosed(IMetaRoster *AMetaRoster) =0;

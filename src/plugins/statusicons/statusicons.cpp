@@ -154,7 +154,8 @@ QList<int> StatusIcons::rosterDataTypes() const
 				       << RIT_STREAM_ROOT
 				       << RIT_CONTACT
 				       << RIT_AGENT
-				       << RIT_MY_RESOURCE;
+				       << RIT_MY_RESOURCE
+						 << RIT_METACONTACT;
 	return indexTypes;
 }
 
@@ -163,13 +164,10 @@ QVariant StatusIcons::rosterData(const IRosterIndex *AIndex, int ARole) const
 	if (ARole == Qt::DecorationRole)
 	{
 		Jid contactJid = AIndex->data(RDR_JID).toString();
-		if (contactJid.isValid())
-		{
-			int show = AIndex->data(RDR_SHOW).toInt();
-			QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
-			bool ask = !AIndex->data(RDR_ASK).toString().isEmpty();
-			return iconByJidStatus(contactJid,show,subscription,ask);
-		}
+		int show = AIndex->data(RDR_SHOW).toInt();
+		QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
+		bool ask = !AIndex->data(RDR_ASK).toString().isEmpty();
+		return iconByJidStatus(contactJid,show,subscription,ask);
 	}
 	return QVariant();
 }

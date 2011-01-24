@@ -12,9 +12,7 @@
 #include <definitions/rosterdragdropmimetypes.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
-#include <interfaces/istanzaprocessor.h>
 #include <interfaces/irostersview.h>
-#include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
 #include <utils/widgetmanager.h>
 #include "metaroster.h"
@@ -72,6 +70,8 @@ public:
 signals:
 	void metaRosterAdded(IMetaRoster *AMetaRoster);
 	void metaRosterOpened(IMetaRoster *AMetaRoster);
+	void metaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
+	void metaPresenceChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
 	void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
 	void metaActionResult(IMetaRoster *AMetaRoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void metaRosterClosed(IMetaRoster *AMetaRoster);
@@ -85,6 +85,8 @@ protected:
 	void deleteMetaRosterWindows(IMetaRoster *AMetaRoster);
 protected slots:
 	void onMetaRosterOpened();
+	void onMetaAvatarChanged(const Jid &AMetaId);
+	void onMetaPresenceChanged(const Jid &AMetaId);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void onMetaRosterClosed();
@@ -112,7 +114,6 @@ private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
 	IRostersViewPlugin *FRostersViewPlugin;
-	IStanzaProcessor *FStanzaProcessor;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 private:

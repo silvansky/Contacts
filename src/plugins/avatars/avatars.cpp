@@ -295,19 +295,22 @@ QList<int> Avatars::rosterDataRoles() const
 
 QList<int> Avatars::rosterDataTypes() const
 {
-	static const QList<int> indexTypes = QList<int>() << RIT_STREAM_ROOT << RIT_CONTACT;
+	static const QList<int> indexTypes = QList<int>() << RIT_STREAM_ROOT << RIT_CONTACT << RIT_METACONTACT;
 	return indexTypes;
 }
 
 QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 {
-	if (ARole == RDR_AVATAR_IMAGE)
+	if (AIndex->type() != RIT_METACONTACT)
 	{
-		return avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars).scaled(32,32,Qt::KeepAspectRatio,Qt::FastTransformation);
-	}
-	else if (ARole == RDR_AVATAR_HASH)
-	{
-		return avatarHash(AIndex->data(RDR_JID).toString());
+		if (ARole == RDR_AVATAR_IMAGE)
+		{
+			return avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars).scaled(32,32,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+		}
+		else if (ARole == RDR_AVATAR_HASH)
+		{
+			return avatarHash(AIndex->data(RDR_JID).toString());
+		}
 	}
 	return QVariant();
 }
@@ -698,7 +701,7 @@ void Avatars::onVCardChanged(const Jid &AContactJid)
 
 void Avatars::onRosterIndexInserted(IRosterIndex *AIndex)
 {
-	if (FRostersViewPlugin &&  rosterDataTypes().contains(AIndex->type()))
+	if (FRostersViewPlugin && rosterDataTypes().contains(AIndex->type()))
 	{
 		Jid contactJid = AIndex->data(RDR_BARE_JID).toString();
 		if (!FVCardAvatars.contains(contactJid))

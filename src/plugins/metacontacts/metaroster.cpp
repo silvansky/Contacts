@@ -10,20 +10,17 @@
 #define SHC_ROSTER_REQUEST    "/iq/query[@xmlns='" NS_JABBER_ROSTER "']"
 #define SHC_METACONTACTS      "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_METACONTACTS "']"
 
-MetaRoster::MetaRoster(IRoster *ARoster, IStanzaProcessor *AStanzaProcessor) : QObject(ARoster->instance())
+MetaRoster::MetaRoster(IRoster *ARoster, IPluginManager *APluginManager) : QObject(ARoster->instance())
 {
 	FRoster = ARoster;
-	FStanzaProcessor = AStanzaProcessor;
+	initialize(APluginManager);
 
 	FOpened = false;
 	FEnabled = false;
 	FSHIMetaContacts = -1;
 
-	connect(FRoster->xmppStream()->instance(),SIGNAL(closed()),SLOT(onStreamClosed()));
-	connect(FRoster->instance(),SIGNAL(streamJidAboutToBeChanged(const Jid &)),SLOT(onStreamJidAboutToBeChanged(const Jid &)));
-	connect(FRoster->instance(),SIGNAL(streamJidChanged(const Jid &)),SLOT(onStreamJidChanged(const Jid &)));
-
 	insertStanzaHandlers();
+	onPresenceAdded(FPresence);
 }
 
 MetaRoster::~MetaRoster()
@@ -171,6 +168,65 @@ Jid MetaRoster::itemMetaContact(const Jid &AItemJid) const
 IMetaContact MetaRoster::metaContact(const Jid &AMetaId) const
 {
 	return FMetaContacts.value(AMetaId);
+}
+
+IPresenceItem MetaRoster::metaPresence(const Jid &AMetaId) const
+{
+	IPresenceItem pitem;
+	if (FMetaContacts.contains(AMetaId))
+	{
+		pitem.isValid = true;
+		if (FPresence)
+		{
+			QMultiMap<int, IPresenceItem> pitems;
+			IMetaContact contact = FMetaContacts.value(AMetaId);
+			foreach(const Jid &itemJid, contact.items)
+			{
+				foreach(IPresenceItem item_pres, FPresence->presenceItems(itemJid))
+				{
+					pitems.insertMulti(item_pres.show,item_pres);
+				}
+			}
+			if (!pitems.isEmpty())
+			{
+				pitem = pitems.constBegin().value();
+			}
+		}
+	}
+	return pitem;
+}
+
+QString MetaRoster::metaAvatarHash(const Jid &AMetaId) const
+{
+	QString hash;
+	if (FAvatars && FMetaContacts.contains(AMetaId))
+	{
+		IMetaContact contact = FMetaContacts.value(AMetaId);
+		foreach(const Jid &itemJid, contact.items)
+		{
+			hash = FAvatars->avatarHash(itemJid);
+			if (!hash.isEmpty())
+				return hash;
+		}
+	}
+	return hash;
+}
+
+QImage MetaRoster::metaAvatarImage(const Jid &AMetaId, bool ANullImage) const
+{
+	QImage image;
+	if (FAvatars && FMetaContacts.contains(AMetaId))
+	{
+		IMetaContact contact = FMetaContacts.value(AMetaId);
+		foreach(const Jid &itemJid, contact.items)
+		{
+			image = FAvatars->avatarImage(itemJid,false);
+			if (!image.isNull())
+				return image;
+		}
+		image = FAvatars->avatarImage(AMetaId, ANullImage);
+	}
+	return image;
 }
 
 QSet<QString> MetaRoster::groups() const
@@ -393,6 +449,39 @@ void MetaRoster::loadMetaContacts(const QString &AFileName)
 			metaFile.close();
 		}
 	}
+}
+
+void MetaRoster::initialize( IPluginManager *APluginManager )
+{
+	IPlugin *plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0,NULL);
+	if (plugin)
+		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
+	if (plugin)
+	{
+		IPresencePlugin *presencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
+		if (presencePlugin)
+		{
+			FPresence = presencePlugin->getPresence(FRoster->streamJid());
+			connect(presencePlugin->instance(),SIGNAL(presenceAdded(IPresence *)),SLOT(onPresenceAdded(IPresence *)));
+			connect(presencePlugin->instance(),SIGNAL(presenceRemoved(IPresence *)),SLOT(onPresenceRemoved(IPresence *)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
+	if (plugin)
+	{
+		FAvatars = qobject_cast<IAvatars *>(plugin->instance());
+		if (FAvatars)
+		{
+			connect(FAvatars->instance(),SIGNAL(avatarChanged(const Jid &)),SLOT(onAvatarChanged(const Jid &)));
+		}
+	}
+
+	connect(FRoster->xmppStream()->instance(),SIGNAL(closed()),SLOT(onStreamClosed()));
+	connect(FRoster->instance(),SIGNAL(streamJidAboutToBeChanged(const Jid &)),SLOT(onStreamJidAboutToBeChanged(const Jid &)));
+	connect(FRoster->instance(),SIGNAL(streamJidChanged(const Jid &)),SLOT(onStreamJidChanged(const Jid &)));
 }
 
 void MetaRoster::setEnabled(bool AEnabled)
@@ -624,7 +713,7 @@ void MetaRoster::processRosterStanza(const Jid &AStreamJid, Stanza AStanza)
 
 void MetaRoster::insertStanzaHandlers()
 {
-	if (FSHIMetaContacts < 0)
+	if (FStanzaProcessor && FSHIMetaContacts < 0)
 	{
 		IStanzaHandle metaHandler;
 		metaHandler.handler = this;
@@ -651,7 +740,7 @@ void MetaRoster::insertStanzaHandlers()
 
 void MetaRoster::removeStanzaHandlers()
 {
-	if (FSHIMetaContacts > 0)
+	if (FStanzaProcessor && FSHIMetaContacts > 0)
 	{
 		FStanzaProcessor->removeStanzaHandle(FSHIMetaContacts);
 		FStanzaProcessor->removeStanzaHandle(FSHIRosterRequest);
@@ -680,4 +769,35 @@ void MetaRoster::onStreamJidAboutToBeChanged(const Jid &AAfter)
 void MetaRoster::onStreamJidChanged(const Jid &ABefore)
 {
 	emit metaRosterStreamJidChanged(ABefore);
+}
+
+void MetaRoster::onPresenceAdded(IPresence *APresence)
+{
+	if (APresence && APresence->streamJid()==FRoster->streamJid())
+	{
+		FPresence = APresence;
+		connect(FPresence->instance(),SIGNAL(received(const IPresenceItem &, const IPresenceItem &)),
+			SLOT(onPresenceReceived(const IPresenceItem &, const IPresenceItem &)));
+	}
+}
+
+void MetaRoster::onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore)
+{
+	Q_UNUSED(ABefore);
+	Jid metaId = FItemMetaId.value(AItem.itemJid.bare());
+	if (metaId.isValid())
+		emit metaPresenceChanged(metaId);
+}
+
+void MetaRoster::onPresenceRemoved(IPresence *APresence)
+{
+	if (APresence == FPresence)
+		FPresence = NULL;
+}
+
+void MetaRoster::onAvatarChanged(const Jid &AContactJid)
+{
+	Jid metaId = FItemMetaId.value(AContactJid.bare());
+	if (metaId.isValid())
+		emit metaAvatarChanged(metaId);
 }

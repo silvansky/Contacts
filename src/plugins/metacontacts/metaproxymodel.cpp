@@ -13,6 +13,10 @@ MetaProxyModel::MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARost
 	onRostersModelSet(FRostersView->rostersModel());
 	connect(FRostersView->instance(),SIGNAL(modelSet(IRostersModel *)),SLOT(onRostersModelSet(IRostersModel *)));
 
+	connect(FMetaContacts->instance(),SIGNAL(metaAvatarChanged(IMetaRoster *, const Jid &)),
+		SLOT(onMetaAvatarChanged(IMetaRoster *, const Jid &)));
+	connect(FMetaContacts->instance(),SIGNAL(metaPresenceChanged(IMetaRoster *, const Jid &)),
+		SLOT(onMetaPresenceChanged(IMetaRoster *, const Jid &)));
 	connect(FMetaContacts->instance(),SIGNAL(metaContactReceived(IMetaRoster *, const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(IMetaRoster *, const IMetaContact &, const IMetaContact &)));
 	connect(FMetaContacts->instance(),SIGNAL(metaRosterEnabled(IMetaRoster *, bool)), SLOT(onMetaRosterEnabled(IMetaRoster *, bool)));
@@ -126,6 +130,43 @@ void MetaProxyModel::onMetaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled
 	FInvalidateTimer.start();
 }
 
+void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId)
+{
+	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
+	if (streamIndex)
+	{
+		QMultiMap<int,QVariant> findData;
+		findData.insert(RDR_TYPE,RIT_METACONTACT);
+		findData.insert(RDR_INDEX_ID,AMetaId.pBare());
+
+		QString hash = AMetaRoster->metaAvatarHash(AMetaId);
+		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId);
+		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
+		{
+			index->setData(RDR_AVATAR_HASH,hash);
+			index->setData(RDR_AVATAR_IMAGE,avatar);
+		}
+	}
+}
+
+void MetaProxyModel::onMetaPresenceChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId)
+{
+	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
+	if (streamIndex)
+	{
+		QMultiMap<int,QVariant> findData;
+		findData.insert(RDR_TYPE,RIT_METACONTACT);
+		findData.insert(RDR_INDEX_ID,AMetaId.pBare());
+		IPresenceItem pitem = AMetaRoster->metaPresence(AMetaId);
+		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
+		{
+			index->setData(RDR_SHOW,pitem.show);
+			index->setData(RDR_STATUS,pitem.status);
+			index->setData(RDR_PRIORITY,pitem.priority);
+		}
+	}
+}
+
 void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore)
 {
 	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
@@ -201,6 +242,10 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 		}
 
 		if (AContact.items != ABefore.items)
+		{
 			FInvalidateTimer.start();
+			onMetaAvatarChanged(AMetaRoster,AContact.id);
+			onMetaPresenceChanged(AMetaRoster,AContact.id);
+		}
 	}
 }
