@@ -16,6 +16,7 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 
 	layout()->addWidget(FIconLabel = new QLabel(this));
 	layout()->addWidget(FTextLabel = new QLabel(this));
+	FTextLabel->setObjectName("tabBarItemLabel");
 	layout()->addWidget(FCloseButton = new CloseButton(this));
 
 	FIconLabel->installEventFilter(this);
@@ -228,7 +229,7 @@ void TabBarItem::leaveEvent(QEvent *AEvent)
 
 void TabBarItem::paintEvent(QPaintEvent *AEvent)
 {
-	if (!FDraging) 
+	if (!FDraging)
 		QFrame::paintEvent(AEvent);
 }
 

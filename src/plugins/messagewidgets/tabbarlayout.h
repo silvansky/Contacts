@@ -4,10 +4,10 @@
 #include <QList>
 #include <QLayout>
 
-class TabBarLayout : 
+class TabBarLayout :
 			public QLayout
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	TabBarLayout(QWidget *AParent = NULL);
 	virtual ~TabBarLayout();

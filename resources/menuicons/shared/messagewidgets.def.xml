@@ -20,4 +20,8 @@
     <key>messagewidgetsQuote</key>
     <object mime="image/png">messagewidgetsquote.png</object>
   </icon>
+  <icon>
+    <key>messagewidgetsCloseTab</key>
+    <object mime="image/png">messagewidgetsclosetab.png</object>
+  </icon>
 </icondef>

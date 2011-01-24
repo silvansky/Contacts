@@ -1,24 +1,51 @@
+/********
+ * Tabs *
+ ********/
+
+TabBarItem
+{
+	color: black;
+}
+
 TabBarItem[isDraging="false"]
 {
-	border: 1px solid palette(mid);
+	border: 1px solid gray;
 }
 
 TabBarItem[isDraging="false"][isActive="true"]
 {
-	background-color: palette(base);
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 #c9cfd1, stop:1 #ffffff);
 }
 
 TabBarItem[isDraging="false"][isActive="false"]:!hover
 {
-	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 palette(mid), stop:1 palette(window));
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 #34383e, stop:1 #5f6368);
 }
 
 TabBarItem[isDraging="false"][isActive="false"]:hover
 {
-	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 palette(mid), stop:1 palette(base));
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 #34383e, stop:1 #5f6368);
 }
 
-/* background */
+TabBarItem *
+{
+	color: black;
+}
+
+TabBarItem[isActive="false"] *
+{
+	color: #acacac;
+}
+
+TabBarItem[isDraging="true"], TabBarItem[isDraging="true"] *
+{
+	border: 0px solid gray;
+	background-color: transparent;
+}
+
+/**************
+ * background *
+ **************/
 
 TabWindow
 {
@@ -28,7 +55,7 @@ TabWindow
 #twtTabs, #centralWidget, QStackedWidget, ChatWindow, ToolBarWidget, TabBar, #emoticonsContainer,
 #wdtBottomWidgets, #wdtEdit, #wdtInfo, #wdtNotice, #wdtToolBar, #wdtTopWidgets, #wdtView,
 #infoWidget, #viewWidget, #noticeWidget, #editWidget, #menuBarWidget, #toolBarWidget, #statusBarWidget,
-#toolBarChanger
+#toolBarChanger, ToolBarWidget > .QWidget, CloseButton
 {
 	background-color: transparent;
 }

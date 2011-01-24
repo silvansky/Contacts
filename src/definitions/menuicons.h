@@ -144,6 +144,7 @@
 #define MNI_MESSAGEWIDGETS_LAST_TABS             "messagewidgetsLastTabs"
 #define MNI_MESSAGEWIDGETS_LAST_OPEN_ALL         "messagewidgetsLastOpenAll"
 #define MNI_MESSAGEWIDGETS_QUOTE                 "messagewidgetsQuote"
+#define MNI_MESSAGEWIDGETS_CLOSE_TAB             "messagewidgetsCloseTab"
 
 //MultiUserChat
 #define MNI_MUC_CONFERENCE                       "mucConference"

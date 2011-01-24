@@ -262,6 +262,8 @@ void TabWindow::updateWindow()
 	{
 		setWindowIcon(widget->windowIcon());
 		setWindowTitle(widget->windowTitle());
+		ui.lblStatusIcon->setPixmap(widget->windowIcon().pixmap(16, 16));
+		ui.lblCaption->setText(widget->windowTitle());
 		emit windowChanged();
 	}
 }

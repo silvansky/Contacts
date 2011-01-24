@@ -12,13 +12,13 @@
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 
-class TabBarItem : 
+class TabBarItem :
 			public QFrame
 {
-	Q_OBJECT;
-	Q_PROPERTY(bool isActive READ isActive WRITE setActive);
-	Q_PROPERTY(bool isDraging READ isDraging WRITE setDraging);
-	Q_PROPERTY(bool isCloseable READ isCloseable WRITE setCloseable);
+	Q_OBJECT
+	Q_PROPERTY(bool isActive READ isActive WRITE setActive)
+	Q_PROPERTY(bool isDraging READ isDraging WRITE setDraging)
+	Q_PROPERTY(bool isCloseable READ isCloseable WRITE setCloseable)
 public:
 	TabBarItem(QWidget *AParent);
 	virtual ~TabBarItem();

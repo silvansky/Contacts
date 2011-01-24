@@ -10,7 +10,7 @@ TabBarLayout::TabBarLayout(QWidget *AParent) : QLayout(AParent)
 	FStreatch = false;
 	FUpdateBlocked = false;
 
-	setMargin(1);
+	setMargin(0);
 	setSpacing(1);
 }
 

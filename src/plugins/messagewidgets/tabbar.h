@@ -6,10 +6,10 @@
 #include "tabbarlayout.h"
 #include "tabbaritem.h"
 
-class TabBar : 
+class TabBar :
 			public QFrame
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	TabBar(QWidget *AParent = NULL);
 	virtual ~TabBar();
