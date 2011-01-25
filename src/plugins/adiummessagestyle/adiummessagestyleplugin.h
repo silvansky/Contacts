@@ -18,8 +18,8 @@ class AdiumMessageStylePlugin :
 			public IPlugin,
 			public IMessageStylePlugin
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMessageStylePlugin);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IMessageStylePlugin)
 public:
 	AdiumMessageStylePlugin();
 	~AdiumMessageStylePlugin();

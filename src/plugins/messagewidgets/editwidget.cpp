@@ -17,7 +17,7 @@ EditWidget::EditWidget(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	ui.medEditor->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 	QHBoxLayout * hlayout = new QHBoxLayout;
 	hlayout->addStretch();
-	hlayout->setContentsMargins(1, 1, 20, 1);
+	hlayout->setContentsMargins(2, 2, 20, 2);
 	QVBoxLayout * layout = new QVBoxLayout;
 	layout->setMargin(1);
 	layout->addStretch();

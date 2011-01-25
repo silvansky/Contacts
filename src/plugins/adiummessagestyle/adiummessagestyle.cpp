@@ -14,6 +14,9 @@
 #include <QDomDocument>
 #include <QApplication>
 #include <QTextDocument>
+#include <QHBoxLayout>
+#include <QScrollBar>
+#include <QDebug>
 
 #define SHARED_STYLE_PATH                   RESOURCES_DIR"/"RSR_STORAGE_ADIUMMESSAGESTYLES"/"STORAGE_SHARED_DIR
 #define STYLE_CONTENTS_PATH                 "Contents"
@@ -84,9 +87,20 @@ QList<QWidget *> AdiumMessageStyle::styleWidgets() const
 
 QWidget *AdiumMessageStyle::createWidget(const IMessageStyleOptions &AOptions, QWidget *AParent)
 {
-	StyleViewer *view = new StyleViewer(AParent);
+	QWidget * widget = new QWidget(AParent);
+	widget->setLayout(new QHBoxLayout);
+	widget->layout()->setMargin(0);
+	widget->layout()->setSpacing(0);
+	StyleViewer *view = new StyleViewer(widget);
+	view->setObjectName("styleView");
 	changeOptions(view,AOptions,true);
-	return view;
+	widget->layout()->addWidget(view);
+	QScrollBar * vScroll = new QScrollBar(Qt::Vertical);
+	vScroll->setObjectName("styleViewScrollBar");
+	widget->layout()->addWidget(vScroll);
+	view->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+	connect(view->page()->mainFrame(), SIGNAL(contentsSizeChanged(const QSize&)), SLOT(onViewContentsSizeChanged(QSize)));
+	return widget;
 }
 
 QString AdiumMessageStyle::senderColor(const QString &ASenderId) const
@@ -112,7 +126,7 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 	StyleViewer *view = qobject_cast<StyleViewer *>(AWidget);
 	if (view && AOptions.extended.value(MSO_STYLE_ID).toString()==styleId())
 	{
-		if (!FWidgetStatus.contains(AWidget))
+		if (!FWidgetStatus.contains(AWidget->parentWidget()))
 		{
 			connect(view,SIGNAL(linkClicked(const QUrl &)),SLOT(onLinkClicked(const QUrl &)));
 			connect(view,SIGNAL(destroyed(QObject *)),SLOT(onStyleWidgetDestroyed(QObject *)));
@@ -124,7 +138,7 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 			QString html = makeStyleTemplate(AOptions);
 			fillStyleKeywords(html,AOptions);
 			view->setHtml(html);
-			FWidgetStatus[view].content.clear();
+			FWidgetStatus[view->parentWidget()].content.clear();
 		}
 		else
 		{
@@ -144,7 +158,7 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 
 QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions)
 {
-	StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget) : NULL;
+	StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget->layout()->itemAt(0)->widget()) : NULL;
 	if (view)
 	{
 		int contentIndex = scriptContentIndex(AWidget,AOptions);
@@ -399,7 +413,7 @@ void AdiumMessageStyle::fillStyleKeywords(QString &AHtml, const IMessageStyleOpt
 	AHtml.replace("%incomingColor%",AOptions.extended.value(MSO_CONTACT_COLOR).toString());
 	AHtml.replace("%serviceIconPath%", AOptions.extended.value(MSO_SERVICE_ICON_PATH).toString());
 	AHtml.replace("%serviceIconImg%", QString("<img class=\"serviceIcon\" src=\"%1\">")
-	              .arg(AOptions.extended.value(MSO_SERVICE_ICON_PATH,"outgoing_icon.png").toString()));
+		      .arg(AOptions.extended.value(MSO_SERVICE_ICON_PATH,"outgoing_icon.png").toString()));
 
 	QString background;
 	if (FAllowCustomBackground)
@@ -461,7 +475,7 @@ QString AdiumMessageStyle::makeContentTemplate(const IMessageContentOptions &AOp
 	{
 		html = ASameSender ? FOut_NextContentHTML : FOut_ContentHTML;
 	}
-	
+
 	if (AOptions.extensions & IMessageContentOptions::Unread)
 	{
 		QString templ;
@@ -694,10 +708,10 @@ void AdiumMessageStyle::loadTemplates()
 
 	FIn_ContentHTML =      loadFileData(FResourcePath+"/Incoming/Content.html",QString::null);
 	FIn_NextContentHTML =  loadFileData(FResourcePath+"/Incoming/NextContent.html",FIn_ContentHTML);
-	
+
 	FIn_ContextHTML =      loadFileData(FResourcePath+"/Incoming/Context.html",FIn_ContentHTML);
 	FIn_NextContextHTML =  loadFileData(FResourcePath+"/Incoming/NextContext.html",FIn_NextContentHTML);
-	
+
 	FOut_ContentHTML =     loadFileData(FResourcePath+"/Outgoing/Content.html",FIn_ContentHTML);
 	FOut_NextContentHTML = loadFileData(FResourcePath+"/Outgoing/NextContent.html",FOut_ContentHTML);
 
@@ -757,4 +771,24 @@ void AdiumMessageStyle::onStyleWidgetDestroyed(QObject *AObject)
 {
 	FWidgetStatus.remove((QWidget *)AObject);
 	emit widgetRemoved((QWidget *)AObject);
+}
+
+void AdiumMessageStyle::onViewContentsSizeChanged(const QSize & size)
+{
+	qDebug() << "AdiumMessageStyle::onViewContentsSizeChanged: " << size;
+	QWebFrame * frame = qobject_cast<QWebFrame*>(sender());
+	if (frame)
+	{
+		StyleViewer * view = qobject_cast<StyleViewer*>(frame->page()->view());
+		if (view)
+		{
+			QScrollBar * scroll = FViewScrollBars.value(view, NULL);
+			if (scroll)
+			{
+				scroll->setMinimum(frame->scrollBarMinimum(Qt::Vertical));
+				scroll->setMaximum(frame->scrollBarMaximum(Qt::Vertical));
+				scroll->setValue(frame->scrollBarValue(Qt::Vertical));
+			}
+		}
+	}
 }

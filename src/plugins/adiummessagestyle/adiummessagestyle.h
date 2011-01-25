@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QWebView>
+#include <QScrollBar>
 #include <definitions/resources.h>
 #include <interfaces/imessagestyles.h>
 #include <utils/filestorage.h>
@@ -83,8 +84,8 @@ class AdiumMessageStyle :
 			public QObject,
 			public IMessageStyle
 {
-	Q_OBJECT;
-	Q_INTERFACES(IMessageStyle);
+	Q_OBJECT
+	Q_INTERFACES(IMessageStyle)
 public:
 	enum HeaderType {
 		HeaderNone,
@@ -153,6 +154,7 @@ protected slots:
 	void onLinkClicked(const QUrl &AUrl);
 	void onStyleWidgetAdded(IMessageStyle *AStyle, QWidget *AWidget);
 	void onStyleWidgetDestroyed(QObject *AObject);
+	void onViewContentsSizeChanged(const QSize & size);
 private:
 	QString FTopicHTML;
 	QString FStatusHTML;
@@ -182,6 +184,7 @@ private:
 	QList<QString> FSenderColors;
 	QMap<QString, QVariant> FInfo;
 	QMap<QWidget *, WidgetStatus> FWidgetStatus;
+	QMap<StyleViewer*, QScrollBar*> FViewScrollBars;
 };
 
 #endif // ADIUMMESSAGESTYLE_H

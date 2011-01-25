@@ -5,9 +5,9 @@
 #include <webpage.h>
 
 class StyleViewer :
-			public QWebView
+		public QWebView
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	StyleViewer(QWidget *AParent);
 	~StyleViewer();

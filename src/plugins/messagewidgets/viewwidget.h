@@ -13,8 +13,8 @@ class ViewWidget :
 			public QWidget,
 			public IViewWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IViewWidget);
+	Q_OBJECT
+	Q_INTERFACES(IViewWidget)
 public:
 	ViewWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid);
 	~ViewWidget();

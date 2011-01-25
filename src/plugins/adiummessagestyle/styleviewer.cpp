@@ -1,6 +1,7 @@
 #include "styleviewer.h"
 
 #include <QShortcut>
+#include <QWebFrame>
 
 StyleViewer::StyleViewer(QWidget *AParent) : QWebView(AParent)
 {

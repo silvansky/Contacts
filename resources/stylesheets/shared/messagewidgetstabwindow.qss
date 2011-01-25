@@ -4,7 +4,7 @@
 
 TabBarItem
 {
-	color: black;
+	min-height: 26px;
 }
 
 TabBarItem[isDraging="false"]
@@ -25,7 +25,7 @@ TabBarItem[isDraging="false"][isActive="false"]:!hover
 
 TabBarItem[isDraging="false"][isActive="false"]:hover
 {
-	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 #34383e, stop:1 #5f6368);
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 #34383e, stop:1 #6f7378);
 }
 
 TabBarItem *
@@ -82,10 +82,12 @@ TabWindow
 	background-color: rgba(65, 70, 77, 245);
 }
 
-#twtTabs, #centralWidget, QStackedWidget, ChatWindow, ToolBarWidget, TabBar, #emoticonsContainer,
-#wdtBottomWidgets, #wdtEdit, #wdtInfo, #wdtNotice, #wdtToolBar, #wdtTopWidgets, #wdtView,
-#infoWidget, #viewWidget, #noticeWidget, #editWidget, #menuBarWidget, #toolBarWidget, #statusBarWidget,
-#toolBarChanger, ToolBarWidget > .QWidget, CloseButton
+QStackedWidget, ChatWindow, ToolBarWidget, TabBar, CloseButton,
+#twtTabs, #centralWidget, #emoticonsContainer, #toolBarChanger,
+#wdtBottomWidgets, #wdtEdit, #wdtInfo, #wdtNotice, #wdtToolBar,
+#wdtTopWidgets, #wdtView, #infoWidget, #viewWidget, #noticeWidget,
+#editWidget, #menuBarWidget, #toolBarWidget, #statusBarWidget,
+ToolBarWidget > .QWidget
 {
 	background-color: transparent;
 }

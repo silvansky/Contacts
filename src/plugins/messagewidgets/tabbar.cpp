@@ -26,7 +26,7 @@ TabBar::TabBar(QWidget *AParent) : QFrame(AParent)
 
 TabBar::~TabBar()
 {
-	while (count()>0)
+	while (count() > 0)
 		removeTab(0);
 }
 

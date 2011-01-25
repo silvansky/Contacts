@@ -481,6 +481,59 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
 	background: none;
 }
 
+QScrollBar::handle:vertical:!enabled
+{
+	border-top: 4px;
+	border-bottom: 4px;
+	border-right: 0px;
+	border-left: 0px;
+	border-image: url(%IMAGES_PATH%/scrollbarborderverticaldisabled.png);
+	min-height: 10px;
+}
+
+QScrollBar::add-line:vertical:!enabled
+{
+	border: 1px solid #cfcfcf;
+	border-top: 0px;
+	background-color: #e6e6e6;
+	height: 13px;
+	subcontrol-position: bottom;
+	subcontrol-origin: margin;
+	padding-left: -1px;
+}
+
+QScrollBar::sub-line:vertical:!enabled
+{
+	border: 1px solid #cfcfcf;
+	border-bottom: 0px;
+	background-color: #e6e6e6;
+	height: 13px;
+	subcontrol-position: top;
+	subcontrol-origin: margin;
+	padding-left: -1px;
+}
+
+QScrollBar::up-arrow:vertical:!enabled
+{
+	border: 0px;
+	width: 6px;
+	height: 4px;
+	background: url(%IMAGES_PATH%/scrollbaruparrowdisabled.png);
+}
+
+QScrollBar::down-arrow:vertical:!enabled
+{
+	border: 0px;
+	width: 6px;
+	height: 4px;
+	background: url(%IMAGES_PATH%/scrollbardownarrowdisabled.png);
+}
+
+QScrollBar::add-page:vertical:!enabled, QScrollBar::sub-page:vertical:!enabled
+{
+	background: none;
+}
+
 /**************
  * BalloonTip *
  **************/

@@ -41,8 +41,8 @@ class MessageWidgets :
 			public IOptionsHolder,
 			public IViewUrlHandler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMessageWidgets IOptionsHolder IViewUrlHandler);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IMessageWidgets IOptionsHolder IViewUrlHandler)
 public:
 	MessageWidgets();
 	~MessageWidgets();

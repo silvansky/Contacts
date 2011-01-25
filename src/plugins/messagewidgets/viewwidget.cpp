@@ -3,15 +3,17 @@
 #include <QTextFrame>
 #include <QTextTable>
 #include <QScrollBar>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QDebug>
 
 ViewWidget::ViewWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
 {
 	ui.setupUi(this);
 	setAcceptDrops(true);
 
-	QVBoxLayout *layout = new QVBoxLayout(ui.wdtViewer);
+	QHBoxLayout *layout = new QHBoxLayout(ui.wdtViewer);
 	layout->setMargin(0);
+	layout->setSpacing(0);
 
 	FMessageStyle = NULL;
 	FMessageProcessor = NULL;
@@ -77,8 +79,9 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 		if (FMessageStyle)
 		{
 			FStyleWidget = FMessageStyle->createWidget(AOptions,ui.wdtViewer);
-			FStyleWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-			connect(FStyleWidget,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onCustomContextMenuRequested(const QPoint &)));
+			qDebug() << FStyleWidget->layout()->itemAt(0)->widget()->objectName() << " ***";
+			FStyleWidget->layout()->itemAt(0)->widget()->setContextMenuPolicy(Qt::CustomContextMenu);
+			connect(FStyleWidget->layout()->itemAt(0)->widget(),SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onCustomContextMenuRequested(const QPoint &)));
 			ui.wdtViewer->layout()->addWidget(FStyleWidget);
 			connect(FMessageStyle->instance(),SIGNAL(contentChanged(QWidget *, const QUuid &, const QString &, const IMessageContentOptions &)),
 				SLOT(onContentChanged(QWidget *, const QUuid &, const QString &, const IMessageContentOptions &)));
@@ -90,7 +93,7 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 
 QUuid ViewWidget::changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions)
 {
-	return FMessageStyle!=NULL ? FMessageStyle->changeContent(FStyleWidget,AHtml,AOptions) : QUuid();
+	return FMessageStyle ? FMessageStyle->changeContent(FStyleWidget,AHtml,AOptions) : QUuid();
 }
 
 QUuid ViewWidget::changeContentText(const QString &AText, const IMessageContentOptions &AOptions)
@@ -145,10 +148,7 @@ void ViewWidget::dropEvent(QDropEvent *AEvent)
 		AEvent->acceptProposedAction();
 	}
 	else
-	{
 		AEvent->ignore();
-	}
-
 	delete dropMenu;
 }
 

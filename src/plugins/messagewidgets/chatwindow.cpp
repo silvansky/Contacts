@@ -2,6 +2,7 @@
 
 #include <QKeyEvent>
 #include <QCoreApplication>
+#include <QScrollBar>
 
 ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, const Jid &AContactJid)
 {
@@ -26,8 +27,9 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 
 	FViewWidget = FMessageWidgets->newViewWidget(AStreamJid,AContactJid);
 	FViewWidget->instance()->setObjectName("viewWidget");
-	ui.wdtView->setLayout(new QVBoxLayout);
+	ui.wdtView->setLayout(new QHBoxLayout);
 	ui.wdtView->layout()->setMargin(0);
+	ui.wdtView->layout()->setSpacing(0);
 	ui.wdtView->layout()->addWidget(FViewWidget->instance());
 	connect(FViewWidget->instance(),SIGNAL(viewContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)),
 		SLOT(onViewWidgetContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)));
