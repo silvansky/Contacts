@@ -2,6 +2,7 @@
 
 #include <QPaintEvent>
 #include <QHBoxLayout>
+#include <QPushButton>
 
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250
@@ -17,7 +18,10 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	layout()->addWidget(FIconLabel = new QLabel(this));
 	layout()->addWidget(FTextLabel = new QLabel(this));
 	FTextLabel->setObjectName("tabBarItemLabel");
-	layout()->addWidget(FCloseButton = new CloseButton(this));
+	layout()->addWidget(FCloseButton = new QPushButton(this));
+	FCloseButton->setMouseTracking(true);
+	FCloseButton->setObjectName("closeButton");
+	FCloseButton->setFixedSize(16, 16);
 
 	FIconLabel->installEventFilter(this);
 	FIconLabel->setTextInteractionFlags(Qt::NoTextInteraction);

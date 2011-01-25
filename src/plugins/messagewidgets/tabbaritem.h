@@ -58,7 +58,7 @@ protected slots:
 private:
 	QLabel *FIconLabel;
 	QLabel *FTextLabel;
-	CloseButton *FCloseButton;
+	QPushButton *FCloseButton;
 private:
 	bool FActive;
 	bool FDraging;

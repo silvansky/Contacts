@@ -15,6 +15,7 @@ TabBarItem[isDraging="false"]
 TabBarItem[isDraging="false"][isActive="true"]
 {
 	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 #c9cfd1, stop:1 #ffffff);
+	border: 0px;
 }
 
 TabBarItem[isDraging="false"][isActive="false"]:!hover
@@ -43,6 +44,35 @@ TabBarItem[isDraging="true"], TabBarItem[isDraging="true"] *
 	background-color: transparent;
 }
 
+#closeButton
+{
+	min-width: 16;
+	min-height: 16;
+	background-color: transparent;
+	border: none;
+	border-image: none;
+}
+
+TabBarItem[isActive="false"] #closeButton:!hover
+{
+	qproperty-icon: url(%IMAGES_PATH%/closebutton.png);
+}
+
+TabBarItem[isActive="false"] #closeButton:hover
+{
+	qproperty-icon: url(%IMAGES_PATH%/closebuttonhover.png);
+}
+
+TabBarItem[isActive="true"] #closeButton:!hover
+{
+	qproperty-icon: url(%IMAGES_PATH%/activeclosebutton.png);
+}
+
+TabBarItem[isActive="true"] #closeButton:hover
+{
+	qproperty-icon: url(%IMAGES_PATH%/activeclosebuttonhover.png);
+}
+
 /**************
  * background *
  **************/
@@ -64,3 +94,15 @@ TabWindow
 {
 	min-width: 20px;
 }
+
+/******************
+ * Message editor *
+ ******************/
+
+ MessageEditor
+ {
+	border: none;
+	border-image: none;
+	padding: 0, 0, 0, 0;
+	background-color: white;
+ }

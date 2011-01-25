@@ -5,6 +5,8 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 #define MAX_BUFFERED_MESSAGES     10
 
@@ -13,6 +15,15 @@ EditWidget::EditWidget(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	ui.setupUi(this);
 	ui.medEditor->setAcceptRichText(true);
 	ui.medEditor->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+	QHBoxLayout * hlayout = new QHBoxLayout;
+	hlayout->addStretch();
+	hlayout->setContentsMargins(1, 1, 20, 1);
+	QVBoxLayout * layout = new QVBoxLayout;
+	layout->setMargin(1);
+	layout->addStretch();
+	layout->addWidget(ui.tlbSend);
+	hlayout->addLayout(layout);
+	ui.medEditor->setLayout(hlayout);
 
 	FMessageWidgets = AMessageWidgets;
 	FStreamJid = AStreamJid;

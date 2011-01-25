@@ -10,7 +10,7 @@
 class SelectIconMenu :
 			public Menu
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	SelectIconMenu(const QString &AIconset, QWidget *AParent = NULL);
 	~SelectIconMenu();

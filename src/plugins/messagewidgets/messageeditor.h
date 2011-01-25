@@ -7,7 +7,7 @@
 class MessageEditor :
 			public AutoSizeTextEdit
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	MessageEditor(QWidget* parent);
 	~MessageEditor();

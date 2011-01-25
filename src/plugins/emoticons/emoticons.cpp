@@ -3,21 +3,25 @@
 #include <QSet>
 #include <QTextBlock>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 #define DEFAULT_ICONSET                 "smiles"
 
 class EmoticonsContainer : public QWidget
 {
 public:
-	EmoticonsContainer(IEditWidget *AParent):QWidget(AParent->instance()) {
+	EmoticonsContainer(IEditWidget *AParent) : QWidget(AParent->instance())
+	{
 		FEditWidget = AParent;
 		setLayout(new QVBoxLayout);
 		layout()->setMargin(0);
 	}
-	IEditWidget *editWidget() const {
+	IEditWidget *editWidget() const
+	{
 		return FEditWidget;
 	}
-	void insertMenu(SelectIconMenu *AMenu) {
+	void insertMenu(SelectIconMenu *AMenu)
+	{
 		if (!FWidgets.contains(AMenu))
 		{
 			QPushButton *button = new QPushButton(this);
@@ -30,7 +34,8 @@ public:
 			layout()->addWidget(button);
 		}
 	}
-	void removeMenu(SelectIconMenu *AMenu) {
+	void removeMenu(SelectIconMenu *AMenu)
+	{
 		if (FWidgets.contains(AMenu))
 		{
 			delete FWidgets.take(AMenu);
@@ -305,11 +310,22 @@ void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 		FContainerByMenu.insert(menu,container);
 	}
 
-	QHBoxLayout *layout = new QHBoxLayout;
-	AEditWidget->textEdit()->setLayout(layout);
-	layout->setMargin(1);
-	layout->addStretch();
-	layout->addWidget(container);
+	QHBoxLayout *layout = qobject_cast<QHBoxLayout*>(AEditWidget->textEdit()->layout());
+	if (layout)
+	{
+//		AEditWidget->textEdit()->setLayout(layout);
+//		layout->setMargin(1);
+//		layout->addStretch();
+		//layout->insertWidget(0, container);
+		QVBoxLayout * vlayout = NULL;
+		for (int i = 0; i < layout->count(); i++)
+		{
+			if (vlayout = qobject_cast<QVBoxLayout*>(layout->itemAt(i)->layout()))
+			{
+				vlayout->insertWidget(0, container);
+			}
+		}
+	}
 
 	connect(AEditWidget->textEdit()->document(),SIGNAL(contentsChange(int,int,int)),SLOT(onEditWidgetContentsChanged(int,int,int)));
 	connect(container,SIGNAL(destroyed(QObject *)),SLOT(onEmoticonsContainerDestroyed(QObject *)));
