@@ -92,4 +92,28 @@
     <object mime="image/png">gatewaysservicejabber39.png</object>
     <object mime="image/png">gatewaysservicejabber50.png</object>
   </icon>
+  <icon>
+    <key>gatewaysServiceMail</key>
+    <object mime="image/png">gatewaysservicemail20.png</object>
+    <object mime="image/png">gatewaysservicemail39.png</object>
+    <object mime="image/png">gatewaysservicemail50.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceTwitter</key>
+    <object mime="image/png">gatewaysservicetwitter20.png</object>
+    <object mime="image/png">gatewaysservicetwitter39.png</object>
+    <object mime="image/png">gatewaysservicetwitter50.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceVKontakte</key>
+    <object mime="image/png">gatewaysservicevkontakte20.png</object>
+    <object mime="image/png">gatewaysservicevkontakte39.png</object>
+    <object mime="image/png">gatewaysservicevkontakte50.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceLiveJournal</key>
+    <object mime="image/png">gatewaysservicelivejournal20.png</object>
+    <object mime="image/png">gatewaysservicelivejournal39.png</object>
+    <object mime="image/png">gatewaysservicelivejournal50.png</object>
+  </icon>
 </icondef>

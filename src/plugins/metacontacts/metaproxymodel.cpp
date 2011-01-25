@@ -140,7 +140,7 @@ void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AM
 		findData.insert(RDR_INDEX_ID,AMetaId.pBare());
 
 		QString hash = AMetaRoster->metaAvatarHash(AMetaId);
-		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId);
+		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId).scaled(32,32,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
 		{
 			index->setData(RDR_AVATAR_HASH,hash);

@@ -97,6 +97,7 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 
 bool MetaContacts::initObjects()
 {
+	initMetaItemDescriptors();
 	if (FRostersViewPlugin)
 	{
 		MetaProxyModel *proxyModel = new MetaProxyModel(this, FRostersViewPlugin->rostersView());
@@ -273,6 +274,12 @@ IMetaTabWindow *MetaContacts::findMetaTabWindow(const Jid &AStreamJid, const Jid
 			return window;
 	}
 	return NULL;
+}
+
+void MetaContacts::initMetaItemDescriptors()
+{
+	IMetaItemDescriptor sms;
+	
 }
 
 void MetaContacts::deleteMetaRosterWindows(IMetaRoster *AMetaRoster)

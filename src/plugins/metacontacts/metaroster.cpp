@@ -219,7 +219,7 @@ QImage MetaRoster::metaAvatarImage(const Jid &AMetaId, bool ANullImage) const
 		if (image.isNull() && ANullImage)
 			image = FAvatars->avatarImage(AMetaId, ANullImage);
 	}
-	return image.scaled(32,32,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+	return image;
 }
 
 QSet<QString> MetaRoster::groups() const

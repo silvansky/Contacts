@@ -216,6 +216,18 @@
         <source>Phone</source>
         <translation>Телефон</translation>
     </message>
+    <message>
+        <source>VKontakte</source>
+        <translation>ВКонтакте</translation>
+    </message>
+    <message>
+        <source>Facebook</source>
+        <translation>Facebook</translation>
+    </message>
+    <message>
+        <source>LiveJournal</source>
+        <translation>LiveJournal</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>

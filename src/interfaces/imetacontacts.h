@@ -17,6 +17,15 @@ struct IMetaContact
 	QSet<QString> groups;
 };
 
+struct IMetaItemDescriptor
+{
+	QString name;
+	int pageOrder;
+	QString pageIcon;
+	QString menuIcon;
+	QString pattern;
+};
+
 class IMetaRoster 
 {
 public:

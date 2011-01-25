@@ -211,6 +211,18 @@ bool Gateways::initObjects()
 	sms.availContactRegexp = sms.homeContactRegexp;
 	FGateDescriptors.append(sms);
 
+	//IGateServiceDescriptor mail;
+	//mail.valid = true;
+	//mail.needGate = true;
+	//mail.needLogin = false;
+	//mail.type = "mail";
+	//mail.name = tr("Mail");
+	//mail.iconKey = MNI_GATEWAYS_SERVICE_MAIL;
+	//mail.loginLabel = tr("Mail");
+	//mail.homeContactRegexp =;
+	//mail.availContactRegexp = ;
+	//FGateDescriptors.append(mail);
+
 	IGateServiceDescriptor icq;
 	icq.valid = true;
 	icq.needGate = true;
@@ -221,7 +233,7 @@ bool Gateways::initObjects()
 	icq.loginLabel = tr("Login");
 	icq.homeContactRegexp = "^\\d+$";
 	icq.availContactRegexp = icq.homeContactRegexp;
-	//FGateDescriptors.append(icq);
+	FGateDescriptors.append(icq);
 
 	IGateServiceDescriptor magent;
 	magent.valid = true;
@@ -234,6 +246,18 @@ bool Gateways::initObjects()
 	magent.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
 	magent.availContactRegexp = magent.homeContactRegexp;
 	FGateDescriptors.append(magent);
+
+	//IGateServiceDescriptor twitter;
+	//twitter.valid = true;
+	//twitter.needGate = true;
+	//twitter.needLogin = true;
+	//twitter.type = "twitter";
+	//twitter.name = tr("Twitter");
+	//twitter.iconKey = MNI_GATEWAYS_SERVICE_TWITTER;
+	//twitter.loginLabel = tr("Login");
+	//twitter.homeContactRegexp = QString::null;
+	//twitter.availContactRegexp = QString::null;
+	//FGateDescriptors.append(twitter);
 
 	IGateServiceDescriptor gtalk;
 	gtalk.valid = true;
@@ -287,6 +311,60 @@ bool Gateways::initObjects()
 	qip.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@qip\\.ru$";
 	qip.availContactRegexp = JabberContactRegexp;
 	FGateDescriptors.append(qip);
+
+	IGateServiceDescriptor vkontakte;
+	vkontakte.valid = true;
+	vkontakte.needGate = false;
+	vkontakte.needLogin = true;
+	vkontakte.type = "xmpp";
+	vkontakte.prefix = "vk.";
+	vkontakte.name = tr("VKontakte");
+	vkontakte.iconKey = MNI_GATEWAYS_SERVICE_VKONTAKTE;
+	vkontakte.loginLabel = tr("Login");
+	vkontakte.domains.append("vk.com");
+	vkontakte.loginField = "username";
+	vkontakte.domainField = "server";
+	vkontakte.passwordField = "password";
+	vkontakte.domainSeparator = "@";
+	vkontakte.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@vk\\.com$";
+	vkontakte.availContactRegexp = JabberContactRegexp;
+	FGateDescriptors.append(vkontakte);
+
+	IGateServiceDescriptor facebook;
+	facebook.valid = true;
+	facebook.needGate = false;
+	facebook.needLogin = true;
+	facebook.type = "xmpp";
+	facebook.prefix = "facebook.";
+	facebook.name = tr("Facebook");
+	facebook.iconKey = MNI_GATEWAYS_SERVICE_FACEBOOK;
+	facebook.loginLabel = tr("Login");
+	facebook.domains.append("chat.facebook.com");
+	facebook.loginField = "username";
+	facebook.domainField = "server";
+	facebook.passwordField = "password";
+	facebook.domainSeparator = "@";
+	facebook.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@chat\\.facebook\\.com$";
+	facebook.availContactRegexp = JabberContactRegexp;
+	FGateDescriptors.append(facebook);
+
+	IGateServiceDescriptor livejournal;
+	livejournal.valid = true;
+	livejournal.needGate = false;
+	livejournal.needLogin = true;
+	livejournal.type = "xmpp";
+	livejournal.prefix = "livejournal.";
+	livejournal.name = tr("LiveJournal");
+	livejournal.iconKey = MNI_GATEWAYS_SERVICE_LIVEJOURNAL;
+	livejournal.loginLabel = tr("Login");
+	livejournal.domains.append("livejournal.com");
+	livejournal.loginField = "username";
+	livejournal.domainField = "server";
+	livejournal.passwordField = "password";
+	livejournal.domainSeparator = "@";
+	livejournal.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@livejournal\\.com$";
+	livejournal.availContactRegexp = JabberContactRegexp;
+	FGateDescriptors.append(livejournal);
 
 	IGateServiceDescriptor rambler;
 	rambler.valid = true;

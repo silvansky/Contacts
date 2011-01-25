@@ -82,6 +82,7 @@ signals:
 	void metaTabWindowCreated(IMetaTabWindow *AWindow);
 	void metaTabWindowDestroyed(IMetaTabWindow *AWindow);
 protected:
+	void initMetaItemDescriptors();
 	void deleteMetaRosterWindows(IMetaRoster *AMetaRoster);
 protected slots:
 	void onMetaRosterOpened();
@@ -122,6 +123,7 @@ private:
 	QObjectCleanupHandler FCleanupHandler;
 private:
 	QList<IMetaTabWindow *> FMetaTabWindows;
+	QList<IMetaItemDescriptor> FMetaItemDescriptors;
 };
 
 #endif // METACONTACTS_H
