@@ -114,6 +114,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+	FConnectionErrorWidget->setStyleSheet(styleSheet());
 
 	FNewProfile = true;
 	FConnectionSettings = CS_DEFAULT;
@@ -566,7 +567,7 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	ui.chbShowPassword->setVisible(false);
 	QPoint p = ui.pbtConnect->mapToGlobal(ui.pbtConnect->rect().topLeft());
 	p.setY(p.y() + ui.pbtConnect->height() / 2);
-	BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowRight);
+	BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowRight);
 }
 
 void LoginDialog::hideXmppStreamError()
@@ -610,19 +611,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 		p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().topRight());
 		p.setY(p.y() + ui.lnePassword->height() / 2);
 	}
-	BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft);
-}
-
-void LoginDialog::hideEvent(QHideEvent *AEvent)
-{
-	//deleteLater();
-	QDialog::hideEvent(AEvent);
-}
-
-void LoginDialog::closeEvent(QCloseEvent *AEvent)
-{
-	//deleteLater();
-	QDialog::closeEvent(AEvent);
+	BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft);
 }
 
 void LoginDialog::onConnectClicked()

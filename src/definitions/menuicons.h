@@ -193,6 +193,7 @@
 #define MNI_OPTIONS_LOGIN_LOGO                   "optionsLoginLogo"
 #define MNI_OPTIONS_LOGIN_ANIMATION              "optionsLoginAnimation"
 #define MNI_OPTIONS_OPTIONS_SYNC                 "optionsOptionsSync"
+#define MNI_OPTIONS_ERROR_ALERT                  "optionsErrorAlert"
 
 //PrivacyLists
 #define MNI_PRIVACYLISTS                         "privacylists"

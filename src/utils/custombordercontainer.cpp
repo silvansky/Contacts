@@ -16,6 +16,9 @@
 #include <QChildEvent>
 #include <QPushButton>
 #include "iconstorage.h"
+#ifdef Q_WS_WIN
+# include <qt_windows.h>
+#endif
 
 // internal functions
 
@@ -839,6 +842,15 @@ bool CustomBorderContainer::event(QEvent * evt)
 {
 	return QWidget::event(evt);
 }
+
+#ifdef Q_WS_WIN
+bool CustomBorderContainer::winEvent(MSG *message, long *result)
+{
+	if (message->message == 0x0313)
+		showWindowMenu(QCursor::pos());
+	return QWidget::winEvent(message, result);
+}
+#endif
 
 bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 {

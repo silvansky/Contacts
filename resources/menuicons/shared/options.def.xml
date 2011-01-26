@@ -32,4 +32,8 @@
     <key>optionsOptionsSync</key>
     <object mime="image/png">optionsoptionssync.png</object>
   </icon>
+  <icon>
+    <key>optionsErrorAlert</key>
+    <object mime="image/png">optionserroralert.png</object>
+  </icon>
 </icondef>

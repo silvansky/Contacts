@@ -56,6 +56,9 @@ protected:
 	void contextMenuEvent(QContextMenuEvent *);
 	// event filter
 	bool event(QEvent *);
+#ifdef Q_WS_WIN
+	bool winEvent(MSG *message, long *result);
+#endif
 	bool eventFilter(QObject *, QEvent *);
 protected:
 	// common initialization

@@ -101,3 +101,23 @@ QCheckBox
 	min-width: 75px;
 	max-width: 75px;
 }
+
+QCheckBox#chbShowPassword::indicator:unchecked
+{
+	image: url(%IMAGES_PATH%/checkboxunselected_black.png);
+}
+
+QCheckBox#chbShowPassword::indicator:unchecked:hover
+{
+	image: url(%IMAGES_PATH%/checkboxunselectedhover_black.png);
+}
+
+QCheckBox#chbShowPassword::indicator:checked
+{
+	image: url(%IMAGES_PATH%/checkboxselected_black.png);
+}
+
+QCheckBox#chbShowPassword::indicator:checked:hover
+{
+	image: url(%IMAGES_PATH%/checkboxselectedhover_black.png);
+}
