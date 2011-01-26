@@ -42,6 +42,7 @@ void AutoSizeTextEdit::setMinimumLines(int ALines)
 	if (ALines != FMinimumLines)
 	{
 		FMinimumLines = ALines>0 ? ALines : 1;
+		setMinimumSize(minimumSizeHint());
 		updateGeometry();
 	}
 }

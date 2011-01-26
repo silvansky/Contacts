@@ -102,6 +102,16 @@ QCheckBox
 	max-width: 75px;
 }
 
+/***********************
+ * Checkbox in balloon *
+ ***********************/
+
+QCheckBox#chbShowPassword::indicator
+{
+	width: 12px;
+	height: 12px;
+}
+
 QCheckBox#chbShowPassword::indicator:unchecked
 {
 	image: url(%IMAGES_PATH%/checkboxunselected_black.png);
