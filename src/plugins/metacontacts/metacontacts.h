@@ -6,6 +6,7 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/actiongroups.h>
+#include <definitions/metaitempageorders.h>
 #include <definitions/rosterproxyorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterclickhookerorders.h>
@@ -60,6 +61,8 @@ public:
 	virtual void rosterDragLeave(const QDragLeaveEvent *AEvent);
 	virtual bool rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu);
 	//IMetaContacts
+	virtual QString itemHint(const Jid &AItemJid) const;
+	virtual IMetaItemDescriptor itemDescriptor(const Jid &AItemJid) const;
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster);
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;
 	virtual void removeMetaRoster(IRoster *ARoster);
@@ -123,6 +126,7 @@ private:
 	QObjectCleanupHandler FCleanupHandler;
 private:
 	QList<IMetaTabWindow *> FMetaTabWindows;
+	IMetaItemDescriptor FDefaultItemDescriptor;
 	QList<IMetaItemDescriptor> FMetaItemDescriptors;
 };
 

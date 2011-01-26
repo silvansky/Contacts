@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>metacontactsItemSms</key>
+    <object mime="image/png">metacontactsitemsmsmenu.png</object>
+    <object mime="image/png">metacontactsitemsmspage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemMail</key>
+    <object mime="image/png">metacontactsitemmailmenu.png</object>
+    <object mime="image/png">metacontactsitemmailpage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemIcq</key>
+    <object mime="image/png">metacontactsitemicqmenu.png</object>
+    <object mime="image/png">metacontactsitemicqpage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemMAgent</key>
+    <object mime="image/png">metacontactsitemmagentmenu.png</object>
+    <object mime="image/png">metacontactsitemmagentpage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemTwitter</key>
+    <object mime="image/png">metacontactsitemtwittermenu.png</object>
+    <object mime="image/png">metacontactsitemtwitterpage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemFring</key>
+    <object mime="image/png">metacontactsitemfringmenu.png</object>
+    <object mime="image/png">metacontactsitemfringpage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemGTalk</key>
+    <object mime="image/png">metacontactsitemgtalkmenu.png</object>
+    <object mime="image/png">metacontactsitemgtalkpage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemYOnline</key>
+    <object mime="image/png">metacontactsitemyonlinemenu.png</object>
+    <object mime="image/png">metacontactsitemyonlinepage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemQip</key>
+    <object mime="image/png">metacontactsitemqipmenu.png</object>
+    <object mime="image/png">metacontactsitemqippage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemVKontakte</key>
+    <object mime="image/png">metacontactsitemvkontaktemenu.png</object>
+    <object mime="image/png">metacontactsitemvkontaktepage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemOdnoklasniki</key>
+    <object mime="image/png">metacontactsitemodnoklasnikimenu.png</object>
+    <object mime="image/png">metacontactsitemodnoklasnikipage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemFacebook</key>
+    <object mime="image/png">metacontactsitemfacebookmenu.png</object>
+    <object mime="image/png">metacontactsitemfacebookpage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemLiveJournal</key>
+    <object mime="image/png">metacontactsitemlivejournalmenu.png</object>
+    <object mime="image/png">metacontactsitemlivejournalpage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemRambler</key>
+    <object mime="image/png">metacontactsitemramblermenu.png</object>
+    <object mime="image/png">metacontactsitemramblerpage.png</object>
+  </icon>
+  <icon>
+    <key>metacontactsItemJabber</key>
+    <object mime="image/png">metacontactsitemjabbermenu.png</object>
+    <object mime="image/png">metacontactsitemjabberpage.png</object>
+  </icon>
+</icondef>

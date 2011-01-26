@@ -20,9 +20,10 @@ struct IMetaContact
 struct IMetaItemDescriptor
 {
 	QString name;
+	QString icon;
+	bool detach;
+	bool combine;
 	int pageOrder;
-	QString pageIcon;
-	QString menuIcon;
 	QString pattern;
 };
 
@@ -84,6 +85,8 @@ class IMetaContacts
 {
 public:
 	virtual QObject *instance() =0;
+	virtual QString itemHint(const Jid &AItemJid) const =0;
+	virtual IMetaItemDescriptor itemDescriptor(const Jid &AItemJid) const =0;
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster) =0;
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const =0;
 	virtual void removeMetaRoster(IRoster *ARoster) =0;

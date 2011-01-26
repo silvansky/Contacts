@@ -2,7 +2,7 @@
 
 #define ADR_ITEM_JID     Action::DR_Parametr1
 
-MetaTabWindow::MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent) : QMainWindow(AParent)
+MetaTabWindow::MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent) : QMainWindow(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose, false);
@@ -10,12 +10,14 @@ MetaTabWindow::MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaRoster *AMet
 
 	FMetaId = AMetaId;
 	FMetaRoster = AMetaRoster;
+	FMetaContacts = AMetaContacts;
 	FMessageWidgets = AMessageWidgets;
 	FTabPageNotifier = NULL;
 
 	FShownDetached = false;
 	FPageToolBarChanger = NULL;
 	FToolBarChanger = new ToolBarChanger(ui.tlbToolBar);
+	FToolBarChanger->setSeparatorsVisible(false);
 
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
@@ -178,6 +180,22 @@ void MetaTabWindow::setCurrentItem(const Jid &AItemJid)
 	}
 }
 
+Jid MetaTabWindow::firstItemJid() const
+{
+	Jid firtItem;
+	if (FItemButtons.count() == 1)
+	{
+		firtItem = FItemButtons.constBegin().key();
+	}
+	else foreach(QAction *handle, FToolBarChanger->toolBar()->actions())
+	{
+		firtItem = FItemButtons.key(qobject_cast<QToolButton *>(FToolBarChanger->handleWidget(handle)));
+		if (firtItem.isValid())
+			break;
+	}
+	return firtItem;
+}
+
 void MetaTabWindow::updateWindow()
 {
 	ITabPage *page = itemPage(currentItem());
@@ -191,6 +209,20 @@ void MetaTabWindow::updateWindow()
 	}
 }
 
+void MetaTabWindow::updateItemButton(const Jid &AItemJid)
+{
+	if (FItemButtons.contains(AItemJid))
+	{
+		Action *action = qobject_cast<Action *>(FItemButtons.value(AItemJid)->defaultAction());
+		if (action)
+		{
+			IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(AItemJid);
+			action->setText(FMetaContacts->itemHint(AItemJid));
+			action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon,1);
+		}
+	}
+}
+
 void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 {
 	QSet<Jid> curItems = FItemButtons.keys().toSet();
@@ -199,12 +231,13 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 
 	foreach(Jid itemJid, newItems)
 	{
+		IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(itemJid);
+
 		Action *action = new Action(FToolBarChanger->toolBar());
-		action->setData(ADR_ITEM_JID,itemJid.pBare());
-		action->setText(itemJid.pBare());
+		action->setData(ADR_ITEM_JID,itemJid.full());
 		connect(action,SIGNAL(triggered(bool)),SLOT(onItemButtonActionTriggered(bool)));
 		
-		QToolButton *button = FToolBarChanger->insertAction(action);
+		QToolButton *button = FToolBarChanger->insertAction(action,descriptor.pageOrder);
 		button->setCheckable(true);
 		button->setAutoExclusive(true);
 		button->setFixedSize(24,24);
@@ -222,7 +255,7 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 	curItems = curItems + newItems - oldItems;
 	foreach(Jid itemJid, curItems)
 	{
-	
+		updateItemButton(itemJid);
 	}
 }
 
@@ -297,7 +330,7 @@ void MetaTabWindow::showEvent(QShowEvent *AEvent)
 		loadWindowGeometry();
 	FShownDetached = isWindow();
 	if (FItemTabPages.isEmpty())
-		setCurrentItem(FItemButtons.keys().value(0));
+		setCurrentItem(firstItemJid());
 	QMainWindow::showEvent(AEvent);
 	emit tabPageActivated();
 }

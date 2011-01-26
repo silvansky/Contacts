@@ -142,6 +142,23 @@
 //MessageStyles
 #define MNI_MESSAGESTYLES                        "messagestyles"
 
+//MetaContacts
+#define MNI_METACONTACTS_ITEM_SMS                "metacontactsItemSms"
+#define MNI_METACONTACTS_ITEM_MAIL               "metacontactsItemMail"
+#define MNI_METACONTACTS_ITEM_ICQ                "metacontactsItemIcq"
+#define MNI_METACONTACTS_ITEM_MAGENT             "metacontactsItemMAgent"
+#define MNI_METACONTACTS_ITEM_TWITTER            "metacontactsItemTwitter"
+#define MNI_METACONTACTS_ITEM_FRING              "metacontactsItemFring"
+#define MNI_METACONTACTS_ITEM_GTALK              "metacontactsItemGTalk"
+#define MNI_METACONTACTS_ITEM_YONLINE            "metacontactsItemYOnline"
+#define MNI_METACONTACTS_ITEM_QIP                "metacontactsItemQip"
+#define MNI_METACONTACTS_ITEM_VKONTAKTE          "metacontactsItemVKontakte"
+#define MNI_METACONTACTS_ITEM_ODNOKLASNIKI       "metacontactsItemOdnoklasniki"
+#define MNI_METACONTACTS_ITEM_FACEBOOK           "metacontactsItemFacebook"
+#define MNI_METACONTACTS_ITEM_LIVEJOURNAL        "metacontactsItemLiveJournal"
+#define MNI_METACONTACTS_ITEM_RAMBLER            "metacontactsItemRambler"
+#define MNI_METACONTACTS_ITEM_JABBER             "metacontactsItemJabber"
+
 //MessageWidgets
 #define MNI_MESSAGEWIDGETS_SEND                  "messagewidgetsSend"
 #define MNI_MESSAGEWIDGETS_TAB_MENU              "messagewidgetsTabMenu"
@@ -289,9 +306,4 @@
 //VCard
 #define MNI_VCARD                                "VCard"
 
-//HtmlToolButton
-//#define MNI_MENU_INDICATOR_DOWN                  "htmltoolbuttonDownIndicator"
-//#define MNI_MENU_INDICATOR_UP                    "htmltoolbuttonUpIndicator"
-
-
-#endif
+#endif //DEF_MENUICONS_H

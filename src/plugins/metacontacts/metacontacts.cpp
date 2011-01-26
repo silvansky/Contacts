@@ -201,6 +201,33 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 	return false;
 }
 
+QString MetaContacts::itemHint(const Jid &AItemJid) const
+{
+	QString hint = AItemJid.node();
+	if (!hint.isEmpty())
+	{
+		int dog = hint.lastIndexOf('%');
+		if (dog>=0)
+			hint[dog] = '@';
+	}
+	else
+	{
+		hint = AItemJid.domain();
+	}
+	return hint;
+}
+
+IMetaItemDescriptor MetaContacts::itemDescriptor(const Jid &AItemJid) const
+{
+	for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)
+	{
+		QRegExp regexp(it->pattern);
+		if (regexp.indexIn(AItemJid.pBare())>=0)
+			return *it;
+	}
+	return FDefaultItemDescriptor;
+}
+
 IMetaRoster *MetaContacts::newMetaRoster(IRoster *ARoster)
 {
 	IMetaRoster *mroster = findMetaRoster(ARoster->streamJid());
@@ -255,7 +282,7 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const Jid 
 		IMetaRoster *mroster = findMetaRoster(AStreamJid);
 		if (mroster && mroster->isEnabled() && mroster->metaContact(AMetaId).id.isValid())
 		{
-			window = new MetaTabWindow(FMessageWidgets,mroster,AMetaId);
+			window = new MetaTabWindow(FMessageWidgets,this,mroster,AMetaId);
 			connect(window->instance(),SIGNAL(itemPageRequested(const Jid &)),SLOT(onMetaTabWindowItemPageRequested(const Jid &)));
 			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onMetaTabWindowDestroyed()));
 			FCleanupHandler.add(window->instance());
@@ -278,8 +305,138 @@ IMetaTabWindow *MetaContacts::findMetaTabWindow(const Jid &AStreamJid, const Jid
 
 void MetaContacts::initMetaItemDescriptors()
 {
+	FDefaultItemDescriptor.name = tr("Jabber");
+	FDefaultItemDescriptor.icon = MNI_METACONTACTS_ITEM_JABBER;
+	FDefaultItemDescriptor.combine = false;
+	FDefaultItemDescriptor.detach = true;
+	FDefaultItemDescriptor.pageOrder = MIPO_JABBER;
+	FDefaultItemDescriptor.pattern = QString::null;
+
 	IMetaItemDescriptor sms;
-	
+	sms.name = tr("SMS");
+	sms.icon = MNI_METACONTACTS_ITEM_SMS;
+	sms.combine = true;
+	sms.detach = true;
+	sms.pageOrder = MIPO_SMS;
+	sms.pattern = "*.@sms\\.";
+	FMetaItemDescriptors.append(sms);
+
+	IMetaItemDescriptor mail;
+	mail.name = tr("Mail");
+	mail.icon = MNI_METACONTACTS_ITEM_MAIL;
+	mail.combine = false;
+	mail.detach = true;
+	mail.pageOrder = MIPO_MAIL;
+	mail.pattern = "*.@mail\\.";
+	FMetaItemDescriptors.append(mail);
+
+	IMetaItemDescriptor icq;
+	icq.name = tr("ICQ");
+	icq.icon = MNI_METACONTACTS_ITEM_ICQ;
+	icq.combine = false;
+	icq.detach = true;
+	icq.pageOrder = MIPO_ICQ;
+	icq.pattern = "*.@icq\\.";
+	FMetaItemDescriptors.append(icq);
+
+	IMetaItemDescriptor magent;
+	magent.name = tr("Agent@Mail");
+	magent.icon = MNI_METACONTACTS_ITEM_MAGENT;
+	magent.combine = false;
+	magent.detach = true;
+	magent.pageOrder = MIPO_MAGENT;
+	magent.pattern = "*.@mrim\\.";
+	FMetaItemDescriptors.append(magent);
+
+	IMetaItemDescriptor twitter;
+	twitter.name = tr("Twitter");
+	twitter.icon = MNI_METACONTACTS_ITEM_TWITTER;
+	twitter.combine = false;
+	twitter.detach = true;
+	twitter.pageOrder = MIPO_TWITTER;
+	twitter.pattern = "*.@twitter\\.";
+	FMetaItemDescriptors.append(twitter);
+
+	IMetaItemDescriptor fring;
+	fring.name = tr("Twitter");
+	fring.icon = MNI_METACONTACTS_ITEM_FRING;
+	fring.combine = false;
+	fring.detach = true;
+	fring.pageOrder = MIPO_FRING;
+	fring.pattern = "*.@fring\\.";
+	FMetaItemDescriptors.append(fring);
+
+	IMetaItemDescriptor gtalk;
+	gtalk.name = tr("GTalk");
+	gtalk.icon = MNI_METACONTACTS_ITEM_GTALK;
+	gtalk.combine = false;
+	gtalk.detach = true;
+	gtalk.pageOrder = MIPO_GTALK;
+	gtalk.pattern = "*.@(gtalk\\.|gmail\\.com|googlemail\\.com$)";
+	FMetaItemDescriptors.append(gtalk);
+
+	IMetaItemDescriptor yonline;
+	yonline.name = tr("Y.Online");
+	yonline.icon = MNI_METACONTACTS_ITEM_YONLINE;
+	yonline.combine = false;
+	yonline.detach = true;
+	yonline.pageOrder = MIPO_YONLINE;
+	yonline.pattern = "*.@(yonline\\.|ya\\.ru$)";
+	FMetaItemDescriptors.append(yonline);
+
+	IMetaItemDescriptor qip;
+	qip.name = tr("QIP");
+	qip.icon = MNI_METACONTACTS_ITEM_QIP;
+	qip.combine = false;
+	qip.detach = true;
+	qip.pageOrder = MIPO_QIP;
+	qip.pattern = "*.@(qip\\.|qip\\.ru$)";
+	FMetaItemDescriptors.append(qip);
+
+	IMetaItemDescriptor vkontakte;
+	vkontakte.name = tr("VKontakte");
+	vkontakte.icon = MNI_METACONTACTS_ITEM_VKONTAKTE;
+	vkontakte.combine = false;
+	vkontakte.detach = true;
+	vkontakte.pageOrder = MIPO_VKONTAKTE;
+	vkontakte.pattern = "*.@(vk\\.|vk\\.com$)";
+	FMetaItemDescriptors.append(vkontakte);
+
+	IMetaItemDescriptor odnoklasniki;
+	odnoklasniki.name = tr("Odnoklasniki");
+	odnoklasniki.icon = MNI_METACONTACTS_ITEM_ODNOKLASNIKI;
+	odnoklasniki.combine = false;
+	odnoklasniki.detach = true;
+	odnoklasniki.pageOrder = MIPO_ODNOKLASNIKI;
+	odnoklasniki.pattern = "*.@odnkl\\.";
+	FMetaItemDescriptors.append(odnoklasniki);
+
+	IMetaItemDescriptor facebook;
+	facebook.name = tr("Facebook");
+	facebook.icon = MNI_METACONTACTS_ITEM_FACEBOOK;
+	facebook.combine = false;
+	facebook.detach = true;
+	facebook.pageOrder = MIPO_FACEBOOK;
+	facebook.pattern = "*.@(facebook\\.|chat\\.facebook\\.com$)";
+	FMetaItemDescriptors.append(facebook);
+
+	IMetaItemDescriptor livejournal;
+	livejournal.name = tr("LiveJournal");
+	livejournal.icon = MNI_METACONTACTS_ITEM_LIVEJOURNAL;
+	livejournal.combine = false;
+	livejournal.detach = true;
+	livejournal.pageOrder = MIPO_LIVEJOURNAL;
+	livejournal.pattern = "*.@(livejournal\\.|livejournal\\.com$)";
+	FMetaItemDescriptors.append(livejournal);
+
+	IMetaItemDescriptor rambler;
+	rambler.name = tr("Rambler");
+	rambler.icon = MNI_METACONTACTS_ITEM_RAMBLER;
+	rambler.combine = false;
+	rambler.detach = true;
+	rambler.pageOrder = MIPO_RAMBLER;
+	rambler.pattern = "*.@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
+	FMetaItemDescriptors.append(rambler);
 }
 
 void MetaContacts::deleteMetaRosterWindows(IMetaRoster *AMetaRoster)
@@ -644,8 +801,10 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 				QList<QVariant> allItems;
 				foreach(Jid itemJid, contact.items)
 				{
+					IMetaItemDescriptor descriptor = itemDescriptor(itemJid);
 					Action *action = new Action(releaseMenu);
-					action->setText(itemJid.bare());
+					action->setText(QString("%1 (%2)").arg(descriptor.name).arg(itemHint(itemJid)));
+					action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
 					action->setData(data);
 					action->setData(ADR_RELEASE_ITEMS,QList<QVariant>() << itemJid.full());
 					connect(action,SIGNAL(triggered(bool)),SLOT(onReleaseContactItems(bool)));

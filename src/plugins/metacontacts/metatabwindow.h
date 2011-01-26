@@ -19,7 +19,7 @@ class MetaTabWindow :
 	Q_OBJECT;
 	Q_INTERFACES(IMetaTabWindow ITabPage);
 public:
-	MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent = NULL);
+	MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent = NULL);
 	~MetaTabWindow();
 	virtual QMainWindow *instance() { return this; }
 	//ITabPage
@@ -54,12 +54,13 @@ signals:
 	void itemPageRequested(const Jid &AItemJid);
 	void itemPageChanged(const Jid &AItemJid, ITabPage *APage);
 protected:
-	void saveWindowGeometry();
-	void loadWindowGeometry();
-protected:
+	Jid firstItemJid() const;
 	void updateWindow();
+	void updateItemButton(const Jid &AItemJid);
 	void updateItemButtons(const QSet<Jid> &AItems);
 	void setPageToolBarChanger(ToolBarChanger *AChanger);
+	void saveWindowGeometry();
+	void loadWindowGeometry();
 protected:
 	virtual bool event(QEvent *AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
@@ -82,6 +83,7 @@ private:
 	Ui::MetaTabWindowClass ui;
 private:
 	IMetaRoster *FMetaRoster;
+	IMetaContacts *FMetaContacts;
 	IMessageWidgets *FMessageWidgets;
 	ITabPageNotifier *FTabPageNotifier;
 private:
