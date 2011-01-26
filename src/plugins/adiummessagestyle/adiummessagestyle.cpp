@@ -760,7 +760,7 @@ void AdiumMessageStyle::onLinkClicked(const QUrl &AUrl)
 
 void AdiumMessageStyle::onStyleWidgetAdded(IMessageStyle *AStyle, QWidget *AWidget)
 {
-	if (AStyle!=this && FWidgetStatus.contains(AWidget))
+	if (AStyle != this && FWidgetStatus.contains(AWidget))
 	{
 		FWidgetStatus.remove(AWidget);
 		emit widgetRemoved(AWidget);

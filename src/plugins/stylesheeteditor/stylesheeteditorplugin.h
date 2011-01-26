@@ -3,6 +3,8 @@
 
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/istylesheeteditor.h>
+#include <interfaces/imainwindow.h>
+#include <utils/action.h>
 #include "stylesheeteditor.h"
 
 class StyleSheetEditorPlugin :
@@ -10,8 +12,8 @@ class StyleSheetEditorPlugin :
 		public IPlugin,
 		public IStyleSheetEditorPlugin
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IStyleSheetEditorPlugin);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IStyleSheetEditorPlugin)
 public:
 	StyleSheetEditorPlugin();
 	~StyleSheetEditorPlugin();
@@ -23,9 +25,13 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin();
+protected slots:
+	void showEditDialog();
 private:
 	IPluginManager * pluginManager;
+	IMainWindowPlugin * mainWindowPlugin;
 	StyleSheetEditorDialog * editor;
+	Action * showDialog;
 protected slots:
 	void styleSheetChanged(const QString&);
 	void resetStyleSheet();

@@ -34,6 +34,7 @@ protected slots:
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 	void on_addToRosterButton_clicked();
 	void on_renameButton_clicked();
+	void onNewNameSelected(const QString & newName);
 private:
 	Ui::SimpleVCardDialog *ui;
 private:

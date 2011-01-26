@@ -61,21 +61,21 @@
 #include <QtGui/QTextDocument>
 #include <QtGui/QToolBar>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QListView>
 #include "private/qcssparser_p.h"
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QFile>
 #include <QByteArray>
+#include <QDebug>
 
-
-//static const char *styleSheetProperty = "styleSheet";
-//static const char *StyleSheetDialogC = "StyleSheetDialog";
-//static const char *Geometry = "Geometry";
+#include <definitions/resources.h>
 
 StyleSheetEditor::StyleSheetEditor(QWidget *parent)
 	: QTextEdit(parent)
 {
 	setFontFamily("Courier");
-	setFontPointSize(10);
+	setFontPointSize(12);
 	setTabStopWidth(fontMetrics().width(QLatin1Char(' ')) * 8);
 	new CssHighlighter(document());
 }
@@ -98,13 +98,18 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
 	pbSave = new QPushButton(tr("Save"));
 	pbReset = new QPushButton(tr("Reset"));
 
-	m_buttonBox->addButton(pbOpen, QDialogButtonBox::ActionRole);
+	setStyleSheet("StyleSheetEditor { border: 1px solid black; background-color: white; padding: 0px; margin: 0px; border-image: none; }");
+
+	//m_buttonBox->addButton(pbOpen, QDialogButtonBox::ActionRole);
 	m_buttonBox->addButton(pbPreview, QDialogButtonBox::ActionRole);
 	m_buttonBox->addButton(pbSave, QDialogButtonBox::ActionRole);
 	m_buttonBox->addButton(pbReset, QDialogButtonBox::ActionRole);
 	m_buttonBox->addButton(pbClose, QDialogButtonBox::ActionRole);
 
 	// ...
+	styleKeys = new QComboBox(this);
+	styleKeys->setView(new QListView);
+	connect(styleKeys, SIGNAL(currentIndexChanged(const QString&)), SLOT(onComboBoxSelectionChanged(const QString&)));
 	gm = new QtGradientManager;
 	setWindowTitle(tr("Edit Style Sheet"));
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -173,9 +178,14 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
 	toolBar->addAction(m_addGradientAction);
 	toolBar->addAction(m_addColorAction);
 	toolBar->addAction(m_addFontAction);
+	toolBar->addWidget(styleKeys);
 	setMinimumSize(640, 480);
 
 	m_editor->setFocus();
+	styleStorage = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS);
+	connect(styleStorage, SIGNAL(storageChanged()), SLOT(onStorageChanged()));
+	fileSaved = true;
+	onStorageChanged();
 }
 
 StyleSheetEditorDialog::~StyleSheetEditorDialog()
@@ -185,6 +195,29 @@ StyleSheetEditorDialog::~StyleSheetEditorDialog()
 void StyleSheetEditorDialog::setOkButtonEnabled(bool v)
 {
 	pbPreview->setEnabled(v);
+}
+
+void StyleSheetEditorDialog::loadFile(const QString & fileName)
+{
+	QFile f(fileName);
+	f.open(QIODevice::ReadOnly);
+	f.seek(0);
+	QByteArray ba = f.readAll();
+	f.close();
+	QString stylesheet = QString::fromLatin1(ba.data());
+	setText(stylesheet);
+	activeFileName = fileName;
+	setWindowTitle(fileName + " - Style Sheet Editor");
+	emit fileOpened(fileName);
+	emit styleSheetChanged(stylesheet);
+	fileSaved = true;
+}
+
+void StyleSheetEditorDialog::saveFile()
+{
+	QFile f(activeFileName);
+	f.open(QIODevice::WriteOnly | QIODevice::Truncate);
+	f.write(text().toLatin1());
 }
 
 void StyleSheetEditorDialog::slotContextMenuRequested(const QPoint &pos)
@@ -305,38 +338,52 @@ void StyleSheetEditorDialog::slotClicked(QAbstractButton* button)
 		QString filename = QFileDialog::getOpenFileName(this, "Select QSS file", ".", "Qt Style Sheets (*.qss)");
 		if (!filename.isEmpty())
 		{
-			QFile f(filename);
-			f.open(QIODevice::ReadOnly);
-			f.seek(0);
-			QByteArray ba = f.readAll();
-			f.close();
-			QString stylesheet = QString::fromLatin1(ba.data());
-			setText(stylesheet);
-			activeFileName = filename;
-			setWindowTitle(filename + " - Style Sheet Editor");
-			emit fileOpened(filename);
-			emit styleSheetChanged(stylesheet);
+			loadFile(filename);
 		}
 	}
 	if (pb == pbPreview)
 	{
-		emit styleSheetChanged(m_editor->toPlainText());
+		styleStorage->previewStyle(text(), lastKey, 0);
 	}
 	if (pb == pbSave)
 	{
-		QString filename = QFileDialog::getSaveFileName(this, "Select QSS file to save in", ".", "Qt Style Sheets (*.qss)");
-		if (!filename.isEmpty())
-		{
-			QFile f(filename);
-			f.open(QIODevice::WriteOnly | QIODevice::Truncate);
-			f.write(text().toLatin1());
-			f.close();
-		}
+		saveFile();
 	}
 	if (pb == pbReset)
 	{
-		emit resetStyleSheet();
+		styleStorage->previewReset();
 	}
+}
+
+void StyleSheetEditorDialog::onStorageChanged()
+{
+	styleKeys->clear();
+	styleKeys->insertItems(0, styleStorage->fileKeys());
+}
+
+void StyleSheetEditorDialog::onComboBoxSelectionChanged(const QString& key)
+{
+	if (!fileSaved && key != lastKey)
+	{
+		QMessageBox::StandardButton btn = (QMessageBox::StandardButton)QMessageBox::question(this, "Save file?", "File changed. Do you want to save changes?", QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel);
+		switch (btn)
+		{
+		case QMessageBox::Yes:
+			saveFile();
+			break;
+		case QMessageBox::No:
+			break;
+		case QMessageBox::Cancel:
+			styleKeys->setCurrentIndex(styleKeys->findText(lastKey));
+			return;
+			break;
+		default:
+			break;
+		}
+	}
+	lastKey = key;
+	QString fileName = styleStorage->fileFullName(key);
+	loadFile(fileName);
 }
 
 QDialogButtonBox * StyleSheetEditorDialog::buttonBox() const
@@ -371,6 +418,7 @@ bool StyleSheetEditorDialog::isStyleSheetValid(const QString &styleSheet)
 
 void StyleSheetEditorDialog::validateStyleSheet()
 {
+	fileSaved = false;
 	const bool valid = isStyleSheetValid(m_editor->toPlainText());
 	setOkButtonEnabled(valid);
 	if (valid) {

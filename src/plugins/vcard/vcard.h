@@ -13,8 +13,8 @@ class VCard :
 			public QObject,
 			public IVCard
 {
-	Q_OBJECT;
-	Q_INTERFACES(IVCard);
+	Q_OBJECT
+	Q_INTERFACES(IVCard)
 public:
 	VCard(const Jid &AContactJid, VCardPlugin *APlugin);
 	~VCard();
@@ -25,12 +25,12 @@ public:
 	virtual QDomElement vcardElem() const { return FDoc.documentElement().firstChildElement(VCARD_TAGNAME); }
 	virtual QDateTime loadDateTime() const { return FLoadDateTime; }
 	virtual QString value(const QString &AName, const QStringList &ATags = QStringList(),
-	                      const QStringList &ATagList = QStringList()) const;
+			      const QStringList &ATagList = QStringList()) const;
 	virtual QMultiHash<QString,QStringList> values(const QString &AName, const QStringList &ATagList) const;
 	virtual void setTagsForValue(const QString &AName, const QString &AValue, const QStringList &ATags = QStringList(),
-	                             const QStringList &ATagList = QStringList());
+				     const QStringList &ATagList = QStringList());
 	virtual void setValueForTags(const QString &AName, const QString &AValue, const QStringList &ATags = QStringList(),
-	                             const QStringList &ATagList = QStringList());
+				     const QStringList &ATagList = QStringList());
 	virtual QImage logoImage() const { return FLogo; }
 	virtual void setLogoImage(const QImage &AImage, const QByteArray &AFormat = QByteArray());
 	virtual QImage photoImage() const { return FPhoto; }

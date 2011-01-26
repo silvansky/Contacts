@@ -2,7 +2,9 @@
 #include "ui_simplevcarddialog.h"
 #include <QMessageBox>
 #include <QInputDialog>
-#include <utils/custombordercontainer.h>
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars, IStatusIcons *AStatusIcons, IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin, IRosterChanger *ARosterChanger, const Jid &AStreamJid, const Jid &AContactJid) :
 		ui(new Ui::SimpleVCardDialog)
@@ -114,12 +116,29 @@ void SimpleVCardDialog::onRosterItemReceived(const IRosterItem &AItem, const IRo
 void SimpleVCardDialog::on_renameButton_clicked()
 {
 	QString oldName = FRoster->rosterItem(FContactJid).name;
-	bool ok = false;
-	QString newName = QInputDialog::getText(NULL, tr("Contact name"), tr("Enter name for contact"), QLineEdit::Normal, oldName, &ok);
-	if (ok && !newName.isEmpty() && newName != oldName)
+	QInputDialog * dialog = new QInputDialog;
+	dialog->setStyleSheet(styleSheet());
+	dialog->setTextValue(oldName);
+	dialog->setWindowTitle(tr("Contact name"));
+	dialog->setLabelText(tr("Enter name for contact"));
+	connect(dialog, SIGNAL(textValueSelected(const QString&)), SLOT(onNewNameSelected(const QString&)));
+	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+	if (border)
 	{
-		FRoster->renameItem(FContactJid, newName);
-		FRosterItem = FRoster->rosterItem(FContactJid);
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setResizable(false);
+		border->setWindowModality(Qt::ApplicationModal);
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
+		connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
+		connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+		border->show();
+	}
+	else
+	{
+		dialog->setWindowModality(Qt::ApplicationModal);
+		dialog->show();
 	}
 }
 
@@ -136,5 +155,15 @@ void SimpleVCardDialog::on_addToRosterButton_clicked()
 		}
 		if (dialog)
 			dialog->setContactJid(FContactJid.bare());
+	}
+}
+
+void SimpleVCardDialog::onNewNameSelected(const QString & newName)
+{
+	QString oldName = FRoster->rosterItem(FContactJid).name;
+	if (!newName.isEmpty() && newName != oldName)
+	{
+		FRoster->renameItem(FContactJid, newName);
+		FRosterItem = FRoster->rosterItem(FContactJid);
 	}
 }

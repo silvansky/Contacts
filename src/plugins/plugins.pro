@@ -37,7 +37,7 @@ SUBDIRS = optionsmanager \
 	  console \
 	  chatstates \
 	  xmppuriqueries \
-#	  stylesheeteditor \
+	  stylesheeteditor \
 	  bitsofbinary \
 	  masssendhandler \
 	  registration \

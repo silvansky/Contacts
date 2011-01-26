@@ -16,4 +16,8 @@
     <key>optionsDialog</key>
     <object mime="text/xml">optionsdialog.xml</object>
   </file>
+  <file>
+    <key>messageWindow</key>
+    <object mime="text/xml">messagewindow.xml</object>
+  </file>
 </borderdef>

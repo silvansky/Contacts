@@ -1,0 +1,4 @@
+QDialog, QInputDialog, QDialogButtonBox
+{
+	background-color: rgba(65, 70, 77, 245);
+}

@@ -59,4 +59,7 @@
 //SmsMessageHandler
 #define STS_SMSMESSAGEHANDLER_INFOWIDGET                                "smsmessagehandlerInfoWidget"
 
+//VCard
+#define STS_VCARDSIMPLEVCARDDIALOG                                      "vcardSimpleVCardDialog"
+
 #endif // DEF_STYLESHEETS_H

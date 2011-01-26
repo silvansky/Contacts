@@ -39,26 +39,18 @@
 **
 ****************************************************************************/
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists for the convenience
-// of Qt Designer.  This header
-// file may change from version to version without notice, or even be removed.
-//
-// We mean it.
-//
-
 #ifndef STYLESHEETEDITOR_H
 #define STYLESHEETEDITOR_H
 
 #include <QtGui/QTextEdit>
 #include <QtGui/QDialog>
 #include <QtGui/QLabel>
+#include <QtGui/QComboBox>
 #include "qtgradientmanager.h"
 
 #include <QDialogButtonBox>
+
+#include <utils/stylestorage.h>
 
 class StyleSheetEditor : public QTextEdit
 {
@@ -87,6 +79,8 @@ private slots:
 	void slotAddColor(const QString &property);
 	void slotAddFont();
 	void slotClicked(QAbstractButton*);
+	void onStorageChanged();
+	void onComboBoxSelectionChanged(const QString& key);
 signals:
 	void styleSheetChanged(const QString&);
 	void fileOpened(const QString&);
@@ -95,6 +89,8 @@ signals:
 protected:
 	QDialogButtonBox *buttonBox() const;
 	void setOkButtonEnabled(bool v);
+	void loadFile(const QString & fileName);
+	void saveFile();
 
 private:
 	void insertCssProperty(const QString &name, const QString &value);
@@ -108,6 +104,10 @@ private:
 	QtGradientManager * gm;
 	QPushButton * pbOpen, * pbClose, * pbPreview, * pbSave, * pbReset;
 	QString activeFileName;
+	bool fileSaved;
+	StyleStorage * styleStorage;
+	QComboBox * styleKeys;
+	QString lastKey;
 };
 
 

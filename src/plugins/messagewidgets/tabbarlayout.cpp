@@ -11,7 +11,7 @@ TabBarLayout::TabBarLayout(QWidget *AParent) : QLayout(AParent)
 	FUpdateBlocked = false;
 
 	setMargin(0);
-	setSpacing(1);
+	setSpacing(0);
 }
 
 TabBarLayout::~TabBarLayout()

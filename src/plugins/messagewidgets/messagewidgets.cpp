@@ -378,7 +378,7 @@ ITabWindow *MessageWidgets::createTabWindow(const QUuid &AWindowId)
 	{
 		window = new TabWindow(this,AWindowId);
 		FTabWindows.append(window);
-		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window->instance(), CBS_WINDOW);
+		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window->instance(), CBS_MESSAGEWINDOW);
 		if (border)
 			WidgetManager::setWindowSticky(border, true);
 		else

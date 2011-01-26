@@ -72,4 +72,20 @@
     <key>bottomRightMask</key>
     <object mime="image/png">bottomrightmask.png</object>
   </icon>
+  <icon>
+    <key>bottomLeftMaskSquare</key>
+    <object mime="image/png">bottomleftmask_square.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMaskSquare</key>
+    <object mime="image/png">bottomrightmask_square.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadowSquare</key>
+    <object mime="image/png">bottomleftshadow_square.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadowSquare</key>
+    <object mime="image/png">bottomrightshadow_square.png</object>
+  </icon>
 </icondef>

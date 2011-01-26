@@ -3,6 +3,11 @@
 #include <QDir>
 #include <QFile>
 #include <QDomDocument>
+#include <utils/customborderstorage.h>
+#include <utils/stylestorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
+#include <definitions/stylesheets.h>
 
 #define VCARD_DIRNAME		"vcards"
 #define VCARD_TIMEOUT		60000
@@ -372,9 +377,20 @@ void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AConta
 		else if (AStreamJid.isValid() && AContactJid.isValid())
 		{
 			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons, FRosterPlugin, FPresencePlugin, FRosterChanger, AStreamJid, AContactJid);
+			StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(dialog, STS_VCARDSIMPLEVCARDDIALOG);
+			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+			if (border)
+			{
+				border->setMinimizeButtonVisible(false);
+				border->setMaximizeButtonVisible(false);
+				border->setAttribute(Qt::WA_DeleteOnClose, true);
+				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
+				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
+			}
 			connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onSimpleVCardDialogDestroyed(QObject *)));
-			FSimpleVCardDialogs.insert(AContactJid,dialog);
-			WidgetManager::showActivateRaiseWindow(dialog);
+			FSimpleVCardDialogs.insert(AContactJid, dialog);
+			WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)dialog);
 		}
 	}
 }

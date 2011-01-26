@@ -1577,7 +1577,7 @@ void CustomBorderContainer::updateCursor(QWidget * widget)
 void CustomBorderContainer::updateShape()
 {
 	// cached masks
-	static QPixmap topLeftMask, topRightMask, bottomLeftMask, bottomRightMask;
+	QPixmap topLeftMask, topRightMask, bottomLeftMask, bottomRightMask;
 	if (!containedWidget)
 		return;
 	if (!isMaximized)
@@ -1656,15 +1656,11 @@ void CustomBorderContainer::updateShape()
 		}
 		else
 		{
-			// using mask images
-			if (topLeftMask.isNull())
-			{
-				// caching mask images
-				topLeftMask = loadPixmap(borderStyle->topLeft.mask);
-				topRightMask = loadPixmap(borderStyle->topRight.mask);
-				bottomLeftMask = loadPixmap(borderStyle->bottomLeft.mask);
-				bottomRightMask = loadPixmap(borderStyle->bottomRight.mask);
-			}
+			// loading mask images
+			topLeftMask = loadPixmap(borderStyle->topLeft.mask);
+			topRightMask = loadPixmap(borderStyle->topRight.mask);
+			bottomLeftMask = loadPixmap(borderStyle->bottomLeft.mask);
+			bottomRightMask = loadPixmap(borderStyle->bottomRight.mask);
 			QPixmap pixmap(containedWidget->geometry().size());
 			pixmap.fill(Qt::transparent);
 			QPainter p(&pixmap);
@@ -1675,14 +1671,22 @@ void CustomBorderContainer::updateShape()
 			g.moveTopLeft(QPoint(0, 0));
 			int w = g.width();
 			int h = g.height();
-			cornerRectTL = QRect(0, 0,
-					     borderStyle->topLeft.width - borderStyle->topLeft.resizeLeft, borderStyle->topLeft.height - borderStyle->topLeft.resizeTop);
-			cornerRectTR = QRect(w - (borderStyle->topRight.width - borderStyle->topRight.resizeRight), 0,
-					     borderStyle->topRight.width - borderStyle->topRight.resizeRight, borderStyle->topRight.height - borderStyle->topRight.resizeTop);
-			cornerRectBL = QRect(0, h - (borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom),
-					     borderStyle->bottomLeft.width - borderStyle->bottomLeft.resizeLeft, borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom);
-			cornerRectBR = QRect(w - (borderStyle->bottomRight.width - borderStyle->bottomRight.resizeRight), h - (borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom),
-					     borderStyle->bottomRight.width - borderStyle->bottomRight.resizeRight, borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom);
+			cornerRectTL = QRect(0,
+					     0,
+					     borderStyle->topLeft.width - borderStyle->topLeft.resizeLeft,
+					     borderStyle->topLeft.height - borderStyle->topLeft.resizeTop);
+			cornerRectTR = QRect(w - (borderStyle->topRight.width - borderStyle->topRight.resizeRight),
+					     0,
+					     borderStyle->topRight.width - borderStyle->topRight.resizeRight,
+					     borderStyle->topRight.height - borderStyle->topRight.resizeTop);
+			cornerRectBL = QRect(0,
+					     h - (borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom),
+					     borderStyle->bottomLeft.width - borderStyle->bottomLeft.resizeLeft,
+					     borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom);
+			cornerRectBR = QRect(w - (borderStyle->bottomRight.width - borderStyle->bottomRight.resizeRight),
+					     h - (borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom),
+					     borderStyle->bottomRight.width - borderStyle->bottomRight.resizeRight,
+					     borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom);
 			QRegion reg(g);
 			reg -= cornerRectTL;
 			reg -= cornerRectTR;

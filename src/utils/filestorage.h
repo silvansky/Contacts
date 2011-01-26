@@ -21,7 +21,7 @@
 class UTILS_EXPORT FileStorage :
 			public QObject
 {
-	Q_OBJECT;
+	Q_OBJECT
 	struct StorageObject;
 public:
 	FileStorage(const QString &AStorage, const QString &ASubStorage = STORAGE_SHARED_DIR, QObject *AParent = NULL);
