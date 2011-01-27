@@ -90,6 +90,7 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderCon
 	minimize = other.minimize;
 	maximize = other.maximize;
 	close = other.close;
+	restore = other.restore;
 	headerButtons = other.headerButtons;
 	p = NULL;
 }
@@ -151,6 +152,9 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 				// close button
 				button = root.firstChildElement("close-button");
 				parseHeaderButton(button, close);
+				// restore button
+				button = root.firstChildElement("restore-button");
+				parseHeaderButton(button, restore);
 			}
 			else
 			{
@@ -185,6 +189,7 @@ void CustomBorderContainerPrivate::setAllDefaults()
 	setDefaultHeaderButton(minimize);
 	setDefaultHeaderButton(maximize);
 	setDefaultHeaderButton(close);
+	setDefaultHeaderButton(restore);
 }
 
 QColor CustomBorderContainerPrivate::parseColor(const QString & name)
@@ -942,6 +947,7 @@ void CustomBorderContainer::init()
 	minimizeAction = new Action(this);
 	maximizeAction = new Action(this);
 	closeAction = new Action(this);
+	restoreAction = new Action(this);
 	addAction(minimizeAction);
 	addAction(maximizeAction);
 	addAction(closeAction);
@@ -951,6 +957,9 @@ void CustomBorderContainer::init()
 	maximizeAction->setIcon(style()->standardIcon(QStyle::SP_TitleBarMaxButton));
 	closeAction->setText(tr("Close"));
 	closeAction->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
+	restoreAction->setText(tr("Restore"));
+	restoreAction->setIcon(style()->standardIcon(QStyle::SP_TitleBarNormalButton));
+	windowMenu->addAction(restoreAction);
 	windowMenu->addAction(minimizeAction);
 	windowMenu->addAction(maximizeAction);
 	windowMenu->addAction(closeAction);
@@ -958,6 +967,7 @@ void CustomBorderContainer::init()
 	connect(minimizeAction, SIGNAL(triggered()), SIGNAL(minimizeClicked()));
 	connect(maximizeAction, SIGNAL(triggered()), SIGNAL(maximizeClicked()));
 	connect(closeAction, SIGNAL(triggered()), SIGNAL(closeClicked()));
+	connect(restoreAction, SIGNAL(triggered()), SIGNAL(restoreClicked()));
 	// window props
 	setWindowFlags(Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground);
@@ -975,6 +985,7 @@ void CustomBorderContainer::init()
 	connect(this, SIGNAL(minimizeClicked()), SLOT(minimizeWidget()));
 	connect(this, SIGNAL(maximizeClicked()), SLOT(maximizeWidget()));
 	connect(this, SIGNAL(closeClicked()), SLOT(closeWidget()));
+	connect(this, SIGNAL(restoreClicked()), SLOT(restoreWidget()));
 }
 
 CustomBorderContainer::GeometryState CustomBorderContainer::geometryState() const
@@ -1335,9 +1346,11 @@ QRect CustomBorderContainer::windowIconRect() const
 
 void CustomBorderContainer::showWindowMenu(const QPoint & p)
 {
-	minimizeAction->setEnabled(isMinimizeButtonVisible() && isMinimizeButtonEnabled());
-	maximizeAction->setEnabled(isMaximizeButtonVisible() && isMaximizeButtonEnabled());
+	minimizeAction->setEnabled(isMinimizeButtonVisible() && isMinimizeButtonEnabled() && !isMinimized());
+	maximizeAction->setEnabled(isMaximizeButtonVisible() && isMaximizeButtonEnabled() && !isMaximized && !isMinimized());
 	closeAction->setEnabled(isCloseButtonVisible() && isCloseButtonEnabled());
+	restoreAction->setEnabled(isMinimized() || isMaximized);
+	windowMenu->adjustSize();
 	QPoint popupPoint = p;
 	QRect screen = QApplication::desktop()->availableGeometry(p);
 	if (popupPoint.y() + windowMenu->geometry().height() > screen.bottom())
@@ -1739,6 +1752,7 @@ void CustomBorderContainer::updateIcons()
 	minimizeAction->setIcon(loadIcon(borderStyle->minimize.imageNormal));
 	maximizeAction->setIcon(loadIcon(borderStyle->maximize.imageNormal));
 	closeAction->setIcon(loadIcon(borderStyle->close.imageNormal));
+	restoreAction->setIcon(loadIcon(borderStyle->restore.imageNormal));
 }
 
 void CustomBorderContainer::setLayoutMargins()
@@ -1818,7 +1832,7 @@ void CustomBorderContainer::drawButtons(QPainter * p)
 		p->save();
 		p->translate(headerButtonRect(MaximizeButton).topLeft());
 		state = maximizeButtonUnderMouse() ? NormalHover : Normal;
-		drawButton(borderStyle->maximize, p, state);
+		drawButton(isMaximized ? borderStyle->restore : borderStyle->maximize, p, state);
 		p->restore();
 	}
 	// close button
@@ -2005,12 +2019,19 @@ void CustomBorderContainer::maximizeWidget()
 		setLayoutMargins();
 		setGeometry(qApp->desktop()->availableGeometry(this));
 	}
-	maximizeAction->setChecked(isMaximized);
 }
 
 void CustomBorderContainer::closeWidget()
 {
 	close();
+}
+
+void CustomBorderContainer::restoreWidget()
+{
+	if (isMinimized())
+		showNormal();
+	if (isMaximized)
+		maximizeWidget();
 }
 
 void CustomBorderContainer::onContainedWidgetDestroyed(QObject* obj)

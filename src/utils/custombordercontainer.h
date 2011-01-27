@@ -35,6 +35,7 @@ signals:
 	void minimizeClicked();
 	void maximizeClicked();
 	void closeClicked();
+	void restoreClicked();
 	void iconClicked();
 	void minimized();
 	void maximized();
@@ -188,6 +189,7 @@ protected slots:
 	void minimizeWidget();
 	void maximizeWidget();
 	void closeWidget();
+	void restoreWidget();
 	void onContainedWidgetDestroyed(QObject*);
 private:
 	// widgets/layouts
@@ -211,6 +213,7 @@ private:
 	Action * minimizeAction;
 	Action * maximizeAction;
 	Action * closeAction;
+	Action * restoreAction;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CustomBorderContainer::HeaderButtonsFlags)

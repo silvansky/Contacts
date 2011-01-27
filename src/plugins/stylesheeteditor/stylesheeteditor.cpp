@@ -76,7 +76,7 @@ StyleSheetEditor::StyleSheetEditor(QWidget *parent)
 {
 	setFontFamily("Courier");
 	setFontPointSize(12);
-	setTabStopWidth(fontMetrics().width(QLatin1Char(' ')) * 8);
+	setTabStopWidth(fontMetrics().width(QLatin1Char(' ')) * 14);
 	new CssHighlighter(document());
 }
 

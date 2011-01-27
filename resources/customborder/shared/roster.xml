@@ -109,4 +109,11 @@
    <image-normal src="menuicons/closeButtonNormal" />
    <image-hover src="menuicons/closeButtonHighlighted" />
  </close-button>
+ <restore-button>
+   <width>17</width>
+   <height>16</height>
+   <border width="1" color="#000000" radius="0" image="" />
+   <image-normal src="menuicons/restoreButtonNormal" />
+   <image-hover src="menuicons/restoreButtonHighlighted" />
+ </restore-button>
 </window-border-style>

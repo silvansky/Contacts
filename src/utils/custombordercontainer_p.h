@@ -46,7 +46,7 @@ protected:
 	HeaderTitle title;
 	WindowIcon icon;
 	WindowControls controls;
-	HeaderButton minimize, maximize, close;
+	HeaderButton minimize, maximize, close, restore;
 	QMultiMap<int, HeaderButton> headerButtons;
 };
 

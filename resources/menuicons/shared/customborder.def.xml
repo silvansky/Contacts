@@ -25,6 +25,14 @@
     <object mime="image/png">closebuttonhighlighted.png</object>
   </icon>
   <icon>
+    <key>restoreButtonNormal</key>
+    <object mime="image/png">restorebutton.png</object>
+  </icon>
+  <icon>
+    <key>restoreButtonHighlighted</key>
+    <object mime="image/png">restorebuttonhighlighted.png</object>
+  </icon>
+  <icon>
     <key>leftShadow</key>
     <object mime="image/png">leftshadow.png</object>
   </icon>
