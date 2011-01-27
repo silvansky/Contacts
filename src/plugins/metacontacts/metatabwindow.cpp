@@ -18,6 +18,7 @@ MetaTabWindow::MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaContacts *AM
 	FPageToolBarChanger = NULL;
 	FToolBarChanger = new ToolBarChanger(ui.tlbToolBar);
 	FToolBarChanger->setSeparatorsVisible(false);
+	FToolBarChanger->toolBar()->setIconSize(QSize(32,32));
 
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
@@ -240,7 +241,6 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 		QToolButton *button = FToolBarChanger->insertAction(action,descriptor.pageOrder);
 		button->setCheckable(true);
 		button->setAutoExclusive(true);
-		button->setFixedSize(24,24);
 		FItemButtons.insert(itemJid,button);
 	}
 

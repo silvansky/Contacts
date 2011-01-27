@@ -15,8 +15,24 @@
 #define ADR_TO_GROUP        Action::DR_Parametr3
 #define ADR_RELEASE_ITEMS   Action::DR_Parametr3
 #define ADR_CHILD_META_IDS  Action::DR_Parametr3
+#define ADR_TAB_PAGE_ID     Action::DR_Parametr2
 
 static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
+
+QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
+{
+	AStream << AInfo.streamJid;
+	AStream << AInfo.metaId;
+	return AStream;
+}
+
+QDataStream &operator>>(QDataStream &AStream, TabPageInfo &AInfo)
+{
+	AStream >> AInfo.streamJid;
+	AStream >> AInfo.metaId;
+	AInfo.page = NULL;
+	return AStream;
+}
 
 void GroupMenu::mouseReleaseEvent(QMouseEvent *AEvent)
 {
@@ -34,6 +50,7 @@ MetaContacts::MetaContacts()
 	FRostersViewPlugin = NULL;
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
+	FStatusIcons = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -92,12 +109,25 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
+	if (plugin)
+	{
+		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
+	}
+
+	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
+	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
+
 	return FRosterPlugin!=NULL;
 }
 
 bool MetaContacts::initObjects()
 {
 	initMetaItemDescriptors();
+	if (FMessageWidgets)
+	{
+		FMessageWidgets->insertTabPageHandler(this);
+	}
 	if (FRostersViewPlugin)
 	{
 		MetaProxyModel *proxyModel = new MetaProxyModel(this, FRostersViewPlugin->rostersView());
@@ -106,6 +136,80 @@ bool MetaContacts::initObjects()
 		FRostersViewPlugin->rostersView()->insertDragDropHandler(this);
 	}
 	return true;
+}
+
+bool MetaContacts::tabPageAvail(const QString &ATabPageId) const
+{
+	if (FTabPages.contains(ATabPageId))
+	{
+		const TabPageInfo &pageInfo = FTabPages.value(ATabPageId);
+		IMetaRoster *mroster = findBareMetaRoster(pageInfo.streamJid);
+		return pageInfo.page!=NULL || (mroster!=NULL && mroster->isEnabled() && mroster->metaContact(pageInfo.metaId).id.isValid());
+	}
+	return false;
+}
+
+ITabPage *MetaContacts::tabPageFind(const QString &ATabPageId) const
+{
+	return FTabPages.contains(ATabPageId) ? FTabPages.value(ATabPageId).page : NULL;
+}
+
+ITabPage *MetaContacts::tabPageCreate(const QString &ATabPageId)
+{
+	ITabPage *page = tabPageFind(ATabPageId);
+	if (page==NULL && tabPageAvail(ATabPageId))
+	{
+		TabPageInfo &pageInfo = FTabPages[ATabPageId];
+		IMetaRoster *mroster = findBareMetaRoster(pageInfo.streamJid);
+		if (mroster)
+		{
+			pageInfo.page = newMetaTabWindow(mroster->roster()->streamJid(),pageInfo.metaId);
+			page = pageInfo.page;
+		}
+	}
+	return page;
+}
+
+Action *MetaContacts::tabPageAction(const QString &ATabPageId, QObject *AParent)
+{
+	if (tabPageAvail(ATabPageId))
+	{
+		const TabPageInfo &pageInfo = FTabPages.value(ATabPageId);
+		IMetaRoster *mroster = findBareMetaRoster(pageInfo.streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			IMetaContact contact = mroster->metaContact(pageInfo.metaId);
+
+			Action *action = new Action(AParent);
+			action->setData(ADR_TAB_PAGE_ID, ATabPageId);
+			action->setText(!contact.name.isEmpty() ? contact.name : contact.id.node());
+			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenTabPageAction(bool)));
+
+			ITabPage *page = tabPageFind(ATabPageId);
+			if (page)
+			{
+				if (page->tabPageNotifier() && page->tabPageNotifier()->activeNotify()>0)
+				{
+					ITabPageNotify notify = page->tabPageNotifier()->notifyById(page->tabPageNotifier()->activeNotify());
+					if (!notify.iconKey.isEmpty() && !notify.iconStorage.isEmpty())
+						action->setIcon(notify.iconStorage, notify.iconKey);
+					else
+						action->setIcon(notify.icon);
+				}
+				else
+				{
+					action->setIcon(page->tabPageIcon());
+				}
+			}
+			else
+			{
+				IPresenceItem pitem = mroster->metaPresence(pageInfo.metaId);
+				action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByStatus(pitem.show,SUBSCRIPTION_BOTH,false) : QIcon());
+			}
+			return action;
+		}
+	}
+	return NULL;
 }
 
 bool MetaContacts::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
@@ -283,11 +387,16 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const Jid 
 		if (mroster && mroster->isEnabled() && mroster->metaContact(AMetaId).id.isValid())
 		{
 			window = new MetaTabWindow(FMessageWidgets,this,mroster,AMetaId);
+			connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onMetaTabWindowActivated()));
 			connect(window->instance(),SIGNAL(itemPageRequested(const Jid &)),SLOT(onMetaTabWindowItemPageRequested(const Jid &)));
 			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onMetaTabWindowDestroyed()));
 			FCleanupHandler.add(window->instance());
 			FMetaTabWindows.append(window);
 			emit metaTabWindowCreated(window);
+
+			TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+			pageInfo.page = window;
+			emit tabPageCreated(window);
 		}
 	}
 	return window;
@@ -447,6 +556,15 @@ void MetaContacts::deleteMetaRosterWindows(IMetaRoster *AMetaRoster)
 			delete window->instance();
 }
 
+IMetaRoster * MetaContacts::findBareMetaRoster(const Jid &AStreamJid) const
+{
+	IMetaRoster *mroster = findMetaRoster(AStreamJid);
+	for (int i=0; mroster==NULL && i<FMetaRosters.count(); i++)
+		if (FMetaRosters.at(i)->roster()->streamJid() && AStreamJid)
+			mroster = FMetaRosters.at(i);
+	return mroster;
+}
+
 void MetaContacts::onMetaRosterOpened()
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
@@ -556,6 +674,18 @@ void MetaContacts::onRosterRemoved(IRoster *ARoster)
 	}
 }
 
+void MetaContacts::onMetaTabWindowActivated()
+{
+	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
+	if (window)
+	{
+		TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+		pageInfo.streamJid = window->metaRoster()->streamJid();
+		pageInfo.metaId = window->metaId();
+		pageInfo.page = window;
+	}
+}
+
 void MetaContacts::onMetaTabWindowItemPageRequested(const Jid &AItemJid)
 {
 	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
@@ -570,8 +700,11 @@ void MetaContacts::onMetaTabWindowDestroyed()
 	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
 	if (window)
 	{
+		if (FTabPages.contains(window->tabPageId()))
+			FTabPages[window->tabPageId()].page = NULL;
 		FMetaTabWindows.removeAll(window);
 		emit metaTabWindowDestroyed(window);
+		emit tabPageDestroyed(window);
 	}
 }
 
@@ -741,6 +874,17 @@ void MetaContacts::onChangeContactGroups(bool AChecked)
 	}
 }
 
+void MetaContacts::onOpenTabPageAction(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		ITabPage *page = tabPageCreate(action->data(ADR_TAB_PAGE_ID).toString());
+		if (page)
+			page->showTabPage();
+	}
+}
+
 void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 {
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
@@ -838,6 +982,21 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 		}
 	}
+}
+
+void MetaContacts::onOptionsOpened()
+{
+	QByteArray data = Options::fileValue("messages.last-meta-tab-pages").toByteArray();
+	QDataStream stream(data);
+	stream >> FTabPages;
+}
+
+void MetaContacts::onOptionsClosed()
+{
+	QByteArray data;
+	QDataStream stream(&data, QIODevice::WriteOnly);
+	stream << FTabPages;
+	Options::setFileValue(data,"messages.last-meta-tab-pages");
 }
 
 Q_EXPORT_PLUGIN2(plg_metacontacts, MetaContacts)

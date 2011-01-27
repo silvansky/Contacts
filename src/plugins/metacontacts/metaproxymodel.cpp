@@ -184,9 +184,27 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 			foreach(IRosterIndex *index, curItemList)
 				curGroups.insert(index->data(RDR_GROUP).toString());
 			
-			QSet<QString> itemGroups = AContact.groups;
-			if (itemGroups.isEmpty())
+			int groupType;
+			QString groupName;
+			QSet<QString> itemGroups;
+			if (AContact.items.count()==1 && AContact.items.toList().first().node().isEmpty())
+			{
+				groupType = RIT_GROUP_AGENTS;
+				groupName = FRostersModel->agentsGroupName();
 				itemGroups += QString::null;
+			}
+			else if (itemGroups.isEmpty())
+			{
+				groupType = RIT_GROUP_BLANK;
+				groupName = FRostersModel->blankGroupName();
+				itemGroups += QString::null;
+			}
+			else
+			{
+				groupType = RIT_GROUP;
+				groupName = FRostersModel->blankGroupName();
+				itemGroups = AContact.groups;
+			}
 
 			QSet<QString> newGroups = itemGroups - curGroups;
 			QSet<QString> oldGroups = curGroups - itemGroups;
@@ -194,9 +212,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 			QString groupDelim = AMetaRoster->roster()->groupDelimiter();
 			foreach(QString group, itemGroups)
 			{
-				int groupType = !group.isEmpty() ? RIT_GROUP : RIT_GROUP_BLANK;
-				QString groupName = !group.isEmpty() ? group : FRostersModel->blankGroupName();
-				IRosterIndex *groupIndex = FRostersModel->createGroup(groupName,groupDelim,groupType,streamIndex);
+				IRosterIndex *groupIndex = FRostersModel->createGroup(!group.isEmpty() ? group : groupName,groupDelim,groupType,streamIndex);
 
 				IRosterIndex *groupItemIndex = NULL;
 				if (newGroups.contains(group) && !oldGroups.isEmpty())

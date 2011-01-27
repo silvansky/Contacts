@@ -15,11 +15,19 @@
 #include <interfaces/imetacontacts.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/imessageprocessor.h>
+#include <interfaces/istatusicons.h>
 #include <utils/widgetmanager.h>
 #include "metaroster.h"
 #include "metaproxymodel.h"
 #include "metatabwindow.h"
 #include "mergecontactsdialog.h"
+
+struct TabPageInfo
+{
+	Jid streamJid;
+	Jid metaId;
+	ITabPage *page;
+};
 
 class GroupMenu : 
 	public Menu
@@ -36,11 +44,12 @@ class MetaContacts :
 	public QObject,
 	public IPlugin,
 	public IMetaContacts,
+	public ITabPageHandler,
 	public IRostersClickHooker,
 	public IRostersDragDropHandler
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMetaContacts IRostersClickHooker IRostersDragDropHandler);
+	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersDragDropHandler);
 public:
 	MetaContacts();
 	~MetaContacts();
@@ -52,6 +61,11 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
+	//ITabPageHandler
+	virtual bool tabPageAvail(const QString &ATabPageId) const;
+	virtual ITabPage *tabPageFind(const QString &ATabPageId) const;
+	virtual ITabPage *tabPageCreate(const QString &ATabPageId);
+	virtual Action *tabPageAction(const QString &ATabPageId, QObject *AParent);
 	//IRostersClickHooker
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 	//IRostersDragDropHandler
@@ -84,9 +98,13 @@ signals:
 	void metaRosterRemoved(IMetaRoster *AMetaRoster);
 	void metaTabWindowCreated(IMetaTabWindow *AWindow);
 	void metaTabWindowDestroyed(IMetaTabWindow *AWindow);
+	//ITabPageHandler
+	void tabPageCreated(ITabPage *ATabPage);
+	void tabPageDestroyed(ITabPage *ATabPage);
 protected:
 	void initMetaItemDescriptors();
 	void deleteMetaRosterWindows(IMetaRoster *AMetaRoster);
+	IMetaRoster *findBareMetaRoster(const Jid &AStreamJid) const;
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaAvatarChanged(const Jid &AMetaId);
@@ -101,6 +119,7 @@ protected slots:
 	void onRosterAdded(IRoster *ARoster);
 	void onRosterRemoved(IRoster *ARoster);
 protected slots:
+	void onMetaTabWindowActivated();
 	void onMetaTabWindowItemPageRequested(const Jid &AItemJid);
 	void onMetaTabWindowDestroyed();
 protected slots:
@@ -113,18 +132,23 @@ protected slots:
 	void onReleaseContactItems(bool);
 	void onChangeContactGroups(bool AChecked);
 protected slots:
+	void onOpenTabPageAction(bool);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onOptionsOpened();
+	void onOptionsClosed();
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
+	IStatusIcons *FStatusIcons;
 private:
 	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;
 	QObjectCleanupHandler FCleanupHandler;
 private:
+	QHash<QString, TabPageInfo> FTabPages;
 	QList<IMetaTabWindow *> FMetaTabWindows;
 	IMetaItemDescriptor FDefaultItemDescriptor;
 	QList<IMetaItemDescriptor> FMetaItemDescriptors;
