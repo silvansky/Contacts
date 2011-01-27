@@ -1338,7 +1338,14 @@ void CustomBorderContainer::showWindowMenu(const QPoint & p)
 	minimizeAction->setEnabled(isMinimizeButtonVisible() && isMinimizeButtonEnabled());
 	maximizeAction->setEnabled(isMaximizeButtonVisible() && isMaximizeButtonEnabled());
 	closeAction->setEnabled(isCloseButtonVisible() && isCloseButtonEnabled());
-	windowMenu->popup(p);
+	QPoint popupPoint = p;
+	QRect screen = QApplication::desktop()->availableGeometry(p);
+	if (popupPoint.y() + windowMenu->geometry().height() > screen.bottom())
+		popupPoint.setY(popupPoint.y() - windowMenu->geometry().height());
+	if (windowMenu->geometry().width() + popupPoint.x() > screen.right())
+		popupPoint.setX(screen.right() - windowMenu->geometry().width());
+	windowMenu->move(popupPoint);
+	windowMenu->show();
 }
 
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
