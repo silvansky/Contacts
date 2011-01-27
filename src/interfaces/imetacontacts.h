@@ -71,6 +71,7 @@ public:
 	virtual QMainWindow *instance() =0;
 	virtual Jid metaId() const =0;
 	virtual IMetaRoster *metaRoster() const =0;
+	virtual ToolBarChanger *toolBarChanger() const =0;
 	virtual ITabPage *itemPage(const Jid &AItemJid) const =0;
 	virtual void setItemPage(const Jid &AItemJid, ITabPage *APage) =0;
 	virtual Jid currentItem() const =0;

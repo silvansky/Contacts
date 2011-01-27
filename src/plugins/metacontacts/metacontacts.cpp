@@ -85,10 +85,6 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
-	if (plugin)
-		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
-
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
 	{
@@ -109,11 +105,13 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
+	if (plugin)
+		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
+
 	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
 	if (plugin)
-	{
 		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
-	}
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -391,6 +389,14 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const Jid 
 			connect(window->instance(),SIGNAL(itemPageRequested(const Jid &)),SLOT(onMetaTabWindowItemPageRequested(const Jid &)));
 			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onMetaTabWindowDestroyed()));
 			FCleanupHandler.add(window->instance());
+
+			if (FRostersViewPlugin && FRostersViewPlugin->rostersView()->rostersModel())
+			{
+				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(),FRostersViewPlugin->rostersView(),window);
+				QToolButton *button = window->toolBarChanger()->insertAction(menu->menuAction(),TBG_MCMTW_USER_TOOLS);
+				button->setPopupMode(QToolButton::InstantPopup);
+			}
+
 			FMetaTabWindows.append(window);
 			emit metaTabWindowCreated(window);
 

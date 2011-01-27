@@ -21,6 +21,7 @@
 #include "metaproxymodel.h"
 #include "metatabwindow.h"
 #include "mergecontactsdialog.h"
+#include "metacontextmenu.h"
 
 struct TabPageInfo
 {

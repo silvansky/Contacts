@@ -5,11 +5,13 @@ HEADERS = metacontacts.h \
           metaroster.h \
           metaproxymodel.h \ 
           metatabwindow.h \
-          mergecontactsdialog.h
+          mergecontactsdialog.h \
+          metacontextmenu.h
 
 SOURCES = metacontacts.cpp \
           metaroster.cpp \
           metaproxymodel.cpp \ 
           metatabwindow.cpp \
-          mergecontactsdialog.cpp
+          mergecontactsdialog.cpp \
+          metacontextmenu.cpp
 

@@ -35,6 +35,7 @@ public:
 	//IMetaTabWindow
 	virtual Jid metaId() const;
 	virtual IMetaRoster *metaRoster() const;
+	virtual ToolBarChanger *toolBarChanger() const;
 	virtual ITabPage *itemPage(const Jid &AItemJid) const;
 	virtual void setItemPage(const Jid &AItemJid, ITabPage *APage);
 	virtual Jid currentItem() const;
@@ -58,7 +59,6 @@ protected:
 	void updateWindow();
 	void updateItemButton(const Jid &AItemJid);
 	void updateItemButtons(const QSet<Jid> &AItems);
-	void setPageToolBarChanger(ToolBarChanger *AChanger);
 	void saveWindowGeometry();
 	void loadWindowGeometry();
 protected:
@@ -76,9 +76,6 @@ protected slots:
 	void onItemButtonActionTriggered(bool);
 	void onCurrentWidgetChanged(int AIndex);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
-protected slots:
-	void onChatWindowToolBarItemInserted(QAction *ABefour, QAction *AHandle, Action *AAction, QWidget *AWidget, int AGroup);
-	void onChatWindowToolBarItemRemoved(QAction *AHandle);
 private:
 	Ui::MetaTabWindowClass ui;
 private:
@@ -91,8 +88,6 @@ private:
 	bool FShownDetached;
 	QString FTabPageToolTip;
 	ToolBarChanger *FToolBarChanger;
-	ToolBarChanger *FPageToolBarChanger;
-	QList<QAction *> FPageToolBarActions;
 	QMap<Jid, ITabPage *> FItemTabPages;
 	QMap<Jid, QToolButton *> FItemButtons;
 };

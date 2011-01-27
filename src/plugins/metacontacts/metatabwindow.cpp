@@ -15,7 +15,6 @@ MetaTabWindow::MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaContacts *AM
 	FTabPageNotifier = NULL;
 
 	FShownDetached = false;
-	FPageToolBarChanger = NULL;
 	FToolBarChanger = new ToolBarChanger(ui.tlbToolBar);
 	FToolBarChanger->setSeparatorsVisible(false);
 	FToolBarChanger->toolBar()->setIconSize(QSize(32,32));
@@ -107,6 +106,11 @@ IMetaRoster *MetaTabWindow::metaRoster() const
 	return FMetaRoster;
 }
 
+ToolBarChanger *MetaTabWindow::toolBarChanger() const
+{
+	return FToolBarChanger;
+}
+
 ITabPage *MetaTabWindow::itemPage(const Jid &AItemJid) const
 {
 	return FItemTabPages.value(AItemJid.bare());
@@ -170,10 +174,6 @@ void MetaTabWindow::setCurrentItem(const Jid &AItemJid)
 		ITabPage *page = FItemTabPages.value(AItemJid);
 		if (page != NULL)
 		{
-			IChatWindow *window = qobject_cast<IChatWindow *>(page->instance());
-			if (window && window->toolBarWidget())
-				setPageToolBarChanger(window->toolBarWidget()->toolBarChanger());
-
 			FItemButtons[AItemJid]->setChecked(true);
 			ui.stwWidgets->setCurrentWidget(page->instance());
 			updateWindow();
@@ -256,39 +256,6 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 	foreach(Jid itemJid, curItems)
 	{
 		updateItemButton(itemJid);
-	}
-}
-
-void MetaTabWindow::setPageToolBarChanger(ToolBarChanger *AChanger)
-{
-	if (FPageToolBarChanger)
-	{
-		foreach(QAction *handle, FPageToolBarActions)
-		{
-			FToolBarChanger->removeItem(handle);
-		}
-		disconnect(FPageToolBarChanger,SIGNAL(itemInserted(QAction *, QAction *, Action *, QWidget *, int)),
-			this,SLOT(onChatWindowToolBarItemInserted(QAction *, QAction *, Action *, QWidget *, int)));
-		disconnect(FPageToolBarChanger,SIGNAL(itemRemoved(QAction *)),this,SLOT(onChatWindowToolBarItemRemoved(QAction *)));
-	}
-
-	FPageToolBarActions.clear();
-	FPageToolBarChanger = AChanger;
-
-	if (FPageToolBarChanger)
-	{
-		foreach(QAction *handle, FPageToolBarChanger->groupItems())
-		{
-			Action *action = FPageToolBarChanger->handleAction(handle);
-			if (action && !action->isSeparator())
-			{
-				FToolBarChanger->insertAction(action,FPageToolBarChanger->itemGroup(handle))->setPopupMode(QToolButton::InstantPopup);
-				FPageToolBarActions.append(FToolBarChanger->actionHandle(action));
-			}
-		}
-		connect(FPageToolBarChanger,SIGNAL(itemInserted(QAction *, QAction *, Action *, QWidget *, int)),
-			SLOT(onChatWindowToolBarItemInserted(QAction *, QAction *, Action *, QWidget *, int)));
-		connect(FPageToolBarChanger,SIGNAL(itemRemoved(QAction *)),SLOT(onChatWindowToolBarItemRemoved(QAction *)));
 	}
 }
 
@@ -413,30 +380,5 @@ void MetaTabWindow::onMetaContactReceived(const IMetaContact &AContact, const IM
 		{
 			deleteLater();
 		}
-	}
-}
-
-void MetaTabWindow::onChatWindowToolBarItemInserted(QAction *ABefour, QAction *AHandle, Action *AAction, QWidget *AWidget, int AGroup)
-{
-	Q_UNUSED(ABefour); Q_UNUSED(AHandle); Q_UNUSED(AWidget);
-	ToolBarChanger *changer = qobject_cast<ToolBarChanger *>(sender());
-	if (FPageToolBarChanger==changer && AAction && !AAction->isSeparator())
-	{
-		FToolBarChanger->insertAction(AAction,AGroup)->setPopupMode(QToolButton::InstantPopup);
-		FPageToolBarActions.append(FToolBarChanger->actionHandle(AAction));
-	}
-}
-
-void MetaTabWindow::onChatWindowToolBarItemRemoved(QAction *AHandle)
-{
-	ToolBarChanger *changer = qobject_cast<ToolBarChanger *>(sender());
-	if (FPageToolBarChanger == changer)
-	{
-		QAction *handle = FToolBarChanger->actionHandle(FPageToolBarChanger->handleAction(AHandle));
-		if (handle)
-{
-		FToolBarChanger->removeItem(handle);
-		FPageToolBarActions.removeAll(handle);
-}
 	}
 }
