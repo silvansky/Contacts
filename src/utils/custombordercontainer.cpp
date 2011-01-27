@@ -845,6 +845,29 @@ void CustomBorderContainer::contextMenuEvent(QContextMenuEvent * event)
 
 bool CustomBorderContainer::event(QEvent * evt)
 {
+	if (evt->type() == QEvent::ToolTip)
+	{
+		QHelpEvent * helpEvent = (QHelpEvent *)evt;
+		if (headerButtonRect(MinimizeButton).contains(helpEvent->pos()))
+		{
+			setToolTip(tr("Minimize"));
+		}
+		else if (headerButtonRect(MaximizeButton).contains(helpEvent->pos()))
+		{
+			setToolTip(isMaximized ? tr("Restore") : tr("Maximize"));
+		}
+		else if (headerButtonRect(CloseButton).contains(helpEvent->pos()))
+		{
+			setToolTip(tr("Close"));
+		}
+		else
+			setToolTip("");
+		if (toolTip().isEmpty())
+		{
+			helpEvent->ignore();
+			return false;
+		}
+	}
 	return QWidget::event(evt);
 }
 

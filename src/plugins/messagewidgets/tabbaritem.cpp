@@ -3,6 +3,7 @@
 #include <QPaintEvent>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QPainter>
 
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250
@@ -243,6 +244,18 @@ bool TabBarItem::eventFilter(QObject *AObject, QEvent *AEvent)
 		return true;
 	if (FIconHidden && AObject==FIconLabel && AEvent->type()==QEvent::Paint)
 		return true;
+	if (AObject == FCloseButton)
+	{
+		if (AEvent->type() == QEvent::Enter || AEvent->type() == QEvent::Leave)
+		{
+			bool handled = QFrame::eventFilter(AObject,AEvent);
+//			FCloseButton->setStyleSheet(FCloseButton->styleSheet());
+//			FCloseButton->repaint();
+			setStyleSheet(styleSheet());
+			update();
+			return handled;
+		}
+	}
 	return QFrame::eventFilter(AObject,AEvent);
 }
 

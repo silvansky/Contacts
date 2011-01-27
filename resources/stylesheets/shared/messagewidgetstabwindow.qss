@@ -67,13 +67,15 @@ TabBarItem[isDraging="true"], TabBarItem[isDraging="true"] *
 	background-color: transparent;
 }
 
-#closeButton
+TabBarItem #closeButton
 {
 	min-width: 16;
 	min-height: 16;
 	background-color: transparent;
 	border: none;
 	border-image: none;
+	padding: 0px;
+	margin: 0px;
 }
 
 TabBarItem[isActive="false"] #closeButton:!hover
