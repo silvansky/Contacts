@@ -5,8 +5,10 @@
 TabBar
 {
 	border: none;
-	margin-left: 1px;
-	margin-top: 1px;
+/*	margin-left: 1px;
+	margin-top: 1px;*/
+/*	padding-left: 1px;
+	padding-top: 1px;*/
 }
 
 TabBarItem
@@ -14,6 +16,8 @@ TabBarItem
 	min-height: 26px;
 	margin: 0px;
 	padding: 0px;
+	padding-bottom: -1px;
+	padding-right: -1px;
 	margin-top: -1px;
 	margin-left: -1px;
 }
@@ -26,6 +30,8 @@ TabBarItem[isDraging="false"]
 TabBarItem[isDraging="false"][isActive="true"]
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #c9cfd1, stop:1 #ffffff);
+	border-top: 1px solid white;
+	border-left: 0px;
 /*	border-left: 0px;
 	border-right: 1px solid #22272d;
 	border-top: 0px;
@@ -99,7 +105,7 @@ TabWindow
 	background-color: rgba(65, 70, 77, 245);
 }
 
-QStackedWidget, ChatWindow, ToolBarWidget, TabBar, CloseButton,
+QStackedWidget, ChatWindow, ToolBarWidget, TabBar, CloseButton, SelectIconWidget,
 #twtTabs, #centralWidget, #emoticonsContainer, #toolBarChanger,
 #wdtBottomWidgets, #wdtEdit, #wdtInfo, #wdtNotice, #wdtToolBar,
 #wdtTopWidgets, #wdtView, #infoWidget, #viewWidget, #noticeWidget,
