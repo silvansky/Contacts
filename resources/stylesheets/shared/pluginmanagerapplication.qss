@@ -129,6 +129,96 @@ QLineEdit[error="true"], QLineEdit:focus[error="true"], QTextEdit[error="true"],
 	border-image: url(%IMAGES_PATH%/editbordererror.png);
 }
 
+/************
+ * QSpinBox *
+ ************/
+
+QSpinBox
+{
+	margin-right: 15px;
+	border-image: url(%IMAGES_PATH%/spinboxborder.png);
+	border-left: 8px;
+	border-top: 7px;
+	border-bottom: 7px;
+	border-right: 8px;
+	padding-left: -3px;
+	padding-top: -7px;
+	padding-bottom: -7px;
+	padding-right: -13px;
+	background-color: transparent;
+	min-height: 27px;
+	color: #333333;
+	font-size: 12px;
+}
+
+QSpinBox:disabled
+{
+	border-image: url(%IMAGES_PATH%/spinboxborder_disabled.png);
+	color: #acacac;
+}
+
+QSpinBox::up-button
+{
+	subcontrol-origin: border;
+	subcontrol-position: top right; /* position at the top right corner */
+	right: -15px;
+	width: 15px;
+	height: 14px;
+	border-image: url(%IMAGES_PATH%/spinbox_up.png);
+	border: 0px;
+}
+
+QSpinBox::up-button:hover
+{
+	border-image: url(%IMAGES_PATH%/spinbox_up_hover.png);
+}
+
+QSpinBox::up-button:pressed
+{
+	border-image: url(%IMAGES_PATH%/spinbox_up_pressed.png);
+}
+
+QSpinBox::up-arrow
+{
+	image: none;
+}
+
+QSpinBox::up-button:disabled, QSpinBox::up-button:off
+{
+	border-image: url(%IMAGES_PATH%/spinbox_up_disabled.png);
+}
+
+QSpinBox::down-button
+{
+	subcontrol-origin: border;
+	subcontrol-position: bottom right;
+	right: -15px;
+	width: 15px;
+	height: 13px;
+	border-image: url(%IMAGES_PATH%/spinbox_down.png);
+	border: 0px;
+}
+
+QSpinBox::down-button:hover
+{
+	border-image: url(%IMAGES_PATH%/spinbox_down_hover.png);
+}
+
+QSpinBox::down-button:pressed
+{
+	border-image: url(%IMAGES_PATH%/spinbox_down_pressed.png);
+}
+
+QSpinBox::down-arrow
+{
+	image: none;
+}
+
+ QSpinBox::down-button:disabled, QSpinBox::down-button:off
+ {
+	border-image: url(%IMAGES_PATH%/spinbox_down_disabled.png);
+ }
+
 /****************************
  * QPushButton, QToolButton *
  ****************************/
