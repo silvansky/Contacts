@@ -150,11 +150,15 @@ protected:
 	void loadTemplates();
 	void loadSenderColors();
 	void initStyleSettings();
+	void updateScrollBar(StyleViewer * view);
 protected slots:
 	void onLinkClicked(const QUrl &AUrl);
 	void onStyleWidgetAdded(IMessageStyle *AStyle, QWidget *AWidget);
 	void onStyleWidgetDestroyed(QObject *AObject);
 	void onViewContentsSizeChanged(const QSize & size);
+	void onScrollBarValueChanged(int value);
+protected:
+	bool eventFilter(QObject *, QEvent *);
 private:
 	QString FTopicHTML;
 	QString FStatusHTML;

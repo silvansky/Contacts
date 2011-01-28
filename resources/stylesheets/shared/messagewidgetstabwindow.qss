@@ -107,14 +107,19 @@ TabWindow
 	background-color: rgba(65, 70, 77, 245);
 }
 
-QStackedWidget, ChatWindow, ToolBarWidget, TabBar, CloseButton, SelectIconWidget,
+QStackedWidget, ChatWindow, ToolBarWidget, TabBar, CloseButton, SelectIconWidget, MetaTabWindow, QToolBar,
 #twtTabs, #centralWidget, #emoticonsContainer, #toolBarChanger,
 #wdtBottomWidgets, #wdtEdit, #wdtInfo, #wdtNotice, #wdtToolBar,
 #wdtTopWidgets, #wdtView, #infoWidget, #viewWidget, #noticeWidget,
 #editWidget, #menuBarWidget, #toolBarWidget, #statusBarWidget,
-ToolBarWidget > .QWidget
+ToolBarWidget > .QWidget, QToolBar > .QWidget
 {
 	background-color: transparent;
+}
+
+QToolBar#tlbToolBar, QFrame#wdtViewer
+{
+	border: none;
 }
 
 #emoticonsButton
@@ -126,10 +131,16 @@ ToolBarWidget > .QWidget
  * Message editor *
  ******************/
 
- MessageEditor
- {
+MessageEditor
+{
 	border: none;
 	border-image: none;
 	padding: 0, 0, 0, 0;
 	background-color: white;
- }
+}
+
+StyleViewer
+{
+	position: absolute;
+	right: -10px;
+}

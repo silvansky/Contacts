@@ -87,20 +87,23 @@ QList<QWidget *> AdiumMessageStyle::styleWidgets() const
 
 QWidget *AdiumMessageStyle::createWidget(const IMessageStyleOptions &AOptions, QWidget *AParent)
 {
-	QWidget * widget = new QWidget(AParent);
-	widget->setLayout(new QHBoxLayout);
-	widget->layout()->setMargin(0);
-	widget->layout()->setSpacing(0);
-	StyleViewer *view = new StyleViewer(widget);
+	StyleViewer *view = new StyleViewer(AParent);
 	view->setObjectName("styleView");
 	changeOptions(view,AOptions,true);
-	widget->layout()->addWidget(view);
 	QScrollBar * vScroll = new QScrollBar(Qt::Vertical);
 	vScroll->setObjectName("styleViewScrollBar");
-	widget->layout()->addWidget(vScroll);
-	view->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+	QHBoxLayout * l = new QHBoxLayout;
+	l->setSpacing(0);
+	l->setContentsMargins(0, 0, 0, 0);
+	l->addStretch();
+	l->addWidget(vScroll);
+	view->setLayout(l);
+	FViewScrollBars.insert(view, vScroll);
+	view->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOn);
+	view->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
 	connect(view->page()->mainFrame(), SIGNAL(contentsSizeChanged(const QSize&)), SLOT(onViewContentsSizeChanged(QSize)));
-	return widget;
+	connect(vScroll, SIGNAL(valueChanged(int)), SLOT(onScrollBarValueChanged(int)));
+	return view;
 }
 
 QString AdiumMessageStyle::senderColor(const QString &ASenderId) const
@@ -158,7 +161,7 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 
 QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions)
 {
-	StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget->layout()->itemAt(0)->widget()) : NULL;
+	StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget) : NULL;
 	if (view)
 	{
 		int contentIndex = scriptContentIndex(AWidget,AOptions);
@@ -752,6 +755,17 @@ void AdiumMessageStyle::initStyleSettings()
 	FAllowCustomBackground = !FInfo.value(MSIV_DISABLE_CUSTOM_BACKGROUND,false).toBool();
 }
 
+void AdiumMessageStyle::updateScrollBar(StyleViewer * view)
+{
+	QScrollBar * scroll = FViewScrollBars.value(view, NULL);
+	if (scroll)
+	{
+		scroll->setMinimum(view->page()->mainFrame()->scrollBarMinimum(Qt::Vertical));
+		scroll->setMaximum(view->page()->mainFrame()->scrollBarMaximum(Qt::Vertical));
+		scroll->setValue(view->page()->mainFrame()->scrollBarValue(Qt::Vertical));
+	}
+}
+
 void AdiumMessageStyle::onLinkClicked(const QUrl &AUrl)
 {
 	StyleViewer *view = qobject_cast<StyleViewer *>(sender());
@@ -770,25 +784,53 @@ void AdiumMessageStyle::onStyleWidgetAdded(IMessageStyle *AStyle, QWidget *AWidg
 void AdiumMessageStyle::onStyleWidgetDestroyed(QObject *AObject)
 {
 	FWidgetStatus.remove((QWidget *)AObject);
+	FViewScrollBars.remove((StyleViewer*)AObject);
 	emit widgetRemoved((QWidget *)AObject);
 }
 
 void AdiumMessageStyle::onViewContentsSizeChanged(const QSize & size)
 {
-	qDebug() << "AdiumMessageStyle::onViewContentsSizeChanged: " << size;
 	QWebFrame * frame = qobject_cast<QWebFrame*>(sender());
 	if (frame)
 	{
 		StyleViewer * view = qobject_cast<StyleViewer*>(frame->page()->view());
 		if (view)
 		{
-			QScrollBar * scroll = FViewScrollBars.value(view, NULL);
-			if (scroll)
-			{
-				scroll->setMinimum(frame->scrollBarMinimum(Qt::Vertical));
-				scroll->setMaximum(frame->scrollBarMaximum(Qt::Vertical));
-				scroll->setValue(frame->scrollBarValue(Qt::Vertical));
-			}
+			updateScrollBar(view);
+		}
+	}
+}
+
+void AdiumMessageStyle::onScrollBarValueChanged(int value)
+{
+	QScrollBar * scrollBar = qobject_cast<QScrollBar*>(sender());
+	if (scrollBar)
+	{
+		StyleViewer * view = FViewScrollBars.key(scrollBar, NULL);
+		if (view)
+		{
+			view->page()->mainFrame()->setScrollBarValue(Qt::Vertical, value);
+		}
+	}
+}
+
+bool AdiumMessageStyle::eventFilter(QObject * obj, QEvent * event)
+{
+	StyleViewer * view= qobject_cast<StyleViewer*>(obj);
+	if (view)
+	{
+		switch(event->type())
+		{
+		case QEvent::Wheel:
+		case QEvent::KeyPress:
+		case QEvent::KeyRelease:
+		{
+			bool h = QObject::eventFilter(obj, event);
+			updateScrollBar(view);
+			return h;
+		}
+		default:
+			break;
 		}
 	}
 }

@@ -78,10 +78,10 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 		}
 		if (FMessageStyle)
 		{
+
 			FStyleWidget = FMessageStyle->createWidget(AOptions,ui.wdtViewer);
-			qDebug() << FStyleWidget->layout()->itemAt(0)->widget()->objectName() << " ***";
-			FStyleWidget->layout()->itemAt(0)->widget()->setContextMenuPolicy(Qt::CustomContextMenu);
-			connect(FStyleWidget->layout()->itemAt(0)->widget(),SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onCustomContextMenuRequested(const QPoint &)));
+			FStyleWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+			connect(FStyleWidget,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onCustomContextMenuRequested(const QPoint &)));
 			ui.wdtViewer->layout()->addWidget(FStyleWidget);
 			connect(FMessageStyle->instance(),SIGNAL(contentChanged(QWidget *, const QUuid &, const QString &, const IMessageContentOptions &)),
 				SLOT(onContentChanged(QWidget *, const QUuid &, const QString &, const IMessageContentOptions &)));
