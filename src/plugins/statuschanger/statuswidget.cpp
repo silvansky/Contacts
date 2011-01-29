@@ -32,7 +32,7 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	ui.lblMood->installEventFilter(this);
 
 	ui.tedMood->setVisible(false);
-	ui.tedMood->setMinimumLines(3);
+	ui.tedMood->setMinimumLines(1);
 	ui.lblAvatar->setAttribute(Qt::WA_Hover, true);
 
 	ui.tlbStatus->addAction(FStatusChanger->statusMenu()->menuAction());

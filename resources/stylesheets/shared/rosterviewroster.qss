@@ -16,7 +16,12 @@ QTreeView#rostersView::item
 	background-color: transparent;
 }
 
-QTreeView#rostersView::item:selected
+QTreeView#rostersView::item:selected:active
 {
 	background-color: #c5d9e7;
+}
+
+QTreeView#rostersView::item:selected!active
+{
+	background-color: transparent;
 }
