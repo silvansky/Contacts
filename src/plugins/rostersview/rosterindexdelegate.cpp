@@ -39,8 +39,10 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 {
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
 	QStyle *style = option.widget ? option.widget->style() : QApplication::style();
-	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin);
-	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin);
+//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin);
+//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin);
+	const int hMargin = 5;
+	const int vMargin = 1;
 
 	QSize leftCenter(0,0);
 	QSize middleTop(0,0);
@@ -91,8 +93,23 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 	hint.rheight() = qMax(hint.height(),rightCenter.height());
 	hint += QSize(hMargin,vMargin);
 
-	if (AIndex.data(RDR_TYPE).toInt() == RIT_SEARCH_EMPTY)
+	switch (AIndex.data(RDR_TYPE).toInt())
+	{
+	case RIT_GROUP:
+		hint.setHeight(18);
+		break;
+	case RIT_CONTACT:
+		if (hint.height() < 30)
+			hint.setHeight(30);
+		else if (hint.height() < 42)
+			hint.setHeight(42);
+		break;
+	case RIT_SEARCH_EMPTY:
 		hint.setHeight(hint.height() * 2);
+		break;
+	default:
+		break;
+	}
 
 	return hint;
 }
@@ -419,9 +436,12 @@ QStyleOptionViewItemV4 RosterIndexDelegate::indexFooterOptions(const QStyleOptio
 {
 	QStyleOptionViewItemV4 option = AOption;
 	option.font.setBold(false);
-	option.font.setPointSize(option.font.pointSize()-1);
+	option.font.setPixelSize(option.font.pixelSize() - 1);
 	option.fontMetrics = QFontMetrics(option.font);
-	option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Disabled, QPalette::Text));
+	if (parent())
+		option.palette.setColor(QPalette::Text, parent()->property("footerColor").value<QColor>());
+	else
+		option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Disabled, QPalette::Text));
 	return option;
 }
 

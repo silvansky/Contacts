@@ -30,6 +30,7 @@ class RostersView :
 	Q_PROPERTY(QBrush groupBrush READ groupBrush WRITE setGroupBrush)
 	Q_PROPERTY(QColor groupColor READ groupColor WRITE setGroupColor)
 	Q_PROPERTY(int groupFontSize READ groupFontSize WRITE setGroupFontSize)
+	Q_PROPERTY(QColor footerColor READ footerColor WRITE setFooterColor)
 public:
 	RostersView(QWidget *AParent = NULL);
 	~RostersView();
@@ -88,6 +89,8 @@ public:
 	void setGroupColor(const QColor& newColor);
 	int groupFontSize() const;
 	void setGroupFontSize(int size);
+	QColor footerColor() const;
+	void setFooterColor(const QColor& newColor);
 signals:
 	void modelAboutToBeSet(IRostersModel *AModel);
 	void modelSet(IRostersModel *AModel);
@@ -190,6 +193,7 @@ private:
 	QBrush groupBackground;
 	QColor groupForeground;
 	int groupFont;
+	QColor footerTextColor;
 };
 
 #endif // ROSTERSVIEW_H

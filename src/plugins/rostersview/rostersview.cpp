@@ -712,6 +712,16 @@ void RostersView::setGroupFontSize(int size)
 	groupFont = size;
 }
 
+QColor RostersView::footerColor() const
+{
+	return footerTextColor;
+}
+
+void RostersView::setFooterColor(const QColor& newColor)
+{
+	footerTextColor = newColor;
+}
+
 void RostersView::updateStatusText(IRosterIndex *AIndex)
 {
 	const static QList<int> statusTypes = QList<int>() << RIT_STREAM_ROOT << RIT_CONTACT << RIT_AGENT << RIT_METACONTACT;
