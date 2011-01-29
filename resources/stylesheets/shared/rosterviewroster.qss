@@ -6,6 +6,8 @@ QTreeView#rostersView
 	selection-color: black;
 	qproperty-groupBrush: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #16394e, stop:1 #5187a5);
 	qproperty-groupColor: white;
+	qproperty-groupFontSize: 10;
+	font-size: 12px;
 }
 
 QTreeView#rostersView::item

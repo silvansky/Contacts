@@ -29,6 +29,7 @@ class RostersView :
 	Q_INTERFACES(IRostersView IRosterDataHolder)
 	Q_PROPERTY(QBrush groupBrush READ groupBrush WRITE setGroupBrush)
 	Q_PROPERTY(QColor groupColor READ groupColor WRITE setGroupColor)
+	Q_PROPERTY(int groupFontSize READ groupFontSize WRITE setGroupFontSize)
 public:
 	RostersView(QWidget *AParent = NULL);
 	~RostersView();
@@ -85,6 +86,8 @@ public:
 	void setGroupBrush(const QBrush & newBrush);
 	QColor groupColor() const;
 	void setGroupColor(const QColor& newColor);
+	int groupFontSize() const;
+	void setGroupFontSize(int size);
 signals:
 	void modelAboutToBeSet(IRostersModel *AModel);
 	void modelSet(IRostersModel *AModel);
@@ -186,6 +189,7 @@ private:
 	QList<IRostersDragDropHandler *> FActiveDragHandlers;
 	QBrush groupBackground;
 	QColor groupForeground;
+	int groupFont;
 };
 
 #endif // ROSTERSVIEW_H

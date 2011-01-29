@@ -57,8 +57,6 @@ private:
 	QIcon::State getIconState(QStyle::State AState) const;
 private:
 	bool FShowBlinkLabels;
-	//static QImage groupOpenedIndicator;
-	//static QImage groupClosedIndicator;
 private:
 	static const int spacing = 2;
 };

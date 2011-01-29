@@ -36,6 +36,7 @@ HtmlToolButton[popupMode="2"]:open
 
 QLabel#lblMood
 {
+	margin-left: 4px;
 	padding: 5px;
 	color: #acacac;
 }
@@ -43,4 +44,14 @@ QLabel#lblMood:hover
 {
 	border: 6px;
 	border-image: url(%IMAGES_PATH%/moodborderhover.png);
+}
+
+#tlbStatus
+{
+	min-height: 20px;
+	height: 20px;
+	max-height: 20px;
+	min-width: 21px;
+	width: 21px;
+	max-width: 21px;
 }

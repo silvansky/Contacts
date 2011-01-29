@@ -57,8 +57,8 @@ class Avatars :
 			public IRosterDataHolder,
 			public IOptionsHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IAvatars IStanzaHandler IRosterDataHolder IStanzaRequestOwner IOptionsHolder);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IAvatars IStanzaHandler IRosterDataHolder IStanzaRequestOwner IOptionsHolder)
 public:
 	Avatars();
 	~Avatars();

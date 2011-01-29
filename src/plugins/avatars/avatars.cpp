@@ -305,7 +305,7 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 	{
 		if (ARole == RDR_AVATAR_IMAGE)
 		{
-			return avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars).scaled(32,32,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+			return avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars).scaled(24,24,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 		}
 		else if (ARole == RDR_AVATAR_HASH)
 		{

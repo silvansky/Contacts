@@ -702,6 +702,16 @@ void RostersView::setGroupColor(const QColor& newColor)
 	groupForeground = newColor;
 }
 
+int RostersView::groupFontSize() const
+{
+	return groupFont;
+}
+
+void RostersView::setGroupFontSize(int size)
+{
+	groupFont = size;
+}
+
 void RostersView::updateStatusText(IRosterIndex *AIndex)
 {
 	const static QList<int> statusTypes = QList<int>() << RIT_STREAM_ROOT << RIT_CONTACT << RIT_AGENT << RIT_METACONTACT;

@@ -148,8 +148,11 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	}
 #endif
 
-	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin) >> 1;
-	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin) >> 1;
+//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin) >> 1;
+//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin) >> 1;
+	const int hMargin = 5;
+	const int vMargin = 1;
+
 
 	QRect paintRect(option.rect.adjusted(hMargin,vMargin,-hMargin,-vMargin));
 
@@ -170,6 +173,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 				QColor c = parent()->property("groupColor").value<QColor>();
 				option.palette.setColor(QPalette::Text, c);
 				option.palette.setColor(QPalette::HighlightedText, c);
+				option.font.setPixelSize(parent()->property("groupFontSize").toInt());
 			}
 			APainter->fillRect(option.rect, option.backgroundBrush);
 		}
