@@ -163,7 +163,7 @@ protected:
 	void mouseMove(const QPoint & p, QWidget * widget);
 	bool mousePress(const QPoint & p, QWidget * widget);
 	void mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button = Qt::LeftButton);
-	void mouseDoubleClick(const QPoint & p, QWidget * widget);
+	bool mouseDoubleClick(const QPoint & p, QWidget * widget);
 	bool pointInBorder(BorderType border, const QPoint & p);
 	bool pointInHeader(const QPoint & p);
 	void checkResizeCondition(const QPoint & p);

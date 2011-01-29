@@ -660,7 +660,6 @@ CustomBorderContainer::CustomBorderContainer(const CustomBorderContainerPrivate 
 
 CustomBorderContainer::~CustomBorderContainer()
 {
-	qDebug() << "CustomBorderContainer::~CustomBorderContainer()";
 	setWidget(NULL);
 }
 
@@ -892,16 +891,26 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 
 		break;
 	case QEvent::MouseButtonPress:
+	{
 		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
 			handled = mousePress(((QMouseEvent*)event)->pos(), widget);
 		qDebug() << "handled = " << handled << " " << widget->objectName() << " of class " << widget->metaObject()->className() << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
+		QStringList hierarchy;
+		QWidget * parent = widget->parentWidget();
+		while (parent)
+		{
+			hierarchy << QString("%1 (%2)").arg(parent->objectName(), parent->metaObject()->className());
+			parent = parent->parentWidget();
+		}
+		qDebug() << "hierarchy: " << hierarchy.join(" -> ");
+	}
 		break;
 	case QEvent::MouseButtonRelease:
 		mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
 		break;
 	case QEvent::MouseButtonDblClick:
 		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
-			mouseDoubleClick(((QMouseEvent*)event)->pos(), widget);
+			handled = mouseDoubleClick(((QMouseEvent*)event)->pos(), widget);
 		break;
 	case QEvent::Paint:
 	{
@@ -942,7 +951,6 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		if (object == containedWidget)
 		{
 			handled = QWidget::eventFilter(object, event);
-			qDebug() << "new size: " << ((QResizeEvent*)event)->size();
 			updateShape();
 			return handled;
 		}
@@ -1480,12 +1488,19 @@ void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt:
 	}
 }
 
-void CustomBorderContainer::mouseDoubleClick(const QPoint & p, QWidget * widget)
+bool CustomBorderContainer::mouseDoubleClick(const QPoint & p, QWidget * widget)
 {
 	if (windowIconRect().contains(mapFromWidget(widget, p)) && headerRect().contains(mapFromWidget(widget, p)))
+	{
 		emit closeClicked();
+		return true;
+	}
 	else if (headerMoveRect().contains(mapFromWidget(widget, p)) && headerButtonUnderMouse() == NoneButton && isMaximizeButtonVisible() && isMaximizeButtonEnabled())
+	{
 		emit maximizeClicked();
+		return true;
+	}
+	return false;
 }
 
 bool CustomBorderContainer::pointInBorder(BorderType border, const QPoint & p)

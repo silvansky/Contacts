@@ -47,6 +47,7 @@ void BalloonTip::hideBalloon()
 {
 	if (theSolitaryBalloonTip)
 	{
+		theSolitaryBalloonTip->hide();
 		theSolitaryBalloonTip->deleteLater();
 		theSolitaryBalloonTip = NULL;
 	}

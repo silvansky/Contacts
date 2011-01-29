@@ -16,8 +16,6 @@
 #include <QDragLeaveEvent>
 #include <QContextMenuEvent>
 
-#include <QDebug>
-
 #define BLINK_VISIBLE           750
 #define BLINK_INVISIBLE         250
 
@@ -691,7 +689,6 @@ QBrush RostersView::groupBrush() const
 
 void RostersView::setGroupBrush(const QBrush & newBrush)
 {
-	qDebug() << newBrush;
 	groupBackground = newBrush;
 }
 

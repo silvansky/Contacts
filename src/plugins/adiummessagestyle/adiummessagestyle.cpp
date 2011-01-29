@@ -16,6 +16,9 @@
 #include <QTextDocument>
 #include <QHBoxLayout>
 #include <QScrollBar>
+#include <QWheelEvent>
+#include <QKeyEvent>
+#include <QResizeEvent>
 #include <QDebug>
 
 #define SHARED_STYLE_PATH                   RESOURCES_DIR"/"RSR_STORAGE_ADIUMMESSAGESTYLES"/"STORAGE_SHARED_DIR
@@ -99,8 +102,9 @@ QWidget *AdiumMessageStyle::createWidget(const IMessageStyleOptions &AOptions, Q
 	l->addWidget(vScroll);
 	view->setLayout(l);
 	FViewScrollBars.insert(view, vScroll);
-	view->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOn);
+	view->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 	view->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+	view->installEventFilter(this);
 	connect(view->page()->mainFrame(), SIGNAL(contentsSizeChanged(const QSize&)), SLOT(onViewContentsSizeChanged(QSize)));
 	connect(vScroll, SIGNAL(valueChanged(int)), SLOT(onScrollBarValueChanged(int)));
 	return view;
@@ -161,7 +165,8 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 
 QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions)
 {
-	StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget) : NULL;
+	//StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget) : NULL;
+	StyleViewer *view = qobject_cast<StyleViewer *>(AWidget);
 	if (view)
 	{
 		int contentIndex = scriptContentIndex(AWidget,AOptions);
@@ -758,11 +763,20 @@ void AdiumMessageStyle::initStyleSettings()
 void AdiumMessageStyle::updateScrollBar(StyleViewer * view)
 {
 	QScrollBar * scroll = FViewScrollBars.value(view, NULL);
+	QWebFrame * frame = view->page()->mainFrame();
 	if (scroll)
 	{
-		scroll->setMinimum(view->page()->mainFrame()->scrollBarMinimum(Qt::Vertical));
-		scroll->setMaximum(view->page()->mainFrame()->scrollBarMaximum(Qt::Vertical));
-		scroll->setValue(view->page()->mainFrame()->scrollBarValue(Qt::Vertical));
+		QSize size = frame->contentsSize();
+		if (view->height() >= size.height())
+		{
+			scroll->setEnabled(false);
+		}
+		else
+		{
+			scroll->setEnabled(true);
+			scroll->setMaximum(frame->contentsSize().height() - view->height());
+			scroll->setValue(frame->scrollPosition().y());
+		}
 	}
 }
 
@@ -809,28 +823,79 @@ void AdiumMessageStyle::onScrollBarValueChanged(int value)
 		StyleViewer * view = FViewScrollBars.key(scrollBar, NULL);
 		if (view)
 		{
-			view->page()->mainFrame()->setScrollBarValue(Qt::Vertical, value);
+			view->page()->mainFrame()->setScrollPosition(QPoint(0, value));
 		}
 	}
 }
 
 bool AdiumMessageStyle::eventFilter(QObject * obj, QEvent * event)
 {
-	StyleViewer * view= qobject_cast<StyleViewer*>(obj);
-	if (view)
+	StyleViewer * view = qobject_cast<StyleViewer*>(obj);
+	QScrollBar * scroll = FViewScrollBars.value(view, NULL);
+	if (view && scroll)
 	{
+		QWebFrame * frame = view->page()->mainFrame();
 		switch(event->type())
 		{
 		case QEvent::Wheel:
-		case QEvent::KeyPress:
-		case QEvent::KeyRelease:
 		{
+			QWheelEvent * wheelEvent = (QWheelEvent*)event;
+			if (wheelEvent->orientation() == Qt::Vertical)
+			{
+				int delta = wheelEvent->delta();
+				frame->setScrollPosition(QPoint(0, frame->scrollPosition().y() - delta));
+				scroll->setMinimum(0);
+				scroll->setValue(frame->scrollPosition().y());
+			}
+			break;
+		}
+		case QEvent::KeyPress:
+		{
+			QKeyEvent * keyEvent = (QKeyEvent*)event;
+			int delta = 0;
+			switch(keyEvent->key())
+			{
+			case Qt::Key_Down:
+				delta = -120;
+				break;
+			case Qt::Key_Up:
+				delta = 120;
+				break;
+			case Qt::Key_PageDown:
+				delta = -2 * 120;
+				break;
+			case Qt::Key_PageUp:
+				delta = 2 * 120;
+				break;
+			case Qt::Key_Home:
+				frame->setScrollPosition(QPoint(0, 0));
+				scroll->setValue(0);
+				break;
+			case Qt::Key_End:
+				frame->setScrollPosition(QPoint(0, frame->contentsSize().height() - view->height()));
+				scroll->setValue(scroll->maximum());
+				break;
+			default:
+				break;
+			}
+			if (delta)
+			{
+				frame->setScrollPosition(QPoint(0, frame->scrollPosition().y() - delta));
+				scroll->setMinimum(0);
+				scroll->setValue(frame->scrollPosition().y());
+			}
+		}
+		case QEvent::Resize:
+		{
+			QResizeEvent * resizeEvent = (QResizeEvent*)event;
 			bool h = QObject::eventFilter(obj, event);
-			updateScrollBar(view);
+			scroll->setMaximum(frame->contentsSize().height() - resizeEvent->size().height());
+			scroll->setValue(frame->scrollPosition().y());
 			return h;
 		}
 		default:
 			break;
 		}
 	}
+	return QObject::eventFilter(obj, event);
 }

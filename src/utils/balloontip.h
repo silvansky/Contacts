@@ -37,7 +37,7 @@ protected:
 	void paintEvent(QPaintEvent *ev);
 	void mousePressEvent(QMouseEvent *ev);
 	void timerEvent(QTimerEvent *ev);
-private:
+	private:
 	int timerId;
 	QPixmap pixmap;
 	QWidget * widget;
