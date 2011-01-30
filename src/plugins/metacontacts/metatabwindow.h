@@ -6,6 +6,8 @@
 #include <definitions/toolbargroups.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/istatusicons.h>
+#include <interfaces/istatuschanger.h>
 #include <utils/options.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
@@ -19,7 +21,7 @@ class MetaTabWindow :
 	Q_OBJECT;
 	Q_INTERFACES(IMetaTabWindow ITabPage);
 public:
-	MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent = NULL);
+	MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent = NULL);
 	~MetaTabWindow();
 	virtual QMainWindow *instance() { return this; }
 	//ITabPage
@@ -55,10 +57,12 @@ signals:
 	void itemPageRequested(const Jid &AItemJid);
 	void itemPageChanged(const Jid &AItemJid, ITabPage *APage);
 protected:
+	void initialize(IPluginManager *APluginManager);
 	Jid firstItemJid() const;
 	void updateWindow();
 	void updateItemButton(const Jid &AItemJid);
 	void updateItemButtons(const QSet<Jid> &AItems);
+	void removeTabPageNotifies();
 	void saveWindowGeometry();
 	void loadWindowGeometry();
 protected:
@@ -71,10 +75,12 @@ protected slots:
 	void onTabPageChanged();
 	void onTabPageDestroyed();
 	void onTabPageNotifierChanged();
-	void onTabPageNotifierActiveNotifyChanged(int ANotifyId);
+	void onTabPageNotifierNotifyInserted(int ANotifyId);
+	void onTabPageNotifierNotifyRemoved(int ANotifyId);
 protected slots:
 	void onItemButtonActionTriggered(bool);
 	void onCurrentWidgetChanged(int AIndex);
+	void onMetaPresenceChanged(const Jid &AMetaId);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 private:
 	Ui::MetaTabWindowClass ui;
@@ -83,11 +89,14 @@ private:
 	IMetaContacts *FMetaContacts;
 	IMessageWidgets *FMessageWidgets;
 	ITabPageNotifier *FTabPageNotifier;
+	IStatusIcons *FStatusIcons;
+	IStatusChanger *FStatusChanger;
 private:
 	Jid FMetaId;
 	bool FShownDetached;
 	QString FTabPageToolTip;
 	ToolBarChanger *FToolBarChanger;
+	QMap<int,int> FTabPageNotifies;
 	QMap<Jid, ITabPage *> FItemTabPages;
 	QMap<Jid, QToolButton *> FItemButtons;
 };

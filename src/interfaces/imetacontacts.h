@@ -23,6 +23,7 @@ struct IMetaItemDescriptor
 	QString icon;
 	bool detach;
 	bool combine;
+	bool service;
 	int pageOrder;
 	QString pattern;
 };
@@ -36,9 +37,10 @@ public:
 	virtual IRoster *roster() const =0;
 	virtual bool isOpen() const =0;
 	virtual QList<Jid> metaContacts() const =0;
-	virtual Jid itemMetaContact(const Jid &AItemJid) const =0;
 	virtual IMetaContact metaContact(const Jid &AMetaId) const =0;
+	virtual Jid itemMetaContact(const Jid &AItemJid) const =0;
 	virtual IPresenceItem metaPresence(const Jid &AMetaId) const =0;
+	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const =0;
 	virtual QString metaAvatarHash(const Jid &AMetaId) const =0;
 	virtual QImage metaAvatarImage(const Jid &AMetaId, bool ANullImage = true) const =0;
 	virtual QSet<QString> groups() const =0;

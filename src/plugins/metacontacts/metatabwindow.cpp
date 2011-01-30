@@ -2,7 +2,7 @@
 
 #define ADR_ITEM_JID     Action::DR_Parametr1
 
-MetaTabWindow::MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent) : QMainWindow(AParent)
+MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent) : QMainWindow(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose, false);
@@ -11,19 +11,25 @@ MetaTabWindow::MetaTabWindow(IMessageWidgets *AMessageWidgets, IMetaContacts *AM
 	FMetaId = AMetaId;
 	FMetaRoster = AMetaRoster;
 	FMetaContacts = AMetaContacts;
-	FMessageWidgets = AMessageWidgets;
-	FTabPageNotifier = NULL;
+	FMessageWidgets = NULL;
+	FStatusIcons = NULL;
+	FStatusChanger = NULL;
+	initialize(APluginManager);
 
+	FTabPageNotifier = NULL;
 	FShownDetached = false;
+
 	FToolBarChanger = new ToolBarChanger(ui.tlbToolBar);
 	FToolBarChanger->setSeparatorsVisible(false);
 	FToolBarChanger->toolBar()->setIconSize(QSize(32,32));
 
+	connect(FMetaRoster->instance(),SIGNAL(metaPresenceChanged(const Jid &)),SLOT(onMetaPresenceChanged(const Jid &)));
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 	connect(ui.stwWidgets,SIGNAL(currentChanged(int)),SLOT(onCurrentWidgetChanged(int)));
 
 	updateItemButtons(FMetaRoster->metaContact(FMetaId).items);
+	updateWindow();
 }
 
 MetaTabWindow::~MetaTabWindow()
@@ -113,7 +119,7 @@ ToolBarChanger *MetaTabWindow::toolBarChanger() const
 
 ITabPage *MetaTabWindow::itemPage(const Jid &AItemJid) const
 {
-	return FItemTabPages.value(AItemJid.bare());
+	return FItemTabPages.value(AItemJid.pBare());
 }
 
 void MetaTabWindow::setItemPage(const Jid &AItemJid, ITabPage *APage)
@@ -127,15 +133,19 @@ void MetaTabWindow::setItemPage(const Jid &AItemJid, ITabPage *APage)
 			if (window && window->toolBarWidget())
 				window->toolBarWidget()->instance()->show();
 
+			disconnect(curTabPage->instance(),SIGNAL(tabPageNotifierChanged()),this,SLOT(onTabPageNotifierChanged()));
 			disconnect(curTabPage->instance(),SIGNAL(tabPageShow()),this,SLOT(onTabPageShow()));
 			disconnect(curTabPage->instance(),SIGNAL(tabPageClose()),this,SLOT(onTabPageClose()));
 			disconnect(curTabPage->instance(),SIGNAL(tabPageChanged()),this,SLOT(onTabPageChanged()));
-			disconnect(curTabPage->instance(),SIGNAL(tabPageDestroyed()),this,SLOT(onTabPageDestroyed()));
 			if (curTabPage->tabPageNotifier())
-				disconnect(curTabPage->tabPageNotifier()->instance(),SIGNAL(activeNotifyChanged(int)),this,SLOT(onTabPageNotifierActiveNotifyChanged(int)));
-			disconnect(curTabPage->instance(),SIGNAL(tabPageNotifierChanged()),this,SLOT(onTabPageNotifierChanged()));
+			{
+				disconnect(curTabPage->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),this,SLOT(onTabPageNotifierNotifyInserted(int)));
+				disconnect(curTabPage->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),this,SLOT(onTabPageNotifierNotifyRemoved(int)));
+			}
+			disconnect(curTabPage->instance(),SIGNAL(tabPageDestroyed()),this,SLOT(onTabPageDestroyed()));
 			FItemTabPages.remove(AItemJid);
 			ui.stwWidgets->removeWidget(curTabPage->instance());
+			curTabPage->instance()->deleteLater();
 		}
 		
 		if (APage)
@@ -149,7 +159,10 @@ void MetaTabWindow::setItemPage(const Jid &AItemJid, ITabPage *APage)
 			connect(APage->instance(),SIGNAL(tabPageChanged()),SLOT(onTabPageChanged()));
 			connect(APage->instance(),SIGNAL(tabPageDestroyed()),SLOT(onTabPageDestroyed()));
 			if (APage->tabPageNotifier())
-				connect(APage->tabPageNotifier()->instance(),SIGNAL(activeNotifyChanged(int)),this,SLOT(onTabPageNotifierActiveNotifyChanged(int)));
+			{
+				connect(APage->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),SLOT(onTabPageNotifierNotifyInserted(int)));
+				connect(APage->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),SLOT(onTabPageNotifierNotifyRemoved(int)));
+			}
 			connect(APage->instance(),SIGNAL(tabPageNotifierChanged()),SLOT(onTabPageNotifierChanged()));
 			FItemTabPages.insert(AItemJid,APage);
 			ui.stwWidgets->addWidget(APage->instance());
@@ -169,16 +182,43 @@ void MetaTabWindow::setCurrentItem(const Jid &AItemJid)
 	if (FItemButtons.contains(AItemJid) && currentItem()!=AItemJid)
 	{
 		if (!FItemTabPages.contains(AItemJid))
-			emit itemPageRequested(AItemJid);
+		{
+			int itemShow = 0;
+			Jid itemJid = AItemJid;
+			QList<IPresenceItem> pitems = FMetaRoster->itemPresences(AItemJid);
+			foreach(IPresenceItem pitem, pitems)
+			{
+				if (itemShow==0 || itemShow > pitem.show)
+				{
+					itemShow = pitem.show;
+					itemJid = pitem.itemJid;
+				}
+			}
+			emit itemPageRequested(itemJid);
+		}
 
 		ITabPage *page = FItemTabPages.value(AItemJid);
 		if (page != NULL)
 		{
 			FItemButtons[AItemJid]->setChecked(true);
 			ui.stwWidgets->setCurrentWidget(page->instance());
-			updateWindow();
 		}
 	}
+}
+
+void MetaTabWindow::initialize(IPluginManager *APluginManager)
+{
+	IPlugin *plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
+	if (plugin)
+		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
+	
+	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
+	if (plugin)
+		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
+	if (plugin)
+		FStatusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
 }
 
 Jid MetaTabWindow::firstItemJid() const
@@ -199,15 +239,20 @@ Jid MetaTabWindow::firstItemJid() const
 
 void MetaTabWindow::updateWindow()
 {
-	ITabPage *page = itemPage(currentItem());
-	if (page)
-	{
-		setWindowIcon(page->tabPageIcon());
-		setWindowIconText(page->tabPageCaption());
-		FTabPageToolTip = page->tabPageToolTip();
-		setWindowTitle(page->instance()->windowTitle());
-		emit tabPageChanged();
-	}
+	IMetaContact contact = FMetaRoster->metaContact(FMetaId);
+	IPresenceItem pitem = FMetaRoster->metaPresence(FMetaId);
+
+	QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByJidStatus(FMetaId,pitem.show,SUBSCRIPTION_BOTH,false) : QIcon();
+	QString name = !contact.name.isEmpty() ? contact.name : contact.id.bare();
+	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
+	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+
+	setWindowIcon(icon);
+	setWindowIconText(name);
+	setWindowTitle(title);
+	FTabPageToolTip = show;
+
+	emit tabPageChanged();
 }
 
 void MetaTabWindow::updateItemButton(const Jid &AItemJid)
@@ -217,8 +262,13 @@ void MetaTabWindow::updateItemButton(const Jid &AItemJid)
 		Action *action = qobject_cast<Action *>(FItemButtons.value(AItemJid)->defaultAction());
 		if (action)
 		{
+			ITabPage *page = itemPage(AItemJid);
 			IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(AItemJid);
-			action->setText(FMetaContacts->itemHint(AItemJid));
+			int notifyCount = page && page->tabPageNotifier() ? page->tabPageNotifier()->notifies().count() : 0;
+			if (notifyCount > 0)
+				action->setText(QString("%1 (%2)").arg(FMetaContacts->itemHint(AItemJid)).arg(notifyCount));
+			else
+				action->setText(FMetaContacts->itemHint(AItemJid));
 			action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon,1);
 		}
 	}
@@ -235,7 +285,7 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 		IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(itemJid);
 
 		Action *action = new Action(FToolBarChanger->toolBar());
-		action->setData(ADR_ITEM_JID,itemJid.full());
+		action->setData(ADR_ITEM_JID,itemJid.pBare());
 		connect(action,SIGNAL(triggered(bool)),SLOT(onItemButtonActionTriggered(bool)));
 		
 		QToolButton *button = FToolBarChanger->insertAction(action,descriptor.pageOrder);
@@ -257,6 +307,16 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 	{
 		updateItemButton(itemJid);
 	}
+}
+
+void MetaTabWindow::removeTabPageNotifies()
+{
+	if (FTabPageNotifier)
+	{
+		foreach(int notifyId, FTabPageNotifies.values())
+			FTabPageNotifier->removeNotify(notifyId);
+	}
+	FTabPageNotifies.clear();
 }
 
 void MetaTabWindow::saveWindowGeometry()
@@ -325,9 +385,7 @@ void MetaTabWindow::onTabPageClose()
 
 void MetaTabWindow::onTabPageChanged()
 {
-	ITabPage *page = qobject_cast<ITabPage *>(sender());
-	if (page == itemPage(currentItem()))
-		updateWindow();
+
 }
 
 void MetaTabWindow::onTabPageDestroyed()
@@ -342,13 +400,34 @@ void MetaTabWindow::onTabPageNotifierChanged()
 	ITabPage *page = qobject_cast<ITabPage *>(sender());
 	if (page && page->tabPageNotifier())
 	{
-		connect(page->tabPageNotifier()->instance(),SIGNAL(activeNotifyChanged(int)),SLOT(onTabPageNotifierActiveNotifyChanged(int)));
+		connect(page->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),SLOT(onTabPageNotifierNotifyInserted(int)));
+		connect(page->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),SLOT(onTabPageNotifierNotifyRemoved(int)));
 	}
 }
 
-void MetaTabWindow::onTabPageNotifierActiveNotifyChanged(int ANotifyId)
+void MetaTabWindow::onTabPageNotifierNotifyInserted(int ANotifyId)
 {
+	ITabPageNotifier *notifier = qobject_cast<ITabPageNotifier *>(sender());
+	Jid itemJid = notifier!=NULL ? FItemTabPages.key(notifier->tabPage()) : Jid::null;
+	if (FTabPageNotifier && itemJid.isValid() && (!isActive() || currentItem()==itemJid))
+	{
+		ITabPageNotify notify = notifier->notifyById(ANotifyId);
+		int notifyId = FTabPageNotifier->insertNotify(notify);
+		FTabPageNotifies.insert(ANotifyId,notifyId);
+	}
+	updateItemButton(itemJid);
+}
 
+void MetaTabWindow::onTabPageNotifierNotifyRemoved(int ANotifyId)
+{
+	ITabPageNotifier *notifier = qobject_cast<ITabPageNotifier *>(sender());
+	Jid itemJid = notifier!=NULL ? FItemTabPages.key(notifier->tabPage()) : Jid::null;
+	if (FTabPageNotifier && FTabPageNotifies.contains(ANotifyId))
+	{
+		int notifyId = FTabPageNotifies.take(ANotifyId);
+		FTabPageNotifier->removeNotify(notifyId);
+	}
+	updateItemButton(itemJid);
 }
 
 void MetaTabWindow::onItemButtonActionTriggered(bool)
@@ -364,6 +443,14 @@ void MetaTabWindow::onCurrentWidgetChanged(int AIndex)
 {
 	ITabPage *page = qobject_cast<ITabPage *>(ui.stwWidgets->widget(AIndex));
 	emit currentItemChanged(FItemTabPages.key(page));
+}
+
+void MetaTabWindow::onMetaPresenceChanged(const Jid &AMetaId)
+{
+	if (AMetaId == FMetaId)
+	{
+		updateWindow();
+	}
 }
 
 void MetaTabWindow::onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore)

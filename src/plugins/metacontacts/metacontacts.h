@@ -124,16 +124,15 @@ protected slots:
 	void onMetaTabWindowItemPageRequested(const Jid &AItemJid);
 	void onMetaTabWindowDestroyed();
 protected slots:
-	void onLoadMetaRosters();
-	void onChatWindowCreated(IChatWindow *AWindow);
-protected slots:
 	void onRenameContact(bool);
 	void onDeleteContact(bool);
 	void onMergeContacts(bool);
 	void onReleaseContactItems(bool);
 	void onChangeContactGroups(bool AChecked);
 protected slots:
+	void onLoadMetaRosters();
 	void onOpenTabPageAction(bool);
+	void onChatWindowCreated(IChatWindow *AWindow);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void onOptionsOpened();
 	void onOptionsClosed();

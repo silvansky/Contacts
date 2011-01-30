@@ -1005,20 +1005,35 @@ void ChatMessageHandler::onPresenceOpened(IPresence *APresence)
 void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
 	Q_UNUSED(ABefore);
-	Jid streamJid = APresence->streamJid();
-	Jid contactJid = AItem.itemJid;
-	IChatWindow *window = findWindow(streamJid,contactJid);
-	if (!window && !contactJid.resource().isEmpty())
+	if (AItem.show!=IPresence::Offline && AItem.show!=IPresence::Error)
 	{
-		IChatWindow *bareWindow = findWindow(streamJid,contactJid.bare());
-		if (bareWindow)
-			bareWindow->setContactJid(contactJid);
-	}
-	if (window && !contactJid.resource().isEmpty())
-	{
-		IChatWindow *bareWindow = findWindow(streamJid,contactJid.bare());
-		if (bareWindow)
-			bareWindow->instance()->deleteLater();
+		IChatWindow *window = findWindow(APresence->streamJid(),AItem.itemJid);
+		if (!window && !AItem.itemJid.resource().isEmpty())
+		{
+			IChatWindow *bareWindow = findWindow(APresence->streamJid(),AItem.itemJid.bare());
+			if (bareWindow)
+			{
+				bareWindow->setContactJid(AItem.itemJid);
+			}
+			else foreach(IChatWindow *offlineWindow, FWindows)
+			{
+				if (offlineWindow->streamJid()==APresence->streamJid() && (offlineWindow->contactJid() && AItem.itemJid))
+				{
+					int show = APresence->presenceItem(offlineWindow->contactJid()).show;
+					if (show==IPresence::Offline || show==IPresence::Error)
+					{
+						offlineWindow->setContactJid(AItem.itemJid);
+						break;
+					}
+				}
+			}
+		}
+		if (window && !AItem.itemJid.resource().isEmpty())
+		{
+			IChatWindow *bareWindow = findWindow(APresence->streamJid(),AItem.itemJid.bare());
+			if (bareWindow)
+				bareWindow->instance()->deleteLater();
+		}
 	}
 }
 

@@ -19,7 +19,7 @@ class MetaRoster :
 	Q_OBJECT;
 	Q_INTERFACES(IMetaRoster IStanzaHandler IStanzaRequestOwner);
 public:
-	MetaRoster(IRoster *ARoster, IPluginManager *APluginManager);
+	MetaRoster(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IRoster *ARoster);
 	~MetaRoster();
 	virtual QObject *instance() { return this; }
 	//IStanzaHandler
@@ -33,9 +33,10 @@ public:
 	virtual IRoster *roster() const;
 	virtual bool isOpen() const;
 	virtual QList<Jid> metaContacts() const;
-	virtual Jid itemMetaContact(const Jid &AItemJid) const;
 	virtual IMetaContact metaContact(const Jid &AMetaId) const;
+	virtual Jid itemMetaContact(const Jid &AItemJid) const;
 	virtual IPresenceItem metaPresence(const Jid &AMetaId) const;
+	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const;
 	virtual QString metaAvatarHash(const Jid &AMetaId) const;
 	virtual QImage metaAvatarImage(const Jid &AMetaId, bool ANullImage = true) const;
 	virtual QSet<QString> groups() const;
@@ -82,6 +83,7 @@ private:
 	IRoster *FRoster;
 	IAvatars *FAvatars;
 	IPresence *FPresence;
+	IMetaContacts *FMetaContacts;
 	IStanzaProcessor *FStanzaProcessor;
 private:
 	int FSHIMetaContacts;
@@ -95,7 +97,7 @@ private:
 	bool FOpened;
 	bool FEnabled;
 	QHash<Jid, Jid> FItemMetaId;
-	QHash<Jid, IMetaContact> FMetaContacts;
+	QHash<Jid, IMetaContact> FContacts;
 };
 
 #endif // METAROSTER_H

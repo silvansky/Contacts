@@ -525,6 +525,11 @@ IRostersNotify RostersView::notifyById(int ANotifyId) const
 	return FNotifyItems.value(ANotifyId);
 }
 
+QList<IRosterIndex *> RostersView::notifyIndexes(int ANotifyId) const
+{
+	return FIndexNotifies.keys(ANotifyId);
+}
+
 int RostersView::insertNotify(const IRostersNotify &ANotify, const QList<IRosterIndex *> &AIndexes)
 {
 	int notifyId = -1;

@@ -67,6 +67,7 @@ public:
 	virtual int activeNotify(IRosterIndex *AIndex) const;
 	virtual QList<int> notifyQueue(IRosterIndex *AIndex) const;
 	virtual IRostersNotify notifyById(int ANotifyId) const;
+	virtual QList<IRosterIndex *> notifyIndexes(int ANotifyId) const;
 	virtual int insertNotify(const IRostersNotify &ANotify, const QList<IRosterIndex *> &AIndexes);
 	virtual void removeNotify(int ANotifyId);
 	//--ClickHookers

@@ -28,7 +28,7 @@ MergeContactsDialog::MergeContactsDialog(IMetaRoster *AMetaRoster, const QList<J
 		
 		QListWidgetItem *item = new QListWidgetItem(name);
 		item->setData(Qt::DecorationRole, avatar);
-		item->setData(Qt::UserRole, metaId.full());
+		item->setData(Qt::UserRole, metaId.pBare());
 		item->setFlags(Qt::ItemIsEnabled);
 		ui.ltwContacts->addItem(item);
 	}

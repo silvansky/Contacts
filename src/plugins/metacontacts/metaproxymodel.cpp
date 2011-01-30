@@ -12,6 +12,8 @@ MetaProxyModel::MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARost
 
 	onRostersModelSet(FRostersView->rostersModel());
 	connect(FRostersView->instance(),SIGNAL(modelSet(IRostersModel *)),SLOT(onRostersModelSet(IRostersModel *)));
+	connect(FRostersView->instance(),SIGNAL(notifyInserted(int)),SLOT(onRostersNotifyInserted(int)));
+	connect(FRostersView->instance(),SIGNAL(notifyRemoved(int)),SLOT(onRostersNotifyRemoved(int)));
 
 	connect(FMetaContacts->instance(),SIGNAL(metaAvatarChanged(IMetaRoster *, const Jid &)),
 		SLOT(onMetaAvatarChanged(IMetaRoster *, const Jid &)));
@@ -108,6 +110,44 @@ void MetaProxyModel::onRostersModelSet(IRostersModel *AModel)
 				}
 			}
 		}
+	}
+}
+
+void MetaProxyModel::onRostersNotifyInserted(int ANotifyId)
+{
+	QSet<IRosterIndex *> metaIndexes;
+	foreach(IRosterIndex *index, FRostersView->notifyIndexes(ANotifyId))
+	{
+		int indexType = index->type();
+		if (indexType==RIT_CONTACT || indexType==RIT_AGENT)
+		{
+			IMetaRoster *mroster = FMetaContacts->findMetaRoster(index->data(RDR_STREAM_JID).toString());
+			if (mroster && mroster->isEnabled())
+			{
+				IRosterIndex *streamIndex = FRostersModel->streamRoot(mroster->streamJid());
+				Jid metaId = mroster->itemMetaContact(index->data(RDR_BARE_JID).toString());
+				if (streamIndex && metaId.isValid())
+				{
+					QMultiMap<int, QVariant> findData;
+					findData.insert(RDR_TYPE,RIT_METACONTACT);
+					findData.insert(RDR_INDEX_ID,metaId.pBare());
+					metaIndexes += streamIndex->findChild(findData,true).toSet();
+				}
+			}
+		}
+	}
+	if (!metaIndexes.isEmpty())
+	{
+		int notifyId = FRostersView->insertNotify(FRostersView->notifyById(ANotifyId),metaIndexes.toList());
+		FIndexNotifies.insert(ANotifyId,notifyId);
+	}
+}
+
+void MetaProxyModel::onRostersNotifyRemoved(int ANotifyId)
+{
+	if (FIndexNotifies.contains(ANotifyId))
+	{
+		FRostersView->removeNotify(FIndexNotifies.take(ANotifyId));
 	}
 }
 
