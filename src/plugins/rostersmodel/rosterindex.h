@@ -11,8 +11,8 @@ class RosterIndex :
 			public QObject,
 			public IRosterIndex
 {
-	Q_OBJECT;
-	Q_INTERFACES(IRosterIndex);
+	Q_OBJECT
+	Q_INTERFACES(IRosterIndex)
 public:
 	RosterIndex(int AType, const QString &AId);
 	~RosterIndex();

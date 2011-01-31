@@ -8,6 +8,7 @@
 #include <utils/iconstorage.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <interfaces/ipresence.h>
 
 #include <QDebug>
 
@@ -421,6 +422,11 @@ QStyleOptionViewItemV4 RosterIndexDelegate::indexOptions(const QModelIndex &AInd
 	data = AIndex.data(Qt::ForegroundRole);
 	if (qVariantCanConvert<QBrush>(data))
 		option.palette.setBrush(QPalette::Text, qvariant_cast<QBrush>(data));
+	data = AIndex.data(RDR_SHOW);
+	int show = data.toInt();
+	if (show == IPresence::Offline || show == IPresence::Error)
+		if (parent())
+			option.palette.setColor(QPalette::Text, parent()->property("footerColor").value<QColor>());
 
 	data = AIndex.data(Qt::BackgroundRole);
 	if (qVariantCanConvert<QBrush>(data))

@@ -4,6 +4,9 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QPainter>
+#include <utils/graphicseffectsstorage.h>
+#include <definitions/resources.h>
+#include <definitions/graphicseffects.h>
 
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250
@@ -23,6 +26,9 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	FCloseButton->setMouseTracking(true);
 	FCloseButton->setObjectName("closeButton");
 	FCloseButton->setFixedSize(16, 16);
+	FIconLabel->setObjectName("statusIconLabel");
+
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FIconLabel, GFX_STATUSICONS);
 
 	FIconLabel->installEventFilter(this);
 	FIconLabel->setTextInteractionFlags(Qt::NoTextInteraction);

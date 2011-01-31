@@ -7,7 +7,8 @@
 ManageLegacyAccountsOptions, StyleOptionsWidget, OptionsWidget,
 RosterContactOrderOptions, RosterContactViewOptions, MessengerOptions,
 #wdtManualProxy, #wdtGateways, #wdtStyleOptions, AdiumOptionsWidget, QSplitterHandle,
-#qt_scrollarea_viewport, #sprSplitter, #wdtRightWidget
+#qt_scrollarea_viewport, #sprSplitter, #wdtRightWidget,
+#wdtGateways > .QWidget
 {
 	background-color: transparent;
 }

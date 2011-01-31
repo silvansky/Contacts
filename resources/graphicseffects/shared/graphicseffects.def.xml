@@ -4,4 +4,8 @@
     <key>labels</key>
     <object mime="text/xml">labels.xml</object>
   </file>
+  <file>
+    <key>statusIcons</key>
+    <object mime="text/xml">statusicons.xml</object>
+  </file>
 </effectsdef>
