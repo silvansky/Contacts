@@ -149,6 +149,8 @@ private:
 	QDir FAvatarsDir;
 	QImage FEmptyMaleAvatar;
 	QImage FEmptyFemaleAvatar;
+	QImage FEmptyMaleAvatarOffline;
+	QImage FEmptyFemaleAvatarOffline;
 	QMap<Jid, QString> FStreamAvatars;
 	mutable QHash<Jid, bool> FContactGender;
 	mutable QHash<QString, QImage> FAvatarImages;

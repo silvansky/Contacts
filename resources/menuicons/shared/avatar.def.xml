@@ -21,7 +21,15 @@
     <object mime="image/png">avataremptymale.png</object>
   </icon>
   <icon>
-    <key>avatarEmptyFemaly</key>
+    <key>avatarEmptyFemale</key>
     <object mime="image/png">avataremptyfemale.png</object>
+  </icon>
+  <icon>
+    <key>avatarEmptyMaleOffline</key>
+    <object mime="image/png">avataremptymaleoffline.png</object>
+  </icon>
+  <icon>
+    <key>avatarEmptyFemaleOffline</key>
+    <object mime="image/png">avataremptyfemaleoffline.png</object>
   </icon>
 </icondef>

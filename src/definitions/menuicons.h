@@ -19,6 +19,8 @@
 #define MNI_AVATAR_CUSTOM                        "avatarCustom"
 #define MNI_AVATAR_EMPTY_MALE                    "avatarEmptyMale"
 #define MNI_AVATAR_EMPTY_FEMALE                  "avatarEmptyFemale"
+#define MNI_AVATAR_EMPTY_MALE_OFFLINE            "avatarEmptyMaleOffline"
+#define MNI_AVATAR_EMPTY_FEMALE_OFFLINE          "avatarEmptyFemaleOffline"
 
 //BirthdayReminder
 #define MNI_BIRTHDAYREMINDER_NOTICE              "birthdayreminderNotice"

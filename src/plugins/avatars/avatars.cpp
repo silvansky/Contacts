@@ -393,6 +393,13 @@ QString Avatars::avatarHash(const Jid &AContactJid) const
 
 QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 {
+
+	static QVector<QRgb> monoTable;
+	if (monoTable.isEmpty())
+	{
+		for (int i = 0; i <= 255; i++)
+			monoTable.append(qRgb(i, i, i));
+	}
 	QString hash = avatarHash(AContactJid);
 	QImage image = FAvatarImages.value(hash);
 	if (image.isNull() && !hash.isEmpty())
@@ -422,6 +429,28 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 		else
 		{
 			image = FEmptyMaleAvatar;
+		}
+	}
+	if (!image.isNull() && FRostersModel)
+	{
+		QMultiMap<int,QVariant> findData;
+		foreach(int type, rosterDataTypes())
+			findData.insert(RDR_TYPE,type);
+		if (!AContactJid.isEmpty())
+			findData.insert(RDR_BARE_JID,AContactJid.pBare());
+		QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChild(findData, true);
+		foreach (IRosterIndex * index, indexes)
+		{
+			int show = index->data(RDR_SHOW).toInt();
+			if (show == IPresence::Offline || show == IPresence::Error)
+			{
+				if (image == FEmptyMaleAvatar)
+					image = FEmptyMaleAvatarOffline;
+				else if (image == FEmptyFemaleAvatar)
+					image = FEmptyFemaleAvatarOffline;
+				else if (image != FEmptyMaleAvatarOffline && image != FEmptyFemaleAvatarOffline)
+					image = image.convertToFormat(QImage::Format_Indexed8, monoTable);
+			}
 		}
 	}
 	return image;
@@ -823,6 +852,8 @@ void Avatars::onIconStorageChanged()
 {
 	FEmptyMaleAvatar = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_MALE));
 	FEmptyFemaleAvatar = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_FEMALE));
+	FEmptyMaleAvatarOffline = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_MALE_OFFLINE));
+	FEmptyFemaleAvatarOffline = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_FEMALE_OFFLINE));
 }
 
 void Avatars::onOptionsOpened()
