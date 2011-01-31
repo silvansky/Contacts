@@ -13,7 +13,7 @@
 
 TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 {
-	FIconSize = QSize(15,15);
+	FIconSize = QSize(16,16);
 
 	setLayout(new QHBoxLayout);
 	layout()->setMargin(2);
@@ -61,6 +61,10 @@ bool TabBarItem::isActive() const
 void TabBarItem::setActive(bool AActive)
 {
 	FActive = AActive;
+	if (FActive)
+		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FIconLabel, GFX_STATUSICONS);
+	else
+		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FIconLabel, GFX_STATUSICONS);
 	setStyleSheet(styleSheet());
 	update();
 }

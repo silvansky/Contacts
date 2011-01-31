@@ -28,8 +28,9 @@ public:
 			button->setObjectName("emoticonsButton");
 			button->setMenu(AMenu);
 			button->setFlat(true);
-			if (AMenu->iconStorage())
-				AMenu->iconStorage()->insertAutoIcon(button,AMenu->iconStorage()->fileKeys().value(0));
+//			if (AMenu->iconStorage())
+//				AMenu->iconStorage()->insertAutoIcon(button,AMenu->iconStorage()->fileKeys().value(0));
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(button, MNI_EMOTICONS_BUTTON_ICON);
 			FWidgets.insert(AMenu,button);
 			layout()->addWidget(button);
 		}

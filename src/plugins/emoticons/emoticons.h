@@ -33,8 +33,8 @@ class Emoticons :
 			public IMessageWriter,
 			public IOptionsHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IEmoticons IMessageWriter IOptionsHolder);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IEmoticons IMessageWriter IOptionsHolder)
 public:
 	Emoticons();
 	~Emoticons();

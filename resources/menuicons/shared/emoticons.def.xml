@@ -12,4 +12,8 @@
     <key>emoticonsArrowDown</key>
     <object mime="image/png">arrowdown.png</object>
   </icon>
+  <icon>
+    <key>emoticonsButtonIcon</key>
+    <object mime="image/png">emoticonsbuttonicon.png</object>
+  </icon>
 </icondef>

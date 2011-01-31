@@ -144,3 +144,56 @@ StyleViewer
 	position: absolute;
 	right: -10px;
 }
+
+/********************
+ * Emoticons Button *
+ ********************/
+
+#emoticonsButton
+{
+	background-color: transparent;
+	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder.png);
+	border: 0px;
+	min-width: 32px;
+	max-width: 32px;
+	width: 32px;
+	min-height: 20px;
+	max-height: 20px;
+	height: 20px;
+	margin: 0px;
+	padding: 0px;
+	padding-right: 5px;
+	padding-left: -5px;
+	margin-top: 1px;
+}
+
+#emoticonsButton::menu-indicator
+{
+	right: -1px;
+	top: 1px;
+	subcontrol-origin: content;
+	subcontrol-position: right center;
+	image: url(%IMAGES_PATH%/emoticonsbuttonarrow.png);
+}
+
+/***************
+ * Send Button *
+ ***************/
+
+#tlbSend
+{
+	background-color: transparent;
+	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder.png);
+	border: 0px;
+	min-width: 32px;
+	max-width: 32px;
+	width: 32px;
+	min-height: 20px;
+	max-height: 20px;
+	height: 20px;
+	margin: 0px;
+	padding: 0px;
+	padding-left: -2px;
+	padding-right: 2px;
+	margin-bottom: 1px;
+}

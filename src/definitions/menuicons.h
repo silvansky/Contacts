@@ -70,6 +70,7 @@
 #define MNI_EMOTICONS                            "emoticons"
 #define MNI_EMOTICONS_ARROW_UP                   "emoticonsArrowUp"
 #define MNI_EMOTICONS_ARROW_DOWN                 "emoticonsArrowDown"
+#define MNI_EMOTICONS_BUTTON_ICON                "emoticonsButtonIcon"
 
 //FileStreamsManager
 #define MNI_FILESTREAMSMANAGER                   "filestreamsmanager"
