@@ -26,6 +26,12 @@
 
 class EmoticonsContainer;
 
+struct EmoticonTreeItem
+{
+	QUrl url;
+	QMap<QChar, EmoticonTreeItem *> childs;
+};
+
 class Emoticons :
 			public QObject,
 			public IPlugin,
@@ -57,6 +63,8 @@ public:
 	virtual QString keyByUrl(const QUrl &AUrl) const;
 protected:
 	void createIconsetUrls();
+	void createTreeItem(const QString &AKey, const QUrl &AUrl);
+	void clearTreeItem(EmoticonTreeItem *AItem) const;
 	bool isWordBoundary(const QString &AText) const;
 	void replaceTextToImage(QTextDocument *ADocument) const;
 	void replaceImageToText(QTextDocument *ADocument) const;
@@ -76,6 +84,7 @@ private:
 	IMessageProcessor *FMessageProcessor;
 	IOptionsManager *FOptionsManager;
 private:
+	EmoticonTreeItem FRootTreeItem;
 	QHash<QString, QUrl> FUrlByKey;
 	QHash<QString, QString> FKeyByUrl;
 	QMap<QString, IconStorage *> FStorages;
