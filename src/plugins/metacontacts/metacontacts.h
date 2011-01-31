@@ -47,10 +47,11 @@ class MetaContacts :
 	public IMetaContacts,
 	public ITabPageHandler,
 	public IRostersClickHooker,
-	public IRostersDragDropHandler
+	public IRostersDragDropHandler,
+	public IViewDropHandler
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersDragDropHandler);
+	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersDragDropHandler IViewDropHandler);
 public:
 	MetaContacts();
 	~MetaContacts();
@@ -75,6 +76,11 @@ public:
 	virtual bool rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover);
 	virtual void rosterDragLeave(const QDragLeaveEvent *AEvent);
 	virtual bool rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu);
+	// IViewDropHandler
+	virtual bool viewDragEnter(IViewWidget *AWidget, const QDragEnterEvent *AEvent);
+	virtual bool viewDragMove(IViewWidget *AWidget, const QDragMoveEvent *AEvent);
+	virtual void viewDragLeave(IViewWidget *AWidget, const QDragLeaveEvent *AEvent);
+	virtual bool viewDropAction(IViewWidget *AWidget, const QDropEvent *AEvent, Menu *AMenu);
 	//IMetaContacts
 	virtual QString itemHint(const Jid &AItemJid) const;
 	virtual IMetaItemDescriptor itemDescriptor(const Jid &AItemJid) const;

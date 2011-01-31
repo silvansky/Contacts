@@ -11,6 +11,7 @@
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_META_ID         Action::DR_Parametr1
 #define ADR_NAME            Action::DR_Parametr2
+#define ADR_VIEW_JID        Action::DR_Parametr2
 #define ADR_GROUP           Action::DR_Parametr3
 #define ADR_TO_GROUP        Action::DR_Parametr3
 #define ADR_RELEASE_ITEMS   Action::DR_Parametr3
@@ -125,6 +126,7 @@ bool MetaContacts::initObjects()
 	if (FMessageWidgets)
 	{
 		FMessageWidgets->insertTabPageHandler(this);
+		FMessageWidgets->insertViewDropHandler(this);
 	}
 	if (FRostersViewPlugin)
 	{
@@ -231,7 +233,11 @@ Qt::DropActions MetaContacts::rosterDragStart(const QMouseEvent *AEvent, const Q
 	Q_UNUSED(AEvent);
 	Q_UNUSED(ADrag);
 	if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
-		return Qt::CopyAction;
+	{
+		IMetaRoster *mroster = findMetaRoster(AIndex.data(RDR_STREAM_JID).toString());
+		if (mroster && mroster->isOpen())
+			return Qt::MoveAction;
+	}
 	return Qt::IgnoreAction;
 }
 
@@ -268,7 +274,7 @@ void MetaContacts::rosterDragLeave(const QDragLeaveEvent *AEvent)
 
 bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu)
 {
-	if (AEvent->dropAction() == Qt::CopyAction)
+	if (AEvent->dropAction() == Qt::MoveAction)
 	{
 		IMetaRoster *mroster = findMetaRoster(AIndex.data(RDR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
@@ -289,7 +295,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 					mergeAction->setData(ADR_META_ID,hoverMetaId.pBare());
 					mergeAction->setData(ADR_CHILD_META_IDS,QList<QVariant>() << indexMetaId.pBare());
 					connect(mergeAction,SIGNAL(triggered(bool)),SLOT(onMergeContacts(bool)));
-					AMenu->addAction(mergeAction,AG_DEFAULT,true);
+					AMenu->addAction(mergeAction,AG_DEFAULT);
 					AMenu->setDefaultAction(mergeAction);
 					return true;
 				}
@@ -298,6 +304,83 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 
 				}
 			}
+		}
+	}
+	return false;
+}
+
+bool MetaContacts::viewDragEnter(IViewWidget *AWidget, const QDragEnterEvent *AEvent)
+{
+	if (AEvent->mimeData()->hasFormat(DDT_ROSTERSVIEW_INDEX_DATA))
+	{
+		QMap<int, QVariant> indexData;
+		QDataStream stream(AEvent->mimeData()->data(DDT_ROSTERSVIEW_INDEX_DATA));
+		stream >> indexData;
+
+		if (AWidget->streamJid()==indexData.value(RDR_STREAM_JID).toString() && indexData.value(RDR_TYPE).toInt()==RIT_METACONTACT)
+		{
+			IMetaRoster *mroster = findMetaRoster(AWidget->streamJid());
+			if (mroster && mroster->isOpen())
+			{
+				Jid metaId = mroster->itemMetaContact(AWidget->contactJid());
+				return metaId.isValid() && metaId!=indexData.value(RDR_INDEX_ID).toString();
+			}
+		}
+	}
+}
+
+bool MetaContacts::viewDragMove(IViewWidget *AWidget, const QDragMoveEvent *AEvent)
+{
+	Q_UNUSED(AWidget);
+	Q_UNUSED(AEvent);
+	return true;
+}
+
+void MetaContacts::viewDragLeave(IViewWidget *AWidget, const QDragLeaveEvent *AEvent)
+{
+	Q_UNUSED(AWidget);
+	Q_UNUSED(AEvent);
+}
+
+bool MetaContacts::viewDropAction(IViewWidget *AWidget, const QDropEvent *AEvent, Menu *AMenu)
+{
+	if (AEvent->dropAction() == Qt::MoveAction)
+	{
+		IMetaRoster *mroster = findMetaRoster(AWidget->streamJid());
+		if (mroster && mroster->isOpen())
+		{
+			QMap<int, QVariant> indexData;
+			QDataStream stream(AEvent->mimeData()->data(DDT_ROSTERSVIEW_INDEX_DATA));
+			stream >> indexData;
+
+			Jid indexMetaId = indexData.value(RDR_INDEX_ID).toString();
+			Jid viewMetaId = mroster->itemMetaContact(AWidget->contactJid());
+			IMetaContact indexContact = mroster->metaContact(indexMetaId);
+
+			Action *nameAction = new Action(AMenu);
+			nameAction->setText(!indexContact.name.isEmpty() ? indexContact.name : indexContact.id.node());
+			nameAction->setEnabled(false);
+			AMenu->addAction(nameAction,AG_DEFAULT-100);
+
+			Action *infoAction = new Action(AMenu);
+			infoAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
+			infoAction->setData(ADR_META_ID,indexMetaId.pBare());
+			infoAction->setData(ADR_VIEW_JID,AWidget->contactJid().full());
+			infoAction->setText(tr("Send contact data"));
+			AMenu->addAction(infoAction,AG_DEFAULT);
+
+			if (indexMetaId != viewMetaId)
+			{
+				Action *mergeAction = new Action(AMenu);
+				mergeAction->setText(tr("Merge contacts"));
+				mergeAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
+				mergeAction->setData(ADR_META_ID,viewMetaId.pBare());
+				mergeAction->setData(ADR_CHILD_META_IDS,QList<QVariant>() << indexMetaId.pBare());
+				connect(mergeAction,SIGNAL(triggered(bool)),SLOT(onMergeContacts(bool)));
+				AMenu->addAction(mergeAction,AG_DEFAULT);
+			}
+
+			return true;
 		}
 	}
 	return false;

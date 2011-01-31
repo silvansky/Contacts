@@ -39,7 +39,7 @@ void RosterIndexDelegate::paint(QPainter *APainter, const QStyleOptionViewItem &
 QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 {
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
-	QStyle *style = option.widget ? option.widget->style() : QApplication::style();
+	//QStyle *style = option.widget ? option.widget->style() : QApplication::style();
 //	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin);
 //	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin);
 	const int hMargin = 5;
@@ -156,7 +156,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	QHash<int,QRect> rectHash;
 
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
-	QStyle *style = option.widget ? option.widget->style() : QApplication::style();
+	//QStyle *style = option.widget ? option.widget->style() : QApplication::style();
 
 #if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSVISTA)
 	if (APainter && qobject_cast<QWindowsVistaStyle *>(QApplication::style()))

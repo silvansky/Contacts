@@ -53,6 +53,7 @@ bool SortFilterProxyModel::filterAcceptsRow(int AModelRow, const QModelIndex &AM
 		switch (indexType)
 		{
 		case RIT_CONTACT:
+		case RIT_METACONTACT:
 			{
 				if (!FShowOffline )
 				{
