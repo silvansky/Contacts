@@ -97,6 +97,10 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 	switch (AIndex.data(RDR_TYPE).toInt())
 	{
 	case RIT_GROUP:
+	case RIT_GROUP_BLANK:
+	case RIT_GROUP_NOT_IN_ROSTER:
+	case RIT_GROUP_MY_RESOURCES:
+	case RIT_GROUP_AGENTS:
 		hint.setHeight(18);
 		break;
 	case RIT_CONTACT:

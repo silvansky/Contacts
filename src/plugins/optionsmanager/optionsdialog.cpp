@@ -24,7 +24,6 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 	connect(ui.sprSplitter, SIGNAL(splitterMoved(int,int)), SIGNAL(splitterMoved(int,int)));
 	ui.trvNodes->installEventFilter(this);
 	setWindowTitle(tr("Options"));
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_OPTIONSDIALOG);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_OPTIONS_DIALOG,0,0,"windowIcon");
 
 	restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry").toByteArray());
@@ -58,6 +57,7 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 
 	foreach (const IOptionsDialogNode &node, FManager->optionsDialogNodes()) {
 		onOptionsDialogNodeInserted(node); }
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_OPTIONSDIALOG);
 }
 
 OptionsDialog::~OptionsDialog()
@@ -72,6 +72,7 @@ void OptionsDialog::showNode(const QString &ANodeId)
 	if (item)
 		ui.trvNodes->setCurrentIndex(FProxyModel->mapFromSource(FItemsModel->indexFromItem(item)));
 	ui.trvNodes->expandAll();
+	setStyleSheet(styleSheet());
 }
 
 QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
@@ -110,6 +111,7 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 		vblayout->addStretch();
 
 	FCleanupHandler.add(nodeWidget);
+	setStyleSheet(styleSheet());
 	return nodeWidget;
 }
 
@@ -220,6 +222,7 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 		ui.scaScroll->setWidget(curWidget);
 
 	Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).setValue(nodeID);
+	setStyleSheet(styleSheet());
 }
 
 void OptionsDialog::onOptionsWidgetModified()

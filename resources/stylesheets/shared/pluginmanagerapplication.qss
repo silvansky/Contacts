@@ -230,6 +230,7 @@ QPushButton, QToolButton
 	border-bottom: 4px;
 	border-right: 3px;
 	border-image: url(%IMAGES_PATH%/buttonborder.png);
+	border-radius: 0px;
 	background-clip: content;
 	background-origin: content;
 	padding-left: -2px;

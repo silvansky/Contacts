@@ -85,6 +85,7 @@ bool RosterSearch::initObjects()
 		FSearchFieldsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERSEARCH_MENU);
 
 		QFrame *searchFrame = new QFrame(FMainWindow->topToolBarChanger()->toolBar());
+		FMainWindow->topToolBarChanger()->toolBar()->setObjectName("searchBar");
 		QHBoxLayout *layout = new QHBoxLayout(searchFrame);
 		layout->setSpacing(0);
 		layout->setMargin(0);
@@ -102,7 +103,7 @@ bool RosterSearch::initObjects()
 		FSearchEdit->installEventFilter(this);
 
 		FMainWindow->topToolBarChanger()->insertWidget(searchFrame, TBG_MWTTB_ROSTERSEARCH);
-		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(searchFrame,STS_ROSTERSEARCH_SEARCHFRAME);
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(FMainWindow->topToolBarChanger()->toolBar(),STS_ROSTERSEARCH_SEARCHFRAME);
 
 		setSearchEnabled(true);
 	}

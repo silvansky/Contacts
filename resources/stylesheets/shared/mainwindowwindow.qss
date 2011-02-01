@@ -22,3 +22,30 @@ QToolBar
 	background-color: transparent;
 }
 
+/********************
+ * Main Menu Button *
+ ********************/
+
+QToolButton#mainMenuButton
+{
+	height: 20px;
+	min-height: 20px;
+	max-height: 20px;
+	width: 25px;
+	min-width: 25px;
+	max-width: 25px;
+}
+
+/*****************
+ * Notifications *
+ *****************/
+
+QLabel, CloseButton, #wdtActions
+{
+	background-color: transparent;
+}
+
+#noticeWidget
+{
+	background-color: #ccdce4;
+}

@@ -1,6 +1,7 @@
 /**************
  * SearchEdit *
  **************/
+
 SearchEdit
 {
 	border-left: 12px;
@@ -12,9 +13,24 @@ SearchEdit
 	height: 26px;
 	padding-top: -10px;
 	padding-bottom: -10px;
+	margin-top: 2px;
+	margin-bottom: 2px;
 }
 
 SearchEdit:focus
 {
 	border-image: url(%IMAGES_PATH%/searchborderfocus.png);
+}
+
+/**************
+ * Search Bar *
+ **************/
+
+#searchBar
+{
+	border-left: 0px;
+	border-right: 0px;
+	border-bottom: 0px;
+	border-top: 2px;
+	border-image: url(%IMAGES_PATH%/searchbarborder.png);
 }

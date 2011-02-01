@@ -9,7 +9,8 @@ RosterContactOrderOptions, RosterContactViewOptions, MessengerOptions,
 #wdtManualProxy, #wdtGateways, #wdtStyleOptions, AdiumOptionsWidget, QSplitterHandle,
 #qt_scrollarea_viewport, #sprSplitter, #wdtRightWidget,
 #wdtGateways > .QWidget,
-LegacyAccountOptions, ManageLegacyAccountsOptions, #grbAccount, #wdtAccounts, #cbtDelete
+LegacyAccountOptions, ManageLegacyAccountsOptions, #grbAccount, #wdtAccounts, #cbtDelete,
+QGroupBox, StyleOptionsWidget, .QWidget
 {
 	background-color: transparent;
 }

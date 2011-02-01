@@ -113,6 +113,7 @@ void MainWindow::createLayouts()
 
 	FMainLayout = new QVBoxLayout;
 	FMainLayout->setMargin(0);
+	FMainLayout->setSpacing(0);
 	FMainLayout->addWidget(FUpperWidget);
 	FMainLayout->addWidget(FRostersWidget);
 	FMainLayout->addWidget(FBottomWidget);
@@ -154,6 +155,7 @@ void MainWindow::createMenus()
 	FMainMenu->setTitle(tr("Menu"));
 	FMainMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_MENU);
 	QToolButton *button = FTopToolBarChanger->insertAction(FMainMenu->menuAction(), TBG_MWTTB_MAINWINDOW_MAINMENU);
+	button->setObjectName("mainMenuButton");
 	button->setPopupMode(QToolButton::InstantPopup);
 }
 
