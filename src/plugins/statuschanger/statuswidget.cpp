@@ -311,5 +311,9 @@ void StatusWidget::onVCardReceived(const Jid &AContactJid)
 void StatusWidget::onStatusChanged(const Jid &AStreamJid, int AStatusId)
 {
 	if (AStreamJid == FStreamJid)
+	{
 		setMoodText(FStatusChanger->statusItemText(AStatusId));
+		if (FAvatars)
+			FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(32, 32), "pixmap");
+	}
 }
