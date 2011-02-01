@@ -327,6 +327,7 @@ bool MetaContacts::viewDragEnter(IViewWidget *AWidget, const QDragEnterEvent *AE
 			}
 		}
 	}
+	return false;
 }
 
 bool MetaContacts::viewDragMove(IViewWidget *AWidget, const QDragMoveEvent *AEvent)

@@ -41,15 +41,19 @@ public:
 	virtual QImage metaAvatarImage(const Jid &AMetaId, bool ANullImage = true) const;
 	virtual QSet<QString> groups() const;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const;
-	virtual QSet<QString> contactGroups(const Jid &AMetaId) const;
-	virtual QString setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups);
-	virtual QString releaseContactItem(const Jid &AMetaId, const Jid &AItemJid);
-	virtual QString deleteContactItem(const Jid &AMetaId, const Jid &AItemJid);
+	virtual void saveMetaContacts(const QString &AFileName) const;
+	virtual void loadMetaContacts(const QString &AFileName);
+	//Operations on contacts
+	virtual QString createContact(const IMetaContact &AContact);
 	virtual QString renameContact(const Jid &AMetaId, const QString &ANewName);
 	virtual QString deleteContact(const Jid &AMetaId);
 	virtual QString mergeContacts(const Jid &AParentId, const QList<Jid> &AChildsId);
-	virtual void saveMetaContacts(const QString &AFileName) const;
-	virtual void loadMetaContacts(const QString &AFileName);
+	virtual QString setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups);
+	//Operations on contact items
+	virtual QString releaseContactItem(const Jid &AMetaId, const Jid &AItemJid);
+	virtual QString deleteContactItem(const Jid &AMetaId, const Jid &AItemJid);
+	//Operations on groups
+	virtual bool renameGroup(const QString &AGroup, const QString &ANewName);
 signals:
 	void metaRosterOpened();
 	void metaAvatarChanged(const Jid &AMetaId);

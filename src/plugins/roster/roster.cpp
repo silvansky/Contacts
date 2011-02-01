@@ -215,23 +215,8 @@ void Roster::setItem(const Jid &AItemJid, const QString &AName, const QSet<QStri
 
 void Roster::setItems(const QList<IRosterItem> &AItems)
 {
-	if (!AItems.isEmpty())
-	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement elem = query.addElement("query",NS_JABBER_ROSTER);
-		foreach(IRosterItem ritem, AItems)
-		{
-			QDomElement itemElem = elem.appendChild(query.createElement("item")).toElement();
-			itemElem.setAttribute("jid", ritem.itemJid.eBare());
-			if (!ritem.name.isEmpty())
-				itemElem.setAttribute("name",ritem.name);
-			foreach (QString groupName,ritem.groups)
-				if (!groupName.isEmpty())
-					itemElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(groupName));
-		}
-		FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),query);
-	}
+	foreach(const IRosterItem &ritem, AItems)
+		setItem(ritem.itemJid,ritem.name,ritem.groups);
 }
 
 void Roster::sendSubscription(const Jid &AItemJid, int ASubsType, const QString &AText)

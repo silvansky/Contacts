@@ -34,6 +34,7 @@
 #include <interfaces/iaccountmanager.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
+#include <interfaces/imetacontacts.h>
 #include <utils/action.h>
 #include <utils/iconstorage.h>
 #include "addcontactdialog.h"
@@ -184,6 +185,7 @@ protected slots:
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
+	IMetaContacts *FMetaContacts;
 	IRostersModel *FRostersModel;
 	IRostersView *FRostersView;
 	INotifications *FNotifications;

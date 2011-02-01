@@ -55,6 +55,7 @@ RosterChanger::RosterChanger()
 {
 	FPluginManager = NULL;
 	FRosterPlugin = NULL;
+	FMetaContacts = NULL;
 	FRostersModel = NULL;
 	FRostersModel = NULL;
 	FRostersView = NULL;
@@ -103,6 +104,10 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 			connect(FRosterPlugin->instance(),SIGNAL(rosterClosed(IRoster *)),SLOT(onRosterClosed(IRoster *)));
 		}
 	}
+
+	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
+	if (plugin)
+		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IRostersModel").value(0,NULL);
 	if (plugin)
@@ -1674,7 +1679,11 @@ void RosterChanger::onRenameGroup(bool)
 				}
 				else
 				{
-					roster->renameGroup(groupName,newGroupName);
+					IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(roster->streamJid()) : NULL;
+					if (mroster && mroster->isOpen())
+						mroster->renameGroup(groupName,newGroupName);
+					else
+						roster->renameGroup(groupName,newGroupName);
 				}
 			}
 		}

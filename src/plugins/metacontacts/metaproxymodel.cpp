@@ -233,7 +233,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 				groupName = FRostersModel->agentsGroupName();
 				itemGroups += QString::null;
 			}
-			else if (itemGroups.isEmpty())
+			else if (AContact.groups.isEmpty())
 			{
 				groupType = RIT_GROUP_BLANK;
 				groupName = FRostersModel->blankGroupName();

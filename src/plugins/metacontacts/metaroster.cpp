@@ -10,6 +10,13 @@
 #define SHC_ROSTER_REQUEST    "/iq/query[@xmlns='" NS_JABBER_ROSTER "']"
 #define SHC_METACONTACTS      "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_METACONTACTS "']"
 
+#define MC_ACTION_CREATE      "create"
+#define MC_ACTION_RENAME      "rename"
+#define MC_ACTION_RELEASE     "release"
+#define MC_ACTION_GROUPS      "changeGroups"
+#define MC_ACTION_MERGE       "merge"
+#define MC_ACTION_DELETE      "delete"
+
 MetaRoster::MetaRoster(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IRoster *ARoster) : QObject(ARoster->instance())
 {
 	FRoster = ARoster;
@@ -260,143 +267,6 @@ QList<IMetaContact> MetaRoster::groupContacts(const QString &AGroup) const
 	return contacts;
 }
 
-QSet<QString> MetaRoster::contactGroups(const Jid &AMetaId) const
-{
-	return FContacts.value(AMetaId).groups;
-}
-
-QString MetaRoster::setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups)
-{
-	IMetaContact contact = FContacts.value(AMetaId);
-	if (isOpen() && isEnabled() && contact.id.isValid() && contact.groups!=AGroups)
-	{
-		/*
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-
-		mcElem.setAttribute("id",contact.id.pBare());
-		mcElem.setAttribute("name",contact.name);
-
-		foreach(Jid itemJid, contact.items)
-		{
-			IRosterItem ritem = FRoster->rosterItem(itemJid);
-			QDomElement itemElem = mcElem.appendChild(query.createElement("item")).toElement();
-			itemElem.setAttribute("jid",itemJid.eBare());
-			itemElem.setAttribute("subscription",ritem.subscription);
-			itemElem.setAttribute("ask",ritem.ask);
-		}
-
-		foreach(QString group, AGroups)
-		{
-			mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
-		}
-
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
-		{
-			FActionRequests.append(query.id());
-			return query.id();
-		}
-		*/
-	}
-	return QString::null;
-}
-
-QString MetaRoster::releaseContactItem(const Jid &AMetaId, const Jid &AItemJid)
-{
-	if (isOpen() && isEnabled() && itemMetaContact(AItemJid)==AMetaId)
-	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-		mcElem.setAttribute("action","release");
-		mcElem.setAttribute("id",AMetaId.eBare());
-		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.eBare());
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
-		{
-			FActionRequests.append(query.id());
-			return query.id();
-		}
-	}
-	return QString::null;
-}
-
-QString MetaRoster::deleteContactItem(const Jid &AMetaId, const Jid &AItemJid)
-{
-	if (isOpen() && isEnabled() && itemMetaContact(AItemJid)==AMetaId)
-	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-		mcElem.setAttribute("action","delete");
-		mcElem.setAttribute("id",AMetaId.eBare());
-		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.eBare());
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
-		{
-			FActionRequests.append(query.id());
-			return query.id();
-		}
-	}
-	return QString::null;
-}
-
-QString MetaRoster::renameContact(const Jid &AMetaId, const QString &ANewName)
-{
-	if (isOpen() && isEnabled() && FContacts.contains(AMetaId))
-	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-		mcElem.setAttribute("action","rename");
-		mcElem.setAttribute("id",AMetaId.eBare());
-		mcElem.setAttribute("name",ANewName);
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
-		{
-			FActionRequests.append(query.id());
-			return query.id();
-		}
-	}
-	return QString::null;
-}
-
-QString MetaRoster::deleteContact(const Jid &AMetaId)
-{
-	if (isOpen() && isEnabled() && FContacts.contains(AMetaId))
-	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-		mcElem.setAttribute("action","delete");
-		mcElem.setAttribute("id",AMetaId.eBare());
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
-		{
-			FActionRequests.append(query.id());
-			return query.id();
-		}
-	}
-	return QString::null;
-}
-
-QString MetaRoster::mergeContacts(const Jid &AParentId, const QList<Jid> &AChildsId)
-{
-	if (isOpen() && isEnabled() && FContacts.contains(AParentId) && !AChildsId.isEmpty())
-	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-		mcElem.setAttribute("action","merge");
-		mcElem.setAttribute("id",AParentId.eBare());
-		foreach(Jid metaId, AChildsId)
-			mcElem.appendChild(query.createElement("mc")).toElement().setAttribute("id",metaId.eBare());
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
-		{
-			FActionRequests.append(query.id());
-			return query.id();
-		}
-	}
-	return QString::null;
-}
-
 void MetaRoster::saveMetaContacts(const QString &AFileName) const
 {
 	if (isEnabled())
@@ -454,6 +324,171 @@ void MetaRoster::loadMetaContacts(const QString &AFileName)
 			metaFile.close();
 		}
 	}
+}
+
+QString MetaRoster::createContact(const IMetaContact &AContact)
+{
+	if (isOpen())
+	{
+		Stanza query("iq");
+		query.setType("set").setId(FStanzaProcessor->newId());
+		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+		mcElem.setAttribute("action",MC_ACTION_CREATE);
+		mcElem.setAttribute("name",AContact.name);
+		foreach(Jid itemJid, AContact.items)
+			mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
+		foreach(QString group, AContact.groups)
+			mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
+		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		{
+			FActionRequests.append(query.id());
+			return query.id();
+		}
+	}
+	return QString::null;
+}
+
+QString MetaRoster::renameContact(const Jid &AMetaId, const QString &ANewName)
+{
+	if (isOpen() && FContacts.contains(AMetaId))
+	{
+		Stanza query("iq");
+		query.setType("set").setId(FStanzaProcessor->newId());
+		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+		mcElem.setAttribute("action",MC_ACTION_RENAME);
+		mcElem.setAttribute("id",AMetaId.eBare());
+		mcElem.setAttribute("name",ANewName);
+		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		{
+			FActionRequests.append(query.id());
+			return query.id();
+		}
+	}
+	return QString::null;
+}
+
+QString MetaRoster::deleteContact(const Jid &AMetaId)
+{
+	if (isOpen() && FContacts.contains(AMetaId))
+	{
+		Stanza query("iq");
+		query.setType("set").setId(FStanzaProcessor->newId());
+		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+		mcElem.setAttribute("action",MC_ACTION_DELETE);
+		mcElem.setAttribute("id",AMetaId.eBare());
+		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		{
+			FActionRequests.append(query.id());
+			return query.id();
+		}
+	}
+	return QString::null;
+}
+
+QString MetaRoster::mergeContacts(const Jid &AParentId, const QList<Jid> &AChildsId)
+{
+	if (isOpen() && FContacts.contains(AParentId) && !AChildsId.isEmpty())
+	{
+		Stanza query("iq");
+		query.setType("set").setId(FStanzaProcessor->newId());
+		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+		mcElem.setAttribute("action",MC_ACTION_MERGE);
+		mcElem.setAttribute("id",AParentId.eBare());
+		foreach(Jid metaId, AChildsId)
+			mcElem.appendChild(query.createElement("mc")).toElement().setAttribute("id",metaId.eBare());
+		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		{
+			FActionRequests.append(query.id());
+			return query.id();
+		}
+	}
+	return QString::null;
+}
+
+QString MetaRoster::setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups)
+{
+	IMetaContact contact = FContacts.value(AMetaId);
+	if (isOpen() && contact.id.isValid() && contact.groups!=AGroups)
+	{
+		Stanza query("iq");
+		query.setType("set").setId(FStanzaProcessor->newId());
+		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+		mcElem.setAttribute("action",MC_ACTION_GROUPS);
+		mcElem.setAttribute("id",AMetaId.eBare());
+		foreach(QString group, AGroups)
+			mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
+
+		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		{
+			FActionRequests.append(query.id());
+			return query.id();
+		}
+	}
+	return QString::null;
+}
+
+QString MetaRoster::releaseContactItem(const Jid &AMetaId, const Jid &AItemJid)
+{
+	if (isOpen() && itemMetaContact(AItemJid)==AMetaId)
+	{
+		Stanza query("iq");
+		query.setType("set").setId(FStanzaProcessor->newId());
+		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+		mcElem.setAttribute("action",MC_ACTION_RELEASE);
+		mcElem.setAttribute("id",AMetaId.eBare());
+		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.eBare());
+		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		{
+			FActionRequests.append(query.id());
+			return query.id();
+		}
+	}
+	return QString::null;
+}
+
+QString MetaRoster::deleteContactItem(const Jid &AMetaId, const Jid &AItemJid)
+{
+	if (isOpen() && itemMetaContact(AItemJid)==AMetaId)
+	{
+		Stanza query("iq");
+		query.setType("set").setId(FStanzaProcessor->newId());
+		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+		mcElem.setAttribute("action",MC_ACTION_DELETE);
+		mcElem.setAttribute("id",AMetaId.eBare());
+		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.eBare());
+		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		{
+			FActionRequests.append(query.id());
+			return query.id();
+		}
+	}
+	return QString::null;
+}
+
+bool MetaRoster::renameGroup(const QString &AGroup, const QString &ANewName)
+{
+	if (isOpen())
+	{
+		QString requests;
+		QList<IMetaContact> allGroupContacts = groupContacts(AGroup);
+		for (QList<IMetaContact>::const_iterator it = allGroupContacts.constBegin(); it!=allGroupContacts.constEnd(); it++)
+		{
+			QSet<QString> newItemGroups;
+			foreach(QString group, it->groups)
+			{
+				QString newGroup = group;
+				if (newGroup.startsWith(AGroup))
+				{
+					newGroup.remove(0,AGroup.size());
+					newGroup.prepend(ANewName);
+				}
+				newItemGroups += newGroup;
+			}
+			requests += setContactGroups(it->id,newItemGroups);
+		}
+		return !requests.isEmpty();
+	}
+	return false;
 }
 
 void MetaRoster::initialize(IPluginManager *APluginManager)
@@ -582,12 +617,23 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 				IMetaContact &contact = FContacts[metaId];
 				IMetaContact before = contact;
 
-				if (action == "rename")
+				if (action == MC_ACTION_RENAME)
 				{
 					contact.name = mcElem.attribute("name");
 					emit metaContactReceived(contact,before);
 				}
-				else if (action == "delete")
+				else if (action == MC_ACTION_GROUPS)
+				{
+					contact.groups.clear();
+					QDomElement groupElem = mcElem.firstChildElement("group");
+					while (!groupElem.isNull())
+					{
+						contact.groups += groupElem.text();
+						groupElem = groupElem.nextSiblingElement("group");
+					}
+					emit metaContactReceived(contact,before);
+				}
+				else if (action == MC_ACTION_DELETE)
 				{
 					QDomElement metaItem = mcElem.firstChildElement("item");
 					if (!metaItem.isNull())
@@ -645,7 +691,26 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 					metaItem = metaItem.nextSiblingElement("item");
 				}
 			}
-			else if (action == "rename")
+			else if (action == MC_ACTION_RENAME)
+			{
+				IMetaContact contact = metaContact(mcElem.attribute("id"));
+				foreach(Jid itemJid, contact.items)
+				{
+					IRosterItem ritem = FRoster->rosterItem(itemJid);
+					if (ritem.isValid)
+					{
+						QDomElement rosterItem = queryElem.appendChild(iq.createElement("item")).toElement();
+						rosterItem.setAttribute("jid",itemJid.eBare());
+						rosterItem.setAttribute("name",ritem.name);
+						rosterItem.setAttribute("subscription",ritem.subscription);
+						rosterItem.setAttribute("ask",ritem.ask);
+
+						foreach(QString group, ritem.groups)
+							rosterItem.appendChild(iq.createElement("group")).appendChild(iq.createTextNode(group));
+					}
+				}
+			}
+			else if (action == MC_ACTION_GROUPS)
 			{
 				IMetaContact contact = metaContact(mcElem.attribute("id"));
 				foreach(Jid itemJid, contact.items)
@@ -659,12 +724,16 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 						rosterItem.setAttribute("subscription",ritem.subscription);
 						rosterItem.setAttribute("ask",ritem.ask);
 
-						foreach(QString group, ritem.groups)
-							rosterItem.appendChild(iq.createElement("group")).appendChild(iq.createTextNode(group));
+						QDomElement groupElem = mcElem.firstChildElement("group");
+						while (!groupElem.isNull())
+						{
+							rosterItem.appendChild(iq.createElement("group")).appendChild(iq.createTextNode(groupElem.text()));
+							groupElem = groupElem.nextSiblingElement("group");
+						}
 					}
 				}
 			}
-			else if (action == "delete")
+			else if (action == MC_ACTION_DELETE)
 			{
 				QDomElement metaItem = mcElem.firstChildElement("item");
 				if (!metaItem.isNull())
@@ -703,7 +772,29 @@ Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 	
 	if (!ARosterElem.isNull())
 	{
+		QDomElement itemElem = ARosterElem.firstChildElement("item");
+		while (!itemElem.isNull())
+		{
+			Jid itemJid = itemElem.attribute("jid");
+			
+			// Добавление нового контакта
+			if (!FRoster->rosterItem(itemJid).isValid)
+			{
+				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
+				mcElem.setAttribute("action",MC_ACTION_CREATE);
+				mcElem.setAttribute("name",itemElem.attribute("name"));
+				mcElem.appendChild(iq.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
 
+				QDomElement itemGroupElem = itemElem.firstChildElement("group");
+				while (!itemGroupElem.isNull())
+				{
+					mcElem.appendChild(iq.createElement("group")).appendChild(iq.createTextNode(itemGroupElem.text()));
+					itemGroupElem = itemGroupElem.nextSiblingElement("group");
+				}
+			}
+
+			itemElem = itemElem.nextSiblingElement("item");
+		}
 	}
 
 	return iq;
