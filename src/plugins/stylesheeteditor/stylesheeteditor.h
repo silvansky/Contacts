@@ -47,10 +47,12 @@
 #include <QtGui/QLabel>
 #include <QtGui/QComboBox>
 #include "qtgradientmanager.h"
+#include "teststylesform.h"
 
 #include <QDialogButtonBox>
 
 #include <utils/stylestorage.h>
+#include <utils/customborderstorage.h>
 
 class StyleSheetEditor : public QTextEdit
 {
@@ -102,12 +104,14 @@ private:
 	QAction *m_addColorAction;
 	QAction *m_addFontAction;
 	QtGradientManager * gm;
-	QPushButton * pbOpen, * pbClose, * pbPreview, * pbSave, * pbReset;
+	QPushButton * pbOpen, * pbClose, * pbPreview, * pbSave, * pbReset, * pbTest;
 	QString activeFileName;
 	bool fileSaved;
 	StyleStorage * styleStorage;
 	QComboBox * styleKeys;
 	QString lastKey;
+	TestStylesForm * testForm;
+	CustomBorderContainer * testFormContainer;
 };
 
 

@@ -15,6 +15,7 @@
 #include <QBitmap>
 #include <QChildEvent>
 #include <QPushButton>
+#include <QToolButton>
 #include "iconstorage.h"
 #ifdef Q_WS_WIN
 # include <qt_windows.h>
@@ -895,6 +896,10 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
 			handled = mousePress(((QMouseEvent*)event)->pos(), widget);
 		qDebug() << "handled = " << handled << " " << widget->objectName() << " of class " << widget->metaObject()->className() << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
+		if (QToolButton * tb = qobject_cast<QToolButton*>(widget))
+		{
+			qDebug() << "QToolButton popup mode: " << tb->popupMode();
+		}
 		QStringList hierarchy;
 		QWidget * parent = widget->parentWidget();
 		while (parent)

@@ -265,7 +265,6 @@ QPushButton:hover:enabled, QToolButton:hover:enabled
 	padding-bottom: -4px;
 	border-image: url(%IMAGES_PATH%/buttonborderhover.png);
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #31363c, stop:1 #61656a);
-	/*background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #3b4148, stop:1 #72777d);*/
 }
 
 QPushButton:enabled:pressed, QToolButton:enabled:pressed
@@ -314,6 +313,9 @@ QPushButton:default:enabled:pressed, QToolButton:default:enabled:pressed
 
 QToolButton[popupMode="1"]:enabled, QToolButton[popupMode="2"]:enabled
 {
+/*	min-width: 55px;
+	max-width: 55px;
+	width: 55px;*/
 	padding-left: -2px;
 	padding-top: -2px;
 	padding-bottom: -2px;
@@ -326,7 +328,6 @@ QToolButton[popupMode="1"]:hover:enabled, QToolButton[popupMode="2"]:hover:enabl
 
 QToolButton[popupMode="1"]:open, QToolButton[popupMode="2"]:open
 {
-
 	background-clip: border;
 }
 
@@ -659,7 +660,7 @@ BalloonTip
  * QCompleter *
  **************/
 
-QListView::item#completerPopUp
+QListView#completerPopUp::item
 {
 	border: 1px solid red;
 	background-color: red;

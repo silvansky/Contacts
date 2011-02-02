@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TestStylesForm</class>
+ <widget class="QWidget" name="TestStylesForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>429</width>
+    <height>329</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Test Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="testWidget" native="true">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="topMargin">
+       <number>26</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QToolButton" name="toolButton_4">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="toolButton">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="qtgradienteditor/qtgradienteditor.qrc">
+          <normaloff>:/trolltech/qtgradienteditor/images/zoomin.png</normaloff>:/trolltech/qtgradienteditor/images/zoomin.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QToolButton" name="popupBtn">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>popup</string>
+        </property>
+        <property name="icon">
+         <iconset resource="qtgradienteditor/qtgradienteditor.qrc">
+          <normaloff>:/trolltech/qtgradienteditor/images/minus.png</normaloff>:/trolltech/qtgradienteditor/images/minus.png</iconset>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonTextBesideIcon</enum>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QToolButton" name="menuBtn">
+        <property name="text">
+         <string>Menu button</string>
+        </property>
+        <property name="icon">
+         <iconset resource="qtgradienteditor/qtgradienteditor.qrc">
+          <normaloff>:/trolltech/qtgradienteditor/images/plus.png</normaloff>:/trolltech/qtgradienteditor/images/plus.png</iconset>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::MenuButtonPopup</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="4">
+       <widget class="QPushButton" name="pushButton_3">
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="radioButton">
+        <property name="text">
+         <string>RadioButton</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="4">
+       <widget class="QCheckBox" name="checkBox">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="5">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QRadioButton" name="radioButton_2">
+        <property name="text">
+         <string>RadioButton</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="checkBox_2">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QRadioButton" name="radioButton_3">
+        <property name="text">
+         <string>RadioButton</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QComboBox" name="comboBox">
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="5" column="1" colspan="3">
+       <widget class="QComboBox" name="comboBox_2">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Новый элемент</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLineEdit" name="lineEdit"/>
+      </item>
+      <item row="6" column="1" colspan="4">
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>GroupBox</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QRadioButton" name="radioButton_4">
+           <property name="text">
+            <string>RadioButton</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_5">
+           <property name="text">
+            <string>RadioButton</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_6">
+           <property name="text">
+            <string>RadioButton</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="6" column="5" rowspan="2">
+       <widget class="QScrollBar" name="verticalScrollBar">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QSpinBox" name="spinBox"/>
+      </item>
+      <item row="7" column="1" colspan="4">
+       <widget class="QScrollBar" name="horizontalScrollBar">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="qtgradienteditor/qtgradienteditor.qrc"/>
+ </resources>
+ <connections/>
+</ui>

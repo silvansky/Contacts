@@ -70,6 +70,7 @@
 #include <QDebug>
 
 #include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 StyleSheetEditor::StyleSheetEditor(QWidget *parent)
 	: QTextEdit(parent)
@@ -91,17 +92,26 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
 		m_addFontAction(new QAction(tr("Add Font..."), this))
 {
 
+	m_buttonBox->setObjectName("buttonBox");
 	// buttons
 	pbOpen = new QPushButton(tr("Open"));
 	pbClose = new QPushButton(tr("Close"));
 	pbPreview = new QPushButton(tr("Preview"));
 	pbSave = new QPushButton(tr("Save"));
 	pbReset = new QPushButton(tr("Reset"));
+	pbTest = new QPushButton(tr("Test Form"));
+
+	testForm = new TestStylesForm;
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(testForm, "stylesheeteditorTestForm");
+	testFormContainer = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(testForm, CBS_WINDOW);
+//	testForm->setObjectName("testForm");
+//	testForm->setStyleSheet("#testForm { background-color: rgba(65, 70, 77, 245); } QGroupBox { background: transparent; }");
 
 	setStyleSheet("StyleSheetEditor { border: 1px solid black; background-color: white; padding: 0px; margin: 0px; border-image: none; }");
 
 	//m_buttonBox->addButton(pbOpen, QDialogButtonBox::ActionRole);
-	m_buttonBox->addButton(pbPreview, QDialogButtonBox::ActionRole);
+	m_buttonBox->addButton(pbTest, QDialogButtonBox::ActionRole);
+	//m_buttonBox->addButton(pbPreview, QDialogButtonBox::ActionRole);
 	m_buttonBox->addButton(pbSave, QDialogButtonBox::ActionRole);
 	m_buttonBox->addButton(pbReset, QDialogButtonBox::ActionRole);
 	m_buttonBox->addButton(pbClose, QDialogButtonBox::ActionRole);
@@ -352,6 +362,13 @@ void StyleSheetEditorDialog::slotClicked(QAbstractButton* button)
 	if (pb == pbReset)
 	{
 		styleStorage->previewReset();
+	}
+	if (pb == pbTest)
+	{
+		if (testForm->isVisible())
+			testFormContainer->hide();
+		else
+			testFormContainer->show();
 	}
 }
 

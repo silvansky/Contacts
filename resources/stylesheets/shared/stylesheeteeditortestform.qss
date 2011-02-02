@@ -1,0 +1,17 @@
+#testWidget
+{
+	background-color: rgba(65, 70, 77, 245);
+}
+
+QGroupBox, TestStylesForm
+{
+	background-color: transparent;
+	color: white;
+}
+
+QToolButton[popupMode="2"]
+{
+	max-width: 15px;
+	min-width: 15px;
+	width: 15px;
+}
