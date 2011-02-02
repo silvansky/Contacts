@@ -287,6 +287,8 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 			if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
 			{
 				Jid hoverMetaId = AIndex.data(RDR_INDEX_ID).toString();
+				QString hoverGroup = AIndex.data(RDR_GROUP).toString();
+				QString indexGroup = indexData.value(RDR_GROUP).toString();
 				if (hoverMetaId != indexMetaId)
 				{
 					Action *mergeAction = new Action(AMenu);
@@ -299,9 +301,17 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 					AMenu->setDefaultAction(mergeAction);
 					return true;
 				}
-				else
+				else if (hoverGroup!=indexGroup && !indexGroup.isEmpty())
 				{
-
+					Action *groupAction = new Action(AMenu);
+					groupAction->setText(tr("Remove from group"));
+					groupAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
+					groupAction->setData(ADR_META_ID,indexMetaId.pBare());
+					groupAction->setData(ADR_GROUP,indexGroup);
+					connect(groupAction,SIGNAL(triggered(bool)),SLOT(onRemoveFromGroup(bool)));
+					AMenu->addAction(groupAction,AG_DEFAULT);
+					AMenu->setDefaultAction(groupAction);
+					return true;
 				}
 			}
 		}
@@ -565,7 +575,7 @@ void MetaContacts::initMetaItemDescriptors()
 	FMetaItemDescriptors.append(twitter);
 
 	IMetaItemDescriptor fring;
-	fring.name = tr("Twitter");
+	fring.name = tr("Fring");
 	fring.icon = MNI_METACONTACTS_ITEM_FRING;
 	fring.combine = false;
 	fring.detach = true;
@@ -875,6 +885,22 @@ void MetaContacts::onMergeContacts(bool)
 				connect(mroster->instance(),SIGNAL(metaRosterClosed()),dialog,SLOT(reject()));
 				WidgetManager::showActivateRaiseWindow(dialog);
 			}
+		}
+	}
+}
+
+void MetaContacts::onRemoveFromGroup(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QString streamJid = action->data(ADR_STREAM_JID).toString();
+		IMetaRoster *mroster = findMetaRoster(streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
+			contact.groups -= action->data(ADR_GROUP).toString();
+			mroster->setContactGroups(contact.id,contact.groups);
 		}
 	}
 }
