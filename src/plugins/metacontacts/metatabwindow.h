@@ -1,7 +1,9 @@
 #ifndef METATABWINDOW_H
 #define METATABWINDOW_H
 
+#include <definitions/actiongroups.h>
 #include <definitions/resources.h>
+#include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <definitions/toolbargroups.h>
 #include <interfaces/imessagewidgets.h>
@@ -56,6 +58,7 @@ signals:
 	void currentItemChanged(const Jid &AItemJid);
 	void itemPageRequested(const Jid &AItemJid);
 	void itemPageChanged(const Jid &AItemJid, ITabPage *APage);
+	void intemContextMenuRequested(const Jid &AItemJid, Menu *AMenu);
 protected:
 	void initialize(IPluginManager *APluginManager);
 	Jid firstItemJid() const;
@@ -65,10 +68,12 @@ protected:
 	void removeTabPageNotifies();
 	void saveWindowGeometry();
 	void loadWindowGeometry();
+	void createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const;
 protected:
 	virtual bool event(QEvent *AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void closeEvent(QCloseEvent *AEvent);
+	virtual void contextMenuEvent(QContextMenuEvent *AEvent);
 protected slots:
 	void onTabPageShow();
 	void onTabPageClose();
@@ -77,6 +82,10 @@ protected slots:
 	void onTabPageNotifierChanged();
 	void onTabPageNotifierNotifyInserted(int ANotifyId);
 	void onTabPageNotifierNotifyRemoved(int ANotifyId);
+protected slots:
+	void onEditItemByAction(bool);
+	void onDetachItemByAction(bool);
+	void onDeleteItemByAction(bool);
 protected slots:
 	void onItemButtonActionTriggered(bool);
 	void onCurrentWidgetChanged(int AIndex);

@@ -74,6 +74,9 @@
 #define AG_MWTW_MWIDGETS_TAB_ACTIONS                            500
 #define AG_MWTW_MWIDGETS_WINDOW_OPTIONS                         800
 
+//MetaContact - ItemContextMenu
+#define AG_MCICM_ITEM_ACTIONS                                   500
+
 //MultiuserChat - MultiUserContextMenu
 #define AG_MUCM_ROSTERCHANGER                                   500
 #define AG_MUCM_CLIENTINFO                                      500

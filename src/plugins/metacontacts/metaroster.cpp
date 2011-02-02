@@ -427,7 +427,7 @@ QString MetaRoster::setContactGroups(const Jid &AMetaId, const QSet<QString> &AG
 	return QString::null;
 }
 
-QString MetaRoster::releaseContactItem(const Jid &AMetaId, const Jid &AItemJid)
+QString MetaRoster::detachContactItem(const Jid &AMetaId, const Jid &AItemJid)
 {
 	if (isOpen() && itemMetaContact(AItemJid)==AMetaId)
 	{

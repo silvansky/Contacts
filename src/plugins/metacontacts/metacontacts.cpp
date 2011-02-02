@@ -879,7 +879,7 @@ void MetaContacts::onMergeContacts(bool)
 	}
 }
 
-void MetaContacts::onReleaseContactItems(bool)
+void MetaContacts::onDetachContactItems(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
@@ -890,7 +890,7 @@ void MetaContacts::onReleaseContactItems(bool)
 		{
 			Jid metaId = action->data(ADR_META_ID).toString();
 			foreach(QVariant itemJid, action->data(ADR_RELEASE_ITEMS).toList())
-				mroster->releaseContactItem(metaId,itemJid.toString());
+				mroster->detachContactItem(metaId,itemJid.toString());
 		}
 	}
 }
@@ -1042,7 +1042,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 
 			AMenu->addAction(groupMenu->menuAction(),AG_RVCM_ROSTERCHANGER_GROUP);
 
-			// Release items menu
+			// Detach items menu
 			QList<Jid> detachItems;
 			foreach(Jid itemJid, contact.items)
 			{
@@ -1064,7 +1064,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 					action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
 					action->setData(data);
 					action->setData(ADR_RELEASE_ITEMS,QList<QVariant>() << itemJid.pBare());
-					connect(action,SIGNAL(triggered(bool)),SLOT(onReleaseContactItems(bool)));
+					connect(action,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
 					releaseMenu->addAction(action,AG_DEFAULT,true);
 					allItems.append(itemJid.pBare());
 				}
@@ -1075,7 +1075,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 					action->setText(tr("Separate all contacts"));
 					action->setData(data);
 					action->setData(ADR_RELEASE_ITEMS,allItems);
-					connect(action,SIGNAL(triggered(bool)),SLOT(onReleaseContactItems(bool)));
+					connect(action,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
 					releaseMenu->addAction(action,AG_DEFAULT+1);
 				}
 			}

@@ -133,7 +133,7 @@ protected slots:
 	void onRenameContact(bool);
 	void onDeleteContact(bool);
 	void onMergeContacts(bool);
-	void onReleaseContactItems(bool);
+	void onDetachContactItems(bool);
 	void onChangeContactGroups(bool AChecked);
 protected slots:
 	void onLoadMetaRosters();

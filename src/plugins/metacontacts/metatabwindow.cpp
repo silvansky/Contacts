@@ -1,5 +1,8 @@
 #include "metatabwindow.h"
 
+#include <QDesktopServices>
+#include <QContextMenuEvent>
+
 #define ADR_ITEM_JID     Action::DR_Parametr1
 
 MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent) : QMainWindow(AParent)
@@ -338,6 +341,37 @@ void MetaTabWindow::loadWindowGeometry()
 	}
 }
 
+void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const
+{
+	if (FItemButtons.contains(AItemJid))
+	{
+		IMetaContact contact = FMetaRoster->metaContact(FMetaId);
+		IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(AItemJid);
+
+		Action *editAction = new Action(AMenu);
+		editAction->setText(tr("Edit on site..."));
+		editAction->setData(ADR_ITEM_JID,AItemJid.pBare());
+		connect(editAction,SIGNAL(triggered(bool)),SLOT(onEditItemByAction(bool)));
+		AMenu->addAction(editAction,AG_MCICM_ITEM_ACTIONS);
+
+		Action *detachAction = new Action(AMenu);
+		detachAction->setText(tr("Detach to separate contact"));
+		detachAction->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
+		detachAction->setData(ADR_ITEM_JID,AItemJid.pBare());
+		detachAction->setEnabled(FMetaRoster->isOpen() && contact.items.count()>1 && descriptor.detach);
+		connect(detachAction,SIGNAL(triggered(bool)),SLOT(onDetachItemByAction(bool)));
+		AMenu->addAction(detachAction,AG_MCICM_ITEM_ACTIONS);
+
+		Action *deleteAction = new Action(AMenu);
+		deleteAction->setText(tr("Delete"));
+		deleteAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
+		deleteAction->setData(ADR_ITEM_JID,AItemJid.pBare());
+		deleteAction->setEnabled(FMetaRoster->isOpen());
+		connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteItemByAction(bool)));
+		AMenu->addAction(deleteAction,AG_MCICM_ITEM_ACTIONS);
+	}
+}
+
 bool MetaTabWindow::event(QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::WindowActivate)
@@ -368,6 +402,24 @@ void MetaTabWindow::closeEvent(QCloseEvent *AEvent)
 		saveWindowGeometry();
 	QMainWindow::closeEvent(AEvent);
 	emit tabPageClosed();
+}
+
+void MetaTabWindow::contextMenuEvent(QContextMenuEvent *AEvent)
+{
+	QAction *handle = ui.tlbToolBar->actionAt(ui.tlbToolBar->mapFromGlobal(AEvent->globalPos()));
+	Action *action = FToolBarChanger->handleAction(handle);
+	Jid itemJid = action!=NULL ? action->data(ADR_ITEM_JID).toString() : Jid::null;
+	if (itemJid.isValid())
+	{
+		Menu *menu = new Menu(this);
+		createItemContextMenu(itemJid,menu);
+		emit intemContextMenuRequested(itemJid,menu);
+		
+		if (menu && !menu->isEmpty())
+			menu->exec(AEvent->globalPos());
+
+		delete menu;
+	}
 }
 
 void MetaTabWindow::onTabPageShow()
@@ -430,6 +482,33 @@ void MetaTabWindow::onTabPageNotifierNotifyRemoved(int ANotifyId)
 	updateItemButton(itemJid);
 }
 
+void MetaTabWindow::onEditItemByAction(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QDesktopServices::openUrl(QUrl("http://id.rambler.ru"));
+	}
+}
+
+void MetaTabWindow::onDetachItemByAction(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		FMetaRoster->detachContactItem(FMetaId,action->data(ADR_ITEM_JID).toString());
+	}
+}
+
+void MetaTabWindow::onDeleteItemByAction(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		FMetaRoster->deleteContactItem(FMetaId,action->data(ADR_ITEM_JID).toString());
+	}
+}
+
 void MetaTabWindow::onItemButtonActionTriggered(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -469,3 +548,4 @@ void MetaTabWindow::onMetaContactReceived(const IMetaContact &AContact, const IM
 		}
 	}
 }
+

@@ -50,7 +50,7 @@ public:
 	virtual QString mergeContacts(const Jid &AParentId, const QList<Jid> &AChildsId);
 	virtual QString setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups);
 	//Operations on contact items
-	virtual QString releaseContactItem(const Jid &AMetaId, const Jid &AItemJid);
+	virtual QString detachContactItem(const Jid &AMetaId, const Jid &AItemJid);
 	virtual QString deleteContactItem(const Jid &AMetaId, const Jid &AItemJid);
 	//Operations on groups
 	virtual bool renameGroup(const QString &AGroup, const QString &ANewName);

@@ -54,7 +54,7 @@ public:
 	virtual QString mergeContacts(const Jid &ADestId, const QList<Jid> &AMetaIds) =0;
 	virtual QString setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups) =0;
 	//Operations on contact items
-	virtual QString releaseContactItem(const Jid &AMetaId, const Jid &AItemJid) =0;
+	virtual QString detachContactItem(const Jid &AMetaId, const Jid &AItemJid) =0;
 	virtual QString deleteContactItem(const Jid &AMetaId, const Jid &AItemJid) =0;
 	//Operations on groups
 	virtual bool renameGroup(const QString &AGroup, const QString &ANewName) =0;
@@ -86,6 +86,7 @@ protected:
 	virtual void currentItemChanged(const Jid &AItemJid) =0;
 	virtual void itemPageRequested(const Jid &AItemJid) =0;
 	virtual void itemPageChanged(const Jid &AItemJid, ITabPage *APage) =0;
+	virtual void intemContextMenuRequested(const Jid &AItemJid, Menu *AMenu) =0;
 };
 
 class IMetaContacts
