@@ -451,6 +451,8 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 				else if (image != FEmptyMaleAvatarOffline && image != FEmptyFemaleAvatarOffline)
 					image = image.convertToFormat(QImage::Format_Indexed8, monoTable);
 			}
+			if (index->data(RDR_TYPE).toInt() == RIT_STREAM_ROOT)
+				break;
 		}
 	}
 	return image;

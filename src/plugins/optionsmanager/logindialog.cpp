@@ -57,9 +57,10 @@ public:
 		}
 
 		Jid streamJid = AIndex.data(Qt::DisplayRole).toString();
-		bool isSelected = (option.state & QStyle::State_Selected) > 0;
+		bool isSelected = option.state & QStyle::State_Selected;
 
 		QTextDocument doc;
+		doc.setDefaultFont(option.font);
 		QTextCursor cursor(&doc);
 
 		QTextCharFormat nodeFormat = cursor.charFormat();
@@ -115,6 +116,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
+	connect(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SIGNAL(stylePreviewReset()), SLOT(onStylePreviewReset()));
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 	FConnectionErrorWidget->setStyleSheet(styleSheet());
 
@@ -162,11 +164,14 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	completer->setCompletionMode(QCompleter::PopupCompletion);
 	completer->setPopup(new QListView);
 	completer->popup()->setObjectName("completerPopUp");
+	completer->popup()->setMouseTracking(true);
 	completer->popup()->setAlternatingRowColors(true);
 	completer->popup()->setItemDelegate(new CompleterDelegate(completer));
 	connect(completer,SIGNAL(activated(const QString &)),SLOT(onCompleterActivated(const QString &)));
 	connect(completer,SIGNAL(highlighted(const QString &)),SLOT(onCompleterHighLighted(const QString &)));
 	ui.lneNode->setCompleter(completer);
+	ui.lneNode->completer()->popup()->viewport()->installEventFilter(this);
+	onStylePreviewReset();
 
 	ui.lneNode->installEventFilter(this);
 	ui.lneNode->completer()->popup()->installEventFilter(this);
@@ -335,6 +340,17 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 				showConnectionSettings();
 //				return true;
 			}
+		}
+	}
+	if (ui.lneNode->completer()->popup() && (AWatched == ui.lneNode->completer()->popup()->viewport()) && (AEvent->type() == QEvent::MouseMove))
+	{
+		QMouseEvent * mouseEvent = (QMouseEvent*)AEvent;
+		QListView * view = qobject_cast<QListView*>(ui.lneNode->completer()->popup());
+		if (view)
+		{
+			QModelIndex index = view->indexAt(mouseEvent->pos());
+			if (index.isValid() && index != view->currentIndex())
+				view->setCurrentIndex(index);
 		}
 	}
 
@@ -983,4 +999,10 @@ void LoginDialog::onShowPasswordToggled(int state)
 		ui.lnePassword->setEchoMode(QLineEdit::Normal);
 	else
 		ui.lnePassword->setEchoMode(QLineEdit::Password);
+}
+
+void LoginDialog::onStylePreviewReset()
+{
+	if (ui.lneNode->completer())
+		ui.lneNode->completer()->popup()->setStyleSheet(styleSheet());
 }

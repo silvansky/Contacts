@@ -19,6 +19,8 @@ public:
 public slots:
 	void previewReset();
 	void previewStyle(const QString &AStyleSheet, const QString &AKey, int AIndex);
+signals:
+	void stylePreviewReset();
 public:
 	static StyleStorage *staticStorage(const QString &AStorage);
 protected:

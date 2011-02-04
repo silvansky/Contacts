@@ -13,7 +13,7 @@
 QHash<QString, StyleStorage *> StyleStorage::FStaticStorages;
 QHash<QObject *, StyleStorage *> StyleStorage::FObjectStorage;
 
-struct StyleStorage::StyleUpdateParams 
+struct StyleStorage::StyleUpdateParams
 {
 	QString key;
 	int index;
@@ -87,6 +87,7 @@ void StyleStorage::removeAutoStyle(QObject *AObject)
 void StyleStorage::previewReset()
 {
 	onStorageChanged();
+	emit stylePreviewReset();
 }
 
 void StyleStorage::previewStyle(const QString &AStyleSheet, const QString &AKey, int AIndex)

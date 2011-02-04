@@ -51,6 +51,35 @@ QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #397699);
 }
 
+/*******************
+ * Completer Popup *
+ *******************/
+
+QListView#completerPopUp
+{
+	background-color: white;
+	alternate-background-color: white;
+	selection-background-color: #c8d9e1;
+	border: 1px solid black;
+	selection-color: black;
+	font-size: 12px;
+}
+
+QListView#completerPopUp:disabled
+{
+	selection-color: #acacac;
+}
+
+QListView#completerPopUp:!active
+{
+	color: #acacac;
+}
+
+QListView#completerPopUp::item:hover
+{
+	background-color: #c8d9e1;
+}
+
 /****************************
  * sizes, margins, paddings *
  ****************************/

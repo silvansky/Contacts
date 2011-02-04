@@ -320,6 +320,7 @@ QToolButton[popupMode="1"]:enabled, QToolButton[popupMode="2"]:enabled
 	padding-top: -2px;
 	padding-bottom: -2px;
 	padding-right: 10px;
+	background-clip: border;
 }
 
 QToolButton[popupMode="1"]:hover:enabled, QToolButton[popupMode="2"]:hover:enabled
@@ -551,6 +552,16 @@ QScrollBar::handle:vertical
 	min-height: 40px;
 }
 
+QScrollBar::handle:vertical:hover
+{
+	border-image: url(%IMAGES_PATH%/scrollbarhandlevertical_hover.png);
+}
+
+QScrollBar::vertical:pressed
+{
+	border-image: url(%IMAGES_PATH%/scrollbarbordervertical_click.png);
+}
+
 QScrollBar::add-line:vertical
 {
 	border: 1px solid #2f343b;
@@ -573,6 +584,11 @@ QScrollBar::sub-line:vertical
 	padding-left: -1px;
 }
 
+QScrollBar::add-line:vertical:hover, QScrollBar::sub-line:vertical:hover
+{
+	background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #6f757c, stop:1 #5a5f64);
+}
+
 QScrollBar::up-arrow:vertical
 {
 	border: 0px;
@@ -581,12 +597,22 @@ QScrollBar::up-arrow:vertical
 	background: url(%IMAGES_PATH%/scrollbaruparrow.png);
 }
 
+QScrollBar::up-arrow:vertical:hover
+{
+	background: url(%IMAGES_PATH%/scrollbaruparrow_hover.png);
+}
+
 QScrollBar::down-arrow:vertical
 {
 	border: 0px;
 	width: 6px;
 	height: 4px;
 	background: url(%IMAGES_PATH%/scrollbardownarrow.png);
+}
+
+QScrollBar::down-arrow:vertical:hover
+{
+	background: url(%IMAGES_PATH%/scrollbardownarrow_hover.png);
 }
 
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
