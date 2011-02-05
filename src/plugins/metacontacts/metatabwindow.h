@@ -65,6 +65,7 @@ protected:
 	void updateWindow();
 	void updateItemButton(const Jid &AItemJid);
 	void updateItemButtons(const QSet<Jid> &AItems);
+	QIcon insertNotifyBalloon(const QIcon &AIcon, int ACount) const;
 	void removeTabPageNotifies();
 	void saveWindowGeometry();
 	void loadWindowGeometry();

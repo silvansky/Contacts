@@ -202,9 +202,11 @@ struct ITabPageNotify
 {
 	ITabPageNotify() {
 		priority = -1;
+		count = 0;
 		blink = true;
 	}
 	int priority;
+	int count;
 	bool blink;
 	QIcon icon;
 	QString iconKey;

@@ -401,7 +401,7 @@ void MessageProcessor::onNotificationActivated(int ANotifyId)
 		showMessage(FNotifyId2MessageId.value(ANotifyId));
 }
 
-void MessageProcessor::onNotificationRemoved( int ANotifyId )
+void MessageProcessor::onNotificationRemoved(int ANotifyId)
 {
 	if (FNotifyId2MessageId.contains(ANotifyId))
 		removeMessage(FNotifyId2MessageId.value(ANotifyId));

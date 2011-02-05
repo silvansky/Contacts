@@ -588,6 +588,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::green));
 		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(message));
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SIP_CALL);
+		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,0);
 		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,message);

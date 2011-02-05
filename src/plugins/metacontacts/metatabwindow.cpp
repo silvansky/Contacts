@@ -1,5 +1,8 @@
 #include "metatabwindow.h"
 
+#include <QStyle>
+#include <QPainter>
+#include <QFontMetrics>
 #include <QDesktopServices>
 #include <QContextMenuEvent>
 
@@ -24,7 +27,7 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 
 	FToolBarChanger = new ToolBarChanger(ui.tlbToolBar);
 	FToolBarChanger->setSeparatorsVisible(false);
-	FToolBarChanger->toolBar()->setIconSize(QSize(32,32));
+	FToolBarChanger->toolBar()->setIconSize(QSize(24,24));
 
 	connect(FMetaRoster->instance(),SIGNAL(metaPresenceChanged(const Jid &)),SLOT(onMetaPresenceChanged(const Jid &)));
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
@@ -265,14 +268,31 @@ void MetaTabWindow::updateItemButton(const Jid &AItemJid)
 		Action *action = qobject_cast<Action *>(FItemButtons.value(AItemJid)->defaultAction());
 		if (action)
 		{
+			int notifyCount = 0;
 			ITabPage *page = itemPage(AItemJid);
+			ITabPageNotifier *notifier = page!=NULL ? page->tabPageNotifier() : NULL;
+			if (notifier)
+			{
+				foreach(int notifyId, notifier->notifies())
+					notifyCount += notifier->notifyById(notifyId).count;
+			}
+
 			IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(AItemJid);
-			int notifyCount = page && page->tabPageNotifier() ? page->tabPageNotifier()->notifies().count() : 0;
 			if (notifyCount > 0)
+			{
+				QIcon icon;
+				QPixmap base(24,24);
+				icon.addPixmap(base);
+				action->setIcon(insertNotifyBalloon(icon,notifyCount));
+
+				//action->setIcon(insertNotifyBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(descriptor.icon,1),notifyCount));
 				action->setText(QString("%1 (%2)").arg(FMetaContacts->itemHint(AItemJid)).arg(notifyCount));
+			}
 			else
+			{
 				action->setText(FMetaContacts->itemHint(AItemJid));
-			action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon,1);
+				action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon,1);
+			}
 		}
 	}
 }
@@ -310,6 +330,30 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 	{
 		updateItemButton(itemJid);
 	}
+}
+
+QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount) const
+{
+	if (ACount > 0)
+	{
+		QPixmap base = AIcon.pixmap(AIcon.availableSizes().value(0));
+		QPainter painter(&base);
+		
+		//QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON,1));
+		QPixmap balloon(12,12);
+		QRect ballonRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignTop|Qt::AlignRight,balloon.size(),base.rect());
+		painter.drawPixmap(ballonRect,balloon);
+
+		QString text = QString::number(ACount);
+		QSize textSize = painter.fontMetrics().size(Qt::TextSingleLine,text);
+		QRect textRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,textSize,ballonRect);
+		painter.drawText(textRect,text);
+
+		QIcon icon;
+		icon.addPixmap(base);
+		return icon;
+	}
+	return AIcon;
 }
 
 void MetaTabWindow::removeTabPageNotifies()

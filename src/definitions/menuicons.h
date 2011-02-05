@@ -161,6 +161,7 @@
 #define MNI_METACONTACTS_ITEM_LIVEJOURNAL        "metacontactsItemLiveJournal"
 #define MNI_METACONTACTS_ITEM_RAMBLER            "metacontactsItemRambler"
 #define MNI_METACONTACTS_ITEM_JABBER             "metacontactsItemJabber"
+#define MNI_METACONTACTS_NOTIFY_BALOON           "metacontactsNotifyBalloon"
 
 //MessageWidgets
 #define MNI_MESSAGEWIDGETS_SEND                  "messagewidgetsSend"

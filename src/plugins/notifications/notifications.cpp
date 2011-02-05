@@ -319,6 +319,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 			{
 				ITabPageNotify notify;
 				notify.priority = record.notification.data.value(NDR_TABPAGE_PRIORITY).toInt();
+				notify.count = record.notification.data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt();
 				notify.blink = record.notification.data.value(NDR_TABPAGE_ICONBLINK).toBool();
 				notify.icon = icon;
 				notify.iconKey = iconKey;
