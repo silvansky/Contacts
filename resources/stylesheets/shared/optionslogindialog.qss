@@ -127,6 +127,7 @@ QCheckBox
 
 #cmbDomain
 {
+	margin-top: 1px;
 	min-width: 75px;
 	max-width: 75px;
 }

@@ -232,6 +232,7 @@ QPushButton, QToolButton
 	border-image: url(%IMAGES_PATH%/buttonborder.png);
 	border-radius: 0px;
 	background-clip: content;
+	background-color: transparent;
 	background-origin: content;
 	padding-left: -2px;
 	padding-top: -2px;
@@ -250,7 +251,7 @@ QToolButton
 
 QPushButton:!hover:enabled, QToolButton:!hover:enabled
 {
-	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #31363c, stop:1 #61656a);
+	/*background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #31363c, stop:1 #61656a);*/
 }
 
 QPushButton:hover:enabled, QToolButton:hover:enabled
@@ -264,13 +265,13 @@ QPushButton:hover:enabled, QToolButton:hover:enabled
 	padding-right: -4px;
 	padding-bottom: -4px;
 	border-image: url(%IMAGES_PATH%/buttonborderhover.png);
-	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #31363c, stop:1 #61656a);
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #31363c, stop:1 #61656a);*/
 }
 
 QPushButton:enabled:pressed, QToolButton:enabled:pressed
 {
 	border-image: url(%IMAGES_PATH%/buttonborderclick.png);
-	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #61656a, stop:1 #31363c);
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #61656a, stop:1 #31363c);*/
 }
 
 QPushButton:default, QToolButton:default
@@ -280,7 +281,7 @@ QPushButton:default, QToolButton:default
 
 QPushButton:default:!hover:enabled, QToolButton:default:!hover:enabled
 {
-	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #15374b, stop:1 #397699);
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #15374b, stop:1 #397699);*/
 }
 
 QPushButton:default:hover:enabled, QToolButton:default:hover:enabled
@@ -294,7 +295,7 @@ QPushButton:default:hover:enabled, QToolButton:default:hover:enabled
 	padding-right: -4px;
 	padding-bottom: -4px;
 	border-image: url(%IMAGES_PATH%/buttonborderdefaulthover.png);
-	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #15374b, stop:1 #397699);
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #15374b, stop:1 #397699);*/
 	/*background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #1a435b, stop:1 #438bab);*/
 }
 
@@ -308,7 +309,7 @@ QPushButton:!enabled, QToolButton:!enabled
 QPushButton:default:enabled:pressed, QToolButton:default:enabled:pressed
 {
 	border-image: url(%IMAGES_PATH%/buttonborderdefaultclick.png);
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #397699);
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #15374b, stop:1 #397699);*/
 }
 
 QToolButton[popupMode="1"]:enabled, QToolButton[popupMode="2"]:enabled
@@ -422,12 +423,16 @@ QMenu::item:selected
 
 QComboBox
 {
-	border: 1px solid #22272d;
-	border-radius: 3px;
-	padding: -1px 10px -1px 8px;
+	border-image: url(%IMAGES_PATH%/buttonborder.png);
+	border-top: 3px;
+	border-left: 3px;
+	border-bottom: 4px;
+	border-right: 3px;
+	padding: -1px 5px -1px 8px;
 	min-width: 6em;
-	min-height: 27px;
+	min-height: 23px;
 	color: white;
+	background-color: transparent;
 }
 
 QComboBox:editable
@@ -435,25 +440,20 @@ QComboBox:editable
 	background: white;
 }
 
-QComboBox:!editable, QComboBox::drop-down:editable
+QComboBox:!editable:hover
 {
-	background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #31363c, stop:1 #61656a);
-}
-
-QComboBox:!editable:hover, QComboBox::drop-down:editable:hover
-{
-	background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #3b4148, stop:1 #72777d);
+	border-top: 5px;
+	border-right: 5px;
+	border-left: 5px;
+	border-bottom: 6px;
+	padding-left: 6px;
+	padding-right: 2px;
+	border-image: url(%IMAGES_PATH%/buttonborderhover.png);
 }
 
 QComboBox:!editable:on, QComboBox::drop-down:editable:on
 {
-	background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #61656a, stop:1 #31363c);
-}
-
-QComboBox:on
-{
-	padding-top: 3px;
-	padding-left: 4px;
+	border-image: url(%IMAGES_PATH%/buttonborderclick.png);
 }
 
 QComboBox::drop-down
@@ -462,9 +462,13 @@ QComboBox::drop-down
 	subcontrol-position: top right;
 	right: 2px;
 	width: 15px;
-	border-left: 0px;
-	border-top-right-radius: 3px;
-	border-bottom-right-radius: 3px;
+	background-color: transparent;
+	border: none;
+}
+
+QComboBox:!editable:hover::drop-down
+{
+	padding-right: 2px;
 }
 
 QComboBox::down-arrow
@@ -489,7 +493,6 @@ QComboBox QListView
 	border: 1px solid #22272d;
 	background-color: rgba(65, 70, 77, 235);
 	padding: 0px;
-/*	selection-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #5187a5, stop:1 #16384d);*/
 }
 
 QComboBox QListView::item

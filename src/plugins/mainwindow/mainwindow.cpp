@@ -129,6 +129,7 @@ void MainWindow::createToolBars()
 	QToolBar *toolbar =  new QToolBar(tr("Status toolbar"), this);
 	toolbar->setFloatable(false);
 	toolbar->setMovable(false);
+	toolbar->setObjectName("statusToolBar");
 	addToolBar(Qt::TopToolBarArea, toolbar);
 	FStatusToolBarChanger = new ToolBarChanger(toolbar);
 	FStatusToolBarChanger->setSeparatorsVisible(false);

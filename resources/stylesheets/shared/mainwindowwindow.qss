@@ -16,10 +16,16 @@ MainWindow
 
 QToolBar
 {
+	background-color: transparent;
+}
+
+QToolBar#statusToolBar
+{
 	border: 0px solid transparent;
 	padding: 2px;
 	spacing: 2px;
 	background-color: transparent;
+	max-height: 55px;
 }
 
 /********************
@@ -28,6 +34,8 @@ QToolBar
 
 QToolButton#mainMenuButton
 {
+	margin-top: 2px;
+	margin-right: 7px;
 	height: 20px;
 	min-height: 20px;
 	max-height: 20px;
