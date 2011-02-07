@@ -47,8 +47,8 @@ bool AccountManager::initConnections(IPluginManager *APluginManager, int &/*AIni
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (FRostersViewPlugin)
 		{
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
-			        SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 		}
 	}
 
@@ -251,9 +251,9 @@ void AccountManager::onAccountOptionsChanged(const OptionsNode &ANode)
 	}
 }
 
-void AccountManager::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void AccountManager::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
-	if (AIndex->data(RDR_TYPE).toInt() == RIT_STREAM_ROOT)
+	if (AIndex->data(RDR_TYPE).toInt()==RIT_STREAM_ROOT && ASelected.count()<2)
 	{
 		QString streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		IAccount *account = accountByStream(streamJid);

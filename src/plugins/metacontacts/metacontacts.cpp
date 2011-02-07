@@ -15,7 +15,7 @@
 #define ADR_GROUP           Action::DR_Parametr3
 #define ADR_TO_GROUP        Action::DR_Parametr3
 #define ADR_RELEASE_ITEMS   Action::DR_Parametr3
-#define ADR_CHILD_META_IDS  Action::DR_Parametr3
+#define ADR_META_ID_LIST    Action::DR_Parametr4
 #define ADR_TAB_PAGE_ID     Action::DR_Parametr2
 
 static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
@@ -92,7 +92,10 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (FRostersViewPlugin)
 		{
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(acceptMultiSelection(QList<IRosterIndex *>, bool &)),
+				SLOT(onRosterAcceptMultiSelection(QList<IRosterIndex *>, bool &)));
 		}
 	}
 
@@ -295,7 +298,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 					mergeAction->setText(tr("Merge contacts"));
 					mergeAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
 					mergeAction->setData(ADR_META_ID,hoverMetaId.pBare());
-					mergeAction->setData(ADR_CHILD_META_IDS,QList<QVariant>() << indexMetaId.pBare());
+					mergeAction->setData(ADR_META_ID_LIST,QList<QVariant>() << indexMetaId.pBare());
 					connect(mergeAction,SIGNAL(triggered(bool)),SLOT(onMergeContacts(bool)));
 					AMenu->addAction(mergeAction,AG_DEFAULT);
 					AMenu->setDefaultAction(mergeAction);
@@ -386,7 +389,7 @@ bool MetaContacts::viewDropAction(IViewWidget *AWidget, const QDropEvent *AEvent
 				mergeAction->setText(tr("Merge contacts"));
 				mergeAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
 				mergeAction->setData(ADR_META_ID,viewMetaId.pBare());
-				mergeAction->setData(ADR_CHILD_META_IDS,QList<QVariant>() << indexMetaId.pBare());
+				mergeAction->setData(ADR_META_ID_LIST,QList<QVariant>() << indexMetaId.pBare());
 				connect(mergeAction,SIGNAL(triggered(bool)),SLOT(onMergeContacts(bool)));
 				AMenu->addAction(mergeAction,AG_DEFAULT);
 			}
@@ -876,7 +879,7 @@ void MetaContacts::onMergeContacts(bool)
 		{
 			QList<Jid> metaIds;
 			metaIds.append(action->data(ADR_META_ID).toString());
-			foreach(QVariant metaId, action->data(ADR_CHILD_META_IDS).toList())
+			foreach(QVariant metaId, action->data(ADR_META_ID_LIST).toList())
 				metaIds.append(metaId.toString());
 
 			if (metaIds.count() > 1)
@@ -1018,11 +1021,29 @@ void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
 	}
 }
 
-void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void MetaContacts::onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted)
 {
+	if (!AAccepted && !ASelected.isEmpty())
+	{
+		bool accept = true;
+		Jid streamJid = ASelected.at(0)->data(RDR_STREAM_JID).toString();
+		for (int i=0; accept && i<ASelected.count(); i++)
+		{
+			if (ASelected.at(i)->type()!=RIT_METACONTACT || streamJid!=ASelected.at(i)->data(RDR_STREAM_JID).toString())
+				accept = false;
+		}
+		AAccepted = accept;
+	}
+}
+
+void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
+{
+	bool selAccepted = false;
+	onRosterAcceptMultiSelection(ASelected,selAccepted);
+
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 	IMetaRoster *mroster = findMetaRoster(streamJid);
-	if (mroster && mroster->isOpen())
+	if (selAccepted && mroster && mroster->isOpen())
 	{
 		int itemType = AIndex->data(RDR_TYPE).toInt();
 		if (itemType == RIT_METACONTACT)
@@ -1030,10 +1051,18 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 			Jid metaId = AIndex->data(RDR_INDEX_ID).toString();
 			const IMetaContact &contact = mroster->metaContact(metaId);
 
+			QList<QVariant> selMetaIdList;
+			foreach(IRosterIndex *index, ASelected)
+			{
+				if (index != AIndex)
+					selMetaIdList.append(index->data(RDR_INDEX_ID));
+			}
+
 			QHash<int,QVariant> data;
 			data.insert(ADR_STREAM_JID,streamJid.full());
 			data.insert(ADR_META_ID,metaId.pBare());
 			data.insert(ADR_NAME,contact.name);
+			data.insert(ADR_META_ID_LIST,selMetaIdList);
 
 			// Change group menu
 			GroupMenu *groupMenu = new GroupMenu(AMenu);
@@ -1068,50 +1097,64 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
 
 			AMenu->addAction(groupMenu->menuAction(),AG_RVCM_ROSTERCHANGER_GROUP);
 
+			// Merge Items
+			if (ASelected.count() > 1)
+			{
+				Action *mergeAction = new Action(AMenu);
+				mergeAction->setText(tr("Merge contacts"));
+				mergeAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
+				mergeAction->setData(ADR_META_ID,AIndex->data(RDR_INDEX_ID));
+				mergeAction->setData(ADR_META_ID_LIST,selMetaIdList);
+				connect(mergeAction,SIGNAL(triggered(bool)),SLOT(onMergeContacts(bool)));
+				AMenu->addAction(mergeAction,AG_RVCM_METACONTACTS_MERGECONTACTS);
+			}
 			// Detach items menu
-			QList<Jid> detachItems;
-			foreach(Jid itemJid, contact.items)
+			else if (ASelected.count() < 2)
 			{
-				if (itemDescriptor(itemJid).detach)
-					detachItems.append(itemJid);
-			}
-			if (detachItems.count() > 1)
-			{
-				Menu *releaseMenu = new Menu(AMenu);
-				releaseMenu->setTitle(tr("Separate contact"));
-				AMenu->addAction(releaseMenu->menuAction(),AG_RVCM_METACONTACTS_RELEASE);
-
-				QList<QVariant> allItems;
-				foreach(Jid itemJid, detachItems)
+				QList<Jid> detachItems;
+				foreach(Jid itemJid, contact.items)
 				{
-					IMetaItemDescriptor descriptor = itemDescriptor(itemJid);
-					Action *action = new Action(releaseMenu);
-					action->setText(QString("%1 (%2)").arg(descriptor.name).arg(itemHint(itemJid)));
-					action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
-					action->setData(data);
-					action->setData(ADR_RELEASE_ITEMS,QList<QVariant>() << itemJid.pBare());
-					connect(action,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
-					releaseMenu->addAction(action,AG_DEFAULT,true);
-					allItems.append(itemJid.pBare());
+					if (itemDescriptor(itemJid).detach)
+						detachItems.append(itemJid);
+				}
+				if (detachItems.count() > 1)
+				{
+					Menu *releaseMenu = new Menu(AMenu);
+					releaseMenu->setTitle(tr("Separate contact"));
+					AMenu->addAction(releaseMenu->menuAction(),AG_RVCM_METACONTACTS_RELEASE);
+
+					QList<QVariant> allItems;
+					foreach(Jid itemJid, detachItems)
+					{
+						IMetaItemDescriptor descriptor = itemDescriptor(itemJid);
+						Action *action = new Action(releaseMenu);
+						action->setText(QString("%1 (%2)").arg(descriptor.name).arg(itemHint(itemJid)));
+						action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
+						action->setData(data);
+						action->setData(ADR_RELEASE_ITEMS,QList<QVariant>() << itemJid.pBare());
+						connect(action,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
+						releaseMenu->addAction(action,AG_DEFAULT,true);
+						allItems.append(itemJid.pBare());
+					}
+
+					if (allItems.count() > 2)
+					{
+						Action *action = new Action(releaseMenu);
+						action->setText(tr("Separate all contacts"));
+						action->setData(data);
+						action->setData(ADR_RELEASE_ITEMS,allItems);
+						connect(action,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
+						releaseMenu->addAction(action,AG_DEFAULT+1);
+					}
 				}
 
-				if (allItems.count() > 2)
-				{
-					Action *action = new Action(releaseMenu);
-					action->setText(tr("Separate all contacts"));
-					action->setData(data);
-					action->setData(ADR_RELEASE_ITEMS,allItems);
-					connect(action,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
-					releaseMenu->addAction(action,AG_DEFAULT+1);
-				}
+				action = new Action(AMenu);
+				action->setText(tr("Rename..."));
+				action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_RENAME);
+				action->setData(data);
+				connect(action,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
+				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
 			}
-
-			action = new Action(AMenu);
-			action->setText(tr("Rename..."));
-			action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_RENAME);
-			action->setData(data);
-			connect(action,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
-			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
 
 			action = new Action(AMenu);
 			action->setText(tr("Delete"));

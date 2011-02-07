@@ -87,7 +87,7 @@ protected:
 	void removeEmptyChildElements(QDomElement &AElem) const;
 	void registerDiscoFeatures();
 protected slots:
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 	void onShowVCardDialogByAction(bool);
 	void onShowVCardDialogByChatWindowAction(bool);

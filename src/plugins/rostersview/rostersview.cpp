@@ -61,7 +61,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	setRootIsDecorated(false);
 	setDropIndicatorShown(true);
 	setAlternatingRowColors(true);
-	setSelectionMode(SingleSelection);
+	setSelectionMode(ExtendedSelection);
 	setContextMenuPolicy(Qt::DefaultContextMenu);
 	setFrameShape(QFrame::NoFrame);
 
@@ -74,7 +74,8 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 
 	connect(this,SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger*)),
 		SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger*)));
-	connect(this,SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+	connect(this,SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+		SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 	connect(this, SIGNAL(entered(const QModelIndex&)), SLOT(onIndexEntered(const QModelIndex&)));
 	connect(this, SIGNAL(viewportEntered()), SLOT(onViewportEntered()));
 
@@ -211,8 +212,29 @@ void RostersView::setRostersModel(IRostersModel *AModel)
 		else
 			FProxyModels.values().first()->setSourceModel(FRostersModel!=NULL ? FRostersModel->instance() : NULL);
 
+		if (selectionModel())
+		{
+			connect(selectionModel(),SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+				SLOT(onSelectionChanged(const QItemSelection &, const QItemSelection &)));
+		}
+
 		emit modelSet(FRostersModel);
 	}
+}
+
+QList<IRosterIndex *> RostersView::selectedRosterIndexes() const
+{
+	QList<IRosterIndex *> rosterIndexes;
+	if (FRostersModel)
+	{
+		foreach(QModelIndex modelIndex, selectedIndexes())
+		{
+			IRosterIndex *index = FRostersModel->rosterIndexByModelIndex(mapToModel(modelIndex));
+			if (index)
+				rosterIndexes.append(index);
+		}
+	}
+	return rosterIndexes;
 }
 
 bool RostersView::repaintRosterIndex(IRosterIndex *AIndex)
@@ -644,14 +666,14 @@ void RostersView::removeFooterText(int AOrderAndId, IRosterIndex *AIndex)
 	}
 }
 
-void RostersView::contextMenuForIndex(IRosterIndex *AIndex, int ALabelId, Menu *AMenu)
+void RostersView::contextMenuForIndex(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, int ALabelId, Menu *AMenu)
 {
 	if (AIndex && AMenu)
 	{
 		if (ALabelId != RLID_DISPLAY)
 			emit labelContextMenu(AIndex,ALabelId,AMenu);
 		else
-			emit indexContextMenu(AIndex,AMenu);
+			emit indexContextMenu(AIndex,ASelected,AMenu);
 	}
 }
 
@@ -908,9 +930,17 @@ void RostersView::contextMenuEvent(QContextMenuEvent *AEvent)
 		Menu *contextMenu = new Menu(this);
 		contextMenu->setAttribute(Qt::WA_DeleteOnClose, true);
 
-		contextMenuForIndex(index,labelId,contextMenu);
-		if (labelId!=RLID_DISPLAY && contextMenu->isEmpty())
-			contextMenuForIndex(index,RLID_DISPLAY,contextMenu);
+		QList<IRosterIndex *> selIndexes = selectedRosterIndexes();
+		if (selIndexes.count() < 2)
+		{
+			contextMenuForIndex(index,selIndexes,labelId,contextMenu);
+			if (labelId!=RLID_DISPLAY && contextMenu->isEmpty())
+				contextMenuForIndex(index,selIndexes,RLID_DISPLAY,contextMenu);
+		}
+		else
+		{
+			contextMenuForIndex(index,selIndexes,RLID_DISPLAY,contextMenu);
+		}
 
 		if (!contextMenu->isEmpty())
 			contextMenu->popup(AEvent->globalPos());
@@ -1160,9 +1190,9 @@ void RostersView::dragLeaveEvent(QDragLeaveEvent *AEvent)
 	setInsertIndicatorRect(QRect());
 }
 
-void RostersView::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void RostersView::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
-	if (groupIndexes.contains(AIndex->type()))
+	if (groupIndexes.contains(AIndex->type()) && ASelected.count()<2)
 	{
 		QModelIndex index = mapFromModel(FRostersModel->modelIndexByRosterIndex(AIndex));
 		if (index.isValid())
@@ -1216,6 +1246,23 @@ void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMul
 		QString status = AIndex->data(RDR_STATUS).toString();
 		if (!status.isEmpty())
 			AToolTips.insert(RTTO_CONTACT_STATUS, QString("%1 <div style='margin-left:10px;'>%2</div>").arg(tr("Status:")).arg(Qt::escape(status).replace("\n","<br>")));
+	}
+}
+
+void RostersView::onSelectionChanged(const QItemSelection &ASelected, const QItemSelection &ADeselected)
+{
+	QList<IRosterIndex *> newSelection = selectedRosterIndexes();
+	if (newSelection.count() > 1)
+	{
+		bool accepted = false;
+		emit acceptMultiSelection(newSelection,accepted);
+		if (!accepted)
+		{
+			selectionModel()->blockSignals(true);
+			selectionModel()->select(ASelected,QItemSelectionModel::Deselect);
+			selectionModel()->select(ADeselected,QItemSelectionModel::Select);
+			selectionModel()->blockSignals(false);
+		}
 	}
 }
 

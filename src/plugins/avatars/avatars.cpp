@@ -102,8 +102,8 @@ bool Avatars::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (FRostersViewPlugin)
 		{
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
-				SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger*)),
 				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)));
 		}
@@ -431,6 +431,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 			image = FEmptyMaleAvatar;
 		}
 	}
+	/*
 	if (!image.isNull() && FRostersModel)
 	{
 		QMultiMap<int,QVariant> findData;
@@ -455,6 +456,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 				break;
 		}
 	}
+	*/
 	return image;
 }
 
@@ -742,9 +744,9 @@ void Avatars::onRosterIndexInserted(IRosterIndex *AIndex)
 	}
 }
 
-void Avatars::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void Avatars::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
-	if (AIndex->type() == RIT_STREAM_ROOT && FStreamAvatars.contains(AIndex->data(RDR_STREAM_JID).toString()))
+	if (AIndex->type()==RIT_STREAM_ROOT && FStreamAvatars.contains(AIndex->data(RDR_STREAM_JID).toString()) && ASelected.count()<2)
 	{
 		Menu *avatar = new Menu(AMenu);
 		avatar->setTitle(tr("Avatar"));

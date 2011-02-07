@@ -219,7 +219,6 @@ void NotifyWidget::layoutWidgets()
 		if (!widget->isVisible())
 		{
 			widget->show();
-			WidgetManager::raiseWidget(widget);
 			widget->move(display.right() - widget->frameGeometry().width(), display.bottom());
 			QTimer::singleShot(0,widget,SLOT(adjustHeight()));
 			QTimer::singleShot(10,widget,SLOT(adjustHeight()));
@@ -228,4 +227,3 @@ void NotifyWidget::layoutWidgets()
 		widget->animateTo(ypos--);
 	}
 }
-

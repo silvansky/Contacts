@@ -27,6 +27,7 @@
 #define AG_RVCM_SIPPHONE_CALL                                   200
 #define AG_RVCM_ROSTERCHANGER_ADD_CONTACT                       200
 #define AG_RVCM_ROSTERSVIEW_GROUP_STATE                         200
+#define AG_RVCM_METACONTACTS_MERGECONTACTS                      200
 #define AG_RVCM_STATUSCHANGER                                   300
 #define AG_RVCM_ROSTERCHANGER_GROUP                             300
 #define AG_RVCM_METACONTACTS_RELEASE                            300

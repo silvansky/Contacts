@@ -83,7 +83,8 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 		if (rostersViewPlugin)
 		{
 			FRostersView = rostersViewPlugin->rostersView();
-			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 		}
 	}
 
@@ -347,13 +348,13 @@ void MassSendHandler::onShowWindowAction(bool)
 	}
 }
 
-void MassSendHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void MassSendHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
 	static QList<int> messageActionTypes = QList<int>() << RIT_STREAM_ROOT << RIT_GROUP << RIT_CONTACT << RIT_AGENT << RIT_MY_RESOURCE;
 
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
-	if (presence && presence->isOpen())
+	if (presence && presence->isOpen() && ASelected.count()<2)
 	{
 		if (messageActionTypes.contains(AIndex->type()))
 		{

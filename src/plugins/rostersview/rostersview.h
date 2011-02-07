@@ -44,6 +44,7 @@ public:
 	//IRostersView
 	virtual IRostersModel *rostersModel() const;
 	virtual void setRostersModel(IRostersModel *AModel);
+	virtual QList<IRosterIndex *> selectedRosterIndexes() const;
 	virtual bool repaintRosterIndex(IRosterIndex *AIndex);
 	virtual void expandIndexParents(IRosterIndex *AIndex);
 	virtual void expandIndexParents(const QModelIndex &AIndex);
@@ -80,7 +81,7 @@ public:
 	virtual void insertFooterText(int AOrderAndId, const QVariant &AValue, IRosterIndex *AIndex);
 	virtual void removeFooterText(int AOrderAndId, IRosterIndex *AIndex);
 	//--ContextMenu
-	virtual void contextMenuForIndex(IRosterIndex *AIndex, int ALabelId, Menu *AMenu);
+	virtual void contextMenuForIndex(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, int ALabelId, Menu *AMenu);
 	//--ClipboardMenu
 	virtual void clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu);
 	// props
@@ -101,7 +102,8 @@ signals:
 	void proxyModelRemoved(QAbstractProxyModel *AProxyModel);
 	void viewModelAboutToBeChanged(QAbstractItemModel *AModel);
 	void viewModelChanged(QAbstractItemModel *AModel);
-	void indexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void acceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
+	void indexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void indexClipboardMenu(IRosterIndex *AIndex, Menu *AMenu);
 	void labelContextMenu(IRosterIndex *AIndex, int ALabelId, Menu *AMenu);
 	void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
@@ -143,8 +145,9 @@ protected:
 	virtual void dragMoveEvent(QDragMoveEvent *AEvent);
 	virtual void dragLeaveEvent(QDragLeaveEvent *AEvent);
 protected slots:
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger* AToolBarChanger);
+	void onSelectionChanged(const QItemSelection &ASelected, const QItemSelection &ADeselected);
 	void onCopyToClipboardActionTriggered(bool);
 	void onIndexInserted(IRosterIndex *AIndex);
 	void onIndexEntered(const QModelIndex &AIndex);

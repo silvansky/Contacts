@@ -120,7 +120,8 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 		if (rostersViewPlugin)
 		{
 			FRostersView = rostersViewPlugin->rostersView();
-			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)), SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)), 
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 		}
 	}
 
@@ -1048,11 +1049,11 @@ void RosterChanger::onShowAddAccountDialog(bool)
 	}
 }
 
-void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
 	QString streamJid = AIndex->data(RDR_STREAM_JID).toString();
 	IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(streamJid) : NULL;
-	if (roster && roster->isOpen())
+	if (roster && roster->isOpen() && ASelected.count()<2)
 	{
 		int itemType = AIndex->data(RDR_TYPE).toInt();
 		IRosterItem ritem = roster->rosterItem(AIndex->data(RDR_BARE_JID).toString());

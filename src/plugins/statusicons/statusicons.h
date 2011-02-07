@@ -78,7 +78,7 @@ protected:
 	void updateCustomIconMenu(const QString &APattern);
 protected slots:
 	void onStatusIconsChangedTimer();
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 	void onOptionsOpened();
 	void onOptionsClosed();

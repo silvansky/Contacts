@@ -140,7 +140,8 @@ protected slots:
 	void onLoadMetaRosters();
 	void onOpenTabPageAction(bool);
 	void onChatWindowCreated(IChatWindow *AWindow);
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
+	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onOptionsOpened();
 	void onOptionsClosed();
 private:

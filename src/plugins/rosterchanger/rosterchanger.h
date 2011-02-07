@@ -169,7 +169,7 @@ protected slots:
 	void onShowAddAccountDialog(bool);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onRosterClosed(IRoster *ARoster);
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onEmptyGroupChildInserted(IRosterIndex *AIndex);
 	void onEmptyGroupIndexDestroyed(IRosterIndex *AIndex);
 	void onNotificationActivated(int ANotifyId);

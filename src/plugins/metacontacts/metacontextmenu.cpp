@@ -52,7 +52,9 @@ void MetaContextMenu::updateMenu()
 void MetaContextMenu::onAboutToShow()
 {
 	if (FRosterIndex)
-		FRostersView->contextMenuForIndex(FRosterIndex,RLID_DISPLAY,this);
+	{
+		FRostersView->contextMenuForIndex(FRosterIndex,QList<IRosterIndex *>()<<FRosterIndex,RLID_DISPLAY,this);
+	}
 }
 
 void MetaContextMenu::onAboutToHide()

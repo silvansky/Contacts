@@ -152,7 +152,8 @@ bool VCardPlugin::initObjects()
 	if (FRostersViewPlugin)
 	{
 		FRostersView = FRostersViewPlugin->rostersView();
-		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+			SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 	}
 	if (FDiscovery)
 	{
@@ -452,12 +453,12 @@ void VCardPlugin::registerDiscoFeatures()
 	FDiscovery->insertDiscoFeature(dfeature);
 }
 
-void VCardPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void VCardPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
 	if (AIndex->type()==RIT_STREAM_ROOT || AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_AGENT)
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AIndex->data(RDR_STREAM_JID).toString()) : NULL;
-		if (roster && roster->isOpen())
+		if (roster && roster->isOpen() && ASelected.count()<2)
 		{
 			Action *action = new Action(AMenu);
 			action->setText(tr("Contact info"));

@@ -60,8 +60,8 @@ bool StatusIcons::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (FRostersViewPlugin)
 		{
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *,Menu*)),
-				SLOT(onRosterIndexContextMenu(IRosterIndex *,Menu *)));
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *,QList<IRosterIndex *>,Menu*)),
+				SLOT(onRosterIndexContextMenu(IRosterIndex *,QList<IRosterIndex *>,Menu *)));
 		}
 	}
 
@@ -426,9 +426,9 @@ void StatusIcons::onStatusIconsChangedTimer()
 	FStatusIconsChangedStarted = false;
 }
 
-void StatusIcons::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void StatusIcons::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
-	Q_UNUSED(AIndex); Q_UNUSED(AMenu);
+	Q_UNUSED(AIndex); Q_UNUSED(AMenu); Q_UNUSED(ASelected);
 	/*if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
 	{
 		updateCustomIconMenu(QRegExp::escape(AIndex->data(RDR_BARE_JID).toString()));

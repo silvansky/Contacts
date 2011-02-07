@@ -209,7 +209,8 @@ bool StatusChanger::initObjects()
 	if (FRostersViewPlugin)
 	{
 		FRostersView = FRostersViewPlugin->rostersView();
-		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)), SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)), 
+			SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 
 		IRostersLabel rlabel;
 		rlabel.order = RLO_CONNECTING;
@@ -1105,9 +1106,9 @@ void StatusChanger::onStreamJidChanged(const Jid &ABefour, const Jid &AAfter)
 		FStatusWidget->setStreamJid(AAfter);
 }
 
-void StatusChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void StatusChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
-	if (AIndex->data(RDR_TYPE).toInt() == RIT_STREAM_ROOT)
+	if (AIndex->data(RDR_TYPE).toInt()==RIT_STREAM_ROOT && ASelected.count()<2)
 	{
 		Menu *menu = streamMenu(AIndex->data(RDR_STREAM_JID).toString());
 		if (menu)

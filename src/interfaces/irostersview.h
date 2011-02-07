@@ -71,6 +71,7 @@ public:
 	virtual QTreeView *instance() = 0;
 	virtual IRostersModel *rostersModel() const =0;
 	virtual void setRostersModel(IRostersModel *AModel) =0;
+	virtual QList<IRosterIndex *> selectedRosterIndexes() const =0;
 	virtual bool repaintRosterIndex(IRosterIndex *AIndex) =0;
 	virtual void expandIndexParents(IRosterIndex *AIndex) =0;
 	virtual void expandIndexParents(const QModelIndex &AIndex) =0;
@@ -107,7 +108,7 @@ public:
 	virtual void insertFooterText(int AOrderAndId, const QVariant &AValue, IRosterIndex *AIndex) =0;
 	virtual void removeFooterText(int AOrderAndId, IRosterIndex *AIndex) =0;
 	//--ContextMenu
-	virtual void contextMenuForIndex(IRosterIndex *AIndex, int ALabelId, Menu *AMenu) =0;
+	virtual void contextMenuForIndex(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, int ALabelId, Menu *AMenu) =0;
 	//--ClipboardMenu
 	virtual void clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu) =0;
 protected:
@@ -119,7 +120,8 @@ protected:
 	virtual void proxyModelRemoved(QAbstractProxyModel *AProxyModel) =0;
 	virtual void viewModelAboutToBeChanged(QAbstractItemModel *AModel) =0;
 	virtual void viewModelChanged(QAbstractItemModel *AModel) =0;
-	virtual void indexContextMenu(IRosterIndex *AIndex, Menu *AMenu) =0;
+	virtual void acceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted) =0;
+	virtual void indexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu) =0;
 	virtual void indexClipboardMenu(IRosterIndex *AIndex, Menu *AMenu) =0;
 	virtual void labelContextMenu(IRosterIndex *AIndex, int ALabelId, Menu *AMenu) =0;
 	virtual void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger * AToolBarChanger) =0;

@@ -144,7 +144,8 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 		if (rostersViewPlugin)
 		{
 			FRostersView = rostersViewPlugin->rostersView();
-			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 			connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)),
 				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)));
 		}
@@ -945,13 +946,13 @@ void ChatMessageHandler::onOpenTabPageAction(bool)
 	}
 }
 
-void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
 	static QList<int> chatActionTypes = QList<int>() << RIT_CONTACT << RIT_AGENT << RIT_MY_RESOURCE;
 
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
-	if (presence && presence->isOpen())
+	if (presence && presence->isOpen() && ASelected.count()<2)
 	{
 		Jid contactJid = AIndex->data(RDR_JID).toString();
 		if (chatActionTypes.contains(AIndex->type()))

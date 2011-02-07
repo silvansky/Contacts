@@ -163,7 +163,8 @@ bool ServiceDiscovery::initObjects()
 	{
 		FRostersView = FRostersViewPlugin->rostersView();
 		FRostersView->insertClickHooker(RCHO_DEFAULT,this);
-		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+			SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 		connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &, ToolBarChanger*)),
 			SLOT(onRosterLabelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &)));
 	}
@@ -1299,10 +1300,11 @@ void ServiceDiscovery::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMu
 	AMenu->addAction(action, AG_MUCM_DISCOVERY, true);
 }
 
-void ServiceDiscovery::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void ServiceDiscovery::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
 	Q_UNUSED(AIndex);
 	Q_UNUSED(AMenu);
+	Q_UNUSED(ASelected);
 	/*int itype = AIndex->type();
 	if (itype == RIT_STREAM_ROOT || itype == RIT_CONTACT || itype == RIT_AGENT || itype == RIT_MY_RESOURCE)
 	{

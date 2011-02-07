@@ -153,8 +153,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (FRostersViewPlugin)
 		{
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
-				SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 		}
 	}
 
@@ -1247,9 +1247,9 @@ void Gateways::onPrivateStorateClosed(const Jid &AStreamJid)
 	FSubscribeServices.remove(AStreamJid);
 }
 
-void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
-	Q_UNUSED(AIndex); Q_UNUSED(AMenu);
+	Q_UNUSED(AIndex); Q_UNUSED(AMenu); Q_UNUSED(ASelected);
 	/*
 	if (AIndex->type() == RIT_STREAM_ROOT)
 	{
