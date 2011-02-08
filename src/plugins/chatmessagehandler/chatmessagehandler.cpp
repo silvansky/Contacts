@@ -982,11 +982,11 @@ void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelI
 		if (AToolBarChanger && chatActionTypes.contains(AIndex->type()) && (ALabelId == RLID_DISPLAY))
 		{
 			Action *action = new Action(AToolBarChanger->toolBar());
-			action->setText(tr("Chat"));
+			action->setText(tr("Open dialog"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
 			action->setData(ADR_STREAM_JID,streamJid.full());
 			action->setData(ADR_CONTACT_JID,contactJid.full());
-			AToolBarChanger->insertAction(action);
+			AToolBarChanger->insertAction(action,TBG_RVLTT_CHATMESSAGEHANDLER);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onShowWindowAction(bool)));
 		}
 	}

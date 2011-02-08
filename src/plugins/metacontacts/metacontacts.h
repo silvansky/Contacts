@@ -11,6 +11,7 @@
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterclickhookerorders.h>
 #include <definitions/rosterdragdropmimetypes.h>
+#include <definitions/toolbargroups.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/irostersview.h>
@@ -145,6 +146,7 @@ protected slots:
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
+	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
 	void onOptionsOpened();
 	void onOptionsClosed();
 private:

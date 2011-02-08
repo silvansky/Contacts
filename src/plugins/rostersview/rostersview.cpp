@@ -1222,7 +1222,7 @@ void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMul
 {
 	Q_UNUSED(AToolBarChanger);
 
-	if (ALabelId==RLID_DISPLAY && AIndex->data(RDR_TYPE).toInt()==RIT_CONTACT)
+	if (ALabelId==RLID_DISPLAY && (AIndex->data(RDR_TYPE).toInt()==RIT_CONTACT || AIndex->data(RDR_TYPE).toInt()==RIT_METACONTACT))
 	{
 		QString name = AIndex->data(RDR_NAME).toString();
 		if (!name.isEmpty())

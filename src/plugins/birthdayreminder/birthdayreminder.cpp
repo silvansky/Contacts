@@ -480,9 +480,27 @@ void BirthdayReminder::onInternalNoticeRemoved(int ANoticeId)
 void BirthdayReminder::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger)
 {
 	Q_UNUSED(AToolBarChanger);
-	if (ALabelId==RLID_DISPLAY && AIndex->type()==RIT_CONTACT)
+	if (ALabelId == RLID_DISPLAY)
 	{
-		int daysLeft = contactBithdayDaysLeft(AIndex->data(RDR_BARE_JID).toString());
+		QList<Jid> metaItems;
+		if (AIndex->type() == RIT_METACONTACT)
+		{
+			foreach(QString itemJid, AIndex->data(RDR_METACONTACT_ITEMS).toStringList())
+				metaItems.append(itemJid);
+		}
+		else if (AIndex->type() == RIT_CONTACT)
+		{
+			metaItems.append(AIndex->data(RDR_BARE_JID).toString());
+		}
+
+		int daysLeft = -1;
+		foreach(Jid itemJid, metaItems)
+		{
+			int itemDaysLeft = contactBithdayDaysLeft(itemJid);
+			if (daysLeft<0 || daysLeft<itemDaysLeft)
+				daysLeft = itemDaysLeft;
+		}
+		
 		if (daysLeft>=0 && daysLeft<=NOTIFY_WITHIN_DAYS)
 		{
 			QString tip = QString("<span style='color:green'>%1</span>");

@@ -51,4 +51,7 @@
 //MetaContacts - MetaTabWindow
 #define TBG_MCMTW_USER_TOOLS                                    10900
 
+//RostersView - LabelToolTip
+#define TBG_RVLTT_CHATMESSAGEHANDLER                            500
+
 #endif

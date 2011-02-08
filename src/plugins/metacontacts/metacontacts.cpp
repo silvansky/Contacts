@@ -93,10 +93,12 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (FRostersViewPlugin)
 		{
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
-				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(acceptMultiSelection(QList<IRosterIndex *>, bool &)),
 				SLOT(onRosterAcceptMultiSelection(QList<IRosterIndex *>, bool &)));
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
+			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)),
+				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)));
 		}
 	}
 
@@ -1215,6 +1217,25 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			action->setData(data);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
 			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
+		}
+	}
+}
+
+void MetaContacts::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger)
+{
+	Q_UNUSED(AToolTips);
+	if (ALabelId==RLID_DISPLAY && AIndex->type()==RIT_METACONTACT)
+	{
+		IMetaRoster *mroster = findMetaRoster(AIndex->data(RDR_STREAM_JID).toString());
+		if (AToolBarChanger && mroster && mroster->isEnabled())
+		{
+			Action *action = new Action(AToolBarChanger->toolBar());
+			action->setText(tr("Open dialog"));
+			action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
+			action->setData(ADR_STREAM_JID,mroster->streamJid().full());
+			action->setData(ADR_META_ID,AIndex->data(RDR_INDEX_ID).toString());
+			AToolBarChanger->insertAction(action,TBG_RVLTT_CHATMESSAGEHANDLER);
+			connect(action,SIGNAL(triggered(bool)),SLOT(onShowMetaTabWindowAction(bool)));
 		}
 	}
 }
