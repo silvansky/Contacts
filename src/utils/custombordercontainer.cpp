@@ -1555,19 +1555,19 @@ bool CustomBorderContainer::pointInBorder(BorderType border, const QPoint & p)
 		break;
 	case LeftBorder:
 		b = borderStyle->left;
-		return (p.x() <= (b.resizeWidth + b.resizeMargin)) && (p.x() > b.resizeMargin);
+		return (p.x() <= (b.resizeWidth + b.resizeMargin)) && (p.x() > b.resizeMargin) && (p.y() > borderStyle->top.resizeMargin && p.y() < (height() - borderStyle->bottom.resizeMargin));
 		break;
 	case RightBorder:
 		b = borderStyle->right;
-		return (p.x() > (width() - b.resizeWidth - b.resizeMargin)) && (p.x() < (width() - b.resizeMargin));
+		return (p.x() > (width() - b.resizeWidth - b.resizeMargin)) && (p.x() < (width() - b.resizeMargin)) && (p.y() > borderStyle->top.resizeMargin && p.y() < (height() - borderStyle->bottom.resizeMargin));
 		break;
 	case TopBorder:
 		b = borderStyle->top;
-		return (p.y() < (b.resizeWidth + b.resizeMargin)) && (p.y() > b.resizeMargin);
+		return (p.y() < (b.resizeWidth + b.resizeMargin)) && (p.y() > b.resizeMargin) && (p.x() > borderStyle->left.resizeMargin && p.x() < (width() - borderStyle->right.resizeMargin));
 		break;
 	case BottomBorder:
 		b = borderStyle->bottom;
-		return (p.y() > (height() - b.resizeWidth - b.resizeMargin)) && (p.y() < (height() - b.resizeMargin));
+		return (p.y() > (height() - b.resizeWidth - b.resizeMargin)) && (p.y() < (height() - b.resizeMargin)) && (p.x() > borderStyle->left.resizeMargin && p.x() < (width() - borderStyle->right.resizeMargin));
 		break;
 	default:
 		break;
