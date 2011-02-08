@@ -220,6 +220,10 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 
 		if (!AContact.items.isEmpty())
 		{
+			QStringList contactItems;
+			foreach(Jid itemJid, AContact.items)
+				contactItems.append(itemJid.pBare());
+
 			QSet<QString> curGroups;
 			foreach(IRosterIndex *index, curItemList)
 				curGroups.insert(index->data(RDR_GROUP).toString());
@@ -285,6 +289,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 					FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
 				}
 				groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
+				groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
 
 				oldItemList.removeAll(groupItemIndex);
 			}

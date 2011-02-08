@@ -87,6 +87,7 @@ protected:
 	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected:
 	int findAcceptableField(const QModelIndex &AIndex) const;
+	QString findFieldMatchedValue(const IRosterIndex *AIndex, int AField) const;
 protected:
 	void createSearchLinks();
 	void destroySearchLinks();

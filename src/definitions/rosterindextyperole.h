@@ -67,7 +67,9 @@ enum RosterIndexDataRoles
 	RDR_STATES_FORCE_ON,
 	RDR_STATES_FORCE_OFF,
 	// Group Labels
-	RDR_GROUP_COUNTER
+	RDR_GROUP_COUNTER,
+	// Metacontacts
+	RDR_METACONTACT_ITEMS
 };
 
 #endif

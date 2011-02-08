@@ -10,7 +10,7 @@ RosterSearch::RosterSearch()
 	FRostersViewPlugin = NULL;
 
 	FSearchEdit = NULL;
-	FSearchFieldsMenu = NULL;
+	FSearchFieldsMenu = new Menu;
 
 	FItemsFound = false;
 	FSearchStarted = false;
@@ -29,6 +29,7 @@ RosterSearch::~RosterSearch()
 {
 	destroySearchLinks();
 	destroyNotFoundItem();
+	delete FSearchFieldsMenu;
 }
 
 void RosterSearch::pluginInfo(IPluginInfo *APluginInfo)
@@ -80,7 +81,7 @@ bool RosterSearch::initObjects()
 {
 	if (FMainWindow)
 	{
-		FSearchFieldsMenu = new Menu(FMainWindow->topToolBarChanger()->toolBar());
+		FSearchFieldsMenu->setParent(FMainWindow->topToolBarChanger()->toolBar());
 		FSearchFieldsMenu->setVisible(false);
 		FSearchFieldsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERSEARCH_MENU);
 
@@ -133,7 +134,7 @@ QList<int> RosterSearch::rosterDataRoles() const
 
 QList<int> RosterSearch::rosterDataTypes() const
 {
-	static QList<int> dataTypes = QList<int>() << RIT_CONTACT << RIT_SEARCH_LINK << RIT_SEARCH_EMPTY;
+	static QList<int> dataTypes = QList<int>() << RIT_CONTACT << RIT_METACONTACT << RIT_SEARCH_LINK << RIT_SEARCH_EMPTY;
 	return dataTypes;
 }
 
@@ -163,7 +164,7 @@ QVariant RosterSearch::rosterData(const IRosterIndex *AIndex, int ARole) const
 	}
 	else if (ARole == RDR_FOOTER_TEXT)
 	{
-		if (type == RIT_CONTACT)
+		if (type==RIT_CONTACT || type==RIT_METACONTACT)
 		{
 			static bool block = false;
 			if (!block && FRostersModel && FSearchStarted)
@@ -173,7 +174,8 @@ QVariant RosterSearch::rosterData(const IRosterIndex *AIndex, int ARole) const
 				if (field >= 0)
 				{
 					QVariantMap footer = AIndex->data(ARole).toMap();
-					QString note = QString("%1: %2").arg(FSearchFields.value(field).name).arg(AIndex->data(field).toString());
+					QString fieldValue = findFieldMatchedValue(AIndex,field);
+					QString note = QString("%1: %2").arg(FSearchFields.value(field).name).arg(fieldValue);
 					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),note);
 					data = footer;
 				}
@@ -329,6 +331,7 @@ bool RosterSearch::filterAcceptsRow(int ARow, const QModelIndex &AParent) const
 		switch (index.data(RDR_TYPE).toInt())
 		{
 		case RIT_CONTACT:
+		case RIT_METACONTACT:
 			{
 				bool accept = findAcceptableField(index)>=0;
 				FItemsFound |= accept;
@@ -393,9 +396,40 @@ int RosterSearch::findAcceptableField(const QModelIndex &AIndex) const
 {
 	const QString pattern = searchPattern();
 	for(QMap<int,SearchField>::const_iterator it = FSearchFields.constBegin(); it!=FSearchFields.constEnd(); it++)
-		if (it->enabled && AIndex.data(it.key()).toString().contains(pattern,Qt::CaseInsensitive))
-			return it.key();
+	{
+		if (it->enabled)
+		{
+			QVariant field = AIndex.data(it.key());
+			if (field.type()==QVariant::StringList && field.toStringList().join(" ").contains(pattern))
+				return it.key();
+			else if (field.toString().contains(pattern,Qt::CaseInsensitive))
+				return it.key();
+		}
+	}
 	return -1;
+}
+
+QString RosterSearch::findFieldMatchedValue(const IRosterIndex *AIndex, int AField) const
+{
+	QString fieldValue;
+	if (FSearchFields.contains(AField))
+	{
+		QVariant fieldData = AIndex->data(AField);
+		fieldValue = fieldData.toString();
+		if (fieldValue.isEmpty())
+		{
+			if (fieldData.type() == QVariant::StringList)
+			{
+				foreach(QString listItem, fieldData.toStringList())
+				{
+					if (listItem.contains(searchPattern(),Qt::CaseInsensitive))
+						return listItem;
+				}
+			}
+		}
+
+	}
+	return fieldValue;
 }
 
 void RosterSearch::createSearchLinks()

@@ -52,6 +52,7 @@ MetaContacts::MetaContacts()
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FStatusIcons = NULL;
+	FRosterSearch = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -117,6 +118,10 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 	if (plugin)
 		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IRosterSearch").value(0,NULL);
+	if (plugin)
+		FRosterSearch = qobject_cast<IRosterSearch *>(plugin->instance());
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 
@@ -137,6 +142,10 @@ bool MetaContacts::initObjects()
 		FRostersViewPlugin->rostersView()->insertProxyModel(proxyModel, RPO_METACONTACTS_MODIFIER);
 		FRostersViewPlugin->rostersView()->insertClickHooker(RCHO_DEFAULT,this);
 		FRostersViewPlugin->rostersView()->insertDragDropHandler(this);
+	}
+	if (FRosterSearch)
+	{
+		FRosterSearch->setSearchField(RDR_METACONTACT_ITEMS,tr("Address"),true);
 	}
 	return true;
 }

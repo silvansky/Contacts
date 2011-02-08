@@ -16,6 +16,7 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/istatusicons.h>
+#include <interfaces/irostersearch.h>
 #include <utils/widgetmanager.h>
 #include "metaroster.h"
 #include "metaproxymodel.h"
@@ -153,6 +154,7 @@ private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 	IStatusIcons *FStatusIcons;
+	IRosterSearch *FRosterSearch;
 private:
 	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;
