@@ -2,13 +2,14 @@
 
 #include <QPushButton>
 
-MergeContactsDialog::MergeContactsDialog(IMetaRoster *AMetaRoster, const QList<Jid> AMetaIds, QWidget *AParent) : QDialog(AParent)
+MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<Jid> AMetaIds, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_MERGECONTACTSDIALOG);
 
 	FMetaRoster = AMetaRoster;
+	FMetaContacts = AMetaContacts;
 	FMetaIds = AMetaIds;
 
 	ui.lblNotice->setText(tr("<b>%n contacts</b> will be merged into one:","",AMetaIds.count()));
@@ -18,7 +19,7 @@ MergeContactsDialog::MergeContactsDialog(IMetaRoster *AMetaRoster, const QList<J
 		IMetaContact contact = FMetaRoster->metaContact(metaId);
 
 		QImage avatar = FMetaRoster->metaAvatarImage(metaId).scaled(32,32,Qt::KeepAspectRatio,Qt::SmoothTransformation);
-		QString name = !contact.name.isEmpty() ? contact.name : contact.id.node();
+		QString name = FMetaContacts->metaContactName(contact);
 		
 		if (ui.ltwContacts->count() == 0)
 		{

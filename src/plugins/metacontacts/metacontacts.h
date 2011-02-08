@@ -84,6 +84,7 @@ public:
 	//IMetaContacts
 	virtual QString itemHint(const Jid &AItemJid) const;
 	virtual IMetaItemDescriptor itemDescriptor(const Jid &AItemJid) const;
+	virtual QString metaContactName(const IMetaContact &AContact) const;
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster);
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;
 	virtual void removeMetaRoster(IRoster *ARoster);
@@ -139,6 +140,7 @@ protected slots:
 protected slots:
 	void onLoadMetaRosters();
 	void onOpenTabPageAction(bool);
+	void onShowMetaTabWindowAction(bool);
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);

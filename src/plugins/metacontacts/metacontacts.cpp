@@ -185,7 +185,7 @@ Action *MetaContacts::tabPageAction(const QString &ATabPageId, QObject *AParent)
 
 			Action *action = new Action(AParent);
 			action->setData(ADR_TAB_PAGE_ID, ATabPageId);
-			action->setText(!contact.name.isEmpty() ? contact.name : contact.id.node());
+			action->setText(metaContactName(contact));
 			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenTabPageAction(bool)));
 
 			ITabPage *page = tabPageFind(ATabPageId);
@@ -372,7 +372,7 @@ bool MetaContacts::viewDropAction(IViewWidget *AWidget, const QDropEvent *AEvent
 			IMetaContact indexContact = mroster->metaContact(indexMetaId);
 
 			Action *nameAction = new Action(AMenu);
-			nameAction->setText(!indexContact.name.isEmpty() ? indexContact.name : indexContact.id.node());
+			nameAction->setText(metaContactName(indexContact));
 			nameAction->setEnabled(false);
 			AMenu->addAction(nameAction,AG_DEFAULT-100);
 
@@ -425,6 +425,21 @@ IMetaItemDescriptor MetaContacts::itemDescriptor(const Jid &AItemJid) const
 			return *it;
 	}
 	return FDefaultItemDescriptor;
+}
+
+QString MetaContacts::metaContactName(const IMetaContact &AContact) const
+{
+	if (AContact.name.isEmpty() && !AContact.items.isEmpty())
+	{
+		QMultiMap<int, Jid> itemOrder;
+		foreach(Jid itemJid, AContact.items)
+		{
+			IMetaItemDescriptor descriptor = itemDescriptor(itemJid);
+			itemOrder.insertMulti(descriptor.pageOrder,itemJid);
+		}
+		return itemHint(itemOrder.constBegin().value());
+	}
+	return AContact.name;
 }
 
 IMetaRoster *MetaContacts::newMetaRoster(IRoster *ARoster)
@@ -833,8 +848,7 @@ void MetaContacts::onRenameContact(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IMetaRoster *mroster = findMetaRoster(streamJid);
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
 		{
 			Jid metaId = action->data(ADR_META_ID).toString();
@@ -852,17 +866,29 @@ void MetaContacts::onDeleteContact(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IMetaRoster *mroster = findMetaRoster(streamJid);
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
 		{
-			Jid metaId = action->data(ADR_META_ID).toString();
-			IMetaContact contact = mroster->metaContact(metaId);
-			if (QMessageBox::question(NULL,tr("Remove contact"),
-				tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(!contact.name.isEmpty() ? contact.name : contact.id.node()),
-				QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+			QList<Jid> metaIdList;
+			metaIdList.append(action->data(ADR_META_ID).toString());
+			foreach(QVariant metaId, action->data(ADR_META_ID_LIST).toList())
+				metaIdList.append(metaId.toString());
+
+			QString message;
+			if (metaIdList.count() < 2)
 			{
-				mroster->deleteContact(metaId);
+				IMetaContact contact = mroster->metaContact(metaIdList.value(0));
+				message = tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(metaContactName(contact));
+			}
+			else
+			{
+				message = tr("You are assured that wish to remove %n contact(s) from roster?","",metaIdList.count());
+			}
+
+			if (QMessageBox::question(NULL,tr("Remove %n contact(s)","",metaIdList.count()),message,QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+			{
+				foreach(Jid metaId, metaIdList)
+					mroster->deleteContact(metaId);
 			}
 		}
 	}
@@ -873,8 +899,7 @@ void MetaContacts::onMergeContacts(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IMetaRoster *mroster = findMetaRoster(streamJid);
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
 		{
 			QList<Jid> metaIds;
@@ -884,7 +909,7 @@ void MetaContacts::onMergeContacts(bool)
 
 			if (metaIds.count() > 1)
 			{
-				MergeContactsDialog *dialog = new MergeContactsDialog(mroster,metaIds);
+				MergeContactsDialog *dialog = new MergeContactsDialog(this,mroster,metaIds);
 				connect(mroster->instance(),SIGNAL(metaRosterClosed()),dialog,SLOT(reject()));
 				WidgetManager::showActivateRaiseWindow(dialog);
 			}
@@ -897,8 +922,7 @@ void MetaContacts::onRemoveFromGroup(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IMetaRoster *mroster = findMetaRoster(streamJid);
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
 		{
 			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
@@ -913,8 +937,7 @@ void MetaContacts::onDetachContactItems(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IMetaRoster *mroster = findMetaRoster(streamJid);
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
 		{
 			Jid metaId = action->data(ADR_META_ID).toString();
@@ -929,60 +952,47 @@ void MetaContacts::onChangeContactGroups(bool AChecked)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IMetaRoster *mroster = findMetaRoster(streamJid);
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
 		{
-			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
-			if (contact.id.isValid())
+			QList<Jid> metaIdList;
+			metaIdList.append(action->data(ADR_META_ID).toString());
+			foreach(QVariant metaId, action->data(ADR_META_ID_LIST).toList())
+				metaIdList.append(metaId.toString());
+
+			QString group = action->data(ADR_TO_GROUP).toString();
+			if (group == mroster->roster()->groupDelimiter())
 			{
-				bool checkBlank = false;
-				bool uncheckBlank = false;
-				bool uncheckGroups = false;
-				QString group = action->data(ADR_TO_GROUP).toString();
-				if (group == mroster->roster()->groupDelimiter())
-				{
-					group = QInputDialog::getText(NULL,tr("Create new group"),tr("Enter group name:"));
-					if (!group.isEmpty())
-					{
-						uncheckBlank = contact.groups.isEmpty();
-						mroster->setContactGroups(contact.id,contact.groups += group);
-					}
-				}
-				else if (group.isEmpty())
-				{
-					if (!contact.groups.isEmpty())
-					{
-						uncheckGroups = true;
-						mroster->setContactGroups(contact.id,QSet<QString>());
-					}
-					action->setChecked(true);
-				}
+				group = QInputDialog::getText(NULL,tr("Create new group"),tr("Enter group name:"));
+				if (group.isEmpty())
+					return;
+				AChecked = true;
+			}
+
+			QSet<QString> commonGroups;
+			foreach(Jid metaId, metaIdList)
+			{
+				IMetaContact contact = mroster->metaContact(metaId);
+				if (group.isEmpty())
+					contact.groups.clear();
 				else if (AChecked)
-				{
-					uncheckBlank = contact.groups.isEmpty();
-					mroster->setContactGroups(contact.id,contact.groups += group);
-				}
+					contact.groups += group;
 				else
-				{
-					checkBlank = (contact.groups-=group).isEmpty();
-					mroster->setContactGroups(contact.id,contact.groups -= group);
-				}
+					contact.groups -= group;
+				mroster->setContactGroups(contact.id,contact.groups);
+				commonGroups += contact.groups;
+			}
 
-				Menu *menu = qobject_cast<Menu *>(action->parent());
-				if (menu && (checkBlank || uncheckBlank || uncheckGroups))
+			Menu *menu = qobject_cast<Menu *>(action->parent());
+			if (menu)
+			{
+				Action *blankAction = menu->groupActions(AG_DEFAULT-1).value(0);
+				if (blankAction)
+					blankAction->setChecked(commonGroups.isEmpty());
+				foreach(Action *groupAction, menu->groupActions(AG_DEFAULT))
 				{
-					Action *blankAction = menu->groupActions(AG_DEFAULT-1).value(0);
-					if (blankAction && checkBlank)
-						blankAction->setChecked(true);
-					else if (blankAction && uncheckBlank)
-						blankAction->setChecked(false);
-
-					foreach(Action *groupAction, menu->groupActions(AG_DEFAULT))
-					{
-						if (uncheckGroups)
-							groupAction->setChecked(false);
-					}
+					if (commonGroups.isEmpty())
+						groupAction->setChecked(false);
 				}
 			}
 		}
@@ -1004,6 +1014,28 @@ void MetaContacts::onOpenTabPageAction(bool)
 		ITabPage *page = tabPageCreate(action->data(ADR_TAB_PAGE_ID).toString());
 		if (page)
 			page->showTabPage();
+	}
+}
+
+void MetaContacts::onShowMetaTabWindowAction(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
+		if (mroster && mroster->isEnabled())
+		{
+			QList<Jid> metaIdList;
+			metaIdList.append(action->data(ADR_META_ID).toString());
+			foreach(QVariant metaId, action->data(ADR_META_ID_LIST).toList())
+				metaIdList.append(metaId.toString());
+
+			foreach(Jid metaId, metaIdList)
+			{
+				IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
+				window->showTabPage();
+			}
+		}
 	}
 }
 
@@ -1061,18 +1093,30 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			QHash<int,QVariant> data;
 			data.insert(ADR_STREAM_JID,streamJid.full());
 			data.insert(ADR_META_ID,metaId.pBare());
-			data.insert(ADR_NAME,contact.name);
+			data.insert(ADR_NAME,metaContactName(contact));
 			data.insert(ADR_META_ID_LIST,selMetaIdList);
+
+			// Open Dialog
+			Action *dialogAction = new Action(AMenu);
+			dialogAction->setText(tr("Open dialog"));
+			dialogAction->setData(data);
+			AMenu->setDefaultAction(dialogAction);
+			AMenu->addAction(dialogAction,AG_RVCM_CHATMESSAGEHANDLER);
+			connect(dialogAction,SIGNAL(triggered(bool)),SLOT(onShowMetaTabWindowAction(bool)));
 
 			// Change group menu
 			GroupMenu *groupMenu = new GroupMenu(AMenu);
 			groupMenu->setTitle(tr("Groups"));
 
+			QSet<QString> commonGroups = contact.groups;
+			foreach(QVariant selMetaId, selMetaIdList)
+				commonGroups += mroster->metaContact(selMetaId.toString()).groups;
+
 			Action *blankGroupAction = new Action(groupMenu);
 			blankGroupAction->setText(FRostersViewPlugin->rostersView()->rostersModel()->blankGroupName());
 			blankGroupAction->setData(data);
 			blankGroupAction->setCheckable(true);
-			blankGroupAction->setChecked(contact.groups.isEmpty());
+			blankGroupAction->setChecked(commonGroups.isEmpty());
 			connect(blankGroupAction,SIGNAL(triggered(bool)),SLOT(onChangeContactGroups(bool)));
 			groupMenu->addAction(blankGroupAction,AG_DEFAULT-1,true);
 
@@ -1083,7 +1127,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				action->setData(data);
 				action->setData(ADR_TO_GROUP, group);
 				action->setCheckable(true);
-				action->setChecked(contact.groups.contains(group));
+				action->setChecked(commonGroups.contains(group));
 				connect(action,SIGNAL(triggered(bool)),SLOT(onChangeContactGroups(bool)));
 				groupMenu->addAction(action,AG_DEFAULT,true);
 			}

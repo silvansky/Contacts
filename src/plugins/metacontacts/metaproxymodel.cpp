@@ -284,7 +284,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 					groupItemIndex->setData(RDR_GROUP,group);
 					FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
 				}
-				groupItemIndex->setData(RDR_NAME,AContact.name);
+				groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
 
 				oldItemList.removeAll(groupItemIndex);
 			}

@@ -15,6 +15,10 @@
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
+    <message>
+        <source>Restore</source>
+        <translation>Восстановить</translation>
+    </message>
 </context>
 <context>
     <name>ErrorHandler</name>
