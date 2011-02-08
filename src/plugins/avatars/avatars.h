@@ -154,6 +154,7 @@ private:
 	QMap<Jid, QString> FStreamAvatars;
 	mutable QHash<Jid, bool> FContactGender;
 	mutable QHash<QString, QImage> FAvatarImages;
+	mutable QHash<QString, QImage> FAvatarImagesGrayscale;
 	QHash<QObject *, AutoAvatarParams> FAutoAvatars;
 };
 

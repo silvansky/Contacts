@@ -431,7 +431,6 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 			image = FEmptyMaleAvatar;
 		}
 	}
-	/*
 	if (!image.isNull() && FRostersModel)
 	{
 		QMultiMap<int,QVariant> findData;
@@ -450,13 +449,21 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 				else if (image == FEmptyFemaleAvatar)
 					image = FEmptyFemaleAvatarOffline;
 				else if (image != FEmptyMaleAvatarOffline && image != FEmptyFemaleAvatarOffline)
-					image = image.convertToFormat(QImage::Format_Indexed8, monoTable);
+				{
+					if (!FAvatarImagesGrayscale.contains(hash))
+					{
+						image = image.convertToFormat(QImage::Format_Indexed8, monoTable);
+						FAvatarImagesGrayscale.insert(hash, image);
+					}
+					else
+						image = FAvatarImagesGrayscale.value(hash);
+				}
 			}
 			if (index->data(RDR_TYPE).toInt() == RIT_STREAM_ROOT)
 				break;
 		}
 	}
-	*/
+
 	return image;
 }
 
