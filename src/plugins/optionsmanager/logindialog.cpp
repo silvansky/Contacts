@@ -76,7 +76,11 @@ public:
 		{
 			QAbstractTextDocumentLayout::PaintContext context;
 			context.palette = option.palette;
-			APainter->translate(option.rect.topLeft());
+			QRect rect = option.rect;
+			rect.moveLeft(rect.left() + 7);
+			// TODO: vertically center text in option.rect
+			rect.moveTop(rect.top() + 2);
+			APainter->translate(rect.topLeft());
 			doc.documentLayout()->draw(APainter, context);
 			APainter->restore();
 		}
@@ -89,7 +93,9 @@ public:
 	}
 	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
-		return drawIndex(NULL,AOption,AIndex);
+		QSize hint = drawIndex(NULL,AOption,AIndex);
+		hint.setHeight(27);
+		return hint;
 	}
 };
 
@@ -315,6 +321,7 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 	{
 		if (AWatched == ui.lneNode->completer()->popup())
 		{
+			// TODO: adjust size to popup contents
 			ui.lneNode->completer()->popup()->setFixedWidth(ui.frmLogin->width());
 		}
 		else if (FMainWindowPlugin && (AWatched == FMainWindowPlugin->mainWindow()->instance() || AWatched == FMainWindowPlugin->mainWindowBorder()))

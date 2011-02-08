@@ -105,8 +105,8 @@ QLineEdit, QTextEdit
 	border-right: 10px;
 	border-bottom: 10px;
 	padding-top: -10px;
-	padding-bottom: -10px;
-	min-height: 31px;
+	padding-bottom: -9px;
+	min-height: 30px;
 	background-color: transparent;
 	border-image: url(%IMAGES_PATH%/editborder.png);
 	color: #333333;
@@ -235,9 +235,9 @@ QPushButton, QToolButton
 	background-color: transparent;
 	background-origin: content;
 	padding-left: -2px;
-	padding-top: -2px;
+	padding-top: -3px;
 	padding-right: -2px;
-	padding-bottom: -2px;
+	padding-bottom: -1px;
 	color: white;
 	min-height: 27px;
 	min-width: 80px;
@@ -261,9 +261,9 @@ QPushButton:hover:enabled, QToolButton:hover:enabled
 	border-left: 5px;
 	border-bottom: 6px;
 	padding-left: -4px;
-	padding-top: -4px;
+	padding-top: -5px;
 	padding-right: -4px;
-	padding-bottom: -4px;
+	padding-bottom: -3px;
 	border-image: url(%IMAGES_PATH%/buttonborderhover.png);
 /*	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #31363c, stop:1 #61656a);*/
 }
@@ -291,9 +291,9 @@ QPushButton:default:hover:enabled, QToolButton:default:hover:enabled
 	border-left: 5px;
 	border-bottom: 6px;
 	padding-left: -4px;
-	padding-top: -4px;
+	padding-top: -5px;
 	padding-right: -4px;
-	padding-bottom: -4px;
+	padding-bottom: -3px;
 	border-image: url(%IMAGES_PATH%/buttonborderdefaulthover.png);
 /*	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #15374b, stop:1 #397699);*/
 	/*background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #1a435b, stop:1 #438bab);*/
