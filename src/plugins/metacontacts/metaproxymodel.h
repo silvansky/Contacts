@@ -10,12 +10,12 @@
 #include <interfaces/irostersmodel.h>
 #include <interfaces/ipresence.h>
 
-class MetaProxyModel : 
+class MetaProxyModel :
 	public QSortFilterProxyModel,
 	public IRosterDataHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IRosterDataHolder);
+	Q_OBJECT
+	Q_INTERFACES(IRosterDataHolder)
 public:
 	MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARostersView);
 	~MetaProxyModel();

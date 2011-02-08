@@ -12,7 +12,7 @@
 class MetaContextMenu :
 	public Menu
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	MetaContextMenu(IRostersModel *AModel, IRostersView *AView, IMetaTabWindow *AWindow);
 	~MetaContextMenu();

@@ -104,6 +104,7 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 		hint.setHeight(18);
 		break;
 	case RIT_CONTACT:
+	case RIT_METACONTACT:
 		if (hint.height() < 30)
 			hint.setHeight(30);
 		else if (hint.height() < 42)

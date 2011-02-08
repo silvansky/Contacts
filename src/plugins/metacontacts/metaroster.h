@@ -10,14 +10,14 @@
 #include <utils/stanza.h>
 #include <utils/errorhandler.h>
 
-class MetaRoster : 
+class MetaRoster :
 	public QObject,
 	public IMetaRoster,
 	public IStanzaHandler,
 	public IStanzaRequestOwner
 {
-	Q_OBJECT;
-	Q_INTERFACES(IMetaRoster IStanzaHandler IStanzaRequestOwner);
+	Q_OBJECT
+	Q_INTERFACES(IMetaRoster IStanzaHandler IStanzaRequestOwner)
 public:
 	MetaRoster(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IRoster *ARoster);
 	~MetaRoster();

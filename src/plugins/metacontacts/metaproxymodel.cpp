@@ -180,7 +180,7 @@ void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AM
 		findData.insert(RDR_INDEX_ID,AMetaId.pBare());
 
 		QString hash = AMetaRoster->metaAvatarHash(AMetaId);
-		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId).scaled(32,32,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId).scaled(24,24,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
 		{
 			index->setData(RDR_AVATAR_HASH,hash);
@@ -227,7 +227,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 			QSet<QString> curGroups;
 			foreach(IRosterIndex *index, curItemList)
 				curGroups.insert(index->data(RDR_GROUP).toString());
-			
+
 			int groupType;
 			QString groupName;
 			QSet<QString> itemGroups;
@@ -267,7 +267,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 						oldGroupIndex = FRostersModel->findGroup(oldGroup,groupDelim,RIT_GROUP,streamIndex);
 					else
 						oldGroupIndex = FRostersModel->findGroup(FRostersModel->blankGroupName(),groupDelim,RIT_GROUP_BLANK,streamIndex);
-					
+
 					groupItemIndex = oldGroupIndex!=NULL ? oldGroupIndex->findChild(findData).value(0) : NULL;
 					if (groupItemIndex)
 					{

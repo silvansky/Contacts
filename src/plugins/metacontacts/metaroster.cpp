@@ -233,7 +233,7 @@ QImage MetaRoster::metaAvatarImage(const Jid &AMetaId, bool ANullImage) const
 	if (FAvatars && FContacts.contains(AMetaId))
 	{
 		IMetaContact contact = FContacts.value(AMetaId);
-		for (QSet<Jid>::const_iterator it=contact.items.constBegin() ; image.isNull() && it!=contact.items.constEnd(); it++)
+		for (QSet<Jid>::const_iterator it=contact.items.constBegin(); image.isNull() && it!=contact.items.constEnd(); it++)
 			image = FAvatars->avatarImage(*it,false);
 		if (image.isNull() && ANullImage)
 			image = FAvatars->avatarImage(AMetaId, ANullImage);
@@ -655,7 +655,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 			}
 			mcElem = mcElem.nextSiblingElement("mc");
 		}
-		
+
 		foreach(Jid metaId, oldContacts) {
 			removeMetaContact(metaId); }
 	}
@@ -769,14 +769,14 @@ Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 	Stanza iq("iq");
 	iq.setType("set").setId(FStanzaProcessor->newId());
 	QDomElement queryElem = iq.element().appendChild(iq.createElement("query",NS_RAMBLER_METACONTACTS)).toElement();
-	
+
 	if (!ARosterElem.isNull())
 	{
 		QDomElement itemElem = ARosterElem.firstChildElement("item");
 		while (!itemElem.isNull())
 		{
 			Jid itemJid = itemElem.attribute("jid");
-			
+
 			// Добавление нового контакта
 			if (!FRoster->rosterItem(itemJid).isValid)
 			{

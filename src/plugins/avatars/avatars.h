@@ -26,6 +26,7 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/ioptionsmanager.h>
+#include <interfaces/imetacontacts.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 
@@ -122,6 +123,8 @@ protected slots:
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onAvatarObjectTimerTimeout();
 	void onAvatarObjectDestroyed(QObject *AObject);
+	void onContactStateChanged(const Jid & AStreamJid, const Jid & AContactJid, bool AStateOnline);
+	void onStreamStateChanged(const Jid & AStreamJid, bool AStateOnline);
 private:
 	IPluginManager *FPluginManager;
 	IXmppStreams *FXmppStreams;
@@ -129,6 +132,7 @@ private:
 	IVCardPlugin *FVCardPlugin;
 	IPresencePlugin *FPresencePlugin;
 	IRostersModel *FRostersModel;
+	IMetaContacts * FMetaContacts;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IOptionsManager *FOptionsManager;
 private:

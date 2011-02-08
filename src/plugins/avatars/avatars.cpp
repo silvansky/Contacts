@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QImageReader>
 #include <QCryptographicHash>
+#include <QDebug>
 
 #define DIR_AVATARS               "avatars"
 
@@ -84,7 +85,14 @@ bool Avatars::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*
 
 	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
 	if (plugin)
+	{
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
+		if (FPresencePlugin)
+		{
+			connect(FPresencePlugin->instance(), SIGNAL(contactStateChanged(const Jid &, const Jid &, bool)), SLOT(onContactStateChanged(const Jid &, const Jid &, bool)));
+			connect(FPresencePlugin->instance(), SIGNAL(streamStateChanged(const Jid &, bool)), SLOT(onStreamStateChanged(const Jid &, bool)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IRostersModel").value(0,NULL);
 	if (plugin)
@@ -113,6 +121,12 @@ bool Avatars::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*
 	if (plugin)
 	{
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
+	if (plugin)
+	{
+		FMetaContacts = qobject_cast<IMetaContacts*>(plugin->instance());
 	}
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
@@ -393,7 +407,6 @@ QString Avatars::avatarHash(const Jid &AContactJid) const
 
 QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 {
-
 	static QVector<QRgb> monoTable;
 	if (monoTable.isEmpty())
 	{
@@ -442,6 +455,19 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 		foreach (IRosterIndex * index, indexes)
 		{
 			int show = index->data(RDR_SHOW).toInt();
+			if (FMetaContacts)
+			{
+				foreach (Jid sjid, FRostersModel->streams())
+				{
+					IMetaRoster * mroster = FMetaContacts->findMetaRoster(sjid);
+					if (mroster)
+					{
+						Jid mcontact = mroster->itemMetaContact(AContactJid);
+						IPresenceItem pi = mroster->metaPresence(mcontact);
+						show = pi.show;
+					}
+				}
+			}
 			if (show == IPresence::Offline || show == IPresence::Error)
 			{
 				if (image == FEmptyMaleAvatar)
@@ -470,11 +496,11 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 bool Avatars::setAvatar(const Jid &AStreamJid, const QImage &AImage, const char *AFormat)
 {
 	bool published = false;
-	IVCard *vcard = FVCardPlugin!=NULL ? FVCardPlugin->vcard(AStreamJid.bare()) : NULL;
+	IVCard *vcard = FVCardPlugin ? FVCardPlugin->vcard(AStreamJid.bare()) : NULL;
 	if (vcard)
 	{
 		const static QSize maxSize = QSize(96,96);
-		QImage avatar = AImage.width()>96 || AImage.height()>96 ? AImage.scaled(QSize(96,96),Qt::KeepAspectRatio,Qt::SmoothTransformation) : AImage;
+		QImage avatar = AImage.width()>maxSize.width() || AImage.height()>maxSize.height() ? AImage.scaled(maxSize,Qt::KeepAspectRatio,Qt::SmoothTransformation) : AImage;
 		vcard->setPhotoImage(avatar, AFormat);
 		published = FVCardPlugin->publishVCard(vcard,AStreamJid);
 		vcard->unlock();
@@ -950,6 +976,19 @@ void Avatars::onAvatarObjectTimerTimeout()
 void Avatars::onAvatarObjectDestroyed(QObject *AObject)
 {
 	removeAutoAvatar(AObject);
+}
+
+void Avatars::onContactStateChanged(const Jid & AStreamJid, const Jid & AContactJid, bool AStateOnline)
+{
+	Q_UNUSED(AStreamJid)
+	Q_UNUSED(AStateOnline)
+	emit avatarChanged(AContactJid);
+}
+
+void Avatars::onStreamStateChanged(const Jid & AStreamJid, bool AStateOnline)
+{
+	Q_UNUSED(AStateOnline)
+	emit avatarChanged(AStreamJid);
 }
 
 Q_EXPORT_PLUGIN2(plg_avatars, Avatars)

@@ -31,10 +31,10 @@ struct TabPageInfo
 	ITabPage *page;
 };
 
-class GroupMenu : 
+class GroupMenu :
 	public Menu
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	GroupMenu(QWidget* AParent = NULL) : Menu(AParent) { }
 	virtual ~GroupMenu() {}
@@ -42,7 +42,7 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *AEvent);
 };
 
-class MetaContacts : 
+class MetaContacts :
 	public QObject,
 	public IPlugin,
 	public IMetaContacts,
@@ -51,8 +51,8 @@ class MetaContacts :
 	public IRostersDragDropHandler,
 	public IViewDropHandler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersDragDropHandler IViewDropHandler);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersDragDropHandler IViewDropHandler)
 public:
 	MetaContacts();
 	~MetaContacts();
