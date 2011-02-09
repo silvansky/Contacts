@@ -53,6 +53,7 @@ MetaContacts::MetaContacts()
 	FMessageProcessor = NULL;
 	FStatusIcons = NULL;
 	FRosterSearch = NULL;
+	FGateways = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -123,6 +124,10 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 	plugin = APluginManager->pluginInterface("IRosterSearch").value(0,NULL);
 	if (plugin)
 		FRosterSearch = qobject_cast<IRosterSearch *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -392,6 +397,7 @@ bool MetaContacts::viewDropAction(IViewWidget *AWidget, const QDropEvent *AEvent
 			infoAction->setData(ADR_META_ID,indexMetaId.pBare());
 			infoAction->setData(ADR_VIEW_JID,AWidget->contactJid().full());
 			infoAction->setText(tr("Send contact data"));
+			connect(infoAction,SIGNAL(triggered(bool)),SLOT(onSendContactDataAction(bool)));
 			AMenu->addAction(infoAction,AG_DEFAULT);
 
 			if (indexMetaId != viewMetaId)
@@ -557,20 +563,20 @@ void MetaContacts::initMetaItemDescriptors()
 	sms.name = tr("SMS");
 	sms.icon = MNI_METACONTACTS_ITEM_SMS;
 	sms.combine = true;
-	sms.detach = true;
+	sms.detach = false;
 	sms.service = true;
 	sms.pageOrder = MIPO_SMS;
-	sms.pattern = "*.@sms\\.";
+	sms.pattern = ".*@sms\\.";
 	FMetaItemDescriptors.append(sms);
 
 	IMetaItemDescriptor mail;
 	mail.name = tr("Mail");
 	mail.icon = MNI_METACONTACTS_ITEM_MAIL;
 	mail.combine = false;
-	mail.detach = true;
+	mail.detach = false;
 	mail.service = true;
 	mail.pageOrder = MIPO_MAIL;
-	mail.pattern = "*.@mail\\.";
+	mail.pattern = ".*@mail\\.";
 	FMetaItemDescriptors.append(mail);
 
 	IMetaItemDescriptor icq;
@@ -580,7 +586,7 @@ void MetaContacts::initMetaItemDescriptors()
 	icq.detach = true;
 	icq.service = false;
 	icq.pageOrder = MIPO_ICQ;
-	icq.pattern = "*.@icq\\.";
+	icq.pattern = ".*@icq\\.";
 	FMetaItemDescriptors.append(icq);
 
 	IMetaItemDescriptor magent;
@@ -590,7 +596,7 @@ void MetaContacts::initMetaItemDescriptors()
 	magent.detach = true;
 	magent.service = false;
 	magent.pageOrder = MIPO_MAGENT;
-	magent.pattern = "*.@mrim\\.";
+	magent.pattern = ".*@mrim\\.";
 	FMetaItemDescriptors.append(magent);
 
 	IMetaItemDescriptor twitter;
@@ -600,7 +606,7 @@ void MetaContacts::initMetaItemDescriptors()
 	twitter.detach = true;
 	twitter.service = false;
 	twitter.pageOrder = MIPO_TWITTER;
-	twitter.pattern = "*.@twitter\\.";
+	twitter.pattern = ".*@twitter\\.";
 	FMetaItemDescriptors.append(twitter);
 
 	IMetaItemDescriptor fring;
@@ -610,7 +616,7 @@ void MetaContacts::initMetaItemDescriptors()
 	fring.detach = true;
 	fring.service = false;
 	fring.pageOrder = MIPO_FRING;
-	fring.pattern = "*.@fring\\.";
+	fring.pattern = ".*@fring\\.";
 	FMetaItemDescriptors.append(fring);
 
 	IMetaItemDescriptor gtalk;
@@ -620,7 +626,7 @@ void MetaContacts::initMetaItemDescriptors()
 	gtalk.detach = true;
 	gtalk.service = false;
 	gtalk.pageOrder = MIPO_GTALK;
-	gtalk.pattern = "*.@(gtalk\\.|gmail\\.com|googlemail\\.com$)";
+	gtalk.pattern = ".*@(gtalk\\.|gmail\\.com|googlemail\\.com$)";
 	FMetaItemDescriptors.append(gtalk);
 
 	IMetaItemDescriptor yonline;
@@ -630,7 +636,7 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.detach = true;
 	yonline.service = false;
 	yonline.pageOrder = MIPO_YONLINE;
-	yonline.pattern = "*.@(yonline\\.|ya\\.ru$)";
+	yonline.pattern = ".*@(yonline\\.|ya\\.ru$)";
 	FMetaItemDescriptors.append(yonline);
 
 	IMetaItemDescriptor qip;
@@ -640,7 +646,7 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.detach = true;
 	qip.service = false;
 	qip.pageOrder = MIPO_QIP;
-	qip.pattern = "*.@(qip\\.|qip\\.ru$)";
+	qip.pattern = ".*@(qip\\.|qip\\.ru$)";
 	FMetaItemDescriptors.append(qip);
 
 	IMetaItemDescriptor vkontakte;
@@ -650,7 +656,7 @@ void MetaContacts::initMetaItemDescriptors()
 	vkontakte.detach = true;
 	vkontakte.service = false;
 	vkontakte.pageOrder = MIPO_VKONTAKTE;
-	vkontakte.pattern = "*.@(vk\\.|vk\\.com$)";
+	vkontakte.pattern = ".*@(vk\\.|vk\\.com$)";
 	FMetaItemDescriptors.append(vkontakte);
 
 	IMetaItemDescriptor odnoklasniki;
@@ -660,7 +666,7 @@ void MetaContacts::initMetaItemDescriptors()
 	odnoklasniki.detach = true;
 	odnoklasniki.service = false;
 	odnoklasniki.pageOrder = MIPO_ODNOKLASNIKI;
-	odnoklasniki.pattern = "*.@odnkl\\.";
+	odnoklasniki.pattern = ".*@odnkl\\.";
 	FMetaItemDescriptors.append(odnoklasniki);
 
 	IMetaItemDescriptor facebook;
@@ -670,7 +676,7 @@ void MetaContacts::initMetaItemDescriptors()
 	facebook.detach = true;
 	facebook.service = false;
 	facebook.pageOrder = MIPO_FACEBOOK;
-	facebook.pattern = "*.@(facebook\\.|chat\\.facebook\\.com$)";
+	facebook.pattern = ".*@(facebook\\.|chat\\.facebook\\.com$)";
 	FMetaItemDescriptors.append(facebook);
 
 	IMetaItemDescriptor livejournal;
@@ -680,7 +686,7 @@ void MetaContacts::initMetaItemDescriptors()
 	livejournal.detach = true;
 	livejournal.service = false;
 	livejournal.pageOrder = MIPO_LIVEJOURNAL;
-	livejournal.pattern = "*.@(livejournal\\.|livejournal\\.com$)";
+	livejournal.pattern = ".*@(livejournal\\.|livejournal\\.com$)";
 	FMetaItemDescriptors.append(livejournal);
 
 	IMetaItemDescriptor rambler;
@@ -690,7 +696,7 @@ void MetaContacts::initMetaItemDescriptors()
 	rambler.detach = true;
 	rambler.service = false;
 	rambler.pageOrder = MIPO_RAMBLER;
-	rambler.pattern = "*.@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
+	rambler.pattern = ".*@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
 	FMetaItemDescriptors.append(rambler);
 }
 
@@ -1028,6 +1034,35 @@ void MetaContacts::onOpenTabPageAction(bool)
 	}
 }
 
+void MetaContacts::onSendContactDataAction(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
+		if (mroster && mroster->isEnabled())
+		{
+			IChatWindow *window = FMessageWidgets->findChatWindow(mroster->streamJid(),action->data(ADR_VIEW_JID).toString());
+			if (window && window->editWidget())
+			{
+				QTextEdit *editor = window->editWidget()->textEdit();
+				QList<Jid> gates = FGateways!=NULL ? FGateways->streamServices(mroster->streamJid()) : QList<Jid>();
+				IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
+				editor->append(metaContactName(contact));
+				foreach(Jid itemJid, contact.items)
+				{
+					IMetaItemDescriptor descriptor = itemDescriptor(itemJid);
+					QString login = itemJid.bare();
+					if (gates.contains(itemJid.domain()))
+						login = FGateways->legacyIdFromUserJid(itemJid);
+					if (!login.isEmpty())
+						editor->append(descriptor.name + ": " + login);
+				}
+			}
+		}
+	}
+}
+
 void MetaContacts::onShowMetaTabWindowAction(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -1169,7 +1204,8 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				QList<Jid> detachItems;
 				foreach(Jid itemJid, contact.items)
 				{
-					if (itemDescriptor(itemJid).detach)
+					IMetaItemDescriptor descriptor = itemDescriptor(itemJid);
+					if (descriptor.detach)
 						detachItems.append(itemJid);
 				}
 				if (detachItems.count() > 1)

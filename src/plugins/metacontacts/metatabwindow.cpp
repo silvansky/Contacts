@@ -392,6 +392,14 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 		IMetaContact contact = FMetaRoster->metaContact(FMetaId);
 		IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(AItemJid);
 
+		QList<Jid> detachItems;
+		foreach(Jid itemJid, contact.items)
+		{
+			IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(itemJid);
+			if (descriptor.detach)
+				detachItems.append(itemJid);
+		}
+
 		Action *editAction = new Action(AMenu);
 		editAction->setText(tr("Edit on site..."));
 		editAction->setData(ADR_ITEM_JID,AItemJid.pBare());
@@ -402,7 +410,7 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 		detachAction->setText(tr("Detach to separate contact"));
 		detachAction->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
 		detachAction->setData(ADR_ITEM_JID,AItemJid.pBare());
-		detachAction->setEnabled(FMetaRoster->isOpen() && contact.items.count()>1 && descriptor.detach);
+		detachAction->setEnabled(FMetaRoster->isOpen() && detachItems.count()>1 && descriptor.detach);
 		connect(detachAction,SIGNAL(triggered(bool)),SLOT(onDetachItemByAction(bool)));
 		AMenu->addAction(detachAction,AG_MCICM_ITEM_ACTIONS);
 

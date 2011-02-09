@@ -18,6 +18,7 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/irostersearch.h>
+#include <interfaces/igateways.h>
 #include <utils/widgetmanager.h>
 #include "metaroster.h"
 #include "metaproxymodel.h"
@@ -142,6 +143,7 @@ protected slots:
 protected slots:
 	void onLoadMetaRosters();
 	void onOpenTabPageAction(bool);
+	void onSendContactDataAction(bool);
 	void onShowMetaTabWindowAction(bool);
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
@@ -157,6 +159,7 @@ private:
 	IMessageProcessor *FMessageProcessor;
 	IStatusIcons *FStatusIcons;
 	IRosterSearch *FRosterSearch;
+	IGateways *FGateways;
 private:
 	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;
