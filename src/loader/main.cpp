@@ -9,41 +9,6 @@
 class ProxyStyle : public QProxyStyle
 {
 public:
-//	void drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
-//	{
-//		if (element == QStyle::CE_ItemViewItem)
-//		{
-//			qDebug() << "ProxyStyle::drawControl: element == QStyle::CE_ItemViewItem";
-//			if (const QStyleOptionViewItemV4 *vopt = qstyleoption_cast<const QStyleOptionViewItemV4 *>(option))
-//			{
-//				QStyleOptionViewItemV4 * vopt2 = new QStyleOptionViewItemV4(*vopt);
-//				qDebug() << "ProxyStyle::drawControl: vopt";
-//				qDebug() << vopt->state;
-//				qDebug() << vopt2->state;
-//				if (vopt2->state & QStyle::State_HasFocus)
-//				{
-//					vopt2->state ^= QStyle::State_HasFocus;
-//					qDebug() << vopt2->state;
-//				}
-//				QProxyStyle::drawControl(element, vopt2, painter, widget);
-//			}
-//		}
-//		if (element == QStyle::CE_ComboBoxLabel)
-//		{
-//			qDebug() << "element == QStyle::CE_ComboBoxLabel!";
-//			QProxyStyle::drawControl(element, option, painter, widget);
-//		}
-//		else
-//			QProxyStyle::drawControl(element, option, painter, widget);
-//	}
-	void drawComplexControl(ComplexControl control, const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget) const
-	{
-		if (control == CC_ComboBox)
-		{
-			qDebug() << "Drawing a combo!";
-		}
-		QProxyStyle::drawComplexControl(control, option, painter, widget);
-	}
 	void drawItemText(QPainter *painter, const QRect &rect, int flags, const QPalette &pal, bool enabled, const QString &text, QPalette::ColorRole textRole) const
 	{
 		//qDebug() << "drawItemText: " << text << " role: " << textRole;

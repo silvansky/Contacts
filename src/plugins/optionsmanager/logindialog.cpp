@@ -236,7 +236,7 @@ void LoginDialog::loadLastProfile()
 
 void LoginDialog::connectIfReady()
 {
-	if (ui.chbSavePassword->isChecked() && !ui.lnePassword->text().isEmpty())
+	if (readyToConnect())
 		onConnectClicked();
 }
 
@@ -661,6 +661,7 @@ void LoginDialog::onConnectClicked()
 {
 	if (ui.pbtConnect->isEnabled())
 	{
+		ui.lneNode->completer()->popup()->hide();
 		bool connecting = false;
 		setConnectEnabled(false);
 		QApplication::processEvents();
@@ -960,6 +961,11 @@ void LoginDialog::loadCurrentProfileSettings()
 		}
 		login.close();
 	}
+}
+
+bool LoginDialog::readyToConnect() const
+{
+	return ui.chbSavePassword->isChecked() && !ui.lnePassword->text().isEmpty();
 }
 
 void LoginDialog::onLoginOrPasswordTextChanged()

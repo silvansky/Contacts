@@ -455,7 +455,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 		foreach (IRosterIndex * index, indexes)
 		{
 			int show = index->data(RDR_SHOW).toInt();
-			if (FMetaContacts)
+			if ((index->data(RDR_TYPE).toInt() != RIT_STREAM_ROOT) && FMetaContacts)
 			{
 				foreach (Jid sjid, FRostersModel->streams())
 				{

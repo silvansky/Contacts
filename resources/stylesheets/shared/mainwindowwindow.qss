@@ -25,7 +25,7 @@ QToolBar#statusToolBar
 	padding: 2px;
 	spacing: 2px;
 	background-color: transparent;
-	max-height: 55px;
+	min-height: 55px;
 }
 
 /********************
