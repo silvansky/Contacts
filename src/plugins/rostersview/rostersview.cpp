@@ -1004,7 +1004,7 @@ void RostersView::mousePressEvent(QMouseEvent *AEvent)
 
 void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 {
-	if (!FStartDragFailed && AEvent->buttons()!=Qt::NoButton && FPressedIndex.isValid() &&
+	if (!FStartDragFailed && AEvent->buttons()!=Qt::NoButton && FPressedIndex.isValid() && selectedRosterIndexes().count()<2 &&
 	    (AEvent->pos()-FPressedPos).manhattanLength() > QApplication::startDragDistance())
 	{
 		QDrag *drag = new QDrag(this);
@@ -1038,11 +1038,16 @@ void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 			stream << model()->itemData(FPressedIndex);
 			drag->mimeData()->setData(DDT_ROSTERSVIEW_INDEX_DATA,data);
 
+			IRosterIndex *index = FRostersModel->rosterIndexByModelIndex(mapToModel(FPressedIndex));
 			setState(DraggingState);
-			FRostersModel->rosterIndexByModelIndex(mapToModel(FPressedIndex))->setData(RDR_IS_DRAGGED, true);
+			if (index)
+				index->setData(RDR_IS_DRAGGED, true);
+
 			drag->exec(actions);
+
+			if (index)
+				index->setData(RDR_IS_DRAGGED, false);
 			setState(NoState);
-			FRostersModel->rosterIndexByModelIndex(mapToModel(FPressedIndex))->setData(RDR_IS_DRAGGED, false);
 		}
 		else
 		{

@@ -390,16 +390,26 @@ QString MetaRoster::mergeContacts(const Jid &AParentId, const QList<Jid> &AChild
 	if (isOpen() && FContacts.contains(AParentId) && !AChildsId.isEmpty())
 	{
 		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
+		query.setType("set");
 		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 		mcElem.setAttribute("action",MC_ACTION_MERGE);
 		mcElem.setAttribute("id",AParentId.eBare());
+		QDomElement metaElem = mcElem.appendChild(query.createElement("mc")).toElement();
+
+		QString lastRequest;
 		foreach(Jid metaId, AChildsId)
-			mcElem.appendChild(query.createElement("mc")).toElement().setAttribute("id",metaId.eBare());
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
-			FActionRequests.append(query.id());
-			return query.id();
+			query.setId(FStanzaProcessor->newId());
+			metaElem.setAttribute("id",metaId.eBare());
+			if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+			{
+				lastRequest = query.id();
+			}
+		}
+		if (!lastRequest.isEmpty())
+		{
+			FActionRequests.append(lastRequest);
+			return lastRequest;
 		}
 	}
 	return QString::null;

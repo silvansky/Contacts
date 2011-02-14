@@ -201,7 +201,10 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 			APainter->fillRect(option.rect, option.backgroundBrush);
 		}
 		else
+		{
 			drawBackground(APainter, option);
+		}
+
 		if (isDragged)
 		{
 			APainter->save();
