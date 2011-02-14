@@ -661,9 +661,16 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 
 				QSet<QString> itemGroups;
 				if (ritem.isValid)
-					itemGroups = ritem.groups;
-				if (itemGroups.isEmpty())
-					itemGroups.insert("");
+				{
+					if (!ritem.groups.isEmpty())
+						itemGroups = ritem.groups;
+					else
+						itemGroups.insert(QString::null);
+				}
+				else if (itemType == RIT_MY_RESOURCE)
+				{
+					itemGroups.insert(QString::null);
+				}
 
 				foreach(QString group,itemGroups)
 				{
