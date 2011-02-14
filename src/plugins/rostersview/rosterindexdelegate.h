@@ -41,7 +41,7 @@ public:
 	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
 protected:
 	QHash<int,QRect> drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
-	void drawLabelItem(QPainter *APainter, const QStyleOptionViewItemV4 &AOption, const LabelItem &ALabel) const;
+	void drawLabelItem(QPainter *APainter, const QStyleOptionViewItemV4 &AOption, const LabelItem &ALabel, int flags = 0) const;
 	void drawBackground(QPainter *APainter, const QStyleOptionViewItemV4 &AOption) const;
 	void drawFocus(QPainter *APainter, const QStyleOptionViewItemV4 &AOption, const QRect &ARect) const;
 	QStyleOptionViewItemV4 indexOptions(const QModelIndex &AIndex, const QStyleOptionViewItem &AOption) const;

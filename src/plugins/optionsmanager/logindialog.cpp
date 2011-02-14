@@ -15,9 +15,9 @@
 #include <QAbstractTextDocumentLayout>
 #include <QListView>
 #include <utils/customborderstorage.h>
+#include <definitions/customborder.h>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
-#include <definitions/customborder.h>
 #include <definitions/graphicseffects.h>
 
 #include <QDebug>

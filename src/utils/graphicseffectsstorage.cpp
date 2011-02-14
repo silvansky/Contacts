@@ -5,6 +5,10 @@
 #include <QFile>
 #include <QWidget>
 #include <QApplication>
+#include <QCheckBox>
+#include <QRadioButton>
+#include <QStyleOptionButton>
+#include <QPainter>
 #include <QDebug>
 
 static QColor parseColor(const QString & name)
@@ -29,6 +33,36 @@ static QColor parseColor(const QString & name)
 	return color;
 }
 
+class TextDropShadowEffect : public QGraphicsDropShadowEffect
+{
+public:
+	TextDropShadowEffect(QObject* parent) : QGraphicsDropShadowEffect(parent) { }
+protected:
+	void draw(QPainter *painter)
+	{
+		if (parent())
+		{
+			if (qobject_cast<QCheckBox*>(parent()) || qobject_cast<QRadioButton*>(parent()))
+			{
+				QWidget * w = qobject_cast<QWidget*>(parent());
+				QStyle * style = w->style() ? w->style() : qApp->style();
+				QStyleOptionButton * opt = new QStyleOptionButton;
+				opt->rect = w->rect();
+				int indicatorWidth = style->subElementRect(QStyle::SE_CheckBoxIndicator, opt, w).width() + xOffset() + 2; // 2 is a magic namba!
+				//qDebug() << "indicatorWidth == " << indicatorWidth;
+				painter->setClipRect(0, 0, indicatorWidth, w->height());
+				QPoint offset;
+				const QPixmap pixmap = sourcePixmap(Qt::DeviceCoordinates, &offset);
+				QTransform restoreTransform = painter->worldTransform();
+				painter->setWorldTransform(QTransform());
+				painter->drawPixmap(offset, pixmap);
+				painter->setWorldTransform(restoreTransform);
+				painter->setClipRect(indicatorWidth, 0, w->width() - indicatorWidth, w->height());
+			}
+		}
+		QGraphicsDropShadowEffect::draw(painter);
+	}
+};
 
 GraphicsEffectsStorage::GraphicsEffectsStorage(const QString &AStorage, const QString &ASubStorage, QObject *AParent) :
 	FileStorage(AStorage, ASubStorage, AParent)
@@ -52,7 +86,7 @@ bool GraphicsEffectsStorage::installGraphicsEffect(QWidget * widget, const QStri
 	{
 		foreach (EffectMask mask, masks)
 			if (widetMatchesTheMask(widget, mask))
-				widget->setGraphicsEffect(effectForMask(mask));
+				widget->setGraphicsEffect(effectForMask(mask, widget));
 		foreach (QObject * child, widget->children())
 			if (child->isWidgetType())
 				installGraphicsEffect(qobject_cast<QWidget*>(child), key);
@@ -72,7 +106,7 @@ bool GraphicsEffectsStorage::installGraphicsEffect(const QString & key)
 	foreach (QWidget* widget, qApp->allWidgets())
 		foreach (EffectMask mask, masks)
 			if (widetMatchesTheMask(widget, mask))
-				widget->setGraphicsEffect(effectForMask(mask));
+				widget->setGraphicsEffect(effectForMask(mask, widget));
 	return true;
 }
 
@@ -189,7 +223,7 @@ QGraphicsEffect * GraphicsEffectsStorage::parseGraphicEffect(const QDomElement &
 {
 	if (element.attribute("type") == "shadow")
 	{
-		QGraphicsDropShadowEffect * effect = new QGraphicsDropShadowEffect();
+		TextDropShadowEffect * effect = new TextDropShadowEffect(NULL);
 		QDomElement color = element.firstChildElement("color");
 		if (!color.isNull())
 		{
@@ -204,7 +238,8 @@ QGraphicsEffect * GraphicsEffectsStorage::parseGraphicEffect(const QDomElement &
 		QDomElement blur = element.firstChildElement("blur");
 		if (!blur.isNull())
 		{
-			effect->setBlurRadius(blur.attribute("radius").toDouble());
+			// we won't need it i think...
+			//effect->setBlurRadius(blur.attribute("radius").toDouble());
 		}
 		return effect;
 	}
@@ -216,7 +251,7 @@ QGraphicsEffect * GraphicsEffectsStorage::copyEffect(const QGraphicsEffect * eff
 	// only QGraphicsDropShadowEffect for now
 	if (const QGraphicsDropShadowEffect* shadowEffect = qobject_cast<const QGraphicsDropShadowEffect*>(effect))
 	{
-		QGraphicsDropShadowEffect* copy = new QGraphicsDropShadowEffect();
+		TextDropShadowEffect * copy = new TextDropShadowEffect(effect->parent());
 		copy->setOffset(shadowEffect->offset());
 		copy->setBlurRadius(shadowEffect->blurRadius());
 		copy->setColor(shadowEffect->color());
@@ -225,9 +260,11 @@ QGraphicsEffect * GraphicsEffectsStorage::copyEffect(const QGraphicsEffect * eff
 	return NULL;
 }
 
-QGraphicsEffect * GraphicsEffectsStorage::effectForMask(const GraphicsEffectsStorage::EffectMask & mask) const
+QGraphicsEffect * GraphicsEffectsStorage::effectForMask(const GraphicsEffectsStorage::EffectMask & mask, QObject * parent) const
 {
-	return copyEffect(effectCache.value(mask, NULL));
+	QGraphicsEffect * effect = copyEffect(effectCache.value(mask, NULL));
+	effect->setParent(parent);
+	return effect;
 }
 
 bool GraphicsEffectsStorage::widetMatchesTheMask(QWidget* widget, const GraphicsEffectsStorage::EffectMask & mask) const

@@ -4,6 +4,11 @@
     <names>
       <name>lblRegister</name>
     </names>
+    <classes>
+	<class>QLabel</class>
+	<class>QCheckBox</class>
+	<class>QRadioButton</class>
+    </classes>
     <color>#333333</color>
     <offset x="1" y="-1" />
     <blur radius="0" />

@@ -37,7 +37,7 @@ protected:
 	void parseFile(const QString & key);
 	QGraphicsEffect * parseGraphicEffect(const QDomElement & element);
 	QGraphicsEffect * copyEffect(const QGraphicsEffect * effect) const;
-	QGraphicsEffect * effectForMask(const EffectMask & mask) const;
+	QGraphicsEffect * effectForMask(const EffectMask & mask, QObject * parent) const;
 	bool widetMatchesTheMask(QWidget* widget, const EffectMask & mask) const;
 private:
 	static QMultiHash<QString, EffectMask> keyMaskCache;

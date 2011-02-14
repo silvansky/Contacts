@@ -456,6 +456,13 @@ QComboBox:!editable:on, QComboBox::drop-down:editable:on
 	border-image: url(%IMAGES_PATH%/buttonborderclick.png);
 }
 
+QComboBox:!enabled
+{
+	border-image: url(%IMAGES_PATH%/buttonborderdisabled.png);
+	color: #72797f;
+	background-color: #41464d;
+}
+
 QComboBox::drop-down
 {
 	subcontrol-origin: padding;

@@ -4,6 +4,10 @@
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QTextDocument>
+#include <utils/graphicseffectsstorage.h>
+#include <definitions/resources.h>
+#include <definitions/graphicseffects.h>
+
 #include <QDebug>
 
 static const QString NodeDelimiter = ".";
@@ -73,6 +77,7 @@ void OptionsDialog::showNode(const QString &ANodeId)
 		ui.trvNodes->setCurrentIndex(FProxyModel->mapFromSource(FItemsModel->indexFromItem(item)));
 	ui.trvNodes->expandAll();
 	setStyleSheet(styleSheet());
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 }
 
 QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
@@ -112,6 +117,7 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 
 	FCleanupHandler.add(nodeWidget);
 	setStyleSheet(styleSheet());
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 	return nodeWidget;
 }
 
@@ -223,6 +229,7 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 
 	Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).setValue(nodeID);
 	setStyleSheet(styleSheet());
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 }
 
 void OptionsDialog::onOptionsWidgetModified()
