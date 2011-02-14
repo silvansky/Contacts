@@ -44,7 +44,7 @@ bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 {
 	if (FSHIMetaContacts == AHandlerId)
 	{
-		if (isOpen() && (AStanza.from().isEmpty() || (AStreamJid && AStanza.from())))
+		if (isOpen() && AStreamJid==AStanza.from())
 		{
 			AAccept = true;
 
