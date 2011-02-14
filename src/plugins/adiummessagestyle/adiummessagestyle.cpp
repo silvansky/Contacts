@@ -369,13 +369,13 @@ void AdiumMessageStyle::setVariant(QWidget *AWidget, const QString &AVariant)
 	}
 }
 
-QString AdiumMessageStyle::makeStyleTemplate(const IMessageStyleOptions &AOptions) const
+QString AdiumMessageStyle::makeStyleTemplate(const IMessageStyleOptions &AOptions)
 {
-	bool usingCustomTemplate = true;
+	FUsingCustomTemplate = true;
 	QString htmlFileName = FResourcePath+"/Template.html";
 	if (!QFile::exists(htmlFileName))
 	{
-		usingCustomTemplate = false;
+		FUsingCustomTemplate = false;
 		htmlFileName = qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Template.html";
 	}
 
@@ -398,7 +398,7 @@ QString AdiumMessageStyle::makeStyleTemplate(const IMessageStyleOptions &AOption
 		variant = QDir::cleanPath(QString("Variants/%1.css").arg(variant));
 
 		html.replace(html.indexOf("%@"),2,QUrl::fromLocalFile(FResourcePath).toString()+"/");
-		if (!usingCustomTemplate || version()>=3)
+		if (!FUsingCustomTemplate || version()>=3)
 			html.replace(html.indexOf("%@"),2, version()>=3 ? "@import url( \"main.css\" );" : "");
 		html.replace(html.indexOf("%@"),2,variant);
 		html.replace(html.indexOf("%@"),2,headerHTML);
@@ -670,7 +670,7 @@ QString AdiumMessageStyle::scriptForAppendContent(const IMessageContentOptions &
 {
 	QString script;
 
-	if (version() >= 4)
+	if (!FUsingCustomTemplate && version() >= 4)
 	{
 		if (AOptions.noScroll)
 			script = (FCombineConsecutive && ASameSender ? APPEND_NEXT_MESSAGE_NO_SCROLL : APPEND_MESSAGE_NO_SCROLL);
@@ -688,9 +688,13 @@ QString AdiumMessageStyle::scriptForAppendContent(const IMessageContentOptions &
 	{
 		script = (ASameSender ? APPEND_NEXT_MESSAGE : APPEND_MESSAGE);
 	}
-	else
+	else if (FUsingCustomTemplate)
 	{
 		script = (ASameSender ? APPEND_NEXT_MESSAGE_WITH_SCROLL : APPEND_MESSAGE_WITH_SCROLL);
+	}
+	else
+	{
+		script = (ASameSender ? APPEND_NEXT_MESSAGE : APPEND_MESSAGE);
 	}
 	return script;
 }
@@ -802,8 +806,9 @@ void AdiumMessageStyle::onStyleWidgetDestroyed(QObject *AObject)
 	emit widgetRemoved((QWidget *)AObject);
 }
 
-void AdiumMessageStyle::onViewContentsSizeChanged(const QSize & size)
+void AdiumMessageStyle::onViewContentsSizeChanged(const QSize &size)
 {
+	Q_UNUSED(size);
 	QWebFrame * frame = qobject_cast<QWebFrame*>(sender());
 	if (frame)
 	{

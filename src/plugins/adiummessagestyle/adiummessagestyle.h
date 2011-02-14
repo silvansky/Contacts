@@ -139,7 +139,7 @@ protected:
 	int scriptContentIndex(QWidget *AWidget, const IMessageContentOptions &AOptions) const;
 	bool isSameSender(QWidget *AWidget, const IMessageContentOptions &AOptions, int AIndex) const;
 	void setVariant(QWidget *AWidget, const QString  &AVariant);
-	QString makeStyleTemplate(const IMessageStyleOptions &AOptions) const;
+	QString makeStyleTemplate(const IMessageStyleOptions &AOptions);
 	void fillStyleKeywords(QString &AHtml, const IMessageStyleOptions &AOptions) const;
 	QString makeContentTemplate(const IMessageContentOptions &AOptions, bool ASameSender) const;
 	void fillContentKeywords(QString &AHtml, const IMessageContentOptions &AOptions, bool ASameSender) const;
@@ -181,6 +181,7 @@ private:
 	QString FOut_NextOfflineHTML;
 private:
 	bool FCombineConsecutive;
+	bool FUsingCustomTemplate;
 	bool FAllowCustomBackground;
 private:
 	QString FResourcePath;
