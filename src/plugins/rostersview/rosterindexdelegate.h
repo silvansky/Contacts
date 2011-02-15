@@ -58,7 +58,7 @@ private:
 private:
 	bool FShowBlinkLabels;
 private:
-	static const int spacing = 2;
+	static const int spacing = 4;
 };
 
 #endif // ROSTERINDEXDELEGATE_H

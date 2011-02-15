@@ -174,7 +174,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 
 //	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin) >> 1;
 //	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin) >> 1;
-	const int hMargin = 5;
+	const int hMargin = 7;
 	const int vMargin = 1;
 
 	int labelFlags = TF_NOSHADOW;
@@ -262,7 +262,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,paintRect).intersected(paintRect);
 		removeWidth(paintRect,label.rect.width(),AOption.direction!=Qt::LeftToRight);
 		if (APainter && !isDragged)
-			drawLabelItem(APainter,option,label, labelFlags);
+			drawLabelItem(APainter, option, label, labelFlags);
 		rectHash.insert(label.id,label.rect);
 	}
 
@@ -366,7 +366,10 @@ void RosterIndexDelegate::drawLabelItem(QPainter *APainter, const QStyleOptionVi
 		QPalette::ColorRole role = AOption.state & QStyle::State_Selected ? QPalette::HighlightedText : QPalette::Text;
 		QString text = AOption.fontMetrics.elidedText(prepareText(ALabel.item.label.toString()),Qt::ElideRight,ALabel.rect.width(),textFlags);
 		textFlags |= flags;
-		style->drawItemText(APainter, ALabel.rect, textFlags, AOption.palette, (AOption.state &  QStyle::State_Enabled) > 0, text, role);
+		QRect textRect(ALabel.rect);
+		// dirty hack
+		textRect.moveBottom(textRect.bottom() - 1);
+		style->drawItemText(APainter, textRect, textFlags, AOption.palette, (AOption.state &  QStyle::State_Enabled) > 0, text, role);
 		break;
 	}
 	default:
