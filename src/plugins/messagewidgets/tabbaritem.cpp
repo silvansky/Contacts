@@ -62,9 +62,15 @@ void TabBarItem::setActive(bool AActive)
 {
 	FActive = AActive;
 	if (FActive)
+	{
 		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FIconLabel, GFX_STATUSICONS);
+		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FTextLabel, GFX_LABELS);
+	}
 	else
+	{
 		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FIconLabel, GFX_STATUSICONS);
+		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FTextLabel, GFX_LABELS);
+	}
 	setStyleSheet(styleSheet());
 	update();
 }

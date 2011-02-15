@@ -77,7 +77,7 @@ public:
 			QAbstractTextDocumentLayout::PaintContext context;
 			context.palette = option.palette;
 			QRect rect = option.rect;
-			rect.moveLeft(rect.left() + 7);
+			rect.moveLeft(rect.left() + 6);
 			// TODO: vertically center text in option.rect
 			rect.moveTop(rect.top() + 2);
 			APainter->translate(rect.topLeft());
@@ -169,6 +169,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	completer->setCompletionMode(QCompleter::PopupCompletion);
 	completer->setPopup(new QListView);
+	completer->popup()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	completer->popup()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	completer->popup()->setObjectName("completerPopUp");
 	completer->popup()->setMouseTracking(true);
 	completer->popup()->setAlternatingRowColors(true);
@@ -322,7 +324,9 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		if (AWatched == ui.lneNode->completer()->popup())
 		{
 			// TODO: adjust size to popup contents
-			ui.lneNode->completer()->popup()->setFixedWidth(ui.frmLogin->width());
+			//ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->completer()->popup()->sizeHint().width());
+			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->completer()->popup()->width() * 1.2);
+			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos().x() + 1, ui.lneNode->completer()->popup()->pos().y() + 1);
 		}
 		else if (FMainWindowPlugin && (AWatched == FMainWindowPlugin->mainWindow()->instance() || AWatched == FMainWindowPlugin->mainWindowBorder()))
 		{

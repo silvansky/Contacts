@@ -13,7 +13,7 @@ QCheckBox
 QCheckBox::indicator
 {
 	width: 14px;
-	height: 14px;
+	height: 15px;
 }
 
 QCheckBox::indicator:unchecked
