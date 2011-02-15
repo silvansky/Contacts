@@ -7,7 +7,8 @@ HEADERS = pluginmanager.h \
           aboutbox.h \
 		  commentdialog.h \
 		  downloader.h \
-		  updater.h
+		  updater.h \
+    proxystyle.h
 
 SOURCES = main.cpp \
           pluginmanager.cpp \
@@ -15,5 +16,5 @@ SOURCES = main.cpp \
           aboutbox.cpp \
 		  commentdialog.cpp \
 		  downloader.cpp \
-		  updater.cpp
-
+		  updater.cpp \
+    proxystyle.cpp

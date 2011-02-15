@@ -8,4 +8,8 @@
     <key>statusIcons</key>
     <object mime="text/xml">statusicons.xml</object>
   </file>
+  <file>
+    <key>textShadows</key>
+    <object mime="text/xml">textshadows.xml</object>
+  </file>
 </effectsdef>

@@ -146,6 +146,26 @@ bool GraphicsEffectsStorage::uninstallGraphicsEffect(const QString & key)
 	return true;
 }
 
+QList<QGraphicsEffect*> GraphicsEffectsStorage::getEffects(const QString & key)
+{
+	QList<EffectMask> masks = keyMaskCache.values(key);
+	if (masks.isEmpty())
+	{
+		parseFile(key);
+		masks = keyMaskCache.values(key);
+	}
+	QList<QGraphicsEffect*> effects;
+	foreach (EffectMask mask, masks)
+			effects << effectForMask(mask, NULL);
+	return effects;
+}
+
+QGraphicsEffect * GraphicsEffectsStorage::getFirstEffect(const QString & key)
+{
+	QList<QGraphicsEffect*> effects = getEffects(key);
+	return effects.isEmpty() ? NULL : effects.first();
+}
+
 GraphicsEffectsStorage * GraphicsEffectsStorage::staticStorage(const QString & storage)
 {
 	GraphicsEffectsStorage * _storage = staticStorages.value(storage, NULL);

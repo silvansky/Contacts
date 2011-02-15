@@ -20,6 +20,10 @@ public:
 	bool uninstallGraphicsEffect(QWidget * widget, const QString & key);
 	// this will uninstall effect for all application's widgets that matches the mask (class and/or object name)
 	bool uninstallGraphicsEffect(const QString & key);
+	// returns all effects for the specifyed key
+	QList<QGraphicsEffect*> getEffects(const QString & key);
+	// returns first effect for the specifyed key
+	QGraphicsEffect * getFirstEffect(const QString & key);
 public:
 	static GraphicsEffectsStorage * staticStorage(const QString & storage);
 protected:
