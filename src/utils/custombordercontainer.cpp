@@ -956,6 +956,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		if (object == containedWidget)
 		{
 			handled = QWidget::eventFilter(object, event);
+			layout()->update();
 			updateShape();
 			return handled;
 		}
