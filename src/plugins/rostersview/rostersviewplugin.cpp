@@ -393,17 +393,21 @@ QString RostersViewPlugin::groupCounterLabel(const IRosterIndex *AIndex) const
 	int total =0;
 	int active = 0;
 
-	QModelIndex groupIndex = FRostersView->mapFromModel(FRostersView->rostersModel()->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex)));
-	for (int row=0; row<FRostersView->model()->rowCount(groupIndex); row++)
+	QAbstractItemModel *smodel = FSortFilterProxyModel->sourceModel();
+	if (smodel)
 	{
-		static const QList<int> countTypes = QList<int>() << RIT_CONTACT << RIT_METACONTACT;
-		QModelIndex index = FRostersView->model()->index(row,0,groupIndex);
-		if (countTypes.contains(index.data(RDR_TYPE).toInt()))
+		QModelIndex groupIndex = FSortFilterProxyModel->mapToSource(FRostersView->mapToProxy(FSortFilterProxyModel,FRostersView->rostersModel()->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex))));
+		for (int row=0; row<smodel->rowCount(groupIndex); row++)
 		{
-			int show = index.data(RDR_SHOW).toInt();
-			if (show!=IPresence::Offline && show!=IPresence::Error)
-				active++;
-			total++;
+			static const QList<int> countTypes = QList<int>() << RIT_CONTACT << RIT_METACONTACT;
+			QModelIndex index = smodel->index(row,0,groupIndex);
+			if (countTypes.contains(index.data(RDR_TYPE).toInt()))
+			{
+				int show = index.data(RDR_SHOW).toInt();
+				if (show!=IPresence::Offline && show!=IPresence::Error)
+					active++;
+				total++;
+			}
 		}
 	}
 	return total>0 ? QString("%1/%2").arg(active).arg(total) : QString::null;
