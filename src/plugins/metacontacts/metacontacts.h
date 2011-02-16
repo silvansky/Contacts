@@ -19,6 +19,7 @@
 #include <interfaces/istatusicons.h>
 #include <interfaces/irostersearch.h>
 #include <interfaces/igateways.h>
+#include <interfaces/ivcard.h>
 #include <utils/widgetmanager.h>
 #include "metaroster.h"
 #include "metaproxymodel.h"
@@ -87,6 +88,7 @@ public:
 	//IMetaContacts
 	virtual QString itemHint(const Jid &AItemJid) const;
 	virtual IMetaItemDescriptor itemDescriptor(const Jid &AItemJid) const;
+	virtual QMultiMap<int, Jid> itemOrders(const QList<Jid> &AItems) const;
 	virtual QString metaContactName(const IMetaContact &AContact) const;
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster);
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;
@@ -145,6 +147,7 @@ protected slots:
 	void onOpenTabPageAction(bool);
 	void onSendContactDataAction(bool);
 	void onShowMetaTabWindowAction(bool);
+	void onShowVCardDialogAction(bool);
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
@@ -160,6 +163,7 @@ private:
 	IStatusIcons *FStatusIcons;
 	IRosterSearch *FRosterSearch;
 	IGateways *FGateways;
+	IVCardPlugin *FVCardPlugin;
 private:
 	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;

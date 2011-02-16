@@ -54,6 +54,7 @@ MetaContacts::MetaContacts()
 	FStatusIcons = NULL;
 	FRosterSearch = NULL;
 	FGateways = NULL;
+	FVCardPlugin = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -128,6 +129,10 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
 	if (plugin)
 		FGateways = qobject_cast<IGateways *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
+	if (plugin)
+		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -444,16 +449,22 @@ IMetaItemDescriptor MetaContacts::itemDescriptor(const Jid &AItemJid) const
 	return FDefaultItemDescriptor;
 }
 
+QMultiMap<int, Jid> MetaContacts::itemOrders(const QList<Jid> &AItems) const
+{
+	QMultiMap<int, Jid> orders;
+	foreach(Jid itemJid, AItems)
+	{
+		IMetaItemDescriptor descriptor = itemDescriptor(itemJid);
+		orders.insertMulti(descriptor.pageOrder,itemJid);
+	}
+	return orders;
+}
+
 QString MetaContacts::metaContactName(const IMetaContact &AContact) const
 {
 	if (AContact.name.isEmpty() && !AContact.items.isEmpty())
 	{
-		QMultiMap<int, Jid> itemOrder;
-		foreach(Jid itemJid, AContact.items)
-		{
-			IMetaItemDescriptor descriptor = itemDescriptor(itemJid);
-			itemOrder.insertMulti(descriptor.pageOrder,itemJid);
-		}
+		QMultiMap<int, Jid> itemOrder = itemOrders(AContact.items.toList());
 		return itemHint(itemOrder.constBegin().value());
 	}
 	return AContact.name;
@@ -1085,6 +1096,24 @@ void MetaContacts::onShowMetaTabWindowAction(bool)
 	}
 }
 
+void MetaContacts::onShowVCardDialogAction(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (FVCardPlugin && action)
+	{
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
+		if (mroster && mroster->isOpen())
+		{
+			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
+			if (contact.items.count() > 0)
+			{
+				QMultiMap<int, Jid> orders = itemOrders(contact.items.toList());
+				FVCardPlugin->showSimpleVCardDialog(mroster->streamJid(),orders.constBegin().value());
+			}
+		}
+	}
+}
+
 void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
 {
 	IMetaRoster *mroster = findMetaRoster(AWindow->streamJid());
@@ -1245,6 +1274,16 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				action->setData(data);
 				connect(action,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
+
+				if (FVCardPlugin)
+				{
+					action = new Action(AMenu);
+					action->setText(tr("Contact info"));
+					action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
+					action->setData(data);
+					AMenu->addAction(action,AG_RVCM_VCARD,true);
+					connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogAction(bool)));
+				}
 			}
 
 			action = new Action(AMenu);

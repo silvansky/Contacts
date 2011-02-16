@@ -221,8 +221,9 @@ QString MetaRoster::metaAvatarHash(const Jid &AMetaId) const
 	if (FAvatars && FContacts.contains(AMetaId))
 	{
 		IMetaContact contact = FContacts.value(AMetaId);
-		for (QSet<Jid>::const_iterator it=contact.items.constBegin() ; hash.isEmpty() && it!=contact.items.constEnd(); it++)
-			hash = FAvatars->avatarHash(*it);
+		QMultiMap<int, Jid> orders = FMetaContacts->itemOrders(contact.items.toList());
+		for (QMultiMap<int, Jid>::const_iterator it=orders.constBegin(); hash.isEmpty() && it!=orders.constEnd(); it++)
+			hash = FAvatars->avatarHash(it.value());
 	}
 	return hash;
 }
@@ -233,8 +234,9 @@ QImage MetaRoster::metaAvatarImage(const Jid &AMetaId, bool ANullImage) const
 	if (FAvatars && FContacts.contains(AMetaId))
 	{
 		IMetaContact contact = FContacts.value(AMetaId);
-		for (QSet<Jid>::const_iterator it=contact.items.constBegin(); image.isNull() && it!=contact.items.constEnd(); it++)
-			image = FAvatars->avatarImage(*it,false);
+		QMultiMap<int, Jid> orders = FMetaContacts->itemOrders(contact.items.toList());
+		for (QMultiMap<int, Jid>::const_iterator it=orders.constBegin(); image.isNull() && it!=orders.constEnd(); it++)
+			image = FAvatars->avatarImage(it.value(),false);
 		if (image.isNull() && ANullImage)
 			image = FAvatars->avatarImage(AMetaId, ANullImage);
 	}
