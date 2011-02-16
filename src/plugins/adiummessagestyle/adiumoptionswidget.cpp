@@ -4,10 +4,15 @@
 #include <QFileDialog>
 #include <QFontDialog>
 #include <QWebSettings>
+#include <QListView>
 
 AdiumOptionsWidget::AdiumOptionsWidget(AdiumMessageStylePlugin *APlugin, const OptionsNode &ANode, int AMessageType, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+	ui.cmbBackgoundColor->setView(new QListView);
+	ui.cmbImageLayout->setView(new QListView);
+	ui.cmbStyle->setView(new QListView);
+	ui.cmbVariant->setView(new QListView);
 
 	FStylePlugin = APlugin;
 	FOptions = ANode;

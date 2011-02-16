@@ -1,8 +1,11 @@
 #include "modifystatusdialog.h"
 
+#include <QListView>
+
 ModifyStatusDialog::ModifyStatusDialog(IStatusChanger *AStatusChanger, int AStatusId, const Jid &AStreamJid, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.cmbShow->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_SCHANGER_MODIFY_STATUS,0,0,"windowIcon");
 

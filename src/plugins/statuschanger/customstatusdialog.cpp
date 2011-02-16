@@ -2,6 +2,7 @@
 
 #include <QList>
 #include <QPushButton>
+#include <QListView>
 
 #define MAX_CHARACTERS  140
 #define LOW_CHARACTERS  10
@@ -9,9 +10,10 @@
 CustomStatusDialog::CustomStatusDialog(IStatusChanger *AStatusChanger, const Jid &AStreamJid, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.cmbStatusShow->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_CUSTOMSTATUSDIALOG);
-	
+
 	FStatusChanger = AStatusChanger;
 	FStreamJid = AStreamJid;
 

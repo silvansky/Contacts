@@ -1,4 +1,5 @@
 #include "editproxydialog.h"
+#include <QListView>
 
 enum ProxyItemDataRoles
 {
@@ -14,6 +15,10 @@ enum ProxyItemDataRoles
 EditProxyDialog::EditProxyDialog(IConnectionManager *AManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
+	ui.cmbDefault->setView(new QListView);
+	ui.cmbType->setView(new QListView);
+
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setWindowModality(Qt::WindowModal);
 
@@ -41,7 +46,7 @@ EditProxyDialog::EditProxyDialog(IConnectionManager *AManager, QWidget *AParent)
 	connect(ui.btbButtons,SIGNAL(rejected()),SLOT(reject()));
 
 	connect(ui.ltwProxyList, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)),
-	        SLOT(onCurrentProxyItemChanged(QListWidgetItem *, QListWidgetItem *)));
+		SLOT(onCurrentProxyItemChanged(QListWidgetItem *, QListWidgetItem *)));
 	onCurrentProxyItemChanged(ui.ltwProxyList->currentItem(), NULL);
 }
 

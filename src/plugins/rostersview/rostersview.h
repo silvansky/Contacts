@@ -20,6 +20,8 @@
 #include "rosterindexdelegate.h"
 #include "rostertooltip.h"
 
+class RostersViewPlugin;
+
 class RostersView :
 			public QTreeView,
 			public IRostersView,

@@ -10,12 +10,12 @@
 #include <utils/iconstorage.h>
 #include "ui_rostercontactviewoptions.h"
 
-class RosterContactViewOptions : 
-	public QWidget,
-	public IOptionsWidget
+class RosterContactViewOptions :
+		public QWidget,
+		public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	RosterContactViewOptions(QWidget *AParent = NULL);
 	~RosterContactViewOptions();

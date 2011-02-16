@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QApplication>
+#include <QListView>
 
 #define GROUP_NEW                ":group_new:"
 #define GROUP_EMPTY              ":empty_group:"
@@ -19,6 +20,9 @@
 AddContactDialog::AddContactDialog(IRosterChanger *ARosterChanger, IPluginManager *APluginManager, const Jid &AStreamJid, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
+	ui.cmbGroup->setView(new QListView);
+	ui.cmbProfile->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle(tr("Add contact"));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_RCHANGER_ADD_CONTACT,0,0,"windowIcon");
@@ -290,7 +294,7 @@ void AddContactDialog::updateGateways()
 		{
 			startResolve(RESOLVE_WAIT_INTERVAL/2);
 		}
-	}	
+	}
 }
 
 void AddContactDialog::updateServices(const Jid &AServiceJid)
@@ -361,7 +365,7 @@ QList<Jid> AddContactDialog::suitableServices(const IGateServiceDescriptor &ADes
 	identity.type = ADescriptor.type;
 	QList<Jid> services = FGateways!=NULL ? (ADescriptor.needLogin ? FGateways->streamServices(FStreamJid,identity) : FGateways->availServices(FStreamJid,identity)) : QList<Jid>();
 	QList<Jid> gates = (FEnabledGateways.toSet() & services.toSet()).toList();
-	
+
 	QList<Jid>::iterator it = gates.begin();
 	while (it != gates.end())
 	{

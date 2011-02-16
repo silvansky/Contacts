@@ -10,6 +10,7 @@
 #include <definitions/menuicons.h>
 #include <definitions/textflags.h>
 #include <interfaces/ipresence.h>
+#include "rostersviewplugin.h"
 
 #include <QDebug>
 
@@ -43,8 +44,8 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 	//QStyle *style = option.widget ? option.widget->style() : QApplication::style();
 //	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin);
 //	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin);
-	const int hMargin = 5;
-	const int vMargin = 1;
+	const int hMargin = 7;
+	const int vMargin = 2;
 
 	QSize leftCenter(0,0);
 	QSize middleTop(0,0);
@@ -106,10 +107,10 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 		break;
 	case RIT_CONTACT:
 	case RIT_METACONTACT:
-		if (hint.height() < 30)
-			hint.setHeight(30);
-		else if (hint.height() > 42)
+		if (Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool() && Options::node(OPV_AVATARS_SHOW).value().toBool())
 			hint.setHeight(42);
+		else
+			hint.setHeight(30);
 		break;
 	case RIT_SEARCH_EMPTY:
 		hint.setHeight(hint.height() * 2);

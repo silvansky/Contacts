@@ -8,6 +8,7 @@
 #include <QInputDialog>
 #include <QTextDocument>
 #include <QTableWidgetItem>
+#include <QListView>
 
 #define TIR_STATUSID    Qt::UserRole
 #define TIR_DELEGATE    Qt::UserRole + 1
@@ -31,6 +32,7 @@ QWidget *Delegate::createEditor(QWidget *AParent, const QStyleOptionViewItem &AO
 	case DelegateShow:
 	{
 		QComboBox *comboBox = new QComboBox(AParent);
+		comboBox->setView(new QListView);
 		comboBox->addItem(FStatusChanger->iconByShow(IPresence::Online),FStatusChanger->nameByShow(IPresence::Online),IPresence::Online);
 		comboBox->addItem(FStatusChanger->iconByShow(IPresence::Chat),FStatusChanger->nameByShow(IPresence::Chat),IPresence::Chat);
 		comboBox->addItem(FStatusChanger->iconByShow(IPresence::Away),FStatusChanger->nameByShow(IPresence::Away),IPresence::Away);
@@ -306,8 +308,8 @@ void EditStatusDialog::onDeleteButton(bool)
 			else if (FStatusItems.contains(statusId))
 			{
 				int button = QMessageBox::question(this,tr("Delete status"),
-				                                   tr("You are assured that wish to remove a status '<b>%1</b>'?").arg(Qt::escape(FStatusItems.value(statusId)->name)),
-				                                   QMessageBox::Yes | QMessageBox::No);
+								   tr("You are assured that wish to remove a status '<b>%1</b>'?").arg(Qt::escape(FStatusItems.value(statusId)->name)),
+								   QMessageBox::Yes | QMessageBox::No);
 				if (button == QMessageBox::Yes)
 				{
 					FDeletedStatuses.append(statusId);

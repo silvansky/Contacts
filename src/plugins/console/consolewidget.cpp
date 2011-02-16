@@ -7,6 +7,9 @@
 ConsoleWidget::ConsoleWidget(IPluginManager *APluginManager, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+	ui.cmbCondition->setView(new QListView);
+	ui.cmbContext->setView(new QListView);
+	ui.cmbStreamJid->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_CONSOLE,0,0,"windowIcon");
 
@@ -82,7 +85,7 @@ void ConsoleWidget::initialize(IPluginManager *APluginManager)
 			ui.cmbCondition->clearEditText();
 
 			connect(FStanzaProcessor->instance(),SIGNAL(stanzaHandleInserted(int, const IStanzaHandle &)),
-			        SLOT(onStanzaHandleInserted(int, const IStanzaHandle &)));
+				SLOT(onStanzaHandleInserted(int, const IStanzaHandle &)));
 		}
 	}
 

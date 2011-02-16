@@ -44,7 +44,7 @@ private:
 class UTILS_EXPORT Options :
 			public QObject
 {
-	Q_OBJECT;
+	Q_OBJECT
 	friend class OptionsNode;
 public:
 	static Options *instance();

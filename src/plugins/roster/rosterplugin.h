@@ -17,8 +17,8 @@ class RosterPlugin :
 			public IPlugin,
 			public IRosterPlugin
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IRosterPlugin);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IRosterPlugin)
 public:
 	RosterPlugin();
 	~RosterPlugin();

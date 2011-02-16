@@ -3,10 +3,12 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QListView>
 
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.cmbDomains->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent!=NULL ? Qt::WindowModal : Qt::NonModal);
 
@@ -168,7 +170,7 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 			ui.lnePassword->setText(FGateLogin.password);
 			if (!FGateLogin.domain.isEmpty())
 				ui.cmbDomains->setCurrentIndex(ui.cmbDomains->findText(FGateLogin.domain));
-			
+
 			if (FGateLogin.login.isEmpty())
 				ui.btbButtons->button(QDialogButtonBox::Ok)->setText(tr("Append"));
 			else

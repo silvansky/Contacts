@@ -40,6 +40,7 @@ DataFieldWidget::DataFieldWidget(IDataForms *ADataForms, const IDataField &AFiel
 	else if (!FReadOnly && FField.type == DATAFIELD_TYPE_LISTSINGLE)
 	{
 		FComboBox = new QComboBox(this);
+		FComboBox->setView(new QListView);
 		appendLabel(label,FComboBox);
 		foreach(IDataOption option, FField.options) {
 			FComboBox->addItem(option.label, option.value); }

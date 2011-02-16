@@ -88,6 +88,7 @@ RostersView::~RostersView()
 	removeLabels();
 }
 
+
 int RostersView::rosterDataOrder() const
 {
 	return RDHO_ROSTER_NOTIFY;

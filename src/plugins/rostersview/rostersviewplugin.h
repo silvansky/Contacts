@@ -33,8 +33,8 @@ class RostersViewPlugin :
 			public IOptionsHolder,
 			public IRosterDataHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IRostersViewPlugin IOptionsHolder IRosterDataHolder);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IRostersViewPlugin IOptionsHolder IRosterDataHolder)
 public:
 	RostersViewPlugin();
 	~RostersViewPlugin();

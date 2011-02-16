@@ -1,8 +1,12 @@
 #include "proxysettingswidget.h"
+#include <QListView>
 
 ProxySettingsWidget::ProxySettingsWidget(IConnectionManager *AManager, const OptionsNode &ANode, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+
+	ui.cmbProxy->setView(new QListView);
+
 	FManager = AManager;
 	FOptions = ANode;
 
@@ -13,7 +17,7 @@ ProxySettingsWidget::ProxySettingsWidget(IConnectionManager *AManager, const Opt
 	connect(ui.cmbProxy,SIGNAL(currentIndexChanged(int)),SIGNAL(modified()));
 
 	connect(FManager->instance(),SIGNAL(proxyChanged(const QUuid &, const IConnectionProxy &)),
-	        SLOT(onProxyChanged(const QUuid &, const IConnectionProxy &)));
+		SLOT(onProxyChanged(const QUuid &, const IConnectionProxy &)));
 	connect(FManager->instance(),SIGNAL(proxyRemoved(const QUuid &)),SLOT(onProxyRemoved(const QUuid &)));
 	connect(ui.pbtEditProxy,SIGNAL(clicked(bool)),SLOT(onEditButtonClicked(bool)));
 

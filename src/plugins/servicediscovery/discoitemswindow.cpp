@@ -2,6 +2,7 @@
 
 #include <QRegExp>
 #include <QLineEdit>
+#include <QListView>
 #include <utils/custombordercontainer.h>
 
 bool SortFilterProxyModel::hasChildren( const QModelIndex &AParent ) const
@@ -30,6 +31,9 @@ bool SortFilterProxyModel::filterAcceptsRow(int ARow, const QModelIndex &AParent
 DiscoItemsWindow::DiscoItemsWindow(IServiceDiscovery *ADiscovery, const Jid &AStreamJid, QWidget *AParent) : QMainWindow(AParent)
 {
 	ui.setupUi(this);
+
+	ui.cmbJid->setView(new QListView);
+	ui.cmbNode->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle(tr("Service Discovery - %1").arg(AStreamJid.full()));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_SDISCOVERY_DISCOVER,0,0,"windowIcon");

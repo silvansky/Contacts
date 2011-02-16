@@ -144,9 +144,9 @@ public:
 	virtual void restoreExpandState(const QModelIndex &AParent = QModelIndex()) =0;
 };
 
-Q_DECLARE_INTERFACE(IRostersClickHooker,"Virtus.Plugin.IRostersClickHooker/1.0");
-Q_DECLARE_INTERFACE(IRostersDragDropHandler,"Virtus.Plugin.IRostersDragDropHandler/1.0");
-Q_DECLARE_INTERFACE(IRostersView,"Virtus.Plugin.IRostersView/1.0");
-Q_DECLARE_INTERFACE(IRostersViewPlugin,"Virtus.Plugin.IRostersViewPlugin/1.0");
+Q_DECLARE_INTERFACE(IRostersClickHooker,"Virtus.Plugin.IRostersClickHooker/1.0")
+Q_DECLARE_INTERFACE(IRostersDragDropHandler,"Virtus.Plugin.IRostersDragDropHandler/1.0")
+Q_DECLARE_INTERFACE(IRostersView,"Virtus.Plugin.IRostersView/1.0")
+Q_DECLARE_INTERFACE(IRostersViewPlugin,"Virtus.Plugin.IRostersViewPlugin/1.0")
 
 #endif

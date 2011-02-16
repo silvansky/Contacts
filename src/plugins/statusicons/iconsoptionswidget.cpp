@@ -18,6 +18,7 @@ QWidget *IconsetSelectableDelegate::createEditor(QWidget *AParent, const QStyleO
 	if (!FSubStorages.isEmpty())
 	{
 		QComboBox *comboBox = new QComboBox(AParent);
+		comboBox->setView(new QListView);
 		comboBox->setItemDelegate(new IconsetDelegate(comboBox));
 		for (int i=0; i<FSubStorages.count(); i++)
 		{

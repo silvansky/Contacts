@@ -8,6 +8,7 @@
 VCardDialog::VCardDialog(IVCardPlugin *AVCardPlugin, const Jid &AStreamJid, const Jid &AContactJid)
 {
 	ui.setupUi(this);
+	ui.cmbGender->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle(tr("vCard - %1").arg(AContactJid.full()));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_VCARD,0,0,"windowIcon");

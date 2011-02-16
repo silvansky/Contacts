@@ -2,10 +2,14 @@
 
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QListView>
 
 StyleOptionsWidget::StyleOptionsWidget(IMessageStyles *AMessageStyles, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+
+	ui.cmbMessageType->setView(new QListView);
+	ui.cmbStyleEngine->setView(new QListView);
 
 	FUpdateStarted = false;
 

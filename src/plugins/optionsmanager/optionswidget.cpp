@@ -6,6 +6,7 @@
 #include <QTextDocument>
 #include <QIntValidator>
 #include <QDoubleValidator>
+#include <QListView>
 
 OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, QWidget *AParent) : QWidget(AParent)
 {
@@ -38,6 +39,7 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 	else if (FValue.type() == QVariant::Color)
 	{
 		FComboBox = new QComboBox(this);
+		FComboBox->setView(new QListView);
 		foreach(QString color, QColor::colorNames())
 		{
 			FComboBox->addItem(color,QColor(color));

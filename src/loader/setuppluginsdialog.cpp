@@ -26,6 +26,8 @@ SetupPluginsDialog::SetupPluginsDialog(IPluginManager *APluginManager, QDomDocum
 	ui.twtPlugins->setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Version"));
 	ui.twtPlugins->horizontalHeader()->setResizeMode(COL_NAME,QHeaderView::Stretch);
 	ui.twtPlugins->horizontalHeader()->setResizeMode(COL_VERSION,QHeaderView::ResizeToContents);
+	ui.cmbCountry->setView(new QListView);
+	ui.cmbLanguage->setView(new QListView);
 
 	updateLanguage();
 	connect(ui.cmbLanguage,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentLanguageChanged(int)));
