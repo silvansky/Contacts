@@ -139,6 +139,8 @@ protected slots:
 	void onRenameContact(bool);
 	void onDeleteContact(bool);
 	void onMergeContacts(bool);
+	void onCopyToGroup(bool);
+	void onMoveToGroup(bool);
 	void onRemoveFromGroup(bool);
 	void onDetachContactItems(bool);
 	void onChangeContactGroups(bool AChecked);

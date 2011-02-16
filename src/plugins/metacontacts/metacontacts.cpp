@@ -13,10 +13,10 @@
 #define ADR_NAME            Action::DR_Parametr2
 #define ADR_VIEW_JID        Action::DR_Parametr2
 #define ADR_GROUP           Action::DR_Parametr3
-#define ADR_TO_GROUP        Action::DR_Parametr3
 #define ADR_RELEASE_ITEMS   Action::DR_Parametr3
 #define ADR_META_ID_LIST    Action::DR_Parametr4
 #define ADR_TAB_PAGE_ID     Action::DR_Parametr2
+#define ADR_TO_GROUP        Action::DR_UserDefined+1
 
 static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
 
@@ -260,7 +260,7 @@ Qt::DropActions MetaContacts::rosterDragStart(const QMouseEvent *AEvent, const Q
 	{
 		IMetaRoster *mroster = findMetaRoster(AIndex.data(RDR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
-			return Qt::MoveAction;
+			return Qt::MoveAction|Qt::CopyAction;
 	}
 	return Qt::IgnoreAction;
 }
@@ -282,7 +282,7 @@ bool MetaContacts::rosterDragEnter(const QDragEnterEvent *AEvent)
 bool MetaContacts::rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover)
 {
 	Q_UNUSED(AEvent);
-	if (AHover.data(RDR_TYPE).toInt() == RIT_METACONTACT)
+	if (AHover.data(RDR_TYPE).toInt()==RIT_METACONTACT || AHover.data(RDR_TYPE).toInt()==RIT_GROUP)
 	{
 		IMetaRoster *mroster = findMetaRoster(AHover.data(RDR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
@@ -298,21 +298,21 @@ void MetaContacts::rosterDragLeave(const QDragLeaveEvent *AEvent)
 
 bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu)
 {
-	if (AEvent->dropAction() == Qt::MoveAction)
+	IMetaRoster *mroster = findMetaRoster(AIndex.data(RDR_STREAM_JID).toString());
+	if (mroster && mroster->isOpen())
 	{
-		IMetaRoster *mroster = findMetaRoster(AIndex.data(RDR_STREAM_JID).toString());
-		if (mroster && mroster->isOpen())
-		{
-			QMap<int, QVariant> indexData;
-			QDataStream stream(AEvent->mimeData()->data(DDT_ROSTERSVIEW_INDEX_DATA));
-			stream >> indexData;
-			Jid indexMetaId = indexData.value(RDR_INDEX_ID).toString();
+		QMap<int, QVariant> indexData;
+		QDataStream stream(AEvent->mimeData()->data(DDT_ROSTERSVIEW_INDEX_DATA));
+		stream >> indexData;
+		Jid indexMetaId = indexData.value(RDR_INDEX_ID).toString();
 
-			if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
+		QString hoverGroup = AIndex.data(RDR_GROUP).toString();
+		QString indexGroup = indexData.value(RDR_GROUP).toString();
+		if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
+		{
+			if (AEvent->dropAction()==Qt::MoveAction || AEvent->dropAction()==Qt::CopyAction)
 			{
 				Jid hoverMetaId = AIndex.data(RDR_INDEX_ID).toString();
-				QString hoverGroup = AIndex.data(RDR_GROUP).toString();
-				QString indexGroup = indexData.value(RDR_GROUP).toString();
 				if (hoverMetaId != indexMetaId)
 				{
 					Action *mergeAction = new Action(AMenu);
@@ -327,16 +327,44 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 				}
 				else if (hoverGroup!=indexGroup && !indexGroup.isEmpty())
 				{
-					Action *groupAction = new Action(AMenu);
-					groupAction->setText(tr("Remove from group"));
-					groupAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
-					groupAction->setData(ADR_META_ID,indexMetaId.pBare());
-					groupAction->setData(ADR_GROUP,indexGroup);
-					connect(groupAction,SIGNAL(triggered(bool)),SLOT(onRemoveFromGroup(bool)));
-					AMenu->addAction(groupAction,AG_DEFAULT);
-					AMenu->setDefaultAction(groupAction);
+					Action *removeAction = new Action(AMenu);
+					removeAction->setText(tr("Remove from group"));
+					removeAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
+					removeAction->setData(ADR_META_ID,indexMetaId.pBare());
+					removeAction->setData(ADR_GROUP,indexGroup);
+					connect(removeAction,SIGNAL(triggered(bool)),SLOT(onRemoveFromGroup(bool)));
+					AMenu->addAction(removeAction,AG_DEFAULT);
+					AMenu->setDefaultAction(removeAction);
 					return true;
 				}
+			}
+		}
+		else if (AIndex.data(RDR_TYPE).toInt() == RIT_GROUP)
+		{
+			if (AEvent->dropAction() == Qt::MoveAction)
+			{
+				Action *moveAction = new Action(AMenu);
+				moveAction->setText(tr("Move to group"));
+				moveAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
+				moveAction->setData(ADR_META_ID,indexMetaId.pBare());
+				moveAction->setData(ADR_GROUP,indexGroup);
+				moveAction->setData(ADR_TO_GROUP,hoverGroup);
+				connect(moveAction,SIGNAL(triggered(bool)),SLOT(onMoveToGroup(bool)));
+				AMenu->addAction(moveAction,AG_DEFAULT);
+				AMenu->setDefaultAction(moveAction);
+				return true;
+			}
+			else if (AEvent->dropAction() == Qt::CopyAction)
+			{
+				Action *copyAction = new Action(AMenu);
+				copyAction->setText(tr("Copy to group"));
+				copyAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
+				copyAction->setData(ADR_META_ID,indexMetaId.pBare());
+				copyAction->setData(ADR_TO_GROUP,hoverGroup);
+				connect(copyAction,SIGNAL(triggered(bool)),SLOT(onCopyToGroup(bool)));
+				AMenu->addAction(copyAction,AG_DEFAULT);
+				AMenu->setDefaultAction(copyAction);
+				return true;
 			}
 		}
 	}
@@ -941,6 +969,37 @@ void MetaContacts::onMergeContacts(bool)
 				connect(mroster->instance(),SIGNAL(metaRosterClosed()),dialog,SLOT(reject()));
 				WidgetManager::showActivateRaiseWindow(dialog);
 			}
+		}
+	}
+}
+
+void MetaContacts::onCopyToGroup(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
+		if (mroster && mroster->isOpen())
+		{
+			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
+			contact.groups += action->data(ADR_TO_GROUP).toString();
+			mroster->setContactGroups(contact.id,contact.groups);
+		}
+	}
+}
+
+void MetaContacts::onMoveToGroup( bool )
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
+		if (mroster && mroster->isOpen())
+		{
+			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
+			contact.groups -= action->data(ADR_GROUP).toString();
+			contact.groups += action->data(ADR_TO_GROUP).toString();
+			mroster->setContactGroups(contact.id,contact.groups);
 		}
 	}
 }
