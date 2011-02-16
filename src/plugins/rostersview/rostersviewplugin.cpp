@@ -390,19 +390,18 @@ void RostersViewPlugin::saveExpandState(const QModelIndex &AIndex)
 
 QString RostersViewPlugin::groupCounterLabel(const IRosterIndex *AIndex) const
 {
-	QMultiMap<int, QVariant> findData;
-	findData.insert(RDR_TYPE, RIT_CONTACT);
-
 	int total =0;
 	int active = 0;
-	foreach(IRosterIndex *index, AIndex->findChild(findData,true))
+
+	QModelIndex groupIndex = FRostersView->mapFromModel(FRostersView->rostersModel()->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex)));
+	for (int row=0; row<FRostersView->model()->rowCount(groupIndex); row++)
 	{
-		int show = index->data(RDR_SHOW).toInt();
+		QModelIndex index = FRostersView->model()->index(row,0,groupIndex);
+		int show = index.data(RDR_SHOW).toInt();
 		if (show!=IPresence::Offline && show!=IPresence::Error)
 			active++;
 		total++;
 	}
-
 	return QString("  %1/%2").arg(active).arg(total);
 }
 
