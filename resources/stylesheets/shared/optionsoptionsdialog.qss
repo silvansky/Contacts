@@ -47,10 +47,10 @@ QTreeView::item
 	min-height : 34px;
 	background-color: transparent;
 	border-bottom: 2px;
-	border-right: 0px;
+	border-right: 24px;
 	border-left: 0px;
 	border-top: 0px;
-	border-image: url(%IMAGES_PATH%/treeviewitembottomborder.png);
+	border-image: url(%IMAGES_PATH%/treeviewitembottomrightborder.png);
 	color: white;
 }
 
