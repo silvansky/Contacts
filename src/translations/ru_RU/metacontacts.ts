@@ -166,6 +166,22 @@
         <source>Open dialog</source>
         <translation>Открыть диалог</translation>
     </message>
+    <message>
+        <source>Address</source>
+        <translation>Адрес</translation>
+    </message>
+    <message>
+        <source>Move to group</source>
+        <translation>Переместить в группу</translation>
+    </message>
+    <message>
+        <source>Copy to group</source>
+        <translation>Копировать в группу</translation>
+    </message>
+    <message>
+        <source>Contact info</source>
+        <translation>Информация о контакте</translation>
+    </message>
 </context>
 <context>
     <name>MetaTabWindow</name>

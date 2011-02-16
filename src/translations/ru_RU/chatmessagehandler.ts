@@ -8,10 +8,6 @@
         <translation>Чат сообщения</translation>
     </message>
     <message>
-        <source>Chat</source>
-        <translation>Чат</translation>
-    </message>
-    <message>
         <source>%1 changed status to [%2] %3</source>
         <translation>%1 изменил(а) статус на [%2] %3</translation>
     </message>
