@@ -396,13 +396,17 @@ QString RostersViewPlugin::groupCounterLabel(const IRosterIndex *AIndex) const
 	QModelIndex groupIndex = FRostersView->mapFromModel(FRostersView->rostersModel()->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex)));
 	for (int row=0; row<FRostersView->model()->rowCount(groupIndex); row++)
 	{
+		static const QList<int> countTypes = QList<int>() << RIT_CONTACT << RIT_METACONTACT;
 		QModelIndex index = FRostersView->model()->index(row,0,groupIndex);
-		int show = index.data(RDR_SHOW).toInt();
-		if (show!=IPresence::Offline && show!=IPresence::Error)
-			active++;
-		total++;
+		if (countTypes.contains(index.data(RDR_TYPE).toInt()))
+		{
+			int show = index.data(RDR_SHOW).toInt();
+			if (show!=IPresence::Offline && show!=IPresence::Error)
+				active++;
+			total++;
+		}
 	}
-	return QString("  %1/%2").arg(active).arg(total);
+	return total>0 ? QString("%1/%2").arg(active).arg(total) : QString::null;
 }
 
 void RostersViewPlugin::updateGroupCounter(IRosterIndex *AIndex)
