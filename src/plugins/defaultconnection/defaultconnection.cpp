@@ -1,6 +1,7 @@
 #include "defaultconnection.h"
 
 #include <QNetworkProxy>
+#include <utils/log.h>
 
 #define START_QUERY_ID        0
 #define STOP_QUERY_ID         -1
@@ -219,6 +220,7 @@ void DefaultConnection::setError(const QString &AError)
 {
 	FErrorString = AError;
 	emit error(FErrorString);
+	Log(QString("[DefaultConnection error]: %1").arg(AError));
 }
 
 void DefaultConnection::onDnsResultsReady(int AId, const QJDns::Response &AResults)
@@ -238,7 +240,10 @@ void DefaultConnection::onDnsError(int AId, QJDns::Error AError)
 {
 	Q_UNUSED(AError);
 	if (FSrvQueryId == AId)
+	{
 		FDns.shutdown();
+		Log(QString("[DefaultConnection error]: %1").arg("QJDns error"));
+	}
 }
 
 void DefaultConnection::onDnsShutdownFinished()
@@ -282,6 +287,10 @@ void DefaultConnection::onSocketReadyRead()
 void DefaultConnection::onSocketSSLErrors(const QList<QSslError> &AErrors)
 {
 	FSSLError = true;
+	QStringList errors;
+	foreach (QSslError err, AErrors)
+		errors << err.errorString();
+	Log(QString("[DefaultConnection error]: SSL errors %1").arg(errors.join("; ")));
 	if (!FIgnoreSSLErrors)
 		emit sslErrors(AErrors);
 	else
