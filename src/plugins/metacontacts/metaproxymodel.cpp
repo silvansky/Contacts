@@ -218,6 +218,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 		QList<IRosterIndex *> curItemList = streamIndex->findChild(findData,true);
 		QList<IRosterIndex *> oldItemList = curItemList;
 
+		bool createdNewIndexes = false;
 		if (!AContact.items.isEmpty())
 		{
 			QStringList contactItems;
@@ -284,12 +285,18 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 
 				if (groupItemIndex == NULL)
 				{
+					createdNewIndexes = true;
 					groupItemIndex = FRostersModel->createRosterIndex(RIT_METACONTACT,AContact.id.pBare(),groupIndex);
 					groupItemIndex->setData(RDR_GROUP,group);
+					groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
+					groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
 					FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
 				}
-				groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
-				groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
+				else
+				{
+					groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
+					groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
+				}
 
 				oldItemList.removeAll(groupItemIndex);
 			}
@@ -297,12 +304,12 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 
 		foreach(IRosterIndex *index, oldItemList)
 		{
+			FInvalidateTimer.start();
 			FRostersModel->removeRosterIndex(index);
 			index->instance()->deleteLater();
-			FInvalidateTimer.start();
 		}
 
-		if (AContact.items != ABefore.items)
+		if (createdNewIndexes || AContact.items!=ABefore.items)
 		{
 			FInvalidateTimer.start();
 			onMetaAvatarChanged(AMetaRoster,AContact.id);
