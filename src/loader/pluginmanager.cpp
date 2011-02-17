@@ -7,9 +7,7 @@
 #include <QLibrary>
 #include <QFileInfo>
 #include <QSettings>
-
-//#include "windows.h"
-//#include "WinCred.h"
+#include <utils/log.h>
 
 #define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Virtus"
@@ -84,100 +82,6 @@ PluginManager::~PluginManager()
 		updateProcess->startDetached(updatePath + "UpdateVirtus.exe", args);
 	}
 }
-
-//void startProcess(QString appName, QString appDir, QStringList args)
-//{
-//	QString fullName = appDir + appName;
-//
-//	std::wstring applicationName = fullName.toStdWString();
-//
-//	QString tmpStr;
-//	foreach(QString str, args)
-//	{
-//		tmpStr += str + " ";
-//	}
-//	tmpStr = tmpStr.simplified();
-//	std::wstring arguments = tmpStr.toStdWString();
-//
-//
-//	CREDUI_INFO cui;
-//	cui.cbSize = sizeof(CREDUI_INFO);
-//	cui.hwndParent = NULL;
-//	cui.pszMessageText = NULL;// QString("Enter login and password").toStdWString().c_str();
-//	cui.pszCaptionText = NULL;//QString("Login Credentials").toStdWString().c_str();
-//	cui.hbmBanner = NULL;
-//
-//	//TCHAR pszName[CREDUI_MAX_USERNAME_LENGTH] = _T("");
-//	//TCHAR pszPwd[CREDUI_MAX_PASSWORD_LENGTH] = _T("");
-//	//BOOL fSave = FALSE;
-//
-//	TCHAR szName[CREDUI_MAX_USERNAME_LENGTH]; szName[0]=0;
-//	TCHAR szPwd[CREDUI_MAX_USERNAME_LENGTH]; szPwd[0]=0;
-//	BOOL fSave = FALSE;
-//	DWORD dwErr = 0;
-//
-//
-//		//ERROR_INVALID_PARAMETER
-//
-//
-//
-//	dwErr = CredUIPromptForCredentials(
-//		NULL,//&cui,
-//		0,//&applicationName[0],//_T("Tool.exe"),
-//		NULL,
-//		0,
-//		szName,
-//		CREDUI_MAX_USERNAME_LENGTH+1,
-//		szPwd,
-//		CREDUI_MAX_PASSWORD_LENGTH+1,
-//		&fSave,
-//		CREDUI_FLAGS_USERNAME_TARGET_CREDENTIALS |
-//		CREDUI_FLAGS_REQUEST_ADMINISTRATOR |
-//		CREDUI_FLAGS_EXPECT_CONFIRMATION
-//		);
-//
-//	if (!dwErr)
-//	{
-//		TCHAR szUserName[CREDUI_MAX_USERNAME_LENGTH + 1];
-//		TCHAR szDomainName[CREDUI_MAX_DOMAIN_TARGET_LENGTH + 1];
-//
-//		DWORD dwError = CredUIParseUserName(szName,
-//			szUserName,
-//			CREDUI_MAX_USERNAME_LENGTH,
-//			szDomainName,
-//			CREDUI_MAX_DOMAIN_TARGET_LENGTH);
-//
-//		std::wstring strCommandLine(L"Tool.exe");
-//
-//		STARTUPINFO strctStartInfo;
-//		ZeroMemory(&strctStartInfo, sizeof(STARTUPINFO));
-//		strctStartInfo.cb = sizeof(STARTUPINFO);
-//
-//		PROCESS_INFORMATION strctProcInfo;
-//		ZeroMemory(&strctProcInfo, sizeof(PROCESS_INFORMATION));
-//
-//		CreateProcessWithLogonW(
-//			szUserName,
-//			szDomainName,
-//			szPwd,
-//			LOGON_WITH_PROFILE,
-//			&applicationName[0], //NULL,
-//			&arguments[0], //&strCommandLine[0],
-//			0,
-//			NULL,
-//			NULL,
-//			&strctStartInfo,
-//			&strctProcInfo);
-//
-//		CloseHandle(strctProcInfo.hThread);
-//		CloseHandle(strctProcInfo.hProcess);
-//
-//		//SecureZeroMemory(pszName, sizeof(pszName));
-//		//SecureZeroMemory(pszPwd, sizeof(pszPwd));
-//	}
-//}
-
-
 
 QString PluginManager::version() const
 {
@@ -374,6 +278,7 @@ void PluginManager::loadSettings()
 		if (dir.exists() && (dir.exists(DIR_APP_DATA) || dir.mkpath(DIR_APP_DATA)) && dir.cd(DIR_APP_DATA))
 			FDataPath = dir.absolutePath();
 	}
+	Log::setLogPath(FDataPath);
 	FileStorage::setResourcesDirs(FileStorage::resourcesDirs()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");

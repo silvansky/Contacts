@@ -32,6 +32,7 @@ Avatars::Avatars()
 	FRostersModel = NULL;
 	FRostersViewPlugin = NULL;
 	FOptionsManager = NULL;
+	FMetaContacts = NULL;
 
 	FRosterLabelId = -1;
 	FAvatarsVisible = false;
