@@ -16,7 +16,8 @@ OptionsHeader::OptionsHeader(const QString &AIconKey, const QString &ACaption, Q
 	icon->setFixedSize(20,20);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(icon,AIconKey,0,0,"pixmap");
 	hlayout->addWidget(icon);
-	icon->setVisible(false);
+	if (!icon->pixmap())
+		icon->setVisible(false);
 
 	QLabel *caption = new QLabel(this);
 	caption->setObjectName("optionsCaptionLabel");
