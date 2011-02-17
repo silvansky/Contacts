@@ -676,7 +676,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 {
 	Stanza iq("iq");
-	iq.setType("set").setId(FStanzaProcessor->newId());
+	iq.setType("set").setFrom(streamJid().eFull()).setId(FStanzaProcessor->newId());
 	QDomElement queryElem = iq.element().appendChild(iq.createElement("query",NS_JABBER_ROSTER)).toElement();
 
 	if (!AMetaElem.isNull())
@@ -713,7 +713,7 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 					{
 						QDomElement rosterItem = queryElem.appendChild(iq.createElement("item")).toElement();
 						rosterItem.setAttribute("jid",itemJid.eBare());
-						rosterItem.setAttribute("name",ritem.name);
+						rosterItem.setAttribute("name",mcElem.attribute("name"));
 						rosterItem.setAttribute("subscription",ritem.subscription);
 						rosterItem.setAttribute("ask",ritem.ask);
 
@@ -732,7 +732,7 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 					{
 						QDomElement rosterItem = queryElem.appendChild(iq.createElement("item")).toElement();
 						rosterItem.setAttribute("jid",itemJid.eBare());
-						rosterItem.setAttribute("name",mcElem.attribute("name"));
+						rosterItem.setAttribute("name",ritem.name);
 						rosterItem.setAttribute("subscription",ritem.subscription);
 						rosterItem.setAttribute("ask",ritem.ask);
 
@@ -779,7 +779,7 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 {
 	Stanza iq("iq");
-	iq.setType("set").setId(FStanzaProcessor->newId());
+	iq.setType("set").setFrom(streamJid().eFull()).setId(FStanzaProcessor->newId());
 	QDomElement queryElem = iq.element().appendChild(iq.createElement("query",NS_RAMBLER_METACONTACTS)).toElement();
 
 	if (!ARosterElem.isNull())
@@ -788,9 +788,11 @@ Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 		while (!itemElem.isNull())
 		{
 			Jid itemJid = itemElem.attribute("jid");
+			Jid metaId = itemMetaContact(itemJid);
+			IRosterItem ritem = FRoster->rosterItem(itemJid);
 
 			// Добавление нового контакта
-			if (!FRoster->rosterItem(itemJid).isValid)
+			if (!ritem.isValid)
 			{
 				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
 				mcElem.setAttribute("action",MC_ACTION_CREATE);
@@ -803,6 +805,14 @@ Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 					mcElem.appendChild(iq.createElement("group")).appendChild(iq.createTextNode(itemGroupElem.text()));
 					itemGroupElem = itemGroupElem.nextSiblingElement("group");
 				}
+			}
+			// Переименование контакта
+			else if (ritem.name != itemElem.attribute("name"))
+			{
+				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
+				mcElem.setAttribute("action",MC_ACTION_RENAME);
+				mcElem.setAttribute("id",metaId.eBare());
+				mcElem.setAttribute("name",itemElem.attribute("name"));
 			}
 
 			itemElem = itemElem.nextSiblingElement("item");
