@@ -88,7 +88,7 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 	nodeWidget->setObjectName("wdtNodeWidget");
 
 	QVBoxLayout *vblayout = new QVBoxLayout(nodeWidget);
-	vblayout->setMargin(5);
+	vblayout->setMargin(0);
 
 	QMultiMap<int, IOptionsWidget *> orderedWidgets;
 	foreach(IOptionsHolder *optionsHolder,FManager->optionsHolders())
@@ -109,7 +109,7 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 		{
 			int l,t,r,b;
 			widget->instance()->layout()->getContentsMargins(&l,&t,&r,&b);
-			widget->instance()->layout()->setContentsMargins(l + 20 + layout()->spacing(),t,r,b);
+			widget->instance()->layout()->setContentsMargins(l /*+ 20*/ + layout()->spacing(),t,r,b);
 		}
 		vblayout->addWidget(widget->instance());
 	}

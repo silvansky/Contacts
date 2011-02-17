@@ -53,6 +53,12 @@
      </widget>
      <widget class="QWidget" name="wdtRightWidget" native="true">
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
        <item>
         <widget class="QScrollArea" name="scaScroll">
          <property name="frameShape">
@@ -66,8 +72,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>326</width>
-            <height>584</height>
+            <width>452</width>
+            <height>581</height>
            </rect>
           </property>
          </widget>

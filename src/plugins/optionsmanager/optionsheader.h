@@ -6,12 +6,12 @@
 #include <interfaces/ioptionsmanager.h>
 #include <utils/iconstorage.h>
 
-class OptionsHeader : 
+class OptionsHeader :
 	public QFrame,
 	public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	OptionsHeader(const QString &AIconKey, const QString &ACaption, QWidget *AParent);
 	~OptionsHeader();

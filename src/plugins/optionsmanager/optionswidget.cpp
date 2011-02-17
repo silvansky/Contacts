@@ -19,6 +19,7 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 	if (FValue.type() == QVariant::Bool)
 	{
 		FCheckBox = new QCheckBox(ACaption,this);
+		FCheckBox->setObjectName("optionsWidgetCheckBox");
 		FCheckBox->setChecked(FValue.toBool());
 		connect(FCheckBox,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 		layout()->addWidget(FCheckBox);
@@ -32,6 +33,7 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 		else
 			FDateTimeEdit = new QDateTimeEdit(FValue.toDateTime(),this);
 		FDateTimeEdit->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+		FDateTimeEdit->setObjectName("optionsWidgetDateTimeEdit");
 		connect(FDateTimeEdit,SIGNAL(dateTimeChanged(const QDateTime &)),SIGNAL(modified()));
 		insertCaption(ACaption,FDateTimeEdit);
 		layout()->addWidget(FDateTimeEdit);
@@ -39,6 +41,7 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 	else if (FValue.type() == QVariant::Color)
 	{
 		FComboBox = new QComboBox(this);
+		FComboBox->setObjectName("optionsWidgetComboBox");
 		FComboBox->setView(new QListView);
 		foreach(QString color, QColor::colorNames())
 		{
@@ -54,6 +57,7 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 	else if (FValue.type() == QVariant::Font)
 	{
 		FFontComboBox = new QFontComboBox(this);
+		FFontComboBox->setObjectName("optionsWidgetFontComboBox");
 		FFontComboBox->setCurrentFont(FValue.value<QFont>());
 		FFontComboBox->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
 		connect(FFontComboBox,SIGNAL(currentFontChanged(const QFont &)),SIGNAL(modified()));
@@ -63,6 +67,7 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 	else if (FValue.canConvert(QVariant::String))
 	{
 		FLineEdit = new QLineEdit(this);
+		FLineEdit->setObjectName("optionsWidgetLineEdit");
 		FLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 		if (FValue.type()==QVariant::Int || FValue.type()==QVariant::LongLong)
 		{

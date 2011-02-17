@@ -64,3 +64,40 @@ QTreeView::item:selected
 	border-image: url(%IMAGES_PATH%/leftshadow.png);
 	background-color: rgba(89, 98, 104, 255);
 }
+
+/* margins */
+
+#qt_scrollarea_viewport
+{
+	padding-top: 10px;
+}
+
+QWidget#wdtOptionsHeader
+{
+	margin-left: 19px;
+}
+
+QLabel#optionsCaptionLabel
+{
+	font-size: 18px;
+}
+
+#optionsWidgetCheckBox
+{
+	margin-left: 16px;
+}
+
+RosterContactViewOptions QRadioButton, RosterContactOrderOptions QRadioButton, MessengerOptions QRadioButton, ProxyOptionsWidget QRadioButton
+{
+	margin-left: 16px;
+}
+
+NotifyKindsWidget QGroupBox
+{
+	margin-left: 14px;
+}
+
+#chbProxyUserPassword
+{
+	margin-left: 6px;
+}

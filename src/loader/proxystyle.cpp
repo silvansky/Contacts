@@ -10,7 +10,7 @@
 
 void ProxyStyle::drawItemText(QPainter *painter, const QRect &rect, int flags, const QPalette &pal, bool enabled, const QString &text, QPalette::ColorRole textRole) const
 {
-	qDebug() << "drawItemText: " << text << " role: " << textRole << " flags: " << QString::number(flags, 2);
+	//qDebug() << "drawItemText: " << text << " role: " << textRole << " flags: " << QString::number(flags, 2);
 	if (textRole == QPalette::Text || textRole == QPalette::ButtonText)
 	{
 		// draw the dark shadow by default

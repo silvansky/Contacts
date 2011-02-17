@@ -12,13 +12,15 @@ OptionsHeader::OptionsHeader(const QString &AIconKey, const QString &ACaption, Q
 	hlayout->setContentsMargins(0,hlayout->spacing()*1.5,0,0);
 
 	QLabel *icon = new QLabel(this);
+	icon->setObjectName("optionsIconLabel");
 	icon->setFixedSize(20,20);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(icon,AIconKey,0,0,"pixmap");
 	hlayout->addWidget(icon);
+	icon->setVisible(false);
 
 	QLabel *caption = new QLabel(this);
-	caption->setTextFormat(Qt::RichText);
-	caption->setText(QString("<h3>%1</h3>").arg(Qt::escape(ACaption)));
+	caption->setObjectName("optionsCaptionLabel");
+	caption->setText(Qt::escape(ACaption));
 	hlayout->addWidget(caption);
 
 	hlayout->addStretch();
