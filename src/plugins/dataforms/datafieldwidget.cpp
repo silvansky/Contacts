@@ -136,6 +136,7 @@ DataFieldWidget::DataFieldWidget(IDataForms *ADataForms, const IDataField &AFiel
 	else //HIDDEN JIDSINGLE TEXTPRIVATE TEXTSINGLE
 	{
 		FLineEdit = new QLineEdit(this);
+		FLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 		appendLabel(label,FLineEdit);
 		if (FField.type == DATAFIELD_TYPE_TEXTPRIVATE)
 			FLineEdit->setEchoMode(QLineEdit::Password);

@@ -5,9 +5,14 @@
 #include <QTextDocument>
 
 RegisterDialog::RegisterDialog(IRegistration *ARegistration, IDataForms *ADataForms, const Jid &AStremJid,
-                               const Jid &AServiceJid, int AOperation, QWidget *AParent) : QDialog(AParent)
+			       const Jid &AServiceJid, int AOperation, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
+	ui.lneEMail->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneUserName->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_REGISTERATION,0,0,"windowIcon");
 
@@ -23,11 +28,11 @@ RegisterDialog::RegisterDialog(IRegistration *ARegistration, IDataForms *ADataFo
 	FCurrentForm = NULL;
 
 	connect(ARegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
-	        SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
+		SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
 	connect(ARegistration->instance(),SIGNAL(registerSuccess(const QString &)),
-	        SLOT(onRegisterSuccess(const QString &)));
+		SLOT(onRegisterSuccess(const QString &)));
 	connect(ARegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
-	        SLOT(onRegisterError(const QString &, const QString &)));
+		SLOT(onRegisterError(const QString &, const QString &)));
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonsClicked(QAbstractButton *)));
 
 	doRegisterOperation();

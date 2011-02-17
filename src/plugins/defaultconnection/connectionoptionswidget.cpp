@@ -5,6 +5,9 @@
 ConnectionOptionsWidget::ConnectionOptionsWidget(IConnectionManager *AManager, const OptionsNode &ANode, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+
+	ui.lneHost->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	FManager = AManager;
 	FOptions = ANode;
 	FProxySettings = NULL;

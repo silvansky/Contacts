@@ -24,7 +24,7 @@
 
 
 KSipAuthenticationRequest::KSipAuthenticationRequest(
-  const QString &server, const QString &sipuri, const QString &prefix, 
+  const QString &server, const QString &sipuri, const QString &prefix,
   const QString &authtype, QWidget *parent, const char *name )
   : QDialog( parent )
 {
@@ -40,9 +40,11 @@ KSipAuthenticationRequest::KSipAuthenticationRequest(
   vboxl->addWidget( new QLabel( tr("Server = ") + server, this) );
   vboxl->addWidget( new QLabel( tr("Username:"), this) );
   username = new QLineEdit( this );
+  username->setAttribute(Qt::WA_MacShowFocusRect, false);
   vboxl->addWidget( username );
   vboxl->addWidget( new QLabel( tr("Password:"), this) );
   password = new QLineEdit( this );
+  password->setAttribute(Qt::WA_MacShowFocusRect, false);
   password->setEchoMode( QLineEdit::Password );
   password->setFocus();
   vboxl->addWidget( password );
@@ -130,7 +132,7 @@ void KSipAuthentication::authRequest( SipCallMember *member )
 
   if( _execAuthreq )
     return;
-  
+
   // Если не задан пароль или требуется аутентификация по новому паролю
   if( password.isEmpty() || member->getAuthState() == SipCallMember::authState_AuthenticationRequiredWithNewPassword )
   {
@@ -144,7 +146,7 @@ void KSipAuthentication::authRequest( SipCallMember *member )
 
     _authRequest->setUsername( userName );
     _authRequest->setPassword( password );
-    
+
     // Вызов диалога запроса пароля
     _execAuthreq = true;
     if( _authRequest->exec() )
@@ -153,7 +155,7 @@ void KSipAuthentication::authRequest( SipCallMember *member )
       password = _authRequest->getPassword();
       if( userName.isEmpty() || password.isEmpty() )
       {
-        return;
+	return;
       }
       member->getCall()->setPassword( password );
       _execAuthreq = false;

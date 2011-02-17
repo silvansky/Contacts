@@ -149,7 +149,9 @@ QWidget *RosterIndexDelegate::createEditor(QWidget *parent, const QStyleOptionVi
 {
 	Q_UNUSED(option);
 	Q_UNUSED(index);
-	return new QLineEdit(parent);
+	QLineEdit * edit = new QLineEdit(parent);
+	edit->setAttribute(Qt::WA_MacShowFocusRect, false);
+	return edit;
 }
 
 void RosterIndexDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const

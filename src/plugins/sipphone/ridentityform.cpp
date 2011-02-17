@@ -13,6 +13,13 @@ RIdentityForm::RIdentityForm(QWidget *parent, const char *name, QObject *reg) : 
 {
   ui.setupUi(this);
 
+  ui.fullname->setAttribute(Qt::WA_MacShowFocusRect, false);
+  ui.username->setAttribute(Qt::WA_MacShowFocusRect, false);
+  ui.hostname->setAttribute(Qt::WA_MacShowFocusRect, false);
+  ui.sipProxy->setAttribute(Qt::WA_MacShowFocusRect, false);
+  ui.sipProxyUsername->setAttribute(Qt::WA_MacShowFocusRect, false);
+  ui.password->setAttribute(Qt::WA_MacShowFocusRect, false);
+
   connect( ui.buttonRegister, SIGNAL( clicked() ), reg, SLOT( changeRegistration() ) );
 
 
@@ -171,21 +178,21 @@ RSipRegistrations::RSipRegistrations(const SipRegistrationData& regData, SipClie
 
       if( _stunServer.isEmpty() )
       {
-        QString dname = _pSipUser->getMyUri()->getHostname();
-        _stunServer = dname;
-        QString srv = sipClient->getSRV( QString( "_stun._udp." ) + dname );
-        if( !srv.isEmpty() )
-        {
-          _stunServer = srv;
-        }
-        _stunServer += ":3478";
+	QString dname = _pSipUser->getMyUri()->getHostname();
+	_stunServer = dname;
+	QString srv = sipClient->getSRV( QString( "_stun._udp." ) + dname );
+	if( !srv.isEmpty() )
+	{
+	  _stunServer = srv;
+	}
+	_stunServer += ":3478";
       }
       else
       {
-        if( !_stunServer.contains( ':' ) )
-        {
-          _stunServer += ":3478";
-        }
+	if( !_stunServer.contains( ':' ) )
+	{
+	  _stunServer += ":3478";
+	}
       }
     }
 
@@ -202,7 +209,7 @@ RSipRegistrations::RSipRegistrations(const SipRegistrationData& regData, SipClie
     _sipRegister = new SipRegister( _pSipUser, SipUri( sipServerUri ), _expires, qValue );
     connect( _sipRegister, SIGNAL( statusUpdated() ), this, SLOT( registerStatusUpdated() ) );
     connect( _sipRegister, SIGNAL(trueRegistrationStatus(bool)), this, SIGNAL(proxyTrueRegistrationStatus(bool)));
-		
+
 		// ÎÒËÀÄÊÀ
 		//connect( _sipRegister, SIGNAL(trueRegistrationStatus(bool)), this, SLOT(trueRegistrationStatusSlot(bool)));
 
@@ -214,17 +221,17 @@ RSipRegistrations::RSipRegistrations(const SipRegistrationData& regData, SipClie
 			_pSipUser->getMyUri()->setProxyUsername( regData.userName );
 		if(!regData.password.isEmpty())
 			_pSipUser->getMyUri()->setPassword( regData.password );
-    
+
 		_autoRegister = regData.autoRegister;
     if( _autoRegister )
     {
       if( _useStun )
       {
-        _sipRegister->setAutoRegister( _autoRegister );
+	_sipRegister->setAutoRegister( _autoRegister );
       }
       else
       {
-        _sipRegister->requestRegister();
+	_sipRegister->requestRegister();
       }
     }
     else
@@ -232,8 +239,8 @@ RSipRegistrations::RSipRegistrations(const SipRegistrationData& regData, SipClie
       _sipRegister->setAutoRegister( _autoRegister );
     }
 
-    
-    
+
+
 
     //////////QString str;
     //////////str = settings.value( pp + "/UserName" ).toString();
@@ -607,7 +614,7 @@ void RSipRegistrations::registerStatusUpdated( void )
     {
       if( authreq.getUsername().isEmpty() || authreq.getUsername().isEmpty() )
       {
-        return;
+	return;
       }
       _sipRegister->getRegisterCall()->setProxyUsername( authreq.getUsername() );
       _sipRegister->getRegisterCall()->setPassword( authreq.getPassword() );

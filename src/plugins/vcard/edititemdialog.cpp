@@ -3,9 +3,10 @@
 #include <QVBoxLayout>
 
 EditItemDialog::EditItemDialog(const QString &AValue, QStringList ATags,
-                               QStringList ATagList, QWidget *AParent) : QDialog(AParent)
+			       QStringList ATagList, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.lneEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneEdit->setText(AValue);
 	QVBoxLayout *layout = new QVBoxLayout;
 	ui.grbTags->setLayout(layout);

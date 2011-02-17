@@ -5,6 +5,9 @@
 MessageWindow::MessageWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, const Jid &AContactJid, Mode AMode)
 {
 	ui.setupUi(this);
+
+	ui.lneSubject->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_MESSAGEWINDOW);
 

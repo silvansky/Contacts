@@ -21,6 +21,8 @@ bool SortFilterProxyModel::lessThan(const QModelIndex &ALeft, const QModelIndex 
 	return QSortFilterProxyModel::lessThan(ALeft,ARight);
 }
 
+// TODO: create a delegate for trvNodes with custom drawing (to draw text through QStyle::drawItemText())
+
 OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);

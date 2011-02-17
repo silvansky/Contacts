@@ -37,6 +37,7 @@ QDataStream &operator>>(QDataStream &AStream, IRostersLabel &ALabel)
 
 RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 {
+	setAttribute(Qt::WA_MacShowFocusRect, false);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_ROSTERVIEW_ROSTER);
 
 	FRostersModel = NULL;

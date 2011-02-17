@@ -8,6 +8,30 @@
 VCardDialog::VCardDialog(IVCardPlugin *AVCardPlugin, const Jid &AStreamJid, const Jid &AContactJid)
 {
 	ui.setupUi(this);
+
+	ui.lneCompany->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneDepartment->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneFirstName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneFullName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneHomeCity->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneHomeCountry->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneHomePage->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneHomeState->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneHomeStreet->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneHomeZip->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneJabberId->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneLastName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneMarital->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneMiddleName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneNickName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneRole->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneTitle->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneWorkCity->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneWorkCountry->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneWorkState->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneWorkStreet->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneWorkZip->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	ui.cmbGender->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle(tr("vCard - %1").arg(AContactJid.full()));

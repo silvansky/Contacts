@@ -6,6 +6,7 @@
 SearchEdit::SearchEdit(QWidget *parent) :
 		QLineEdit(parent)
 {
+	setAttribute(Qt::WA_MacShowFocusRect, false);
 	setMouseTracking(true);
 	int padding_left, padding_top, padding_right, padding_bottom;
 	getTextMargins(&padding_left, &padding_top, &padding_right, &padding_bottom);

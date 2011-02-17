@@ -16,6 +16,11 @@ EditProxyDialog::EditProxyDialog(IConnectionManager *AManager, QWidget *AParent)
 {
 	ui.setupUi(this);
 
+	ui.lneHost->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneUser->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	ui.cmbDefault->setView(new QListView);
 	ui.cmbType->setView(new QListView);
 

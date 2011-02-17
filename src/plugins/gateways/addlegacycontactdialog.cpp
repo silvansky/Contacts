@@ -7,6 +7,9 @@ AddLegacyContactDialog::AddLegacyContactDialog(IGateways *AGateways, IRosterChan
     const Jid &AServiceJid, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
+	ui.lnePrompt->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle(tr("Add Legacy User to %1").arg(AServiceJid.full()));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_GATEWAYS_ADD_CONTACT,0,0,"windowIcon");

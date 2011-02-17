@@ -5,6 +5,9 @@
 MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<Jid> AMetaIds, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
+	ui.lneName->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_MERGECONTACTSDIALOG);
 
@@ -20,13 +23,13 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 
 		QImage avatar = FMetaRoster->metaAvatarImage(metaId).scaled(32,32,Qt::KeepAspectRatio,Qt::SmoothTransformation);
 		QString name = FMetaContacts->metaContactName(contact);
-		
+
 		if (ui.ltwContacts->count() == 0)
 		{
 			ui.lneName->setText(name);
 			ui.lblAvatar->setPixmap(QPixmap::fromImage(avatar));
 		}
-		
+
 		QListWidgetItem *item = new QListWidgetItem(name);
 		item->setData(Qt::DecorationRole, avatar);
 		item->setData(Qt::UserRole, metaId.pBare());

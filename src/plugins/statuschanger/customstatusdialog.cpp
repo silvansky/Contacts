@@ -10,6 +10,7 @@
 CustomStatusDialog::CustomStatusDialog(IStatusChanger *AStatusChanger, const Jid &AStreamJid, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.lneStatusName->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.cmbStatusShow->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_CUSTOMSTATUSDIALOG);

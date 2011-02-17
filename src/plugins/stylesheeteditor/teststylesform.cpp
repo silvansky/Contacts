@@ -9,6 +9,9 @@ TestStylesForm::TestStylesForm(QWidget *parent) :
 	ui(new Ui::TestStylesForm)
 {
 	ui->setupUi(this);
+
+	ui->lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	Menu * menu = new Menu();
 	Action * action;
 	action = new Action();

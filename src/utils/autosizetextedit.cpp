@@ -7,6 +7,7 @@ AutoSizeTextEdit::AutoSizeTextEdit(QWidget *AParent) : QTextEdit(AParent)
 {
 	FAutoResize = true;
 	FMinimumLines = 1;
+	setAttribute(Qt::WA_MacShowFocusRect, false);
 	document()->setDocumentMargin(7);
 
 	setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);

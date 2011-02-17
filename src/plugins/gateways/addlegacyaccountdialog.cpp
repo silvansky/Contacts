@@ -8,6 +8,10 @@
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
 	ui.setupUi(this);
+
+	ui.lneLogin->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	ui.cmbDomains->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent!=NULL ? Qt::WindowModal : Qt::NonModal);

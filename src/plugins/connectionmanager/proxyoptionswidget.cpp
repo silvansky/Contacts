@@ -5,6 +5,11 @@
 ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode ANode, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+
+	ui.lneProxyHost->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneProxyPassword->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneProxyUser->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	FManager = AManager;
 	FConnectionNode = ANode;
 

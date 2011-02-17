@@ -4,6 +4,7 @@
 CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.lneYourName->setAttribute(Qt::WA_MacShowFocusRect, false);
 
 	ui.chbAddTechData->setVisible(false);
 
@@ -62,6 +63,6 @@ void CommentDialog::SendComment()
 		ui.pbtSendComment->setText(tr("Send comment"));
 		ui.pbtSendComment->setEnabled(true);
 		ui.tedComment->setEnabled(true);
-		
+
 	}
 }

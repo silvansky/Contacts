@@ -63,6 +63,7 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 	else if (FValue.canConvert(QVariant::String))
 	{
 		FLineEdit = new QLineEdit(this);
+		FLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 		if (FValue.type()==QVariant::Int || FValue.type()==QVariant::LongLong)
 		{
 			QIntValidator *validator = new QIntValidator(FLineEdit);

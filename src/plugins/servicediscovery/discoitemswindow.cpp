@@ -32,6 +32,8 @@ DiscoItemsWindow::DiscoItemsWindow(IServiceDiscovery *ADiscovery, const Jid &ASt
 {
 	ui.setupUi(this);
 
+	ui.lneSearch->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	ui.cmbJid->setView(new QListView);
 	ui.cmbNode->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);

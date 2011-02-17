@@ -21,6 +21,9 @@ AddContactDialog::AddContactDialog(IRosterChanger *ARosterChanger, IPluginManage
 {
 	ui.setupUi(this);
 
+	ui.lneContact->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneNick->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	ui.cmbGroup->setView(new QListView);
 	ui.cmbProfile->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);

@@ -102,6 +102,8 @@ public:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 	connect(ui.chbShowPassword, SIGNAL(stateChanged(int)), SLOT(onShowPasswordToggled(int)));
 	FConnectionErrorWidget = new QWidget;
 	QVBoxLayout * vlayout = new QVBoxLayout;

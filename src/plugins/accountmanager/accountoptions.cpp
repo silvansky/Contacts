@@ -7,6 +7,12 @@
 AccountOptions::AccountOptions(IAccountManager *AManager, const QUuid &AAccountId, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+
+	ui.lneJabberId->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneResource->setAttribute(Qt::WA_MacShowFocusRect, false);
+
 	FManager = AManager;
 
 	FAccountId = AAccountId;
