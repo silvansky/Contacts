@@ -44,6 +44,7 @@ ChatMessageHandler::ChatMessageHandler()
 	FStatusChanger = NULL;
 	FXmppUriQueries = NULL;
 	FNotifications = NULL;
+	FMetaContacts = NULL;
 }
 
 ChatMessageHandler::~ChatMessageHandler()
@@ -167,6 +168,10 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*
 	if (plugin)
 		FXmppUriQueries = qobject_cast<IXmppUriQueries *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
+	if (plugin)
+		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 
@@ -205,7 +210,20 @@ bool ChatMessageHandler::tabPageAvail(const QString &ATabPageId) const
 	if (FTabPages.contains(ATabPageId))
 	{
 		const TabPageInfo &pageInfo = FTabPages.value(ATabPageId);
-		return pageInfo.page!=NULL || findPresence(pageInfo.streamJid)!=NULL;
+		IPresence *presence = findPresence(pageInfo.streamJid);
+		if (presence)
+		{
+			IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(presence->streamJid()) : NULL;
+			if (mroster==NULL || !mroster->isEnabled())
+			{
+				if (pageInfo.page == NULL)
+				{
+					IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(presence->streamJid()) : NULL;
+					return roster!=NULL && roster->rosterItem(pageInfo.contactJid).isValid;
+				}
+				return true;
+			}
+		}
 	}
 	return false;
 }

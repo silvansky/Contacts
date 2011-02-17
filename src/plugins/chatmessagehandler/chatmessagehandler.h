@@ -37,6 +37,7 @@
 #include <interfaces/ipresence.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ixmppuriqueries.h>
+#include <interfaces/imetacontacts.h>
 #include <utils/options.h>
 #include "usercontextmenu.h"
 
@@ -173,6 +174,7 @@ private:
 	IStatusChanger *FStatusChanger;
 	IXmppUriQueries *FXmppUriQueries;
 	INotifications *FNotifications;
+	IMetaContacts *FMetaContacts;
 private:
 	QList<IPresence *> FPrecences;
 	QHash<QString, TabPageInfo> FTabPages;
