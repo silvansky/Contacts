@@ -1,15 +1,20 @@
 QWidget#frmPopup 
 {
-	border: 1px solid palette(dark);
+	border: 1px solid black;
+	background-color: black;
 }
+
 QWidget#frmPopup:hover
 {
 	border: 1px solid palette(brighttext);
 }
 
-NotifyTextBrowser 
+NotifyTextBrowser
 {
 	background-color: transparent;
+	border: none;
+	border-image: none;
+	padding: 0px 0px 0px 0px;
 }
 
 QLabel#lblTitle 
@@ -22,4 +27,12 @@ QLabel#lblNotice
 {
 	font-size: 10px;
 	font-style: italic;
+}
+
+QToolButton#tlbOptions
+{
+	background: none;
+	border-image: none;
+	border: none;
+	padding: 0px 0px 0px 0px;
 }

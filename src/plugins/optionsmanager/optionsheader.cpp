@@ -21,7 +21,7 @@ OptionsHeader::OptionsHeader(const QString &AIconKey, const QString &ACaption, Q
 
 	QLabel *caption = new QLabel(this);
 	caption->setObjectName("optionsCaptionLabel");
-	caption->setText(Qt::escape(ACaption));
+	caption->setText(ACaption);
 	hlayout->addWidget(caption);
 
 	hlayout->addStretch();

@@ -31,7 +31,7 @@
 #include "optionswidget.h"
 #include "notifykindswidget.h"
 
-struct NotifyRecord 
+struct NotifyRecord
 {
 	NotifyRecord() {
 		trayId=0;
@@ -49,7 +49,7 @@ struct NotifyRecord
 	QPointer<QObject> tabPageNotifier;
 };
 
-struct Notificator 
+struct Notificator
 {
 	int order;
 	QString title;
@@ -63,8 +63,8 @@ class Notifications :
 			public INotifications,
 			public IOptionsHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin INotifications IOptionsHolder);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin INotifications IOptionsHolder)
 public:
 	Notifications();
 	~Notifications();

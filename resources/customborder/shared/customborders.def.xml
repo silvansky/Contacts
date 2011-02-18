@@ -20,4 +20,8 @@
     <key>messageWindow</key>
     <object mime="text/xml">messagewindow.xml</object>
   </file>
+  <file>
+    <key>notification</key>
+    <object mime="text/xml">notification.xml</object>
+  </file>
 </borderdef>

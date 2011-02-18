@@ -15,10 +15,12 @@
 #include <utils/widgetmanager.h>
 #include "ui_notifywidget.h"
 
+class CustomBorderContainer;
+
 class NotifyWidget :
 			public QWidget
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	NotifyWidget(const INotification &ANotification, bool AOptionsAvailable);
 	~NotifyWidget();
@@ -49,6 +51,7 @@ private:
 	int FTimeOut;
 	int FAnimateStep;
 	QTimer *FCloseTimer;
+	CustomBorderContainer * border;
 private:
 	QString FTitle;
 	QString FNotice;

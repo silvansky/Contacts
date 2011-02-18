@@ -208,13 +208,13 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsHeaderWidget(QString::null,tr("If status 'Away' or 'Busy'"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY),
-			tr("Turn of all popup windows and sounds if status is 'Away'"),AParent));
+												   tr("Turn of all popup windows and sounds if status is 'Away'"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND),
-			tr("Turn of all popup windows and sounds if status is 'Busy'"),AParent));
+												   tr("Turn of all popup windows and sounds if status is 'Busy'"),AParent));
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsHeaderWidget(QString::null,tr("Full screen mode"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN),
-			tr("Temporarily disable all popup windows and sounds when working\nany full screen application (films, games, presentations)"),AParent));
+												    tr("Temporarily disable all popup windows and sounds when working\nany full screen application (films, games, presentations)"),AParent));
 	}
 	return widgets;
 }
@@ -258,7 +258,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		replaceNotifyId = -1;
 
 	if (FRostersModel && FRostersViewPlugin && Options::node(OPV_NOTIFICATIONS_ROSTERICON).value().toBool() &&
-	    (record.notification.kinds & INotification::RosterIcon)>0)
+			(record.notification.kinds & INotification::RosterIcon)>0)
 	{
 		bool createIndex = record.notification.data.value(NDR_ROSTER_CREATE_INDEX).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
@@ -279,7 +279,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (!blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_POPUPWINDOW).value().toBool() &&
-		(record.notification.kinds & INotification::PopupWindow)>0)
+			(record.notification.kinds & INotification::PopupWindow)>0)
 	{
 		if (replaceNotifyId > 0)
 		{
@@ -307,7 +307,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (FMessageWidgets && FMessageProcessor && Options::node(OPV_NOTIFICATIONS_CHATWINDOW).value().toBool() &&
-		(record.notification.kinds & INotification::TabPage)>0)
+			(record.notification.kinds & INotification::TabPage)>0)
 	{
 		bool createTab = record.notification.data.value(NDR_TABPAGE_CREATE_TAB).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
@@ -337,7 +337,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QString toolTip = record.notification.data.value(NDR_TRAY_TOOLTIP).toString();
 
 		if (Options::node(OPV_NOTIFICATIONS_TRAYICON).value().toBool() &&
-			(record.notification.kinds & INotification::TrayIcon)>0)
+				(record.notification.kinds & INotification::TrayIcon)>0)
 		{
 			ITrayNotify notify;
 			notify.blink = true;
@@ -349,7 +349,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 
 		if (!toolTip.isEmpty() && Options::node(OPV_NOTIFICATIONS_TRAYACTION).value().toBool() &&
-		    (record.notification.kinds & INotification::TrayAction)>0)
+				(record.notification.kinds & INotification::TrayAction)>0)
 		{
 			record.action = new Action(FNotifyMenu);
 			if (!iconKey.isEmpty())
@@ -364,7 +364,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (QSound::isAvailable() && !blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() &&
-		(record.notification.kinds & INotification::PlaySoundNotification)>0)
+			(record.notification.kinds & INotification::PlaySoundNotification)>0)
 	{
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
@@ -386,7 +386,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (Options::node(OPV_NOTIFICATIONS_AUTOACTIVATE).value().toBool() &&
-		(record.notification.kinds & INotification::AutoActivate)>0)
+			(record.notification.kinds & INotification::AutoActivate)>0)
 	{
 		FDelayedActivations.append(notifyId);
 		QTimer::singleShot(0,this,SLOT(onActivateDelayedActivations()));

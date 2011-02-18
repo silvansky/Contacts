@@ -4,6 +4,9 @@
 #include <QTextFrame>
 #include <QFontMetrics>
 #include <QTextDocumentFragment>
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 #define DEFAUTL_TIMEOUT           9
 #define ANIMATE_STEPS             20
@@ -22,11 +25,22 @@ QDesktopWidget *NotifyWidget::FDesktop = new QDesktopWidget;
 NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvailable) : QWidget(NULL, Qt::ToolTip|Qt::WindowStaysOnTopHint)
 {
 	ui.setupUi(this);
+
+	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_NOTIFICATION);
+	if (border)
+	{
+		border->setResizable(false);
+		border->setMovable(false);
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+	}
+
 	setFocusPolicy(Qt::NoFocus);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_NOTIFICATION_NOTIFYWIDGET);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbOptions,MNI_NOTIFICATIONS_POPUP_OPTIONS);
-	
+
 	ui.tbrText->setMaxHeight(FDesktop->availableGeometry().height() / 6);
 	ui.tbrText->setContentsMargins(0,0,0,0);
 
@@ -95,7 +109,10 @@ void NotifyWidget::appear()
 		if (FTimeOut > 0)
 			FCloseTimer->start();
 
-		setWindowOpacity(ANIMATE_OPACITY_START);
+		if (border)
+			border->setWindowOpacity(ANIMATE_OPACITY_START);
+		else
+			setWindowOpacity(ANIMATE_OPACITY_START);
 
 		FWidgets.prepend(this);
 		layoutWidgets();
@@ -146,7 +163,10 @@ void NotifyWidget::appendNotification(const INotification &ANotification)
 
 void NotifyWidget::adjustHeight()
 {
-	resize(width(),sizeHint().height());
+	if (border)
+		border->resize(border->width(),border->sizeHint().height());
+	else
+		resize(width(),sizeHint().height());
 }
 
 void NotifyWidget::updateElidedText()
@@ -189,14 +209,30 @@ void NotifyWidget::onAnimateStep()
 	if (FAnimateStep > 0)
 	{
 		int ypos = y()+(FYPos-y())/(FAnimateStep);
-		setWindowOpacity(qMin(windowOpacity()+ANIMATE_OPACITY_STEP, ANIMATE_OPACITY_END));
-		move(x(),ypos);
+		if (border)
+		{
+			border->setWindowOpacity(qMin(border->windowOpacity()+ANIMATE_OPACITY_STEP, ANIMATE_OPACITY_END));
+			border->move(border->x(),ypos);
+		}
+		else
+		{
+			setWindowOpacity(qMin(windowOpacity()+ANIMATE_OPACITY_STEP, ANIMATE_OPACITY_END));
+			move(x(),ypos);
+		}
 		FAnimateStep--;
 	}
 	else if (FAnimateStep == 0)
 	{
-		move(x(),FYPos);
-		setWindowOpacity(ANIMATE_OPACITY_END);
+		if (border)
+		{
+			border->move(border->x(),FYPos);
+			border->setWindowOpacity(ANIMATE_OPACITY_END);
+		}
+		else
+		{
+			move(x(),FYPos);
+			setWindowOpacity(ANIMATE_OPACITY_END);
+		}
 		FAnimateStep--;
 	}
 }
@@ -206,7 +242,12 @@ void NotifyWidget::onCloseTimerTimeout()
 	if (FTimeOut > 0)
 		FTimeOut--;
 	else
-		close();
+	{
+		if (border)
+			border->close();
+		else
+			close();
+	}
 }
 
 void NotifyWidget::layoutWidgets()
@@ -218,12 +259,21 @@ void NotifyWidget::layoutWidgets()
 		NotifyWidget *widget = FWidgets.at(i);
 		if (!widget->isVisible())
 		{
-			widget->show();
-			widget->move(display.right() - widget->frameGeometry().width(), display.bottom());
-			QTimer::singleShot(0,widget,SLOT(adjustHeight()));
-			QTimer::singleShot(10,widget,SLOT(adjustHeight()));
+			if (widget->border)
+				widget->border->show();
+			else
+				widget->show();
+			if (widget->border)
+				widget->border->move(display.right() - widget->border->frameGeometry().width(), display.bottom());
+			else
+				widget->move(display.right() - widget->frameGeometry().width(), display.bottom());
+			QTimer::singleShot(0, widget, SLOT(adjustHeight()));
+			QTimer::singleShot(10, widget, SLOT(adjustHeight()));
 		}
-		ypos -=  widget->frameGeometry().height();
+		if (widget->border)
+			ypos -=  widget->border->frameGeometry().height();
+		else
+			ypos -=  widget->frameGeometry().height();
 		widget->animateTo(ypos--);
 	}
 }

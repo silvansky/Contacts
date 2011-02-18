@@ -4,6 +4,7 @@
 #define CBS_DIALOG		"dialog"
 #define CBS_ROSTER		"roster"
 #define CBS_WINDOW		"window"
+#define CBS_NOTIFICATION	"notification"
 #define CBS_MESSAGEWINDOW	"messageWindow"
 #define CBS_OPTIONSDIALOG	"optionsDialog"
 
