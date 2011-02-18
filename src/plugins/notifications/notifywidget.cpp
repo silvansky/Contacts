@@ -33,7 +33,8 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 		border->setMovable(false);
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
-		border->setCloseButtonVisible(false);
+		connect(border, SIGNAL(closeClicked()), SIGNAL(notifyRemoved()));
+		ui.clbClose->setVisible(false);
 	}
 
 	setFocusPolicy(Qt::NoFocus);
@@ -208,14 +209,16 @@ void NotifyWidget::onAnimateStep()
 {
 	if (FAnimateStep > 0)
 	{
-		int ypos = y()+(FYPos-y())/(FAnimateStep);
+		int ypos;
 		if (border)
 		{
+			ypos = border->y()+(FYPos-border->y())/(FAnimateStep);
 			border->setWindowOpacity(qMin(border->windowOpacity()+ANIMATE_OPACITY_STEP, ANIMATE_OPACITY_END));
 			border->move(border->x(),ypos);
 		}
 		else
 		{
+			ypos = y()+(FYPos-y())/(FAnimateStep);
 			setWindowOpacity(qMin(windowOpacity()+ANIMATE_OPACITY_STEP, ANIMATE_OPACITY_END));
 			move(x(),ypos);
 		}
@@ -254,7 +257,7 @@ void NotifyWidget::layoutWidgets()
 {
 	QRect display = FDesktop->availableGeometry();
 	int ypos = display.bottom();
-	for (int i=0; ypos>0 && i<FWidgets.count(); i++)
+	for (int i = 0; ypos > 0 && i < FWidgets.count(); i++)
 	{
 		NotifyWidget *widget = FWidgets.at(i);
 		if (!widget->isVisible())
@@ -264,16 +267,16 @@ void NotifyWidget::layoutWidgets()
 			else
 				widget->show();
 			if (widget->border)
-				widget->border->move(display.right() - widget->border->frameGeometry().width(), display.bottom());
+				widget->border->move(display.right() - widget->border->geometry().width(), display.bottom());
 			else
 				widget->move(display.right() - widget->frameGeometry().width(), display.bottom());
 			QTimer::singleShot(0, widget, SLOT(adjustHeight()));
 			QTimer::singleShot(10, widget, SLOT(adjustHeight()));
 		}
 		if (widget->border)
-			ypos -=  widget->border->frameGeometry().height();
+			ypos -= widget->border->geometry().height();
 		else
-			ypos -=  widget->frameGeometry().height();
+			ypos -= widget->frameGeometry().height();
 		widget->animateTo(ypos--);
 	}
 }
