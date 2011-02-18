@@ -83,12 +83,12 @@ QLabel#optionsCaptionLabel
 	font-size: 18px;
 }
 
-#optionsWidgetCheckBox
+/*#optionsWidgetCheckBox
 {
-	margin-left: 16px;
-}
+	padding-left: 16px;
+}*/
 
-RosterContactViewOptions QRadioButton, RosterContactOrderOptions QRadioButton, MessengerOptions QRadioButton, ProxyOptionsWidget QRadioButton
+OptionsWidget
 {
 	margin-left: 16px;
 }
@@ -98,7 +98,19 @@ NotifyKindsWidget QGroupBox
 	margin-left: 14px;
 }
 
+RosterContactViewOptions QGroupBox, RosterContactOrderOptions QGroupBox,
+ProxyOptionsWidget QGroupBox,
+MessengerOptions QGroupBox
+{
+	margin-left: 16px;
+}
+
 #chbProxyUserPassword
 {
 	margin-left: 6px;
+}
+
+#grbKinds
+{
+	margin-right: 40px;
 }

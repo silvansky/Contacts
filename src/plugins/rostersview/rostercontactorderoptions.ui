@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>335</width>
-    <height>63</height>
+    <width>338</width>
+    <height>93</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -15,24 +15,39 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QRadioButton" name="rbtOrderByName">
-     <property name="text">
-      <string>By Name (A-&gt;Z)</string>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string/>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="rbtOrderByStatus">
-     <property name="text">
-      <string>By Status</string>
+     <property name="flat">
+      <bool>true</bool>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="rbtOrderManualy">
-     <property name="text">
-      <string>Manual</string>
-     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="rbtOrderByName">
+        <property name="text">
+         <string>By Name (A-&gt;Z)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="rbtOrderByStatus">
+        <property name="text">
+         <string>By Status</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="rbtOrderManualy">
+        <property name="text">
+         <string>Manual</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

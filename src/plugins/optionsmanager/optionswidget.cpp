@@ -14,7 +14,9 @@ OptionsWidget::OptionsWidget(const OptionsNode &ANode, const QString &ACaption, 
 	FValue = FNode.value();
 
 	setLayout(new QHBoxLayout);
-	layout()->setMargin(0);
+	//layout()->setMargin(0);
+	//layout()->setSpacing(6);
+	layout()->setContentsMargins(16, 0, 0, 0);
 
 	if (FValue.type() == QVariant::Bool)
 	{

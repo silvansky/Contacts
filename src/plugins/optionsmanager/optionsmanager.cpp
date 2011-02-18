@@ -504,6 +504,8 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 			if (FOptionsDialogBorder)
 			{
 				FOptionsDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
+				FOptionsDialogBorder->setMaximizeButtonVisible(false);
+				FOptionsDialogBorder->setResizable(false);
 				connect(FOptionsDialog, SIGNAL(accepted()), FOptionsDialogBorder, SLOT(closeWidget()));
 				connect(FOptionsDialog, SIGNAL(rejected()), FOptionsDialogBorder, SLOT(closeWidget()));
 				connect(FOptionsDialogBorder, SIGNAL(closeClicked()), FOptionsDialog, SLOT(reject()));

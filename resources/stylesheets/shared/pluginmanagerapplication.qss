@@ -437,7 +437,7 @@ QComboBox
 
 QComboBox:editable
 {
-	background: white;
+	background: transparent;
 }
 
 QComboBox:!editable:hover

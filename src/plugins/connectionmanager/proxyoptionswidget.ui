@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>251</width>
-    <height>191</height>
+    <width>311</width>
+    <height>284</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -15,34 +15,46 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QRadioButton" name="rdbAutoProxy">
-     <property name="text">
-      <string>Automatic connection</string>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string/>
      </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="rdbExplorerProxy">
-     <property name="text">
-      <string>Import proxy settings from Internet Explorer</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="rdbFireFoxProxy">
-     <property name="text">
-      <string>Import proxy settings from Mozilla Firefox</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="rdbManualProxy">
-     <property name="text">
-      <string>Specify the proxy manually</string>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QRadioButton" name="rdbAutoProxy">
+        <property name="text">
+         <string>Automatic connection</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="rdbExplorerProxy">
+        <property name="text">
+         <string>Import proxy settings from Internet Explorer</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="rdbFireFoxProxy">
+        <property name="text">
+         <string>Import proxy settings from Mozilla Firefox</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="rdbManualProxy">
+        <property name="text">
+         <string>Specify the proxy manually</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -134,8 +146,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>rdbAutoProxy</tabstop>
-  <tabstop>rdbManualProxy</tabstop>
   <tabstop>lneProxyHost</tabstop>
   <tabstop>spbProxyPort</tabstop>
   <tabstop>chbProxyUserPassword</tabstop>
