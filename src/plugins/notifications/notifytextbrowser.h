@@ -3,10 +3,10 @@
 
 #include <QTextBrowser>
 
-class NotifyTextBrowser : 
+class NotifyTextBrowser :
 	public QTextBrowser
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	NotifyTextBrowser(QWidget *AParent);
 	~NotifyTextBrowser();

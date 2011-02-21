@@ -14,7 +14,7 @@
 #define ANIMATE_STEP_TIME         (ANIMATE_TIME/ANIMATE_STEPS)
 #define ANIMATE_OPACITY_START     0.0
 #define ANIMATE_OPACITY_END       1.0
-#define ANIMATE_OPACITY_STEP      (ANIMATE_OPACITY_END - ANIMATE_OPACITY_START)/ANIMATE_STEPS
+#define ANIMATE_OPACITY_STEP      ((ANIMATE_OPACITY_END - ANIMATE_OPACITY_START)/ANIMATE_STEPS)
 
 #define IMAGE_SIZE                QSize(32,32)
 #define MAX_MESSAGES              3
@@ -33,7 +33,11 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 		border->setMovable(false);
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
+		border->setWindowFlags(border->windowFlags() | Qt::ToolTip);
 		connect(border, SIGNAL(closeClicked()), SIGNAL(notifyRemoved()));
+		QMargins m = ui.frmPopup->layout()->contentsMargins();
+		m.setRight(24);
+		ui.frmPopup->layout()->setContentsMargins(m);
 		ui.clbClose->setVisible(false);
 	}
 

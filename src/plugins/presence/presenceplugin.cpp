@@ -82,7 +82,7 @@ bool PresencePlugin::initObjects()
 	if (FNotifications)
 	{
 		uchar stateKindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::PlaySoundNotification|INotification::TestNotify;
-		FNotifications->insertNotificator(NID_CONTACT_STATE,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),stateKindMask,INotification::RosterIcon);
+		FNotifications->insertNotificator(NID_CONTACT_STATE,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),stateKindMask,INotification::RosterIcon|INotification::PopupWindow);
 
 		uchar moodKindMask = INotification::PopupWindow|INotification::PlaySoundNotification|INotification::TestNotify;
 		FNotifications->insertNotificator(NID_CONTACT_MOOD,OWO_NOTIFICATIONS_MOOD_CHANGES,tr("Mood Changes"),moodKindMask,0);
@@ -156,7 +156,7 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 				notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
 				notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
 				notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_MOOD_CHANGED);
-				
+
 				QString text = Qt::escape(AItem.status);
 				if (FStatusIcons)
 				{
@@ -346,7 +346,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 			notify.data.insert(NDR_POPUP_CAPTION,tr("Changed mood"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
-			
+
 			QString text = Qt::escape(tr("Whatever was done, all the better"));
 			if (FStatusIcons)
 			{
