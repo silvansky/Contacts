@@ -212,6 +212,27 @@ void MetaTabWindow::setCurrentItem(const Jid &AItemJid)
 	}
 }
 
+void MetaTabWindow::insertTopWidget(int AOrder, QWidget *AWidget)
+{
+	Q_UNUSED(AOrder)
+	if(AWidget != NULL)
+	{
+		ui.vlExtControls->addWidget(AWidget);
+		emit topWidgetInserted(AOrder, AWidget);
+	}
+}
+void MetaTabWindow::removeTopWidget(QWidget *AWidget)
+{
+	if(AWidget != NULL)
+	{
+		ui.vlExtControls->removeWidget(AWidget);
+		emit topWidgetRemoved(AWidget);
+	}
+}
+
+
+
+
 void MetaTabWindow::initialize(IPluginManager *APluginManager)
 {
 	IPlugin *plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);

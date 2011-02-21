@@ -16,6 +16,9 @@
      <number>0</number>
     </property>
     <item>
+     <layout class="QVBoxLayout" name="vlExtControls"/>
+    </item>
+    <item>
      <widget class="QStackedWidget" name="stwWidgets"/>
     </item>
    </layout>

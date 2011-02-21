@@ -44,6 +44,10 @@ public:
 	virtual void setItemPage(const Jid &AItemJid, ITabPage *APage);
 	virtual Jid currentItem() const;
 	virtual void setCurrentItem(const Jid &AItemJid);
+
+	// ононб
+	virtual void insertTopWidget(int AOrder, QWidget *AWidget);
+	virtual void removeTopWidget(QWidget *AWidget);
 signals:
 	//ITabPage
 	void tabPageShow();
@@ -59,6 +63,11 @@ signals:
 	void itemPageRequested(const Jid &AItemJid);
 	void itemPageChanged(const Jid &AItemJid, ITabPage *APage);
 	void intemContextMenuRequested(const Jid &AItemJid, Menu *AMenu);
+
+	// ононб
+	void topWidgetInserted(int AOrder, QWidget *AWidget);
+	void topWidgetRemoved(QWidget* AWidget);
+
 protected:
 	void initialize(IPluginManager *APluginManager);
 	Jid firstItemJid() const;
