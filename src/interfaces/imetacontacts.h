@@ -82,6 +82,11 @@ public:
 	virtual void setItemPage(const Jid &AItemJid, ITabPage *APage) =0;
 	virtual Jid currentItem() const =0;
 	virtual void setCurrentItem(const Jid &AItemJid) =0;
+
+	// ононб
+	virtual void insertTopWidget(int AOrder, QWidget *AWidget) =0;
+	virtual void removeTopWidget(QWidget *AWidget) =0;
+
 protected:
 	virtual void currentItemChanged(const Jid &AItemJid) =0;
 	virtual void itemPageRequested(const Jid &AItemJid) =0;
