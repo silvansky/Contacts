@@ -21,6 +21,8 @@
 #include <QResizeEvent>
 #include <QDebug>
 
+#include <QDebug>
+
 #define SHARED_STYLE_PATH                   RESOURCES_DIR"/"RSR_STORAGE_ADIUMMESSAGESTYLES"/"STORAGE_SHARED_DIR
 #define STYLE_CONTENTS_PATH                 "Contents"
 #define STYLE_RESOURCES_PATH                STYLE_CONTENTS_PATH"/Resources"
@@ -806,6 +808,13 @@ void AdiumMessageStyle::onStyleWidgetDestroyed(QObject *AObject)
 	emit widgetRemoved((QWidget *)AObject);
 }
 
+void AdiumMessageStyle::reloadTemplates()
+{
+	qDebug() << "AdiumMessageStyle::reloadTemplates()";
+	QWebSettings::clearMemoryCaches();
+	loadTemplates();
+}
+
 void AdiumMessageStyle::onViewContentsSizeChanged(const QSize &size)
 {
 	Q_UNUSED(size);
@@ -904,3 +913,4 @@ bool AdiumMessageStyle::eventFilter(QObject * obj, QEvent * event)
 	}
 	return QObject::eventFilter(obj, event);
 }
+

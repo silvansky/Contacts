@@ -15,6 +15,9 @@ public:
 	virtual QSize sizeHint() const;
 protected slots:
 	void onShortcutActivated();
+	void onPageLoaded();
+signals:
+	void htmlChanged(QWidget *, const QString &);
 };
 
 #endif // STYLEVIEWER_H

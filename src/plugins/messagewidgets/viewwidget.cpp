@@ -5,6 +5,7 @@
 #include <QScrollBar>
 #include <QHBoxLayout>
 #include <QDebug>
+#include <QDebug>
 
 ViewWidget::ViewWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
 {
@@ -63,8 +64,9 @@ IMessageStyle *ViewWidget::messageStyle() const
 
 void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptions &AOptions)
 {
-	if (FMessageStyle != AStyle)
+	//if (FMessageStyle != AStyle)
 	{
+		qDebug() << "ViewWidget::setMessageStyle(): " + AStyle->styleId();
 		IMessageStyle *befour = FMessageStyle;
 		FMessageStyle = AStyle;
 		if (befour)
@@ -93,6 +95,8 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 
 QUuid ViewWidget::changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions)
 {
+	FLastHtml = AHtml;
+	emit htmlChanged(this, FLastHtml);
 	return FMessageStyle ? FMessageStyle->changeContent(FStyleWidget,AHtml,AOptions) : QUuid();
 }
 
@@ -116,6 +120,11 @@ QUuid ViewWidget::changeContentMessage(const Message &AMessage, const IMessageCo
 void ViewWidget::contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
 {
 	emit viewContextMenu(APosition,ASelection,AMenu);
+}
+
+QString ViewWidget::currentHtml() const
+{
+	return FLastHtml;
 }
 
 void ViewWidget::initialize()
@@ -149,7 +158,7 @@ void ViewWidget::dropEvent(QDropEvent *AEvent)
 			action->trigger();
 		else
 			action = dropMenu->exec(mapToGlobal(AEvent->pos()));
-		
+
 		if (action)
 			AEvent->acceptProposedAction();
 		else

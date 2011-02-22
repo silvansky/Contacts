@@ -159,6 +159,8 @@ protected slots:
 	void onScrollBarValueChanged(int value);
 protected:
 	bool eventFilter(QObject *, QEvent *);
+public slots:
+	void reloadTemplates();
 private:
 	QString FTopicHTML;
 	QString FStatusHTML;

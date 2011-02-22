@@ -11,6 +11,7 @@ StyleViewer::StyleViewer(QWidget *AParent) : QWebView(AParent)
 
 	QShortcut *shortcut = new QShortcut(QKeySequence::Copy, this,NULL,NULL,Qt::WidgetShortcut);
 	connect(shortcut, SIGNAL(activated()), SLOT(onShortcutActivated()));
+	connect(page(), SIGNAL(loadFinished(bool)), SLOT(onPageLoaded()));
 }
 
 StyleViewer::~StyleViewer()
@@ -26,4 +27,9 @@ QSize StyleViewer::sizeHint() const
 void StyleViewer::onShortcutActivated()
 {
 	triggerPageAction(QWebPage::Copy);
+}
+
+void StyleViewer::onPageLoaded()
+{
+	emit htmlChanged(this, page()->mainFrame()->toHtml());
 }

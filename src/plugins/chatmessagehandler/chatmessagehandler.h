@@ -141,6 +141,7 @@ protected:
 protected slots:
 	void onMessageReady();
 	void onUrlClicked(const QUrl &AUrl);
+	void onHtmlChanged(QWidget *, const QString &);
 	void onInfoFieldChanged(IInfoWidget::InfoField AField, const QVariant &AValue);
 	void onWindowActivated();
 	void onWindowClosed();
@@ -160,6 +161,8 @@ protected slots:
 	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onOptionsOpened();
 	void onOptionsClosed();
+	void updateMessageStyles();
+	void showMessageSource();
 private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
@@ -184,6 +187,7 @@ private:
 	QMap<IChatWindow *, WindowStatus> FWindowStatus;
 private:
 	QMap<QString, IChatWindow *> FHistoryRequests;
+	QMap<QWidget *, QString> FMessagesSources;
 };
 
 #endif // CHATMESSAGEHANDLER_H

@@ -1,5 +1,8 @@
 #include "chatmessagehandler.h"
 
+#include <QDebug>
+#include <QEventLoop>
+
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    25
 
@@ -461,6 +464,28 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 			window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
 			if (window)
 			{
+				Action * actionReloadStyle = new Action(window->toolBarWidget()->instance());
+				actionReloadStyle->setText(tr("Reload style"));
+				window->toolBarWidget()->toolBarChanger()->insertAction(actionReloadStyle);
+				connect(actionReloadStyle, SIGNAL(triggered()), SLOT(updateMessageStyles()));
+				if (FMetaContacts)
+				{
+					IMetaRoster * mroster = FMetaContacts->findMetaRoster(AStreamJid);
+					if (mroster)
+					{
+						IMetaTabWindow * mtw = FMetaContacts->findMetaTabWindow(AStreamJid, mroster->itemMetaContact(AContactJid));
+						if (mtw)
+						{
+							mtw->toolBarChanger()->insertAction(actionReloadStyle);
+						}
+					}
+				}
+
+				//Action * actionShowSource = new Action(window->toolBarWidget()->instance());
+				//actionReloadStyle->setText(tr("Show source"));
+				//window->toolBarWidget()->toolBarChanger()->insertAction(actionShowSource);
+				//connect(actionShowSource, SIGNAL(triggered()), SLOT(showMessageSource()));
+
 				window->infoWidget()->autoUpdateFields();
 				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
@@ -470,7 +495,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 				connect(window->infoWidget()->instance(),SIGNAL(fieldChanged(IInfoWidget::InfoField, const QVariant &)),
 					SLOT(onInfoFieldChanged(IInfoWidget::InfoField, const QVariant &)));
-				connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
+				connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl &)),SLOT(onUrlClicked(const QUrl &)));
 				connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
 				connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
 				connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
@@ -491,6 +516,8 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 				}
 
 				setMessageStyle(window);
+				// works only on adium styles
+				connect(window->viewWidget()->styleWidget(),SIGNAL(htmlChanged(QWidget *, const QString &)),SLOT(onHtmlChanged(QWidget *, const QString &)));
 
 				TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
 				pageInfo.page = window;
@@ -644,7 +671,7 @@ void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState
 		options.time = QDateTime::fromTime_t(0);
 		options.timeFormat = " ";
 		options.noScroll = true;
-		
+
 		if (AInit && false)
 		{
 			QUrl showWindowUrl;
@@ -684,7 +711,13 @@ void ChatMessageHandler::setMessageStyle(IChatWindow *AWindow)
 {
 	IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
 	IMessageStyle *style = FMessageStyles->styleForOptions(soptions);
+	// works only on adium styles
+	QTimer::singleShot(0, style->instance(), SLOT(reloadTemplates()));
+	QEventLoop loop;
+	QTimer::singleShot(10, &loop, SLOT(quit()));
+	loop.exec();
 	AWindow->viewWidget()->setMessageStyle(style,soptions);
+	requestHistoryMessages(AWindow, 10);
 
 	WindowStatus &wstatus = FWindowStatus[AWindow];
 	wstatus.separators.clear();
@@ -859,6 +892,12 @@ void ChatMessageHandler::onUrlClicked(const QUrl &AUrl)
 			}
 		}
 	}
+}
+
+void ChatMessageHandler::onHtmlChanged(QWidget * widget, const QString & html)
+{
+	FMessagesSources.insert(widget, html);
+	showMessageSource();
 }
 
 void ChatMessageHandler::onInfoFieldChanged(IInfoWidget::InfoField AField, const QVariant &AValue)
@@ -1165,6 +1204,32 @@ void ChatMessageHandler::onOptionsClosed()
 	QDataStream stream(&data, QIODevice::WriteOnly);
 	stream << FTabPages;
 	Options::setFileValue(data,"messages.last-chat-tab-pages");
+}
+
+void ChatMessageHandler::updateMessageStyles()
+{
+	qDebug() << "ChatMessageHandler::updateMessageStyles()";
+	foreach (IChatWindow *window, FWindows)
+		setMessageStyle(window);
+}
+
+void ChatMessageHandler::showMessageSource()
+{
+	static QTextEdit * sourceView = 0;
+	if (!sourceView)
+	{
+		sourceView = new QTextEdit(NULL);
+		sourceView->setReadOnly(true);
+		sourceView->setStyleSheet("QTextEdit { border: none; padding: 0px; border-image: none; background-color: white; }");
+		sourceView->show();
+		sourceView->resize(600, 400);
+	}
+	QString src;
+	foreach (IChatWindow *window, FWindows)
+	{
+		src += QString("<pre><font color=red size=+2><b>%1</b></font>\r\n\r\n%2\r\n</pre>").arg(Qt::escape(window->viewWidget()->contactJid().full())).arg(Qt::escape(FMessagesSources.value(window->viewWidget()->styleWidget())));
+	}
+	sourceView->setHtml(src);
 }
 
 Q_EXPORT_PLUGIN2(plg_chatmessagehandler, ChatMessageHandler)

@@ -65,6 +65,7 @@ public:
 	virtual QUuid changeContentText(const QString &AText, const IMessageContentOptions &AOptions) =0;
 	virtual QUuid changeContentMessage(const Message &AMessage, const IMessageContentOptions &AOptions) =0;
 	virtual void contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu) =0;
+	virtual QString currentHtml() const = 0;
 protected:
 	virtual void streamJidChanged(const Jid &ABefour) =0;
 	virtual void contactJidChanged(const Jid &ABefour) =0;
