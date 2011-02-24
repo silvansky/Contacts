@@ -13,7 +13,7 @@ class MergeContactsDialog :
 {
 	Q_OBJECT;
 public:
-	MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<Jid> AMetaIds, QWidget *AParent = NULL);
+	MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<QString> AMetaIds, QWidget *AParent = NULL);
 	~MergeContactsDialog();
 protected slots:
 	void onContactNameChanged(const QString &AText);
@@ -24,7 +24,7 @@ private:
 	IMetaRoster *FMetaRoster;
 	IMetaContacts *FMetaContacts;
 private:
-	QList<Jid> FMetaIds;
+	QList<QString> FMetaIds;
 };
 
 #endif // MERGECONTACTSDIALOG_H

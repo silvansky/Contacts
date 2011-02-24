@@ -11,7 +11,7 @@
 
 struct IMetaContact 
 {
-	Jid id;
+	QString id;
 	QString name;
 	QSet<Jid> items;
 	QSet<QString> groups;
@@ -36,32 +36,32 @@ public:
 	virtual Jid streamJid() const =0;
 	virtual IRoster *roster() const =0;
 	virtual bool isOpen() const =0;
-	virtual QList<Jid> metaContacts() const =0;
-	virtual IMetaContact metaContact(const Jid &AMetaId) const =0;
-	virtual Jid itemMetaContact(const Jid &AItemJid) const =0;
-	virtual IPresenceItem metaPresence(const Jid &AMetaId) const =0;
+	virtual QList<QString> metaContacts() const =0;
+	virtual IMetaContact metaContact(const QString &AMetaId) const =0;
+	virtual QString itemMetaContact(const Jid &AItemJid) const =0;
+	virtual IPresenceItem metaPresence(const QString &AMetaId) const =0;
 	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const =0;
-	virtual QString metaAvatarHash(const Jid &AMetaId) const =0;
-	virtual QImage metaAvatarImage(const Jid &AMetaId, bool ANullImage = true) const =0;
+	virtual QString metaAvatarHash(const QString &AMetaId) const =0;
+	virtual QImage metaAvatarImage(const QString &AMetaId, bool ANullImage = true) const =0;
 	virtual QSet<QString> groups() const =0;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const =0;
 	virtual void saveMetaContacts(const QString &AFileName) const =0;
 	virtual void loadMetaContacts(const QString &AFileName) =0;
 	//Operations on contacts
 	virtual QString createContact(const IMetaContact &AContact) =0;
-	virtual QString renameContact(const Jid &AMetaId, const QString &ANewName) =0;
-	virtual QString deleteContact(const Jid &AMetaId) =0;
-	virtual QString mergeContacts(const Jid &ADestId, const QList<Jid> &AMetaIds) =0;
-	virtual QString setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups) =0;
+	virtual QString renameContact(const QString &AMetaId, const QString &ANewName) =0;
+	virtual QString deleteContact(const QString &AMetaId) =0;
+	virtual QString mergeContacts(const QString &ADestId, const QList<QString> &AMetaIds) =0;
+	virtual QString setContactGroups(const QString &AMetaId, const QSet<QString> &AGroups) =0;
 	//Operations on contact items
-	virtual QString detachContactItem(const Jid &AMetaId, const Jid &AItemJid) =0;
-	virtual QString deleteContactItem(const Jid &AMetaId, const Jid &AItemJid) =0;
+	virtual QString detachContactItem(const QString &AMetaId, const Jid &AItemJid) =0;
+	virtual QString deleteContactItem(const QString &AMetaId, const Jid &AItemJid) =0;
 	//Operations on groups
 	virtual bool renameGroup(const QString &AGroup, const QString &ANewName) =0;
 protected:
 	virtual void metaRosterOpened() =0;
-	virtual void metaAvatarChanged(const Jid &AMetaId) =0;
-	virtual void metaPresenceChanged(const Jid &AMetaId) =0;
+	virtual void metaAvatarChanged(const QString &AMetaId) =0;
+	virtual void metaPresenceChanged(const QString &AMetaId) =0;
 	virtual void metaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore) =0;
 	virtual void metaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage) =0;
 	virtual void metaRosterClosed() =0;
@@ -75,7 +75,7 @@ class IMetaTabWindow :
 {
 public:
 	virtual QMainWindow *instance() =0;
-	virtual Jid metaId() const =0;
+	virtual QString metaId() const =0;
 	virtual IMetaRoster *metaRoster() const =0;
 	virtual ToolBarChanger *toolBarChanger() const =0;
 	virtual ITabPage *itemPage(const Jid &AItemJid) const =0;
@@ -106,13 +106,13 @@ public:
 	virtual void removeMetaRoster(IRoster *ARoster) =0;
 	virtual QString metaRosterFileName(const Jid &AStreamJid) const =0;
 	virtual QList<IMetaTabWindow *> metaTabWindows() const =0;
-	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId) =0;
-	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId) const =0;
+	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) =0;
+	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const =0;
 protected:
 	virtual void metaRosterAdded(IMetaRoster *AMetaRoster) =0;
 	virtual void metaRosterOpened(IMetaRoster *AMetaRoster) =0;
-	virtual void metaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId) =0;
-	virtual void metaPresenceChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId) =0;
+	virtual void metaAvatarChanged(IMetaRoster *AMetaRoster, const QString &AMetaId) =0;
+	virtual void metaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId) =0;
 	virtual void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore) =0;
 	virtual void metaActionResult(IMetaRoster *AMetaRoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage) =0;
 	virtual void metaRosterClosed(IMetaRoster *AMetaRoster) =0;

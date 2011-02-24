@@ -243,7 +243,7 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 
 		Jid streamJid;
 		Jid contactJid;
-		Jid metaid = iMetaTabWindow->metaId();
+		QString metaid = iMetaTabWindow->metaId();
 
 		IMetaRoster* iMetaRoster = iMetaTabWindow->metaRoster();
 		if(iMetaRoster !=NULL)
@@ -256,7 +256,7 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 		}
 		callAction->setData(ADR_STREAM_JID, streamJid.full());
 		callAction->setData(ADR_CONTACT_JID, contactJid.full());
-		callAction->setData(ADR_METAID_WINDOW, metaid.full());
+		callAction->setData(ADR_METAID_WINDOW, metaid);
 		
 		connect(callAction, SIGNAL(triggered(bool)), SLOT(onToolBarActionTriggered(bool)));
 		tbChanger->insertAction(callAction, TBG_MCMTW_P2P_CALL);
@@ -270,7 +270,7 @@ void SipPhone::onToolBarActionTriggered(bool status)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-		Jid metaId = action->data(ADR_METAID_WINDOW).toString();
+		QString metaId = action->data(ADR_METAID_WINDOW).toString();
 
 		//IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
 		//IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
@@ -306,7 +306,7 @@ void SipPhone::onToolBarActionTriggered(bool status)
 				connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
 
 				iMetaTabWindow->insertTopWidget(0, pCallControl);
-				FCallControls.insert(metaId.full(), pCallControl);
+				FCallControls.insert(metaId, pCallControl);
 			}
 			openStream(streamJid, contactJid);
 		}
@@ -953,7 +953,7 @@ void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiM
 	if (ALabelId==RLID_DISPLAY && AIndex->type()==RIT_METACONTACT)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid metaId = AIndex->data(RDR_INDEX_ID).toString();
+		QString metaId = AIndex->data(RDR_INDEX_ID).toString();
 
 		IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
 		IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
@@ -982,7 +982,7 @@ void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiM
 									action->setData(ADR_STREAM_JID,streamJid.full());
 									action->setData(ADR_CONTACT_JID,contactJidFull.full());
 									//action->setData(ADR_CONTACT_JID,contactJid.full());
-									action->setData(ADR_METAID_WINDOW, metaId.full());
+									action->setData(ADR_METAID_WINDOW, metaId);
 									connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
 									AToolBarChanger->insertAction(action);
 									return;

@@ -25,7 +25,7 @@ bool MetaContextMenu::isAcceptedIndex(IRosterIndex *AIndex)
 {
 	if (AIndex!=NULL && FMetaTabWindow->metaRoster()->roster()->streamJid()==AIndex->data(RDR_STREAM_JID).toString())
 	{
-		Jid metaId = AIndex->data(RDR_INDEX_ID).toString();
+		QString metaId = AIndex->data(RDR_INDEX_ID).toString();
 		if (FMetaTabWindow->metaId() == metaId)
 			return true;
 	}
@@ -36,7 +36,6 @@ void MetaContextMenu::updateMenu()
 {
 	if (FRosterIndex)
 	{
-		Jid metaId = FMetaTabWindow->metaId();
 		QString name = FRosterIndex->data(Qt::DisplayRole).toString();
 		QImage avatar = FRosterIndex->data(RDR_AVATAR_IMAGE).value<QImage>();
 		setIcon(QIcon(QPixmap::fromImage(avatar)));
@@ -104,7 +103,7 @@ void MetaContextMenu::onRosterIndexRemoved(IRosterIndex *AIndex)
 	{
 		QMultiMap<int, QVariant> findData;
 		findData.insert(RDR_TYPE,RIT_METACONTACT);
-		findData.insert(RDR_INDEX_ID,FMetaTabWindow->metaId().pBare());
+		findData.insert(RDR_INDEX_ID,FMetaTabWindow->metaId());
 
 		IRosterIndex *searchRoot = FRostersModel->streamRoot(FMetaTabWindow->metaRoster()->roster()->streamJid());
 		FRosterIndex = searchRoot!=NULL ? searchRoot->findChild(findData,true).value(0) : NULL;

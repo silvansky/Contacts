@@ -2,7 +2,7 @@
 
 #include <QPushButton>
 
-MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<Jid> AMetaIds, QWidget *AParent) : QDialog(AParent)
+MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<QString> AMetaIds, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
 
@@ -17,7 +17,7 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 
 	ui.lblNotice->setText(tr("<b>%n contacts</b> will be merged into one:","",AMetaIds.count()));
 
-	foreach(Jid metaId, FMetaIds)
+	foreach(QString metaId, FMetaIds)
 	{
 		IMetaContact contact = FMetaRoster->metaContact(metaId);
 
@@ -32,7 +32,7 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 
 		QListWidgetItem *item = new QListWidgetItem(name);
 		item->setData(Qt::DecorationRole, avatar);
-		item->setData(Qt::UserRole, metaId.pBare());
+		item->setData(Qt::UserRole, metaId);
 		item->setFlags(Qt::ItemIsEnabled);
 		ui.ltwContacts->addItem(item);
 	}
@@ -62,8 +62,8 @@ void MergeContactsDialog::onDialogButtonClicked(QAbstractButton *AButton)
 	case QDialogButtonBox::AcceptRole:
 		if (!ui.lneName->text().isEmpty())
 		{
-			Jid parentId = FMetaIds.value(0);
-			QList<Jid> childsId = FMetaIds.mid(1);
+			QString parentId = FMetaIds.value(0);
+			QList<QString> childsId = FMetaIds.mid(1);
 			if (FMetaRoster->metaContact(parentId).name != ui.lneName->text())
 				FMetaRoster->renameContact(parentId,ui.lneName->text());
 			FMetaRoster->mergeContacts(parentId,childsId);

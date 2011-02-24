@@ -37,8 +37,8 @@ protected slots:
 	void onRostersNotifyInserted(int ANotifyId);
 	void onRostersNotifyRemoved(int ANotifyId);
 	void onMetaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled);
-	void onMetaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
-	void onMetaPresenceChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
+	void onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString &AMetaId);
+	void onMetaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId);
 	void onMetaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
 private:
 	IRostersView *FRostersView;

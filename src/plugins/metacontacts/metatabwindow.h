@@ -23,7 +23,7 @@ class MetaTabWindow :
 	Q_OBJECT;
 	Q_INTERFACES(IMetaTabWindow ITabPage);
 public:
-	MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent = NULL);
+	MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent = NULL);
 	~MetaTabWindow();
 	virtual QMainWindow *instance() { return this; }
 	//ITabPage
@@ -37,7 +37,7 @@ public:
 	virtual ITabPageNotifier *tabPageNotifier() const;
 	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier);
 	//IMetaTabWindow
-	virtual Jid metaId() const;
+	virtual QString metaId() const;
 	virtual IMetaRoster *metaRoster() const;
 	virtual ToolBarChanger *toolBarChanger() const;
 	virtual ITabPage *itemPage(const Jid &AItemJid) const;
@@ -94,7 +94,7 @@ protected slots:
 protected slots:
 	void onItemButtonActionTriggered(bool);
 	void onCurrentWidgetChanged(int AIndex);
-	void onMetaPresenceChanged(const Jid &AMetaId);
+	void onMetaPresenceChanged(const QString &AMetaId);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 private:
 	Ui::MetaTabWindowClass ui;
@@ -106,7 +106,7 @@ private:
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
 private:
-	Jid FMetaId;
+	QString FMetaId;
 	bool FShownDetached;
 	QString FTabPageToolTip;
 	ToolBarChanger *FToolBarChanger;

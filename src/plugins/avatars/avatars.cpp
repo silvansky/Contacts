@@ -454,20 +454,21 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 			findData.insert(RDR_TYPE,type);
 		if (!AContactJid.isEmpty())
 			findData.insert(RDR_BARE_JID,AContactJid.pBare());
+		
 		QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChild(findData, true);
 		foreach (IRosterIndex * index, indexes)
 		{
 			int show = index->data(RDR_SHOW).toInt();
 			if ((index->data(RDR_TYPE).toInt() != RIT_STREAM_ROOT) && FMetaContacts)
 			{
-				foreach (Jid sjid, FRostersModel->streams())
+				foreach (Jid streamJid, FRostersModel->streams())
 				{
-					IMetaRoster * mroster = FMetaContacts->findMetaRoster(sjid);
+					IMetaRoster *mroster = FMetaContacts->findMetaRoster(streamJid);
 					if (mroster)
 					{
-						Jid mcontact = mroster->itemMetaContact(AContactJid);
-						IPresenceItem pi = mroster->metaPresence(mcontact);
-						show = pi.show;
+						QString metaId = mroster->itemMetaContact(AContactJid);
+						IPresenceItem pitem = mroster->metaPresence(metaId);
+						show = pitem.show;
 					}
 				}
 			}

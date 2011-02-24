@@ -8,7 +8,7 @@
 
 #define ADR_ITEM_JID     Action::DR_Parametr1
 
-MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const Jid &AMetaId, QWidget *AParent) : QMainWindow(AParent)
+MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QMainWindow(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose, false);
@@ -29,7 +29,7 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 	FToolBarChanger->setSeparatorsVisible(false);
 	FToolBarChanger->toolBar()->setIconSize(QSize(24,24));
 
-	connect(FMetaRoster->instance(),SIGNAL(metaPresenceChanged(const Jid &)),SLOT(onMetaPresenceChanged(const Jid &)));
+	connect(FMetaRoster->instance(),SIGNAL(metaPresenceChanged(const QString &)),SLOT(onMetaPresenceChanged(const QString &)));
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 	connect(ui.stwWidgets,SIGNAL(currentChanged(int)),SLOT(onCurrentWidgetChanged(int)));
@@ -74,7 +74,7 @@ bool MetaTabWindow::isActive() const
 
 QString MetaTabWindow::tabPageId() const
 {
-	return "MetaTabWidget|"+FMetaRoster->streamJid().pBare()+"|"+FMetaId.pBare();
+	return "MetaTabWidget|"+FMetaRoster->streamJid().pBare()+"|"+FMetaId;
 }
 
 QIcon MetaTabWindow::tabPageIcon() const
@@ -108,7 +108,7 @@ void MetaTabWindow::setTabPageNotifier(ITabPageNotifier *ANotifier)
 	}
 }
 
-Jid MetaTabWindow::metaId() const
+QString MetaTabWindow::metaId() const
 {
 	return FMetaId;
 }
@@ -594,7 +594,7 @@ void MetaTabWindow::onCurrentWidgetChanged(int AIndex)
 	emit currentItemChanged(FItemTabPages.key(page));
 }
 
-void MetaTabWindow::onMetaPresenceChanged(const Jid &AMetaId)
+void MetaTabWindow::onMetaPresenceChanged(const QString &AMetaId)
 {
 	if (AMetaId == FMetaId)
 	{

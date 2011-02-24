@@ -30,7 +30,7 @@
 struct TabPageInfo
 {
 	Jid streamJid;
-	Jid metaId;
+	QString metaId;
 	ITabPage *page;
 };
 
@@ -95,13 +95,13 @@ public:
 	virtual void removeMetaRoster(IRoster *ARoster);
 	virtual QString metaRosterFileName(const Jid &AStreamJid) const;
 	virtual QList<IMetaTabWindow *> metaTabWindows() const;
-	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId);
-	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId) const;
+	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId);
+	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const;
 signals:
 	void metaRosterAdded(IMetaRoster *AMetaRoster);
 	void metaRosterOpened(IMetaRoster *AMetaRoster);
-	void metaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
-	void metaPresenceChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
+	void metaAvatarChanged(IMetaRoster *AMetaRoster, const QString &AMetaId);
+	void metaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId);
 	void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
 	void metaActionResult(IMetaRoster *AMetaRoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void metaRosterClosed(IMetaRoster *AMetaRoster);
@@ -120,8 +120,8 @@ protected:
 	IMetaRoster *findBareMetaRoster(const Jid &AStreamJid) const;
 protected slots:
 	void onMetaRosterOpened();
-	void onMetaAvatarChanged(const Jid &AMetaId);
-	void onMetaPresenceChanged(const Jid &AMetaId);
+	void onMetaAvatarChanged(const QString &AMetaId);
+	void onMetaPresenceChanged(const QString &AMetaId);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void onMetaRosterClosed();
