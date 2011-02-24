@@ -21,6 +21,10 @@ public:
   QImage currentFrame() const;
   bool isOk() const;
 
+public slots:
+	bool stop();
+	bool start();
+
 protected:
   void timerEvent(QTimerEvent*);
 

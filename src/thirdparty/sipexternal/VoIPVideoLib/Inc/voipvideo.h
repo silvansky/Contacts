@@ -22,6 +22,11 @@ public:
 	void Set(const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort);
 
 	void Stop();
+
+public slots:
+	void stopCamera();
+	void startCamera();
+
 signals:
 	void localPictureShow(const QImage&);
 	void pictureShow(const QImage&);

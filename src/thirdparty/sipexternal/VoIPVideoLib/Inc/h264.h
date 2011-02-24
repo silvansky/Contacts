@@ -1,9 +1,9 @@
 /*
-	h264.h
+h264.h
 
-	(c) 2004 Paul Volkaerts
-	
-    header for the H264 Container class
+(c) 2004 Paul Volkaerts
+
+header for the H264 Container class
 */
 
 #ifndef H264_CONTAINER_H_
@@ -21,19 +21,21 @@
 //#include "webcam.h"
 //#include "sipfsm.h"
 //#include "rtp.h"
+#include "rtpheader.h"
 
 extern "C"
 {
 #ifdef WIN32
-  #include "inttypes.h"
-  #define inline _inline
-  #include "libavcodec/avcodec.h"
-  #include "libavformat/avformat.h"
+#include "inttypes.h"
+#define inline _inline
+#include "libavcodec/avcodec.h"
+#include "libavformat/avformat.h"
+#include "libswscale/swscale.h"
+#include "x264.h"
 #else
-  #include "mythtv/ffmpeg/avcodec.h"
+#include "mythtv/ffmpeg/avcodec.h"
 #endif
 }
-
 
 #define MAX_RGB_704_576     (704*576*4)
 #define MAX_YUV_704_576     (800*576*3/2) // Add a little onto the width in case the stride is bigger than the width
@@ -56,30 +58,41 @@ void flipRgb24Image(const uchar *rgbBuffer, int w, int h, uchar *dst);
 
 class H264Container
 {
-  public:
-    H264Container(void);
-    virtual ~H264Container(void);
+public:
+	H264Container(void);
+	virtual ~H264Container(void);
 
-    bool H264StartEncoder(int w, int h, int fps);
-    bool H264StartDecoder(int w, int h);
+	bool H264StartEncoder(int w, int h, int fps);
+	bool H264StartDecoder(int w, int h);
 
-    uchar *H264EncodeFrame(const uchar *yuvFrame, int *len);
-    uchar *H264DecodeFrame(const uchar *h264Frame, int h264FrameLen, uchar *rgbBuffer, int rgbBufferSize);
-    
-    void H264StopEncoder();
-    void H264StopDecoder();
+	uchar *H264EncodeFrame(const uchar *yuvFrame, int *len);
+	uchar *H264EncodeFrameRGB(const uchar *rgbFrame, int *len);
+	uchar *H264DecodeFrame(const uchar *h264Frame, int h264FrameLen, uchar *rgbBuffer, int rgbBufferSize);
 
+	void H264StopEncoder();
+	void H264StopDecoder();
 
-    void __cdecl rtp_callback(struct AVCodecContext *avctx, void *data, int size, int mb_nb);
+	int H264EncodeFrameToRTP(const uchar *rgbFrame, QList<RtpPacket*> **packets);
 
-  private:
-    //AVFrame pictureOut, *pictureIn;
-    AVFrame *pictureOut, *pictureIn;
-    AVCodec *h264Encoder, *h264Decoder;
-    AVCodecContext *h264EncContext, *h264DecContext;
-    int MaxPostEncodeSize, lastCompressedSize;
-    unsigned char *PostEncodeFrame;//, *PreEncodeFrame;
+	void __cdecl rtp_callback(struct AVCodecContext *avctx, void *data, int size, int mb_nb);
 
+private:
+	//AVFrame pictureOut, *pictureIn;
+	AVFrame *pictureOut, *pictureIn;
+	AVCodec *h264Encoder, *h264Decoder;
+
+	x264_t* x264Encoder;
+	x264_picture_t pic_in, pic_out;
+	struct SwsContext* convertCtx;
+	int width, height;
+
+	AVCodecContext *h264EncContext, *h264DecContext;
+	int MaxPostEncodeSize, lastCompressedSize;
+	unsigned char *PostEncodeFrame;//, *PreEncodeFrame;
+
+	int _ssrc; // Источник синхронизации для видео
+	quint32 _startTime;
+	quint16 _senderSeq;
 };
 
 #endif

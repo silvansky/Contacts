@@ -37,6 +37,8 @@ Avatars::Avatars()
 	FRosterLabelId = -1;
 	FAvatarsVisible = false;
 	FShowEmptyAvatars = true;
+
+	FMetaContacts = NULL;
 }
 
 Avatars::~Avatars()

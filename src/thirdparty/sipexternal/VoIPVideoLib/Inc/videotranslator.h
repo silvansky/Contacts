@@ -56,6 +56,12 @@ protected:
 
   // Отправка изображения по сети
   void sendImage(QImage img);
+	void sendImage1(QImage img);
+
+
+public slots:
+	bool stopCamera();
+	bool startCamera();
 
 protected slots:
   //void hostFound();
@@ -65,6 +71,8 @@ protected slots:
   void sendImage();
   void updText();
   void procceedDataProcessing( const QByteArray& rtpPacket );
+	void procceedDataProcessingDebug( const QByteArray& rtpPacket );
+
 
 private:
   // Поток с камеры. Получение картинки с камеры.
