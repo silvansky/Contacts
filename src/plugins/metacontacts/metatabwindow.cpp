@@ -230,9 +230,6 @@ void MetaTabWindow::removeTopWidget(QWidget *AWidget)
 	}
 }
 
-
-
-
 void MetaTabWindow::initialize(IPluginManager *APluginManager)
 {
 	IPlugin *plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
@@ -486,7 +483,7 @@ void MetaTabWindow::contextMenuEvent(QContextMenuEvent *AEvent)
 	{
 		Menu *menu = new Menu(this);
 		createItemContextMenu(itemJid,menu);
-		emit intemContextMenuRequested(itemJid,menu);
+		emit itemContextMenuRequested(itemJid,menu);
 		
 		if (menu && !menu->isEmpty())
 			menu->exec(AEvent->globalPos());
