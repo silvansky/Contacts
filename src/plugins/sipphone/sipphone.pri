@@ -1,5 +1,8 @@
 FORMS = sipphonewidget.ui\
-		formIdentity.ui
+		formIdentity.ui\
+		rcallcontrol.ui\
+		fullscreencontrols.ui\
+		avcontrol.ui
 
 HEADERS = sipphone.h\
 		callaudio.h\
@@ -8,7 +11,12 @@ HEADERS = sipphone.h\
 		ridentityform.h\
 		rsipauthentication.h\
 		sipphoneproxy.h\
-		sipphonewidget.h
+		sipphonewidget.h\
+		fullscreencontrols.h\
+		qimagelabel.h\
+		rcallcontrol.h\
+		avcontrol.h\
+		complexvideowidget.h
 		
 
 SOURCES = sipphone.cpp\
@@ -17,4 +25,9 @@ SOURCES = sipphone.cpp\
 		ridentityform.cpp\
 		rsipauthentication.cpp\
 		sipphoneproxy.cpp\
-		sipphonewidget.cpp
+		sipphonewidget.cpp\
+		fullscreencontrols.cpp\
+		qimagelabel.cpp\
+		rcallcontrol.cpp\
+		avcontrol.cpp\
+		complexvideowidget.cpp

@@ -15,6 +15,9 @@
 #include "RSipAuthentication.h"
 #include "callaudio.h"
 
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 //#include "RCallWidget.h"
 
@@ -65,6 +68,7 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 	QString socketTypeStr = "UDP";
 	listenPort = gListenPort;
 
+	
 	// Инициализируем SIP клиент (Терминал пользователя)
 	_pSipClient = new SipClient( 0, 0, listenPort, looseRoute, strictRoute, socketTypeStr );
 
@@ -286,7 +290,8 @@ bool SipPhoneProxy::initRegistrationData( void )
 	//{
 	//	regData.sipServerUri = settings.value( pp + "/SipServer" ).toString();
 	//}
-	regData.sipServerUri = "81.19.69.224";
+	//regData.sipServerUri = "81.19.69.224";
+	regData.sipServerUri = "81.19.70.66";
 	regData.qValue = "";// settings.value( pp + "/qValue", "" ).toString();
 	//regData.userName = settings.value( pp + "/UserName" ).toString();
 	//regData.password = settings.value( pp + "/Password" ).toString();
@@ -639,6 +644,9 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, _pCallAudio, newcall, this );
 	connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
 	
+	//CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(widget, CBS_WINDOW);
+
+
 	if(_pWorkWidget != NULL)
 	{
 		delete _pWorkWidget;
@@ -653,7 +661,9 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 		widget->clickDial();
 	}
 	//connect( widget, SIGNAL( redirectCall( const SipUri &, const QString & ) ), this, SLOT( redirectCall( const SipUri &, const QString & ) ) );
+	
 	widget->show();
+	//border->show();
 
 	return widget;
 }
@@ -680,7 +690,7 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		_pCallAudio = new CallAudio( this );
 		_pCallAudio->readAudioSettings();
 		_pCallAudio->readVideoSettings();
-		SipPhoneWidget *widget = new SipPhoneWidget( 0, _pCallAudio, call, this );
+		SipPhoneWidget *widget = new SipPhoneWidget(0, _pCallAudio, call, this );
 		connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
 		//cwList.append( widget );
 		
@@ -826,4 +836,13 @@ void SipPhoneProxy::makeInviteProxySlot(const Jid &AClientSIP)
 void SipPhoneProxy::makeByeProxySlot(const Jid &AClientSIP)
 {
 
+}
+
+void SipPhoneProxy::hangupCall()
+{
+	QMessageBox::information(NULL, "SipPhoneProxy::hangupCall()", "");
+	if(_pWorkWidget)
+	{
+		_pWorkWidget->clickHangup();
+	}
 }

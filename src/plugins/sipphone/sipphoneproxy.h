@@ -84,6 +84,7 @@ public slots:
 
 	void makeInviteProxySlot(const Jid &AClientSIP);
 	void makeByeProxySlot(const Jid &AClientSIP);
+	void hangupCall();
 
 signals:
 	void registrationStatusIs(bool status, const Jid& AStreamJid, const Jid& AContactJid);

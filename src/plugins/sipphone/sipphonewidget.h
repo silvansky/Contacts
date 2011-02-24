@@ -5,6 +5,8 @@
 //#include <QDialog>
 #include "ui_sipphonewidget.h"
 
+#include "qimagelabel.h"
+#include "fullscreencontrols.h"
 
 class SipUri;
 class SipUser;
@@ -43,7 +45,8 @@ public slots:
 signals:
 		void callDeleted( bool );
 		void redirectCall( const SipUri &calluri, const QString &subject );
-
+		void statusChanged(const QString&);
+		void audioStatusChanged(const QString&);
 
 private slots:
 	void hangupCall( void );
@@ -57,6 +60,7 @@ private slots:
 	// void ringTimeout( void );
 	void acceptCallTimeout( void );
 	void remotePictureShow(const QImage&);
+	void localPictureShow(const QImage&);
 
 private:
 	// Sip Stuff
@@ -77,10 +81,10 @@ private:
 	//QTimer *dtmfsenderTimer;
 
 	//// GUI Stuff
-	QLabel *_pCurrentStatus;
-	QLabel *_pCurrentAudioStatus;
-	//QPushButton *_pDialButton;
-	QPushButton *_pHangupButton;
+	//QLabel *_pCurrentStatus;
+	//QLabel *_pCurrentAudioStatus;
+	////QPushButton *_pDialButton;
+	//QPushButton *_pHangupButton;
 
 	// State stuff
 	enum CallState
@@ -95,6 +99,40 @@ private:
 	//  // Private functions
 	void forceDisconnect( void );
 	bool _isHangupInitiator;
+
+
+
+
+
+
+public slots:
+	void SetCurrImage(const QImage& img);
+	void SetRemoteImage(const QImage& img);
+
+protected slots:
+	void fullScreenStateChange(bool);
+
+signals:
+	void startCamera();
+	void stopCamera();
+
+public slots:
+	void cameraStateChange(bool);
+
+protected:
+	void keyPressEvent(QKeyEvent *);
+	//virtual void focusInEvent(QFocusEvent *);
+	//virtual void focusOutEvent(QFocusEvent *);
+	virtual void enterEvent(QEvent *);
+	virtual void leaveEvent(QEvent *);
+	//virtual void moveEvent(QMoveEvent *);
+	virtual void resizeEvent(QResizeEvent *);
+	virtual void closeEvent(QCloseEvent *);
+
+private:
+	QImageLabel* _pCurrPic;
+	QPushButton* _pShowCurrPic;
+	FullScreenControls* _pControls;
 
 private:
 	Ui::SipPhoneWidget ui;
