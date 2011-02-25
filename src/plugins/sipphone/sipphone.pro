@@ -1,11 +1,11 @@
 
-LIBS  += -L../../thirdparty/sipexternal/SipLib/lib
-LIBS  += -L../../thirdparty/sipexternal/VoIPMediaLib/lib
-LIBS  += -L../../thirdparty/sipexternal/VoIPVideoLib/lib
+LIBS  += -L../../thirdparty/siplibraries/SipLib/lib
+LIBS  += -L../../thirdparty/siplibraries/VoIPMediaLib/lib
+LIBS  += -L../../thirdparty/siplibraries/VoIPVideoLib/lib
 LIBS  += -lWs2_32 -lVoIPVideoLib -lVoIPMedia -lSipProtocol
-INCLUDEPATH += ../../thirdparty/sipexternal/SipLib/inc ../../thirdparty/sipexternal/VoIPMediaLib/inc ../../thirdparty/sipexternal/VoIPVideoLib/inc
-INCLUDEPATH += ../../thirdparty/sipexternal/SPEEX/include
-INCLUDEPATH += ../../thirdparty/sipexternal/VoIPMediaLib/Inc/iLBC
+INCLUDEPATH += ../../thirdparty/siplibraries/SipLib/inc ../../thirdparty/siplibraries/VoIPMediaLib/inc ../../thirdparty/siplibraries/VoIPVideoLib/inc
+INCLUDEPATH += ../../thirdparty/siplibraries/SPEEX/include
+INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/Inc/iLBC
 
 
 
