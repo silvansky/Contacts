@@ -3,6 +3,7 @@
 #include <QMenu>
 #include <QListView>
 #include <utils/menu.h>
+#include <utils/imagemanager.h>
 
 TestStylesForm::TestStylesForm(QWidget *parent) :
 	QWidget(parent),
@@ -26,6 +27,20 @@ TestStylesForm::TestStylesForm(QWidget *parent) :
 	action = new Action();
 	action->setText("Act4");
 	menu->addAction(action);
+	//QImage img = ImageManager::grayscaled(ui->label->pixmap()->toImage());
+	QImage src = ui->label->pixmap()->toImage();
+	QImage img = ImageManager::colorized(src, QColor(200, 30, 40));
+	ui->label->setPixmap(QPixmap::fromImage(img));
+	img = ImageManager::colorized(src, QColor(20, 230, 40));
+	ui->label_2->setPixmap(QPixmap::fromImage(img));
+	img = ImageManager::colorized(src, QColor(0, 30, 240));
+	ui->label_3->setPixmap(QPixmap::fromImage(img));
+	img = ImageManager::grayscaled(src);
+	ui->label_4->setPixmap(QPixmap::fromImage(img));
+	img = ImageManager::squared(src, 140);
+	ui->label_5->setPixmap(QPixmap::fromImage(img));
+	img = ImageManager::colorized(src, QColor(200, 200, 200));
+	ui->label_6->setPixmap(QPixmap::fromImage(img));
 	//menu->menuAction()->setIcon(QIcon(":/trolltech/qtgradienteditor/images/minus.png"));
 	//menu->setDefaultAction(menu->actions().at(0));
 	//menu->defaultAction()->setIcon(QIcon(":/trolltech/qtgradienteditor/images/minus.png"));

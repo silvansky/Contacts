@@ -392,6 +392,11 @@ QMenu::icon
 	height: 16px;
 }
 
+QMenu::icon:selected
+{
+	top: 0px;
+}
+
 QMenu::icon:checked
 {
 	width: 14px;
@@ -413,8 +418,10 @@ QMenu::item:!enabled
 
 QMenu::item:selected
 {
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #5187a5, stop:1 #16384d);
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #387497, stop:1 #16394d);
 	border-bottom: 1px solid #5e6369;
+	border-top: 1px solid #5187a5;
+	padding-top: -1px;
 }
 
 /*************

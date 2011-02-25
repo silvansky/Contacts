@@ -1,4 +1,5 @@
 #include "metaproxymodel.h"
+#include <utils/imagemanager.h>
 
 MetaProxyModel::MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARostersView) : QSortFilterProxyModel(AMetaContacts->instance())
 {
@@ -180,7 +181,9 @@ void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString
 		findData.insert(RDR_INDEX_ID,AMetaId);
 
 		QString hash = AMetaRoster->metaAvatarHash(AMetaId);
-		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId).scaled(24,24,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId);
+		avatar = ImageManager::squared(avatar, 24);
+
 		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
 		{
 			index->setData(RDR_AVATAR_HASH,hash);

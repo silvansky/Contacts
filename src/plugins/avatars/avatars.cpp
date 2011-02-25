@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QImageReader>
 #include <QCryptographicHash>
+#include <utils/imagemanager.h>
 #include <QDebug>
 
 #define DIR_AVATARS               "avatars"
@@ -322,7 +323,7 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 	{
 		if (ARole == RDR_AVATAR_IMAGE)
 		{
-			return avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars).scaled(24,24,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+			return ImageManager::squared(avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars), 24);
 		}
 		else if (ARole == RDR_AVATAR_HASH)
 		{
@@ -410,12 +411,6 @@ QString Avatars::avatarHash(const Jid &AContactJid) const
 
 QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 {
-	static QVector<QRgb> monoTable;
-	if (monoTable.isEmpty())
-	{
-		for (int i = 0; i <= 255; i++)
-			monoTable.append(qRgb(i, i, i));
-	}
 	QString hash = avatarHash(AContactJid);
 	QImage image = FAvatarImages.value(hash);
 	if (image.isNull() && !hash.isEmpty())
@@ -454,7 +449,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 			findData.insert(RDR_TYPE,type);
 		if (!AContactJid.isEmpty())
 			findData.insert(RDR_BARE_JID,AContactJid.pBare());
-		
+
 		QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChild(findData, true);
 		foreach (IRosterIndex * index, indexes)
 		{
@@ -482,7 +477,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 				{
 					if (!FAvatarImagesGrayscale.contains(hash))
 					{
-						image = image.convertToFormat(QImage::Format_Indexed8, monoTable);
+						image = ImageManager::grayscaled(image);
 						FAvatarImagesGrayscale.insert(hash, image);
 					}
 					else
@@ -704,6 +699,8 @@ void Avatars::updateAvatarObject(QObject *AObject)
 	}
 	if (!image.isNull())
 	{
+		if (!params.size.isEmpty() && (params.size.height() == params.size.width()) && (image.size() != params.size))
+			image = ImageManager::squared(image, params.size.height());
 		QPixmap pixmap = !params.size.isEmpty() ? QPixmap::fromImage(image.scaled(params.size,Qt::KeepAspectRatio,Qt::SmoothTransformation)) : QPixmap::fromImage(image);
 		if (params.prop == "pixmap")
 			AObject->setProperty(params.prop.toLatin1(),pixmap);

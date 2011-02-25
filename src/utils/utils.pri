@@ -29,7 +29,8 @@ HEADERS = utilsexport.h \
     customborderstorage.h \
     systemmanager.h \
     graphicseffectsstorage.h \
-    log.h
+    log.h \
+    imagemanager.h
 
 SOURCES = jid.cpp \
     versionparser.cpp \
@@ -59,4 +60,5 @@ SOURCES = jid.cpp \
     customborderstorage.cpp \
     systemmanager.cpp \
     graphicseffectsstorage.cpp \
-    log.cpp
+    log.cpp \
+    imagemanager.cpp
