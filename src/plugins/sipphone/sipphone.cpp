@@ -937,7 +937,7 @@ void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex
 	if ( AIndex->type()==RIT_METACONTACT && ASelected.count() < 2)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid metaId = AIndex->data(RDR_INDEX_ID).toString();
+		QString metaId = AIndex->data(RDR_INDEX_ID).toString();
 
 		IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
 		IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
@@ -965,7 +965,7 @@ void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex
 									action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
 									action->setData(ADR_STREAM_JID,streamJid.full());
 									action->setData(ADR_CONTACT_JID,contactJidWithPresence.full());
-									action->setData(ADR_METAID_WINDOW, metaId.full());
+									action->setData(ADR_METAID_WINDOW, metaId);
 									connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
 									AMenu->addAction(action,AG_RVCM_SIPPHONE_CALL,true);
 								}
