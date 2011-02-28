@@ -18,16 +18,14 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/itraymanager.h>
-#include <interfaces/ivcard.h> // ононб
-#include <interfaces/iaccountmanager.h> // ононб
-
+#include <interfaces/ivcard.h>
+#include <interfaces/iaccountmanager.h>
 #include <utils/widgetmanager.h>
 #include <utils/stylestorage.h>
 #include <utils/action.h>
 #include "setuppluginsdialog.h"
 #include "aboutbox.h"
-#include "commentdialog.h" // ононб
-#include "updater.h" // ононб
+#include "commentdialog.h"
 
 struct PluginItem
 {
@@ -58,12 +56,9 @@ public:
 	virtual const IPluginInfo *pluginInfo(const QUuid &AUuid) const;
 	virtual QList<QUuid> pluginDependencesOn(const QUuid &AUuid) const;
 	virtual QList<QUuid> pluginDependencesFor(const QUuid &AUuid) const;
-	virtual QString styleSheet() const;
-	virtual void setStyleSheet(const QString &AStyle);
 public slots:
 	virtual void quit();
 	virtual void restart();
-	void forceUpdate();
 signals:
 	void aboutToQuit();
 protected:
@@ -91,14 +86,11 @@ protected slots:
 	void onShowSetupPluginsDialog(bool);
 	void onSetupPluginsDialogAccepted();
 	void onShowAboutBoxDialog();
-  void onShowCommentsDialog(); // ононб
-	void updateMe(QString, bool);
+  void onShowCommentsDialog();
 private:
 	QPointer<AboutBox> FAboutDialog;
 	QPointer<CommentDialog> FCommentDialog;
 	QPointer<SetupPluginsDialog> FPluginsDialog;
-	QPointer<Updater> FUpdater; // ононб
-	bool updateme;
 private:
 	QString FDataPath;
 	QDomDocument FPluginsSetup;
@@ -108,8 +100,6 @@ private:
 	QList<QString> FBlockedPlugins;
 	QHash<QUuid, PluginItem> FPluginItems;
 	mutable QMultiHash<QString, IPlugin *> FPlugins;
-	// decorated stylesheet
-	QString FStyleSheet;
 };
 
 #endif

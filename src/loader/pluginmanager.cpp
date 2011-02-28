@@ -45,7 +45,6 @@
 #  define LIB_PREFIX_SIZE           3
 #endif
 
-//void startProcess(QString appName, QString appDir, QStringList args);
 
 PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 {
@@ -54,33 +53,11 @@ PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 	FLoaderTranslator = new QTranslator(this);
 	connect(AParent,SIGNAL(aboutToQuit()),SLOT(onApplicationAboutToQuit()));
 	connect(AParent,SIGNAL(commitDataRequest(QSessionManager &)),SLOT(onApplicationCommitDataRequested(QSessionManager &)));
-
-	FUpdater = new Updater(this);
-	connect(FUpdater, SIGNAL(forceUpdate()), this, SLOT(forceUpdate()));
-	updateme = false;
 }
 
 PluginManager::~PluginManager()
 {
-	if(updateme)
-	{
-		QString uFileName = FUpdater->getUpdateFilename();
-		//uFileName = "virtus.zip";
-		// Запускаем сторонний процесс по обновлению файлов
-		QStringList args;
-		args << qApp->applicationDirPath();
-		args << "virtus.exe";
-		args << uFileName;
 
-		//startProcess("UpdateVirtus.exe", qApp->applicationDirPath() + "/update/", args);
-
-		QString updatePath = QDir::tempPath() + "\\virtus\\update\\";
-		QProcess* updateProcess = new QProcess();
-		//updateProcess->setWorkingDirectory(qApp->applicationDirPath() + "/update");
-		//updateProcess->startDetached(qApp->applicationDirPath() + "/update/UpdateVirtus.exe", args);
-		updateProcess->setWorkingDirectory(updatePath);
-		updateProcess->startDetached(updatePath + "UpdateVirtus.exe", args);
-	}
 }
 
 QString PluginManager::version() const
@@ -184,17 +161,6 @@ QList<QUuid> PluginManager::pluginDependencesFor(const QUuid &AUuid) const
 	return plugins;
 }
 
-QString PluginManager::styleSheet() const
-{
-	return FStyleSheet;
-}
-
-void PluginManager::setStyleSheet(const QString& newStyleSheet)
-{
-	FStyleSheet = newStyleSheet;
-	qApp->setStyleSheet(QString(FStyleSheet).replace("%IMAGES_PATH%", qApp->applicationDirPath()+"/resources/stylesheets/shared/images"));
-}
-
 void PluginManager::quit()
 {
 	QTimer::singleShot(0,qApp,SLOT(quit()));
@@ -210,15 +176,9 @@ void PluginManager::restart()
 		saveSettings();
 		createMenuActions();
 		startPlugins();
-		FUpdater->checkUpdate(); // ПОПОВ проверка обновления
 	}
 	else
 		QTimer::singleShot(0,this,SLOT(restart()));
-}
-
-void PluginManager::forceUpdate()
-{
-
 }
 
 void PluginManager::loadSettings()
@@ -297,10 +257,6 @@ void PluginManager::loadSettings()
 	}
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(qApp, STS_PLUGINMANAGER_APPLICATION);
-
-	QFile sheetFile(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(STS_PLUGINMANAGER_APPLICATION));
-	sheetFile.open(QFile::ReadOnly);
-	FStyleSheet = QString::fromUtf8(sheetFile.readAll());
 }
 
 void PluginManager::saveSettings()
@@ -450,12 +406,6 @@ void PluginManager::startPlugins()
 	foreach(PluginItem pluginItem, FPluginItems)
 		pluginItem.plugin->startPlugin();
 }
-
-
-
-
-
-
 
 void PluginManager::removePluginItem(const QUuid &AUuid, const QString &AError)
 {
@@ -721,7 +671,7 @@ void PluginManager::onSetupPluginsDialogAccepted()
 void PluginManager::onShowAboutBoxDialog()
 {
 	if (FAboutDialog.isNull())
-		FAboutDialog = new AboutBox(this, FUpdater);
+		FAboutDialog = new AboutBox(this);
 
 	WidgetManager::showActivateRaiseWindow(FAboutDialog);
 }
@@ -731,13 +681,4 @@ void PluginManager::onShowCommentsDialog()
 	if (FCommentDialog.isNull())
 		FCommentDialog = new CommentDialog(this);
 	WidgetManager::showActivateRaiseWindow(FCommentDialog);
-}
-
-void PluginManager::updateMe(QString message, bool state)
-{
-	updateme = state;
-	if(updateme)
-	{
-		quit();
-	}
 }
