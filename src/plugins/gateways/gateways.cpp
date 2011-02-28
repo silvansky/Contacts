@@ -264,7 +264,7 @@ bool Gateways::initObjects()
 	gtalk.needGate = false;
 	gtalk.needLogin = true;
 	gtalk.type = "xmpp";
-	gtalk.prefix = "gtalk.";
+	gtalk.prefix = "gmail.";
 	gtalk.name = tr("GTalk");
 	gtalk.iconKey = MNI_GATEWAYS_SERVICE_GTALK;
 	gtalk.loginLabel = tr("E-mail");
@@ -281,7 +281,7 @@ bool Gateways::initObjects()
 	yonline.needGate = false;
 	yonline.needLogin = true;
 	yonline.type = "xmpp";
-	yonline.prefix = "yonline.";
+	yonline.prefix = "yandex.";
 	yonline.name = tr("Y.Online");
 	yonline.iconKey = MNI_GATEWAYS_SERVICE_YONLINE;
 	yonline.loginLabel = tr("E-mail");

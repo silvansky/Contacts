@@ -675,7 +675,7 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.detach = true;
 	yonline.service = false;
 	yonline.pageOrder = MIPO_YONLINE;
-	yonline.pattern = ".*@(yonline\\.|ya\\.ru$)";
+	yonline.pattern = ".*@(yandex\\.|ya\\.ru$)";
 	FMetaItemDescriptors.append(yonline);
 
 	IMetaItemDescriptor qip;
