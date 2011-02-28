@@ -2,6 +2,11 @@
  * QCheckBox *
  *************/
 
+QWidget
+{
+	background-color: rgba(65, 70, 77, 235); 
+}
+
 QCheckBox
 {
 	spacing: 5px;
