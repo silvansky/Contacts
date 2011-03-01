@@ -1,11 +1,17 @@
-/*************
- * QCheckBox *
- *************/
+/* Common Application Style*/
+
+/***********
+ * QWidget *
+ ***********/
 
 QWidget
 {
-	background-color: rgba(65, 70, 77, 235); 
+	background-color: rgba(65, 70, 77, 235);
 }
+
+/*************
+ * QCheckBox *
+ *************/
 
 QCheckBox
 {
@@ -712,4 +718,14 @@ QListView#completerPopUp::item
 {
 	border: 1px solid red;
 	background-color: red;
+}
+
+/*************
+ * QGroupBox *
+ *************/
+
+QGroupBox
+{
+	background-color: transparent;
+	color: white;
 }

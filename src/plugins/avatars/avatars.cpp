@@ -699,7 +699,7 @@ void Avatars::updateAvatarObject(QObject *AObject)
 	}
 	if (!image.isNull())
 	{
-		if (!params.size.isEmpty() && (params.size.height() == params.size.width()) && (image.size() != params.size))
+		if (!params.size.isEmpty() && (params.size.height() == params.size.width()) && (image.size() != params.size) && (image.height() != image.width()))
 			image = ImageManager::squared(image, params.size.height());
 		QPixmap pixmap = !params.size.isEmpty() ? QPixmap::fromImage(image.scaled(params.size,Qt::KeepAspectRatio,Qt::SmoothTransformation)) : QPixmap::fromImage(image);
 		if (params.prop == "pixmap")

@@ -45,7 +45,7 @@ void RosterContactViewOptions::reset()
 {
 	if (Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool() && Options::node(OPV_AVATARS_SHOW).value().toBool())
 		ui.rdbViewFull->setChecked(true);
-	else if (Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool())
+	else if (Options::node(OPV_AVATARS_SHOW).value().toBool())
 		ui.rdbViewSimplified->setChecked(true);
 	else
 		ui.rdbViewCompact->setChecked(true);

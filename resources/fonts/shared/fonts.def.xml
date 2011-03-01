@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fontsdef>
+  <file>
+    <key>PTC55F</key>
+    <object mime="application/x-font-ttf">PTC55F.ttf</object>
+  </file>
+  <file>
+    <key>PTC75F</key>
+    <object mime="application/x-font-ttf">PTC75F.ttf</object>
+  </file>
+  <file>
+    <key>PTN57F</key>
+    <object mime="application/x-font-ttf">PTN57F.ttf</object>
+  </file>
+  <file>
+    <key>PTN77F</key>
+    <object mime="application/x-font-ttf">PTN77F.ttf</object>
+  </file>
+  <file>
+    <key>PTS55F</key>
+    <object mime="application/x-font-ttf">PTS55F.ttf</object>
+  </file>
+  <file>
+    <key>PTS56F</key>
+    <object mime="application/x-font-ttf">PTS56F.ttf</object>
+  </file>
+  <file>
+    <key>PTS75F</key>
+    <object mime="application/x-font-ttf">PTS75F.ttf</object>
+  </file>
+  <file>
+    <key>PTS76F</key>
+    <object mime="application/x-font-ttf">PTS76F.ttf</object>
+  </file>
+</fontsdef>

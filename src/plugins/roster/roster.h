@@ -14,8 +14,8 @@ class Roster :
 			public IStanzaRequestOwner,
 			public IXmppStanzaHadler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IRoster IStanzaHandler IStanzaRequestOwner IXmppStanzaHadler);
+	Q_OBJECT
+	Q_INTERFACES(IRoster IStanzaHandler IStanzaRequestOwner IXmppStanzaHadler)
 public:
 	Roster(IXmppStream *AXmppStream, IStanzaProcessor *AStanzaProcessor);
 	~Roster();

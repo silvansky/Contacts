@@ -7,7 +7,10 @@
 #include <QLibrary>
 #include <QFileInfo>
 #include <QSettings>
+#include <QFontDatabase>
 #include <utils/log.h>
+#include <definitions/resources.h>
+#include <definitions/fonts.h>
 
 #define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Virtus"
@@ -243,6 +246,26 @@ void PluginManager::loadSettings()
 	FileStorage::setResourcesDirs(FileStorage::resourcesDirs()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");
+
+	// fonts
+#ifdef Q_WS_WIN
+	if ((QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7) && (QSysInfo::windowsVersion() != QSysInfo::WV_VISTA))
+	{
+		FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
+		QString fontFile = fontStorage->fileFullName(FNT_PTSANS_NORMAL);
+		QFontDatabase::addApplicationFont(fontFile);
+		fontFile = fontStorage->fileFullName(FNT_PTSANS_ITALIC);
+		QFontDatabase::addApplicationFont(fontFile);
+		fontFile = fontStorage->fileFullName(FNT_PTSANS_BOLD);
+		QFontDatabase::addApplicationFont(fontFile);
+		fontFile = fontStorage->fileFullName(FNT_PTSANS_BOLD_ITALIC);
+		QFontDatabase::addApplicationFont(fontFile);
+		QFontDatabase fontDB;
+		QFont ptsans = fontDB.font("PT Sans", "", 12);
+		QApplication::setFont(ptsans);
+	}
+#endif
+
 
 	FPluginsSetup.clear();
 	QDir homeDir(FDataPath);

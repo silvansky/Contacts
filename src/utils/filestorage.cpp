@@ -5,7 +5,7 @@
 #include <QDomDocument>
 #include <QApplication>
 
-struct FileStorage::StorageObject 
+struct FileStorage::StorageObject
 {
 	int prefix;
 	QList<int> fileTypes;
@@ -222,7 +222,7 @@ void FileStorage::setResourcesDirs(const QList<QString> &ADirs)
 				updateStorages.append(fileStorage);
 			}
 		}
-		
+
 		FResourceDirs = cleanDirs;
 
 		foreach(FileStorage *fileStorage, FInstances)
@@ -242,7 +242,7 @@ void FileStorage::setResourcesDirs(const QList<QString> &ADirs)
 				}
 			}
 		}
-	
+
 		foreach(FileStorage *fileStorage, updateStorages)
 		{
 			fileStorage->updateDefinitions();
