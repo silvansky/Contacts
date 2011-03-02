@@ -10,6 +10,7 @@
 #include <QTextDocument>
 #include <QWidgetAction>
 #include <QDesktopServices>
+#include <utils/imagemanager.h>
 
 #define MAX_CHARACTERS  140
 
@@ -34,6 +35,7 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	ui.tedMood->setVisible(false);
 	ui.tedMood->setMinimumLines(1);
 	ui.lblAvatar->setAttribute(Qt::WA_Hover, true);
+	ui.lblAvatar->setMouseTracking(true);
 
 	ui.tlbStatus->addAction(FStatusChanger->statusMenu()->menuAction());
 	ui.tlbStatus->setDefaultAction(FStatusChanger->statusMenu()->menuAction());
@@ -81,7 +83,7 @@ void StatusWidget::setStreamJid(const Jid &AStreamJid)
 {
 	FStreamJid = AStreamJid;
 	if (FAvatars)
-		FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(24, 24), "pixmap");
+		FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(32, 32), "pixmap");
 	if (FVCardPlugin)
 		onVCardReceived(FStreamJid);
 }
@@ -176,7 +178,7 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 	{
 		switch ((int)AEvent->type())
 		{
-		case QEvent::HoverEnter:
+		/*case QEvent::HoverEnter:
 			FAvatarHovered = true;
 			break;
 		case QEvent::HoverLeave:
@@ -209,7 +211,7 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 				painter.drawPolygon(triangle, Qt::OddEvenFill);
 				return true;
 			}
-			break;
+			break;*/
 		case QEvent::MouseButtonRelease:
 			{
 				QPoint point = mapToGlobal(ui.lblAvatar->pos());
@@ -314,6 +316,6 @@ void StatusWidget::onStatusChanged(const Jid &AStreamJid, int AStatusId)
 	{
 		setMoodText(FStatusChanger->statusItemText(AStatusId));
 		if (FAvatars)
-			FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(24, 24), "pixmap");
+			FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(32, 32), "pixmap");
 	}
 }

@@ -2,6 +2,7 @@
 
 #include <QPainter>
 #include <QDebug>
+#include <QBitmap>
 
 QImage ImageManager::grayscaled(const QImage & image)
 {
@@ -49,10 +50,29 @@ QImage ImageManager::squared(const QImage & image, int size)
 QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
 {
 	Q_UNUSED(radius)
-	qWarning("ImageManager::roundSquared() not implemented yet!");
-	//QImage roundSquaredImage(size, size, QImage::Format_ARGB32);
-	//QPainter p(&roundSquaredImage);
-	return squared(image, size);
+	qDebug() << "ImageManager::roundSquared() not implemented or stable yet!" << size << " " << radius;
+	QImage roundSquaredImage(size, size, QImage::Format_ARGB32);
+	QPainter p(&roundSquaredImage);
+	QImage squaredImage = squared(image, size);
+	QBitmap bmp(size, size);
+	QPainter bp(&bmp);
+	bp.fillRect(0, 0, size, size, Qt::white);
+	bp.setPen(QPen(QColor(0, 0, 0)));
+	bp.setBrush(QBrush(QColor(255, 0, 0)));
+	bp.drawRoundedRect(QRect(0, 0, size - 1, size - 1), radius, radius);
+	bp.end();
+	QRegion shape(bmp);
+	p.setClipRegion(shape);
+	p.drawImage(0, 0, squaredImage);
+	//p.drawPixmap(0, 0, bmp);
+	//QPen pen;
+//	pen.setWidth(0);
+//	p.fillRect(0, 0, size, size, Qt::white);
+//	p.setPen(pen);
+//	p.setBrush(QBrush(QColor(255, 0, 0)));
+//	p.drawRoundedRect(QRect(0, 0, size - 1, size - 1), radius, radius);
+	p.end();
+	return roundSquaredImage;
 }
 
 QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset, bool canResize)

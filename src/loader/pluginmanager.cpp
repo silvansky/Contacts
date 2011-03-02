@@ -247,9 +247,9 @@ void PluginManager::loadSettings()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");
 
-	// fonts
 #ifdef Q_WS_WIN
-	if ((QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7) && (QSysInfo::windowsVersion() != QSysInfo::WV_VISTA))
+	// loading extra fonts
+	if (QSysInfo::windowsVersion() < QSysInfo::WV_VISTA)
 	{
 		FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
 		QString fontFile = fontStorage->fileFullName(FNT_PTSANS_NORMAL);
@@ -268,13 +268,12 @@ void PluginManager::loadSettings()
 		QFontDatabase::addApplicationFont(fontFile);
 		fontFile = fontStorage->fileFullName(FNT_SEGOEUI_BOLD);
 		QFontDatabase::addApplicationFont(fontFile);
-		QFontDatabase fontDB;
+		//QFontDatabase fontDB;
 		//QFont ptsans = fontDB.font("PT Sans", "", 12);
-		QFont segoe = fontDB.font("Segoe UI", "", 12);
-		QApplication::setFont(segoe);
+		//QFont segoe = fontDB.font("Segoe UI", "", 12);
+		//QApplication::setFont(segoe);
 	}
 #endif
-
 
 	FPluginsSetup.clear();
 	QDir homeDir(FDataPath);
