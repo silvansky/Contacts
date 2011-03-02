@@ -260,9 +260,18 @@ void PluginManager::loadSettings()
 		QFontDatabase::addApplicationFont(fontFile);
 		fontFile = fontStorage->fileFullName(FNT_PTSANS_BOLD_ITALIC);
 		QFontDatabase::addApplicationFont(fontFile);
+		fontFile = fontStorage->fileFullName(FNT_SEGOERG);
+		QFontDatabase::addApplicationFont(fontFile);
+		fontFile = fontStorage->fileFullName(FNT_SEGOEUI);
+		QFontDatabase::addApplicationFont(fontFile);
+		fontFile = fontStorage->fileFullName(FNT_SEGOEUI_ITALIC);
+		QFontDatabase::addApplicationFont(fontFile);
+		fontFile = fontStorage->fileFullName(FNT_SEGOEUI_BOLD);
+		QFontDatabase::addApplicationFont(fontFile);
 		QFontDatabase fontDB;
-		QFont ptsans = fontDB.font("PT Sans", "", 12);
-		QApplication::setFont(ptsans);
+		//QFont ptsans = fontDB.font("PT Sans", "", 12);
+		QFont segoe = fontDB.font("Segoe UI", "", 12);
+		QApplication::setFont(segoe);
 	}
 #endif
 

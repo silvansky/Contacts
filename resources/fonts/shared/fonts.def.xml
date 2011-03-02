@@ -32,4 +32,20 @@
     <key>PTS76F</key>
     <object mime="application/x-font-ttf">PTS76F.ttf</object>
   </file>
+  <file>
+    <key>SegoeRg</key>
+    <object mime="application/x-font-ttf">SegoeRg.ttf</object>
+  </file>
+  <file>
+    <key>SegoeUI</key>
+    <object mime="application/x-font-ttf">segoeui.ttf</object>
+  </file>
+  <file>
+    <key>SegoeUII</key>
+    <object mime="application/x-font-ttf">segoeuii.ttf</object>
+  </file>
+  <file>
+    <key>SegoeUIB</key>
+    <object mime="application/x-font-ttf">segoeuib.ttf</object>
+  </file>
 </fontsdef>
