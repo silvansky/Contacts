@@ -120,7 +120,8 @@ signals:
 	void tabPageDestroyed(ITabPage *ATabPage);
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
-	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
+	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
+	IChatWindow *findNotifiedMessageWindow(int AMessageId) const;
 	void updateWindow(IChatWindow *AWindow);
 	void removeMessageNotifications(IChatWindow *AWindow);
 	void replaceUnreadMessages(IChatWindow *AWindow);
@@ -180,7 +181,7 @@ private:
 	QHash<QString, TabPageInfo> FTabPages;
 private:
 	QList<IChatWindow *> FWindows;
-	QMap<IChatWindow *, QTimer *> FWindowTimers;
+	QMap<IChatWindow *, QTimer *> FDestroyTimers;
 	QMap<IChatWindow *, WindowStatus> FWindowStatus;
 private:
 	QMap<QString, IChatWindow *> FHistoryRequests;

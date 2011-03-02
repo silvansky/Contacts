@@ -334,8 +334,18 @@ bool ChatMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 
 bool ChatMessageHandler::showMessage(int AMessageId)
 {
-	Message message = FMessageProcessor->messageById(AMessageId);
-	return createWindow(MHO_CHATMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
+	IChatWindow *window = findNotifiedMessageWindow(AMessageId);
+	if (!window)
+	{
+		Message message = FMessageProcessor->messageById(AMessageId);
+		return createWindow(MHO_CHATMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
+	}
+	else
+	{
+		window->showTabPage();
+		return true;
+	}
+	return false;
 }
 
 bool ChatMessageHandler::receiveMessage(int AMessageId)
@@ -350,6 +360,8 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 		if (!window->isActive())
 		{
 			notify = true;
+			if (FDestroyTimers.contains(window))
+				delete FDestroyTimers.take(window);
 			extension.extensions = IMessageContentOptions::Unread;
 			wstatus.notified.append(AMessageId);
 			updateWindow(window);
@@ -507,7 +519,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 	return window;
 }
 
-IChatWindow *ChatMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid)
+IChatWindow *ChatMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid) const
 {
 	foreach(IChatWindow *window,FWindows)
 		if (window->streamJid() == AStreamJid && window->contactJid() == AContactJid)
@@ -515,6 +527,13 @@ IChatWindow *ChatMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AC
 	return NULL;
 }
 
+IChatWindow *ChatMessageHandler::findNotifiedMessageWindow(int AMessageId) const
+{
+	foreach(IChatWindow *window, FWindows)
+		if (FWindowStatus.value(window).notified.contains(AMessageId))
+			return window;
+	return NULL;
+}
 void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 {
 	QIcon icon;
@@ -900,8 +919,8 @@ void ChatMessageHandler::onWindowActivated()
 		pageInfo.contactJid = window->contactJid();
 		pageInfo.page = window;
 
-		if (FWindowTimers.contains(window))
-			delete FWindowTimers.take(window);
+		if (FDestroyTimers.contains(window))
+			delete FDestroyTimers.take(window);
 		removeMessageNotifications(window);
 	}
 }
@@ -909,16 +928,16 @@ void ChatMessageHandler::onWindowActivated()
 void ChatMessageHandler::onWindowClosed()
 {
 	IChatWindow *window = qobject_cast<IChatWindow *>(sender());
-	if (window)
+	if (window && FWindowStatus.value(window).notified.isEmpty())
 	{
-		if (!FWindowTimers.contains(window))
+		if (!FDestroyTimers.contains(window))
 		{
 			QTimer *timer = new QTimer;
 			timer->setSingleShot(true);
 			connect(timer,SIGNAL(timeout()),window->instance(),SLOT(deleteLater()));
-			FWindowTimers.insert(window,timer);
+			FDestroyTimers.insert(window,timer);
 		}
-		FWindowTimers[window]->start(DESTROYWINDOW_TIMEOUT);
+		FDestroyTimers[window]->start(DESTROYWINDOW_TIMEOUT);
 	}
 }
 
@@ -929,8 +948,8 @@ void ChatMessageHandler::onWindowDestroyed()
 	{
 		if (FTabPages.contains(window->tabPageId()))
 			FTabPages[window->tabPageId()].page = NULL;
-		if (FWindowTimers.contains(window))
-			delete FWindowTimers.take(window);
+		if (FDestroyTimers.contains(window))
+			delete FDestroyTimers.take(window);
 		removeMessageNotifications(window);
 		FWindows.removeAll(window);
 		FWindowStatus.remove(window);
@@ -1036,7 +1055,7 @@ void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenc
 		{
 			if (!fullWindow)
 				bareWindow->setContactJid(AItem.itemJid);
-			else
+			else if (FWindowStatus.value(bareWindow).notified.isEmpty())
 				bareWindow->instance()->deleteLater();
 		}
 
