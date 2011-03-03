@@ -54,6 +54,7 @@ bool RosterSearch::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		{
 			FRostersViewPlugin->rostersView()->instance()->installEventFilter(this);
 			connect(FRostersViewPlugin->rostersView()->instance(), SIGNAL(labelClicked(IRosterIndex *, int)), SLOT(onRosterLabelClicked(IRosterIndex *, int)));
+			connect(FRostersViewPlugin->rostersView()->instance(), SIGNAL(activated(const QModelIndex &)), SLOT(onRosterIndexActivated(const QModelIndex &)));
 		}
 	}
 
@@ -157,7 +158,7 @@ QVariant RosterSearch::rosterData(const IRosterIndex *AIndex, int ARole) const
 			if (!block)
 			{
 				block = true;
-				data = AIndex->data(RDR_STATES_FORCE_OFF).toInt() | QStyle::State_Selected | QStyle::State_MouseOver;
+				data = AIndex->data(RDR_STATES_FORCE_OFF).toInt() | /*QStyle::State_Selected |*/ QStyle::State_MouseOver;
 				block = false;
 			}
 		}
@@ -427,7 +428,6 @@ QString RosterSearch::findFieldMatchedValue(const IRosterIndex *AIndex, int AFie
 				}
 			}
 		}
-
 	}
 	return fieldValue;
 }
@@ -439,7 +439,7 @@ void RosterSearch::createSearchLinks()
 	if (searchRoot && !searchText.isEmpty())
 	{
 		FSearchHistory = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, "searchInHistory", searchRoot);
-		FSearchHistory->setFlags(Qt::ItemIsEnabled);
+		FSearchHistory->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchHistory->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
 		FSearchHistory->setData(Qt::DisplayRole, tr("Search \"%1\" in history").arg(searchText.left(10)));
 		FSearchHistory->setData(RDR_SEARCH_LINK, "http://id-planet.rambler.ru");
@@ -447,7 +447,7 @@ void RosterSearch::createSearchLinks()
 		FRostersModel->insertRosterIndex(FSearchHistory, searchRoot);
 
 		FSearchRambler = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, "searchInRambler", searchRoot);
-		FSearchRambler->setFlags(Qt::ItemIsEnabled);
+		FSearchRambler->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchRambler->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
 		FSearchRambler->setData(Qt::DisplayRole, tr("Search \"%1\" in Rambler").arg(searchText.left(10)));
 		FSearchRambler->setData(RDR_SEARCH_LINK, "http://nova.rambler.ru/search?query=" + searchText);
@@ -509,6 +509,12 @@ void RosterSearch::onEditTimedOut()
 void RosterSearch::onSearchTextChanged(const QString &AText)
 {
 	Q_UNUSED(AText);
+}
+
+void RosterSearch::onRosterIndexActivated(const QModelIndex &AIndex)
+{
+	IRosterIndex *index = FRostersModel!=NULL ? FRostersModel->rosterIndexByModelIndex(FRostersViewPlugin->rostersView()->mapToModel(AIndex)) : NULL;
+	onRosterLabelClicked(index,0);
 }
 
 void RosterSearch::onRosterLabelClicked(IRosterIndex *AIndex, int ALabelId)

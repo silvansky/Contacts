@@ -98,6 +98,7 @@ protected slots:
 	void onSearchActionTriggered(bool AChecked);
 	void onEditTimedOut();
 	void onSearchTextChanged(const QString &text);
+	void onRosterIndexActivated(const QModelIndex &AIndex);
 	void onRosterLabelClicked(IRosterIndex *AIndex, int ALabelId);
 	void onOptionsChanged(const OptionsNode &ANode);
 private:
