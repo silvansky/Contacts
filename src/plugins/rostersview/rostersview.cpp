@@ -852,7 +852,6 @@ void RostersView::setInsertIndicatorRect(const QRect &ARect)
 	if (FInsertIndicatorRect != ARect)
 	{
 		FInsertIndicatorRect = ARect;
-		FInsertIndicatorRect.setHeight(1);
 		viewport()->update();
 	}
 }
@@ -1156,30 +1155,45 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 
 	if (index != FPressedIndex)
 	{
+		FDragRect = visualRect(index);
 
-		QRect vRect = visualRect(index), highlightRect;
-		highlightRect = vRect;
-		FDragRect = vRect;
-		int indexType = index.data(RDR_TYPE).toInt();
-		if ((vRect.y() + vRect.height() / 2) < AEvent->pos().y())
+		QRect insertRect = FDragRect;
+		if (Options::node(OPV_ROSTER_SORTBYHAND).value().toBool())
 		{
-			highlightRect.setTop(vRect.bottom() + 1);
+			if (AEvent->pos().y() < insertRect.top()+(insertRect.height()/8))
+				insertRect.setBottom(insertRect.top()-1);
+			else if (AEvent->pos().y() > insertRect.bottom()-(insertRect.height()/8))
+				insertRect.setTop(insertRect.bottom()+1);
+			else
+				insertRect = QRect();
 		}
+		else
+		{
+			insertRect = QRect();
+		}
+		setInsertIndicatorRect(insertRect);
+
+		QRect dropRect = FDragRect;
+		int indexType = index.data(RDR_TYPE).toInt();
 		if (indexType == RIT_CONTACT || indexType == RIT_GROUP || indexType == RIT_GROUP_BLANK)
 		{
-			QModelIndex group = indexType == RIT_CONTACT ? index.parent() : index;
-			vRect = visualRect(group);
+			QModelIndex group = indexType==RIT_CONTACT ? index.parent() : index;
+			dropRect = visualRect(group);
+			
 			int irow = 0;
 			QModelIndex child;
 			while ((child = group.child(irow, 0)).isValid())
 			{
-				if (child.data(RDR_TYPE).toInt() == RIT_CONTACT)
-					vRect = vRect.united(visualRect(child));
+				int childType=child.data(RDR_TYPE).toInt();
+				if (childType==RIT_CONTACT || childType==RIT_METACONTACT)
+					dropRect = dropRect.united(visualRect(child));
 				irow++;
 			}
 		}
-		setDropIndicatorRect(vRect);
-		setInsertIndicatorRect(highlightRect);
+		if (FDragRect!=dropRect || insertRect.isNull())
+			setDropIndicatorRect(dropRect);
+		else
+			setDropIndicatorRect(QRect());
 	}
 	else
 	{

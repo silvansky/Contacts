@@ -216,7 +216,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		{
 			APainter->save();
 			QPen pen = APainter->pen();
-			pen.setStyle(Qt::DashLine);
+			pen.setStyle((AOption.state & QStyle::State_MouseOver)>0 ? Qt::SolidLine : Qt::DashLine);
 			pen.setColor(option.palette.color(QPalette::Disabled, QPalette::Text));
 			APainter->setPen(pen);
 			APainter->drawRect(paintRect);
@@ -441,6 +441,7 @@ QStyleOptionViewItemV4 RosterIndexDelegate::indexOptions(const QModelIndex &AInd
 	data = AIndex.data(Qt::ForegroundRole);
 	if (qVariantCanConvert<QBrush>(data))
 		option.palette.setBrush(QPalette::Text, qvariant_cast<QBrush>(data));
+	
 	data = AIndex.data(RDR_SHOW);
 	int show = data.toInt();
 	if (show == IPresence::Offline || show == IPresence::Error)
