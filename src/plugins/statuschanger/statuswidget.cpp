@@ -83,7 +83,7 @@ void StatusWidget::setStreamJid(const Jid &AStreamJid)
 {
 	FStreamJid = AStreamJid;
 	if (FAvatars)
-		FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(32, 32), "pixmap");
+		FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(24, 24), "pixmap");
 	if (FVCardPlugin)
 		onVCardReceived(FStreamJid);
 }
@@ -316,6 +316,6 @@ void StatusWidget::onStatusChanged(const Jid &AStreamJid, int AStatusId)
 	{
 		setMoodText(FStatusChanger->statusItemText(AStatusId));
 		if (FAvatars)
-			FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(32, 32), "pixmap");
+			FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(24, 24), "pixmap");
 	}
 }

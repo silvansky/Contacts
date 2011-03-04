@@ -700,7 +700,7 @@ void Avatars::updateAvatarObject(QObject *AObject)
 	if (!image.isNull())
 	{
 		if (!params.size.isEmpty() && (params.size.height() == params.size.width()) && (image.size() != params.size) && (image.height() != image.width()))
-			image = ImageManager::roundSquared(image, params.size.height(), 3);
+			image = ImageManager::roundSquared(image, params.size.height(), 2);
 		QPixmap pixmap = !params.size.isEmpty() ? QPixmap::fromImage(image.scaled(params.size,Qt::KeepAspectRatio,Qt::SmoothTransformation)) : QPixmap::fromImage(image);
 		if (params.prop == "pixmap")
 			AObject->setProperty(params.prop.toLatin1(),pixmap);
