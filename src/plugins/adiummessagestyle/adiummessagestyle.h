@@ -157,6 +157,7 @@ protected slots:
 	void onStyleWidgetDestroyed(QObject *AObject);
 	void onViewContentsSizeChanged(const QSize & size);
 	void onScrollBarValueChanged(int value);
+	void onScrollBarRangeChanged(int min, int max);
 protected:
 	bool eventFilter(QObject *, QEvent *);
 private:

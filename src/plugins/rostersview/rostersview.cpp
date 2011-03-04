@@ -7,6 +7,7 @@
 #include <QDropEvent>
 #include <QHelpEvent>
 #include <QClipboard>
+#include <QScrollBar>
 #include <QHeaderView>
 #include <QResizeEvent>
 #include <QApplication>
@@ -39,6 +40,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 {
 	setAttribute(Qt::WA_MacShowFocusRect, false);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_ROSTERVIEW_ROSTER);
+	connect(verticalScrollBar(), SIGNAL(rangeChanged(int,int)), SLOT(onScrollBarRangeChanged(int,int)));
 
 	FRostersModel = NULL;
 
@@ -1179,7 +1181,7 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 		{
 			QModelIndex group = indexType==RIT_CONTACT ? index.parent() : index;
 			dropRect = visualRect(group);
-			
+
 			int irow = 0;
 			QModelIndex child;
 			while ((child = group.child(irow, 0)).isValid())
@@ -1407,4 +1409,11 @@ void RostersView::onCollapseAllGroups()
 		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChild(findData,true)) {
 			collapse(mapFromModel(FRostersModel->modelIndexByRosterIndex(index))); }
 	}
+}
+
+void RostersView::onScrollBarRangeChanged(int min, int max)
+{
+	Q_UNUSED(min)
+	Q_UNUSED(max)
+	verticalScrollBar()->setStyleSheet(verticalScrollBar()->styleSheet());
 }

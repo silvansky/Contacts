@@ -2,6 +2,7 @@
 
 #include <QFrame>
 #include <QAbstractTextDocumentLayout>
+#include <QScrollBar>
 
 AutoSizeTextEdit::AutoSizeTextEdit(QWidget *AParent) : QTextEdit(AParent)
 {
@@ -11,6 +12,7 @@ AutoSizeTextEdit::AutoSizeTextEdit(QWidget *AParent) : QTextEdit(AParent)
 	document()->setDocumentMargin(7);
 
 	setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+	connect(verticalScrollBar(), SIGNAL(rangeChanged(int,int)), SLOT(onScrollBarRangeChanged(int,int)));
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()));
 }
 
@@ -73,4 +75,11 @@ int AutoSizeTextEdit::textHeight(int ALines) const
 void AutoSizeTextEdit::onTextChanged()
 {
 	updateGeometry();
+}
+
+void AutoSizeTextEdit::onScrollBarRangeChanged(int min, int max)
+{
+	Q_UNUSED(min)
+	Q_UNUSED(max)
+	setStyleSheet(styleSheet());
 }

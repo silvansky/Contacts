@@ -23,6 +23,7 @@ protected:
 	int textHeight(int ALines = 0) const;
 protected slots:
 	void onTextChanged();
+	void onScrollBarRangeChanged(int min, int max);
 private:
 	bool FAutoResize;
 	int FMinimumLines;

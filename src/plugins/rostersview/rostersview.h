@@ -162,6 +162,7 @@ protected slots:
 	void onChangeGroupState();
 	void onExpandAllGroups();
 	void onCollapseAllGroups();
+	void onScrollBarRangeChanged(int min, int max);
 private:
 	IRostersModel *FRostersModel;
 private:

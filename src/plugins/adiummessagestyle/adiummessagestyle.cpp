@@ -107,6 +107,7 @@ QWidget *AdiumMessageStyle::createWidget(const IMessageStyleOptions &AOptions, Q
 	view->installEventFilter(this);
 	connect(view->page()->mainFrame(), SIGNAL(contentsSizeChanged(const QSize&)), SLOT(onViewContentsSizeChanged(QSize)));
 	connect(vScroll, SIGNAL(valueChanged(int)), SLOT(onScrollBarValueChanged(int)));
+	connect(vScroll, SIGNAL(rangeChanged(int,int)), SLOT(onScrollBarRangeChanged(int,int)));
 	return view;
 }
 
@@ -830,6 +831,17 @@ void AdiumMessageStyle::onScrollBarValueChanged(int value)
 		{
 			view->page()->mainFrame()->setScrollPosition(QPoint(0, value));
 		}
+	}
+}
+
+void AdiumMessageStyle::onScrollBarRangeChanged(int min, int max)
+{
+	Q_UNUSED(min)
+	Q_UNUSED(max)
+	QScrollBar * scrollBar = qobject_cast<QScrollBar*>(sender());
+	if (scrollBar)
+	{
+		scrollBar->setStyleSheet(scrollBar->styleSheet());
 	}
 }
 

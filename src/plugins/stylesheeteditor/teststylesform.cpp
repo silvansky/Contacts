@@ -12,6 +12,7 @@ TestStylesForm::TestStylesForm(QWidget *parent) :
 	ui->setupUi(this);
 
 	ui->lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui->verticalScrollBar_2->setEnabled(false);
 
 	Menu * menu = new Menu();
 	Action * action;

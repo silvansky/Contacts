@@ -558,11 +558,11 @@ QLabel
 
 QScrollBar:vertical
 {
-	border: 0px solid grey;
+	border: none;
 	width: 14px;
-	margin: 13px 0 13px 0;
-	border-top: 4px;
-	border-bottom: 4px;
+	margin: 17px 0 17px 0;
+	border-top: 0px;
+	border-bottom: 0px;
 	border-right: 0px;
 	border-left: 0px;
 	border-image: url(%IMAGES_PATH%/scrollbarbordervertical.png);
@@ -576,71 +576,48 @@ QScrollBar::handle:vertical
 	border-bottom: 5px;
 	border-right: 0px;
 	border-left: 0px;
-	border-image: url(%IMAGES_PATH%/scrollbarhandlevertical.png);
-	min-height: 40px;
-}
-
-QScrollBar::handle:vertical:hover
-{
-	border-image: url(%IMAGES_PATH%/scrollbarhandlevertical_hover.png);
-}
-
-QScrollBar::vertical:pressed
-{
-	border-image: url(%IMAGES_PATH%/scrollbarbordervertical_click.png);
+	border-image: url(%IMAGES_PATH%/scrollbarverticalhandle.png);
+	min-height: 50px;
 }
 
 QScrollBar::add-line:vertical
 {
-	border: 1px solid #2f343b;
+	border: none;
 	border-top: 0px;
-	background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #72767a, stop:1 #363b41);
-	height: 13px;
+	background: url(%IMAGES_PATH%/scrollbardownbutton.png);
+	height: 17px;
 	subcontrol-position: bottom;
 	subcontrol-origin: margin;
-	padding-left: -1px;
 }
 
 QScrollBar::sub-line:vertical
 {
-	border: 1px solid #2f343b;
+	border: none;
 	border-bottom: 0px;
-	background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #72767a, stop:1 #363b41);
-	height: 13px;
+	background: url(%IMAGES_PATH%/scrollbarupbutton.png);
+	height: 17px;
 	subcontrol-position: top;
 	subcontrol-origin: margin;
-	padding-left: -1px;
 }
 
-QScrollBar::add-line:vertical:hover, QScrollBar::sub-line:vertical:hover
+QScrollBar::add-line:vertical:hover
 {
-	background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #6f757c, stop:1 #5a5f64);
+	background: url(%IMAGES_PATH%/scrollbardownbutton_hover.png);
 }
 
-QScrollBar::up-arrow:vertical
+QScrollBar::sub-line:vertical:hover
 {
-	border: 0px;
-	width: 6px;
-	height: 4px;
-	background: url(%IMAGES_PATH%/scrollbaruparrow.png);
+	background: url(%IMAGES_PATH%/scrollbarupbutton_hover.png);
 }
 
-QScrollBar::up-arrow:vertical:hover
+QScrollBar::add-line:vertical:pressed
 {
-	background: url(%IMAGES_PATH%/scrollbaruparrow_hover.png);
+	background: url(%IMAGES_PATH%/scrollbardownbutton_click.png);
 }
 
-QScrollBar::down-arrow:vertical
+QScrollBar::sub-line:vertical:pressed
 {
-	border: 0px;
-	width: 6px;
-	height: 4px;
-	background: url(%IMAGES_PATH%/scrollbardownarrow.png);
-}
-
-QScrollBar::down-arrow:vertical:hover
-{
-	background: url(%IMAGES_PATH%/scrollbardownarrow_hover.png);
+	background: url(%IMAGES_PATH%/scrollbarupbutton_click.png);
 }
 
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
@@ -650,50 +627,24 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
 
 QScrollBar::handle:vertical:!enabled
 {
-	border-top: 4px;
-	border-bottom: 4px;
-	border-right: 0px;
-	border-left: 0px;
+	border-image: none;
+	background-color: transparent;
+}
+
+QScrollBar:vertical:!enabled, QScrollBar[minimum="0"][maximum="0"]:vertical
+{
 	border-image: url(%IMAGES_PATH%/scrollbarborderverticaldisabled.png);
 	min-height: 10px;
 }
 
 QScrollBar::add-line:vertical:!enabled
 {
-	border: 1px solid #cfcfcf;
-	border-top: 0px;
-	background-color: #e6e6e6;
-	height: 13px;
-	subcontrol-position: bottom;
-	subcontrol-origin: margin;
-	padding-left: -1px;
+	background: url(%IMAGES_PATH%/scrollbardownbutton_disabled.png);
 }
 
 QScrollBar::sub-line:vertical:!enabled
 {
-	border: 1px solid #cfcfcf;
-	border-bottom: 0px;
-	background-color: #e6e6e6;
-	height: 13px;
-	subcontrol-position: top;
-	subcontrol-origin: margin;
-	padding-left: -1px;
-}
-
-QScrollBar::up-arrow:vertical:!enabled
-{
-	border: 0px;
-	width: 6px;
-	height: 4px;
-	background: url(%IMAGES_PATH%/scrollbaruparrowdisabled.png);
-}
-
-QScrollBar::down-arrow:vertical:!enabled
-{
-	border: 0px;
-	width: 6px;
-	height: 4px;
-	background: url(%IMAGES_PATH%/scrollbardownarrowdisabled.png);
+	background: url(%IMAGES_PATH%/scrollbarupbutton_disabled.png);
 }
 
 QScrollBar::add-page:vertical:!enabled, QScrollBar::sub-page:vertical:!enabled

@@ -78,6 +78,7 @@ StyleSheetEditor::StyleSheetEditor(QWidget *parent)
 	setFontFamily("Courier");
 	setFontPointSize(12);
 	setTabStopWidth(fontMetrics().width(QLatin1Char(' ')) * 14);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	new CssHighlighter(document());
 }
 
@@ -103,6 +104,7 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
 
 	testForm = new TestStylesForm;
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(testForm, "stylesheeteditorTestForm");
+	setStyleSheet("QToolBar { border: none; background: transparent; }");
 	testFormContainer = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(testForm, CBS_WINDOW);
 //	testForm->setObjectName("testForm");
 //	testForm->setStyleSheet("#testForm { background-color: rgba(65, 70, 77, 245); } QGroupBox { background: transparent; }");
@@ -128,7 +130,8 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
 
 	connect(m_editor, SIGNAL(textChanged()), this, SLOT(validateStyleSheet()));
 
-	QToolBar *toolBar = new QToolBar;
+	QToolBar *toolBar = new QToolBar(this);
+	toolBar->setStyleSheet(styleSheet());
 
 	QGridLayout *layout = new QGridLayout;
 	layout->addWidget(toolBar, 0, 0, 1, 2);
