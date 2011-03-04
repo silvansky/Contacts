@@ -898,7 +898,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		qDebug() << "handled = " << handled << " " << widget->objectName() << " of class " << widget->metaObject()->className() << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
 		if (QToolButton * tb = qobject_cast<QToolButton*>(widget))
 		{
-			qDebug() << "QToolButton popup mode: " << tb->popupMode();
+			qDebug() << "QToolButton popup mode: " << tb->popupMode() << " checked: " << tb->isChecked() << " (checkable: " << tb->isCheckable() << ")";
 		}
 		QStringList hierarchy;
 		QWidget * parent = widget->parentWidget();

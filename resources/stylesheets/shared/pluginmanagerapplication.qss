@@ -279,7 +279,8 @@ QPushButton:hover:enabled, QToolButton:hover:enabled
 /*	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #31363c, stop:1 #61656a);*/
 }
 
-QPushButton:enabled:pressed, QToolButton:enabled:pressed
+QPushButton:enabled:pressed, QToolButton:enabled:pressed,
+QPushButton:checked:enabled, QToolButton:checked:enabled
 {
 	border-image: url(%IMAGES_PATH%/buttonborderclick.png);
 /*	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #61656a, stop:1 #31363c);*/
