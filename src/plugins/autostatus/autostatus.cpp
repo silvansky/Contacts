@@ -246,7 +246,8 @@ void AutoStatus::updateActiveRule()
 	int ruleTime = 0;
 	int idleSecs = SystemManager::systemIdle();
 
-	foreach(QUuid ruleId, rules())
+	QList<QUuid> rulesList = rules();
+	foreach(QUuid ruleId, rulesList)
 	{
 		IAutoStatusRule rule = ruleValue(ruleId);
 		if (isRuleEnabled(ruleId) && rule.time<idleSecs && rule.time>ruleTime)
@@ -255,6 +256,13 @@ void AutoStatus::updateActiveRule()
 			ruleTime = rule.time;
 		}
 	}
+
+	if (!rulesList.isEmpty() && newRuleId.isNull() && Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).value().toBool())
+	{
+		if (SystemManager::isScreenSaverRunning() || SystemManager::isWorkstationLocked())
+			newRuleId = rulesList.value(0);
+	}
+
 	setActiveRule(newRuleId);
 }
 

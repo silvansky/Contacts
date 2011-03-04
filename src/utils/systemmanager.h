@@ -13,12 +13,17 @@ public:
 	static SystemManager *instance();
 	static int systemIdle();
 	static bool isSystemIdleActive();
+	static bool isWorkstationLocked();
+	static bool isScreenSaverRunning();
 public:
 	void startSystemIdle();
 	void stopSystemIdle();
 signals:
 	void systemIdleChanged(int ASeconds);
+	void screenSaverChanged(bool ARunning);
+	void workstationLockChanged(bool ALocked);
 protected slots:
+	void onTimerTimeout();
 	void onIdleChanged(int ASeconds);
 private:
 	static SystemManagerData *d;
