@@ -19,7 +19,11 @@
      <number>0</number>
     </property>
     <item>
-     <layout class="QVBoxLayout" name="vlExtControls"/>
+     <layout class="QVBoxLayout" name="vlExtControls">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+     </layout>
     </item>
     <item>
      <widget class="QStackedWidget" name="stwWidgets"/>

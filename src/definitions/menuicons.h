@@ -170,6 +170,7 @@
 #define MNI_MESSAGEWIDGETS_LAST_OPEN_ALL         "messagewidgetsLastOpenAll"
 #define MNI_MESSAGEWIDGETS_QUOTE                 "messagewidgetsQuote"
 #define MNI_MESSAGEWIDGETS_CLOSE_TAB             "messagewidgetsCloseTab"
+#define MNI_MESSAGEWIDGETS_TABWINDOW_TRIANGLE    "tabWindowTriangle"
 
 //MultiUserChat
 #define MNI_MUC_CONFERENCE                       "mucConference"

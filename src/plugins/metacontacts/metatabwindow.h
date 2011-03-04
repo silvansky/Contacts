@@ -76,6 +76,7 @@ protected:
 	void createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const;
 protected:
 	virtual bool event(QEvent *AEvent);
+	virtual bool eventFilter(QObject * AObject, QEvent * AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void closeEvent(QCloseEvent *AEvent);
 	virtual void contextMenuEvent(QContextMenuEvent *AEvent);
@@ -113,6 +114,7 @@ private:
 	QMap<int,int> FTabPageNotifies;
 	QMap<Jid, ITabPage *> FItemTabPages;
 	QMap<Jid, QToolButton *> FItemButtons;
+	Jid FCurrentJid;
 };
 
 #endif // METATABWINDOW_H

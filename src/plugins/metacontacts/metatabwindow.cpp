@@ -5,6 +5,9 @@
 #include <QFontMetrics>
 #include <QDesktopServices>
 #include <QContextMenuEvent>
+#include <utils/iconstorage.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
 
 #define ADR_ITEM_JID     Action::DR_Parametr1
 
@@ -13,6 +16,7 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose, false);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_METATABWINDOW);
+	ui.tlbToolBar->installEventFilter(this);
 
 	FMetaId = AMetaId;
 	FMetaRoster = AMetaRoster;
@@ -153,7 +157,7 @@ void MetaTabWindow::setItemPage(const Jid &AItemJid, ITabPage *APage)
 			ui.stwWidgets->removeWidget(curTabPage->instance());
 			curTabPage->instance()->deleteLater();
 		}
-		
+
 		if (APage)
 		{
 			IChatWindow *window = qobject_cast<IChatWindow *>(APage->instance());
@@ -173,7 +177,7 @@ void MetaTabWindow::setItemPage(const Jid &AItemJid, ITabPage *APage)
 			FItemTabPages.insert(AItemJid,APage);
 			ui.stwWidgets->addWidget(APage->instance());
 		}
-		
+
 		emit itemPageChanged(AItemJid, APage);
 	}
 }
@@ -208,6 +212,8 @@ void MetaTabWindow::setCurrentItem(const Jid &AItemJid)
 		{
 			FItemButtons[AItemJid]->setChecked(true);
 			ui.stwWidgets->setCurrentWidget(page->instance());
+			FCurrentJid = AItemJid;
+			ui.tlbToolBar->repaint();
 		}
 	}
 }
@@ -235,7 +241,7 @@ void MetaTabWindow::initialize(IPluginManager *APluginManager)
 	IPlugin *plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
 	if (plugin)
 		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
-	
+
 	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
 	if (plugin)
 		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
@@ -328,7 +334,7 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 		Action *action = new Action(FToolBarChanger->toolBar());
 		action->setData(ADR_ITEM_JID,itemJid.pBare());
 		connect(action,SIGNAL(triggered(bool)),SLOT(onItemButtonActionTriggered(bool)));
-		
+
 		QToolButton *button = FToolBarChanger->insertAction(action,descriptor.pageOrder);
 		button->setCheckable(true);
 		button->setAutoExclusive(true);
@@ -356,7 +362,7 @@ QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount) const
 	{
 		QPixmap base = AIcon.pixmap(AIcon.availableSizes().value(0));
 		QPainter painter(&base);
-		
+
 		//QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON,1));
 		QPixmap balloon(12,12);
 		QRect ballonRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignTop|Qt::AlignRight,balloon.size(),base.rect());
@@ -455,6 +461,35 @@ bool MetaTabWindow::event(QEvent *AEvent)
 	return QMainWindow::event(AEvent);
 }
 
+bool MetaTabWindow::eventFilter(QObject * AObject, QEvent * AEvent)
+{
+	if (AObject == ui.tlbToolBar)
+	{
+		if (AEvent->type() == QEvent::Paint)
+		{
+			bool h = QMainWindow::eventFilter(AObject, AEvent);
+			QToolButton * button = FItemButtons.value(FCurrentJid, NULL);
+			if (button)
+			{
+				QPainter p(ui.tlbToolBar);
+				QSize sz = ui.tlbToolBar->size();
+				int buttonCenter = button->width() / 2 + button->geometry().left();
+				QImage triangle = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MESSAGEWIDGETS_TABWINDOW_TRIANGLE);
+				p.drawImage(buttonCenter - triangle.width() / 2, sz.height() - triangle.height(), triangle);
+				QRect targetRect(0, sz.height() - triangle.height(), buttonCenter - triangle.width() / 2, triangle.height());
+				QRect sourceRect(0, 0, 1, triangle.height());
+				p.drawImage(targetRect, triangle, sourceRect);
+				targetRect = QRect(buttonCenter + triangle.width() / 2, sz.height() - triangle.height(), sz.width() - buttonCenter - triangle.width() / 2, triangle.height());
+				sourceRect = QRect(triangle.width() - 1, 0, 1, triangle.height());
+				p.drawImage(targetRect, triangle, sourceRect);
+				p.end();
+			}
+			return h;
+		}
+	}
+	return QMainWindow::eventFilter(AObject, AEvent);
+}
+
 void MetaTabWindow::showEvent(QShowEvent *AEvent)
 {
 	if (!FShownDetached)
@@ -484,7 +519,7 @@ void MetaTabWindow::contextMenuEvent(QContextMenuEvent *AEvent)
 		Menu *menu = new Menu(this);
 		createItemContextMenu(itemJid,menu);
 		emit itemContextMenuRequested(itemJid,menu);
-		
+
 		if (menu && !menu->isEmpty())
 			menu->exec(AEvent->globalPos());
 

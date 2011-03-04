@@ -24,4 +24,8 @@
     <key>messagewidgetsCloseTab</key>
     <object mime="image/png">messagewidgetsclosetab.png</object>
   </icon>
+  <icon>
+    <key>tabWindowTriangle</key>
+    <object mime="image/png">tabwindowtriangle.png</object>
+  </icon>
 </icondef>
