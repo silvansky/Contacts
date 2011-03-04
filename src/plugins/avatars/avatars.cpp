@@ -323,7 +323,7 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 	{
 		if (ARole == RDR_AVATAR_IMAGE)
 		{
-			return ImageManager::squared(avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars), 24);
+			return ImageManager::roundSquared(avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars), 24, 2);
 		}
 		else if (ARole == RDR_AVATAR_HASH)
 		{

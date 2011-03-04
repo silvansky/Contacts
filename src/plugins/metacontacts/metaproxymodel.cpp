@@ -182,7 +182,8 @@ void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString
 
 		QString hash = AMetaRoster->metaAvatarHash(AMetaId);
 		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId);
-		avatar = ImageManager::squared(avatar, 24);
+		avatar = ImageManager::roundSquared(avatar, 24, 2);
+		//avatar = ImageManager::squared(avatar, 24);
 
 		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
 		{

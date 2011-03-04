@@ -33,7 +33,7 @@ QImage ImageManager::squared(const QImage & image, int size)
 	if ((image.width() == size) && (image.height() == size))
 		return image;
 	QImage squaredImage(size, size, QImage::Format_ARGB32);
-	qDebug() << "size: " << size << " image: " << image.size();
+	squaredImage.fill(QColor(0, 0, 0, 0).rgba());
 	int w = image.width(), h = image.height();
 	QPainter p(&squaredImage);
 	QPoint offset;
