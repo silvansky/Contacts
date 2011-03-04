@@ -411,6 +411,7 @@ ITabWindow *MessageWidgets::assignTabWindowPage(ITabPage *APage)
 			windowId = availWindows.value(0);
 		ITabWindow *window = createTabWindow(windowId);
 		window->addTabPage(APage);
+		window->instance()->setStyleSheet(window->instance()->styleSheet());
 	}
 	return window;
 }
