@@ -72,6 +72,8 @@ bool SortFilterProxyModel::filterAcceptsRow(int AModelRow, const QModelIndex &AM
 						return true;
 				return false;
 			}
+		case RIT_GROUP_MY_RESOURCES:
+			return false;
 		default:
 			return true;
 		}
