@@ -47,7 +47,7 @@ void BalloonTip::hideBalloon()
 {
 	if (theSolitaryBalloonTip)
 	{
-		theSolitaryBalloonTip->hide();
+		theSolitaryBalloonTip->close();
 		theSolitaryBalloonTip->deleteLater();
 		theSolitaryBalloonTip = NULL;
 	}
@@ -177,7 +177,6 @@ BalloonTip::~BalloonTip()
 		widget->setParent(0);
 		widget = NULL;
 	}
-	theSolitaryBalloonTip = NULL;
 	emit closed();
 }
 

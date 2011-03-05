@@ -517,19 +517,27 @@ QComboBox:!enabled
 QComboBox QListView
 {
 	border: 1px solid #22272d;
-	background-color: rgba(65, 70, 77, 235);
+	background-color: rgba(65, 70, 77, 255);
 	padding: 0px;
 }
 
-QComboBox QListView::item
+QComboBox QListView::item:!disabled
 {
-	min-height: 22px;
-	background-color: rgba(65, 70, 77, 235);
+	height: 22px;
+	background-color: rgba(65, 70, 77, 255);
 	border-left: 0px;
 	border-top: 0px;
 	border-right: 0px;
 	border-bottom: 1px solid transparent;
 	color: white;
+}
+
+QComboBox QListView::item:disabled /*separator*/
+{
+	min-height: 3px;
+	max-height: 3px;
+	height: 3px;
+	background-color: red;
 }
 
 QComboBox QListView::item:selected

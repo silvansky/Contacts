@@ -119,7 +119,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
-	ui.frmDomain->setProperty("error", false);
+//	ui.frmDomain->setProperty("error", false);
 	ui.cmbDomain->setView(new QListView());
 	ui.wdtHelp->setVisible(false);
 	setWindowModality(Qt::WindowModal);
@@ -166,6 +166,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 		}
 	}
 	ui.cmbDomain->addItem(tr("Custom domain..."));
+	ui.cmbDomain->insertSeparator(ui.cmbDomain->count() - 1);
 	connect(ui.cmbDomain,SIGNAL(currentIndexChanged(int)),SLOT(onDomainCurrentIntexChanged(int)));
 
 	QCompleter *completer = new QCompleter(profiles,ui.lneNode);
@@ -625,7 +626,7 @@ void LoginDialog::hideXmppStreamError()
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
-	ui.frmDomain->setProperty("error", false);
+//	ui.frmDomain->setProperty("error", false);
 	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(false);
 	BalloonTip::hideBalloon();
@@ -643,7 +644,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	if (FNewProfile)
 	{
 		ui.lneNode->setProperty("error", true);
-		ui.frmDomain->setProperty("error", true);
+//		ui.frmDomain->setProperty("error", true);
 		ui.cmbDomain->setProperty("error", true);
 	}
 	ui.lnePassword->setProperty("error", true);
