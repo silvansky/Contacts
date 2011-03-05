@@ -132,7 +132,7 @@ protected slots:
 	void onKeepTimerTimeout();
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
-	void onDiscoInfoReceived(const IDiscoInfo &AInfo);
+	void onDiscoInfoChanged(const IDiscoInfo &AInfo);
 	void onDiscoItemsReceived(const IDiscoItems &AItems);
 	void onDiscoItemsWindowCreated(IDiscoItemsWindow *AWindow);
 	void onDiscoItemContextMenu(const QModelIndex AIndex, Menu *AMenu);

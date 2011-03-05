@@ -66,7 +66,9 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		if (FDiscovery)
 		{
 			connect(FDiscovery->instance(),SIGNAL(discoInfoReceived(const IDiscoInfo &)),
-				SLOT(onDiscoInfoReceived(const IDiscoInfo &)));
+				SLOT(onDiscoInfoChanged(const IDiscoInfo &)));
+			connect(FDiscovery->instance(),SIGNAL(discoInfoRemoved(const IDiscoInfo &)),
+				SLOT(onDiscoInfoChanged(const IDiscoInfo &)));
 			connect(FDiscovery->instance(),SIGNAL(discoItemsReceived(const IDiscoItems &)),
 				SLOT(onDiscoItemsReceived(const IDiscoItems &)));
 			connect(FDiscovery->instance(),SIGNAL(discoItemsWindowCreated(IDiscoItemsWindow *)),
@@ -1378,7 +1380,7 @@ void Gateways::onVCardError(const Jid &AContactJid, const QString &AError)
 	FResolveNicks.remove(AContactJid);
 }
 
-void Gateways::onDiscoInfoReceived(const IDiscoInfo &AInfo)
+void Gateways::onDiscoInfoChanged(const IDiscoInfo &AInfo)
 {
 	if (AInfo.contactJid.node().isEmpty() && AInfo.node.isEmpty())
 	{
