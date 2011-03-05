@@ -33,3 +33,8 @@ void StyleViewer::onPageLoaded()
 {
 	emit htmlChanged(this, page()->mainFrame()->toHtml());
 }
+
+void StyleViewer::onContentsChanged()
+{
+	emit htmlChanged(this, page()->mainFrame()->toHtml());
+}

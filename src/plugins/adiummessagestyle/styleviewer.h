@@ -13,6 +13,7 @@ public:
 	~StyleViewer();
 public:
 	virtual QSize sizeHint() const;
+	void onContentsChanged();
 protected slots:
 	void onShortcutActivated();
 	void onPageLoaded();

@@ -216,6 +216,7 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 				content.removeAt(contentIndex);
 				view->page()->mainFrame()->evaluateJavaScript(QString(DELETE_MESSAGE).arg(contentIndex));
 			}
+			view->onContentsChanged();
 			emit contentChanged(AWidget,contentId,AHtml,AOptions);
 			return contentId;
 		}

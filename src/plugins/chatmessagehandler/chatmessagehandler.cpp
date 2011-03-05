@@ -1222,7 +1222,7 @@ void ChatMessageHandler::showMessageSource()
 		sourceView->setReadOnly(true);
 		sourceView->setStyleSheet("QTextEdit { border: none; padding: 0px; border-image: none; background-color: white; }");
 		sourceView->show();
-		sourceView->resize(600, 400);
+		sourceView->resize(800, 600);
 	}
 	QString src;
 	foreach (IChatWindow *window, FWindows)

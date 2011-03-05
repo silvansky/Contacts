@@ -5,7 +5,7 @@
 #include <QCoreApplication>
 
 #define DEFAULT_STYLE     "GoneDark"
-#define DEFAULT_VARIANT   ""
+#define DEFAULT_VARIANT   "Rambler"
 
 AdiumMessageStylePlugin::AdiumMessageStylePlugin()
 {
