@@ -6,7 +6,6 @@ FORMS = sipphonewidget.ui\
 
 HEADERS = sipphone.h\
 		callaudio.h\
-		config.h\
 		CrossDefine.h\
 		ridentityform.h\
 		rsipauthentication.h\
