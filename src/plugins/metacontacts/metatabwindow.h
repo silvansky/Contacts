@@ -67,8 +67,10 @@ protected:
 	void initialize(IPluginManager *APluginManager);
 	Jid firstItemJid() const;
 	void updateWindow();
+	void updateItemAction(const Jid &AItemJid);
 	void updateItemButton(const Jid &AItemJid);
 	void updateItemButtons(const QSet<Jid> &AItems);
+	int itemNotifyCount(const Jid &AItemJid, bool ACombined) const;
 	QIcon insertNotifyBalloon(const QIcon &AIcon, int ACount) const;
 	void removeTabPageNotifies();
 	void saveWindowGeometry();
@@ -76,7 +78,7 @@ protected:
 	void createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const;
 protected:
 	virtual bool event(QEvent *AEvent);
-	virtual bool eventFilter(QObject * AObject, QEvent * AEvent);
+	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void closeEvent(QCloseEvent *AEvent);
 	virtual void contextMenuEvent(QContextMenuEvent *AEvent);
@@ -93,6 +95,7 @@ protected slots:
 	void onDetachItemByAction(bool);
 	void onDeleteItemByAction(bool);
 protected slots:
+	void onItemButtonClicked(bool);
 	void onItemButtonActionTriggered(bool);
 	void onCurrentWidgetChanged(int AIndex);
 	void onMetaPresenceChanged(const QString &AMetaId);
@@ -113,8 +116,10 @@ private:
 	ToolBarChanger *FToolBarChanger;
 	QMap<int,int> FTabPageNotifies;
 	QMap<Jid, ITabPage *> FItemTabPages;
+	QMultiMap<QString, Jid> FCombinedItems;
+	QMap<Jid, Action *> FItemActions;
 	QMap<Jid, QToolButton *> FItemButtons;
-	Jid FCurrentJid;
+	QMap<QToolButton *, Action *> FButtonAction;
 };
 
 #endif // METATABWINDOW_H
