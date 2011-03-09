@@ -39,8 +39,8 @@ class PluginManager :
 			public QObject,
 			public IPluginManager
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPluginManager);
+	Q_OBJECT
+	Q_INTERFACES(IPluginManager)
 public:
 	PluginManager(QApplication *AParent);
 	~PluginManager();
@@ -59,6 +59,7 @@ public:
 public slots:
 	virtual void quit();
 	virtual void restart();
+	virtual void shutdownRequested();
 signals:
 	void aboutToQuit();
 protected:

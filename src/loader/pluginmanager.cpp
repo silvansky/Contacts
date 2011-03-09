@@ -185,6 +185,12 @@ void PluginManager::restart()
 		QTimer::singleShot(0,this,SLOT(restart()));
 }
 
+void PluginManager::shutdownRequested()
+{
+	// TODO: ask user to confirm quit operation
+	quit();
+}
+
 void PluginManager::loadSettings()
 {
 	QStringList args = qApp->arguments();
