@@ -4,8 +4,18 @@
 #include <thirdparty/idle/idle.h>
 
 #ifdef Q_WS_WIN
-#include <windows.h>
+// dirty hack for MinGW compiler which think that XP is NT 4.0
+# if _WIN32_WINNT < 0x0501
+#  include <QSysInfo>
+static const QSysInfo::WinVersion wv = QSysInfo::windowsVersion();
+static const int dummy = (wv >= QSysInfo::WV_2000) ?
+#   define _WIN32_WINNT 0x0501
+	      0 : 1;
+# endif
+# include <windows.h>
 #endif
+
+#include <QDebug>
 
 struct SystemManager::SystemManagerData
 {
@@ -86,6 +96,7 @@ bool SystemManager::isScreenSaverRunning()
 bool SystemManager::isFullScreenMode()
 {
 #ifdef Q_WS_WIN
+# if (_WIN32_WINNT >= 0x0500)
 	static HWND shellHandle = GetShellWindow();
 	static HWND desktopHandle = GetDesktopWindow();
 
@@ -100,6 +111,7 @@ bool SystemManager::isFullScreenMode()
 
 		return appBounds.right-appBounds.left==scrBounds.right-scrBounds.left && appBounds.bottom-appBounds.top==scrBounds.bottom-scrBounds.top;
 	}
+# endif
 #endif
 	return false;
 }
