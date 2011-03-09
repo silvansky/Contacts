@@ -172,6 +172,7 @@ BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget) : QWidget(0, Qt::Too
 
 BalloonTip::~BalloonTip()
 {
+	theSolitaryBalloonTip = NULL;
 	if (widget)
 	{
 		widget->setParent(0);

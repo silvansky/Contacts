@@ -132,11 +132,17 @@ QCheckBox
 	padding-top: 5px;
 }
 
-#cmbDomain
+QComboBox#cmbDomain
 {
-	margin-top: -1px;
+	margin-top: 2px;
 	min-width: 75px;
 	max-width: 75px;
+}
+
+QComboBox#cmbDomain[error="true"]
+{
+	margin-top: -1px;
+	margin-right: -3px;
 }
 
 /***********************
