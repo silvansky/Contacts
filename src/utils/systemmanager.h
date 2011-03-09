@@ -15,6 +15,7 @@ public:
 	static bool isSystemIdleActive();
 	static bool isWorkstationLocked();
 	static bool isScreenSaverRunning();
+	static bool isFullScreenMode();
 public:
 	void startSystemIdle();
 	void stopSystemIdle();
@@ -22,6 +23,7 @@ signals:
 	void systemIdleChanged(int ASeconds);
 	void screenSaverChanged(bool ARunning);
 	void workstationLockChanged(bool ALocked);
+	void fullScreenModeChanged(bool AFullScreen);
 protected slots:
 	void onTimerTimeout();
 	void onIdleChanged(int ASeconds);

@@ -242,8 +242,9 @@ int Notifications::appendNotification(const INotification &ANotification)
 	bool isAway = FStatusChanger ? FStatusChanger->statusItemShow(STATUS_MAIN_ID) == IPresence::Away : false;
 	bool isDND = FStatusChanger ? FStatusChanger->statusItemShow(STATUS_MAIN_ID) == IPresence::DoNotDisturb : false;
 
-	bool blockPopupAndSound = Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY).value().toBool() && isAway;
-	blockPopupAndSound |= Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND).value().toBool() && isDND;
+	bool blockPopupAndSound = isAway && Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY).value().toBool();
+	blockPopupAndSound |= isDND && Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND).value().toBool();
+	blockPopupAndSound |= SystemManager::isFullScreenMode() && Options::node(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN).value().toBool();
 
 	QIcon icon;
 	QString iconKey = record.notification.data.value(NDR_ICON_KEY).toString();
@@ -279,7 +280,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (!blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_POPUPWINDOW).value().toBool() &&
-			(record.notification.kinds & INotification::PopupWindow)>0)
+		(record.notification.kinds & INotification::PopupWindow)>0)
 	{
 		if (replaceNotifyId > 0)
 		{
@@ -307,7 +308,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (FMessageWidgets && FMessageProcessor && Options::node(OPV_NOTIFICATIONS_CHATWINDOW).value().toBool() &&
-			(record.notification.kinds & INotification::TabPage)>0)
+		(record.notification.kinds & INotification::TabPage)>0)
 	{
 		bool createTab = record.notification.data.value(NDR_TABPAGE_CREATE_TAB).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
@@ -337,7 +338,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QString toolTip = record.notification.data.value(NDR_TRAY_TOOLTIP).toString();
 
 		if (Options::node(OPV_NOTIFICATIONS_TRAYICON).value().toBool() &&
-				(record.notification.kinds & INotification::TrayIcon)>0)
+			(record.notification.kinds & INotification::TrayIcon)>0)
 		{
 			ITrayNotify notify;
 			notify.blink = true;
@@ -349,7 +350,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 
 		if (!toolTip.isEmpty() && Options::node(OPV_NOTIFICATIONS_TRAYACTION).value().toBool() &&
-				(record.notification.kinds & INotification::TrayAction)>0)
+			(record.notification.kinds & INotification::TrayAction)>0)
 		{
 			record.action = new Action(FNotifyMenu);
 			if (!iconKey.isEmpty())
@@ -364,7 +365,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (QSound::isAvailable() && !blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() &&
-			(record.notification.kinds & INotification::PlaySoundNotification)>0)
+		(record.notification.kinds & INotification::PlaySoundNotification)>0)
 	{
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
@@ -386,7 +387,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (Options::node(OPV_NOTIFICATIONS_AUTOACTIVATE).value().toBool() &&
-			(record.notification.kinds & INotification::AutoActivate)>0)
+		(record.notification.kinds & INotification::AutoActivate)>0)
 	{
 		FDelayedActivations.append(notifyId);
 		QTimer::singleShot(0,this,SLOT(onActivateDelayedActivations()));

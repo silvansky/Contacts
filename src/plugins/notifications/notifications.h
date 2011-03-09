@@ -27,6 +27,7 @@
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
 #include <utils/options.h>
+#include <utils/systemmanager.h>
 #include "notifywidget.h"
 #include "optionswidget.h"
 #include "notifykindswidget.h"

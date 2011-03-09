@@ -14,12 +14,14 @@ struct SystemManager::SystemManagerData
 		idleSeconds = 0;
 		workstationLocked = false;
 		screenSaverRunning = false;
+		fullScreenEnabled = false;
 	}
 	Idle *idle;
 	QTimer *timer;
 	int idleSeconds;
 	bool workstationLocked;
 	bool screenSaverRunning;
+	bool fullScreenEnabled;
 };
 
 SystemManager::SystemManagerData *SystemManager::d = new SystemManager::SystemManagerData;
@@ -74,10 +76,30 @@ bool SystemManager::isWorkstationLocked()
 bool SystemManager::isScreenSaverRunning()
 {
 #ifdef Q_WS_WIN
-	BOOL fResult;
 	BOOL aRunning;
-	fResult = SystemParametersInfo(SPI_GETSCREENSAVERRUNNING,0,&aRunning,0);
-	return fResult && aRunning;
+	if (SystemParametersInfo(SPI_GETSCREENSAVERRUNNING,0,&aRunning,0))
+		return aRunning;
+#endif
+	return false;
+}
+
+bool SystemManager::isFullScreenMode()
+{
+#ifdef Q_WS_WIN
+	static HWND shellHandle = GetShellWindow();
+	static HWND desktopHandle = GetDesktopWindow();
+
+	HWND hWnd = GetForegroundWindow();
+	if (hWnd!=NULL && hWnd!=shellHandle && hWnd!=desktopHandle)
+	{
+		RECT appBounds;
+		GetWindowRect(hWnd, &appBounds);
+
+		RECT scrBounds;
+		GetWindowRect(desktopHandle, &scrBounds);
+
+		return appBounds.right-appBounds.left==scrBounds.right-scrBounds.left && appBounds.bottom-appBounds.top==scrBounds.bottom-scrBounds.top;
+	}
 #endif
 	return false;
 }
@@ -108,6 +130,13 @@ void SystemManager::onTimerTimeout()
 	{
 		d->workstationLocked = stationLocked;
 		emit workstationLockChanged(stationLocked);
+	}
+
+	bool fullScreen = isFullScreenMode();
+	if (d->fullScreenEnabled != fullScreen)
+	{
+		d->fullScreenEnabled = fullScreen;
+		emit fullScreenModeChanged(fullScreen);
 	}
 }
 
