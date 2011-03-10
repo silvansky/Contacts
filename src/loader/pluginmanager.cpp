@@ -3,10 +3,12 @@
 #include <QDir>
 #include <QTimer>
 #include <QStack>
+#include <QDebug>
 #include <QProcess>
 #include <QLibrary>
 #include <QFileInfo>
 #include <QSettings>
+#include <QMessageBox>
 #include <QFontDatabase>
 #include <utils/log.h>
 #include <definitions/resources.h>
@@ -188,7 +190,25 @@ void PluginManager::restart()
 void PluginManager::shutdownRequested()
 {
 	// TODO: ask user to confirm quit operation
-	quit();
+	static int i = 0;
+	if (!i++)
+	{
+		QMessageBox * mb = new QMessageBox(tr("Virtus updates ready"), tr("Updates are ready. Do you want to restart Virtus now?"), QMessageBox::Question, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
+		mb->setWindowModality(Qt::ApplicationModal);
+		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(messageBoxButtonClicked(QAbstractButton*)));
+		WidgetManager::showActivateRaiseWindow(mb);
+	}
+	if (!(i % 100000))
+		qDebug() << "shutdown request #" << i;
+}
+
+void PluginManager::messageBoxButtonClicked(QAbstractButton * button)
+{
+	QMessageBox * mb = qobject_cast<QMessageBox*>(sender());
+	if (mb && (mb->buttonRole(button) == QMessageBox::YesRole))
+	{
+		quit();
+	}
 }
 
 void PluginManager::loadSettings()

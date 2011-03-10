@@ -6,6 +6,7 @@
 
 #ifdef Q_WS_WIN32
 # include <thirdparty/holdemutils/RHoldemModule.h>
+# define VIRTUS_GUID "{9732304B-B640-4C54-B2CD-3C2297D649A1}"
 #endif
 
 int main(int argc, char *argv[])
@@ -27,8 +28,8 @@ int main(int argc, char *argv[])
 	PluginManager pm(&app);
 
 #ifdef Q_WS_WIN32
-	GUID guid = (GUID)QUuid("{9732304B-B640-4C54-B2CD-3C2297D649A1}");
-   holdem_utils::RHoldemModule *holdem_module = new holdem_utils::RHoldemModule(guid);
+	GUID guid = (GUID)QUuid(VIRTUS_GUID);
+	holdem_utils::RHoldemModule *holdem_module = new holdem_utils::RHoldemModule(guid);
 	QObject::connect(holdem_module, SIGNAL(shutdownRequested()), &pm, SLOT(shutdownRequested()));
 #endif
 

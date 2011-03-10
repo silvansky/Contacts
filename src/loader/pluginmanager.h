@@ -60,6 +60,8 @@ public slots:
 	virtual void quit();
 	virtual void restart();
 	virtual void shutdownRequested();
+protected slots:
+	virtual void messageBoxButtonClicked(QAbstractButton * button);
 signals:
 	void aboutToQuit();
 protected:
