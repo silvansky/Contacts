@@ -502,6 +502,11 @@ QComboBox::down-arrow
 	image: url(%IMAGES_PATH%/combodownarrow.png)
 }
 
+QComboBox::down-arrow:!enabled
+{
+	image: url(%IMAGES_PATH%/combodownarrowdisabled.png)
+}
+
 QComboBox::down-arrow:on
 {
 	top: 1px;
