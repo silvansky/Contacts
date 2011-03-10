@@ -588,6 +588,11 @@ QScrollBar::handle:vertical
 	min-height: 50px;
 }
 
+QScrollBar::handle:vertical:hover
+{
+	border-image: url(%IMAGES_PATH%/scrollbarverticalhandle_hover.png);
+}
+
 QScrollBar::add-line:vertical
 {
 	border: none;

@@ -1431,6 +1431,5 @@ void RostersView::onRepaintNeeded()
 		p = p->parentWidget();
 	if (p)
 		p->repaint();
-	// not working. why?
-	repaint();
+	viewport()->repaint();
 }
