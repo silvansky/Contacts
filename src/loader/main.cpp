@@ -3,17 +3,17 @@
 #include <QCleanlooksStyle>
 #include "pluginmanager.h"
 #include "proxystyle.h"
-#ifdef Q_WS_WIN32
-# include "HoldemUtils/RHoldemModule.h"
-#endif
 
+#ifdef Q_WS_WIN32
+# include <thirdparty/holdemutils/RHoldemModule.h>
+#endif
 
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 
 	// styles
-	QApplication::setStyle(new QCleanlooksStyle);
+   QApplication::setStyle(new QCleanlooksStyle);
 	QApplication::setStyle(new ProxyStyle);
 
 	app.setQuitOnLastWindowClosed(false);
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
 #ifdef Q_WS_WIN32
 	GUID guid = (GUID)QUuid("{9732304B-B640-4C54-B2CD-3C2297D649A1}");
-	holdem_utils::RHoldemModule * holdem_module = new holdem_utils::RHoldemModule(guid);
+   holdem_utils::RHoldemModule *holdem_module = new holdem_utils::RHoldemModule(guid);
 	QObject::connect(holdem_module, SIGNAL(shutdownRequested()), &pm, SLOT(shutdownRequested()));
 #endif
 
