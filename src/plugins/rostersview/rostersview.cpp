@@ -1,5 +1,6 @@
 #include "rostersview.h"
 
+#include <QDebug>
 #include <QCursor>
 #include <QToolTip>
 #include <QPainter>
@@ -67,6 +68,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	setSelectionMode(ExtendedSelection);
 	setContextMenuPolicy(Qt::DefaultContextMenu);
 	setFrameShape(QFrame::NoFrame);
+	setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
 
 	FRosterIndexDelegate = new RosterIndexDelegate(this);
 	setItemDelegate(FRosterIndexDelegate);
@@ -81,6 +83,10 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 		SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 	connect(this, SIGNAL(entered(const QModelIndex&)), SLOT(onIndexEntered(const QModelIndex&)));
 	connect(this, SIGNAL(viewportEntered()), SLOT(onViewportEntered()));
+
+	connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(onRepaintNeeded()));
+	connect(verticalScrollBar(), SIGNAL(rangeChanged(int,int)), SLOT(onRepaintNeeded()));
+	connect(verticalScrollBar(), SIGNAL(sliderMoved(int)), SLOT(onRepaintNeeded()));
 
 	qRegisterMetaTypeStreamOperators<IRostersLabel>("IRostersLabel");
 	qRegisterMetaTypeStreamOperators<RostersLabelItems>("RostersLabelItems");
@@ -1416,4 +1422,15 @@ void RostersView::onScrollBarRangeChanged(int min, int max)
 	Q_UNUSED(min)
 	Q_UNUSED(max)
 	verticalScrollBar()->setStyleSheet(verticalScrollBar()->styleSheet());
+}
+
+void RostersView::onRepaintNeeded()
+{
+	QWidget * p = parentWidget();
+	while (p && !p->isWindow())
+		p = p->parentWidget();
+	if (p)
+		p->repaint();
+	// not working. why?
+	repaint();
 }

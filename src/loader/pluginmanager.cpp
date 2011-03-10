@@ -206,9 +206,7 @@ void PluginManager::messageBoxButtonClicked(QAbstractButton * button)
 {
 	QMessageBox * mb = qobject_cast<QMessageBox*>(sender());
 	if (mb && (mb->buttonRole(button) == QMessageBox::YesRole))
-	{
 		quit();
-	}
 }
 
 void PluginManager::loadSettings()

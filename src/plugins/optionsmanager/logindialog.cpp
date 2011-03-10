@@ -683,6 +683,8 @@ void LoginDialog::onConnectClicked()
 {
 	if (ui.pbtConnect->isEnabled())
 	{
+		hideConnectionError();
+		hideXmppStreamError();
 		ui.lneNode->completer()->popup()->hide();
 		bool connecting = false;
 		setConnectEnabled(false);
