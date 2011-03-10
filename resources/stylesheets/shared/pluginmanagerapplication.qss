@@ -492,9 +492,9 @@ QComboBox::drop-down
 	border: none;
 }
 
-QComboBox:!editable:hover::drop-down
+QComboBox::drop-down:hover
 {
-	padding-right: 2px;
+	right: 5px;
 }
 
 QComboBox::down-arrow
@@ -511,12 +511,6 @@ QComboBox::down-arrow:on
 {
 	top: 1px;
 	left: 1px;
-}
-
-QComboBox:!enabled
-{
-	color: #72797f;
-	background-color: #41464d;
 }
 
 QComboBox QListView

@@ -690,6 +690,7 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 		setWindowTitle(containedWidget->windowTitle());
 		connect(containedWidget, SIGNAL(destroyed(QObject*)), SLOT(onContainedWidgetDestroyed(QObject*)));
 		containedWidget->setVisible(true);
+		installEventFilter(containedWidget);
 		adjustSize();
 	}
 }
@@ -698,6 +699,7 @@ QWidget * CustomBorderContainer::releaseWidget()
 {
 	if (containedWidget)
 	{
+		removeEventFilter(containedWidget);
 		childsRecursive(containedWidget,this,false);
 		containedWidget->removeEventFilter(this);
 		disconnect(containedWidget, SIGNAL(destroyed(QObject*)), this, SLOT(onContainedWidgetDestroyed(QObject*)));

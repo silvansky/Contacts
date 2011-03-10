@@ -351,6 +351,7 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 
 	// Draw the border
 	pixmap = QPixmap(sz);
+	pixmap.fill(QColor(0, 0, 0, 0));
 	QPainter painter2(&pixmap);
 	painter2.setPen(QPen(palette().color(QPalette::Window).darker(160), border));
 	painter2.setBrush(palette().color(QPalette::Window));
@@ -361,10 +362,11 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 	show();
 }
 
-void BalloonTip::paintEvent(QPaintEvent *)
+void BalloonTip::paintEvent(QPaintEvent *evt)
 {
 	QPainter painter(this);
 	painter.drawPixmap(rect(), pixmap);
+	QWidget::paintEvent(evt);
 }
 
 void BalloonTip::mousePressEvent(QMouseEvent *ev)

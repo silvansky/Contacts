@@ -48,6 +48,7 @@ protected:
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void keyPressEvent(QKeyEvent *AEvent);
 	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
+	void moveEvent(QMoveEvent *);
 	void mousePressEvent(QMouseEvent *);
 protected:
 	void initialize(IPluginManager *APluginManager);

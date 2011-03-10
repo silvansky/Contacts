@@ -303,9 +303,10 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
 			p.setY(p.y() - ui.lnePassword->height() / 2);
-			BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), tr("Caps Lock is ON"),
-				tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
-				p, 0, true, BalloonTip::ArrowRight);
+			if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+				BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), tr("Caps Lock is ON"),
+					tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
+					p, 0, true, BalloonTip::ArrowRight);
 		}
 	}
 	else if (AEvent->type() == QEvent::FocusOut)
@@ -368,8 +369,19 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 				view->setCurrentIndex(index);
 		}
 	}
+	if (AWatched == parentWidget())
+	{
+		if (AEvent->type() == QEvent::Move)
+			BalloonTip::hideBalloon();
+	}
 
 	return QDialog::eventFilter(AWatched, AEvent);
+}
+
+void LoginDialog::moveEvent(QMoveEvent * evt)
+{
+	BalloonTip::hideBalloon();
+	QDialog::moveEvent(evt);
 }
 
 void LoginDialog::mousePressEvent(QMouseEvent * event)
@@ -618,7 +630,8 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	ui.chbShowPassword->setVisible(false);
 	QPoint p = ui.pbtConnect->mapToGlobal(ui.pbtConnect->rect().topLeft());
 	p.setY(p.y() + ui.pbtConnect->height() / 2);
-	BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowRight);
+	if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+		BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowRight);
 }
 
 void LoginDialog::hideXmppStreamError()
@@ -662,7 +675,8 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 		p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().topRight());
 		p.setY(p.y() + ui.lnePassword->height() / 2);
 	}
-	BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft);
+	if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+		BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft);
 }
 
 void LoginDialog::onConnectClicked()
