@@ -96,7 +96,7 @@ protected slots:
 	void onDeleteItemByAction(bool);
 protected slots:
 	void onItemButtonClicked(bool);
-	void onItemButtonActionTriggered(bool);
+	void onItemActionTriggered(bool);
 	void onCurrentWidgetChanged(int AIndex);
 	void onMetaPresenceChanged(const QString &AMetaId);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);

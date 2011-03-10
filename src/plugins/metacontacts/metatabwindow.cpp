@@ -216,7 +216,6 @@ void MetaTabWindow::setCurrentItem(const Jid &AItemJid)
 		if (page != NULL)
 		{
 			ui.stwWidgets->setCurrentWidget(page->instance());
-			ui.tlbToolBar->repaint();
 		}
 	}
 }
@@ -342,7 +341,7 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 		action->setCheckable(true);
 		action->setData(ADR_ITEM_JID,itemJid.pBare());
 		action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onItemButtonActionTriggered(bool)));
+		connect(action,SIGNAL(triggered(bool)),SLOT(onItemActionTriggered(bool)));
 		FItemActions.insert(itemJid,action);
 		updateItemAction(itemJid);
 
@@ -359,29 +358,22 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 		}
 		else
 		{
-			QMenu *menu = button->menu();
+			Menu *menu = qobject_cast<Menu *>(button->menu());
 			if (menu == NULL)
 			{
-				menu = new QMenu(button);
+				menu = new Menu(button);
 				if (FButtonAction.contains(button))
-					menu->addAction(FButtonAction.value(button));
+					menu->addAction(FButtonAction.value(button),AG_DEFAULT,true);
 				button->setMenu(menu);
 				button->setPopupMode(QToolButton::MenuButtonPopup);
 			}
-			menu->addAction(action);
+			menu->addAction(action,AG_DEFAULT,true);
 		}
 		if (descriptor.combine)
 		{
 			FCombinedItems.insertMulti(descriptor.name,itemJid);
 		}
 		FItemButtons.insert(itemJid,button);
-	}
-
-	curItems = curItems + newItems - oldItems;
-	foreach(Jid itemJid, curItems)
-	{
-		updateItemAction(itemJid);
-		updateItemButton(itemJid);
 	}
 
 	foreach(Jid itemJid, oldItems)
@@ -395,10 +387,10 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 		QToolButton *button = FItemButtons.take(itemJid);
 		if (FCombinedItems.contains(descrName))
 		{
-			QMenu *menu = button->menu();
+			Menu *menu = qobject_cast<Menu *>(button->menu());
 			if (menu)
 			{
-				if (menu->actions().count() <= 2)
+				if (menu->groupActions().count() <= 2)
 				{
 					menu->deleteLater();
 					button->setMenu(NULL);
@@ -411,7 +403,11 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 			}
 			if (FButtonAction.value(button) == action)
 			{
-				FButtonAction.remove(button);
+				Jid combinedJid = FCombinedItems.value(descrName);
+				Action *action = FItemActions.value(combinedJid);
+				FButtonAction.insert(button,action);
+				updateItemButton(combinedJid);
+				action->setChecked(true);
 			}
 		}
 		else 
@@ -421,6 +417,13 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 			button->deleteLater();
 		}
 		setItemPage(itemJid,NULL);
+	}
+
+	curItems = curItems + newItems - oldItems;
+	foreach(Jid itemJid, curItems)
+	{
+		updateItemAction(itemJid);
+		updateItemButton(itemJid);
 	}
 }
 
@@ -706,7 +709,7 @@ void MetaTabWindow::onItemButtonClicked(bool)
 		action->trigger();
 }
 
-void MetaTabWindow::onItemButtonActionTriggered(bool)
+void MetaTabWindow::onItemActionTriggered(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
@@ -739,6 +742,7 @@ void MetaTabWindow::onCurrentWidgetChanged(int AIndex)
 
 		emit currentItemChanged(itemJid);
 	}
+	ui.tlbToolBar->repaint();
 }
 
 void MetaTabWindow::onMetaPresenceChanged(const QString &AMetaId)
