@@ -2,6 +2,7 @@
 
 #include <QStyle>
 #include <QPainter>
+#include <QMessageBox>
 #include <QFontMetrics>
 #include <QDesktopServices>
 #include <QContextMenuEvent>
@@ -255,18 +256,8 @@ void MetaTabWindow::initialize(IPluginManager *APluginManager)
 
 Jid MetaTabWindow::firstItemJid() const
 {
-	Jid firtItem;
-	if (FItemButtons.count() == 1)
-	{
-		firtItem = FItemButtons.constBegin().key();
-	}
-	else foreach(QAction *handle, FToolBarChanger->toolBar()->actions())
-	{
-		firtItem = FItemButtons.key(qobject_cast<QToolButton *>(FToolBarChanger->handleWidget(handle)));
-		if (firtItem.isValid())
-			break;
-	}
-	return firtItem;
+	QMap<int, Jid> items = FMetaContacts->itemOrders(FItemButtons.keys());
+	return items.constBegin().value();
 }
 
 void MetaTabWindow::updateWindow()
@@ -324,6 +315,7 @@ void MetaTabWindow::updateItemButton(const Jid &AItemJid)
 		
 		Action *action = FButtonAction.value(button);
 		button->setText(action ? action->text() : FMetaContacts->itemHint(AItemJid));
+		button->setToolTip(button->text());
 	}
 }
 
@@ -354,7 +346,7 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 			button->setToolButtonStyle(FToolBarChanger->toolBar()->toolButtonStyle());
 			connect(button,SIGNAL(clicked(bool)),SLOT(onItemButtonClicked(bool)));
 			FToolBarChanger->insertWidget(button,descriptor.pageOrder);
-			FButtonAction.insert(button,action);
+			setButtonAction(button,action);
 		}
 		else
 		{
@@ -404,16 +396,14 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 			if (FButtonAction.value(button) == action)
 			{
 				Jid combinedJid = FCombinedItems.value(descrName);
-				Action *action = FItemActions.value(combinedJid);
-				FButtonAction.insert(button,action);
+				setButtonAction(button,FItemActions.value(combinedJid));
 				updateItemButton(combinedJid);
-				action->setChecked(true);
 			}
 		}
 		else 
 		{
 			FToolBarChanger->removeItem(FToolBarChanger->widgetHandle(button));
-			FButtonAction.remove(button);
+			setButtonAction(button,NULL);
 			button->deleteLater();
 		}
 		setItemPage(itemJid,NULL);
@@ -424,6 +414,24 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 	{
 		updateItemAction(itemJid);
 		updateItemButton(itemJid);
+	}
+}
+
+void MetaTabWindow::setButtonAction(QToolButton *AButton, Action *AAction)
+{
+	Action *oldAction = FButtonAction.value(AButton);
+	if (oldAction)
+	{
+		oldAction->setChecked(false);
+	}
+	if (AAction)
+	{
+		AAction->setChecked(true);
+		FButtonAction.insert(AButton,AAction);
+	}
+	else
+	{
+		FButtonAction.remove(AButton);
 	}
 }
 
@@ -698,15 +706,22 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		FMetaRoster->deleteContactItem(FMetaId,action->data(ADR_ITEM_JID).toString());
+		Jid itemJid = action->data(ADR_ITEM_JID).toString();
+		QString message = tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(FMetaContacts->itemHint(itemJid));
+		if (QMessageBox::question(NULL,tr("Remove contact"),message,QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+			FMetaRoster->deleteContactItem(FMetaId,action->data(ADR_ITEM_JID).toString());
 	}
 }
 
 void MetaTabWindow::onItemButtonClicked(bool)
 {
-	Action *action = FButtonAction.value(qobject_cast<QToolButton *>(sender()));
-	if (action)
+	QToolButton *button = qobject_cast<QToolButton *>(sender());
+	Action *action = FButtonAction.value(button);
+	if (button && action)
+	{
 		action->trigger();
+		button->setChecked(true);
+	}
 }
 
 void MetaTabWindow::onItemActionTriggered(bool)
@@ -725,20 +740,10 @@ void MetaTabWindow::onCurrentWidgetChanged(int AIndex)
 	if (page)
 	{
 		Jid itemJid = FItemTabPages.key(page);
-		
 		QToolButton *button = FItemButtons.value(itemJid);
-		button->setChecked(true);
-		
-		Action *oldAction = FButtonAction.value(button);
-		if (oldAction)
-			oldAction->setChecked(false);
-
-		Action *newAction = FItemActions.value(itemJid);
-		if (newAction)
-			newAction->setChecked(true);
-
-		FButtonAction.insert(button,newAction);
+		setButtonAction(button,FItemActions.value(itemJid));
 		updateItemButton(itemJid);
+		button->setChecked(true);
 
 		emit currentItemChanged(itemJid);
 	}

@@ -70,6 +70,7 @@ protected:
 	void updateItemAction(const Jid &AItemJid);
 	void updateItemButton(const Jid &AItemJid);
 	void updateItemButtons(const QSet<Jid> &AItems);
+	void setButtonAction(QToolButton *AButton, Action *AAction);
 	int itemNotifyCount(const Jid &AItemJid, bool ACombined) const;
 	QIcon insertNotifyBalloon(const QIcon &AIcon, int ACount) const;
 	void removeTabPageNotifies();

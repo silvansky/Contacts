@@ -197,5 +197,13 @@
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
+    <message>
+        <source>You are assured that wish to remove a contact &lt;b&gt;%1&lt;/b&gt; from roster?</source>
+        <translation>Вы уверены, что хотите удалить контакт &lt;b&gt;%1&lt;/b&gt; из контакт-листа?</translation>
+    </message>
+    <message>
+        <source>Remove contact</source>
+        <translation>Удалить контакт</translation>
+    </message>
 </context>
 </TS>
