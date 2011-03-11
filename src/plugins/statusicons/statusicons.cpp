@@ -119,8 +119,8 @@ bool StatusIcons::initSettings()
 
 	if (FOptionsManager)
 	{
-//		IOptionsDialogNode dnode = { ONO_STATUSICONS, OPN_STATUSICONS, tr("Status icons"),tr("Configure status icons"), MNI_STATUSICONS_OPTIONS };
-//		FOptionsManager->insertOptionsDialogNode(dnode);
+		//		IOptionsDialogNode dnode = { ONO_STATUSICONS, OPN_STATUSICONS, tr("Status icons"),tr("Configure status icons"), MNI_STATUSICONS_OPTIONS };
+		//		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
@@ -144,18 +144,18 @@ int StatusIcons::rosterDataOrder() const
 QList<int> StatusIcons::rosterDataRoles() const
 {
 	static QList<int> dataRoles = QList<int>()
-				      << Qt::DecorationRole;
+			<< Qt::DecorationRole;
 	return dataRoles;
 }
 
 QList<int> StatusIcons::rosterDataTypes() const
 {
 	static QList<int> indexTypes = QList<int>()
-				       << RIT_STREAM_ROOT
-				       << RIT_CONTACT
-				       << RIT_AGENT
-				       << RIT_MY_RESOURCE
-						 << RIT_METACONTACT;
+			<< RIT_STREAM_ROOT
+			<< RIT_CONTACT
+			<< RIT_AGENT
+			<< RIT_MY_RESOURCE
+			<< RIT_METACONTACT;
 	return indexTypes;
 }
 
@@ -430,11 +430,11 @@ void StatusIcons::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIn
 {
 	Q_UNUSED(AIndex); Q_UNUSED(AMenu); Q_UNUSED(ASelected);
 	/*if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
-	{
-		updateCustomIconMenu(QRegExp::escape(AIndex->data(RDR_BARE_JID).toString()));
-		FCustomIconMenu->setIcon(iconByJidStatus(AIndex->data(RDR_JID).toString(),IPresence::Online,SUBSCRIPTION_BOTH,false));
-		AMenu->addAction(FCustomIconMenu->menuAction(),AG_RVCM_STATUSICONS,true);
-	}*/
+ {
+  updateCustomIconMenu(QRegExp::escape(AIndex->data(RDR_BARE_JID).toString()));
+  FCustomIconMenu->setIcon(iconByJidStatus(AIndex->data(RDR_JID).toString(),IPresence::Online,SUBSCRIPTION_BOTH,false));
+  AMenu->addAction(FCustomIconMenu->menuAction(),AG_RVCM_STATUSICONS,true);
+ }*/
 }
 
 void StatusIcons::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu)

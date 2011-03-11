@@ -214,6 +214,10 @@ StyleViewer
 
 QToolBar#tlbToolBar QToolButton
 {
+	min-height: 28px;
+	min-width: 28px;
+	max-height: 28px;
+	max-width: 28px;
 	height: 28px;
 	width: 28px;
 	padding: 0px;

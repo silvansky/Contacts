@@ -441,7 +441,7 @@ QStyleOptionViewItemV4 RosterIndexDelegate::indexOptions(const QModelIndex &AInd
 	data = AIndex.data(Qt::ForegroundRole);
 	if (qVariantCanConvert<QBrush>(data))
 		option.palette.setBrush(QPalette::Text, qvariant_cast<QBrush>(data));
-	
+
 	data = AIndex.data(RDR_SHOW);
 	int show = data.toInt();
 	if (show == IPresence::Offline || show == IPresence::Error)
@@ -580,10 +580,10 @@ QString RosterIndexDelegate::prepareText(const QString &AText) const
 
 QIcon::Mode RosterIndexDelegate::getIconMode(QStyle::State AState) const
 {
-	if (!(AState & QStyle::State_Enabled))
-		return QIcon::Disabled;
-	if (AState & QStyle::State_Selected)
-		return QIcon::Selected;
+//	if (!(AState & QStyle::State_Enabled))
+//		return QIcon::Disabled;
+//	if (AState & QStyle::State_Selected)
+//		return QIcon::Selected;
 	return QIcon::Normal;
 }
 
