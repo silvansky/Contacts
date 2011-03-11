@@ -122,7 +122,7 @@ bool MessageWidgets::initSettings()
 	{
 		FOptionsManager->insertServerOption(OPV_MESSAGES_EDITORSENDKEY);
 
-		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), MNI_CHAT_MHANDLER_MESSAGE };
+		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), MNI_CHAT_MHANDLER_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}

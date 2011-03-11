@@ -5,6 +5,7 @@
 #define MNI_ACCOUNT                              "account"
 #define MNI_ACCOUNT_LIST                         "accountList"
 #define MNI_ACCOUNT_CHANGE                       "accountChange"
+#define MNI_ACCOUNT_OPTIONS                      "accountsOptions"
 
 //Annotations
 #define MNI_ANNOTATIONS                          "annotations"
@@ -56,6 +57,7 @@
 
 //ConnectionManager
 #define MNI_CONNECTION                           "connection"
+#define MNI_CONNECTION_OPTIONS                   "connectionOptions"
 #define MNI_CONNECTION_ENCRYPTED                 "connectionEncrypted"
 
 //Console
@@ -64,6 +66,7 @@
 //ChatMessageHandler
 #define MNI_CHAT_MHANDLER_MESSAGE                "chatmessagehandlerMessage"
 #define MNI_CHAT_MHANDLER_USER_MENU              "chatmessagehandlerUserMenu"
+#define MNI_CHAT_MHANDLER_OPTIONS                "chatmessagehandlerOptions"
 
 //DataStreamsManager
 #define MNI_DATASTREAMSMANAGER                   "dataStreamsManager"
@@ -205,6 +208,7 @@
 #define MNI_NOTIFICATIONS_SOUND_ON               "notificationsSoundOn"
 #define MNI_NOTIFICATIONS_SOUND_OFF              "notificationsSoundOff"
 #define MNI_NOTIFICATIONS_POPUP_OPTIONS          "notificationsPopupOptions"
+#define MNI_NOTIFICATIONS_OPTIONS                "notificationsOptions"
 
 //OptionsManager
 #define MNI_OPTIONS_DIALOG                       "optionsDialog"

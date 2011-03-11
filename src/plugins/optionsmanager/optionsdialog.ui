@@ -38,6 +38,12 @@
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>18</width>
+        <height>18</height>
+       </size>
+      </property>
       <property name="indentation">
        <number>0</number>
       </property>
@@ -72,7 +78,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>452</width>
+            <width>447</width>
             <height>581</height>
            </rect>
           </property>

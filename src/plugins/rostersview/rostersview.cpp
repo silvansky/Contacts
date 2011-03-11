@@ -1,6 +1,5 @@
 #include "rostersview.h"
 
-#include <QDebug>
 #include <QCursor>
 #include <QToolTip>
 #include <QPainter>
@@ -1426,6 +1425,7 @@ void RostersView::onScrollBarRangeChanged(int min, int max)
 
 void RostersView::onRepaintNeeded()
 {
+	// TODO: some optimization (repaint only dirty regions, not the whole view)
 	QWidget * p = parentWidget();
 	while (p && !p->isWindow())
 		p = p->parentWidget();

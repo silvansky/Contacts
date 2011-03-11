@@ -8,4 +8,8 @@
     <key>connection</key>
     <object mime="image/png">connection.png</object>
   </icon>
+  <icon>
+    <key>connectionOptions</key>
+    <object mime="image/png">connectionoptions.png</object>
+  </icon>
 </icondef>

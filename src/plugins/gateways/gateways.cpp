@@ -1100,7 +1100,7 @@ void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
 	if (FOptionsManager)
 	{
 		FOptionsStreamJid = AXmppStream->streamJid();
-		IOptionsDialogNode dnode = { ONO_GATEWAYS_ACCOUNTS, OPN_GATEWAYS_ACCOUNTS, tr("Accounts"), MNI_GATEWAYS_ACCOUNTS };
+		IOptionsDialogNode dnode = { ONO_GATEWAYS_ACCOUNTS, OPN_GATEWAYS_ACCOUNTS, tr("Accounts"), MNI_ACCOUNT_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 	}
 	if (FDiscovery)

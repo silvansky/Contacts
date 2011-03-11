@@ -49,7 +49,7 @@ bool ConnectionManager::initConnections(IPluginManager *APluginManager, int &/*A
 		{
 			connect(FAccountManager->instance(),SIGNAL(shown(IAccount *)),SLOT(onAccountShown(IAccount *)));
 			connect(FAccountManager->instance(),SIGNAL(changed(IAccount *, const OptionsNode &)),
-			        SLOT(onAccountOptionsChanged(IAccount *, const OptionsNode &)));
+				SLOT(onAccountOptionsChanged(IAccount *, const OptionsNode &)));
 		}
 	}
 
@@ -103,7 +103,7 @@ bool ConnectionManager::initSettings()
 {
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_CONNECTION, OPN_CONNECTION, tr("Connection"), MNI_CONNECTION };
+		IOptionsDialogNode dnode = { ONO_CONNECTION, OPN_CONNECTION, tr("Connection"), MNI_CONNECTION_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}

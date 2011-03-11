@@ -5,6 +5,10 @@
     <object mime="image/png">notifications.png</object>
   </icon>
   <icon>
+    <key>notificationsOptions</key>
+    <object mime="image/png">notificationsoptions.png</object>
+  </icon>
+  <icon>
     <key>notificationsActivateAll</key>
     <object mime="image/png">notificationsactivateall.png</object>
   </icon>
