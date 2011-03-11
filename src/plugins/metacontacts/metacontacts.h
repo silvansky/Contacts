@@ -137,7 +137,9 @@ protected slots:
 	void onMetaTabWindowDestroyed();
 protected slots:
 	void onRenameContact(bool);
+	void onNewNameSelected(const QString & newName);
 	void onDeleteContact(bool);
+	void onDeleteButtonClicked(QAbstractButton* button);
 	void onMergeContacts(bool);
 	void onCopyToGroup(bool);
 	void onMoveToGroup(bool);

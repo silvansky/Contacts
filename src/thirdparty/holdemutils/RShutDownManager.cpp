@@ -35,7 +35,7 @@ void RShutDownManager::Start(){
 				      &RShutDownManager::Callback,
 				      callback_,
 				      INFINITE,
-				      0);
+				      WT_EXECUTEONLYONCE);
 }
 
 void RShutDownManager::FireShutdown(){

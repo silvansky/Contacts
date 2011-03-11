@@ -119,8 +119,8 @@ void SimpleVCardDialog::on_renameButton_clicked()
 	QInputDialog * dialog = new QInputDialog;
 	dialog->setStyleSheet(styleSheet());
 	dialog->setTextValue(oldName);
-	dialog->setWindowTitle(tr("Contact name"));
-	dialog->setLabelText(tr("Enter name for contact"));
+	dialog->setWindowTitle(tr("Rename contact"));
+	dialog->setLabelText(tr("<font size=+2>Rename contact</font><br>Enter new name"));
 	connect(dialog, SIGNAL(textValueSelected(const QString&)), SLOT(onNewNameSelected(const QString&)));
 	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 	if (border)

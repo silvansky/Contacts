@@ -8,6 +8,10 @@
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
+
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_META_ID         Action::DR_Parametr1
 #define ADR_NAME            Action::DR_Parametr2
@@ -909,9 +913,52 @@ void MetaContacts::onRenameContact(bool)
 		{
 			QString metaId = action->data(ADR_META_ID).toString();
 			QString oldName = action->data(ADR_NAME).toString();
-			bool ok = false;
-			QString newName = QInputDialog::getText(NULL,tr("Contact name"),tr("Enter name for contact"), QLineEdit::Normal, oldName, &ok);
-			if (ok && !newName.isEmpty() && newName != oldName)
+			QInputDialog * dialog = new QInputDialog;
+			dialog->setTextValue(oldName);
+			dialog->setWindowTitle(tr("Rename contact"));
+			dialog->setLabelText(tr("<font size=+2>Rename contact</font><br>Enter new name"));
+			dialog->setProperty("oldName", oldName);
+			dialog->setProperty("metaId", metaId);
+			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
+			connect(dialog, SIGNAL(textValueSelected(const QString&)), SLOT(onNewNameSelected(const QString&)));
+			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+			if (border)
+			{
+				border->setMinimizeButtonVisible(false);
+				border->setMaximizeButtonVisible(false);
+				border->setResizable(false);
+				border->setWindowModality(Qt::ApplicationModal);
+				border->setAttribute(Qt::WA_DeleteOnClose, true);
+				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
+				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
+				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+				//border->setFixedSize(252 + border->leftBorderWidth() + border->rightBorderWidth(), 149 + border->topBorderWidth() + border->bottomBorderWidth());
+				border->show();
+				//border->layout()->update();
+				border->adjustSize();
+				dialog->adjustSize();
+			}
+			else
+			{
+				dialog->setWindowModality(Qt::ApplicationModal);
+				dialog->show();
+			}
+		}
+	}
+}
+
+void MetaContacts::onNewNameSelected(const QString & newName)
+{
+	QInputDialog * dialog = qobject_cast<QInputDialog *>(sender());
+	if (dialog)
+	{
+		QString metaId = dialog->property("metaId").toString();
+		QString oldName = dialog->property("oldName").toString();
+		QString streamJid = dialog->property("streamJid").toString();
+		IMetaRoster *mroster = findMetaRoster(streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			if (!newName.isEmpty() && (oldName != newName))
 				mroster->renameContact(metaId, newName);
 		}
 	}
@@ -925,23 +972,68 @@ void MetaContacts::onDeleteContact(bool)
 		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
 		{
-			QList<QString> metaIdList;
+			QStringList metaIdList;
 			metaIdList.append(action->data(ADR_META_ID).toString());
 			foreach(QVariant metaId, action->data(ADR_META_ID_LIST).toList())
 				metaIdList.append(metaId.toString());
 
-			QString message;
+			QString message, title;
 			if (metaIdList.count() < 2)
 			{
 				IMetaContact contact = mroster->metaContact(metaIdList.value(0));
-				message = tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(metaContactName(contact));
+				message = tr("You are assured that wish to remove a contact <b>%1</b>?").arg(Qt::escape(metaContactName(contact)));
+				title = tr("Remove");
 			}
 			else
 			{
-				message = tr("You are assured that wish to remove %n contact(s) from roster?","",metaIdList.count());
+				message = tr("You are assured that wish to remove %n contact(s)?","",metaIdList.count());
+				title = tr("Remove %n contact(s)","",metaIdList.count());
 			}
 
-			if (QMessageBox::question(NULL,tr("Remove %n contact(s)","",metaIdList.count()),message,QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+			QMessageBox * dialog = new QMessageBox;
+			dialog->setWindowTitle(title);
+			dialog->setText(tr("<font size=+2>%1</font><br>%2").arg(title, message));
+			dialog->setProperty("metaIdList", metaIdList);
+			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
+			dialog->addButton(tr("Remove"), QMessageBox::AcceptRole);
+			dialog->addButton(tr("Cancel"), QMessageBox::RejectRole);
+			connect(dialog, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(onDeleteButtonClicked(QAbstractButton*)));
+			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+			if (border)
+			{
+				border->setMinimizeButtonVisible(false);
+				border->setMaximizeButtonVisible(false);
+				border->setResizable(false);
+				border->setWindowModality(Qt::ApplicationModal);
+				border->setAttribute(Qt::WA_DeleteOnClose, true);
+				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
+				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
+				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+				//border->setFixedSize(252 + border->leftBorderWidth() + border->rightBorderWidth(), 127 + border->topBorderWidth() + border->bottomBorderWidth());
+				border->show();
+				//border->layout()->update();
+				border->adjustSize();
+				dialog->adjustSize();
+			}
+			else
+			{
+				dialog->setWindowModality(Qt::ApplicationModal);
+				dialog->show();
+			}
+		}
+	}
+}
+
+void MetaContacts::onDeleteButtonClicked(QAbstractButton *button)
+{
+	QMessageBox * dialog = qobject_cast<QMessageBox*>(sender());
+	if (dialog)
+	{
+		if (dialog->buttonRole(button) == QMessageBox::AcceptRole)
+		{
+			QStringList metaIdList = dialog->property("metaIdList").toStringList();
+			IMetaRoster *mroster = findMetaRoster(dialog->property("streamJid").toString());
+			if (mroster && mroster->isOpen())
 			{
 				foreach(QString metaId, metaIdList)
 					mroster->deleteContact(metaId);
