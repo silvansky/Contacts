@@ -28,6 +28,7 @@ SipPhone::SipPhone()
 
 	FSipPhoneProxy = NULL;
 	
+	connect(this, SIGNAL(streamStateChanged(const QString&, int)), this, SLOT(onStreamStateChanged(const QString&, int)));
 }
 
 SipPhone::~SipPhone()
@@ -142,7 +143,7 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	SipProtoInit::SetListenSipPort(5060);
 	SipProtoInit::SetProxySipPort(5060);
 
-	return FStanzaProcessor!=NULL;
+return FStanzaProcessor!=NULL;
 }
 
 bool SipPhone::initObjects()
@@ -172,12 +173,26 @@ bool SipPhone::initObjects()
 		FNotifications->insertNotificator(NID_SIPPHONE_CALL,OWO_NOTIFICATIONS_SIPPHONE,QString::null,kindMask,kindDefs);
 	}
 
+
 	return true;
 }
 
 
 void SipPhone::onStreamOpened(IXmppStream * AXmppStream)
 {
+	//	SipUri uri2;//("sip:spendtime@rambler.ru");
+	//	SipUri *puri2 = new SipUri();
+	////QString test1 = uri1.nameAddr_noTag();
+	////QString test1 = uri1.uri();
+	////QString test2 = uri2.proxyUri();
+	//QString test2 = puri2->proxyUri();
+	//return;
+
+	//SipUri uri1;//("sip:spendtime@rambler.ru");
+	//QString test1 = uri1.nameAddr_noTag();
+	//return;
+
+
 QString hostAddress;
 	IDefaultConnection *defConnection = qobject_cast<IDefaultConnection *>(AXmppStream->connection()->instance());
 	if (defConnection)
@@ -187,7 +202,7 @@ QString hostAddress;
 
 	//QMessageBox::information(NULL, "debug", hostAddress);
 
-	userJid = AXmppStream->streamJid();
+ 	userJid = AXmppStream->streamJid();
 	//sipUri = userJid.pNode() + "@sip." + userJid.pDomain();
 	sipUri = userJid.pNode() + "@" + userJid.pDomain();
 	username = userJid.pNode();
@@ -231,7 +246,8 @@ QString hostAddress;
 		connect(FSipPhoneProxy, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
 	}
 	connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(sipClearRegistration(const QString&)));
-	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
+<<<<<<< .mine	//connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(tabControlRemove(const QString&)));
+=======>>>>>>> .theirs	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
 	
 	
 }
@@ -257,11 +273,11 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 			IMetaContact iMetaContact = iMetaRoster->metaContact(metaid);
 			if(iMetaContact.items.size() > 0)
 				contactJid = iMetaContact.items.values().at(0); // ???????
-		
 		}
 		callAction->setData(ADR_STREAM_JID, streamJid.full());
 		callAction->setData(ADR_CONTACT_JID, contactJid.full());
 		callAction->setData(ADR_METAID_WINDOW, metaid);
+		callAction->setCheckable(true);
 		
 		connect(callAction, SIGNAL(triggered(bool)), SLOT(onToolBarActionTriggered(bool)));
 		tbChanger->insertAction(callAction, TBG_MCMTW_P2P_CALL);
@@ -277,48 +293,71 @@ void SipPhone::onToolBarActionTriggered(bool status)
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
 		QString metaId = action->data(ADR_METAID_WINDOW).toString();
 
-		//IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
-		//IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
-
-		//if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
-		//{
-		//	IMetaContact metaContact = metaRoster->metaContact(metaId);
-		//	if(metaContact.items.size() > 0)
-		//	{
-		//		foreach(Jid contactJid, metaContact.items)
-		//		{
-		//			QList<IPresenceItem> pItems = presence->presenceItems(contactJid);
-
-		//			if(pItems.size() > 0)
-		//			{
-		//				foreach(IPresenceItem pItem, pItems)
-		//				{
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
-
-		if(true)//if(isSupported(streamJid, contactJid))
+		if(status)
 		{
-			IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(streamJid, metaId);
-			if(iMetaTabWindow != NULL)
+			if(isSupported(streamJid, metaId))// contactJid))
 			{
+				Jid contactJidFull = getContactWithPresence(streamJid, metaId);
+				if(contactJidFull.isValid() && !contactJidFull.isEmpty() && FStreams.isEmpty())
+				{
+					//QMessageBox::information(NULL, contactJidFull.full(), "Call");
+					QString sid = openStream(streamJid, contactJidFull);
 
-				Jid cItem = iMetaTabWindow->currentItem();
+					if(!FCallControls.contains(metaId))
+					{
+						IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(streamJid, metaId);
+						if(iMetaTabWindow != NULL)
+						{
+							//Jid cItem = iMetaTabWindow->currentItem();
+							RCallControl* pCallControl = new RCallControl(sid, RCallControl::Caller, iMetaTabWindow->instance());
+							pCallControl->setStreamJid(streamJid);
+							pCallControl->setMetaId(metaId);
+							pCallControl->callStatusChanged(RCallControl::Ringing);
+							//connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+							connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
+							//connect(pCallControl, SIGNAL(hangupCall()), SLOT(onHangupCallTest()));
+							connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+							connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
+							connect(pCallControl, SIGNAL(closeAndDelete(bool)), action, SLOT(setChecked(bool)));
 
-				RCallControl* pCallControl = new RCallControl(RCallControl::Caller, iMetaTabWindow->instance());
-				connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+							connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
+							connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
+							
 
-				iMetaTabWindow->insertTopWidget(0, pCallControl);
-				FCallControls.insert(metaId, pCallControl);
+							iMetaTabWindow->insertTopWidget(0, pCallControl);
+							FCallControls.insert(metaId, pCallControl);
+						}
+					}
+					else
+					{
+						RCallControl* pCallControl = FCallControls[metaId];
+						if(pCallControl)
+						{
+							pCallControl->callStatusChanged(RCallControl::Ringing);
+						}
+					}
+
+				}
 			}
-			openStream(streamJid, contactJid);
+			else
+			{
+				QMessageBox::information(NULL, "onToolBarActionTriggered", "Calls NOT supported");
+			}
 		}
-		else
+		else // status == false
 		{
-			QMessageBox::information(NULL, "onToolBarActionTriggered", "Calls NOT supported");
+			if(FCallControls.contains(metaId))
+			{
+				RCallControl* pCallControl = FCallControls[metaId];
+				IMetaTabWindow* iMetaTabWindow = qobject_cast<IMetaTabWindow*>(pCallControl->parentWidget());
+				if(iMetaTabWindow)
+					iMetaTabWindow->removeTopWidget(pCallControl);
+				FCallControls.remove(metaId);
+				delete pCallControl;
+				pCallControl = NULL;
+			}
 		}
+
 	}
 }
 
@@ -355,7 +394,6 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 			}
 			else
 			{
-				FMessageProcessor->createWindow(AStreamJid, AStanza.from(),Message::Chat,IMessageHandler::SM_SHOW);
 				//Здесь все проверки пройдены, заводим сессию и уведомляем пользователя о входящем звонке
 				ISipStream stream;
 				stream.sid = sid;
@@ -366,6 +404,8 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 				FStreams.insert(sid,stream);
 				FPendingRequests.insert(sid,AStanza.id());
 				insertNotify(stream);
+				// И окно чата отображаем и панель управления
+				showCallControlTab(sid);
 				emit streamCreated(sid);
 			}
 		}
@@ -401,13 +441,18 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				int indexSlash = uri.indexOf("/");
 				uri = uri.left(indexSlash);
 				//QMessageBox::information(NULL, "", uri);
+				
+				// !!!!!!! ВНИМАНИЕ ВКЛЮЧИТЬ !!!!!!!
 				emit sipSendInvite(uri);
 				// 2) Получение акцепта на запрос INVITE
 				// 3) Установка соединения
+				ISipStream& stream = FStreams[sid];
+				stream.state = ISipStream::SS_OPENED;
+				emit streamStateChanged(sid, stream.state);
 			}
-			else
+			else // Пользователь отказался принимать звонок
 			{
-				// Пользователь отказался принимать звонок
+				
 				removeStream(sid);
 				// Здесь нужно выполнить отмену регистрации SIP
 				//emit sipSendUnRegister();
@@ -558,35 +603,163 @@ QString SipPhone::findStream(const Jid &AStreamJid, const Jid &AContactJid) cons
 	return QString::null;
 }
 
+// Отмена звонка пользователем инициатором
+void SipPhone::onAbortCall()
+{
+	RCallControl *pCallControl = qobject_cast<RCallControl *>(sender());
+	if (pCallControl)
+	{
+		QString streamId = pCallControl->getSessionID();
+		closeStream(streamId);
+	}
+
+#pragma message("SipPhone::onAbortCall() not implemented")
+}
+
+void SipPhone::onRedialCall()
+{
+	RCallControl *pCallControl = qobject_cast<RCallControl *>(sender());
+	if(pCallControl)
+	{
+		Jid contactJidFull = getContactWithPresence(pCallControl->getStreamJid(), pCallControl->getMetaId());
+		if(contactJidFull.isValid() && !contactJidFull.isEmpty())
+		{
+			pCallControl->callStatusChanged(RCallControl::Ringing);
+			QString sid = openStream(pCallControl->getStreamJid(), contactJidFull);
+			pCallControl->setSessionId(sid);
+		}
+	}
+}
+
+void SipPhone::onHangupCallTest()
+{
+	sipCallDeletedSlot(true);
+}
+
+void SipPhone::onStreamStateChanged(const QString& sid, int state)
+{
+	QString dString = "SipPhone::onStreamStateChanged " + sid + " state: " + QString::number(state);
+	qDebug(dString.toAscii());
+
+	if(!FStreams.contains(sid))
+		return;
+
+	ISipStream stream = FStreams.value(sid);
+	QString metaId = findMetaId(stream.streamJid, stream.contactJid);
+
+	if(metaId.isEmpty())
+		return;
+
+	if(!FCallControls.contains(metaId))
+		return;
+
+	RCallControl* pCallControl = FCallControls.value(metaId);
+	if(pCallControl == NULL)
+		return;
+
+	if(pCallControl->side() == RCallControl::Caller)
+	{
+		if(state == ISipStream::SS_OPENED)
+		{
+			pCallControl->callStatusChanged(RCallControl::Accepted);
+		}
+		else if(state == ISipStream::SS_CLOSE) // Хотим повесить трубку
+		{
+			IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(stream.streamJid, metaId);
+			if(iMetaTabWindow != NULL)
+			{
+				iMetaTabWindow->removeTopWidget(pCallControl);
+			}
+			FCallControls.remove(metaId);
+			delete pCallControl;
+			pCallControl = NULL;
+		}
+		else if(state == ISipStream::SS_CLOSED) // Удаленный пользователь повесил трубку
+		{
+			if(pCallControl->status() == RCallControl::Ringing)
+			{
+				// Говорим что пользователь не захотел брать трубку. Дальнейшие действия:
+				pCallControl->callStatusChanged(RCallControl::Hangup);
+			}
+			else // Удаленный пользователь повесил трубку. Нам тоже надо.
+			{
+				IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(stream.streamJid, metaId);
+				if(iMetaTabWindow != NULL)
+				{
+					iMetaTabWindow->removeTopWidget(pCallControl);
+				}
+				FCallControls.remove(metaId);
+				delete pCallControl;
+				pCallControl = NULL;
+			}
+		}
+
+	}
+	else if(pCallControl->side() == RCallControl::Receiver)
+	{
+		if(state == ISipStream::SS_OPENED)
+		{
+			pCallControl->callStatusChanged(RCallControl::Accepted);
+		}
+		else if(state == ISipStream::SS_CLOSE || state == ISipStream::SS_CLOSED)
+		{
+			IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(stream.streamJid, metaId);
+			if(iMetaTabWindow != NULL)
+			{
+				iMetaTabWindow->removeTopWidget(pCallControl);
+			}
+			FCallControls.remove(metaId);
+			delete pCallControl;
+			pCallControl = NULL;
+		}
+		else if(state == ISipStream::SS_CLOSED)
+		{
+
+		}
+
+	}
+
+}
+
+void SipPhone::onAcceptStreamByCallControl()
+{
+	RCallControl *pCallControl = qobject_cast<RCallControl *>(sender());
+	if(pCallControl)
+	{
+		QString sid = pCallControl->getSessionID();
+		acceptStream(sid);
+	}
+}
+
 QString SipPhone::openStream(const Jid &AStreamJid, const Jid &AContactJid)
 {
+	// Тестовый вариант установки соединения
+	//////////////Stanza open("iq");
+	//////////////open.setType("set").setId(FStanzaProcessor->newId()).setTo(AContactJid.eFull());
+	//////////////QDomElement openElem = open.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(open.createElement("open")).toElement();
+	//////////////
+	//////////////QString sid = QUuid::createUuid().toString();
+	//////////////openElem.setAttribute("sid",sid);
+	//////////////// Здесь добавляем нужные параметры для установки соединения в элемент open
+	//////////////
+	//////////////if (FStanzaProcessor->sendStanzaRequest(this, AStreamJid, open, REQUEST_TIMEOUT))
+	//////////////{
+	//////////////	ISipStream stream;
+	//////////////	stream.sid = sid;
+	//////////////	stream.streamJid = AStreamJid;
+	//////////////	stream.contactJid = AContactJid;
+	//////////////	stream.kind = ISipStream::SK_INITIATOR;
+	//////////////	stream.state = ISipStream::SS_OPEN;
+	//////////////	FStreams.insert(sid,stream);
+	//////////////	FOpenRequests.insert(open.id(),sid);
+	//////////////	emit streamCreated(sid);
+	//////////////	return sid;
+	//////////////}
 
-	//Stanza open("iq");
-	//open.setType("set").setId(FStanzaProcessor->newId()).setTo(AContactJid.eFull());
-	//QDomElement openElem = open.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(open.createElement("open")).toElement();
-	//
-	//QString sid = QUuid::createUuid().toString();
-	//openElem.setAttribute("sid",sid);
-	//// Здесь добавляем нужные параметры для установки соединения в элемент open
-	//
-	//if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,open,REQUEST_TIMEOUT))
-	//{
-	//	ISipStream stream;
-	//	stream.sid = sid;
-	//	stream.streamJid = AStreamJid;
-	//	stream.contactJid = AContactJid;
-	//	stream.kind = ISipStream::SK_INITIATOR;
-	//	stream.state = ISipStream::SS_OPEN;
-	//	FStreams.insert(sid,stream);
-	//	FOpenRequests.insert(open.id(),sid);
-	//	emit streamCreated(sid);
-	//	return sid;
-	//}
 
-
-
-	//if (FStanzaProcessor && isSupported(AStreamJid,AContactJid))
-	if (FStanzaProcessor)// && isSupported(AStreamJid,AContactJid))
+	// ПОДКЛЮЧЕНИЕ SIP
+	//if (FStanzaProcessor)// && isSupported(AStreamJid,AContactJid))
+	if (FStanzaProcessor && isSupported(AStreamJid, AContactJid))
 	{
 		connect(this, SIGNAL(sipSendRegisterAsInitiator(const Jid&,const Jid&)),
 						FSipPhoneProxy, SLOT(makeRegisterProxySlot(const Jid&, const Jid&)));
@@ -655,7 +828,7 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, c
 	else
 	{
 		//QMessageBox::information(NULL, "debug", "sipActionAfterRegistrationAsInitiator:: false");
-		QMessageBox::information(NULL, "SIP Reistration", "SIP registration failed.");
+		QMessageBox::information(NULL, "SIP Reistration failed", "SIP registration failed.");
 		// НОТИФИКАЦИЯ О НЕУДАЧНОЙ РЕГИСТРАЦИИ
 	}
 }
@@ -670,6 +843,7 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, c
 // Responder part
 bool SipPhone::acceptStream(const QString &AStreamId)
 {
+	// Тестовый вариант установки соединения
 	//////////////ISipStream &stream = FStreams[AStreamId];
 
 	//////////////Stanza opened("iq");
@@ -686,6 +860,7 @@ bool SipPhone::acceptStream(const QString &AStreamId)
 	//////////////	return true;
 	//////////////}
 
+	// ПОДКЛЮЧЕНИЕ SIP
 	if (FStanzaProcessor && FPendingRequests.contains(AStreamId))
 	{
 		connect(this, SIGNAL(sipSendRegisterAsResponder(const QString&)),
@@ -803,6 +978,63 @@ void SipPhone::closeStream(const QString &AStreamId)
 	}
 }
 
+
+QString SipPhone::findMetaId(const Jid& AStreamJid, const Jid& AContactJid) const
+{
+	IMetaRoster* iMetaRoster = FMetaContacts->findMetaRoster(AStreamJid);
+	if(iMetaRoster == NULL || !iMetaRoster->isOpen())
+		return QString();
+	return iMetaRoster->itemMetaContact(AContactJid);
+}
+
+
+void SipPhone::showCallControlTab(const QString& sid/*const ISipStream &AStream*/)
+{
+	if(!FStreams.contains(sid))
+		return;
+
+	ISipStream& stream = FStreams[sid];
+
+	if(!FMessageProcessor->createWindow(stream.streamJid, stream.contactJid, Message::Chat,IMessageHandler::SM_SHOW))
+		return;
+
+	//IMetaRoster* iMetaRoster = FMetaContacts->findMetaRoster(stream.streamJid);
+	//if(iMetaRoster == NULL || !iMetaRoster->isOpen())
+	//	return;
+	//QString metaId = iMetaRoster->itemMetaContact(stream.contactJid);
+	QString metaId = findMetaId(stream.streamJid, stream.contactJid);
+
+	if(!FCallControls.contains(metaId))
+	{
+		IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(stream.streamJid, metaId);
+		if(iMetaTabWindow != NULL)
+		{
+			RCallControl* pCallControl = new RCallControl(sid, RCallControl::Receiver, iMetaTabWindow->instance());
+			pCallControl->callStatusChanged(RCallControl::Ringing);
+			//connect(pCallControl, SIGNAL(hangupCall()), SLOT(onHangupCallTest()));
+			connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+			connect(pCallControl, SIGNAL(acceptCall()), this, SLOT(onAcceptStreamByCallControl()));
+			connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
+			//connect(pCallControl, SIGNAL(closeAndDelete(bool)), action, SLOT(setChecked(bool)));
+
+			// Реакция на изменение состояния камеры
+			connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
+			connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
+
+			iMetaTabWindow->insertTopWidget(0, pCallControl);
+			FCallControls.insert(metaId, pCallControl);
+		}
+	}
+
+	//Jid contactJidFull = getContactWithPresence(streamJid, metaId);
+	//if(contactJidFull.isValid() && !contactJidFull.isEmpty())
+	//{
+	//	//QMessageBox::information(NULL, contactJidFull.full(), "Call");
+	//	openStream(streamJid, contactJidFull);
+	//}
+
+}
+
 void SipPhone::insertNotify(const ISipStream &AStream)
 {
 	INotification notify;
@@ -865,6 +1097,7 @@ void SipPhone::removeStream(const QString &AStreamId)
 	{
 		ISipStream &stream = FStreams[AStreamId];
 		stream.state = ISipStream::SS_CLOSED;
+		emit streamStateChanged(AStreamId, stream.state);
 		emit streamRemoved(AStreamId);
 		FStreams.remove(AStreamId);
 	}
@@ -877,7 +1110,8 @@ void SipPhone::onOpenStreamByAction(bool)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-		openStream(streamJid,contactJid);
+		openStream(streamJid, contactJid);
+		return;
 	}
 }
 
@@ -913,6 +1147,7 @@ void SipPhone::onNotificationRemoved(int ANotifyId)
 
 void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
+	// В случае обычных контактов
 	if (AIndex->type()==RIT_CONTACT && ASelected.count() < 2)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
@@ -933,6 +1168,7 @@ void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex
 		return;
 	}
 
+	// В случае метаконтактов
 	if ( AIndex->type()==RIT_METACONTACT && ASelected.count() < 2)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
@@ -975,27 +1211,9 @@ void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex
 			}
 		}
 	}
-
-
-
-	//	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-	//	Jid contactJid = AIndex->data(RDR_JID).toString();
-	//	if (isSupported(streamJid,contactJid))
-	//	{
-	//		if (findStream(streamJid,contactJid).isEmpty())
-	//		{
-	//			Action *action = new Action(AMenu);
-	//			action->setText(tr("Call"));
-	//			action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
-	//			action->setData(ADR_STREAM_JID,streamJid.full());
-	//			action->setData(ADR_CONTACT_JID,contactJidWithPresence.full());
-	//			action->setData(ADR_METAID_WINDOW, metaId.full());
-	//			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
-	//			AMenu->addAction(action,AG_RVCM_SIPPHONE_CALL,true);
-	//		}
-	//	}
-	//}
 }
+
+
 
 void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger)
 {
@@ -1068,6 +1286,100 @@ void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiM
 
 }
 
+
+bool SipPhone::isSupported(const Jid &AStreamJid, const QString &AMetaId) const
+{
+	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(AStreamJid);
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+
+	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
+	{
+		IMetaContact metaContact = metaRoster->metaContact(AMetaId);
+		if(metaContact.items.size() > 0)
+		{
+			foreach(Jid contactJid, metaContact.items)
+			{
+				QList<IPresenceItem> pItems = presence->presenceItems(contactJid);
+
+				if(pItems.size() > 0)
+				{
+					foreach(IPresenceItem pItem, pItems)
+					{
+						Jid contactJidWithPresence = pItem.itemJid;
+						if(isSupported(AStreamJid, contactJidWithPresence))
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool SipPhone::isSupportedAndFindStream(const Jid &AStreamJid, const QString &AMetaId, /*out*/QString& AStreamID) const
+{
+	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(AStreamJid);
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+
+	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
+	{
+		IMetaContact metaContact = metaRoster->metaContact(AMetaId);
+		if(metaContact.items.size() > 0)
+		{
+			foreach(Jid contactJid, metaContact.items)
+			{
+				QList<IPresenceItem> pItems = presence->presenceItems(contactJid);
+
+				if(pItems.size() > 0)
+				{
+					foreach(IPresenceItem pItem, pItems)
+					{
+						Jid contactJidWithPresence = pItem.itemJid;
+						if(isSupported(AStreamJid, contactJidWithPresence))
+						{
+							AStreamID = findStream(AStreamJid, contactJidWithPresence);
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+Jid SipPhone::getContactWithPresence(const Jid &AStreamJid, const QString &AMetaId) const
+{
+	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(AStreamJid);
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+
+	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
+	{
+		IMetaContact metaContact = metaRoster->metaContact(AMetaId);
+		if(metaContact.items.size() > 0)
+		{
+			foreach(Jid contactJid, metaContact.items)
+			{
+				QList<IPresenceItem> pItems = presence->presenceItems(contactJid);
+
+				if(pItems.size() > 0)
+				{
+					foreach(IPresenceItem pItem, pItems)
+					{
+						Jid contactJidWithPresence = pItem.itemJid;
+						if(isSupported(AStreamJid, contactJidWithPresence))
+						{
+							return contactJidWithPresence;
+						}
+					}
+				}
+			}
+		}
+	}
+	return Jid::null;
+}
 
 
 

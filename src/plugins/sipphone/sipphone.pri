@@ -2,31 +2,36 @@ FORMS = sipphonewidget.ui\
 		formIdentity.ui\
 		rcallcontrol.ui\
 		fullscreencontrols.ui\
-		avcontrol.ui
+		avcontrol.ui\
+		fullscreenform.ui
 
-HEADERS = sipphone.h\
+HEADERS = avcontrol.h\ 
 		callaudio.h\
+		complexvideowidget.h\
+		config.h\
 		CrossDefine.h\
-		ridentityform.h\
-		rsipauthentication.h\
-		sipphoneproxy.h\
-		sipphonewidget.h\
 		fullscreencontrols.h\
+		fullscreenform.h\
 		qimagelabel.h\
 		rcallcontrol.h\
-		avcontrol.h\
-		complexvideowidget.h
-		
+		ridentityform.h\
+		rsipauthentication.h\
+		rvolumecontrol.h\
+		sipphone.h\
+		sipphoneproxy.h\
+		sipphonewidget.h
 
-SOURCES = sipphone.cpp\
+SOURCES = avcontrol.cpp\ 
 		callaudio.cpp\
+		complexvideowidget.cpp\
 		CrossDefine.cpp\
-		ridentityform.cpp\
-		rsipauthentication.cpp\
-		sipphoneproxy.cpp\
-		sipphonewidget.cpp\
 		fullscreencontrols.cpp\
+		fullscreenform.cpp\
 		qimagelabel.cpp\
 		rcallcontrol.cpp\
-		avcontrol.cpp\
-		complexvideowidget.cpp
+		ridentityform.cpp\
+		rsipauthentication.cpp\
+		rvolumecontrol.cpp\
+		sipphone.cpp\
+		sipphoneproxy.cpp\
+		sipphonewidget.cpp
