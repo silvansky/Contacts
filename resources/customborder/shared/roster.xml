@@ -54,7 +54,7 @@
    <resize-width>10</resize-width>
    <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
-   <image src="menuicons/bottomLeftShadow" />
+   <image src="menuicons/bottomLeftShadowWhite" />
    <mask src="menuicons/bottomLeftMask" />
  </bottom-left-corner>
  <bottom-right-corner>

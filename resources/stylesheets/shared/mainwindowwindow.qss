@@ -2,7 +2,7 @@
 
 MainWindow
 {
-	background-color: rgba(65, 70, 77, 235);
+	background-color: rgba(65, 70, 77, 245);
 }
 
 #upperWidget, #rostersWidget, #bottomWidget, #noticeWidget, #StatusWidgetClass, #searchFrame
