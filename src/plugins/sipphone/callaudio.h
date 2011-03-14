@@ -87,6 +87,8 @@ signals:
   void statusUpdated( void );
 	void proxyPictureShow(const QImage&);
 	void proxyLocalPictureShow(const QImage&);
+	void proxyStopCamera();
+	void proxyStartCamera();
 
 private slots:
   void memberStatusUpdated(SipCallMember *member);

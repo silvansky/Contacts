@@ -62,6 +62,8 @@ CallAudio::CallAudio( QObject* parent ) : QObject(parent)
 	_pVideo = new VoIPVideo(this);
 	connect(_pVideo, SIGNAL(pictureShow(const QImage&)), this, SIGNAL(proxyPictureShow(const QImage&)));
 	connect(_pVideo, SIGNAL(localPictureShow(const QImage&)), this, SIGNAL(proxyLocalPictureShow(const QImage&)));
+	connect(this, SIGNAL(proxyStopCamera()), _pVideo, SLOT(stopCamera()));
+	connect(this, SIGNAL(proxyStartCamera()), _pVideo, SLOT(startCamera()));
 }
 
 CallAudio::~CallAudio( void )

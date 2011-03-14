@@ -4,4 +4,64 @@
     <key>sipphoneCall</key>
     <object mime="image/png">sipphonecall.png</object>
   </icon>
-</icondef>
+  <icon>
+    <key>sipButtonAccept</key>
+    <object mime="image/png">sipButtonAccept.png</object>
+  </icon>
+  <icon>
+    <key>sipButtonHangup</key>
+    <object mime="image/png">sipButtonHangup.png</object>
+  </icon>
+  <icon>
+    <key>sipcameraon</key>
+    <object mime="image/png">sipcameraon.png</object>
+  </icon>
+  <icon>
+    <key>sipcameraoff</key>
+    <object mime="image/png">sipcameraoff.png</object>
+  </icon>
+  <icon>
+    <key>sipcameradisabled</key>
+    <object mime="image/png">sipcameradisabled.png</object>
+  </icon>
+  <icon>
+    <key>sipmicon</key>
+    <object mime="image/png">sipmicon.png</object>
+  </icon>
+  <icon>
+    <key>sipmicoff</key>
+    <object mime="image/png">sipmicoff.png</object>
+  </icon>
+  <icon>
+    <key>sipmicdisabled</key>
+    <object mime="image/png">sipmicdisabled.png</object>
+  </icon>
+  <icon>
+    <key>sipsounddisabled</key>
+    <object mime="image/png">sipsounddisabled.png</object>
+  </icon>
+  <icon>
+    <key>sipsoundoff</key>
+    <object mime="image/png">sipsoundoff.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_0</key>
+    <object mime="image/png">sipvolume_0.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_1</key>
+    <object mime="image/png">sipvolume_1.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_2</key>
+    <object mime="image/png">sipvolume_2.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_3</key>
+    <object mime="image/png">sipvolume_3.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_4</key>
+    <object mime="image/png">sipvolume_4.png</object>
+  </icon>
+  </icondef>

@@ -300,6 +300,21 @@
 
 //SipPhone
 #define MNI_SIPPHONE_CALL                        "sipphoneCall"
+#define MNI_SIPPHONE_BTN_ACCEPT                  "sipButtonAccept"
+#define MNI_SIPPHONE_BTN_HANGUP                  "sipButtonHangup"
+#define MNI_SIPPHONE_MIC_ON                      "sipmicon"
+#define MNI_SIPPHONE_MIC_OFF                     "sipmicoff"
+#define MNI_SIPPHONE_MIC_DISABLED                "sipmicdisabled"
+#define MNI_SIPPHONE_CAM_ON                      "sipcameraon"
+#define MNI_SIPPHONE_CAM_OFF                     "sipcameraoff"
+#define MNI_SIPPHONE_CAM_DISABLED                "sipcameradisabled"
+#define MNI_SIPPHONE_SOUND_VOLUME0               "sipvolume_0"
+#define MNI_SIPPHONE_SOUND_VOLUME1               "sipvolume_1"
+#define MNI_SIPPHONE_SOUND_VOLUME2               "sipvolume_2"
+#define MNI_SIPPHONE_SOUND_VOLUME3               "sipvolume_3"
+#define MNI_SIPPHONE_SOUND_VOLUME4               "sipvolume_4"
+#define MNI_SIPPHONE_SOUND_OFF                   "sipsoundoff"
+#define MNI_SIPPHONE_SOUND_DISABLED              "sipsounddisabled"
 
 //StatusChanger
 #define MNI_SCHANGER_MODIFY_STATUS               "schangerModifyStatus"

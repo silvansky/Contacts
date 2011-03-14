@@ -75,8 +75,6 @@ public slots:
 	void makeVideoCall( const QString& uri );
 
 
-
-
 public slots:
 	void makeRegisterProxySlot(const Jid& AStreamJid, const Jid& AContactJid);
 	void makeRegisterResponderProxySlot(const QString& AStreamId);
@@ -89,6 +87,8 @@ public slots:
 signals:
 	void registrationStatusIs(bool status, const Jid& AStreamJid, const Jid& AContactJid);
 	void registrationStatusIs(bool status, const QString& AStreamId);
+	void proxyStartCamera();
+	void proxyStopCamera();
 
 	// Параметры временно передаваемые из SipPhone
 private:
@@ -123,7 +123,7 @@ private:
 	SipClient* _pSipClient;
 	SipUser* _pSipUser;
 
-	CallAudio* _audioForSettings;
+	//CallAudio* _audioForSettings;
 	CallAudio *_pCallAudio;
 
 	KSipAuthentication *_pSipAuthentication;

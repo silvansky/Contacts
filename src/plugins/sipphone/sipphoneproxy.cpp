@@ -41,7 +41,7 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 
 	_pSipClient = NULL;
 	_pSipUser = NULL;
-	_audioForSettings = NULL;
+//	_audioForSettings = NULL;
 	_pSipAuthentication = NULL;
 	_pCallAudio = NULL;
 	_pWorkWidget = NULL;
@@ -159,7 +159,7 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 	//}
 
 	// Объект CallAudio создается для изменения настроек Audio (что-то тут не чисто... не правильно как-то)
-	_audioForSettings = new CallAudio();
+	//_audioForSettings = new CallAudio();
 
 	if( uriStr != QString::null )
 	{
@@ -215,7 +215,6 @@ bool SipPhoneProxy::initRegistrationData( void )
 {
 	//QSettings settings;
 
-
 	SipRegistrationData regData;
 	//{
 	//  // Адрес SIP сервера для регистрации
@@ -249,8 +248,11 @@ bool SipPhoneProxy::initRegistrationData( void )
 	}
 
 	//pp = "/settings/Registration/";
-	//regData.sipUserUri = _pSipUser->getUri().getRegisterUri();//  settings.value( pp + "/SipUri" ).toString();
-	regData.sipUserUri = _pSipUser->getUri().nameAddr_noTag();
+	////regData.sipUserUri = _pSipUser->getUri().getRegisterUri();//  settings.value( pp + "/SipUri" ).toString();
+
+	SipUri uri = _pSipUser->getUri();
+	regData.sipUserUri = uri.nameAddr_noTag();
+	//regData.sipUserUri = _pSipUser->getUri().nameAddr_noTag();
 
 	//SipUri userURI = _pSipUser->getUri();
 	//QString res;
@@ -291,7 +293,7 @@ bool SipPhoneProxy::initRegistrationData( void )
 	//	regData.sipServerUri = settings.value( pp + "/SipServer" ).toString();
 	//}
 	//regData.sipServerUri = "81.19.69.224";
-	regData.sipServerUri = "81.19.70.66";
+	regData.sipServerUri = "81.19.70.76";
 	regData.qValue = "";// settings.value( pp + "/qValue", "" ).toString();
 	//regData.userName = settings.value( pp + "/UserName" ).toString();
 	//regData.password = settings.value( pp + "/Password" ).toString();
@@ -640,6 +642,10 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	_pCallAudio = new CallAudio( this );
 	_pCallAudio->readAudioSettings();
 	_pCallAudio->readVideoSettings();
+	// Реакция на изменение состояния камеры
+	connect(this, SIGNAL(proxyStartCamera()), _pCallAudio, SIGNAL(proxyStartCamera()));
+	connect(this, SIGNAL(proxyStopCamera()), _pCallAudio, SIGNAL(proxyStopCamera()));
+	
 
 	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, _pCallAudio, newcall, this );
 	connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
@@ -690,6 +696,10 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		_pCallAudio = new CallAudio( this );
 		_pCallAudio->readAudioSettings();
 		_pCallAudio->readVideoSettings();
+		// Реакция на изменение состояния камеры
+		connect(this, SIGNAL(proxyStartCamera()), _pCallAudio, SIGNAL(proxyStartCamera()));
+		connect(this, SIGNAL(proxyStopCamera()), _pCallAudio, SIGNAL(proxyStopCamera()));
+
 		SipPhoneWidget *widget = new SipPhoneWidget(0, _pCallAudio, call, this );
 		connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
 		//cwList.append( widget );
@@ -804,10 +814,6 @@ void SipPhoneProxy::kphoneQuit( void )
 
 
 
-
-
-
-
 void SipPhoneProxy::makeRegisterProxySlot(const Jid& AStreamJid, const Jid& AContactJid)
 {
 	FRegAsInitiator = true;
@@ -840,7 +846,7 @@ void SipPhoneProxy::makeByeProxySlot(const Jid &AClientSIP)
 
 void SipPhoneProxy::hangupCall()
 {
-	QMessageBox::information(NULL, "SipPhoneProxy::hangupCall()", "");
+	//QMessageBox::information(NULL, "SipPhoneProxy::hangupCall()", "");
 	if(_pWorkWidget)
 	{
 		_pWorkWidget->clickHangup();

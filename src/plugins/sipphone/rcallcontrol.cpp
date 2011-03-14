@@ -7,6 +7,23 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 {
 	ui.setupUi(this);
 
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
+
+	//IconStorage * iconStorage;
+	//QIcon currentIcon;
+
+	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
+	acceptIcon = iconStorage->getIcon(MNI_SIPPHONE_BTN_ACCEPT);
+	hangupIcon = iconStorage->getIcon(MNI_SIPPHONE_BTN_HANGUP);
+	//if (!currentIcon.isNull())
+	//	iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
+
+	ui.btnAccept->setIcon(acceptIcon);
+	ui.btnHangup->setIcon(hangupIcon);
+	//ui.btnAccept->setPixmap(acceptIcon.pixmap(16, QIcon::Normal, QIcon::On));
+	//ui.btnHangup->setPixmap(hangupIcon.pixmap(16, QIcon::Normal, QIcon::On));
+
+
 	_callSide = callSide;
 	if(callSide == Receiver)
 	{
@@ -27,9 +44,67 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(onHangup()));
 }
 
+RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
+: QWidget(parent), _callStatus(Ringing), _sid(sid)
+{
+	ui.setupUi(this);
+
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
+
+	//IconStorage * iconStorage;
+	//QIcon currentIcon;
+
+	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
+	acceptIcon = iconStorage->getIcon(MNI_SIPPHONE_BTN_ACCEPT);
+	hangupIcon = iconStorage->getIcon(MNI_SIPPHONE_BTN_HANGUP);
+	//if (!currentIcon.isNull())
+	//	iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
+
+	ui.btnAccept->setIcon(acceptIcon);
+	ui.btnHangup->setIcon(hangupIcon);
+	//ui.btnAccept->setPixmap(acceptIcon.pixmap(16, QIcon::Normal, QIcon::On));
+	//ui.btnHangup->setPixmap(hangupIcon.pixmap(16, QIcon::Normal, QIcon::On));
+
+
+	_callSide = callSide;
+	if(callSide == Receiver)
+	{
+		ui.btnAccept->show();
+		ui.btnHangup->show();
+	}
+	else
+	{
+		ui.btnAccept->hide();
+		ui.btnHangup->show();
+	}
+
+	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SIGNAL(camStateChange(bool)));
+	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SLOT(onCamStateChange(bool)));
+	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), SIGNAL(micStateChange(bool)));
+	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), SIGNAL(micVolumeChange(int)));
+
+	connect(ui.btnAccept, SIGNAL(clicked()), this, SLOT(onAccept()));
+	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(onHangup()));
+}
+
 RCallControl::~RCallControl()
 {
+	close();
+}
 
+void RCallControl::setSessionId(const QString& sid)
+{
+	_sid = sid;
+}
+
+void RCallControl::setStreamJid(const Jid& AStreamJid)
+{
+	_streamId = AStreamJid;
+}
+
+void RCallControl::setMetaId(const QString& AMetaId)
+{
+	_metaId = AMetaId;
 }
 
 void RCallControl::statusTextChanged(const QString& text)
@@ -39,7 +114,7 @@ void RCallControl::statusTextChanged(const QString& text)
 
 void RCallControl::onAccept()
 {
-	QMessageBox::information(NULL, "Accept", "");
+	//QMessageBox::information(NULL, "Accept", "");
 	if(_callSide == Caller)
 	{
 		//switch(_callStatus)
@@ -131,11 +206,13 @@ void RCallControl::onHangup()
 		}
 		else if(_callStatus == Hangup)
 		{
+			//emit killThis();
+			//return;
 			// Не может быть
 		}
 		else if(_callStatus == Ringing)
 		{
-			emit hangupCall();
+			emit abortCall();//hangupCall();
 		}
 		else if(_callStatus == RingTimeout)
 		{
@@ -171,7 +248,8 @@ void RCallControl::onHangup()
 		}
 		else if(_callStatus == Ringing)
 		{
-			emit hangupCall();
+			//emit hangupCall();
+			emit abortCall();
 		}
 		else if(_callStatus == RingTimeout)
 		{
@@ -202,14 +280,14 @@ void RCallControl::callStatusChanged(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
-			statusTextChanged("...");
+			statusTextChanged(tr("ACCEPT"));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
 			ui.btnHangup->setText(tr("Hangup"));
 		}
 		else
 		{
-			statusTextChanged("...");
+			statusTextChanged(tr("ACCEPT"));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
 			ui.btnHangup->setText(tr("Hangup"));
@@ -223,6 +301,7 @@ void RCallControl::callStatusChanged(CallStatus status)
 			ui.btnAccept->show();
 			ui.btnHangup->hide();
 			ui.btnAccept->setText(tr("Call again"));
+			//ui.btnHangup->setText(tr("Abort"));
 		}
 		else
 		{
@@ -255,7 +334,7 @@ void RCallControl::callStatusChanged(CallStatus status)
 			ui.btnAccept->show();
 			ui.btnHangup->hide();
 			ui.btnAccept->setText(tr("Call again"));
-			ui.btnHangup->setText(tr(""));
+			//ui.btnHangup->setText(tr("Abort"));
 		}
 		else
 		{
@@ -294,3 +373,20 @@ void RCallControl::callStatusChanged(CallStatus status)
 	}
 }
 
+void RCallControl::closeEvent(QCloseEvent *)
+{
+	onHangup();
+	emit closeAndDelete(false);
+}
+
+void RCallControl::onCamStateChange(bool state)
+{
+	if(state)
+	{
+		emit startCamera();
+	}
+	else
+	{
+		emit stopCamera();
+	}
+}

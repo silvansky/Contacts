@@ -32,7 +32,6 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	ui.remote->hide();
 	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
 
-
 	{
 		_pCurrPic = new QImageLabel(ui.wgtRemoteImage);
 		_pShowCurrPic = new QPushButton(ui.wgtRemoteImage);
@@ -93,6 +92,10 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	connect( _pAudioContoller, SIGNAL( statusUpdated() ), this, SLOT( updateAudioStatus() ) );
 	connect( _pAudioContoller, SIGNAL( proxyPictureShow(const QImage&)), this, SLOT(remotePictureShow(const QImage&)));
 	connect( _pAudioContoller, SIGNAL( proxyLocalPictureShow(const QImage&)), this, SLOT(localPictureShow(const QImage&)));
+	// Подключение реакций на изменение состояния камеры
+	connect(this, SIGNAL(startCamera()), _pAudioContoller, SIGNAL(proxyStartCamera()));
+	connect(this, SIGNAL(stopCamera()), _pAudioContoller, SIGNAL(proxyStopCamera()));
+
 
 	// ОТЛАДКА
 	//connect( this, SIGNAL(callDeleted(bool)), this, SLOT(callDeletedSlot(bool)) );
@@ -318,6 +321,9 @@ void SipPhoneWidget::switchCall( SipCall *newCall )
 	dbgPrintf( "KCallWidget: Switching calls...\n" );
 
 	_pSipCall = newCall;
+
+	if(_pSipCall == NULL)
+		return;
 	
 	_pAudioContoller->setBodyMask( _pSipCall->getSdpMessageMask() );
 	////_pDialButton->setText( tr("Dial") );
@@ -651,7 +657,9 @@ void SipPhoneWidget::hangupCall( void )
 		//setHide();
 		return;
 	}
-	if( _pSipCall->getCallStatus() != SipCall::callDead )
+
+
+	if(_pSipCall && _pSipCall->getCallStatus() != SipCall::callDead )
 	{
 		//_pHangupButton->setEnabled( false );
 		if( _pSipCallMember->getState() == SipCallMember::state_Connected )

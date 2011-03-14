@@ -38,6 +38,8 @@ public:
 	virtual bool isOpen() const =0;
 	virtual QList<QString> metaContacts() const =0;
 	virtual IMetaContact metaContact(const QString &AMetaId) const =0;
+	// Возвращает идентификатор метаконтакта metaId.
+	// AItemJid - это ContactJid может быть как с ресурсом так и без. Ресурс игнорируется.
 	virtual QString itemMetaContact(const Jid &AItemJid) const =0;
 	virtual IPresenceItem metaPresence(const QString &AMetaId) const =0;
 	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const =0;

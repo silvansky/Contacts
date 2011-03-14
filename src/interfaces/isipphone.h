@@ -27,6 +27,7 @@ struct ISipStream
 	QString sid;
 	Jid streamJid;
 	Jid contactJid;
+	//QString metaId;
 };
 
 class ISipPhone
