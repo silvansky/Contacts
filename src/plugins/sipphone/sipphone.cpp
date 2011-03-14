@@ -246,10 +246,11 @@ QString hostAddress;
 		connect(FSipPhoneProxy, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
 	}
 	connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(sipClearRegistration(const QString&)));
-<<<<<<< .mine	//connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(tabControlRemove(const QString&)));
-=======>>>>>>> .theirs	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
-	
-	
+//<<<<<<< .mine	//connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(tabControlRemove(const QString&)));
+//=======>>>>>>> .theirs	
+	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
+//	
+//	
 }
 
 void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
