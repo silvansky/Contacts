@@ -67,7 +67,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	setSelectionMode(ExtendedSelection);
 	setContextMenuPolicy(Qt::DefaultContextMenu);
 	setFrameShape(QFrame::NoFrame);
-	setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
+	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
 	FRosterIndexDelegate = new RosterIndexDelegate(this);
 	setItemDelegate(FRosterIndexDelegate);

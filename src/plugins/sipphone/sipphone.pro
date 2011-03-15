@@ -7,9 +7,9 @@ INCLUDEPATH += ../../thirdparty/siplibraries/SipLib/inc ../../thirdparty/siplibr
 INCLUDEPATH += ../../thirdparty/siplibraries/SPEEX/include
 INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/Inc/iLBC
 
-
+LIBS += -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32
 
 QT    += multimedia
-TARGET = sipphone 
-include(sipphone.pri) 
-include(../plugins.inc) 
+TARGET = sipphone
+include(sipphone.pri)
+include(../plugins.inc)
