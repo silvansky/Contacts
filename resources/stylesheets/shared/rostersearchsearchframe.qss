@@ -13,6 +13,7 @@ SearchEdit
 	height: 26px;
 	padding-top: -10px;
 	padding-bottom: -10px;
+	padding-left: 7px;
 	margin-top: 2px;
 	margin-bottom: 2px;
 	margin-left: 4px;

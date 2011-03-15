@@ -421,7 +421,7 @@ QMenu::icon:checked
 QMenu::indicator:non-exclusive:checked, QMenu::indicator:exclusive:checked
 {
 	subcontrol-origin: padding;
-	subcontrol-position: right;
+	subcontrol-position: left;
 	image: url(%IMAGES_PATH%/menuchecked.png);
 }
 

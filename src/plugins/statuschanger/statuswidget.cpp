@@ -90,8 +90,11 @@ void StatusWidget::setStreamJid(const Jid &AStreamJid)
 
 void StatusWidget::startEditMood()
 {
+	QSize sz = ui.lblMood->size();
+	sz.setWidth(sz.width() - 10);
 	ui.lblMood->setVisible(false);
 	ui.tedMood->setVisible(true);
+	//ui.tedMood->setFixedSize(sz);
 	ui.tedMood->setText(FUserMood);
 	ui.tedMood->setFocus();
 	ui.tedMood->selectAll();
@@ -99,8 +102,8 @@ void StatusWidget::startEditMood()
 
 void StatusWidget::finishEditMood()
 {
-	ui.lblMood->setVisible(true);
 	ui.tedMood->setVisible(false);
+	ui.lblMood->setVisible(true);
 	ui.lblMood->setFocus();
 
 	int statusId = FStatusChanger->mainStatus();

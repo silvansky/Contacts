@@ -45,7 +45,6 @@ SUBDIRS += ramblerhistory
 SUBDIRS += birthdayreminder
 SUBDIRS += metacontacts
 win32-msvc2008: {
-message(sipphone enabled!)
 SUBDIRS += sipphone
 }
 SUBDIRS += smsmessagehandler

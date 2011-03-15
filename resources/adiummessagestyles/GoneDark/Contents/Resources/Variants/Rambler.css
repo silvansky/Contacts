@@ -1,8 +1,10 @@
 body {background-color: rgba(255, 255, 255, 1); margin: 0;}
 
 .date {color: rgba(177, 177, 177, 1); float: right;}
+.status {color: rgba(177, 177, 177, 1);}
 .userName {font-weight: bold; float: left;}
-.contentText {clear: both; padding-right: 2em;}
+.contentText {clear: both; padding-right: 2em; display: inline-block}
+.content {clear: both;}
 
 .status, .userName, .contentText, .date {padding-left: 0.8em; line-height: 2em;}
 .date {padding-right: 2em;}
