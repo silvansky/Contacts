@@ -169,6 +169,7 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 bool StatusChanger::initObjects()
 {
 	FMainMenu = new Menu;
+	FMainMenu->setObjectName("schangerMainMenu");
 
 	FModifyStatus = new Action(FMainMenu);
 	FModifyStatus->setCheckable(true);
@@ -204,12 +205,13 @@ bool StatusChanger::initObjects()
 		ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->statusToolBarChanger();
 		FStatusWidget = new StatusWidget(this, FAvatars, FVCardPlugin, FMainWindowPlugin, changer->toolBar());
 		changer->insertWidget(FStatusWidget);
+		FMainMenu->setStyleSheet(FStatusWidget->styleSheet());
 	}
 
 	if (FRostersViewPlugin)
 	{
 		FRostersView = FRostersViewPlugin->rostersView();
-		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)), 
+		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
 			SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 
 		IRostersLabel rlabel;
@@ -668,6 +670,7 @@ Action *StatusChanger::createStatusAction(int AStatusId, const Jid &AStreamJid, 
 	if (AStreamJid.isValid())
 		action->setData(ADR_STREAMJID,AStreamJid.full());
 	action->setData(ADR_STATUS_CODE,AStatusId);
+	action->setCheckable(true);
 	connect(action,SIGNAL(triggered(bool)),SLOT(onSetStatusByAction(bool)));
 	updateStatusAction(AStatusId,action);
 	return action;
@@ -810,9 +813,9 @@ void StatusChanger::updateMainMenu()
 	FMainMenu->setTitle(statusItemName(statusId));
 	FMainMenu->menuAction()->setVisible(!FCurrentStatus.isEmpty());
 
-	int statusCode = FStatusItems.value(statusId).code;
-	foreach (Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
-		action->setEnabled(action->data(ADR_STATUS_CODE).toInt() != statusCode);
+	//int statusCode = FStatusItems.value(statusId).code;
+	//foreach (Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
+	//	action->setChecked(action->data(ADR_STATUS_CODE).toInt() == statusCode);
 
 	if (FTrayManager)
 	{

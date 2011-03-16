@@ -198,8 +198,8 @@ QList<int> RostersViewPlugin::rosterDataRoles() const
 		<< Qt::BackgroundColorRole
 		<< Qt::ForegroundRole
 		<< RDR_FONT_WEIGHT
-		<< RDR_FONT_SIZE
-		<< RDR_GROUP_COUNTER;
+		<< RDR_FONT_SIZE;
+		//<< RDR_GROUP_COUNTER;
 	return dataRoles;
 }
 
@@ -253,9 +253,9 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		case Qt::BackgroundColorRole:
 			return FRostersView->palette().color(QPalette::Active, QPalette::AlternateBase);
 		case RDR_FONT_WEIGHT:
-			return QFont::DemiBold;
+			return QFont::Normal;
 		case RDR_GROUP_COUNTER:
-			return groupCounterLabel(AIndex);
+			return QString();//groupCounterLabel(AIndex);
 		}
 		break;
 
@@ -526,18 +526,20 @@ void RostersViewPlugin::onRosterIndexRemoved(IRosterIndex *AIndex)
 	{
 		FRostersView->removeLabel(FGroupCounterLabel,AIndex);
 	}
-	else if (AIndex->type() == RIT_CONTACT)
+	/*else if (AIndex->type() == RIT_CONTACT)
 	{
 		updateGroupCounter(AIndex);
-	}
+	}*/
 }
 
 void RostersViewPlugin::onRosterIndexDataChanged(IRosterIndex *AIndex, int ARole)
 {
-	if (AIndex->type()==RIT_CONTACT && ARole==RDR_SHOW)
+	Q_UNUSED(AIndex)
+	Q_UNUSED(ARole)
+	/*if (AIndex->type()==RIT_CONTACT && ARole==RDR_SHOW)
 	{
 		updateGroupCounter(AIndex);
-	}
+	}*/
 }
 
 void RostersViewPlugin::onRosterStreamJidAboutToBeChanged(IRoster *ARoster, const Jid &AAfter)

@@ -48,6 +48,14 @@ QLabel#lblMood:hover
 	border-image: url(%IMAGES_PATH%/moodborderhover.png);
 }
 
+/***************
+ * Status Menu *
+ ***************/
+
+QMenu#schangerMainMenu
+{
+}
+
 /***********
  * margins *
  ***********/

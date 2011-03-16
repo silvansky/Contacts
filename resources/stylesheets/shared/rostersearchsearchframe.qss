@@ -40,3 +40,8 @@ QToolBar#searchBar
 	max-height: 31px;
 	height: 31px;
 }
+
+QToolButton
+{
+	margin-bottom: 1px;
+}

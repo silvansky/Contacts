@@ -177,8 +177,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 
 //	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin) >> 1;
 //	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin) >> 1;
-	const int hMargin = 7;
-	const int vMargin = 1;
+	int hMargin = 7;
+	int vMargin = 1;
 
 	int labelFlags = TF_NOSHADOW;
 
@@ -229,13 +229,14 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		QStyleOptionViewItemV4 brachOption(option);
 		brachOption.state |= QStyle::State_Children;
 		brachOption.rect = QStyle::alignedRect(option.direction, Qt::AlignVCenter | Qt::AlignLeft, QSize(BRANCH_WIDTH, BRANCH_WIDTH), paintRect);
+		brachOption.rect.moveTop(brachOption.rect.top() - 1);
 		if (APainter && !isDragged)
 		{
-			//style->drawPrimitive(QStyle::PE_IndicatorBranch, &brachOption, APainter);
 			APainter->drawImage(brachOption.rect, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(brachOption.state & QStyle::State_Open ? MNI_ROSTERVIEW_GROUP_OPENED : MNI_ROSTERVIEW_GROUP_CLOSED));
 		}
 		removeWidth(paintRect, BRANCH_WIDTH, AOption.direction == Qt::LeftToRight);
 		rectHash.insert(RLID_INDICATORBRANCH, brachOption.rect);
+		vMargin += 1;
 	}
 
 	QList<LabelItem> labels = itemLabels(AIndex);
@@ -246,11 +247,14 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	qSort(footers);
 
 	int leftIndex =0;
+	int verticalAdd = AIndex.model()->hasChildren(AIndex) ? 1 : 0;
 	for (; leftIndex < labels.count() && labels.at(leftIndex).item.order < RLAP_LEFT_TOP; leftIndex++)
 	{
 		LabelItem &label = labels[leftIndex];
 		Qt::Alignment align = Qt::AlignLeft | Qt::AlignVCenter;
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,paintRect).intersected(paintRect);
+		if (verticalAdd)
+			label.rect.moveTop(label.rect.top() + verticalAdd);
 		removeWidth(paintRect, label.rect.width(), AOption.direction == Qt::LeftToRight);
 		if (APainter && !isDragged)
 			drawLabelItem(APainter, option, label, labelFlags);
@@ -263,6 +267,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		LabelItem &label = labels[rightIndex];
 		Qt::Alignment align = Qt::AlignRight | Qt::AlignVCenter;
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,paintRect).intersected(paintRect);
+		if (verticalAdd)
+			label.rect.moveTop(label.rect.top() + verticalAdd);
 		removeWidth(paintRect,label.rect.width(),AOption.direction!=Qt::LeftToRight);
 		if (APainter && !isDragged)
 			drawLabelItem(APainter, option, label, labelFlags);
@@ -298,6 +304,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 			label.size.rwidth() = qMin(label.size.width(),middleTop.width()-topLabelsWidth);
 		Qt::Alignment align = Qt::AlignVCenter | Qt::AlignLeft;
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,topRect).intersected(topRect);
+		if (verticalAdd)
+			label.rect.moveTop(label.rect.top() + verticalAdd);
 		removeWidth(topRect,label.rect.width(),option.direction==Qt::LeftToRight);
 		if (APainter && !isDragged)
 			drawLabelItem(APainter,option,label, labelFlags);
@@ -311,6 +319,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 			label.size.rwidth() = qMin(label.size.width(),middleTop.width()-topLabelsWidth);
 		Qt::Alignment align = Qt::AlignVCenter | Qt::AlignRight;
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,topRect).intersected(topRect);
+		if (verticalAdd)
+			label.rect.moveTop(label.rect.top() + verticalAdd);
 		removeWidth(topRect,label.rect.width(),option.direction!=Qt::LeftToRight);
 		if (APainter && !isDragged)
 			drawLabelItem(APainter,option,label, labelFlags);
@@ -580,6 +590,7 @@ QString RosterIndexDelegate::prepareText(const QString &AText) const
 
 QIcon::Mode RosterIndexDelegate::getIconMode(QStyle::State AState) const
 {
+	Q_UNUSED(AState)
 //	if (!(AState & QStyle::State_Enabled))
 //		return QIcon::Disabled;
 //	if (AState & QStyle::State_Selected)

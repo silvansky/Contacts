@@ -90,11 +90,8 @@ void StatusWidget::setStreamJid(const Jid &AStreamJid)
 
 void StatusWidget::startEditMood()
 {
-	QSize sz = ui.lblMood->size();
-	sz.setWidth(sz.width() - 10);
 	ui.lblMood->setVisible(false);
 	ui.tedMood->setVisible(true);
-	//ui.tedMood->setFixedSize(sz);
 	ui.tedMood->setText(FUserMood);
 	ui.tedMood->setFocus();
 	ui.tedMood->selectAll();
