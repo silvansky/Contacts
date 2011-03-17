@@ -42,6 +42,9 @@ TestStylesForm::TestStylesForm(QWidget *parent) :
 	ui->label_5->setPixmap(QPixmap::fromImage(img));
 	img = ImageManager::colorized(src, QColor(200, 200, 200));
 	ui->label_6->setPixmap(QPixmap::fromImage(img));
+
+	img = ui->ti->pixmap()->toImage();
+	ui->ti2->setPixmap(QPixmap::fromImage(ImageManager::addShadow(img, QColor(0, 0, 0, 200), QPoint(0, -1))));
 	//menu->menuAction()->setIcon(QIcon(":/trolltech/qtgradienteditor/images/minus.png"));
 	//menu->setDefaultAction(menu->actions().at(0));
 	//menu->defaultAction()->setIcon(QIcon(":/trolltech/qtgradienteditor/images/minus.png"));

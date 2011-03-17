@@ -15,5 +15,6 @@
         <file>images/typeradial.png</file>
         <file>images/typeconical.png</file>
         <file>images/logo225x90.gif</file>
+        <file>images/testimage.png</file>
     </qresource>
 </RCC>

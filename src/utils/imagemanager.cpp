@@ -69,7 +69,15 @@ QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
 
 QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset, bool canResize)
 {
-	return image;
+	Q_UNUSED(canResize)
+	QImage shadow = colorized(image, color);
+	QImage shadowed(image.size(), image.format());
+	shadowed.fill(QColor(0, 0, 0, 0).rgba());
+	QPainter p(&shadowed);
+	p.drawImage(offset, shadow);
+	p.drawImage(0, 0, image);
+	p.end();
+	return shadowed;
 }
 
 QImage ImageManager::colorized(const QImage & image, QColor color)

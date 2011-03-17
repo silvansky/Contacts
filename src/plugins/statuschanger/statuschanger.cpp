@@ -2,6 +2,10 @@
 
 #include <QTimer>
 #include <QToolButton>
+#include <utils/imagemanager.h>
+#include <utils/graphicseffectsstorage.h>
+#include <definitions/resources.h>
+#include <definitions/graphicseffects.h>
 
 #define MAX_TEMP_STATUS_ID                  -10
 #define MAX_CUSTOM_STATUS_PER_SHOW          3
@@ -680,7 +684,19 @@ void StatusChanger::updateStatusAction(int AStatusId, Action *AAction) const
 {
 	StatusItem status = FStatusItems.value(AStatusId);
 	AAction->setText(status.name);
-	AAction->setIcon(iconByShow(status.show));
+
+	QIcon shadowedIcon;
+	QIcon srcIcon = iconByShow(status.show);
+	QGraphicsDropShadowEffect * shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_STATUSICONS));
+	if (shadow)
+	{
+		QImage img = srcIcon.pixmap(srcIcon.availableSizes().first()).toImage();
+		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), -shadow->offset().toPoint());
+		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
+		AAction->setIcon(shadowedIcon);
+	}
+	else
+		AAction->setIcon(srcIcon);
 
 	int sortShow = status.show != IPresence::Offline ? status.show : 100;
 	AAction->setData(Action::DR_SortString,QString("%1-%2").arg(sortShow,5,10,QChar('0')).arg(status.name));
