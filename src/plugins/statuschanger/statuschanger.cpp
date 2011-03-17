@@ -690,7 +690,7 @@ void StatusChanger::updateStatusAction(int AStatusId, Action *AAction) const
 	QGraphicsDropShadowEffect * shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_STATUSICONS));
 	if (shadow)
 	{
-		QImage img = srcIcon.pixmap(srcIcon.availableSizes().first()).toImage();
+		QImage img = srcIcon.pixmap(srcIcon.availableSizes().value(0)).toImage();
 		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), -shadow->offset().toPoint());
 		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
 		AAction->setIcon(shadowedIcon);
