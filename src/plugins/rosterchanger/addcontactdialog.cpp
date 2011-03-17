@@ -682,7 +682,7 @@ void AddContactDialog::onActionLinkActivated(const QString &ALink)
 	QUrl url = ALink;
 	if (FGateways && url.scheme() == URL_ACTION_ADD_ACCOUNT)
 	{
-		FGateways->showAddLegacyAccountDialog(FStreamJid,url.path(),this);
+		FGateways->showAddLegacyAccountDialog(FStreamJid,url.path());
 	}
 }
 

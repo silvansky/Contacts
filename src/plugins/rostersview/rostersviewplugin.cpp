@@ -117,7 +117,7 @@ bool RostersViewPlugin::initObjects()
 		FShowOfflineAction = new Action(this);
 		FShowOfflineAction->setCheckable(true);
 		FShowOfflineAction->setText(tr("Show Offline"));
-		FShowOfflineAction->setShortcut(tr("Ctrl+O"));
+		//FShowOfflineAction->setShortcut(tr("Ctrl+O"));
 		FShowOfflineAction->setData(Action::DR_SortString,QString("100"));
 		connect(FShowOfflineAction,SIGNAL(triggered(bool)),SLOT(onShowOfflinesAction(bool)));
 		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FShowOfflineAction,AG_MMENU_ROSTERSVIEW_SHOWOFFLINE,true);

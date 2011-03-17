@@ -101,7 +101,7 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 			Action *action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
 			action->setText(tr("Mass send"));
 			connect(action, SIGNAL(triggered()), SLOT(onMassSendAction()));
-			FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_MASSSEND_SHOWDIALOG);
+			//FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_MASSSEND_SHOWDIALOG);
 		}
 	}
 	plugin = APluginManager->pluginInterface("IAccountManager").value(0, NULL);

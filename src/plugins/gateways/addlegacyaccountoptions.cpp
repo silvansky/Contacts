@@ -88,7 +88,7 @@ void AddLegacyAccountOptions::onGateActionTriggeted(bool)
 	if (action)
 	{
 		Jid gateJid = action->data(ADR_GATEJID).toString();
-		FGateways->showAddLegacyAccountDialog(FStreamJid,gateJid,this);
+		FGateways->showAddLegacyAccountDialog(FStreamJid,gateJid);
 	}
 }
 

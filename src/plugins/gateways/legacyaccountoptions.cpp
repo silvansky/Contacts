@@ -8,7 +8,7 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 	FGateways = AGateways;
 	FStreamJid = AStreamJid;
 	FServiceJid = AServiceJid;
-	
+
 	FGateLabel = FGateways->serviceDescriptor(FStreamJid,FServiceJid);
 	ui.lblLogin->setText(FGateLabel.valid ? FGateLabel.name : FServiceJid.full());
 	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
@@ -57,7 +57,7 @@ void LegacyAccountOptions::onDisableButtonClicked(bool)
 void LegacyAccountOptions::onChangeLinkActivated(const QString &ALink)
 {
 	Q_UNUSED(ALink);
-	QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid,this);
+	QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid);
 	if (dialog)
 	{
 		connect(dialog,SIGNAL(accepted()),SLOT(onChangeDialogAccepted()));

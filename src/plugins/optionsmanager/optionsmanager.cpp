@@ -108,9 +108,9 @@ bool OptionsManager::initObjects()
 
 	FShowOptionsDialogAction = new Action(this);
 	FShowOptionsDialogAction->setVisible(false);
-	FShowOptionsDialogAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_DIALOG);
+	//FShowOptionsDialogAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_DIALOG);
 	FShowOptionsDialogAction->setText(tr("Options"));
-	FShowOptionsDialogAction->setShortcut(tr("Ctrl+P"));
+	//FShowOptionsDialogAction->setShortcut(tr("Ctrl+P"));
 	FShowOptionsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
 	FShowOptionsDialogAction->setData(Action::DR_SortString,QString("300"));
 	connect(FShowOptionsDialogAction,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));

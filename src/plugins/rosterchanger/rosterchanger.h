@@ -166,6 +166,7 @@ protected slots:
 protected slots:
 	void onShowAddContactDialog(bool);
 	void onShowAddGroupDialog(bool);
+	void onGroupNameAccepted(QString);
 	void onShowAddAccountDialog(bool);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onRosterClosed(IRoster *ARoster);

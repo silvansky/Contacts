@@ -10,10 +10,10 @@
 #include <utils/iconstorage.h>
 #include "ui_addlegacyaccountdialog.h"
 
-class AddLegacyAccountDialog : 
+class AddLegacyAccountDialog :
 			public QDialog
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent=NULL);
 	~AddLegacyAccountDialog();

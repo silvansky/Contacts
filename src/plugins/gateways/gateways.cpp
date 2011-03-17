@@ -2,6 +2,8 @@
 
 #include <QRegExp>
 #include <QTextDocument>
+#include <utils/customborderstorage.h>
+#include <definitions/customborder.h>
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_SERVICE_JID           Action::DR_Parametr1
@@ -967,7 +969,21 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 	{
 		AddLegacyAccountDialog *dialog = new AddLegacyAccountDialog(this,FRegistration,AStreamJid,AServiceJid,AParent);
 		connect(presence->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
-		dialog->show();
+		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+		if (border)
+		{
+			border->setAttribute(Qt::WA_DeleteOnClose, true);
+			border->setMaximizeButtonVisible(false);
+			border->setMinimizeButtonVisible(false);
+			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+			connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
+			connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
+			border->setResizable(false);
+			border->show();
+			border->adjustSize();
+		}
+		else
+			dialog->show();
 		return dialog;
 	}
 	return NULL;

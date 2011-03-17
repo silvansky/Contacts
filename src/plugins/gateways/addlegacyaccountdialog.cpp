@@ -114,6 +114,8 @@ void AddLegacyAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
 void AddLegacyAccountDialog::onAdjustDialogSize()
 {
 	resize(width(),minimumSizeHint().height());
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void AddLegacyAccountDialog::onLineEditTextChanged(const QString &AText)
