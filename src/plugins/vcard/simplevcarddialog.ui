@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>351</width>
-    <height>253</height>
+    <height>260</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="topMargin">
-    <number>20</number>
+    <number>25</number>
    </property>
    <item>
     <layout class="QHBoxLayout" name="rosterInfoLayout" stretch="1,0,0">
@@ -219,6 +219,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="addToRosterButton">
+       <property name="minimumSize">
+        <size>
+         <width>85</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string>Add to roster</string>
        </property>
@@ -229,6 +235,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="renameButton">
+       <property name="minimumSize">
+        <size>
+         <width>85</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string>Rename</string>
        </property>
@@ -239,6 +251,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="closeButton">
+       <property name="minimumSize">
+        <size>
+         <width>85</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string>Close</string>
        </property>

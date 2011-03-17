@@ -1028,7 +1028,7 @@ void RosterChanger::onShowAddGroupDialog(bool)
 	{
 		QInputDialog * dialog = new QInputDialog;
 		dialog->setInputMode(QInputDialog::TextInput);
-		dialog->setLabelText(tr("Enter new group name:"));
+		dialog->setLabelText(tr("<font size=+2>Add group</font><br>Enter new group name:"));
 		dialog->setWindowTitle(tr("Add group"));
 		//QString newGroupName = QInputDialog::getText(NULL, tr("Add group"), tr("Enter new group name:"));
 		connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onGroupNameAccepted(QString)));
@@ -1724,7 +1724,7 @@ void RosterChanger::onRenameGroup(bool)
 			dialog->setProperty("groupName", groupName);
 			dialog->setProperty("streamJid", streamJid);
 			dialog->setInputMode(QInputDialog::TextInput);
-			dialog->setLabelText(tr("Enter new group name:"));
+			dialog->setLabelText(tr("<font size=+2>Rename group</font><br>Enter new group name:"));
 			dialog->setWindowTitle(tr("Rename group"));
 			connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onGroupNameAccepted(QString)));
 			dialog->setProperty("rename", true);
