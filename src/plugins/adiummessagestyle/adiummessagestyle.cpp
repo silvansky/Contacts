@@ -19,7 +19,6 @@
 #include <QWheelEvent>
 #include <QKeyEvent>
 #include <QResizeEvent>
-#include <QDebug>
 
 #define SHARED_STYLE_PATH                   RESOURCES_DIR"/"RSR_STORAGE_ADIUMMESSAGESTYLES"/"STORAGE_SHARED_DIR
 #define STYLE_CONTENTS_PATH                 "Contents"
@@ -134,7 +133,7 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 	StyleViewer *view = qobject_cast<StyleViewer *>(AWidget);
 	if (view && AOptions.extended.value(MSO_STYLE_ID).toString()==styleId())
 	{
-		if (!FWidgetStatus.contains(AWidget->parentWidget()))
+		if (!FWidgetStatus.contains(AWidget))
 		{
 			connect(view,SIGNAL(linkClicked(const QUrl &)),SLOT(onLinkClicked(const QUrl &)));
 			connect(view,SIGNAL(destroyed(QObject *)),SLOT(onStyleWidgetDestroyed(QObject *)));
@@ -146,7 +145,7 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 			QString html = makeStyleTemplate(AOptions);
 			fillStyleKeywords(html,AOptions);
 			view->setHtml(html);
-			FWidgetStatus[view->parentWidget()].content.clear();
+			FWidgetStatus[AWidget].content.clear();
 		}
 		else
 		{
@@ -166,8 +165,7 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 
 QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions)
 {
-	//StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget) : NULL;
-	StyleViewer *view = qobject_cast<StyleViewer *>(AWidget);
+	StyleViewer *view = FWidgetStatus.contains(AWidget) ? qobject_cast<StyleViewer *>(AWidget) : NULL;
 	if (view)
 	{
 		int contentIndex = scriptContentIndex(AWidget,AOptions);
@@ -421,8 +419,7 @@ void AdiumMessageStyle::fillStyleKeywords(QString &AHtml, const IMessageStyleOpt
 	AHtml.replace("%outgoingColor%",AOptions.extended.value(MSO_SELF_COLOR).toString());
 	AHtml.replace("%incomingColor%",AOptions.extended.value(MSO_CONTACT_COLOR).toString());
 	AHtml.replace("%serviceIconPath%", AOptions.extended.value(MSO_SERVICE_ICON_PATH).toString());
-	AHtml.replace("%serviceIconImg%", QString("<img class=\"serviceIcon\" src=\"%1\">")
-		      .arg(AOptions.extended.value(MSO_SERVICE_ICON_PATH,"outgoing_icon.png").toString()));
+	AHtml.replace("%serviceIconImg%", QString("<img class=\"serviceIcon\" src=\"%1\">").arg(AOptions.extended.value(MSO_SERVICE_ICON_PATH,"outgoing_icon.png").toString()));
 
 	QString background;
 	if (FAllowCustomBackground)
@@ -636,26 +633,6 @@ QString AdiumMessageStyle::prepareMessageHtml(const QString &AHtml, const IMessa
 		}
 	}
 
-	/*
-	// word breaks
-	static const QRegExp wordPattern("\\S+");
-	static const int breakWordLength = 8;
-	static const int breakPerChar = 3;
-	static const QString breakMark = "%WBR%";
-	static const QString breakHtml = "<wbr>";
-	static const int breakMarkLength = breakMark.length();
-	for (cursor = message.find(wordPattern); !cursor.isNull();  cursor = message.find(wordPattern,cursor))
-	{
-		QString word = cursor.selectedText();
-		if (word.length() >= breakWordLength)
-		{
-			for (int pos = breakPerChar; pos+1<word.length(); pos+=breakPerChar+breakMarkLength)
-				word.insert(pos,breakMark);
-			cursor.insertText(word);
-			changed = true;
-		}
-	}
-	*/
 	return changed ? getHtmlBody(message.toHtml())/*.replace(breakMark,breakHtml)*/ : AHtml;
 }
 
