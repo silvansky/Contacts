@@ -271,6 +271,11 @@ QToolBar#tlbToolBar QToolButton#contactMenu::menu-indicator:hover
 	right: 1px;
 }
 
+QToolBar#tlbToolBar QToolButton#tbSipCall
+{
+	width: 40px;
+}
+
 QToolBar#tlbToolBar
 {
 	spacing: 6px;

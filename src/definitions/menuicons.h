@@ -315,6 +315,7 @@
 #define MNI_SIPPHONE_SOUND_VOLUME4               "sipvolume_4"
 #define MNI_SIPPHONE_SOUND_OFF                   "sipsoundoff"
 #define MNI_SIPPHONE_SOUND_DISABLED              "sipsounddisabled"
+#define MNI_SIPPHONE_CALL_BUTTON                 "sipCallButton"
 
 //StatusChanger
 #define MNI_SCHANGER_MODIFY_STATUS               "schangerModifyStatus"

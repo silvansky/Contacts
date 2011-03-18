@@ -27,7 +27,7 @@ SipPhone::SipPhone()
 	FSHISipRequest = -1;
 
 	FSipPhoneProxy = NULL;
-	
+
 	connect(this, SIGNAL(streamStateChanged(const QString&, int)), this, SLOT(onStreamStateChanged(const QString&, int)));
 }
 
@@ -202,7 +202,7 @@ QString hostAddress;
 
 	//QMessageBox::information(NULL, "debug", hostAddress);
 
- 	userJid = AXmppStream->streamJid();
+	userJid = AXmppStream->streamJid();
 	//sipUri = userJid.pNode() + "@sip." + userJid.pDomain();
 	sipUri = userJid.pNode() + "@" + userJid.pDomain();
 	username = userJid.pNode();
@@ -245,12 +245,13 @@ QString hostAddress;
 		connect(this, SIGNAL(sipSendUnRegister()), FSipPhoneProxy, SLOT(makeClearRegisterProxySlot()));
 		connect(FSipPhoneProxy, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
 	}
+	// TODO: resolve conflict!
 	connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(sipClearRegistration(const QString&)));
 //<<<<<<< .mine	//connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(tabControlRemove(const QString&)));
-//=======>>>>>>> .theirs	
+//=======>>>>>>> .theirs
 	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
-//	
-//	
+//
+//
 }
 
 void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
@@ -279,9 +280,11 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 		callAction->setData(ADR_CONTACT_JID, contactJid.full());
 		callAction->setData(ADR_METAID_WINDOW, metaid);
 		callAction->setCheckable(true);
-		
+		callAction->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON);
+
 		connect(callAction, SIGNAL(triggered(bool)), SLOT(onToolBarActionTriggered(bool)));
-		tbChanger->insertAction(callAction, TBG_MCMTW_P2P_CALL);
+		QToolButton * btn = tbChanger->insertAction(callAction, TBG_MCMTW_P2P_CALL);
+		btn->setObjectName("tbSipCall");
 	}
 }
 
@@ -323,7 +326,7 @@ void SipPhone::onToolBarActionTriggered(bool status)
 
 							connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
 							connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
-							
+
 
 							iMetaTabWindow->insertTopWidget(0, pCallControl);
 							FCallControls.insert(metaId, pCallControl);
@@ -343,6 +346,7 @@ void SipPhone::onToolBarActionTriggered(bool status)
 			else
 			{
 				QMessageBox::information(NULL, "onToolBarActionTriggered", "Calls NOT supported");
+				action->setChecked(false);
 			}
 		}
 		else // status == false
@@ -442,7 +446,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				int indexSlash = uri.indexOf("/");
 				uri = uri.left(indexSlash);
 				//QMessageBox::information(NULL, "", uri);
-				
+
 				// !!!!!!! ВНИМАНИЕ ВКЛЮЧИТЬ !!!!!!!
 				emit sipSendInvite(uri);
 				// 2) Получение акцепта на запрос INVITE
@@ -453,7 +457,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			}
 			else // Пользователь отказался принимать звонок
 			{
-				
+
 				removeStream(sid);
 				// Здесь нужно выполнить отмену регистрации SIP
 				//emit sipSendUnRegister();
@@ -509,7 +513,7 @@ void SipPhone::onTabActionHangup()
 	//	if(iMetaTab)
 	//	{
 	//		FCallControls[iMetaTab->metaId().full();]
-	//		
+	//
 	//	}
 	//}
 }
@@ -1126,7 +1130,7 @@ void SipPhone::onAcceptStreamByAction(bool)
 	}
 }
 
-void SipPhone::onCloseStreamByAction(bool) 
+void SipPhone::onCloseStreamByAction(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
