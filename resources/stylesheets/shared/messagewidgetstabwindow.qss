@@ -223,6 +223,27 @@ QToolBar#tlbToolBar QToolButton
 	padding: 0px;
 }
 
+QToolBar#tlbToolBar QToolButton:enabled
+{
+	border-image: url(%IMAGES_PATH%/tabwindowbutton.png);
+}
+
+QToolBar#tlbToolBar QToolButton:disabled
+{
+	border-image: url(%IMAGES_PATH%/tabwindowbutton_disabled.png);
+}
+
+QToolBar#tlbToolBar QToolButton:enabled:pressed,
+QToolBar#tlbToolBar QToolButton:enabled:checked
+{
+	border-image: url(%IMAGES_PATH%/tabwindowbutton_click.png);
+}
+
+QToolBar#tlbToolBar QToolButton:enabled:hover:!checked
+{
+	border-image: url(%IMAGES_PATH%/tabwindowbutton_hover.png);
+}
+
 QToolBar#tlbToolBar
 {
 	spacing: 6px;

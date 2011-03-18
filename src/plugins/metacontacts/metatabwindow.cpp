@@ -312,7 +312,7 @@ void MetaTabWindow::updateItemButton(const Jid &AItemJid)
 		{
 			button->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(descriptor.icon,1));
 		}
-		
+
 		Action *action = FButtonAction.value(button);
 		button->setText(action ? action->text() : FMetaContacts->itemHint(AItemJid));
 		button->setToolTip(button->text());
@@ -338,12 +338,13 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 		updateItemAction(itemJid);
 
 		QToolButton *button = descriptor.combine ? FItemButtons.value(FCombinedItems.value(descriptor.name)) : NULL;
-		if (button == NULL)
+		if (!button)
 		{
 			button = new QToolButton(FToolBarChanger->toolBar());
 			button->setCheckable(true);
 			button->setAutoExclusive(true);
-			button->setToolButtonStyle(FToolBarChanger->toolBar()->toolButtonStyle());
+			button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+			button->setIcon(action->icon());
 			connect(button,SIGNAL(clicked(bool)),SLOT(onItemButtonClicked(bool)));
 			FToolBarChanger->insertWidget(button,descriptor.pageOrder);
 			setButtonAction(button,action);
@@ -351,7 +352,7 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 		else
 		{
 			Menu *menu = qobject_cast<Menu *>(button->menu());
-			if (menu == NULL)
+			if (!menu)
 			{
 				menu = new Menu(button);
 				if (FButtonAction.contains(button))
@@ -372,7 +373,7 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 	{
 		QString descrName = FCombinedItems.key(itemJid);
 		FCombinedItems.remove(descrName,itemJid);
-		
+
 		Action *action = FItemActions.take(itemJid);
 		action->deleteLater();
 
@@ -400,7 +401,7 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 				updateItemButton(combinedJid);
 			}
 		}
-		else 
+		else
 		{
 			FToolBarChanger->removeItem(FToolBarChanger->widgetHandle(button));
 			setButtonAction(button,NULL);

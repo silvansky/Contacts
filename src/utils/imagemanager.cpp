@@ -87,17 +87,9 @@ QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset
 	tmpPainter.fillRect(tmp.rect(), color);
 	tmpPainter.end();
 
-	// draw the blurred drop shadow...
 	p.drawImage(0, 0, tmp);
 
-	// Draw the actual pixmap...
 	p.drawPixmap(0, 0, QPixmap::fromImage(image));
-//	QImage shadow = colorized(image, color);
-//	QImage shadowed(image.size(), image.format());
-//	shadowed.fill(QColor(0, 0, 0, 0).rgba());
-//	QPainter p(&shadowed);
-//	p.drawImage(offset, shadow);
-//	p.drawImage(0, 0, image);
 	p.end();
 	return shadowed;
 }

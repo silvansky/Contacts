@@ -4,3 +4,8 @@ QToolBar
 	padding: 2px;
 	spacing: 2px;
 }
+
+#editWidget
+{
+	min-height: 80px;
+}
