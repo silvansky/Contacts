@@ -568,6 +568,8 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 			{
 				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(),FRostersViewPlugin->rostersView(),window);
 				QToolButton *button = window->toolBarChanger()->insertAction(menu->menuAction(),TBG_MCMTW_USER_TOOLS);
+				button->setObjectName("contactMenu");
+				window->toolBarChanger()->toolBar()->setIconSize(QSize(36, 36));
 				button->setPopupMode(QToolButton::InstantPopup);
 			}
 

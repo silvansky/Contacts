@@ -307,7 +307,7 @@ int Avatars::rosterDataOrder() const
 
 QList<int> Avatars::rosterDataRoles() const
 {
-	static const QList<int> indexRoles = QList<int>() << RDR_AVATAR_HASH << RDR_AVATAR_IMAGE;
+	static const QList<int> indexRoles = QList<int>() << RDR_AVATAR_HASH << RDR_AVATAR_IMAGE << RDR_AVATAR_LARGE_IMAGE;
 	return indexRoles;
 }
 
@@ -324,6 +324,10 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 		if (ARole == RDR_AVATAR_IMAGE)
 		{
 			return ImageManager::roundSquared(avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars), 24, 2);
+		}
+		else if (ARole == RDR_AVATAR_LARGE_IMAGE)
+		{
+			return ImageManager::roundSquared(avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars), 36, 2);
 		}
 		else if (ARole == RDR_AVATAR_HASH)
 		{
@@ -600,6 +604,7 @@ void Avatars::updateDataHolder(const Jid &AContactJid)
 		{
 			emit rosterDataChanged(index,RDR_AVATAR_HASH);
 			emit rosterDataChanged(index,RDR_AVATAR_IMAGE);
+			emit rosterDataChanged(index,RDR_AVATAR_LARGE_IMAGE);
 		}
 	}
 }

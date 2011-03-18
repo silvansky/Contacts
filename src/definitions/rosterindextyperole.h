@@ -52,6 +52,7 @@ enum RosterIndexDataRoles
 	//Avatars
 	RDR_AVATAR_HASH,
 	RDR_AVATAR_IMAGE,
+	RDR_AVATAR_LARGE_IMAGE,
 	//Annotations
 	RDR_ANNOTATIONS,
 	//Search

@@ -23,7 +23,7 @@ MetaContextMenu::~MetaContextMenu()
 
 bool MetaContextMenu::isAcceptedIndex(IRosterIndex *AIndex)
 {
-	if (AIndex!=NULL && FMetaTabWindow->metaRoster()->roster()->streamJid()==AIndex->data(RDR_STREAM_JID).toString())
+	if (AIndex && FMetaTabWindow->metaRoster()->roster()->streamJid()==AIndex->data(RDR_STREAM_JID).toString())
 	{
 		QString metaId = AIndex->data(RDR_INDEX_ID).toString();
 		if (FMetaTabWindow->metaId() == metaId)
@@ -37,7 +37,7 @@ void MetaContextMenu::updateMenu()
 	if (FRosterIndex)
 	{
 		QString name = FRosterIndex->data(Qt::DisplayRole).toString();
-		QImage avatar = FRosterIndex->data(RDR_AVATAR_IMAGE).value<QImage>();
+		QImage avatar = FRosterIndex->data(RDR_AVATAR_LARGE_IMAGE).value<QImage>();
 		setIcon(QIcon(QPixmap::fromImage(avatar)));
 		setTitle(QString("<b>%1</b>").arg(name));
 		menuAction()->setVisible(true);
@@ -63,7 +63,7 @@ void MetaContextMenu::onAboutToHide()
 
 void MetaContextMenu::onRosterIndexInserted(IRosterIndex *AIndex)
 {
-	if (FRosterIndex==NULL && isAcceptedIndex(AIndex))
+	if (!FRosterIndex && isAcceptedIndex(AIndex))
 	{
 		FRosterIndex = AIndex;
 		updateMenu();
@@ -85,12 +85,12 @@ void MetaContextMenu::onRosterIndexDataChanged(IRosterIndex *AIndex, int ARole)
 		{
 			updateMenu();
 		}
-		else if (ARole == RDR_AVATAR_IMAGE)
+		else if ((ARole == RDR_AVATAR_IMAGE) || (ARole == RDR_AVATAR_LARGE_IMAGE))
 		{
 			updateMenu();
 		}
 	}
-	else if (FRosterIndex==NULL && ARole==RDR_INDEX_ID && isAcceptedIndex(AIndex))
+	else if (!FRosterIndex && ARole==RDR_INDEX_ID && isAcceptedIndex(AIndex))
 	{
 		FRosterIndex = AIndex;
 		updateMenu();

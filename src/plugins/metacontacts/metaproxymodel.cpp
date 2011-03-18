@@ -173,7 +173,7 @@ void MetaProxyModel::onMetaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled
 
 void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString &AMetaId)
 {
-	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
+	IRosterIndex *streamIndex = FRostersModel ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
 	if (streamIndex)
 	{
 		QMultiMap<int,QVariant> findData;
@@ -181,21 +181,22 @@ void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString
 		findData.insert(RDR_INDEX_ID,AMetaId);
 
 		QString hash = AMetaRoster->metaAvatarHash(AMetaId);
-		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId);
-		avatar = ImageManager::roundSquared(avatar, 24, 2);
-		//avatar = ImageManager::squared(avatar, 24);
+		QImage originalAvatar = AMetaRoster->metaAvatarImage(AMetaId);
+		QImage avatar = ImageManager::roundSquared(originalAvatar, 24, 2);
+		QImage largeAvatar = ImageManager::roundSquared(originalAvatar, 36, 2);
 
 		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
 		{
-			index->setData(RDR_AVATAR_HASH,hash);
-			index->setData(RDR_AVATAR_IMAGE,avatar);
+			index->setData(RDR_AVATAR_HASH, hash);
+			index->setData(RDR_AVATAR_IMAGE, avatar);
+			index->setData(RDR_AVATAR_LARGE_IMAGE, largeAvatar);
 		}
 	}
 }
 
 void MetaProxyModel::onMetaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId)
 {
-	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
+	IRosterIndex *streamIndex = FRostersModel ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
 	if (streamIndex)
 	{
 		QMultiMap<int,QVariant> findData;
