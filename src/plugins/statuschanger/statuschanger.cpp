@@ -691,7 +691,7 @@ void StatusChanger::updateStatusAction(int AStatusId, Action *AAction) const
 	if (shadow)
 	{
 		QImage img = srcIcon.pixmap(srcIcon.availableSizes().value(0)).toImage();
-		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), -shadow->offset().toPoint());
+		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), shadow->offset().toPoint());
 		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
 		AAction->setIcon(shadowedIcon);
 	}
@@ -822,10 +822,19 @@ void StatusChanger::updateMainMenu()
 {
 	int statusId = visibleMainStatusId();
 
-	if (statusId != STATUS_CONNECTING_ID)
-		FMainMenu->setIcon(iconByShow(statusItemShow(statusId)));
+	QIcon shadowedIcon;
+	QIcon srcIcon = (statusId != STATUS_CONNECTING_ID) ? iconByShow(statusItemShow(statusId)) : IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SCHANGER_CONNECTING);
+	QGraphicsDropShadowEffect * shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_STATUSICONS));
+	if (shadow)
+	{
+		QImage img = srcIcon.pixmap(srcIcon.availableSizes().value(0)).toImage();
+		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), shadow->offset().toPoint());
+		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
+		FMainMenu->setIcon(shadowedIcon);
+	}
 	else
-		FMainMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_SCHANGER_CONNECTING);
+		FMainMenu->setIcon(srcIcon);
+
 	FMainMenu->setTitle(statusItemName(statusId));
 	FMainMenu->menuAction()->setVisible(!FCurrentStatus.isEmpty());
 

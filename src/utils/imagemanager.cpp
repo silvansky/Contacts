@@ -70,12 +70,34 @@ QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
 QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset, bool canResize)
 {
 	Q_UNUSED(canResize)
-	QImage shadow = colorized(image, color);
+
+	if (image.isNull())
+		return image;
+
 	QImage shadowed(image.size(), image.format());
 	shadowed.fill(QColor(0, 0, 0, 0).rgba());
 	QPainter p(&shadowed);
-	p.drawImage(offset, shadow);
-	p.drawImage(0, 0, image);
+
+	QImage tmp(image.size(), QImage::Format_ARGB32_Premultiplied);
+	tmp.fill(0);
+	QPainter tmpPainter(&tmp);
+	tmpPainter.setCompositionMode(QPainter::CompositionMode_Source);
+	tmpPainter.drawPixmap(offset, QPixmap::fromImage(image));
+	tmpPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+	tmpPainter.fillRect(tmp.rect(), color);
+	tmpPainter.end();
+
+	// draw the blurred drop shadow...
+	p.drawImage(0, 0, tmp);
+
+	// Draw the actual pixmap...
+	p.drawPixmap(0, 0, QPixmap::fromImage(image));
+//	QImage shadow = colorized(image, color);
+//	QImage shadowed(image.size(), image.format());
+//	shadowed.fill(QColor(0, 0, 0, 0).rgba());
+//	QPainter p(&shadowed);
+//	p.drawImage(offset, shadow);
+//	p.drawImage(0, 0, image);
 	p.end();
 	return shadowed;
 }
