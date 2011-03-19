@@ -301,12 +301,7 @@ void MetaTabWindow::updateItemButton(const Jid &AItemJid)
 		int notifyCount = itemNotifyCount(AItemJid,true);
 		if (notifyCount > 0)
 		{
-			QIcon icon;
-			QPixmap base(24,24);
-			icon.addPixmap(base);
-			button->setIcon(insertNotifyBalloon(icon,notifyCount));
-
-			//button->setIcon(insertNotifyBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(descriptor.icon,1),notifyCount));
+			button->setIcon(insertNotifyBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(descriptor.icon,1),notifyCount));
 		}
 		else
 		{

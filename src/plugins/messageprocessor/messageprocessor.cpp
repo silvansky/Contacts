@@ -355,30 +355,17 @@ void MessageProcessor::onStreamOpened(IXmppStream *AXmppStream)
 
 void MessageProcessor::onStreamJidAboutToBeChanged(IXmppStream *AXmppStream, const Jid &AAfter)
 {
-	if (AAfter && AXmppStream->streamJid())
-	{
-		QMap<int,Message>::iterator it = FMessages.begin();
-		while (it != FMessages.end())
-		{
-			if (AXmppStream->streamJid() == it.value().to())
-			{
-				unNotifyMessage(it.key());
-				it.value().setTo(AAfter.eFull());
-			}
-			it++;
-		}
-	}
-	else
+	if (!(AAfter && AXmppStream->streamJid()))
 		removeStreamMessages(AXmppStream->streamJid());
 }
 
-void MessageProcessor::onStreamJidChanged(IXmppStream *AXmppStream, const Jid &/*ABefour*/)
+void MessageProcessor::onStreamJidChanged(IXmppStream *AXmppStream, const Jid &ABefour)
 {
 	QMap<int,Message>::iterator it = FMessages.begin();
 	while (it != FMessages.end())
 	{
-		if (AXmppStream->streamJid() == it.value().to())
-			notifyMessage(it.key());
+		if (ABefour == it.value().to())
+			it.value().setTo(AXmppStream->streamJid().eFull());
 		it++;
 	}
 }
