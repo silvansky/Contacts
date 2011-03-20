@@ -38,6 +38,7 @@
 #include <utils/action.h>
 #include <utils/iconstorage.h>
 #include "addcontactdialog.h"
+#include "addmetacontactdialog.h"
 #include "subscriptiondialog.h"
 
 struct AutoSubscription {
@@ -125,6 +126,7 @@ public:
 	virtual QWidget *showAddContactDialog(const Jid &AStreamJid);
 signals:
 	void addContactDialogCreated(IAddContactDialog *ADialog);
+	void addMetaContactDialogCreated(IAddMetaContactDialog *ADialog);
 	void subscriptionDialogCreated(ISubscriptionDialog *ADialog);
 	//IRosterDataHolder
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);

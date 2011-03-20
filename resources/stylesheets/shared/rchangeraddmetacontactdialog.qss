@@ -1,0 +1,10 @@
+QDialog
+{
+	background-color: rgba(65, 70, 77, 245);
+}
+
+#wdtGateways, QDialogButtonBox
+{
+	background-color: transparent;
+}
+

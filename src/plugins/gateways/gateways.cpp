@@ -204,7 +204,7 @@ bool Gateways::initObjects()
 	static const QString JabberContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@([a-z0-9]|\\-|\\.)+$";
 
 	IGateServiceDescriptor sms;
-	sms.valid = true;
+	sms.isValid = true;
 	sms.needGate = true;
 	sms.needLogin = false;
 	sms.type = "sms";
@@ -228,7 +228,7 @@ bool Gateways::initObjects()
 	//FGateDescriptors.append(mail);
 
 	IGateServiceDescriptor icq;
-	icq.valid = true;
+	icq.isValid = true;
 	icq.needGate = true;
 	icq.needLogin = true;
 	icq.type = "icq";
@@ -240,7 +240,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(icq);
 
 	IGateServiceDescriptor magent;
-	magent.valid = true;
+	magent.isValid = true;
 	magent.needGate = true;
 	magent.needLogin = true;
 	magent.type = "mrim";
@@ -264,7 +264,7 @@ bool Gateways::initObjects()
 	//FGateDescriptors.append(twitter);
 
 	IGateServiceDescriptor gtalk;
-	gtalk.valid = true;
+	gtalk.isValid = true;
 	gtalk.needGate = false;
 	gtalk.needLogin = true;
 	gtalk.type = "xmpp";
@@ -281,7 +281,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(gtalk);
 
 	IGateServiceDescriptor yonline;
-	yonline.valid = true;
+	yonline.isValid = true;
 	yonline.needGate = false;
 	yonline.needLogin = true;
 	yonline.type = "xmpp";
@@ -299,7 +299,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(yonline);
 
 	IGateServiceDescriptor qip;
-	qip.valid = true;
+	qip.isValid = true;
 	qip.needGate = false;
 	qip.needLogin = true;
 	qip.type = "xmpp";
@@ -317,7 +317,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(qip);
 
 	IGateServiceDescriptor vkontakte;
-	vkontakte.valid = true;
+	vkontakte.isValid = true;
 	vkontakte.needGate = false;
 	vkontakte.needLogin = true;
 	vkontakte.type = "xmpp";
@@ -335,7 +335,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(vkontakte);
 
 	IGateServiceDescriptor facebook;
-	facebook.valid = true;
+	facebook.isValid = true;
 	facebook.needGate = false;
 	facebook.needLogin = true;
 	facebook.type = "xmpp";
@@ -353,7 +353,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(facebook);
 
 	IGateServiceDescriptor livejournal;
-	livejournal.valid = true;
+	livejournal.isValid = true;
 	livejournal.needGate = false;
 	livejournal.needLogin = true;
 	livejournal.type = "xmpp";
@@ -371,7 +371,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(livejournal);
 
 	IGateServiceDescriptor rambler;
-	rambler.valid = true;
+	rambler.isValid = true;
 	rambler.needGate = false;
 	rambler.needLogin = true;
 	rambler.type = "xmpp";
@@ -394,7 +394,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(rambler);
 
 	IGateServiceDescriptor jabber;
-	jabber.valid = true;
+	jabber.isValid = true;
 	jabber.needGate = false;
 	jabber.needLogin = true;
 	jabber.type = "xmpp";
@@ -699,11 +699,11 @@ IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServ
 {
 	IGateServiceLogin login;
 	IGateServiceDescriptor descriptor = FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
-	if (descriptor.valid)
+	if (descriptor.isValid)
 	{
 		if (AFields.fieldMask > 0)
 		{
-			login.valid = true;
+			login.isValid = true;
 			login.login = AFields.fieldMask & IRegisterFields::Username ? AFields.username : AFields.email;
 			login.password = AFields.password;
 			login.fields = AFields;
@@ -712,19 +712,19 @@ IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServ
 				QStringList parts = login.login.split(descriptor.domainSeparator);
 				login.login = parts.value(0);
 				login.domain = parts.value(1);
-				login.valid = login.domain.isEmpty() || descriptor.domains.contains(login.domain);
+				login.isValid = login.domain.isEmpty() || descriptor.domains.contains(login.domain);
 			}
 		}
 		else if (FDataForms && FDataForms->isFormValid(AFields.form))
 		{
-			login.valid = true;
+			login.isValid = true;
 			login.login = FDataForms->fieldValue(descriptor.loginField, AFields.form.fields).toString();
 			login.password = FDataForms->fieldValue(descriptor.passwordField, AFields.form.fields).toString();
 			login.domain = FDataForms->fieldValue(descriptor.domainField, AFields.form.fields).toString();
 			login.fields = AFields;
 			if (!descriptor.domains.isEmpty())
 			{
-				login.valid = login.domain.isEmpty() || descriptor.domains.contains(login.domain);
+				login.isValid = login.domain.isEmpty() || descriptor.domains.contains(login.domain);
 			}
 			else if (!descriptor.domainField.isEmpty() && !login.domain.isEmpty())
 			{
@@ -740,7 +740,7 @@ IRegisterSubmit Gateways::serviceSubmit(const Jid &AStreamJid, const Jid &AServi
 {
 	IRegisterSubmit submit;
 	IGateServiceDescriptor descriptor = FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
-	if (descriptor.valid)
+	if (descriptor.isValid)
 	{
 		submit.fieldMask = ALogin.fields.fieldMask;
 		submit.key = ALogin.fields.key;
@@ -1474,7 +1474,7 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 	{
 		Jid streamJid = FLoginRequests.take(AId);
 		IGateServiceLogin gslogin = serviceLogin(streamJid,AFields.serviceJid,AFields);
-		if (gslogin.valid)
+		if (gslogin.isValid)
 		{
 			QString login = gslogin.login;
 			if (!gslogin.domain.isEmpty())

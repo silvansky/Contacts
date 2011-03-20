@@ -34,7 +34,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	onLineEditTextChanged(QString::null);
 
 	FGateLabel = FGateways->serviceDescriptor(FStreamJid, FServiceJid);
-	if (FGateLabel.valid)
+	if (FGateLabel.isValid)
 	{
 		setWindowTitle(tr("Account: %1").arg(FGateLabel.name));
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,2,0,"pixmap");
@@ -170,7 +170,7 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 	if (AId == FRegisterId)
 	{
 		FGateLogin = FGateways->serviceLogin(FStreamJid,FServiceJid,AFields);
-		if (FGateLogin.valid)
+		if (FGateLogin.isValid)
 		{
 			ui.lneLogin->setText(FGateLogin.login);
 			ui.lnePassword->setText(FGateLogin.password);
@@ -205,7 +205,7 @@ void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &
 {
 	if (AId == FRegisterId)
 	{
-		if (FGateLogin.valid)
+		if (FGateLogin.isValid)
 		{
 			setError(AError);
 			setWaitMode(false);

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EditItemWidget</class>
+ <widget class="QWidget" name="EditItemWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>354</width>
+    <height>75</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="lblIcon">
+       <property name="text">
+        <string>lblIcon</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lneContact"/>
+     </item>
+     <item>
+      <widget class="CloseButton" name="cbtDelete" native="true"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="wdtSelectProfile" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="lblProfile">
+        <property name="text">
+         <string>Your return address:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="wdtProfiles" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CloseButton</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/closebutton.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

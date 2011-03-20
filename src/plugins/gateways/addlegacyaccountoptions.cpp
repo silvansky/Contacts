@@ -38,7 +38,7 @@ void AddLegacyAccountOptions::reset()
 void AddLegacyAccountOptions::appendServiceButton( const Jid &AServiceJid )
 {
 	IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(FStreamJid,AServiceJid);
-	if (!FWidgets.contains(AServiceJid) && descriptor.valid && descriptor.needLogin)
+	if (!FWidgets.contains(AServiceJid) && descriptor.isValid && descriptor.needLogin)
 	{
 		QWidget *widget = new QWidget(ui.wdtGateways);
 		widget->setLayout(new QVBoxLayout);

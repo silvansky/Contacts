@@ -476,7 +476,7 @@ void AddContactDialog::resolveServiceJid()
 		ui.lneContact->setText(contact);
 
 	IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->descriptorByContact(contact) : IGateServiceDescriptor();
-	if (descriptor.valid)
+	if (descriptor.isValid)
 	{
 		bool offerAccount = false;
 		QList<Jid> gateways = suitableServices(descriptor);

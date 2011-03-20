@@ -33,6 +33,7 @@
 
 //RosterChanger
 #define STS_RCHANGER_ADDCONTACTDIALOG                                   "rchangerAddContactDialog"
+#define STS_RCHANGER_ADDMETACONTACTDIALOG                               "rchangerAddMetaContactDialog"
 #define STS_RCHANGER_TABBARITEM_SUBSCRIPTION                            "rchangerTabBarItemSubscription"
 #define STS_RCHANGER_NOTIFYWIDGET_SUBSCRIPTION                          "rchangerNotifyWidgetSubscription"
 

@@ -10,7 +10,7 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 	FServiceJid = AServiceJid;
 
 	FGateLabel = FGateways->serviceDescriptor(FStreamJid,FServiceJid);
-	ui.lblLogin->setText(FGateLabel.valid ? FGateLabel.name : FServiceJid.full());
+	ui.lblLogin->setText(FGateLabel.isValid ? FGateLabel.name : FServiceJid.full());
 	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,0,0,"pixmap");
 
@@ -86,7 +86,7 @@ void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QStr
 		if (!ALogin.isEmpty())
 			ui.lblLogin->setText(ALogin);
 		else
-			ui.lblLogin->setText(FGateLabel.valid ? FGateLabel.name : FServiceJid.full());
+			ui.lblLogin->setText(FGateLabel.isValid ? FGateLabel.name : FServiceJid.full());
 	}
 }
 

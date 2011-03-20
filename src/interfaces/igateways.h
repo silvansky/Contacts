@@ -12,9 +12,9 @@
 struct IGateServiceLabel
 {
 	IGateServiceLabel() { 
-		valid = false; 
+		isValid = false; 
 	}
-	bool valid;
+	bool isValid;
 	QString name;
 	QString iconKey;
 	QString loginLabel;
@@ -24,9 +24,9 @@ struct IGateServiceLabel
 struct IGateServiceLogin
 {
 	IGateServiceLogin() { 
-		valid = false; 
+		isValid = false; 
 	}
-	bool valid;
+	bool isValid;
 	QString login;
 	QString domain;
 	QString password;
@@ -37,7 +37,7 @@ struct IGateServiceDescriptor :
 	public IGateServiceLabel
 {
 	IGateServiceDescriptor() { 
-		valid = false;
+		isValid = false;
 		needGate = true;
 		needLogin = true;
 	}
