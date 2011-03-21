@@ -81,6 +81,14 @@
     <object mime="image/png">bottomrightshadow_white.png</object>
   </icon>
   <icon>
+    <key>bottomLeftShadowTransparent</key>
+    <object mime="image/png">bottomleftshadow_transparent.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadowTransparent</key>
+    <object mime="image/png">bottomrightshadow_transparent.png</object>
+  </icon>
+  <icon>
     <key>topLeftMask</key>
     <object mime="image/png">topleftmask.png</object>
   </icon>
@@ -93,8 +101,16 @@
     <object mime="image/png">bottomleftmask.png</object>
   </icon>
   <icon>
+    <key>bottomLeftMaskTransparent</key>
+    <object mime="image/png">bottomleftmask_transparent.png</object>
+  </icon>
+  <icon>
     <key>bottomRightMask</key>
     <object mime="image/png">bottomrightmask.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMaskTransparent</key>
+    <object mime="image/png">bottomrightmask_transparent.png</object>
   </icon>
   <icon>
     <key>bottomLeftMaskSquare</key>

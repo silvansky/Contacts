@@ -54,8 +54,8 @@
    <resize-width>10</resize-width>
    <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
-   <image src="menuicons/bottomLeftShadowWhite" />
-   <mask src="menuicons/bottomLeftMask" />
+   <image src="menuicons/bottomLeftShadowTransparent" />
+   <mask src="menuicons/bottomLeftMaskTransparent" />
  </bottom-left-corner>
  <bottom-right-corner>
    <width>57</width>
@@ -65,8 +65,8 @@
    <resize-width>10</resize-width>
    <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
-   <image src="menuicons/bottomRightShadow" />
-   <mask src="menuicons/bottomRightMask" />
+   <image src="menuicons/bottomRightShadowTransparent" />
+   <mask src="menuicons/bottomRightMaskTransparent" />
  </bottom-right-corner>
  <header>
    <spacing>5</spacing>
