@@ -2,6 +2,7 @@
 #define ADDMETACONTACTDIALOG_H
 
 #include <QDialog>
+#include <QVBoxLayout>
 #include <definitions/vcardvaluenames.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
@@ -42,9 +43,13 @@ protected:
 	int descriptorStatus(const IGateServiceDescriptor &ADescriptor) const;
 protected slots:
 	void onDialogAccepted();
+	void onAdjustDialogSize();
 	void onAddItemActionTriggered(bool);
-	void onDeleteItemButtonClicked();
+	void onItemWidgetAdjustSizeRequested();
+	void onItemWidgetDeleteButtonClicked();
+	void onItemWidgetContactJidChanged(const Jid &AContactJid);
 private:
+	QVBoxLayout *FItemsLayout;
 	Ui::AddMetaContactDialog ui;
 private:
 	IMetaRoster *FMetaRoster;

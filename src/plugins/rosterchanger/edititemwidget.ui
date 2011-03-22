@@ -6,34 +6,30 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>354</width>
-    <height>75</height>
+    <width>331</width>
+    <height>92</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
-   <property name="margin">
-    <number>0</number>
-   </property>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="lblIcon">
-       <property name="text">
-        <string>lblIcon</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lneContact"/>
-     </item>
-     <item>
-      <widget class="CloseButton" name="cbtDelete" native="true"/>
-     </item>
-    </layout>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="lblIcon">
+     <property name="text">
+      <string>lblIcon</string>
+     </property>
+    </widget>
    </item>
-   <item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="lneContact"/>
+   </item>
+   <item row="0" column="2">
+    <widget class="CloseButton" name="cbtDelete" native="true"/>
+   </item>
+   <item row="2" column="1">
     <widget class="QWidget" name="wdtSelectProfile" native="true">
      <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="margin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QLabel" name="lblProfile">
         <property name="text">
@@ -45,6 +41,16 @@
        <widget class="QWidget" name="wdtProfiles" native="true"/>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="lblError">
+     <property name="text">
+      <string>lblError</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
   </layout>

@@ -1,6 +1,7 @@
 #include "addmetacontactdialog.h"
 
-#include <QVBoxLayout>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #define ADR_GATE_DESCRIPTOR_NAME    Action::DR_Parametr1
 
@@ -27,8 +28,10 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 
 	FStreamJid = AStreamJid;
 
-	ui.wdtItems->setLayout(new QVBoxLayout);
-	ui.wdtItems->layout()->setMargin(0);
+	FItemsLayout = new QVBoxLayout;
+	FItemsLayout->setMargin(0);
+	FItemsLayout->addStretch();
+	ui.wdtItems->setLayout(FItemsLayout);
 
 	initialize(APluginManager);
 	createGatewaysMenu();
@@ -88,13 +91,6 @@ void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 	if (plugin)
 	{
 		FGateways = qobject_cast<IGateways *>(plugin->instance());
-		//if (FGateways)
-		//{
-		//	connect(FGateways->instance(),SIGNAL(loginReceived(const QString &, const QString &)),SLOT(onServiceLoginReceived(const QString &, const QString &)));
-		//	connect(FGateways->instance(),SIGNAL(userJidReceived(const QString &, const Jid &)),SLOT(onLegacyContactJidReceived(const QString &, const Jid &)));
-		//	connect(FGateways->instance(),SIGNAL(serviceEnableChanged(const Jid &, const Jid &, bool)),SLOT(onServiceEnableChanged(const Jid &, const Jid &, bool)));
-		//	connect(FGateways->instance(),SIGNAL(errorReceived(const QString &, const QString &)),SLOT(onGatewayErrorReceived(const QString &, const QString &)));
-		//}
 	}
 }
 
@@ -130,9 +126,12 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 		case DS_ENABLED:
 			{
 				EditItemWidget *widget = new EditItemWidget(FGateways,FStreamJid,ADescriptor,ui.wdtItems);
-				ui.wdtItems->layout()->addWidget(widget);
-				connect(widget,SIGNAL(deleteButtonClicked()),SLOT(onDeleteItemButtonClicked()));
+				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget);
+				connect(widget,SIGNAL(adjustSizeRequired()),SLOT(onItemWidgetAdjustSizeRequested()));
+				connect(widget,SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));
+				connect(widget,SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
 				FItemWidgets.append(widget);
+				QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
 			}
 			break;
 		case DS_DISABLED:
@@ -186,6 +185,20 @@ void AddMetaContactDialog::onDialogAccepted()
 	accept();
 }
 
+void AddMetaContactDialog::onAdjustDialogSize()
+{
+	if (!FItemWidgets.isEmpty())
+	{
+		ui.scaItems->setVisible(true);
+		ui.scaItems->setMinimumHeight(qMin(2*qApp->desktop()->availableGeometry(this).height()/3,ui.wdtItems->sizeHint().height()));
+	}
+	else
+	{
+		ui.scaItems->setVisible(false);
+	}
+	adjustSize();
+}
+
 void AddMetaContactDialog::onAddItemActionTriggered(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -195,7 +208,12 @@ void AddMetaContactDialog::onAddItemActionTriggered(bool)
 	}
 }
 
-void AddMetaContactDialog::onDeleteItemButtonClicked()
+void AddMetaContactDialog::onItemWidgetAdjustSizeRequested()
+{
+	QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+}
+
+void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
 {
 	EditItemWidget *widget = qobject_cast<EditItemWidget *>(sender());
 	if (FItemWidgets.contains(widget))
@@ -203,5 +221,11 @@ void AddMetaContactDialog::onDeleteItemButtonClicked()
 		FItemWidgets.removeAll(widget);
 		ui.wdtItems->layout()->removeWidget(widget);
 		delete widget;
+		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
 	}
+}
+
+void AddMetaContactDialog::onItemWidgetContactJidChanged(const Jid &AContactJid)
+{
+
 }
