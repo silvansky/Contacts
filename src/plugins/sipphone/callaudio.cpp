@@ -64,6 +64,8 @@ CallAudio::CallAudio( QObject* parent ) : QObject(parent)
 	connect(_pVideo, SIGNAL(localPictureShow(const QImage&)), this, SIGNAL(proxyLocalPictureShow(const QImage&)));
 	connect(this, SIGNAL(proxyStopCamera()), _pVideo, SLOT(stopCamera()));
 	connect(this, SIGNAL(proxyStartCamera()), _pVideo, SLOT(startCamera()));
+
+	//connect(this, SIGNAL(proxySuspendStateChange(bool)), this, SLOT(onProxySuspendStateChange(bool)));
 }
 
 CallAudio::~CallAudio( void )
@@ -130,7 +132,17 @@ void CallAudio::setVideoSW( const QString &sw )
   }
 }
 
-
+void CallAudio::onProxySuspendStateChange(bool state)
+{
+	if(!state)
+	{
+		QMessageBox::information(NULL, "CallAudio::onProxySuspendStateChange::false", "........................................");
+	}
+	else
+	{
+		QMessageBox::information(NULL, "CallAudio::onProxySuspendStateChange::true", "........................................");
+	}
+}
 
 void CallAudio::audioIn( void )
 {
@@ -173,6 +185,8 @@ void CallAudio::audioIn( void )
     outrtp->setPayload( _rtpPayloadSize );
 
     DspOutAlsa *inaudio = new DspOutAlsa( _alsaDeviceName );
+		connect(this, SIGNAL(proxySuspendStateChange(bool)), inaudio, SLOT(onSuspendChanged(bool)));
+		
    // QSettings settings;
 
     dbgPrintf( "CallAudio: Opening ALSA device for Input \n" );
@@ -299,6 +313,8 @@ SdpMessage CallAudio::audioOut( void )
     // **** OUTPUT! MEDIA TO OUTPUT MEDIA DEVICE *****
     // Выход через alsa (осталось из linux). В данном случае вывод через систему мультимедия QT)
     DspOutAlsa *outalsa = new DspOutAlsa( _alsaDeviceName );
+		//connect(this, SIGNAL(proxySuspendStateChange(bool)), outalsa, SLOT(onSuspendChanged(bool)));
+		
 
     //QSettings settings; // ПОПОВ НАКОЙ тут settings???
     dbgPrintf( "CallAudio: Opening ALSA device for Output\n" );

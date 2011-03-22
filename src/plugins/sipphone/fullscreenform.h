@@ -41,7 +41,7 @@ protected:
 
 private:
 	QImageLabel* _pCurrPic;
-	QPushButton* _pShowCurrPic;
+	QToolButton* _pShowCurrPic;
 	FullScreenControls* _pControls;
 private:
 	Ui::FullScreenForm ui;

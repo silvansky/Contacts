@@ -143,6 +143,7 @@ protected slots:
 
 	void onStreamCreated(const QString&);
 
+
 private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
@@ -162,6 +163,7 @@ private:
 	QMap<QString, ISipStream> FStreams;
 	QMap<int, QString> FNotifies;
 	QMap<QString, RCallControl*> FCallControls;
+	QMap<QString, Action*> FCallActions;
 
 	SipPhoneProxy* FSipPhoneProxy;
 

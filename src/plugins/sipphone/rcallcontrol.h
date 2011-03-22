@@ -24,6 +24,7 @@ public:
 	};
 	enum CallStatus
 	{
+		Register,		// Регистрация
 		Accepted,		// Звонок принят
 		Hangup,			// Положили трубку
 		Ringing,		// Звонок
@@ -64,13 +65,20 @@ signals: // Сигналы управляющие звонком
 	void closeAndDelete(bool);
 
 public slots:
+	void statusTextChange(const QString&);
+	void callStatusChange(CallStatus);
+  void callSideChange(CallSide);
+
+signals:
 	void statusTextChanged(const QString&);
 	void callStatusChanged(CallStatus);
+	void callSideChanged(CallSide);
 
 protected slots:
 	void onAccept();
 	void onHangup();
 	void onCamStateChange(bool);
+
 
 protected:
 	void closeEvent(QCloseEvent *);

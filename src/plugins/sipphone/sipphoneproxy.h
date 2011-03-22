@@ -89,6 +89,7 @@ signals:
 	void registrationStatusIs(bool status, const QString& AStreamId);
 	void proxyStartCamera();
 	void proxyStopCamera();
+	void proxySuspendStateChange(bool);
 
 	// Параметры временно передаваемые из SipPhone
 private:

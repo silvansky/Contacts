@@ -3,8 +3,10 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 
+//#include <QMessageBox>
 
-BtnSynchro* AVControl::__bSync = NULL;
+BtnSynchro* AVControl::__bSyncCamera = NULL;
+BtnSynchro* AVControl::__bSyncMic = NULL;
 
 void BtnSynchro::onStateChange(bool state)
 {
@@ -22,13 +24,22 @@ AVControl::AVControl(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	if(__bSync == NULL)
+	if(__bSyncCamera == NULL)
 	{
-		__bSync = new BtnSynchro(ui.chkbtnCameraOn);
+		__bSyncCamera = new BtnSynchro(ui.chkbtnCameraOn);
 	}
 	else
 	{
-		__bSync->AddRef(ui.chkbtnCameraOn);
+		__bSyncCamera->AddRef(ui.chkbtnCameraOn);
+	}
+
+	if(__bSyncMic == NULL)
+	{
+		__bSyncMic = new BtnSynchro(ui.chkbtnMicOn);
+	}
+	else
+	{
+		__bSyncMic->AddRef(ui.chkbtnMicOn);
 	}
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
@@ -67,27 +78,33 @@ AVControl::AVControl(QWidget *parent)
 
 	//ui.chkbtnCameraOn->setEnabled(false);
 	//ui.chkbtnMicOn->setEnabled(false);
+	ui.chkbtnMicOn->setChecked(true);
 
 
 	//connect(ui.chkbtnCameraOn, SIGNAL(clicked(bool)), this, SIGNAL(camStateChange(bool)));
 	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), this, SIGNAL(camStateChange(bool)));
-	//toggled
 
-	connect(ui.chkbtnMicOn, SIGNAL(clicked(bool)), this, SIGNAL(micStateChange(bool)));
+	connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), this, SIGNAL(micStateChange(bool)));
+	//connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), this, SLOT(onMicStateChange(bool)));
+
 	connect(ui.hslMicVolume, SIGNAL(valueChanged(int)), this, SIGNAL(micVolumeChange(int)));
 
 
-	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), __bSync, SLOT(onStateChange(bool)));
-
-
-
-
+	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), __bSyncCamera, SLOT(onStateChange(bool)));
+	connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), __bSyncMic, SLOT(onStateChange(bool)));
 }
+
+
 
 AVControl::~AVControl()
 {
-	if(__bSync)
-		__bSync->Release(ui.chkbtnCameraOn);
+	if(__bSyncCamera)
+		if(__bSyncCamera->Release(ui.chkbtnCameraOn) == 0)
+			__bSyncCamera = NULL;
+
+	if(__bSyncMic)
+		if(__bSyncMic->Release(ui.chkbtnMicOn) == 0)
+			__bSyncMic = NULL;
 }
 
 void AVControl::SetCameraOn(bool isOn)

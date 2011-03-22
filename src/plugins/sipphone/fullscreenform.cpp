@@ -12,7 +12,7 @@ FullScreenForm::FullScreenForm(QWidget *parent)
 	//ui.lblRemotePic->setBaseSize(320, 240);
 
 	_pCurrPic = new QImageLabel(ui.wgtRemoteImage);
-	_pShowCurrPic = new QPushButton(ui.wgtRemoteImage);
+	_pShowCurrPic = new QToolButton(ui.wgtRemoteImage);
 
 	connect(_pCurrPic, SIGNAL(visibleState(bool)), _pShowCurrPic, SLOT(setHidden(bool)));
 	connect(_pShowCurrPic, SIGNAL(clicked()), _pCurrPic, SLOT(show()));

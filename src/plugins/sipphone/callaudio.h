@@ -89,10 +89,11 @@ signals:
 	void proxyLocalPictureShow(const QImage&);
 	void proxyStopCamera();
 	void proxyStartCamera();
+	void proxySuspendStateChange(bool);
 
 private slots:
   void memberStatusUpdated(SipCallMember *member);
-
+	void onProxySuspendStateChange(bool);
 
 private:
   void audioIn( void );

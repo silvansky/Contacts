@@ -204,6 +204,11 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 
 }
 
+
+
+
+
+
 SipPhoneProxy::~SipPhoneProxy()
 {
 
@@ -645,6 +650,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	// Реакция на изменение состояния камеры
 	connect(this, SIGNAL(proxyStartCamera()), _pCallAudio, SIGNAL(proxyStartCamera()));
 	connect(this, SIGNAL(proxyStopCamera()), _pCallAudio, SIGNAL(proxyStopCamera()));
+	connect(this, SIGNAL(proxySuspendStateChange(bool)), _pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
 	
 
 	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, _pCallAudio, newcall, this );
@@ -699,6 +705,7 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		// Реакция на изменение состояния камеры
 		connect(this, SIGNAL(proxyStartCamera()), _pCallAudio, SIGNAL(proxyStartCamera()));
 		connect(this, SIGNAL(proxyStopCamera()), _pCallAudio, SIGNAL(proxyStopCamera()));
+		connect(this, SIGNAL(proxySuspendStateChange(bool)), _pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
 
 		SipPhoneWidget *widget = new SipPhoneWidget(0, _pCallAudio, call, this );
 		connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));

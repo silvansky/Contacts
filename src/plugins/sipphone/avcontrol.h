@@ -33,8 +33,11 @@ public:
 	{
 		_refCount--;
 		_buttons.removeOne(btn);
-		if (_refCount == 0) 
+		if (_refCount == 0)
+    {
 			delete this; 
+      return 0;
+    }
 		return _refCount; 
 	}
 
@@ -49,7 +52,8 @@ class AVControl : public QWidget
 {
 	Q_OBJECT
 
-	static BtnSynchro* __bSync;
+	static BtnSynchro* __bSyncCamera;
+	static BtnSynchro* __bSyncMic;
 
 public:
 	AVControl(QWidget *parent = 0);

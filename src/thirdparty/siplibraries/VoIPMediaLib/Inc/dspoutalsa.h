@@ -23,6 +23,8 @@
 
 class VOIPMEDIA_EXPORT DspOutAlsa : public DspOut
 {
+  Q_OBJECT
+
 public:
   /**
   * Constructs a DspOutAlsa object representing the given
@@ -40,6 +42,9 @@ public:
   unsigned int readableBytes( void );
   bool readBuffer( int bytes );
   //int audio_fd;
+
+public slots:
+  void onSuspendChanged(bool);
 
 private:
   //int err;

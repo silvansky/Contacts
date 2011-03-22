@@ -525,6 +525,11 @@ void RSipRegistrations::makeRegister( void )
     {
       _sipRegister->updateRegister();
     }
+		else
+		{
+			// ¬ случае если не было отмены регистрации, уведомл€ем о том что зарегистрированы уже
+			emit proxyTrueRegistrationStatus(true);
+		}
   }
 }
 

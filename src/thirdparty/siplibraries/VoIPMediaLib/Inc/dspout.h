@@ -16,8 +16,8 @@
 */ 
 class VOIPMEDIA_EXPORT DspOut : public QObject
 {
-public:
-  Q_OBJECT;
+//public:
+  Q_OBJECT
 public:
   /**
   * DspOut constructor just does simple initialization.

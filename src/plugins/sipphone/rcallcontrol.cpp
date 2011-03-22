@@ -40,9 +40,12 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), SIGNAL(micVolumeChange(int)));
 
+	
+
 	connect(ui.btnAccept, SIGNAL(clicked()), this, SLOT(onAccept()));
 	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(onHangup()));
 }
+
 
 RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 : QWidget(parent), _callStatus(Ringing), _sid(sid)
@@ -78,10 +81,16 @@ RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 		ui.btnHangup->show();
 	}
 
+	//if(_sid == "")
+	//{
+	//	callStatusChange(Register);
+	//}
+
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SIGNAL(camStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SLOT(onCamStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), SIGNAL(micVolumeChange(int)));
+
 
 	connect(ui.btnAccept, SIGNAL(clicked()), this, SLOT(onAccept()));
 	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(onHangup()));
@@ -107,9 +116,10 @@ void RCallControl::setMetaId(const QString& AMetaId)
 	_metaId = AMetaId;
 }
 
-void RCallControl::statusTextChanged(const QString& text)
+void RCallControl::statusTextChange(const QString& text)
 {
 	ui.lblStatus->setText(text);
+	emit statusTextChanged(text);
 }
 
 void RCallControl::onAccept()
@@ -210,6 +220,10 @@ void RCallControl::onHangup()
 			//return;
 			// Не может быть
 		}
+		else if(_callStatus == Register)
+		{
+			emit abortCall();//hangupCall();
+		}
 		else if(_callStatus == Ringing)
 		{
 			emit abortCall();//hangupCall();
@@ -266,11 +280,23 @@ void RCallControl::onHangup()
 	}
 }
 
-void RCallControl::callStatusChanged(CallStatus status)
+void RCallControl::callSideChange(CallSide side)
+{
+	if(_callSide != side)
+	{
+		_callSide = side;
+		emit callSideChanged(side);
+	}
+	else
+		return;
+}
+
+void RCallControl::callStatusChange(CallStatus status)
 {
 	if(_callStatus != status)
 	{
 		_callStatus = status;
+		emit callStatusChanged(status);
 	}
 	else
 		return;
@@ -280,14 +306,14 @@ void RCallControl::callStatusChanged(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
-			statusTextChanged(tr("ACCEPT"));
+			statusTextChange(tr("ACCEPT"));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
 			ui.btnHangup->setText(tr("Hangup"));
 		}
 		else
 		{
-			statusTextChanged(tr("ACCEPT"));
+			statusTextChange(tr("ACCEPT"));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
 			ui.btnHangup->setText(tr("Hangup"));
@@ -297,7 +323,7 @@ void RCallControl::callStatusChanged(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
-			statusTextChanged(tr("Calling failure..."));
+			statusTextChange(tr("Calling failure..."));
 			ui.btnAccept->show();
 			ui.btnHangup->hide();
 			ui.btnAccept->setText(tr("Call again"));
@@ -308,18 +334,36 @@ void RCallControl::callStatusChanged(CallStatus status)
 			// У вызываемого абонента при отмене вызова панель пропадает
 		}
 	}
-	else if(_callStatus == Ringing)
+	else if(_callStatus == Register)
 	{
 		if(_callSide == Caller)
 		{
-			statusTextChanged(tr("Outgoing Call..."));
+			statusTextChange(tr("Registering..."));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
 			ui.btnHangup->setText(tr("Hangup"));
 		}
 		else
 		{
-			statusTextChanged(tr("Incoming Call..."));
+			//statusTextChange(tr("Incoming Call..."));
+			//ui.btnAccept->show();
+			//ui.btnHangup->show();
+			//ui.btnAccept->setText(tr("Accept"));
+			//ui.btnHangup->setText(tr("Hangup"));
+		}
+	}
+	else if(_callStatus == Ringing)
+	{
+		if(_callSide == Caller)
+		{
+			statusTextChange(tr("Outgoing Call..."));
+			ui.btnAccept->hide();
+			ui.btnHangup->show();
+			ui.btnHangup->setText(tr("Hangup"));
+		}
+		else
+		{
+			statusTextChange(tr("Incoming Call..."));
 			ui.btnAccept->show();
 			ui.btnHangup->show();
 			ui.btnAccept->setText(tr("Accept"));
@@ -330,7 +374,7 @@ void RCallControl::callStatusChanged(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
-			statusTextChanged(tr("No answer..."));
+			statusTextChange(tr("No answer..."));
 			ui.btnAccept->show();
 			ui.btnHangup->hide();
 			ui.btnAccept->setText(tr("Call again"));
@@ -338,7 +382,7 @@ void RCallControl::callStatusChanged(CallStatus status)
 		}
 		else
 		{
-			statusTextChanged(tr("Missed Call..."));
+			statusTextChange(tr("Missed Call..."));
 			ui.btnAccept->show();
 			ui.btnHangup->hide();
 			ui.btnAccept->setText(tr("Callback"));
@@ -360,7 +404,7 @@ void RCallControl::callStatusChanged(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
-			statusTextChanged(tr("Call Error..."));
+			statusTextChange(tr("Call Error..."));
 			ui.btnAccept->show();
 			ui.btnHangup->hide();
 			ui.btnAccept->setText(tr("Call again"));
