@@ -623,19 +623,19 @@ QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 	if (roster && roster->isOpen())
 	{
 		QDialog *dialog;
-		//IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(AStreamJid) : NULL;
+		IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(AStreamJid) : NULL;
 		//if (mroster && mroster->isOpen())
-		//{
-		//	dialog = new AddMetaContactDialog(this,FPluginManager,AStreamJid);
-		//	connect(mroster->instance(),SIGNAL(metaRosterClosed()),dialog,SLOT(reject()));
-		//	emit addMetaContactDialogCreated(qobject_cast<IAddMetaContactDialog *>(dialog));
-		//}
-		//else
 		{
-			dialog = new AddContactDialog(this,FPluginManager,AStreamJid);
-			connect(roster->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
-			emit addContactDialogCreated(qobject_cast<IAddContactDialog *>(dialog));
+			dialog = new AddMetaContactDialog(this,FPluginManager,AStreamJid);
+			connect(mroster->instance(),SIGNAL(metaRosterClosed()),dialog,SLOT(reject()));
+			emit addMetaContactDialogCreated(qobject_cast<IAddMetaContactDialog *>(dialog));
 		}
+		//else
+		//{
+		//	dialog = new AddContactDialog(this,FPluginManager,AStreamJid);
+		//	connect(roster->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
+		//	emit addContactDialogCreated(qobject_cast<IAddContactDialog *>(dialog));
+		//}
 
 		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 		if (border)

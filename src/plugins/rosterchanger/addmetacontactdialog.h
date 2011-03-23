@@ -18,6 +18,7 @@
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/imagemanager.h>
 #include "edititemwidget.h"
 #include "ui_addmetacontactdialog.h"
 
@@ -41,13 +42,24 @@ protected:
 	void createGatewaysMenu();
 	void addContactItem(const IGateServiceDescriptor &ADescriptor);
 	int descriptorStatus(const IGateServiceDescriptor &ADescriptor) const;
+	QString defaultContactNick(const Jid &AContactJid) const;
+	void updateDialogState();
+	void setDialogEnabled(bool AEnabled);
+	void setAvatarIndex(int AIndex);
+protected:
+	virtual void showEvent(QShowEvent *AEvent);
 protected slots:
 	void onDialogAccepted();
 	void onAdjustDialogSize();
+	void onPrevPhotoButtonClicked();
+	void onNextPhotoButtonClicked();
 	void onAddItemActionTriggered(bool);
 	void onItemWidgetAdjustSizeRequested();
 	void onItemWidgetDeleteButtonClicked();
 	void onItemWidgetContactJidChanged(const Jid &AContactJid);
+	void onVCardReceived(const Jid &AContactJid);
+	void onVCardError(const Jid &AContactJid, const QString &AError);
+	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 private:
 	QVBoxLayout *FItemsLayout;
 	Ui::AddMetaContactDialog ui;
@@ -58,7 +70,15 @@ private:
 	IVCardPlugin *FVcardPlugin;
 	IRosterChanger *FRosterChanger;
 private:
+	int FAvatarIndex;
+	QList<Jid> FValidContacts;
+	QList<Jid> FAvatarContacts;
+	QList<Jid> FNoVcardContacts;
+	QMap<Jid,QImage> FContactAvatars;
+private:
+	bool FShown;
 	Jid FStreamJid;
+	QString FCreateActiontId;
 	QList<QString> FAvailDescriptors;
 	QList<EditItemWidget *> FItemWidgets;
 };

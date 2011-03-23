@@ -37,6 +37,7 @@ protected:
 protected slots:
 	void resolveContactJid();
 protected slots:
+	void onContactTextEditingFinished();
 	void onContactTextEdited(const QString &AText);
 	void onProfileButtonClicked(bool);
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);

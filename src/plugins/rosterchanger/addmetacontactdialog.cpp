@@ -1,5 +1,6 @@
 #include "addmetacontactdialog.h"
 
+#include <QMessageBox>
 #include <QApplication>
 #include <QDesktopWidget>
 
@@ -17,6 +18,7 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	
+	setMinimumWidth(350);
 	setWindowTitle(tr("Add Contact"));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_RCHANGER_ADD_CONTACT,0,0,"windowIcon");
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDMETACONTACTDIALOG);
@@ -26,19 +28,26 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	FVcardPlugin = NULL;
 	FRosterChanger = ARosterChanger;
 
+	FShown = false;
+	FAvatarIndex = -1;
 	FStreamJid = AStreamJid;
 
 	FItemsLayout = new QVBoxLayout;
 	FItemsLayout->setMargin(0);
 	FItemsLayout->addStretch();
 	ui.wdtItems->setLayout(FItemsLayout);
+	ui.scaItems->setVisible(false);
 
-	initialize(APluginManager);
-	createGatewaysMenu();
+	connect(ui.tlbPhotoPrev,SIGNAL(clicked()),SLOT(onPrevPhotoButtonClicked()));
+	connect(ui.tlbPhotoNext,SIGNAL(clicked()),SLOT(onNextPhotoButtonClicked()));
 
 	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add Contact"));
 	connect(ui.dbbButtons,SIGNAL(accepted()),SLOT(onDialogAccepted()));
 	connect(ui.dbbButtons,SIGNAL(rejected()),SLOT(reject()));
+
+	initialize(APluginManager);
+	createGatewaysMenu();
+	updateDialogState();
 }
 
 AddMetaContactDialog::~AddMetaContactDialog()
@@ -63,11 +72,16 @@ void AddMetaContactDialog::setNickName(const QString &ANick)
 
 void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 {
-	IPlugin *plugin = APluginManager->pluginInterface("IMetaContact").value(0,NULL);
+	IPlugin *plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
 	if (plugin)
 	{
 		IMetaContacts *metaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
 		FMetaRoster = metaContacts!=NULL ? metaContacts->findMetaRoster(FStreamJid) : NULL;
+		if (FMetaRoster)
+		{
+			connect(FMetaRoster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
+				SLOT(onMetaActionResult(const QString &, const QString &, const QString &)));
+		}
 	}
 
 	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
@@ -80,11 +94,11 @@ void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 	if (plugin)
 	{
 		FVcardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
-		//if (FVcardPlugin)
-		//{
-		//	connect(FVcardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)),SLOT(onVCardReceived(const Jid &)));
-		//	connect(FVcardPlugin->instance(), SIGNAL(vcardError(const Jid &, const QString &)),SLOT(onVCardError(const Jid &, const QString &)));
-		//}
+		if (FVcardPlugin)
+		{
+			connect(FVcardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)),SLOT(onVCardReceived(const Jid &)));
+			connect(FVcardPlugin->instance(), SIGNAL(vcardError(const Jid &, const QString &)),SLOT(onVCardError(const Jid &, const QString &)));
+		}
 	}
 
 	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
@@ -126,6 +140,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 		case DS_ENABLED:
 			{
 				EditItemWidget *widget = new EditItemWidget(FGateways,FStreamJid,ADescriptor,ui.wdtItems);
+				widget->setFocus();
 				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget);
 				connect(widget,SIGNAL(adjustSizeRequired()),SLOT(onItemWidgetAdjustSizeRequested()));
 				connect(widget,SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));
@@ -152,6 +167,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 		default:
 			break;
 		}
+		updateDialogState();
 	}
 }
 
@@ -180,9 +196,143 @@ int AddMetaContactDialog::descriptorStatus(const IGateServiceDescriptor &ADescri
 	return DS_UNAVAILABLE;
 }
 
+QString AddMetaContactDialog::defaultContactNick(const Jid &AContactJid) const
+{
+	QString nick = AContactJid.node();
+	nick = nick.isEmpty() ? AContactJid.full() : nick;
+	if (!nick.isEmpty())
+	{
+		nick[0] = nick[0].toUpper();
+		for (int pos = nick.indexOf('_'); pos>=0; pos = nick.indexOf('_',pos+1))
+		{
+			if (pos+1 < nick.length())
+				nick[pos+1] = nick[pos+1].toUpper();
+			nick.replace(pos,1,' ');
+		}
+	}
+	return nick.trimmed();
+}
+
+void AddMetaContactDialog::updateDialogState()
+{
+	FValidContacts.clear();
+	FAvatarContacts.clear();
+
+	bool isAcceptable = !FItemWidgets.isEmpty();
+	foreach(EditItemWidget *widget, FItemWidgets)
+	{
+		Jid contactJid = widget->contactJid().bare();
+		if (contactJid.isValid())
+		{
+			FValidContacts.append(contactJid);
+			if (FVcardPlugin && !FNoVcardContacts.contains(contactJid))
+			{
+				if (FContactAvatars.contains(contactJid))
+				{
+					FAvatarContacts.append(contactJid);
+				}
+				else if (FVcardPlugin->hasVCard(contactJid))
+				{
+					IVCard *vcard = FVcardPlugin->vcard(contactJid);
+					QImage avatar = vcard->photoImage();
+					if (!avatar.isNull())
+					{
+						avatar = ImageManager::roundSquared(avatar, 36, 2);
+						FAvatarContacts.append(contactJid);
+						FContactAvatars.insert(contactJid,avatar);
+					}
+					vcard->unlock();
+				}
+				else
+				{
+					FVcardPlugin->requestVCard(FStreamJid,contactJid);
+				}
+			}
+		}
+		else
+		{
+			isAcceptable = false;
+		}
+	}
+
+	setAvatarIndex(qMin(FAvatarIndex>=0 ? FAvatarIndex : 0, FAvatarContacts.count()-1));
+
+	ui.dbbButtons->button(QDialogButtonBox::Ok)->setEnabled(isAcceptable);
+}
+
+void AddMetaContactDialog::setDialogEnabled(bool AEnabled)
+{
+	ui.scaItems->setEnabled(AEnabled);
+	ui.lneNick->setEnabled(AEnabled);
+	ui.pbtAddItem->setEnabled(AEnabled);
+
+	if (!AEnabled)
+	{
+		ui.tlbPhotoPrev->setEnabled(AEnabled);
+		ui.tlbPhotoNext->setEnabled(AEnabled);
+		ui.dbbButtons->button(QDialogButtonBox::Ok)->setEnabled(AEnabled);
+	}
+	else
+	{
+		updateDialogState();
+	}
+}
+
+void AddMetaContactDialog::setAvatarIndex(int AIndex)
+{
+	if (AIndex >= 0 && AIndex<FAvatarContacts.count())
+	{
+		QImage avatar = FContactAvatars.value(FAvatarContacts.value(AIndex));
+		ui.lblPhoto->setPixmap(QPixmap::fromImage(avatar));
+		FAvatarIndex = AIndex;
+	}
+	else
+	{
+		if (FAvatars)
+		{
+			QImage avatar = ImageManager::roundSquared(FAvatars->avatarImage(Jid::null,false), 36, 2);
+			ui.lblPhoto->setPixmap(QPixmap::fromImage(avatar));
+		}
+		else
+		{
+			ui.lblPhoto->clear();
+		}
+		FAvatarIndex = -1;
+	}
+
+	ui.tlbPhotoPrev->setEnabled(FAvatarIndex>0);
+	ui.tlbPhotoNext->setEnabled(FAvatarIndex<FAvatarContacts.count()-1);
+	ui.lblPhotoIndex->setText(QString("%1/%2").arg(FAvatarIndex+1).arg(FAvatarContacts.count()));
+}
+
+void AddMetaContactDialog::showEvent(QShowEvent *AEvent)
+{
+	if (!FShown)
+	{
+		FShown = true;
+		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+	}
+	QDialog::showEvent(AEvent);
+}
+
 void AddMetaContactDialog::onDialogAccepted()
 {
-	accept();
+	if (FMetaRoster && !FItemWidgets.isEmpty())
+	{
+		IMetaContact contact;
+		contact.name = !ui.lneNick->text().trimmed().isEmpty() ? ui.lneNick->text().trimmed() : defaultContactNick(FItemWidgets.value(0)->contactJid());
+		foreach(EditItemWidget *widget, FItemWidgets)
+			contact.items += widget->contactJid().bare();
+		FCreateActiontId = FMetaRoster->createContact(contact);
+		if (!FCreateActiontId.isEmpty())
+		{
+			setDialogEnabled(false);
+		}
+		else
+		{
+			onMetaActionResult(FCreateActiontId,ErrorHandler::coditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
+		}
+	}
 }
 
 void AddMetaContactDialog::onAdjustDialogSize()
@@ -190,13 +340,27 @@ void AddMetaContactDialog::onAdjustDialogSize()
 	if (!FItemWidgets.isEmpty())
 	{
 		ui.scaItems->setVisible(true);
-		ui.scaItems->setMinimumHeight(qMin(2*qApp->desktop()->availableGeometry(this).height()/3,ui.wdtItems->sizeHint().height()));
+		ui.scaItems->setFixedHeight(qMin(2*qApp->desktop()->availableGeometry(this).height()/3,ui.wdtItems->sizeHint().height()));
+		ui.pbtAddItem->setText(tr("Add another address"));
 	}
 	else
 	{
 		ui.scaItems->setVisible(false);
+		ui.pbtAddItem->setText(tr("Specify contact's address"));
 	}
 	adjustSize();
+}
+
+void AddMetaContactDialog::onPrevPhotoButtonClicked()
+{
+	if (FAvatarIndex > 0)
+		setAvatarIndex(FAvatarIndex-1);
+}
+
+void AddMetaContactDialog::onNextPhotoButtonClicked()
+{
+	if (FAvatarIndex < FAvatarContacts.count()-1)
+		setAvatarIndex(FAvatarIndex+1);
 }
 
 void AddMetaContactDialog::onAddItemActionTriggered(bool)
@@ -222,10 +386,42 @@ void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
 		ui.wdtItems->layout()->removeWidget(widget);
 		delete widget;
 		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+		updateDialogState();
 	}
 }
 
 void AddMetaContactDialog::onItemWidgetContactJidChanged(const Jid &AContactJid)
 {
+	if (ui.lneNick->text().trimmed().isEmpty())
+		ui.lneNick->setText(defaultContactNick(AContactJid));
+	updateDialogState();
+}
 
+void AddMetaContactDialog::onVCardReceived(const Jid &AContactJid)
+{
+	if (FValidContacts.contains(AContactJid))
+		updateDialogState();
+}
+
+void AddMetaContactDialog::onVCardError(const Jid &AContactJid, const QString &AError)
+{
+	Q_UNUSED(AError);
+	if (FValidContacts.contains(AContactJid))
+		FNoVcardContacts.append(AContactJid);
+}
+
+void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
+{
+	if (AActionId == FCreateActiontId)
+	{
+		if (!AErrCond.isEmpty())
+		{
+			QMessageBox::warning(this,tr("Failed to create contact"),tr("Failed to add contact due to an error: %1").arg(AErrMessage));
+			setDialogEnabled(true);
+		}
+		else
+		{
+			accept();
+		}
+	}
 }

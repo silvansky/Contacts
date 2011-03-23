@@ -2,7 +2,7 @@
 
 #include <QVBoxLayout>
 
-#define RESOLVE_WAIT_INTERVAL    1000
+#define RESOLVE_WAIT_INTERVAL    2000
 
 EditItemWidget::EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
 {
@@ -18,6 +18,7 @@ EditItemWidget::EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, cons
 	FResolveTimer.setSingleShot(true);
 	connect(&FResolveTimer,SIGNAL(timeout()),SLOT(resolveContactJid()));
 
+	connect(ui.lneContact,SIGNAL(editingFinished()),SLOT(onContactTextEditingFinished()));
 	connect(ui.lneContact,SIGNAL(textEdited(const QString &)),SLOT(onContactTextEdited(const QString &)));
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,ADescriptor.iconKey,0,0,"pixmap");
@@ -228,6 +229,11 @@ void EditItemWidget::resolveContactJid()
 	}
 
 	setErrorMessage(errMessage);
+}
+
+void EditItemWidget::onContactTextEditingFinished()
+{
+	startResolve(0);
 }
 
 void EditItemWidget::onContactTextEdited(const QString &AText)
