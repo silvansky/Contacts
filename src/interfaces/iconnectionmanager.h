@@ -12,6 +12,7 @@
 #define FIREFOX_PROXY_REF_UUID      "{baccbfb0-581d-4820-ac02-3980afd3969d}"
 #define IEXPLORER_PROXY_REF_UUID    "{a99556f6-59ba-48eb-9021-22e9fa3ea95c}"
 #define APPLICATION_PROXY_REF_UUID  "{6c456899-7a50-4cd1-b31d-3cbe49423ed1}"
+#define MANUAL_PROXY_REF_UUID       "{5acc925d-9729-4997-9fbd-0771554bf94d}"
 
 class IConnectionPlugin;
 

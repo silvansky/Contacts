@@ -92,7 +92,11 @@ void DefaultConnectionPlugin::loadConnectionSettings(IConnection *AConnection, c
 		connection->setOption(IDefaultConnection::COR_USE_SSL,ANode.value("use-ssl").toBool());
 		connection->setOption(IDefaultConnection::COR_IGNORE_SSL_ERRORS,ANode.value("ignore-ssl-errors").toBool());
 		if (FConnectionManager)
-			connection->setProxy(FConnectionManager->proxyById(FConnectionManager->loadProxySettings(ANode.node("proxy"))).proxy);
+		{
+			QUuid proxyId = FConnectionManager->loadProxySettings(ANode.node("proxy"));
+			connection->setProxy(FConnectionManager->proxyById(proxyId).proxy);
+			connection->setOption(IDefaultConnection::COR_CHANGE_PROXY_TYPE,proxyId==MANUAL_PROXY_REF_UUID);
+		}
 	}
 }
 

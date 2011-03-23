@@ -54,6 +54,7 @@ signals:
 	void proxyChanged(const QNetworkProxy &AProxy);
 protected:
 	void connectToNextHost();
+	void connectSocketToHost(const QString &AHost, quint16 APort);
 	void setError(const QString &AError);
 protected slots:
 	void onDnsResultsReady(int AId, const QJDns::Response &AResults);
@@ -75,8 +76,11 @@ private:
 	bool FSSLError;
 	bool FSSLConnection;
 	bool FIgnoreSSLErrors;
+	bool FChangeProxyType;
 	QSslSocket FSocket;
 private:
+	int FPort;
+	QString FHost;
 	QString FErrorString;
 	QMap<int, QVariant> FOptions;
 };

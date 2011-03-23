@@ -1,7 +1,5 @@
 #include "proxyoptionswidget.h"
 
-#define MANUAL_PROXY_REF_UUID "{5acc925d-9729-4997-9fbd-0771554bf94d}"
-
 ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode ANode, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
