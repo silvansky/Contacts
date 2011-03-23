@@ -791,8 +791,16 @@ Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 			QString metaId = itemMetaContact(itemJid);
 			IRosterItem ritem = FRoster->rosterItem(itemJid);
 
+			// Удаление контакта
+			if (itemElem.attribute("subscription") == SUBSCRIPTION_REMOVE)
+			{
+				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
+				mcElem.setAttribute("action",MC_ACTION_DELETE);
+				mcElem.setAttribute("id",metaId);
+				mcElem.appendChild(iq.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
+			}
 			// Добавление нового контакта
-			if (!ritem.isValid)
+			else if (!ritem.isValid)
 			{
 				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
 				mcElem.setAttribute("action",MC_ACTION_CREATE);
