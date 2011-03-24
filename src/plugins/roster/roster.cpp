@@ -254,19 +254,8 @@ void Roster::removeItem(const Jid &AItemJid)
 
 void Roster::removeItems(const QList<IRosterItem> &AItems)
 {
-	if (!AItems.isEmpty())
-	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement elem = query.addElement("query",NS_JABBER_ROSTER);
-		foreach(IRosterItem ritem, AItems)
-		{
-			QDomElement itemElem = elem.appendChild(query.createElement("item")).toElement();
-			itemElem.setAttribute("jid", ritem.itemJid.eBare());
-			itemElem.setAttribute("subscription",SUBSCRIPTION_REMOVE);
-		}
-		FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),query);
-	}
+	foreach(const IRosterItem &ritem, AItems)
+		removeItem(ritem.itemJid);
 }
 
 void Roster::saveRosterItems(const QString &AFileName) const

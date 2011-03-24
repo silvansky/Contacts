@@ -895,16 +895,16 @@ bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid)
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
+		if (FRosterChanger)
+			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
+
 		if (FRegistration)
 			FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid);
 
-		QList<IRosterItem> ritems;
 		foreach(IRosterItem ritem, roster->rosterItems())
-		{
 			if (ritem.itemJid.pDomain() == AServiceJid.pDomain())
-				ritems.append(ritem);
-		}
-		roster->removeItems(ritems);
+				roster->removeItem(ritem.itemJid);
+
 		return true;
 	}
 	return false;
