@@ -7,6 +7,7 @@
   <icon>
     <key>notificationsOptions</key>
     <object mime="image/png">notificationsoptions.png</object>
+    <object mime="image/png">notificationsoptions_click.png</object>
   </icon>
   <icon>
     <key>notificationsActivateAll</key>

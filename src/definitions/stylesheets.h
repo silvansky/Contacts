@@ -65,4 +65,5 @@
 
 //SipPhone
 #define STS_SIPPHONE                                                    "sipphone"
+
 #endif // DEF_STYLESHEETS_H

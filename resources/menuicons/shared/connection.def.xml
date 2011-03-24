@@ -11,5 +11,6 @@
   <icon>
     <key>connectionOptions</key>
     <object mime="image/png">connectionoptions.png</object>
+    <object mime="image/png">connectionoptions_click.png</object>
   </icon>
 </icondef>

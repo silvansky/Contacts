@@ -53,6 +53,7 @@ QTreeView::item
 	border-top: 0px;
 	border-image: url(%IMAGES_PATH%/treeviewitembottomrightborder.png);
 	color: white;
+	padding-left: 7px;
 }
 
 QTreeView::item:selected

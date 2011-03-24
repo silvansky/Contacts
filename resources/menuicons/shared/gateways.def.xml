@@ -34,86 +34,72 @@
   </icon>
   <icon>
     <key>gatewaysServiceSms</key>
-    <object mime="image/png">gatewaysservicesms20.png</object>
-    <object mime="image/png">gatewaysservicesms39.png</object>
+    <object mime="image/png">gatewaysservicesms23.png</object>
     <object mime="image/png">gatewaysservicesms50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceIcq</key>
-    <object mime="image/png">gatewaysserviceicq20.png</object>
-    <object mime="image/png">gatewaysserviceicq39.png</object>
+    <object mime="image/png">gatewaysserviceicq23.png</object>
     <object mime="image/png">gatewaysserviceicq50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceYOnline</key>
-    <object mime="image/png">gatewaysserviceyonline20.png</object>
-    <object mime="image/png">gatewaysserviceyonline39.png</object>
+    <object mime="image/png">gatewaysserviceyonline23.png</object>
     <object mime="image/png">gatewaysserviceyonline50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceOdnoklasniki</key>
-    <object mime="image/png">gatewaysserviceodnoklasniki20.png</object>
-    <object mime="image/png">gatewaysserviceodnoklasniki39.png</object>
+    <object mime="image/png">gatewaysserviceodnoklasniki23.png</object>
     <object mime="image/png">gatewaysserviceodnoklasniki50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceMAgent</key>
-    <object mime="image/png">gatewaysservicemagent20.png</object>
-    <object mime="image/png">gatewaysservicemagent39.png</object>
+    <object mime="image/png">gatewaysservicemagent23.png</object>
     <object mime="image/png">gatewaysservicemagent50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceGTalk</key>
-    <object mime="image/png">gatewaysservicegtalk20.png</object>
-    <object mime="image/png">gatewaysservicegtalk39.png</object>
+    <object mime="image/png">gatewaysservicegtalk23.png</object>
     <object mime="image/png">gatewaysservicegtalk50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceRambler</key>
-    <object mime="image/png">gatewaysservicerambler20.png</object>
-    <object mime="image/png">gatewaysservicerambler39.png</object>
+    <object mime="image/png">gatewaysservicerambler23.png</object>
     <object mime="image/png">gatewaysservicerambler50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceFacebook</key>
-    <object mime="image/png">gatewaysservicefacebook20.png</object>
-    <object mime="image/png">gatewaysservicefacebook39.png</object>
+    <object mime="image/png">gatewaysservicefacebook23.png</object>
     <object mime="image/png">gatewaysservicefacebook50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceQip</key>
-    <object mime="image/png">gatewaysserviceqip20.png</object>
-    <object mime="image/png">gatewaysserviceqip39.png</object>
+    <object mime="image/png">gatewaysserviceqip23.png</object>
     <object mime="image/png">gatewaysserviceqip50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceJabber</key>
-    <object mime="image/png">gatewaysservicejabber20.png</object>
-    <object mime="image/png">gatewaysservicejabber39.png</object>
+    <object mime="image/png">gatewaysservicejabber23.png</object>
     <object mime="image/png">gatewaysservicejabber50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceMail</key>
-    <object mime="image/png">gatewaysservicemail20.png</object>
-    <object mime="image/png">gatewaysservicemail39.png</object>
+    <object mime="image/png">gatewaysservicemail23.png</object>
     <object mime="image/png">gatewaysservicemail50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceTwitter</key>
-    <object mime="image/png">gatewaysservicetwitter20.png</object>
-    <object mime="image/png">gatewaysservicetwitter39.png</object>
+    <object mime="image/png">gatewaysservicetwitter23.png</object>
     <object mime="image/png">gatewaysservicetwitter50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceVKontakte</key>
-    <object mime="image/png">gatewaysservicevkontakte20.png</object>
-    <object mime="image/png">gatewaysservicevkontakte39.png</object>
+    <object mime="image/png">gatewaysservicevkontakte23.png</object>
     <object mime="image/png">gatewaysservicevkontakte50.png</object>
   </icon>
   <icon>
     <key>gatewaysServiceLiveJournal</key>
-    <object mime="image/png">gatewaysservicelivejournal20.png</object>
-    <object mime="image/png">gatewaysservicelivejournal39.png</object>
+    <object mime="image/png">gatewaysservicelivejournal23.png</object>
     <object mime="image/png">gatewaysservicelivejournal50.png</object>
   </icon>
 </icondef>

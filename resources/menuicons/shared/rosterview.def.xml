@@ -3,6 +3,7 @@
   <icon>
     <key>rosterviewOptions</key>
     <object mime="image/png">rosterviewoptions.png</object>
+    <object mime="image/png">rosterviewoptions_click.png</object>
   </icon>
   <icon>
     <key>rosterviewShowOffline</key>

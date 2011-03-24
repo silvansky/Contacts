@@ -188,10 +188,11 @@ void OptionsDialog::onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode)
 		QStandardItem *item = FNodeItems.contains(ANode.nodeId) ? FNodeItems.value(ANode.nodeId) : createNodeItem(ANode.nodeId);
 		item->setData(ANode.order, IDR_ORDER);
 		item->setText(ANode.name);
-		QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(ANode.iconkey);
+		QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(ANode.iconkey, 0);
+		QIcon iconSelected = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(ANode.iconkey, 1);
 		QIcon newIcon;
 		newIcon.addPixmap(icon.pixmap(18, 18));
-		newIcon.addPixmap(icon.pixmap(18, 18), QIcon::Selected);
+		newIcon.addPixmap(iconSelected.pixmap(18, 18), QIcon::Selected);
 		item->setIcon(newIcon);
 	}
 }

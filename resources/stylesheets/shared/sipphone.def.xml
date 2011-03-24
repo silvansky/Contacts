@@ -1,11 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <styledef>
   <file>
-    <key>sipphoneTabBarItemCall</key>
-    <object mime='text/css'>sipphonetabbaritemcall.qss</object>
-  </file>
-  <file>
-    <key>sipphoneNotifyWidgetCall</key>
-    <object mime='text/css'>sipphonenotifywidgetcall.qss</object>
+    <key>sipphone</key>
+    <object mime='text/css'>sipphone.qss</object>
   </file>
 </styledef>
