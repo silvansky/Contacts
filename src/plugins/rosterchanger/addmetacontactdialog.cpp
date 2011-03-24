@@ -26,6 +26,7 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_RCHANGER_ADD_CONTACT,0,0,"windowIcon");
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDMETACONTACTDIALOG);
 
+	FMetaContacts = NULL;
 	FMetaRoster = NULL;
 	FAvatars = NULL;
 	FVcardPlugin = NULL;
@@ -143,10 +144,12 @@ void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 	IPlugin *plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
 	if (plugin)
 	{
-		IMetaContacts *metaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
-		FMetaRoster = metaContacts!=NULL ? metaContacts->findMetaRoster(FStreamJid) : NULL;
+		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
+		FMetaRoster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(FStreamJid) : NULL;
 		if (FMetaRoster)
 		{
+			connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
+				SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 			connect(FMetaRoster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
 				SLOT(onMetaActionResult(const QString &, const QString &, const QString &)));
 		}
@@ -173,6 +176,13 @@ void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 	if (plugin)
 	{
 		FGateways = qobject_cast<IGateways *>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
+	if (plugin)
+	{
+		IRostersViewPlugin *rostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
+		FRostersView = rostersViewPlugin!=NULL ? rostersViewPlugin->rostersView() : NULL;
 	}
 }
 
@@ -253,19 +263,23 @@ int AddMetaContactDialog::descriptorStatus(const IGateServiceDescriptor &ADescri
 {
 	if (FGateways && ADescriptor.isValid)
 	{
-		if (ADescriptor.needGate && ADescriptor.needLogin)
+		if (ADescriptor.needGate)
 		{
 			IDiscoIdentity identity;
 			identity.category = "gateway";
 			identity.type = ADescriptor.type;
 			if (!FGateways->availServices(FStreamJid,identity).isEmpty())
 			{
-				foreach(Jid gateJid, FGateways->streamServices(FStreamJid,identity))
+				if (ADescriptor.needLogin)
 				{
-					if (FGateways->isServiceEnabled(FStreamJid,gateJid))
-						return DS_ENABLED;
+					foreach(Jid gateJid, FGateways->streamServices(FStreamJid,identity))
+					{
+						if (FGateways->isServiceEnabled(FStreamJid,gateJid))
+							return DS_ENABLED;
+					}
+					return DS_UNREGISTERED;
 				}
-				return DS_UNREGISTERED;
+				return DS_ENABLED;
 			}
 			return DS_UNAVAILABLE;
 		}
@@ -524,6 +538,40 @@ void AddMetaContactDialog::onVCardError(const Jid &AContactJid, const QString &A
 		FNoVcardContacts.append(AContactJid);
 }
 
+void AddMetaContactDialog::onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore)
+{
+	Q_UNUSED(ABefore);
+	if (AContact.items.contains(contactJid()))
+	{
+		if (FRostersView)
+		{
+			IRostersModel *rmodel = FRostersView->rostersModel();
+			IRosterIndex *sroot = rmodel!=NULL ? rmodel->streamRoot(FStreamJid) : NULL;
+			if (sroot)
+			{
+				QMultiMap<int, QVariant> findData;
+				findData.insert(RDR_TYPE,RIT_METACONTACT);
+				findData.insert(RDR_INDEX_ID,AContact.id);
+				IRosterIndex *index = sroot->findChild(findData,true).value(0);
+				if (index)
+				{
+					QModelIndex modelIndex = FRostersView->mapFromModel(rmodel->modelIndexByRosterIndex(index));
+					FRostersView->instance()->setCurrentIndex(modelIndex);
+					FRostersView->instance()->clearSelection();
+					FRostersView->instance()->scrollTo(modelIndex);
+					FRostersView->instance()->selectionModel()->select(modelIndex,QItemSelectionModel::Select);
+				}
+			}
+		}
+
+		IMetaTabWindow *window = FMetaContacts->newMetaTabWindow(FStreamJid,AContact.id);
+		if (window)
+			window->showTabPage();
+
+		accept();
+	}
+}
+
 void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
 {
 	if (AActionId == FCreateActiontId)
@@ -537,7 +585,6 @@ void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QS
 		{
 			foreach(EditItemWidget *widget, FItemWidgets)
 				FRosterChanger->subscribeContact(FStreamJid,widget->contactJid().bare());
-			accept();
 		}
 	}
 }

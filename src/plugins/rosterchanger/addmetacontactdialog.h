@@ -2,18 +2,21 @@
 #define ADDMETACONTACTDIALOG_H
 
 #include <QDialog>
+#include <QMultiMap>
 #include <QVBoxLayout>
 #include <definitions/vcardvaluenames.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/optionvalues.h>
 #include <definitions/stylesheets.h>
+#include <definitions/rosterindextyperole.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/igateways.h>
 #include <interfaces/iavatars.h>
 #include <interfaces/ivcard.h>
+#include <interfaces/irostersview.h>
 #include <utils/menu.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
@@ -69,15 +72,18 @@ protected slots:
 	void onItemWidgetContactJidChanged(const Jid &AContactJid);
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
+	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 private:
 	QVBoxLayout *FItemsLayout;
 	Ui::AddMetaContactDialog ui;
 private:
 	IMetaRoster *FMetaRoster;
+	IMetaContacts *FMetaContacts;
 	IAvatars *FAvatars;
 	IGateways *FGateways;
 	IVCardPlugin *FVcardPlugin;
+	IRostersView *FRostersView;
 	IRosterChanger *FRosterChanger;
 private:
 	int FAvatarIndex;

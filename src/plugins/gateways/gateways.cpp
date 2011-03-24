@@ -215,18 +215,6 @@ bool Gateways::initObjects()
 	sms.availContactRegexp = sms.homeContactRegexp;
 	FGateDescriptors.append(sms);
 
-	//IGateServiceDescriptor mail;
-	//mail.valid = true;
-	//mail.needGate = true;
-	//mail.needLogin = false;
-	//mail.type = "mail";
-	//mail.name = tr("Mail");
-	//mail.iconKey = MNI_GATEWAYS_SERVICE_MAIL;
-	//mail.loginLabel = tr("Mail");
-	//mail.homeContactRegexp =;
-	//mail.availContactRegexp = ;
-	//FGateDescriptors.append(mail);
-
 	IGateServiceDescriptor icq;
 	icq.isValid = true;
 	icq.needGate = true;
@@ -406,8 +394,21 @@ bool Gateways::initObjects()
 	jabber.passwordField = "password";
 	jabber.domainSeparator = "@";
 	jabber.homeContactRegexp = JabberContactRegexp;
-	jabber.availContactRegexp = JabberContactRegexp;
+	jabber.availContactRegexp = jabber.availContactRegexp;
 	FGateDescriptors.append(jabber);
+
+	// Почта должна быть после джаббера т.к. их идентификаторы идентичны
+	IGateServiceDescriptor mail;
+	mail.isValid = true;
+	mail.needGate = true;
+	mail.needLogin = false;
+	mail.type = "mail";
+	mail.name = tr("Mail");
+	mail.iconKey = MNI_GATEWAYS_SERVICE_MAIL;
+	mail.loginLabel = tr("Mail");
+	mail.homeContactRegexp = JabberContactRegexp;
+	mail.availContactRegexp = mail.homeContactRegexp;
+	FGateDescriptors.append(mail);
 
 	if (FDiscovery)
 	{
