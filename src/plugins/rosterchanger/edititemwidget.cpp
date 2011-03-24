@@ -10,6 +10,8 @@ EditItemWidget::EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, cons
 	setFocusProxy(ui.lneContact);
 
 	FGateways = AGateways;
+
+	FContactTextChanged = false;
 	FStreamJid = AStreamJid;
 	FDescriptor = ADescriptor;
 
@@ -70,6 +72,7 @@ QString EditItemWidget::contactText() const
 void EditItemWidget::setContactText(const QString &AText)
 {
 	ui.lneContact->setText(AText);
+	onContactTextEdited(AText);
 }
 
 Jid EditItemWidget::gatewayJid() const
@@ -210,6 +213,7 @@ void EditItemWidget::resolveContactJid()
 	QString contact = normalContactText(contactText());
 	if (ui.lneContact->text() != contact)
 		ui.lneContact->setText(contact);
+	FContactTextChanged = false;
 
 	if (!contact.isEmpty())
 	{
@@ -244,12 +248,14 @@ void EditItemWidget::resolveContactJid()
 
 void EditItemWidget::onContactTextEditingFinished()
 {
-	startResolve(0);
+	if (FContactTextChanged)
+		startResolve(0);
 }
 
 void EditItemWidget::onContactTextEdited(const QString &AText)
 {
 	Q_UNUSED(AText);
+	FContactTextChanged = true;
 	startResolve(RESOLVE_WAIT_INTERVAL);
 }
 

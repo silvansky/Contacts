@@ -425,6 +425,7 @@ void AddMetaContactDialog::onDialogAccepted()
 
 		foreach(EditItemWidget *widget, FItemWidgets)
 			contact.items += widget->contactJid().bare();
+
 		FCreateActiontId = FMetaRoster->createContact(contact);
 		if (!FCreateActiontId.isEmpty())
 		{
@@ -534,6 +535,8 @@ void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QS
 		}
 		else
 		{
+			foreach(EditItemWidget *widget, FItemWidgets)
+				FRosterChanger->subscribeContact(FStreamJid,widget->contactJid().bare());
 			accept();
 		}
 	}

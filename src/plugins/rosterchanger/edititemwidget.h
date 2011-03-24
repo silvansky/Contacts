@@ -54,6 +54,7 @@ private:
 	QString FContactJidRequest;
 	QMap<QString, Jid> FLoginRequests;
 private:
+	bool FContactTextChanged;
 	Jid FStreamJid;
 	Jid FContactJid;
 	QTimer FResolveTimer;
