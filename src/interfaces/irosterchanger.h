@@ -27,17 +27,6 @@ protected:
 	virtual void dialogDestroyed() =0;
 };
 
-class IAddMetaContactDialog
-{
-public:
-	virtual QDialog *instance() =0;
-	virtual Jid streamJid() const =0;
-	virtual QString nickName() const =0;
-	virtual void setNickName(const QString &ANick) =0;
-protected:
-	virtual void dialogDestroyed() =0;
-};
-
 class ISubscriptionDialog
 {
 public:
@@ -64,12 +53,10 @@ public:
 	virtual QWidget *showAddContactDialog(const Jid &AStreamJid) =0;
 protected:
 	virtual void addContactDialogCreated(IAddContactDialog *ADialog) =0;
-	virtual void addMetaContactDialogCreated(IAddMetaContactDialog *ADialog) =0;
 	virtual void subscriptionDialogCreated(ISubscriptionDialog *ADialog) =0;
 };
 
 Q_DECLARE_INTERFACE(IAddContactDialog,"Virtus.Plugin.IAddContactDialog/1.0")
-Q_DECLARE_INTERFACE(IAddMetaContactDialog,"Virtus.Plugin.IAddMetaContactDialog/1.0")
 Q_DECLARE_INTERFACE(ISubscriptionDialog,"Virtus.Plugin.ISubscriptionDialog/1.0")
 Q_DECLARE_INTERFACE(IRosterChanger,"Virtus.Plugin.IRosterChanger/1.0")
 

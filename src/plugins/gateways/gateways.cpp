@@ -405,7 +405,7 @@ bool Gateways::initObjects()
 	jabber.domainField = "server";
 	jabber.passwordField = "password";
 	jabber.domainSeparator = "@";
-	jabber.homeContactRegexp = QString::null;
+	jabber.homeContactRegexp = JabberContactRegexp;
 	jabber.availContactRegexp = JabberContactRegexp;
 	FGateDescriptors.append(jabber);
 

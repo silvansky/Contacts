@@ -7,6 +7,7 @@
 EditItemWidget::EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+	setFocusProxy(ui.lneContact);
 
 	FGateways = AGateways;
 	FStreamJid = AStreamJid;
@@ -69,6 +70,16 @@ QString EditItemWidget::contactText() const
 void EditItemWidget::setContactText(const QString &AText)
 {
 	ui.lneContact->setText(AText);
+}
+
+Jid EditItemWidget::gatewayJid() const
+{
+	return selectedProfile();
+}
+
+void EditItemWidget::setGatewayJid(const Jid &AGatewayJid) 
+{
+	setSelectedProfile(AGatewayJid);
 }
 
 IGateServiceDescriptor EditItemWidget::gateDescriptor() const

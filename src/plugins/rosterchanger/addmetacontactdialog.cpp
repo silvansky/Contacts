@@ -1,5 +1,6 @@
 #include "addmetacontactdialog.h"
 
+#include <QClipboard>
 #include <QMessageBox>
 #include <QApplication>
 #include <QDesktopWidget>
@@ -47,6 +48,7 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 
 	initialize(APluginManager);
 	createGatewaysMenu();
+	resolveClipboardText();
 	updateDialogState();
 }
 
@@ -60,6 +62,46 @@ Jid AddMetaContactDialog::streamJid() const
 	return FStreamJid;
 }
 
+Jid AddMetaContactDialog::contactJid() const
+{
+	EditItemWidget *widget = FItemWidgets.value(0);
+	return widget!=NULL ? widget->contactJid() : Jid::null;
+}
+
+void AddMetaContactDialog::setContactJid(const Jid &AContactJid)
+{
+	if (FItemWidgets.isEmpty() && AContactJid.isValid())
+	{
+		IGateServiceDescriptor descriptor = FGateways->descriptorByContact(AContactJid.pBare());
+		if (descriptor.isValid && FAvailDescriptors.contains(descriptor.name))
+			addContactItem(descriptor);
+	}
+
+	EditItemWidget *widget = FItemWidgets.value(0);
+	if (widget)
+		widget->setContactJid(AContactJid);
+}
+
+QString AddMetaContactDialog::contactText() const
+{
+	EditItemWidget *widget = FItemWidgets.value(0);
+	return widget!=NULL ? widget->contactText() : QString::null;
+}
+
+void AddMetaContactDialog::setContactText(const QString &AContact)
+{
+	if (FItemWidgets.isEmpty() && !AContact.isEmpty())
+	{
+		IGateServiceDescriptor descriptor = FGateways->descriptorByContact(AContact);
+		if (descriptor.isValid && FAvailDescriptors.contains(descriptor.name))
+			addContactItem(descriptor);
+	}
+
+	EditItemWidget *widget = FItemWidgets.value(0);
+	if (widget)
+		widget->setContactText(AContact);
+}
+
 QString AddMetaContactDialog::nickName() const
 {
 	return ui.lneNick->text().trimmed();
@@ -68,6 +110,29 @@ QString AddMetaContactDialog::nickName() const
 void AddMetaContactDialog::setNickName(const QString &ANick)
 {
 	ui.lneNick->setText(ANick);
+}
+
+QString AddMetaContactDialog::group() const
+{
+	return QString::null;
+}
+
+void AddMetaContactDialog::setGroup(const QString &AGroup)
+{
+	Q_UNUSED(AGroup);
+}
+
+Jid AddMetaContactDialog::gatewayJid() const
+{
+	EditItemWidget *widget = FItemWidgets.value(0);
+	return widget!=NULL ? widget->gatewayJid() : Jid::null;
+}
+
+void AddMetaContactDialog::setGatewayJid(const Jid &AGatewayJid)
+{
+	EditItemWidget *widget = FItemWidgets.value(0);
+	if (widget)
+		widget->setGatewayJid(AGatewayJid);
 }
 
 void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
@@ -131,7 +196,15 @@ void AddMetaContactDialog::createGatewaysMenu()
 	}
 }
 
-void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescriptor)
+void AddMetaContactDialog::resolveClipboardText()
+{
+	if (FGateways)
+	{
+		setContactText(QApplication::clipboard()->text().trimmed());
+	}
+}
+
+void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescriptor, const QString &AContact)
 {
 	if (FGateways)
 	{
@@ -141,6 +214,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 			{
 				EditItemWidget *widget = new EditItemWidget(FGateways,FStreamJid,ADescriptor,ui.wdtItems);
 				widget->setFocus();
+				widget->setContactText(AContact);
 				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget);
 				connect(widget,SIGNAL(adjustSizeRequired()),SLOT(onItemWidgetAdjustSizeRequested()));
 				connect(widget,SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));

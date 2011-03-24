@@ -24,23 +24,32 @@
 
 class AddMetaContactDialog : 
 	public QDialog,
-	public IAddMetaContactDialog
+	public IAddContactDialog
 {
 	Q_OBJECT;
-	Q_INTERFACES(IAddMetaContactDialog);
+	Q_INTERFACES(IAddContactDialog);
 public:
 	AddMetaContactDialog(IRosterChanger *ARosterChanger, IPluginManager *APluginManager, const Jid &AStreamJid, QWidget *AParent = NULL);
 	~AddMetaContactDialog();
 	virtual QDialog *instance() { return this; }
 	virtual Jid streamJid() const;
+	virtual Jid contactJid() const;
+	virtual void setContactJid(const Jid &AContactJid);
+	virtual QString contactText() const;
+	virtual void setContactText(const QString &AContact);
 	virtual QString nickName() const;
 	virtual void setNickName(const QString &ANick);
+	virtual QString group() const;
+	virtual void setGroup(const QString &AGroup);
+	virtual Jid gatewayJid() const;
+	virtual void setGatewayJid(const Jid &AGatewayJid);
 signals:
 	void dialogDestroyed();
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void createGatewaysMenu();
-	void addContactItem(const IGateServiceDescriptor &ADescriptor);
+	void resolveClipboardText();
+	void addContactItem(const IGateServiceDescriptor &ADescriptor, const QString &AContact = QString::null);
 	int descriptorStatus(const IGateServiceDescriptor &ADescriptor) const;
 	QString defaultContactNick(const Jid &AContactJid) const;
 	void updateDialogState();

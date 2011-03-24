@@ -20,6 +20,8 @@ public:
 	void setContactJid(const Jid &AContactJid);
 	QString contactText() const;
 	void setContactText(const QString &AText);
+	virtual Jid gatewayJid() const;
+	virtual void setGatewayJid(const Jid &AGatewayJid);
 	IGateServiceDescriptor gateDescriptor() const;
 signals:
 	void adjustSizeRequired();
