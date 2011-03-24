@@ -7,6 +7,8 @@
 
 #define ADR_GATE_DESCRIPTOR_NAME    Action::DR_Parametr1
 
+#define NICK_RESOLVE_TIMEOUT        1000
+
 enum DescriptorStatuses {
 	DS_UNAVAILABLE,
 	DS_UNREGISTERED,
@@ -30,6 +32,7 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	FRosterChanger = ARosterChanger;
 
 	FShown = false;
+	FNickResolved = false;
 	FAvatarIndex = -1;
 	FStreamJid = AStreamJid;
 
@@ -201,6 +204,7 @@ void AddMetaContactDialog::resolveClipboardText()
 	if (FGateways)
 	{
 		setContactText(QApplication::clipboard()->text().trimmed());
+		ui.lneNick->setFocus();
 	}
 }
 
@@ -307,6 +311,8 @@ void AddMetaContactDialog::updateDialogState()
 				}
 				else if (FVcardPlugin->hasVCard(contactJid))
 				{
+					static const QList<QString> nickFields = QList<QString>() << VVN_FULL_NAME << VVN_NICKNAME << VVN_GIVEN_NAME << VVN_FAMILY_NAME;
+
 					IVCard *vcard = FVcardPlugin->vcard(contactJid);
 					QImage avatar = vcard->photoImage();
 					if (!avatar.isNull())
@@ -315,6 +321,18 @@ void AddMetaContactDialog::updateDialogState()
 						FAvatarContacts.append(contactJid);
 						FContactAvatars.insert(contactJid,avatar);
 					}
+
+					if (!FNickResolved && ui.lneNick->text().trimmed().isEmpty())
+					{
+						QString nick;
+						for (int i=0; nick.isEmpty() && i<nickFields.count(); i++)
+							nick = vcard->value(nickFields.at(i));
+						ui.lneNick->setText(nick.isEmpty() ? defaultContactNick(contactJid) : nick);
+						ui.lneNick->selectAll();
+						ui.lneNick->setFocus();
+						FNickResolved = true;
+					}
+
 					vcard->unlock();
 				}
 				else
@@ -394,7 +412,17 @@ void AddMetaContactDialog::onDialogAccepted()
 	if (FMetaRoster && !FItemWidgets.isEmpty())
 	{
 		IMetaContact contact;
-		contact.name = !ui.lneNick->text().trimmed().isEmpty() ? ui.lneNick->text().trimmed() : defaultContactNick(FItemWidgets.value(0)->contactJid());
+
+		if (ui.lneNick->text().trimmed().isEmpty())
+		{
+			contact.name = defaultContactNick(contactJid());
+			ui.lneNick->setText(contact.name);
+		}
+		else
+		{
+			contact.name = ui.lneNick->text().trimmed();
+		}
+
 		foreach(EditItemWidget *widget, FItemWidgets)
 			contact.items += widget->contactJid().bare();
 		FCreateActiontId = FMetaRoster->createContact(contact);
@@ -406,6 +434,17 @@ void AddMetaContactDialog::onDialogAccepted()
 		{
 			onMetaActionResult(FCreateActiontId,ErrorHandler::coditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
 		}
+	}
+}
+
+void AddMetaContactDialog::onNickResolveTimeout()
+{
+	if (!FNickResolved && contactJid().isValid() && ui.lneNick->text().trimmed().isEmpty())
+	{
+		ui.lneNick->setText(defaultContactNick(contactJid()));
+		ui.lneNick->selectAll();
+		ui.lneNick->setFocus();
+		FNickResolved = true;
 	}
 }
 
@@ -466,8 +505,8 @@ void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
 
 void AddMetaContactDialog::onItemWidgetContactJidChanged(const Jid &AContactJid)
 {
-	if (ui.lneNick->text().trimmed().isEmpty())
-		ui.lneNick->setText(defaultContactNick(AContactJid));
+	if (AContactJid.isValid() && !FNickResolved)
+		QTimer::singleShot(NICK_RESOLVE_TIMEOUT,this,SLOT(onNickResolveTimeout()));
 	updateDialogState();
 }
 

@@ -60,6 +60,7 @@ protected:
 protected slots:
 	void onDialogAccepted();
 	void onAdjustDialogSize();
+	void onNickResolveTimeout();
 	void onPrevPhotoButtonClicked();
 	void onNextPhotoButtonClicked();
 	void onAddItemActionTriggered(bool);
@@ -86,6 +87,7 @@ private:
 	QMap<Jid,QImage> FContactAvatars;
 private:
 	bool FShown;
+	bool FNickResolved;
 	Jid FStreamJid;
 	QString FCreateActiontId;
 	QList<QString> FAvailDescriptors;
