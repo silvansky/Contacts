@@ -8,6 +8,8 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 {
 	ui.setupUi(this);
 
+	setProperty("ringing", true);
+
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 
 	//IconStorage * iconStorage;
@@ -304,7 +306,8 @@ void RCallControl::callStatusChange(CallStatus status)
 	else
 		return;
 
-
+	setProperty("ringing", false);
+	// TODO: change if - else if -> switch
 	if(_callStatus == Accepted)
 	{
 		if(_callSide == Caller)
@@ -371,6 +374,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnHangup->show();
 			ui.btnAccept->setText(tr("Accept"));
 			ui.btnHangup->setText(tr("Hangup"));
+			setProperty("ringing", true);
 		}
 	}
 	else if(_callStatus == RingTimeout)
@@ -418,6 +422,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			// У вызываемого абонента панель пропадает
 		}
 	}
+	setStyleSheet(styleSheet());
 }
 
 void RCallControl::closeEvent(QCloseEvent *)

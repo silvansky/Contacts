@@ -856,7 +856,7 @@ bool CustomBorderContainer::event(QEvent * evt)
 		}
 		else if (headerButtonRect(MaximizeButton).contains(helpEvent->pos()))
 		{
-			setToolTip(isMaximized ? tr("Restore") : tr("Maximize"));
+			setToolTip((_isMaximized || isFullScreen()) ? tr("Restore") : tr("Maximize"));
 		}
 		else if (headerButtonRect(CloseButton).contains(helpEvent->pos()))
 		{
@@ -980,7 +980,8 @@ void CustomBorderContainer::init()
 	resizable = true;
 	buttonsFlags = MinimizeVisible | MaximizeVisible | CloseVisible | MinimizeEnabled | MaximizeEnabled | CloseEnabled;
 	pressedHeaderButton = NoneButton;
-	isMaximized = false;
+	_isMaximized = false;
+	_isFullscreen = false;
 	// window menu
 	windowMenu = new Menu(this);
 	minimizeAction = new Action(this);
@@ -1295,10 +1296,12 @@ int CustomBorderContainer::headerButtonsCount() const
 
 QRect CustomBorderContainer::headerButtonRect(HeaderButtons button) const
 {
+	if (isFullScreen())
+		return QRect();
 	int numButtons = headerButtonsCount();
-	int startX = width() - (isMaximized ? 0 : borderStyle->right.width) - borderStyle->header.margins.right() - (numButtons - 1) * borderStyle->controls.spacing;
+	int startX = width() - (_isMaximized ? 0 : borderStyle->right.width) - borderStyle->header.margins.right() - (numButtons - 1) * borderStyle->controls.spacing;
 	startX -= (isMinimizeButtonVisible() ? borderStyle->minimize.width : 0) + (isMaximizeButtonVisible() ? borderStyle->maximize.width : 0) + (isCloseButtonVisible() ? borderStyle->close.width : 0);
-	int startY = (isMaximized ? 0 : borderStyle->top.width) + borderStyle->header.margins.top();
+	int startY = (_isMaximized ? 0 : borderStyle->top.width) + borderStyle->header.margins.top();
 	int dx = 0;
 	QRect buttonRect;
 	switch (button)
@@ -1360,9 +1363,11 @@ CustomBorderContainer::HeaderButtons CustomBorderContainer::headerButtonUnderMou
 
 QRect CustomBorderContainer::headerButtonsRect() const
 {
-	int tb = (isMaximized ? 0 : borderStyle->top.width) + borderStyle->header.margins.top(), rb = (isMaximized ? 0 : borderStyle->right.width) + borderStyle->header.margins.right();
+	if (isFullScreen())
+		return QRect();
+	int tb = (_isMaximized ? 0 : borderStyle->top.width) + borderStyle->header.margins.top(), rb = (_isMaximized ? 0 : borderStyle->right.width) + borderStyle->header.margins.right();
 	int numButtons = headerButtonsCount();
-	int lb = width() - (isMaximized ? 0 : borderStyle->right.width) - borderStyle->header.margins.right() - (numButtons - 1) * borderStyle->controls.spacing;
+	int lb = width() - (_isMaximized ? 0 : borderStyle->right.width) - borderStyle->header.margins.right() - (numButtons - 1) * borderStyle->controls.spacing;
 	lb -= (isMinimizeButtonVisible() ? borderStyle->minimize.width : 0) + (isMaximizeButtonVisible() ? borderStyle->maximize.width : 0) + (isCloseButtonVisible() ? borderStyle->close.width : 0);
 	int h = qMax(qMax((isMinimizeButtonVisible() ? borderStyle->minimize.height: 0), (isMaximizeButtonVisible() ? borderStyle->maximize.height: 0)), (isCloseButtonVisible() ? borderStyle->close.height: 0)) + 1;
 	return QRect(lb, tb, width() - lb - rb, h);
@@ -1378,17 +1383,21 @@ void CustomBorderContainer::repaintHeaderButtons()
 
 QRect CustomBorderContainer::windowIconRect() const
 {
-	int x = (isMaximized ? 0 : borderStyle->left.width) + borderStyle->header.margins.left();
-	int y = (isMaximized ? 0 : borderStyle->top.width) + borderStyle->header.margins.top();
+	if (isFullScreen())
+		return QRect();
+	int x = (_isMaximized ? 0 : borderStyle->left.width) + borderStyle->header.margins.left();
+	int y = (_isMaximized ? 0 : borderStyle->top.width) + borderStyle->header.margins.top();
 	return QRect(x, y, borderStyle->icon.width, borderStyle->icon.height);
 }
 
 void CustomBorderContainer::showWindowMenu(const QPoint & p)
 {
+	if (isFullScreen())
+		return;
 	minimizeAction->setEnabled(isMinimizeButtonVisible() && isMinimizeButtonEnabled() && !isMinimized());
-	maximizeAction->setEnabled(isMaximizeButtonVisible() && isMaximizeButtonEnabled() && !isMaximized && !isMinimized());
+	maximizeAction->setEnabled(isMaximizeButtonVisible() && isMaximizeButtonEnabled() && !_isMaximized && !isMinimized());
 	closeAction->setEnabled(isCloseButtonVisible() && isCloseButtonEnabled());
-	restoreAction->setEnabled(isMinimized() || isMaximized);
+	restoreAction->setEnabled(isMinimized() || _isMaximized);
 	windowMenu->adjustSize();
 	QPoint popupPoint = p;
 	QRect screen = QApplication::desktop()->availableGeometry(p);
@@ -1588,7 +1597,7 @@ bool CustomBorderContainer::pointInHeader(const QPoint & p)
 void CustomBorderContainer::checkResizeCondition(const QPoint & p)
 {
 	resizeBorder = NoneBorder;
-	if (!isMaximized && resizable)
+	if (!_isMaximized && !isFullScreen() && resizable)
 		for (int b = TopLeftCorner; b <= BottomBorder; b++)
 			if (pointInBorder((BorderType)b, p))
 			{
@@ -1604,7 +1613,7 @@ void CustomBorderContainer::checkMoveCondition(const QPoint & p)
 	{
 		repaintHeaderButtons();
 	}
-	if (isMaximized || !movable)
+	if (_isMaximized || isFullScreen() || !movable)
 		canMove = false;
 	else
 		canMove = headerMoveRect().contains(p);
@@ -1658,7 +1667,7 @@ void CustomBorderContainer::updateShape()
 	QPixmap topLeftMask, topRightMask, bottomLeftMask, bottomRightMask;
 	if (!containedWidget)
 		return;
-	if (!isMaximized)
+	if (!(_isMaximized || isFullScreen()))
 	{
 		if (borderStyle->topLeft.mask.isEmpty())
 		{
@@ -1787,7 +1796,7 @@ void CustomBorderContainer::updateShape()
 	}
 	else
 	{
-		// clearing window mask if it is maximized
+		// clearing window mask if it is maximized or fullscreen
 		containedWidget->clearMask();
 	}
 }
@@ -1803,15 +1812,19 @@ void CustomBorderContainer::updateIcons()
 
 void CustomBorderContainer::setLayoutMargins()
 {
-	if (isMaximized)
+	if (_isMaximized)
 		layout()->setContentsMargins(0, borderStyle->header.height, 0, 0);
+	else if (isFullScreen())
+		layout()->setContentsMargins(0, 0, 0, 0);
 	else
 		layout()->setContentsMargins(borderStyle->left.width, borderStyle->top.width + borderStyle->header.height, borderStyle->right.width, borderStyle->bottom.width);
 }
 
 QRect CustomBorderContainer::headerRect() const
 {
-	if (isMaximized)
+	if (isFullScreen())
+		return QRect();
+	if (_isMaximized)
 		return QRect(0, 0, width(), borderStyle->header.height);
 	else
 		return QRect(borderStyle->left.width, borderStyle->top.width, width() - borderStyle->right.width, borderStyle->header.height);
@@ -1819,7 +1832,9 @@ QRect CustomBorderContainer::headerRect() const
 
 QRect CustomBorderContainer::headerMoveRect() const
 {
-	if (isMaximized)
+	if (isFullScreen())
+		return QRect();
+	if (_isMaximized)
 		return QRect(borderStyle->header.moveLeft, borderStyle->header.moveTop, width() - borderStyle->header.moveRight, borderStyle->header.moveHeight);
 	else
 		return QRect(borderStyle->left.width + borderStyle->header.moveLeft, borderStyle->top.width + borderStyle->header.moveTop, width() - borderStyle->right.width - borderStyle->left.width - borderStyle->header.moveRight, borderStyle->header.moveHeight);
@@ -1878,7 +1893,7 @@ void CustomBorderContainer::drawButtons(QPainter * p)
 		p->save();
 		p->translate(headerButtonRect(MaximizeButton).topLeft());
 		state = maximizeButtonUnderMouse() ? NormalHover : Normal;
-		drawButton(isMaximized ? borderStyle->restore : borderStyle->maximize, p, state);
+		drawButton(_isMaximized ? borderStyle->restore : borderStyle->maximize, p, state);
 		p->restore();
 	}
 	// close button
@@ -1925,7 +1940,7 @@ void CustomBorderContainer::drawBorders(QPainter * p)
 	// note: image is preferred to draw borders
 	// only stretch image is supported for now
 
-	if (!isMaximized)
+	if (!(_isMaximized || isFullScreen()))
 	{
 		int dx = 0, dy = 0;
 #ifdef Q_WS_WIN
@@ -1971,7 +1986,7 @@ void CustomBorderContainer::drawCorners(QPainter * p)
 	// note: image is preferred to draw corners
 	// only stretch image is supported for now
 
-	if (!isMaximized)
+	if (!(_isMaximized || isFullScreen()))
 	{
 		int dx = 0, dy = 0;
 #ifdef Q_WS_WIN
@@ -2043,6 +2058,38 @@ QPixmap CustomBorderContainer::loadPixmap(const QString & key)
 	return QPixmap::fromImage(loadImage(key));
 }
 
+bool CustomBorderContainer::isMaximized() const
+{
+	return _isMaximized;
+}
+
+bool CustomBorderContainer::isFullScreen() const
+{
+	return _isFullscreen;
+}
+
+void CustomBorderContainer::showMaximized()
+{
+	maximizeWidget();
+}
+
+void CustomBorderContainer::showFullScreen()
+{
+	lastMousePosition = QPoint(-1, -1);
+	_isFullscreen = !_isFullscreen;
+	if (!_isFullscreen)
+	{
+		setLayoutMargins();
+		setGeometry(normalGeometry);
+	}
+	else
+	{
+		normalGeometry = geometry();
+		setLayoutMargins();
+		setGeometry(qApp->desktop()->screenGeometry(this));
+	}
+}
+
 void CustomBorderContainer::minimizeWidget()
 {
 	lastMousePosition = QPoint(-1, -1);
@@ -2053,8 +2100,8 @@ void CustomBorderContainer::minimizeWidget()
 void CustomBorderContainer::maximizeWidget()
 {
 	lastMousePosition = QPoint(-1, -1);
-	isMaximized = !isMaximized;
-	if (!isMaximized)
+	_isMaximized = !_isMaximized;
+	if (!_isMaximized)
 	{
 		setLayoutMargins();
 		setGeometry(normalGeometry);
@@ -2064,6 +2111,7 @@ void CustomBorderContainer::maximizeWidget()
 		normalGeometry = geometry();
 		setLayoutMargins();
 		setGeometry(qApp->desktop()->availableGeometry(this));
+		//updateShape();
 	}
 }
 
@@ -2076,8 +2124,10 @@ void CustomBorderContainer::restoreWidget()
 {
 	if (isMinimized())
 		showNormal();
-	if (isMaximized)
+	if (_isMaximized)
 		maximizeWidget();
+	if (_isFullscreen)
+		showFullScreen();
 }
 
 void CustomBorderContainer::onContainedWidgetDestroyed(QObject* obj)

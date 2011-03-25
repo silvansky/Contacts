@@ -185,7 +185,12 @@ protected:
 	QImage loadImage(const QString & key);
 	QIcon loadIcon(const QString & key);
 	QPixmap loadPixmap(const QString & key);
+public:
+	bool isMaximized() const; // overriding QWidget's one
+	bool isFullScreen() const; // overriding QWidget's one
 public slots:
+	void showMaximized(); // overriding QWidget's one
+	void showFullScreen(); // overriding QWidget's one
 	void minimizeWidget();
 	void maximizeWidget();
 	void closeWidget();
@@ -208,7 +213,8 @@ private:
 	bool resizable;
 	HeaderButtonsFlags buttonsFlags;
 	HeaderButtons pressedHeaderButton;
-	bool isMaximized;
+	bool _isMaximized;
+	bool _isFullscreen;
 	QRect normalGeometry;
 	Menu * windowMenu;
 	Action * minimizeAction;

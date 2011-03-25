@@ -16,6 +16,14 @@ RCallControl
 	background-position: left;
 }
 
+RCallControl[ringing="true"]
+{
+	background-color: white;
+	background-image: url(%IMAGES_PATH%/callbar_ringing.png);
+	background-repeat: repeat-x;
+	background-position: left;
+}
+
 AVControl, RVolumeControl, #chkbtnMicOn
 {
 	background-color: transparent;

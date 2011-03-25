@@ -68,7 +68,7 @@ signals: // —игналы управл€ющие звонком
 public slots:
 	void statusTextChange(const QString&);
 	void callStatusChange(CallStatus);
-  void callSideChange(CallSide);
+	void callSideChange(CallSide);
 
 signals:
 	void statusTextChanged(const QString&);
