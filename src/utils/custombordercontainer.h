@@ -185,11 +185,12 @@ protected:
 	QImage loadImage(const QString & key);
 	QIcon loadIcon(const QString & key);
 	QPixmap loadPixmap(const QString & key);
-protected slots:
+public slots:
 	void minimizeWidget();
 	void maximizeWidget();
 	void closeWidget();
 	void restoreWidget();
+protected slots:
 	void onContainedWidgetDestroyed(QObject*);
 private:
 	// widgets/layouts
