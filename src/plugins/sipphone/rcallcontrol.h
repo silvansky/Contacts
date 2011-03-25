@@ -82,7 +82,8 @@ protected slots:
 
 protected:
 	void closeEvent(QCloseEvent *);
-	
+	void paintEvent(QPaintEvent *);
+
 private:
 	IconStorage* iconStorage;
 	QIcon acceptIcon;

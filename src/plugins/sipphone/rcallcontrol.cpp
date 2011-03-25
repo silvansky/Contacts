@@ -1,6 +1,7 @@
 #include "rcallcontrol.h"
 
 #include <QMessageBox>
+#include <QPainter>
 
 RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 	: QWidget(parent), _callStatus(Ringing)
@@ -40,7 +41,7 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), SIGNAL(micVolumeChange(int)));
 
-	
+
 
 	connect(ui.btnAccept, SIGNAL(clicked()), this, SLOT(onAccept()));
 	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(onHangup()));
@@ -421,6 +422,14 @@ void RCallControl::closeEvent(QCloseEvent *)
 {
 	onHangup();
 	emit closeAndDelete(false);
+}
+
+void RCallControl::paintEvent(QPaintEvent *)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 void RCallControl::onCamStateChange(bool state)
