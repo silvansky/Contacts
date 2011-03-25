@@ -12,6 +12,7 @@
 #include <definitions/rosterclickhookerorders.h>
 #include <definitions/rosterdragdropmimetypes.h>
 #include <definitions/toolbargroups.h>
+#include <definitions/customborder.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/irostersview.h>
@@ -21,6 +22,7 @@
 #include <interfaces/igateways.h>
 #include <interfaces/ivcard.h>
 #include <utils/widgetmanager.h>
+#include <utils/customborderstorage.h>
 #include "metaroster.h"
 #include "metaproxymodel.h"
 #include "metatabwindow.h"

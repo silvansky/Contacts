@@ -17,6 +17,8 @@
 #define GATEWAY_TIMEOUT           30000
 #define KEEP_INTERVAL             120000
 
+#define MAIL_NODE_PATTERN         "[a-zA-Z0-9_\\-\\.]+"
+
 Gateways::Gateways()
 {
 	FPluginManager = NULL;
@@ -201,7 +203,7 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 
 bool Gateways::initObjects()
 {
-	static const QString JabberContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@([a-z0-9]|\\-|\\.)+$";
+	static const QString JabberContactPattern = "^"JID_NODE_PATTERN"@"JID_DOMAIN_PATTERN"$";
 
 	IGateServiceDescriptor sms;
 	sms.isValid = true;
@@ -235,7 +237,7 @@ bool Gateways::initObjects()
 	magent.name = tr("Agent@Mail");
 	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
 	magent.loginLabel = tr("E-mail");
-	magent.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
+	magent.homeContactPattern = "^"MAIL_NODE_PATTERN"@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
 	magent.availContactPattern = magent.homeContactPattern;
 	FGateDescriptors.append(magent);
 
@@ -264,8 +266,8 @@ bool Gateways::initObjects()
 	gtalk.domainField = "server";
 	gtalk.passwordField = "password";
 	gtalk.domainSeparator = "@";
-	gtalk.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@(gmail\\.com|googlemail\\.com)$";
-	gtalk.availContactPattern = JabberContactRegexp;
+	gtalk.homeContactPattern = "^"MAIL_NODE_PATTERN"@(gmail\\.com|googlemail\\.com)$";
+	gtalk.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(gtalk);
 
 	IGateServiceDescriptor yonline;
@@ -282,8 +284,8 @@ bool Gateways::initObjects()
 	yonline.domainField = "server";
 	yonline.passwordField = "password";
 	yonline.domainSeparator = "@";
-	yonline.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@ya\\.ru$";
-	yonline.availContactPattern = JabberContactRegexp;
+	yonline.homeContactPattern = "^"MAIL_NODE_PATTERN"@ya\\.ru$";
+	yonline.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(yonline);
 
 	IGateServiceDescriptor qip;
@@ -300,8 +302,8 @@ bool Gateways::initObjects()
 	qip.domainField = "server";
 	qip.passwordField = "password";
 	qip.domainSeparator = "@";
-	qip.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@qip\\.ru$";
-	qip.availContactPattern = JabberContactRegexp;
+	qip.homeContactPattern = "^"MAIL_NODE_PATTERN"@qip\\.ru$";
+	qip.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(qip);
 
 	IGateServiceDescriptor vkontakte;
@@ -318,8 +320,8 @@ bool Gateways::initObjects()
 	vkontakte.domainField = "server";
 	vkontakte.passwordField = "password";
 	vkontakte.domainSeparator = "@";
-	vkontakte.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@vk\\.com$";
-	vkontakte.availContactPattern = JabberContactRegexp;
+	vkontakte.homeContactPattern = "^"MAIL_NODE_PATTERN"@vk\\.com$";
+	vkontakte.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(vkontakte);
 
 	IGateServiceDescriptor facebook;
@@ -336,8 +338,8 @@ bool Gateways::initObjects()
 	facebook.domainField = "server";
 	facebook.passwordField = "password";
 	facebook.domainSeparator = "@";
-	facebook.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@chat\\.facebook\\.com$";
-	facebook.availContactPattern = JabberContactRegexp;
+	facebook.homeContactPattern = "^"MAIL_NODE_PATTERN"@chat\\.facebook\\.com$";
+	facebook.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(facebook);
 
 	IGateServiceDescriptor livejournal;
@@ -354,8 +356,8 @@ bool Gateways::initObjects()
 	livejournal.domainField = "server";
 	livejournal.passwordField = "password";
 	livejournal.domainSeparator = "@";
-	livejournal.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@livejournal\\.com$";
-	livejournal.availContactPattern = JabberContactRegexp;
+	livejournal.homeContactPattern = "^"MAIL_NODE_PATTERN"@livejournal\\.com$";
+	livejournal.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(livejournal);
 
 	IGateServiceDescriptor rambler;
@@ -377,8 +379,8 @@ bool Gateways::initObjects()
 	rambler.domainField = "server";
 	rambler.passwordField = "password";
 	rambler.domainSeparator = "@";
-	rambler.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
-	rambler.availContactPattern = JabberContactRegexp;
+	rambler.homeContactPattern = "^"MAIL_NODE_PATTERN"@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
+	rambler.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(rambler);
 
 	IGateServiceDescriptor jabber;
@@ -393,7 +395,7 @@ bool Gateways::initObjects()
 	jabber.domainField = "server";
 	jabber.passwordField = "password";
 	jabber.domainSeparator = "@";
-	jabber.homeContactPattern = JabberContactRegexp;
+	jabber.homeContactPattern = JabberContactPattern;
 	jabber.availContactPattern = jabber.availContactPattern;
 	FGateDescriptors.append(jabber);
 
@@ -406,7 +408,7 @@ bool Gateways::initObjects()
 	mail.name = tr("Mail");
 	mail.iconKey = MNI_GATEWAYS_SERVICE_MAIL;
 	mail.loginLabel = tr("Mail");
-	mail.homeContactPattern = JabberContactRegexp;
+	mail.homeContactPattern = "^"MAIL_NODE_PATTERN"@"JID_DOMAIN_PATTERN"$";
 	mail.availContactPattern = mail.homeContactPattern;
 	FGateDescriptors.append(mail);
 
