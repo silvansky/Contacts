@@ -30,6 +30,7 @@ public:
 	SipPhoneWidget(KSipAuthentication *auth, CallAudio *callaudio, SipCall *initcall, SipPhoneProxy *parent, const char *name = 0);
 	~SipPhoneWidget();
 
+	bool eventFilter(QObject *, QEvent *);
 
 public:
 	SipCall *getCall();
@@ -47,6 +48,7 @@ signals:
 		void redirectCall( const SipUri &calluri, const QString &subject );
 		void statusChanged(const QString&);
 		void audioStatusChanged(const QString&);
+		void callWasHangup();
 
 private slots:
 	void hangupCall( void );
@@ -111,16 +113,19 @@ public slots:
 
 protected slots:
 	void fullScreenStateChange(bool);
+	void processOneMouseIdle();
 
 signals:
 	void startCamera();
 	void stopCamera();
+	void fullScreenState(bool);
 
 public slots:
 	void cameraStateChange(bool);
 
 protected:
 	void keyPressEvent(QKeyEvent *);
+	void mouseMoveEvent(QMouseEvent *);
 	//virtual void focusInEvent(QFocusEvent *);
 	//virtual void focusOutEvent(QFocusEvent *);
 	virtual void enterEvent(QEvent *);
@@ -131,9 +136,10 @@ protected:
 
 private:
 	QImageLabel* _pCurrPic;
-	QPushButton* _pShowCurrPic;
+	QToolButton* _pShowCurrPic;
 	FullScreenControls* _pControls;
 
+	QTimer* _fsTimer;
 private:
 	Ui::SipPhoneWidget ui;
 };

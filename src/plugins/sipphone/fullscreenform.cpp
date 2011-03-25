@@ -21,7 +21,8 @@ FullScreenForm::FullScreenForm(QWidget *parent)
 	_pCurrPic->setMouseTracking(true);
 	_pCurrPic->setScaledContents(true);
 
-	_pShowCurrPic->setFixedSize(20, 20);
+	//_pShowCurrPic->setFixedSize(20, 20);
+	_pShowCurrPic->setText("...");
 	_pShowCurrPic->hide();
 	_pShowCurrPic->setMouseTracking(true);
 

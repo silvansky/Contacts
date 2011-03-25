@@ -300,6 +300,7 @@
 
 //SipPhone
 #define MNI_SIPPHONE_CALL                        "sipphoneCall"
+#define MNI_SIPPHONE_CALL_BUTTON                 "sipCallButton"
 #define MNI_SIPPHONE_BTN_ACCEPT                  "sipButtonAccept"
 #define MNI_SIPPHONE_BTN_HANGUP                  "sipButtonHangup"
 #define MNI_SIPPHONE_MIC_ON                      "sipmicon"
@@ -315,7 +316,25 @@
 #define MNI_SIPPHONE_SOUND_VOLUME4               "sipvolume_4"
 #define MNI_SIPPHONE_SOUND_OFF                   "sipsoundoff"
 #define MNI_SIPPHONE_SOUND_DISABLED              "sipsounddisabled"
-#define MNI_SIPPHONE_CALL_BUTTON                 "sipCallButton"
+
+#define MNI_SIPPHONE_WHITE_MIC_ON                "sipfsmicon"
+#define MNI_SIPPHONE_WHITE_MIC_OFF               "sipfsmicoff"
+#define MNI_SIPPHONE_WHITE_MIC_DISABLED          "sipfsmicdisabled"
+#define MNI_SIPPHONE_WHITE_CAM_ON                "sipfscameraon"
+#define MNI_SIPPHONE_WHITE_CAM_OFF               "sipfscameraoff"
+#define MNI_SIPPHONE_WHITE_CAM_DISABLED          "sipfscameradisabled"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME0         "sipfsvolume_0"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME1         "sipfsvolume_1"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME2         "sipfsvolume_2"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME3         "sipfsvolume_3"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME4         "sipfsvolume_4"
+#define MNI_SIPPHONE_WHITE_SOUND_OFF             "sipfssoundoff"
+#define MNI_SIPPHONE_WHITE_SOUND_DISABLED        "sipfssounddisabled"
+#define MNI_SIPPHONE_WHITE_HANGUP                "sipfshangup"
+#define MNI_SIPPHONE_WHITE_FULLSCREEN_ON         "sipfullscreenon"
+#define MNI_SIPPHONE_WHITE_FULLSCREEN_OFF        "sipfullscreenoff"
+#define MNI_SIPPHONE_WHITE_SHOWCURRCAMERA        "sipfsshowcurrcamera"
+
 
 //StatusChanger
 #define MNI_SCHANGER_MODIFY_STATUS               "schangerModifyStatus"

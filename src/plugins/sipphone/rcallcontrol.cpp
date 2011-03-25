@@ -4,7 +4,7 @@
 #include <QPainter>
 
 RCallControl::RCallControl(CallSide callSide, QWidget *parent)
-	: QWidget(parent), _callStatus(Ringing)
+	: QWidget(parent), _callStatus(Undefined)
 {
 	ui.setupUi(this);
 
@@ -49,7 +49,7 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 
 
 RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
-: QWidget(parent), _callStatus(Ringing), _sid(sid)
+: QWidget(parent), _callStatus(Undefined), _sid(sid)
 {
 	ui.setupUi(this);
 
@@ -95,6 +95,8 @@ RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 
 	connect(ui.btnAccept, SIGNAL(clicked()), this, SLOT(onAccept()));
 	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(onHangup()));
+
+	callStatusChange(Ringing);
 }
 
 RCallControl::~RCallControl()

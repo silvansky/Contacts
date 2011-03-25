@@ -20,7 +20,7 @@ void BtnSynchro::onStateChange(bool state)
 
 
 AVControl::AVControl(QWidget *parent)
-	: QWidget(parent)
+	: QWidget(parent), _isDark(true)
 {
 	ui.setupUi(this);
 
@@ -87,7 +87,7 @@ AVControl::AVControl(QWidget *parent)
 	connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), this, SIGNAL(micStateChange(bool)));
 	//connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), this, SLOT(onMicStateChange(bool)));
 
-	connect(ui.hslMicVolume, SIGNAL(valueChanged(int)), this, SIGNAL(micVolumeChange(int)));
+	connect(ui.hslSoundVolume, SIGNAL(valueChanged(int)), this, SIGNAL(micVolumeChange(int)));
 
 
 	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), __bSyncCamera, SLOT(onStateChange(bool)));
@@ -111,4 +111,48 @@ void AVControl::SetCameraOn(bool isOn)
 {
 	ui.chkbtnCameraOn->setChecked(isOn);
 	emit camStateChange(isOn);
+}
+
+void AVControl::setDark(bool isDark)
+{
+	if(_isDark == isDark)
+		return;
+	_isDark = isDark;
+
+	IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
+
+	QImage imgOn = iconStorage->getImage(MNI_SIPPHONE_CAM_ON);
+	QImage imgOff = iconStorage->getImage(MNI_SIPPHONE_CAM_OFF);
+	QImage imgDisabled = iconStorage->getImage(MNI_SIPPHONE_CAM_DISABLED);
+
+	QImage imgAOn = iconStorage->getImage(MNI_SIPPHONE_MIC_ON);
+	QImage imgAOff = iconStorage->getImage(MNI_SIPPHONE_MIC_OFF);
+	QImage imgADisabled = iconStorage->getImage(MNI_SIPPHONE_MIC_DISABLED);
+
+	if(!_isDark)
+	{
+		imgOn = iconStorage->getImage(MNI_SIPPHONE_WHITE_CAM_ON);
+		imgOff = iconStorage->getImage(MNI_SIPPHONE_WHITE_CAM_OFF);
+		imgDisabled = iconStorage->getImage(MNI_SIPPHONE_WHITE_CAM_DISABLED);
+
+		imgAOn = iconStorage->getImage(MNI_SIPPHONE_WHITE_MIC_ON);
+		imgAOff = iconStorage->getImage(MNI_SIPPHONE_WHITE_MIC_OFF);
+		imgADisabled = iconStorage->getImage(MNI_SIPPHONE_WHITE_MIC_DISABLED);
+	}
+
+	QIcon icon;
+	icon.addPixmap(QPixmap::fromImage(imgOn), QIcon::Normal, QIcon::On);
+	icon.addPixmap(QPixmap::fromImage(imgOff), QIcon::Normal, QIcon::Off);
+	icon.addPixmap(QPixmap::fromImage(imgDisabled), QIcon::Disabled, QIcon::On);
+	icon.addPixmap(QPixmap::fromImage(imgDisabled), QIcon::Disabled, QIcon::Off);
+	ui.chkbtnCameraOn->setIcon(icon);
+
+	QIcon iconAudio;
+	iconAudio.addPixmap(QPixmap::fromImage(imgAOn), QIcon::Normal, QIcon::On);
+	iconAudio.addPixmap(QPixmap::fromImage(imgAOff), QIcon::Normal, QIcon::Off);
+	iconAudio.addPixmap(QPixmap::fromImage(imgADisabled), QIcon::Disabled, QIcon::On);
+	iconAudio.addPixmap(QPixmap::fromImage(imgADisabled), QIcon::Disabled, QIcon::Off);
+	ui.chkbtnMicOn->setIcon(iconAudio);
+
+	ui.hslSoundVolume->setDark(isDark);
 }

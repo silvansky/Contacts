@@ -68,4 +68,82 @@
     <key>sipCallButton</key>
     <object mime="image/png">sipphonebutton.png</object>
   </icon>
+
+  
+  <icon>
+    <key>sipfsmicon</key>
+    <object mime="image/png">video_microphone.png</object>
+  </icon>
+  <icon>
+    <key>sipfsmicoff</key>
+    <object mime="image/png">video_microphone_off.png</object>
+  </icon>
+  <icon>
+    <key>sipfsmicdisabled</key>
+    <object mime="image/png">video_microphone_disable.png</object>
+  </icon>
+
+   <icon>
+    <key>sipfscameraon</key>
+    <object mime="image/png">video_webcam.png</object>
+  </icon>
+  <icon>
+    <key>sipfscameraoff</key>
+    <object mime="image/png">video_webcam_off.png</object>
+  </icon>
+  <icon>
+    <key>sipfscameradisabled</key>
+    <object mime="image/png">video_webcam_disable.png</object>
+  </icon>
+  
+
+  <icon>
+    <key>sipfsvolume_0</key>
+    <object mime="image/png">video_volume1.png</object>
+  </icon>
+  <icon>
+    <key>sipfsvolume_1</key>
+    <object mime="image/png">video_volume1.png</object>
+  </icon>
+  <icon>
+    <key>sipfsvolume_2</key>
+    <object mime="image/png">video_volume2.png</object>
+  </icon>
+  <icon>
+    <key>sipfsvolume_3</key>
+    <object mime="image/png">video_volume3.png</object>
+  </icon>
+  <icon>
+    <key>sipfsvolume_4</key>
+    <object mime="image/png">video_volume4.png</object>
+  </icon>
+  <icon>
+    <key>sipfssoundoff</key>
+    <object mime="image/png">video_volume_off.png</object>
+  </icon>
+  <icon>
+    <key>sipfssounddisabled</key>
+    <object mime="image/png">video_volume_disable.png</object>
+  </icon>
+
+  
+   <icon>
+    <key>sipfsshowcurrcamera</key>
+    <object mime="image/png">fsShowCam.png</object>
+  </icon>
+  
+  <icon>
+    <key>sipfshangup</key>
+    <object mime="image/png">video_end_call.png</object>
+  </icon>
+    
+  <icon>
+    <key>sipfullscreenon</key>
+    <object mime="image/png">video_fullscreen.png</object>
+  </icon>
+  <icon>
+    <key>sipfullscreenoff</key>
+    <object mime="image/png">video_fullscreen.png</object>
+  </icon>
+  
   </icondef>

@@ -24,6 +24,7 @@ public:
 	};
 	enum CallStatus
 	{
+		Undefined,
 		Register,		// Регистрация
 		Accepted,		// Звонок принят
 		Hangup,			// Положили трубку

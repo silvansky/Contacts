@@ -74,7 +74,7 @@
     </widget>
    </item>
    <item>
-    <widget class="RVolumeControl" name="hslMicVolume" native="true"/>
+    <widget class="RVolumeControl" name="hslSoundVolume" native="true"/>
    </item>
    <item>
     <spacer name="horizontalSpacer">

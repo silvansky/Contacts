@@ -61,15 +61,15 @@ void ComplexVideoWidget::setPicture(const QPixmap& pxmp)
 
 void ComplexVideoWidget::paintEvent(QPaintEvent *ev)
 {
-	QWidget::paintEvent(ev);
+	//QWidget::paintEvent(ev);
 
 	QPainter painter(this);
 
-	painter.fillRect(ev->rect(), Qt::black);
+	painter.fillRect(/*ev->*/rect(), Qt::black);
 	// нет изображения для отображения
 	if(_noSignal || _pPixmap == NULL)
 	{
-		QRect currRect = ev->rect();
+		QRect currRect = /*ev->*/rect();
 		QSize currSize = size();
 		int x = currRect.x() + currRect.width()/2;
 		int y = currRect.y() + currRect.height()/2;
@@ -78,7 +78,7 @@ void ComplexVideoWidget::paintEvent(QPaintEvent *ev)
 	}
 	else
 	{
-		QRect currRect = ev->rect();
+		QRect currRect = /*ev->*/rect();
 		QSize currSize = size();
 		QPixmap scaledPixmap = _pPixmap->scaled(currSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 		int x = currRect.x() + currRect.width()/2 - scaledPixmap.width()/2;

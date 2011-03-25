@@ -59,6 +59,8 @@ public:
 	AVControl(QWidget *parent = 0);
 	~AVControl();
 
+	void setDark(bool isDark);
+
 public slots:
 	void SetCameraOn(bool);
 
@@ -69,6 +71,7 @@ signals:
 
 private:
 	Ui::AVControl ui;
+	bool _isDark;
 };
 
 #endif // AVCONTROL_H

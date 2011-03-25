@@ -4,6 +4,7 @@
 #include <QMessageBox>
 //#include <QSettings>
 #include <QDateTime>
+#include <QTimer>
 
 #include "rsipauthentication.h"
 #include "sipphoneproxy.h"
@@ -15,6 +16,24 @@
 #include <QResizeEvent>
 #include "complexvideowidget.h"
 
+#include <utils/iconstorage.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+
+
+const int fstimerInterval = 3500;
+static void updateFSTimer(QTimer*& timer)
+{
+	if(timer->isActive())
+	{
+		timer->stop();
+		timer->start(fstimerInterval);
+	}
+	else
+	{
+		timer->start(fstimerInterval);
+	}
+}
 
 
 SipPhoneWidget::SipPhoneWidget(QWidget *parent)
@@ -34,7 +53,7 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 
 	{
 		_pCurrPic = new QImageLabel(ui.wgtRemoteImage);
-		_pShowCurrPic = new QPushButton(ui.wgtRemoteImage);
+		_pShowCurrPic = new QToolButton(ui.wgtRemoteImage);
 
 		connect(_pCurrPic, SIGNAL(visibleState(bool)), _pShowCurrPic, SLOT(setHidden(bool)));
 		connect(_pShowCurrPic, SIGNAL(clicked()), _pCurrPic, SLOT(show()));
@@ -43,12 +62,20 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 		_pCurrPic->setMouseTracking(true);
 		_pCurrPic->setScaledContents(true);
 
+
+		IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
+		QImage imgShowCurrPic = iconStorage->getImage(MNI_SIPPHONE_WHITE_SHOWCURRCAMERA);
+		QIcon iconCurrPic;
+		iconCurrPic.addPixmap(QPixmap::fromImage(imgShowCurrPic), QIcon::Normal, QIcon::On);
+		_pShowCurrPic->setIcon(iconCurrPic);
+
 		_pShowCurrPic->setFixedSize(20, 20);
 		_pShowCurrPic->hide();
 		_pShowCurrPic->setMouseTracking(true);
 
 		_pControls = new FullScreenControls(this);//ui.wgtRemoteImage);
 		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SLOT(fullScreenStateChange(bool)));
+		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SIGNAL(fullScreenState(bool)));
 		connect(_pControls, SIGNAL(camStateChange(bool)), this, SLOT(cameraStateChange(bool)));
 
 		connect(_pControls, SIGNAL(hangup()), SLOT(hangupCall()));
@@ -59,9 +86,6 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 		//_pControls->setMouseTracking(true);
 		_pControls->SetCameraOn(true);
 	}
-
-
-
 
 
 	_pSipCallMember = NULL;
@@ -108,16 +132,35 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	connect( _pAcceptCallTimer, SIGNAL( timeout() ), this, SLOT( acceptCallTimeout() ) );
 
 	switchCall(initCall);
+
+
+	// Таймер отслеживающий работу мыши в режиме fullscreen
+	_fsTimer = new QTimer(this);
+	_fsTimer->setSingleShot(true);
+	connect(_fsTimer, SIGNAL(timeout()), this, SLOT(processOneMouseIdle()));
+	setMouseTracking(true);
+	ui.wgtRemoteImage->setMouseTracking(true);
+	ui.wgtRemoteImage->installEventFilter(this);
+
 }
 
 
 SipPhoneWidget::~SipPhoneWidget()
 {
+	ui.wgtRemoteImage->removeEventFilter(this);
 	delete _pRingTimer;
 	delete _pAcceptCallTimer;
 	if( _pSipCall )
 	{
 		delete _pSipCall;
+	}
+
+	if(_fsTimer)
+	{
+		if(_fsTimer->timerId() != -1)
+			_fsTimer->stop();
+		delete _fsTimer;
+		_fsTimer = NULL;
 	}
 }
 
@@ -199,13 +242,58 @@ void SipPhoneWidget::keyPressEvent(QKeyEvent *ev)
 	}
 }
 
+void SipPhoneWidget::mouseMoveEvent(QMouseEvent *ev)
+{
+	unsetCursor();
+	_pControls->show();
+	updateFSTimer(_fsTimer);
+}
+
+
+
 void SipPhoneWidget::fullScreenStateChange(bool state)
 {
 	if(state)
-		showFullScreen();
+	{
+		//showFullScreen();
+		//setCursor(QCursor( Qt::BlankCursor ));
+		_fsTimer->start(fstimerInterval);
+	}
 	else
-		showNormal();
+	{
+		//showNormal();
+		unsetCursor();
+		_fsTimer->stop();
+	}
 }
+
+void SipPhoneWidget::processOneMouseIdle()
+{
+	setCursor(QCursor( Qt::BlankCursor ));
+	_pControls->hide();
+}
+
+bool SipPhoneWidget::eventFilter( QObject *obj, QEvent *evt )
+{
+	if(isFullScreen() && obj == ui.wgtRemoteImage)
+	{
+		QEvent::Type tp = evt->type();
+		//if(tp != QEvent::Paint && tp != QEvent::WindowActivate && tp!=QEvent::WindowDeactivate)
+		{
+			if( tp == QEvent::MouseMove )
+			{
+				unsetCursor();
+				_pControls->show();
+				updateFSTimer(_fsTimer);
+			}
+		}
+	}
+
+	return QWidget::eventFilter( obj, evt );
+}
+
+
+
 
 void SipPhoneWidget::cameraStateChange(bool state)
 {
@@ -655,6 +743,7 @@ void SipPhoneWidget::hangupCall( void )
 		_pSipCallMember->declineInvite();
 		setHidden(true);
 		//setHide();
+		emit callWasHangup();
 		return;
 	}
 
@@ -680,6 +769,7 @@ void SipPhoneWidget::hangupCall( void )
 			}
 		}
 		setHidden(true);
+		emit callWasHangup();
 		return;
 	}
 }

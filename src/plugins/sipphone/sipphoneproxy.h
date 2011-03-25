@@ -10,7 +10,9 @@
 #include <sipcall.h>
 
 #include "utils/jid.h"
-
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 class SipClient;
 class SipUser;
@@ -50,6 +52,7 @@ public:
 	~SipPhoneProxy();
 
 	bool initRegistrationData( void );
+	virtual bool eventFilter(QObject *, QEvent *);
 
 	enum State { ONLINE, OFFLINE };
 
@@ -83,6 +86,7 @@ public slots:
 	void makeInviteProxySlot(const Jid &AClientSIP);
 	void makeByeProxySlot(const Jid &AClientSIP);
 	void hangupCall();
+	void onHangupCall();
 
 signals:
 	void registrationStatusIs(bool status, const Jid& AStreamJid, const Jid& AContactJid);
@@ -109,6 +113,7 @@ private slots: // ”правл€ющие слоты
 
 	void timerTick( void );
 	void stun_timerTick( void );
+	void onFullScreenState(bool);
 
 
 protected:
@@ -120,6 +125,7 @@ private:
 
 private:
 	SipPhoneWidget* _pWorkWidget;//FPhoneWidget;
+	CustomBorderContainer* _pWorkWidgetContainer;
 
 	SipClient* _pSipClient;
 	SipUser* _pSipUser;

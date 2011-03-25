@@ -58,7 +58,7 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 
 
 RVolumeControl::RVolumeControl(QWidget *parent)
-: QWidget(parent), _value(0), _min(0), _max(100), _isEnableSound(true), _isOn(true)
+: QWidget(parent), _value(0), _min(0), _max(100), _isEnableSound(true), _isOn(true), _isDark(true)
 {
 	CoInitialize(NULL);
 
@@ -143,6 +143,37 @@ RVolumeControl::~RVolumeControl()
 	}
 
 	CoUninitialize();
+}
+
+
+void RVolumeControl::setDark(bool isDark)
+{
+	if(_isDark == isDark)
+		return;
+	_isDark = isDark;
+
+	IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
+	QList<QString> data;
+	if(_isDark)
+	{
+		data << MNI_SIPPHONE_SOUND_VOLUME0 << MNI_SIPPHONE_SOUND_VOLUME1 << MNI_SIPPHONE_SOUND_VOLUME2 << MNI_SIPPHONE_SOUND_VOLUME3
+			<< MNI_SIPPHONE_SOUND_VOLUME4 << MNI_SIPPHONE_SOUND_OFF << MNI_SIPPHONE_SOUND_DISABLED;
+	}
+	else
+	{
+		data << MNI_SIPPHONE_WHITE_SOUND_VOLUME0 << MNI_SIPPHONE_WHITE_SOUND_VOLUME1 << MNI_SIPPHONE_WHITE_SOUND_VOLUME2 << MNI_SIPPHONE_WHITE_SOUND_VOLUME3
+			<< MNI_SIPPHONE_WHITE_SOUND_VOLUME4 << MNI_SIPPHONE_WHITE_SOUND_OFF << MNI_SIPPHONE_WHITE_SOUND_DISABLED;
+	}
+
+	_pixList.clear();
+	for(int i=0; i<data.size(); i++)
+	{
+		QIcon currentIcon = iconStorage->getIcon(data[i]);
+		if(!currentIcon.isNull())
+			_pixList.append(currentIcon.pixmap(42, 24, QIcon::Normal, QIcon::On));
+	}
+
+	updatePixmap(volumeToIndex(_value));
 }
 
 

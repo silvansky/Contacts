@@ -102,6 +102,7 @@ signals:
 public:
 	QSize sizeHint() const;
 	QSize minimumSizeHint() const;
+	void setDark(bool isDark);
 
 protected:
 	void paintEvent(QPaintEvent *ev);
@@ -127,6 +128,7 @@ private:
 	int _min, _max;
 	bool _isOn;
 	bool _isEnableSound;
+	bool _isDark;
 
 	IAudioEndpointVolume *endpointVolume;
 	CVolumeNotification *volumeNotification;
