@@ -5,11 +5,10 @@ LIBS  += -L../../thirdparty/siplibraries/VoIPVideoLib/lib
 LIBS  += -lWs2_32
 LIBS += -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32
 
-debug{
-LIBS  += -lVoIPVideoLibD -lVoIPMediaD -lSipProtocolD
-}
-release{
-LIBS  += -lVoIPVideoLib -lVoIPMedia -lSipProtocol
+CONFIG(debug, debug|release) {
+    LIBS  += -lVoIPVideoLibD -lVoIPMediaD -lSipProtocolD
+} else {
+    LIBS  += -lVoIPVideoLib -lVoIPMedia -lSipProtocol
 }
 
 
