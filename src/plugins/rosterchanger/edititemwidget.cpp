@@ -2,7 +2,7 @@
 
 #include <QVBoxLayout>
 
-#define RESOLVE_WAIT_INTERVAL    2000
+#define RESOLVE_WAIT_INTERVAL    1500
 
 EditItemWidget::EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
 {
@@ -220,7 +220,7 @@ void EditItemWidget::resolveContactJid()
 		Jid userJid = contact;
 		Jid serviceJid = selectedProfile();
 
-		QRegExp availRegExp(FDescriptor.homeContactRegexp);
+		QRegExp availRegExp(FDescriptor.homeContactPattern);
 		availRegExp.setCaseSensitivity(Qt::CaseInsensitive);
 
 		if (!contact.contains(availRegExp))

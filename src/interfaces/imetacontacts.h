@@ -25,7 +25,7 @@ struct IMetaItemDescriptor
 	bool combine;
 	bool service;
 	int pageOrder;
-	QString pattern;
+	QString contactPattern;
 };
 
 class IMetaRoster 

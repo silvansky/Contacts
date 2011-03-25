@@ -35,7 +35,7 @@ void AddLegacyAccountOptions::reset()
 	emit childReset();
 }
 
-void AddLegacyAccountOptions::appendServiceButton( const Jid &AServiceJid )
+void AddLegacyAccountOptions::appendServiceButton(const Jid &AServiceJid)
 {
 	IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(FStreamJid,AServiceJid);
 	if (!FWidgets.contains(AServiceJid) && descriptor.isValid && descriptor.needLogin)

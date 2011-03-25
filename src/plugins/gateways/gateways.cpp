@@ -211,8 +211,8 @@ bool Gateways::initObjects()
 	sms.name = tr("SMS");
 	sms.iconKey = MNI_GATEWAYS_SERVICE_SMS;
 	sms.loginLabel = tr("Phone");
-	sms.homeContactRegexp = "^\\+\\d{11,11}$";
-	sms.availContactRegexp = sms.homeContactRegexp;
+	sms.homeContactPattern = "^\\+\\d{11,11}$";
+	sms.availContactPattern = sms.homeContactPattern;
 	FGateDescriptors.append(sms);
 
 	IGateServiceDescriptor icq;
@@ -223,8 +223,8 @@ bool Gateways::initObjects()
 	icq.name = tr("ICQ");
 	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
 	icq.loginLabel = tr("Login");
-	icq.homeContactRegexp = "^\\d+$";
-	icq.availContactRegexp = icq.homeContactRegexp;
+	icq.homeContactPattern = "^\\d+$";
+	icq.availContactPattern = icq.homeContactPattern;
 	FGateDescriptors.append(icq);
 
 	IGateServiceDescriptor magent;
@@ -235,21 +235,21 @@ bool Gateways::initObjects()
 	magent.name = tr("Agent@Mail");
 	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
 	magent.loginLabel = tr("E-mail");
-	magent.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
-	magent.availContactRegexp = magent.homeContactRegexp;
+	magent.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
+	magent.availContactPattern = magent.homeContactPattern;
 	FGateDescriptors.append(magent);
 
-	//IGateServiceDescriptor twitter;
-	//twitter.valid = true;
-	//twitter.needGate = true;
-	//twitter.needLogin = true;
-	//twitter.type = "twitter";
-	//twitter.name = tr("Twitter");
-	//twitter.iconKey = MNI_GATEWAYS_SERVICE_TWITTER;
-	//twitter.loginLabel = tr("Login");
-	//twitter.homeContactRegexp = QString::null;
-	//twitter.availContactRegexp = QString::null;
-	//FGateDescriptors.append(twitter);
+	IGateServiceDescriptor twitter;
+	twitter.isValid = true;
+	twitter.needGate = true;
+	twitter.needLogin = true;
+	twitter.type = "twitter";
+	twitter.name = tr("Twitter");
+	twitter.iconKey = MNI_GATEWAYS_SERVICE_TWITTER;
+	twitter.loginLabel = tr("Login");
+	twitter.homeContactPattern = "^@[a-zA-Z0-9_]+";
+	twitter.availContactPattern = twitter.homeContactPattern;
+	FGateDescriptors.append(twitter);
 
 	IGateServiceDescriptor gtalk;
 	gtalk.isValid = true;
@@ -264,8 +264,8 @@ bool Gateways::initObjects()
 	gtalk.domainField = "server";
 	gtalk.passwordField = "password";
 	gtalk.domainSeparator = "@";
-	gtalk.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@(gmail\\.com|googlemail\\.com)$";
-	gtalk.availContactRegexp = JabberContactRegexp;
+	gtalk.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@(gmail\\.com|googlemail\\.com)$";
+	gtalk.availContactPattern = JabberContactRegexp;
 	FGateDescriptors.append(gtalk);
 
 	IGateServiceDescriptor yonline;
@@ -282,8 +282,8 @@ bool Gateways::initObjects()
 	yonline.domainField = "server";
 	yonline.passwordField = "password";
 	yonline.domainSeparator = "@";
-	yonline.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@ya\\.ru$";
-	yonline.availContactRegexp = JabberContactRegexp;
+	yonline.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@ya\\.ru$";
+	yonline.availContactPattern = JabberContactRegexp;
 	FGateDescriptors.append(yonline);
 
 	IGateServiceDescriptor qip;
@@ -300,8 +300,8 @@ bool Gateways::initObjects()
 	qip.domainField = "server";
 	qip.passwordField = "password";
 	qip.domainSeparator = "@";
-	qip.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@qip\\.ru$";
-	qip.availContactRegexp = JabberContactRegexp;
+	qip.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@qip\\.ru$";
+	qip.availContactPattern = JabberContactRegexp;
 	FGateDescriptors.append(qip);
 
 	IGateServiceDescriptor vkontakte;
@@ -318,8 +318,8 @@ bool Gateways::initObjects()
 	vkontakte.domainField = "server";
 	vkontakte.passwordField = "password";
 	vkontakte.domainSeparator = "@";
-	vkontakte.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@vk\\.com$";
-	vkontakte.availContactRegexp = JabberContactRegexp;
+	vkontakte.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@vk\\.com$";
+	vkontakte.availContactPattern = JabberContactRegexp;
 	FGateDescriptors.append(vkontakte);
 
 	IGateServiceDescriptor facebook;
@@ -336,8 +336,8 @@ bool Gateways::initObjects()
 	facebook.domainField = "server";
 	facebook.passwordField = "password";
 	facebook.domainSeparator = "@";
-	facebook.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@chat\\.facebook\\.com$";
-	facebook.availContactRegexp = JabberContactRegexp;
+	facebook.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@chat\\.facebook\\.com$";
+	facebook.availContactPattern = JabberContactRegexp;
 	FGateDescriptors.append(facebook);
 
 	IGateServiceDescriptor livejournal;
@@ -354,8 +354,8 @@ bool Gateways::initObjects()
 	livejournal.domainField = "server";
 	livejournal.passwordField = "password";
 	livejournal.domainSeparator = "@";
-	livejournal.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@livejournal\\.com$";
-	livejournal.availContactRegexp = JabberContactRegexp;
+	livejournal.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@livejournal\\.com$";
+	livejournal.availContactPattern = JabberContactRegexp;
 	FGateDescriptors.append(livejournal);
 
 	IGateServiceDescriptor rambler;
@@ -377,8 +377,8 @@ bool Gateways::initObjects()
 	rambler.domainField = "server";
 	rambler.passwordField = "password";
 	rambler.domainSeparator = "@";
-	rambler.homeContactRegexp = "^([a-zA-Z0-9_]|\\-|\\.)+@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
-	rambler.availContactRegexp = JabberContactRegexp;
+	rambler.homeContactPattern = "^([a-zA-Z0-9_]|\\-|\\.)+@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
+	rambler.availContactPattern = JabberContactRegexp;
 	FGateDescriptors.append(rambler);
 
 	IGateServiceDescriptor jabber;
@@ -393,8 +393,8 @@ bool Gateways::initObjects()
 	jabber.domainField = "server";
 	jabber.passwordField = "password";
 	jabber.domainSeparator = "@";
-	jabber.homeContactRegexp = JabberContactRegexp;
-	jabber.availContactRegexp = jabber.availContactRegexp;
+	jabber.homeContactPattern = JabberContactRegexp;
+	jabber.availContactPattern = jabber.availContactPattern;
 	FGateDescriptors.append(jabber);
 
 	// Почта должна быть после джаббера т.к. их идентификаторы идентичны
@@ -406,8 +406,8 @@ bool Gateways::initObjects()
 	mail.name = tr("Mail");
 	mail.iconKey = MNI_GATEWAYS_SERVICE_MAIL;
 	mail.loginLabel = tr("Mail");
-	mail.homeContactRegexp = JabberContactRegexp;
-	mail.availContactRegexp = mail.homeContactRegexp;
+	mail.homeContactPattern = JabberContactRegexp;
+	mail.availContactPattern = mail.homeContactPattern;
 	FGateDescriptors.append(mail);
 
 	if (FDiscovery)
@@ -591,10 +591,10 @@ IGateServiceDescriptor Gateways::descriptorByContact(const QString &AContact) co
 
 	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
 	{
-		if (!it->homeContactRegexp.isEmpty())
+		if (!it->homeContactPattern.isEmpty())
 		{
-			regexp.setPattern(it->homeContactRegexp);
-			if (AContact.contains(regexp))
+			regexp.setPattern(it->homeContactPattern);
+			if (regexp.exactMatch(AContact))
 				return *it;
 		}
 	}
@@ -609,10 +609,10 @@ QList<IGateServiceDescriptor> Gateways::descriptorsByContact(const QString &ACon
 	QList<IGateServiceDescriptor> descriptors;
 	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
 	{
-		if (!it->availContactRegexp.isEmpty())
+		if (!it->availContactPattern.isEmpty())
 		{
-			regexp.setPattern(it->availContactRegexp);
-			if (AContact.contains(regexp))
+			regexp.setPattern(it->availContactPattern);
+			if (regexp.exactMatch(AContact))
 				descriptors.append(*it);
 		}
 	}

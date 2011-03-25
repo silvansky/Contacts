@@ -474,8 +474,9 @@ IMetaItemDescriptor MetaContacts::itemDescriptor(const Jid &AItemJid) const
 {
 	for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)
 	{
-		QRegExp regexp(it->pattern);
-		if (regexp.indexIn(AItemJid.pBare())>=0)
+		QRegExp regexp(it->contactPattern);
+		regexp.setCaseSensitivity(Qt::CaseInsensitive);
+		if (regexp.exactMatch(AItemJid.pBare()))
 			return *it;
 	}
 	return FDefaultItemDescriptor;
@@ -602,7 +603,7 @@ void MetaContacts::initMetaItemDescriptors()
 	FDefaultItemDescriptor.detach = true;
 	FDefaultItemDescriptor.service = false;
 	FDefaultItemDescriptor.pageOrder = MIPO_JABBER;
-	FDefaultItemDescriptor.pattern = QString::null;
+	FDefaultItemDescriptor.contactPattern = QString::null;
 
 	IMetaItemDescriptor sms;
 	sms.name = tr("SMS");
@@ -611,7 +612,7 @@ void MetaContacts::initMetaItemDescriptors()
 	sms.detach = false;
 	sms.service = true;
 	sms.pageOrder = MIPO_SMS;
-	sms.pattern = ".*@sms\\.";
+	sms.contactPattern = ".*@sms\\.";
 	FMetaItemDescriptors.append(sms);
 
 	IMetaItemDescriptor mail;
@@ -621,7 +622,7 @@ void MetaContacts::initMetaItemDescriptors()
 	mail.detach = false;
 	mail.service = true;
 	mail.pageOrder = MIPO_MAIL;
-	mail.pattern = ".*@mail\\.";
+	mail.contactPattern = ".*@mail\\.";
 	FMetaItemDescriptors.append(mail);
 
 	IMetaItemDescriptor icq;
@@ -631,7 +632,7 @@ void MetaContacts::initMetaItemDescriptors()
 	icq.detach = true;
 	icq.service = false;
 	icq.pageOrder = MIPO_ICQ;
-	icq.pattern = ".*@icq\\.";
+	icq.contactPattern = ".*@icq\\.";
 	FMetaItemDescriptors.append(icq);
 
 	IMetaItemDescriptor magent;
@@ -641,7 +642,7 @@ void MetaContacts::initMetaItemDescriptors()
 	magent.detach = true;
 	magent.service = false;
 	magent.pageOrder = MIPO_MAGENT;
-	magent.pattern = ".*@mrim\\.";
+	magent.contactPattern = ".*@mrim\\.";
 	FMetaItemDescriptors.append(magent);
 
 	IMetaItemDescriptor twitter;
@@ -651,7 +652,7 @@ void MetaContacts::initMetaItemDescriptors()
 	twitter.detach = true;
 	twitter.service = false;
 	twitter.pageOrder = MIPO_TWITTER;
-	twitter.pattern = ".*@twitter\\.";
+	twitter.contactPattern = ".*@twitter\\.";
 	FMetaItemDescriptors.append(twitter);
 
 	IMetaItemDescriptor fring;
@@ -661,7 +662,7 @@ void MetaContacts::initMetaItemDescriptors()
 	fring.detach = true;
 	fring.service = false;
 	fring.pageOrder = MIPO_FRING;
-	fring.pattern = ".*@fring\\.";
+	fring.contactPattern = ".*@fring\\.";
 	FMetaItemDescriptors.append(fring);
 
 	IMetaItemDescriptor gtalk;
@@ -671,7 +672,7 @@ void MetaContacts::initMetaItemDescriptors()
 	gtalk.detach = true;
 	gtalk.service = false;
 	gtalk.pageOrder = MIPO_GTALK;
-	gtalk.pattern = ".*@(gtalk\\.|gmail\\.com|googlemail\\.com$)";
+	gtalk.contactPattern = ".*@(gtalk\\.|gmail\\.com|googlemail\\.com$)";
 	FMetaItemDescriptors.append(gtalk);
 
 	IMetaItemDescriptor yonline;
@@ -681,7 +682,7 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.detach = true;
 	yonline.service = false;
 	yonline.pageOrder = MIPO_YONLINE;
-	yonline.pattern = ".*@(yandex\\.|ya\\.ru$)";
+	yonline.contactPattern = ".*@(yandex\\.|ya\\.ru$)";
 	FMetaItemDescriptors.append(yonline);
 
 	IMetaItemDescriptor qip;
@@ -691,7 +692,7 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.detach = true;
 	qip.service = false;
 	qip.pageOrder = MIPO_QIP;
-	qip.pattern = ".*@(qip\\.|qip\\.ru$)";
+	qip.contactPattern = ".*@(qip\\.|qip\\.ru$)";
 	FMetaItemDescriptors.append(qip);
 
 	IMetaItemDescriptor vkontakte;
@@ -701,7 +702,7 @@ void MetaContacts::initMetaItemDescriptors()
 	vkontakte.detach = true;
 	vkontakte.service = false;
 	vkontakte.pageOrder = MIPO_VKONTAKTE;
-	vkontakte.pattern = ".*@(vk\\.|vk\\.com$)";
+	vkontakte.contactPattern = ".*@(vk\\.|vk\\.com$)";
 	FMetaItemDescriptors.append(vkontakte);
 
 	IMetaItemDescriptor odnoklasniki;
@@ -711,7 +712,7 @@ void MetaContacts::initMetaItemDescriptors()
 	odnoklasniki.detach = true;
 	odnoklasniki.service = false;
 	odnoklasniki.pageOrder = MIPO_ODNOKLASNIKI;
-	odnoklasniki.pattern = ".*@odnkl\\.";
+	odnoklasniki.contactPattern = ".*@odnkl\\.";
 	FMetaItemDescriptors.append(odnoklasniki);
 
 	IMetaItemDescriptor facebook;
@@ -721,7 +722,7 @@ void MetaContacts::initMetaItemDescriptors()
 	facebook.detach = true;
 	facebook.service = false;
 	facebook.pageOrder = MIPO_FACEBOOK;
-	facebook.pattern = ".*@(facebook\\.|chat\\.facebook\\.com$)";
+	facebook.contactPattern = ".*@(facebook\\.|chat\\.facebook\\.com$)";
 	FMetaItemDescriptors.append(facebook);
 
 	IMetaItemDescriptor livejournal;
@@ -731,7 +732,7 @@ void MetaContacts::initMetaItemDescriptors()
 	livejournal.detach = true;
 	livejournal.service = false;
 	livejournal.pageOrder = MIPO_LIVEJOURNAL;
-	livejournal.pattern = ".*@(livejournal\\.|livejournal\\.com$)";
+	livejournal.contactPattern = ".*@(livejournal\\.|livejournal\\.com$)";
 	FMetaItemDescriptors.append(livejournal);
 
 	IMetaItemDescriptor rambler;
@@ -741,7 +742,7 @@ void MetaContacts::initMetaItemDescriptors()
 	rambler.detach = true;
 	rambler.service = false;
 	rambler.pageOrder = MIPO_RAMBLER;
-	rambler.pattern = ".*@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
+	rambler.contactPattern = ".*@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
 	FMetaItemDescriptors.append(rambler);
 }
 

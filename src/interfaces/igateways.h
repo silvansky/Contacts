@@ -49,8 +49,8 @@ struct IGateServiceDescriptor :
 	QString domainField;
 	QString passwordField;
 	QString domainSeparator;
-	QString homeContactRegexp;
-	QString availContactRegexp;
+	QString homeContactPattern;
+	QString availContactPattern;
 	QMap<QString, QVariant> extraFields;
 };
 
