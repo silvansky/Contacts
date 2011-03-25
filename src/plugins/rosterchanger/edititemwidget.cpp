@@ -176,7 +176,10 @@ void EditItemWidget::setSelectedProfile(const Jid &AServiceJid)
 
 QString EditItemWidget::normalContactText(const QString &AText) const
 {
-	return AText.trimmed().toLower();
+	QString normalContact = AText.trimmed().toLower();
+	if (!normalContact.isEmpty() && !normalContact.contains('@') && !FDescriptor.domains.isEmpty())
+		normalContact += "@" + FDescriptor.domains.value(0);
+	return normalContact;
 }
 
 void EditItemWidget::startResolve(int ATimeout)
@@ -211,7 +214,7 @@ void EditItemWidget::resolveContactJid()
 	QString errMessage;
 
 	QString contact = normalContactText(contactText());
-	if (ui.lneContact->text() != contact)
+	if (contactText() != contact)
 		ui.lneContact->setText(contact);
 	FContactTextChanged = false;
 

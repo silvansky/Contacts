@@ -119,6 +119,14 @@
         <source>User Comments</source>
         <translation>Ваш отзыв</translation>
     </message>
+    <message>
+        <source>Virtus updates ready</source>
+        <translation>Обновления Virtus-а готовы</translation>
+    </message>
+    <message>
+        <source>Updates are ready. Do you want to restart Virtus now?</source>
+        <translation>Обновления готовы. Вы хотите перезапустить Virtus сейчас?</translation>
+    </message>
 </context>
 <context>
     <name>SetupPluginsDialog</name>

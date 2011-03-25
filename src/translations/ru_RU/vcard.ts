@@ -59,16 +59,16 @@
         <translation>Запрос vCard завершился с ошибкой. &lt;br&gt;%1</translation>
     </message>
     <message>
-        <source>Contact name</source>
-        <translation>Имя контакта</translation>
-    </message>
-    <message>
-        <source>Enter name for contact</source>
-        <translation>Укажите имя контакта</translation>
-    </message>
-    <message>
         <source>Not in contact list</source>
         <translation>Нет в контакт-листе</translation>
+    </message>
+    <message>
+        <source>Rename contact</source>
+        <translation>Переименовать контакт</translation>
+    </message>
+    <message>
+        <source>&lt;font size=+2&gt;Rename contact&lt;/font&gt;&lt;br&gt;Enter new name</source>
+        <translation>&lt;font size=+2&gt;Переименовать контакт&lt;/font&gt;&lt;br&gt;Введите новое имя</translation>
     </message>
 </context>
 <context>

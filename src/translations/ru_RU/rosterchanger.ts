@@ -88,6 +88,68 @@
     </message>
 </context>
 <context>
+    <name>AddMetaContactDialog</name>
+    <message>
+        <source>Enter the contact&apos;s name and address</source>
+        <translation>Введите имя и адрес контакта</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Имя:</translation>
+    </message>
+    <message>
+        <source>Contact Name</source>
+        <translation>Имя контакта</translation>
+    </message>
+    <message>
+        <source>Add Contact</source>
+        <translation>Добавить контакт</translation>
+    </message>
+    <message>
+        <source>Failed to send request to the server</source>
+        <translation>Не удалось отправить запрос на сервер</translation>
+    </message>
+    <message>
+        <source>Add another address</source>
+        <translation>Добавить еще адрес</translation>
+    </message>
+    <message>
+        <source>Specify contact&apos;s address</source>
+        <translation>Укажите адрес контакта</translation>
+    </message>
+    <message>
+        <source>Failed to create contact</source>
+        <translation>Не удалось добавить контакт</translation>
+    </message>
+    <message>
+        <source>Failed to add contact due to an error: %1</source>
+        <translation>Не удалось добавить контакт из-за ошибки: %1</translation>
+    </message>
+</context>
+<context>
+    <name>EditItemWidget</name>
+    <message>
+        <source>Your return address:</source>
+        <translation>Ваш обратный адрес:</translation>
+    </message>
+    <message>
+        <source>Address in %1</source>
+        <translation>Адрес в %1</translation>
+    </message>
+    <message>
+        <source>Invalid address. Please check the address and try again.</source>
+        <translation>Указан недопустимый адрес. Пожалуйста, проверте адрес и повторите попытку.</translation>
+    </message>
+    <message>
+        <source>Unable to determine the contact ID</source>
+        <translation>Не удалось определить идентификатор контакта</translation>
+    </message>
+    <message>
+        <source>Unable to determine the contact ID: %1</source>
+        <translation>Не удалось определить идентификатор контакта: %1</translation>
+    </message>
+</context>
+<context>
     <name>RosterChanger</name>
     <message>
         <source>This group</source>
@@ -148,10 +210,6 @@
     <message>
         <source>Rename group</source>
         <translation>Переименовать группу</translation>
-    </message>
-    <message>
-        <source>Enter new group name:</source>
-        <translation>Введите новое имя группы:</translation>
     </message>
     <message>
         <source>You are assured that wish to remove %1 contact(s) from roster?</source>
@@ -280,6 +338,14 @@
     <message>
         <source>New group...</source>
         <translation>Новая группа...</translation>
+    </message>
+    <message>
+        <source>&lt;font size=+2&gt;Add group&lt;/font&gt;&lt;br&gt;Enter new group name:</source>
+        <translation>&lt;font size=+2&gt;Добавить группу&lt;/font&gt;&lt;br&gt;Введите имя новой группы:</translation>
+    </message>
+    <message>
+        <source>&lt;font size=+2&gt;Rename group&lt;/font&gt;&lt;br&gt;Enter new group name:</source>
+        <translation>&lt;font size=+2&gt;Переименовать группу&lt;/font&gt;&lt;br&gt;Введите новое имя группы:</translation>
     </message>
 </context>
 <context>

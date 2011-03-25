@@ -220,6 +220,18 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <source>Custom domain...</source>
         <translation>Свой домен...</translation>
     </message>
+    <message>
+        <source>Enter your Rambler login and password, or %1.</source>
+        <translation>Введите Ваш Rambler логин и пароль или %1.</translation>
+    </message>
+    <message>
+        <source>register</source>
+        <translation>зарегистрируйтесь</translation>
+    </message>
+    <message>
+        <source>Forgot your password?</source>
+        <translation>Забыли пароль?</translation>
+    </message>
 </context>
 <context>
     <name>LoginDialogClass</name>
@@ -236,14 +248,6 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <translation>Запускать вместе с компьютером</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Enter your Rambler login and password, or &lt;/span&gt;&lt;a href=&quot;http://id.rambler.ru/script/newuser.cgi&quot;&gt;&lt;span style=&quot; font-size:9pt; text-decoration: underline; color:#ffffff;&quot;&gt;register&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Login</source>
         <translation>Логин</translation>
     </message>
@@ -256,12 +260,8 @@ p, li { white-space: pre-wrap; }
         <translation>Показать пароль</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://id.rambler.ru/script/reminder.cgi&quot;&gt;&lt;span style=&quot; font-size:9pt; text-decoration: underline; color:#acacac;&quot;&gt;Forgot your password?&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <source>Enter your Rambler login and password, or register</source>
+        <translation>Введите Ваш Rambler логин и пароль или зарегистрируйтесь</translation>
     </message>
 </context>
 <context>
@@ -308,10 +308,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Change User</source>
         <translation>Сменить пользователя</translation>
-    </message>
-    <message>
-        <source>Ctrl+P</source>
-        <translation>Ctrl+P</translation>
     </message>
     <message>
         <source>Change User (%1)</source>

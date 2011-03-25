@@ -14,7 +14,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="lblIcon">
      <property name="text">
-      <string>lblIcon</string>
+      <string notr="true">lblIcon</string>
      </property>
     </widget>
    </item>
@@ -46,7 +46,7 @@
    <item row="1" column="1">
     <widget class="QLabel" name="lblError">
      <property name="text">
-      <string>lblError</string>
+      <string notr="true">lblError</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

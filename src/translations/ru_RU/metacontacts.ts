@@ -35,18 +35,6 @@
         <translation>Объединить контакты</translation>
     </message>
     <message>
-        <source>Contact name</source>
-        <translation>Имя контакта</translation>
-    </message>
-    <message>
-        <source>Enter name for contact</source>
-        <translation>Введите имя контакта</translation>
-    </message>
-    <message>
-        <source>You are assured that wish to remove a contact &lt;b&gt;%1&lt;/b&gt; from roster?</source>
-        <translation>Вы уверены, что хотите удалить контакт &lt;b&gt;%1&lt;/b&gt; из контакт-листа?</translation>
-    </message>
-    <message>
         <source>Create new group</source>
         <translation>Создать новую группу</translation>
     </message>
@@ -147,14 +135,6 @@
         <translation>Рамблер</translation>
     </message>
     <message numerus="yes">
-        <source>You are assured that wish to remove %n contact(s) from roster?</source>
-        <translation>
-            <numerusform>Вы уверены, что хотите удалить %n контактов из контакт-листа?</numerusform>
-            <numerusform>Вы уверены, что хотите удалить %n контакта из контакт-листа?</numerusform>
-            <numerusform>Вы уверены, что хотите удалить %n контактов из контакт-листа?</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>Remove %n contact(s)</source>
         <translation>
             <numerusform>Удалить %n контакт</numerusform>
@@ -181,6 +161,38 @@
     <message>
         <source>Contact info</source>
         <translation>Информация о контакте</translation>
+    </message>
+    <message>
+        <source>Rename contact</source>
+        <translation>Переименовать контакт</translation>
+    </message>
+    <message>
+        <source>&lt;font size=+2&gt;Rename contact&lt;/font&gt;&lt;br&gt;Enter new name</source>
+        <translation>&lt;font size=+2&gt;Переименовать контакт&lt;/font&gt;&lt;br&gt;Введине новое имя</translation>
+    </message>
+    <message>
+        <source>You are assured that wish to remove a contact &lt;b&gt;%1&lt;/b&gt;?</source>
+        <translation>Вы уверены, что хотите удалить контакт &lt;b&gt;%1&lt;/b&gt;?</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message numerus="yes">
+        <source>You are assured that wish to remove %n contact(s)?</source>
+        <translation>
+            <numerusform>Вы уверены, что хотите удалить %n контакт?</numerusform>
+            <numerusform>Вы уверены, что хотите удалить %n контакта?</numerusform>
+            <numerusform>Вы уверены, что хотите удалить %n контактов?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&lt;font size=+2&gt;%1&lt;/font&gt;&lt;br&gt;%2</source>
+        <translation>&lt;font size=+2&gt;%1&lt;/font&gt;&lt;br&gt;%2</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>

@@ -688,7 +688,7 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.detach = true;
 	qip.service = false;
 	qip.pageOrder = MIPO_QIP;
-	qip.contactPattern = "^"JID_NODE_PATTERN"@(qip\\"JID_DOMAIN_PATTERN".|qip\\.ru)$";
+	qip.contactPattern = "^"JID_NODE_PATTERN"@(qip\\."JID_DOMAIN_PATTERN".|qip\\.ru)$";
 	FMetaItemDescriptors.append(qip);
 
 	IMetaItemDescriptor vkontakte;

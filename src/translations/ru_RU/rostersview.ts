@@ -101,10 +101,6 @@
         <translation>Показывать отключенных</translation>
     </message>
     <message>
-        <source>Ctrl+O</source>
-        <translation>Ctrl+O</translation>
-    </message>
-    <message>
         <source>Group Contacts</source>
         <translation>Группировать контакты</translation>
     </message>

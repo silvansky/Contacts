@@ -228,6 +228,14 @@
         <source>LiveJournal</source>
         <translation>LiveJournal</translation>
     </message>
+    <message>
+        <source>Twitter</source>
+        <translation>Twitter</translation>
+    </message>
+    <message>
+        <source>Mail</source>
+        <translation>Почта</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>

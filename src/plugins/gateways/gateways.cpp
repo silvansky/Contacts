@@ -262,6 +262,8 @@ bool Gateways::initObjects()
 	gtalk.name = tr("GTalk");
 	gtalk.iconKey = MNI_GATEWAYS_SERVICE_GTALK;
 	gtalk.loginLabel = tr("E-mail");
+	gtalk.domains.append("gmail.com");
+	gtalk.domains.append("googlemail.com");
 	gtalk.loginField = "username";
 	gtalk.domainField = "server";
 	gtalk.passwordField = "password";

@@ -406,8 +406,8 @@ void AddMetaContactDialog::setAvatarIndex(int AIndex)
 		FAvatarIndex = -1;
 	}
 
-	ui.tlbPhotoPrev->setEnabled(FAvatarIndex>0);
-	ui.tlbPhotoNext->setEnabled(FAvatarIndex<FAvatarContacts.count()-1);
+	ui.tlbPhotoPrev->setEnabled(FAvatarContacts.count()>1);
+	ui.tlbPhotoNext->setEnabled(FAvatarContacts.count()>1);
 	ui.lblPhotoIndex->setText(QString("%1/%2").arg(FAvatarIndex+1).arg(FAvatarContacts.count()));
 }
 
@@ -483,12 +483,16 @@ void AddMetaContactDialog::onPrevPhotoButtonClicked()
 {
 	if (FAvatarIndex > 0)
 		setAvatarIndex(FAvatarIndex-1);
+	else
+		setAvatarIndex(FAvatarContacts.count()-1);
 }
 
 void AddMetaContactDialog::onNextPhotoButtonClicked()
 {
 	if (FAvatarIndex < FAvatarContacts.count()-1)
 		setAvatarIndex(FAvatarIndex+1);
+	else
+		setAvatarIndex(0);
 }
 
 void AddMetaContactDialog::onAddItemActionTriggered(bool)
