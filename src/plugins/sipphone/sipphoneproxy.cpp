@@ -678,7 +678,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	border->setCloseButtonVisible(false);
 	border->setMovable(true);
 	border->setResizable(true);
-	border->resize(640, 480);
+	border->resize(621, 480);
 	border->installEventFilter(this);
 
 	if(_pWorkWidgetContainer != NULL)
@@ -768,6 +768,7 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		SipPhoneWidget *widget = new SipPhoneWidget(0, _pCallAudio, call, this );
 		connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
 		connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
+		connect(widget, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
 		//cwList.append( widget );
 		
 		if(_pWorkWidget != NULL)
@@ -786,7 +787,7 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		border->setCloseButtonVisible(false);
 		border->setMovable(true);
 		border->setResizable(true);
-		border->resize(640, 480);
+		border->resize(621, 480);
 		border->installEventFilter(this);
 
 		if(_pWorkWidgetContainer != NULL)

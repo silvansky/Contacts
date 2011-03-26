@@ -709,7 +709,7 @@ void SipPhone::onRedialCall()
 		{
 			pCallControl->callStatusChange(RCallControl::Ringing);
 			QString sid = openStream(pCallControl->getStreamJid(), contactJidFull);
-			pCallControl->setSessionId(sid);
+			//pCallControl->setSessionId(sid);
 		}
 	}
 }
@@ -901,6 +901,13 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, c
 		QString sid = QUuid::createUuid().toString();
 		openElem.setAttribute("sid",sid);
 		// Здесь добавляем нужные параметры для установки соединения в элемент open
+
+		QString metaId = findMetaId(AStreamJid, AContactJid);
+		if(FCallControls.contains(metaId))
+		{
+			FCallControls[metaId]->setSessionId(sid);
+		}
+
 
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,open,REQUEST_TIMEOUT))
 		{
