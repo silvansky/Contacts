@@ -205,8 +205,9 @@ bool Gateways::initObjects()
 {
 	static const QString JabberContactPattern = "^"JID_NODE_PATTERN"@"JID_DOMAIN_PATTERN"$";
 
+	// !!Последовательность добавления дескрипторов имеет значение!!
 	IGateServiceDescriptor sms;
-	sms.isValid = true;
+	sms.id = GSID_SMS;
 	sms.needGate = true;
 	sms.needLogin = false;
 	sms.type = "sms";
@@ -218,7 +219,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(sms);
 
 	IGateServiceDescriptor icq;
-	icq.isValid = true;
+	icq.id = GSID_ICQ;
 	icq.needGate = true;
 	icq.needLogin = true;
 	icq.type = "icq";
@@ -230,7 +231,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(icq);
 
 	IGateServiceDescriptor magent;
-	magent.isValid = true;
+	magent.id = GSID_MAGENT;
 	magent.needGate = true;
 	magent.needLogin = true;
 	magent.type = "mrim";
@@ -242,7 +243,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(magent);
 
 	IGateServiceDescriptor twitter;
-	twitter.isValid = true;
+	twitter.id = GSID_TWITTER;
 	twitter.needGate = true;
 	twitter.needLogin = true;
 	twitter.type = "twitter";
@@ -254,7 +255,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(twitter);
 
 	IGateServiceDescriptor gtalk;
-	gtalk.isValid = true;
+	gtalk.id = GSID_GTALK;
 	gtalk.needGate = false;
 	gtalk.needLogin = true;
 	gtalk.type = "xmpp";
@@ -273,7 +274,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(gtalk);
 
 	IGateServiceDescriptor yonline;
-	yonline.isValid = true;
+	yonline.id = GSID_YONLINE;
 	yonline.needGate = false;
 	yonline.needLogin = true;
 	yonline.type = "xmpp";
@@ -291,7 +292,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(yonline);
 
 	IGateServiceDescriptor qip;
-	qip.isValid = true;
+	qip.id = GSID_QIP;
 	qip.needGate = false;
 	qip.needLogin = true;
 	qip.type = "xmpp";
@@ -309,7 +310,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(qip);
 
 	IGateServiceDescriptor vkontakte;
-	vkontakte.isValid = true;
+	vkontakte.id = GSID_VKONTAKTE;
 	vkontakte.needGate = false;
 	vkontakte.needLogin = true;
 	vkontakte.type = "xmpp";
@@ -327,7 +328,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(vkontakte);
 
 	IGateServiceDescriptor facebook;
-	facebook.isValid = true;
+	facebook.id = GSID_FACEBOOK;
 	facebook.needGate = false;
 	facebook.needLogin = true;
 	facebook.type = "xmpp";
@@ -345,7 +346,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(facebook);
 
 	IGateServiceDescriptor livejournal;
-	livejournal.isValid = true;
+	livejournal.id = GSID_LIVEJOURNAL;
 	livejournal.needGate = false;
 	livejournal.needLogin = true;
 	livejournal.type = "xmpp";
@@ -363,7 +364,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(livejournal);
 
 	IGateServiceDescriptor rambler;
-	rambler.isValid = true;
+	rambler.id = GSID_RAMBLER;
 	rambler.needGate = false;
 	rambler.needLogin = true;
 	rambler.type = "xmpp";
@@ -386,7 +387,7 @@ bool Gateways::initObjects()
 	FGateDescriptors.append(rambler);
 
 	IGateServiceDescriptor jabber;
-	jabber.isValid = true;
+	jabber.id = GSID_JABBER;
 	jabber.needGate = false;
 	jabber.needLogin = true;
 	jabber.type = "xmpp";
@@ -403,7 +404,7 @@ bool Gateways::initObjects()
 
 	// Почта должна быть после джаббера т.к. их идентификаторы идентичны
 	IGateServiceDescriptor mail;
-	mail.isValid = true;
+	mail.id = GSID_MAIL;
 	mail.needGate = true;
 	mail.needLogin = false;
 	mail.type = "mail";
@@ -574,16 +575,16 @@ void Gateways::setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, 
 
 QList<QString> Gateways::availDescriptors() const
 {
-	QList<QString> names;
+	QList<QString> ids;
 	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
-		names.append(it->name);
-	return names;
+		ids.append(it->id);
+	return ids;
 }
 
-IGateServiceDescriptor Gateways::descriptorByName(const QString &AServiceName) const
+IGateServiceDescriptor Gateways::descriptorById(const QString &ADescriptorId) const
 {
 	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
-		if (it->name == AServiceName)
+		if (it->id == ADescriptorId)
 			return *it;
 	return IGateServiceDescriptor();
 }
@@ -621,6 +622,53 @@ QList<IGateServiceDescriptor> Gateways::descriptorsByContact(const QString &ACon
 		}
 	}
 	return descriptors;
+}
+
+QString Gateways::normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, QString &AError) const
+{
+	QString contact = AContact.trimmed();
+	if (!contact.isEmpty())
+	{
+		IGateServiceDescriptor descriptor = descriptorById(ADescriptorId);
+		if (!descriptor.id.isEmpty())
+		{
+			// Очистим номер от мусора
+			if (ADescriptorId == GSID_SMS)
+			{
+				for (int i=0; i<contact.length(); i++)
+				{
+					if (!contact.at(i).isDigit() && (i>0 || contact.at(i)!='+'))
+					{
+						contact.remove(i,1);
+						i--;
+					}
+				}
+				if (contact.startsWith('8') && contact.length()==11)
+				{
+					contact.remove(0,1);
+					contact += "+7";
+				}
+			}
+
+			// Добавим домен, если не указан
+			if (!contact.contains('@') && !descriptor.domains.isEmpty())
+			{
+				contact += "@" + descriptor.domains.value(0);
+			}
+
+			QRegExp homeRegExp(descriptor.homeContactPattern);
+			homeRegExp.setCaseSensitivity(Qt::CaseInsensitive);
+			if (!homeRegExp.exactMatch(contact))
+			{
+				AError = tr("Entered address is not suitable for selected account.");
+			}
+		}
+		else
+		{
+			AError = tr("Invalid descriptor identifier.");
+		}
+	}
+	return contact;
 }
 
 QList<Jid> Gateways::availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity) const
@@ -704,7 +752,7 @@ IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServ
 {
 	IGateServiceLogin login;
 	IGateServiceDescriptor descriptor = FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
-	if (descriptor.isValid)
+	if (!descriptor.id.isEmpty())
 	{
 		if (AFields.fieldMask > 0)
 		{
@@ -745,7 +793,7 @@ IRegisterSubmit Gateways::serviceSubmit(const Jid &AStreamJid, const Jid &AServi
 {
 	IRegisterSubmit submit;
 	IGateServiceDescriptor descriptor = FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
-	if (descriptor.isValid)
+	if (!descriptor.id.isEmpty())
 	{
 		submit.fieldMask = ALogin.fields.fieldMask;
 		submit.key = ALogin.fields.key;

@@ -304,12 +304,12 @@ void AddContactDialog::updateServices(const Jid &AServiceJid)
 {
 	if (FGateways)
 	{
-		foreach(QString name, FGateways->availDescriptors())
+		foreach(QString descriptorId, FGateways->availDescriptors())
 		{
-			if (!FServices.contains(name))
+			if (!FServices.contains(descriptorId))
 			{
 				bool show = false;
-				IGateServiceDescriptor descriptor = FGateways->descriptorByName(name);
+				IGateServiceDescriptor descriptor = FGateways->descriptorById(descriptorId);
 				if (descriptor.needGate)
 				{
 					IDiscoIdentity identity;
@@ -324,11 +324,11 @@ void AddContactDialog::updateServices(const Jid &AServiceJid)
 				if (show)
 				{
 					QLabel *label = new QLabel(ui.wdtGateways);
-					label->setToolTip(name);
+					label->setToolTip(descriptorId);
 					IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(label,descriptor.iconKey,0,0,"pixmap");
 					ui.wdtGateways->layout()->addWidget(label);
 					qobject_cast<QHBoxLayout *>(ui.wdtGateways->layout())->addStretch();
-					FServices.insert(name,AServiceJid);
+					FServices.insert(descriptorId,AServiceJid);
 				}
 			}
 		}
@@ -476,7 +476,7 @@ void AddContactDialog::resolveServiceJid()
 		ui.lneContact->setText(contact);
 
 	IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->descriptorByContact(contact) : IGateServiceDescriptor();
-	if (descriptor.isValid)
+	if (!descriptor.id.isEmpty())
 	{
 		bool offerAccount = false;
 		QList<Jid> gateways = suitableServices(descriptor);

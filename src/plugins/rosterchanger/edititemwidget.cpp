@@ -213,36 +213,24 @@ void EditItemWidget::resolveContactJid()
 {
 	QString errMessage;
 
-	QString contact = normalContactText(contactText());
+	QString contact = FGateways->normalizeContactLogin(FDescriptor.id,contactText(),errMessage);
 	if (contactText() != contact)
 		ui.lneContact->setText(contact);
 	FContactTextChanged = false;
 
-	if (!contact.isEmpty())
+	if (!contact.isEmpty() && errMessage.isEmpty())
 	{
 		Jid userJid = contact;
 		Jid serviceJid = selectedProfile();
-
-		QRegExp availRegExp(FDescriptor.homeContactPattern);
-		availRegExp.setCaseSensitivity(Qt::CaseInsensitive);
-
-		if (!contact.contains(availRegExp))
-		{
-			errMessage = tr("Invalid address. Please check the address and try again.");
-		}
-		else if (serviceJid != FStreamJid)
+		if (serviceJid != FStreamJid)
 		{
 			FContactJidRequest = FGateways->sendUserJidRequest(FStreamJid,serviceJid,contact);
 			if (FContactJidRequest.isEmpty())
 				errMessage = tr("Unable to determine the contact ID");
 		}
-		else if (!userJid.isValid() || userJid.node().isEmpty())
-		{
-			errMessage = tr("Invalid address. Please check the address and try again.");
-		}
 		else
 		{
-				setRealContactJid(userJid);
+			setRealContactJid(userJid);
 		}
 	}
 

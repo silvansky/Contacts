@@ -35,7 +35,7 @@ void ManageLegacyAccountsOptions::appendServiceOptions(const Jid &AServiceJid)
 	if (!FOptions.contains(AServiceJid))
 	{
 		IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(FStreamJid,AServiceJid);
-		if (descriptor.isValid && descriptor.needLogin)
+		if (!descriptor.id.isEmpty() && descriptor.needLogin)
 		{
 			LegacyAccountOptions *options = new LegacyAccountOptions(FGateways,FStreamJid,AServiceJid,ui.wdtAccounts);
 			FLayout->addWidget(options);

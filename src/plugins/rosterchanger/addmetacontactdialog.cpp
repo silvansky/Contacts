@@ -5,7 +5,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
-#define ADR_GATE_DESCRIPTOR_NAME    Action::DR_Parametr1
+#define ADR_GATE_DESCRIPTOR_ID      Action::DR_Parametr1
 
 #define NICK_RESOLVE_TIMEOUT        1000
 
@@ -77,7 +77,7 @@ void AddMetaContactDialog::setContactJid(const Jid &AContactJid)
 	if (FItemWidgets.isEmpty() && AContactJid.isValid())
 	{
 		IGateServiceDescriptor descriptor = FGateways->descriptorByContact(AContactJid.pBare());
-		if (descriptor.isValid && FAvailDescriptors.contains(descriptor.name))
+		if (FAvailDescriptors.contains(descriptor.id))
 			addContactItem(descriptor);
 	}
 
@@ -97,7 +97,7 @@ void AddMetaContactDialog::setContactText(const QString &AContact)
 	if (FItemWidgets.isEmpty() && !AContact.isEmpty())
 	{
 		IGateServiceDescriptor descriptor = FGateways->descriptorByContact(AContact);
-		if (descriptor.isValid && FAvailDescriptors.contains(descriptor.name))
+		if (FAvailDescriptors.contains(descriptor.id))
 			addContactItem(descriptor);
 	}
 
@@ -191,18 +191,18 @@ void AddMetaContactDialog::createGatewaysMenu()
 	if (FGateways)
 	{
 		Menu *menu = new Menu(ui.pbtAddItem);
-		foreach(QString descriptorName, FGateways->availDescriptors())
+		foreach(QString descriptorId, FGateways->availDescriptors())
 		{
-			IGateServiceDescriptor descriptor = FGateways->descriptorByName(descriptorName);
+			IGateServiceDescriptor descriptor = FGateways->descriptorById(descriptorId);
 			if (descriptorStatus(descriptor) != DS_UNAVAILABLE)
 			{
 				Action *action = new Action(menu);
 				action->setText(descriptor.name);
 				action->setIcon(RSR_STORAGE_MENUICONS,descriptor.iconKey);
-				action->setData(ADR_GATE_DESCRIPTOR_NAME,descriptor.name);
+				action->setData(ADR_GATE_DESCRIPTOR_ID,descriptorId);
 				connect(action,SIGNAL(triggered(bool)),SLOT(onAddItemActionTriggered(bool)));
 				menu->addAction(action,AG_DEFAULT,true);
-				FAvailDescriptors.append(descriptor.name);
+				FAvailDescriptors.append(descriptorId);
 			}
 		}
 		ui.pbtAddItem->setMenu(menu);
@@ -261,7 +261,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 
 int AddMetaContactDialog::descriptorStatus(const IGateServiceDescriptor &ADescriptor) const
 {
-	if (FGateways && ADescriptor.isValid)
+	if (FGateways && !ADescriptor.id.isEmpty())
 	{
 		if (ADescriptor.needGate)
 		{
@@ -500,7 +500,7 @@ void AddMetaContactDialog::onAddItemActionTriggered(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		addContactItem(FGateways->descriptorByName(action->data(ADR_GATE_DESCRIPTOR_NAME).toString()));
+		addContactItem(FGateways->descriptorById(action->data(ADR_GATE_DESCRIPTOR_ID).toString()));
 	}
 }
 

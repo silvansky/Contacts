@@ -34,7 +34,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	onLineEditTextChanged(QString::null);
 
 	FGateLabel = FGateways->serviceDescriptor(FStreamJid, FServiceJid);
-	if (FGateLabel.isValid)
+	if (!FGateLabel.id.isEmpty())
 	{
 		setWindowTitle(tr("Account: %1").arg(FGateLabel.name));
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,1,0,"pixmap");

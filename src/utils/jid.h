@@ -9,8 +9,8 @@
 #include "utilsexport.h"
 #include <thirdparty/idn/stringprep.h>
 
-#define JID_NODE_PATTERN       "[a-zA-Z0-9_%!#\\+\\-\\.\\^\\*\\)\\(\\=\\|\\?]+"
-#define JID_DOMAIN_PATTERN     "[a-z0-9\\-\\.]+\\.\\w{2,3}"
+#define JID_NODE_PATTERN       "[\\w_%!#\\+\\-\\.\\^\\*\\)\\(\\=\\|\\?]+"
+#define JID_DOMAIN_PATTERN     "[a-zA-Z0-9\\-\\.]+\\.\\w{2,3}"
 
 class JidData :
 			public QSharedData
