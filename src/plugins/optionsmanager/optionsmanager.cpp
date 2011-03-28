@@ -425,8 +425,6 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		}
 		WidgetManager::showActivateRaiseWindow(FLoginDialogBorder ? (QWidget*)FLoginDialogBorder: (QWidget*)FLoginDialog);
 		if (FLoginDialogBorder)
-			FLoginDialogBorder->showFullScreen();
-		if (FLoginDialogBorder)
 			FLoginDialogBorder->adjustSize();
 		else
 			FLoginDialog->adjustSize();
