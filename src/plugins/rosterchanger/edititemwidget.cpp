@@ -207,10 +207,9 @@ void EditItemWidget::resolveContactJid()
 		ui.lneContact->setText(contact);
 	FContactTextChanged = false;
 
-	QString errMessage = FGateways->checkNormalizedContactLogin(FDescriptor.id,contact);
-	if (!contact.isEmpty() && errMessage.isEmpty())
+	QString errMessage = !contact.isEmpty()?  FGateways->checkNormalizedContactLogin(FDescriptor.id,contact) : tr("Enter contact address");
+	if (errMessage.isEmpty())
 	{
-		Jid userJid = contact;
 		Jid serviceJid = selectedProfile();
 		if (serviceJid != FStreamJid)
 		{
@@ -220,7 +219,7 @@ void EditItemWidget::resolveContactJid()
 		}
 		else
 		{
-			setRealContactJid(userJid);
+			setRealContactJid(contact);
 		}
 	}
 

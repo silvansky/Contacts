@@ -3,7 +3,17 @@ QDialog
 	background-color: rgba(65, 70, 77, 245);
 }
 
-#lblError
+QScrollArea#scaItems
+{
+	background-color: transparent;
+}
+
+QWidget#wdtItems
+{
+	background-color: transparent;
+}
+
+QLabel#lblError
 {
 	color: red;
 }

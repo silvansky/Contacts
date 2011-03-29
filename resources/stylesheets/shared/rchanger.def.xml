@@ -5,6 +5,10 @@
     <object mime='text/css'>rchangeraddcontactdialog.qss</object>
   </file>
   <file>
+    <key>rchangerAddMetaContactDialog</key>
+    <object mime='text/css'>rchangeraddmetacontactdialog.qss</object>
+  </file>
+  <file>
     <key>rchangerTabBarItemSubscription</key>
     <object mime='text/css'>rchangertabbaritemsubscription.qss</object>
   </file>

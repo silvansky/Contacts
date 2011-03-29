@@ -641,18 +641,20 @@ QString Gateways::normalizeContactLogin(const QString &ADescriptorId, const QStr
 			// Очистим номер от мусора
 			if (ADescriptorId == GSID_SMS)
 			{
+				QString number;
 				for (int i=0; i<contact.length(); i++)
 				{
-					if (!contact.at(i).isDigit() && (i>0 || contact.at(i)!='+'))
-					{
-						contact.remove(i,1);
-						i--;
-					}
+					if (contact.at(i).isDigit() || (i==0 && contact.at(i)=='+'))
+						number += contact.at(i);
 				}
-				if (contact.startsWith('8') && contact.length()==11)
+				if (!number.isEmpty())
 				{
-					contact.remove(0,1);
-					contact.prepend("+7");
+					contact = number;
+					if (contact.startsWith('8') && contact.length()==11)
+					{
+						contact.remove(0,1);
+						contact.prepend("+7");
+					}
 				}
 			}
 
@@ -677,11 +679,11 @@ QString Gateways::checkNormalizedContactLogin(const QString &ADescriptorId, cons
 		// Проверки на правильность ввода
 		if (ADescriptorId == GSID_SMS)
 		{
-			if (!AContact.startsWith("+") || AContact.length()>12)
+			if (!AContact.startsWith("+") || AContact.length()<12)
 			{
 				errMessage = tr("Enter the entire number, including area code or operator code.");
 			}
-			else if (AContact.length()<12)
+			else if (AContact.length()>12)
 			{
 				errMessage = tr("Too many digits in the phone number.");
 			}
