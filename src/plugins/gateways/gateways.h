@@ -82,7 +82,8 @@ public:
 	virtual IGateServiceDescriptor descriptorById(const QString &ADescriptorId) const;
 	virtual IGateServiceDescriptor descriptorByContact(const QString &AContact) const;
 	virtual QList<IGateServiceDescriptor> descriptorsByContact(const QString &AContact) const;
-	virtual QString normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, QString &AError) const;
+	virtual QString normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, bool AModify = false) const;
+	virtual QString checkNormalizedContactLogin(const QString &ADescriptorId, const QString &AContact) const;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;

@@ -591,16 +591,19 @@ IGateServiceDescriptor Gateways::descriptorById(const QString &ADescriptorId) co
 
 IGateServiceDescriptor Gateways::descriptorByContact(const QString &AContact) const
 {
-	QRegExp regexp;
-	regexp.setCaseSensitivity(Qt::CaseInsensitive);
-
-	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
+	if (!AContact.isEmpty())
 	{
-		if (!it->homeContactPattern.isEmpty())
+		QRegExp homeRegExp;
+		homeRegExp.setCaseSensitivity(Qt::CaseInsensitive);
+		for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
 		{
-			regexp.setPattern(it->homeContactPattern);
-			if (regexp.exactMatch(AContact))
-				return *it;
+			if (!it->homeContactPattern.isEmpty())
+			{
+				homeRegExp.setPattern(it->homeContactPattern);
+				QString contact = normalizeContactLogin(it->id,AContact);
+				if (!contact.isEmpty() && homeRegExp.exactMatch(contact))
+					return *it;
+			}
 		}
 	}
 	return IGateServiceDescriptor();
@@ -608,23 +611,26 @@ IGateServiceDescriptor Gateways::descriptorByContact(const QString &AContact) co
 
 QList<IGateServiceDescriptor> Gateways::descriptorsByContact(const QString &AContact) const
 {
-	QRegExp regexp;
-	regexp.setCaseSensitivity(Qt::CaseInsensitive);
-
 	QList<IGateServiceDescriptor> descriptors;
-	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
+	if (!AContact.isEmpty())
 	{
-		if (!it->availContactPattern.isEmpty())
+		QRegExp availRegExp;
+		availRegExp.setCaseSensitivity(Qt::CaseInsensitive);
+		for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
 		{
-			regexp.setPattern(it->availContactPattern);
-			if (regexp.exactMatch(AContact))
-				descriptors.append(*it);
+			if (!it->availContactPattern.isEmpty())
+			{
+				availRegExp.setPattern(it->availContactPattern);
+				QString contact = normalizeContactLogin(it->id,AContact);
+				if (!contact.isEmpty() && availRegExp.exactMatch(contact))
+					descriptors.append(*it);
+			}
 		}
 	}
 	return descriptors;
 }
 
-QString Gateways::normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, QString &AError) const
+QString Gateways::normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, bool AModify) const
 {
 	QString contact = AContact.trimmed();
 	if (!contact.isEmpty())
@@ -646,29 +652,55 @@ QString Gateways::normalizeContactLogin(const QString &ADescriptorId, const QStr
 				if (contact.startsWith('8') && contact.length()==11)
 				{
 					contact.remove(0,1);
-					contact += "+7";
+					contact.prepend("+7");
 				}
 			}
 
 			// Добавим домен, если не указан
-			if (!contact.contains('@') && !descriptor.domains.isEmpty())
+			if (AModify && !contact.contains('@') && !descriptor.domains.isEmpty())
 			{
 				contact += "@" + descriptor.domains.value(0);
 			}
 
-			QRegExp homeRegExp(descriptor.homeContactPattern);
-			homeRegExp.setCaseSensitivity(Qt::CaseInsensitive);
-			if (!homeRegExp.exactMatch(contact))
-			{
-				AError = tr("Entered address is not suitable for selected account.");
-			}
-		}
-		else
-		{
-			AError = tr("Invalid descriptor identifier.");
 		}
 	}
 	return contact;
+}
+
+QString Gateways::checkNormalizedContactLogin(const QString &ADescriptorId, const QString &AContact) const
+{
+	QString errMessage;
+
+	IGateServiceDescriptor descriptor = descriptorById(ADescriptorId);
+	if (!descriptor.id.isEmpty())
+	{
+		// Проверки на правильность ввода
+		if (ADescriptorId == GSID_SMS)
+		{
+			if (!AContact.startsWith("+") || AContact.length()>12)
+			{
+				errMessage = tr("Enter the entire number, including area code or operator code.");
+			}
+			else if (AContact.length()<12)
+			{
+				errMessage = tr("Too many digits in the phone number.");
+			}
+		}
+
+		// Проверка на соответствие контакта дескриптору
+		QRegExp homeRegExp(descriptor.homeContactPattern);
+		homeRegExp.setCaseSensitivity(Qt::CaseInsensitive);
+		if (errMessage.isEmpty() && !homeRegExp.exactMatch(AContact))
+		{
+			errMessage = tr("Entered address is not suitable for selected account.");
+		}
+	}
+	else
+	{
+		errMessage = tr("Invalid descriptor identifier.");
+	}
+
+	return errMessage;
 }
 
 QList<Jid> Gateways::availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity) const

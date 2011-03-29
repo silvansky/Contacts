@@ -60,7 +60,6 @@ void EditItemWidget::setContactJid(const Jid &AContactJid)
 				FProfiles[serviceJid]->setChecked(true);
 		}
 		setContactText(contact);
-		startResolve(0);
 	}
 }
 
@@ -72,7 +71,7 @@ QString EditItemWidget::contactText() const
 void EditItemWidget::setContactText(const QString &AText)
 {
 	ui.lneContact->setText(AText);
-	onContactTextEdited(AText);
+	startResolve(0);
 }
 
 Jid EditItemWidget::gatewayJid() const
@@ -174,14 +173,6 @@ void EditItemWidget::setSelectedProfile(const Jid &AServiceJid)
 	}
 }
 
-QString EditItemWidget::normalContactText(const QString &AText) const
-{
-	QString normalContact = AText.trimmed().toLower();
-	if (!normalContact.isEmpty() && !normalContact.contains('@') && !FDescriptor.domains.isEmpty())
-		normalContact += "@" + FDescriptor.domains.value(0);
-	return normalContact;
-}
-
 void EditItemWidget::startResolve(int ATimeout)
 {
 	setRealContactJid(Jid::null);
@@ -211,13 +202,12 @@ void EditItemWidget::setErrorMessage(const QString &AMessage)
 
 void EditItemWidget::resolveContactJid()
 {
-	QString errMessage;
-
-	QString contact = FGateways->normalizeContactLogin(FDescriptor.id,contactText(),errMessage);
+	QString contact = FGateways->normalizeContactLogin(FDescriptor.id,contactText(),true);
 	if (contactText() != contact)
 		ui.lneContact->setText(contact);
 	FContactTextChanged = false;
 
+	QString errMessage = FGateways->checkNormalizedContactLogin(FDescriptor.id,contact);
 	if (!contact.isEmpty() && errMessage.isEmpty())
 	{
 		Jid userJid = contact;

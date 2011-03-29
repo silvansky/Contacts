@@ -31,7 +31,6 @@ protected:
 	void updateProfiles();
 	Jid selectedProfile() const;
 	void setSelectedProfile(const Jid &AServiceJid);
-	QString normalContactText(const QString &AText) const;
 protected:
 	void startResolve(int ATimeout);
 	void setRealContactJid(const Jid &AContactJid);
