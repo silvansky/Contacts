@@ -2075,6 +2075,8 @@ void CustomBorderContainer::showMaximized()
 
 void CustomBorderContainer::showFullScreen()
 {
+	if (!isVisible())
+		show();
 	lastMousePosition = QPoint(-1, -1);
 	_isFullscreen = !_isFullscreen;
 	if (!_isFullscreen)

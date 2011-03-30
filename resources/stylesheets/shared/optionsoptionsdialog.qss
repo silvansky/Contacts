@@ -115,3 +115,19 @@ MessengerOptions QGroupBox
 {
 	margin-right: 40px;
 }
+
+/*****************
+ * change button *
+ *****************/
+
+QPushButton#pbtChange
+{
+	border-image: none;
+	color: #acacac;
+	text-decoration: underline;
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	min-width: 10px;
+}

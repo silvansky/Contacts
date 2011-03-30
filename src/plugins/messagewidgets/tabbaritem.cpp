@@ -15,6 +15,8 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 {
 	FIconSize = QSize(16,16);
 
+	setMouseTracking(true);
+
 	setLayout(new QHBoxLayout);
 	layout()->setMargin(2);
 	layout()->setSpacing(2);

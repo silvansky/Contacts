@@ -52,8 +52,8 @@ class Gateways :
 			public IStanzaRequestOwner,
 			public IDiscoFeatureHandler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IGateways IOptionsHolder IStanzaRequestOwner IDiscoFeatureHandler);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IGateways IOptionsHolder IStanzaRequestOwner IDiscoFeatureHandler)
 public:
 	Gateways();
 	~Gateways();

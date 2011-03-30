@@ -299,13 +299,18 @@ void MetaTabWindow::updateItemButton(const Jid &AItemJid)
 		IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(AItemJid);
 
 		int notifyCount = itemNotifyCount(AItemJid,true);
+		QIcon icon;
+		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
+		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Selected);
+		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
+		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
 		if (notifyCount > 0)
 		{
-			button->setIcon(insertNotifyBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(descriptor.icon,1),notifyCount));
+			button->setIcon(insertNotifyBalloon(icon,notifyCount));
 		}
 		else
 		{
-			button->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(descriptor.icon,1));
+			button->setIcon(icon);
 		}
 
 		Action *action = FButtonAction.value(button);
@@ -327,7 +332,12 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 		Action *action = new Action(FToolBarChanger->toolBar());
 		action->setCheckable(true);
 		action->setData(ADR_ITEM_JID,itemJid.pBare());
-		action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
+		QIcon icon;
+		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
+		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Selected);
+		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
+		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+		action->setIcon(icon);
 		connect(action,SIGNAL(triggered(bool)),SLOT(onItemActionTriggered(bool)));
 		FItemActions.insert(itemJid,action);
 		updateItemAction(itemJid);

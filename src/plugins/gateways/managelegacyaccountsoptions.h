@@ -9,12 +9,12 @@
 #include "legacyaccountoptions.h"
 #include "ui_managelegacyaccountsoptions.h"
 
-class ManageLegacyAccountsOptions : 
+class ManageLegacyAccountsOptions :
 	public QWidget,
 	public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	ManageLegacyAccountsOptions(IGateways *AGateways, const Jid &AStreamJid, QWidget *AParent = NULL);
 	~ManageLegacyAccountsOptions();

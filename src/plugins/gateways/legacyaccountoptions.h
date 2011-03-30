@@ -7,17 +7,19 @@
 #include <utils/iconstorage.h>
 #include "ui_legacyaccountoptions.h"
 
-class LegacyAccountOptions : 
+class LegacyAccountOptions :
 	public QWidget
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	LegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
 	~LegacyAccountOptions();
 protected slots:
+	void onEnableBoxToggled(bool);
 	void onEnableButtonClicked(bool);
 	void onDisableButtonClicked(bool);
 	void onChangeLinkActivated(const QString &ALink);
+	void onChangeButtonClicked();
 	void onChangeDialogAccepted();
 	void onDeleteButtonClicked(bool);
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);

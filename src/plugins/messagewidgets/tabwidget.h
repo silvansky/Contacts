@@ -7,7 +7,7 @@
 class TabWidget :
 			public QWidget
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	TabWidget(QWidget *AParent = NULL);
 	virtual ~TabWidget();

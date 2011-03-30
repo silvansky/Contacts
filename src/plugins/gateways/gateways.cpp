@@ -1115,7 +1115,7 @@ void Gateways::savePrivateStorageSubscribe(const Jid &AStreamJid)
 
 IGateServiceDescriptor Gateways::findGateDescriptor(const IDiscoInfo &AInfo) const
 {
-	int index = FDiscovery!=NULL ? FDiscovery->findIdentity(AInfo.identity,"gateway",QString::null) : -1;
+	int index = FDiscovery ? FDiscovery->findIdentity(AInfo.identity,"gateway",QString::null) : -1;
 	if (index >= 0)
 	{
 		QString domain = AInfo.contactJid.pDomain();

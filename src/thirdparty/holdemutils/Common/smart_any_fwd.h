@@ -799,11 +799,11 @@ typedef close_fun<BOOL (__stdcall *)( HANDLE ),FindClose>                 close_
 typedef close_fun<BOOL (__stdcall *)( HANDLE ),FindCloseChangeNotification> close_find_change_notification;
 typedef close_fun<BOOL (__stdcall *)( HINSTANCE ),FreeLibrary>            close_library;
 typedef close_fun<LONG (__stdcall *)( HKEY ),RegCloseKey>                 close_regkey;
-#ifdef _MSC_VER
+//#ifdef _MSC_VER
 typedef close_fun<BOOL (__stdcall *)( LPCVOID ),UnmapViewOfFile>          close_file_view;
-#else
-typedef close_fun<BOOL (__stdcall *)( PVOID ),UnmapViewOfFile>          close_file_view;
-#endif
+//#else
+//typedef close_fun<BOOL (__stdcall *)( PVOID ),UnmapViewOfFile>          close_file_view;
+//#endif
 typedef close_fun<BOOL (__stdcall *)( HICON ),DestroyIcon>                close_hicon;
 typedef close_fun<BOOL (__stdcall *)( HGDIOBJ ),DeleteObject>             close_hgdiobj;
 typedef close_fun<BOOL (__stdcall *)( HACCEL ),DestroyAcceleratorTable>   close_haccel;

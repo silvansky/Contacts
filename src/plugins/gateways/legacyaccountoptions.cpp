@@ -16,8 +16,10 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 
 	connect(ui.pbtEnable,SIGNAL(clicked(bool)),SLOT(onEnableButtonClicked(bool)));
 	connect(ui.pbtDisable,SIGNAL(clicked(bool)),SLOT(onDisableButtonClicked(bool)));
+	connect(ui.enableCheckBox, SIGNAL(toggled(bool)), SLOT(onEnableBoxToggled(bool)));
 	connect(ui.lblChange,SIGNAL(linkActivated(const QString &)),SLOT(onChangeLinkActivated(const QString &)));
 	connect(ui.cbtDelete,SIGNAL(clicked(bool)),SLOT(onDeleteButtonClicked(bool)));
+	connect(ui.pbtChange, SIGNAL(clicked()), SLOT(onChangeButtonClicked()));
 
 	connect(FGateways->instance(),SIGNAL(loginReceived(const QString &, const QString &)),
 		SLOT(onServiceLoginReceived(const QString &, const QString &)));
@@ -28,11 +30,22 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 
 	onServiceEnableChanged(FStreamJid,FServiceJid,FGateways->isServiceEnabled(FStreamJid,FServiceJid));
 	onServicePresenceChanged(FStreamJid,FServiceJid,FGateways->servicePresence(FStreamJid,FServiceJid));
+	ui.pbtEnable->setVisible(false);
+	ui.pbtDisable->setVisible(false);
+	ui.lblChange->setVisible(false);
 }
 
 LegacyAccountOptions::~LegacyAccountOptions()
 {
 
+}
+
+void LegacyAccountOptions::onEnableBoxToggled(bool on)
+{
+	if (on)
+		onEnableButtonClicked(true);
+	else
+		onDisableButtonClicked(true);
 }
 
 void LegacyAccountOptions::onEnableButtonClicked(bool)
@@ -62,6 +75,11 @@ void LegacyAccountOptions::onChangeLinkActivated(const QString &ALink)
 	{
 		connect(dialog,SIGNAL(accepted()),SLOT(onChangeDialogAccepted()));
 	}
+}
+
+void LegacyAccountOptions::onChangeButtonClicked()
+{
+	onChangeLinkActivated(QString::null);
 }
 
 void LegacyAccountOptions::onChangeDialogAccepted()

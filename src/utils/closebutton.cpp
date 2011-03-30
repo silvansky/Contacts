@@ -9,6 +9,7 @@
 
 CloseButton::CloseButton(QWidget *AParent) : QAbstractButton(AParent)
 {
+	setMouseTracking(true);
 	setFocusPolicy(Qt::NoFocus);
 	setCursor(Qt::ArrowCursor);
 	resize(sizeHint());

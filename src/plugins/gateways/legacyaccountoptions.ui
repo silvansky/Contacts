@@ -7,27 +7,34 @@
     <x>0</x>
     <y>0</y>
     <width>392</width>
-    <height>64</height>
+    <height>45</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="margin">
     <number>0</number>
    </property>
    <item>
     <widget class="QGroupBox" name="grbAccount">
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="rightMargin">
        <number>3</number>
       </property>
-      <item row="0" column="0">
+      <item>
+       <widget class="QCheckBox" name="enableCheckBox">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="lblIcon">
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item>
        <widget class="QLabel" name="lblLogin">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -40,26 +47,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="pbtEnable"/>
-      </item>
-      <item row="0" column="3">
-       <widget class="QPushButton" name="pbtDisable"/>
-      </item>
-      <item row="0" column="4">
-       <widget class="QLabel" name="lblChange">
-        <property name="text">
-         <string>&lt;a href='account:change'&gt;Change...&lt;/a&gt;</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::RichText</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="CloseButton" name="cbtDelete" native="true"/>
-      </item>
-      <item row="1" column="2" colspan="5">
+      <item>
        <widget class="QLabel" name="lblError">
         <property name="palette">
          <palette>
@@ -102,6 +90,35 @@
          <bool>true</bool>
         </property>
        </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pbtEnable"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pbtDisable"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pbtChange">
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>Change...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblChange">
+        <property name="text">
+         <string>&lt;a href='account:change'&gt;Change...&lt;/a&gt;</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="CloseButton" name="cbtDelete" native="true"/>
       </item>
      </layout>
     </widget>
