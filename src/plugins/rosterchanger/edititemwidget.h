@@ -40,7 +40,7 @@ protected slots:
 protected slots:
 	void onContactTextEditingFinished();
 	void onContactTextEdited(const QString &AText);
-	void onProfileButtonClicked(bool);
+	void onProfileButtonToggled(bool);
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
@@ -58,6 +58,7 @@ private:
 	Jid FContactJid;
 	QTimer FResolveTimer;
 	IGateServiceDescriptor FDescriptor;
+	QMap<Jid, QString> FProfileLogins;
 	QMap<Jid, QRadioButton *> FProfiles;
 };
 

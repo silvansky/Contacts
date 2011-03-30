@@ -224,6 +224,28 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 	{
 		switch(descriptorStatus(ADescriptor))
 		{
+		case DS_UNREGISTERED:
+			{
+				static bool blocked = false;
+				if (!blocked)
+				{
+					IDiscoIdentity identity;
+					identity.category = "gateway";
+					identity.type = ADescriptor.type;
+					QList<Jid> availGates = FGateways->availServices(FStreamJid,identity);
+					if (!availGates.isEmpty())
+					{
+						QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,availGates.at(0),this);
+						if (dialog->exec() == QDialog::Accepted)
+						{
+							blocked = true;
+							addContactItem(ADescriptor,AContact);
+							blocked = false;
+						}
+					}
+				}
+			}
+			break;
 		case DS_ENABLED:
 			{
 				EditItemWidget *widget = new EditItemWidget(FGateways,FStreamJid,ADescriptor,ui.wdtItems);
@@ -240,16 +262,6 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 		case DS_DISABLED:
 			{
 
-			}
-			break;
-		case DS_UNREGISTERED:
-			{
-				IDiscoIdentity identity;
-				identity.category = "gateway";
-				identity.type = ADescriptor.type;
-				QList<Jid> availGates = FGateways->availServices(FStreamJid,identity);
-				if (!availGates.isEmpty())
-					FGateways->showAddLegacyAccountDialog(FStreamJid,availGates.at(0),this);
 			}
 			break;
 		default:
@@ -468,7 +480,7 @@ void AddMetaContactDialog::onAdjustDialogSize()
 	if (!FItemWidgets.isEmpty())
 	{
 		ui.scaItems->setVisible(true);
-		ui.scaItems->setFixedHeight(qMin(2*qApp->desktop()->availableGeometry(this).height()/3,ui.wdtItems->sizeHint().height()));
+		ui.scaItems->setMinimumHeight(qMin(2*qApp->desktop()->availableGeometry(this).height()/3,ui.wdtItems->sizeHint().height()));
 		ui.pbtAddItem->setText(tr("Add another address"));
 	}
 	else
@@ -476,7 +488,12 @@ void AddMetaContactDialog::onAdjustDialogSize()
 		ui.scaItems->setVisible(false);
 		ui.pbtAddItem->setText(tr("Specify contact's address"));
 	}
-	adjustSize();
+
+	resize(width(),minimumSizeHint().height());
+	if (parentWidget())
+		parentWidget()->adjustSize();
+	else
+		adjustSize();
 }
 
 void AddMetaContactDialog::onPrevPhotoButtonClicked()

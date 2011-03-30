@@ -77,9 +77,9 @@ void AddLegacyAccountDialog::initialize()
 
 void AddLegacyAccountDialog::abort(const QString &AMessage)
 {
-	hide();
 	QMessageBox::critical(this,tr("Error connecting account"),tr("Failed to connect account due to error:\n%1").arg(AMessage));
 	QTimer::singleShot(0,this,SLOT(reject()));
+	hide();
 }
 
 void AddLegacyAccountDialog::setError(const QString &AMessage)
@@ -116,6 +116,8 @@ void AddLegacyAccountDialog::onAdjustDialogSize()
 	resize(width(),minimumSizeHint().height());
 	if (parentWidget())
 		parentWidget()->adjustSize();
+	else
+		adjustSize();
 }
 
 void AddLegacyAccountDialog::onLineEditTextChanged(const QString &AText)

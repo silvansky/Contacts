@@ -3,12 +3,7 @@ QDialog
 	background-color: rgba(65, 70, 77, 245);
 }
 
-QScrollArea#scaItems
-{
-	background-color: transparent;
-}
-
-QWidget#wdtItems
+QScrollArea#scaItems, QScrollArea#scaItems QWidget
 {
 	background-color: transparent;
 }

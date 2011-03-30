@@ -115,20 +115,21 @@ void EditItemWidget::updateProfiles()
 		newProfiles.prepend(FStreamJid);
 	else if (FDescriptor.needGate && FProfiles.contains(FStreamJid))
 		oldProfiles.prepend(FStreamJid);
+	else
+		oldProfiles.removeAll(FStreamJid);
 
 	foreach(Jid serviceJid, newProfiles)
 	{
 		QRadioButton *button = new QRadioButton(ui.wdtProfiles);
-		button->setText(serviceJid.pBare());
 		button->setAutoExclusive(true);
-		connect(button,SIGNAL(clicked(bool)),SLOT(onProfileButtonClicked(bool)));
+		connect(button,SIGNAL(toggled(bool)),SLOT(onProfileButtonToggled(bool)));
 		FProfiles.insert(serviceJid,button);
 		ui.wdtProfiles->layout()->addWidget(button);
 	}
 
 	foreach(Jid serviceJid, newProfiles)
 	{
-		if (serviceJid != FStreamJid)
+		if (!FProfileLogins.contains(serviceJid) && serviceJid!=FStreamJid)
 		{
 			QString requestId = FGateways->sendLoginRequest(FStreamJid,serviceJid);
 			if (!requestId.isEmpty())
@@ -141,6 +142,12 @@ void EditItemWidget::updateProfiles()
 		QRadioButton *button = FProfiles.take(serviceJid);
 		ui.wdtProfiles->layout()->removeWidget(button);
 		delete button;
+	}
+
+	for (QMap<Jid,QRadioButton *>::const_iterator it=FProfiles.constBegin(); it!=FProfiles.constEnd(); it++)
+	{
+		QString login = FProfileLogins.value(it.key(),it.key().pBare());
+		it.value()->setText(login);
 	}
 
 	if (selectedProfile().isEmpty() && !FProfiles.isEmpty())
@@ -239,10 +246,10 @@ void EditItemWidget::onContactTextEdited(const QString &AText)
 	startResolve(RESOLVE_WAIT_INTERVAL);
 }
 
-void EditItemWidget::onProfileButtonClicked(bool)
+void EditItemWidget::onProfileButtonToggled(bool)
 {
 	QRadioButton *button = qobject_cast<QRadioButton *>(sender());
-	if (button)
+	if (button && button->isChecked())
 	{
 		setSelectedProfile(FProfiles.key(button));
 	}
@@ -253,10 +260,8 @@ void EditItemWidget::onServiceLoginReceived(const QString &AId, const QString &A
 	if (FLoginRequests.contains(AId))
 	{
 		Jid serviceJid = FLoginRequests.take(AId);
-		if (FProfiles.contains(serviceJid))
-		{
-			FProfiles[serviceJid]->setText(ALogin);
-		}
+		FProfileLogins.insert(serviceJid,ALogin);
+		updateProfiles();
 	}
 }
 
@@ -272,7 +277,9 @@ void EditItemWidget::onGatewayErrorReceived(const QString &AId, const QString &A
 {
 	if (FLoginRequests.contains(AId))
 	{
-		FLoginRequests.remove(AId);
+		Jid serviceJid = FLoginRequests.take(AId);
+		FProfileLogins.remove(serviceJid);
+		updateProfiles();
 	}
 	else if (FContactJidRequest == AId)
 	{
