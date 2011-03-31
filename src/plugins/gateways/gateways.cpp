@@ -694,12 +694,12 @@ QString Gateways::checkNormalizedContactLogin(const QString &ADescriptorId, cons
 		homeRegExp.setCaseSensitivity(Qt::CaseInsensitive);
 		if (errMessage.isEmpty() && !homeRegExp.exactMatch(AContact))
 		{
-			errMessage = tr("Entered address is not suitable for selected account.");
+			errMessage = tr("Entered address is not suitable for selected service.");
 		}
 	}
 	else
 	{
-		errMessage = tr("Invalid descriptor identifier.");
+		errMessage = tr("Invalid service descriptor identifier.");
 	}
 
 	return errMessage;

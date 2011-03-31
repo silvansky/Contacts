@@ -20,7 +20,7 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-	
+
 	setMinimumWidth(350);
 	setWindowTitle(tr("Add Contact"));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_RCHANGER_ADD_CONTACT,0,0,"windowIcon");
@@ -30,7 +30,7 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	FMetaRoster = NULL;
 	FAvatars = NULL;
 	FVcardPlugin = NULL;
-   FOptionsManager = NULL;
+	FOptionsManager = NULL;
 	FRosterChanger = ARosterChanger;
 
 	FShown = false;
@@ -42,10 +42,15 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	FItemsLayout->setMargin(0);
 	FItemsLayout->addStretch();
 	ui.wdtItems->setLayout(FItemsLayout);
-	ui.scaItems->setVisible(false);
+	//ui.scaItems->setVisible(false);
 
+	ui.tlbPhotoNext->setVisible(false);
+	ui.tlbPhotoPrev->setVisible(false);
+	ui.lblPhotoIndex->setVisible(false);
 	connect(ui.tlbPhotoPrev,SIGNAL(clicked()),SLOT(onPrevPhotoButtonClicked()));
 	connect(ui.tlbPhotoNext,SIGNAL(clicked()),SLOT(onNextPhotoButtonClicked()));
+
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.pbtAddItem,MNI_RCHANGER_ADDMETACONTACT_ADD_ITEM);
 
 	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add Contact"));
 	connect(ui.dbbButtons,SIGNAL(accepted()),SLOT(onDialogAccepted()));
@@ -186,11 +191,11 @@ void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 		FRostersView = rostersViewPlugin!=NULL ? rostersViewPlugin->rostersView() : NULL;
 	}
 
-   plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
-   if (plugin)
-   {
-      FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-   }
+	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
+	if (plugin)
+	{
+		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+	}
 }
 
 void AddMetaContactDialog::createGatewaysMenu()
@@ -261,7 +266,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget);
 				connect(widget,SIGNAL(adjustSizeRequested()),SLOT(onItemWidgetAdjustSizeRequested()));
 				connect(widget,SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));
-            connect(widget,SIGNAL(showOptionsRequested()),SLOT(onItemWidgetShowOptionsRequested()));
+				connect(widget,SIGNAL(showOptionsRequested()),SLOT(onItemWidgetShowOptionsRequested()));
 				connect(widget,SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
 				FItemWidgets.append(widget);
 				QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
@@ -436,7 +441,7 @@ void AddMetaContactDialog::showEvent(QShowEvent *AEvent)
 	if (!FShown)
 	{
 		FShown = true;
-		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 	}
 	QDialog::showEvent(AEvent);
 }
@@ -488,8 +493,8 @@ void AddMetaContactDialog::onAdjustDialogSize()
 	if (!FItemWidgets.isEmpty())
 	{
 		ui.scaItems->setVisible(true);
-      ui.scaItems->setMinimumWidth(ui.wdtItems->sizeHint().width());
-		ui.scaItems->setMinimumHeight(qMin(2*qApp->desktop()->availableGeometry(this).height()/3,ui.wdtItems->sizeHint().height()));
+		ui.scaItems->setMinimumWidth(ui.wdtItems->sizeHint().width());
+		ui.scaItems->setMinimumHeight(qMin(qApp->desktop()->availableGeometry(this).height()/2,ui.wdtItems->sizeHint().height()));
 		ui.pbtAddItem->setText(tr("Add another address"));
 	}
 	else
@@ -498,7 +503,14 @@ void AddMetaContactDialog::onAdjustDialogSize()
 		ui.pbtAddItem->setText(tr("Specify contact's address"));
 	}
 
-	resize(width(),minimumSizeHint().height());
+	foreach(EditItemWidget *widget, FItemWidgets)
+		widget->setCorrectSizes(ui.lblNick->width(),ui.wdtPhoto->width());
+
+	QTimer::singleShot(0,this,SLOT(onAdjustBorderSize()));
+}
+
+void AddMetaContactDialog::onAdjustBorderSize()
+{
 	if (parentWidget())
 		parentWidget()->adjustSize();
 	else
@@ -532,7 +544,7 @@ void AddMetaContactDialog::onAddItemActionTriggered(bool)
 
 void AddMetaContactDialog::onItemWidgetAdjustSizeRequested()
 {
-	QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
 
 void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
@@ -543,17 +555,17 @@ void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
 		FItemWidgets.removeAll(widget);
 		ui.wdtItems->layout()->removeWidget(widget);
 		delete widget;
-		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 		updateDialogState();
 	}
 }
 
 void AddMetaContactDialog::onItemWidgetShowOptionsRequested()
 {
-   if (FOptionsManager)
-   {
-      FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
-   }
+	if (FOptionsManager)
+	{
+		FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
+	}
 }
 
 void AddMetaContactDialog::onItemWidgetContactJidChanged(const Jid &AContactJid)

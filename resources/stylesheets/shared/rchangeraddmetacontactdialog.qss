@@ -12,3 +12,8 @@ QLabel#lblError
 {
 	color: red;
 }
+
+QLabel#lblCaption
+{
+	font-size: 18px;
+}

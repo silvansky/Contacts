@@ -65,13 +65,14 @@ protected:
 protected slots:
 	void onDialogAccepted();
 	void onAdjustDialogSize();
+	void onAdjustBorderSize();
 	void onNickResolveTimeout();
 	void onPrevPhotoButtonClicked();
 	void onNextPhotoButtonClicked();
 	void onAddItemActionTriggered(bool);
 	void onItemWidgetAdjustSizeRequested();
 	void onItemWidgetDeleteButtonClicked();
-   void onItemWidgetShowOptionsRequested();
+	void onItemWidgetShowOptionsRequested();
 	void onItemWidgetContactJidChanged(const Jid &AContactJid);
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
@@ -88,7 +89,7 @@ private:
 	IVCardPlugin *FVcardPlugin;
 	IRostersView *FRostersView;
 	IRosterChanger *FRosterChanger;
-   IOptionsManager *FOptionsManager;
+	IOptionsManager *FOptionsManager;
 private:
 	int FAvatarIndex;
 	QList<Jid> FValidContacts;

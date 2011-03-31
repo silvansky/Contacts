@@ -72,6 +72,10 @@ any full screen application (films, games, presentations)</source>
         <source>&lt;a href=&quot;test:notify&quot;&gt;Test&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;test:notify&quot;&gt;Тест&lt;/a&gt;</translation>
     </message>
+    <message>
+        <source>Test</source>
+        <translation>Проверка</translation>
+    </message>
 </context>
 <context>
     <name>NotifyWidgetClass</name>

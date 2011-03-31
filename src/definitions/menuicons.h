@@ -268,6 +268,7 @@
 #define MNI_RCHANGER_ADDCONTACT_INFO             "rchangerAddContactInfo"
 #define MNI_RCHANGER_ADDCONTACT_ERROR            "rchangerAddContactError"
 #define MNI_RCHANGER_ADDCONTACT_SEARCH_NICK      "rchangerAddContactSearchNick"
+#define MNI_RCHANGER_ADDMETACONTACT_ADD_ITEM     "rchangerAddMetaContactAddItem"
 
 //RosterSearch
 #define MNI_ROSTERSEARCH_MENU                    "rostersearchMenu"

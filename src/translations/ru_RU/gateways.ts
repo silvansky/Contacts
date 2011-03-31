@@ -236,6 +236,22 @@
         <source>Mail</source>
         <translation>Почта</translation>
     </message>
+    <message>
+        <source>Enter the entire number, including area code or operator code.</source>
+        <translation>Введите номер полностью, включая код города или оператора.</translation>
+    </message>
+    <message>
+        <source>Too many digits in the phone number.</source>
+        <translation>Слишком много цифр в номере.</translation>
+    </message>
+    <message>
+        <source>Entered address is not suitable for selected service.</source>
+        <translation>Введенный адрес не соответствует выбрангому сервису.</translation>
+    </message>
+    <message>
+        <source>Invalid service descriptor identifier.</source>
+        <translation>Неверный идентификатор описателя сервиса.</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>
@@ -277,6 +293,10 @@
     <message>
         <source>&lt;a href=&apos;account:change&apos;&gt;Change...&lt;/a&gt;</source>
         <translation>&lt;a href=&apos;account:change&apos;&gt;Изменить...&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Change...</source>
+        <translation>Изменить...</translation>
     </message>
 </context>
 <context>

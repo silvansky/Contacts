@@ -129,24 +129,44 @@
 <context>
     <name>EditItemWidget</name>
     <message>
-        <source>Your return address:</source>
-        <translation>Ваш обратный адрес:</translation>
-    </message>
-    <message>
         <source>Address in %1</source>
         <translation>Адрес в %1</translation>
     </message>
     <message>
-        <source>Invalid address. Please check the address and try again.</source>
-        <translation>Указан недопустимый адрес. Пожалуйста, проверте адрес и повторите попытку.</translation>
-    </message>
-    <message>
-        <source>Unable to determine the contact ID</source>
-        <translation>Не удалось определить идентификатор контакта</translation>
-    </message>
-    <message>
         <source>Unable to determine the contact ID: %1</source>
         <translation>Не удалось определить идентификатор контакта: %1</translation>
+    </message>
+    <message>
+        <source>Return address:</source>
+        <translation>Обратный адрес:</translation>
+    </message>
+    <message>
+        <source>disconnected. %1</source>
+        <translation>отключен. %1</translation>
+    </message>
+    <message>
+        <source>failed to connect. %1</source>
+        <translation>не удалось подключить. %1</translation>
+    </message>
+    <message>
+        <source>connecting...</source>
+        <translation>подключение...</translation>
+    </message>
+    <message>
+        <source>Select your return address</source>
+        <translation>Выберите ваш обратный адрес</translation>
+    </message>
+    <message>
+        <source>Failed to request contact JID from transport</source>
+        <translation>Не удадось запросить JID контакта у транспорта</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Подключить</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Настройки</translation>
     </message>
 </context>
 <context>
