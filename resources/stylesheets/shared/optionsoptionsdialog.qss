@@ -116,11 +116,11 @@ MessengerOptions QGroupBox
 	margin-right: 40px;
 }
 
-/*****************
- * change button *
- *****************/
+/***************************
+ * change and test buttons *
+ ***************************/
 
-QPushButton#pbtChange
+QPushButton#pbtChange, QPushButton#pbtTest
 {
 	border-image: none;
 	color: #acacac;
@@ -130,4 +130,13 @@ QPushButton#pbtChange
 	padding-top: 0px;
 	padding-bottom: 0px;
 	min-width: 10px;
+}
+
+/**********************
+ * service name label *
+ **********************/
+
+QLabel#serviceName
+{
+	font-size: 11px;
 }

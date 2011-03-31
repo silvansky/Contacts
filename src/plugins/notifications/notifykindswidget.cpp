@@ -4,6 +4,7 @@ NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QStri
 {
 	ui.setupUi(this);
 	ui.lblTitle->setText(ATitle);
+	ui.lblTest->setVisible(false);
 
 	FNotifications = ANotifications;
 	FNotificatorId = ANotificatorId;
@@ -17,6 +18,7 @@ NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QStri
 	connect(ui.chbPopup,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.chbSound,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.lblTest,SIGNAL(linkActivated(const QString &)),SLOT(onTestLinkActivated(const QString &)));
+	connect(ui.pbtTest, SIGNAL(clicked()), SLOT(onTestButtonClicked()));
 
 	reset();
 }
@@ -62,4 +64,9 @@ void NotifyKindsWidget::onTestLinkActivated(const QString &ALink)
 {
 	Q_UNUSED(ALink);
 	emit notificationTest(FNotificatorId,changedKinds(0)|INotification::TestNotify);
+}
+
+void NotifyKindsWidget::onTestButtonClicked()
+{
+	onTestLinkActivated(QString::null);
 }

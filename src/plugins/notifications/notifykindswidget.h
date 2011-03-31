@@ -29,6 +29,7 @@ protected:
 	uchar changedKinds(uchar AActiveKinds) const;
 protected slots:
 	void onTestLinkActivated(const QString &ALink);
+	void onTestButtonClicked();
 private:
 	Ui::NotifyKindsWidgetClass ui;
 private:

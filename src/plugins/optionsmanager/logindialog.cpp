@@ -336,7 +336,7 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			// TODO: adjust size to popup contents
 			//ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->completer()->popup()->sizeHint().width());
-			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->completer()->popup()->width() * 1.2);
+			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->width() * 1.2);
 			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos().x() + 1, ui.lneNode->completer()->popup()->pos().y() + 1);
 		}
 		else if (FMainWindowPlugin && (AWatched == FMainWindowPlugin->mainWindow()->instance() || AWatched == FMainWindowPlugin->mainWindowBorder()))

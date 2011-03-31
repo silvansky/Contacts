@@ -10,12 +10,12 @@
 #include <utils/action.h>
 #include "ui_addlegacyaccountoptions.h"
 
-class AddLegacyAccountOptions : 
+class AddLegacyAccountOptions :
 	public QWidget,
 	public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	AddLegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, QWidget *AParent=NULL);
 	~AddLegacyAccountOptions();
@@ -41,6 +41,7 @@ private:
 	Jid FStreamJid;
 	QHBoxLayout *FLayout;
 	QMap<Jid, QWidget *> FWidgets;
+	bool stretchAdded;
 };
 
 #endif // ADDLEGACYACCOUNTOPTIONS_H

@@ -476,7 +476,7 @@ QComboBox:!editable:hover
 	border-left: 5px;
 	border-bottom: 6px;
 	padding-left: 6px;
-	padding-right: 2px;
+	padding-right: 0px;
 	border-image: url(%IMAGES_PATH%/buttonborderhover.png);
 }
 
@@ -502,10 +502,10 @@ QComboBox::drop-down
 	border: none;
 }
 
-QComboBox::drop-down:hover
+/*QComboBox::drop-down:hover
 {
 	right: 5px;
-}
+}*/
 
 QComboBox::down-arrow
 {

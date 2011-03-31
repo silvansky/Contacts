@@ -22,7 +22,8 @@
 QList<NotifyWidget *> NotifyWidget::FWidgets;
 QDesktopWidget *NotifyWidget::FDesktop = new QDesktopWidget;
 
-NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvailable) : QWidget(NULL, Qt::ToolTip|Qt::WindowStaysOnTopHint)
+NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvailable) :
+	QWidget(NULL, Qt::ToolTip | Qt::WindowStaysOnTopHint)
 {
 	ui.setupUi(this);
 

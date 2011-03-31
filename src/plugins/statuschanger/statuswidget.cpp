@@ -34,6 +34,7 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 
 	ui.tedMood->setVisible(false);
 	ui.tedMood->setMinimumLines(1);
+	ui.tedMood->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	ui.lblAvatar->setAttribute(Qt::WA_Hover, true);
 	ui.lblAvatar->setMouseTracking(true);
 

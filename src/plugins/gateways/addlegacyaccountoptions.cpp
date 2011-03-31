@@ -15,7 +15,7 @@ AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, const Jid
 	connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
 
 	FLayout = new QHBoxLayout(ui.wdtGateways);
-	//FLayout->addStretch();
+	stretchAdded = false;
 
 	onServicesChanged(FStreamJid);
 }
@@ -49,6 +49,7 @@ void AddLegacyAccountOptions::appendServiceButton(const Jid &AServiceJid)
 		button->setIconSize(QSize(32,32));
 
 		QLabel *label = new QLabel(descriptor.name,widget);
+		label->setObjectName("serviceName");
 		label->setAlignment(Qt::AlignCenter);
 
 		Action *action = new Action(button);
@@ -114,7 +115,8 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 			else
 				removeServiceButton(serviceJid);
 		}
-		FLayout->addStretch();
+		if (!stretchAdded)
+			FLayout->addStretch(), stretchAdded = true;
 
 		foreach(Jid serviceJid, FWidgets.keys().toSet() - availGates.toSet())
 			removeServiceButton(serviceJid);

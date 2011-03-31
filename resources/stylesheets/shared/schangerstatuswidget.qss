@@ -40,6 +40,9 @@ QLabel#lblMood
 	margin-bottom: 0px;
 	padding: 5px;
 	color: #acacac;
+	min-height: 28px;
+	max-height: 28px;
+	height: 28px;
 }
 
 QLabel#lblMood:hover
