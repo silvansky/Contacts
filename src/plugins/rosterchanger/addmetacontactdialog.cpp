@@ -30,6 +30,7 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	FMetaRoster = NULL;
 	FAvatars = NULL;
 	FVcardPlugin = NULL;
+   FOptionsManager = NULL;
 	FRosterChanger = ARosterChanger;
 
 	FShown = false;
@@ -184,6 +185,12 @@ void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 		IRostersViewPlugin *rostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		FRostersView = rostersViewPlugin!=NULL ? rostersViewPlugin->rostersView() : NULL;
 	}
+
+   plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
+   if (plugin)
+   {
+      FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+   }
 }
 
 void AddMetaContactDialog::createGatewaysMenu()
@@ -252,8 +259,9 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				widget->setFocus();
 				widget->setContactText(AContact);
 				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget);
-				connect(widget,SIGNAL(adjustSizeRequired()),SLOT(onItemWidgetAdjustSizeRequested()));
+				connect(widget,SIGNAL(adjustSizeRequested()),SLOT(onItemWidgetAdjustSizeRequested()));
 				connect(widget,SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));
+            connect(widget,SIGNAL(showOptionsRequested()),SLOT(onItemWidgetShowOptionsRequested()));
 				connect(widget,SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
 				FItemWidgets.append(widget);
 				QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
@@ -480,6 +488,7 @@ void AddMetaContactDialog::onAdjustDialogSize()
 	if (!FItemWidgets.isEmpty())
 	{
 		ui.scaItems->setVisible(true);
+      ui.scaItems->setMinimumWidth(ui.wdtItems->sizeHint().width());
 		ui.scaItems->setMinimumHeight(qMin(2*qApp->desktop()->availableGeometry(this).height()/3,ui.wdtItems->sizeHint().height()));
 		ui.pbtAddItem->setText(tr("Add another address"));
 	}
@@ -537,6 +546,14 @@ void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
 		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
 		updateDialogState();
 	}
+}
+
+void AddMetaContactDialog::onItemWidgetShowOptionsRequested()
+{
+   if (FOptionsManager)
+   {
+      FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
+   }
 }
 
 void AddMetaContactDialog::onItemWidgetContactJidChanged(const Jid &AContactJid)

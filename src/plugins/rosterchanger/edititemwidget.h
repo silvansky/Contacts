@@ -6,6 +6,7 @@
 #include <QRadioButton>
 #include <definitions/resources.h>
 #include <interfaces/igateways.h>
+#include <interfaces/ipresence.h>
 #include <utils/iconstorage.h>
 #include "ui_edititemwidget.h"
 
@@ -24,8 +25,9 @@ public:
 	virtual void setGatewayJid(const Jid &AGatewayJid);
 	IGateServiceDescriptor gateDescriptor() const;
 signals:
-	void adjustSizeRequired();
+	void adjustSizeRequested();
 	void deleteButtonClicked();
+   void showOptionsRequested();
 	void contactJidChanged(const Jid &AContactJid);
 protected:
 	void updateProfiles();
@@ -41,10 +43,12 @@ protected slots:
 	void onContactTextEditingFinished();
 	void onContactTextEdited(const QString &AText);
 	void onProfileButtonToggled(bool);
+   void onProfileLabelLinkActivated(const QString &ALink);
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
+   void onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
 private:
 	Ui::EditItemWidget ui;
 private:
@@ -59,6 +63,7 @@ private:
 	QTimer FResolveTimer;
 	IGateServiceDescriptor FDescriptor;
 	QMap<Jid, QString> FProfileLogins;
+   QMap<Jid, QLabel *> FProfileLabels;
 	QMap<Jid, QRadioButton *> FProfiles;
 };
 

@@ -37,7 +37,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	if (!FGateLabel.id.isEmpty())
 	{
 		setWindowTitle(tr("Account: %1").arg(FGateLabel.name));
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,1,0,"pixmap");
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,0,0,"pixmap");
 		ui.lblLogin->setText(!FGateLabel.loginLabel.isEmpty() ? FGateLabel.loginLabel : ui.lblLogin->text());
 		ui.cmbDomains->addItems(FGateLabel.domains);
 		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());

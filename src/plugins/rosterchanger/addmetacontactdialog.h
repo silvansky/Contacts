@@ -10,6 +10,7 @@
 #include <definitions/optionvalues.h>
 #include <definitions/stylesheets.h>
 #include <definitions/rosterindextyperole.h>
+#include <definitions/optionnodes.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/imetacontacts.h>
@@ -17,6 +18,7 @@
 #include <interfaces/iavatars.h>
 #include <interfaces/ivcard.h>
 #include <interfaces/irostersview.h>
+#include <interfaces/ioptionsmanager.h>
 #include <utils/menu.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
@@ -69,6 +71,7 @@ protected slots:
 	void onAddItemActionTriggered(bool);
 	void onItemWidgetAdjustSizeRequested();
 	void onItemWidgetDeleteButtonClicked();
+   void onItemWidgetShowOptionsRequested();
 	void onItemWidgetContactJidChanged(const Jid &AContactJid);
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
@@ -85,6 +88,7 @@ private:
 	IVCardPlugin *FVcardPlugin;
 	IRostersView *FRostersView;
 	IRosterChanger *FRosterChanger;
+   IOptionsManager *FOptionsManager;
 private:
 	int FAvatarIndex;
 	QList<Jid> FValidContacts;

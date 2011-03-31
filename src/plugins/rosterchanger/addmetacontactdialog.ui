@@ -152,6 +152,9 @@
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
@@ -161,7 +164,7 @@
         <x>0</x>
         <y>0</y>
         <width>370</width>
-        <height>66</height>
+        <height>59</height>
        </rect>
       </property>
      </widget>
