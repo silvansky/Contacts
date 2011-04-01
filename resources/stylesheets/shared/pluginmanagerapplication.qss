@@ -541,14 +541,6 @@ QComboBox QListView::item:!disabled
 	color: white;
 }
 
-QComboBox QListView::item:disabled /*separator*/
-{
-	min-height: 3px;
-	max-height: 3px;
-	height: 3px;
-	background-color: red;
-}
-
 QComboBox QListView::item:selected
 {
 	min-height: 22px;
@@ -558,6 +550,16 @@ QComboBox QListView::item:selected
 	border-right: 0px;
 	border-bottom: 1px solid #5e6369;
 }
+
+/*separator*/
+/*QComboBox QListView::item:disabled,
+QComboBox QListView::item:selected:disabled
+{
+	min-height: 3px;
+	max-height: 3px;
+	height: 3px;
+	background-color: red;
+}*/
 
 /**********
  * QLabel *

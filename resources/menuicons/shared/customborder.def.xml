@@ -128,4 +128,20 @@
     <key>bottomRightShadowSquare</key>
     <object mime="image/png">bottomrightshadow_square.png</object>
   </icon>
+  <icon>
+    <key>topLeftMaskSquare</key>
+    <object mime="image/png">topleftmask_square.png</object>
+  </icon>
+  <icon>
+    <key>topRightMaskSquare</key>
+    <object mime="image/png">toprightmask_square.png</object>
+  </icon>
+  <icon>
+    <key>topLeftShadowSquare</key>
+    <object mime="image/png">topleftshadow_square.png</object>
+  </icon>
+  <icon>
+    <key>topRightShadowSquare</key>
+    <object mime="image/png">toprightshadow_square.png</object>
+  </icon>
 </icondef>

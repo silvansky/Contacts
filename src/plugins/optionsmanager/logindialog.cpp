@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QPainter>
 #include <QKeyEvent>
+#include <QListView>
 #include <QCompleter>
 #include <QTextCursor>
 #include <QInputDialog>
@@ -12,8 +13,9 @@
 #include <QTextDocument>
 #include <QDialogButtonBox>
 #include <QDesktopServices>
+#include <QStandardItemModel>
+#include <QStyledItemDelegate>
 #include <QAbstractTextDocumentLayout>
-#include <QListView>
 #include <utils/customborderstorage.h>
 #include <definitions/customborder.h>
 #include <utils/graphicseffectsstorage.h>
@@ -41,7 +43,7 @@ enum ConnectionSettings {
 };
 
 class CompleterDelegate :
-			public QItemDelegate
+		public QItemDelegate
 {
 public:
 	CompleterDelegate(QObject *AParent): QItemDelegate(AParent) {}
@@ -99,6 +101,57 @@ public:
 	}
 };
 
+class DomainComboDelegate : public QStyledItemDelegate
+{
+	Q_OBJECT
+public:
+	DomainComboDelegate(QObject *parent, QComboBox *cmb) : QStyledItemDelegate(parent), mCombo(cmb) {}
+
+	static bool isSeparator(const QModelIndex &index)
+	{
+		return index.data(Qt::AccessibleDescriptionRole).toString() == QLatin1String("separator");
+	}
+
+	static void setSeparator(QAbstractItemModel *model, const QModelIndex &index)
+	{
+		model->setData(index, QString::fromLatin1("separator"), Qt::AccessibleDescriptionRole);
+		if (QStandardItemModel *m = qobject_cast<QStandardItemModel*>(model))
+			if (QStandardItem *item = m->itemFromIndex(index))
+				item->setFlags(item->flags() & ~(Qt::ItemIsSelectable|Qt::ItemIsEnabled));
+	}
+
+protected:
+	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+	{
+		if (isSeparator(index))
+		{
+			QRect rect = option.rect;
+			if (const QStyleOptionViewItemV3 *v3 = qstyleoption_cast<const QStyleOptionViewItemV3*>(&option))
+				if (const QAbstractItemView *view = qobject_cast<const QAbstractItemView*>(v3->widget))
+					rect.setWidth(view->viewport()->width());
+			QStyleOption opt;
+			opt.rect = rect;
+			mCombo->style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, painter, mCombo);
+		}
+		else
+		{
+			QStyledItemDelegate::paint(painter, option, index);
+		}
+	}
+
+	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+	{
+		if (isSeparator(index))
+		{
+			int pm = mCombo->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, mCombo);
+			return QSize(pm, 3);
+		}
+		return QStyledItemDelegate::sizeHint(option, index);
+	}
+private:
+	QComboBox *mCombo;
+};
+
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
@@ -119,8 +172,9 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
-//	ui.frmDomain->setProperty("error", false);
+	//	ui.frmDomain->setProperty("error", false);
 	ui.cmbDomain->setView(new QListView());
+	ui.cmbDomain->view()->setItemDelegate(new DomainComboDelegate(ui.cmbDomain->view(), ui.cmbDomain));
 	ui.wdtHelp->setVisible(false);
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);
@@ -138,10 +192,10 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
 
 	ui.lblRegister->setText(tr("Enter your Rambler login and password, or %1.")
-		.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:9pt; text-decoration: underline; color:#ffffff;'>%1</span></a>")
-		.arg(tr("register")));
+				.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:9pt; text-decoration: underline; color:#ffffff;'>%1</span></a>")
+				.arg(tr("register")));
 	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:9pt; text-decoration: underline; color:#acacac;'>%1</span></a>")
-		.arg(tr("Forgot your password?")));
+				      .arg(tr("Forgot your password?")));
 
 	connect(ui.lblRegister,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblHelp,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
@@ -311,8 +365,8 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			p.setY(p.y() - ui.lnePassword->height() / 2);
 			if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
 				BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), tr("Caps Lock is ON"),
-					tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
-					p, 0, true, BalloonTip::ArrowRight);
+							tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
+							p, 0, true, BalloonTip::ArrowRight);
 		}
 	}
 	else if (AEvent->type() == QEvent::FocusOut)
@@ -355,12 +409,12 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			QMouseEvent * mouseEvent = (QMouseEvent*)AEvent;
 			if (mouseEvent->button() == Qt::LeftButton)
 			{
-//				qDebug() << "lblConnectSettings click!";
-//				QDialog::eventFilter(AWatched, AEvent);
+				//				qDebug() << "lblConnectSettings click!";
+				//				QDialog::eventFilter(AWatched, AEvent);
 				hideConnectionError();
 				hideXmppStreamError();
 				showConnectionSettings();
-//				return true;
+				//				return true;
 			}
 		}
 	}
@@ -645,7 +699,7 @@ void LoginDialog::hideXmppStreamError()
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
-//	ui.frmDomain->setProperty("error", false);
+	//	ui.frmDomain->setProperty("error", false);
 	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(false);
 	BalloonTip::hideBalloon();
@@ -663,7 +717,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	if (FNewProfile)
 	{
 		ui.lneNode->setProperty("error", true);
-//		ui.frmDomain->setProperty("error", true);
+		//		ui.frmDomain->setProperty("error", true);
 		ui.cmbDomain->setProperty("error", true);
 	}
 	ui.lnePassword->setProperty("error", true);
@@ -819,7 +873,7 @@ void LoginDialog::onXmppStreamClosed()
 	else if (account)
 	{
 		showXmppStreamError(tr("Unable to login on server"),account->xmppStream()->errorString(),
-			FNewProfile ? tr("Entered login or password is not correct") : tr("Maybe entered password is not correct"));
+				    FNewProfile ? tr("Entered login or password is not correct") : tr("Maybe entered password is not correct"));
 	}
 
 	FFirstConnect = false;
@@ -1049,3 +1103,5 @@ void LoginDialog::onStylePreviewReset()
 	if (ui.lneNode->completer())
 		ui.lneNode->completer()->popup()->setStyleSheet(styleSheet());
 }
+
+#include "logindialog.moc"

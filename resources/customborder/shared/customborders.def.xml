@@ -24,4 +24,8 @@
     <key>notification</key>
     <object mime="text/xml">notification.xml</object>
   </file>
+  <file>
+    <key>videoCall</key>
+    <object mime="text/xml">videocall.xml</object>
+  </file>
 </borderdef>

@@ -67,7 +67,7 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 	QString socketTypeStr = "UDP";
 	listenPort = gListenPort;
 
-	
+
 	// Инициализируем SIP клиент (Терминал пользователя)
 	_pSipClient = new SipClient( 0, 0, listenPort, looseRoute, strictRoute, socketTypeStr );
 
@@ -309,10 +309,10 @@ bool SipPhoneProxy::initRegistrationData( void )
 	//connect(this, SIGNAL(proxyTrueRegistrationStatus(bool)), this, SLOT(registrationStatus(bool)));
 
 	registrations = new RSipRegistrations(regData, _pSipClient, this);
-	
+
 	if(registrations == NULL)
 		return false;
-	
+
 	connect(registrations, SIGNAL(proxyTrueRegistrationStatus(bool)), this, SLOT(registrationStatus(bool)));
 	//connect(registrations, SIGNAL(proxyTrueRegistrationStatus(bool)), this, SLOT(trueRegistrationStatusSlot(bool)));
 
@@ -650,7 +650,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	connect(this, SIGNAL(proxyStartCamera()), _pCallAudio, SIGNAL(proxyStartCamera()));
 	connect(this, SIGNAL(proxyStopCamera()), _pCallAudio, SIGNAL(proxyStopCamera()));
 	connect(this, SIGNAL(proxySuspendStateChange(bool)), _pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
-	
+
 
 	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, _pCallAudio, newcall, this );
 	connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
@@ -672,7 +672,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	}
 
 
-	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(widget, CBS_WINDOW);
+	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(widget, CBS_VIDEOCALL);
 	border->setMinimizeButtonVisible(false);
 	border->setMaximizeButtonVisible(false);
 	border->setCloseButtonVisible(false);
@@ -690,7 +690,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 
 
 	//connect( widget, SIGNAL( redirectCall( const SipUri &, const QString & ) ), this, SLOT( redirectCall( const SipUri &, const QString & ) ) );
-	
+
 	//widget->show();
 	border->show();
 
@@ -770,18 +770,18 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
 		connect(widget, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
 		//cwList.append( widget );
-		
+
 		if(_pWorkWidget != NULL)
 		{
 			delete _pWorkWidget;
 			_pWorkWidget = NULL;
 		}
-		
+
 		_pWorkWidget = widget;
 		connect( widget, SIGNAL( redirectCall( const SipUri &, const QString & ) ), this, SLOT( redirectCall( const SipUri &, const QString & ) ) );
 
 
-		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(widget, CBS_WINDOW);
+		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(widget, CBS_VIDEOCALL);
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
 		border->setCloseButtonVisible(false);
@@ -843,7 +843,7 @@ void SipPhoneProxy::hideCallWidget( SipCall *call )
 	{
 		_pWorkWidgetContainer->setHidden(true);
 	}
-	
+
 	//////////////if(_pWorkWidget->getCall() == call)
 	//////////////{
 	//////////////	_pWorkWidget->setHidden(true);
