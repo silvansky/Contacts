@@ -246,7 +246,7 @@
     </message>
     <message>
         <source>Entered address is not suitable for selected service.</source>
-        <translation>Введенный адрес не соответствует выбрангому сервису.</translation>
+        <translation>Введенный адрес не соответствует выбранному сервису.</translation>
     </message>
     <message>
         <source>Invalid service descriptor identifier.</source>

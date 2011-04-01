@@ -25,6 +25,9 @@ EditItemWidget::EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, cons
 	connect(ui.lneContact,SIGNAL(textEdited(const QString &)),SLOT(onContactTextEdited(const QString &)));
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,ADescriptor.iconKey,0,0,"pixmap");
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_RCHANGER_ADDMETACONTACT_ERROR,0,0,"pixmap");
+
+	ui.lneContact->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneContact->setPlaceholderText(tr("Address in %1").arg(ADescriptor.name));
 	connect(ui.cbtDelete,SIGNAL(clicked()),SIGNAL(deleteButtonClicked()));
 
@@ -32,15 +35,17 @@ EditItemWidget::EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, cons
 		SLOT(onServiceLoginReceived(const QString &, const QString &)));
 	connect(FGateways->instance(),SIGNAL(userJidReceived(const QString &, const Jid &)),
 		SLOT(onLegacyContactJidReceived(const QString &, const Jid &)));
+	connect(FGateways->instance(),SIGNAL(errorReceived(const QString &, const QString &)),
+		SLOT(onGatewayErrorReceived(const QString &, const QString &)));
+	connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),
+		SLOT(onStreamServicesChanged(const Jid &)));
 	connect(FGateways->instance(),SIGNAL(serviceEnableChanged(const Jid &, const Jid &, bool)),
 		SLOT(onServiceEnableChanged(const Jid &, const Jid &, bool)));
 	connect(FGateways->instance(),SIGNAL(servicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)),
 		SLOT(onServicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)));
-	connect(FGateways->instance(),SIGNAL(errorReceived(const QString &, const QString &)),
-		SLOT(onGatewayErrorReceived(const QString &, const QString &)));
 
-	updateProfiles();
 	setErrorMessage(QString::null);
+	updateProfiles();
 }
 
 EditItemWidget::~EditItemWidget()
@@ -138,21 +143,11 @@ void EditItemWidget::updateProfiles()
 		qobject_cast<QVBoxLayout *>(ui.wdtProfiles->layout())->addLayout(layout);
 	}
 
-	foreach(Jid serviceJid, newProfiles)
-	{
-		if (!FProfileLogins.contains(serviceJid) && serviceJid!=FStreamJid)
-		{
-			QString requestId = FGateways->sendLoginRequest(FStreamJid,serviceJid);
-			if (!requestId.isEmpty())
-				FLoginRequests.insert(requestId,serviceJid);
-		}
-	}
-
 	foreach(Jid serviceJid, oldProfiles)
 	{
-		QRadioButton *button = FProfiles.take(serviceJid);
-		ui.wdtProfiles->layout()->removeWidget(button);
-		delete button;
+		FProfileLogins.remove(serviceJid);
+		delete FProfiles.take(serviceJid);
+		delete FProfileLabels.take(serviceJid);
 	}
 
 	QList<Jid> enabledProfiles;
@@ -167,9 +162,15 @@ void EditItemWidget::updateProfiles()
 
 		if (FStreamJid != serviceJid)
 		{
+			if (!FProfileLogins.contains(serviceJid) && !FLoginRequests.values().contains(serviceJid))
+			{
+				QString requestId = FGateways->sendLoginRequest(FStreamJid,serviceJid);
+				if (!requestId.isEmpty())
+					FLoginRequests.insert(requestId,serviceJid);
+			}
+
 			QString labelText;
 			QLabel *label = FProfileLabels.value(serviceJid);
-
 			if (FDescriptor.needLogin)
 			{
 				IPresenceItem pitem = FGateways->servicePresence(FStreamJid,serviceJid);
@@ -250,13 +251,15 @@ void EditItemWidget::setRealContactJid(const Jid &AContactJid)
 
 void EditItemWidget::setErrorMessage(const QString &AMessage)
 {
-	if (AMessage.isEmpty() && ui.lblError->isVisible())
-		QTimer::singleShot(1,this,SIGNAL(adjustSizeRequested()));
-	else if (!AMessage.isEmpty() && !ui.lblError->isVisible())
-		QTimer::singleShot(1,this,SIGNAL(adjustSizeRequested()));
-
-	ui.lblError->setText(AMessage);
-	ui.lblError->setVisible(!AMessage.isEmpty());
+	if (ui.lblError->text() != AMessage)
+	{
+		ui.lblError->setText(AMessage);
+		ui.lblError->setVisible(!AMessage.isEmpty());
+		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
+		ui.lneContact->setProperty("error", AMessage.isEmpty() ? false : true);
+		setStyleSheet(styleSheet());
+		emit adjustSizeRequested();
+	}
 }
 
 void EditItemWidget::resolveContactJid()
@@ -354,6 +357,7 @@ void EditItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid &A
 
 void EditItemWidget::onGatewayErrorReceived(const QString &AId, const QString &AError)
 {
+	Q_UNUSED(AError);
 	if (FLoginRequests.contains(AId))
 	{
 		Jid serviceJid = FLoginRequests.take(AId);
@@ -363,15 +367,25 @@ void EditItemWidget::onGatewayErrorReceived(const QString &AId, const QString &A
 	else if (FContactJidRequest == AId)
 	{
 		setRealContactJid(Jid::null);
-		setErrorMessage(tr("Unable to determine the contact ID: %1").arg(AError));
+		setErrorMessage(tr("Failed to request contact JID from transport"));
+	}
+}
+
+void EditItemWidget::onStreamServicesChanged(const Jid &AStreamJid)
+{
+	if (FStreamJid == AStreamJid)
+	{
+		updateProfiles();
 	}
 }
 
 void EditItemWidget::onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
 {
-	Q_UNUSED(AServiceJid); Q_UNUSED(AEnabled);
+	Q_UNUSED(AServiceJid); 
+	Q_UNUSED(AEnabled);
 	if (AStreamJid == FStreamJid)
 	{
+		FProfileLogins.remove(AServiceJid);
 		updateProfiles();
 	}
 }

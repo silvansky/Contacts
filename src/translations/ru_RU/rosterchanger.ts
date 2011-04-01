@@ -133,10 +133,6 @@
         <translation>Адрес в %1</translation>
     </message>
     <message>
-        <source>Unable to determine the contact ID: %1</source>
-        <translation>Не удалось определить идентификатор контакта: %1</translation>
-    </message>
-    <message>
         <source>Return address:</source>
         <translation>Обратный адрес:</translation>
     </message>

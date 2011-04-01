@@ -988,6 +988,8 @@ bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid)
 		if (FRegistration)
 			FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid);
 
+		roster->removeItem(AServiceJid);
+
 		foreach(IRosterItem ritem, roster->rosterItems())
 			if (ritem.itemJid.pDomain() == AServiceJid.pDomain())
 				roster->removeItem(ritem.itemJid);

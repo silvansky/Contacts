@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QRadioButton>
 #include <definitions/resources.h>
+#include <definitions/menuicons.h>
 #include <interfaces/igateways.h>
 #include <interfaces/ipresence.h>
 #include <utils/iconstorage.h>
@@ -49,6 +50,7 @@ protected slots:
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
+	void onStreamServicesChanged(const Jid &AStreamJid);
 	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
 private:

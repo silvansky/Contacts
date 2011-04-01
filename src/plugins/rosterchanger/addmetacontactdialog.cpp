@@ -42,7 +42,7 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	FItemsLayout->setMargin(0);
 	FItemsLayout->addStretch();
 	ui.wdtItems->setLayout(FItemsLayout);
-	//ui.scaItems->setVisible(false);
+	ui.scaItems->setVisible(false);
 
 	ui.tlbPhotoNext->setVisible(false);
 	ui.tlbPhotoPrev->setVisible(false);
@@ -263,13 +263,13 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				EditItemWidget *widget = new EditItemWidget(FGateways,FStreamJid,ADescriptor,ui.wdtItems);
 				widget->setFocus();
 				widget->setContactText(AContact);
-				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget);
 				connect(widget,SIGNAL(adjustSizeRequested()),SLOT(onItemWidgetAdjustSizeRequested()));
 				connect(widget,SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));
 				connect(widget,SIGNAL(showOptionsRequested()),SLOT(onItemWidgetShowOptionsRequested()));
 				connect(widget,SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
 				FItemWidgets.append(widget);
-				QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget);
+				QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 			}
 			break;
 		case DS_DISABLED:
@@ -438,12 +438,12 @@ void AddMetaContactDialog::setAvatarIndex(int AIndex)
 
 void AddMetaContactDialog::showEvent(QShowEvent *AEvent)
 {
+	QDialog::showEvent(AEvent);
 	if (!FShown)
 	{
 		FShown = true;
 		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 	}
-	QDialog::showEvent(AEvent);
 }
 
 void AddMetaContactDialog::onDialogAccepted()
@@ -492,9 +492,12 @@ void AddMetaContactDialog::onAdjustDialogSize()
 {
 	if (!FItemWidgets.isEmpty())
 	{
-		ui.scaItems->setVisible(true);
+		int maxHeight = qApp->desktop()->availableGeometry(this).height()/2;
+		int hintHeight = ui.wdtItems->sizeHint().height();
+		ui.scaItems->setFixedHeight(hintHeight < maxHeight ? hintHeight : maxHeight);
 		ui.scaItems->setMinimumWidth(ui.wdtItems->sizeHint().width());
-		ui.scaItems->setMinimumHeight(qMin(qApp->desktop()->availableGeometry(this).height()/2,ui.wdtItems->sizeHint().height()));
+
+		ui.scaItems->setVisible(true);
 		ui.pbtAddItem->setText(tr("Add another address"));
 	}
 	else
@@ -555,8 +558,8 @@ void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
 		FItemWidgets.removeAll(widget);
 		ui.wdtItems->layout()->removeWidget(widget);
 		delete widget;
-		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 		updateDialogState();
+		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 	}
 }
 
