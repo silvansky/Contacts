@@ -122,7 +122,9 @@ protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	IChatWindow *findNotifiedMessageWindow(int AMessageId) const;
+	void clearWindow(IChatWindow *AWindow);
 	void updateWindow(IChatWindow *AWindow);
+	void resetWindowStatus(IChatWindow *AWindow);
 	void removeMessageNotifications(IChatWindow *AWindow);
 	void replaceUnreadMessages(IChatWindow *AWindow);
 	void sendOfflineMessages(IChatWindow *AWindow);

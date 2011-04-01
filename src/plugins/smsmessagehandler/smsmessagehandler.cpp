@@ -151,7 +151,13 @@ bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AIn
 
 	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
 	if (plugin)
+	{
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
+		if (FPresencePlugin)
+		{
+			connect(FPresencePlugin->instance(),SIGNAL(presenceOpened(IPresence *)),SLOT(onPresenceOpened(IPresence *)));
+		}
+	}
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -412,11 +418,11 @@ bool SmsMessageHandler::isSmsContact(const Jid &AStreamJid, const Jid &AContactJ
 {
 	if (!AContactJid.node().isEmpty() && AContactJid.pDomain().endsWith("."+AStreamJid.pDomain()))
 	{
-		//if (FDiscovery && FDiscovery->hasDiscoInfo(AStreamJid,AContactJid.domain()))
-		//{
-		//	IDiscoIdentity ident = FDiscovery->discoInfo(AStreamJid,AContactJid.domain()).identity.value(0);
-		//	return ident.category==SMS_DISCO_CATEGORY && ident.type==SMS_DISCO_TYPE;
-		//}
+		if (FDiscovery && FDiscovery->hasDiscoInfo(AStreamJid,AContactJid.domain()))
+		{
+			IDiscoIdentity ident = FDiscovery->discoInfo(AStreamJid,AContactJid.domain()).identity.value(0);
+			return ident.category==SMS_DISCO_CATEGORY && ident.type==SMS_DISCO_TYPE;
+		}
 		return AContactJid.pDomain().startsWith("sms.");
 	}
 	return false;
@@ -534,6 +540,17 @@ IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &ACo
 	return NULL;
 }
 
+void SmsMessageHandler::clearWindow(IChatWindow *AWindow)
+{
+	IMessageStyle *style = AWindow->viewWidget()!=NULL ? AWindow->viewWidget()->messageStyle() : NULL;
+	if (style!=NULL)
+	{
+		IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
+		style->changeOptions(AWindow->viewWidget()->styleWidget(),soptions,true);
+		resetWindowStatus(AWindow);
+	}
+}
+
 void SmsMessageHandler::updateWindow(IChatWindow *AWindow)
 {
 	QIcon icon;
@@ -546,6 +563,18 @@ void SmsMessageHandler::updateWindow(IChatWindow *AWindow)
 	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
 	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 	AWindow->updateWindow(icon,name,title,show);
+}
+
+void SmsMessageHandler::resetWindowStatus( IChatWindow *AWindow )
+{
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	wstatus.separators.clear();
+	wstatus.unread.clear();
+	wstatus.offline.clear();
+	wstatus.historyId = QString::null;
+	wstatus.historyTime = QDateTime();
+	wstatus.historyRequestId = QUuid();
+	wstatus.lastStatusShow = QString::null;
 }
 
 void SmsMessageHandler::removeMessageNotifications(IChatWindow *AWindow)
@@ -667,15 +696,7 @@ void SmsMessageHandler::setMessageStyle(IChatWindow *AWindow)
 	IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
 	IMessageStyle *style = FMessageStyles->styleForOptions(soptions);
 	AWindow->viewWidget()->setMessageStyle(style,soptions);
-
-	WindowStatus &wstatus = FWindowStatus[AWindow];
-	wstatus.separators.clear();
-	wstatus.unread.clear();
-	wstatus.offline.clear();
-	wstatus.historyId = QString::null;
-	wstatus.historyTime = QDateTime();
-	wstatus.historyRequestId = QUuid();
-
+	resetWindowStatus(AWindow);
 	showHistoryLinks(AWindow, HLS_READY, true);
 }
 
@@ -979,6 +1000,21 @@ void SmsMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptio
 			if (style==NULL || !style->changeOptions(window->viewWidget()->styleWidget(),AOptions,false))
 			{
 				setMessageStyle(window);
+				requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
+			}
+		}
+	}
+}
+
+void SmsMessageHandler::onPresenceOpened(IPresence *APresence)
+{
+	foreach(IChatWindow *window, FWindows)
+	{
+		if (window->streamJid() == APresence->streamJid())
+		{
+			if (FRamblerHistory && FRamblerHistory->isSupported(window->streamJid()))
+			{
+				clearWindow(window);
 				requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
 			}
 		}

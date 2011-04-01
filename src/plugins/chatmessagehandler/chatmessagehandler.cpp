@@ -534,6 +534,18 @@ IChatWindow *ChatMessageHandler::findNotifiedMessageWindow(int AMessageId) const
 			return window;
 	return NULL;
 }
+
+void ChatMessageHandler::clearWindow(IChatWindow *AWindow)
+{
+	IMessageStyle *style = AWindow->viewWidget()!=NULL ? AWindow->viewWidget()->messageStyle() : NULL;
+	if (style!=NULL)
+	{
+		IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
+		style->changeOptions(AWindow->viewWidget()->styleWidget(),soptions,true);
+		resetWindowStatus(AWindow);
+	}
+}
+
 void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 {
 	QIcon icon;
@@ -546,6 +558,18 @@ void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
 	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 	AWindow->updateWindow(icon,name,title,show);
+}
+
+void ChatMessageHandler::resetWindowStatus(IChatWindow *AWindow)
+{
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	wstatus.separators.clear();
+	wstatus.unread.clear();
+	wstatus.offline.clear();
+	wstatus.historyId = QString::null;
+	wstatus.historyTime = QDateTime();
+	wstatus.historyRequestId = QUuid();
+	wstatus.lastStatusShow = QString::null;
 }
 
 void ChatMessageHandler::removeMessageNotifications(IChatWindow *AWindow)
@@ -706,15 +730,7 @@ void ChatMessageHandler::setMessageStyle(IChatWindow *AWindow)
 	IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
 	IMessageStyle *style = FMessageStyles->styleForOptions(soptions);
 	AWindow->viewWidget()->setMessageStyle(style,soptions);
-
-	WindowStatus &wstatus = FWindowStatus[AWindow];
-	wstatus.separators.clear();
-	wstatus.unread.clear();
-	wstatus.offline.clear();
-	wstatus.historyId = QString::null;
-	wstatus.historyTime = QDateTime();
-	wstatus.historyRequestId = QUuid();
-
+	resetWindowStatus(AWindow);
 	showHistoryLinks(AWindow, HLS_READY, true);
 }
 
@@ -1039,8 +1055,17 @@ void ChatMessageHandler::onPresenceAdded(IPresence *APresence)
 void ChatMessageHandler::onPresenceOpened(IPresence *APresence)
 {
 	foreach(IChatWindow *window, FWindows)
+	{
 		if (window->streamJid() == APresence->streamJid())
+		{
 			sendOfflineMessages(window);
+			if (FRamblerHistory && FRamblerHistory->isSupported(window->streamJid()))
+			{
+				clearWindow(window);
+				requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
+			}
+		}
+	}
 }
 
 void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)

@@ -129,7 +129,9 @@ protected:
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
+	void clearWindow(IChatWindow *AWindow);
 	void updateWindow(IChatWindow *AWindow);
+	void resetWindowStatus(IChatWindow *AWindow);
 	void removeMessageNotifications(IChatWindow *AWindow);
 	void replaceUnreadMessages(IChatWindow *AWindow);
 	void replaceRequestedMessage(IChatWindow *AWindow, const QString &AMessageId, bool AReceived);
@@ -156,6 +158,7 @@ protected slots:
 	void onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages);
 	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
+	void onPresenceOpened(IPresence *APresence);
 	void onXmppStreamOpened(IXmppStream *AXmppStream);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onRosterAdded(IRoster *ARoster);
