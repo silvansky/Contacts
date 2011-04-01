@@ -21,6 +21,8 @@
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
+#include <definitions/menuicons.h>
+#include <utils/iconstorage.h>
 
 #include <QDebug>
 
@@ -129,9 +131,8 @@ protected:
 			if (const QStyleOptionViewItemV3 *v3 = qstyleoption_cast<const QStyleOptionViewItemV3*>(&option))
 				if (const QAbstractItemView *view = qobject_cast<const QAbstractItemView*>(v3->widget))
 					rect.setWidth(view->viewport()->width());
-			QStyleOption opt;
-			opt.rect = rect;
-			mCombo->style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, painter, mCombo);
+			QImage separator = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MENUSEPARATOR);
+			painter->fillRect(rect, QBrush(separator));
 		}
 		else
 		{
@@ -143,8 +144,9 @@ protected:
 	{
 		if (isSeparator(index))
 		{
+			QImage separator = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MENUSEPARATOR);
 			int pm = mCombo->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, mCombo);
-			return QSize(pm, 3);
+			return QSize(pm, separator.height());
 		}
 		return QStyledItemDelegate::sizeHint(option, index);
 	}

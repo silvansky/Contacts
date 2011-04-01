@@ -55,6 +55,9 @@
 //Commands
 #define MNI_COMMANDS                             "commands"
 
+//Common
+#define MNI_MENUSEPARATOR                        "menuSeparator"
+
 //ConnectionManager
 #define MNI_CONNECTION                           "connection"
 #define MNI_CONNECTION_OPTIONS                   "connectionOptions"
