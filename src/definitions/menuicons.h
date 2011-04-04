@@ -290,6 +290,8 @@
 #define MNI_ROSTERVIEW_CLIPBOARD                 "rosterviewClipboard"
 #define MNI_ROSTERVIEW_GROUP_OPENED              "rosterviewGroupOpenedIndicator"
 #define MNI_ROSTERVIEW_GROUP_CLOSED              "rosterviewGroupClosedIndicator"
+#define MNI_ROSTERVIEW_DRAGGED_ITEM              "rosterviewDraggedItem"
+#define MNI_ROSTERVIEW_HIGHLIGHTED_ITEM          "rosterviewHighlightedItem"
 
 //ServiceDiscovery
 #define MNI_SDISCOVERY_ARROW_LEFT                "sdiscoveryArrowLeft"

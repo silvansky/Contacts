@@ -6,6 +6,7 @@
 #include <QWindowsVistaStyle>
 #include <QLineEdit>
 #include <utils/iconstorage.h>
+#include <utils/imagemanager.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/textflags.h>
@@ -42,8 +43,8 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 {
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
 	//QStyle *style = option.widget ? option.widget->style() : QApplication::style();
-//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin);
-//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin);
+	//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin);
+	//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin);
 	const int hMargin = 7;
 	const int vMargin = 2;
 
@@ -175,8 +176,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	}
 #endif
 
-//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin) >> 1;
-//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin) >> 1;
+	//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin) >> 1;
+	//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin) >> 1;
 	int hMargin = 7;
 	int vMargin = 1;
 
@@ -207,19 +208,24 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 			}
 			APainter->fillRect(option.rect, option.backgroundBrush);
 		}
-		else
+		else if (!isDragged)
 		{
 			drawBackground(APainter, option);
 		}
 
 		if (isDragged)
 		{
+			// draw dragging background
 			APainter->save();
-			QPen pen = APainter->pen();
-			pen.setStyle((AOption.state & QStyle::State_MouseOver)>0 ? Qt::SolidLine : Qt::DashLine);
-			pen.setColor(option.palette.color(QPalette::Disabled, QPalette::Text));
-			APainter->setPen(pen);
-			APainter->drawRect(paintRect);
+			//			QPen pen = APainter->pen();
+			//			pen.setStyle((AOption.state & QStyle::State_MouseOver)>0 ? Qt::SolidLine : Qt::DashLine);
+			//			pen.setColor(option.palette.color(QPalette::Disabled, QPalette::Text));
+			//			APainter->setPen(pen);
+			//			APainter->drawRect(paintRect);
+			APainter->translate(paintRect.topLeft());
+			qreal border = 10.0; // yao magic number
+			QImage bg = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_DRAGGED_ITEM);
+			ImageManager::drawNinePartImage(bg, paintRect, border, APainter);
 			APainter->restore();
 		}
 	}
@@ -591,10 +597,10 @@ QString RosterIndexDelegate::prepareText(const QString &AText) const
 QIcon::Mode RosterIndexDelegate::getIconMode(QStyle::State AState) const
 {
 	Q_UNUSED(AState)
-//	if (!(AState & QStyle::State_Enabled))
-//		return QIcon::Disabled;
-//	if (AState & QStyle::State_Selected)
-//		return QIcon::Selected;
+	//	if (!(AState & QStyle::State_Enabled))
+	//		return QIcon::Disabled;
+	//	if (AState & QStyle::State_Selected)
+	//		return QIcon::Selected;
 	return QIcon::Normal;
 }
 

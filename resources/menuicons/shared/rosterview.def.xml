@@ -37,4 +37,12 @@
     <key>rosterviewGroupClosedIndicator</key>
     <object mime="image/png">rosterviewgroupclosedindicator.png</object>
   </icon>
+  <icon>
+    <key>rosterviewDraggedItem</key>
+    <object mime="image/png">rosterviewdraggeditem.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewHighlightedItem</key>
+    <object mime="image/png">rosterviewhighlighteditem.png</object>
+  </icon>
 </icondef>

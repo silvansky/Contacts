@@ -12,6 +12,7 @@ public:
 	static QImage roundSquared(const QImage & image, int size, int radius);
 	static QImage addShadow(const QImage & image, QColor color, QPoint offset, bool canResize = false);
 	static QImage colorized(const QImage & image, QColor color);
+	static void drawNinePartImage(const QImage &image, QRectF paintRect, qreal border, QPainter * painter);
 };
 
 #endif // IMAGEMANAGER_H
