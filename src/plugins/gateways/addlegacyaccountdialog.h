@@ -3,11 +3,14 @@
 
 #include <QDialog>
 #include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/stylesheets.h>
 #include <interfaces/igateways.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/iregistraton.h>
 #include <interfaces/irosterchanger.h>
 #include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
 #include "ui_addlegacyaccountdialog.h"
 
 class AddLegacyAccountDialog :

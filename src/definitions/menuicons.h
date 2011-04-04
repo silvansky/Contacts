@@ -110,6 +110,7 @@
 #define MNI_GATEWAYS_SERVICE_TWITTER             "gatewaysServiceTwitter"
 #define MNI_GATEWAYS_SERVICE_LIVEJOURNAL         "gatewaysServiceLiveJournal"
 #define MNI_GATEWAYS_SERVICE_JABBER              "gatewaysServiceJabber"
+#define MNI_GATEWAYS_ADD_ACCOUNT_ERROR           "gatewaysAddAccountError"
 
 //JabberSearch
 #define MNI_JSEARCH                              "jsearch"

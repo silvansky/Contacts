@@ -18,10 +18,6 @@
 %1</translation>
     </message>
     <message>
-        <source>Account: %1</source>
-        <translation>Учётная запись: %1</translation>
-    </message>
-    <message>
         <source>Gateway registration request failed</source>
         <translation>Запрос регистрации завершился с ошибкой</translation>
     </message>
@@ -32,10 +28,6 @@
     <message>
         <source>Unsupported gateway type</source>
         <translation>Неподдерживаемый тип транспорта</translation>
-    </message>
-    <message>
-        <source>Enter the username and password to your %1 account</source>
-        <translation>Укажите именя пользователя и пароль к вашей учётной записи %1</translation>
     </message>
     <message>
         <source>Invalid registration params</source>
@@ -53,9 +45,6 @@
         <source>Change</source>
         <translation>Изменить</translation>
     </message>
-</context>
-<context>
-    <name>AddLegacyAccountDialogClass</name>
     <message>
         <source>Login</source>
         <translation>Логин</translation>
@@ -64,6 +53,21 @@
         <source>Password</source>
         <translation>Пароль</translation>
     </message>
+    <message>
+        <source>Please, enter your login and password.</source>
+        <translation>Пожалуйста, укажите Ваш логин и пароль.</translation>
+    </message>
+    <message>
+        <source>Failed to add account, check your login and password</source>
+        <translation>Не удалось добавить аккаунт, проверьте Ваш логин и пароль</translation>
+    </message>
+    <message>
+        <source>Your account is not connected.</source>
+        <translation>Ваш аккаунт еще не подключен.</translation>
+    </message>
+</context>
+<context>
+    <name>AddLegacyAccountDialogClass</name>
     <message>
         <source>Show input password</source>
         <translation>Показывать вводимый пароль</translation>

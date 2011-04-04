@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>331</width>
-    <height>184</height>
+    <height>192</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,133 +23,92 @@
    </size>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
-    <number>5</number>
+   <property name="leftMargin">
+    <number>14</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>14</number>
+   </property>
+   <property name="bottomMargin">
+    <number>14</number>
    </property>
    <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <property name="rightMargin">
-      <number>20</number>
+    <widget class="QLabel" name="lblCaption">
+     <property name="text">
+      <string notr="true">lblCaption</string>
      </property>
-     <item row="1" column="1">
-      <widget class="QLabel" name="lblLogin">
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="lblInfo">
+     <property name="text">
+      <string notr="true">lblInfo</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLineEdit" name="lneLogin"/>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cmbDomains"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="lnePassword">
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="lblErrorIcon">
        <property name="text">
-        <string>Login</string>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::PlainText</enum>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring>lneLogin</cstring>
+        <string notr="true">lblErrorIcon</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QLineEdit" name="lneLogin"/>
-       </item>
-       <item>
-        <widget class="QComboBox" name="cmbDomains"/>
-       </item>
-      </layout>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="lblPassword">
-       <property name="text">
-        <string>Password</string>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::PlainText</enum>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring>lnePassword</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLineEdit" name="lnePassword">
-       <property name="echoMode">
-        <enum>QLineEdit::Password</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
+     <item>
       <widget class="QLabel" name="lblError">
-       <property name="palette">
-        <palette>
-         <active>
-          <colorrole role="WindowText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>170</red>
-             <green>0</green>
-             <blue>0</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </active>
-         <inactive>
-          <colorrole role="WindowText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>170</red>
-             <green>0</green>
-             <blue>0</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </inactive>
-         <disabled>
-          <colorrole role="WindowText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="255">
-             <red>120</red>
-             <green>120</green>
-             <blue>120</blue>
-            </color>
-           </brush>
-          </colorrole>
-         </disabled>
-        </palette>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string notr="true">lblError</string>
        </property>
        <property name="textFormat">
         <enum>Qt::PlainText</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QCheckBox" name="chbShowPassword">
-       <property name="text">
-        <string>Show input password</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QLabel" name="lblCaption">
-       <property name="textFormat">
-        <enum>Qt::RichText</enum>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="lblIcon"/>
-     </item>
     </layout>
    </item>
    <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+    <widget class="QCheckBox" name="chbShowPassword">
+     <property name="text">
+      <string>Show input password</string>
      </property>
     </widget>
    </item>

@@ -8,13 +8,9 @@
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
 	ui.setupUi(this);
-
-	ui.lneLogin->setAttribute(Qt::WA_MacShowFocusRect, false);
-	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
-
-	ui.cmbDomains->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent!=NULL ? Qt::WindowModal : Qt::NonModal);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG);
 
 	FGateways = AGateways;
 	FRegistration = ARegistration;
@@ -24,8 +20,13 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 
 	initialize();
 
+	ui.lneLogin->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.cmbDomains->setView(new QListView);
+
 	ui.lblError->setVisible(false);
 	ui.chbShowPassword->setVisible(false);
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_GATEWAYS_ADD_ACCOUNT_ERROR,0,0,"pixmap");
 	connect(ui.btbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
 
 	connect(ui.lneLogin,SIGNAL(textChanged(const QString &)),SLOT(onLineEditTextChanged(const QString &)));
@@ -36,10 +37,12 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	FGateLabel = FGateways->serviceDescriptor(FStreamJid, FServiceJid);
 	if (!FGateLabel.id.isEmpty())
 	{
-		setWindowTitle(tr("Account: %1").arg(FGateLabel.name));
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,0,0,"pixmap");
-		ui.lblLogin->setText(!FGateLabel.loginLabel.isEmpty() ? FGateLabel.loginLabel : ui.lblLogin->text());
-		ui.cmbDomains->addItems(FGateLabel.domains);
+		ui.lblCaption->setText(FGateLabel.name);
+		ui.lneLogin->setPlaceholderText(!FGateLabel.loginLabel.isEmpty() ? FGateLabel.loginLabel : tr("Login"));
+		ui.lnePassword->setPlaceholderText(tr("Password"));
+		
+		foreach(QString domain, FGateLabel.domains)
+			ui.cmbDomains->addItem("@"+domain,domain);
 		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());
 
 		FRegisterId = FRegistration->sendRegiterRequest(FStreamJid,FServiceJid);
@@ -61,8 +64,8 @@ AddLegacyAccountDialog::~AddLegacyAccountDialog()
 
 void AddLegacyAccountDialog::showEvent(QShowEvent *AEvent)
 {
-	onAdjustDialogSize();
 	QDialog::showEvent(AEvent);
+	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
 
 void AddLegacyAccountDialog::initialize()
@@ -84,36 +87,50 @@ void AddLegacyAccountDialog::abort(const QString &AMessage)
 
 void AddLegacyAccountDialog::setError(const QString &AMessage)
 {
-	ui.lblError->setText(AMessage);
-	ui.lblError->setVisible(!AMessage.isEmpty());
-	ui.chbShowPassword->setVisible(!AMessage.isEmpty());
-	ui.lnePassword->setFocus();
-	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
+	if (ui.lblError->text() != AMessage)
+	{
+		ui.lblError->setText(AMessage);
+		ui.lblError->setVisible(!AMessage.isEmpty());
+		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
+		ui.chbShowPassword->setVisible(!AMessage.isEmpty());
+		ui.lnePassword->setFocus();
+		
+		ui.lneLogin->setProperty("error", !AMessage.isEmpty());
+		ui.lnePassword->setProperty("error", !AMessage.isEmpty());
+		ui.cmbDomains->setProperty("error", !AMessage.isEmpty());
+		setStyleSheet(styleSheet());
+
+		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
+	}
 }
 
 void AddLegacyAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
 {
 	if (AWait)
 	{
-		ui.lblCaption->setText(AMessage);
+		ui.lblInfo->setText(AMessage);
 		ui.btbButtons->button(QDialogButtonBox::Ok)->setEnabled(false);
 		ui.chbShowPassword->setVisible(false);
 		setError(QString::null);
 	}
 	else
 	{
-		ui.lblCaption->setText(QString("<h3>%1</h3>").arg(tr("Enter the username and password to your %1 account").arg(FGateLabel.name)));
+		QString info = tr("Please, enter your login and password.");
+		if (!FGateways->streamServices(FStreamJid).contains(FServiceJid))
+			info = tr("Your account is not connected.") + " " + info;
+		ui.lblInfo->setText(info);
 		onLineEditTextChanged(QString::null);
 	}
 	ui.lneLogin->setEnabled(!AWait);
 	ui.cmbDomains->setEnabled(!AWait);
 	ui.lnePassword->setEnabled(!AWait);
 	ui.chbShowPassword->setEnabled(!AWait);
+
+	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
 
 void AddLegacyAccountDialog::onAdjustDialogSize()
 {
-	resize(width(),minimumSizeHint().height());
 	if (parentWidget())
 		parentWidget()->adjustSize();
 	else
@@ -143,7 +160,7 @@ void AddLegacyAccountDialog::onDialogButtonClicked(QAbstractButton *AButton)
 	{
 		FGateLogin.login = ui.lneLogin->text();
 		if (ui.cmbDomains->isVisible())
-			FGateLogin.domain = ui.cmbDomains->currentText();
+			FGateLogin.domain = ui.cmbDomains->itemData(ui.cmbDomains->currentIndex()).toString();
 		FGateLogin.password = ui.lnePassword->text();
 
 		IRegisterSubmit submit = FGateways->serviceSubmit(FStreamJid,FServiceJid,FGateLogin);
@@ -177,7 +194,7 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 			ui.lneLogin->setText(FGateLogin.login);
 			ui.lnePassword->setText(FGateLogin.password);
 			if (!FGateLogin.domain.isEmpty())
-				ui.cmbDomains->setCurrentIndex(ui.cmbDomains->findText(FGateLogin.domain));
+				ui.cmbDomains->setCurrentIndex(ui.cmbDomains->findData(FGateLogin.domain,Qt::UserRole,Qt::MatchExactly));
 
 			if (FGateLogin.login.isEmpty())
 				ui.btbButtons->button(QDialogButtonBox::Ok)->setText(tr("Append"));
@@ -205,11 +222,12 @@ void AddLegacyAccountDialog::onRegisterSuccess(const QString &AId)
 
 void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &AError)
 {
+	Q_UNUSED(AError);
 	if (AId == FRegisterId)
 	{
 		if (FGateLogin.isValid)
 		{
-			setError(AError);
+			setError(tr("Failed to add account, check your login and password"));
 			setWaitMode(false);
 		}
 		else

@@ -66,4 +66,7 @@
 //SipPhone
 #define STS_SIPPHONE                                                    "sipphone"
 
+//SipPhone
+#define STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG                             "gatewaysAddLegacyAccountDialog"
+
 #endif // DEF_STYLESHEETS_H

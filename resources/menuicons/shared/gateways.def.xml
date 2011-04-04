@@ -88,4 +88,8 @@
     <key>gatewaysServiceLiveJournal</key>
     <object mime="image/png">gatewaysservicelivejournal23.png</object>
   </icon>
+  <icon>
+    <key>gatewaysAddAccountError</key>
+    <object mime="image/png">gatewaysaddaccounterror.png</object>
+  </icon>
 </icondef>
