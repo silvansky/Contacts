@@ -1190,7 +1190,7 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 		if (indexType == RIT_CONTACT || indexType == RIT_METACONTACT)
 		{
 			// cutting 30% from top and bottom
-			int r = - int(FDragRect.height() * 0.3);
+			int r = - int(FDragRect.height() * 0.3); // 0.3 is a magic numer!
 			if (!FDragRect.adjusted(0, r, 0, r).contains(AEvent->pos())) // putting contact into parent group
 			{
 				if (index.parent().isValid() && index.parent() != FPressedIndex.parent())
