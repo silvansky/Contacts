@@ -4,4 +4,8 @@
     <key>gatewaysAddLegacyAccountDialog</key>
     <object mime='text/css'>gatewaysaddlegacyaccountdialog.qss</object>
   </file>
+  <file>
+    <key>gatewaysLegacyAccountOptionsWidget</key>
+    <object mime='text/css'>gatewayslegacyaccountoptionswidget.qss</object>
+  </file>
 </styledef>

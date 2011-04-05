@@ -41,7 +41,6 @@ private:
 	Jid FStreamJid;
 	QHBoxLayout *FLayout;
 	QMap<Jid, QWidget *> FWidgets;
-	bool stretchAdded;
 };
 
 #endif // ADDLEGACYACCOUNTOPTIONS_H

@@ -68,5 +68,6 @@
 
 //SipPhone
 #define STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG                             "gatewaysAddLegacyAccountDialog"
+#define STS_GATEWAYS_LEGACYACCOUNTOPTIONSWIDGET                         "gatewaysLegacyAccountOptionsWidget"
 
 #endif // DEF_STYLESHEETS_H

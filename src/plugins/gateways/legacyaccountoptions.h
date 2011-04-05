@@ -3,8 +3,10 @@
 
 #include <QWidget>
 #include <definitions/resources.h>
+#include <definitions/stylesheets.h>
 #include <interfaces/igateways.h>
 #include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
 #include "ui_legacyaccountoptions.h"
 
 class LegacyAccountOptions :
@@ -14,12 +16,11 @@ class LegacyAccountOptions :
 public:
 	LegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
 	~LegacyAccountOptions();
+protected:
+	void updateState(const IPresenceItem &APresenceItem, bool AEnabled);
 protected slots:
-	void onEnableBoxToggled(bool);
-	void onEnableButtonClicked(bool);
-	void onDisableButtonClicked(bool);
-	void onChangeLinkActivated(const QString &ALink);
-	void onChangeButtonClicked();
+	void onStateCheckboxToggled(bool);
+	void onChangeButtonClicked(bool);
 	void onChangeDialogAccepted();
 	void onDeleteButtonClicked(bool);
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);

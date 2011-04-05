@@ -21,7 +21,7 @@
        <number>3</number>
       </property>
       <item>
-       <widget class="QCheckBox" name="enableCheckBox">
+       <widget class="QCheckBox" name="chbState">
         <property name="text">
          <string/>
         </property>
@@ -29,6 +29,9 @@
       </item>
       <item>
        <widget class="QLabel" name="lblIcon">
+        <property name="text">
+         <string notr="true">lblIcon</string>
+        </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
@@ -36,11 +39,8 @@
       </item>
       <item>
        <widget class="QLabel" name="lblLogin">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+        <property name="text">
+         <string notr="true">lblLogin</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -48,43 +48,25 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lblError">
-        <property name="palette">
-         <palette>
-          <active>
-           <colorrole role="WindowText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>170</red>
-              <green>0</green>
-              <blue>0</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </active>
-          <inactive>
-           <colorrole role="WindowText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>170</red>
-              <green>0</green>
-              <blue>0</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </inactive>
-          <disabled>
-           <colorrole role="WindowText">
-            <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>120</red>
-              <green>120</green>
-              <blue>120</blue>
-             </color>
-            </brush>
-           </colorrole>
-          </disabled>
-         </palette>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>15</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblInfo">
+        <property name="text">
+         <string notr="true">lblInfo</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -92,10 +74,17 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pbtEnable"/>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pbtDisable"/>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <widget class="QPushButton" name="pbtChange">
@@ -104,16 +93,6 @@
         </property>
         <property name="text">
          <string>Change...</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="lblChange">
-        <property name="text">
-         <string>&lt;a href='account:change'&gt;Change...&lt;/a&gt;</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::RichText</enum>
         </property>
        </widget>
       </item>

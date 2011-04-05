@@ -5,6 +5,8 @@
 LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_LEGACYACCOUNTOPTIONSWIDGET);
+
 	FGateways = AGateways;
 	FStreamJid = AStreamJid;
 	FServiceJid = AServiceJid;
@@ -14,12 +16,9 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,0,0,"pixmap");
 
-	connect(ui.pbtEnable,SIGNAL(clicked(bool)),SLOT(onEnableButtonClicked(bool)));
-	connect(ui.pbtDisable,SIGNAL(clicked(bool)),SLOT(onDisableButtonClicked(bool)));
-	connect(ui.enableCheckBox, SIGNAL(toggled(bool)), SLOT(onEnableBoxToggled(bool)));
-	connect(ui.lblChange,SIGNAL(linkActivated(const QString &)),SLOT(onChangeLinkActivated(const QString &)));
+	connect(ui.chbState, SIGNAL(toggled(bool)), SLOT(onStateCheckboxToggled(bool)));
+	connect(ui.pbtChange, SIGNAL(clicked(bool)), SLOT(onChangeButtonClicked(bool)));
 	connect(ui.cbtDelete,SIGNAL(clicked(bool)),SLOT(onDeleteButtonClicked(bool)));
-	connect(ui.pbtChange, SIGNAL(clicked()), SLOT(onChangeButtonClicked()));
 
 	connect(FGateways->instance(),SIGNAL(loginReceived(const QString &, const QString &)),
 		SLOT(onServiceLoginReceived(const QString &, const QString &)));
@@ -28,11 +27,7 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 	connect(FGateways->instance(),SIGNAL(servicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)),
 		SLOT(onServicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)));
 
-	onServiceEnableChanged(FStreamJid,FServiceJid,FGateways->isServiceEnabled(FStreamJid,FServiceJid));
-	onServicePresenceChanged(FStreamJid,FServiceJid,FGateways->servicePresence(FStreamJid,FServiceJid));
-	ui.pbtEnable->setVisible(false);
-	ui.pbtDisable->setVisible(false);
-	ui.lblChange->setVisible(false);
+	updateState(FGateways->servicePresence(FStreamJid,FServiceJid),FGateways->isServiceEnabled(FStreamJid,FServiceJid));
 }
 
 LegacyAccountOptions::~LegacyAccountOptions()
@@ -40,46 +35,66 @@ LegacyAccountOptions::~LegacyAccountOptions()
 
 }
 
-void LegacyAccountOptions::onEnableBoxToggled(bool on)
+void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool AEnabled)
 {
-	if (on)
-		onEnableButtonClicked(true);
-	else
-		onDisableButtonClicked(true);
+		if (APresenceItem.show == IPresence::Error)
+		{
+			ui.lblInfo->setText(tr("Failed to connect"));
+			ui.lblInfo->setProperty("state",QString("error"));
+		}
+		else if (AEnabled)
+		{
+			ui.lblInfo->setText(tr("Connected"));
+			ui.lblInfo->setProperty("state",QString("connected"));
+		}
+		else
+		{
+			ui.lblInfo->setText(tr("Disconnected"));
+			ui.lblInfo->setProperty("state",QString("disconnected"));
+		}
+		setStyleSheet(styleSheet());
+
+		ui.chbState->blockSignals(true);
+		if (AEnabled)
+		{
+			ui.chbState->setChecked(true);
+			ui.chbState->setEnabled(true);
+		}
+		else
+		{
+			ui.chbState->setChecked(false);
+			ui.chbState->setEnabled(true);
+		}
+		ui.chbState->blockSignals(false);
 }
 
-void LegacyAccountOptions::onEnableButtonClicked(bool)
+void LegacyAccountOptions::onStateCheckboxToggled(bool AChecked)
 {
-	if (FGateways->setServiceEnabled(FStreamJid,FServiceJid,true))
+	if (FGateways->setServiceEnabled(FStreamJid,FServiceJid,AChecked))
 	{
-		ui.pbtEnable->setEnabled(false);
-		ui.pbtEnable->setText(tr("Enabling"));
+		if (AChecked)
+		{
+			ui.chbState->setEnabled(false);
+			ui.lblInfo->setText(tr("Connecting..."));
+			ui.lblInfo->setProperty("state",QString("connected"));
+		}
+		else
+		{
+			ui.chbState->setEnabled(false);
+			ui.lblInfo->setText(tr("Disconnecting..."));
+			ui.lblInfo->setProperty("state",QString("disconnected"));
+		}
+		setStyleSheet(styleSheet());
 	}
 }
 
-void LegacyAccountOptions::onDisableButtonClicked(bool)
+void LegacyAccountOptions::onChangeButtonClicked(bool)
 {
-
-	if (FGateways->setServiceEnabled(FStreamJid,FServiceJid,false))
-	{
-		ui.pbtDisable->setEnabled(false);
-		ui.pbtDisable->setText(tr("Disabling"));
-	}
-}
-
-void LegacyAccountOptions::onChangeLinkActivated(const QString &ALink)
-{
-	Q_UNUSED(ALink);
 	QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid);
 	if (dialog)
 	{
 		connect(dialog,SIGNAL(accepted()),SLOT(onChangeDialogAccepted()));
 	}
-}
-
-void LegacyAccountOptions::onChangeButtonClicked()
-{
-	onChangeLinkActivated(QString::null);
 }
 
 void LegacyAccountOptions::onChangeDialogAccepted()
@@ -111,36 +126,11 @@ void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QStr
 void LegacyAccountOptions::onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
 {
 	if (AStreamJid==FStreamJid && AServiceJid==FServiceJid)
-	{
-		if (AEnabled)
-		{
-			ui.pbtEnable->setEnabled(false);
-			ui.pbtEnable->setText(tr("Enabled"));
-			ui.pbtDisable->setEnabled(true);
-			ui.pbtDisable->setText(tr("Disable"));
-		}
-		else
-		{
-			ui.pbtEnable->setEnabled(true);
-			ui.pbtEnable->setText(tr("Enable"));
-			ui.pbtDisable->setEnabled(false);
-			ui.pbtDisable->setText(tr("Disabled"));
-		}
-	}
+		updateState(FGateways->servicePresence(AStreamJid,AServiceJid),AEnabled);
 }
 
 void LegacyAccountOptions::onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem)
 {
 	if (AStreamJid==FStreamJid && AServiceJid==FServiceJid)
-	{
-		if (AItem.show == IPresence::Error)
-		{
-			ui.lblError->setText(AItem.status);
-			ui.lblError->setVisible(true);
-		}
-		else
-		{
-			ui.lblError->setVisible(false);
-		}
-	}
+		updateState(AItem,FGateways->isServiceEnabled(FStreamJid,FServiceJid));
 }

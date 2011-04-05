@@ -15,7 +15,7 @@ AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, const Jid
 	connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
 
 	FLayout = new QHBoxLayout(ui.wdtGateways);
-	stretchAdded = false;
+	FLayout->addStretch();
 
 	onServicesChanged(FStreamJid);
 }
@@ -41,8 +41,11 @@ void AddLegacyAccountOptions::appendServiceButton(const Jid &AServiceJid)
 	if (!FWidgets.contains(AServiceJid) && !descriptor.id.isEmpty() && descriptor.needLogin)
 	{
 		QWidget *widget = new QWidget(ui.wdtGateways);
-		widget->setLayout(new QVBoxLayout);
-		widget->layout()->setMargin(0);
+		widget->setMinimumWidth(widget->fontMetrics().boundingRect("XXXXXXXXXXX").width());
+
+		QVBoxLayout *wlayout = new QVBoxLayout;
+		wlayout->setMargin(0);
+		widget->setLayout(wlayout);
 
 		QToolButton *button = new QToolButton(widget);
 		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -59,15 +62,9 @@ void AddLegacyAccountOptions::appendServiceButton(const Jid &AServiceJid)
 		connect(action,SIGNAL(triggered(bool)),SLOT(onGateActionTriggeted(bool)));
 		button->setDefaultAction(action);
 
-		QHBoxLayout * btnLayout = new QHBoxLayout;
-		btnLayout->setMargin(0);
-		btnLayout->addStretch();
-		btnLayout->addWidget(button);
-		btnLayout->addStretch();
-		((QVBoxLayout*)widget->layout())->addLayout(btnLayout);
-		widget->layout()->addWidget(label);
-		FLayout->addWidget(widget);
-		//FLayout->addStretch();
+		wlayout->addWidget(button,0,Qt::AlignCenter);
+		wlayout->addWidget(label,0,Qt::AlignCenter);
+		FLayout->insertWidget(FLayout->count()-1, widget);
 
 		FWidgets.insert(AServiceJid,widget);
 	}
@@ -78,11 +75,6 @@ void AddLegacyAccountOptions::removeServiceButton(const Jid &AServiceJid)
 	if (FWidgets.contains(AServiceJid))
 	{
 		QWidget *widget = FWidgets.take(AServiceJid);
-		int index = FLayout->indexOf(widget);
-		QLayoutItem *litem = FLayout->itemAt(index+1);
-		if (litem)
-			FLayout->removeItem(litem);
-		delete litem;
 		FLayout->removeWidget(widget);
 		widget->deleteLater();
 	}
@@ -115,8 +107,6 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 			else
 				removeServiceButton(serviceJid);
 		}
-		if (!stretchAdded)
-			FLayout->addStretch(), stretchAdded = true;
 
 		foreach(Jid serviceJid, FWidgets.keys().toSet() - availGates.toSet())
 			removeServiceButton(serviceJid);

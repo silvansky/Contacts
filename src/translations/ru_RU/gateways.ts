@@ -260,14 +260,6 @@
 <context>
     <name>LegacyAccountOptions</name>
     <message>
-        <source>Enabling</source>
-        <translation>Включение</translation>
-    </message>
-    <message>
-        <source>Disabling</source>
-        <translation>Отключение</translation>
-    </message>
-    <message>
         <source>Account Deletion</source>
         <translation>Удаление учётной записи</translation>
     </message>
@@ -276,28 +268,28 @@
         <translation>Вы действительно хотите удалить учётную запись &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Включено</translation>
+        <source>Failed to connect</source>
+        <translation>Не удалось подключиться</translation>
     </message>
     <message>
-        <source>Disable</source>
-        <translation>Выключить</translation>
+        <source>Connected</source>
+        <translation>Подключено</translation>
     </message>
     <message>
-        <source>Enable</source>
-        <translation>Включить</translation>
+        <source>Disconnected</source>
+        <translation>Отключено</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>Выключено</translation>
+        <source>Connecting...</source>
+        <translation>Подключение...</translation>
+    </message>
+    <message>
+        <source>Disconnecting...</source>
+        <translation>Отключение...</translation>
     </message>
 </context>
 <context>
     <name>LegacyAccountOptionsClass</name>
-    <message>
-        <source>&lt;a href=&apos;account:change&apos;&gt;Change...&lt;/a&gt;</source>
-        <translation>&lt;a href=&apos;account:change&apos;&gt;Изменить...&lt;/a&gt;</translation>
-    </message>
     <message>
         <source>Change...</source>
         <translation>Изменить...</translation>
