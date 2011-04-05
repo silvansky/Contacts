@@ -1187,6 +1187,19 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 
 		QRect dropRect = FDragRect;
 		int indexType = index.data(RDR_TYPE).toInt();
+		if (indexType == RIT_CONTACT || indexType == RIT_METACONTACT)
+		{
+			// cutting 30% from top and bottom
+			int r = - int(FDragRect.height() * 0.3);
+			if (!FDragRect.adjusted(0, r, 0, r).contains(AEvent->pos())) // putting contact into parent group
+			{
+				if (index.parent().isValid() && index.parent() != FPressedIndex.parent())
+				{
+					index = index.parent();
+					indexType = index.data(RDR_TYPE).toInt();
+				}
+			}
+		}
 		if (indexType == RIT_CONTACT || indexType == RIT_GROUP || indexType == RIT_GROUP_BLANK)
 		{
 			QModelIndex group = indexType==RIT_CONTACT ? index.parent() : index;

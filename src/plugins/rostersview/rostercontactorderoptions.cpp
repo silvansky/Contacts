@@ -8,6 +8,7 @@ RosterContactOrderOptions::RosterContactOrderOptions(QWidget *AParent) : QWidget
 	connect(ui.rbtOrderByStatus,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.rbtOrderManualy,SIGNAL(toggled(bool)),SIGNAL(modified()));
 
+	ui.rbtOrderManualy->setVisible(false);
 	reset();
 }
 
