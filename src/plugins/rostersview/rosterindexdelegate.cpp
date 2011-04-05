@@ -188,7 +188,10 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 
 	bool isDragged = AIndex.data(RDR_IS_DRAGGED).toBool();
 	if (isDragged)
+	{
 		option.state &= ~(QStyle::State_Selected|QStyle::State_MouseOver);
+		paintRect = option.rect;
+	}
 
 	if (APainter)
 	{

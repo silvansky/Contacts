@@ -106,9 +106,8 @@ QImage ImageManager::colorized(const QImage & image, QColor color)
 	return resultImage;
 }
 
-void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal border, QPainter * painter)
+void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter * painter)
 {
-	// TODO: make flexible borders
 	QPixmap bg = QPixmap::fromImage(image);
 	// source size
 	qreal w = bg.width();
@@ -134,37 +133,46 @@ void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qrea
 
 */
 	QPainter::PixmapFragment fragments[9]; // we'll draw 9-part pixmap
-	qreal sx = (tw - 2.0 * border) / (w - 2.0 * border), sy = (th - 2.0 * border) / (h - 2.0 * border);
+	qreal hborders = borderLeft + borderRight;
+	qreal vborders = borderTop + borderBottom;
+	qreal sx = (tw - hborders) / (w - hborders), sy = (th - vborders) / (h - vborders);
 	qDebug() << paintRect << bg.size() << sx << sy;
-	qreal hb = border / 2.0;
-	qreal tb = border * 2.0;
-	fragments[0] = QPainter::PixmapFragment::create(QPointF(hb, hb),
-							QRectF(0, 0, border, border));
-	fragments[1] = QPainter::PixmapFragment::create(QPointF(border + (tw - tb) / 2.0, hb),
-							QRectF(border, 0, w - 2.0 * border, border),
+	qreal hbLeft = borderLeft / 2.0;
+	qreal hbRight = borderRight / 2.0;
+	qreal hbTop = borderTop / 2.0;
+	qreal hbBottom = borderBottom / 2.0;
+	fragments[0] = QPainter::PixmapFragment::create(QPointF(hbLeft, hbTop),
+							QRectF(0, 0, borderLeft, borderTop));
+	fragments[1] = QPainter::PixmapFragment::create(QPointF(borderLeft + (tw - hborders) / 2.0, hbTop),
+							QRectF(borderLeft, 0, w - hborders, borderTop),
 							sx);
-	fragments[2] = QPainter::PixmapFragment::create(QPointF(tw - hb, hb),
-							QRectF(w - border, 0, border, border));
-	fragments[3] = QPainter::PixmapFragment::create(QPointF(hb, border + (th - tb) / 2.0),
-							QRectF(0, border, border, h - 2.0 * border),
-							1,
+	fragments[2] = QPainter::PixmapFragment::create(QPointF(tw - hbRight, hbTop),
+							QRectF(w - borderRight, 0, borderRight, borderTop));
+	fragments[3] = QPainter::PixmapFragment::create(QPointF(hbLeft, borderTop + (th - hborders) / 2.0),
+							QRectF(0, borderTop, borderLeft, h - hborders),
+							1.0,
 							sy);
-	fragments[4] = QPainter::PixmapFragment::create(QPointF(border + (tw - tb) / 2.0, border + (th - tb) / 2.0),
-							QRectF(border, border, w - 2.0 * border, h - 2.0 * border),
+	fragments[4] = QPainter::PixmapFragment::create(QPointF(borderLeft + (tw - hborders) / 2.0, borderTop + (th - vborders) / 2.0),
+							QRectF(borderLeft, borderTop, w - hborders, h - vborders),
 							sx,
 							sy);
-	fragments[5] = QPainter::PixmapFragment::create(QPointF(tw - hb, border + (th - tb) / 2.0),
-							QRectF(w - border, border, border, h - 2.0 * border),
+	fragments[5] = QPainter::PixmapFragment::create(QPointF(tw - hbRight, borderTop + (th - vborders) / 2.0),
+							QRectF(w - borderRight, borderTop, borderRight, h - vborders),
 							1,
 							sy);
-	fragments[6] = QPainter::PixmapFragment::create(QPointF(hb, th - hb),
-							QRectF(0, h - border, border, border));
-	fragments[7] = QPainter::PixmapFragment::create(QPointF(border + (tw - tb) / 2.0, th - hb),
-							QRectF(border, h - border, w - 2.0 * border, border),
+	fragments[6] = QPainter::PixmapFragment::create(QPointF(hbLeft, th - hbBottom),
+							QRectF(0, h - borderBottom, borderLeft, borderBottom));
+	fragments[7] = QPainter::PixmapFragment::create(QPointF(borderLeft + (tw - hborders) / 2.0, th - hbBottom),
+							QRectF(borderLeft, h - borderBottom, w - hborders, borderBottom),
 							sx);
-	fragments[8] = QPainter::PixmapFragment::create(QPointF(tw - hb, th - hb),
-							QRectF(w - border, h - border, border, border));
+	fragments[8] = QPainter::PixmapFragment::create(QPointF(tw - hbRight, th - hbBottom),
+							QRectF(w - borderRight, h - borderBottom, borderRight, borderBottom));
 
 
 	painter->drawPixmapFragments(fragments, 9, bg);
+}
+
+void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal border, QPainter * painter)
+{
+	drawNinePartImage(image, paintRect, border, border, border, border, painter);
 }
