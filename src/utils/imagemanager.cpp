@@ -136,7 +136,6 @@ void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qrea
 	qreal hborders = borderLeft + borderRight;
 	qreal vborders = borderTop + borderBottom;
 	qreal sx = (tw - hborders) / (w - hborders), sy = (th - vborders) / (h - vborders);
-	qDebug() << paintRect << bg.size() << sx << sy;
 	qreal hbLeft = borderLeft / 2.0;
 	qreal hbRight = borderRight / 2.0;
 	qreal hbTop = borderTop / 2.0;
@@ -167,7 +166,6 @@ void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qrea
 							sx);
 	fragments[8] = QPainter::PixmapFragment::create(QPointF(tw - hbRight, th - hbBottom),
 							QRectF(w - borderRight, h - borderBottom, borderRight, borderBottom));
-
 
 	painter->drawPixmapFragments(fragments, 9, bg);
 }

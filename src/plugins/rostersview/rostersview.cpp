@@ -16,6 +16,7 @@
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <QContextMenuEvent>
+#include <utils/imagemanager.h>
 
 #define BLINK_VISIBLE           750
 #define BLINK_INVISIBLE         250
@@ -915,7 +916,11 @@ void RostersView::paintEvent(QPaintEvent *AEvent)
 		option.init(this);
 		option.rect = FDropIndicatorRect.adjusted(0,0,-1,-1);
 		QPainter painter(viewport());
-		style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
+		QImage highlight = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_HIGHLIGHTED_ITEM, 1);
+		qreal border = 10.0; // yao border - magic! =)
+		painter.translate(option.rect.topLeft());
+		ImageManager::drawNinePartImage(highlight, option.rect, border, &painter);
+		//style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
 	}
 	if (!FInsertIndicatorRect.isNull())
 	{
@@ -1036,7 +1041,7 @@ void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 				QPainter painter(&pixmap);
 				painter.fillRect(option.rect,style()->standardPalette().color(QPalette::Normal,QPalette::Base));
 				itemDeletage->paint(&painter,option,FPressedIndex);
-				painter.drawRect(option.rect.adjusted(0,0,-1,-1));
+				//painter.drawRect(option.rect.adjusted(0,0,-1,-1));
 				drag->setPixmap(pixmap);
 				drag->setHotSpot(FPressedPos - indexPos);
 			}

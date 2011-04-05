@@ -220,11 +220,6 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		{
 			// draw dragging background
 			APainter->save();
-			//			QPen pen = APainter->pen();
-			//			pen.setStyle((AOption.state & QStyle::State_MouseOver)>0 ? Qt::SolidLine : Qt::DashLine);
-			//			pen.setColor(option.palette.color(QPalette::Disabled, QPalette::Text));
-			//			APainter->setPen(pen);
-			//			APainter->drawRect(paintRect);
 			APainter->translate(paintRect.topLeft());
 			qreal border = 10.0; // yao magic number
 			QImage bg = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_DRAGGED_ITEM);
