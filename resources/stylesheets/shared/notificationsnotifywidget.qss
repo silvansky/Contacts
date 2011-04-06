@@ -20,6 +20,7 @@ NotifyTextBrowser
 	border: none;
 	border-image: none;
 	padding: 0px 0px 0px 0px;
+	color: white;
 }
 
 QLabel#lblTitle 
@@ -40,4 +41,15 @@ QToolButton#tlbOptions
 	border-image: none;
 	border: none;
 	padding: 0px 0px 0px 0px;
+}
+
+ActionButton[action="birthday"]
+{
+	background-color: transparent;
+	border-image: none;
+	border: none;
+	padding: 0px 0px 0px 0px;
+	color: white;
+	text-decoration: underline;
+	width: 200px;
 }

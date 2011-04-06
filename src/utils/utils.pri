@@ -30,7 +30,8 @@ HEADERS = utilsexport.h \
     systemmanager.h \
     graphicseffectsstorage.h \
     log.h \
-    imagemanager.h
+    imagemanager.h \
+    custominputdialog.h
 
 SOURCES = jid.cpp \
     versionparser.cpp \
@@ -61,4 +62,5 @@ SOURCES = jid.cpp \
     systemmanager.cpp \
     graphicseffectsstorage.cpp \
     log.cpp \
-    imagemanager.cpp
+    imagemanager.cpp \
+    custominputdialog.cpp

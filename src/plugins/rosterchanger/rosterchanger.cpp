@@ -1478,7 +1478,7 @@ void RosterChanger::onRenameItem(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			Jid rosterJid = action->data(ADR_CONTACT_JID).toString();

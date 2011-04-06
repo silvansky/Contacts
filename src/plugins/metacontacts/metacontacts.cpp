@@ -7,6 +7,7 @@
 #include <QDragMoveEvent>
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
+#include <utils/custominputdialog.h>
 
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_META_ID         Action::DR_Parametr1
@@ -920,7 +921,7 @@ void MetaContacts::onRenameContact(bool)
 		{
 			QString metaId = action->data(ADR_META_ID).toString();
 			QString oldName = action->data(ADR_NAME).toString();
-			QInputDialog * dialog = new QInputDialog;
+			CustomInputDialog * dialog = new CustomInputDialog;
 			dialog->setTextValue(oldName);
 			dialog->setWindowTitle(tr("Rename contact"));
 			dialog->setLabelText(tr("<font size=+2>Rename contact</font><br>Enter new name"));
@@ -928,28 +929,32 @@ void MetaContacts::onRenameContact(bool)
 			dialog->setProperty("metaId", metaId);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
 			connect(dialog, SIGNAL(textValueSelected(const QString&)), SLOT(onNewNameSelected(const QString&)));
-			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-			if (border)
-			{
-				border->setMinimizeButtonVisible(false);
-				border->setMaximizeButtonVisible(false);
-				border->setResizable(false);
-				border->setWindowModality(Qt::ApplicationModal);
-				border->setAttribute(Qt::WA_DeleteOnClose, true);
-				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-				//border->setFixedSize(252 + border->leftBorderWidth() + border->rightBorderWidth(), 149 + border->topBorderWidth() + border->bottomBorderWidth());
-				border->show();
-				//border->layout()->update();
-				border->adjustSize();
-				dialog->adjustSize();
-			}
-			else
-			{
-				dialog->setWindowModality(Qt::ApplicationModal);
-				dialog->show();
-			}
+			//dialog->setWindowModality(Qt::ApplicationModal);
+			//dialog->windowBorder()->setMinimumSize(300, 200);
+			dialog->show();
+//			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+//			if (border)
+//			{
+//				border->setMinimizeButtonVisible(false);
+//				border->setMaximizeButtonVisible(false);
+//				//border->setResizable(false);
+//				//border->setWindowModality(Qt::ApplicationModal);
+//				border->setAttribute(Qt::WA_DeleteOnClose, true);
+//				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
+//				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
+//				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+//				//border->setFixedSize(252 + border->leftBorderWidth() + border->rightBorderWidth(), 149 + border->topBorderWidth() + border->bottomBorderWidth());
+//				dialog->setMinimumSize(250, 180);
+//				border->show();
+//				border->layout()->update();
+//				border->adjustSize();
+//				dialog->adjustSize();
+//			}
+//			else
+//			{
+//				dialog->setWindowModality(Qt::ApplicationModal);
+//				dialog->show();
+//			}
 		}
 	}
 }

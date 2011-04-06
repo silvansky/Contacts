@@ -1,4 +1,5 @@
 #include "actionbutton.h"
+#include <QDebug>
 
 ActionButton::ActionButton(QWidget *AParent) : QPushButton(AParent)
 {
@@ -33,10 +34,23 @@ void ActionButton::setAction(Action *AAction)
 			connect(this,SIGNAL(clicked()),FAction,SLOT(trigger()));
 			connect(FAction,SIGNAL(changed()),SLOT(onActionChanged()));
 			connect(FAction,SIGNAL(actionDestroyed(Action *)),SLOT(onActionDestroyed(Action *)));
+			setActionString(AAction->data(Action::DR_UserDefined  + 1).toString());
 		}
 
 		emit actionChanged();
 	}
+}
+
+QString ActionButton::actionString()
+{
+	return property("actionString").toString();
+}
+
+void ActionButton::setActionString(const QString& s)
+{
+	qDebug() << "actionString: " << s;
+	setProperty("actionString", s);
+	setStyleSheet(styleSheet());
 }
 
 void ActionButton::onActionChanged()

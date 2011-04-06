@@ -28,11 +28,13 @@ static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 	// ensure object is widget but not a menu
 	if (object->isWidgetType() && !qobject_cast<QMenu*>(object) && !qobject_cast<Menu*>(object))
 	{
+		QWidget * widget = qobject_cast<QWidget*>(object);
+		if (widget->parent() && widget->isWindow())
+			return;
 		if (install)
 			object->installEventFilter(watcher);
 		else
 			object->removeEventFilter(watcher);
-		QWidget * widget = qobject_cast<QWidget*>(object);
 #if 0
 		//Тут надо как-то доработать, чтобы возвращать оригинальную настройку этого параметра при снятии фильтра
 #endif

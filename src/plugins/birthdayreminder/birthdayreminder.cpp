@@ -144,7 +144,7 @@ bool BirthdayReminder::initObjects()
 		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification|INotification::TestNotify;
 		FNotifications->insertNotificator(NID_BIRTHDAY_REMIND,OWO_NOTIFICATIONS_BIRTHDAY,tr("Birthdays"),kindMask,0);
 	}
-	
+
 	QIcon cake = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_BIRTHDAYREMINDER_AVATAR_CAKE);
 	FAvatarCake = cake.pixmap(cake.availableSizes().value(0));
 
@@ -284,7 +284,7 @@ bool BirthdayReminder::updateBirthdayState(const Jid &AContactJid)
 {
 	bool notify = false;
 	int daysLeft = contactBithdayDaysLeft(AContactJid);
-	
+
 	bool isAvatarChanged = false;
 	if (daysLeft>=0 && daysLeft<=NOTIFY_WITHIN_DAYS)
 	{
@@ -343,7 +343,7 @@ void BirthdayReminder::onShowNotificationTimer()
 				notify.data.insert(NDR_POPUP_CAPTION,tr("Birthday of"));
 				notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 				notify.data.insert(NDR_POPUP_TITLE,FNotifications->contactName(streamJid,contactJid));
-				notify.data.insert(NDR_POPUP_STYLEKEY,STS_BIRTHDAYREMINDER_NOTIFYWIDGET);
+				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 
 				QDate	birthday = contactBithday(contactJid);
 				int daysLeft = FUpcomingBirthdays.value(contactJid);
@@ -353,6 +353,7 @@ void BirthdayReminder::onShowNotificationTimer()
 				Action *action = new Action(NULL);
 				action->setText(tr("Congratulate with postcard"));
 				action->setData(ADR_CONTACT_JID, contactJid.bare());
+				action->setData(Action::DR_UserDefined + 1, "birthday");
 				connect(action,SIGNAL(triggered()),SLOT(onCongratulateWithPostcard()));
 				notify.actions.append(action);
 
@@ -406,10 +407,11 @@ void BirthdayReminder::onNotificationTest(const QString &ANotificatorId, uchar A
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Birthday <b>today</b>!"));
-			notify.data.insert(NDR_POPUP_STYLEKEY,STS_BIRTHDAYREMINDER_NOTIFYWIDGET);
-			
+			notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
+
 			Action *action = new Action(NULL);
 			action->setText(tr("Congratulate with postcard"));
+			action->setData(Action::DR_UserDefined + 1, "birthday");
 			notify.actions.append(action);
 		}
 		if (AKinds & INotification::PlaySoundNotification)
@@ -500,7 +502,7 @@ void BirthdayReminder::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId,
 			if (daysLeft<0 || daysLeft<itemDaysLeft)
 				daysLeft = itemDaysLeft;
 		}
-		
+
 		if (daysLeft>=0 && daysLeft<=NOTIFY_WITHIN_DAYS)
 		{
 			QString tip = QString("<span style='color:green'>%1</span>");
@@ -547,7 +549,7 @@ void BirthdayReminder::onOptionsOpened()
 {
 	FNotifyDate = Options::fileValue("birthdays.notify.date").toDate();
 	QStringList notified = Options::fileValue("birthdays.notify.notified").toStringList();
-	
+
 	FNotifiedContacts.clear();
 	foreach(QString contactJid, notified)
 		FNotifiedContacts.append(contactJid);
