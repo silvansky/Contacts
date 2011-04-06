@@ -18,6 +18,8 @@
 #define ADR_META_ID_LIST    Action::DR_Parametr4
 #define ADR_TAB_PAGE_ID     Action::DR_Parametr2
 #define ADR_TO_GROUP        Action::DR_UserDefined+1
+#define ADR_SUBSCRIPTION    Action::DR_UserDefined+1
+
 
 static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
 
@@ -49,6 +51,7 @@ MetaContacts::MetaContacts()
 {
 	FPluginManager = NULL;
 	FRosterPlugin = NULL;
+	FRosterChanger = NULL;
 	FRostersViewPlugin = NULL;
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
@@ -134,6 +137,10 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
 	if (plugin)
 		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
+	if (plugin)
+		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -924,7 +931,7 @@ void MetaContacts::onRenameContact(bool)
 			CustomInputDialog * dialog = new CustomInputDialog;
 			dialog->setTextValue(oldName);
 			dialog->setWindowTitle(tr("Rename contact"));
-			dialog->setLabelText(tr("<font size=+2>Rename contact</font><br>Enter new name"));
+			dialog->setLabelText(QString("<font size=+2>%1</font><br>%2").arg(tr("Rename contact")).arg(tr("Enter new name")));
 			dialog->setProperty("oldName", oldName);
 			dialog->setProperty("metaId", metaId);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
@@ -1194,6 +1201,49 @@ void MetaContacts::onChangeContactGroups(bool AChecked)
 	}
 }
 
+void MetaContacts::onContactSubscription(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (FRosterChanger && action)
+	{
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
+		if (mroster && mroster->isOpen())
+		{
+			QList<QString> metaIdList;
+			metaIdList.append(action->data(ADR_META_ID).toString());
+			foreach(QVariant metaId, action->data(ADR_META_ID_LIST).toList())
+				metaIdList.append(metaId.toString());
+
+			int subsType = action->data(ADR_SUBSCRIPTION).toInt();
+			foreach(QString metaId, metaIdList)
+			{
+				if (subsType==IRoster::Subscribed || subsType==IRoster::Unsubscribed)
+				{
+					QSet<Jid> subsRequsts = mroster->roster()->subscriptionRequests().intersect(mroster->metaContact(metaId).items);
+					foreach(Jid itemJid, subsRequsts)
+					{
+						if (subsType == IRoster::Subscribed)
+							FRosterChanger->subscribeContact(mroster->streamJid(),itemJid);
+						else if (subsType == IRoster::Unsubscribed)
+							FRosterChanger->unsubscribeContact(mroster->streamJid(),itemJid);
+					}
+				}
+				else if (subsType==IRoster::Subscribe || subsType==IRoster::Unsubscribe)
+				{
+					foreach(Jid itemJid, mroster->metaContact(metaId).items)
+					{
+						IRosterItem ritem = mroster->roster()->rosterItem(itemJid);
+						if (subsType == IRoster::Subscribe && ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_UNSUBSCRIBE)
+							FRosterChanger->subscribeContact(mroster->streamJid(),itemJid);
+						else if (subsType == IRoster::Unsubscribe)
+							FRosterChanger->unsubscribeContact(mroster->streamJid(),itemJid);
+					}
+				}
+			}
+		}
+	}
+}
+
 void MetaContacts::onLoadMetaRosters()
 {
 	foreach(IMetaRoster *mroster, FLoadQueue)
@@ -1346,6 +1396,47 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			AMenu->addAction(dialogAction,AG_RVCM_CHATMESSAGEHANDLER);
 			connect(dialogAction,SIGNAL(triggered(bool)),SLOT(onShowMetaTabWindowAction(bool)));
 
+			QSet<Jid> subscRequests = mroster->roster()->subscriptionRequests().intersect(contact.items);
+			if (!subscRequests.isEmpty())
+			{
+				Action *authAction = new Action(AMenu);
+				authAction->setText(tr("Authorize"));
+				authAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_SUBSCRIBE);
+				authAction->setData(data);
+				authAction->setData(ADR_SUBSCRIPTION,IRoster::Subscribed);
+				connect(authAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
+				AMenu->addAction(authAction,AG_RVCM_ROSTERCHANGER_GRAND_AUTH);
+
+				Action *unauthAction = new Action(AMenu);
+				unauthAction->setText(tr("Refuse authorization"));
+				unauthAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_UNSUBSCRIBE);
+				unauthAction->setData(data);
+				unauthAction->setData(ADR_SUBSCRIPTION,IRoster::Unsubscribed);
+				connect(unauthAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
+				AMenu->addAction(unauthAction,AG_RVCM_ROSTERCHANGER_REMOVE_AUTH);
+			}
+
+			bool askSubsc = false;
+			foreach(Jid itemJid, contact.items)
+			{
+				IRosterItem ritem = mroster->roster()->rosterItem(itemJid);
+				if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
+				{
+					askSubsc = true;
+					break;
+				}
+			}
+			if (subscRequests.isEmpty() && askSubsc)
+			{
+				Action *askAuthAction = new Action(AMenu);
+				askAuthAction->setText(tr("Request authorization"));
+				askAuthAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_SUBSCRIBE);
+				askAuthAction->setData(data);
+				askAuthAction->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+				connect(askAuthAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
+				AMenu->addAction(askAuthAction,AG_RVCM_ROSTERCHANGER_GRAND_AUTH);
+			}
+
 			// Change group menu
 			GroupMenu *groupMenu = new GroupMenu(AMenu);
 			groupMenu->setTitle(tr("Groups"));
@@ -1364,22 +1455,22 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 
 			foreach (QString group, mroster->groups())
 			{
-				Action *action = new Action(groupMenu);
-				action->setText(group);
-				action->setData(data);
-				action->setData(ADR_TO_GROUP, group);
-				action->setCheckable(true);
-				action->setChecked(commonGroups.contains(group));
-				connect(action,SIGNAL(triggered(bool)),SLOT(onChangeContactGroups(bool)));
-				groupMenu->addAction(action,AG_DEFAULT,true);
+				Action *groupAction = new Action(groupMenu);
+				groupAction->setText(group);
+				groupAction->setData(data);
+				groupAction->setData(ADR_TO_GROUP, group);
+				groupAction->setCheckable(true);
+				groupAction->setChecked(commonGroups.contains(group));
+				connect(groupAction,SIGNAL(triggered(bool)),SLOT(onChangeContactGroups(bool)));
+				groupMenu->addAction(groupAction,AG_DEFAULT,true);
 			}
 
-			Action *action = new Action(groupMenu);
-			action->setText(tr("New group..."));
-			action->setData(data);
-			action->setData(ADR_TO_GROUP, mroster->roster()->groupDelimiter());
-			connect(action,SIGNAL(triggered(bool)),SLOT(onChangeContactGroups(bool)));
-			groupMenu->addAction(action,AG_DEFAULT+1,true);
+			Action *newGroupAction = new Action(groupMenu);
+			newGroupAction->setText(tr("New group..."));
+			newGroupAction->setData(data);
+			newGroupAction->setData(ADR_TO_GROUP, mroster->roster()->groupDelimiter());
+			connect(newGroupAction,SIGNAL(triggered(bool)),SLOT(onChangeContactGroups(bool)));
+			groupMenu->addAction(newGroupAction,AG_DEFAULT+1,true);
 
 			AMenu->addAction(groupMenu->menuAction(),AG_RVCM_ROSTERCHANGER_GROUP);
 
@@ -1414,51 +1505,51 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 					foreach(Jid itemJid, detachItems)
 					{
 						IMetaItemDescriptor descriptor = itemDescriptor(itemJid);
-						Action *action = new Action(releaseMenu);
-						action->setText(QString("%1 (%2)").arg(descriptor.name).arg(itemHint(itemJid)));
-						action->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
-						action->setData(data);
-						action->setData(ADR_RELEASE_ITEMS,QList<QVariant>() << itemJid.pBare());
-						connect(action,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
-						releaseMenu->addAction(action,AG_DEFAULT,true);
+						Action *releaseAction = new Action(releaseMenu);
+						releaseAction->setText(QString("%1 (%2)").arg(descriptor.name).arg(itemHint(itemJid)));
+						releaseAction->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
+						releaseAction->setData(data);
+						releaseAction->setData(ADR_RELEASE_ITEMS,QList<QVariant>() << itemJid.pBare());
+						connect(releaseAction,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
+						releaseMenu->addAction(releaseAction,AG_DEFAULT,true);
 						allItems.append(itemJid.pBare());
 					}
 
 					if (allItems.count() > 2)
 					{
-						Action *action = new Action(releaseMenu);
-						action->setText(tr("Separate all contacts"));
-						action->setData(data);
-						action->setData(ADR_RELEASE_ITEMS,allItems);
-						connect(action,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
-						releaseMenu->addAction(action,AG_DEFAULT+1);
+						Action *separateAction = new Action(releaseMenu);
+						separateAction->setText(tr("Separate all contacts"));
+						separateAction->setData(data);
+						separateAction->setData(ADR_RELEASE_ITEMS,allItems);
+						connect(separateAction,SIGNAL(triggered(bool)),SLOT(onDetachContactItems(bool)));
+						releaseMenu->addAction(separateAction,AG_DEFAULT+1);
 					}
 				}
 
-				action = new Action(AMenu);
-				action->setText(tr("Rename..."));
-				action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_RENAME);
-				action->setData(data);
-				connect(action,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
-				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
+				Action *renameAction = new Action(AMenu);
+				renameAction->setText(tr("Rename..."));
+				renameAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_RENAME);
+				renameAction->setData(data);
+				connect(renameAction,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
+				AMenu->addAction(renameAction,AG_RVCM_ROSTERCHANGER_RENAME);
 
 				if (FVCardPlugin)
 				{
-					action = new Action(AMenu);
-					action->setText(tr("Contact info"));
-					action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
-					action->setData(data);
-					AMenu->addAction(action,AG_RVCM_VCARD,true);
-					connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogAction(bool)));
+					Action *vcardAction = new Action(AMenu);
+					vcardAction->setText(tr("Contact info"));
+					vcardAction->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
+					vcardAction->setData(data);
+					connect(vcardAction,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogAction(bool)));
+					AMenu->addAction(vcardAction,AG_RVCM_VCARD,true);
 				}
 			}
 
-			action = new Action(AMenu);
-			action->setText(tr("Delete"));
-			action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
-			action->setData(data);
-			connect(action,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
-			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
+			Action *deleteAction = new Action(AMenu);
+			deleteAction->setText(tr("Delete"));
+			deleteAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
+			deleteAction->setData(data);
+			connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
+			AMenu->addAction(deleteAction,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 		}
 	}
 }

@@ -167,10 +167,6 @@
         <translation>Переименовать контакт</translation>
     </message>
     <message>
-        <source>&lt;font size=+2&gt;Rename contact&lt;/font&gt;&lt;br&gt;Enter new name</source>
-        <translation>&lt;font size=+2&gt;Переименовать контакт&lt;/font&gt;&lt;br&gt;Введине новое имя</translation>
-    </message>
-    <message>
         <source>You are assured that wish to remove a contact &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Вы уверены, что хотите удалить контакт &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
@@ -193,6 +189,22 @@
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Enter new name</source>
+        <translation>Введите новое имя</translation>
+    </message>
+    <message>
+        <source>Authorize</source>
+        <translation>Авторизовать</translation>
+    </message>
+    <message>
+        <source>Refuse authorization</source>
+        <translation>Не авторизовывать</translation>
+    </message>
+    <message>
+        <source>Request authorization</source>
+        <translation>Запросить авторизацию</translation>
     </message>
 </context>
 <context>

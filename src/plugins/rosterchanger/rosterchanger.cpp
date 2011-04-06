@@ -1165,7 +1165,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				connect(action,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_REMOVE_AUTH);
 			}
-			else if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask.isEmpty())
+			else if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
 			{
 				Action *action = new Action(AMenu);
 				action->setText(tr("Request authorization"));

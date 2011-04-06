@@ -15,6 +15,7 @@
 #include <definitions/customborder.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/irosterchanger.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/istatusicons.h>
@@ -148,6 +149,7 @@ protected slots:
 	void onRemoveFromGroup(bool);
 	void onDetachContactItems(bool);
 	void onChangeContactGroups(bool AChecked);
+	void onContactSubscription(bool);
 protected slots:
 	void onLoadMetaRosters();
 	void onOpenTabPageAction(bool);
@@ -163,6 +165,7 @@ protected slots:
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
+	IRosterChanger *FRosterChanger;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;

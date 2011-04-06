@@ -40,11 +40,13 @@ public:
 	virtual QSet<QString> itemGroups(const Jid &AItemJid) const;
 	virtual void setItem(const Jid &AItemJid, const QString &AName, const QSet<QString> &AGroups);
 	virtual void setItems(const QList<IRosterItem> &AItems);
-	virtual void sendSubscription(const Jid &AItemJid, int AType, const QString &AText = QString());
 	virtual void removeItem(const Jid &AItemJid);
 	virtual void removeItems(const QList<IRosterItem> &AItems);
 	virtual void saveRosterItems(const QString &AFileName) const;
 	virtual void loadRosterItems(const QString &AFileName);
+	//Operations  on subscription
+	virtual QSet<Jid> subscriptionRequests() const;
+	virtual void sendSubscription(const Jid &AItemJid, int AType, const QString &AText = QString());
 	//Operations on items
 	virtual void renameItem(const Jid &AItemJid, const QString &AName);
 	virtual void copyItemToGroup(const Jid &AItemJid, const QString &AGroup);
@@ -88,6 +90,7 @@ private:
 	QString FDelimRequestId;
 	QString FGroupDelim;
 	QString FRosterVer;
+	QSet<Jid> FSubscriptionRequests;
 	QHash<Jid, IRosterItem> FRosterItems;
 };
 
