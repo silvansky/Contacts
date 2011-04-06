@@ -416,7 +416,7 @@ bool SmsMessageHandler::createWindow(int AOrder, const Jid &AStreamJid, const Ji
 
 bool SmsMessageHandler::isSmsContact(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	if (!AContactJid.node().isEmpty() && AContactJid.pDomain().endsWith("."+AStreamJid.pDomain()))
+	if (!AContactJid.node().isEmpty())
 	{
 		if (FDiscovery && FDiscovery->hasDiscoInfo(AStreamJid,AContactJid.domain()))
 		{
