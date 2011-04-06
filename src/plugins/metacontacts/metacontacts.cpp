@@ -928,9 +928,11 @@ void MetaContacts::onRenameContact(bool)
 			dialog->setProperty("oldName", oldName);
 			dialog->setProperty("metaId", metaId);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
+			dialog->setOkButtonText(tr("Save"));
+			dialog->setCancelButtonText(tr("Cancel"));
 			connect(dialog, SIGNAL(textValueSelected(const QString&)), SLOT(onNewNameSelected(const QString&)));
 			//dialog->setWindowModality(Qt::ApplicationModal);
-			//dialog->windowBorder()->setMinimumSize(300, 200);
+			dialog->windowBorder()->setMinimumWidth(300);
 			dialog->show();
 //			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 //			if (border)

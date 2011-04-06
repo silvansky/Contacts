@@ -16,6 +16,8 @@ CustomInputDialog::CustomInputDialog(QWidget *parent) :
 		connect(this, SIGNAL(accepted()), border, SLOT(close()));
 		connect(this, SIGNAL(rejected()), border, SLOT(close()));
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		layout()->setContentsMargins(14, 14, 14, 10);
+		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
 }
 
@@ -34,7 +36,9 @@ void CustomInputDialog::show()
 {
 	if (border)
 	{
+		// TODO: determine what of these are really needed
 		border->layout()->update();
+		layout()->update();
 		border->adjustSize();
 		border->show();
 		border->layout()->update();
