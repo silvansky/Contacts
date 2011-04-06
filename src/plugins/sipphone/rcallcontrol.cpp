@@ -4,7 +4,7 @@
 #include <QPainter>
 
 RCallControl::RCallControl(CallSide callSide, QWidget *parent)
-	: QWidget(parent), _callStatus(Undefined)
+	: QWidget(parent), _callStatus(Undefined), _sid("")
 {
 	ui.setupUi(this);
 
@@ -43,10 +43,10 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), SIGNAL(micVolumeChange(int)));
 
-
-
 	connect(ui.btnAccept, SIGNAL(clicked()), this, SLOT(onAccept()));
 	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(onHangup()));
+
+	callStatusChange(Register);
 }
 
 
@@ -103,7 +103,8 @@ RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 
 RCallControl::~RCallControl()
 {
-	close();
+	//close();
+	emit closeAndDelete(false);
 }
 
 void RCallControl::setSessionId(const QString& sid)
@@ -215,7 +216,11 @@ void RCallControl::onHangup()
 		//	default:
 		//	break;
 		//}
-		if(_callStatus == Accepted)
+		if(_callStatus == Undefined)
+		{
+			return;
+		}
+		else if(_callStatus == Accepted)
 		{
 			emit hangupCall();
 		}
@@ -227,10 +232,12 @@ void RCallControl::onHangup()
 		}
 		else if(_callStatus == Register)
 		{
+			callStatusChange(Undefined);
 			emit abortCall();//hangupCall();
 		}
 		else if(_callStatus == Ringing)
 		{
+			callStatusChange(Undefined);
 			emit abortCall();//hangupCall();
 		}
 		else if(_callStatus == RingTimeout)
@@ -268,6 +275,11 @@ void RCallControl::onHangup()
 		else if(_callStatus == Ringing)
 		{
 			//emit hangupCall();
+			emit abortCall();
+		}
+		else if(_callStatus == Register)
+		{
+			callStatusChange(Undefined);
 			emit abortCall();
 		}
 		else if(_callStatus == RingTimeout)
@@ -315,6 +327,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			statusTextChange(tr("ACCEPT"));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
+			ui.btnHangup->setEnabled(true);
 			ui.btnHangup->setText(tr("Hangup"));
 		}
 		else
@@ -322,6 +335,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			statusTextChange(tr("ACCEPT"));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
+			ui.btnHangup->setEnabled(true);
 			ui.btnHangup->setText(tr("Hangup"));
 		}
 	}
@@ -331,8 +345,9 @@ void RCallControl::callStatusChange(CallStatus status)
 		{
 			statusTextChange(tr("Calling failure..."));
 			ui.btnAccept->show();
-			ui.btnHangup->hide();
+			ui.btnAccept->setEnabled(true);
 			ui.btnAccept->setText(tr("Call again"));
+			ui.btnHangup->hide();
 			//ui.btnHangup->setText(tr("Abort"));
 		}
 		else
@@ -344,18 +359,20 @@ void RCallControl::callStatusChange(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
-			statusTextChange(tr("Registering..."));
+			_sid = "";
+			statusTextChange(tr("Registering on call server..."));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
-			ui.btnHangup->setText(tr("Hangup"));
+			ui.btnHangup->setText(tr("Cancel"));
+			ui.btnHangup->setEnabled(false);
 		}
 		else
 		{
-			//statusTextChange(tr("Incoming Call..."));
-			//ui.btnAccept->show();
-			//ui.btnHangup->show();
-			//ui.btnAccept->setText(tr("Accept"));
-			//ui.btnHangup->setText(tr("Hangup"));
+			statusTextChange(tr("Registering on call server..."));
+			ui.btnAccept->show();
+			ui.btnAccept->setEnabled(false);
+			ui.btnHangup->show();
+			ui.btnHangup->setEnabled(true);
 		}
 	}
 	else if(_callStatus == Ringing)
@@ -365,14 +382,18 @@ void RCallControl::callStatusChange(CallStatus status)
 			statusTextChange(tr("Outgoing Call..."));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
+			ui.btnHangup->setEnabled(true);
 			ui.btnHangup->setText(tr("Hangup"));
 		}
 		else
 		{
 			statusTextChange(tr("Incoming Call..."));
 			ui.btnAccept->show();
-			ui.btnHangup->show();
+			ui.btnAccept->setEnabled(true);
 			ui.btnAccept->setText(tr("Accept"));
+
+			ui.btnHangup->show();
+			ui.btnHangup->setEnabled(true);
 			ui.btnHangup->setText(tr("Hangup"));
 			setProperty("ringing", true);
 		}
@@ -383,17 +404,19 @@ void RCallControl::callStatusChange(CallStatus status)
 		{
 			statusTextChange(tr("No answer..."));
 			ui.btnAccept->show();
-			ui.btnHangup->hide();
+			ui.btnAccept->setEnabled(true);
 			ui.btnAccept->setText(tr("Call again"));
+			ui.btnHangup->hide();
 			//ui.btnHangup->setText(tr("Abort"));
 		}
 		else
 		{
 			statusTextChange(tr("Missed Call..."));
 			ui.btnAccept->show();
-			ui.btnHangup->hide();
+			ui.btnAccept->setEnabled(true);
 			ui.btnAccept->setText(tr("Callback"));
 			ui.btnHangup->setText(tr(""));
+			ui.btnHangup->hide();
 		}
 	}
 	//else if(_callStatus == CallStatus::Trying)
@@ -413,9 +436,10 @@ void RCallControl::callStatusChange(CallStatus status)
 		{
 			statusTextChange(tr("Call Error..."));
 			ui.btnAccept->show();
-			ui.btnHangup->hide();
+			ui.btnAccept->setEnabled(true);
 			ui.btnAccept->setText(tr("Call again"));
 			ui.btnHangup->setText(tr(""));
+			ui.btnHangup->hide();
 		}
 		else
 		{
@@ -428,7 +452,7 @@ void RCallControl::callStatusChange(CallStatus status)
 void RCallControl::closeEvent(QCloseEvent *)
 {
 	onHangup();
-	emit closeAndDelete(false);
+	//emit closeAndDelete(false);
 }
 
 void RCallControl::paintEvent(QPaintEvent *)

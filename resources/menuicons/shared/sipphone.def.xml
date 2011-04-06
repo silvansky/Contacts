@@ -143,7 +143,7 @@
   </icon>
   <icon>
     <key>sipfullscreenoff</key>
-    <object mime="image/png">video_fullscreen.png</object>
+    <object mime="image/png">video_fullscreen_off.png</object>
   </icon>
   
   </icondef>

@@ -25,8 +25,8 @@ FullScreenControls::FullScreenControls( QWidget *parent)
 	connect(ui.btnHangup, SIGNAL(clicked()), this, SIGNAL(hangup()));
 
 
-	QImage imgOn = iconStorage->getImage(MNI_SIPPHONE_WHITE_FULLSCREEN_ON);
-	QImage imgOff = iconStorage->getImage(MNI_SIPPHONE_WHITE_FULLSCREEN_OFF);
+	QImage imgOn = iconStorage->getImage(MNI_SIPPHONE_WHITE_FULLSCREEN_OFF);
+	QImage imgOff = iconStorage->getImage(MNI_SIPPHONE_WHITE_FULLSCREEN_ON);
 
 	QIcon iconFS;
 	iconFS.addPixmap(QPixmap::fromImage(imgOn), QIcon::Normal, QIcon::On);

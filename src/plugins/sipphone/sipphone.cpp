@@ -180,20 +180,7 @@ bool SipPhone::initObjects()
 
 void SipPhone::onStreamOpened(IXmppStream * AXmppStream)
 {
-	//	SipUri uri2;//("sip:spendtime@rambler.ru");
-	//	SipUri *puri2 = new SipUri();
-	////QString test1 = uri1.nameAddr_noTag();
-	////QString test1 = uri1.uri();
-	////QString test2 = uri2.proxyUri();
-	//QString test2 = puri2->proxyUri();
-	//return;
-
-	//SipUri uri1;//("sip:spendtime@rambler.ru");
-	//QString test1 = uri1.nameAddr_noTag();
-	//return;
-
-
-QString hostAddress;
+	QString hostAddress;
 	IDefaultConnection *defConnection = qobject_cast<IDefaultConnection *>(AXmppStream->connection()->instance());
 	if (defConnection)
 	{
@@ -308,6 +295,39 @@ void SipPhone::onToolBarActionTriggered(bool status)
 				Jid contactJidFull = getContactWithPresence(streamJid, metaId);
 				if(contactJidFull.isValid() && !contactJidFull.isEmpty() && FStreams.isEmpty())
 				{
+
+					if(!FCallControls.contains(metaId))
+					{
+						IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(streamJid, metaId);
+						if(iMetaTabWindow != NULL)
+						{
+							RCallControl* pCallControl = new RCallControl(RCallControl::Caller, iMetaTabWindow->instance()); /*status = Register*/
+							pCallControl->setStreamJid(streamJid);
+							pCallControl->setMetaId(metaId);
+							//pCallControl->callStatusChange(RCallControl::Ringing);
+							connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
+							//connect(pCallControl, SIGNAL(hangupCall()), SLOT(onHangupCallTest())); /*Test*/
+							connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+							connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
+							connect(pCallControl, SIGNAL(closeAndDelete(bool)), action, SLOT(setChecked(bool)));
+
+							connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
+							connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
+							connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
+
+							iMetaTabWindow->insertTopWidget(0, pCallControl);
+							FCallControls.insert(metaId, pCallControl);
+						}
+					}
+					else
+					{
+						RCallControl* pCallControl = FCallControls[metaId];
+						if(pCallControl)
+						{
+							pCallControl->callStatusChange(RCallControl::Register);
+						}
+					}
+
 					//QMessageBox::information(NULL, contactJidFull.full(), "Call");
 					QString sid = openStream(streamJid, contactJidFull);
 
@@ -359,12 +379,20 @@ void SipPhone::onToolBarActionTriggered(bool status)
 			if(FCallControls.contains(metaId))
 			{
 				RCallControl* pCallControl = FCallControls[metaId];
-				IMetaTabWindow* iMetaTabWindow = qobject_cast<IMetaTabWindow*>(pCallControl->parentWidget());
-				if(iMetaTabWindow)
+
+				IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(pCallControl->getStreamJid(), pCallControl->getMetaId());
+				if(iMetaTabWindow != NULL)
+				{
 					iMetaTabWindow->removeTopWidget(pCallControl);
-				FCallControls.remove(metaId);
-				delete pCallControl;
-				pCallControl = NULL;
+				}
+
+				if(FCallControls.contains(metaId))
+				{
+					FCallControls.remove(metaId);
+					pCallControl->close();
+					delete pCallControl;
+					pCallControl = NULL;
+				}
 			}
 		}
 
@@ -554,6 +582,7 @@ void SipPhone::onStreamCreated(const QString& sid)
 		if(metaId.isEmpty())
 			return;
 
+		// Если панель звонка еще не отображена, то отображаем
 		if(!FCallControls.contains(metaId))
 		{
 			IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(stream.streamJid, metaId);
@@ -582,11 +611,12 @@ void SipPhone::onStreamCreated(const QString& sid)
 				FCallControls.insert(metaId, pCallControl);
 			}
 		}
-		else
+		else // Панель звонка отображена - обновляем статус
 		{
 			RCallControl* pCallControl = FCallControls[metaId];
 			if(pCallControl)
 			{
+				pCallControl->setSessionId(sid);
 				pCallControl->callStatusChange(RCallControl::Ringing);
 			}
 		}
@@ -693,7 +723,40 @@ void SipPhone::onAbortCall()
 	if (pCallControl)
 	{
 		QString streamId = pCallControl->getSessionID();
-		closeStream(streamId);
+		if(streamId != "")
+			closeStream(streamId);
+		else
+		{
+			IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(pCallControl->getStreamJid(), pCallControl->getMetaId());
+			if(iMetaTabWindow != NULL)
+			{
+				iMetaTabWindow->removeTopWidget(pCallControl);
+			}
+
+			emit sipSendUnRegister();
+
+			if(FCallControls.contains(pCallControl->getMetaId()))
+			{
+				FCallControls.remove(pCallControl->getMetaId());
+				if(pCallControl != NULL)
+				{
+					delete pCallControl;
+					pCallControl = NULL;
+				}
+			}
+
+
+			//if(FCallControls.contains(pCallControl->getMetaId()))
+			//{
+			//	RCallControl* pCallControl = FCallControls[metaId];
+			//	IMetaTabWindow* iMetaTabWindow = qobject_cast<IMetaTabWindow*>(pCallControl->parentWidget());
+			//	if(iMetaTabWindow)
+			//		iMetaTabWindow->removeTopWidget(pCallControl);
+			//	FCallControls.remove(metaId);
+			//	delete pCallControl;
+			//	pCallControl = NULL;
+			//}
+		}
 	}
 
 #pragma message("SipPhone::onAbortCall() not implemented")
@@ -902,11 +965,16 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, c
 		openElem.setAttribute("sid",sid);
 		// Здесь добавляем нужные параметры для установки соединения в элемент open
 
+
+		// Переводим панель в режим Ringing
 		QString metaId = findMetaId(AStreamJid, AContactJid);
 		if(FCallControls.contains(metaId))
 		{
 			FCallControls[metaId]->setSessionId(sid);
+			FCallControls[metaId]->callStatusChange(RCallControl::Ringing );
 		}
+
+
 
 
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,open,REQUEST_TIMEOUT))
@@ -925,9 +993,26 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, c
 	}
 	else
 	{
-		//QMessageBox::information(NULL, "debug", "sipActionAfterRegistrationAsInitiator:: false");
-		QMessageBox::information(NULL, "SIP Reistration failed", "SIP registration failed.");
 		// НОТИФИКАЦИЯ О НЕУДАЧНОЙ РЕГИСТРАЦИИ
+		//QMessageBox::information(NULL, "debug", "sipActionAfterRegistrationAsInitiator:: false");
+		//QMessageBox::information(NULL, "SIP Reistration failed", "SIP registration failed.");
+		
+		// Скрываем панель звонка
+		QString metaId = findMetaId(AStreamJid, AContactJid);
+		if(FCallControls.contains(metaId))
+		{
+			RCallControl* pCallControl = FCallControls[metaId];
+			IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(pCallControl->getStreamJid(), pCallControl->getMetaId());
+			if(iMetaTabWindow != NULL)
+			{
+				iMetaTabWindow->removeTopWidget(pCallControl);
+			}
+
+			FCallControls.remove(metaId);
+			pCallControl->callStatusChange(RCallControl::Undefined);
+			delete pCallControl;
+			pCallControl = NULL;
+		}
 	}
 }
 
@@ -967,7 +1052,19 @@ bool SipPhone::acceptStream(const QString &AStreamId)
 		connect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const QString&)),
 			this, SLOT(sipActionAfterRegistrationAsResponder(bool, const QString&)));
 
+		// Переводим панель в режим Register
+		ISipStream stream = FStreams[AStreamId];
+		QString metaId = findMetaId(stream.streamJid, stream.contactJid);
+		if(FCallControls.contains(metaId))
+		{
+			RCallControl* pCallControl = FCallControls[metaId];
+			pCallControl->callStatusChange(RCallControl::Register);
+		}
+
+		// Сигнализируем о необходимости SIP регистрации клиента
 		emit sipSendRegisterAsResponder(AStreamId);
+
+
 
 		//ISipStream &stream = FStreams[AStreamId];
 
@@ -1003,6 +1100,17 @@ void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult, c
 		QDomElement openedElem = opened.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(opened.createElement("opened")).toElement();
 		openedElem.setAttribute("sid",AStreamId);
 
+
+		//////////////////////////// Переводим панель в режим Accepted
+		//////////////////////////ISipStream stream = FStreams[AStreamId];
+		//////////////////////////QString metaId = findMetaId(stream.streamJid, stream.contactJid);
+		//////////////////////////if(FCallControls.contains(metaId))
+		//////////////////////////{
+		//////////////////////////	RCallControl* pCallControl = FCallControls[metaId];
+		//////////////////////////	pCallControl->callStatusChange(RCallControl::Accepted );
+		//////////////////////////}
+
+
 		//QMessageBox::information(NULL, "", "sipActionAfterRegistrationAsResponder->sendStanzaOut");
 		if (FStanzaProcessor->sendStanzaOut(stream.streamJid,opened))
 		{
@@ -1012,6 +1120,11 @@ void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult, c
 			emit streamStateChanged(AStreamId, stream.state);
 			//return true;
 		}
+	}
+	else
+	{
+		// Не удалось выполнить SIP регистрацию. Закрываем соединение.
+		closeStream(AStreamId);
 	}
 }
 //

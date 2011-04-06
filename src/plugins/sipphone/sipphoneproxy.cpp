@@ -297,6 +297,7 @@ bool SipPhoneProxy::initRegistrationData( void )
 	//	regData.sipServerUri = settings.value( pp + "/SipServer" ).toString();
 	//}
 	//regData.sipServerUri = "81.19.69.224";
+	//regData.sipServerUri = "81.19.70.71";//"81.19.70.76";
 	regData.sipServerUri = "81.19.70.76";
 	regData.qValue = "";// settings.value( pp + "/qValue", "" ).toString();
 	//regData.userName = settings.value( pp + "/UserName" ).toString();
@@ -728,11 +729,12 @@ void SipPhoneProxy::onFullScreenState(bool state)
 {
 	if(state)
 	{
-		_pWorkWidgetContainer->maximizeWidget();
+		//_pWorkWidgetContainer->maximizeWidget();
 		_pWorkWidgetContainer->showFullScreen();
 	}
 	else
 	{
+		//if(_pWorkWidgetContainer->isFullScreen())
 		_pWorkWidgetContainer->showNormal();
 		_pWorkWidgetContainer->restoreWidget();
 	}
