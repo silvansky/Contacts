@@ -193,13 +193,9 @@ IPresenceItem MetaRoster::metaPresence(const QString &AMetaId) const
 			IMetaContact contact = FContacts.value(AMetaId);
 			foreach(const Jid &itemJid, contact.items)
 			{
-				if (!FMetaContacts->itemDescriptor(itemJid).service)
-				{
-					foreach(IPresenceItem item_pres, FPresence->presenceItems(itemJid))
-					{
-						pitems.insertMulti(item_pres.show,item_pres);
-					}
-				}
+				bool isService = FMetaContacts->itemDescriptor(itemJid).service;
+				foreach(IPresenceItem item_pres, FPresence->presenceItems(itemJid))
+					pitems.insertMulti(item_pres.show+(isService ? 256 : 0),item_pres);
 			}
 			if (!pitems.isEmpty())
 			{
