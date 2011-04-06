@@ -16,7 +16,7 @@ CustomInputDialog::CustomInputDialog(QWidget *parent) :
 		connect(this, SIGNAL(accepted()), border, SLOT(close()));
 		connect(this, SIGNAL(rejected()), border, SLOT(close()));
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
-		layout()->setContentsMargins(14, 14, 14, 10);
+		layout()->setContentsMargins(14, 14, 14, 10); // some magic numbers )
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
 }

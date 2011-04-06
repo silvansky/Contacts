@@ -995,18 +995,19 @@ void MetaContacts::onDeleteContact(bool)
 			if (metaIdList.count() < 2)
 			{
 				IMetaContact contact = mroster->metaContact(metaIdList.value(0));
-				message = tr("You are assured that wish to remove a contact <b>%1</b>?").arg(Qt::escape(metaContactName(contact)));
-				title = tr("Remove");
+				message = tr("Contact %1 will be removed without possibility of restoring").arg(Qt::escape(metaContactName(contact)));
+				title = tr("Remove contact");
 			}
 			else
 			{
-				message = tr("You are assured that wish to remove %n contact(s)?","",metaIdList.count());
+				message = tr("%n contacts will be removed without possibility of restoring","",metaIdList.count());
 				title = tr("Remove %n contact(s)","",metaIdList.count());
 			}
 
 			QMessageBox * dialog = new QMessageBox;
 			dialog->setWindowTitle(title);
-			dialog->setText(tr("<font size=+2>%1</font><br>%2").arg(title, message));
+			dialog->setText(tr("<font size=+2>%1</font>").arg(title));
+			dialog->setInformativeText(message);
 			dialog->setProperty("metaIdList", metaIdList);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
 			dialog->addButton(tr("Remove"), QMessageBox::AcceptRole);
@@ -1018,11 +1019,12 @@ void MetaContacts::onDeleteContact(bool)
 				border->setMinimizeButtonVisible(false);
 				border->setMaximizeButtonVisible(false);
 				border->setResizable(false);
-				border->setWindowModality(Qt::ApplicationModal);
+				//border->setWindowModality(Qt::ApplicationModal);
 				border->setAttribute(Qt::WA_DeleteOnClose, true);
 				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
 				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
 				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+				dialog->layout()->setContentsMargins(10, 14, 24, 10); // magic numbers...
 				//border->setFixedSize(252 + border->leftBorderWidth() + border->rightBorderWidth(), 127 + border->topBorderWidth() + border->bottomBorderWidth());
 				border->show();
 				//border->layout()->update();
@@ -1031,7 +1033,7 @@ void MetaContacts::onDeleteContact(bool)
 			}
 			else
 			{
-				dialog->setWindowModality(Qt::ApplicationModal);
+				//dialog->setWindowModality(Qt::ApplicationModal);
 				dialog->show();
 			}
 		}
