@@ -1,6 +1,7 @@
 #include "streamparser.h"
 
 #include <QMap>
+#include <utils/log.h>
 
 StreamParser::StreamParser(QObject *AParent) : QObject(AParent)
 {
@@ -72,7 +73,10 @@ void StreamParser::parseData(const QByteArray &AData)
 
 	if (FReader.hasError() && FReader.error()!=QXmlStreamReader::PrematureEndOfDocumentError)
 	{
-		emit error(FReader.errorString());
+		QString err = FReader.errorString();
+		Log(QString("StreamParser error %1, data:").arg(err));
+		Log(QString(AData));
+		emit error(err);
 	}
 }
 

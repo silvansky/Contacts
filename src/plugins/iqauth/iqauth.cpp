@@ -1,6 +1,7 @@
 #include "iqauth.h"
 
 #include <QCryptographicHash>
+#include <utils/log.h>
 
 IqAuth::IqAuth(IXmppStream *AXmppStream) : QObject(AXmppStream->instance())
 {
@@ -26,6 +27,7 @@ bool IqAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrder)
 		else if (AStanza.type() == "error")
 		{
 			ErrorHandler err(AStanza.element());
+			Log(QString("[IqAuth stanza error] %1").arg(err.message()));
 			emit error(err.message());
 		}
 		return true;

@@ -1,4 +1,5 @@
 #include "ramblerhistory.h"
+#include <utils/log.h>
 
 #define ARCHIVE_TIMEOUT 30000
 
@@ -99,17 +100,18 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 				elem = elem.nextSiblingElement();
 			}
 
-         elem = chatElem.firstChildElement("first");
-         while (!elem.isNull() && elem.namespaceURI()!=NS_RAMBLER_ARCHIVE_RSM)
-            elem = elem.nextSiblingElement("first");
-         result.beforeId = elem.firstChildElement("id").text();
-         result.beforeTime = DateTime(elem.firstChildElement("ctime").text()).toLocal();
+	 elem = chatElem.firstChildElement("first");
+	 while (!elem.isNull() && elem.namespaceURI()!=NS_RAMBLER_ARCHIVE_RSM)
+	    elem = elem.nextSiblingElement("first");
+	 result.beforeId = elem.firstChildElement("id").text();
+	 result.beforeTime = DateTime(elem.firstChildElement("ctime").text()).toLocal();
 
 			emit serverMessagesLoaded(AStanza.id(), result);
 		}
 		else
 		{
 			ErrorHandler err(AStanza.element());
+			Log(QString("[Rambler history stanza error] %1 : %2").arg(AStanza.id(), err.message()));
 			emit requestFailed(AStanza.id(), err.message());
 		}
 		FRetrieveRequests.removeAll(AStanza.id());
@@ -122,6 +124,7 @@ void RamblerHistory::stanzaRequestTimeout(const Jid &AStreamJid, const QString &
 	if (FRetrieveRequests.contains(AStanzaId))
 	{
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		Log(QString("[Rambler history request timeout] %1 : %2").arg(AStanzaId, err.message()));
 		emit requestFailed(AStanzaId, err.message());
 	}
 }

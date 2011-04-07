@@ -1,5 +1,6 @@
 #include "sipphone.h"
 #include <QMessageBox>
+#include <utils/log.h>
 
 #include "winsock2.h"
 
@@ -135,6 +136,7 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	if(FAILED(WSAStartup(MAKEWORD(2, 2), &ws)))
 	{
 		int error = WSAGetLastError();
+		Log(QString("[WSAStartup error] code %1").arg(error));
 		exit(1);
 	}
 #endif
@@ -996,7 +998,7 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, c
 		// НОТИФИКАЦИЯ О НЕУДАЧНОЙ РЕГИСТРАЦИИ
 		//QMessageBox::information(NULL, "debug", "sipActionAfterRegistrationAsInitiator:: false");
 		//QMessageBox::information(NULL, "SIP Reistration failed", "SIP registration failed.");
-		
+
 		// Скрываем панель звонка
 		QString metaId = findMetaId(AStreamJid, AContactJid);
 		if(FCallControls.contains(metaId))
@@ -1226,7 +1228,7 @@ void SipPhone::showCallControlTab(const QString& sid/*const ISipStream &AStream*
 			connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
 			connect(pCallControl, SIGNAL(acceptCall()), this, SLOT(onAcceptStreamByCallControl()));
 			connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
-			
+
 			//connect(pCallControl, SIGNAL(closeAndDelete(bool)), action, SLOT(setChecked(bool)));
 			if(FCallActions.contains(metaId) && FCallActions[metaId])
 				connect(pCallControl, SIGNAL(closeAndDelete(bool)), FCallActions[metaId], SLOT(setChecked(bool)));

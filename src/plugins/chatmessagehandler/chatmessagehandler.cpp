@@ -1,6 +1,7 @@
 #include "chatmessagehandler.h"
 
 #include <QMessageBox>
+#include <utils/log.h>
 
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    25
@@ -689,7 +690,7 @@ void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState
 		options.time = QDateTime::fromTime_t(0);
 		options.timeFormat = " ";
 		options.noScroll = true;
-		
+
 		if (AInit && false)
 		{
 			QUrl showWindowUrl;
@@ -1182,6 +1183,7 @@ void ChatMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, cons
 
 void ChatMessageHandler::onRamblerHistoryRequestFailed(const QString &AId, const QString &AError)
 {
+	Log(QString("[Rambler history error] %1").arg(AError));
 	if (FHistoryRequests.contains(AId))
 	{
 		IChatWindow *window = FHistoryRequests.take(AId);

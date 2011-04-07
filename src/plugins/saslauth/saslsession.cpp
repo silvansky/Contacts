@@ -1,4 +1,5 @@
 #include "saslsession.h"
+#include <utils/log.h>
 
 SASLSession::SASLSession(IXmppStream *AXmppStream) : QObject(AXmppStream->instance())
 {
@@ -23,6 +24,7 @@ bool SASLSession::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AO
 		else
 		{
 			ErrorHandler err(AStanza.element());
+			Log(QString("[SASLSession stanza error] %1").arg(err.message()));
 			emit error(err.message());
 		}
 		return true;

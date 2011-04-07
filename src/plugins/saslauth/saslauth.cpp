@@ -4,6 +4,7 @@
 #include <QMultiHash>
 #include <QStringList>
 #include <QCryptographicHash>
+#include <utils/log.h>
 
 static QMultiHash<QString, QString> parseChallenge(const QString &AChallenge)
 {
@@ -26,8 +27,8 @@ static QMultiHash<QString, QString> parseChallenge(const QString &AChallenge)
 }
 
 static QByteArray getRespValue(const QByteArray &realm, const QByteArray &user, const QByteArray &pass,const QByteArray &nonce,
-                               const QByteArray &cnonce, const QByteArray &nc, const QByteArray &qop, const QByteArray &uri,
-                               const QByteArray &auth)
+			       const QByteArray &cnonce, const QByteArray &nc, const QByteArray &qop, const QByteArray &uri,
+			       const QByteArray &auth)
 {
 	QByteArray yHash =  QCryptographicHash::hash(user+':'+realm+':'+pass,QCryptographicHash::Md5);
 	QByteArray a1Hash = QCryptographicHash::hash(yHash+':'+nonce+':'+cnonce,QCryptographicHash::Md5);
@@ -74,7 +75,7 @@ bool SASLAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 				QString qop = params.value("qop");
 				QString uri = "xmpp/" + FXmppStream->streamJid().pDomain();
 				QByteArray respValue = getRespValue(realm.toUtf8(),user.toUtf8(),pass.toUtf8(),nonce.toAscii(),
-				                                    cnonce.toAscii(),nc.toAscii(),qop.toAscii(), uri.toAscii(), "AUTHENTICATE");
+								    cnonce.toAscii(),nc.toAscii(),qop.toAscii(), uri.toAscii(), "AUTHENTICATE");
 
 				QString resp = "username=\"%1\",realm=\"%2\",nonce=\"%3\",cnonce=\"%4\",nc=%5,qop=%6,digest-uri=\"%7\",response=%8,charset=utf-8";
 				resp = resp.arg(user.toUtf8().data()).arg(realm).arg(nonce).arg(cnonce).arg(nc).arg(qop).arg(uri).arg(respValue.data());
@@ -103,15 +104,18 @@ bool SASLAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 			else if (AStanza.tagName() == "failure")
 			{
 				ErrorHandler err(AStanza.element(),NS_FEATURE_SASL);
+				Log(QString("[SASLAuth stanza error] %1").arg(err.message()));
 				emit error(err.message());
 			}
 			else if (AStanza.tagName() == "abort")
 			{
 				ErrorHandler err("aborted",NS_FEATURE_SASL);
+				Log(QString("[SASLAuth stanza error] %1").arg(err.message()));
 				emit error(err.message());
 			}
 			else
 			{
+				Log(QString("[SASLAuth stanza error] %1").arg(tr("Wrong SASL authentication response")));
 				emit error(tr("Wrong SASL authentication response"));
 			}
 		}

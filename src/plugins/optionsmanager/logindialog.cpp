@@ -23,6 +23,7 @@
 #include <definitions/graphicseffects.h>
 #include <definitions/menuicons.h>
 #include <utils/iconstorage.h>
+#include <utils/log.h>
 
 #include <QDebug>
 
@@ -667,6 +668,7 @@ void LoginDialog::hideConnectionError()
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
 {
+	Log(QString("[LoginDialog connection error] %1").arg(AError));
 	hideXmppStreamError();
 
 	QString message = ACaption;
@@ -709,6 +711,7 @@ void LoginDialog::hideXmppStreamError()
 
 void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint)
 {
+	Log(QString("[LoginDialog stream error] %1 (%2)").arg(AError, AHint));
 	hideConnectionError();
 
 	QString message = ACaption;

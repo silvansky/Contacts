@@ -209,7 +209,7 @@ void DefaultConnection::connectToNextHost()
 
 		while (record.name.endsWith('.'))
 			record.name.chop(1);
-		
+
 		if (FChangeProxyType && FSocket.proxy().type()!=QNetworkProxy::NoProxy)
 		{
 			QNetworkProxy httpProxy = FSocket.proxy();
@@ -254,11 +254,10 @@ void DefaultConnection::onDnsResultsReady(int AId, const QJDns::Response &AResul
 
 void DefaultConnection::onDnsError(int AId, QJDns::Error AError)
 {
-	Q_UNUSED(AError);
 	if (FSrvQueryId == AId)
 	{
 		FDns.shutdown();
-		Log(QString("[DefaultConnection error]: %1").arg("QJDns error"));
+		Log(QString("[DefaultConnection error]: %1 %2").arg("QJDns error").arg(AError));
 	}
 }
 

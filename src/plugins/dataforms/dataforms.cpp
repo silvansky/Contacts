@@ -1,6 +1,8 @@
 #include "dataforms.h"
 
+#include <QSslError>
 #include <QImageReader>
+#include <utils/log.h>
 
 DataForms::DataForms()
 {
@@ -444,7 +446,7 @@ void DataForms::xmlForm(const IDataForm &AForm, QDomElement &AParentElem) const
 	foreach(IDataLayout layout, AForm.pages) {
 		xmlPage(layout,AParentElem); }
 
-	if (!AForm.tabel.columns.isEmpty()) 
+	if (!AForm.tabel.columns.isEmpty())
 		xmlTable(AForm.tabel,formElem);
 
 	foreach(IDataField field, AForm.fields) {
@@ -1033,6 +1035,7 @@ void DataForms::urlLoadSuccess(const QUrl &AUrl, const QByteArray &AData)
 
 void DataForms::urlLoadFailure(const QUrl &AUrl, const QString &AError)
 {
+	Log(QString("[URL load failure] %1 : %2").arg(AUrl.toString(), AError));
 	FUrlRequests.remove(AUrl);
 	emit urlLoadFailed(AUrl,AError);
 }
@@ -1079,6 +1082,7 @@ void DataForms::onNetworkReplyError(QNetworkReply::NetworkError ACode)
 	if (reply)
 	{
 		urlLoadFailure(reply->url(),reply->errorString());
+		Log(QString("[Network reply error] %1").arg(reply->errorString()));
 		reply->close();
 		reply->deleteLater();
 	}
@@ -1086,7 +1090,10 @@ void DataForms::onNetworkReplyError(QNetworkReply::NetworkError ACode)
 
 void DataForms::onNetworkReplySSLErrors(const QList<QSslError> &AErrors)
 {
-	Q_UNUSED(AErrors);
+	QStringList errors;
+	foreach (QSslError err, AErrors)
+		errors.append(err.errorString());
+	Log(QString("[Network reply SSL errors] %1").arg(errors.join("; ")));
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	if (reply)
 		reply->ignoreSslErrors();
@@ -1099,4 +1106,4 @@ uint qHash(const QUrl &key)
 }
 #endif
 
-Q_EXPORT_PLUGIN2(plg_dataforms, DataForms);
+Q_EXPORT_PLUGIN2(plg_dataforms, DataForms)

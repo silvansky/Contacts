@@ -2,6 +2,7 @@
 
 #include <QMessageBox>
 #include <QPainter>
+#include <utils/log.h>
 
 RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 	: QWidget(parent), _callStatus(Undefined), _sid("")
@@ -343,6 +344,7 @@ void RCallControl::callStatusChange(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
+			Log(QString("[Call failure]"));
 			statusTextChange(tr("Calling failure..."));
 			ui.btnAccept->show();
 			ui.btnAccept->setEnabled(true);
@@ -434,6 +436,7 @@ void RCallControl::callStatusChange(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
+			Log(QString("[Call error]"));
 			statusTextChange(tr("Call Error..."));
 			ui.btnAccept->show();
 			ui.btnAccept->setEnabled(true);

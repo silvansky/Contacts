@@ -266,6 +266,7 @@ void PluginManager::loadSettings()
 		if (dir.exists() && (dir.exists(DIR_APP_DATA) || dir.mkpath(DIR_APP_DATA)) && dir.cd(DIR_APP_DATA))
 			FDataPath = dir.absolutePath();
 	}
+	Log::setLogFormat(Log::Simple);
 	Log::setLogPath(FDataPath);
 	FileStorage::setResourcesDirs(FileStorage::resourcesDirs()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
@@ -619,6 +620,7 @@ QDomElement PluginManager::savePluginInfo(const QString &AFile, const IPluginInf
 
 void PluginManager::savePluginError(const QString &AFile, const QString &AError)
 {
+	Log(QString("[Plugin error] %1 : %2").arg(AFile, AError));
 	QDomElement pluginElem = FPluginsSetup.documentElement().firstChildElement(AFile);
 	if (pluginElem.isNull())
 		pluginElem = FPluginsSetup.firstChildElement("plugins").appendChild(FPluginsSetup.createElement(AFile)).toElement();

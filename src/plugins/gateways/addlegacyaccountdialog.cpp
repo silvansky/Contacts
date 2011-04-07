@@ -3,13 +3,14 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QPushButton>
+#include <utils/log.h>
 #include <QListView>
 
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-	setWindowModality(AParent!=NULL ? Qt::WindowModal : Qt::NonModal);
+	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG);
 
 	FGateways = AGateways;
@@ -40,7 +41,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 		ui.lblCaption->setText(FGateLabel.name);
 		ui.lneLogin->setPlaceholderText(!FGateLabel.loginLabel.isEmpty() ? FGateLabel.loginLabel : tr("Login"));
 		ui.lnePassword->setPlaceholderText(tr("Password"));
-		
+
 		foreach(QString domain, FGateLabel.domains)
 			ui.cmbDomains->addItem("@"+domain,domain);
 		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());
@@ -87,6 +88,8 @@ void AddLegacyAccountDialog::abort(const QString &AMessage)
 
 void AddLegacyAccountDialog::setError(const QString &AMessage)
 {
+	if (!AMessage.isEmpty())
+		Log(QString("[Add legacy account error] %1").arg(AMessage));
 	if (ui.lblError->text() != AMessage)
 	{
 		ui.lblError->setText(AMessage);
@@ -94,7 +97,7 @@ void AddLegacyAccountDialog::setError(const QString &AMessage)
 		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
 		ui.chbShowPassword->setVisible(!AMessage.isEmpty());
 		ui.lnePassword->setFocus();
-		
+
 		ui.lneLogin->setProperty("error", !AMessage.isEmpty());
 		ui.lnePassword->setProperty("error", !AMessage.isEmpty());
 		ui.cmbDomains->setProperty("error", !AMessage.isEmpty());
@@ -222,7 +225,7 @@ void AddLegacyAccountDialog::onRegisterSuccess(const QString &AId)
 
 void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &AError)
 {
-	Q_UNUSED(AError);
+	Log(QString("[Add legacy account register error] %1").arg(AError));
 	if (AId == FRegisterId)
 	{
 		if (FGateLogin.isValid)

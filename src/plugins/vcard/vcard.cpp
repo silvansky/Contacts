@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QBuffer>
 #include <QImageReader>
+#include <utils/log.h>
 
 #define DEFAUL_IMAGE_FORMAT       "png"
 
@@ -327,6 +328,7 @@ void VCard::onVCardPublished(const Jid &AContactJid)
 
 void VCard::onVCardError(const Jid &AContactJid, const QString &AError)
 {
+	Log(QString("[VCard error] %1 : %2").arg(AContactJid.full(), AError));
 	if (FContactJid == AContactJid)
 		emit vcardError(AError);
 }

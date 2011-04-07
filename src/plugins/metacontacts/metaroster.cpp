@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QDomDocument>
+#include <utils/log.h>
 
 #define ACTION_TIMEOUT        10000
 #define ROSTER_TIMEOUT        30000
@@ -100,6 +101,7 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 		if (AStanza.type() == "error")
 		{
 			ErrorHandler err(AStanza.element());
+			Log(QString("[MetaRoster stanza error] condition %1 : %2").arg(err.condition(), err.message()));
 			errCond = err.condition();
 			errMessage = err.message();
 		}

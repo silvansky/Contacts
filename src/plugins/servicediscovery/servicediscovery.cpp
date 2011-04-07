@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFile>
 #include <QCryptographicHash>
+#include <utils/log.h>
 
 #define SHC_DISCO_INFO          "/iq[@type='get']/query[@xmlns='" NS_DISCO_INFO "']"
 #define SHC_DISCO_ITEMS         "/iq[@type='get']/query[@xmlns='" NS_DISCO_ITEMS "']"
@@ -330,6 +331,7 @@ void ServiceDiscovery::stanzaRequestTimeout(const Jid &AStreamJid, const QString
 		IDiscoInfo dinfo;
 		DiscoveryRequest drequest = FInfoRequestsId.take(AStanzaId);
 		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
+		Log(QString("[ServiceDiscovery request timeout] %1").arg(err.message()));
 		dinfo.streamJid = drequest.streamJid;
 		dinfo.contactJid = drequest.contactJid;
 		dinfo.node = drequest.node;
@@ -344,6 +346,7 @@ void ServiceDiscovery::stanzaRequestTimeout(const Jid &AStreamJid, const QString
 		IDiscoItems ditems;
 		DiscoveryRequest drequest = FItemsRequestsId.take(AStanzaId);
 		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
+		Log(QString("[ServiceDiscovery request timeout] %1").arg(err.message()));
 		ditems.streamJid = drequest.streamJid;
 		ditems.contactJid = drequest.contactJid;
 		ditems.node = drequest.node;
@@ -781,6 +784,7 @@ IDiscoInfo ServiceDiscovery::parseDiscoInfo(const Stanza &AStanza, const Discove
 	if (AStanza.type() == "error")
 	{
 		ErrorHandler err(AStanza.element());
+		Log(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
@@ -788,6 +792,7 @@ IDiscoInfo ServiceDiscovery::parseDiscoInfo(const Stanza &AStanza, const Discove
 	else if (result.contactJid!=AStanza.from() || result.node!=query.attribute("node"))
 	{
 		ErrorHandler err(ErrorHandler::FEATURE_NOT_IMPLEMENTED);
+		Log(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
@@ -810,6 +815,7 @@ IDiscoItems ServiceDiscovery::parseDiscoItems(const Stanza &AStanza, const Disco
 	if (AStanza.type() == "error")
 	{
 		ErrorHandler err(AStanza.element());
+		Log(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
@@ -817,6 +823,7 @@ IDiscoItems ServiceDiscovery::parseDiscoItems(const Stanza &AStanza, const Disco
 	else if (result.contactJid!=AStanza.from() || result.node!=query.attribute("node"))
 	{
 		ErrorHandler err(ErrorHandler::FEATURE_NOT_IMPLEMENTED);
+		Log(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();

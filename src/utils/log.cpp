@@ -61,6 +61,7 @@ QString Log::logPath()
 void Log::setLogPath(const QString & newPath)
 {
 	path = newPath;
+	writeLog(QString("Log started at %1").arg(path));
 }
 
 Log::LogFormat Log::logFormat()

@@ -13,8 +13,8 @@ class XmppStreams :
 			public IPlugin,
 			public IXmppStreams
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IXmppStreams);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IXmppStreams)
 public:
 	XmppStreams();
 	~XmppStreams();
