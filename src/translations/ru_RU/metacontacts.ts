@@ -167,24 +167,8 @@
         <translation>Переименовать контакт</translation>
     </message>
     <message>
-        <source>You are assured that wish to remove a contact &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>Вы уверены, что хотите удалить контакт &lt;b&gt;%1&lt;/b&gt;?</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Удалить</translation>
-    </message>
-    <message numerus="yes">
-        <source>You are assured that wish to remove %n contact(s)?</source>
-        <translation>
-            <numerusform>Вы уверены, что хотите удалить %n контакт?</numerusform>
-            <numerusform>Вы уверены, что хотите удалить %n контакта?</numerusform>
-            <numerusform>Вы уверены, что хотите удалить %n контактов?</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>&lt;font size=+2&gt;%1&lt;/font&gt;&lt;br&gt;%2</source>
-        <translation>&lt;font size=+2&gt;%1&lt;/font&gt;&lt;br&gt;%2</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -205,6 +189,26 @@
     <message>
         <source>Request authorization</source>
         <translation>Запросить авторизацию</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Сохранить</translation>
+    </message>
+    <message>
+        <source>Contact %1 will be removed without possibility of restoring</source>
+        <translation>Контакт %1 будет удален без возможности восстановления</translation>
+    </message>
+    <message>
+        <source>Remove contact</source>
+        <translation>Удалить контакт</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n contacts will be removed without possibility of restoring</source>
+        <translation>
+            <numerusform>%n контакт будет удален без возможности восстановления</numerusform>
+            <numerusform>%n контакта будут удалены без возможности восстановления</numerusform>
+            <numerusform>%n контактов будут удалены без возможности восстановления</numerusform>
+        </translation>
     </message>
 </context>
 <context>

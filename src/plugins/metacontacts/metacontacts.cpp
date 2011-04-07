@@ -1021,7 +1021,7 @@ void MetaContacts::onDeleteContact(bool)
 
 			QMessageBox * dialog = new QMessageBox;
 			dialog->setWindowTitle(title);
-			dialog->setText(tr("<font size=+2>%1</font>").arg(title));
+			dialog->setText(QString("<font size=+2>%1</font>").arg(title));
 			dialog->setInformativeText(message);
 			dialog->setProperty("metaIdList", metaIdList);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
