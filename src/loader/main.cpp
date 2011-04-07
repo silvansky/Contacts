@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 
 	// styles
-   QApplication::setStyle(new QCleanlooksStyle);
+	QApplication::setStyle(new QCleanlooksStyle);
 	QApplication::setStyle(new ProxyStyle);
 
 	app.setQuitOnLastWindowClosed(false);

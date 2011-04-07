@@ -37,7 +37,9 @@ SUBDIRS += rostersearch
 SUBDIRS += console
 SUBDIRS += chatstates
 SUBDIRS += xmppuriqueries
+win32: {
 SUBDIRS += stylesheeteditor
+}
 SUBDIRS += bitsofbinary
 SUBDIRS += masssendhandler
 SUBDIRS += registration
