@@ -597,7 +597,8 @@ void RosterChanger::subscribeContact(const Jid &AStreamJid, const Jid &AContactJ
 	if (roster && roster->isOpen())
 	{
 		IRosterItem ritem = roster->rosterItem(AContactJid);
-		roster->sendSubscription(AContactJid,IRoster::Subscribed,AMessage);
+		if (FSubscriptionRequests.contains(AContactJid.pBare()))
+			roster->sendSubscription(AContactJid,IRoster::Subscribed,AMessage);
 		if (ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_BOTH)
 			roster->sendSubscription(AContactJid,IRoster::Subscribe,AMessage);
 		insertAutoSubscribe(AStreamJid,AContactJid,ASilently,true,false);

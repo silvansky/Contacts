@@ -136,7 +136,7 @@ ITabPage *MetaTabWindow::itemPage(const Jid &AItemJid) const
 void MetaTabWindow::setItemPage(const Jid &AItemJid, ITabPage *APage)
 {
 	ITabPage *curTabPage = FItemTabPages.value(AItemJid);
-	if (curTabPage != APage)
+	if (FItemButtons.contains(AItemJid) && curTabPage != APage)
 	{
 		if (curTabPage)
 		{
@@ -204,7 +204,7 @@ void MetaTabWindow::setCurrentItem(const Jid &AItemJid)
 			QList<IPresenceItem> pitems = FMetaRoster->itemPresences(AItemJid);
 			foreach(IPresenceItem pitem, pitems)
 			{
-				if (itemShow==0 || itemShow > pitem.show)
+				if (itemShow==0 || itemShow>pitem.show)
 				{
 					itemShow = pitem.show;
 					itemJid = pitem.itemJid;

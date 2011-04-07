@@ -254,7 +254,8 @@ bool MetaContacts::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 		{
 			QString metaId = AIndex->data(RDR_INDEX_ID).toString();
 			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
-			window->showTabPage();
+			if (window)
+				window->showTabPage();
 		}
 	}
 	return false;
@@ -901,7 +902,14 @@ void MetaContacts::onMetaTabWindowItemPageRequested(const Jid &AItemJid)
 	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
 	if (window)
 	{
-		FMessageProcessor->createWindow(window->metaRoster()->streamJid(),AItemJid,Message::Chat,IMessageHandler::SM_ADD_TAB);
+		IChatWindow *chatWindow = FMessageWidgets->findChatWindow(window->metaRoster()->streamJid(),AItemJid);
+		if (chatWindow)
+		{
+			chatWindow->closeTabPage();
+			onChatWindowCreated(chatWindow);
+		}
+		else
+			FMessageProcessor->createWindow(window->metaRoster()->streamJid(),AItemJid,Message::Chat,IMessageHandler::SM_ADD_TAB);
 	}
 }
 
@@ -1307,7 +1315,8 @@ void MetaContacts::onShowMetaTabWindowAction(bool)
 			foreach(QString metaId, metaIdList)
 			{
 				IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
-				window->showTabPage();
+				if (window)
+					window->showTabPage();
 			}
 		}
 	}
@@ -1340,7 +1349,8 @@ void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
 		if (!metaId.isEmpty())
 		{
 			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
-			window->setItemPage(AWindow->contactJid().pBare(),AWindow);
+			if (window)
+				window->setItemPage(AWindow->contactJid().bare(),AWindow);
 		}
 	}
 }
