@@ -378,9 +378,13 @@ ITabWindow *MessageWidgets::createTabWindow(const QUuid &AWindowId)
 	{
 		window = new TabWindow(this,AWindowId);
 		FTabWindows.append(window);
-		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window->instance(), CBS_MESSAGEWINDOW);
+		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window->instance(), CBS_MESSAGEWINDOW);
 		if (border)
+		{
+			if (!border->restoreGeometry(Options::fileValue("messages.tabwindows.window.border.geometry",window->windowId()).toByteArray()))
+				border->setGeometry(WidgetManager::alignGeometry(QSize(640,480),border));
 			WidgetManager::setWindowSticky(border, true);
+		}
 		else
 			WidgetManager::setWindowSticky(window->instance(),true);
 		connect(window->instance(),SIGNAL(tabPageAdded(ITabPage *)),SLOT(onTabPageAdded(ITabPage *)));
@@ -705,6 +709,11 @@ void MessageWidgets::onTabWindowDestroyed()
 	ITabWindow *window = qobject_cast<ITabWindow *>(sender());
 	if (window)
 	{
+		CustomBorderContainer *border = qobject_cast<CustomBorderContainer *>(window->instance()->parentWidget());
+		if (border)
+		{
+			Options::setFileValue(border->saveGeometry(),"messages.tabwindows.window.border.geometry",window->windowId());
+		}
 		FTabWindows.removeAt(FTabWindows.indexOf(window));
 		emit tabWindowDestroyed(window);
 	}
