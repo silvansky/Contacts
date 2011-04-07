@@ -74,7 +74,7 @@ public:
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual bool setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled) =0;
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe) =0;
-	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid) =0;
+	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts) =0;
 	virtual QString legacyIdFromUserJid(const Jid &AUserJid) const =0;
 	virtual QString sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid) =0;
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid) =0;

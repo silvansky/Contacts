@@ -977,7 +977,7 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 	return false;
 }
 
-bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid)
+bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts)
 {
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
@@ -990,9 +990,12 @@ bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid)
 
 		roster->removeItem(AServiceJid);
 
-		foreach(IRosterItem ritem, roster->rosterItems())
-			if (ritem.itemJid.pDomain() == AServiceJid.pDomain())
-				roster->removeItem(ritem.itemJid);
+		if (AWithContacts)
+		{
+			foreach(IRosterItem ritem, roster->rosterItems())
+				if (ritem.itemJid!=AServiceJid && ritem.itemJid.pDomain()==AServiceJid.pDomain())
+					roster->removeItem(ritem.itemJid);
+		}
 
 		return true;
 	}

@@ -108,7 +108,7 @@ void LegacyAccountOptions::onDeleteButtonClicked(bool)
 		QMessageBox::Yes|QMessageBox::No,QMessageBox::No) == QMessageBox::Yes)
 	{
 		setEnabled(false);
-		FGateways->removeService(FStreamJid,FServiceJid);
+		FGateways->removeService(FStreamJid,FServiceJid, false);
 	}
 }
 
