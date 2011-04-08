@@ -1,6 +1,7 @@
 #include "stanzaprocessor.h"
 
 #include <QSet>
+#include <utils/log.h>
 
 StanzaProcessor::StanzaProcessor()
 {
@@ -31,13 +32,13 @@ bool StanzaProcessor::initConnections(IPluginManager *APluginManager, int &/*AIn
 		if (FXmppStreams)
 		{
 			connect(FXmppStreams->instance(), SIGNAL(created(IXmppStream *)),
-			        SLOT(onStreamCreated(IXmppStream *)));
+				SLOT(onStreamCreated(IXmppStream *)));
 			connect(FXmppStreams->instance(), SIGNAL(jidChanged(IXmppStream *, const Jid &)),
-			        SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
+				SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
 			connect(FXmppStreams->instance(), SIGNAL(closed(IXmppStream *)),
-			        SLOT(onStreamClosed(IXmppStream *)));
+				SLOT(onStreamClosed(IXmppStream *)));
 			connect(FXmppStreams->instance(), SIGNAL(streamDestroyed(IXmppStream *)),
-			        SLOT(onStreamDestroyed(IXmppStream *)));
+				SLOT(onStreamDestroyed(IXmppStream *)));
 		}
 	}
 	return FXmppStreams!=NULL;
@@ -94,6 +95,7 @@ bool StanzaProcessor::sendStanzaOut(const Jid &AStreamJid, Stanza &AStanza)
 			emit stanzaSent(AStreamJid, AStanza);
 			return true;
 		}
+		Log(QString("[StanzaProcessor send stanza error] Failed to send stanza:\n%1\nwith stream %2 (obj %3)").arg(AStanza.toString(), AStreamJid.full(), QString::number((int)stream, 16)));
 		return false;
 	}
 	return true;

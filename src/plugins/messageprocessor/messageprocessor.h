@@ -17,8 +17,8 @@ class MessageProcessor :
 			public IMessageWriter,
 			public IStanzaHandler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMessageProcessor IMessageWriter IStanzaHandler);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IMessageProcessor IMessageWriter IStanzaHandler)
 public:
 	MessageProcessor();
 	~MessageProcessor();

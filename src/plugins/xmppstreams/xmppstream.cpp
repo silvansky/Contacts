@@ -238,6 +238,7 @@ qint64 XmppStream::sendStanza(Stanza &AStanza)
 		if (!processStanzaHandlers(AStanza,true))
 			return sendData(AStanza.toByteArray());
 	}
+	Log(QString("[XmppStream send stanza failed] Can\'t send stanza\n%1\nstream state is %2").arg(AStanza.toString()).arg(FStreamState));
 	return -1;
 }
 

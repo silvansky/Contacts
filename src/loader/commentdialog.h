@@ -22,9 +22,11 @@ public:
 protected slots:
 	//void stanzaSent(const Jid &AStreamJid, const Stanza &AStanza);
 	void SendComment();
+	void onJidChanded(QString);
 
 private:
-	IStanzaProcessor *FStanzaProcessor;
+	IStanzaProcessor * FStanzaProcessor;
+	IMessageProcessor * FMessageProcessor;
 	Jid streamJid;
 	QString fullName;
 

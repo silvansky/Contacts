@@ -36,15 +36,15 @@
 
 
 
-class SipPhone : 
+class SipPhone :
 	public QObject,
 	public IPlugin,
 	public ISipPhone,
 	public IStanzaHandler,
 	public IStanzaRequestOwner
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin ISipPhone IStanzaHandler IStanzaRequestOwner);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin ISipPhone IStanzaHandler IStanzaRequestOwner)
 
 public:
 	SipPhone();
@@ -81,7 +81,7 @@ signals:
 	void streamCreated(const QString &AStreamId);
 	void streamStateChanged(const QString &AStreamId, int AState);
 	void streamRemoved(const QString &AStreamId);
-	
+
 
 	// —игналы относ€щиес€ к взаимодействию с SIP протоколом
 signals:
