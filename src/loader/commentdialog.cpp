@@ -14,7 +14,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	IPlugin* plugin = APluginManager->pluginInterface("IAccountManager").value(0);
 	IAccountManager *accountManager = plugin != NULL ? qobject_cast<IAccountManager *>(plugin->instance()) : NULL;
 	IAccount *account = accountManager->accounts().value(0);
-	connect(account->xmppStream()->instance(), SIGNAL(jidChanged(QString)), SLOT(onJidChanded(QString)));
+	connect(account->xmppStream()->instance(), SIGNAL(jidChanged(Jid)), SLOT(onJidChanded(Jid)));
 	streamJid = account->xmppStream()->streamJid();
 
 	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0);
@@ -77,7 +77,7 @@ void CommentDialog::SendComment()
 	}
 }
 
-void CommentDialog::onJidChanded(QString)
+void CommentDialog::onJidChanded(Jid)
 {
 	IXmppStream * stream = qobject_cast<IXmppStream*>(sender());
 	if (stream)

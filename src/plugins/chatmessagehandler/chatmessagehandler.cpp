@@ -330,7 +330,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 bool ChatMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 {
 	Q_UNUSED(AOrder);
-	return !AMessage.body().isEmpty();
+	return (!AMessage.body().isEmpty()) && (AMessage.type() != Message::Error);
 }
 
 bool ChatMessageHandler::showMessage(int AMessageId)
