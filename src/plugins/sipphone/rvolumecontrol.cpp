@@ -60,44 +60,72 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 RVolumeControl::RVolumeControl(QWidget *parent)
 : QWidget(parent), _value(0), _min(0), _max(100), _isEnableSound(true), _isOn(true), _isDark(true)
 {
-	CoInitialize(NULL);
-
 	endpointVolume = NULL;
 	volumeNotification = NULL;
-	HRESULT hr;
 
 	BOOL mute = false;
 	float currVolume = 0.;
 
-	IMMDeviceEnumerator *deviceEnumerator = NULL;
-	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IMMDeviceEnumerator), (LPVOID *)&deviceEnumerator);
-	
-	if(hr == S_OK)
-	{
-		IMMDevice *defaultDevice = NULL; 
+	// Определяем версию ОС (xp или старше?)
+	OSVERSIONINFO m_osinfo;
+	ZeroMemory(&m_osinfo, sizeof(m_osinfo));
+	m_osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
-		hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &defaultDevice);
+	if (GetVersionEx((LPOSVERSIONINFO) &m_osinfo))
+	{
+		if(m_osinfo.dwMajorVersion < 6)
+		{
+			_isWinXP = true;
+		}
+	}
+
+	if(!_isWinXP)
+	{
+		CoInitialize(NULL);
+
+		HRESULT hr;
+
+		IMMDeviceEnumerator *deviceEnumerator = NULL;
+		hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER, __uuidof(IMMDeviceEnumerator), (LPVOID *)&deviceEnumerator);
+
 		if(hr == S_OK)
 		{
-			deviceEnumerator->Release();
-			deviceEnumerator = NULL; 
+			IMMDevice *defaultDevice = NULL; 
 
-			//endpointVolume = NULL;
-			hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, (LPVOID *)&endpointVolume);
+			hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &defaultDevice);
 			if(hr == S_OK)
 			{
-				defaultDevice->Release();
-				defaultDevice = NULL; 
+				deviceEnumerator->Release();
+				deviceEnumerator = NULL; 
 
-				volumeNotification = new CVolumeNotification(); 
-				connect(volumeNotification, SIGNAL(volumeChanged(int)), this, SLOT(onVolumeChange(int)));
-				connect(volumeNotification, SIGNAL(volumeMuted(bool)), this, SLOT(onVolumeMuted(bool)));
-				hr = endpointVolume->RegisterControlChangeNotify(volumeNotification);
+				//endpointVolume = NULL;
+				hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, (LPVOID *)&endpointVolume);
+				if(hr == S_OK)
+				{
+					defaultDevice->Release();
+					defaultDevice = NULL; 
 
-				endpointVolume->GetMute(&mute);
-				endpointVolume->GetMasterVolumeLevelScalar(&currVolume);
+					volumeNotification = new CVolumeNotification(); 
+					connect(volumeNotification, SIGNAL(volumeChanged(double)), this, SLOT(onVolumeChange(double)));
+					connect(volumeNotification, SIGNAL(volumeMuted(bool)), this, SLOT(onVolumeMuted(bool)));
+					hr = endpointVolume->RegisterControlChangeNotify(volumeNotification);
+
+					endpointVolume->GetMute(&mute);
+					endpointVolume->GetMasterVolumeLevelScalar(&currVolume);
+				}
 			}
 		}
+	}
+	else
+	{
+		pMasterVolume = new CVolumeOutMaster();
+		if ( !pMasterVolume || !pMasterVolume->IsAvailable() )
+		{
+			// обработка ошибки
+		}
+		pMasterVolume->Enable();
+		connect(pMasterVolume, SIGNAL(volumeChangedExternaly(int)), this, SLOT(setValue(int)));
+		connect(pMasterVolume, SIGNAL(muteStateChangedExternaly(bool)), this, SLOT(setMute(bool)));
 	}
 
 	//////////////////QString path = "D:\\CONCEPT\\VolumeControl\\VolumeControl\\icons\\";
@@ -135,14 +163,24 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 
 RVolumeControl::~RVolumeControl()
 {
-	if(endpointVolume && volumeNotification)
+	if(!_isWinXP)
 	{
-		endpointVolume->UnregisterControlChangeNotify(volumeNotification); 
-		endpointVolume->Release();
-		volumeNotification->Release();
+		if(endpointVolume && volumeNotification)
+		{
+			endpointVolume->UnregisterControlChangeNotify(volumeNotification); 
+			endpointVolume->Release();
+			volumeNotification->Release();
+		}
+		CoUninitialize();
 	}
-
-	CoUninitialize();
+	else
+	{
+		if(pMasterVolume)
+		{
+			delete pMasterVolume;
+			pMasterVolume = NULL;
+		}
+	}
 }
 
 
@@ -233,8 +271,17 @@ void RVolumeControl::setMute(bool mute)
 void RVolumeControl::setOff()
 {
 	_isOn = false;
-	if(endpointVolume)
-		endpointVolume->SetMute(true, NULL);
+	if(_isWinXP)
+	{
+		pMasterVolume->Disable();
+		//pMasterVolume->Mute(true);
+	}
+	else
+	{
+		if(endpointVolume)
+			endpointVolume->SetMute(true, NULL);
+	}
+
 	updatePixmap(volumeOff);
 	emit stateChanged(false);
 }
@@ -242,8 +289,16 @@ void RVolumeControl::setOff()
 void RVolumeControl::setOn()
 {
 	_isOn = true;
-	if(endpointVolume)
-		endpointVolume->SetMute(false, NULL);
+	if(_isWinXP)
+	{
+		pMasterVolume->Enable();
+	}
+	else
+	{
+		if(endpointVolume)
+			endpointVolume->SetMute(false, NULL);
+	}
+
 	updatePixmap(volumeToIndex(_value));
 	emit stateChanged(true);
 }
@@ -457,8 +512,27 @@ void RVolumeControl::onValueChange(int newVolumeInt)
 {
 	double newVolume = ((double)newVolumeInt)/100;
 
-	if(endpointVolume)
-		endpointVolume->SetMasterVolumeLevelScalar((float)newVolume, NULL);
+	if(_isWinXP)
+	{
+		DWORD val;
+		int val65 = (int)(65535 * newVolumeInt / 100);
+		if(pMasterVolume)
+		{
+			val = pMasterVolume->GetCurrentVolume();
+			pMasterVolume->SetCurrentVolume(val65);
+			val = pMasterVolume->GetCurrentVolume();
+		}
+	}
+	else
+	{
+		if(endpointVolume)
+			endpointVolume->SetMasterVolumeLevelScalar((float)newVolume, NULL);
+	}
+
+	//////////////double newVolume = ((double)newVolumeInt)/100;
+
+	//////////////if(endpointVolume)
+	//////////////	endpointVolume->SetMasterVolumeLevelScalar((float)newVolume, NULL);
 }
 
 void RVolumeControl::onVolumeChange(double val)

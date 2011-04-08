@@ -11,6 +11,7 @@
 #include <mmdeviceapi.h>
 #include <endpointvolume.h>
 
+#include "VolumeOutMaster.h"
 
 class CVolumeNotification : public QObject, public IAudioEndpointVolumeCallback 
 { 
@@ -133,6 +134,11 @@ private:
 	IAudioEndpointVolume *endpointVolume;
 	CVolumeNotification *volumeNotification;
 	void setValueNoCycle(int);
+
+
+	// XP support
+	bool _isWinXP;
+	CVolumeOutMaster* pMasterVolume;
 };
 
 #endif // RVOLUMECONTROL_H

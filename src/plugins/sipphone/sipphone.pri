@@ -19,7 +19,9 @@ HEADERS = avcontrol.h\
 		rvolumecontrol.h\
 		sipphone.h\
 		sipphoneproxy.h\
-		sipphonewidget.h
+		sipphonewidget.h\
+		IVolume.h\
+		VolumeOutMaster.h
 
 SOURCES = avcontrol.cpp\ 
 		callaudio.cpp\
@@ -34,4 +36,5 @@ SOURCES = avcontrol.cpp\
 		rvolumecontrol.cpp\
 		sipphone.cpp\
 		sipphoneproxy.cpp\
-		sipphonewidget.cpp
+		sipphonewidget.cpp\
+		VolumeOutMaster.cpp
