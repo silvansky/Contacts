@@ -738,5 +738,5 @@ void PluginManager::onShowCommentsDialog()
 {
 	if (FCommentDialog.isNull())
 		FCommentDialog = new CommentDialog(this);
-	WidgetManager::showActivateRaiseWindow(FCommentDialog);
+	WidgetManager::showActivateRaiseWindow(FCommentDialog->windowBorder() ? (QWidget*)FCommentDialog->windowBorder() : (QWidget*)FCommentDialog);
 }

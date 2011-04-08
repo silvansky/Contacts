@@ -9,15 +9,17 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/ivcard.h>
 #include <definitions/vcardvaluenames.h>
+#include <utils/custombordercontainer.h>
 #include "ui_commentdialog.h"
 
 class CommentDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    CommentDialog(IPluginManager *APluginManager, QWidget *AParent = NULL);
-    ~CommentDialog();
+	CommentDialog(IPluginManager *APluginManager, QWidget *AParent = NULL);
+	~CommentDialog();
+	CustomBorderContainer * windowBorder() const;
 
 protected slots:
 	//void stanzaSent(const Jid &AStreamJid, const Stanza &AStanza);
@@ -31,7 +33,8 @@ private:
 	QString fullName;
 
 private:
-    Ui::CommentDialogClass ui;
+	Ui::CommentDialogClass ui;
+	CustomBorderContainer * border;
 };
 
 #endif // COMMENTDIALOG_H

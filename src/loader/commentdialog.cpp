@@ -1,5 +1,8 @@
 #include "commentdialog.h"
 #include <utils/log.h>
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
@@ -9,7 +12,6 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	ui.chbAddTechData->setVisible(false);
 
 	setAttribute(Qt::WA_DeleteOnClose,true);
-
 
 	IPlugin* plugin = APluginManager->pluginInterface("IAccountManager").value(0);
 	IAccountManager *accountManager = plugin != NULL ? qobject_cast<IAccountManager *>(plugin->instance()) : NULL;
@@ -21,6 +23,8 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	IVCardPlugin *vCardPlugin = plugin != NULL ? qobject_cast<IVCardPlugin *>(plugin->instance()) : NULL;
 	IVCard* vCard = vCardPlugin->vcard(streamJid);
 	fullName = vCard->value(VVN_FULL_NAME);
+	if (fullName.isEmpty())
+		fullName = streamJid.node();
 
 	plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0);
 	FStanzaProcessor = plugin != NULL ? qobject_cast<IStanzaProcessor *>(plugin->instance()) : NULL;
@@ -31,12 +35,29 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	ui.lneYourName->setText(fullName);
 	//connect(FStanzaProcessor->instance(), SIGNAL(stanzaSent(const Jid&, const Stanza&)), this, SLOT(stanzaSent(const Jid&, const Stanza&)));
 
+	// border
+	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		// init...
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setWindowTitle(windowTitle());
+		connect(this, SIGNAL(finished(int)), border, SLOT(closeWidget()));
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+	}
+
 	connect(ui.pbtSendComment, SIGNAL(clicked()), this, SLOT(SendComment()));
 }
 
 CommentDialog::~CommentDialog()
 {
 
+}
+
+CustomBorderContainer * CommentDialog::windowBorder() const
+{
+	return border;
 }
 
 //void CommentDialog::stanzaSent(const Jid &AStreamJid, const Stanza &AStanza)
