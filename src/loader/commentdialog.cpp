@@ -11,8 +11,6 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 
 	ui.chbAddTechData->setVisible(false);
 
-	setAttribute(Qt::WA_DeleteOnClose,true);
-
 	IPlugin* plugin = APluginManager->pluginInterface("IAccountManager").value(0);
 	IAccountManager *accountManager = plugin != NULL ? qobject_cast<IAccountManager *>(plugin->instance()) : NULL;
 	IAccount *account = accountManager->accounts().value(0);
@@ -43,9 +41,13 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
 		border->setWindowTitle(windowTitle());
-		connect(this, SIGNAL(finished(int)), border, SLOT(closeWidget()));
+		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
+		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
 	}
+	else
+		setAttribute(Qt::WA_DeleteOnClose, true);
 
 	connect(ui.pbtSendComment, SIGNAL(clicked()), this, SLOT(SendComment()));
 }
