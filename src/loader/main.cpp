@@ -12,12 +12,16 @@
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
+	app.setQuitOnLastWindowClosed(false);
 
 	// styles
 	QApplication::setStyle(new QCleanlooksStyle);
 	QApplication::setStyle(new ProxyStyle);
 
-	app.setQuitOnLastWindowClosed(false);
+	// This should be done in Style Sheet
+	QPalette pal = QApplication::palette();
+	pal.setColor(QPalette::Link,QColor(Qt::white));
+	QApplication::setPalette(pal);
 
 	// utils
 	app.addLibraryPath(app.applicationDirPath());
