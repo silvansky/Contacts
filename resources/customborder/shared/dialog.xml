@@ -4,25 +4,25 @@
    <width>28</width>
    <resize-width>5</resize-width>
    <resize-margin>28</resize-margin>
-   <image src="menuicons/leftShadow" />
+   <image src="customborder/leftShadow" />
  </left-border>
  <top-border>
    <width>28</width>
    <resize-width>5</resize-width>
    <resize-margin>28</resize-margin>
-   <image src="menuicons/topShadow" />
+   <image src="customborder/topShadow" />
  </top-border>
  <right-border>
    <width>28</width>
    <resize-width>5</resize-width>
    <resize-margin>28</resize-margin>
-   <image src="menuicons/rightShadow" />
+   <image src="customborder/rightShadow" />
  </right-border>
  <bottom-border>
    <width>28</width>
    <resize-width>5</resize-width>
    <resize-margin>28</resize-margin>
-   <image src="menuicons/bottomShadow" />
+   <image src="customborder/bottomShadow" />
  </bottom-border>
  <top-left-corner>
    <width>55</width>
@@ -32,8 +32,8 @@
    <resize-width>10</resize-width>
    <resize-top>28</resize-top>
    <resize-height>10</resize-height>
-   <image src="menuicons/topLeftShadow" />
-   <mask src="menuicons/topLeftMask" />
+   <image src="customborder/topLeftShadow" />
+   <mask src="customborder/topLeftMask" />
  </top-left-corner>
  <top-right-corner>
    <width>57</width>
@@ -43,8 +43,8 @@
    <resize-width>10</resize-width>
    <resize-top>28</resize-top>
    <resize-height>10</resize-height>
-   <image src="menuicons/topRightShadow" />
-   <mask src="menuicons/topRightMask" />
+   <image src="customborder/topRightShadow" />
+   <mask src="customborder/topRightMask" />
  </top-right-corner>
  <bottom-left-corner>
    <width>55</width>
@@ -54,8 +54,8 @@
    <resize-width>10</resize-width>
    <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
-   <image src="menuicons/bottomLeftShadow" />
-   <mask src="menuicons/bottomLeftMask" />
+   <image src="customborder/bottomLeftShadow" />
+   <mask src="customborder/bottomLeftMask" />
  </bottom-left-corner>
  <bottom-right-corner>
    <width>57</width>
@@ -65,8 +65,8 @@
    <resize-width>10</resize-width>
    <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
-   <image src="menuicons/bottomRightShadow" />
-   <mask src="menuicons/bottomRightMask" />
+   <image src="customborder/bottomRightShadow" />
+   <mask src="customborder/bottomRightMask" />
  </bottom-right-corner>
  <header>
    <spacing>5</spacing>
@@ -83,7 +83,7 @@
  <window-icon>
    <width>16</width>
    <height>16</height>
-   <icon src="menuicons/mainwindowLogo16" />
+   <icon src="customborder/mainwindowLogo16" />
  </window-icon>
  <title color="#FF00FF" />
  <window-controls spacing="2" />
@@ -91,28 +91,28 @@
    <width>17</width>
    <height>16</height>
    <border width="1" color="#000000" radius="0" image="" />
-   <image-normal src="menuicons/minimizeButtonNormal" />
-   <image-hover src="menuicons/minimizeButtonHighlighted" />
+   <image-normal src="customborder/minimizeButtonNormal" />
+   <image-hover src="customborder/minimizeButtonHighlighted" />
  </minimize-button>
  <maximize-button>
    <width>17</width>
    <height>16</height>
    <border width="1" color="#000000" radius="0" image="" />
-   <image-normal src="menuicons/maximizeButtonNormal" />
-   <image-hover src="menuicons/maximizeButtonHighlighted" />
+   <image-normal src="customborder/maximizeButtonNormal" />
+   <image-hover src="customborder/maximizeButtonHighlighted" />
  </maximize-button>
  <close-button>
    <width>17</width>
    <height>16</height>
    <border width="1" color="#000000" radius="0" image="" />
-   <image-normal src="menuicons/closeButtonNormal" />
-   <image-hover src="menuicons/closeButtonHighlighted" />
+   <image-normal src="customborder/closeButtonNormal" />
+   <image-hover src="customborder/closeButtonHighlighted" />
  </close-button>
  <restore-button>
    <width>17</width>
    <height>16</height>
    <border width="1" color="#000000" radius="0" image="" />
-   <image-normal src="menuicons/restoreButtonNormal" />
-   <image-hover src="menuicons/restoreButtonHighlighted" />
+   <image-normal src="customborder/restoreButtonNormal" />
+   <image-hover src="customborder/restoreButtonHighlighted" />
  </restore-button>
 </window-border-style>

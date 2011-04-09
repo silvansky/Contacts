@@ -177,7 +177,7 @@
 #define MNI_MESSAGEWIDGETS_LAST_OPEN_ALL         "messagewidgetsLastOpenAll"
 #define MNI_MESSAGEWIDGETS_QUOTE                 "messagewidgetsQuote"
 #define MNI_MESSAGEWIDGETS_CLOSE_TAB             "messagewidgetsCloseTab"
-#define MNI_MESSAGEWIDGETS_TABWINDOW_TRIANGLE    "tabWindowTriangle"
+#define MNI_MESSAGEWIDGETS_TABWINDOW_TRIANGLE    "messagewidgetsTabWindowTriangle"
 
 //MultiUserChat
 #define MNI_MUC_CONFERENCE                       "mucConference"
@@ -307,7 +307,7 @@
 #define MNI_SNEGOTIATION_TERMINATE               "snegotiationTerminate"
 
 //SipPhone
-#define MNI_SIPPHONE_CALL                        "sipphoneCall"
+#define MNI_SIPPHONE_CALL                        "sipCall"
 #define MNI_SIPPHONE_CALL_BUTTON                 "sipCallButton"
 #define MNI_SIPPHONE_BTN_ACCEPT                  "sipButtonAccept"
 #define MNI_SIPPHONE_BTN_HANGUP                  "sipButtonHangup"
@@ -324,7 +324,6 @@
 #define MNI_SIPPHONE_SOUND_VOLUME4               "sipvolume_4"
 #define MNI_SIPPHONE_SOUND_OFF                   "sipsoundoff"
 #define MNI_SIPPHONE_SOUND_DISABLED              "sipsounddisabled"
-
 #define MNI_SIPPHONE_WHITE_MIC_ON                "sipfsmicon"
 #define MNI_SIPPHONE_WHITE_MIC_OFF               "sipfsmicoff"
 #define MNI_SIPPHONE_WHITE_MIC_DISABLED          "sipfsmicdisabled"
