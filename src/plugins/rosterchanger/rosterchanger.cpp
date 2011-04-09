@@ -209,7 +209,7 @@ bool RosterChanger::initObjects()
 		action->setText(tr("Add group"));
 		//action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_GROUP);
 		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddGroupDialog(bool)));
-		mmenu->addAction(action,AG_MMENU_RCHAGER_ADD_GROUP);
+		//mmenu->addAction(action,AG_MMENU_RCHAGER_ADD_GROUP);
 
 		action = new Action(mmenu);
 		action->setText(tr("Add contact"));

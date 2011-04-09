@@ -61,10 +61,11 @@ bool RamblerHistory::initSettings()
 
 QMultiMap<int, IOptionsWidget *> RamblerHistory::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
+	Q_UNUSED(AParent);
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_COMMON)
 	{
-		widgets.insertMulti(OWO_COMMON_SINC_HISTORY,FOptionsManager->optionsNodeWidget(Options::node(OPV_MISC_HISTORY_SAVE_ON_SERVER),tr("Store the history of communication in my Rambler.Pochta"),AParent));
+		//widgets.insertMulti(OWO_COMMON_SINC_HISTORY,FOptionsManager->optionsNodeWidget(Options::node(OPV_MISC_HISTORY_SAVE_ON_SERVER),tr("Store the history of communication in my Rambler.Pochta"),AParent));
 	}
 	return widgets;
 }

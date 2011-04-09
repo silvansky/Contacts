@@ -127,7 +127,7 @@ bool RostersViewPlugin::initObjects()
 		FGroupContactsAction->setText(tr("Group Contacts"));
 		FGroupContactsAction->setData(Action::DR_SortString,QString("200"));
 		connect(FGroupContactsAction,SIGNAL(triggered(bool)),SLOT(onGroupContactsAction(bool)));
-		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
+		//FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
 
 		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0,FRostersView);
 	}
@@ -171,7 +171,7 @@ QMultiMap<int, IOptionsWidget *> RostersViewPlugin::optionsWidgets(const QString
 	{
 		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contact List"),AParent));
 		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contacts"),AParent));
-		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"),AParent));
+		//widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"),AParent));
 
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_ORDER, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contacts Order"),AParent));
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_ORDER, new RosterContactOrderOptions(AParent));
