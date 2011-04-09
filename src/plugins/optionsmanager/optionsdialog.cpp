@@ -70,6 +70,7 @@ OptionsDialog::~OptionsDialog()
 {
 	Options::setFileValue(saveGeometry(),"optionsmanager.optionsdialog.geometry");
 	Options::setFileValue(ui.sprSplitter->saveState(),"optionsmanager.optionsdialog.splitter.state");
+	emit dialogDestroyed();
 }
 
 void OptionsDialog::showNode(const QString &ANodeId)

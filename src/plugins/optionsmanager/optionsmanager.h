@@ -104,7 +104,7 @@ protected:
 protected slots:
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onOptionsDialogApplied();
-	void onOptionsDialogClosed();
+	void onOptionsDialogDestroyed();
 	void onChangeProfileByAction(bool);
 	void onShowOptionsDialogByAction(bool);
 	void onLoginDialogRejected();

@@ -498,8 +498,8 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		{
 			FOptionsDialog = new OptionsDialog(this,AParent);
 			connect(FOptionsDialog, SIGNAL(applied()), SLOT(onOptionsDialogApplied()));
-			connect(FOptionsDialog, SIGNAL(finished(int)), SLOT(onOptionsDialogClosed()));
 			connect(FOptionsDialog, SIGNAL(splitterMoved(int,int)), SLOT(onOpdionsDialogSplitterMoved(int,int)));
+			connect(FOptionsDialog, SIGNAL(dialogDestroyed()), SLOT(onOptionsDialogDestroyed()));
 			FOptionsDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FOptionsDialog, CBS_OPTIONSDIALOG);
 			if (FOptionsDialogBorder)
 			{
@@ -733,7 +733,7 @@ void OptionsManager::onOptionsDialogApplied()
 	saveOptions();
 }
 
-void OptionsManager::onOptionsDialogClosed()
+void OptionsManager::onOptionsDialogDestroyed()
 {
 	FOptionsDialog = NULL;
 	FOptionsDialogBorder = NULL;

@@ -37,6 +37,7 @@ signals:
 	void applied();
 	void reseted();
 	void splitterMoved(int, int);
+	void dialogDestroyed();
 protected:
 	QWidget *createNodeWidget(const QString &ANodeId);
 	QStandardItem *createNodeItem(const QString &ANodeId);
