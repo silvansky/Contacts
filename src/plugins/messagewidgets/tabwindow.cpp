@@ -264,8 +264,16 @@ void TabWindow::updateWindow()
 	QWidget *widget = ui.twtTabs->currentWidget();
 	if (widget)
 	{
-		setWindowIcon(widget->windowIcon());
-		setWindowTitle(widget->windowTitle());
+		if (qobject_cast<CustomBorderContainer *>(parentWidget())!=NULL)
+		{
+			parentWidget()->setWindowIcon(widget->windowIcon());
+			parentWidget()->setWindowTitle(widget->windowTitle());
+		}
+		else
+		{
+			setWindowIcon(widget->windowIcon());
+			setWindowTitle(widget->windowTitle());
+		}
 		ui.lblStatusIcon->setPixmap(widget->windowIcon().pixmap(16, 16));
 		ui.lblCaption->setText(widget->windowTitle());
 		emit windowChanged();
