@@ -66,10 +66,9 @@
   </icon>
   <icon>
     <key>sipCallButton</key>
-    <object mime="image/png">sipphonephonebutton.png</object>
+    <object mime="image/png">sipphonebutton.png</object>
+    <object mime="image/png">sipphonebutton_click.png</object>
   </icon>
-
-  
   <icon>
     <key>sipfsmicon</key>
     <object mime="image/png">sipphonevideomicrophone.png</object>
@@ -95,7 +94,7 @@
     <key>sipfscameradisabled</key>
     <object mime="image/png">sipphonevideowebcam_disable.png</object>
   </icon>
-  
+
 
   <icon>
     <key>sipfsvolume_0</key>
@@ -126,17 +125,17 @@
     <object mime="image/png">sipphonevideovolume_disable.png</object>
   </icon>
 
-  
+
    <icon>
     <key>sipfsshowcurrcamera</key>
     <object mime="image/png">sipphonefsshowcam.png</object>
   </icon>
-  
+
   <icon>
     <key>sipfshangup</key>
     <object mime="image/png">sipphonevideoendcall.png</object>
   </icon>
-    
+
   <icon>
     <key>sipfullscreenon</key>
     <object mime="image/png">sipphonevideofullscreen.png</object>
@@ -145,5 +144,5 @@
     <key>sipfullscreenoff</key>
     <object mime="image/png">sipphonevideofullscreen_off.png</object>
   </icon>
-  
+
   </icondef>
