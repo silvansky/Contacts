@@ -280,7 +280,7 @@ void NotifyWidget::layoutWidgets()
 			QTimer::singleShot(10, widget, SLOT(adjustHeight()));
 		}
 		if (widget->border)
-			ypos -= widget->border->geometry().height();
+			ypos -= widget->border->geometry().height() - 30;
 		else
 			ypos -= widget->frameGeometry().height();
 		widget->animateTo(ypos--);

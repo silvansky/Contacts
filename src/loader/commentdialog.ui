@@ -31,7 +31,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Left your comment about program.</string>
+        <string>Leave your feedback about program.</string>
        </property>
       </widget>
      </item>
@@ -44,7 +44,10 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Your own opinion very important for us</string>
+        <string>Your opinion is important to us, because all the suggestions and comments from users is a great way to make our chat better.</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -75,6 +78,23 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QLabel" name="lblEMail">
+       <property name="text">
+        <string>Your E-Mail:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lneEMail">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -92,7 +112,7 @@
      <item>
       <widget class="QCheckBox" name="chbAddTechData">
        <property name="text">
-        <string>Add technical data (very good for us):</string>
+        <string>Add useful technical data</string>
        </property>
       </widget>
      </item>

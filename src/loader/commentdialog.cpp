@@ -70,11 +70,14 @@ void CommentDialog::SendComment()
 	ui.tedComment->setEnabled(false);
 	ui.pbtSendComment->setText(tr("Message sending..."));
 
-	//QString comment = ui.tedComment->toPlainText();
+	QString comment = ui.tedComment->toPlainText();
 
 	Message message;
 	message.setType(Message::Chat);
-	FMessageProcessor->textToMessage(message, ui.tedComment->document());
+	QString commentHtml = QString("<b>%1</b><br><i>%2</i><br><b>%3</b><br><br>%4").arg(Qt::escape(ui.lneYourName->text()), Qt::escape(ui.lneEMail->text()), Qt::escape(ui.lblTechData->text()), Qt::escape(comment));
+	QTextDocument * doc = new QTextDocument;
+	doc->setHtml(commentHtml);
+	FMessageProcessor->textToMessage(message, doc);
 	message.setTo("support@rambler.ru");
 	message.setFrom(streamJid.full());
 	//message.setBody(comment);
@@ -98,6 +101,7 @@ void CommentDialog::SendComment()
 		ui.tedComment->setEnabled(true);
 
 	}
+	doc->deleteLater();
 }
 
 void CommentDialog::onJidChanded(Jid)
