@@ -25,8 +25,8 @@ class MessageStyles :
 			public IMessageStyles,
 			public IOptionsHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IMessageStyles IOptionsHolder);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IMessageStyles IOptionsHolder)
 public:
 	MessageStyles();
 	~MessageStyles();

@@ -15,7 +15,7 @@
 	<key>CFBundlePackageType</key>
 	<string>AdIM</string>
 	<key>DefaultFontFamily</key>
-	<string>Arial</string>
+	<string>SegoeUI</string>
 	<key>DefaultFontSize</key>
 	<integer>11</integer>
 	<key>DisplayNameForNoVariant</key>
