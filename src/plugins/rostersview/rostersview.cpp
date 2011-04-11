@@ -875,6 +875,7 @@ bool RostersView::viewportEvent(QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::ToolTip)
 	{
+		return true;
 		QHelpEvent *helpEvent = static_cast<QHelpEvent *>(AEvent);
 		QModelIndex viewIndex = indexAt(helpEvent->pos());
 		if (FRostersModel && viewIndex.isValid())

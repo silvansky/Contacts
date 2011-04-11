@@ -14,6 +14,6 @@
   </file>
   <file>
     <key>rchangerNotifyWidgetSubscription</key>
-    <object mime='text/css'>rchangernotifywidgetsubscription.qss</object>
+    <object mime='text/css'>notificationsnotifywidget.qss</object>
   </file>
 </styledef>
