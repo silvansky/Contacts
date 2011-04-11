@@ -35,6 +35,7 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
 		border->setWindowFlags(border->windowFlags() | Qt::ToolTip);
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
 		connect(border, SIGNAL(closeClicked()), SIGNAL(notifyRemoved()));
 		QMargins m = ui.frmPopup->layout()->contentsMargins();
 		m.setRight(24);
@@ -104,7 +105,7 @@ NotifyWidget::~NotifyWidget()
 
 void NotifyWidget::appear()
 {
-	if (!FWidgets.contains(this))
+	if (!FWidgets.contains(this) && FWidgets.count() < MAX_MESSAGES)
 	{
 		QTimer *timer = new QTimer(this);
 		timer->setSingleShot(false);

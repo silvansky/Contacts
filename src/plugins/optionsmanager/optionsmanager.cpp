@@ -513,9 +513,9 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
 		WidgetManager::showActivateRaiseWindow(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog);
-#ifndef Q_WS_MAC
-		(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog)->adjustSize();
-#else
+//#ifndef Q_WS_MAC
+//		(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog)->adjustSize();
+//#else
 		FOptionsDialog->adjustSize();
 		FOptionsDialog->layout()->update();
 		if (FOptionsDialogBorder)
@@ -524,7 +524,7 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 			FOptionsDialogBorder->layout()->update();
 			FOptionsDialogBorder->resize(FOptionsDialogBorder->sizeHint());
 		}
-#endif
+//#endif
 	}
 	return FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog;
 }
