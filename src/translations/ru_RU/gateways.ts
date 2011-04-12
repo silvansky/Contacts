@@ -65,6 +65,10 @@
         <source>Your account is not connected.</source>
         <translation>Ваш аккаунт еще не подключен.</translation>
     </message>
+    <message>
+        <source>Add %1 account</source>
+        <translation>Добавить %1 аккаунт</translation>
+    </message>
 </context>
 <context>
     <name>AddLegacyAccountDialogClass</name>

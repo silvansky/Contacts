@@ -85,10 +85,6 @@
         <translation>Показывать отключенных (&quot;Не в сети&quot;)</translation>
     </message>
     <message>
-        <source>Group contacts</source>
-        <translation>Группировать контакты</translation>
-    </message>
-    <message>
         <source>Contacts Order</source>
         <translation>Упорядочить контакты</translation>
     </message>

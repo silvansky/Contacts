@@ -11,9 +11,5 @@
         <source>Allows other modules to get access to message history on rambler server</source>
         <translation>Позволяет другим плагинам получать доступ к истории на сервере рамблера</translation>
     </message>
-    <message>
-        <source>Store the history of communication in my Rambler.Pochta</source>
-        <translation>Хранить историю общения в моей Рамблер.Почте</translation>
-    </message>
 </context>
 </TS>

@@ -61,14 +61,6 @@
         <translation>Отзыв о программе</translation>
     </message>
     <message>
-        <source>Left your comment about program.</source>
-        <translation>Оставьте ваш отзыв о программе.</translation>
-    </message>
-    <message>
-        <source>Your own opinion very important for us</source>
-        <translation>Ваше мнение очень важно для нас</translation>
-    </message>
-    <message>
         <source>Your name:</source>
         <translation>Ваше имя:</translation>
     </message>
@@ -77,12 +69,24 @@
         <translation>Ваш отзыв или замечание:</translation>
     </message>
     <message>
-        <source>Add technical data (very good for us):</source>
-        <translation>Прикрепить технические сведения (очень полезны для нас):</translation>
-    </message>
-    <message>
         <source>Send comment</source>
         <translation>Отправить отзыв</translation>
+    </message>
+    <message>
+        <source>Leave your feedback about program.</source>
+        <translation>Оставьте Ваш отзыв о программе.</translation>
+    </message>
+    <message>
+        <source>Your opinion is important to us, because all the suggestions and comments from users is a great way to make our chat better.</source>
+        <translation>Ваше мнение очень важно для нас, потому что все предложения и замечания пользователей это отличный способ, чтобы сделать наш чат лучше.</translation>
+    </message>
+    <message>
+        <source>Your E-Mail:</source>
+        <translation>Ваш E-mail:</translation>
+    </message>
+    <message>
+        <source>Add useful technical data</source>
+        <translation>Укажите техническую информацию</translation>
     </message>
 </context>
 <context>

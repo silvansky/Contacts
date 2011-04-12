@@ -59,6 +59,10 @@
         <source>%1 service is unavailable</source>
         <translation>%1 сервис недоступен</translation>
     </message>
+    <message>
+        <source>Add Contact</source>
+        <translation>Добавить контакт</translation>
+    </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>
