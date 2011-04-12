@@ -24,7 +24,9 @@ struct IMetaItemDescriptor
 	bool detach;
 	bool combine;
 	bool service;
+	bool persistent;
 	int pageOrder;
+	QString gateId;
 	QString contactPattern;
 };
 
@@ -99,8 +101,10 @@ class IMetaContacts
 {
 public:
 	virtual QObject *instance() =0;
+	virtual QList<QString> availDescriptors() const =0;
+	virtual IMetaItemDescriptor descriptorByName(const QString &AName) const =0;
+	virtual IMetaItemDescriptor descriptorByItem(const Jid &AItemJid) const =0;
 	virtual QString itemHint(const Jid &AItemJid) const =0;
-	virtual IMetaItemDescriptor itemDescriptor(const Jid &AItemJid) const =0;
 	virtual QMultiMap<int, Jid> itemOrders(const QList<Jid> &AItems) const =0;
 	virtual QString metaContactName(const IMetaContact &AContact) const =0;
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster) =0;

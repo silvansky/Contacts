@@ -38,6 +38,8 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	FGateLabel = FGateways->serviceDescriptor(FStreamJid, FServiceJid);
 	if (!FGateLabel.id.isEmpty())
 	{
+		setWindowTitle(tr("Add %1 account").arg(FGateLabel.name));
+
 		ui.lblCaption->setText(FGateLabel.name);
 		ui.lneLogin->setPlaceholderText(!FGateLabel.loginLabel.isEmpty() ? FGateLabel.loginLabel : tr("Login"));
 		ui.lnePassword->setPlaceholderText(tr("Password"));

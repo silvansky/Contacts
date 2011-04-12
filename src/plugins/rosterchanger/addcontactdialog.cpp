@@ -20,16 +20,16 @@
 AddContactDialog::AddContactDialog(IRosterChanger *ARosterChanger, IPluginManager *APluginManager, const Jid &AStreamJid, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	setAttribute(Qt::WA_DeleteOnClose,true);
+	setWindowTitle(tr("Add Contact"));
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_RCHANGER_ADD_CONTACT,0,0,"windowIcon");
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDCONTACTDIALOG);
 
 	ui.lneContact->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneNick->setAttribute(Qt::WA_MacShowFocusRect, false);
 
 	ui.cmbGroup->setView(new QListView);
 	ui.cmbProfile->setView(new QListView);
-	setAttribute(Qt::WA_DeleteOnClose,true);
-	setWindowTitle(tr("Add contact"));
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_RCHANGER_ADD_CONTACT,0,0,"windowIcon");
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDCONTACTDIALOG);
 
 	FRoster = NULL;
 	FAvatars = NULL;

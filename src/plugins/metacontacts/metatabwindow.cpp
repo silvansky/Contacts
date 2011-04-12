@@ -123,11 +123,6 @@ IMetaRoster *MetaTabWindow::metaRoster() const
 	return FMetaRoster;
 }
 
-ToolBarChanger *MetaTabWindow::toolBarChanger() const
-{
-	return FToolBarChanger;
-}
-
 ITabPage *MetaTabWindow::itemPage(const Jid &AItemJid) const
 {
 	return FItemTabPages.value(AItemJid.pBare());
@@ -218,7 +213,168 @@ void MetaTabWindow::setCurrentItem(const Jid &AItemJid)
 		{
 			ui.stwWidgets->setCurrentWidget(page->instance());
 		}
+
+		updateWindow();
 	}
+}
+
+ITabPage *MetaTabWindow::currentPage() const
+{
+	return qobject_cast<ITabPage *>(ui.stwWidgets->currentWidget());
+}
+
+void MetaTabWindow::setCurrentPage(ITabPage *APAge)
+{
+	if (FPageActions.contains(APAge))
+	{
+		ui.stwWidgets->setCurrentWidget(APAge->instance());
+	}
+}
+
+void MetaTabWindow::insertPage(ITabPage *APage, int AOrder, bool ACombine)
+{
+	if (APage && !FPageActions.contains(APage))
+	{
+		Action *action = new Action(FToolBarChanger->toolBar());
+		action->setCheckable(true);
+		connect(action,SIGNAL(triggered(bool)),SLOT(onPageActionTriggered(bool)));
+		FPageActions.insert(APage,action);
+		
+		QToolButton *button = NULL;
+		if (ACombine)
+		{
+			button = FPageButtons.value(FCombinedPages.value(AOrder));
+			FCombinedPages.insertMulti(AOrder,APage);
+		}
+		if (!button)
+		{
+			button = new QToolButton(FToolBarChanger->toolBar());
+			button->setCheckable(true);
+			button->setAutoExclusive(true);
+			button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+			connect(button,SIGNAL(clicked(bool)),SLOT(onPageButtonClicked(bool)));
+
+			FToolBarChanger->insertWidget(button,AOrder);
+			setButtonAction(button,action);
+		}
+		else
+		{
+			Menu *menu = qobject_cast<Menu *>(button->menu());
+			if (!menu)
+			{
+				menu = new Menu(button);
+				if (FButtonAction.contains(button))
+					menu->addAction(FButtonAction.value(button),AG_DEFAULT,true);
+				button->setMenu(menu);
+				button->setPopupMode(QToolButton::MenuButtonPopup);
+			}
+			menu->addAction(action,AG_DEFAULT,true);
+		}
+		FPageButtons.insert(APage,button);
+
+		connectPage(APage);
+		ui.stwWidgets->addWidget(APage->instance());
+
+		emit pageInserted(APage,AOrder,ACombine);
+	}
+}
+
+void MetaTabWindow::setPageIcon(ITabPage *APage, const QIcon &AIcon)
+{
+	Action *action = FPageActions.value(APage);
+	if (action)
+		action->setIcon(AIcon);
+}
+
+void MetaTabWindow::setPageName(ITabPage *APage, const QString &AName)
+{
+	Action *action = FPageActions.value(APage);
+	if (action)
+		action->setText(AName);
+
+}
+
+void MetaTabWindow::replacePage(ITabPage *AOldPage, ITabPage *ANewPage)
+{
+	if (ANewPage && FPageActions.contains(AOldPage))
+	{
+		Action *action = FPageActions.take(AOldPage);
+		FPageActions.insert(ANewPage,action);
+
+		QToolButton *button = FPageButtons.take(AOldPage);
+		FPageButtons.insert(ANewPage,button);
+
+		if (FCombinedPages.values().contains(AOldPage))
+		{
+			int order = FCombinedPages.key(AOldPage);
+			FCombinedPages.remove(order,AOldPage);
+			FCombinedPages.insertMulti(order,ANewPage);
+		}
+
+		disconnectPage(AOldPage);
+		connectPage(ANewPage);
+
+		bool show = (ui.stwWidgets->currentWidget() == AOldPage->instance());
+		ui.stwWidgets->removeWidget(AOldPage->instance());
+		ui.stwWidgets->addWidget(ANewPage->instance());
+
+		if (show)
+			ANewPage->showTabPage();
+
+		emit pageReplaced(AOldPage,ANewPage);
+	}
+}
+
+void MetaTabWindow::removePage(ITabPage *APage)
+{
+	if (FPageActions.contains(APage))
+	{
+		int order = FCombinedPages.key(APage);
+		FCombinedPages.remove(order,APage);
+
+		Action *action = FPageActions.take(APage);
+		action->deleteLater();
+
+		QToolButton *button = FPageButtons.take(APage);
+		if (FCombinedPages.contains(order))
+		{
+			Menu *menu = qobject_cast<Menu *>(button->menu());
+			if (menu)
+			{
+				if (menu->groupActions().count() <= 2)
+				{
+					menu->deleteLater();
+					button->setMenu(NULL);
+					button->setPopupMode(QToolButton::DelayedPopup);
+				}
+				else
+				{
+					menu->removeAction(action);
+				}
+			}
+			if (FButtonAction.value(button) == action)
+			{
+				ITabPage *combinedPage = FCombinedPages.value(order);
+				setButtonAction(button,FPageActions.value(combinedPage));
+			}
+		}
+		else
+		{
+			FToolBarChanger->removeItem(FToolBarChanger->widgetHandle(button));
+			setButtonAction(button,NULL);
+			button->deleteLater();
+		}
+
+		disconnectPage(APage);
+		ui.stwWidgets->removeWidget(APage->instance());
+
+		emit pageRemoved(APage);
+	}
+}
+
+ToolBarChanger *MetaTabWindow::toolBarChanger() const
+{
+	return FToolBarChanger;
 }
 
 void MetaTabWindow::insertTopWidget(int AOrder, QWidget *AWidget)
@@ -270,6 +426,10 @@ void MetaTabWindow::updateWindow()
 	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
 	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 
+	IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(currentItem());
+	if(!descriptor.name.isEmpty())
+		title += QString(" - %1 (%2)").arg(descriptor.name).arg(FMetaContacts->itemHint(currentItem()));
+
 	setWindowIcon(icon);
 	setWindowIconText(name);
 	setWindowTitle(title);
@@ -296,22 +456,19 @@ void MetaTabWindow::updateItemButton(const Jid &AItemJid)
 	QToolButton *button = FItemButtons.value(AItemJid);
 	if (button)
 	{
-		IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(AItemJid);
+		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(AItemJid);
 
-		int notifyCount = itemNotifyCount(AItemJid,true);
 		QIcon icon;
 		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
 		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Selected);
 		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
 		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+
+		int notifyCount = itemNotifyCount(AItemJid,true);
 		if (notifyCount > 0)
-		{
 			button->setIcon(insertNotifyBalloon(icon,notifyCount));
-		}
 		else
-		{
 			button->setIcon(icon);
-		}
 
 		Action *action = FButtonAction.value(button);
 		button->setText(action ? action->text() : FMetaContacts->itemHint(AItemJid));
@@ -327,7 +484,7 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 
 	foreach(Jid itemJid, newItems)
 	{
-		IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(itemJid);
+		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(itemJid);
 
 		Action *action = new Action(FToolBarChanger->toolBar());
 		action->setCheckable(true);
@@ -482,6 +639,79 @@ QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount) const
 	return AIcon;
 }
 
+void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const
+{
+	if (FItemButtons.contains(AItemJid))
+	{
+		IMetaContact contact = FMetaRoster->metaContact(FMetaId);
+		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(AItemJid);
+
+		QList<Jid> detachItems;
+		foreach(Jid itemJid, contact.items)
+		{
+			IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(itemJid);
+			if (descriptor.detach)
+				detachItems.append(itemJid);
+		}
+
+		Action *editAction = new Action(AMenu);
+		editAction->setText(tr("Edit on site..."));
+		editAction->setData(ADR_ITEM_JID,AItemJid.pBare());
+		connect(editAction,SIGNAL(triggered(bool)),SLOT(onEditItemByAction(bool)));
+		AMenu->addAction(editAction,AG_MCICM_ITEM_ACTIONS);
+
+		Action *detachAction = new Action(AMenu);
+		detachAction->setText(tr("Detach to separate contact"));
+		detachAction->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
+		detachAction->setData(ADR_ITEM_JID,AItemJid.pBare());
+		detachAction->setEnabled(FMetaRoster->isOpen() && detachItems.count()>1 && descriptor.detach);
+		connect(detachAction,SIGNAL(triggered(bool)),SLOT(onDetachItemByAction(bool)));
+		AMenu->addAction(detachAction,AG_MCICM_ITEM_ACTIONS);
+
+		Action *deleteAction = new Action(AMenu);
+		deleteAction->setText(tr("Delete"));
+		deleteAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
+		deleteAction->setData(ADR_ITEM_JID,AItemJid.pBare());
+		deleteAction->setEnabled(FMetaRoster->isOpen());
+		connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteItemByAction(bool)));
+		AMenu->addAction(deleteAction,AG_MCICM_ITEM_ACTIONS);
+	}
+}
+
+void MetaTabWindow::connectPage(ITabPage *APage)
+{
+	if (APage)
+	{
+		connect(APage->instance(),SIGNAL(tabPageShow()),SLOT(onTabPageShow()));
+		connect(APage->instance(),SIGNAL(tabPageClose()),SLOT(onTabPageClose()));
+		connect(APage->instance(),SIGNAL(tabPageChanged()),SLOT(onTabPageChanged()));
+		connect(APage->instance(),SIGNAL(tabPageDestroyed()),SLOT(onTabPageDestroyed()));
+		if (APage->tabPageNotifier())
+		{
+			connect(APage->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),SLOT(onTabPageNotifierNotifyInserted(int)));
+			connect(APage->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),SLOT(onTabPageNotifierNotifyRemoved(int)));
+		}
+		connect(APage->instance(),SIGNAL(tabPageNotifierChanged()),SLOT(onTabPageNotifierChanged()));
+	}
+}
+
+void MetaTabWindow::disconnectPage(ITabPage *APage)
+{
+	if (APage)
+	{
+		disconnect(APage->instance(),SIGNAL(tabPageNotifierChanged()),this,SLOT(onTabPageNotifierChanged()));
+		disconnect(APage->instance(),SIGNAL(tabPageShow()),this,SLOT(onTabPageShow()));
+		disconnect(APage->instance(),SIGNAL(tabPageClose()),this,SLOT(onTabPageClose()));
+		disconnect(APage->instance(),SIGNAL(tabPageChanged()),this,SLOT(onTabPageChanged()));
+		if (APage->tabPageNotifier())
+		{
+			disconnect(APage->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),this,SLOT(onTabPageNotifierNotifyInserted(int)));
+			disconnect(APage->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),this,SLOT(onTabPageNotifierNotifyRemoved(int)));
+		}
+		disconnect(APage->instance(),SIGNAL(tabPageDestroyed()),this,SLOT(onTabPageDestroyed()));
+	}
+}
+
 void MetaTabWindow::removeTabPageNotifies()
 {
 	if (FTabPageNotifier)
@@ -511,44 +741,6 @@ void MetaTabWindow::loadWindowGeometry()
 	}
 }
 
-void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const
-{
-	if (FItemButtons.contains(AItemJid))
-	{
-		IMetaContact contact = FMetaRoster->metaContact(FMetaId);
-		IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(AItemJid);
-
-		QList<Jid> detachItems;
-		foreach(Jid itemJid, contact.items)
-		{
-			IMetaItemDescriptor descriptor = FMetaContacts->itemDescriptor(itemJid);
-			if (descriptor.detach)
-				detachItems.append(itemJid);
-		}
-
-		Action *editAction = new Action(AMenu);
-		editAction->setText(tr("Edit on site..."));
-		editAction->setData(ADR_ITEM_JID,AItemJid.pBare());
-		connect(editAction,SIGNAL(triggered(bool)),SLOT(onEditItemByAction(bool)));
-		AMenu->addAction(editAction,AG_MCICM_ITEM_ACTIONS);
-
-		Action *detachAction = new Action(AMenu);
-		detachAction->setText(tr("Detach to separate contact"));
-		detachAction->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
-		detachAction->setData(ADR_ITEM_JID,AItemJid.pBare());
-		detachAction->setEnabled(FMetaRoster->isOpen() && detachItems.count()>1 && descriptor.detach);
-		connect(detachAction,SIGNAL(triggered(bool)),SLOT(onDetachItemByAction(bool)));
-		AMenu->addAction(detachAction,AG_MCICM_ITEM_ACTIONS);
-
-		Action *deleteAction = new Action(AMenu);
-		deleteAction->setText(tr("Delete"));
-		deleteAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
-		deleteAction->setData(ADR_ITEM_JID,AItemJid.pBare());
-		deleteAction->setEnabled(FMetaRoster->isOpen());
-		connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteItemByAction(bool)));
-		AMenu->addAction(deleteAction,AG_MCICM_ITEM_ACTIONS);
-	}
-}
 
 bool MetaTabWindow::event(QEvent *AEvent)
 {
@@ -778,5 +970,26 @@ void MetaTabWindow::onMetaContactReceived(const IMetaContact &AContact, const IM
 		{
 			deleteLater();
 		}
+	}
+}
+
+void MetaTabWindow::onPageButtonClicked(bool)
+{
+	QToolButton *button = qobject_cast<QToolButton *>(sender());
+	Action *action = FButtonAction.value(button);
+	if (button && action)
+	{
+		action->trigger();
+		button->setChecked(true);
+	}
+}
+
+void MetaTabWindow::onPageActionTriggered(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		action->setChecked(true);
+		setCurrentPage(FPageActions.key(action));
 	}
 }
