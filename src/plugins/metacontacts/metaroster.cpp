@@ -65,7 +65,7 @@ bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 		{
 			Stanza query("iq");
 			query.setType("get").setId(FStanzaProcessor->newId());
-			query.addElement("query",NS_RAMBLER_METACONTACTS);
+			query.addElement("query",NS_RAMBLER_METACONTACTS).setAttribute("ver",FRosterVer);
 
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,query,ROSTER_TIMEOUT))
 			{
@@ -273,6 +273,7 @@ void MetaRoster::saveMetaContacts(const QString &AFileName) const
 	{
 		QDomDocument xml;
 		QDomElement metasElem = xml.appendChild(xml.createElement("metacontacts")).toElement();
+		metasElem.setAttribute("ver",FRosterVer);
 		metasElem.setAttribute("streamJid",streamJid().pBare());
 		metasElem.setAttribute("groupDelimiter",roster()->groupDelimiter());
 		foreach(IMetaContact contact, FContacts)
@@ -549,6 +550,7 @@ void MetaRoster::clearMetaContacts()
 {
 	foreach(QString metaId, FContacts.keys()) {
 		removeMetaContact(metaId); }
+	FRosterVer.clear();
 }
 
 void MetaRoster::removeMetaContact(const QString &AMetaId)
@@ -568,6 +570,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 {
 	if (!AMetasElement.isNull())
 	{
+		FRosterVer = AMetasElement.attribute("ver");
 		QSet<QString> oldContacts = ACompleteRoster ? FContacts.keys().toSet() : QSet<QString>();
 		QDomElement mcElem = AMetasElement.firstChildElement("mc");
 		while (!mcElem.isNull())

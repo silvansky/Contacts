@@ -100,6 +100,7 @@ private:
 private:
 	bool FOpened;
 	bool FEnabled;
+	QString FRosterVer;
 	QHash<Jid, QString> FItemMetaId;
 	QHash<QString, IMetaContact> FContacts;
 };
