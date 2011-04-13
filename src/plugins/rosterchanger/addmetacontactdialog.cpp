@@ -74,7 +74,7 @@ Jid AddMetaContactDialog::streamJid() const
 
 Jid AddMetaContactDialog::contactJid() const
 {
-	EditItemWidget *widget = FItemWidgets.value(0);
+	IAddMetaItemWidget *widget = FItemWidgets.value(0);
 	return widget!=NULL ? widget->contactJid() : Jid::null;
 }
 
@@ -87,14 +87,14 @@ void AddMetaContactDialog::setContactJid(const Jid &AContactJid)
 			addContactItem(descriptor);
 	}
 
-	EditItemWidget *widget = FItemWidgets.value(0);
+	IAddMetaItemWidget *widget = FItemWidgets.value(0);
 	if (widget)
 		widget->setContactJid(AContactJid);
 }
 
 QString AddMetaContactDialog::contactText() const
 {
-	EditItemWidget *widget = FItemWidgets.value(0);
+	IAddMetaItemWidget *widget = FItemWidgets.value(0);
 	return widget!=NULL ? widget->contactText() : QString::null;
 }
 
@@ -107,7 +107,7 @@ void AddMetaContactDialog::setContactText(const QString &AContact)
 			addContactItem(descriptor);
 	}
 
-	EditItemWidget *widget = FItemWidgets.value(0);
+	IAddMetaItemWidget *widget = FItemWidgets.value(0);
 	if (widget)
 		widget->setContactText(AContact);
 }
@@ -134,13 +134,13 @@ void AddMetaContactDialog::setGroup(const QString &AGroup)
 
 Jid AddMetaContactDialog::gatewayJid() const
 {
-	EditItemWidget *widget = FItemWidgets.value(0);
+	IAddMetaItemWidget *widget = FItemWidgets.value(0);
 	return widget!=NULL ? widget->gatewayJid() : Jid::null;
 }
 
 void AddMetaContactDialog::setGatewayJid(const Jid &AGatewayJid)
 {
-	EditItemWidget *widget = FItemWidgets.value(0);
+	IAddMetaItemWidget *widget = FItemWidgets.value(0);
 	if (widget)
 		widget->setGatewayJid(AGatewayJid);
 }
@@ -260,15 +260,15 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 			break;
 		case DS_ENABLED:
 			{
-				EditItemWidget *widget = new EditItemWidget(FGateways,FStreamJid,ADescriptor,ui.wdtItems);
-				widget->setFocus();
+				IAddMetaItemWidget *widget = FRosterChanger->newAddMetaItemWidget(FStreamJid,ADescriptor.id,ui.wdtItems);
+				widget->instance()->setFocus();
 				widget->setContactText(AContact);
-				connect(widget,SIGNAL(adjustSizeRequested()),SLOT(onItemWidgetAdjustSizeRequested()));
-				connect(widget,SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));
-				connect(widget,SIGNAL(showOptionsRequested()),SLOT(onItemWidgetShowOptionsRequested()));
-				connect(widget,SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
+				connect(widget->instance(),SIGNAL(adjustSizeRequested()),SLOT(onItemWidgetAdjustSizeRequested()));
+				connect(widget->instance(),SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));
+				connect(widget->instance(),SIGNAL(showOptionsRequested()),SLOT(onItemWidgetShowOptionsRequested()));
+				connect(widget->instance(),SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
 				FItemWidgets.append(widget);
-				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget);
+				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget->instance());
 				QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 			}
 			break;
@@ -336,7 +336,7 @@ void AddMetaContactDialog::updateDialogState()
 	FAvatarContacts.clear();
 
 	bool isAcceptable = !FItemWidgets.isEmpty();
-	foreach(EditItemWidget *widget, FItemWidgets)
+	foreach(IAddMetaItemWidget *widget, FItemWidgets)
 	{
 		Jid contactJid = widget->contactJid().bare();
 		if (contactJid.isValid())
@@ -462,7 +462,7 @@ void AddMetaContactDialog::onDialogAccepted()
 			contact.name = ui.lneNick->text().trimmed();
 		}
 
-		foreach(EditItemWidget *widget, FItemWidgets)
+		foreach(IAddMetaItemWidget *widget, FItemWidgets)
 			contact.items += widget->contactJid().bare();
 
 		FCreateActiontId = FMetaRoster->createContact(contact);
@@ -506,7 +506,7 @@ void AddMetaContactDialog::onAdjustDialogSize()
 		ui.pbtAddItem->setText(tr("Specify contact's address"));
 	}
 
-	foreach(EditItemWidget *widget, FItemWidgets)
+	foreach(IAddMetaItemWidget *widget, FItemWidgets)
 		widget->setCorrectSizes(ui.lblNick->width(),ui.wdtPhoto->width());
 
 	QTimer::singleShot(0,this,SLOT(onAdjustBorderSize()));
@@ -552,7 +552,7 @@ void AddMetaContactDialog::onItemWidgetAdjustSizeRequested()
 
 void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
 {
-	EditItemWidget *widget = qobject_cast<EditItemWidget *>(sender());
+	AddMetaItemWidget *widget = qobject_cast<AddMetaItemWidget *>(sender());
 	if (FItemWidgets.contains(widget))
 	{
 		FItemWidgets.removeAll(widget);
@@ -636,7 +636,7 @@ void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QS
 		}
 		else
 		{
-			foreach(EditItemWidget *widget, FItemWidgets)
+			foreach(IAddMetaItemWidget *widget, FItemWidgets)
 				FRosterChanger->subscribeContact(FStreamJid,widget->contactJid().bare());
 		}
 	}

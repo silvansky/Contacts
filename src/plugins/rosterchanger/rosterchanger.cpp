@@ -66,6 +66,7 @@ RosterChanger::RosterChanger()
 	FAccountManager = NULL;
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
+	FGateways = NULL;
 }
 
 RosterChanger::~RosterChanger()
@@ -177,6 +178,10 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
 
 	return FRosterPlugin!=NULL;
 }
@@ -616,6 +621,21 @@ void RosterChanger::unsubscribeContact(const Jid &AStreamJid, const Jid &AContac
 			roster->sendSubscription(AContactJid,IRoster::Unsubscribe,AMessage);
 		insertAutoSubscribe(AStreamJid,AContactJid,ASilently,false,true);
 	}
+}
+
+IAddMetaItemWidget *RosterChanger::newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent)
+{
+	IAddMetaItemWidget *widget = NULL;
+	if (FGateways && AStreamJid.isValid())
+	{
+		IGateServiceDescriptor descriptor = FGateways->descriptorById(AGateDescriptorId);
+		if (!descriptor.id.isEmpty())
+		{
+			widget = new AddMetaItemWidget(FGateways,AStreamJid,descriptor,AParent);
+			emit addMetaItemWidgetCreated(widget);
+		}
+	}
+	return widget;
 }
 
 QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)

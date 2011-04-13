@@ -1,32 +1,37 @@
-#ifndef EDITITEMWIDGET_H
-#define EDITITEMWIDGET_H
+#ifndef ADDMETAITEMWIDGET_H
+#define ADDMETAITEMWIDGET_H
 
 #include <QTimer>
 #include <QWidget>
 #include <QRadioButton>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <interfaces/irosterchanger.h>
 #include <interfaces/igateways.h>
 #include <interfaces/ipresence.h>
 #include <utils/iconstorage.h>
-#include "ui_edititemwidget.h"
+#include "ui_addmetaitemwidget.h"
 
-class EditItemWidget : 
-	public QWidget
+class AddMetaItemWidget : 
+	public QWidget,
+	public IAddMetaItemWidget
 {
 	Q_OBJECT;
+	Q_INTERFACES(IAddMetaItemWidget);
 public:
-	EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, QWidget *AParent = NULL);
-	~EditItemWidget();
-	Jid contactJid() const;
-	void setContactJid(const Jid &AContactJid);
-	QString contactText() const;
-	void setContactText(const QString &AText);
+	AddMetaItemWidget(IGateways *AGateways, const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, QWidget *AParent = NULL);
+	~AddMetaItemWidget();
+	virtual QWidget *instance() { return this; }
+	virtual QString gateDescriptorId() const;
+	virtual Jid contactJid() const;
+	virtual void setContactJid(const Jid &AContactJid);
+	virtual QString contactText() const;
+	virtual void setContactText(const QString &AText);
 	virtual Jid gatewayJid() const;
 	virtual void setGatewayJid(const Jid &AGatewayJid);
-	IGateServiceDescriptor gateDescriptor() const;
-public:
-	void setCorrectSizes(int ANameSize, int APhotoSize);
+	virtual bool isCloseButtonVisible() const;
+	virtual void setCloseButtonVisible(bool AVisible);
+	virtual void setCorrectSizes(int ANameSize, int APhotoSize);
 signals:
 	void adjustSizeRequested();
 	void deleteButtonClicked();
@@ -54,7 +59,7 @@ protected slots:
 	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
 private:
-	Ui::EditItemWidget ui;
+	Ui::AddMetaItemWidget ui;
 private:
 	IGateways *FGateways;
 private:
@@ -71,4 +76,4 @@ private:
 	QMap<Jid, QRadioButton *> FProfiles;
 };
 
-#endif // EDITITEMWIDGET_H
+#endif // ADDMETAITEMWIDGET_H

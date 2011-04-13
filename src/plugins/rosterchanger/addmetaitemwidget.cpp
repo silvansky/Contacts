@@ -1,10 +1,10 @@
-#include "edititemwidget.h"
+#include "addmetaitemwidget.h"
 
 #include <QVBoxLayout>
 
 #define RESOLVE_WAIT_INTERVAL    1500
 
-EditItemWidget::EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
+AddMetaItemWidget::AddMetaItemWidget(IGateways *AGateways, const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	setFocusProxy(ui.lneContact);
@@ -48,17 +48,22 @@ EditItemWidget::EditItemWidget(IGateways *AGateways, const Jid &AStreamJid, cons
 	updateProfiles();
 }
 
-EditItemWidget::~EditItemWidget()
+AddMetaItemWidget::~AddMetaItemWidget()
 {
 
 }
 
-Jid EditItemWidget::contactJid() const
+QString AddMetaItemWidget::gateDescriptorId() const
+{
+	return FDescriptor.id;
+}
+
+Jid AddMetaItemWidget::contactJid() const
 {
 	return FContactJid;
 }
 
-void EditItemWidget::setContactJid(const Jid &AContactJid)
+void AddMetaItemWidget::setContactJid(const Jid &AContactJid)
 {
 	if (FContactJid != AContactJid.bare())
 	{
@@ -74,39 +79,44 @@ void EditItemWidget::setContactJid(const Jid &AContactJid)
 	}
 }
 
-QString EditItemWidget::contactText() const
+QString AddMetaItemWidget::contactText() const
 {
 	return ui.lneContact->text();
 }
 
-void EditItemWidget::setContactText(const QString &AText)
+void AddMetaItemWidget::setContactText(const QString &AText)
 {
 	ui.lneContact->setText(AText);
 	startResolve(0);
 }
 
-Jid EditItemWidget::gatewayJid() const
+Jid AddMetaItemWidget::gatewayJid() const
 {
 	return selectedProfile();
 }
 
-void EditItemWidget::setGatewayJid(const Jid &AGatewayJid) 
+void AddMetaItemWidget::setGatewayJid(const Jid &AGatewayJid) 
 {
 	setSelectedProfile(AGatewayJid);
 }
 
-IGateServiceDescriptor EditItemWidget::gateDescriptor() const
+bool AddMetaItemWidget::isCloseButtonVisible() const
 {
-	return FDescriptor;
+	return ui.cbtDelete->isVisible();
 }
 
-void EditItemWidget::setCorrectSizes(int ANameWidth, int APhotoWidth)
+void AddMetaItemWidget::setCloseButtonVisible(bool AVisible)
+{
+	ui.cbtDelete->setVisible(AVisible);
+}
+
+void AddMetaItemWidget::setCorrectSizes(int ANameWidth, int APhotoWidth)
 {
 	ui.lblIcon->setMinimumWidth(ANameWidth);
 	ui.cbtDelete->setMinimumWidth(APhotoWidth);
 }
 
-void EditItemWidget::updateProfiles()
+void AddMetaItemWidget::updateProfiles()
 {
 	IDiscoIdentity identity;
 	identity.category = "gateway";
@@ -212,7 +222,7 @@ void EditItemWidget::updateProfiles()
 	emit adjustSizeRequested();
 }
 
-Jid EditItemWidget::selectedProfile() const
+Jid AddMetaItemWidget::selectedProfile() const
 {
 	for (QMap<Jid, QRadioButton *>::const_iterator it = FProfiles.constBegin(); it!=FProfiles.constEnd(); it++)
 		if (it.value()->isChecked())
@@ -220,7 +230,7 @@ Jid EditItemWidget::selectedProfile() const
 	return Jid::null;
 }
 
-void EditItemWidget::setSelectedProfile(const Jid &AServiceJid)
+void AddMetaItemWidget::setSelectedProfile(const Jid &AServiceJid)
 {
 	if (FProfiles.contains(AServiceJid))
 	{
@@ -233,14 +243,14 @@ void EditItemWidget::setSelectedProfile(const Jid &AServiceJid)
 	}
 }
 
-void EditItemWidget::startResolve(int ATimeout)
+void AddMetaItemWidget::startResolve(int ATimeout)
 {
 	setRealContactJid(Jid::null);
 	setErrorMessage(QString::null);
 	FResolveTimer.start(ATimeout);
 }
 
-void EditItemWidget::setRealContactJid(const Jid &AContactJid)
+void AddMetaItemWidget::setRealContactJid(const Jid &AContactJid)
 {
 	if (FContactJid != AContactJid.bare())
 	{
@@ -249,7 +259,7 @@ void EditItemWidget::setRealContactJid(const Jid &AContactJid)
 	}
 }
 
-void EditItemWidget::setErrorMessage(const QString &AMessage)
+void AddMetaItemWidget::setErrorMessage(const QString &AMessage)
 {
 	if (ui.lblError->text() != AMessage)
 	{
@@ -262,7 +272,7 @@ void EditItemWidget::setErrorMessage(const QString &AMessage)
 	}
 }
 
-void EditItemWidget::resolveContactJid()
+void AddMetaItemWidget::resolveContactJid()
 {
 	QString contact = FGateways->normalizeContactLogin(FDescriptor.id,contactText(),true);
 	if (contactText() != contact)
@@ -296,20 +306,20 @@ void EditItemWidget::resolveContactJid()
 	setErrorMessage(errMessage);
 }
 
-void EditItemWidget::onContactTextEditingFinished()
+void AddMetaItemWidget::onContactTextEditingFinished()
 {
 	if (FContactTextChanged)
 		startResolve(0);
 }
 
-void EditItemWidget::onContactTextEdited(const QString &AText)
+void AddMetaItemWidget::onContactTextEdited(const QString &AText)
 {
 	Q_UNUSED(AText);
 	FContactTextChanged = true;
 	startResolve(RESOLVE_WAIT_INTERVAL);
 }
 
-void EditItemWidget::onProfileButtonToggled(bool)
+void AddMetaItemWidget::onProfileButtonToggled(bool)
 {
 	QRadioButton *button = qobject_cast<QRadioButton *>(sender());
 	if (button && button->isChecked())
@@ -318,7 +328,7 @@ void EditItemWidget::onProfileButtonToggled(bool)
 	}
 }
 
-void EditItemWidget::onProfileLabelLinkActivated(const QString &ALink)
+void AddMetaItemWidget::onProfileLabelLinkActivated(const QString &ALink)
 {
 	QUrl url(ALink);
 	Jid serviceJid = url.path();
@@ -337,7 +347,7 @@ void EditItemWidget::onProfileLabelLinkActivated(const QString &ALink)
 	}
 }
 
-void EditItemWidget::onServiceLoginReceived(const QString &AId, const QString &ALogin)
+void AddMetaItemWidget::onServiceLoginReceived(const QString &AId, const QString &ALogin)
 {
 	if (FLoginRequests.contains(AId))
 	{
@@ -347,7 +357,7 @@ void EditItemWidget::onServiceLoginReceived(const QString &AId, const QString &A
 	}
 }
 
-void EditItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid)
+void AddMetaItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid)
 {
 	if (FContactJidRequest == AId)
 	{
@@ -355,7 +365,7 @@ void EditItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid &A
 	}
 }
 
-void EditItemWidget::onGatewayErrorReceived(const QString &AId, const QString &AError)
+void AddMetaItemWidget::onGatewayErrorReceived(const QString &AId, const QString &AError)
 {
 	Q_UNUSED(AError);
 	if (FLoginRequests.contains(AId))
@@ -371,7 +381,7 @@ void EditItemWidget::onGatewayErrorReceived(const QString &AId, const QString &A
 	}
 }
 
-void EditItemWidget::onStreamServicesChanged(const Jid &AStreamJid)
+void AddMetaItemWidget::onStreamServicesChanged(const Jid &AStreamJid)
 {
 	if (FStreamJid == AStreamJid)
 	{
@@ -379,7 +389,7 @@ void EditItemWidget::onStreamServicesChanged(const Jid &AStreamJid)
 	}
 }
 
-void EditItemWidget::onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
+void AddMetaItemWidget::onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
 {
 	Q_UNUSED(AServiceJid); 
 	Q_UNUSED(AEnabled);
@@ -390,7 +400,7 @@ void EditItemWidget::onServiceEnableChanged(const Jid &AStreamJid, const Jid &AS
 	}
 }
 
-void EditItemWidget::onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem)
+void AddMetaItemWidget::onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem)
 {
 	Q_UNUSED(AItem);
 	if (FStreamJid == AStreamJid && FProfiles.contains(AServiceJid))
@@ -398,3 +408,4 @@ void EditItemWidget::onServicePresenceChanged(const Jid &AStreamJid, const Jid &
 		updateProfiles();
 	}
 }
+

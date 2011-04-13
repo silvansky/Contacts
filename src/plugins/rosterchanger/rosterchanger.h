@@ -123,8 +123,10 @@ public:
 	virtual void removeAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
 	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
+	virtual IAddMetaItemWidget *newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent);
 	virtual QWidget *showAddContactDialog(const Jid &AStreamJid);
 signals:
+	void addMetaItemWidgetCreated(IAddMetaItemWidget *AWidget);
 	void addContactDialogCreated(IAddContactDialog *ADialog);
 	void subscriptionDialogCreated(ISubscriptionDialog *ADialog);
 	//IRosterDataHolder
@@ -198,6 +200,7 @@ private:
 	IAccountManager *FAccountManager;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
+	IGateways *FGateways;
 private:
 	QList<QString> FEmptyGroups;
 	QMap<int, int> FNotifyChatNotice;

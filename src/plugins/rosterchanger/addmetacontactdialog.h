@@ -24,7 +24,7 @@
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/imagemanager.h>
-#include "edititemwidget.h"
+#include "addmetaitemwidget.h"
 #include "ui_addmetacontactdialog.h"
 
 class AddMetaContactDialog : 
@@ -102,7 +102,7 @@ private:
 	Jid FStreamJid;
 	QString FCreateActiontId;
 	QList<QString> FAvailDescriptors;
-	QList<EditItemWidget *> FItemWidgets;
+	QList<IAddMetaItemWidget *> FItemWidgets;
 };
 
 #endif // ADDMETACONTACTDIALOG_H

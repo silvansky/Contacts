@@ -1,16 +1,16 @@
 FORMS = addcontactdialog.ui \
         subscriptiondialog.ui \
-        edititemwidget.ui \
+        addmetaitemwidget.ui \
         addmetacontactdialog.ui
 
 HEADERS = rosterchanger.h \
           addcontactdialog.h \
           subscriptiondialog.h \
-          edititemwidget.h \
+          addmetaitemwidget.h \
           addmetacontactdialog.h
 
 SOURCES = rosterchanger.cpp \
           addcontactdialog.cpp \
           subscriptiondialog.cpp \
-          edititemwidget.cpp \
+          addmetaitemwidget.cpp \
           addmetacontactdialog.cpp

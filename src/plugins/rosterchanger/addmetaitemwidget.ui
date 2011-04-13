@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditItemWidget</class>
- <widget class="QWidget" name="EditItemWidget">
+ <class>AddMetaItemWidget</class>
+ <widget class="QWidget" name="AddMetaItemWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>368</width>
-    <height>86</height>
+    <height>88</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
