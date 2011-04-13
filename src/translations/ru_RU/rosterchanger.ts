@@ -131,22 +131,30 @@
     </message>
 </context>
 <context>
-    <name>EditItemWidget</name>
-    <message>
-        <source>Address in %1</source>
-        <translation>Адрес в %1</translation>
-    </message>
+    <name>AddMetaItemWidget</name>
     <message>
         <source>Return address:</source>
         <translation>Обратный адрес:</translation>
+    </message>
+    <message>
+        <source>Address in %1</source>
+        <translation>Адрес в %1</translation>
     </message>
     <message>
         <source>disconnected. %1</source>
         <translation>отключен. %1</translation>
     </message>
     <message>
+        <source>Connect</source>
+        <translation>Подключить</translation>
+    </message>
+    <message>
         <source>failed to connect. %1</source>
         <translation>не удалось подключить. %1</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Настройки</translation>
     </message>
     <message>
         <source>connecting...</source>
@@ -159,14 +167,6 @@
     <message>
         <source>Failed to request contact JID from transport</source>
         <translation>Не удадось запросить JID контакта у транспорта</translation>
-    </message>
-    <message>
-        <source>Connect</source>
-        <translation>Подключить</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Настройки</translation>
     </message>
 </context>
 <context>
