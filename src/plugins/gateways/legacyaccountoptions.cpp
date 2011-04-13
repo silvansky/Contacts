@@ -37,20 +37,25 @@ LegacyAccountOptions::~LegacyAccountOptions()
 
 void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool AEnabled)
 {
-		if (APresenceItem.show == IPresence::Error)
+		if (!AEnabled)
+		{
+			ui.lblInfo->setText(tr("Disconnected"));
+			ui.lblInfo->setProperty("state",QString("disconnected"));
+		}		
+		else if (APresenceItem.show == IPresence::Error)
 		{
 			ui.lblInfo->setText(tr("Failed to connect"));
 			ui.lblInfo->setProperty("state",QString("error"));
 		}
-		else if (AEnabled)
+		else if (APresenceItem.show == IPresence::Offline)
 		{
-			ui.lblInfo->setText(tr("Connected"));
+			ui.lblInfo->setText(tr("Connecting..."));
 			ui.lblInfo->setProperty("state",QString("connected"));
 		}
 		else
 		{
-			ui.lblInfo->setText(tr("Disconnected"));
-			ui.lblInfo->setProperty("state",QString("disconnected"));
+			ui.lblInfo->setText(tr("Connected"));
+			ui.lblInfo->setProperty("state",QString("connected"));
 		}
 		setStyleSheet(styleSheet());
 
