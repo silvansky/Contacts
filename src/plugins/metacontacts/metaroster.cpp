@@ -678,10 +678,13 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 {
 	Stanza iq("iq");
 	iq.setType("set").setFrom(streamJid().eFull()).setId(FStanzaProcessor->newId());
-	QDomElement queryElem = iq.element().appendChild(iq.createElement("query",NS_JABBER_ROSTER)).toElement();
 
 	if (!AMetaElem.isNull())
 	{
+		QDomElement queryElem = iq.element().appendChild(iq.createElement("query",NS_JABBER_ROSTER)).toElement();
+		if (!FRosterVer.isEmpty())
+			queryElem.setAttribute("ver",FRosterVer);
+
 		QDomElement mcElem = AMetaElem.firstChildElement("mc");
 		while (!mcElem.isNull())
 		{

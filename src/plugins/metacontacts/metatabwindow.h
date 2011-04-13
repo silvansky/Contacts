@@ -20,8 +20,8 @@ class MetaTabWindow :
 	public QMainWindow,
 	public IMetaTabWindow
 {
-	Q_OBJECT
-		Q_INTERFACES(IMetaTabWindow ITabPage)
+	Q_OBJECT;
+	Q_INTERFACES(IMetaTabWindow ITabPage);
 public:
 	MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent = NULL);
 	~MetaTabWindow();
