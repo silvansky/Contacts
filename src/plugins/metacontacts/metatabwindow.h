@@ -17,11 +17,11 @@
 #include "ui_metatabwindow.h"
 
 class MetaTabWindow :
-		public QMainWindow,
-		public IMetaTabWindow
+	public QMainWindow,
+	public IMetaTabWindow
 {
 	Q_OBJECT
-	Q_INTERFACES(IMetaTabWindow ITabPage)
+		Q_INTERFACES(IMetaTabWindow ITabPage)
 public:
 	MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent = NULL);
 	~MetaTabWindow();
@@ -39,22 +39,29 @@ public:
 	//IMetaTabWindow
 	virtual QString metaId() const;
 	virtual IMetaRoster *metaRoster() const;
-	virtual ITabPage *itemPage(const Jid &AItemJid) const;
-	virtual void setItemPage(const Jid &AItemJid, ITabPage *APage);
-	virtual Jid currentItem() const;
-	virtual void setCurrentItem(const Jid &AItemJid);
-	
-	virtual ITabPage *currentPage() const;
-	virtual void setCurrentPage(ITabPage *APAge);
-	virtual void insertPage(ITabPage *APage, int AOrder, bool ACombine = false);
-	virtual void setPageIcon(ITabPage *APage, const QIcon &AIcon);
-	virtual void setPageName(ITabPage *APage, const QString &AName);
-	virtual void replacePage(ITabPage *AOldPage, ITabPage *ANewPage);
-	virtual void removePage(ITabPage *APage);
-
 	virtual ToolBarChanger *toolBarChanger() const;
 	virtual void insertTopWidget(int AOrder, QWidget *AWidget);
 	virtual void removeTopWidget(QWidget *AWidget);
+	//Common pages
+	virtual QList<QString> pages() const;
+	virtual QString currentPage() const;
+	virtual void setCurrentPage(const QString &APageId);
+	virtual QString insertPage(int AOrder, bool ACombine = false);
+	virtual QIcon pageIcon(const QString &APageId) const;
+	virtual void setPageIcon(const QString &APageId, const QIcon &AIcon);
+	virtual QString pageName(const QString &APageId) const;
+	virtual void setPageName(const QString &APageId, const QString &AName);
+	virtual QString widgetPage(ITabPage *APage) const;
+	virtual ITabPage *pageWidget(const QString &APageId) const;
+	virtual void setPageWidget(const QString &APageId, ITabPage *AWidget);
+	virtual void removePage(const QString &APageId);
+	//Item pages
+	virtual Jid currentItem() const;
+	virtual void setCurrentItem(const Jid &AItemJid);
+	virtual Jid pageItem(const QString &APageId) const;
+	virtual QString itemPage(const Jid &AItemJid) const;
+	virtual ITabPage *itemWidget(const Jid &AItemJid) const;
+	virtual void setItemWidget(const Jid &AItemJid, ITabPage *AWidget);
 signals:
 	//ITabPage
 	void tabPageShow();
@@ -66,28 +73,25 @@ signals:
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
 	//IMetaTabWindow
-	void currentItemChanged(const Jid &AItemJid);
-	void itemPageRequested(const Jid &AItemJid);
-	void itemPageChanged(const Jid &AItemJid, ITabPage *APage);
-	void itemContextMenuRequested(const Jid &AItemJid, Menu *AMenu);
-
-	void currentPageChanged(ITabPage *APage);
-	void pageInserted(ITabPage *APage, int AOrder, bool ACombined);
-	void pageReplaced(ITabPage *AOldPage, ITabPage *ANewPage);
-	void pageRemoved(ITabPage *APage);
-
+	void currentPageChanged(const QString &APageId);
+	void pageInserted(const QString &APageId, int AOrder, bool ACombined);
+	void pageChanged(const QString &APageId);
+	void pageWidgetRequested(const QString &APageId);
+	void pageContextMenuRequested(const QString &APageId, Menu *AMenu);
+	void pageRemoved(const QString &APageId);
 	void topWidgetInserted(int AOrder, QWidget *AWidget);
 	void topWidgetRemoved(QWidget* AWidget);
 protected:
 	void initialize(IPluginManager *APluginManager);
-	Jid firstItemJid() const;
 	void updateWindow();
-	void updateItemAction(const Jid &AItemJid);
-	void updateItemButton(const Jid &AItemJid);
-	void updateItemButtons(const QSet<Jid> &AItems);
+	void checkCurrentPage();
+	void updatePageButton(const QString &APageId);
 	void setButtonAction(QToolButton *AButton, Action *AAction);
-	int itemNotifyCount(const Jid &AItemJid, bool ACombined) const;
+	int pageNotifyCount(const QString &APageId, bool ACombined) const;
 	QIcon insertNotifyBalloon(const QIcon &AIcon, int ACount) const;
+private:
+	Jid firstItemJid() const;
+	void updateItemPages(const QSet<Jid> &AItems);
 	void createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const;
 protected:
 	void connectPage(ITabPage *APage);
@@ -114,8 +118,6 @@ protected slots:
 	void onDetachItemByAction(bool);
 	void onDeleteItemByAction(bool);
 protected slots:
-	void onItemButtonClicked(bool);
-	void onItemActionTriggered(bool);
 	void onCurrentWidgetChanged(int AIndex);
 	void onMetaPresenceChanged(const QString &AMetaId);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
@@ -137,15 +139,13 @@ private:
 	QString FTabPageToolTip;
 	ToolBarChanger *FToolBarChanger;
 	QMap<int,int> FTabPageNotifies;
-	QMap<Jid, ITabPage *> FItemTabPages;
-	QMultiMap<QString, Jid> FCombinedItems;
-	QMap<Jid, Action *> FItemActions;
-	QMap<Jid, QToolButton *> FItemButtons;
-private:
-	QMap<ITabPage *, Action *> FPageActions;
-	QMultiMap<int, ITabPage *> FCombinedPages;
-	QMap<ITabPage *, QToolButton *> FPageButtons;
+	QMap<QString, Action *> FPageActions;
+	QMultiMap<int, QString> FCombinedPages;
+	QMap<QString, ITabPage *> FPageWidgets;
+	QMap<QString, QToolButton *> FPageButtons;
 	QMap<QToolButton *, Action *> FButtonAction;
+private:
+	QMap<Jid, QString> FItemPages;
 };
 
 #endif // METATABWINDOW_H

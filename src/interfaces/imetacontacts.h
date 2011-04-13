@@ -82,17 +82,35 @@ public:
 	virtual QString metaId() const =0;
 	virtual IMetaRoster *metaRoster() const =0;
 	virtual ToolBarChanger *toolBarChanger() const =0;
-	virtual ITabPage *itemPage(const Jid &AItemJid) const =0;
-	virtual void setItemPage(const Jid &AItemJid, ITabPage *APage) =0;
-	virtual Jid currentItem() const =0;
-	virtual void setCurrentItem(const Jid &AItemJid) =0;
 	virtual void insertTopWidget(int AOrder, QWidget *AWidget) =0;
 	virtual void removeTopWidget(QWidget *AWidget) =0;
+	//Common pages
+	virtual QList<QString> pages() const =0;
+	virtual QString currentPage() const =0;
+	virtual void setCurrentPage(const QString &APageId) =0;
+	virtual QString insertPage(int AOrder, bool ACombine = false) =0;
+	virtual QIcon pageIcon(const QString &APageId) const =0;
+	virtual void setPageIcon(const QString &APageId, const QIcon &AIcon) =0;
+	virtual QString pageName(const QString &APageId) const =0;
+	virtual void setPageName(const QString &APageId, const QString &AName) =0;
+	virtual QString widgetPage(ITabPage *APage) const =0;
+	virtual ITabPage *pageWidget(const QString &APageId) const =0;
+	virtual void setPageWidget(const QString &APageId, ITabPage *AWidget) =0;
+	virtual void removePage(const QString &APageId) =0;
+	//Item pages
+	virtual Jid currentItem() const =0;
+	virtual void setCurrentItem(const Jid &AItemJid) =0;
+	virtual Jid pageItem(const QString &APageId) const =0;
+	virtual QString itemPage(const Jid &AItemJid) const =0;
+	virtual ITabPage *itemWidget(const Jid &AItemJid) const =0;
+	virtual void setItemWidget(const Jid &AItemJid, ITabPage *AWidget) =0;
 protected:
-	virtual void currentItemChanged(const Jid &AItemJid) =0;
-	virtual void itemPageRequested(const Jid &AItemJid) =0;
-	virtual void itemPageChanged(const Jid &AItemJid, ITabPage *APage) =0;
-	virtual void itemContextMenuRequested(const Jid &AItemJid, Menu *AMenu) =0;
+	virtual void currentPageChanged(const QString &APageId) =0;
+	virtual void pageInserted(const QString &APageId, int AOrder, bool ACombined) =0;
+	virtual void pageChanged(const QString &APageId) =0;
+	virtual void pageWidgetRequested(const QString &APageId) =0;
+	virtual void pageContextMenuRequested(const QString &APageId, Menu *AMenu) =0;
+	virtual void pageRemoved(const QString &APageId) =0;
 	virtual void topWidgetInserted(int AOrder, QWidget *AWidget) =0;
 	virtual void topWidgetRemoved(QWidget* AWidget) =0;
 };

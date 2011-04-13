@@ -588,7 +588,8 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 		{
 			window = new MetaTabWindow(FPluginManager,this,mroster,AMetaId);
 			connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onMetaTabWindowActivated()));
-			connect(window->instance(),SIGNAL(itemPageRequested(const Jid &)),SLOT(onMetaTabWindowItemPageRequested(const Jid &)));
+			connect(window->instance(),SIGNAL(pageWidgetRequested(const QString &)),
+				SLOT(onMetaTabWindowPageWidgetRequested(const QString &)));
 			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onMetaTabWindowDestroyed()));
 			FCleanupHandler.add(window->instance());
 
@@ -943,19 +944,35 @@ void MetaContacts::onMetaTabWindowActivated()
 	}
 }
 
-void MetaContacts::onMetaTabWindowItemPageRequested(const Jid &AItemJid)
+void MetaContacts::onMetaTabWindowPageWidgetRequested(const QString &APageId)
 {
 	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
 	if (window)
 	{
-		IChatWindow *chatWindow = FMessageWidgets->findChatWindow(window->metaRoster()->streamJid(),AItemJid);
-		if (chatWindow)
+		Jid itemJid = window->pageItem(APageId);
+		if (itemJid.isValid())
 		{
-			chatWindow->closeTabPage();
-			onChatWindowCreated(chatWindow);
+			int itemShow = 0;
+			QList<IPresenceItem> pitems = window->metaRoster()->itemPresences(itemJid);
+			foreach(IPresenceItem pitem, pitems)
+			{
+				if (itemShow==0 || itemShow>pitem.show)
+				{
+					itemShow = pitem.show;
+					itemJid = pitem.itemJid;
+				}
+			}
+			IChatWindow *chatWindow = FMessageWidgets->findChatWindow(window->metaRoster()->streamJid(),itemJid);
+			if (chatWindow)
+			{
+				chatWindow->closeTabPage();
+				onChatWindowCreated(chatWindow);
+			}
+			else
+			{
+				FMessageProcessor->createWindow(window->metaRoster()->streamJid(),itemJid,Message::Chat,IMessageHandler::SM_ADD_TAB);
+			}
 		}
-		else
-			FMessageProcessor->createWindow(window->metaRoster()->streamJid(),AItemJid,Message::Chat,IMessageHandler::SM_ADD_TAB);
 	}
 }
 
@@ -1396,7 +1413,7 @@ void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
 		{
 			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
 			if (window)
-				window->setItemPage(AWindow->contactJid().bare(),AWindow);
+				window->setItemWidget(AWindow->contactJid().bare(),AWindow);
 		}
 	}
 }

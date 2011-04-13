@@ -139,7 +139,7 @@ protected slots:
 	void onRosterRemoved(IRoster *ARoster);
 protected slots:
 	void onMetaTabWindowActivated();
-	void onMetaTabWindowItemPageRequested(const Jid &AItemJid);
+	void onMetaTabWindowPageWidgetRequested(const QString &APageId);
 	void onMetaTabWindowDestroyed();
 protected slots:
 	void onRenameContact(bool);
