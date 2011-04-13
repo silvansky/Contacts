@@ -47,6 +47,7 @@ protected:
 	WindowIcon icon;
 	WindowControls controls;
 	HeaderButton minimize, maximize, close, restore;
+	bool dragAnywhere;
 	QMultiMap<int, HeaderButton> headerButtons;
 };
 

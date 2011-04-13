@@ -2,8 +2,9 @@
 #define MACDOCKHANDLER_H
 
 #include <QObject>
+#include "utilsexport.h"
 
-class MacDockHandler : public QObject
+class UTILS_EXPORT MacDockHandler : public QObject
 {
 	Q_OBJECT
 private:

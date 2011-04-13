@@ -14,8 +14,7 @@ MacDockHandler * MacDockHandler::_instance = NULL;
 MacDockHandler::MacDockHandler() :
 	QObject(NULL)
 {
-	id delegate = [[NSApplication sharedApplication] delegate];
-	Class cls = [delegate class];
+	Class cls = [[[NSApplication sharedApplication] delegate] class];
 	if (class_addMethod(cls, @selector(applicationShouldHandleReopen:hasVisibleWindows:), (IMP) dockClickHandler, "v@:"))
 		qDebug() << "class_addMethod ok";
 	else

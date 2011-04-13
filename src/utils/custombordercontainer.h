@@ -61,6 +61,8 @@ protected:
 	bool winEvent(MSG *message, long *result);
 #endif
 	bool eventFilter(QObject *, QEvent *);
+private:
+	bool shouldFilterEvents(QObject* obj);
 protected:
 	// common initialization
 	void init();
@@ -132,6 +134,9 @@ public:
 	int rightBorderWidth() const;
 	int topBorderWidth() const;
 	int bottomBorderWidth() const;
+	// move mode
+	bool canDragAnywhere() const;
+	void setCanDragAnywhere(bool on);
 protected:
 	// header button flags manipulations
 	void addHeaderButtonFlag(HeaderButtonsFlag flag);

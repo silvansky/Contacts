@@ -95,6 +95,7 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderCon
 	close = other.close;
 	restore = other.restore;
 	headerButtons = other.headerButtons;
+	dragAnywhere = other.dragAnywhere;
 	p = NULL;
 }
 
@@ -158,6 +159,13 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 				// restore button
 				button = root.firstChildElement("restore-button");
 				parseHeaderButton(button, restore);
+				// drag anywhere
+				QDomElement drag = root.firstChildElement("draganywhere");
+				if (!drag.isNull())
+				{
+					dragAnywhere = (drag.attribute("enabled").compare("true", Qt::CaseInsensitive) == 0);
+				}
+
 			}
 			else
 			{
@@ -177,6 +185,7 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 
 void CustomBorderContainerPrivate::setAllDefaults()
 {
+	dragAnywhere = false;
 	setDefaultBorder(left);
 	setDefaultBorder(right);
 	setDefaultBorder(top);
@@ -892,34 +901,39 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 	switch (event->type())
 	{
 	case QEvent::MouseMove:
-		mouseMove(((QMouseEvent*)event)->globalPos(), widget);
-
+		if (shouldFilterEvents(object))
+			mouseMove(((QMouseEvent*)event)->globalPos(), widget);
 		break;
 	case QEvent::MouseButtonPress:
 	{
-		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
-			handled = mousePress(((QMouseEvent*)event)->pos(), widget);
-		qDebug() << "handled = " << handled << " " << widget->objectName() << " of class " << widget->metaObject()->className() << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
-		if (QToolButton * tb = qobject_cast<QToolButton*>(widget))
+		if (shouldFilterEvents(object))
 		{
-			qDebug() << "QToolButton popup mode: " << tb->popupMode() << " checked: " << tb->isChecked() << " (checkable: " << tb->isCheckable() << ")";
+			if (((QMouseEvent*)event)->button() == Qt::LeftButton)
+				handled = mousePress(((QMouseEvent*)event)->pos(), widget);
+			qDebug() << "handled = " << handled << " " << widget->objectName() << " of class " << widget->metaObject()->className() << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
+			if (QToolButton * tb = qobject_cast<QToolButton*>(widget))
+			{
+				qDebug() << "QToolButton popup mode: " << tb->popupMode() << " checked: " << tb->isChecked() << " (checkable: " << tb->isCheckable() << ")";
+			}
+			QStringList hierarchy;
+			QWidget * parent = widget->parentWidget();
+			while (parent)
+			{
+				hierarchy << QString("%1 (%2)").arg(parent->objectName(), parent->metaObject()->className());
+				parent = parent->parentWidget();
+			}
+			qDebug() << "hierarchy: " << hierarchy.join(" -> ");
 		}
-		QStringList hierarchy;
-		QWidget * parent = widget->parentWidget();
-		while (parent)
-		{
-			hierarchy << QString("%1 (%2)").arg(parent->objectName(), parent->metaObject()->className());
-			parent = parent->parentWidget();
-		}
-		qDebug() << "hierarchy: " << hierarchy.join(" -> ");
 	}
 		break;
 	case QEvent::MouseButtonRelease:
-		mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
+		if (shouldFilterEvents(object))
+			mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
 		break;
 	case QEvent::MouseButtonDblClick:
-		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
-			handled = mouseDoubleClick(((QMouseEvent*)event)->pos(), widget);
+		if (shouldFilterEvents(object))
+			if (((QMouseEvent*)event)->button() == Qt::LeftButton)
+				handled = mouseDoubleClick(((QMouseEvent*)event)->pos(), widget);
 		break;
 	case QEvent::Paint:
 	{
@@ -970,6 +984,29 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 	}
 	handled = (handled || (geometryState() != None)) && (event->type() != QEvent::Resize);
 	return handled ? handled : QWidget::eventFilter(object, event);
+}
+
+// use only for mouse events
+bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
+{
+	if (obj->property("ignoreFilter").toBool())
+		return false;
+
+	bool filter = true;
+
+	static QStringList exceptions;
+	// TODO: make this list customizable
+	if (exceptions.isEmpty())
+		exceptions << "QAbstractButton" << "QLineEdit" << "QTextEdit" << "QScrollBar" << "QWebView" << "QAbstractItemView";
+	foreach (QString item, exceptions)
+	{
+		if (obj->inherits(item.toLatin1()))
+		{
+			filter = false;
+			break;
+		}
+	}
+	return filter;
 }
 
 void CustomBorderContainer::init()
@@ -1278,6 +1315,16 @@ int CustomBorderContainer::topBorderWidth() const
 int CustomBorderContainer::bottomBorderWidth() const
 {
 	return borderStyle->bottom.width;
+}
+
+bool CustomBorderContainer::canDragAnywhere() const
+{
+	return borderStyle->dragAnywhere;
+}
+
+void CustomBorderContainer::setCanDragAnywhere(bool on)
+{
+	borderStyle->dragAnywhere = on;
 }
 
 void CustomBorderContainer::addHeaderButtonFlag(HeaderButtonsFlag flag)
@@ -1836,10 +1883,11 @@ QRect CustomBorderContainer::headerMoveRect() const
 {
 	if (isFullScreen())
 		return QRect();
+	int moveHeight = borderStyle->dragAnywhere ? (height() - (_isMaximized ? 0 : (borderStyle->top.width + borderStyle->bottom.width))) : borderStyle->header.moveHeight;
 	if (_isMaximized)
-		return QRect(borderStyle->header.moveLeft, borderStyle->header.moveTop, width() - borderStyle->header.moveRight, borderStyle->header.moveHeight);
+		return QRect(borderStyle->header.moveLeft, borderStyle->header.moveTop, width() - borderStyle->header.moveRight, moveHeight);
 	else
-		return QRect(borderStyle->left.width + borderStyle->header.moveLeft, borderStyle->top.width + borderStyle->header.moveTop, width() - borderStyle->right.width - borderStyle->left.width - borderStyle->header.moveRight, borderStyle->header.moveHeight);
+		return QRect(borderStyle->left.width + borderStyle->header.moveLeft, borderStyle->top.width + borderStyle->header.moveTop, width() - borderStyle->right.width - borderStyle->left.width - borderStyle->header.moveRight, moveHeight);
 }
 
 void CustomBorderContainer::drawHeader(QPainter * p)

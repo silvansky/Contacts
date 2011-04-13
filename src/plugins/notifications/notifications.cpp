@@ -299,6 +299,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 			if (!ok)
 			{
 				// TODO: find & fix tray crash
+				record.widget->deleteLater();
 			}
 		}
 		else
@@ -375,11 +376,15 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
 		if (!soundFile.isEmpty())
 		{
-			if (QSound::isAvailable() && FSound->isFinished())
+			if (QSound::isAvailable())
 			{
-				delete FSound;
-				FSound = new QSound(soundFile);
-				FSound->play();
+				if (!FSound || (FSound && FSound->isFinished()))
+				{
+					delete FSound;
+					FSound = new QSound(soundFile);
+					FSound->setLoops(1);
+					FSound->play();
+				}
 			}
 #ifdef Q_WS_X11
 			else
