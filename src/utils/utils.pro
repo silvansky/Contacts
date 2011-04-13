@@ -4,7 +4,7 @@ TARGET             = $$TARGET_UTILS
 
 TEMPLATE           = lib
 CONFIG            += dll
-QT                += xml
+QT                += xml webkit
 DEFINES           += UTILS_DLL
 LIBS              += -L../libs
 LIBS              += -lidn -lminizip -lzlib -lidle

@@ -797,8 +797,8 @@ void OptionsManager::onAboutToQuit()
 
 void OptionsManager::onOpdionsDialogSplitterMoved(int pos, int index)
 {
-	if (FOptionsDialogBorder && (index == 1))
-		FOptionsDialogBorder->setHeaderMoveLeft(pos + FOptionsDialog->layout()->contentsMargins().left() + 6);
+	//if (FOptionsDialogBorder && (index == 1))
+		//FOptionsDialogBorder->setHeaderMoveLeft(pos + FOptionsDialog->layout()->contentsMargins().left() + 6);
 }
 
 Q_EXPORT_PLUGIN2(plg_optionsmanager, OptionsManager)

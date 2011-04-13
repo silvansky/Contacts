@@ -15,6 +15,8 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 {
 	FIconSize = QSize(16,16);
 
+	setProperty("ignoreFilter", true);
+
 	setMouseTracking(true);
 
 	setLayout(new QHBoxLayout);
@@ -45,6 +47,10 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	FIconHidden = false;
 	FBlinkTimer.setSingleShot(true);
 	connect(&FBlinkTimer,SIGNAL(timeout()),SLOT(onBlinkTimerTimeout()));
+
+	FIconLabel->setProperty("ignoreFilter", true);
+	FTextLabel->setProperty("ignoreFilter", true);
+	FCloseButton->setProperty("ignoreFilter", true);
 
 	setActive(false);
 	setDraging(false);

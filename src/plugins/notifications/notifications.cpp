@@ -299,7 +299,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 			if (!ok)
 			{
 				// TODO: find & fix tray crash
-				record.widget->deleteLater();
+				//record.widget->deleteLater();
 			}
 		}
 		else

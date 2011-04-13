@@ -158,6 +158,10 @@ private:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+//	ui.lblRegister->setProperty("ignoreFilter", true);
+//	ui.lblHelp->setProperty("ignoreFilter", true);
+//	ui.lblConnectSettings->setProperty("ignoreFilter", true);
+//	ui.lblForgotPassword->setProperty("ignoreFilter", true);
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 	connect(ui.chbShowPassword, SIGNAL(stateChanged(int)), SLOT(onShowPasswordToggled(int)));

@@ -32,6 +32,9 @@ isEmpty(INSTALL_RES_DIR) {
   macx: INSTALL_RES_DIR  = Resources
 }
 
+CONFIG(debug) {
+  DEFINES += DEBUG_ENABLED
+}
 
 #Preprocessor definations
 CONFIG(debug, debug|release) {

@@ -16,6 +16,13 @@
 #include <QChildEvent>
 #include <QPushButton>
 #include <QToolButton>
+#include <QLineEdit>
+#include <QTextEdit>
+#include <QAbstractItemView>
+#include <QTreeView>
+#include <QScrollBar>
+// damn, i didn't want that!
+#include <QWebView>
 #include "iconstorage.h"
 #ifdef Q_WS_WIN
 # include <qt_windows.h>
@@ -160,7 +167,7 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 				button = root.firstChildElement("restore-button");
 				parseHeaderButton(button, restore);
 				// drag anywhere
-				QDomElement drag = root.firstChildElement("draganywhere");
+				QDomElement drag = root.firstChildElement("drag-anywhere");
 				if (!drag.isNull())
 				{
 					dragAnywhere = (drag.attribute("enabled").compare("true", Qt::CaseInsensitive) == 0);
@@ -925,7 +932,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 			qDebug() << "hierarchy: " << hierarchy.join(" -> ");
 		}
 	}
-		break;
+	break;
 	case QEvent::MouseButtonRelease:
 		if (shouldFilterEvents(object))
 			mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
@@ -997,7 +1004,12 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 	static QStringList exceptions;
 	// TODO: make this list customizable
 	if (exceptions.isEmpty())
-		exceptions << "QAbstractButton" << "QLineEdit" << "QTextEdit" << "QScrollBar" << "QWebView" << "QAbstractItemView";
+		exceptions << "QAbstractButton"
+			   << "QLineEdit"
+			   << "QTextEdit"
+			   << "QScrollBar"
+			   << "QWebView"
+			   << "QAbstractItemView";
 	foreach (QString item, exceptions)
 	{
 		if (obj->inherits(item.toLatin1()))
@@ -1006,6 +1018,14 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 			break;
 		}
 	}
+	// still not working... =(
+	if (qobject_cast<QAbstractButton*>(obj) ||
+			qobject_cast<QLineEdit*>(obj) ||
+			qobject_cast<QTextEdit*>(obj->parent()) ||
+			qobject_cast<QScrollBar*>(obj) ||
+			qobject_cast<QWebView*>(obj) ||
+			qobject_cast<QAbstractItemView*>(obj->parent()))
+		filter = false;
 	return filter;
 }
 

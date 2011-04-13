@@ -27,6 +27,9 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	FAvatarHovered = false;
 	FSelectAvatarWidget = NULL;
 
+	ui.lblAvatar->setProperty("ignoreFilter", true);
+	ui.lblMood->setProperty("ignoreFilter", true);
+
 	ui.tlbStatus->installEventFilter(this);
 	ui.lblAvatar->installEventFilter(this);
 	ui.tedMood->installEventFilter(this);
@@ -153,7 +156,7 @@ void StatusWidget::resizeEvent(QResizeEvent * event)
 		QPoint p = ui.tlbStatus->geometry().topRight();
 		p = mapToGlobal(p);
 		p = FMainWindowPlugin->mainWindowBorder()->widget()->mapFromGlobal(p);
-		FMainWindowPlugin->mainWindowBorder()->setHeaderMoveLeft(p.x() + 1);
+		//FMainWindowPlugin->mainWindowBorder()->setHeaderMoveLeft(p.x() + 1);
 	}
 	QWidget::resizeEvent(event);
 }

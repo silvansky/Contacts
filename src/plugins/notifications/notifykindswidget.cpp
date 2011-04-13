@@ -25,7 +25,6 @@ NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QStri
 
 NotifyKindsWidget::~NotifyKindsWidget()
 {
-
 }
 
 void NotifyKindsWidget::apply()

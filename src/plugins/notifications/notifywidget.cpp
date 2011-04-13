@@ -126,6 +126,10 @@ bool NotifyWidget::appear()
 		layoutWidgets();
 		return true;
 	}
+	if (border)
+		border->deleteLater();
+	else
+		deleteLater();
 	return false;
 }
 

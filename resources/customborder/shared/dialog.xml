@@ -115,4 +115,5 @@
    <image-normal src="customborder/restoreButtonNormal" />
    <image-hover src="customborder/restoreButtonHighlighted" />
  </restore-button>
+ <drag-anywhere enabled="true" />
 </window-border-style>
