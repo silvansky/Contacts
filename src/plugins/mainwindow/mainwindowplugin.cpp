@@ -5,6 +5,10 @@
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 
+#ifdef Q_OS_MAC
+# include <utils/macdockhandler.h>
+#endif
+
 MainWindowPlugin::MainWindowPlugin()
 {
 	FPluginManager = NULL;
@@ -98,6 +102,9 @@ bool MainWindowPlugin::initObjects()
 	if (FTrayManager)
 		FTrayManager->contextMenu()->addAction(FOpenAction,AG_TMTM_MAINWINDOW,true);
 
+#ifdef Q_OS_MAC
+	connect(MacDockHandler::instance(), SIGNAL(dockIconClicked()), SLOT(onDockIconCLicked()));
+#endif
 	return true;
 }
 
@@ -244,5 +251,14 @@ void MainWindowPlugin::onShowMainWindowByAction(bool)
 {
 	showMainWindow();
 }
+
+#ifdef Q_OS_MAC
+void MainWindowPlugin::onDockIconCLicked()
+{
+	if (!FMainWindow->isVisible())
+		showMainWindow();
+}
+
+#endif
 
 Q_EXPORT_PLUGIN2(plg_mainwindow, MainWindowPlugin)

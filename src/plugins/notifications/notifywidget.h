@@ -24,7 +24,7 @@ class NotifyWidget :
 public:
 	NotifyWidget(const INotification &ANotification, bool AOptionsAvailable);
 	~NotifyWidget();
-	void appear();
+	bool appear();
 	void animateTo(int AYPos);
 	void appendAction(Action *AAction);
 	void appendNotification(const INotification &ANotification);

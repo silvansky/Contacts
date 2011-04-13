@@ -56,6 +56,9 @@ protected slots:
 	void onProfileRenamed(const QString &AProfile, const QString &ANewName);
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowMainWindowByAction(bool);
+#ifdef Q_OS_MAC
+	void onDockIconCLicked();
+#endif
 private:
 	IPluginManager *FPluginManager;
 	IOptionsManager *FOptionsManager;

@@ -9,7 +9,7 @@ DEFINES           += UTILS_DLL
 LIBS              += -L../libs
 LIBS              += -lidn -lminizip -lzlib -lidle
 macx: {
-  QMAKE_LFLAGS    += -framework Carbon
+  QMAKE_LFLAGS    += -framework Carbon -framework Cocoa
 } else:unix {
   LIBS            += -lXss
   CONFIG          += x11

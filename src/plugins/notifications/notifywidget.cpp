@@ -103,9 +103,10 @@ NotifyWidget::~NotifyWidget()
 	emit windowDestroyed();
 }
 
-void NotifyWidget::appear()
+// returns false if widget can't appear
+bool NotifyWidget::appear()
 {
-	if (!FWidgets.contains(this) && FWidgets.count() < MAX_MESSAGES)
+	if (!FWidgets.contains(this) && (FWidgets.count() < MAX_MESSAGES))
 	{
 		QTimer *timer = new QTimer(this);
 		timer->setSingleShot(false);
@@ -123,7 +124,9 @@ void NotifyWidget::appear()
 
 		FWidgets.prepend(this);
 		layoutWidgets();
+		return true;
 	}
+	return false;
 }
 
 void NotifyWidget::animateTo(int AYPos)

@@ -743,6 +743,7 @@ void MessageWidgets::onTrayContextMenuAboutToShow()
 void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
 	Q_UNUSED(ANotifyId);
+#ifndef Q_OS_MAC
 	if (AReason==QSystemTrayIcon::Trigger && !FTabPageHandlers.isEmpty())
 	{
 		Menu *menu = new Menu;
@@ -768,8 +769,11 @@ void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Activ
 		else
 		{
 			delete menu;
+		}
 	}
-}
+#else
+	Q_UNUSED(AReason)
+#endif
 }
 
 void MessageWidgets::onOptionsOpened()

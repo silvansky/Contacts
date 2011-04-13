@@ -64,3 +64,8 @@ SOURCES = jid.cpp \
     log.cpp \
     imagemanager.cpp \
     custominputdialog.cpp
+
+macx: {
+  HEADERS += macdockhandler.h
+  OBJECTIVE_SOURCES += macdockhandler.mm
+}

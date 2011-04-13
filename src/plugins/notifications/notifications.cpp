@@ -295,7 +295,11 @@ int Notifications::appendNotification(const INotification &ANotification)
 			connect(record.widget,SIGNAL(notifyActivated()),SLOT(onWindowNotifyActivated()));
 			connect(record.widget,SIGNAL(notifyRemoved()),SLOT(onWindowNotifyRemoved()));
 			connect(record.widget,SIGNAL(windowDestroyed()),SLOT(onWindowNotifyDestroyed()));
-			record.widget->appear();
+			bool ok = record.widget->appear();
+			if (!ok)
+			{
+				// TODO: find & fix tray crash
+			}
 		}
 		else
 		{
@@ -364,14 +368,14 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (QSound::isAvailable() && !blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() &&
+	if (!blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() &&
 		(record.notification.kinds & INotification::PlaySoundNotification)>0)
 	{
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
 		if (!soundFile.isEmpty())
 		{
-			if (QSound::isAvailable())
+			if (QSound::isAvailable() && FSound->isFinished())
 			{
 				delete FSound;
 				FSound = new QSound(soundFile);
