@@ -108,7 +108,34 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderCon
 
 CustomBorderContainerPrivate::~CustomBorderContainerPrivate()
 {
-
+	delete header.gradient;
+	delete header.gradientInactive;
+	delete left.gradient;
+	delete right.gradient;
+	delete top.gradient;
+	delete bottom.gradient;
+	delete topLeft.gradient;
+	delete topRight.gradient;
+	delete bottomLeft.gradient;
+	delete bottomRight.gradient;
+	delete minimize.gradientDisabled;
+	delete minimize.gradientHover;
+	delete minimize.gradientHoverDisabled;
+	delete minimize.gradientNormal;
+	delete minimize.gradientPressed;
+	delete minimize.gradientPressedDisabled;
+	delete maximize.gradientDisabled;
+	delete maximize.gradientHover;
+	delete maximize.gradientHoverDisabled;
+	delete maximize.gradientNormal;
+	delete maximize.gradientPressed;
+	delete maximize.gradientPressedDisabled;
+	delete close.gradientDisabled;
+	delete close.gradientHover;
+	delete close.gradientHoverDisabled;
+	delete close.gradientNormal;
+	delete close.gradientPressed;
+	delete close.gradientPressedDisabled;
 }
 
 void CustomBorderContainerPrivate::parseFile(const QString &fileName)
@@ -305,8 +332,7 @@ void CustomBorderContainerPrivate::setDefaultBorder(Border & border)
 	border.resizeMargin = 0;
 	border.image = QString::null;
 	border.imageFillingStyle = Stretch;
-	border.gradient = new QLinearGradient(0.0, 0.0, 1.0, 0.0);
-	border.gradient->stops().append(QGradientStop(0.0, QColor::fromRgb(0, 0, 0)));
+	border.gradient = NULL;
 }
 
 void CustomBorderContainerPrivate::parseBorder(const QDomElement & borderElement, Border & border)
@@ -346,8 +372,7 @@ void CustomBorderContainerPrivate::setDefaultCorner(Corner & corner)
 {
 	corner.width = 10;
 	corner.height = 10;
-	corner.gradient = new QLinearGradient(0.0, 0.0, 1.0, 0.0);
-	corner.gradient->stops().append(QGradientStop(0.0, QColor::fromRgb(0, 0, 0)));
+	corner.gradient = NULL;
 	corner.image = corner.mask = QString::null;
 	corner.imageFillingStyle = Stretch;
 	corner.radius = 10;
@@ -427,12 +452,8 @@ void CustomBorderContainerPrivate::setDefaultHeader(Header & header)
 {
 	header.height = 26;
 	header.margins = QMargins(2, 2, 2, 2);
-	header.gradient = new QLinearGradient(0.0, 0.0, 1.0, 0.0);
-	header.gradient->stops().append(QGradientStop(0.0, QColor::fromRgb(0, 0, 0)));
-	header.gradient->stops().append(QGradientStop(1.0, QColor::fromRgb(100, 100, 100)));
-	header.gradientInactive = new QLinearGradient(0.0, 0.0, 1.0, 0.0);
-	header.gradientInactive->stops().append(QGradientStop(0.0, QColor::fromRgb(50, 50, 50)));
-	header.gradientInactive->stops().append(QGradientStop(1.0, QColor::fromRgb(100, 100, 100)));
+	header.gradient = NULL;
+	header.gradientInactive = NULL;
 	header.image = QString::null;
 	header.imageInactive = QString::null;
 	header.imageFillingStyle = Stretch;
@@ -560,30 +581,12 @@ void CustomBorderContainerPrivate::setDefaultHeaderButton(HeaderButton & button)
 	button.borderRadius = 0;
 	button.borderWidth = 1;
 	button.borderImage = QString::null;
-	QLinearGradient * g = new QLinearGradient(0.0, 0.0, 0.0, 1.0);
-	g->stops().append(QGradientStop(0.0, QColor::fromRgb(100, 100, 100)));
-	g->stops().append(QGradientStop(1.0, QColor::fromRgb(50, 50, 50)));
-	button.gradientNormal = g;
-	g = new QLinearGradient(0.0, 0.0, 0.0, 1.0);
-	g->stops().append(QGradientStop(0.0, QColor::fromRgb(100, 100, 100)));
-	g->stops().append(QGradientStop(1.0, QColor::fromRgb(80, 80, 80)));
-	button.gradientHover = g;
-	g = new QLinearGradient(0.0, 0.0, 0.0, 1.0);
-	g->stops().append(QGradientStop(0.0, QColor::fromRgb(120, 120, 120)));
-	g->stops().append(QGradientStop(1.0, QColor::fromRgb(100, 100, 100)));
-	button.gradientPressed = g;
-	g = new QLinearGradient(0.0, 0.0, 0.0, 1.0);
-	g->stops().append(QGradientStop(0.0, QColor::fromRgb(80, 80, 80)));
-	g->stops().append(QGradientStop(1.0, QColor::fromRgb(30, 30, 30)));
-	button.gradientDisabled = g;
-	g = new QLinearGradient(0.0, 0.0, 0.0, 1.0);
-	g->stops().append(QGradientStop(0.0, QColor::fromRgb(80, 80, 80)));
-	g->stops().append(QGradientStop(1.0, QColor::fromRgb(30, 30, 30)));
-	button.gradientHoverDisabled = g;
-	g = new QLinearGradient(0.0, 0.0, 0.0, 1.0);
-	g->stops().append(QGradientStop(0.0, QColor::fromRgb(80, 80, 80)));
-	g->stops().append(QGradientStop(1.0, QColor::fromRgb(50, 50, 50)));
-	button.gradientPressedDisabled = g;
+	button.gradientNormal = NULL;
+	button.gradientHover = NULL;
+	button.gradientPressed = NULL;
+	button.gradientDisabled = NULL;
+	button.gradientHoverDisabled = NULL;
+	button.gradientPressedDisabled = NULL;
 	button.imageNormal = button.imageHover = button.imagePressed = button.imageDisabled = button.imageHoverDisabled = button.imagePressedDisabled = QString::null;
 }
 
@@ -679,6 +682,7 @@ CustomBorderContainer::CustomBorderContainer(const CustomBorderContainerPrivate 
 
 CustomBorderContainer::~CustomBorderContainer()
 {
+	delete borderStyle;
 	setWidget(NULL);
 }
 
@@ -1918,7 +1922,8 @@ void CustomBorderContainer::drawHeader(QPainter * p)
 		path.addRegion(mask() & headerRect());
 	else
 		path.addRegion(headerRect());
-	p->fillPath(path, QBrush(*(borderStyle->header.gradient)));
+	if (borderStyle->header.gradient)
+		p->fillPath(path, QBrush(*(borderStyle->header.gradient)));
 	drawIcon(p);
 	drawTitle(p);
 }
