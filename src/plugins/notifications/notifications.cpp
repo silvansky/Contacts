@@ -26,7 +26,7 @@ Notifications::Notifications()
 
 	FTestNotifyId = -1;
 	FSound = NULL;
-	//FMediaObject = NULL;
+	FMediaObject = NULL;
 	FAudioOutput = NULL;
 
 	FTestNotifyTimer.setSingleShot(true);
@@ -378,22 +378,32 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
 		if (!soundFile.isEmpty())
 		{
-			if (!FAudioOutput)
+			/*if (!FAudioOutput)
 			{
-				FAudioOutput = new QAudioOutput;
+				QAudioFormat format = QAudioDeviceInfo::defaultOutputDevice().preferredFormat();
+				format.setCodec("audio/pcm");
+				FAudioOutput = new QAudioOutput(format, this);
 			}
 			if (FAudioOutput->state() != QAudio::ActiveState)
-//			if (!FMediaObject)
-//			{
-//				FMediaObject = new Phonon::MediaObject(this);
-//				FAudioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
-//				Phonon::createPath(FMediaObject, FAudioOutput);
-//			}
-//			if (FMediaObject->state() != Phonon::PlayingState)
-//			{
-//				FMediaObject->setCurrentSource(soundFile);
-//				FMediaObject->play();
-//			}
+			{
+				if (FSoundFile.isOpen())
+					FSoundFile.close();
+				FSoundFile.setFileName(soundFile);
+				FSoundFile.open(QIODevice::ReadOnly);
+				FAudioOutput->stop();
+				FAudioOutput->start(&FSoundFile);
+			}*/
+			if (!FMediaObject)
+			{
+				FMediaObject = new Phonon::MediaObject(this);
+				FAudioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
+				Phonon::createPath(FMediaObject, FAudioOutput);
+			}
+			if (FMediaObject->state() != Phonon::PlayingState)
+			{
+				FMediaObject->setCurrentSource(soundFile);
+				FMediaObject->play();
+			}
 /*
 			if (QSound::isAvailable())
 			{
