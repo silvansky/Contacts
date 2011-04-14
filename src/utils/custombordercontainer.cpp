@@ -82,28 +82,27 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(CustomBorderContainer
 	setAllDefaults();
 }
 
-CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderContainerPrivate& other)
+CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderContainerPrivate& other) :
+	topLeft(other.topLeft),
+	topRight(other.topRight),
+	bottomLeft(other.bottomLeft),
+	bottomRight(other.bottomRight),
+	left(other.left),
+	right(other.right),
+	top(other.top),
+	bottom(other.bottom),
+	header(other.header),
+	title(other.title),
+	icon(other.icon),
+	controls(other.controls),
+	minimize(other.minimize),
+	maximize(other.maximize),
+	close(other.close),
+	restore(other.restore),
+	headerButtons(other.headerButtons),
+	dragAnywhere(other.dragAnywhere),
+	p(NULL)
 {
-	setAllDefaults();
-	topLeft = other.topLeft;
-	topRight = other.topRight;
-	bottomLeft = other.bottomLeft;
-	bottomRight = other.bottomRight;
-	left = other.left;
-	right = other.right;
-	top = other.top;
-	bottom = other.bottom;
-	header = other.header;
-	title = other.title;
-	icon = other.icon;
-	controls = other.controls;
-	minimize = other.minimize;
-	maximize = other.maximize;
-	close = other.close;
-	restore = other.restore;
-	headerButtons = other.headerButtons;
-	dragAnywhere = other.dragAnywhere;
-	p = NULL;
 }
 
 CustomBorderContainerPrivate::~CustomBorderContainerPrivate()
