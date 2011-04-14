@@ -59,13 +59,14 @@ protected slots:
 	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
 private:
-	Ui::AddMetaItemWidget ui;
+	Ui::AddMetaItemWidgetClass ui;
 private:
 	IGateways *FGateways;
 private:
 	QString FContactJidRequest;
 	QMap<QString, Jid> FLoginRequests;
 private:
+	bool FServiceFailed;
 	bool FContactTextChanged;
 	Jid FStreamJid;
 	Jid FContactJid;

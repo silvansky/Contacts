@@ -2,7 +2,13 @@
 #define ADDMETAITEMPAGE_H
 
 #include <QWidget>
+#include <definitions/menuicons.h>
+#include <definitions/resources.h>
+#include <definitions/gateserviceidentifiers.h>
+#include <interfaces/ipluginmanager.h>
+#include <interfaces/imetacontacts.h>
 #include <interfaces/imessagewidgets.h>
+#include <interfaces/irosterchanger.h>
 #include "ui_addmetaitempage.h"
 
 class AddMetaItemPage : 
@@ -12,7 +18,8 @@ class AddMetaItemPage :
 	Q_OBJECT;
 	Q_INTERFACES(ITabPage);
 public:
-	AddMetaItemPage(QWidget *AParent = NULL);
+	AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster, const QString &AMetaId, 
+		const IMetaItemDescriptor &ADescriptor, QWidget *AParent = NULL);
 	~AddMetaItemPage();
 	//ITabPage
 	virtual QWidget *instance() { return this; }
@@ -36,12 +43,31 @@ signals:
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
 protected:
+	QString infoMessageByGate(const QString &AGateId);
+	void setErrorMessage(const QString &AMessage);
+protected:
 	virtual bool event(QEvent *AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void closeEvent(QCloseEvent *AEvent);
+protected slots:
+	void onAppendContactButtonClicked();
+	void onItemWidgetShowOptionsRequested();
+	void onItemWidgetContactJidChanged(const Jid &AContactJid);
+	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
+	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 private:
-	Ui::AddMetaItemPage ui;
+	Ui::AddMetaItemPageClass ui;
 private:
+	IMetaRoster *FMetaRoster;
+	IMetaTabWindow *FMetaTabWindow;
+	IRosterChanger *FRosterChanger;
+	IAddMetaItemWidget *FAddWidget;
+private:
+	QString FCreateRequestId;
+	QString FMergeRequestId;
+private:
+	QString FMetaId;
+	IMetaItemDescriptor FDescriptor;
 };
 
 #endif // ADDMETAITEMPAGE_H

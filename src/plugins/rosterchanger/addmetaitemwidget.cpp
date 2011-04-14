@@ -11,6 +11,7 @@ AddMetaItemWidget::AddMetaItemWidget(IGateways *AGateways, const Jid &AStreamJid
 
 	FGateways = AGateways;
 
+	FServiceFailed = false;
 	FContactTextChanged = false;
 	FStreamJid = AStreamJid;
 	FDescriptor = ADescriptor;
@@ -209,7 +210,20 @@ void AddMetaItemWidget::updateProfiles()
 		}
 	}
 
-	if (selectedProfile().isEmpty() && !FProfiles.isEmpty())
+	if (FProfiles.isEmpty())
+	{
+		FServiceFailed = true;
+		setErrorMessage(tr("%1 service is not available").arg(FDescriptor.name));
+		ui.lneContact->setEnabled(false);
+	}
+	else if (FServiceFailed)
+	{
+		FServiceFailed = false;
+		ui.lneContact->setEnabled(true);
+		startResolve(0);
+	}
+	
+	if (!FServiceFailed && selectedProfile().isEmpty())
 	{
 		if (!FDescriptor.needGate)
 			setSelectedProfile(FStreamJid);
@@ -352,7 +366,10 @@ void AddMetaItemWidget::onServiceLoginReceived(const QString &AId, const QString
 	if (FLoginRequests.contains(AId))
 	{
 		Jid serviceJid = FLoginRequests.take(AId);
-		FProfileLogins.insert(serviceJid,ALogin);
+		if (!ALogin.isEmpty())
+			FProfileLogins.insert(serviceJid,ALogin);
+		else
+			FProfileLogins.remove(serviceJid);
 		updateProfiles();
 	}
 }
@@ -408,4 +425,3 @@ void AddMetaItemWidget::onServicePresenceChanged(const Jid &AStreamJid, const Ji
 		updateProfiles();
 	}
 }
-

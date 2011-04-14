@@ -10,6 +10,7 @@
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/istatuschanger.h>
+#include <interfaces/irosterchanger.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
@@ -139,6 +140,7 @@ private:
 	ITabPageNotifier *FTabPageNotifier;
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
+	IRosterChanger *FRosterChanger;
 private:
 	QString FMetaId;
 	bool FShownDetached;

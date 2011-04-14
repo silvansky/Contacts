@@ -80,7 +80,7 @@ protected slots:
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 private:
 	QVBoxLayout *FItemsLayout;
-	Ui::AddMetaContactDialog ui;
+	Ui::AddMetaContactDialogClass ui;
 private:
 	IMetaRoster *FMetaRoster;
 	IMetaContacts *FMetaContacts;
