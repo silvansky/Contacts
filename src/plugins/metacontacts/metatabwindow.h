@@ -11,9 +11,11 @@
 #include <interfaces/istatusicons.h>
 #include <interfaces/istatuschanger.h>
 #include <utils/options.h>
+#include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
 #include <utils/toolbarchanger.h>
+#include "addmetaitempage.h"
 #include "ui_metatabwindow.h"
 
 class MetaTabWindow :
@@ -94,6 +96,10 @@ private:
 	void updateItemPages(const QSet<Jid> &AItems);
 	void createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const;
 protected:
+	void createPersistantList();
+	void updatePersistantPages();
+	void insertPersistantWidget(const QString &APageId);
+protected:
 	void connectPage(ITabPage *APage);
 	void disconnectPage(ITabPage *APage);
 	void removeTabPageNotifies();
@@ -146,6 +152,10 @@ private:
 	QMap<QToolButton *, Action *> FButtonAction;
 private:
 	QMap<Jid, QString> FItemPages;
+	QMap<QString, int> FItemTypeCount;
+private:
+	static QList<QString> FPersistantList;
+	QMap<QString, QString> FPersistantPages;
 };
 
 #endif // METATABWINDOW_H

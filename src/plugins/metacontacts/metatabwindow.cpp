@@ -6,12 +6,11 @@
 #include <QFontMetrics>
 #include <QDesktopServices>
 #include <QContextMenuEvent>
-#include <utils/iconstorage.h>
-#include <definitions/resources.h>
-#include <definitions/menuicons.h>
 
 #define ADR_ITEM_JID         Action::DR_Parametr1
 #define ADR_DEFAULT_ICON     Action::DR_UserDefined+1
+
+QList<QString> MetaTabWindow::FPersistantList;
 
 MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QMainWindow(AParent)
 {
@@ -40,6 +39,7 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 	connect(ui.stwWidgets,SIGNAL(currentChanged(int)),SLOT(onCurrentWidgetChanged(int)));
 
+	createPersistantList();
 	updateItemPages(FMetaRoster->metaContact(FMetaId).items);
 	updateWindow();
 }
@@ -162,30 +162,37 @@ void MetaTabWindow::setCurrentPage(const QString &APageId)
 	if (FPageActions.contains(APageId))
 	{
 		if (!FPageWidgets.contains(APageId))
-			emit pageWidgetRequested(APageId);
+		{
+			if (FPersistantPages.values().contains(APageId))
+				insertPersistantWidget(APageId);
+			else
+				emit pageWidgetRequested(APageId);
+		}
 
 		ITabPage *page = FPageWidgets.value(APageId);
 		if (page)
 			ui.stwWidgets->setCurrentWidget(page->instance());
+		else if (FPageButtons.contains(currentPage()))
+			FPageButtons.value(currentPage())->setChecked(true);
 	}
 }
 
 QString MetaTabWindow::insertPage(int AOrder, bool ACombine)
 {
-	QString pid;
-	while (pid.isEmpty() || FPageWidgets.contains(pid))
-		pid = QString::number(qrand());
+	QString pageId;
+	while (pageId.isEmpty() || FPageWidgets.contains(pageId))
+		pageId = QString::number(qrand());
 
 	Action *action = new Action(FToolBarChanger->toolBar());
 	action->setCheckable(true);
 	connect(action,SIGNAL(triggered(bool)),SLOT(onPageActionTriggered(bool)));
-	FPageActions.insert(pid,action);
+	FPageActions.insert(pageId,action);
 
 	QToolButton *button = NULL;
 	if (ACombine)
 	{
 		button = FPageButtons.value(FCombinedPages.value(AOrder));
-		FCombinedPages.insertMulti(AOrder,pid);
+		FCombinedPages.insertMulti(AOrder,pageId);
 	}
 	if (!button)
 	{
@@ -211,11 +218,11 @@ QString MetaTabWindow::insertPage(int AOrder, bool ACombine)
 		}
 		menu->addAction(action,AG_DEFAULT,true);
 	}
-	FPageButtons.insert(pid,button);
+	FPageButtons.insert(pageId,button);
 
-	emit pageInserted(pid,AOrder,ACombine);
+	emit pageInserted(pageId,AOrder,ACombine);
 
-	return pid;
+	return pageId;
 }
 
 QIcon MetaTabWindow::pageIcon(const QString &APageId) const
@@ -533,24 +540,29 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 	foreach(Jid itemJid, newItems)
 	{
 		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(itemJid);
-		QString pid = insertPage(descriptor.pageOrder,descriptor.combine);
+		QString pageId = insertPage(descriptor.pageOrder,descriptor.combine);
 
 		QIcon icon;
 		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
 		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Selected);
 		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
 		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
-		setPageIcon(pid,icon);
-		setPageName(pid,FMetaContacts->itemHint(itemJid));
+		setPageIcon(pageId,icon);
+		setPageName(pageId,FMetaContacts->itemHint(itemJid));
 
-		FItemPages.insert(itemJid,pid);
+		FItemPages.insert(itemJid,pageId);
+		FItemTypeCount[descriptor.name]++;
 	}
 
 	foreach(Jid itemJid, oldItems)
 	{
+		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(itemJid);
 		removePage(itemPage(itemJid));
 		FItemPages.remove(itemJid);
+		FItemTypeCount[descriptor.name]--;
 	}
+
+	updatePersistantPages();
 }
 
 void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const
@@ -590,6 +602,57 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 		connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteItemByAction(bool)));
 		AMenu->addAction(deleteAction,AG_MCICM_ITEM_ACTIONS);
 	}
+}
+
+void MetaTabWindow::createPersistantList()
+{
+	static bool created = false;
+	if (!created)
+	{
+		foreach(QString name, FMetaContacts->availDescriptors())
+		{
+			IMetaItemDescriptor descriptor = FMetaContacts->descriptorByName(name);
+			if (descriptor.persistent)
+				FPersistantList.append(descriptor.name);
+		}
+		created = true;
+	}
+}
+
+void MetaTabWindow::updatePersistantPages()
+{
+	foreach(QString descrName, FPersistantList)
+	{
+		if (FPersistantPages.value(descrName).isEmpty() && FItemTypeCount.value(descrName)==0)
+		{
+			IMetaItemDescriptor descriptor = FMetaContacts->descriptorByName(descrName);
+			QString pageId = insertPage(descriptor.pageOrder, false);
+
+			QIcon icon;
+			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
+			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Selected);
+			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
+			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+			setPageIcon(pageId,icon);
+			setPageName(pageId,tr("Add %1 contact").arg(descrName));
+
+			FPersistantPages.insert(descrName,pageId);
+		}
+		else if (!FPersistantPages.value(descrName).isEmpty() && FItemTypeCount.value(descrName)>0)
+		{
+			QString pageId = FPersistantPages.take(descrName);
+			ITabPage *widget = pageWidget(pageId);
+			if (widget)
+				widget->instance()->deleteLater();
+			removePage(pageId);
+		}
+	}
+}
+
+void MetaTabWindow::insertPersistantWidget(const QString &APageId)
+{
+	AddMetaItemPage *widget = new AddMetaItemPage();
+	setPageWidget(APageId,widget);
 }
 
 void MetaTabWindow::connectPage(ITabPage *APage)
@@ -828,9 +891,9 @@ void MetaTabWindow::onCurrentWidgetChanged(int AIndex)
 	if (FPageActions.contains(pageId))
 	{
 		QToolButton *button = FPageButtons.value(pageId);
+		button->setChecked(true);
 		setButtonAction(button,FPageActions.value(pageId));
 		updatePageButton(pageId);
-		button->setChecked(true);
 		emit currentPageChanged(pageId);
 	}
 	ui.tlbToolBar->repaint();
@@ -863,21 +926,14 @@ void MetaTabWindow::onMetaContactReceived(const IMetaContact &AContact, const IM
 
 void MetaTabWindow::onPageButtonClicked(bool)
 {
-	QToolButton *button = qobject_cast<QToolButton *>(sender());
-	Action *action = FButtonAction.value(button);
-	if (button && action)
-	{
+	Action *action = FButtonAction.value(qobject_cast<QToolButton *>(sender()));
+	if (action)
 		action->trigger();
-		button->setChecked(true);
-	}
 }
 
 void MetaTabWindow::onPageActionTriggered(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
-	{
-		action->setChecked(true);
 		setCurrentPage(FPageActions.key(action));
-	}
 }

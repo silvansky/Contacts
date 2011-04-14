@@ -12,9 +12,10 @@ class AddMetaItemPage :
 	Q_OBJECT;
 	Q_INTERFACES(ITabPage);
 public:
-	AddMetaItemPage(QWidget *Aparent = NULL);
+	AddMetaItemPage(QWidget *AParent = NULL);
 	~AddMetaItemPage();
 	//ITabPage
+	virtual QWidget *instance() { return this; }
 	virtual void showTabPage();
 	virtual void closeTabPage();
 	virtual bool isActive() const;
