@@ -25,9 +25,12 @@ Notifications::Notifications()
 	FNotifyMenu = NULL;
 
 	FTestNotifyId = -1;
-	FSound = NULL;
+#ifdef QT_PHONON
 	FMediaObject = NULL;
 	FAudioOutput = NULL;
+#else
+	FSound = NULL;
+#endif
 
 	FTestNotifyTimer.setSingleShot(true);
 	FTestNotifyTimer.setInterval(TEST_NOTIFY_TIMEOUT);
@@ -393,6 +396,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 				FAudioOutput->stop();
 				FAudioOutput->start(&FSoundFile);
 			}*/
+#ifdef QT_PHONON_LIB
 			if (!FMediaObject)
 			{
 				FMediaObject = new Phonon::MediaObject(this);
@@ -404,7 +408,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 				FMediaObject->setCurrentSource(soundFile);
 				FMediaObject->play();
 			}
-/*
+#else
 			if (QSound::isAvailable())
 			{
 				if (!FSound || (FSound && FSound->isFinished()))
@@ -415,13 +419,13 @@ int Notifications::appendNotification(const INotification &ANotification)
 					FSound->play();
 				}
 			}
-#ifdef Q_WS_X11
+#	ifdef Q_WS_X11
 			else
 			{
 				QProcess::startDetached(Options::node(OPV_NOTIFICATIONS_SOUND_COMMAND).value().toString(),QStringList()<<soundFile);
 			}
+#	endif
 #endif
-*/
 		}
 	}
 
