@@ -900,6 +900,7 @@ bool CustomBorderContainer::winEvent(MSG *message, long *result)
 }
 #endif
 
+// TODO: make it less buggy...
 bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 {
 	QWidget *widget = qobject_cast<QWidget*>(object);

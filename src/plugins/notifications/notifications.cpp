@@ -26,6 +26,8 @@ Notifications::Notifications()
 
 	FTestNotifyId = -1;
 	FSound = NULL;
+	//FMediaObject = NULL;
+	FAudioOutput = NULL;
 
 	FTestNotifyTimer.setSingleShot(true);
 	FTestNotifyTimer.setInterval(TEST_NOTIFY_TIMEOUT);
@@ -376,6 +378,23 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
 		if (!soundFile.isEmpty())
 		{
+			if (!FAudioOutput)
+			{
+				FAudioOutput = new QAudioOutput;
+			}
+			if (FAudioOutput->state() != QAudio::ActiveState)
+//			if (!FMediaObject)
+//			{
+//				FMediaObject = new Phonon::MediaObject(this);
+//				FAudioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
+//				Phonon::createPath(FMediaObject, FAudioOutput);
+//			}
+//			if (FMediaObject->state() != Phonon::PlayingState)
+//			{
+//				FMediaObject->setCurrentSource(soundFile);
+//				FMediaObject->play();
+//			}
+/*
 			if (QSound::isAvailable())
 			{
 				if (!FSound || (FSound && FSound->isFinished()))
@@ -392,6 +411,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 				QProcess::startDetached(Options::node(OPV_NOTIFICATIONS_SOUND_COMMAND).value().toString(),QStringList()<<soundFile);
 			}
 #endif
+*/
 		}
 	}
 

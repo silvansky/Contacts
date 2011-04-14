@@ -3,6 +3,8 @@
 
 #include <QTimer>
 #include <QSound>
+//#include <Phonon/Phonon>
+#include <QtMultimedia>
 #include <QPointer>
 #include <definitions/notificationdataroles.h>
 #include <definitions/actiongroups.h>
@@ -146,6 +148,9 @@ private:
 private:
 	int FTestNotifyId;
 	QSound *FSound;
+	//Phonon::MediaObject * FMediaObject;
+	//Phonon::AudioOutput * FAudioOutput;
+	QAudioOutput * FAudioOutput;
 	QTimer FTestNotifyTimer;
 	QList<int> FDelayedReplaces;
 	QList<int> FDelayedActivations;
