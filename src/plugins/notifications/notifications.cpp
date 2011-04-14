@@ -25,7 +25,7 @@ Notifications::Notifications()
 	FNotifyMenu = NULL;
 
 	FTestNotifyId = -1;
-#ifdef QT_PHONON
+#ifdef QT_PHONON_LIB
 	FMediaObject = NULL;
 	FAudioOutput = NULL;
 #else
@@ -42,7 +42,12 @@ Notifications::~Notifications()
 	delete FActivateAll;
 	delete FRemoveAll;
 	delete FNotifyMenu;
+#ifndef QT_PHONON_LIB
 	delete FSound;
+#else
+	delete FMediaObject;
+	delete FAudioOutput;
+#endif
 }
 
 void Notifications::pluginInfo(IPluginInfo *APluginInfo)
