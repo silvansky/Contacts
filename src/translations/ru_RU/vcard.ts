@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>Add to roster</source>
-        <translation>Добавить в контакт лист</translation>
+        <translation>Добавить в контакт-лист</translation>
     </message>
     <message>
         <source>Rename</source>
@@ -48,7 +48,7 @@
     </message>
     <message>
         <source>Profile: %1</source>
-        <translation>Провиль: %1</translation>
+        <translation>Профиль: %1</translation>
     </message>
     <message>
         <source>vCard error</source>
@@ -130,7 +130,7 @@
     </message>
     <message>
         <source>Nick name</source>
-        <translation>Ник</translation>
+        <translation>Прозвище</translation>
     </message>
     <message>
         <source>Jabber Id</source>
@@ -142,7 +142,7 @@
     </message>
     <message>
         <source>Birthday</source>
-        <translation>Днь рождения</translation>
+        <translation>День рождения</translation>
     </message>
     <message>
         <source>dd.MMMM.yyyy</source>
@@ -170,15 +170,15 @@
     </message>
     <message>
         <source>Department</source>
-        <translation>Подразделение</translation>
+        <translation>Департамент</translation>
     </message>
     <message>
         <source>Role</source>
-        <translation>Роль</translation>
+        <translation>Должность</translation>
     </message>
     <message>
         <source>Home page</source>
-        <translation>Дом. страница</translation>
+        <translation>Домашняя страница</translation>
     </message>
     <message>
         <source>Adress</source>
@@ -202,7 +202,7 @@
     </message>
     <message>
         <source>Zip code</source>
-        <translation>Почтовый код</translation>
+        <translation>Почтовый индекс</translation>
     </message>
     <message>
         <source>Country</source>
@@ -285,11 +285,11 @@
     </message>
     <message>
         <source>Allows to obtain personal contact information</source>
-        <translation>Позволяет получать личную информацию о контакте</translation>
+        <translation>Позволяет получать персональную информацию о контакте</translation>
     </message>
     <message>
         <source>Supports the requesting of the personal contact information</source>
-        <translation>Поддерживает запросы личной информации о контакте</translation>
+        <translation>Поддерживает запросы персональной информации о контакте</translation>
     </message>
     <message>
         <source>Contact info</source>

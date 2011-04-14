@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -25,7 +25,7 @@
     </message>
     <message>
         <source>Reenter password:</source>
-        <translation>Посторите пароль:</translation>
+        <translation>Повторите пароль:</translation>
     </message>
     <message>
         <source>Error</source>
@@ -33,7 +33,7 @@
     </message>
     <message>
         <source>Could not create profile, maybe this profile already exists</source>
-        <translation>Не удалось создать профиль, возможно такой профиль уже существует</translation>
+        <translation>Не удалось создать профиль, возможно, такой профиль уже существует</translation>
     </message>
     <message>
         <source>Passwords did not match</source>
@@ -131,15 +131,15 @@
     </message>
     <message>
         <source>Unable to activate account</source>
-        <translation>Неудалось активировать аккаунт</translation>
+        <translation>Неудалось активировать учётную запись</translation>
     </message>
     <message>
         <source>Internal error, contact support</source>
-        <translation>Внутренняя ошибка, обратитесь в поддержку</translation>
+        <translation>Внутренняя ошибка, обратитесь в службу поддержки</translation>
     </message>
     <message>
         <source>Unable to create account</source>
-        <translation>Не удалось создать аккаунт</translation>
+        <translation>Не удалось создать учётную запись</translation>
     </message>
     <message>
         <source>Unable to open profile</source>
@@ -147,7 +147,7 @@
     </message>
     <message>
         <source>This profile is already opened by another Virtus instance</source>
-        <translation>Этот профиль уже открыть другим экземпляром Virtus-а</translation>
+        <translation>Этот профиль уже открыть другой копией Virtus</translation>
     </message>
     <message>
         <source>Unable to create profile</source>
@@ -155,7 +155,7 @@
     </message>
     <message>
         <source>Check your system permissions to create folders</source>
-        <translation>Проверте ваши права на создание папок</translation>
+        <translation>Проверьте ваши права на создание папок</translation>
     </message>
     <message>
         <source>Invalid login</source>
@@ -163,11 +163,11 @@
     </message>
     <message>
         <source>Check your user name and domain</source>
-        <translation>Проверте имя пользователя и домен</translation>
+        <translation>Проверьте имя пользователя и домен</translation>
     </message>
     <message>
         <source>Unable to set connection</source>
-        <translation>Не удалось задать поключение</translation>
+        <translation>Не удалось подключиться</translation>
     </message>
     <message>
         <source>Unable to connect to server</source>
@@ -183,7 +183,7 @@
     </message>
     <message>
         <source>Maybe entered password is not correct</source>
-        <translation>Возможно пароль не подходит к логину</translation>
+        <translation>Возможно, пароль не подходит к логину</translation>
     </message>
     <message>
         <source>Reconnect after &lt;b&gt;%1&lt;/b&gt; secs</source>
@@ -204,9 +204,9 @@
     <message>
         <source>Password can be entered incorrectly because of &lt;CapsLock&gt; key is pressed.
 Turn off &lt;CapsLock&gt; before entering password.</source>
-        <translation>Пароль может быть введен не правильно из-за нажатой клавиши &lt;CapsLock&gt;.
+        <translation>Пароль может быть введен неправильно из-за нажатой клавиши &lt;CapsLock&gt;.
 
-Отключите &lt;CapsLock&gt; перед тем как вводить пароль.</translation>
+Отключите &lt;CapsLock&gt; перед тем, как вводить пароль.</translation>
     </message>
     <message>
         <source>Enter</source>
@@ -222,7 +222,7 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     </message>
     <message>
         <source>Enter your Rambler login and password, or %1.</source>
-        <translation>Введите Ваш Rambler логин и пароль или %1.</translation>
+        <translation>Введите ваш логин и пароль на Рамблере или %1.</translation>
     </message>
     <message>
         <source>register</source>
@@ -261,7 +261,7 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     </message>
     <message>
         <source>Enter your Rambler login and password, or register</source>
-        <translation>Введите Ваш Rambler логин и пароль или зарегистрируйтесь</translation>
+        <translation>Введите ваш логин и пароль на Рамблере или зарегистрируйтесь</translation>
     </message>
 </context>
 <context>
@@ -279,7 +279,7 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     </message>
     <message>
         <source>Allows to save, load and manage user preferences</source>
-        <translation>Позволяет сохранять, загружать и управлячть настройками пользователя</translation>
+        <translation>Позволяет сохранять, загружать и управлять настройками пользователя</translation>
     </message>
     <message>
         <source>Options</source>

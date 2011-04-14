@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -21,18 +21,18 @@
     </message>
     <message>
         <source>SMS service is unavailable</source>
-        <translation>SMS сервис недоступен</translation>
+        <translation>SMS-сервис недоступен</translation>
     </message>
 </context>
 <context>
     <name>SmsMessageHandler</name>
     <message>
         <source>SMS Messages</source>
-        <translation>SMS Сообщения</translation>
+        <translation>SMS-сообщения</translation>
     </message>
     <message>
         <source>Allows to exchange SMS messages via gateway</source>
-        <translation>Позволяет обмениваться SMS сообщениями через транспорт</translation>
+        <translation>Позволяет обмениваться SMS-сообщениями через транспорт</translation>
     </message>
     <message numerus="yes">
         <source>%n message(s)</source>

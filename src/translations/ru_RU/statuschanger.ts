@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -20,7 +20,7 @@
     </message>
     <message>
         <source>Define your status and text for it</source>
-        <translation>Задайте свой статус и текст для него</translation>
+        <translation>Укажите свой статус и добавьте текст для него</translation>
     </message>
     <message>
         <source>Statuses can tell your friends what you are interested in or what you&apos;re doing.</source>
@@ -55,11 +55,11 @@
     </message>
     <message>
         <source>Enter status name</source>
-        <translation>Введите имя статуса</translation>
+        <translation>Введите название статуса</translation>
     </message>
     <message>
         <source>Status name:</source>
-        <translation>Имя статуса:</translation>
+        <translation>Название статуса:</translation>
     </message>
     <message>
         <source>Wrong status name</source>
@@ -179,7 +179,7 @@
     </message>
     <message>
         <source>Allows to change the status in Jabber network</source>
-        <translation>Позволяет изменять статус в джаббер сети</translation>
+        <translation>Позволяет изменять статус в Jabber-сети</translation>
     </message>
     <message>
         <source>Connecting...</source>
@@ -187,7 +187,7 @@
     </message>
     <message>
         <source>Modify Status</source>
-        <translation>Изменять статус</translation>
+        <translation>Изменить статус</translation>
     </message>
     <message>
         <source>Auto connect on startup</source>
@@ -230,7 +230,7 @@
     </message>
     <message>
         <source>Select new avatar image</source>
-        <translation>Выберите новое изображение аватара</translation>
+        <translation>Выберите новой аватар</translation>
     </message>
     <message>
         <source>Image files %1</source>

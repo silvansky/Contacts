@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -33,7 +33,7 @@
     </message>
     <message>
         <source>Choose your method of notification</source>
-        <translation>Выберите подходящий способ уведомления</translation>
+        <translation>Выберите способ получения уведомлений</translation>
     </message>
     <message>
         <source>Turn of all popup windows and sounds if status is &apos;Away&apos;</source>
@@ -50,8 +50,7 @@
     <message>
         <source>Temporarily disable all popup windows and sounds when working
 any full screen application (films, games, presentations)</source>
-        <translation>Временно отключать все всплывающие окна и звуки, когда работает
-какое-либо полноэкранное приложение (фильмы, игры, презентации)</translation>
+        <translation>Временно отключать все всплывающие окна и звуки в полноэкранных приложениях (фильмы, игры, презентации)</translation>
     </message>
     <message>
         <source>If status &apos;Away&apos; or &apos;Busy&apos;</source>
@@ -66,7 +65,7 @@ any full screen application (films, games, presentations)</source>
     </message>
     <message>
         <source>Sound signal</source>
-        <translation>Звук. сигнал</translation>
+        <translation>Звуковой сигнал</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;test:notify&quot;&gt;Test&lt;/a&gt;</source>
@@ -96,7 +95,7 @@ any full screen application (films, games, presentations)</source>
     </message>
     <message>
         <source>Popup</source>
-        <translation>Всплыв. окно</translation>
+        <translation>Всплывающее окно</translation>
     </message>
     <message>
         <source>Tray</source>

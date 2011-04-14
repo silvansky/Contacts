@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -30,7 +30,7 @@
     </message>
     <message>
         <source>Tab Window %1</source>
-        <translation>Окно  со вкладками %1</translation>
+        <translation>Окно  с вкладками %1</translation>
     </message>
     <message>
         <source>Main Tab Window</source>
@@ -46,7 +46,7 @@
     </message>
     <message>
         <source>Tab Window</source>
-        <translation>Окно  со вкладками</translation>
+        <translation>Окно  с вкладками</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -66,15 +66,15 @@
     </message>
     <message>
         <source>Copy link address</source>
-        <translation>Копировать адрес ссылки</translation>
+        <translation>Копировать  ссылку</translation>
     </message>
     <message>
         <source>Search on Rambler &apos;%1&apos;</source>
-        <translation>Искать в Рамблере %1</translation>
+        <translation>Искать на Рамблере %1</translation>
     </message>
     <message>
         <source>Search on Rambler</source>
-        <translation>Искать в Рамблере</translation>
+        <translation>Искать на Рамблере</translation>
     </message>
     <message>
         <source>Open All</source>
@@ -244,15 +244,15 @@
     </message>
     <message>
         <source>Next Tab</source>
-        <translation>След. вкладка</translation>
+        <translation>Следующая вкладка</translation>
     </message>
     <message>
         <source>Prev. Tab</source>
-        <translation>Пред. вкладка</translation>
+        <translation>Предыдущая вкладка</translation>
     </message>
     <message>
         <source>New Tab Window</source>
-        <translation>Новое окно со вкладкми</translation>
+        <translation>Новое окно с вкладками</translation>
     </message>
     <message>
         <source>Rename Tab Window</source>
@@ -264,11 +264,11 @@
     </message>
     <message>
         <source>Tab window name:</source>
-        <translation>Наименование окна:</translation>
+        <translation>Название окна:</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this tab window?</source>
-        <translation>Вы уверены что хотите удалить это окно со вкладками?</translation>
+        <translation>Вы уверены, что хотите удалить это окно со вкладками?</translation>
     </message>
     <message>
         <source>Ctrl+PgDown</source>

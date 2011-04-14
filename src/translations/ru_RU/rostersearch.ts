@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -13,11 +13,11 @@
     </message>
     <message>
         <source>Allows to search for contacts in the roster</source>
-        <translation>Позволяет искать контакты в ростере</translation>
+        <translation>Позволяет искать контакты в списке</translation>
     </message>
     <message>
         <source>Search in roster</source>
-        <translation>Искать в ростере</translation>
+        <translation>Искать в списке</translation>
     </message>
     <message>
         <source>Search &quot;%1&quot; in history</source>

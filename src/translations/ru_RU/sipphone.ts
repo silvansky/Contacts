@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -9,11 +9,11 @@
     </message>
     <message>
         <source>Allows to make voice and video calls over SIP protocol</source>
-        <translation>Позволяет делать аудио и видео звонки через SIP протокол</translation>
+        <translation>Позволяет делать аудио- и видеозвонки через SIP-протокол</translation>
     </message>
     <message>
         <source>SIP voice ans video calls</source>
-        <translation>Аудио и видео звонки через SIP</translation>
+        <translation>Аудио- и видеозвонки через SIP</translation>
     </message>
     <message>
         <source>Accept</source>

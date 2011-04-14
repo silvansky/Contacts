@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -9,15 +9,15 @@
     </message>
     <message>
         <source>XMPP connection timed out</source>
-        <translation>Превышено время установки XMPP соединения</translation>
+        <translation>Превышено время установки XMPP-соединения</translation>
     </message>
     <message>
         <source>Failed to start connection</source>
-        <translation>Не удалось запустить соединение</translation>
+        <translation>Не удалось соединиться</translation>
     </message>
     <message>
         <source>Connection closed unexpectedly</source>
-        <translation>Соединение неожиданно закрылось</translation>
+        <translation>Соединение неожиданно прервалось</translation>
     </message>
 </context>
 <context>
@@ -92,7 +92,7 @@
     </message>
     <message>
         <source>See Other Host</source>
-        <translation>Смотри другой хост</translation>
+        <translation>Проверьте другой хост</translation>
     </message>
     <message>
         <source>System Shutdown</source>
@@ -120,11 +120,11 @@
     </message>
     <message>
         <source>XMPP Streams Manager</source>
-        <translation>Диспетчер XMPP потоков</translation>
+        <translation>Диспетчер XMPP-потоков</translation>
     </message>
     <message>
         <source>Allows other modules to create XMPP streams and get access to them</source>
-        <translation>Позволяет другим модулям создавать XMPP потоки и получать доступ к ним</translation>
+        <translation>Позволяет другим модулям создавать XMPP-потоки и получать доступ к ним</translation>
     </message>
 </context>
 </TS>

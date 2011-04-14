@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Enter your username and new password.</source>
-        <translation>Введите ваше имя пользователя и новый пароль.</translation>
+        <translation>Введите ваш логин и новый пароль.</translation>
     </message>
     <message>
         <source>You are successfully registered at %1</source>
@@ -83,7 +83,7 @@
     </message>
     <message>
         <source>Account Name</source>
-        <translation>Имя Аккаунта</translation>
+        <translation>Имя учётной записи</translation>
     </message>
     <message>
         <source>Nickname</source>
@@ -123,7 +123,7 @@
     </message>
     <message>
         <source>Zip Code</source>
-        <translation>Почтовый код</translation>
+        <translation>Почтовый индекс</translation>
     </message>
     <message>
         <source>Telephone Number</source>
@@ -135,7 +135,7 @@
     </message>
     <message>
         <source>Allows to register on the Jabber servers and services</source>
-        <translation>Позволяет регистрироваться на джаббер серверах и сервисах</translation>
+        <translation>Позволяет регистрироваться на Jabber-серверах и сервисах</translation>
     </message>
     <message>
         <source>Supports the registration</source>

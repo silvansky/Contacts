@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Manual</source>
-        <translation>Ручной порядок</translation>
+        <translation>Вручную</translation>
     </message>
 </context>
 <context>
@@ -70,11 +70,11 @@
     <name>RostersViewPlugin</name>
     <message>
         <source>Roster View</source>
-        <translation>Отображение ростера</translation>
+        <translation>Отображение контакт-листа</translation>
     </message>
     <message>
         <source>Displays a hierarchical roster&apos;s model</source>
-        <translation>Отображает иерархическую модель ростера</translation>
+        <translation>Отображает иерархическую модель контакт-листа</translation>
     </message>
     <message>
         <source>Contact List</source>
@@ -83,6 +83,10 @@
     <message>
         <source>Show offline contacts</source>
         <translation>Показывать отключенных (&quot;Не в сети&quot;)</translation>
+    </message>
+    <message>
+        <source>Group contacts</source>
+        <translation>Группировать контакты</translation>
     </message>
     <message>
         <source>Contacts Order</source>

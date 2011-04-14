@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -13,15 +13,15 @@
     </message>
     <message>
         <source>Clear avatar</source>
-        <translation>Очистить аватар</translation>
+        <translation>Удалить аватар</translation>
     </message>
     <message>
         <source>Select avatar image</source>
-        <translation>Выбрать картинку аватара</translation>
+        <translation>Выбрать изображение</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.bmp *.gif)</source>
-        <translation>Картинки (*.png *.jpg *.bmp *.gif)</translation>
+        <translation>Изображения (*.png *.jpg *.bmp *.gif)</translation>
     </message>
     <message>
         <source>Avatars</source>

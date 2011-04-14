@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Allows to use different types of connections to a Jabber server</source>
-        <translation>Позволяет использовать различные типы подключений к джаббер серверу</translation>
+        <translation>Позволяет использовать различные типы подключений к Jabber-серверу</translation>
     </message>
     <message>
         <source>&lt;No Proxy&gt;</source>
@@ -109,7 +109,7 @@
     <name>ProxyOptionsWidget</name>
     <message>
         <source>Manual Proxy</source>
-        <translation>Ручной прокси</translation>
+        <translation>Настроить прокси вручную</translation>
     </message>
     <message>
         <source>Automatic connection</source>
@@ -129,7 +129,7 @@
     </message>
     <message>
         <source>Name and password is required to connect</source>
-        <translation>Для подключения требуется имя и пароль</translation>
+        <translation>Для подключения требуются логин и пароль</translation>
     </message>
 </context>
 <context>

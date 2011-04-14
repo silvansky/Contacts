@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
     <name>ChatMessageHandler</name>
     <message>
         <source>Chat Messages</source>
-        <translation>Чат сообщения</translation>
+        <translation>Сообщения чата</translation>
     </message>
     <message>
         <source>%1 changed status to [%2] %3</source>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Allows to exchange chat messages</source>
-        <translation>Позволяет обмениваться чат сообщениями</translation>
+        <translation>Позволяет обмениваться сообщениями в чате</translation>
     </message>
     <message>
         <source>January</source>
@@ -125,7 +125,7 @@
     </message>
     <message>
         <source>Chat history</source>
-        <translation>История чата</translation>
+        <translation>История сообщений</translation>
     </message>
     <message>
         <source>Show previous messages</source>

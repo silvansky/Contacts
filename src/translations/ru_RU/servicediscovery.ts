@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -102,7 +102,7 @@
     </message>
     <message>
         <source>Reload</source>
-        <translation>Обновить</translation>
+        <translation>Перезагрузить</translation>
     </message>
     <message>
         <source>Disco info</source>
@@ -164,7 +164,7 @@
     </message>
     <message>
         <source>Allows to receive information about Jabber entities</source>
-        <translation>Позволяет получать информацию о джаббер сущностях</translation>
+        <translation>Позволяет получать информацию о видах Jabber</translation>
     </message>
     <message>
         <source>Supports the exchange of the discovery information and items</source>
@@ -200,7 +200,7 @@
     </message>
     <message>
         <source>Supports the displaying of the jabber identifiers with disallowed characters</source>
-        <translation>Поддерживает отобрадение джаббер идентификаторов с запрещенными символами</translation>
+        <translation>Поддерживает отображение Jabber-идентификаторов с запрещенными символами</translation>
     </message>
 </context>
 </TS>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Invalid address. Please check the address and try again.</source>
-        <translation>Указан недопустимый адрес. Пожалуйста, проверте адрес и повторите попытку.</translation>
+        <translation>Указан недопустимый адрес. Пожалуйста, проверьте адрес и повторите попытку.</translation>
     </message>
     <message>
         <source>You cannot add this contact to selected profile</source>
@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>This address is already in your contact-list.</source>
-        <translation>Этот адрес уже есть в вашем контакт листе.</translation>
+        <translation>Этот адрес уже есть в вашем контакт-листе.</translation>
     </message>
     <message>
         <source>Create group</source>
@@ -58,10 +58,6 @@
     <message>
         <source>%1 service is unavailable</source>
         <translation>%1 сервис недоступен</translation>
-    </message>
-    <message>
-        <source>Add Contact</source>
-        <translation>Добавить контакт</translation>
     </message>
 </context>
 <context>
@@ -131,30 +127,22 @@
     </message>
 </context>
 <context>
-    <name>AddMetaItemWidget</name>
-    <message>
-        <source>Return address:</source>
-        <translation>Обратный адрес:</translation>
-    </message>
+    <name>EditItemWidget</name>
     <message>
         <source>Address in %1</source>
         <translation>Адрес в %1</translation>
+    </message>
+    <message>
+        <source>Return address:</source>
+        <translation>Обратный адрес:</translation>
     </message>
     <message>
         <source>disconnected. %1</source>
         <translation>отключен. %1</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Подключить</translation>
-    </message>
-    <message>
         <source>failed to connect. %1</source>
         <translation>не удалось подключить. %1</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Настройки</translation>
     </message>
     <message>
         <source>connecting...</source>
@@ -167,6 +155,14 @@
     <message>
         <source>Failed to request contact JID from transport</source>
         <translation>Не удадось запросить JID контакта у транспорта</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Подключить</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Настройки</translation>
     </message>
 </context>
 <context>
@@ -181,7 +177,7 @@
     </message>
     <message>
         <source>Root</source>
-        <translation>В корень</translation>
+        <translation>В корневую папку</translation>
     </message>
     <message>
         <source>Subscription</source>
@@ -257,11 +253,11 @@
     </message>
     <message>
         <source>Roster Editor</source>
-        <translation>Редактор ростера</translation>
+        <translation>Редактор контакт-листа</translation>
     </message>
     <message>
         <source>Allows to edit roster</source>
-        <translation>Позволяет редактировать ростер</translation>
+        <translation>Позволяет редактировать список контактов</translation>
     </message>
     <message>
         <source>Add group</source>
@@ -297,7 +293,7 @@
     </message>
     <message>
         <source>%1 requests authorization (permission to see your status and mood).</source>
-        <translation>%1 запрашивает авторизацию (разрешение видеть ваш статус и настроение).</translation>
+        <translation>%1 запрашивает авторизацию (чтобы видеть ваш статус и настроение).</translation>
     </message>
     <message>
         <source>%1 refused authorization to see your status and mood.</source>
@@ -305,7 +301,7 @@
     </message>
     <message>
         <source>%1 removed your authorization to view its status and mood.</source>
-        <translation>%1 удалил вашу авторизацию на просмотр его статуса и настроения.</translation>
+        <translation>%1 удалил вашу авторизацию для просмотра его статуса и настроения.</translation>
     </message>
     <message>
         <source>This contact is not added to your roster.</source>
@@ -317,7 +313,7 @@
     </message>
     <message>
         <source>%1 authorized you to see its status and mood.</source>
-        <translation>%1 авторизовал вас на просмотр его статуса и настроения.</translation>
+        <translation>%1 авторизовал вас для просмотра его статуса и настроения.</translation>
     </message>
     <message>
         <source>%1 - authorization</source>
@@ -329,7 +325,7 @@
     </message>
     <message>
         <source>Requests authorization</source>
-        <translation>Запрашивает авторизацию</translation>
+        <translation>Запрос авторизации</translation>
     </message>
     <message>
         <source>Sent an authorization request</source>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -13,11 +13,11 @@
     </message>
     <message>
         <source>Stream Compression</source>
-        <translation>Сжатие XMPP потока</translation>
+        <translation>Сжатие XMPP-потока</translation>
     </message>
     <message>
         <source>Allows to compress a stream of messages sent and received from the server</source>
-        <translation>Позволяет сжимать поток сообщений отправляемый и получаемый от сервера</translation>
+        <translation>Позволяет сжимать поток сообщений, отправляемый и получаемый от сервера</translation>
     </message>
 </context>
 <context>
@@ -32,11 +32,11 @@
     </message>
     <message>
         <source>Out of memory for Zlib</source>
-        <translation>Нехватает памяти для Zlib</translation>
+        <translation>Не хватает памяти для Zlib</translation>
     </message>
     <message>
         <source>Zlib version mismatch!</source>
-        <translation>Неверная версия Zlib!</translation>
+        <translation>Некорректная версия Zlib!</translation>
     </message>
     <message>
         <source>Wrong compression negotiation response</source>

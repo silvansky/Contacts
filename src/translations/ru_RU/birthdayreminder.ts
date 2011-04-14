@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Reminds about birthdays of your friends</source>
-        <translation>Уведомляеь о днях рождения ваших друзей</translation>
+        <translation>Уведомлять о днях рождения ваших друзей</translation>
     </message>
     <message>
         <source>Birthdays</source>
@@ -17,7 +17,7 @@
     </message>
     <message>
         <source>Enable a reminder to not miss the birthdays of your friends!</source>
-        <translation>Включите напоминания, чтобы не пропустить дни рождения друзей!</translation>
+        <translation>Включите уведомления, чтобы не пропустить дни рождения друзей!</translation>
     </message>
     <message>
         <source>Birthday of</source>
@@ -37,11 +37,11 @@
     </message>
     <message>
         <source>Enable reminder</source>
-        <translation>Включить напоминания</translation>
+        <translation>Включить уведомления</translation>
     </message>
     <message>
         <source>Reminder enabled</source>
-        <translation>Напоминания включены</translation>
+        <translation>Уведомления включены</translation>
     </message>
     <message numerus="yes">
         <source>Birthday in %n day(s)!</source>

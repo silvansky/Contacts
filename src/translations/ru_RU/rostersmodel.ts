@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -21,11 +21,11 @@
     </message>
     <message>
         <source>Roster Model</source>
-        <translation>Модель ростера</translation>
+        <translation>Создать список</translation>
     </message>
     <message>
         <source>Creates a hierarchical model for display roster</source>
-        <translation>Создает иерархическую модель для отображения ростера</translation>
+        <translation>Создает иерархическую модель для отображения списка</translation>
     </message>
 </context>
 </TS>

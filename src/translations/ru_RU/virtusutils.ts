@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>Bad Request</source>
-        <translation>Плохой запрос</translation>
+        <translation>Некорректный запрос</translation>
     </message>
     <message>
         <source>Unexpected Request</source>
@@ -72,7 +72,7 @@
     </message>
     <message>
         <source>Not Acceptable</source>
-        <translation>Не приемлемо</translation>
+        <translation>Неприемлемо</translation>
     </message>
     <message>
         <source>Registration Required</source>
@@ -84,7 +84,7 @@
     </message>
     <message>
         <source>Request Timeout</source>
-        <translation>Истекло время выполнения запроса</translation>
+        <translation>Истекло время обработки запроса</translation>
     </message>
     <message>
         <source>Conflict</source>

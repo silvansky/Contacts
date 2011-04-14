@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Allows to use your smiley images in messages</source>
-        <translation>Позволяет использовать изображения смайликов в сообщениях</translation>
+        <translation>Позволяет использовать графические смайлики в сообщениях</translation>
     </message>
     <message>
         <source>Smiley usage in messages</source>

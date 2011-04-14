@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Allow you to log on the Jabber server without support SASL authentication</source>
-        <translation>Позволяет авторизоваться на джаббер сервере без поддержки SASL авторизации</translation>
+        <translation>Позволяет авторизоваться на Jabber-сервере без поддержки SASL-авторизации</translation>
     </message>
 </context>
 </TS>

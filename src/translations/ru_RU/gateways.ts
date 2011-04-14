@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -14,7 +14,7 @@
     <message>
         <source>Failed to connect account due to error:
 %1</source>
-        <translation>Не удалось подключить учётную запись  из-за ошибки:
+        <translation>Не удалось подключить учётную запись:
 %1</translation>
     </message>
     <message>
@@ -31,7 +31,7 @@
     </message>
     <message>
         <source>Invalid registration params</source>
-        <translation>Неверные параметры регистрации</translation>
+        <translation>Некорретные параметры регистрации</translation>
     </message>
     <message>
         <source>Unsupported gateway registration form</source>
@@ -55,19 +55,15 @@
     </message>
     <message>
         <source>Please, enter your login and password.</source>
-        <translation>Пожалуйста, укажите Ваш логин и пароль.</translation>
+        <translation>Пожалуйста, укажите ваш логин и пароль.</translation>
     </message>
     <message>
         <source>Failed to add account, check your login and password</source>
-        <translation>Не удалось добавить аккаунт, проверьте Ваш логин и пароль</translation>
+        <translation>Не удалось добавить учётную запись, проверьте ваш логин и пароль.</translation>
     </message>
     <message>
         <source>Your account is not connected.</source>
-        <translation>Ваш аккаунт еще не подключен.</translation>
-    </message>
-    <message>
-        <source>Add %1 account</source>
-        <translation>Добавить %1 аккаунт</translation>
+        <translation>Ваша учётная запись ещё не подключена.</translation>
     </message>
 </context>
 <context>
@@ -100,7 +96,7 @@
     </message>
     <message>
         <source>Error: Can`t send request to host.</source>
-        <translation>Ошибка: Невозможно отправить запрос на хост.</translation>
+        <translation>Ошибка: невозможно отправить запрос на хост.</translation>
     </message>
     <message>
         <source>Contact ID:</source>
@@ -146,7 +142,7 @@
     </message>
     <message>
         <source>Allows to simplify the interaction with transports to other IM systems</source>
-        <translation>Позволяет упростить взаимодействие с транспортами в другие IM системы</translation>
+        <translation>Позволяет упростить взаимодействие с транспортами в другие IM-системы</translation>
     </message>
     <message>
         <source>Supports the adding of the contact by the username of the legacy system</source>
@@ -173,8 +169,8 @@
         <translation>Логин</translation>
     </message>
     <message>
-        <source>Agent@Mail</source>
-        <translation>Агент@Mail</translation>
+        <source>Agent@Mail.ru</source>
+        <translation>Агент@Mail.ru</translation>
     </message>
     <message>
         <source>E-mail</source>
@@ -206,11 +202,11 @@
     </message>
     <message>
         <source>Add your accounts</source>
-        <translation>Добавьте ваши учетные записи</translation>
+        <translation>Добавьте ваши учётные записи</translation>
     </message>
     <message>
         <source>Add your accounts and send messages to your friends on these services</source>
-        <translation>Подключите свои учетные записи и отправляйте сообщения вашим друзьям на этих сервисах</translation>
+        <translation>Подключите свои учётные записи и отправляйте сообщения вашим друзьям на этих сервисах</translation>
     </message>
     <message>
         <source>Add my accounts...</source>
@@ -258,7 +254,7 @@
     </message>
     <message>
         <source>Invalid service descriptor identifier.</source>
-        <translation>Неверный идентификатор описателя сервиса.</translation>
+        <translation>Неверный идентификатор сервиса.</translation>
     </message>
 </context>
 <context>

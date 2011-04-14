@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -24,7 +24,7 @@
     <name>DefaultConnection</name>
     <message>
         <source>Disconnection timed out</source>
-        <translation>Превышено время отключения</translation>
+        <translation>Превышено время ожидания</translation>
     </message>
 </context>
 <context>

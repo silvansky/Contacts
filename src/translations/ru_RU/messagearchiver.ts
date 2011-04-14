@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Save</source>
-        <translation>Записать</translation>
+        <translation>Сохранить</translation>
     </message>
     <message>
         <source>Expire</source>
@@ -84,7 +84,7 @@
     </message>
     <message>
         <source>Expire</source>
-        <translation>Хранить</translation>
+        <translation>Истекает</translation>
     </message>
     <message>
         <source>Local archiving:</source>
@@ -96,7 +96,7 @@
     </message>
     <message>
         <source>Auto archiving:</source>
-        <translation>Авто режим:</translation>
+        <translation>Авторежим:</translation>
     </message>
     <message>
         <source>Enable auto archiving</source>
@@ -116,7 +116,7 @@
     </message>
     <message>
         <source>Off The Record Mode:</source>
-        <translation>Запрет сохр. истории:</translation>
+        <translation>Не сохранять историю:</translation>
     </message>
     <message>
         <source>Expire Time, days:</source>
@@ -155,7 +155,7 @@
     </message>
     <message>
         <source>Changing archive preferences failed: %1</source>
-        <translation>Изменение настроек архива сорвалось из-за ошибки: %1</translation>
+        <translation>Изменение настроек архива не удалось из-за ошибки: %1</translation>
     </message>
 </context>
 <context>
@@ -178,7 +178,7 @@
     </message>
     <message>
         <source>Approve</source>
-        <translation>Спросить</translation>
+        <translation>Подтвердить</translation>
     </message>
     <message>
         <source>Oppose</source>
@@ -214,11 +214,11 @@
     </message>
     <message>
         <source>View History</source>
-        <translation>Просмотр истории</translation>
+        <translation>Посмотреть историю</translation>
     </message>
     <message>
         <source>Set Auto Method</source>
-        <translation>Авто режим</translation>
+        <translation>Авторежим</translation>
     </message>
     <message>
         <source>Set Manual Method</source>
@@ -246,7 +246,7 @@
     </message>
     <message>
         <source>Message logging</source>
-        <translation>Протоколирование сообщений</translation>
+        <translation>Регистрация сообщений</translation>
     </message>
     <message>
         <source>Allow message logging</source>
@@ -258,7 +258,7 @@
     </message>
     <message>
         <source>Restore defaults</source>
-        <translation>Восстановить умолчания</translation>
+        <translation>Восстановить настройки по умолчанию</translation>
     </message>
     <message>
         <source>Negotiating off the record (OTR) session ...</source>
@@ -294,7 +294,7 @@
     </message>
     <message>
         <source>Allows to save the history of communications both locally and on the server</source>
-        <translation>Позволяет сохранять историю сообщений как локально так и на сервере</translation>
+        <translation>Позволяет сохранять историю сообщений как локально, так и на сервере</translation>
     </message>
     <message>
         <source>Messages Archiving</source>
@@ -318,7 +318,7 @@
     </message>
     <message>
         <source>Supports the managing of the archived messages</source>
-        <translation>Поддерживает управление архивированными сообщениями</translation>
+        <translation>Поддерживает управление архивом сообщениями</translation>
     </message>
     <message>
         <source>Manual Messages Archiving</source>

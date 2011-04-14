@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -28,7 +28,7 @@
     </message>
     <message>
         <source>Data Forms Layout</source>
-        <translation>Управление расположением данных на форме</translation>
+        <translation>Управление расположением данных в форме</translation>
     </message>
     <message>
         <source>Yes</source>
@@ -52,7 +52,7 @@
     </message>
     <message>
         <source>Allows other modules to process and display the form with the data intended for user</source>
-        <translation>Позволяет другим модулям обрабатывать и отображать формы с данными предназначенные пользователю</translation>
+        <translation>Позволяет другим модулям обрабатывать и отображать формы с данными, предназначенные пользователю</translation>
     </message>
     <message>
         <source>Supports the processing and displaying of the forms with the data</source>
@@ -60,11 +60,11 @@
     </message>
     <message>
         <source>Supports the validating of the data entered in the form</source>
-        <translation>Поддерживает проверку данных введённых в форму</translation>
+        <translation>Поддерживает проверку данных, введённых в форму</translation>
     </message>
     <message>
         <source>Supports the layouting of the form, including the layout of form fields, pages and sections</source>
-        <translation>Поддерживает форматирование форм, включая форматирование полей, страниц и секций форм</translation>
+        <translation>Поддерживает форматирование, включая форматирование полей, страниц и секций форм</translation>
     </message>
 </context>
 <context>

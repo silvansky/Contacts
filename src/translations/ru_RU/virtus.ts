@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Copyright 2010, Ltd. &apos;Rambler Internet Holding&apos;. All rights reserved. %1</source>
-        <translation>Copyright 2010, ООО. &apos;Рамблер Интернет Холдинг&apos;. Все права сохранены. %1</translation>
+        <translation>Copyright 2010, ООО. &apos;Рамблер Интернет Холдинг&apos;. Все права защищены. %1</translation>
     </message>
     <message>
         <source>Terms of Use</source>
@@ -24,11 +24,11 @@
     <name>AboutBoxClass</name>
     <message>
         <source>About the program</source>
-        <translation>О Программе</translation>
+        <translation>О программе</translation>
     </message>
     <message>
         <source>Your comments</source>
-        <translation>Оставить отзыв о программе</translation>
+        <translation>Написать отзыв</translation>
     </message>
 </context>
 <context>
@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Send comment</source>
-        <translation>Отправить отзыв</translation>
+        <translation>Написать отзыв</translation>
     </message>
 </context>
 <context>
@@ -59,6 +59,14 @@
     <message>
         <source>Your comments</source>
         <translation>Отзыв о программе</translation>
+    </message>
+    <message>
+        <source>Left your comment about program.</source>
+        <translation>Оставьте ваш отзыв о программе.</translation>
+    </message>
+    <message>
+        <source>Your own opinion very important for us</source>
+        <translation>Ваше мнение очень важно для нас</translation>
     </message>
     <message>
         <source>Your name:</source>
@@ -69,24 +77,12 @@
         <translation>Ваш отзыв или замечание:</translation>
     </message>
     <message>
+        <source>Add technical data (very good for us):</source>
+        <translation>Добавить технические сведения:</translation>
+    </message>
+    <message>
         <source>Send comment</source>
         <translation>Отправить отзыв</translation>
-    </message>
-    <message>
-        <source>Leave your feedback about program.</source>
-        <translation>Оставьте Ваш отзыв о программе.</translation>
-    </message>
-    <message>
-        <source>Your opinion is important to us, because all the suggestions and comments from users is a great way to make our chat better.</source>
-        <translation>Ваше мнение очень важно для нас, потому что все предложения и замечания пользователей это отличный способ, чтобы сделать наш чат лучше.</translation>
-    </message>
-    <message>
-        <source>Your E-Mail:</source>
-        <translation>Ваш E-mail:</translation>
-    </message>
-    <message>
-        <source>Add useful technical data</source>
-        <translation>Укажите техническую информацию</translation>
     </message>
 </context>
 <context>
@@ -97,7 +93,7 @@
     </message>
     <message>
         <source>Wrong plugin interface</source>
-        <translation>Неверный интерфейс плагина</translation>
+        <translation>Некорректный интерфейс плагина</translation>
     </message>
     <message>
         <source>Dependences not found</source>
@@ -117,7 +113,7 @@
     </message>
     <message>
         <source>About the program</source>
-        <translation>О Программе</translation>
+        <translation>О программе</translation>
     </message>
     <message>
         <source>User Comments</source>
@@ -125,7 +121,7 @@
     </message>
     <message>
         <source>Virtus updates ready</source>
-        <translation>Обновления Virtus-а готовы</translation>
+        <translation>Обновления для Virtus готовы</translation>
     </message>
     <message>
         <source>Updates are ready. Do you want to restart Virtus now?</source>
@@ -152,7 +148,7 @@
     </message>
     <message>
         <source>Restart Application</source>
-        <translation>Перезапуск приложения</translation>
+        <translation>Перезапустить приложение</translation>
     </message>
     <message>
         <source>Settings saved. Do you want to restart application?</source>
