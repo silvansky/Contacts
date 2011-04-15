@@ -6,10 +6,13 @@
 #include <QRadioButton>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/optionnodes.h>
 #include <definitions/gateserviceidentifiers.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/igateways.h>
+#include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
+#include <interfaces/ioptionsmanager.h>
 #include <utils/iconstorage.h>
 #include "ui_addmetaitemwidget.h"
 
@@ -20,10 +23,11 @@ class AddMetaItemWidget :
 	Q_OBJECT;
 	Q_INTERFACES(IAddMetaItemWidget);
 public:
-	AddMetaItemWidget(IGateways *AGateways, const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, QWidget *AParent = NULL);
+	AddMetaItemWidget(IOptionsManager *AOptionsManager, IRoster *ARoster, IGateways *AGateways, const IGateServiceDescriptor &ADescriptor, QWidget *AParent = NULL);
 	~AddMetaItemWidget();
 	virtual QWidget *instance() { return this; }
 	virtual QString gateDescriptorId() const;
+	virtual Jid streamJid() const;
 	virtual Jid contactJid() const;
 	virtual void setContactJid(const Jid &AContactJid);
 	virtual QString contactText() const;
@@ -40,7 +44,6 @@ public:
 signals:
 	void adjustSizeRequested();
 	void deleteButtonClicked();
-	void showOptionsRequested();
 	void contactJidChanged(const Jid &AContactJid);
 protected:
 	void updateProfiles();
@@ -53,6 +56,8 @@ protected:
 protected slots:
 	void resolveContactJid();
 protected slots:
+	void onRosterOpened();
+	void onRosterClosed();
 	void onContactTextEditingFinished();
 	void onContactTextEdited(const QString &AText);
 	void onProfileButtonToggled(bool);
@@ -66,7 +71,9 @@ protected slots:
 private:
 	Ui::AddMetaItemWidgetClass ui;
 private:
+	IRoster *FRoster;
 	IGateways *FGateways;
+	IOptionsManager *FOptionsManager;
 private:
 	QString FContactJidRequest;
 	QMap<QString, Jid> FLoginRequests;

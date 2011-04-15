@@ -1,6 +1,11 @@
-QWidget
+AddMetaItemPage
 {
 	background-color: white;
+}
+
+AddMetaItemPage QWidget
+{
+	background-color: transparent;
 }
 
 QLabel
@@ -8,3 +13,7 @@ QLabel
 	color: black;
 }
 
+QPushButton#pbtAppend
+{
+	margin-top: 5px;
+}

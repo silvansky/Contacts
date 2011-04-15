@@ -683,7 +683,15 @@ QString Gateways::checkNormalizedContactLogin(const QString &ADescriptorId, cons
 		// Проверки на правильность ввода
 		if (ADescriptorId == GSID_SMS)
 		{
-			if (!AContact.startsWith("+") || AContact.length()<12)
+			bool validChars = true;
+			for (int i=0; validChars && i<AContact.length(); i++)
+				validChars = AContact.at(i).isDigit() || ( i==0 && AContact.at(i)=='+');
+
+			if (!validChars)
+			{
+				errMessage = tr("Entered phone number contains invalid characters.");
+			}
+			else if (!AContact.startsWith("+") || AContact.length()<12)
 			{
 				errMessage = tr("Enter the entire number, including area code or operator code.");
 			}

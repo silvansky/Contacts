@@ -2,7 +2,8 @@
 
 #include <QVBoxLayout>
 
-AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster, const QString &AMetaId, const IMetaItemDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
+AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster, 
+																 const QString &AMetaId, const IMetaItemDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_ADDMETAITEMPAGE);
@@ -19,13 +20,14 @@ AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow 
 	FAddWidget = FRosterChanger->newAddMetaItemWidget(FMetaRoster->streamJid(),ADescriptor.gateId,ui.wdtAddMetaItem);
 	FAddWidget->setServiceIconVisible(false);
 	FAddWidget->setCloseButtonVisible(false);
-	connect(FAddWidget->instance(),SIGNAL(showOptionsRequested()),SLOT(onItemWidgetShowOptionsRequested()));
 	connect(FAddWidget->instance(),SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
 
 	ui.wdtAddMetaItem->setLayout(new QVBoxLayout);
+	ui.wdtAddMetaItem->layout()->setMargin(0);
 	ui.wdtAddMetaItem->layout()->addWidget(FAddWidget->instance());
 
 	ui.pbtAppend->setEnabled(false);
+	ui.gridLayout->addWidget(ui.pbtAppend, 2, 2, 1, 1, Qt::AlignTop|Qt::AlignHCenter); // Depend on ui layout!!!
 	connect(ui.pbtAppend,SIGNAL(clicked()),SLOT(onAppendContactButtonClicked()));
 
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
@@ -95,7 +97,7 @@ QString AddMetaItemPage::infoMessageForGate()
 	else if (FDescriptor.gateId == GSID_MAIL)
 		info = tr("Enter e-mail address of contact:");
 	else
-		info = tr("Enter contact %1 address").arg(FDescriptor.name);
+		info = tr("Enter contact %1 address:").arg(FDescriptor.name);
 	return info;
 }
 
@@ -145,14 +147,9 @@ void AddMetaItemPage::onAppendContactButtonClicked()
 		}
 		else
 		{
-			setErrorMessage(tr("Failed to create new contact"));
+			setErrorMessage(tr("Failed to create new contact."));
 		}
 	}
-}
-
-void AddMetaItemPage::onItemWidgetShowOptionsRequested()
-{
-
 }
 
 void AddMetaItemPage::onItemWidgetContactJidChanged(const Jid &AContactJid)
@@ -169,7 +166,7 @@ void AddMetaItemPage::onMetaContactReceived(const IMetaContact &AContact, const 
 		FRosterChanger->subscribeContact(FMetaRoster->streamJid(),FAddWidget->contactJid());
 		FMergeRequestId = FMetaRoster->mergeContacts(FMetaId, QList<QString>() << AContact.id);
 		if (FMergeRequestId.isEmpty())
-			setErrorMessage(tr("Failed to merge contacts"));
+			setErrorMessage(tr("Failed to merge contacts."));
 	}
 	else if (AContact.id==FMetaId && AContact.items.contains(FAddWidget->contactJid()))
 	{
@@ -183,11 +180,11 @@ void AddMetaItemPage::onMetaActionResult(const QString &AActionId, const QString
 	if (AActionId == FCreateRequestId)
 	{
 		if (!AErrCond.isEmpty())
-			setErrorMessage(tr("Failed to create new contact"));
+			setErrorMessage(tr("Failed to create new contact."));
 	}
 	else if (AActionId == FMergeRequestId)
 	{
 		if (!AErrCond.isEmpty())
-			setErrorMessage(tr("Failed to merge contacts"));
+			setErrorMessage(tr("Failed to merge contacts."));
 	}
 }

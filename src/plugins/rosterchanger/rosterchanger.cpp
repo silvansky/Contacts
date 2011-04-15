@@ -626,12 +626,13 @@ void RosterChanger::unsubscribeContact(const Jid &AStreamJid, const Jid &AContac
 IAddMetaItemWidget *RosterChanger::newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent)
 {
 	IAddMetaItemWidget *widget = NULL;
-	if (FGateways && AStreamJid.isValid())
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	if (FGateways && roster)
 	{
 		IGateServiceDescriptor descriptor = FGateways->descriptorById(AGateDescriptorId);
 		if (!descriptor.id.isEmpty())
 		{
-			widget = new AddMetaItemWidget(FGateways,AStreamJid,descriptor,AParent);
+			widget = new AddMetaItemWidget(FOptionsManager,roster,FGateways,descriptor,AParent);
 			emit addMetaItemWidgetCreated(widget);
 		}
 	}

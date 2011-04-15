@@ -265,7 +265,6 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				widget->setContactText(AContact);
 				connect(widget->instance(),SIGNAL(adjustSizeRequested()),SLOT(onItemWidgetAdjustSizeRequested()));
 				connect(widget->instance(),SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));
-				connect(widget->instance(),SIGNAL(showOptionsRequested()),SLOT(onItemWidgetShowOptionsRequested()));
 				connect(widget->instance(),SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
 				FItemWidgets.append(widget);
 				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget->instance());
@@ -560,14 +559,6 @@ void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
 		delete widget;
 		updateDialogState();
 		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
-	}
-}
-
-void AddMetaContactDialog::onItemWidgetShowOptionsRequested()
-{
-	if (FOptionsManager)
-	{
-		FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
 	}
 }
 

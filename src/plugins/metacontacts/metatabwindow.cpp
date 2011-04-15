@@ -1,6 +1,7 @@
 #include "metatabwindow.h"
 
 #include <QStyle>
+#include <QTimer>
 #include <QPainter>
 #include <QMessageBox>
 #include <QFontMetrics>
@@ -905,7 +906,7 @@ void MetaTabWindow::onCurrentWidgetChanged(int AIndex)
 		updatePageButton(pageId);
 		emit currentPageChanged(pageId);
 	}
-	ui.tlbToolBar->repaint();
+	QTimer::singleShot(0,ui.tlbToolBar,SLOT(repaint()));
 }
 
 void MetaTabWindow::onMetaPresenceChanged(const QString &AMetaId)

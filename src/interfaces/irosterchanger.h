@@ -13,6 +13,7 @@ class IAddMetaItemWidget
 public:
 	virtual QWidget *instance() =0;
 	virtual QString gateDescriptorId() const =0;
+	virtual Jid streamJid() const =0;
 	virtual Jid contactJid() const =0;
 	virtual void setContactJid(const Jid &AContactJid) =0;
 	virtual QString contactText() const =0;
@@ -29,7 +30,6 @@ public:
 protected:
 	virtual void adjustSizeRequested() =0;
 	virtual void deleteButtonClicked() =0;
-	virtual void showOptionsRequested() =0;
 	virtual void contactJidChanged(const Jid &AContactJid) =0;
 };
 

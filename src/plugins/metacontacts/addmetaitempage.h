@@ -53,7 +53,6 @@ protected:
 	virtual void closeEvent(QCloseEvent *AEvent);
 protected slots:
 	void onAppendContactButtonClicked();
-	void onItemWidgetShowOptionsRequested();
 	void onItemWidgetContactJidChanged(const Jid &AContactJid);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
