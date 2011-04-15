@@ -44,6 +44,7 @@ protected:
 	bool canExpandVertically(const QWidget *AWidget) const;
 protected:
 	bool eventFilter(QObject *, QEvent *);
+	void resizeEvent(QResizeEvent *);
 protected slots:
 	void onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode);
 	void onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode);

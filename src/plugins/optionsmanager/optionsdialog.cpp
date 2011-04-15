@@ -1,8 +1,10 @@
 #include "optionsdialog.h"
 
+#include <QDebug>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHeaderView>
+#include <QResizeEvent>
 #include <QTextDocument>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
@@ -27,14 +29,14 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-	connect(ui.sprSplitter, SIGNAL(splitterMoved(int,int)), SIGNAL(splitterMoved(int,int)));
+//	connect(ui.sprSplitter, SIGNAL(splitterMoved(int,int)), SIGNAL(splitterMoved(int,int)));
 	ui.trvNodes->installEventFilter(this);
 	setWindowTitle(tr("Options"));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_OPTIONS_DIALOG,0,0,"windowIcon");
 
 	restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry").toByteArray());
-	if (!ui.sprSplitter->restoreState(Options::fileValue("optionsmanager.optionsdialog.splitter.state").toByteArray()))
-		ui.sprSplitter->setSizes(QList<int>() << 150 << 450);
+//	if (!ui.sprSplitter->restoreState(Options::fileValue("optionsmanager.optionsdialog.splitter.state").toByteArray()))
+//		ui.sprSplitter->setSizes(QList<int>() << 150 << 450);
 
 	delete ui.scaScroll->takeWidget();
 	ui.trvNodes->sortByColumn(0,Qt::AscendingOrder);
@@ -69,7 +71,7 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 OptionsDialog::~OptionsDialog()
 {
 	Options::setFileValue(saveGeometry(),"optionsmanager.optionsdialog.geometry");
-	Options::setFileValue(ui.sprSplitter->saveState(),"optionsmanager.optionsdialog.splitter.state");
+//	Options::setFileValue(ui.sprSplitter->saveState(),"optionsmanager.optionsdialog.splitter.state");
 	emit dialogDestroyed();
 }
 
@@ -180,6 +182,12 @@ bool OptionsDialog::eventFilter(QObject * obj, QEvent * evt)
 		return h;
 	}
 	return QDialog::eventFilter(obj, evt);
+}
+
+void OptionsDialog::resizeEvent(QResizeEvent * evt)
+{
+	qDebug() << evt->size();
+	QDialog::resizeEvent(evt);
 }
 
 void OptionsDialog::onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode)
