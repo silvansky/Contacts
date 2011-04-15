@@ -50,7 +50,8 @@
     <message>
         <source>Temporarily disable all popup windows and sounds when working
 any full screen application (films, games, presentations)</source>
-        <translation>Временно отключать все всплывающие окна и звуки в полноэкранных приложениях (фильмы, игры, презентации)</translation>
+        <translation>Временно отключать все всплывающие окна и звуки в
+полноэкранных приложениях (фильмы, игры, презентации)</translation>
     </message>
     <message>
         <source>If status &apos;Away&apos; or &apos;Busy&apos;</source>
