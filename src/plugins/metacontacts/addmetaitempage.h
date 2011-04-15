@@ -3,12 +3,14 @@
 
 #include <QWidget>
 #include <definitions/menuicons.h>
+#include <definitions/stylesheets.h>
 #include <definitions/resources.h>
 #include <definitions/gateserviceidentifiers.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/irosterchanger.h>
+#include <utils/stylestorage.h>
 #include "ui_addmetaitempage.h"
 
 class AddMetaItemPage : 
@@ -43,7 +45,7 @@ signals:
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
 protected:
-	QString infoMessageByGate(const QString &AGateId);
+	QString infoMessageForGate();
 	void setErrorMessage(const QString &AMessage);
 protected:
 	virtual bool event(QEvent *AEvent);

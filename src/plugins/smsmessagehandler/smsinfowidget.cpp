@@ -10,6 +10,7 @@ SmsInfoWidget::SmsInfoWidget(ISmsMessageHandler *ASmsHandler, IChatWindow *AWind
 
 	FSendKey = FChatWindow->editWidget()->sendKey();
 
+	ui.lblPhoneNumber->setText(AWindow->contactJid().node());
 	ui.lblRefill->setText(QString("<a href='%1'>%2</a>").arg("http://id.rambler.ru").arg(tr("Refill")));
 
 	connect(FChatWindow->editWidget()->textEdit(),SIGNAL(textChanged()),SLOT(onEditWidgetTextChanged()));

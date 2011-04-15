@@ -5,6 +5,7 @@
 AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster, const QString &AMetaId, const IMetaItemDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_ADDMETAITEMPAGE);
 
 	FMetaRoster = AMetaRoster;
 	FMetaTabWindow = AMetaTabWindow;
@@ -13,10 +14,10 @@ AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow 
 	FMetaId = AMetaId;
 	FDescriptor = ADescriptor;
 
-	ui.lblInfo->setText(infoMessageByGate(ADescriptor.gateId));
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_RCHANGER_ADDMETACONTACT_ERROR,0,0,"pixmap");
+	ui.lblInfo->setText(infoMessageForGate());
 
 	FAddWidget = FRosterChanger->newAddMetaItemWidget(FMetaRoster->streamJid(),ADescriptor.gateId,ui.wdtAddMetaItem);
+	FAddWidget->setServiceIconVisible(false);
 	FAddWidget->setCloseButtonVisible(false);
 	connect(FAddWidget->instance(),SIGNAL(showOptionsRequested()),SLOT(onItemWidgetShowOptionsRequested()));
 	connect(FAddWidget->instance(),SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
@@ -24,14 +25,13 @@ AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow 
 	ui.wdtAddMetaItem->setLayout(new QVBoxLayout);
 	ui.wdtAddMetaItem->layout()->addWidget(FAddWidget->instance());
 
+	ui.pbtAppend->setEnabled(false);
 	connect(ui.pbtAppend,SIGNAL(clicked()),SLOT(onAppendContactButtonClicked()));
 
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 	connect(FMetaRoster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
 		SLOT(onMetaActionResult(const QString &, const QString &, const QString &)));
-
-	setErrorMessage(QString::null);
 }
 
 AddMetaItemPage::~AddMetaItemPage()
@@ -87,11 +87,13 @@ void AddMetaItemPage::setTabPageNotifier(ITabPageNotifier *ANotifier)
 	Q_UNUSED(ANotifier);
 }
 
-QString AddMetaItemPage::infoMessageByGate(const QString &AGateId)
+QString AddMetaItemPage::infoMessageForGate()
 {
 	QString info;
-	if (AGateId == GSID_SMS)
-		info = tr("Enter the phone number of the interlocutor, to send the SMS");
+	if (FDescriptor.gateId == GSID_SMS)
+		info = tr("Enter the phone number of the interlocutor, to send the SMS:");
+	else if (FDescriptor.gateId == GSID_MAIL)
+		info = tr("Enter e-mail address of contact:");
 	else
 		info = tr("Enter contact %1 address").arg(FDescriptor.name);
 	return info;
@@ -99,12 +101,7 @@ QString AddMetaItemPage::infoMessageByGate(const QString &AGateId)
 
 void AddMetaItemPage::setErrorMessage(const QString &AMessage)
 {
-	if (ui.lblError->text() != AMessage)
-	{
-		ui.lblError->setText(AMessage);
-		ui.lblError->setVisible(!AMessage.isEmpty());
-		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
-	}
+	FAddWidget->setErrorMessage(AMessage,false);
 	ui.wdtAddMetaItem->setEnabled(true);
 	ui.pbtAppend->setEnabled(FAddWidget->contactJid().isValid());
 }

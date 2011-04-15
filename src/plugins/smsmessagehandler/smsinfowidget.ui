@@ -24,6 +24,26 @@
     <number>1</number>
    </property>
    <item>
+    <widget class="QLabel" name="lblPhoneNumber">
+     <property name="text">
+      <string notr="true">+70123456789</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <widget class="QLabel" name="lblCharacters">
      <property name="text">
       <string notr="true">%n of 120 characters</string>
@@ -40,8 +60,8 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>161</width>
-       <height>20</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
     </spacer>

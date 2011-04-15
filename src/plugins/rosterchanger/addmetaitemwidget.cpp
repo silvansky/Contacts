@@ -29,7 +29,7 @@ AddMetaItemWidget::AddMetaItemWidget(IGateways *AGateways, const Jid &AStreamJid
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_RCHANGER_ADDMETACONTACT_ERROR,0,0,"pixmap");
 
 	ui.lneContact->setAttribute(Qt::WA_MacShowFocusRect, false);
-	ui.lneContact->setPlaceholderText(tr("Address in %1").arg(ADescriptor.name));
+	ui.lneContact->setPlaceholderText(placeholderTextForGate());
 	connect(ui.cbtDelete,SIGNAL(clicked()),SIGNAL(deleteButtonClicked()));
 
 	connect(FGateways->instance(),SIGNAL(loginReceived(const QString &, const QString &)),
@@ -45,7 +45,7 @@ AddMetaItemWidget::AddMetaItemWidget(IGateways *AGateways, const Jid &AStreamJid
 	connect(FGateways->instance(),SIGNAL(servicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)),
 		SLOT(onServicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)));
 
-	setErrorMessage(QString::null);
+	setErrorMessage(QString::null,false);
 	updateProfiles();
 }
 
@@ -99,6 +99,34 @@ Jid AddMetaItemWidget::gatewayJid() const
 void AddMetaItemWidget::setGatewayJid(const Jid &AGatewayJid) 
 {
 	setSelectedProfile(AGatewayJid);
+}
+
+QString AddMetaItemWidget::errorMessage() const
+{
+	return ui.lblError->isVisible() ? ui.lblError->text() : QString::null;
+}
+
+void AddMetaItemWidget::setErrorMessage(const QString &AMessage, bool AInvalidInput)
+{
+	if (ui.lblError->text() != AMessage)
+	{
+		ui.lblError->setText(AMessage);
+		ui.lblError->setVisible(!AMessage.isEmpty());
+		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
+		ui.lneContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput  ? true : false);
+		setStyleSheet(styleSheet());
+		emit adjustSizeRequested();
+	}
+}
+
+bool AddMetaItemWidget::isServiceIconVisible() const
+{
+	return ui.lblIcon->isVisible();
+}
+
+void AddMetaItemWidget::setServiceIconVisible(bool AVisible)
+{
+	ui.lblIcon->setVisible(AVisible);
 }
 
 bool AddMetaItemWidget::isCloseButtonVisible() const
@@ -213,7 +241,7 @@ void AddMetaItemWidget::updateProfiles()
 	if (FProfiles.isEmpty())
 	{
 		FServiceFailed = true;
-		setErrorMessage(tr("%1 service is not available").arg(FDescriptor.name));
+		setErrorMessage(tr("Service %1 is not available").arg(FDescriptor.name),false);
 		ui.lneContact->setEnabled(false);
 	}
 	else if (FServiceFailed)
@@ -257,10 +285,20 @@ void AddMetaItemWidget::setSelectedProfile(const Jid &AServiceJid)
 	}
 }
 
+QString AddMetaItemWidget::placeholderTextForGate() const
+{
+	QString text;
+	if (FDescriptor.id == GSID_SMS)
+		text = tr("Phone number (+7)");
+	else
+		text = tr("Address in %1").arg(FDescriptor.name);
+	return text;
+}
+
 void AddMetaItemWidget::startResolve(int ATimeout)
 {
 	setRealContactJid(Jid::null);
-	setErrorMessage(QString::null);
+	setErrorMessage(QString::null,false);
 	FResolveTimer.start(ATimeout);
 }
 
@@ -270,19 +308,6 @@ void AddMetaItemWidget::setRealContactJid(const Jid &AContactJid)
 	{
 		FContactJid = AContactJid.bare();
 		emit contactJidChanged(AContactJid);
-	}
-}
-
-void AddMetaItemWidget::setErrorMessage(const QString &AMessage)
-{
-	if (ui.lblError->text() != AMessage)
-	{
-		ui.lblError->setText(AMessage);
-		ui.lblError->setVisible(!AMessage.isEmpty());
-		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
-		ui.lneContact->setProperty("error", AMessage.isEmpty() ? false : true);
-		setStyleSheet(styleSheet());
-		emit adjustSizeRequested();
 	}
 }
 
@@ -317,7 +342,7 @@ void AddMetaItemWidget::resolveContactJid()
 		}
 	}
 
-	setErrorMessage(errMessage);
+	setErrorMessage(errMessage,true);
 }
 
 void AddMetaItemWidget::onContactTextEditingFinished()
@@ -394,7 +419,7 @@ void AddMetaItemWidget::onGatewayErrorReceived(const QString &AId, const QString
 	else if (FContactJidRequest == AId)
 	{
 		setRealContactJid(Jid::null);
-		setErrorMessage(tr("Failed to request contact JID from transport"));
+		setErrorMessage(tr("Failed to request contact JID from transport"),false);
 	}
 }
 
@@ -425,3 +450,4 @@ void AddMetaItemWidget::onServicePresenceChanged(const Jid &AStreamJid, const Ji
 		updateProfiles();
 	}
 }
+

@@ -1,0 +1,10 @@
+QWidget
+{
+	background-color: white;
+}
+
+QLabel
+{
+	color: black;
+}
+

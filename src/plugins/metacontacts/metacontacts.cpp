@@ -655,7 +655,7 @@ void MetaContacts::initMetaItemDescriptors()
 	mail.combine = false;
 	mail.detach = false;
 	mail.service = true;
-	mail.persistent = false;
+	mail.persistent = true;
 	mail.pageOrder = MIPO_MAIL;
 	mail.gateId = GSID_MAIL;
 	mail.contactPattern = "^"JID_NODE_PATTERN"@mail\\."JID_DOMAIN_PATTERN"$";
@@ -718,7 +718,7 @@ void MetaContacts::initMetaItemDescriptors()
 	gtalk.persistent = false;
 	gtalk.pageOrder = MIPO_GTALK;
 	gtalk.gateId = GSID_GTALK;
-	gtalk.contactPattern = "^"JID_NODE_PATTERN"@(gtalk\\."JID_DOMAIN_PATTERN"|gmail\\.com|googlemail\\.com)$";
+	gtalk.contactPattern = "^"JID_NODE_PATTERN"@(gmail\\."JID_DOMAIN_PATTERN"|gmail\\.com|googlemail\\.com)$";
 	FMetaItemDescriptors.append(gtalk);
 
 	IMetaItemDescriptor yonline;

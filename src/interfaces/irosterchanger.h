@@ -19,6 +19,10 @@ public:
 	virtual void setContactText(const QString &AText) =0;
 	virtual Jid gatewayJid() const =0;
 	virtual void setGatewayJid(const Jid &AGatewayJid) =0;
+	virtual QString errorMessage() const =0;
+	virtual void setErrorMessage(const QString &AMessage, bool AInvalidInput) =0;
+	virtual bool isServiceIconVisible() const =0;
+	virtual void setServiceIconVisible(bool AVisible) =0;
 	virtual bool isCloseButtonVisible() const =0;
 	virtual void setCloseButtonVisible(bool AVisible) =0;
 	virtual void setCorrectSizes(int ANameSize, int APhotoSize) =0;

@@ -6,6 +6,7 @@
 #include <QRadioButton>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/igateways.h>
 #include <interfaces/ipresence.h>
@@ -29,6 +30,10 @@ public:
 	virtual void setContactText(const QString &AText);
 	virtual Jid gatewayJid() const;
 	virtual void setGatewayJid(const Jid &AGatewayJid);
+	virtual QString errorMessage() const;
+	virtual void setErrorMessage(const QString &AMessage, bool AInvalidInput);
+	virtual bool isServiceIconVisible() const;
+	virtual void setServiceIconVisible(bool AVisible);
 	virtual bool isCloseButtonVisible() const;
 	virtual void setCloseButtonVisible(bool AVisible);
 	virtual void setCorrectSizes(int ANameSize, int APhotoSize);
@@ -41,10 +46,10 @@ protected:
 	void updateProfiles();
 	Jid selectedProfile() const;
 	void setSelectedProfile(const Jid &AServiceJid);
+	QString placeholderTextForGate() const;
 protected:
 	void startResolve(int ATimeout);
 	void setRealContactJid(const Jid &AContactJid);
-	void setErrorMessage(const QString &AMessage);
 protected slots:
 	void resolveContactJid();
 protected slots:
