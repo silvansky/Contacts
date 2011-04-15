@@ -26,6 +26,7 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 		border->setResizable(false);
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
 		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
 		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
