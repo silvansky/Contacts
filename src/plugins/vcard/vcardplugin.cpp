@@ -120,6 +120,12 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 		FStatusIcons = qobject_cast<IStatusIcons*>(plugin->instance());
 	}
 
+	plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
+	if (plugin)
+	{
+		FStatusChanger = qobject_cast<IStatusChanger*>(plugin->instance());
+	}
+
 	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
 	if (plugin)
 	{
@@ -377,7 +383,10 @@ void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AConta
 		}
 		else if (AStreamJid.isValid() && AContactJid.isValid())
 		{
-			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons, FRosterPlugin, FPresencePlugin, FRosterChanger, AStreamJid, AContactJid);
+			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons,
+									  FStatusChanger, FRosterPlugin,
+									  FPresencePlugin, FRosterChanger,
+									  AStreamJid, AContactJid);
 			StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(dialog, STS_VCARDSIMPLEVCARDDIALOG);
 			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 			if (border)

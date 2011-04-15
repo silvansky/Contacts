@@ -6,7 +6,11 @@
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 
-SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars, IStatusIcons *AStatusIcons, IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin, IRosterChanger *ARosterChanger, const Jid &AStreamJid, const Jid &AContactJid) :
+SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars,
+				     IStatusIcons *AStatusIcons, IStatusChanger * AStatusChanger,
+				     IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin,
+				     IRosterChanger *ARosterChanger,
+				     const Jid &AStreamJid, const Jid &AContactJid) :
 		ui(new Ui::SimpleVCardDialog)
 {
 	ui->setupUi(this);
@@ -17,6 +21,7 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 	FStreamJid = AStreamJid;
 	FAvatars = AAvatars;
 	FStatusIcons = AStatusIcons;
+	FStatusChanger = AStatusChanger;
 	FRosterChanger = ARosterChanger;
 
 	FPresence = APresencePlugin->getPresence(FStreamJid);
@@ -64,14 +69,12 @@ void SimpleVCardDialog::updateDialog()
 		ui->name->setText(FVCard->value(VVN_FULL_NAME).isEmpty() ? FContactJid.bare() : FVCard->value(VVN_FULL_NAME));
 	setWindowTitle(tr("Profile: %1").arg(ui->name->text()));
 
-	ui->jid->setText(FContactJid.bare());
-
-	FAvatars->insertAutoAvatar(ui->avatarLabel, FContactJid, QSize(100, 100), "pixmap");
+	FAvatars->insertAutoAvatar(ui->avatarLabel, FContactJid, QSize(48, 48), "pixmap");
 
 	IPresenceItem presence = FPresence->presenceItems(FContactJid).value(0);
 	ui->mood->setText(FRosterItem.isValid ? presence.status : tr("Not in contact list"));
-	ui->fullName->setText(FVCard->value(VVN_FULL_NAME));
 	ui->status->setPixmap(FStatusIcons->iconByJidStatus(FContactJid, presence.show, SUBSCRIPTION_BOTH, false).pixmap(100));
+	ui->statusText->setText(FStatusChanger->nameByShow(presence.show));
 
 	QDate birthday = QDate::fromString(FVCard->value(VVN_BIRTHDAY),Qt::ISODate);
 	if (!birthday.isValid())

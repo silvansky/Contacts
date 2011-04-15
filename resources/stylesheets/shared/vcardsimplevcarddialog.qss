@@ -2,3 +2,15 @@ QDialog, QInputDialog, QDialogButtonBox
 {
 	background-color: rgba(65, 70, 77, 250);
 }
+
+QPushButton#editOnline
+{
+	border-image: none;
+	color: #acacac;
+	text-decoration: underline;
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	min-width: 10px;
+}

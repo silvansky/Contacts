@@ -9,6 +9,7 @@
 #include <utils/iconstorage.h>
 #include <interfaces/iavatars.h>
 #include <interfaces/istatusicons.h>
+#include <interfaces/istatuschanger.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/irosterchanger.h>
@@ -22,7 +23,11 @@ class SimpleVCardDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars, IStatusIcons *AStatusIcons, IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin, IRosterChanger *ARosterChanger, const Jid &AStreamJid, const Jid &AContactJid);
+	SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars,
+			  IStatusIcons *AStatusIcons, IStatusChanger * AStatusChanger,
+			  IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin,
+			  IRosterChanger *ARosterChanger,
+			  const Jid &AStreamJid, const Jid &AContactJid);
 	~SimpleVCardDialog();
 	Jid streamJid() const;
 protected:
@@ -48,6 +53,7 @@ private:
 	IRosterItem FRosterItem;
 	IPresence *FPresence;
 	IRosterChanger *FRosterChanger;
+	IStatusChanger *FStatusChanger;
 };
 
 #endif // SIMPLEVCARDDIALOG_H
