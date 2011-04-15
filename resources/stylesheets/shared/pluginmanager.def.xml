@@ -4,4 +4,8 @@
     <key>pluginmanagerApplication</key>
     <object mime='text/css'>pluginmanagerapplication.qss</object>
   </file>
+  <file>
+    <key>pluginmanagerFeedback</key>
+    <object mime='text/css'>pluginmanagerfeedback.qss</object>
+  </file>
 </styledef>

@@ -1,0 +1,4 @@
+QLabel
+{
+	padding-left: 1px;
+}

@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>454</width>
-    <height>376</height>
+    <width>355</width>
+    <height>435</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>450</width>
+    <width>355</width>
     <height>350</height>
    </size>
   </property>
@@ -20,6 +20,18 @@
    <string>Your comments</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>12</number>
+   </property>
+   <property name="leftMargin">
+    <number>12</number>
+   </property>
+   <property name="topMargin">
+    <number>12</number>
+   </property>
+   <property name="rightMargin">
+    <number>14</number>
+   </property>
    <item>
     <layout class="QVBoxLayout" name="vertLayoutHeader">
      <item>
@@ -31,7 +43,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Leave your feedback about program.</string>
+        <string>&lt; font size=+2&gt;Leave your feedback about program.&lt;/font&gt;</string>
        </property>
       </widget>
      </item>
@@ -64,7 +76,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Your name:</string>
+        <string>Your name</string>
        </property>
       </widget>
      </item>
@@ -78,10 +90,14 @@
        </property>
       </widget>
      </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <widget class="QLabel" name="lblEMail">
        <property name="text">
-        <string>Your E-Mail:</string>
+        <string>E-Mail for reply</string>
        </property>
       </widget>
      </item>
@@ -107,7 +123,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QTextEdit" name="tedComment"/>
+      <widget class="QTextEdit" name="tedComment">
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="chbAddTechData">
@@ -124,16 +147,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QFrame" name="frame_2">
-     <property name="frameShape">
-      <enum>QFrame::HLine</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizLayoutControls">

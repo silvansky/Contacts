@@ -1,8 +1,10 @@
 #include "commentdialog.h"
 #include <utils/log.h>
 #include <utils/customborderstorage.h>
+#include <utils/stylestorage.h>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
+#include <definitions/stylesheets.h>
 
 CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
@@ -10,6 +12,8 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	ui.lneYourName->setAttribute(Qt::WA_MacShowFocusRect, false);
 
 	ui.chbAddTechData->setVisible(false);
+
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_FEEDBACK);
 
 	IPlugin* plugin = APluginManager->pluginInterface("IAccountManager").value(0);
 	IAccountManager *accountManager = plugin != NULL ? qobject_cast<IAccountManager *>(plugin->instance()) : NULL;

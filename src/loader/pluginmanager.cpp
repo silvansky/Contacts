@@ -733,7 +733,7 @@ void PluginManager::onShowAboutBoxDialog()
 	if (FAboutDialog.isNull())
 		FAboutDialog = new AboutBox(this);
 
-	WidgetManager::showActivateRaiseWindow(FAboutDialog);
+	WidgetManager::showActivateRaiseWindow(FAboutDialog->parentWidget() ? FAboutDialog->parentWidget() : FAboutDialog);
 }
 
 void PluginManager::onShowCommentsDialog()
