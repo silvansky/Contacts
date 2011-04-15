@@ -18,8 +18,10 @@
 #include <QToolButton>
 #include <QLineEdit>
 #include <QTextEdit>
+#include <QSplitter>
 #include <QAbstractItemView>
 #include <QTreeView>
+#include <QComboBox>
 #include <QScrollBar>
 // damn, i didn't want that!
 #include <QWebView>
@@ -42,9 +44,7 @@ static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 			object->installEventFilter(watcher);
 		else
 			object->removeEventFilter(watcher);
-#if 0
-		//Тут надо как-то доработать, чтобы возвращать оригинальную настройку этого параметра при снятии фильтра
-#endif
+		// TODO: return params back
 		widget->setAutoFillBackground(true);
 		widget->setMouseTracking(true);
 		widget->setProperty("defaultCursorShape", widget->cursor().shape());
@@ -907,7 +907,6 @@ bool CustomBorderContainer::winEvent(MSG *message, long *result)
 bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 {
 	QWidget *widget = qobject_cast<QWidget*>(object);
-	// TODO: make mousePress return bool (true if resize event occurs, then no need to call QWidget::eventFilter())
 	bool handled = false;
 	switch (event->type())
 	{
@@ -1005,31 +1004,36 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 
 	bool filter = true;
 
-	static QStringList exceptions;
+	//static QStringList exceptions;
 	// TODO: make this list customizable
-	if (exceptions.isEmpty())
-		exceptions << "QAbstractButton"
-			   << "QLineEdit"
-			   << "QTextEdit"
-			   << "QScrollBar"
-			   << "QWebView"
-			   << "QAbstractItemView";
-	foreach (QString item, exceptions)
-	{
-		if (obj->inherits(item.toLatin1()))
-		{
-			filter = false;
-			break;
-		}
-	}
+//	if (exceptions.isEmpty())
+//		exceptions << "QAbstractButton"
+//			   << "QLineEdit"
+//			   << "QTextEdit"
+//			   << "QScrollBar"
+//			   << "QWebView"
+//			   << "QAbstractItemView";
+//	foreach (QString item, exceptions)
+//	{
+//		if (obj->inherits(item.toLatin1()))
+//		{
+//			filter = false;
+//			break;
+//		}
+//	}
 	// still not working... =(
 	if (qobject_cast<QAbstractButton*>(obj) ||
 			qobject_cast<QLineEdit*>(obj) ||
+			qobject_cast<QComboBox*>(obj) ||
+			qobject_cast<QSplitter*>(obj) ||
 			qobject_cast<QTextEdit*>(obj->parent()) ||
 			qobject_cast<QScrollBar*>(obj) ||
 			qobject_cast<QWebView*>(obj) ||
 			qobject_cast<QAbstractItemView*>(obj->parent()))
-		filter = false;
+	{
+		QWidget * w = qobject_cast<QWidget*>(obj);
+		filter = !w->isEnabled();
+	}
 	return filter;
 }
 

@@ -238,6 +238,8 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 	Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).setValue(nodeID);
 	setStyleSheet(styleSheet());
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 void OptionsDialog::onOptionsWidgetModified()

@@ -10,6 +10,8 @@ TabBar::TabBar(QWidget *AParent) : QFrame(AParent)
 	FCurrentIndex = -1;
 	FTabsCloseable = true;
 
+	setProperty("ignoreFilter", true);
+
 	setAcceptDrops(true);
 	setLayout(FLayout = new TabBarLayout);
 
@@ -212,7 +214,7 @@ void TabBar::mousePressEvent(QMouseEvent *AEvent)
 {
 	FPressedPos = AEvent->pos();
 	FPressedIndex = tabAt(FPressedPos);
-	QWidget::mousePressEvent(AEvent);
+	//QWidget::mousePressEvent(AEvent);
 }
 
 void TabBar::mouseReleaseEvent(QMouseEvent *AEvent)
@@ -234,7 +236,7 @@ void TabBar::mouseReleaseEvent(QMouseEvent *AEvent)
 		}
 	}
 	FPressedIndex = -1;
-	QWidget::mouseReleaseEvent(AEvent);
+	//QWidget::mouseReleaseEvent(AEvent);
 }
 
 void TabBar::mouseMoveEvent(QMouseEvent *AEvent)

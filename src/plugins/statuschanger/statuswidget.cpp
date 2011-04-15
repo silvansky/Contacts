@@ -223,7 +223,11 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 				point.setX(point.x() - dx);
 				point.setY(point.y() + ui.lblAvatar->height());
 				FProfileMenu->popup(point);
+				return true;
 			}
+			break;
+		case QEvent::MouseButtonPress:
+			return true;
 			break;
 		default:
 			break;
@@ -234,6 +238,7 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 		QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(AEvent);
 		if (mouseEvent && mouseEvent->button() == Qt::LeftButton)
 			startEditMood();
+		return true;
 	}
 	else if (AObject == ui.tedMood)
 	{

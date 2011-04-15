@@ -520,9 +520,9 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		FOptionsDialog->layout()->update();
 		if (FOptionsDialogBorder)
 		{
-			FOptionsDialogBorder->adjustSize();
 			FOptionsDialogBorder->layout()->update();
 			FOptionsDialogBorder->resize(FOptionsDialogBorder->sizeHint());
+			FOptionsDialogBorder->adjustSize();
 		}
 //#endif
 	}
