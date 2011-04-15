@@ -498,7 +498,6 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		{
 			FOptionsDialog = new OptionsDialog(this,AParent);
 			connect(FOptionsDialog, SIGNAL(applied()), SLOT(onOptionsDialogApplied()));
-			connect(FOptionsDialog, SIGNAL(splitterMoved(int,int)), SLOT(onOpdionsDialogSplitterMoved(int,int)));
 			connect(FOptionsDialog, SIGNAL(dialogDestroyed()), SLOT(onOptionsDialogDestroyed()));
 			FOptionsDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FOptionsDialog, CBS_OPTIONSDIALOG);
 			if (FOptionsDialogBorder)
@@ -513,9 +512,6 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
 		WidgetManager::showActivateRaiseWindow(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog);
-//#ifndef Q_WS_MAC
-//		(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog)->adjustSize();
-//#else
 		FOptionsDialog->adjustSize();
 		FOptionsDialog->layout()->update();
 		if (FOptionsDialogBorder)
@@ -524,7 +520,6 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 			FOptionsDialogBorder->resize(FOptionsDialogBorder->sizeHint());
 			FOptionsDialogBorder->adjustSize();
 		}
-//#endif
 	}
 	return FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog;
 }
@@ -793,12 +788,6 @@ void OptionsManager::onPrivateStorageAboutToClose(const Jid &AStreamJid)
 void OptionsManager::onAboutToQuit()
 {
 	closeProfile();
-}
-
-void OptionsManager::onOpdionsDialogSplitterMoved(int pos, int index)
-{
-	//if (FOptionsDialogBorder && (index == 1))
-		//FOptionsDialogBorder->setHeaderMoveLeft(pos + FOptionsDialog->layout()->contentsMargins().left() + 6);
 }
 
 Q_EXPORT_PLUGIN2(plg_optionsmanager, OptionsManager)

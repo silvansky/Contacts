@@ -36,15 +36,11 @@ public:
 signals:
 	void applied();
 	void reseted();
-	void splitterMoved(int, int);
 	void dialogDestroyed();
 protected:
 	QWidget *createNodeWidget(const QString &ANodeId);
 	QStandardItem *createNodeItem(const QString &ANodeId);
 	bool canExpandVertically(const QWidget *AWidget) const;
-protected:
-	bool eventFilter(QObject *, QEvent *);
-	void resizeEvent(QResizeEvent *);
 protected slots:
 	void onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode);
 	void onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode);

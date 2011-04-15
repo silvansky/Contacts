@@ -114,7 +114,6 @@ protected slots:
 	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void onPrivateStorageAboutToClose(const Jid &AStreamJid);
 	void onAboutToQuit();
-	void onOpdionsDialogSplitterMoved(int pos, int index);
 private:
 	IPluginManager *FPluginManager;
 	ITrayManager *FTrayManager;
