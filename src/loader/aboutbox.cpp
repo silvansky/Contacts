@@ -11,7 +11,7 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 
-	ui.lblName->setText("<font size=+4>friends</font>");
+	ui.lblName->setText("<font size=+4><b>friends</b></font>");
 	ui.lblVersion->setText(tr("Version %1.%2 %3").arg(APluginManager->version()).arg(APluginManager->revision()).arg(CLIENT_VERSION_SUFIX).trimmed());
 	ui.lblHomePage->setText(tr("Official site: %1").arg("<a href='http://virtus.rambler.ru'>http://virtus.rambler.ru</a>"));
 	ui.lblCopyright->setText(tr("Copyright 2010-2011, \"Rambler Internet Holding Ltd\". All rights reserved.<br>%1").arg(QString("<a href='http://virtus.rambler.ru'>%1</a>").arg(tr("Terms of Use"))));

@@ -40,6 +40,9 @@ protected slots:
 	void on_addToRosterButton_clicked();
 	void on_renameButton_clicked();
 	void onNewNameSelected(const QString & newName);
+private slots:
+	void on_editOnline_clicked();
+
 private:
 	Ui::SimpleVCardDialog *ui;
 private:

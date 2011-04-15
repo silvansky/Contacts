@@ -2,6 +2,8 @@
 #include "ui_simplevcarddialog.h"
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QUrl>
+#include <QDesktopServices>
 #include <utils/customborderstorage.h>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
@@ -169,4 +171,9 @@ void SimpleVCardDialog::onNewNameSelected(const QString & newName)
 		FRoster->renameItem(FContactJid, newName);
 		FRosterItem = FRoster->rosterItem(FContactJid);
 	}
+}
+
+void SimpleVCardDialog::on_editOnline_clicked()
+{
+	QDesktopServices::openUrl(QUrl("http://id.rambler.ru/script/settings.cgi"));
 }

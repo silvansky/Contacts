@@ -14,3 +14,8 @@ QPushButton#editOnline
 	padding-bottom: 0px;
 	min-width: 10px;
 }
+
+QLabel#name
+{
+	font-size: 16px;
+}
