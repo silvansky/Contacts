@@ -14,6 +14,3 @@ SOURCES = notifications.cpp \
 	  optionswidget.cpp \
 	  notifykindswidget.cpp
 
-
-#QT += multimedia
-QT += phonon

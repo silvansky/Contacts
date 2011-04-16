@@ -1,14 +1,14 @@
 #ifndef NOTIFICATIONS_H
 #define NOTIFICATIONS_H
 
-//#include <QtMultimedia>
 #ifdef QT_PHONON_LIB
-#	include <QPointer>
+#	include <Phonon/Phonon>
+#else
+#	include <QSound>
 #endif
 
 #include <QTimer>
-#include <QSound>
-#include <Phonon/Phonon>
+//#include <QtMultimedia>
 #include <definitions/notificationdataroles.h>
 #include <definitions/actiongroups.h>
 #include <definitions/toolbargroups.h>
@@ -151,8 +151,8 @@ private:
 private:
 	int FTestNotifyId;
 #ifdef QT_PHONON_LIB
-	Phonon::MediaObject * FMediaObject;
-	Phonon::AudioOutput * FAudioOutput;
+	Phonon::MediaObject *FMediaObject;
+	Phonon::AudioOutput *FAudioOutput;
 #else
 	QSound *FSound;
 #endif

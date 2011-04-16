@@ -42,11 +42,11 @@ Notifications::~Notifications()
 	delete FActivateAll;
 	delete FRemoveAll;
 	delete FNotifyMenu;
-#ifndef QT_PHONON_LIB
-	delete FSound;
-#else
+#ifdef QT_PHONON_LIB
 	delete FMediaObject;
 	delete FAudioOutput;
+#else
+	delete FSound;
 #endif
 }
 
