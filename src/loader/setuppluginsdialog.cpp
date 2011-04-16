@@ -9,7 +9,7 @@
 enum TableColumns
 {
 	COL_NAME,
-	COL_VERSION
+	COL_FILE
 };
 
 SetupPluginsDialog::SetupPluginsDialog(IPluginManager *APluginManager, QDomDocument APluginsSetup, QWidget *AParent) : QDialog(AParent)
@@ -21,27 +21,23 @@ SetupPluginsDialog::SetupPluginsDialog(IPluginManager *APluginManager, QDomDocum
 	FPluginManager = APluginManager;
 	FPluginsSetup = APluginsSetup;
 
-	ui.twtPlugins->setColumnCount(2);
-	ui.twtPlugins->verticalHeader()->hide();
-	ui.twtPlugins->setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Version"));
-	ui.twtPlugins->horizontalHeader()->setResizeMode(COL_NAME,QHeaderView::Stretch);
-	ui.twtPlugins->horizontalHeader()->setResizeMode(COL_VERSION,QHeaderView::ResizeToContents);
-	ui.cmbCountry->setView(new QListView);
-	ui.cmbLanguage->setView(new QListView);
-
 	updateLanguage();
 	connect(ui.cmbLanguage,SIGNAL(currentIndexChanged(int)),SLOT(onCurrentLanguageChanged(int)));
 
 	updatePlugins();
+	ui.twtPlugins->horizontalHeader()->setResizeMode(COL_NAME,QHeaderView::Stretch);
+	ui.twtPlugins->horizontalHeader()->setResizeMode(COL_FILE,QHeaderView::ResizeToContents);
 	connect(ui.twtPlugins,SIGNAL(currentItemChanged(QTableWidgetItem *, QTableWidgetItem *)),SLOT(onCurrentPluginChanged(QTableWidgetItem *, QTableWidgetItem *)));
 
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
 	connect(ui.lblHomePage, SIGNAL(linkActivated(const QString &)),SLOT(onHomePageLinkActivated(const QString &)));
+
+	restoreGeometry(Options::fileValue("misc.setup-plugins-dialog.geometry").toByteArray());
 }
 
 SetupPluginsDialog::~SetupPluginsDialog()
 {
-
+	Options::setFileValue(saveGeometry(),"misc.setup-plugins-dialog.geometry");
 }
 
 void SetupPluginsDialog::updateLanguage()
@@ -84,11 +80,12 @@ void SetupPluginsDialog::updatePlugins()
 		}
 		nameItem->setCheckState(pluginElem.attribute("enabled","true")=="true" ? Qt::Checked : Qt::Unchecked);
 
-		QTableWidgetItem *versionItem = new QTableWidgetItem(pluginElem.firstChildElement("version").text());
+		QTableWidgetItem *fileItem = new QTableWidgetItem(pluginElem.tagName());
 
 		ui.twtPlugins->setRowCount(ui.twtPlugins->rowCount()+1);
 		ui.twtPlugins->setItem(ui.twtPlugins->rowCount()-1, COL_NAME, nameItem);
-		ui.twtPlugins->setItem(nameItem->row(), COL_VERSION, versionItem);
+		ui.twtPlugins->setItem(nameItem->row(), COL_FILE, fileItem);
+		
 		FItemElement.insert(nameItem,pluginElem);
 		pluginElem = pluginElem.nextSiblingElement();
 	}
@@ -146,8 +143,8 @@ void SetupPluginsDialog::onCurrentPluginChanged(QTableWidgetItem *ACurrent, QTab
 
 		QString name = pluginElem.firstChildElement("name").text().isEmpty() ? pluginElem.tagName() : pluginElem.firstChildElement("name").text();
 		ui.lblName->setText(QString("<b>%1</b> %2").arg(Qt::escape(name)).arg(Qt::escape(pluginElem.firstChildElement("version").text())));
-		ui.lblDescription->setText(Qt::escape(pluginElem.firstChildElement("desc").text()));
-		ui.lblError->setText(Qt::escape(pluginElem.firstChildElement("error").text()));
+		ui.lblDescription->setText(pluginElem.firstChildElement("desc").text());
+		ui.lblError->setText(pluginElem.firstChildElement("error").text());
 		ui.lblError->setVisible(!ui.lblError->text().isEmpty());
 		ui.lblLabelError->setVisible(ui.lblError->isVisible());
 
@@ -182,7 +179,7 @@ void SetupPluginsDialog::onCurrentPluginChanged(QTableWidgetItem *ACurrent, QTab
 
 		const IPluginInfo *info = FPluginManager->pluginInfo(pluginElem.attribute("uuid"));
 		if (info)
-			ui.lblHomePage->setText(QString("<a href='%1'>%1</a>").arg(Qt::escape(info->homePage.toString())));
+			ui.lblHomePage->setText(QString("<a href='%1'>%2</a>").arg(info->homePage.toString()).arg(Qt::escape(info->homePage.toString())));
 	}
 }
 
