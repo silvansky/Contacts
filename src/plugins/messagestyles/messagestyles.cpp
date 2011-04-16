@@ -72,7 +72,7 @@ bool MessageStyles::initSettings()
 {
 	if (FOptionsManager)
 	{
-#if 0 // todo: show only in debug mode
+#ifdef DEBUG_ENABLED
 		IOptionsDialogNode dnode = { ONO_MESSAGE_STYLES, OPN_MESSAGE_STYLES, tr("Message Styles"), MNI_MESSAGESTYLES };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 #endif

@@ -95,7 +95,7 @@ bool StanzaProcessor::sendStanzaOut(const Jid &AStreamJid, Stanza &AStanza)
 			emit stanzaSent(AStreamJid, AStanza);
 			return true;
 		}
-		Log(QString("[StanzaProcessor send stanza error] Failed to send stanza:\n%1\nwith stream %2 (obj %3)").arg(AStanza.toString(), AStreamJid.full(), QString::number((int)stream, 16)));
+		Log(QString("[StanzaProcessor send stanza error] Failed to send stanza:\n%1\nwith stream %2").arg(AStanza.toString(), AStreamJid.full()));
 		return false;
 	}
 	return true;

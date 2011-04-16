@@ -1,5 +1,6 @@
 #include "notifications.h"
 
+#include <QProcess>
 #include <QVBoxLayout>
 
 #define TEST_NOTIFY_TIMEOUT             10000
