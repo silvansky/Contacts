@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -83,10 +83,6 @@
     <message>
         <source>Show offline contacts</source>
         <translation>Показывать отключенных (&quot;Не в сети&quot;)</translation>
-    </message>
-    <message>
-        <source>Group contacts</source>
-        <translation>Группировать контакты</translation>
     </message>
     <message>
         <source>Contacts Order</source>

@@ -674,7 +674,7 @@ void MetaContacts::initMetaItemDescriptors()
 	FMetaItemDescriptors.append(icq);
 
 	IMetaItemDescriptor magent;
-	magent.name = tr("Agent@Mail");
+	magent.name = tr("Agent@Mail.ru");
 	magent.icon = MNI_METACONTACTS_ITEM_MAGENT;
 	magent.combine = false;
 	magent.detach = true;

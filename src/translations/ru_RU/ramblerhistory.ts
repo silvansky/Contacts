@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -10,10 +10,6 @@
     <message>
         <source>Allows other modules to get access to message history on rambler server</source>
         <translation>Позволяет другим плагинам получать доступ к истории на сервере рамблера</translation>
-    </message>
-    <message>
-        <source>Store the history of communication in my Rambler.Pochta</source>
-        <translation>Хранить историю общения в моей Рамблер-Почте</translation>
     </message>
 </context>
 </TS>

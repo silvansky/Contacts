@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -25,10 +25,6 @@
     <message>
         <source>Remark:</source>
         <translation>Примечания:</translation>
-    </message>
-    <message>
-        <source>Full name:</source>
-        <translation>Полное имя:</translation>
     </message>
     <message>
         <source>Add to roster</source>
@@ -69,6 +65,10 @@
     <message>
         <source>&lt;font size=+2&gt;Rename contact&lt;/font&gt;&lt;br&gt;Enter new name</source>
         <translation>&lt;font size=+2&gt;Переименовать контакт&lt;/font&gt;&lt;br&gt;Введите новое имя</translation>
+    </message>
+    <message>
+        <source>Edit profile online...</source>
+        <translation>Редактировать профиль на сайте...</translation>
     </message>
 </context>
 <context>

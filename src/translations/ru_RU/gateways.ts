@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
@@ -59,11 +59,15 @@
     </message>
     <message>
         <source>Failed to add account, check your login and password</source>
-        <translation>Не удалось добавить учётную запись, проверьте ваш логин и пароль.</translation>
+        <translation>Не удалось добавить учётную запись, проверьте ваш логин и пароль</translation>
     </message>
     <message>
         <source>Your account is not connected.</source>
         <translation>Ваша учётная запись ещё не подключена.</translation>
+    </message>
+    <message>
+        <source>Add %1 account</source>
+        <translation>Добавить учетную запись %1</translation>
     </message>
 </context>
 <context>
@@ -169,10 +173,6 @@
         <translation>Логин</translation>
     </message>
     <message>
-        <source>Agent@Mail.ru</source>
-        <translation>Агент@Mail.ru</translation>
-    </message>
-    <message>
         <source>E-mail</source>
         <translation>E-mail</translation>
     </message>
@@ -255,6 +255,14 @@
     <message>
         <source>Invalid service descriptor identifier.</source>
         <translation>Неверный идентификатор сервиса.</translation>
+    </message>
+    <message>
+        <source>Entered phone number contains invalid characters.</source>
+        <translation>Указанный номер телефона содержит недопустимые символы.</translation>
+    </message>
+    <message>
+        <source>Agent@Mail.ru</source>
+        <translation>Агент@Mail.ru</translation>
     </message>
 </context>
 <context>

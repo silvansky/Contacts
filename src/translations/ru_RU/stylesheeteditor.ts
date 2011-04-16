@@ -399,6 +399,10 @@
         <source>Invalid Style Sheet</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Test Form</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>StyleSheetEditorPlugin</name>
@@ -408,6 +412,53 @@
     </message>
     <message>
         <source>Allows to edit and preview the application stylesheet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Style Sheet Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TestStylesForm</name>
+    <message>
+        <source>Test Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PushButton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>popup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Menu button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RadioButton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CheckBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <source>Новый элемент</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

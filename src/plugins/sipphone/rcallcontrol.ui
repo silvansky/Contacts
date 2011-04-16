@@ -10,9 +10,6 @@
     <height>34</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>RCallControl</string>
-  </property>
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
@@ -55,7 +52,7 @@
    <item>
     <widget class="QLabel" name="lblStatus">
      <property name="text">
-      <string>TextLabel</string>
+      <string notr="true">lblStatus</string>
      </property>
     </widget>
    </item>

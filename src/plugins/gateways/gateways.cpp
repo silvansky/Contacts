@@ -236,7 +236,7 @@ bool Gateways::initObjects()
 	magent.needGate = true;
 	magent.needLogin = true;
 	magent.type = "mrim";
-	magent.name = tr("Agent@Mail");
+	magent.name = tr("Agent@Mail.ru");
 	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
 	magent.loginLabel = tr("E-mail");
 	magent.homeContactPattern = "^"MAIL_NODE_PATTERN"@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";

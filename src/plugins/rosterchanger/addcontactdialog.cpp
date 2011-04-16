@@ -67,7 +67,7 @@ AddContactDialog::AddContactDialog(IRosterChanger *ARosterChanger, IPluginManage
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_RCHANGER_ADDCONTACT_ERROR,0,0,"pixmap");
 	ui.lblAction->setVisible(false);
 	connect(ui.lblAction,SIGNAL(linkActivated(const QString &)),SLOT(onActionLinkActivated(const QString &)));
-	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add contact"));
+	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add Contact"));
 
 	QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_GATEWAYS_SERVICE_RAMBLER,0);
 	ui.cmbProfile->addItem(icon,FStreamJid.bare());

@@ -640,7 +640,7 @@ void MetaTabWindow::updatePersistantPages()
 			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
 			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
 			setPageIcon(pageId,icon);
-			setPageName(pageId,tr("Add %1 contact").arg(descrName));
+			setPageName(pageId,tr("Add contact"));
 
 			FPersistantPages.insert(descrName,pageId);
 		}

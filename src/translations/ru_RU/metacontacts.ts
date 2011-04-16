@@ -1,6 +1,36 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
+<context>
+    <name>AddMetaItemPage</name>
+    <message>
+        <source>Enter the phone number of the interlocutor, to send the SMS:</source>
+        <translation>Укажите номер телефона собеседника, на который будут отправляться SMS:</translation>
+    </message>
+    <message>
+        <source>Enter e-mail address of contact:</source>
+        <translation>Укажите адрес электронной почты контакта:</translation>
+    </message>
+    <message>
+        <source>Enter contact %1 address:</source>
+        <translation>Укажите %1 адрес контакта:</translation>
+    </message>
+    <message>
+        <source>Failed to create new contact.</source>
+        <translation>Не удалось создать новый контакт.</translation>
+    </message>
+    <message>
+        <source>Failed to merge contacts.</source>
+        <translation>Не удалось объединить контакты.</translation>
+    </message>
+</context>
+<context>
+    <name>AddMetaItemPageClass</name>
+    <message>
+        <source>Append</source>
+        <translation>Добавить</translation>
+    </message>
+</context>
 <context>
     <name>MergeContactsDialog</name>
     <message>
@@ -91,10 +121,6 @@
         <translation>ICQ</translation>
     </message>
     <message>
-        <source>Agent@Mail.ru</source>
-        <translation>Агент@Mail.ru</translation>
-    </message>
-    <message>
         <source>Twitter</source>
         <translation>Twitter</translation>
     </message>
@@ -117,10 +143,6 @@
     <message>
         <source>VKontakte</source>
         <translation>ВКонтакте</translation>
-    </message>
-    <message>
-        <source>Odnoklassniki</source>
-        <translation>Однокласcники</translation>
     </message>
     <message>
         <source>Facebook</source>
@@ -167,32 +189,56 @@
         <translation>Переименовать контакт</translation>
     </message>
     <message>
-        <source>&lt;font size=+2&gt;Rename contact&lt;/font&gt;&lt;br&gt;Enter new name</source>
-        <translation>&lt;font size=+2&gt;Переименовать контакт&lt;/font&gt;&lt;br&gt;Введине новое имя</translation>
-    </message>
-    <message>
-        <source>You are assured that wish to remove a contact &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>Вы уверены, что хотите удалить контакт &lt;b&gt;%1&lt;/b&gt;?</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Удалить</translation>
-    </message>
-    <message numerus="yes">
-        <source>You are assured that wish to remove %n contact(s)?</source>
-        <translation>
-            <numerusform>Вы уверены, что хотите удалить %n контакт?</numerusform>
-            <numerusform>Вы уверены, что хотите удалить %n контакта?</numerusform>
-            <numerusform>Вы уверены, что хотите удалить %n контактов?</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>&lt;font size=+2&gt;%1&lt;/font&gt;&lt;br&gt;%2</source>
-        <translation>&lt;font size=+2&gt;%1&lt;/font&gt;&lt;br&gt;%2</translation>
     </message>
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Odnoklasniki</source>
+        <translation>Однокласники</translation>
+    </message>
+    <message>
+        <source>Enter new name</source>
+        <translation>Укажите новое имя</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Сохранить</translation>
+    </message>
+    <message>
+        <source>Contact %1 will be removed without possibility of restoring</source>
+        <translation>Контакт %1 будет удален без возможности восстановления</translation>
+    </message>
+    <message>
+        <source>Remove contact</source>
+        <translation>Удалить контакт</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n contacts will be removed without possibility of restoring</source>
+        <translation>
+            <numerusform>%n контакт будет удален без возможности восстановления</numerusform>
+            <numerusform>%n контакта будут удалены без возможности восстановления</numerusform>
+            <numerusform>%n контактов будут удалены без возможности восстановления</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Authorize</source>
+        <translation>Авторизовать</translation>
+    </message>
+    <message>
+        <source>Refuse authorization</source>
+        <translation>Отказать в авторизации</translation>
+    </message>
+    <message>
+        <source>Request authorization</source>
+        <translation>Запросить авторизацию</translation>
+    </message>
+    <message>
+        <source>Agent@Mail.ru</source>
+        <translation>Агент@Mail.ru</translation>
     </message>
 </context>
 <context>
@@ -216,6 +262,10 @@
     <message>
         <source>Remove contact</source>
         <translation>Удалить контакт</translation>
+    </message>
+    <message>
+        <source>Add contact</source>
+        <translation>Добавить контакт</translation>
     </message>
 </context>
 </TS>

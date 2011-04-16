@@ -1,23 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
     <name>AboutBox</name>
     <message>
-        <source>Version: %1.%2 %3</source>
-        <translation>Версия: %1.%2 %3</translation>
-    </message>
-    <message>
-        <source>Home page: %1</source>
-        <translation>Домашняя страница: %1</translation>
-    </message>
-    <message>
-        <source>Copyright 2010, Ltd. &apos;Rambler Internet Holding&apos;. All rights reserved. %1</source>
-        <translation>Copyright 2010, ООО. &apos;Рамблер Интернет Холдинг&apos;. Все права защищены. %1</translation>
-    </message>
-    <message>
         <source>Terms of Use</source>
         <translation>Условия использования</translation>
+    </message>
+    <message>
+        <source>Version %1.%2 %3</source>
+        <translation>Версия %1. %2 %3</translation>
+    </message>
+    <message>
+        <source>Official site: %1</source>
+        <translation>Официальный сайт: %1</translation>
+    </message>
+    <message>
+        <source>Copyright 2010-2011, &quot;Rambler Internet Holding Ltd&quot;. All rights reserved.&lt;br&gt;%1</source>
+        <translation>Copyright 2010-2011, &quot;Rambler Internet Holding Ltd&quot;. Все права сохранены.&lt;br&gt;%1</translation>
     </message>
 </context>
 <context>
@@ -27,8 +27,12 @@
         <translation>О программе</translation>
     </message>
     <message>
-        <source>Your comments</source>
-        <translation>Написать отзыв</translation>
+        <source>Leave feedback about program...</source>
+        <translation>Оставить отзыв о программе...</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
@@ -61,28 +65,32 @@
         <translation>Отзыв о программе</translation>
     </message>
     <message>
-        <source>Left your comment about program.</source>
-        <translation>Оставьте ваш отзыв о программе.</translation>
-    </message>
-    <message>
-        <source>Your own opinion very important for us</source>
-        <translation>Ваше мнение очень важно для нас</translation>
-    </message>
-    <message>
-        <source>Your name:</source>
-        <translation>Ваше имя:</translation>
-    </message>
-    <message>
         <source>Enter your comment:</source>
         <translation>Ваш отзыв или замечание:</translation>
     </message>
     <message>
-        <source>Add technical data (very good for us):</source>
-        <translation>Добавить технические сведения:</translation>
-    </message>
-    <message>
         <source>Send comment</source>
         <translation>Отправить отзыв</translation>
+    </message>
+    <message>
+        <source>&lt; font size=+2&gt;Leave your feedback about program.&lt;/font&gt;</source>
+        <translation>&lt; font size=+2&gt;Оставьте ваш отзыв о программе.&lt;/font&gt;</translation>
+    </message>
+    <message>
+        <source>Your opinion is important to us, because all the suggestions and comments from users is a great way to make our chat better.</source>
+        <translation>Ваше мнение очень важно для нас, ведь все предложения и замечания от пользователей это отличный способ сделать &quot;Virtus&quot; самым удобным.</translation>
+    </message>
+    <message>
+        <source>Your name</source>
+        <translation>Ваше имя</translation>
+    </message>
+    <message>
+        <source>E-Mail for reply</source>
+        <translation>E-mail для связи с вами</translation>
+    </message>
+    <message>
+        <source>Add useful technical data</source>
+        <translation>Прикрепить технические сведения</translation>
     </message>
 </context>
 <context>
@@ -131,14 +139,6 @@
 <context>
     <name>SetupPluginsDialog</name>
     <message>
-        <source>Name</source>
-        <translation>Название</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>Версия</translation>
-    </message>
-    <message>
         <source>&lt;System&gt;</source>
         <translation>&lt;Системный&gt;</translation>
     </message>
@@ -178,16 +178,20 @@
         <translation>Страна:</translation>
     </message>
     <message>
-        <source>Home page:</source>
-        <translation>Домашняя страница:</translation>
-    </message>
-    <message>
         <source>Depends</source>
         <translation>Зависит</translation>
     </message>
     <message>
         <source>Depend</source>
         <translation>Зависят</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Название</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

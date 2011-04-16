@@ -1,12 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
     <name>AddContactDialog</name>
-    <message>
-        <source>Add contact</source>
-        <translation>Добавить контакт</translation>
-    </message>
     <message>
         <source>&lt;Common Group&gt;</source>
         <translation>&lt;Основная группа&gt;</translation>
@@ -59,6 +55,10 @@
         <source>%1 service is unavailable</source>
         <translation>%1 сервис недоступен</translation>
     </message>
+    <message>
+        <source>Add Contact</source>
+        <translation>Добавить контакт</translation>
+    </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>
@@ -90,18 +90,6 @@
 <context>
     <name>AddMetaContactDialog</name>
     <message>
-        <source>Enter the contact&apos;s name and address</source>
-        <translation>Введите имя и адрес контакта</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Имя:</translation>
-    </message>
-    <message>
-        <source>Contact Name</source>
-        <translation>Имя контакта</translation>
-    </message>
-    <message>
         <source>Add Contact</source>
         <translation>Добавить контакт</translation>
     </message>
@@ -127,42 +115,80 @@
     </message>
 </context>
 <context>
-    <name>EditItemWidget</name>
+    <name>AddMetaContactDialogClass</name>
     <message>
-        <source>Address in %1</source>
-        <translation>Адрес в %1</translation>
+        <source>Enter the contact&apos;s name and address</source>
+        <translation>Укажите имя и адрес контакта</translation>
     </message>
     <message>
-        <source>Return address:</source>
-        <translation>Обратный адрес:</translation>
+        <source>Name:</source>
+        <translation>Имя:</translation>
     </message>
+    <message>
+        <source>Contact Name</source>
+        <translation>Имя контакта</translation>
+    </message>
+</context>
+<context>
+    <name>AddMetaItemWidget</name>
     <message>
         <source>disconnected. %1</source>
         <translation>отключен. %1</translation>
-    </message>
-    <message>
-        <source>failed to connect. %1</source>
-        <translation>не удалось подключить. %1</translation>
-    </message>
-    <message>
-        <source>connecting...</source>
-        <translation>подключение...</translation>
-    </message>
-    <message>
-        <source>Select your return address</source>
-        <translation>Выберите ваш обратный адрес</translation>
-    </message>
-    <message>
-        <source>Failed to request contact JID from transport</source>
-        <translation>Не удадось запросить JID контакта у транспорта</translation>
     </message>
     <message>
         <source>Connect</source>
         <translation>Подключить</translation>
     </message>
     <message>
+        <source>failed to connect. %1</source>
+        <translation>не удалось подключить. %1</translation>
+    </message>
+    <message>
         <source>Options</source>
         <translation>Настройки</translation>
+    </message>
+    <message>
+        <source>connecting...</source>
+        <translation>подключение...</translation>
+    </message>
+    <message>
+        <source>You are not connected to server.</source>
+        <translation>Вы не подключены к серверу.</translation>
+    </message>
+    <message>
+        <source>Service &apos;%1&apos; is not available now.</source>
+        <translation>Сервис &apos;%1&apos; сейчас недоступен.</translation>
+    </message>
+    <message>
+        <source>Phone number (+7)</source>
+        <translation>Номер телефона (+7)</translation>
+    </message>
+    <message>
+        <source>E-mail address</source>
+        <translation>Электнонная почта</translation>
+    </message>
+    <message>
+        <source>Address in %1</source>
+        <translation>Адрес в %1</translation>
+    </message>
+    <message>
+        <source>Select your return address.</source>
+        <translation>Выберите Ваш обратный адрес.</translation>
+    </message>
+    <message>
+        <source>Failed to request contact JID from transport.</source>
+        <translation>Не удалось получить JID контакта от транспорта.</translation>
+    </message>
+    <message>
+        <source>This contact is already present in your roster.</source>
+        <translation>Этот контакт уже имеется в Вашем контакт-листе.</translation>
+    </message>
+</context>
+<context>
+    <name>AddMetaItemWidgetClass</name>
+    <message>
+        <source>Return address:</source>
+        <translation>Обратный адрес:</translation>
     </message>
 </context>
 <context>
