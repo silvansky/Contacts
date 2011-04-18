@@ -4,10 +4,10 @@
 #include <QObject>
 #include "utilsexport.h"
 
-class UTILS_EXPORT SystemManager : 
+class UTILS_EXPORT SystemManager :
 	public QObject
 {
-	Q_OBJECT;
+	Q_OBJECT
 	struct SystemManagerData;
 public:
 	static SystemManager *instance();

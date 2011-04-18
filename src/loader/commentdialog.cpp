@@ -5,13 +5,122 @@
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 #include <definitions/stylesheets.h>
+#include <QSysInfo>
+#include <QDesktopWidget>
+
+#ifdef Q_WS_WIN
+#include <Windows.h>
+#include <comutil.h>
+typedef BOOL (WINAPI *IW64PFP)(HANDLE, BOOL *);
+
+static QString windowsBitness()
+{
+	IW64PFP IW64P = (IW64PFP)GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process");
+	BOOL res = FALSE;
+	if (IW64P != NULL)
+	{
+		IW64P(GetCurrentProcess(), &res);
+	}
+	return res ? "64" : "32";
+}
+
+static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
+{
+	QString win("Windows %1 %2, ");
+	QString version;
+	switch (ver)
+	{
+	case QSysInfo::WV_32s:
+		version = "32s";
+		break;
+	case QSysInfo::WV_95:
+		version = "95";
+		break;
+	case QSysInfo::WV_98:
+		version = "98";
+		break;
+	case QSysInfo::WV_Me:
+		version = "Me";
+		break;
+	case QSysInfo::WV_DOS_based:
+		version = "DOS based";
+		break;
+	case QSysInfo::WV_NT:
+		version = "NT";
+		break;
+	case QSysInfo::WV_2000:
+		version = "2000";
+		break;
+	case QSysInfo::WV_XP:
+		version = "XP";
+		break;
+	case QSysInfo::WV_2003:
+		version = "2003";
+		break;
+	case QSysInfo::WV_VISTA:
+		version = "Vista";
+		break;
+	case QSysInfo::WV_WINDOWS7:
+		version = "Seven";
+		break;
+	case QSysInfo::WV_NT_based:
+		version = "NT Based";
+		break;
+	default:
+		version = "Unknown";
+		break;
+	}
+	return win.arg(version, windowsBitness());
+}
+#endif
+
+#ifdef Q_WS_MAC
+static QString resolveMacVersion(QSysInfo::MacVersion ver)
+{
+	QString mac("Mac OS X %1, ");
+	QString version;
+	switch(ver)
+	{
+	case QSysInfo::MV_10_3:
+		version = "10.3 (Panther)";
+		break;
+	case QSysInfo::MV_10_4:
+		version = "10.4 (Tiger)";
+		break;
+	case QSysInfo::MV_10_5:
+		version = "10.5 (Leopard)";
+		break;
+	case QSysInfo::MV_10_6:
+		version = "10.6 (Snow Leopard)";
+		break;
+	default:
+		version = "Unknown";
+		break;
+	}
+	return mac.arg(version);
+}
+#endif
 
 CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
 	ui.lneYourName->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-	ui.chbAddTechData->setVisible(false);
+	QString techInfo;
+#ifdef Q_WS_WIN
+	techInfo += resolveWidowsVersion(QSysInfo::windowsVersion());
+#elif defined (Q_WS_MAC)
+	techInfo += resolveMacVersion(QSysInfo::MacintoshVersion);
+#endif
+	QDesktopWidget * dw = QApplication::desktop();
+	for (int i = 0; i < dw->screenCount(); i++)
+	{
+		QRect dr = dw->screenGeometry(i);
+		techInfo += QString("%1x%2 px, ").arg(dr.width()).arg(dw->height());
+	}
+	techInfo += QString(tr("version %1 (r%2)")).arg(APluginManager->version(), APluginManager->revision());
+
+	ui.lblTechData->setText(techInfo);
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_FEEDBACK);
 
@@ -78,7 +187,7 @@ void CommentDialog::SendComment()
 
 	Message message;
 	message.setType(Message::Chat);
-	QString commentHtml = QString("<b>%1</b><br><i>%2</i><br><b>%3</b><br><br>%4").arg(Qt::escape(ui.lneYourName->text()), Qt::escape(ui.lneEMail->text()), Qt::escape(ui.lblTechData->text()), Qt::escape(comment));
+	QString commentHtml = QString("<b>%1</b><br><i>%2</i><br><b>%3</b><br><br>%4<br><br>Technical data: %5").arg(Qt::escape(ui.lneYourName->text()), Qt::escape(ui.lneEMail->text()), Qt::escape(ui.lblTechData->text()), Qt::escape(comment), (ui.chbAddTechData->isChecked() ? ui.lblTechData->text() : "[not added]"));
 	QTextDocument * doc = new QTextDocument;
 	doc->setHtml(commentHtml);
 	FMessageProcessor->textToMessage(message, doc);
