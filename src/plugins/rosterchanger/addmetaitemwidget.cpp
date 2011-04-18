@@ -205,8 +205,8 @@ void AddMetaItemWidget::updateProfiles()
 		Jid serviceJid = it.key();
 
 		QRadioButton *button = FProfiles.value(serviceJid);
-		QString login = FProfileLogins.value(serviceJid,serviceJid.pBare());
-		button->setText(login);
+		QString login = FProfileLogins.value(serviceJid);
+		button->setText(!login.isEmpty() ? login : serviceJid.pBare());
 
 		if (streamJid() != serviceJid)
 		{
@@ -423,10 +423,7 @@ void AddMetaItemWidget::onServiceLoginReceived(const QString &AId, const QString
 	if (FLoginRequests.contains(AId))
 	{
 		Jid serviceJid = FLoginRequests.take(AId);
-		if (!ALogin.isEmpty())
-			FProfileLogins.insert(serviceJid,ALogin);
-		else
-			FProfileLogins.remove(serviceJid);
+		FProfileLogins.insert(serviceJid,ALogin);
 		updateProfiles();
 	}
 }
@@ -448,7 +445,7 @@ void AddMetaItemWidget::onGatewayErrorReceived(const QString &AId, const QString
 	if (FLoginRequests.contains(AId))
 	{
 		Jid serviceJid = FLoginRequests.take(AId);
-		FProfileLogins.remove(serviceJid);
+		FProfileLogins.insert(serviceJid,QString::null);
 		updateProfiles();
 	}
 	else if (FContactJidRequest == AId)
