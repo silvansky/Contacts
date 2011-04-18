@@ -84,12 +84,15 @@ void SimpleVCardDialog::updateDialog()
 	QString birthdayString = birthday.isValid() ? birthday.toString(Qt::SystemLocaleLongDate) : "<font color=grey>" + tr("not assigned") + "</font>";
 	ui->birthDateLabel->setText(birthdayString);
 
+	// Временно скрываем комментарии из-за возможных проблем отображения
+	/*
 	QString remarkString = FVCard->value(VVN_DESCRIPTION);
 	if (!remarkString.isEmpty())
 	{
 		ui->remarkLabel->setText(remarkString);
 	}
 	else
+	*/
 	{
 		ui->remarkCaption->setVisible(false);
 		ui->remarkLabel->setVisible(false);
