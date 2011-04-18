@@ -514,8 +514,9 @@ QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount) const
 		QPixmap base = AIcon.pixmap(AIcon.availableSizes().value(0));
 		QPainter painter(&base);
 
-		//QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON,1));
-		QPixmap balloon(12,12);
+		QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON, 0));
+		//QPixmap balloon(12, 12);
+		//balloon.fill(QColor(136, 199, 227));
 		QRect ballonRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignTop|Qt::AlignRight,balloon.size(),base.rect());
 		painter.drawPixmap(ballonRect,balloon);
 

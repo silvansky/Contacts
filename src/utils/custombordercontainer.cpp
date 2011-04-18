@@ -1070,7 +1070,6 @@ void CustomBorderContainer::init()
 	windowMenu->addAction(minimizeAction);
 	windowMenu->addAction(maximizeAction);
 	windowMenu->addAction(closeAction);
-	maximizeAction->setCheckable(true);
 	connect(minimizeAction, SIGNAL(triggered()), SIGNAL(minimizeClicked()));
 	connect(maximizeAction, SIGNAL(triggered()), SIGNAL(maximizeClicked()));
 	connect(closeAction, SIGNAL(triggered()), SIGNAL(closeClicked()));

@@ -105,4 +105,8 @@
     <object mime="image/png">metacontactsitemjabberpage_click.png</object>
     <object mime="image/png">metacontactsitemjabberpage_disable.png</object>
   </icon>
+  <icon>
+    <key>metacontactsNotifyBalloon</key>
+    <object mime="image/png">metacontactsnotifyballoon.png</object>
+  </icon>
 </icondef>
