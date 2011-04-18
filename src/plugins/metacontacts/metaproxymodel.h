@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QSortFilterProxyModel>
 #include <definitions/rosterindextyperole.h>
+#include <definitions/rosterindextypeorders.h>
 #include <definitions/rosterdataholderorders.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/irostersview.h>

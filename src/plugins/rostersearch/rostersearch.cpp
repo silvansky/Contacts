@@ -442,6 +442,7 @@ void RosterSearch::createSearchLinks()
 		FSearchHistory->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchHistory->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
 		FSearchHistory->setData(Qt::DisplayRole, tr("Search \"%1\" in history").arg(searchText.left(10)));
+		FSearchHistory->setData(RDR_TYPE_ORDER,RITO_SEARCH);
 		FSearchHistory->setData(RDR_SEARCH_LINK, "http://id-planet.rambler.ru");
 		FSearchHistory->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
 		FRostersModel->insertRosterIndex(FSearchHistory, searchRoot);
@@ -450,6 +451,7 @@ void RosterSearch::createSearchLinks()
 		FSearchRambler->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchRambler->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
 		FSearchRambler->setData(Qt::DisplayRole, tr("Search \"%1\" in Rambler").arg(searchText.left(10)));
+		FSearchRambler->setData(RDR_TYPE_ORDER,RITO_SEARCH);
 		FSearchRambler->setData(RDR_SEARCH_LINK, "http://nova.rambler.ru/search?query=" + searchText);
 		FSearchRambler->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
 		FRostersModel->insertRosterIndex(FSearchRambler, searchRoot);
@@ -478,6 +480,7 @@ void RosterSearch::createNotFoundItem()
 		FSearchNotFound = FRostersModel->createRosterIndex(RIT_SEARCH_EMPTY, "searchNotFound", searchRoot);
 		FSearchNotFound->setFlags(0);
 		FSearchNotFound->setData(Qt::DisplayRole, tr("Contacts not found"));
+		FSearchNotFound->setData(RDR_TYPE_ORDER,RITO_SEARCH);
 		FRostersModel->insertRosterIndex(FSearchNotFound, searchRoot);
 	}
 }

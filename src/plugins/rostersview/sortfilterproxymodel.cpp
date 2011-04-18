@@ -21,13 +21,13 @@ void SortFilterProxyModel::invalidate()
 
 bool SortFilterProxyModel::lessThan(const QModelIndex &ALeft, const QModelIndex &ARight) const
 {
-	int leftType = ALeft.data(RDR_TYPE).toInt();
-	int rightType = ARight.data(RDR_TYPE).toInt();
-	if (leftType == rightType)
+	int leftTypeOrder = ALeft.data(RDR_TYPE_ORDER).toInt();
+	int rightTypeOrder = ARight.data(RDR_TYPE_ORDER).toInt();
+	if (leftTypeOrder == rightTypeOrder)
 	{
 		int leftShow = ALeft.data(RDR_SHOW).toInt();
 		int rightShow = ARight.data(RDR_SHOW).toInt();
-		if (FSortByStatus && leftType!=RIT_STREAM_ROOT && leftShow!=rightShow)
+		if (FSortByStatus && leftTypeOrder!=RITO_STREAM_ROOT && leftShow!=rightShow)
 		{
 			const static int showOrders[] = {6,2,1,3,4,5,7,8};
 			return showOrders[leftShow] < showOrders[rightShow];
@@ -36,7 +36,7 @@ bool SortFilterProxyModel::lessThan(const QModelIndex &ALeft, const QModelIndex 
 			return QSortFilterProxyModel::lessThan(ALeft,ARight);
 	}
 	else
-		return leftType < rightType;
+		return leftTypeOrder < rightTypeOrder;
 }
 
 bool SortFilterProxyModel::filterAcceptsRow(int AModelRow, const QModelIndex &AModelParent) const

@@ -213,10 +213,34 @@ IRosterIndex *RostersModel::createRosterIndex(int AType, const QString &AId, IRo
 	IRosterIndex *index = findRosterIndex(AType,AId,AParent);
 	if (!index)
 	{
+		static const struct { int type; int order; }	DefTypeOrders[] = {
+			{RIT_STREAM_ROOT,         RITO_STREAM_ROOT}, 
+			{RIT_GROUP_BLANK,         RITO_GROUP_BLANK},
+			{RIT_GROUP,               RITO_GROUP}, 
+			{RIT_GROUP_NOT_IN_ROSTER, RITO_GROUP_NOT_IN_ROSTER}, 
+			{RIT_GROUP_MY_RESOURCES,  RITO_GROUP_MY_RESOURCES}, 
+			{RIT_GROUP_AGENTS,        RITO_GROUP_AGENTS}, 
+			{RIT_CONTACT,             RITO_CONTACT}, 
+			{RIT_MY_RESOURCE,         RITO_MY_RESOURCE},
+			{RIT_AGENT,               RITO_AGENT},
+			{-1,                      -1}
+		};
+
 		index = new RosterIndex(AType,AId);
 		connect(index->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onIndexDestroyed(IRosterIndex *)));
+
 		if (AParent)
 			index->setData(RDR_STREAM_JID,AParent->data(RDR_STREAM_JID));
+
+		for (int i=0; DefTypeOrders[i].type>=0; i++)
+		{
+			if (AType == DefTypeOrders[i].type)
+			{
+				index->setData(RDR_TYPE_ORDER, DefTypeOrders[i].order);
+				break;
+			}
+		}
+
 		emit indexCreated(index,AParent);
 		insertDefaultDataHolders(index);
 	}

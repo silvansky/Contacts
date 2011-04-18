@@ -8,6 +8,7 @@
 #include <definitions/toolbargroups.h>
 #include <definitions/rosterdataholderorders.h>
 #include <definitions/rosterindextyperole.h>
+#include <definitions/rosterindextypeorders.h>
 #include <definitions/rosterproxyorders.h>
 #include <definitions/rosterfootertextorders.h>
 #include <definitions/resources.h>

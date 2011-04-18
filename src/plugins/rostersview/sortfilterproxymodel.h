@@ -4,6 +4,7 @@
 #include <QSortFilterProxyModel>
 #include <definitions/optionvalues.h>
 #include <definitions/rosterindextyperole.h>
+#include <definitions/rosterindextypeorders.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/ipresence.h>
 #include <utils/options.h>

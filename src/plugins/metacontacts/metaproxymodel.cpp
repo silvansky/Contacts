@@ -292,6 +292,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 				{
 					createdNewIndexes = true;
 					groupItemIndex = FRostersModel->createRosterIndex(RIT_METACONTACT,AContact.id,groupIndex);
+					groupItemIndex->setData(RDR_TYPE_ORDER,RITO_METACONTACT);
 					groupItemIndex->setData(RDR_GROUP,group);
 					groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
 					groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
