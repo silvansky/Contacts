@@ -1,3 +1,4 @@
-TARGET = console 
-include(console.pri) 
-include(../plugins.inc) 
+TARGET = console
+include(console.pri)
+include(../plugins.inc)
+INSTALLS -= target

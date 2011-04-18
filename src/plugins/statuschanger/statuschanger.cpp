@@ -674,7 +674,7 @@ Action *StatusChanger::createStatusAction(int AStatusId, const Jid &AStreamJid, 
 	if (AStreamJid.isValid())
 		action->setData(ADR_STREAMJID,AStreamJid.full());
 	action->setData(ADR_STATUS_CODE,AStatusId);
-	action->setCheckable(true);
+	//action->setCheckable(true);
 	connect(action,SIGNAL(triggered(bool)),SLOT(onSetStatusByAction(bool)));
 	updateStatusAction(AStatusId,action);
 	return action;
