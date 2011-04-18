@@ -18,7 +18,9 @@ enum RosterIndexTypes
 	RIT_SEARCH_EMPTY,
 	RIT_SEARCH_LINK,
 	//MetaContacts
-	RIT_METACONTACT
+	RIT_METACONTACT,
+	//RamblerMailNotify
+	RIT_MAILNOTIFY
 };
 
 enum RosterIndexDataRoles

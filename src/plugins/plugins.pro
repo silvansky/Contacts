@@ -37,16 +37,18 @@ SUBDIRS += rostersearch
 SUBDIRS += console
 SUBDIRS += chatstates
 SUBDIRS += xmppuriqueries
-win32: {
-SUBDIRS += stylesheeteditor
-}
 SUBDIRS += bitsofbinary
 SUBDIRS += masssendhandler
 SUBDIRS += registration
 SUBDIRS += ramblerhistory
 SUBDIRS += birthdayreminder
 SUBDIRS += metacontacts
-win32-msvc2008: {
-SUBDIRS += sipphone
-}
 SUBDIRS += smsmessagehandler
+SUBDIRS += ramblermailnotify
+
+win32: {
+  SUBDIRS += stylesheeteditor
+}
+win32-msvc2008: {
+  SUBDIRS += sipphone
+}

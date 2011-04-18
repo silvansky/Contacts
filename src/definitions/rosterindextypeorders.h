@@ -2,6 +2,7 @@
 #define DEF_ROSTERINDEXTYPEORDERS_H
 
 #define RITO_STREAM_ROOT                 100
+#define RITO_MAILNOTIFY                  200
 #define RITO_SEARCH                      300
 #define RITO_GROUP_BLANK                 510
 #define RITO_GROUP                       520
