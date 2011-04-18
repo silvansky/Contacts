@@ -9,3 +9,15 @@ QToolBar
 {
 	min-height: 80px;
 }
+
+QPushButton#rejectAuthRequest,
+QPushButton#authRequest,
+QPushButton#addRequest
+{
+	min-width: 130px;
+}
+
+QPushButton#authorize
+{
+	min-width: 100px;
+}

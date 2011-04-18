@@ -831,6 +831,7 @@ IChatNotice RosterChanger::createChatNotice(int APriority, int AActions, const Q
 		Action *addAction = new Action;
 		addAction->setText(tr("Add Contact"));
 		addAction->setData(ADR_NOTICE_ACTION,NTA_ADD_CONTACT);
+		addAction->setProperty("actionName", "addRequest");
 		connect(addAction,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
 		notice.actions.append(addAction);
 	}
@@ -840,6 +841,7 @@ IChatNotice RosterChanger::createChatNotice(int APriority, int AActions, const Q
 		askauthAction->setText(tr("Request authorization"));
 		askauthAction->setData(ADR_NOTICE_ACTION,NTA_ASK_SUBSCRIBE);
 		askauthAction->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+		askauthAction->setProperty("actionName", "authRequest");
 		connect(askauthAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
 		notice.actions.append(askauthAction);
 	}
@@ -849,6 +851,7 @@ IChatNotice RosterChanger::createChatNotice(int APriority, int AActions, const Q
 		authAction->setText(tr("Authorize"));
 		authAction->setData(ADR_NOTICE_ACTION,NTA_SUBSCRIBE);
 		authAction->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+		authAction->setProperty("actionName", "authorize");
 		connect(authAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
 		notice.actions.append(authAction);
 	}
@@ -858,6 +861,7 @@ IChatNotice RosterChanger::createChatNotice(int APriority, int AActions, const Q
 		noauthAction->setText(tr("Don`t Authorize"));
 		noauthAction->setData(ADR_NOTICE_ACTION,NTA_UNSUBSCRIBE);
 		noauthAction->setData(ADR_SUBSCRIPTION,IRoster::Unsubscribe);
+		noauthAction->setProperty("actionName", "rejectAuthRequest");
 		connect(noauthAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
 		notice.actions.append(noauthAction);
 	}
@@ -866,6 +870,7 @@ IChatNotice RosterChanger::createChatNotice(int APriority, int AActions, const Q
 		Action *closeAction = new Action;
 		closeAction->setText(tr("Close"));
 		closeAction->setData(ADR_NOTICE_ACTION,NTA_CLOSE);
+		closeAction->setProperty("actionName", "close");
 		notice.actions.append(closeAction);
 	}
 

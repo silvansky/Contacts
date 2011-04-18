@@ -131,6 +131,7 @@ void ChatNoticeWidget::updateWidgets(int ANoticeId)
 			foreach(Action *action, notice.actions)
 			{
 				ActionButton *button = new ActionButton(action, ui.wdtButtons);
+				button->setObjectName(action->property("actionName").toString());
 				ui.hltButtonsLayout->insertWidget(ui.hltButtonsLayout->count()-1,button);
 				FButtonsCleanup.add(button);
 			}
