@@ -7,7 +7,6 @@
 #include <QImageReader>
 #include <QCryptographicHash>
 #include <utils/imagemanager.h>
-#include <QDebug>
 
 #define DIR_AVATARS               "avatars"
 

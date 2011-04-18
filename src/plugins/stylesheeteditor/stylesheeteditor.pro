@@ -1,3 +1,3 @@
-TARGET = stylesheeteditor 
-include(stylesheeteditor.pri) 
-include(../plugins.inc) 
+TARGET = stylesheeteditor
+include(stylesheeteditor.pri)
+include(../plugins.inc)

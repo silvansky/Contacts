@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QLayout>
-#include <QDebug>
 #include "utilsexport.h"
 #include "menu.h"
 

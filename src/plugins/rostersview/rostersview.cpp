@@ -913,15 +913,11 @@ void RostersView::paintEvent(QPaintEvent *AEvent)
 	QTreeView::paintEvent(AEvent);
 	if (!FDropIndicatorRect.isNull())
 	{
-		QStyleOption option;
-		option.init(this);
-		option.rect = FDropIndicatorRect.adjusted(0,0,-1,-1);
 		QPainter painter(viewport());
 		QImage highlight = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_HIGHLIGHTED_ITEM, 1);
 		qreal border = 10.0; // yao border - magic! =)
-		painter.translate(option.rect.topLeft());
-		ImageManager::drawNinePartImage(highlight, option.rect, border, &painter);
-		//style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
+		painter.translate(FDropIndicatorRect.topLeft());
+		ImageManager::drawNinePartImage(highlight, FDropIndicatorRect, border, &painter);
 	}
 	if (!FInsertIndicatorRect.isNull())
 	{

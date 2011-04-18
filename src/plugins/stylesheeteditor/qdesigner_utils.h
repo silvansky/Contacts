@@ -57,11 +57,11 @@
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 
-#include <QtCore/QVariant>
-#include <QtCore/QMap>
-#include <QtGui/QMainWindow>
-#include <QtGui/QIcon>
-#include <QtGui/QPixmap>
+#include <QVariant>
+#include <QMap>
+#include <QMainWindow>
+#include <QIcon>
+#include <QPixmap>
 
 class QDesignerFormWindowCommand;
 class DesignerIconCache;

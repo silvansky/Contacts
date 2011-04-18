@@ -9,7 +9,6 @@
 #include <QRadioButton>
 #include <QStyleOptionButton>
 #include <QPainter>
-#include <QDebug>
 
 static QColor parseColor(const QString & name)
 {
@@ -49,7 +48,6 @@ protected:
 				QStyleOptionButton * opt = new QStyleOptionButton;
 				opt->rect = w->rect();
 				int indicatorWidth = style->subElementRect(QStyle::SE_CheckBoxIndicator, opt, w).width() + xOffset() + 2; // 2 is a magic namba!
-				//qDebug() << "indicatorWidth == " << indicatorWidth;
 				painter->setClipRect(0, 0, indicatorWidth, w->height());
 				QPoint offset;
 				const QPixmap pixmap = sourcePixmap(Qt::DeviceCoordinates, &offset);

@@ -1,6 +1,5 @@
 #include "optionsdialog.h"
 
-#include <QDebug>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHeaderView>
@@ -9,8 +8,6 @@
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
-
-#include <QDebug>
 
 static const QString NodeDelimiter = ".";
 

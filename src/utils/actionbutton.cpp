@@ -1,5 +1,8 @@
 #include "actionbutton.h"
-#include <QDebug>
+
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
 
 ActionButton::ActionButton(QWidget *AParent) : QPushButton(AParent)
 {
@@ -48,7 +51,9 @@ QString ActionButton::actionString()
 
 void ActionButton::setActionString(const QString& s)
 {
+#ifdef DEBUG_ENABLED
 	qDebug() << "actionString: " << s;
+#endif
 	setProperty("actionString", s);
 	setStyleSheet(styleSheet());
 }

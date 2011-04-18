@@ -25,8 +25,6 @@
 #include <utils/iconstorage.h>
 #include <utils/log.h>
 
-#include <QDebug>
-
 #ifdef Q_WS_WIN32
 #	include <windows.h>
 #elif defined Q_WS_X11
@@ -416,12 +414,9 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			QMouseEvent * mouseEvent = (QMouseEvent*)AEvent;
 			if (mouseEvent->button() == Qt::LeftButton)
 			{
-				//				qDebug() << "lblConnectSettings click!";
-				//				QDialog::eventFilter(AWatched, AEvent);
 				hideConnectionError();
 				hideXmppStreamError();
 				showConnectionSettings();
-				//				return true;
 			}
 		}
 	}
@@ -981,7 +976,6 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 
 void LoginDialog::onLabelLinkActivated(const QString &ALink)
 {
-	qDebug() << ALink;
 	if (ALink == "virtus.connection.settings")
 		showConnectionSettings();
 	else

@@ -1,9 +1,12 @@
 #include "custombordercontainer.h"
+#include "log.h"
 #include <QEvent>
 #include <QMouseEvent>
 #include <QVBoxLayout>
 #include "custombordercontainer_p.h"
-#include <QDebug>
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
 #include <QLinearGradient>
 #include <QGradientStop>
 #include <QPainter>
@@ -202,17 +205,17 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 			}
 			else
 			{
-				qDebug() << QString("Can\'t parse file %1! Unknown root element.").arg(fileName);
+				Log(QString("Can\'t parse file %1! Unknown root element.").arg(fileName));
 			}
 		}
 		else
 		{
-			qDebug() << QString("Can\'t parse file %1!").arg(fileName);
+			Log(QString("Can\'t parse file %1!").arg(fileName));
 		}
 	}
 	else
 	{
-		qDebug() << QString("Can\'t open file %1!").arg(fileName);
+		Log(QString("Can\'t open file %1!").arg(fileName));
 	}
 }
 
@@ -257,7 +260,7 @@ QColor CustomBorderContainerPrivate::parseColor(const QString & name)
 		}
 	}
 	if (!color.isValid())
-		qDebug() << "Can\'t parse color: " << name;
+		Log(QString("Can\'t parse color: %1").arg(name));
 	return color;
 }
 
@@ -920,11 +923,11 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		{
 			if (((QMouseEvent*)event)->button() == Qt::LeftButton)
 				handled = mousePress(((QMouseEvent*)event)->pos(), widget);
-			qDebug() << "handled = " << handled << " " << widget->objectName() << " of class " << widget->metaObject()->className() << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
-			if (QToolButton * tb = qobject_cast<QToolButton*>(widget))
-			{
-				qDebug() << "QToolButton popup mode: " << tb->popupMode() << " checked: " << tb->isChecked() << " (checkable: " << tb->isCheckable() << ")";
-			}
+
+#ifdef DEBUG_ENABLED
+			qDebug() << "handled = " << handled << " " << widget->objectName()
+				 << " of class " << widget->metaObject()->className()
+				 << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
 			QStringList hierarchy;
 			QWidget * parent = widget->parentWidget();
 			while (parent)
@@ -933,6 +936,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 				parent = parent->parentWidget();
 			}
 			qDebug() << "hierarchy: " << hierarchy.join(" -> ");
+#endif
 		}
 	}
 	break;

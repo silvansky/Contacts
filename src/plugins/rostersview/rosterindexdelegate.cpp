@@ -13,8 +13,6 @@
 #include <interfaces/ipresence.h>
 #include "rostersviewplugin.h"
 
-#include <QDebug>
-
 #define BRANCH_WIDTH  10
 
 //QImage RosterIndexDelegate::groupOpenedIndicator;

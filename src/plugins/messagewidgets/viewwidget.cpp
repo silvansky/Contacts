@@ -4,7 +4,6 @@
 #include <QTextTable>
 #include <QScrollBar>
 #include <QHBoxLayout>
-#include <QDebug>
 
 ViewWidget::ViewWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
 {
@@ -149,7 +148,7 @@ void ViewWidget::dropEvent(QDropEvent *AEvent)
 			action->trigger();
 		else
 			action = dropMenu->exec(mapToGlobal(AEvent->pos()));
-		
+
 		if (action)
 			AEvent->acceptProposedAction();
 		else

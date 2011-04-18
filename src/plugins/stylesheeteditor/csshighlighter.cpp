@@ -112,14 +112,14 @@ void CssHighlighter::highlightBlock(const QString& text)
 			case '/': token = SLASH; break;
 			case '*': token = STAR; break;
 			default: break;
-			 }
+			}
 		}
 
 		int new_state = transitions[state][token];
 
 		if (new_state != state) {
 			bool include_token = new_state == MaybeCommentEnd || (state == MaybeCommentEnd && new_state!= Comment)
-					     || state == Quote;
+					|| state == Quote;
 			highlight(text, lastIndex, i-lastIndex+include_token, state);
 
 			if (new_state == Comment) {

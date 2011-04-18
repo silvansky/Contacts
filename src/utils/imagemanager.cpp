@@ -1,7 +1,6 @@
 #include "imagemanager.h"
 
 #include <QPainter>
-#include <QDebug>
 #include <QBitmap>
 
 QImage ImageManager::grayscaled(const QImage & image)

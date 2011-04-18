@@ -2,6 +2,10 @@
 
 #include <QApplication>
 
+#include <utils/iconstorage.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250
 
@@ -11,16 +15,18 @@ TrayManager::TrayManager()
 
 	FActiveNotify = -1;
 	FIconHidden = false;
-	
+
 	FContextMenu = new Menu;
 	FSystemIcon.setContextMenu(FContextMenu);
+
+	FSystemIcon.setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
 
 	FBlinkTimer.setSingleShot(true);
 	connect(&FBlinkTimer,SIGNAL(timeout()),SLOT(onBlinkTimerTimeout()));
 
 	FTriggerTimer.setSingleShot(true);
 	connect(&FTriggerTimer,SIGNAL(timeout()),SLOT(onTriggerTimerTimeout()));
-	
+
 	connect(&FSystemIcon,SIGNAL(messageClicked()), SIGNAL(messageClicked()));
 	connect(&FSystemIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
 }

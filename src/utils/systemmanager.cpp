@@ -15,8 +15,6 @@ static const int dummy = (wv >= QSysInfo::WV_2000) ?
 # include <windows.h>
 #endif
 
-#include <QDebug>
-
 struct SystemManager::SystemManagerData
 {
 	SystemManagerData() {

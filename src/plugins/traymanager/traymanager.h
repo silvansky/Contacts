@@ -16,9 +16,9 @@ class TrayManager :
 			public IPlugin,
 			public ITrayManager
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin ITrayManager);
-	Q_PROPERTY(QIcon icon READ icon WRITE setIcon);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin ITrayManager)
+	Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
 public:
 	TrayManager();
 	~TrayManager();

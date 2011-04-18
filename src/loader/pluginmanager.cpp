@@ -3,7 +3,9 @@
 #include <QDir>
 #include <QTimer>
 #include <QStack>
-#include <QDebug>
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
 #include <QProcess>
 #include <QLibrary>
 #include <QFileInfo>
@@ -198,8 +200,10 @@ void PluginManager::shutdownRequested()
 		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(messageBoxButtonClicked(QAbstractButton*)));
 		WidgetManager::showActivateRaiseWindow(mb);
 	}
+#ifdef DEBUG_ENABLED
 	if (!(i % 100000))
 		qDebug() << "shutdown request #" << i;
+#endif
 }
 
 void PluginManager::messageBoxButtonClicked(QAbstractButton * button)

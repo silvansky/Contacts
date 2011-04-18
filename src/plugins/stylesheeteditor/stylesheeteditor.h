@@ -42,10 +42,10 @@
 #ifndef STYLESHEETEDITOR_H
 #define STYLESHEETEDITOR_H
 
-#include <QtGui/QTextEdit>
-#include <QtGui/QDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QComboBox>
+#include <QTextEdit>
+#include <QDialog>
+#include <QLabel>
+#include <QComboBox>
 #include "qtgradientmanager.h"
 #include "teststylesform.h"
 
