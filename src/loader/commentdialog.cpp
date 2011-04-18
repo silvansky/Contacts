@@ -13,6 +13,22 @@
 #include <comutil.h>
 typedef BOOL (WINAPI *IW64PFP)(HANDLE, BOOL *);
 
+static QString windowsSP()
+{
+	OSVERSIONINFO ovi;
+	ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+	if (GetVersionEx(&ovi))
+	{
+		if (ovi.szCSDVersion == L"")
+			return "no SP";
+		else
+			return QString::fromWCharArray(ovi.szCSDVersion);
+	}
+	else
+		return QString::null;
+}
+
 static QString windowsBitness()
 {
 	IW64PFP IW64P = (IW64PFP)GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process");
@@ -26,7 +42,7 @@ static QString windowsBitness()
 
 static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
 {
-	QString win("Windows %1 %2, ");
+	QString win("Windows %1 %2 %3, ");
 	QString version;
 	switch (ver)
 	{
@@ -70,7 +86,7 @@ static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
 		version = "Unknown";
 		break;
 	}
-	return win.arg(version, windowsBitness());
+	return win.arg(version, windowsBitness(), windowsSP());
 }
 #endif
 
