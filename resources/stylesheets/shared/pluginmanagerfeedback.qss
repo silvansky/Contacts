@@ -2,3 +2,9 @@ QLabel
 {
 	padding-left: 1px;
 }
+
+QLabel#lblTechData
+{
+	color: #acacac;
+	font-size: 10px;
+}

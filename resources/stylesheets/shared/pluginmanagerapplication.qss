@@ -142,6 +142,11 @@ QLineEdit[error="true"], QLineEdit:focus[error="true"], QTextEdit[error="true"],
 	border-image: url(%IMAGES_PATH%/editbordererror.png);
 }
 
+QTextEdit
+{
+	padding: -6px -6px -6px -6px;
+}
+
 /************
  * QSpinBox *
  ************/
