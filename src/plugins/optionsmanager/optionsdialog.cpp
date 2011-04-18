@@ -52,9 +52,17 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 	connect(ui.trvNodes->selectionModel(),SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
 		SLOT(onCurrentItemChanged(const QModelIndex &, const QModelIndex &)));
 
+	foreach (QAbstractButton * btn, ui.dbbButtons->buttons())
+	{
+		QPushButton * pb = qobject_cast<QPushButton*>(btn);
+		if (pb)
+			pb->setAutoDefault(false);
+	}
+
 	ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(false);
-	ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
-	ui.dbbButtons->button(QDialogButtonBox::Reset)->setVisible(false);
+	ui.dbbButtons->button(QDialogButtonBox::Ok)->setDefault(true);
+	//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
+	//ui.dbbButtons->button(QDialogButtonBox::Reset)->setVisible(false);
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
 
 	foreach (const IOptionsDialogNode &node, FManager->optionsDialogNodes()) {

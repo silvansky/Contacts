@@ -152,7 +152,7 @@ protected:
 	QRect windowIconRect() const;
 	void showWindowMenu(const QPoint & p);
 	// etc...
-	enum BorderType
+	enum BorderType // note that order makes sence
 	{
 		NoneBorder = 0,
 		TopLeftCorner,
@@ -205,7 +205,6 @@ private:
 	// widgets/layouts
 	QWidget * containedWidget;
 	QLayout * containerLayout;
-	QWidget * headerWidget;
 	GeometryState currentGeometryState;
 	QRect oldGeometry;
 	QPoint oldPressPoint;
