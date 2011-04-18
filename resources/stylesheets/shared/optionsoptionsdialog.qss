@@ -84,10 +84,10 @@ QLabel#optionsCaptionLabel
 	font-size: 18px;
 }
 
-/*#optionsWidgetCheckBox
+#optionsWidgetCheckBox
 {
-	padding-left: 16px;
-}*/
+	padding-left: 14px;
+}
 
 OptionsWidget
 {
@@ -96,14 +96,22 @@ OptionsWidget
 
 NotifyKindsWidget QGroupBox
 {
-	margin-left: 14px;
+	margin-left: 22px;
 }
 
-RosterContactViewOptions QGroupBox, RosterContactOrderOptions QGroupBox,
+RosterContactViewOptions QGroupBox,
+RosterContactOrderOptions QGroupBox,
 ProxyOptionsWidget QGroupBox,
-MessengerOptions QGroupBox
+MessengerOptions QGroupBox,
+LegacyAccountOptions QGroupBox
 {
-	margin-left: 16px;
+	margin-left: 28px;
+	margin-right: 16px;
+}
+
+ProxyOptionsWidget QGroupBox#gbManualProxySettings
+{
+	margin-left: 42px;
 }
 
 #chbProxyUserPassword

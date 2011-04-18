@@ -8,6 +8,8 @@ ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode
 	ui.lneProxyPassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneProxyUser->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+	ui.gbManualProxySettings->setEnabled(false);
+
 	FManager = AManager;
 	FConnectionNode = ANode;
 

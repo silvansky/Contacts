@@ -58,87 +58,128 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="wdtManualProxy" native="true">
-     <property name="enabled">
-      <bool>false</bool>
+    <widget class="QGroupBox" name="gbManualProxySettings">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
       <property name="margin">
        <number>0</number>
       </property>
       <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>10</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLineEdit" name="lneProxyHost"/>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="spbProxyPort">
-            <property name="maximum">
-             <number>65535</number>
-            </property>
-            <property name="value">
-             <number>1080</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="chbProxyUserPassword">
-          <property name="text">
-           <string>Name and password is required to connect</string>
+         <widget class="QLineEdit" name="lneProxyHost">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>170</width>
+            <height>0</height>
+           </size>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lneProxyUser">
-          <property name="enabled">
-           <bool>false</bool>
+         <widget class="QSpinBox" name="spbProxyPort">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>62</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>62</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="maximum">
+           <number>65535</number>
+          </property>
+          <property name="value">
+           <number>1080</number>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lneProxyPassword">
-          <property name="enabled">
-           <bool>false</bool>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="echoMode">
-           <enum>QLineEdit::Password</enum>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>5</width>
+            <height>20</height>
+           </size>
           </property>
-         </widget>
+         </spacer>
         </item>
        </layout>
       </item>
       <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+       <widget class="QCheckBox" name="chbProxyUserPassword">
+        <property name="text">
+         <string>Name and password is required to connect</string>
         </property>
-        <property name="sizeHint" stdset="0">
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lneProxyUser">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>20</height>
+          <width>170</width>
+          <height>0</height>
          </size>
         </property>
-       </spacer>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lneProxyPassword">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>170</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -155,34 +196,18 @@
  <resources/>
  <connections>
   <connection>
-   <sender>rdbManualProxy</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>wdtManualProxy</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>282</x>
-     <y>41</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>287</x>
-     <y>70</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>chbProxyUserPassword</sender>
    <signal>toggled(bool)</signal>
    <receiver>lneProxyUser</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>184</x>
-     <y>106</y>
+     <x>186</x>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
-     <x>185</x>
-     <y>130</y>
+     <x>171</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>
@@ -193,12 +218,28 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>231</x>
-     <y>105</y>
+     <x>233</x>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
-     <x>229</x>
-     <y>156</y>
+     <x>171</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rdbManualProxy</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gbManualProxySettings</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>211</x>
+     <y>148</y>
     </hint>
    </hints>
   </connection>
