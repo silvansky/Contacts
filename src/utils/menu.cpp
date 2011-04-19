@@ -1,5 +1,8 @@
 #include "menu.h"
 #include <QResizeEvent>
+#include "customborderstorage.h"
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 Menu::Menu(QWidget *AParent) : QMenu(AParent)
 {
@@ -7,6 +10,16 @@ Menu::Menu(QWidget *AParent) : QMenu(AParent)
 
 	FMenuAction = new Action(this);
 	FMenuAction->setMenu(this);
+
+	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MENU);
+	if (border)
+	{
+		border->setResizable(false);
+		border->setMovable(false);
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+	}
 
 	setSeparatorsCollapsible(true);
 }
@@ -219,4 +232,23 @@ void Menu::setTitle(const QString &ATitle)
 void Menu::onActionDestroyed(Action *AAction)
 {
 	removeAction(AAction);
+}
+
+void Menu::showEvent(QShowEvent *evt)
+{
+	if (border)
+	{
+		QMenu::showEvent(evt);
+		border->show();
+	}
+	else
+		QMenu::showEvent(evt);
+}
+
+void Menu::hideEvent(QHideEvent * evt)
+{
+	if (border)
+		border->hide();
+	else
+		QMenu::hideEvent(evt);
 }

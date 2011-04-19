@@ -12,6 +12,7 @@
 #define AG_DEFAULT                500
 
 class Action;
+class CustomBorderContainer;
 
 class UTILS_EXPORT Menu :
 			public QMenu
@@ -42,12 +43,16 @@ signals:
 	void menuDestroyed(Menu *AMenu);
 protected slots:
 	void onActionDestroyed(Action *AAction);
+protected:
+	void showEvent(QShowEvent *);
+	void hideEvent(QHideEvent *);
 private:
 	Action *FMenuAction;
 	IconStorage *FIconStorage;
 private:
 	QMultiMap<int, Action *> FActions;
 	QMap<int, QAction *> FSeparators;
+	CustomBorderContainer * border;
 };
 
 #endif // MENU_H

@@ -28,4 +28,8 @@
     <key>videoCall</key>
     <object mime="text/xml">videocall.xml</object>
   </file>
+  <file>
+    <key>menu</key>
+    <object mime="text/xml">menu.xml</object>
+  </file>
 </borderdef>

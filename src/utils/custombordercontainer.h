@@ -65,6 +65,7 @@ private:
 protected:
 	// common initialization
 	void init();
+	void initMenu();
 	enum GeometryState
 	{
 		None,

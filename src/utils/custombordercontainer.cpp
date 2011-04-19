@@ -701,6 +701,8 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 	}
 	if (widget)
 	{
+		if (!qobject_cast<Menu*>(widget))
+			initMenu();
 		containedWidget = widget;
 		setAttribute(Qt::WA_WindowPropagation, false);
 		containedWidget->setAttribute(Qt::WA_DeleteOnClose, false);
@@ -1034,6 +1036,7 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 
 void CustomBorderContainer::init()
 {
+	windowMenu = NULL;
 	// vars
 	containedWidget = NULL;
 	resizeBorder = NoneBorder;
@@ -1044,8 +1047,20 @@ void CustomBorderContainer::init()
 	pressedHeaderButton = NoneButton;
 	_isMaximized = false;
 	_isFullscreen = false;
-	// window menu
-	windowMenu = new Menu(this);
+	// window props
+	setWindowFlags(Qt::FramelessWindowHint);
+	setAttribute(Qt::WA_TranslucentBackground);
+	setFocusPolicy(Qt::NoFocus);
+	setMouseTracking(true);
+	setAttribute(Qt::WA_DeleteOnClose, false);
+	// layout
+	containerLayout = new QVBoxLayout;
+	containerLayout->setContentsMargins(0, 0, 0, 0);
+	setLayout(containerLayout);
+	setMinimumWidth(100);
+	setMinimumHeight(100);
+	setGeometryState(None);
+	// actions
 	minimizeAction = new Action(this);
 	maximizeAction = new Action(this);
 	closeAction = new Action(this);
@@ -1061,32 +1076,25 @@ void CustomBorderContainer::init()
 	closeAction->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
 	restoreAction->setText(tr("Restore"));
 	restoreAction->setIcon(style()->standardIcon(QStyle::SP_TitleBarNormalButton));
-	windowMenu->addAction(restoreAction);
-	windowMenu->addAction(minimizeAction);
-	windowMenu->addAction(maximizeAction);
-	windowMenu->addAction(closeAction);
 	connect(minimizeAction, SIGNAL(triggered()), SIGNAL(minimizeClicked()));
 	connect(maximizeAction, SIGNAL(triggered()), SIGNAL(maximizeClicked()));
 	connect(closeAction, SIGNAL(triggered()), SIGNAL(closeClicked()));
 	connect(restoreAction, SIGNAL(triggered()), SIGNAL(restoreClicked()));
-	// window props
-	setWindowFlags(Qt::FramelessWindowHint);
-	setAttribute(Qt::WA_TranslucentBackground);
-	setFocusPolicy(Qt::NoFocus);
-	setMouseTracking(true);
-	setAttribute(Qt::WA_DeleteOnClose, false);
-	// layout
-	containerLayout = new QVBoxLayout;
-	containerLayout->setContentsMargins(0, 0, 0, 0);
-	setLayout(containerLayout);
-	setMinimumWidth(100);
-	setMinimumHeight(100);
-	setGeometryState(None);
 	// connections
 	connect(this, SIGNAL(minimizeClicked()), SLOT(minimizeWidget()));
 	connect(this, SIGNAL(maximizeClicked()), SLOT(maximizeWidget()));
 	connect(this, SIGNAL(closeClicked()), SLOT(closeWidget()));
 	connect(this, SIGNAL(restoreClicked()), SLOT(restoreWidget()));
+}
+
+void CustomBorderContainer::initMenu()
+{
+	// window menu
+	windowMenu = new Menu(this);
+	windowMenu->addAction(restoreAction);
+	windowMenu->addAction(minimizeAction);
+	windowMenu->addAction(maximizeAction);
+	windowMenu->addAction(closeAction);
 }
 
 CustomBorderContainer::GeometryState CustomBorderContainer::geometryState() const
@@ -1463,7 +1471,7 @@ QRect CustomBorderContainer::windowIconRect() const
 
 void CustomBorderContainer::showWindowMenu(const QPoint & p)
 {
-	if (isFullScreen())
+	if (isFullScreen() && !windowMenu)
 		return;
 	minimizeAction->setEnabled(isMinimizeButtonVisible() && isMinimizeButtonEnabled() && !isMinimized());
 	maximizeAction->setEnabled(isMaximizeButtonVisible() && isMaximizeButtonEnabled() && !_isMaximized && !isMinimized());
