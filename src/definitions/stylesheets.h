@@ -4,6 +4,7 @@
 //PluginManager
 #define STS_PLUGINMANAGER_APPLICATION                                   "pluginmanagerApplication"
 #define STS_PLUGINMANAGER_FEEDBACK                                      "pluginmanagerFeedback"
+#define STS_PLUGINMANAGER_SETUPPLUGINSDIALOG                            "pluginmanagerSetupPluginsDialog"
 
 //ChatMessageHandler
 #define STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE                         "chatmessagehandlerTabBarItemNewMessage"

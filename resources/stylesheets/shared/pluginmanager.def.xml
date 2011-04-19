@@ -8,4 +8,8 @@
     <key>pluginmanagerFeedback</key>
     <object mime='text/css'>pluginmanagerfeedback.qss</object>
   </file>
+  <file>
+    <key>pluginmanagerSetupPluginsDialog</key>
+    <object mime='text/css'>pluginmanagersetuppluginsdialog.qss</object>
+  </file>
 </styledef>

@@ -1,0 +1,10 @@
+QTableWidget, QListWidget
+{
+	
+	background-color: rgb(255, 255, 255);
+}
+
+QHeaderView, QTabBar::tab
+{
+	color: white;
+}

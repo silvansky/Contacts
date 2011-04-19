@@ -5,6 +5,9 @@
 #include <QHeaderView>
 #include <QTextDocument>
 #include <QDesktopServices>
+#include <utils/stylestorage.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
 
 enum TableColumns
 {
@@ -15,6 +18,9 @@ enum TableColumns
 SetupPluginsDialog::SetupPluginsDialog(IPluginManager *APluginManager, QDomDocument APluginsSetup, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_SETUPPLUGINSDIALOG);
+
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_PLUGINMANAGER_SETUP,0,0,"windowIcon");
 
@@ -31,6 +37,9 @@ SetupPluginsDialog::SetupPluginsDialog(IPluginManager *APluginManager, QDomDocum
 
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
 	connect(ui.lblHomePage, SIGNAL(linkActivated(const QString &)),SLOT(onHomePageLinkActivated(const QString &)));
+
+	ui.cmbCountry->setView(new QListView);
+	ui.cmbLanguage->setView(new QListView);
 
 	restoreGeometry(Options::fileValue("misc.setup-plugins-dialog.geometry").toByteArray());
 }
@@ -85,7 +94,7 @@ void SetupPluginsDialog::updatePlugins()
 		ui.twtPlugins->setRowCount(ui.twtPlugins->rowCount()+1);
 		ui.twtPlugins->setItem(ui.twtPlugins->rowCount()-1, COL_NAME, nameItem);
 		ui.twtPlugins->setItem(nameItem->row(), COL_FILE, fileItem);
-		
+
 		FItemElement.insert(nameItem,pluginElem);
 		pluginElem = pluginElem.nextSiblingElement();
 	}
