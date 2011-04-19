@@ -914,35 +914,30 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 	switch (event->type())
 	{
 	case QEvent::MouseMove:
-		if (shouldFilterEvents(object))
-			mouseMove(((QMouseEvent*)event)->globalPos(), widget);
+		mouseMove(((QMouseEvent*)event)->globalPos(), widget);
 		break;
 	case QEvent::MouseButtonPress:
 	{
-		if (shouldFilterEvents(object))
-		{
-			if (((QMouseEvent*)event)->button() == Qt::LeftButton)
-				handled = mousePress(((QMouseEvent*)event)->pos(), widget);
+		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
+			handled = mousePress(((QMouseEvent*)event)->pos(), widget);
 
 #ifdef DEBUG_ENABLED
-			qDebug() << "handled = " << handled << " " << widget->objectName()
-				 << " of class " << widget->metaObject()->className()
-				 << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
-			QStringList hierarchy;
-			QWidget * parent = widget->parentWidget();
-			while (parent)
-			{
-				hierarchy << QString("%1 (%2)").arg(parent->objectName(), parent->metaObject()->className());
-				parent = parent->parentWidget();
-			}
-			qDebug() << "hierarchy: " << hierarchy.join(" -> ");
-#endif
+		qDebug() << "handled = " << handled << " " << widget->objectName()
+			 << " of class " << widget->metaObject()->className()
+			 << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
+		QStringList hierarchy;
+		QWidget * parent = widget->parentWidget();
+		while (parent)
+		{
+			hierarchy << QString("%1 (%2)").arg(parent->objectName(), parent->metaObject()->className());
+			parent = parent->parentWidget();
 		}
+		qDebug() << "hierarchy: " << hierarchy.join(" -> ");
+#endif
 	}
 	break;
 	case QEvent::MouseButtonRelease:
-		if (shouldFilterEvents(object))
-			mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
+		mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
 		break;
 	case QEvent::MouseButtonDblClick:
 		if (shouldFilterEvents(object))
@@ -951,11 +946,9 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		break;
 	case QEvent::Paint:
 	{
-		//widget->setAutoFillBackground(false);
 		object->removeEventFilter(this);
 		QApplication::sendEvent(object,event);
 		object->installEventFilter(this);
-		//widget->setAutoFillBackground(true);
 
 		QPoint point = widget->pos();
 		while (widget && (widget->parentWidget() != this) && widget->parentWidget())
@@ -969,8 +962,6 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 
 		QPainter p(widget);
 		p.setWindow(r);
-		//p.translate(containedWidget->mapFromParent(QPoint(0, 0)));
-		//p.fillRect(0, 0, 100, 100, QColor(255, 255, 0, 255));
 		drawButtons(&p);
 		drawCorners(&p);
 		return true;
@@ -1491,7 +1482,6 @@ void CustomBorderContainer::showWindowMenu(const QPoint & p)
 
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 {
-	Q_UNUSED(widget)
 	bool needToRepaintHeaderButtons = (!headerButtonsRect().contains(mapFromGlobal(point))) && headerButtonsRect().contains(lastMousePosition);
 	lastMousePosition = mapFromGlobal(point);
 	if (needToRepaintHeaderButtons)
@@ -1509,7 +1499,8 @@ void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
 		}
 		if (geometryState() != Moving)
 		{
-			checkMoveCondition(mapFromGlobal(point));
+			if (shouldFilterEvents(widget))
+				checkMoveCondition(mapFromGlobal(point));
 		}
 	}
 }
@@ -1530,7 +1521,7 @@ bool CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
 			showWindowMenu(mapToGlobal(windowIconRect().bottomLeft()));
 			handled = true;
 		}
-		else if (canMove)
+		else if (canMove && shouldFilterEvents(widget))
 		{
 			oldPressPoint = widget->mapToGlobal(p);
 			setGeometryState(Moving);
@@ -1576,7 +1567,7 @@ void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt:
 			}
 		}
 	}
-	else if (button == Qt::RightButton)
+	else if ((button == Qt::RightButton) && shouldFilterEvents(widget))
 	{
 		if (headerMoveRect().contains(mapFromWidget(widget, p)) && !headerButtonsRect().contains(mapFromWidget(widget, p)))
 		{
