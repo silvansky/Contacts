@@ -730,7 +730,7 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.persistent = false;
 	yonline.pageOrder = MIPO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
-	yonline.contactPattern = "^"JID_NODE_PATTERN"@(yandex\\."JID_DOMAIN_PATTERN"|ya\\.ru)$";
+	yonline.contactPattern = "^"JID_NODE_PATTERN"@(yandex\\."JID_DOMAIN_PATTERN"|ya\\.ru|yandex\\.ru)$";
 	FMetaItemDescriptors.append(yonline);
 
 	IMetaItemDescriptor qip;

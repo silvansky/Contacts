@@ -288,7 +288,7 @@ bool Gateways::initObjects()
 	yonline.domainField = "server";
 	yonline.passwordField = "password";
 	yonline.domainSeparator = "@";
-	yonline.homeContactPattern = "^"MAIL_NODE_PATTERN"@ya\\.ru$";
+	yonline.homeContactPattern = "^"MAIL_NODE_PATTERN"@(ya\\.ru|yandex\\.ru)$";
 	yonline.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(yonline);
 
