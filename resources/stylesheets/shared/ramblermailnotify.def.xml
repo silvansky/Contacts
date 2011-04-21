@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>ramblermailnotifyMailNotifyPage</key>
+    <object mime='text/css'>ramblermailnotifymailnotifypage.qss</object>
+  </file>
+</styledef>

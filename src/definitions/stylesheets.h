@@ -34,6 +34,9 @@
 #define STS_OPTIONS_LOGINDIALOG                                         "optionsLoginDialog"
 #define STS_OPTIONS_OPTIONSDIALOG                                       "optionsOptionsDialog"
 
+//RambleMailNotify
+#define STS_RAMBLERMAILNOTIFY_MAILNOTIFYPAGE                            "ramblermailnotifyMailNotifyPage"
+
 //RosterChanger
 #define STS_RCHANGER_ADDCONTACTDIALOG                                   "rchangerAddContactDialog"
 #define STS_RCHANGER_ADDMETACONTACTDIALOG                               "rchangerAddMetaContactDialog"

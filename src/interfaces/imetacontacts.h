@@ -120,6 +120,7 @@ class IMetaContacts
 public:
 	virtual QObject *instance() =0;
 	virtual QList<QString> availDescriptors() const =0;
+	virtual IMetaItemDescriptor descriptorByOrder(int APageOrder) const =0;
 	virtual IMetaItemDescriptor descriptorByName(const QString &AName) const =0;
 	virtual IMetaItemDescriptor descriptorByItem(const Jid &AItemJid) const =0;
 	virtual QString itemHint(const Jid &AItemJid) const =0;

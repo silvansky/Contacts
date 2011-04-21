@@ -91,6 +91,7 @@ public:
 	virtual bool viewDropAction(IViewWidget *AWidget, const QDropEvent *AEvent, Menu *AMenu);
 	//IMetaContacts
 	virtual QList<QString> availDescriptors() const;
+	virtual IMetaItemDescriptor descriptorByOrder(int APageOrder) const;
 	virtual IMetaItemDescriptor descriptorByName(const QString &AName) const;
 	virtual IMetaItemDescriptor descriptorByItem(const Jid &AItemJid) const;
 	virtual QString itemHint(const Jid &AItemJid) const;

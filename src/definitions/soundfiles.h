@@ -25,6 +25,9 @@
 #define SDF_PRESENCE_MOOD_CHANGED                         "presenceMoodChanged"
 #define SDF_PRESENCE_STATE_CHANGED                        "presenceStateChanged"
 
+//RamblerMailNotify
+#define SDF_RAMBLERMAILNOTIFY_NOTIFY                      "ramblermailnotifyNotify"
+
 //Roster
 #define SDF_ROSTER_CONTACT_ADDED                          "rosterContactAdded"
 

@@ -1,3 +1,7 @@
-HEADERS = ramblermailnotify.h
+FORMS += mailnotifypage.ui
 
-SOURCES = ramblermailnotify.cpp
+HEADERS += ramblermailnotify.h \
+           mailnotifypage.h
+
+SOURCES += ramblermailnotify.cpp \ 
+           mailnotifypage.cpp

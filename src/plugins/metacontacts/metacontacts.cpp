@@ -475,6 +475,14 @@ QList<QString> MetaContacts::availDescriptors() const
 	return names;
 }
 
+IMetaItemDescriptor MetaContacts::descriptorByOrder(int APageOrder) const
+{
+	for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)
+		if (it->pageOrder == APageOrder)
+			return *it;
+	return FDefaultItemDescriptor;
+}
+
 IMetaItemDescriptor MetaContacts::descriptorByName(const QString &AName) const
 {
 	for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)

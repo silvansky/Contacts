@@ -237,7 +237,7 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 void OptionsDialog::onOptionsWidgetModified()
 {
 	ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(true);
-	ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(true);
+	//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(true);
 }
 
 void OptionsDialog::onDialogButtonClicked(QAbstractButton *AButton)
@@ -251,12 +251,12 @@ void OptionsDialog::onDialogButtonClicked(QAbstractButton *AButton)
 	case QDialogButtonBox::ApplyRole:
 		emit applied();
 		ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(false);
-		ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
+		//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
 		break;
 	case QDialogButtonBox::ResetRole:
 		emit reseted();
 		ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(false);
-		ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
+		//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
 		break;
 	case QDialogButtonBox::RejectRole:
 		reject();
