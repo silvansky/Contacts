@@ -30,6 +30,7 @@ public:
 	void setMovable(bool movable = true);
 	bool isResizable() const;
 	void setResizable(bool resizable = true);
+	void setShowInTaskBar(bool show = true);
 signals:
 	void minimizeClicked();
 	void maximizeClicked();

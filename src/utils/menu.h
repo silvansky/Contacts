@@ -30,7 +30,7 @@ public:
 	void addAction(Action *AAction, int AGroup = AG_DEFAULT, bool ASort = false);
 	void addMenuActions(const Menu *AMenu, int AGroup = AG_DEFAULT, bool ASort = false);
 	void removeAction(Action *AAction);
-	void addWidgetActiion(QWidgetAction * action);
+	void addWidgetAction(QWidgetAction * action);
 	void clear();
 	void setIcon(const QIcon &AIcon);
 	void setIcon(const QString &AStorageName, const QString &AIconKey, int AIconIndex = 0);
@@ -43,9 +43,10 @@ signals:
 	void menuDestroyed(Menu *AMenu);
 protected slots:
 	void onActionDestroyed(Action *AAction);
+	void onAboutToShow();
+	void onAboutToHide();
 protected:
-	void showEvent(QShowEvent *);
-	void hideEvent(QHideEvent *);
+	bool event(QEvent *);
 private:
 	Action *FMenuAction;
 	IconStorage *FIconStorage;
@@ -53,6 +54,7 @@ private:
 	QMultiMap<int, Action *> FActions;
 	QMap<int, QAction *> FSeparators;
 	CustomBorderContainer * border;
+	bool menuAboutToShow;
 };
 
 #endif // MENU_H

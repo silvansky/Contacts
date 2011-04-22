@@ -38,7 +38,7 @@
 static void childsRecursive(QObject *object, QWidget *watcher, bool install)
 {
 	// ensure object is widget but not a menu
-	if (object->isWidgetType() && !qobject_cast<QMenu*>(object) && !qobject_cast<Menu*>(object))
+	if (object->isWidgetType() /*&& !qobject_cast<QMenu*>(object) && !qobject_cast<Menu*>(object)*/)
 	{
 		QWidget * widget = qobject_cast<QWidget*>(object);
 		if (widget->parent() && widget->isWindow())
@@ -367,6 +367,16 @@ void CustomBorderContainerPrivate::parseBorder(const QDomElement & borderElement
 			border.image = image.attribute("src");
 			border.imageFillingStyle = parseImageFillingStyle(image.attribute("image-filling-style"));
 		}
+#ifdef DEBUG_ENABLED
+		if (border.width && (border.image.isEmpty() && !border.gradient))
+		{
+			qDebug() << "CustomBorderContainerPrivate::parseBorder: no background set for non-zero border!" << borderElement.tagName();
+			QString xml;
+			QTextStream stream(&xml);
+			stream << borderElement;
+			qDebug() << xml;
+		}
+#endif
 	}
 }
 
@@ -775,6 +785,18 @@ void CustomBorderContainer::setResizable(bool resizable)
 		resizeBorder = NoneBorder;
 		updateCursor(QApplication::widgetAt(lastMousePosition));
 		setGeometryState(None);
+	}
+}
+
+void CustomBorderContainer::setShowInTaskBar(bool show)
+{
+	if (show)
+	{
+		setWindowFlags(Qt::FramelessWindowHint);
+	}
+	else
+	{
+		setWindowFlags(Qt::FramelessWindowHint | Qt::ToolTip);
 	}
 }
 

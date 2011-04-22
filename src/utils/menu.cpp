@@ -6,6 +6,7 @@
 
 Menu::Menu(QWidget *AParent) : QMenu(AParent)
 {
+	menuAboutToShow = false;
 	FIconStorage = NULL;
 
 	FMenuAction = new Action(this);
@@ -14,11 +15,16 @@ Menu::Menu(QWidget *AParent) : QMenu(AParent)
 	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MENU);
 	if (border)
 	{
+		setWindowFlags(Qt::Widget);
+		border->setShowInTaskBar(false);
 		border->setResizable(false);
 		border->setMovable(false);
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
 		border->setCloseButtonVisible(false);
+		connect(this, SIGNAL(aboutToShow()), SLOT(onAboutToShow()));
+		connect(this, SIGNAL(aboutToHide()), SLOT(onAboutToHide()));
+		connect(this, SIGNAL(triggered(QAction*)), SLOT(hide()));
 	}
 
 	setSeparatorsCollapsible(true);
@@ -190,7 +196,7 @@ void Menu::removeAction(Action *AAction)
 	}
 }
 
-void Menu::addWidgetActiion(QWidgetAction * action)
+void Menu::addWidgetAction(QWidgetAction * action)
 {
 	QMenu::addAction(action);
 }
@@ -234,21 +240,55 @@ void Menu::onActionDestroyed(Action *AAction)
 	removeAction(AAction);
 }
 
-void Menu::showEvent(QShowEvent *evt)
+void Menu::onAboutToShow()
 {
-	if (border)
-	{
-		QMenu::showEvent(evt);
-		border->show();
-	}
-	else
-		QMenu::showEvent(evt);
+	menuAboutToShow = true;
+	setVisible(false);
+//	if (border)
+//	{
+//		border->setGeometry(geometry());
+//		border->show();
+//		//setVisible(true);
+//		border->adjustSize();
+//		border->layout()->update();
+//	}
 }
 
-void Menu::hideEvent(QHideEvent * evt)
+void Menu::onAboutToHide()
 {
 	if (border)
 		border->hide();
-	else
-		QMenu::hideEvent(evt);
+}
+
+bool Menu::event(QEvent * evt)
+{
+	switch(evt->type())
+	{
+	case QEvent::ShowToParent:
+		if (border && menuAboutToShow)
+		{
+			QRect geom = geometry();
+			QPoint p = geom.topLeft();
+			p.setX(p.x() - border->leftBorderWidth());
+			p.setY(p.y() - border->topBorderWidth());
+			geom.moveTopLeft(p);
+			border->setGeometry(geom);
+			border->show();
+			border->adjustSize();
+			border->layout()->update();
+		}
+		menuAboutToShow = false;
+		return QMenu::event(evt);
+		break;
+	case QEvent::Hide:
+		if (border)
+		{
+			border->hide();
+		}
+		return QMenu::event(evt);
+		break;
+	default:
+		return QMenu::event(evt);
+		break;
+	}
 }
