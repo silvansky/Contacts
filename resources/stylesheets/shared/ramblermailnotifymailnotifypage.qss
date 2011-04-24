@@ -1,0 +1,9 @@
+MailNotifyPage
+{
+	background-color: white;
+}
+
+MailNotifyPage QWidget
+{
+	background-color: transparent;
+}

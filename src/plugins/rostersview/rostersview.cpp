@@ -1349,7 +1349,8 @@ void RostersView::onUpdateIndexNotifyTimeout()
 	foreach(IRosterIndex *index, FNotifyUpdates)
 	{
 		int curNotify = activeNotify(index);
-		int newNotify = notifyQueue(index).value(0,-1);
+		QList<int> queque = notifyQueue(index);
+		int newNotify = !queque.isEmpty() ? queque.last() : -1;
 		if (curNotify != newNotify)
 		{
 			if (newNotify > 0)

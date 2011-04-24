@@ -14,6 +14,7 @@
 #include <definitions/rosternotifyorders.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/stanzahandlerorders.h>
+#include <definitions/tabpagenotifypriorities.h>
 #include <definitions/rosterlabelorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterindextypeorders.h>
@@ -75,6 +76,7 @@ protected:
 	void insertMailNotify(const Jid &AStreamJid, const Stanza &AStanza);
 	void removeMailNotify(MailNotify *ANotify);
 	void clearMailNotifies(const Jid &AStreamJid);
+	void clearMailNotifies(MailNotifyPage *APage);
 	MailNotifyPage *findMailNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	MailNotifyPage *newMailNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid);
 	void showChatWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
@@ -88,8 +90,10 @@ protected slots:
 	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
 	void onRosterNotifyActivated(int ANotifyId);
 	void onRosterNotifyRemoved(int ANotifyId);
-	void onMetaTabWindowDestroyed();
+	void onMailNotifyPageShowChatWindow(const Jid &AContactJid);
+	void onMailNotifyPageActivated();
 	void onMailNotifyPageDestroyed();
+	void onMetaTabWindowDestroyed();
 private:
 	IGateways *FGateways;
 	IRosterPlugin *FRosterPlugin;

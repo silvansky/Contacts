@@ -2,6 +2,8 @@
 
 #include <QDesktopServices>
 
+#define TDR_CONTACT_JID     Qt::UserRole+1
+
 enum MailColumns {
 	CMN_ICON,
 	CMN_FROM,
@@ -10,21 +12,29 @@ enum MailColumns {
 	CMN_COUNT
 };
 
-MailNotifyPage::MailNotifyPage(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent) : QWidget(AParent)
+MailNotifyPage::MailNotifyPage(IMessageWidgets *AMessageWidgets, IRosterIndex *AMailIndex, const Jid &AServiceJid, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose, false);
+	setWindowTitle(tr("New e-mail messages"));
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RAMBLERMAILNOTIFY_MAILNOTIFYPAGE);
 
 	FMessageWidgets = AMessageWidgets;
 
-	FStreamJid = AStreamJid;
+	FMailIndex = AMailIndex;
 	FServiceJid = AServiceJid;
+	FTabPageNotifier = NULL;
 
 	ui.twtMails->setColumnCount(CMN_COUNT);
 	ui.twtMails->verticalHeader()->hide();
 	ui.twtMails->horizontalHeader()->setHighlightSections(false);
-	ui.twtMails->setHorizontalHeaderLabels(QStringList() << QString::null << tr("From") << tr("Subject") << tr("Date"));
+	ui.twtMails->setHorizontalHeaderLabels(QStringList() << QString::null << tr("From") << tr("Subject") << tr("Time"));
+
+	ui.twtMails->horizontalHeader()->setResizeMode(CMN_ICON,QHeaderView::ResizeToContents);
+	ui.twtMails->horizontalHeader()->setResizeMode(CMN_FROM,QHeaderView::ResizeToContents);
+	ui.twtMails->horizontalHeader()->setResizeMode(CMN_SUBJECT,QHeaderView::Stretch);
+	ui.twtMails->horizontalHeader()->setResizeMode(CMN_DATE,QHeaderView::ResizeToContents);
+	connect(ui.twtMails,SIGNAL(cellDoubleClicked(int,int)),SLOT(onTableCellDoubleClicked(int,int)));
 
 	connect(ui.pbtNewMail,SIGNAL(clicked()),SLOT(onNewMailButtonClicked()));
 	connect(ui.pbtIncoming,SIGNAL(clicked()),SLOT(onNewMailButtonClicked()));
@@ -64,18 +74,17 @@ bool MailNotifyPage::isActive() const
 
 QString MailNotifyPage::tabPageId() const
 {
-	return "MailNotifyPage|"+FStreamJid.pBare()+"|"+FServiceJid.pBare();
-
+	return "MailNotifyPage|"+streamJid().pBare()+"|"+serviceJid().pBare();
 }
 
 QIcon MailNotifyPage::tabPageIcon() const
 {
-	return windowIcon();
+	return FMailIndex->data(Qt::DecorationRole).value<QIcon>();
 }
 
 QString MailNotifyPage::tabPageCaption() const
 {
-	return windowIconText();
+	return tr("Mails");
 }
 
 QString MailNotifyPage::tabPageToolTip() const
@@ -101,12 +110,43 @@ void MailNotifyPage::setTabPageNotifier(ITabPageNotifier *ANotifier)
 
 Jid MailNotifyPage::streamJid() const
 {
-	return FStreamJid;
+	return FMailIndex->data(RDR_STREAM_JID).toString();
 }
 
 Jid MailNotifyPage::serviceJid() const
 {
 	return FServiceJid;
+}
+
+void MailNotifyPage::appendNewMail(const Stanza &AStanza)
+{
+	Message message(AStanza);
+	QDomElement xElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTIFY);
+
+	QTableWidgetItem *iconItem = new QTableWidgetItem();
+	iconItem->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RAMBLERMAILNOTIFY_MAIL));
+
+	QTableWidgetItem *fromItem = new QTableWidgetItem();
+	fromItem->setText(xElem.firstChildElement("from").text());
+	fromItem->setData(Qt::UserRole,xElem.firstChildElement("contact").text());
+
+	QTableWidgetItem *subjectItem = new QTableWidgetItem();
+	subjectItem->setText(message.subject());
+
+	QTableWidgetItem *dateItem = new QTableWidgetItem();
+	dateItem->setText(message.dateTime().time().toString());
+
+	ui.twtMails->setRowCount(ui.twtMails->rowCount()+1);
+	ui.twtMails->setItem(ui.twtMails->rowCount()-1,CMN_ICON,iconItem);
+	ui.twtMails->setItem(iconItem->row(),CMN_FROM,fromItem);
+	ui.twtMails->setItem(iconItem->row(),CMN_SUBJECT,subjectItem);
+	ui.twtMails->setItem(iconItem->row(),CMN_DATE,dateItem);
+}
+
+void MailNotifyPage::clearNewMails()
+{
+	ui.twtMails->clearContents();
+	ui.twtMails->setRowCount(0);
 }
 
 bool MailNotifyPage::event(QEvent *AEvent)
@@ -142,4 +182,12 @@ void MailNotifyPage::onNewMailButtonClicked()
 void MailNotifyPage::onIncomingButtonClicked()
 {
 	QDesktopServices::openUrl(QString("http://mail.rambler.ru/mail/mailbox.cgi?mbox=INBOX"));
+}
+
+void MailNotifyPage::onTableCellDoubleClicked(int ARow, int AColumn)
+{
+	Q_UNUSED(AColumn);
+	QTableWidgetItem *fromItem = ui.twtMails->item(ARow,CMN_FROM);
+	if (fromItem)
+		emit showChatWindow(fromItem->data(Qt::UserRole).toString());
 }

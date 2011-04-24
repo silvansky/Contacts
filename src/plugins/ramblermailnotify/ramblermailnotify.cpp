@@ -1,5 +1,6 @@
 #include "ramblermailnotify.h"
 
+#define METAID_MAILNOTIFY   "%1#mail-notify-window"
 #define MAIL_INDEX_ID       "rambler.mail.notify"
 #define SHC_MAIL_NOTIFY     "/message/x[@xmlns='"NS_RAMBLER_MAIL_NOTIFY"']"
 
@@ -157,7 +158,7 @@ bool RamblerMailNotify::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, St
 		IDiscoIdentity identity;
 		identity.category = "gateway";
 		identity.type = "mail";
-		if (FGateways && FGateways->streamServices(AStreamJid,identity).contains(AStanza.from()))
+		//if (FGateways && FGateways->streamServices(AStreamJid,identity).contains(AStanza.from()))
 		{
 			AAccept = true;
 			insertMailNotify(AStreamJid,AStanza);
@@ -219,60 +220,70 @@ void RamblerMailNotify::updateMailIndex(const Jid &AStreamJid)
 
 void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AStanza)
 {
-	IRosterIndex *mindex = findMailIndex(AStreamJid);
-	if (mindex)
+	MailNotifyPage *page = newMailNotifyPage(AStreamJid,AStanza.from());
+	if (page)
 	{
-		QDomElement xElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTIFY);
-
-		MailNotify *mnotify = new MailNotify;
-		mnotify->streamJid = AStreamJid;
-		mnotify->serviceJid = AStanza.from();
-		mnotify->contactJid = xElem.firstChildElement("contact").text();
-		mnotify->pageNotifyId = -1;
-		mnotify->popupNotifyId = -1;
-		mnotify->rosterNotifyId = -1;
-		
-		MailNotifyPage *page = newMailNotifyPage(AStreamJid,mnotify->serviceJid);
-		if (page)
+		page->appendNewMail(AStanza);
+		if (!page->isActive())
 		{
-			ITabPageNotify pnotify;
-			mnotify->pageNotifyId =  page->tabPageNotifier()->insertNotify(pnotify);
+			IRosterIndex *mindex = FNotifyPages.key(page);
+			QDomElement xElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTIFY);
+
+			MailNotify *mnotify = new MailNotify;
+			mnotify->streamJid = page->streamJid();
+			mnotify->serviceJid = page->serviceJid();
+			mnotify->contactJid = xElem.firstChildElement("contact").text();
+			mnotify->pageNotifyId = -1;
+			mnotify->popupNotifyId = -1;
+			mnotify->rosterNotifyId = -1;
+
+			if (page->tabPageNotifier())
+			{
+				ITabPageNotify pnotify;
+				pnotify.priority = TPNP_NEW_MESSAGE;
+				pnotify.iconStorage = RSR_STORAGE_MENUICONS;
+				pnotify.iconKey = MNI_RAMBLERMAILNOTIFY_NOTIFY;
+				pnotify.count = 1;
+				pnotify.toolTip = tr("%n unread","",FMailNotifies.values(mindex).count()+1);
+				mnotify->pageNotifyId = page->tabPageNotifier()->insertNotify(pnotify);
+			}
+
+			if (FRostersView)
+			{
+				IRostersNotify rnotify;
+				rnotify.order = RNO_RAMBLER_MAIL_NOTIFY;
+				rnotify.flags = IRostersNotify::Blink|IRostersNotify::AllwaysVisible;
+				rnotify.hookClick = false;
+				rnotify.icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RAMBLERMAILNOTIFY_NOTIFY);
+				rnotify.footer = tr("%n unread","",FMailNotifies.values(mindex).count()+1);
+				rnotify.background = QBrush(Qt::yellow);
+				mnotify->rosterNotifyId = FRostersView->insertNotify(rnotify,QList<IRosterIndex *>()<<mindex);
+			}
+
+			INotification notify;
+			notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_MAIL_NOTIFY)|INotification::RosterIcon : 0;
+			if ((notify.kinds & (INotification::PopupWindow|INotification::PlaySoundNotification))>0)
+			{
+				notify.removeInvisible = false;
+				notify.notificatior = NID_MAIL_NOTIFY;
+				notify.data.insert(NDR_STREAM_JID,AStreamJid.full());
+				notify.data.insert(NDR_CONTACT_JID,mnotify->contactJid.full());
+				notify.data.insert(NDR_POPUP_CAPTION,tr("New e-mail from"));
+				notify.data.insert(NDR_POPUP_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_RAMBLERMAILNOTIFY_AVATAR));
+				notify.data.insert(NDR_POPUP_TITLE,xElem.firstChildElement("from").text());
+				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
+				notify.data.insert(NDR_POPUP_TEXT,AStanza.firstElement("subject").text());
+				notify.data.insert(NDR_SOUND_FILE,SDF_RAMBLERMAILNOTIFY_NOTIFY);
+
+				IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+				if (roster && !roster->rosterItem(mnotify->contactJid).isValid)
+					notify.data.insert(NDR_POPUP_NOTICE,tr("Not in contact list"));
+
+				mnotify->popupNotifyId = FNotifications->appendNotification(notify);
+			}
+
+			FMailNotifies.insertMulti(mindex,mnotify);
 		}
-
-		if (FRostersView)
-		{
-			IRostersNotify rnotify;
-			rnotify.order = RNO_RAMBLER_MAIL_NOTIFY;
-			rnotify.flags = IRostersNotify::Blink|IRostersNotify::AllwaysVisible;
-			rnotify.hookClick = false;
-			rnotify.icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RAMBLERMAILNOTIFY_NOTIFY);
-			rnotify.footer = tr("%n new message").arg(FMailNotifies.values(mindex).count()+1);
-			rnotify.background = QBrush(Qt::yellow);
-			mnotify->rosterNotifyId = FRostersView->insertNotify(rnotify,QList<IRosterIndex *>()<<mindex);
-		}
-
-		INotification notify;
-		notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_MAIL_NOTIFY) : 0;
-		if ((notify.kinds & (INotification::PopupWindow|INotification::PlaySoundNotification))>0)
-		{
-			notify.notificatior = NID_MAIL_NOTIFY;
-			notify.data.insert(NDR_STREAM_JID,AStreamJid.full());
-			notify.data.insert(NDR_CONTACT_JID,xElem.firstChildElement("contact").text());
-			notify.data.insert(NDR_POPUP_CAPTION,tr("New e-mail from"));
-			notify.data.insert(NDR_POPUP_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_RAMBLERMAILNOTIFY_AVATAR));
-			notify.data.insert(NDR_POPUP_TITLE,xElem.firstChildElement("from").text());
-			notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
-			notify.data.insert(NDR_POPUP_TEXT,AStanza.firstElement("subject").text());
-			notify.data.insert(NDR_SOUND_FILE,SDF_RAMBLERMAILNOTIFY_NOTIFY);
-
-			IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-			if (roster && !roster->rosterItem(xElem.firstChildElement("contact").text()).isValid)
-				notify.data.insert(NDR_POPUP_NOTICE,tr("Not in contact list"));
-
-			mnotify->popupNotifyId = FNotifications->appendNotification(notify);
-		}
-
-		FMailNotifies.insertMulti(mindex,mnotify);
 	}
 }
 
@@ -282,12 +293,15 @@ void RamblerMailNotify::removeMailNotify(MailNotify *ANotify)
 	if (mindex)
 	{
 		FMailNotifies.remove(mindex,ANotify);
+		MailNotifyPage *page = findMailNotifyPage(ANotify->streamJid,ANotify->serviceJid);
+		if (page && page->tabPageNotifier())
+			page->tabPageNotifier()->removeNotify(ANotify->pageNotifyId);
 		if (FRostersView)
 			FRostersView->removeNotify(ANotify->rosterNotifyId);
 		if (FNotifications)
 			FNotifications->removeNotification(ANotify->popupNotifyId);
+		delete ANotify;
 	}
-	delete ANotify;
 }
 
 void RamblerMailNotify::clearMailNotifies(const Jid &AStreamJid)
@@ -295,6 +309,13 @@ void RamblerMailNotify::clearMailNotifies(const Jid &AStreamJid)
 	IRosterIndex *mindex = findMailIndex(AStreamJid);
 	foreach(MailNotify *mnotify, FMailNotifies.values(mindex))
 		removeMailNotify(mnotify);
+}
+
+void RamblerMailNotify::clearMailNotifies(MailNotifyPage *APage)
+{
+	foreach(MailNotify *mnotify, FMailNotifies.values())
+		if (mnotify->streamJid==APage->streamJid() && mnotify->serviceJid==APage->serviceJid())
+			removeMailNotify(mnotify);
 }
 
 MailNotifyPage *RamblerMailNotify::findMailNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid) const
@@ -313,12 +334,14 @@ MailNotifyPage *RamblerMailNotify::newMailNotifyPage(const Jid &AStreamJid, cons
 		IRosterIndex *mindex = findMailIndex(AStreamJid);
 		if (mindex)
 		{
-			page = new MailNotifyPage(FMessageWidgets,AStreamJid,AServiceJid);
+			page = new MailNotifyPage(FMessageWidgets,mindex,AServiceJid);
 			page->setTabPageNotifier(FMessageWidgets!=NULL ? FMessageWidgets->newTabPageNotifier(page) : NULL);
+			connect(page->instance(),SIGNAL(showChatWindow(const Jid &)),SLOT(onMailNotifyPageShowChatWindow(const Jid &)));
+			connect(page->instance(),SIGNAL(tabPageActivated()),SLOT(onMailNotifyPageActivated()));
 			connect(page->instance(),SIGNAL(tabPageDestroyed()),SLOT(onMailNotifyPageDestroyed()));
 			FNotifyPages.insertMulti(mindex,page);
 
-			IMetaTabWindow *window = FMetaContacts !=NULL ? FMetaContacts->newMetaTabWindow(AStreamJid,QString::null) : NULL;
+			IMetaTabWindow *window = FMetaContacts !=NULL ? FMetaContacts->newMetaTabWindow(AStreamJid,QString(METAID_MAILNOTIFY).arg(AServiceJid.pBare())) : NULL;
 			if (window)
 			{
 				if (!FMetaTabWindows.contains(mindex))
@@ -364,7 +387,7 @@ void RamblerMailNotify::onStreamAdded(const Jid &AStreamJid)
 	if (sroot)
 	{
 		IRosterIndex *mindex = FRostersModel->createRosterIndex(RIT_MAILNOTIFY,MAIL_INDEX_ID,sroot);
-		mindex->setData(Qt::DisplayRole,tr("Mail"));
+		mindex->setData(Qt::DisplayRole,tr("Mails"));
 		mindex->setData(RDR_TYPE_ORDER,RITO_MAILNOTIFY);
 		mindex->setData(RDR_AVATAR_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_RAMBLERMAILNOTIFY_AVATAR));
 		if (FRostersView)
@@ -397,8 +420,13 @@ void RamblerMailNotify::onStreamRemoved(const Jid &AStreamJid)
 
 void RamblerMailNotify::onRosterStateChanged(IRoster *ARoster)
 {
-	if (!ARoster->isOpen())
-		clearMailNotifies(ARoster->streamJid());
+	if (ARoster->isOpen())
+	{
+		IRosterIndex *mindex = findMailIndex(ARoster->streamJid());
+		foreach(MailNotifyPage *page, FNotifyPages.values(mindex))
+			page->clearNewMails();
+	}
+	clearMailNotifies(ARoster->streamJid());
 	updateMailIndex(ARoster->streamJid());
 }
 
@@ -458,16 +486,36 @@ void RamblerMailNotify::onRosterNotifyRemoved(int ANotifyId)
 	removeMailNotify(findMailNotifyByRosterId(ANotifyId));
 }
 
-void RamblerMailNotify::onMetaTabWindowDestroyed()
+void RamblerMailNotify::onMailNotifyPageShowChatWindow(const Jid &AContactJid)
 {
-	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
-	FMetaTabWindows.remove(FMetaTabWindows.key(window));
+	MailNotifyPage *page = qobject_cast<MailNotifyPage *>(sender());
+	if (page)
+		showChatWindow(page->streamJid(),AContactJid);
+}
+
+void RamblerMailNotify::onMailNotifyPageActivated()
+{
+	MailNotifyPage *page = qobject_cast<MailNotifyPage *>(sender());
+	if (page)
+	{
+		clearMailNotifies(page);
+	}
 }
 
 void RamblerMailNotify::onMailNotifyPageDestroyed()
 {
 	MailNotifyPage *page = qobject_cast<MailNotifyPage *>(sender());
-	FNotifyPages.remove(FNotifyPages.key(page),page);
+	if (page)
+	{
+		clearMailNotifies(page);
+		FNotifyPages.remove(FNotifyPages.key(page),page);
+	}
+}
+
+void RamblerMailNotify::onMetaTabWindowDestroyed()
+{
+	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
+	FMetaTabWindows.remove(FMetaTabWindows.key(window));
 }
 
 Q_EXPORT_PLUGIN2(plg_ramblermailnotify, RamblerMailNotify)

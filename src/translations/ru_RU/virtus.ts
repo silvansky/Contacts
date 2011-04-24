@@ -57,6 +57,10 @@
         <source>Send comment</source>
         <translation>Написать отзыв</translation>
     </message>
+    <message>
+        <source>version %1 (r%2)</source>
+        <translation>версия %1 (r%2)</translation>
+    </message>
 </context>
 <context>
     <name>CommentDialogClass</name>
@@ -187,11 +191,11 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Название</translation>
+        <translation>Название</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл</translation>
     </message>
 </context>
 </TS>
