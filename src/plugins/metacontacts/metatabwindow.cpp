@@ -172,7 +172,7 @@ void MetaTabWindow::setCurrentPage(const QString &APageId)
 		}
 
 		ITabPage *page = FPageWidgets.value(APageId);
-		if (page)
+		if (page && ui.stwWidgets->currentWidget()!=page->instance())
 			ui.stwWidgets->setCurrentWidget(page->instance());
 		else if (FPageButtons.contains(currentPage()))
 			FPageButtons.value(currentPage())->setChecked(true);
@@ -359,6 +359,11 @@ void MetaTabWindow::removePage(const QString &APageId)
 	}
 }
 
+bool MetaTabWindow::isContactPage() const
+{
+	return !FMetaRoster->metaContact(FMetaId).id.isEmpty();
+}
+
 Jid MetaTabWindow::currentItem() const
 {
 	return pageItem(currentPage());
@@ -429,22 +434,33 @@ void MetaTabWindow::initialize(IPluginManager *APluginManager)
 
 void MetaTabWindow::updateWindow()
 {
-	IMetaContact contact = FMetaRoster->metaContact(FMetaId);
-	IPresenceItem pitem = FMetaRoster->metaPresence(FMetaId);
+	if (isContactPage())
+	{
+		IMetaContact contact = FMetaRoster->metaContact(FMetaId);
+		IPresenceItem pitem = FMetaRoster->metaPresence(FMetaId);
 
-	QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByJidStatus(FMetaId,pitem.show,SUBSCRIPTION_BOTH,false) : QIcon();
-	QString name = FMetaContacts->metaContactName(contact);
-	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
-	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+		QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByJidStatus(FMetaId,pitem.show,SUBSCRIPTION_BOTH,false) : QIcon();
+		QString name = FMetaContacts->metaContactName(contact);
+		QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
+		QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 
-	//IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(currentItem());
-	//if(!descriptor.name.isEmpty())
-	//	title += QString(" - %1 (%2)").arg(descriptor.name).arg(FMetaContacts->itemHint(currentItem()));
+		//IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(currentItem());
+		//if(!descriptor.name.isEmpty())
+		//	title += QString(" - %1 (%2)").arg(descriptor.name).arg(FMetaContacts->itemHint(currentItem()));
 
-	setWindowIcon(icon);
-	setWindowIconText(name);
-	setWindowTitle(title);
-	FTabPageToolTip = show;
+		setWindowIcon(icon);
+		setWindowIconText(name);
+		setWindowTitle(title);
+		FTabPageToolTip = show;
+	}
+	else
+	{
+		ITabPage *widget = pageWidget(currentPage());
+		setWindowIcon(widget!=NULL ? widget->tabPageIcon() : QIcon());
+		setWindowIconText(widget!=NULL ? widget->tabPageCaption() : QString::null);
+		setWindowTitle(widget!=NULL ? widget->instance()->windowTitle() : QString::null);
+		FTabPageToolTip = widget!=NULL ? widget->tabPageToolTip() : QString::null;
+	}
 
 	emit tabPageChanged();
 }
@@ -630,7 +646,7 @@ void MetaTabWindow::updatePersistantPages()
 {
 	foreach(QString descrName, FPersistantList)
 	{
-		if (FPersistantPages.value(descrName).isEmpty() && FItemTypeCount.value(descrName)==0)
+		if (isContactPage() && FPersistantPages.value(descrName).isEmpty() && FItemTypeCount.value(descrName)==0)
 		{
 			IMetaItemDescriptor descriptor = FMetaContacts->descriptorByName(descrName);
 			QString pageId = insertPage(descriptor.pageOrder, false);
@@ -821,7 +837,9 @@ void MetaTabWindow::onTabPageClose()
 
 void MetaTabWindow::onTabPageChanged()
 {
-
+	ITabPage *widget = qobject_cast<ITabPage *>(sender());
+	if (pageWidget(currentPage()) == widget)
+		updateWindow();
 }
 
 void MetaTabWindow::onTabPageDestroyed()
@@ -905,6 +923,7 @@ void MetaTabWindow::onCurrentWidgetChanged(int AIndex)
 		button->setChecked(true);
 		setButtonAction(button,FPageActions.value(pageId));
 		updatePageButton(pageId);
+		updateWindow();
 		emit currentPageChanged(pageId);
 	}
 	QTimer::singleShot(0,ui.tlbToolBar,SLOT(repaint()));

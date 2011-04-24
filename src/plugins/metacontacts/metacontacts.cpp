@@ -20,6 +20,7 @@
 #define ADR_TO_GROUP        Action::DR_UserDefined+1
 #define ADR_SUBSCRIPTION    Action::DR_UserDefined+1
 
+#define METAID_NOTINROSTER  "%1#not-in-roster-contact"
 
 static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
 
@@ -592,7 +593,7 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 	if (!window && FMessageWidgets)
 	{
 		IMetaRoster *mroster = findMetaRoster(AStreamJid);
-		if (mroster && mroster->isEnabled() && !mroster->metaContact(AMetaId).id.isEmpty())
+		if (mroster && mroster->isEnabled() && !AMetaId.isEmpty())
 		{
 			window = new MetaTabWindow(FPluginManager,this,mroster,AMetaId);
 			connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onMetaTabWindowActivated()));
@@ -603,7 +604,7 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 
 			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
-			if (FRostersViewPlugin && FRostersViewPlugin->rostersView()->rostersModel())
+			if (window->isContactPage() && FRostersViewPlugin && FRostersViewPlugin->rostersView()->rostersModel())
 			{
 				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(),FRostersViewPlugin->rostersView(),window);
 				QToolButton *button = window->toolBarChanger()->insertAction(menu->menuAction(),TBG_MCMTW_USER_TOOLS);
@@ -1417,11 +1418,30 @@ void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
 	if (mroster && mroster->isEnabled())
 	{
 		QString metaId = mroster->itemMetaContact(AWindow->contactJid());
-		if (!metaId.isEmpty())
+		IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId.isEmpty() ? QString(METAID_NOTINROSTER).arg(AWindow->contactJid().pBare()) : metaId);
+		if (window)
 		{
-			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
-			if (window)
+			if (!window->isContactPage())
+			{
+				IMetaItemDescriptor descriptor = descriptorByItem(AWindow->contactJid());
+				QString pageId = window->insertPage(descriptor.pageOrder,descriptor.combine);
+
+				QIcon icon;
+				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
+				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Selected);
+				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
+				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+				window->setPageIcon(pageId,icon);
+				window->setPageName(pageId,itemHint(AWindow->contactJid()));
+
+				if (AWindow->toolBarWidget())
+					AWindow->toolBarWidget()->instance()->hide();
+				window->setPageWidget(pageId,AWindow);
+			}
+			else
+			{
 				window->setItemWidget(AWindow->contactJid().bare(),AWindow);
+			}
 		}
 	}
 }

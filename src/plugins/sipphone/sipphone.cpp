@@ -247,7 +247,7 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 {
 	ToolBarChanger * tbChanger = iMetaTabWindow->toolBarChanger();
 	// Далее добавляем кнопку звонка в tbChanger
-	if(tbChanger != NULL)
+	if(iMetaTabWindow->isContactPage() && tbChanger != NULL)
 	{
 		Action* callAction = new Action(tbChanger);
 		callAction->setText(tr("Call"));

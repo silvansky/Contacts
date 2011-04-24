@@ -98,6 +98,7 @@ public:
 	virtual void setPageWidget(const QString &APageId, ITabPage *AWidget) =0;
 	virtual void removePage(const QString &APageId) =0;
 	//Item pages
+	virtual bool isContactPage() const =0;
 	virtual Jid currentItem() const =0;
 	virtual void setCurrentItem(const Jid &AItemJid) =0;
 	virtual Jid pageItem(const QString &APageId) const =0;
