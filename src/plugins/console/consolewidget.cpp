@@ -32,6 +32,7 @@ ConsoleWidget::ConsoleWidget(IPluginManager *APluginManager, QWidget *AParent) :
 	connect(ui.cmbContext,SIGNAL(currentIndexChanged(int)),SLOT(onContextChanged(int)));
 
 	connect(ui.tlbSendXML,SIGNAL(clicked()),SLOT(onSendXMLClicked()));
+	connect(ui.tlbReceiveXML,SIGNAL(clicked()),SLOT(onReceiveXMLClicked()));
 	connect(ui.tlbClearConsole,SIGNAL(clicked()),ui.tedConsole,SLOT(clear()));
 	connect(ui.chbWordWrap,SIGNAL(stateChanged(int)),SLOT(onWordWrapStateChanged(int)));
 }
@@ -230,6 +231,36 @@ void ConsoleWidget::onSendXMLClicked()
 				if (ui.cmbStreamJid->currentIndex()==0 || stream->streamJid()==ui.cmbStreamJid->currentText())
 					stream->sendStanza(stanza);
 			ui.tedConsole->append("<b>"+tr("User stanza sended.")+"</b><br>");
+		}
+		else
+		{
+			ui.tedConsole->append("<b>"+tr("Stanza is not well formed.")+"</b><br>");
+		}
+	}
+	else
+	{
+		ui.tedConsole->append("<b>"+tr("XML is not well formed.")+"</b><br>");
+	}
+}
+
+void ConsoleWidget::onReceiveXMLClicked()
+{
+	QDomDocument doc;
+	if (FXmppStreams!=NULL && doc.setContent(ui.tedSendXML->toPlainText(),true))
+	{
+		Stanza stanza(doc.documentElement());
+		if (stanza.isValid())
+		{
+			ui.tedConsole->append("<b>"+tr("Start receiving user stanza...")+"</b><br>");
+			foreach(IXmppStream *stream, FXmppStreams->xmppStreams())
+			{
+				if (ui.cmbStreamJid->currentIndex()==0 || stream->streamJid()==ui.cmbStreamJid->currentText())
+				{
+					showElement(stream,stanza.element(),false);
+					FStanzaProcessor->sendStanzaIn(stream->streamJid(),stanza);
+				}
+			}
+			ui.tedConsole->append("<b>"+tr("User stanza received.")+"</b><br>");
 		}
 		else
 		{

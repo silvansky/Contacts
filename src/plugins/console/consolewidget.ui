@@ -247,6 +247,13 @@
           </spacer>
          </item>
          <item>
+          <widget class="QToolButton" name="tlbReceiveXML">
+           <property name="text">
+            <string>Receive</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QToolButton" name="tlbSendXML">
            <property name="text">
             <string>Send</string>

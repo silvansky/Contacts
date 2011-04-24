@@ -37,6 +37,7 @@ protected slots:
 	void onAddConditionClicked();
 	void onRemoveConditionClicked();
 	void onSendXMLClicked();
+	void onReceiveXMLClicked();
 	void onAddContextClicked();
 	void onRemoveContextClicked();
 	void onContextChanged(int AIndex);

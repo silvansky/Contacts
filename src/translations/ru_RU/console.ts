@@ -54,6 +54,14 @@
         <source>Enter context name</source>
         <translation>Введите имя контекста</translation>
     </message>
+    <message>
+        <source>Start receiving user stanza...</source>
+        <translation>Начало получения станзы пользователя...</translation>
+    </message>
+    <message>
+        <source>User stanza received.</source>
+        <translation>Станза пользователя получена.</translation>
+    </message>
 </context>
 <context>
     <name>ConsoleWidgetClass</name>
@@ -104,6 +112,10 @@
     <message>
         <source>Hilight XML</source>
         <translation>Подсвечивать XML</translation>
+    </message>
+    <message>
+        <source>Receive</source>
+        <translation>Получить</translation>
     </message>
 </context>
 </TS>
