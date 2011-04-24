@@ -575,6 +575,8 @@ QString Notifications::contactName(const Jid &AStreamJId, const Jid &AContactJid
 bool Notifications::isInvisibleNotify(int ANotifyId) const
 {
 	NotifyRecord record = FNotifyRecords.value(ANotifyId);
+	if (!record.notification.removeInvisible)
+		return false;
 	if (record.trayId != 0)
 		return false;
 	if (record.rosterId != 0)
