@@ -739,7 +739,7 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.persistent = false;
 	yonline.pageOrder = MIPO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
-	yonline.contactPattern = "^"JID_NODE_PATTERN"@(yandex\\."JID_DOMAIN_PATTERN"|ya\\.ru|yandex\\.ru)$";
+	yonline.contactPattern = "^"JID_NODE_PATTERN"@(yandex\\."JID_DOMAIN_PATTERN"|ya\\.ru|yandex\\.ru|yandex\\.net|yandex\\.com|yandex\\-co\\.ru|narod\\.ru|yandex\\.by|yandex\\.kz|yandex\\.ua)$";
 	FMetaItemDescriptors.append(yonline);
 
 	IMetaItemDescriptor qip;

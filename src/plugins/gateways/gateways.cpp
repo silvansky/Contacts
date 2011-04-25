@@ -215,7 +215,7 @@ bool Gateways::initObjects()
 	sms.name = tr("SMS");
 	sms.iconKey = MNI_GATEWAYS_SERVICE_SMS;
 	sms.loginLabel = tr("Phone");
-	sms.homeContactPattern = "^\\+\\d{11,11}$";
+	sms.homeContactPattern = "^\\+7\\d{10,10}$";
 	sms.availContactPattern = sms.homeContactPattern;
 	FGateDescriptors.append(sms);
 
@@ -227,7 +227,7 @@ bool Gateways::initObjects()
 	icq.name = tr("ICQ");
 	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
 	icq.loginLabel = tr("Login");
-	icq.homeContactPattern = "^\\d+$";
+	icq.homeContactPattern = "^\\d{3,10}$";
 	icq.availContactPattern = icq.homeContactPattern;
 	FGateDescriptors.append(icq);
 
@@ -284,11 +284,19 @@ bool Gateways::initObjects()
 	yonline.iconKey = MNI_GATEWAYS_SERVICE_YONLINE;
 	yonline.loginLabel = tr("E-mail");
 	yonline.domains.append("ya.ru");
+	yonline.domains.append("yandex.ru");
+	yonline.domains.append("yandex.net");
+	yonline.domains.append("yandex.com");
+	yonline.domains.append("yandex.by");
+	yonline.domains.append("yandex.kz");
+	yonline.domains.append("yandex.ua");
+	yonline.domains.append("yandex-co.ru");
+	yonline.domains.append("narod.ru");
 	yonline.loginField = "username";
 	yonline.domainField = "server";
 	yonline.passwordField = "password";
 	yonline.domainSeparator = "@";
-	yonline.homeContactPattern = "^"MAIL_NODE_PATTERN"@(ya\\.ru|yandex\\.ru)$";
+	yonline.homeContactPattern = "^"MAIL_NODE_PATTERN"@(ya\\.ru|yandex\\.ru|yandex\\.net|yandex\\.com|yandex\\-co\\.ru|narod\\.ru|yandex\\.by|yandex\\.kz|yandex\\.ua)$";
 	yonline.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(yonline);
 

@@ -457,9 +457,9 @@ void MetaTabWindow::updateWindow()
 		QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
 		QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 
-		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(currentItem());
-		if(!descriptor.name.isEmpty())
-			title += QString(" - %1 (%2)").arg(descriptor.name).arg(FMetaContacts->itemHint(currentItem()));
+		//IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(currentItem());
+		//if(!descriptor.name.isEmpty())
+		//	title += QString(" - %1 (%2)").arg(descriptor.name).arg(FMetaContacts->itemHint(currentItem()));
 
 		setWindowIcon(icon);
 		setWindowIconText(name);
