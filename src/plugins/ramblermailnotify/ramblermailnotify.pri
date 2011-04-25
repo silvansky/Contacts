@@ -1,7 +1,10 @@
-FORMS += mailnotifypage.ui
+FORMS += mailnotifypage.ui \
+         mailinfowidget.ui
 
 HEADERS += ramblermailnotify.h \
-           mailnotifypage.h
+           mailnotifypage.h \
+           mailinfowidget.h
 
 SOURCES += ramblermailnotify.cpp \ 
-           mailnotifypage.cpp
+           mailnotifypage.cpp \
+           mailinfowidget.cpp

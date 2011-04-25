@@ -113,6 +113,10 @@ bool RamblerMailNotify::initConnections(IPluginManager *APluginManager, int &AIn
 	if (plugin)
 	{
 		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
+		if (FMessageWidgets)
+		{
+			connect(FMessageWidgets->instance(),SIGNAL(chatWindowCreated(IChatWindow *)),SLOT(onChatWindowCreated(IChatWindow *)));
+		}
 	}
 
 	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0);
@@ -486,6 +490,15 @@ void RamblerMailNotify::onRosterNotifyRemoved(int ANotifyId)
 	removeMailNotify(findMailNotifyByRosterId(ANotifyId));
 }
 
+void RamblerMailNotify::onChatWindowCreated(IChatWindow *AWindow)
+{
+	if (FMetaContacts && FMetaContacts->descriptorByItem(AWindow->contactJid()).gateId==GSID_MAIL)
+	{
+		MailInfoWidget *widget = new MailInfoWidget(AWindow,AWindow->instance());
+		AWindow->insertBottomWidget(CBWO_MAILINFOWIDGET,widget);
+	}
+}
+
 void RamblerMailNotify::onMailNotifyPageShowChatWindow(const Jid &AContactJid)
 {
 	MailNotifyPage *page = qobject_cast<MailNotifyPage *>(sender());
@@ -515,7 +528,10 @@ void RamblerMailNotify::onMailNotifyPageDestroyed()
 void RamblerMailNotify::onMetaTabWindowDestroyed()
 {
 	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
-	FMetaTabWindows.remove(FMetaTabWindows.key(window));
+	IRosterIndex *mindex = FMetaTabWindows.key(window);
+	foreach(ITabPage *page, FNotifyPages.values(mindex))
+		delete page->instance();
+	FMetaTabWindows.remove(mindex);
 }
 
 Q_EXPORT_PLUGIN2(plg_ramblermailnotify, RamblerMailNotify)

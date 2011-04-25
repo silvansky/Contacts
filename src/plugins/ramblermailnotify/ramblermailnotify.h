@@ -9,11 +9,13 @@
 #include <definitions/resources.h>
 #include <definitions/namespaces.h>
 #include <definitions/notificators.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <definitions/metaitempageorders.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/rosternotifyorders.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/stanzahandlerorders.h>
+#include <definitions/chatwindowwidgetorders.h>
 #include <definitions/tabpagenotifypriorities.h>
 #include <definitions/rosterlabelorders.h>
 #include <definitions/rosterindextyperole.h>
@@ -34,6 +36,7 @@
 #include <interfaces/imessageprocessor.h>
 #include <utils/iconstorage.h>
 #include "mailnotifypage.h"
+#include "mailinfowidget.h"
 
 struct MailNotify
 {
@@ -90,6 +93,7 @@ protected slots:
 	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
 	void onRosterNotifyActivated(int ANotifyId);
 	void onRosterNotifyRemoved(int ANotifyId);
+	void onChatWindowCreated(IChatWindow *AWindow);
 	void onMailNotifyPageShowChatWindow(const Jid &AContactJid);
 	void onMailNotifyPageActivated();
 	void onMailNotifyPageDestroyed();

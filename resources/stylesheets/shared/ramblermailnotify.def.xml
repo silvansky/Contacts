@@ -4,4 +4,8 @@
     <key>ramblermailnotifyMailNotifyPage</key>
     <object mime='text/css'>ramblermailnotifymailnotifypage.qss</object>
   </file>
+  <file>
+    <key>ramblermailnotifyMailInfoWidget</key>
+    <object mime='text/css'>ramblermailnotifymailinfowidget.qss</object>
+  </file>
 </styledef>

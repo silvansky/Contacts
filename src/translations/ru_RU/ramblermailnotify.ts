@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru" sourcelanguage="en">
 <context>
+    <name>MailInfoWidget</name>
+    <message>
+        <source>Incoming</source>
+        <translation>Входящие</translation>
+    </message>
+</context>
+<context>
     <name>MailNotifyPage</name>
     <message>
         <source>New e-mail messages</source>

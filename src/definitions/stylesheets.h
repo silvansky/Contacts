@@ -36,6 +36,7 @@
 
 //RambleMailNotify
 #define STS_RAMBLERMAILNOTIFY_MAILNOTIFYPAGE                            "ramblermailnotifyMailNotifyPage"
+#define STS_RAMBLERMAILNOTIFY_MAILINFOWIDGET                            "ramblermailnotifyMailInfoWidget"
 
 //RosterChanger
 #define STS_RCHANGER_ADDCONTACTDIALOG                                   "rchangerAddContactDialog"
