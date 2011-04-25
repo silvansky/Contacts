@@ -22,6 +22,9 @@ Menu::Menu(QWidget *AParent) : QMenu(AParent)
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
 		border->setCloseButtonVisible(false);
+
+		if (AParent)
+			connect(AParent,SIGNAL(destroyed()),SLOT(deleteLater()));
 		connect(this, SIGNAL(aboutToShow()), SLOT(onAboutToShow()));
 		connect(this, SIGNAL(aboutToHide()), SLOT(onAboutToHide()));
 		connect(this, SIGNAL(triggered(QAction*)), SLOT(hide()));
