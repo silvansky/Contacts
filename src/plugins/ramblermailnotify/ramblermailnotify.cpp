@@ -16,7 +16,7 @@ RamblerMailNotify::RamblerMailNotify()
 	FStanzaProcessor = NULL;
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
-	
+
 	FSHIMailNotify = -1;
 }
 
@@ -192,7 +192,7 @@ IRosterIndex *RamblerMailNotify::findMailIndex(const Jid &AStreamJid) const
 
 MailNotify *RamblerMailNotify::findMailNotifyByPopupId(int APopupNotifyId) const
 {
-	for (QMultiMap<IRosterIndex *, MailNotify *>::iterator it = FMailNotifies.begin(); it!=FMailNotifies.end(); it++)
+	for (QMultiMap<IRosterIndex *, MailNotify *>::const_iterator it = FMailNotifies.begin(); it!=FMailNotifies.end(); it++)
 		if (it.value()->popupNotifyId == APopupNotifyId)
 			return it.value();
 	return NULL;
@@ -200,7 +200,7 @@ MailNotify *RamblerMailNotify::findMailNotifyByPopupId(int APopupNotifyId) const
 
 MailNotify *RamblerMailNotify::findMailNotifyByRosterId(int ARosterNotifyId) const
 {
-	for (QMultiMap<IRosterIndex *, MailNotify *>::iterator it = FMailNotifies.begin(); it!=FMailNotifies.end(); it++)
+	for (QMultiMap<IRosterIndex *, MailNotify *>::const_iterator it = FMailNotifies.begin(); it!=FMailNotifies.end(); it++)
 		if (it.value()->rosterNotifyId == ARosterNotifyId)
 			return it.value();
 	return NULL;

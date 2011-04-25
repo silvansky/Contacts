@@ -45,10 +45,7 @@ SUBDIRS += birthdayreminder
 SUBDIRS += metacontacts
 SUBDIRS += smsmessagehandler
 SUBDIRS += ramblermailnotify
-
-win32: {
-  SUBDIRS += stylesheeteditor
-}
+SUBDIRS += stylesheeteditor
 win32-msvc2008: {
   SUBDIRS += sipphone
 }

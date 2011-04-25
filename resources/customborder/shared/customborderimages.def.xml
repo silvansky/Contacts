@@ -144,4 +144,53 @@
     <key>topRightShadowSquare</key>
     <object mime="image/png">toprightshadow_square.png</object>
   </icon>
+
+  <icon>
+    <key>leftShadowMenu</key>
+    <object mime="image/png">leftshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>topLeftShadowMenu</key>
+    <object mime="image/png">topleftshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>topShadowMenu</key>
+    <object mime="image/png">topshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>topRightShadowMenu</key>
+    <object mime="image/png">toprightshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>rightShadowMenu</key>
+    <object mime="image/png">rightshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadowMenu</key>
+    <object mime="image/png">bottomrightshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomShadowMenu</key>
+    <object mime="image/png">bottomshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadowMenu</key>
+    <object mime="image/png">bottomleftshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>topLeftMaskMenu</key>
+    <object mime="image/png">topleftmask_menu.png</object>
+  </icon>
+  <icon>
+    <key>topRightMaskMenu</key>
+    <object mime="image/png">toprightmask_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftMaskMenu</key>
+    <object mime="image/png">bottomleftmask_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMaskMenu</key>
+    <object mime="image/png">bottomrightmask_menu.png</object>
+  </icon>
 </icondef>
