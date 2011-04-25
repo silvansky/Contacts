@@ -910,6 +910,7 @@ void CustomBorderContainer::contextMenuEvent(QContextMenuEvent * event)
 
 bool CustomBorderContainer::event(QEvent * evt)
 {
+	static int activatedCount = 0;
 	if (evt->type() == QEvent::ToolTip)
 	{
 		QHelpEvent * helpEvent = (QHelpEvent *)evt;
@@ -933,9 +934,15 @@ bool CustomBorderContainer::event(QEvent * evt)
 			return false;
 		}
 	}
+	if ((evt->type() == QEvent::WindowActivate) && _closeOnDeactivate)
+	{
+		activatedCount++;
+		return QWidget::event(evt);
+	}
 	if ((evt->type() == QEvent::WindowDeactivate) && _closeOnDeactivate)
 	{
-		close();
+		if (!--activatedCount)
+			close();
 		return true;
 	}
 	if ((evt->type() == QEvent::Show) && _closeOnDeactivate)

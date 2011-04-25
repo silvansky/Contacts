@@ -95,7 +95,7 @@ QList<Action *> Menu::findActions(const QMultiHash<int, QVariant> AData, bool AS
 
 void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 {
-	QAction *befour = NULL;
+	QAction *before = NULL;
 	QAction *separator = NULL;
 	QMultiMap<int,Action *>::iterator it = qFind(FActions.begin(),FActions.end(),AAction);
 	if (it != FActions.end())
@@ -109,8 +109,8 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 	it = FActions.find(AGroup);
 	if (it == FActions.end())
 	{
-		befour = nextGroupSeparator(AGroup);
-		befour != NULL ? QMenu::insertAction(befour,AAction) : QMenu::addAction(AAction);
+		before = nextGroupSeparator(AGroup);
+		before != NULL ? QMenu::insertAction(before,AAction) : QMenu::addAction(AAction);
 		separator = insertSeparator(AAction);
 		FSeparators.insert(AGroup,separator);
 	}
@@ -128,7 +128,7 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 				sortRole = false;
 			}
 
-			for (int i = 0; !befour && i<actionList.count(); ++i)
+			for (int i = 0; !before && i<actionList.count(); ++i)
 			{
 				QAction *qaction = actionList.at(i);
 				if (FActions.key((Action *)qaction)==AGroup)
@@ -141,28 +141,31 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 							curSortString = action->data(Action::DR_SortString).toString();
 					}
 					if (QString::localeAwareCompare(curSortString,sortString) > 0)
-						befour = actionList.at(i);
+						before = actionList.at(i);
 				}
 			}
 		}
 
-		if (!befour)
+		if (!before)
 		{
 			QMap<int,QAction *>::const_iterator sepIt= FSeparators.upperBound(AGroup);
 			if (sepIt != FSeparators.constEnd())
-				befour = sepIt.value();
+				before = sepIt.value();
 		}
 
-		if (befour)
-			QMenu::insertAction(befour,AAction);
+		if (before)
+			QMenu::insertAction(before,AAction);
 		else
 			QMenu::addAction(AAction);
 	}
 
 	FActions.insertMulti(AGroup,AAction);
 	connect(AAction,SIGNAL(actionDestroyed(Action *)),SLOT(onActionDestroyed(Action *)));
-	emit actionInserted(befour,AAction,AGroup,ASort);
-	if (separator) emit separatorInserted(AAction,separator);
+	if (AAction->menu())
+		connect(AAction->menu(), SIGNAL(triggered(QAction*)), SLOT(hide()));
+	emit actionInserted(before,AAction,AGroup,ASort);
+	if (separator)
+		emit separatorInserted(AAction,separator);
 }
 
 void Menu::addMenuActions(const Menu *AMenu, int AGroup, bool ASort)
