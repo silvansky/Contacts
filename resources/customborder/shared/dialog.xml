@@ -83,7 +83,7 @@
  <window-icon>
    <width>16</width>
    <height>16</height>
-   <icon src="customborder/mainwindowLogo16" />
+   <icon src="menuicons/mainwindowLogo16" />
  </window-icon>
  <title color="#FF00FF" />
  <window-controls spacing="2" />
