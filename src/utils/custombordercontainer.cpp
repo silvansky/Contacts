@@ -1138,7 +1138,6 @@ void CustomBorderContainer::init()
 
 void CustomBorderContainer::initMenu()
 {
-	qDebug() << "CustomBorderContainer::initMenu()";
 	// window menu
 	windowMenu = new Menu(this);
 	windowMenu->addAction(restoreAction);
