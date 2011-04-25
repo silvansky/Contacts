@@ -7,6 +7,7 @@
 #include <QStringList>
 #include <QSharedData>
 #include <QTextDocument>
+#include <QTextDocumentFragment>
 #include "utilsexport.h"
 #include "stanza.h"
 #include "datetime.h"
@@ -81,6 +82,7 @@ private:
 };
 
 UTILS_EXPORT QString getHtmlBody(const QString &AHtml);
+UTILS_EXPORT QString getTextFragmentHref(const QTextDocumentFragment &AFragment);
 
 Q_DECLARE_METATYPE(Message);
 #define MESSAGE_METATYPE_ID qMetaTypeId<Message>()

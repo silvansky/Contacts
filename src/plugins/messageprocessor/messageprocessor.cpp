@@ -5,6 +5,7 @@
 #include <utils/log.h>
 
 #define SHC_MESSAGE         "/message"
+#define MAIL_NODE_PATTERN   "[a-zA-Z0-9_\\-\\.]+"
 
 MessageProcessor::MessageProcessor()
 {
@@ -99,14 +100,30 @@ void MessageProcessor::writeText(int AOrder, Message &AMessage, QTextDocument *A
 	}
 	else if (AOrder == MWO_MESSAGEPROCESSOR_ANCHORS)
 	{
-		QRegExp regexp("\\b((https?|ftp)://|mailto:|www.|xmpp:)[\\w\\d/\\?.=:@&%#_;\\(\\)\\+\\-\\~\\*\\,]+");
-		regexp.setCaseSensitivity(Qt::CaseInsensitive);
-		for (QTextCursor cursor = ADocument->find(regexp); !cursor.isNull();  cursor = ADocument->find(regexp,cursor))
+		QRegExp href("\\b((https?|ftp)://|mailto:|www.|xmpp:)\\S+");
+		href.setCaseSensitivity(Qt::CaseInsensitive);
+		for (QTextCursor cursor = ADocument->find(href); !cursor.isNull();  cursor = ADocument->find(href,cursor))
 		{
-			QTextCharFormat linkFormat = cursor.charFormat();
-			linkFormat.setAnchor(true);
-			linkFormat.setAnchorHref(cursor.selectedText());
-			cursor.setCharFormat(linkFormat);
+			if (!cursor.charFormat().isAnchor())
+			{
+				QTextCharFormat linkFormat = cursor.charFormat();
+				linkFormat.setAnchor(true);
+				linkFormat.setAnchorHref(cursor.selectedText());
+				cursor.setCharFormat(linkFormat);
+			}
+		}
+
+		QRegExp mail("\\b"MAIL_NODE_PATTERN"@"JID_DOMAIN_PATTERN);
+		mail.setCaseSensitivity(Qt::CaseInsensitive);
+		for (QTextCursor cursor = ADocument->find(mail); !cursor.isNull();  cursor = ADocument->find(mail,cursor))
+		{
+			if (!cursor.charFormat().isAnchor())
+			{
+				QTextCharFormat linkFormat = cursor.charFormat();
+				linkFormat.setAnchor(true);
+				linkFormat.setAnchorHref("mailto:"+cursor.selectedText());
+				cursor.setCharFormat(linkFormat);
+			}
 		}
 	}
 }

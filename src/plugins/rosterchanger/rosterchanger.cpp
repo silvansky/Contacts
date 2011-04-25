@@ -18,6 +18,7 @@
 #define ADR_NICK            Action::DR_Parametr2
 #define ADR_GROUP           Action::DR_Parametr3
 #define ADR_TO_GROUP        Action::DR_Parametr4
+#define ADR_CONTACT_TEXT    Action::DR_Parametr4
 #define ADR_CHATNOTICE_ID   Action::DR_UserDefined+1
 #define ADR_NOTIFY_ID       Action::DR_UserDefined+2
 #define ADR_NOTICE_ACTION   Action::DR_UserDefined+3
@@ -172,6 +173,7 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 		{
 			connect(FMessageWidgets->instance(),SIGNAL(chatWindowCreated(IChatWindow *)),SLOT(onChatWindowCreated(IChatWindow *)));
 			connect(FMessageWidgets->instance(),SIGNAL(chatWindowDestroyed(IChatWindow *)),SLOT(onChatWindowDestroyed(IChatWindow *)));
+			connect(FMessageWidgets->instance(),SIGNAL(viewWidgetCreated(IViewWidget *)),SLOT(onViewWidgetCreated(IViewWidget *)));
 		}
 	}
 
@@ -1053,6 +1055,7 @@ void RosterChanger::onShowAddContactDialog(bool)
 			if (dialog)
 			{
 				dialog->setContactJid(action->data(ADR_CONTACT_JID).toString());
+				dialog->setContactText(action->data(ADR_CONTACT_TEXT).toString());
 				dialog->setNickName(action->data(ADR_NICK).toString());
 				dialog->setGroup(action->data(ADR_GROUP).toString());
 			}
@@ -2027,6 +2030,44 @@ void RosterChanger::onChatWindowCreated(IChatWindow *AWindow)
 void RosterChanger::onChatWindowDestroyed(IChatWindow *AWindow)
 {
 	FPendingChatWindows.removeAll(AWindow);
+}
+
+void RosterChanger::onViewWidgetCreated(IViewWidget *AWidget)
+{
+	connect(AWidget->instance(),SIGNAL(viewContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)),
+		SLOT(onViewWidgetContextMenu(const QPoint &, const QTextDocumentFragment &, Menu *)));
+}
+
+void RosterChanger::onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
+{
+	Q_UNUSED(APosition);
+	IViewWidget *view = qobject_cast<IViewWidget *>(sender());
+	if (view)
+	{
+		QUrl href = getTextFragmentHref(ASelection);
+		QString contact = href.isValid() ? href.path() : ASelection.toPlainText().trimmed();
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(view->streamJid()) : NULL;
+		if (roster && roster->isOpen() && !roster->rosterItem(contact).isValid)
+		{
+			IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->descriptorByContact(contact) : IGateServiceDescriptor();
+			if (!descriptor.id.isEmpty())
+			{
+				IDiscoIdentity identity;
+				identity.category = "gateway";
+				identity.type = descriptor.type;
+				if (!descriptor.needGate || !FGateways->availServices(roster->streamJid(),identity).isEmpty())
+				{
+					Action *action = new Action(AMenu);
+					action->setText(tr("Add contact"));
+					action->setIcon(RSR_STORAGE_MENUICONS,descriptor.iconKey);
+					action->setData(ADR_STREAM_JID,roster->streamJid().full());
+					action->setData(ADR_CONTACT_TEXT,contact);
+					connect(action,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
+					AMenu->addAction(action,AG_VWCM_ROSTERCHANGER_ADD_CONTACT);
+				}
+			}
+		}
+	}
 }
 
 void RosterChanger::onShowPendingChatNotices()

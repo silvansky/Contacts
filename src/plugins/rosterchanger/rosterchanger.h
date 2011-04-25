@@ -36,6 +36,7 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imetacontacts.h>
 #include <utils/action.h>
+#include <utils/message.h>
 #include <utils/iconstorage.h>
 #include "addcontactdialog.h"
 #include "addmetacontactdialog.h"
@@ -182,6 +183,8 @@ protected slots:
 	void onChatWindowActivated();
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onChatWindowDestroyed(IChatWindow *AWindow);
+	void onViewWidgetCreated(IViewWidget *AWidget);
+	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
 	void onShowPendingChatNotices();
 	void onChatNoticeActionTriggered(bool);
 	void onChatNoticeRemoved(int ANoticeId);

@@ -100,6 +100,7 @@
 
 //ViewWidget - ContextMenu
 #define AG_VWCM_MESSAGEWIDGETS_URL                              300
+#define AG_VWCM_ROSTERCHANGER_ADD_CONTACT                       300
 #define AG_VWCM_MESSAGEWIDGETS_COPY                             500
 #define AG_VWCM_MESSAGEWIDGETS_QUOTE                            500
 #define AG_VWCM_MESSAGEWIDGETS_SEARCH                           700

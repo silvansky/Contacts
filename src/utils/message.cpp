@@ -1,5 +1,7 @@
 #include "message.h"
 
+#include <QTextBlock>
+
 MessageData::MessageData() : FStanza("message")
 {
 	FDateTime = QDateTime::currentDateTime();
@@ -341,4 +343,32 @@ QString getHtmlBody(const QString &AHtml)
 	}
 
 	return html;
+}
+
+QString getTextFragmentHref(const QTextDocumentFragment &AFragment)
+{
+	QString href;
+
+	QTextDocument doc;
+	doc.setHtml(AFragment.toHtml());
+
+	QTextBlock block = doc.firstBlock();
+	while (block.isValid())
+	{
+		for (QTextBlock::iterator it = block.begin(); !it.atEnd(); it++)
+		{
+			if (it.fragment().charFormat().isAnchor())
+			{
+				if (href.isNull())
+					href = it.fragment().charFormat().anchorHref();
+				else if (href != it.fragment().charFormat().anchorHref())
+					return QString::null;
+			}
+			else
+				return QString::null;
+		}
+		block = block.next();
+	}
+
+	return href;
 }

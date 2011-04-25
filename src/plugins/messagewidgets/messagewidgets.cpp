@@ -1,11 +1,7 @@
 #include "messagewidgets.h"
 
-#include <QTextBlock>
 #include <QClipboard>
 #include <QDesktopServices>
-#include <utils/customborderstorage.h>
-#include <definitions/resources.h>
-#include <definitions/customborder.h>
 
 #define ADR_CONTEXT_DATA							Action::DR_Parametr1
 
@@ -510,34 +506,6 @@ void MessageWidgets::deleteStreamWindows(const Jid &AStreamJid)
 			delete window->instance();
 }
 
-QString MessageWidgets::selectionHref(const QTextDocumentFragment &ASelection) const
-{
-	QString href;
-
-	QTextDocument doc;
-	doc.setHtml(ASelection.toHtml());
-
-	QTextBlock block = doc.firstBlock();
-	while (block.isValid())
-	{
-		for (QTextBlock::iterator it = block.begin(); !it.atEnd(); it++)
-		{
-			if (it.fragment().charFormat().isAnchor())
-			{
-				if (href.isNull())
-					href = it.fragment().charFormat().anchorHref();
-				else if (href != it.fragment().charFormat().anchorHref())
-					return QString::null;
-			}
-			else
-				return QString::null;
-		}
-		block = block.next();
-	}
-
-	return href;
-}
-
 QList<Action *> MessageWidgets::createLastTabPagesActions(QObject *AParent) const
 {
 	QList<Action *> actions;
@@ -579,36 +547,32 @@ void MessageWidgets::onViewWidgetContextMenu(const QPoint &APosition, const QTex
 		connect(copyAction,SIGNAL(triggered(bool)),SLOT(onViewContextCopyActionTriggered(bool)));
 		AMenu->addAction(copyAction,AG_VWCM_MESSAGEWIDGETS_COPY,true);
 
-		QUrl href = selectionHref(ASelection);
-		if (href.isValid() && !href.isEmpty())
+		QUrl href = getTextFragmentHref(ASelection);
+		if (href.isValid())
 		{
+			bool isMailto = href.scheme()=="mailto";
+
 			Action *urlAction = new Action(AMenu);
-			urlAction->setText(href.scheme()=="mailto" ? tr("Send mail") : tr("Open link"));
+			urlAction->setText(isMailto ? tr("Send mail") : tr("Open link"));
 			urlAction->setData(ADR_CONTEXT_DATA,href.toString());
 			connect(urlAction,SIGNAL(triggered(bool)),SLOT(onViewContextUrlActionTriggered(bool)));
 			AMenu->addAction(urlAction,AG_VWCM_MESSAGEWIDGETS_URL,true);
 			AMenu->setDefaultAction(urlAction);
 
 		  Action *copyHrefAction = new Action(AMenu);
-			copyHrefAction->setText(href.scheme()=="mailto" ? tr("Copy e-mail address") : tr("Copy link address"));
-			copyHrefAction->setData(ADR_CONTEXT_DATA,href.toString());
+			copyHrefAction->setText(tr("Copy address"));
+			copyHrefAction->setData(ADR_CONTEXT_DATA,isMailto ? href.path() : href.toString());
 			connect(copyHrefAction,SIGNAL(triggered(bool)),SLOT(onViewContextCopyActionTriggered(bool)));
 			AMenu->addAction(copyHrefAction,AG_VWCM_MESSAGEWIDGETS_COPY,true);
 		}
-
-		if (!href.isValid() || href.scheme()=="mailto")
+		else
 		{
+			QString plainSelection = ASelection.toPlainText().trimmed();
+			bool isLongSelection = plainSelection.length()>30 || plainSelection.split(' ').count()>3;
+
 			Action *searchAction = new Action(AMenu);
-			if (href.scheme()=="mailto")
-			{
-				searchAction->setText(tr("Search on Rambler '%1'").arg(href.path()));
-				searchAction->setData(ADR_CONTEXT_DATA,href.path());
-			}
-			else
-			{
-				searchAction->setText(tr("Search on Rambler"));
-				searchAction->setData(ADR_CONTEXT_DATA,ASelection.toPlainText());
-			}
+			searchAction->setText(isLongSelection ? tr("Search on Rambler") : tr("Search on Rambler \"%1\"").arg(plainSelection));
+			searchAction->setData(ADR_CONTEXT_DATA, plainSelection);
 			connect(searchAction,SIGNAL(triggered(bool)),SLOT(onViewContextSearchActionTriggered(bool)));
 			AMenu->addAction(searchAction,AG_VWCM_MESSAGEWIDGETS_SEARCH,true);
 		}
