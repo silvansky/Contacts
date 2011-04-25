@@ -22,7 +22,7 @@ Menu::Menu(QWidget *AParent) : QMenu(AParent)
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
 		border->setCloseButtonVisible(false);
-
+		border->setCloseOnDeactivate(true);
 		if (AParent)
 			connect(AParent,SIGNAL(destroyed()),SLOT(deleteLater()));
 		connect(this, SIGNAL(aboutToShow()), SLOT(onAboutToShow()));
@@ -275,12 +275,12 @@ bool Menu::event(QEvent * evt)
 			p.setX(p.x() - border->leftBorderWidth());
 			p.setY(p.y() - border->topBorderWidth());
 			geom.moveTopLeft(p);
+			geom.setWidth(geom.width() + border->leftBorderWidth() + border->rightBorderWidth());
+			geom.setHeight(geom.height() + border->topBorderWidth() + border->bottomBorderWidth());
 			border->setGeometry(geom);
 			border->show();
-			border->adjustSize();
-			border->layout()->update();
+			menuAboutToShow = false;
 		}
-		menuAboutToShow = false;
 		return QMenu::event(evt);
 		break;
 	case QEvent::Hide:

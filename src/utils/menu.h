@@ -43,6 +43,7 @@ signals:
 	void menuDestroyed(Menu *AMenu);
 protected slots:
 	void onActionDestroyed(Action *AAction);
+public slots:
 	void onAboutToShow();
 	void onAboutToHide();
 protected:

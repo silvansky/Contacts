@@ -788,6 +788,11 @@ void CustomBorderContainer::setResizable(bool resizable)
 	}
 }
 
+bool CustomBorderContainer::isShowInTaskBarEnabled() const
+{
+	return windowFlags() & Qt::ToolTip;
+}
+
 void CustomBorderContainer::setShowInTaskBar(bool show)
 {
 	if (show)
@@ -798,6 +803,16 @@ void CustomBorderContainer::setShowInTaskBar(bool show)
 	{
 		setWindowFlags(Qt::FramelessWindowHint | Qt::ToolTip);
 	}
+}
+
+bool CustomBorderContainer::isCloseOnDeactivateEnabled() const
+{
+	return _closeOnDeactivate;
+}
+
+void CustomBorderContainer::setCloseOnDeactivate(bool enabled)
+{
+	_closeOnDeactivate = enabled;
 }
 
 void CustomBorderContainer::changeEvent(QEvent *e)
@@ -918,6 +933,17 @@ bool CustomBorderContainer::event(QEvent * evt)
 			return false;
 		}
 	}
+	if ((evt->type() == QEvent::WindowDeactivate) && _closeOnDeactivate)
+	{
+		close();
+		return true;
+	}
+	if ((evt->type() == QEvent::Show) && _closeOnDeactivate)
+	{
+		activateWindow();
+		return QWidget::event(evt);
+	}
+
 	return QWidget::event(evt);
 }
 
@@ -1069,6 +1095,7 @@ void CustomBorderContainer::init()
 	pressedHeaderButton = NoneButton;
 	_isMaximized = false;
 	_isFullscreen = false;
+	_closeOnDeactivate = false;
 	// window props
 	setWindowFlags(Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground);
@@ -1111,6 +1138,7 @@ void CustomBorderContainer::init()
 
 void CustomBorderContainer::initMenu()
 {
+	qDebug() << "CustomBorderContainer::initMenu()";
 	// window menu
 	windowMenu = new Menu(this);
 	windowMenu->addAction(restoreAction);
@@ -1507,6 +1535,7 @@ void CustomBorderContainer::showWindowMenu(const QPoint & p)
 	if (windowMenu->geometry().width() + popupPoint.x() > screen.right())
 		popupPoint.setX(screen.right() - windowMenu->geometry().width());
 	windowMenu->move(popupPoint);
+	windowMenu->onAboutToShow();
 	windowMenu->show();
 }
 

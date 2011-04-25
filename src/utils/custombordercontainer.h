@@ -30,7 +30,10 @@ public:
 	void setMovable(bool movable = true);
 	bool isResizable() const;
 	void setResizable(bool resizable = true);
+	bool isShowInTaskBarEnabled() const;
 	void setShowInTaskBar(bool show = true);
+	bool isCloseOnDeactivateEnabled() const;
+	void setCloseOnDeactivate(bool enabled = true);
 signals:
 	void minimizeClicked();
 	void maximizeClicked();
@@ -220,6 +223,7 @@ private:
 	HeaderButtons pressedHeaderButton;
 	bool _isMaximized;
 	bool _isFullscreen;
+	bool _closeOnDeactivate;
 	QRect normalGeometry;
 	Menu * windowMenu;
 	Action * minimizeAction;

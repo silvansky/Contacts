@@ -110,7 +110,9 @@ bool OptionsManager::initObjects()
 	FShowOptionsDialogAction->setVisible(false);
 	//FShowOptionsDialogAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_DIALOG);
 	FShowOptionsDialogAction->setText(tr("Options"));
-	//FShowOptionsDialogAction->setShortcut(tr("Ctrl+P"));
+#ifdef Q_WS_MAC
+	FShowOptionsDialogAction->setShortcut(tr("Ctrl+,"));
+#endif
 	FShowOptionsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
 	FShowOptionsDialogAction->setData(Action::DR_SortString,QString("300"));
 	connect(FShowOptionsDialogAction,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
