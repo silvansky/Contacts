@@ -102,8 +102,8 @@ protected:
 	void updatePersistantPages();
 	void insertPersistantWidget(const QString &APageId);
 protected:
-	void connectPage(ITabPage *APage);
-	void disconnectPage(ITabPage *APage);
+	void connectPageWidget(ITabPage *AWidget);
+	void disconnectPageWidget(ITabPage *AWidget);
 	void removeTabPageNotifies();
 	void saveWindowGeometry();
 	void loadWindowGeometry();

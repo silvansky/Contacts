@@ -48,9 +48,12 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 
 MetaTabWindow::~MetaTabWindow()
 {
+	foreach(QString pageId, FPageActions.keys()) {
+		removePage(pageId); }
+
+	setTabPageNotifier(NULL);
+
 	emit tabPageDestroyed();
-	if (FTabPageNotifier)
-		delete FTabPageNotifier->instance();
 }
 
 void MetaTabWindow::showTabPage()
@@ -284,7 +287,7 @@ void MetaTabWindow::setPageWidget(const QString &APageId, ITabPage *AWidget)
 		ITabPage *oldWidget = FPageWidgets.value(APageId);
 		if (oldWidget)
 		{
-			disconnectPage(oldWidget);
+			disconnectPageWidget(oldWidget);
 			show = ui.stwWidgets->currentWidget()==oldWidget->instance();
 			FPageWidgets.remove(APageId);
 			ui.stwWidgets->removeWidget(oldWidget->instance());
@@ -292,7 +295,16 @@ void MetaTabWindow::setPageWidget(const QString &APageId, ITabPage *AWidget)
 
 		if (AWidget)
 		{
-			connectPage(AWidget);
+			foreach(IMetaTabWindow *window, FMetaContacts->metaTabWindows())
+			{
+				QString pageId = window->widgetPage(AWidget);
+				if (!pageId.isEmpty())
+				{
+					window->setPageWidget(pageId,NULL);
+					window->removePage(pageId);
+				}
+			}
+			connectPageWidget(AWidget);
 			FPageWidgets.insert(APageId,AWidget);
 			ui.stwWidgets->addWidget(AWidget->instance());
 		}
@@ -349,8 +361,9 @@ void MetaTabWindow::removePage(const QString &APageId)
 		ITabPage *widget = FPageWidgets.take(APageId);
 		if (widget)
 		{
-			disconnectPage(widget);
+			disconnectPageWidget(widget);
 			ui.stwWidgets->removeWidget(widget->instance());
+			widget->instance()->deleteLater();
 		}
 
 		emit pageRemoved(APageId);
@@ -444,9 +457,9 @@ void MetaTabWindow::updateWindow()
 		QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
 		QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 
-		//IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(currentItem());
-		//if(!descriptor.name.isEmpty())
-		//	title += QString(" - %1 (%2)").arg(descriptor.name).arg(FMetaContacts->itemHint(currentItem()));
+		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(currentItem());
+		if(!descriptor.name.isEmpty())
+			title += QString(" - %1 (%2)").arg(descriptor.name).arg(FMetaContacts->itemHint(currentItem()));
 
 		setWindowIcon(icon);
 		setWindowIconText(name);
@@ -468,7 +481,12 @@ void MetaTabWindow::updateWindow()
 void MetaTabWindow::checkCurrentPage()
 {
 	if (pageWidget(currentPage()) == NULL)
-		setCurrentItem(firstItemJid());
+	{
+		if (isContactPage())
+			setCurrentItem(firstItemJid());
+		else
+			setCurrentPage(FPageActions.keys().value(0));
+	}
 }
 
 void MetaTabWindow::updatePageButton(const QString &APageId)
@@ -551,7 +569,7 @@ QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount) const
 Jid MetaTabWindow::firstItemJid() const
 {
 	QMap<int, Jid> items = FMetaContacts->itemOrders(FItemPages.keys());
-	return items.constBegin().value();
+	return !items.isEmpty() ? items.constBegin().value() : Jid::null;
 }
 
 void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
@@ -663,11 +681,7 @@ void MetaTabWindow::updatePersistantPages()
 		}
 		else if (!FPersistantPages.value(descrName).isEmpty() && FItemTypeCount.value(descrName)>0)
 		{
-			QString pageId = FPersistantPages.take(descrName);
-			ITabPage *widget = pageWidget(pageId);
-			if (widget)
-				widget->instance()->deleteLater();
-			removePage(pageId);
+			removePage(FPersistantPages.take(descrName));
 		}
 	}
 }
@@ -682,37 +696,37 @@ void MetaTabWindow::insertPersistantWidget(const QString &APageId)
 	}
 }
 
-void MetaTabWindow::connectPage(ITabPage *APage)
+void MetaTabWindow::connectPageWidget(ITabPage *AWidget)
 {
-	if (APage)
+	if (AWidget)
 	{
-		connect(APage->instance(),SIGNAL(tabPageShow()),SLOT(onTabPageShow()));
-		connect(APage->instance(),SIGNAL(tabPageClose()),SLOT(onTabPageClose()));
-		connect(APage->instance(),SIGNAL(tabPageChanged()),SLOT(onTabPageChanged()));
-		connect(APage->instance(),SIGNAL(tabPageDestroyed()),SLOT(onTabPageDestroyed()));
-		if (APage->tabPageNotifier())
+		connect(AWidget->instance(),SIGNAL(tabPageShow()),SLOT(onTabPageShow()));
+		connect(AWidget->instance(),SIGNAL(tabPageClose()),SLOT(onTabPageClose()));
+		connect(AWidget->instance(),SIGNAL(tabPageChanged()),SLOT(onTabPageChanged()));
+		connect(AWidget->instance(),SIGNAL(tabPageDestroyed()),SLOT(onTabPageDestroyed()));
+		if (AWidget->tabPageNotifier())
 		{
-			connect(APage->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),SLOT(onTabPageNotifierNotifyInserted(int)));
-			connect(APage->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),SLOT(onTabPageNotifierNotifyRemoved(int)));
+			connect(AWidget->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),SLOT(onTabPageNotifierNotifyInserted(int)));
+			connect(AWidget->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),SLOT(onTabPageNotifierNotifyRemoved(int)));
 		}
-		connect(APage->instance(),SIGNAL(tabPageNotifierChanged()),SLOT(onTabPageNotifierChanged()));
+		connect(AWidget->instance(),SIGNAL(tabPageNotifierChanged()),SLOT(onTabPageNotifierChanged()));
 	}
 }
 
-void MetaTabWindow::disconnectPage(ITabPage *APage)
+void MetaTabWindow::disconnectPageWidget(ITabPage *AWidget)
 {
-	if (APage)
+	if (AWidget)
 	{
-		disconnect(APage->instance(),SIGNAL(tabPageNotifierChanged()),this,SLOT(onTabPageNotifierChanged()));
-		disconnect(APage->instance(),SIGNAL(tabPageShow()),this,SLOT(onTabPageShow()));
-		disconnect(APage->instance(),SIGNAL(tabPageClose()),this,SLOT(onTabPageClose()));
-		disconnect(APage->instance(),SIGNAL(tabPageChanged()),this,SLOT(onTabPageChanged()));
-		if (APage->tabPageNotifier())
+		disconnect(AWidget->instance(),SIGNAL(tabPageNotifierChanged()),this,SLOT(onTabPageNotifierChanged()));
+		disconnect(AWidget->instance(),SIGNAL(tabPageShow()),this,SLOT(onTabPageShow()));
+		disconnect(AWidget->instance(),SIGNAL(tabPageClose()),this,SLOT(onTabPageClose()));
+		disconnect(AWidget->instance(),SIGNAL(tabPageChanged()),this,SLOT(onTabPageChanged()));
+		if (AWidget->tabPageNotifier())
 		{
-			disconnect(APage->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),this,SLOT(onTabPageNotifierNotifyInserted(int)));
-			disconnect(APage->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),this,SLOT(onTabPageNotifierNotifyRemoved(int)));
+			disconnect(AWidget->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),this,SLOT(onTabPageNotifierNotifyInserted(int)));
+			disconnect(AWidget->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),this,SLOT(onTabPageNotifierNotifyRemoved(int)));
 		}
-		disconnect(APage->instance(),SIGNAL(tabPageDestroyed()),this,SLOT(onTabPageDestroyed()));
+		disconnect(AWidget->instance(),SIGNAL(tabPageDestroyed()),this,SLOT(onTabPageDestroyed()));
 	}
 }
 
@@ -949,6 +963,7 @@ void MetaTabWindow::onMetaContactReceived(const IMetaContact &AContact, const IM
 		}
 		else
 		{
+			closeTabPage();
 			deleteLater();
 		}
 	}
