@@ -24,6 +24,7 @@
 #include <definitions/menuicons.h>
 #include <utils/iconstorage.h>
 #include <utils/log.h>
+#include <utils/customlistview.h>
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>

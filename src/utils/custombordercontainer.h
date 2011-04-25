@@ -34,6 +34,8 @@ public:
 	void setShowInTaskBar(bool show = true);
 	bool isCloseOnDeactivateEnabled() const;
 	void setCloseOnDeactivate(bool enabled = true);
+	bool staysOnTop() const;
+	void setStaysOnTop(bool on = true);
 signals:
 	void minimizeClicked();
 	void maximizeClicked();

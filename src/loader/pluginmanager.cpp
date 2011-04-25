@@ -276,6 +276,8 @@ void PluginManager::loadSettings()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");
 
+	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
+
 #ifdef Q_WS_WIN
 	// loading extra fonts
 	if (QSysInfo::windowsVersion() < QSysInfo::WV_VISTA)

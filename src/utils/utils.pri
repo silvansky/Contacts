@@ -31,7 +31,8 @@ HEADERS = utilsexport.h \
     graphicseffectsstorage.h \
     log.h \
     imagemanager.h \
-    custominputdialog.h
+    custominputdialog.h \
+    customlistview.h
 
 SOURCES = jid.cpp \
     versionparser.cpp \
@@ -63,7 +64,8 @@ SOURCES = jid.cpp \
     graphicseffectsstorage.cpp \
     log.cpp \
     imagemanager.cpp \
-    custominputdialog.cpp
+    custominputdialog.cpp \
+    customlistview.cpp
 
 macx: {
   HEADERS += macdockhandler.h

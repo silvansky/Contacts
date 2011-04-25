@@ -797,11 +797,12 @@ void CustomBorderContainer::setShowInTaskBar(bool show)
 {
 	if (show)
 	{
-		setWindowFlags(Qt::FramelessWindowHint);
+		if (isShowInTaskBarEnabled())
+			setWindowFlags(windowFlags() ^ Qt::ToolTip);
 	}
 	else
 	{
-		setWindowFlags(Qt::FramelessWindowHint | Qt::ToolTip);
+		setWindowFlags(windowFlags() | Qt::ToolTip);
 	}
 }
 
@@ -813,6 +814,20 @@ bool CustomBorderContainer::isCloseOnDeactivateEnabled() const
 void CustomBorderContainer::setCloseOnDeactivate(bool enabled)
 {
 	_closeOnDeactivate = enabled;
+}
+
+bool CustomBorderContainer::staysOnTop() const
+{
+	return windowFlags() & Qt::WindowStaysOnTopHint;
+}
+
+void CustomBorderContainer::setStaysOnTop(bool on)
+{
+	if (on)
+		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+	else
+		if (staysOnTop())
+			setWindowFlags(windowFlags() ^ Qt::WindowStaysOnTopHint);
 }
 
 void CustomBorderContainer::changeEvent(QEvent *e)
@@ -1073,7 +1088,7 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 //			break;
 //		}
 //	}
-	// still not working... =(
+	// TODO: optimize
 	if (qobject_cast<QAbstractButton*>(obj) ||
 			qobject_cast<QLineEdit*>(obj) ||
 			qobject_cast<QComboBox*>(obj) ||
@@ -1113,8 +1128,8 @@ void CustomBorderContainer::init()
 	containerLayout = new QVBoxLayout;
 	containerLayout->setContentsMargins(0, 0, 0, 0);
 	setLayout(containerLayout);
-	setMinimumWidth(100);
-	setMinimumHeight(100);
+	setMinimumWidth(1);
+	setMinimumHeight(1);
 	setGeometryState(None);
 	// actions
 	minimizeAction = new Action(this);

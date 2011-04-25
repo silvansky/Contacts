@@ -23,6 +23,7 @@ Menu::Menu(QWidget *AParent) : QMenu(AParent)
 		border->setMaximizeButtonVisible(false);
 		border->setCloseButtonVisible(false);
 		border->setCloseOnDeactivate(true);
+		border->setStaysOnTop(true);
 		if (AParent)
 			connect(AParent,SIGNAL(destroyed()),SLOT(deleteLater()));
 		connect(this, SIGNAL(aboutToShow()), SLOT(onAboutToShow()));
