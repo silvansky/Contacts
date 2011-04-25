@@ -387,10 +387,11 @@ QToolButton::menu-arrow:open
 
 QMenu
 {
-	background-color: rgba(65, 70, 77, 235);
+	background-color: rgba(65, 70, 77, 250);
 	margin: 0px;
+	padding: 0px;
 	color: white;
-	border: 1px solid #1f2329;
+	border: none;
 }
 
 QMenu::item

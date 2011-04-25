@@ -62,6 +62,7 @@ void StyleSheetEditorPlugin::showEditDialog()
 
 void StyleSheetEditorPlugin::styleSheetChanged(const QString& newSheet)
 {
+	Q_UNUSED(newSheet)
 }
 
 void StyleSheetEditorPlugin::resetStyleSheet()
