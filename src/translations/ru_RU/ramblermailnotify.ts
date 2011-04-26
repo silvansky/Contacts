@@ -53,10 +53,6 @@
         <translation>Уведомляет о новых сообщениях в Rambler.Почте</translation>
     </message>
     <message>
-        <source>Mail Notifies</source>
-        <translation>Почтовые уведомления</translation>
-    </message>
-    <message>
         <source>New e-mail from</source>
         <translation>Новое письмо от</translation>
     </message>
@@ -91,6 +87,10 @@
             <numerusform>%n непрочитанных</numerusform>
             <numerusform>%n непрочитанных</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>New e-mail</source>
+        <translation>Новое письмо</translation>
     </message>
 </context>
 </TS>

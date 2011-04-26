@@ -141,7 +141,7 @@ bool RamblerMailNotify::initObjects()
 	if (FNotifications)
 	{
 		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification;
-		FNotifications->insertNotificator(NID_MAIL_NOTIFY,OWO_NOTIFICATIONS_MAIL_NOTIFY,tr("Mail Notifies"),kindMask,kindMask);
+		FNotifications->insertNotificator(NID_MAIL_NOTIFY,OWO_NOTIFICATIONS_MAIL_NOTIFY,tr("New e-mail"),kindMask,kindMask);
 	}
 	if (FStanzaProcessor)
 	{
@@ -162,7 +162,7 @@ bool RamblerMailNotify::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, St
 		IDiscoIdentity identity;
 		identity.category = "gateway";
 		identity.type = "mail";
-		//if (FGateways && FGateways->streamServices(AStreamJid,identity).contains(AStanza.from()))
+		if (FGateways && FGateways->streamServices(AStreamJid,identity).contains(AStanza.from()))
 		{
 			AAccept = true;
 			insertMailNotify(AStreamJid,AStanza);
