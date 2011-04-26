@@ -818,7 +818,7 @@ IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServ
 	{
 		login.fields = AFields;
 		login.domainSeparator = descriptor.domainSeparator;
-		if ((AFields.fieldMask & IRegisterFields::Username|IRegisterFields::Email) > 0)
+		if ((AFields.fieldMask & (IRegisterFields::Username|IRegisterFields::Email)) > 0)
 		{
 			login.isValid = true;
 			login.login = AFields.fieldMask & IRegisterFields::Username ? AFields.username : AFields.email;
