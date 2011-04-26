@@ -58,10 +58,13 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 
 
 RVolumeControl::RVolumeControl(QWidget *parent)
-: QWidget(parent), _value(0), _min(0), _max(100), _isEnableSound(true), _isOn(true), _isDark(true)
+: QWidget(parent), _value(0), _min(0), _max(100), _isEnableSound(true), _isOn(true), _isDark(true), _isWinXP(false)
 {
 	endpointVolume = NULL;
 	volumeNotification = NULL;
+
+	// ÕÀÊ ÎÒ ÂÀËÅÍÒÈÍÀ
+	setProperty("ignoreFilter", true);
 
 	BOOL mute = false;
 	float currVolume = 0.;
@@ -106,7 +109,8 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 					defaultDevice = NULL; 
 
 					volumeNotification = new CVolumeNotification(); 
-					connect(volumeNotification, SIGNAL(volumeChanged(double)), this, SLOT(onVolumeChange(double)));
+					//connect(volumeNotification, SIGNAL(volumeChanged(double)), this, SLOT(onVolumeChange(double)));
+					connect(volumeNotification, SIGNAL(volumeChanged(int)), this, SLOT(onVolumeChange(int)));
 					connect(volumeNotification, SIGNAL(volumeMuted(bool)), this, SLOT(onVolumeMuted(bool)));
 					hr = endpointVolume->RegisterControlChangeNotify(volumeNotification);
 

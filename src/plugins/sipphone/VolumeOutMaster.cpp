@@ -549,7 +549,7 @@ void CVolumeOutMaster::SetCurrentVolume( DWORD dwValue )
 
 void CVolumeOutMaster::timerEvent(QTimerEvent *evt)
 {
-	int newVolume = (int)(GetCurrentVolume() * 100 /65545);
+	int newVolume = (int)(GetCurrentVolume() * 100 /65535);
 	if(m_currVolume	!= newVolume)
 	{
 		m_currVolume	= newVolume;
