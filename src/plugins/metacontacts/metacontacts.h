@@ -95,7 +95,7 @@ public:
 	virtual IMetaItemDescriptor descriptorByName(const QString &AName) const;
 	virtual IMetaItemDescriptor descriptorByItem(const Jid &AItemJid) const;
 	virtual QString itemHint(const Jid &AItemJid) const;
-	virtual QMultiMap<int, Jid> itemOrders(const QList<Jid> &AItems) const;
+	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const;
 	virtual QString metaContactName(const IMetaContact &AContact) const;
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster);
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;

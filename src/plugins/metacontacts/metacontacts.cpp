@@ -520,8 +520,9 @@ QString MetaContacts::itemHint(const Jid &AItemJid) const
 	return hint;
 }
 
-QMultiMap<int, Jid> MetaContacts::itemOrders(const QList<Jid> &AItems) const
+QMultiMap<int, Jid> MetaContacts::itemOrders(QList<Jid> AItems) const
 {
+	qSort(AItems); // Порядок следования элементов не должен влиять на результат
 	QMultiMap<int, Jid> orders;
 	foreach(Jid itemJid, AItems)
 	{
@@ -535,8 +536,8 @@ QString MetaContacts::metaContactName(const IMetaContact &AContact) const
 {
 	if (AContact.name.isEmpty() && !AContact.items.isEmpty())
 	{
-		QMultiMap<int, Jid> itemOrder = itemOrders(AContact.items.toList());
-		return itemHint(itemOrder.constBegin().value());
+		QMultiMap<int, Jid> orders = itemOrders(AContact.items.toList());
+		return itemHint(orders.constBegin().value());
 	}
 	return AContact.name;
 }

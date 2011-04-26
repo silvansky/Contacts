@@ -191,18 +191,25 @@ IPresenceItem MetaRoster::metaPresence(const QString &AMetaId) const
 		pitem.isValid = true;
 		if (FPresence)
 		{
-			QMultiMap<int, IPresenceItem> pitems;
+			QMultiMap<int, IPresenceItem> contactItems;
+			QMultiMap<int, IPresenceItem> serviceItems;
 			IMetaContact contact = FContacts.value(AMetaId);
-			foreach(const Jid &itemJid, contact.items)
+			QMultiMap<int, Jid> orders = FMetaContacts->itemOrders(contact.items.toList());
+			foreach(const Jid &itemJid, orders.values())
 			{
 				bool isService = FMetaContacts->descriptorByItem(itemJid).service;
 				foreach(IPresenceItem item_pres, FPresence->presenceItems(itemJid))
-					pitems.insertMulti(item_pres.show+(isService ? 256 : 0),item_pres);
+				{
+					if (isService)
+						serviceItems.insertMulti(item_pres.show,item_pres);
+					else
+						contactItems.insertMulti(item_pres.show,item_pres);
+				}
 			}
-			if (!pitems.isEmpty())
-			{
-				pitem = pitems.constBegin().value();
-			}
+			if (!contactItems.isEmpty())
+				pitem = contactItems.constBegin().value();
+			else if (!serviceItems.isEmpty())
+				pitem = serviceItems.constBegin().value();
 		}
 	}
 	return pitem;

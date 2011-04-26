@@ -125,7 +125,7 @@ public:
 	virtual IMetaItemDescriptor descriptorByName(const QString &AName) const =0;
 	virtual IMetaItemDescriptor descriptorByItem(const Jid &AItemJid) const =0;
 	virtual QString itemHint(const Jid &AItemJid) const =0;
-	virtual QMultiMap<int, Jid> itemOrders(const QList<Jid> &AItems) const =0;
+	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const =0;
 	virtual QString metaContactName(const IMetaContact &AContact) const =0;
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster) =0;
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const =0;
