@@ -29,20 +29,15 @@ bool LegacyAccountFilter::filterAcceptsRow(int ASourceRow, const QModelIndex &AS
 		{
 			Jid streamJid = Jid(index.data(RDR_STREAM_JID).toString()).bare();
 			QSet<Jid> sgates = FStreamGates.value(streamJid);
-			QSet<Jid> egates = FEnabledGates.value(streamJid);
 			foreach(Jid itemJid, index.data(RDR_METACONTACT_ITEMS).toStringList())
-			{
-				Jid serviceJid = itemJid.domain();
-				if (!itemJid.node().isEmpty() && (!sgates.contains(serviceJid) || egates.contains(serviceJid)))
+				if (!itemJid.node().isEmpty())
 					return true;
-			}
 			return false;
 		}
 		else if (indexType == RIT_AGENT)
 		{
 			return false;
 		}
-
 	}
 	return true;
 }
