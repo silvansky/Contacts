@@ -59,7 +59,7 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 		{
 			QString name = AIndex->data(RDR_NAME).toString();
 			if (name.isEmpty())
-				name = Jid(AIndex->data(RDR_METACONTACT_ITEMS).toList().value(0).toString()).node();
+				name = Jid(AIndex->data(RDR_METACONTACT_ITEMS).toStringList().value(0)).node();
 			data = name;
 		}
 		else if (!block)

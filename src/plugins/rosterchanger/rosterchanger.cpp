@@ -1054,8 +1054,10 @@ void RosterChanger::onShowAddContactDialog(bool)
 			}
 			if (dialog)
 			{
-				dialog->setContactJid(action->data(ADR_CONTACT_JID).toString());
-				dialog->setContactText(action->data(ADR_CONTACT_TEXT).toString());
+				if (action->data(ADR_CONTACT_TEXT).isValid())
+					dialog->setContactText(action->data(ADR_CONTACT_TEXT).toString());
+				else
+					dialog->setContactJid(action->data(ADR_CONTACT_JID).toString());
 				dialog->setNickName(action->data(ADR_NICK).toString());
 				dialog->setGroup(action->data(ADR_GROUP).toString());
 			}
