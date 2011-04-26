@@ -61,18 +61,6 @@
         <translation>Открыть ссылку</translation>
     </message>
     <message>
-        <source>Copy e-mail address</source>
-        <translation>Копировать адрес почты</translation>
-    </message>
-    <message>
-        <source>Copy link address</source>
-        <translation>Копировать  ссылку</translation>
-    </message>
-    <message>
-        <source>Search on Rambler &apos;%1&apos;</source>
-        <translation>Искать на Рамблере %1</translation>
-    </message>
-    <message>
         <source>Search on Rambler</source>
         <translation>Искать на Рамблере</translation>
     </message>
@@ -83,6 +71,14 @@
     <message>
         <source>Select the method of sending messages</source>
         <translation>Выберите способ отправки сообщений</translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Копировать адрес</translation>
+    </message>
+    <message>
+        <source>Search on Rambler &quot;%1&quot;</source>
+        <translation>Искать на Рамблере &quot;%1&quot;</translation>
     </message>
 </context>
 <context>

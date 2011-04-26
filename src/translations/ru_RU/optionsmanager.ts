@@ -313,5 +313,9 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <source>Change User (%1)</source>
         <translation>Сменить пользователя (%1)</translation>
     </message>
+    <message>
+        <source>Ctrl+,</source>
+        <translation>Ctrl+,</translation>
+    </message>
 </context>
 </TS>
