@@ -391,6 +391,11 @@ QMenu
 	margin: 0px;
 	padding: 0px;
 	color: white;
+	border: 1px solid #1f2329;
+}
+
+Menu
+{
 	border: none;
 }
 
@@ -700,6 +705,12 @@ QListView#completerPopUp::item
 {
 	border: 1px solid red;
 	background-color: red;
+}
+
+CustomListView
+{
+	border-image: none;
+	border: none;
 }
 
 /*************

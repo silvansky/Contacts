@@ -10,9 +10,15 @@ CustomListView::CustomListView() :
 	QListView(NULL),
 	border(NULL)
 {
+	setBorder();
+}
+
+void CustomListView::setBorder()
+{
 	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MENU);
 	if (border)
 	{
+		setFrameShape(QFrame::NoFrame);
 		setWindowFlags(Qt::Widget);
 		border->setShowInTaskBar(false);
 		border->setResizable(false);
@@ -20,7 +26,6 @@ CustomListView::CustomListView() :
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
 		border->setCloseButtonVisible(false);
-		border->setCloseOnDeactivate(true);
 	}
 }
 

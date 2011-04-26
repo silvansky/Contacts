@@ -98,6 +98,7 @@ public:
 	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
 		QSize hint = drawIndex(NULL,AOption,AIndex);
+		//hint.setWidth(80);
 		hint.setHeight(27);
 		return hint;
 	}
@@ -238,6 +239,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	QCompleter *completer = new QCompleter(profiles,ui.lneNode);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	completer->setCompletionMode(QCompleter::PopupCompletion);
+	//completer->setPopup(new CustomListView);
 	completer->setPopup(new QListView);
 	completer->popup()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	completer->popup()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -253,6 +255,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	ui.lneNode->installEventFilter(this);
 	ui.lneNode->completer()->popup()->installEventFilter(this);
+	if (ui.lneNode->completer()->popup()->parentWidget())
+		ui.lneNode->completer()->popup()->parentWidget()->installEventFilter(this);
 	ui.cmbDomain->installEventFilter(this);
 	ui.lnePassword->installEventFilter(this);
 	ui.chbSavePassword->installEventFilter(this);
@@ -381,6 +385,10 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			BalloonTip::hideBalloon();
 		}
+		else if (AWatched == ui.lneNode)
+		{
+			ui.lneNode->completer()->popup()->hide();
+		}
 	}
 	else if (AEvent->type() == QEvent::KeyPress)
 	{
@@ -398,6 +406,16 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			//ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->completer()->popup()->sizeHint().width());
 			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->width() * 1.2);
 			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos().x() + 1, ui.lneNode->completer()->popup()->pos().y() + 1);
+		}
+		else if (AWatched == ui.lneNode->completer()->popup()->parentWidget())
+		{
+			//ui.lneNode->completer()->popup()->parentWidget()->setFixedWidth(ui.lneNode->width() * 1.2);
+			//ui.lneNode->completer()->popup()->parentWidget()->move(ui.lneNode->completer()->popup()->parentWidget()->pos().x() + 1, ui.lneNode->completer()->popup()->parentWidget()->pos().y() + 1);
+			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->width() * 1.2);
+			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos().x() + 1, ui.lneNode->completer()->popup()->pos().y() + 1);
+			ui.lneNode->completer()->popup()->show();
+			//ui.lneNode->completer()->popup()->parentWidget()->adjustSize();
+			//ui.lneNode->completer()->popup()->parentWidget()->layout()->update();
 		}
 		else if (FMainWindowPlugin && (AWatched == FMainWindowPlugin->mainWindow()->instance() || AWatched == FMainWindowPlugin->mainWindowBorder()))
 		{

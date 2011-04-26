@@ -163,7 +163,7 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 	FActions.insertMulti(AGroup,AAction);
 	connect(AAction,SIGNAL(actionDestroyed(Action *)),SLOT(onActionDestroyed(Action *)));
 	if (AAction->menu())
-		connect(AAction->menu(), SIGNAL(triggered(QAction*)), SLOT(hide()));
+		connect(AAction->menu(), SIGNAL(triggered(QAction*)), SIGNAL(triggered(QAction*)));
 	emit actionInserted(before,AAction,AGroup,ASort);
 	if (separator)
 		emit separatorInserted(AAction,separator);

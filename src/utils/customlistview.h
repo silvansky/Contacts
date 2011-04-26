@@ -11,6 +11,7 @@ class UTILS_EXPORT CustomListView : public QListView
 	Q_OBJECT
 public:
 	CustomListView();
+	void setBorder();
 protected:
 	bool event(QEvent *);
 private:
