@@ -36,18 +36,21 @@ int MetaProxyModel::rosterDataOrder() const
 
 QList<int> MetaProxyModel::rosterDataRoles() const
 {
-	static QList<int> roles = QList<int>() << Qt::DisplayRole;
+	static QList<int> roles = QList<int>() << RDR_FOOTER_TEXT << Qt::DecorationRole << Qt::DisplayRole;
 	return roles;
 }
 
 QList<int> MetaProxyModel::rosterDataTypes() const
 {
-	static QList<int> types = QList<int>() << RIT_METACONTACT;
+	static QList<int> types = QList<int>() 
+		<< RIT_METACONTACT;
 	return types;
 }
 
 QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 {
+	static bool block = false;
+
 	QVariant data;
 	switch (AIndex->type())
 	{
@@ -56,8 +59,70 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 		{
 			QString name = AIndex->data(RDR_NAME).toString();
 			if (name.isEmpty())
-				name = Jid(AIndex->data(RDR_INDEX_ID).toString()).node();
+				name = Jid(AIndex->data(RDR_METACONTACT_ITEMS).toList().value(0).toString()).node();
 			data = name;
+		}
+		else if (!block)
+		{
+			block = true;
+			IMetaRoster *mroster = FMetaContacts->findMetaRoster(AIndex->data(RDR_STREAM_JID).toString());
+			IMetaContact contact = mroster->metaContact(AIndex->data(RDR_INDEX_ID).toString());
+
+			// Проверка на входящие запросы авторизации
+			if (!mroster->roster()->subscriptionRequests().intersect(contact.items).isEmpty())
+			{
+				if (ARole == RDR_FOOTER_TEXT)
+				{
+					QVariantMap footer = AIndex->data(ARole).toMap();
+					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Requests authorization"));
+					data = footer;
+				}
+				else if (ARole == Qt::DecorationRole)
+				{
+					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_REQUEST);
+				}
+			}
+			else
+			{
+				// Проверка на отправленные запросы авторизации
+				bool hasAsk = false;
+				for (QSet<Jid>::const_iterator it=contact.items.constBegin(); !hasAsk && it!=contact.items.constEnd(); it++)
+					hasAsk = mroster->roster()->rosterItem(*it).ask == SUBSCRIPTION_SUBSCRIBE;
+				if (hasAsk)
+				{
+					if (ARole == RDR_FOOTER_TEXT)
+					{
+						QVariantMap footer = AIndex->data(ARole).toMap();
+						footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Sent an authorization request"));
+						data = footer;
+					}
+					else if (ARole == Qt::DecorationRole)
+					{
+						data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
+					}
+				}
+				else
+				{
+					// Проверка на отсутствие подписки
+					bool noAuth = true;
+					for (QSet<Jid>::const_iterator it=contact.items.constBegin(); noAuth && it!=contact.items.constEnd(); it++)
+						noAuth = mroster->roster()->rosterItem(*it).subscription == SUBSCRIPTION_NONE;
+					if (noAuth)
+					{
+						if (ARole == RDR_FOOTER_TEXT)
+						{
+							QVariantMap footer = AIndex->data(ARole).toMap();
+							footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Not authorized"));
+							data = footer;
+						}
+						else if (ARole == Qt::DecorationRole)
+						{
+							data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
+						}
+					}
+				}
+			}
+			block = false;
 		}
 		break;
 	default:
@@ -303,6 +368,10 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 					groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
 					groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
 				}
+
+				emit rosterDataChanged(groupItemIndex,Qt::DisplayRole);
+				emit rosterDataChanged(groupItemIndex,Qt::DecorationRole);
+				emit rosterDataChanged(groupItemIndex,RDR_FOOTER_TEXT);
 
 				oldItemList.removeAll(groupItemIndex);
 			}

@@ -3,6 +3,9 @@
 
 #include <QTimer>
 #include <QSortFilterProxyModel>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/rosterfootertextorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterindextypeorders.h>
 #include <definitions/rosterdataholderorders.h>
@@ -10,6 +13,7 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/ipresence.h>
+#include <utils/iconstorage.h>
 
 class MetaProxyModel :
 	public QSortFilterProxyModel,
