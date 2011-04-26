@@ -18,6 +18,7 @@ struct IGateServiceLogin
 	QString login;
 	QString domain;
 	QString password;
+	QString domainSeparator;
 	IRegisterFields fields;
 };
 

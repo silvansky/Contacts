@@ -164,9 +164,17 @@ void AddLegacyAccountDialog::onDialogButtonClicked(QAbstractButton *AButton)
 	if (ui.btbButtons->standardButton(AButton) == QDialogButtonBox::Ok)
 	{
 		FGateLogin.login = ui.lneLogin->text();
-		if (ui.cmbDomains->isVisible())
-			FGateLogin.domain = ui.cmbDomains->itemData(ui.cmbDomains->currentIndex()).toString();
 		FGateLogin.password = ui.lnePassword->text();
+		if (!FGateLabel.domains.isEmpty())
+		{
+			FGateLogin.domain = ui.cmbDomains->itemData(ui.cmbDomains->currentIndex()).toString();
+		}
+		else if (!FGateLogin.domainSeparator.isEmpty())
+		{
+			QStringList parts = FGateLogin.login.split(FGateLogin.domainSeparator);
+			FGateLogin.login = parts.value(0);
+			FGateLogin.domain = parts.value(1);
+		}
 
 		IRegisterSubmit submit = FGateways->serviceSubmit(FStreamJid,FServiceJid,FGateLogin);
 		if (submit.serviceJid.isValid())
@@ -196,10 +204,20 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 		FGateLogin = FGateways->serviceLogin(FStreamJid,FServiceJid,AFields);
 		if (FGateLogin.isValid)
 		{
-			ui.lneLogin->setText(FGateLogin.login);
+			if (FGateLabel.domains.isEmpty())
+			{
+				if (FGateLogin.domain.isEmpty())
+					ui.lneLogin->setText(FGateLogin.login);
+				else
+					ui.lneLogin->setText(FGateLogin.login + FGateLogin.domainSeparator + FGateLogin.domain);
+			}
+			else
+			{
+				if (!FGateLogin.domain.isEmpty())
+					ui.cmbDomains->setCurrentIndex(ui.cmbDomains->findData(FGateLogin.domain,Qt::UserRole,Qt::MatchExactly));
+				ui.lneLogin->setText(FGateLogin.login);
+			}
 			ui.lnePassword->setText(FGateLogin.password);
-			if (!FGateLogin.domain.isEmpty())
-				ui.cmbDomains->setCurrentIndex(ui.cmbDomains->findData(FGateLogin.domain,Qt::UserRole,Qt::MatchExactly));
 
 			if (FGateLogin.login.isEmpty())
 				ui.btbButtons->button(QDialogButtonBox::Ok)->setText(tr("Append"));

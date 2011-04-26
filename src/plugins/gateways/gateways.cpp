@@ -227,7 +227,9 @@ bool Gateways::initObjects()
 	icq.name = tr("ICQ");
 	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
 	icq.loginLabel = tr("Login");
-	icq.homeContactPattern = "^\\d{3,10}$";
+	icq.loginField = "username";
+	icq.passwordField = "password";
+	icq.homeContactPattern = "^\\d{5,10}$";
 	icq.availContactPattern = icq.homeContactPattern;
 	FGateDescriptors.append(icq);
 
@@ -239,6 +241,8 @@ bool Gateways::initObjects()
 	magent.name = tr("Agent@Mail.ru");
 	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
 	magent.loginLabel = tr("E-mail");
+	magent.loginField = "username";
+	magent.passwordField = "password";
 	magent.homeContactPattern = "^"MAIL_NODE_PATTERN"@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
 	magent.availContactPattern = magent.homeContactPattern;
 	FGateDescriptors.append(magent);
@@ -251,6 +255,8 @@ bool Gateways::initObjects()
 	twitter.name = tr("Twitter");
 	twitter.iconKey = MNI_GATEWAYS_SERVICE_TWITTER;
 	twitter.loginLabel = tr("Login");
+	twitter.loginField = "username";
+	twitter.passwordField = "password";
 	twitter.homeContactPattern = "^@[a-zA-Z0-9_]+";
 	twitter.availContactPattern = twitter.homeContactPattern;
 	FGateDescriptors.append(twitter);
@@ -408,7 +414,7 @@ bool Gateways::initObjects()
 	jabber.passwordField = "password";
 	jabber.domainSeparator = "@";
 	jabber.homeContactPattern = JabberContactPattern;
-	jabber.availContactPattern = jabber.availContactPattern;
+	jabber.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(jabber);
 
 	// Почта должна быть после джаббера т.к. их идентификаторы идентичны
@@ -420,6 +426,8 @@ bool Gateways::initObjects()
 	mail.name = tr("Mail");
 	mail.iconKey = MNI_GATEWAYS_SERVICE_MAIL;
 	mail.loginLabel = tr("Mail");
+	mail.loginField = "username";
+	mail.passwordField = "password";
 	mail.homeContactPattern = "^"MAIL_NODE_PATTERN"@"JID_DOMAIN_PATTERN"$";
 	mail.availContactPattern = mail.homeContactPattern;
 	FGateDescriptors.append(mail);
@@ -808,36 +816,28 @@ IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServ
 	IGateServiceDescriptor descriptor = FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
 	if (!descriptor.id.isEmpty())
 	{
-		if (AFields.fieldMask > 0)
+		login.fields = AFields;
+		login.domainSeparator = descriptor.domainSeparator;
+		if ((AFields.fieldMask & IRegisterFields::Username|IRegisterFields::Email) > 0)
 		{
 			login.isValid = true;
 			login.login = AFields.fieldMask & IRegisterFields::Username ? AFields.username : AFields.email;
 			login.password = AFields.password;
-			login.fields = AFields;
-			if (!descriptor.domains.isEmpty())
-			{
-				QStringList parts = login.login.split(descriptor.domainSeparator);
-				login.login = parts.value(0);
-				login.domain = parts.value(1);
-				login.isValid = login.domain.isEmpty() || descriptor.domains.contains(login.domain);
-			}
 		}
-		else if (FDataForms && FDataForms->isFormValid(AFields.form))
+		else if (FDataForms && FDataForms->isFormValid(AFields.form) && FDataForms->fieldIndex(descriptor.loginField,AFields.form.fields)>=0)
 		{
 			login.isValid = true;
+			login.fields.fieldMask = 0;
 			login.login = FDataForms->fieldValue(descriptor.loginField, AFields.form.fields).toString();
-			login.password = FDataForms->fieldValue(descriptor.passwordField, AFields.form.fields).toString();
 			login.domain = FDataForms->fieldValue(descriptor.domainField, AFields.form.fields).toString();
-			login.fields = AFields;
-			if (!descriptor.domains.isEmpty())
-			{
-				login.isValid = login.domain.isEmpty() || descriptor.domains.contains(login.domain);
-			}
-			else if (!descriptor.domainField.isEmpty() && !login.domain.isEmpty())
-			{
-				login.login = login.login + descriptor.domainSeparator + login.domain;
-				login.domain = QString::null;
-			}
+			login.password = FDataForms->fieldValue(descriptor.passwordField, AFields.form.fields).toString();
+		}
+		if (login.isValid && !descriptor.domainSeparator.isEmpty() && login.domain.isEmpty())
+		{
+			QStringList parts = login.login.split(descriptor.domainSeparator);
+			login.login = parts.value(0);
+			login.domain = parts.value(1);
+			login.isValid = login.domain.isEmpty() || descriptor.domains.isEmpty() || descriptor.domains.contains(login.domain);
 		}
 	}
 	return login;
@@ -853,9 +853,9 @@ IRegisterSubmit Gateways::serviceSubmit(const Jid &AStreamJid, const Jid &AServi
 		submit.key = ALogin.fields.key;
 		if (ALogin.fields.fieldMask > 0)
 		{
-			QString login = !ALogin.domain.isEmpty() ? ALogin.login + descriptor.domainSeparator + ALogin.domain : ALogin.login;
+			QString login = !ALogin.domainSeparator.isEmpty() ? ALogin.login + descriptor.domainSeparator + ALogin.domain : ALogin.login;
 			if (ALogin.fields.fieldMask & IRegisterFields::Username)
-				submit.username =  login;
+				submit.username = login;
 			else
 				submit.email = login;
 			submit.password = ALogin.password;
@@ -863,18 +863,20 @@ IRegisterSubmit Gateways::serviceSubmit(const Jid &AStreamJid, const Jid &AServi
 		}
 		else if (FDataForms)
 		{
-			QString login = ALogin.login;
-			QString domain = ALogin.domain;
-			if (!descriptor.domainField.isEmpty() && descriptor.domains.isEmpty())
-			{
-				QStringList parts = login.split(descriptor.domainSeparator);
-				login = parts.value(0);
-				domain = parts.value(1);
-			}
-
 			QMap<QString, QVariant> fields = descriptor.extraFields;
-			fields.insert(descriptor.loginField,login);
-			fields.insert(descriptor.domainField,domain);
+			if (ALogin.domainSeparator.isEmpty())
+			{
+				fields.insert(descriptor.loginField,ALogin.login);
+			}
+			else if (FDataForms->fieldIndex(descriptor.domainField,ALogin.fields.form.fields)>=0)
+			{
+				fields.insert(descriptor.loginField,ALogin.login);
+				fields.insert(descriptor.domainField,ALogin.domain);
+			}
+			else
+			{
+				fields.insert(descriptor.loginField,ALogin.login + ALogin.domainSeparator + ALogin.domain);
+			}
 			fields.insert(descriptor.passwordField, ALogin.password);
 
 			IDataForm form = ALogin.fields.form;

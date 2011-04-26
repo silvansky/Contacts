@@ -14,7 +14,7 @@
 #include "ui_addlegacyaccountdialog.h"
 
 class AddLegacyAccountDialog :
-			public QDialog
+	public QDialog
 {
 	Q_OBJECT
 public:
