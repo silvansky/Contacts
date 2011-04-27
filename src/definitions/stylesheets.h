@@ -77,4 +77,7 @@
 #define STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG                             "gatewaysAddLegacyAccountDialog"
 #define STS_GATEWAYS_LEGACYACCOUNTOPTIONSWIDGET                         "gatewaysLegacyAccountOptionsWidget"
 
+//Utils
+#define STS_UTILS_CUSTOMINPUTDIALOG                                     "utilsCustomInputDialog"
+
 #endif // DEF_STYLESHEETS_H

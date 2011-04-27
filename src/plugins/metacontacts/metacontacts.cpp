@@ -1020,18 +1020,19 @@ void MetaContacts::onRenameContact(bool)
 		{
 			QString metaId = action->data(ADR_META_ID).toString();
 			QString oldName = action->data(ADR_NAME).toString();
-			CustomInputDialog * dialog = new CustomInputDialog;
-			dialog->setTextValue(oldName);
-			dialog->setWindowTitle(tr("Rename contact"));
-			dialog->setLabelText(QString("<font size=+2>%1</font><br>%2").arg(tr("Rename contact")).arg(tr("Enter new name")));
+			CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::String);
+			dialog->setDefaultText(oldName);
+			dialog->setCaptionText(tr("Rename contact"));
+			dialog->setInfoText(tr("Enter new name"));
 			dialog->setProperty("oldName", oldName);
 			dialog->setProperty("metaId", metaId);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
-			dialog->setOkButtonText(tr("Save"));
-			dialog->setCancelButtonText(tr("Cancel"));
-			connect(dialog, SIGNAL(textValueSelected(const QString&)), SLOT(onNewNameSelected(const QString&)));
+			dialog->setAcceptButtonText(tr("Save"));
+			dialog->setRejectButtonText(tr("Cancel"));
+			connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewNameSelected(const QString&)));
 			//dialog->setWindowModality(Qt::ApplicationModal);
-			dialog->windowBorder()->setMinimumWidth(300);
+			if (dialog->windowBorder())
+				dialog->windowBorder()->setMinimumWidth(300);
 			dialog->show();
 //			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 //			if (border)
@@ -1062,7 +1063,7 @@ void MetaContacts::onRenameContact(bool)
 
 void MetaContacts::onNewNameSelected(const QString & newName)
 {
-	QInputDialog * dialog = qobject_cast<QInputDialog *>(sender());
+	CustomInputDialog * dialog = qobject_cast<CustomInputDialog *>(sender());
 	if (dialog)
 	{
 		QString metaId = dialog->property("metaId").toString();

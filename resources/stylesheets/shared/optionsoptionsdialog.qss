@@ -124,6 +124,29 @@ ProxyOptionsWidget QGroupBox#gbManualProxySettings
 	margin-right: 40px;
 }
 
+QLabel#lblInfo
+{
+	margin-left: 26px;
+	margin-right: 28px;
+}
+
+StyleOptionsWidget > QWidget
+{
+	margin-left: 26px;
+	margin-right: 28px;
+}
+
+AdiumOptionsWidget > QLabel
+{
+	margin-left: 26px;
+}
+
+AdiumOptionsWidget > QComboBox,
+AdiumOptionsWidget > QToolButton
+{
+	margin-right: 28px;
+}
+
 /***************************
  * change and test buttons *
  ***************************/
