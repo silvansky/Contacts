@@ -450,7 +450,7 @@ void MetaTabWindow::updateWindow()
 	if (isContactPage())
 	{
 		IMetaContact contact = FMetaRoster->metaContact(FMetaId);
-		IPresenceItem pitem = FMetaRoster->metaPresence(FMetaId);
+		IPresenceItem pitem = FMetaRoster->metaPresenceItem(FMetaId);
 
 		QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByJidStatus(FMetaId,pitem.show,SUBSCRIPTION_BOTH,false) : QIcon();
 		QString name = FMetaContacts->metaContactName(contact);

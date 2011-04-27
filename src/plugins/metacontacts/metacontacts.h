@@ -186,6 +186,8 @@ private:
 	QList<IMetaTabWindow *> FMetaTabWindows;
 	IMetaItemDescriptor FDefaultItemDescriptor;
 	QList<IMetaItemDescriptor> FMetaItemDescriptors;
+private:
+	mutable QHash<Jid, int> FItemDescrCache;
 };
 
 #endif // METACONTACTS_H

@@ -236,7 +236,7 @@ Action *MetaContacts::tabPageAction(const QString &ATabPageId, QObject *AParent)
 			}
 			else
 			{
-				IPresenceItem pitem = mroster->metaPresence(pageInfo.metaId);
+				IPresenceItem pitem = mroster->metaPresenceItem(pageInfo.metaId);
 				action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByStatus(pitem.show,SUBSCRIPTION_BOTH,false) : QIcon());
 			}
 			return action;
@@ -494,12 +494,23 @@ IMetaItemDescriptor MetaContacts::descriptorByName(const QString &AName) const
 
 IMetaItemDescriptor MetaContacts::descriptorByItem(const Jid &AItemJid) const
 {
-	for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)
+	int order = FItemDescrCache.value(AItemJid.pBare(),-1);
+	if (order == -1)
 	{
-		QRegExp regexp(it->contactPattern);
-		regexp.setCaseSensitivity(Qt::CaseInsensitive);
-		if (regexp.exactMatch(AItemJid.pBare()))
-			return *it;
+		for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)
+		{
+			QRegExp regexp(it->contactPattern);
+			regexp.setCaseSensitivity(Qt::CaseInsensitive);
+			if (regexp.exactMatch(AItemJid.pBare()))
+			{
+				FItemDescrCache.insert(AItemJid.pBare(),it->pageOrder);
+				return *it;
+			}
+		}
+	}
+	else
+	{
+		return descriptorByOrder(order);
 	}
 	return FDefaultItemDescriptor;
 }

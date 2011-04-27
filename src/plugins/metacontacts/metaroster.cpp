@@ -183,7 +183,38 @@ QString MetaRoster::itemMetaContact(const Jid &AItemJid) const
 	return FItemMetaId.value(AItemJid.pBare());
 }
 
-IPresenceItem MetaRoster::metaPresence(const QString &AMetaId) const
+IRosterItem MetaRoster::metaRosterItem(const QString &AMetaId) const
+{
+	IRosterItem ritem;
+	if (FContacts.contains(AMetaId))
+	{
+		IMetaContact contact = FContacts.value(AMetaId);
+
+		ritem.isValid = true;
+		ritem.name = FMetaContacts->metaContactName(contact);
+		ritem.groups = contact.groups;
+		ritem.subscription = SUBSCRIPTION_NONE;
+		
+		bool isServiceOnly = true;
+		for (QSet<Jid>::const_iterator it=contact.items.constBegin(); it!=contact.items.constEnd(); it++)
+		{
+			if (!FMetaContacts->descriptorByItem(*it).service)
+			{
+				isServiceOnly = false;
+				IRosterItem childRosterItem = roster()->rosterItem(*it);
+				if (ritem.ask.isEmpty() && !childRosterItem.ask.isEmpty())
+					ritem.ask = childRosterItem.ask;
+				if (ritem.subscription == SUBSCRIPTION_NONE)
+					ritem.subscription = childRosterItem.subscription;
+				else if (childRosterItem.subscription == SUBSCRIPTION_BOTH)
+					ritem.subscription = childRosterItem.subscription;
+			}
+		}
+	}
+	return ritem;
+}
+
+IPresenceItem MetaRoster::metaPresenceItem(const QString &AMetaId) const
 {
 	IPresenceItem pitem;
 	if (FContacts.contains(AMetaId))

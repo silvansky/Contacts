@@ -465,7 +465,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
 					if (mroster)
 					{
 						QString metaId = mroster->itemMetaContact(AContactJid);
-						IPresenceItem pitem = mroster->metaPresence(metaId);
+						IPresenceItem pitem = mroster->metaPresenceItem(metaId);
 						show = pitem.show;
 					}
 				}

@@ -35,7 +35,8 @@ public:
 	virtual QList<QString> metaContacts() const;
 	virtual IMetaContact metaContact(const QString &AMetaId) const;
 	virtual QString itemMetaContact(const Jid &AItemJid) const;
-	virtual IPresenceItem metaPresence(const QString &AMetaId) const;
+	virtual IRosterItem metaRosterItem(const QString &AMetaId) const;
+	virtual IPresenceItem metaPresenceItem(const QString &AMetaId) const;
 	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const;
 	virtual QString metaAvatarHash(const QString &AMetaId) const;
 	virtual QImage metaAvatarImage(const QString &AMetaId, bool ANullImage = true) const;

@@ -68,7 +68,6 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 			IMetaRoster *mroster = FMetaContacts->findMetaRoster(AIndex->data(RDR_STREAM_JID).toString());
 			IMetaContact contact = mroster->metaContact(AIndex->data(RDR_INDEX_ID).toString());
 
-			// Проверка на входящие запросы авторизации
 			if (!mroster->roster()->subscriptionRequests().intersect(contact.items).isEmpty())
 			{
 				if (ARole == RDR_FOOTER_TEXT)
@@ -82,44 +81,30 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_REQUEST);
 				}
 			}
-			else
+			else if (AIndex->data(RDR_ASK).toString() == SUBSCRIPTION_SUBSCRIBE)
 			{
-				// Проверка на отправленные запросы авторизации
-				bool hasAsk = false;
-				for (QSet<Jid>::const_iterator it=contact.items.constBegin(); !hasAsk && it!=contact.items.constEnd(); it++)
-					hasAsk = mroster->roster()->rosterItem(*it).ask == SUBSCRIPTION_SUBSCRIBE;
-				if (hasAsk)
+				if (ARole == RDR_FOOTER_TEXT)
 				{
-					if (ARole == RDR_FOOTER_TEXT)
-					{
-						QVariantMap footer = AIndex->data(ARole).toMap();
-						footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Sent an authorization request"));
-						data = footer;
-					}
-					else if (ARole == Qt::DecorationRole)
-					{
-						data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
-					}
+					QVariantMap footer = AIndex->data(ARole).toMap();
+					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Sent an authorization request"));
+					data = footer;
 				}
-				else
+				else if (ARole == Qt::DecorationRole)
 				{
-					// Проверка на отсутствие подписки
-					bool noAuth = true;
-					for (QSet<Jid>::const_iterator it=contact.items.constBegin(); noAuth && it!=contact.items.constEnd(); it++)
-						noAuth = mroster->roster()->rosterItem(*it).subscription == SUBSCRIPTION_NONE;
-					if (noAuth)
-					{
-						if (ARole == RDR_FOOTER_TEXT)
-						{
-							QVariantMap footer = AIndex->data(ARole).toMap();
-							footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Not authorized"));
-							data = footer;
-						}
-						else if (ARole == Qt::DecorationRole)
-						{
-							data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
-						}
-					}
+					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
+				}
+			}
+			else if (AIndex->data(RDR_SUBSCRIBTION).toString() == SUBSCRIPTION_NONE)
+			{
+				if (ARole == RDR_FOOTER_TEXT)
+				{
+					QVariantMap footer = AIndex->data(ARole).toMap();
+					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Not authorized"));
+					data = footer;
+				}
+				else if (ARole == Qt::DecorationRole)
+				{
+					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
 				}
 			}
 			block = false;
@@ -267,7 +252,7 @@ void MetaProxyModel::onMetaPresenceChanged(IMetaRoster *AMetaRoster, const QStri
 		QMultiMap<int,QVariant> findData;
 		findData.insert(RDR_TYPE,RIT_METACONTACT);
 		findData.insert(RDR_INDEX_ID,AMetaId);
-		IPresenceItem pitem = AMetaRoster->metaPresence(AMetaId);
+		IPresenceItem pitem = AMetaRoster->metaPresenceItem(AMetaId);
 		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
 		{
 			index->setData(RDR_SHOW,pitem.show);
@@ -291,6 +276,8 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 		bool createdNewIndexes = false;
 		if (!AContact.items.isEmpty())
 		{
+			IRosterItem ritem = AMetaRoster->metaRosterItem(AContact.id);
+
 			QStringList contactItems;
 			foreach(Jid itemJid, AContact.items)
 				contactItems.append(itemJid.pBare());
@@ -359,15 +346,13 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 					groupItemIndex = FRostersModel->createRosterIndex(RIT_METACONTACT,AContact.id,groupIndex);
 					groupItemIndex->setData(RDR_TYPE_ORDER,RITO_METACONTACT);
 					groupItemIndex->setData(RDR_GROUP,group);
-					groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
-					groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
 					FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
 				}
-				else
-				{
-					groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
-					groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
-				}
+
+				groupItemIndex->setData(RDR_NAME,ritem.name);
+				groupItemIndex->setData(RDR_ASK,ritem.ask);
+				groupItemIndex->setData(RDR_SUBSCRIBTION,ritem.subscription);
+				groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
 
 				emit rosterDataChanged(groupItemIndex,Qt::DisplayRole);
 				emit rosterDataChanged(groupItemIndex,Qt::DecorationRole);
