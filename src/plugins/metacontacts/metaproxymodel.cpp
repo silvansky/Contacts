@@ -346,15 +346,14 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 					groupItemIndex = FRostersModel->createRosterIndex(RIT_METACONTACT,AContact.id,groupIndex);
 					groupItemIndex->setData(RDR_TYPE_ORDER,RITO_METACONTACT);
 					groupItemIndex->setData(RDR_GROUP,group);
-					FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
 				}
 
 				groupItemIndex->setData(RDR_NAME,ritem.name);
 				groupItemIndex->setData(RDR_ASK,ritem.ask);
 				groupItemIndex->setData(RDR_SUBSCRIBTION,ritem.subscription);
 				groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
+				FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
 
-				emit rosterDataChanged(groupItemIndex,Qt::DisplayRole);
 				emit rosterDataChanged(groupItemIndex,Qt::DecorationRole);
 				emit rosterDataChanged(groupItemIndex,RDR_FOOTER_TEXT);
 
