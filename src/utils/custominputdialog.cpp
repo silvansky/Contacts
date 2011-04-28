@@ -8,6 +8,8 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QEvent>
+#include <QKeyEvent>
 
 CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type) :
 	QWidget(0),
@@ -88,6 +90,7 @@ void CustomInputDialog::setDescriptionText(const QString &text)
 void CustomInputDialog::setIcon(const QImage &icon)
 {
 	iconLabel->setPixmap(QPixmap::fromImage(icon));
+	iconLabel->setVisible(!icon.isNull());
 }
 
 void CustomInputDialog::setAcceptButtonText(const QString &text)
@@ -131,6 +134,7 @@ void CustomInputDialog::initLayout()
 	captionLayout->addWidget(iconLabel = new QLabel);
 	iconLabel->setMinimumSize(0, 0);
 	iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+	iconLabel->setVisible(false);
 	captionLayout->addWidget(captionLabel = new QLabel);
 	captionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	mainLayout->addLayout(captionLayout);
@@ -165,8 +169,34 @@ void CustomInputDialog::initLayout()
 	acceptButton->setDefault(true);
 	acceptButton->setAutoDefault(false);
 	rejectButton->setAutoDefault(false);
+	valueEdit->installEventFilter(this);
 	// default strings
 	captionLabel->setText(inputType == String ? tr("Enter string value") : tr("Yes or no?"));
 	acceptButton->setText(inputType == String ? tr("OK") : tr("Yes"));
 	rejectButton->setText(inputType == String ? tr("Cancel") : tr("No"));
+}
+
+bool CustomInputDialog::eventFilter(QObject * obj, QEvent * evt)
+{
+	switch(evt->type())
+	{
+	case QEvent::KeyPress:
+	{
+		QKeyEvent * keyEvent = (QKeyEvent*)evt;
+		switch(keyEvent->key())
+		{
+		case Qt::Key_Return:
+		case Qt::Key_Enter:
+			onAcceptButtonClicked();
+			break;
+		case Qt::Key_Escape:
+			onRejectButtonClicked();
+			break;
+		}
+	}
+		break;
+	default:
+		break;
+	}
+	return QWidget::eventFilter(obj, evt);
 }

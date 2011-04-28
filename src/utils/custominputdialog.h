@@ -40,6 +40,8 @@ protected slots:
 	void onRejectButtonClicked();
 private:
 	void initLayout();
+protected:
+	bool eventFilter(QObject *, QEvent *);
 private:
 	CustomBorderContainer * border;
 	InputType inputType;
