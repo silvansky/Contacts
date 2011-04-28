@@ -840,6 +840,7 @@ void MetaTabWindow::contextMenuEvent(QContextMenuEvent *AEvent)
 		if (menu && !menu->isEmpty())
 			menu->exec(AEvent->globalPos());
 
+		AEvent->accept();
 		delete menu;
 	}
 }

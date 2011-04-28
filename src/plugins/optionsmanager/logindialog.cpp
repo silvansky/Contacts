@@ -727,7 +727,7 @@ void LoginDialog::hideXmppStreamError()
 	BalloonTip::hideBalloon();
 }
 
-void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint)
+void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint, bool showPasswordEnabled)
 {
 	Log(QString("[LoginDialog stream error] %1 (%2)").arg(AError, AHint));
 	hideConnectionError();
@@ -746,7 +746,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	ui.lnePassword->setProperty("error", true);
 	setStyleSheet(styleSheet());
 	ui.lblXmppError->setVisible(true);
-	ui.chbShowPassword->setVisible(true);
+	ui.chbShowPassword->setVisible(showPasswordEnabled);
 	QPoint p;
 	if (FNewProfile)
 	{
@@ -822,7 +822,7 @@ void LoginDialog::onConnectClicked()
 						showXmppStreamError(tr("Unable to create account"), QString::null, tr("Internal error, contact support"));
 				}
 				else
-					showXmppStreamError(tr("Unable to open profile"), QString::null, tr("This profile is already opened by another Friends instance"));
+					showXmppStreamError(tr("Unable to open profile"), QString::null, tr("This profile is already opened by another Friends instance"), false);
 			}
 			else
 				showXmppStreamError(tr("Unable to create profile"), QString::null, tr("Check your system permissions to create folders"));

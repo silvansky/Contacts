@@ -1649,7 +1649,7 @@ void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt:
 	}
 	else if ((button == Qt::RightButton) && shouldFilterEvents(widget))
 	{
-		if (headerMoveRect().contains(mapFromWidget(widget, p)) && !headerButtonsRect().contains(mapFromWidget(widget, p)))
+		if (headerMenuRect().contains(mapFromWidget(widget, p)) && !headerButtonsRect().contains(mapFromWidget(widget, p)))
 		{
 			showWindowMenu(widget->mapToGlobal(p));
 		}
@@ -1986,6 +1986,17 @@ QRect CustomBorderContainer::headerMoveRect() const
 	if (isFullScreen())
 		return QRect();
 	int moveHeight = borderStyle->dragAnywhere ? (height() - (_isMaximized ? 0 : (borderStyle->top.width + borderStyle->bottom.width))) : borderStyle->header.moveHeight;
+	if (_isMaximized)
+		return QRect(borderStyle->header.moveLeft, borderStyle->header.moveTop, width() - borderStyle->header.moveRight, moveHeight);
+	else
+		return QRect(borderStyle->left.width + borderStyle->header.moveLeft, borderStyle->top.width + borderStyle->header.moveTop, width() - borderStyle->right.width - borderStyle->left.width - borderStyle->header.moveRight, moveHeight);
+}
+
+QRect CustomBorderContainer::headerMenuRect() const
+{
+	if (isFullScreen())
+		return QRect();
+	int moveHeight = borderStyle->header.moveHeight;
 	if (_isMaximized)
 		return QRect(borderStyle->header.moveLeft, borderStyle->header.moveTop, width() - borderStyle->header.moveRight, moveHeight);
 	else

@@ -105,6 +105,11 @@ QListView#completerPopUp::item:hover
 /*	margin-bottom: 14px;*/
 }
 
+#lblLogo
+{
+	margin-left: 6px;
+}
+
 QCheckBox
 {
 	margin-left: 2px;

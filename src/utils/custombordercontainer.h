@@ -185,6 +185,7 @@ protected:
 	void setLayoutMargins();
 	QRect headerRect() const;
 	QRect headerMoveRect() const;
+	QRect headerMenuRect() const;
 	void drawHeader(QPainter * p);
 	void drawButton(HeaderButton & button, QPainter * p, HeaderButtonState state = Normal);
 	void drawButtons(QPainter * p);

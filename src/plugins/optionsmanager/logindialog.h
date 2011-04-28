@@ -61,7 +61,7 @@ protected:
 	void hideConnectionError();
 	void showConnectionError(const QString &ACaption, const QString &AError);
 	void hideXmppStreamError();
-	void showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint);
+	void showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint, bool showPasswordEnabled = true);
 	void saveCurrentProfileSettings();
 	void loadCurrentProfileSettings();
 	bool readyToConnect() const;
