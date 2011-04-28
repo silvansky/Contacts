@@ -383,9 +383,17 @@ INotification SmsMessageHandler::notification(INotifications *ANotifications, co
 
 		if (wstatus.notified.count() > 1)
 		{
+			int lastNotifyWithPopup = -1;
 			QList<int> notifies = ANotifications->notifications();
+			while (lastNotifyWithPopup<0 && !notifies.isEmpty())
+			{
+				int notifyId = notifies.takeLast();
+				if ((ANotifications->notificationById(notifyId).kinds & INotification::PopupWindow) > 0)
+					lastNotifyWithPopup = notifyId;
+			}
+
 			int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
-			if (!notifies.isEmpty() && notifies.last()==replNotify)
+			if (replNotify>0 && replNotify==lastNotifyWithPopup)
 				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
 		}
 
