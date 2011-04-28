@@ -6,6 +6,7 @@
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <definitions/toolbargroups.h>
+#include <definitions/optionvalues.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istatusicons.h>
@@ -94,7 +95,7 @@ protected:
 	int pageNotifyCount(const QString &APageId, bool ACombined) const;
 	QIcon insertNotifyBalloon(const QIcon &AIcon, int ACount) const;
 private:
-	Jid firstItemJid() const;
+	Jid lastItemJid() const;
 	void updateItemPages(const QSet<Jid> &AItems);
 	void createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const;
 protected:
@@ -154,6 +155,7 @@ private:
 	QMap<QString, QToolButton *> FPageButtons;
 	QMap<QToolButton *, Action *> FButtonAction;
 private:
+	Jid FLastItemJid;
 	QMap<Jid, QString> FItemPages;
 	QMap<QString, int> FItemTypeCount;
 private:

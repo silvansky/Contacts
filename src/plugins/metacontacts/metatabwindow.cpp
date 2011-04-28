@@ -31,6 +31,7 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 
 	FTabPageNotifier = NULL;
 	FShownDetached = false;
+	FLastItemJid = Options::fileValue("messages.metatabwidget.last-item",tabPageId()).toString();
 
 	FToolBarChanger = new ToolBarChanger(ui.tlbToolBar);
 	FToolBarChanger->setSeparatorsVisible(false);
@@ -48,6 +49,8 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 
 MetaTabWindow::~MetaTabWindow()
 {
+	Options::setFileValue(FLastItemJid.pBare(),"messages.metatabwidget.last-item",tabPageId());
+
 	foreach(QString pageId, FPageActions.keys()) {
 		removePage(pageId); }
 
@@ -483,7 +486,7 @@ void MetaTabWindow::checkCurrentPage()
 	if (pageWidget(currentPage()) == NULL)
 	{
 		if (isContactPage())
-			setCurrentItem(firstItemJid());
+			setCurrentItem(lastItemJid());
 		else
 			setCurrentPage(FPageActions.keys().value(0));
 	}
@@ -566,10 +569,14 @@ QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount) const
 	return AIcon;
 }
 
-Jid MetaTabWindow::firstItemJid() const
+Jid MetaTabWindow::lastItemJid() const
 {
-	QMap<int, Jid> items = FMetaContacts->itemOrders(FItemPages.keys());
-	return !items.isEmpty() ? items.constBegin().value() : Jid::null;
+	if (!FItemPages.contains(FLastItemJid))
+	{
+		QMap<int, Jid> items = FMetaContacts->itemOrders(FItemPages.keys());
+		return !items.isEmpty() ? items.constBegin().value() : Jid::null;
+	}
+	return FLastItemJid;
 }
 
 void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
@@ -938,6 +945,7 @@ void MetaTabWindow::onCurrentWidgetChanged(int AIndex)
 		setButtonAction(button,FPageActions.value(pageId));
 		updatePageButton(pageId);
 		updateWindow();
+		FLastItemJid = FItemPages.values().contains(pageId) ? pageItem(pageId) : FLastItemJid;
 		emit currentPageChanged(pageId);
 	}
 	QTimer::singleShot(0,ui.tlbToolBar,SLOT(repaint()));
