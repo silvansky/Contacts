@@ -61,7 +61,7 @@ void ChatMessageHandler::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to exchange chat messages");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 	APluginInfo->dependences.append(MESSAGEPROCESSOR_UUID);
 	APluginInfo->dependences.append(MESSAGESTYLES_UUID);
@@ -427,7 +427,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 				if ((ANotifications->notificationById(notifyId).kinds & INotification::PopupWindow) > 0)
 					lastNotifyWithPopup = notifyId;
 			}
-			
+
 			int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
 			if (replNotify>0 && replNotify==lastNotifyWithPopup)
 				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
@@ -1141,7 +1141,7 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
-			Jid contsctJid = "vasilisa@rambler/virtus";
+			Jid contsctJid = "vasilisa@rambler/friends";
 			notify.data.insert(NDR_STREAM_JID,contsctJid.full());
 			notify.data.insert(NDR_CONTACT_JID,contsctJid.full());
 			notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);

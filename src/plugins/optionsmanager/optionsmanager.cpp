@@ -18,7 +18,7 @@
 #define ADR_PROFILE                     Action::DR_Parametr1
 
 #define PST_OPTIONS                     "options"
-#define PSN_OPTIONS                     "virtus:options"
+#define PSN_OPTIONS                     "ramblerfriends:options"
 
 OptionsManager::OptionsManager()
 {
@@ -52,7 +52,7 @@ void OptionsManager::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to save, load and manage user preferences");
 	APluginInfo ->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 	APluginInfo->conflicts.append("{6030FCB2-9F1E-4ea2-BE2B-B66EBE0C4367}"); // ISettings
 }
 

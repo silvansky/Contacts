@@ -425,7 +425,7 @@ void SipPhoneProxy::incomingSubscribe( SipCallMember *member, bool sendSubscribe
 	if( !find && !remove_subscribe)
 	{
 		QString uristr = member->getUri().reqUri();
-		QMessageBox mb( tr("Virtus"),
+		QMessageBox mb( tr("Friends"),
 			tr("Subscribe message from uri:") + "\n" + uristr + "\n\n" +
 			tr("Do you want to accept and create a contact ?"),
 			QMessageBox::Information,

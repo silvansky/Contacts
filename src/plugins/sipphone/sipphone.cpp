@@ -47,7 +47,7 @@ void SipPhone::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to make voice and video calls over SIP protocol");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Popov S.A.";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 
@@ -472,7 +472,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			{
 				// Удаленный пользователь принял звонок, устанавливаем соединение
 				// Для протокола SIP это означает следующие действия в этом месте:
-				// -1) Регистрация на сарвере SIP уже должна быть выполнена!
+				// -1) � егистрация на сарвере SIP уже должна быть выполнена!
 				// 1) Отправка запроса INVITE
 				//connect(this, SIGNAL(sipSendInvite(const QString&)),
 				//				this, SLOT(sipSendInviteSlot(const QString&)));
@@ -995,7 +995,7 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, c
 	}
 	else
 	{
-		// НОТИФИКАЦИЯ О НЕУДАЧНОЙ РЕГИСТРАЦИИ
+		// НОТИФИКАЦИЯ О НЕУДАЧНОЙ � ЕГИСТ� АЦИИ
 		//QMessageBox::information(NULL, "debug", "sipActionAfterRegistrationAsInitiator:: false");
 		//QMessageBox::information(NULL, "SIP Reistration failed", "SIP registration failed.");
 
@@ -1233,7 +1233,7 @@ void SipPhone::showCallControlTab(const QString& sid/*const ISipStream &AStream*
 			if(FCallActions.contains(metaId) && FCallActions[metaId])
 				connect(pCallControl, SIGNAL(closeAndDelete(bool)), FCallActions[metaId], SLOT(setChecked(bool)));
 
-			// Реакция на изменение состояния камеры
+			// � еакция на изменение состояния камеры
 			connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
 			connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
 			connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));

@@ -47,7 +47,7 @@ void MainWindowPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to place their widgets in the main window");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 }
 
 bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
@@ -95,7 +95,7 @@ bool MainWindowPlugin::initObjects()
 
 	FOpenAction = new Action(this);
 	FOpenAction->setVisible(false);
-	FOpenAction->setText(tr("Open Virtus"));
+	FOpenAction->setText(tr("Open Friends"));
 	FOpenAction->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_SHOW_ROSTER);
 	connect(FOpenAction,SIGNAL(triggered(bool)),SLOT(onShowMainWindowByAction(bool)));
 

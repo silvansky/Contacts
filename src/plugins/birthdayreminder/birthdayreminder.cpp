@@ -40,7 +40,7 @@ void BirthdayReminder::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Reminds about birthdays of your friends");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 	APluginInfo->dependences.append(VCARD_UUID);
 }
 
@@ -402,7 +402,7 @@ void BirthdayReminder::onNotificationTest(const QString &ANotificatorId, uchar A
 		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
-			Jid contactJid = "vasilisa@rambler/virtus";
+			Jid contactJid = "vasilisa@rambler/friends";
 			notify.data.insert(NDR_POPUP_CAPTION,tr("Birthday of"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));

@@ -23,7 +23,7 @@ void AdiumMessageStylePlugin::pluginInfo( IPluginInfo *APluginInfo )
 	APluginInfo->description = tr("Allows to use a Adium style in message design");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 }
 
 bool AdiumMessageStylePlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)

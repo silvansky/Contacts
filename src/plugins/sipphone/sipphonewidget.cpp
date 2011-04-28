@@ -337,10 +337,10 @@ void SipPhoneWidget::forceDisconnect( void )
 	}
 
 	emit callDeleted(_isHangupInitiator);
-	
+
 	_pRingTimer->stop();
 	//_pHangupButton->setEnabled(false);
-	
+
 	////_pDialButton->setEnabled(false);
 	////holdbutton->setEnabled(false);
 	////transferbutton->setEnabled(false);
@@ -351,13 +351,13 @@ void SipPhoneWidget::callMemberStatusUpdated( void )
 {
 	SdpMessage sdpm;
 	SdpMessage rsdp;
-	if( _pSipCallMember->getState() == SipCallMember::state_Disconnected ) 
+	if( _pSipCallMember->getState() == SipCallMember::state_Disconnected )
 	{
 		if( _pSipCallMember->getLocalStatusDescription().left( 2 ) == "!!" )
 		{
 			//_pCurrentStatus->setText( tr("Call Failed") );
 			statusChanged(tr("Call Failed"));
-			QMessageBox::critical( this, "Virtus", _pSipCallMember->getLocalStatusDescription().remove(0,2) );
+			QMessageBox::critical( this, "Friends", _pSipCallMember->getLocalStatusDescription().remove(0,2) );
 			//setHide();
 		}
 		else
@@ -412,7 +412,7 @@ void SipPhoneWidget::switchCall( SipCall *newCall )
 
 	if(_pSipCall == NULL)
 		return;
-	
+
 	_pAudioContoller->setBodyMask( _pSipCall->getSdpMessageMask() );
 	////_pDialButton->setText( tr("Dial") );
 	//_pHangupButton->setText( tr("Hangup") );
@@ -473,7 +473,7 @@ void SipPhoneWidget::switchCall( SipCall *newCall )
 			_pRingTimer->setSingleShot(true);
 			_pRingTimer->start( ringTime_1 );
 		}
-		
+
 		// REMOTE
 		ui.remote->setText( _pSipCallMember->getUri().uri() );
 
@@ -523,9 +523,9 @@ void SipPhoneWidget::switchCall( SipCall *newCall )
 			//transferbutton->setEnabled( true );
 		}
 		_subject = _pSipCall->getSubject();
-		
+
 		ui.remote->setText( QString::null );
-		
+
 		////hidebutton->setEnabled( true );
 		////_pDialButton->setEnabled( true );
 		////_pDialButton->setFocus();

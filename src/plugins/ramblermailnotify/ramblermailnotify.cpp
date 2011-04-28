@@ -31,7 +31,7 @@ void RamblerMailNotify::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Notify of new e-mails in Rambler mail box");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 

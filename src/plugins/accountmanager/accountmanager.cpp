@@ -20,7 +20,7 @@ void AccountManager::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to create and manage Jabber accounts");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 }
 

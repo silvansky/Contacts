@@ -17,7 +17,7 @@
 #include <definitions/fonts.h>
 
 #define ORGANIZATION_NAME           "Rambler"
-#define APPLICATION_NAME            "Virtus"
+#define APPLICATION_NAME            "Friends"
 
 #define FILE_PLUGINS_SETTINGS       "plugins.xml"
 
@@ -38,7 +38,7 @@
 #  define PATH_APP_DATA             ORGANIZATION_NAME"/"DIR_APP_DATA
 #elif defined(Q_WS_X11)
 #  define ENV_APP_DATA              "HOME"
-#  define DIR_APP_DATA              ".virtus"
+#  define DIR_APP_DATA              ".friends"
 #  define PATH_APP_DATA             DIR_APP_DATA
 #elif defined(Q_WS_MAC)
 #  define ENV_APP_DATA              "HOME"
@@ -195,7 +195,7 @@ void PluginManager::shutdownRequested()
 	static int i = 0;
 	if (!i++)
 	{
-		QMessageBox * mb = new QMessageBox(tr("Virtus updates ready"), tr("Updates are ready. Do you want to restart Virtus now?"), QMessageBox::Question, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
+		QMessageBox * mb = new QMessageBox(tr("Friends updates ready"), tr("Updates are ready. Do you want to restart Virtus now?"), QMessageBox::Question, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
 		mb->setWindowModality(Qt::ApplicationModal);
 		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(messageBoxButtonClicked(QAbstractButton*)));
 		WidgetManager::showActivateRaiseWindow(mb);
@@ -554,10 +554,10 @@ QList<QUuid> PluginManager::getConflicts(const QUuid AUuid) const
 
 void PluginManager::loadCoreTranslations(const QString &ADir)
 {
-	if (FLoaderTranslator->load("virtus",ADir))
+	if (FLoaderTranslator->load("ramblerfriends",ADir))
 		qApp->installTranslator(FLoaderTranslator);
 
-	if (FUtilsTranslator->load("virtusutils",ADir))
+	if (FUtilsTranslator->load("friendsutils",ADir))
 		qApp->installTranslator(FUtilsTranslator);
 
 	if (FQtTranslator->load("qt_"+QLocale().name(),ADir))

@@ -65,7 +65,7 @@ void Emoticons::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to use your smiley images in messages");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 }
 

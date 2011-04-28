@@ -693,7 +693,7 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	message += message.isEmpty() || AError.isEmpty() ? AError : "<br>" + AError;
 	ui.lblConnectError->setText(message);
 
-	ui.lblConnectSettings->setText(QString("<a href='virtus.connection.settings'>%1</a>").arg(tr("Connection settings")));
+	ui.lblConnectSettings->setText(QString("<a href='ramblerfriends.connection.settings'>%1</a>").arg(tr("Connection settings")));
 
 	int tries = FReconnectTimer.property("tries").toInt();
 	if (tries > 0)
@@ -822,7 +822,7 @@ void LoginDialog::onConnectClicked()
 						showXmppStreamError(tr("Unable to create account"), QString::null, tr("Internal error, contact support"));
 				}
 				else
-					showXmppStreamError(tr("Unable to open profile"), QString::null, tr("This profile is already opened by another Virtus instance"));
+					showXmppStreamError(tr("Unable to open profile"), QString::null, tr("This profile is already opened by another Friends instance"));
 			}
 			else
 				showXmppStreamError(tr("Unable to create profile"), QString::null, tr("Check your system permissions to create folders"));
@@ -995,7 +995,7 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 
 void LoginDialog::onLabelLinkActivated(const QString &ALink)
 {
-	if (ALink == "virtus.connection.settings")
+	if (ALink == "ramblerfriends.connection.settings")
 		showConnectionSettings();
 	else
 		QDesktopServices::openUrl(ALink);

@@ -31,7 +31,7 @@ void PresencePlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to obtain information about the status of contacts in the roster");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
@@ -342,7 +342,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
-			Jid contactJid = "vasilisa@rambler/virtus";
+			Jid contactJid = "vasilisa@rambler/friends";
 			notify.data.insert(NDR_POPUP_CAPTION,tr("Changed mood"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
@@ -372,7 +372,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
-			Jid contactJid = "vasilisa@rambler/virtus";
+			Jid contactJid = "vasilisa@rambler/friends";
 			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Online, SUBSCRIPTION_BOTH, false) :QVariant());
 			notify.data.insert(NDR_POPUP_CAPTION,tr("Connected"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));

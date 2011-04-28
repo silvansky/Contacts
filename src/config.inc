@@ -1,5 +1,5 @@
-TARGET_LOADER            = virtus
-TARGET_UTILS             = virtusutils
+TARGET_LOADER            = ramblerfriends
+TARGET_UTILS             = friendsutils
 
 macx:CONFIG             += x86
 

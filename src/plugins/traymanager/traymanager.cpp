@@ -44,7 +44,7 @@ void TrayManager::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to access the icon and context menu in the tray");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://friends.rambler.ru";
 }
 
 bool TrayManager::initConnections(IPluginManager *APluginManager, int &AInitOrder)
@@ -58,7 +58,7 @@ bool TrayManager::initObjects()
 {
 	Action *action = new Action(FContextMenu);
 	action->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_QUIT);
-	action->setText(tr("Exit Virtus"));
+	action->setText(tr("Exit Friends"));
 	connect(action,SIGNAL(triggered()),FPluginManager->instance(),SLOT(quit()));
 	FContextMenu->addAction(action,AG_TMTM_TRAYMANAGER);
 	return true;
