@@ -1104,56 +1104,32 @@ void MetaContacts::onDeleteContact(bool)
 				title = tr("Remove %n contact(s)","",metaIdList.count());
 			}
 
-			QMessageBox * dialog = new QMessageBox;
+			CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::None);
 			dialog->setWindowTitle(title);
-			dialog->setText(QString("<font size=+2>%1</font>").arg(title));
-			dialog->setInformativeText(message);
+			dialog->setCaptionText(QString(title));
+			dialog->setInfoText(message);
 			dialog->setProperty("metaIdList", metaIdList);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
-			dialog->addButton(tr("Remove"), QMessageBox::AcceptRole);
-			dialog->addButton(tr("Cancel"), QMessageBox::RejectRole);
-			connect(dialog, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(onDeleteButtonClicked(QAbstractButton*)));
-			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-			if (border)
-			{
-				border->setMinimizeButtonVisible(false);
-				border->setMaximizeButtonVisible(false);
-				border->setResizable(false);
-				//border->setWindowModality(Qt::ApplicationModal);
-				border->setAttribute(Qt::WA_DeleteOnClose, true);
-				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-				dialog->layout()->setContentsMargins(10, 14, 24, 10); // magic numbers...
-				//border->setFixedSize(252 + border->leftBorderWidth() + border->rightBorderWidth(), 127 + border->topBorderWidth() + border->bottomBorderWidth());
-				border->show();
-				//border->layout()->update();
-				border->adjustSize();
-				dialog->adjustSize();
-			}
-			else
-			{
-				//dialog->setWindowModality(Qt::ApplicationModal);
-				dialog->show();
-			}
+			dialog->setAcceptButtonText(tr("Remove contact"));
+			dialog->setRejectButtonText(tr("Cancel"));
+			dialog->setAcceptIsDefault(false);
+			connect(dialog, SIGNAL(accepted()), SLOT(onDeleteButtonClicked()));
+			dialog->show();
 		}
 	}
 }
 
-void MetaContacts::onDeleteButtonClicked(QAbstractButton *button)
+void MetaContacts::onDeleteButtonClicked()
 {
-	QMessageBox * dialog = qobject_cast<QMessageBox*>(sender());
+	CustomInputDialog * dialog = qobject_cast<CustomInputDialog*>(sender());
 	if (dialog)
 	{
-		if (dialog->buttonRole(button) == QMessageBox::AcceptRole)
+		QStringList metaIdList = dialog->property("metaIdList").toStringList();
+		IMetaRoster *mroster = findMetaRoster(dialog->property("streamJid").toString());
+		if (mroster && mroster->isOpen())
 		{
-			QStringList metaIdList = dialog->property("metaIdList").toStringList();
-			IMetaRoster *mroster = findMetaRoster(dialog->property("streamJid").toString());
-			if (mroster && mroster->isOpen())
-			{
-				foreach(QString metaId, metaIdList)
-					mroster->deleteContact(metaId);
-			}
+			foreach(QString metaId, metaIdList)
+				mroster->deleteContact(metaId);
 		}
 	}
 }

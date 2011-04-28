@@ -30,6 +30,7 @@ public:
 	void setIcon(const QImage &icon);
 	void setAcceptButtonText(const QString &text);
 	void setRejectButtonText(const QString &text);
+	void setAcceptIsDefault(bool);
 signals:
 	void accepted();
 	void stringAccepted(const QString & value);

@@ -20,6 +20,7 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type) :
 	setAttribute(Qt::WA_DeleteOnClose, false);
 
 	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	setMinimumWidth(250);
 	if (border)
 	{
 		border->setResizable(false);
@@ -80,11 +81,13 @@ void CustomInputDialog::setCaptionText(const QString &text)
 void CustomInputDialog::setInfoText(const QString &text)
 {
 	infoLabel->setText(text);
+	infoLabel->setVisible(!text.isEmpty());
 }
 
 void CustomInputDialog::setDescriptionText(const QString &text)
 {
 	descrLabel->setText(text);
+	descrLabel->setVisible(!text.isEmpty());
 }
 
 void CustomInputDialog::setIcon(const QImage &icon)
@@ -101,6 +104,20 @@ void CustomInputDialog::setAcceptButtonText(const QString &text)
 void CustomInputDialog::setRejectButtonText(const QString &text)
 {
 	rejectButton->setText(text);
+}
+
+void CustomInputDialog::setAcceptIsDefault(bool accept)
+{
+	if (accept)
+	{
+		acceptButton->setDefault(true);
+		rejectButton->setDefault(false);
+	}
+	else
+	{
+		acceptButton->setDefault(false);
+		rejectButton->setDefault(true);
+	}
 }
 
 void CustomInputDialog::onAcceptButtonClicked()
@@ -139,8 +156,10 @@ void CustomInputDialog::initLayout()
 	captionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	mainLayout->addLayout(captionLayout);
 	mainLayout->addWidget(infoLabel = new QLabel);
+	infoLabel->setVisible(false);
 	mainLayout->addWidget(valueEdit = new QLineEdit);
 	mainLayout->addWidget(descrLabel = new QLabel);
+	descrLabel->setVisible(false);
 	QHBoxLayout * buttonsLayout = new QHBoxLayout;
 	buttonsLayout->addStretch();
 	buttonsLayout->addWidget(acceptButton = new QPushButton);
@@ -169,6 +188,7 @@ void CustomInputDialog::initLayout()
 	acceptButton->setDefault(true);
 	acceptButton->setAutoDefault(false);
 	rejectButton->setAutoDefault(false);
+	container->installEventFilter(this);
 	valueEdit->installEventFilter(this);
 	// default strings
 	captionLabel->setText(inputType == String ? tr("Enter string value") : tr("Yes or no?"));
@@ -187,7 +207,10 @@ bool CustomInputDialog::eventFilter(QObject * obj, QEvent * evt)
 		{
 		case Qt::Key_Return:
 		case Qt::Key_Enter:
-			onAcceptButtonClicked();
+			if (acceptButton->isDefault())
+				onAcceptButtonClicked();
+			else
+				onRejectButtonClicked();
 			break;
 		case Qt::Key_Escape:
 			onRejectButtonClicked();
