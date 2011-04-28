@@ -144,7 +144,7 @@ QLineEdit[error="true"], QLineEdit:focus[error="true"], QTextEdit[error="true"],
 
 QTextEdit
 {
-	padding: -6px -6px -6px -6px;
+	padding: -7px -6px -7px -6px;
 }
 
 /************

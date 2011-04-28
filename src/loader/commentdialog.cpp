@@ -13,6 +13,23 @@
 #include <comutil.h>
 typedef BOOL (WINAPI *IW64PFP)(HANDLE, BOOL *);
 
+static QString windowsLanguage()
+{
+	LANGID lid = GetUserDefaultUILanguage();
+	LCID lcid = MAKELCID(lid, SORT_DEFAULT);
+	wchar_t * buff = new wchar_t[10];
+	int size = GetLocaleInfo(lcid, LOCALE_SLANGUAGE, 0, 0);
+	if (size)
+	{
+		buff = new wchar_t[size];
+		int ret = GetLocaleInfo(lcid, LOCALE_SLANGUAGE, buff, size);
+		QString res = QString::fromWCharArray(buff);
+		delete buff;
+		return ret ? res : QString::null;
+	}
+	return QString::null;
+}
+
 static QString windowsSP()
 {
 	OSVERSIONINFO ovi;
@@ -42,7 +59,7 @@ static QString windowsBitness()
 
 static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
 {
-	QString win("Windows %1 %2 %3, ");
+	QString win("Windows %1 %2 %3 %4-bit");
 	QString version;
 	switch (ver)
 	{
@@ -86,14 +103,14 @@ static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
 		version = "Unknown";
 		break;
 	}
-	return win.arg(version, windowsBitness(), windowsSP());
+	return win.arg(version, windowsSP(), windowsLanguage(), windowsBitness());
 }
 #endif
 
 #ifdef Q_WS_MAC
 static QString resolveMacVersion(QSysInfo::MacVersion ver)
 {
-	QString mac("Mac OS X %1, ");
+	QString mac("Mac OS X %1");
 	QString version;
 	switch(ver)
 	{
@@ -121,22 +138,32 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 {
 	ui.setupUi(this);
 	ui.lneYourName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneEMail->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.tedComment->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-	QString techInfo;
+	QString techInfo("\n\n\n\n\n\n\n");
+	techInfo += "-----------------------------\n";
+	techInfo += tr("TECHNICAL DATA (may be useful for developers)\n");
+	techInfo += QString(tr("Friends version: %1 (r%2)\n")).arg(APluginManager->version(), APluginManager->revision());
+	QString os;
 #ifdef Q_WS_WIN
-	techInfo += resolveWidowsVersion(QSysInfo::windowsVersion());
+	os = resolveWidowsVersion(QSysInfo::windowsVersion());
 #elif defined (Q_WS_MAC)
-	techInfo += resolveMacVersion(QSysInfo::MacintoshVersion);
+	os = resolveMacVersion(QSysInfo::MacintoshVersion);
 #endif
+
+	techInfo += tr("Operating system: %1\n").arg(os);
 	QDesktopWidget * dw = QApplication::desktop();
+	QStringList displays;
 	for (int i = 0; i < dw->screenCount(); i++)
 	{
 		QRect dr = dw->screenGeometry(i);
-		techInfo += QString("%1x%2 px, ").arg(dr.width()).arg(dw->height());
+		displays << QString("%1*%2").arg(dr.width()).arg(dw->height());
 	}
-	techInfo += QString(tr("version %1 (r%2)")).arg(APluginManager->version(), APluginManager->revision());
+	techInfo += tr("Screen: %1").arg(displays.join(" + "));
 
-	ui.lblTechData->setText(techInfo);
+	ui.tedComment->setText(techInfo);
+	//ui.lblTechData->setText(techInfo);
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_FEEDBACK);
 
@@ -178,6 +205,14 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	else
 		setAttribute(Qt::WA_DeleteOnClose, true);
 
+	ui.tedComment->setFocus();
+	QTextCursor c = ui.tedComment->textCursor();
+	c.setPosition(0);
+	ui.tedComment->setTextCursor(c);
+
+	ui.chbAddTechData->setVisible(false);
+	ui.lblTechData->setVisible(false);
+
 	connect(ui.pbtSendComment, SIGNAL(clicked()), this, SLOT(SendComment()));
 }
 
@@ -197,30 +232,31 @@ void CommentDialog::SendComment()
 
 	ui.pbtSendComment->setEnabled(false);
 	ui.tedComment->setEnabled(false);
-	ui.pbtSendComment->setText(tr("Message sending..."));
+	ui.lneEMail->setEnabled(false);
+	ui.lneYourName->setEnabled(false);
+	ui.pbtSendComment->setText(tr("Sending message..."));
 
 	QString comment = ui.tedComment->toPlainText();
 
 	Message message;
 	message.setType(Message::Chat);
-	QString commentHtml = QString("<b>%1</b><br><i>%2</i><br><b>%3</b><br><br>%4<br><br>Technical data: %5").arg(Qt::escape(ui.lneYourName->text()), Qt::escape(ui.lneEMail->text()), Qt::escape(ui.lblTechData->text()), Qt::escape(comment), (ui.chbAddTechData->isChecked() ? ui.lblTechData->text() : "[not added]"));
+	QString commentHtml = QString("<b>%1</b><br><i>%2</i><br><b>%3</b><br><br>%4").arg(Qt::escape(ui.lneYourName->text()), Qt::escape(ui.lneEMail->text()), Qt::escape(ui.lblTechData->text()), Qt::escape(comment));
 	QTextDocument * doc = new QTextDocument;
 	doc->setHtml(commentHtml);
 	FMessageProcessor->textToMessage(message, doc);
 	message.setTo("support@rambler.ru");
 	message.setFrom(streamJid.full());
-	//message.setBody(comment);
-	//Stanza stanza = message.stanza();
 	bool ret = FMessageProcessor->sendMessage(streamJid, message);
-	//bool ret = FStanzaProcessor->sendStanzaOut(streamJid, stanza);
 	if (!ret)
 		Log(QString("[Comment Dialog error] Can't send comment message!"));
 
-	//ret = true;
-	if(ret)
+	if (ret)
 	{
 		ui.pbtSendComment->setText(tr("Message delivered"));
 		ui.lblSendCommentStatus->setText(tr("Thank you for your comment."));
+		ui.pbtClose->setDefault(true);
+		ui.pbtClose->setText(tr("Close"));
+		ui.pbtSendComment->setDefault(false);
 	}
 	else
 	{
@@ -228,6 +264,9 @@ void CommentDialog::SendComment()
 		ui.pbtSendComment->setText(tr("Send comment"));
 		ui.pbtSendComment->setEnabled(true);
 		ui.tedComment->setEnabled(true);
+		ui.pbtClose->setDefault(false);
+		ui.pbtClose->setText(tr("Cancel"));
+		ui.pbtSendComment->setDefault(true);
 
 	}
 	doc->deleteLater();
