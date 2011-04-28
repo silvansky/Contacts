@@ -1,5 +1,5 @@
 TARGET_LOADER            = ramblerfriends
-TARGET_UTILS             = friendsutils
+TARGET_UTILS             = ramblerfriendsutils
 
 macx:CONFIG             += x86
 
