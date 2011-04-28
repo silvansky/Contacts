@@ -1,7 +1,10 @@
 #include "fullscreencontrols.h"
 #include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/stylesheets.h>
+#include <QPainter>
 
 
 FullScreenControls::FullScreenControls( QWidget *parent)
@@ -12,6 +15,8 @@ FullScreenControls::FullScreenControls( QWidget *parent)
 	IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 
 	ui.wgtAVControl->setDark(false);
+
+	setAutoFillBackground(true);
 
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), this, SIGNAL(camStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), this, SIGNAL(micStateChange(bool)));
@@ -33,6 +38,7 @@ FullScreenControls::FullScreenControls( QWidget *parent)
 	iconFS.addPixmap(QPixmap::fromImage(imgOff), QIcon::Normal, QIcon::Off);
 	ui.btnFullScreen->setIcon(iconFS);
 	connect(ui.btnFullScreen, SIGNAL(clicked(bool)), this, SIGNAL(fullScreenState(bool)));
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 }
 
 FullScreenControls::~FullScreenControls()
@@ -45,8 +51,17 @@ void FullScreenControls::SetCameraOn(bool isOn)
 	ui.wgtAVControl->SetCameraOn(isOn);
 	//emit camStateChange(isOn);
 }
+
 void FullScreenControls::setFullScreen(bool state)
 {
 	ui.btnFullScreen->setChecked(state);
 	emit fullScreenState(state);
+}
+
+void FullScreenControls::paintEvent(QPaintEvent *)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }

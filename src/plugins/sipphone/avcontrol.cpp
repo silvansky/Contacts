@@ -2,6 +2,7 @@
 #include <utils/iconstorage.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <QPainter>
 
 //#include <QMessageBox>
 
@@ -155,4 +156,12 @@ void AVControl::setDark(bool isDark)
 	ui.chkbtnMicOn->setIcon(iconAudio);
 
 	ui.hslSoundVolume->setDark(isDark);
+}
+
+void AVControl::paintEvent(QPaintEvent *)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }

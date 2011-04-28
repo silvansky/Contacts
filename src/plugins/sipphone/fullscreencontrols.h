@@ -24,6 +24,8 @@ signals:
 	void micVolumeChange(int);
 	void hangup();
 	void fullScreenState(bool);
+protected:
+	void paintEvent(QPaintEvent *);
 
 
 private:

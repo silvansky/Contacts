@@ -12,8 +12,8 @@
 class BtnSynchro : public QObject
 {
 	Q_OBJECT
-	int _refCount; 
-	~BtnSynchro(){};
+	int _refCount;
+	~BtnSynchro(){}
 
 	QList<QAbstractButton*> _buttons;
 
@@ -27,18 +27,18 @@ public:
 	{
 		if(!_buttons.contains(btn)) // Не реально что такое может случиться, но тем не менее
 			_buttons.append(btn);
-		return _refCount++; 
-	} 
+		return _refCount++;
+	}
 	int Release(QAbstractButton* btn)
 	{
 		_refCount--;
 		_buttons.removeOne(btn);
 		if (_refCount == 0)
     {
-			delete this; 
+			delete this;
       return 0;
     }
-		return _refCount; 
+		return _refCount;
 	}
 
 signals:
@@ -68,6 +68,8 @@ signals:
 	void camStateChange(bool);
 	void micStateChange(bool);
 	void micVolumeChange(int);
+protected:
+	void paintEvent(QPaintEvent *);
 
 private:
 	Ui::AVControl ui;
