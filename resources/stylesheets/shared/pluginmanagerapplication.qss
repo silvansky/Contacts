@@ -252,13 +252,13 @@ QPushButton, QToolButton
 	background-clip: content;
 	background-color: transparent;
 	background-origin: content;
-	padding-left: -2px;
+	padding-left: 6px;
 	padding-top: -3px;
-	padding-right: -2px;
+	padding-right: 6px;
 	padding-bottom: -1px;
 	color: white;
 	min-height: 27px;
-	min-width: 80px;
+	min-width: 60px;
 }
 
 QToolButton

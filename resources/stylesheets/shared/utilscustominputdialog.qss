@@ -18,3 +18,17 @@ QLineEdit
 	margin-top: 2px;
 	margin-bottom: 8px;
 }
+
+QPushButton#acceptButton
+{
+	min-width: 60px;
+	max-width: 100px;
+
+}
+
+QPushButton#rejectButton
+{
+	min-width: 60px;
+	max-width: 60px;
+	width: 60px;
+}

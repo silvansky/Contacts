@@ -163,6 +163,7 @@ void CustomInputDialog::initLayout()
 	QHBoxLayout * buttonsLayout = new QHBoxLayout;
 	buttonsLayout->addStretch();
 	buttonsLayout->addWidget(acceptButton = new QPushButton);
+	acceptButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	buttonsLayout->addWidget(rejectButton = new QPushButton);
 	mainLayout->addLayout(buttonsLayout);
 	container->setLayout(mainLayout);

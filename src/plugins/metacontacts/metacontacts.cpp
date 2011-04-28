@@ -1030,33 +1030,7 @@ void MetaContacts::onRenameContact(bool)
 			dialog->setAcceptButtonText(tr("Save"));
 			dialog->setRejectButtonText(tr("Cancel"));
 			connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewNameSelected(const QString&)));
-			//dialog->setWindowModality(Qt::ApplicationModal);
-			if (dialog->windowBorder())
-				dialog->windowBorder()->setMinimumWidth(300);
 			dialog->show();
-//			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-//			if (border)
-//			{
-//				border->setMinimizeButtonVisible(false);
-//				border->setMaximizeButtonVisible(false);
-//				//border->setResizable(false);
-//				//border->setWindowModality(Qt::ApplicationModal);
-//				border->setAttribute(Qt::WA_DeleteOnClose, true);
-//				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-//				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-//				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-//				//border->setFixedSize(252 + border->leftBorderWidth() + border->rightBorderWidth(), 149 + border->topBorderWidth() + border->bottomBorderWidth());
-//				dialog->setMinimumSize(250, 180);
-//				border->show();
-//				border->layout()->update();
-//				border->adjustSize();
-//				dialog->adjustSize();
-//			}
-//			else
-//			{
-//				dialog->setWindowModality(Qt::ApplicationModal);
-//				dialog->show();
-//			}
 		}
 	}
 }
