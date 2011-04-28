@@ -97,6 +97,7 @@ public:
 	virtual IRostersNotify notifyById(int ANotifyId) const =0;
 	virtual QList<IRosterIndex *> notifyIndexes(int ANotifyId) const =0;
 	virtual int insertNotify(const IRostersNotify &ANotify, const QList<IRosterIndex *> &AIndexes) =0;
+	virtual void activateNotify(int ANotifyId) =0;
 	virtual void removeNotify(int ANotifyId) =0;
 	//--ClickHookers
 	virtual void insertClickHooker(int AOrder, IRostersClickHooker *AHooker) =0;

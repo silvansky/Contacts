@@ -40,6 +40,7 @@ protected slots:
 	void onInvalidateTimerTimeout();
 	void onRostersModelSet(IRostersModel *AModel);
 	void onRostersNotifyInserted(int ANotifyId);
+	void onRostersNotifyActivated(int ANotifyId);
 	void onRostersNotifyRemoved(int ANotifyId);
 	void onMetaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled);
 	void onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString &AMetaId);

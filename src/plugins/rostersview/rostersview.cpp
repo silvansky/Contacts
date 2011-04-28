@@ -592,6 +592,14 @@ int RostersView::insertNotify(const IRostersNotify &ANotify, const QList<IRoster
 	return notifyId;
 }
 
+void RostersView::activateNotify(int ANotifyId)
+{
+	if (FNotifyItems.contains(ANotifyId))
+	{
+		emit notifyActivated(ANotifyId);
+	}
+}
+
 void RostersView::removeNotify(int ANotifyId)
 {
 	if (FNotifyItems.contains(ANotifyId))
@@ -973,7 +981,7 @@ void RostersView::mouseDoubleClickEvent(QMouseEvent *AEvent)
 				int notifyId = FActiveNotifies.value(index,-1);
 				if (notifyId>0 && FNotifyItems.value(notifyId).hookClick)
 				{
-					emit notifyActivated(notifyId);
+					activateNotify(notifyId);
 				}
 				else
 				{

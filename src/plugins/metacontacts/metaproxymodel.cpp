@@ -14,6 +14,7 @@ MetaProxyModel::MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARost
 	onRostersModelSet(FRostersView->rostersModel());
 	connect(FRostersView->instance(),SIGNAL(modelSet(IRostersModel *)),SLOT(onRostersModelSet(IRostersModel *)));
 	connect(FRostersView->instance(),SIGNAL(notifyInserted(int)),SLOT(onRostersNotifyInserted(int)));
+	connect(FRostersView->instance(),SIGNAL(notifyActivated(int)),SLOT(onRostersNotifyActivated(int)));
 	connect(FRostersView->instance(),SIGNAL(notifyRemoved(int)),SLOT(onRostersNotifyRemoved(int)));
 
 	connect(FMetaContacts->instance(),SIGNAL(metaAvatarChanged(IMetaRoster *, const QString &)),
@@ -194,11 +195,35 @@ void MetaProxyModel::onRostersNotifyInserted(int ANotifyId)
 	}
 }
 
+void MetaProxyModel::onRostersNotifyActivated(int ANotifyId)
+{
+	static int blockNotifyId = -1;
+	if (blockNotifyId != ANotifyId)
+	{
+		if (FIndexNotifies.contains(ANotifyId))
+		{
+			blockNotifyId = FIndexNotifies.value(ANotifyId);
+			FRostersView->activateNotify(blockNotifyId);
+			blockNotifyId = -1;
+		}
+		else if (FIndexNotifies.values().contains(ANotifyId))
+		{
+			blockNotifyId = FIndexNotifies.key(ANotifyId);
+			FRostersView->activateNotify(blockNotifyId);
+			blockNotifyId = -1;
+		}
+	}
+}
+
 void MetaProxyModel::onRostersNotifyRemoved(int ANotifyId)
 {
 	if (FIndexNotifies.contains(ANotifyId))
 	{
 		FRostersView->removeNotify(FIndexNotifies.take(ANotifyId));
+	}
+	else if (FIndexNotifies.values().contains(ANotifyId))
+	{
+		FRostersView->removeNotify(FIndexNotifies.key(ANotifyId));
 	}
 }
 

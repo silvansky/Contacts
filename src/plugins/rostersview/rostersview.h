@@ -72,6 +72,7 @@ public:
 	virtual IRostersNotify notifyById(int ANotifyId) const;
 	virtual QList<IRosterIndex *> notifyIndexes(int ANotifyId) const;
 	virtual int insertNotify(const IRostersNotify &ANotify, const QList<IRosterIndex *> &AIndexes);
+	virtual void activateNotify(int ANotifyId);
 	virtual void removeNotify(int ANotifyId);
 	//--ClickHookers
 	virtual void insertClickHooker(int AOrder, IRostersClickHooker *AHooker);
