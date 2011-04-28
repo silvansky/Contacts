@@ -318,7 +318,7 @@ void ChatStates::sessionLocalize(const IStanzaSession &ASession, IDataForm &AFor
 
 bool ChatStates::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
 {
-	if (FSHIMessagesOut.value(AStreamJid)==AHandlerId && FChatParams.contains(AStreamJid))
+	if (FSHIMessagesOut.value(AStreamJid)==AHandlerId && FChatParams.contains(AStreamJid) && AStanza.type()!="error")
 	{
 		bool stateSent = false;
 		Jid contactJid = AStanza.to();
@@ -334,14 +334,14 @@ bool ChatStates::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 		FChatParams[AStreamJid][contactJid].canSendStates = stateSent;
 		setSelfState(AStreamJid,contactJid,IChatStates::StateActive,false);
 	}
-	else if (FSHIMessagesIn.value(AStreamJid)==AHandlerId && FChatParams.contains(AStreamJid))
+	else if (FSHIMessagesIn.value(AStreamJid)==AHandlerId && FChatParams.contains(AStreamJid) && AStanza.type()!="error")
 	{
 		Jid contactJid = AStanza.from();
 		bool hasBody = !AStanza.firstElement("body").isNull();
 		QDomElement elem = AStanza.firstElement(QString::null,NS_CHATSTATES);
 		if (!elem.isNull())
 		{
-			if (hasBody || FChatParams.value(AStreamJid).value(contactJid).canSendStates==true)
+			if (hasBody || FChatParams.value(AStreamJid).value(contactJid).canSendStates)
 			{
 				AAccept = true;
 				setSupported(AStreamJid,contactJid,true);
