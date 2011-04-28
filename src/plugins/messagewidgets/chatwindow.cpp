@@ -280,7 +280,7 @@ bool ChatWindow::event(QEvent *AEvent)
 	{
 		static QKeyEvent *sentEvent = NULL;
 		QKeyEvent *keyEvent = static_cast<QKeyEvent*>(AEvent);
-		if (sentEvent!=keyEvent && !keyEvent->text().isEmpty())
+		if (sentEvent!=keyEvent && !keyEvent->text().isEmpty() && FEditWidget->textEdit()->isEnabled())
 		{
 			sentEvent = keyEvent;
 			FEditWidget->textEdit()->setFocus();

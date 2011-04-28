@@ -122,8 +122,6 @@ void AddMetaItemWidget::setErrorMessage(const QString &AMessage, bool AInvalidIn
 		ui.lblError->setText(AMessage);
 		ui.lblError->setVisible(!AMessage.isEmpty());
 		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
-		ui.lneContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput  ? true : false);
-		setStyleSheet(styleSheet());
 		emit adjustSizeRequested();
 	}
 }

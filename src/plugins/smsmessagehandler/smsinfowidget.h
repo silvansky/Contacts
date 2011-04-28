@@ -26,6 +26,7 @@ private:
 	IChatWindow *FChatWindow;
 	ISmsMessageHandler *FSmsHandler;
 private:
+	int FBalance;
 	QKeySequence FSendKey;
 };
 

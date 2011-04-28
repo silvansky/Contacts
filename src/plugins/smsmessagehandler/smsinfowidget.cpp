@@ -16,12 +16,12 @@ SmsInfoWidget::SmsInfoWidget(ISmsMessageHandler *ASmsHandler, IChatWindow *AWind
 	connect(FChatWindow->editWidget()->textEdit(),SIGNAL(textChanged()),SLOT(onEditWidgetTextChanged()));
 	connect(FSmsHandler->instance(),SIGNAL(smsBalanceChanged(const Jid &, const Jid &, int)),SLOT(onSmsBalanceChanged(const Jid &, const Jid &, int)));
 
-	int balance = FSmsHandler->smsBalance(FChatWindow->streamJid(),FChatWindow->contactJid().domain());
-	if (balance < 0)
+	FBalance = FSmsHandler->smsBalance(FChatWindow->streamJid(),FChatWindow->contactJid().domain());
+	if (FBalance < 0)
 		FSmsHandler->requestSmsBalance(FChatWindow->streamJid(),FChatWindow->contactJid().domain());
 
 	onEditWidgetTextChanged();
-	onSmsBalanceChanged(FChatWindow->streamJid(),FChatWindow->contactJid().domain(),balance);
+	onSmsBalanceChanged(FChatWindow->streamJid(),FChatWindow->contactJid().domain(),FBalance);
 }
 
 SmsInfoWidget::~SmsInfoWidget()
@@ -37,13 +37,20 @@ IChatWindow *SmsInfoWidget::chatWindow() const
 void SmsInfoWidget::onEditWidgetTextChanged()
 {
 	QTextEdit *editor = FChatWindow->editWidget()->textEdit();
-	
-	QString sms = editor->toPlainText();
-	int chars = sms.length();
-	int maxChars = sms.toUtf8()==sms.toLatin1() ? 120 : 60;
+	QString smsText = editor->toPlainText();
+	int chars = smsText.length();
+	int maxChars = smsText.toUtf8()==smsText.toLatin1() ? 120 : 60;
+	ui.lblCharacters->setVisible(chars>0);
 	ui.lblCharacters->setText(tr("<b>%1</b> from %2 characters").arg(chars).arg(maxChars));
-	ui.lblCharacters->setVisible(!sms.isEmpty());
-	FChatWindow->editWidget()->setSendButtonEnabled(chars>0 && chars<=maxChars);
+
+	bool isError = chars>maxChars;
+	if (isError != ui.lblCharacters->property("error").toBool())
+	{
+		ui.lblCharacters->setProperty("error", isError ? true : false);
+		setStyleSheet(styleSheet());
+	}
+
+	FChatWindow->editWidget()->setSendButtonEnabled(FBalance>0 && chars>0 && chars<=maxChars);
 	FChatWindow->editWidget()->setSendKey(chars>0 && chars<=maxChars ? FSendKey : QKeySequence::UnknownKey);
 }
 
@@ -66,5 +73,12 @@ void SmsInfoWidget::onSmsBalanceChanged(const Jid &AStreamJid, const Jid &AServi
 			ui.lblRefill->setVisible(false);
 			ui.lblBalance->setText(tr("SMS service is unavailable"));
 		}
+		
+		FBalance = ABalance;
+		FChatWindow->editWidget()->setSendButtonEnabled(FBalance>0);
+		FChatWindow->editWidget()->textEdit()->setEnabled(FBalance>0);
+
+		ui.lblBalance->setProperty("error", FBalance>0 ? false : true);
+		setStyleSheet(styleSheet());
 	}
 }

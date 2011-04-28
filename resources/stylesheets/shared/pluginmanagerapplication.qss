@@ -583,6 +583,11 @@ QLabel
 	font-size: 12px;
 }
 
+QLabel[error="true"]
+{
+	color: red;
+}
+
 /**************
  * QScrollBar *
  **************/
