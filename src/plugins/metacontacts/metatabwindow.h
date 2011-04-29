@@ -24,8 +24,8 @@ class MetaTabWindow :
 	public QMainWindow,
 	public IMetaTabWindow
 {
-	Q_OBJECT;
-	Q_INTERFACES(IMetaTabWindow ITabPage);
+	Q_OBJECT
+	Q_INTERFACES(IMetaTabWindow ITabPage)
 public:
 	MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent = NULL);
 	~MetaTabWindow();
@@ -93,7 +93,8 @@ protected:
 	void updatePageButton(const QString &APageId);
 	void setButtonAction(QToolButton *AButton, Action *AAction);
 	int pageNotifyCount(const QString &APageId, bool ACombined) const;
-	QIcon insertNotifyBalloon(const QIcon &AIcon, int ACount) const;
+	QIcon insertNotifyBalloon(const QIcon &AIcon, int ACount, QSize ASize) const;
+	QIcon createNotifyBalloon(int ACount) const;
 private:
 	Jid lastItemJid() const;
 	void updateItemPages(const QSet<Jid> &AItems);

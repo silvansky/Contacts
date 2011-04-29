@@ -22,7 +22,6 @@ FullScreenControls::FullScreenControls( QWidget *parent)
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), this, SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), this, SIGNAL(micVolumeChange(int)));
 
-
 	QImage imgHangup = iconStorage->getImage(MNI_SIPPHONE_WHITE_HANGUP);
 	QIcon iconHangup;
 	iconHangup.addPixmap(QPixmap::fromImage(imgHangup), QIcon::Normal, QIcon::On);

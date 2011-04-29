@@ -221,6 +221,10 @@ QToolBar#tlbToolBar QToolButton
 	height: 30px;
 	width: 30px;
 	padding: 0px;
+	border-top: 9px; 
+	border-left: 6px;
+	border-bottom: 4px;
+	border-right: 6px;
 }
 
 QToolBar#tlbToolBar QToolButton:enabled
@@ -252,7 +256,7 @@ QToolBar#tlbToolBar QToolButton#contactMenu
 	width: 36px;
 	height: 36px;
 	margin-right: 2px;
-	margin-bottom: 4px;
+	margin-bottom: 0px;
 }
 
 QToolBar#tlbToolBar QToolButton#contactMenu::menu-indicator

@@ -226,6 +226,7 @@ QString MetaTabWindow::insertPage(int AOrder, bool ACombine)
 		}
 		menu->addAction(action,AG_DEFAULT,true);
 	}
+	button->installEventFilter(this);
 	FPageButtons.insert(pageId,button);
 
 	emit pageInserted(pageId,AOrder,ACombine);
@@ -500,10 +501,14 @@ void MetaTabWindow::updatePageButton(const QString &APageId)
 		Action *action = FButtonAction.value(button);
 		QIcon icon = action->data(ADR_DEFAULT_ICON).value<QIcon>();
 		int notifyCount = pageNotifyCount(APageId,true);
+		button->setIcon(icon);
 		if (notifyCount > 0)
-			button->setIcon(insertNotifyBalloon(icon,notifyCount));
+		{
+			QIcon notifyIcon = createNotifyBalloon(notifyCount);
+			button->setProperty("notifyBalloon", notifyIcon);
+		}
 		else
-			button->setIcon(icon);
+			button->setProperty("notifyBalloon", QIcon());
 		button->setText(action->text());
 		button->setToolTip(action->text());
 	}
@@ -544,18 +549,20 @@ int MetaTabWindow::pageNotifyCount(const QString &APageId, bool ACombined) const
 	return notifyCount;
 }
 
-QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount) const
+QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount, QSize ASize) const
 {
 	if (ACount > 0)
 	{
 		QPixmap base = AIcon.pixmap(AIcon.availableSizes().value(0));
-		QPainter painter(&base);
 
 		QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON, 0));
-		//QPixmap balloon(12, 12);
-		//balloon.fill(QColor(136, 199, 227));
-		QRect ballonRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignTop|Qt::AlignRight,balloon.size(),base.rect());
-		painter.drawPixmap(ballonRect,balloon);
+		QPixmap result(ASize);
+		result.fill(QColor(0, 0, 0, 0));
+		QPainter painter(&result);
+		QRect ballonRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignTop|Qt::AlignRight, balloon.size(), result.rect());
+		QRect iconRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, balloon.size(), result.rect());
+		painter.drawPixmap(iconRect, base);
+		painter.drawPixmap(ballonRect, balloon);
 
 		QString text = QString::number(ACount);
 		QSize textSize = painter.fontMetrics().size(Qt::TextSingleLine,text);
@@ -563,10 +570,24 @@ QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount) const
 		painter.drawText(textRect,text);
 
 		QIcon icon;
-		icon.addPixmap(base);
+		icon.addPixmap(result);
 		return icon;
 	}
 	return AIcon;
+}
+
+QIcon MetaTabWindow::createNotifyBalloon(int ACount) const
+{
+	QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON, 0));
+	QPainter painter(&balloon);
+	QString text = QString::number(ACount);
+	QSize textSize = painter.fontMetrics().size(Qt::TextSingleLine, text);
+	QRect textRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, textSize, balloon.rect());
+	textRect.moveTopLeft(textRect.topLeft() + QPoint(1, -2)); // some magic numbers... may change
+	painter.drawText(textRect,text);
+	QIcon icon;
+	icon.addPixmap(balloon);
+	return icon;
 }
 
 Jid MetaTabWindow::lastItemJid() const
@@ -802,6 +823,27 @@ bool MetaTabWindow::eventFilter(QObject * AObject, QEvent * AEvent)
 				p.drawImage(targetRect, triangle, sourceRect);
 				p.end();
 			}
+		}
+	}
+	QToolButton * tlb = qobject_cast<QToolButton*>(AObject);
+	if (tlb)
+	{
+		if (AEvent->type() == QEvent::Paint)
+		{
+			tlb->removeEventFilter(this);
+			QApplication::sendEvent(tlb, AEvent);
+			tlb->installEventFilter(this);
+			//bool handled = QMainWindow::eventFilter(AObject, AEvent);
+			QIcon notifyBalloon = tlb->property("notifyBalloon").value<QIcon>();
+			if (!notifyBalloon.isNull())
+			{
+				QPainter p(tlb);
+				QSize notifySize = notifyBalloon.availableSizes().at(0);
+				QRect notifyRect = QRect(tlb->width() - notifySize.width(), 0, notifySize.width(), notifySize.height());
+				p.drawPixmap(notifyRect, notifyBalloon.pixmap(notifySize));
+				p.end();
+			}
+			return true;
 		}
 	}
 	return QMainWindow::eventFilter(AObject, AEvent);
