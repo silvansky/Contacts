@@ -91,13 +91,14 @@ protected:
 	void updateWindow();
 	void checkCurrentPage();
 	void updatePageButton(const QString &APageId);
+	void updatePageButtonNotify(const QString &APageId);
 	void setButtonAction(QToolButton *AButton, Action *AAction);
 	int pageNotifyCount(const QString &APageId, bool ACombined) const;
-	QIcon insertNotifyBalloon(const QIcon &AIcon, int ACount, QSize ASize) const;
 	QIcon createNotifyBalloon(int ACount) const;
 private:
 	Jid lastItemJid() const;
 	void updateItemPages(const QSet<Jid> &AItems);
+	void updateItemButtonStatus(const Jid &AItemJid);
 	void createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const;
 protected:
 	void createPersistantList();
@@ -138,7 +139,6 @@ private:
 	Ui::MetaTabWindowClass ui;
 private:
 	IMetaRoster *FMetaRoster;
-	IPresencePlugin *FPresencePlugin;
 	IMetaContacts *FMetaContacts;
 	IMessageWidgets *FMessageWidgets;
 	ITabPageNotifier *FTabPageNotifier;

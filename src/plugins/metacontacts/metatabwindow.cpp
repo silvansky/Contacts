@@ -11,10 +11,6 @@
 #define ADR_ITEM_JID         Action::DR_Parametr1
 #define ADR_DEFAULT_ICON     Action::DR_UserDefined+1
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 QList<QString> MetaTabWindow::FPersistantList;
 
 MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QMainWindow(AParent)
@@ -441,10 +437,6 @@ void MetaTabWindow::initialize(IPluginManager *APluginManager)
 	if (plugin)
 		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
-	if (plugin)
-		FPresencePlugin = qobject_cast<IPresencePlugin*>(plugin->instance());
-
 	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
 	if (plugin)
 		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
@@ -469,35 +461,6 @@ void MetaTabWindow::updateWindow()
 		QString name = FMetaContacts->metaContactName(contact);
 		QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
 		QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
-
-		foreach(Jid jid, FItemPages.keys())
-		{
-			QString pageId = FItemPages.value(jid);
-			if (FPresencePlugin)
-			{
-				QToolButton * tlb = FPageButtons.value(pageId);
-				IPresence * presence = FPresencePlugin->getPresence(FMetaRoster->streamJid());
-				QList<IPresenceItem> pitems = presence ? presence->presenceItems(jid) : QList<IPresenceItem>();
-				int show = IPresence::Offline;
-				foreach (IPresenceItem pi, pitems)
-					if (pi.show != IPresence::Offline)
-					{
-						show = pi.show;
-						break;
-					}
-				//if (FPresencePlugin->isContactOnline(jid))
-				if (show != IPresence::Offline)
-				{
-					if (tlb)
-					{
-						QImage img = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_METACONTACTS_ONLINE_ICON);
-						tlb->setProperty("statusIcon", img);
-					}
-				}
-				else
-					tlb->setProperty("statusIcon", QImage());
-			}
-		}
 
 		setWindowIcon(icon);
 		setWindowIconText(name);
@@ -534,17 +497,28 @@ void MetaTabWindow::updatePageButton(const QString &APageId)
 	{
 		Action *action = FButtonAction.value(button);
 		QIcon icon = action->data(ADR_DEFAULT_ICON).value<QIcon>();
-		int notifyCount = pageNotifyCount(APageId,true);
 		button->setIcon(icon);
+		button->setText(action->text());
+		button->setToolTip(action->text());
+	}
+}
+
+void MetaTabWindow::updatePageButtonNotify(const QString &APageId)
+{
+	QToolButton *button = FPageButtons.value(APageId);
+	if (button)
+	{
+		int notifyCount = pageNotifyCount(APageId,true);
 		if (notifyCount > 0)
 		{
 			QIcon notifyIcon = createNotifyBalloon(notifyCount);
 			button->setProperty("notifyBalloon", notifyIcon);
 		}
 		else
-			button->setProperty("notifyBalloon", QIcon());
-		button->setText(action->text());
-		button->setToolTip(action->text());
+		{
+			button->setProperty("notifyBalloon", QVariant());
+		}
+		button->update();
 	}
 }
 
@@ -581,33 +555,6 @@ int MetaTabWindow::pageNotifyCount(const QString &APageId, bool ACombined) const
 		}
 	}
 	return notifyCount;
-}
-
-QIcon MetaTabWindow::insertNotifyBalloon(const QIcon &AIcon, int ACount, QSize ASize) const
-{
-	if (ACount > 0)
-	{
-		QPixmap base = AIcon.pixmap(AIcon.availableSizes().value(0));
-
-		QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON, 0));
-		QPixmap result(ASize);
-		result.fill(QColor(0, 0, 0, 0));
-		QPainter painter(&result);
-		QRect ballonRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignTop|Qt::AlignRight, balloon.size(), result.rect());
-		QRect iconRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, balloon.size(), result.rect());
-		painter.drawPixmap(iconRect, base);
-		painter.drawPixmap(ballonRect, balloon);
-
-		QString text = QString::number(ACount);
-		QSize textSize = painter.fontMetrics().size(Qt::TextSingleLine,text);
-		QRect textRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,textSize,ballonRect);
-		painter.drawText(textRect,text);
-
-		QIcon icon;
-		icon.addPixmap(result);
-		return icon;
-	}
-	return AIcon;
 }
 
 QIcon MetaTabWindow::createNotifyBalloon(int ACount) const
@@ -655,6 +602,8 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 
 		FItemPages.insert(itemJid,pageId);
 		FItemTypeCount[descriptor.name]++;
+
+		updateItemButtonStatus(itemJid);
 	}
 
 	foreach(Jid itemJid, oldItems)
@@ -666,6 +615,25 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 	}
 
 	updatePersistantPages();
+}
+
+void MetaTabWindow::updateItemButtonStatus(const Jid &AItemJid)
+{
+	QToolButton *button = FPageButtons.value(itemPage(AItemJid));
+	if (button)
+	{
+		QList<IPresenceItem> pitems = FMetaRoster->itemPresences(AItemJid);
+		if (!pitems.isEmpty() && pitems.at(0).show!=IPresence::Error)
+		{
+			QImage image = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_METACONTACTS_ONLINE_ICON);
+			button->setProperty("statusIcon", image);
+		}
+		else
+		{
+			button->setProperty("statusIcon", QVariant());
+		}
+		button->update();
+	}
 }
 
 void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const
@@ -835,11 +803,11 @@ bool MetaTabWindow::event(QEvent *AEvent)
 	return QMainWindow::event(AEvent);
 }
 
-bool MetaTabWindow::eventFilter(QObject * AObject, QEvent * AEvent)
+bool MetaTabWindow::eventFilter(QObject *AObject, QEvent *AEvent)
 {
-	if (AObject == ui.tlbToolBar)
+	if (AEvent->type() == QEvent::Paint)
 	{
-		if (AEvent->type() == QEvent::Paint)
+		if (AObject == ui.tlbToolBar)
 		{
 			QToolButton *button = FPageButtons.value(currentPage());
 			if (button)
@@ -858,31 +826,31 @@ bool MetaTabWindow::eventFilter(QObject * AObject, QEvent * AEvent)
 				p.end();
 			}
 		}
-	}
-	QToolButton * tlb = qobject_cast<QToolButton*>(AObject);
-	if (tlb)
-	{
-		if (AEvent->type() == QEvent::Paint)
+
+		QToolButton *button = qobject_cast<QToolButton *>(AObject);
+		if (button)
 		{
-			tlb->removeEventFilter(this);
-			QApplication::sendEvent(tlb, AEvent);
-			tlb->installEventFilter(this);
-			//bool handled = QMainWindow::eventFilter(AObject, AEvent);
-			QIcon notifyBalloon = tlb->property("notifyBalloon").value<QIcon>();
-			QPainter p(tlb);
+			button->removeEventFilter(this);
+			QApplication::sendEvent(button, AEvent);
+			button->installEventFilter(this);
+
+			QIcon notifyBalloon = button->property("notifyBalloon").value<QIcon>();
+			QPainter p(button);
 			if (!notifyBalloon.isNull())
 			{
 				QSize notifySize = notifyBalloon.availableSizes().at(0);
-				QRect notifyRect = QRect(tlb->width() - notifySize.width(), 0, notifySize.width(), notifySize.height());
+				QRect notifyRect = QRect(button->width() - notifySize.width(), 0, notifySize.width(), notifySize.height());
 				p.drawPixmap(notifyRect, notifyBalloon.pixmap(notifySize));
 			}
-			QImage statusIcon = tlb->property("statusIcon").value<QImage>();
+
+			QImage statusIcon = button->property("statusIcon").value<QImage>();
 			if (!statusIcon.isNull())
 			{
 				QSize iconSize = statusIcon.size();
-				QRect iconRect = QRect(tlb->width() - iconSize.width(), tlb->height() - iconSize.height(), iconSize.width(), iconSize.height());
+				QRect iconRect = QRect(button->width() - iconSize.width(), button->height() - iconSize.height(), iconSize.width(), iconSize.height());
 				p.drawImage(iconRect, statusIcon);
 			}
+
 			p.end();
 			return true;
 		}
@@ -961,7 +929,7 @@ void MetaTabWindow::onTabPageNotifierChanged()
 		connect(widget->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),SLOT(onTabPageNotifierNotifyInserted(int)));
 		connect(widget->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),SLOT(onTabPageNotifierNotifyRemoved(int)));
 	}
-	updatePageButton(widgetPage(widget));
+	updatePageButtonNotify(widgetPage(widget));
 }
 
 void MetaTabWindow::onTabPageNotifierNotifyInserted(int ANotifyId)
@@ -974,7 +942,7 @@ void MetaTabWindow::onTabPageNotifierNotifyInserted(int ANotifyId)
 		int notifyId = FTabPageNotifier->insertNotify(notify);
 		FTabPageNotifies.insert(ANotifyId,notifyId);
 	}
-	updatePageButton(pageId);
+	updatePageButtonNotify(pageId);
 }
 
 void MetaTabWindow::onTabPageNotifierNotifyRemoved(int ANotifyId)
@@ -986,7 +954,7 @@ void MetaTabWindow::onTabPageNotifierNotifyRemoved(int ANotifyId)
 		int notifyId = FTabPageNotifies.take(ANotifyId);
 		FTabPageNotifier->removeNotify(notifyId);
 	}
-	updatePageButton(pageId);
+	updatePageButtonNotify(pageId);
 }
 
 void MetaTabWindow::onEditItemByAction(bool)
@@ -1039,6 +1007,8 @@ void MetaTabWindow::onMetaPresenceChanged(const QString &AMetaId)
 {
 	if (AMetaId == FMetaId)
 	{
+		foreach(Jid itemJid, FItemPages.keys())
+			updateItemButtonStatus(itemJid);
 		updateWindow();
 	}
 }
