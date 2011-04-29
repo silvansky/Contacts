@@ -194,7 +194,7 @@ IRosterItem MetaRoster::metaRosterItem(const QString &AMetaId) const
 		ritem.name = FMetaContacts->metaContactName(contact);
 		ritem.groups = contact.groups;
 		ritem.subscription = SUBSCRIPTION_NONE;
-		
+
 		bool isServiceOnly = true;
 		for (QSet<Jid>::const_iterator it=contact.items.constBegin(); it!=contact.items.constEnd(); it++)
 		{

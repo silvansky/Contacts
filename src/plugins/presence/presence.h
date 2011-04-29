@@ -12,8 +12,8 @@ class Presence :
 			public IPresence,
 			private IStanzaHandler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPresence IStanzaHandler);
+	Q_OBJECT
+	Q_INTERFACES(IPresence IStanzaHandler)
 public:
 	Presence(IXmppStream *AXmppStream, IStanzaProcessor *AStanzaProcessor);
 	~Presence();

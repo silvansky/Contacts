@@ -138,6 +138,7 @@ private:
 	Ui::MetaTabWindowClass ui;
 private:
 	IMetaRoster *FMetaRoster;
+	IPresencePlugin *FPresencePlugin;
 	IMetaContacts *FMetaContacts;
 	IMessageWidgets *FMessageWidgets;
 	ITabPageNotifier *FTabPageNotifier;

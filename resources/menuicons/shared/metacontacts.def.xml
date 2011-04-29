@@ -109,4 +109,8 @@
     <key>metacontactsNotifyBalloon</key>
     <object mime="image/png">metacontactsnotifyballoon.png</object>
   </icon>
+  <icon>
+    <key>metacontactsOnlineIcon</key>
+    <object mime="image/png">metacontactsonlineicon.png</object>
+  </icon>
 </icondef>

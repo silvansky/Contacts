@@ -11,6 +11,10 @@
 #define ADR_ITEM_JID         Action::DR_Parametr1
 #define ADR_DEFAULT_ICON     Action::DR_UserDefined+1
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 QList<QString> MetaTabWindow::FPersistantList;
 
 MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QMainWindow(AParent)
@@ -188,6 +192,7 @@ void MetaTabWindow::setCurrentPage(const QString &APageId)
 QString MetaTabWindow::insertPage(int AOrder, bool ACombine)
 {
 	QString pageId;
+	// bad algorythm...
 	while (pageId.isEmpty() || FPageWidgets.contains(pageId))
 		pageId = QString::number(qrand());
 
@@ -436,6 +441,10 @@ void MetaTabWindow::initialize(IPluginManager *APluginManager)
 	if (plugin)
 		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
+	if (plugin)
+		FPresencePlugin = qobject_cast<IPresencePlugin*>(plugin->instance());
+
 	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
 	if (plugin)
 		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
@@ -461,9 +470,34 @@ void MetaTabWindow::updateWindow()
 		QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
 		QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 
-		//IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(currentItem());
-		//if(!descriptor.name.isEmpty())
-		//	title += QString(" - %1 (%2)").arg(descriptor.name).arg(FMetaContacts->itemHint(currentItem()));
+		foreach(Jid jid, FItemPages.keys())
+		{
+			QString pageId = FItemPages.value(jid);
+			if (FPresencePlugin)
+			{
+				QToolButton * tlb = FPageButtons.value(pageId);
+				IPresence * presence = FPresencePlugin->getPresence(FMetaRoster->streamJid());
+				QList<IPresenceItem> pitems = presence ? presence->presenceItems(jid) : QList<IPresenceItem>();
+				int show = IPresence::Offline;
+				foreach (IPresenceItem pi, pitems)
+					if (pi.show != IPresence::Offline)
+					{
+						show = pi.show;
+						break;
+					}
+				//if (FPresencePlugin->isContactOnline(jid))
+				if (show != IPresence::Offline)
+				{
+					if (tlb)
+					{
+						QImage img = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_METACONTACTS_ONLINE_ICON);
+						tlb->setProperty("statusIcon", img);
+					}
+				}
+				else
+					tlb->setProperty("statusIcon", QImage());
+			}
+		}
 
 		setWindowIcon(icon);
 		setWindowIconText(name);
@@ -835,14 +869,21 @@ bool MetaTabWindow::eventFilter(QObject * AObject, QEvent * AEvent)
 			tlb->installEventFilter(this);
 			//bool handled = QMainWindow::eventFilter(AObject, AEvent);
 			QIcon notifyBalloon = tlb->property("notifyBalloon").value<QIcon>();
+			QPainter p(tlb);
 			if (!notifyBalloon.isNull())
 			{
-				QPainter p(tlb);
 				QSize notifySize = notifyBalloon.availableSizes().at(0);
 				QRect notifyRect = QRect(tlb->width() - notifySize.width(), 0, notifySize.width(), notifySize.height());
 				p.drawPixmap(notifyRect, notifyBalloon.pixmap(notifySize));
-				p.end();
 			}
+			QImage statusIcon = tlb->property("statusIcon").value<QImage>();
+			if (!statusIcon.isNull())
+			{
+				QSize iconSize = statusIcon.size();
+				QRect iconRect = QRect(tlb->width() - iconSize.width(), tlb->height() - iconSize.height(), iconSize.width(), iconSize.height());
+				p.drawImage(iconRect, statusIcon);
+			}
+			p.end();
 			return true;
 		}
 	}
