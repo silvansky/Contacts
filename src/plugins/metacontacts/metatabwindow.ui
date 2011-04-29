@@ -31,6 +31,12 @@
    </layout>
   </widget>
   <widget class="QToolBar" name="tlbToolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="movable">
     <bool>false</bool>
    </property>
