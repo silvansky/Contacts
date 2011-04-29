@@ -37,9 +37,11 @@ struct IGateServiceDescriptor :
 	IGateServiceDescriptor() { 
 		needGate = true;
 		needLogin = true;
+		autoLogin = false;
 	}
 	bool needGate;
 	bool needLogin;
+	bool autoLogin;
 	QString type;
 	QString prefix;
 	QString loginField;

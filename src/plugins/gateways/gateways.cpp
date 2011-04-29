@@ -145,6 +145,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		{
 			connect(FRegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
 				SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
+			connect(FRegistration->instance(),SIGNAL(registerSuccess(const QString &)),
+				SLOT(onRegisterSuccess(const QString &)));
 			connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
 				SLOT(onRegisterError(const QString &, const QString &)));
 		}
@@ -209,8 +211,8 @@ bool Gateways::initObjects()
 	// !!Последовательность добавления дескрипторов имеет значение!!
 	IGateServiceDescriptor sms;
 	sms.id = GSID_SMS;
-	sms.needGate = true;
 	sms.needLogin = false;
+	sms.autoLogin = true;
 	sms.type = "sms";
 	sms.name = tr("SMS");
 	sms.iconKey = MNI_GATEWAYS_SERVICE_SMS;
@@ -221,8 +223,6 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor icq;
 	icq.id = GSID_ICQ;
-	icq.needGate = true;
-	icq.needLogin = true;
 	icq.type = "icq";
 	icq.name = tr("ICQ");
 	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
@@ -235,8 +235,6 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor magent;
 	magent.id = GSID_MAGENT;
-	magent.needGate = true;
-	magent.needLogin = true;
 	magent.type = "mrim";
 	magent.name = tr("Agent@Mail.ru");
 	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
@@ -249,8 +247,6 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor twitter;
 	twitter.id = GSID_TWITTER;
-	twitter.needGate = true;
-	twitter.needLogin = true;
 	twitter.type = "twitter";
 	twitter.name = tr("Twitter");
 	twitter.iconKey = MNI_GATEWAYS_SERVICE_TWITTER;
@@ -264,7 +260,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor gtalk;
 	gtalk.id = GSID_GTALK;
 	gtalk.needGate = false;
-	gtalk.needLogin = true;
 	gtalk.type = "xmpp";
 	gtalk.prefix = "gmail.";
 	gtalk.name = tr("GTalk");
@@ -283,7 +278,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor yonline;
 	yonline.id = GSID_YONLINE;
 	yonline.needGate = false;
-	yonline.needLogin = true;
 	yonline.type = "xmpp";
 	yonline.prefix = "yandex.";
 	yonline.name = tr("Y.Online");
@@ -309,7 +303,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor qip;
 	qip.id = GSID_QIP;
 	qip.needGate = false;
-	qip.needLogin = true;
 	qip.type = "xmpp";
 	qip.prefix = "qip.";
 	qip.name = tr("QIP");
@@ -327,7 +320,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor vkontakte;
 	vkontakte.id = GSID_VKONTAKTE;
 	vkontakte.needGate = false;
-	vkontakte.needLogin = true;
 	vkontakte.type = "xmpp";
 	vkontakte.prefix = "vk.";
 	vkontakte.name = tr("VKontakte");
@@ -345,7 +337,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor facebook;
 	facebook.id = GSID_FACEBOOK;
 	facebook.needGate = false;
-	facebook.needLogin = true;
 	facebook.type = "xmpp";
 	facebook.prefix = "facebook.";
 	facebook.name = tr("Facebook");
@@ -363,7 +354,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor livejournal;
 	livejournal.id = GSID_LIVEJOURNAL;
 	livejournal.needGate = false;
-	livejournal.needLogin = true;
 	livejournal.type = "xmpp";
 	livejournal.prefix = "livejournal.";
 	livejournal.name = tr("LiveJournal");
@@ -381,7 +371,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor rambler;
 	rambler.id = GSID_RAMBLER;
 	rambler.needGate = false;
-	rambler.needLogin = true;
 	rambler.type = "xmpp";
 	rambler.prefix = "rambler.";
 	rambler.name = tr("Rambler");
@@ -404,7 +393,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor jabber;
 	jabber.id = GSID_JABBER;
 	jabber.needGate = false;
-	jabber.needLogin = true;
 	jabber.type = "xmpp";
 	jabber.name = tr("Jabber");
 	jabber.iconKey = MNI_GATEWAYS_SERVICE_JABBER;
@@ -420,8 +408,8 @@ bool Gateways::initObjects()
 	// Почта должна быть после джаббера т.к. их идентификаторы идентичны
 	IGateServiceDescriptor mail;
 	mail.id = GSID_MAIL;
-	mail.needGate = true;
 	mail.needLogin = false;
+	mail.autoLogin = true;
 	mail.type = "mail";
 	mail.name = tr("Mail");
 	mail.iconKey = MNI_GATEWAYS_SERVICE_MAIL;
@@ -1127,6 +1115,30 @@ void Gateways::registerDiscoFeatures()
 	FDiscovery->insertDiscoFeature(dfeature);
 }
 
+void Gateways::startAutoLogin(const Jid &AStreamJid)
+{
+	if (FDiscovery && FRegistration)
+	{
+		IDiscoItems ditems = FStreamDiscoItems.value(AStreamJid);
+		foreach(IDiscoItem ditem, ditems.items)
+		{
+			if (!FStreamAutoRegServices.contains(AStreamJid,ditem.itemJid))
+			{
+				IGateServiceDescriptor descriptor = findGateDescriptor(FDiscovery->discoInfo(AStreamJid,ditem.itemJid));
+				if (!descriptor.id.isEmpty() && descriptor.autoLogin)
+				{
+					QString id = FRegistration->sendRegiterRequest(AStreamJid,ditem.itemJid);
+					if (!id.isEmpty())
+					{
+						FAutoLoginRequests.insert(id,qMakePair<Jid,Jid>(AStreamJid,ditem.itemJid));
+						FStreamAutoRegServices.insertMulti(AStreamJid,ditem.itemJid);
+					}
+				}
+			}
+		}
+	}
+}
+
 void Gateways::savePrivateStorageSubscribe(const Jid &AStreamJid)
 {
 	if (FPrivateStorage)
@@ -1247,6 +1259,7 @@ void Gateways::onXmppStreamClosed(IXmppStream *AXmppStream)
 	}
 	FResolveNicks.remove(AXmppStream->streamJid());
 	FStreamDiscoItems.remove(AXmppStream->streamJid());
+	FStreamAutoRegServices.remove(AXmppStream->streamJid());
 }
 
 void Gateways::onRosterOpened(IRoster *ARoster)
@@ -1268,6 +1281,7 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 		FPrivateStorage->loadData(ARoster->streamJid(),PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
 		FKeepTimer.start(KEEP_INTERVAL);
 	}
+	startAutoLogin(ARoster->streamJid());
 }
 
 void Gateways::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore)
@@ -1515,6 +1529,8 @@ void Gateways::onDiscoInfoChanged(const IDiscoInfo &AInfo)
 	if (AInfo.contactJid.node().isEmpty() && AInfo.node.isEmpty())
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AInfo.streamJid) : NULL;
+		if (roster && roster->isOpen())
+			startAutoLogin(roster->streamJid());
 		if (roster && roster->rosterItem(AInfo.contactJid).isValid)
 			emit streamServicesChanged(AInfo.streamJid);
 		emit availServicesChanged(AInfo.streamJid);
@@ -1600,6 +1616,28 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			emit errorReceived(AId, tr("Unsupported gateway type"));
 		}
 	}
+	else if (FAutoLoginRequests.contains(AId))
+	{
+		Jid streamJid = FAutoLoginRequests.take(AId).first;
+		if (!AFields.registered)
+		{
+			IRegisterSubmit submit;
+			submit.key = AFields.key;
+			submit.fieldMask = AFields.fieldMask;
+			submit.serviceJid = AFields.serviceJid;
+			submit.username = streamJid.pBare();
+
+			QString id = FRegistration->sendSubmit(streamJid,submit);
+			if (!id.isEmpty())
+			{
+				FAutoLoginRequests.insert(id,qMakePair<Jid,Jid>(streamJid,AFields.serviceJid));
+			}
+		}
+		else if(FRosterChanger)
+		{
+			FRosterChanger->subscribeContact(streamJid,AFields.serviceJid,QString::null,true);
+		}
+	}
 	else if (FShowRegisterRequests.contains(AId))
 	{
 		Jid streamJid = FShowRegisterRequests.take(AId);
@@ -1608,9 +1646,20 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 	}
 }
 
+void Gateways::onRegisterSuccess(const QString &AId)
+{
+	if (FAutoLoginRequests.contains(AId))
+	{
+		QPair<Jid,Jid> service = FAutoLoginRequests.take(AId);
+		setServiceEnabled(service.first,service.second,true);
+	}
+}
+
 void Gateways::onRegisterError(const QString &AId, const QString &AError)
 {
 	Log(QString("[Gateway register error] id %1 : %2").arg(AId, AError));
+	FLoginRequests.remove(AId);
+	FAutoLoginRequests.remove(AId);
 	FShowRegisterRequests.remove(AId);
 	emit errorReceived(AId,AError);
 }

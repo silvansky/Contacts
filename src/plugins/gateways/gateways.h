@@ -45,15 +45,15 @@
 #include "legacyaccountfilter.h"
 
 class Gateways :
-			public QObject,
-			public IPlugin,
-			public IGateways,
-			public IOptionsHolder,
-			public IStanzaRequestOwner,
-			public IDiscoFeatureHandler
+	public QObject,
+	public IPlugin,
+	public IGateways,
+	public IOptionsHolder,
+	public IStanzaRequestOwner,
+	public IDiscoFeatureHandler
 {
-	Q_OBJECT
-	Q_INTERFACES(IPlugin IGateways IOptionsHolder IStanzaRequestOwner IDiscoFeatureHandler)
+	Q_OBJECT;
+	Q_INTERFACES(IPlugin IGateways IOptionsHolder IStanzaRequestOwner IDiscoFeatureHandler);
 public:
 	Gateways();
 	~Gateways();
@@ -112,6 +112,7 @@ signals:
 	void errorReceived(const QString &AId, const QString &AError);
 protected:
 	void registerDiscoFeatures();
+	void startAutoLogin(const Jid &AStreamJid);
 	void savePrivateStorageSubscribe(const Jid &AStreamJid);
 	IGateServiceDescriptor findGateDescriptor(const IDiscoInfo &AInfo) const;
 protected slots:
@@ -140,6 +141,7 @@ protected slots:
 	void onDiscoItemsWindowCreated(IDiscoItemsWindow *AWindow);
 	void onDiscoItemContextMenu(const QModelIndex AIndex, Menu *AMenu);
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
+	void onRegisterSuccess(const QString &AId);
 	void onRegisterError(const QString &AId, const QString &AError);
 	void onInternalNoticeReady();
 	void onInternalNoticeActionTriggered();
@@ -170,10 +172,12 @@ private:
 	QMultiMap<Jid, Jid> FSubscribeServices;
 	QMap<QString, Jid> FLoginRequests;
 	QMap<QString, Jid> FShowRegisterRequests;
+	QMap<QString, QPair<Jid,Jid> > FAutoLoginRequests;
 private:
 	int FInternalNoticeId;
 	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
+	QMultiMap<Jid, Jid> FStreamAutoRegServices;
 	QList<IGateServiceDescriptor> FGateDescriptors;
 };
 
