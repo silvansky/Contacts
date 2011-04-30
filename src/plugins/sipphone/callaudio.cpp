@@ -55,6 +55,8 @@ CallAudio::CallAudio( QObject* parent ) : QObject(parent)
   _bodyMask = QString::null;
   _useStun = false;
   _symMedia = false;
+
+	_incomingThreadTimeUpdateTimer = 0;
   //pidVideo = 0;
   //audio_fd = -1;
 
@@ -70,6 +72,13 @@ CallAudio::CallAudio( QObject* parent ) : QObject(parent)
 
 CallAudio::~CallAudio( void )
 {
+	if(_incomingThreadTimeUpdateTimer != 0)
+	{
+		killTimer(_incomingThreadTimeUpdateTimer);
+		_incomingThreadTimeUpdateTimer = 0;
+	}
+
+
   if( _pAudioOutput )
   {
     if( _pAudioOutput->isRunning() )
@@ -92,6 +101,15 @@ CallAudio::~CallAudio( void )
 	{
 		delete _pVideo;
 		_pVideo = NULL;
+	}
+}
+
+void CallAudio::timerEvent(QTimerEvent * tEvent)
+{
+	if(tEvent->timerId() == _incomingThreadTimeUpdateTimer && _pAudioOutput)
+	{
+		qint64 timeMS = _pAudioOutput->elapsedTime();
+		emit incomingThreadTimeChange(timeMS);
 	}
 }
 
@@ -345,6 +363,9 @@ void CallAudio::stopSendingAudio( void )
     {
       _pAudioOutput->setCancel();
       _pAudioOutput->wait();
+
+			if(_incomingThreadTimeUpdateTimer != 0)
+				killTimer(_incomingThreadTimeUpdateTimer);
     }
     delete _pAudioOutput;
   }
@@ -722,6 +743,8 @@ void CallAudio::memberStatusUpdated(SipCallMember *member)
           _pAudioOutput->setCodec( getRtpCodec(), getRtpCodecNum() );
           audioIn();
           _pAudioOutput->start();
+					_incomingThreadTimeUpdateTimer = startTimer(1000);
+
           _pAudioInput->start();
         }
         ////else if( jack_audioout )

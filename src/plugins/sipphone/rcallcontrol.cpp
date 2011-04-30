@@ -325,7 +325,7 @@ void RCallControl::callStatusChange(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
-			statusTextChange(tr("ACCEPT"));
+			statusTextChange(tr("Accepted"));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
 			ui.btnHangup->setEnabled(true);
@@ -333,7 +333,7 @@ void RCallControl::callStatusChange(CallStatus status)
 		}
 		else
 		{
-			statusTextChange(tr("ACCEPT"));
+			statusTextChange(tr("Accepted"));
 			ui.btnAccept->hide();
 			ui.btnHangup->show();
 			ui.btnHangup->setEnabled(true);

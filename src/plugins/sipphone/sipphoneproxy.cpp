@@ -204,10 +204,6 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 }
 
 
-
-
-
-
 SipPhoneProxy::~SipPhoneProxy()
 {
 
@@ -645,6 +641,9 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	newcall->setSubject( subject );
 
 	_pCallAudio = new CallAudio( this );
+	
+	connect(_pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
+
 	_pCallAudio->readAudioSettings();
 	_pCallAudio->readVideoSettings();
 	// Реакция на изменение состояния камеры
@@ -759,7 +758,10 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 	{
 		call->setSdpMessageMask( body );
 		call->setSubject( tr("Incoming call") );
+		
 		_pCallAudio = new CallAudio( this );
+		connect(_pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
+
 		_pCallAudio->readAudioSettings();
 		_pCallAudio->readVideoSettings();
 		// Реакция на изменение состояния камеры

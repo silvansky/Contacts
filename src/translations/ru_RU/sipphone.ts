@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Отмена</translation>
     </message>
     <message>
         <source>Registration Settings</source>
@@ -107,7 +107,14 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>QImageLabel</name>
+    <message>
+        <source>no image</source>
+        <translation type="unfinished">нет изображения</translation>
     </message>
 </context>
 <context>
@@ -118,51 +125,51 @@
     </message>
     <message>
         <source>Hangup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>ACCEPT</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Отмена</translation>
     </message>
     <message>
         <source>Calling failure...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вызов не удался</translation>
     </message>
     <message>
         <source>Call again</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Перезвонить</translation>
     </message>
     <message>
         <source>Registering on call server...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Регистрация на сервере</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Отмена</translation>
     </message>
     <message>
         <source>Outgoing Call...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Исходящий вызов...</translation>
     </message>
     <message>
         <source>Incoming Call...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Входящий вызов...</translation>
     </message>
     <message>
         <source>No answer...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Нет ответа</translation>
     </message>
     <message>
         <source>Missed Call...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Пропущенный вызов</translation>
     </message>
     <message>
         <source>Callback</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Обратный вызов</translation>
     </message>
     <message>
         <source>Call Error...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ошибка при попытке вызова</translation>
+    </message>
+    <message>
+        <source>Accepted</source>
+        <translation type="unfinished">Звонок принят</translation>
     </message>
 </context>
 <context>

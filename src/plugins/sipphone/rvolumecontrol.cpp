@@ -156,7 +156,8 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 			_pixList.append(currentIcon.pixmap(42, 24, QIcon::Normal, QIcon::On));
 	}
 
-	_currPixmap = _pixList[4];
+	if(_pixList.size() > 4)
+		_currPixmap = _pixList[4];
 
 	connect(this, SIGNAL(valueChanged(int)), this, SLOT(onValueChange(int)));
 

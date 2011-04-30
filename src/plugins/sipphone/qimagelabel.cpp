@@ -10,7 +10,7 @@ QImageLabel::QImageLabel(QWidget *parent) : QLabel(parent)
 {
 	setMouseTracking(true);
 
-
+	setProperty("ignoreFilter", true);
 
 	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	//icon.addFile(iconStorage->fileFullName(MNI_ROSTERSEARCH_ICON_CROSS), QSize(16,16));
@@ -20,6 +20,7 @@ QImageLabel::QImageLabel(QWidget *parent) : QLabel(parent)
 	iconLabel = new QLabel(this);
 	iconLabel->setFixedSize(16, 16);
 	iconLabel->setMouseTracking(true);
+	iconLabel->setProperty("ignoreFilter", true);
 
 	currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS);
 	if (!currentIcon.isNull())
@@ -63,6 +64,16 @@ void QImageLabel::mousePressEvent(QMouseEvent *pevent)
 void QImageLabel::leaveEvent(QEvent *)
 {
 
+}
+
+void QImageLabel::paintEvent(QPaintEvent * evt)
+{
+	QPainter p(this);
+	QRect curRect = rect();
+	p.fillRect(curRect, Qt::black);
+
+	QTextOption option(Qt::AlignCenter);
+	p.drawText(curRect, tr("no image"),  option);
 }
 
 

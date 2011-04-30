@@ -28,6 +28,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent *);
 	void mousePressEvent(QMouseEvent *);
 	void leaveEvent(QEvent *);
+	void paintEvent(QPaintEvent *);
 
 private:
 	IconStorage * iconStorage;

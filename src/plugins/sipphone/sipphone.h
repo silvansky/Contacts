@@ -143,6 +143,8 @@ protected slots:
 
 	void onStreamCreated(const QString&);
 
+	void incomingThreadTimeChanged(qint64);
+
 
 private:
 	IServiceDiscovery *FDiscovery;
@@ -154,11 +156,13 @@ private:
 	IPresencePlugin *FPresencePlugin;
 
 	IMessageProcessor *FMessageProcessor;
+
 private:
 	int FSHISipRequest;
 	QMap<QString, QString> FOpenRequests;
 	QMap<QString, QString> FCloseRequests;
 	QMap<QString, QString> FPendingRequests;
+
 private:
 	QMap<QString, ISipStream> FStreams;
 	QMap<int, QString> FNotifies;

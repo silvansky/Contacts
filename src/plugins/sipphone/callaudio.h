@@ -90,6 +90,7 @@ signals:
 	void proxyStopCamera();
 	void proxyStartCamera();
 	void proxySuspendStateChange(bool);
+	void incomingThreadTimeChange(qint64);
 
 private slots:
   void memberStatusUpdated(SipCallMember *member);
@@ -100,6 +101,11 @@ private:
   void stopListeningAudio( void );
   void stopSendingAudio( void );
   void detachAndHold( void );
+
+
+
+protected:
+	void timerEvent(QTimerEvent *);
 
 private:
   //KPhoneView *view;
@@ -137,6 +143,8 @@ private:
 
   //QProcess *_pVideoProcess;
 	VoIPVideo* _pVideo;
+
+	int _incomingThreadTimeUpdateTimer;
 
   /*
   * Common socket for both streams, used only in symmetric mode

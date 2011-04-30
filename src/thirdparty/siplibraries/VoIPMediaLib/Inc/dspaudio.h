@@ -66,6 +66,13 @@ protected:
 
   int delay;
 
+public:
+	qint64 elapsedTime() const;
+private:
+	qint64 _startTimeMsecs;
+	qint64 _currTimeMsecs;
+
+
 #ifndef QT_THREAD_SUPPORT
   QTimer *_timer;
 #endif

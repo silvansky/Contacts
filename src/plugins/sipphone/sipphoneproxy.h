@@ -58,6 +58,7 @@ public:
 
 	void updateIdentity( SipUser *newUser, SipRegister *newReg = 0 );
 
+
 protected:
 	SipPhoneWidget* DoCall( QString num, SipCall::CallType ctype );
 	void setStunSrv( QString stunuri );
@@ -65,6 +66,7 @@ protected:
 signals:
 	void stateChanged( void );
 	void callDeletedProxy( bool );
+	void incomingThreadTimeChange(qint64);
 
 public slots:
 	void showIdentities( void );

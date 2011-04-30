@@ -233,6 +233,7 @@ void SipPhone::onStreamOpened(IXmppStream * AXmppStream)
 		//connect(FSipPhoneProxy, SIGNAL(), this, SLOT());
 		connect(this, SIGNAL(sipSendUnRegister()), FSipPhoneProxy, SLOT(makeClearRegisterProxySlot()));
 		connect(FSipPhoneProxy, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
+		connect(FSipPhoneProxy, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(incomingThreadTimeChanged(qint64)));
 	}
 
 	connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(sipClearRegistration(const QString&)));
@@ -241,6 +242,27 @@ void SipPhone::onStreamOpened(IXmppStream * AXmppStream)
 	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
 //
 //
+}
+
+void SipPhone::incomingThreadTimeChanged(qint64 timeMS)
+{
+	QList<RCallControl*> controls = FCallControls.values();
+	
+	
+	QDateTime time;
+	time.addMSecs(timeMS);
+	static QString timeString = time.toString();
+
+	foreach(RCallControl* control, controls)
+	{
+		if(control->status() == RCallControl::Accepted)
+		{
+
+			control->statusTextChange(timeString);
+		}
+
+	}
+	
 }
 
 void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
