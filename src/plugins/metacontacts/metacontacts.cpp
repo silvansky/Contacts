@@ -468,31 +468,20 @@ bool MetaContacts::viewDropAction(IViewWidget *AWidget, const QDropEvent *AEvent
 	return false;
 }
 
-QList<QString> MetaContacts::availDescriptors() const
+QList<IMetaItemDescriptor> MetaContacts::metaDescriptors() const
 {
-	QList<QString> names;
-	for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)
-		names.append(it->name);
-	return names;
+	return FMetaItemDescriptors;
 }
 
-IMetaItemDescriptor MetaContacts::descriptorByOrder(int APageOrder) const
+IMetaItemDescriptor MetaContacts::metaDescriptorByOrder(int APageOrder) const
 {
 	for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)
-		if (it->pageOrder == APageOrder)
+		if (it->metaOrder == APageOrder)
 			return *it;
 	return FDefaultItemDescriptor;
 }
 
-IMetaItemDescriptor MetaContacts::descriptorByName(const QString &AName) const
-{
-	for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)
-		if (it->name == AName)
-			return *it;
-	return FDefaultItemDescriptor;
-}
-
-IMetaItemDescriptor MetaContacts::descriptorByItem(const Jid &AItemJid) const
+IMetaItemDescriptor MetaContacts::metaDescriptorByItem(const Jid &AItemJid) const
 {
 	int order = FItemDescrCache.value(AItemJid.pBare(),-1);
 	if (order == -1)
@@ -503,14 +492,14 @@ IMetaItemDescriptor MetaContacts::descriptorByItem(const Jid &AItemJid) const
 			regexp.setCaseSensitivity(Qt::CaseInsensitive);
 			if (regexp.exactMatch(AItemJid.pBare()))
 			{
-				FItemDescrCache.insert(AItemJid.pBare(),it->pageOrder);
+				FItemDescrCache.insert(AItemJid.pBare(),it->metaOrder);
 				return *it;
 			}
 		}
 	}
 	else
 	{
-		return descriptorByOrder(order);
+		return metaDescriptorByOrder(order);
 	}
 	return FDefaultItemDescriptor;
 }
@@ -537,8 +526,8 @@ QMultiMap<int, Jid> MetaContacts::itemOrders(QList<Jid> AItems) const
 	QMultiMap<int, Jid> orders;
 	foreach(Jid itemJid, AItems)
 	{
-		IMetaItemDescriptor descriptor = descriptorByItem(itemJid);
-		orders.insertMulti(descriptor.pageOrder,itemJid);
+		IMetaItemDescriptor descriptor = metaDescriptorByItem(itemJid);
+		orders.insertMulti(descriptor.metaOrder,itemJid);
 	}
 	return orders;
 }
@@ -654,7 +643,7 @@ void MetaContacts::initMetaItemDescriptors()
 	FDefaultItemDescriptor.detach = true;
 	FDefaultItemDescriptor.service = false;
 	FDefaultItemDescriptor.persistent = false;
-	FDefaultItemDescriptor.pageOrder = MIPO_JABBER;
+	FDefaultItemDescriptor.metaOrder = MIO_JABBER;
 	FDefaultItemDescriptor.gateId = GSID_JABBER;
 	FDefaultItemDescriptor.contactPattern = QString::null;
 
@@ -665,7 +654,7 @@ void MetaContacts::initMetaItemDescriptors()
 	sms.detach = false;
 	sms.service = true;
 	sms.persistent = true;
-	sms.pageOrder = MIPO_SMS;
+	sms.metaOrder = MIO_SMS;
 	sms.gateId = GSID_SMS;
 	sms.contactPattern = "^"JID_NODE_PATTERN"@sms\\."JID_DOMAIN_PATTERN"$";
 	FMetaItemDescriptors.append(sms);
@@ -677,7 +666,7 @@ void MetaContacts::initMetaItemDescriptors()
 	mail.detach = false;
 	mail.service = true;
 	mail.persistent = true;
-	mail.pageOrder = MIPO_MAIL;
+	mail.metaOrder = MIO_MAIL;
 	mail.gateId = GSID_MAIL;
 	mail.contactPattern = "^"JID_NODE_PATTERN"@mail\\."JID_DOMAIN_PATTERN"$";
 	FMetaItemDescriptors.append(mail);
@@ -689,7 +678,7 @@ void MetaContacts::initMetaItemDescriptors()
 	icq.detach = true;
 	icq.service = false;
 	icq.persistent = false;
-	icq.pageOrder = MIPO_ICQ;
+	icq.metaOrder = MIO_ICQ;
 	icq.gateId = GSID_ICQ;
 	icq.contactPattern = "^"JID_NODE_PATTERN"@icq\\."JID_DOMAIN_PATTERN"$";
 	FMetaItemDescriptors.append(icq);
@@ -701,7 +690,7 @@ void MetaContacts::initMetaItemDescriptors()
 	magent.detach = true;
 	magent.service = false;
 	magent.persistent = false;
-	magent.pageOrder = MIPO_MAGENT;
+	magent.metaOrder = MIO_MAGENT;
 	magent.gateId = GSID_MAGENT;
 	magent.contactPattern = "^"JID_NODE_PATTERN"@mrim\\."JID_DOMAIN_PATTERN"$";
 	FMetaItemDescriptors.append(magent);
@@ -713,7 +702,7 @@ void MetaContacts::initMetaItemDescriptors()
 	twitter.detach = true;
 	twitter.service = false;
 	twitter.persistent = false;
-	twitter.pageOrder = MIPO_TWITTER;
+	twitter.metaOrder = MIO_TWITTER;
 	twitter.gateId = GSID_TWITTER;
 	twitter.contactPattern = "^"JID_NODE_PATTERN"@twitter\\."JID_DOMAIN_PATTERN"$";
 	FMetaItemDescriptors.append(twitter);
@@ -725,7 +714,7 @@ void MetaContacts::initMetaItemDescriptors()
 	fring.detach = true;
 	fring.service = false;
 	fring.persistent = false;
-	fring.pageOrder = MIPO_FRING;
+	fring.metaOrder = MIO_FRING;
 	fring.gateId = GSID_TWITTER;
 	fring.contactPattern = "^"JID_NODE_PATTERN"@fring\\."JID_DOMAIN_PATTERN"$";
 	FMetaItemDescriptors.append(fring);
@@ -737,7 +726,7 @@ void MetaContacts::initMetaItemDescriptors()
 	gtalk.detach = true;
 	gtalk.service = false;
 	gtalk.persistent = false;
-	gtalk.pageOrder = MIPO_GTALK;
+	gtalk.metaOrder = MIO_GTALK;
 	gtalk.gateId = GSID_GTALK;
 	gtalk.contactPattern = "^"JID_NODE_PATTERN"@(gmail\\."JID_DOMAIN_PATTERN"|gmail\\.com|googlemail\\.com)$";
 	FMetaItemDescriptors.append(gtalk);
@@ -749,7 +738,7 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.detach = true;
 	yonline.service = false;
 	yonline.persistent = false;
-	yonline.pageOrder = MIPO_YONLINE;
+	yonline.metaOrder = MIO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
 	yonline.contactPattern = "^"JID_NODE_PATTERN"@(yandex\\."JID_DOMAIN_PATTERN"|ya\\.ru|yandex\\.ru|yandex\\.net|yandex\\.com|yandex\\-co\\.ru|narod\\.ru|yandex\\.by|yandex\\.kz|yandex\\.ua)$";
 	FMetaItemDescriptors.append(yonline);
@@ -761,7 +750,7 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.detach = true;
 	qip.service = false;
 	qip.persistent = false;
-	qip.pageOrder = MIPO_QIP;
+	qip.metaOrder = MIO_QIP;
 	qip.gateId = GSID_QIP;
 	qip.contactPattern = "^"JID_NODE_PATTERN"@(qip\\."JID_DOMAIN_PATTERN".|qip\\.ru)$";
 	FMetaItemDescriptors.append(qip);
@@ -773,7 +762,7 @@ void MetaContacts::initMetaItemDescriptors()
 	vkontakte.detach = true;
 	vkontakte.service = false;
 	vkontakte.persistent = false;
-	vkontakte.pageOrder = MIPO_VKONTAKTE;
+	vkontakte.metaOrder = MIO_VKONTAKTE;
 	vkontakte.gateId = GSID_VKONTAKTE;
 	vkontakte.contactPattern = "^"JID_NODE_PATTERN"@(vk\\."JID_DOMAIN_PATTERN"|vk\\.com)$";
 	FMetaItemDescriptors.append(vkontakte);
@@ -785,7 +774,7 @@ void MetaContacts::initMetaItemDescriptors()
 	odnoklasniki.detach = true;
 	odnoklasniki.service = false;
 	odnoklasniki.persistent = false;
-	odnoklasniki.pageOrder = MIPO_ODNOKLASNIKI;
+	odnoklasniki.metaOrder = MIO_ODNOKLASNIKI;
 	odnoklasniki.gateId = GSID_ODNOKLASNIKI;
 	odnoklasniki.contactPattern = "^"JID_NODE_PATTERN"@odnkl\\."JID_DOMAIN_PATTERN"$";
 	FMetaItemDescriptors.append(odnoklasniki);
@@ -797,7 +786,7 @@ void MetaContacts::initMetaItemDescriptors()
 	facebook.detach = true;
 	facebook.service = false;
 	facebook.persistent = false;
-	facebook.pageOrder = MIPO_FACEBOOK;
+	facebook.metaOrder = MIO_FACEBOOK;
 	facebook.gateId = GSID_FACEBOOK;
 	facebook.contactPattern = "^"JID_NODE_PATTERN"@(facebook\\."JID_DOMAIN_PATTERN"|chat\\.facebook\\.com)$";
 	FMetaItemDescriptors.append(facebook);
@@ -809,7 +798,7 @@ void MetaContacts::initMetaItemDescriptors()
 	livejournal.detach = true;
 	livejournal.service = false;
 	livejournal.persistent = false;
-	livejournal.pageOrder = MIPO_LIVEJOURNAL;
+	livejournal.metaOrder = MIO_LIVEJOURNAL;
 	livejournal.gateId = GSID_LIVEJOURNAL;
 	livejournal.contactPattern = "^"JID_NODE_PATTERN"@(livejournal\\."JID_DOMAIN_PATTERN"|livejournal\\.com)$";
 	FMetaItemDescriptors.append(livejournal);
@@ -821,7 +810,7 @@ void MetaContacts::initMetaItemDescriptors()
 	rambler.detach = true;
 	rambler.service = false;
 	rambler.persistent = false;
-	rambler.pageOrder = MIPO_RAMBLER;
+	rambler.metaOrder = MIO_RAMBLER;
 	rambler.gateId = GSID_RAMBLER;
 	rambler.contactPattern = "^"JID_NODE_PATTERN"@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
 	FMetaItemDescriptors.append(rambler);
@@ -1322,7 +1311,7 @@ void MetaContacts::onSendContactDataAction(bool)
 				editor->append(metaContactName(contact));
 				foreach(Jid itemJid, contact.items)
 				{
-					IMetaItemDescriptor descriptor = descriptorByItem(itemJid);
+					IMetaItemDescriptor descriptor = metaDescriptorByItem(itemJid);
 					QString login = itemJid.bare();
 					if (gates.contains(itemJid.domain()))
 						login = FGateways->legacyIdFromUserJid(itemJid);
@@ -1386,8 +1375,8 @@ void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
 		{
 			if (!window->isContactPage())
 			{
-				IMetaItemDescriptor descriptor = descriptorByItem(AWindow->contactJid());
-				QString pageId = window->insertPage(descriptor.pageOrder,descriptor.combine);
+				IMetaItemDescriptor descriptor = metaDescriptorByItem(AWindow->contactJid());
+				QString pageId = window->insertPage(descriptor.metaOrder,descriptor.combine);
 
 				QIcon icon;
 				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
@@ -1555,7 +1544,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				QList<Jid> detachItems;
 				foreach(Jid itemJid, contact.items)
 				{
-					IMetaItemDescriptor descriptor = descriptorByItem(itemJid);
+					IMetaItemDescriptor descriptor = metaDescriptorByItem(itemJid);
 					if (descriptor.detach)
 						detachItems.append(itemJid);
 				}
@@ -1568,7 +1557,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 					QList<QVariant> allItems;
 					foreach(Jid itemJid, detachItems)
 					{
-						IMetaItemDescriptor descriptor = descriptorByItem(itemJid);
+						IMetaItemDescriptor descriptor = metaDescriptorByItem(itemJid);
 						Action *releaseAction = new Action(releaseMenu);
 						releaseAction->setText(QString("%1 (%2)").arg(descriptor.name).arg(itemHint(itemJid)));
 						releaseAction->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);

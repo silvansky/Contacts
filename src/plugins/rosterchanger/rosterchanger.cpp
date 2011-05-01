@@ -631,7 +631,7 @@ IAddMetaItemWidget *RosterChanger::newAddMetaItemWidget(const Jid &AStreamJid, c
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	if (FGateways && roster)
 	{
-		IGateServiceDescriptor descriptor = FGateways->descriptorById(AGateDescriptorId);
+		IGateServiceDescriptor descriptor = FGateways->gateDescriptorById(AGateDescriptorId);
 		if (!descriptor.id.isEmpty())
 		{
 			widget = new AddMetaItemWidget(FOptionsManager,roster,FGateways,descriptor,AParent);
@@ -2051,7 +2051,7 @@ void RosterChanger::onViewWidgetContextMenu(const QPoint &APosition, const QText
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(view->streamJid()) : NULL;
 		if (roster && roster->isOpen() && !roster->rosterItem(contact).isValid)
 		{
-			IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->descriptorByContact(contact) : IGateServiceDescriptor();
+			IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->gateHomeDescriptorsByContact(contact).value(0) : IGateServiceDescriptor();
 			if (!descriptor.id.isEmpty())
 			{
 				IDiscoIdentity identity;

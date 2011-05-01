@@ -198,7 +198,7 @@ IRosterItem MetaRoster::metaRosterItem(const QString &AMetaId) const
 		bool isServiceOnly = true;
 		for (QSet<Jid>::const_iterator it=contact.items.constBegin(); it!=contact.items.constEnd(); it++)
 		{
-			if (!FMetaContacts->descriptorByItem(*it).service)
+			if (!FMetaContacts->metaDescriptorByItem(*it).service)
 			{
 				isServiceOnly = false;
 				IRosterItem childRosterItem = roster()->rosterItem(*it);
@@ -228,7 +228,7 @@ IPresenceItem MetaRoster::metaPresenceItem(const QString &AMetaId) const
 			QMultiMap<int, Jid> orders = FMetaContacts->itemOrders(contact.items.toList());
 			foreach(const Jid &itemJid, orders.values())
 			{
-				bool isService = FMetaContacts->descriptorByItem(itemJid).service;
+				bool isService = FMetaContacts->metaDescriptorByItem(itemJid).service;
 				foreach(IPresenceItem item_pres, FPresence->presenceItems(itemJid))
 				{
 					if (isService)

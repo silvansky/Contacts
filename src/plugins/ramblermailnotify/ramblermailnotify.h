@@ -10,7 +10,7 @@
 #include <definitions/namespaces.h>
 #include <definitions/notificators.h>
 #include <definitions/gateserviceidentifiers.h>
-#include <definitions/metaitempageorders.h>
+#include <definitions/metaitemorders.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/rosternotifyorders.h>
 #include <definitions/notificationdataroles.h>

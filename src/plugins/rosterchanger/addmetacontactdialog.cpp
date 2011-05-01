@@ -82,7 +82,7 @@ void AddMetaContactDialog::setContactJid(const Jid &AContactJid)
 {
 	if (FItemWidgets.isEmpty() && AContactJid.isValid())
 	{
-		IGateServiceDescriptor descriptor = FGateways->descriptorByContact(AContactJid.pBare());
+		IGateServiceDescriptor descriptor = FGateways->gateHomeDescriptorsByContact(AContactJid.pBare()).value(0);
 		if (FAvailDescriptors.contains(descriptor.id))
 			addContactItem(descriptor);
 	}
@@ -102,7 +102,7 @@ void AddMetaContactDialog::setContactText(const QString &AContact)
 {
 	if (FItemWidgets.isEmpty() && !AContact.isEmpty())
 	{
-		IGateServiceDescriptor descriptor = FGateways->descriptorByContact(AContact);
+		IGateServiceDescriptor descriptor = FGateways->gateHomeDescriptorsByContact(AContact).value(0);
 		if (FAvailDescriptors.contains(descriptor.id))
 			addContactItem(descriptor);
 	}
@@ -203,18 +203,17 @@ void AddMetaContactDialog::createGatewaysMenu()
 	if (FGateways)
 	{
 		Menu *menu = new Menu(ui.pbtAddItem);
-		foreach(QString descriptorId, FGateways->availDescriptors())
+		foreach(const IGateServiceDescriptor &descriptor, FGateways->gateDescriptors())
 		{
-			IGateServiceDescriptor descriptor = FGateways->descriptorById(descriptorId);
 			if (descriptorStatus(descriptor) != DS_UNAVAILABLE)
 			{
 				Action *action = new Action(menu);
 				action->setText(descriptor.name);
 				action->setIcon(RSR_STORAGE_MENUICONS,descriptor.iconKey);
-				action->setData(ADR_GATE_DESCRIPTOR_ID,descriptorId);
+				action->setData(ADR_GATE_DESCRIPTOR_ID,descriptor.id);
 				connect(action,SIGNAL(triggered(bool)),SLOT(onAddItemActionTriggered(bool)));
 				menu->addAction(action,AG_DEFAULT,true);
-				FAvailDescriptors.append(descriptorId);
+				FAvailDescriptors.append(descriptor.id);
 			}
 		}
 		ui.pbtAddItem->setMenu(menu);
@@ -540,7 +539,7 @@ void AddMetaContactDialog::onAddItemActionTriggered(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		addContactItem(FGateways->descriptorById(action->data(ADR_GATE_DESCRIPTOR_ID).toString()));
+		addContactItem(FGateways->gateDescriptorById(action->data(ADR_GATE_DESCRIPTOR_ID).toString()));
 	}
 }
 

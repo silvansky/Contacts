@@ -6,7 +6,7 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/actiongroups.h>
-#include <definitions/metaitempageorders.h>
+#include <definitions/metaitemorders.h>
 #include <definitions/gateserviceidentifiers.h>
 #include <definitions/rosterproxyorders.h>
 #include <definitions/rosterindextyperole.h>
@@ -90,10 +90,9 @@ public:
 	virtual void viewDragLeave(IViewWidget *AWidget, const QDragLeaveEvent *AEvent);
 	virtual bool viewDropAction(IViewWidget *AWidget, const QDropEvent *AEvent, Menu *AMenu);
 	//IMetaContacts
-	virtual QList<QString> availDescriptors() const;
-	virtual IMetaItemDescriptor descriptorByOrder(int APageOrder) const;
-	virtual IMetaItemDescriptor descriptorByName(const QString &AName) const;
-	virtual IMetaItemDescriptor descriptorByItem(const Jid &AItemJid) const;
+	virtual QList<IMetaItemDescriptor> metaDescriptors() const;
+	virtual IMetaItemDescriptor metaDescriptorByOrder(int APageOrder) const;
+	virtual IMetaItemDescriptor metaDescriptorByItem(const Jid &AItemJid) const;
 	virtual QString itemHint(const Jid &AItemJid) const;
 	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const;
 	virtual QString metaContactName(const IMetaContact &AContact) const;

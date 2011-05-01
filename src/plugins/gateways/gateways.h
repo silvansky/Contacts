@@ -78,10 +78,10 @@ public:
 	virtual void sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bool ALogIn);
 	virtual QList<Jid> keepConnections(const Jid &AStreamJid) const;
 	virtual void setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
-	virtual QList<QString> availDescriptors() const;
-	virtual IGateServiceDescriptor descriptorById(const QString &ADescriptorId) const;
-	virtual IGateServiceDescriptor descriptorByContact(const QString &AContact) const;
-	virtual QList<IGateServiceDescriptor> descriptorsByContact(const QString &AContact) const;
+	virtual QList<IGateServiceDescriptor> gateDescriptors() const;
+	virtual IGateServiceDescriptor gateDescriptorById(const QString &ADescriptorId) const;
+	virtual QList<IGateServiceDescriptor> gateHomeDescriptorsByContact(const QString &AContact) const;
+	virtual QList<IGateServiceDescriptor> gateAvailDescriptorsByContact(const QString &AContact) const;
 	virtual QString normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, bool AModify = false) const;
 	virtual QString checkNormalizedContactLogin(const QString &ADescriptorId, const QString &AContact) const;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;

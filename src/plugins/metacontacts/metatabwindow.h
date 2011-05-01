@@ -159,10 +159,10 @@ private:
 private:
 	Jid FLastItemJid;
 	QMap<Jid, QString> FItemPages;
-	QMap<QString, int> FItemTypeCount;
+	QMap<int, int> FItemTypeCount;
 private:
-	static QList<QString> FPersistantList;
-	QMap<QString, QString> FPersistantPages;
+	static QList<int> FPersistantList;
+	QMap<int, QString> FPersistantPages;
 };
 
 #endif // METATABWINDOW_H

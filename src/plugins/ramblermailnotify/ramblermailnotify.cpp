@@ -355,8 +355,8 @@ MailNotifyPage *RamblerMailNotify::newMailNotifyPage(const Jid &AStreamJid, cons
 				}
 
 				// TODO: Find descriptor by service
-				IMetaItemDescriptor descriptor = FMetaContacts->descriptorByOrder(MIPO_MAIL);
-				QString pageId = window->insertPage(descriptor.pageOrder,false);
+				IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByOrder(MIO_MAIL);
+				QString pageId = window->insertPage(descriptor.metaOrder,false);
 
 				QIcon icon;
 				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
@@ -492,7 +492,7 @@ void RamblerMailNotify::onRosterNotifyRemoved(int ANotifyId)
 
 void RamblerMailNotify::onChatWindowCreated(IChatWindow *AWindow)
 {
-	if (FMetaContacts && FMetaContacts->descriptorByItem(AWindow->contactJid()).gateId==GSID_MAIL)
+	if (FMetaContacts && FMetaContacts->metaDescriptorByItem(AWindow->contactJid()).gateId==GSID_MAIL)
 	{
 		MailInfoWidget *widget = new MailInfoWidget(AWindow,AWindow->instance());
 		AWindow->insertBottomWidget(CBWO_MAILINFOWIDGET,widget);

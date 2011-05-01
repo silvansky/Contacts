@@ -25,7 +25,7 @@ struct IMetaItemDescriptor
 	bool combine;
 	bool service;
 	bool persistent;
-	int pageOrder;
+	int metaOrder;
 	QString gateId;
 	QString contactPattern;
 };
@@ -121,10 +121,9 @@ class IMetaContacts
 {
 public:
 	virtual QObject *instance() =0;
-	virtual QList<QString> availDescriptors() const =0;
-	virtual IMetaItemDescriptor descriptorByOrder(int APageOrder) const =0;
-	virtual IMetaItemDescriptor descriptorByName(const QString &AName) const =0;
-	virtual IMetaItemDescriptor descriptorByItem(const Jid &AItemJid) const =0;
+	virtual QList<IMetaItemDescriptor> metaDescriptors() const =0;
+	virtual IMetaItemDescriptor metaDescriptorByOrder(int APageOrder) const =0;
+	virtual IMetaItemDescriptor metaDescriptorByItem(const Jid &AItemJid) const =0;
 	virtual QString itemHint(const Jid &AItemJid) const =0;
 	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const =0;
 	virtual QString metaContactName(const IMetaContact &AContact) const =0;

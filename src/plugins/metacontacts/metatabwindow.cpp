@@ -11,7 +11,7 @@
 #define ADR_ITEM_JID         Action::DR_Parametr1
 #define ADR_DEFAULT_ICON     Action::DR_UserDefined+1
 
-QList<QString> MetaTabWindow::FPersistantList;
+QList<int> MetaTabWindow::FPersistantList;
 
 MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QMainWindow(AParent)
 {
@@ -589,8 +589,8 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 
 	foreach(Jid itemJid, newItems)
 	{
-		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(itemJid);
-		QString pageId = insertPage(descriptor.pageOrder,descriptor.combine);
+		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
+		QString pageId = insertPage(descriptor.metaOrder,descriptor.combine);
 
 		QIcon icon;
 		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
@@ -601,17 +601,17 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 		setPageName(pageId,FMetaContacts->itemHint(itemJid));
 
 		FItemPages.insert(itemJid,pageId);
-		FItemTypeCount[descriptor.name]++;
+		FItemTypeCount[descriptor.metaOrder]++;
 
 		updateItemButtonStatus(itemJid);
 	}
 
 	foreach(Jid itemJid, oldItems)
 	{
-		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(itemJid);
+		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
 		removePage(itemPage(itemJid));
 		FItemPages.remove(itemJid);
-		FItemTypeCount[descriptor.name]--;
+		FItemTypeCount[descriptor.metaOrder]--;
 	}
 
 	updatePersistantPages();
@@ -641,12 +641,12 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 	if (FItemPages.contains(AItemJid))
 	{
 		IMetaContact contact = FMetaRoster->metaContact(FMetaId);
-		IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(AItemJid);
+		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(AItemJid);
 
 		QList<Jid> detachItems;
 		foreach(Jid itemJid, contact.items)
 		{
-			IMetaItemDescriptor descriptor = FMetaContacts->descriptorByItem(itemJid);
+			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
 			if (descriptor.detach)
 				detachItems.append(itemJid);
 		}
@@ -680,11 +680,10 @@ void MetaTabWindow::createPersistantList()
 	static bool created = false;
 	if (FRosterChanger && !created)
 	{
-		foreach(QString name, FMetaContacts->availDescriptors())
+		foreach(const IMetaItemDescriptor &descriptor, FMetaContacts->metaDescriptors())
 		{
-			IMetaItemDescriptor descriptor = FMetaContacts->descriptorByName(name);
 			if (descriptor.persistent && !descriptor.gateId.isEmpty())
-				FPersistantList.append(descriptor.name);
+				FPersistantList.append(descriptor.metaOrder);
 		}
 		created = true;
 	}
@@ -692,12 +691,12 @@ void MetaTabWindow::createPersistantList()
 
 void MetaTabWindow::updatePersistantPages()
 {
-	foreach(QString descrName, FPersistantList)
+	foreach(int metaOrder, FPersistantList)
 	{
-		if (isContactPage() && FPersistantPages.value(descrName).isEmpty() && FItemTypeCount.value(descrName)==0)
+		if (isContactPage() && FPersistantPages.value(metaOrder).isEmpty() && FItemTypeCount.value(metaOrder)==0)
 		{
-			IMetaItemDescriptor descriptor = FMetaContacts->descriptorByName(descrName);
-			QString pageId = insertPage(descriptor.pageOrder, false);
+			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByOrder(metaOrder);
+			QString pageId = insertPage(descriptor.metaOrder, false);
 
 			QIcon icon;
 			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
@@ -707,18 +706,18 @@ void MetaTabWindow::updatePersistantPages()
 			setPageIcon(pageId,icon);
 			setPageName(pageId,tr("Add contact"));
 
-			FPersistantPages.insert(descrName,pageId);
+			FPersistantPages.insert(metaOrder,pageId);
 		}
-		else if (!FPersistantPages.value(descrName).isEmpty() && FItemTypeCount.value(descrName)>0)
+		else if (!FPersistantPages.value(metaOrder).isEmpty() && FItemTypeCount.value(metaOrder)>0)
 		{
-			removePage(FPersistantPages.take(descrName));
+			removePage(FPersistantPages.take(metaOrder));
 		}
 	}
 }
 
 void MetaTabWindow::insertPersistantWidget(const QString &APageId)
 {
-	IMetaItemDescriptor descriptor = FMetaContacts->descriptorByName(FPersistantPages.key(APageId));
+	IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByOrder(FPersistantPages.key(APageId));
 	if (!descriptor.gateId.isEmpty())
 	{
 		AddMetaItemPage *widget = new AddMetaItemPage(FRosterChanger, this, FMetaRoster, FMetaId, descriptor);

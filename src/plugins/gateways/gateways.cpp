@@ -581,15 +581,12 @@ void Gateways::setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, 
 	}
 }
 
-QList<QString> Gateways::availDescriptors() const
+QList<IGateServiceDescriptor> Gateways::gateDescriptors() const
 {
-	QList<QString> ids;
-	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
-		ids.append(it->id);
-	return ids;
+	return FGateDescriptors;
 }
 
-IGateServiceDescriptor Gateways::descriptorById(const QString &ADescriptorId) const
+IGateServiceDescriptor Gateways::gateDescriptorById(const QString &ADescriptorId) const
 {
 	for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
 		if (it->id == ADescriptorId)
@@ -597,8 +594,9 @@ IGateServiceDescriptor Gateways::descriptorById(const QString &ADescriptorId) co
 	return IGateServiceDescriptor();
 }
 
-IGateServiceDescriptor Gateways::descriptorByContact(const QString &AContact) const
+QList<IGateServiceDescriptor> Gateways::gateHomeDescriptorsByContact(const QString &AContact) const
 {
+	QList<IGateServiceDescriptor> descriptors;
 	if (!AContact.isEmpty())
 	{
 		QRegExp homeRegExp;
@@ -610,14 +608,14 @@ IGateServiceDescriptor Gateways::descriptorByContact(const QString &AContact) co
 				homeRegExp.setPattern(it->homeContactPattern);
 				QString contact = normalizeContactLogin(it->id,AContact);
 				if (!contact.isEmpty() && homeRegExp.exactMatch(contact))
-					return *it;
+					descriptors.append(*it);
 			}
 		}
 	}
-	return IGateServiceDescriptor();
+	return descriptors;
 }
 
-QList<IGateServiceDescriptor> Gateways::descriptorsByContact(const QString &AContact) const
+QList<IGateServiceDescriptor> Gateways::gateAvailDescriptorsByContact(const QString &AContact) const
 {
 	QList<IGateServiceDescriptor> descriptors;
 	if (!AContact.isEmpty())
@@ -643,7 +641,7 @@ QString Gateways::normalizeContactLogin(const QString &ADescriptorId, const QStr
 	QString contact = AContact.trimmed();
 	if (!contact.isEmpty())
 	{
-		IGateServiceDescriptor descriptor = descriptorById(ADescriptorId);
+		IGateServiceDescriptor descriptor = gateDescriptorById(ADescriptorId);
 		if (!descriptor.id.isEmpty())
 		{
 			// Очистим номер от мусора
@@ -681,7 +679,7 @@ QString Gateways::checkNormalizedContactLogin(const QString &ADescriptorId, cons
 {
 	QString errMessage;
 
-	IGateServiceDescriptor descriptor = descriptorById(ADescriptorId);
+	IGateServiceDescriptor descriptor = gateDescriptorById(ADescriptorId);
 	if (!descriptor.id.isEmpty())
 	{
 		// Проверки на правильность ввода
