@@ -1114,7 +1114,7 @@ void MetaContacts::onMergeContacts(bool)
 			{
 				MergeContactsDialog *dialog = new MergeContactsDialog(this,mroster,metaIds);
 				connect(mroster->instance(),SIGNAL(metaRosterClosed()),dialog,SLOT(reject()));
-				WidgetManager::showActivateRaiseWindow(dialog);
+				dialog->show();
 			}
 		}
 	}

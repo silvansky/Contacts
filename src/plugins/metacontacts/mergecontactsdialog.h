@@ -8,16 +8,20 @@
 #include <utils/stylestorage.h>
 #include "ui_mergecontactsdialog.h"
 
-class MergeContactsDialog : 
+class CustomBorderContainer;
+
+class MergeContactsDialog :
 	public QDialog
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<QString> AMetaIds, QWidget *AParent = NULL);
 	~MergeContactsDialog();
+	CustomBorderContainer * windowBorder() const;
+	void show();
 protected slots:
 	void onContactNameChanged(const QString &AText);
-	void onDialogButtonClicked(QAbstractButton *AButton);
+	void onAcceptButtonClicked();
 private:
 	Ui::MergeContactsDialog ui;
 private:
@@ -25,6 +29,7 @@ private:
 	IMetaContacts *FMetaContacts;
 private:
 	QList<QString> FMetaIds;
+	CustomBorderContainer * border;
 };
 
 #endif // MERGECONTACTSDIALOG_H

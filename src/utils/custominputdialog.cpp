@@ -5,6 +5,8 @@
 #include <definitions/resources.h>
 #include "stylestorage.h"
 #include <definitions/stylesheets.h>
+#include "graphicseffectsstorage.h"
+#include <definitions/graphicseffects.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -32,6 +34,7 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type) :
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 }
 
 CustomInputDialog::~CustomInputDialog()
