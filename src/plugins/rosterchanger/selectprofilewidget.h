@@ -28,7 +28,7 @@ protected:
 protected slots:
 	void onRosterOpened();
 	void onRosterClosed();
-	void onProfileButtonToggled(bool);
+	void onProfileButtonToggled(bool AChecked);
 	void onProfileLabelLinkActivated(const QString &ALink);
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);

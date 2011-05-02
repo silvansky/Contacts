@@ -55,14 +55,13 @@ Jid SelectProfileWidget::selectedProfile() const
 
 void SelectProfileWidget::setSelectedProfile(const Jid &AServiceJid)
 {
-	if (FProfiles.contains(AServiceJid))
+	QRadioButton *button = FProfiles.value(AServiceJid);
+	if (button && button->isEnabled())
 	{
-		QRadioButton *button = FProfiles.value(AServiceJid);
-		if (button->isEnabled() && !button->isChecked())
-		{
-			FProfiles.value(AServiceJid)->setChecked(true);
-			emit selectedProfileChanged();
-		}
+		button->blockSignals(true);
+		button->setChecked(true);
+		button->blockSignals(false);
+		emit selectedProfileChanged();
 	}
 }
 
@@ -158,20 +157,23 @@ void SelectProfileWidget::updateProfiles()
 			label->setEnabled(true);
 		}
 	}
-
+	setVisible(hasDisabledProfiles || FProfiles.count()>1);
 
 	if (selectedProfile().isEmpty())
 	{
 		if (!FDescriptor.needGate)
 			setSelectedProfile(streamJid());
-		else
+		else if (!enabledProfiles.isEmpty())
 			setSelectedProfile(enabledProfiles.value(0));
+		else if (!oldProfiles.isEmpty())
+			emit selectedProfileChanged();
 	}
 
-	setVisible(hasDisabledProfiles || FProfiles.count()>1);
-
-	emit profilesChanged();
-	emit adjustSizeRequested();
+	if (!newProfiles.isEmpty() || !oldProfiles.isEmpty())
+	{
+		emit profilesChanged();
+		emit adjustSizeRequested();
+	}
 }
 
 void SelectProfileWidget::onRosterOpened()
@@ -184,13 +186,10 @@ void SelectProfileWidget::onRosterClosed()
 	updateProfiles();
 }
 
-void SelectProfileWidget::onProfileButtonToggled(bool)
+void SelectProfileWidget::onProfileButtonToggled(bool AChecked)
 {
-	QRadioButton *button = qobject_cast<QRadioButton *>(sender());
-	if (button && button->isChecked())
-	{
-		setSelectedProfile(FProfiles.key(button));
-	}
+	if (AChecked)
+		setSelectedProfile(FProfiles.key(qobject_cast<QRadioButton *>(sender())));
 }
 
 void SelectProfileWidget::onProfileLabelLinkActivated(const QString &ALink)

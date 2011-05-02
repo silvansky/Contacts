@@ -4,21 +4,25 @@
 #include <QUrl>
 #include <QTimer>
 #include <QDialog>
-#include <definitions/vcardvaluenames.h>
+#include <QRadioButton>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/optionvalues.h>
 #include <definitions/stylesheets.h>
+#include <definitions/vcardvaluenames.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/iroster.h>
 #include <interfaces/igateways.h>
 #include <interfaces/iavatars.h>
 #include <interfaces/ivcard.h>
+#include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/customlistview.h>
+#include "selectprofilewidget.h"
 #include "ui_addcontactdialog.h"
 
 class AddContactDialog :
@@ -49,36 +53,32 @@ protected:
 	void initialize(IPluginManager *APluginManager);
 	void initGroups();
 protected:
-	QString normalContactText(const QString &AText) const;
 	QString defaultContactNick(const Jid &AContactJid) const;
-	QList<Jid> suitableServices(const IGateServiceDescriptor &ADescriptor) const;
-	QList<Jid> suitableServices(const QList<IGateServiceDescriptor> &ADescriptors) const;
+	QString confirmDescriptorText(const IGateServiceDescriptor &ADescriptor);
+protected:
+	void updatePageAddress();
+	void updatePageConfirm(const QList<IGateServiceDescriptor> &ADescriptors);
+	void updatePageParams(const IGateServiceDescriptor &ADescriptor);
 protected:
 	void setDialogState(int AState);
-	void startResolve(int ATimeout);
-	void setErrorMessage(const QString &AMessage);
-	void setGatewaysEnabled(bool AEnabled);
 	void setRealContactJid(const Jid &AContactJid);
 	void setResolveNickState(bool AResole);
-protected slots:
+	void setErrorMessage(const QString &AMessage, bool AInvalidInput);
+protected:
 	void resolveDescriptor();
-	void resolveServiceJid();
 	void resolveContactJid();
 	void resolveContactName();
 protected:
 	virtual void showEvent(QShowEvent *AEvent);
 protected slots:
-	void onDialogAccepted();
+	void onDialogButtonClicked(QAbstractButton *AButton);
 	void onAdjustDialogSize();
 	void onContactTextEdited(const QString &AText);
 	void onContactNickEdited(const QString &AText);
 	void onGroupCurrentIndexChanged(int AIndex);
-	void onProfileCurrentIndexChanged(int AIndex);
+	void onSelectedProfileChanched();
 	void onVCardReceived(const Jid &AContactJid);
-	void onVCardError(const Jid &AContactJid, const QString &AError);
-	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
-	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 private:
 	Ui::AddContactDialogClass ui;
@@ -88,24 +88,17 @@ private:
 	IGateways *FGateways;
 	IVCardPlugin *FVcardPlugin;
 	IRosterChanger *FRosterChanger;
-private:
-	IGateServiceDescriptor FDescriptor;
-	QList<IGateServiceDescriptor> FConfirmDescriptors;
-private:
-	QLabel *FServiceIcon;
-private:
-	Jid FContactJid;
-	Jid FPreferGateJid;
+	IOptionsManager *FOptionsManager;
 private:
 	bool FShown;
-	int FDialogState;
 	bool FResolveNick;
-	QTimer FResolveTimer;
+	bool FServiceFailed;
+	int FDialogState;
+	Jid FContactJid;
 	QString FContactJidRequest;
-	QList<Jid> FEnabledGateways;
-	QList<Jid> FDisabledGateways;
-	QMap<QString, Jid> FServices;
-	QMap<QString, Jid> FLoginRequests;
+	IGateServiceDescriptor FDescriptor;
+	SelectProfileWidget *FSelectProfileWidget;
+	QMap<QRadioButton *, IGateServiceDescriptor> FConfirmButtons;
 };
 
 #endif // ADDCONTACTDIALOG_H

@@ -12,8 +12,8 @@
         <translation>Позволяет другим модулям получать доступ к иконке и контекстному меню в трее</translation>
     </message>
     <message>
-        <source>Exit Virtus</source>
-        <translation>Выйти из Virtus</translation>
+        <source>Exit Friends</source>
+        <translation>Выйти из Friends</translation>
     </message>
 </context>
 </TS>

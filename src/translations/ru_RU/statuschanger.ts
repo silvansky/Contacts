@@ -198,10 +198,6 @@
         <translation>Автоматически восстанавливать соединение</translation>
     </message>
     <message>
-        <source>Virtus - %1</source>
-        <translation>Virtus - %1</translation>
-    </message>
-    <message>
         <source>Temporary connection failure</source>
         <translation>Временный сбой соединения</translation>
     </message>
@@ -216,6 +212,10 @@
     <message>
         <source>Problem persists</source>
         <translation>Проблема устранена</translation>
+    </message>
+    <message>
+        <source>Friends - %1</source>
+        <translation>Friends - %1</translation>
     </message>
 </context>
 <context>

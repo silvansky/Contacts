@@ -37,17 +37,21 @@
         <source>Merging contacts</source>
         <translation>Объединение контактов</translation>
     </message>
-    <message numerus="yes">
-        <source>&lt;b&gt;%n contacts&lt;/b&gt; will be merged into one:</source>
-        <translation>
-            <numerusform>&lt;b&gt; %n контактов&lt;/b&gt; будут объединены в один:</numerusform>
-            <numerusform>&lt;b&gt; %n контакта&lt;/b&gt; будут объединены в один:</numerusform>
-            <numerusform>&lt;b&gt; %n контактов&lt;/b&gt; будут объединены в один:</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Merge contacts</source>
         <translation>Объединить контакты</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message numerus="yes">
+        <source>These %n contacts will be merged into one:</source>
+        <translation>
+            <numerusform>Эти %n контакта будут объединены в один:</numerusform>
+            <numerusform>Эти %n контакта будут объединены в один:</numerusform>
+            <numerusform>Эти %n контактов будут объединены в один:</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -187,10 +191,6 @@
     <message>
         <source>Rename contact</source>
         <translation>Переименовать контакт</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Cancel</source>

@@ -121,55 +121,55 @@
     <name>RCallControl</name>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">Принять</translation>
+        <translation>Принять</translation>
     </message>
     <message>
         <source>Hangup</source>
-        <translation type="unfinished">Отмена</translation>
+        <translation>Отмена</translation>
     </message>
     <message>
         <source>Calling failure...</source>
-        <translation type="unfinished">Вызов не удался</translation>
+        <translation>Вызов не удался...</translation>
     </message>
     <message>
         <source>Call again</source>
-        <translation type="unfinished">Перезвонить</translation>
+        <translation>Перезвонить</translation>
     </message>
     <message>
         <source>Registering on call server...</source>
-        <translation type="unfinished">Регистрация на сервере</translation>
+        <translation>Регистрация на сервере...</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Отмена</translation>
+        <translation>Отмена</translation>
     </message>
     <message>
         <source>Outgoing Call...</source>
-        <translation type="unfinished">Исходящий вызов...</translation>
+        <translation>Исходящий вызов...</translation>
     </message>
     <message>
         <source>Incoming Call...</source>
-        <translation type="unfinished">Входящий вызов...</translation>
+        <translation>Входящий вызов...</translation>
     </message>
     <message>
         <source>No answer...</source>
-        <translation type="unfinished">Нет ответа</translation>
+        <translation>Нет ответа...</translation>
     </message>
     <message>
         <source>Missed Call...</source>
-        <translation type="unfinished">Пропущенный вызов</translation>
+        <translation>Пропущенный вызов...</translation>
     </message>
     <message>
         <source>Callback</source>
-        <translation type="unfinished">Обратный вызов</translation>
+        <translation>Обратный вызов</translation>
     </message>
     <message>
         <source>Call Error...</source>
-        <translation type="unfinished">Ошибка при попытке вызова</translation>
+        <translation>Ошибка при попытке вызова...</translation>
     </message>
     <message>
         <source>Accepted</source>
-        <translation type="unfinished">Звонок принят</translation>
+        <translation>Звонок принят</translation>
     </message>
 </context>
 <context>
@@ -260,10 +260,6 @@
 <context>
     <name>SipPhoneProxy</name>
     <message>
-        <source>Virtus</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Subscribe message from uri:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -285,6 +281,10 @@
     </message>
     <message>
         <source>Incoming call</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Friends</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

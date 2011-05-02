@@ -74,7 +74,7 @@ void AddMetaItemWidget::setContactJid(const Jid &AContactJid)
 	{
 		QString contact = AContactJid.bare();
 		Jid serviceJid = AContactJid.domain();
-		if (FGateways->streamServices(streamJid()).contains(serviceJid))
+		if (FGateways->availServices(streamJid()).contains(serviceJid))
 		{
 			contact = FGateways->legacyIdFromUserJid(AContactJid);
 			FSelectProfileWidget->setSelectedProfile(serviceJid);
@@ -202,7 +202,7 @@ void AddMetaItemWidget::resolveContactJid()
 			}
 			else if (FRoster->rosterItem(contact).isValid)
 			{
-				errMessage = tr("This contact is already present in your roster.");
+				errMessage = tr("This contact is already present in your contact-list.");
 			}
 			else
 			{
@@ -262,7 +262,7 @@ void AddMetaItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid
 		if (!FRoster->rosterItem(AUserJid).isValid)
 			setRealContactJid(AUserJid);
 		else
-			setErrorMessage(tr("This contact is already present in your roster."),true);
+			setErrorMessage(tr("This contact is already present in your contact-list."),true);
 	}
 }
 

@@ -38,10 +38,6 @@
 <context>
     <name>CommentDialog</name>
     <message>
-        <source>Message sending...</source>
-        <translation>Идет отправка...</translation>
-    </message>
-    <message>
         <source>Message delivered</source>
         <translation>Сообщение доставлено</translation>
     </message>
@@ -58,8 +54,35 @@
         <translation>Написать отзыв</translation>
     </message>
     <message>
-        <source>version %1 (r%2)</source>
-        <translation>версия %1 (r%2)</translation>
+        <source>TECHNICAL DATA (may be useful for developers)
+</source>
+        <translation>ТЕХНИЧЕСКАЯ ИНФОРМАЦИЯ (может быть полезна разработчикам)</translation>
+    </message>
+    <message>
+        <source>Friends version: %1 (r%2)
+</source>
+        <translation>Версия Friends: %1 (r%2)</translation>
+    </message>
+    <message>
+        <source>Operating system: %1
+</source>
+        <translation>Операционная система: %1</translation>
+    </message>
+    <message>
+        <source>Screen: %1</source>
+        <translation>Экран: %1</translation>
+    </message>
+    <message>
+        <source>Sending message...</source>
+        <translation>Отправка сообщения...</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
@@ -95,6 +118,10 @@
     <message>
         <source>Add useful technical data</source>
         <translation>Прикрепить технические сведения</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
@@ -132,12 +159,12 @@
         <translation>Ваш отзыв</translation>
     </message>
     <message>
-        <source>Virtus updates ready</source>
-        <translation>Обновления для Virtus готовы</translation>
-    </message>
-    <message>
         <source>Updates are ready. Do you want to restart Virtus now?</source>
         <translation>Обновления готовы. Вы хотите перезапустить Virtus сейчас?</translation>
+    </message>
+    <message>
+        <source>Friends updates ready</source>
+        <translation>Готовы обновления Friends</translation>
     </message>
 </context>
 <context>

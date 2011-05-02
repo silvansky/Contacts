@@ -12,28 +12,8 @@
         <translation>Новая группа...</translation>
     </message>
     <message>
-        <source>To add a user to %1, you must enter your %1 account.</source>
-        <translation>Чтобы добавлять пользователей %1, вам необходимо ввести свою учётную запись %1.</translation>
-    </message>
-    <message>
         <source>Invalid address. Please check the address and try again.</source>
         <translation>Указан недопустимый адрес. Пожалуйста, проверьте адрес и повторите попытку.</translation>
-    </message>
-    <message>
-        <source>You cannot add this contact to selected profile</source>
-        <translation>Вы не можете добавить этот контакт в выбранный профиль</translation>
-    </message>
-    <message>
-        <source>Unable to determine the contact ID</source>
-        <translation>Не удалось определить идентификатор контакта</translation>
-    </message>
-    <message>
-        <source>Selected profile is not acceptable</source>
-        <translation>Выбран недопустимый профиль</translation>
-    </message>
-    <message>
-        <source>This address is already in your contact-list.</source>
-        <translation>Этот адрес уже есть в вашем контакт-листе.</translation>
     </message>
     <message>
         <source>Create group</source>
@@ -44,47 +24,79 @@
         <translation>Имя новой группы</translation>
     </message>
     <message>
-        <source>Unable to determine the contact ID: %1</source>
-        <translation>Не удалось определить идентификатор контакта: %1</translation>
-    </message>
-    <message>
-        <source>Enter your %1 account</source>
-        <translation>Ввести свою учётную запись %1</translation>
-    </message>
-    <message>
-        <source>%1 service is unavailable</source>
-        <translation>%1 сервис недоступен</translation>
-    </message>
-    <message>
         <source>Add Contact</source>
         <translation>Добавить контакт</translation>
+    </message>
+    <message>
+        <source>Adding a contact</source>
+        <translation>Добавление контакта</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>This is an ICQ number: %1</source>
+        <translation>Это ICQ номер: %1</translation>
+    </message>
+    <message>
+        <source>This is a phone number: %1</source>
+        <translation>Это номер телефона: %1</translation>
+    </message>
+    <message>
+        <source>This is a e-mail address: %1</source>
+        <translation>Это адрес электронной почты: %1</translation>
+    </message>
+    <message>
+        <source>This is a %1 address: %2</source>
+        <translation>Это адрес %1: %2</translation>
+    </message>
+    <message>
+        <source>Refine entered address: &lt;b&gt;%1&lt;/b&gt;</source>
+        <translation>Уточните введенный адрес: &lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Продолжить</translation>
+    </message>
+    <message>
+        <source>Failed to request contact JID from transport.</source>
+        <translation>Не удалось получить JID контакта от транспорта.</translation>
+    </message>
+    <message>
+        <source>Service &apos;%1&apos; is not available now.</source>
+        <translation>Сервис &apos;%1&apos; сейчас недоступен.</translation>
+    </message>
+    <message>
+        <source>Select your return address.</source>
+        <translation>Выберите Ваш обратный адрес.</translation>
+    </message>
+    <message>
+        <source>This contact is already present in your contact-list.</source>
+        <translation>Этот контакт уже имеется в Вашем контакт-листе.</translation>
     </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>
     <message>
-        <source>You can add friends and acquaintances who use one of the following services:</source>
-        <translation>Вы можете добавлять ваших знакомых и друзей, которые пользуются одним из указанных сервисов:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Имя:</translation>
-    </message>
-    <message>
-        <source>Search...</source>
-        <translation>Поиск...</translation>
-    </message>
-    <message>
-        <source>To group:</source>
-        <translation>В группу:</translation>
-    </message>
-    <message>
-        <source>To profile:</source>
-        <translation>В профиль:</translation>
-    </message>
-    <message>
         <source>Enter the address of new contact</source>
         <translation>Укажите адрес нового контакта</translation>
+    </message>
+    <message>
+        <source>Adding a contact</source>
+        <translation>Добавление контакта</translation>
+    </message>
+    <message>
+        <source>Contact Address</source>
+        <translation>Адрес контакта</translation>
+    </message>
+    <message>
+        <source>As addresses you can also enter e-mail, ICQ number or mobile numbers for SMS (after 8 or +7)</source>
+        <translation>В качестве адреса также можно вводить e-mail, ICQ или мобильный номер для SMS (через 8 или +7)</translation>
+    </message>
+    <message>
+        <source>Contact Name</source>
+        <translation>Имя контакта</translation>
     </message>
 </context>
 <context>
@@ -132,26 +144,6 @@
 <context>
     <name>AddMetaItemWidget</name>
     <message>
-        <source>disconnected. %1</source>
-        <translation>отключен. %1</translation>
-    </message>
-    <message>
-        <source>Connect</source>
-        <translation>Подключить</translation>
-    </message>
-    <message>
-        <source>failed to connect. %1</source>
-        <translation>не удалось подключить. %1</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Настройки</translation>
-    </message>
-    <message>
-        <source>connecting...</source>
-        <translation>подключение...</translation>
-    </message>
-    <message>
         <source>You are not connected to server.</source>
         <translation>Вы не подключены к серверу.</translation>
     </message>
@@ -180,15 +172,8 @@
         <translation>Не удалось получить JID контакта от транспорта.</translation>
     </message>
     <message>
-        <source>This contact is already present in your roster.</source>
+        <source>This contact is already present in your contact-list.</source>
         <translation>Этот контакт уже имеется в Вашем контакт-листе.</translation>
-    </message>
-</context>
-<context>
-    <name>AddMetaItemWidgetClass</name>
-    <message>
-        <source>Return address:</source>
-        <translation>Обратный адрес:</translation>
     </message>
 </context>
 <context>
@@ -388,6 +373,36 @@
     <message>
         <source>&lt;font size=+2&gt;Rename group&lt;/font&gt;&lt;br&gt;Enter new group name:</source>
         <translation>&lt;font size=+2&gt;Переименовать группу&lt;/font&gt;&lt;br&gt;Введите новое имя группы:</translation>
+    </message>
+</context>
+<context>
+    <name>SelectProfileWidget</name>
+    <message>
+        <source>disconnected. %1</source>
+        <translation>отключен. %1</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>Подключить</translation>
+    </message>
+    <message>
+        <source>failed to connect. %1</source>
+        <translation>не удалось подключить. %1</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Настройки</translation>
+    </message>
+    <message>
+        <source>connecting...</source>
+        <translation>подключение...</translation>
+    </message>
+</context>
+<context>
+    <name>SelectProfileWidgetClass</name>
+    <message>
+        <source>To contact-list:</source>
+        <translation>В список контактов:</translation>
     </message>
 </context>
 <context>

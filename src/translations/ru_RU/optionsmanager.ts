@@ -146,10 +146,6 @@
         <translation>Не удалось открыть профиль</translation>
     </message>
     <message>
-        <source>This profile is already opened by another Virtus instance</source>
-        <translation>Этот профиль уже открыть другой копией Virtus</translation>
-    </message>
-    <message>
         <source>Unable to create profile</source>
         <translation>Не удалось создать профиль</translation>
     </message>
@@ -231,6 +227,10 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     <message>
         <source>Forgot your password?</source>
         <translation>Забыли пароль?</translation>
+    </message>
+    <message>
+        <source>This profile is already opened by another Friends instance</source>
+        <translation>Этот профиль уже открыть другой копией Friends</translation>
     </message>
 </context>
 <context>

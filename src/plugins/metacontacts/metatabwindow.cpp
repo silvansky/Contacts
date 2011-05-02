@@ -980,7 +980,7 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 	if (action)
 	{
 		Jid itemJid = action->data(ADR_ITEM_JID).toString();
-		QString message = tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(FMetaContacts->itemHint(itemJid));
+		QString message = tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(itemJid.bare());
 		if (QMessageBox::question(NULL,tr("Remove contact"),message,QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 			FMetaRoster->deleteContactItem(FMetaId,action->data(ADR_ITEM_JID).toString());
 	}

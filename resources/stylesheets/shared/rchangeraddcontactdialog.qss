@@ -3,24 +3,12 @@ QDialog
 	background-color: rgba(65, 70, 77, 250);
 }
 
-#wdtGateways, QDialogButtonBox
+QWidget#wdtPageAddress, QWidget#wdtPageConfirm, QWidget#wdtPageParams, QWidget#wdtSelectProfile, QWidget#wdtConfirmAddresses, QWidget#wdtProfiles
 {
 	background-color: transparent;
 }
 
-
 QLabel#lblCaption
 {
-	font-size: 12px;
-	font-weight: bold;
-}
-
-QLabel#lblInfo
-{
-	color: blue;
-}
-
-QLabel#lblError
-{
-	color: darkred;
+	font-size: 18px;
 }

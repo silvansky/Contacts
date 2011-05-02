@@ -21,6 +21,33 @@
     </message>
 </context>
 <context>
+    <name>CustomInputDialog</name>
+    <message>
+        <source>Enter string value</source>
+        <translation>Введите стороковое значение</translation>
+    </message>
+    <message>
+        <source>Yes or no?</source>
+        <translation>Да или нет?</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>ОК</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Да</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Нет</translation>
+    </message>
+</context>
+<context>
     <name>ErrorHandler</name>
     <message>
         <source>Unknown Error</source>

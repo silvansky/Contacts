@@ -1306,7 +1306,7 @@ void MetaContacts::onSendContactDataAction(bool)
 			if (window && window->editWidget())
 			{
 				QTextEdit *editor = window->editWidget()->textEdit();
-				QList<Jid> gates = FGateways!=NULL ? FGateways->streamServices(mroster->streamJid()) : QList<Jid>();
+				QList<Jid> gates = FGateways!=NULL ? FGateways->availServices(mroster->streamJid()) : QList<Jid>();
 				IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
 				editor->append(metaContactName(contact));
 				foreach(Jid itemJid, contact.items)

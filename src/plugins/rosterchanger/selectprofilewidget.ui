@@ -6,15 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>399</width>
-    <height>47</height>
+    <width>374</width>
+    <height>35</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QLabel" name="lblProfile">
      <property name="text">
-      <string>Return address:</string>
+      <string>To contact-list:</string>
      </property>
     </widget>
    </item>
