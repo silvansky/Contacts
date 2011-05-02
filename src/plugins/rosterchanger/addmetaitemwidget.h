@@ -14,6 +14,7 @@
 #include <interfaces/ipresence.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/iconstorage.h>
+#include "selectprofilewidget.h"
 #include "ui_addmetaitemwidget.h"
 
 class AddMetaItemWidget : 
@@ -46,9 +47,6 @@ signals:
 	void deleteButtonClicked();
 	void contactJidChanged(const Jid &AContactJid);
 protected:
-	void updateProfiles();
-	Jid selectedProfile() const;
-	void setSelectedProfile(const Jid &AServiceJid);
 	QString placeholderTextForGate() const;
 protected:
 	void startResolve(int ATimeout);
@@ -56,37 +54,26 @@ protected:
 protected slots:
 	void resolveContactJid();
 protected slots:
-	void onRosterOpened();
-	void onRosterClosed();
+	void onProfilesChanged();
+	void onSelectedProfileChanched();
 	void onContactTextEditingFinished();
 	void onContactTextEdited(const QString &AText);
-	void onProfileButtonToggled(bool);
-	void onProfileLabelLinkActivated(const QString &ALink);
-	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
-	void onStreamServicesChanged(const Jid &AStreamJid);
-	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
-	void onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
 private:
 	Ui::AddMetaItemWidgetClass ui;
 private:
 	IRoster *FRoster;
 	IGateways *FGateways;
-	IOptionsManager *FOptionsManager;
 private:
 	QString FContactJidRequest;
-	QMap<QString, Jid> FLoginRequests;
 private:
-	bool FServiceFailed;
-	bool FContactTextChanged;
-	Jid FStreamJid;
 	Jid FContactJid;
 	QTimer FResolveTimer;
+	bool FServiceFailed;
+	bool FContactTextChanged;
 	IGateServiceDescriptor FDescriptor;
-	QMap<Jid, QString> FProfileLogins;
-	QMap<Jid, QLabel *> FProfileLabels;
-	QMap<Jid, QRadioButton *> FProfiles;
+	SelectProfileWidget *FSelectProfileWidget;
 };
 
 #endif // ADDMETAITEMWIDGET_H

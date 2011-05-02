@@ -11,14 +11,19 @@ AddMetaItemWidget::AddMetaItemWidget(IOptionsManager *AOptionsManager, IRoster *
 
 	FRoster = ARoster;
 	FGateways = AGateways;
-	FOptionsManager = AOptionsManager;
 
 	FServiceFailed = false;
 	FContactTextChanged = false;
 	FDescriptor = ADescriptor;
 
-	ui.wdtProfiles->setLayout(new QVBoxLayout);
-	ui.wdtProfiles->layout()->setMargin(0);
+	FSelectProfileWidget = new SelectProfileWidget(FRoster,FGateways,AOptionsManager,FDescriptor,ui.wdtSelectProfile);
+	connect(FSelectProfileWidget,SIGNAL(profilesChanged()),SLOT(onProfilesChanged()));
+	connect(FSelectProfileWidget,SIGNAL(selectedProfileChanged()),SLOT(onSelectedProfileChanched()));
+	connect(FSelectProfileWidget,SIGNAL(adjustSizeRequested()),SIGNAL(adjustSizeRequested()));
+
+	ui.wdtSelectProfile->setLayout(new QVBoxLayout);
+	ui.wdtSelectProfile->layout()->setMargin(0);
+	ui.wdtSelectProfile->layout()->addWidget(FSelectProfileWidget);
 
 	FResolveTimer.setSingleShot(true);
 	connect(&FResolveTimer,SIGNAL(timeout()),SLOT(resolveContactJid()));
@@ -33,24 +38,14 @@ AddMetaItemWidget::AddMetaItemWidget(IOptionsManager *AOptionsManager, IRoster *
 
 	connect(ui.cbtDelete,SIGNAL(clicked()),SIGNAL(deleteButtonClicked()));
 
-	connect(FGateways->instance(),SIGNAL(loginReceived(const QString &, const QString &)),
-		SLOT(onServiceLoginReceived(const QString &, const QString &)));
 	connect(FGateways->instance(),SIGNAL(userJidReceived(const QString &, const Jid &)),
 		SLOT(onLegacyContactJidReceived(const QString &, const Jid &)));
 	connect(FGateways->instance(),SIGNAL(errorReceived(const QString &, const QString &)),
 		SLOT(onGatewayErrorReceived(const QString &, const QString &)));
-	connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),
-		SLOT(onStreamServicesChanged(const Jid &)));
-	connect(FGateways->instance(),SIGNAL(serviceEnableChanged(const Jid &, const Jid &, bool)),
-		SLOT(onServiceEnableChanged(const Jid &, const Jid &, bool)));
-	connect(FGateways->instance(),SIGNAL(servicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)),
-		SLOT(onServicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)));
-
-	connect(FRoster->instance(),SIGNAL(opened()),SLOT(onRosterOpened()));
-	connect(FRoster->instance(),SIGNAL(closed()),SLOT(onRosterClosed()));
 
 	setErrorMessage(QString::null,false);
-	updateProfiles();
+	onProfilesChanged();
+	onSelectedProfileChanched();
 }
 
 AddMetaItemWidget::~AddMetaItemWidget()
@@ -82,8 +77,7 @@ void AddMetaItemWidget::setContactJid(const Jid &AContactJid)
 		if (FGateways->streamServices(streamJid()).contains(serviceJid))
 		{
 			contact = FGateways->legacyIdFromUserJid(AContactJid);
-			if (FProfiles.contains(serviceJid))
-				FProfiles[serviceJid]->setChecked(true);
+			FSelectProfileWidget->setSelectedProfile(serviceJid);
 		}
 		setContactText(contact);
 	}
@@ -102,12 +96,12 @@ void AddMetaItemWidget::setContactText(const QString &AText)
 
 Jid AddMetaItemWidget::gatewayJid() const
 {
-	return selectedProfile();
+	return FSelectProfileWidget->selectedProfile();
 }
 
 void AddMetaItemWidget::setGatewayJid(const Jid &AGatewayJid) 
 {
-	setSelectedProfile(AGatewayJid);
+	FSelectProfileWidget->setSelectedProfile(AGatewayJid);
 }
 
 QString AddMetaItemWidget::errorMessage() const
@@ -154,152 +148,6 @@ void AddMetaItemWidget::setCorrectSizes(int ANameWidth, int APhotoWidth)
 	ui.cbtDelete->setMinimumWidth(APhotoWidth);
 }
 
-void AddMetaItemWidget::updateProfiles()
-{
-	IDiscoIdentity identity;
-	identity.category = "gateway";
-	identity.type = FDescriptor.type;
-
-	QList<Jid> gates = FDescriptor.needLogin ? FGateways->streamServices(streamJid(),identity) : FGateways->availServices(streamJid(),identity);
-	QList<Jid> newProfiles = (gates.toSet() - FProfiles.keys().toSet()).toList();
-	QList<Jid> oldProfiles = (FProfiles.keys().toSet() - gates.toSet()).toList();
-
-	qSort(newProfiles);
-	if (!FDescriptor.needGate && !FProfiles.contains(streamJid()))
-		newProfiles.prepend(streamJid());
-	else if (FDescriptor.needGate && FProfiles.contains(streamJid()))
-		oldProfiles.prepend(streamJid());
-	else
-		oldProfiles.removeAll(streamJid());
-
-	foreach(Jid serviceJid, newProfiles)
-	{
-		QRadioButton *button = new QRadioButton(ui.wdtProfiles);
-		button->setAutoExclusive(true);
-		connect(button,SIGNAL(toggled(bool)),SLOT(onProfileButtonToggled(bool)));
-		FProfiles.insert(serviceJid,button);
-
-		QLabel *label = new QLabel(ui.wdtProfiles);
-		connect(label,SIGNAL(linkActivated(const QString &)),SLOT(onProfileLabelLinkActivated(const QString &)));
-		FProfileLabels.insert(serviceJid,label);
-
-		QHBoxLayout *layout = new QHBoxLayout();
-		layout->setMargin(0);
-		layout->addWidget(button);
-		layout->addWidget(label);
-		layout->addStretch();
-		qobject_cast<QVBoxLayout *>(ui.wdtProfiles->layout())->addLayout(layout);
-	}
-
-	foreach(Jid serviceJid, oldProfiles)
-	{
-		FProfileLogins.remove(serviceJid);
-		delete FProfiles.take(serviceJid);
-		delete FProfileLabels.take(serviceJid);
-	}
-
-	QList<Jid> enabledProfiles;
-	bool hasDisabledProfiles = false;
-	for (QMap<Jid,QRadioButton *>::const_iterator it=FProfiles.constBegin(); it!=FProfiles.constEnd(); it++)
-	{
-		Jid serviceJid = it.key();
-
-		QRadioButton *button = FProfiles.value(serviceJid);
-		QString login = FProfileLogins.value(serviceJid);
-		button->setText(!login.isEmpty() ? login : serviceJid.pBare());
-
-		if (streamJid() != serviceJid)
-		{
-			if (!FProfileLogins.contains(serviceJid) && !FLoginRequests.values().contains(serviceJid))
-			{
-				QString requestId = FGateways->sendLoginRequest(streamJid(),serviceJid);
-				if (!requestId.isEmpty())
-					FLoginRequests.insert(requestId,serviceJid);
-			}
-
-			QString labelText;
-			QLabel *label = FProfileLabels.value(serviceJid);
-			if (FDescriptor.needLogin)
-			{
-				IPresenceItem pitem = FGateways->servicePresence(streamJid(),serviceJid);
-				if (streamJid()!=serviceJid && !FGateways->isServiceEnabled(streamJid(),serviceJid))
-					labelText = " - " + tr("disconnected. %1").arg("<a href='connect:%1'>%2</a>").arg(serviceJid.pFull()).arg(tr("Connect"));
-				else if (pitem.show == IPresence::Error)
-					labelText = " - " + tr("failed to connect. %1").arg("<a href='options:%1'>%2</a>").arg(serviceJid.pFull()).arg(tr("Options"));
-				else if (pitem.show == IPresence::Offline)
-					labelText = " - " + tr("connecting...");
-			}
-
-			if (!labelText.isEmpty())
-			{
-				label->setText(labelText);
-				button->setEnabled(false);
-				button->setChecked(false);
-				hasDisabledProfiles = true;
-			}
-			else
-			{
-				label->setText(QString::null);
-				button->setEnabled(true);
-				enabledProfiles.append(serviceJid);
-			}
-			label->setEnabled(true);
-		}
-	}
-
-	if (!FRoster->isOpen())
-	{
-		FServiceFailed = true;
-		setErrorMessage(tr("You are not connected to server."),false);
-		ui.lneContact->setEnabled(false);
-	}
-	else if (FProfiles.isEmpty())
-	{
-		FServiceFailed = true;
-		setErrorMessage(tr("Service '%1' is not available now.").arg(FDescriptor.name),false);
-		ui.lneContact->setEnabled(false);
-	}
-	else if (FServiceFailed)
-	{
-		FServiceFailed = false;
-		ui.lneContact->setEnabled(true);
-		startResolve(0);
-	}
-	
-	if (!FServiceFailed && selectedProfile().isEmpty())
-	{
-		if (!FDescriptor.needGate)
-			setSelectedProfile(streamJid());
-		else
-			setSelectedProfile(enabledProfiles.value(0));
-	}
-
-	ui.wdtSelectProfile->setVisible(hasDisabledProfiles || FProfiles.count()>1);
-
-	emit adjustSizeRequested();
-}
-
-Jid AddMetaItemWidget::selectedProfile() const
-{
-	for (QMap<Jid, QRadioButton *>::const_iterator it = FProfiles.constBegin(); it!=FProfiles.constEnd(); it++)
-		if (it.value()->isChecked())
-			return it.key();
-	return Jid::null;
-}
-
-void AddMetaItemWidget::setSelectedProfile(const Jid &AServiceJid)
-{
-	if (FProfiles.contains(AServiceJid))
-	{
-		QRadioButton *button = FProfiles.value(AServiceJid);
-		if (button->isEnabled() && !button->isChecked())
-		{
-			FProfiles.value(AServiceJid)->setChecked(true);
-			startResolve(0);
-		}
-	}
-}
-
 QString AddMetaItemWidget::placeholderTextForGate() const
 {
 	QString text;
@@ -341,7 +189,7 @@ void AddMetaItemWidget::resolveContactJid()
 		errMessage = FGateways->checkNormalizedContactLogin(FDescriptor.id,contact);
 		if (errMessage.isEmpty())
 		{
-			Jid serviceJid = selectedProfile();
+			Jid serviceJid = FSelectProfileWidget->selectedProfile();
 			if (serviceJid.isEmpty())
 			{
 				errMessage = tr("Select your return address.");
@@ -366,14 +214,32 @@ void AddMetaItemWidget::resolveContactJid()
 	setErrorMessage(errMessage,true);
 }
 
-void AddMetaItemWidget::onRosterOpened()
+void AddMetaItemWidget::onProfilesChanged()
 {
-	updateProfiles();
+	if (!FRoster->isOpen())
+	{
+		FServiceFailed = true;
+		setErrorMessage(tr("You are not connected to server."),false);
+		ui.lneContact->setEnabled(false);
+	}
+	else if (FSelectProfileWidget->profiles().isEmpty())
+	{
+		FServiceFailed = true;
+		setErrorMessage(tr("Service '%1' is not available now.").arg(FDescriptor.name),false);
+		ui.lneContact->setEnabled(false);
+	}
+	else if (FServiceFailed)
+	{
+		FServiceFailed = false;
+		ui.lneContact->setEnabled(true);
+		startResolve(0);
+	}
 }
 
-void AddMetaItemWidget::onRosterClosed()
+void AddMetaItemWidget::onSelectedProfileChanched()
 {
-	updateProfiles();
+	if (!FSelectProfileWidget->selectedProfile().isEmpty())
+		startResolve(0);
 }
 
 void AddMetaItemWidget::onContactTextEditingFinished()
@@ -387,45 +253,6 @@ void AddMetaItemWidget::onContactTextEdited(const QString &AText)
 	Q_UNUSED(AText);
 	FContactTextChanged = true;
 	startResolve(RESOLVE_WAIT_INTERVAL);
-}
-
-void AddMetaItemWidget::onProfileButtonToggled(bool)
-{
-	QRadioButton *button = qobject_cast<QRadioButton *>(sender());
-	if (button && button->isChecked())
-	{
-		setSelectedProfile(FProfiles.key(button));
-	}
-}
-
-void AddMetaItemWidget::onProfileLabelLinkActivated(const QString &ALink)
-{
-	QUrl url(ALink);
-	Jid serviceJid = url.path();
-	QLabel *label = FProfileLabels.value(serviceJid);
-	if (label)
-	{
-		if (url.scheme() == "connect")
-		{
-			if (FGateways->setServiceEnabled(streamJid(),serviceJid,true))
-				label->setEnabled(false);
-		}
-		else if (url.scheme() == "options")
-		{
-			if (FOptionsManager)
-				FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
-		}
-	}
-}
-
-void AddMetaItemWidget::onServiceLoginReceived(const QString &AId, const QString &ALogin)
-{
-	if (FLoginRequests.contains(AId))
-	{
-		Jid serviceJid = FLoginRequests.take(AId);
-		FProfileLogins.insert(serviceJid,ALogin);
-		updateProfiles();
-	}
 }
 
 void AddMetaItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid)
@@ -442,43 +269,9 @@ void AddMetaItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid
 void AddMetaItemWidget::onGatewayErrorReceived(const QString &AId, const QString &AError)
 {
 	Q_UNUSED(AError);
-	if (FLoginRequests.contains(AId))
-	{
-		Jid serviceJid = FLoginRequests.take(AId);
-		FProfileLogins.insert(serviceJid,QString::null);
-		updateProfiles();
-	}
-	else if (FContactJidRequest == AId)
+	if (FContactJidRequest == AId)
 	{
 		setRealContactJid(Jid::null);
 		setErrorMessage(tr("Failed to request contact JID from transport."),false);
-	}
-}
-
-void AddMetaItemWidget::onStreamServicesChanged(const Jid &AStreamJid)
-{
-	if (streamJid() == AStreamJid)
-	{
-		updateProfiles();
-	}
-}
-
-void AddMetaItemWidget::onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
-{
-	Q_UNUSED(AServiceJid); 
-	Q_UNUSED(AEnabled);
-	if (streamJid() == AStreamJid)
-	{
-		FProfileLogins.remove(AServiceJid);
-		updateProfiles();
-	}
-}
-
-void AddMetaItemWidget::onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem)
-{
-	Q_UNUSED(AItem);
-	if (streamJid()==AStreamJid && FProfiles.contains(AServiceJid))
-	{
-		updateProfiles();
 	}
 }

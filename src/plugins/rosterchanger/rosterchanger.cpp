@@ -650,12 +650,12 @@ QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 		IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(AStreamJid) : NULL;
 		if (mroster && mroster->isOpen())
 		{
-			dialog = new AddMetaContactDialog(this,FPluginManager,AStreamJid);
+			dialog = new AddMetaContactDialog(mroster,this,FPluginManager);
 			connect(mroster->instance(),SIGNAL(metaRosterClosed()),dialog,SLOT(reject()));
 		}
 		else
 		{
-			dialog = new AddContactDialog(this,FPluginManager,AStreamJid);
+			dialog = new AddContactDialog(roster,this,FPluginManager);
 			connect(roster->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
 		}
 		emit addContactDialogCreated(qobject_cast<IAddContactDialog *>(dialog));

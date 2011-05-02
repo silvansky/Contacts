@@ -18,16 +18,17 @@
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/customlistview.h>
 #include "ui_addcontactdialog.h"
 
 class AddContactDialog :
-			public QDialog,
-			public IAddContactDialog
+	public QDialog,
+	public IAddContactDialog
 {
-	Q_OBJECT
-	Q_INTERFACES(IAddContactDialog)
+	Q_OBJECT;
+	Q_INTERFACES(IAddContactDialog);
 public:
-	AddContactDialog(IRosterChanger *ARosterChanger, IPluginManager *APluginManager, const Jid &AStreamJid, QWidget *AParent = NULL);
+	AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChanger, IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~AddContactDialog();
 	//IAddContactDialog
 	virtual QDialog *instance() { return this; }
@@ -47,23 +48,20 @@ signals:
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void initGroups();
-	void updateGateways();
-	void updateServices(const Jid &AServiceJid = Jid::null);
 protected:
 	QString normalContactText(const QString &AText) const;
 	QString defaultContactNick(const Jid &AContactJid) const;
 	QList<Jid> suitableServices(const IGateServiceDescriptor &ADescriptor) const;
 	QList<Jid> suitableServices(const QList<IGateServiceDescriptor> &ADescriptors) const;
 protected:
+	void setDialogState(int AState);
 	void startResolve(int ATimeout);
-	void setInfoMessage(const QString &AMessage);
 	void setErrorMessage(const QString &AMessage);
-	void setActionLink(const QString &AMessage, const QUrl &AUrl);
 	void setGatewaysEnabled(bool AEnabled);
-	void setContactAcceptable(bool AAcceptable);
 	void setRealContactJid(const Jid &AContactJid);
 	void setResolveNickState(bool AResole);
 protected slots:
+	void resolveDescriptor();
 	void resolveServiceJid();
 	void resolveContactJid();
 	void resolveContactName();
@@ -76,7 +74,6 @@ protected slots:
 	void onContactNickEdited(const QString &AText);
 	void onGroupCurrentIndexChanged(int AIndex);
 	void onProfileCurrentIndexChanged(int AIndex);
-	void onActionLinkActivated(const QString &ALink);
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
@@ -92,13 +89,16 @@ private:
 	IVCardPlugin *FVcardPlugin;
 	IRosterChanger *FRosterChanger;
 private:
+	IGateServiceDescriptor FDescriptor;
+	QList<IGateServiceDescriptor> FConfirmDescriptors;
+private:
 	QLabel *FServiceIcon;
 private:
-	Jid FStreamJid;
 	Jid FContactJid;
 	Jid FPreferGateJid;
 private:
 	bool FShown;
+	int FDialogState;
 	bool FResolveNick;
 	QTimer FResolveTimer;
 	QString FContactJidRequest;

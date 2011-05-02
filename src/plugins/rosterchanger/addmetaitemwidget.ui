@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>368</width>
-    <height>88</height>
+    <height>76</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -64,23 +64,7 @@
     </layout>
    </item>
    <item row="2" column="1">
-    <widget class="QWidget" name="wdtSelectProfile" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="lblProfile">
-        <property name="text">
-         <string>Return address:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QWidget" name="wdtProfiles" native="true"/>
-      </item>
-     </layout>
-    </widget>
+    <widget class="QWidget" name="wdtSelectProfile" native="true"/>
    </item>
   </layout>
  </widget>

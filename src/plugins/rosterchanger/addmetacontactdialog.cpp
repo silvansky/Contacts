@@ -9,14 +9,7 @@
 
 #define NICK_RESOLVE_TIMEOUT        1000
 
-enum DescriptorStatuses {
-	DS_UNAVAILABLE,
-	DS_UNREGISTERED,
-	DS_DISABLED,
-	DS_ENABLED
-};
-
-AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPluginManager *APluginManager, const Jid &AStreamJid, QWidget *AParent) : QDialog(AParent)
+AddMetaContactDialog::AddMetaContactDialog(IMetaRoster *AMetaRoster, IRosterChanger *ARosterChanger, IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
@@ -31,12 +24,12 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	FAvatars = NULL;
 	FVcardPlugin = NULL;
 	FOptionsManager = NULL;
+	FMetaRoster = AMetaRoster;
 	FRosterChanger = ARosterChanger;
 
 	FShown = false;
 	FNickResolved = false;
 	FAvatarIndex = -1;
-	FStreamJid = AStreamJid;
 
 	FItemsLayout = new QVBoxLayout;
 	FItemsLayout->setMargin(0);
@@ -56,6 +49,11 @@ AddMetaContactDialog::AddMetaContactDialog(IRosterChanger *ARosterChanger, IPlug
 	connect(ui.dbbButtons,SIGNAL(accepted()),SLOT(onDialogAccepted()));
 	connect(ui.dbbButtons,SIGNAL(rejected()),SLOT(reject()));
 
+	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
+		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
+	connect(FMetaRoster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
+		SLOT(onMetaActionResult(const QString &, const QString &, const QString &)));
+
 	initialize(APluginManager);
 	createGatewaysMenu();
 	resolveClipboardText();
@@ -69,7 +67,7 @@ AddMetaContactDialog::~AddMetaContactDialog()
 
 Jid AddMetaContactDialog::streamJid() const
 {
-	return FStreamJid;
+	return FMetaRoster->streamJid();
 }
 
 Jid AddMetaContactDialog::contactJid() const
@@ -151,14 +149,6 @@ void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 	if (plugin)
 	{
 		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
-		FMetaRoster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(FStreamJid) : NULL;
-		if (FMetaRoster)
-		{
-			connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
-				SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
-			connect(FMetaRoster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
-				SLOT(onMetaActionResult(const QString &, const QString &, const QString &)));
-		}
 	}
 
 	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
@@ -205,7 +195,7 @@ void AddMetaContactDialog::createGatewaysMenu()
 		Menu *menu = new Menu(ui.pbtAddItem);
 		foreach(const IGateServiceDescriptor &descriptor, FGateways->gateDescriptors())
 		{
-			if (descriptorStatus(descriptor) != DS_UNAVAILABLE)
+			if (FGateways->gateDescriptorStatus(streamJid(),descriptor) != IGateways::GDS_UNAVAILABLE)
 			{
 				Action *action = new Action(menu);
 				action->setText(descriptor.name);
@@ -233,9 +223,9 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 {
 	if (FGateways)
 	{
-		switch(descriptorStatus(ADescriptor))
+		switch(FGateways->gateDescriptorStatus(streamJid(),ADescriptor))
 		{
-		case DS_UNREGISTERED:
+		case IGateways::GDS_UNREGISTERED:
 			{
 				static bool blocked = false;
 				if (!blocked)
@@ -243,10 +233,10 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 					IDiscoIdentity identity;
 					identity.category = "gateway";
 					identity.type = ADescriptor.type;
-					QList<Jid> availGates = FGateways->availServices(FStreamJid,identity);
+					QList<Jid> availGates = FGateways->availServices(streamJid(),identity);
 					if (!availGates.isEmpty())
 					{
-						QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,availGates.at(0),this);
+						QDialog *dialog = FGateways->showAddLegacyAccountDialog(streamJid(),availGates.at(0),this);
 						if (dialog->exec() == QDialog::Accepted)
 						{
 							blocked = true;
@@ -257,9 +247,9 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				}
 			}
 			break;
-		case DS_ENABLED:
+		case IGateways::GDS_ENABLED:
 			{
-				IAddMetaItemWidget *widget = FRosterChanger->newAddMetaItemWidget(FStreamJid,ADescriptor.id,ui.wdtItems);
+				IAddMetaItemWidget *widget = FRosterChanger->newAddMetaItemWidget(streamJid(),ADescriptor.id,ui.wdtItems);
 				widget->instance()->setFocus();
 				widget->setContactText(AContact);
 				connect(widget->instance(),SIGNAL(adjustSizeRequested()),SLOT(onItemWidgetAdjustSizeRequested()));
@@ -270,7 +260,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 			}
 			break;
-		case DS_DISABLED:
+		case IGateways::GDS_DISABLED:
 			{
 
 			}
@@ -280,35 +270,6 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 		}
 		updateDialogState();
 	}
-}
-
-int AddMetaContactDialog::descriptorStatus(const IGateServiceDescriptor &ADescriptor) const
-{
-	if (FGateways && !ADescriptor.id.isEmpty())
-	{
-		if (ADescriptor.needGate)
-		{
-			IDiscoIdentity identity;
-			identity.category = "gateway";
-			identity.type = ADescriptor.type;
-			if (!FGateways->availServices(FStreamJid,identity).isEmpty())
-			{
-				if (ADescriptor.needLogin)
-				{
-					foreach(Jid gateJid, FGateways->streamServices(FStreamJid,identity))
-					{
-						if (FGateways->isServiceEnabled(FStreamJid,gateJid))
-							return DS_ENABLED;
-					}
-					return DS_UNREGISTERED;
-				}
-				return DS_ENABLED;
-			}
-			return DS_UNAVAILABLE;
-		}
-		return DS_ENABLED;
-	}
-	return DS_UNAVAILABLE;
 }
 
 QString AddMetaContactDialog::defaultContactNick(const Jid &AContactJid) const
@@ -374,7 +335,7 @@ void AddMetaContactDialog::updateDialogState()
 				}
 				else
 				{
-					FVcardPlugin->requestVCard(FStreamJid,contactJid);
+					FVcardPlugin->requestVCard(streamJid(),contactJid);
 				}
 			}
 		}
@@ -589,7 +550,7 @@ void AddMetaContactDialog::onMetaContactReceived(const IMetaContact &AContact, c
 		if (FRostersView)
 		{
 			IRostersModel *rmodel = FRostersView->rostersModel();
-			IRosterIndex *sroot = rmodel!=NULL ? rmodel->streamRoot(FStreamJid) : NULL;
+			IRosterIndex *sroot = rmodel!=NULL ? rmodel->streamRoot(streamJid()) : NULL;
 			if (sroot)
 			{
 				QMultiMap<int, QVariant> findData;
@@ -607,7 +568,7 @@ void AddMetaContactDialog::onMetaContactReceived(const IMetaContact &AContact, c
 			}
 		}
 
-		IMetaTabWindow *window = FMetaContacts->newMetaTabWindow(FStreamJid,AContact.id);
+		IMetaTabWindow *window = FMetaContacts->newMetaTabWindow(streamJid(),AContact.id);
 		if (window)
 			window->showTabPage();
 
@@ -627,7 +588,7 @@ void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QS
 		else
 		{
 			foreach(IAddMetaItemWidget *widget, FItemWidgets)
-				FRosterChanger->subscribeContact(FStreamJid,widget->contactJid().bare());
+				FRosterChanger->subscribeContact(streamJid(),widget->contactJid().bare());
 		}
 	}
 }

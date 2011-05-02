@@ -34,7 +34,7 @@ class AddMetaContactDialog :
 	Q_OBJECT;
 	Q_INTERFACES(IAddContactDialog);
 public:
-	AddMetaContactDialog(IRosterChanger *ARosterChanger, IPluginManager *APluginManager, const Jid &AStreamJid, QWidget *AParent = NULL);
+	AddMetaContactDialog(IMetaRoster *AMetaRoster, IRosterChanger *ARosterChanger, IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~AddMetaContactDialog();
 	virtual QDialog *instance() { return this; }
 	virtual Jid streamJid() const;
@@ -55,7 +55,6 @@ protected:
 	void createGatewaysMenu();
 	void resolveClipboardText();
 	void addContactItem(const IGateServiceDescriptor &ADescriptor, const QString &AContact = QString::null);
-	int descriptorStatus(const IGateServiceDescriptor &ADescriptor) const;
 	QString defaultContactNick(const Jid &AContactJid) const;
 	void updateDialogState();
 	void setDialogEnabled(bool AEnabled);
@@ -98,7 +97,6 @@ private:
 private:
 	bool FShown;
 	bool FNickResolved;
-	Jid FStreamJid;
 	QString FCreateActiontId;
 	QList<QString> FAvailDescriptors;
 	QList<IAddMetaItemWidget *> FItemWidgets;

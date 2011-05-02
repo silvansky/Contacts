@@ -636,6 +636,35 @@ QList<IGateServiceDescriptor> Gateways::gateAvailDescriptorsByContact(const QStr
 	return descriptors;
 }
 
+int Gateways::gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const
+{
+	if (!ADescriptor.id.isEmpty())
+	{
+		if (ADescriptor.needGate)
+		{
+			IDiscoIdentity identity;
+			identity.category = "gateway";
+			identity.type = ADescriptor.type;
+			if (!availServices(AStreamJid,identity).isEmpty())
+			{
+				if (ADescriptor.needLogin)
+				{
+					foreach(Jid gateJid, streamServices(AStreamJid,identity))
+					{
+						if (isServiceEnabled(AStreamJid,gateJid))
+							return GDS_ENABLED;
+					}
+					return GDS_UNREGISTERED;
+				}
+				return GDS_ENABLED;
+			}
+			return GDS_UNAVAILABLE;
+		}
+		return GDS_ENABLED;
+	}
+	return GDS_UNAVAILABLE;
+}
+
 QString Gateways::normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, bool AModify) const
 {
 	QString contact = AContact.trimmed();

@@ -56,6 +56,13 @@ struct IGateServiceDescriptor :
 class IGateways
 {
 public:
+	enum GateDescriptorStatuses {
+		GDS_UNAVAILABLE,
+		GDS_UNREGISTERED,
+		GDS_DISABLED,
+		GDS_ENABLED
+	};
+public:
 	virtual QObject *instance() =0;
 	virtual void resolveNickName(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual void sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bool ALogIn) =0;
@@ -65,6 +72,7 @@ public:
 	virtual IGateServiceDescriptor gateDescriptorById(const QString &ADescriptorId) const =0;
 	virtual QList<IGateServiceDescriptor> gateHomeDescriptorsByContact(const QString &AContact) const =0;
 	virtual QList<IGateServiceDescriptor> gateAvailDescriptorsByContact(const QString &AContact) const =0;
+	virtual int gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const =0;
 	virtual QString normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, bool AModify = false) const =0;
 	virtual QString checkNormalizedContactLogin(const QString &ADescriptorId, const QString &AContact) const =0;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
