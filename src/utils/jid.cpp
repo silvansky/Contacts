@@ -2,9 +2,11 @@
 
 #include <QTextDocument>
 
-QList<QChar> Jid::escChars = QList<QChar>()       << 0x20 << 0x22 << 0x26 << 0x27 << 0x2f << 0x3a << 0x3c << 0x3e << 0x40; // << 0x5c;
-QList<QString> Jid::escStrings = QList<QString>() <<"\\20"<<"\\22"<<"\\26"<<"\\27"<<"\\2f"<<"\\3a"<<"\\3c"<<"\\3e"<<"\\40"; //<<"\\5c";
-QHash<QString,Jid> Jid::FCache = QHash<QString,Jid>();
+static const QChar CharDog = '@';
+static const QChar CharSlash = '/';
+QHash<QString,Jid> JidCache = QHash<QString,Jid>();
+QList<QChar> EscChars = QList<QChar>()       << 0x20 << 0x22 << 0x26 << 0x27 << 0x2f << 0x3a << 0x3c << 0x3e << 0x40; // << 0x5c;
+QList<QString> EscStrings = QList<QString>() <<"\\20"<<"\\22"<<"\\26"<<"\\27"<<"\\2f"<<"\\3a"<<"\\3c"<<"\\3e"<<"\\40"; //<<"\\5c";
 
 Jid Jid::null = Jid();
 
@@ -97,7 +99,9 @@ void Jid::setNode(const QString &ANode)
 		d->FPrepNode = d->FEscNode;
 	}
 	else
+	{
 		d->FNodeValid = true;
+	}
 }
 
 QString Jid::domain() const
@@ -121,7 +125,9 @@ void Jid::setDomain(const QString &ADomain)
 		d->FPrepDomain = d->FDomain;
 	}
 	else
+	{
 		d->FDomainValid = true;
+	}
 }
 
 QString Jid::resource() const
@@ -145,7 +151,9 @@ void Jid::setResource(const QString &AResource)
 		d->FPrepResource = d->FResource;
 	}
 	else
+	{
 		d->FResourceValid = true;
+	}
 }
 
 Jid Jid::prepared() const
@@ -350,9 +358,9 @@ QString Jid::escape106(const QString &ANode)
 
 	for (int i = 0; i<ANode.length(); i++)
 	{
-		int index = escChars.indexOf(ANode.at(i));
+		int index = EscChars.indexOf(ANode.at(i));
 		if (index >= 0)
-			escNode.append(escStrings.at(index));
+			escNode.append(EscStrings.at(index));
 		else
 			escNode.append(ANode.at(i));
 	}
@@ -369,9 +377,9 @@ QString Jid::unescape106(const QString &AEscNode)
 	int index;
 	for (int i = 0; i<AEscNode.length(); i++)
 	{
-		if (AEscNode.at(i) == '\\' && (index = escStrings.indexOf(AEscNode.mid(i,3))) >= 0)
+		if (AEscNode.at(i) == '\\' && (index = EscStrings.indexOf(AEscNode.mid(i,3))) >= 0)
 		{
-			nodeStr.append(escChars.at(index));
+			nodeStr.append(EscChars.at(index));
 			i+=2;
 		}
 		else
@@ -411,19 +419,19 @@ QString Jid::resourcePrepare(const QString &AResource)
 
 Jid &Jid::parseString(const QString &AJidStr)
 {
-	if (!FCache.contains(AJidStr))
+	if (!JidCache.contains(AJidStr))
 	{
 		if (!d)
 			d = new JidData;
 		if (!AJidStr.isEmpty())
 		{
-			int slash = AJidStr.indexOf("/");
+			int slash = AJidStr.indexOf(CharSlash);
 			if (slash == -1)
 				slash = AJidStr.size();
-			int at = AJidStr.lastIndexOf("@",slash-AJidStr.size()-1);
-			setNode(at > 0 ? AJidStr.left(at) : "");
-			setDomain(slash-at-1 > 0 ? AJidStr.mid(at+1,slash-at-1) : "");
-			setResource(slash < AJidStr.size()-1 ? AJidStr.right(AJidStr.size()-slash-1) : "");
+			int at = AJidStr.lastIndexOf(CharDog,slash-AJidStr.size()-1);
+			setNode(at > 0 ? AJidStr.left(at) : QString::null);
+			setDomain(slash-at-1 > 0 ? AJidStr.mid(at+1,slash-at-1) : QString::null);
+			setResource(slash < AJidStr.size()-1 ? AJidStr.right(AJidStr.size()-slash-1) : QString::null);
 		}
 		else
 		{
@@ -431,29 +439,37 @@ Jid &Jid::parseString(const QString &AJidStr)
 			setDomain(QString::null);
 			setResource(QString::null);
 		}
-		FCache.insert(AJidStr,*this);
+		JidCache.insert(AJidStr,*this);
 	}
 	else
-		*this = FCache.value(AJidStr);
+		*this = JidCache.value(AJidStr);
 
 	return *this;
 }
 
 QString Jid::toString(bool AEscaped, bool APrepared, bool AFull) const
 {
-	QString result;
 	QString node =  AEscaped ? d->FEscNode : (APrepared ? d->FPrepNode : d->FNode);
 	QString domain = APrepared ? d->FPrepDomain : d->FDomain;
 	QString resource = APrepared ? d->FPrepResource : d->FResource;
+	
+	QString result;
+	result.reserve(domain.size() + (!node.isEmpty() ? node.size()+1 : 0) + (!resource.isEmpty() ? resource.size()+1 : 0));
 
 	if (!node.isEmpty())
-		result = node + "@";
+	{
+		result.append(node);
+		result.append(CharDog);
+	}
 
 	if (!domain.isEmpty())
-		result += domain;
+		result.append(domain);
 
 	if (AFull && !resource.isEmpty())
-		result += "/" + resource;
+	{
+		result.append(CharSlash);
+		result.append(resource);
+	}
 
 	return result;
 }

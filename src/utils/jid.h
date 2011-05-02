@@ -81,10 +81,6 @@ protected:
 	bool equals(const Jid &AJid, bool AFull) const;
 private:
 	QSharedDataPointer<JidData> d;
-private:
-	static QList<QChar> escChars;
-	static QList<QString> escStrings;
-	static QHash<QString, Jid> FCache;
 };
 
 #ifdef __cplusplus
