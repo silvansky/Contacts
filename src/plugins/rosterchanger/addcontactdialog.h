@@ -11,13 +11,15 @@
 #include <definitions/stylesheets.h>
 #include <definitions/vcardvaluenames.h>
 #include <definitions/gateserviceidentifiers.h>
+#include <interfaces/ivcard.h>
+#include <interfaces/iroster.h>
+#include <interfaces/iavatars.h>
+#include <interfaces/igateways.h>
+#include <interfaces/imetacontacts.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irosterchanger.h>
-#include <interfaces/iroster.h>
-#include <interfaces/igateways.h>
-#include <interfaces/iavatars.h>
-#include <interfaces/ivcard.h>
 #include <interfaces/ioptionsmanager.h>
+#include <interfaces/imessageprocessor.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
@@ -55,12 +57,14 @@ protected:
 protected:
 	QString defaultContactNick(const Jid &AContactJid) const;
 	QString confirmDescriptorText(const IGateServiceDescriptor &ADescriptor);
+	bool registerDescriptorIfNeed(const IGateServiceDescriptor &ADescriptor);
 protected:
 	void updatePageAddress();
 	void updatePageConfirm(const QList<IGateServiceDescriptor> &ADescriptors);
 	void updatePageParams(const IGateServiceDescriptor &ADescriptor);
 protected:
 	void setDialogState(int AState);
+	void setDialogEnabled(bool AEnabled);
 	void setRealContactJid(const Jid &AContactJid);
 	void setResolveNickState(bool AResole);
 	void setErrorMessage(const QString &AMessage, bool AInvalidInput);
@@ -80,22 +84,28 @@ protected slots:
 	void onVCardReceived(const Jid &AContactJid);
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
+	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
+	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 private:
 	Ui::AddContactDialogClass ui;
 private:
 	IRoster *FRoster;
 	IAvatars *FAvatars;
 	IGateways *FGateways;
+	IMetaRoster *FMetaRoster;
 	IVCardPlugin *FVcardPlugin;
 	IRosterChanger *FRosterChanger;
 	IOptionsManager *FOptionsManager;
+	IMessageProcessor *FMessageProcessor;
+private:
+	QString FCreateRequest;
+	QString FContactJidRequest;
 private:
 	bool FShown;
+	Jid FContactJid;
+	int FDialogState;
 	bool FResolveNick;
 	bool FServiceFailed;
-	int FDialogState;
-	Jid FContactJid;
-	QString FContactJidRequest;
 	IGateServiceDescriptor FDescriptor;
 	SelectProfileWidget *FSelectProfileWidget;
 	QMap<QRadioButton *, IGateServiceDescriptor> FConfirmButtons;
