@@ -166,13 +166,13 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
 	//QStyle *style = option.widget ? option.widget->style() : QApplication::style();
 
-#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSVISTA)
-	if (APainter && qobject_cast<QWindowsVistaStyle *>(QApplication::style()))
-	{
-		option.palette.setColor(QPalette::All, QPalette::HighlightedText, option.palette.color(QPalette::Active, QPalette::Text));
-		option.palette.setColor(QPalette::All, QPalette::Highlight, option.palette.base().color().darker(108));
-	}
-#endif
+//#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSVISTA)
+//	if (APainter && qobject_cast<QWindowsVistaStyle *>(QApplication::style()))
+//	{
+//		option.palette.setColor(QPalette::All, QPalette::HighlightedText, option.palette.color(QPalette::Active, QPalette::Text));
+//		option.palette.setColor(QPalette::All, QPalette::Highlight, option.palette.base().color().darker(108));
+//	}
+//#endif
 
 	//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin) >> 1;
 	//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin) >> 1;
