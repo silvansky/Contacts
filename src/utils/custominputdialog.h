@@ -16,6 +16,7 @@ public:
 	enum InputType
 	{
 		String,
+		Info,
 		None
 	};
 	CustomInputDialog(InputType inputType);

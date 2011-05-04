@@ -7,7 +7,6 @@
 #include <QListView>
 #include <QCompleter>
 #include <QTextCursor>
-#include <QInputDialog>
 #include <QDomDocument>
 #include <QItemDelegate>
 #include <QTextDocument>

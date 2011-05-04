@@ -205,6 +205,7 @@ void CustomInputDialog::initLayout()
 	captionLabel->setText(inputType == String ? tr("Enter string value") : tr("Yes or no?"));
 	acceptButton->setText(inputType == String ? tr("OK") : tr("Yes"));
 	rejectButton->setText(inputType == String ? tr("Cancel") : tr("No"));
+	rejectButton->setVisible(inputType != Info);
 }
 
 bool CustomInputDialog::eventFilter(QObject * obj, QEvent * evt)

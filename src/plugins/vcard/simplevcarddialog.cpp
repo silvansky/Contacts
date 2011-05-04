@@ -1,12 +1,9 @@
 #include "simplevcarddialog.h"
 #include "ui_simplevcarddialog.h"
 #include <QMessageBox>
-#include <QInputDialog>
 #include <QUrl>
 #include <QDesktopServices>
-#include <utils/customborderstorage.h>
-#include <definitions/resources.h>
-#include <definitions/customborder.h>
+#include <utils/custominputdialog.h>
 
 SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars,
 				     IStatusIcons *AStatusIcons, IStatusChanger * AStatusChanger,
@@ -124,30 +121,12 @@ void SimpleVCardDialog::onRosterItemReceived(const IRosterItem &AItem, const IRo
 void SimpleVCardDialog::on_renameButton_clicked()
 {
 	QString oldName = FRoster->rosterItem(FContactJid).name;
-	QInputDialog * dialog = new QInputDialog;
-	dialog->setStyleSheet(styleSheet());
-	dialog->setTextValue(oldName);
-	dialog->setWindowTitle(tr("Rename contact"));
-	dialog->setLabelText(tr("<font size=+2>Rename contact</font><br>Enter new name"));
-	connect(dialog, SIGNAL(textValueSelected(const QString&)), SLOT(onNewNameSelected(const QString&)));
-	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-	if (border)
-	{
-		border->setMinimizeButtonVisible(false);
-		border->setMaximizeButtonVisible(false);
-		border->setResizable(false);
-		border->setWindowModality(Qt::ApplicationModal);
-		border->setAttribute(Qt::WA_DeleteOnClose, true);
-		connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-		connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-		connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-		border->show();
-	}
-	else
-	{
-		dialog->setWindowModality(Qt::ApplicationModal);
-		dialog->show();
-	}
+	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::String);
+	dialog->setDefaultText(oldName);
+	dialog->setCaptionText(tr("Rename contact"));
+	dialog->setInfoText(tr("Enter new name"));
+	connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewNameSelected(const QString&)));
+	dialog->show();
 }
 
 void SimpleVCardDialog::on_addToRosterButton_clicked()
