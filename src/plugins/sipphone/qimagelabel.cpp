@@ -12,6 +12,8 @@ QImageLabel::QImageLabel(QWidget *parent) : QLabel(parent)
 
 	setProperty("ignoreFilter", true);
 
+	setAutoFillBackground(true);
+
 	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	//icon.addFile(iconStorage->fileFullName(MNI_ROSTERSEARCH_ICON_CROSS), QSize(16,16));
 	//icon.addFile(iconStorage->fileFullName(MNI_ROSTERSEARCH_ICON_CROSS_HOVER), QSize(24,24));
@@ -66,15 +68,40 @@ void QImageLabel::leaveEvent(QEvent *)
 
 }
 
-void QImageLabel::paintEvent(QPaintEvent * evt)
-{
-	QPainter p(this);
-	QRect curRect = rect();
-	p.fillRect(curRect, Qt::black);
-
-	QTextOption option(Qt::AlignCenter);
-	p.drawText(curRect, tr("no image"),  option);
-}
+//void QImageLabel::paintEvent(QPaintEvent * evt)
+//{
+//
+//	// Issue 
+//	//static qint64 prevCache = 0;
+//	//static bool blackFill = false;
+//
+//	//const QPixmap* px = pixmap();
+//	//qint64 cache = 0;
+//	//
+//	//QPainter p(this);
+//	//QRect curRect = rect();
+//
+//	//if(px)
+//	//{
+//	//	p.drawPixmap(rect(), *px);
+//	//	cache = px->cacheKey();
+//	//	blackFill = false;
+//	//}
+//
+//	//if(px == NULL || px->isNull() || cache == prevCache)
+//	//{
+//	//	if(!blackFill)
+//	//	{
+//	//		p.fillRect(curRect, Qt::black);
+//	//		blackFill = true;
+//	//	}
+//	//	
+//	//	QTextOption option(Qt::AlignCenter);
+//	//	p.drawText(curRect, tr("no image"),  option);
+//	//}
+//
+//	//prevCache = cache;
+//}
 
 
 void QImageLabel::updateIcon(IconCrossState iconState)

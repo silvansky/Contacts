@@ -28,13 +28,13 @@ protected:
 	void mouseMoveEvent(QMouseEvent *);
 	void mousePressEvent(QMouseEvent *);
 	void leaveEvent(QEvent *);
-	void paintEvent(QPaintEvent *);
+	//void paintEvent(QPaintEvent *);
 
 private:
 	IconStorage * iconStorage;
 	QIcon currentIcon;
 	QLabel * iconLabel;
-	QPixmap *crossPic;
+	//QPixmap *crossPic;
 
 signals:
 	void visibleState(bool);

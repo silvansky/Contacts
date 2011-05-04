@@ -84,7 +84,6 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 
 		_pControls->setFixedSize(270, 40);
 		//_pControls->setMouseTracking(true);
-		_pControls->SetCameraOn(true);
 	}
 
 
@@ -142,6 +141,9 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	ui.wgtRemoteImage->setMouseTracking(true);
 	ui.wgtRemoteImage->installEventFilter(this);
 
+
+	// По умолчанию камера выключена (Issue 2249)
+	_pControls->SetCameraOn(false);
 }
 
 

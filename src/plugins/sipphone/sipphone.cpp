@@ -247,11 +247,11 @@ void SipPhone::onStreamOpened(IXmppStream * AXmppStream)
 void SipPhone::incomingThreadTimeChanged(qint64 timeMS)
 {
 	QList<RCallControl*> controls = FCallControls.values();
-	
-	
-	QDateTime time;
-	time.addMSecs(timeMS);
-	static QString timeString = time.toString();
+
+	QTime time(0,0,0);
+	QTime time1 = time.addMSecs(timeMS);
+	//time.addMSecs(timeMS);
+	QString timeString = time1.toString("hh:mm:ss");
 
 	foreach(RCallControl* control, controls)
 	{
@@ -394,7 +394,7 @@ void SipPhone::onToolBarActionTriggered(bool status)
 			}
 			else
 			{
-				QMessageBox::information(NULL, "onToolBarActionTriggered", "Calls NOT supported");
+				QMessageBox::information(NULL, tr("Call failure"), tr("Calls NOT supported for current contact"));
 				action->setChecked(false);
 			}
 		}

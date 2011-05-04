@@ -34,7 +34,9 @@ FullScreenForm::FullScreenForm(QWidget *parent)
 	
 	_pControls->setFixedSize(270, 40);
 	//_pControls->setMouseTracking(true);
-	_pControls->SetCameraOn(true);
+
+	// По умолчанию камера выключена (Issue 2249)
+	_pControls->SetCameraOn(false);
 }
 
 FullScreenForm::~FullScreenForm()

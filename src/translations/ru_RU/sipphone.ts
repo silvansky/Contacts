@@ -111,13 +111,6 @@
     </message>
 </context>
 <context>
-    <name>QImageLabel</name>
-    <message>
-        <source>no image</source>
-        <translation type="unfinished">нет изображения</translation>
-    </message>
-</context>
-<context>
     <name>RCallControl</name>
     <message>
         <source>Accept</source>
@@ -255,6 +248,14 @@
     <message>
         <source>SIP voice and video calls</source>
         <translation>Голосовые и видео звонки через SIP</translation>
+    </message>
+    <message>
+        <source>Call failure</source>
+        <translation type="unfinished">Ошибка вызова</translation>
+    </message>
+    <message>
+        <source>Calls NOT supported for current contact</source>
+        <translation type="unfinished">Вызов данного контакта не может быть осуществлен</translation>
     </message>
 </context>
 <context>
