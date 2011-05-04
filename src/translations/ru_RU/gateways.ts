@@ -253,10 +253,6 @@
         <translation>Введенный адрес не соответствует выбранному сервису.</translation>
     </message>
     <message>
-        <source>Invalid service descriptor identifier.</source>
-        <translation>Неверный идентификатор сервиса.</translation>
-    </message>
-    <message>
         <source>Entered phone number contains invalid characters.</source>
         <translation>Указанный номер телефона содержит недопустимые символы.</translation>
     </message>

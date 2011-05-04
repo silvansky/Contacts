@@ -20,6 +20,14 @@ enum DialogState {
 	STATE_PARAMS
 };
 
+enum RegisterDescriptorStatus
+{
+	RDS_AVAILABLE,
+	RDS_UNAVAILABLE,
+	RDS_REGISTERED,
+	RDS_CANCELLED
+};
+
 AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChanger, IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
@@ -240,20 +248,18 @@ QString AddContactDialog::defaultContactNick(const Jid &AContactJid) const
 QString AddContactDialog::confirmDescriptorText(const IGateServiceDescriptor &ADescriptor)
 {
 	QString text;
-	QString login = FGateways!=NULL ? FGateways->normalizeContactLogin(ADescriptor.id,contactText(),true) : contactText();
 	if (ADescriptor.id == GSID_ICQ)
-		text = tr("This is an ICQ number: %1").arg(login);
+		text = tr("This is an ICQ number");
 	else if (ADescriptor.id == GSID_SMS)
-		text = tr("This is a phone number: %1").arg(login);
+		text = tr("This is a phone number");
 	else if (ADescriptor.id == GSID_MAIL)
-		text = tr("This is a e-mail address: %1").arg(login);
+		text = tr("This is a e-mail address");
 	else
-		text = tr("This is a %1 address: %2").arg(ADescriptor.name).arg(login);
-
+		text = tr("This is a %1 address").arg(ADescriptor.name);
 	return text;
 }
 
-bool AddContactDialog::registerDescriptorIfNeed(const IGateServiceDescriptor &ADescriptor)
+int AddContactDialog::registerDescriptorStatus(const IGateServiceDescriptor &ADescriptor)
 {
 	if (ADescriptor.needGate)
 	{
@@ -268,15 +274,15 @@ bool AddContactDialog::registerDescriptorIfNeed(const IGateServiceDescriptor &AD
 				if (!availGates.isEmpty())
 				{
 					QDialog *dialog = FGateways->showAddLegacyAccountDialog(streamJid(),availGates.first());
-					return dialog->exec()==QDialog::Accepted;
+					return dialog->exec()==QDialog::Accepted ? RDS_REGISTERED : RDS_CANCELLED;
 				}
-				return false;
+				return RDS_UNAVAILABLE;
 			}
-			return true;
+			return RDS_AVAILABLE;
 		}
-		return false;
+		return RDS_UNAVAILABLE;
 	}
-	return true;
+	return RDS_AVAILABLE;
 }
 
 void AddContactDialog::updatePageAddress()
@@ -308,7 +314,7 @@ void AddContactDialog::updatePageParams(const IGateServiceDescriptor &ADescripto
 	FDescriptor = ADescriptor;
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblParamsServiceIcon,FDescriptor.iconKey,0,0,"pixmap");
-	ui.lblParamsContact->setText(FGateways!=NULL ? FGateways->normalizeContactLogin(FDescriptor.id,contactText(),true) : contactText());
+	ui.lblParamsContact->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FDescriptor,contactText()) : contactText());
 	
 	if (FGateways)
 	{
@@ -424,7 +430,7 @@ void AddContactDialog::resolveDescriptor()
 	else if (!confirmDescriptors.isEmpty())
 	{
 		IGateServiceDescriptor descriptor = confirmDescriptors.value(0);
-		if (registerDescriptorIfNeed(descriptor))
+		if (registerDescriptorStatus(descriptor) != RDS_CANCELLED)
 		{
 			updatePageParams(descriptor);
 			setDialogState(STATE_PARAMS);
@@ -441,7 +447,7 @@ void AddContactDialog::resolveContactJid()
 	QString errMessage;
 	bool nextResolve = false;
 
-	QString contact = FGateways!=NULL ? FGateways->normalizeContactLogin(FDescriptor.id,contactText()) : contactText().trimmed();
+	QString contact = FGateways!=NULL ? FGateways->normalizedContactLogin(FDescriptor,contactText()) : contactText().trimmed();
 
 	Jid gateJid = FSelectProfileWidget->selectedProfile();
 	if (gateJid == streamJid())
@@ -516,7 +522,7 @@ void AddContactDialog::onDialogButtonClicked(QAbstractButton *AButton)
 			{
 				if (it.key()->isChecked())
 				{
-					if (registerDescriptorIfNeed(it.value()))
+					if (registerDescriptorStatus(it.value()) != RDS_CANCELLED)
 					{
 						updatePageParams(it.value());
 						setDialogState(STATE_PARAMS);

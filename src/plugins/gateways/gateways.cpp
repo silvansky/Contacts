@@ -243,6 +243,7 @@ bool Gateways::initObjects()
 	magent.passwordField = "password";
 	magent.homeContactPattern = "^"MAIL_NODE_PATTERN"@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
 	magent.availContactPattern = magent.homeContactPattern;
+	magent.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(magent);
 
 	IGateServiceDescriptor twitter;
@@ -273,6 +274,7 @@ bool Gateways::initObjects()
 	gtalk.domainSeparator = "@";
 	gtalk.homeContactPattern = "^"MAIL_NODE_PATTERN"@(gmail\\.com|googlemail\\.com)$";
 	gtalk.availContactPattern = JabberContactPattern;
+	gtalk.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(gtalk);
 
 	IGateServiceDescriptor yonline;
@@ -298,6 +300,7 @@ bool Gateways::initObjects()
 	yonline.domainSeparator = "@";
 	yonline.homeContactPattern = "^"MAIL_NODE_PATTERN"@(ya\\.ru|yandex\\.ru|yandex\\.net|yandex\\.com|yandex\\-co\\.ru|narod\\.ru|yandex\\.by|yandex\\.kz|yandex\\.ua)$";
 	yonline.availContactPattern = JabberContactPattern;
+	yonline.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(yonline);
 
 	IGateServiceDescriptor qip;
@@ -315,6 +318,7 @@ bool Gateways::initObjects()
 	qip.domainSeparator = "@";
 	qip.homeContactPattern = "^"MAIL_NODE_PATTERN"@qip\\.ru$";
 	qip.availContactPattern = JabberContactPattern;
+	qip.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(qip);
 
 	IGateServiceDescriptor vkontakte;
@@ -388,6 +392,7 @@ bool Gateways::initObjects()
 	rambler.domainSeparator = "@";
 	rambler.homeContactPattern = "^"MAIL_NODE_PATTERN"@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
 	rambler.availContactPattern = JabberContactPattern;
+	rambler.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(rambler);
 
 	IGateServiceDescriptor jabber;
@@ -606,7 +611,7 @@ QList<IGateServiceDescriptor> Gateways::gateHomeDescriptorsByContact(const QStri
 			if (!it->homeContactPattern.isEmpty())
 			{
 				homeRegExp.setPattern(it->homeContactPattern);
-				QString contact = normalizeContactLogin(it->id,AContact);
+				QString contact = normalizedContactLogin(*it,AContact);
 				if (!contact.isEmpty() && homeRegExp.exactMatch(contact))
 					descriptors.append(*it);
 			}
@@ -627,7 +632,7 @@ QList<IGateServiceDescriptor> Gateways::gateAvailDescriptorsByContact(const QStr
 			if (!it->availContactPattern.isEmpty())
 			{
 				availRegExp.setPattern(it->availContactPattern);
-				QString contact = normalizeContactLogin(it->id,AContact);
+				QString contact = normalizedContactLogin(*it,AContact);
 				if (!contact.isEmpty() && availRegExp.exactMatch(contact))
 					descriptors.append(*it);
 			}
@@ -665,84 +670,111 @@ int Gateways::gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDesc
 	return GDS_UNAVAILABLE;
 }
 
-QString Gateways::normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, bool AModify) const
+QString Gateways::formattedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const
+{
+	QString contact = normalizedContactLogin(ADescriptor,AContact,true);
+	if (ADescriptor.id==GSID_SMS && contact.length()==12)
+	{
+		// +7 (XXX) XXX-XX-XX
+		contact.insert(2," (");
+		contact.insert(7,") ");
+		contact.insert(12,"-");
+		contact.insert(15,"-");
+	}
+	else if (ADescriptor.id == GSID_ICQ)
+	{
+		for(int pos=3; contact.length()-pos>=2; pos+=4)
+			contact.insert(pos,"-");
+	}
+	return contact;
+}
+
+QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact, bool AComplete) const
 {
 	QString contact = AContact.trimmed();
 	if (!contact.isEmpty())
 	{
-		IGateServiceDescriptor descriptor = gateDescriptorById(ADescriptorId);
-		if (!descriptor.id.isEmpty())
+		// Очистим номер от мусора
+		if (ADescriptor.id == GSID_SMS)
 		{
-			// Очистим номер от мусора
-			if (ADescriptorId == GSID_SMS)
+			QString number;
+			for (int i=0; i<contact.length(); i++)
 			{
-				QString number;
-				for (int i=0; i<contact.length(); i++)
+				QChar ch = contact.at(i);
+				if (ch.isDigit() || ch.isLetter())
+					number += ch;
+				else if (i==0 && ch=='+')
+					number += ch;
+			}
+			contact = number;
+
+			if (!contact.isEmpty())
+			{
+				if ( contact.length()==11 && (contact.startsWith('8') || contact.startsWith('7')) )
 				{
-					if (contact.at(i).isDigit() || (i==0 && contact.at(i)=='+'))
-						number += contact.at(i);
+					contact.remove(0,1);
+					contact.prepend("+7");
 				}
-				if (!number.isEmpty())
+				else if (contact.length()==10 && !contact.startsWith('+'))
 				{
-					contact = number;
-					if (contact.startsWith('8') && contact.length()==11)
-					{
-						contact.remove(0,1);
-						contact.prepend("+7");
-					}
+					contact.prepend("+7");
 				}
 			}
-
+		}
+		else if (ADescriptor.id == GSID_ICQ)
+		{
+			QString number;
+			for (int i=0; i<contact.length(); i++)
+			{
+				QChar ch = contact.at(i);
+				if (ch.isDigit() || ch.isLetter())
+					number += ch;
+			}
+			contact = number;
+		}
+		else
+		{
 			// Добавим домен, если не указан
-			if (AModify && !contact.contains('@') && !descriptor.domains.isEmpty())
+			if (AComplete && !ADescriptor.domainSeparator.isEmpty() && !contact.contains(ADescriptor.domainSeparator) && !ADescriptor.domains.isEmpty())
 			{
-				contact += "@" + descriptor.domains.value(0);
+				contact += ADescriptor.domainSeparator + ADescriptor.domains.value(0);
 			}
-
 		}
 	}
 	return contact;
 }
 
-QString Gateways::checkNormalizedContactLogin(const QString &ADescriptorId, const QString &AContact) const
+QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const
 {
 	QString errMessage;
 
-	IGateServiceDescriptor descriptor = gateDescriptorById(ADescriptorId);
-	if (!descriptor.id.isEmpty())
+	// Проверки на правильность ввода
+	if (ADescriptor.id == GSID_SMS)
 	{
-		// Проверки на правильность ввода
-		if (ADescriptorId == GSID_SMS)
-		{
-			bool validChars = true;
-			for (int i=0; validChars && i<AContact.length(); i++)
-				validChars = AContact.at(i).isDigit() || ( i==0 && AContact.at(i)=='+');
+		bool validChars = true;
+		for (int i=0; validChars && i<AContact.length(); i++)
+			validChars = AContact.at(i).isDigit() || ( i==0 && AContact.at(i)=='+');
 
-			if (!validChars)
-			{
-				errMessage = tr("Entered phone number contains invalid characters.");
-			}
-			else if (!AContact.startsWith("+") || AContact.length()<12)
-			{
-				errMessage = tr("Enter the entire number, including area code or operator code.");
-			}
-			else if (AContact.length()>12)
-			{
-				errMessage = tr("Too many digits in the phone number.");
-			}
+		if (!validChars)
+		{
+			errMessage = tr("Entered phone number contains invalid characters.");
 		}
-
-		// Проверка на соответствие контакта дескриптору
-		QRegExp homeRegExp(descriptor.homeContactPattern);
-		homeRegExp.setCaseSensitivity(Qt::CaseInsensitive);
-		if (errMessage.isEmpty() && !homeRegExp.exactMatch(AContact))
+		else if (!AContact.startsWith("+") || AContact.length()<12)
 		{
-			errMessage = tr("Entered address is not suitable for selected service.");
+			errMessage = tr("Enter the entire number, including area code or operator code.");
+		}
+		else if (AContact.length()>12)
+		{
+			errMessage = tr("Too many digits in the phone number.");
 		}
 	}
-	else
+
+	// Проверка на соответствие контакта дескриптору
+	QRegExp availRegExp(ADescriptor.availContactPattern);
+	availRegExp.setCaseSensitivity(Qt::CaseInsensitive);
+	if (errMessage.isEmpty() && !availRegExp.exactMatch(AContact))
 	{
-		errMessage = tr("Invalid service descriptor identifier.");
+		errMessage = tr("Entered address is not suitable for selected service.");
 	}
 
 	return errMessage;

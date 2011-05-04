@@ -57,7 +57,7 @@ protected:
 protected:
 	QString defaultContactNick(const Jid &AContactJid) const;
 	QString confirmDescriptorText(const IGateServiceDescriptor &ADescriptor);
-	bool registerDescriptorIfNeed(const IGateServiceDescriptor &ADescriptor);
+	int registerDescriptorStatus(const IGateServiceDescriptor &ADescriptor);
 protected:
 	void updatePageAddress();
 	void updatePageConfirm(const QList<IGateServiceDescriptor> &ADescriptors);

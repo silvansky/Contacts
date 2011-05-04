@@ -178,15 +178,16 @@ void AddMetaItemWidget::setRealContactJid(const Jid &AContactJid)
 
 void AddMetaItemWidget::resolveContactJid()
 {
-	QString contact = FGateways->normalizeContactLogin(FDescriptor.id,contactText(),true);
+	QString errMessage;
+
+	QString contact = FGateways->normalizedContactLogin(FDescriptor,contactText(),true);
 	if (contactText() != contact)
 		ui.lneContact->setText(contact);
 	FContactTextChanged = false;
 
-	QString errMessage;
 	if (!contact.isEmpty())
 	{
-		errMessage = FGateways->checkNormalizedContactLogin(FDescriptor.id,contact);
+		errMessage = FGateways->checkNormalizedContactLogin(FDescriptor,contact);
 		if (errMessage.isEmpty())
 		{
 			Jid serviceJid = FSelectProfileWidget->selectedProfile();

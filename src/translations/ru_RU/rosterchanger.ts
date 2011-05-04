@@ -36,22 +36,6 @@
         <translation>Назад</translation>
     </message>
     <message>
-        <source>This is an ICQ number: %1</source>
-        <translation>Это ICQ номер: %1</translation>
-    </message>
-    <message>
-        <source>This is a phone number: %1</source>
-        <translation>Это номер телефона: %1</translation>
-    </message>
-    <message>
-        <source>This is a e-mail address: %1</source>
-        <translation>Это адрес электронной почты: %1</translation>
-    </message>
-    <message>
-        <source>This is a %1 address: %2</source>
-        <translation>Это адрес %1: %2</translation>
-    </message>
-    <message>
         <source>Refine entered address: &lt;b&gt;%1&lt;/b&gt;</source>
         <translation>Уточните введенный адрес: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
@@ -74,6 +58,30 @@
     <message>
         <source>This contact is already present in your contact-list.</source>
         <translation>Этот контакт уже имеется в Вашем контакт-листе.</translation>
+    </message>
+    <message>
+        <source>This is an ICQ number</source>
+        <translation>Это номер ICQ</translation>
+    </message>
+    <message>
+        <source>This is a phone number</source>
+        <translation>Это номер телефона</translation>
+    </message>
+    <message>
+        <source>This is a e-mail address</source>
+        <translation>Это адрес электронной почты</translation>
+    </message>
+    <message>
+        <source>This is a %1 address</source>
+        <translation>Это адрес %1</translation>
+    </message>
+    <message>
+        <source>Failed to send request to the server</source>
+        <translation>Не удалось отправить запрос на сервер</translation>
+    </message>
+    <message>
+        <source>Failed to add contact due to an error: %1</source>
+        <translation>Не удалось добавить контакт из-за ошибки: %1</translation>
     </message>
 </context>
 <context>

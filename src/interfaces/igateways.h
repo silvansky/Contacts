@@ -50,6 +50,7 @@ struct IGateServiceDescriptor :
 	QString domainSeparator;
 	QString homeContactPattern;
 	QString availContactPattern;
+	QList<QString> linkedDescriptors;
 	QMap<QString, QVariant> extraFields;
 };
 
@@ -73,8 +74,9 @@ public:
 	virtual QList<IGateServiceDescriptor> gateHomeDescriptorsByContact(const QString &AContact) const =0;
 	virtual QList<IGateServiceDescriptor> gateAvailDescriptorsByContact(const QString &AContact) const =0;
 	virtual int gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const =0;
-	virtual QString normalizeContactLogin(const QString &ADescriptorId, const QString &AContact, bool AModify = false) const =0;
-	virtual QString checkNormalizedContactLogin(const QString &ADescriptorId, const QString &AContact) const =0;
+	virtual QString formattedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const =0;
+	virtual QString normalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact, bool AComplete = false) const =0;
+	virtual QString checkNormalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const =0;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
