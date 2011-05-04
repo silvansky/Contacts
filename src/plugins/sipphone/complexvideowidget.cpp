@@ -5,6 +5,8 @@
 ComplexVideoWidget::ComplexVideoWidget(QWidget *parent) : QWidget(parent), _noSignal(false), _pPixmap(NULL)
 {
 
+	setObjectName("ComplexVideoWidget");
+
 }
 
 ComplexVideoWidget::~ComplexVideoWidget()

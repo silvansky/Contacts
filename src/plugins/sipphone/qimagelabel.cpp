@@ -8,6 +8,8 @@
 
 QImageLabel::QImageLabel(QWidget *parent) : QLabel(parent)
 {
+	setObjectName("QImageLabel");
+
 	setMouseTracking(true);
 
 	setProperty("ignoreFilter", true);

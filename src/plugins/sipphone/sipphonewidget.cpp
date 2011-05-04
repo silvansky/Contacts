@@ -41,6 +41,7 @@ SipPhoneWidget::SipPhoneWidget(QWidget *parent)
 {
 	ui.setupUi(this);
 
+	setObjectName("SipPhoneWidget");
 	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
 }
 
