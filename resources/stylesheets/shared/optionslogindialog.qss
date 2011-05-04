@@ -117,9 +117,9 @@ QCheckBox
 
 #frmLogin
 {
-	padding-top: 14px;
+	margin-top: 10px;
 	padding-right: 3px;
-	padding-bottom: 3px;
+	padding-bottom: 0px;
 }
 
 #chbSavePassword

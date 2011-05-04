@@ -74,6 +74,7 @@ protected slots:
 	void onCompleterActivated(const QString &AText);
 	void onDomainCurrentIntexChanged(int AIndex);
 	void onNewDomainSelected(const QString & newDomain);
+	void onNewDomainRejected();
 	void onLabelLinkActivated(const QString &ALink);
 	void onLoginOrPasswordTextChanged();
 	void onShowConnectingAnimation();
