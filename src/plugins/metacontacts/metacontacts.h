@@ -152,6 +152,7 @@ protected slots:
 	void onRemoveFromGroup(bool);
 	void onDetachContactItems(bool);
 	void onChangeContactGroups(bool AChecked);
+	void onNewGroupNameSelected(const QString & group);
 	void onContactSubscription(bool);
 protected slots:
 	void onLoadMetaRosters();

@@ -1197,6 +1197,14 @@ void MetaContacts::onChangeContactGroups(bool AChecked)
 			QString group = action->data(ADR_TO_GROUP).toString();
 			if (group == mroster->roster()->groupDelimiter())
 			{
+//				CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::String);
+//				dialog->setProperty("action", QVariant::fromValue<void*>((void*)action));
+//				dialog->setCaptionText(tr("Create new group"));
+//				dialog->setInfoText(tr("Enter group name:"));
+//				dialog->setAcceptButtonText(tr("Create"));
+//				dialog->setRejectButtonText(tr("Cancel"));
+//				connect(dialog, SIGNAL(stringAccepted(QString)), SLOT(onNewGroupNameSelected(QString)));
+//				dialog->show();
 				group = QInputDialog::getText(NULL,tr("Create new group"),tr("Enter group name:"));
 				if (group.isEmpty())
 					return;
@@ -1230,6 +1238,15 @@ void MetaContacts::onChangeContactGroups(bool AChecked)
 				}
 			}
 		}
+	}
+}
+
+void MetaContacts::onNewGroupNameSelected(const QString & group)
+{
+	CustomInputDialog * dialog = qobject_cast<CustomInputDialog*>(sender());
+	if (dialog)
+	{
+		//Action *action = qobject_cast<Action *>(sender());
 	}
 }
 
