@@ -79,6 +79,7 @@ void CustomInputDialog::setCaptionText(const QString &text)
 {
 	captionLabel->setText(text);
 	setWindowTitle(text);
+	captionLabel->setVisible(!text.isEmpty());
 }
 
 void CustomInputDialog::setInfoText(const QString &text)
@@ -144,6 +145,11 @@ void CustomInputDialog::onRejectButtonClicked()
 		close();
 }
 
+void CustomInputDialog::onTextChanged(const QString & text)
+{
+	acceptButton->setEnabled(!text.isEmpty());
+}
+
 void CustomInputDialog::initLayout()
 {
 	QHBoxLayout * myLayout = new QHBoxLayout(this);
@@ -161,6 +167,7 @@ void CustomInputDialog::initLayout()
 	mainLayout->addWidget(infoLabel = new QLabel);
 	infoLabel->setVisible(false);
 	mainLayout->addWidget(valueEdit = new QLineEdit);
+	connect(valueEdit, SIGNAL(textChanged(const QString &)), SLOT(onTextChanged(const QString &)));
 	mainLayout->addWidget(descrLabel = new QLabel);
 	descrLabel->setVisible(false);
 	QHBoxLayout * buttonsLayout = new QHBoxLayout;

@@ -25,6 +25,7 @@
 #include <utils/iconstorage.h>
 #include <utils/log.h>
 #include <utils/customlistview.h>
+#include <utils/custominputdialog.h>
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>
@@ -162,6 +163,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 //	ui.lblHelp->setProperty("ignoreFilter", true);
 //	ui.lblConnectSettings->setProperty("ignoreFilter", true);
 //	ui.lblForgotPassword->setProperty("ignoreFilter", true);
+	domainPrevIndex = 0;
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 	connect(ui.chbShowPassword, SIGNAL(stateChanged(int)), SLOT(onShowPasswordToggled(int)));
@@ -936,61 +938,44 @@ void LoginDialog::onCompleterActivated(const QString &AText)
 
 void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 {
-	static int prevIndex = 0;
 	if (ui.cmbDomain->itemData(AIndex).toString().isEmpty())
 	{
-		QInputDialog *dialog = new QInputDialog();
-		dialog->setInputMode(QInputDialog::TextInput);
+		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::String);
+		dialog->setCaptionText(QString::null);
 		dialog->setWindowTitle(tr("Add custom domain"));
-		dialog->setLabelText(tr("Enter custom domain address"));
-		dialog->setOkButtonText(tr("Add"));
-		dialog->setStyleSheet(styleSheet());
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-		if (border)
-		{
-			border->setWindowModality(Qt::ApplicationModal);
-			border->show();
-			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-		}
+		dialog->setInfoText(tr("Enter address of custom domain\nwhich is linked to Rambler"));
+		dialog->setAcceptButtonText(tr("Add"));
+		dialog->setRejectButtonText(tr("Cancel"));
+		// TODO: redirect to some rambler page
+		dialog->setDescriptionText(QString("<a href='http://mail.rambler.ru'>%1</a>").arg(tr("How to link your domain?")));
 
-		QBoxLayout *layout = qobject_cast<QBoxLayout *>(dialog->layout());
-		foreach(QObject *object, dialog->children())
-		{
-			QLineEdit *editor = qobject_cast<QLineEdit *>(object);
-			if (layout && editor)
-			{
-				QLabel *label = new QLabel(dialog);
-				label->setText(tr("<a href=' '>How to connect your domain to Rambler?</a>"));
-				layout->insertWidget(layout->indexOf(editor)+1,label);
-				connect(label,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
-				break;
-			}
-		}
-
-		if (dialog->exec() && !dialog->textValue().trimmed().isEmpty())
-		{
-			Jid domain = dialog->textValue().trimmed();
-			int index = ui.cmbDomain->findData(domain.pDomain());
-			if (index < 0)
-			{
-				index = 0;
-				ui.cmbDomain->blockSignals(true);
-				ui.cmbDomain->insertItem(0,"@"+domain.pDomain(),domain.pDomain());
-				ui.cmbDomain->blockSignals(false);
-			}
-			ui.cmbDomain->setCurrentIndex(index);
-		}
-		else
-		{
-			ui.cmbDomain->setCurrentIndex(prevIndex);
-		}
-		if (border)
-			border->deleteLater();
-		else
-			dialog->deleteLater();
+		connect(dialog, SIGNAL(stringAccepted(const QString &)), SLOT(onNewDomainSelected(const QString &)));
+		connect(dialog, SIGNAL(linkActivated(const QString &)), SLOT(onLabelLinkActivated(const QString &)));
+		dialog->show();
 	}
 	else
-		prevIndex = AIndex;
+		domainPrevIndex = AIndex;
+}
+
+void LoginDialog::onNewDomainSelected(const QString & newDomain)
+{
+	if (!newDomain.isEmpty())
+	{
+		Jid domain = newDomain;
+		int index = ui.cmbDomain->findData(domain.pDomain());
+		if (index < 0)
+		{
+			index = 0;
+			ui.cmbDomain->blockSignals(true);
+			ui.cmbDomain->insertItem(0,"@"+domain.pDomain(),domain.pDomain());
+			ui.cmbDomain->blockSignals(false);
+		}
+		ui.cmbDomain->setCurrentIndex(index);
+	}
+	else
+	{
+		ui.cmbDomain->setCurrentIndex(domainPrevIndex);
+	}
 }
 
 void LoginDialog::onLabelLinkActivated(const QString &ALink)

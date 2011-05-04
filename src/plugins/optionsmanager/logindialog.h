@@ -73,6 +73,7 @@ protected slots:
 	void onCompleterHighLighted(const QString &AText);
 	void onCompleterActivated(const QString &AText);
 	void onDomainCurrentIntexChanged(int AIndex);
+	void onNewDomainSelected(const QString & newDomain);
 	void onLabelLinkActivated(const QString &ALink);
 	void onLoginOrPasswordTextChanged();
 	void onShowConnectingAnimation();
@@ -99,6 +100,7 @@ private:
 	QUuid FAccountId;
 	QTimer FReconnectTimer;
 	int FConnectionSettings;
+	int domainPrevIndex;
 	QWidget * FConnectionErrorWidget;
 };
 

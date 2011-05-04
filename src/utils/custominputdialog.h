@@ -39,6 +39,7 @@ signals:
 protected slots:
 	void onAcceptButtonClicked();
 	void onRejectButtonClicked();
+	void onTextChanged(const QString &);
 private:
 	void initLayout();
 protected:
