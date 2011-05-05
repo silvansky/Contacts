@@ -975,7 +975,7 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
 			FSubscribeServices.remove(AStreamJid,AServiceJid);
 			setKeepConnection(AStreamJid,AServiceJid,false);
-			sendLogPresence(AStreamJid,AServiceJid,false);
+			//sendLogPresence(AStreamJid,AServiceJid,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribed);
 		}
