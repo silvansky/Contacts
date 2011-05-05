@@ -315,9 +315,6 @@ void AddContactDialog::updatePageParams(const IGateServiceDescriptor &ADescripto
 {
 	FDescriptor = ADescriptor;
 	
-	FLinkedContacts.clear();
-	FLinkedJidRequests.clear();
-
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblParamsServiceIcon,FDescriptor.iconKey,0,0,"pixmap");
 	ui.lblParamsContact->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FDescriptor,contactText()) : contactText());
 	
@@ -508,6 +505,9 @@ void AddContactDialog::resolveContactName()
 
 void AddContactDialog::resolveLinkedContactsJid()
 {
+	FLinkedContacts.clear();
+	FLinkedJidRequests.clear();
+
 	foreach(QString descriptorId, FDescriptor.linkedDescriptors)
 	{
 		IGateServiceDescriptor descriptor = FGateways->gateDescriptorById(descriptorId);
