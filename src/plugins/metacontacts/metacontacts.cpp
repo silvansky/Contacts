@@ -1189,7 +1189,7 @@ void MetaContacts::onChangeContactGroups(bool AChecked)
 		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
 		{
-			QList<QString> metaIdList;
+			QStringList metaIdList;
 			metaIdList.append(action->data(ADR_META_ID).toString());
 			foreach(QVariant metaId, action->data(ADR_META_ID_LIST).toList())
 				metaIdList.append(metaId.toString());
@@ -1197,27 +1197,36 @@ void MetaContacts::onChangeContactGroups(bool AChecked)
 			QString group = action->data(ADR_TO_GROUP).toString();
 			if (group == mroster->roster()->groupDelimiter())
 			{
-//				CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::String);
-//				dialog->setProperty("action", QVariant::fromValue<void*>((void*)action));
-//				dialog->setCaptionText(tr("Create new group"));
-//				dialog->setInfoText(tr("Enter group name:"));
-//				dialog->setAcceptButtonText(tr("Create"));
-//				dialog->setRejectButtonText(tr("Cancel"));
-//				connect(dialog, SIGNAL(stringAccepted(QString)), SLOT(onNewGroupNameSelected(QString)));
-//				dialog->show();
-				group = QInputDialog::getText(NULL,tr("Create new group"),tr("Enter group name:"));
-				if (group.isEmpty())
-					return;
-				AChecked = true;
+				CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::String);
+				dialog->setProperty("action", QVariant::fromValue<void*>((void*)action));
+				dialog->setProperty("metaIdList", metaIdList);
+				dialog->setCaptionText(tr("Create new group"));
+				dialog->setInfoText(tr("Enter group name:"));
+				dialog->setAcceptButtonText(tr("Create"));
+				dialog->setRejectButtonText(tr("Cancel"));
+				connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewGroupNameSelected(const QString&)));
+				dialog->show();
+				return;
 			}
+			changeGroup(action, group, metaIdList, AChecked);
+		}
+	}
+}
 
+void MetaContacts::changeGroup(Action * action, const QString & group, const QStringList & metaIdList, bool checked)
+{
+	if (action)
+	{
+		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
+		if (mroster && mroster->isOpen())
+		{
 			QSet<QString> commonGroups;
 			foreach(QString metaId, metaIdList)
 			{
 				IMetaContact contact = mroster->metaContact(metaId);
 				if (group.isEmpty())
 					contact.groups.clear();
-				else if (AChecked)
+				else if (checked)
 					contact.groups += group;
 				else
 					contact.groups -= group;
@@ -1246,7 +1255,10 @@ void MetaContacts::onNewGroupNameSelected(const QString & group)
 	CustomInputDialog * dialog = qobject_cast<CustomInputDialog*>(sender());
 	if (dialog)
 	{
-		//Action *action = qobject_cast<Action *>(sender());
+		Action *action = (Action*)dialog->property("action").value<void*>();
+		QStringList metaIdList = dialog->property("metaIdList").toStringList();
+		bool checked = true;
+		changeGroup(action, group, metaIdList, checked);
 	}
 }
 

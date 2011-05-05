@@ -152,6 +152,9 @@ protected slots:
 	void onRemoveFromGroup(bool);
 	void onDetachContactItems(bool);
 	void onChangeContactGroups(bool AChecked);
+private:
+	void changeGroup(Action * action, const QString & group, const QStringList & metaIdList, bool AChecked);
+protected slots:
 	void onNewGroupNameSelected(const QString & group);
 	void onContactSubscription(bool);
 protected slots:
