@@ -72,6 +72,7 @@ protected:
 	void resolveDescriptor();
 	void resolveContactJid();
 	void resolveContactName();
+	void resolveLinkedContactsJid();
 protected:
 	virtual void showEvent(QShowEvent *AEvent);
 protected slots:
@@ -85,6 +86,7 @@ protected slots:
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
+	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 private:
 	Ui::AddContactDialogClass ui;
@@ -98,14 +100,16 @@ private:
 	IOptionsManager *FOptionsManager;
 	IMessageProcessor *FMessageProcessor;
 private:
-	QString FCreateRequest;
 	QString FContactJidRequest;
+	QString FContactCreateRequest;
+	QMap<QString, Jid> FLinkedJidRequests;
 private:
 	bool FShown;
 	Jid FContactJid;
 	int FDialogState;
 	bool FResolveNick;
 	bool FServiceFailed;
+	QList<Jid> FLinkedContacts;
 	IGateServiceDescriptor FDescriptor;
 	SelectProfileWidget *FSelectProfileWidget;
 	QMap<QRadioButton *, IGateServiceDescriptor> FConfirmButtons;
