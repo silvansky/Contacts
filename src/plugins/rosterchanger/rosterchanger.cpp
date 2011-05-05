@@ -1406,7 +1406,7 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 			noticeActions = NTA_ASK_SUBSCRIBE|NTA_CLOSE;
 		}
 
-		if (isAutoUnsubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_BOTH)
+		if (isAutoUnsubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_NONE)
 			ARoster->sendSubscription(AItemJid,IRoster::Unsubscribed);
 	}
 	else  if (ASubsType == IRoster::Subscribed)
