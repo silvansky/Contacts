@@ -1052,11 +1052,8 @@ void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 				pixmap.fill(QColor(0, 0, 0, 0)); // that fixes transparency problem
 				QPainter painter(&pixmap);
 				ImageManager::drawNinePartImage(shadow, pixmapRect, border, &painter);
-				painter.setOpacity(0.95);
+				painter.setOpacity(0.9);
 				painter.translate(border, border);
-				//painter.fillRect(option.rect,style()->standardPalette().color(QPalette::Normal,QPalette::Base));
-				//style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, &painter, this);
-				painter.fillRect(option.rect, QColor(242, 249, 252)); // magic color
 				itemDeletage->paint(&painter,option,FPressedIndex);
 				drag->setPixmap(pixmap);
 				drag->setHotSpot(FPressedPos - indexPos - pixmapRect.topLeft());
