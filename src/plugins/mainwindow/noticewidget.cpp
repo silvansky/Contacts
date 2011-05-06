@@ -104,6 +104,8 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 	if (FActiveNotice != ANoticeId)
 	{
 		FButtonsCleanup.clear();
+		static QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding);
+		ui.wdtActions->layout()->removeItem(spacer);
 		if (ANoticeId > 0)
 		{
 			const IInternalNotice &notice = FNotices.value(ANoticeId);
@@ -134,6 +136,7 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 				ui.wdtActions->layout()->addWidget(button);
 				FButtonsCleanup.add(button);
 			}
+			ui.wdtActions->layout()->addItem(spacer);
 			ui.wdtActions->setVisible(!notice.actions.isEmpty());
 
 			setVisible(true);
