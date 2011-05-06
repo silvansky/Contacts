@@ -1,3 +1,7 @@
-HEADERS = ramblerhistory.h
+FORMS = viewhistorywindow.ui
 
-SOURCES = ramblerhistory.cpp
+HEADERS = ramblerhistory.h \
+          viewhistorywindow.h
+
+SOURCES = ramblerhistory.cpp \
+          viewhistorywindow.cpp

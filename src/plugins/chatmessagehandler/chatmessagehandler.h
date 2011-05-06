@@ -75,7 +75,8 @@ struct StyleExtension
 enum HisloryLoadState {
 	HLS_READY,
 	HLS_WAITING,
-	HLS_FINISHED
+	HLS_FINISHED,
+	HLS_FAILED
 };
 
 class ChatMessageHandler :
@@ -132,7 +133,7 @@ protected:
 	void requestHistoryMessages(IChatWindow *AWindow, int ACount);
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
-	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit = false);
+	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState);
 protected:
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;

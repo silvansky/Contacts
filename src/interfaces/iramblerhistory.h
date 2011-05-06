@@ -29,6 +29,7 @@ public:
 	virtual QObject *instance() = 0;
 	virtual bool isSupported(const Jid &AStreamJid) const =0;
 	virtual QString loadServerMessages(const Jid &AStreamJid, const IRamblerHistoryRetrieve &ARetrieve) =0;
+	virtual QWidget *showViewHistoryWindow(const Jid &AStreamJid, const Jid &AContactJid) =0;
 protected:
 	virtual void serverMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages) =0;
 	virtual void requestFailed(const QString &AId, const QString &AError) =0;

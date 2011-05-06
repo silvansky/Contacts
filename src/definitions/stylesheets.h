@@ -34,9 +34,12 @@
 #define STS_OPTIONS_LOGINDIALOG                                         "optionsLoginDialog"
 #define STS_OPTIONS_OPTIONSDIALOG                                       "optionsOptionsDialog"
 
-//RambleMailNotify
+//RamblerMailNotify
 #define STS_RAMBLERMAILNOTIFY_MAILNOTIFYPAGE                            "ramblermailnotifyMailNotifyPage"
 #define STS_RAMBLERMAILNOTIFY_MAILINFOWIDGET                            "ramblermailnotifyMailInfoWidget"
+
+//RamblerHistory
+#define STS_RAMBLERHISTORY_VIEWHISTORYWINDOW                            "ramblerhistoryViewHistoryWindow"
 
 //RosterChanger
 #define STS_RCHANGER_ADDCONTACTDIALOG                                   "rchangerAddContactDialog"

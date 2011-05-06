@@ -6,6 +6,7 @@
 RamblerHistory::RamblerHistory()
 {
 	FDiscovery = NULL;
+	FRosterPlugin = NULL;
 	FOptionsManager = NULL;
 	FStanzaProcessor = NULL;
 }
@@ -32,6 +33,16 @@ bool RamblerHistory::initConnections(IPluginManager *APluginManager, int &AInitO
 	IPlugin *plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0,NULL);
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IRosterPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FRosterPlugin = qobject_cast<IRosterPlugin *>(plugin->instance());
+		if (FRosterPlugin)
+		{
+			connect(FRosterPlugin->instance(),SIGNAL(rosterRemoved(IRoster *)),SLOT(onRosterRemoved(IRoster *)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
 	if (plugin)
@@ -101,11 +112,11 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 				elem = elem.nextSiblingElement();
 			}
 
-	 elem = chatElem.firstChildElement("first");
-	 while (!elem.isNull() && elem.namespaceURI()!=NS_RAMBLER_ARCHIVE_RSM)
-	    elem = elem.nextSiblingElement("first");
-	 result.beforeId = elem.firstChildElement("id").text();
-	 result.beforeTime = DateTime(elem.firstChildElement("ctime").text()).toLocal();
+			elem = chatElem.firstChildElement("first");
+			while (!elem.isNull() && elem.namespaceURI()!=NS_RAMBLER_ARCHIVE_RSM)
+				elem = elem.nextSiblingElement("first");
+			result.beforeId = elem.firstChildElement("id").text();
+			result.beforeTime = DateTime(elem.firstChildElement("ctime").text()).toLocal();
 
 			emit serverMessagesLoaded(AStanza.id(), result);
 		}
@@ -157,6 +168,51 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IRambler
 		}
 	}
 	return QString::null;
+}
+
+QWidget *RamblerHistory::showViewHistoryWindow(const Jid &AStreamJid, const Jid &AContactJid)
+{
+	ViewHistoryWindow *window = NULL;
+	if (isSupported(AStreamJid))
+	{
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+		if (roster)
+		{
+			window = findViewWindow(roster,AContactJid);
+			if (!window)
+			{
+				window = new ViewHistoryWindow(roster,AContactJid);
+				connect(window,SIGNAL(windowDestroyed()),SLOT(onViewHistoryWindowDestriyed()));
+				FViewWindows.insertMulti(roster,window);
+				CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window,CBS_WINDOW);
+			}
+			WidgetManager::showActivateRaiseWindow(window->parentWidget()!=NULL ? window->parentWidget() : window);
+		}
+	}
+	return window;
+}
+
+
+ViewHistoryWindow *RamblerHistory::findViewWindow(IRoster *ARoster, const Jid &AContactJid) const
+{
+	foreach(ViewHistoryWindow *window, FViewWindows.values(ARoster))
+		if (AContactJid && window->contactJid())
+			return window;
+	return NULL;
+}
+
+void RamblerHistory::onRosterRemoved(IRoster *ARoster)
+{
+	foreach(ViewHistoryWindow *window, FViewWindows.values(ARoster))
+		delete window;
+	FViewWindows.remove(ARoster);
+}
+
+void RamblerHistory::onViewHistoryWindowDestriyed()
+{
+	ViewHistoryWindow *window = qobject_cast<ViewHistoryWindow *>(sender());
+	IRoster *roster = FViewWindows.key(window);
+	FViewWindows.remove(roster,window);
 }
 
 Q_EXPORT_PLUGIN2(plg_ramblerhistory, RamblerHistory)

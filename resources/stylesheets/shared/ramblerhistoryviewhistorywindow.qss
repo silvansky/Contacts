@@ -1,0 +1,4 @@
+QWidget#wbvHistoryView
+{
+	background-color: white;
+}
