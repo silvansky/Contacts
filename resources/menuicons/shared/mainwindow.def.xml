@@ -40,4 +40,9 @@
     <key>mainwindowShowRoster</key>
     <object mime="image/png">mainwindowshowroster.png</object>
   </icon>
+  <icon>
+    <key>mainwindowNoticeClose</key>
+    <object mime="image/png">mainwindownoticeclose.png</object>
+    <object mime="image/png">mainwindownoticeclose_hover.png</object>
+  </icon>
 </icondef>

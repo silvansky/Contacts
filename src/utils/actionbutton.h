@@ -17,14 +17,18 @@ public:
 	void setAction(Action *AAction);
 	QString actionString();
 	void setActionString(const QString&);
+	void addTextFlag(int flag);
 signals:
 	void actionChanged();
 	void buttonChanged();
 private slots:
 	void onActionChanged();
 	void onActionDestroyed(Action *AAction);
+protected:
+	void paintEvent(QPaintEvent *);
 private:
 	Action *FAction;
+	int additionalTextFlag;
 };
 
 #endif // ACTIONBUTTON_H

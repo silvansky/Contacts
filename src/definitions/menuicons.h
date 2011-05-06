@@ -126,6 +126,7 @@
 #define MNI_MAINWINDOW_QUIT                      "mainwindowQuit"
 #define MNI_MAINWINDOW_MENU                      "mainwindowMenu"
 #define MNI_MAINWINDOW_SHOW_ROSTER               "mainwindowShowRoster"
+#define MNI_MAINWINDOW_NOTICE_CLOSE              "mainwindowNoticeClose"
 
 //MessageArchiver
 #define MNI_HISTORY                              "history"

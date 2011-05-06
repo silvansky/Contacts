@@ -4,9 +4,13 @@
 # include <QDebug>
 #endif
 
+#include <QStylePainter>
+#include <QStyleOptionButton>
+
 ActionButton::ActionButton(QWidget *AParent) : QPushButton(AParent)
 {
 	FAction = NULL;
+	additionalTextFlag = 0;
 }
 
 ActionButton::ActionButton(Action *AAction, QWidget *AParent) : QPushButton(AParent)
@@ -58,6 +62,11 @@ void ActionButton::setActionString(const QString& s)
 	setStyleSheet(styleSheet());
 }
 
+void ActionButton::addTextFlag(int flag)
+{
+	additionalTextFlag = flag;
+}
+
 void ActionButton::onActionChanged()
 {
 	if (FAction)
@@ -81,4 +90,14 @@ void ActionButton::onActionDestroyed(Action *AAction)
 	{
 		setAction(NULL);
 	}
+}
+
+void ActionButton::paintEvent(QPaintEvent *)
+{
+	QStylePainter p(this);
+	QStyleOptionButton option;
+	initStyleOption(&option);
+	option.text = QString::null;
+	p.drawControl(QStyle::CE_PushButton, option);
+	p.drawItemText(option.rect, Qt::AlignCenter | additionalTextFlag, palette(), isEnabled(), text(), QPalette::ButtonText);
 }

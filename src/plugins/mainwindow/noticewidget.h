@@ -39,6 +39,8 @@ protected slots:
 	void onUpdateTimerTimeout();
 	void onNoticeActionTriggered();
 	void onCloseButtonClicked(bool);
+protected:
+	bool eventFilter(QObject *, QEvent *);
 private:
 	Ui::NoticeWidgetClass ui;
 private:
