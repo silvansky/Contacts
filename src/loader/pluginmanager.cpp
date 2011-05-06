@@ -283,17 +283,17 @@ void PluginManager::loadSettings()
 	if (QSysInfo::windowsVersion() < QSysInfo::WV_VISTA)
 	{
 		FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
-		QString fontFile = fontStorage->fileFullName(FNT_SEGOERG);
-		QFontDatabase::addApplicationFont(fontFile);
-		fontFile = fontStorage->fileFullName(FNT_SEGOEUI);
+		QString fontFile = fontStorage->fileFullName(FNT_SEGOEUI);
 		QFontDatabase::addApplicationFont(fontFile);
 		fontFile = fontStorage->fileFullName(FNT_SEGOEUI_ITALIC);
 		QFontDatabase::addApplicationFont(fontFile);
 		fontFile = fontStorage->fileFullName(FNT_SEGOEUI_BOLD);
 		QFontDatabase::addApplicationFont(fontFile);
-		//QFontDatabase fontDB;
-		//QFont segoe = fontDB.font("Segoe UI", "", 12);
-		//QApplication::setFont(segoe);
+		fontFile = fontStorage->fileFullName(FNT_SEGOEUI_ITALIC_BOLD);
+		QFontDatabase::addApplicationFont(fontFile);
+		QFontDatabase fontDB;
+		QFont segoe = fontDB.font("Segoe UI", "", 12);
+		QApplication::setFont(segoe);
 	}
 #endif
 

@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <fontsdef>
   <file>
-    <key>SegoeRg</key>
-    <object mime="application/x-font-ttf">SegoeRg.ttf</object>
-  </file>
-  <file>
     <key>SegoeUI</key>
     <object mime="application/x-font-ttf">segoeui.ttf</object>
   </file>
@@ -15,5 +11,9 @@
   <file>
     <key>SegoeUIB</key>
     <object mime="application/x-font-ttf">segoeuib.ttf</object>
+  </file>
+  <file>
+    <key>SegoeUIZ</key>
+    <object mime="application/x-font-ttf">segoeuiz.ttf</object>
   </file>
 </fontsdef>
