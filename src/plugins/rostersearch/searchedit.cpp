@@ -16,6 +16,7 @@ SearchEdit::SearchEdit(QWidget *parent) :
 	iconLabel = new QLabel(this);
 	iconLabel->setFixedSize(16, 16);
 	iconLabel->setMouseTracking(true);
+	iconLabel->setProperty("ignoreFilter", true);
 	//currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_GLASS);
 	//if (!currentIcon.isNull())
 	//	iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
