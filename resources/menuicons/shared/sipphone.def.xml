@@ -145,4 +145,8 @@
     <object mime="image/png">sipphonevideofullscreen_off.png</object>
   </icon>
 
-  </icondef>
+  <icon>
+    <key>sipSeparator</key>
+    <object mime="image/png">sipseparator.png</object>
+  </icon>
+</icondef>

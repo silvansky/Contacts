@@ -727,3 +727,16 @@ QGroupBox
 	background-color: transparent;
 	color: white;
 }
+
+/************
+ * QToolBar *
+ ************/
+
+QToolBar::separator
+{
+	width: 12px;
+	background-color: transparent;
+	background-image: url(%IMAGES_PATH%/toolbarseparator.png);
+	background-repeat: no-repeat;
+	background-position: center;
+}

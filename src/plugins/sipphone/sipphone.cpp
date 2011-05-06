@@ -1,6 +1,9 @@
 #include "sipphone.h"
 #include <QMessageBox>
 #include <utils/log.h>
+#include <utils/iconstorage.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
 
 #include "winsock2.h"
 
@@ -262,7 +265,7 @@ void SipPhone::incomingThreadTimeChanged(qint64 timeMS)
 		}
 
 	}
-	
+
 }
 
 void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
@@ -295,6 +298,10 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 		callAction->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON);
 
 		connect(callAction, SIGNAL(triggered(bool)), SLOT(onToolBarActionTriggered(bool)));
+		QLabel * separator = new QLabel;
+		separator->setFixedWidth(12);
+		separator->setPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_SEPARATOR)));
+		tbChanger->insertWidget(separator, TBG_MCMTW_P2P_CALL);
 		QToolButton * btn = tbChanger->insertAction(callAction, TBG_MCMTW_P2P_CALL);
 		btn->setObjectName("tbSipCall");
 
