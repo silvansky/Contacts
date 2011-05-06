@@ -1,6 +1,7 @@
 #include "noticewidget.h"
 
 #include <QHBoxLayout>
+#include <utils/actionbutton.h>
 
 InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 {
@@ -101,14 +102,19 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 
 			foreach(Action *action, notice.actions)
 			{
-				QLabel *label = new QLabel(ui.wdtActions);
+				/*QLabel *label = new QLabel(ui.wdtActions);
 				label->setTextFormat(Qt::RichText);
 				label->setWordWrap(true);
 				label->setText(QString("<a href='link'>%1</a>").arg(action->text()));
 				connect(label,SIGNAL(linkActivated(const QString &)),action,SLOT(trigger()));
 				connect(action,SIGNAL(triggered()),SLOT(onNoticeActionTriggered()));
 				ui.wdtActions->layout()->addWidget(label);
-				FButtonsCleanup.add(label);
+				FButtonsCleanup.add(label);*/
+				ActionButton * button = new ActionButton(action, ui.wdtActions);
+				button->setText(action->text());
+				connect(action,SIGNAL(triggered()),SLOT(onNoticeActionTriggered()));
+				ui.wdtActions->layout()->addWidget(button);
+				FButtonsCleanup.add(button);
 			}
 			ui.wdtActions->setVisible(!notice.actions.isEmpty());
 

@@ -3,3 +3,13 @@ QLabel#lblCaption
 	font-size: 12px;
 	font-weight: bold;
 }
+
+QLabel
+{
+	color: #435660;
+}
+
+InternalNoticeWidget
+{
+	background-color: #d1dce2;
+}

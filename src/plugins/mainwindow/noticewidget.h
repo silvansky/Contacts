@@ -10,12 +10,12 @@
 #include <utils/stylestorage.h>
 #include "ui_noticewidget.h"
 
-class InternalNoticeWidget : 
+class InternalNoticeWidget :
 	public QWidget,
 	public IInternalNoticeWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IInternalNoticeWidget);
+	Q_OBJECT
+	Q_INTERFACES(IInternalNoticeWidget)
 public:
 	InternalNoticeWidget(QWidget *AParent = NULL);
 	~InternalNoticeWidget();
