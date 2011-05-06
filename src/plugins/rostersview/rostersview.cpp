@@ -17,6 +17,9 @@
 #include <QDragLeaveEvent>
 #include <QContextMenuEvent>
 #include <utils/imagemanager.h>
+#include <utils/iconstorage.h>
+#include <definitions/menuicons.h>
+#include <definitions/resources.h>
 
 #define BLINK_VISIBLE           750
 #define BLINK_INVISIBLE         250
@@ -1042,15 +1045,21 @@ void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 				option.state &= ~QStyle::State_Selected;
 				option.state &= ~QStyle::State_MouseOver;
 				option.rect = QRect(QPoint(0,0),option.rect.size());
-				QPixmap pixmap(option.rect.size());
+				const int border = 5; // yao magic border width
+				QRect pixmapRect = option.rect.adjusted(-border, -border, border, border);
+				QImage shadow = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_DRAG_SHADOW);
+				QPixmap pixmap(pixmapRect.size());
 				pixmap.fill(QColor(0, 0, 0, 0)); // that fixes transparency problem
 				QPainter painter(&pixmap);
-				painter.setOpacity(0.9);
-				painter.fillRect(option.rect,style()->standardPalette().color(QPalette::Normal,QPalette::Base));
+				ImageManager::drawNinePartImage(shadow, pixmapRect, border, &painter);
+				painter.setOpacity(0.95);
+				painter.translate(border, border);
+				//painter.fillRect(option.rect,style()->standardPalette().color(QPalette::Normal,QPalette::Base));
+				//style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, &painter, this);
+				painter.fillRect(option.rect, QColor(242, 249, 252)); // magic color
 				itemDeletage->paint(&painter,option,FPressedIndex);
-				//painter.drawRect(option.rect.adjusted(0,0,-1,-1));
 				drag->setPixmap(pixmap);
-				drag->setHotSpot(FPressedPos - indexPos);
+				drag->setHotSpot(FPressedPos - indexPos - pixmapRect.topLeft());
 			}
 
 			QByteArray data;

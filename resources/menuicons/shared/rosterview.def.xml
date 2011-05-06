@@ -46,4 +46,8 @@
     <object mime="image/png">rosterviewhighlighteditem.png</object>
     <object mime="image/png">rosterviewhighlighteditem_alpha.png</object>
   </icon>
+  <icon>
+    <key>rosterviewDragShadow</key>
+    <object mime="image/png">rosterviewdragshadow.png</object>
+  </icon>
 </icondef>
