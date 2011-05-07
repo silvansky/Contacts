@@ -63,12 +63,12 @@
         <translation>Переименовать контакт</translation>
     </message>
     <message>
-        <source>&lt;font size=+2&gt;Rename contact&lt;/font&gt;&lt;br&gt;Enter new name</source>
-        <translation>&lt;font size=+2&gt;Переименовать контакт&lt;/font&gt;&lt;br&gt;Введите новое имя</translation>
-    </message>
-    <message>
         <source>Edit profile online...</source>
         <translation>Редактировать профиль на сайте...</translation>
+    </message>
+    <message>
+        <source>Enter new name</source>
+        <translation>Введите новое имя</translation>
     </message>
 </context>
 <context>

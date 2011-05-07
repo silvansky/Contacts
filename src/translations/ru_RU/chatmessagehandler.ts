@@ -128,14 +128,6 @@
         <translation>История сообщений</translation>
     </message>
     <message>
-        <source>Show previous messages</source>
-        <translation>Показать предыдущие сообщения</translation>
-    </message>
-    <message>
-        <source>Failed to load history messages from server: %1</source>
-        <translation>Не удалось загрузить историю сообщений с сервера: %1</translation>
-    </message>
-    <message>
         <source>Loading messages from server...</source>
         <translation>Загрузка сообщений с сервера...</translation>
     </message>
@@ -150,6 +142,22 @@
     <message>
         <source>Not in contact list</source>
         <translation>Нет в контакт-листе</translation>
+    </message>
+    <message>
+        <source>Download another %1 messages</source>
+        <translation>Загрузить еще %1 сообщений</translation>
+    </message>
+    <message>
+        <source>All messages loaded</source>
+        <translation>Все сообщения загружены</translation>
+    </message>
+    <message>
+        <source>Failed to load history messages from server</source>
+        <translation>Не удалось загрузить сообщения с сервера</translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation>Обновить</translation>
     </message>
 </context>
 </TS>

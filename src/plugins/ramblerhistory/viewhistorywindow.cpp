@@ -1,5 +1,7 @@
 #include "viewhistorywindow.h"
 
+#include <QWebFrame>
+
 ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, QWidget *AParent) : QMainWindow(AParent)
 {
 	ui.setupUi(this);
@@ -16,8 +18,9 @@ ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, Q
 	connect(FRoster->instance(),SIGNAL(destroyed(QObject *)),SLOT(deleteLater()));
 
 	IRosterItem ritem = FRoster->rosterItem(AContactJid);
+	ritem.itemJid = FContactJid;
 	onRosterItemReceived(ritem,ritem);
-
+	
 	initViewHtml();
 }
 
@@ -50,6 +53,7 @@ void ViewHistoryWindow::initViewHtml()
 
 	QString html = HtmlTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).arg(tr("Enter"));
 	ui.wbvHistoryView->setHtml(html);
+	ui.wbvHistoryView->page()->mainFrame()->evaluateJavaScript("document.forms.auth_form.submit()");
 }
 
 void ViewHistoryWindow::onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore)

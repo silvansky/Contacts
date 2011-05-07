@@ -186,16 +186,8 @@
         <translation>Повторное подключение через &lt;b&gt;%1&lt;/b&gt; сек</translation>
     </message>
     <message>
-        <source>Enter custom domain address</source>
-        <translation>Введите адрес своего домена</translation>
-    </message>
-    <message>
         <source>Add</source>
         <translation>Добавить</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&apos; &apos;&gt;How to connect your domain to Rambler?&lt;/a&gt;</source>
-        <translation>&lt;a href=&apos; &apos;&gt;Как подключить свой домен к Рамблеру&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Password can be entered incorrectly because of &lt;CapsLock&gt; key is pressed.
@@ -231,6 +223,20 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     <message>
         <source>This profile is already opened by another Friends instance</source>
         <translation>Этот профиль уже открыть другой копией Friends</translation>
+    </message>
+    <message>
+        <source>Enter address of custom domain
+which is linked to Rambler</source>
+        <translation>Введите адрес своего домена,
+который подключен к Rambler</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>How to link your domain?</source>
+        <translation>Как подключить свой домен?</translation>
     </message>
 </context>
 <context>

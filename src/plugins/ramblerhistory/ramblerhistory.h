@@ -58,7 +58,7 @@ protected:
 	ViewHistoryWindow *findViewWindow(IRoster *ARoster, const Jid &AContactJid) const;
 protected slots:
 	void onRosterRemoved(IRoster *ARoster);
-	void onViewHistoryWindowDestriyed();
+	void onViewHistoryWindowDestroyed();
 private:
 	IRosterPlugin *FRosterPlugin;
 	IServiceDiscovery *FDiscovery;

@@ -182,9 +182,11 @@ QWidget *RamblerHistory::showViewHistoryWindow(const Jid &AStreamJid, const Jid 
 			if (!window)
 			{
 				window = new ViewHistoryWindow(roster,AContactJid);
-				connect(window,SIGNAL(windowDestroyed()),SLOT(onViewHistoryWindowDestriyed()));
+				CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window,CBS_WINDOW);
+				if (border)
+					border->setAttribute(Qt::WA_DeleteOnClose, true);
+				connect(window,SIGNAL(windowDestroyed()),SLOT(onViewHistoryWindowDestroyed()));
 				FViewWindows.insertMulti(roster,window);
-				CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window,CBS_WINDOW);
 			}
 			WidgetManager::showActivateRaiseWindow(window->parentWidget()!=NULL ? window->parentWidget() : window);
 		}
@@ -208,7 +210,7 @@ void RamblerHistory::onRosterRemoved(IRoster *ARoster)
 	FViewWindows.remove(ARoster);
 }
 
-void RamblerHistory::onViewHistoryWindowDestriyed()
+void RamblerHistory::onViewHistoryWindowDestroyed()
 {
 	ViewHistoryWindow *window = qobject_cast<ViewHistoryWindow *>(sender());
 	IRoster *roster = FViewWindows.key(window);

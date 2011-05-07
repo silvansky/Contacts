@@ -12,4 +12,22 @@
         <translation>Позволяет другим плагинам получать доступ к истории на сервере рамблера</translation>
     </message>
 </context>
+<context>
+    <name>ViewHistoryWindow</name>
+    <message>
+        <source>Enter</source>
+        <translation>Войти</translation>
+    </message>
+    <message>
+        <source>Chat history - %1</source>
+        <translation>История чата - %1</translation>
+    </message>
+</context>
+<context>
+    <name>ViewHistoryWindowClass</name>
+    <message>
+        <source>about:blank</source>
+        <translation>about:blank</translation>
+    </message>
+</context>
 </TS>

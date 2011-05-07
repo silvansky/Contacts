@@ -240,6 +240,10 @@
         <source>Agent@Mail.ru</source>
         <translation>Агент@Mail.ru</translation>
     </message>
+    <message>
+        <source>Create</source>
+        <translation>Создать</translation>
+    </message>
 </context>
 <context>
     <name>MetaProxyModel</name>
