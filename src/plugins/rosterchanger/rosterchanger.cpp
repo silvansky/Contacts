@@ -518,8 +518,8 @@ bool RosterChanger::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, c
 		if (roster && roster->isOpen() && roster->rosterItem(AContactJid).isValid)
 		{
 			if (QMessageBox::question(NULL, tr("Remove contact"),
-						  tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(AContactJid.hBare()),
-						  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+				tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(Qt::escape(AContactJid.bare())),
+				QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 			{
 				roster->removeItem(AContactJid);
 			}
@@ -533,8 +533,8 @@ bool RosterChanger::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, c
 		if (roster && roster->isOpen() && ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO)
 		{
 			if (QMessageBox::question(NULL, tr("Subscribe for contact presence"),
-						  tr("You are assured that wish to subscribe for a contact <b>%1</b> presence?").arg(AContactJid.hBare()),
-						  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+				tr("You are assured that wish to subscribe for a contact <b>%1</b> presence?").arg(Qt::escape(AContactJid.bare())),
+				QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 			{
 				roster->sendSubscription(AContactJid, IRoster::Subscribe);
 			}
@@ -548,8 +548,8 @@ bool RosterChanger::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, c
 		if (roster && roster->isOpen() && ritem.subscription!=SUBSCRIPTION_NONE && ritem.subscription!=SUBSCRIPTION_FROM)
 		{
 			if (QMessageBox::question(NULL, tr("Unsubscribe from contact presence"),
-						  tr("You are assured that wish to unsubscribe from a contact <b>%1</b> presence?").arg(AContactJid.hBare()),
-						  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+				tr("You are assured that wish to unsubscribe from a contact <b>%1</b> presence?").arg(Qt::escape(AContactJid.bare())),
+				QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 			{
 				roster->sendSubscription(AContactJid, IRoster::Unsubscribe);
 			}
@@ -1605,8 +1605,8 @@ void RosterChanger::onRemoveItemFromRoster(bool)
 			if (roster->rosterItem(rosterJid).isValid)
 			{
 				if (QMessageBox::question(NULL,tr("Remove contact"),
-							  tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(rosterJid.hBare()),
-							  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+					tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(Qt::escape(rosterJid.bare())),
+					QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 				{
 					roster->removeItem(rosterJid);
 				}

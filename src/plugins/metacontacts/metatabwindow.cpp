@@ -457,7 +457,7 @@ void MetaTabWindow::updateWindow()
 		IMetaContact contact = FMetaRoster->metaContact(FMetaId);
 		IPresenceItem pitem = FMetaRoster->metaPresenceItem(FMetaId);
 
-		QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByJidStatus(FMetaId,pitem.show,SUBSCRIPTION_BOTH,false) : QIcon();
+		QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByJidStatus(pitem.itemJid,pitem.show,SUBSCRIPTION_BOTH,false) : QIcon();
 		QString name = FMetaContacts->metaContactName(contact);
 		QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
 		QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
