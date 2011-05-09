@@ -101,7 +101,7 @@ QListView#completerPopUp::item:hover
 
 #lblRegister
 {
-	padding-top: 14px;
+	padding-top: 8px;
 /*	margin-bottom: 14px;*/
 }
 
@@ -140,8 +140,8 @@ QCheckBox
 QComboBox#cmbDomain
 {
 	margin-top: 2px;
-	min-width: 75px;
-	max-width: 75px;
+	min-width: 78px;
+	max-width: 78px;
 }
 
 QComboBox#cmbDomain[error="true"]

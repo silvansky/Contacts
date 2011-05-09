@@ -259,6 +259,7 @@ QPushButton, QToolButton
 	color: white;
 	min-height: 27px;
 	min-width: 60px;
+	font-size: 12px;
 }
 
 QToolButton
@@ -406,6 +407,7 @@ QMenu::item
 	padding-left: 22px;
 	padding-right: 20px;
 	min-height: 22px;
+	font-size: 12px;
 }
 
 QMenu::separator
@@ -468,11 +470,15 @@ QComboBox
 	border-left: 3px;
 	border-bottom: 4px;
 	border-right: 3px;
-	padding: -1px 5px -1px 8px;
-	min-width: 6em;
+	padding-top: -1px;
+	padding-bottom: -1px;
+	padding-left: 5px;
+	padding-right: 5px;
+	min-width: 7em;
 	min-height: 23px;
 	color: white;
 	background-color: transparent;
+	font-size: 11px;
 }
 
 QComboBox:editable
@@ -486,8 +492,8 @@ QComboBox:!editable:hover
 	border-right: 5px;
 	border-left: 5px;
 	border-bottom: 6px;
-	padding-left: 6px;
-	padding-right: 0px;
+	padding-left: 3px;
+	padding-right: 3px;
 	border-image: url(%IMAGES_PATH%/buttonborderhover.png);
 }
 
@@ -505,9 +511,9 @@ QComboBox:!enabled
 
 QComboBox::drop-down
 {
-	subcontrol-origin: padding;
+	subcontrol-origin: margin;
 	subcontrol-position: top right;
-	right: 2px;
+	right: 3px;
 	width: 15px;
 	background-color: transparent;
 	border: none;
@@ -539,6 +545,7 @@ QComboBox QListView
 	border: 1px solid #22272d;
 	background-color: rgba(65, 70, 77, 255);
 	padding: 0px;
+	font-size: 11px;
 }
 
 QComboBox QListView::item:!disabled
@@ -739,4 +746,17 @@ QToolBar::separator
 	background-image: url(%IMAGES_PATH%/toolbarseparator.png);
 	background-repeat: no-repeat;
 	background-position: center;
+}
+
+/************
+ * QToolTip *
+ ************/
+
+QToolTip
+{
+	font-size: 12px;
+	background-color: black;
+	color: white;
+	opacity: 230;
+	border: 1px solid #1f2329;
 }
