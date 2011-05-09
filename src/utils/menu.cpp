@@ -12,8 +12,7 @@ Menu::Menu(QWidget *AParent) : QMenu(AParent)
 	FMenuAction = new Action(this);
 	FMenuAction->setMenu(this);
 
-	border = NULL;
-	//border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MENU);
+	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MENU);
 	if (border)
 	{
 		setWindowFlags(Qt::Widget);
