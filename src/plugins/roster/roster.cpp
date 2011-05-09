@@ -495,7 +495,8 @@ void Roster::processItemsElement(const QDomElement &AItemsElem, bool ACompleteRo
 					}
 					ritem.groups = allItemGroups;
 
-					emit received(ritem,before);
+					if (ritem != before)
+						emit received(ritem,before);
 				}
 			}
 			else if (subs==SUBSCRIPTION_REMOVE && FRosterItems.contains(itemJid))

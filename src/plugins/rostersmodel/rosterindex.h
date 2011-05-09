@@ -3,23 +3,21 @@
 
 #include <QMap>
 #include <QHash>
-#include <QMultiHash>
 #include <definitions/rosterindextyperole.h>
 #include <interfaces/irostersmodel.h>
 
 class RosterIndex :
-			public QObject,
-			public IRosterIndex
+	public QObject,
+	public IRosterIndex
 {
-	Q_OBJECT
-	Q_INTERFACES(IRosterIndex)
+	Q_OBJECT;
+	Q_INTERFACES(IRosterIndex);
 public:
-	RosterIndex(int AType, const QString &AId);
+	RosterIndex(int AType);
 	~RosterIndex();
 	QObject *instance() { return this; }
 	//IRosterIndex
 	virtual int type() const;
-	virtual QString id() const;
 	virtual IRosterIndex *parentIndex() const;
 	virtual void setParentIndex(IRosterIndex *AIndex);
 	virtual int row() const;
@@ -36,7 +34,7 @@ public:
 	virtual QVariant data(int ARole) const;
 	virtual QMap<int,QVariant> data() const;
 	virtual void setData(int ARole, const QVariant &AData);
-	virtual QList<IRosterIndex *> findChild(const QMultiMap<int, QVariant> AFindData, bool ASearchInChilds = false) const;
+	virtual QList<IRosterIndex *> findChilds(const QMultiMap<int, QVariant> &AFindData, bool ARecursive = false) const;
 	virtual bool removeOnLastChildRemoved() const;
 	virtual void setRemoveOnLastChildRemoved(bool ARemove);
 	virtual bool removeChildsOnRemoved() const;

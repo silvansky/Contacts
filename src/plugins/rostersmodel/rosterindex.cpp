@@ -3,11 +3,10 @@
 #include <QSet>
 #include <QTimer>
 
-RosterIndex::RosterIndex(int AType, const QString &AId)
+RosterIndex::RosterIndex(int AType)
 {
 	FParentIndex = NULL;
-	FData.insert(RDR_TYPE,AType);
-	FData.insert(RDR_INDEX_ID,AId);
+	setData(RDR_TYPE,AType);
 	FFlags = (Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 	FRemoveOnLastChildRemoved = true;
 	FRemoveChildsOnRemoved = true;
@@ -24,11 +23,6 @@ RosterIndex::~RosterIndex()
 int RosterIndex::type() const
 {
 	return data(RDR_TYPE).toInt();
-}
-
-QString RosterIndex::id() const
-{
-	return data(RDR_INDEX_ID).toString();
 }
 
 IRosterIndex *RosterIndex::parentIndex() const
@@ -146,8 +140,7 @@ void RosterIndex::insertDataHolder(IRosterDataHolder *ADataHolder)
 
 void RosterIndex::removeDataHolder(IRosterDataHolder *ADataHolder)
 {
-	disconnect(ADataHolder->instance(),SIGNAL(dataChanged(IRosterIndex *, int)),
-	           this,SLOT(onDataHolderChanged(IRosterIndex *, int)));
+	disconnect(ADataHolder->instance(),SIGNAL(dataChanged(IRosterIndex *, int)), this,SLOT(onDataHolderChanged(IRosterIndex *, int)));
 
 	foreach(int role, ADataHolder->rosterDataRoles())
 	{
@@ -194,55 +187,65 @@ QMap<int,QVariant> RosterIndex::data() const
 
 void RosterIndex::setData(int ARole, const QVariant &AData)
 {
-	bool dataSeted = false;
-	QList<IRosterDataHolder *> dataHolders = FDataHolders.value(ARole).values();
-	for (int i=0; !dataSeted && i<dataHolders.count(); i++)
-		dataSeted = dataHolders.value(i)->setRosterData(this,ARole,AData);
+	bool changed = false;
 
-	if (!dataSeted)
+	QList<IRosterDataHolder *> dataHolders = FDataHolders.value(ARole).values();
+	for (int i=0; !changed && i<dataHolders.count(); i++)
+		changed = dataHolders.value(i)->setRosterData(this,ARole,AData);
+
+	if (!changed && FData.value(ARole)!=AData)
 	{
 		if (AData.isValid())
 			FData.insert(ARole,AData);
 		else
 			FData.remove(ARole);
+		changed = true;
 	}
 
-	emit dataChanged(this, ARole);
+	if (changed)
+		emit dataChanged(this, ARole);
 }
 
-QList<IRosterIndex *> RosterIndex::findChild(const QMultiMap<int, QVariant> AFindData, bool ASearchInChilds) const
+QList<IRosterIndex *> RosterIndex::findChilds(const QMultiMap<int, QVariant> &AFindData, bool ARecursive) const
 {
 	QList<IRosterIndex *> indexes;
-	foreach (IRosterIndex *index, FChilds)
+
+	for(QList<IRosterIndex *>::const_iterator childIt=FChilds.constBegin(); childIt!=FChilds.constEnd(); childIt++)
 	{
-		bool acceptable = true;
-		QList<int> findRoles = AFindData.keys();
-		for (int i=0; acceptable && i<findRoles.count(); i++)
+		int lastRole = -1;
+		bool accepted = true;
+		IRosterIndex *index = *childIt;
+		for (QMultiMap<int, QVariant>::const_iterator findIt=AFindData.constBegin(); findIt!=AFindData.constEnd(); findIt++)
 		{
-			int role = findRoles.at(i);
-			QList<QVariant> findValues = AFindData.values(role);
-			if (role == RDR_ANY_ROLE)
+			int findRole = findIt.key();
+			if ( (accepted && lastRole!=findRole) || (!accepted && lastRole==findRole) )
 			{
-				bool found = false;
-				QList<QVariant> indexValues = index->data().values();
-				for (int j=0; !found && j<indexValues.count(); j++)
-					found = findValues.contains(indexValues.at(j));
-				acceptable = found;
+				QVariant findValue = findIt.value();
+				if (findRole == RDR_ANY_ROLE)
+				{
+					accepted = index->data().values().contains(findValue);
+				}
+				else if (findRole == RDR_TYPE)
+				{
+					accepted = (findValue==RIT_ANY_TYPE || findValue==index->type());
+				}
+				else
+				{
+					accepted = (findValue == index->data(findRole));
+				}
 			}
-			else if (role==RDR_TYPE && findValues.contains(RIT_ANY_TYPE))
+			else if (!accepted)
 			{
-				acceptable = true;
+				break;
 			}
-			else
-			{
-				acceptable = findValues.contains(index->data(role));
-			}
+			lastRole = findRole;
 		}
-		if (acceptable)
+		if (accepted)
 			indexes.append(index);
-		if (ASearchInChilds)
-			indexes += index->findChild(AFindData,ASearchInChilds);
+		if (ARecursive && index->childCount()>0)
+			indexes += index->findChilds(AFindData,ARecursive);
 	}
+
 	return indexes;
 }
 

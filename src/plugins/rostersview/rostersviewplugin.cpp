@@ -229,7 +229,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 			{
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
-					display = AIndex->data(RDR_JID).toString();
+					display = AIndex->data(RDR_FULL_JID).toString();
 				return display;
 			}
 		case Qt::ForegroundRole:
@@ -264,7 +264,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		{
 		case Qt::DisplayRole:
 			{
-				Jid indexJid = AIndex->data(RDR_JID).toString();
+				Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
 					display = indexJid.bare();
@@ -283,7 +283,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
 				{
-					Jid indexJid = AIndex->data(RDR_JID).toString();
+					Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
 					display = indexJid.bare();
 				}
 				return display;
@@ -296,7 +296,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		{
 		case Qt::DisplayRole:
 			{
-				Jid indexJid = AIndex->data(RDR_JID).toString();
+				Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
 				return indexJid.resource();
 			}
 		}
@@ -346,17 +346,9 @@ QString RostersViewPlugin::indexGroupName(const QModelIndex &AIndex) const
 	switch (indexType)
 	{
 	case RIT_GROUP:
-		return AIndex.data(RDR_GROUP).toString();
-	case RIT_GROUP_BLANK:
-		return FRostersModel!=NULL ? FRostersModel->blankGroupName() : QString::null;
-	case RIT_GROUP_NOT_IN_ROSTER:
-		return FRostersModel!=NULL ? FRostersModel->notInRosterGroupName() : QString::null;
-	case RIT_GROUP_MY_RESOURCES:
-		return FRostersModel!=NULL ? FRostersModel->myResourcesGroupName() : QString::null;
-	case RIT_GROUP_AGENTS:
-		return FRostersModel!=NULL ? FRostersModel->agentsGroupName() : QString::null;
+		return AIndex.data(RDR_NAME).toString();
 	default:
-		return QString::null;
+		return FRostersModel!=NULL ? FRostersModel->singleGroupName(indexType) : QString::null;
 	}
 	return QString::null;
 }

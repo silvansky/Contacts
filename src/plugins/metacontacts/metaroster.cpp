@@ -2,7 +2,6 @@
 
 #include <QFile>
 #include <QDomDocument>
-#include <utils/log.h>
 
 #define ACTION_TIMEOUT        10000
 #define ROSTER_TIMEOUT        30000
@@ -661,7 +660,8 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 						removeMetaContact(modMetaId);
 				}
 
-				emit metaContactReceived(contact,before);
+				if (contact != before)
+					emit metaContactReceived(contact,before);
 			}
 			else if (FContacts.contains(metaId))
 			{

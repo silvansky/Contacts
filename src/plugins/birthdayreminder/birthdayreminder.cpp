@@ -179,7 +179,7 @@ QVariant BirthdayReminder::rosterData(const IRosterIndex *AIndex, int ARole) con
 	QVariant data;
 	if (ARole == RDR_AVATAR_IMAGE)
 	{
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		if (FUpcomingBirthdays.value(contactJid.bare(),-1) == 0)
 		{
 			static bool blocked = false;
@@ -304,9 +304,9 @@ bool BirthdayReminder::updateBirthdayState(const Jid &AContactJid)
 	{
 		QMultiMap<int, QVariant> findData;
 		findData.insert(RDR_TYPE, RIT_CONTACT);
-		findData.insert(RDR_BARE_JID,AContactJid.pBare());
-		FRostersModel->rootIndex()->findChild(findData,true);
-		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChild(findData,true))
+		findData.insert(RDR_PREP_BARE_JID,AContactJid.pBare());
+		FRostersModel->rootIndex()->findChilds(findData,true);
+		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true))
 		{
 			emit rosterDataChanged(index,RDR_AVATAR_IMAGE);
 		}
@@ -492,7 +492,7 @@ void BirthdayReminder::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId,
 		}
 		else if (AIndex->type() == RIT_CONTACT)
 		{
-			metaItems.append(AIndex->data(RDR_BARE_JID).toString());
+			metaItems.append(AIndex->data(RDR_PREP_BARE_JID).toString());
 		}
 
 		int daysLeft = -1;

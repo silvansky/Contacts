@@ -321,7 +321,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 	if (AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_MY_RESOURCE)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		return FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
 	}
 	return false;
@@ -1042,7 +1042,7 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IR
 	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
 	if (presence && presence->isOpen() && ASelected.count()<2)
 	{
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		if (chatActionTypes.contains(AIndex->type()))
 		{
 			Action *action = new Action(AMenu);
@@ -1066,7 +1066,7 @@ void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelI
 	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
 	if (presence && presence->isOpen())
 	{
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		if (AToolBarChanger && chatActionTypes.contains(AIndex->type()) && (ALabelId == RLID_DISPLAY))
 		{
 			Action *action = new Action(AToolBarChanger->toolBar());

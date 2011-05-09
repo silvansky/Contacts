@@ -163,7 +163,7 @@ QVariant StatusIcons::rosterData(const IRosterIndex *AIndex, int ARole) const
 {
 	if (ARole == Qt::DecorationRole)
 	{
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		int show = AIndex->data(RDR_SHOW).toInt();
 		QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
 		bool ask = !AIndex->data(RDR_ASK).toString().isEmpty();

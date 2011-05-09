@@ -555,8 +555,8 @@ void AddMetaContactDialog::onMetaContactReceived(const IMetaContact &AContact, c
 			{
 				QMultiMap<int, QVariant> findData;
 				findData.insert(RDR_TYPE,RIT_METACONTACT);
-				findData.insert(RDR_INDEX_ID,AContact.id);
-				IRosterIndex *index = sroot->findChild(findData,true).value(0);
+				findData.insert(RDR_META_ID,AContact.id);
+				IRosterIndex *index = sroot->findChilds(findData,true).value(0);
 				if (index)
 				{
 					QModelIndex modelIndex = FRostersView->mapFromModel(rmodel->modelIndexByRosterIndex(index));

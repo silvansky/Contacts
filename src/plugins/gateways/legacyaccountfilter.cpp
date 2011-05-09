@@ -22,7 +22,7 @@ bool LegacyAccountFilter::filterAcceptsRow(int ASourceRow, const QModelIndex &AS
 		if (indexType == RIT_CONTACT)
 		{
 			Jid streamJid = Jid(index.data(RDR_STREAM_JID).toString()).bare();
-			Jid serviceJid = Jid(index.data(RDR_BARE_JID).toString()).domain();
+			Jid serviceJid = Jid(index.data(RDR_PREP_BARE_JID).toString()).domain();
 			return !FStreamGates.value(streamJid).contains(serviceJid) || FEnabledGates.value(streamJid).contains(serviceJid);
 		}
 		else if (indexType == RIT_METACONTACT)

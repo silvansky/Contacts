@@ -1411,7 +1411,7 @@ void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex
 	if (AIndex->type()==RIT_CONTACT && ASelected.count() < 2)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		if (isSupported(streamJid,contactJid))
 		{
 			if (findStream(streamJid,contactJid).isEmpty())
@@ -1432,7 +1432,7 @@ void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex
 	if ( AIndex->type()==RIT_METACONTACT && ASelected.count() < 2)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		QString metaId = AIndex->data(RDR_INDEX_ID).toString();
+		QString metaId = AIndex->data(RDR_META_ID).toString();
 
 		IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
 		IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
@@ -1482,7 +1482,7 @@ void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiM
 	if (ALabelId==RLID_DISPLAY && AIndex->type()==RIT_CONTACT)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		if (isSupported(streamJid, contactJid))
 		{
 			if (findStream(streamJid, contactJid).isEmpty())
@@ -1503,7 +1503,7 @@ void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiM
 	if (ALabelId==RLID_DISPLAY && AIndex->type()==RIT_METACONTACT)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		QString metaId = AIndex->data(RDR_INDEX_ID).toString();
+		QString metaId = AIndex->data(RDR_META_ID).toString();
 
 		IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
 		IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;

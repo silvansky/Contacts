@@ -473,7 +473,7 @@ void VCardPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIn
 			action->setText(tr("Contact info"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
 			action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-			action->setData(ADR_CONTACT_JID,Jid(AIndex->data(RDR_JID).toString()).bare());
+			action->setData(ADR_CONTACT_JID,Jid(AIndex->data(RDR_FULL_JID).toString()).bare());
 			AMenu->addAction(action,AG_RVCM_VCARD,true);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogByAction(bool)));
 		}

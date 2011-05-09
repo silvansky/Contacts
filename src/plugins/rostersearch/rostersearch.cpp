@@ -116,7 +116,7 @@ bool RosterSearch::initObjects()
 	}
 
 	setSearchField(RDR_NAME,tr("Name"),true);
-	setSearchField(RDR_BARE_JID,tr("Address"),true);
+	setSearchField(RDR_PREP_BARE_JID,tr("Address"),true);
 
 	return true;
 }
@@ -438,7 +438,7 @@ void RosterSearch::createSearchLinks()
 	IRosterIndex *searchRoot = FRostersModel!=NULL ? FRostersModel->streamRoot(FRostersModel->streams().value(0)) : NULL;
 	if (searchRoot && !searchText.isEmpty())
 	{
-		FSearchHistory = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, "searchInHistory", searchRoot);
+		FSearchHistory = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, searchRoot);
 		FSearchHistory->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchHistory->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
 		FSearchHistory->setData(Qt::DisplayRole, tr("Search \"%1\" in history").arg(searchText.left(10)));
@@ -447,7 +447,7 @@ void RosterSearch::createSearchLinks()
 		FSearchHistory->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
 		FRostersModel->insertRosterIndex(FSearchHistory, searchRoot);
 
-		FSearchRambler = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, "searchInRambler", searchRoot);
+		FSearchRambler = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, searchRoot);
 		FSearchRambler->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchRambler->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
 		FSearchRambler->setData(Qt::DisplayRole, tr("Search \"%1\" in Rambler").arg(searchText.left(10)));
@@ -477,7 +477,7 @@ void RosterSearch::createNotFoundItem()
 	IRosterIndex *searchRoot = FRostersModel!=NULL ? FRostersModel->streamRoot(FRostersModel->streams().value(0)) : NULL;
 	if (searchRoot)
 	{
-		FSearchNotFound = FRostersModel->createRosterIndex(RIT_SEARCH_EMPTY, "searchNotFound", searchRoot);
+		FSearchNotFound = FRostersModel->createRosterIndex(RIT_SEARCH_EMPTY, searchRoot);
 		FSearchNotFound->setFlags(0);
 		FSearchNotFound->setData(Qt::DisplayRole, tr("Contacts not found"));
 		FSearchNotFound->setData(RDR_TYPE_ORDER,RITO_SEARCH);

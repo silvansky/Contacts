@@ -14,13 +14,14 @@
 #include <interfaces/irostersmodel.h>
 #include <interfaces/ipresence.h>
 #include <utils/iconstorage.h>
+#include <utils/imagemanager.h>
 
 class MetaProxyModel :
 	public QSortFilterProxyModel,
 	public IRosterDataHolder
 {
-	Q_OBJECT
-	Q_INTERFACES(IRosterDataHolder)
+	Q_OBJECT;
+	Q_INTERFACES(IRosterDataHolder);
 public:
 	MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARostersView);
 	~MetaProxyModel();
@@ -36,6 +37,8 @@ signals:
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);
 protected:
 	virtual bool filterAcceptsRow(int ASourceRow, const QModelIndex &ASourceParent) const;
+protected:
+	IRosterIndex *findChildIndex(const QList<IRosterIndex *> &AIndexes, IRosterIndex *AParent) const;
 protected slots:
 	void onInvalidateTimerTimeout();
 	void onRostersModelSet(IRostersModel *AModel);
@@ -53,6 +56,8 @@ private:
 private:
 	QTimer FInvalidateTimer;
 	QMap<int, int> FIndexNotifies;
+private:
+	QMap<IMetaRoster *, QMultiHash<QString, IRosterIndex *> > FMetaIndexes;
 };
 
 #endif // METAPROXYMODEL_H

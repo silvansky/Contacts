@@ -28,12 +28,11 @@ enum RosterIndexDataRoles
 	RDR_ANY_ROLE = 32,
 	RDR_TYPE,
 	RDR_TYPE_ORDER,
-	RDR_INDEX_ID,
 	//XMPP Roles
 	RDR_STREAM_JID,
-	RDR_JID,
-	RDR_PJID,
-	RDR_BARE_JID,
+	RDR_FULL_JID,
+	RDR_PREP_FULL_JID,
+	RDR_PREP_BARE_JID,
 	RDR_NAME,
 	RDR_GROUP,
 	RDR_SHOW,
@@ -55,7 +54,7 @@ enum RosterIndexDataRoles
 	//Avatars
 	RDR_AVATAR_HASH,
 	RDR_AVATAR_IMAGE,
-	RDR_AVATAR_LARGE_IMAGE,
+	RDR_AVATAR_IMAGE_LARGE,
 	//Annotations
 	RDR_ANNOTATIONS,
 	//Search
@@ -73,6 +72,7 @@ enum RosterIndexDataRoles
 	//Group Labels
 	RDR_GROUP_COUNTER,
 	//Metacontacts
+	RDR_META_ID,
 	RDR_METACONTACT_ITEMS
 };
 

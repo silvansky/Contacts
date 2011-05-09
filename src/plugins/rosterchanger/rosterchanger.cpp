@@ -290,7 +290,7 @@ QVariant RosterChanger::rosterData(const IRosterIndex *AIndex, int ARole) const
 		{
 			block = true;
 			Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-			Jid contactJid = AIndex->data(RDR_BARE_JID).toString();
+			Jid contactJid = AIndex->data(RDR_PREP_BARE_JID).toString();
 			QString ask = AIndex->data(RDR_ASK).toString();
 			QString subs = AIndex->data(RDR_SUBSCRIBTION).toString();
 			if (FSubscriptionRequests.contains(streamJid,contactJid))
@@ -402,7 +402,7 @@ bool RosterChanger::rosterDropAction(const QDropEvent *AEvent, const QModelIndex
 
 			int indexType = indexData.value(RDR_TYPE).toInt();
 			Jid indexStreamJid = indexData.value(RDR_STREAM_JID).toString();
-			bool isNewContact = indexType==RIT_CONTACT && !roster->rosterItem(indexData.value(RDR_BARE_JID).toString()).isValid;
+			bool isNewContact = indexType==RIT_CONTACT && !roster->rosterItem(indexData.value(RDR_PREP_BARE_JID).toString()).isValid;
 
 			if (!isNewContact && (hoverStreamJid && indexStreamJid))
 			{
@@ -415,7 +415,7 @@ bool RosterChanger::rosterDropAction(const QDropEvent *AEvent, const QModelIndex
 					if (indexType == RIT_CONTACT)
 					{
 						copyAction->setText(tr("Copy contact"));
-						copyAction->setData(ADR_CONTACT_JID,indexData.value(RDR_BARE_JID));
+						copyAction->setData(ADR_CONTACT_JID,indexData.value(RDR_PREP_BARE_JID));
 						connect(copyAction,SIGNAL(triggered(bool)),SLOT(onCopyItemToGroup(bool)));
 						AMenu->addAction(copyAction,AG_DEFAULT,true);
 					}
@@ -438,7 +438,7 @@ bool RosterChanger::rosterDropAction(const QDropEvent *AEvent, const QModelIndex
 					if (indexType == RIT_CONTACT)
 					{
 						moveAction->setText(tr("Move contact"));
-						moveAction->setData(ADR_CONTACT_JID,indexData.value(RDR_BARE_JID));
+						moveAction->setData(ADR_CONTACT_JID,indexData.value(RDR_PREP_BARE_JID));
 						moveAction->setData(ADR_GROUP,indexData.value(RDR_GROUP));
 						connect(moveAction,SIGNAL(triggered(bool)),SLOT(onMoveItemToGroup(bool)));
 						AMenu->addAction(moveAction,AG_DEFAULT,true);
@@ -463,7 +463,7 @@ bool RosterChanger::rosterDropAction(const QDropEvent *AEvent, const QModelIndex
 				if (indexType == RIT_CONTACT)
 				{
 					copyAction->setText(isNewContact ? tr("Add contact") : tr("Copy contact"));
-					copyAction->setData(ADR_CONTACT_JID,indexData.value(RDR_BARE_JID));
+					copyAction->setData(ADR_CONTACT_JID,indexData.value(RDR_PREP_BARE_JID));
 					copyAction->setData(ADR_NICK,indexData.value(RDR_NAME));
 					connect(copyAction,SIGNAL(triggered(bool)),SLOT(onAddItemToGroup(bool)));
 					AMenu->addAction(copyAction,AG_DEFAULT,true);
@@ -1100,10 +1100,9 @@ void RosterChanger::onGroupNameAccepted(QString newGroupName)
 			completeGroupName += newGroupName;
 			if (FEmptyGroups.contains(groupName))
 			{
-				IRosterIndex *index = FRostersModel!=NULL ? FRostersModel->findGroup(groupName,roster->groupDelimiter(),RIT_GROUP,FRostersModel->streamRoot(streamJid)) : NULL;
+				IRosterIndex *index = FRostersModel!=NULL ? FRostersModel->findGroup(RIT_GROUP,groupName,roster->groupDelimiter(),FRostersModel->streamRoot(streamJid)) : NULL;
 				if (index && !roster->groups().contains(completeGroupName))
 				{
-					index->setData(RDR_INDEX_ID, newGroupName);
 					index->setData(RDR_GROUP,completeGroupName);
 					index->setData(RDR_NAME,newGroupName);
 					FEmptyGroups.removeAll(groupName);
@@ -1122,9 +1121,9 @@ void RosterChanger::onGroupNameAccepted(QString newGroupName)
 	}
 	else
 	{
-		if (FRostersModel && roster && !newGroupName.isEmpty() && !newGroupName.contains(roster->groupDelimiter()) && FRostersModel->findGroup(newGroupName,roster->groupDelimiter(),RIT_GROUP,FRostersModel->streamRoot(roster->streamJid()))==NULL)
+		if (FRostersModel && roster && !newGroupName.isEmpty() && !newGroupName.contains(roster->groupDelimiter()) && FRostersModel->findGroup(RIT_GROUP,newGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()))==NULL)
 		{
-			IRosterIndex *group = FRostersModel->createGroup(newGroupName,roster->groupDelimiter(),RIT_GROUP,FRostersModel->streamRoot(roster->streamJid()));
+			IRosterIndex *group = FRostersModel->createGroup(RIT_GROUP,newGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()));
 			if (group)
 			{
 				FEmptyGroups.append(newGroupName);
@@ -1151,19 +1150,19 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 	if (roster && roster->isOpen() && ASelected.count()<2)
 	{
 		int itemType = AIndex->data(RDR_TYPE).toInt();
-		IRosterItem ritem = roster->rosterItem(AIndex->data(RDR_BARE_JID).toString());
+		IRosterItem ritem = roster->rosterItem(AIndex->data(RDR_PREP_BARE_JID).toString());
 		if (itemType == RIT_STREAM_ROOT)
 		{
 			Action *action = new Action(AMenu);
 			action->setText(tr("Add contact"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_ADD_CONTACT);
-			action->setData(ADR_STREAM_JID,AIndex->data(RDR_JID));
+			action->setData(ADR_STREAM_JID,AIndex->data(RDR_FULL_JID));
 			connect(action,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
 			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_ADD_CONTACT,true);
 		}
 		else if (itemType == RIT_CONTACT || itemType == RIT_AGENT)
 		{
-			QString contactJid = AIndex->data(RDR_BARE_JID).toString();
+			QString contactJid = AIndex->data(RDR_PREP_BARE_JID).toString();
 
 			QHash<int,QVariant> data;
 			data.insert(ADR_STREAM_JID,streamJid);
@@ -1223,7 +1222,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 					groupMenu->setTitle(tr("Groups"));
 
 					Action *blankGroupAction = new Action(groupMenu);
-					blankGroupAction->setText(FRostersModel->blankGroupName());
+					blankGroupAction->setText(FRostersModel->singleGroupName(RIT_GROUP_BLANK));
 					blankGroupAction->setData(data);
 					blankGroupAction->setCheckable(true);
 					blankGroupAction->setChecked(ritem.groups.isEmpty());
@@ -1459,9 +1458,9 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 	{
 		QMultiMap<int, QVariant> findData;
 		findData.insertMulti(RDR_TYPE,RIT_CONTACT);
-		findData.insertMulti(RDR_BARE_JID,AItemJid.pBare());
+		findData.insertMulti(RDR_PREP_BARE_JID,AItemJid.pBare());
 		IRosterIndex *root = FRostersModel->streamRoot(ARoster->streamJid());
-		foreach(IRosterIndex *index, root!=NULL ? root->findChild(findData,true) : QList<IRosterIndex *>())
+		foreach(IRosterIndex *index, root!=NULL ? root->findChilds(findData,true) : QList<IRosterIndex *>())
 		{
 			emit rosterDataChanged(index,Qt::DecorationRole);
 			emit rosterDataChanged(index,RDR_FOOTER_TEXT);
@@ -1616,9 +1615,9 @@ void RosterChanger::onRemoveItemFromRoster(bool)
 				QMultiMap<int, QVariant> findData;
 				findData.insert(RDR_TYPE,RIT_CONTACT);
 				findData.insert(RDR_TYPE,RIT_AGENT);
-				findData.insert(RDR_BARE_JID,rosterJid.pBare());
+				findData.insert(RDR_PREP_BARE_JID,rosterJid.pBare());
 				IRosterIndex *streamIndex = FRostersModel->streamRoot(streamJid);
-				foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
+				foreach(IRosterIndex *index, streamIndex->findChilds(findData,true))
 					FRostersModel->removeRosterIndex(index);
 			}
 		}
@@ -1859,7 +1858,7 @@ void RosterChanger::onRemoveGroup(bool)
 			QString groupName = action->data(ADR_GROUP).toString();
 			if (FEmptyGroups.contains(groupName))
 			{
-				IRosterIndex *group = FRostersModel!=NULL ? FRostersModel->findGroup(groupName,roster->groupDelimiter(),RIT_GROUP,FRostersModel->streamRoot(streamJid)) : NULL;
+				IRosterIndex *group = FRostersModel!=NULL ? FRostersModel->findGroup(RIT_GROUP,groupName,roster->groupDelimiter(),FRostersModel->streamRoot(streamJid)) : NULL;
 				if (group)
 				{
 					group->instance()->deleteLater();

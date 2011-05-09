@@ -1,7 +1,6 @@
 #include "ramblermailnotify.h"
 
 #define METAID_MAILNOTIFY   "%1#mail-notify-window"
-#define MAIL_INDEX_ID       "rambler.mail.notify"
 #define SHC_MAIL_NOTIFY     "/message/x[@xmlns='"NS_RAMBLER_MAIL_NOTIFY"']"
 
 RamblerMailNotify::RamblerMailNotify()
@@ -390,7 +389,7 @@ void RamblerMailNotify::onStreamAdded(const Jid &AStreamJid)
 	IRosterIndex *sroot = FRostersModel->streamRoot(AStreamJid);
 	if (sroot)
 	{
-		IRosterIndex *mindex = FRostersModel->createRosterIndex(RIT_MAILNOTIFY,MAIL_INDEX_ID,sroot);
+		IRosterIndex *mindex = FRostersModel->createRosterIndex(RIT_MAILNOTIFY,sroot);
 		mindex->setData(Qt::DisplayRole,tr("Mails"));
 		mindex->setData(RDR_TYPE_ORDER,RITO_MAILNOTIFY);
 		mindex->setData(RDR_AVATAR_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_RAMBLERMAILNOTIFY_AVATAR));

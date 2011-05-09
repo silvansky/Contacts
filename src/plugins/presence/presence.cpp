@@ -83,7 +83,7 @@ bool Presence::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AS
 			pitem.priority = priority;
 			pitem.status = status;
 
-			if (pitem.isValid!=before.isValid || pitem.show!=before.show || pitem.status!=before.status || pitem.priority!=before.priority)
+			if (pitem != before)
 				emit received(pitem, before);
 
 			if (show == Offline)

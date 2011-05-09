@@ -7,6 +7,7 @@
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/iavatars.h>
+#include <utils/log.h>
 #include <utils/stanza.h>
 #include <utils/errorhandler.h>
 

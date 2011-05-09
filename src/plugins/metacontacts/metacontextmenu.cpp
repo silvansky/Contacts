@@ -25,7 +25,7 @@ bool MetaContextMenu::isAcceptedIndex(IRosterIndex *AIndex)
 {
 	if (AIndex && FMetaTabWindow->metaRoster()->roster()->streamJid()==AIndex->data(RDR_STREAM_JID).toString())
 	{
-		QString metaId = AIndex->data(RDR_INDEX_ID).toString();
+		QString metaId = AIndex->data(RDR_META_ID).toString();
 		if (FMetaTabWindow->metaId() == metaId)
 			return true;
 	}
@@ -37,7 +37,7 @@ void MetaContextMenu::updateMenu()
 	if (FRosterIndex)
 	{
 		QString name = FRosterIndex->data(Qt::DisplayRole).toString();
-		QImage avatar = FRosterIndex->data(RDR_AVATAR_LARGE_IMAGE).value<QImage>();
+		QImage avatar = FRosterIndex->data(RDR_AVATAR_IMAGE_LARGE).value<QImage>();
 		setIcon(QIcon(QPixmap::fromImage(avatar)));
 		setTitle(QString("<b>%1</b>").arg(name));
 		menuAction()->setVisible(true);
@@ -74,7 +74,7 @@ void MetaContextMenu::onRosterIndexDataChanged(IRosterIndex *AIndex, int ARole)
 {
 	if (AIndex == FRosterIndex)
 	{
-		if (ARole == RDR_INDEX_ID)
+		if (ARole == RDR_META_ID)
 		{
 			if (isAcceptedIndex(AIndex))
 				updateMenu();
@@ -85,12 +85,12 @@ void MetaContextMenu::onRosterIndexDataChanged(IRosterIndex *AIndex, int ARole)
 		{
 			updateMenu();
 		}
-		else if ((ARole == RDR_AVATAR_IMAGE) || (ARole == RDR_AVATAR_LARGE_IMAGE))
+		else if ((ARole == RDR_AVATAR_IMAGE) || (ARole == RDR_AVATAR_IMAGE_LARGE))
 		{
 			updateMenu();
 		}
 	}
-	else if (!FRosterIndex && ARole==RDR_INDEX_ID && isAcceptedIndex(AIndex))
+	else if (!FRosterIndex && ARole==RDR_META_ID && isAcceptedIndex(AIndex))
 	{
 		FRosterIndex = AIndex;
 		updateMenu();
@@ -103,10 +103,10 @@ void MetaContextMenu::onRosterIndexRemoved(IRosterIndex *AIndex)
 	{
 		QMultiMap<int, QVariant> findData;
 		findData.insert(RDR_TYPE,RIT_METACONTACT);
-		findData.insert(RDR_INDEX_ID,FMetaTabWindow->metaId());
+		findData.insert(RDR_META_ID,FMetaTabWindow->metaId());
 
 		IRosterIndex *searchRoot = FRostersModel->streamRoot(FMetaTabWindow->metaRoster()->roster()->streamJid());
-		FRosterIndex = searchRoot!=NULL ? searchRoot->findChild(findData,true).value(0) : NULL;
+		FRosterIndex = searchRoot!=NULL ? searchRoot->findChilds(findData,true).value(0) : NULL;
 		updateMenu();
 	}
 }

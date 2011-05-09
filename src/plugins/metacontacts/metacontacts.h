@@ -41,7 +41,7 @@ struct TabPageInfo
 class GroupMenu :
 	public Menu
 {
-	Q_OBJECT
+	Q_OBJECT;
 public:
 	GroupMenu(QWidget* AParent = NULL) : Menu(AParent) { }
 	virtual ~GroupMenu() {}
@@ -152,10 +152,8 @@ protected slots:
 	void onRemoveFromGroup(bool);
 	void onDetachContactItems(bool);
 	void onChangeContactGroups(bool AChecked);
-private:
-	void changeGroup(Action * action, const QString & group, const QStringList & metaIdList, bool AChecked);
-protected slots:
 	void onNewGroupNameSelected(const QString & group);
+protected slots:
 	void onContactSubscription(bool);
 protected slots:
 	void onLoadMetaRosters();

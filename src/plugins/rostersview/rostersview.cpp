@@ -702,11 +702,11 @@ void RostersView::clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu)
 {
 	if (AIndex && AMenu)
 	{
-		if (!AIndex->data(RDR_JID).toString().isEmpty())
+		if (!AIndex->data(RDR_FULL_JID).toString().isEmpty())
 		{
 			Action *action = new Action(AMenu);
 			action->setText(tr("Jabber ID"));
-			action->setData(ADR_CLIPBOARD_DATA, AIndex->data(RDR_JID));
+			action->setData(ADR_CLIPBOARD_DATA, AIndex->data(RDR_FULL_JID));
 			connect(action,SIGNAL(triggered(bool)),SLOT(onCopyToClipboardActionTriggered(bool)));
 			AMenu->addAction(action, AG_DEFAULT, true);
 		}
@@ -780,7 +780,7 @@ void RostersView::updateStatusText(IRosterIndex *AIndex)
 		QMultiMap<int,QVariant> findData;
 		foreach(int type, statusTypes)
 			findData.insert(RDR_TYPE,type);
-		indexes = FRostersModel!=NULL ? FRostersModel->rootIndex()->findChild(findData,true) : QList<IRosterIndex *>();
+		indexes = FRostersModel!=NULL ? FRostersModel->rootIndex()->findChilds(findData,true) : QList<IRosterIndex *>();
 	}
 	else if (statusTypes.contains(AIndex->type()))
 	{
@@ -1287,7 +1287,7 @@ void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMul
 		if (!name.isEmpty())
 			AToolTips.insert(RTTO_CONTACT_NAME, "<b>" + Qt::escape(name) + "</b>");
 
-		QString jid = AIndex->data(RDR_JID).toString();
+		QString jid = AIndex->data(RDR_FULL_JID).toString();
 		if (!jid.isEmpty())
 			AToolTips.insert(RTTO_CONTACT_JID, "<font color=grey>" + Qt::escape(jid) + "</font>");
 
@@ -1431,7 +1431,7 @@ void RostersView::onExpandAllGroups()
 		QMultiMap<int, QVariant> findData;
 		foreach(int type, groupIndexes)
 			findData.insert(RDR_TYPE,type);
-		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChild(findData,true)) {
+		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true)) {
 			expand(mapFromModel(FRostersModel->modelIndexByRosterIndex(index))); }
 	}
 }
@@ -1443,7 +1443,7 @@ void RostersView::onCollapseAllGroups()
 		QMultiMap<int, QVariant> findData;
 		foreach(int type, groupIndexes)
 			findData.insert(RDR_TYPE,type);
-		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChild(findData,true)) {
+		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true)) {
 			collapse(mapFromModel(FRostersModel->modelIndexByRosterIndex(index))); }
 	}
 }

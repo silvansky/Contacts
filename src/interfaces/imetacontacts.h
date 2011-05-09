@@ -15,6 +15,12 @@ struct IMetaContact
 	QString name;
 	QSet<Jid> items;
 	QSet<QString> groups;
+	bool operator==(const IMetaContact &AOther) const {
+		return id==AOther.id && name==AOther.name && items==AOther.items && groups==AOther.groups;
+	}
+	bool operator!=(const IMetaContact &AOther) const {
+		return !operator==(AOther);
+	}
 };
 
 struct IMetaItemDescriptor
@@ -27,7 +33,7 @@ struct IMetaItemDescriptor
 	bool persistent;
 	int metaOrder;
 	QString gateId;
-	QString contactPattern;
+	QList<QString> domainPrefixes;
 };
 
 class IMetaRoster 

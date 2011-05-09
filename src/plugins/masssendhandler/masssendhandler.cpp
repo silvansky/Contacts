@@ -361,7 +361,7 @@ void MassSendHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRost
 	{
 		if (messageActionTypes.contains(AIndex->type()))
 		{
-			Jid contactJid = AIndex->data(RDR_JID).toString();
+			Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 			Action *action = new Action(AMenu);
 			action->setText(tr("Message"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_NORMAL_MHANDLER_MESSAGE);

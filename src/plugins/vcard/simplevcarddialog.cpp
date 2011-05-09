@@ -18,6 +18,7 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 
 	FContactJid = AContactJid;
 	FStreamJid = AStreamJid;
+
 	FAvatars = AAvatars;
 	FStatusIcons = AStatusIcons;
 	FStatusChanger = AStatusChanger;
@@ -47,6 +48,7 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 
 SimpleVCardDialog::~SimpleVCardDialog()
 {
+	FVCard->unlock();
 	delete ui;
 }
 
@@ -68,12 +70,17 @@ void SimpleVCardDialog::updateDialog()
 		ui->name->setText(FVCard->value(VVN_FULL_NAME).isEmpty() ? FContactJid.bare() : FVCard->value(VVN_FULL_NAME));
 	setWindowTitle(tr("Profile: %1").arg(ui->name->text()));
 
-	FAvatars->insertAutoAvatar(ui->avatarLabel, FContactJid, QSize(48, 48), "pixmap");
+	if (FAvatars)
+		FAvatars->insertAutoAvatar(ui->avatarLabel, FContactJid, QSize(48, 48), "pixmap");
+	else
+		ui->avatarLabel->clear();
 
-	IPresenceItem presence = FPresence->presenceItems(FContactJid).value(0);
+	IPresenceItem presence = FPresence!=NULL ? FPresence->presenceItems(FContactJid).value(0) : IPresenceItem();
 	ui->mood->setText(FRosterItem.isValid ? presence.status : tr("Not in contact list"));
-	ui->status->setPixmap(FStatusIcons->iconByJidStatus(FContactJid, presence.show, SUBSCRIPTION_BOTH, false).pixmap(100));
-	ui->statusText->setText(FStatusChanger->nameByShow(presence.show));
+	if (FStatusIcons)
+		ui->status->setPixmap(FStatusIcons->iconByJidStatus(FContactJid, presence.show, SUBSCRIPTION_BOTH, false).pixmap(100));
+	if (FStatusChanger)
+		ui->statusText->setText(FStatusChanger->nameByShow(presence.show));
 
 	QDate birthday = QDate::fromString(FVCard->value(VVN_BIRTHDAY),Qt::ISODate);
 	if (!birthday.isValid())

@@ -187,7 +187,7 @@ QTreeWidgetItem *ReceiversWidget::getReceiver(const Jid &AReceiver, const QStrin
 		contactItem->setIcon(0,FStatusIcons->iconByJid(FStreamJid,AReceiver));
 		contactItem->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
 		contactItem->setData(0,RDR_TYPE,RIT_CONTACT);
-		contactItem->setData(0,RDR_JID,AReceiver.full());
+		contactItem->setData(0,RDR_FULL_JID,AReceiver.full());
 		contactItem->setData(0,RDR_NAME,AName);
 		FContactItems.insert(AReceiver,contactItem);
 	}
@@ -263,7 +263,7 @@ void ReceiversWidget::onReceiversItemChanged(QTreeWidgetItem *AItem, int /*AColu
 
 	if (AItem->data(0,RDR_TYPE).toInt() == RIT_CONTACT)
 	{
-		Jid contactJid = AItem->data(0,RDR_JID).toString();
+		Jid contactJid = AItem->data(0,RDR_FULL_JID).toString();
 		if (AItem->checkState(0) == Qt::Checked && !FReceivers.contains(contactJid))
 		{
 			FReceivers.append(contactJid);
@@ -340,7 +340,7 @@ void ReceiversWidget::onAvailableAction()
 	foreach(QTreeWidgetItem *treeItem,FContactItems)
 		if (treeItem->data(0, RDR_TYPE).toInt() == RIT_CONTACT)
 		{
-			Jid contactJid = treeItem->data(0, RDR_JID).toString();
+			Jid contactJid = treeItem->data(0, RDR_FULL_JID).toString();
 			QList<IPresenceItem> pitems = FPresence->presenceItems(contactJid);
 			foreach(IPresenceItem pitem, pitems)
 			{
@@ -357,7 +357,7 @@ void ReceiversWidget::onAllMaleAction()
 	foreach(QTreeWidgetItem *treeItem,FContactItems)
 		if (treeItem->data(0, RDR_TYPE).toInt() == RIT_CONTACT)
 		{
-			Jid contactJid = treeItem->data(0, RDR_JID).toString();
+			Jid contactJid = treeItem->data(0, RDR_FULL_JID).toString();
 			IVCard *vcard = FVCardPlugin->vcard(contactJid);
 			if (vcard->value(VVN_GENDER).toLower() != "female")
 				treeItem->setCheckState(0, Qt::Checked);
@@ -371,7 +371,7 @@ void ReceiversWidget::onAllFemaleAction()
 	foreach(QTreeWidgetItem *treeItem,FContactItems)
 		if (treeItem->data(0, RDR_TYPE).toInt() == RIT_CONTACT)
 		{
-			Jid contactJid = treeItem->data(0, RDR_JID).toString();
+			Jid contactJid = treeItem->data(0, RDR_FULL_JID).toString();
 			IVCard *vcard = FVCardPlugin->vcard(contactJid);
 			if (vcard->value(VVN_GENDER).toLower() == "female")
 				treeItem->setCheckState(0, Qt::Checked);
