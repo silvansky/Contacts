@@ -301,7 +301,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 		if (record.widget.isNull())
 		{
-			record.widget = new NotifyWidget(record.notification,!FNotificators.value(record.notification.notificatior).title.isEmpty());
+			record.widget = new NotifyWidget(record.notification,false);
 			connect(record.widget,SIGNAL(showOptions()), SLOT(onWindowNotifyOptions()));
 			connect(record.widget,SIGNAL(notifyActivated()),SLOT(onWindowNotifyActivated()));
 			connect(record.widget,SIGNAL(notifyRemoved()),SLOT(onWindowNotifyRemoved()));

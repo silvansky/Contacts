@@ -470,8 +470,8 @@ QComboBox
 	border-left: 3px;
 	border-bottom: 4px;
 	border-right: 3px;
-	padding-top: -1px;
-	padding-bottom: -1px;
+	padding-top: -2px;
+	padding-bottom: 0px;
 	padding-left: 5px;
 	padding-right: 5px;
 	min-width: 7em;
@@ -733,6 +733,7 @@ QGroupBox
 {
 	background-color: transparent;
 	color: white;
+	font-size: 12px;
 }
 
 /************

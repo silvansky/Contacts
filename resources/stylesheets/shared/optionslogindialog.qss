@@ -96,7 +96,7 @@ QListView#completerPopUp::item:hover
 
 #lblRegister, #lblLogo
 {
-	margin-left: 3px;
+	margin-left: 1px;
 }
 
 #lblRegister
@@ -107,7 +107,7 @@ QListView#completerPopUp::item:hover
 
 #lblLogo
 {
-	margin-left: 6px;
+	margin-left: 2px;
 }
 
 QCheckBox

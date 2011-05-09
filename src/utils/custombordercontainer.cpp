@@ -993,7 +993,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
 			handled = mousePress(((QMouseEvent*)event)->pos(), widget);
 
-#ifdef DEBUG_ENABLED
+#if defined(DEBUG_ENABLED) && defined(DEBUG_CUSTOMBORDER)
 		qDebug() << "handled = " << handled << " " << widget->objectName()
 			 << " of class " << widget->metaObject()->className()
 			 << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");

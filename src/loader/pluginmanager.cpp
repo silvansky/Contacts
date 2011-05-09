@@ -195,7 +195,7 @@ void PluginManager::shutdownRequested()
 	static int i = 0;
 	if (!i++)
 	{
-		QMessageBox * mb = new QMessageBox(tr("Friends updates ready"), tr("Updates are ready. Do you want to restart Virtus now?"), QMessageBox::Question, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
+		QMessageBox * mb = new QMessageBox(tr("Friends updates ready"), tr("Updates are ready. Do you want to restart Rambler.Friends now?"), QMessageBox::Question, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
 		mb->setWindowModality(Qt::ApplicationModal);
 		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(messageBoxButtonClicked(QAbstractButton*)));
 		WidgetManager::showActivateRaiseWindow(mb);

@@ -89,28 +89,28 @@
  <title color="#FF00FF" />
  <window-controls spacing="2" />
  <minimize-button>
-   <width>17</width>
+   <width>16</width>
    <height>16</height>
    <border width="1" color="#000000" radius="0" image="" />
    <image-normal src="customborder/minimizeButtonNormal" />
    <image-hover src="customborder/minimizeButtonHighlighted" />
  </minimize-button>
  <maximize-button>
-   <width>17</width>
+   <width>16</width>
    <height>16</height>
    <border width="1" color="#000000" radius="0" image="" />
    <image-normal src="customborder/maximizeButtonNormal" />
    <image-hover src="customborder/maximizeButtonHighlighted" />
  </maximize-button>
  <close-button>
-   <width>17</width>
+   <width>16</width>
    <height>16</height>
    <border width="1" color="#000000" radius="0" image="" />
    <image-normal src="customborder/closeButtonNormal" />
    <image-hover src="customborder/closeButtonHighlighted" />
  </close-button>
  <restore-button>
-   <width>17</width>
+   <width>16</width>
    <height>16</height>
    <border width="1" color="#000000" radius="0" image="" />
    <image-normal src="customborder/restoreButtonNormal" />
