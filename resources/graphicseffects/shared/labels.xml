@@ -3,11 +3,14 @@
   <effect type="shadow">
     <names>
       <name>lblRegister</name>
+      <name>lblForgotPassword</name>
+      <name>lblCopyright</name>
+      <name>lblHomePage</name>
     </names>
     <classes>
-	<class>QLabel</class>
+	<!--<class>QLabel</class>
 	<class>QCheckBox</class>
-	<class>QRadioButton</class>
+	<class>QRadioButton</class>-->
     </classes>
     <color>#333333</color>
     <offset x="0" y="-1" />

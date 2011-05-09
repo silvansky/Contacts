@@ -1,5 +1,6 @@
 #include "commentdialog.h"
 #include <utils/log.h>
+#include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>
 #include <utils/stylestorage.h>
 #include <definitions/resources.h>
@@ -7,6 +8,7 @@
 #include <definitions/stylesheets.h>
 #include <QSysInfo>
 #include <QDesktopWidget>
+#include <QScrollBar>
 
 #ifdef Q_WS_WIN
 #include <Windows.h>
@@ -141,10 +143,12 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	ui.lneEMail->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.tedComment->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-	QString techInfo("\n\n\n\n\n\n\n");
-	techInfo += "-----------------------------\n";
-	techInfo += tr("TECHNICAL DATA (may be useful for developers)\n");
-	techInfo += QString(tr("Friends version: %1 (r%2)\n")).arg(APluginManager->version(), APluginManager->revision());
+	ui.lblSendCommentStatus->setVisible(false);
+
+	QString techInfo("<br><br><br><br><br><br><br>");
+	techInfo += "-----------------------------<br>";
+	techInfo += tr("TECHNICAL DATA (may be useful for developers)<br>");
+	techInfo += QString(tr("Friends version: %1 (r%2)<br>")).arg(APluginManager->version(), APluginManager->revision());
 	QString os;
 #ifdef Q_WS_WIN
 	os = resolveWidowsVersion(QSysInfo::windowsVersion());
@@ -152,7 +156,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	os = resolveMacVersion(QSysInfo::MacintoshVersion);
 #endif
 
-	techInfo += tr("Operating system: %1\n").arg(os);
+	techInfo += tr("Operating system: %1<br>").arg(os);
 	QDesktopWidget * dw = QApplication::desktop();
 	QStringList displays;
 	for (int i = 0; i < dw->screenCount(); i++)
@@ -166,6 +170,10 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	//ui.lblTechData->setText(techInfo);
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_FEEDBACK);
+	QScrollBar * sb = new QScrollBar(Qt::Vertical);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(sb, STS_PLUGINMANAGER_APPLICATION);
+	ui.tedComment->setVerticalScrollBar(sb);
+	//ui.tedComment->verticalScrollBar()->installEventFilter(this);
 
 	IPlugin* plugin = APluginManager->pluginInterface("IAccountManager").value(0);
 	IAccountManager *accountManager = plugin != NULL ? qobject_cast<IAccountManager *>(plugin->instance()) : NULL;
@@ -179,6 +187,11 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	fullName = vCard->value(VVN_FULL_NAME);
 	if (fullName.isEmpty())
 		fullName = streamJid.node();
+	QString email = vCard->value(VVN_EMAIL);
+	if (emailIsJid = email.isEmpty())
+		email = streamJid.bare();
+
+	ui.lneEMail->setText(email);
 
 	plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0);
 	FStanzaProcessor = plugin != NULL ? qobject_cast<IStanzaProcessor *>(plugin->instance()) : NULL;
@@ -197,6 +210,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
 		border->setWindowTitle(windowTitle());
+		border->setResizable(false);
 		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
 		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
@@ -226,6 +240,20 @@ CustomBorderContainer * CommentDialog::windowBorder() const
 	return border;
 }
 
+void CommentDialog::show()
+{
+	setFixedSize(sizeHint());
+	if (border)
+	{
+		WidgetManager::showActivateRaiseWindow(border);
+		border->adjustSize();
+	}
+	else
+		WidgetManager::showActivateRaiseWindow(this);
+	//setStyleSheet(styleSheet());
+	QTimer::singleShot(1, StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SLOT(previewReset()));
+}
+
 //void CommentDialog::stanzaSent(const Jid &AStreamJid, const Stanza &AStanza)
 void CommentDialog::SendComment()
 {
@@ -253,6 +281,7 @@ void CommentDialog::SendComment()
 	if (ret)
 	{
 		ui.pbtSendComment->setText(tr("Message delivered"));
+		ui.lblSendCommentStatus->setVisible(true);
 		ui.lblSendCommentStatus->setText(tr("Thank you for your comment."));
 		ui.pbtClose->setDefault(true);
 		ui.pbtClose->setText(tr("Close"));
@@ -260,9 +289,12 @@ void CommentDialog::SendComment()
 	}
 	else
 	{
+		ui.lblSendCommentStatus->setVisible(true);
 		ui.lblSendCommentStatus->setText(tr("Message was not delivered. May be internet connection was lost."));
 		ui.pbtSendComment->setText(tr("Send comment"));
 		ui.pbtSendComment->setEnabled(true);
+		ui.lneEMail->setEnabled(true);
+		ui.lneYourName->setEnabled(true);
 		ui.tedComment->setEnabled(true);
 		ui.pbtClose->setDefault(false);
 		ui.pbtClose->setText(tr("Cancel"));
@@ -278,5 +310,19 @@ void CommentDialog::onJidChanded(Jid)
 	if (stream)
 	{
 		streamJid = stream->streamJid();
+		if (emailIsJid)
+			ui.lneEMail->setText(streamJid.bare());
 	}
+}
+
+bool CommentDialog::eventFilter(QObject * obj, QEvent * event)
+{
+	if (obj == ui.tedComment->verticalScrollBar())
+	{
+		if (event->type() == QEvent::EnabledChange)
+		{
+			ui.tedComment->verticalScrollBar()->setStyleSheet(styleSheet());
+		}
+	}
+	return QDialog::eventFilter(obj, event);
 }

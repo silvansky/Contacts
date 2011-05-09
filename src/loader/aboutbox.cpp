@@ -3,15 +3,19 @@
 #include <QShowEvent>
 #include <QDesktopServices>
 #include <utils/customborderstorage.h>
+#include <utils/stylestorage.h>
+#include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
+#include <definitions/stylesheets.h>
+#include <definitions/graphicseffects.h>
 
 AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 
-	ui.lblName->setText("<font size=+4><b>friends</b></font>");
+	ui.lblName->setText("friends");
 	ui.lblVersion->setText(tr("Version %1.%2 %3").arg(APluginManager->version()).arg(APluginManager->revision()).arg(CLIENT_VERSION_SUFIX).trimmed());
 	ui.lblHomePage->setText(tr("Official site: %1").arg("<a href='http://friends.rambler.ru'>http://friends.rambler.ru</a>"));
 	ui.lblCopyright->setText(tr("Copyright 2010-2011, \"Rambler Internet Holding Ltd\". All rights reserved.<br>%1").arg(QString("<a href='http://friends.rambler.ru'>%1</a>").arg(tr("Terms of Use"))));
@@ -31,6 +35,8 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
 		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
 	}
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_ABOUTBOX);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 }
 
 AboutBox::~AboutBox()

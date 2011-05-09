@@ -6,10 +6,9 @@
 #include <definitions/textflags.h>
 #include <definitions/graphicseffects.h>
 
-
 void ProxyStyle::drawItemText(QPainter *painter, const QRect &rect, int flags, const QPalette &pal, bool enabled, const QString &text, QPalette::ColorRole textRole) const
 {
-	if (textRole == QPalette::Text || textRole == QPalette::ButtonText)
+	if (textRole == QPalette::Text || textRole == QPalette::ButtonText || textRole == QPalette::WindowText)
 	{
 		// draw the dark shadow by default
 		int shadowType = TF_DARKSHADOW;

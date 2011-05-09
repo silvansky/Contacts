@@ -1,3 +1,8 @@
+QLabel#lblHead
+{
+	font-size: 18px;
+}
+
 QLabel
 {
 	padding-left: 1px;

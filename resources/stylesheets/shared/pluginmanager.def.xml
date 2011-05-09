@@ -12,4 +12,8 @@
     <key>pluginmanagerSetupPluginsDialog</key>
     <object mime='text/css'>pluginmanagersetuppluginsdialog.qss</object>
   </file>
+  <file>
+    <key>pluginmanagerAboutBox</key>
+    <object mime='text/css'>pluginmanageraboutbox.qss</object>
+  </file>
 </styledef>

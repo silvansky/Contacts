@@ -20,17 +20,22 @@ public:
 	CommentDialog(IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~CommentDialog();
 	CustomBorderContainer * windowBorder() const;
+public slots:
+	void show();
 
 protected slots:
 	//void stanzaSent(const Jid &AStreamJid, const Stanza &AStanza);
 	void SendComment();
 	void onJidChanded(Jid);
+protected:
+	bool eventFilter(QObject *, QEvent *);
 
 private:
 	IStanzaProcessor * FStanzaProcessor;
 	IMessageProcessor * FMessageProcessor;
 	Jid streamJid;
 	QString fullName;
+	bool emailIsJid;
 
 private:
 	Ui::CommentDialogClass ui;
