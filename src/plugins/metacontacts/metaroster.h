@@ -10,6 +10,7 @@
 #include <utils/log.h>
 #include <utils/stanza.h>
 #include <utils/errorhandler.h>
+#include <utils/imagemanager.h>
 
 class MetaRoster :
 	public QObject,
@@ -40,7 +41,7 @@ public:
 	virtual IPresenceItem metaPresenceItem(const QString &AMetaId) const;
 	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const;
 	virtual QString metaAvatarHash(const QString &AMetaId) const;
-	virtual QImage metaAvatarImage(const QString &AMetaId, bool ANullImage = true) const;
+	virtual QImage metaAvatarImage(const QString &AMetaId, bool AAllowNull = true, bool AAllowGray = true) const;
 	virtual QSet<QString> groups() const;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const;
 	virtual void saveMetaContacts(const QString &AFileName) const;

@@ -249,7 +249,7 @@ void MetaProxyModel::onMetaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled
 void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString &AMetaId)
 {
 	QString hash = AMetaRoster->metaAvatarHash(AMetaId);
-	QImage originalAvatar = AMetaRoster->metaAvatarImage(AMetaId);
+	QImage originalAvatar = AMetaRoster->metaAvatarImage(AMetaId,false);
 	QImage avatar = ImageManager::roundSquared(originalAvatar, 24, 2);
 	QImage largeAvatar = ImageManager::roundSquared(originalAvatar, 36, 2);
 
@@ -287,7 +287,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 			IRosterItem ritem = AMetaRoster->metaRosterItem(AContact.id);
 
 			QStringList contactItems;
-			foreach(Jid itemJid, AContact.items)
+			foreach(Jid itemJid, FMetaContacts->itemOrders(AContact.items.toList()).values())
 				contactItems.append(itemJid.pBare());
 
 			QSet<QString> curGroups;

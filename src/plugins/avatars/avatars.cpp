@@ -32,13 +32,10 @@ Avatars::Avatars()
 	FRostersModel = NULL;
 	FRostersViewPlugin = NULL;
 	FOptionsManager = NULL;
-	FMetaContacts = NULL;
 
 	FRosterLabelId = -1;
 	FAvatarsVisible = false;
 	FShowEmptyAvatars = true;
-
-	FMetaContacts = NULL;
 }
 
 Avatars::~Avatars()
@@ -124,12 +121,6 @@ bool Avatars::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*
 	if (plugin)
 	{
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-	}
-
-	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
-	if (plugin)
-	{
-		FMetaContacts = qobject_cast<IMetaContacts*>(plugin->instance());
 	}
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
@@ -371,7 +362,8 @@ bool Avatars::hasAvatar(const QString &AHash) const
 
 QImage Avatars::loadAvatar(const QString &AHash) const
 {
-	return QImage(avatarFileName(AHash));
+	QString fileName = avatarFileName(AHash);
+	return QFile::exists(fileName) ? QImage(avatarFileName(AHash)) : QImage();
 }
 
 QString Avatars::saveAvatar(const QByteArray &AImageData) const
@@ -412,83 +404,61 @@ QString Avatars::avatarHash(const Jid &AContactJid) const
 	return hash;
 }
 
-QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
+QImage Avatars::avatarImage(const Jid &AContactJid, bool AAllowNull, bool AAllowGray) const
 {
 	QString hash = avatarHash(AContactJid);
 	QImage image = FAvatarImages.value(hash);
+	
 	if (image.isNull() && !hash.isEmpty())
 	{
-		QString fileName = avatarFileName(hash);
-		if (QFile::exists(fileName))
-		{
-			image = QImage(fileName);
-			if (!image.isNull())
-				FAvatarImages.insert(hash,image);
-		}
+		image = loadAvatar(hash);
+		if (!image.isNull())
+			FAvatarImages.insert(hash,image);
 	}
-	if (image.isNull() && !ANullImage)
+
+	bool emptyMaleAvatar = false;
+	bool emptyFemaleAvatar = false;
+	if (image.isNull() && !AAllowNull)
 	{
-		if (FContactGender.contains(AContactJid.bare()))
+		Jid bareJid = AContactJid.bare();
+		if (!FContactGender.contains(bareJid) && FVCardPlugin && FVCardPlugin->hasVCard(bareJid))
 		{
-			image = FContactGender.value(AContactJid.bare()) ? FEmptyMaleAvatar : FEmptyFemaleAvatar;
-		}
-		else if (FVCardPlugin && FVCardPlugin->hasVCard(AContactJid.bare()))
-		{
-			IVCard *vcard = FVCardPlugin->vcard(AContactJid.bare());
+			IVCard *vcard = FVCardPlugin->vcard(bareJid);
 			bool maleGender = vcard->value(VVN_GENDER).toLower()!="female";
 			vcard->unlock();
-			image = maleGender ? FEmptyMaleAvatar : FEmptyFemaleAvatar;
-			FContactGender.insert(AContactJid.bare(),maleGender);
+			FContactGender.insert(bareJid,maleGender);
+		}
+	
+		if (FContactGender.value(bareJid,true))
+		{
+			emptyMaleAvatar = true;
+			image = FEmptyMaleAvatar;
 		}
 		else
 		{
-			image = FEmptyMaleAvatar;
+			emptyFemaleAvatar = true;
+			image = FEmptyFemaleAvatar;
 		}
 	}
-	if (!image.isNull() && FRostersModel)
-	{
-		QMultiMap<int,QVariant> findData;
-		foreach(int type, rosterDataTypes())
-			findData.insert(RDR_TYPE,type);
-		if (!AContactJid.isEmpty())
-			findData.insert(RDR_PREP_BARE_JID,AContactJid.pBare());
 
-		QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChilds(findData, true);
-		foreach (IRosterIndex * index, indexes)
+	if (AAllowGray && !image.isNull() && FPresencePlugin && !FPresencePlugin->isContactOnline(AContactJid))
+	{
+		if (emptyMaleAvatar)
 		{
-			int show = index->data(RDR_SHOW).toInt();
-			if ((index->data(RDR_TYPE).toInt() != RIT_STREAM_ROOT) && FMetaContacts)
-			{
-				foreach (Jid streamJid, FRostersModel->streams())
-				{
-					IMetaRoster *mroster = FMetaContacts->findMetaRoster(streamJid);
-					if (mroster)
-					{
-						QString metaId = mroster->itemMetaContact(AContactJid);
-						IPresenceItem pitem = mroster->metaPresenceItem(metaId);
-						show = pitem.show;
-					}
-				}
-			}
-			if (show == IPresence::Offline || show == IPresence::Error)
-			{
-				if (image == FEmptyMaleAvatar)
-					image = FEmptyMaleAvatarOffline;
-				else if (image == FEmptyFemaleAvatar)
-					image = FEmptyFemaleAvatarOffline;
-				else if (image != FEmptyMaleAvatarOffline && image != FEmptyFemaleAvatarOffline)
-				{
-					if (!FAvatarImagesGrayscale.contains(hash))
-					{
-						image = ImageManager::grayscaled(image);
-						FAvatarImagesGrayscale.insert(hash, image);
-					}
-					else
-						image = FAvatarImagesGrayscale.value(hash);
-				}
-			}
-			if (index->data(RDR_TYPE).toInt() == RIT_STREAM_ROOT)
-				break;
+			image = FEmptyMaleAvatarOffline;
+		}
+		else if (emptyFemaleAvatar)
+		{
+			image = FEmptyFemaleAvatarOffline;
+		}
+		else if (!FAvatarImagesGrayscale.contains(hash))
+		{
+			image = ImageManager::grayscaled(image);
+			FAvatarImagesGrayscale.insert(hash, image);
+		}
+		else
+		{
+			image = FAvatarImagesGrayscale.value(hash);
 		}
 	}
 
@@ -983,16 +953,17 @@ void Avatars::onAvatarObjectDestroyed(QObject *AObject)
 	removeAutoAvatar(AObject);
 }
 
-void Avatars::onContactStateChanged(const Jid & AStreamJid, const Jid & AContactJid, bool AStateOnline)
+void Avatars::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline)
 {
-	Q_UNUSED(AStreamJid)
-	Q_UNUSED(AStateOnline)
+	Q_UNUSED(AStreamJid);
+	Q_UNUSED(AStateOnline);
+	updateDataHolder(AContactJid);
 	emit avatarChanged(AContactJid);
 }
 
-void Avatars::onStreamStateChanged(const Jid & AStreamJid, bool AStateOnline)
+void Avatars::onStreamStateChanged(const Jid &AStreamJid, bool AStateOnline)
 {
-	Q_UNUSED(AStateOnline)
+	Q_UNUSED(AStateOnline);
 	emit avatarChanged(AStreamJid);
 }
 

@@ -53,7 +53,7 @@ public:
 	virtual IPresenceItem metaPresenceItem(const QString &AMetaId) const =0;
 	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const =0;
 	virtual QString metaAvatarHash(const QString &AMetaId) const =0;
-	virtual QImage metaAvatarImage(const QString &AMetaId, bool ANullImage = true) const =0;
+	virtual QImage metaAvatarImage(const QString &AMetaId, bool AAllowNull = true, bool AAllowGray = true) const =0;
 	virtual QSet<QString> groups() const =0;
 	virtual QList<IMetaContact> groupContacts(const QString &AGroup) const =0;
 	virtual void saveMetaContacts(const QString &AFileName) const =0;

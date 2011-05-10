@@ -15,7 +15,7 @@ public:
 	virtual QString saveAvatar(const QByteArray &AImageData) const =0;
 	virtual QString saveAvatar(const QImage &AImage, const char *AFormat = NULL) const =0;
 	virtual QString avatarHash(const Jid &AContactJid) const =0;
-	virtual QImage avatarImage(const Jid &AContactJid, bool ANullImage = true) const =0;
+	virtual QImage avatarImage(const Jid &AContactJid, bool AAllowNull = true, bool AAllowGray = true) const =0;
 	virtual bool setAvatar(const Jid &AStreamJid, const QImage &AImage, const char *AFormat = NULL) =0;
 	virtual QString setCustomPictire(const Jid &AContactJid, const QString &AImageFile) =0;
 	virtual void insertAutoAvatar(QObject *AObject, const Jid &AContactJid, const QSize &ASize = QSize(), const QString &AProperty = "icon") =0;

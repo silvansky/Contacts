@@ -15,7 +15,10 @@ RosterSearch::RosterSearch()
 	FItemsFound = false;
 	FSearchStarted = false;
 	FSearchEnabled = false;
-	FSearchNotFound = FSearchHistory = FSearchRambler = NULL;
+
+	FSearchNotFound = NULL;
+	FSearchHistory = NULL;
+	FSearchRambler = NULL;
 
 	FEditTimeout.setInterval(500);
 	FEditTimeout.setSingleShot(true);
@@ -347,16 +350,13 @@ bool RosterSearch::filterAcceptsRow(int ARow, const QModelIndex &AParent) const
 						return true;
 				return false;
 			}
-		case RIT_AGENT:
-		case RIT_MY_RESOURCE:
-		case RIT_GROUP_AGENTS:
-		case RIT_GROUP_MY_RESOURCES:
-			return false;
+		case RIT_ROOT:
+		case RIT_STREAM_ROOT:
 		case RIT_SEARCH_LINK:
 		case RIT_SEARCH_EMPTY:
 			return true;
 		default:
-			return true;
+			return false;
 		}
 	}
 	return true;
@@ -438,7 +438,8 @@ void RosterSearch::createSearchLinks()
 	IRosterIndex *searchRoot = FRostersModel!=NULL ? FRostersModel->streamRoot(FRostersModel->streams().value(0)) : NULL;
 	if (searchRoot && !searchText.isEmpty())
 	{
-		FSearchHistory = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, searchRoot);
+		if (!FSearchHistory)
+			FSearchHistory = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, searchRoot);
 		FSearchHistory->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchHistory->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
 		FSearchHistory->setData(Qt::DisplayRole, tr("Search \"%1\" in history").arg(searchText.left(10)));
@@ -447,7 +448,8 @@ void RosterSearch::createSearchLinks()
 		FSearchHistory->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
 		FRostersModel->insertRosterIndex(FSearchHistory, searchRoot);
 
-		FSearchRambler = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, searchRoot);
+		if (!FSearchRambler)
+			FSearchRambler = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, searchRoot);
 		FSearchRambler->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchRambler->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
 		FSearchRambler->setData(Qt::DisplayRole, tr("Search \"%1\" in Rambler").arg(searchText.left(10)));
@@ -477,7 +479,8 @@ void RosterSearch::createNotFoundItem()
 	IRosterIndex *searchRoot = FRostersModel!=NULL ? FRostersModel->streamRoot(FRostersModel->streams().value(0)) : NULL;
 	if (searchRoot)
 	{
-		FSearchNotFound = FRostersModel->createRosterIndex(RIT_SEARCH_EMPTY, searchRoot);
+		if (!FSearchNotFound)
+			FSearchNotFound = FRostersModel->createRosterIndex(RIT_SEARCH_EMPTY, searchRoot);
 		FSearchNotFound->setFlags(0);
 		FSearchNotFound->setData(Qt::DisplayRole, tr("Contacts not found"));
 		FSearchNotFound->setData(RDR_TYPE_ORDER,RITO_SEARCH);

@@ -39,10 +39,10 @@ struct SearchField
 };
 
 class RosterSearch :
-			public QSortFilterProxyModel,
-			public IPlugin,
-			public IRosterSearch,
-			public IRosterDataHolder
+	public QSortFilterProxyModel,
+	public IPlugin,
+	public IRosterSearch,
+	public IRosterDataHolder
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IRosterSearch IRosterDataHolder)

@@ -380,7 +380,7 @@ void AddMetaContactDialog::setAvatarIndex(int AIndex)
 	{
 		if (FAvatars)
 		{
-			QImage avatar = ImageManager::roundSquared(FAvatars->avatarImage(Jid::null,false), 36, 2);
+			QImage avatar = ImageManager::roundSquared(FAvatars->avatarImage(Jid::null,false,false), 36, 2);
 			ui.lblPhoto->setPixmap(QPixmap::fromImage(avatar));
 		}
 		else

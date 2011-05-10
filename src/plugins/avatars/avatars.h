@@ -50,16 +50,16 @@ struct AutoAvatarParams
 };
 
 class Avatars :
-			public QObject,
-			public IPlugin,
-			public IAvatars,
-			public IStanzaHandler,
-			public IStanzaRequestOwner,
-			public IRosterDataHolder,
-			public IOptionsHolder
+	public QObject,
+	public IPlugin,
+	public IAvatars,
+	public IStanzaHandler,
+	public IStanzaRequestOwner,
+	public IRosterDataHolder,
+	public IOptionsHolder
 {
-	Q_OBJECT
-	Q_INTERFACES(IPlugin IAvatars IStanzaHandler IRosterDataHolder IStanzaRequestOwner IOptionsHolder)
+	Q_OBJECT;
+	Q_INTERFACES(IPlugin IAvatars IStanzaHandler IRosterDataHolder IStanzaRequestOwner IOptionsHolder);
 public:
 	Avatars();
 	~Avatars();
@@ -91,7 +91,7 @@ public:
 	virtual QString saveAvatar(const QByteArray &AImageData) const;
 	virtual QString saveAvatar(const QImage &AImage, const char *AFormat = NULL) const;
 	virtual QString avatarHash(const Jid &AContactJid) const;
-	virtual QImage avatarImage(const Jid &AContactJid, bool ANullImage = true) const;
+	virtual QImage avatarImage(const Jid &AContactJid, bool AAllowNull = true, bool AAllowGray = true) const;
 	virtual bool setAvatar(const Jid &AStreamJid, const QImage &AImage, const char *AFormat = NULL);
 	virtual QString setCustomPictire(const Jid &AContactJid, const QString &AImageFile);
 	virtual void insertAutoAvatar(QObject *AObject, const Jid &AContactJid, const QSize &ASize = QSize(), const QString &AProperty = "icon");
@@ -132,7 +132,6 @@ private:
 	IVCardPlugin *FVCardPlugin;
 	IPresencePlugin *FPresencePlugin;
 	IRostersModel *FRostersModel;
-	IMetaContacts * FMetaContacts;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IOptionsManager *FOptionsManager;
 private:

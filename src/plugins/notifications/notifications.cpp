@@ -556,10 +556,7 @@ void Notifications::removeNotificator(const QString &ANotificatorId)
 
 QImage Notifications::contactAvatar(const Jid &AContactJid) const
 {
-	QImage avatar = FAvatars ? FAvatars->avatarImage(AContactJid, false) : QImage();
-	if (!avatar.isNull())
-		avatar = ImageManager::roundSquared(avatar, 36, 2);
-	return avatar;
+	return ImageManager::roundSquared(FAvatars ? FAvatars->avatarImage(AContactJid, false) : QImage(), 36, 2);
 }
 
 QIcon Notifications::contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const

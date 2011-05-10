@@ -230,7 +230,7 @@ QImage BirthdayReminder::avatarWithCake(const Jid &AContactJid, const QImage &AA
 {
 	QImage avatar = AAvatar;
 	if (FAvatars && avatar.isNull())
-		avatar = FAvatars->avatarImage(AContactJid);
+		avatar = FAvatars->avatarImage(AContactJid,false,false);
 
 	if (!FAvatarCake.isNull() && FUpcomingBirthdays.value(AContactJid.bare(),-1)==0)
 	{

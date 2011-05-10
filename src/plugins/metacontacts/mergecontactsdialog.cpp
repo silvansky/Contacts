@@ -26,13 +26,13 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 	{
 		IMetaContact contact = FMetaRoster->metaContact(metaId);
 
-		QImage avatar = FMetaRoster->metaAvatarImage(metaId).scaled(24, 24, Qt::KeepAspectRatio,Qt::SmoothTransformation);
+		QImage avatar = FMetaRoster->metaAvatarImage(metaId,false,false).scaled(24, 24, Qt::KeepAspectRatio,Qt::SmoothTransformation);
 		QString name = FMetaContacts->metaContactName(contact);
 
 		if (ui.ltContacts->count() == 1)
 		{
 			ui.lneName->setText(name);
-			ui.lblAvatar->setPixmap(QPixmap::fromImage(FMetaRoster->metaAvatarImage(metaId).scaled(48, 48, Qt::KeepAspectRatio,Qt::SmoothTransformation)));
+			ui.lblAvatar->setPixmap(QPixmap::fromImage(FMetaRoster->metaAvatarImage(metaId,false,false).scaled(48, 48, Qt::KeepAspectRatio,Qt::SmoothTransformation)));
 		}
 
 		QHBoxLayout * itemLayout = new QHBoxLayout();

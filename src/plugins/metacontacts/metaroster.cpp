@@ -263,7 +263,7 @@ QString MetaRoster::metaAvatarHash(const QString &AMetaId) const
 	return hash;
 }
 
-QImage MetaRoster::metaAvatarImage(const QString &AMetaId, bool ANullImage) const
+QImage MetaRoster::metaAvatarImage(const QString &AMetaId, bool AAllowNull, bool AAllowGray) const
 {
 	QImage image;
 	if (FAvatars && FContacts.contains(AMetaId))
@@ -271,9 +271,18 @@ QImage MetaRoster::metaAvatarImage(const QString &AMetaId, bool ANullImage) cons
 		IMetaContact contact = FContacts.value(AMetaId);
 		QMultiMap<int, Jid> orders = FMetaContacts->itemOrders(contact.items.toList());
 		for (QMultiMap<int, Jid>::const_iterator it=orders.constBegin(); image.isNull() && it!=orders.constEnd(); it++)
-			image = FAvatars->avatarImage(it.value(),false);
-		if (image.isNull() && ANullImage)
-			image = FAvatars->avatarImage(AMetaId, ANullImage);
+			image = FAvatars->avatarImage(it.value(),true,false);
+		
+		if (AAllowGray && !image.isNull())
+		{
+			IPresenceItem pitem = metaPresenceItem(AMetaId);
+			if (pitem.show==IPresence::Offline || pitem.show==IPresence::Error)
+				image = ImageManager::grayscaled(image);
+		}
+		else if (!AAllowNull && image.isNull())
+		{
+			image = FAvatars->avatarImage(orders.constBegin().value(),false,AAllowGray);
+		}
 	}
 	return image;
 }

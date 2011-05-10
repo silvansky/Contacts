@@ -622,8 +622,17 @@ void MetaTabWindow::updateItemButtonStatus(const Jid &AItemJid)
 	QToolButton *button = FPageButtons.value(itemPage(AItemJid));
 	if (button)
 	{
-		QList<IPresenceItem> pitems = FMetaRoster->itemPresences(AItemJid);
-		if (!pitems.isEmpty() && pitems.at(0).show!=IPresence::Error)
+		bool online = false;
+		foreach(IPresenceItem pitem, FMetaRoster->itemPresences(AItemJid))
+		{
+			if (pitem.show!=IPresence::Offline && pitem.show!=IPresence::Error)
+			{
+				online = true;
+				break;
+			}
+		}
+
+		if (online)
 		{
 			QImage image = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_METACONTACTS_ONLINE_ICON);
 			button->setProperty("statusIcon", image);
