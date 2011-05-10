@@ -16,7 +16,7 @@
 #define ANIMATE_OPACITY_END       1.0
 #define ANIMATE_OPACITY_STEP      ((ANIMATE_OPACITY_END - ANIMATE_OPACITY_START)/ANIMATE_STEPS)
 
-#define IMAGE_SIZE                QSize(32,32)
+#define IMAGE_SIZE                QSize(36,36)
 #define MAX_MESSAGES              3
 
 QList<NotifyWidget *> NotifyWidget::FWidgets;
@@ -25,6 +25,8 @@ QDesktopWidget *NotifyWidget::FDesktop = new QDesktopWidget;
 NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvailable) :
 	QWidget(NULL, Qt::ToolTip | Qt::WindowStaysOnTopHint)
 {
+	// TODO: remove
+	Q_UNUSED(AOptionsAvailable)
 	ui.setupUi(this);
 
 	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_NOTIFICATION);
@@ -40,13 +42,15 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 		QMargins m = ui.frmPopup->layout()->contentsMargins();
 		m.setRight(24);
 		ui.frmPopup->layout()->setContentsMargins(m);
-		ui.clbClose->setVisible(false);
+//		ui.clbClose->setVisible(false);
 	}
+
+	ui.wdtButtons->setVisible(ANotification.actions.count());
 
 	setFocusPolicy(Qt::NoFocus);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_NOTIFICATION_NOTIFYWIDGET);
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbOptions,MNI_NOTIFICATIONS_POPUP_OPTIONS);
+//	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbOptions,MNI_NOTIFICATIONS_POPUP_OPTIONS);
 
 	ui.tbrText->setMaxHeight(FDesktop->availableGeometry().height() / 6);
 	ui.tbrText->setContentsMargins(0,0,0,0);
@@ -88,9 +92,9 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 	if (!styleKey.isEmpty())
 		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(ui.frmPopup,styleKey);
 
-	ui.tlbOptions->setVisible(AOptionsAvailable);
-	connect(ui.tlbOptions, SIGNAL(clicked()), SIGNAL(showOptions()));
-	connect(ui.clbClose, SIGNAL(clicked()), SIGNAL(notifyRemoved()));
+//	ui.tlbOptions->setVisible(AOptionsAvailable);
+//	connect(ui.tlbOptions, SIGNAL(clicked()), SIGNAL(showOptions()));
+//	connect(ui.clbClose, SIGNAL(clicked()), SIGNAL(notifyRemoved()));
 
 	appendNotification(ANotification);
 	updateElidedText();
@@ -287,7 +291,7 @@ void NotifyWidget::layoutWidgets()
 			QTimer::singleShot(10, widget, SLOT(adjustHeight()));
 		}
 		if (widget->border)
-			ypos -= widget->border->geometry().height() - 30;
+			ypos -= widget->border->geometry().height();
 		else
 			ypos -= widget->frameGeometry().height();
 		widget->animateTo(ypos--);

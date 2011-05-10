@@ -23,24 +23,14 @@ NotifyTextBrowser
 	color: white;
 }
 
-QLabel#lblTitle 
+QLabel
 {
-	font-size: 12px;
-	font-weight: bold;
+	font-size: 11px;
 }
 
 QLabel#lblNotice
 {
-	font-size: 10px;
-	font-style: italic;
-}
-
-QToolButton#tlbOptions
-{
-	background-color: transparent;
-	border-image: none;
-	border: none;
-	padding: 0px 0px 0px 0px;
+	color: gray;
 }
 
 ActionButton[action="birthday"]

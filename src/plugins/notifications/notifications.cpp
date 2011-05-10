@@ -2,6 +2,7 @@
 
 #include <QProcess>
 #include <QVBoxLayout>
+#include <utils/imagemanager.h>
 
 #define TEST_NOTIFY_TIMEOUT             10000
 
@@ -555,7 +556,10 @@ void Notifications::removeNotificator(const QString &ANotificatorId)
 
 QImage Notifications::contactAvatar(const Jid &AContactJid) const
 {
-	return FAvatars!=NULL ? FAvatars->avatarImage(AContactJid, false) : QImage();
+	QImage avatar = FAvatars ? FAvatars->avatarImage(AContactJid, false) : QImage();
+	if (!avatar.isNull())
+		avatar = ImageManager::roundSquared(avatar, 36, 2);
+	return avatar;
 }
 
 QIcon Notifications::contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const
@@ -565,8 +569,8 @@ QIcon Notifications::contactIcon(const Jid &AStreamJid, const Jid &AContactJid) 
 
 QString Notifications::contactName(const Jid &AStreamJId, const Jid &AContactJid) const
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJId) : NULL;
-	QString name = roster!=NULL ? roster->rosterItem(AContactJid).name : AContactJid.node();
+	IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(AStreamJId) : NULL;
+	QString name = roster ? roster->rosterItem(AContactJid).name : AContactJid.node();
 	if (name.isEmpty())
 		name = AContactJid.bare();
 	return name;
