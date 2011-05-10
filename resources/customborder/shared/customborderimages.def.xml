@@ -193,4 +193,53 @@
     <key>bottomRightMaskMenu</key>
     <object mime="image/png">bottomrightmask_menu.png</object>
   </icon>
+
+  <icon>
+    <key>leftShadowNotification</key>
+    <object mime="image/png">leftshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>topLeftShadowNotification</key>
+    <object mime="image/png">topleftshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>topShadowNotification</key>
+    <object mime="image/png">topshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>topRightShadowNotification</key>
+    <object mime="image/png">toprightshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>rightShadowNotification</key>
+    <object mime="image/png">rightshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadowNotification</key>
+    <object mime="image/png">bottomrightshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomShadowNotification</key>
+    <object mime="image/png">bottomshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadowNotification</key>
+    <object mime="image/png">bottomleftshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>topLeftMaskNotification</key>
+    <object mime="image/png">topleftmask_notification.png</object>
+  </icon>
+  <icon>
+    <key>topRightMaskNotification</key>
+    <object mime="image/png">toprightmask_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftMaskNotification</key>
+    <object mime="image/png">bottomleftmask_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMaskNotification</key>
+    <object mime="image/png">bottomrightmask_notification.png</object>
+  </icon>
 </icondef>

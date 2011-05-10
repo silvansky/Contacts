@@ -171,7 +171,9 @@ QVariant RostersView::rosterData(const IRosterIndex *AIndex, int ARole) const
 		}
 		else if (ARole == Qt::BackgroundColorRole)
 		{
-			data = notify.background;
+			// let's disable that for a while...
+			//data = notify.background;
+			// no design - no implementation
 		}
 	}
 	return data;
