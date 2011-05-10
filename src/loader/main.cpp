@@ -19,6 +19,14 @@ int main(int argc, char *argv[])
 	QApplication::setStyle(new QCleanlooksStyle);
 	QApplication::setStyle(new ProxyStyle);
 
+	// fixing menu/combo/etc problems - disabling all animate/fade effects
+	QApplication::setEffectEnabled(Qt::UI_AnimateMenu, false);
+	QApplication::setEffectEnabled(Qt::UI_AnimateCombo, false);
+	QApplication::setEffectEnabled(Qt::UI_AnimateTooltip, false);
+	QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, false);
+	QApplication::setEffectEnabled(Qt::UI_FadeMenu, false);
+	QApplication::setEffectEnabled(Qt::UI_FadeTooltip, false);
+
 	// This should be done in Style Sheet
 	QPalette pal = QApplication::palette();
 	pal.setColor(QPalette::Link,QColor(Qt::white));
