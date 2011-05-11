@@ -121,7 +121,7 @@ QLineEdit, QTextEdit
 	background-color: transparent;
 	border-image: url(%IMAGES_PATH%/editborder.png);
 	color: #333333;
-	font-size: 12px;
+	font-size: 11px;
 	selection-background-color: #cddde4;
 	selection-color: #333333;
 }

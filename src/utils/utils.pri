@@ -32,7 +32,8 @@ HEADERS = utilsexport.h \
     log.h \
     imagemanager.h \
     custominputdialog.h \
-    customlistview.h
+    customlistview.h \
+    customlabel.h
 
 SOURCES = jid.cpp \
     versionparser.cpp \
@@ -65,7 +66,8 @@ SOURCES = jid.cpp \
     log.cpp \
     imagemanager.cpp \
     custominputdialog.cpp \
-    customlistview.cpp
+    customlistview.cpp \
+    customlabel.cpp
 
 macx: {
   HEADERS += macdockhandler.h

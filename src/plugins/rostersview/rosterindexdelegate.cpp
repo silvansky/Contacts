@@ -173,9 +173,9 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 //		option.palette.setColor(QPalette::All, QPalette::Highlight, option.palette.base().color().darker(108));
 //	}
 //#endif
-
 	//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin) >> 1;
 	//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin) >> 1;
+
 	int hMargin = 7;
 	int vMargin = 1;
 

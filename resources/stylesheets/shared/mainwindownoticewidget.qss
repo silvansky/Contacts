@@ -1,12 +1,12 @@
-QLabel#lblCaption
-{
-	font-size: 12px;
-	font-weight: bold;
-}
-
 QLabel
 {
+	font-size: 11px;
 	color: #435660;
+}
+
+QLabel#lblCaption
+{
+	font-size: 13px;
 }
 
 InternalNoticeWidget

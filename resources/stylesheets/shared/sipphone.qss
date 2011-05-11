@@ -16,6 +16,11 @@ RCallControl
 	background-position: left;
 }
 
+QLabel#lblStatus
+{
+	color: #333333;
+}
+
 RCallControl[ringing="true"]
 {
 	background-color: white;
@@ -36,5 +41,5 @@ AVControl, RVolumeControl, #chkbtnMicOn
 
 #FullScreenControls
 {
-	background-color: rgba(255, 0, 0, 230);
+	background-color: rgba(0, 0, 0, 100);
 }

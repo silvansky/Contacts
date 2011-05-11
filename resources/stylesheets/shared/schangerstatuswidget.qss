@@ -42,6 +42,7 @@ QLabel#lblMood
 	color: #acacac;
 	min-height: 28px;
 	max-height: 28px;
+	font-size: 11px;
 	height: 28px;
 }
 
@@ -100,4 +101,5 @@ QLabel#lblAvatar:hover
 #tedMood
 {
 	max-height: 36px;
+	font-size: 11px;
 }
