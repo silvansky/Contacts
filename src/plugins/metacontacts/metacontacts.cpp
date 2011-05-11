@@ -211,11 +211,11 @@ Action *MetaContacts::tabPageAction(const QString &ATabPageId, QObject *AParent)
 		IMetaRoster *mroster = findBareMetaRoster(pageInfo.streamJid);
 		if (mroster && mroster->isOpen())
 		{
-			IMetaContact contact = mroster->metaContact(pageInfo.metaId);
+			QString name = metaContactName(mroster->metaContact(pageInfo.metaId));
 
 			Action *action = new Action(AParent);
 			action->setData(ADR_TAB_PAGE_ID, ATabPageId);
-			action->setText(metaContactName(contact));
+			action->setText(name.isEmpty() && pageInfo.page!=NULL ? pageInfo.page->tabPageCaption() : name);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenTabPageAction(bool)));
 
 			ITabPage *page = tabPageFind(ATabPageId);
