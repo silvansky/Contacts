@@ -797,7 +797,6 @@ void LoginDialog::onConnectClicked()
 					{
 						account->setName(streamJid.domain());
 						account->setStreamJid(streamJid);
-						account->setPassword(ui.lnePassword->text());
 						account->setActive(true);
 						if (FStatusChanger && account->isActive())
 						{
@@ -806,6 +805,9 @@ void LoginDialog::onConnectClicked()
 							disconnect(account->xmppStream()->instance(),0,this,0);
 							connect(account->xmppStream()->instance(),SIGNAL(opened()),SLOT(onXmppStreamOpened()));
 							connect(account->xmppStream()->instance(),SIGNAL(closed()),SLOT(onXmppStreamClosed()));
+
+							account->setPassword(ui.chbSavePassword->isChecked() ? ui.lnePassword->text() : QString::null);
+							account->xmppStream()->setPassword(ui.lnePassword->text());
 
 							FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(), STATUS_MAIN_ID);
 
@@ -836,9 +838,6 @@ void LoginDialog::onConnectClicked()
 void LoginDialog::onXmppStreamOpened()
 {
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
-	if (account && !ui.chbSavePassword->isChecked())
-		account->setPassword(QString::null);
-
 	if (account && FConnectionSettings!=CS_DEFAULT)
 	{
 		OptionsNode coptions = account->optionsNode().node("connection",account->xmppStream()->connection()->ownerPlugin()->pluginId());
@@ -873,9 +872,6 @@ void LoginDialog::onXmppStreamOpened()
 void LoginDialog::onXmppStreamClosed()
 {
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
-	if (account && !ui.chbSavePassword->isChecked())
-		account->setPassword(QString::null);
-
 	if (account && account->xmppStream()->connection() == NULL)
 	{
 		showConnectionError(tr("Unable to set connection"), tr("Internal error, contact support"));
