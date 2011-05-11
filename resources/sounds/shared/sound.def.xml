@@ -25,6 +25,15 @@
   </file>
 
   <file>
+    <key>sipphoneCallWait</key>
+    <object mime='sound/wav'>wait.wav</object>
+  </file>  
+  <file>
+	<key>sipphoneCallBusy</key>
+    <object mime='sound/wav'>busy.wav</object>
+  </file>  
+  
+  <file>
     <key>subscription</key>
     <object mime='sound/wav'>auth.wav</object>
   </file>

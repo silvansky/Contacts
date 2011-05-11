@@ -70,40 +70,39 @@ void QImageLabel::leaveEvent(QEvent *)
 
 }
 
-//void QImageLabel::paintEvent(QPaintEvent * evt)
-//{
-//
-//	// Issue 
-//	//static qint64 prevCache = 0;
-//	//static bool blackFill = false;
-//
-//	//const QPixmap* px = pixmap();
-//	//qint64 cache = 0;
-//	//
-//	//QPainter p(this);
-//	//QRect curRect = rect();
-//
-//	//if(px)
-//	//{
-//	//	p.drawPixmap(rect(), *px);
-//	//	cache = px->cacheKey();
-//	//	blackFill = false;
-//	//}
-//
-//	//if(px == NULL || px->isNull() || cache == prevCache)
-//	//{
-//	//	if(!blackFill)
-//	//	{
-//	//		p.fillRect(curRect, Qt::black);
-//	//		blackFill = true;
-//	//	}
-//	//	
-//	//	QTextOption option(Qt::AlignCenter);
-//	//	p.drawText(curRect, tr("no image"),  option);
-//	//}
-//
-//	//prevCache = cache;
-//}
+void QImageLabel::paintEvent(QPaintEvent * evt)
+{
+	// Issue 
+	static qint64 prevCache = 0;
+	//static bool blackFill = false;
+
+	const QPixmap* px = pixmap();
+	qint64 cache = 0;
+	
+	QPainter p(this);
+	QRect curRect = rect();
+
+	if(px)
+	{
+		p.drawPixmap(rect(), *px);
+		cache = px->cacheKey();
+		//blackFill = false;
+	}
+
+	if(px == NULL || px->isNull() || cache == prevCache)
+	{
+		//if(!blackFill)
+		{
+			p.fillRect(curRect, Qt::black);
+			//blackFill = true;
+		}
+		
+		QTextOption option(Qt::AlignCenter);
+		p.drawText(curRect, tr("no image"),  option);
+	}
+
+	prevCache = cache;
+}
 
 
 void QImageLabel::updateIcon(IconCrossState iconState)
@@ -136,4 +135,10 @@ void QImageLabel::setVisible(bool state)
 {
 	QLabel::setVisible(state);
 	emit visibleState(state);
+}
+
+void QImageLabel::setPixmap(const QPixmap &pix)
+{
+	QLabel::setPixmap(pix);
+	update(rect());
 }

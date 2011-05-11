@@ -43,8 +43,13 @@ public:
   bool readBuffer( int bytes );
   //int audio_fd;
 
+	// готово ли соответствующее устройство?
+	bool inputDeviceReady() const { return _inputReady; }
+	bool outputDeviceReady() const { return _outputReady; }
+
 public slots:
   void onSuspendChanged(bool);
+	void onInputStateChanged(QAudio::State);
 
 private:
   //int err;
@@ -64,6 +69,9 @@ private:
   QFile tempFileToRtp;
 
   QBuffer* tmpBuffer;
+
+	bool _inputReady;
+	bool _outputReady;
 
   //QFile outFile;
 };

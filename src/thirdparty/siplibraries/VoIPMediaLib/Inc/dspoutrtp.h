@@ -136,7 +136,7 @@ private:
   void *speex_dec_state;
 
   void *_speexJitter;
-  int _speexFramSize;
+  int _speexFrameSize;
   SpeexJitter jitter;
 
 

@@ -76,7 +76,7 @@ void ComplexVideoWidget::paintEvent(QPaintEvent *ev)
 		int x = currRect.x() + currRect.width()/2;
 		int y = currRect.y() + currRect.height()/2;
 		//QRect pixRect(QPoint(x,y), QSize(scaledPixmap.width(), scaledPixmap.height()));
-		painter.drawText(currRect, Qt::AlignCenter, "Camera OFF");
+		painter.drawText(currRect, Qt::AlignCenter, tr("Camera OFF"));
 	}
 	else
 	{

@@ -5,7 +5,7 @@
 #include <utils/log.h>
 
 RCallControl::RCallControl(CallSide callSide, QWidget *parent)
-	: QWidget(parent), _callStatus(Undefined), _sid("")
+	: QWidget(parent), _callStatus(Undefined), _sid(""), _pSoundWait(NULL), _pSoundBusy(NULL), _pSoundRinging(NULL)
 {
 	ui.setupUi(this);
 
@@ -52,7 +52,7 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 
 
 RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
-: QWidget(parent), _callStatus(Undefined), _sid(sid)
+: QWidget(parent), _callStatus(Undefined), _sid(sid), _pSoundWait(NULL), _pSoundBusy(NULL), _pSoundRinging(NULL)
 {
 	ui.setupUi(this);
 
@@ -319,6 +319,8 @@ void RCallControl::callStatusChange(CallStatus status)
 	else
 		return;
 
+	stopSignal();
+
 	setProperty("ringing", false);
 	// TODO: change if - else if -> switch
 	if(_callStatus == Accepted)
@@ -330,6 +332,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnHangup->show();
 			ui.btnHangup->setEnabled(true);
 			ui.btnHangup->setText(tr("Hangup"));
+			//stopSignal();
 		}
 		else
 		{
@@ -338,6 +341,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnHangup->show();
 			ui.btnHangup->setEnabled(true);
 			ui.btnHangup->setText(tr("Hangup"));
+			//stopSignal();
 		}
 	}
 	else if(_callStatus == Hangup)
@@ -351,6 +355,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnAccept->setText(tr("Call again"));
 			ui.btnHangup->hide();
 			//ui.btnHangup->setText(tr("Abort"));
+			playSignalBusy(3);
 		}
 		else
 		{
@@ -367,6 +372,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnHangup->show();
 			ui.btnHangup->setText(tr("Cancel"));
 			ui.btnHangup->setEnabled(false);
+			//stopSignal();
 		}
 		else
 		{
@@ -375,6 +381,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnAccept->setEnabled(false);
 			ui.btnHangup->show();
 			ui.btnHangup->setEnabled(true);
+			//stopSignal();
 		}
 	}
 	else if(_callStatus == Ringing)
@@ -386,6 +393,9 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnHangup->show();
 			ui.btnHangup->setEnabled(true);
 			ui.btnHangup->setText(tr("Hangup"));
+
+			//playSignal(Ringing, 30);
+			playSignalWait(30);
 		}
 		else
 		{
@@ -398,6 +408,8 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnHangup->setEnabled(true);
 			ui.btnHangup->setText(tr("Hangup"));
 			setProperty("ringing", true);
+
+			//playSignal(Ringing, 30);
 		}
 	}
 	else if(_callStatus == RingTimeout)
@@ -410,6 +422,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnAccept->setText(tr("Call again"));
 			ui.btnHangup->hide();
 			//ui.btnHangup->setText(tr("Abort"));
+			//playSignal(RingTimeout, 3);
 		}
 		else
 		{
@@ -419,6 +432,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnAccept->setText(tr("Callback"));
 			ui.btnHangup->setText(tr(""));
 			ui.btnHangup->hide();
+			//stopSignal();
 		}
 	}
 	//else if(_callStatus == CallStatus::Trying)
@@ -443,6 +457,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnAccept->setText(tr("Call again"));
 			ui.btnHangup->setText(tr(""));
 			ui.btnHangup->hide();
+			//playSignal(CallError, 3);
 		}
 		else
 		{
@@ -476,4 +491,178 @@ void RCallControl::onCamStateChange(bool state)
 	{
 		emit stopCamera();
 	}
+}
+
+
+void RCallControl::playSignalWait(int loops)
+{
+	QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL_WAIT);
+	if (!soundFile.isEmpty())
+	{
+		if (QSound::isAvailable())
+		{
+			if(_pSoundWait)
+			{
+				//_pSoundWait->setLoops(0);
+				_pSoundWait->stop();
+				//usleep(50);
+				qApp->processEvents();
+				delete _pSoundWait;
+				_pSoundWait = NULL;
+			}
+
+			_pSoundWait = new QSound(soundFile);
+			_pSoundWait->setLoops(4);//loops);
+			_pSoundWait->play();
+		}
+	}
+}
+
+void RCallControl::playSignalBusy(int loops)
+{
+	QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL_BUSY);
+	if (!soundFile.isEmpty())
+	{
+		if (QSound::isAvailable())
+		{
+			if(_pSoundBusy)
+			{
+				//_pSoundBusy->setLoops(0);
+				_pSoundBusy->stop();
+				//usleep(50);
+				qApp->processEvents();
+				delete _pSoundBusy;
+				_pSoundBusy = NULL;
+			}
+
+			_pSoundBusy = new QSound(soundFile);
+			_pSoundBusy->setLoops(loops);
+			_pSoundBusy->play();
+		}
+	}
+}
+
+void RCallControl::playSignalRinging(int loops)
+{
+	QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL_RINGING);
+	if (!soundFile.isEmpty())
+	{
+		if (QSound::isAvailable())
+		{
+			if(_pSoundRinging)
+			{
+				//_pSoundRinging->setLoops(0);
+				_pSoundRinging->stop();
+				//usleep(50);
+				qApp->processEvents();
+				delete _pSoundRinging;
+				_pSoundRinging = NULL;
+			}
+
+			_pSoundRinging = new QSound(soundFile);
+			_pSoundRinging->setLoops(1);//loops);
+			_pSoundRinging->play();
+		}
+	}
+}
+
+
+void RCallControl::playSignal(CallStatus status, int loops)
+{
+//	QString soundName;
+//
+//	if(status == Ringing)
+//	{
+//		if(_callSide == Caller)
+//			soundName = SDF_SIPPHONE_CALL_WAIT;
+//		else
+//			soundName = SDF_SIPPHONE_CALL_RINGING;
+//	}
+//	else if(status == Hangup || status == RingTimeout || status == CallError)
+//	{
+//		soundName = SDF_SIPPHONE_CALL_BUSY;
+//	}
+//
+//	QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
+//	if (!soundFile.isEmpty())
+//	{
+//		if (QSound::isAvailable())
+//		{
+//			//if(_pSound)
+//			//{
+//			//	if(!_pSound->isFinished())
+//			//	{
+//			//		_pSound->setLoops(0);
+//			//		_pSound->stop();
+//			//	}
+//			//	delete _pSound;
+//			//	_pSound = NULL;
+//			//}
+//
+//			//if (!_pSound || (_pSound && _pSound->isFinished()))
+//			//{
+//			//  delete _pSound;
+//			if(_pSound)
+//			{
+//				_pSound->setLoops(0);
+//				_pSound->stop();
+//				delete _pSound;
+//				_pSound = NULL;
+//			}
+//				
+//			_pSound = new QSound(soundFile);
+//			_pSound->setLoops(loops);
+//			_pSound->play();
+//
+//			//}
+//		}
+//	}
+}
+
+void RCallControl::stopSignal()
+{
+	if (QSound::isAvailable())
+	{
+		if(_pSoundWait)
+		{
+			if(!_pSoundWait->isFinished())
+			{
+				_pSoundWait->setLoops(1);
+				_pSoundWait->play();
+				_pSoundWait->stop();
+				//usleep(50);
+				qApp->processEvents();
+			}
+			delete _pSoundWait;
+			_pSoundWait = NULL;
+		}
+		if(_pSoundBusy)
+		{
+			if(!_pSoundBusy->isFinished())
+			{
+				_pSoundBusy->setLoops(1);
+				_pSoundBusy->play();
+				_pSoundBusy->stop();
+				//usleep(50);
+				qApp->processEvents();
+			}
+			delete _pSoundBusy;
+			_pSoundBusy = NULL;
+		}
+		if(_pSoundRinging)
+		{
+			if(!_pSoundRinging->isFinished())
+			{
+				_pSoundRinging->setLoops(1);
+				_pSoundRinging->play();
+				_pSoundRinging->stop();
+				//usleep(50);
+				qApp->processEvents();
+			}
+			delete _pSoundRinging;
+			_pSoundRinging = NULL;
+		}
+	}
+	
+
 }

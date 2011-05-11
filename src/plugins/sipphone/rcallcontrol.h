@@ -2,12 +2,14 @@
 #define RCALLCONTROL_H
 
 #include <QWidget>
+#include <QSound>
 #include "ui_rcallcontrol.h"
 
 #include <definitions/menuicons.h>
 #include <definitions/toolbargroups.h>
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
+#include <definitions/soundfiles.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/jid.h>
@@ -84,11 +86,19 @@ protected slots:
 protected:
 	void closeEvent(QCloseEvent *);
 	void paintEvent(QPaintEvent *);
-
+	void playSignal(CallStatus status, int loops);
+	void stopSignal();
+	void playSignalWait(int loops);
+	void playSignalBusy(int loops);
+	void playSignalRinging(int loops);
 private:
 	IconStorage* iconStorage;
 	QIcon acceptIcon;
 	QIcon hangupIcon;
+
+	QSound *_pSoundWait;
+	QSound *_pSoundBusy;
+	QSound *_pSoundRinging;
 
 	Jid _streamId;
 	QString _metaId;

@@ -28,7 +28,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent *);
 	void mousePressEvent(QMouseEvent *);
 	void leaveEvent(QEvent *);
-	//void paintEvent(QPaintEvent *);
+	void paintEvent(QPaintEvent *);
 
 private:
 	IconStorage * iconStorage;
@@ -43,6 +43,7 @@ signals:
 public slots:
 	void updateIcon(IconCrossState iconState);
 	virtual void setVisible(bool);
+	void setPixmap(const QPixmap &);
 };
 
 #endif // QIMAGELABEL_H
