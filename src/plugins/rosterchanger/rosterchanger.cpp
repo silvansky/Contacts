@@ -1896,13 +1896,36 @@ void RosterChanger::onRemoveGroupItems(bool)
 
 void RosterChanger::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore)
 {
-	Q_UNUSED(ABefore);
-	if (AItem.subscription == SUBSCRIPTION_REMOVE)
+	if (AItem.subscription != ABefore.subscription)
 	{
-		if (isSilentSubsctiption(ARoster->streamJid(), AItem.itemJid))
-			insertAutoSubscribe(ARoster->streamJid(), AItem.itemJid, true, false, false);
-		else
-			removeAutoSubscribe(ARoster->streamJid(), AItem.itemJid);
+		if (AItem.subscription == SUBSCRIPTION_REMOVE)
+		{
+			if (isSilentSubsctiption(ARoster->streamJid(), AItem.itemJid))
+				insertAutoSubscribe(ARoster->streamJid(), AItem.itemJid, true, false, false);
+			else
+				removeAutoSubscribe(ARoster->streamJid(), AItem.itemJid);
+		}
+		else if (AItem.subscription == SUBSCRIPTION_BOTH)
+		{
+			removeObsoleteChatNotices(ARoster->streamJid(),AItem.itemJid,IRoster::Subscribed,true);
+			removeObsoleteChatNotices(ARoster->streamJid(),AItem.itemJid,IRoster::Subscribed,false);
+		}
+		else if (AItem.subscription == SUBSCRIPTION_FROM)
+		{
+			removeObsoleteChatNotices(ARoster->streamJid(),AItem.itemJid,IRoster::Subscribed,true);
+		}
+		else if (AItem.subscription == SUBSCRIPTION_TO)
+		{
+			removeObsoleteChatNotices(ARoster->streamJid(),AItem.itemJid,IRoster::Subscribed,false);
+		}
+	}
+
+	if (AItem.ask != ABefore.ask)
+	{
+		if (AItem.ask == SUBSCRIPTION_SUBSCRIBE)
+		{
+			removeObsoleteChatNotices(ARoster->streamJid(),AItem.itemJid,IRoster::Subscribe,true);
+		}
 	}
 }
 
