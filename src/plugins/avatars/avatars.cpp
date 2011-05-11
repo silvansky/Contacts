@@ -443,22 +443,26 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool AAllowNull, bool AAllow
 
 	if (AAllowGray && !image.isNull() && FPresencePlugin && !FPresencePlugin->isContactOnline(AContactJid))
 	{
-		if (emptyMaleAvatar)
+		IPresence *presence = FPresencePlugin->getPresence(AContactJid);
+		if (presence==NULL || !presence->isOpen())
 		{
-			image = FEmptyMaleAvatarOffline;
-		}
-		else if (emptyFemaleAvatar)
-		{
-			image = FEmptyFemaleAvatarOffline;
-		}
-		else if (!FAvatarImagesGrayscale.contains(hash))
-		{
-			image = ImageManager::grayscaled(image);
-			FAvatarImagesGrayscale.insert(hash, image);
-		}
-		else
-		{
-			image = FAvatarImagesGrayscale.value(hash);
+			if (emptyMaleAvatar)
+			{
+				image = FEmptyMaleAvatarOffline;
+			}
+			else if (emptyFemaleAvatar)
+			{
+				image = FEmptyFemaleAvatarOffline;
+			}
+			else if (!FAvatarImagesGrayscale.contains(hash))
+			{
+				image = ImageManager::grayscaled(image);
+				FAvatarImagesGrayscale.insert(hash, image);
+			}
+			else
+			{
+				image = FAvatarImagesGrayscale.value(hash);
+			}
 		}
 	}
 
