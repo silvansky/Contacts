@@ -604,7 +604,9 @@ void RosterChanger::subscribeContact(const Jid &AStreamJid, const Jid &AContactJ
 	if (roster && roster->isOpen())
 	{
 		IRosterItem ritem = roster->rosterItem(AContactJid);
-		if (FSubscriptionRequests.contains(AStreamJid,AContactJid.pBare()))
+		// Посылать Subscribed без запроса не правильно, но пока будет так
+		//if (FSubscriptionRequests.contains(AStreamJid,AContactJid.pBare()))
+		if (ritem.subscription!=SUBSCRIPTION_FROM && ritem.subscription!=SUBSCRIPTION_BOTH)
 			roster->sendSubscription(AContactJid,IRoster::Subscribed,AMessage);
 		if (ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_BOTH)
 			roster->sendSubscription(AContactJid,IRoster::Subscribe,AMessage);
