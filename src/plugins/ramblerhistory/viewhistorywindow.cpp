@@ -1,6 +1,7 @@
 #include "viewhistorywindow.h"
 
 #include <QWebFrame>
+#include <QDesktopServices>
 
 ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, QWidget *AParent) : QMainWindow(AParent)
 {
@@ -21,6 +22,9 @@ ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, Q
 	ritem.itemJid = FContactJid;
 	onRosterItemReceived(ritem,ritem);
 	
+	ui.wbvHistoryView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+	connect(ui.wbvHistoryView->page(),SIGNAL(linkClicked(const QUrl &)),SLOT(onWebPageLinkClicked(const QUrl &)));
+
 	initViewHtml();
 }
 
@@ -42,18 +46,25 @@ Jid ViewHistoryWindow::contactJid() const
 void ViewHistoryWindow::initViewHtml()
 {
 	static const QString HtmlTemplate = 
-		"<form method=\"post\" action=\"http://id.rambler.ru/script/auth.cgi?mode=login\" name=\"auth_form\"> \
-			<input type=\"hidden\" name=\"back\" value=\"http://m2.mail-test.rambler.ru/mail/messenger_history.cgi?user=%1\"> \
-			<input type=\"text\" name=\"login\" value=\"%2\"> \
-			<input type=\"text\" name=\"domain\" value=\"%3\"> \
-			<input type=\"password\" name=\"passw\" value=\"%4\"> \
-			<input type=\"text\" name=\"long_session\" value=\"0\"> \
-			<input type=\"submit\" name=\"user.password\" value=\"%5\"> \
-		<form>";
+		"<div style=\"display:none\"> \
+		  <form method=\"post\" action=\"http://id.rambler.ru/script/auth.cgi?mode=login\" name=\"auth_form\"> \
+			  <input type=\"hidden\" name=\"back\" value=\"http://m2.mail-test.rambler.ru/mail/messenger_history.cgi?user=%1\"> \
+			  <input type=\"text\" name=\"login\" value=\"%2\"> \
+			  <input type=\"text\" name=\"domain\" value=\"%3\"> \
+			  <input type=\"password\" name=\"passw\" value=\"%4\"> \
+			  <input type=\"text\" name=\"long_session\" value=\"0\"> \
+			  <input type=\"submit\" name=\"user.password\" value=\"%5\"> \
+		  </form> \
+		</div>";
 
 	QString html = HtmlTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).arg(tr("Enter"));
 	ui.wbvHistoryView->setHtml(html);
 	ui.wbvHistoryView->page()->mainFrame()->evaluateJavaScript("document.forms.auth_form.submit()");
+}
+
+void ViewHistoryWindow::onWebPageLinkClicked(const QUrl &AUrl)
+{
+	QDesktopServices::openUrl(AUrl);
 }
 
 void ViewHistoryWindow::onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore)
@@ -65,3 +76,4 @@ void ViewHistoryWindow::onRosterItemReceived(const IRosterItem &AItem, const IRo
 		ui.lblCaption->setText(windowTitle());
 	}
 }
+

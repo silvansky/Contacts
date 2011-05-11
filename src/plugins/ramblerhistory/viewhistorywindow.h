@@ -23,6 +23,7 @@ signals:
 protected:
 	void initViewHtml();
 protected slots:
+	void onWebPageLinkClicked(const QUrl &AUrl);
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 private:
 	Ui::ViewHistoryWindowClass ui;
