@@ -111,8 +111,12 @@ bool MainWindowPlugin::initObjects()
 bool MainWindowPlugin::initSettings()
 {
 	Options::setDefaultValue(OPV_MAINWINDOW_SHOW,true);
-	Options::setDefaultValue(OPV_MAINWINDOW_SIZE,QSize(200,500));
-	Options::setDefaultValue(OPV_MAINWINDOW_POSITION,QPoint(0,0));
+	const QSize defSize(250, 500);
+	Options::setDefaultValue(OPV_MAINWINDOW_SIZE, defSize);
+	QDesktopWidget * desktop = QApplication::desktop();
+	QRect ps = desktop->availableGeometry(desktop->primaryScreen());
+	QRect defRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignRight | Qt::AlignTop, defSize, ps);
+	Options::setDefaultValue(OPV_MAINWINDOW_POSITION, defRect.topLeft());
 	Options::setDefaultValue(OPV_MAINWINDOW_STAYONTOP,false);
 
 	if (FOptionsManager)

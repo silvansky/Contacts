@@ -41,5 +41,6 @@ ActionButton[action="birthday"]
 	padding: 0px 0px 0px 0px;
 	color: white;
 	text-decoration: underline;
-	width: 200px;
+/*	width: 200px;*/
+	height: 10px;
 }

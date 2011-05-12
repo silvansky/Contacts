@@ -10,6 +10,11 @@
 
 static const QString HtmlIconMask = "<img src=\"%1\"/>";
 
+static QString prepareTable(const QString url, const QString text)
+{
+	return QString("<table><tr><td>%1</td><td>%2</td></tr></table>").arg(HtmlIconMask.arg(QUrl::fromLocalFile(url).toString()), text);
+}
+
 PresencePlugin::PresencePlugin()
 {
 	FXmppStreams = NULL;
@@ -82,7 +87,7 @@ bool PresencePlugin::initObjects()
 	if (FNotifications)
 	{
 		uchar stateKindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::PlaySoundNotification|INotification::TestNotify;
-		FNotifications->insertNotificator(NID_CONTACT_STATE,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),stateKindMask,INotification::RosterIcon|INotification::PopupWindow);
+		FNotifications->insertNotificator(NID_CONTACT_STATE,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),stateKindMask,0);
 
 		uchar moodKindMask = INotification::PopupWindow|INotification::PlaySoundNotification|INotification::TestNotify;
 		FNotifications->insertNotificator(NID_CONTACT_MOOD,OWO_NOTIFICATIONS_MOOD_CHANGES,tr("Mood Changes"),moodKindMask,0);
@@ -152,7 +157,7 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 				notify.notificatior = NID_CONTACT_MOOD;
 				notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
 				notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
-				notify.data.insert(NDR_POPUP_CAPTION,tr("Changed mood"));
+				notify.data.insert(NDR_POPUP_NOTICE,tr("Changed mood"));
 				notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
 				notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
 				notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_MOOD_CHANGED);
@@ -162,7 +167,10 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 				{
 					QString file =FStatusIcons->iconFileName(FStatusIcons->iconsetByJid(AItem.itemJid),FStatusIcons->iconKeyByJid(APresence->streamJid(),AItem.itemJid));
 					if (!file.isEmpty())
-						text.prepend(HtmlIconMask.arg(QUrl::fromLocalFile(file).toString()));
+					{
+						text = prepareTable(file, text);
+						//text.prepend(HtmlIconMask.arg(QUrl::fromLocalFile(file).toString()));
+					}
 				}
 				notify.data.insert(NDR_POPUP_TEXT, text);
 				FNotifies.insertMulti(APresence,FNotifications->appendNotification(notify));
@@ -196,7 +204,7 @@ void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceIte
 			notify.data.insert(NDR_ROSTER_TIMEOUT, STATE_ROSTERNOTIFY_TIMEOUT);
 			notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(isOnline ? Qt::cyan : Qt::lightGray));
 			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(isOnline ? IPresence::Online : IPresence::Offline, SUBSCRIPTION_BOTH, false) : QVariant());
-			notify.data.insert(NDR_POPUP_CAPTION, isOnline ? tr("Connected") : tr("Disconnected"));
+			notify.data.insert(NDR_POPUP_NOTICE, isOnline ? tr("Connected") : tr("Disconnected"));
 			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
 			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
 			notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_STATE_CHANGED);
@@ -343,7 +351,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contactJid = "vasilisa@rambler/friends";
-			notify.data.insert(NDR_POPUP_CAPTION,tr("Changed mood"));
+			notify.data.insert(NDR_POPUP_NOTICE,tr("Changed mood"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 
@@ -352,7 +360,10 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 			{
 				QString file =FStatusIcons->iconFileName(FStatusIcons->iconsetByJid(contactJid),FStatusIcons->iconKeyByStatus(IPresence::Online,SUBSCRIPTION_BOTH,false));
 				if (!file.isEmpty())
-					text.prepend(HtmlIconMask.arg(QUrl::fromLocalFile(file).toString()));
+				{
+					//text.prepend(HtmlIconMask.arg(QUrl::fromLocalFile(file).toString()));
+					text = prepareTable(file, text);
+				}
 			}
 			notify.data.insert(NDR_POPUP_TEXT, text);
 		}
@@ -374,7 +385,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 		{
 			Jid contactJid = "vasilisa@rambler/friends";
 			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Online, SUBSCRIPTION_BOTH, false) :QVariant());
-			notify.data.insert(NDR_POPUP_CAPTION,tr("Connected"));
+			notify.data.insert(NDR_POPUP_NOTICE, tr("Connected"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 		}

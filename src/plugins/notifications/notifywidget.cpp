@@ -149,6 +149,7 @@ void NotifyWidget::animateTo(int AYPos)
 void NotifyWidget::appendAction(Action *AAction)
 {
 	ActionButton *button = new ActionButton(AAction,ui.wdtButtons);
+	button->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	ui.wdtButtons->layout()->addWidget(button);
 }
 
@@ -190,8 +191,11 @@ void NotifyWidget::adjustHeight()
 void NotifyWidget::updateElidedText()
 {
 	ui.lblCaption->setText(ui.lblCaption->fontMetrics().elidedText(FCaption,Qt::ElideRight,ui.lblCaption->width() - ui.lblCaption->frameWidth()*2));
+	ui.lblCaption->setVisible(!ui.lblCaption->text().isEmpty());
 	ui.lblTitle->setText(ui.lblTitle->fontMetrics().elidedText(FTitle,Qt::ElideRight,ui.lblTitle->width() - ui.lblTitle->frameWidth()*2));
+	ui.lblTitle->setVisible(!ui.lblTitle->text().isEmpty());
 	ui.lblNotice->setText(ui.lblNotice->fontMetrics().elidedText(FNotice,Qt::ElideRight,ui.lblNotice->width() - ui.lblNotice->frameWidth()*2));
+	ui.lblNotice->setVisible(!ui.lblNotice->text().isEmpty());
 }
 
 void NotifyWidget::enterEvent(QEvent *AEvent)

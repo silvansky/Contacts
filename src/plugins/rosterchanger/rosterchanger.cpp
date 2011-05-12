@@ -1357,7 +1357,7 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,Qt::escape(notifyMessage));
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
-		notify.data.insert(NDR_POPUP_CAPTION,tr("Subscription"));
+		notify.data.insert(NDR_POPUP_NOTICE,tr("Subscription"));
 		notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AItemJid));
 		notify.data.insert(NDR_POPUP_TITLE,name);
 		notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));

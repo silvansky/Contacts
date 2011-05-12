@@ -2,10 +2,22 @@
 #include <QTextDocument>
 #include <QPainter>
 #include <QStyleOption>
+#include <definitions/textflags.h>
 
 CustomLabel::CustomLabel(QWidget *parent) :
 	QLabel(parent)
 {
+	shadowType = DarkShadow;
+}
+
+int CustomLabel::shadow() const
+{
+	return shadowType;
+}
+
+void CustomLabel::setShadow(int shadow)
+{
+	shadowType = (ShadowType)shadow;
 }
 
 void CustomLabel::paintEvent(QPaintEvent * pe)
@@ -20,7 +32,20 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 		opt.initFrom(this);
 		int align = QStyle::visualAlignment(text().isRightToLeft() ? Qt::RightToLeft : Qt::LeftToRight, alignment());
 		int flags = align | (!text().isRightToLeft() ? Qt::TextForceLeftToRight : Qt::TextForceRightToLeft);
-		style()->drawItemText(&painter, lr.toRect(), flags, opt.palette, isEnabled(), text(), foregroundRole());
+		switch (shadowType)
+		{
+		case NoShadow:
+			break;
+		case DarkShadow:
+			flags |= TF_DARKSHADOW;
+			break;
+		case LightShadow:
+			flags |= TF_LIGHTSHADOW;
+			break;
+		default:
+			break;
+		}
+		style()->drawItemText(&painter, lr.toRect(), flags, opt.palette, isEnabled(), text(), QPalette::WindowText);
 	}
 	else
 		QLabel::paintEvent(pe);

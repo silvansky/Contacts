@@ -408,7 +408,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
-		notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
+		notify.data.insert(NDR_POPUP_ICON, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE));
 		notify.data.insert(NDR_POPUP_TITLE,name);
 		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
 		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
@@ -1170,7 +1170,7 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 			notify.data.insert(NDR_CONTACT_JID,contsctJid.full());
 			notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
 			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-			notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
+			notify.data.insert(NDR_POPUP_ICON, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on www.rambler.ru :)"));

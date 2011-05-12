@@ -1322,7 +1322,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,message);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_SIPPHONE_TABBARITEM_CALL);
-		notify.data.insert(NDR_POPUP_CAPTION,message);
+		notify.data.insert(NDR_POPUP_NOTICE,message);
 		notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AStream.contactJid));
 		notify.data.insert(NDR_POPUP_TITLE,name);
 		notify.data.insert(NDR_POPUP_STYLEKEY,STS_SIPPHONE_NOTIFYWIDGET_CALL);

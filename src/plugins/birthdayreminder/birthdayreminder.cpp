@@ -340,15 +340,14 @@ void BirthdayReminder::onShowNotificationTimer()
 			{
 				Jid streamJid = findContactStream(contactJid);
 
-				notify.data.insert(NDR_POPUP_CAPTION,tr("Birthday of"));
 				notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 				notify.data.insert(NDR_POPUP_TITLE,FNotifications->contactName(streamJid,contactJid));
 				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 
 				QDate	birthday = contactBithday(contactJid);
 				int daysLeft = FUpcomingBirthdays.value(contactJid);
-				QString text = daysLeft>0 ? tr("Birthday in %n day(s),<br> %1","",daysLeft).arg(birthday.toString(Qt::SystemLocaleLongDate)) : tr("Birthday <b>today</b>!");
-				notify.data.insert(NDR_POPUP_TEXT,text);
+				QString text = daysLeft>0 ? tr("Birthday in %n day(s),<br> %1","",daysLeft).arg(birthday.toString(Qt::SystemLocaleLongDate)) : tr("Birthday today!");
+				notify.data.insert(NDR_POPUP_NOTICE,text);
 
 				Action *action = new Action(NULL);
 				action->setText(tr("Congratulate with postcard"));
@@ -403,10 +402,9 @@ void BirthdayReminder::onNotificationTest(const QString &ANotificatorId, uchar A
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contactJid = "vasilisa@rambler/friends";
-			notify.data.insert(NDR_POPUP_CAPTION,tr("Birthday of"));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
-			notify.data.insert(NDR_POPUP_TEXT,tr("Birthday <b>today</b>!"));
+			notify.data.insert(NDR_POPUP_NOTICE,tr("Birthday today!"));
 			notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 
 			Action *action = new Action(NULL);
