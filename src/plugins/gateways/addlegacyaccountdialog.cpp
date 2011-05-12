@@ -12,7 +12,6 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	ui.cmbDomains->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG);
 
 	FGateways = AGateways;
 	FRegistration = ARegistration;
@@ -140,6 +139,7 @@ void AddLegacyAccountDialog::onAdjustDialogSize()
 		parentWidget()->adjustSize();
 	else
 		adjustSize();
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG);
 }
 
 void AddLegacyAccountDialog::onLineEditTextChanged(const QString &AText)

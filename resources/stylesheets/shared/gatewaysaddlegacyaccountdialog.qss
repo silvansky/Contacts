@@ -3,7 +3,6 @@ QDialog
 	background-color: rgba(65, 70, 77, 250);
 }
 
-
 QLabel#lblCaption
 {
 	font-size: 18px;
