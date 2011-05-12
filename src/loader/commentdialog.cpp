@@ -169,11 +169,11 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	ui.tedComment->setText(techInfo);
 	//ui.lblTechData->setText(techInfo);
 
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_FEEDBACK);
+	//StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_FEEDBACK);
 	QScrollBar * sb = new QScrollBar(Qt::Vertical);
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(sb, STS_PLUGINMANAGER_APPLICATION);
+	//StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(sb, STS_PLUGINMANAGER_APPLICATION);
 	ui.tedComment->setVerticalScrollBar(sb);
-	//ui.tedComment->verticalScrollBar()->installEventFilter(this);
+	ui.tedComment->verticalScrollBar()->installEventFilter(this);
 
 	IPlugin* plugin = APluginManager->pluginInterface("IAccountManager").value(0);
 	IAccountManager *accountManager = plugin != NULL ? qobject_cast<IAccountManager *>(plugin->instance()) : NULL;
@@ -251,7 +251,8 @@ void CommentDialog::show()
 	else
 		WidgetManager::showActivateRaiseWindow(this);
 	//setStyleSheet(styleSheet());
-	QTimer::singleShot(1, StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SLOT(previewReset()));
+	//QTimer::singleShot(1, StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SLOT(previewReset()));
+	QTimer::singleShot(1, this, SLOT(updateStyle()));
 }
 
 //void CommentDialog::stanzaSent(const Jid &AStreamJid, const Stanza &AStanza)
@@ -315,13 +316,19 @@ void CommentDialog::onJidChanded(Jid)
 	}
 }
 
+void CommentDialog::updateStyle()
+{
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_FEEDBACK);
+}
+
 bool CommentDialog::eventFilter(QObject * obj, QEvent * event)
 {
 	if (obj == ui.tedComment->verticalScrollBar())
 	{
-		if (event->type() == QEvent::EnabledChange)
+		if (event->type() == QEvent::EnabledChange || event->type() == QEvent::ShowToParent || event->type() == QEvent::Show)
 		{
-			ui.tedComment->verticalScrollBar()->setStyleSheet(styleSheet());
+			//ui.tedComment->verticalScrollBar()->setStyleSheet(styleSheet());
+			updateStyle();
 		}
 	}
 	return QDialog::eventFilter(obj, event);

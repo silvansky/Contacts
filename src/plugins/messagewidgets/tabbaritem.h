@@ -11,6 +11,7 @@
 #include <utils/closebutton.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/customlabel.h>
 
 class TabBarItem :
 			public QFrame
@@ -57,7 +58,7 @@ protected slots:
 	void onBlinkTimerTimeout();
 private:
 	QLabel *FIconLabel;
-	QLabel *FTextLabel;
+	CustomLabel *FTextLabel;
 	QPushButton *FCloseButton;
 private:
 	bool FActive;

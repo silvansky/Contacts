@@ -981,6 +981,8 @@ bool CustomBorderContainer::winEvent(MSG *message, long *result)
 // TODO: make it less buggy...
 bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 {
+	// TODO: fix repaint recursion, which occurs sometimes...
+	// those QPainter warnings are caused by this problem
 	QWidget *widget = qobject_cast<QWidget*>(object);
 	bool handled = false;
 	switch (event->type())

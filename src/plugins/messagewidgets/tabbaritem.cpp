@@ -24,8 +24,9 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	layout()->setSpacing(2);
 
 	layout()->addWidget(FIconLabel = new QLabel(this));
-	layout()->addWidget(FTextLabel = new QLabel(this));
+	layout()->addWidget(FTextLabel = new CustomLabel(this));
 	FTextLabel->setObjectName("tabBarItemLabel");
+	FTextLabel->setShadow(CustomLabel::LightShadow);
 	layout()->addWidget(FCloseButton = new QPushButton(this));
 	FCloseButton->setMouseTracking(true);
 	FCloseButton->setObjectName("closeButton");
@@ -72,12 +73,14 @@ void TabBarItem::setActive(bool AActive)
 	if (FActive)
 	{
 		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FIconLabel, GFX_STATUSICONS);
-		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FTextLabel, GFX_LABELS);
+		//GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FTextLabel, GFX_LABELS);
+		FTextLabel->setShadow(CustomLabel::LightShadow);
 	}
 	else
 	{
 		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FIconLabel, GFX_STATUSICONS);
-		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FTextLabel, GFX_LABELS);
+		//GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FTextLabel, GFX_LABELS);
+		FTextLabel->setShadow(CustomLabel::DarkShadow);
 	}
 	setStyleSheet(styleSheet());
 	update();

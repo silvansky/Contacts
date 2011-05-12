@@ -1,10 +1,11 @@
-QLabel
+CustomLabel
 {
 	font-size: 11px;
 	color: #435660;
+	qproperty-shadow: 2;
 }
 
-QLabel#lblCaption
+CustomLabel#lblCaption
 {
 	font-size: 13px;
 }

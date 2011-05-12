@@ -27,6 +27,7 @@ protected slots:
 	//void stanzaSent(const Jid &AStreamJid, const Stanza &AStanza);
 	void SendComment();
 	void onJidChanded(Jid);
+	void updateStyle();
 protected:
 	bool eventFilter(QObject *, QEvent *);
 

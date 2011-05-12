@@ -2,8 +2,9 @@
 #define CUSTOMLABEL_H
 
 #include <QLabel>
+#include "utilsexport.h"
 
-class CustomLabel : public QLabel
+class UTILS_EXPORT CustomLabel : public QLabel
 {
 	Q_OBJECT
 	Q_PROPERTY(int shadow READ shadow WRITE setShadow)
