@@ -30,6 +30,7 @@
 #include "metatabwindow.h"
 #include "mergecontactsdialog.h"
 #include "metacontextmenu.h"
+#include "metaprofiledialog.h"
 
 struct TabPageInfo
 {
@@ -160,7 +161,7 @@ protected slots:
 	void onOpenTabPageAction(bool);
 	void onSendContactDataAction(bool);
 	void onShowMetaTabWindowAction(bool);
-	void onShowVCardDialogAction(bool);
+	void onShowMetaProfileDialogAction(bool);
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);

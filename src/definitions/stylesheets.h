@@ -27,6 +27,7 @@
 #define STS_METACONTACTS_METATABWINDOW                                  "metacontactsMetaTabWindow"
 #define STS_METACONTACTS_MERGECONTACTSDIALOG                            "metacontactsMergeContactsDialog"
 #define STS_METACONTACTS_ADDMETAITEMPAGE                                "metacontactsAddMetaItemPage"
+#define STS_METACONTACTS_METAPROFILEDIALOG                              "metacontactsMetaProfileDialog"
 
 //Notifications
 #define STS_NOTIFICATION_NOTIFYWIDGET                                   "notificationsNotifyWidget"

@@ -59,7 +59,6 @@ MetaContacts::MetaContacts()
 	FStatusIcons = NULL;
 	FRosterSearch = NULL;
 	FGateways = NULL;
-	FVCardPlugin = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -134,10 +133,6 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
 	if (plugin)
 		FGateways = qobject_cast<IGateways *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
-	if (plugin)
-		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
 	if (plugin)
@@ -1385,20 +1380,17 @@ void MetaContacts::onShowMetaTabWindowAction(bool)
 	}
 }
 
-void MetaContacts::onShowVCardDialogAction(bool)
+void MetaContacts::onShowMetaProfileDialogAction(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
-	if (FVCardPlugin && action)
+	if (action)
 	{
+		QString metaId = action->data(ADR_META_ID).toString();
 		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
-		if (mroster && mroster->isOpen())
+		if (mroster && !mroster->metaContact(metaId).id.isEmpty())
 		{
-			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
-			if (contact.items.count() > 0)
-			{
-				QMultiMap<int, Jid> orders = itemOrders(contact.items.toList());
-				FVCardPlugin->showSimpleVCardDialog(mroster->streamJid(),orders.constBegin().value());
-			}
+			QDialog *dialog = new MetaProfileDialog(FPluginManager,mroster,metaId);
+			WidgetManager::showActivateRaiseWindow(dialog->parentWidget()!=NULL ? dialog->parentWidget() : dialog);
 		}
 	}
 }
@@ -1625,15 +1617,12 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				connect(renameAction,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
 				AMenu->addAction(renameAction,AG_RVCM_ROSTERCHANGER_RENAME);
 
-				if (FVCardPlugin)
-				{
-					Action *vcardAction = new Action(AMenu);
-					vcardAction->setText(tr("Contact info"));
-					vcardAction->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
-					vcardAction->setData(data);
-					connect(vcardAction,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogAction(bool)));
-					AMenu->addAction(vcardAction,AG_RVCM_VCARD,true);
-				}
+				Action *vcardAction = new Action(AMenu);
+				vcardAction->setText(tr("Contact info"));
+				vcardAction->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
+				vcardAction->setData(data);
+				connect(vcardAction,SIGNAL(triggered(bool)),SLOT(onShowMetaProfileDialogAction(bool)));
+				AMenu->addAction(vcardAction,AG_RVCM_VCARD,true);
 			}
 
 			Action *deleteAction = new Action(AMenu);

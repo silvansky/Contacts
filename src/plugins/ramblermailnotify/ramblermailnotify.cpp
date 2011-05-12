@@ -230,12 +230,12 @@ void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AS
 		if (!page->isActive())
 		{
 			IRosterIndex *mindex = FNotifyPages.key(page);
-			QDomElement xElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTIFY);
+			QDomElement contactElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTIFY).firstChildElement("contact");
 
 			MailNotify *mnotify = new MailNotify;
 			mnotify->streamJid = page->streamJid();
 			mnotify->serviceJid = page->serviceJid();
-			mnotify->contactJid = xElem.firstChildElement("contact").text();
+			mnotify->contactJid = contactElem.firstChildElement("jid").text();
 			mnotify->pageNotifyId = -1;
 			mnotify->popupNotifyId = -1;
 			mnotify->rosterNotifyId = -1;
@@ -273,7 +273,7 @@ void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AS
 				notify.data.insert(NDR_CONTACT_JID,mnotify->contactJid.full());
 				notify.data.insert(NDR_POPUP_NOTICE,tr("New e-mail"));
 				notify.data.insert(NDR_POPUP_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_RAMBLERMAILNOTIFY_AVATAR));
-				notify.data.insert(NDR_POPUP_TITLE,xElem.firstChildElement("from").text());
+				notify.data.insert(NDR_POPUP_TITLE,contactElem.firstChildElement("name").text());
 				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 				notify.data.insert(NDR_POPUP_TEXT,AStanza.firstElement("subject").text());
 				notify.data.insert(NDR_SOUND_FILE,SDF_RAMBLERMAILNOTIFY_NOTIFY);

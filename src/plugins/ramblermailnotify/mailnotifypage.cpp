@@ -121,14 +121,15 @@ Jid MailNotifyPage::serviceJid() const
 void MailNotifyPage::appendNewMail(const Stanza &AStanza)
 {
 	Message message(AStanza);
-	QDomElement xElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTIFY);
+	QDomElement contactElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTIFY).firstChildElement("contact");
 
 	QTableWidgetItem *iconItem = new QTableWidgetItem();
 	iconItem->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RAMBLERMAILNOTIFY_MAIL));
 
 	QTableWidgetItem *fromItem = new QTableWidgetItem();
-	fromItem->setText(xElem.firstChildElement("from").text());
-	fromItem->setData(Qt::UserRole,xElem.firstChildElement("contact").text());
+	QString fromName = contactElem.firstChildElement("name").text().trimmed();
+	fromItem->setText(fromName.isEmpty() ? contactElem.firstChildElement("e-mail").text() : fromName);
+	fromItem->setData(Qt::UserRole,contactElem.firstChildElement("contact").text());
 
 	QTableWidgetItem *subjectItem = new QTableWidgetItem();
 	subjectItem->setText(message.subject());
