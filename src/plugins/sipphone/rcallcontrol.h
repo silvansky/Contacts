@@ -2,7 +2,12 @@
 #define RCALLCONTROL_H
 
 #include <QWidget>
-#include <QSound>
+#ifdef QT_PHONON_LIB
+#include <Phonon/Phonon>
+#include <Phonon/MediaSource>
+#else
+#	include <QSound>
+#endif
 #include "ui_rcallcontrol.h"
 
 #include <definitions/menuicons.h>
@@ -96,9 +101,14 @@ private:
 	QIcon acceptIcon;
 	QIcon hangupIcon;
 
+#ifdef QT_PHONON_LIB
+	Phonon::MediaObject *FMediaObject;
+	Phonon::AudioOutput *FAudioOutput;
+#else
 	QSound *_pSoundWait;
 	QSound *_pSoundBusy;
 	QSound *_pSoundRinging;
+#endif
 
 	Jid _streamId;
 	QString _metaId;

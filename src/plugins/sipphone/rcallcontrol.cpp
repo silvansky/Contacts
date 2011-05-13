@@ -5,11 +5,22 @@
 #include <utils/log.h>
 
 RCallControl::RCallControl(CallSide callSide, QWidget *parent)
-	: QWidget(parent), _callStatus(Undefined), _sid(""), _pSoundWait(NULL), _pSoundBusy(NULL), _pSoundRinging(NULL)
+	: QWidget(parent), _callStatus(Undefined), _sid("")
 {
 	ui.setupUi(this);
 
 	setProperty("ringing", true);
+
+
+#ifdef QT_PHONON_LIB
+	FMediaObject = NULL;
+	FAudioOutput = NULL;
+#else
+	_pSoundWait = NULL;
+	_pSoundBusy = NULL;
+	_pSoundRinging = NULL;
+#endif
+
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 
@@ -52,9 +63,19 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 
 
 RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
-: QWidget(parent), _callStatus(Undefined), _sid(sid), _pSoundWait(NULL), _pSoundBusy(NULL), _pSoundRinging(NULL)
+: QWidget(parent), _callStatus(Undefined), _sid(sid)
 {
 	ui.setupUi(this);
+
+#ifdef QT_PHONON_LIB
+	FMediaObject = NULL;
+	FAudioOutput = NULL;
+#else
+	_pSoundWait = NULL;
+	_pSoundBusy = NULL;
+	_pSoundRinging = NULL;
+#endif
+
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 
@@ -105,6 +126,16 @@ RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 RCallControl::~RCallControl()
 {
 	//close();
+#ifdef QT_PHONON_LIB
+	delete FMediaObject;
+	delete FAudioOutput;
+#else
+	stopSignal();
+	delete _pSoundWait;
+	delete _pSoundBusy;
+	delete _pSoundRinging;
+#endif
+
 	emit closeAndDelete(false);
 }
 
@@ -359,6 +390,7 @@ void RCallControl::callStatusChange(CallStatus status)
 		}
 		else
 		{
+			//stopSignal();
 			// У вызываемого абонента при отмене вызова панель пропадает
 		}
 	}
@@ -409,6 +441,8 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnHangup->setText(tr("Hangup"));
 			setProperty("ringing", true);
 
+			playSignalRinging(2);
+			qDebug("playSignalRinging");
 			//playSignal(Ringing, 30);
 		}
 	}
@@ -497,6 +531,36 @@ void RCallControl::onCamStateChange(bool state)
 void RCallControl::playSignalWait(int loops)
 {
 	QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL_WAIT);
+	if (soundFile.isEmpty())
+	{
+		return;
+	}
+
+#ifdef QT_PHONON_LIB
+
+	if (!FMediaObject)
+	{
+		FMediaObject = new Phonon::MediaObject(this);
+		FAudioOutput = new Phonon::AudioOutput(Phonon::CommunicationCategory, this);
+		Phonon::createPath(FMediaObject, FAudioOutput);
+	}
+
+	if(FMediaObject->state() == Phonon::PlayingState)
+	{
+		FMediaObject->clear();
+		FMediaObject->stop();
+	}
+
+	if (FMediaObject->state() != Phonon::PlayingState)
+	{
+		Phonon::MediaSource ms(soundFile);
+		for(int i=0; i<loops; i++)
+		{
+			FMediaObject->enqueue(ms);
+		}
+		FMediaObject->play();
+	}
+#else
 	if (!soundFile.isEmpty())
 	{
 		if (QSound::isAvailable())
@@ -512,15 +576,47 @@ void RCallControl::playSignalWait(int loops)
 			}
 
 			_pSoundWait = new QSound(soundFile);
-			_pSoundWait->setLoops(4);//loops);
+			_pSoundWait->setLoops(loops);
 			_pSoundWait->play();
 		}
 	}
+
+#endif
 }
 
 void RCallControl::playSignalBusy(int loops)
 {
 	QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL_BUSY);
+	if (soundFile.isEmpty())
+	{
+		return;
+	}
+
+#ifdef QT_PHONON_LIB
+
+	if (!FMediaObject)
+	{
+		FMediaObject = new Phonon::MediaObject(this);
+		FAudioOutput = new Phonon::AudioOutput(Phonon::CommunicationCategory, this);
+		Phonon::createPath(FMediaObject, FAudioOutput);
+	}
+
+	if(FMediaObject->state() == Phonon::PlayingState)
+	{
+		FMediaObject->clear();
+		FMediaObject->stop();
+	}
+
+	if (FMediaObject->state() != Phonon::PlayingState)
+	{
+		Phonon::MediaSource ms(soundFile);
+		for(int i=0; i<loops; i++)
+		{
+			FMediaObject->enqueue(ms);
+		}
+		FMediaObject->play();
+	}
+#else
 	if (!soundFile.isEmpty())
 	{
 		if (QSound::isAvailable())
@@ -540,11 +636,43 @@ void RCallControl::playSignalBusy(int loops)
 			_pSoundBusy->play();
 		}
 	}
+#endif
 }
 
 void RCallControl::playSignalRinging(int loops)
 {
 	QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL_RINGING);
+	if (soundFile.isEmpty())
+	{
+		return;
+	}
+
+#ifdef QT_PHONON_LIB
+
+	if (!FMediaObject)
+	{
+		FMediaObject = new Phonon::MediaObject(this);
+		FAudioOutput = new Phonon::AudioOutput(Phonon::CommunicationCategory, this);
+		Phonon::createPath(FMediaObject, FAudioOutput);
+	}
+
+	if(FMediaObject->state() == Phonon::PlayingState)
+	{
+		FMediaObject->clear();
+		FMediaObject->stop();
+	}
+
+	if (FMediaObject->state() != Phonon::PlayingState)
+	{
+		Phonon::MediaSource ms(soundFile);
+		for(int i=0; i<loops; i++)
+		{
+			FMediaObject->enqueue(ms);
+		}
+		FMediaObject->play();
+	}
+#else
+
 	if (!soundFile.isEmpty())
 	{
 		if (QSound::isAvailable())
@@ -560,10 +688,11 @@ void RCallControl::playSignalRinging(int loops)
 			}
 
 			_pSoundRinging = new QSound(soundFile);
-			_pSoundRinging->setLoops(1);//loops);
+			_pSoundRinging->setLoops(loops);//loops);
 			_pSoundRinging->play();
 		}
 	}
+#endif
 }
 
 
@@ -621,6 +750,30 @@ void RCallControl::playSignal(CallStatus status, int loops)
 
 void RCallControl::stopSignal()
 {
+
+#ifdef QT_PHONON_LIB
+	//if (!FMediaObject)
+	//{
+	//	FMediaObject = new Phonon::MediaObject(this);
+	//	FAudioOutput = new Phonon::AudioOutput(Phonon::CommunicationCategory, this);
+	//	Phonon::createPath(FMediaObject, FAudioOutput);
+	//}
+	//if (FMediaObject->state() != Phonon::PlayingState)
+	//{
+	//	//FMediaObject->setCurrentSource(soundFile);
+	//	FMediaObject->setQueue();
+	//	FMediaObject->play();
+	//}
+
+	if(FMediaObject)
+	{
+		FMediaObject->clear();
+		FMediaObject->stop();
+	}
+
+
+#else
+
 	if (QSound::isAvailable())
 	{
 		if(_pSoundWait)
@@ -663,6 +816,6 @@ void RCallControl::stopSignal()
 			_pSoundRinging = NULL;
 		}
 	}
-	
+#endif
 
 }

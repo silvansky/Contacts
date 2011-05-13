@@ -1,4 +1,4 @@
-#include "sipphone.h"
+﻿#include "sipphone.h"
 #include <QMessageBox>
 #include <utils/log.h>
 #include <utils/iconstorage.h>
