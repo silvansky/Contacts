@@ -1020,6 +1020,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		break;
 	case QEvent::Paint:
 	{
+		QPaintEvent * pe = (QPaintEvent*)event;
 		object->removeEventFilter(this);
 		QApplication::sendEvent(object,event);
 		object->installEventFilter(this);
@@ -1035,6 +1036,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		QRect r = widget->rect().translated(point);
 
 		QPainter p(widget);
+		p.setClipRect(pe->rect());
 		p.setWindow(r);
 		drawButtons(&p);
 		drawCorners(&p);

@@ -4,10 +4,6 @@
 #include <QStyleOption>
 #include <definitions/textflags.h>
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 CustomLabel::CustomLabel(QWidget *parent) :
 	QLabel(parent)
 {
@@ -22,9 +18,6 @@ int CustomLabel::shadow() const
 void CustomLabel::setShadow(int shadow)
 {
 	shadowType = (ShadowType)shadow;
-#ifdef DEBUG_ENABLED
-	qDebug() << "CustomLabel::setShadow: " << shadow;
-#endif
 }
 
 void CustomLabel::paintEvent(QPaintEvent * pe)

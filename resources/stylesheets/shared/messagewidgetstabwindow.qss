@@ -20,6 +20,7 @@ TabBarItem
 	padding-right: -1px;
 	margin-top: -1px;
 	margin-left: -1px;
+	color: black;
 }
 
 TabBarItem[isDraging="false"]
@@ -29,9 +30,11 @@ TabBarItem[isDraging="false"]
 
 TabBarItem[isDraging="false"][isActive="true"]
 {
-	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #c9cfd1, stop:1 #ffffff);
+	/*background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #c9cfd1, stop:1 #ffffff);*/
+	background-color: white;
 	border-top: 1px solid white;
 	border-left: 0px;
+	color: #acacac;
 /*	border-left: 0px;
 	border-right: 1px solid #22272d;
 	border-top: 0px;
@@ -51,12 +54,12 @@ TabBarItem[isDraging="false"][isActive="false"]:hover
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #34383e, stop:1 #6f7378);
 }
 
-TabBarItem *
+TabBarItem QLabel
 {
 	color: black;
 }
 
-TabBarItem[isActive="false"] *
+TabBarItem[isActive="false"] QLabel
 {
 	color: #acacac;
 }

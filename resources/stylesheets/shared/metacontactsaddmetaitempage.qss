@@ -8,9 +8,11 @@ AddMetaItemPage QWidget
 	background-color: transparent;
 }
 
-QLabel
+CustomLabel#lblInfo,
+CustomLabel#lblError
 {
 	color: black;
+	qproperty-shadow: 0;
 }
 
 QPushButton#pbtAppend

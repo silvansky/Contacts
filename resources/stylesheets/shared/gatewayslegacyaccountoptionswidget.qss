@@ -1,6 +1,6 @@
 QLabel#lblInfo[state="connected"]
 {
-	color: limegreen;
+	color: #85b336;
 }
 
 QLabel#lblInfo[state="disconnected"]
@@ -10,5 +10,5 @@ QLabel#lblInfo[state="disconnected"]
 
 QLabel#lblInfo[state="error"]
 {
-	color: red;
+	color: #f46c6c;
 }
