@@ -10,6 +10,7 @@
 #include <QDragLeaveEvent>
 #include <utils/customborderstorage.h>
 #include <definitions/customborder.h>
+#include <definitions/statusicons.h>
 
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_CONTACT_JID     Action::DR_Parametr1
@@ -303,7 +304,7 @@ QVariant RosterChanger::rosterData(const IRosterIndex *AIndex, int ARole) const
 				}
 				else if (ARole == Qt::DecorationRole)
 				{
-					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_REQUEST);
+					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
 				}
 			}
 			else if (ask == SUBSCRIPTION_SUBSCRIBE)
@@ -316,7 +317,7 @@ QVariant RosterChanger::rosterData(const IRosterIndex *AIndex, int ARole) const
 				}
 				else if (ARole == Qt::DecorationRole)
 				{
-					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
+					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
 				}
 			}
 			else if (subs == SUBSCRIPTION_NONE)
@@ -329,7 +330,7 @@ QVariant RosterChanger::rosterData(const IRosterIndex *AIndex, int ARole) const
 				}
 				else if (ARole == Qt::DecorationRole)
 				{
-					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
+					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
 				}
 			}
 			block = false;

@@ -1,4 +1,5 @@
 #include "metaproxymodel.h"
+#include <definitions/statusicons.h>
 
 MetaProxyModel::MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARostersView) : QSortFilterProxyModel(AMetaContacts->instance())
 {
@@ -42,7 +43,7 @@ QList<int> MetaProxyModel::rosterDataRoles() const
 
 QList<int> MetaProxyModel::rosterDataTypes() const
 {
-	static QList<int> types = QList<int>() 
+	static QList<int> types = QList<int>()
 		<< RIT_METACONTACT;
 	return types;
 }
@@ -78,7 +79,7 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 				}
 				else if (ARole == Qt::DecorationRole)
 				{
-					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_REQUEST);
+					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
 				}
 			}
 			else if (AIndex->data(RDR_ASK).toString() == SUBSCRIPTION_SUBSCRIBE)
@@ -91,7 +92,7 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 				}
 				else if (ARole == Qt::DecorationRole)
 				{
-					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
+					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
 				}
 			}
 			else if (AIndex->data(RDR_SUBSCRIBTION).toString() == SUBSCRIPTION_NONE)
@@ -104,7 +105,7 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 				}
 				else if (ARole == Qt::DecorationRole)
 				{
-					data = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_SUBSCR_NONE);
+					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
 				}
 			}
 			block = false;
