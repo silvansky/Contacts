@@ -77,8 +77,9 @@
 
 //SipPhone
 #define STS_SIPPHONE                                                    "sipphone"
+#define STS_SIPPHONE_CALL_NOTIFYER                                      "sipCallNotifyer"
 
-//SipPhone
+//Gateways
 #define STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG                             "gatewaysAddLegacyAccountDialog"
 #define STS_GATEWAYS_LEGACYACCOUNTOPTIONSWIDGET                         "gatewaysLegacyAccountOptionsWidget"
 

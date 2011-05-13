@@ -3,7 +3,8 @@ FORMS = sipphonewidget.ui\
 		rcallcontrol.ui\
 		fullscreencontrols.ui\
 		avcontrol.ui\
-		fullscreenform.ui
+		fullscreenform.ui \
+    sipcallnotifyer.ui
 
 HEADERS = avcontrol.h\ 
 		callaudio.h\
@@ -21,7 +22,8 @@ HEADERS = avcontrol.h\
 		sipphoneproxy.h\
 		sipphonewidget.h\
 		IVolume.h\
-		VolumeOutMaster.h
+		VolumeOutMaster.h \
+    sipcallnotifyer.h
 
 SOURCES = avcontrol.cpp\ 
 		callaudio.cpp\
@@ -37,4 +39,5 @@ SOURCES = avcontrol.cpp\
 		sipphone.cpp\
 		sipphoneproxy.cpp\
 		sipphonewidget.cpp\
-		VolumeOutMaster.cpp
+		VolumeOutMaster.cpp \
+    sipcallnotifyer.cpp

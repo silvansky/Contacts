@@ -4,4 +4,8 @@
     <key>sipphone</key>
     <object mime='text/css'>sipphone.qss</object>
   </file>
+  <file>
+    <key>sipCallNotifyer</key>
+    <object mime='text/css'>sipcallnotifyer.qss</object>
+  </file>
 </styledef>

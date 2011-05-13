@@ -1297,7 +1297,7 @@ void SipPhone::showCallControlTab(const QString& sid/*const ISipStream &AStream*
 
 void SipPhone::insertNotify(const ISipStream &AStream)
 {
-	INotification notify;
+	/*INotification notify;
 	notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_CHAT_MESSAGE) : 0;
 	if (notify.kinds > 0)
 	{
@@ -1342,7 +1342,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		notify.actions.append(declineCall);
 
 		FNotifies.insert(FNotifications->appendNotification(notify), AStream.sid);
-	}
+	}*/
 }
 
 void SipPhone::removeNotify(const QString &AStreamId)
