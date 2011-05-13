@@ -698,6 +698,8 @@ void RCallControl::playSignalRinging(int loops)
 
 void RCallControl::playSignal(CallStatus status, int loops)
 {
+	Q_UNUSED(status)
+	Q_UNUSED(loops)
 //	QString soundName;
 //
 //	if(status == Ringing)
@@ -738,7 +740,7 @@ void RCallControl::playSignal(CallStatus status, int loops)
 //				delete _pSound;
 //				_pSound = NULL;
 //			}
-//				
+//
 //			_pSound = new QSound(soundFile);
 //			_pSound->setLoops(loops);
 //			_pSound->play();
