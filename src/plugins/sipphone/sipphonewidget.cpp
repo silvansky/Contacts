@@ -42,12 +42,16 @@ SipPhoneWidget::SipPhoneWidget(QWidget *parent)
 	ui.setupUi(this);
 
 	setObjectName("SipPhoneWidget");
+	setMinimumSize(300, 200);
 	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
 }
 
 SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, SipCall *initCall, SipPhoneProxy *parent, const char *name) : QWidget(NULL), _pSipCall(initCall)
 {
 	ui.setupUi(this);
+
+	setObjectName("SipPhoneWidget");
+	setMinimumSize(300, 200);
 
 	ui.remote->hide();
 	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));

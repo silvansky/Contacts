@@ -16,9 +16,18 @@ RCallControl
 	background-position: left;
 }
 
+FullScreenControls QToolButton
+{
+	border: none;
+	border-image: none;
+	background: transparent;
+	padding: 0px 0px 0px 0px;
+}
+
 QLabel#lblStatus
 {
 	color: #333333;
+	qproperty-shadow: 2;
 }
 
 RCallControl[ringing="true"]

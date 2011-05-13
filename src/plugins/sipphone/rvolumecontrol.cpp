@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QMouseEvent>
+#include <QStyle>
 #include <math.h>
 
 #include "utils/iconstorage.h"
@@ -19,7 +20,7 @@ double round(double x)
 
 
 
-STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA NotificationData) 
+STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA NotificationData)
 {
 	int volumeValue = (int)round(NotificationData->fMasterVolume*100);
 
@@ -52,8 +53,8 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 		emit volumeMuted(_mute);
 	}
 
-	return S_OK; 
-} 
+	return S_OK;
+}
 
 
 
@@ -93,22 +94,22 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 
 		if(hr == S_OK)
 		{
-			IMMDevice *defaultDevice = NULL; 
+			IMMDevice *defaultDevice = NULL;
 
 			hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &defaultDevice);
 			if(hr == S_OK)
 			{
 				deviceEnumerator->Release();
-				deviceEnumerator = NULL; 
+				deviceEnumerator = NULL;
 
 				//endpointVolume = NULL;
 				hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, (LPVOID *)&endpointVolume);
 				if(hr == S_OK)
 				{
 					defaultDevice->Release();
-					defaultDevice = NULL; 
+					defaultDevice = NULL;
 
-					volumeNotification = new CVolumeNotification(); 
+					volumeNotification = new CVolumeNotification();
 					//connect(volumeNotification, SIGNAL(volumeChanged(double)), this, SLOT(onVolumeChange(double)));
 					connect(volumeNotification, SIGNAL(volumeChanged(int)), this, SLOT(onVolumeChange(int)));
 					connect(volumeNotification, SIGNAL(volumeMuted(bool)), this, SLOT(onVolumeMuted(bool)));
@@ -172,7 +173,7 @@ RVolumeControl::~RVolumeControl()
 	{
 		if(endpointVolume && volumeNotification)
 		{
-			endpointVolume->UnregisterControlChangeNotify(volumeNotification); 
+			endpointVolume->UnregisterControlChangeNotify(volumeNotification);
 			endpointVolume->Release();
 			volumeNotification->Release();
 		}
@@ -359,9 +360,10 @@ void RVolumeControl::setMaximum(int maxValue)
 void RVolumeControl::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter(this);
-
+	painter.setClipRect(ev->rect());
 	QRect currRect = rect();
-	painter.drawPixmap(currRect, _currPixmap);
+	QRect paintRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, _currPixmap.size(), currRect);
+	painter.drawPixmap(paintRect, _currPixmap);
 }
 
 void RVolumeControl::mousePressEvent(QMouseEvent *ev)
@@ -371,8 +373,8 @@ void RVolumeControl::mousePressEvent(QMouseEvent *ev)
 
 	if(ev->button() == Qt::LeftButton)
 	{
-		QRect currRect = rect();
-		
+		QRect currRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, _currPixmap.size(), rect());
+
 		int mXZerro = currRect.width() / 4; // 1/4 часть занимает динамик
 
 		if(ev->x() < mXZerro)
@@ -393,12 +395,14 @@ void RVolumeControl::mousePressEvent(QMouseEvent *ev)
 		}
 
 	}
-	
-}
-void RVolumeControl::mouseReleaseEvent(QMouseEvent *ev)
-{
 
 }
+
+void RVolumeControl::mouseReleaseEvent(QMouseEvent *ev)
+{
+	Q_UNUSED(ev)
+}
+
 void RVolumeControl::mouseMoveEvent(QMouseEvent *ev)
 {
 
@@ -412,7 +416,7 @@ void RVolumeControl::mouseMoveEvent(QMouseEvent *ev)
 		return;
 
 
-	QRect currRect = rect();
+	QRect currRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, _currPixmap.size(), rect());
 
 	int mXZerro = currRect.width() / 4; // 1/4 часть занимает динамик
 

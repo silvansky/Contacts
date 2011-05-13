@@ -50,7 +50,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QLabel" name="lblStatus">
+    <widget class="CustomLabel" name="lblStatus">
      <property name="text">
       <string notr="true">lblStatus</string>
      </property>
@@ -74,6 +74,11 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
+  </customwidget>
   <customwidget>
    <class>AVControl</class>
    <extends>QWidget</extends>
