@@ -59,7 +59,7 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 
 
 RVolumeControl::RVolumeControl(QWidget *parent)
-: QWidget(parent), _value(0), _min(0), _max(100), _isEnableSound(true), _isOn(true), _isDark(true), _isWinXP(false)
+	: QWidget(parent), _value(0), _min(0), _max(100), _isEnableSound(true), _isOn(true), _isDark(true), _isWinXP(false)
 {
 	endpointVolume = NULL;
 	volumeNotification = NULL;
@@ -148,7 +148,7 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 
 	QList<QString> data;
 	data << MNI_SIPPHONE_SOUND_VOLUME0 << MNI_SIPPHONE_SOUND_VOLUME1 << MNI_SIPPHONE_SOUND_VOLUME2 << MNI_SIPPHONE_SOUND_VOLUME3
-		<< MNI_SIPPHONE_SOUND_VOLUME4 << MNI_SIPPHONE_SOUND_OFF << MNI_SIPPHONE_SOUND_DISABLED;
+	     << MNI_SIPPHONE_SOUND_VOLUME4 << MNI_SIPPHONE_SOUND_OFF << MNI_SIPPHONE_SOUND_DISABLED;
 
 	for(int i=0; i<data.size(); i++)
 	{
@@ -201,12 +201,12 @@ void RVolumeControl::setDark(bool isDark)
 	if(_isDark)
 	{
 		data << MNI_SIPPHONE_SOUND_VOLUME0 << MNI_SIPPHONE_SOUND_VOLUME1 << MNI_SIPPHONE_SOUND_VOLUME2 << MNI_SIPPHONE_SOUND_VOLUME3
-			<< MNI_SIPPHONE_SOUND_VOLUME4 << MNI_SIPPHONE_SOUND_OFF << MNI_SIPPHONE_SOUND_DISABLED;
+		     << MNI_SIPPHONE_SOUND_VOLUME4 << MNI_SIPPHONE_SOUND_OFF << MNI_SIPPHONE_SOUND_DISABLED;
 	}
 	else
 	{
 		data << MNI_SIPPHONE_WHITE_SOUND_VOLUME0 << MNI_SIPPHONE_WHITE_SOUND_VOLUME1 << MNI_SIPPHONE_WHITE_SOUND_VOLUME2 << MNI_SIPPHONE_WHITE_SOUND_VOLUME3
-			<< MNI_SIPPHONE_WHITE_SOUND_VOLUME4 << MNI_SIPPHONE_WHITE_SOUND_OFF << MNI_SIPPHONE_WHITE_SOUND_DISABLED;
+		     << MNI_SIPPHONE_WHITE_SOUND_VOLUME4 << MNI_SIPPHONE_WHITE_SOUND_OFF << MNI_SIPPHONE_WHITE_SOUND_DISABLED;
 	}
 
 	_pixList.clear();
@@ -441,18 +441,34 @@ void RVolumeControl::mouseMoveEvent(QMouseEvent *ev)
 	setValue(res);
 }
 
+void RVolumeControl::wheelEvent(QWheelEvent * we)
+{
+	int numDegrees = we->delta() / 8;
+	int numSteps = numDegrees / 15;
+
+	int cv = value();
+	cv += numSteps;
+	if (cv > maximum())
+		cv = maximum();
+	if (cv < minimum())
+		cv = minimum();
+	setValue(cv);
+
+	we->accept();
+}
+
 QSize RVolumeControl::sizeHint() const
 {
-    //ensurePolished();
-    //const int SliderLength = 84/*, TickSpace = 5*/;
+	//ensurePolished();
+	//const int SliderLength = 84/*, TickSpace = 5*/;
 
-    //int thick = 20;// style()->pixelMetric(QStyle::PM_SliderThickness, &opt, this);
-    //int w = thick, h = SliderLength;
-    //if (d->orientation == Qt::Horizontal) {
-    //    w = SliderLength;
-    //    h = thick;
-    //}
-    //return QSize(w, h);//style()->sizeFromContents(QStyle::CT_Slider, &opt, QSize(w, h), this).expandedTo(QApplication::globalStrut());
+	//int thick = 20;// style()->pixelMetric(QStyle::PM_SliderThickness, &opt, this);
+	//int w = thick, h = SliderLength;
+	//if (d->orientation == Qt::Horizontal) {
+	//    w = SliderLength;
+	//    h = thick;
+	//}
+	//return QSize(w, h);//style()->sizeFromContents(QStyle::CT_Slider, &opt, QSize(w, h), this).expandedTo(QApplication::globalStrut());
 	if(_currPixmap.isNull())
 		return QSize(42, 24);
 	return _currPixmap.size();
@@ -462,14 +478,14 @@ QSize RVolumeControl::sizeHint() const
 
 QSize RVolumeControl::minimumSizeHint() const
 {
-    //QSize s = sizeHint();
+	//QSize s = sizeHint();
 
-    //int length = 40;//style()->pixelMetric(QStyle::PM_SliderLength, &opt, this);
-    //if (d->orientation == Qt::Horizontal)
-    //    s.setWidth(length);
-    //else
-    //    s.setHeight(length);
-    //return s;
+	//int length = 40;//style()->pixelMetric(QStyle::PM_SliderLength, &opt, this);
+	//if (d->orientation == Qt::Horizontal)
+	//    s.setWidth(length);
+	//else
+	//    s.setHeight(length);
+	//return s;
 	return _currPixmap.size();
 	//return QSize(0,0);
 }

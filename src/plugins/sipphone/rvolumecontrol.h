@@ -13,36 +13,36 @@
 
 #include "VolumeOutMaster.h"
 
-class CVolumeNotification : public QObject, public IAudioEndpointVolumeCallback 
-{ 
+class CVolumeNotification : public QObject, public IAudioEndpointVolumeCallback
+{
 	Q_OBJECT
-	LONG m_RefCount; 
-	~CVolumeNotification(void) {}; 
-public: 
-	CVolumeNotification(void) : m_RefCount(1) 
-	{ 
+	LONG m_RefCount;
+	~CVolumeNotification(void) {};
+public:
+	CVolumeNotification(void) : m_RefCount(1)
+	{
 		_currVolume = -1;
 		_mute = false;
-	} 
-	STDMETHODIMP_(ULONG)AddRef() { return InterlockedIncrement(&m_RefCount); } 
-	STDMETHODIMP_(ULONG)Release()  
-	{ 
-		LONG ref = InterlockedDecrement(&m_RefCount);  
-		if (ref == 0) 
-			delete this; 
-		return ref; 
-	} 
-	STDMETHODIMP QueryInterface(REFIID IID, void **ReturnValue) 
-	{ 
-		if (IID == IID_IUnknown || IID== __uuidof(IAudioEndpointVolumeCallback))  
-		{ 
-			*ReturnValue = static_cast<IUnknown*>(this); 
-			AddRef(); 
-			return S_OK; 
-		} 
-		*ReturnValue = NULL; 
-		return E_NOINTERFACE; 
-	} 
+	}
+	STDMETHODIMP_(ULONG)AddRef() { return InterlockedIncrement(&m_RefCount); }
+	STDMETHODIMP_(ULONG)Release()
+	{
+		LONG ref = InterlockedDecrement(&m_RefCount);
+		if (ref == 0)
+			delete this;
+		return ref;
+	}
+	STDMETHODIMP QueryInterface(REFIID IID, void **ReturnValue)
+	{
+		if (IID == IID_IUnknown || IID== __uuidof(IAudioEndpointVolumeCallback))
+		{
+			*ReturnValue = static_cast<IUnknown*>(this);
+			AddRef();
+			return S_OK;
+		}
+		*ReturnValue = NULL;
+		return E_NOINTERFACE;
+	}
 
 	STDMETHODIMP OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA NotificationData);
 
@@ -110,6 +110,8 @@ protected:
 	void mousePressEvent(QMouseEvent *ev);
 	void mouseReleaseEvent(QMouseEvent *ev);
 	void mouseMoveEvent(QMouseEvent *ev);
+	void wheelEvent(QWheelEvent *);
+protected:
 	void updatePixmap( VolumeIndexes val );
 	VolumeIndexes volumeToIndex(int val);
 	void switchStateOnOff();

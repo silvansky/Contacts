@@ -50,5 +50,11 @@ AVControl, RVolumeControl, #chkbtnMicOn
 
 #FullScreenControls
 {
-	background-color: rgba(0, 0, 0, 100);
+	background: none;
+	border-image: url(%IMAGES_PATH%/sipcontrols.png);
+	border-left: 5px;
+	border-right: 5px;
+	border-top: 5px;
+	border-bottom: 5px;
+	height: 47px;
 }
