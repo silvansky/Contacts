@@ -2,6 +2,7 @@
 
 #include <QMessageBox>
 #include <QPainter>
+#include <QPaintEvent>
 #include <utils/log.h>
 
 RCallControl::RCallControl(CallSide callSide, QWidget *parent)
@@ -507,11 +508,12 @@ void RCallControl::closeEvent(QCloseEvent *)
 	//emit closeAndDelete(false);
 }
 
-void RCallControl::paintEvent(QPaintEvent *)
+void RCallControl::paintEvent(QPaintEvent * pe)
 {
 	QStyleOption opt;
 	opt.init(this);
 	QPainter p(this);
+	p.setClipRect(pe->rect());
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 

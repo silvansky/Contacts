@@ -1,0 +1,14 @@
+QWidget#SipCallNotifyer
+{
+	background-color: rgba(0, 0, 0, 220);
+}
+
+QLabel
+{
+	font-size: 11px;
+}
+
+QLabel#notice
+{
+	color: grey;
+}

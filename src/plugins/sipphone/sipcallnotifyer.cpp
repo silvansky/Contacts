@@ -3,6 +3,8 @@
 
 #include <QPropertyAnimation>
 #include <QDesktopWidget>
+#include <QPainter>
+#include <QPaintEvent>
 
 #include <utils/stylestorage.h>
 #include <utils/iconstorage.h>
@@ -11,6 +13,10 @@
 #include <definitions/stylesheets.h>
 #include <definitions/menuicons.h>
 #include <definitions/customborder.h>
+
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
 
 SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice, const QIcon & icon, const QImage & avatar) :
 	QWidget(NULL),
@@ -56,14 +62,23 @@ bool SipCallNotifyer::isMuted() const
 	return _muted;
 }
 
+double SipCallNotifyer::opacity() const
+{
+	return (border ? (QWidget *)border : (QWidget *)this)->windowOpacity();
+}
+
+void SipCallNotifyer::setOpacity(double op)
+{
+	(border ? (QWidget *)border : (QWidget *)this)->setWindowOpacity(op);
+}
+
 void SipCallNotifyer::appear()
 {
-	QPropertyAnimation * animation = new QPropertyAnimation;
+	QPropertyAnimation * animation = new QPropertyAnimation(this, "opacity");
 	animation->setDuration(1000); // 1 sec
 	animation->setEasingCurve(QEasingCurve(QEasingCurve::InQuad));
 	animation->setStartValue(0.0);
 	animation->setEndValue(1.0);
-	connect(animation, SIGNAL(valueChanged(const QVariant&)), SLOT(animationValueChanged(const QVariant&)));
 
 	QWidget * w = (border ? (QWidget *)border : (QWidget *)this);
 	if (!w->isVisible())
@@ -75,6 +90,9 @@ void SipCallNotifyer::appear()
 		QDesktopWidget * dw = QApplication::desktop();
 		QRect screen = dw->screenGeometry(dw->primaryScreen());
 		QRect centered = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, wrect.size(), screen);
+#ifdef DEBUG_ENABLED
+		qDebug() << wrect << screen << centered;
+#endif
 		w->setGeometry(centered);
 		w->show();
 	}
@@ -106,7 +124,11 @@ void SipCallNotifyer::muteClicked()
 	// TODO: mute sound
 }
 
-void SipCallNotifyer::animationValueChanged(const QVariant & value)
+void SipCallNotifyer::paintEvent(QPaintEvent * pe)
 {
-	(border ? (QWidget *)border : (QWidget *)this)->setWindowOpacity(value.toDouble());
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	p.setClipRect(pe->rect());
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }

@@ -12,11 +12,13 @@ class SipCallNotifyer;
 class SipCallNotifyer : public QWidget
 {
 	Q_OBJECT
-
+	Q_PROPERTY(double opacity READ opacity WRITE setOpacity)
 public:
 	SipCallNotifyer(const QString & caption, const QString & notice, const QIcon & icon, const QImage & avatar);
 	~SipCallNotifyer();
 	bool isMuted() const;
+	double opacity() const;
+	void setOpacity(double op);
 signals:
 	void accepted();
 	void rejected();
@@ -29,7 +31,8 @@ protected slots:
 	void acceptClicked();
 	void rejectClicked();
 	void muteClicked();
-	void animationValueChanged(const QVariant & value);
+protected:
+	void paintEvent(QPaintEvent *);
 private:
 	Ui::SipCallNotifyer *ui;
 	CustomBorderContainer * border;

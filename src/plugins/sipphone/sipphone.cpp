@@ -1,4 +1,5 @@
 #include "sipphone.h"
+#include "sipcallnotifyer.h"
 #include <QMessageBox>
 #include <utils/log.h>
 #include <utils/iconstorage.h>
@@ -148,7 +149,7 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	SipProtoInit::SetListenSipPort(5060);
 	SipProtoInit::SetProxySipPort(5060);
 
-return FStanzaProcessor!=NULL;
+	return FStanzaProcessor!=NULL;
 }
 
 bool SipPhone::initObjects()
@@ -178,6 +179,8 @@ bool SipPhone::initObjects()
 		FNotifications->insertNotificator(NID_SIPPHONE_CALL,OWO_NOTIFICATIONS_SIPPHONE,QString::null,kindMask,kindDefs);
 	}
 
+	//SipCallNotifyer * callNotifyer = new SipCallNotifyer("Tester", tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(Jid()));
+	//callNotifyer->appear();
 
 	return true;
 }
@@ -240,11 +243,11 @@ void SipPhone::onStreamOpened(IXmppStream * AXmppStream)
 	}
 
 	connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(sipClearRegistration(const QString&)));
-//connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(tabControlRemove(const QString&)));
+	//connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(tabControlRemove(const QString&)));
 
 	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
-//
-//
+	//
+	//
 }
 
 void SipPhone::incomingThreadTimeChanged(qint64 timeMS)
@@ -947,10 +950,10 @@ QString SipPhone::openStream(const Jid &AStreamJid, const Jid &AContactJid)
 	if (FStanzaProcessor && isSupported(AStreamJid, AContactJid))
 	{
 		connect(this, SIGNAL(sipSendRegisterAsInitiator(const Jid&,const Jid&)),
-						FSipPhoneProxy, SLOT(makeRegisterProxySlot(const Jid&, const Jid&)));
+			FSipPhoneProxy, SLOT(makeRegisterProxySlot(const Jid&, const Jid&)));
 
 		connect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const Jid&, const Jid&)),
-						this, SLOT(sipActionAfterRegistrationAsInitiator(bool, const Jid&, const Jid&)));
+			this, SLOT(sipActionAfterRegistrationAsInitiator(bool, const Jid&, const Jid&)));
 
 		emit sipSendRegisterAsInitiator(AStreamJid, AContactJid);
 
@@ -1297,7 +1300,7 @@ void SipPhone::showCallControlTab(const QString& sid/*const ISipStream &AStream*
 
 void SipPhone::insertNotify(const ISipStream &AStream)
 {
-	/*INotification notify;
+	INotification notify;
 	notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_CHAT_MESSAGE) : 0;
 	if (notify.kinds > 0)
 	{
@@ -1322,12 +1325,14 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,message);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_SIPPHONE_TABBARITEM_CALL);
-		notify.data.insert(NDR_POPUP_NOTICE,message);
-		notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AStream.contactJid));
-		notify.data.insert(NDR_POPUP_TITLE,name);
-		notify.data.insert(NDR_POPUP_STYLEKEY,STS_SIPPHONE_NOTIFYWIDGET_CALL);
-		notify.data.insert(NDR_POPUP_TIMEOUT,0);
-		notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL);
+		/*		notify.data.insert(NDR_POPUP_NOTICE,message);
+  notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AStream.contactJid));
+  notify.data.insert(NDR_POPUP_TITLE,name);
+  notify.data.insert(NDR_POPUP_STYLEKEY,STS_SIPPHONE_NOTIFYWIDGET_CALL);
+  notify.data.insert(NDR_POPUP_TIMEOUT,0);
+  notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL);*/
+		SipCallNotifyer * callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.contactJid));
+		callNotifyer->appear();
 
 		Action *acceptCall = new Action(this);
 		acceptCall->setText(tr("Accept"));
@@ -1342,7 +1347,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		notify.actions.append(declineCall);
 
 		FNotifies.insert(FNotifications->appendNotification(notify), AStream.sid);
-	}*/
+	}
 }
 
 void SipPhone::removeNotify(const QString &AStreamId)
