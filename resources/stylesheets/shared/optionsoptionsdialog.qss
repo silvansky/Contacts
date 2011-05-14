@@ -124,7 +124,8 @@ ProxyOptionsWidget QGroupBox#gbManualProxySettings
 	margin-right: 40px;
 }
 
-QLabel#lblInfo
+QLabel#lblInfo,
+QLabel#lblNoAccount
 {
 	margin-left: 26px;
 	margin-right: 28px;
@@ -169,5 +170,5 @@ QPushButton#pbtChange, QPushButton#pbtTest
 
 QLabel#serviceName
 {
-	font-size: 11px;
+	font-size: 10px;
 }

@@ -12,34 +12,36 @@
 
 int main(int argc, char *argv[])
 {
-
 	// styles
-	QApplication::setStyle(new QCleanlooksStyle); // damn, no effect at all!
+	//QApplication::setStyle(new QCleanlooksStyle); // damn, no effect at all!
 	// but we can simulate "-style cleanlooks" arguments and pass them to app's ctor...
 	// that would be a really dirty hack!
 	// but it solves selection problem on windows vista/seven...
+	// this would also make our app look the same at different platforms...
 	// here the code:
-/*
+
+	// WARNING! DIRTY HACK!
+
 	// totally ignoring all args
 	char **newArgv = new char*[3];
 	// copying 0 arg
 	newArgv[0] = new char[strlen(argv[0])];
 	// adding our fake args
 	newArgv[1] = "-style";
-	newArgv[2] = "cleanlooks";
+	newArgv[2] = "windows";
 	// replace original argc and argv and passing them to app's ctor
 	argc = 3;
 	argv = newArgv;
 	// I think leak of these few bytes isn't so important...
 	// but we can put this at the end of main() instead of return app.exec():
-	int ret = app.exec();
+	/*int ret = app.exec();
 	for (int i = 0; i < argc; i++)
 		delete argv[i];
 	delete argv;
-	return ret;
+	return ret;*/
 	// remark: we can set windows style explicitly to override vista/seven selection
 	// cleanlooks style brings ugly combo popups...
-*/
+
 	QApplication app(argc, argv);
 	app.setQuitOnLastWindowClosed(false);
 
@@ -74,5 +76,10 @@ int main(int argc, char *argv[])
 
 	pm.restart();
 
-	return app.exec();
+	//return app.exec();
+	int ret = app.exec();
+	for (int i = 0; i < argc; i++)
+		delete argv[i];
+	delete argv;
+	return ret;
 }

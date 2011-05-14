@@ -266,9 +266,7 @@ void SipPhone::incomingThreadTimeChanged(qint64 timeMS)
 
 			control->statusTextChange(timeString);
 		}
-
 	}
-
 }
 
 void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)

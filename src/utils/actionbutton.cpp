@@ -7,6 +7,7 @@ ActionButton::ActionButton(QWidget *AParent) : QPushButton(AParent)
 {
 	FAction = NULL;
 	additionalTextFlag = 0;
+	hAlignment = Qt::AlignHCenter;
 }
 
 ActionButton::ActionButton(Action *AAction, QWidget *AParent) : QPushButton(AParent)
@@ -14,6 +15,7 @@ ActionButton::ActionButton(Action *AAction, QWidget *AParent) : QPushButton(APar
 	FAction = NULL;
 	additionalTextFlag = 0;
 	setAction(AAction);
+	hAlignment = Qt::AlignHCenter;
 }
 
 Action *ActionButton::action() const
@@ -61,6 +63,16 @@ void ActionButton::addTextFlag(int flag)
 	additionalTextFlag = flag;
 }
 
+int ActionButton::textHorizontalAlignment() const
+{
+	return hAlignment;
+}
+
+void ActionButton::setTextHorizontalAlignment(int alignment)
+{
+	hAlignment = alignment;
+}
+
 void ActionButton::onActionChanged()
 {
 	if (FAction)
@@ -91,8 +103,7 @@ void ActionButton::paintEvent(QPaintEvent *)
 	QStylePainter p(this);
 	QStyleOptionButton option;
 	initStyleOption(&option);
-	//option.text = QString::null;
 	p.drawControl(QStyle::CE_PushButtonBevel, option);
 	//p.drawControl(QStyle::CE_PushButtonLabel, option);
-	p.drawItemText(option.rect, Qt::AlignCenter | additionalTextFlag, palette(), isEnabled(), text(), QPalette::ButtonText);
+	p.drawItemText(option.rect, Qt::AlignVCenter | hAlignment | additionalTextFlag, palette(), isEnabled(), text(), QPalette::ButtonText);
 }

@@ -21,11 +21,17 @@ NotifyTextBrowser
 	border-image: none;
 	padding: 0px 0px 0px 0px;
 	color: white;
+	font-size: 11px;
 }
 
 QLabel
 {
 	font-size: 11px;
+}
+
+QLabel#lblTitle
+{
+	font-size: 13px;
 }
 
 QLabel#lblNotice
@@ -42,6 +48,8 @@ ActionButton
 	min-width: 40px;
 }
 
+/* ActionButton types */
+
 ActionButton[action="birthday"]
 {
 	background-color: transparent;
@@ -50,8 +58,8 @@ ActionButton[action="birthday"]
 	padding: 0px 0px 0px 0px;
 	color: white;
 	text-decoration: underline;
-/*	width: 200px;*/
 	height: 10px;
+	qproperty-textHorizontalAlignment: 1; /* for we can't use text-align: left; */
 }
 
 ActionButton[action="authorize"]

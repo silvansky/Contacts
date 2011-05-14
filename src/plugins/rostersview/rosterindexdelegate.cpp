@@ -18,7 +18,7 @@
 //QImage RosterIndexDelegate::groupOpenedIndicator;
 //QImage RosterIndexDelegate::groupClosedIndicator;
 
-RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QAbstractItemDelegate(AParent)
+RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QStyledItemDelegate(AParent)
 {
 	FShowBlinkLabels = true;
 	//if (groupOpenedIndicator.isNull())

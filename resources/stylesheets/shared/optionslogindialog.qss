@@ -67,7 +67,7 @@ QListView#completerPopUp
 	selection-background-color: #c8d9e1;
 	border: 1px solid black;
 	selection-color: black;
-	font-size: 12px;
+	font-size: 11px;
 }
 
 QListView#completerPopUp:disabled

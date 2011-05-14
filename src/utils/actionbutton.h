@@ -10,6 +10,7 @@ class UTILS_EXPORT ActionButton :
 {
 	Q_OBJECT
 	Q_PROPERTY(QString action READ actionString WRITE setActionString)
+	Q_PROPERTY(int textHorizontalAlignment READ textHorizontalAlignment WRITE setTextHorizontalAlignment)
 public:
 	ActionButton(QWidget *AParent = NULL);
 	ActionButton(Action *AAction, QWidget *AParent = NULL);
@@ -18,6 +19,9 @@ public:
 	QString actionString();
 	void setActionString(const QString&);
 	void addTextFlag(int flag);
+	// use 1 for left, 2 for right, 4 for center
+	int textHorizontalAlignment() const;
+	void setTextHorizontalAlignment(int alignment);
 signals:
 	void actionChanged();
 	void buttonChanged();
@@ -29,6 +33,7 @@ protected:
 private:
 	Action *FAction;
 	int additionalTextFlag;
+	int hAlignment;
 };
 
 #endif // ACTIONBUTTON_H

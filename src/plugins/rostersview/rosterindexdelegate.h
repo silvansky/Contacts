@@ -3,6 +3,7 @@
 
 #include <QStyle>
 #include <QAbstractItemDelegate>
+#include <QStyledItemDelegate>
 #include <definitions/rosterlabelorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <interfaces/irostersview.h>
@@ -23,14 +24,14 @@ struct LabelItem
 };
 
 class RosterIndexDelegate :
-			public QAbstractItemDelegate
+			public QStyledItemDelegate
 {
 	Q_OBJECT
 	friend class RostersView;
 public:
 	RosterIndexDelegate(QObject *AParent);
 	~RosterIndexDelegate();
-	//QAbstractItemDelegate
+	//QStyledItemDelegate
 	virtual void paint(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	//RosterIndexDelegate

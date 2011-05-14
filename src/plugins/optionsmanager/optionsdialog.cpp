@@ -61,8 +61,9 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 
 	ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(false);
 	ui.dbbButtons->button(QDialogButtonBox::Ok)->setDefault(true);
-	//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
-	//ui.dbbButtons->button(QDialogButtonBox::Reset)->setVisible(false);
+	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Ok"));
+	ui.dbbButtons->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
+	ui.dbbButtons->button(QDialogButtonBox::Apply)->setText(tr("Apply"));
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
 
 	foreach (const IOptionsDialogNode &node, FManager->optionsDialogNodes()) {

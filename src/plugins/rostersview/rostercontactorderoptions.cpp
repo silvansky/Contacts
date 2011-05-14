@@ -46,6 +46,8 @@ void RosterContactOrderOptions::reset()
 		ui.rbtOrderByStatus->setChecked(true);
 	else if (Options::node(OPV_ROSTER_SORTBYHAND).value().toBool())
 		ui.rbtOrderManualy->setChecked(true);
+	else
+		ui.rbtOrderByName->setChecked(true);
 
 	emit childReset();
 }
