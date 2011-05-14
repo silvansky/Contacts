@@ -179,8 +179,8 @@ bool SipPhone::initObjects()
 		FNotifications->insertNotificator(NID_SIPPHONE_CALL,OWO_NOTIFICATIONS_SIPPHONE,QString::null,kindMask,kindDefs);
 	}
 
-	//SipCallNotifyer * callNotifyer = new SipCallNotifyer("Tester", tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(Jid()));
-	//callNotifyer->appear();
+//	SipCallNotifyer * callNotifyer = new SipCallNotifyer("Tester", tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(Jid()));
+//	callNotifyer->appear();
 
 	return true;
 }

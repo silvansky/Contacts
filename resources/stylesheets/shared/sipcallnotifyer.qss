@@ -12,3 +12,33 @@ QLabel#notice
 {
 	color: grey;
 }
+
+QToolButton#accept
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtnok.png);
+}
+
+QToolButton#accept:hover
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtnok_hover.png);
+}
+
+QToolButton#accept:pressed
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtnok_click.png);
+}
+
+QToolButton#reject
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtncancel.png);
+}
+
+QToolButton#reject:hover
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtncancel_hover.png);
+}
+
+QToolButton#reject:pressed
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtncancel_click.png);
+}
