@@ -1330,6 +1330,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
   notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL);*/
 		SipCallNotifyer * callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.contactJid));
 
+		callNotifyer->setProperty("streamId", AStream.sid);
 		connect(callNotifyer, SIGNAL(accepted()), SLOT(onAcceptStreamByAction()));
 		connect(callNotifyer, SIGNAL(rejected()), SLOT(onCloseStreamByAction()));
 
@@ -1389,6 +1390,15 @@ void SipPhone::onAcceptStreamByAction()
 		QString streamId = action->data(ADR_STREAM_ID).toString();
 		acceptStream(streamId);
 	}
+	else
+	{
+		SipCallNotifyer * callNotifyer = qobject_cast<SipCallNotifyer*>(sender());
+		if (callNotifyer)
+		{
+			QString streamId = callNotifyer->property("streamId").toString();
+			acceptStream(streamId);
+		}
+	}
 }
 
 void SipPhone::onCloseStreamByAction()
@@ -1398,6 +1408,15 @@ void SipPhone::onCloseStreamByAction()
 	{
 		QString streamId = action->data(ADR_STREAM_ID).toString();
 		closeStream(streamId);
+	}
+	else
+	{
+		SipCallNotifyer * callNotifyer = qobject_cast<SipCallNotifyer*>(sender());
+		if (callNotifyer)
+		{
+			QString streamId = callNotifyer->property("streamId").toString();
+			closeStream(streamId);
+		}
 	}
 }
 
