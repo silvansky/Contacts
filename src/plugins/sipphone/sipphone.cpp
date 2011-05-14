@@ -1172,9 +1172,6 @@ void SipPhone::finalActionAfterHangup()
 
 }
 
-
-
-
 void SipPhone::closeStream(const QString &AStreamId)
 {
 	if (FStanzaProcessor && FStreams.contains(AStreamId))
@@ -1332,18 +1329,22 @@ void SipPhone::insertNotify(const ISipStream &AStream)
   notify.data.insert(NDR_POPUP_TIMEOUT,0);
   notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL);*/
 		SipCallNotifyer * callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.contactJid));
+
+		connect(callNotifyer, SIGNAL(accepted()), SLOT(onAcceptStreamByAction()));
+		connect(callNotifyer, SIGNAL(rejected()), SLOT(onCloseStreamByAction()));
+
 		callNotifyer->appear();
 
 		Action *acceptCall = new Action(this);
 		acceptCall->setText(tr("Accept"));
 		acceptCall->setData(ADR_STREAM_ID,AStream.sid);
-		connect(acceptCall,SIGNAL(triggered(bool)),SLOT(onAcceptStreamByAction(bool)));
+		connect(acceptCall,SIGNAL(triggered()),SLOT(onAcceptStreamByAction()));
 		notify.actions.append(acceptCall);
 
 		Action *declineCall = new Action(this);
 		declineCall->setText(tr("Decline"));
 		declineCall->setData(ADR_STREAM_ID,AStream.sid);
-		connect(declineCall,SIGNAL(triggered(bool)),SLOT(onCloseStreamByAction(bool)));
+		connect(declineCall,SIGNAL(triggered()),SLOT(onCloseStreamByAction()));
 		notify.actions.append(declineCall);
 
 		FNotifies.insert(FNotifications->appendNotification(notify), AStream.sid);
@@ -1380,7 +1381,7 @@ void SipPhone::onOpenStreamByAction(bool)
 	}
 }
 
-void SipPhone::onAcceptStreamByAction(bool)
+void SipPhone::onAcceptStreamByAction()
 {
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
@@ -1390,7 +1391,7 @@ void SipPhone::onAcceptStreamByAction(bool)
 	}
 }
 
-void SipPhone::onCloseStreamByAction(bool)
+void SipPhone::onCloseStreamByAction()
 {
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)

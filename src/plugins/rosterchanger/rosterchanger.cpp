@@ -672,20 +672,22 @@ QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 
 QString RosterChanger::subscriptionNotify(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-	IRosterItem ritem = roster!=NULL ? roster->rosterItem(AContactJid) : IRosterItem();
-	QString name = ritem.isValid && !ritem.name.isEmpty() ? ritem.name : AContactJid.bare();
+	Q_UNUSED(AStreamJid)
+	Q_UNUSED(AContactJid)
+	//IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	//IRosterItem ritem = roster!=NULL ? roster->rosterItem(AContactJid) : IRosterItem();
+	//QString name = ritem.isValid && !ritem.name.isEmpty() ? ritem.name : AContactJid.bare();
 
 	switch (ASubsType)
 	{
 	case IRoster::Subscribe:
-		return tr("%1 requests authorization (permission to see your status and mood).").arg(name);
+		return tr("Requests authorization");
 	case IRoster::Subscribed:
-		return tr("%1 authorized you to see its status and mood.").arg(name);
+		return tr("Added you as a friend");
 	case IRoster::Unsubscribe:
-		return tr("%1 refused authorization to see your status and mood.").arg(name);
+		return tr("Refused authorization");
 	case IRoster::Unsubscribed:
-		return tr("%1 removed your authorization to view its status and mood.").arg(name);
+		return tr("Removed you from friends");
 	}
 
 	return QString::null;
@@ -953,14 +955,16 @@ QList<Action *> RosterChanger::createNotifyActions(int AActions)
 		Action *authAction = new Action;
 		authAction->setText(tr("Authorize"));
 		authAction->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+		authAction->setData(Action::DR_UserDefined + 1, "authorize");
 		connect(authAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
 		actions.append(authAction);
 	}
 	if (AActions & NFA_UNSUBSCRIBE)
 	{
 		Action *noauthAction = new Action;
-		noauthAction->setText(tr("Don`t Authorize"));
+		noauthAction->setText(tr("Cancel"));
 		noauthAction->setData(ADR_SUBSCRIPTION,IRoster::Unsubscribe);
+		noauthAction->setData(Action::DR_UserDefined + 1, "cancel");
 		connect(noauthAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
 		actions.append(noauthAction);
 	}
@@ -968,6 +972,7 @@ QList<Action *> RosterChanger::createNotifyActions(int AActions)
 	{
 		Action *closeAction = new Action;
 		closeAction->setText(tr("Close"));
+		closeAction->setData(Action::DR_UserDefined + 1, "close");
 		actions.append(closeAction);
 	}
 	return actions;
@@ -1354,12 +1359,12 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,1);
 		notify.data.insert(NDR_TABPAGE_CREATE_TAB,false);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-		notify.data.insert(NDR_TABPAGE_TOOLTIP,Qt::escape(notifyMessage));
+		notify.data.insert(NDR_TABPAGE_TOOLTIP, Qt::escape(notifyMessage));
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
-		notify.data.insert(NDR_POPUP_NOTICE,tr("Subscription"));
-		notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AItemJid));
-		notify.data.insert(NDR_POPUP_TITLE,name);
-		notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));
+		notify.data.insert(NDR_POPUP_NOTICE, notifyMessage);
+		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItemJid));
+		notify.data.insert(NDR_POPUP_TITLE, name);
+		//notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));
 		notify.data.insert(NDR_POPUP_STYLEKEY, STS_RCHANGER_NOTIFYWIDGET_SUBSCRIPTION);
 		notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
 		notify.data.insert(NDR_SUBSCRIPTION_TYPE,ASubsType);

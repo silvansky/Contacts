@@ -33,6 +33,15 @@ QLabel#lblNotice
 	color: gray;
 }
 
+ActionButton
+{
+	min-height: 20px;
+	max-height: 20px;
+	height: 20px;
+	font-size: 11px;
+	min-width: 40px;
+}
+
 ActionButton[action="birthday"]
 {
 	background-color: transparent;
@@ -43,4 +52,19 @@ ActionButton[action="birthday"]
 	text-decoration: underline;
 /*	width: 200px;*/
 	height: 10px;
+}
+
+ActionButton[action="authorize"]
+{
+	border-image: url(%IMAGES_PATH%/buttonborderdefault.png);
+}
+
+ActionButton[action="authorize"]:hover
+{
+	border-image: url(%IMAGES_PATH%/buttonborderdefaulthover.png);
+}
+
+ActionButton[action="authorize"]:pressed
+{
+	border-image: url(%IMAGES_PATH%/buttonborderdefaultclick.png);
 }

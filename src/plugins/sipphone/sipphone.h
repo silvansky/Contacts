@@ -129,8 +129,8 @@ protected:
 
 protected slots:
 	void onOpenStreamByAction(bool);
-	void onAcceptStreamByAction(bool);
-	void onCloseStreamByAction(bool);
+	void onAcceptStreamByAction();
+	void onCloseStreamByAction();
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);

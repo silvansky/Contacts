@@ -39,9 +39,9 @@ NotifyWidget::NotifyWidget(const INotification &ANotification, bool AOptionsAvai
 		border->setWindowFlags(border->windowFlags() | Qt::ToolTip);
 		border->setAttribute(Qt::WA_DeleteOnClose, true);
 		connect(border, SIGNAL(closeClicked()), SIGNAL(notifyRemoved()));
-		QMargins m = ui.frmPopup->layout()->contentsMargins();
-		m.setRight(24);
-		ui.frmPopup->layout()->setContentsMargins(m);
+//		QMargins m = ui.frmPopup->layout()->contentsMargins();
+//		m.setRight(14);
+//		ui.frmPopup->layout()->setContentsMargins(m);
 //		ui.clbClose->setVisible(false);
 	}
 
