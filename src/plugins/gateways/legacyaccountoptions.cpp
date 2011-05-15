@@ -2,6 +2,7 @@
 
 #include <QMessageBox>
 
+#include <utils/custominputdialog.h>
 #include <definitions/menuicons.h>
 
 LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent) : QWidget(AParent)
@@ -120,12 +121,19 @@ void LegacyAccountOptions::onChangeDialogAccepted()
 
 void LegacyAccountOptions::onDeleteButtonClicked(bool)
 {
-	if (QMessageBox::question(this,tr("Account Deletion"),tr("Are you sure you want to delete <b>%1</b> account?").arg(ui.lblLogin->text()),
-		QMessageBox::Yes|QMessageBox::No,QMessageBox::No) == QMessageBox::Yes)
-	{
-		setEnabled(false);
-		FGateways->removeService(FStreamJid,FServiceJid, false);
-	}
+	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::None);
+	dialog->setCaptionText(tr("Account Deletion"));
+	dialog->setInfoText(tr("Are you sure you want to delete <b>%1</b> account?").arg(ui.lblLogin->text()));
+	dialog->setAcceptButtonText(tr("Delete"));
+	dialog->setRejectButtonText(tr("Cancel"));
+	dialog->setAcceptIsDefault(false);
+	connect(dialog, SIGNAL(accepted()), SLOT(onDeleteDialogAccepted()));
+	dialog->show();
+//	if (QMessageBox::question(this,tr("Account Deletion"),tr("Are you sure you want to delete <b>%1</b> account?").arg(ui.lblLogin->text()),
+//		QMessageBox::Yes|QMessageBox::No,QMessageBox::No) == QMessageBox::Yes)
+//	{
+
+//	}
 }
 
 void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QString &ALogin)
@@ -149,4 +157,10 @@ void LegacyAccountOptions::onServicePresenceChanged(const Jid &AStreamJid, const
 {
 	if (AStreamJid==FStreamJid && AServiceJid==FServiceJid)
 		updateState(AItem,FGateways->isServiceEnabled(FStreamJid,FServiceJid));
+}
+
+void LegacyAccountOptions::onDeleteDialogAccepted()
+{
+	setEnabled(false);
+	FGateways->removeService(FStreamJid,FServiceJid, false);
 }

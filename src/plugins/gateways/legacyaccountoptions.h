@@ -26,6 +26,7 @@ protected slots:
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
+	void onDeleteDialogAccepted();
 private:
 	Ui::LegacyAccountOptionsClass ui;
 private:
