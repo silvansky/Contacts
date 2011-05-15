@@ -609,9 +609,8 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 	foreach(Jid itemJid, oldItems)
 	{
 		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
-		removePage(itemPage(itemJid));
-		FItemPages.remove(itemJid);
 		FItemTypeCount[descriptor.metaOrder]--;
+		removePage(FItemPages.take(itemJid));
 	}
 
 	updatePersistantPages();
