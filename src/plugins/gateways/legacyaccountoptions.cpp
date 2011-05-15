@@ -2,6 +2,8 @@
 
 #include <QMessageBox>
 
+#include <definitions/menuicons.h>
+
 LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
@@ -39,21 +41,26 @@ void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool 
 {
 		if (!AEnabled)
 		{
-			ui.lblInfo->setText(tr("Disconnected"));
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
+			ui.lblInfo->setText(QString::null);
 			ui.lblInfo->setProperty("state",QString("disconnected"));
-		}		
+		}
 		else if (APresenceItem.show == IPresence::Error)
 		{
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
 			ui.lblInfo->setText(tr("Failed to connect"));
 			ui.lblInfo->setProperty("state",QString("error"));
 		}
 		else if (APresenceItem.show == IPresence::Offline)
 		{
-			ui.lblInfo->setText(tr("Connecting..."));
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_OPTIONS_LOGIN_ANIMATION, 0, 100, "pixmap");
+			//ui.lblInfo->setText(tr("Connecting..."));
+			ui.lblInfo->setText(QString::null);
 			ui.lblInfo->setProperty("state",QString("connected"));
 		}
 		else
 		{
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
 			ui.lblInfo->setText(tr("Connected"));
 			ui.lblInfo->setProperty("state",QString("connected"));
 		}
@@ -80,13 +87,17 @@ void LegacyAccountOptions::onStateCheckboxToggled(bool AChecked)
 		if (AChecked)
 		{
 			ui.chbState->setEnabled(false);
-			ui.lblInfo->setText(tr("Connecting..."));
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_OPTIONS_LOGIN_ANIMATION, 0, 100, "pixmap");
+			//ui.lblInfo->setText(tr("Connecting..."));
+			ui.lblInfo->setText(QString::null);
 			ui.lblInfo->setProperty("state",QString("connected"));
 		}
 		else
 		{
 			ui.chbState->setEnabled(false);
-			ui.lblInfo->setText(tr("Disconnecting..."));
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_OPTIONS_LOGIN_ANIMATION, 0, 100, "pixmap");
+			//ui.lblInfo->setText(tr("Disconnecting..."));
+			ui.lblInfo->setText(QString::null);
 			ui.lblInfo->setProperty("state",QString("disconnected"));
 		}
 		setStyleSheet(styleSheet());

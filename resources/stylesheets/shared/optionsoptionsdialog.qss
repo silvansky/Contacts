@@ -202,5 +202,5 @@ QFrame#serviceSeparator
 	max-height: 0px;
 	height: 0px;
 	margin-left: 36px;
-	margin-right: 24px;
+	margin-right: 16px;
 }

@@ -7,3 +7,8 @@ QLabel#lblCaption
 {
 	font-size: 18px;
 }
+
+QComboBox
+{
+	margin-top: 1px;
+}
