@@ -3,6 +3,7 @@
 #include <QProcess>
 #include <QVBoxLayout>
 #include <utils/imagemanager.h>
+#include "notifykindswidgets.h"
 
 #define TEST_NOTIFY_TIMEOUT             10000
 
@@ -204,9 +205,10 @@ bool Notifications::initSettings()
 QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
 	QMultiMap<int, IOptionsWidget *> widgets;
+	QMultiMap<int, IOptionsWidget *> kindsWidgets;
 	if (FOptionsManager && ANodeId == OPN_NOTIFICATIONS)
 	{
-		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Choose your method of notification"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Method of notification"),AParent));
 		foreach(QString id, FNotificators.keys())
 		{
 			Notificator notificator = FNotificators.value(id);
@@ -214,19 +216,26 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 			{
 				NotifyKindsWidget *widget = new NotifyKindsWidget(this,id,notificator.title,notificator.kindMask,notificator.defaults,AParent);
 				connect(widget,SIGNAL(notificationTest(const QString &, uchar)),SIGNAL(notificationTest(const QString &, uchar)));
-				widgets.insertMulti(notificator.order, widget);
+				kindsWidgets.insertMulti(notificator.order, widget);
 			}
 		}
+		NotifyKindsWidgets * kindsWidgetsContainer = new NotifyKindsWidgets(AParent);
+		foreach (IOptionsWidget *widget, kindsWidgets)
+		{
+			kindsWidgetsContainer->addWidget(widget);
+		}
 
-		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsHeaderWidget(QString::null,tr("If status 'Away' or 'Busy'"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS, kindsWidgetsContainer);
+
+		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Disable all popup windows and sounds"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY),
-												   tr("Turn of all popup windows and sounds if status is 'Away'"),AParent));
+												   tr("If status is 'Away'"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND),
-												   tr("Turn of all popup windows and sounds if status is 'Busy'"),AParent));
+												   tr("If status is 'Busy'"),AParent));
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsHeaderWidget(QString::null,tr("Full screen mode"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN),
-												    tr("Temporarily disable all popup windows and sounds when working\nany full screen application (films, games, presentations)"),AParent));
+												    tr("Disable all popup windows and sounds when\nany full screen application is running (movies, games, presentations)"),AParent));
 	}
 	return widgets;
 }
