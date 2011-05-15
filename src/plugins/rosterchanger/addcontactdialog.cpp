@@ -6,7 +6,6 @@
 #include <QClipboard>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QMessageBox>
 #include <QInputDialog>
 #include <QApplication>
 #include <QTextDocument>
@@ -59,7 +58,7 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	ui.wdtConfirmAddresses->layout()->setMargin(0);
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_RCHANGER_ADDCONTACT_ERROR,0,0,"pixmap");
-	
+
 	connect(FRoster->instance(),SIGNAL(received(const IRosterItem &, const IRosterItem &)),
 		SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 
@@ -72,7 +71,7 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 
 	initialize(APluginManager);
 	initGroups();
-	
+
 	updatePageAddress();
 	setErrorMessage(QString::null,false);
 	setDialogState(STATE_ADDRESS);
@@ -324,10 +323,10 @@ void AddContactDialog::updatePageConfirm(const QList<IGateServiceDescriptor> &AD
 void AddContactDialog::updatePageParams(const IGateServiceDescriptor &ADescriptor)
 {
 	FDescriptor = ADescriptor;
-	
+
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblParamsServiceIcon,FDescriptor.iconKey,0,0,"pixmap");
 	ui.lblParamsContact->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FDescriptor,contactText()) : contactText());
-	
+
 	if (FGateways)
 	{
 		delete FSelectProfileWidget;

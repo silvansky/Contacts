@@ -3,10 +3,10 @@
 #include <QStyle>
 #include <QTimer>
 #include <QPainter>
-#include <QMessageBox>
 #include <QFontMetrics>
 #include <QDesktopServices>
 #include <QContextMenuEvent>
+#include <utils/custominputdialog.h>
 
 #define ADR_ITEM_JID         Action::DR_Parametr1
 #define ADR_DEFAULT_ICON     Action::DR_UserDefined+1
@@ -989,8 +989,25 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 	{
 		Jid itemJid = action->data(ADR_ITEM_JID).toString();
 		QString message = tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(itemJid.bare());
-		if (QMessageBox::question(NULL,tr("Remove contact"),message,QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
-			FMetaRoster->deleteContactItem(FMetaId,action->data(ADR_ITEM_JID).toString());
+		CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::None);
+		dialog->setProperty("itemJid", action->data(ADR_ITEM_JID).toString());
+		dialog->setAcceptButtonText(tr("Remove contact"));
+		dialog->setRejectButtonText(tr("Cancel"));
+		dialog->setCaptionText(tr("Remove contact"));
+		dialog->setInfoText(message);
+		dialog->setAcceptIsDefault(false);
+		connect(dialog, SIGNAL(accepted()), SLOT(onDeleteItemConfirmed()));
+		dialog->show();
+	}
+}
+
+void MetaTabWindow::onDeleteItemConfirmed()
+{
+	CustomInputDialog * dialog = qobject_cast<CustomInputDialog*>(sender());
+	if (dialog)
+	{
+		FMetaRoster->deleteContactItem(FMetaId, dialog->property("itemJid").toString());
+		dialog->deleteLater();
 	}
 }
 

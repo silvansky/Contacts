@@ -1,6 +1,5 @@
 #include "chatmessagehandler.h"
 
-#include <QMessageBox>
 
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    25

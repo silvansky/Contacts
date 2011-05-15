@@ -4,8 +4,6 @@
 #include <definitions/menuicons.h>
 #include <QPainter>
 
-//#include <QMessageBox>
-
 BtnSynchro* AVControl::__bSyncCamera = NULL;
 BtnSynchro* AVControl::__bSyncMic = NULL;
 

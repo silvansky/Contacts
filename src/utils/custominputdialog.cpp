@@ -126,6 +126,16 @@ void CustomInputDialog::setAcceptIsDefault(bool accept)
 	}
 }
 
+bool CustomInputDialog::deleteOnClose() const
+{
+	return (border ? (QWidget*)border : (QWidget*)this)->testAttribute(Qt::WA_DeleteOnClose);
+}
+
+void CustomInputDialog::setDeleteOnClose(bool on)
+{
+	(border ? (QWidget*)border : (QWidget*)this)->setAttribute(Qt::WA_DeleteOnClose, on);
+}
+
 void CustomInputDialog::onAcceptButtonClicked()
 {
 	if (inputType == String)

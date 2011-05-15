@@ -128,6 +128,7 @@ protected slots:
 	void onEditItemByAction(bool);
 	void onDetachItemByAction(bool);
 	void onDeleteItemByAction(bool);
+	void onDeleteItemConfirmed();
 protected slots:
 	void onCurrentWidgetChanged(int AIndex);
 	void onMetaPresenceChanged(const QString &AMetaId);

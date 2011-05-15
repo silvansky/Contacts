@@ -1,9 +1,9 @@
 #include "addlegacyaccountdialog.h"
 
 #include <QTimer>
-#include <QMessageBox>
 #include <QPushButton>
 #include <utils/log.h>
+#include <utils/custominputdialog.h>
 #include <QListView>
 
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
@@ -82,7 +82,12 @@ void AddLegacyAccountDialog::initialize()
 
 void AddLegacyAccountDialog::abort(const QString &AMessage)
 {
-	QMessageBox::critical(this,tr("Error connecting account"),tr("Failed to connect account due to error:\n%1").arg(AMessage));
+	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+	dialog->setCaptionText(tr("Error connecting account"));
+	dialog->setInfoText(tr("Failed to connect account due to error:\n%1").arg(AMessage));
+	dialog->setAcceptButtonText(tr("Ok"));
+	dialog->setDeleteOnClose(true);
+	dialog->show();
 	QTimer::singleShot(0,this,SLOT(reject()));
 	hide();
 }

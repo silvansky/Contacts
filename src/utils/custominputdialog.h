@@ -32,6 +32,8 @@ public:
 	void setAcceptButtonText(const QString &text);
 	void setRejectButtonText(const QString &text);
 	void setAcceptIsDefault(bool);
+	bool deleteOnClose() const;
+	void setDeleteOnClose(bool on);
 signals:
 	void stringAccepted(const QString & value);
 	void linkActivated(const QString &link);

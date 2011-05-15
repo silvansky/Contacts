@@ -1,6 +1,5 @@
 #include "simplevcarddialog.h"
 #include "ui_simplevcarddialog.h"
-#include <QMessageBox>
 #include <QUrl>
 #include <QDesktopServices>
 #include <utils/custominputdialog.h>
@@ -114,7 +113,12 @@ void SimpleVCardDialog::onVCardUpdated()
 
 void SimpleVCardDialog::onVCardError(const QString &AError)
 {
-	QMessageBox::critical(this, tr("vCard error"), tr("vCard request failed.<br>%1").arg(AError));
+	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+	dialog->setCaptionText(tr("vCard error"));
+	dialog->setInfoText(tr("vCard request failed.<br>%1").arg(AError));
+	dialog->setAcceptButtonText(tr("Ok"));
+	dialog->setDeleteOnClose(true);
+	dialog->show();
 }
 
 void SimpleVCardDialog::onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore)
@@ -133,6 +137,7 @@ void SimpleVCardDialog::on_renameButton_clicked()
 	dialog->setCaptionText(tr("Rename contact"));
 	dialog->setInfoText(tr("Enter new name"));
 	connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewNameSelected(const QString&)));
+	dialog->setDeleteOnClose(true);
 	dialog->show();
 }
 

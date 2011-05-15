@@ -1,7 +1,6 @@
 #include "registerdialog.h"
 
 #include <QVBoxLayout>
-#include <QMessageBox>
 #include <QTextDocument>
 
 RegisterDialog::RegisterDialog(IRegistration *ARegistration, IDataForms *ADataForms, const Jid &AStremJid,

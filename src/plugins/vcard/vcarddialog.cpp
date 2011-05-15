@@ -1,8 +1,8 @@
 #include "vcarddialog.h"
 
-#include <QMessageBox>
 #include <QFileDialog>
 #include "edititemdialog.h"
+#include <utils/custominputdialog.h>
 
 
 VCardDialog::VCardDialog(IVCardPlugin *AVCardPlugin, const Jid &AStreamJid, const Jid &AContactJid)
@@ -324,7 +324,12 @@ void VCardDialog::onVCardPublished()
 
 void VCardDialog::onVCardError(const QString &AError)
 {
-	QMessageBox::critical(this,tr("vCard error"),tr("vCard request or publish failed.<br>%1").arg(AError));
+	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+	dialog->setCaptionText(tr("vCard error"));
+	dialog->setInfoText(tr("vCard request or publish failed.<br>%1").arg(AError));
+	dialog->setAcceptButtonText(tr("Ok"));
+	dialog->setDeleteOnClose(true);
+	dialog->show();
 	ui.pbtUpdate->setEnabled(true);
 	ui.pbtPublish->setEnabled(true);
 	ui.pbtClear->setEnabled(true);

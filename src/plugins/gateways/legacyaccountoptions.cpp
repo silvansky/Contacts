@@ -1,7 +1,5 @@
 #include "legacyaccountoptions.h"
 
-#include <QMessageBox>
-
 #include <utils/custominputdialog.h>
 #include <definitions/menuicons.h>
 
@@ -127,6 +125,7 @@ void LegacyAccountOptions::onDeleteButtonClicked(bool)
 	dialog->setAcceptButtonText(tr("Delete"));
 	dialog->setRejectButtonText(tr("Cancel"));
 	dialog->setAcceptIsDefault(false);
+	dialog->setDeleteOnClose(true);
 	connect(dialog, SIGNAL(accepted()), SLOT(onDeleteDialogAccepted()));
 	dialog->show();
 }

@@ -1,9 +1,9 @@
 #include "addmetacontactdialog.h"
 
 #include <QClipboard>
-#include <QMessageBox>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <utils/custominputdialog.h>
 
 #define ADR_GATE_DESCRIPTOR_ID      Action::DR_Parametr1
 
@@ -598,7 +598,12 @@ void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QS
 	{
 		if (!AErrCond.isEmpty())
 		{
-			QMessageBox::warning(this,tr("Failed to create contact"),tr("Failed to add contact due to an error: %1").arg(AErrMessage));
+			CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+			dialog->setCaptionText(tr("Failed to create contact"));
+			dialog->setInfoText(tr("Failed to add contact due to an error: %1").arg(AErrMessage));
+			dialog->setAcceptButtonText(tr("Ok"));
+			dialog->setDeleteOnClose(true);
+			dialog->show();
 			setDialogEnabled(true);
 		}
 		else

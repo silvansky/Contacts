@@ -1,6 +1,5 @@
 #include "rcallcontrol.h"
 
-#include <QMessageBox>
 #include <QPainter>
 #include <QPaintEvent>
 #include <utils/log.h>

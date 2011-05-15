@@ -2,8 +2,6 @@
 
 #include <QDir>
 #include <QMimeData>
-#include <QMessageBox>
-#include <QInputDialog>
 #include <QDragMoveEvent>
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
@@ -1054,6 +1052,7 @@ void MetaContacts::onNewNameSelected(const QString & newName)
 			if (!newName.isEmpty() && (oldName != newName))
 				mroster->renameContact(metaId, newName);
 		}
+		dialog->deleteLater();
 	}
 }
 
@@ -1110,6 +1109,7 @@ void MetaContacts::onDeleteButtonClicked()
 			foreach(QString metaId, metaIdList)
 				mroster->deleteContact(metaId);
 		}
+		dialog->deleteLater();
 	}
 }
 
@@ -1272,6 +1272,7 @@ void MetaContacts::onNewGroupNameSelected(const QString &AGroup)
 				mroster->setContactGroups(contact.id,contact.groups);
 			}
 		}
+		dialog->deleteLater();
 	}
 }
 

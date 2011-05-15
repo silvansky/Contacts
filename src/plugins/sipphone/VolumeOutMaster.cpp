@@ -5,7 +5,6 @@
 #include "VolumeOutMaster.h"
 
 #include <qglobal.h>
-#include <QMessageBox>
 #include <tchar.h>
 
 /////////////////////////////////////////////////////////////////////////////
@@ -111,7 +110,7 @@ bool CVolumeOutMaster::Init()
 
 	//////////////// Exposing Window to Mixer
 	//////////////WNDCLASSEX wcx;
-	//////////////memset( &wcx, 0, sizeof(WNDCLASSEX) );	
+	//////////////memset( &wcx, 0, sizeof(WNDCLASSEX) );
 	//////////////wcx.cbSize = sizeof(WNDCLASSEX);
 	//////////////wcx.lpszClassName = _T(WND_CLASS_NAME);
 	//////////////wcx.lpfnWndProc = (WNDPROC)MixerWndProc;

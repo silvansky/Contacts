@@ -939,6 +939,7 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		dialog->setInfoText(tr("Enter address of custom domain\nwhich is linked to Rambler"));
 		dialog->setAcceptButtonText(tr("Add"));
 		dialog->setRejectButtonText(tr("Cancel"));
+		dialog->setDeleteOnClose(true);
 		// TODO: redirect to some rambler page
 		dialog->setDescriptionText(QString("<a href='http://mail.rambler.ru'>%1</a>").arg(tr("How to link your domain?")));
 
