@@ -13,8 +13,8 @@
 #include <QEvent>
 #include <QKeyEvent>
 
-CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type) :
-	QWidget(0),
+CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget *AParent) :
+	QDialog(AParent),
 	inputType(type)
 {
 	initLayout();
@@ -22,6 +22,7 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type) :
 	setAttribute(Qt::WA_DeleteOnClose, false);
 
 	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	border->setParent(AParent);
 	setMinimumWidth(250);
 	if (border)
 	{
@@ -30,7 +31,7 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type) :
 		border->setMaximizeButtonVisible(false);
 		connect(this, SIGNAL(accepted()), border, SLOT(close()));
 		connect(this, SIGNAL(rejected()), border, SLOT(close()));
-		connect(border, SIGNAL(closeClicked()), SIGNAL(rejected()));
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
@@ -52,6 +53,7 @@ void CustomInputDialog::show()
 {
 	if (border)
 	{
+		border->setWindowModality(windowModality());
 		// TODO: determine what of these are really needed
 		border->layout()->update();
 		layout()->update();
@@ -61,7 +63,7 @@ void CustomInputDialog::show()
 		border->adjustSize();
 	}
 	else
-		QWidget::show();
+		QDialog::show();
 }
 
 QString CustomInputDialog::defaultText() const
@@ -127,22 +129,20 @@ void CustomInputDialog::setAcceptIsDefault(bool accept)
 void CustomInputDialog::onAcceptButtonClicked()
 {
 	if (inputType == String)
+	{
 		emit stringAccepted(valueEdit->text());
+		if (border)
+			border->close();
+		else
+			close();
+	}
 	else
-		emit accepted();
-	if (border)
-		border->close();
-	else
-		close();
+		accept();
 }
 
 void CustomInputDialog::onRejectButtonClicked()
 {
-	emit rejected();
-	if (border)
-		border->close();
-	else
-		close();
+	reject();
 }
 
 void CustomInputDialog::onTextChanged(const QString & text)
@@ -207,32 +207,4 @@ void CustomInputDialog::initLayout()
 	rejectButton->setText(inputType == String ? tr("Cancel") : tr("No"));
 	rejectButton->setVisible(inputType != Info);
 	acceptButton->setEnabled(inputType != String);
-}
-
-bool CustomInputDialog::eventFilter(QObject * obj, QEvent * evt)
-{
-	switch(evt->type())
-	{
-	case QEvent::KeyPress:
-	{
-		QKeyEvent * keyEvent = (QKeyEvent*)evt;
-		switch(keyEvent->key())
-		{
-		case Qt::Key_Return:
-		case Qt::Key_Enter:
-			if (acceptButton->isDefault())
-				onAcceptButtonClicked();
-			else
-				onRejectButtonClicked();
-			break;
-		case Qt::Key_Escape:
-			onRejectButtonClicked();
-			break;
-		}
-	}
-		break;
-	default:
-		break;
-	}
-	return QWidget::eventFilter(obj, evt);
 }

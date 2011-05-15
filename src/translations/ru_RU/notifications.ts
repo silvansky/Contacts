@@ -78,13 +78,6 @@ any full screen application (films, games, presentations)</source>
     </message>
 </context>
 <context>
-    <name>NotifyWidgetClass</name>
-    <message>
-        <source>Setup Notifications</source>
-        <translation>Настроить уведомления</translation>
-    </message>
-</context>
-<context>
     <name>OptionsWidgetClass</name>
     <message>
         <source>Common notification options</source>

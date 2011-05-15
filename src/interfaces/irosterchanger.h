@@ -48,6 +48,8 @@ public:
 	virtual void setGroup(const QString &AGroup) =0;
 	virtual Jid gatewayJid() const =0;
 	virtual void setGatewayJid(const Jid &AGatewayJid) =0;
+	virtual QString parentMetaContactId() const =0;
+	virtual void setParentMetaContactId(const QString &AMetaId) =0;
 protected:
 	virtual void dialogDestroyed() =0;
 };

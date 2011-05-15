@@ -841,6 +841,14 @@ IMetaRoster * MetaContacts::findBareMetaRoster(const Jid &AStreamJid) const
 	return mroster;
 }
 
+MetaProfileDialog *MetaContacts::findMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId) const
+{
+	foreach(MetaProfileDialog *dialog, FMetaProfileDialogs)
+		if (dialog->streamJid()==AStreamJid && dialog->metaContactId()==AMetaId)
+			return dialog;
+	return NULL;
+}
+
 void MetaContacts::onMetaRosterOpened()
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
@@ -1389,10 +1397,22 @@ void MetaContacts::onShowMetaProfileDialogAction(bool)
 		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
 		if (mroster && !mroster->metaContact(metaId).id.isEmpty())
 		{
-			QDialog *dialog = new MetaProfileDialog(FPluginManager,mroster,metaId);
+			MetaProfileDialog *dialog = findMetaProfileDialog(mroster->streamJid(),metaId);
+			if (dialog == NULL)
+			{
+				dialog = new MetaProfileDialog(FPluginManager,this,mroster,metaId);
+				connect(dialog,SIGNAL(dialogDestroyed()),SLOT(onMetaProfileDialogDestroyed()));
+				FMetaProfileDialogs.append(dialog);
+			}
 			WidgetManager::showActivateRaiseWindow(dialog->parentWidget()!=NULL ? dialog->parentWidget() : dialog);
 		}
 	}
+}
+
+void MetaContacts::onMetaProfileDialogDestroyed()
+{
+	MetaProfileDialog *dialog = qobject_cast<MetaProfileDialog *>(sender());
+	FMetaProfileDialogs.removeAll(dialog);
 }
 
 void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)

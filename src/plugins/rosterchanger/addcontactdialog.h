@@ -49,6 +49,8 @@ public:
 	virtual void setGroup(const QString &AGroup);
 	virtual Jid gatewayJid() const;
 	virtual void setGatewayJid(const Jid &AGatewayJid);
+	virtual QString parentMetaContactId() const;
+	virtual void setParentMetaContactId(const QString &AMetaId);
 signals:
 	void dialogDestroyed();
 protected:
@@ -109,6 +111,7 @@ private:
 	int FDialogState;
 	bool FResolveNick;
 	bool FServiceFailed;
+	QString FParentMetaId;
 	QList<Jid> FLinkedContacts;
 	IGateServiceDescriptor FDescriptor;
 	SelectProfileWidget *FSelectProfileWidget;

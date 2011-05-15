@@ -53,10 +53,6 @@
         <translation>Уведомляет о новых сообщениях в Rambler.Почте</translation>
     </message>
     <message>
-        <source>New e-mail from</source>
-        <translation>Новое письмо от</translation>
-    </message>
-    <message>
         <source>Not in contact list</source>
         <translation>Не в контакт-листе</translation>
     </message>

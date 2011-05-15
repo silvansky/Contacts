@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>390</width>
-    <height>278</height>
+    <width>393</width>
+    <height>281</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>MetaContactProfile</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>10</number>
+   </property>
    <property name="leftMargin">
     <number>14</number>
    </property>
@@ -42,6 +42,9 @@
       <widget class="QLabel" name="lblName">
        <property name="text">
         <string>Name:</string>
+       </property>
+       <property name="buddy">
+        <cstring>lneName</cstring>
        </property>
       </widget>
      </item>
@@ -151,8 +154,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>362</width>
-        <height>115</height>
+        <width>365</width>
+        <height>106</height>
        </rect>
       </property>
      </widget>
@@ -164,9 +167,6 @@
       <widget class="QPushButton" name="pbtAddContact">
        <property name="text">
         <string>Add Contact...</string>
-       </property>
-       <property name="default">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -195,6 +195,12 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>lneName</tabstop>
+  <tabstop>scaContacts</tabstop>
+  <tabstop>pbtAddContact</tabstop>
+  <tabstop>pbtClose</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

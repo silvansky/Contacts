@@ -125,6 +125,7 @@ protected:
 	void initMetaItemDescriptors();
 	void deleteMetaRosterWindows(IMetaRoster *AMetaRoster);
 	IMetaRoster *findBareMetaRoster(const Jid &AStreamJid) const;
+	MetaProfileDialog *findMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId) const;
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaAvatarChanged(const QString &AMetaId);
@@ -162,6 +163,7 @@ protected slots:
 	void onSendContactDataAction(bool);
 	void onShowMetaTabWindowAction(bool);
 	void onShowMetaProfileDialogAction(bool);
+	void onMetaProfileDialogDestroyed();
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
@@ -187,6 +189,7 @@ private:
 	QHash<QString, TabPageInfo> FTabPages;
 	QList<IMetaTabWindow *> FMetaTabWindows;
 	IMetaItemDescriptor FDefaultItemDescriptor;
+	QList<MetaProfileDialog *> FMetaProfileDialogs;
 	QList<IMetaItemDescriptor> FMetaItemDescriptors;
 private:
 	mutable QHash<Jid, int> FItemDescrCache;

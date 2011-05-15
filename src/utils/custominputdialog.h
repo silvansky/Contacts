@@ -1,14 +1,14 @@
 #ifndef CUSTOMINPUTDIALOG_H
 #define CUSTOMINPUTDIALOG_H
 
-#include <QWidget>
+#include <QDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include "utilsexport.h"
 #include "custombordercontainer.h"
 
-class UTILS_EXPORT CustomInputDialog : public QWidget
+class UTILS_EXPORT CustomInputDialog : public QDialog
 {
 	Q_OBJECT
 	Q_PROPERTY(QString defaultText READ defaultText WRITE setDefaultText)
@@ -19,7 +19,7 @@ public:
 		Info,
 		None
 	};
-	CustomInputDialog(InputType inputType);
+	CustomInputDialog(InputType inputType, QWidget *AParent = NULL);
 	~CustomInputDialog();
 	CustomBorderContainer * windowBorder();
 	void show();
@@ -33,9 +33,7 @@ public:
 	void setRejectButtonText(const QString &text);
 	void setAcceptIsDefault(bool);
 signals:
-	void accepted();
 	void stringAccepted(const QString & value);
-	void rejected();
 	void linkActivated(const QString &link);
 protected slots:
 	void onAcceptButtonClicked();
@@ -43,8 +41,6 @@ protected slots:
 	void onTextChanged(const QString &);
 private:
 	void initLayout();
-protected:
-	bool eventFilter(QObject *, QEvent *);
 private:
 	CustomBorderContainer * border;
 	InputType inputType;

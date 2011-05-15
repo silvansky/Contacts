@@ -161,6 +161,16 @@ void AddContactDialog::setGatewayJid(const Jid &AGatewayJid)
 		FSelectProfileWidget->setSelectedProfile(AGatewayJid);
 }
 
+QString AddContactDialog::parentMetaContactId() const
+{
+	return FParentMetaId;
+}
+
+void AddContactDialog::setParentMetaContactId(const QString &AMetaId)
+{
+	FParentMetaId = AMetaId;
+}
+
 void AddContactDialog::initialize(IPluginManager *APluginManager)
 {
 	IPlugin *plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
@@ -768,7 +778,11 @@ void AddContactDialog::onMetaContactReceived(const IMetaContact &AContact, const
 		{
 			FMetaRoster->mergeContacts(AContact.id,mergeIds);
 		}
-		if (FMessageProcessor)
+		if (!FParentMetaId.isEmpty() && !FMetaRoster->metaContact(FParentMetaId).id.isEmpty())
+		{
+			FMetaRoster->mergeContacts(FParentMetaId,QList<QString>()<<AContact.id);
+		}
+		else if (FMessageProcessor)
 		{
 			FMessageProcessor->createWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
 		}

@@ -61,7 +61,7 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 		border->setWindowTitle(ui.lblCaption->text());
 		connect(this, SIGNAL(accepted()), border, SLOT(close()));
 		connect(this, SIGNAL(rejected()), border, SLOT(close()));
-		connect(border, SIGNAL(closeClicked()), SIGNAL(rejected()));
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
 	else
@@ -73,6 +73,7 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 	ui.lneName->setFocus();
 
 	connect(ui.lneName,SIGNAL(textChanged(const QString &)),SLOT(onContactNameChanged(const QString &)));
+	connect(ui.pbtCancel, SIGNAL(clicked()), SLOT(reject()));
 
 	connect(ui.pbtMerge, SIGNAL(clicked()), SLOT(onAcceptButtonClicked()));
 }

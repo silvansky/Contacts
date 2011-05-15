@@ -132,10 +132,6 @@
         <translation>Загрузка сообщений с сервера...</translation>
     </message>
     <message>
-        <source>Writing...</source>
-        <translation>Пишет...</translation>
-    </message>
-    <message>
         <source>Open dialog</source>
         <translation>Открыть диалог</translation>
     </message>

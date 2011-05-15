@@ -54,21 +54,6 @@
         <translation>Написать отзыв</translation>
     </message>
     <message>
-        <source>TECHNICAL DATA (may be useful for developers)
-</source>
-        <translation>ТЕХНИЧЕСКАЯ ИНФОРМАЦИЯ (может быть полезна разработчикам)</translation>
-    </message>
-    <message>
-        <source>Friends version: %1 (r%2)
-</source>
-        <translation>Версия Friends: %1 (r%2)</translation>
-    </message>
-    <message>
-        <source>Operating system: %1
-</source>
-        <translation>Операционная система: %1</translation>
-    </message>
-    <message>
         <source>Screen: %1</source>
         <translation>Экран: %1</translation>
     </message>
@@ -84,6 +69,18 @@
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
+    <message>
+        <source>TECHNICAL DATA (may be useful for developers)</source>
+        <translation>ТЕХНИЧЕСКИЕ СВЕДЕНИЯ (могут быть полезны разработчикам)</translation>
+    </message>
+    <message>
+        <source>Friends version: %1 (r%2)</source>
+        <translation>Версия: %1 (r%2)</translation>
+    </message>
+    <message>
+        <source>Operating system: %1</source>
+        <translation>Операционная система: %1</translation>
+    </message>
 </context>
 <context>
     <name>CommentDialogClass</name>
@@ -98,10 +95,6 @@
     <message>
         <source>Send comment</source>
         <translation>Отправить отзыв</translation>
-    </message>
-    <message>
-        <source>&lt; font size=+2&gt;Leave your feedback about program.&lt;/font&gt;</source>
-        <translation>&lt; font size=+2&gt;Оставьте ваш отзыв о программе.&lt;/font&gt;</translation>
     </message>
     <message>
         <source>Your opinion is important to us, because all the suggestions and comments from users is a great way to make our chat better.</source>
@@ -122,6 +115,10 @@
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Leave your feedback about program.</source>
+        <translation>Оставьте Ваш отзыв о программе.</translation>
     </message>
 </context>
 <context>
@@ -159,12 +156,12 @@
         <translation>Ваш отзыв</translation>
     </message>
     <message>
-        <source>Updates are ready. Do you want to restart Virtus now?</source>
-        <translation>Обновления готовы. Вы хотите перезапустить Virtus сейчас?</translation>
-    </message>
-    <message>
         <source>Friends updates ready</source>
         <translation>Готовы обновления Friends</translation>
+    </message>
+    <message>
+        <source>Updates are ready. Do you want to restart Rambler.Friends now?</source>
+        <translation>Обновления готовы. Вы хотите перезапустить Рамблер.Друзья?</translation>
     </message>
 </context>
 <context>

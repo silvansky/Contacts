@@ -147,8 +147,8 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 
 	QString techInfo("<br><br><br><br><br><br><br>");
 	techInfo += "-----------------------------<br>";
-	techInfo += tr("TECHNICAL DATA (may be useful for developers)<br>");
-	techInfo += QString(tr("Friends version: %1 (r%2)<br>")).arg(APluginManager->version(), APluginManager->revision());
+	techInfo += tr("TECHNICAL DATA (may be useful for developers)") + "<br>";
+	techInfo += QString(tr("Friends version: %1 (r%2)")).arg(APluginManager->version(), APluginManager->revision())+"<br>";
 	QString os;
 #ifdef Q_WS_WIN
 	os = resolveWidowsVersion(QSysInfo::windowsVersion());
@@ -156,7 +156,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	os = resolveMacVersion(QSysInfo::MacintoshVersion);
 #endif
 
-	techInfo += tr("Operating system: %1<br>").arg(os);
+	techInfo += tr("Operating system: %1").arg(os)+"<br>";
 	QDesktopWidget * dw = QApplication::desktop();
 	QStringList displays;
 	for (int i = 0; i < dw->screenCount(); i++)

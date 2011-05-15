@@ -48,6 +48,8 @@ public:
 	virtual void setGroup(const QString &AGroup);
 	virtual Jid gatewayJid() const;
 	virtual void setGatewayJid(const Jid &AGatewayJid);
+	virtual QString parentMetaContactId() const;
+	virtual void setParentMetaContactId(const QString &AMetaId);
 signals:
 	void dialogDestroyed();
 protected:
@@ -97,6 +99,7 @@ private:
 private:
 	bool FShown;
 	bool FNickResolved;
+	QString FParentMetaId;
 	QString FCreateActiontId;
 	QList<QString> FAvailDescriptors;
 	QList<IAddMetaItemWidget *> FItemWidgets;

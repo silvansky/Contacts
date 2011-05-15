@@ -143,6 +143,16 @@ void AddMetaContactDialog::setGatewayJid(const Jid &AGatewayJid)
 		widget->setGatewayJid(AGatewayJid);
 }
 
+QString AddMetaContactDialog::parentMetaContactId() const
+{
+	return FParentMetaId;
+}
+
+void AddMetaContactDialog::setParentMetaContactId(const QString &AMetaId)
+{
+	FParentMetaId = AMetaId;
+}
+
 void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 {
 	IPlugin *plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
@@ -547,31 +557,37 @@ void AddMetaContactDialog::onMetaContactReceived(const IMetaContact &AContact, c
 	Q_UNUSED(ABefore);
 	if (AContact.items.contains(contactJid()))
 	{
-		if (FRostersView)
+		if (!FParentMetaId.isEmpty() && !FMetaRoster->metaContact(FParentMetaId).id.isEmpty())
 		{
-			IRostersModel *rmodel = FRostersView->rostersModel();
-			IRosterIndex *sroot = rmodel!=NULL ? rmodel->streamRoot(streamJid()) : NULL;
-			if (sroot)
+			FMetaRoster->mergeContacts(FParentMetaId,QList<QString>()<<AContact.id);
+		}
+		else
+		{
+			if (FRostersView)
 			{
-				QMultiMap<int, QVariant> findData;
-				findData.insert(RDR_TYPE,RIT_METACONTACT);
-				findData.insert(RDR_META_ID,AContact.id);
-				IRosterIndex *index = sroot->findChilds(findData,true).value(0);
-				if (index)
+				IRostersModel *rmodel = FRostersView->rostersModel();
+				IRosterIndex *sroot = rmodel!=NULL ? rmodel->streamRoot(streamJid()) : NULL;
+				if (sroot)
 				{
-					QModelIndex modelIndex = FRostersView->mapFromModel(rmodel->modelIndexByRosterIndex(index));
-					FRostersView->instance()->setCurrentIndex(modelIndex);
-					FRostersView->instance()->clearSelection();
-					FRostersView->instance()->scrollTo(modelIndex);
-					FRostersView->instance()->selectionModel()->select(modelIndex,QItemSelectionModel::Select);
+					QMultiMap<int, QVariant> findData;
+					findData.insert(RDR_TYPE,RIT_METACONTACT);
+					findData.insert(RDR_META_ID,AContact.id);
+					IRosterIndex *index = sroot->findChilds(findData,true).value(0);
+					if (index)
+					{
+						QModelIndex modelIndex = FRostersView->mapFromModel(rmodel->modelIndexByRosterIndex(index));
+						FRostersView->instance()->setCurrentIndex(modelIndex);
+						FRostersView->instance()->clearSelection();
+						FRostersView->instance()->scrollTo(modelIndex);
+						FRostersView->instance()->selectionModel()->select(modelIndex,QItemSelectionModel::Select);
+					}
 				}
 			}
+
+			IMetaTabWindow *window = FMetaContacts->newMetaTabWindow(streamJid(),AContact.id);
+			if (window)
+				window->showTabPage();
 		}
-
-		IMetaTabWindow *window = FMetaContacts->newMetaTabWindow(streamJid(),AContact.id);
-		if (window)
-			window->showTabPage();
-
 		accept();
 	}
 }

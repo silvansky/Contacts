@@ -196,7 +196,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
 	//IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
-	ui.lblLogo->setText(tr("<font size=+3>Friends</font>"));
+	ui.lblLogo->setText(QString("<font size=+3>%1</font>").arg(tr("Friends")));
 
 	ui.lblRegister->setText(tr("Enter your Rambler login and password, or %1.")
 				.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:9pt; text-decoration: underline; color:#ffffff;'>%1</span></a>")

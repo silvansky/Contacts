@@ -2,54 +2,40 @@
 
 #include <QStyle>
 #include <QPainter>
-#include <QStyleOption>
+#include <QPaintEvent>
 #include "iconstorage.h"
-#include <definitions/resources.h>
-#include <definitions/menuicons.h>
 
 CloseButton::CloseButton(QWidget *AParent) : QAbstractButton(AParent)
 {
 	setMouseTracking(true);
 	setFocusPolicy(Qt::NoFocus);
-	setCursor(Qt::ArrowCursor);
-	resize(sizeHint());
 }
 
 QSize CloseButton::sizeHint() const
 {
 	ensurePolished();
-	int width = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MESSAGEWIDGETS_CLOSE_TAB).width();
-	int height = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MESSAGEWIDGETS_CLOSE_TAB).height();
-	return QSize(width, height);
+	return icon().availableSizes().value(0);
 }
 
-void CloseButton::enterEvent(QEvent *event)
+void CloseButton::enterEvent(QEvent *AEvent)
 {
-	if (isEnabled())
-		update();
-	QAbstractButton::enterEvent(event);
+	QAbstractButton::enterEvent(AEvent);
+	style()->polish(this);
+	update();
 }
 
-void CloseButton::leaveEvent(QEvent *event)
+void CloseButton::leaveEvent(QEvent *AEvent)
 {
-	if (isEnabled())
-		update();
-	QAbstractButton::leaveEvent(event);
+	QAbstractButton::leaveEvent(AEvent);
+	style()->polish(this);
+	update();
 }
 
-void CloseButton::paintEvent(QPaintEvent *)
+void CloseButton::paintEvent(QPaintEvent *AEvent)
 {
-	QPainter p(this);
-//	QStyleOption opt;
-//	opt.init(this);
-//	opt.state |= QStyle::State_AutoRaise;
-//	if (isEnabled() && underMouse() && !isChecked() && !isDown())
-//		opt.state |= QStyle::State_Raised;
-//	if (isChecked())
-//		opt.state |= QStyle::State_On;
-//	if (isDown())
-//		opt.state |= QStyle::State_Sunken;
-
-//	style()->drawPrimitive(QStyle::PE_IndicatorTabClose, &opt, &p, this);
-	p.drawImage(0, 0, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MESSAGEWIDGETS_CLOSE_TAB));
+	if (!icon().isNull())
+	{
+		QPainter p(this);
+		icon().paint(&p,AEvent->rect());
+	}
 }

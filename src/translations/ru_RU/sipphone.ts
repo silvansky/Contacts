@@ -25,6 +25,13 @@
     </message>
 </context>
 <context>
+    <name>ComplexVideoWidget</name>
+    <message>
+        <source>Camera OFF</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>IdentityDialog</name>
     <message>
         <source>OK</source>
@@ -108,6 +115,13 @@
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>QImageLabel</name>
+    <message>
+        <source>no image</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -220,6 +234,33 @@
     </message>
 </context>
 <context>
+    <name>SipCallNotifyer</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>avatar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>icon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>caption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>notice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SipPhone</name>
     <message>
         <source>SIP Phone</source>
@@ -251,11 +292,15 @@
     </message>
     <message>
         <source>Call failure</source>
-        <translation type="unfinished">Ошибка вызова</translation>
+        <translation>Ошибка вызова</translation>
     </message>
     <message>
         <source>Calls NOT supported for current contact</source>
-        <translation type="unfinished">Вызов данного контакта не может быть осуществлен</translation>
+        <translation>Вызов данного контакта не может быть осуществлен</translation>
+    </message>
+    <message>
+        <source>Incoming call</source>
+        <translation>Воходящий вызов</translation>
     </message>
 </context>
 <context>
@@ -282,7 +327,7 @@
     </message>
     <message>
         <source>Incoming call</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Воходящий вызов</translation>
     </message>
     <message>
         <source>Friends</source>
@@ -292,16 +337,12 @@
 <context>
     <name>SipPhoneWidget</name>
     <message>
-        <source>Virtus SIP Call</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Call Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Incoming call</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Воходящий вызов</translation>
     </message>
     <message>
         <source>Attached [holding]</source>
@@ -341,6 +382,10 @@
     </message>
     <message>
         <source>Do you want to proceed ? </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rambler.Friends SIP Call</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

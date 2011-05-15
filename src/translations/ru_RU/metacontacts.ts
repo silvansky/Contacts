@@ -246,6 +246,52 @@
     </message>
 </context>
 <context>
+    <name>MetaProfileDialog</name>
+    <message>
+        <source>Contact Profile</source>
+        <translation>Профиль контакта</translation>
+    </message>
+    <message>
+        <source>Send a postcard</source>
+        <translation>Отправить открытку</translation>
+    </message>
+    <message>
+        <source>Delete contact address</source>
+        <translation>Удаление контактактных данных</translation>
+    </message>
+    <message>
+        <source>Record &quot;%1&quot; and the history of communication with it will be deleted. Operation can not be undone.</source>
+        <translation>Запись &quot;%1&quot; и история общения с ней будут удалены. Операцию нельзя будет отменить.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+</context>
+<context>
+    <name>MetaProfileDialogClass</name>
+    <message>
+        <source>Name:</source>
+        <translation>Имя:</translation>
+    </message>
+    <message>
+        <source>Contact Name</source>
+        <translation>Имя контакта</translation>
+    </message>
+    <message>
+        <source>Add Contact...</source>
+        <translation>Добавить контакт...</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+</context>
+<context>
     <name>MetaProxyModel</name>
     <message>
         <source>Requests authorization</source>

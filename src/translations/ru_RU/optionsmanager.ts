@@ -238,13 +238,13 @@ which is linked to Rambler</source>
         <source>How to link your domain?</source>
         <translation>Как подключить свой домен?</translation>
     </message>
+    <message>
+        <source>Friends</source>
+        <translation>Друзья</translation>
+    </message>
 </context>
 <context>
     <name>LoginDialogClass</name>
-    <message>
-        <source>Virtus</source>
-        <translation>Virtus</translation>
-    </message>
     <message>
         <source>Save password</source>
         <translation>Сохранить пароль</translation>
@@ -269,12 +269,28 @@ which is linked to Rambler</source>
         <source>Enter your Rambler login and password, or register</source>
         <translation>Введите ваш логин и пароль на Рамблере или зарегистрируйтесь</translation>
     </message>
+    <message>
+        <source>Rambler.Friends</source>
+        <translation>Рамблер.Друзья</translation>
+    </message>
 </context>
 <context>
     <name>OptionsDialog</name>
     <message>
         <source>Options</source>
         <translation>Настройки</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Применить</translation>
     </message>
 </context>
 <context>

@@ -20,14 +20,6 @@
         <translation>Включите уведомления, чтобы не пропустить дни рождения друзей!</translation>
     </message>
     <message>
-        <source>Birthday of</source>
-        <translation>День рождения у</translation>
-    </message>
-    <message>
-        <source>Birthday &lt;b&gt;today&lt;/b&gt;!</source>
-        <translation>День рождения &lt;b&gt;сегодня&lt;/b&gt;!</translation>
-    </message>
-    <message>
         <source>Congratulate with postcard</source>
         <translation>Поздравить открыткой</translation>
     </message>

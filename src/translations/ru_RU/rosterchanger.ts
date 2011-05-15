@@ -199,10 +199,6 @@
         <translation>В корневую папку</translation>
     </message>
     <message>
-        <source>Subscription</source>
-        <translation>Авторизация</translation>
-    </message>
-    <message>
         <source>Copy contact</source>
         <translation>Копировать контакт</translation>
     </message>
@@ -311,28 +307,12 @@
         <translation>Введите имя контакта</translation>
     </message>
     <message>
-        <source>%1 requests authorization (permission to see your status and mood).</source>
-        <translation>%1 запрашивает авторизацию (чтобы видеть ваш статус и настроение).</translation>
-    </message>
-    <message>
-        <source>%1 refused authorization to see your status and mood.</source>
-        <translation>%1 отказался от авторизации на просмотр вашего статуса и настроения.</translation>
-    </message>
-    <message>
-        <source>%1 removed your authorization to view its status and mood.</source>
-        <translation>%1 удалил вашу авторизацию для просмотра его статуса и настроения.</translation>
-    </message>
-    <message>
         <source>This contact is not added to your roster.</source>
         <translation>Этот контакт не добавлен в ваш список контактов.</translation>
     </message>
     <message>
         <source>Request authorization from contact to see his status and mood.</source>
         <translation>Запросите авторизацию у контакта, чтобы видеть его статус и настроение.</translation>
-    </message>
-    <message>
-        <source>%1 authorized you to see its status and mood.</source>
-        <translation>%1 авторизовал вас для просмотра его статуса и настроения.</translation>
     </message>
     <message>
         <source>%1 - authorization</source>
@@ -381,6 +361,22 @@
     <message>
         <source>&lt;font size=+2&gt;Rename group&lt;/font&gt;&lt;br&gt;Enter new group name:</source>
         <translation>&lt;font size=+2&gt;Переименовать группу&lt;/font&gt;&lt;br&gt;Введите новое имя группы:</translation>
+    </message>
+    <message>
+        <source>Added you as a friend</source>
+        <translation>Вы добавлены как друг</translation>
+    </message>
+    <message>
+        <source>Refused authorization</source>
+        <translation>Отказано в авторизации</translation>
+    </message>
+    <message>
+        <source>Removed you from friends</source>
+        <translation>Вы удалены из друзей</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>

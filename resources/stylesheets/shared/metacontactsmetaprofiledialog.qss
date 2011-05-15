@@ -3,3 +3,13 @@ QLabel#lblCaption
 	font-size: 18px;
 	margin-bottom: 5px;
 } 
+
+QLabel#lblStatusText, QLabel#lblBirthdayPostcard
+{
+	color: gray;
+}
+
+QScrollArea#scaContacts, QScrollArea#scaContacts QWidget
+{
+	background-color: transparent;
+}
