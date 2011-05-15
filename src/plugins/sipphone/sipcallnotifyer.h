@@ -2,6 +2,11 @@
 #define SIPCALLNOTIFYER_H
 
 #include <QWidget>
+#ifdef QT_PHONON_LIB
+# include <Phonon/Phonon>
+#else
+# include <QSound>
+#endif
 
 class CustomBorderContainer;
 
@@ -27,6 +32,8 @@ signals:
 public slots:
 	void appear();
 	void disappear();
+	void startSound();
+	void muteSound();
 protected slots:
 	void acceptClicked();
 	void rejectClicked();
@@ -37,6 +44,12 @@ private:
 	Ui::SipCallNotifyer *ui;
 	CustomBorderContainer * border;
 	bool _muted;
+#ifdef QT_PHONON_LIB
+	Phonon::MediaObject *FMediaObject;
+	Phonon::AudioOutput *FAudioOutput;
+#else
+	QSound *FSound;
+#endif
 };
 
 #endif // SIPCALLNOTIFYER_H

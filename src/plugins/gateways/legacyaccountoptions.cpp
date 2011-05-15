@@ -129,11 +129,6 @@ void LegacyAccountOptions::onDeleteButtonClicked(bool)
 	dialog->setAcceptIsDefault(false);
 	connect(dialog, SIGNAL(accepted()), SLOT(onDeleteDialogAccepted()));
 	dialog->show();
-//	if (QMessageBox::question(this,tr("Account Deletion"),tr("Are you sure you want to delete <b>%1</b> account?").arg(ui.lblLogin->text()),
-//		QMessageBox::Yes|QMessageBox::No,QMessageBox::No) == QMessageBox::Yes)
-//	{
-
-//	}
 }
 
 void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QString &ALogin)

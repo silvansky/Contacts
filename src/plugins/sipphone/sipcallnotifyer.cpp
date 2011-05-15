@@ -13,6 +13,7 @@
 #include <definitions/stylesheets.h>
 #include <definitions/menuicons.h>
 #include <definitions/customborder.h>
+#include <definitions/soundfiles.h>
 
 #ifdef DEBUG_ENABLED
 # include <QDebug>
@@ -20,7 +21,14 @@
 
 SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice, const QIcon & icon, const QImage & avatar) :
 	QWidget(NULL),
-	ui(new Ui::SipCallNotifyer)
+	ui(new Ui::SipCallNotifyer),
+#ifdef QT_PHONON_LIB
+	FMediaObject(NULL),
+	FAudioOutput(NULL)
+#else
+	FSound(NULL)
+#endif
+
 {
 	ui->setupUi(this);
 	ui->caption->setText(caption);
@@ -54,6 +62,7 @@ SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice
 
 SipCallNotifyer::~SipCallNotifyer()
 {
+	muteSound();
 	delete ui;
 }
 
@@ -98,12 +107,63 @@ void SipCallNotifyer::appear()
 	}
 
 	animation->start(QAbstractAnimation::DeleteWhenStopped);
-	// TODO: start ringing sound
+	startSound();
 }
 
 void SipCallNotifyer::disappear()
 {
-	(border ? (QWidget *)border : (QWidget *)this)->hide();
+	(border ? (QWidget *)border : (QWidget *)this)->close();
+}
+
+void SipCallNotifyer::startSound()
+{
+	static QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL);
+#ifdef QT_PHONON_LIB
+	if (!FMediaObject)
+	{
+		FMediaObject = new Phonon::MediaObject(this);
+		FMediaObject->setCurrentSource(soundFile);
+		FAudioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
+		Phonon::createPath(FMediaObject, FAudioOutput);
+		connect(FMediaObject, SIGNAL(finished()), FMediaObject, SLOT(play())); // looping
+	}
+	if (FMediaObject->state() != Phonon::PlayingState)
+	{
+		FMediaObject->play();
+	}
+#else
+	if (QSound::isAvailable())
+	{
+		if (!FSound || (FSound && FSound->isFinished()))
+		{
+			delete FSound;
+			FSound = new QSound(soundFile);
+			FSound->setLoops(-1);
+			FSound->play();
+		}
+	}
+# ifdef Q_WS_X11
+	else
+	{
+		QProcess::startDetached(Options::node(OPV_NOTIFICATIONS_SOUND_COMMAND).value().toString(),QStringList()<<soundFile);
+	}
+# endif
+#endif
+}
+
+void SipCallNotifyer::muteSound()
+{
+#ifdef QT_PHONON_LIB
+	if (FMediaObject)
+	{
+		FMediaObject->pause();
+	}
+#else
+	if (FSound)
+	{
+		FSound->stop();
+	}
+#endif
 }
 
 void SipCallNotifyer::acceptClicked()
@@ -120,8 +180,11 @@ void SipCallNotifyer::rejectClicked()
 
 void SipCallNotifyer::muteClicked()
 {
+	if (_muted)
+		startSound();
+	else
+		muteSound();
 	_muted = !_muted;
-	// TODO: mute sound
 }
 
 void SipCallNotifyer::paintEvent(QPaintEvent * pe)
