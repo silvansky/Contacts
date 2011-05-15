@@ -21,6 +21,7 @@
 #include <QToolButton>
 #include <QLineEdit>
 #include <QTextEdit>
+#include <QSpinBox>
 #include <QSplitter>
 #include <QAbstractItemView>
 #include <QTreeView>
@@ -1095,6 +1096,7 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 	// TODO: optimize
 	if (qobject_cast<QAbstractButton*>(obj) ||
 			qobject_cast<QLineEdit*>(obj) ||
+			qobject_cast<QSpinBox*>(obj) ||
 			qobject_cast<QComboBox*>(obj) ||
 			qobject_cast<QSplitter*>(obj) ||
 			qobject_cast<QTextEdit*>(obj->parent()) ||
