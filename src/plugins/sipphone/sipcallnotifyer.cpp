@@ -63,6 +63,12 @@ SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice
 SipCallNotifyer::~SipCallNotifyer()
 {
 	muteSound();
+#ifdef QT_PHONON_LIB
+	delete FMediaObject;
+	delete FAudioOutput;
+#else
+	delete FSound;
+#endif
 	delete ui;
 }
 
