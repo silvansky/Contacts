@@ -2,7 +2,6 @@
 #define RAMBLERHISTORY_H
 
 #include <definitions/resources.h>
-#include <definitions/customborder.h>
 #include <definitions/namespaces.h>
 #include <definitions/optionnodes.h>
 #include <definitions/optionvalues.h>
@@ -18,8 +17,6 @@
 #include <utils/datetime.h>
 #include <utils/errorhandler.h>
 #include <utils/widgetmanager.h>
-#include <utils/customborderstorage.h>
-#include <utils/custombordercontainer.h>
 #include "viewhistorywindow.h"
 
 class RamblerHistory : 

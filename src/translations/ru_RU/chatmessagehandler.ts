@@ -151,9 +151,5 @@
         <source>Failed to load history messages from server</source>
         <translation>Не удалось загрузить сообщения с сервера</translation>
     </message>
-    <message>
-        <source>Update</source>
-        <translation>Обновить</translation>
-    </message>
 </context>
 </TS>

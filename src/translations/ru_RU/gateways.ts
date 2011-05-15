@@ -157,14 +157,6 @@
         <translation>Учётные записи</translation>
     </message>
     <message>
-        <source>Linked accounts</source>
-        <translation>Подключенные учётные записи</translation>
-    </message>
-    <message>
-        <source>Append account</source>
-        <translation>Добавить учётную запись</translation>
-    </message>
-    <message>
         <source>ICQ</source>
         <translation>ICQ</translation>
     </message>
@@ -260,6 +252,10 @@
         <source>Agent@Mail.ru</source>
         <translation>Агент@Mail.ru</translation>
     </message>
+    <message>
+        <source>Add account</source>
+        <translation>Добавить учетную запись</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>
@@ -280,16 +276,12 @@
         <translation>Подключено</translation>
     </message>
     <message>
-        <source>Disconnected</source>
-        <translation>Отключено</translation>
+        <source>Delete</source>
+        <translation>Удалить</translation>
     </message>
     <message>
-        <source>Connecting...</source>
-        <translation>Подключение...</translation>
-    </message>
-    <message>
-        <source>Disconnecting...</source>
-        <translation>Отключение...</translation>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>

@@ -182,9 +182,6 @@ QWidget *RamblerHistory::showViewHistoryWindow(const Jid &AStreamJid, const Jid 
 			if (!window)
 			{
 				window = new ViewHistoryWindow(roster,AContactJid);
-				CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window,CBS_WINDOW);
-				if (border)
-					border->setAttribute(Qt::WA_DeleteOnClose, true);
 				connect(window,SIGNAL(windowDestroyed()),SLOT(onViewHistoryWindowDestroyed()));
 				FViewWindows.insertMulti(roster,window);
 			}

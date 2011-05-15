@@ -30,6 +30,7 @@
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
+#include <utils/log.h>
 #include <utils/stanza.h>
 #include "smsinfowidget.h"
 
@@ -69,7 +70,8 @@ struct StyleExtension
 enum HisloryLoadState {
 	HLS_READY,
 	HLS_WAITING,
-	HLS_FINISHED
+	HLS_FINISHED,
+	HLS_FAILED
 };
 
 class SmsMessageHandler :
@@ -137,7 +139,7 @@ protected:
 	void replaceRequestedMessage(IChatWindow *AWindow, const QString &AMessageId, bool AReceived);
 protected:
 	void requestHistoryMessages(IChatWindow *AWindow, int ACount);
-	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit = false);
+	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState);
 protected:
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;

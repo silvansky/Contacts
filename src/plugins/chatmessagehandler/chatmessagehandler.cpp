@@ -1,7 +1,6 @@
 #include "chatmessagehandler.h"
 
 #include <QMessageBox>
-#include <utils/log.h>
 
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    25
@@ -690,7 +689,8 @@ IPresenceItem ChatMessageHandler::findPresenceItem(IPresence *APresence, const J
 
 void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState)
 {
-	static QString urlMask = QString("<a href='%1'>%2</a>");
+	static QString urlMask = QString("<a class=\"%3\" href='%1'>%2</a>");
+	static QString msgMask = QString("<div class=\"%2\">%1</div>");
 
 	if (FRamblerHistory && FRamblerHistory->isSupported(AWindow->streamJid()))
 	{
@@ -701,46 +701,40 @@ void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState
 		options.noScroll = true;
 		options.status = IMessageContentOptions::HistoryShow;
 
-		QString message = "<table width='98%'><tr>";
+		QString message = "<div class=\"v-chat-header\">";
 
-		message += "<td align='left'>";
 		if (AState == HLS_READY)
 		{
 			QUrl showMesagesUrl;
 			showMesagesUrl.setScheme(URL_SCHEME_ACTION);
 			showMesagesUrl.setPath(URL_PATH_HISTORY);
 			showMesagesUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("messages")));
-			message += urlMask.arg(showMesagesUrl.toString()).arg(tr("Download another %1 messages").arg(HISTORY_MESSAGES_COUNT));
+			message += urlMask.arg(showMesagesUrl.toString()).arg(tr("Download another %1 messages").arg(HISTORY_MESSAGES_COUNT)).arg("v-chat-header-b");
 		}
 		else if (AState == HLS_WAITING)
 		{
-			message += tr("Loading messages from server...");
+			message += msgMask.arg(tr("Loading messages from server...")).arg("v-chat-header-b");
 		}
 		else if (AState == HLS_FINISHED)
 		{
-			message += tr("All messages loaded");
+			message += msgMask.arg(tr("All messages loaded")).arg("v-chat-header-b");
 		}
 		else if (AState == HLS_FAILED)
 		{
-			message += tr("Failed to load history messages from server");
+			message += msgMask.arg(tr("Failed to load history messages from server")).arg("v-chat-header-b");
 		}
 
 		QUrl updateHistoryUrl;
 		updateHistoryUrl.setScheme(URL_SCHEME_ACTION);
 		updateHistoryUrl.setPath(URL_PATH_HISTORY);
 		updateHistoryUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("update")));
-		message += " " + urlMask.arg(updateHistoryUrl.toString()).arg(tr("Update"));
-		message += "</td>";
+		message += urlMask.arg(updateHistoryUrl.toString()).arg(QString::null).arg("v-chat-header-b v-chat-header-reload");
 
-		message += "<td align='right'>";
 		QUrl showWindowUrl;
 		showWindowUrl.setScheme(URL_SCHEME_ACTION);
 		showWindowUrl.setPath(URL_PATH_HISTORY);
 		showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
-		message += urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history"));
-		message += "</td>";
-
-		message += "</tr></table>";
+		message += urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history")).arg("v-chat-header-history");
 
 		WindowStatus &wstatus = FWindowStatus[AWindow];
 		if (!wstatus.historyRequestId.isNull())

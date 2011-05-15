@@ -537,8 +537,6 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 		messageStatus = MSSK_DATE_SEPARATOR;
 	else if (AOptions.status == IMessageContentOptions::HistoryShow)
 		messageStatus = MSSK_HISTORY_SHOW;
-	else if (AOptions.status == IMessageContentOptions::HistoryRequest)
-		messageStatus = MSSK_HISTORY_REQUEST;
 	if (!messageStatus.isEmpty())
 		messageClasses << messageStatus;
 

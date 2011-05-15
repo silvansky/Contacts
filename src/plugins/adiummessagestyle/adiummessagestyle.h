@@ -58,7 +58,6 @@
 #define MSSK_FILETRANSFER_CONPLETE          "fileTransferComplete"
 //Rambler only
 #define MSSK_HISTORY_SHOW                   "history_show"
-#define MSSK_HISTORY_REQUEST                "history_request"
 
 //Message Style Options
 #define MSO_STYLE_ID                        "styleId"

@@ -2,11 +2,16 @@
 #define VIEWHISTORYWINDOW_H
 
 #include <QMainWindow>
+#include <definitions/customborder.h>
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
 #include <interfaces/iroster.h>
+#include <interfaces/iconnectionmanager.h>
+#include <interfaces/idefaultconnection.h>
 #include <utils/jid.h>
 #include <utils/stylestorage.h>
+#include <utils/custombordercontainer.h>
+#include <utils/customborderstorage.h>
 #include "ui_viewhistorywindow.h"
 
 class ViewHistoryWindow : 
@@ -29,6 +34,7 @@ private:
 	Ui::ViewHistoryWindowClass ui;
 private:
 	IRoster *FRoster;
+	CustomBorderContainer *FBorder;
 private:
 	Jid FContactJid;
 };
