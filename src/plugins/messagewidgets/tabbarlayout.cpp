@@ -203,6 +203,7 @@ int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStreatch, bool ARe
 		{
 			item->setGeometry(itemRect);
 		}
+		// TODO: cast ((QWidgetItem*)item)->widget to TabBarItem and set some properties to it
 	}
 	return y - availRect.top() + lineHeight + top + bottom;
 }

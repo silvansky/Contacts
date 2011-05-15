@@ -15,6 +15,7 @@ AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, const Jid
 	connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
 
 	FLayout = new QHBoxLayout(ui.wdtGateways);
+	FLayout->setContentsMargins(20, 6, 20, 6);
 	FLayout->addStretch();
 
 	onServicesChanged(FStreamJid);
@@ -41,13 +42,15 @@ void AddLegacyAccountOptions::appendServiceButton(const Jid &AServiceJid)
 	if (!FWidgets.contains(AServiceJid) && !descriptor.id.isEmpty() && descriptor.needLogin)
 	{
 		QWidget *widget = new QWidget(ui.wdtGateways);
-		widget->setMinimumWidth(widget->fontMetrics().boundingRect("XXXXXXXXXXX").width());
+		widget->setObjectName("serviceContainer");
+		//widget->setMinimumWidth(widget->fontMetrics().boundingRect("XXXXXXXXXXX").width());
 
 		QVBoxLayout *wlayout = new QVBoxLayout;
 		wlayout->setMargin(0);
 		widget->setLayout(wlayout);
 
 		QToolButton *button = new QToolButton(widget);
+		button->setObjectName("serviceButton");
 		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
 		button->setIconSize(QSize(32,32));
 

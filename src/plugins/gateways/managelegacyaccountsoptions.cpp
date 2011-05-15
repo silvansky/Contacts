@@ -11,6 +11,7 @@ ManageLegacyAccountsOptions::ManageLegacyAccountsOptions(IGateways *AGateways, c
 	FLayout = new QVBoxLayout();
 	ui.wdtAccounts->setLayout(FLayout);
 	FLayout->setMargin(0);
+	FLayout->setSpacing(0);
 
 	onStreamServicesChanged(FStreamJid);
 }
@@ -38,6 +39,12 @@ void ManageLegacyAccountsOptions::appendServiceOptions(const Jid &AServiceJid)
 		if (!descriptor.id.isEmpty() && descriptor.needLogin)
 		{
 			LegacyAccountOptions *options = new LegacyAccountOptions(FGateways,FStreamJid,AServiceJid,ui.wdtAccounts);
+			if (FLayout->count() && !qobject_cast<QFrame*>(FLayout->itemAt(FLayout->count() - 1)->widget()))
+			{
+				QFrame * frame = new QFrame;
+				frame->setObjectName("serviceSeparator");
+				FLayout->addWidget(frame);
+			}
 			FLayout->addWidget(options);
 			FOptions.insert(AServiceJid,options);
 		}
@@ -49,6 +56,9 @@ void ManageLegacyAccountsOptions::removeServiceOptions(const Jid &AServiceJid)
 	if (FOptions.contains(AServiceJid))
 	{
 		LegacyAccountOptions *options = FOptions.take(AServiceJid);
+		int i = FLayout->indexOf(options);
+		if (i && qobject_cast<QFrame*>(FLayout->itemAt(i - 1)->widget()))
+			FLayout->takeAt(i - 1)->widget()->deleteLater();
 		FLayout->removeWidget(options);
 		options->deleteLater();
 	}

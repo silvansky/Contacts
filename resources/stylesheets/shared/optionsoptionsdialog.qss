@@ -172,3 +172,35 @@ QLabel#serviceName
 {
 	font-size: 10px;
 }
+
+/******************
+ * service button *
+ ******************/
+
+QToolButton#serviceButton
+{
+	min-width: 30px;
+	max-width: 30px;
+	width: 30px;
+	min-height: 30px;
+	max-height: 30px;
+	height: 30px;
+	padding: 0px;
+}
+
+QWidget#serviceContainer
+{
+	min-width: 52px;
+	width: 52px;
+}
+
+QFrame#serviceSeparator
+{
+	border-top: 1px solid #2f343b;
+	border-bottom: 1px solid #5e6369;
+	min-height: 0px;
+	max-height: 0px;
+	height: 0px;
+	margin-left: 36px;
+	margin-right: 24px;
+}
