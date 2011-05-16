@@ -117,10 +117,6 @@
         <translation>SMS</translation>
     </message>
     <message>
-        <source>Mail</source>
-        <translation>Почта</translation>
-    </message>
-    <message>
         <source>ICQ</source>
         <translation>ICQ</translation>
     </message>
@@ -244,6 +240,10 @@
         <source>Create</source>
         <translation>Создать</translation>
     </message>
+    <message>
+        <source>E-mail</source>
+        <translation>E-mail</translation>
+    </message>
 </context>
 <context>
     <name>MetaProfileDialog</name>
@@ -270,6 +270,14 @@
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation>Телефон</translation>
+    </message>
+    <message>
+        <source>E-mail</source>
+        <translation>E-mail</translation>
     </message>
 </context>
 <context>
@@ -331,6 +339,10 @@
     <message>
         <source>Add contact</source>
         <translation>Добавить контакт</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 </TS>

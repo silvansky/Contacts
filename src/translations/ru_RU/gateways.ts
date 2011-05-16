@@ -69,6 +69,10 @@
         <source>Add %1 account</source>
         <translation>Добавить учетную запись %1</translation>
     </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
 </context>
 <context>
     <name>AddLegacyAccountDialogClass</name>

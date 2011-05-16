@@ -302,6 +302,10 @@
         <source>Incoming call</source>
         <translation>Воходящий вызов</translation>
     </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
 </context>
 <context>
     <name>SipPhoneProxy</name>
@@ -331,6 +335,10 @@
     </message>
     <message>
         <source>Friends</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Videocall with: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>

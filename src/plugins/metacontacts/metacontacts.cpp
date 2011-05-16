@@ -656,7 +656,7 @@ void MetaContacts::initMetaItemDescriptors()
 	FMetaItemDescriptors.append(sms);
 
 	IMetaItemDescriptor mail;
-	mail.name = tr("Mail");
+	mail.name = tr("E-mail");
 	mail.icon = MNI_METACONTACTS_ITEM_MAIL;
 	mail.combine = false;
 	mail.detach = false;

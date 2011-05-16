@@ -70,6 +70,10 @@
         <source>Enter new name</source>
         <translation>Введите новое имя</translation>
     </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
 </context>
 <context>
     <name>VCardDialog</name>
@@ -104,6 +108,10 @@
     <message>
         <source>Phone:</source>
         <translation>Телефон:</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ok</translation>
     </message>
 </context>
 <context>

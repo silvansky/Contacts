@@ -158,6 +158,15 @@ void MetaProfileDialog::updateLeftLabelsSizes()
 		it->metaLabel->setMinimumWidth(maxWidth);
 }
 
+QString MetaProfileDialog::metaLabelText(const IMetaItemDescriptor &ADescriptor) const
+{
+	if (ADescriptor.metaOrder == MIO_SMS)
+		return tr("Phone");
+	else if (ADescriptor.metaOrder == MIO_MAIL)
+		return tr("E-mail");
+	return ADescriptor.name;
+}
+
 void MetaProfileDialog::onAdjustDialogSize()
 {
 	updateLeftLabelsSizes();
@@ -283,7 +292,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 					container.metaWidget->layout()->setMargin(0);
 					ui.sawContents->layout()->addWidget(container.metaWidget);
 
-					container.metaLabel = new QLabel(descriptor.name+":",container.metaWidget);
+					container.metaLabel = new QLabel(metaLabelText(descriptor)+":",container.metaWidget);
 					container.metaLabel->setMinimumWidth(50);
 					container.metaLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
 					container.metaWidget->layout()->addWidget(container.metaLabel);

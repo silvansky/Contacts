@@ -8,6 +8,7 @@
 #include <definitions/customborder.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/vcardvaluenames.h>
+#include <definitions/metaitemorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/igateways.h>
@@ -52,6 +53,7 @@ protected:
 	void initialize(IPluginManager *APluginManager);
 	void updateBirthday();
 	void updateLeftLabelsSizes();
+	QString metaLabelText(const IMetaItemDescriptor &ADescriptor) const;
 protected slots:
 	void onAdjustDialogSize();
 	void onAdjustBorderSize();

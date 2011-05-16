@@ -15,10 +15,6 @@
 <context>
     <name>ViewHistoryWindow</name>
     <message>
-        <source>Enter</source>
-        <translation>Войти</translation>
-    </message>
-    <message>
         <source>Chat history - %1</source>
         <translation>История чата - %1</translation>
     </message>

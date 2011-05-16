@@ -133,6 +133,10 @@
         <source>Failed to add contact due to an error: %1</source>
         <translation>Не удалось добавить контакт из-за ошибки: %1</translation>
     </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
 </context>
 <context>
     <name>AddMetaContactDialogClass</name>
