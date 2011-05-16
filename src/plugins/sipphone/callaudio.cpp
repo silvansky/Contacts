@@ -210,7 +210,7 @@ void CallAudio::audioIn( void )
 
     DspOutAlsa *inaudio = new DspOutAlsa( _alsaDeviceName );
 		connect(this, SIGNAL(proxySuspendStateChange(bool)), inaudio, SLOT(onSuspendChanged(bool)));
-		
+
    // QSettings settings;
 
     dbgPrintf( "CallAudio: Opening ALSA device for Input \n" );
@@ -318,7 +318,7 @@ SdpMessage CallAudio::audioOut( void )
   {
     // **** INPUT! MEDIA FROM NET ****
     // Создаем входящий поток RTP
-    DspOutRtp *inrtp = NULL; 
+    DspOutRtp *inrtp = NULL;
     if (_symMedia)
     {
       inrtp = new DspOutRtp( getRtpCodec(), getRtpCodecNum(), QString::null, &_symmSocket );
@@ -335,7 +335,7 @@ SdpMessage CallAudio::audioOut( void )
     inrtp->openDevice( DspOut::ReadOnly ); // RTP только читаем (поток вывода звука)
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    // Из RTP сохраняем в SDP порты для приема звука и видео потоков 
+    // Из RTP сохраняем в SDP порты для приема звука и видео потоков
     _localSDP.setPort( inrtp->getPortNum() ); // Устанавливаем порты
     _localSDP.setVideoPort( inrtp->getVideoPortNum() );
 
@@ -343,7 +343,7 @@ SdpMessage CallAudio::audioOut( void )
     // Выход через alsa (осталось из linux). В данном случае вывод через систему мультимедия QT)
     DspOutAlsa *outalsa = new DspOutAlsa( _alsaDeviceName );
 		//connect(this, SIGNAL(proxySuspendStateChange(bool)), outalsa, SLOT(onSuspendChanged(bool)));
-		
+
 
     //QSettings settings; // ПОПОВ НАКОЙ тут settings???
     dbgPrintf( "CallAudio: Opening ALSA device for Output\n" );
@@ -356,7 +356,7 @@ SdpMessage CallAudio::audioOut( void )
     }
 		else
 		{
-			emit audioOutputPresentChange(true);		
+			emit audioOutputPresentChange(true);
 		}
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -371,7 +371,7 @@ SdpMessage CallAudio::audioOut( void )
 		//connect(_pAudioOutput, SIGNAL(terminated()), this, SIGNAL(outputDead()));
 
 		//connect(_pAudioOutput, SIGNAL(terminated()), this, SLOT(onTerminated()));
-		connect(_pAudioOutput, SIGNAL(finished()), this, SLOT(onFinished()));
+		//connect(_pAudioOutput, SIGNAL(finished()), this, SLOT(onFinished()));
 		//connect(_pAudioOutput, SIGNAL(terminated()), this, SLOT(onUserExit()));
   }
 
@@ -426,7 +426,7 @@ void CallAudio::readAudioSettings( void )
 {
   //QSettings settings;
   //setALSADevicename( settings.value( "/settings/audio/alsa-devicename" ).toString() );
-  //if( settings.value( "/settings/Symmetric/Media", "Yes" ).toString() == "Yes" ) 
+  //if( settings.value( "/settings/Symmetric/Media", "Yes" ).toString() == "Yes" )
   //{
   //  setSymMediaMode( true );
   //}
@@ -557,13 +557,13 @@ bool CallAudio::checkCodec( SipCallMember *member )
     m = m.mid( m.indexOf( "RTP/AVP" ) + 7 );
     m += ' ';
 
-    // dynamic port 96-127 
+    // dynamic port 96-127
     if( mstr.toLower().contains( "ilbc/8000" ) )
     {
       ilbc = mstr.mid( mstr.toLower().indexOf( "ilbc/8000" ) - 7, 6 );
       if( ilbc.contains( ":" ) )
       {
-        ilbc = ilbc.mid( ilbc.indexOf( ":" ) + 1 );
+	ilbc = ilbc.mid( ilbc.indexOf( ":" ) + 1 );
       }
       ilbc = ilbc.simplified();
     }
@@ -574,7 +574,7 @@ bool CallAudio::checkCodec( SipCallMember *member )
       speex = mstr.mid( mstr.toLower().indexOf( "speex/8000" ) - 7, 6 );
       if( speex.contains( ":" ) )
       {
-        speex = speex.mid( speex.indexOf( ":" ) + 1 );
+	speex = speex.mid( speex.indexOf( ":" ) + 1 );
       }
       speex = speex.simplified();
     }
@@ -602,37 +602,37 @@ bool CallAudio::checkCodec( SipCallMember *member )
       _rtpCodec = codecPCMU;
       _rtpCodecNum = 0;
     }
-    else 
+    else
       if ( winner == posGSM )
       {
-        _rtpCodec = codecGSM;
-        _rtpCodecNum = 3;
+	_rtpCodec = codecGSM;
+	_rtpCodecNum = 3;
       }
       if ( winner == posPCMA )
       {
-        _rtpCodec = codecPCMA;
-        _rtpCodecNum = 8;
+	_rtpCodec = codecPCMA;
+	_rtpCodecNum = 8;
       }
-      else 
-        if( winner == posILBC )
-        {
-          _rtpCodec = codecILBC_30;
-          _rtpCodecNum = ilbc.toInt();
-          if( mstr.contains( "a=fmtp:" ) )
-          {
-            QString m = mstr.mid( mstr.indexOf( "a=fmtp:" ) );
-            m = m.left( m.indexOf( "\n" ) );
-            if( m.toLower().contains( "mode=20" ) )
-            {
-              _rtpCodec = codecILBC_20;
-            }
-          }
-        }
-        if( winner == posSpeex ) // ПОПОВ Speex
-        {
-          _rtpCodec = codecSpeex;
-          _rtpCodecNum = speex.toInt();
-        }
+      else
+	if( winner == posILBC )
+	{
+	  _rtpCodec = codecILBC_30;
+	  _rtpCodecNum = ilbc.toInt();
+	  if( mstr.contains( "a=fmtp:" ) )
+	  {
+	    QString m = mstr.mid( mstr.indexOf( "a=fmtp:" ) );
+	    m = m.left( m.indexOf( "\n" ) );
+	    if( m.toLower().contains( "mode=20" ) )
+	    {
+	      _rtpCodec = codecILBC_20;
+	    }
+	  }
+	}
+	if( winner == posSpeex ) // ПОПОВ Speex
+	{
+	  _rtpCodec = codecSpeex;
+	  _rtpCodecNum = speex.toInt();
+	}
   }
   if( mstr.contains( "m=video" ) )
   {
@@ -738,7 +738,7 @@ bool CallAudio::checkCodec( SipCallMember *member )
     {
       if( _pCurrentSipCall )
       {
-        _pCurrentSipCall->setCallType( SipCall::StandardCall ); 
+	_pCurrentSipCall->setCallType( SipCall::StandardCall );
       }
     }
   }
@@ -758,17 +758,17 @@ void CallAudio::memberStatusUpdated(SipCallMember *member)
     {
       if( sdpm.isOnHold() )
       {
-        rsdp.setName( "Accepting on hold" );
-        rsdp.setIpAddress( "0.0.0.0" );
-        rsdp.setPort( 0 );
-        rsdp.setVideoPort( 0 );
-        _pCurrentSipCallMember->acceptInvite( rsdp.message( getRtpCodec(), getVideoRtpCodec(), getBodyMask() ), MimeContentType( "application/sdp" ) );
-        stopSendingAudio();
-        stopListeningAudio();
+	rsdp.setName( "Accepting on hold" );
+	rsdp.setIpAddress( "0.0.0.0" );
+	rsdp.setPort( 0 );
+	rsdp.setVideoPort( 0 );
+	_pCurrentSipCallMember->acceptInvite( rsdp.message( getRtpCodec(), getVideoRtpCodec(), getBodyMask() ), MimeContentType( "application/sdp" ) );
+	stopSendingAudio();
+	stopListeningAudio();
       }
       else
       {
-        _pCurrentSipCallMember->acceptInvite( audioOut().message( getRtpCodec(), getVideoRtpCodec(), getBodyMask() ), MimeContentType( "application/sdp" ) );
+	_pCurrentSipCallMember->acceptInvite( audioOut().message( getRtpCodec(), getVideoRtpCodec(), getBodyMask() ), MimeContentType( "application/sdp" ) );
       }
     }
     if( sdpm != _remoteSDP )
@@ -776,24 +776,24 @@ void CallAudio::memberStatusUpdated(SipCallMember *member)
       _remoteSDP = sdpm;
       if( !sdpm.isOnHold() )
       {
-        if( _pAudioOutput )
-        {
-          _pAudioOutput->setCodec( getRtpCodec(), getRtpCodecNum() );
-          audioIn();
-          _pAudioOutput->start();
+	if( _pAudioOutput )
+	{
+	  _pAudioOutput->setCodec( getRtpCodec(), getRtpCodecNum() );
+	  audioIn();
+	  _pAudioOutput->start();
 					_incomingThreadTimeUpdateTimer = startTimer(1000);
 
-          _pAudioInput->start();
-        }
-        ////else if( jack_audioout )
-        ////{
-        ////  //					jack_audioout->setCodec( getRtpCodec(), getRtpCodecNum() );
-        ////  audioIn();
-        ////  /*
-        ////  jack_audioout->start();
-        ////  jack_audioin->start();
-        ////  */
-        ////}
+	  _pAudioInput->start();
+	}
+	////else if( jack_audioout )
+	////{
+	////  //					jack_audioout->setCodec( getRtpCodec(), getRtpCodecNum() );
+	////  audioIn();
+	////  /*
+	////  jack_audioout->start();
+	////  jack_audioin->start();
+	////  */
+	////}
       }
       statusUpdated();
     }
@@ -810,7 +810,7 @@ void CallAudio::detachFromCall( void )
   stopSendingAudio();
   stopListeningAudio();
   setCurrentCall( 0 );
-  
+
   //if(_pVideoProcess)
   //{
   //  _pVideoProcess->terminate();
@@ -869,22 +869,22 @@ int CallAudio::getRtpCodecNum( void )
     switch( _audioCodec )
     {
       case codecGSM:
-        c = 3;
-        break;
+	c = 3;
+	break;
       case codecPCMA:
-        c = 8;
-        break;
+	c = 8;
+	break;
       case codecILBC_20:
       case codecILBC_30:
-        c = 98;
-        break;
+	c = 98;
+	break;
       case codecSpeex:
-        c = 97;
-        break;
+	c = 97;
+	break;
       case codecPCMU:
       default:
-        c = 0;
-        break;
+	c = 0;
+	break;
     }
   }
   return c;
@@ -902,11 +902,11 @@ codecType CallAudio::getVideoRtpCodec( void )
     {
       if( _pCurrentSipCall->getCallType() == SipCall::videoCall )
       {
-        return _videoCodec;
+	return _videoCodec;
       }
       else
       {
-        return codecUnknown;
+	return codecUnknown;
       }
     }
     else
@@ -935,17 +935,17 @@ int CallAudio::getVideoRtpCodecNum( void )
     switch( _videoCodec )
     {
       case codecH261:
-        c = 31;
-        break;
+	c = 31;
+	break;
       case codecH263:
-        c = 34;
-        break;
+	c = 34;
+	break;
       case codecH264:
-        c = 99;
-        break;
+	c = 99;
+	break;
       default:
-        c = -1;
-        break;
+	c = -1;
+	break;
     }
   }
   return c;
@@ -963,15 +963,15 @@ QString CallAudio::getVideoRtpCodecName( void )
     switch( _videoRtpCodec )
     {
       case codecH263:
-        c = "h263";
-        break;
+	c = "h263";
+	break;
       default:
       case codecH261:
-        c = "h261";
-        break;
+	c = "h261";
+	break;
       case codecH264:
-        c = "h264";
-        break;
+	c = "h264";
+	break;
     }
   }
   else
@@ -979,15 +979,15 @@ QString CallAudio::getVideoRtpCodecName( void )
     switch( _videoCodec )
     {
       case codecH263:
-        c = "h263";
-        break;
+	c = "h263";
+	break;
       default:
       case codecH261:
-        c = "h261";
-        break;
+	c = "h261";
+	break;
       case codecH264:
-        c = "h264";
-        break;
+	c = "h264";
+	break;
     }
   }
   return c;
