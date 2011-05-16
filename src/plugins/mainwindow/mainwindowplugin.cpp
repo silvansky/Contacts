@@ -28,9 +28,10 @@ MainWindowPlugin::MainWindowPlugin()
 	{
 		FMainWindowBorder->setMaximizeButtonVisible(false);
 		FMainWindowBorder->setMinimizeButtonVisible(false);
+		FMainWindowBorder->setDockingEnabled(true);
 	}
 	FMainWindow->installEventFilter(this);
-	WidgetManager::setWindowSticky(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow, true);
+	//WidgetManager::setWindowSticky(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow, true);
 }
 
 MainWindowPlugin::~MainWindowPlugin()

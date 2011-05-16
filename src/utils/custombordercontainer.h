@@ -36,6 +36,8 @@ public:
 	void setCloseOnDeactivate(bool enabled = true);
 	bool staysOnTop() const;
 	void setStaysOnTop(bool on = true);
+	bool dockingEnabled() const;
+	void setDockingEnabled(bool enabled);
 signals:
 	void minimizeClicked();
 	void maximizeClicked();

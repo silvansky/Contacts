@@ -105,7 +105,8 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderCon
 	restore(other.restore),
 	headerButtons(other.headerButtons),
 	dragAnywhere(other.dragAnywhere),
-	p(NULL)
+	p(NULL),
+	dockingEnabled(other.dockingEnabled)
 {
 }
 
@@ -223,6 +224,7 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 void CustomBorderContainerPrivate::setAllDefaults()
 {
 	dragAnywhere = false;
+	dockingEnabled = false;
 	setDefaultBorder(left);
 	setDefaultBorder(right);
 	setDefaultBorder(top);
@@ -831,6 +833,16 @@ void CustomBorderContainer::setStaysOnTop(bool on)
 			setWindowFlags(windowFlags() ^ Qt::WindowStaysOnTopHint);
 }
 
+bool CustomBorderContainer::dockingEnabled() const
+{
+	return borderStyle->dockingEnabled;
+}
+
+void CustomBorderContainer::setDockingEnabled(bool enabled)
+{
+	borderStyle->dockingEnabled = enabled;
+}
+
 void CustomBorderContainer::changeEvent(QEvent *e)
 {
 	QWidget::changeEvent(e);
@@ -1187,6 +1199,8 @@ void CustomBorderContainer::setGeometryState(GeometryState newGeometryState)
 void CustomBorderContainer::updateGeometry(const QPoint & p)
 {
 	int dx, dy;
+	QDesktopWidget * desktop = qApp->desktop();
+	QRect screenRect = desktop->availableGeometry(p);
 	switch (geometryState())
 	{
 	case Resizing:
@@ -1221,11 +1235,25 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 		}
 		break;
 	case Moving:
+	{
 		dx = p.x() - oldPressPoint.x();
 		dy = p.y() - oldPressPoint.y();
 		oldPressPoint = p;
-		oldGeometry.moveTo(oldGeometry.left() + dx, oldGeometry.top() + dy);
+		int newLeft = oldGeometry.left() + dx;
+		if (borderStyle->dockingEnabled)
+		{
+			// TODO: dock to screenRect
+			const int dockWidth = 10;
+			// dock right
+			if (abs(newLeft + oldGeometry.width() - rightBorderWidth() - screenRect.right()) < dockWidth)
+				newLeft = screenRect.right() - oldGeometry.width() + leftBorderWidth() - rightBorderWidth();
+			// dock left
+			if (abs(screenRect.left() - leftBorderWidth() - newLeft) < dockWidth)
+				newLeft = screenRect.left() - leftBorderWidth();
+		}
+		oldGeometry.moveTo(newLeft, oldGeometry.top() + dy);
 		break;
+	}
 	case None:
 		oldGeometry = QRect();
 		break;

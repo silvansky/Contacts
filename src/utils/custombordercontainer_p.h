@@ -49,6 +49,7 @@ protected:
 	HeaderButton minimize, maximize, close, restore;
 	bool dragAnywhere;
 	QMultiMap<int, HeaderButton> headerButtons;
+	bool dockingEnabled;
 };
 
 #endif // CUSTOMBORDERCONTAINER_P_H
