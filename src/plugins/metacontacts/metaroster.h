@@ -37,7 +37,6 @@ public:
 	virtual QList<QString> metaContacts() const;
 	virtual IMetaContact metaContact(const QString &AMetaId) const;
 	virtual QString itemMetaContact(const Jid &AItemJid) const;
-	virtual IRosterItem metaRosterItem(const QString &AMetaId) const;
 	virtual IPresenceItem metaPresenceItem(const QString &AMetaId) const;
 	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const;
 	virtual QString metaAvatarHash(const QString &AMetaId) const;
@@ -72,6 +71,7 @@ protected:
 	void setEnabled(bool AEnabled);
 	void clearMetaContacts();
 	void removeMetaContact(const QString &AMetaId);
+	IRosterItem metaRosterItem(const QSet<Jid> AItems) const;
 	void processMetasElement(QDomElement AMetasElement, bool ACompleteRoster);
 	Stanza convertMetaElemToRosterStanza(QDomElement AMetaElem) const;
 	Stanza convertRosterElemToMetaStanza(QDomElement ARosterElem) const;

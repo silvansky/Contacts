@@ -285,8 +285,6 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 		bool createdNewIndexes = false;
 		if (!AContact.items.isEmpty())
 		{
-			IRosterItem ritem = AMetaRoster->metaRosterItem(AContact.id);
-
 			QStringList contactItems;
 			foreach(Jid itemJid, FMetaContacts->itemOrders(AContact.items.toList()).values())
 				contactItems.append(itemJid.pBare());
@@ -355,9 +353,9 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 					rosterMetaIndexes.insertMulti(AContact.id,groupItemIndex);
 				}
 
-				groupItemIndex->setData(RDR_NAME,ritem.name);
-				groupItemIndex->setData(RDR_ASK,ritem.ask);
-				groupItemIndex->setData(RDR_SUBSCRIBTION,ritem.subscription);
+				groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
+				groupItemIndex->setData(RDR_ASK,AContact.ask);
+				groupItemIndex->setData(RDR_SUBSCRIBTION,AContact.subscription);
 				groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
 				FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
 

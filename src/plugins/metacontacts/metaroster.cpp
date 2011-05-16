@@ -182,37 +182,6 @@ QString MetaRoster::itemMetaContact(const Jid &AItemJid) const
 	return FItemMetaId.value(AItemJid.pBare());
 }
 
-IRosterItem MetaRoster::metaRosterItem(const QString &AMetaId) const
-{
-	IRosterItem ritem;
-	if (FContacts.contains(AMetaId))
-	{
-		IMetaContact contact = FContacts.value(AMetaId);
-
-		ritem.isValid = true;
-		ritem.name = FMetaContacts->metaContactName(contact);
-		ritem.groups = contact.groups;
-		ritem.subscription = SUBSCRIPTION_NONE;
-
-		bool isServiceOnly = true;
-		for (QSet<Jid>::const_iterator it=contact.items.constBegin(); it!=contact.items.constEnd(); it++)
-		{
-			if (!FMetaContacts->metaDescriptorByItem(*it).service)
-			{
-				isServiceOnly = false;
-				IRosterItem childRosterItem = roster()->rosterItem(*it);
-				if (ritem.ask.isEmpty() && !childRosterItem.ask.isEmpty())
-					ritem.ask = childRosterItem.ask;
-				if (ritem.subscription == SUBSCRIPTION_NONE)
-					ritem.subscription = childRosterItem.subscription;
-				else if (childRosterItem.subscription == SUBSCRIPTION_BOTH)
-					ritem.subscription = childRosterItem.subscription;
-			}
-		}
-	}
-	return ritem;
-}
-
 IPresenceItem MetaRoster::metaPresenceItem(const QString &AMetaId) const
 {
 	IPresenceItem pitem;
@@ -385,7 +354,8 @@ QString MetaRoster::createContact(const IMetaContact &AContact)
 		foreach(Jid itemJid, AContact.items)
 			mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
 		foreach(QString group, AContact.groups)
-			mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
+			if (!group.isEmpty())
+				mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
 			FActionRequests.append(query.id());
@@ -473,7 +443,8 @@ QString MetaRoster::setContactGroups(const QString &AMetaId, const QSet<QString>
 		mcElem.setAttribute("action",MC_ACTION_GROUPS);
 		mcElem.setAttribute("id",AMetaId);
 		foreach(QString group, AGroups)
-			mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
+			if (!group.isEmpty())
+				mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
 
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
@@ -612,6 +583,35 @@ void MetaRoster::removeMetaContact(const QString &AMetaId)
 	emit metaContactReceived(contact,before);
 }
 
+IRosterItem MetaRoster::metaRosterItem(const QSet<Jid> AItems) const
+{
+	IRosterItem ritem;
+	
+	QList<Jid> contactItems;
+	QList<Jid> serviceItems;
+	for (QSet<Jid>::const_iterator it=AItems.constBegin(); it!=AItems.constEnd(); it++)
+	{
+		if (FMetaContacts->metaDescriptorByItem(*it).service)
+			serviceItems.append(*it);
+		else
+			contactItems.append(*it);
+	}
+
+	QList<Jid> items = FMetaContacts->itemOrders(contactItems.isEmpty() ? serviceItems : contactItems).values();
+	for (QList<Jid>::const_iterator it=items.constBegin(); it!=items.constEnd(); it++)
+	{
+		IRosterItem childRosterItem = roster()->rosterItem(*it);
+		if (ritem.ask.isEmpty() && !childRosterItem.ask.isEmpty())
+			ritem.ask = childRosterItem.ask;
+		if (ritem.subscription == SUBSCRIPTION_NONE)
+			ritem.subscription = childRosterItem.subscription;
+		else if (childRosterItem.subscription == SUBSCRIPTION_BOTH)
+			ritem.subscription = childRosterItem.subscription;
+	}
+
+	return ritem;
+}
+
 void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRoster)
 {
 	if (!AMetasElement.isNull())
@@ -654,7 +654,9 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 				QDomElement groupElem = mcElem.firstChildElement("group");
 				while (!groupElem.isNull())
 				{
-					contact.groups += groupElem.text();
+					QString group = groupElem.text();
+					if (!group.isEmpty())
+						contact.groups += group;
 					groupElem = groupElem.nextSiblingElement("group");
 				}
 
@@ -663,11 +665,20 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 					IMetaContact &modContact = FContacts[modMetaId];
 					IMetaContact modBefore = modContact;
 					modContact.items -= contact.items;
+
+					IRosterItem ritem = metaRosterItem(modContact.items);
+					modContact.ask = ritem.ask;
+					modContact.subscription = ritem.subscription;
+
 					if (!modContact.items.isEmpty())
 						emit metaContactReceived(modContact,modBefore);
 					else
 						removeMetaContact(modMetaId);
 				}
+
+				IRosterItem ritem = metaRosterItem(contact.items);
+				contact.ask = ritem.ask;
+				contact.subscription = ritem.subscription;
 
 				if (contact != before)
 					emit metaContactReceived(contact,before);

@@ -13,10 +13,12 @@ struct IMetaContact
 {
 	QString id;
 	QString name;
+	QString ask;
+	QString subscription;
 	QSet<Jid> items;
 	QSet<QString> groups;
 	bool operator==(const IMetaContact &AOther) const {
-		return id==AOther.id && name==AOther.name && items==AOther.items && groups==AOther.groups;
+		return id==AOther.id && name==AOther.name && ask!=AOther.ask && subscription!=AOther.subscription && items==AOther.items && groups==AOther.groups;
 	}
 	bool operator!=(const IMetaContact &AOther) const {
 		return !operator==(AOther);
@@ -49,7 +51,6 @@ public:
 	// Возвращает идентификатор метаконтакта metaId.
 	// AItemJid - это ContactJid может быть как с ресурсом так и без. Ресурс игнорируется.
 	virtual QString itemMetaContact(const Jid &AItemJid) const =0;
-	virtual IRosterItem metaRosterItem(const QString &AMetaId) const =0;
 	virtual IPresenceItem metaPresenceItem(const QString &AMetaId) const =0;
 	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const =0;
 	virtual QString metaAvatarHash(const QString &AMetaId) const =0;
