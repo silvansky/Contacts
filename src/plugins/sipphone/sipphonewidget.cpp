@@ -578,6 +578,7 @@ void SipPhoneWidget::updateAudioStatus( void )
 void SipPhoneWidget::audioOutputDead( void )
 {
 	dbgPrintf( "KCallAudio: Broken output pipe, disconnecting unpolitely\n" );
+	qDebug("SipPhoneWidget::audioOutputDead");
 	forceDisconnect();
 }
 

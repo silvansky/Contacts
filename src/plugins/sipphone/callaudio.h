@@ -84,6 +84,12 @@ public:
 
 	VoIPVideo* videoControl() const;
 
+public slots:
+	void onTerminated();
+	void onFinished();
+	void onUserExit();
+
+
 signals:
   void outputDead( void );
   void statusUpdated( void );

@@ -367,11 +367,31 @@ SdpMessage CallAudio::audioOut( void )
     dbgPrintf( QString(tr("CallAudio: Creating RTP->ALSA Diverter") + "\n").toLocal8Bit().constData() );
     _pAudioOutput = new DspAudioOut( in, out );
 
-		connect(_pAudioOutput, SIGNAL(finished()), this, SIGNAL(outputDead()));
+		//connect(_pAudioOutput, SIGNAL(finished()), this, SIGNAL(outputDead()));
+		//connect(_pAudioOutput, SIGNAL(terminated()), this, SIGNAL(outputDead()));
+
+		//connect(_pAudioOutput, SIGNAL(terminated()), this, SLOT(onTerminated()));
+		connect(_pAudioOutput, SIGNAL(finished()), this, SLOT(onFinished()));
+		//connect(_pAudioOutput, SIGNAL(terminated()), this, SLOT(onUserExit()));
   }
 
   return _localSDP;
 }
+
+void CallAudio::onTerminated()
+{
+	qDebug("CallAudio::onTerminated");
+}
+void CallAudio::onFinished()
+{
+	qDebug("CallAudio::onFinished");
+	emit outputDead();
+}
+void CallAudio::onUserExit()
+{
+	qDebug("CallAudio::onUserExit");
+}
+
 
 void CallAudio::stopSendingAudio( void )
 {
