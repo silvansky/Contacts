@@ -123,15 +123,19 @@ void SipCallNotifyer::disappear()
 
 void SipCallNotifyer::startSound()
 {
-	static QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL);
+	if (soundFile.isEmpty())
+		soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL_RINGING);
+#ifdef DEBUG_ENABLED
+	qDebug() << soundFile;
+#endif
 #ifdef QT_PHONON_LIB
 	if (!FMediaObject)
 	{
 		FMediaObject = new Phonon::MediaObject(this);
 		FMediaObject->setCurrentSource(soundFile);
-		FAudioOutput = new Phonon::AudioOutput(Phonon::NotificationCategory, this);
+		FAudioOutput = new Phonon::AudioOutput(Phonon::NoCategory, this);
 		Phonon::createPath(FMediaObject, FAudioOutput);
-		connect(FMediaObject, SIGNAL(finished()), FMediaObject, SLOT(play())); // looping
+		connect(FMediaObject, SIGNAL(aboutToFinish()), SLOT(loopPlay())); // looping
 	}
 	if (FMediaObject->state() != Phonon::PlayingState)
 	{
@@ -191,6 +195,14 @@ void SipCallNotifyer::muteClicked()
 	else
 		muteSound();
 	_muted = !_muted;
+}
+
+void SipCallNotifyer::loopPlay()
+{
+	if (FMediaObject)
+	{
+		FMediaObject->enqueue(Phonon::MediaSource(soundFile));
+	}
 }
 
 void SipCallNotifyer::paintEvent(QPaintEvent * pe)

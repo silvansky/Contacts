@@ -38,12 +38,14 @@ protected slots:
 	void acceptClicked();
 	void rejectClicked();
 	void muteClicked();
+	void loopPlay();
 protected:
 	void paintEvent(QPaintEvent *);
 private:
 	Ui::SipCallNotifyer *ui;
 	CustomBorderContainer * border;
 	bool _muted;
+	QString soundFile;
 #ifdef QT_PHONON_LIB
 	Phonon::MediaObject *FMediaObject;
 	Phonon::AudioOutput *FAudioOutput;

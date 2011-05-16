@@ -446,8 +446,8 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnHangup->setText(tr("Hangup"));
 			setProperty("ringing", true);
 
-			playSignalRinging(2);
-			qDebug("playSignalRinging");
+			//playSignalRinging(2);
+			//qDebug("playSignalRinging");
 			//playSignal(Ringing, 30);
 		}
 	}

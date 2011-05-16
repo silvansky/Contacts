@@ -175,8 +175,8 @@ bool SipPhone::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySoundNotification;
-		uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySoundNotification;
+		uchar kindMask = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction;
+		uchar kindDefs = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction;
 		FNotifications->insertNotificator(NID_SIPPHONE_CALL,OWO_NOTIFICATIONS_SIPPHONE,QString::null,kindMask,kindDefs);
 	}
 
@@ -1317,7 +1317,7 @@ void SipPhone::showCallControlTab(const QString& sid/*const ISipStream &AStream*
 void SipPhone::insertNotify(const ISipStream &AStream)
 {
 	INotification notify;
-	notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_CHAT_MESSAGE) : 0;
+	notify.kinds = FNotifications ? FNotifications->notificatorKinds(NID_SIPPHONE_CALL) : 0;
 	if (notify.kinds > 0)
 	{
 		QString message = tr("Calling you...");
