@@ -1,6 +1,7 @@
 #include "viewhistorywindow.h"
 
 #include <QWebFrame>
+#include <QNetworkRequest>
 #include <QDesktopServices>
 
 ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, QWidget *AParent) : QMainWindow(AParent)
@@ -63,6 +64,7 @@ Jid ViewHistoryWindow::contactJid() const
 
 void ViewHistoryWindow::initViewHtml()
 {
+	/*
 	static const QString HtmlTemplate = 
 		"<html><body> \
 			<div style=\"display:none\"> \
@@ -80,6 +82,13 @@ void ViewHistoryWindow::initViewHtml()
 
 	QString html = HtmlTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).arg(tr("Enter"));
 	ui.wbvHistoryView->setHtml(html);
+	*/
+
+	static const QString PostTemplate = "back=http://m2.mail-test.rambler.ru/mail/messenger_history.cgi?user=%1&login=%2&domain=%3&passw=%4&long_session=0";
+	
+	QByteArray post = PostTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).arg(tr("Enter")).toUtf8();
+	QNetworkRequest request(QUrl("http://id.rambler.ru/script/auth.cgi?mode=login"));
+	ui.wbvHistoryView->load(request,QNetworkAccessManager::PostOperation,post);
 }
 
 void ViewHistoryWindow::onWebPageLinkClicked(const QUrl &AUrl)
