@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <utils/log.h>
 #include <utils/iconstorage.h>
+#include <utils/custominputdialog.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 
@@ -402,7 +403,13 @@ void SipPhone::onToolBarActionTriggered(bool status)
 			}
 			else
 			{
-				QMessageBox::information(NULL, tr("Call failure"), tr("Calls NOT supported for current contact"));
+				//QMessageBox::information(NULL, tr("Call failure"), tr("Calls NOT supported for current contact"));
+				CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+				dialog->setDeleteOnClose(true);
+				dialog->setCaptionText(tr("Call failure"));
+				dialog->setInfoText(tr("Calls NOT supported for current contact"));
+				dialog->setAcceptButtonText(tr("Ok"));
+				dialog->show();
 				action->setChecked(false);
 			}
 		}

@@ -3,12 +3,15 @@
 #include <QTimer>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <utils/graphicseffectsstorage.h>
+#include <definitions/graphicseffects.h>
 
 #define MAX_STATUS_TEXT_SIZE    100
 
 MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
 	setMinimumWidth(400);
 	ui.lneName->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -45,6 +48,7 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_METAPROFILEDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(ui.lblStatusIcon, GFX_STATUSICONS);
 
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
@@ -321,7 +325,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 			{
 				IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
 				MetaContainer &container = FMetaContainers[descriptor.metaOrder];
-				
+
 				QWidget *wdtItem = container.itemWidgets.take(itemJid);
 				container.itemsWidget->layout()->removeWidget(wdtItem);
 				delete wdtItem;
