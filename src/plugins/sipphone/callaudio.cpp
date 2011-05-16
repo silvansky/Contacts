@@ -366,6 +366,8 @@ SdpMessage CallAudio::audioOut( void )
     out = outalsa; // ќща€ инициализаци€ выход: Device
     dbgPrintf( QString(tr("CallAudio: Creating RTP->ALSA Diverter") + "\n").toLocal8Bit().constData() );
     _pAudioOutput = new DspAudioOut( in, out );
+
+		connect(_pAudioOutput, SIGNAL(finished()), this, SIGNAL(outputDead()));
   }
 
   return _localSDP;

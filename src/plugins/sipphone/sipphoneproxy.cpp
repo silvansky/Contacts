@@ -783,6 +783,7 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 
 		SipPhoneWidget *widget = new SipPhoneWidget(0, _pCallAudio, call, this );
 		widget->setWindowTitle(tr("Videocall with: ") + call->getSubject());
+
 		connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
 		connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
 		connect(widget, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
