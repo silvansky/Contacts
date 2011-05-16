@@ -32,6 +32,7 @@ SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice
 {
 	ui->setupUi(this);
 	ui->caption->setText(caption);
+	setWindowTitle(tr("%1 calling").arg(caption));
 	ui->notice->setText(notice);
 	ui->icon->setPixmap(icon.pixmap(icon.availableSizes().at(0)));
 	ui->avatar->setPixmap(QPixmap::fromImage(avatar));
@@ -197,6 +198,7 @@ void SipCallNotifyer::muteClicked()
 	_muted = !_muted;
 }
 
+#ifdef QT_PHONON_LIB
 void SipCallNotifyer::loopPlay()
 {
 	if (FMediaObject)
@@ -204,6 +206,7 @@ void SipCallNotifyer::loopPlay()
 		FMediaObject->enqueue(Phonon::MediaSource(soundFile));
 	}
 }
+#endif
 
 void SipCallNotifyer::paintEvent(QPaintEvent * pe)
 {

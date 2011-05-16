@@ -38,7 +38,9 @@ protected slots:
 	void acceptClicked();
 	void rejectClicked();
 	void muteClicked();
+#ifdef QT_PHONON_LIB
 	void loopPlay();
+#endif
 protected:
 	void paintEvent(QPaintEvent *);
 private:
