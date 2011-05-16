@@ -82,6 +82,8 @@ public:
   bool checkCodec( SipCallMember *member );
   void setStunSrv( QString newStunSrv );
 
+	VoIPVideo* videoControl() const;
+
 signals:
   void outputDead( void );
   void statusUpdated( void );
@@ -91,6 +93,9 @@ signals:
 	void proxyStartCamera();
 	void proxySuspendStateChange(bool);
 	void incomingThreadTimeChange(qint64);
+
+	void audioOutputPresentChange(bool);
+	void audioInputPresentChange(bool);
 
 private slots:
   void memberStatusUpdated(SipCallMember *member);

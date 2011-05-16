@@ -76,6 +76,7 @@ public slots:
 	void statusTextChange(const QString&);
 	void callStatusChange(CallStatus);
 	void callSideChange(CallSide);
+	void setCameraEnabled(bool);
 
 signals:
 	void statusTextChanged(const QString&);
@@ -96,6 +97,7 @@ protected:
 	void playSignalWait(int loops);
 	void playSignalBusy(int loops);
 	void playSignalRinging(int loops);
+	
 private:
 	IconStorage* iconStorage;
 	QIcon acceptIcon;

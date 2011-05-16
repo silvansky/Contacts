@@ -96,6 +96,10 @@ signals:
 	void proxyStartCamera();
 	void proxyStopCamera();
 	void proxySuspendStateChange(bool);
+	
+	void camPresentChanged(bool);
+	void micPresentChanged(bool);
+	void volumePresentChanged(bool);
 
 	// Параметры временно передаваемые из SipPhone
 private:

@@ -15,18 +15,24 @@ public:
 	//AVControl* avControl() const { return ui.wgtAVControl; }
 
 public slots:
+	void setCameraEnabled(bool isEnabled);
 	void SetCameraOn(bool);
 	void setFullScreen(bool);
 
+	void setMicEnabled(bool isEnabled);
+	void setVolumeEnabled(bool isEnabled);
+
+
 signals:
 	void camStateChange(bool);
+	void camPresentChanged(bool);
 	void micStateChange(bool);
 	void micVolumeChange(int);
 	void hangup();
 	void fullScreenState(bool);
 protected:
 	void paintEvent(QPaintEvent *);
-
+	
 
 private:
 	Ui::FullScreenControls ui;

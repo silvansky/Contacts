@@ -106,6 +106,24 @@ AVControl::~AVControl()
 			__bSyncMic = NULL;
 }
 
+void AVControl::setCameraEnabled(bool isEnabled)
+{
+	ui.chkbtnCameraOn->setEnabled(isEnabled);
+	emit camPresentChanged(isEnabled);
+}
+
+void AVControl::setMicEnabled( bool isEnabled )
+{
+	ui.chkbtnMicOn->setEnabled(isEnabled);
+	emit micPresentChanged(isEnabled);
+}
+
+void AVControl::setVolumeEnabled( bool isEnabled )
+{
+	ui.hslSoundVolume->setEnabled(isEnabled);
+	emit volumePresentChanged(isEnabled);
+}
+
 void AVControl::SetCameraOn(bool isOn)
 {
 	ui.chkbtnCameraOn->setChecked(isOn);
@@ -163,3 +181,5 @@ void AVControl::paintEvent(QPaintEvent *)
 	QPainter p(this);
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
+
+

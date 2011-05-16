@@ -51,6 +51,10 @@ public slots:
   void onSuspendChanged(bool);
 	void onInputStateChanged(QAudio::State);
 
+signals:
+	void outputPresentChange(bool);
+	void inputPresentChange(bool);
+
 private:
   //int err;
 

@@ -63,11 +63,19 @@ public:
 
 public slots:
 	void SetCameraOn(bool);
+	void setCameraEnabled(bool);
+	void setMicEnabled( bool );
+	void setVolumeEnabled( bool );
 
 signals:
 	void camStateChange(bool);
+	void camPresentChanged(bool);
 	void micStateChange(bool);
 	void micVolumeChange(int);
+
+	void micPresentChanged(bool);
+	void volumePresentChanged(bool);
+
 protected:
 	void paintEvent(QPaintEvent *);
 

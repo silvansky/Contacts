@@ -18,6 +18,7 @@ FullScreenControls::FullScreenControls( QWidget *parent)
 
 	setAutoFillBackground(true);
 
+	connect(ui.wgtAVControl, SIGNAL(camPresentChanged(bool)), this, SIGNAL(camPresentChanged(bool)));
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), this, SIGNAL(camStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), this, SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), this, SIGNAL(micVolumeChange(int)));
@@ -44,6 +45,21 @@ FullScreenControls::~FullScreenControls()
 {
 
 }
+
+void FullScreenControls::setCameraEnabled(bool isEnabled)
+{
+	ui.wgtAVControl->setCameraEnabled(isEnabled);
+}
+
+void FullScreenControls::setMicEnabled(bool isEnabled)
+{
+	ui.wgtAVControl->setMicEnabled(isEnabled);
+}
+void FullScreenControls::setVolumeEnabled(bool isEnabled)
+{
+	ui.wgtAVControl->setVolumeEnabled(isEnabled);
+}
+
 
 void FullScreenControls::SetCameraOn(bool isOn)
 {

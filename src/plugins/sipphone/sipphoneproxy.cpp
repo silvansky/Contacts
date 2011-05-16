@@ -641,8 +641,14 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	newcall->setSubject( subject );
 
 	_pCallAudio = new CallAudio( this );
-	
 	connect(_pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
+
+	connect(_pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
+	connect(_pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
+	
+
+	emit camPresentChanged(_pCallAudio->videoControl()->checkCameraPresent());
+
 
 	_pCallAudio->readAudioSettings();
 	_pCallAudio->readVideoSettings();
@@ -653,6 +659,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 
 
 	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, _pCallAudio, newcall, this );
+	widget->setWindowTitle(tr("Videocall with: ") + subject);
 	connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
 	connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
 	connect(widget, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
@@ -762,6 +769,11 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		_pCallAudio = new CallAudio( this );
 		connect(_pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
 
+		connect(_pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
+		connect(_pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
+
+		emit camPresentChanged(_pCallAudio->videoControl()->checkCameraPresent());
+
 		_pCallAudio->readAudioSettings();
 		_pCallAudio->readVideoSettings();
 		// Реакция на изменение состояния камеры
@@ -770,6 +782,7 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		connect(this, SIGNAL(proxySuspendStateChange(bool)), _pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
 
 		SipPhoneWidget *widget = new SipPhoneWidget(0, _pCallAudio, call, this );
+		widget->setWindowTitle(tr("Videocall with: ") + call->getSubject());
 		connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
 		connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
 		connect(widget, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));

@@ -19,6 +19,7 @@ INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/Inc/iLBC
 
 
 QT    += multimedia
+QT    += phonon
 TARGET = sipphone
 include(sipphone.pri)
 include(../plugins.inc)

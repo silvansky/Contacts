@@ -20,6 +20,7 @@ public:
 public:
   QImage currentFrame() const;
   bool isOk() const;
+	bool cameraPresent() const;
 
 public slots:
 	bool stop();
@@ -33,6 +34,7 @@ private:
   void toQImage(uchar* pixels, int width, int height);
 
 private:
+	int _numDevices;
   int _flowTimer;
   bool _cameraStart;
   //CvCapture *_camera;

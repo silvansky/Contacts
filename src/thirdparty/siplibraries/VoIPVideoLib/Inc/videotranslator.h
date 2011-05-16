@@ -36,9 +36,11 @@ class VideoTranslator : public QObject
   Q_OBJECT
 
 public:
-    VideoTranslator(QObject *parent);
-    VideoTranslator(const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort, QObject *parent);
-    ~VideoTranslator();
+  VideoTranslator(QObject *parent);
+  VideoTranslator(const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort, QObject *parent);
+  ~VideoTranslator();
+
+	bool cameraPresent() const;
 
 signals:
   // Обновление полученной картинки
@@ -72,6 +74,7 @@ protected slots:
   void updText();
   void procceedDataProcessing( const QByteArray& rtpPacket );
 	void procceedDataProcessingDebug( const QByteArray& rtpPacket );
+
 
 
 private:

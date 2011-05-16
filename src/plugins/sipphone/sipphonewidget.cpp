@@ -79,6 +79,18 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 		_pShowCurrPic->setMouseTracking(true);
 
 		_pControls = new FullScreenControls(this);//ui.wgtRemoteImage);
+
+		// Issue 2264. В случае когда нет камеры, нодо заблокировать кнопку камеры с соответствующим значком
+		if(callAudio != NULL && callAudio->videoControl() != NULL)
+		{
+			_pControls->setCameraEnabled(callAudio->videoControl()->checkCameraPresent());
+		}
+		else
+		{
+			_pControls->setCameraEnabled(false);
+		}
+		
+
 		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SLOT(fullScreenStateChange(bool)));
 		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SIGNAL(fullScreenState(bool)));
 		connect(_pControls, SIGNAL(camStateChange(bool)), this, SLOT(cameraStateChange(bool)));
@@ -123,6 +135,9 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	// Подключение реакций на изменение состояния камеры
 	connect(this, SIGNAL(startCamera()), _pAudioContoller, SIGNAL(proxyStartCamera()));
 	connect(this, SIGNAL(stopCamera()), _pAudioContoller, SIGNAL(proxyStopCamera()));
+
+	connect(_pAudioContoller, SIGNAL(audioOutputPresentChange(bool)), _pControls, SLOT(setVolumeEnabled(bool)));
+	connect(_pAudioContoller, SIGNAL(audioInputPresentChange(bool)), _pControls, SLOT(setMicEnabled(bool)));
 
 
 	// ОТЛАДКА

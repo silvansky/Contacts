@@ -113,6 +113,12 @@ void CallAudio::timerEvent(QTimerEvent * tEvent)
 	}
 }
 
+VoIPVideo* CallAudio::videoControl() const
+{
+	return _pVideo;
+}
+
+
 void CallAudio::setAudiomode( QString str )
 {
   if( str.toUpper() == "ALSA" )
@@ -211,8 +217,13 @@ void CallAudio::audioIn( void )
 
     if( !inaudio->openDevice( DspOut::ReadOnly ) )
     {
+			emit audioInputPresentChange(false);
       dbgPrintf( "** audioIn: openDevice Failed.\n" );
     }
+		else
+		{
+			emit audioInputPresentChange(true);
+		}
 
     out = outrtp;
     in = inaudio;
@@ -341,7 +352,12 @@ SdpMessage CallAudio::audioOut( void )
     if( !outalsa->openDevice( DspOut::WriteOnly ))
     {
       dbgPrintf( "** audioOut: openDevice Failed.\n" );
+			emit audioOutputPresentChange(false);
     }
+		else
+		{
+			emit audioOutputPresentChange(true);		
+		}
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 

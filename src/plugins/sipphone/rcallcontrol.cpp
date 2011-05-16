@@ -160,6 +160,11 @@ void RCallControl::statusTextChange(const QString& text)
 	emit statusTextChanged(text);
 }
 
+void RCallControl::setCameraEnabled(bool isEnabled)
+{
+	ui.wgtAVControl->setCameraEnabled(isEnabled);
+}
+
 void RCallControl::onAccept()
 {
 	//QMessageBox::information(NULL, "Accept", "");
