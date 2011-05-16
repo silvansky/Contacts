@@ -1240,15 +1240,16 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 		dy = p.y() - oldPressPoint.y();
 		oldPressPoint = p;
 		int newLeft = oldGeometry.left() + dx;
-		if (borderStyle->dockingEnabled)
+		if (false/*borderStyle->dockingEnabled*/)
 		{
 			// TODO: dock to screenRect
-			const int dockWidth = 10;
+			const int dockWidth = 20;
+			int newRight = oldGeometry.right() - rightBorderWidth();
 			// dock right
-			if (abs(newLeft + oldGeometry.width() - rightBorderWidth() - screenRect.right()) < dockWidth)
-				newLeft = screenRect.right() - oldGeometry.width() + leftBorderWidth() - rightBorderWidth();
+			if ((abs(newRight - screenRect.right()) < dockWidth) && (newRight < screenRect.right()))
+				newLeft = screenRect.right() - oldGeometry.width() - rightBorderWidth();
 			// dock left
-			if (abs(screenRect.left() - leftBorderWidth() - newLeft) < dockWidth)
+			if ((abs(screenRect.left() - leftBorderWidth() - newLeft) < dockWidth) && (screenRect.left() - leftBorderWidth() > newLeft))
 				newLeft = screenRect.left() - leftBorderWidth();
 		}
 		oldGeometry.moveTo(newLeft, oldGeometry.top() + dy);
