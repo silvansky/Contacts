@@ -1352,6 +1352,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		callNotifyer->setProperty("streamId", AStream.sid);
 		connect(callNotifyer, SIGNAL(accepted()), SLOT(onAcceptStreamByAction()));
 		connect(callNotifyer, SIGNAL(rejected()), SLOT(onCloseStreamByAction()));
+		connect(this, SIGNAL(hideCallNotifyer()), callNotifyer, SLOT(disappear()));
 
 		callNotifyer->appear();
 
@@ -1375,6 +1376,7 @@ void SipPhone::removeNotify(const QString &AStreamId)
 {
 	if (FNotifications)
 		FNotifications->removeNotification(FNotifies.key(AStreamId));
+	emit hideCallNotifyer();
 }
 
 void SipPhone::removeStream(const QString &AStreamId)

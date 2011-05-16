@@ -58,3 +58,33 @@ AVControl, RVolumeControl, #chkbtnMicOn
 	border-bottom: 5px;
 	height: 47px;
 }
+
+QPushButton#btnAccept
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtnok.png);
+}
+
+QPushButton#btnAccept:hover
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtnok_hover.png);
+}
+
+QPushButton#btnAccept:pressed
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtnok_click.png);
+}
+
+QPushButton#btnHangup
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtncancel.png);
+}
+
+QPushButton#btnHangup:hover
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtncancel_hover.png);
+}
+
+QPushButton#btnHangup:pressed
+{
+	border-image: url(%IMAGES_PATH%/sipcallbtncancel_click.png);
+}

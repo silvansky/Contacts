@@ -13,6 +13,20 @@ QLabel#notice
 	color: grey;
 }
 
+QToolButton
+{
+	min-height: 16px;
+	max-height: 16px;
+	height: 16px;
+	padding: 0px;
+	min-width: 26px;
+}
+
+QToolButton:hover
+{
+	padding: 0px;
+}
+
 QToolButton#accept
 {
 	border-image: url(%IMAGES_PATH%/sipcallbtnok.png);
