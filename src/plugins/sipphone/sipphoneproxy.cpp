@@ -699,7 +699,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	//connect( widget, SIGNAL( redirectCall( const SipUri &, const QString & ) ), this, SLOT( redirectCall( const SipUri &, const QString & ) ) );
 
 	//widget->show();
-	border->show();
+	border->show(); //!!!!!!!!!!!!!!!!!!!!
 
 	return widget;
 }
@@ -850,6 +850,8 @@ void SipPhoneProxy::onHangupCall()
 	//	delete _pWorkWidgetContainer;
 	//	_pWorkWidgetContainer = NULL;
 	//}
+	
+	//_pWorkWidget->hide();
 	_pWorkWidgetContainer->setHidden(true);
 }
 
@@ -986,9 +988,10 @@ void SipPhoneProxy::hangupCall()
 		}
 	}
 
-	////////////////QMessageBox::information(NULL, "SipPhoneProxy::hangupCall()", "");
-	//////////////if(_pWorkWidget)
-	//////////////{
-	//////////////	_pWorkWidget->clickHangup();
-	//////////////}
+
+	////////////QMessageBox::information(NULL, "SipPhoneProxy::hangupCall()", "");
+	//////////if(_pWorkWidget)
+	//////////{
+	//////////	_pWorkWidget->clickHangup();
+	//////////}
 }
