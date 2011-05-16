@@ -112,7 +112,7 @@ bool MainWindowPlugin::initObjects()
 bool MainWindowPlugin::initSettings()
 {
 	Options::setDefaultValue(OPV_MAINWINDOW_SHOW,true);
-	const QSize defSize(250, 500);
+	const QSize defSize(300, 550);
 	Options::setDefaultValue(OPV_MAINWINDOW_SIZE, defSize);
 	QDesktopWidget * desktop = QApplication::desktop();
 	QRect ps = desktop->availableGeometry(desktop->primaryScreen());
