@@ -380,7 +380,7 @@ SdpMessage CallAudio::audioOut( void )
 
 void CallAudio::onTerminated()
 {
-	qDebug("CallAudio::onTerminated");
+	//qDebug("CallAudio::onTerminated");
 }
 void CallAudio::onFinished()
 {
@@ -389,7 +389,7 @@ void CallAudio::onFinished()
 }
 void CallAudio::onUserExit()
 {
-	qDebug("CallAudio::onUserExit");
+	//qDebug("CallAudio::onUserExit");
 }
 
 
