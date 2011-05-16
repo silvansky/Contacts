@@ -86,7 +86,7 @@ void ViewHistoryWindow::initViewHtml()
 
 	static const QString PostTemplate = "back=http://m2.mail-test.rambler.ru/mail/messenger_history.cgi?user=%1&login=%2&domain=%3&passw=%4&long_session=0";
 	
-	QByteArray post = PostTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).arg(tr("Enter")).toUtf8();
+	QByteArray post = PostTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).toUtf8();
 	QNetworkRequest request(QUrl("http://id.rambler.ru/script/auth.cgi?mode=login"));
 	ui.wbvHistoryView->load(request,QNetworkAccessManager::PostOperation,post);
 }
