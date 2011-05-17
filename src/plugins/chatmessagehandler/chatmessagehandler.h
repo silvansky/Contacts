@@ -40,6 +40,7 @@
 #include <interfaces/imetacontacts.h>
 #include <utils/log.h>
 #include <utils/options.h>
+#include <utils/errorhandler.h>
 #include "usercontextmenu.h"
 
 struct WindowStatus

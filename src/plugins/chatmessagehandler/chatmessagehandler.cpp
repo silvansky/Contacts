@@ -328,7 +328,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 bool ChatMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 {
 	Q_UNUSED(AOrder);
-	return (!AMessage.body().isEmpty()) && (AMessage.type() != Message::Error);
+	return !AMessage.body().isEmpty() /*&& AMessage.type()!=Message::Error*/;
 }
 
 bool ChatMessageHandler::showMessage(int AMessageId)
@@ -351,26 +351,35 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 {
 	bool notify = false;
 	Message message = FMessageProcessor->messageById(AMessageId);
-	IChatWindow *window = getWindow(message.to(),message.from());
+	IChatWindow *window = message.type()!=Message::Error ? getWindow(message.to(),message.from()) : findWindow(message.to(),message.from());
 	if (window)
 	{
-		StyleExtension extension;
-		WindowStatus &wstatus = FWindowStatus[window];
-		if (!window->isActive())
+		if (message.type() != Message::Error)
 		{
-			notify = true;
-			if (FDestroyTimers.contains(window))
-				delete FDestroyTimers.take(window);
-			extension.extensions = IMessageContentOptions::Unread;
-			wstatus.notified.append(AMessageId);
-			updateWindow(window);
-		}
+			StyleExtension extension;
+			WindowStatus &wstatus = FWindowStatus[window];
+			if (!window->isActive())
+			{
+				notify = true;
+				if (FDestroyTimers.contains(window))
+					delete FDestroyTimers.take(window);
+				extension.extensions = IMessageContentOptions::Unread;
+				wstatus.notified.append(AMessageId);
+				updateWindow(window);
+			}
 
-		QUuid contentId = showStyledMessage(window,message,extension);
-		if (!contentId.isNull() && notify)
+			QUuid contentId = showStyledMessage(window,message,extension);
+			if (!contentId.isNull() && notify)
+			{
+				message.setData(MDR_STYLE_CONTENT_ID,contentId.toString());
+				wstatus.unread.append(message);
+			}
+		}
+		else
 		{
-			message.setData(MDR_STYLE_CONTENT_ID,contentId.toString());
-			wstatus.unread.append(message);
+			QString errorMessage =  ErrorHandler(message.stanza().element()).message();
+			if (!errorMessage.isEmpty())
+				showStyledStatus(window,errorMessage);
 		}
 	}
 	return notify;
@@ -378,13 +387,14 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 
 INotification ChatMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
 {
+	INotification notify;
+
 	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
 	WindowStatus &wstatus = FWindowStatus[window];
 
 	QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
 	QString messages = tr("%n message(s)","",wstatus.notified.count());
 
-	INotification notify;
 	notify.kinds = ANotifications->notificatorKinds(NID_CHAT_MESSAGE);
 	if (notify.kinds > 0)
 	{
@@ -506,6 +516,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 						FAvatars->insertAutoAvatar(menu->menuAction(),AContactJid,QSize(48,48));
 					else
 						menu->menuAction()->setIcon(RSR_STORAGE_MENUICONS, MNI_CHAT_MHANDLER_USER_MENU);
+					
 					QToolButton *button = window->toolBarWidget()->toolBarChanger()->insertAction(menu->menuAction(),TBG_CWTBW_USER_TOOLS);
 					button->setPopupMode(QToolButton::InstantPopup);
 					button->setFixedSize(QSize(48,48));
