@@ -341,7 +341,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 
 				if (container.itemWidgets.isEmpty())
 				{
-					ui.scaContacts->layout()->removeWidget(container.metaWidget);
+					ui.sawContents->layout()->removeWidget(container.metaWidget);
 					delete container.metaWidget;
 					FMetaContainers.remove(descriptor.metaOrder);
 				}
