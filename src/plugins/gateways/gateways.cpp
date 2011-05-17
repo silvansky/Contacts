@@ -239,8 +239,13 @@ bool Gateways::initObjects()
 	magent.name = tr("Agent@Mail.ru");
 	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
 	magent.loginLabel = tr("E-mail");
+	magent.domains.append("mail.ru");
+	magent.domains.append("inbox.ru");
+	magent.domains.append("list.ru");
+	magent.domains.append("bk.ru");
 	magent.loginField = "username";
 	magent.passwordField = "password";
+	magent.domainSeparator = "@";
 	magent.homeContactPattern = "^"MAIL_NODE_PATTERN"@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
 	magent.availContactPattern = magent.homeContactPattern;
 	magent.linkedDescriptors.append(GSID_MAIL);
