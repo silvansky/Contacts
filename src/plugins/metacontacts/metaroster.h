@@ -18,8 +18,8 @@ class MetaRoster :
 	public IStanzaHandler,
 	public IStanzaRequestOwner
 {
-	Q_OBJECT
-	Q_INTERFACES(IMetaRoster IStanzaHandler IStanzaRequestOwner)
+	Q_OBJECT;
+	Q_INTERFACES(IMetaRoster IStanzaHandler IStanzaRequestOwner);
 public:
 	MetaRoster(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IRoster *ARoster);
 	~MetaRoster();
@@ -55,7 +55,7 @@ public:
 	virtual QString detachContactItem(const QString &AMetaId, const Jid &AItemJid);
 	virtual QString deleteContactItem(const QString &AMetaId, const Jid &AItemJid);
 	//Operations on groups
-	virtual bool renameGroup(const QString &AGroup, const QString &ANewName);
+	virtual QString renameGroup(const QString &AGroup, const QString &ANewName);
 signals:
 	void metaRosterOpened();
 	void metaAvatarChanged(const QString &AMetaId);
@@ -72,6 +72,8 @@ protected:
 	void clearMetaContacts();
 	void removeMetaContact(const QString &AMetaId);
 	IRosterItem metaRosterItem(const QSet<Jid> AItems) const;
+	QString startMultiRequest(const QList<QString> &AActions);
+	void processAutoMerge(const IMetaContact &AContact);
 	void processMetasElement(QDomElement AMetasElement, bool ACompleteRoster);
 	Stanza convertMetaElemToRosterStanza(QDomElement AMetaElem) const;
 	Stanza convertRosterElemToMetaStanza(QDomElement ARosterElem) const;
@@ -100,10 +102,12 @@ private:
 	Stanza FRosterRequest;
 	QList<QString> FBlockResults;
 	QList<QString> FActionRequests;
+	QMultiMap<QString, QString> FMultiRequests;
 private:
 	bool FOpened;
 	bool FEnabled;
 	QString FRosterVer;
+	QMap<Jid, Jid> FAutoMergeList;
 	QHash<Jid, QString> FItemMetaId;
 	QHash<QString, IMetaContact> FContacts;
 };

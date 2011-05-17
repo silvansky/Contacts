@@ -589,24 +589,15 @@ void AddContactDialog::onDialogButtonClicked(QAbstractButton *AButton)
 					IMetaContact contact;
 					contact.name = nickName();
 					contact.groups += group();
-
-					foreach(Jid linkedJid, FLinkedContacts)
-					{
-						if (linkedJid != contactJid())
-						{
-							contact.items += linkedJid;
-							if (!FMetaRoster->createContact(contact).isEmpty())
-								FRosterChanger->subscribeContact(streamJid(),linkedJid,QString::null,true);
-							contact.items.clear();
-						}
-					}
-
 					contact.items += contactJid();
+					contact.items += FLinkedContacts.toSet();
+
 					FContactCreateRequest = FMetaRoster->createContact(contact);
 					if (!FContactCreateRequest.isEmpty())
 					{
+						foreach(Jid itemJid, contact.items)
+							FRosterChanger->subscribeContact(streamJid(),itemJid,QString::null,true);
 						setDialogEnabled(false);
-						FRosterChanger->subscribeContact(streamJid(),contactJid(),QString::null,true);
 					}
 					else
 					{

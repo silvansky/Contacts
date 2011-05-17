@@ -87,7 +87,6 @@ private:
 	IAvatars *FAvatars;
 	IGateways *FGateways;
 	IVCardPlugin *FVcardPlugin;
-	IRostersView *FRostersView;
 	IRosterChanger *FRosterChanger;
 	IOptionsManager *FOptionsManager;
 private:
@@ -100,7 +99,7 @@ private:
 	bool FShown;
 	bool FNickResolved;
 	QString FParentMetaId;
-	QString FCreateActiontId;
+	QString FCreateActionId;
 	QList<QString> FAvailDescriptors;
 	QList<IAddMetaItemWidget *> FItemWidgets;
 };

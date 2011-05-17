@@ -57,6 +57,7 @@ MetaContacts::MetaContacts()
 	FStatusIcons = NULL;
 	FRosterSearch = NULL;
 	FGateways = NULL;
+	FNotifications = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -116,6 +117,17 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+	{
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
+		if (FNotifications)
+		{
+			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivated(int)));
+			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
+		}
+	}
+
 	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
@@ -160,6 +172,11 @@ bool MetaContacts::initObjects()
 	if (FRosterSearch)
 	{
 		FRosterSearch->setSearchField(RDR_METACONTACT_ITEMS,tr("Address"),true);
+	}
+	if (FNotifications)
+	{
+		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification;
+		FNotifications->insertNotificator(NID_METACONTACTS_DELETEFAIL,OWO_NOTIFICATIONS_META_DELETE_FAIL,QString::null,kindMask,kindMask);
 	}
 	return true;
 }
@@ -847,6 +864,34 @@ MetaProfileDialog *MetaContacts::findMetaProfileDialog(const Jid &AStreamJid, co
 	return NULL;
 }
 
+void MetaContacts::notifyContactDeleteFailed(IMetaRoster *AMetaRoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
+{
+	Q_UNUSED(AErrMessage);
+	QMap<QString, QString> &deleteActions = FDeleteActions[AMetaRoster];
+	if (deleteActions.contains(AActionId))
+	{
+		if (FNotifications && !AErrCond.isEmpty())
+		{
+			INotification notify;
+			notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_METACONTACTS_DELETEFAIL) : 0;
+			if ((notify.kinds & (INotification::PopupWindow|INotification::PlaySoundNotification))>0)
+			{
+				IMetaContact contact = AMetaRoster->metaContact(deleteActions.value(AActionId));
+				notify.notificatior = NID_METACONTACTS_DELETEFAIL;
+				notify.data.insert(NDR_STREAM_JID,AMetaRoster->streamJid().full());
+				notify.data.insert(NDR_POPUP_IMAGE,AMetaRoster->metaAvatarImage(contact.id,false,true));
+				notify.data.insert(NDR_POPUP_CAPTION,tr("Not all contacts removed"));
+				notify.data.insert(NDR_POPUP_TITLE,metaContactName(contact));
+				notify.data.insert(NDR_POPUP_TEXT,tr("Part of the contacts can not be removed directly from the application. More..."));
+				notify.data.insert(NDR_SOUND_FILE,SDF_METACONTACTS_DELETE_FAIL);
+				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
+				FFailDeleteNotifies.append(FNotifications->appendNotification(notify));
+			}
+		}
+		deleteActions.remove(AActionId);
+	}
+}
+
 void MetaContacts::onMetaRosterOpened()
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
@@ -879,7 +924,10 @@ void MetaContacts::onMetaActionResult(const QString &AActionId, const QString &A
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
 	if (mroster)
+	{
 		emit metaActionResult(mroster,AActionId,AErrCond,AErrMessage);
+		notifyContactDeleteFailed(mroster,AActionId,AErrCond,AErrMessage);
+	}
 }
 
 void MetaContacts::onMetaRosterClosed()
@@ -949,6 +997,7 @@ void MetaContacts::onRosterRemoved(IRoster *ARoster)
 	IMetaRoster *mroster = findMetaRoster(ARoster->streamJid());
 	if (mroster)
 	{
+		FDeleteActions.remove(mroster);
 		deleteMetaRosterWindows(mroster);
 		mroster->saveMetaContacts(metaRosterFileName(mroster->streamJid()));
 		emit metaRosterRemoved(mroster);
@@ -1073,33 +1122,33 @@ void MetaContacts::onDeleteContact(bool)
 			if (metaIdList.count() < 2)
 			{
 				IMetaContact contact = mroster->metaContact(metaIdList.value(0));
-				message = tr("Contact %1 will be removed without possibility of restoring").arg(Qt::escape(metaContactName(contact)));
-				title = tr("Remove contact");
+				message = tr("All contacts and communication history with that person will be removed. Operation can not be undone.");
+				title = tr("Remove contact '%1'").arg(Qt::escape(metaContactName(contact)));
 			}
 			else
 			{
-				message = tr("%n contacts will be removed without possibility of restoring","",metaIdList.count());
+				message = tr("<b>%n contacts</b> and communication history with them will be removed. Operation can not be undone.","",metaIdList.count());
 				title = tr("Remove %n contact(s)","",metaIdList.count());
 			}
 
-			CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::None);
+			CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::None);
 			dialog->setWindowTitle(title);
 			dialog->setCaptionText(QString(title));
 			dialog->setInfoText(message);
 			dialog->setProperty("metaIdList", metaIdList);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
-			dialog->setAcceptButtonText(tr("Remove contact"));
+			dialog->setAcceptButtonText(tr("Remove"));
 			dialog->setRejectButtonText(tr("Cancel"));
 			dialog->setAcceptIsDefault(false);
-			connect(dialog, SIGNAL(accepted()), SLOT(onDeleteButtonClicked()));
+			connect(dialog, SIGNAL(accepted()), SLOT(onDeleteContactDialogAccepted()));
 			dialog->show();
 		}
 	}
 }
 
-void MetaContacts::onDeleteButtonClicked()
+void MetaContacts::onDeleteContactDialogAccepted()
 {
-	CustomInputDialog * dialog = qobject_cast<CustomInputDialog*>(sender());
+	CustomInputDialog *dialog = qobject_cast<CustomInputDialog*>(sender());
 	if (dialog)
 	{
 		QStringList metaIdList = dialog->property("metaIdList").toStringList();
@@ -1107,7 +1156,11 @@ void MetaContacts::onDeleteButtonClicked()
 		if (mroster && mroster->isOpen())
 		{
 			foreach(QString metaId, metaIdList)
-				mroster->deleteContact(metaId);
+			{
+				QString requestId = mroster->deleteContact(metaId);
+				if (FNotifications && !requestId.isEmpty())
+					FDeleteActions[mroster].insert(requestId,metaId);
+			}
 		}
 		dialog->deleteLater();
 	}
@@ -1672,6 +1725,22 @@ void MetaContacts::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMu
 			AToolBarChanger->insertAction(action,TBG_RVLTT_CHATMESSAGEHANDLER);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onShowMetaTabWindowAction(bool)));
 		}
+	}
+}
+
+void MetaContacts::onNotificationActivated(int ANotifyId)
+{
+	if (FFailDeleteNotifies.contains(ANotifyId))
+	{
+		FNotifications->removeNotification(ANotifyId);
+	}
+}
+
+void MetaContacts::onNotificationRemoved(int ANotifyId)
+{
+	if (FFailDeleteNotifies.contains(ANotifyId))
+	{
+		FFailDeleteNotifies.removeAll(ANotifyId);
 	}
 }
 

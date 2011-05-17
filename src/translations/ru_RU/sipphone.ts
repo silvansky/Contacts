@@ -259,6 +259,10 @@
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 calling</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SipPhone</name>

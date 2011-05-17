@@ -69,7 +69,7 @@ public:
 	virtual QString detachContactItem(const QString &AMetaId, const Jid &AItemJid) =0;
 	virtual QString deleteContactItem(const QString &AMetaId, const Jid &AItemJid) =0;
 	//Operations on groups
-	virtual bool renameGroup(const QString &AGroup, const QString &ANewName) =0;
+	virtual QString renameGroup(const QString &AGroup, const QString &ANewName) =0;
 protected:
 	virtual void metaRosterOpened() =0;
 	virtual void metaAvatarChanged(const QString &AMetaId) =0;

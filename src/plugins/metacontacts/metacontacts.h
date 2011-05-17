@@ -5,6 +5,7 @@
 #include <QObjectCleanupHandler>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/soundfiles.h>
 #include <definitions/actiongroups.h>
 #include <definitions/metaitemorders.h>
 #include <definitions/gateserviceidentifiers.h>
@@ -14,6 +15,9 @@
 #include <definitions/rosterdragdropmimetypes.h>
 #include <definitions/toolbargroups.h>
 #include <definitions/customborder.h>
+#include <definitions/notificators.h>
+#include <definitions/optionwidgetorders.h>
+#include <definitions/notificationdataroles.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/irosterchanger.h>
@@ -22,7 +26,7 @@
 #include <interfaces/istatusicons.h>
 #include <interfaces/irostersearch.h>
 #include <interfaces/igateways.h>
-#include <interfaces/ivcard.h>
+#include <interfaces/inotifications.h>
 #include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>
 #include "metaroster.h"
@@ -126,6 +130,7 @@ protected:
 	void deleteMetaRosterWindows(IMetaRoster *AMetaRoster);
 	IMetaRoster *findBareMetaRoster(const Jid &AStreamJid) const;
 	MetaProfileDialog *findMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId) const;
+	void notifyContactDeleteFailed(IMetaRoster *ARoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaAvatarChanged(const QString &AMetaId);
@@ -147,7 +152,7 @@ protected slots:
 	void onRenameContact(bool);
 	void onNewNameSelected(const QString & newName);
 	void onDeleteContact(bool);
-	void onDeleteButtonClicked();
+	void onDeleteContactDialogAccepted();
 	void onMergeContacts(bool);
 	void onCopyToGroup(bool);
 	void onMoveToGroup(bool);
@@ -168,6 +173,8 @@ protected slots:
 	void onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
+	void onNotificationActivated(int ANotifyId);
+	void onNotificationRemoved(int ANotifyId);
 	void onOptionsOpened();
 	void onOptionsClosed();
 private:
@@ -180,7 +187,7 @@ private:
 	IStatusIcons *FStatusIcons;
 	IRosterSearch *FRosterSearch;
 	IGateways *FGateways;
-	IVCardPlugin *FVCardPlugin;
+	INotifications *FNotifications;
 private:
 	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;
@@ -191,6 +198,9 @@ private:
 	IMetaItemDescriptor FDefaultItemDescriptor;
 	QList<MetaProfileDialog *> FMetaProfileDialogs;
 	QList<IMetaItemDescriptor> FMetaItemDescriptors;
+private:
+	QList<int> FFailDeleteNotifies;
+	QMap<IMetaRoster *, QMap<QString, QString> > FDeleteActions;
 private:
 	mutable QHash<Jid, int> FItemDescrCache;
 };

@@ -184,13 +184,6 @@ void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 		FGateways = qobject_cast<IGateways *>(plugin->instance());
 	}
 
-	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
-	if (plugin)
-	{
-		IRostersViewPlugin *rostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
-		FRostersView = rostersViewPlugin!=NULL ? rostersViewPlugin->rostersView() : NULL;
-	}
-
 	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
 	if (plugin)
 	{
@@ -434,14 +427,14 @@ void AddMetaContactDialog::onDialogAccepted()
 		foreach(IAddMetaItemWidget *widget, FItemWidgets)
 			contact.items += widget->contactJid().bare();
 
-		FCreateActiontId = FMetaRoster->createContact(contact);
-		if (!FCreateActiontId.isEmpty())
+		FCreateActionId = FMetaRoster->createContact(contact);
+		if (!FCreateActionId.isEmpty())
 		{
 			setDialogEnabled(false);
 		}
 		else
 		{
-			onMetaActionResult(FCreateActiontId,ErrorHandler::coditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
+			onMetaActionResult(FCreateActionId,ErrorHandler::coditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
 		}
 	}
 }
@@ -563,27 +556,6 @@ void AddMetaContactDialog::onMetaContactReceived(const IMetaContact &AContact, c
 		}
 		else
 		{
-			if (FRostersView)
-			{
-				IRostersModel *rmodel = FRostersView->rostersModel();
-				IRosterIndex *sroot = rmodel!=NULL ? rmodel->streamRoot(streamJid()) : NULL;
-				if (sroot)
-				{
-					QMultiMap<int, QVariant> findData;
-					findData.insert(RDR_TYPE,RIT_METACONTACT);
-					findData.insert(RDR_META_ID,AContact.id);
-					IRosterIndex *index = sroot->findChilds(findData,true).value(0);
-					if (index)
-					{
-						QModelIndex modelIndex = FRostersView->mapFromModel(rmodel->modelIndexByRosterIndex(index));
-						FRostersView->instance()->setCurrentIndex(modelIndex);
-						FRostersView->instance()->clearSelection();
-						FRostersView->instance()->scrollTo(modelIndex);
-						FRostersView->instance()->selectionModel()->select(modelIndex,QItemSelectionModel::Select);
-					}
-				}
-			}
-
 			IMetaTabWindow *window = FMetaContacts->newMetaTabWindow(streamJid(),AContact.id);
 			if (window)
 				window->showTabPage();
@@ -594,7 +566,7 @@ void AddMetaContactDialog::onMetaContactReceived(const IMetaContact &AContact, c
 
 void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
 {
-	if (AActionId == FCreateActiontId)
+	if (AActionId == FCreateActionId)
 	{
 		if (!AErrCond.isEmpty())
 		{

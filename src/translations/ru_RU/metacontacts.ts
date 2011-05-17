@@ -205,22 +205,6 @@
         <translation>Сохранить</translation>
     </message>
     <message>
-        <source>Contact %1 will be removed without possibility of restoring</source>
-        <translation>Контакт %1 будет удален без возможности восстановления</translation>
-    </message>
-    <message>
-        <source>Remove contact</source>
-        <translation>Удалить контакт</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n contacts will be removed without possibility of restoring</source>
-        <translation>
-            <numerusform>%n контакт будет удален без возможности восстановления</numerusform>
-            <numerusform>%n контакта будут удалены без возможности восстановления</numerusform>
-            <numerusform>%n контактов будут удалены без возможности восстановления</numerusform>
-        </translation>
-    </message>
-    <message>
         <source>Authorize</source>
         <translation>Авторизовать</translation>
     </message>
@@ -243,6 +227,34 @@
     <message>
         <source>E-mail</source>
         <translation>E-mail</translation>
+    </message>
+    <message>
+        <source>Not all contacts removed</source>
+        <translation>Не все контакты удалены</translation>
+    </message>
+    <message>
+        <source>Part of the contacts can not be removed directly from the application. More...</source>
+        <translation>Часть контактов нельзя удалить напрямую из приложения. Подробнее...</translation>
+    </message>
+    <message>
+        <source>All contacts and communication history with that person will be removed. Operation can not be undone.</source>
+        <translation>Будут удалены все контакты и история общения с этим человеком. Операцию нельзя будет отменить.</translation>
+    </message>
+    <message>
+        <source>Remove contact &apos;%1&apos;</source>
+        <translation>Удалить контакт &apos;%1&apos;</translation>
+    </message>
+    <message numerus="yes">
+        <source>&lt;b&gt;%n contacts&lt;/b&gt; and communication history with them will be removed. Operation can not be undone.</source>
+        <translation>
+            <numerusform>Будет удален &lt;b&gt;%n контакт&lt;/b&gt; и история общения с ним. Операцию нельзя будет отменить.</numerusform>
+            <numerusform>Будут удалены &lt;b&gt;%n контакта&lt;/b&gt; и история общения с ними. Операцию нельзя будет отменить.</numerusform>
+            <numerusform>Будут удалены &lt;b&gt;%n контактов&lt;/b&gt; и история общения с ними. Операцию нельзя будет отменить.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
     </message>
 </context>
 <context>

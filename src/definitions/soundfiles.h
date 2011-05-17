@@ -15,6 +15,9 @@
 //NormalMessagehandler
 #define SDF_NORMAL_MHANDLER_MESSAGE                       "normalmessagehandlerMessage"
 
+//MetaContacts
+#define SDF_METACONTACTS_DELETE_FAIL                      "metacontactsDeleteFail"
+
 //MultiUserChat
 #define SDF_MUC_MESSAGE                                   "mucMessage"
 #define SDF_MUC_PRIVATE_MESSAGE                           "mucPrivateMessage"

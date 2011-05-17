@@ -11,5 +11,6 @@
 #define NID_BIRTHDAY_REMIND          "BirthdayRemind"
 #define NID_SIPPHONE_CALL            "SipPhoneCall"
 #define NID_MAIL_NOTIFY              "MailNotify"
+#define NID_METACONTACTS_DELETEFAIL  "MetaContactDeleteFail"
 
 #endif // DEF_NOTIFICATORS_H

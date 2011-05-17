@@ -39,6 +39,7 @@
 #define OWO_NOTIFICATIONS_SIPPHONE                400
 #define OWO_NOTIFICATIONS_IF_STATUS               600
 #define OWO_NOTIFICATIONS_FULLSCREEN              700
+#define OWO_NOTIFICATIONS_META_DELETE_FAIL        800
 
 //Node = OPN_COMMON
 #define OWO_COMMON_AUTOSTART                      400
