@@ -36,8 +36,8 @@ struct PluginItem
 };
 
 class PluginManager :
-			public QObject,
-			public IPluginManager
+		public QObject,
+		public IPluginManager
 {
 	Q_OBJECT
 	Q_INTERFACES(IPluginManager)
@@ -89,7 +89,7 @@ protected slots:
 	void onShowSetupPluginsDialog(bool);
 	void onSetupPluginsDialogAccepted();
 	void onShowAboutBoxDialog();
-  void onShowCommentsDialog();
+	void onShowCommentsDialog();
 private:
 	QPointer<AboutBox> FAboutDialog;
 	QPointer<CommentDialog> FCommentDialog;

@@ -278,24 +278,18 @@ void PluginManager::loadSettings()
 
 	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
 
-#ifdef Q_WS_WIN
-	// loading extra fonts
-	if (QSysInfo::windowsVersion() < QSysInfo::WV_VISTA)
-	{
-		FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
-		QString fontFile = fontStorage->fileFullName(FNT_SEGOEUI);
-		QFontDatabase::addApplicationFont(fontFile);
-		fontFile = fontStorage->fileFullName(FNT_SEGOEUI_ITALIC);
-		QFontDatabase::addApplicationFont(fontFile);
-		fontFile = fontStorage->fileFullName(FNT_SEGOEUI_BOLD);
-		QFontDatabase::addApplicationFont(fontFile);
-		fontFile = fontStorage->fileFullName(FNT_SEGOEUI_ITALIC_BOLD);
-		QFontDatabase::addApplicationFont(fontFile);
-		QFontDatabase fontDB;
-		QFont segoe = fontDB.font("Segoe UI", "", 12);
-		QApplication::setFont(segoe);
-	}
-#endif
+	FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
+	QString fontFile = fontStorage->fileFullName(FNT_SEGOEUI);
+	QFontDatabase::addApplicationFont(fontFile);
+	fontFile = fontStorage->fileFullName(FNT_SEGOEUI_ITALIC);
+	QFontDatabase::addApplicationFont(fontFile);
+	fontFile = fontStorage->fileFullName(FNT_SEGOEUI_BOLD);
+	QFontDatabase::addApplicationFont(fontFile);
+	fontFile = fontStorage->fileFullName(FNT_SEGOEUI_ITALIC_BOLD);
+	QFontDatabase::addApplicationFont(fontFile);
+	QFontDatabase fontDB;
+	QFont segoe = fontDB.font("Segoe UI", "", 12);
+	QApplication::setFont(segoe);
 
 	FPluginsSetup.clear();
 	QDir homeDir(FDataPath);
@@ -557,7 +551,7 @@ void PluginManager::loadCoreTranslations(const QString &ADir)
 	if (FLoaderTranslator->load("ramblerfriends",ADir))
 		qApp->installTranslator(FLoaderTranslator);
 
-	if (FUtilsTranslator->load("friendsutils",ADir))
+	if (FUtilsTranslator->load("ramblerfriendsutils",ADir))
 		qApp->installTranslator(FUtilsTranslator);
 
 	if (FQtTranslator->load("qt_"+QLocale().name(),ADir))

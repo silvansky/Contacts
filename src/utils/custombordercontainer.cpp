@@ -725,6 +725,7 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 	{
 		if (!qobject_cast<Menu*>(widget))
 			initMenu();
+		setObjectName(QString("%1#%2 container").arg(widget->metaObject()->className(), widget->objectName()));
 		containedWidget = widget;
 		setAttribute(Qt::WA_WindowPropagation, false);
 		containedWidget->setAttribute(Qt::WA_DeleteOnClose, false);

@@ -42,10 +42,11 @@ class RosterSearch :
 	public QSortFilterProxyModel,
 	public IPlugin,
 	public IRosterSearch,
-	public IRosterDataHolder
+	public IRosterDataHolder,
+	public IRostersClickHooker
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IRosterSearch IRosterDataHolder)
+	Q_INTERFACES(IPlugin IRosterSearch IRosterDataHolder IRostersClickHooker)
 public:
 	RosterSearch();
 	~RosterSearch();
@@ -75,6 +76,8 @@ public:
 	virtual QString searchFieldName(int ADataRole) const;
 	virtual void setSearchField(int ADataRole, const QString &AName, bool AEnabled);
 	virtual void removeSearchField(int ADataRole);
+	//IRostersClickHooker
+	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 signals:
 	void searchResultUpdated();
 	void searchStateChanged(bool AEnabled);

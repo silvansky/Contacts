@@ -2,6 +2,8 @@
 
 #include <QKeyEvent>
 #include <QDesktopServices>
+#include <QItemSelectionModel>
+#include <definitions/rosterclickhookerorders.h>
 
 RosterSearch::RosterSearch()
 {
@@ -101,7 +103,7 @@ bool RosterSearch::initObjects()
 		FSearchEdit = new SearchEdit;
 		FSearchEdit->setObjectName("searchEdit");
 		layout->insertWidget(0, FSearchEdit);
-		FSearchEdit->setToolTip(tr("Search in roster"));
+		FSearchEdit->setToolTip(tr("Search in contact list"));
 		FSearchEdit->setPlaceholderText(tr("Search"));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), &FEditTimeout, SLOT(start()));
 		connect(FSearchEdit, SIGNAL(textChanged(const QString &)), SLOT(onSearchTextChanged(const QString&)));
@@ -116,6 +118,11 @@ bool RosterSearch::initObjects()
 	if (FRostersModel)
 	{
 		FRostersModel->insertDefaultDataHolder(this);
+	}
+
+	if (FRostersViewPlugin && FRostersViewPlugin->rostersView())
+	{
+		FRostersViewPlugin->rostersView()->insertClickHooker(RCHO_DEFAULT, this);
 	}
 
 	setSearchField(RDR_NAME,tr("Name"),true);
@@ -175,7 +182,7 @@ QVariant RosterSearch::rosterData(const IRosterIndex *AIndex, int ARole) const
 			{
 				block = true;
 				int field = findAcceptableField(FRostersModel->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex)));
-				if (field >= 0)
+				if ((field >= 0) && (field != RDR_NAME))
 				{
 					QVariantMap footer = AIndex->data(ARole).toMap();
 					QString fieldValue = findFieldMatchedValue(AIndex,field);
@@ -224,6 +231,7 @@ void RosterSearch::startSearch()
 			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(true);
 			FRostersViewPlugin->rostersView()->instance()->expandAll();
 			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(false);
+			FRostersViewPlugin->rostersView()->selectRow(1);
 		}
 		FSearchStarted = true;
 	}
@@ -325,6 +333,15 @@ void RosterSearch::removeSearchField(int ADataRole)
 		delete field.action;
 		emit searchFieldRemoved(ADataRole);
 	}
+}
+
+bool RosterSearch::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
+{
+	Q_UNUSED(AIndex)
+	Q_UNUSED(AOrder)
+	if (!FSearchEdit->text().isEmpty())
+		FSearchEdit->setText(QString::null);
+	return false;
 }
 
 bool RosterSearch::filterAcceptsRow(int ARow, const QModelIndex &AParent) const
@@ -483,7 +500,7 @@ void RosterSearch::createNotFoundItem()
 			FSearchNotFound = FRostersModel->createRosterIndex(RIT_SEARCH_EMPTY, searchRoot);
 		FSearchNotFound->setFlags(0);
 		FSearchNotFound->setData(Qt::DisplayRole, tr("Contacts not found"));
-		FSearchNotFound->setData(RDR_TYPE_ORDER,RITO_SEARCH);
+		FSearchNotFound->setData(RDR_TYPE_ORDER,RITO_SEARCH_NOT_FOUND);
 		FRostersModel->insertRosterIndex(FSearchNotFound, searchRoot);
 	}
 }

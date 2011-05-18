@@ -12,7 +12,7 @@
 class SortFilterProxyModel :
 			public QSortFilterProxyModel
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	SortFilterProxyModel(IRostersViewPlugin *ARostersViewPlugin, QObject *AParent = NULL);
 	~SortFilterProxyModel();

@@ -47,6 +47,8 @@ public:
 	virtual IRostersModel *rostersModel() const;
 	virtual void setRostersModel(IRostersModel *AModel);
 	virtual QList<IRosterIndex *> selectedRosterIndexes() const;
+	virtual void selectIndex(IRosterIndex * AIndex);
+	virtual void selectRow(int ARow);
 	virtual bool repaintRosterIndex(IRosterIndex *AIndex);
 	virtual void expandIndexParents(IRosterIndex *AIndex);
 	virtual void expandIndexParents(const QModelIndex &AIndex);

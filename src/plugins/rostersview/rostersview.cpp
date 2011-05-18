@@ -252,6 +252,21 @@ QList<IRosterIndex *> RostersView::selectedRosterIndexes() const
 	return rosterIndexes;
 }
 
+void RostersView::selectIndex(IRosterIndex * AIndex)
+{
+	if (FRostersModel)
+	{
+		QModelIndex mindex = FRostersModel->modelIndexByRosterIndex(AIndex);
+		selectionModel()->select(mindex, QItemSelectionModel::Select);
+	}
+}
+
+void RostersView::selectRow(int ARow)
+{
+	QModelIndex mindex = model()->index(ARow, 0, QModelIndex());
+	setCurrentIndex(mindex);
+}
+
 bool RostersView::repaintRosterIndex(IRosterIndex *AIndex)
 {
 	if (FRostersModel)

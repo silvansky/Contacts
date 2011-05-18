@@ -890,8 +890,8 @@ void LoginDialog::onXmppStreamClosed()
 	}
 	else if (account)
 	{
-		showXmppStreamError(tr("Unable to login on server"),account->xmppStream()->errorString(),
-				    FNewProfile ? tr("Entered login or password is not correct") : tr("Maybe entered password is not correct"));
+		showXmppStreamError(FNewProfile ? tr("Login and password mismatch") : tr("Wrong password"), QString::null/*account->xmppStream()->errorString()*/,
+				    tr("Check keyboard layout"));
 	}
 
 	FFirstConnect = false;
