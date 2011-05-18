@@ -81,6 +81,7 @@
 
 //Gateways
 #define STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG                             "gatewaysAddLegacyAccountDialog"
+#define STS_GATEWAYS_ADDFACEBOOKACCOUNTDIALOG                           "gatewaysAddFacebookAccountDialog"
 #define STS_GATEWAYS_LEGACYACCOUNTOPTIONSWIDGET                         "gatewaysLegacyAccountOptionsWidget"
 
 //Utils

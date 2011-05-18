@@ -41,6 +41,7 @@
 #include "addlegacyaccountdialog.h"
 #include "addlegacycontactdialog.h"
 #include "addlegacyaccountoptions.h"
+#include "addfacebookaccountdialog.h"
 #include "managelegacyaccountsoptions.h"
 #include "legacyaccountfilter.h"
 

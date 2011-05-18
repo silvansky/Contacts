@@ -6,11 +6,11 @@
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <interfaces/igateways.h>
-#include <interfaces/ipluginmanager.h>
 #include <interfaces/iregistraton.h>
-#include <interfaces/irosterchanger.h>
+#include <utils/log.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/custominputdialog.h>
 #include "ui_addlegacyaccountdialog.h"
 
 class AddLegacyAccountDialog :

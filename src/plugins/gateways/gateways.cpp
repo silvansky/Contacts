@@ -1133,9 +1133,14 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
 	if (FRegistration && presence && presence->isOpen())
 	{
-		AddLegacyAccountDialog *dialog = new AddLegacyAccountDialog(this,FRegistration,AStreamJid,AServiceJid,AParent);
+		QDialog *dialog;
+		if (serviceDescriptor(AStreamJid,AServiceJid).id == GSID_FACEBOOK)
+			dialog = new AddFacebookAccountDialog(this,FRegistration,AStreamJid,AServiceJid,AParent);
+		else
+			dialog = new AddLegacyAccountDialog(this,FRegistration,AStreamJid,AServiceJid,AParent);
 		connect(presence->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
-		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+
+		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 		if (border)
 		{
 			border->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -1149,7 +1154,10 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 			border->adjustSize();
 		}
 		else
+		{
 			dialog->show();
+		}
+
 		return dialog;
 	}
 	return NULL;
