@@ -50,6 +50,7 @@ protected:
 	bool dragAnywhere;
 	QMultiMap<int, HeaderButton> headerButtons;
 	bool dockingEnabled;
+	int dockWidth;
 };
 
 #endif // CUSTOMBORDERCONTAINER_P_H

@@ -106,7 +106,8 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderCon
 	headerButtons(other.headerButtons),
 	dragAnywhere(other.dragAnywhere),
 	p(NULL),
-	dockingEnabled(other.dockingEnabled)
+	dockingEnabled(other.dockingEnabled),
+	dockWidth(other.dockWidth)
 {
 }
 
@@ -198,10 +199,17 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 				button = root.firstChildElement("restore-button");
 				parseHeaderButton(button, restore);
 				// drag anywhere
-				QDomElement drag = root.firstChildElement("drag-anywhere");
-				if (!drag.isNull())
+				QDomElement dragEl = root.firstChildElement("drag-anywhere");
+				if (!dragEl.isNull())
 				{
-					dragAnywhere = (drag.attribute("enabled").compare("true", Qt::CaseInsensitive) == 0);
+					dragAnywhere = (dragEl.attribute("enabled").compare("true", Qt::CaseInsensitive) == 0);
+				}
+				// dock width
+				QDomElement dockWidthEl = root.firstChildElement("docking");
+				if (!dockWidthEl.isNull())
+				{
+					dockWidth = dockWidthEl.attribute("width").toInt();
+					dockingEnabled = (dockWidthEl.attribute("enabled").compare("true", Qt::CaseInsensitive) == 0);
 				}
 
 			}
@@ -225,6 +233,7 @@ void CustomBorderContainerPrivate::setAllDefaults()
 {
 	dragAnywhere = false;
 	dockingEnabled = false;
+	dockWidth = 30;
 	setDefaultBorder(left);
 	setDefaultBorder(right);
 	setDefaultBorder(top);
@@ -1238,21 +1247,52 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 	{
 		dx = p.x() - oldPressPoint.x();
 		dy = p.y() - oldPressPoint.y();
-		oldPressPoint = p;
 		int newLeft = oldGeometry.left() + dx;
-		if (false/*borderStyle->dockingEnabled*/)
+		int newTop = oldGeometry.top() + dy;
+		bool hDocked = false;
+		bool vDocked = false;
+		if (borderStyle->dockingEnabled)
 		{
-			// TODO: dock to screenRect
-			const int dockWidth = 20;
-			int newRight = oldGeometry.right() - rightBorderWidth();
-			// dock right
-			if ((abs(newRight - screenRect.right()) < dockWidth) && (newRight < screenRect.right()))
-				newLeft = screenRect.right() - oldGeometry.width() - rightBorderWidth();
+			// TODO: fix right and bottom docking
+			int delta = 0;
 			// dock left
-			if ((abs(screenRect.left() - leftBorderWidth() - newLeft) < dockWidth) && (screenRect.left() - leftBorderWidth() > newLeft))
+			delta = screenRect.left() - leftBorderWidth() - newLeft;
+			if ((abs(delta) < borderStyle->dockWidth) && (delta > 0) && (dx < 0))
+			{
 				newLeft = screenRect.left() - leftBorderWidth();
+				hDocked = true;
+			}
+			// dock top
+			delta = screenRect.top() - topBorderWidth() - newTop;
+			if ((abs(delta) < borderStyle->dockWidth) && (delta > 0) && (dy < 0))
+			{
+				newTop = screenRect.top() - topBorderWidth();
+				vDocked = true;
+			}
+			// dock right
+			int newRight = oldGeometry.right() + dx;
+			delta = newRight - screenRect.right() - rightBorderWidth();
+			if ((abs(delta) < borderStyle->dockWidth) && (delta > 0) && (dx > 0))
+			{
+				newLeft = screenRect.right() - oldGeometry.width() + rightBorderWidth() + 1;
+				hDocked = true;
+			}
+			// dock bottom
+			int newBottom = oldGeometry.bottom() + dy;
+			delta = newBottom - screenRect.bottom() - bottomBorderWidth();
+			if ((abs(delta) < borderStyle->dockWidth) && (delta > 0) && (dy > 0))
+			{
+				newTop = screenRect.bottom() - oldGeometry.height() + bottomBorderWidth() + 1;
+				vDocked = true;
+			}
 		}
-		oldGeometry.moveTo(newLeft, oldGeometry.top() + dy);
+		if (!(hDocked || vDocked))
+			oldPressPoint = p;
+		else if (hDocked)
+			oldPressPoint = QPoint(oldPressPoint.x(), p.y());
+		else
+			oldPressPoint = QPoint(p.x(), oldPressPoint.y());
+		oldGeometry.moveTo(newLeft, newTop);
 		break;
 	}
 	case None:
