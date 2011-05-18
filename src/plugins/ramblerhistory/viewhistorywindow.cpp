@@ -64,12 +64,11 @@ Jid ViewHistoryWindow::contactJid() const
 
 void ViewHistoryWindow::initViewHtml()
 {
-	/*
 	static const QString HtmlTemplate = 
 		"<html><body> \
 			<div style=\"display:none\"> \
 				<form method=\"post\" action=\"http://id.rambler.ru/script/auth.cgi?mode=login\" name=\"auth_form\"> \
-					<input type=\"hidden\" name=\"back\" value=\"http://m2.mail-test.rambler.ru/mail/messenger_history.cgi?user=%1\"> \
+					<input type=\"hidden\" name=\"back\" value=\"http://mail.rambler.ru/m/history/talks/%1\"> \
 					<input type=\"text\" name=\"login\" value=\"%2\"> \
 					<input type=\"text\" name=\"domain\" value=\"%3\"> \
 					<input type=\"password\" name=\"passw\" value=\"%4\"> \
@@ -82,13 +81,14 @@ void ViewHistoryWindow::initViewHtml()
 
 	QString html = HtmlTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).arg(tr("Enter"));
 	ui.wbvHistoryView->setHtml(html);
-	*/
 
+/*
 	static const QString PostTemplate = "back=http://m2.mail-test.rambler.ru/mail/messenger_history.cgi?user=%1&login=%2&domain=%3&passw=%4&long_session=0";
 	
 	QByteArray post = PostTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).toUtf8();
 	QNetworkRequest request(QUrl("http://id.rambler.ru/script/auth.cgi?mode=login"));
 	ui.wbvHistoryView->load(request,QNetworkAccessManager::PostOperation,post);
+*/
 }
 
 void ViewHistoryWindow::onWebPageLinkClicked(const QUrl &AUrl)
