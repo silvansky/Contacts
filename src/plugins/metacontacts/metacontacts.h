@@ -130,6 +130,8 @@ protected:
 	void deleteMetaRosterWindows(IMetaRoster *AMetaRoster);
 	IMetaRoster *findBareMetaRoster(const Jid &AStreamJid) const;
 	MetaProfileDialog *findMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId) const;
+	void hideMetaContact(IMetaRoster *AMetaRoster, const QString &AMetaId);
+	void unhideMetaContact(IMetaRoster *AMetaRoster, const QString &AMetaId);
 	void notifyContactDeleteFailed(IMetaRoster *ARoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 protected slots:
 	void onMetaRosterOpened();
@@ -193,6 +195,7 @@ private:
 	QList<IMetaRoster *> FMetaRosters;
 	QObjectCleanupHandler FCleanupHandler;
 private:
+	MetaProxyModel *FMetaProxyModel;
 	QHash<QString, TabPageInfo> FTabPages;
 	QList<IMetaTabWindow *> FMetaTabWindows;
 	IMetaItemDescriptor FDefaultItemDescriptor;

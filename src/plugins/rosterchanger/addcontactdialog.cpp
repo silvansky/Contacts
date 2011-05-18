@@ -206,8 +206,6 @@ void AddContactDialog::initialize(IPluginManager *APluginManager)
 		FMetaRoster = mcontacts!=NULL ? mcontacts->findMetaRoster(streamJid()) : NULL;
 		if (FMetaRoster)
 		{
-			connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
-				SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 			connect(FMetaRoster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
 				SLOT(onMetaActionResult(const QString &, const QString &, const QString &)));
 		}
@@ -752,39 +750,24 @@ void AddContactDialog::onRosterItemReceived(const IRosterItem &AItem, const IRos
 	}
 }
 
-void AddContactDialog::onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore)
-{
-	Q_UNUSED(ABefore);
-	if (AContact.items.contains(contactJid()))
-	{
-		QList<QString> mergeIds;
-		foreach(Jid linkedJid, FLinkedContacts)
-		{
-			QString metaId = FMetaRoster->itemMetaContact(linkedJid);
-			if (!metaId.isEmpty() && metaId!=AContact.id)
-				mergeIds.append(metaId);
-		}
-		if (!mergeIds.isEmpty())
-		{
-			FMetaRoster->mergeContacts(AContact.id,mergeIds);
-		}
-		if (!FParentMetaId.isEmpty() && !FMetaRoster->metaContact(FParentMetaId).id.isEmpty())
-		{
-			FMetaRoster->mergeContacts(FParentMetaId,QList<QString>()<<AContact.id);
-		}
-		else if (FMessageProcessor)
-		{
-			FMessageProcessor->createWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
-		}
-		accept();
-	}
-}
-
 void AddContactDialog::onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
 {
 	if (FContactCreateRequest == AActionId)
 	{
-		if (!AErrCond.isEmpty())
+		QString metaId = FMetaRoster->itemMetaContact(contactJid());
+		if (!metaId.isEmpty())
+		{
+			if (!FParentMetaId.isEmpty() && !FMetaRoster->metaContact(FParentMetaId).id.isEmpty())
+			{
+				FMetaRoster->mergeContacts(FParentMetaId,QList<QString>()<<metaId);
+			}
+			else if (FMessageProcessor)
+			{
+				FMessageProcessor->createWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+			}
+			accept();
+		}
+		else
 		{
 			setErrorMessage(tr("Failed to add contact due to an error: %1").arg(AErrMessage),false);
 			setDialogEnabled(true);

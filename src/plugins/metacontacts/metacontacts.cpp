@@ -58,6 +58,8 @@ MetaContacts::MetaContacts()
 	FRosterSearch = NULL;
 	FGateways = NULL;
 	FNotifications = NULL;
+
+	FMetaProxyModel = NULL;
 }
 
 MetaContacts::~MetaContacts()
@@ -164,8 +166,8 @@ bool MetaContacts::initObjects()
 	}
 	if (FRostersViewPlugin)
 	{
-		MetaProxyModel *proxyModel = new MetaProxyModel(this, FRostersViewPlugin->rostersView());
-		FRostersViewPlugin->rostersView()->insertProxyModel(proxyModel, RPO_METACONTACTS_MODIFIER);
+		FMetaProxyModel = new MetaProxyModel(this, FRostersViewPlugin->rostersView());
+		FRostersViewPlugin->rostersView()->insertProxyModel(FMetaProxyModel, RPO_METACONTACTS_MODIFIER);
 		FRostersViewPlugin->rostersView()->insertClickHooker(RCHO_DEFAULT,this);
 		FRostersViewPlugin->rostersView()->insertDragDropHandler(this);
 	}
@@ -864,19 +866,45 @@ MetaProfileDialog *MetaContacts::findMetaProfileDialog(const Jid &AStreamJid, co
 	return NULL;
 }
 
+void MetaContacts::hideMetaContact(IMetaRoster *AMetaRoster, const QString &AMetaId)
+{
+	QList<IRosterIndex *> indexes = FMetaProxyModel!=NULL ? FMetaProxyModel->findMetaIndexes(AMetaRoster,AMetaId) : QList<IRosterIndex *>();
+	foreach(IRosterIndex *index, indexes)
+	{
+		int invisible = index->data(RDR_ALLWAYS_INVISIBLE).toInt();
+		index->setData(RDR_ALLWAYS_INVISIBLE,invisible+1);
+	}
+
+	IMetaTabWindow *window = findMetaTabWindow(AMetaRoster->streamJid(),AMetaId);
+	if (window)
+		window->closeTabPage();
+}
+
+void MetaContacts::unhideMetaContact(IMetaRoster *AMetaRoster, const QString &AMetaId)
+{
+	QList<IRosterIndex *> indexes = FMetaProxyModel!=NULL ? FMetaProxyModel->findMetaIndexes(AMetaRoster,AMetaId) : QList<IRosterIndex *>();
+	foreach(IRosterIndex *index, indexes)
+	{
+		int invisible = index->data(RDR_ALLWAYS_INVISIBLE).toInt();
+		index->setData(RDR_ALLWAYS_INVISIBLE,invisible-1);
+	}
+}
+
 void MetaContacts::notifyContactDeleteFailed(IMetaRoster *AMetaRoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
 {
 	Q_UNUSED(AErrMessage);
 	QMap<QString, QString> &deleteActions = FDeleteActions[AMetaRoster];
 	if (deleteActions.contains(AActionId))
 	{
+		IMetaContact contact = AMetaRoster->metaContact(deleteActions.value(AActionId));
+		unhideMetaContact(AMetaRoster,contact.id);
+
 		if (FNotifications && !AErrCond.isEmpty())
 		{
 			INotification notify;
 			notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_METACONTACTS_DELETEFAIL) : 0;
 			if ((notify.kinds & (INotification::PopupWindow|INotification::PlaySoundNotification))>0)
 			{
-				IMetaContact contact = AMetaRoster->metaContact(deleteActions.value(AActionId));
 				notify.notificatior = NID_METACONTACTS_DELETEFAIL;
 				notify.data.insert(NDR_STREAM_JID,AMetaRoster->streamJid().full());
 				notify.data.insert(NDR_POPUP_IMAGE,AMetaRoster->metaAvatarImage(contact.id,false,true));
@@ -1159,7 +1187,10 @@ void MetaContacts::onDeleteContactDialogAccepted()
 			{
 				QString requestId = mroster->deleteContact(metaId);
 				if (FNotifications && !requestId.isEmpty())
+				{
+					hideMetaContact(mroster,metaId);
 					FDeleteActions[mroster].insert(requestId,metaId);
+				}
 			}
 		}
 		dialog->deleteLater();

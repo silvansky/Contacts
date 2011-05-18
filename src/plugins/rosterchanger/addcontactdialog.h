@@ -88,7 +88,6 @@ protected slots:
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
-	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 private:
 	Ui::AddContactDialogClass ui;

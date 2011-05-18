@@ -49,8 +49,6 @@ AddMetaContactDialog::AddMetaContactDialog(IMetaRoster *AMetaRoster, IRosterChan
 	connect(ui.dbbButtons,SIGNAL(accepted()),SLOT(onDialogAccepted()));
 	connect(ui.dbbButtons,SIGNAL(rejected()),SLOT(reject()));
 
-	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
-		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
 	connect(FMetaRoster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
 		SLOT(onMetaActionResult(const QString &, const QString &, const QString &)));
 
@@ -430,6 +428,8 @@ void AddMetaContactDialog::onDialogAccepted()
 		FCreateActionId = FMetaRoster->createContact(contact);
 		if (!FCreateActionId.isEmpty())
 		{
+			foreach(Jid itemJid, contact.items)
+				FRosterChanger->subscribeContact(streamJid(),itemJid);
 			setDialogEnabled(false);
 		}
 		else
@@ -545,43 +545,34 @@ void AddMetaContactDialog::onVCardError(const Jid &AContactJid, const QString &A
 		FNoVcardContacts.append(AContactJid);
 }
 
-void AddMetaContactDialog::onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore)
-{
-	Q_UNUSED(ABefore);
-	if (AContact.items.contains(contactJid()))
-	{
-		if (!FParentMetaId.isEmpty() && !FMetaRoster->metaContact(FParentMetaId).id.isEmpty())
-		{
-			FMetaRoster->mergeContacts(FParentMetaId,QList<QString>()<<AContact.id);
-		}
-		else
-		{
-			IMetaTabWindow *window = FMetaContacts->newMetaTabWindow(streamJid(),AContact.id);
-			if (window)
-				window->showTabPage();
-		}
-		accept();
-	}
-}
-
 void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
 {
 	if (AActionId == FCreateActionId)
 	{
-		if (!AErrCond.isEmpty())
+		if (AErrCond.isEmpty())
 		{
-			CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+			QString metaId = FMetaRoster->itemMetaContact(contactJid());
+			if (!FParentMetaId.isEmpty() && !FMetaRoster->metaContact(FParentMetaId).id.isEmpty())
+			{
+				FMetaRoster->mergeContacts(FParentMetaId,QList<QString>()<<metaId);
+			}
+			else
+			{
+				IMetaTabWindow *window = FMetaContacts->newMetaTabWindow(streamJid(),metaId);
+				if (window)
+					window->showTabPage();
+			}
+			accept();
+		}
+		else
+		{
+			CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::Info);
 			dialog->setCaptionText(tr("Failed to create contact"));
 			dialog->setInfoText(tr("Failed to add contact due to an error: %1").arg(AErrMessage));
 			dialog->setAcceptButtonText(tr("Ok"));
 			dialog->setDeleteOnClose(true);
 			dialog->show();
 			setDialogEnabled(true);
-		}
-		else
-		{
-			foreach(IAddMetaItemWidget *widget, FItemWidgets)
-				FRosterChanger->subscribeContact(streamJid(),widget->contactJid().bare());
 		}
 	}
 }

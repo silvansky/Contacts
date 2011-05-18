@@ -32,6 +32,8 @@ public:
 	virtual QList<int> rosterDataTypes() const;
 	virtual QVariant rosterData(const IRosterIndex *AIndex, int ARole) const;
 	virtual bool setRosterData(IRosterIndex *AIndex, int ARole, const QVariant &AValue);
+	//MetaProxyModel
+	QList<IRosterIndex *> findMetaIndexes(IMetaRoster *AMetaRoster, const QString &AMetaId) const;
 signals:
 	//IRosterDataHolder
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);

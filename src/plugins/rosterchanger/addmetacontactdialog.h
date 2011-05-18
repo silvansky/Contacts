@@ -76,7 +76,6 @@ protected slots:
 	void onItemWidgetContactJidChanged(const Jid &AContactJid);
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
-	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 private:
 	QVBoxLayout *FItemsLayout;

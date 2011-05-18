@@ -132,17 +132,15 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 	else if (FMultiRequests.values().contains(AStanza.id()))
 	{
 		QString multiId = FMultiRequests.key(AStanza.id());
-		FMultiRequests.remove(multiId,AStanza.id());
 		if (AStanza.type() == "error")
 		{
-			FMultiRequests.remove(multiId);
 			ErrorHandler err(AStanza.element());
 			Log(QString("[MetaRoster stanza error] condition %1 : %2").arg(err.condition(), err.message()));
-			emit metaActionResult(multiId,err.condition(),err.message());
+			processMultiRequest(multiId,AStanza.id(),err.condition(),err.message());
 		}
-		else if (!FMultiRequests.contains(multiId))
+		else
 		{
-			emit metaActionResult(multiId,QString::null,QString::null);
+			processMultiRequest(multiId,AStanza.id(),QString::null,QString::null);
 		}
 	}
 }
@@ -164,9 +162,8 @@ void MetaRoster::stanzaRequestTimeout(const Jid &AStreamJid, const QString &ASta
 	else if (FMultiRequests.values().contains(AStanzaId))
 	{
 		QString multiId = FMultiRequests.key(AStanzaId);
-		FMultiRequests.remove(multiId);
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		emit metaActionResult(multiId,err.condition(),err.message());
+		processMultiRequest(multiId,AStanzaId,err.condition(),err.message());
 	}
 }
 
@@ -369,7 +366,7 @@ QString MetaRoster::createContact(const IMetaContact &AContact)
 {
 	if (isOpen())
 	{
-		Jid firstItem;
+		QSet<Jid> mergeList;
 		QList<QString> requests;
 		foreach(Jid itemJid, AContact.items)
 		{
@@ -389,17 +386,21 @@ QString MetaRoster::createContact(const IMetaContact &AContact)
 
 				if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 				{
-					if (firstItem.isEmpty())
-						firstItem = itemJid.bare();
-					else
-						FAutoMergeList.insert(itemJid.bare(),firstItem);
+					mergeList += itemJid.bare();
 					requests.append(query.id());
 				}
 				else if (requests.isEmpty())
+				{
 					break;
+				}
 			}
 		}
-		return startMultiRequest(requests);
+
+		QString multiId = startMultiRequest(requests);
+		if (!multiId.isEmpty() && mergeList.count()>1)
+			FCreateMergeList.insert(multiId,mergeList);
+
+		return multiId;
 	}
 	return QString::null;
 }
@@ -669,42 +670,6 @@ IRosterItem MetaRoster::metaRosterItem(const QSet<Jid> AItems) const
 	return ritem;
 }
 
-QString MetaRoster::startMultiRequest(const QList<QString> &AActions)
-{
-	if (FStanzaProcessor)
-	{
-		if (AActions.count() > 1)
-		{
-			QString multiId = FStanzaProcessor->newId();
-			foreach(QString action, AActions)
-				FMultiRequests.insertMulti(multiId,action);
-			return multiId;
-		}
-		else if (AActions.count() == 1)
-		{
-			FActionRequests.append(AActions.at(0));
-			return AActions.at(0);
-		}
-	}
-	return QString::null;
-}
-
-void MetaRoster::processAutoMerge(const IMetaContact &AContact)
-{
-	if (isOpen() && !FAutoMergeList.isEmpty())
-	{
-		for(QSet<Jid>::const_iterator it=AContact.items.constBegin(); it!=AContact.items.constEnd(); it++)
-		{
-			QString parentMetaId = FItemMetaId.value(FAutoMergeList.take(*it));
-			if (!parentMetaId.isEmpty())
-			{
-				mergeContacts(parentMetaId,QList<QString>() << AContact.id);
-				break;
-			}
-		}
-	}
-}
-
 void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRoster)
 {
 	if (!AMetasElement.isNull())
@@ -774,10 +739,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 				contact.subscription = ritem.subscription;
 
 				if (contact != before)
-				{
 					emit metaContactReceived(contact,before);
-					processAutoMerge(contact);
-				}
 			}
 			else if (FContacts.contains(metaId))
 			{
@@ -1030,6 +992,86 @@ void MetaRoster::removeStanzaHandlers()
 		FStanzaProcessor->removeStanzaHandle(FSHIRosterRequest);
 		FStanzaProcessor->removeStanzaHandle(FSHIRosterResult);
 		FSHIMetaContacts = -1;
+	}
+}
+
+bool MetaRoster::processCreateMerge(const QString &AMultiId)
+{
+	if (FCreateMergeList.contains(AMultiId))
+	{
+		QList<QString> requests;
+
+		QString parentMetaId;
+		QSet<Jid> items = FCreateMergeList.take(AMultiId);
+		foreach(Jid itemJid, items)
+		{
+			QString metaId = itemMetaContact(itemJid);
+			if (!metaId.isEmpty())
+			{
+				if (!parentMetaId.isEmpty())
+				{
+					QString requestId = mergeContacts(parentMetaId,QList<QString>()<<metaId);
+					if (!requestId.isEmpty())
+						requests.append(requestId);
+				}
+				else
+				{
+					parentMetaId = metaId;
+				}
+			}
+		}
+
+		if (!requests.isEmpty())
+		{
+			appendMultiRequest(AMultiId,requests);
+			return true;
+		}
+	}
+	return false;
+}
+
+QString MetaRoster::startMultiRequest(const QList<QString> &AActions)
+{
+	if (FStanzaProcessor)
+	{
+		if (AActions.count() > 1)
+		{
+			QString multiId = FStanzaProcessor->newId();
+			foreach(QString action, AActions)
+				FMultiRequests.insertMulti(multiId,action);
+			return multiId;
+		}
+		else if (AActions.count() == 1)
+		{
+			FActionRequests.append(AActions.at(0));
+			return AActions.at(0);
+		}
+	}
+	return QString::null;
+}
+
+void MetaRoster::appendMultiRequest(const QString &AMultiId, const QList<QString> &AActions)
+{
+	foreach(QString actionId, AActions)
+		FMultiRequests.insertMulti(AMultiId,actionId);
+}
+
+void MetaRoster::processMultiRequest(const QString &AMultiId, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
+{
+	if (FMultiRequests.contains(AMultiId,AActionId))
+	{
+		if (!AErrCond.isEmpty() && !FMultiErrors.contains(AMultiId))
+			FMultiErrors.insert(AMultiId, qMakePair<QString,QString>(AErrCond,AErrMessage));
+		FMultiRequests.remove(AMultiId,AActionId);
+
+		if (!FMultiRequests.contains(AMultiId))
+		{
+			if (!processCreateMerge(AMultiId))
+			{
+				QPair<QString,QString> errPair = FMultiErrors.take(AMultiId);
+				emit metaActionResult(AMultiId, errPair.first, errPair.second);
+			}
+		}
 	}
 }
 

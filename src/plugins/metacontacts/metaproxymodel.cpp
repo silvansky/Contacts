@@ -125,6 +125,11 @@ bool MetaProxyModel::setRosterData(IRosterIndex *AIndex, int ARole, const QVaria
 	return false;
 }
 
+QList<IRosterIndex *> MetaProxyModel::findMetaIndexes(IMetaRoster *AMetaRoster, const QString &AMetaId) const
+{
+	return FMetaIndexes.value(AMetaRoster).values(AMetaId);
+}
+
 bool MetaProxyModel::filterAcceptsRow(int ASourceRow, const QModelIndex &ASourceParent) const
 {
 	if (sourceModel())
@@ -186,7 +191,7 @@ void MetaProxyModel::onRostersNotifyInserted(int ANotifyId)
 			{
 				QString metaId = mroster->itemMetaContact(index->data(RDR_PREP_BARE_JID).toString());
 				if (!metaId.isEmpty())
-					metaIndexes += FMetaIndexes.value(mroster).values(metaId).toSet();
+					metaIndexes += findMetaIndexes(mroster,metaId).toSet();
 			}
 		}
 	}
@@ -254,7 +259,7 @@ void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString
 	QImage avatar = ImageManager::roundSquared(originalAvatar, 24, 2);
 	QImage largeAvatar = ImageManager::roundSquared(originalAvatar, 36, 2);
 
-	foreach(IRosterIndex *index, FMetaIndexes.value(AMetaRoster).values(AMetaId))
+	foreach(IRosterIndex *index, findMetaIndexes(AMetaRoster,AMetaId))
 	{
 		index->setData(RDR_AVATAR_HASH, hash);
 		index->setData(RDR_AVATAR_IMAGE, avatar);
@@ -265,7 +270,7 @@ void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString
 void MetaProxyModel::onMetaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId)
 {
 	IPresenceItem pitem = AMetaRoster->metaPresenceItem(AMetaId);
-	foreach(IRosterIndex *index, FMetaIndexes.value(AMetaRoster).values(AMetaId))
+	foreach(IRosterIndex *index, findMetaIndexes(AMetaRoster,AMetaId))
 	{
 		index->setData(RDR_SHOW,pitem.show);
 		index->setData(RDR_STATUS,pitem.status);

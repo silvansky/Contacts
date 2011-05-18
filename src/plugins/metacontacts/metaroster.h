@@ -72,14 +72,17 @@ protected:
 	void clearMetaContacts();
 	void removeMetaContact(const QString &AMetaId);
 	IRosterItem metaRosterItem(const QSet<Jid> AItems) const;
-	QString startMultiRequest(const QList<QString> &AActions);
-	void processAutoMerge(const IMetaContact &AContact);
 	void processMetasElement(QDomElement AMetasElement, bool ACompleteRoster);
 	Stanza convertMetaElemToRosterStanza(QDomElement AMetaElem) const;
 	Stanza convertRosterElemToMetaStanza(QDomElement ARosterElem) const;
 	void processRosterStanza(const Jid &AStreamJid, Stanza AStanza);
 	void insertStanzaHandlers();
 	void removeStanzaHandlers();
+protected:
+	bool processCreateMerge(const QString &AMultiId);
+	QString startMultiRequest(const QList<QString> &AActions);
+	void appendMultiRequest(const QString &AMultiId, const QList<QString> &AActions);
+	void processMultiRequest(const QString &AMultiId, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 protected slots:
 	void onStreamClosed();
 	void onStreamJidAboutToBeChanged(const Jid &AAfter);
@@ -103,13 +106,14 @@ private:
 	QList<QString> FBlockResults;
 	QList<QString> FActionRequests;
 	QMultiMap<QString, QString> FMultiRequests;
+	QMap<QString, QPair<QString,QString> > FMultiErrors;
 private:
 	bool FOpened;
 	bool FEnabled;
 	QString FRosterVer;
-	QMap<Jid, Jid> FAutoMergeList;
 	QHash<Jid, QString> FItemMetaId;
 	QHash<QString, IMetaContact> FContacts;
+	QMap<QString, QSet<Jid> > FCreateMergeList;
 };
 
 #endif // METAROSTER_H
