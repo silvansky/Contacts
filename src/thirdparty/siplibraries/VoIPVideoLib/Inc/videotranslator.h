@@ -74,7 +74,9 @@ protected slots:
   void updText();
   void procceedDataProcessing( const QByteArray& rtpPacket );
 	void procceedDataProcessingDebug( const QByteArray& rtpPacket );
-
+	
+private:
+	void pingOther();
 
 
 private:
@@ -106,6 +108,7 @@ private:
   // Идентификаторы таймеров: отображения картинки / посылка картинки по сети
   int _showTimer;
   int _sendTimer;
+	int _pingTimer;
 
   // Частота соответсвующих таймеров Гц (тиков/сек.)
   int _showTimerFreq;

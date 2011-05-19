@@ -295,6 +295,8 @@ bool SipPhoneProxy::initRegistrationData( void )
 	//regData.sipServerUri = "81.19.69.224";
 	//regData.sipServerUri = "81.19.70.71";//"81.19.70.76";
 	regData.sipServerUri = "81.19.70.76";
+	//regData.sipServerUri = "81.19.80.213";
+
 	regData.qValue = "";// settings.value( pp + "/qValue", "" ).toString();
 	//regData.userName = settings.value( pp + "/UserName" ).toString();
 	//regData.password = settings.value( pp + "/Password" ).toString();
