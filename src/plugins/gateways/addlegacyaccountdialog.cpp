@@ -4,20 +4,18 @@
 #include <QListView>
 #include <QPushButton>
 
-AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
+AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
 	ui.setupUi(this);
 	ui.cmbDomains->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 
+	FPresence = APresence;
 	FGateways = AGateways;
 	FRegistration = ARegistration;
 
-	FStreamJid = AStreamJid;
 	FServiceJid = AServiceJid;
-
-	initialize();
 
 	ui.lneLogin->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -32,7 +30,14 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	connect(ui.chbShowPassword,SIGNAL(stateChanged(int)),SLOT(onShowPasswordStateChanged(int)));
 	onLineEditTextChanged(QString::null);
 
-	FGateLabel = FGateways->serviceDescriptor(FStreamJid, FServiceJid);
+	connect(FRegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
+		SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
+	connect(FRegistration->instance(),SIGNAL(registerSuccess(const QString &)),
+		SLOT(onRegisterSuccess(const QString &)));
+	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
+		SLOT(onRegisterError(const QString &, const QString &)));
+
+	FGateLabel = FGateways->serviceDescriptor(FPresence->streamJid(), FServiceJid);
 	if (!FGateLabel.id.isEmpty())
 	{
 		setWindowTitle(tr("Add %1 account").arg(FGateLabel.name));
@@ -45,7 +50,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 			ui.cmbDomains->addItem("@"+domain,domain);
 		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());
 
-		FRegisterId = FRegistration->sendRegiterRequest(FStreamJid,FServiceJid);
+		FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 		if (FRegisterId.isEmpty())
 			abort(tr("Gateway registration request failed"));
 		else
@@ -66,16 +71,6 @@ void AddLegacyAccountDialog::showEvent(QShowEvent *AEvent)
 {
 	QDialog::showEvent(AEvent);
 	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
-}
-
-void AddLegacyAccountDialog::initialize()
-{
-	connect(FRegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
-		SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
-	connect(FRegistration->instance(),SIGNAL(registerSuccess(const QString &)),
-		SLOT(onRegisterSuccess(const QString &)));
-	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
-		SLOT(onRegisterError(const QString &, const QString &)));
 }
 
 void AddLegacyAccountDialog::abort(const QString &AMessage)
@@ -123,7 +118,7 @@ void AddLegacyAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
 	else
 	{
 		QString info = tr("Please, enter your login and password.");
-		if (!FGateways->streamServices(FStreamJid).contains(FServiceJid))
+		if (!FGateways->streamServices(FPresence->streamJid()).contains(FServiceJid))
 			info = tr("Your account is not connected.") + " " + info;
 		ui.lblInfo->setText(info);
 		onLineEditTextChanged(QString::null);
@@ -179,11 +174,11 @@ void AddLegacyAccountDialog::onDialogButtonClicked(QAbstractButton *AButton)
 			FGateLogin.domain = parts.value(1);
 		}
 
-		IRegisterSubmit submit = FGateways->serviceSubmit(FStreamJid,FServiceJid,FGateLogin);
+		IRegisterSubmit submit = FGateways->serviceSubmit(FPresence->streamJid(),FServiceJid,FGateLogin);
 		if (submit.serviceJid.isValid())
 		{
-			FGateways->sendLogPresence(FStreamJid,FServiceJid,false);
-			FRegisterId = FRegistration->sendSubmit(FStreamJid,submit);
+			FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
+			FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
 			if (FRegisterId.isEmpty())
 				setError(tr("Gateway registration request failed"));
 			else
@@ -204,7 +199,7 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 {
 	if (AId == FRegisterId)
 	{
-		FGateLogin = FGateways->serviceLogin(FStreamJid,FServiceJid,AFields);
+		FGateLogin = FGateways->serviceLogin(FPresence->streamJid(),FServiceJid,AFields);
 		if (FGateLogin.isValid)
 		{
 			if (FGateLabel.domains.isEmpty())
@@ -239,7 +234,7 @@ void AddLegacyAccountDialog::onRegisterSuccess(const QString &AId)
 {
 	if (AId == FRegisterId)
 	{
-		if (FGateways->setServiceEnabled(FStreamJid,FServiceJid,true))
+		if (FGateways->setServiceEnabled(FPresence->streamJid(),FServiceJid,true))
 			accept();
 		else
 			setError(tr("Connection to gateway is lost"));

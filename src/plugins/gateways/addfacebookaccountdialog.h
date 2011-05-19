@@ -4,9 +4,13 @@
 #include <QDialog>
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
+#include <interfaces/ipresence.h>
 #include <interfaces/igateways.h>
 #include <interfaces/iregistraton.h>
+#include <interfaces/iconnectionmanager.h>
+#include <interfaces/idefaultconnection.h>
 #include <utils/stylestorage.h>
+#include <utils/custominputdialog.h>
 #include "ui_addfacebookaccountdialog.h"
 
 class AddFacebookAccountDialog : 
@@ -14,20 +18,29 @@ class AddFacebookAccountDialog :
 {
 	Q_OBJECT;
 public:
-	AddFacebookAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
+	AddFacebookAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent = NULL);
 	~AddFacebookAccountDialog();
+protected:
+	void checkResult();
+	void abort(const QString &AMessage);
+	void setWaitMode(bool AWait, const QString &AMessage = QString::null);
 protected slots:
+	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
+	void onRegisterSuccess(const QString &AId);
+	void onRegisterError(const QString &AId, const QString &AError);
+	void onWebViewLoadStarted();
+	void onWebViewLoadFinished(bool AOk);
 	void onWebPageLinkClicked(const QUrl &AUrl);
 private:
 	Ui::AddFacebookAccountDialogClass ui;
 private:
+	IPresence *FPresence;
 	IGateways *FGateways;
 	IRegistration *FRegistration;
 private:
-	QString FRegisterId;
-private:
-	Jid FStreamJid;
 	Jid FServiceJid;
+	QString FRegisterId;
+	IGateServiceLogin FGateLogin;
 };
 
 #endif // ADDFACEBOOKACCOUNTDIALOG_H

@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="lblCaption">
      <property name="text">
-      <string>lblCaption</string>
+      <string notr="true">lblCaption</string>
      </property>
     </widget>
    </item>

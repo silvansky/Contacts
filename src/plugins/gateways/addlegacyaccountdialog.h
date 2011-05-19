@@ -5,6 +5,7 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
+#include <interfaces/ipresence.h>
 #include <interfaces/igateways.h>
 #include <interfaces/iregistraton.h>
 #include <utils/log.h>
@@ -16,14 +17,13 @@
 class AddLegacyAccountDialog :
 	public QDialog
 {
-	Q_OBJECT
+	Q_OBJECT;
 public:
-	AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent=NULL);
+	AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent=NULL);
 	~AddLegacyAccountDialog();
 protected:
 	virtual void showEvent(QShowEvent *AEvent);
 protected:
-	void initialize();
 	void abort(const QString &AMessage);
 	void setError(const QString &AMessage);
 	void setWaitMode(bool AWait, const QString &AMessage = QString::null);
@@ -38,6 +38,7 @@ protected slots:
 private:
 	Ui::AddLegacyAccountDialogClass ui;
 private:
+	IPresence *FPresence;
 	IGateways *FGateways;
 	IRegistration *FRegistration;
 private:

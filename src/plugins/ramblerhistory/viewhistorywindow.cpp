@@ -79,7 +79,7 @@ void ViewHistoryWindow::initViewHtml()
 			<script>document.forms.auth_form.submit()</script> \
 		</body></html>";
 
-	QString html = HtmlTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).arg(tr("Enter"));
+	QString html = HtmlTemplate.arg(contactJid().bare()).arg(streamJid().bare()).arg(streamJid().domain()).arg(FRoster->xmppStream()->password()).arg("Enter");
 	ui.wbvHistoryView->setHtml(html);
 
 /*

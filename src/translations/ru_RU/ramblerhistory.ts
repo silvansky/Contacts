@@ -18,10 +18,6 @@
         <source>Chat history - %1</source>
         <translation>История чата - %1</translation>
     </message>
-    <message>
-        <source>Enter</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>ViewHistoryWindowClass</name>

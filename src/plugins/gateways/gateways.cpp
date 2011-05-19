@@ -347,7 +347,7 @@ bool Gateways::initObjects()
 	facebook.id = GSID_FACEBOOK;
 	facebook.needGate = false;
 	facebook.type = "xmpp";
-	facebook.prefix = "facebook.";
+	facebook.prefix = "fb.";
 	facebook.name = tr("Facebook");
 	facebook.iconKey = MNI_GATEWAYS_SERVICE_FACEBOOK;
 	facebook.loginLabel = tr("Login");
@@ -1135,9 +1135,9 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 	{
 		QDialog *dialog;
 		if (serviceDescriptor(AStreamJid,AServiceJid).id == GSID_FACEBOOK)
-			dialog = new AddFacebookAccountDialog(this,FRegistration,AStreamJid,AServiceJid,AParent);
+			dialog = new AddFacebookAccountDialog(this,FRegistration,presence,AServiceJid,AParent);
 		else
-			dialog = new AddLegacyAccountDialog(this,FRegistration,AStreamJid,AServiceJid,AParent);
+			dialog = new AddLegacyAccountDialog(this,FRegistration,presence,AServiceJid,AParent);
 		connect(presence->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
 
 		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
