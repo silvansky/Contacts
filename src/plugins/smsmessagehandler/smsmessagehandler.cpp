@@ -122,7 +122,13 @@ bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AIn
 
 	plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
 	if (plugin)
+	{
 		FDiscovery = qobject_cast<IServiceDiscovery *>(plugin->instance());
+		if (FDiscovery)
+		{
+			connect(FDiscovery->instance(),SIGNAL(discoInfoReceived(const IDiscoInfo &)),SLOT(onDiscoInfoReceived(const IDiscoInfo &)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
 	if (plugin)
@@ -1017,6 +1023,15 @@ void SmsMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptio
 				requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
 			}
 		}
+	}
+}
+
+void SmsMessageHandler::onDiscoInfoReceived(const IDiscoInfo &AInfo)
+{
+	if (AInfo.node.isEmpty() && AInfo.features.contains(NS_RAMBLER_SMS_BALANCE))
+	{
+		if (smsBalance(AInfo.streamJid,AInfo.contactJid) < 0)
+			requestSmsBalance(AInfo.streamJid,AInfo.contactJid);
 	}
 }
 
