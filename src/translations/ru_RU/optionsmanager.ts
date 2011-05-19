@@ -170,18 +170,6 @@
         <translation>Не удалось подключиться к серверу</translation>
     </message>
     <message>
-        <source>Unable to login on server</source>
-        <translation>Не удалось авторизоваться на сервере</translation>
-    </message>
-    <message>
-        <source>Entered login or password is not correct</source>
-        <translation>Пароль не подходит к логину</translation>
-    </message>
-    <message>
-        <source>Maybe entered password is not correct</source>
-        <translation>Возможно, пароль не подходит к логину</translation>
-    </message>
-    <message>
         <source>Reconnect after &lt;b&gt;%1&lt;/b&gt; secs</source>
         <translation>Повторное подключение через &lt;b&gt;%1&lt;/b&gt; сек</translation>
     </message>
@@ -241,6 +229,18 @@ which is linked to Rambler</source>
     <message>
         <source>Friends</source>
         <translation>Друзья</translation>
+    </message>
+    <message>
+        <source>Login and password mismatch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wrong password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Check keyboard layout</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

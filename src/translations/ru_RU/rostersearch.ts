@@ -16,10 +16,6 @@
         <translation>Позволяет искать контакты в списке</translation>
     </message>
     <message>
-        <source>Search in roster</source>
-        <translation>Искать в списке</translation>
-    </message>
-    <message>
         <source>Search &quot;%1&quot; in history</source>
         <translation>Искать &quot;%1&quot; в истории</translation>
     </message>
@@ -38,6 +34,17 @@
     <message>
         <source>Search</source>
         <translation>Поиск</translation>
+    </message>
+    <message>
+        <source>Search in contact list</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SearchEdit</name>
+    <message>
+        <source>Clear field</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

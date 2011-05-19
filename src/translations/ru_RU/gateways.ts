@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>AddFacebookAccountDialogClass</name>
+    <message>
+        <source>lblCaption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>about:blank</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AddLegacyAccountDialog</name>
     <message>
         <source>Append</source>
