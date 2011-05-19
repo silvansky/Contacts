@@ -20,13 +20,13 @@
 #include "mainwindow.h"
 
 class MainWindowPlugin :
-			public QObject,
-			public IPlugin,
-			public IOptionsHolder,
-			public IMainWindowPlugin
+	public QObject,
+	public IPlugin,
+	public IOptionsHolder,
+	public IMainWindowPlugin
 {
-	Q_OBJECT
-	Q_INTERFACES(IPlugin IOptionsHolder IMainWindowPlugin)
+	Q_OBJECT;
+	Q_INTERFACES(IPlugin IOptionsHolder IMainWindowPlugin);
 public:
 	MainWindowPlugin();
 	~MainWindowPlugin();
@@ -59,6 +59,7 @@ protected slots:
 #ifdef Q_OS_MAC
 	void onDockIconCLicked();
 #endif
+	void onApplicationQuitStarted();
 private:
 	IPluginManager *FPluginManager;
 	IOptionsManager *FOptionsManager;

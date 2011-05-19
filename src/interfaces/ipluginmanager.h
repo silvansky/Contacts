@@ -54,6 +54,7 @@ public slots:
 	virtual void restart() =0;
 	virtual void shutdownRequested() =0;
 protected:
+	virtual void quitStarted() =0;
 	virtual void aboutToQuit() =0;
 };
 

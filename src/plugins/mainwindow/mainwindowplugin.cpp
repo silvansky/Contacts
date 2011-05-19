@@ -82,6 +82,8 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AIni
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
+	connect(FPluginManager->instance(),SIGNAL(quitStarted()),SLOT(onApplicationQuitStarted()));
+
 	return true;
 }
 
@@ -197,7 +199,7 @@ bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 
 void MainWindowPlugin::onOptionsOpened()
 {
-	QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
+	QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 	widget->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
 	widget->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
@@ -209,13 +211,12 @@ void MainWindowPlugin::onOptionsOpened()
 
 void MainWindowPlugin::onOptionsClosed()
 {
-	QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
-	Options::node(OPV_MAINWINDOW_SHOW).setValue(widget->isVisible());
+	QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 	Options::node(OPV_MAINWINDOW_SIZE).setValue(widget->size());
 	Options::node(OPV_MAINWINDOW_POSITION).setValue(widget->pos());
-	updateTitle();
 	widget->close();
 	FOpenAction->setVisible(false);
+	updateTitle();
 }
 
 void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
@@ -263,7 +264,17 @@ void MainWindowPlugin::onDockIconCLicked()
 	if (!FMainWindow->isVisible())
 		showMainWindow();
 }
-
 #endif
+
+
+void MainWindowPlugin::onApplicationQuitStarted()
+{
+	if (!Options::isNull())
+	{
+		QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
+		Options::node(OPV_MAINWINDOW_SHOW).setValue(widget->isVisible());
+		widget->close();
+	}
+}
 
 Q_EXPORT_PLUGIN2(plg_mainwindow, MainWindowPlugin)

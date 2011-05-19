@@ -51,6 +51,7 @@ bool TrayManager::initConnections(IPluginManager *APluginManager, int &AInitOrde
 {
 	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
+	connect(FPluginManager->instance(),SIGNAL(quitStarted()),SLOT(onApplicationQuitStarted()));
 	return true;
 }
 
@@ -226,6 +227,11 @@ void TrayManager::onBlinkTimerTimeout()
 void TrayManager::onTriggerTimerTimeout()
 {
 	emit notifyActivated(FActiveNotify,QSystemTrayIcon::Trigger);
+}
+
+void TrayManager::onApplicationQuitStarted()
+{
+	FSystemIcon.hide();
 }
 
 Q_EXPORT_PLUGIN2(plg_traymanager, TrayManager)

@@ -171,6 +171,7 @@ QList<QUuid> PluginManager::pluginDependencesFor(const QUuid &AUuid) const
 void PluginManager::quit()
 {
 	QTimer::singleShot(0,qApp,SLOT(quit()));
+	emit quitStarted();
 }
 
 void PluginManager::restart()
@@ -687,6 +688,9 @@ void PluginManager::onApplicationAboutToQuit()
 
 	if (!FCommentDialog.isNull())
 		FCommentDialog->reject();
+
+	foreach(QWidget *widget, QApplication::topLevelWidgets())
+		widget->close();
 
 	emit aboutToQuit();
 

@@ -63,6 +63,7 @@ public slots:
 protected slots:
 	virtual void messageBoxButtonClicked(QAbstractButton * button);
 signals:
+	void quitStarted();
 	void aboutToQuit();
 protected:
 	void loadSettings();
