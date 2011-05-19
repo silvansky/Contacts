@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>If status is &apos;Away&apos;</source>
-        <translation>Если выбран статус &apos;Отошел&apos;</translation>
+        <translation>Если выбран статус &apos;Ушёл&apos;</translation>
     </message>
     <message>
         <source>If status is &apos;Busy&apos;</source>
@@ -54,8 +54,7 @@
     <message>
         <source>Disable all popup windows and sounds when
 any full screen application is running (movies, games, presentations)</source>
-        <translation>Отключать все уведомления и звуки, когда работает какое-либо полноэкранное
-приложение (фильмы, игры, презенсации)</translation>
+        <translation>Отключать все звуки и всплывающие окна в полноэкранных приложениях</translation>
     </message>
 </context>
 <context>

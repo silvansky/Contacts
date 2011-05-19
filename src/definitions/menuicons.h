@@ -111,6 +111,7 @@
 #define MNI_GATEWAYS_SERVICE_LIVEJOURNAL         "gatewaysServiceLiveJournal"
 #define MNI_GATEWAYS_SERVICE_JABBER              "gatewaysServiceJabber"
 #define MNI_GATEWAYS_ADD_ACCOUNT_ERROR           "gatewaysAddAccountError"
+#define MNI_GATEWAYS_CONNECTING_ANIMATION        "gatewaysConnectingAnimation"
 
 //JabberSearch
 #define MNI_JSEARCH                              "jsearch"

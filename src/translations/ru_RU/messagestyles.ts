@@ -64,11 +64,11 @@
     </message>
     <message>
         <source>Incoming history message</source>
-        <translation>Входящее старое сообщение</translation>
+        <translation>Входящие истории сообщений</translation>
     </message>
     <message>
         <source>Incoming history consecutive message</source>
-        <translation>Входящее старое последовательное сообщение</translation>
+        <translation>Входящая история последовательных сообщений</translation>
     </message>
     <message>
         <source>Incoming status message</source>
@@ -76,7 +76,7 @@
     </message>
     <message>
         <source>Outgoing history message</source>
-        <translation>Исходящее старое сообщение</translation>
+        <translation>Исходящие истории сообщений</translation>
     </message>
     <message>
         <source>Outgoing status message</source>
@@ -108,7 +108,7 @@
     </message>
     <message>
         <source>Outgoing consecutive message</source>
-        <translation>Исходящее последовательное сообщение</translation>
+        <translation>Исходящая история последовательных сообщений</translation>
     </message>
     <message>
         <source>Receiver</source>

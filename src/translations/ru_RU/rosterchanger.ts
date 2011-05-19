@@ -53,11 +53,11 @@
     </message>
     <message>
         <source>Select your return address.</source>
-        <translation>Выберите Ваш обратный адрес.</translation>
+        <translation>Выберите ваш обратный адрес.</translation>
     </message>
     <message>
         <source>This contact is already present in your contact-list.</source>
-        <translation>Этот контакт уже имеется в Вашем контакт-листе.</translation>
+        <translation>Этот контакт уже имеется в вашем контакт-листе.</translation>
     </message>
     <message>
         <source>This is an ICQ number</source>
@@ -169,7 +169,7 @@
     </message>
     <message>
         <source>E-mail address</source>
-        <translation>Электнонная почта</translation>
+        <translation>Электронная почта</translation>
     </message>
     <message>
         <source>Address in %1</source>
@@ -177,7 +177,7 @@
     </message>
     <message>
         <source>Select your return address.</source>
-        <translation>Выберите Ваш обратный адрес.</translation>
+        <translation>Выберите ваш обратный адрес.</translation>
     </message>
     <message>
         <source>Failed to request contact JID from transport.</source>
@@ -185,7 +185,7 @@
     </message>
     <message>
         <source>This contact is already present in your contact-list.</source>
-        <translation>Этот контакт уже имеется в Вашем контакт-листе.</translation>
+        <translation>Этот контакт уже имеется в вашем контакт-листе.</translation>
     </message>
 </context>
 <context>
@@ -387,7 +387,7 @@
     <name>SelectProfileWidget</name>
     <message>
         <source>disconnected. %1</source>
-        <translation>отключен. %1</translation>
+        <translation>Отключен. %1</translation>
     </message>
     <message>
         <source>Connect</source>
@@ -395,7 +395,7 @@
     </message>
     <message>
         <source>failed to connect. %1</source>
-        <translation>не удалось подключить. %1</translation>
+        <translation>Не удалось подключить. %1</translation>
     </message>
     <message>
         <source>Options</source>
@@ -403,7 +403,7 @@
     </message>
     <message>
         <source>connecting...</source>
-        <translation>подключение...</translation>
+        <translation>Подключение...</translation>
     </message>
 </context>
 <context>
@@ -433,7 +433,7 @@
     </message>
     <message>
         <source>Show VCard</source>
-        <translation>Показать vCard</translation>
+        <translation>Показать VCard</translation>
     </message>
 </context>
 <context>

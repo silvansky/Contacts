@@ -82,7 +82,7 @@
     </message>
     <message>
         <source>Set Font...</source>
-        <translation>Шрифт...</translation>
+        <translation>Установить шрифт...</translation>
     </message>
     <message>
         <source>Default</source>
@@ -98,7 +98,7 @@
     </message>
     <message>
         <source>Set Image...</source>
-        <translation>Изображение...</translation>
+        <translation>Настройки изображения...</translation>
     </message>
     <message>
         <source>Layout:</source>

@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Allows to create and manage Jabber accounts</source>
-        <translation>Позволяет создавать учетные записи и управлять ими</translation>
+        <translation>Позволяет создавать учётные записи и управлять ими</translation>
     </message>
 </context>
 <context>

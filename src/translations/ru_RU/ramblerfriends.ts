@@ -28,7 +28,7 @@
     </message>
     <message>
         <source>Leave feedback about program...</source>
-        <translation>Оставить отзыв о программе...</translation>
+        <translation>Оставить отзыв о программе</translation>
     </message>
     <message>
         <source>Close</source>
@@ -43,7 +43,7 @@
     </message>
     <message>
         <source>Thank you for your comment.</source>
-        <translation>Спасибо за ваше сообщение.</translation>
+        <translation>Спасибо за ваше сообщение</translation>
     </message>
     <message>
         <source>Message was not delivered. May be internet connection was lost.</source>
@@ -98,7 +98,7 @@
     </message>
     <message>
         <source>Your opinion is important to us, because all the suggestions and comments from users is a great way to make our chat better.</source>
-        <translation>Ваше мнение очень важно для нас, ведь все предложения и замечания от пользователей это отличный способ сделать &quot;Virtus&quot; самым удобным.</translation>
+        <translation>Ваше мнение очень важно для нас, замечания и предложения пользователей помогают нам делать программу лучше.</translation>
     </message>
     <message>
         <source>Your name</source>
@@ -118,7 +118,7 @@
     </message>
     <message>
         <source>Leave your feedback about program.</source>
-        <translation>Оставьте Ваш отзыв о программе.</translation>
+        <translation>Оставьте ваш отзыв о программе.</translation>
     </message>
 </context>
 <context>

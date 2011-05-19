@@ -58,11 +58,11 @@
     <name>MetaContacts</name>
     <message>
         <source>Allows other modules to get information about meta contacts in roster</source>
-        <translation>Позволяет другим модулям получать информацию о метаконтактах в списке</translation>
+        <translation>Позволяет другим модулям получать информацию о мультиконтактах в списке</translation>
     </message>
     <message>
         <source>Meta Contacts</source>
-        <translation>Метаконтакты</translation>
+        <translation>Мультиконтакты</translation>
     </message>
     <message>
         <source>Merge contacts</source>
@@ -269,11 +269,11 @@
     </message>
     <message>
         <source>Delete contact address</source>
-        <translation>Удаление контактактных данных</translation>
+        <translation>Удаление контактных данных</translation>
     </message>
     <message>
         <source>Record &quot;%1&quot; and the history of communication with it will be deleted. Operation can not be undone.</source>
-        <translation>Запись &quot;%1&quot; и история общения с ней будут удалены. Операцию нельзя будет отменить.</translation>
+        <translation>Запись &quot;%1&quot; и история общения с ним будут удалены. Операцию нельзя будет отменить.</translation>
     </message>
     <message>
         <source>Delete</source>

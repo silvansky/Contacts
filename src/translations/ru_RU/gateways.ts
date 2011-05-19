@@ -5,64 +5,64 @@
     <name>AddFacebookAccountDialog</name>
     <message>
         <source>Gateway registration request failed</source>
-        <translation>Запрос регистрации завершился с ошибкой</translation>
+        <translation type="unfinished">Запрос регистрации завершился с ошибкой</translation>
     </message>
     <message>
         <source>Waiting for host response...</source>
-        <translation>Ожидание ответа хоста...</translation>
+        <translation type="unfinished">Ошидание ответа хоста...</translation>
     </message>
     <message>
         <source>Facebook has confirmed your authorization</source>
-        <translation>Facebook подтвердил вашу авторизацию</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid registration params</source>
-        <translation>Некорретные параметры регистрации</translation>
+        <translation type="unfinished">Некорретные параметры регистрации</translation>
     </message>
     <message>
         <source>Error connecting account</source>
-        <translation>Ошибка подключения учётной записи</translation>
+        <translation type="unfinished">Ошибка подключения учётной записи</translation>
     </message>
     <message>
         <source>Failed to connect account due to error:
 %1</source>
-        <translation>Не удалось подключить учётную запись:
+        <translation type="unfinished">Не удалось подключить учётную запись:
 %1</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation>Ok</translation>
+        <translation type="unfinished">Ok</translation>
     </message>
     <message>
         <source>Facebook authorization</source>
-        <translation>Авторизация на Facebook</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsupported gateway registration form</source>
-        <translation>Неподдерживаемая форма регистрации на транспорте</translation>
+        <translation type="unfinished">Неподдерживаемая форма регистрации на транспорте</translation>
     </message>
     <message>
         <source>Connection to gateway is lost</source>
-        <translation>Подключение к транспорту потеряно</translation>
+        <translation type="unfinished">Подключение к транспорту потеряно</translation>
     </message>
     <message>
         <source>Authorization failed</source>
-        <translation>Не удалось авторизоваться</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Loading...</source>
-        <translation>Загрузка...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Connection failed</source>
-        <translation>Не удалось подключиться</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>AddFacebookAccountDialogClass</name>
     <message>
         <source>about:blank</source>
-        <translation>about:blank</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -142,7 +142,7 @@
     <name>AddLegacyAccountDialogClass</name>
     <message>
         <source>Show input password</source>
-        <translation>Показывать вводимый пароль</translation>
+        <translation>Показать вводимый пароль</translation>
     </message>
 </context>
 <context>

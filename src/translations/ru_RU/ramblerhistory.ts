@@ -5,11 +5,11 @@
     <name>RamblerHistory</name>
     <message>
         <source>Rambler History</source>
-        <translation>Рамблер история</translation>
+        <translation>Рамблер История</translation>
     </message>
     <message>
         <source>Allows other modules to get access to message history on rambler server</source>
-        <translation>Позволяет другим плагинам получать доступ к истории на сервере рамблера</translation>
+        <translation>Позволяет другим плагинам получать доступ к истории на сервере Рамблера</translation>
     </message>
 </context>
 <context>

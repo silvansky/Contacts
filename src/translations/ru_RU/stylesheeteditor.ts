@@ -449,10 +449,6 @@
         <source>CheckBox</source>
         <translation type="unfinished"></translation>
     </message>
-    <message utf8="true">
-        <source>Новый элемент</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>GroupBox</source>
         <translation type="unfinished"></translation>

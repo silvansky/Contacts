@@ -46,11 +46,11 @@
     <name>RamblerMailNotify</name>
     <message>
         <source>Rambler Mail Notifier</source>
-        <translation>Rambler уведомления о почте</translation>
+        <translation> Уведомления о письмах</translation>
     </message>
     <message>
         <source>Notify of new e-mails in Rambler mail box</source>
-        <translation>Уведомляет о новых сообщениях в Rambler.Почте</translation>
+        <translation>Уведомляет о новых сообщениях в Рамблер.Почте</translation>
     </message>
     <message>
         <source>Not in contact list</source>
@@ -66,7 +66,7 @@
     </message>
     <message>
         <source>Vasilisa Premudraya</source>
-        <translation>Васелиса Премудрая</translation>
+        <translation>Василиса Премудрая</translation>
     </message>
     <message>
         <source>Hi! Come on mail.rambler.ru :)</source>

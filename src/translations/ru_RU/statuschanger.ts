@@ -221,16 +221,12 @@
 <context>
     <name>StatusWidget</name>
     <message>
-        <source>Manage my profile</source>
-        <translation>Изменить профиль</translation>
-    </message>
-    <message>
         <source>Add new photo...</source>
         <translation>Добавить новое фото...</translation>
     </message>
     <message>
         <source>Select new avatar image</source>
-        <translation>Выберите новой аватар</translation>
+        <translation>Выберите новый аватар</translation>
     </message>
     <message>
         <source>Image files %1</source>
@@ -239,6 +235,10 @@
     <message>
         <source>Tell your friends about your mood</source>
         <translation>Расскажите друзьям о своем настроении</translation>
+    </message>
+    <message>
+        <source>My account</source>
+        <translation>Моя учётная запись</translation>
     </message>
 </context>
 <context>

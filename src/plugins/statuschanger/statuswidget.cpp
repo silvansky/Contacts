@@ -49,7 +49,7 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	connect(FProfileMenu, SIGNAL(aboutToShow()), SLOT(onProfileMenuAboutToShow()));
 
 	Action *manageProfileAction = new Action(FProfileMenu);
-	manageProfileAction->setText(tr("Manage my profile"));
+	manageProfileAction->setText(tr("My account"));
 	connect(manageProfileAction, SIGNAL(triggered()), SLOT(onManageProfileTriggered()));
 	FProfileMenu->addAction(manageProfileAction);
 
@@ -273,18 +273,29 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 
 void StatusWidget::onAddAvatarTriggered()
 {
-	QString filename = QFileDialog::getOpenFileName(this, tr("Select new avatar image"), "", tr("Image files %1").arg("(*.jpg *.bmp *.png)"));
-	if (!filename.isEmpty())
+	QFileDialog * dialog = new QFileDialog;
+	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+	dialog->setWindowTitle(tr("Select new avatar image"));
+	dialog->setNameFilter(tr("Image files %1").arg("(*.jpg *.bmp *.png)"));
+	connect(dialog, SIGNAL(fileSelected(const QString &)), SLOT(onAvatarFileSelected(const QString &)));
+	dialog->show();
+	//QString filename = QFileDialog::getOpenFileName(this, tr("Select new avatar image"), "", tr("Image files %1").arg("(*.jpg *.bmp *.png)"));
+
+}
+
+void StatusWidget::onAvatarFileSelected(const QString & fileName)
+{
+	if (!fileName.isEmpty())
 	{
 		QImage avatar;
-		if (avatar.load(filename))
+		if (avatar.load(fileName))
 			FAvatars->setAvatar(FStreamJid,avatar);
 	}
 }
 
 void StatusWidget::onManageProfileTriggered()
 {
-	QDesktopServices::openUrl(QUrl("http://id-planet.rambler.ru/"));
+	QDesktopServices::openUrl(QUrl("http://id.rambler.ru/"));
 }
 
 void StatusWidget::onProfileMenuAboutToHide()

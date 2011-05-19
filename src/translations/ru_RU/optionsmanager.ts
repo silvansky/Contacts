@@ -57,7 +57,7 @@
     </message>
     <message>
         <source>Rename Profile</source>
-        <translation>Переименовать Профиль</translation>
+        <translation>Переименовать профиль</translation>
     </message>
     <message>
         <source>Enter new name for profile:</source>
@@ -131,7 +131,7 @@
     </message>
     <message>
         <source>Unable to activate account</source>
-        <translation>Неудалось активировать учётную запись</translation>
+        <translation>Не удалось активировать учётную запись</translation>
     </message>
     <message>
         <source>Internal error, contact support</source>
@@ -202,7 +202,7 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     </message>
     <message>
         <source>register</source>
-        <translation>зарегистрируйтесь</translation>
+        <translation>Зарегистрируйтесь</translation>
     </message>
     <message>
         <source>Forgot your password?</source>
@@ -210,7 +210,7 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     </message>
     <message>
         <source>This profile is already opened by another Friends instance</source>
-        <translation>Этот профиль уже открыть другой копией Friends</translation>
+        <translation>Этот профиль уже открыт другой копией Friends</translation>
     </message>
     <message>
         <source>Enter address of custom domain
@@ -232,15 +232,15 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Login and password mismatch</source>
-        <translation type="unfinished"></translation>
+        <translation>Пароль не подходит к логину.</translation>
     </message>
     <message>
         <source>Wrong password</source>
-        <translation type="unfinished"></translation>
+        <translation>Неправильный пароль.</translation>
     </message>
     <message>
         <source>Check keyboard layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Проверьте раскладку клавиатуры.</translation>
     </message>
 </context>
 <context>
@@ -251,7 +251,7 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Launch with computer</source>
-        <translation>Запускать вместе с компьютером</translation>
+        <translation>Запускать при включении компьютера</translation>
     </message>
     <message>
         <source>Login</source>
@@ -325,7 +325,7 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Sync preferences on my several computers</source>
-        <translation>Синхронизировать настройки на нескольких моих компьютерах</translation>
+        <translation>Синхронизировать настройки на всех моих компьютерах</translation>
     </message>
     <message>
         <source>Change User</source>

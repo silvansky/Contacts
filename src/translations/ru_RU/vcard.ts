@@ -40,7 +40,7 @@
     </message>
     <message>
         <source>not assigned</source>
-        <translation>не указан</translation>
+        <translation>Не указан</translation>
     </message>
     <message>
         <source>Profile: %1</source>
@@ -48,11 +48,11 @@
     </message>
     <message>
         <source>vCard error</source>
-        <translation>Ошибка vCard</translation>
+        <translation>Ошибка VCard</translation>
     </message>
     <message>
         <source>vCard request failed.&lt;br&gt;%1</source>
-        <translation>Запрос vCard завершился с ошибкой. &lt;br&gt;%1</translation>
+        <translation>Запрос VCard завершился с ошибкой. &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Not in contact list</source>
@@ -78,12 +78,8 @@
 <context>
     <name>VCardDialog</name>
     <message>
-        <source>vCard - %1</source>
-        <translation>vCard - %1</translation>
-    </message>
-    <message>
         <source>vCard error</source>
-        <translation>Ошибка vCard</translation>
+        <translation>Ошибка VCard</translation>
     </message>
     <message>
         <source>vCard request or publish failed.&lt;br&gt;%1</source>
@@ -95,7 +91,7 @@
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.bmp *.gif)</source>
-        <translation>Картинки (*.png *.jpg *.bmp *.gif)</translation>
+        <translation>Изображения (*.png *.jpg *.bmp *.gif)</translation>
     </message>
     <message>
         <source>Open image</source>
@@ -112,6 +108,10 @@
     <message>
         <source>Ok</source>
         <translation>Ok</translation>
+    </message>
+    <message>
+        <source>vCard - %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -138,7 +138,7 @@
     </message>
     <message>
         <source>Nick name</source>
-        <translation>Прозвище</translation>
+        <translation>Ник</translation>
     </message>
     <message>
         <source>Jabber Id</source>
@@ -284,12 +284,8 @@
 <context>
     <name>VCardPlugin</name>
     <message>
-        <source>vCard</source>
-        <translation>vCard</translation>
-    </message>
-    <message>
         <source>vCard Manager</source>
-        <translation>Диспетчер vCard</translation>
+        <translation>Диспетчер VCard</translation>
     </message>
     <message>
         <source>Allows to obtain personal contact information</source>
@@ -302,6 +298,10 @@
     <message>
         <source>Contact info</source>
         <translation>Информация о контакте</translation>
+    </message>
+    <message>
+        <source>vCard</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

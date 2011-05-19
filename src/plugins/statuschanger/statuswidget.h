@@ -40,6 +40,7 @@ protected:
 	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onAddAvatarTriggered();
+	void onAvatarFileSelected(const QString & fileName);
 	void onManageProfileTriggered();
 	void onProfileMenuAboutToHide();
 	void onProfileMenuAboutToShow();

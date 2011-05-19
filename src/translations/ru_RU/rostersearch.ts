@@ -37,14 +37,14 @@
     </message>
     <message>
         <source>Search in contact list</source>
-        <translation type="unfinished"></translation>
+        <translation>Искать в списке контактов</translation>
     </message>
 </context>
 <context>
     <name>SearchEdit</name>
     <message>
         <source>Clear field</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить поле</translation>
     </message>
 </context>
 </TS>

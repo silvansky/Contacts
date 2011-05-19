@@ -160,37 +160,37 @@
        <widget class="QComboBox" name="comboBox">
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
        </widget>
@@ -202,52 +202,52 @@
         </property>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
        </widget>

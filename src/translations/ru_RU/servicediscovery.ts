@@ -114,7 +114,7 @@
     </message>
     <message>
         <source>vCard</source>
-        <translation>vCard</translation>
+        <translation>VCard</translation>
     </message>
     <message>
         <source>Service Discovery - %1</source>

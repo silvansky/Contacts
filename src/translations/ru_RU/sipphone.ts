@@ -39,7 +39,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Отмена</translation>
+        <translation>Отмена</translation>
     </message>
     <message>
         <source>Registration Settings</source>
@@ -114,7 +114,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Отмена</translation>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
@@ -132,7 +132,7 @@
     </message>
     <message>
         <source>Hangup</source>
-        <translation>Отмена</translation>
+        <translation>Отклонить</translation>
     </message>
     <message>
         <source>Calling failure...</source>
@@ -156,11 +156,11 @@
     </message>
     <message>
         <source>Incoming Call...</source>
-        <translation>Входящий вызов...</translation>
+        <translation>Исходящий вызов...</translation>
     </message>
     <message>
         <source>No answer...</source>
-        <translation>Нет ответа...</translation>
+        <translation>Нет ответа</translation>
     </message>
     <message>
         <source>Missed Call...</source>
@@ -168,7 +168,7 @@
     </message>
     <message>
         <source>Callback</source>
-        <translation>Обратный вызов</translation>
+        <translation>Перезвонить</translation>
     </message>
     <message>
         <source>Call Error...</source>
@@ -268,7 +268,7 @@
     <name>SipPhone</name>
     <message>
         <source>SIP Phone</source>
-        <translation>SIP телефон</translation>
+        <translation>SIP-телефон</translation>
     </message>
     <message>
         <source>Allows to make voice and video calls over SIP protocol</source>
@@ -292,7 +292,7 @@
     </message>
     <message>
         <source>SIP voice and video calls</source>
-        <translation>Голосовые и видео звонки через SIP</translation>
+        <translation>Голосовые и видеозвонки через SIP</translation>
     </message>
     <message>
         <source>Call failure</source>
@@ -300,11 +300,11 @@
     </message>
     <message>
         <source>Calls NOT supported for current contact</source>
-        <translation>Вызов данного контакта не может быть осуществлен</translation>
+        <translation>Вызов данного контакта не может быть осуществлён</translation>
     </message>
     <message>
         <source>Incoming call</source>
-        <translation>Воходящий вызов</translation>
+        <translation>Входящий вызов</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -323,7 +323,7 @@
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished">Принять</translation>
+        <translation>Принять</translation>
     </message>
     <message>
         <source>Reject permanently</source>
@@ -335,7 +335,7 @@
     </message>
     <message>
         <source>Incoming call</source>
-        <translation type="unfinished">Воходящий вызов</translation>
+        <translation>Входящий вызов</translation>
     </message>
     <message>
         <source>Friends</source>
@@ -354,7 +354,7 @@
     </message>
     <message>
         <source>Incoming call</source>
-        <translation type="unfinished">Воходящий вызов</translation>
+        <translation>Входящий вызов</translation>
     </message>
     <message>
         <source>Attached [holding]</source>

@@ -21,8 +21,8 @@
     </message>
     <message>
         <source>Automatically change status to &apos;Away&apos; if screen saver is on or system is locked</source>
-        <translation>Автоматически изменять статус на &quot;Отошел&quot;, если включена
-экранная заставка или компьютер заблокирован</translation>
+        <translation>Автоматически изменять статус на &quot;Ушёл&quot;, если включен скринсейвер
+или компьютер заблокирован</translation>
     </message>
 </context>
 <context>
@@ -141,11 +141,11 @@
     </message>
     <message>
         <source>   z - the milliseconds without leading zeroes (0 to 999)</source>
-        <translation>   z - милисекунды в виде числа без нуля (0 - 999)</translation>
+        <translation>   z - миллисекунды в виде числа без нуля (0 - 999)</translation>
     </message>
     <message>
         <source>   zzz - the milliseconds with leading zeroes (000 to 999)</source>
-        <translation>   zzz - милисекунды в виде числа с нулём (000 - 999)</translation>
+        <translation>   zzz - миллисекунды в виде числа с нулём (000 - 999)</translation>
     </message>
     <message>
         <source>   AP or A - interpret as an AM/PM time. AP must be either &apos;AM&apos; or &apos;PM&apos;</source>

@@ -52,7 +52,7 @@ void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool 
 		}
 		else if (APresenceItem.show == IPresence::Offline)
 		{
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_OPTIONS_LOGIN_ANIMATION, 0, 100, "pixmap");
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_GATEWAYS_CONNECTING_ANIMATION, 0, 100, "pixmap");
 			//ui.lblInfo->setText(tr("Connecting..."));
 			ui.lblInfo->setText(QString::null);
 			ui.lblInfo->setProperty("state",QString("connected"));
@@ -86,7 +86,7 @@ void LegacyAccountOptions::onStateCheckboxToggled(bool AChecked)
 		if (AChecked)
 		{
 			ui.chbState->setEnabled(false);
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_OPTIONS_LOGIN_ANIMATION, 0, 100, "pixmap");
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_GATEWAYS_CONNECTING_ANIMATION, 0, 100, "pixmap");
 			//ui.lblInfo->setText(tr("Connecting..."));
 			ui.lblInfo->setText(QString::null);
 			ui.lblInfo->setProperty("state",QString("connected"));
@@ -94,7 +94,7 @@ void LegacyAccountOptions::onStateCheckboxToggled(bool AChecked)
 		else
 		{
 			ui.chbState->setEnabled(false);
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_OPTIONS_LOGIN_ANIMATION, 0, 100, "pixmap");
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_GATEWAYS_CONNECTING_ANIMATION, 0, 100, "pixmap");
 			//ui.lblInfo->setText(tr("Disconnecting..."));
 			ui.lblInfo->setText(QString::null);
 			ui.lblInfo->setProperty("state",QString("disconnected"));

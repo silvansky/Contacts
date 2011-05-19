@@ -92,4 +92,8 @@
     <key>gatewaysAddAccountError</key>
     <object mime="image/png">gatewaysaddaccounterror.png</object>
   </icon>
+  <icon>
+    <key>gatewaysConnectingAnimation</key>
+    <object mime="image/gif">gatewaysconnectinganimation.gif</object>
+  </icon>
 </icondef>

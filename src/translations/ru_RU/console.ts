@@ -5,7 +5,7 @@
     <name>ConsolePlugin</name>
     <message>
         <source>XML Console</source>
-        <translation>XML Консоль</translation>
+        <translation>XML консоль</translation>
     </message>
     <message>
         <source>Console</source>
@@ -28,7 +28,7 @@
     </message>
     <message>
         <source>XML Console - %1</source>
-        <translation>XML Консоль - %1</translation>
+        <translation>XML консоль - %1</translation>
     </message>
     <message>
         <source>Start sending user stanza...</source>
@@ -67,7 +67,7 @@
     <name>ConsoleWidgetClass</name>
     <message>
         <source>XML Console</source>
-        <translation>XML Консоль</translation>
+        <translation>XML консоль</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -95,7 +95,7 @@
     </message>
     <message>
         <source>Available context:</source>
-        <translation>Сохраненный контекст:</translation>
+        <translation>Сохранённый контекст:</translation>
     </message>
     <message>
         <source>Console</source>
