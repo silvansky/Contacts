@@ -525,9 +525,21 @@ QString MetaContacts::itemHint(const Jid &AItemJid) const
 	QString hint = AItemJid.node();
 	if (!hint.isEmpty())
 	{
-		int dog = hint.lastIndexOf('%');
-		if (dog>=0)
-			hint[dog] = '@';
+		if (FGateways)
+		{
+			hint = AItemJid.bare();
+			foreach (IMetaRoster *mroster, FMetaRosters)
+			{
+				if (FGateways->availServices(mroster->streamJid()).contains(AItemJid.domain()))
+				{
+					hint = FGateways->legacyIdFromUserJid(AItemJid);
+					break;
+				}
+			}
+			IMetaItemDescriptor descriptor = metaDescriptorByItem(AItemJid);
+			IGateServiceDescriptor gateDescriptor = FGateways->gateDescriptorById(descriptor.gateId);
+			hint = FGateways->formattedContactLogin(gateDescriptor,hint);
+		}
 	}
 	else
 	{
@@ -807,7 +819,7 @@ void MetaContacts::initMetaItemDescriptors()
 	facebook.persistent = false;
 	facebook.metaOrder = MIO_FACEBOOK;
 	facebook.gateId = GSID_FACEBOOK;
-	facebook.domainPrefixes.append("facebook.");
+	facebook.domainPrefixes.append("fb.");
 	facebook.domainPrefixes.append("chat.facebook.com");
 	FMetaItemDescriptors.append(facebook);
 
