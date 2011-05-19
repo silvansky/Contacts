@@ -1003,10 +1003,10 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 
 void MetaTabWindow::onDeleteItemConfirmed()
 {
-	CustomInputDialog * dialog = qobject_cast<CustomInputDialog*>(sender());
+	CustomInputDialog *dialog = qobject_cast<CustomInputDialog*>(sender());
 	if (dialog)
 	{
-		FMetaRoster->deleteContactItem(FMetaId, dialog->property("itemJid").toString());
+		FMetaContacts->deleteContactWithNotify(FMetaRoster, FMetaId, dialog->property("itemJid").toString());
 		dialog->deleteLater();
 	}
 }

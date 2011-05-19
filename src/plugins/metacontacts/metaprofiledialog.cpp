@@ -240,7 +240,7 @@ void MetaProfileDialog::onDeleteContactDialogAccepted()
 	CustomInputDialog *dialog = qobject_cast<CustomInputDialog *>(sender());
 	if (dialog)
 	{
-		FMetaRoster->deleteContactItem(FMetaId,dialog->property("itemJid").toString());
+		FMetaContacts->deleteContactWithNotify(FMetaRoster,FMetaId,dialog->property("itemJid").toString());
 	}
 }
 

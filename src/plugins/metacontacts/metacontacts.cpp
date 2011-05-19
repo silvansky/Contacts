@@ -663,6 +663,22 @@ IMetaTabWindow *MetaContacts::findMetaTabWindow(const Jid &AStreamJid, const QSt
 	return NULL;
 }
 
+QString MetaContacts::deleteContactWithNotify(IMetaRoster *AMetaRoster, const QString &AMetaId, const Jid &AItemJid)
+{
+	if (AMetaRoster && !AMetaId.isEmpty())
+	{
+		QString requestId = AItemJid.isEmpty() ? AMetaRoster->deleteContact(AMetaId) : AMetaRoster->deleteContactItem(AMetaId,AItemJid);
+		if (FNotifications && !requestId.isEmpty())
+		{
+			if (AItemJid.isEmpty())
+				hideMetaContact(AMetaRoster,AMetaId);
+			FDeleteActions[AMetaRoster].insert(requestId,AMetaId);
+		}
+		return requestId;
+	}
+	return QString::null;
+}
+
 void MetaContacts::initMetaItemDescriptors()
 {
 	FDefaultItemDescriptor.name = tr("Jabber");
@@ -898,7 +914,8 @@ void MetaContacts::unhideMetaContact(IMetaRoster *AMetaRoster, const QString &AM
 	foreach(IRosterIndex *index, indexes)
 	{
 		int invisible = index->data(RDR_ALLWAYS_INVISIBLE).toInt();
-		index->setData(RDR_ALLWAYS_INVISIBLE,invisible-1);
+		if (invisible > 0)
+			index->setData(RDR_ALLWAYS_INVISIBLE,invisible-1);
 	}
 }
 
@@ -1196,14 +1213,7 @@ void MetaContacts::onDeleteContactDialogAccepted()
 		if (mroster && mroster->isOpen())
 		{
 			foreach(QString metaId, metaIdList)
-			{
-				QString requestId = mroster->deleteContact(metaId);
-				if (FNotifications && !requestId.isEmpty())
-				{
-					hideMetaContact(mroster,metaId);
-					FDeleteActions[mroster].insert(requestId,metaId);
-				}
-			}
+				deleteContactWithNotify(mroster,metaId);
 		}
 		dialog->deleteLater();
 	}
