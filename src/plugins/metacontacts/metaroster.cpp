@@ -93,6 +93,9 @@ bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 
 void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 {
+	if (AStanza.type()=="error")
+		FCreateItemRequest.remove(AStanza.id());
+
 	if (FOpenRequestId == AStanza.id())
 	{
 		if (AStanza.type() == "result")
@@ -115,55 +118,34 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			FStanzaProcessor->sendStanzaOut(AStreamJid,FRosterRequest);
 		}
 	}
-	else if (FActionRequests.contains(AStanza.id()))
+	else if (!FCreateItemRequest.contains(AStanza.id()))
 	{
 		QString errCond;
 		QString errMessage;
 		if (AStanza.type() == "error")
 		{
 			ErrorHandler err(AStanza.element());
-			Log(QString("[MetaRoster stanza error] condition %1 : %2").arg(err.condition(), err.message()));
 			errCond = err.condition();
 			errMessage = err.message();
+			Log(QString("[MetaRoster stanza error] condition %1 : %2").arg(errCond, errMessage));
 		}
-		FActionRequests.removeAll(AStanza.id());
-		emit metaActionResult(AStanza.id(),errCond,errMessage);
-	}
-	else if (FMultiRequests.values().contains(AStanza.id()))
-	{
-		QString multiId = FMultiRequests.key(AStanza.id());
-		if (AStanza.type() == "error")
-		{
-			ErrorHandler err(AStanza.element());
-			Log(QString("[MetaRoster stanza error] condition %1 : %2").arg(err.condition(), err.message()));
-			processMultiRequest(multiId,AStanza.id(),err.condition(),err.message());
-		}
-		else
-		{
-			processMultiRequest(multiId,AStanza.id(),QString::null,QString::null);
-		}
+		processStanzaRequest(AStanza.id(),errCond,errMessage);
 	}
 }
 
 void MetaRoster::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
 {
+	FCreateItemRequest.remove(AStanzaId);
 	if (FOpenRequestId == AStanzaId)
 	{
 		setEnabled(false);
 		removeStanzaHandlers();
 		FStanzaProcessor->sendStanzaOut(AStreamJid,FRosterRequest);
 	}
-	else if (FActionRequests.contains(AStanzaId))
+	else if (!FCreateItemRequest.contains(AStanzaId))
 	{
-		FActionRequests.removeAll(AStanzaId);
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		emit metaActionResult(AStanzaId,err.condition(),err.message());
-	}
-	else if (FMultiRequests.values().contains(AStanzaId))
-	{
-		QString multiId = FMultiRequests.key(AStanzaId);
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		processMultiRequest(multiId,AStanzaId,err.condition(),err.message());
+		processStanzaRequest(AStanzaId,err.condition(),err.message());
 	}
 }
 
@@ -388,6 +370,7 @@ QString MetaRoster::createContact(const IMetaContact &AContact)
 				{
 					mergeList += itemJid.bare();
 					requests.append(query.id());
+					FCreateItemRequest.insert(query.id(),itemJid);
 				}
 				else if (requests.isEmpty())
 				{
@@ -740,6 +723,19 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 
 				if (contact != before)
 					emit metaContactReceived(contact,before);
+
+				if (!FCreateItemRequest.isEmpty())
+				{
+					for(QSet<Jid>::const_iterator it=contact.items.constBegin(); it!=contact.items.constEnd(); it++)
+					{
+						QString requestId = FCreateItemRequest.key(*it);
+						if (!requestId.isEmpty())
+						{
+							FCreateItemRequest.remove(requestId);
+							processStanzaRequest(requestId,QString::null,QString::null);
+						}
+					}
+				}
 			}
 			else if (FContacts.contains(metaId))
 			{
@@ -1012,7 +1008,10 @@ bool MetaRoster::processCreateMerge(const QString &AMultiId)
 				{
 					QString requestId = mergeContacts(parentMetaId,QList<QString>()<<metaId);
 					if (!requestId.isEmpty())
+					{
 						requests.append(requestId);
+						FActionRequests.removeAll(requestId);
+					}
 				}
 				else
 				{
@@ -1072,6 +1071,20 @@ void MetaRoster::processMultiRequest(const QString &AMultiId, const QString &AAc
 				emit metaActionResult(AMultiId, errPair.first, errPair.second);
 			}
 		}
+	}
+}
+
+void MetaRoster::processStanzaRequest(const QString &AStanzaId, const QString &AErrCond, const QString &AErrMessage)
+{
+	if (FActionRequests.contains(AStanzaId))
+	{
+		FActionRequests.removeAll(AStanzaId);
+		emit metaActionResult(AStanzaId,AErrCond,AErrMessage);
+	}
+	else if (FMultiRequests.values().contains(AStanzaId))
+	{
+		QString multiId = FMultiRequests.key(AStanzaId);
+		processMultiRequest(multiId,AStanzaId,AErrCond,AErrMessage);
 	}
 }
 

@@ -83,6 +83,7 @@ protected:
 	QString startMultiRequest(const QList<QString> &AActions);
 	void appendMultiRequest(const QString &AMultiId, const QList<QString> &AActions);
 	void processMultiRequest(const QString &AMultiId, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
+	void processStanzaRequest(const QString &AStanzaId, const QString &AErrCond, const QString &AErrMessage);
 protected slots:
 	void onStreamClosed();
 	void onStreamJidAboutToBeChanged(const Jid &AAfter);
@@ -113,6 +114,8 @@ private:
 	QString FRosterVer;
 	QHash<Jid, QString> FItemMetaId;
 	QHash<QString, IMetaContact> FContacts;
+private:
+	QMap<QString, Jid> FCreateItemRequest;
 	QMap<QString, QSet<Jid> > FCreateMergeList;
 };
 
