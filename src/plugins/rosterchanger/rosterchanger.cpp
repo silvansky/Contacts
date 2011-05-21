@@ -898,6 +898,12 @@ int RosterChanger::insertChatNotice(IChatWindow *AWindow, const IChatNotice &ANo
 	return chatNoticeId;
 }
 
+void RosterChanger::removeWindowChatNotices(IChatWindow *AWindow)
+{
+	foreach(int noticeId, FChatNoticeWindow.keys(AWindow))
+		AWindow->noticeWidget()->removeNotice(noticeId);
+}
+
 void RosterChanger::removeObsoleteChatNotices(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent)
 {
 	foreach(IChatWindow *window, FChatNoticeWindow.values())
@@ -1346,6 +1352,7 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 	notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_SUBSCRIPTION) : 0;
 	if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribe)
 		notify.kinds &= INotification::PopupWindow|INotification::PlaySoundNotification;
+
 	if (notify.kinds > 0)
 	{
 		notify.notificatior = NID_SUBSCRIPTION;
@@ -1397,7 +1404,10 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 				notifyId = FNotifications->appendNotification(notify);
 			}
 			showNotice = true;
-			noticeActions = NTA_SUBSCRIBE|NTA_UNSUBSCRIBE|NTA_CLOSE;
+			if (ritem.isValid)
+				noticeActions = NTA_SUBSCRIBE|NTA_UNSUBSCRIBE|NTA_CLOSE;
+			else
+				noticeActions = NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE|NTA_CLOSE;
 		}
 		else
 		{
@@ -1440,12 +1450,15 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 	}
 
 	int chatNoticeId = -1;
-	chatWindow = chatWindow==NULL ? findChatNoticeWindow(ARoster->streamJid(),AItemJid) : chatWindow;
 	removeObsoleteChatNotices(ARoster->streamJid(),AItemJid,ASubsType,false);
+	chatWindow = chatWindow==NULL ? findChatNoticeWindow(ARoster->streamJid(),AItemJid) : chatWindow;
 	if (chatWindow && showNotice)
 	{
 		if (noticeActions != NTA_NO_ACTIONS)
+		{
+			removeWindowChatNotices(chatWindow);
 			chatNoticeId = insertChatNotice(chatWindow,createChatNotice(CNP_SUBSCRIPTION,noticeActions,notifyMessage,AText));
+		}
 		else
 			showNotifyInChatWindow(chatWindow,notifyMessage,AText);
 	}

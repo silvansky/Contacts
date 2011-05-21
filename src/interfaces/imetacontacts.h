@@ -18,7 +18,7 @@ struct IMetaContact
 	QSet<Jid> items;
 	QSet<QString> groups;
 	bool operator==(const IMetaContact &AOther) const {
-		return id==AOther.id && name==AOther.name && ask!=AOther.ask && subscription!=AOther.subscription && items==AOther.items && groups==AOther.groups;
+		return id==AOther.id && name==AOther.name && ask==AOther.ask && subscription==AOther.subscription && items==AOther.items && groups==AOther.groups;
 	}
 	bool operator!=(const IMetaContact &AOther) const {
 		return !operator==(AOther);
