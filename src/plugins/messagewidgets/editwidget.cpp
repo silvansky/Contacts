@@ -135,6 +135,10 @@ QKeySequence EditWidget::sendKey() const
 void EditWidget::setSendKey(const QKeySequence &AKey)
 {
 	FSendShortcut->setKey(AKey);
+	if (!AKey.isEmpty())
+		ui.tlbSend->setToolTip(tr("Send message (%1)").arg(AKey.toString().replace("Return","Enter")));
+	else
+		ui.tlbSend->setToolTip(tr("Send message"));
 	emit sendKeyChanged(AKey);
 }
 
