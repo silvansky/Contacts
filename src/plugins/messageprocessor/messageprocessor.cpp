@@ -108,7 +108,11 @@ void MessageProcessor::writeText(int AOrder, Message &AMessage, QTextDocument *A
 			{
 				QTextCharFormat linkFormat = cursor.charFormat();
 				linkFormat.setAnchor(true);
-				linkFormat.setAnchorHref(cursor.selectedText());
+				QUrl url = cursor.selectedText();
+				if (url.scheme().isEmpty())
+					linkFormat.setAnchorHref("http://"+url.toString());
+				else
+					linkFormat.setAnchorHref(url.toString());
 				cursor.setCharFormat(linkFormat);
 			}
 		}
