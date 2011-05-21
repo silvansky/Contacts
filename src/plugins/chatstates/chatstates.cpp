@@ -545,9 +545,8 @@ void ChatStates::notifyUserState(const Jid &AStreamJid, const Jid &AContactJid)
 				notify.data.insert(NDR_ICON_KEY, MNI_CHATSTATES_COMPOSING);
 				notify.data.insert(NDR_ICON_STORAGE, RSR_STORAGE_MENUICONS);
 				notify.data.insert(NDR_ROSTER_ORDER,RNO_CHATSTATES_TYPING);
-				notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink);
 				notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_CHATSTATE_TYPING);
-				notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+				notify.data.insert(NDR_TABPAGE_ICONBLINK,false);
 				notify.data.insert(NDR_TABPAGE_TOOLTIP,tr("Typing..."));
 				params.notifyId = FNotifications->appendNotification(notify);
 			}
