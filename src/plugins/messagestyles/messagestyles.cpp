@@ -142,19 +142,25 @@ QString MessageStyles::userName(const Jid &AStreamJid, const Jid &AContactJid) c
 		if (!FStreamNames.contains(AStreamJid.bare()))
 		{
 			IVCard *vcard = FVCardPlugin!=NULL ? FVCardPlugin->vcard(AStreamJid.bare()) : NULL;
-			if (vcard!=NULL)
+			if (vcard)
 			{
 				name = vcard->value(VVN_NICKNAME);
 				vcard->unlock();
 			}
+
+			if (name.isEmpty())
+				name = defaultContactNick(AStreamJid);
+
 			FStreamNames.insert(AStreamJid.bare(),name);
 		}
 		else
+		{
 			name = FStreamNames.value(AStreamJid.bare());
+		}
 	}
 	else if (AStreamJid && AContactJid)
 	{
-		name = !AContactJid.resource().isEmpty() ? AContactJid.resource() : AContactJid.node();
+		name = AContactJid.resource();
 	}
 	else
 	{
@@ -163,12 +169,7 @@ QString MessageStyles::userName(const Jid &AStreamJid, const Jid &AContactJid) c
 	}
 
 	if (name.isEmpty())
-	{
-		if (AContactJid.isValid())
-			name = !AContactJid.node().isEmpty() ? AContactJid.node() : AContactJid.domain();
-		else
-			name = !AStreamJid.node().isEmpty() ? AStreamJid.node() : AStreamJid.domain();
-	}
+		name = defaultContactNick(AContactJid.isValid() ? AContactJid : AStreamJid);
 
 	return name;
 }
@@ -207,6 +208,23 @@ QString MessageStyles::timeFormat(const QDateTime &AMessageTime, const QDateTime
 	else if (daysDelta > 0)
 		return tr("d MMM hh:mm");
 	return tr("hh:mm:ss");
+}
+
+QString MessageStyles::defaultContactNick(const Jid &AContactJid) const
+{
+	QString nick = AContactJid.node();
+	nick = nick.isEmpty() ? AContactJid.domain() : nick;
+	if (!nick.isEmpty())
+	{
+		nick[0] = nick[0].toUpper();
+		for (int pos = nick.indexOf('_'); pos>=0; pos = nick.indexOf('_',pos+1))
+		{
+			if (pos+1 < nick.length())
+				nick[pos+1] = nick[pos+1].toUpper();
+			nick.replace(pos,1,' ');
+		}
+	}
+	return nick.trimmed();
 }
 
 void MessageStyles::appendPendingChanges(int AMessageType, const QString &AContext)
