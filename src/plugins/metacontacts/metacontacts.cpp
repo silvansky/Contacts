@@ -949,6 +949,29 @@ void MetaContacts::notifyContactDeleteFailed(IMetaRoster *AMetaRoster, const QSt
 	}
 }
 
+void MetaContacts::updateContactChatWindows(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore)
+{
+	QSet<Jid> newItems = AContact.items - ABefore.items;
+	for (QSet<Jid>::const_iterator it=newItems.constBegin(); it!=newItems.constEnd(); it++)
+	{
+		IMetaTabWindow *window = findMetaTabWindow(AMetaRoster->streamJid(),QString(METAID_NOTINROSTER).arg(it->pBare()));
+		if (window)
+		{
+			if (window->instance()->isVisible())
+			{
+				IMetaTabWindow *newWindow = newMetaTabWindow(AMetaRoster->streamJid(),AContact.id);
+				if (newWindow)
+				{
+					newWindow->setCurrentItem(*it);
+					newWindow->showTabPage();
+				}
+			}
+			window->closeTabPage();
+			window->instance()->deleteLater();
+		}
+	}
+}
+
 void MetaContacts::onMetaRosterOpened()
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
@@ -974,7 +997,10 @@ void MetaContacts::onMetaContactReceived(const IMetaContact &AContact, const IMe
 {
 	IMetaRoster *mroster = qobject_cast<IMetaRoster *>(sender());
 	if (mroster)
+	{
 		emit metaContactReceived(mroster,AContact,ABefore);
+		updateContactChatWindows(mroster,AContact,ABefore);
+	}
 }
 
 void MetaContacts::onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
@@ -1092,6 +1118,7 @@ void MetaContacts::onMetaTabWindowPageWidgetRequested(const QString &APageId)
 					itemJid = pitem.itemJid;
 				}
 			}
+
 			IChatWindow *chatWindow = FMessageWidgets->findChatWindow(window->metaRoster()->streamJid(),itemJid);
 			if (chatWindow)
 			{

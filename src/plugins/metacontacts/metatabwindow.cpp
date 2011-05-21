@@ -760,6 +760,8 @@ void MetaTabWindow::disconnectPageWidget(ITabPage *AWidget)
 		disconnect(AWidget->instance(),SIGNAL(tabPageChanged()),this,SLOT(onTabPageChanged()));
 		if (AWidget->tabPageNotifier())
 		{
+			foreach(int notifyId, AWidget->tabPageNotifier()->notifies()) {
+				onTabPageNotifierNotifyRemoved(notifyId); }
 			disconnect(AWidget->tabPageNotifier()->instance(),SIGNAL(notifyInserted(int)),this,SLOT(onTabPageNotifierNotifyInserted(int)));
 			disconnect(AWidget->tabPageNotifier()->instance(),SIGNAL(notifyRemoved(int)),this,SLOT(onTabPageNotifierNotifyRemoved(int)));
 		}

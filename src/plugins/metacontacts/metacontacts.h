@@ -134,6 +134,7 @@ protected:
 	void hideMetaContact(IMetaRoster *AMetaRoster, const QString &AMetaId);
 	void unhideMetaContact(IMetaRoster *AMetaRoster, const QString &AMetaId);
 	void notifyContactDeleteFailed(IMetaRoster *ARoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
+	void updateContactChatWindows(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaAvatarChanged(const QString &AMetaId);
