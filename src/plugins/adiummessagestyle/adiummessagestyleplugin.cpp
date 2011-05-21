@@ -4,8 +4,8 @@
 #include <QTimer>
 #include <QCoreApplication>
 
-#define DEFAULT_STYLE     "GoneDark"
-#define DEFAULT_VARIANT   "Rambler"
+#define DEFAULT_STYLE     "Default"
+#define DEFAULT_VARIANT   "Default"
 
 AdiumMessageStylePlugin::AdiumMessageStylePlugin()
 {

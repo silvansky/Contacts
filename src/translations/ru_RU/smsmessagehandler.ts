@@ -147,10 +147,6 @@
         <translation>Отправка...</translation>
     </message>
     <message>
-        <source>Download another %1 messages</source>
-        <translation>Загрузить еще %1 сообщений</translation>
-    </message>
-    <message>
         <source>All messages loaded</source>
         <translation>Все сообщения загружены</translation>
     </message>
@@ -160,7 +156,11 @@
     </message>
     <message>
         <source>Chat history</source>
-        <translation>История сообщений</translation>
+        <translation>История чата</translation>
+    </message>
+    <message>
+        <source>Show previous messages</source>
+        <translation>Показать предыдущие сообщения</translation>
     </message>
 </context>
 </TS>

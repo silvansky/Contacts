@@ -681,19 +681,19 @@ void SmsMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState 
 			showMesagesUrl.setScheme(URL_SCHEME_ACTION);
 			showMesagesUrl.setPath(URL_PATH_HISTORY);
 			showMesagesUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("messages")));
-			message += urlMask.arg(showMesagesUrl.toString()).arg(tr("Download another %1 messages").arg(HISTORY_MESSAGES_COUNT)).arg("v-chat-header-b");
+			message += urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages")).arg("v-chat-header-b");
 		}
 		else if (AState == HLS_WAITING)
 		{
-			message += msgMask.arg(tr("Loading messages from server...")).arg("v-chat-header-b");
+			message += msgMask.arg(tr("Loading messages from server...")).arg("v-chat-header-message");
 		}
 		else if (AState == HLS_FINISHED)
 		{
-			message += msgMask.arg(tr("All messages loaded")).arg("v-chat-header-b");
+			message += msgMask.arg(tr("All messages loaded")).arg("v-chat-header-message");
 		}
 		else if (AState == HLS_FAILED)
 		{
-			message += msgMask.arg(tr("Failed to load history messages from server")).arg("v-chat-header-b");
+			message += msgMask.arg(tr("Failed to load history messages from server")).arg("v-chat-header-message");
 		}
 
 		QUrl updateHistoryUrl;
