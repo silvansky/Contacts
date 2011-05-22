@@ -1052,7 +1052,7 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IR
 		if (chatActionTypes.contains(AIndex->type()))
 		{
 			Action *action = new Action(AMenu);
-			action->setText(tr("Open dialog"));
+			action->setText(tr("Open"));
 			//action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
 			action->setData(ADR_STREAM_JID,streamJid.full());
 			action->setData(ADR_CONTACT_JID,contactJid.full());
@@ -1076,7 +1076,7 @@ void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelI
 		if (AToolBarChanger && chatActionTypes.contains(AIndex->type()) && (ALabelId == RLID_DISPLAY))
 		{
 			Action *action = new Action(AToolBarChanger->toolBar());
-			action->setText(tr("Open dialog"));
+			action->setText(tr("Open"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
 			action->setData(ADR_STREAM_JID,streamJid.full());
 			action->setData(ADR_CONTACT_JID,contactJid.full());

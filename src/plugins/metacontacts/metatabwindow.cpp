@@ -659,15 +659,8 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 				detachItems.append(itemJid);
 		}
 
-		Action *editAction = new Action(AMenu);
-		editAction->setText(tr("Edit on site..."));
-		editAction->setData(ADR_ITEM_JID,AItemJid.pBare());
-		connect(editAction,SIGNAL(triggered(bool)),SLOT(onEditItemByAction(bool)));
-		AMenu->addAction(editAction,AG_MCICM_ITEM_ACTIONS);
-
 		Action *detachAction = new Action(AMenu);
 		detachAction->setText(tr("Detach to separate contact"));
-		//detachAction->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
 		detachAction->setData(ADR_ITEM_JID,AItemJid.pBare());
 		detachAction->setEnabled(FMetaRoster->isOpen() && detachItems.count()>1 && descriptor.detach);
 		connect(detachAction,SIGNAL(triggered(bool)),SLOT(onDetachItemByAction(bool)));
@@ -675,7 +668,6 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 
 		Action *deleteAction = new Action(AMenu);
 		deleteAction->setText(tr("Delete"));
-		//deleteAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
 		deleteAction->setData(ADR_ITEM_JID,AItemJid.pBare());
 		deleteAction->setEnabled(FMetaRoster->isOpen());
 		connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteItemByAction(bool)));
@@ -966,15 +958,6 @@ void MetaTabWindow::onTabPageNotifierNotifyRemoved(int ANotifyId)
 	updatePageButtonNotify(pageId);
 }
 
-void MetaTabWindow::onEditItemByAction(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		QDesktopServices::openUrl(QUrl("http://id.rambler.ru"));
-	}
-}
-
 void MetaTabWindow::onDetachItemByAction(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -990,14 +973,16 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 	if (action)
 	{
 		Jid itemJid = action->data(ADR_ITEM_JID).toString();
-		QString message = tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(itemJid.bare());
-		CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::None);
-		dialog->setProperty("itemJid", action->data(ADR_ITEM_JID).toString());
-		dialog->setAcceptButtonText(tr("Remove contact"));
-		dialog->setRejectButtonText(tr("Cancel"));
-		dialog->setCaptionText(tr("Remove contact"));
+		QString title = tr("Remove contact '%1'").arg(Qt::escape(FMetaContacts->itemHint(itemJid)));
+		QString message = tr("All contacts and communication history with that person will be removed. Operation can not be undone.");
+
+		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::None);
+		dialog->setCaptionText(title);
 		dialog->setInfoText(message);
 		dialog->setAcceptIsDefault(false);
+		dialog->setAcceptButtonText(tr("Remove"));
+		dialog->setRejectButtonText(tr("Cancel"));
+		dialog->setProperty("itemJid", itemJid.bare());
 		connect(dialog, SIGNAL(accepted()), SLOT(onDeleteItemConfirmed()));
 		dialog->show();
 	}

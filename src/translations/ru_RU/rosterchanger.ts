@@ -339,10 +339,6 @@
         <translation>Не авторизован</translation>
     </message>
     <message>
-        <source>Remove authorization</source>
-        <translation>Удалить авторизацию</translation>
-    </message>
-    <message>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
@@ -381,6 +377,10 @@
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Refuse authorization</source>
+        <translation>Отказать в авторизации</translation>
     </message>
 </context>
 <context>

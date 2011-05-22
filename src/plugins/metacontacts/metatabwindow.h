@@ -125,7 +125,6 @@ protected slots:
 	void onTabPageNotifierNotifyInserted(int ANotifyId);
 	void onTabPageNotifierNotifyRemoved(int ANotifyId);
 protected slots:
-	void onEditItemByAction(bool);
 	void onDetachItemByAction(bool);
 	void onDeleteItemByAction(bool);
 	void onDeleteItemConfirmed();

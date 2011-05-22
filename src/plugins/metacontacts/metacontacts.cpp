@@ -8,6 +8,7 @@
 #include <utils/custominputdialog.h>
 
 #define ADR_STREAM_JID      Action::DR_StreamJid
+#define ADR_CONTACT_JID     Action::DR_Parametr1
 #define ADR_META_ID         Action::DR_Parametr1
 #define ADR_NAME            Action::DR_Parametr2
 #define ADR_VIEW_JID        Action::DR_Parametr2
@@ -628,6 +629,8 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 			connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onMetaTabWindowActivated()));
 			connect(window->instance(),SIGNAL(pageWidgetRequested(const QString &)),
 				SLOT(onMetaTabWindowPageWidgetRequested(const QString &)));
+			connect(window->instance(),SIGNAL(pageContextMenuRequested(const QString &, Menu *)),
+				SLOT(omMetaTabWindowPageContextMenuRequested(const QString &, Menu *)));
 			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onMetaTabWindowDestroyed()));
 			FCleanupHandler.add(window->instance());
 
@@ -1133,6 +1136,49 @@ void MetaContacts::onMetaTabWindowPageWidgetRequested(const QString &APageId)
 	}
 }
 
+void MetaContacts::omMetaTabWindowPageContextMenuRequested(const QString &APageId, Menu *AMenu)
+{
+	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
+	if (FRosterChanger && window && window->metaRoster()->isOpen())
+	{
+		ITabPage *widget = window->pageWidget(APageId);
+		IChatWindow *chatWindow = widget!=NULL ? qobject_cast<IChatWindow *>(widget->instance()) : NULL;
+		if (chatWindow)
+		{
+			QHash<int,QVariant> data;
+			data.insert(ADR_STREAM_JID,chatWindow->streamJid().full());
+			data.insert(ADR_CONTACT_JID,chatWindow->contactJid().bare());
+
+			IRosterItem ritem = window->metaRoster()->roster()->rosterItem(chatWindow->contactJid());
+			if (window->metaRoster()->roster()->subscriptionRequests().contains(chatWindow->contactJid().bare()))
+			{
+				Action *action = new Action(AMenu);
+				action->setText(tr("Authorize"));
+				action->setData(data);
+				action->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+				connect(action,SIGNAL(triggered(bool)),SLOT(onContactItemSubscription(bool)));
+				AMenu->addAction(action,AG_MCICM_AUTHORIZATION);
+
+				action = new Action(AMenu);
+				action->setText(tr("Refuse authorization"));
+				action->setData(data);
+				action->setData(ADR_SUBSCRIPTION,IRoster::Unsubscribe);
+				connect(action,SIGNAL(triggered(bool)),SLOT(onContactItemSubscription(bool)));
+				AMenu->addAction(action,AG_MCICM_AUTHORIZATION);
+			}
+			else if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
+			{
+				Action *action = new Action(AMenu);
+				action->setText(tr("Request authorization"));
+				action->setData(data);
+				action->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+				connect(action,SIGNAL(triggered(bool)),SLOT(onContactItemSubscription(bool)));
+				AMenu->addAction(action,AG_MCICM_AUTHORIZATION);
+			}
+		}
+	}
+}
+
 void MetaContacts::onMetaTabWindowDestroyed()
 {
 	IMetaTabWindow *window = qobject_cast<IMetaTabWindow *>(sender());
@@ -1206,23 +1252,23 @@ void MetaContacts::onDeleteContact(bool)
 			if (metaIdList.count() < 2)
 			{
 				IMetaContact contact = mroster->metaContact(metaIdList.value(0));
-				message = tr("All contacts and communication history with that person will be removed. Operation can not be undone.");
 				title = tr("Remove contact '%1'").arg(Qt::escape(metaContactName(contact)));
+				message = tr("All contacts and communication history with that person will be removed. Operation can not be undone.");
 			}
 			else
 			{
-				message = tr("<b>%n contacts</b> and communication history with them will be removed. Operation can not be undone.","",metaIdList.count());
 				title = tr("Remove %n contact(s)","",metaIdList.count());
+				message = tr("<b>%n contacts</b> and communication history with them will be removed. Operation can not be undone.","",metaIdList.count());
 			}
 
 			CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::None);
 			dialog->setCaptionText(title);
 			dialog->setInfoText(message);
-			dialog->setProperty("metaIdList", metaIdList);
-			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
+			dialog->setAcceptIsDefault(false);
 			dialog->setAcceptButtonText(tr("Remove"));
 			dialog->setRejectButtonText(tr("Cancel"));
-			dialog->setAcceptIsDefault(false);
+			dialog->setProperty("metaIdList", metaIdList);
+			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
 			connect(dialog, SIGNAL(accepted()), SLOT(onDeleteContactDialogAccepted()));
 			dialog->show();
 		}
@@ -1451,6 +1497,21 @@ void MetaContacts::onContactSubscription(bool)
 	}
 }
 
+void MetaContacts::onContactItemSubscription(bool)
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		QString streamJid = action->data(ADR_STREAM_JID).toString();
+		QString contactJid = action->data(ADR_CONTACT_JID).toString();
+		int subsType = action->data(ADR_SUBSCRIPTION).toInt();
+		if (subsType == IRoster::Subscribe)
+			FRosterChanger->subscribeContact(streamJid,contactJid);
+		else if (subsType == IRoster::Unsubscribe)
+			FRosterChanger->unsubscribeContact(streamJid,contactJid);
+	}
+}
+
 void MetaContacts::onLoadMetaRosters()
 {
 	foreach(IMetaRoster *mroster, FLoadQueue)
@@ -1627,7 +1688,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 
 			// Open Dialog
 			Action *dialogAction = new Action(AMenu);
-			dialogAction->setText(tr("Open dialog"));
+			dialogAction->setText(tr("Open"));
 			dialogAction->setData(data);
 			AMenu->setDefaultAction(dialogAction);
 			AMenu->addAction(dialogAction,AG_RVCM_CHATMESSAGEHANDLER);
@@ -1797,7 +1858,7 @@ void MetaContacts::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMu
 		if (AToolBarChanger && mroster && mroster->isEnabled())
 		{
 			Action *action = new Action(AToolBarChanger->toolBar());
-			action->setText(tr("Open dialog"));
+			action->setText(tr("Open"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
 			action->setData(ADR_STREAM_JID,mroster->streamJid().full());
 			action->setData(ADR_META_ID,AIndex->data(RDR_META_ID).toString());

@@ -165,10 +165,6 @@
         </translation>
     </message>
     <message>
-        <source>Open dialog</source>
-        <translation>Открыть диалог</translation>
-    </message>
-    <message>
         <source>Address</source>
         <translation>Адрес</translation>
     </message>
@@ -256,6 +252,10 @@
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
+    <message>
+        <source>Open</source>
+        <translation>Открыть</translation>
+    </message>
 </context>
 <context>
     <name>MetaProfileDialog</name>
@@ -329,10 +329,6 @@
 <context>
     <name>MetaTabWindow</name>
     <message>
-        <source>Edit on site...</source>
-        <translation>Редактировать на сайте...</translation>
-    </message>
-    <message>
         <source>Detach to separate contact</source>
         <translation>Сделать отдельным контактом</translation>
     </message>
@@ -341,20 +337,24 @@
         <translation>Удалить</translation>
     </message>
     <message>
-        <source>You are assured that wish to remove a contact &lt;b&gt;%1&lt;/b&gt; from roster?</source>
-        <translation>Вы уверены, что хотите удалить контакт &lt;b&gt;%1&lt;/b&gt; из контакт-листа?</translation>
-    </message>
-    <message>
-        <source>Remove contact</source>
-        <translation>Удалить контакт</translation>
-    </message>
-    <message>
         <source>Add contact</source>
         <translation>Добавить контакт</translation>
     </message>
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Remove contact &apos;%1&apos;</source>
+        <translation>Удалить контакт &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>All contacts and communication history with that person will be removed. Operation can not be undone.</source>
+        <translation>Будут удалены все контакты и история общения с этим человеком. Операцию нельзя будет отменить.</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
     </message>
 </context>
 </TS>

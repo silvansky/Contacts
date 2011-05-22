@@ -1196,7 +1196,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_GRAND_AUTH);
 
 				action = new Action(AMenu);
-				action->setText(tr("Remove authorization"));
+				action->setText(tr("Refuse authorization"));
 				action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_UNSUBSCRIBE);
 				action->setData(data);
 				action->setData(ADR_SUBSCRIPTION,IRoster::Unsubscribe);

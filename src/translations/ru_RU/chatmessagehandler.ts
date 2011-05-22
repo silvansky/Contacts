@@ -132,10 +132,6 @@
         <translation>Загрузка сообщений с сервера...</translation>
     </message>
     <message>
-        <source>Open dialog</source>
-        <translation>Открыть диалог</translation>
-    </message>
-    <message>
         <source>Not in contact list</source>
         <translation>Нет в контакт-листе</translation>
     </message>
@@ -150,6 +146,10 @@
     <message>
         <source>Show previous messages</source>
         <translation>Показать предыдущие сообщения</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Открыть</translation>
     </message>
 </context>
 </TS>

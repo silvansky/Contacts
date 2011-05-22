@@ -151,6 +151,7 @@ protected slots:
 protected slots:
 	void onMetaTabWindowActivated();
 	void onMetaTabWindowPageWidgetRequested(const QString &APageId);
+	void omMetaTabWindowPageContextMenuRequested(const QString &APageId, Menu *AMenu);
 	void onMetaTabWindowDestroyed();
 protected slots:
 	void onRenameContact(bool);
@@ -166,6 +167,7 @@ protected slots:
 	void onNewGroupNameSelected(const QString & group);
 protected slots:
 	void onContactSubscription(bool);
+	void onContactItemSubscription(bool);
 protected slots:
 	void onLoadMetaRosters();
 	void onOpenTabPageAction(bool);
