@@ -24,6 +24,7 @@ EditWidget::EditWidget(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	layout->addWidget(ui.tlbSend);
 	hlayout->addLayout(layout);
 	ui.medEditor->setLayout(hlayout);
+	ui.medEditor->setLineWrapMode(QTextEdit::FixedPixelWidth);
 
 	FMessageWidgets = AMessageWidgets;
 	FStreamJid = AStreamJid;
@@ -194,6 +195,11 @@ bool EditWidget::eventFilter(QObject *AWatched, QEvent *AEvent)
 	else if (AWatched==ui.medEditor && AEvent->type()==QEvent::ShortcutOverride)
 	{
 		hooked = true;
+	}
+	else if (AWatched==ui.medEditor && AEvent->type()==QEvent::Resize)
+	{
+		QResizeEvent * resizeEvent = (QResizeEvent*)AEvent;
+		ui.medEditor->setLineWrapColumnOrWidth(resizeEvent->size().width() - 50); // 50 is a magic number
 	}
 	return hooked || QWidget::eventFilter(AWatched,AEvent);
 }
