@@ -460,7 +460,7 @@ void MetaTabWindow::updateWindow()
 		QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByJidStatus(pitem.itemJid,pitem.show,SUBSCRIPTION_BOTH,false) : QIcon();
 		QString name = FMetaContacts->metaContactName(contact);
 		QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null;
-		QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+		QString title = name;// + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 
 		setWindowIcon(icon);
 		setWindowIconText(name);

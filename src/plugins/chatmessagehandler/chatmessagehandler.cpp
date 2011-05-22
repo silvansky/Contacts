@@ -516,7 +516,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 						FAvatars->insertAutoAvatar(menu->menuAction(),AContactJid,QSize(48,48));
 					else
 						menu->menuAction()->setIcon(RSR_STORAGE_MENUICONS, MNI_CHAT_MHANDLER_USER_MENU);
-					
+
 					QToolButton *button = window->toolBarWidget()->toolBarChanger()->insertAction(menu->menuAction(),TBG_CWTBW_USER_TOOLS);
 					button->setPopupMode(QToolButton::InstantPopup);
 					button->setFixedSize(QSize(48,48));
@@ -573,8 +573,9 @@ void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 		icon = FStatusIcons->iconByJid(AWindow->streamJid(),AWindow->contactJid());
 
 	QString name = AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
-	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
-	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+	QString show = FStatusChanger ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
+//	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+	QString title = name;
 	AWindow->updateWindow(icon,name,title,show);
 }
 

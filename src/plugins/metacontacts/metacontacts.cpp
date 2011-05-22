@@ -1216,8 +1216,7 @@ void MetaContacts::onDeleteContact(bool)
 			}
 
 			CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::None);
-			dialog->setWindowTitle(title);
-			dialog->setCaptionText(QString(title));
+			dialog->setCaptionText(title);
 			dialog->setInfoText(message);
 			dialog->setProperty("metaIdList", metaIdList);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());

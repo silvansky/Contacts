@@ -196,7 +196,7 @@ bool SmsMessageHandler::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, St
 	{
 		AAccept = true;
 		setSmsBalance(AStreamJid,AStanza.from(),smsBalanceFromStanza(AStanza));
-		
+
 		Stanza result("iq");
 		result.setType("result").setId(AStanza.id()).setTo(AStanza.from());
 		FStanzaProcessor->sendStanzaOut(AStreamJid,result);
@@ -575,7 +575,7 @@ void SmsMessageHandler::updateWindow(IChatWindow *AWindow)
 
 	QString name = AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
 	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
-	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+	QString title = name;// + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 	AWindow->updateWindow(icon,name,title,show);
 }
 
