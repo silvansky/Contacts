@@ -17,7 +17,6 @@ class MergeContactsDialog :
 public:
 	MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<QString> AMetaIds, QWidget *AParent = NULL);
 	~MergeContactsDialog();
-	CustomBorderContainer * windowBorder() const;
 	void show();
 protected slots:
 	void onContactNameChanged(const QString &AText);
@@ -29,7 +28,7 @@ private:
 	IMetaContacts *FMetaContacts;
 private:
 	QList<QString> FMetaIds;
-	CustomBorderContainer * border;
+	CustomBorderContainer *FBorder;
 };
 
 #endif // MERGECONTACTSDIALOG_H
