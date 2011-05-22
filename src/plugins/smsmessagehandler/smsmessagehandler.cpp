@@ -520,6 +520,7 @@ IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACon
 
 			WindowStatus &wstatus = FWindowStatus[window];
 			wstatus.createTime = QDateTime::currentDateTime();
+			wstatus.historyTime = wstatus.createTime.addSecs(-HISTORY_TIME_PAST);
 
 			connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 			connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));

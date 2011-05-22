@@ -497,6 +497,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 
 				WindowStatus &wstatus = FWindowStatus[window];
 				wstatus.createTime = QDateTime::currentDateTime();
+				wstatus.historyTime = wstatus.createTime.addSecs(-HISTORY_TIME_PAST);
 
 				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 				connect(window->infoWidget()->instance(),SIGNAL(fieldChanged(IInfoWidget::InfoField, const QVariant &)),
