@@ -149,6 +149,7 @@ QString AddMetaContactDialog::parentMetaContactId() const
 void AddMetaContactDialog::setParentMetaContactId(const QString &AMetaId)
 {
 	FParentMetaId = AMetaId;
+	ui.lneNick->setEnabled(FParentMetaId.isEmpty());
 }
 
 void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
@@ -354,7 +355,7 @@ void AddMetaContactDialog::updateDialogState()
 void AddMetaContactDialog::setDialogEnabled(bool AEnabled)
 {
 	ui.scaItems->setEnabled(AEnabled);
-	ui.lneNick->setEnabled(AEnabled);
+	ui.lneNick->setEnabled(AEnabled && FParentMetaId.isEmpty());
 	ui.pbtAddItem->setEnabled(AEnabled);
 
 	if (!AEnabled)

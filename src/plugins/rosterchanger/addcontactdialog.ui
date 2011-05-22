@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>417</width>
-    <height>319</height>
+    <width>416</width>
+    <height>332</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -108,38 +108,52 @@
    </item>
    <item>
     <widget class="QWidget" name="wdtPageParams" native="true">
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="margin">
        <number>0</number>
       </property>
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QLabel" name="lblParamsServiceIcon">
-          <property name="text">
-           <string notr="true">lblParamsServiceIcon</string>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="lblParamsServiceIcon">
+            <property name="text">
+             <string notr="true">lblParamsServiceIcon</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblParamsContact">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string notr="true">lblParamsContact</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::PlainText</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lneParamsNick">
+          <property name="placeholderText">
+           <string>Contact Name</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lblParamsContact">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string notr="true">lblParamsContact</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::PlainText</enum>
-          </property>
-         </widget>
+         <widget class="QComboBox" name="cmbParamsGroup"/>
         </item>
        </layout>
       </item>
-      <item row="0" column="1" rowspan="3">
+      <item>
        <widget class="QLabel" name="lblParamsPhoto">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -166,16 +180,6 @@
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLineEdit" name="lneParamsNick">
-        <property name="placeholderText">
-         <string>Contact Name</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QComboBox" name="cmbParamsGroup"/>
       </item>
      </layout>
     </widget>

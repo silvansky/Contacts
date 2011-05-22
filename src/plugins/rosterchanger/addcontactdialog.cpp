@@ -168,6 +168,8 @@ QString AddContactDialog::parentMetaContactId() const
 void AddContactDialog::setParentMetaContactId(const QString &AMetaId)
 {
 	FParentMetaId = AMetaId;
+	ui.lneParamsNick->setVisible(FParentMetaId.isEmpty());
+	ui.cmbParamsGroup->setVisible(FParentMetaId.isEmpty());
 }
 
 void AddContactDialog::initialize(IPluginManager *APluginManager)
@@ -752,6 +754,7 @@ void AddContactDialog::onRosterItemReceived(const IRosterItem &AItem, const IRos
 
 void AddContactDialog::onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
 {
+	Q_UNUSED(AErrCond);
 	if (FContactCreateRequest == AActionId)
 	{
 		QString metaId = FMetaRoster->itemMetaContact(contactJid());
