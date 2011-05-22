@@ -66,7 +66,6 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	connect(ui.lneParamsNick,SIGNAL(textEdited(const QString &)),SLOT(onContactNickEdited(const QString &)));
 	connect(ui.lneAddressContact,SIGNAL(textEdited(const QString &)),SLOT(onContactTextEdited(const QString &)));
 
-	ui.dbbButtons->button(QDialogButtonBox::Reset)->setText(tr("Back"));
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
 
 	initialize(APluginManager);
@@ -78,7 +77,10 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 
 	QString contact = qApp->clipboard()->text();
 	if (FGateways && !FGateways->gateAvailDescriptorsByContact(contact).isEmpty())
+	{
 		setContactText(contact);
+		ui.lneAddressContact->selectAll();
+	}
 }
 
 AddContactDialog::~AddContactDialog()
@@ -348,7 +350,7 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtPageConfirm->setVisible(false);
 			ui.wdtPageParams->setVisible(false);
 			ui.wdtSelectProfile->setVisible(false);
-			ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
+			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
 			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Continue"));
 		}
 		else if (AState == STATE_CONFIRM)
@@ -357,7 +359,8 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtPageConfirm->setVisible(true);
 			ui.wdtPageParams->setVisible(false);
 			ui.wdtSelectProfile->setVisible(false);
-			ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(true);
+			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel|QDialogButtonBox::Reset);
+			ui.dbbButtons->button(QDialogButtonBox::Reset)->setText(tr("Back"));
 			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Continue"));
 		}
 		else if (AState == STATE_PARAMS)
@@ -368,7 +371,8 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtPageConfirm->setVisible(false);
 			ui.wdtPageParams->setVisible(true);
 			ui.wdtSelectProfile->setVisible(true);
-			ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(true);
+			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel|QDialogButtonBox::Reset);
+			ui.dbbButtons->button(QDialogButtonBox::Reset)->setText(tr("Back"));
 			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add Contact"));
 		}
 		FDialogState = AState;
@@ -452,7 +456,7 @@ void AddContactDialog::resolveDescriptor()
 	}
 	else
 	{
-		setErrorMessage(tr("Invalid address. Please check the address and try again."),true);
+		setErrorMessage(tr("Could not find such address. Check that you have not done a mistake."),true);
 	}
 }
 
@@ -481,7 +485,7 @@ void AddContactDialog::resolveContactJid()
 	}
 	else
 	{
-		errMessage = tr("Select your return address.");
+		errMessage = tr("Select a contact-list in which you want to add a contact.");
 	}
 
 	setErrorMessage(errMessage,false);

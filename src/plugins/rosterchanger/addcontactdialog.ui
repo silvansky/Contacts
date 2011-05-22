@@ -54,7 +54,7 @@
       <item>
        <widget class="QLabel" name="lblAddressInfo">
         <property name="text">
-         <string>Enter the address of new contact</string>
+         <string>Address of new contact</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

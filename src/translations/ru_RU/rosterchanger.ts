@@ -12,10 +12,6 @@
         <translation>Новая группа...</translation>
     </message>
     <message>
-        <source>Invalid address. Please check the address and try again.</source>
-        <translation>Указан недопустимый адрес. Пожалуйста, проверьте адрес и повторите попытку.</translation>
-    </message>
-    <message>
         <source>Create group</source>
         <translation>Создать группу</translation>
     </message>
@@ -52,10 +48,6 @@
         <translation>Сервис &apos;%1&apos; сейчас недоступен.</translation>
     </message>
     <message>
-        <source>Select your return address.</source>
-        <translation>Выберите ваш обратный адрес.</translation>
-    </message>
-    <message>
         <source>This contact is already present in your contact-list.</source>
         <translation>Этот контакт уже имеется в вашем контакт-листе.</translation>
     </message>
@@ -83,13 +75,17 @@
         <source>Failed to add contact due to an error: %1</source>
         <translation>Не удалось добавить контакт из-за ошибки: %1</translation>
     </message>
+    <message>
+        <source>Could not find such address. Check that you have not done a mistake.</source>
+        <translation>Не удалось найти такой адрес. Проверьте, не сделали ли вы опечатки.</translation>
+    </message>
+    <message>
+        <source>Select a contact-list in which you want to add a contact.</source>
+        <translation>Выберите список контактов, в который вы хотите добавить контакт.</translation>
+    </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>
-    <message>
-        <source>Enter the address of new contact</source>
-        <translation>Укажите адрес нового контакта</translation>
-    </message>
     <message>
         <source>Adding a contact</source>
         <translation>Добавление контакта</translation>
@@ -105,6 +101,10 @@
     <message>
         <source>Contact Name</source>
         <translation>Имя контакта</translation>
+    </message>
+    <message>
+        <source>Address of new contact</source>
+        <translation>Адрес нового контакта</translation>
     </message>
 </context>
 <context>
