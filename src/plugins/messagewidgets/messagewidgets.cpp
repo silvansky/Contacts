@@ -568,10 +568,8 @@ void MessageWidgets::onViewWidgetContextMenu(const QPoint &APosition, const QTex
 		else
 		{
 			QString plainSelection = ASelection.toPlainText().trimmed();
-			bool isLongSelection = plainSelection.length()>30 || plainSelection.split(' ').count()>3;
-
 			Action *searchAction = new Action(AMenu);
-			searchAction->setText(isLongSelection ? tr("Search on Rambler") : tr("Search on Rambler \"%1\"").arg(plainSelection));
+			searchAction->setText(tr("Search on Rambler \"%1\"").arg(plainSelection.length()>33 ? plainSelection.left(30)+"..." : plainSelection));
 			searchAction->setData(ADR_CONTEXT_DATA, plainSelection);
 			connect(searchAction,SIGNAL(triggered(bool)),SLOT(onViewContextSearchActionTriggered(bool)));
 			AMenu->addAction(searchAction,AG_VWCM_MESSAGEWIDGETS_SEARCH,true);
@@ -605,7 +603,9 @@ void MessageWidgets::onViewContextSearchActionTriggered(bool)
 	if (action)
 	{
 		QUrl url = QString("http://nova.rambler.ru/search");
-		url.setQueryItems(QList<QPair<QString,QString> >() << qMakePair<QString,QString>(QString("query"),action->data(ADR_CONTEXT_DATA).toString()));
+		url.setQueryItems(QList<QPair<QString,QString> >() 
+			<< qMakePair<QString,QString>(QString("query"),action->data(ADR_CONTEXT_DATA).toString()) 
+			<< qMakePair<QString,QString>(QString("from"),QString("friends_dialog")));
 		QDesktopServices::openUrl(url);
 	}
 }

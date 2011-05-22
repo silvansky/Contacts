@@ -77,10 +77,6 @@
         <translation>Введите название группы:</translation>
     </message>
     <message>
-        <source>Groups</source>
-        <translation>Группы</translation>
-    </message>
-    <message>
         <source>New group...</source>
         <translation>Новая группа...</translation>
     </message>
@@ -255,6 +251,10 @@
     <message>
         <source>Open</source>
         <translation>Открыть</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Группа</translation>
     </message>
 </context>
 <context>

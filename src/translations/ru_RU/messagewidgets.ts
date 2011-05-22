@@ -65,10 +65,6 @@
         <translation>Открыть ссылку</translation>
     </message>
     <message>
-        <source>Search on Rambler</source>
-        <translation>Искать на Рамблере</translation>
-    </message>
-    <message>
         <source>Open All</source>
         <translation>Открыть все</translation>
     </message>

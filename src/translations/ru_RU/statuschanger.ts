@@ -241,11 +241,4 @@
         <translation>Моя учётная запись</translation>
     </message>
 </context>
-<context>
-    <name>StatusWidgetClass</name>
-    <message>
-        <source>Click to edit...</source>
-        <translation>Нажмите для редактирования...</translation>
-    </message>
-</context>
 </TS>

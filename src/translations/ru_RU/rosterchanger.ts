@@ -347,10 +347,6 @@
         <translation>Переименовать группу...</translation>
     </message>
     <message>
-        <source>Groups</source>
-        <translation>Группы</translation>
-    </message>
-    <message>
         <source>New group...</source>
         <translation>Новая группа...</translation>
     </message>
@@ -381,6 +377,10 @@
     <message>
         <source>Refuse authorization</source>
         <translation>Отказать в авторизации</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation>Группа</translation>
     </message>
 </context>
 <context>

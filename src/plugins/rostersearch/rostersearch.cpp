@@ -455,11 +455,16 @@ void RosterSearch::createSearchLinks()
 	IRosterIndex *searchRoot = FRostersModel!=NULL ? FRostersModel->streamRoot(FRostersModel->streams().value(0)) : NULL;
 	if (searchRoot && !searchText.isEmpty())
 	{
+		QUrl searchUrl = QString("http://nova.rambler.ru/search");
+		searchUrl.setQueryItems(QList<QPair<QString,QString> >() 
+			<< qMakePair<QString,QString>(QString("query"),searchText) 
+			<< qMakePair<QString,QString>(QString("from"),QString("friends_list")));
+
 		if (!FSearchHistory)
 			FSearchHistory = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, searchRoot);
 		FSearchHistory->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchHistory->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
-		FSearchHistory->setData(Qt::DisplayRole, tr("Search \"%1\" in history").arg(searchText.left(10)));
+		FSearchHistory->setData(Qt::DisplayRole, tr("Search \"%1\" in history").arg(searchText.length()>18 ? searchText.left(15)+"..." : searchText));
 		FSearchHistory->setData(RDR_TYPE_ORDER,RITO_SEARCH);
 		FSearchHistory->setData(RDR_SEARCH_LINK, "http://id-planet.rambler.ru");
 		FSearchHistory->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
@@ -469,9 +474,9 @@ void RosterSearch::createSearchLinks()
 			FSearchRambler = FRostersModel->createRosterIndex(RIT_SEARCH_LINK, searchRoot);
 		FSearchRambler->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		FSearchRambler->setData(Qt::DecorationRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_ROSTERSEARCH_ICON_GLASS));
-		FSearchRambler->setData(Qt::DisplayRole, tr("Search \"%1\" in Rambler").arg(searchText.left(10)));
+		FSearchRambler->setData(Qt::DisplayRole, tr("Search \"%1\" in Rambler").arg(searchText.length()>18 ? searchText.left(15)+"..." : searchText));
 		FSearchRambler->setData(RDR_TYPE_ORDER,RITO_SEARCH);
-		FSearchRambler->setData(RDR_SEARCH_LINK, "http://nova.rambler.ru/search?query=" + searchText);
+		FSearchRambler->setData(RDR_SEARCH_LINK, searchUrl.toString());
 		FSearchRambler->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
 		FRostersModel->insertRosterIndex(FSearchRambler, searchRoot);
 	}
