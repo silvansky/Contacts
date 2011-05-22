@@ -940,9 +940,7 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		dialog->setAcceptButtonText(tr("Add"));
 		dialog->setRejectButtonText(tr("Cancel"));
 		dialog->setDeleteOnClose(true);
-		// TODO: redirect to some rambler page
-		dialog->setDescriptionText(QString("<a href='http://mail.rambler.ru'>%1</a>").arg(tr("How to link your domain?")));
-
+		dialog->setDescriptionText(QString("<a href='http://partners.mail.rambler.ru'>%1</a>").arg(tr("How to link your domain?")));
 		connect(dialog, SIGNAL(stringAccepted(const QString &)), SLOT(onNewDomainSelected(const QString &)));
 		connect(dialog, SIGNAL(rejected()), SLOT(onNewDomainRejected()));
 		connect(dialog, SIGNAL(linkActivated(const QString &)), SLOT(onLabelLinkActivated(const QString &)));
