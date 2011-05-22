@@ -675,6 +675,26 @@ QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 	return NULL;
 }
 
+// TODO: implement following 2 functions to rename / delete contacts on F2/DEL keys
+bool RosterChanger::keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers)
+{
+	Q_UNUSED(AOrder)
+	Q_UNUSED(AIndex)
+	Q_UNUSED(key)
+	Q_UNUSED(modifiers)
+	return false;
+}
+
+bool RosterChanger::keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers)
+{
+	Q_UNUSED(AOrder)
+	Q_UNUSED(AIndex)
+	Q_UNUSED(ASelected)
+	Q_UNUSED(key)
+	Q_UNUSED(modifiers)
+	return false;
+}
+
 QString RosterChanger::subscriptionNotify(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const
 {
 	Q_UNUSED(AStreamJid)
@@ -1236,7 +1256,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				if (AIndex->type() == RIT_CONTACT)
 				{
 					GroupMenu *groupMenu = new GroupMenu(AMenu);
-					groupMenu->setTitle(tr("Groups"));
+					groupMenu->setTitle(tr("Group"));
 
 					Action *blankGroupAction = new Action(groupMenu);
 					blankGroupAction->setText(FRostersModel->singleGroupName(RIT_GROUP_BLANK));

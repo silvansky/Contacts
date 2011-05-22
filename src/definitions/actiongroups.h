@@ -29,7 +29,6 @@
 #define AG_RVCM_ROSTERSVIEW_GROUP_STATE                         200
 #define AG_RVCM_METACONTACTS_MERGECONTACTS                      200
 #define AG_RVCM_STATUSCHANGER                                   300
-#define AG_RVCM_ROSTERCHANGER_GROUP                             300
 #define AG_RVCM_METACONTACTS_RELEASE                            300
 #define AG_RVCM_GATEWAYS_ADD_LEGACY_USER                        300
 #define AG_RVCM_GATEWAYS_LOGIN                                  350
@@ -45,8 +44,9 @@
 #define AG_RVCM_ANNOTATIONS                                     500
 #define AG_RVCM_ARCHIVER                                        500
 #define AG_RVCM_ROSTERSVIEW_GROUPS_STATE                        500
-#define AG_RVCM_ROSTERSVIEW_CLIPBOARD                           600
+#define AG_RVCM_ROSTERCHANGER_GROUP                             600
 #define AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT                    600
+#define AG_RVCM_ROSTERSVIEW_CLIPBOARD                           600
 #define AG_RVCM_ROSTERCHANGER_RENAME                            600
 #define AG_RVCM_VCARD                                           700
 

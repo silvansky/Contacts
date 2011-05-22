@@ -46,7 +46,7 @@ struct TabPageInfo
 class GroupMenu :
 	public Menu
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	GroupMenu(QWidget* AParent = NULL) : Menu(AParent) { }
 	virtual ~GroupMenu() {}
@@ -60,11 +60,12 @@ class MetaContacts :
 	public IMetaContacts,
 	public ITabPageHandler,
 	public IRostersClickHooker,
+	public IRostersKeyPressHooker,
 	public IRostersDragDropHandler,
 	public IViewDropHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersDragDropHandler IViewDropHandler)
+	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersKeyPressHooker IRostersDragDropHandler IViewDropHandler)
 public:
 	MetaContacts();
 	~MetaContacts();
@@ -83,6 +84,9 @@ public:
 	virtual Action *tabPageAction(const QString &ATabPageId, QObject *AParent);
 	//IRostersClickHooker
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
+	//IRostersKeyPressHooker
+	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
+	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 	//IRostersDragDropHandler
 	virtual Qt::DropActions rosterDragStart(const QMouseEvent *AEvent, const QModelIndex &AIndex, QDrag *ADrag);
 	virtual bool rosterDragEnter(const QDragEnterEvent *AEvent);

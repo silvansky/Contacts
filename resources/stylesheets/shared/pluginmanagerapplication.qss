@@ -395,10 +395,10 @@ QMenu
 	border: 1px solid #1f2329;
 }
 
-Menu
+/*Menu
 {
 	border: none;
-}
+}*/
 
 QMenu::item
 {

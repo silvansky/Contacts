@@ -79,6 +79,9 @@ public:
 	//--ClickHookers
 	virtual void insertClickHooker(int AOrder, IRostersClickHooker *AHooker);
 	virtual void removeClickHooker(int AOrder, IRostersClickHooker *AHooker);
+	//--KeyPressHookers
+	virtual void insertKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker);
+	virtual void removeKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker);
 	//--DragDrop
 	virtual void insertDragDropHandler(IRostersDragDropHandler *AHandler);
 	virtual void removeDragDropHandler(IRostersDragDropHandler *AHandler);
@@ -132,6 +135,9 @@ protected:
 	void removeLabels();
 	void setDropIndicatorRect(const QRect &ARect);
 	void setInsertIndicatorRect(const QRect &ARect);
+	// hookers
+	bool processClickHookers(IRosterIndex* AIndex);
+	bool processKeyPressHookers(IRosterIndex* AIndex, Qt::Key AKey, Qt::KeyboardModifiers AModifiers);
 protected:
 	//QTreeView
 	virtual void drawBranches(QPainter *APainter, const QRect &ARect, const QModelIndex &AIndex) const;
@@ -140,6 +146,7 @@ protected:
 	virtual void resizeEvent(QResizeEvent *AEvent);
 	//QWidget
 	virtual void paintEvent(QPaintEvent *AEvent);
+	virtual void keyPressEvent(QKeyEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *AEvent);
 	virtual void mouseDoubleClickEvent(QMouseEvent *AEvent);
 	virtual void mousePressEvent(QMouseEvent *AEvent);
@@ -190,6 +197,7 @@ private:
 	QMultiMap<IRosterIndex *, int> FIndexNotifies;
 private:
 	QMultiMap<int, IRostersClickHooker *> FClickHookers;
+	QMultiMap<int, IRostersKeyPressHooker *> FKeyPressHookers;
 private:
 	RosterIndexDelegate *FRosterIndexDelegate;
 	QMultiMap<int, QAbstractProxyModel *> FProxyModels;

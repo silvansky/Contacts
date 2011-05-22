@@ -129,10 +129,11 @@ void StatusWidget::setUserName(const QString &AName)
 void StatusWidget::setMoodText(const QString &AMood)
 {
 	FUserMood = AMood;
-	if (AMood.length() <= 70)
+	const int maxMoodLength = 40;
+	if (AMood.length() <= maxMoodLength)
 		ui.lblMood->setText(AMood.isEmpty() ? tr("Tell your friends about your mood") : AMood);
 	else
-		ui.lblMood->setText(AMood.left(70) + "...");
+		ui.lblMood->setText(AMood.left(maxMoodLength) + "...");
 }
 
 QString StatusWidget::fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const

@@ -109,8 +109,8 @@ int RostersView::rosterDataOrder() const
 QList<int> RostersView::rosterDataRoles() const
 {
 	static QList<int> dataRoles = QList<int>()
-		<< RDR_LABEL_ITEMS
-		<< RDR_FOOTER_TEXT << RDR_ALLWAYS_VISIBLE << RDR_DECORATION_FLAGS << Qt::DecorationRole << Qt::BackgroundColorRole;
+			<< RDR_LABEL_ITEMS
+			<< RDR_FOOTER_TEXT << RDR_ALLWAYS_VISIBLE << RDR_DECORATION_FLAGS << Qt::DecorationRole << Qt::BackgroundColorRole;
 	return dataRoles;
 }
 
@@ -659,6 +659,16 @@ void RostersView::removeClickHooker(int AOrder, IRostersClickHooker *AHooker)
 	FClickHookers.remove(AOrder,AHooker);
 }
 
+void RostersView::insertKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker)
+{
+	FKeyPressHookers.insertMulti(AOrder, AHooker);
+}
+
+void RostersView::removeKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker)
+{
+	FKeyPressHookers.remove(AOrder, AHooker);
+}
+
 void RostersView::insertDragDropHandler(IRostersDragDropHandler *AHandler)
 {
 	if (!FDragDropHandlers.contains(AHandler))
@@ -892,6 +902,33 @@ void RostersView::setInsertIndicatorRect(const QRect &ARect)
 	}
 }
 
+bool RostersView::processClickHookers(IRosterIndex* AIndex)
+{
+	bool accepted = false;
+	QMultiMap<int,IRostersClickHooker *>::const_iterator it = FClickHookers.constBegin();
+	while (!accepted && it!=FClickHookers.constEnd())
+	{
+		accepted = it.value()->rosterIndexClicked(AIndex, it.key());
+		it++;
+	}
+	return accepted;
+}
+
+bool RostersView::processKeyPressHookers(IRosterIndex* AIndex, Qt::Key AKey, Qt::KeyboardModifiers AModifiers)
+{
+	bool accepted = false;
+	QMultiMap<int, IRostersKeyPressHooker *>::const_iterator it = FKeyPressHookers.constBegin();
+	while (!accepted && it!=FKeyPressHookers.constEnd())
+	{
+		// multi selection first
+		accepted = it.value()->keyOnRosterIndexesPressed(AIndex, selectedRosterIndexes(), it.key(), AKey, AModifiers);
+		if (!accepted)
+			accepted = it.value()->keyOnRosterIndexPressed(AIndex, it.key(), AKey, AModifiers);
+		it++;
+	}
+	return accepted;
+}
+
 void RostersView::drawBranches(QPainter *APainter, const QRect &ARect, const QModelIndex &AIndex) const
 {
 	Q_UNUSED(APainter);
@@ -953,7 +990,49 @@ void RostersView::paintEvent(QPaintEvent *AEvent)
 		option.init(this);
 		option.rect = FInsertIndicatorRect.adjusted(0,0,-1,-1);
 		QPainter painter(viewport());
+		// TODO: custom drawing of insert indicator
 		style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
+	}
+}
+
+void RostersView::keyPressEvent(QKeyEvent *event)
+{
+	bool accepted = false;
+	// multi selection first
+	QMultiMap<int, IRostersKeyPressHooker *>::const_iterator it = FKeyPressHookers.constBegin();
+	while (!accepted && it!=FKeyPressHookers.constEnd())
+	{
+		accepted = it.value()->keyOnRosterIndexesPressed(selectedRosterIndexes().first(), selectedRosterIndexes(), it.key(), (Qt::Key)event->key(), event->modifiers());
+		it++;
+	}
+	if (!accepted)
+		foreach (IRosterIndex *index, selectedRosterIndexes())
+		{
+			if (index)
+			{
+				// enter or return acts as double click
+				if ((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) && (event->modifiers() == Qt::NoModifier))
+				{
+					int notifyId = FActiveNotifies.value(index,-1);
+					if (notifyId>0 && FNotifyItems.value(notifyId).hookClick)
+					{
+						activateNotify(notifyId);
+					}
+					else
+					{
+						accepted = processClickHookers(index);
+					}
+				}
+				else
+				{
+					// processing key event
+					accepted = processKeyPressHookers(index, (Qt::Key)event->key(), event->modifiers());
+				}
+			}
+		}
+	if (!accepted)
+	{
+		QTreeView::keyPressEvent(event);
 	}
 }
 
@@ -996,7 +1075,7 @@ void RostersView::mouseDoubleClickEvent(QMouseEvent *AEvent)
 		if (FRostersModel && viewIndex.isValid())
 		{
 			IRosterIndex *index = FRostersModel->rosterIndexByModelIndex(mapToModel(viewIndex));
-			if (index != NULL)
+			if (index)
 			{
 				int notifyId = FActiveNotifies.value(index,-1);
 				if (notifyId>0 && FNotifyItems.value(notifyId).hookClick)
@@ -1005,13 +1084,8 @@ void RostersView::mouseDoubleClickEvent(QMouseEvent *AEvent)
 				}
 				else
 				{
+					accepted = processClickHookers(index);
 					const int labelId = labelAt(AEvent->pos(),viewIndex);
-					QMultiMap<int,IRostersClickHooker *>::const_iterator it = FClickHookers.constBegin();
-					while (!accepted && it!=FClickHookers.constEnd())
-					{
-						accepted = it.value()->rosterIndexClicked(index,it.key());
-						it++;
-					}
 					emit labelDoubleClicked(index,labelId,accepted);
 				}
 			}
@@ -1043,7 +1117,7 @@ void RostersView::mousePressEvent(QMouseEvent *AEvent)
 void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 {
 	if (!FStartDragFailed && AEvent->buttons()!=Qt::NoButton && FPressedIndex.isValid() && selectedRosterIndexes().count()<2 &&
-	    (AEvent->pos()-FPressedPos).manhattanLength() > QApplication::startDragDistance())
+			(AEvent->pos()-FPressedPos).manhattanLength() > QApplication::startDragDistance())
 	{
 		QDrag *drag = new QDrag(this);
 		drag->setMimeData(new QMimeData);
@@ -1309,15 +1383,15 @@ void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMul
 			AToolTips.insert(RTTO_CONTACT_JID, "<font color=grey>" + Qt::escape(jid) + "</font>");
 
 		/*
-		QString priority = AIndex->data(RDR_PRIORITY).toString();
-		if (!priority.isEmpty())
-			AToolTips.insert(RTTO_CONTACT_PRIORITY, tr("Priority: %1").arg(priority.toInt()));
+  QString priority = AIndex->data(RDR_PRIORITY).toString();
+  if (!priority.isEmpty())
+   AToolTips.insert(RTTO_CONTACT_PRIORITY, tr("Priority: %1").arg(priority.toInt()));
 
-		QString ask = AIndex->data(RDR_ASK).toString();
-		QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
-		if (!subscription.isEmpty())
-			AToolTips.insert(RTTO_CONTACT_SUBSCRIPTION, tr("Subscription: %1 %2").arg(Qt::escape(subscription)).arg(Qt::escape(ask)));
-		*/
+  QString ask = AIndex->data(RDR_ASK).toString();
+  QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
+  if (!subscription.isEmpty())
+   AToolTips.insert(RTTO_CONTACT_SUBSCRIPTION, tr("Subscription: %1 %2").arg(Qt::escape(subscription)).arg(Qt::escape(ask)));
+  */
 
 		QString status = AIndex->data(RDR_STATUS).toString();
 		if (!status.isEmpty())

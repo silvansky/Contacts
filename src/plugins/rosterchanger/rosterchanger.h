@@ -85,10 +85,11 @@ class RosterChanger :
 			public IOptionsHolder,
 			public IRosterDataHolder,
 			public IRostersDragDropHandler,
-			public IXmppUriHandler
+			public IXmppUriHandler,
+			public IRostersKeyPressHooker
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IRosterChanger IOptionsHolder IRosterDataHolder IRostersDragDropHandler IXmppUriHandler);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IRosterChanger IOptionsHolder IRosterDataHolder IRostersDragDropHandler IXmppUriHandler IRostersKeyPressHooker)
 public:
 	RosterChanger();
 	~RosterChanger();
@@ -126,6 +127,9 @@ public:
 	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
 	virtual IAddMetaItemWidget *newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent);
 	virtual QWidget *showAddContactDialog(const Jid &AStreamJid);
+	//IRostersKeyPressHooker
+	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
+	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 signals:
 	void addMetaItemWidgetCreated(IAddMetaItemWidget *AWidget);
 	void addContactDialogCreated(IAddContactDialog *ADialog);

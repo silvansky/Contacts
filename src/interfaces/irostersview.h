@@ -54,6 +54,13 @@ public:
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder) =0;
 };
 
+class IRostersKeyPressHooker
+{
+public:
+	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers) =0;
+	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers) =0;
+};
+
 class IRostersDragDropHandler
 {
 public:
@@ -104,6 +111,9 @@ public:
 	//--ClickHookers
 	virtual void insertClickHooker(int AOrder, IRostersClickHooker *AHooker) =0;
 	virtual void removeClickHooker(int AOrder, IRostersClickHooker *AHooker) =0;
+	//--KeyPressHookers
+	virtual void insertKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker) =0;
+	virtual void removeKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker) =0;
 	//--DragDrop
 	virtual void insertDragDropHandler(IRostersDragDropHandler *AHandler) =0;
 	virtual void removeDragDropHandler(IRostersDragDropHandler *AHandler) =0;
@@ -148,6 +158,7 @@ public:
 };
 
 Q_DECLARE_INTERFACE(IRostersClickHooker,"Virtus.Plugin.IRostersClickHooker/1.0")
+Q_DECLARE_INTERFACE(IRostersKeyPressHooker,"Virtus.Plugin.IRostersKeyPressHooker/1.0")
 Q_DECLARE_INTERFACE(IRostersDragDropHandler,"Virtus.Plugin.IRostersDragDropHandler/1.0")
 Q_DECLARE_INTERFACE(IRostersView,"Virtus.Plugin.IRostersView/1.0")
 Q_DECLARE_INTERFACE(IRostersViewPlugin,"Virtus.Plugin.IRostersViewPlugin/1.0")

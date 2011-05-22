@@ -7,6 +7,10 @@
 #include <QDragLeaveEvent>
 #include <utils/custominputdialog.h>
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_CONTACT_JID     Action::DR_Parametr1
 #define ADR_META_ID         Action::DR_Parametr1
@@ -169,7 +173,8 @@ bool MetaContacts::initObjects()
 	{
 		FMetaProxyModel = new MetaProxyModel(this, FRostersViewPlugin->rostersView());
 		FRostersViewPlugin->rostersView()->insertProxyModel(FMetaProxyModel, RPO_METACONTACTS_MODIFIER);
-		FRostersViewPlugin->rostersView()->insertClickHooker(RCHO_DEFAULT,this);
+		FRostersViewPlugin->rostersView()->insertClickHooker(RCHO_DEFAULT, this);
+		FRostersViewPlugin->rostersView()->insertKeyPressHooker(RCHO_DEFAULT, this);
 		FRostersViewPlugin->rostersView()->insertDragDropHandler(this);
 	}
 	if (FRosterSearch)
@@ -273,6 +278,81 @@ bool MetaContacts::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 		}
 	}
 	return false;
+}
+
+bool MetaContacts::keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers)
+{
+	bool hooked = false;
+	Q_UNUSED(AOrder)
+	if (AIndex->type() == RIT_METACONTACT && (key == Qt::Key_F2) && (modifiers == Qt::NoModifier))
+	{
+		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+		IMetaRoster *mroster = findMetaRoster(streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			int itemType = AIndex->data(RDR_TYPE).toInt();
+			if (itemType == RIT_METACONTACT)
+			{
+				QString metaId = AIndex->data(RDR_META_ID).toString();
+				const IMetaContact &contact = mroster->metaContact(metaId);
+
+				QList<QVariant> selMetaIdList;
+				QHash<int,QVariant> data;
+				data.insert(ADR_STREAM_JID,streamJid.full());
+				data.insert(ADR_META_ID,metaId);
+				data.insert(ADR_NAME,metaContactName(contact));
+				data.insert(ADR_META_ID_LIST,selMetaIdList);
+
+				Action *renameAction = new Action(this);
+				renameAction->setData(data);
+				connect(renameAction,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
+				renameAction->trigger();
+				renameAction->deleteLater();
+				hooked = true;
+			}
+		}
+	}
+	return hooked;
+}
+
+bool MetaContacts::keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers)
+{
+	bool hooked = false;
+	Q_UNUSED(AOrder)
+	if (AIndex->type() == RIT_METACONTACT && (key == Qt::Key_Delete) && (modifiers == Qt::NoModifier))
+	{
+		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+		IMetaRoster *mroster = findMetaRoster(streamJid);
+		if (mroster && mroster->isOpen())
+		{
+			int itemType = AIndex->data(RDR_TYPE).toInt();
+			if (itemType == RIT_METACONTACT)
+			{
+				QString metaId = AIndex->data(RDR_META_ID).toString();
+				const IMetaContact &contact = mroster->metaContact(metaId);
+
+				QList<QVariant> selMetaIdList;
+				foreach(IRosterIndex *index, ASelected)
+				{
+					if (index != AIndex)
+						selMetaIdList.append(index->data(RDR_META_ID));
+				}
+				QHash<int,QVariant> data;
+				data.insert(ADR_STREAM_JID,streamJid.full());
+				data.insert(ADR_META_ID,metaId);
+				data.insert(ADR_NAME,metaContactName(contact));
+				data.insert(ADR_META_ID_LIST,selMetaIdList);
+
+				Action *deleteAction = new Action(this);
+				deleteAction->setData(data);
+				connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
+				deleteAction->trigger();
+				deleteAction->deleteLater();
+				hooked = true;
+			}
+		}
+	}
+	return hooked;
 }
 
 Qt::DropActions MetaContacts::rosterDragStart(const QMouseEvent *AEvent, const QModelIndex &AIndex, QDrag *ADrag)
@@ -1737,7 +1817,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 
 			// Change group menu
 			GroupMenu *groupMenu = new GroupMenu(AMenu);
-			groupMenu->setTitle(tr("Groups"));
+			groupMenu->setTitle(tr("Group"));
 
 			QSet<QString> commonGroups = contact.groups;
 			foreach(QVariant selMetaId, selMetaIdList)
@@ -1771,6 +1851,14 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			groupMenu->addAction(newGroupAction,AG_DEFAULT+1,true);
 
 			AMenu->addAction(groupMenu->menuAction(),AG_RVCM_ROSTERCHANGER_GROUP);
+
+			//Delete
+			Action *deleteAction = new Action(AMenu);
+			deleteAction->setText(tr("Delete"));
+			deleteAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
+			deleteAction->setData(data);
+			connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
+			AMenu->addAction(deleteAction,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 
 			// Merge Items
 			if (ASelected.count() > 1)
@@ -1838,13 +1926,6 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				connect(vcardAction,SIGNAL(triggered(bool)),SLOT(onShowMetaProfileDialogAction(bool)));
 				AMenu->addAction(vcardAction,AG_RVCM_VCARD,true);
 			}
-
-			Action *deleteAction = new Action(AMenu);
-			deleteAction->setText(tr("Delete"));
-			deleteAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
-			deleteAction->setData(data);
-			connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
-			AMenu->addAction(deleteAction,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 		}
 	}
 }
