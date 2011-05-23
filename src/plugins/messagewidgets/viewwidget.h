@@ -10,8 +10,8 @@
 #include "ui_viewwidget.h"
 
 class ViewWidget :
-			public QWidget,
-			public IViewWidget
+	public QWidget,
+	public IViewWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(IViewWidget)

@@ -220,13 +220,13 @@ bool RosterChanger::initObjects()
 		//mmenu->addAction(action,AG_MMENU_RCHAGER_ADD_GROUP);
 
 		action = new Action(mmenu);
-		action->setText(tr("Add contact"));
+		action->setText(tr("Add contact..."));
 		//action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_CONTACT);
 		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddContactDialog(bool)));
 		mmenu->addAction(action,AG_MMENU_RCHAGER_ADD_CONTACT);
 
 		action = new Action(mmenu);
-		action->setText(tr("Add account"));
+		action->setText(tr("Add account..."));
 		//action->setIcon(RSR_STORAGE_MENUICONS, MNI_RCHANGER_ADD_ACCOUNT);
 		connect(action, SIGNAL(triggered(bool)), SLOT(onShowAddAccountDialog(bool)));
 		mmenu->addAction(action,AG_MMENU_RCHAGER_ADD_ACCOUNT);
@@ -2116,12 +2116,13 @@ void RosterChanger::onViewWidgetContextMenu(const QPoint &APosition, const QText
 				if (!descriptor.needGate || !FGateways->availServices(roster->streamJid(),identity).isEmpty())
 				{
 					Action *action = new Action(AMenu);
-					action->setText(tr("Add contact"));
+					action->setText(tr("Create new contact..."));
 					action->setIcon(RSR_STORAGE_MENUICONS,descriptor.iconKey);
 					action->setData(ADR_STREAM_JID,roster->streamJid().full());
 					action->setData(ADR_CONTACT_TEXT,contact);
 					connect(action,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
 					AMenu->addAction(action,AG_VWCM_ROSTERCHANGER_ADD_CONTACT);
+					AMenu->setDefaultAction(action);
 				}
 			}
 		}

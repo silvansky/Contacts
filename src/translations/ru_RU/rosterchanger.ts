@@ -323,10 +323,6 @@
         <translation>%1 - авторизация</translation>
     </message>
     <message>
-        <source>Add account</source>
-        <translation>Добавить учётную запись</translation>
-    </message>
-    <message>
         <source>Requests authorization</source>
         <translation>Запрос авторизации</translation>
     </message>
@@ -381,6 +377,18 @@
     <message>
         <source>Group</source>
         <translation>Группа</translation>
+    </message>
+    <message>
+        <source>Add contact...</source>
+        <translation>Добавить контакт...</translation>
+    </message>
+    <message>
+        <source>Add account...</source>
+        <translation>Добавить учетную запись...</translation>
+    </message>
+    <message>
+        <source>Create new contact...</source>
+        <translation>Создать новый контакт...</translation>
     </message>
 </context>
 <context>
