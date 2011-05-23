@@ -242,6 +242,37 @@ void Menu::setTitle(const QString &ATitle)
 	QMenu::setTitle(ATitle);
 }
 
+void Menu::showMenu(const QPoint & p, Facing facing)
+{
+	if (facing == Default)
+	{
+		QMenu::popup(p);
+		return;
+	}
+	emit aboutToShow();
+	QSize sz = sizeHint();
+	QPoint popupPoint = p;
+	switch (facing)
+	{
+	case TopLeft:
+		popupPoint.setX(p.x() - sz.width());
+		popupPoint.setY(p.y() - sz.height());
+		break;
+	case TopRight:
+		popupPoint.setY(p.y() - sz.height());
+		break;
+	case BottomLeft:
+		popupPoint.setX(p.x() - sz.width());
+		break;
+	case BottomRight:
+		break;
+	default:
+		break;
+	}
+	setGeometry(QRect(popupPoint, sz));
+	show();
+}
+
 void Menu::onActionDestroyed(Action *AAction)
 {
 	removeAction(AAction);

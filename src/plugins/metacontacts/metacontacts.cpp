@@ -1328,24 +1328,26 @@ void MetaContacts::onDeleteContact(bool)
 			foreach(QVariant metaId, action->data(ADR_META_ID_LIST).toList())
 				metaIdList.append(metaId.toString());
 
-			QString message, title;
+			QString message, title, acceptText;
 			if (metaIdList.count() < 2)
 			{
 				IMetaContact contact = mroster->metaContact(metaIdList.value(0));
 				title = tr("Remove contact '%1'").arg(Qt::escape(metaContactName(contact)));
-				message = tr("All contacts and communication history with that person will be removed. Operation can not be undone.");
+				message = tr("All contacts and communication history with that person will be removed.");
+				acceptText = tr("Remove contact");
 			}
 			else
 			{
 				title = tr("Remove %n contact(s)","",metaIdList.count());
-				message = tr("<b>%n contacts</b> and communication history with them will be removed. Operation can not be undone.","",metaIdList.count());
+				message = tr("<b>%n contacts</b> and communication history with them will be removed.","",metaIdList.count());
+				acceptText = tr("Remove contacts");
 			}
 
 			CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::None);
 			dialog->setCaptionText(title);
 			dialog->setInfoText(message);
 			dialog->setAcceptIsDefault(false);
-			dialog->setAcceptButtonText(tr("Remove"));
+			dialog->setAcceptButtonText(acceptText);
 			dialog->setRejectButtonText(tr("Cancel"));
 			dialog->setProperty("metaIdList", metaIdList);
 			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());

@@ -9,6 +9,7 @@
 
 class EmoticonsContainer : public QWidget
 {
+	Q_OBJECT
 public:
 	EmoticonsContainer(IEditWidget *AParent) : QWidget(AParent->instance())
 	{
@@ -26,10 +27,10 @@ public:
 		{
 			QPushButton *button = new QPushButton(this);
 			button->setObjectName("emoticonsButton");
-			button->setMenu(AMenu);
+			button->setToolTip(tr("Add emoticon"));
+			//button->setMenu(AMenu);
+			connect(button, SIGNAL(clicked()), SLOT(onShowEmoticonsMenuButtonClicked()));
 			button->setFlat(true);
-//			if (AMenu->iconStorage())
-//				AMenu->iconStorage()->insertAutoIcon(button,AMenu->iconStorage()->fileKeys().value(0));
 			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(button, MNI_EMOTICONS_BUTTON_ICON);
 			FWidgets.insert(AMenu,button);
 			layout()->addWidget(button);
@@ -40,6 +41,19 @@ public:
 		if (FWidgets.contains(AMenu))
 		{
 			delete FWidgets.take(AMenu);
+		}
+	}
+protected slots:
+	void onShowEmoticonsMenuButtonClicked()
+	{
+		QPushButton * button = qobject_cast<QPushButton*>(sender());
+		if (button)
+		{
+			SelectIconMenu * menu = FWidgets.key(button, NULL);
+			if (menu)
+			{
+				menu->showMenu(button->mapToGlobal(QPoint(button->geometry().width(), 0)), Menu::TopLeft);
+			}
 		}
 	}
 private:
@@ -559,3 +573,5 @@ void Emoticons::onOptionsChanged(const OptionsNode &ANode)
 }
 
 Q_EXPORT_PLUGIN2(plg_emoticons, Emoticons)
+
+#include "emoticons.moc"

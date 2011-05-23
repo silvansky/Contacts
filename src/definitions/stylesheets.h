@@ -12,6 +12,7 @@
 
 //Emoticons
 #define STS_EMOTICONS_SELECTICONWIDGET                                  "emoticonsSelectIconWidget"
+#define STS_EMOTICONS_SELECTICONMENU                                    "emoticonsSelectIconMenu"
 
 //MainWindow
 #define STS_MAINWINDOW_WINDOW                                           "mainwindowWindow"

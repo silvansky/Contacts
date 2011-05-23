@@ -19,6 +19,15 @@ class UTILS_EXPORT Menu :
 {
 	Q_OBJECT
 public:
+	enum Facing
+	{
+		Default, // use QMenu::popup()
+		// move to some point and show
+		TopLeft,
+		TopRight,
+		BottomLeft,
+		BottomRight
+	};
 	Menu(QWidget *AParent = NULL);
 	~Menu();
 	bool isEmpty() const;
@@ -35,6 +44,7 @@ public:
 	void setIcon(const QIcon &AIcon);
 	void setIcon(const QString &AStorageName, const QString &AIconKey, int AIconIndex = 0);
 	void setTitle(const QString &ATitle);
+	void showMenu(const QPoint & p, Facing facing = Default);
 signals:
 	void actionInserted(QAction *ABefour, Action *AAction, int AGroup, bool ASort);
 	void actionRemoved(Action *AAction);

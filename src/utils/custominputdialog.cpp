@@ -22,10 +22,10 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget 
 	setAttribute(Qt::WA_DeleteOnClose, false);
 
 	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
-	border->setParent(AParent);
 	setMinimumWidth(250);
 	if (border)
 	{
+		border->setParent(AParent);
 		border->setResizable(false);
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
