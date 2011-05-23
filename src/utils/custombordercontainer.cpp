@@ -995,7 +995,8 @@ bool CustomBorderContainer::event(QEvent * evt)
 #ifdef Q_WS_WIN
 bool CustomBorderContainer::winEvent(MSG *message, long *result)
 {
-	if (message->message == 0x0313)
+	// WARNING: works only on XP and earlier
+	if (message->message == 0x0313) // undocumented message - context menu for window on rightclick in taskbar
 		showWindowMenu(QCursor::pos());
 	return QWidget::winEvent(message, result);
 }
@@ -1147,7 +1148,7 @@ void CustomBorderContainer::init()
 	_isFullscreen = false;
 	_closeOnDeactivate = false;
 	// window props
-	setWindowFlags(Qt::FramelessWindowHint);
+	setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint); // damn, that fixes "minimize problem"
 	setAttribute(Qt::WA_TranslucentBackground);
 	setFocusPolicy(Qt::NoFocus);
 	setMouseTracking(true);
@@ -1254,7 +1255,6 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 		bool vDocked = false;
 		if (borderStyle->dockingEnabled)
 		{
-			// TODO: fix right and bottom docking
 			int delta = 0;
 			// dock left
 			delta = screenRect.left() - leftBorderWidth() - newLeft;
