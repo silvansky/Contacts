@@ -207,7 +207,7 @@ QString MessageStyles::timeFormat(const QDateTime &AMessageTime, const QDateTime
 		return tr("d MMM yyyy hh:mm");
 	else if (daysDelta > 0)
 		return tr("d MMM hh:mm");
-	return tr("hh:mm:ss");
+	return tr("hh:mm");
 }
 
 QString MessageStyles::defaultContactNick(const Jid &AContactJid) const

@@ -566,6 +566,9 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 		if (!timeRegExp.cap(0).isEmpty())
 			AHtml.replace(pos, timeRegExp.cap(0).length(), time);
 
+	QString timeHint = Qt::escape(AOptions.time.toString(Qt::DefaultLocaleLongDate));
+	AHtml.replace("%timeHint%", timeHint);
+
 	QString sColor = !AOptions.senderColor.isEmpty() ? AOptions.senderColor : senderColor(AOptions.senderId);
 	AHtml.replace("%senderColor%",sColor);
 
