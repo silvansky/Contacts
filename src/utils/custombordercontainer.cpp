@@ -35,31 +35,6 @@
 #endif
 
 // internal functions
-
-static void childsRecursive(QObject *object, QWidget *watcher, bool install)
-{
-	// ensure object is widget but not a menu
-	if (object->isWidgetType() /*&& !qobject_cast<QMenu*>(object) && !qobject_cast<Menu*>(object)*/)
-	{
-		QWidget * widget = qobject_cast<QWidget*>(object);
-		if (widget->parent() && widget->isWindow())
-			return;
-		if (install)
-			object->installEventFilter(watcher);
-		else
-			object->removeEventFilter(watcher);
-		// TODO: return params back
-		widget->setAutoFillBackground(true);
-		widget->setMouseTracking(true);
-		widget->setProperty("defaultCursorShape", widget->cursor().shape());
-	}
-	QObjectList children = object->children();
-	foreach(QObject *child, children)
-	{
-		childsRecursive(child, watcher, install);
-	}
-}
-
 static void repaintRecursive(QWidget *widget, const QRect & globalRect)
 {
 	if (widget && widget->isVisible())
@@ -732,7 +707,7 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 		containedWidget->setAutoFillBackground(true);
 		containedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		containerLayout->addWidget(containedWidget);
-		childsRecursive(containedWidget,this,true);
+		childsRecursive(containedWidget,true);
 		containedWidget->setMouseTracking(true);
 		containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
 		setMinimumSize(containedWidget->minimumSize());
@@ -749,7 +724,7 @@ QWidget * CustomBorderContainer::releaseWidget()
 	if (containedWidget)
 	{
 		removeEventFilter(containedWidget);
-		childsRecursive(containedWidget,this,false);
+		childsRecursive(containedWidget,false);
 		containedWidget->removeEventFilter(this);
 		disconnect(containedWidget, SIGNAL(destroyed(QObject*)), this, SLOT(onContainedWidgetDestroyed(QObject*)));
 		containerLayout->removeWidget(containedWidget);
@@ -1069,7 +1044,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 	break;
 	case QEvent::ChildAdded:
 	case QEvent::ChildRemoved:
-		childsRecursive(widget, this, true);
+		childsRecursive(widget, true);
 		break;
 	case QEvent::WindowTitleChange:
 		if (widget == containedWidget)
@@ -1634,6 +1609,39 @@ void CustomBorderContainer::showWindowMenu(const QPoint & p)
 	windowMenu->move(popupPoint);
 	windowMenu->onAboutToShow();
 	windowMenu->show();
+}
+
+void CustomBorderContainer::childsRecursive(QObject *object, bool install)
+{
+	// ensure object is widget but not a menu
+	if (object->isWidgetType() /*&& !qobject_cast<QMenu*>(object) && !qobject_cast<Menu*>(object)*/)
+	{
+		QWidget *widget = reinterpret_cast<QWidget*>(object);
+		if (!widget->parent() || !widget->isWindow())
+		{
+			int objIndex = installedObjects.indexOf(object);
+			if (install && objIndex<0)
+			{
+				object->installEventFilter(this);
+				installedObjects.append(object);
+
+				// TODO: return params back
+				widget->setAutoFillBackground(true);
+				widget->setMouseTracking(true);
+				widget->setProperty("defaultCursorShape", widget->cursor().shape());
+			}
+			else if (!install && objIndex>=0)
+			{
+				object->removeEventFilter(this);
+				installedObjects.removeAt(objIndex);
+			}
+
+			QObjectList children = object->children();
+			for(QObjectList::const_iterator it = children.constBegin(); it!=children.constEnd(); it++)
+				childsRecursive(*it, install);
+		}
+	}
+
 }
 
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)

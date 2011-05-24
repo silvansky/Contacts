@@ -160,6 +160,7 @@ protected:
 	void repaintHeaderButtons();
 	QRect windowIconRect() const;
 	void showWindowMenu(const QPoint & p);
+	void childsRecursive(QObject *object, bool install);
 	// etc...
 	enum BorderType // note that order makes sence
 	{
@@ -235,6 +236,7 @@ private:
 	Action * maximizeAction;
 	Action * closeAction;
 	Action * restoreAction;
+	QList<QObject *> installedObjects;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CustomBorderContainer::HeaderButtonsFlags)

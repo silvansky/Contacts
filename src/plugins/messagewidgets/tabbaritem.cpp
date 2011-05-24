@@ -13,6 +13,8 @@
 
 TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 {
+	FActive = true;
+	FDraging = false;
 	FIconSize = QSize(16,16);
 
 	setProperty("ignoreFilter", true);
@@ -69,21 +71,22 @@ bool TabBarItem::isActive() const
 
 void TabBarItem::setActive(bool AActive)
 {
-	FActive = AActive;
-	if (FActive)
+	if (FActive != AActive)
 	{
-		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FIconLabel, GFX_STATUSICONS);
-		//GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FTextLabel, GFX_LABELS);
-		FTextLabel->setShadow(CustomLabel::LightShadow);
+		FActive = AActive;
+		if (FActive)
+		{
+			GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FIconLabel, GFX_STATUSICONS);
+			FTextLabel->setShadow(CustomLabel::LightShadow);
+		}
+		else
+		{
+			GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FIconLabel, GFX_STATUSICONS);
+			FTextLabel->setShadow(CustomLabel::DarkShadow);
+		}
+		setStyleSheet(styleSheet());
+		update();
 	}
-	else
-	{
-		GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FIconLabel, GFX_STATUSICONS);
-		//GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FTextLabel, GFX_LABELS);
-		FTextLabel->setShadow(CustomLabel::DarkShadow);
-	}
-	setStyleSheet(styleSheet());
-	update();
 }
 
 bool TabBarItem::isDraging() const
@@ -93,9 +96,12 @@ bool TabBarItem::isDraging() const
 
 void TabBarItem::setDraging(bool ADragged)
 {
-	FDraging = ADragged;
-	setStyleSheet(styleSheet());
-	update();
+	if (FDraging != ADragged)
+	{
+		FDraging = ADragged;
+		setStyleSheet(styleSheet());
+		update();
+	}
 }
 
 bool TabBarItem::isCloseable() const
@@ -276,8 +282,6 @@ bool TabBarItem::eventFilter(QObject *AObject, QEvent *AEvent)
 		if (AEvent->type() == QEvent::Enter || AEvent->type() == QEvent::Leave)
 		{
 			bool handled = QFrame::eventFilter(AObject,AEvent);
-//			FCloseButton->setStyleSheet(FCloseButton->styleSheet());
-//			FCloseButton->repaint();
 			setStyleSheet(styleSheet());
 			update();
 			return handled;
