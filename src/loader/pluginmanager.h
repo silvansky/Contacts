@@ -60,8 +60,8 @@ public slots:
 	virtual void quit();
 	virtual void restart();
 	virtual void shutdownRequested();
-protected slots:
-	virtual void messageBoxButtonClicked(QAbstractButton * button);
+public slots:
+	void showMainWindow();
 signals:
 	void quitStarted();
 	void aboutToQuit();
@@ -91,6 +91,7 @@ protected slots:
 	void onSetupPluginsDialogAccepted();
 	void onShowAboutBoxDialog();
 	void onShowCommentsDialog();
+	void onMessageBoxButtonClicked(QAbstractButton *AButton);
 private:
 	QPointer<AboutBox> FAboutDialog;
 	QPointer<CommentDialog> FCommentDialog;

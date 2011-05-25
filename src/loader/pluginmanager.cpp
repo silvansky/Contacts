@@ -198,7 +198,7 @@ void PluginManager::shutdownRequested()
 	{
 		QMessageBox * mb = new QMessageBox(tr("Friends updates ready"), tr("Updates are ready. Do you want to restart Rambler.Friends now?"), QMessageBox::Question, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
 		mb->setWindowModality(Qt::ApplicationModal);
-		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(messageBoxButtonClicked(QAbstractButton*)));
+		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(onMessageBoxButtonClicked(QAbstractButton*)));
 		WidgetManager::showActivateRaiseWindow(mb);
 	}
 #ifdef DEBUG_ENABLED
@@ -207,11 +207,17 @@ void PluginManager::shutdownRequested()
 #endif
 }
 
-void PluginManager::messageBoxButtonClicked(QAbstractButton * button)
+void PluginManager::showMainWindow()
 {
-	QMessageBox * mb = qobject_cast<QMessageBox*>(sender());
-	if (mb && (mb->buttonRole(button) == QMessageBox::YesRole))
-		quit();
+	IPlugin * plugin = pluginInstance(MAINWINDOW_UUID);
+	if (plugin)
+	{
+		IMainWindowPlugin * mainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
+		if (mainWindowPlugin)
+		{
+			mainWindowPlugin->showMainWindow();
+		}
+	}
 }
 
 void PluginManager::loadSettings()
@@ -738,15 +744,9 @@ void PluginManager::onShowCommentsDialog()
 	WidgetManager::showActivateRaiseWindow(FCommentDialog->windowBorder() ? (QWidget*)FCommentDialog->windowBorder() : (QWidget*)FCommentDialog);
 }
 
-void PluginManager::showMainWindow()
+void PluginManager::onMessageBoxButtonClicked(QAbstractButton * button)
 {
-	IPlugin * plugin = pluginInstance(MAINWINDOW_UUID);
-	if (plugin)
-	{
-		IMainWindowPlugin * mainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
-		if (mainWindowPlugin)
-		{
-			mainWindowPlugin->showMainWindow();
-		}
-	}
+	QMessageBox * mb = qobject_cast<QMessageBox*>(sender());
+	if (mb && (mb->buttonRole(button) == QMessageBox::YesRole))
+		quit();
 }
