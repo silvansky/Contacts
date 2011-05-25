@@ -236,7 +236,6 @@ private:
 	Action * maximizeAction;
 	Action * closeAction;
 	Action * restoreAction;
-	QList<QObject *> installedObjects;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CustomBorderContainer::HeaderButtonsFlags)

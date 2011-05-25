@@ -1018,33 +1018,41 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 				handled = mouseDoubleClick(((QMouseEvent*)event)->pos(), widget);
 		break;
 	case QEvent::Paint:
-	{
-		QPaintEvent * pe = (QPaintEvent*)event;
-		object->removeEventFilter(this);
-		QApplication::sendEvent(object,event);
-		object->installEventFilter(this);
-
-		QPoint point = widget->pos();
-		while (widget && (widget->parentWidget() != this) && widget->parentWidget())
 		{
-			widget = widget->parentWidget();
-			point += widget->pos();
+			QPaintEvent * pe = (QPaintEvent*)event;
+			object->removeEventFilter(this);
+			QApplication::sendEvent(object,event);
+			object->installEventFilter(this);
+
+			QPoint point = widget->pos();
+			while (widget && (widget->parentWidget() != this) && widget->parentWidget())
+			{
+				widget = widget->parentWidget();
+				point += widget->pos();
+			}
+
+			widget = qobject_cast<QWidget*>(object);
+			QRect r = widget->rect().translated(point);
+
+			QPainter p(widget);
+			p.setClipRect(pe->rect());
+			p.setWindow(r);
+			drawButtons(&p);
+			drawCorners(&p);
+			return true;
 		}
-
-		widget = qobject_cast<QWidget*>(object);
-		QRect r = widget->rect().translated(point);
-
-		QPainter p(widget);
-		p.setClipRect(pe->rect());
-		p.setWindow(r);
-		drawButtons(&p);
-		drawCorners(&p);
-		return true;
-	}
-	break;
+		break;
 	case QEvent::ChildAdded:
+		{
+			QChildEvent *ce = (QChildEvent *)event;
+			childsRecursive(ce->child(),true);
+		}
+		break;
 	case QEvent::ChildRemoved:
-		childsRecursive(widget, true);
+		{
+			QChildEvent *ce = (QChildEvent *)event;
+			childsRecursive(ce->child(), false);
+		}
 		break;
 	case QEvent::WindowTitleChange:
 		if (widget == containedWidget)
@@ -1619,21 +1627,18 @@ void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 		QWidget *widget = reinterpret_cast<QWidget*>(object);
 		if (!widget->parent() || !widget->isWindow())
 		{
-			int objIndex = installedObjects.indexOf(object);
-			if (install && objIndex<0)
+			if (install)
 			{
 				object->installEventFilter(this);
-				installedObjects.append(object);
 
 				// TODO: return params back
 				widget->setAutoFillBackground(true);
 				widget->setMouseTracking(true);
 				widget->setProperty("defaultCursorShape", widget->cursor().shape());
 			}
-			else if (!install && objIndex>=0)
+			else
 			{
 				object->removeEventFilter(this);
-				installedObjects.removeAt(objIndex);
 			}
 
 			QObjectList children = object->children();
@@ -1641,7 +1646,6 @@ void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 				childsRecursive(*it, install);
 		}
 	}
-
 }
 
 void CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
