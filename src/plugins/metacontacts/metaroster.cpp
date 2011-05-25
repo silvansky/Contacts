@@ -192,6 +192,7 @@ IPresenceItem MetaRoster::metaPresenceItem(const QString &AMetaId) const
 		pitem.isValid = true;
 		if (FPresence)
 		{
+			bool hasNotServiceItem = false;
 			QMultiMap<int, IPresenceItem> contactItems;
 			QMultiMap<int, IPresenceItem> serviceItems;
 			IMetaContact contact = FContacts.value(AMetaId);
@@ -206,10 +207,11 @@ IPresenceItem MetaRoster::metaPresenceItem(const QString &AMetaId) const
 					else
 						contactItems.insertMulti(item_pres.show,item_pres);
 				}
+				hasNotServiceItem |= !isService;
 			}
 			if (!contactItems.isEmpty())
 				pitem = contactItems.constBegin().value();
-			else if (!serviceItems.isEmpty())
+			else if (!hasNotServiceItem && !serviceItems.isEmpty())
 				pitem = serviceItems.constBegin().value();
 		}
 	}
