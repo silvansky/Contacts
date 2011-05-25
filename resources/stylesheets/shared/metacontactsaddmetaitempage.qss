@@ -1,4 +1,4 @@
-AddMetaItemPage
+QWidget#wdtContents
 {
 	background-color: white;
 }
