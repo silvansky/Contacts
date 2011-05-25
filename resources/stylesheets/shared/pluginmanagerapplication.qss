@@ -758,6 +758,7 @@ QToolTip
 	font-size: 12px;
 	background-color: black;
 	color: white;
-	opacity: 230;
+	opacity: 200;
 	border: 1px solid #1f2329;
+	padding: 0px 3px 0px 3px;
 }

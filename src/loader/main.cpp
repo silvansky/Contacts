@@ -10,6 +10,8 @@
 # define RAMBLERFRIENDS_GUID "{9732304B-B640-4C54-B2CD-3C2297D649A1}"
 #endif
 
+#include "singleapp.h"
+
 int main(int argc, char *argv[])
 {
 	// styles
@@ -42,7 +44,16 @@ int main(int argc, char *argv[])
 	// remark: we can set windows style explicitly to override vista/seven selection
 	// cleanlooks style brings ugly combo popups...
 
-	QApplication app(argc, argv);
+	SingleApp app(argc, argv, "Rambler.Friends");
+
+#ifndef DEBUG_ENABLED
+	if (app.isRunning())
+	{
+		app.sendMessage("show");
+		return 0;
+	}
+#endif
+
 	app.setQuitOnLastWindowClosed(false);
 
 	QApplication::setStyle(new ProxyStyle);
@@ -67,6 +78,8 @@ int main(int argc, char *argv[])
 
 	// plugin manager
 	PluginManager pm(&app);
+
+	QObject::connect(&app, SIGNAL(messageAvailable(const QString&)), &pm, SLOT(showMainWindow()));
 
 #ifdef Q_WS_WIN32
 	GUID guid = (GUID)QUuid(RAMBLERFRIENDS_GUID);

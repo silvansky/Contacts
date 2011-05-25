@@ -15,6 +15,7 @@
 #include <utils/log.h>
 #include <definitions/resources.h>
 #include <definitions/fonts.h>
+#include <interfaces/imainwindow.h>
 
 #define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Friends"
@@ -64,7 +65,6 @@ PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 
 PluginManager::~PluginManager()
 {
-
 }
 
 QString PluginManager::version() const
@@ -736,4 +736,17 @@ void PluginManager::onShowCommentsDialog()
 	if (FCommentDialog.isNull())
 		FCommentDialog = new CommentDialog(this);
 	WidgetManager::showActivateRaiseWindow(FCommentDialog->windowBorder() ? (QWidget*)FCommentDialog->windowBorder() : (QWidget*)FCommentDialog);
+}
+
+void PluginManager::showMainWindow()
+{
+	IPlugin * plugin = pluginInstance(MAINWINDOW_UUID);
+	if (plugin)
+	{
+		IMainWindowPlugin * mainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
+		if (mainWindowPlugin)
+		{
+			mainWindowPlugin->showMainWindow();
+		}
+	}
 }
