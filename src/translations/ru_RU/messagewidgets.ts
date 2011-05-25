@@ -182,7 +182,7 @@
     </message>
     <message>
         <source>Avalable (online, away)</source>
-        <translation>Не заняты (в сети, ушёл)</translation>
+        <translation type="unfinished">Не заняты (В сети, Отошёл)</translation>
     </message>
     <message>
         <source>All male</source>

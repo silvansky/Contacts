@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Status changed automatically to &apos;away&apos;</source>
-        <translation>Статус автоматически изменен на &apos;Ушёл&apos;</translation>
+        <translation type="unfinished">Статус автоматически изменен на «Отошёл»</translation>
     </message>
     <message>
         <source>Auto Status</source>
@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Automatically change status to &apos;Away&apos; if screen saver is on or system is locked</source>
-        <translation>Автоматически изменять статус на &quot;Ушёл&quot;, если включен скринсейвер
+        <translation type="unfinished">Автоматически изменять статус на «Отошёл», если включен скринсейвер
 или компьютер заблокирован</translation>
     </message>
 </context>
@@ -41,7 +41,7 @@
     </message>
     <message>
         <source>Auto status: away</source>
-        <translation>Автостатус: Ушёл</translation>
+        <translation type="unfinished">Автостатус: Отошёл</translation>
     </message>
     <message>
         <source>You can insert date and time into auto status text:</source>
@@ -73,11 +73,11 @@
     </message>
     <message>
         <source>   ddd - the abbreviated localized day name (e.g. &apos;Mon&apos; to &apos;Sun&apos;)</source>
-        <translation>   ddd - аббревиатура названия дня недели (&apos;Пн&apos; - &apos;Вск&apos;)</translation>
+        <translation type="unfinished">   ddd - аббревиатура названия дня недели («Пн» - «Вск») </translation>
     </message>
     <message>
         <source>   dddd - the long localized day name (e.g. &apos;Monday&apos; to &apos;Sunday&apos;)</source>
-        <translation>   dddd - полное название дня недели (&apos;Понедельник&apos; - &apos;Воскресенье&apos;)</translation>
+        <translation type="unfinished">   dddd - полное название дня недели («Понедельник» - «Воскресенье»)</translation>
     </message>
     <message>
         <source>   M - the month as number without a leading zero (1-12)</source>
@@ -89,11 +89,11 @@
     </message>
     <message>
         <source>   MMM - the abbreviated localized month name (e.g. &apos;Jan&apos; to &apos;Dec&apos;)</source>
-        <translation>   MMM - аббревиатура названия месяца (&apos;Янв&apos; - &apos;Дек&apos;)</translation>
+        <translation type="unfinished">   MMM - аббревиатура названия месяца («Янв» - «Дек»)</translation>
     </message>
     <message>
         <source>   MMMM - the long localized month name (e.g. &apos;January&apos; to &apos;December&apos;)</source>
-        <translation>   MMMM - полное локализованное наименование месяца (&apos;Январь&apos; - &apos;Декабрь&apos;)</translation>
+        <translation type="unfinished">   MMMM - полное локализованное наименование месяца («Январь» - «Декабрь»)</translation>
     </message>
     <message>
         <source>   yy - the year as two digit number (00-99)</source>
@@ -149,11 +149,11 @@
     </message>
     <message>
         <source>   AP or A - interpret as an AM/PM time. AP must be either &apos;AM&apos; or &apos;PM&apos;</source>
-        <translation>   AP или A - интерпретируется как AM/PM время. AP должен быть либо &apos;AM&apos; либо &apos;PM&apos;</translation>
+        <translation type="unfinished">   AP или A - интерпретируется как AM/PM время. AP должен быть либо «AM» либо «PM»</translation>
     </message>
     <message>
         <source>   ap or a - interpret as an AM/PM time. ap must be either &apos;am&apos; or &apos;pm&apos;</source>
-        <translation>   ap или a - интерпретируется как AM/PM время. ap должен быть либо &apos;am&apos; либо &apos;pm&apos;</translation>
+        <translation type="unfinished">   ap или a - интерпретируется как AM/PM время. ap должен быть либо «am» либо «pm»</translation>
     </message>
     <message>
         <source>Example:</source>
@@ -165,7 +165,7 @@
     </message>
     <message>
         <source>   Status is set to &apos;away&apos; at %(hh:mm:ss), because of idle from $(hh:mm:ss) for #(mm) minutes and #(ss) seconds</source>
-        <translation>   Сатус изменен на &apos;Ушёл&apos; в %(hh:mm:ss), неактивен с $(hh:mm:ss) в течение #(mm) минут и #(ss) секунд</translation>
+        <translation type="unfinished">   Сатус изменен на «Отошёл» в %(hh:mm:ss), неактивен с $(hh:mm:ss) в течение #(mm) минут и #(ss) секунд</translation>
     </message>
 </context>
 <context>

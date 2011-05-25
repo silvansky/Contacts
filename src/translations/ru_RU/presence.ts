@@ -33,7 +33,7 @@
     </message>
     <message>
         <source>Whatever was done, all the better</source>
-        <translation>Чтобы ни делалось - все к лучшему</translation>
+        <translation type="unfinished">Что бы ни делалось - все к лучшему</translation>
     </message>
     <message>
         <source>Changed mood</source>

@@ -17,7 +17,7 @@
     </message>
     <message>
         <source>Copyright 2010-2011, &quot;Rambler Internet Holding Ltd&quot;. All rights reserved.&lt;br&gt;%1</source>
-        <translation>Copyright 2010-2011, &quot;Rambler Internet Holding Ltd&quot;. Все права сохранены.&lt;br&gt;%1</translation>
+        <translation type="unfinished">Copyright 2010-2011, «Rambler Internet Holding Ltd». Все права сохранены.&lt;br&gt;%1 </translation>
     </message>
 </context>
 <context>
@@ -90,7 +90,7 @@
     </message>
     <message>
         <source>Enter your comment:</source>
-        <translation>Ваш отзыв или замечание:</translation>
+        <translation type="unfinished">Ваш отзыв или замечание</translation>
     </message>
     <message>
         <source>Send comment</source>
@@ -161,7 +161,7 @@
     </message>
     <message>
         <source>Updates are ready. Do you want to restart Rambler.Friends now?</source>
-        <translation>Обновления готовы. Вы хотите перезапустить Рамблер.Друзья?</translation>
+        <translation type="unfinished">Обновления готовы. Вы хотите перезапустить Рамблер-Друзья?</translation>
     </message>
 </context>
 <context>

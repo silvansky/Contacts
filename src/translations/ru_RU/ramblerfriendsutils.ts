@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>OK</source>
-        <translation>ОК</translation>
+        <translation type="unfinished">Ок</translation>
     </message>
     <message>
         <source>Yes</source>
@@ -63,7 +63,7 @@
     </message>
     <message>
         <source>Unexpected Request</source>
-        <translation>Неожиданный запрос</translation>
+        <translation type="unfinished">Непредвиденный запрос</translation>
     </message>
     <message>
         <source>Jid Malformed</source>

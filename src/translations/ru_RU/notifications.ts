@@ -45,11 +45,11 @@
     </message>
     <message>
         <source>If status is &apos;Away&apos;</source>
-        <translation>Если выбран статус &apos;Ушёл&apos;</translation>
+        <translation type="unfinished">Если выбран статус «Отошёл»</translation>
     </message>
     <message>
         <source>If status is &apos;Busy&apos;</source>
-        <translation>Если выбран статус &apos;Занят&apos;</translation>
+        <translation type="unfinished">Если выбран статус «Не беспокоить»</translation>
     </message>
     <message>
         <source>Disable all popup windows and sounds when
@@ -69,7 +69,7 @@ any full screen application is running (movies, games, presentations)</source>
     </message>
     <message>
         <source>Test</source>
-        <translation>Тест</translation>
+        <translation type="unfinished">Проверить</translation>
     </message>
     <message>
         <source>Sound</source>
@@ -108,7 +108,7 @@ any full screen application is running (movies, games, presentations)</source>
     </message>
     <message>
         <source>Disable sounds when status is &apos;Do not disturb&apos;</source>
-        <translation>Отключать звуки, когда установлен статус &quot;Занят&quot;</translation>
+        <translation type="unfinished">Отключать звуки, когда установлен статус «Не беспокоить»</translation>
     </message>
     <message>
         <source>Chat</source>

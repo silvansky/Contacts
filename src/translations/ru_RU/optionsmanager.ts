@@ -202,7 +202,7 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     </message>
     <message>
         <source>register</source>
-        <translation>Зарегистрируйтесь</translation>
+        <translation type="unfinished">зарегистрируйтесь</translation>
     </message>
     <message>
         <source>Forgot your password?</source>
@@ -210,13 +210,13 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
     </message>
     <message>
         <source>This profile is already opened by another Friends instance</source>
-        <translation>Этот профиль уже открыт другой копией Friends</translation>
+        <translation type="unfinished">Этот профиль уже открыт другой копией Friends.</translation>
     </message>
     <message>
         <source>Enter address of custom domain
 which is linked to Rambler</source>
-        <translation>Введите адрес своего домена,
-который подключен к Rambler</translation>
+        <translation type="unfinished">Введите адрес своего домена,
+который подключен к Рамблер</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -232,7 +232,7 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Login and password mismatch</source>
-        <translation>Пароль не подходит к логину.</translation>
+        <translation type="unfinished">Логин и пароль не совпадают.</translation>
     </message>
     <message>
         <source>Wrong password</source>
@@ -251,7 +251,7 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Launch with computer</source>
-        <translation>Запускать при включении компьютера</translation>
+        <translation type="unfinished">Запускать при старте</translation>
     </message>
     <message>
         <source>Login</source>
@@ -271,7 +271,7 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Rambler.Friends</source>
-        <translation>Рамблер.Друзья</translation>
+        <translation type="unfinished">Рамблер-Друзья</translation>
     </message>
 </context>
 <context>
@@ -282,7 +282,7 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Ok</source>
-        <translation>Ok</translation>
+        <translation type="unfinished">Ок</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -301,7 +301,7 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Allows to save, load and manage user preferences</source>
-        <translation>Позволяет сохранять, загружать и управлять настройками пользователя</translation>
+        <translation type="unfinished">Позволяет сохранять, загружать и управлять настройками</translation>
     </message>
     <message>
         <source>Options</source>

@@ -24,11 +24,11 @@
     <name>Compression</name>
     <message>
         <source>Invalid compression level</source>
-        <translation>Неправильный уровень сжатия</translation>
+        <translation type="unfinished">Неверный уровень сжатия</translation>
     </message>
     <message>
         <source>invalid or incomplete deflate data</source>
-        <translation>неправильные или неполные данные для сжатия</translation>
+        <translation type="unfinished">Неправильные или неполные данные для сжатия</translation>
     </message>
     <message>
         <source>Out of memory for Zlib</source>

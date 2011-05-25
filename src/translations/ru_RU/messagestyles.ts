@@ -16,10 +16,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>hh:mm:ss</source>
-        <translation>hh:mm:ss</translation>
-    </message>
-    <message>
         <source>Styles options for custom messages</source>
         <translation>Настройки стилей сообщений</translation>
     </message>
@@ -30,6 +26,10 @@
     <message>
         <source>Allows to use different styles to display messages</source>
         <translation>Позволяет использовать различные стили для отображения сообщений</translation>
+    </message>
+    <message>
+        <source>hh:mm</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -64,7 +64,7 @@
     </message>
     <message>
         <source>Incoming history message</source>
-        <translation>Входящие истории сообщений</translation>
+        <translation type="unfinished">История входящих сообщений</translation>
     </message>
     <message>
         <source>Incoming history consecutive message</source>
@@ -76,7 +76,7 @@
     </message>
     <message>
         <source>Outgoing history message</source>
-        <translation>Исходящие истории сообщений</translation>
+        <translation type="unfinished">История исходящих сообщений</translation>
     </message>
     <message>
         <source>Outgoing status message</source>

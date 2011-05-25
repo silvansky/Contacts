@@ -44,7 +44,7 @@
     </message>
     <message>
         <source>XML is not well formed.</source>
-        <translation>XML не верно сформирован.</translation>
+        <translation type="unfinished">XML неверно сформирован.</translation>
     </message>
     <message>
         <source>New Context</source>

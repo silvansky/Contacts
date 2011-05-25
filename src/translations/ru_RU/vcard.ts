@@ -48,11 +48,11 @@
     </message>
     <message>
         <source>vCard error</source>
-        <translation>Ошибка VCard</translation>
+        <translation type="unfinished">Ошибка vCard</translation>
     </message>
     <message>
         <source>vCard request failed.&lt;br&gt;%1</source>
-        <translation>Запрос VCard завершился с ошибкой. &lt;br&gt;%1</translation>
+        <translation type="unfinished">Запрос vCard завершился с ошибкой. &lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Not in contact list</source>
@@ -72,18 +72,18 @@
     </message>
     <message>
         <source>Ok</source>
-        <translation>Ok</translation>
+        <translation type="unfinished">Ок</translation>
     </message>
 </context>
 <context>
     <name>VCardDialog</name>
     <message>
         <source>vCard error</source>
-        <translation>Ошибка VCard</translation>
+        <translation type="unfinished">Ошибка vCard</translation>
     </message>
     <message>
         <source>vCard request or publish failed.&lt;br&gt;%1</source>
-        <translation>Запрос или публикация VCard не удалась.&lt;br&gt;%1</translation>
+        <translation type="unfinished">Запрос или публикация vCard не удалась.&lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Save image</source>
@@ -107,7 +107,7 @@
     </message>
     <message>
         <source>Ok</source>
-        <translation>Ok</translation>
+        <translation type="unfinished">Ок</translation>
     </message>
     <message>
         <source>vCard - %1</source>
@@ -258,7 +258,7 @@
     </message>
     <message>
         <source>Logo</source>
-        <translation>Лого</translation>
+        <translation type="unfinished">Логотип</translation>
     </message>
     <message>
         <source>Comments</source>
@@ -285,7 +285,7 @@
     <name>VCardPlugin</name>
     <message>
         <source>vCard Manager</source>
-        <translation>Диспетчер VCard</translation>
+        <translation type="unfinished">Диспетчер vCard</translation>
     </message>
     <message>
         <source>Allows to obtain personal contact information</source>
@@ -301,7 +301,7 @@
     </message>
     <message>
         <source>vCard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">vCard</translation>
     </message>
 </context>
 </TS>

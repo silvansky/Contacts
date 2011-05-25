@@ -20,4 +20,11 @@
         <translation>Автоматически превращать текстовые смайлы в графические</translation>
     </message>
 </context>
+<context>
+    <name>EmoticonsContainer</name>
+    <message>
+        <source>Add emoticon</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 </TS>

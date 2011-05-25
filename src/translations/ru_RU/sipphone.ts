@@ -28,7 +28,7 @@
     <name>ComplexVideoWidget</name>
     <message>
         <source>Camera OFF</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Камера выключена</translation>
     </message>
 </context>
 <context>
@@ -121,7 +121,7 @@
     <name>QImageLabel</name>
     <message>
         <source>no image</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Нет изображения</translation>
     </message>
 </context>
 <context>
@@ -261,7 +261,7 @@
     </message>
     <message>
         <source>%1 calling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 звонит</translation>
     </message>
 </context>
 <context>
@@ -300,7 +300,7 @@
     </message>
     <message>
         <source>Calls NOT supported for current contact</source>
-        <translation>Вызов данного контакта не может быть осуществлён</translation>
+        <translation type="unfinished">Вызов этого контакта не может быть осуществлён</translation>
     </message>
     <message>
         <source>Incoming call</source>
@@ -308,18 +308,18 @@
     </message>
     <message>
         <source>Ok</source>
-        <translation>Ok</translation>
+        <translation type="unfinished">Ок</translation>
     </message>
 </context>
 <context>
     <name>SipPhoneProxy</name>
     <message>
         <source>Subscribe message from uri:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Подписать сообщение от URI:</translation>
     </message>
     <message>
         <source>Do you want to accept and create a contact ?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вы хотите принять и создать контакт?</translation>
     </message>
     <message>
         <source>Accept</source>
@@ -327,11 +327,11 @@
     </message>
     <message>
         <source>Reject permanently</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Всегда отклонять</translation>
     </message>
     <message>
         <source>Reject this time</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Отклонить сейчас</translation>
     </message>
     <message>
         <source>Incoming call</source>
@@ -339,18 +339,18 @@
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Friends</translation>
     </message>
     <message>
         <source>Videocall with: </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Видеозвонок с:</translation>
     </message>
 </context>
 <context>
     <name>SipPhoneWidget</name>
     <message>
         <source>Call Failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Сбой вызова</translation>
     </message>
     <message>
         <source>Incoming call</source>
@@ -370,35 +370,35 @@
     </message>
     <message>
         <source>Error: No Destination</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ошибка: нет назначения</translation>
     </message>
     <message>
         <source>You must specify someone to call.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вы должны указать пользователя, которому вы хотите позвонить. </translation>
     </message>
     <message>
         <source>Accept Call</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Принять звонок</translation>
     </message>
     <message>
         <source>Accepted codec not found.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Принимаемый кодек не найден.</translation>
     </message>
     <message>
         <source>Redirect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Переадресовать</translation>
     </message>
     <message>
         <source>Call redirected to: </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вызов переадресован на:</translation>
     </message>
     <message>
         <source>Do you want to proceed ? </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вы хотите продолжить? </translation>
     </message>
     <message>
         <source>Rambler.Friends SIP Call</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rambler.Friends SIP-телефония</translation>
     </message>
 </context>
 </TS>

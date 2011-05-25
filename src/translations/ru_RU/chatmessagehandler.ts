@@ -125,7 +125,7 @@
     </message>
     <message>
         <source>Chat history</source>
-        <translation>История чата</translation>
+        <translation type="unfinished">История чата</translation>
     </message>
     <message>
         <source>Loading messages from server...</source>
