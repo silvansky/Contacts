@@ -310,14 +310,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				container.itemsWidget->layout()->addWidget(wdtItem);
 				container.itemWidgets.insert(itemIt.value(),wdtItem);
 
-				QString itemName = itemIt->bare();
-				if (FGateways)
-				{
-					if (FGateways->availServices(streamJid()).contains(itemIt->domain()))
-						itemName = FGateways->legacyIdFromUserJid(itemIt.value());
-					IGateServiceDescriptor gateDescriptor = FGateways->gateDescriptorById(descriptor.gateId);
-					itemName = FGateways->formattedContactLogin(gateDescriptor,itemName);
-				}
+				QString itemName = FMetaContacts->itemHint(itemIt.value());
 				QLabel *lblItemName = new QLabel(itemName,wdtItem);
 				wdtItem->layout()->addWidget(lblItemName);
 

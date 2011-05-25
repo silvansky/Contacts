@@ -609,16 +609,23 @@ QString MetaContacts::itemHint(const Jid &AItemJid) const
 		if (FGateways)
 		{
 			hint = AItemJid.bare();
-			foreach (IMetaRoster *mroster, FMetaRosters)
-			{
-				if (FGateways->availServices(mroster->streamJid()).contains(AItemJid.domain()))
-				{
-					hint = FGateways->legacyIdFromUserJid(AItemJid);
-					break;
-				}
-			}
 			IMetaItemDescriptor descriptor = metaDescriptorByItem(AItemJid);
 			IGateServiceDescriptor gateDescriptor = FGateways->gateDescriptorById(descriptor.gateId);
+			if (!gateDescriptor.needGate)
+			{
+				foreach (IMetaRoster *mroster, FMetaRosters)
+				{
+					if (FGateways->availServices(mroster->streamJid()).contains(AItemJid.domain()))
+					{
+						hint = FGateways->legacyIdFromUserJid(AItemJid);
+						break;
+					}
+				}
+			}
+			else
+			{
+				hint = FGateways->legacyIdFromUserJid(AItemJid);
+			}
 			hint = FGateways->formattedContactLogin(gateDescriptor,hint);
 		}
 	}
