@@ -701,15 +701,13 @@ void CustomBorderContainer::setWidget(QWidget * widget)
 		if (!qobject_cast<Menu*>(widget))
 			initMenu();
 		setObjectName(QString("%1#%2 container").arg(widget->metaObject()->className(), widget->objectName()));
-		containedWidget = widget;
 		setAttribute(Qt::WA_WindowPropagation, false);
+		containedWidget = widget;
 		containedWidget->setAttribute(Qt::WA_DeleteOnClose, false);
-		containedWidget->setAutoFillBackground(true);
+		containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
 		containedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		containerLayout->addWidget(containedWidget);
 		childsRecursive(containedWidget,true);
-		containedWidget->setMouseTracking(true);
-		containedWidget->setAttribute(Qt::WA_WindowPropagation, false);
 		setMinimumSize(containedWidget->minimumSize());
 		setWindowTitle(containedWidget->windowTitle());
 		connect(containedWidget, SIGNAL(destroyed(QObject*)), SLOT(onContainedWidgetDestroyed(QObject*)));
@@ -978,7 +976,7 @@ bool CustomBorderContainer::winEvent(MSG *message, long *result)
 #endif
 
 // TODO: make it less buggy...
-bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
+bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 {
 	// TODO: fix repaint recursion, which occurs sometimes...
 	// those QPainter warnings are caused by this problem
@@ -1019,8 +1017,11 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 		break;
 	case QEvent::Paint:
 		{
-			QPaintEvent * pe = (QPaintEvent*)event;
+			QPaintEvent *pe = (QPaintEvent*)event;
+
 			object->removeEventFilter(this);
+			if (!widget->autoFillBackground())
+				widget->setAutoFillBackground(true);
 			QApplication::sendEvent(object,event);
 			object->installEventFilter(this);
 
@@ -1039,6 +1040,7 @@ bool CustomBorderContainer::eventFilter(QObject * object, QEvent * event)
 			p.setWindow(r);
 			drawButtons(&p);
 			drawCorners(&p);
+
 			return true;
 		}
 		break;

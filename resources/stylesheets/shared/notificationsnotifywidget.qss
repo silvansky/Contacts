@@ -1,9 +1,9 @@
-QWidget#frmPopup
+QWidget#NotifyWidgetClass
 {
 	background-color: rgba(0, 0, 0, 220);
 }
 
-QWidget#wdtCaption, QWidget#wdtButtons, QWidget#wdtText
+QWidget#frmPopup, QWidget#wdtCaption, QWidget#wdtButtons, QWidget#wdtText
 {
 	border: none;
 	background-color: transparent;
