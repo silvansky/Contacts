@@ -5,11 +5,11 @@
     <name>AccountManager</name>
     <message>
         <source>Modify account</source>
-        <translation type="unfinished">Редактировать учётную запись</translation>
+        <translation>Редактировать учётную запись</translation>
     </message>
     <message>
         <source>Account Manager</source>
-        <translation type="unfinished">Управление учётными записями</translation>
+        <translation>Управление учётными записями</translation>
     </message>
     <message>
         <source>Allows to create and manage Jabber accounts</source>
@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Example: romeo@example.net</source>
-        <translation type="unfinished">Например: romeo@example.net</translation>
+        <translation>Например: romeo@example.net</translation>
     </message>
     <message>
         <source>Jabber ID:</source>
@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>Example: home; office; notebook</source>
-        <translation type="unfinished">Например: дом, офис, ноутбук</translation>
+        <translation>Например: дом, офис, ноутбук</translation>
     </message>
 </context>
 <context>

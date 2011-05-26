@@ -16,7 +16,7 @@
     <name>CustomStatusDialogClass</name>
     <message>
         <source>My Status</source>
-        <translation type="unfinished">Мой статус</translation>
+        <translation>Мой статус</translation>
     </message>
     <message>
         <source>Define your status and text for it</source>
@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>For example, &quot;Who wants to the rink tomorrow?&quot;</source>
-        <translation type="unfinished">Например: «Кто хочет на каток завтра?»</translation>
+        <translation>Например: «Кто хочет на каток завтра?»</translation>
     </message>
 </context>
 <context>
@@ -75,11 +75,11 @@
     </message>
     <message>
         <source>You can not delete standard statuses.</source>
-        <translation type="unfinished">Вы не можете удалять стандартные статусы.</translation>
+        <translation>Вы не можете удалять стандартные статусы.</translation>
     </message>
     <message>
         <source>You can not delete active statuses.</source>
-        <translation type="unfinished">Вы не можете удалять активные статусы.</translation>
+        <translation>Вы не можете удалять активные статусы.</translation>
     </message>
     <message>
         <source>Delete status</source>
@@ -147,11 +147,11 @@
     </message>
     <message>
         <source>Away</source>
-        <translation type="unfinished">Отошёл</translation>
+        <translation>Отошёл</translation>
     </message>
     <message>
         <source>Extended Away</source>
-        <translation type="unfinished">Отошёл надолго</translation>
+        <translation>Отошёл надолго</translation>
     </message>
     <message>
         <source>Do not disturb</source>

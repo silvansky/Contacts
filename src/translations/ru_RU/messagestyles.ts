@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>hh:mm</source>
-        <translation type="unfinished"></translation>
+        <translation>hh:mm</translation>
     </message>
 </context>
 <context>
@@ -64,7 +64,7 @@
     </message>
     <message>
         <source>Incoming history message</source>
-        <translation type="unfinished">История входящих сообщений</translation>
+        <translation>История входящих сообщений</translation>
     </message>
     <message>
         <source>Incoming history consecutive message</source>
@@ -76,7 +76,7 @@
     </message>
     <message>
         <source>Outgoing history message</source>
-        <translation type="unfinished">История исходящих сообщений</translation>
+        <translation>История исходящих сообщений</translation>
     </message>
     <message>
         <source>Outgoing status message</source>

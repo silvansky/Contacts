@@ -50,7 +50,7 @@
     </message>
     <message>
         <source>Notify of new e-mails in Rambler mail box</source>
-        <translation type="unfinished">Уведомляет о новых сообщениях в Рамблер-Почте</translation>
+        <translation>Уведомляет о новых сообщениях в Рамблер-Почте</translation>
     </message>
     <message>
         <source>Not in contact list</source>

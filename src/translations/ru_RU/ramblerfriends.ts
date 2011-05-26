@@ -17,7 +17,7 @@
     </message>
     <message>
         <source>Copyright 2010-2011, &quot;Rambler Internet Holding Ltd&quot;. All rights reserved.&lt;br&gt;%1</source>
-        <translation type="unfinished">Copyright 2010-2011, «Rambler Internet Holding Ltd». Все права сохранены.&lt;br&gt;%1 </translation>
+        <translation>Copyright 2010-2011, «Rambler Internet Holding Ltd». Все права сохранены.&lt;br&gt;%1</translation>
     </message>
 </context>
 <context>
@@ -28,7 +28,7 @@
     </message>
     <message>
         <source>Leave feedback about program...</source>
-        <translation>Оставить отзыв о программе</translation>
+        <translation>Оставить отзыв о программе...</translation>
     </message>
     <message>
         <source>Close</source>
@@ -43,7 +43,7 @@
     </message>
     <message>
         <source>Thank you for your comment.</source>
-        <translation>Спасибо за ваше сообщение</translation>
+        <translation>Спасибо за ваше сообщение.</translation>
     </message>
     <message>
         <source>Message was not delivered. May be internet connection was lost.</source>
@@ -90,7 +90,7 @@
     </message>
     <message>
         <source>Enter your comment:</source>
-        <translation type="unfinished">Ваш отзыв или замечание</translation>
+        <translation>Ваш отзыв или замечание:</translation>
     </message>
     <message>
         <source>Send comment</source>
@@ -152,16 +152,16 @@
         <translation>О программе</translation>
     </message>
     <message>
-        <source>User Comments</source>
-        <translation>Ваш отзыв</translation>
-    </message>
-    <message>
         <source>Friends updates ready</source>
         <translation>Готовы обновления Friends</translation>
     </message>
     <message>
         <source>Updates are ready. Do you want to restart Rambler.Friends now?</source>
-        <translation type="unfinished">Обновления готовы. Вы хотите перезапустить Рамблер-Друзья?</translation>
+        <translation>Обновления готовы. Вы хотите перезапустить Рамблер-Друзья?</translation>
+    </message>
+    <message>
+        <source>Leave your feedback...</source>
+        <translation>Оставьте ваш отзыв...</translation>
     </message>
 </context>
 <context>

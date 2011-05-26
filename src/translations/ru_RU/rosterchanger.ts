@@ -49,7 +49,7 @@
     </message>
     <message>
         <source>This contact is already present in your contact-list.</source>
-        <translation type="unfinished">Этот контакт уже есть в вашем контакт-листе.</translation>
+        <translation>Этот контакт уже есть в вашем контакт-листе.</translation>
     </message>
     <message>
         <source>This is an ICQ number</source>
@@ -135,7 +135,7 @@
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ок</translation>
+        <translation>Ок</translation>
     </message>
 </context>
 <context>
@@ -169,7 +169,7 @@
     </message>
     <message>
         <source>E-mail address</source>
-        <translation type="unfinished">E-mail</translation>
+        <translation>E-mail</translation>
     </message>
     <message>
         <source>Address in %1</source>
@@ -380,15 +380,15 @@
     </message>
     <message>
         <source>Add contact...</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить контакт...</translation>
     </message>
     <message>
         <source>Add account...</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить аккаунт...</translation>
     </message>
     <message>
         <source>Create new contact...</source>
-        <translation type="unfinished"></translation>
+        <translation>Создать новый контакт...</translation>
     </message>
 </context>
 <context>
@@ -441,7 +441,7 @@
     </message>
     <message>
         <source>Show VCard</source>
-        <translation type="unfinished">Показать vCard</translation>
+        <translation>Показать vCard</translation>
     </message>
 </context>
 <context>

@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Allows to set and display avatars</source>
-        <translation type="unfinished">Позволяет загружать и показывать аватары</translation>
+        <translation>Позволяет загружать и показывать аватары</translation>
     </message>
 </context>
 </TS>

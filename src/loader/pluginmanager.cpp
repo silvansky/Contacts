@@ -663,7 +663,7 @@ void PluginManager::createMenuActions()
 	if (mainWindowPligin)
 	{
 		Action *comments = new Action(mainWindowPligin->mainWindow()->mainMenu());
-		comments->setText(tr("User Comments"));
+		comments->setText(tr("Leave your feedback..."));
 		//comments->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_ABOUT);
 		connect(comments,SIGNAL(triggered()),SLOT(onShowCommentsDialog()));
 		mainWindowPligin->mainWindow()->mainMenu()->addAction(comments, AG_MMENU_PLUGINMANAGER_COMMENTS);

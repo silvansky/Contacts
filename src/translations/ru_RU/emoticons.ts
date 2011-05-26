@@ -24,7 +24,7 @@
     <name>EmoticonsContainer</name>
     <message>
         <source>Add emoticon</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить смайл</translation>
     </message>
 </context>
 </TS>

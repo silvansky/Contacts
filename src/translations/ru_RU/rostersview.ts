@@ -5,7 +5,7 @@
     <name>RosterContactOrderOptionsClass</name>
     <message>
         <source>By Name (A-&gt;Z)</source>
-        <translation type="unfinished">По имени (А -&gt; Я)</translation>
+        <translation>По имени (А -&gt; Я)</translation>
     </message>
     <message>
         <source>By Status</source>

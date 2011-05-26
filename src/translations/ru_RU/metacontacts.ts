@@ -242,23 +242,23 @@
     </message>
     <message>
         <source>All contacts and communication history with that person will be removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Все контакты и история общения с этим человеком будут удалены.</translation>
     </message>
     <message>
         <source>Remove contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить контакт</translation>
     </message>
     <message numerus="yes">
         <source>&lt;b&gt;%n contacts&lt;/b&gt; and communication history with them will be removed.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>&lt;b&gt;%n контакт&lt;b&gt; и история общения с ним будут удалены.</numerusform>
+            <numerusform>&lt;b&gt;%n контакта&lt;b&gt; и история общения с ними будут удалены.</numerusform>
+            <numerusform>&lt;b&gt;%n контактов&lt;b&gt; и история общения с ними будут удалены.</numerusform>
         </translation>
     </message>
     <message>
         <source>Remove contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить контакты</translation>
     </message>
 </context>
 <context>
@@ -277,7 +277,7 @@
     </message>
     <message>
         <source>Record &quot;%1&quot; and the history of communication with it will be deleted. Operation can not be undone.</source>
-        <translation type="unfinished">Запись «%1» и история общения с ним будут удалены. Операцию нельзя будет отменить. </translation>
+        <translation>Контакт «%1» и история общения с ним будут удалены. Операцию нельзя будет отменить.</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -334,7 +334,7 @@
     <name>MetaTabWindow</name>
     <message>
         <source>Detach to separate contact</source>
-        <translation type="unfinished">Создать  отдельный контакт</translation>
+        <translation>Создать  отдельный контакт</translation>
     </message>
     <message>
         <source>Delete</source>

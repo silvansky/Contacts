@@ -17,11 +17,11 @@
     </message>
     <message>
         <source>Search &quot;%1&quot; in history</source>
-        <translation type="unfinished">Искать «%1» в истории </translation>
+        <translation>Искать «%1» в истории</translation>
     </message>
     <message>
         <source>Search &quot;%1&quot; in Rambler</source>
-        <translation type="unfinished">Искать «%1» в Рамблере</translation>
+        <translation>Искать «%1» в Рамблере</translation>
     </message>
     <message>
         <source>Contacts not found</source>

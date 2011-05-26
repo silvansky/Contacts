@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Waiting for host response...</source>
-        <translation type="unfinished">Ожидание ответа хоста...</translation>
+        <translation>Ожидание ответа хоста...</translation>
     </message>
     <message>
         <source>Facebook has confirmed your authorization</source>
@@ -31,7 +31,7 @@
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ок</translation>
+        <translation>Ок</translation>
     </message>
     <message>
         <source>Facebook authorization</source>
@@ -135,7 +135,7 @@
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ок</translation>
+        <translation>Ок</translation>
     </message>
 </context>
 <context>
@@ -149,7 +149,7 @@
     <name>AddLegacyAccountOptions</name>
     <message>
         <source>You can link multiple accounts and communicate with your friends on other services</source>
-        <translation type="unfinished">Вы можете подключить несколько учётных записей и общаться со своими друзьями с других сервисов</translation>
+        <translation>Вы можете подключить несколько учётных записей и общаться со своими друзьями с других сервисов</translation>
     </message>
     <message>
         <source>All available accounts are already linked</source>
@@ -258,7 +258,7 @@
     </message>
     <message>
         <source>Rambler</source>
-        <translation type="unfinished">Рамблер</translation>
+        <translation>Рамблер</translation>
     </message>
     <message>
         <source>Add your accounts</source>
@@ -266,7 +266,7 @@
     </message>
     <message>
         <source>Add your accounts and send messages to your friends on these services</source>
-        <translation type="unfinished">Подключайте учётные записи и отправляйте сообщения вашим друзьям на этих сервисах</translation>
+        <translation>Подключайте учётные записи и отправляйте сообщения вашим друзьям на этих сервисах</translation>
     </message>
     <message>
         <source>Add my accounts...</source>
