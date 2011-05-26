@@ -16,8 +16,6 @@ FullScreenControls::FullScreenControls( QWidget *parent)
 
 	ui.wgtAVControl->setDark(false);
 
-	setAutoFillBackground(true);
-
 	connect(ui.wgtAVControl, SIGNAL(camPresentChanged(bool)), this, SIGNAL(camPresentChanged(bool)));
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), this, SIGNAL(camStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), this, SIGNAL(micStateChange(bool)));

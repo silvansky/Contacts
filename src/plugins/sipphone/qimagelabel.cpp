@@ -14,8 +14,6 @@ QImageLabel::QImageLabel(QWidget *parent) : QLabel(parent)
 
 	setProperty("ignoreFilter", true);
 
-	setAutoFillBackground(true);
-
 	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	//icon.addFile(iconStorage->fileFullName(MNI_ROSTERSEARCH_ICON_CROSS), QSize(16,16));
 	//icon.addFile(iconStorage->fileFullName(MNI_ROSTERSEARCH_ICON_CROSS_HOVER), QSize(24,24));

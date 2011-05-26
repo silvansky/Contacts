@@ -1020,8 +1020,6 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 			QPaintEvent *pe = (QPaintEvent*)event;
 
 			object->removeEventFilter(this);
-			if (!widget->autoFillBackground())
-				widget->setAutoFillBackground(true);
 			QApplication::sendEvent(object,event);
 			object->installEventFilter(this);
 
@@ -1046,14 +1044,15 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 		break;
 	case QEvent::ChildAdded:
 		{
-			QChildEvent *ce = (QChildEvent *)event;
-			childsRecursive(ce->child(),true);
+			// TODO: run childsRecursive only for childs and remove childObjects
+			//QChildEvent *ce = (QChildEvent *)event;
+			childsRecursive(object/*ce->child()*/,true);
 		}
 		break;
 	case QEvent::ChildRemoved:
 		{
 			QChildEvent *ce = (QChildEvent *)event;
-			childsRecursive(ce->child(), false);
+			childsRecursive(ce->child(),false);
 		}
 		break;
 	case QEvent::WindowTitleChange:
@@ -1629,18 +1628,24 @@ void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 		QWidget *widget = reinterpret_cast<QWidget*>(object);
 		if (!widget->parent() || !widget->isWindow())
 		{
-			if (install)
+			// dirty hack, remove this later
+			if (!widget->autoFillBackground())
+				widget->setAutoFillBackground(true);
+
+			int objIndex = childObjects.lastIndexOf(object);
+			if (install && objIndex<0)
 			{
 				object->installEventFilter(this);
+				childObjects.append(object);
 
 				// TODO: return params back
-				widget->setAutoFillBackground(true);
 				widget->setMouseTracking(true);
 				widget->setProperty("defaultCursorShape", widget->cursor().shape());
 			}
-			else
+			else if (!install && objIndex>=0)
 			{
 				object->removeEventFilter(this);
+				childObjects.removeAt(objIndex);
 			}
 
 			QObjectList children = object->children();

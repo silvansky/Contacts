@@ -381,7 +381,6 @@ QtGradientStopsWidget::QtGradientStopsWidget(QWidget *parent)
     horizontalScrollBar()->setRange(0, (int)(d_ptr->m_scaleFactor * (d_ptr->m_zoom - 1) + 0.5));
     horizontalScrollBar()->setPageStep(d_ptr->m_scaleFactor);
     horizontalScrollBar()->setSingleStep(4);
-    viewport()->setAutoFillBackground(false);
 
     setAcceptDrops(true);
 

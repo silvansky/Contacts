@@ -20,9 +20,6 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
       <attribute name="title">
        <string>General</string>
       </attribute>
@@ -111,9 +108,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabPersonal">
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
       <attribute name="title">
        <string>Personal</string>
       </attribute>
@@ -285,9 +279,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabAdress">
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
       <attribute name="title">
        <string>Adress</string>
       </attribute>
@@ -458,9 +449,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabContacts">
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
       <attribute name="title">
        <string>Contacts</string>
       </attribute>
@@ -567,9 +555,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabPhoto">
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
       <attribute name="title">
        <string>Photo</string>
       </attribute>
@@ -734,9 +719,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabComments">
-      <property name="autoFillBackground">
-       <bool>true</bool>
-      </property>
       <attribute name="title">
        <string>Comments</string>
       </attribute>

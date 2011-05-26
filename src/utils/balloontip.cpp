@@ -59,7 +59,6 @@ void BalloonTip::init()
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground, true);
-	setAutoFillBackground(true);
 	setMaximumWidth(250);
 	QPalette pal = palette();
 	pal.setColor(QPalette::Window, pal.toolTipBase().color());
