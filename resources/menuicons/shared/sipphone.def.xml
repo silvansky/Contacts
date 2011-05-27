@@ -156,4 +156,12 @@
     <key>sipphoneUnmute</key>
     <object mime="image/png">sipphoneunmute.png</object>
   </icon>
+  <icon>
+    <key>sipCallAnswer</key>
+    <object mime="image/png">sipcallanswer.png</object>
+  </icon>
+  <icon>
+    <key>sipCallHangup</key>
+    <object mime="image/png">sipcallhangup.png</object>
+  </icon>
 </icondef>

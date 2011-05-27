@@ -33,8 +33,8 @@ SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice
 	ui->icon->setPixmap(icon.pixmap(icon.availableSizes().at(0)));
 	ui->avatar->setPixmap(QPixmap::fromImage(avatar));
 
-	ui->accept->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_BTN_ACCEPT));
-	ui->reject->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_BTN_HANGUP));
+	ui->accept->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_ANSWER));
+	ui->reject->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_HANGUP));
 	ui->mute->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_MUTE));
 
 	connect(ui->accept, SIGNAL(clicked()), SLOT(acceptClicked()));

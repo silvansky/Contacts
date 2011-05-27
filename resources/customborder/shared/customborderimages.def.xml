@@ -242,4 +242,19 @@
     <key>bottomRightMaskNotification</key>
     <object mime="image/png">bottomrightmask_notification.png</object>
   </icon>
-</icondef>
+  <icon>
+    <key>minimizeButtonNormalNotification</key>
+    <object mime="image/png">minimizebutton_notification.png</object>
+  </icon>
+  <icon>
+    <key>minimizeButtonHighlightedNotification</key>
+    <object mime="image/png">minimizebuttonhighlighted_notification.png</object>
+  </icon>
+  <icon>
+    <key>closeButtonNormalNotification</key>
+    <object mime="image/png">closebutton_notification.png</object>
+  </icon>
+  <icon>
+    <key>closeButtonHighlightedNotification</key>
+    <object mime="image/png">closebuttonhighlighted_notification.png</object>
+  </icon></icondef>

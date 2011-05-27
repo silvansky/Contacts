@@ -353,6 +353,8 @@
 #define MNI_SIPPHONE_SEPARATOR                   "sipSeparator"
 #define MNI_SIPPHONE_MUTE                        "sipphoneMute"
 #define MNI_SIPPHONE_UNMUTE                      "sipphoneUnmute"
+#define MNI_SIPPHONE_CALL_ANSWER                 "sipCallAnswer"
+#define MNI_SIPPHONE_CALL_HANGUP                 "sipCallHangup"
 
 
 //StatusChanger

@@ -36,7 +36,7 @@ HtmlToolButton[popupMode="2"]:open
 
 QLabel#lblMood
 {
-	margin-left: 4px;
+	margin-left: 0px;
 	margin-bottom: 0px;
 	padding: 5px;
 	color: #acacac;
@@ -66,7 +66,7 @@ QMenu#schangerMainMenu
 
 #lblName
 {
-	margin-left: 10px;
+	margin-left: 6px;
 	margin-top: 0px;
 	margin-bottom: 0px;
 }
@@ -98,8 +98,10 @@ QLabel#lblAvatar:hover
 	border-image: url(%IMAGES_PATH%/avatarhoverborder.png);
 }
 
-#tedMood
+AutoSizeTextEdit#tedMood
 {
-	max-height: 36px;
+	max-height: 32px;
 	font-size: 11px;
+	padding-left: -10px;
+	padding-right: -10px;
 }

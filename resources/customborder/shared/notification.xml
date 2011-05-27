@@ -73,7 +73,7 @@
    <height>0</height>
    <move-height>0</move-height>
    <move-left>0</move-left>
-   <margins left="5" right="5" top="7" bottom="2" />
+   <margins left="5" right="2" top="1" bottom="2" />
    <gradient type="linear">
      <direction x1="0" y1="0" x2="0" y2="26" />
      <gradient-stop at="0.0" color="#00FF0032" />
@@ -89,11 +89,11 @@
  <title color="#FF00FF" />
  <window-controls spacing="2" />
  <minimize-button>
-   <width>16</width>
-   <height>16</height>
+   <width>17</width>
+   <height>17</height>
    <border width="1" color="#000000" radius="0" image="" />
-   <image-normal src="customborder/minimizeButtonNormal" />
-   <image-hover src="customborder/minimizeButtonHighlighted" />
+   <image-normal src="customborder/minimizeButtonNormalNotification" />
+   <image-hover src="customborder/minimizeButtonHighlightedNotification" />
  </minimize-button>
  <maximize-button>
    <width>16</width>
@@ -103,11 +103,11 @@
    <image-hover src="customborder/maximizeButtonHighlighted" />
  </maximize-button>
  <close-button>
-   <width>16</width>
-   <height>16</height>
+   <width>17</width>
+   <height>17</height>
    <border width="1" color="#000000" radius="0" image="" />
-   <image-normal src="customborder/closeButtonNormal" />
-   <image-hover src="customborder/closeButtonHighlighted" />
+   <image-normal src="customborder/closeButtonNormalNotification" />
+   <image-hover src="customborder/closeButtonHighlightedNotification" />
  </close-button>
  <restore-button>
    <width>16</width>
