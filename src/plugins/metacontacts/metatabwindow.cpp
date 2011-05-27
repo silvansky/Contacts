@@ -17,7 +17,6 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose, false);
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_METATABWINDOW);
 	ui.tlbToolBar->installEventFilter(this);
 
 	FMetaId = AMetaId;
@@ -44,6 +43,7 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 
 	createPersistantList();
 	updateItemPages(FMetaRoster->metaContact(FMetaId).items);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_METATABWINDOW);
 	updateWindow();
 }
 

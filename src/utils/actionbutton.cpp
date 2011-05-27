@@ -2,6 +2,7 @@
 
 #include <QStylePainter>
 #include <QStyleOptionButton>
+#include "stylestorage.h"
 
 ActionButton::ActionButton(QWidget *AParent) : QPushButton(AParent)
 {
@@ -55,7 +56,7 @@ QString ActionButton::actionString()
 void ActionButton::setActionString(const QString& s)
 {
 	setProperty("actionString", s);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 }
 
 void ActionButton::addTextFlag(int flag)

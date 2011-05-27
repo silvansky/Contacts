@@ -1,6 +1,7 @@
 #include "addmetaitemwidget.h"
 
 #include <QVBoxLayout>
+#include <utils/stylestorage.h>
 
 #define RESOLVE_WAIT_INTERVAL    1500
 
@@ -99,7 +100,7 @@ Jid AddMetaItemWidget::gatewayJid() const
 	return FSelectProfileWidget->selectedProfile();
 }
 
-void AddMetaItemWidget::setGatewayJid(const Jid &AGatewayJid) 
+void AddMetaItemWidget::setGatewayJid(const Jid &AGatewayJid)
 {
 	FSelectProfileWidget->setSelectedProfile(AGatewayJid);
 }
@@ -117,7 +118,7 @@ void AddMetaItemWidget::setErrorMessage(const QString &AMessage, bool AInvalidIn
 		ui.lblError->setVisible(!AMessage.isEmpty());
 		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
 		ui.lneContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput  ? true : false);
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 		emit adjustSizeRequested();
 	}
 }

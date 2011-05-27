@@ -419,7 +419,7 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 		ui.lblError->setVisible(!AMessage.isEmpty());
 		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
 		ui.lneAddressContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput ? true : false);
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
 		ui.dbbButtons->button(QDialogButtonBox::Ok)->setEnabled(AMessage.isEmpty() && !contactText().isEmpty());
 	}

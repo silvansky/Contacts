@@ -100,7 +100,7 @@ void AddLegacyAccountDialog::setError(const QString &AMessage)
 		ui.lneLogin->setProperty("error", !AMessage.isEmpty());
 		ui.lnePassword->setProperty("error", !AMessage.isEmpty());
 		ui.cmbDomains->setProperty("error", !AMessage.isEmpty());
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 
 		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 	}

@@ -41,6 +41,7 @@ protected:
 	virtual void leaveEvent(QEvent *AEvent);
 	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
 	virtual void resizeEvent(QResizeEvent *AEvent);
+	void paintEvent(QPaintEvent *);
 protected slots:
 	void onAnimateStep();
 	void onCloseTimerTimeout();

@@ -13,14 +13,14 @@
 #include <utils/stylestorage.h>
 #include "ui_addmetaitempage.h"
 
-class AddMetaItemPage : 
+class AddMetaItemPage :
 	public QWidget,
 	public ITabPage
 {
 	Q_OBJECT;
 	Q_INTERFACES(ITabPage);
 public:
-	AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster, const QString &AMetaId, 
+	AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster, const QString &AMetaId,
 		const IMetaItemDescriptor &ADescriptor, QWidget *AParent = NULL);
 	~AddMetaItemPage();
 	//ITabPage
@@ -51,6 +51,7 @@ protected:
 	virtual bool event(QEvent *AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void closeEvent(QCloseEvent *AEvent);
+	void paintEvent(QPaintEvent *);
 protected slots:
 	void onAppendContactButtonClicked();
 	void onItemWidgetContactJidChanged(const Jid &AContactJid);

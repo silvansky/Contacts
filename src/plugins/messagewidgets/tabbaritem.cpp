@@ -84,7 +84,7 @@ void TabBarItem::setActive(bool AActive)
 			GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FIconLabel, GFX_STATUSICONS);
 			FTextLabel->setShadow(CustomLabel::DarkShadow);
 		}
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 		update();
 	}
 }
@@ -99,7 +99,7 @@ void TabBarItem::setDraging(bool ADragged)
 	if (FDraging != ADragged)
 	{
 		FDraging = ADragged;
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 		update();
 	}
 }
@@ -282,7 +282,7 @@ bool TabBarItem::eventFilter(QObject *AObject, QEvent *AEvent)
 		if (AEvent->type() == QEvent::Enter || AEvent->type() == QEvent::Leave)
 		{
 			bool handled = QFrame::eventFilter(AObject,AEvent);
-			setStyleSheet(styleSheet());
+			StyleStorage::updateStyle(this);
 			update();
 			return handled;
 		}

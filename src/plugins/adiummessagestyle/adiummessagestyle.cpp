@@ -19,6 +19,7 @@
 #include <QWheelEvent>
 #include <QKeyEvent>
 #include <QResizeEvent>
+#include <utils/stylestorage.h>
 
 #define SHARED_STYLE_PATH                   RESOURCES_DIR"/"RSR_STORAGE_ADIUMMESSAGESTYLES"/"STORAGE_SHARED_DIR
 #define STYLE_CONTENTS_PATH                 "Contents"
@@ -819,7 +820,7 @@ void AdiumMessageStyle::onScrollBarRangeChanged(int min, int max)
 	QScrollBar * scrollBar = qobject_cast<QScrollBar*>(sender());
 	if (scrollBar)
 	{
-		scrollBar->setStyleSheet(scrollBar->styleSheet());
+		StyleStorage::updateStyle(scrollBar);
 	}
 }
 

@@ -23,6 +23,7 @@ signals:
 	void stylePreviewReset();
 public:
 	static StyleStorage *staticStorage(const QString &AStorage);
+	static void updateStyle(QObject * object);
 protected:
 	void updateObject(QObject *AObject);
 	void removeObject(QObject *AObject);

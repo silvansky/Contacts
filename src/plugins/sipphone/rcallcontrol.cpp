@@ -503,7 +503,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			// У вызываемого абонента панель пропадает
 		}
 	}
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 }
 
 void RCallControl::closeEvent(QCloseEvent *)

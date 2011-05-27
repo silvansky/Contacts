@@ -110,6 +110,18 @@ StyleStorage *StyleStorage::staticStorage(const QString &AStorage)
 	return styleStorage;
 }
 
+void StyleStorage::updateStyle(QObject * object)
+{
+	if (QWidget * w = qobject_cast<QWidget*>(object))
+	{
+		w->setStyleSheet(w->styleSheet());
+	}
+	else
+	{
+		object->setProperty("styleSheet", object->property("styleSheet"));
+	}
+}
+
 void StyleStorage::updateObject(QObject *AObject)
 {
 	StyleUpdateParams *params = FUpdateParams.value(AObject);

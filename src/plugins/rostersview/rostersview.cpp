@@ -1543,7 +1543,7 @@ void RostersView::onScrollBarRangeChanged(int min, int max)
 {
 	Q_UNUSED(min)
 	Q_UNUSED(max)
-	verticalScrollBar()->setStyleSheet(verticalScrollBar()->styleSheet());
+	StyleStorage::updateStyle(verticalScrollBar());
 }
 
 void RostersView::onRepaintNeeded()

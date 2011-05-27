@@ -1,6 +1,7 @@
 #include "notifywidget.h"
 
 #include <QTimer>
+#include <QPainter>
 #include <QTextFrame>
 #include <QFontMetrics>
 #include <QTextDocumentFragment>
@@ -224,6 +225,15 @@ void NotifyWidget::resizeEvent(QResizeEvent *AEvent)
 	QWidget::resizeEvent(AEvent);
 	updateElidedText();
 	layoutWidgets();
+}
+
+void NotifyWidget::paintEvent(QPaintEvent * pe)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	p.setClipRect(pe->rect());
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 void NotifyWidget::onAnimateStep()

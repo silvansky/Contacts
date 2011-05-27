@@ -47,7 +47,7 @@ void SmsInfoWidget::onEditWidgetTextChanged()
 	if (isError != ui.lblCharacters->property("error").toBool())
 	{
 		ui.lblCharacters->setProperty("error", isError ? true : false);
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 	}
 
 	FChatWindow->editWidget()->setSendButtonEnabled(FBalance>0 && chars>0 && chars<=maxChars);
@@ -73,12 +73,12 @@ void SmsInfoWidget::onSmsBalanceChanged(const Jid &AStreamJid, const Jid &AServi
 			ui.lblRefill->setVisible(false);
 			ui.lblBalance->setText(tr("SMS service is unavailable"));
 		}
-		
+
 		FBalance = ABalance;
 		FChatWindow->editWidget()->setSendButtonEnabled(FBalance>0);
 		FChatWindow->editWidget()->textEdit()->setEnabled(FBalance>0);
 
 		ui.lblBalance->setProperty("error", FBalance>0 ? false : true);
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 	}
 }

@@ -83,7 +83,7 @@ void OptionsDialog::showNode(const QString &ANodeId)
 	if (item)
 		ui.trvNodes->setCurrentIndex(FProxyModel->mapFromSource(FItemsModel->indexFromItem(item)));
 	ui.trvNodes->expandAll();
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 }
 
@@ -123,7 +123,7 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 		vblayout->addStretch();
 
 	FCleanupHandler.add(nodeWidget);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 	return nodeWidget;
 }
@@ -229,7 +229,7 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 		ui.scaScroll->setWidget(curWidget);
 
 	Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).setValue(nodeID);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 	if (parentWidget())
 		parentWidget()->adjustSize();

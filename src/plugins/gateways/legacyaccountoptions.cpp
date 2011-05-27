@@ -63,7 +63,7 @@ void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool 
 			ui.lblInfo->setText(tr("Connected"));
 			ui.lblInfo->setProperty("state",QString("connected"));
 		}
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 
 		ui.chbState->blockSignals(true);
 		if (AEnabled)
@@ -99,7 +99,7 @@ void LegacyAccountOptions::onStateCheckboxToggled(bool AChecked)
 			ui.lblInfo->setText(QString::null);
 			ui.lblInfo->setProperty("state",QString("disconnected"));
 		}
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 	}
 }
 

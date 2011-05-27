@@ -629,7 +629,7 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 	{
 		ui.pbtConnect->setEnabled(AEnabled);
 		ui.pbtConnect->setProperty("connecting", true);
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 	}
 	ui.pbtConnect->setText(AEnabled ? tr("Enter") : tr("Connecting..."));
 }
@@ -721,7 +721,7 @@ void LoginDialog::hideXmppStreamError()
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
 	//	ui.frmDomain->setProperty("error", false);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 	ui.lblXmppError->setVisible(false);
 	BalloonTip::hideBalloon();
 }
@@ -743,7 +743,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 		ui.cmbDomain->setProperty("error", true);
 	}
 	ui.lnePassword->setProperty("error", true);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 	ui.lblXmppError->setVisible(true);
 	ui.chbShowPassword->setVisible(showPasswordEnabled);
 	QPoint p;
@@ -1061,7 +1061,7 @@ void LoginDialog::onLoginOrPasswordTextChanged()
 {
 	ui.pbtConnect->setEnabled(!ui.lneNode->text().isEmpty() && !ui.lnePassword->text().isEmpty());
 	ui.pbtConnect->setProperty("connecting", false);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 }
 
 void LoginDialog::onShowConnectingAnimation()

@@ -379,10 +379,10 @@ ITabWindow *MessageWidgets::createTabWindow(const QUuid &AWindowId)
 		{
 			if (!border->restoreGeometry(Options::fileValue("messages.tabwindows.window.border.geometry",window->windowId()).toByteArray()))
 				border->setGeometry(WidgetManager::alignGeometry(QSize(640,480),border));
-			WidgetManager::setWindowSticky(border, true);
+			//WidgetManager::setWindowSticky(border, true);
 		}
-		else
-			WidgetManager::setWindowSticky(window->instance(),true);
+		//else
+			//WidgetManager::setWindowSticky(window->instance(),true);
 		connect(window->instance(),SIGNAL(tabPageAdded(ITabPage *)),SLOT(onTabPageAdded(ITabPage *)));
 		connect(window->instance(),SIGNAL(windowDestroyed()),SLOT(onTabWindowDestroyed()));
 		emit tabWindowCreated(window);
@@ -602,8 +602,8 @@ void MessageWidgets::onViewContextSearchActionTriggered(bool)
 	if (action)
 	{
 		QUrl url = QString("http://nova.rambler.ru/search");
-		url.setQueryItems(QList<QPair<QString,QString> >() 
-			<< qMakePair<QString,QString>(QString("query"),action->data(ADR_CONTEXT_DATA).toString()) 
+		url.setQueryItems(QList<QPair<QString,QString> >()
+			<< qMakePair<QString,QString>(QString("query"),action->data(ADR_CONTEXT_DATA).toString())
 			<< qMakePair<QString,QString>(QString("from"),QString("friends_dialog")));
 		QDesktopServices::openUrl(url);
 	}

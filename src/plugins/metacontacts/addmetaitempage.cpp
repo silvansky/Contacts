@@ -1,8 +1,10 @@
 #include "addmetaitempage.h"
 
 #include <QVBoxLayout>
+#include <QPainter>
+#include <QPaintEvent>
 
-AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster, 
+AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster,
 																 const QString &AMetaId, const IMetaItemDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
@@ -131,6 +133,15 @@ void AddMetaItemPage::closeEvent(QCloseEvent *AEvent)
 {
 	QWidget::closeEvent(AEvent);
 	emit tabPageClosed();
+}
+
+void AddMetaItemPage::paintEvent(QPaintEvent * pe)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	p.setClipRect(pe->rect());
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 void AddMetaItemPage::onAppendContactButtonClicked()

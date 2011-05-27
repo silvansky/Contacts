@@ -1629,8 +1629,8 @@ void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 		if (!widget->parent() || !widget->isWindow())
 		{
 			// dirty hack, remove this later
-			if (!widget->autoFillBackground())
-				widget->setAutoFillBackground(true);
+//			if (!widget->autoFillBackground())
+//				widget->setAutoFillBackground(true);
 
 			int objIndex = childObjects.lastIndexOf(object);
 			if (install && objIndex<0)

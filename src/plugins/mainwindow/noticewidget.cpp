@@ -1,5 +1,7 @@
 #include "noticewidget.h"
 
+#include <QPainter>
+#include <QPaintEvent>
 #include <QHBoxLayout>
 #include <utils/actionbutton.h>
 #include <utils/graphicseffectsstorage.h>
@@ -189,4 +191,13 @@ bool InternalNoticeWidget::eventFilter(QObject * obj, QEvent * event)
 		}
 	}
 	return QWidget::eventFilter(obj, event);
+}
+
+void InternalNoticeWidget::paintEvent(QPaintEvent *pe)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	p.setClipRect(pe->rect());
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }

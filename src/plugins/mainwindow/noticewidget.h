@@ -41,6 +41,7 @@ protected slots:
 	void onCloseButtonClicked(bool);
 protected:
 	bool eventFilter(QObject *, QEvent *);
+	void paintEvent(QPaintEvent *);
 private:
 	Ui::NoticeWidgetClass ui;
 private:

@@ -3,6 +3,7 @@
 #include <QFrame>
 #include <QAbstractTextDocumentLayout>
 #include <QScrollBar>
+#include "stylestorage.h"
 
 AutoSizeTextEdit::AutoSizeTextEdit(QWidget *AParent) : QTextEdit(AParent)
 {
@@ -81,5 +82,5 @@ void AutoSizeTextEdit::onScrollBarRangeChanged(int min, int max)
 {
 	Q_UNUSED(min)
 	Q_UNUSED(max)
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 }
