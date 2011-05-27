@@ -1044,9 +1044,8 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 		break;
 	case QEvent::ChildAdded:
 		{
-			// TODO: run childsRecursive only for childs and remove childObjects
-			//QChildEvent *ce = (QChildEvent *)event;
-			childsRecursive(object/*ce->child()*/,true);
+			QChildEvent *ce = (QChildEvent *)event;
+			childsRecursive(ce->child(),true);
 		}
 		break;
 	case QEvent::ChildRemoved:
@@ -1628,24 +1627,17 @@ void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 		QWidget *widget = reinterpret_cast<QWidget*>(object);
 		if (!widget->parent() || !widget->isWindow())
 		{
-			// dirty hack, remove this later
-//			if (!widget->autoFillBackground())
-//				widget->setAutoFillBackground(true);
-
-			int objIndex = childObjects.lastIndexOf(object);
-			if (install && objIndex<0)
+			if (install)
 			{
 				object->installEventFilter(this);
-				childObjects.append(object);
 
 				// TODO: return params back
 				widget->setMouseTracking(true);
 				widget->setProperty("defaultCursorShape", widget->cursor().shape());
 			}
-			else if (!install && objIndex>=0)
+			else
 			{
 				object->removeEventFilter(this);
-				childObjects.removeAt(objIndex);
 			}
 
 			QObjectList children = object->children();
