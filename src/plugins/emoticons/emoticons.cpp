@@ -28,7 +28,8 @@ public:
 			QPushButton *button = new QPushButton(this);
 			button->setObjectName("emoticonsButton");
 			button->setToolTip(tr("Add emoticon"));
-			//button->setMenu(AMenu);
+			connect(AMenu, SIGNAL(aboutToShow()), SLOT(onMenuAboutToShow()));
+			connect(AMenu, SIGNAL(aboutToHide()), SLOT(onMenuAboutToHide()));
 			connect(button, SIGNAL(clicked()), SLOT(onShowEmoticonsMenuButtonClicked()));
 			button->setFlat(true);
 			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(button, MNI_EMOTICONS_BUTTON_ICON);
@@ -54,6 +55,24 @@ protected slots:
 			{
 				menu->showMenu(button->mapToGlobal(QPoint(button->geometry().width(), 0)), Menu::TopLeft);
 			}
+		}
+	}
+	void onMenuAboutToShow()
+	{
+		SelectIconMenu * menu = qobject_cast<SelectIconMenu*>(sender());
+		QPushButton * button = FWidgets.value(menu, NULL);
+		if (button)
+		{
+			button->setEnabled(false);
+		}
+	}
+	void onMenuAboutToHide()
+	{
+		SelectIconMenu * menu = qobject_cast<SelectIconMenu*>(sender());
+		QPushButton * button = FWidgets.value(menu, NULL);
+		if (button)
+		{
+			button->setEnabled(true);
 		}
 	}
 private:
