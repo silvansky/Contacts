@@ -155,7 +155,7 @@
     </message>
     <message>
         <source>Do not disturb</source>
-        <translation>Не беспокоить</translation>
+        <translation>Занят</translation>
     </message>
     <message>
         <source>Invisible</source>
@@ -215,7 +215,7 @@
     </message>
     <message>
         <source>Friends - %1</source>
-        <translation>Friends - %1</translation>
+        <translation>Друзья - %1</translation>
     </message>
 </context>
 <context>

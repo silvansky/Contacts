@@ -49,7 +49,7 @@
     </message>
     <message>
         <source>If status is &apos;Busy&apos;</source>
-        <translation>Если выбран статус «Не беспокоить»</translation>
+        <translation>Если выбран статус «Занят»</translation>
     </message>
     <message>
         <source>Disable all popup windows and sounds when
@@ -108,7 +108,7 @@ any full screen application is running (movies, games, presentations)</source>
     </message>
     <message>
         <source>Disable sounds when status is &apos;Do not disturb&apos;</source>
-        <translation>Отключать звуки, когда установлен статус «Не беспокоить»</translation>
+        <translation>Отключать звуки, когда установлен статус «Занят»</translation>
     </message>
     <message>
         <source>Chat</source>

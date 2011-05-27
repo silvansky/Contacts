@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Enable reminder</source>
-        <translation>Включить уведомления</translation>
+        <translation>Включить напоминания</translation>
     </message>
     <message>
         <source>Reminder enabled</source>
