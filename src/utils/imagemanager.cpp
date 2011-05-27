@@ -22,10 +22,13 @@ QImage ImageManager::grayscaled(const QImage & image)
 	if (!image.isNull())
 	{
 		int pixels = img.width() * img.height();
-		unsigned int *data = (unsigned int *)img.bits();
-		for (int i = 0; i < pixels; ++i) {
-			int val = qGray(data[i]);
-			data[i] = qRgba(val, val, val, qAlpha(data[i]));
+		if (pixels*(int)sizeof(QRgb) <= img.byteCount())
+		{
+			QRgb *data = (QRgb *)img.bits();
+			for (int i = 0; i < pixels; ++i) {
+				int val = qGray(data[i]);
+				data[i] = qRgba(val, val, val, qAlpha(data[i]));
+			}
 		}
 	}
 	return img;
