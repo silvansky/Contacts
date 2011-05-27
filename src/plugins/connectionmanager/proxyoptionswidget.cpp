@@ -23,7 +23,7 @@ ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode
 	connect(ui.rdbManualProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.lneProxyHost,SIGNAL(textChanged(const QString &)),SIGNAL(modified()));
 	connect(ui.spbProxyPort,SIGNAL(valueChanged(int)),SIGNAL(modified()));
-	connect(ui.lneProxyPort,SIGNAL(valueChanged(int)),SIGNAL(modified()));
+	connect(ui.lneProxyPort,SIGNAL(textChanged(const QString&)),SIGNAL(modified()));
 	connect(ui.chbProxyUserPassword,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.lneProxyUser,SIGNAL(textChanged(const QString &)),SIGNAL(modified()));
 	connect(ui.lneProxyPassword,SIGNAL(textChanged(const QString &)),SIGNAL(modified()));

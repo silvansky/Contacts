@@ -37,6 +37,11 @@ QCheckBox::indicator:unchecked:hover
 	image: url(%IMAGES_PATH%/checkboxunselectedhover.png);
 }
 
+QCheckBox::indicator:unchecked:pressed
+{
+	image: url(%IMAGES_PATH%/checkboxunselectedclick.png);
+}
+
 QCheckBox::indicator:unchecked:disabled
 {
 	image: url(%IMAGES_PATH%/checkboxunselecteddisabled.png);
@@ -55,6 +60,11 @@ QCheckBox::indicator:checked
 QCheckBox::indicator:checked:hover
 {
 	image: url(%IMAGES_PATH%/checkboxselectedhover.png);
+}
+
+QCheckBox::indicator:checked:pressed
+{
+	image: url(%IMAGES_PATH%/checkboxselectedclick.png);
 }
 
 /****************
@@ -85,6 +95,11 @@ QRadioButton::indicator:unchecked:hover
 	image: url(%IMAGES_PATH%/radiounselectedhover.png);
 }
 
+QRadioButton::indicator:unchecked:pressed
+{
+	image: url(%IMAGES_PATH%/radiounselectedclick.png);
+}
+
 QRadioButton::indicator::unchecked:disabled
 {
 	image: url(%IMAGES_PATH%/radiounselecteddisabled.png);
@@ -103,6 +118,11 @@ QRadioButton::indicator::checked
 QRadioButton::indicator:checked:hover
 {
 	image: url(%IMAGES_PATH%/radioselectedhover.png);
+}
+
+QRadioButton::indicator:checked:pressed
+{
+	image: url(%IMAGES_PATH%/radioselectedclick.png);
 }
 
 /************************

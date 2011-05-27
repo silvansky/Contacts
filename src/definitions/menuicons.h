@@ -351,6 +351,8 @@
 #define MNI_SIPPHONE_WHITE_FULLSCREEN_OFF        "sipfullscreenoff"
 #define MNI_SIPPHONE_WHITE_SHOWCURRCAMERA        "sipfsshowcurrcamera"
 #define MNI_SIPPHONE_SEPARATOR                   "sipSeparator"
+#define MNI_SIPPHONE_MUTE                        "sipphoneMute"
+#define MNI_SIPPHONE_UNMUTE                      "sipphoneUnmute"
 
 
 //StatusChanger

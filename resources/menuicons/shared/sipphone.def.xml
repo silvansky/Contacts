@@ -144,9 +144,16 @@
     <key>sipfullscreenoff</key>
     <object mime="image/png">sipphonevideofullscreen_off.png</object>
   </icon>
-
   <icon>
     <key>sipSeparator</key>
     <object mime="image/png">sipseparator.png</object>
+  </icon>
+  <icon>
+    <key>sipphoneMute</key>
+    <object mime="image/png">sipphonemute.png</object>
+  </icon>
+  <icon>
+    <key>sipphoneUnmute</key>
+    <object mime="image/png">sipphoneunmute.png</object>
   </icon>
 </icondef>

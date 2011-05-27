@@ -19,40 +19,58 @@ QToolButton
 	max-height: 16px;
 	height: 16px;
 	padding: 0px;
-	min-width: 26px;
+	min-width: 46px;
 }
 
 QToolButton:hover
 {
-	padding: 0px;
+	padding: -2px;
 }
 
 QToolButton#accept
 {
-	border-image: url(%IMAGES_PATH%/sipcallbtnok.png);
+	border-image: url(%IMAGES_PATH%/sipcallnbtnok.png);
 }
 
 QToolButton#accept:hover
 {
-	border-image: url(%IMAGES_PATH%/sipcallbtnok_hover.png);
+	border-image: url(%IMAGES_PATH%/sipcallnbtnokhover.png);
 }
 
 QToolButton#accept:pressed
 {
-	border-image: url(%IMAGES_PATH%/sipcallbtnok_click.png);
+	border-image: url(%IMAGES_PATH%/sipcallnbtnokclick.png);
 }
 
 QToolButton#reject
 {
-	border-image: url(%IMAGES_PATH%/sipcallbtncancel.png);
+	border-image: url(%IMAGES_PATH%/sipcallnbtncancel.png);
 }
 
 QToolButton#reject:hover
 {
-	border-image: url(%IMAGES_PATH%/sipcallbtncancel_hover.png);
+	border-image: url(%IMAGES_PATH%/sipcallnbtncancelhover.png);
 }
 
 QToolButton#reject:pressed
 {
-	border-image: url(%IMAGES_PATH%/sipcallbtncancel_click.png);
+	border-image: url(%IMAGES_PATH%/sipcallnbtncancelclick.png);
+}
+
+QToolButton#mute
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancel.png);
+	min-width: 18px;
+	max-width: 18px;
+	width: 18px;
+}
+
+QToolButton#mute:hover
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancelhover.png);
+}
+
+QToolButton#mute:pressed
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancelclick.png);
 }

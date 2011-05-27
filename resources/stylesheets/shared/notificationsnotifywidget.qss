@@ -48,6 +48,21 @@ ActionButton
 	min-width: 40px;
 }
 
+ActionButton
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancel.png);
+}
+
+ActionButton:hover
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancelhover.png);
+}
+
+ActionButton:pressed
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancelclick.png);
+}
+
 /* ActionButton types */
 
 ActionButton[action="birthday"]
@@ -64,15 +79,15 @@ ActionButton[action="birthday"]
 
 ActionButton[action="authorize"]
 {
-	border-image: url(%IMAGES_PATH%/buttonborderdefault.png);
+	border-image: url(%IMAGES_PATH%/nwbuttonaccept.png);
 }
 
 ActionButton[action="authorize"]:hover
 {
-	border-image: url(%IMAGES_PATH%/buttonborderdefaulthover.png);
+	border-image: url(%IMAGES_PATH%/nwbuttonaccepthover.png);
 }
 
 ActionButton[action="authorize"]:pressed
 {
-	border-image: url(%IMAGES_PATH%/buttonborderdefaultclick.png);
+	border-image: url(%IMAGES_PATH%/nwbuttonacceptclick.png);
 }

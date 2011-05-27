@@ -15,10 +15,6 @@
 #include <definitions/customborder.h>
 #include <definitions/soundfiles.h>
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice, const QIcon & icon, const QImage & avatar) :
 	QWidget(NULL),
 	ui(new Ui::SipCallNotifyer),
@@ -39,6 +35,7 @@ SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice
 
 	ui->accept->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_BTN_ACCEPT));
 	ui->reject->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_BTN_HANGUP));
+	ui->mute->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_MUTE));
 
 	connect(ui->accept, SIGNAL(clicked()), SLOT(acceptClicked()));
 	connect(ui->reject, SIGNAL(clicked()), SLOT(rejectClicked()));
@@ -106,9 +103,6 @@ void SipCallNotifyer::appear()
 		QDesktopWidget * dw = QApplication::desktop();
 		QRect screen = dw->screenGeometry(dw->primaryScreen());
 		QRect centered = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, wrect.size(), screen);
-#ifdef DEBUG_ENABLED
-		qDebug() << wrect << screen << centered;
-#endif
 		w->setGeometry(centered);
 		w->show();
 	}
@@ -126,9 +120,6 @@ void SipCallNotifyer::startSound()
 {
 	if (soundFile.isEmpty())
 		soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL_RINGING);
-#ifdef DEBUG_ENABLED
-	qDebug() << soundFile;
-#endif
 #ifdef QT_PHONON_LIB
 	if (!FMediaObject)
 	{
@@ -196,6 +187,7 @@ void SipCallNotifyer::muteClicked()
 	else
 		muteSound();
 	_muted = !_muted;
+	ui->mute->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(_muted ? MNI_SIPPHONE_UNMUTE : MNI_SIPPHONE_MUTE));
 }
 
 #ifdef QT_PHONON_LIB
