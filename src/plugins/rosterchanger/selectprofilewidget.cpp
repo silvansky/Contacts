@@ -71,7 +71,16 @@ void SelectProfileWidget::updateProfiles()
 	identity.category = "gateway";
 	identity.type = FDescriptor.type;
 
-	QList<Jid> gates = FDescriptor.needLogin ? FGateways->streamServices(streamJid(),identity) : FGateways->availServices(streamJid(),identity);
+	QList<Jid> gates = FGateways->gateDescriptorServices(streamJid(),FDescriptor,FDescriptor.needLogin);
+	for (QList<Jid>::iterator it=gates.begin(); it!=gates.end(); )
+	{
+		IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(streamJid(),*it);
+		if (descriptor.readOnly)
+			it = gates.erase(it);
+		else
+			it++;
+	}
+
 	QList<Jid> newProfiles = (gates.toSet() - FProfiles.keys().toSet()).toList();
 	QList<Jid> oldProfiles = (FProfiles.keys().toSet() - gates.toSet()).toList();
 

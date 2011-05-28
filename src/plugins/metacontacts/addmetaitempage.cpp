@@ -20,13 +20,16 @@ AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow 
 	ui.lblInfo->setText(infoMessageForGate());
 
 	FAddWidget = FRosterChanger->newAddMetaItemWidget(FMetaRoster->streamJid(),ADescriptor.gateId,ui.wdtAddMetaItem);
-	FAddWidget->setServiceIconVisible(false);
-	FAddWidget->setCloseButtonVisible(false);
-	connect(FAddWidget->instance(),SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
+	if (FAddWidget)
+	{
+		FAddWidget->setServiceIconVisible(false);
+		FAddWidget->setCloseButtonVisible(false);
+		connect(FAddWidget->instance(),SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
 
-	ui.wdtAddMetaItem->setLayout(new QVBoxLayout);
-	ui.wdtAddMetaItem->layout()->setMargin(0);
-	ui.wdtAddMetaItem->layout()->addWidget(FAddWidget->instance());
+		ui.wdtAddMetaItem->setLayout(new QVBoxLayout);
+		ui.wdtAddMetaItem->layout()->setMargin(0);
+		ui.wdtAddMetaItem->layout()->addWidget(FAddWidget->instance());
+	}
 
 	ui.pbtAppend->setEnabled(false);
 	ui.gridLayout->addWidget(ui.pbtAppend, 2, 2, 1, 1, Qt::AlignTop|Qt::AlignHCenter); // Depend on ui layout!!!
@@ -105,9 +108,12 @@ QString AddMetaItemPage::infoMessageForGate()
 
 void AddMetaItemPage::setErrorMessage(const QString &AMessage)
 {
-	FAddWidget->setErrorMessage(AMessage,false);
-	ui.wdtAddMetaItem->setEnabled(true);
-	ui.pbtAppend->setEnabled(FAddWidget->contactJid().isValid());
+	if (FAddWidget)
+	{
+		FAddWidget->setErrorMessage(AMessage,false);
+		ui.wdtAddMetaItem->setEnabled(true);
+		ui.pbtAppend->setEnabled(FAddWidget->contactJid().isValid());
+	}
 }
 
 bool AddMetaItemPage::event(QEvent *AEvent)
@@ -146,7 +152,7 @@ void AddMetaItemPage::paintEvent(QPaintEvent * pe)
 
 void AddMetaItemPage::onAppendContactButtonClicked()
 {
-	if (FAddWidget->contactJid().isValid())
+	if (FAddWidget && FAddWidget->contactJid().isValid())
 	{
 		IMetaContact contact;
 		contact.items += FAddWidget->contactJid();
@@ -172,14 +178,14 @@ void AddMetaItemPage::onItemWidgetContactJidChanged(const Jid &AContactJid)
 void AddMetaItemPage::onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore)
 {
 	Q_UNUSED(ABefore);
-	if (AContact.id!=FMetaId && AContact.items.contains(FAddWidget->contactJid()))
+	if (FAddWidget && AContact.id!=FMetaId && AContact.items.contains(FAddWidget->contactJid()))
 	{
 		FRosterChanger->subscribeContact(FMetaRoster->streamJid(),FAddWidget->contactJid());
 		FMergeRequestId = FMetaRoster->mergeContacts(FMetaId, QList<QString>() << AContact.id);
 		if (FMergeRequestId.isEmpty())
 			setErrorMessage(tr("Failed to merge contacts."));
 	}
-	else if (AContact.id==FMetaId && AContact.items.contains(FAddWidget->contactJid()))
+	else if (FAddWidget && AContact.id==FMetaId && AContact.items.contains(FAddWidget->contactJid()))
 	{
 		FMetaTabWindow->setCurrentItem(FAddWidget->contactJid());
 	}

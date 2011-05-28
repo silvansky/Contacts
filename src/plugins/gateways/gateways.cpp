@@ -211,6 +211,7 @@ bool Gateways::initObjects()
 	// !!Последовательность добавления дескрипторов имеет значение!!
 	IGateServiceDescriptor sms;
 	sms.id = GSID_SMS;
+	sms.needGate = true;
 	sms.needLogin = false;
 	sms.autoLogin = true;
 	sms.type = "sms";
@@ -223,6 +224,7 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor icq;
 	icq.id = GSID_ICQ;
+	icq.needGate = true;
 	icq.type = "icq";
 	icq.name = tr("ICQ");
 	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
@@ -235,6 +237,7 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor magent;
 	magent.id = GSID_MAGENT;
+	magent.needGate = true;
 	magent.type = "mrim";
 	magent.name = tr("Agent@Mail.ru");
 	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
@@ -253,6 +256,7 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor twitter;
 	twitter.id = GSID_TWITTER;
+	twitter.needGate = true;
 	twitter.type = "twitter";
 	twitter.name = tr("Twitter");
 	twitter.iconKey = MNI_GATEWAYS_SERVICE_TWITTER;
@@ -265,7 +269,6 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor gtalk;
 	gtalk.id = GSID_GTALK;
-	gtalk.needGate = false;
 	gtalk.type = "xmpp";
 	gtalk.prefix = "gmail.";
 	gtalk.name = tr("GTalk");
@@ -284,7 +287,6 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor yonline;
 	yonline.id = GSID_YONLINE;
-	yonline.needGate = false;
 	yonline.type = "xmpp";
 	yonline.prefix = "yandex.";
 	yonline.name = tr("Y.Online");
@@ -310,7 +312,6 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor qip;
 	qip.id = GSID_QIP;
-	qip.needGate = false;
 	qip.type = "xmpp";
 	qip.prefix = "qip.";
 	qip.name = tr("QIP");
@@ -328,7 +329,8 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor vkontakte;
 	vkontakte.id = GSID_VKONTAKTE;
-	vkontakte.needGate = false;
+	vkontakte.needGate = true;
+	vkontakte.readOnly = true;
 	vkontakte.type = "xmpp";
 	vkontakte.prefix = "vk.";
 	vkontakte.name = tr("VKontakte");
@@ -341,11 +343,13 @@ bool Gateways::initObjects()
 	vkontakte.domainSeparator = "@";
 	vkontakte.homeContactPattern = "^"MAIL_NODE_PATTERN"@vk\\.com$";
 	vkontakte.availContactPattern = JabberContactPattern;
+	vkontakte.blockedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(vkontakte);
 
 	IGateServiceDescriptor facebook;
 	facebook.id = GSID_FACEBOOK;
-	facebook.needGate = false;
+	facebook.needGate = true;
+	facebook.readOnly = true;
 	facebook.type = "xmpp";
 	facebook.prefix = "fb.";
 	facebook.name = tr("Facebook");
@@ -358,11 +362,11 @@ bool Gateways::initObjects()
 	facebook.domainSeparator = "@";
 	facebook.homeContactPattern = "^"MAIL_NODE_PATTERN"@chat\\.facebook\\.com$";
 	facebook.availContactPattern = JabberContactPattern;
+	facebook.blockedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(facebook);
 
 	IGateServiceDescriptor livejournal;
 	livejournal.id = GSID_LIVEJOURNAL;
-	livejournal.needGate = false;
 	livejournal.type = "xmpp";
 	livejournal.prefix = "livejournal.";
 	livejournal.name = tr("LiveJournal");
@@ -375,11 +379,11 @@ bool Gateways::initObjects()
 	livejournal.domainSeparator = "@";
 	livejournal.homeContactPattern = "^"MAIL_NODE_PATTERN"@livejournal\\.com$";
 	livejournal.availContactPattern = JabberContactPattern;
+	livejournal.blockedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(livejournal);
 
 	IGateServiceDescriptor rambler;
 	rambler.id = GSID_RAMBLER;
-	rambler.needGate = false;
 	rambler.type = "xmpp";
 	rambler.prefix = "rambler.";
 	rambler.name = tr("Rambler");
@@ -402,7 +406,6 @@ bool Gateways::initObjects()
 
 	IGateServiceDescriptor jabber;
 	jabber.id = GSID_JABBER;
-	jabber.needGate = false;
 	jabber.type = "xmpp";
 	jabber.name = tr("Jabber");
 	jabber.iconKey = MNI_GATEWAYS_SERVICE_JABBER;
@@ -418,6 +421,7 @@ bool Gateways::initObjects()
 	// Почта должна быть после джаббера т.к. их идентификаторы идентичны
 	IGateServiceDescriptor mail;
 	mail.id = GSID_MAIL;
+	mail.needGate = true;
 	mail.needLogin = false;
 	mail.autoLogin = true;
 	mail.type = "mail";
@@ -652,14 +656,11 @@ int Gateways::gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDesc
 	{
 		if (ADescriptor.needGate)
 		{
-			IDiscoIdentity identity;
-			identity.category = "gateway";
-			identity.type = ADescriptor.type;
-			if (!availServices(AStreamJid,identity).isEmpty())
+			if (!gateDescriptorServices(AStreamJid,ADescriptor).isEmpty())
 			{
 				if (ADescriptor.needLogin)
 				{
-					foreach(Jid gateJid, streamServices(AStreamJid,identity))
+					foreach(Jid gateJid, gateDescriptorServices(AStreamJid,ADescriptor,true))
 					{
 						if (isServiceEnabled(AStreamJid,gateJid))
 							return GDS_ENABLED;
@@ -838,6 +839,25 @@ QList<Jid> Gateways::streamServices(const Jid &AStreamJid, const IDiscoIdentity 
 		}
 	}
 	return services;
+}
+
+QList<Jid> Gateways::gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly) const
+{
+	IDiscoIdentity identity;
+	identity.category = "gateway";
+	identity.type = ADescriptor.type;
+	QList<Jid> gates = AStreamOnly ? streamServices(AStreamJid,identity) : availServices(AStreamJid,identity);
+	if (ADescriptor.needGate && !ADescriptor.prefix.isEmpty())
+	{
+		for(QList<Jid>::iterator it = gates.begin(); it!=gates.end(); )
+		{
+			if (!it->domain().startsWith(ADescriptor.prefix))
+				it = gates.erase(it);
+			else
+				it++;
+		}
+	}
+	return gates;
 }
 
 QList<Jid> Gateways::serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const

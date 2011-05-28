@@ -35,13 +35,15 @@ struct IGateServiceDescriptor :
 	public IGateServiceLabel
 {
 	IGateServiceDescriptor() { 
-		needGate = true;
+		needGate = false;
 		needLogin = true;
 		autoLogin = false;
+		readOnly = false;
 	}
 	bool needGate;
 	bool needLogin;
 	bool autoLogin;
+	bool readOnly;
 	QString type;
 	QString prefix;
 	QString loginField;
@@ -51,6 +53,7 @@ struct IGateServiceDescriptor :
 	QString homeContactPattern;
 	QString availContactPattern;
 	QList<QString> linkedDescriptors;
+	QList<QString> blockedDescriptors;
 	QMap<QString, QVariant> extraFields;
 };
 
@@ -79,6 +82,7 @@ public:
 	virtual QString checkNormalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const =0;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
+	virtual QList<Jid> gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly = false) const =0;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IGateServiceDescriptor serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const =0;

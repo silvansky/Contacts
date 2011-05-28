@@ -197,7 +197,7 @@ void AddMetaContactDialog::createGatewaysMenu()
 		Menu *menu = new Menu(ui.pbtAddItem);
 		foreach(const IGateServiceDescriptor &descriptor, FGateways->gateDescriptors())
 		{
-			if (FGateways->gateDescriptorStatus(streamJid(),descriptor) != IGateways::GDS_UNAVAILABLE)
+			if (!(descriptor.needGate && descriptor.readOnly) && FGateways->gateDescriptorStatus(streamJid(),descriptor) != IGateways::GDS_UNAVAILABLE)
 			{
 				Action *action = new Action(menu);
 				action->setText(descriptor.name);
@@ -232,10 +232,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				static bool blocked = false;
 				if (!blocked)
 				{
-					IDiscoIdentity identity;
-					identity.category = "gateway";
-					identity.type = ADescriptor.type;
-					QList<Jid> availGates = FGateways->availServices(streamJid(),identity);
+					QList<Jid> availGates = FGateways->gateDescriptorServices(streamJid(),ADescriptor);
 					if (!availGates.isEmpty())
 					{
 						QDialog *dialog = FGateways->showAddLegacyAccountDialog(streamJid(),availGates.at(0),this);

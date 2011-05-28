@@ -281,9 +281,9 @@ int AddContactDialog::registerDescriptorStatus(const IGateServiceDescriptor &ADe
 			IDiscoIdentity identity;
 			identity.category = "gateway";
 			identity.type = ADescriptor.type;
-			if (FGateways->streamServices(streamJid(),identity).isEmpty())
+			if (FGateways->gateDescriptorServices(streamJid(),ADescriptor, true).isEmpty())
 			{
-				QList<Jid> availGates = FGateways->availServices(streamJid(),identity);
+				QList<Jid> availGates = FGateways->gateDescriptorServices(streamJid(),ADescriptor);
 				if (!availGates.isEmpty())
 				{
 					QDialog *dialog = FGateways->showAddLegacyAccountDialog(streamJid(),availGates.first());
@@ -429,15 +429,29 @@ void AddContactDialog::resolveDescriptor()
 {
 	QList<QString> confirmTypes;
 	QList<QString> confirmLinked;
+	QList<QString> confirmBlocked;
+	IGateServiceDescriptor readOnlyDescriptor;
 	QList<IGateServiceDescriptor> confirmDescriptors;
 	foreach(const IGateServiceDescriptor &descriptor, FGateways!=NULL ? FGateways->gateHomeDescriptorsByContact(contactText()) : confirmDescriptors)
 	{
-		if (!confirmTypes.contains(descriptor.type) && !confirmLinked.contains(descriptor.id))
+		if (!confirmTypes.contains(descriptor.type) && !confirmLinked.contains(descriptor.id) && !confirmBlocked.contains(descriptor.id))
 		{
-			confirmTypes.append(descriptor.type);
+			if (!(descriptor.needGate && descriptor.readOnly))
+				confirmDescriptors.append(descriptor);
+			else
+				readOnlyDescriptor = descriptor;
+			confirmTypes += descriptor.type;
 			confirmLinked += descriptor.linkedDescriptors;
-			confirmDescriptors.append(descriptor);
+			confirmBlocked += descriptor.blockedDescriptors;
 		}
+	}
+
+	for (QList<IGateServiceDescriptor>::iterator it=confirmDescriptors.begin(); it!=confirmDescriptors.end(); )
+	{
+		if (confirmLinked.contains(it->id) || confirmBlocked.contains(it->id))
+			it = confirmDescriptors.erase(it);
+		else
+			it++;
 	}
 
 	if (confirmDescriptors.count() > 1)
@@ -453,6 +467,10 @@ void AddContactDialog::resolveDescriptor()
 			updatePageParams(descriptor);
 			setDialogState(STATE_PARAMS);
 		}
+	}
+	else if (!readOnlyDescriptor.id.isEmpty())
+	{
+		setErrorMessage(tr("You can add this contact only on %1 site.").arg(readOnlyDescriptor.name),false);
 	}
 	else
 	{
@@ -521,31 +539,37 @@ void AddContactDialog::resolveLinkedContactsJid()
 	FLinkedContacts.clear();
 	FLinkedJidRequests.clear();
 
-	foreach(QString descriptorId, FDescriptor.linkedDescriptors)
+	if (FGateways)
 	{
-		IGateServiceDescriptor descriptor = FGateways->gateDescriptorById(descriptorId);
-		if (FGateways->gateDescriptorStatus(streamJid(),descriptor) == IGateways::GDS_ENABLED)
+		foreach(QString descriptorId, FDescriptor.linkedDescriptors)
 		{
-			QString contact = FGateways!=NULL ? FGateways->normalizedContactLogin(FDescriptor,contactText()) : contactText().trimmed();
-			if (descriptor.needGate)
+			IGateServiceDescriptor descriptor = FGateways->gateDescriptorById(descriptorId);
+			if (FGateways->gateDescriptorStatus(streamJid(),descriptor) == IGateways::GDS_ENABLED)
 			{
-				IDiscoIdentity identity;
-				identity.category = "gateway";
-				identity.type = descriptor.type;
-				QList<Jid> gates = descriptor.needGate ? FGateways->streamServices(streamJid(),identity) : FGateways->availServices(streamJid(),identity);
-				foreach(Jid gate, gates)
+				QString contact = FGateways->normalizedContactLogin(FDescriptor,contactText());
+				if (descriptor.needGate)
 				{
-					QString requestId = FGateways->sendUserJidRequest(streamJid(),gate,contact);
-					if (!requestId.isEmpty())
+					IDiscoIdentity identity;
+					identity.category = "gateway";
+					identity.type = descriptor.type;
+					QList<Jid> gates = FGateways->streamServices(streamJid(),identity);
+					foreach(Jid gate, gates)
 					{
-						FLinkedJidRequests.insert(requestId,gate);
-						break;
+						if (!FGateways->serviceDescriptor(streamJid(),gate).readOnly)
+						{
+							QString requestId = FGateways->sendUserJidRequest(streamJid(),gate,contact);
+							if (!requestId.isEmpty())
+							{
+								FLinkedJidRequests.insert(requestId,gate);
+								break;
+							}
+						}
 					}
 				}
-			}
-			else if (!FLinkedContacts.contains(contact) && !FRoster->rosterItem(contact).isValid)
-			{
-				FLinkedContacts.append(contact);
+				else if (!FLinkedContacts.contains(contact) && !FRoster->rosterItem(contact).isValid)
+				{
+					FLinkedContacts.append(contact);
+				}
 			}
 		}
 	}

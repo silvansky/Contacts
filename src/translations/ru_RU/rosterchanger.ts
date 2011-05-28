@@ -83,6 +83,10 @@
         <source>Select a contact-list in which you want to add a contact.</source>
         <translation>Выберите список контактов, в который вы хотите добавить контакт.</translation>
     </message>
+    <message>
+        <source>You can add this contact only on %1 site.</source>
+        <translation>Вы можете добавить этот контакт только на сайте %1.</translation>
+    </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>

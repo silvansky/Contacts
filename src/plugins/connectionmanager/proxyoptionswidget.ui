@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>311</width>
+    <width>383</width>
     <height>284</height>
    </rect>
   </property>
@@ -96,7 +96,7 @@
         <item>
          <widget class="QLineEdit" name="lneProxyPort">
           <property name="text">
-           <string>1080</string>
+           <string notr="true">1080</string>
           </property>
          </widget>
         </item>

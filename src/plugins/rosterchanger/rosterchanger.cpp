@@ -633,7 +633,7 @@ IAddMetaItemWidget *RosterChanger::newAddMetaItemWidget(const Jid &AStreamJid, c
 	if (FGateways && roster)
 	{
 		IGateServiceDescriptor descriptor = FGateways->gateDescriptorById(AGateDescriptorId);
-		if (!descriptor.id.isEmpty())
+		if (!descriptor.id.isEmpty() && !(descriptor.needGate && descriptor.readOnly))
 		{
 			widget = new AddMetaItemWidget(FOptionsManager,roster,FGateways,descriptor,AParent);
 			emit addMetaItemWidgetCreated(widget);
@@ -1071,7 +1071,7 @@ void RosterChanger::onShowAddContactDialog(bool)
 	if (action && account && account->isActive())
 	{
 		IAddContactDialog * dialog = NULL;
-		QWidget * widget = showAddContactDialog(account->xmppStream()->streamJid());
+		QWidget *widget = showAddContactDialog(account->xmppStream()->streamJid());
 		if (widget)
 		{
 			if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
@@ -2108,12 +2108,9 @@ void RosterChanger::onViewWidgetContextMenu(const QPoint &APosition, const QText
 		if (roster && roster->isOpen() && !roster->rosterItem(contact).isValid)
 		{
 			IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->gateHomeDescriptorsByContact(contact).value(0) : IGateServiceDescriptor();
-			if (!descriptor.id.isEmpty())
+			if (!descriptor.id.isEmpty() && !(descriptor.needGate && descriptor.readOnly))
 			{
-				IDiscoIdentity identity;
-				identity.category = "gateway";
-				identity.type = descriptor.type;
-				if (!descriptor.needGate || !FGateways->availServices(roster->streamJid(),identity).isEmpty())
+				if (!descriptor.needGate || !FGateways->gateDescriptorServices(roster->streamJid(),descriptor).isEmpty())
 				{
 					Action *action = new Action(AMenu);
 					action->setText(tr("Create new contact..."));
