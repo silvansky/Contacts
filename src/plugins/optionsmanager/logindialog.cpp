@@ -191,6 +191,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	FConnectionErrorWidget->setStyleSheet(styleSheet());
 
 	FNewProfile = true;
+	FSavedPasswordCleared = false;
 	FConnectionSettings = CS_DEFAULT;
 	initialize(APluginManager);
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
@@ -1029,13 +1030,17 @@ void LoginDialog::loadCurrentProfileSettings()
 			QDomElement pasElem = doc.documentElement().firstChildElement("password");
 			if (!pasElem.isNull() && QVariant(pasElem.attribute("save")).toBool())
 			{
+				FSavedPasswordCleared = false;
 				ui.chbSavePassword->setChecked(true);
+				ui.chbShowPassword->setChecked(false);
+				ui.lnePassword->setEchoMode(QLineEdit::Password);
 				ui.lnePassword->setText(Options::decrypt(pasElem.text().toLatin1(),FOptionsManager->profileKey(profile,QString::null)).toString());
 			}
 			else
 			{
-				ui.lnePassword->setText(QString::null);
+				FSavedPasswordCleared = true;
 				ui.chbSavePassword->setChecked(false);
+				ui.lnePassword->setText(QString::null);
 			}
 
 			QDomElement autoElem = doc.documentElement().firstChildElement("auto-run");
@@ -1098,7 +1103,12 @@ void LoginDialog::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Activati
 void LoginDialog::onShowPasswordToggled(int state)
 {
 	if (state == Qt::Checked)
+	{
+		if (!FSavedPasswordCleared)
+			ui.lnePassword->clear();
+		FSavedPasswordCleared = true;
 		ui.lnePassword->setEchoMode(QLineEdit::Normal);
+	}
 	else
 		ui.lnePassword->setEchoMode(QLineEdit::Password);
 }

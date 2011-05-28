@@ -98,11 +98,12 @@ private:
 	bool FNewProfile;
 	bool FFirstConnect;
 	bool FMainWindowVisible;
+	bool FSavedPasswordCleared;
 	QUuid FAccountId;
 	QTimer FReconnectTimer;
 	int FConnectionSettings;
 	int domainPrevIndex;
-	QWidget * FConnectionErrorWidget;
+	QWidget *FConnectionErrorWidget;
 };
 
 #endif // LOGINDIALOG_H

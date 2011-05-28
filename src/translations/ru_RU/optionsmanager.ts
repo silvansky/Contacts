@@ -262,16 +262,16 @@ which is linked to Rambler</source>
         <translation>Пароль</translation>
     </message>
     <message>
-        <source>Show password</source>
-        <translation>Показать пароль</translation>
-    </message>
-    <message>
         <source>Enter your Rambler login and password, or register</source>
         <translation>Введите ваш логин и пароль на Рамблере или зарегистрируйтесь</translation>
     </message>
     <message>
         <source>Rambler.Friends</source>
         <translation>Рамблер-Друзья</translation>
+    </message>
+    <message>
+        <source>Display password input</source>
+        <translation>Отображать вводимый пароль</translation>
     </message>
 </context>
 <context>

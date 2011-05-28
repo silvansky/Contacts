@@ -220,7 +220,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Show password</string>
+         <string>Display password input</string>
         </property>
        </widget>
       </item>
