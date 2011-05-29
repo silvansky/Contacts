@@ -274,7 +274,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 QString AddMetaContactDialog::defaultContactNick(const Jid &AContactJid) const
 {
 	QString nick = AContactJid.node();
-	nick = nick.isEmpty() ? AContactJid.full() : nick;
+	nick = nick.isEmpty() ? AContactJid.domain() : nick;
 	if (!nick.isEmpty())
 	{
 		nick[0] = nick[0].toUpper();

@@ -400,7 +400,7 @@ void AddContactDialog::setResolveNickState(bool AResolve)
 {
 	if (AResolve && ui.lneParamsNick->text().isEmpty())
 	{
-		setNickName(defaultContactNick(contactJid()));
+		setNickName(defaultContactNick(contactText()));
 		ui.lneParamsNick->setFocus();
 		ui.lneParamsNick->selectAll();
 		FResolveNick = true;
