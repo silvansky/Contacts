@@ -851,8 +851,8 @@ void CustomBorderContainer::mouseMoveEvent(QMouseEvent * event)
 
 void CustomBorderContainer::mouseReleaseEvent(QMouseEvent * event)
 {
-	mouseRelease(event->pos(), this, event->button());
-	QWidget::mouseReleaseEvent(event);
+	if (!mouseRelease(event->pos(), this, event->button()))
+		QWidget::mouseReleaseEvent(event);
 }
 
 void CustomBorderContainer::mouseDoubleClickEvent(QMouseEvent * event)
@@ -1008,7 +1008,7 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 	}
 	break;
 	case QEvent::MouseButtonRelease:
-		mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
+		handled = mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
 		break;
 	case QEvent::MouseButtonDblClick:
 		if (shouldFilterEvents(object))
@@ -1621,8 +1621,8 @@ void CustomBorderContainer::showWindowMenu(const QPoint & p)
 
 void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 {
-	// ensure object is widget but not a menu
-	if (object->isWidgetType() /*&& !qobject_cast<QMenu*>(object) && !qobject_cast<Menu*>(object)*/)
+	// ensure object is widget
+	if (object->isWidgetType())
 	{
 		QWidget *widget = reinterpret_cast<QWidget*>(object);
 		if (!widget->parent() || !widget->isWindow())
@@ -1699,8 +1699,9 @@ bool CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
 	return handled;
 }
 
-void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button)
+bool CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button)
 {
+	bool handled = false;
 	if (button == Qt::LeftButton)
 	{
 		if (pressedHeaderButton == NoneButton)
@@ -1739,8 +1740,10 @@ void CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt:
 		if (headerMenuRect().contains(mapFromWidget(widget, p)) && !headerButtonsRect().contains(mapFromWidget(widget, p)))
 		{
 			showWindowMenu(widget->mapToGlobal(p));
+			handled = true;
 		}
 	}
+	return handled;
 }
 
 bool CustomBorderContainer::mouseDoubleClick(const QPoint & p, QWidget * widget)
