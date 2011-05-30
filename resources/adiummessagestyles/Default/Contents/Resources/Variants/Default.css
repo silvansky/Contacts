@@ -52,7 +52,11 @@ body {
     border-bottom: 1px dotted #c3c4c6;
 }
 
-.v-chat-header-b, .v-chat-header-message, .v-chat-header-history{
+.v-chat-header a {
+    text-decoration: none;
+}
+
+.v-chat-header-b, .v-chat-header-message, .v-chat-header-history {
     background-color: #d8dfe3;
     cursor: default;
     color: #5f6d75;
