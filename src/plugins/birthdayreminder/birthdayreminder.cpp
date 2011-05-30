@@ -506,7 +506,7 @@ void BirthdayReminder::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId,
 			QString tip = QString("<span style='color:green'>%1</span>");
 			tip = tip.arg(daysLeft>0 ? tr("Birthday in %n day(s)!","",daysLeft) : tr("Birthday today!"));
 			tip += "<br>";
-			tip += QString("<a href='%1'>%2</a>").arg("http://id.rambler.ru").arg(tr("Congratulate with postcard"));
+			tip += QString("<a href='%1'>%2</a>").arg("http://cards.rambler.ru").arg(tr("Congratulate with postcard"));
 			AToolTips.insert(RTTO_BIRTHDAY_NOTIFY,tip);
 		}
 	}
