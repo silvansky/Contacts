@@ -52,8 +52,6 @@ protected:
 	void showToolTip(const QString &AToolTip);
 	void showStyleKey(const QString &AStyleKey);
 protected:
-	virtual void enterEvent(QEvent *AEvent);
-	virtual void leaveEvent(QEvent *AEvent);
 	virtual void paintEvent(QPaintEvent *AEvent);
 	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
@@ -61,7 +59,7 @@ protected slots:
 private:
 	QLabel *FIconLabel;
 	CustomLabel *FTextLabel;
-	QPushButton *FCloseButton;
+	CloseButton *FCloseButton;
 private:
 	bool FActive;
 	bool FDraging;

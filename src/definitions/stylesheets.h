@@ -20,6 +20,7 @@
 
 //MessageWidgets
 #define STS_MESSAGEWIDGETS_TABWINDOW                                    "messagewidgetsTabWindow"
+#define STS_MESSAGEWIDGETS_TABCLOSEBUTTON                               "messagewidgetsTabCloseButton"
 #define STS_MESSAGEWIDGETS_CHATWINDOW                                   "messagewidgetsChatWindow"
 #define STS_MESSAGEWIDGETS_MESSAGEWINDOW                                "messagewidgetsMessageWindow"
 #define STS_MESSAGEWIDGETS_MASSENDDIALOG                                "messagewidgetsMassSendDialog"
@@ -87,5 +88,6 @@
 
 //Utils
 #define STS_UTILS_CUSTOMINPUTDIALOG                                     "utilsCustomInputDialog"
+#define STS_UTILS_CLOSEBUTTON                                           "utilsCloseButton"
 
 #endif // DEF_STYLESHEETS_H

@@ -70,36 +70,6 @@ TabBarItem[isDraging="true"], TabBarItem[isDraging="true"] *
 	background-color: transparent;
 }
 
-TabBarItem #closeButton
-{
-	min-width: 16;
-	min-height: 16;
-	background-color: transparent;
-	border: none;
-	border-image: none;
-	padding: 0px;
-	margin: 0px;
-}
-
-TabBarItem[isActive="false"] #closeButton:!hover
-{
-	qproperty-icon: url(%IMAGES_PATH%/closebutton.png);
-}
-
-TabBarItem[isActive="false"] #closeButton:hover
-{
-	qproperty-icon: url(%IMAGES_PATH%/closebuttonhover.png);
-}
-
-TabBarItem[isActive="true"] #closeButton:!hover
-{
-	qproperty-icon: url(%IMAGES_PATH%/activeclosebutton.png);
-}
-
-TabBarItem[isActive="true"] #closeButton:hover
-{
-	qproperty-icon: url(%IMAGES_PATH%/activeclosebuttonhover.png);
-}
 
 /**************
  * background *

@@ -4,4 +4,8 @@
     <key>utilsCustomInputDialog</key>
     <object mime='text/css'>utilscustominputdialog.qss</object>
   </file>
+  <file>
+    <key>utilsCloseButton</key>
+    <object mime='text/css'>utilsclosebutton.qss</object>
+  </file>
 </styledef>

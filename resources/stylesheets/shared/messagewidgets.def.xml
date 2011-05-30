@@ -5,6 +5,10 @@
     <object mime='text/css'>messagewidgetstabwindow.qss</object>
   </file>
   <file>
+    <key>messagewidgetsTabCloseButton</key>
+    <object mime='text/css'>messagewidgetstabclosebutton.qss</object>
+  </file>
+  <file>
     <key>messagewidgetsChatWindow</key>
     <object mime='text/css'>messagewidgetschatwindow.qss</object>
   </file>

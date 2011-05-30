@@ -26,26 +26,24 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	layout()->setSpacing(2);
 
 	layout()->addWidget(FIconLabel = new QLabel(this));
+	FIconLabel->setObjectName("statusIconLabel");
+	FIconLabel->setTextInteractionFlags(Qt::NoTextInteraction);
+	FIconLabel->installEventFilter(this);
+	FIconLabel->setFixedSize(FIconSize);
+
 	layout()->addWidget(FTextLabel = new CustomLabel(this));
 	FTextLabel->setObjectName("tabBarItemLabel");
 	FTextLabel->setShadow(CustomLabel::LightShadow);
-	layout()->addWidget(FCloseButton = new QPushButton(this));
-	FCloseButton->setMouseTracking(true);
-	FCloseButton->setObjectName("closeButton");
-	FCloseButton->setFixedSize(16, 16);
-	FIconLabel->setObjectName("statusIconLabel");
+	FTextLabel->setTextInteractionFlags(Qt::NoTextInteraction);
+	FTextLabel->installEventFilter(this);
+	FTextLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+
+	layout()->addWidget(FCloseButton = new CloseButton(this));
+	FCloseButton->setFixedSize(16,16);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(FCloseButton,STS_MESSAGEWIDGETS_TABCLOSEBUTTON);
+	connect(FCloseButton,SIGNAL(clicked()),SIGNAL(closeButtonClicked()));
 
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FIconLabel, GFX_STATUSICONS);
-
-	FIconLabel->installEventFilter(this);
-	FIconLabel->setTextInteractionFlags(Qt::NoTextInteraction);
-	FTextLabel->installEventFilter(this);
-	FTextLabel->setTextInteractionFlags(Qt::NoTextInteraction);
-	FCloseButton->installEventFilter(this);
-
-	FIconLabel->setFixedSize(FIconSize);
-	FTextLabel->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-	connect(FCloseButton,SIGNAL(clicked()),SIGNAL(closeButtonClicked()));
 
 	FIconHidden = false;
 	FBlinkTimer.setSingleShot(true);
@@ -76,16 +74,18 @@ void TabBarItem::setActive(bool AActive)
 		FActive = AActive;
 		if (FActive)
 		{
+			FCloseButton->setProperty("isActive",true);
 			GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->uninstallGraphicsEffect(FIconLabel, GFX_STATUSICONS);
 			FTextLabel->setShadow(CustomLabel::LightShadow);
 		}
 		else
 		{
+			FCloseButton->setProperty("isActive",false);
 			GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(FIconLabel, GFX_STATUSICONS);
 			FTextLabel->setShadow(CustomLabel::DarkShadow);
 		}
+		StyleStorage::updateStyle(FCloseButton);
 		StyleStorage::updateStyle(this);
-		update();
 	}
 }
 
@@ -100,7 +100,6 @@ void TabBarItem::setDraging(bool ADragged)
 	{
 		FDraging = ADragged;
 		StyleStorage::updateStyle(this);
-		update();
 	}
 }
 
@@ -207,7 +206,6 @@ void TabBarItem::setNotify(const ITabPageNotify &ANotify)
 		showToolTip(FToolTip);
 		showStyleKey(QString::null);
 	}
-	update();
 }
 
 void TabBarItem::showIcon(const QIcon &AIcon)
@@ -253,18 +251,6 @@ void TabBarItem::showStyleKey(const QString &AStyleKey)
 		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->removeAutoStyle(this);
 }
 
-void TabBarItem::enterEvent(QEvent *AEvent)
-{
-	QFrame::enterEvent(AEvent);
-	update();
-}
-
-void TabBarItem::leaveEvent(QEvent *AEvent)
-{
-	QFrame::leaveEvent(AEvent);
-	update();
-}
-
 void TabBarItem::paintEvent(QPaintEvent *AEvent)
 {
 	if (!FDraging)
@@ -277,16 +263,6 @@ bool TabBarItem::eventFilter(QObject *AObject, QEvent *AEvent)
 		return true;
 	if (FIconHidden && AObject==FIconLabel && AEvent->type()==QEvent::Paint)
 		return true;
-	if (AObject == FCloseButton)
-	{
-		if (AEvent->type() == QEvent::Enter || AEvent->type() == QEvent::Leave)
-		{
-			bool handled = QFrame::eventFilter(AObject,AEvent);
-			StyleStorage::updateStyle(this);
-			update();
-			return handled;
-		}
-	}
 	return QFrame::eventFilter(AObject,AEvent);
 }
 

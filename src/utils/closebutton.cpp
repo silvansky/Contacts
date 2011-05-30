@@ -3,12 +3,17 @@
 #include <QStyle>
 #include <QPainter>
 #include <QPaintEvent>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
 #include "iconstorage.h"
+#include "stylestorage.h"
 
 CloseButton::CloseButton(QWidget *AParent) : QAbstractButton(AParent)
 {
 	setMouseTracking(true);
 	setFocusPolicy(Qt::NoFocus);
+	setProperty("isHover",false);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_UTILS_CLOSEBUTTON);
 }
 
 QSize CloseButton::sizeHint() const
@@ -20,15 +25,15 @@ QSize CloseButton::sizeHint() const
 void CloseButton::enterEvent(QEvent *AEvent)
 {
 	QAbstractButton::enterEvent(AEvent);
-	style()->polish(this);
-	update();
+	setProperty("isHover",true);
+	StyleStorage::updateStyle(this);
 }
 
 void CloseButton::leaveEvent(QEvent *AEvent)
 {
 	QAbstractButton::leaveEvent(AEvent);
-	style()->polish(this);
-	update();
+	setProperty("isHover",false);
+	StyleStorage::updateStyle(this);
 }
 
 void CloseButton::paintEvent(QPaintEvent *AEvent)

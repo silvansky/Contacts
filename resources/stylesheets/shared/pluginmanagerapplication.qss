@@ -387,21 +387,6 @@ QToolButton::menu-arrow:open
 }
 
 
-/***************
- * CloseButton *
- ***************/
-
-CloseButton
-{
-	qproperty-icon: url(%IMAGES_PATH%/closebutton.png);
-}
-
-CloseButton:enabled
-{
-	qproperty-icon: url(%IMAGES_PATH%/closebuttonhover.png);
-}
-
-
 /*********
  * QMenu *
  *********/
