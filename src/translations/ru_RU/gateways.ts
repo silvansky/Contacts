@@ -72,16 +72,6 @@
         <translation>Добавить</translation>
     </message>
     <message>
-        <source>Error connecting account</source>
-        <translation>Ошибка подключения учётной записи</translation>
-    </message>
-    <message>
-        <source>Failed to connect account due to error:
-%1</source>
-        <translation>Не удалось подключить учётную запись:
-%1</translation>
-    </message>
-    <message>
         <source>Gateway registration request failed</source>
         <translation>Запрос регистрации завершился с ошибкой</translation>
     </message>
@@ -136,6 +126,14 @@
     <message>
         <source>Ok</source>
         <translation>Ок</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <source>The service is temporarily unavailable, please try to connect later.</source>
+        <translation>Сервис временно недоступен, попробуйте подключиться позднее.</translation>
     </message>
 </context>
 <context>

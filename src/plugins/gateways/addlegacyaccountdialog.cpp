@@ -75,9 +75,10 @@ void AddLegacyAccountDialog::showEvent(QShowEvent *AEvent)
 
 void AddLegacyAccountDialog::abort(const QString &AMessage)
 {
-	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
-	dialog->setCaptionText(tr("Error connecting account"));
-	dialog->setInfoText(tr("Failed to connect account due to error:\n%1").arg(AMessage));
+	Q_UNUSED(AMessage);
+	CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::Info);
+	dialog->setCaptionText(tr("Error"));
+	dialog->setInfoText(tr("The service is temporarily unavailable, please try to connect later."));//.arg(AMessage));
 	dialog->setAcceptButtonText(tr("Ok"));
 	dialog->setDeleteOnClose(true);
 	dialog->show();
