@@ -365,7 +365,7 @@ void BirthdayReminder::onShowNotificationTimer()
 
 void BirthdayReminder::onCongratulateWithPostcard()
 {
-	QDesktopServices::openUrl(QUrl("http://id.rambler.ru"));
+	QDesktopServices::openUrl(QUrl("http://cards.rambler.ru"));
 }
 
 void BirthdayReminder::onNotificationActivated(int ANotifyId)
