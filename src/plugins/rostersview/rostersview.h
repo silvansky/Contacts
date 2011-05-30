@@ -30,6 +30,7 @@ class RostersView :
 	Q_OBJECT
 	Q_INTERFACES(IRostersView IRosterDataHolder)
 	Q_PROPERTY(QBrush groupBrush READ groupBrush WRITE setGroupBrush)
+	Q_PROPERTY(QImage groupBorderImage READ groupBorderImage WRITE setGroupBorderImage)
 	Q_PROPERTY(QColor groupColor READ groupColor WRITE setGroupColor)
 	Q_PROPERTY(int groupFontSize READ groupFontSize WRITE setGroupFontSize)
 	Q_PROPERTY(QColor footerColor READ footerColor WRITE setFooterColor)
@@ -95,6 +96,8 @@ public:
 	// props
 	QBrush groupBrush() const;
 	void setGroupBrush(const QBrush & newBrush);
+	QImage groupBorderImage() const;
+	void setGroupBorderImage(const QImage & newGroupBorderImage);
 	QColor groupColor() const;
 	void setGroupColor(const QColor& newColor);
 	int groupFontSize() const;
@@ -210,6 +213,7 @@ private:
 	QList<IRostersDragDropHandler *> FDragDropHandlers;
 	QList<IRostersDragDropHandler *> FActiveDragHandlers;
 	QBrush groupBackground;
+	QImage groupBorder;
 	QColor groupForeground;
 	int groupFont;
 	QColor footerTextColor;

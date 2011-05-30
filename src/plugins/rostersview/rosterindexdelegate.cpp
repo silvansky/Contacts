@@ -201,13 +201,24 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 			if (parent())
 			{
 				option.backgroundBrush = parent()->property("groupBrush").value<QBrush>();
+				// invalid brush
+				if (option.backgroundBrush.style() == Qt::NoBrush)
+				{
+					QImage bg = parent()->property("groupBorderImage").value<QImage>();
+					APainter->drawImage(option.rect, bg);
+				}
+				else
+				{
+					APainter->fillRect(option.rect, option.backgroundBrush);
+				}
 				QColor c = parent()->property("groupColor").value<QColor>();
 				option.palette.setColor(QPalette::Text, c);
 				option.palette.setColor(QPalette::HighlightedText, c);
 				option.font.setPixelSize(parent()->property("groupFontSize").toInt());
 				labelFlags = TF_DARKSHADOW;
 			}
-			APainter->fillRect(option.rect, option.backgroundBrush);
+			else
+				APainter->fillRect(option.rect, option.backgroundBrush);
 		}
 		else if (!isDragged)
 		{

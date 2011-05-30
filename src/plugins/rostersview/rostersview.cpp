@@ -767,6 +767,16 @@ void RostersView::setGroupBrush(const QBrush & newBrush)
 	groupBackground = newBrush;
 }
 
+QImage RostersView::groupBorderImage() const
+{
+	return groupBorder;
+}
+
+void RostersView::setGroupBorderImage(const QImage & newGroupBorderImage)
+{
+	groupBorder = newGroupBorderImage;
+}
+
 QColor RostersView::groupColor() const
 {
 	return groupForeground;
