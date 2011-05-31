@@ -352,7 +352,7 @@ Qt::DropActions RosterChanger::rosterDragStart(const QMouseEvent *AEvent, const 
 {
 	Q_UNUSED(AEvent);
 	Q_UNUSED(ADrag);
-	if (AIndex.data(RDR_TYPE).toInt() == RIT_CONTACT)
+	if (AIndex.data(RDR_TYPE).toInt()==RIT_CONTACT && FRostersView->selectedRosterIndexes().count()<=1)
 		return Qt::CopyAction|Qt::MoveAction;
 	return Qt::IgnoreAction;
 }
@@ -374,7 +374,7 @@ bool RosterChanger::rosterDragEnter(const QDragEnterEvent *AEvent)
 bool RosterChanger::rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover)
 {
 	Q_UNUSED(AEvent);
-	if (DragGroups.contains(AHover.data(RDR_TYPE).toInt()) || DragGroups.contains(AHover.parent().data(RDR_TYPE).toInt()))
+	if (DragGroups.contains(AHover.data(RDR_TYPE).toInt()))
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AHover.data(RDR_STREAM_JID).toString()) : NULL;
 		if (roster && roster->isOpen())

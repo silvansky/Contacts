@@ -82,7 +82,7 @@ bool RostersModel::initConnections(IPluginManager *APluginManager, int &/*AInitO
 
 bool RostersModel::initObjects()
 {
-	registerSingleGroup(RIT_GROUP_BLANK,tr("Blank Group"));
+	registerSingleGroup(RIT_GROUP_BLANK,tr("Without Groups"));
 	registerSingleGroup(RIT_GROUP_AGENTS,tr("Agents"));
 	registerSingleGroup(RIT_GROUP_MY_RESOURCES,tr("My Resources"));
 	registerSingleGroup(RIT_GROUP_NOT_IN_ROSTER,tr("Not in Roster"));

@@ -359,7 +359,7 @@ Qt::DropActions MetaContacts::rosterDragStart(const QMouseEvent *AEvent, const Q
 {
 	Q_UNUSED(AEvent);
 	Q_UNUSED(ADrag);
-	if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
+	if (AIndex.data(RDR_TYPE).toInt()==RIT_METACONTACT && FRostersViewPlugin->rostersView()->selectedRosterIndexes().count()<=1)
 	{
 		IMetaRoster *mroster = findMetaRoster(AIndex.data(RDR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
@@ -385,7 +385,7 @@ bool MetaContacts::rosterDragEnter(const QDragEnterEvent *AEvent)
 bool MetaContacts::rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover)
 {
 	Q_UNUSED(AEvent);
-	if (AHover.data(RDR_TYPE).toInt()==RIT_METACONTACT || AHover.data(RDR_TYPE).toInt()==RIT_GROUP)
+	if (AHover.data(RDR_TYPE).toInt()==RIT_METACONTACT || DragGroups.contains(AHover.data(RDR_TYPE).toInt()))
 	{
 		IMetaRoster *mroster = findMetaRoster(AHover.data(RDR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
@@ -407,18 +407,21 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 		QMap<int, QVariant> indexData;
 		QDataStream stream(AEvent->mimeData()->data(DDT_ROSTERSVIEW_INDEX_DATA));
 		stream >> indexData;
-		QString indexMetaId = indexData.value(RDR_META_ID).toString();
 
+		QString indexMetaId = indexData.value(RDR_META_ID).toString();
 		QString hoverGroup = AIndex.data(RDR_GROUP).toString();
 		QString indexGroup = indexData.value(RDR_GROUP).toString();
-		QRect dropRect = FRostersViewPlugin->rostersView()->instance()->visualRect(AIndex);
+		
+		// cutting 25% from top and bottom
 		QModelIndex actualIndex = AIndex;
-		// cutting 30% from top and bottom
-		int r = - int(dropRect.height() * 0.3);
-		if (!dropRect.adjusted(0, r, 0, r).contains(AEvent->pos()))
+		if (actualIndex.data(RDR_TYPE).toInt()==RIT_METACONTACT)
 		{
-			actualIndex = AIndex.parent();
+			QRect dropRect = FRostersViewPlugin->rostersView()->instance()->visualRect(AIndex);
+			int r = dropRect.height() / 4;
+			if (!dropRect.adjusted(0, r, 0, -r).contains(AEvent->pos()))
+				actualIndex = AIndex.parent();
 		}
+
 		if (actualIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
 		{
 			if (AEvent->dropAction()==Qt::MoveAction || AEvent->dropAction()==Qt::CopyAction)
@@ -450,7 +453,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 				}
 			}
 		}
-		else if (actualIndex.data(RDR_TYPE).toInt() == RIT_GROUP)
+		else if (DragGroups.contains(actualIndex.data(RDR_TYPE).toInt()))
 		{
 			if (AEvent->dropAction() == Qt::MoveAction)
 			{
@@ -1412,13 +1415,19 @@ void MetaContacts::onCopyToGroup(bool)
 		if (mroster && mroster->isOpen())
 		{
 			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
-			contact.groups += action->data(ADR_TO_GROUP).toString();
-			mroster->setContactGroups(contact.id,contact.groups);
+			QSet<QString> oldGroups = contact.groups;
+			QString toGroup = action->data(ADR_TO_GROUP).toString();
+			if (!toGroup.isEmpty())
+				contact.groups += toGroup;
+			else
+				contact.groups.clear();
+			if (contact.groups != oldGroups)
+				mroster->setContactGroups(contact.id,contact.groups);
 		}
 	}
 }
 
-void MetaContacts::onMoveToGroup( bool )
+void MetaContacts::onMoveToGroup(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
@@ -1427,9 +1436,19 @@ void MetaContacts::onMoveToGroup( bool )
 		if (mroster && mroster->isOpen())
 		{
 			IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
-			contact.groups -= action->data(ADR_GROUP).toString();
-			contact.groups += action->data(ADR_TO_GROUP).toString();
-			mroster->setContactGroups(contact.id,contact.groups);
+			QSet<QString> oldGroups = contact.groups;
+			QString toGroup = action->data(ADR_TO_GROUP).toString();
+			if (!toGroup.isEmpty())
+			{
+				contact.groups -= action->data(ADR_GROUP).toString();
+				contact.groups += toGroup;
+			}
+			else
+			{
+				contact.groups.clear();
+			}
+			if (contact.groups != oldGroups)
+				mroster->setContactGroups(contact.id,contact.groups);
 		}
 	}
 }

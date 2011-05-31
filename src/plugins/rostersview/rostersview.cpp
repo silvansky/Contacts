@@ -1303,18 +1303,17 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 		int indexType = index.data(RDR_TYPE).toInt();
 		if (indexType == RIT_CONTACT || indexType == RIT_METACONTACT)
 		{
-			// cutting 30% from top and bottom
-			int r = - int(FDragRect.height() * 0.3); // 0.3 is a magic numer!
-			if (!FDragRect.adjusted(0, r, 0, r).contains(AEvent->pos())) // putting contact into parent group
+			// cutting 25% from top and bottom 
+			// remove this hack as fast as possible, or make it invisible for IRostersDragDropHandler-s
+			// by callings rosterDrag* functions with modified arguments
+			int r = FDragRect.height() / 4;
+			if (!FDragRect.adjusted(0, r, 0, -r).contains(AEvent->pos())) // putting contact into parent group
 			{
-				if (index.parent().isValid() && index.parent() != FPressedIndex.parent())
-				{
-					index = index.parent();
-					indexType = index.data(RDR_TYPE).toInt();
-				}
+				index = index.parent();
+				indexType = index.data(RDR_TYPE).toInt();
 			}
 		}
-		if (indexType == RIT_CONTACT || indexType == RIT_GROUP || indexType == RIT_GROUP_BLANK)
+		if (indexType == RIT_CONTACT || indexType == RIT_METACONTACT || indexType == RIT_GROUP || indexType == RIT_GROUP_BLANK)
 		{
 			QModelIndex group = indexType==RIT_CONTACT ? index.parent() : index;
 			dropRect = visualRect(group);
