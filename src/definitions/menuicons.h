@@ -249,6 +249,9 @@
 #define MNI_RAMBLERMAILNOTIFY_NOTIFY             "ramblermailnotifyNotify"
 #define MNI_RAMBLERMAILNOTIFY_AVATAR             "ramblermailnotifyAvatar"
 
+//RamblerHistory
+#define MNI_RAMBLERHISTORY_KRYTILKA              "ramblerhistoryKrytilka"
+
 //Registration
 #define MNI_REGISTERATION                        "register"
 #define MNI_REGISTERATION_REMOVE                 "registerRemove"
