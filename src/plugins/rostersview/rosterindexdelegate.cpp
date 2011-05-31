@@ -198,10 +198,11 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		APainter->setClipRect(option.rect);
 		if (AIndex.parent().isValid() && AIndex.model()->hasChildren(AIndex))
 		{
+			labelFlags = TF_DARKSHADOW; // shadow for group names
 			if (parent())
 			{
 				option.backgroundBrush = parent()->property("groupBrush").value<QBrush>();
-				// invalid brush
+				// invalid brush, trying image (border image not supported, it is used like BG right now)
 				if (option.backgroundBrush.style() == Qt::NoBrush)
 				{
 					QImage bg = parent()->property("groupBorderImage").value<QImage>();
@@ -215,7 +216,6 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 				option.palette.setColor(QPalette::Text, c);
 				option.palette.setColor(QPalette::HighlightedText, c);
 				option.font.setPixelSize(parent()->property("groupFontSize").toInt());
-				labelFlags = TF_DARKSHADOW;
 			}
 			else
 				APainter->fillRect(option.rect, option.backgroundBrush);

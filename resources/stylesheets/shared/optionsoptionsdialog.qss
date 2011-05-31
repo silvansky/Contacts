@@ -112,11 +112,12 @@ LegacyAccountOptions QGroupBox
 ProxyOptionsWidget QGroupBox#gbManualProxySettings
 {
 	margin-left: 42px;
+	margin-top: 10px;
 }
 
 #chbProxyUserPassword
 {
-	margin-left: 6px;
+	margin-left: 2px;
 }
 
 #grbKinds
@@ -201,7 +202,7 @@ QFrame#serviceSeparator
 	min-height: 0px;
 	max-height: 0px;
 	height: 0px;
-	margin-left: 36px;
+	margin-left: 20px;
 	margin-right: 16px;
 }
 

@@ -1177,7 +1177,7 @@ void StatusChanger::onOptionsOpened()
 			{
 				StatusItem status;
 				status.code = statusId;
-				status.name = statusName;
+				status.name = nameByShow(status.show);//statusName;
 				status.show = (IPresence::Show)soptions.value("show").toInt();
 				status.text = soptions.value("text").toString();
 				status.priority = soptions.value("priority").toInt();
