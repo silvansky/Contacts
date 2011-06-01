@@ -138,6 +138,7 @@ protected:
 	void removeLabels();
 	void setDropIndicatorRect(const QRect &ARect);
 	void setInsertIndicatorRect(const QRect &ARect);
+	QModelIndex actualDragIndex(const QModelIndex &AIndex, const QPoint &ACursorPos) const;
 	// hookers
 	bool processClickHookers(IRosterIndex* AIndex);
 	bool processKeyPressHookers(IRosterIndex* AIndex, Qt::Key AKey, Qt::KeyboardModifiers AModifiers);

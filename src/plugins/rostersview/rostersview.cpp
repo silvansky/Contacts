@@ -912,6 +912,24 @@ void RostersView::setInsertIndicatorRect(const QRect &ARect)
 	}
 }
 
+QModelIndex RostersView::actualDragIndex(const QModelIndex &AIndex, const QPoint &ACursorPos) const
+{
+	QModelIndex index = AIndex;
+	int indexType = index.data(RDR_TYPE).toInt();
+	if (indexType == RIT_CONTACT || indexType == RIT_METACONTACT)
+	{
+		if (index.data(RDR_GROUP)!=FPressedIndex.data(RDR_GROUP) || index.parent().data(RDR_TYPE)!=FPressedIndex.parent().data(RDR_TYPE))
+		{
+			// cutting 25% from top and bottom 
+			QRect rect = visualRect(index);
+			int r = rect.height() / 4;
+			if (!rect.adjusted(0, r, 0, -r).contains(ACursorPos)) // putting contact into parent group
+				index = index.parent();
+		}
+	}
+	return index;
+}
+
 bool RostersView::processClickHookers(IRosterIndex* AIndex)
 {
 	bool accepted = false;
@@ -1174,6 +1192,7 @@ void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 
 			if (index)
 				index->setData(RDR_IS_DRAGGED, false);
+
 			setState(NoState);
 		}
 		else
@@ -1213,7 +1232,7 @@ void RostersView::dropEvent(QDropEvent *AEvent)
 	Menu *dropMenu = new Menu(this);
 
 	bool accepted = false;
-	QModelIndex index = indexAt(AEvent->pos());
+	QModelIndex index = actualDragIndex(indexAt(AEvent->pos()), AEvent->pos());
 	foreach(IRostersDragDropHandler *handler, FActiveDragHandlers)
 		if (handler->rosterDropAction(AEvent,index,dropMenu))
 			accepted = true;
@@ -1262,7 +1281,8 @@ void RostersView::dragEnterEvent(QDragEnterEvent *AEvent)
 
 void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 {
-	QModelIndex index = indexAt(AEvent->pos());
+	QModelIndex index = actualDragIndex(indexAt(AEvent->pos()),AEvent->pos());
+	FDragRect = visualRect(index);
 
 	bool accepted = false;
 	foreach(IRostersDragDropHandler *handler, FActiveDragHandlers)
@@ -1281,8 +1301,6 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 
 	if (index != FPressedIndex)
 	{
-		FDragRect = visualRect(index);
-
 		QRect insertRect = FDragRect;
 		if (Options::node(OPV_ROSTER_SORTBYHAND).value().toBool())
 		{
@@ -1301,18 +1319,6 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 
 		QRect dropRect = FDragRect;
 		int indexType = index.data(RDR_TYPE).toInt();
-		if (indexType == RIT_CONTACT || indexType == RIT_METACONTACT)
-		{
-			// cutting 25% from top and bottom 
-			// remove this hack as fast as possible, or make it invisible for IRostersDragDropHandler-s
-			// by callings rosterDrag* functions with modified arguments
-			int r = FDragRect.height() / 4;
-			if (!FDragRect.adjusted(0, r, 0, -r).contains(AEvent->pos())) // putting contact into parent group
-			{
-				index = index.parent();
-				indexType = index.data(RDR_TYPE).toInt();
-			}
-		}
 		if (indexType == RIT_CONTACT || indexType == RIT_METACONTACT || indexType == RIT_GROUP || indexType == RIT_GROUP_BLANK)
 		{
 			QModelIndex group = indexType==RIT_CONTACT ? index.parent() : index;
@@ -1328,6 +1334,7 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 				irow++;
 			}
 		}
+
 		if (FDragRect!=dropRect || insertRect.isNull())
 			setDropIndicatorRect(dropRect);
 		else

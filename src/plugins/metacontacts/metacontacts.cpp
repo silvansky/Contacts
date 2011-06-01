@@ -412,21 +412,11 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 		QString hoverGroup = AIndex.data(RDR_GROUP).toString();
 		QString indexGroup = indexData.value(RDR_GROUP).toString();
 		
-		// cutting 25% from top and bottom
-		QModelIndex actualIndex = AIndex;
-		if (actualIndex.data(RDR_TYPE).toInt()==RIT_METACONTACT)
-		{
-			QRect dropRect = FRostersViewPlugin->rostersView()->instance()->visualRect(AIndex);
-			int r = dropRect.height() / 4;
-			if (!dropRect.adjusted(0, r, 0, -r).contains(AEvent->pos()))
-				actualIndex = AIndex.parent();
-		}
-
-		if (actualIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
+		if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
 		{
 			if (AEvent->dropAction()==Qt::MoveAction || AEvent->dropAction()==Qt::CopyAction)
 			{
-				QString hoverMetaId = actualIndex.data(RDR_META_ID).toString();
+				QString hoverMetaId = AIndex.data(RDR_META_ID).toString();
 				if (hoverMetaId != indexMetaId)
 				{
 					Action *mergeAction = new Action(AMenu);
@@ -453,7 +443,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 				}
 			}
 		}
-		else if (DragGroups.contains(actualIndex.data(RDR_TYPE).toInt()))
+		else if (DragGroups.contains(AIndex.data(RDR_TYPE).toInt()))
 		{
 			if (AEvent->dropAction() == Qt::MoveAction)
 			{
