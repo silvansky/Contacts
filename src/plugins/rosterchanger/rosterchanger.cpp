@@ -849,7 +849,7 @@ IChatNotice RosterChanger::createChatNotice(int APriority, int AActions, const Q
 	if (AActions & NTA_ADD_CONTACT)
 	{
 		Action *addAction = new Action;
-		addAction->setText(tr("Add Contact"));
+		addAction->setText(tr("Add contact"));
 		addAction->setData(ADR_NOTICE_ACTION,NTA_ADD_CONTACT);
 		addAction->setProperty("actionName", "addRequest");
 		connect(addAction,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));

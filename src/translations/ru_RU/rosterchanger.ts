@@ -287,10 +287,6 @@
         <translation>Добавить группу</translation>
     </message>
     <message>
-        <source>Add Contact</source>
-        <translation>Добавить контакт</translation>
-    </message>
-    <message>
         <source>Request authorization</source>
         <translation>Запросить авторизацию</translation>
     </message>
@@ -388,7 +384,7 @@
     </message>
     <message>
         <source>Add account...</source>
-        <translation>Добавить аккаунт...</translation>
+        <translation>Добавить учетную запись...</translation>
     </message>
     <message>
         <source>Create new contact...</source>
