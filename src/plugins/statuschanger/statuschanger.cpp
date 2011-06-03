@@ -1170,7 +1170,7 @@ void StatusChanger::onOptionsOpened()
 	{
 		int statusId = ns.toInt();
 		OptionsNode soptions = Options::node(OPV_STATUS_ITEM, ns);
-		QString statusName = soptions.value("name").toString();
+		/*QString statusName = soptions.value("name").toString();
 		if (statusId > STATUS_MAX_STANDART_ID)
 		{
 			if (!statusName.isEmpty() && statusByName(statusName)==STATUS_NULL_ID)
@@ -1186,17 +1186,23 @@ void StatusChanger::onOptionsOpened()
 				createStatusActions(status.code);
 			}
 		}
-		else if (statusId > STATUS_NULL_ID && FStatusItems.contains(statusId))
+		else*/
+		if (statusId > STATUS_NULL_ID && FStatusItems.contains(statusId))
 		{
 			StatusItem &status = FStatusItems[statusId];
-			if (!statusName.isEmpty())
-				status.name = statusName;
+			//if (!statusName.isEmpty())
+			//	status.name = statusName;
 			status.text = soptions.hasValue("text") ? soptions.value("text").toString() : QString::null;
 			status.priority = soptions.hasValue("priority") ? soptions.value("priority").toInt() : status.priority;
 			updateStatusActions(statusId);
 		}
 	}
 	removeRedundantCustomStatuses();
+
+	QString commonStatusText = statusItemText(STATUS_ONLINE);
+	foreach(int statusId, statusItems())
+		if (statusId>STATUS_NULL_ID && statusItemText(statusId)!=commonStatusText)
+			updateStatusItem(statusId,statusItemName(statusId),statusItemShow(statusId),commonStatusText,statusItemPriority(statusId));
 
 	FModifyStatus->setChecked(Options::node(OPV_STATUSES_MODIFY).value().toBool());
 	setMainStatusId(Options::node(OPV_STATUSES_MAINSTATUS).value().toInt());

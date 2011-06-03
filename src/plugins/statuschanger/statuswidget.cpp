@@ -107,9 +107,10 @@ void StatusWidget::finishEditMood()
 	ui.lblMood->setVisible(true);
 	ui.lblMood->setFocus();
 
-	int statusId = FStatusChanger->mainStatus();
 	QString mood = ui.tedMood->toPlainText().left(MAX_CHARACTERS).trimmed();
-	FStatusChanger->updateStatusItem(statusId,FStatusChanger->statusItemName(statusId),FStatusChanger->statusItemShow(statusId),mood,FStatusChanger->statusItemPriority(statusId));
+	foreach(int statusId, FStatusChanger->statusItems())
+		if (statusId > STATUS_NULL_ID)
+			FStatusChanger->updateStatusItem(statusId,FStatusChanger->statusItemName(statusId),FStatusChanger->statusItemShow(statusId),mood,FStatusChanger->statusItemPriority(statusId));
 }
 
 void StatusWidget::cancelEditMood()
