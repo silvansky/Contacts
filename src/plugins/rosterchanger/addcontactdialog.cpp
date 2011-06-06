@@ -41,6 +41,7 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	FGateways = NULL;
 	FAvatars = NULL;
 	FMetaRoster = NULL;
+	FRostersView = NULL;
 	FVcardPlugin = NULL;
 	FOptionsManager = NULL;
 	FMessageProcessor = NULL;
@@ -226,6 +227,13 @@ void AddContactDialog::initialize(IPluginManager *APluginManager)
 	{
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 	}
+
+	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
+	if (plugin)
+	{
+		IRostersViewPlugin *rostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
+		FRostersView = rostersViewPlugin!=NULL ? rostersViewPlugin->rostersView() : NULL;
+	}
 }
 
 void AddContactDialog::initGroups()
@@ -239,6 +247,39 @@ void AddContactDialog::initGroups()
 	int last = ui.cmbParamsGroup->findText(Options::node(OPV_ROSTER_ADDCONTACTDIALOG_LASTGROUP).value().toString());
 	if (last>=0 && last<ui.cmbParamsGroup->count()-1)
 		ui.cmbParamsGroup->setCurrentIndex(last);
+}
+
+void AddContactDialog::selectRosterIndex()
+{
+	if (FRostersView)
+	{
+		IRostersModel *rmodel = FRostersView->rostersModel();
+		IRosterIndex *sroot = rmodel!=NULL ? rmodel->streamRoot(streamJid()) : NULL;
+		if (sroot)
+		{
+			QMultiMap<int, QVariant> findData;
+			if (FMetaRoster!=NULL)
+			{
+				findData.insert(RDR_TYPE,RIT_METACONTACT);
+				findData.insert(RDR_META_ID,FMetaRoster->itemMetaContact(contactJid()));
+			}
+			else
+			{
+				findData.insert(RDR_TYPE,RIT_CONTACT);
+				findData.insert(RDR_PREP_BARE_JID,contactJid().pBare());
+			}
+
+			IRosterIndex *index = sroot->findChilds(findData,true).value(0);
+			if (index)
+			{
+				QModelIndex modelIndex = FRostersView->mapFromModel(rmodel->modelIndexByRosterIndex(index));
+				FRostersView->instance()->clearSelection();
+				FRostersView->instance()->scrollTo(modelIndex);
+				FRostersView->instance()->setCurrentIndex(modelIndex);
+				FRostersView->instance()->selectionModel()->select(modelIndex,QItemSelectionModel::Select);
+			}
+		}
+	}
 }
 
 QString AddContactDialog::defaultContactNick(const Jid &AContactJid) const
@@ -773,6 +814,7 @@ void AddContactDialog::onRosterItemReceived(const IRosterItem &AItem, const IRos
 	{
 		if (FMetaRoster==NULL || !FMetaRoster->isEnabled())
 		{
+			selectRosterIndex();
 			if (FMessageProcessor)
 				FMessageProcessor->createWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
 			accept();
@@ -794,6 +836,7 @@ void AddContactDialog::onMetaActionResult(const QString &AActionId, const QStrin
 			}
 			else if (FMessageProcessor)
 			{
+				selectRosterIndex();
 				FMessageProcessor->createWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
 			}
 			accept();

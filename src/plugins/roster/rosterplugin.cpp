@@ -150,8 +150,8 @@ void RosterPlugin::onRosterItemReceived(const IRosterItem &AItem, const IRosterI
 	Roster *roster = qobject_cast<Roster *>(sender());
 	if (roster)
 	{
-		if (AItem.subscription!=SUBSCRIPTION_REMOVE && !ABefore.isValid)
-			notifyContactAdded(roster,AItem);
+		//if (AItem.subscription!=SUBSCRIPTION_REMOVE && !ABefore.isValid)
+		//	notifyContactAdded(roster,AItem);
 		emit rosterItemReceived(roster,AItem,ABefore);
 	}
 }

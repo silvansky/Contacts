@@ -10,12 +10,14 @@
 #include <definitions/optionvalues.h>
 #include <definitions/stylesheets.h>
 #include <definitions/vcardvaluenames.h>
+#include <definitions/rosterindextyperole.h>
 #include <definitions/gateserviceidentifiers.h>
 #include <interfaces/ivcard.h>
 #include <interfaces/iroster.h>
 #include <interfaces/iavatars.h>
 #include <interfaces/igateways.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/irostersview.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/ioptionsmanager.h>
@@ -57,6 +59,7 @@ protected:
 	void initialize(IPluginManager *APluginManager);
 	void initGroups();
 protected:
+	void selectRosterIndex();
 	QString defaultContactNick(const Jid &AContactJid) const;
 	QString confirmDescriptorText(const IGateServiceDescriptor &ADescriptor);
 	int registerDescriptorStatus(const IGateServiceDescriptor &ADescriptor);
@@ -96,6 +99,7 @@ private:
 	IAvatars *FAvatars;
 	IGateways *FGateways;
 	IMetaRoster *FMetaRoster;
+	IRostersView *FRostersView;
 	IVCardPlugin *FVcardPlugin;
 	IRosterChanger *FRosterChanger;
 	IOptionsManager *FOptionsManager;
