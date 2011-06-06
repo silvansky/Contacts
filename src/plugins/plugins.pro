@@ -26,6 +26,7 @@ SUBDIRS += defaultconnection
 SUBDIRS += starttls
 SUBDIRS += statusicons
 SUBDIRS += emoticons
+SUBDIRS += clientinfo
 SUBDIRS += vcard
 SUBDIRS += dataforms
 SUBDIRS += servicediscovery

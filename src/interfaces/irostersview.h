@@ -137,7 +137,7 @@ protected:
 	virtual void indexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu) =0;
 	virtual void indexClipboardMenu(IRosterIndex *AIndex, Menu *AMenu) =0;
 	virtual void labelContextMenu(IRosterIndex *AIndex, int ALabelId, Menu *AMenu) =0;
-	virtual void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger * AToolBarChanger) =0;
+	virtual void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger) =0;
 	virtual void labelClicked(IRosterIndex *AIndex, int ALabelId) =0;
 	virtual void labelDoubleClicked(IRosterIndex *AIndex, int ALabelId, bool &AAccepted) =0;
 	virtual void notifyInserted(int ANotifyId) =0;
