@@ -40,6 +40,7 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 
 	layout()->addWidget(FCloseButton = new CloseButton(this));
 	FCloseButton->setFixedSize(16,16);
+	FCloseButton->installEventFilter(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(FCloseButton,STS_MESSAGEWIDGETS_TABCLOSEBUTTON);
 	connect(FCloseButton,SIGNAL(clicked()),SIGNAL(closeButtonClicked()));
 
