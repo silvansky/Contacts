@@ -165,10 +165,11 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 				QString text = Qt::escape(AItem.status);
 				if (FStatusIcons)
 				{
-					QString file =FStatusIcons->iconFileName(FStatusIcons->iconsetByJid(AItem.itemJid),FStatusIcons->iconKeyByJid(APresence->streamJid(),AItem.itemJid));
+					QString file = FStatusIcons->iconFileName(FStatusIcons->iconsetByJid(AItem.itemJid),FStatusIcons->iconKeyByJid(APresence->streamJid(),AItem.itemJid));
 					if (!file.isEmpty())
 					{
-						text = prepareTable(file, text);
+						notify.data.insert(NDR_POPUP_ICON, QIcon(file));
+						//text = prepareTable(file, text);
 						//text.prepend(HtmlIconMask.arg(QUrl::fromLocalFile(file).toString()));
 					}
 				}
@@ -361,8 +362,9 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 				QString file =FStatusIcons->iconFileName(FStatusIcons->iconsetByJid(contactJid),FStatusIcons->iconKeyByStatus(IPresence::Online,SUBSCRIPTION_BOTH,false));
 				if (!file.isEmpty())
 				{
+					notify.data.insert(NDR_POPUP_ICON, QIcon(file));
 					//text.prepend(HtmlIconMask.arg(QUrl::fromLocalFile(file).toString()));
-					text = prepareTable(file, text);
+					//text = prepareTable(file, text);
 				}
 			}
 			notify.data.insert(NDR_POPUP_TEXT, text);

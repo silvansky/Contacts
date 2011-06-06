@@ -12,3 +12,8 @@ QComboBox
 {
 	margin-top: 1px;
 }
+
+QDialogButtonBox
+{
+	padding-right: 4px;
+}

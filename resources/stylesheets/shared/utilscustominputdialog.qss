@@ -2,13 +2,15 @@ QLabel#captionLabel
 {
 	font-size: 18px;
 	margin-top: 5px;
+	margin-left: 4px;
+	margin-right: 25px;
 }
 
-QLabel#captionLabel,
 QLabel#infoLabel,
 QLabel#descrLabel
 {
 	margin-left: 6px;
+	margin-right: 25px;
 }
 
 QLineEdit

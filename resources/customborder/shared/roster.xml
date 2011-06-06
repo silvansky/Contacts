@@ -14,7 +14,7 @@
  </top-border>
  <right-border>
    <width>28</width>
-   <resize-width>5</resize-width>
+   <resize-width>3</resize-width>
    <resize-margin>28</resize-margin>
    <image src="customborder/rightShadow" />
  </right-border>

@@ -23,11 +23,14 @@
    </size>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>9</number>
+   </property>
    <property name="leftMargin">
     <number>14</number>
    </property>
    <property name="topMargin">
-    <number>20</number>
+    <number>10</number>
    </property>
    <property name="rightMargin">
     <number>14</number>
@@ -60,6 +63,12 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>3</number>
+     </property>
+     <property name="rightMargin">
+      <number>3</number>
+     </property>
      <item>
       <widget class="QLineEdit" name="lneLogin"/>
      </item>
@@ -77,6 +86,9 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="rightMargin">
+      <number>3</number>
+     </property>
      <item>
       <widget class="QLabel" name="lblErrorIcon">
        <property name="text">
@@ -113,11 +125,21 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="btbButtons">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="topMargin">
+      <number>2</number>
      </property>
-    </widget>
+     <property name="rightMargin">
+      <number>3</number>
+     </property>
+     <item>
+      <widget class="QDialogButtonBox" name="btbButtons">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -127,7 +149,6 @@
   <tabstop>cmbDomains</tabstop>
   <tabstop>lnePassword</tabstop>
   <tabstop>chbShowPassword</tabstop>
-  <tabstop>btbButtons</tabstop>
  </tabstops>
  <resources/>
  <connections/>

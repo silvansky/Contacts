@@ -102,10 +102,15 @@ NotifyKindsWidget QGroupBox
 RosterContactViewOptions QGroupBox,
 RosterContactOrderOptions QGroupBox,
 ProxyOptionsWidget QGroupBox,
-MessengerOptions QGroupBox,
-LegacyAccountOptions QGroupBox
+MessengerOptions QGroupBox
 {
 	margin-left: 28px;
+	margin-right: 16px;
+}
+
+LegacyAccountOptions QGroupBox
+{
+	margin-left: 16px;
 	margin-right: 16px;
 }
 

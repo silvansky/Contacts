@@ -185,6 +185,7 @@ void CustomInputDialog::initLayout()
 	buttonsLayout->addWidget(acceptButton = new QPushButton);
 	acceptButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	buttonsLayout->addWidget(rejectButton = new QPushButton);
+	buttonsLayout->setContentsMargins(0, 5, 0, 0);
 	mainLayout->addLayout(buttonsLayout);
 	container->setLayout(mainLayout);
 	myLayout->setContentsMargins(0, 0, 0, 0);
