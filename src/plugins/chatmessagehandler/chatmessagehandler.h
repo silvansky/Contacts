@@ -48,12 +48,13 @@ struct WindowStatus
 	QDateTime createTime;
 	QString historyId;
 	QDateTime historyTime;
-	QUuid historyRequestId;
+	QUuid historyContentId;
 	QString lastStatusShow;
 	QList<QDate> separators;
 	QList<int> notified;
 	QList<Message> unread;
 	QList<Message> offline;
+	QList<Message> pending;
 };
 
 struct TabPageInfo
@@ -82,12 +83,12 @@ enum HisloryLoadState {
 };
 
 class ChatMessageHandler :
-			public QObject,
-			public IPlugin,
-			public IMessageHandler,
-			public ITabPageHandler,
-			public IXmppUriHandler,
-			public IRostersClickHooker
+	public QObject,
+	public IPlugin,
+	public IMessageHandler,
+	public ITabPageHandler,
+	public IXmppUriHandler,
+	public IRostersClickHooker
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IMessageHandler ITabPageHandler IXmppUriHandler IRostersClickHooker)

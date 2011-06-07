@@ -155,11 +155,13 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IRambler
 		QDomElement retrieveElem = retrieve.addElement("retrieve",NS_RAMBLER_ARCHIVE);
 		retrieveElem.setAttribute("with",ARetrieve.with.eFull());
 		retrieveElem.setAttribute("last",ARetrieve.count);
-		if (!ARetrieve.beforeId.isEmpty())
+		if (!ARetrieve.beforeId.isEmpty() || !ARetrieve.beforeTime.isNull())
 		{
 			QDomElement before = retrieveElem.appendChild(retrieve.createElement("before")).toElement();
-			before.setAttribute("id",ARetrieve.beforeId);
-			before.setAttribute("ctime",DateTime(ARetrieve.beforeTime).toX85DateTime(true));
+			if (!ARetrieve.beforeId.isEmpty())
+				before.setAttribute("id",ARetrieve.beforeId);
+			if (!ARetrieve.beforeTime.isNull())
+				before.setAttribute("ctime",DateTime(ARetrieve.beforeTime).toX85DateTime(true));
 		}
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,retrieve,ARCHIVE_TIMEOUT))
 		{

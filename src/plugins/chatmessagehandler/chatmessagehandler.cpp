@@ -374,6 +374,11 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 				message.setData(MDR_STYLE_CONTENT_ID,contentId.toString());
 				wstatus.unread.append(message);
 			}
+
+			if (wstatus.historyId.isNull() && FHistoryRequests.values().contains(window))
+			{
+				wstatus.pending.append(message);
+			}
 		}
 		else
 		{
@@ -497,7 +502,6 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 
 				WindowStatus &wstatus = FWindowStatus[window];
 				wstatus.createTime = QDateTime::currentDateTime();
-				wstatus.historyTime = wstatus.createTime.addSecs(-HISTORY_TIME_PAST);
 
 				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 				connect(window->infoWidget()->instance(),SIGNAL(fieldChanged(IInfoWidget::InfoField, const QVariant &)),
@@ -586,9 +590,10 @@ void ChatMessageHandler::resetWindowStatus(IChatWindow *AWindow)
 	wstatus.separators.clear();
 	wstatus.unread.clear();
 	wstatus.offline.clear();
+	wstatus.pending.clear();
 	wstatus.historyId = QString::null;
 	wstatus.historyTime = QDateTime();
-	wstatus.historyRequestId = QUuid();
+	wstatus.historyContentId = QUuid();
 	wstatus.lastStatusShow = QString::null;
 }
 
@@ -749,12 +754,12 @@ void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState
 		message += urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history")).arg("v-chat-header-history");
 
 		WindowStatus &wstatus = FWindowStatus[AWindow];
-		if (!wstatus.historyRequestId.isNull())
+		if (!wstatus.historyContentId.isNull())
 		{
 			options.action = IMessageContentOptions::Replace;
-			options.contentId = wstatus.historyRequestId;
+			options.contentId = wstatus.historyContentId;
 		}
-		wstatus.historyRequestId = AWindow->viewWidget()->changeContentHtml(message,options);
+		wstatus.historyContentId = AWindow->viewWidget()->changeContentHtml(message,options);
 	}
 }
 
@@ -1199,9 +1204,30 @@ void ChatMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, cons
 		IChatWindow *window = FHistoryRequests.take(AId);
 		if (FWindows.contains(window))
 		{
-			for (int i=0; i<AMessages.messages.count(); i++)
+			QList<Message> historyMessages = AMessages.messages;
+
+			bool found = false;
+			WindowStatus &wstatus = FWindowStatus[window];
+			while (!wstatus.pending.isEmpty() && !historyMessages.isEmpty())
 			{
-				Message message = AMessages.messages.at(i);
+				Message pMessage = wstatus.pending.takeLast();
+				if (Jid(pMessage.to()).pBare() == Jid(historyMessages.last().to()).pBare() &&
+					pMessage.body() == historyMessages.last().body() && 
+					qAbs(pMessage.dateTime().secsTo(historyMessages.last().dateTime()))<=3*60)
+				{
+					found = true;
+					historyMessages.removeLast();
+				}
+				else if (found)
+				{
+					wstatus.pending.clear();
+				}
+			}
+			wstatus.pending.clear();
+
+			for (int i=0; i<historyMessages.count(); i++)
+			{
+				Message message = historyMessages.at(i);
 				showStyledMessage(window,message);
 			}
 
@@ -1227,6 +1253,8 @@ void ChatMessageHandler::onRamblerHistoryRequestFailed(const QString &AId, const
 		IChatWindow *window = FHistoryRequests.take(AId);
 		if (FWindows.contains(window))
 		{
+			WindowStatus &wstatus = FWindowStatus[window];
+			wstatus.pending.clear();
 			showHistoryLinks(window,HLS_FAILED);
 		}
 	}

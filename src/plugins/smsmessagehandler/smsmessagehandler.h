@@ -39,13 +39,14 @@ struct WindowStatus
 	QDateTime createTime;
 	QString historyId;
 	QDateTime historyTime;
-	QUuid historyRequestId;
+	QUuid historyContentId;
 	QString lastStatusShow;
 	QList<QDate> separators;
 	QList<int> notified;
 	QList<Message> unread;
 	QList<Message> offline;
 	QList<Message> requested;
+	QList<Message> pending;
 };
 
 struct TabPageInfo
