@@ -60,6 +60,8 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	{
 		abort(tr("Unsupported gateway type"));
 	}
+
+	ui.tlbDomains->setVisible(false);
 }
 
 AddLegacyAccountDialog::~AddLegacyAccountDialog()

@@ -29,6 +29,7 @@
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
+#include <utils/menu.h>
 #include "ui_logindialog.h"
 
 class LoginDialog :
@@ -73,6 +74,7 @@ protected slots:
 	void onCompleterHighLighted(const QString &AText);
 	void onCompleterActivated(const QString &AText);
 	void onDomainCurrentIntexChanged(int AIndex);
+	void onDomainActionTriggered();
 	void onNewDomainSelected(const QString & newDomain);
 	void onNewDomainRejected();
 	void onLabelLinkActivated(const QString &ALink);
@@ -104,6 +106,7 @@ private:
 	int FConnectionSettings;
 	int domainPrevIndex;
 	QWidget *FConnectionErrorWidget;
+	Menu * domainsMenu;
 };
 
 #endif // LOGINDIALOG_H

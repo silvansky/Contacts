@@ -180,6 +180,10 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
+
+	domainsMenu = new Menu(this);
+	ui.tlbDomains->setMenu(domainsMenu);
+
 	//	ui.frmDomain->setProperty("error", false);
 	ui.cmbDomain->setView(new QListView());
 	ui.cmbDomain->view()->setItemDelegate(new DomainComboDelegate(ui.cmbDomain->view(), ui.cmbDomain));
@@ -220,6 +224,46 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.cmbDomain->addItem("@autorambler.ru",QString("autorambler.ru"));
 	ui.cmbDomain->addItem("@ro.ru",QString("ro.ru"));
 	ui.cmbDomain->addItem("@r0.ru",QString("r0.ru"));
+
+	Action * action = new Action(domainsMenu);
+	action->setText("@rambler.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("rambler.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action->trigger();
+
+	action = new Action(domainsMenu);
+	action->setText("@lenta.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("lenta.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action = new Action(domainsMenu);
+	action->setText("@myrambler.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("myrambler.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action = new Action(domainsMenu);
+	action->setText("@autorambler.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("autorambler.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action = new Action(domainsMenu);
+	action->setText("@ro.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("ro.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action = new Action(domainsMenu);
+	action->setText("@r0.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("r0.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	ui.tlbDomains->setVisible(false);
 
 	QStringList profiles;
 	foreach(QString profile, FOptionsManager->profiles())
@@ -949,6 +993,16 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 	}
 	else
 		domainPrevIndex = AIndex;
+}
+
+void LoginDialog::onDomainActionTriggered()
+{
+	Action * action = qobject_cast<Action*>(sender());
+	if (action)
+	{
+		QString domain = action->data(Action::DR_UserDefined + 1).toString();
+		ui.tlbDomains->setText(action->text());
+	}
 }
 
 void LoginDialog::onNewDomainSelected(const QString & newDomain)

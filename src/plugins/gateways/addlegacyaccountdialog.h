@@ -9,6 +9,7 @@
 #include <interfaces/igateways.h>
 #include <interfaces/iregistraton.h>
 #include <utils/log.h>
+#include <utils/menu.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/custominputdialog.h>
@@ -17,7 +18,7 @@
 class AddLegacyAccountDialog :
 	public QDialog
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent=NULL);
 	~AddLegacyAccountDialog();
@@ -45,6 +46,7 @@ private:
 	QString FRegisterId;
 	IGateServiceLabel FGateLabel;
 	IGateServiceLogin FGateLogin;
+	Menu * domainsMenu;
 private:
 	Jid FStreamJid;
 	Jid FServiceJid;

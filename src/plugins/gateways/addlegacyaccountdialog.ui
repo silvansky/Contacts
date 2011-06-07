@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>331</width>
-    <height>192</height>
+    <height>207</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -74,6 +74,19 @@
      </item>
      <item>
       <widget class="QComboBox" name="cmbDomains"/>
+     </item>
+     <item>
+      <widget class="QToolButton" name="tlbDomains">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="popupMode">
+        <enum>QToolButton::InstantPopup</enum>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextOnly</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
