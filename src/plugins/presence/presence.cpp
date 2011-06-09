@@ -35,6 +35,7 @@ bool Presence::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AS
 		int show;
 		int priority;
 		QString status;
+		QString errCond;
 		if (AStanza.type().isEmpty())
 		{
 			QString showText = AStanza.firstElement("show").text();
@@ -65,6 +66,7 @@ bool Presence::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AS
 			ErrorHandler err(AStanza.element());
 			show = Error;
 			status = err.message();
+			errCond = err.condition();
 			priority = 0;
 		}
 		else
@@ -82,6 +84,7 @@ bool Presence::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AS
 			pitem.show = show;
 			pitem.priority = priority;
 			pitem.status = status;
+			pitem.errCondition = errCond;
 
 			if (pitem != before)
 				emit received(pitem, before);
@@ -94,6 +97,7 @@ bool Presence::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AS
 			FShow = show;
 			FStatus = status;
 			FPriority = priority;
+			FErrCondition = errCond;
 			emit changed(show,status,priority);
 		}
 		AAccept = true;
@@ -164,6 +168,11 @@ bool Presence::setPriority(int APriority)
 	return setPresence(FShow,FStatus,APriority);
 }
 
+QString Presence::errCondition() const
+{
+	return FErrCondition;
+}
+
 bool Presence::setPresence(int AShow, const QString &AStatus, int APriority)
 {
 	if (FXmppStream->isOpen() && AShow != Error)
@@ -223,6 +232,7 @@ bool Presence::setPresence(int AShow, const QString &AStatus, int APriority)
 			FShow = AShow;
 			FStatus = AStatus;
 			FPriority = APriority;
+			FErrCondition.clear();
 			if (!FOpened && AShow!=Offline)
 			{
 				FOpened = true;

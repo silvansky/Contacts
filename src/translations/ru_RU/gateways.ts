@@ -322,6 +322,26 @@
         <source>Add account</source>
         <translation>Добавить учетную запись</translation>
     </message>
+    <message>
+        <source>Account disconnected</source>
+        <translation>Учетная запись отключена</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <translation>Отключен</translation>
+    </message>
+    <message>
+        <source>Enable</source>
+        <translation>Включить</translation>
+    </message>
+    <message>
+        <source>Account %1 disconnected</source>
+        <translation>Учетная запись %1 отключена</translation>
+    </message>
+    <message>
+        <source>Your account %1 was connected from another computer. You can enable it again.</source>
+        <translation>Ваша учетная запись %1 была подключена с другого компьютера. Вы можете включить её снова.</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>

@@ -30,6 +30,7 @@ public:
 	virtual bool setStatus(const QString &AStatus);
 	virtual int priority() const;
 	virtual bool setPriority(int APriority);
+	virtual QString errCondition() const;
 	virtual bool setPresence(int AShow, const QString &AStatus, int APriority);
 	virtual bool sendPresence(const Jid &AContactJid, int AShow, const QString &AStatus, int APriority);
 	virtual IPresenceItem presenceItem(const Jid &AItemJid) const;
@@ -55,6 +56,7 @@ private:
 	int FShow;
 	int FPriority;
 	QString FStatus;
+	QString FErrCondition;
 	QHash<Jid, IPresenceItem> FItems;
 };
 

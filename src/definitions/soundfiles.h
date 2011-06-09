@@ -7,6 +7,9 @@
 //ChatMessagehandler
 #define SDF_CHAT_MHANDLER_MESSAGE												  "chatmessagehandlerMessage"
 
+//Gateways
+#define SDF_GATEWAYS_CONFLICT                             "gatewaysConflict"
+
 //FileTransfer
 #define SDF_FILETRANSFER_INCOMING                         "filetransferIncoming"
 #define SDF_FILETRANSFER_COMPLETE                         "filetransferComplete"

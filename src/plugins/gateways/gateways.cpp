@@ -37,6 +37,7 @@ Gateways::Gateways()
 	FOptionsManager = NULL;
 	FDataForms = NULL;
 	FMainWindowPlugin = NULL;
+	FNotifications = NULL;
 
 	FInternalNoticeId = -1;
 
@@ -198,6 +199,17 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		{
 			connect(FMainWindowPlugin->mainWindow()->noticeWidget()->instance(),SIGNAL(noticeWidgetReady()),SLOT(onInternalNoticeReady()));
 			connect(FMainWindowPlugin->mainWindow()->noticeWidget()->instance(),SIGNAL(noticeRemoved(int)),SLOT(onInternalNoticeRemoved(int)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+	{
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
+		if (FNotifications)
+		{
+			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivated(int)));
+			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
 		}
 	}
 
@@ -444,6 +456,12 @@ bool Gateways::initObjects()
 	{
 		LegacyAccountFilter *filter = new LegacyAccountFilter(this,this);
 		FRostersViewPlugin->rostersView()->insertProxyModel(filter,RPO_GATEWAYS_ACCOUNT_FILTER);
+	}
+
+	if (FNotifications)
+	{
+		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification;
+		FNotifications->insertNotificator(NID_GATEWAYS_CONFLICT,OWO_NOTIFICATIONS_GATEWAYS_CONFLICT,QString::null,kindMask,kindMask);
 	}
 
 	return true;
@@ -1258,6 +1276,38 @@ IGateServiceDescriptor Gateways::findGateDescriptor(const IDiscoInfo &AInfo) con
 	return IGateServiceDescriptor();
 }
 
+void Gateways::insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid, const QString &ALogin)
+{
+	IInternalNoticeWidget *noticeWidget = FMainWindowPlugin!=NULL ? FMainWindowPlugin->mainWindow()->noticeWidget() : NULL;
+	if (noticeWidget && !FConflictNotices.value(AStreamJid).contains(AServiceJid))
+	{
+		IGateServiceDescriptor descriptor = serviceDescriptor(AStreamJid,AServiceJid);
+
+		IInternalNotice notice;
+		notice.priority = INP_GATEWAYS_CONFLICT;
+		notice.iconKey = descriptor.iconKey;
+		notice.iconStorage = RSR_STORAGE_MENUICONS;
+		notice.caption = tr("Account disconnected");
+		notice.message = QString("%1<br><i>%2</i>").arg(ALogin).arg(tr("Disconnected"));
+
+		Action *action = new Action(this);
+		action->setText(tr("Enable"));
+		action->setData(ADR_STREAM_JID,AStreamJid.full());
+		action->setData(ADR_SERVICE_JID,AServiceJid.bare());
+		connect(action,SIGNAL(triggered()),SLOT(onInternalConflictNoticeActionTriggered()));
+		notice.actions.append(action);
+
+		FConflictNotices[AStreamJid].insert(AServiceJid, noticeWidget->insertNotice(notice));
+	}
+}
+
+void Gateways::removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid)
+{
+	IInternalNoticeWidget *noticeWidget = FMainWindowPlugin!=NULL ? FMainWindowPlugin->mainWindow()->noticeWidget() : NULL;
+	if (noticeWidget)
+		noticeWidget->removeNotice(FConflictNotices.value(AStreamJid).value(AServiceJid));
+}
+
 void Gateways::onAddLegacyUserActionTriggered(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -1346,9 +1396,15 @@ void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
 void Gateways::onXmppStreamClosed(IXmppStream *AXmppStream)
 {
 	if (FOptionsManager)
-	{
 		FOptionsManager->removeOptionsDialogNode(OPN_GATEWAYS_ACCOUNTS);
-	}
+
+	foreach(int notifyId, FConflictNotifies.keys(AXmppStream->streamJid()))
+		FNotifications->removeNotification(notifyId);
+
+	foreach(int noticeId, FConflictNotices.value(AXmppStream->streamJid()).values())
+		FMainWindowPlugin->mainWindow()->noticeWidget()->removeNotice(noticeId);
+	FConflictNotices.remove(AXmppStream->streamJid());
+
 	FResolveNicks.remove(AXmppStream->streamJid());
 	FStreamDiscoItems.remove(AXmppStream->streamJid());
 	FStreamAutoRegServices.remove(AXmppStream->streamJid());
@@ -1382,9 +1438,14 @@ void Gateways::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, 
 	if (AItem.itemJid.node().isEmpty())
 	{
 		if (AItem.subscription!=SUBSCRIPTION_NONE && AItem.subscription!=SUBSCRIPTION_REMOVE)
+		{
+			removeConflictNotice(ARoster->streamJid(),AItem.itemJid);
 			emit serviceEnableChanged(ARoster->streamJid(),AItem.itemJid,true);
+		}
 		else if (AItem.ask != SUBSCRIPTION_SUBSCRIBE)
+		{
 			emit serviceEnableChanged(ARoster->streamJid(),AItem.itemJid,false);
+		}
 		emit streamServicesChanged(ARoster->streamJid());
 	}
 }
@@ -1422,6 +1483,34 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 	Q_UNUSED(ABefore);
 	if (AItem.itemJid.node().isEmpty())
 	{
+		QString conflictCond = ErrorHandler::coditionByCode(ErrorHandler::CONFLICT);
+		if (AItem.errCondition==conflictCond && AItem.errCondition!=ABefore.errCondition && isServiceEnabled(APresence->streamJid(),AItem.itemJid))
+		{
+			setServiceEnabled(APresence->streamJid(),AItem.itemJid,false);
+			if (FNotifications)
+			{
+				INotification notify;
+				notify.kinds = FNotifications->notificatorKinds(NID_BIRTHDAY_REMIND);
+				if ((notify.kinds & (INotification::PopupWindow|INotification::PlaySoundNotification))>0)
+				{
+					IGateServiceDescriptor descriptor = serviceDescriptor(APresence->streamJid(),AItem.itemJid);
+					notify.notificatior = NID_GATEWAYS_CONFLICT;
+					notify.data.insert(NDR_STREAM_JID,APresence->streamJid().full());
+					notify.data.insert(NDR_POPUP_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.iconKey));
+					notify.data.insert(NDR_POPUP_TITLE,tr("Account %1 disconnected").arg(descriptor.name));
+					notify.data.insert(NDR_POPUP_TEXT,tr("Your account %1 was connected from another computer. You can enable it again.").arg(descriptor.name));
+					notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
+					notify.data.insert(NDR_SOUND_FILE,SDF_GATEWAYS_CONFLICT);
+					FConflictNotifies.insert(FNotifications->appendNotification(notify), APresence->streamJid());
+				}
+			}
+			if (FMainWindowPlugin && !FConflictNotices.value(APresence->streamJid()).contains(AItem.itemJid))
+			{
+				QString requestId = FRegistration->sendRegiterRequest(APresence->streamJid(),AItem.itemJid);
+				if (!requestId.isEmpty())
+					FConflictLoginRequests.insert(requestId,APresence->streamJid());
+			}
+		}
 		emit servicePresenceChanged(APresence->streamJid(),AItem.itemJid,AItem);
 	}
 }
@@ -1736,6 +1825,18 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 		if (!AFields.registered && FSubscribeServices.contains(streamJid,AFields.serviceJid))
 			FRegistration->showRegisterDialog(streamJid,AFields.serviceJid,IRegistration::Register);
 	}
+	else if (FConflictLoginRequests.contains(AId))
+	{
+		Jid streamJid = FConflictLoginRequests.take(AId);
+		IGateServiceLogin gslogin = serviceLogin(streamJid,AFields.serviceJid,AFields);
+		if (gslogin.isValid)
+		{
+			QString login = gslogin.login;
+			if (!gslogin.domain.isEmpty())
+				login += "@" + gslogin.domain;
+			insertConflictNotice(streamJid,AFields.serviceJid,login);
+		}
+	}
 }
 
 void Gateways::onRegisterSuccess(const QString &AId)
@@ -1779,7 +1880,7 @@ void Gateways::onInternalNoticeReady()
 
 				Action *action = new Action(this);
 				action->setText(tr("Add my accounts..."));
-				connect(action,SIGNAL(triggered()),SLOT(onInternalNoticeActionTriggered()));
+				connect(action,SIGNAL(triggered()),SLOT(onInternalAccountNoticeActionTriggered()));
 				notice.actions.append(action);
 
 				FInternalNoticeId = widget->insertNotice(notice);
@@ -1790,11 +1891,20 @@ void Gateways::onInternalNoticeReady()
 	}
 }
 
-void Gateways::onInternalNoticeActionTriggered()
+void Gateways::onInternalAccountNoticeActionTriggered()
 {
 	if (FOptionsManager)
 	{
 		FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
+	}
+}
+
+void Gateways::onInternalConflictNoticeActionTriggered()
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		setServiceEnabled(action->data(ADR_STREAM_JID).toString(),action->data(ADR_SERVICE_JID).toString(),true);
 	}
 }
 
@@ -1805,6 +1915,33 @@ void Gateways::onInternalNoticeRemoved(int ANoticeId)
 		int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
 		Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).setValue(removeCount+1);
 		FInternalNoticeId = -1;
+	}
+	else foreach(Jid streamJid, FConflictNotices.keys())
+	{
+		Jid serviceJid = FConflictNotices.value(streamJid).key(ANoticeId);
+		if (serviceJid.isValid())
+		{
+			FConflictNotices[streamJid].remove(serviceJid);
+			break;
+		}
+	}
+}
+
+void Gateways::onNotificationActivated(int ANotifyId)
+{
+	if (FConflictNotifies.contains(ANotifyId))
+	{
+		if (FMainWindowPlugin)
+			FMainWindowPlugin->showMainWindow();
+		FNotifications->removeNotification(ANotifyId);
+	}
+}
+
+void Gateways::onNotificationRemoved(int ANotifyId)
+{
+	if (FConflictNotifies.contains(ANotifyId))
+	{
+		FConflictNotifies.remove(ANotifyId);
 	}
 }
 

@@ -13,11 +13,14 @@
 #include <definitions/discoitemdataroles.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/soundfiles.h>
 #include <definitions/optionnodes.h>
 #include <definitions/optionvalues.h>
 #include <definitions/optionnodeorders.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/gateserviceidentifiers.h>
+#include <definitions/notificators.h>
+#include <definitions/notificationdataroles.h>
 #include <definitions/internalnoticepriorities.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/igateways.h>
@@ -34,6 +37,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/idataforms.h>
 #include <interfaces/imainwindow.h>
+#include <interfaces/inotifications.h>
 #include <utils/errorhandler.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
@@ -119,6 +123,8 @@ protected:
 	void startAutoLogin(const Jid &AStreamJid);
 	void savePrivateStorageSubscribe(const Jid &AStreamJid);
 	IGateServiceDescriptor findGateDescriptor(const IDiscoInfo &AInfo) const;
+	void insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid, const QString &ALogin);
+	void removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid);
 protected slots:
 	void onAddLegacyUserActionTriggered(bool);
 	void onLogActionTriggered(bool);
@@ -148,8 +154,11 @@ protected slots:
 	void onRegisterSuccess(const QString &AId);
 	void onRegisterError(const QString &AId, const QString &AError);
 	void onInternalNoticeReady();
-	void onInternalNoticeActionTriggered();
+	void onInternalAccountNoticeActionTriggered();
+	void onInternalConflictNoticeActionTriggered();
 	void onInternalNoticeRemoved(int ANoticeId);
+	void onNotificationActivated(int ANotifyId);
+	void onNotificationRemoved(int ANotifyId);
 private:
 	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;
@@ -166,6 +175,7 @@ private:
 	IOptionsManager *FOptionsManager;
 	IDataForms *FDataForms;
 	IMainWindowPlugin *FMainWindowPlugin;
+	INotifications *FNotifications;
 private:
 	QTimer FKeepTimer;
 	QMap<Jid, QSet<Jid> > FKeepConnections;
@@ -183,6 +193,10 @@ private:
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
 	QMultiMap<Jid, Jid> FStreamAutoRegServices;
 	QList<IGateServiceDescriptor> FGateDescriptors;
+private:
+	QMap<int, Jid> FConflictNotifies;
+	QMap<QString, Jid> FConflictLoginRequests;
+	QMap<Jid, QMap<Jid, int> > FConflictNotices;
 };
 
 #endif // GATEWAYS_H
