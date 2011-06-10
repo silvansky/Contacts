@@ -37,6 +37,10 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
 		SLOT(onRegisterError(const QString &, const QString &)));
 
+	domainsMenu = new Menu(this);
+	domainsMenu->setObjectName("domainsMenu");
+	ui.tlbDomains->setMenu(domainsMenu);
+
 	FGateLabel = FGateways->serviceDescriptor(FPresence->streamJid(), FServiceJid);
 	if (!FGateLabel.id.isEmpty())
 	{
@@ -46,9 +50,20 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 		ui.lneLogin->setPlaceholderText(!FGateLabel.loginLabel.isEmpty() ? FGateLabel.loginLabel : tr("Login"));
 		ui.lnePassword->setPlaceholderText(tr("Password"));
 
+		int i = 0;
 		foreach(QString domain, FGateLabel.domains)
+		{
 			ui.cmbDomains->addItem("@"+domain,domain);
+			Action * action = new Action(domainsMenu);
+			action->setText("@"+domain);
+			action->setProperty("domain", domain);
+			domainsMenu->addAction(action);
+			connect(action, SIGNAL(triggered()), SLOT(domainsMenuActionTriggered()));
+			if (!i++)
+				action->trigger();
+		}
 		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());
+		ui.tlbDomains->setVisible(!FGateLabel.domains.isEmpty());
 
 		FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 		if (FRegisterId.isEmpty())
@@ -61,12 +76,13 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 		abort(tr("Unsupported gateway type"));
 	}
 
-	ui.tlbDomains->setVisible(false);
+	//ui.tlbDomains->setVisible(false);
+	ui.cmbDomains->setVisible(false);
 }
 
 AddLegacyAccountDialog::~AddLegacyAccountDialog()
 {
-
+	domainsMenu->deleteLater();
 }
 
 void AddLegacyAccountDialog::showEvent(QShowEvent *AEvent)
@@ -103,6 +119,7 @@ void AddLegacyAccountDialog::setError(const QString &AMessage)
 		ui.lneLogin->setProperty("error", !AMessage.isEmpty());
 		ui.lnePassword->setProperty("error", !AMessage.isEmpty());
 		ui.cmbDomains->setProperty("error", !AMessage.isEmpty());
+		ui.tlbDomains->setProperty("error", !AMessage.isEmpty());
 		StyleStorage::updateStyle(this);
 
 		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
@@ -128,6 +145,7 @@ void AddLegacyAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
 	}
 	ui.lneLogin->setEnabled(!AWait);
 	ui.cmbDomains->setEnabled(!AWait);
+	ui.tlbDomains->setEnabled(!AWait);
 	ui.lnePassword->setEnabled(!AWait);
 	ui.chbShowPassword->setEnabled(!AWait);
 
@@ -168,7 +186,8 @@ void AddLegacyAccountDialog::onDialogButtonClicked(QAbstractButton *AButton)
 		FGateLogin.password = ui.lnePassword->text();
 		if (!FGateLabel.domains.isEmpty())
 		{
-			FGateLogin.domain = ui.cmbDomains->itemData(ui.cmbDomains->currentIndex()).toString();
+			//FGateLogin.domain = ui.cmbDomains->itemData(ui.cmbDomains->currentIndex()).toString();
+			FGateLogin.domain = ui.tlbDomains->property("domain").toString();
 		}
 		else if (!FGateLogin.domainSeparator.isEmpty())
 		{
@@ -215,7 +234,11 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 			else
 			{
 				if (!FGateLogin.domain.isEmpty())
-					ui.cmbDomains->setCurrentIndex(ui.cmbDomains->findData(FGateLogin.domain,Qt::UserRole,Qt::MatchExactly));
+				{
+					//ui.cmbDomains->setCurrentIndex(ui.cmbDomains->findData(FGateLogin.domain,Qt::UserRole,Qt::MatchExactly));
+					ui.tlbDomains->setText("@"+FGateLogin.domain);
+					ui.tlbDomains->setProperty("domain", FGateLogin.domain);
+				}
 				ui.lneLogin->setText(FGateLogin.login);
 			}
 			ui.lnePassword->setText(FGateLogin.password);
@@ -258,5 +281,15 @@ void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &
 		{
 			abort(tr("Gateway registration request failed"));
 		}
+	}
+}
+
+void AddLegacyAccountDialog::domainsMenuActionTriggered()
+{
+	Action * action = qobject_cast<Action*>(sender());
+	if (action)
+	{
+		ui.tlbDomains->setText(action->text());
+		ui.tlbDomains->setProperty("domain", action->property("domain"));
 	}
 }

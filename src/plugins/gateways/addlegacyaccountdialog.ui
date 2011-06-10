@@ -76,15 +76,12 @@
       <widget class="QComboBox" name="cmbDomains"/>
      </item>
      <item>
-      <widget class="QToolButton" name="tlbDomains">
+      <widget class="QPushButton" name="tlbDomains">
        <property name="text">
         <string notr="true">...</string>
        </property>
-       <property name="popupMode">
-        <enum>QToolButton::InstantPopup</enum>
-       </property>
-       <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonTextOnly</enum>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

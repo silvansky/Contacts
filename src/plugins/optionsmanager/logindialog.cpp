@@ -180,9 +180,11 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
+	ui.tlbDomain->setProperty("error", false);
 
 	domainsMenu = new Menu(this);
-	ui.tlbDomains->setMenu(domainsMenu);
+	domainsMenu->setObjectName("domainsMenu");
+	ui.tlbDomain->setMenu(domainsMenu);
 
 	//	ui.frmDomain->setProperty("error", false);
 	ui.cmbDomain->setView(new QListView());
@@ -263,7 +265,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 	domainsMenu->addAction(action);
 
-	ui.tlbDomains->setVisible(false);
+	//ui.tlbDomain->setVisible(false);
+	ui.cmbDomain->setVisible(false);
 
 	QStringList profiles;
 	foreach(QString profile, FOptionsManager->profiles())
@@ -349,7 +352,10 @@ void LoginDialog::loadLastProfile()
 	if (lastStreamJid.isValid())
 	{
 		ui.lneNode->setText(lastStreamJid.pNode());
-		ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(lastStreamJid.pDomain()));
+		QString domain = lastStreamJid.pDomain();
+		ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(domain));
+		ui.tlbDomain->setText("@"+domain);
+		ui.tlbDomain->setProperty("domain", domain);
 		loadCurrentProfileSettings();
 	}
 }
@@ -362,7 +368,8 @@ void LoginDialog::connectIfReady()
 
 Jid LoginDialog::currentStreamJid() const
 {
-	Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString(),CLIENT_NAME);
+	//Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString(),CLIENT_NAME);
+	Jid streamJid(ui.lneNode->text().trimmed(), ui.tlbDomain->property("domain").toString(), CLIENT_NAME);
 	return streamJid;
 }
 
@@ -397,7 +404,7 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::MouseButtonPress)
 	{
-		if (AWatched == ui.lneNode || AWatched == ui.cmbDomain || AWatched == ui.lnePassword || AWatched == ui.chbSavePassword || AWatched == ui.chbAutoRun)
+		if (AWatched == ui.lneNode || AWatched == ui.tlbDomain || AWatched == ui.lnePassword || AWatched == ui.chbSavePassword || AWatched == ui.chbAutoRun)
 		{
 			stopReconnection();
 		}
@@ -664,6 +671,7 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 
 	ui.lneNode->setEnabled(AEnabled);
 	ui.cmbDomain->setEnabled(AEnabled);
+	ui.tlbDomain->setEnabled(AEnabled);
 	ui.lnePassword->setEnabled(AEnabled);
 	ui.chbSavePassword->setEnabled(AEnabled);
 	ui.chbAutoRun->setEnabled(AEnabled);
@@ -765,6 +773,7 @@ void LoginDialog::hideXmppStreamError()
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
+	ui.tlbDomain->setProperty("error", false);
 	//	ui.frmDomain->setProperty("error", false);
 	StyleStorage::updateStyle(this);
 	ui.lblXmppError->setVisible(false);
@@ -786,6 +795,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 		ui.lneNode->setProperty("error", true);
 		//		ui.frmDomain->setProperty("error", true);
 		ui.cmbDomain->setProperty("error", true);
+		ui.tlbDomain->setProperty("error", true);
 	}
 	ui.lnePassword->setProperty("error", true);
 	StyleStorage::updateStyle(this);
@@ -794,8 +804,10 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	QPoint p;
 	if (FNewProfile)
 	{
-		p = ui.cmbDomain->mapToGlobal(ui.cmbDomain->rect().topRight());
-		p.setY(p.y() + ui.cmbDomain->height() / 2);
+		//p = ui.cmbDomain->mapToGlobal(ui.cmbDomain->rect().topRight());
+		//p.setY(p.y() + ui.cmbDomain->height() / 2);
+		p = ui.tlbDomain->mapToGlobal(ui.tlbDomain->rect().topRight());
+		p.setY(p.y() + ui.tlbDomain->height() / 2);
 	}
 	else
 	{
@@ -964,6 +976,8 @@ void LoginDialog::onCompleterHighLighted(const QString &AText)
 	Jid streamJid = AText;
 	ui.lneNode->setText(streamJid.node());
 	ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(streamJid.pDomain()));
+	ui.tlbDomain->setText("@"+streamJid.pDomain());
+	ui.tlbDomain->setProperty("domain", streamJid.pDomain());
 }
 
 void LoginDialog::onCompleterActivated(const QString &AText)
@@ -1001,7 +1015,8 @@ void LoginDialog::onDomainActionTriggered()
 	if (action)
 	{
 		QString domain = action->data(Action::DR_UserDefined + 1).toString();
-		ui.tlbDomains->setText(action->text());
+		ui.tlbDomain->setText(action->text());
+		ui.tlbDomain->setProperty("domain", domain);
 	}
 }
 

@@ -37,6 +37,21 @@ QComboBox[error="true"]:!editable
 	border-image: url(%IMAGES_PATH%/comboboxerrorborder.png);
 }
 
+QPushButton#tlbDomain
+{
+	margin-top: 1px;
+	min-width: 80px;
+	max-width: 80px;
+	width: 80px;
+	text-align: left;
+	min-height: 25px;
+}
+
+Menu#domainsMenu::item
+{
+	padding-left: 8px;
+}
+
 /******************
  * Connect Button *
  ******************/

@@ -143,17 +143,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="tlbDomains">
+          <widget class="QPushButton" name="tlbDomain">
            <property name="text">
             <string notr="true">...</string>
            </property>
-           <property name="popupMode">
-            <enum>QToolButton::InstantPopup</enum>
-           </property>
-           <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonTextOnly</enum>
-           </property>
-           <property name="autoRaise">
+           <property name="autoDefault">
             <bool>false</bool>
            </property>
           </widget>

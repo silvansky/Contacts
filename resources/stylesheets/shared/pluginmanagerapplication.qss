@@ -295,9 +295,9 @@ QPushButton:hover:enabled, QToolButton:hover:enabled
 	border-right: 5px;
 	border-left: 5px;
 	border-bottom: 6px;
-	padding-left: -4px;
+	padding-left: 4px;
 	padding-top: -5px;
-	padding-right: -4px;
+	padding-right: 4px;
 	padding-bottom: -3px;
 	border-image: url(%IMAGES_PATH%/buttonborderhover.png);
 }
@@ -357,7 +357,8 @@ QToolButton[popupMode="1"]:open, QToolButton[popupMode="2"]:open
 	background-clip: border;
 }
 
-QToolButton::menu-indicator
+QToolButton::menu-indicator,
+QPushButton::menu-indicator
 {
 	image: url("%IMAGES_PATH%/buttonarrowdown.png");
 	subcontrol-origin: padding;
@@ -366,12 +367,14 @@ QToolButton::menu-indicator
 	right: 3px;
 }
 
-QToolButton::menu-indicator:hover
+QToolButton::menu-indicator:hover,
+QPushButton::menu-indicator:hover
 {
 	right: 1px;
 }
 
-QToolButton::menu-indicator:open, QToolButton::menu-indicator:pressed
+QToolButton::menu-indicator:open, QToolButton::menu-indicator:pressed,
+QPushButton::menu-indicator:open, QPushButton::menu-indicator:pressed
 {
 	image: url("%IMAGES_PATH%/buttonarrowup.png");
 }

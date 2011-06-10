@@ -8,12 +8,27 @@ QLabel#lblCaption
 	font-size: 18px;
 }
 
-QComboBox
+QComboBox, QToolButton
 {
+	margin-top: 1px;
+}
+
+QPushButton#tlbDomains
+{
+	min-width: 80px;
+	max-width: 80px;
+	width: 80px;
+	min-height: 25px;
+	text-align: left;
 	margin-top: 1px;
 }
 
 QDialogButtonBox
 {
 	padding-right: 4px;
+}
+
+Menu#domainsMenu::item
+{
+	padding-left: 8px;
 }
