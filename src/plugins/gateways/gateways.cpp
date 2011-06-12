@@ -1497,10 +1497,23 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 					notify.notificatior = NID_GATEWAYS_CONFLICT;
 					notify.data.insert(NDR_STREAM_JID,APresence->streamJid().full());
 					notify.data.insert(NDR_POPUP_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.iconKey));
-					notify.data.insert(NDR_POPUP_TITLE,tr("Account %1 disconnected").arg(descriptor.name));
-					notify.data.insert(NDR_POPUP_TEXT,tr("Your account %1 was connected from another computer. You can enable it again.").arg(descriptor.name));
 					notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 					notify.data.insert(NDR_SOUND_FILE,SDF_GATEWAYS_CONFLICT);
+					if (descriptor.id == GSID_ICQ)
+					{
+						notify.data.insert(NDR_POPUP_TITLE,tr("ICQ disconnected (offline)").arg(descriptor.name));
+						notify.data.insert(NDR_POPUP_TEXT,tr("Your ICQ was connected from another computer. You can enable ICQ again."));
+					}
+					else if (descriptor.id == GSID_MAGENT)
+					{
+						notify.data.insert(NDR_POPUP_TITLE,tr("Agent@Mail disconnected (offline)").arg(descriptor.name));
+						notify.data.insert(NDR_POPUP_TEXT,tr("Your Agent@Mail was connected from another computer. You can enable it again."));
+					}
+					else
+					{
+						notify.data.insert(NDR_POPUP_TITLE,tr("Account %1 disconnected").arg(descriptor.name));
+						notify.data.insert(NDR_POPUP_TEXT,tr("Your account %1 was connected from another computer. You can enable it again.").arg(descriptor.name));
+					}
 					FConflictNotifies.insert(FNotifications->appendNotification(notify), APresence->streamJid());
 				}
 			}

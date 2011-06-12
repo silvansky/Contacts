@@ -342,6 +342,22 @@
         <source>Your account %1 was connected from another computer. You can enable it again.</source>
         <translation>Ваша учетная запись %1 была подключена с другого компьютера. Вы можете включить её снова.</translation>
     </message>
+    <message>
+        <source>ICQ disconnected (offline)</source>
+        <translation>ICQ лтключена (не в сети)</translation>
+    </message>
+    <message>
+        <source>Your ICQ was connected from another computer. You can enable ICQ again.</source>
+        <translation>Ваша ICQ была запущена с другого компьютера. Вы можете включить её снова.</translation>
+    </message>
+    <message>
+        <source>Agent@Mail disconnected (offline)</source>
+        <translation>Агент@Mail отключен (не в сети)</translation>
+    </message>
+    <message>
+        <source>Your Agent@Mail was connected from another computer. You can enable it again.</source>
+        <translation>Ваш Агент@Mail был запущен с другого компьютера. Вы можете включить его снова.</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>
