@@ -438,7 +438,7 @@ void RamblerMailNotify::onNotificationActivated(int ANotifyId)
 	MailNotify *mnotify = findMailNotifyByPopupId(ANotifyId);
 	if (mnotify)
 	{
-		showChatWindow(mnotify->streamJid, mnotify->contactJid);
+		showNotifyPage(mnotify->streamJid,mnotify->contactJid.domain());
 		FNotifications->removeNotification(ANotifyId);
 	}
 }

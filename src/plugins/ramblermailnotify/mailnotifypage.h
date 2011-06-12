@@ -55,6 +55,7 @@ protected:
 	virtual bool event(QEvent *AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void closeEvent(QCloseEvent *AEvent);
+	virtual void paintEvent(QPaintEvent *AEvent);
 protected slots:
 	void onNewMailButtonClicked();
 	void onIncomingButtonClicked();

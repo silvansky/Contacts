@@ -7,3 +7,22 @@ MailNotifyPage QWidget
 {
 	background-color: transparent;
 }
+
+QHeaderView
+{
+	border-bottom: 1px solid black;
+}
+
+QHeaderView::section
+{
+	background-color: transparent;
+}
+
+QTableWidget
+{
+	color: black;
+	background-color: white;
+	alternate-background-color: #f2f9fc;
+	selection-color: white;
+	selection-background-color: #275672;
+}

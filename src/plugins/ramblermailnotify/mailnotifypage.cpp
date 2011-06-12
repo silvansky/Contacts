@@ -1,11 +1,12 @@
 #include "mailnotifypage.h"
 
+#include <QPainter>
+#include <QPaintEvent>
 #include <QDesktopServices>
 
 #define TDR_CONTACT_JID     Qt::UserRole+1
 
 enum MailColumns {
-	CMN_ICON,
 	CMN_FROM,
 	CMN_SUBJECT,
 	CMN_DATE,
@@ -26,11 +27,9 @@ MailNotifyPage::MailNotifyPage(IMessageWidgets *AMessageWidgets, IRosterIndex *A
 	FTabPageNotifier = NULL;
 
 	ui.twtMails->setColumnCount(CMN_COUNT);
-	ui.twtMails->verticalHeader()->hide();
 	ui.twtMails->horizontalHeader()->setHighlightSections(false);
-	ui.twtMails->setHorizontalHeaderLabels(QStringList() << QString::null << tr("From") << tr("Subject") << tr("Time"));
-
-	ui.twtMails->horizontalHeader()->setResizeMode(CMN_ICON,QHeaderView::ResizeToContents);
+	ui.twtMails->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+	ui.twtMails->setHorizontalHeaderLabels(QStringList() << tr("From") << tr("Subject") << tr("Time"));
 	ui.twtMails->horizontalHeader()->setResizeMode(CMN_FROM,QHeaderView::ResizeToContents);
 	ui.twtMails->horizontalHeader()->setResizeMode(CMN_SUBJECT,QHeaderView::Stretch);
 	ui.twtMails->horizontalHeader()->setResizeMode(CMN_DATE,QHeaderView::ResizeToContents);
@@ -123,13 +122,11 @@ void MailNotifyPage::appendNewMail(const Stanza &AStanza)
 	Message message(AStanza);
 	QDomElement contactElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTIFY).firstChildElement("contact");
 
-	QTableWidgetItem *iconItem = new QTableWidgetItem();
-	iconItem->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RAMBLERMAILNOTIFY_MAIL));
-
 	QTableWidgetItem *fromItem = new QTableWidgetItem();
 	QString fromName = contactElem.firstChildElement("name").text().trimmed();
+	fromItem->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RAMBLERMAILNOTIFY_MAIL));
 	fromItem->setText(fromName.isEmpty() ? contactElem.firstChildElement("e-mail").text() : fromName);
-	fromItem->setData(Qt::UserRole,contactElem.firstChildElement("contact").text());
+	fromItem->setData(Qt::UserRole,contactElem.firstChildElement("jid").text());
 
 	QTableWidgetItem *subjectItem = new QTableWidgetItem();
 	subjectItem->setText(message.subject());
@@ -138,10 +135,9 @@ void MailNotifyPage::appendNewMail(const Stanza &AStanza)
 	dateItem->setText(message.dateTime().time().toString());
 
 	ui.twtMails->setRowCount(ui.twtMails->rowCount()+1);
-	ui.twtMails->setItem(ui.twtMails->rowCount()-1,CMN_ICON,iconItem);
-	ui.twtMails->setItem(iconItem->row(),CMN_FROM,fromItem);
-	ui.twtMails->setItem(iconItem->row(),CMN_SUBJECT,subjectItem);
-	ui.twtMails->setItem(iconItem->row(),CMN_DATE,dateItem);
+	ui.twtMails->setItem(ui.twtMails->rowCount()-1,CMN_FROM,fromItem);
+	ui.twtMails->setItem(fromItem->row(),CMN_SUBJECT,subjectItem);
+	ui.twtMails->setItem(fromItem->row(),CMN_DATE,dateItem);
 }
 
 void MailNotifyPage::clearNewMails()
@@ -173,6 +169,15 @@ void MailNotifyPage::closeEvent(QCloseEvent *AEvent)
 {
 	QWidget::closeEvent(AEvent);
 	emit tabPageClosed();
+}
+
+void MailNotifyPage::paintEvent(QPaintEvent *AEvent)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	p.setClipRect(AEvent->rect());
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 void MailNotifyPage::onNewMailButtonClicked()
