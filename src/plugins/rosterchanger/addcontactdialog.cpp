@@ -393,6 +393,7 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtSelectProfile->setVisible(false);
 			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
 			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Continue"));
+			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
 		}
 		else if (AState == STATE_CONFIRM)
 		{
@@ -403,6 +404,8 @@ void AddContactDialog::setDialogState(int AState)
 			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel|QDialogButtonBox::Reset);
 			ui.dbbButtons->button(QDialogButtonBox::Reset)->setText(tr("Back"));
 			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Continue"));
+			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
+			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Cancel),ui.dbbButtons->button(QDialogButtonBox::Reset));
 		}
 		else if (AState == STATE_PARAMS)
 		{
@@ -415,7 +418,11 @@ void AddContactDialog::setDialogState(int AState)
 			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel|QDialogButtonBox::Reset);
 			ui.dbbButtons->button(QDialogButtonBox::Reset)->setText(tr("Back"));
 			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add Contact"));
+			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
+			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Cancel),ui.dbbButtons->button(QDialogButtonBox::Reset));
 		}
+		ui.dbbButtons->button(QDialogButtonBox::Ok)->setDefault(true);
+
 		FDialogState = AState;
 		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
 	}
@@ -727,22 +734,28 @@ void AddContactDialog::onGroupCurrentIndexChanged(int AIndex)
 {
 	if (ui.cmbParamsGroup->itemData(AIndex).toString() == GROUP_NEW)
 	{
-		int index = 0;
-		QString newGroup = QInputDialog::getText(this,tr("Create group"),tr("New group name")).trimmed();
-		if (!newGroup.isEmpty())
+		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::String);
+		dialog->setCaptionText(tr("Create new group"));
+		dialog->setInfoText(tr("Enter group name:"));
+		dialog->setAcceptButtonText(tr("Create"));
+		dialog->setRejectButtonText(tr("Cancel"));
+		connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewGroupNameSelected(const QString&)));
+		dialog->show();
+		ui.cmbParamsGroup->setCurrentIndex(0);
+	}
+}
+
+void AddContactDialog::onNewGroupNameSelected(const QString &AGroup)
+{
+	if (!AGroup.isEmpty())
+	{
+		int index = ui.cmbParamsGroup->findText(AGroup);
+		if (index < 0)
 		{
-			index = ui.cmbParamsGroup->findText(newGroup);
-			if (index < 0)
-			{
-				ui.cmbParamsGroup->blockSignals(true);
-				ui.cmbParamsGroup->insertItem(1,newGroup);
-				ui.cmbParamsGroup->blockSignals(false);
-				index = 1;
-			}
-			else if (!ui.cmbParamsGroup->itemData(AIndex).isNull())
-			{
-				index = 0;
-			}
+			ui.cmbParamsGroup->blockSignals(true);
+			ui.cmbParamsGroup->insertItem(1,AGroup);
+			ui.cmbParamsGroup->blockSignals(false);
+			index = 1;
 		}
 		ui.cmbParamsGroup->setCurrentIndex(index);
 	}

@@ -26,6 +26,7 @@
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/customlistview.h>
+#include <utils/custominputdialog.h>
 #include "selectprofilewidget.h"
 #include "ui_addcontactdialog.h"
 
@@ -86,6 +87,7 @@ protected slots:
 	void onContactTextEdited(const QString &AText);
 	void onContactNickEdited(const QString &AText);
 	void onGroupCurrentIndexChanged(int AIndex);
+	void onNewGroupNameSelected(const QString &AGroup);
 	void onSelectedProfileChanched();
 	void onVCardReceived(const Jid &AContactJid);
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);

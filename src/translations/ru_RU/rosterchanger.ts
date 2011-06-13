@@ -12,14 +12,6 @@
         <translation>Новая группа...</translation>
     </message>
     <message>
-        <source>Create group</source>
-        <translation>Создать группу</translation>
-    </message>
-    <message>
-        <source>New group name</source>
-        <translation>Имя новой группы</translation>
-    </message>
-    <message>
         <source>Add Contact</source>
         <translation>Добавить контакт</translation>
     </message>
@@ -86,6 +78,22 @@
     <message>
         <source>You can add this contact only on %1 site.</source>
         <translation>Вы можете добавить этот контакт только на сайте %1.</translation>
+    </message>
+    <message>
+        <source>Create new group</source>
+        <translation>Создать новую группу</translation>
+    </message>
+    <message>
+        <source>Enter group name:</source>
+        <translation>Введите имя группы:</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Создать</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
