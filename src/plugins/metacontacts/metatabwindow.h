@@ -47,6 +47,7 @@ public:
 	virtual void insertTopWidget(int AOrder, QWidget *AWidget);
 	virtual void removeTopWidget(QWidget *AWidget);
 	//Common pages
+	virtual void createFirstPage();
 	virtual QList<QString> pages() const;
 	virtual QString currentPage() const;
 	virtual void setCurrentPage(const QString &APageId);
@@ -89,7 +90,6 @@ signals:
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void updateWindow();
-	void checkCurrentPage();
 	void updatePageButton(const QString &APageId);
 	void updatePageButtonNotify(const QString &APageId);
 	void setButtonAction(QToolButton *AButton, Action *AAction);

@@ -728,6 +728,8 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 			FMetaTabWindows.append(window);
 			emit metaTabWindowCreated(window);
 
+			window->createFirstPage();
+
 			TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
 			pageInfo.page = window;
 			emit tabPageCreated(window);

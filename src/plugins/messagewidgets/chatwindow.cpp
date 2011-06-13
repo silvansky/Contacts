@@ -71,6 +71,7 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 
 	FStatusBarWidget = FMessageWidgets->newStatusBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
 	FStatusBarWidget->instance()->setObjectName("statusBarWidget");
+	FStatusBarWidget->instance()->setVisible(false);
 	setStatusBar(FStatusBarWidget->instance());
 
 	initialize();

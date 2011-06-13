@@ -155,6 +155,17 @@ void MetaTabWindow::removeTopWidget(QWidget *AWidget)
 	}
 }
 
+void MetaTabWindow::createFirstPage()
+{
+	if (pageWidget(currentPage()) == NULL)
+	{
+		if (isContactPage())
+			setCurrentItem(lastItemJid());
+		else
+			setCurrentPage(FPageActions.keys().value(0));
+	}
+}
+
 QList<QString> MetaTabWindow::pages() const
 {
 	return FPageWidgets.keys();
@@ -319,7 +330,7 @@ void MetaTabWindow::setPageWidget(const QString &APageId, ITabPage *AWidget)
 		if (AWidget && show)
 			AWidget->showTabPage();
 
-		checkCurrentPage();
+		createFirstPage();
 	}
 }
 
@@ -373,7 +384,7 @@ void MetaTabWindow::removePage(const QString &APageId)
 
 		emit pageRemoved(APageId);
 
-		checkCurrentPage();
+		createFirstPage();
 	}
 }
 
@@ -477,17 +488,6 @@ void MetaTabWindow::updateWindow()
 	}
 
 	emit tabPageChanged();
-}
-
-void MetaTabWindow::checkCurrentPage()
-{
-	if (pageWidget(currentPage()) == NULL)
-	{
-		if (isContactPage())
-			setCurrentItem(lastItemJid());
-		else
-			setCurrentPage(FPageActions.keys().value(0));
-	}
 }
 
 void MetaTabWindow::updatePageButton(const QString &APageId)
@@ -864,7 +864,7 @@ void MetaTabWindow::showEvent(QShowEvent *AEvent)
 	if (!FShownDetached)
 		loadWindowGeometry();
 	FShownDetached = isWindow();
-	checkCurrentPage();
+	createFirstPage();
 	QMainWindow::showEvent(AEvent);
 	emit tabPageActivated();
 }

@@ -93,6 +93,7 @@ public:
 	virtual void insertTopWidget(int AOrder, QWidget *AWidget) =0;
 	virtual void removeTopWidget(QWidget *AWidget) =0;
 	//Common pages
+	virtual void createFirstPage() =0;
 	virtual QList<QString> pages() const =0;
 	virtual QString currentPage() const =0;
 	virtual void setCurrentPage(const QString &APageId) =0;
