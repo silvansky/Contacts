@@ -54,6 +54,8 @@ protected:
 	void updateBirthday();
 	void updateLeftLabelsSizes();
 	QString metaLabelText(const IMetaItemDescriptor &ADescriptor) const;
+protected:
+	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onAdjustDialogSize();
 	void onAdjustBorderSize();

@@ -167,6 +167,17 @@ QString MetaProfileDialog::metaLabelText(const IMetaItemDescriptor &ADescriptor)
 	return ADescriptor.name;
 }
 
+bool MetaProfileDialog::eventFilter(QObject *AObject, QEvent *AEvent)
+{
+	if (AObject->objectName()=="wdtItem" && (AEvent->type()==QEvent::Enter || AEvent->type() == QEvent::Leave))
+	{
+		CloseButton *cbtDelete = AObject->findChild<CloseButton *>();
+		if (cbtDelete)
+			cbtDelete->setVisible(AEvent->type()==QEvent::Enter);
+	}
+	return QDialog::eventFilter(AObject,AEvent);
+}
+
 void MetaProfileDialog::onAdjustDialogSize()
 {
 	updateLeftLabelsSizes();
@@ -307,6 +318,8 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				QWidget *wdtItem = new QWidget(container.itemsWidget);
 				wdtItem->setLayout(new QHBoxLayout);
 				wdtItem->layout()->setMargin(0);
+				wdtItem->installEventFilter(this);
+				wdtItem->setObjectName("wdtItem");
 				container.itemsWidget->layout()->addWidget(wdtItem);
 				container.itemWidgets.insert(itemIt.value(),wdtItem);
 
@@ -315,10 +328,12 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				wdtItem->layout()->addWidget(lblItemName);
 
 				CloseButton *cbtDelete = new CloseButton(wdtItem);
+				cbtDelete->setVisible(false);
 				cbtDelete->setProperty("itemJid",itemIt->bare());
 				cbtDelete->setProperty("itemName",itemName);
 				connect(cbtDelete,SIGNAL(clicked()),SLOT(onDeleteContactButtonClicked()));
 				wdtItem->layout()->addWidget(cbtDelete);
+				wdtItem->layout()->setAlignment(cbtDelete,Qt::AlignCenter);
 				qobject_cast<QHBoxLayout *>(wdtItem->layout())->addStretch();
 			}
 
@@ -343,3 +358,4 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 		}
 	}
 }
+
