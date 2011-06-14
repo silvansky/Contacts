@@ -202,11 +202,12 @@ QString MessageStyles::userIcon(const Jid &AContactJid, int AShow, const QString
 
 QString MessageStyles::timeFormat(const QDateTime &AMessageTime, const QDateTime &ACurTime) const
 {
-	int daysDelta = AMessageTime.daysTo(ACurTime);
-	if (daysDelta > 365)
-		return tr("d MMM yyyy hh:mm");
-	else if (daysDelta > 0)
-		return tr("d MMM hh:mm");
+	Q_UNUSED(AMessageTime); Q_UNUSED(ACurTime);
+	//int daysDelta = AMessageTime.daysTo(ACurTime);
+	//if (daysDelta > 365)
+	//	return tr("d MMM yyyy hh:mm");
+	//else if (daysDelta > 0)
+	//	return tr("d MMM hh:mm");
 	return tr("hh:mm");
 }
 
