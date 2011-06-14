@@ -437,11 +437,11 @@ bool SmsMessageHandler::isSmsContact(const Jid &AStreamJid, const Jid &AContactJ
 {
 	if (!AContactJid.node().isEmpty())
 	{
-		if (FDiscovery && FDiscovery->hasDiscoInfo(AStreamJid,AContactJid.domain()))
-		{
-			IDiscoIdentity ident = FDiscovery->discoInfo(AStreamJid,AContactJid.domain()).identity.value(0);
-			return ident.category==SMS_DISCO_CATEGORY && ident.type==SMS_DISCO_TYPE;
-		}
+		//if (FDiscovery && FDiscovery->hasDiscoInfo(AStreamJid,AContactJid.domain()))
+		//{
+		//	IDiscoIdentity ident = FDiscovery->discoInfo(AStreamJid,AContactJid.domain()).identity.value(0);
+		//	return ident.category==SMS_DISCO_CATEGORY && ident.type==SMS_DISCO_TYPE;
+		//}
 		return AContactJid.pDomain().startsWith("sms.");
 	}
 	return false;
