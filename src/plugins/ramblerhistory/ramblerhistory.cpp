@@ -99,9 +99,15 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 				{
 					Message message;
 					if (elem.tagName() == "to")
+					{
 						message.setTo(result.with.eFull());
+						message.setFrom(AStreamJid.pBare());
+					}
 					else
+					{
+						message.setTo(AStreamJid.pBare());
 						message.setFrom(result.with.eFull());
+					}
 
 					message.setType(Message::Chat);
 					message.setDateTime(DateTime(elem.attribute("ctime")).toLocal());
