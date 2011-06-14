@@ -421,6 +421,11 @@ void AddContactDialog::setDialogState(int AState)
 			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
 			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Cancel),ui.dbbButtons->button(QDialogButtonBox::Reset));
 		}
+
+		ui.dbbButtons->button(QDialogButtonBox::Ok)->setAutoDefault(false);
+		ui.dbbButtons->button(QDialogButtonBox::Cancel)->setAutoDefault(false);
+		if (ui.dbbButtons->button(QDialogButtonBox::Reset))
+			ui.dbbButtons->button(QDialogButtonBox::Reset)->setAutoDefault(false);
 		ui.dbbButtons->button(QDialogButtonBox::Ok)->setDefault(true);
 
 		FDialogState = AState;
