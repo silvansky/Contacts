@@ -41,6 +41,10 @@
         <source>Incoming</source>
         <translation>Входящие</translation>
     </message>
+    <message>
+        <source>Since connecting the new mail do not come</source>
+        <translation>С момента подключения новые письма не приходили</translation>
+    </message>
 </context>
 <context>
     <name>RamblerMailNotify</name>

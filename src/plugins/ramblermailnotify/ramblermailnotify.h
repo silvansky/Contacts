@@ -24,6 +24,7 @@
 #include <definitions/rosterclickhookerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/igateways.h>
+#include <interfaces/ixmppstreams.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/irostersview.h>
@@ -34,6 +35,7 @@
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
+#include <interfaces/iservicediscovery.h>
 #include <utils/iconstorage.h>
 #include "mailnotifypage.h"
 #include "mailinfowidget.h"
@@ -73,21 +75,24 @@ public:
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 protected:
 	IRosterIndex *findMailIndex(const Jid &AStreamJid) const;
+	IRosterIndex *getMailIndex(const Jid &AStreamJid);
+	void updateMailIndex(const Jid &AStreamJid);
+	void removeMailIndex(const Jid &AStreamJid);
 	MailNotify *findMailNotifyByPopupId(int APopupNotifyId) const;
 	MailNotify *findMailNotifyByRosterId(int ARosterNotifyId) const;
-	void updateMailIndex(const Jid &AStreamJid);
 	void insertMailNotify(const Jid &AStreamJid, const Stanza &AStanza);
 	void removeMailNotify(MailNotify *ANotify);
 	void clearMailNotifies(const Jid &AStreamJid);
 	void clearMailNotifies(MailNotifyPage *APage);
 	MailNotifyPage *findMailNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid) const;
-	MailNotifyPage *newMailNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid);
+	MailNotifyPage *getMailNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid);
 	void showChatWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	void showNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid) const;
 protected slots:
-	void onStreamAdded(const Jid &AStreamJid);
-	void onStreamRemoved(const Jid &AStreamJid);
-	void onRosterStateChanged(IRoster *ARoster);
+	void onXmppStreamOpened(IXmppStream *AXmppStream);
+	void onXmppStreamClosed(IXmppStream *AXmppStream);
+	void onRosterModelStreamRemoved(const Jid &AStreamJid);
+	void onDiscoInfoReceived(const IDiscoInfo &AInfo);
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
 	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
@@ -100,6 +105,7 @@ protected slots:
 	void onMetaTabWindowDestroyed();
 private:
 	IGateways *FGateways;
+	IXmppStreams *FXmppStreams;
 	IRosterPlugin *FRosterPlugin;
 	IRostersView *FRostersView;
 	IRostersModel *FRostersModel;
@@ -109,6 +115,7 @@ private:
 	IStanzaProcessor *FStanzaProcessor;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
+	IServiceDiscovery *FDiscovery;
 private:
 	int FAvatarLabelId;
 	int FSHIMailNotify;

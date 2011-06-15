@@ -37,6 +37,8 @@ MailNotifyPage::MailNotifyPage(IMessageWidgets *AMessageWidgets, IRosterIndex *A
 
 	connect(ui.pbtNewMail,SIGNAL(clicked()),SLOT(onNewMailButtonClicked()));
 	connect(ui.pbtIncoming,SIGNAL(clicked()),SLOT(onNewMailButtonClicked()));
+
+	clearNewMails();
 }
 
 MailNotifyPage::~MailNotifyPage()
@@ -120,7 +122,7 @@ Jid MailNotifyPage::serviceJid() const
 void MailNotifyPage::appendNewMail(const Stanza &AStanza)
 {
 	Message message(AStanza);
-	QDomElement contactElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTIFY).firstChildElement("contact");
+	QDomElement contactElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTICE).firstChildElement("contact");
 
 	QTableWidgetItem *fromItem = new QTableWidgetItem();
 	QString fromName = contactElem.firstChildElement("name").text().trimmed();
@@ -138,12 +140,18 @@ void MailNotifyPage::appendNewMail(const Stanza &AStanza)
 	ui.twtMails->setItem(ui.twtMails->rowCount()-1,CMN_FROM,fromItem);
 	ui.twtMails->setItem(fromItem->row(),CMN_SUBJECT,subjectItem);
 	ui.twtMails->setItem(fromItem->row(),CMN_DATE,dateItem);
+
+	ui.lblNoMail->setVisible(false);
+	ui.twtMails->setVisible(true);
 }
 
 void MailNotifyPage::clearNewMails()
 {
 	ui.twtMails->clearContents();
 	ui.twtMails->setRowCount(0);
+
+	ui.lblNoMail->setVisible(true);
+	ui.twtMails->setVisible(false);
 }
 
 bool MailNotifyPage::event(QEvent *AEvent)

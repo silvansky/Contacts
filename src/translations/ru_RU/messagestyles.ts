@@ -8,14 +8,6 @@
         <translation>Стили сообщений</translation>
     </message>
     <message>
-        <source>d MMM yyyy hh:mm</source>
-        <translation>d MMM yyyy hh:mm</translation>
-    </message>
-    <message>
-        <source>d MMM hh:mm</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Styles options for custom messages</source>
         <translation>Настройки стилей сообщений</translation>
     </message>

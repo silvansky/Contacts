@@ -8,6 +8,12 @@ MailNotifyPage QWidget
 	background-color: transparent;
 }
 
+CustomLabel#lblNoMail
+{
+	color: black;
+	qproperty-shadow: 0;
+} 
+
 QHeaderView
 {
 	border-bottom: 1px solid black;
