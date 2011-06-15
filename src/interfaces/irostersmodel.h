@@ -71,8 +71,8 @@ public:
 	virtual IRosterIndex *rootIndex() const =0;
 	virtual IRosterIndex *streamRoot(const Jid &AStreamJid) const =0;
 	virtual IRosterIndex *createRosterIndex(int AType, IRosterIndex *AParent) =0;
-	virtual IRosterIndex *findGroup(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent) const =0;
-	virtual IRosterIndex *createGroup(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent) =0;
+	virtual IRosterIndex *findGroupIndex(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent) const =0;
+	virtual IRosterIndex *createGroupIndex(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent) =0;
 	virtual void insertRosterIndex(IRosterIndex *AIndex, IRosterIndex *AParent) =0;
 	virtual void removeRosterIndex(IRosterIndex *AIndex) =0;
 	virtual QList<IRosterIndex *> getContactIndexList(const Jid &AStreamJid, const Jid &AContactJid, bool ACreate = false) =0;

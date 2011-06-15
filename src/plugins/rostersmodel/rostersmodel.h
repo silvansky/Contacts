@@ -17,8 +17,8 @@ class RostersModel :
 	public IPlugin,
 	public IRostersModel
 {
-	Q_OBJECT
-	Q_INTERFACES(IPlugin IRostersModel)
+	Q_OBJECT;
+	Q_INTERFACES(IPlugin IRostersModel);
 public:
 	RostersModel();
 	~RostersModel();
@@ -46,8 +46,8 @@ public:
 	virtual IRosterIndex *rootIndex() const;
 	virtual IRosterIndex *streamRoot(const Jid &AStreamJid) const;
 	virtual IRosterIndex *createRosterIndex(int AType, IRosterIndex *AParent);
-	virtual IRosterIndex *findGroup(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent) const;
-	virtual IRosterIndex *createGroup(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent);
+	virtual IRosterIndex *findGroupIndex(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent) const;
+	virtual IRosterIndex *createGroupIndex(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent);
 	virtual void insertRosterIndex(IRosterIndex *AIndex, IRosterIndex *AParent);
 	virtual void removeRosterIndex(IRosterIndex *AIndex);
 	virtual QList<IRosterIndex *> getContactIndexList(const Jid &AStreamJid, const Jid &AContactJid, bool ACreate = false);
@@ -73,6 +73,7 @@ signals:
 protected:
 	void emitDelayedDataChanged(IRosterIndex *AIndex);
 	void insertDefaultDataHolders(IRosterIndex *AIndex);
+	QList<IRosterIndex *> findContactIndexes(const Jid &AStreamJid, const Jid &AContactJid, bool ABare, IRosterIndex *AParent = NULL) const;
 protected slots:
 	void onAccountShown(IAccount *AAccount);
 	void onAccountHidden(IAccount *AAccount);
@@ -98,6 +99,11 @@ private:
 	QSet<IRosterIndex *> FChangedIndexes;
 	QList<IRosterDataHolder *> FDataHolders;
 	QMap<int, QString> FSingleGroups;
+private:
+	// streamRoot->bareJid->index
+	QHash<IRosterIndex *, QMultiHash<Jid, IRosterIndex *> > FContactsCache;
+	// parent->name->index
+	QHash<IRosterIndex *, QMultiHash<QString, IRosterIndex *> > FGroupsCache;
 };
 
 #endif // ROSTERSMODEL_H

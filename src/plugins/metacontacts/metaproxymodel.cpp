@@ -322,7 +322,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 			QString groupDelim = AMetaRoster->roster()->groupDelimiter();
 			foreach(QString group, itemGroups)
 			{
-				IRosterIndex *groupIndex = FRostersModel->createGroup(groupType,group,groupDelim,streamIndex);
+				IRosterIndex *groupIndex = FRostersModel->createGroupIndex(groupType,group,groupDelim,streamIndex);
 
 				IRosterIndex *groupItemIndex = NULL;
 				if (newGroups.contains(group) && !oldGroups.isEmpty())
@@ -330,9 +330,9 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 					IRosterIndex *oldGroupIndex;
 					QString oldGroup = oldGroups.values().value(0);
 					if (!oldGroup.isEmpty())
-						oldGroupIndex = FRostersModel->findGroup(RIT_GROUP,oldGroup,groupDelim,streamIndex);
+						oldGroupIndex = FRostersModel->findGroupIndex(RIT_GROUP,oldGroup,groupDelim,streamIndex);
 					else
-						oldGroupIndex = FRostersModel->findGroup(RIT_GROUP_BLANK,QString::null,groupDelim,streamIndex);
+						oldGroupIndex = FRostersModel->findGroupIndex(RIT_GROUP_BLANK,QString::null,groupDelim,streamIndex);
 
 					groupItemIndex = oldGroupIndex!=NULL ? findChildIndex(curItemList,oldGroupIndex) : NULL;
 					if (groupItemIndex)

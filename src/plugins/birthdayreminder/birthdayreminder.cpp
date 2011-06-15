@@ -303,9 +303,8 @@ bool BirthdayReminder::updateBirthdayState(const Jid &AContactJid)
 	if  (FRostersModel && isAvatarChanged)
 	{
 		QMultiMap<int, QVariant> findData;
-		findData.insert(RDR_TYPE, RIT_CONTACT);
+		findData.insert(RDR_TYPE,RIT_CONTACT);
 		findData.insert(RDR_PREP_BARE_JID,AContactJid.pBare());
-		FRostersModel->rootIndex()->findChilds(findData,true);
 		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true))
 		{
 			emit rosterDataChanged(index,RDR_AVATAR_IMAGE);

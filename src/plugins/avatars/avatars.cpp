@@ -565,21 +565,22 @@ void Avatars::updatePresence(const Jid &AStreamJid) const
 
 void Avatars::updateDataHolder(const Jid &AContactJid)
 {
-	if (FRostersModel)
-	{
-		QMultiMap<int,QVariant> findData;
-		foreach(int type, rosterDataTypes())
-			findData.insert(RDR_TYPE,type);
-		if (!AContactJid.isEmpty())
-			findData.insert(RDR_PREP_BARE_JID,AContactJid.pBare());
-		QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChilds(findData,true);
-		foreach (IRosterIndex *index, indexes)
-		{
-			emit rosterDataChanged(index,RDR_AVATAR_HASH);
-			emit rosterDataChanged(index,RDR_AVATAR_IMAGE);
-			emit rosterDataChanged(index,RDR_AVATAR_IMAGE_LARGE);
-		}
-	}
+	Q_UNUSED(AContactJid);
+	//if (FRostersModel)
+	//{
+	//	QMultiMap<int,QVariant> findData;
+	//	foreach(int type, rosterDataTypes())
+	//		findData.insert(RDR_TYPE,type);
+	//	if (!AContactJid.isEmpty())
+	//		findData.insert(RDR_PREP_BARE_JID,AContactJid.pBare());
+	//	QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChilds(findData,true);
+	//	foreach (IRosterIndex *index, indexes)
+	//	{
+	//		emit rosterDataChanged(index,RDR_AVATAR_HASH);
+	//		emit rosterDataChanged(index,RDR_AVATAR_IMAGE);
+	//		emit rosterDataChanged(index,RDR_AVATAR_IMAGE_LARGE);
+	//	}
+	//}
 }
 
 bool Avatars::updateVCardAvatar(const Jid &AContactJid, const QString &AHash, bool AFromVCard)

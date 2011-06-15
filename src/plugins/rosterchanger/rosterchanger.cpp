@@ -1137,7 +1137,7 @@ void RosterChanger::onGroupNameAccepted(QString newGroupName)
 			completeGroupName += newGroupName;
 			if (FEmptyGroups.contains(groupName))
 			{
-				IRosterIndex *index = FRostersModel!=NULL ? FRostersModel->findGroup(RIT_GROUP,groupName,roster->groupDelimiter(),FRostersModel->streamRoot(streamJid)) : NULL;
+				IRosterIndex *index = FRostersModel!=NULL ? FRostersModel->findGroupIndex(RIT_GROUP,groupName,roster->groupDelimiter(),FRostersModel->streamRoot(streamJid)) : NULL;
 				if (index && !roster->groups().contains(completeGroupName))
 				{
 					index->setData(RDR_GROUP,completeGroupName);
@@ -1158,9 +1158,9 @@ void RosterChanger::onGroupNameAccepted(QString newGroupName)
 	}
 	else
 	{
-		if (FRostersModel && roster && !newGroupName.isEmpty() && !newGroupName.contains(roster->groupDelimiter()) && FRostersModel->findGroup(RIT_GROUP,newGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()))==NULL)
+		if (FRostersModel && roster && !newGroupName.isEmpty() && !newGroupName.contains(roster->groupDelimiter()) && FRostersModel->findGroupIndex(RIT_GROUP,newGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()))==NULL)
 		{
-			IRosterIndex *group = FRostersModel->createGroup(RIT_GROUP,newGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()));
+			IRosterIndex *group = FRostersModel->createGroupIndex(RIT_GROUP,newGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()));
 			if (group)
 			{
 				FEmptyGroups.append(newGroupName);
@@ -1902,7 +1902,7 @@ void RosterChanger::onRemoveGroup(bool)
 			QString groupName = action->data(ADR_GROUP).toString();
 			if (FEmptyGroups.contains(groupName))
 			{
-				IRosterIndex *group = FRostersModel!=NULL ? FRostersModel->findGroup(RIT_GROUP,groupName,roster->groupDelimiter(),FRostersModel->streamRoot(streamJid)) : NULL;
+				IRosterIndex *group = FRostersModel!=NULL ? FRostersModel->findGroupIndex(RIT_GROUP,groupName,roster->groupDelimiter(),FRostersModel->streamRoot(streamJid)) : NULL;
 				if (group)
 				{
 					group->instance()->deleteLater();
