@@ -567,6 +567,8 @@ bool RosterChanger::isAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJi
 		return true;
 	else if (FAutoSubscriptions.value(AStreamJid).contains(AContactJid.bare()))
 		return FAutoSubscriptions.value(AStreamJid).value(AContactJid.bare()).autoSubscribe;
+	else if (FGateways && AContactJid.node().isEmpty() && FGateways->availServices(AStreamJid).contains(AContactJid))
+		return true;
 	return false;
 }
 
@@ -576,6 +578,8 @@ bool RosterChanger::isAutoUnsubscribe(const Jid &AStreamJid, const Jid &AContact
 		return true;
 	else if (FAutoSubscriptions.value(AStreamJid).contains(AContactJid.bare()))
 		return FAutoSubscriptions.value(AStreamJid).value(AContactJid.bare()).autoUnsubscribe;
+	else if (FGateways && AContactJid.node().isEmpty() && FGateways->availServices(AStreamJid).contains(AContactJid))
+		return true;
 	return false;
 }
 
@@ -583,6 +587,8 @@ bool RosterChanger::isSilentSubsctiption(const Jid &AStreamJid, const Jid &ACont
 {
 	if (FAutoSubscriptions.value(AStreamJid).contains(AContactJid.bare()))
 		return FAutoSubscriptions.value(AStreamJid).value(AContactJid.bare()).silent;
+	else if (FGateways && AContactJid.node().isEmpty() && FGateways->availServices(AStreamJid).contains(AContactJid))
+		return true;
 	return false;
 }
 
