@@ -209,10 +209,6 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <translation>Забыли пароль?</translation>
     </message>
     <message>
-        <source>This profile is already opened by another Friends instance</source>
-        <translation>Этот профиль уже открыт другой копией Friends</translation>
-    </message>
-    <message>
         <source>Enter address of custom domain
 which is linked to Rambler</source>
         <translation>Введите адрес своего домена,
@@ -227,10 +223,6 @@ which is linked to Rambler</source>
         <translation>Как подключить свой домен?</translation>
     </message>
     <message>
-        <source>Friends</source>
-        <translation>Друзья</translation>
-    </message>
-    <message>
         <source>Login and password mismatch</source>
         <translation>Логин и пароль не совпадают</translation>
     </message>
@@ -241,6 +233,14 @@ which is linked to Rambler</source>
     <message>
         <source>Check keyboard layout</source>
         <translation>Проверьте раскладку клавиатуры</translation>
+    </message>
+    <message>
+        <source>Contacts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This profile is already opened by another Contacts instance</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -266,12 +266,12 @@ which is linked to Rambler</source>
         <translation>Введите ваш логин и пароль на Рамблере или зарегистрируйтесь</translation>
     </message>
     <message>
-        <source>Rambler.Friends</source>
-        <translation>Рамблер-Друзья</translation>
-    </message>
-    <message>
         <source>Display password input</source>
         <translation>Отображать вводимый пароль</translation>
+    </message>
+    <message>
+        <source>Rambler.Contacts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

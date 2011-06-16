@@ -338,12 +338,12 @@
         <translation>Входящий вызов</translation>
     </message>
     <message>
-        <source>Friends</source>
-        <translation type="unfinished">Friends</translation>
-    </message>
-    <message>
         <source>Videocall with: </source>
         <translation type="unfinished">Видеозвонок с:</translation>
+    </message>
+    <message>
+        <source>Contacts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -397,8 +397,8 @@
         <translation type="unfinished">Вы хотите продолжить? </translation>
     </message>
     <message>
-        <source>Rambler.Friends SIP Call</source>
-        <translation type="unfinished">Rambler.Friends SIP-телефония</translation>
+        <source>Rambler.Contacts SIP Call</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

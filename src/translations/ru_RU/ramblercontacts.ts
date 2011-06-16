@@ -74,12 +74,12 @@
         <translation>ТЕХНИЧЕСКИЕ СВЕДЕНИЯ (могут быть полезны разработчикам)</translation>
     </message>
     <message>
-        <source>Friends version: %1 (r%2)</source>
-        <translation>Версия: %1 (r%2)</translation>
-    </message>
-    <message>
         <source>Operating system: %1</source>
         <translation>Операционная система: %1</translation>
+    </message>
+    <message>
+        <source>Rambler Contacts version: %1 (r%2)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -152,16 +152,16 @@
         <translation>О программе</translation>
     </message>
     <message>
-        <source>Friends updates ready</source>
-        <translation>Готовы обновления Friends</translation>
-    </message>
-    <message>
-        <source>Updates are ready. Do you want to restart Rambler.Friends now?</source>
-        <translation>Обновления готовы. Вы хотите перезапустить Рамблер-Друзья?</translation>
-    </message>
-    <message>
         <source>Leave your feedback...</source>
         <translation>Оставьте ваш отзыв...</translation>
+    </message>
+    <message>
+        <source>Rambler.Contacts updates ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Updates are ready. Do you want to restart Rambler.Contacts now?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

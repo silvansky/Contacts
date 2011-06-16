@@ -39,8 +39,8 @@
         <translation>Закрепить поверх остальных окон</translation>
     </message>
     <message>
-        <source>Open Friends</source>
-        <translation>Открыть Friends</translation>
+        <source>Open Rambler.Contacts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

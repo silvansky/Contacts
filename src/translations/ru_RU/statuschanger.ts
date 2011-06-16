@@ -214,8 +214,8 @@
         <translation>Проблема устранена</translation>
     </message>
     <message>
-        <source>Friends - %1</source>
-        <translation>Друзья - %1</translation>
+        <source>Contacts - %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
