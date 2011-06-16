@@ -826,6 +826,16 @@ void CustomBorderContainer::setDockingEnabled(bool enabled)
 	borderStyle->dockingEnabled = enabled;
 }
 
+bool CustomBorderContainer::minimizeOnClose() const
+{
+	return _minimizeOnClose;
+}
+
+void CustomBorderContainer::setMinimizeOnClose(bool enabled)
+{
+	_minimizeOnClose = enabled;
+}
+
 void CustomBorderContainer::changeEvent(QEvent *e)
 {
 	QWidget::changeEvent(e);
@@ -1125,6 +1135,7 @@ void CustomBorderContainer::init()
 	canMove = false;
 	movable = true;
 	resizable = true;
+	_minimizeOnClose = false;
 	buttonsFlags = MinimizeVisible | MaximizeVisible | CloseVisible | MinimizeEnabled | MaximizeEnabled | CloseEnabled;
 	pressedHeaderButton = NoneButton;
 	_isMaximized = false;
@@ -2373,7 +2384,10 @@ void CustomBorderContainer::maximizeWidget()
 
 void CustomBorderContainer::closeWidget()
 {
-	close();
+	if (_minimizeOnClose)
+		minimizeWidget();
+	else
+		close();
 }
 
 void CustomBorderContainer::restoreWidget()

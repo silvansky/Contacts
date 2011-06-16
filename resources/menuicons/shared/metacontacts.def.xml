@@ -13,6 +13,8 @@
     <object mime="image/png">metacontactsitemmailpage.png</object>
     <object mime="image/png">metacontactsitemmailpage_click.png</object>
     <object mime="image/png">metacontactsitemmailpage_disable.png</object>
+    <object mime="image/png">metacontactsitemmailroster.png</object>
+    <object mime="image/png">metacontactsitemmailroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemIcq</key>
@@ -20,6 +22,8 @@
     <object mime="image/png">metacontactsitemicqpage.png</object>
     <object mime="image/png">metacontactsitemicqpage_click.png</object>
     <object mime="image/png">metacontactsitemicqpage_disable.png</object>
+    <object mime="image/png">metacontactsitemicqroster.png</object>
+    <object mime="image/png">metacontactsitemicqroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemMAgent</key>
@@ -27,6 +31,8 @@
     <object mime="image/png">metacontactsitemmagentpage.png</object>
     <object mime="image/png">metacontactsitemmagentpage_click.png</object>
     <object mime="image/png">metacontactsitemmagentpage_disable.png</object>
+    <object mime="image/png">metacontactsitemmagentroster.png</object>
+    <object mime="image/png">metacontactsitemmagentroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemTwitter</key>
@@ -34,6 +40,8 @@
     <object mime="image/png">metacontactsitemtwitterpage.png</object>
     <object mime="image/png">metacontactsitemtwitterpage_click.png</object>
     <object mime="image/png">metacontactsitemtwitterpage_disable.png</object>
+    <object mime="image/png">metacontactsitemtwitterroster.png</object>
+    <object mime="image/png">metacontactsitemtwitterroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemFring</key>
@@ -41,6 +49,8 @@
     <object mime="image/png">metacontactsitemfringpage.png</object>
     <object mime="image/png">metacontactsitemfringpage_click.png</object>
     <object mime="image/png">metacontactsitemfringpage_disable.png</object>
+    <object mime="image/png">metacontactsitemfringroster.png</object>
+    <object mime="image/png">metacontactsitemfringroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemGTalk</key>
@@ -48,6 +58,8 @@
     <object mime="image/png">metacontactsitemgtalkpage.png</object>
     <object mime="image/png">metacontactsitemgtalkpage_click.png</object>
     <object mime="image/png">metacontactsitemgtalkpage_disable.png</object>
+    <object mime="image/png">metacontactsitemgtalkroster.png</object>
+    <object mime="image/png">metacontactsitemgtalkroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemYOnline</key>
@@ -55,6 +67,8 @@
     <object mime="image/png">metacontactsitemyonlinepage.png</object>
     <object mime="image/png">metacontactsitemyonlinepage_click.png</object>
     <object mime="image/png">metacontactsitemyonlinepage_disable.png</object>
+    <object mime="image/png">metacontactsitemyonlineroster.png</object>
+    <object mime="image/png">metacontactsitemyonlineroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemQip</key>
@@ -62,6 +76,8 @@
     <object mime="image/png">metacontactsitemqippage.png</object>
     <object mime="image/png">metacontactsitemqippage_click.png</object>
     <object mime="image/png">metacontactsitemqippage_disable.png</object>
+    <object mime="image/png">metacontactsitemqiproster.png</object>
+    <object mime="image/png">metacontactsitemqiproster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemVKontakte</key>
@@ -69,6 +85,8 @@
     <object mime="image/png">metacontactsitemvkontaktepage.png</object>
     <object mime="image/png">metacontactsitemvkontaktepage_click.png</object>
     <object mime="image/png">metacontactsitemvkontaktepage_disable.png</object>
+    <object mime="image/png">metacontactsitemvkontakteroster.png</object>
+    <object mime="image/png">metacontactsitemvkontakteroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemOdnoklasniki</key>
@@ -76,6 +94,8 @@
     <object mime="image/png">metacontactsitemodnoklasnikipage.png</object>
     <object mime="image/png">metacontactsitemodnoklasnikipage_click.png</object>
     <object mime="image/png">metacontactsitemodnoklasnikipage_disable.png</object>
+    <object mime="image/png">metacontactsitemodnoklasnikiroster.png</object>
+    <object mime="image/png">metacontactsitemodnoklasnikiroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemFacebook</key>
@@ -83,6 +103,8 @@
     <object mime="image/png">metacontactsitemfacebookpage.png</object>
     <object mime="image/png">metacontactsitemfacebookpage_click.png</object>
     <object mime="image/png">metacontactsitemfacebookpage_disable.png</object>
+    <object mime="image/png">metacontactsitemfacebookroster.png</object>
+    <object mime="image/png">metacontactsitemfacebookroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemLiveJournal</key>
@@ -90,6 +112,8 @@
     <object mime="image/png">metacontactsitemlivejournalpage.png</object>
     <object mime="image/png">metacontactsitemlivejournalpage_click.png</object>
     <object mime="image/png">metacontactsitemlivejournalpage_disable.png</object>
+    <object mime="image/png">metacontactsitemlivejournalroster.png</object>
+    <object mime="image/png">metacontactsitemlivejournalroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemRambler</key>
@@ -104,6 +128,8 @@
     <object mime="image/png">metacontactsitemjabberpage.png</object>
     <object mime="image/png">metacontactsitemjabberpage_click.png</object>
     <object mime="image/png">metacontactsitemjabberpage_disable.png</object>
+    <object mime="image/png">metacontactsitemjabberroster.png</object>
+    <object mime="image/png">metacontactsitemjabberroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsNotifyBalloon</key>

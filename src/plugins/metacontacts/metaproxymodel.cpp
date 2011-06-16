@@ -1,10 +1,22 @@
 #include "metaproxymodel.h"
 #include <definitions/statusicons.h>
+#include <definitions/rosterlabelorders.h>
 
 MetaProxyModel::MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARostersView) : QSortFilterProxyModel(AMetaContacts->instance())
 {
 	FRostersModel = NULL;
 	FRostersView = ARostersView;
+
+	if (FRostersView)
+	{
+		IRostersLabel rlabel;
+		rlabel.order = RLO_GATEWAY_ICON;
+		rlabel.label = RDR_GATEWAY_ICON;
+		FRostersLabel = FRostersView->registerLabel(rlabel);
+	}
+	else
+		FRostersLabel = -1;
+
 	FMetaContacts = AMetaContacts;
 
 	FInvalidateTimer.setInterval(0);
@@ -37,14 +49,14 @@ int MetaProxyModel::rosterDataOrder() const
 
 QList<int> MetaProxyModel::rosterDataRoles() const
 {
-	static QList<int> roles = QList<int>() << RDR_FOOTER_TEXT << Qt::DecorationRole << Qt::DisplayRole;
+	static QList<int> roles = QList<int>() << RDR_FOOTER_TEXT << Qt::DecorationRole << Qt::DisplayRole << RDR_GATEWAY_ICON;
 	return roles;
 }
 
 QList<int> MetaProxyModel::rosterDataTypes() const
 {
 	static QList<int> types = QList<int>()
-		<< RIT_METACONTACT;
+			<< RIT_METACONTACT;
 	return types;
 }
 
@@ -108,6 +120,17 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
 				}
 			}
+
+			if ((ARole == RDR_GATEWAY_ICON) && (contact.items.count() == 1))
+			{
+				Jid cjid = *(contact.items.begin());
+				IMetaItemDescriptor mid = FMetaContacts->metaDescriptorByItem(cjid);
+				QIcon icon;
+				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(mid.icon, 4)));
+				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(mid.icon, 5)), QIcon::Selected);
+				data = icon;
+			}
+
 			block = false;
 		}
 		break;
@@ -362,10 +385,13 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 				groupItemIndex->setData(RDR_ASK,AContact.ask);
 				groupItemIndex->setData(RDR_SUBSCRIBTION,AContact.subscription);
 				groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
+				if (FRostersView && (AContact.items.count() == 1))
+					FRostersView->insertLabel(FRostersLabel, groupItemIndex);
 				FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
 
 				emit rosterDataChanged(groupItemIndex,Qt::DecorationRole);
 				emit rosterDataChanged(groupItemIndex,RDR_FOOTER_TEXT);
+				emit rosterDataChanged(groupItemIndex,RDR_GATEWAY_ICON);
 
 				oldItemList.removeAll(groupItemIndex);
 			}

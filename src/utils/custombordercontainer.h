@@ -38,6 +38,8 @@ public:
 	void setStaysOnTop(bool on = true);
 	bool dockingEnabled() const;
 	void setDockingEnabled(bool enabled);
+	bool minimizeOnClose() const;
+	void setMinimizeOnClose(bool enabled);
 signals:
 	void minimizeClicked();
 	void maximizeClicked();
@@ -230,6 +232,7 @@ private:
 	bool _isMaximized;
 	bool _isFullscreen;
 	bool _closeOnDeactivate;
+	bool _minimizeOnClose;
 	QRect normalGeometry;
 	Menu * windowMenu;
 	Action * minimizeAction;

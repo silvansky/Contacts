@@ -7,7 +7,7 @@ QTreeView#rostersView
 	selection-background-color: #275672;
 	qproperty-groupBorderImage: url(%IMAGES_PATH%/groups-border.png);
 	qproperty-groupColor: white;
-	qproperty-groupFontSize: 10;
+	qproperty-groupFontSize: 11;
 	qproperty-footerColor: #acacac;
 	font-size: 12px;
 }

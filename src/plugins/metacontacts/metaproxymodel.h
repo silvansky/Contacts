@@ -20,8 +20,8 @@ class MetaProxyModel :
 	public QSortFilterProxyModel,
 	public IRosterDataHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IRosterDataHolder);
+	Q_OBJECT
+	Q_INTERFACES(IRosterDataHolder)
 public:
 	MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARostersView);
 	~MetaProxyModel();
@@ -58,6 +58,7 @@ private:
 private:
 	QTimer FInvalidateTimer;
 	QMap<int, int> FIndexNotifies;
+	int FRostersLabel;
 private:
 	QMap<IMetaRoster *, QMultiHash<QString, IRosterIndex *> > FMetaIndexes;
 };

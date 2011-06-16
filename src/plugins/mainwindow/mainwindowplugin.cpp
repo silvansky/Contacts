@@ -29,6 +29,10 @@ MainWindowPlugin::MainWindowPlugin()
 		FMainWindowBorder->setMaximizeButtonVisible(false);
 		FMainWindowBorder->setMinimizeButtonVisible(false);
 		FMainWindowBorder->setDockingEnabled(true);
+#ifdef Q_WS_WIN
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			FMainWindowBorder->setMinimizeOnClose(true);
+#endif
 	}
 	FMainWindow->installEventFilter(this);
 	//WidgetManager::setWindowSticky(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow, true);
