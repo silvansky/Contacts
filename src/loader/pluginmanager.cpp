@@ -18,7 +18,7 @@
 #include <interfaces/imainwindow.h>
 
 #define ORGANIZATION_NAME           "Rambler"
-#define APPLICATION_NAME            "Friends"
+#define APPLICATION_NAME            "Contacts"
 
 #define FILE_PLUGINS_SETTINGS       "plugins.xml"
 
@@ -39,7 +39,7 @@
 #  define PATH_APP_DATA             ORGANIZATION_NAME"/"DIR_APP_DATA
 #elif defined(Q_WS_X11)
 #  define ENV_APP_DATA              "HOME"
-#  define DIR_APP_DATA              ".friends"
+#  define DIR_APP_DATA              ".ramblercontacts"
 #  define PATH_APP_DATA             DIR_APP_DATA
 #elif defined(Q_WS_MAC)
 #  define ENV_APP_DATA              "HOME"
@@ -196,7 +196,7 @@ void PluginManager::shutdownRequested()
 	static int i = 0;
 	if (!i++)
 	{
-		QMessageBox * mb = new QMessageBox(tr("Friends updates ready"), tr("Updates are ready. Do you want to restart Rambler.Friends now?"), QMessageBox::Question, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
+		QMessageBox * mb = new QMessageBox(tr("Rambler.Contacts updates ready"), tr("Updates are ready. Do you want to restart Rambler.Contacts now?"), QMessageBox::Question, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
 		mb->setWindowModality(Qt::ApplicationModal);
 		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(onMessageBoxButtonClicked(QAbstractButton*)));
 		WidgetManager::showActivateRaiseWindow(mb);
@@ -555,10 +555,10 @@ QList<QUuid> PluginManager::getConflicts(const QUuid AUuid) const
 
 void PluginManager::loadCoreTranslations(const QString &ADir)
 {
-	if (FLoaderTranslator->load("ramblerfriends",ADir))
+	if (FLoaderTranslator->load("ramblercontacts",ADir))
 		qApp->installTranslator(FLoaderTranslator);
 
-	if (FUtilsTranslator->load("ramblerfriendsutils",ADir))
+	if (FUtilsTranslator->load("ramblercontactsutils",ADir))
 		qApp->installTranslator(FUtilsTranslator);
 
 	if (FQtTranslator->load("qt_"+QLocale().name(),ADir))

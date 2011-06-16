@@ -24,7 +24,7 @@ void MessageWidgets::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to use standard widgets for messaging");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://friends.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -604,7 +604,7 @@ void MessageWidgets::onViewContextSearchActionTriggered(bool)
 		QUrl url = QString("http://nova.rambler.ru/search");
 		url.setQueryItems(QList<QPair<QString,QString> >()
 			<< qMakePair<QString,QString>(QString("query"),action->data(ADR_CONTEXT_DATA).toString())
-			<< qMakePair<QString,QString>(QString("from"),QString("friends_dialog")));
+			<< qMakePair<QString,QString>(QString("from"),QString("contacts_dialog")));
 		QDesktopServices::openUrl(url);
 	}
 }

@@ -423,7 +423,7 @@ void SipPhoneProxy::incomingSubscribe( SipCallMember *member, bool sendSubscribe
 	if( !find && !remove_subscribe)
 	{
 		QString uristr = member->getUri().reqUri();
-		QMessageBox mb( tr("Friends"),
+		QMessageBox mb( tr("Contacts"),
 			tr("Subscribe message from uri:") + "\n" + uristr + "\n\n" +
 			tr("Do you want to accept and create a contact ?"),
 			QMessageBox::Information,
@@ -647,7 +647,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 
 	connect(_pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
 	connect(_pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
-	
+
 
 	emit camPresentChanged(_pCallAudio->videoControl()->checkCameraPresent());
 
@@ -767,7 +767,7 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 	{
 		call->setSdpMessageMask( body );
 		call->setSubject( tr("Incoming call") );
-		
+
 		_pCallAudio = new CallAudio( this );
 		connect(_pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
 
@@ -853,7 +853,7 @@ void SipPhoneProxy::onHangupCall()
 	//	delete _pWorkWidgetContainer;
 	//	_pWorkWidgetContainer = NULL;
 	//}
-	
+
 	//_pWorkWidget->hide();
 	_pWorkWidgetContainer->setHidden(true);
 }

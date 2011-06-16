@@ -51,7 +51,7 @@ void StatusChanger::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to change the status in Jabber network");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://friends.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(PRESENCE_UUID);
 }
 
@@ -854,7 +854,7 @@ void StatusChanger::updateMainMenu()
 			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(FTrayManager->instance(),MNI_SCHANGER_CONNECTING);
 		}
 
-		QString trayToolTip = QString(tr("Friends - %1")).arg(statusItemName(visibleMainStatusId()));
+		QString trayToolTip = QString(tr("Contacts - %1")).arg(statusItemName(visibleMainStatusId()));
 		FTrayManager->setToolTip(trayToolTip);
 	}
 }

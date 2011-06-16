@@ -5,7 +5,7 @@
 #include <QTextDocument>
 #include <QDesktopServices>
 
-#define AUTH_HOST "fb.tx.friends.rambler.ru"
+#define AUTH_HOST "fb.tx.contacts.rambler.ru"
 
 AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent) : QDialog(AParent)
 {

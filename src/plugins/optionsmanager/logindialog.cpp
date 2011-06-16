@@ -203,7 +203,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
 	//IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
-	ui.lblLogo->setText(QString("<font size=+3>%1</font>").arg(tr("Friends")));
+	ui.lblLogo->setText(QString("<font size=+3>%1</font>").arg(tr("Contacts")));
 
 	ui.lblRegister->setText(tr("Enter your Rambler login and password, or %1.")
 				.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:9pt; text-decoration: underline; color:#ffffff;'>%1</span></a>")
@@ -745,7 +745,7 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	message += message.isEmpty() || AError.isEmpty() ? AError : "<br>" + AError;
 	ui.lblConnectError->setText(message);
 
-	ui.lblConnectSettings->setText(QString("<a href='ramblerfriends.connection.settings'>%1</a>").arg(tr("Connection settings")));
+	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'>%1</a>").arg(tr("Connection settings")));
 
 	int tries = FReconnectTimer.property("tries").toInt();
 	if (tries > 0)
@@ -880,7 +880,7 @@ void LoginDialog::onConnectClicked()
 						showXmppStreamError(tr("Unable to create account"), QString::null, tr("Internal error, contact support"));
 				}
 				else
-					showXmppStreamError(tr("Unable to open profile"), QString::null, tr("This profile is already opened by another Friends instance"), false);
+					showXmppStreamError(tr("Unable to open profile"), QString::null, tr("This profile is already opened by another Contacts instance"), false);
 			}
 			else
 				showXmppStreamError(tr("Unable to create profile"), QString::null, tr("Check your system permissions to create folders"));
@@ -1048,7 +1048,7 @@ void LoginDialog::onNewDomainRejected()
 
 void LoginDialog::onLabelLinkActivated(const QString &ALink)
 {
-	if (ALink == "ramblerfriends.connection.settings")
+	if (ALink == "ramblercontacts.connection.settings")
 		showConnectionSettings();
 	else
 		QDesktopServices::openUrl(ALink);

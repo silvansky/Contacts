@@ -21,7 +21,7 @@ void StyleSheetEditorPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to edit and preview the application stylesheet");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "V.Gorshkov";
-	APluginInfo->homePage = "http://friends.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool StyleSheetEditorPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)

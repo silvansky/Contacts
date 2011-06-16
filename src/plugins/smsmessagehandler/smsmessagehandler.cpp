@@ -63,7 +63,7 @@ void SmsMessageHandler::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to exchange SMS messages via gateway");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A.";
-	APluginInfo->homePage = "http://friends.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(MESSAGESTYLES_UUID);
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 	APluginInfo->dependences.append(MESSAGEPROCESSOR_UUID);

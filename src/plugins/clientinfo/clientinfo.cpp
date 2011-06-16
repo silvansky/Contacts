@@ -61,7 +61,7 @@ void ClientInfo::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to send and receive information about the version of the application, the local time and the last activity of contact");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://friends.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 

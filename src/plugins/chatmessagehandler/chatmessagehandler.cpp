@@ -59,7 +59,7 @@ void ChatMessageHandler::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to exchange chat messages");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://friends.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 	APluginInfo->dependences.append(MESSAGEPROCESSOR_UUID);
 	APluginInfo->dependences.append(MESSAGESTYLES_UUID);
@@ -1176,7 +1176,7 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
-			Jid contsctJid = "vasilisa@rambler/friends";
+			Jid contsctJid = "vasilisa@rambler/ramblercontacts";
 			notify.data.insert(NDR_STREAM_JID,contsctJid.full());
 			notify.data.insert(NDR_CONTACT_JID,contsctJid.full());
 			notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
@@ -1212,7 +1212,7 @@ void ChatMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, cons
 			{
 				Message pMessage = wstatus.pending.takeLast();
 				if (Jid(pMessage.to()).pBare() == Jid(historyMessages.last().to()).pBare() &&
-					pMessage.body() == historyMessages.last().body() && 
+					pMessage.body() == historyMessages.last().body() &&
 					qAbs(pMessage.dateTime().secsTo(historyMessages.last().dateTime()))<=3*60)
 				{
 					found = true;

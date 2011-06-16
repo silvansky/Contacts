@@ -33,7 +33,7 @@ void Log::writeLog(const QString & s)
 		// writing header if needed
 		if (!html_existed)
 		{
-			logFile_html.write(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"><title>Rambler Friends log</title></head>\r\n<body>\r\n").toUtf8());
+			logFile_html.write(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"><title>Rambler Contacts log</title></head>\r\n<body>\r\n").toUtf8());
 		}
 		// if we got '[' at the beginning, we gonna highlight it in html output (till ']')
 		QString htmlLog;

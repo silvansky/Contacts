@@ -52,7 +52,7 @@ void SipPhone::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to make voice and video calls over SIP protocol");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Popov S.A.";
-	APluginInfo->homePage = "http://friends.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 

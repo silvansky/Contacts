@@ -148,7 +148,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	QString techInfo("<br><br><br><br><br><br><br>");
 	techInfo += "-----------------------------<br>";
 	techInfo += tr("TECHNICAL DATA (may be useful for developers)") + "<br>";
-	techInfo += QString(tr("Friends version: %1 (r%2)")).arg(APluginManager->version(), APluginManager->revision())+"<br>";
+	techInfo += QString(tr("Rambler Contacts version: %1 (r%2)")).arg(APluginManager->version(), APluginManager->revision())+"<br>";
 	QString os;
 #ifdef Q_WS_WIN
 	os = resolveWidowsVersion(QSysInfo::windowsVersion());

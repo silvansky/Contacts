@@ -89,7 +89,7 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 		{
 			_pControls->setCameraEnabled(false);
 		}
-		
+
 
 		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SLOT(fullScreenStateChange(bool)));
 		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SIGNAL(fullScreenState(bool)));
@@ -379,7 +379,7 @@ void SipPhoneWidget::callMemberStatusUpdated( void )
 		{
 			//_pCurrentStatus->setText( tr("Call Failed") );
 			statusChanged(tr("Call Failed"));
-			QMessageBox::critical( this, "Friends", _pSipCallMember->getLocalStatusDescription().remove(0,2) );
+			QMessageBox::critical( this, "Contacts", _pSipCallMember->getLocalStatusDescription().remove(0,2) );
 			//setHide();
 		}
 		else

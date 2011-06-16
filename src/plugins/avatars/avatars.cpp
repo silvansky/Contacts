@@ -49,7 +49,7 @@ void Avatars::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to set and display avatars");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://friends.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(VCARD_UUID);
 }
 

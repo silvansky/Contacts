@@ -7,7 +7,7 @@
 
 #ifdef Q_WS_WIN32
 # include <thirdparty/holdemutils/RHoldemModule.h>
-# define RAMBLERFRIENDS_GUID "{9732304B-B640-4C54-B2CD-3C2297D649A1}"
+# define RAMBLERCONTACTS_GUID "{9732304B-B640-4C54-B2CD-3C2297D649A1}"
 #endif
 
 #include "singleapp.h"
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	// remark: we can set windows style explicitly to override vista/seven selection
 	// cleanlooks style brings ugly combo popups...
 
-	SingleApp app(argc, argv, "Rambler.Friends");
+	SingleApp app(argc, argv, "Rambler.Contacts");
 
 #ifndef DEBUG_ENABLED
 	if (app.isRunning())
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 	QObject::connect(&app, SIGNAL(messageAvailable(const QString&)), &pm, SLOT(showMainWindow()));
 
 #ifdef Q_WS_WIN32
-	GUID guid = (GUID)QUuid(RAMBLERFRIENDS_GUID);
+	GUID guid = (GUID)QUuid(RAMBLERCONTACTS_GUID);
 	QScopedPointer<holdem_utils::RHoldemModule> holdem_module(new holdem_utils::RHoldemModule(guid));
 	QObject::connect(holdem_module.data(), SIGNAL(shutdownRequested()), &pm, SLOT(shutdownRequested()));
 #endif

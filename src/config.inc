@@ -1,5 +1,5 @@
-TARGET_LOADER            = ramblerfriends
-TARGET_UTILS             = ramblerfriendsutils
+TARGET_LOADER            = ramblercontacts
+TARGET_UTILS             = ramblercontactsutils
 
 macx:CONFIG             += x86
 
@@ -11,9 +11,9 @@ isEmpty(INSTALL_PREFIX) {
 }
 
 isEmpty(INSTALL_APP_DIR) {
-  win32:INSTALL_APP_DIR  = virtus
-  unix: INSTALL_APP_DIR  = virtus
-  macx: INSTALL_APP_DIR  = virtus.app
+  win32:INSTALL_APP_DIR  = ramblercontacts
+  unix: INSTALL_APP_DIR  = ramblercontacts
+  macx: INSTALL_APP_DIR  = ramblercontacts.app
 }
 
 isEmpty(INSTALL_LIB_DIR) {

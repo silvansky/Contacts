@@ -45,7 +45,7 @@ void RostersViewPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Displays a hierarchical roster's model");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://friends.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(ROSTERSMODEL_UUID);
 }
 

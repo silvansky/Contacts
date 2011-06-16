@@ -3,7 +3,7 @@
 #include <QCursor>
 #include <QApplication>
 
-#define MIME_TABITEM_INDEX         "ramblerfriends/x-tabitem-index"
+#define MIME_TABITEM_INDEX         "ramblercontacts/x-tabitem-index"
 
 TabBar::TabBar(QWidget *AParent) : QFrame(AParent)
 {
