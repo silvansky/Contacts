@@ -58,6 +58,7 @@ private:
 	QObjectCleanupHandler FCleanupHandler;
 	QMap<QString, QStandardItem *> FNodeItems;
 	QMap<QStandardItem *, QWidget *> FItemWidgets;
+	QWidget * FCurrentWidget;
 };
 
 #endif // OPTIONSDIALOG_H

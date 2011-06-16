@@ -507,6 +507,7 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 				FOptionsDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
 				FOptionsDialogBorder->setMaximizeButtonVisible(false);
 				FOptionsDialogBorder->setResizable(false);
+				FOptionsDialogBorder->setMinimumSize(FOptionsDialog->minimumSize() + QSize(FOptionsDialogBorder->leftBorderWidth() + FOptionsDialogBorder->rightBorderWidth(), FOptionsDialogBorder->topBorderWidth() + FOptionsDialogBorder->bottomBorderWidth()));
 				connect(FOptionsDialog, SIGNAL(accepted()), FOptionsDialogBorder, SLOT(closeWidget()));
 				connect(FOptionsDialog, SIGNAL(rejected()), FOptionsDialogBorder, SLOT(closeWidget()));
 				connect(FOptionsDialogBorder, SIGNAL(closeClicked()), FOptionsDialog, SLOT(reject()));
@@ -519,7 +520,7 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		if (FOptionsDialogBorder)
 		{
 			FOptionsDialogBorder->layout()->update();
-			//FOptionsDialogBorder->resize(FOptionsDialogBorder->sizeHint());
+			//FOptionsDialogBorder->resize(FOptionsDialogBorder->minimumSizeHint());
 			FOptionsDialogBorder->adjustSize();
 		}
 	}

@@ -28,11 +28,12 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	ui.trvNodes->installEventFilter(this);
 	setWindowTitle(tr("Options"));
+	FCurrentWidget = NULL;
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_OPTIONS_DIALOG,0,0,"windowIcon");
 
 	restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry").toByteArray());
 
-	delete ui.scaScroll->takeWidget();
+	//delete ui.scaScroll->takeWidget();
 	ui.trvNodes->sortByColumn(0,Qt::AscendingOrder);
 
 	FManager = AOptionsManager;
@@ -68,6 +69,9 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 
 	foreach (const IOptionsDialogNode &node, FManager->optionsDialogNodes()) {
 		onOptionsDialogNodeInserted(node); }
+
+	ui.scaScroll->setVisible(false);
+
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_OPTIONSDIALOG);
 }
 
@@ -85,6 +89,9 @@ void OptionsDialog::showNode(const QString &ANodeId)
 	ui.trvNodes->expandAll();
 	StyleStorage::updateStyle(this);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+	adjustSize();
+	if (parentWidget())
+		parentWidget()->adjustSize();
 }
 
 QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
@@ -217,16 +224,26 @@ void OptionsDialog::onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode)
 void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QModelIndex &APrevious)
 {
 	Q_UNUSED(APrevious);
-	ui.scaScroll->takeWidget();
+	//ui.scaScroll->takeWidget();
+	if (FCurrentWidget)
+	{
+		ui.mainFrame->layout()->removeWidget(FCurrentWidget);
+		FCurrentWidget->setVisible(false);
+		FCurrentWidget->setParent(NULL);
+	}
 
 	QStandardItem *curItem = FItemsModel->itemFromIndex(FProxyModel->mapToSource(ACurrent));
 	QString nodeID = FNodeItems.key(curItem);
 	if (curItem && !FItemWidgets.contains(curItem))
 		FItemWidgets.insert(curItem,createNodeWidget(nodeID));
 
-	QWidget *curWidget = FItemWidgets.value(curItem);
-	if (curWidget)
-		ui.scaScroll->setWidget(curWidget);
+	FCurrentWidget = FItemWidgets.value(curItem);
+	if (FCurrentWidget)
+	{
+		//ui.scaScroll->setWidget(curWidget);
+		ui.mainFrame->layout()->addWidget(FCurrentWidget);
+		FCurrentWidget->setVisible(true);
+	}
 
 	Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).setValue(nodeID);
 	StyleStorage::updateStyle(this);
