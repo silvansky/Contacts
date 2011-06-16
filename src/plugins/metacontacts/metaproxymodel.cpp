@@ -120,17 +120,6 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
 				}
 			}
-
-			if ((ARole == RDR_GATEWAY_ICON) && (contact.items.count() == 1))
-			{
-				Jid cjid = *(contact.items.begin());
-				IMetaItemDescriptor mid = FMetaContacts->metaDescriptorByItem(cjid);
-				QIcon icon;
-				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(mid.icon, 4)));
-				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(mid.icon, 5)), QIcon::Selected);
-				data = icon;
-			}
-
 			block = false;
 		}
 		break;
@@ -378,6 +367,8 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 					groupItemIndex->setData(RDR_TYPE_ORDER,RITO_METACONTACT);
 					groupItemIndex->setData(RDR_GROUP,group);
 					groupItemIndex->setData(RDR_META_ID,AContact.id);
+					if (FRostersView)
+						FRostersView->insertLabel(FRostersLabel, groupItemIndex);
 					rosterMetaIndexes.insertMulti(AContact.id,groupItemIndex);
 				}
 
@@ -385,13 +376,26 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 				groupItemIndex->setData(RDR_ASK,AContact.ask);
 				groupItemIndex->setData(RDR_SUBSCRIBTION,AContact.subscription);
 				groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
-				if (FRostersView && (AContact.items.count() == 1))
-					FRostersView->insertLabel(FRostersLabel, groupItemIndex);
 				FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
+
+				if (AContact.items != ABefore.items)
+				{
+					if (AContact.items.count() == 1)
+					{
+						QIcon icon;
+						IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(*(AContact.items.constBegin()));
+						icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 4)));
+						icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 5)), QIcon::Selected);
+						groupItemIndex->setData(RDR_GATEWAY_ICON,icon);
+					}
+					else
+					{
+						groupItemIndex->setData(RDR_GATEWAY_ICON,QVariant());
+					}
+				}
 
 				emit rosterDataChanged(groupItemIndex,Qt::DecorationRole);
 				emit rosterDataChanged(groupItemIndex,RDR_FOOTER_TEXT);
-				emit rosterDataChanged(groupItemIndex,RDR_GATEWAY_ICON);
 
 				oldItemList.removeAll(groupItemIndex);
 			}

@@ -195,6 +195,7 @@ protected slots:
 	void onChatNoticeRemoved(int ANoticeId);
 	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 private:
+	IGateways *FGateways;
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
 	IMetaContacts *FMetaContacts;
@@ -208,7 +209,6 @@ private:
 	IAccountManager *FAccountManager;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
-	IGateways *FGateways;
 private:
 	QList<QString> FEmptyGroups;
 	QMap<int, int> FNotifyChatNotice;

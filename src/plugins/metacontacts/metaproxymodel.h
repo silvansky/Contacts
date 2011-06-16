@@ -56,9 +56,9 @@ private:
 	IRostersModel *FRostersModel;
 	IMetaContacts *FMetaContacts;
 private:
+	int FRostersLabel;
 	QTimer FInvalidateTimer;
 	QMap<int, int> FIndexNotifies;
-	int FRostersLabel;
 private:
 	QMap<IMetaRoster *, QMultiHash<QString, IRosterIndex *> > FMetaIndexes;
 };
