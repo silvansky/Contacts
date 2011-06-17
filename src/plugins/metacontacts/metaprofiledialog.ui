@@ -111,7 +111,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="lblBirthdayLabel">
        <property name="text">
-        <string notr="true">Bithday:</string>
+        <string>Birthday:</string>
        </property>
       </widget>
      </item>

@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QDesktopServices>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/graphicseffects.h>
 
@@ -49,6 +50,8 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_METAPROFILEDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(ui.lblStatusIcon, GFX_STATUSICONS);
+
+	connect(ui.lblBirthdayPostcard,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
@@ -123,7 +126,7 @@ void MetaProfileDialog::updateBirthday()
 			if (FVCardPlugin->hasVCard(itemJid))
 			{
 				IVCard *vcard = FVCardPlugin->vcard(itemJid);
-				QDate birthday = QDate::fromString(vcard->value(VVN_BIRTHDAY),Qt::ISODate);
+				birthday = QDate::fromString(vcard->value(VVN_BIRTHDAY),Qt::ISODate);
 				if (!birthday.isValid())
 					birthday = QDate::fromString(vcard->value(VVN_BIRTHDAY),Qt::TextDate);
 				vcard->unlock();
@@ -253,6 +256,11 @@ void MetaProfileDialog::onDeleteContactDialogAccepted()
 	{
 		FMetaContacts->deleteContactWithNotify(FMetaRoster,FMetaId,dialog->property("itemJid").toString());
 	}
+}
+
+void MetaProfileDialog::onLabelLinkActivated(const QString &ALink)
+{
+	QDesktopServices::openUrl(ALink);
 }
 
 void MetaProfileDialog::onMetaAvatarChanged(const QString &AMetaId)

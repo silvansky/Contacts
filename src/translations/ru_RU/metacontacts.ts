@@ -314,6 +314,10 @@
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
+    <message>
+        <source>Birthday:</source>
+        <translation>День рождения:</translation>
+    </message>
 </context>
 <context>
     <name>MetaProxyModel</name>
