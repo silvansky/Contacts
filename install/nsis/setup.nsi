@@ -9,6 +9,7 @@
 
 Name "«Рамблер-Контакты»"
 Caption "Рамблер-Контакты"
+BrandingText 'ООО "Рамблер Интернет Холдинг"'
 
 !define MUI_ICON "application.ico"
 !define MUI_UNICON "application.ico"
@@ -43,7 +44,11 @@ OutFile ${FILE_NAME}
 XPStyle on
 Icon "application.ico"
 
-BrandingText 'ООО "Рамблер Интернет Холдинг"'
+; version information
+VIProductVersion $%VER%
+VIAddVersionKey /LANG=${LANG_RUSSIAN} "ProductName" ${PRODUCT_NAME}
+VIAddVersionKey /LANG=${LANG_RUSSIAN} "CompanyName" 'ООО "Рамблер Интернет Холдинг"'
+VIAddVersionKey /LANG=${LANG_RUSSIAN} "FileVersion" "$%VER%	"
 
 Function InstallUpdater
   SetOutPath "$TEMP"

@@ -1,6 +1,6 @@
 <Include>                              	 	 
   <?define virtus_version="0.2.1.879" ?>    		
-  <?define VirtusProjectRoot="C:/rambler/holdem/SRC/VIRTUS/0.2.1.879" ?> 	
+  <?define VirtusProjectRoot="C:/rambler/virtusdesktop/trunk/install/source/0.2.1.879" ?> 	
   <?define VirtusImageformatsRoot="$(var.VirtusProjectRoot)/imageformats" ?>
   <?define VirtusPluginsRoot="$(var.VirtusProjectRoot)/plugins" ?>
   <?define VirtusResourcesRoot="$(var.VirtusProjectRoot)/resources" ?>
