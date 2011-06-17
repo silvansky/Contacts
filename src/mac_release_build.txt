@@ -1,0 +1,17 @@
+# !!! Call chmod +x for mac_*
+# First install latest Qt4 for Mac OS X with Cocoa (Carbon version of Qt is NOT supported)
+# Then call this:
+
+qmake virtus.pro -r -spec macx-g++ CONFIG+=release
+make -w
+make install
+
+# then copy qt frameworks:
+
+./mac_cp_qt_frameworks
+
+# now preparing to release:
+
+./mac_prepare_to_release
+
+# after that you can create a .dmg file using disk utility (about 130-140 Mb needed, but after compression .dmg should be about 41-42 Mb)

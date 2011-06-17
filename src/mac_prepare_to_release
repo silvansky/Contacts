@@ -1,0 +1,106 @@
+#!/bin/bash
+cd /Applications
+
+appname=ramblercontacts.app
+
+# ramblercontacts
+
+install_name_tool -change QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $appname/Contents/MacOS/ramblercontacts
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/MacOS/ramblercontacts
+
+install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $appname/Contents/MacOS/ramblercontacts
+
+install_name_tool -change QtMultimedia.framework/Versions/4/QtMultimedia @executable_path/../Frameworks/QtMultimedia.framework/Versions/4/QtMultimedia $appname/Contents/MacOS/ramblercontacts
+
+install_name_tool -change QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $appname/Contents/MacOS/ramblercontacts
+
+install_name_tool -change QtXmlPatterns.framework/Versions/4/QtXmlPatterns @executable_path/../Frameworks/QtXmlPatterns.framework/Versions/4/QtXmlPatterns $appname/Contents/MacOS/ramblercontacts
+
+install_name_tool -change QtWebKit.framework/Versions/4/QtWebKit @executable_path/../Frameworks/QtWebKit.framework/Versions/4/QtWebKit $appname/Contents/MacOS/ramblercontacts
+
+install_name_tool -change phonon.framework/Versions/4/phonon @executable_path/../Frameworks/phonon.framework/Versions/4/phonon $appname/Contents/MacOS/ramblercontacts
+
+# utils deps - core, gui, xml, webkit
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Frameworks/libramblercontactsutils.1.dylib
+
+install_name_tool -change QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $appname/Contents/Frameworks/libramblercontactsutils.1.dylib
+
+install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $appname/Contents/Frameworks/libramblercontactsutils.1.dylib
+
+install_name_tool -change QtWebKit.framework/Versions/4/QtWebKit @executable_path/../Frameworks/QtWebKit.framework/Versions/4/QtWebKit $appname/Contents/Frameworks/libramblercontactsutils.1.dylib
+
+# phonon deps - gui, core, xml, dbus
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Frameworks/phonon.framework/Versions/4/phonon
+
+install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $appname/Contents/Frameworks/phonon.framework/Versions/4/phonon
+
+install_name_tool -change QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $appname/Contents/Frameworks/phonon.framework/Versions/4/phonon
+
+install_name_tool -change QtDBus.framework/Versions/4/QtDBus @executable_path/../Frameworks/QtDBus.framework/Versions/4/QtDBus $appname/Contents/Frameworks/phonon.framework/Versions/4/phonon
+
+# gui deps - core
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Frameworks/QtGui.framework/Versions/4/QtGui
+
+# network deps - core
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Frameworks/QtNetwork.framework/Versions/4/QtNetwork
+
+# mm deps - core, gui
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Frameworks/QtMultimedia.framework/Versions/4/QtMultimedia
+
+install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $appname/Contents/Frameworks/QtMultimedia.framework/Versions/4/QtMultimedia
+
+# xml deps - core
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Frameworks/QtXml.framework/Versions/4/QtXml
+
+# xmlpat deps - core, network
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Frameworks/QtXmlPatterns.framework/Versions/4/QtXmlPatterns
+
+install_name_tool -change QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $appname/Contents/Frameworks/QtXmlPatterns.framework/Versions/4/QtXmlPatterns
+
+# dbus deps - xml, core
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Frameworks/QtDBus.framework/Versions/4/QtDBus
+
+install_name_tool -change QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $appname/Contents/Frameworks/QtDBus.framework/Versions/4/QtDBus
+
+# webkit deps - core, gui, xml, dbus, phonon, network
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Frameworks/QtWebKit.framework/Versions/4/QtWebKit
+
+install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $appname/Contents/Frameworks/QtWebKit.framework/Versions/4/QtWebKit
+
+install_name_tool -change QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $appname/Contents/Frameworks/QtWebKit.framework/Versions/4/QtWebKit
+
+install_name_tool -change phonon.framework/Versions/4/phonon @executable_path/../Frameworks/phonon.framework/Versions/4/phonon $appname/Contents/Frameworks/QtWebKit.framework/Versions/4/QtWebKit
+
+install_name_tool -change QtDBus.framework/Versions/4/QtDBus @executable_path/../Frameworks/QtDBus.framework/Versions/4/QtDBus $appname/Contents/Frameworks/QtWebKit.framework/Versions/4/QtWebKit
+
+install_name_tool -change QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $appname/Contents/Frameworks/QtWebKit.framework/Versions/4/QtWebKit
+
+install_name_tool -change QtDBus.framework/Versions/4/QtDBus @executable_path/../Frameworks/QtDBus.framework/Versions/4/QtDBus $appname/Contents/Frameworks/QtWebKit.framework/Versions/4/QtWebKit
+
+# damn! plugins!!! deps - core, gui, xml, network, webkit
+
+for i in $(ls $appname/Contents/PlugIns/); do
+
+echo patching $appname/Contents/Plugins/$i
+
+install_name_tool -change QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $appname/Contents/Plugins/$i
+
+install_name_tool -change QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $appname/Contents/Plugins/$i
+
+install_name_tool -change QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $appname/Contents/PlugIns/$i
+
+install_name_tool -change QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $appname/Contents/PlugIns/$i
+
+install_name_tool -change QtWebKit.framework/Versions/4/QtWebKit @executable_path/../Frameworks/QtWebKit.framework/Versions/4/QtWebKit $appname/Contents/PlugIns/$i
+
+done
