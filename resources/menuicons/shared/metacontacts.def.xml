@@ -121,6 +121,8 @@
     <object mime="image/png">metacontactsitemramblerpage.png</object>
     <object mime="image/png">metacontactsitemramblerpage_click.png</object>
     <object mime="image/png">metacontactsitemramblerpage_disable.png</object>
+    <object mime="image/png">metacontactsitemramblerroster.png</object>
+    <object mime="image/png">metacontactsitemramblerroster_selected.png</object>
   </icon>
   <icon>
     <key>metacontactsItemJabber</key>
