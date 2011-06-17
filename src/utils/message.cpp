@@ -342,7 +342,7 @@ QString getHtmlBody(const QString &AHtml)
 		html.replace(html.length() - 2, 1, "span");
 	}
 
-	return html;
+	return html.replace("/emoticons/smiles/", "/emoticons/smiles_dark/"); // complex to prevent unneeded replacement
 }
 
 QString getTextFragmentHref(const QTextDocumentFragment &AFragment)
