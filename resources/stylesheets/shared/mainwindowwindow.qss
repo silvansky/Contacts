@@ -44,16 +44,3 @@ QToolButton#mainMenuButton
 	max-width: 25px;
 }
 
-/*****************
- * Notifications *
- *****************/
-
-QLabel, CloseButton, #wdtActions
-{
-	background-color: transparent;
-}
-
-#noticeWidget
-{
-	background-color: #ccdce4;
-}

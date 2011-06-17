@@ -17,7 +17,10 @@
    <item>
     <widget class="QFrame" name="frmFrame">
      <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="margin">
+      <property name="topMargin">
+       <number>5</number>
+      </property>
+      <property name="bottomMargin">
        <number>5</number>
       </property>
       <item>
@@ -30,7 +33,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lblMessage">
+         <widget class="CustomLabel" name="lblMessage">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -80,6 +83,11 @@
    <class>CloseButton</class>
    <extends>QToolButton</extends>
    <header location="global">utils/closebutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

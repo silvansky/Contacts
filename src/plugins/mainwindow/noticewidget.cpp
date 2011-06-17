@@ -14,11 +14,8 @@
 InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
-	ui.cbtClose->setVisible(false);
-	ui.pbtClose->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_NOTICE_CLOSE, 0));
-	ui.pbtClose->setMouseTracking(true);
-	ui.pbtClose->installEventFilter(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MAINWINDOW_NOTICEWIDGET);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(ui.cbtClose,STS_MESSAGEWIDGETS_NOTICECLOSEBUTTON);
 
 	ui.wdtActions->setLayout(new QHBoxLayout);
 	ui.wdtActions->layout()->setMargin(0);
@@ -41,7 +38,6 @@ InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 	connect(&FUpdateTimer,SIGNAL(timeout()),SLOT(onUpdateTimerTimeout()));
 
 	connect(ui.cbtClose,SIGNAL(clicked(bool)),SLOT(onCloseButtonClicked(bool)));
-	connect(ui.pbtClose,SIGNAL(clicked(bool)),SLOT(onCloseButtonClicked(bool)));
 }
 
 InternalNoticeWidget::~InternalNoticeWidget()
@@ -123,14 +119,6 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 
 			foreach(Action *action, notice.actions)
 			{
-				/*QLabel *label = new QLabel(ui.wdtActions);
-				label->setTextFormat(Qt::RichText);
-				label->setWordWrap(true);
-				label->setText(QString("<a href='link'>%1</a>").arg(action->text()));
-				connect(label,SIGNAL(linkActivated(const QString &)),action,SLOT(trigger()));
-				connect(action,SIGNAL(triggered()),SLOT(onNoticeActionTriggered()));
-				ui.wdtActions->layout()->addWidget(label);
-				FButtonsCleanup.add(label);*/
 				ActionButton * button = new ActionButton(action, ui.wdtActions);
 				button->addTextFlag(TF_LIGHTSHADOW);
 				button->setText(action->text());
@@ -154,6 +142,15 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 	}
 }
 
+void InternalNoticeWidget::paintEvent(QPaintEvent *AEvent)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	p.setClipRect(AEvent->rect());
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
 void InternalNoticeWidget::onReadyTimerTimeout()
 {
 	emit noticeWidgetReady();
@@ -172,32 +169,4 @@ void InternalNoticeWidget::onNoticeActionTriggered()
 void InternalNoticeWidget::onCloseButtonClicked(bool)
 {
 	removeNotice(FActiveNotice);
-}
-
-bool InternalNoticeWidget::eventFilter(QObject * obj, QEvent * event)
-{
-	if (obj == ui.pbtClose)
-	{
-		switch (event->type())
-		{
-		case QEvent::HoverEnter:
-			ui.pbtClose->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_NOTICE_CLOSE, 1));
-			break;
-		case QEvent::HoverLeave:
-			ui.pbtClose->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_NOTICE_CLOSE, 0));
-			break;
-		default:
-			break;
-		}
-	}
-	return QWidget::eventFilter(obj, event);
-}
-
-void InternalNoticeWidget::paintEvent(QPaintEvent *pe)
-{
-	QStyleOption opt;
-	opt.init(this);
-	QPainter p(this);
-	p.setClipRect(pe->rect());
-	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }

@@ -45,3 +45,15 @@ QPushButton#pbtClose
 	max-width: 16px;
 	width: 16px;
 }
+
+QLabel, CloseButton, #wdtActions
+{
+	background-color: transparent;
+}
+
+/*
+#noticeWidget
+{
+	background-color: #ccdce4;
+}
+*/

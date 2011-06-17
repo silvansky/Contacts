@@ -34,14 +34,13 @@ signals:
 protected:
 	void updateNotice();
 	void updateWidgets(int ANoticeId);
+protected:
+	void paintEvent(QPaintEvent *AEvent);
 protected slots:
 	void onReadyTimerTimeout();
 	void onUpdateTimerTimeout();
 	void onNoticeActionTriggered();
 	void onCloseButtonClicked(bool);
-protected:
-	bool eventFilter(QObject *, QEvent *);
-	void paintEvent(QPaintEvent *);
 private:
 	Ui::NoticeWidgetClass ui;
 private:

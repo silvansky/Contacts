@@ -17,13 +17,17 @@
 //MainWindow
 #define STS_MAINWINDOW_WINDOW                                           "mainwindowWindow"
 #define STS_MAINWINDOW_NOTICEWIDGET                                     "mainwindowNoticeWidget"
+#define STS_MAINWINDOW_NOTICECLOSEBUTTON                                "mainwindowNoticeCloseButton"
 
 //MessageWidgets
 #define STS_MESSAGEWIDGETS_TABWINDOW                                    "messagewidgetsTabWindow"
+#define STS_MESSAGEWIDGETS_NOTICEWIDGET                                 "messagewidgetsNoticeWidget"
 #define STS_MESSAGEWIDGETS_TABCLOSEBUTTON                               "messagewidgetsTabCloseButton"
 #define STS_MESSAGEWIDGETS_CHATWINDOW                                   "messagewidgetsChatWindow"
 #define STS_MESSAGEWIDGETS_MESSAGEWINDOW                                "messagewidgetsMessageWindow"
 #define STS_MESSAGEWIDGETS_MASSENDDIALOG                                "messagewidgetsMassSendDialog"
+#define STS_MESSAGEWIDGETS_NOTICEWIDGET                                 "messagewidgetsNoticeWidget"
+#define STS_MESSAGEWIDGETS_NOTICECLOSEBUTTON                            "messagewidgetsNoticeCloseButton"
 
 //MetaContacts
 #define STS_METACONTACTS_METATABWINDOW                                  "metacontactsMetaTabWindow"
