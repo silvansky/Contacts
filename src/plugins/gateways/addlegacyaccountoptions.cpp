@@ -117,12 +117,10 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 		if (!FWidgets.isEmpty())
 		{
 			ui.lblInfo->setText(tr("You can link multiple accounts and communicate with your friends on other services"));
-			ui.lblInfo->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
 		}
 		else
 		{
 			ui.lblInfo->setText(tr("All available accounts are already linked"));
-			ui.lblInfo->setAlignment(Qt::AlignVCenter|Qt::AlignHCenter);
 		}
 	}
 }

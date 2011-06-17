@@ -33,6 +33,8 @@ protected slots:
 	void onLineEditTextChanged(const QString &AText);
 	void onShowPasswordStateChanged(int AState);
 	void onDialogButtonClicked(QAbstractButton *AButton);
+	void onOkClicked();
+	void onCancelClicked();
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
 	void onRegisterSuccess(const QString &AId);
 	void onRegisterError(const QString &AId, const QString &AError);

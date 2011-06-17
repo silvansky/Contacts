@@ -33,7 +33,8 @@ HEADERS = utilsexport.h \
     imagemanager.h \
     custominputdialog.h \
     customlistview.h \
-    customlabel.h
+    customlabel.h \
+    nonmodalopenfiledialog.h
 
 SOURCES = jid.cpp \
     versionparser.cpp \
@@ -67,7 +68,8 @@ SOURCES = jid.cpp \
     imagemanager.cpp \
     custominputdialog.cpp \
     customlistview.cpp \
-    customlabel.cpp
+    customlabel.cpp \
+    nonmodalopenfiledialog.cpp
 
 macx: {
   HEADERS += macdockhandler.h

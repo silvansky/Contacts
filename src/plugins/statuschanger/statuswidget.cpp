@@ -11,6 +11,9 @@
 #include <QWidgetAction>
 #include <QDesktopServices>
 #include <utils/imagemanager.h>
+#ifdef Q_WS_WIN
+# include <utils/nonmodalopenfiledialog.h>
+#endif
 
 #define MAX_CHARACTERS  140
 
@@ -275,14 +278,18 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 
 void StatusWidget::onAddAvatarTriggered()
 {
+#ifdef Q_WS_WIN
+	NonModalOpenFileDialog * fd = new NonModalOpenFileDialog;
+	connect(fd, SIGNAL(fileNameSelected(const QString &)), SLOT(onAvatarFileSelected(const QString &)));
+	fd->show(tr("Select new avatar image"), tr("Image files %1").arg("(*.jpg *.bmp *.png)") + "|*.jpg;*.bmp;*.png|");
+#else
 	QFileDialog * dialog = new QFileDialog;
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	dialog->setWindowTitle(tr("Select new avatar image"));
 	dialog->setNameFilter(tr("Image files %1").arg("(*.jpg *.bmp *.png)"));
 	connect(dialog, SIGNAL(fileSelected(const QString &)), SLOT(onAvatarFileSelected(const QString &)));
 	dialog->show();
-	//QString filename = QFileDialog::getOpenFileName(this, tr("Select new avatar image"), "", tr("Image files %1").arg("(*.jpg *.bmp *.png)"));
-
+#endif
 }
 
 void StatusWidget::onAvatarFileSelected(const QString & fileName)

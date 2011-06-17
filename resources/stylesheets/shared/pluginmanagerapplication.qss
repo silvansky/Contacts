@@ -411,7 +411,7 @@ QMenu
 QMenu::item
 {
 	background-color: transparent;
-	border-bottom: 1px solid transparent;
+	border-bottom: 0px solid transparent;
 	padding-left: 22px;
 	padding-right: 20px;
 	min-height: 22px;
@@ -462,7 +462,7 @@ QMenu::item:!enabled
 QMenu::item:selected
 {
 	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #387497, stop:1 #16394d);
-	border-bottom: 1px solid #5e6369;
+	border-bottom: 0px solid #5e6369;
 	border-top: 1px solid #5187a5;
 	padding-top: -1px;
 }

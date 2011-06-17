@@ -1,3 +1,8 @@
+QLabel
+{
+	padding-left: 1px;
+}
+
 QDialog
 {
 	background-color: rgba(65, 70, 77, 250);
@@ -6,6 +11,7 @@ QDialog
 QLabel#lblCaption
 {
 	font-size: 18px;
+	padding-left: 1px;
 }
 
 QComboBox, QToolButton
