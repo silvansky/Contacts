@@ -1058,7 +1058,7 @@ void SmsMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptio
 
 void SmsMessageHandler::onDiscoInfoReceived(const IDiscoInfo &AInfo)
 {
-	if (AInfo.node.isEmpty() && AInfo.features.contains(NS_RAMBLER_SMS_BALANCE))
+	if (AInfo.contactJid.node().isEmpty() && AInfo.node.isEmpty() && AInfo.features.contains(NS_RAMBLER_SMS_BALANCE))
 	{
 		if (smsBalance(AInfo.streamJid,AInfo.contactJid) < 0)
 			requestSmsBalance(AInfo.streamJid,AInfo.contactJid);
