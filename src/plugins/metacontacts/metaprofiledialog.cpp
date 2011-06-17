@@ -134,6 +134,10 @@ void MetaProfileDialog::updateBirthday()
 				if (birthday.isValid())
 					break;
 			}
+			else
+			{
+				FVCardPlugin->requestVCard(streamJid(),itemJid);
+			}
 		}
 	}
 
