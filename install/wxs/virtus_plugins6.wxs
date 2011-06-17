@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include Product.wxs ?>	
+  <Fragment>
+    <DirectoryRef Id="INSTALLLOCATION">
+      <Directory Id="dir39BFC6679C619DCF84F1CADCE4F74E04" Name="plugins" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="Plugins">
+      <Component Id="cmpB82AE84D85562C874CFC8922DDFA6D77" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{8F673B19-381F-4B09-824D-1938920E262D}">
+        <File Id="filBFB457E8176C714759D51E92697D696E" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\accountmanager.dll" />
+      </Component>
+      <Component Id="cmpA8008F389536B827CA5229A91287EAC9" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{97B19F59-378F-427B-991E-B768C4EB983E}">
+        <File Id="fil241FAF063403A6ED265CA77BAF7E4308" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\adiummessagestyle.dll" />
+      </Component>
+      <Component Id="cmpC368451CD3A38D5707819B95B4952B54" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{EED296B4-2182-42C2-9086-2F4A787D87E1}">
+        <File Id="fil40E8CB9B4E88790F01E55C82C39C204B" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\autostatus.dll" />
+      </Component>
+      <Component Id="cmpAB7EA07B5C6D20531E7248540D291D6B" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{0D5C74DC-A8A2-4DE8-9ED3-1CEF79240519}">
+        <File Id="fil0023B8C4F69FC2ABEDD38847DF46F6BC" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\avatars.dll" />
+      </Component>
+      <Component Id="cmp68229D21F37C9334AD0ACA171A189896" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{EF666EE2-8DD6-42C6-A914-7546D167761B}">
+        <File Id="fil8E678FA2C8E8418243B4A61CCF4115AD" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\birthdayreminder.dll" />
+      </Component>
+      <Component Id="cmp41A29EFD581B045A1FDAC385D4AA1E01" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{D49BAD59-4372-4874-9915-1C7F3CD93B2E}">
+        <File Id="filA01B507E9E462C06663FE815A3AA3039" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\bitsofbinary.dll" />
+      </Component>
+      <Component Id="cmp9156410F3AA4BDF33E5DCC333FF57C6F" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{0CF5E101-5BD8-4589-A3CD-AF0C03BCEC5C}">
+        <File Id="fil601629A20288C05652D53CE1495D2A4B" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\chatmessagehandler.dll" />
+      </Component>
+      <Component Id="cmp80472DBD00D8744B79009A361AE2A890" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{3DC1C702-5745-4B7D-A5E7-95BB7A350630}">
+        <File Id="filFF7942EE07759E0376DE319F7A290958" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\chatstates.dll" />
+      </Component>
+      <Component Id="cmp30E950AA4916005028FBF4B0A27BD4BC" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{7FADF5EC-2E03-482E-860F-58B5902197DC}">
+        <File Id="filA3A660080BAA5A7FEDEE8CA1ACF09174" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\clientinfo.dll" />
+      </Component>
+      <Component Id="cmp5DE568CCCA970A4C8BE9E9DFAD32DC16" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{4D3FD45A-87A5-4AB1-AD2F-61628C7226B5}">
+        <File Id="fil3C07C6793CEB382A56CB9037B0F19149" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\compress.dll" />
+      </Component>
+      <Component Id="cmpCAFB0482E302AB4276A2D3D2803C2BBB" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{5624B2C3-C100-4C2E-A697-AE02222A3794}">
+        <File Id="fil994D448D49CF72C2BCCC2515FB98D311" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\connectionmanager.dll" />
+      </Component>
+      <Component Id="cmp18472C6371CFD17D36FCCA658D3161E1" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{14B1ED81-D6C4-441A-BD0A-FE708F5FF77F}">
+        <File Id="filC0DBE931388B6BE4E0B616E2DB1AD052" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\console.dll" />
+      </Component>
+      <Component Id="cmpDC021582416742CCDC75A20A09D6A84A" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{EA52E46A-8486-40A1-8BE3-B77B3EEF0097}">
+        <File Id="fil332345E6411E0AEE025FF56E42FD2623" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\dataforms.dll" />
+      </Component>
+      <Component Id="cmpA5E144656F3C40204B178ED1E1441818" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{75C94EB5-638C-4333-8FBC-DFECD9E2E116}">
+        <File Id="filA81D4AB829B54FCCDA07F46E7E64B619" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\defaultconnection.dll" />
+      </Component>
+      <Component Id="cmp5C51D8D054DC0842651E010F672FB4DE" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{12F69DD6-9EA6-4EDB-8D84-99328A70C37F}">
+        <File Id="filDEC305AD587D575E53AF3DE9D8644C8A" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\emoticons.dll" />
+      </Component>
+      <Component Id="cmp684680A4E7292D5F2C6CA1979AC07BD0" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{A3FEE3A8-1168-467A-BF33-B0F517DA8237}">
+        <File Id="filB74F76D99B4D08075DD7CFBAA82753EA" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\gateways.dll" />
+      </Component>
+      <Component Id="cmpF6F749AE03F7C362F82F93612F1067F8" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{22E27D47-DF14-4271-B802-BC4809E8D5BE}">
+        <File Id="fil98A3C94C34687214C43ECE4379203501" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\iqauth.dll" />
+      </Component>
+      <Component Id="cmp3DBAE2288AAF746F4776DD3641BFC030" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{0744E242-DE47-408B-9883-9EAEF4F081FF}">
+        <File Id="fil83F0FDA39AC9AD0EB4C10FA40AC35991" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\mainwindow.dll" />
+      </Component>
+      <Component Id="cmp457E096C1FF1E9C79C06CF38836F9017" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{ED7070CF-E368-45B6-8666-E1664FD71FE4}">
+        <File Id="fil758A1A8E4756703B6DD4B3C037A31DDA" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\messageprocessor.dll" />
+      </Component>
+      <Component Id="cmp36108E313BE0E5FB3363236F80057E2B" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{0691C25A-FF79-471C-9C70-E20DE61B231B}">
+        <File Id="filBE0CC43DB27054EEAFFF824CCC8FB2E5" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\messagestyles.dll" />
+      </Component>
+      <Component Id="cmp53376D50B32E1791FE32F56292C025A5" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{745301FC-B433-4A4E-9B5D-74427B055662}">
+        <File Id="filBBA99347650B7DC4A8E8E6BEB2EC79C1" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\messagewidgets.dll" />
+      </Component>
+      <Component Id="cmp456C376A4FF3BB5FA416FEC0B782BAB0" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{7C46A6FC-4A32-4578-8309-F7E709B0D45B}">
+        <File Id="filA735B0D5EA8FB70F27CA810A3661ED46" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\metacontacts.dll" />
+      </Component>
+      <Component Id="cmp258D95682316866814BB8D026D6E2BEB" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{02C35C83-4EF7-434F-BAFD-B15C95270BAE}">
+        <File Id="fil240BF82AB97C1160C06583F5637359A4" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\notifications.dll" />
+      </Component>
+      <Component Id="cmpD6BFE8B131BFF000317B9B7470C41E71" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{6BD35300-7C2B-4D51-87F0-2ECA6E679A6A}">
+        <File Id="fil6AB88E3AD5361EE68BAA0573980AF85A" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\optionsmanager.dll" />
+      </Component>
+      <Component Id="cmp2DC1932C11355F47ED803FA18504BB19" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{5A528C7E-8D48-4926-BA11-194DAEB63D17}">
+        <File Id="fil1462A84FE42576D25250AB8B49F1B1D5" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\presence.dll" />
+      </Component>
+      <Component Id="cmpB3B031B6C4D550554893148577F118E1" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{D6D675A8-6ED2-4BFB-A7DD-B356B43E6AA6}">
+        <File Id="fil6C3C00B1B957BD91FB93D76A8E846E10" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\privatestorage.dll" />
+      </Component>
+      <Component Id="cmp7013FF2B87FF8811A3FE3FA080E40EE2" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{BC234A43-FBC5-42BD-B412-C081C6C1F636}">
+        <File Id="fil13BA04B6CF35A2F698C94F6CA21D109B" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\ramblerhistory.dll" />
+      </Component>
+      <Component Id="cmp4FA9D22897BAF1BCF38752E290003606" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{91578BDB-4B78-4B44-9E32-04CCF8188AD5}">
+        <File Id="fil4FE354F2A5237E9E6D12826DADA7C549" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\ramblermailnotify.dll" />
+      </Component>
+      <Component Id="cmpE33E65D83AC089E12CC7BAF5652E92BA" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{C9CD51CD-46D7-4E3A-A67F-9993B8960B63}">
+        <File Id="fil6439317A902DEC06DF8DDFAC9AFD87AA" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\registration.dll" />
+      </Component>
+      <Component Id="cmp40D7B4B6DE3ECF7BCC918F33A13AFE42" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{4C1683F1-7951-4876-A972-B520149E3B19}">
+        <File Id="filE413752400AA80C5F4E5E33BE1113924" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\roster.dll" />
+      </Component>
+      <Component Id="cmpEB510BF267BFC7A839B0D92AD7D2D617" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{79C0E67F-8D6F-445C-92B1-D572A35F469C}">
+        <File Id="filD3BF531802F52C8BC24F8E5177C4C855" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\rosterchanger.dll" />
+      </Component>
+      <Component Id="cmp1AC7FA8CB507C2F01EF391D630A67AE4" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{D9BD25D8-8FDE-4B8F-B1AB-4075C7B08EE9}">
+        <File Id="fil0ACE52AD58DD03049C80CEB362B95E8D" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\rostersearch.dll" />
+      </Component>
+      <Component Id="cmp56B4A9F31A0E1E8E05A27A92B43F4B91" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{F905B651-691D-4DFD-9874-40FB5808BA4C}">
+        <File Id="filF4489FCFFE79F95FA135F96B0B99FE8F" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\rostersmodel.dll" />
+      </Component>
+      <Component Id="cmp8EA2F18DAB8C273DC059B9C4D6A86DFE" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{702BCA03-9EF5-42B3-BF2D-3DA348837FEC}">
+        <File Id="filF8D180766FF0A57083009BEBE5583091" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\rostersview.dll" />
+      </Component>
+      <Component Id="cmpACB289E5F1BF3CD7F0724EE76B80CA00" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{CF461B31-AC3C-435D-A73C-4719CDCCA389}">
+        <File Id="fil03D476E6F167EAC7E4BC484858D9D540" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\saslauth.dll" />
+      </Component>
+      <Component Id="cmp5136F250E76CAF87AC14A8FCB082AA73" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{A2283BD6-ACF7-47DB-8DD4-52D3D637307B}">
+        <File Id="filADB12AF043AE2C6FF6AEA8915E1618BF" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\servicediscovery.dll" />
+      </Component>
+      <Component Id="cmpDF4FBBF190AE47E3F6B3D08434393115" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{516FE0B9-417D-428E-A024-47B9E667BEC1}">
+        <File Id="fil85CDF8FFF884A8D8B07BBE2F3427D54A" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\sipphone.dll" />
+      </Component>
+      <Component Id="cmp3B9987FDA2C65C9F3C43C0DD608D2899" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{816AA246-8452-4109-9083-E3F16766EE20}">
+        <File Id="fil2521FFBD537BC51EEED2CE08036B6584" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\smsmessagehandler.dll" />
+      </Component>
+      <Component Id="cmp8CA990DC3C5B72BD19563C7ED62F93A4" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{CD1BB7EF-EE27-4E8C-9962-4B5B9366827D}">
+        <File Id="filE57D8AC0303FDBC6068F81B57ACB1A67" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\stanzaprocessor.dll" />
+      </Component>
+      <Component Id="cmp1C170877BCD4E5768847C070EF98EED2" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{36ED3CEA-CDBA-42B2-BA82-3946141FCB8C}">
+        <File Id="fil1FCD0E9A43514FE9DAA5E8287D530473" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\starttls.dll" />
+      </Component>
+      <Component Id="cmp0F38675A74555EA20EE1259838562C5D" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{8B9209AB-7803-46BC-9A12-94FC94BECDEE}">
+        <File Id="fil9F53BA61141A94C233096477A497DAFB" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\statuschanger.dll" />
+      </Component>
+      <Component Id="cmp81E3A7C1B4872B5691E29E6484B3AD1E" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{3A4B1FC2-396C-41BC-938B-7FF05473EADC}">
+        <File Id="fil03C2A4696C8AE03723AF3CF83A589302" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\statusicons.dll" />
+      </Component>
+      <Component Id="cmpFCD89F2A53A0D922A1476678C9A19BBA" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{C41432E4-4206-407F-9A9F-F9BF7AAA5BD5}">
+        <File Id="fil3C557F98ADD4D80CCF69C5CFA2474076" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\traymanager.dll" />
+      </Component>
+      <Component Id="cmpFC9B638F3C714FB7CB6B9AD2606A8056" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{64AD124C-E293-4E62-B20C-57CFC6890338}">
+        <File Id="fil1216085399D2D7CC78D092830328C3BD" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\vcard.dll" />
+      </Component>
+      <Component Id="cmp71F0AEBDD9986C7C9AA527B9809002C4" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{22330582-3FDC-45DA-962E-8AA5FE618420}">
+        <File Id="filB5E4B83F1248C098356528109282AEC8" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\xmppstreams.dll" />
+      </Component>
+      <Component Id="cmpE8D8A95C396C65812A998CDF0268B343" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{5DF260F0-D948-4481-90A1-DD7CA0A3E61E}">
+        <File Id="fil55820F569EE3B38B8CDEAB3F38396B50" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\xmppuriqueries.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir39BFC6679C619DCF84F1CADCE4F74E04" />
+  </Fragment>
+</Wix>

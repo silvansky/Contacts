@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include Product.wxs ?>
+  <Fragment>
+    <ComponentGroup Id="OpenSSL">
+      <Component Id="ComponentSSLEAY32" Directory="INSTALLLOCATION" Guid="{835D22EB-18A7-4ce4-8C4D-9B485AB69300}">
+        <File Id="SSLEAY32" KeyPath="yes" Source="$(var.VirtusProjectRoot)\ssleay32.dll"/>
+      </Component>
+      <Component Id="ComponentLibEAY32" Directory="INSTALLLOCATION" Guid="{86BA93D1-914A-4004-9E29-2B7F25AE5903}">
+        <File Id="LibEAY32" KeyPath="yes" Source="$(var.VirtusProjectRoot)\libeay32.dll"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

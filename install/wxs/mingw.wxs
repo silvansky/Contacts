@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include Product.wxs ?>
+  <Fragment>
+    <ComponentGroup Id="MinGW">
+      <Component Id="ComponentGcc" Directory="INSTALLLOCATION" Guid="{6331DB93-B511-4db7-8DFE-2BBD22D7B2DE}">
+        <File Id="FileGcc" KeyPath="yes" Source="$(var.VirtusProjectRoot)\virtus\libgcc_s_dw2-1.dll"/>
+      </Component>
+      <Component Id="ComponentMingw10" Directory="INSTALLLOCATION" Guid="{2046D64C-9B14-4704-BC62-90D58BC1CFCA}">
+        <File Id="FileMingw10" KeyPath="yes" Source="$(var.VirtusProjectRoot)\virtus\mingwm10.dll"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

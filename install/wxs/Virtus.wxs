@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include Product.wxs ?>
+  <!-- 877 ac2c8e39-ae2f-47c2-8e64-33806f0b2b4a -->
+  <!-- 879 e423fe44-e1d5-4b4e-98b4-22c39e4133d7 -->
+  <Product Id="e423fe44-e1d5-4b4e-98b4-22c39e4133d7" 
+           Name="$(var.product_name) $(var.virtus_version)" 
+           Language="1049" 
+           Version="$(var.virtus_version)" 
+           Manufacturer="Rambler Internet Holding" 
+           UpgradeCode="1454E1D3-90D5-4350-B42B-01E79B88BF0F"
+           Codepage="windows-1251">
+    <Package Id="*" 
+             Keywords="Installer" 
+             Description="$(var.product_name)" 
+             Manufacturer="Rambler Internet Holding" 
+             Languages="1033" 
+             InstallerVersion="200" 
+             Compressed="yes" 
+             InstallPrivileges="limited"
+             />
+
+
+	<Upgrade Id="11cfa2df-8fa9-4974-aff5-40f4ce3d03d0">
+    	<UpgradeVersion Minimum="$(var.virtus_version)" OnlyDetect="yes" Property="NEWERVERSIONDETECTED" />
+	    <UpgradeVersion Minimum="0.1.0" IncludeMinimum="yes" Maximum="$(var.virtus_version)" IncludeMaximum="no" Property="OLDERVERSIONBEINGUPGRADED" />
+	</Upgrade>
+
+	<MajorUpgrade DowngradeErrorMessage="Can't downgrade." />
+
+	<Property Id='ARPPRODUCTICON'>appicon.ico</Property>
+	<Icon Id="appicon.ico" SourceFile="nsis\application.ico" />
+
+  	<!-- 
+	<CustomAction Id='AlreadyUpdated' Error='[ProductName] is already installed.' />
+    <CustomAction Id='NoDowngrade' Error='A later version of [ProductName] is already installed.' />
+	-->
+
+    <Media Id="1" Cabinet="virtus.cab" EmbedCab="yes" />
+    <Directory Id="TARGETDIR" Name="SourceDir" >
+      <Directory Id="LocalAppDataFolder" Name="PFiles">
+        <Directory Id="Rambler" Name="Rambler">
+          <Directory Id="INSTALLLOCATION" Name="Contacts">
+            <Component Id="WriteToUpdateRegNode"
+                       Guid="24003AE6-42A2-4b59-AC6E-4BC84AA1E23D">
+              <RegistryValue Root="HKCU" 
+                   Key="SOFTWARE\Rambler\Update\{9732304B-B640-4c54-B2CD-3C2297D649A1}" 
+                   Name="Version" 
+                   Value="$(var.virtus_version)" 
+                   Type="string" 
+                   Action="write"/>
+            </Component>
+            
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="ProductFeature" Title="Virtus" Level="1">
+      <ComponentRef Id="WriteToUpdateRegNode" /> 
+      <ComponentGroupRef Id="Qt" />
+      <ComponentGroupRef Id="OpenSSL" /> 
+      <ComponentGroupRef Id="License" />
+      <ComponentGroupRef Id="Imageformats" />
+      <ComponentGroupRef Id="Plugins" />
+      <ComponentGroupRef Id="Resources5" />
+      <ComponentGroupRef Id="Translations6" />
+      <ComponentGroupRef Id="VirtusBase" />
+      <ComponentGroupRef Id="Ms"/>
+      <ComponentGroupRef Id="Voip"/>
+    </Feature>
+
+    <Condition Message='Virtus only runs as a non admin'>
+      NOT ALLUSERS
+    </Condition>
+  </Product>
+</Wix>
