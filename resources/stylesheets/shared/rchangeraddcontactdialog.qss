@@ -17,3 +17,8 @@ QLabel#lblError
 {
 	font-size: 11px;
 }
+
+QLabel
+{
+	margin-left: 1px;
+}

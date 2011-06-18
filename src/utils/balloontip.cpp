@@ -25,7 +25,6 @@ QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString
 	{
 		theSolitaryBalloonTip = new BalloonTip(icon, title, message);
 		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow, arrowPosition);
-		theSolitaryBalloonTip->show();
 	}
 	return theSolitaryBalloonTip;
 }
@@ -38,7 +37,6 @@ QWidget *BalloonTip::showBalloon(QIcon icon, QWidget * messageWidget,
 	{
 		theSolitaryBalloonTip = new BalloonTip(icon, messageWidget);
 		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow, arrowPosition);
-		theSolitaryBalloonTip->show();
 	}
 	return theSolitaryBalloonTip;
 }
@@ -48,7 +46,6 @@ void BalloonTip::hideBalloon()
 	if (theSolitaryBalloonTip)
 	{
 		theSolitaryBalloonTip->close();
-		theSolitaryBalloonTip->deleteLater();
 		theSolitaryBalloonTip = NULL;
 	}
 }
@@ -118,23 +115,27 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message)
 #endif
 	}
 
-	QIcon si = icon;
 	QGridLayout *layout = new QGridLayout;
-	if (!si.isNull())
+	if (!icon.isNull())
 	{
 		QLabel *iconLabel = new QLabel;
-		iconLabel->setPixmap(si.pixmap(iconSize, iconSize));
+		iconLabel->setPixmap(icon.pixmap(iconSize, iconSize));
 		iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		iconLabel->setMargin(2);
 		layout->addWidget(iconLabel, 0, 0);
-		layout->addWidget(titleLabel, 0, 1);
+		if (!title.isEmpty())
+			layout->addWidget(titleLabel, 0, 1);
 	}
 	else
 	{
-		layout->addWidget(titleLabel, 0, 0, 1, 2);
+		if (!title.isEmpty())
+			layout->addWidget(titleLabel, 0, 0, 1, 2);
 	}
 
-	layout->addWidget(msgLabel, 1, 0, 1, 3);
+	if (title.isEmpty())
+		layout->addWidget(msgLabel, 0, 1);
+	else
+		layout->addWidget(msgLabel, 1, 0, 1, 3);
 	layout->setSizeConstraint(QLayout::SetFixedSize);
 	layout->setMargin(3);
 	setLayout(layout);

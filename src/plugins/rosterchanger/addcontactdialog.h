@@ -34,8 +34,8 @@ class AddContactDialog :
 	public QDialog,
 	public IAddContactDialog
 {
-	Q_OBJECT;
-	Q_INTERFACES(IAddContactDialog);
+	Q_OBJECT
+	Q_INTERFACES(IAddContactDialog)
 public:
 	AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChanger, IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~AddContactDialog();

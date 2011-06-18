@@ -278,7 +278,7 @@ QPushButton, QToolButton
 	padding-right: 6px;
 	padding-bottom: -1px;
 	color: white;
-	min-height: 27px;
+	min-height: 25px;
 	min-width: 60px;
 	font-size: 12px;
 }

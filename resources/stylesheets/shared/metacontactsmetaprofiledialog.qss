@@ -1,7 +1,7 @@
 QLabel#lblCaption
 {
 	font-size: 18px;
-	margin-bottom: 5px;
+	/*margin-bottom: 5px;*/
 } 
 
 QLabel#lblStatusText, QLabel#lblBirthdayPostcard
@@ -9,7 +9,9 @@ QLabel#lblStatusText, QLabel#lblBirthdayPostcard
 	color: gray;
 }
 
-QScrollArea#scaContacts, QScrollArea#scaContacts QWidget
+QScrollArea#scaContacts,
+QScrollArea#scaContacts QWidget,
+QFrame#contentsFrame
 {
 	background-color: transparent;
 }

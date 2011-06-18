@@ -9,6 +9,7 @@
 #include <QInputDialog>
 #include <QApplication>
 #include <QTextDocument>
+#include <utils/balloontip.h>
 
 #define GROUP_NEW                ":group_new:"
 #define GROUP_EMPTY              ":empty_group:"
@@ -82,6 +83,9 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 		setContactText(contact);
 		ui.lneAddressContact->selectAll();
 	}
+
+	ui.lblError->setVisible(false);
+	ui.lblErrorIcon->setVisible(false);
 }
 
 AddContactDialog::~AddContactDialog()
@@ -468,9 +472,23 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 {
 	if (ui.lblError->text() != AMessage)
 	{
-		ui.lblError->setText(AMessage);
-		ui.lblError->setVisible(!AMessage.isEmpty());
-		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
+		if (!AMessage.isEmpty())
+		{
+			QPoint p = ui.lneAddressContact->mapToGlobal(ui.lneAddressContact->pos());
+			p += QPoint(ui.lneAddressContact->width(), ui.lneAddressContact->height() / 2);
+			BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_ADDCONTACT_ERROR),
+						"Error", // TODO: fix ballon to work correctly w/o title
+						AMessage,
+						p,
+						0,
+						true,
+						BalloonTip::ArrowLeft);
+		}
+		else
+			BalloonTip::hideBalloon(); // TODO: hide when needed
+		//ui.lblError->setText(AMessage);
+		//ui.lblError->setVisible(!AMessage.isEmpty());
+		//ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
 		ui.lneAddressContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput ? true : false);
 		StyleStorage::updateStyle(this);
 		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));

@@ -46,6 +46,7 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 
 	ui.sawContents->setLayout(new QVBoxLayout);
 	ui.sawContents->layout()->setMargin(0);
+	ui.sawContents->layout()->setSpacing(14);
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_METAPROFILEDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
@@ -308,19 +309,22 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 			{
 				IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemIt.value());
 				MetaContainer &container = FMetaContainers[descriptor.metaOrder];
-				if (container.metaWidget == NULL)
+				if (!container.metaWidget)
 				{
 					container.metaWidget = new QWidget(ui.sawContents);
+					container.metaWidget->setObjectName("metaWidget");
 					container.metaWidget->setLayout(new QHBoxLayout);
 					container.metaWidget->layout()->setMargin(0);
 					ui.sawContents->layout()->addWidget(container.metaWidget);
 
 					container.metaLabel = new QLabel(metaLabelText(descriptor)+":",container.metaWidget);
+					container.metaLabel->setObjectName("metaLabel");
 					container.metaLabel->setMinimumWidth(50);
 					container.metaLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
 					container.metaWidget->layout()->addWidget(container.metaLabel);
 
 					container.itemsWidget = new QWidget(container.metaWidget);
+					container.itemsWidget->setObjectName("itemsWidget");
 					container.itemsWidget->setLayout(new QVBoxLayout);
 					container.itemsWidget->layout()->setMargin(0);
 					container.itemsWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
@@ -337,9 +341,11 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 
 				QString itemName = FMetaContacts->itemHint(itemIt.value());
 				QLabel *lblItemName = new QLabel(itemName,wdtItem);
+				lblItemName->setObjectName("itemName");
 				wdtItem->layout()->addWidget(lblItemName);
 
 				CloseButton *cbtDelete = new CloseButton(wdtItem);
+				cbtDelete->setObjectName("deleteButton");
 				cbtDelete->setVisible(false);
 				cbtDelete->setProperty("itemJid",itemIt->bare());
 				cbtDelete->setProperty("itemName",itemName);

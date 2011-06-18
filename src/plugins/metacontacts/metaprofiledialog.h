@@ -31,17 +31,17 @@ struct MetaContainer
 	MetaContainer() {
 		metaWidget = NULL;
 		itemsWidget = NULL;
-	};
+	}
 	QWidget *metaWidget;
 	QLabel *metaLabel;
 	QWidget *itemsWidget;
 	QMap<Jid, QWidget *> itemWidgets;
 };
 
-class MetaProfileDialog : 
+class MetaProfileDialog :
 	public QDialog
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	MetaProfileDialog(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent = NULL);
 	~MetaProfileDialog();
