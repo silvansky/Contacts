@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHostAddress>
+#include <QMutex>
 #include "RCameraFlow.h"
 //#include "rtpdatasender.h"
 
@@ -31,13 +32,17 @@ private:
 };
 
 
+
+
+
+//////////////////////////////////////////////////////////////////////////
 class VideoTranslator : public QObject
 {
   Q_OBJECT
 
 public:
-  VideoTranslator(QObject *parent);
-  VideoTranslator(const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort, QObject *parent);
+  VideoTranslator(int width, int height, QObject *parent);
+  VideoTranslator(int width, int height, const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort, QObject *parent);
   ~VideoTranslator();
 
 	bool cameraPresent() const;
@@ -64,6 +69,7 @@ protected:
 public slots:
 	bool stopCamera();
 	bool startCamera();
+	void setFrameSize( int width, int height );
 
 protected slots:
   //void hostFound();
@@ -77,11 +83,15 @@ protected slots:
 	
 private:
 	void pingOther();
-
+	
 
 private:
   // Поток с камеры. Получение картинки с камеры.
   RCameraFlow* _cameraFlow;
+	// Размер обрабатываемой картинки.
+	// С камеры берем картинку максимальновозможного размера и перед кодированием
+	// масштабируем ее до размера _frameSize
+	QSize _frameSize;
 
   // Сокеты для отправки по сети и для чтения
   QUdpSocket *_udpSocketForSend;
@@ -117,6 +127,8 @@ private:
   // Объект класса управляющего кодированием/декодированием формата H.264
   H264Container *_pH264;
 
+	QMutex mutex;
+	bool __suspended;
 	// Счетчик "плохих" кадров в начале
 
 };

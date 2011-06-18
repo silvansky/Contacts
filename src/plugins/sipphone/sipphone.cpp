@@ -201,7 +201,9 @@ void SipPhone::onStreamOpened(IXmppStream * AXmppStream)
 	userJid = AXmppStream->streamJid();
 	//sipUri = userJid.pNode() + "@sip." + userJid.pDomain();
 	sipUri = userJid.pNode() + "@" + userJid.pDomain();
-	username = userJid.pNode();
+	username = userJid.pNode() + "@" + userJid.pDomain();
+	//username = userJid.pNode() ;
+	//pass = "error_pass";
 	pass = AXmppStream->password();
 
 	//QString str = "User: " + username + " Pass: " + pass;
@@ -346,6 +348,8 @@ void SipPhone::onToolBarActionTriggered(bool status)
 
 							connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
 							connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
+							connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhoneProxy, SIGNAL(proxyCamResolutionChange(bool)));
+							
 							connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
 
 							// Issue 2264. Инициализация кнопок правильными картинками (присутствие/отсутствие элементов мультимедия)
@@ -649,6 +653,7 @@ void SipPhone::onStreamCreated(const QString& sid)
 				connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
 				connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
 				connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
+				connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhoneProxy, SIGNAL(proxyCamResolutionChange(bool)));
 				//connect(pCallControl, SIGNAL(micStateChange(bool)), SLOT(onProxySuspendStateChange(bool)));
 
 				// Issue 2264. Инициализация кнопок правильными картинками (присутствие/отсутствие элементов мультимедия)
@@ -1281,6 +1286,7 @@ void SipPhone::showCallControlTab(const QString& sid/*const ISipStream &AStream*
 			connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
 			connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
 			connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
+			connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhoneProxy, SIGNAL(proxyCamResolutionChange(bool)));
 
 			// Issue 2264. Инициализация кнопок правильными картинками (присутствие/отсутствие элементов мультимедия)
 			connect(FSipPhoneProxy, SIGNAL(camPresentChanged(bool)), pCallControl, SLOT(setCameraEnabled(bool)));

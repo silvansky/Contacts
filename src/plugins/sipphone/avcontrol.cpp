@@ -6,6 +6,7 @@
 
 BtnSynchro* AVControl::__bSyncCamera = NULL;
 BtnSynchro* AVControl::__bSyncMic = NULL;
+BtnSynchro* AVControl::__bSyncHQ = NULL;
 
 void BtnSynchro::onStateChange(bool state)
 {
@@ -23,6 +24,13 @@ AVControl::AVControl(QWidget *parent)
 {
 	ui.setupUi(this);
 
+
+	// ÎÒÊËÞ×ÈË HQ
+	ui.chkbtnHQ->setEnabled(false);
+	ui.chkbtnHQ->setVisible(false);
+
+
+
 	if(__bSyncCamera == NULL)
 	{
 		__bSyncCamera = new BtnSynchro(ui.chkbtnCameraOn);
@@ -39,6 +47,15 @@ AVControl::AVControl(QWidget *parent)
 	else
 	{
 		__bSyncMic->AddRef(ui.chkbtnMicOn);
+	}
+
+	if(__bSyncHQ == NULL)
+	{
+		__bSyncHQ = new BtnSynchro(ui.chkbtnHQ);
+	}
+	else
+	{
+		__bSyncHQ->AddRef(ui.chkbtnHQ);
 	}
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
@@ -79,18 +96,18 @@ AVControl::AVControl(QWidget *parent)
 	//ui.chkbtnMicOn->setEnabled(false);
 	ui.chkbtnMicOn->setChecked(true);
 
-
 	//connect(ui.chkbtnCameraOn, SIGNAL(clicked(bool)), this, SIGNAL(camStateChange(bool)));
 	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), this, SIGNAL(camStateChange(bool)));
+	connect(ui.chkbtnHQ, SIGNAL(toggled(bool)), this, SIGNAL(camResolutionChange(bool)));
 
 	connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), this, SIGNAL(micStateChange(bool)));
 	//connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), this, SLOT(onMicStateChange(bool)));
 
 	connect(ui.hslSoundVolume, SIGNAL(valueChanged(int)), this, SIGNAL(micVolumeChange(int)));
 
-
 	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), __bSyncCamera, SLOT(onStateChange(bool)));
 	connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), __bSyncMic, SLOT(onStateChange(bool)));
+	connect(ui.chkbtnHQ, SIGNAL(toggled(bool)), __bSyncHQ, SLOT(onStateChange(bool)));
 }
 
 
@@ -104,13 +121,19 @@ AVControl::~AVControl()
 	if(__bSyncMic)
 		if(__bSyncMic->Release(ui.chkbtnMicOn) == 0)
 			__bSyncMic = NULL;
+
+	if(__bSyncHQ)
+		if(__bSyncHQ->Release(ui.chkbtnHQ) == 0)
+			__bSyncHQ = NULL;
 }
 
 void AVControl::setCameraEnabled(bool isEnabled)
 {
 	ui.chkbtnCameraOn->setEnabled(isEnabled);
+	ui.chkbtnHQ->setEnabled(isEnabled);
 	emit camPresentChanged(isEnabled);
 }
+
 
 void AVControl::setMicEnabled( bool isEnabled )
 {
@@ -128,6 +151,12 @@ void AVControl::SetCameraOn(bool isOn)
 {
 	ui.chkbtnCameraOn->setChecked(isOn);
 	emit camStateChange(isOn);
+}
+
+void AVControl::SetResolutionHigh(bool isHigh)
+{
+	ui.chkbtnHQ->setChecked(isHigh);
+	emit camResolutionChange(isHigh);
 }
 
 void AVControl::setDark(bool isDark)

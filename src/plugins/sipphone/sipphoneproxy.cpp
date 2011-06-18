@@ -41,7 +41,7 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 	_pSipUser = NULL;
 //	_audioForSettings = NULL;
 	_pSipAuthentication = NULL;
-	_pCallAudio = NULL;
+	//_pCallAudio = NULL;
 	_pWorkWidget = NULL;
 	_pWorkWidgetContainer = NULL;
 	_pSipRegister = NULL;
@@ -642,25 +642,27 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	subject.sprintf( _pSipUser->getUri().uri().toLocal8Bit() );
 	newcall->setSubject( subject );
 
-	_pCallAudio = new CallAudio( this );
-	connect(_pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
+	// Объект помещается в SipPhoneWidget и последней ответственен за его удаление
+	CallAudio* pCallAudio = new CallAudio( );
+	connect(pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
 
-	connect(_pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
-	connect(_pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
-
-
-	emit camPresentChanged(_pCallAudio->videoControl()->checkCameraPresent());
+	connect(pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
+	connect(pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
 
 
-	_pCallAudio->readAudioSettings();
-	_pCallAudio->readVideoSettings();
+	emit camPresentChanged(pCallAudio->videoControl()->checkCameraPresent());
+
+
+	pCallAudio->readAudioSettings();
+	pCallAudio->readVideoSettings();
 	// Реакция на изменение состояния камеры
-	connect(this, SIGNAL(proxyStartCamera()), _pCallAudio, SIGNAL(proxyStartCamera()));
-	connect(this, SIGNAL(proxyStopCamera()), _pCallAudio, SIGNAL(proxyStopCamera()));
-	connect(this, SIGNAL(proxySuspendStateChange(bool)), _pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
+	connect(this, SIGNAL(proxyStartCamera()), pCallAudio, SIGNAL(proxyStartCamera()));
+	connect(this, SIGNAL(proxyStopCamera()), pCallAudio, SIGNAL(proxyStopCamera()));
+	connect(this, SIGNAL(proxySuspendStateChange(bool)), pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
+	connect(this, SIGNAL(proxyCamResolutionChange(bool)), pCallAudio, SLOT(outputVideoResolutonChangedToHigh(bool)));
 
 
-	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, _pCallAudio, newcall, this );
+	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, pCallAudio, newcall, this );
 	widget->setWindowTitle(tr("Videocall with: ") + subject);
 	connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
 	connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
@@ -768,22 +770,24 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		call->setSdpMessageMask( body );
 		call->setSubject( tr("Incoming call") );
 
-		_pCallAudio = new CallAudio( this );
-		connect(_pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
+		// Объект помещается в SipPhoneWidget и последней ответственен за его удаление
+		CallAudio* pCallAudio = new CallAudio( );
+		connect(pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
 
-		connect(_pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
-		connect(_pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
+		connect(pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
+		connect(pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
 
-		emit camPresentChanged(_pCallAudio->videoControl()->checkCameraPresent());
+		emit camPresentChanged(pCallAudio->videoControl()->checkCameraPresent());
 
-		_pCallAudio->readAudioSettings();
-		_pCallAudio->readVideoSettings();
+		pCallAudio->readAudioSettings();
+		pCallAudio->readVideoSettings();
 		// Реакция на изменение состояния камеры
-		connect(this, SIGNAL(proxyStartCamera()), _pCallAudio, SIGNAL(proxyStartCamera()));
-		connect(this, SIGNAL(proxyStopCamera()), _pCallAudio, SIGNAL(proxyStopCamera()));
-		connect(this, SIGNAL(proxySuspendStateChange(bool)), _pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
+		connect(this, SIGNAL(proxyStartCamera()), pCallAudio, SIGNAL(proxyStartCamera()));
+		connect(this, SIGNAL(proxyStopCamera()), pCallAudio, SIGNAL(proxyStopCamera()));
+		connect(this, SIGNAL(proxySuspendStateChange(bool)), pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
+		connect(this, SIGNAL(proxyCamResolutionChange(bool)), pCallAudio, SLOT(outputVideoResolutonChangedToHigh(bool)));
 
-		SipPhoneWidget *widget = new SipPhoneWidget(0, _pCallAudio, call, this );
+		SipPhoneWidget *widget = new SipPhoneWidget(0, pCallAudio, call, this );
 		widget->setWindowTitle(tr("Videocall with: ") + call->getSubject());
 
 		connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));

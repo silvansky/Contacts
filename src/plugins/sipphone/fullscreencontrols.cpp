@@ -18,6 +18,10 @@ FullScreenControls::FullScreenControls( QWidget *parent)
 
 	connect(ui.wgtAVControl, SIGNAL(camPresentChanged(bool)), this, SIGNAL(camPresentChanged(bool)));
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), this, SIGNAL(camStateChange(bool)));
+	
+	//connect(ui.wgtAVControl, SIGNAL(camResolutionChange(bool)), SIGNAL(camResolutionChange(bool)));
+	connect(ui.wgtAVControl, SIGNAL(camResolutionChange(bool)), SLOT(onCamResolutionChange(bool)));
+
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), this, SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), this, SIGNAL(micVolumeChange(int)));
 
@@ -44,6 +48,12 @@ FullScreenControls::~FullScreenControls()
 
 }
 
+void FullScreenControls::onCamResolutionChange(bool isHigh)
+{
+	qDebug("FullScreenControls::onCamResolutionChange: %d", (int)isHigh);
+	emit camResolutionChange(isHigh);
+}
+
 void FullScreenControls::setCameraEnabled(bool isEnabled)
 {
 	ui.wgtAVControl->setCameraEnabled(isEnabled);
@@ -63,6 +73,11 @@ void FullScreenControls::SetCameraOn(bool isOn)
 {
 	ui.wgtAVControl->SetCameraOn(isOn);
 	//emit camStateChange(isOn);
+}
+
+void FullScreenControls::SetResolutionHigh(bool isHigh)
+{
+	ui.wgtAVControl->SetResolutionHigh(isHigh);
 }
 
 void FullScreenControls::setFullScreen(bool state)

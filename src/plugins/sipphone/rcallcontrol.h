@@ -59,6 +59,7 @@ public:
 
 signals:
 	void camStateChange(bool);
+	void camResolutionChange(bool);
 	void startCamera();
 	void stopCamera();
 	void micStateChange(bool);
@@ -77,6 +78,9 @@ public slots:
 	void callStatusChange(CallStatus);
 	void callSideChange(CallSide);
 	void setCameraEnabled(bool);
+
+	void setMicEnabled(bool);
+	void setVolumeEnabled(bool);
 
 signals:
 	void statusTextChanged(const QString&);

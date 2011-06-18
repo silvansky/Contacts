@@ -52,6 +52,7 @@ RCallControl::RCallControl(CallSide callSide, QWidget *parent)
 	}
 
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SIGNAL(camStateChange(bool)));
+	connect(ui.wgtAVControl, SIGNAL(camResolutionChange(bool)), SIGNAL(camResolutionChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), SIGNAL(micVolumeChange(int)));
 
@@ -113,6 +114,7 @@ RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SIGNAL(camStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SLOT(onCamStateChange(bool)));
+	connect(ui.wgtAVControl, SIGNAL(camResolutionChange(bool)), SIGNAL(camResolutionChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), SIGNAL(micVolumeChange(int)));
 
@@ -164,6 +166,16 @@ void RCallControl::setCameraEnabled(bool isEnabled)
 {
 	ui.wgtAVControl->setCameraEnabled(isEnabled);
 }
+
+void RCallControl::setMicEnabled(bool isEnabled)
+{
+	ui.wgtAVControl->setMicEnabled(isEnabled);
+}
+void RCallControl::setVolumeEnabled(bool isEnabled)
+{
+	ui.wgtAVControl->setVolumeEnabled(isEnabled);
+}
+
 
 void RCallControl::onAccept()
 {

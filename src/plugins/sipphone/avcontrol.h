@@ -54,6 +54,7 @@ class AVControl : public QWidget
 
 	static BtnSynchro* __bSyncCamera;
 	static BtnSynchro* __bSyncMic;
+	static BtnSynchro* __bSyncHQ;
 
 public:
 	AVControl(QWidget *parent = 0);
@@ -63,6 +64,7 @@ public:
 
 public slots:
 	void SetCameraOn(bool);
+	void SetResolutionHigh(bool isHigh);
 	void setCameraEnabled(bool);
 	void setMicEnabled( bool );
 	void setVolumeEnabled( bool );
@@ -70,6 +72,7 @@ public slots:
 signals:
 	void camStateChange(bool);
 	void camPresentChanged(bool);
+	void camResolutionChange(bool);
 	void micStateChange(bool);
 	void micVolumeChange(int);
 

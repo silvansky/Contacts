@@ -95,6 +95,8 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SIGNAL(fullScreenState(bool)));
 		connect(_pControls, SIGNAL(camStateChange(bool)), this, SLOT(cameraStateChange(bool)));
 
+		
+
 		connect(_pControls, SIGNAL(hangup()), SLOT(hangupCall()));
 
 		_pControls->hide();
@@ -135,6 +137,8 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	// Подключение реакций на изменение состояния камеры
 	connect(this, SIGNAL(startCamera()), _pAudioContoller, SIGNAL(proxyStartCamera()));
 	connect(this, SIGNAL(stopCamera()), _pAudioContoller, SIGNAL(proxyStopCamera()));
+
+	connect(_pControls, SIGNAL(camResolutionChange(bool)), _pAudioContoller, SLOT(outputVideoResolutonChangedToHigh(bool)));
 
 	connect(_pAudioContoller, SIGNAL(audioOutputPresentChange(bool)), _pControls, SLOT(setVolumeEnabled(bool)));
 	connect(_pAudioContoller, SIGNAL(audioInputPresentChange(bool)), _pControls, SLOT(setMicEnabled(bool)));
@@ -183,6 +187,12 @@ SipPhoneWidget::~SipPhoneWidget()
 			_fsTimer->stop();
 		delete _fsTimer;
 		_fsTimer = NULL;
+	}
+
+	if(_pAudioContoller)
+	{
+		delete _pAudioContoller;
+		_pAudioContoller = NULL;
 	}
 }
 

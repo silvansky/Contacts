@@ -21,6 +21,14 @@ public:
   QImage currentFrame() const;
   bool isOk() const;
 	bool cameraPresent() const;
+	QSize frameSize() const;
+
+	// Попытка инициализировать камеру с заданным размером кадра.
+	// posibleSize - в случае если заданный размер кадра не поддерживается, возвращается возможный размер кадра
+	bool tryThisFrameSize(int width, int height, QSize& posibleSize);
+
+	// Устанавливаем максимально-возможный размер картинки для камеры
+	QSize setMaxFrameSize();
 
 public slots:
 	bool stop();
@@ -39,6 +47,7 @@ private:
   bool _cameraStart;
   //CvCapture *_camera;
   QImage _frame;
+	QSize _frameSize;
 
   videoInput* pVInput;
 };

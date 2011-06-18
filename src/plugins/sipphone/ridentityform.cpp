@@ -2,12 +2,14 @@
 
 #include <QSettings>
 #include <QMessageBox>
-
+#include <utils/custominputdialog.h>
 #include <SipClient.h>
 #include <SipUser.h>
 #include <SipRegister.h>
 #include "SipPhoneProxy.h"
 #include "rsipauthentication.h"
+
+
 
 RIdentityForm::RIdentityForm(QWidget *parent, const char *name, QObject *reg) : QDialog(parent)
 {
@@ -586,48 +588,55 @@ void RSipRegistrations::setRegisterState( void )
 
 void RSipRegistrations::registerStatusUpdated( void )
 {
-  setRegisterState();
-  if( _sipRegister->getRegisterState() != SipRegister::AuthenticationRequired &&
-    _sipRegister->getRegisterState() != SipRegister::AuthenticationRequiredWithNewPassword )
-  {
-    return;
-  }
-  QString authtype;
-  switch( _sipRegister->getAuthenticationType() )
-  {
-  case SipRegister::DigestAuthenticationRequired:
-    authtype = tr("Digest Authentication Request"); break;
-  case SipRegister::BasicAuthenticationRequired:
-    authtype = tr("Basic Authentication Request"); break;
-  case SipRegister::ProxyDigestAuthenticationRequired:
-    authtype = tr("Proxy Digest Authentication Request"); break;
-  case SipRegister::ProxyBasicAuthenticationRequired:
-    authtype = tr("Proxy Basic Authentication Request"); break;
-  }
+	setRegisterState();
+	if( _sipRegister->getRegisterState() != SipRegister::AuthenticationRequired &&
+		_sipRegister->getRegisterState() != SipRegister::AuthenticationRequiredWithNewPassword )
+	{
+		return;
+	}
+	QString authtype;
+	switch( _sipRegister->getAuthenticationType() )
+	{
+	case SipRegister::DigestAuthenticationRequired:
+		authtype = tr("Digest Authentication Request"); break;
+	case SipRegister::BasicAuthenticationRequired:
+		authtype = tr("Basic Authentication Request"); break;
+	case SipRegister::ProxyDigestAuthenticationRequired:
+		authtype = tr("Proxy Digest Authentication Request"); break;
+	case SipRegister::ProxyBasicAuthenticationRequired:
+		authtype = tr("Proxy Basic Authentication Request"); break;
+	}
 
-  QString server = _sipRegister->getServerUri().proxyUri();
-  QString sipuri = _pSipUser->getUri().uri();
+	QString server = _sipRegister->getServerUri().proxyUri();
+	QString sipuri = _pSipUser->getUri().uri();
 
-  KSipAuthenticationRequest authreq( server, sipuri, _userPrefix, authtype );
+	//////////KSipAuthenticationRequest authreq( server, sipuri, _userPrefix, authtype );
 
-  QString username = _sipRegister->getRegisterCall()->getProxyUsername();
-  authreq.setUsername( username );
-  QString password = _sipRegister->getRegisterCall()->getPassword();
-  if( password.isEmpty() || _sipRegister->getRegisterState() == SipRegister::AuthenticationRequiredWithNewPassword )
-  {
-    if( authreq.exec() )
-    {
-      if( authreq.getUsername().isEmpty() || authreq.getUsername().isEmpty() )
-      {
-	return;
-      }
-      _sipRegister->getRegisterCall()->setProxyUsername( authreq.getUsername() );
-      _sipRegister->getRegisterCall()->setPassword( authreq.getPassword() );
-      _sipRegister->requestRegister( authreq.getUsername(), authreq.getPassword() );
-    }
-  }
-  else
-  {
-    _sipRegister->requestRegister( username, password );
-  }
+	QString username = _sipRegister->getRegisterCall()->getProxyUsername();
+	//////////authreq.setUsername( username );
+	QString password = _sipRegister->getRegisterCall()->getPassword();
+	if( password.isEmpty() || _sipRegister->getRegisterState() == SipRegister::AuthenticationRequiredWithNewPassword )
+	{
+		CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+		dialog->setDeleteOnClose(true);
+		dialog->setCaptionText(tr("Server error"));
+		dialog->setInfoText(tr("Authentication failed"));
+		dialog->setAcceptButtonText(tr("Ok"));
+		dialog->show();
+
+		//////////if( authreq.exec() )
+		//////////{
+		//////////	if( authreq.getUsername().isEmpty() || authreq.getUsername().isEmpty() )
+		//////////	{
+		//////////		return;
+		//////////	}
+		//////////	_sipRegister->getRegisterCall()->setProxyUsername( authreq.getUsername() );
+		//////////	_sipRegister->getRegisterCall()->setPassword( authreq.getPassword() );
+		//////////	_sipRegister->requestRegister( authreq.getUsername(), authreq.getPassword() );
+		//////////}
+	}
+	else
+	{
+		_sipRegister->requestRegister( username, password );
+	}
 }

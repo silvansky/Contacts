@@ -67,10 +67,13 @@ public:
 
 	uchar *H264EncodeFrame(const uchar *yuvFrame, int *len);
 	uchar *H264EncodeFrameRGB(const uchar *rgbFrame, int *len);
-	uchar *H264DecodeFrame(const uchar *h264Frame, int h264FrameLen, uchar *rgbBuffer, int rgbBufferSize);
+	bool   H264DecodeFrame(const uchar *h264Frame, int h264FrameLen, uchar** rgbBuffer, int rgbBufferSize);
 
 	void H264StopEncoder();
 	void H264StopDecoder();
+
+	// “екущее разрешение декодируемой картинки
+	QSize currentDecoderResolution() const;
 
 	int H264EncodeFrameToRTP(const uchar *rgbFrame, QList<RtpPacket*> **packets);
 

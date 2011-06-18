@@ -61,7 +61,7 @@ CallAudio::CallAudio( QObject* parent ) : QObject(parent)
   //audio_fd = -1;
 
   //_pVideoProcess = NULL;
-	_pVideo = new VoIPVideo(this);
+	_pVideo = new VoIPVideo(320, 240, this);
 	connect(_pVideo, SIGNAL(pictureShow(const QImage&)), this, SIGNAL(proxyPictureShow(const QImage&)));
 	connect(_pVideo, SIGNAL(localPictureShow(const QImage&)), this, SIGNAL(proxyLocalPictureShow(const QImage&)));
 	connect(this, SIGNAL(proxyStopCamera()), _pVideo, SLOT(stopCamera()));
@@ -271,13 +271,33 @@ void CallAudio::audioIn( void )
   //  _pVideoProcess->start(program, arguments);
   //}
 	if(_pVideo != NULL)
-		_pVideo->Set(QHostAddress(hostname), _remoteSDP.getVideoPort(), _localSDP.getVideoPort());
+		_pVideo->Set(320, 240, QHostAddress(hostname), _remoteSDP.getVideoPort(), _localSDP.getVideoPort());
 
 
   //hostname
   //int videoPort = remote.getVideoPort();
   //int localVideoPort = local.getVideoPort();
 }
+
+
+void CallAudio::outputVideoResolutonChangedToHigh(bool isHigh)
+{
+	qDebug("CallAudio::outputVideoResolutonChangedToHigh(%d)", (int)isHigh);
+	if(_pVideo != NULL)
+	{
+		if(isHigh)
+		{
+			//_pVideo->SetFrameSize(640, 480);
+			_pVideo->SetFrameSize(560, 420);
+		}
+		else
+		{
+			_pVideo->SetFrameSize(320, 240);
+		}
+	}
+}
+
+
 
 void CallAudio::stopListeningAudio( void )
 {

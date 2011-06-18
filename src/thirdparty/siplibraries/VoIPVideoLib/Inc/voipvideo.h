@@ -15,11 +15,12 @@ class VOIPVIDEOLIB_EXPORT VoIPVideo : public QObject
 	Q_OBJECT
 
 public:
-	VoIPVideo(const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort, QObject *parent);
-	VoIPVideo(QObject *parent = NULL);
+	VoIPVideo(int width, int height, const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort, QObject *parent);
+	VoIPVideo(int width, int height, QObject *parent = NULL);
 	~VoIPVideo();
 
-	void Set(const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort);
+	void Set(int width, int height, const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort);
+	void SetFrameSize(int width, int height);
 	void Stop();
 	bool checkCameraPresent() const;
 

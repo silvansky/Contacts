@@ -96,6 +96,7 @@ signals:
 	void proxyStartCamera();
 	void proxyStopCamera();
 	void proxySuspendStateChange(bool);
+	void proxyCamResolutionChange(bool);
 	
 	void camPresentChanged(bool);
 	void micPresentChanged(bool);
@@ -137,7 +138,10 @@ private:
 	SipUser* _pSipUser;
 
 	//CallAudio* _audioForSettings;
-	CallAudio *_pCallAudio;
+	
+	// Отдельно CallAudio в данном объекте не используется и чтобы не вводить в заблуждение
+	// и не создавать серьезных ошибок исключаем его отсюда
+	//CallAudio *_pCallAudio;
 
 	KSipAuthentication *_pSipAuthentication;
 	SipRegister *_pSipRegister;

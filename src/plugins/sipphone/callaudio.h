@@ -88,6 +88,7 @@ public slots:
 	void onTerminated();
 	void onFinished();
 	void onUserExit();
+	void outputVideoResolutonChangedToHigh(bool);
 
 
 signals:
