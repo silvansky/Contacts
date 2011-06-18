@@ -1026,38 +1026,44 @@ void RostersView::paintEvent(QPaintEvent *AEvent)
 void RostersView::keyPressEvent(QKeyEvent *event)
 {
 	bool accepted = false;
-	// multi selection first
-	QMultiMap<int, IRostersKeyPressHooker *>::const_iterator it = FKeyPressHookers.constBegin();
-	while (!accepted && it!=FKeyPressHookers.constEnd())
+	QList<IRosterIndex *> indexes = selectedRosterIndexes();
+	if (!indexes.isEmpty())
 	{
-		accepted = it.value()->keyOnRosterIndexesPressed(selectedRosterIndexes().first(), selectedRosterIndexes(), it.key(), (Qt::Key)event->key(), event->modifiers());
-		it++;
-	}
-	if (!accepted)
-		foreach (IRosterIndex *index, selectedRosterIndexes())
+		// multi selection first
+		QMultiMap<int, IRostersKeyPressHooker *>::const_iterator it = FKeyPressHookers.constBegin();
+		while (!accepted && it!=FKeyPressHookers.constEnd())
 		{
-			if (index)
+			accepted = it.value()->keyOnRosterIndexesPressed(indexes.first(), indexes, it.key(), (Qt::Key)event->key(), event->modifiers());
+			it++;
+		}
+		if (!accepted)
+		{
+			foreach (IRosterIndex *index, indexes)
 			{
-				// enter or return acts as double click
-				if ((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) && (event->modifiers() == Qt::NoModifier))
+				if (index)
 				{
-					int notifyId = FActiveNotifies.value(index,-1);
-					if (notifyId>0 && FNotifyItems.value(notifyId).hookClick)
+					// enter or return acts as double click
+					if ((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) && (event->modifiers() == Qt::NoModifier))
 					{
-						activateNotify(notifyId);
+						int notifyId = FActiveNotifies.value(index,-1);
+						if (notifyId>0 && FNotifyItems.value(notifyId).hookClick)
+						{
+							activateNotify(notifyId);
+						}
+						else
+						{
+							accepted = processClickHookers(index);
+						}
 					}
 					else
 					{
-						accepted = processClickHookers(index);
+						// processing key event
+						accepted = processKeyPressHookers(index, (Qt::Key)event->key(), event->modifiers());
 					}
-				}
-				else
-				{
-					// processing key event
-					accepted = processKeyPressHookers(index, (Qt::Key)event->key(), event->modifiers());
 				}
 			}
 		}
+	}
 	if (!accepted)
 	{
 		QTreeView::keyPressEvent(event);
