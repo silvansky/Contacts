@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Exit Rambler.Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Выйти из Рамблер.Контактов</translation>
     </message>
 </context>
 </TS>

@@ -363,16 +363,8 @@
         <translation>&lt;font size=+2&gt;Переименовать группу&lt;/font&gt;&lt;br&gt;Введите новое имя группы:</translation>
     </message>
     <message>
-        <source>Added you as a friend</source>
-        <translation>Вы добавлены как друг</translation>
-    </message>
-    <message>
         <source>Refused authorization</source>
         <translation>Отказано в авторизации</translation>
-    </message>
-    <message>
-        <source>Removed you from friends</source>
-        <translation>Вы удалены из друзей</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -397,6 +389,14 @@
     <message>
         <source>Create new contact...</source>
         <translation>Создать новый контакт...</translation>
+    </message>
+    <message>
+        <source>Added you in contact list</source>
+        <translation>Добавил Вас в список контактов</translation>
+    </message>
+    <message>
+        <source>Removed you from contact list</source>
+        <translation>Удалил Вас из списка контактов</translation>
     </message>
 </context>
 <context>

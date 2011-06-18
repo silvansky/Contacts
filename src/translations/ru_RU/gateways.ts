@@ -142,6 +142,14 @@
         <source>Show input password</source>
         <translation>Показать вводимый пароль</translation>
     </message>
+    <message>
+        <source>OK</source>
+        <translation>Ок</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
 </context>
 <context>
     <name>AddLegacyAccountOptions</name>

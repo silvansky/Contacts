@@ -40,7 +40,7 @@
     </message>
     <message>
         <source>Open Rambler.Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть Рамблер.Контакты</translation>
     </message>
 </context>
 </TS>

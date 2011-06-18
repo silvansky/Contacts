@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>AVControl</name>
+    <message>
+        <source>HQ</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CallAudio</name>
     <message>
         <source>CallAudio: SendToRemote called but we don&apos;t have a valid session description yet</source>
@@ -28,14 +35,14 @@
     <name>ComplexVideoWidget</name>
     <message>
         <source>Camera OFF</source>
-        <translation type="unfinished">Камера выключена</translation>
+        <translation>Камера выключена</translation>
     </message>
 </context>
 <context>
     <name>IdentityDialog</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Ок</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -106,7 +113,7 @@
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Ок</translation>
     </message>
     <message>
         <source>cancel button</source>
@@ -121,7 +128,7 @@
     <name>QImageLabel</name>
     <message>
         <source>no image</source>
-        <translation type="unfinished">Нет изображения</translation>
+        <translation>Нет изображения</translation>
     </message>
 </context>
 <context>
@@ -160,7 +167,7 @@
     </message>
     <message>
         <source>No answer...</source>
-        <translation>Нет ответа</translation>
+        <translation>Нет ответа...</translation>
     </message>
     <message>
         <source>Missed Call...</source>
@@ -232,6 +239,18 @@
         <source>Proxy Basic Authentication Request</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Server error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authentication failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ок</translation>
+    </message>
 </context>
 <context>
     <name>SipCallNotifyer</name>
@@ -261,7 +280,7 @@
     </message>
     <message>
         <source>%1 calling</source>
-        <translation type="unfinished">%1 звонит</translation>
+        <translation>%1 звонит</translation>
     </message>
 </context>
 <context>
@@ -300,7 +319,7 @@
     </message>
     <message>
         <source>Calls NOT supported for current contact</source>
-        <translation type="unfinished">Вызов этого контакта не может быть осуществлён</translation>
+        <translation>Вызов этого контакта не может быть осуществлён</translation>
     </message>
     <message>
         <source>Incoming call</source>
@@ -308,18 +327,18 @@
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ок</translation>
+        <translation>Ок</translation>
     </message>
 </context>
 <context>
     <name>SipPhoneProxy</name>
     <message>
         <source>Subscribe message from uri:</source>
-        <translation type="unfinished">Подписать сообщение от URI:</translation>
+        <translation>Подписать сообщение от URI:</translation>
     </message>
     <message>
         <source>Do you want to accept and create a contact ?</source>
-        <translation type="unfinished">Вы хотите принять и создать контакт?</translation>
+        <translation>Вы хотите принять и создать контакт?</translation>
     </message>
     <message>
         <source>Accept</source>
@@ -327,11 +346,11 @@
     </message>
     <message>
         <source>Reject permanently</source>
-        <translation type="unfinished">Всегда отклонять</translation>
+        <translation>Всегда отклонять</translation>
     </message>
     <message>
         <source>Reject this time</source>
-        <translation type="unfinished">Отклонить сейчас</translation>
+        <translation>Отклонить сейчас</translation>
     </message>
     <message>
         <source>Incoming call</source>
@@ -339,18 +358,18 @@
     </message>
     <message>
         <source>Videocall with: </source>
-        <translation type="unfinished">Видеозвонок с:</translation>
+        <translation>Видеозвонок с:</translation>
     </message>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Контакты</translation>
     </message>
 </context>
 <context>
     <name>SipPhoneWidget</name>
     <message>
         <source>Call Failed</source>
-        <translation type="unfinished">Сбой вызова</translation>
+        <translation>Сбой вызова</translation>
     </message>
     <message>
         <source>Incoming call</source>
@@ -370,31 +389,31 @@
     </message>
     <message>
         <source>Error: No Destination</source>
-        <translation type="unfinished">Ошибка: нет назначения</translation>
+        <translation>Ошибка: нет назначения</translation>
     </message>
     <message>
         <source>You must specify someone to call.</source>
-        <translation type="unfinished">Вы должны указать пользователя, которому вы хотите позвонить. </translation>
+        <translation>Вы должны указать пользователя, которому вы хотите позвонить. </translation>
     </message>
     <message>
         <source>Accept Call</source>
-        <translation type="unfinished">Принять звонок</translation>
+        <translation>Принять звонок</translation>
     </message>
     <message>
         <source>Accepted codec not found.</source>
-        <translation type="unfinished">Принимаемый кодек не найден.</translation>
+        <translation>Принимаемый кодек не найден.</translation>
     </message>
     <message>
         <source>Redirect</source>
-        <translation type="unfinished">Переадресовать</translation>
+        <translation>Переадресовать</translation>
     </message>
     <message>
         <source>Call redirected to: </source>
-        <translation type="unfinished">Вызов переадресован на:</translation>
+        <translation>Вызов переадресован на:</translation>
     </message>
     <message>
         <source>Do you want to proceed ? </source>
-        <translation type="unfinished">Вы хотите продолжить? </translation>
+        <translation>Вы хотите продолжить? </translation>
     </message>
     <message>
         <source>Rambler.Contacts SIP Call</source>

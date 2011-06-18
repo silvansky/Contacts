@@ -156,7 +156,7 @@ StyleViewer
 #tlbSend
 {
 	background-color: transparent;
-	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder.png);
+	border-image: url(%IMAGES_PATH%/sendbuttonborder.png);
 	border: 0px;
 	min-width: 32px;
 	max-width: 32px;

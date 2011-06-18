@@ -7,7 +7,7 @@
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/graphicseffects.h>
 
-#define MAX_STATUS_TEXT_SIZE    100
+#define MAX_STATUS_TEXT_SIZE    60
 
 MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QDialog(AParent)
 {

@@ -215,7 +215,7 @@
     </message>
     <message>
         <source>Contacts - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Контакты - %1</translation>
     </message>
 </context>
 <context>

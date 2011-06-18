@@ -152,7 +152,7 @@
         <x>0</x>
         <y>0</y>
         <width>365</width>
-        <height>104</height>
+        <height>106</height>
        </rect>
       </property>
      </widget>
@@ -164,6 +164,12 @@
       <widget class="QPushButton" name="pbtAddContact">
        <property name="text">
         <string>Add Contact...</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -184,6 +190,9 @@
       <widget class="QPushButton" name="pbtClose">
        <property name="text">
         <string>Close</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

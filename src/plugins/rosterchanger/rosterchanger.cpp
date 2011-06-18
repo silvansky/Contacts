@@ -714,11 +714,11 @@ QString RosterChanger::subscriptionNotify(const Jid &AStreamJid, const Jid &ACon
 	case IRoster::Subscribe:
 		return tr("Requests authorization");
 	case IRoster::Subscribed:
-		return tr("Added you as a friend");
+		return tr("Added you in contact list");
 	case IRoster::Unsubscribe:
 		return tr("Refused authorization");
 	case IRoster::Unsubscribed:
-		return tr("Removed you from friends");
+		return tr("Removed you from contact list");
 	}
 
 	return QString::null;

@@ -236,11 +236,11 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Контакты</translation>
     </message>
     <message>
         <source>This profile is already opened by another Contacts instance</source>
-        <translation type="unfinished"></translation>
+        <translation>Этот профиль уже открыт</translation>
     </message>
 </context>
 <context>
@@ -271,7 +271,7 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Rambler.Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Рамблер.Контакты</translation>
     </message>
 </context>
 <context>

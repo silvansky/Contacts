@@ -79,7 +79,7 @@
     </message>
     <message>
         <source>Rambler Contacts version: %1 (r%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Версия программы: %1 (r%2)</translation>
     </message>
 </context>
 <context>
@@ -157,11 +157,11 @@
     </message>
     <message>
         <source>Rambler.Contacts updates ready</source>
-        <translation type="unfinished"></translation>
+        <translation>Готовы обновления для Рамлер.Контактов</translation>
     </message>
     <message>
         <source>Updates are ready. Do you want to restart Rambler.Contacts now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновление выполнено. Хотите перезапустить Рамблер.Контакты?</translation>
     </message>
 </context>
 <context>
