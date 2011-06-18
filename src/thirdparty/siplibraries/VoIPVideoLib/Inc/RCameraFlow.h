@@ -49,6 +49,8 @@ private:
   QImage _frame;
 	QSize _frameSize;
 
+	uchar *__pixels;
+
   videoInput* pVInput;
 };
 
