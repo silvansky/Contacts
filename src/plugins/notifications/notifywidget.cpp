@@ -171,7 +171,7 @@ void NotifyWidget::appendNotification(const INotification &ANotification)
 			text = getHtmlBody(doc.toHtml());
 		}
 
-		FTextMessages.append(text);
+		FTextMessages.append(text.replace("/emoticons/smiles/", "/emoticons/smiles_dark/"));  // complex to prevent unneeded replacement
 		while(FTextMessages.count() > MAX_MESSAGES)
 			FTextMessages.removeAt(0);
 	}
