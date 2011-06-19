@@ -75,6 +75,7 @@ public:
 	virtual void closeStream(const QString &AStreamId);
 
 	Jid getContactWithPresence(const Jid &AStreamJid, const QString &AMetaId) const;
+	Jid getContactWithPresence(const Jid &AStreamJid, const Jid &AContactWithoutPresence, const QString &AMetaId) const;
 	QString findMetaId(const Jid& AStreamJid, const Jid& AContactJid) const;
 
 signals:
@@ -146,6 +147,8 @@ protected slots:
 
 	void incomingThreadTimeChanged(qint64);
 
+private slots:
+	void continueCallToContact(const QString&);
 
 private:
 	IServiceDiscovery *FDiscovery;
