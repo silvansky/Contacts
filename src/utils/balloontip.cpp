@@ -21,7 +21,7 @@ QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString
 				 const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition)
 {
 	hideBalloon();
-	if (!message.isEmpty() && !title.isEmpty())
+	if (!(message.isEmpty() && title.isEmpty()))
 	{
 		theSolitaryBalloonTip = new BalloonTip(icon, title, message);
 		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow, arrowPosition);
@@ -133,7 +133,10 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message)
 	}
 
 	if (title.isEmpty())
-		layout->addWidget(msgLabel, 0, 1);
+	{
+		layout->addWidget(msgLabel, 0, 1, 2, 1);
+		layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), 1, 0);
+	}
 	else
 		layout->addWidget(msgLabel, 1, 0, 1, 3);
 	layout->setSizeConstraint(QLayout::SetFixedSize);

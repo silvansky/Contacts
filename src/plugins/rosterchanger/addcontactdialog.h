@@ -81,6 +81,11 @@ protected:
 	void resolveLinkedContactsJid();
 protected:
 	virtual void showEvent(QShowEvent *AEvent);
+	void mousePressEvent(QMouseEvent *);
+	void resizeEvent(QResizeEvent *);
+	void moveEvent(QMoveEvent *);
+	bool event(QEvent *);
+	bool eventFilter(QObject *, QEvent *);
 protected slots:
 	void onDialogButtonClicked(QAbstractButton *AButton);
 	void onAdjustDialogSize();
@@ -94,6 +99,7 @@ protected slots:
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
+	void onBorderReszeMove();
 private:
 	Ui::AddContactDialogClass ui;
 private:

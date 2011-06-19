@@ -1335,6 +1335,17 @@ void CustomBorderContainer::updateGeometry(const QPoint & p)
 				oldGeometry.setHeight(maxHeight);
 		}
 		setGeometry(oldGeometry);
+		switch(geometryState())
+		{
+		case Resizing:
+			emit resized();
+			break;
+		case Moving:
+			emit moved();
+			break;
+		default:
+			break;
+		}
 		QApplication::flush();
 	}
 }

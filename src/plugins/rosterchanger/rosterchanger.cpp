@@ -667,6 +667,8 @@ QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 		{
 			border->setAttribute(Qt::WA_DeleteOnClose, true);
 			border->setMaximizeButtonVisible(false);
+			border->setMinimizeButtonVisible(false);
+			border->setResizable(false);
 			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
 			connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
 			connect(dialog, SIGNAL(accepted()), border, SLOT(close()));

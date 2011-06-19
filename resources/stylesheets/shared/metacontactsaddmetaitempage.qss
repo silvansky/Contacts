@@ -18,4 +18,20 @@ CustomLabel#lblError
 QPushButton#pbtAppend
 {
 	margin-top: 5px;
+	border-image: url(%IMAGES_PATH%/whitebutton.png);
+}
+
+QPushButton#pbtAppend:disabled
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_disabled.png);
+}
+
+QPushButton#pbtAppend:hover
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_hover.png);
+}
+
+QPushButton#pbtAppend:pressed
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_click.png);
 }

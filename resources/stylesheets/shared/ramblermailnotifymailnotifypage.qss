@@ -32,3 +32,27 @@ QTableWidget
 	selection-color: white;
 	selection-background-color: #275672;
 }
+
+QPushButton#pbtNewMail,
+QPushButton#pbtIncoming
+{
+	border-image: url(%IMAGES_PATH%/whitebutton.png);
+}
+
+QPushButton#pbtNewMail:disabled,
+QPushButton#pbtIncoming:disabled
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_disabled.png);
+}
+
+QPushButton#pbtNewMail:hover,
+QPushButton#pbtIncoming:hover
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_hover.png);
+}
+
+QPushButton#pbtNewMail:pressed,
+QPushButton#pbtIncoming:pressed
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_click.png);
+}

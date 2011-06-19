@@ -49,6 +49,8 @@ signals:
 	void minimized();
 	void maximized();
 	void closed();
+	void resized();
+	void moved();
 protected:
 	// event handlers
 	void changeEvent(QEvent *e);
