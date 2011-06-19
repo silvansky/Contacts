@@ -81,6 +81,9 @@ signals:
 
 protected:
 	void paintEvent(QPaintEvent *);
+	
+private slots:
+	void onAudioSettings();
 
 private:
 	Ui::AVControl ui;

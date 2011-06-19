@@ -3,6 +3,7 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <QPainter>
+#include <QProcess>
 
 BtnSynchro* AVControl::__bSyncCamera = NULL;
 BtnSynchro* AVControl::__bSyncMic = NULL;
@@ -108,8 +109,29 @@ AVControl::AVControl(QWidget *parent)
 	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), __bSyncCamera, SLOT(onStateChange(bool)));
 	connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), __bSyncMic, SLOT(onStateChange(bool)));
 	connect(ui.chkbtnHQ, SIGNAL(toggled(bool)), __bSyncHQ, SLOT(onStateChange(bool)));
+
+
+	connect(ui.btnAudioSettings, SIGNAL(clicked()), this, SLOT(onAudioSettings()));
 }
 
+void AVControl::onAudioSettings()
+{
+	// ONLY FOR WINDOWS
+	OSVERSIONINFO m_osinfo;
+	ZeroMemory(&m_osinfo, sizeof(m_osinfo));
+	m_osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if (GetVersionEx((LPOSVERSIONINFO) &m_osinfo))
+	{
+		if(m_osinfo.dwMajorVersion < 6)
+		{
+			QProcess::startDetached("sndvol32.exe");
+		}
+		else
+		{
+			QProcess::startDetached("sndvol.exe");
+		}
+	}
+}
 
 
 AVControl::~AVControl()

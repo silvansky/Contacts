@@ -282,19 +282,19 @@ void CallAudio::audioIn( void )
 
 void CallAudio::outputVideoResolutonChangedToHigh(bool isHigh)
 {
-	qDebug("CallAudio::outputVideoResolutonChangedToHigh(%d)", (int)isHigh);
-	if(_pVideo != NULL)
-	{
-		if(isHigh)
-		{
-			//_pVideo->SetFrameSize(640, 480);
-			_pVideo->SetFrameSize(560, 420);
-		}
-		else
-		{
-			_pVideo->SetFrameSize(320, 240);
-		}
-	}
+	//qDebug("CallAudio::outputVideoResolutonChangedToHigh(%d)", (int)isHigh);
+	//if(_pVideo != NULL)
+	//{
+	//	if(isHigh)
+	//	{
+	//		//_pVideo->SetFrameSize(640, 480);
+	//		_pVideo->SetFrameSize(560, 420);
+	//	}
+	//	else
+	//	{
+	//		_pVideo->SetFrameSize(320, 240);
+	//	}
+	//}
 }
 
 

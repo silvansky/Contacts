@@ -93,6 +93,8 @@ private:
 	// масштабируем ее до размера _frameSize
 	QSize _frameSize;
 
+	uchar* _rxRgbBuffer;
+
   // Сокеты для отправки по сети и для чтения
   QUdpSocket *_udpSocketForSend;
   QHostAddress _remoteHost;

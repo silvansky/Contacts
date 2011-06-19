@@ -7,6 +7,7 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include "contactselector.h"
+#include <QProcess>
 
 #include "winsock2.h"
 
