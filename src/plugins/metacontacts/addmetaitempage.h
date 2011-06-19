@@ -2,6 +2,7 @@
 #define ADDMETAITEMPAGE_H
 
 #include <QWidget>
+#include <definitions/textflags.h>
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <definitions/resources.h>

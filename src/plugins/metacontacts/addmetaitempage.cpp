@@ -32,6 +32,7 @@ AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow 
 	}
 
 	ui.pbtAppend->setEnabled(false);
+	ui.pbtAppend->addTextFlag(TF_LIGHTSHADOW);
 	ui.gridLayout->addWidget(ui.pbtAppend, 2, 2, 1, 1, Qt::AlignTop|Qt::AlignHCenter); // Depend on ui layout!!!
 	connect(ui.pbtAppend,SIGNAL(clicked()),SLOT(onAppendContactButtonClicked()));
 

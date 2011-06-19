@@ -35,7 +35,7 @@
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="QPushButton" name="pbtAppend">
+    <widget class="ActionButton" name="pbtAppend">
      <property name="text">
       <string>Append</string>
      </property>
@@ -101,6 +101,11 @@
    <class>CustomLabel</class>
    <extends>QLabel</extends>
    <header location="global">utils/customlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">utils/actionbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
