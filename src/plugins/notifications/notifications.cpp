@@ -235,7 +235,7 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsHeaderWidget(QString::null,tr("Full screen mode"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN),
-												    tr("Disable all popup windows and sounds when\nany full screen application is running (movies, games, presentations)"),AParent));
+												    tr("Disable all popup windows when watching fullscreen movies or games"),AParent));
 	}
 	return widgets;
 }

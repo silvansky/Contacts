@@ -52,9 +52,8 @@
         <translation>Если выбран статус «Занят»</translation>
     </message>
     <message>
-        <source>Disable all popup windows and sounds when
-any full screen application is running (movies, games, presentations)</source>
-        <translation>Отключать все звуки и всплывающие окна в полноэкранных приложениях</translation>
+        <source>Disable all popup windows when watching fullscreen movies or games</source>
+        <translation>Скрывать все уведомления при просмотре полноэкранных фильмов или игр</translation>
     </message>
 </context>
 <context>

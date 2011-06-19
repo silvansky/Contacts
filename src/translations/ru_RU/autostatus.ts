@@ -20,9 +20,8 @@
         <translation>Позволяет менять статус в зависимости от времени бездействия</translation>
     </message>
     <message>
-        <source>Automatically change status to &apos;Away&apos; if screen saver is on or system is locked</source>
-        <translation>Автоматически изменять статус на «Отошёл», если включен скринсейвер
-или компьютер заблокирован</translation>
+        <source>Change status to &apos;Away&apos; if screen saver is on or system is locked</source>
+        <translation>Менять статус на «Отошёл» во время работы заставки или блокировки компьютера</translation>
     </message>
 </context>
 <context>

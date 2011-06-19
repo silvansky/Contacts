@@ -93,7 +93,7 @@ QMultiMap<int, IOptionsWidget *> AutoStatus::optionsWidgets(const QString &ANode
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_COMMON)
 	{
-		widgets.insertMulti(OWO_COMMON_AUTOSTATUS, FOptionsManager->optionsNodeWidget(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK),tr("Automatically change status to 'Away' if screen saver is on or system is locked"),AParent));
+		widgets.insertMulti(OWO_COMMON_AUTOSTATUS, FOptionsManager->optionsNodeWidget(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK),tr("Change status to 'Away' if screen saver is on or system is locked"),AParent));
 	}
 	else if (ANodeId == OPN_AUTO_STATUS)
 	{
