@@ -637,10 +637,20 @@ QList<IGateServiceDescriptor> Gateways::gateHomeDescriptorsByContact(const QStri
 		{
 			if (!it->homeContactPattern.isEmpty())
 			{
-				homeRegExp.setPattern(it->homeContactPattern);
 				QString contact = normalizedContactLogin(*it,AContact);
-				if (!contact.isEmpty() && homeRegExp.exactMatch(contact))
-					descriptors.append(*it);
+				if (!contact.isEmpty())
+				{
+					homeRegExp.setPattern(it->homeContactPattern);
+					if (homeRegExp.exactMatch(contact))
+					{
+						descriptors.append(*it);
+					}
+					else if (!it->domains.isEmpty() && it->domainSeparator=="@" && it->domains.contains(Jid(contact).pDomain()))
+					{
+						descriptors.clear();
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -710,6 +720,10 @@ QString Gateways::formattedContactLogin(const IGateServiceDescriptor &ADescripto
 		for(int pos=3; contact.length()-pos>=2; pos+=4)
 			contact.insert(pos,"-");
 	}
+	else if (ADescriptor.type == "xmpp")
+	{
+		contact = Jid(contact).full();
+	}
 	return contact;
 }
 
@@ -762,6 +776,12 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 			if (AComplete && !ADescriptor.domainSeparator.isEmpty() && !contact.contains(ADescriptor.domainSeparator) && !ADescriptor.domains.isEmpty())
 			{
 				contact += ADescriptor.domainSeparator + ADescriptor.domains.value(0);
+			}
+
+			// Поддержка Jid Escaping
+			if (ADescriptor.type == "xmpp")
+			{
+				contact = Jid(contact).eFull();
 			}
 		}
 	}

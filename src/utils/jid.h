@@ -10,7 +10,7 @@
 #include "utilsexport.h"
 #include <thirdparty/idn/stringprep.h>
 
-#define JID_NODE_PATTERN       "[\\w_%!#\\+\\-\\.\\^\\*\\)\\(\\=\\|\\?]+"
+#define JID_NODE_PATTERN       "[\\w_%!#\\+\\-\\.\\^\\*\\)\\(\\=\\|\\?\\\\]+"
 #define JID_DOMAIN_PATTERN     "[a-zA-Z0-9\\-\\.]+\\.\\w{2,4}"
 
 class JidData :
