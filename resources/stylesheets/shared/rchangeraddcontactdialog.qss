@@ -3,7 +3,8 @@ QDialog
 	background-color: rgba(65, 70, 77, 250);
 }
 
-QWidget#wdtPageAddress, QWidget#wdtPageConfirm, QWidget#wdtPageParams, QWidget#wdtSelectProfile, QWidget#wdtConfirmAddresses, QWidget#wdtProfiles
+QWidget#wdtPageAddress, QWidget#wdtPageConfirm, QWidget#wdtPageParams, QWidget#wdtSelectProfile, QWidget#wdtConfirmAddresses, QWidget#wdtProfiles,
+QFrame#contentsFrame
 {
 	background-color: transparent;
 }
@@ -21,4 +22,15 @@ QLabel#lblError
 QLabel
 {
 	margin-left: 1px;
+}
+
+QComboBox
+{
+	margin-left: 2px;
+	margin-right: 3px;
+}
+
+QComboBox::drop-down
+{
+	right: 6px;
 }

@@ -58,6 +58,7 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	ui.cmbParamsGroup->setView(new QListView);
 	ui.wdtConfirmAddresses->setLayout(new QVBoxLayout);
 	ui.wdtConfirmAddresses->layout()->setMargin(0);
+	ui.wdtConfirmAddresses->layout()->setSpacing(10);
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_RCHANGER_ADDCONTACT_ERROR,0,0,"pixmap");
 
@@ -69,6 +70,18 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	connect(ui.lneAddressContact,SIGNAL(textEdited(const QString &)),SLOT(onContactTextEdited(const QString &)));
 
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
+
+	connect(ui.pbtBack, SIGNAL(clicked()), SLOT(onBackButtonclicked()));
+	connect(ui.pbtContinue, SIGNAL(clicked()), SLOT(onContinueButtonclicked()));
+	connect(ui.pbtCancel, SIGNAL(clicked()), SLOT(onCancelButtonclicked()));
+
+	ui.lblError->setVisible(false);
+	ui.lblErrorIcon->setVisible(false);
+	ui.dbbButtons->setVisible(false);
+
+	ui.pbtBack->setText(tr("Back"));
+	ui.pbtCancel->setText(tr("Cancel"));
+	ui.pbtContinue->setEnabled(false);
 
 	initialize(APluginManager);
 	initGroups();
@@ -91,9 +104,6 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	ui.dbbButtons->installEventFilter(this);
 	installEventFilter(this);
 	ui.cmbParamsGroup->installEventFilter(this);
-
-	ui.lblError->setVisible(false);
-	ui.lblErrorIcon->setVisible(false);
 }
 
 AddContactDialog::~AddContactDialog()
@@ -407,6 +417,9 @@ void AddContactDialog::setDialogState(int AState)
 			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
 			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Continue"));
 			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
+			ui.pbtBack->setVisible(false);
+			ui.pbtContinue->setText(tr("Continue"));
+			StyleStorage::updateStyle(this);
 		}
 		else if (AState == STATE_CONFIRM)
 		{
@@ -419,6 +432,8 @@ void AddContactDialog::setDialogState(int AState)
 			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Continue"));
 			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
 			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Cancel),ui.dbbButtons->button(QDialogButtonBox::Reset));
+			ui.pbtBack->setVisible(true);
+			ui.pbtContinue->setText(tr("Continue"));
 		}
 		else if (AState == STATE_PARAMS)
 		{
@@ -433,16 +448,20 @@ void AddContactDialog::setDialogState(int AState)
 			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add Contact"));
 			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
 			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Cancel),ui.dbbButtons->button(QDialogButtonBox::Reset));
+			ui.pbtBack->setVisible(true);
+			ui.pbtContinue->setText(tr("Add Contact"));
+			StyleStorage::updateStyle(this);
 		}
 
-		ui.dbbButtons->button(QDialogButtonBox::Ok)->setAutoDefault(false);
-		ui.dbbButtons->button(QDialogButtonBox::Cancel)->setAutoDefault(false);
-		if (ui.dbbButtons->button(QDialogButtonBox::Reset))
-			ui.dbbButtons->button(QDialogButtonBox::Reset)->setAutoDefault(false);
-		ui.dbbButtons->button(QDialogButtonBox::Ok)->setDefault(true);
+//		ui.dbbButtons->button(QDialogButtonBox::Ok)->setAutoDefault(false);
+//		ui.dbbButtons->button(QDialogButtonBox::Cancel)->setAutoDefault(false);
+//		if (ui.dbbButtons->button(QDialogButtonBox::Reset))
+//			ui.dbbButtons->button(QDialogButtonBox::Reset)->setAutoDefault(false);
+//		ui.dbbButtons->button(QDialogButtonBox::Ok)->setDefault(true);
 
 		FDialogState = AState;
-		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+		adjustSize();
+		QTimer::singleShot(1, this, SLOT(onAdjustDialogSize()));
 	}
 }
 
@@ -481,6 +500,7 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 {
 	if (ui.lblError->text() != AMessage)
 	{
+		BalloonTip::hideBalloon();
 		if (!AMessage.isEmpty())
 		{
 			QPoint p = ui.lneAddressContact->mapToGlobal(QPoint(0, 0));
@@ -493,8 +513,6 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 						true,
 						BalloonTip::ArrowLeft);
 		}
-		else
-			BalloonTip::hideBalloon(); // TODO: hide when needed
 		//ui.lblError->setText(AMessage);
 		//ui.lblError->setVisible(!AMessage.isEmpty());
 		//ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
@@ -696,14 +714,19 @@ bool AddContactDialog::event(QEvent * evt)
 		{
 			connect(border, SIGNAL(resized()), SLOT(onBorderReszeMove()));
 			connect(border, SIGNAL(moved()), SLOT(onBorderReszeMove()));
+			border->installEventFilter(this);
 		}
+	}
+	if (evt->type() == QEvent::ActivationChange)
+	{
+		BalloonTip::hideBalloon();
 	}
 	return QDialog::event(evt);
 }
 
 bool AddContactDialog::eventFilter(QObject * obj, QEvent * evt)
 {
-	if (evt->type() == QEvent::MouseButtonPress)
+	if ((evt->type() == QEvent::MouseButtonPress) || (evt->type() == QEvent::ActivationChange))
 	{
 		BalloonTip::hideBalloon();
 	}
@@ -712,80 +735,97 @@ bool AddContactDialog::eventFilter(QObject * obj, QEvent * evt)
 
 void AddContactDialog::onDialogButtonClicked(QAbstractButton *AButton)
 {
-	BalloonTip::hideBalloon();
 	if (ui.dbbButtons->buttonRole(AButton) == QDialogButtonBox::AcceptRole)
 	{
-		if (FDialogState == STATE_ADDRESS)
-		{
-			resolveDescriptor();
-		}
-		else if (FDialogState == STATE_CONFIRM)
-		{
-			for (QMap<QRadioButton *, IGateServiceDescriptor>::const_iterator it=FConfirmButtons.constBegin(); it!=FConfirmButtons.constEnd(); it++)
-			{
-				if (it.key()->isChecked())
-				{
-					if (registerDescriptorStatus(it.value()) != RDS_CANCELLED)
-					{
-						updatePageParams(it.value());
-						setDialogState(STATE_PARAMS);
-					}
-					break;
-				}
-			}
-		}
-		else if (FDialogState == STATE_PARAMS)
-		{
-			if (contactJid().isValid())
-			{
-				if (FMetaRoster && FMetaRoster->isEnabled())
-				{
-					IMetaContact contact;
-					contact.name = nickName();
-					contact.groups += group();
-					contact.items += contactJid();
-					contact.items += FLinkedContacts.toSet();
-
-					FContactCreateRequest = FMetaRoster->createContact(contact);
-					if (!FContactCreateRequest.isEmpty())
-					{
-						foreach(Jid itemJid, contact.items)
-							FRosterChanger->subscribeContact(streamJid(),itemJid,QString::null,true);
-						setDialogEnabled(false);
-					}
-					else
-					{
-						onMetaActionResult(FContactCreateRequest,ErrorHandler::coditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
-					}
-				}
-				else
-				{
-					foreach(Jid linkedJid, FLinkedContacts)
-					{
-						if (linkedJid != contactJid())
-						{
-							FRoster->setItem(linkedJid,nickName(),QSet<QString>()<<group());
-							FRosterChanger->subscribeContact(streamJid(),linkedJid,QString::null);
-						}
-					}
-
-					FRoster->setItem(contactJid(),nickName(),QSet<QString>()<<group());
-					FRosterChanger->subscribeContact(streamJid(),contactJid(),QString::null);
-					accept();
-				}
-			}
-		}
+		onContinueButtonclicked();
 	}
 	else if (ui.dbbButtons->buttonRole(AButton) == QDialogButtonBox::ResetRole)
 	{
-		setErrorMessage(QString::null,false);
-		updatePageAddress();
-		setDialogState(STATE_ADDRESS);
+		onBackButtonclicked();
 	}
 	else if (ui.dbbButtons->buttonRole(AButton) == QDialogButtonBox::RejectRole)
 	{
-		reject();
+		onCancelButtonclicked();
 	}
+}
+
+void AddContactDialog::onBackButtonclicked()
+{
+	BalloonTip::hideBalloon();
+	setErrorMessage(QString::null,false);
+	updatePageAddress();
+	setDialogState(STATE_ADDRESS);
+}
+
+void AddContactDialog::onContinueButtonclicked()
+{
+	BalloonTip::hideBalloon();
+	if (FDialogState == STATE_ADDRESS)
+	{
+		resolveDescriptor();
+	}
+	else if (FDialogState == STATE_CONFIRM)
+	{
+		for (QMap<QRadioButton *, IGateServiceDescriptor>::const_iterator it=FConfirmButtons.constBegin(); it!=FConfirmButtons.constEnd(); it++)
+		{
+			if (it.key()->isChecked())
+			{
+				if (registerDescriptorStatus(it.value()) != RDS_CANCELLED)
+				{
+					updatePageParams(it.value());
+					setDialogState(STATE_PARAMS);
+				}
+				break;
+			}
+		}
+	}
+	else if (FDialogState == STATE_PARAMS)
+	{
+		if (contactJid().isValid())
+		{
+			if (FMetaRoster && FMetaRoster->isEnabled())
+			{
+				IMetaContact contact;
+				contact.name = nickName();
+				contact.groups += group();
+				contact.items += contactJid();
+				contact.items += FLinkedContacts.toSet();
+
+				FContactCreateRequest = FMetaRoster->createContact(contact);
+				if (!FContactCreateRequest.isEmpty())
+				{
+					foreach(Jid itemJid, contact.items)
+						FRosterChanger->subscribeContact(streamJid(),itemJid,QString::null,true);
+					setDialogEnabled(false);
+				}
+				else
+				{
+					onMetaActionResult(FContactCreateRequest,ErrorHandler::coditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
+				}
+			}
+			else
+			{
+				foreach(Jid linkedJid, FLinkedContacts)
+				{
+					if (linkedJid != contactJid())
+					{
+						FRoster->setItem(linkedJid,nickName(),QSet<QString>()<<group());
+						FRosterChanger->subscribeContact(streamJid(),linkedJid,QString::null);
+					}
+				}
+
+				FRoster->setItem(contactJid(),nickName(),QSet<QString>()<<group());
+				FRosterChanger->subscribeContact(streamJid(),contactJid(),QString::null);
+				accept();
+			}
+		}
+	}
+}
+
+void AddContactDialog::onCancelButtonclicked()
+{
+	BalloonTip::hideBalloon();
+	reject();
 }
 
 void AddContactDialog::onAdjustDialogSize()
@@ -794,6 +834,7 @@ void AddContactDialog::onAdjustDialogSize()
 		parentWidget()->adjustSize();
 	else
 		adjustSize();
+
 }
 
 void AddContactDialog::onContactTextEdited(const QString &AText)
@@ -801,6 +842,7 @@ void AddContactDialog::onContactTextEdited(const QString &AText)
 	BalloonTip::hideBalloon();
 	setErrorMessage(QString::null,false);
 	ui.dbbButtons->button(QDialogButtonBox::Ok)->setEnabled(!AText.isEmpty());
+	ui.pbtContinue->setEnabled(!AText.isEmpty());
 }
 
 void AddContactDialog::onContactNickEdited(const QString &AText)

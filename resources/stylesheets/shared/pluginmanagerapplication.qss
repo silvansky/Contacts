@@ -324,9 +324,9 @@ QPushButton:default:hover:enabled, QToolButton:default:hover:enabled
 	border-right: 5px;
 	border-left: 5px;
 	border-bottom: 6px;
-	padding-left: -4px;
+	padding-left: 4px;
 	padding-top: -5px;
-	padding-right: -4px;
+	padding-right: 4px;
 	padding-bottom: -3px;
 	border-image: url(%IMAGES_PATH%/buttonborderdefaulthover.png);
 }

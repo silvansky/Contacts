@@ -88,6 +88,9 @@ protected:
 	bool eventFilter(QObject *, QEvent *);
 protected slots:
 	void onDialogButtonClicked(QAbstractButton *AButton);
+	void onBackButtonclicked();
+	void onContinueButtonclicked();
+	void onCancelButtonclicked();
 	void onAdjustDialogSize();
 	void onContactTextEdited(const QString &AText);
 	void onContactNickEdited(const QString &AText);

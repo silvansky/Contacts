@@ -20,7 +20,7 @@ bool BalloonTip::isBalloonVisible()
 QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString& message,
 				 const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition)
 {
-	hideBalloon();
+	BalloonTip::hideBalloon();
 	if (!(message.isEmpty() && title.isEmpty()))
 	{
 		theSolitaryBalloonTip = new BalloonTip(icon, title, message);
@@ -32,7 +32,7 @@ QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString
 QWidget *BalloonTip::showBalloon(QIcon icon, QWidget * messageWidget,
 	const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition)
 {
-	hideBalloon();
+	BalloonTip::hideBalloon();
 	if (messageWidget)
 	{
 		theSolitaryBalloonTip = new BalloonTip(icon, messageWidget);
@@ -46,6 +46,7 @@ void BalloonTip::hideBalloon()
 	if (theSolitaryBalloonTip)
 	{
 		theSolitaryBalloonTip->close();
+		delete theSolitaryBalloonTip;
 		theSolitaryBalloonTip = NULL;
 	}
 }
