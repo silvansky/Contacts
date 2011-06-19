@@ -808,7 +808,7 @@ void MetaContacts::initMetaItemDescriptors()
 	icq.persistent = false;
 	icq.metaOrder = MIO_ICQ;
 	icq.gateId = GSID_ICQ;
-	icq.domainPrefixes.append("icq.");
+	icq.domainPrefixes.append("gw1.icq.");
 	FMetaItemDescriptors.append(icq);
 
 	IMetaItemDescriptor magent;
@@ -820,7 +820,7 @@ void MetaContacts::initMetaItemDescriptors()
 	magent.persistent = false;
 	magent.metaOrder = MIO_MAGENT;
 	magent.gateId = GSID_MAGENT;
-	magent.domainPrefixes.append("mrim.");
+	magent.domainPrefixes.append("gw1.mrim.");
 	FMetaItemDescriptors.append(magent);
 
 	IMetaItemDescriptor twitter;
@@ -832,7 +832,7 @@ void MetaContacts::initMetaItemDescriptors()
 	twitter.persistent = false;
 	twitter.metaOrder = MIO_TWITTER;
 	twitter.gateId = GSID_TWITTER;
-	twitter.domainPrefixes.append("twitter.");
+	twitter.domainPrefixes.append("gw1.twitter.");
 	FMetaItemDescriptors.append(twitter);
 
 	IMetaItemDescriptor fring;
@@ -844,7 +844,7 @@ void MetaContacts::initMetaItemDescriptors()
 	fring.persistent = false;
 	fring.metaOrder = MIO_FRING;
 	fring.gateId = GSID_TWITTER;
-	fring.domainPrefixes.append("fring.");
+	fring.domainPrefixes.append("gw1.fring.");
 	FMetaItemDescriptors.append(fring);
 
 	IMetaItemDescriptor gtalk;
@@ -856,7 +856,7 @@ void MetaContacts::initMetaItemDescriptors()
 	gtalk.persistent = false;
 	gtalk.metaOrder = MIO_GTALK;
 	gtalk.gateId = GSID_GTALK;
-	gtalk.domainPrefixes.append("gmail.");
+	gtalk.domainPrefixes.append("gw1.gmail.");
 	gtalk.domainPrefixes.append("googlemail.com");
 	FMetaItemDescriptors.append(gtalk);
 
@@ -869,8 +869,8 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.persistent = false;
 	yonline.metaOrder = MIO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
+	yonline.domainPrefixes.append("gw1.yandex.");
 	yonline.domainPrefixes.append("ya.ru");
-	yonline.domainPrefixes.append("yandex.");
 	yonline.domainPrefixes.append("yandex-co.");
 	yonline.domainPrefixes.append("narod.ru");
 	FMetaItemDescriptors.append(yonline);
@@ -884,7 +884,7 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.persistent = false;
 	qip.metaOrder = MIO_QIP;
 	qip.gateId = GSID_QIP;
-	qip.domainPrefixes.append("qip.");
+	qip.domainPrefixes.append("gw1.qip.");
 	FMetaItemDescriptors.append(qip);
 
 	IMetaItemDescriptor vkontakte;
@@ -896,20 +896,8 @@ void MetaContacts::initMetaItemDescriptors()
 	vkontakte.persistent = false;
 	vkontakte.metaOrder = MIO_VKONTAKTE;
 	vkontakte.gateId = GSID_VKONTAKTE;
-	vkontakte.domainPrefixes.append("vk.");
+	vkontakte.domainPrefixes.append("gw1.vk.");
 	FMetaItemDescriptors.append(vkontakte);
-
-	IMetaItemDescriptor odnoklasniki;
-	odnoklasniki.name = tr("Odnoklasniki");
-	odnoklasniki.icon = MNI_METACONTACTS_ITEM_ODNOKLASNIKI;
-	odnoklasniki.combine = false;
-	odnoklasniki.detach = true;
-	odnoklasniki.service = false;
-	odnoklasniki.persistent = false;
-	odnoklasniki.metaOrder = MIO_ODNOKLASNIKI;
-	odnoklasniki.gateId = GSID_ODNOKLASNIKI;
-	odnoklasniki.domainPrefixes.append("odnkl.");
-	FMetaItemDescriptors.append(odnoklasniki);
 
 	IMetaItemDescriptor facebook;
 	facebook.name = tr("Facebook");
@@ -920,7 +908,7 @@ void MetaContacts::initMetaItemDescriptors()
 	facebook.persistent = false;
 	facebook.metaOrder = MIO_FACEBOOK;
 	facebook.gateId = GSID_FACEBOOK;
-	facebook.domainPrefixes.append("fb.");
+	facebook.domainPrefixes.append("gw1.fb.");
 	facebook.domainPrefixes.append("chat.facebook.com");
 	FMetaItemDescriptors.append(facebook);
 
@@ -933,7 +921,7 @@ void MetaContacts::initMetaItemDescriptors()
 	livejournal.persistent = false;
 	livejournal.metaOrder = MIO_LIVEJOURNAL;
 	livejournal.gateId = GSID_LIVEJOURNAL;
-	livejournal.domainPrefixes.append("livejournal.");
+	livejournal.domainPrefixes.append("gw1.livejournal.");
 	FMetaItemDescriptors.append(livejournal);
 
 	IMetaItemDescriptor rambler;
@@ -945,7 +933,8 @@ void MetaContacts::initMetaItemDescriptors()
 	rambler.persistent = false;
 	rambler.metaOrder = MIO_RAMBLER;
 	rambler.gateId = GSID_RAMBLER;
-	rambler.domainPrefixes.append("rambler.");
+	rambler.domainPrefixes.append("gw1.rambler.");
+	rambler.domainPrefixes.append("rambler.ru");
 	rambler.domainPrefixes.append("lenta.ru");
 	rambler.domainPrefixes.append("myrambler.ru");
 	rambler.domainPrefixes.append("autorambler.ru");

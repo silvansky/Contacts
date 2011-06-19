@@ -282,7 +282,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor gtalk;
 	gtalk.id = GSID_GTALK;
 	gtalk.type = "xmpp";
-	gtalk.prefix = "gmail.";
+	gtalk.prefix = "gw1.gmail.";
 	gtalk.name = tr("GTalk");
 	gtalk.iconKey = MNI_GATEWAYS_SERVICE_GTALK;
 	gtalk.loginLabel = tr("E-mail");
@@ -300,7 +300,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor yonline;
 	yonline.id = GSID_YONLINE;
 	yonline.type = "xmpp";
-	yonline.prefix = "yandex.";
+	yonline.prefix = "gw1.yandex.";
 	yonline.name = tr("Y.Online");
 	yonline.iconKey = MNI_GATEWAYS_SERVICE_YONLINE;
 	yonline.loginLabel = tr("E-mail");
@@ -325,7 +325,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor qip;
 	qip.id = GSID_QIP;
 	qip.type = "xmpp";
-	qip.prefix = "qip.";
+	qip.prefix = "gw1.qip.";
 	qip.name = tr("QIP");
 	qip.iconKey = MNI_GATEWAYS_SERVICE_QIP;
 	qip.loginLabel = tr("Login");
@@ -344,7 +344,7 @@ bool Gateways::initObjects()
 	vkontakte.needGate = true;
 	vkontakte.readOnly = true;
 	vkontakte.type = "xmpp";
-	vkontakte.prefix = "vk.";
+	vkontakte.prefix = "gw1.vk.";
 	vkontakte.name = tr("VKontakte");
 	vkontakte.iconKey = MNI_GATEWAYS_SERVICE_VKONTAKTE;
 	vkontakte.loginLabel = tr("Login");
@@ -363,7 +363,7 @@ bool Gateways::initObjects()
 	facebook.needGate = true;
 	facebook.readOnly = true;
 	facebook.type = "xmpp";
-	facebook.prefix = "fb.";
+	facebook.prefix = "gw1.fb.";
 	facebook.name = tr("Facebook");
 	facebook.iconKey = MNI_GATEWAYS_SERVICE_FACEBOOK;
 	facebook.loginLabel = tr("Login");
@@ -380,7 +380,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor livejournal;
 	livejournal.id = GSID_LIVEJOURNAL;
 	livejournal.type = "xmpp";
-	livejournal.prefix = "livejournal.";
+	livejournal.prefix = "gw1.livejournal.";
 	livejournal.name = tr("LiveJournal");
 	livejournal.iconKey = MNI_GATEWAYS_SERVICE_LIVEJOURNAL;
 	livejournal.loginLabel = tr("Login");
@@ -397,7 +397,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor rambler;
 	rambler.id = GSID_RAMBLER;
 	rambler.type = "xmpp";
-	rambler.prefix = "rambler.";
+	rambler.prefix = "gw1.rambler.";
 	rambler.name = tr("Rambler");
 	rambler.iconKey = MNI_GATEWAYS_SERVICE_RAMBLER;
 	rambler.loginLabel = tr("Login");
@@ -668,10 +668,13 @@ QList<IGateServiceDescriptor> Gateways::gateAvailDescriptorsByContact(const QStr
 		{
 			if (!it->availContactPattern.isEmpty())
 			{
-				availRegExp.setPattern(it->availContactPattern);
 				QString contact = normalizedContactLogin(*it,AContact);
-				if (!contact.isEmpty() && availRegExp.exactMatch(contact))
-					descriptors.append(*it);
+				if (!contact.isEmpty())
+				{
+					availRegExp.setPattern(it->availContactPattern);
+					if (availRegExp.exactMatch(contact))
+						descriptors.append(*it);
+				}
 			}
 		}
 	}
