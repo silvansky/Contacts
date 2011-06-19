@@ -6,7 +6,7 @@ QLabel#lblCaption
 
 QLabel#lblStatusText, QLabel#lblBirthdayPostcard
 {
-	color: gray;
+	color: #acacac;
 }
 
 QScrollArea#scaContacts,

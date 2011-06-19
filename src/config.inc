@@ -1,4 +1,9 @@
-TARGET_LOADER            = ramblercontacts
+unix:!macx {
+  TARGET_LOADER            = ramblercontacts
+} else {
+  TARGET_LOADER            = "Rambler Contacts"
+}
+
 TARGET_UTILS             = ramblercontactsutils
 
 macx:CONFIG             += x86

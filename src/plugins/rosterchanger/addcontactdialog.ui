@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>348</height>
+    <height>313</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -261,16 +261,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="dbbButtons">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QPushButton" name="pbtBack">
@@ -333,7 +323,6 @@
   <tabstop>lneAddressContact</tabstop>
   <tabstop>lneParamsNick</tabstop>
   <tabstop>cmbParamsGroup</tabstop>
-  <tabstop>dbbButtons</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -22,7 +22,7 @@ QPushButton#pbtContinue
 
 QPushButton#pbtContinue:disabled
 {
-	color: gray;
+	color: #acacac;
 	border-image: url(%IMAGES_PATH%/whitebutton_disabled.png);
 }
 

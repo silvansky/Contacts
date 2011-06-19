@@ -69,15 +69,12 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	connect(ui.lneParamsNick,SIGNAL(textEdited(const QString &)),SLOT(onContactNickEdited(const QString &)));
 	connect(ui.lneAddressContact,SIGNAL(textEdited(const QString &)),SLOT(onContactTextEdited(const QString &)));
 
-	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
-
 	connect(ui.pbtBack, SIGNAL(clicked()), SLOT(onBackButtonclicked()));
 	connect(ui.pbtContinue, SIGNAL(clicked()), SLOT(onContinueButtonclicked()));
 	connect(ui.pbtCancel, SIGNAL(clicked()), SLOT(onCancelButtonclicked()));
 
 	ui.lblError->setVisible(false);
 	ui.lblErrorIcon->setVisible(false);
-	ui.dbbButtons->setVisible(false);
 
 	ui.pbtBack->setText(tr("Back"));
 	ui.pbtCancel->setText(tr("Cancel"));
@@ -101,8 +98,6 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 
 	ui.lneAddressContact->installEventFilter(this);
 	ui.lneParamsNick->installEventFilter(this);
-	ui.dbbButtons->installEventFilter(this);
-	installEventFilter(this);
 	ui.cmbParamsGroup->installEventFilter(this);
 }
 
@@ -414,9 +409,6 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtPageConfirm->setVisible(false);
 			ui.wdtPageParams->setVisible(false);
 			ui.wdtSelectProfile->setVisible(false);
-			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
-			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Continue"));
-			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
 			ui.pbtBack->setVisible(false);
 			ui.pbtContinue->setText(tr("Continue"));
 			StyleStorage::updateStyle(this);
@@ -427,11 +419,6 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtPageConfirm->setVisible(true);
 			ui.wdtPageParams->setVisible(false);
 			ui.wdtSelectProfile->setVisible(false);
-			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel|QDialogButtonBox::Reset);
-			ui.dbbButtons->button(QDialogButtonBox::Reset)->setText(tr("Back"));
-			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Continue"));
-			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
-			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Cancel),ui.dbbButtons->button(QDialogButtonBox::Reset));
 			ui.pbtBack->setVisible(true);
 			ui.pbtContinue->setText(tr("Continue"));
 		}
@@ -443,21 +430,10 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtPageConfirm->setVisible(false);
 			ui.wdtPageParams->setVisible(true);
 			ui.wdtSelectProfile->setVisible(true);
-			ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel|QDialogButtonBox::Reset);
-			ui.dbbButtons->button(QDialogButtonBox::Reset)->setText(tr("Back"));
-			ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add Contact"));
-			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Ok),ui.dbbButtons->button(QDialogButtonBox::Cancel));
-			ui.dbbButtons->setTabOrder(ui.dbbButtons->button(QDialogButtonBox::Cancel),ui.dbbButtons->button(QDialogButtonBox::Reset));
 			ui.pbtBack->setVisible(true);
 			ui.pbtContinue->setText(tr("Add Contact"));
 			StyleStorage::updateStyle(this);
 		}
-
-//		ui.dbbButtons->button(QDialogButtonBox::Ok)->setAutoDefault(false);
-//		ui.dbbButtons->button(QDialogButtonBox::Cancel)->setAutoDefault(false);
-//		if (ui.dbbButtons->button(QDialogButtonBox::Reset))
-//			ui.dbbButtons->button(QDialogButtonBox::Reset)->setAutoDefault(false);
-//		ui.dbbButtons->button(QDialogButtonBox::Ok)->setDefault(true);
 
 		FDialogState = AState;
 		adjustSize();
@@ -471,7 +447,6 @@ void AddContactDialog::setDialogEnabled(bool AEnabled)
 	ui.wdtPageConfirm->setEnabled(AEnabled);
 	ui.wdtPageParams->setEnabled(AEnabled);
 	ui.wdtSelectProfile->setEnabled(AEnabled);
-	ui.dbbButtons->setEnabled(AEnabled);
 }
 
 void AddContactDialog::setRealContactJid(const Jid &AContactJid)
@@ -519,7 +494,6 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 		ui.lneAddressContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput ? true : false);
 		StyleStorage::updateStyle(this);
 		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
-		ui.dbbButtons->button(QDialogButtonBox::Ok)->setEnabled(AMessage.isEmpty() && !contactText().isEmpty());
 	}
 }
 
@@ -733,22 +707,6 @@ bool AddContactDialog::eventFilter(QObject * obj, QEvent * evt)
 	return QDialog::eventFilter(obj, evt);
 }
 
-void AddContactDialog::onDialogButtonClicked(QAbstractButton *AButton)
-{
-	if (ui.dbbButtons->buttonRole(AButton) == QDialogButtonBox::AcceptRole)
-	{
-		onContinueButtonclicked();
-	}
-	else if (ui.dbbButtons->buttonRole(AButton) == QDialogButtonBox::ResetRole)
-	{
-		onBackButtonclicked();
-	}
-	else if (ui.dbbButtons->buttonRole(AButton) == QDialogButtonBox::RejectRole)
-	{
-		onCancelButtonclicked();
-	}
-}
-
 void AddContactDialog::onBackButtonclicked()
 {
 	BalloonTip::hideBalloon();
@@ -841,7 +799,6 @@ void AddContactDialog::onContactTextEdited(const QString &AText)
 {
 	BalloonTip::hideBalloon();
 	setErrorMessage(QString::null,false);
-	ui.dbbButtons->button(QDialogButtonBox::Ok)->setEnabled(!AText.isEmpty());
 	ui.pbtContinue->setEnabled(!AText.isEmpty());
 }
 

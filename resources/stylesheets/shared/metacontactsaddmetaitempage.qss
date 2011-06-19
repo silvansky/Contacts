@@ -18,13 +18,13 @@ CustomLabel#lblError
 QPushButton#pbtAppend
 {
 	color: black;
-	margin-top: 5px;
+	min-height: 24px;
 	border-image: url(%IMAGES_PATH%/whitebutton.png);
 }
 
 QPushButton#pbtAppend:disabled
 {
-	color:gray;
+	color: #acacac;
 	border-image: url(%IMAGES_PATH%/whitebutton_disabled.png);
 }
 

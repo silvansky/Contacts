@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 
 AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster,
-																 const QString &AMetaId, const IMetaItemDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
+				 const QString &AMetaId, const IMetaItemDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_ADDMETAITEMPAGE);
@@ -33,7 +33,8 @@ AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow 
 
 	ui.pbtAppend->setEnabled(false);
 	ui.pbtAppend->addTextFlag(TF_LIGHTSHADOW);
-	ui.gridLayout->addWidget(ui.pbtAppend, 2, 2, 1, 1, Qt::AlignTop|Qt::AlignHCenter); // Depend on ui layout!!!
+	//ui.gridLayout->addWidget(ui.pbtAppend, 2, 2, 1, 1, Qt::AlignTop|Qt::AlignHCenter); // Depend on ui layout!!!
+
 	connect(ui.pbtAppend,SIGNAL(clicked()),SLOT(onAppendContactButtonClicked()));
 
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),

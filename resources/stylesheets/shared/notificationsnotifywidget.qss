@@ -36,7 +36,7 @@ QLabel#lblTitle
 
 QLabel#lblNotice
 {
-	color: gray;
+	color: #acacac;
 }
 
 ActionButton

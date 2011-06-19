@@ -87,7 +87,6 @@ protected:
 	bool event(QEvent *);
 	bool eventFilter(QObject *, QEvent *);
 protected slots:
-	void onDialogButtonClicked(QAbstractButton *AButton);
 	void onBackButtonclicked();
 	void onContinueButtonclicked();
 	void onCancelButtonclicked();

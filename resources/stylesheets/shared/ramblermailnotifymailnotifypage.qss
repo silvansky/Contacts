@@ -41,9 +41,7 @@ QTableWidget::item
 QTableWidget::item::selected
 {
 	background-color: #275672;
-
 }
-
 
 QPushButton#pbtNewMail
 {
@@ -53,7 +51,7 @@ QPushButton#pbtNewMail
 
 QPushButton#pbtNewMail:disabled
 {
-	color: gray;
+	color: #acacac;
 	border-image: url(%IMAGES_PATH%/whitebutton_disabled.png);
 }
 
