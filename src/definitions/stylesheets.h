@@ -45,6 +45,7 @@
 //RamblerMailNotify
 #define STS_RAMBLERMAILNOTIFY_MAILNOTIFYPAGE                            "ramblermailnotifyMailNotifyPage"
 #define STS_RAMBLERMAILNOTIFY_MAILINFOWIDGET                            "ramblermailnotifyMailInfoWidget"
+#define STS_RAMBLERMAILNOTIFY_CUSTOMMAILPAGE                            "ramblermailnotifyCustomMailPage"
 
 //RamblerHistory
 #define STS_RAMBLERHISTORY_VIEWHISTORYWINDOW                            "ramblerhistoryViewHistoryWindow"

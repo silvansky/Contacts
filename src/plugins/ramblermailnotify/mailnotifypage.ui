@@ -38,9 +38,6 @@
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::SingleSelection</enum>
      </property>
@@ -64,6 +61,13 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="ActionButton" name="pbtNewMail">
+       <property name="text">
+        <string>Send mail</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -77,16 +81,12 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pbtNewMail">
-       <property name="text">
-        <string>Send mail</string>
+      <widget class="ActionButton" name="pbtGoToEmail">
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbtIncoming">
        <property name="text">
-        <string>Incoming</string>
+        <string>Go to e-mail</string>
        </property>
       </widget>
      </item>
@@ -100,6 +100,11 @@
    <class>CustomLabel</class>
    <extends>QLabel</extends>
    <header location="global">utils/customlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">utils/actionbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

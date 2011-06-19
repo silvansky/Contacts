@@ -577,9 +577,9 @@ void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 	else if (FStatusIcons)
 		icon = FStatusIcons->iconByJid(AWindow->streamJid(),AWindow->contactJid());
 
-	QString name = AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
+	QString name = FMetaContacts!=NULL ? FMetaContacts->itemHint(AWindow->contactJid()) : AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
 	QString show = FStatusChanger ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
-//	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+	//QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 	QString title = name;
 	AWindow->updateWindow(icon,name,title,show);
 }

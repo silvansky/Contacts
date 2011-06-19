@@ -2,18 +2,36 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru" sourcelanguage="en">
 <context>
+    <name>CustomMailPage</name>
+    <message>
+        <source>Write a mail</source>
+        <translation>Написать письмо</translation>
+    </message>
+</context>
+<context>
+    <name>CustomMailPageClass</name>
+    <message>
+        <source>Enter the e-mail address of contact</source>
+        <translation>Укажите адрес электронной почты контакта</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Продолжить</translation>
+    </message>
+</context>
+<context>
     <name>MailInfoWidget</name>
     <message>
         <source>Incoming</source>
         <translation>Входящие</translation>
     </message>
+    <message>
+        <source>From:%1    To:%2</source>
+        <translation>От: %1    Кому: %2</translation>
+    </message>
 </context>
 <context>
     <name>MailNotifyPage</name>
-    <message>
-        <source>New e-mail messages</source>
-        <translation>Новые письма</translation>
-    </message>
     <message>
         <source>From</source>
         <translation>От</translation>
@@ -30,6 +48,10 @@
         <source>Time</source>
         <translation>Время</translation>
     </message>
+    <message>
+        <source>New e-mails</source>
+        <translation>Новые письма</translation>
+    </message>
 </context>
 <context>
     <name>MailNotifyPageClass</name>
@@ -38,12 +60,12 @@
         <translation>Написать письмо</translation>
     </message>
     <message>
-        <source>Incoming</source>
-        <translation>Входящие</translation>
-    </message>
-    <message>
         <source>Since connecting the new mail do not come</source>
         <translation>С момента подключения новые письма не приходили</translation>
+    </message>
+    <message>
+        <source>Go to e-mail</source>
+        <translation>Перейти в почту</translation>
     </message>
 </context>
 <context>
@@ -59,10 +81,6 @@
     <message>
         <source>Not in contact list</source>
         <translation>Не в контакт-листе</translation>
-    </message>
-    <message>
-        <source>New e-mails</source>
-        <translation>Новые письма</translation>
     </message>
     <message>
         <source>No new messages</source>

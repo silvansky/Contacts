@@ -258,6 +258,12 @@ void RamblerMailNotify::removeMailIndex(const Jid &AStreamJid)
 			delete page->instance();
 		}
 
+		foreach(CustomMailPage *page, FCustomPages.values(mindex))
+		{
+			FCustomPages.remove(mindex,page);
+			delete page->instance();
+		}
+
 		clearMailNotifies(AStreamJid);
 		FMailIndexes.removeAll(mindex);
 		mindex->instance()->deleteLater();
@@ -391,19 +397,20 @@ MailNotifyPage *RamblerMailNotify::findMailNotifyPage(const Jid &AStreamJid, con
 MailNotifyPage *RamblerMailNotify::getMailNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid)
 {
 	MailNotifyPage *page = findMailNotifyPage(AStreamJid,AServiceJid);
-	if (!page)
+	if (!page && FMessageWidgets)
 	{
 		IRosterIndex *mindex = getMailIndex(AStreamJid);
 		if (mindex)
 		{
 			page = new MailNotifyPage(FMessageWidgets,mindex,AServiceJid);
 			page->setTabPageNotifier(FMessageWidgets!=NULL ? FMessageWidgets->newTabPageNotifier(page) : NULL);
+			connect(page->instance(),SIGNAL(showCustomMailPage()),SLOT(onMainNotifyPageShowCustomPage()));
 			connect(page->instance(),SIGNAL(showChatWindow(const Jid &)),SLOT(onMailNotifyPageShowChatWindow(const Jid &)));
 			connect(page->instance(),SIGNAL(tabPageActivated()),SLOT(onMailNotifyPageActivated()));
 			connect(page->instance(),SIGNAL(tabPageDestroyed()),SLOT(onMailNotifyPageDestroyed()));
 			FNotifyPages.insertMulti(mindex,page);
 
-			IMetaTabWindow *window = FMetaContacts !=NULL ? FMetaContacts->newMetaTabWindow(AStreamJid,QString(METAID_MAILNOTIFY).arg(AStreamJid.pBare())) : NULL;
+			/*IMetaTabWindow *window = FMetaContacts !=NULL ? FMetaContacts->newMetaTabWindow(AStreamJid,QString(METAID_MAILNOTIFY).arg(AStreamJid.pBare())) : NULL;
 			if (window)
 			{
 				if (!FMetaTabWindows.contains(mindex))
@@ -421,9 +428,34 @@ MailNotifyPage *RamblerMailNotify::getMailNotifyPage(const Jid &AStreamJid, cons
 				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
 				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
 				window->setPageIcon(pageId,icon);
-				window->setPageName(pageId,tr("New e-mails"));
+				window->setPageName(pageId,page->tabPageCaption());
 				window->setPageWidget(pageId,page);
-			}
+			}*/
+		}
+	}
+	return page;
+}
+
+CustomMailPage *RamblerMailNotify::findCustomMailPage(const Jid &AStreamJid, const Jid &AServiceJid) const
+{
+	foreach(CustomMailPage *page, FCustomPages.values(findMailIndex(AStreamJid)))
+		if (page->serviceJid() == AServiceJid)
+			return page;
+	return NULL;
+}
+
+CustomMailPage *RamblerMailNotify::getCustomMailPage(const Jid &AStreamJid, const Jid &AServiceJid)
+{
+	CustomMailPage *page = findCustomMailPage(AStreamJid,AServiceJid);
+	if (!page && FGateways && FMessageWidgets)
+	{
+		IRosterIndex *mindex = getMailIndex(AStreamJid);
+		if (mindex)
+		{
+			page = new CustomMailPage(FGateways,FMessageWidgets,mindex,AServiceJid);
+			connect(page->instance(),SIGNAL(showChatWindow(const Jid &)),SLOT(onCustomMailPageShowChatWindow(const Jid &)));
+			connect(page->instance(),SIGNAL(tabPageDestroyed()),SLOT(onCustomMailPageDestroyed()));
+			FCustomPages.insertMulti(mindex,page);
 		}
 	}
 	return page;
@@ -534,6 +566,17 @@ void RamblerMailNotify::onChatWindowCreated(IChatWindow *AWindow)
 	}
 }
 
+void RamblerMailNotify::onMainNotifyPageShowCustomPage()
+{
+	MailNotifyPage *page = qobject_cast<MailNotifyPage *>(sender());
+	if (page)
+	{
+		CustomMailPage *customPage = getCustomMailPage(page->streamJid(),page->serviceJid());
+		if (customPage)
+			customPage->showTabPage();
+	}
+}
+
 void RamblerMailNotify::onMailNotifyPageShowChatWindow(const Jid &AContactJid)
 {
 	MailNotifyPage *page = qobject_cast<MailNotifyPage *>(sender());
@@ -565,6 +608,20 @@ void RamblerMailNotify::onMetaTabWindowDestroyed()
 	foreach(ITabPage *page, FNotifyPages.values(mindex))
 		delete page->instance();
 	FMetaTabWindows.remove(mindex);
+}
+
+void RamblerMailNotify::onCustomMailPageShowChatWindow(const Jid &AContactJid)
+{
+	CustomMailPage *page = qobject_cast<CustomMailPage *>(sender());
+	if (page)
+		showChatWindow(page->streamJid(),AContactJid);
+}
+
+void RamblerMailNotify::onCustomMailPageDestroyed()
+{
+	CustomMailPage *page = qobject_cast<CustomMailPage *>(sender());
+	if (page)
+		FCustomPages.remove(FCustomPages.key(page),page);
 }
 
 Q_EXPORT_PLUGIN2(plg_ramblermailnotify, RamblerMailNotify)

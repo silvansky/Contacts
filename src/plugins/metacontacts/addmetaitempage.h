@@ -51,7 +51,7 @@ protected:
 	virtual bool event(QEvent *AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void closeEvent(QCloseEvent *AEvent);
-	void paintEvent(QPaintEvent *);
+	virtual void paintEvent(QPaintEvent *AEvent);
 protected slots:
 	void onAppendContactButtonClicked();
 	void onItemWidgetContactJidChanged(const Jid &AContactJid);

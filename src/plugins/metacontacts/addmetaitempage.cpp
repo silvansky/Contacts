@@ -1,8 +1,8 @@
 #include "addmetaitempage.h"
 
-#include <QVBoxLayout>
 #include <QPainter>
 #include <QPaintEvent>
+#include <QVBoxLayout>
 
 AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster,
 																 const QString &AMetaId, const IMetaItemDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
@@ -141,12 +141,12 @@ void AddMetaItemPage::closeEvent(QCloseEvent *AEvent)
 	emit tabPageClosed();
 }
 
-void AddMetaItemPage::paintEvent(QPaintEvent * pe)
+void AddMetaItemPage::paintEvent(QPaintEvent *AEvent)
 {
 	QStyleOption opt;
 	opt.init(this);
 	QPainter p(this);
-	p.setClipRect(pe->rect());
+	p.setClipRect(AEvent->rect());
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 

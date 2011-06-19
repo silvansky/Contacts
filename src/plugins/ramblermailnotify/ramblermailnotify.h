@@ -39,6 +39,7 @@
 #include <utils/iconstorage.h>
 #include "mailnotifypage.h"
 #include "mailinfowidget.h"
+#include "custommailpage.h"
 
 struct MailNotify
 {
@@ -86,6 +87,8 @@ protected:
 	void clearMailNotifies(MailNotifyPage *APage);
 	MailNotifyPage *findMailNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	MailNotifyPage *getMailNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid);
+	CustomMailPage *findCustomMailPage(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	CustomMailPage *getCustomMailPage(const Jid &AStreamJid, const Jid &AServiceJid);
 	void showChatWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	void showNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid) const;
 protected slots:
@@ -99,10 +102,13 @@ protected slots:
 	void onRosterNotifyActivated(int ANotifyId);
 	void onRosterNotifyRemoved(int ANotifyId);
 	void onChatWindowCreated(IChatWindow *AWindow);
+	void onMainNotifyPageShowCustomPage();
 	void onMailNotifyPageShowChatWindow(const Jid &AContactJid);
 	void onMailNotifyPageActivated();
 	void onMailNotifyPageDestroyed();
 	void onMetaTabWindowDestroyed();
+	void onCustomMailPageShowChatWindow(const Jid &AContactJid);
+	void onCustomMailPageDestroyed();
 private:
 	IGateways *FGateways;
 	IXmppStreams *FXmppStreams;
@@ -123,6 +129,7 @@ private:
 	QMultiMap<IRosterIndex *, MailNotify *> FMailNotifies;
 	QMap<IRosterIndex *, IMetaTabWindow *> FMetaTabWindows;
 	QMultiMap<IRosterIndex *, MailNotifyPage *> FNotifyPages;
+	QMultiMap<IRosterIndex *, CustomMailPage *> FCustomPages;
 };
 
 #endif // RAMBLERMAILNOTIFY_H

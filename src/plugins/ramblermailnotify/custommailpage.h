@@ -1,31 +1,29 @@
-#ifndef MAILNOTIFYPAGE_H
-#define MAILNOTIFYPAGE_H
+#ifndef CUSTOMMAILPAGE_H
+#define CUSTOMMAILPAGE_H
 
 #include <QWidget>
 #include <definitions/textflags.h>
 #include <definitions/resources.h>
-#include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
-#include <definitions/namespaces.h>
 #include <definitions/rosterindextyperole.h>
+#include <interfaces/igateways.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/imessagewidgets.h>
-#include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
-#include "ui_mailnotifypage.h"
+#include "ui_custommailpage.h"
 
-class MailNotifyPage : 
+class CustomMailPage : 
 	public QWidget,
 	public ITabPage
 {
 	Q_OBJECT;
 	Q_INTERFACES(ITabPage);
 public:
-	MailNotifyPage(IMessageWidgets *AMessageWidgets, IRosterIndex *AMailIndex, const Jid &AServiceJid, QWidget *AParent = NULL);
-	~MailNotifyPage();
-	virtual QWidget *instance() { return this; }
+	CustomMailPage(IGateways *AGateways, IMessageWidgets *AMessageWidgets, IRosterIndex *AMailIndex, const Jid &AServiceJid, QWidget *AParent = NULL);
+	~CustomMailPage();
 	//ITabPage
+	virtual QWidget *instance() { return this; }
 	virtual void showTabPage();
 	virtual void closeTabPage();
 	virtual bool isActive() const;
@@ -35,11 +33,9 @@ public:
 	virtual QString tabPageToolTip() const;
 	virtual ITabPageNotifier *tabPageNotifier() const;
 	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier);
-	//MailNotifyPage
+	//CustomMailPage
 	virtual Jid streamJid() const;
 	virtual Jid serviceJid() const;
-	virtual void appendNewMail(const Stanza &AStanza);
-	virtual void clearNewMails();
 signals:
 	//ITabPage
 	void tabPageShow();
@@ -50,29 +46,30 @@ signals:
 	void tabPageDeactivated();
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
-	//MailNotifyPage
-	void showCustomMailPage();
+	//CustomMailPage
 	void showChatWindow(const Jid &AContactJid);
-protected:
-	void clearBoldFont();
 protected:
 	virtual bool event(QEvent *AEvent);
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void closeEvent(QCloseEvent *AEvent);
 	virtual void paintEvent(QPaintEvent *AEvent);
 protected slots:
-	void onNewMailButtonClicked();
-	void onGoToEmailButtonClicked();
-	void onTableCellDoubleClicked(int ARow, int AColumn);
+	void onContinueButtonClicked();
+	void onContactMailChanged(const QString &AText);
 	void onMailIndexDataChanged(IRosterIndex *AIndex, int ARole = 0);
+	void onUserJidReceived(const QString &AId, const Jid &AUserJid);
+	void onErrorReceived(const QString &AId, const QString &AError);
 private:
-	Ui::MailNotifyPageClass ui;
+	Ui::CustomMailPageClass ui;
 private:
+	IGateways *FGateways;
 	IMessageWidgets *FMessageWidgets;
-	ITabPageNotifier *FTabPageNotifier;
+private:
+	QString FRequestId;
 private:
 	Jid FServiceJid;
 	IRosterIndex *FMailIndex;
+	IGateServiceDescriptor FDescriptor;
 };
 
-#endif // MAILNOTIFYPAGE_H
+#endif // CUSTOMMAILPAGE_H
