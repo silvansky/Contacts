@@ -42,5 +42,9 @@
         <source>Open Rambler.Contacts</source>
         <translation>Открыть Рамблер.Контакты</translation>
     </message>
+    <message>
+        <source>Contacts</source>
+        <translation>Контакты</translation>
+    </message>
 </context>
 </TS>

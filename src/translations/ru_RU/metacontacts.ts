@@ -185,10 +185,6 @@
         <translation>Отмена</translation>
     </message>
     <message>
-        <source>Odnoklasniki</source>
-        <translation>Однокласники</translation>
-    </message>
-    <message>
         <source>Enter new name</source>
         <translation>Укажите новое имя</translation>
     </message>

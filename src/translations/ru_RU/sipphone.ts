@@ -39,6 +39,17 @@
     </message>
 </context>
 <context>
+    <name>ContactSelector</name>
+    <message>
+        <source>ContactSelector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>AddContact</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>IdentityDialog</name>
     <message>
         <source>OK</source>

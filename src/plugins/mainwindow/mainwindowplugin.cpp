@@ -173,7 +173,7 @@ void MainWindowPlugin::showMainWindow() const
 
 void MainWindowPlugin::updateTitle()
 {
-	FMainWindow->setWindowTitle(CLIENT_NAME" | R" + FPluginManager->revision());
+	FMainWindow->setWindowTitle(tr("Contacts"));
 }
 
 void MainWindowPlugin::correctWindowPosition() const

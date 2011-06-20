@@ -32,8 +32,8 @@
         <translation>Подключение</translation>
     </message>
     <message>
-        <source>Select the way you connected to internet</source>
-        <translation>Выберите способ подключения к интернету</translation>
+        <source>Internet connection</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

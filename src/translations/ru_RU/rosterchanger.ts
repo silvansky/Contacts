@@ -118,6 +118,18 @@
         <source>Address of new contact</source>
         <translation>Адрес нового контакта</translation>
     </message>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished">Назад</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation type="unfinished">Продолжить</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Отмена</translation>
+    </message>
 </context>
 <context>
     <name>AddMetaContactDialog</name>
