@@ -148,7 +148,10 @@ protected slots:
 	void incomingThreadTimeChanged(qint64);
 
 private slots:
-	void continueCallToContact(const QString&);
+	void continueCallToContact();
+	void onAboutToShowContactMenu();
+	void onAboutToHideContactMenu();
+	void onCloseCallControl(bool);
 
 private:
 	IServiceDiscovery *FDiscovery;
@@ -180,6 +183,8 @@ private:
 	QString username;
 	QString pass;
 	QString streamId;
+
+	Menu* __tmpMenu;
 };
 
 #endif // SIPPHONE_H

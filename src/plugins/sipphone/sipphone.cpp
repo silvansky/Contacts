@@ -4,6 +4,7 @@
 #include <utils/log.h>
 #include <utils/iconstorage.h>
 #include <utils/custominputdialog.h>
+#include <utils/menu.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include "contactselector.h"
@@ -22,7 +23,7 @@
 #define CLOSE_TIMEOUT   10000
 #define REQUEST_TIMEOUT 30000
 
-SipPhone::SipPhone()
+SipPhone::SipPhone() : __tmpMenu(NULL)
 {
 	FDiscovery = NULL;
 	FMetaContacts = NULL;
@@ -274,6 +275,48 @@ void SipPhone::incomingThreadTimeChanged(qint64 timeMS)
 	}
 }
 
+//////////void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
+//////////{
+//////////	ToolBarChanger * tbChanger = iMetaTabWindow->toolBarChanger();
+//////////	// Далее добавляем кнопку звонка в tbChanger
+//////////	if(iMetaTabWindow->isContactPage() && tbChanger != NULL)
+//////////	{
+//////////		Action* callAction = new Action(tbChanger);
+//////////		callAction->setText(tr("Call"));
+//////////		//callAction->setIcon(RSR_STORAGE_MENUICONS,MNI_SDISCOVERY_ARROW_LEFT);
+//////////
+//////////		Jid streamJid;
+//////////		Jid contactJid;
+//////////		QString metaid = iMetaTabWindow->metaId();
+//////////
+//////////		IMetaRoster* iMetaRoster = iMetaTabWindow->metaRoster();
+//////////		if(iMetaRoster !=NULL)
+//////////		{
+//////////			streamJid = iMetaRoster->streamJid();
+//////////			IMetaContact iMetaContact = iMetaRoster->metaContact(metaid);
+//////////			if(iMetaContact.items.size() > 0)
+//////////				contactJid = iMetaContact.items.values().at(0); // ???????
+//////////		}
+//////////		callAction->setData(ADR_STREAM_JID, streamJid.full());
+//////////		callAction->setData(ADR_CONTACT_JID, contactJid.full());
+//////////		callAction->setData(ADR_METAID_WINDOW, metaid);
+//////////		callAction->setCheckable(true);
+//////////
+//////////		callAction->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON);
+//////////
+//////////		connect(callAction, SIGNAL(triggered(bool)), SLOT(onToolBarActionTriggered(bool)));
+//////////		QLabel * separator = new QLabel;
+//////////		separator->setFixedWidth(12);
+//////////		separator->setPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_SEPARATOR)));
+//////////		tbChanger->insertWidget(separator, TBG_MCMTW_P2P_CALL);
+//////////		QToolButton * btn = tbChanger->insertAction(callAction, TBG_MCMTW_P2P_CALL);
+//////////		btn->setObjectName("tbSipCall");
+//////////
+//////////		// Сохраняем указатель на кнопку. Понадобится для работы с ней. (изменение состояния при открытии/закрытии панели звонков программно)
+//////////		FCallActions.insert(metaid, callAction);
+//////////	}
+//////////}
+
 void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 {
 	ToolBarChanger * tbChanger = iMetaTabWindow->toolBarChanger();
@@ -304,32 +347,91 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 		callAction->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON);
 
 		connect(callAction, SIGNAL(triggered(bool)), SLOT(onToolBarActionTriggered(bool)));
+
 		QLabel * separator = new QLabel;
 		separator->setFixedWidth(12);
 		separator->setPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_SEPARATOR)));
 		tbChanger->insertWidget(separator, TBG_MCMTW_P2P_CALL);
+
+
+		Menu* contactsMenu = new Menu();
+		contactsMenu->menuAction()->setData(ADR_STREAM_JID, streamJid.full());
+		contactsMenu->menuAction()->setData(ADR_CONTACT_JID, contactJid.full());
+		contactsMenu->menuAction()->setData(ADR_METAID_WINDOW, metaid);
+		contactsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON);
+
+		callAction->setMenu(contactsMenu);
+
+
+		//QToolButton * btn = tbChanger->insertAction(contactsMenu->menuAction(), TBG_MCMTW_P2P_CALL);
 		QToolButton * btn = tbChanger->insertAction(callAction, TBG_MCMTW_P2P_CALL);
 		btn->setObjectName("tbSipCall");
+		btn->setPopupMode(QToolButton::InstantPopup);
+
+		connect(contactsMenu, SIGNAL(aboutToShow()), this, SLOT(onAboutToShowContactMenu()));
+		connect(contactsMenu, SIGNAL(aboutToHide()), this, SLOT(onAboutToHideContactMenu()));
+
 
 		// Сохраняем указатель на кнопку. Понадобится для работы с ней. (изменение состояния при открытии/закрытии панели звонков программно)
 		FCallActions.insert(metaid, callAction);
 	}
 }
 
-
-void SipPhone::continueCallToContact(const QString& contactJid)
+void SipPhone::onAboutToShowContactMenu()
 {
-	ContactSelector *pSelector = qobject_cast<ContactSelector*>(sender());
-	Action* senderAction = NULL;
-	if (pSelector)
-	{
-		Jid streamJid = pSelector->streamJid();
-		QString metaId = pSelector->metaId();
-		senderAction = pSelector->action();
-		pSelector->hide();
-		pSelector->deleteLater();
-		//delete pSelector;
+	Menu *contactsMenu = qobject_cast<Menu*>(sender());
 
+	Jid streamJid = contactsMenu->menuAction()->data(ADR_STREAM_JID).toString();
+	Jid contactJid = contactsMenu->menuAction()->data(ADR_CONTACT_JID).toString();
+	QString metaId = contactsMenu->menuAction()->data(ADR_METAID_WINDOW).toString();
+
+	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
+	if(metaRoster != NULL && metaRoster->isEnabled())
+	{
+		IMetaContact metaContact = metaRoster->metaContact(metaId);
+		if(metaContact.items.size() > 0)
+		{
+			int i = 1;
+			foreach(Jid contactJid, metaContact.items)
+			{
+				Action *contactAction = new Action(contactsMenu);
+				connect(contactAction, SIGNAL(triggered(bool)), SLOT(continueCallToContact()));
+				contactAction->setText(contactJid.eFull());
+
+				contactAction->setData(ADR_STREAM_JID, streamJid.full());
+				contactAction->setData(ADR_CONTACT_JID, contactJid.full());
+				contactAction->setData(ADR_METAID_WINDOW, metaId);
+
+				contactsMenu->addAction(contactAction, AG_PHONECM_BASECONTACT + i);
+				i++;
+			}
+		}
+	}
+}
+
+void SipPhone::onAboutToHideContactMenu()
+{
+	Menu *contactsMenu = qobject_cast<Menu*>(sender());
+	contactsMenu->clear();
+}
+
+
+
+void SipPhone::continueCallToContact()
+{
+	Action *contactAction = qobject_cast<Action*>(sender());
+
+	QString metaId;
+	//Action* senderAction = NULL;
+	if (contactAction)
+	{
+		Jid streamJid = contactAction->data(ADR_STREAM_JID).toString();
+		Jid contactJid = contactAction->data(ADR_CONTACT_JID).toString();
+		metaId = contactAction->data(ADR_METAID_WINDOW).toString();
+
+		//Jid streamJid = contactAction->streamJid();
+		//QString metaId = contactAction->metaId();
+		//senderAction = contactAction->action();
 
 		Jid contactJidFull = getContactWithPresence(streamJid, contactJid, metaId);
 		if(contactJidFull.isValid() && !contactJidFull.isEmpty() && FStreams.isEmpty())
@@ -347,7 +449,8 @@ void SipPhone::continueCallToContact(const QString& contactJid)
 					//connect(pCallControl, SIGNAL(hangupCall()), SLOT(onHangupCallTest())); /*Test*/
 					connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
 					connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
-					connect(pCallControl, SIGNAL(closeAndDelete(bool)), senderAction, SLOT(setChecked(bool)));
+					//connect(pCallControl, SIGNAL(closeAndDelete(bool)), senderAction, SLOT(setChecked(bool))); /// !!!!!
+					connect(pCallControl, SIGNAL(closeAndDelete(bool)), this, SLOT(onCloseCallControl(bool))); /// !!!!!
 
 					connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
 					connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
@@ -362,6 +465,8 @@ void SipPhone::continueCallToContact(const QString& contactJid)
 
 					iMetaTabWindow->insertTopWidget(0, pCallControl);
 					FCallControls.insert(metaId, pCallControl);
+
+					
 				}
 			}
 			else
@@ -371,6 +476,13 @@ void SipPhone::continueCallToContact(const QString& contactJid)
 				{
 					pCallControl->callStatusChange(RCallControl::Register);
 				}
+			}
+
+			FCallActions[metaId]->setChecked(true);
+			if(__tmpMenu == NULL)
+			{
+				__tmpMenu = FCallActions[metaId]->menu();
+				FCallActions[metaId]->setMenu(NULL);
 			}
 
 			//QMessageBox::information(NULL, contactJidFull.full(), "Call");
@@ -389,8 +501,32 @@ void SipPhone::continueCallToContact(const QString& contactJid)
 		dialog->setInfoText(tr("Calls NOT supported for current contact"));
 		dialog->setAcceptButtonText(tr("Ok"));
 		dialog->show();
-		if(senderAction)
-			senderAction->setChecked(false);
+
+		FCallActions[metaId]->setChecked(false);
+		if(__tmpMenu != NULL)
+		{
+			FCallActions[metaId]->setMenu(__tmpMenu);
+			__tmpMenu = NULL;
+		}
+		
+		//if(senderAction)
+		//	senderAction->setChecked(false);
+	}
+}
+
+void SipPhone::onCloseCallControl(bool)
+{
+	RCallControl* pCallControl = qobject_cast<RCallControl*>(sender());
+	if(pCallControl)
+	{
+		QString metaId = pCallControl->getMetaId();
+
+		FCallActions[metaId]->setChecked(false);
+		if(__tmpMenu != NULL)
+		{
+			FCallActions[metaId]->setMenu(__tmpMenu);
+			__tmpMenu = NULL;
+		}
 	}
 }
 
@@ -403,129 +539,139 @@ void SipPhone::onToolBarActionTriggered(bool status)
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
 		QString metaId = action->data(ADR_METAID_WINDOW).toString();
 
+		//action->menu()->show();
 
 		if(status)
 		{
-
-			QStringList contacts;
-			IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
-			if(metaRoster != NULL && metaRoster->isEnabled())
+			FCallActions[metaId]->setChecked(true);
+			if(__tmpMenu == NULL)
 			{
-				IMetaContact metaContact = metaRoster->metaContact(metaId);
-				if(metaContact.items.size() > 0)
-				{
-					foreach(Jid contactJid, metaContact.items)
-					{
-						contacts.append(contactJid.eFull());
-					}
-				}
+				__tmpMenu = FCallActions[metaId]->menu();
+				FCallActions[metaId]->setMenu(NULL);
 			}
 
-			ContactSelector* selector = new ContactSelector();
-			selector->setStreamJid(streamJid);
-			selector->setMetaId(metaId);
-			selector->setStringList(contacts);
-			selector->setAction(action);
 
-			selector->show();
-			connect(selector, SIGNAL(contactSelected(const QString&)), this, SLOT(continueCallToContact(const QString&)));
+			//////////FCallActions[metaId]->setChecked(true);
 
-			//////////////if(isSupported(streamJid, metaId))// contactJid))
-			//////////////{
-			//////////////	Jid contactJidFull = getContactWithPresence(streamJid, metaId);
-			//////////////	if(contactJidFull.isValid() && !contactJidFull.isEmpty() && FStreams.isEmpty())
-			//////////////	{
+			//////////QStringList contacts;
+			//////////IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
+			//////////if(metaRoster != NULL && metaRoster->isEnabled())
+			//////////{
+			//////////	IMetaContact metaContact = metaRoster->metaContact(metaId);
+			//////////	if(metaContact.items.size() > 0)
+			//////////	{
+			//////////		foreach(Jid contactJid, metaContact.items)
+			//////////		{
+			//////////			contacts.append(contactJid.eFull());
+			//////////		}
+			//////////	}
+			//////////}
 
-			//////////////		if(!FCallControls.contains(metaId))
-			//////////////		{
-			//////////////			IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(streamJid, metaId);
-			//////////////			if(iMetaTabWindow != NULL)
-			//////////////			{
-			//////////////				RCallControl* pCallControl = new RCallControl(RCallControl::Caller, iMetaTabWindow->instance()); /*status = Register*/
-			//////////////				pCallControl->setStreamJid(streamJid);
-			//////////////				pCallControl->setMetaId(metaId);
-			//////////////				//pCallControl->callStatusChange(RCallControl::Ringing);
-			//////////////				connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
-			//////////////				//connect(pCallControl, SIGNAL(hangupCall()), SLOT(onHangupCallTest())); /*Test*/
-			//////////////				connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
-			//////////////				connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
-			//////////////				connect(pCallControl, SIGNAL(closeAndDelete(bool)), action, SLOT(setChecked(bool)));
+			//////////ContactSelector* selector = new ContactSelector();
+			//////////selector->setStreamJid(streamJid);
+			//////////selector->setMetaId(metaId);
+			//////////selector->setStringList(contacts);
+			//////////selector->setAction(action);
 
-			//////////////				connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
-			//////////////				connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
-			//////////////				connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhoneProxy, SIGNAL(proxyCamResolutionChange(bool)));
-			//////////////				
-			//////////////				connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
+			//////////selector->show();
+			//////////connect(selector, SIGNAL(contactSelected(const QString&)), this, SLOT(continueCallToContact(const QString&)));
 
-			//////////////				// Issue 2264. Инициализация кнопок правильными картинками (присутствие/отсутствие элементов мультимедия)
-			//////////////				connect(FSipPhoneProxy, SIGNAL(camPresentChanged(bool)), pCallControl, SLOT(setCameraEnabled(bool)));
-			//////////////				connect(FSipPhoneProxy, SIGNAL(micPresentChanged(bool)), pCallControl, SLOT(setMicEnabled(bool)));
-			//////////////				connect(FSipPhoneProxy, SIGNAL(volumePresentChanged(bool)), pCallControl, SLOT(setVolumeEnabled(bool)));
+			////////////////////////if(isSupported(streamJid, metaId))// contactJid))
+			////////////////////////{
+			////////////////////////	Jid contactJidFull = getContactWithPresence(streamJid, metaId);
+			////////////////////////	if(contactJidFull.isValid() && !contactJidFull.isEmpty() && FStreams.isEmpty())
+			////////////////////////	{
 
-			//////////////				iMetaTabWindow->insertTopWidget(0, pCallControl);
-			//////////////				FCallControls.insert(metaId, pCallControl);
-			//////////////			}
-			//////////////		}
-			//////////////		else
-			//////////////		{
-			//////////////			RCallControl* pCallControl = FCallControls[metaId];
-			//////////////			if(pCallControl)
-			//////////////			{
-			//////////////				pCallControl->callStatusChange(RCallControl::Register);
-			//////////////			}
-			//////////////		}
+			////////////////////////		if(!FCallControls.contains(metaId))
+			////////////////////////		{
+			////////////////////////			IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(streamJid, metaId);
+			////////////////////////			if(iMetaTabWindow != NULL)
+			////////////////////////			{
+			////////////////////////				RCallControl* pCallControl = new RCallControl(RCallControl::Caller, iMetaTabWindow->instance()); /*status = Register*/
+			////////////////////////				pCallControl->setStreamJid(streamJid);
+			////////////////////////				pCallControl->setMetaId(metaId);
+			////////////////////////				//pCallControl->callStatusChange(RCallControl::Ringing);
+			////////////////////////				connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
+			////////////////////////				//connect(pCallControl, SIGNAL(hangupCall()), SLOT(onHangupCallTest())); /*Test*/
+			////////////////////////				connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+			////////////////////////				connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
+			////////////////////////				connect(pCallControl, SIGNAL(closeAndDelete(bool)), action, SLOT(setChecked(bool)));
 
-			//////////////		//QMessageBox::information(NULL, contactJidFull.full(), "Call");
-			//////////////		QString sid = openStream(streamJid, contactJidFull);
+			////////////////////////				connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
+			////////////////////////				connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
+			////////////////////////				connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhoneProxy, SIGNAL(proxyCamResolutionChange(bool)));
+			////////////////////////				
+			////////////////////////				connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
 
-			//////////////		//////////////if(!FCallControls.contains(metaId))
-			//////////////		//////////////{
-			//////////////		//////////////	IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(streamJid, metaId);
-			//////////////		//////////////	if(iMetaTabWindow != NULL)
-			//////////////		//////////////	{
-			//////////////		//////////////		//Jid cItem = iMetaTabWindow->currentItem();
-			//////////////		//////////////		RCallControl* pCallControl = new RCallControl(sid, RCallControl::Caller, iMetaTabWindow->instance());
-			//////////////		//////////////		pCallControl->setStreamJid(streamJid);
-			//////////////		//////////////		pCallControl->setMetaId(metaId);
-			//////////////		//////////////		//pCallControl->callStatusChange(RCallControl::Ringing);
-			//////////////		//////////////		//connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
-			//////////////		//////////////		connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
-			//////////////		//////////////		//connect(pCallControl, SIGNAL(hangupCall()), SLOT(onHangupCallTest()));
-			//////////////		//////////////		connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
-			//////////////		//////////////		connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
-			//////////////		//////////////		connect(pCallControl, SIGNAL(closeAndDelete(bool)), action, SLOT(setChecked(bool)));
+			////////////////////////				// Issue 2264. Инициализация кнопок правильными картинками (присутствие/отсутствие элементов мультимедия)
+			////////////////////////				connect(FSipPhoneProxy, SIGNAL(camPresentChanged(bool)), pCallControl, SLOT(setCameraEnabled(bool)));
+			////////////////////////				connect(FSipPhoneProxy, SIGNAL(micPresentChanged(bool)), pCallControl, SLOT(setMicEnabled(bool)));
+			////////////////////////				connect(FSipPhoneProxy, SIGNAL(volumePresentChanged(bool)), pCallControl, SLOT(setVolumeEnabled(bool)));
 
-			//////////////		//////////////		connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
-			//////////////		//////////////		connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
-			//////////////		//////////////		connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
-			//////////////		//////////////		//connect(pCallControl, SIGNAL(micStateChange(bool)), SLOT(onProxySuspendStateChange(bool)));
+			////////////////////////				iMetaTabWindow->insertTopWidget(0, pCallControl);
+			////////////////////////				FCallControls.insert(metaId, pCallControl);
+			////////////////////////			}
+			////////////////////////		}
+			////////////////////////		else
+			////////////////////////		{
+			////////////////////////			RCallControl* pCallControl = FCallControls[metaId];
+			////////////////////////			if(pCallControl)
+			////////////////////////			{
+			////////////////////////				pCallControl->callStatusChange(RCallControl::Register);
+			////////////////////////			}
+			////////////////////////		}
 
-			//////////////		//////////////		iMetaTabWindow->insertTopWidget(0, pCallControl);
-			//////////////		//////////////		FCallControls.insert(metaId, pCallControl);
-			//////////////		//////////////	}
-			//////////////		//////////////}
-			//////////////		//////////////else
-			//////////////		//////////////{
-			//////////////		//////////////	RCallControl* pCallControl = FCallControls[metaId];
-			//////////////		//////////////	if(pCallControl)
-			//////////////		//////////////	{
-			//////////////		//////////////		pCallControl->callStatusChange(RCallControl::Ringing);
-			//////////////		//////////////	}
-			//////////////		//////////////}
+			////////////////////////		//QMessageBox::information(NULL, contactJidFull.full(), "Call");
+			////////////////////////		QString sid = openStream(streamJid, contactJidFull);
 
-			//////////////	}
-			//////////////}
-			//////////////else
-			//////////////{
-			//////////////	//QMessageBox::information(NULL, tr("Call failure"), tr("Calls NOT supported for current contact"));
-			//////////////	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
-			//////////////	dialog->setDeleteOnClose(true);
-			//////////////	dialog->setCaptionText(tr("Call failure"));
-			//////////////	dialog->setInfoText(tr("Calls NOT supported for current contact"));
-			//////////////	dialog->setAcceptButtonText(tr("Ok"));
-			//////////////	dialog->show();
-			//////////////	action->setChecked(false);
-			//////////////}
+			////////////////////////		//////////////if(!FCallControls.contains(metaId))
+			////////////////////////		//////////////{
+			////////////////////////		//////////////	IMetaTabWindow* iMetaTabWindow = FMetaContacts->findMetaTabWindow(streamJid, metaId);
+			////////////////////////		//////////////	if(iMetaTabWindow != NULL)
+			////////////////////////		//////////////	{
+			////////////////////////		//////////////		//Jid cItem = iMetaTabWindow->currentItem();
+			////////////////////////		//////////////		RCallControl* pCallControl = new RCallControl(sid, RCallControl::Caller, iMetaTabWindow->instance());
+			////////////////////////		//////////////		pCallControl->setStreamJid(streamJid);
+			////////////////////////		//////////////		pCallControl->setMetaId(metaId);
+			////////////////////////		//////////////		//pCallControl->callStatusChange(RCallControl::Ringing);
+			////////////////////////		//////////////		//connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+			////////////////////////		//////////////		connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
+			////////////////////////		//////////////		//connect(pCallControl, SIGNAL(hangupCall()), SLOT(onHangupCallTest()));
+			////////////////////////		//////////////		connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+			////////////////////////		//////////////		connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
+			////////////////////////		//////////////		connect(pCallControl, SIGNAL(closeAndDelete(bool)), action, SLOT(setChecked(bool)));
+
+			////////////////////////		//////////////		connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
+			////////////////////////		//////////////		connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
+			////////////////////////		//////////////		connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
+			////////////////////////		//////////////		//connect(pCallControl, SIGNAL(micStateChange(bool)), SLOT(onProxySuspendStateChange(bool)));
+
+			////////////////////////		//////////////		iMetaTabWindow->insertTopWidget(0, pCallControl);
+			////////////////////////		//////////////		FCallControls.insert(metaId, pCallControl);
+			////////////////////////		//////////////	}
+			////////////////////////		//////////////}
+			////////////////////////		//////////////else
+			////////////////////////		//////////////{
+			////////////////////////		//////////////	RCallControl* pCallControl = FCallControls[metaId];
+			////////////////////////		//////////////	if(pCallControl)
+			////////////////////////		//////////////	{
+			////////////////////////		//////////////		pCallControl->callStatusChange(RCallControl::Ringing);
+			////////////////////////		//////////////	}
+			////////////////////////		//////////////}
+
+			////////////////////////	}
+			////////////////////////}
+			////////////////////////else
+			////////////////////////{
+			////////////////////////	//QMessageBox::information(NULL, tr("Call failure"), tr("Calls NOT supported for current contact"));
+			////////////////////////	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+			////////////////////////	dialog->setDeleteOnClose(true);
+			////////////////////////	dialog->setCaptionText(tr("Call failure"));
+			////////////////////////	dialog->setInfoText(tr("Calls NOT supported for current contact"));
+			////////////////////////	dialog->setAcceptButtonText(tr("Ok"));
+			////////////////////////	dialog->show();
+			////////////////////////	action->setChecked(false);
+			////////////////////////}
 		}
 		else // status == false
 		{
@@ -546,6 +692,13 @@ void SipPhone::onToolBarActionTriggered(bool status)
 					delete pCallControl;
 					pCallControl = NULL;
 				}
+			}
+
+			FCallActions[metaId]->setChecked(false);
+			if(__tmpMenu != NULL)
+			{
+				FCallActions[metaId]->setMenu(__tmpMenu);
+				__tmpMenu = NULL;
 			}
 		}
 

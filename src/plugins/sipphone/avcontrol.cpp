@@ -116,6 +116,9 @@ AVControl::AVControl(QWidget *parent)
 
 void AVControl::onAudioSettings()
 {
+
+	//QSysInfo::windowsVersion();
+
 	// ONLY FOR WINDOWS
 	OSVERSIONINFO m_osinfo;
 	ZeroMemory(&m_osinfo, sizeof(m_osinfo));

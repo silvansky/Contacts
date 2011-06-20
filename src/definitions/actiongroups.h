@@ -106,4 +106,8 @@
 #define AG_VWCM_MESSAGEWIDGETS_QUOTE                            500
 #define AG_VWCM_MESSAGEWIDGETS_SEARCH                           700
 
+//SipPhone - Contact Menu
+#define AG_PHONECM_BASECONTACT                                  300
+
+
 #endif
