@@ -74,11 +74,6 @@
    <move-height>0</move-height>
    <margins left="5" right="5" top="7" bottom="2" />
  </header>
- <window-icon>
-   <width>16</width>
-   <height>16</height>
-   <icon src="menuicons/mainwindowLogo16" />
- </window-icon>
  <title color="#FF00FF" />
  <window-controls spacing="2" />
  <minimize-button>

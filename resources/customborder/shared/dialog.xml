@@ -81,9 +81,46 @@
    </gradient>
  </header>
  <window-icon>
-   <width>16</width>
-   <height>16</height>
-   <icon src="menuicons/mainwindowLogo16" />
+   <subicon>
+    <width>16</width>
+    <height>16</height>
+    <icon src="menuicons/mainwindowLogo16" />
+   </subicon>
+   <subicon>
+    <width>24</width>
+    <height>24</height>
+    <icon src="menuicons/mainwindowLogo24" />
+   </subicon>
+   <subicon>
+    <width>32</width>
+    <height>32</height>
+    <icon src="menuicons/mainwindowLogo32" />
+   </subicon>
+   <subicon>
+    <width>48</width>
+    <height>48</height>
+    <icon src="menuicons/mainwindowLogo48" />
+   </subicon>
+   <subicon>
+    <width>64</width>
+    <height>64</height>
+    <icon src="menuicons/mainwindowLogo64" />
+   </subicon>
+   <subicon>
+    <width>96</width>
+    <height>96</height>
+    <icon src="menuicons/mainwindowLogo96" />
+   </subicon>
+   <subicon>
+    <width>128</width>
+    <height>128</height>
+    <icon src="menuicons/mainwindowLogo128" />
+   </subicon>
+   <subicon>
+    <width>256</width>
+    <height>256</height>
+    <icon src="menuicons/mainwindowLogo256" />
+   </subicon>
  </window-icon>
  <title color="#FF00FF" />
  <window-controls spacing="2" />

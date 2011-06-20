@@ -8,4 +8,8 @@
     <key>optionsOptionsDialog</key>
     <object mime='text/css'>optionsoptionsdialog.qss</object>
   </file>
+  <file>
+    <key>optionsConnectionSettings</key>
+    <object mime='text/css'>optionsconnectionsettings.qss</object>
+  </file>
 </styledef>

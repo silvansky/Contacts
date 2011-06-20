@@ -41,6 +41,7 @@
 //OptionsManager
 #define STS_OPTIONS_LOGINDIALOG                                         "optionsLoginDialog"
 #define STS_OPTIONS_OPTIONSDIALOG                                       "optionsOptionsDialog"
+#define STS_OPTIONS_CONNECTION_SETTINGS                                 "optionsConnectionSettings"
 
 //RamblerMailNotify
 #define STS_RAMBLERMAILNOTIFY_MAILNOTIFYPAGE                            "ramblermailnotifyMailNotifyPage"

@@ -542,21 +542,28 @@ void CustomBorderContainerPrivate::parseWindowIcon(const QDomElement & iconEleme
 {
 	if (!iconElement.isNull())
 	{
-		QDomElement width = iconElement.firstChildElement("width");
-		if (!width.isNull())
+//		QDomElement width = iconElement.firstChildElement("width");
+//		if (!width.isNull())
+//		{
+//			windowIcon.width = width.text().toInt();
+//		}
+//		QDomElement height = iconElement.firstChildElement("height");
+//		if (!height.isNull())
+//		{
+//			windowIcon.height = height.text().toInt();
+//		}
+		QDomElement subicon = iconElement.firstChildElement("subicon");
+		QStringList icons;
+		while (!subicon.isNull())
 		{
-			windowIcon.width = width.text().toInt();
+			QDomElement icon = subicon.firstChildElement("icon");
+			if (!icon.isNull())
+			{
+				 icons << icon.attribute("src");
+			}
+			subicon = subicon.nextSiblingElement("subicon");
 		}
-		QDomElement height = iconElement.firstChildElement("height");
-		if (!height.isNull())
-		{
-			windowIcon.height = height.text().toInt();
-		}
-		QDomElement icon = iconElement.firstChildElement("icon");
-		if (!icon.isNull())
-		{
-			windowIcon.icon = icon.attribute("src");
-		}
+		windowIcon.icon = icons.join(";");
 	}
 }
 
@@ -2321,12 +2328,18 @@ QImage CustomBorderContainer::loadImage(const QString & key)
 
 QIcon CustomBorderContainer::loadIcon(const QString & key)
 {
-	QStringList list = key.split("/");
-	if (list.count() != 2)
-		return QIcon();
-	QString storage = list[0];
-	QString iconKey = list[1];
-	return IconStorage::staticStorage(storage)->getIcon(iconKey);
+	QStringList icons = key.split(";");
+	QIcon icon;
+	foreach (QString newKey, icons)
+	{
+		QStringList list = newKey.split("/");
+		if (list.count() != 2)
+			return QIcon();
+		QString storage = list[0];
+		QString iconKey = list[1];
+		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(storage)->getImage(iconKey)));
+	}
+	return icon;
 }
 
 QPixmap CustomBorderContainer::loadPixmap(const QString & key)

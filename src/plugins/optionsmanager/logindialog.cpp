@@ -709,22 +709,48 @@ void LoginDialog::showConnectionSettings()
 		QDialog *dialog = new QDialog(this);
 		dialog->setAttribute(Qt::WA_DeleteOnClose,true);
 		dialog->setLayout(new QVBoxLayout);
-		dialog->layout()->setMargin(5);
-		dialog->setWindowTitle(tr("Connection settings"));
+		dialog->layout()->setContentsMargins(18, 4, 8, 7);
+		dialog->setFixedWidth(330);
+
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(dialog, STS_OPTIONS_CONNECTION_SETTINGS);
+
+		CustomBorderContainer * dialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+		if (dialogBorder)
+		{
+			dialogBorder->setMinimizeButtonVisible(false);
+			dialogBorder->setMaximizeButtonVisible(false);
+			dialogBorder->setWindowTitle(windowTitle());
+			dialogBorder->setResizable(false);
+			connect(this, SIGNAL(accepted()), dialogBorder, SLOT(closeWidget()));
+			connect(this, SIGNAL(rejected()), dialogBorder, SLOT(closeWidget()));
+			connect(dialogBorder, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+			dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+		}
+
+		// extra layout for contents
+		QVBoxLayout * settingsLayout = new QVBoxLayout;
+		settingsLayout->setContentsMargins(0, 0, 14, 8);
 
 		foreach(IOptionsWidget *widget, holder->optionsWidgets(OPN_CONNECTION, dialog))
 		{
-			dialog->layout()->addWidget(widget->instance());
+			settingsLayout->addWidget(widget->instance());
 			connect(dialog,SIGNAL(accepted()),widget->instance(),SLOT(apply()));
 		}
 
+		dialog->layout()->addItem(settingsLayout);
+
 		QDialogButtonBox *buttons = new QDialogButtonBox(dialog);
 		buttons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+		buttons->button(QDialogButtonBox::Ok)->setAutoDefault(false);
+		buttons->button(QDialogButtonBox::Ok)->setDefault(true);
+		buttons->button(QDialogButtonBox::Cancel)->setAutoDefault(false);
 		dialog->layout()->addWidget(buttons);
 		connect(buttons,SIGNAL(accepted()),dialog,SLOT(accept()));
 		connect(buttons,SIGNAL(rejected()),dialog,SLOT(reject()));
 
-		dialog->exec();
+		dialog->setWindowTitle(tr("Connection settings"));
+
+		WidgetManager::showActivateRaiseWindow(dialogBorder ? (QWidget*)dialogBorder : (QWidget*)dialog);
 	}
 }
 

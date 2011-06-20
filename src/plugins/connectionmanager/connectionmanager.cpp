@@ -122,7 +122,7 @@ QMultiMap<int, IOptionsWidget *> ConnectionManager::optionsWidgets(const QString
 	{
 		IAccount *account = FAccountManager->accounts().value(0);
 		OptionsNode cnode = account!=NULL ? account->optionsNode().node("connection", account->optionsNode().node("connection-type").value().toString()) : OptionsNode();
-		widgets.insertMulti(OWO_CONNECTION-1, FOptionsManager->optionsHeaderWidget(QString::null,tr("Select the way you connected to internet"),AParent));
+		widgets.insertMulti(OWO_CONNECTION-1, FOptionsManager->optionsHeaderWidget(QString::null,tr("Internet connection"),AParent));
 		widgets.insertMulti(OWO_CONNECTION, new ProxyOptionsWidget(this, cnode, AParent));
 	}
 	return widgets;
