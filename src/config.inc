@@ -1,8 +1,4 @@
-win32 {
-  TARGET_LOADER            = "Rambler Contacts"
-} else {
-  TARGET_LOADER            = ramblercontacts
-}
+TARGET_LOADER            = ramblercontacts
 
 TARGET_UTILS             = ramblercontactsutils
 
