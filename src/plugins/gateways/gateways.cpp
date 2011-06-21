@@ -1031,6 +1031,7 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 			if (FRosterChanger)
 				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,true,false);
 			FSubscribeServices.insertMulti(AStreamJid,AServiceJid);
+			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Subscribe);
 			sendLogPresence(AStreamJid,AServiceJid,true);
 			setKeepConnection(AStreamJid,AServiceJid,true);
@@ -1041,7 +1042,6 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
 			FSubscribeServices.remove(AStreamJid,AServiceJid);
 			setKeepConnection(AStreamJid,AServiceJid,false);
-			//sendLogPresence(AStreamJid,AServiceJid,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribed);
 		}
