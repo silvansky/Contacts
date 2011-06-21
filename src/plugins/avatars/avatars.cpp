@@ -22,10 +22,6 @@
 #define UNKNOWN_AVATAR            QString::null
 #define EMPTY_AVATAR              QString("")
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 Avatars::Avatars()
 {
 	FPluginManager = NULL;
@@ -322,7 +318,6 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 		else if (ARole == RDR_AVATAR_IMAGE_LARGE)
 		{
 			QImage img = avatarImage(AIndex->data(RDR_FULL_JID).toString(), false);
-			qDebug() << img.size();
 			if (img == FEmptyMaleAvatar)
 				img = FEmptyMaleAvatarBig;
 			else if (img == FEmptyFemaleAvatar)
@@ -690,7 +685,6 @@ void Avatars::updateAvatarObject(QObject *AObject)
 	{
 		if ((params.size.width() == params.size.height()) && (params.size.width() >= 32))
 		{
-			//qDebug() << params.size;
 			if (image == FEmptyMaleAvatar)
 				image = FEmptyMaleAvatarBig;
 			else if (image == FEmptyFemaleAvatar)
