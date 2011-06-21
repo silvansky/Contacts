@@ -3,7 +3,10 @@
   <?include Product.wxs ?>
   <!-- 877 ac2c8e39-ae2f-47c2-8e64-33806f0b2b4a -->
   <!-- 879 e423fe44-e1d5-4b4e-98b4-22c39e4133d7 -->
-  <Product Id="e423fe44-e1d5-4b4e-98b4-22c39e4133d7" 
+  <!-- 917 057c8dd7-ebca-4da7-9b6f-712617a8ed2e -->
+  <!-- 919 e5f3964e-fa47-4813-b5e3-678c4f004830 -->
+
+  <Product Id="e5f3964e-fa47-4813-b5e3-678c4f004830" 
            Name="$(var.product_name) $(var.virtus_version)" 
            Language="1049" 
            Version="$(var.virtus_version)" 
@@ -64,7 +67,7 @@
       <ComponentGroupRef Id="Imageformats" />
       <ComponentGroupRef Id="Plugins" />
       <ComponentGroupRef Id="Resources5" />
-      <ComponentGroupRef Id="Translations6" />
+      <ComponentGroupRef Id="Translations" />
       <ComponentGroupRef Id="VirtusBase" />
       <ComponentGroupRef Id="Ms"/>
       <ComponentGroupRef Id="Voip"/>

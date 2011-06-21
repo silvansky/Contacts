@@ -10,7 +10,7 @@ makensis.exe /DFILE_NAME="../output/%VER%/ContactsSetup.exe" /DPRODUCT_GUID="{97
 exit 0
 
 :error_specify_ver
-echo ═х єърчрэр тхЁёш  яЁюфєъЄр
-echo ╟ряєёъ compile_msi тхЁёш  
-echo эряЁшьхЁ compile_setup 0.1.0.868
+echo Не указана версия продукта
+echo Запуск compile_msi версия 
+echo например compile_setup 0.1.0.868
 exit 1

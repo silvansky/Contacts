@@ -23,26 +23,25 @@ BrandingText 'ООО "Рамблер Интернет Холдинг"'
 !define MUI_WELCOMEFINISHPAGE_BITMAP "setup.bmp"
 !define MUI_ABORTWARNING
 
+!define PBS_MARQUEE 0x08
+OutFile ${FILE_NAME}
+XPStyle on
+Icon "application.ico"
+RequestExecutionLevel user
+
 !insertmacro RUH_FUNCTIONS
 
 !ifndef BCM_SETSHIELD
-!define BCM_SETSHIELD 0x0000160C
+	!define BCM_SETSHIELD 0x0000160C
 !endif
 
-!insertmacro MUI_PAGE_WELCOME
+page custom welcome_init welcome_exit
 !insertmacro MUI_PAGE_LICENSE "license.rtf"
 !insertmacro MUI_PAGE_INSTFILES
-page custom finishfull finishfullExit
+page custom finish_init finish_exit
+
 !insertmacro MUI_LANGUAGE "Russian" 
-
-RequestExecutionLevel user
-
-!define PBS_MARQUEE 0x08
-
-OutFile ${FILE_NAME}
-
-XPStyle on
-Icon "application.ico"
+!insertmacro MUI_PAGE_FUNCTION_FULLWINDOW
 
 ; version information
 VIProductVersion $%VER%
@@ -50,159 +49,210 @@ VIAddVersionKey /LANG=${LANG_RUSSIAN} "ProductName" ${PRODUCT_NAME}
 VIAddVersionKey /LANG=${LANG_RUSSIAN} "CompanyName" 'ООО "Рамблер Интернет Холдинг"'
 VIAddVersionKey /LANG=${LANG_RUSSIAN} "FileVersion" "$%VER%	"
 
+Var welcome_dialog
+Var welcome_checkbox1
+Var welcome_checkbox2
+Var finish_checkbox1
+Var finish_checkbox2
+Var welcome_image
+Var finish_image
+Var welcome_image_handle
+Var finish_image_handle
+
+; utility functions
 Function InstallUpdater
   SetOutPath "$TEMP"
   File "..\Holdem\Holdem.msi"
   ExecWait '"msiexec" /i "$OUTDIR\Holdem.msi" /quiet'
 FunctionEnd
 
-Var IsSetSearch_ 
-Var IsSetHome_ 
-Var IsRunProgram_ 
+Function RelGotoPage
+  IntCmp $R9 0 0 Move Move
+    StrCmp $R9 "X" 0 Move
+      StrCpy $R9 "120"
+ 
+  Move:
+    SendMessage $HWNDPARENT "0x408" "$R9" ""
+FunctionEnd
 
 Function WriteToFireWall
   nsisFirewallW::AddAuthorizedApplication "${PRODUCT_EXE}" "${PRODUCT_NAME}"
   Pop $0
-;игнорим ошибки - не вышло так не вышло 
-;  IntCmp $0 0 +3
-;    MessageBox MB_OK "A problem happened while adding program to Firewall exception list (result=$0)"
-;    Return
-;  Exec "rundll32.exe shell32.dll,Control_RunDLL firewall.cpl"
-;  MessageBox MB_OK "Program added to Firewall exception list.$\r$\n(close the control panel before clicking OK)"
 FunctionEnd
 
-Function InstallProduct
-  IfErrors continue1
-  continue1:
-  ReadRegStr $0 HKCU "SOFTWARE\Rambler\Update\${PRODUCT_GUID}" "Version"
-  IfErrors OnInstallProduct 0 
-  MessageBox MB_YESNO|MB_ICONQUESTION "Похоже продукт ${PRODUCT_NAME} установлен. Текщая версия $0. Выполнить обновление?" IDNO OnFinish 
-;  WriteRegStr HKLM "SOFTWARE\Rambler\Update\${PRODUCT_GUID}" "Version" "0.0.0.0"  
-  OnInstallProduct:
-  IfErrors continue
-  continue:
-  ExecWait '"$LOCALAPPDATA\Rambler\RamblerUpdater\RUpdate.exe" ${PRODUCT_GUID}' $0
-  IfErrors 0 OnCont
-    MessageBox mb_iconstop "Не удалось запустить установить ядро установщика."
-    Abort
-  OnCont:
-;  MessageBox mb_iconstop "Результат установки $0"
-  ${if} $0 = 0
-    goto OnOK
-  ${endif}
-  ${If} $0 < 0
-;  IfErrors 0 OnOK
-    MessageBox mb_iconstop "Ошибка установки $0"
-    Abort
-  ${endif}
-  ${if} $0 = 131072035
-    MessageBox MB_ICONINFORMATION "Обновление не требуется."
-  ${endif}
-  OnOK:
-  Call WriteToFireWall
-;  WriteRegStr HKLM "Software\Microsoft\Internet Explorer\Toolbar" "{D276614E-4A9C-4A98-819A-C8922CA9756C}" "0"
-;  StrCmp ${PRODUCT_EXE} "void" OnFinish
-;  MessageBox MB_YESNO|MB_ICONQUESTION "Запустить ${PRODUCT_NAME}?" IDNO OnFinish
-;  Exec '${PRODUCT_EXE}'
-  OnFinish:
-FunctionEnd
+Function welcome_init
+	nsDialogs::Create /NOUNLOAD 1044;1044;1018;1044;1018
+	Pop $0
+     	 
+	SetCtlColors welcome_dialog '0x000000' '0xFFFFFF'
+	${NSD_CreateBitmap} 0 0 100% 100% ""
+	Pop $welcome_image
+	${NSD_SetImage} $welcome_image $PLUGINSDIR\image.png $welcome_image_handle
 
-!insertmacro MUI_PAGE_FUNCTION_FULLWINDOW
+	${NSD_CreateLabel} 120u 10u 100% 48u "Вас приветствует$\nмастер установки$\n«Рамблер-Контактов».$\n$\n"
+	Pop $0
+	SetCtlColors $0 '0x000000' transparent
 
+	CreateFont $1 "$(^Font)" "15" "" 
+	SendMessage $0 ${WM_SETFONT} $1 0
+	${NSD_CreateLabel} 120u 62u 60% 48u "«Рамблер-Контакты» будут установлены на ваш компьютер.$\n$\nПеред началом установки рекомендуется закрыть все работающие приложения. Это позволит программе установки обновить системные файлы без перезагрузки компьютера."
+	Pop $0
+	SetCtlColors $0 '0x000000' transparent
 
-Var Checkbox1
-Var Checkbox2
-Var Checkbox3
-Var Image
-Var ImageHandle
+	
+	; запустить после установки
+	${NSD_CreateCheckbox} 120u 130u 100% 17u "Сделать Рамблер домашней страницей"
+	Pop $welcome_checkbox1
+	SetCtlColors $welcome_checkbox1 '0x000000' transparent
 
-Function finishfull
-  nsDialogs::Create /NOUNLOAD 1044;1044;1018;1044;1018
-  Pop $0
-  SetCtlColors $0 '0x000000' '0xFFFFFF'
-  ${NSD_CreateBitmap} 0 0 100% 100% ""
-  Pop $Image
-  ${NSD_SetImage} $Image $PLUGINSDIR\image.png $ImageHandle
+	${NSD_Check} $welcome_checkbox1 
+	${NSD_OnClick} $welcome_checkbox1 OnClickCheckAdminRights
 
-  ${NSD_CreateLabel} 120u 10u 100% 24u "Установка ${PRODUCT_NAME}"
-  Pop $0
-  SetCtlColors $0 '0x000000' '0xFFFFFF'
-  CreateFont $1 "$(^Font)" "15" "" 
-  SendMessage $0 ${WM_SETFONT} $1 0
-  ${NSD_CreateLabel} 120u 36u 100% 24u 'Для установки Рамблер-Контактов на ваш компьютер $\r$\nнажмите кнопку «Установить».'
-  Pop $0
-  SetCtlColors $0 '0x000000' '0xFFFFFF'
-    
-  ${NSD_OnBack} RUH_RemShield
+	; browser defaults
+	${NSD_CreateCheckbox} 120u 150u 100% 17u "Сделать Рамблер поиском по-умолчанию"
+	Pop $welcome_checkbox2
+	SetCtlColors $welcome_checkbox2 '0x000000' transparent
 
-  ; запустить после установки
-  ${NSD_CreateCheckbox} 120u 70u 100% 17u "Запустить Рамблер-Контакты"
-  Pop $Checkbox1
-  SetCtlColors $Checkbox1 '0x000000' '0xFFFFFF'
-  ${NSD_Check} $Checkbox1
-  ${RUH_SetShield}
-  
-  ; browser defaults
-  ${NSD_CreateCheckbox} 120u 90u 100% 17u "Сделать Рамблер поиском по-умолчанию"
-  Pop $Checkbox2
-  SetCtlColors $Checkbox2 '0x000000' '0xFFFFFF'
-  ${NSD_Check} $Checkbox2
-  ${NSD_OnClick} $Checkbox2 OnClickCheckAdminRights
-  ${RUH_SetShield}
-
-  ; browser defaults
-  ${NSD_CreateCheckbox} 120u 110u 100% 17u "Сделать Рамблер главной страницей"
-  Pop $Checkbox3
-  SetCtlColors $Checkbox3 '0x000000' '0xFFFFFF'
-  ${NSD_Check} $Checkbox3
-  ${NSD_OnClick} $Checkbox3 OnClickCheckAdminRights
-  ${RUH_SetShield}
-
-  Call muiPageLoadFullWindow
-  nsDialogs::Show
-  ${NSD_FreeImage} $ImageHandle
-  Call muiPageUnloadFullWindow
-  Call ElemBranding
+	${NSD_Check} $welcome_checkbox2
+	${NSD_OnClick} $welcome_checkbox2 OnClickCheckAdminRights
+	
+	${RUH_SetShield}
+	
+	Call muiPageLoadFullWindow
+	nsDialogs::Show
+	${NSD_FreeImage} $welcome_image_handle
+	Call muiPageUnloadFullWindow
+	Call ElemBranding
 FunctionEnd
 
 Function OnClickCheckAdminRights
-  Pop $0 ; don't forget to pop HWND of the stack
-  ${NSD_GetState} $Checkbox2 $1
-  ${NSD_GetState} $Checkbox3 $2
+	Pop $0 ; don't forget to pop HWND of the stack
+	${NSD_GetState} $welcome_checkbox1 $1
+	${NSD_GetState} $welcome_checkbox2 $2
 
-  ${If} $1 == ${BST_CHECKED}
-    ${RUH_SetShield}
-  ${Else}
-	${If} $2 == ${BST_CHECKED}
+	${If} $1 == ${BST_CHECKED}
 		${RUH_SetShield}
 	${Else}
-    	${RUH_RemShield}
+		${If} $2 == ${BST_CHECKED}
+			${RUH_SetShield}
+		${Else}
+			${RUH_RemShield}
+		${EndIf}
 	${EndIf}
-  ${EndIf}
 FunctionEnd
 
-Function finishfullExit
+Function welcome_exit
   	Pop $0
+	
+  	${NSD_GetState} $welcome_checkbox1 $1
+  	${If} $1 == ${BST_CHECKED}
+    	WriteINIStr $APPDATA\temp.ini "Rambler" "SetHome" 1
+    	call RUH_SetAdminIfNeeded 
+  	${EndIf}	
 
-	${NSD_GetState} $Checkbox2 $IsSetSearch_
-  	${If} $IsSetSearch_ == ${BST_CHECKED}
+	${NSD_GetState} $welcome_checkbox2 $2
+  	${If} $2 == ${BST_CHECKED}
     	WriteINIStr $APPDATA\temp.ini "Rambler" "SetSearch" 1
     	call RUH_SetAdminIfNeeded 
   	${EndIf}
 
-  	${NSD_GetState} $Checkbox3 $IsSetHome_
-  	${If} $IsSetHome_ == ${BST_CHECKED}
-    	WriteINIStr $APPDATA\temp.ini "Rambler" "SetHome" 1
-    	call RUH_SetAdminIfNeeded 
-  	${EndIf}
+FunctionEnd
+
+; custom page functions
+Function finish_init
+
+	nsDialogs::Create /NOUNLOAD 1044;1044;1018;1044;1018
+	Pop $0
+	
+	SetCtlColors $0 '0x000000' '0xFFFFFF'
+	${NSD_CreateBitmap} 0 0 100% 100% ""
+	Pop $finish_image
+	${NSD_SetImage} $finish_image $PLUGINSDIR\image.png $finish_image_handle
+
+	${NSD_CreateLabel} 120u 10u 100% 48u "Завершение установки$\n«Рамблер-Контактов»."
+	Pop $0
+	SetCtlColors $0 '0x000000' '0xFFFFFF'
+	CreateFont $1 "$(^Font)" "15" "" 
+	SendMessage $0 ${WM_SETFONT} $1 0
+	${NSD_CreateLabel} 120u 62u 100% 24u 'Установка программы выполнена.$\nНажмите кнопку «Закрыть»,$\nчтобы завершить работу установщика.'
+	Pop $0
+	SetCtlColors $0 '0x000000' '0xFFFFFF'
+
+	; запустить после установки
+	${NSD_CreateCheckbox} 120u 90u 100% 17u "Запустить «Рамблер-Контакты»"
+	Pop $finish_checkbox1
+	SetCtlColors $finish_checkbox1 '0x000000' '0xFFFFFF'
+	${NSD_Check} $finish_checkbox1
+	${RUH_SetShield}
+
+	; browser defaults
+	${NSD_CreateCheckbox} 120u 110u 100% 17u "Добавить ярлык на рабочий стол"
+	Pop $finish_checkbox2
+	SetCtlColors $finish_checkbox2 '0x000000' '0xFFFFFF'
+	${NSD_Check} $finish_checkbox2
+	${RUH_SetShield}
+
+	Call muiPageLoadFullWindow
+	nsDialogs::Show
+	${NSD_FreeImage} $finish_image_handle
+	Call muiPageUnloadFullWindow
+	Call ElemBranding
+FunctionEnd
+
+Function finish_exit
+  	Pop $0
 
 	; run program
-  	${NSD_GetState} $Checkbox1 $IsRunProgram_
-  	${If} $IsRunProgram_ == ${BST_CHECKED}
+  	${NSD_GetState} $finish_checkbox1 $1
+  	${If} $1 == ${BST_CHECKED}
     	Exec '${PRODUCT_EXE}'
   	${EndIf} 
+	
+	; create desktop shortct	
+  	${NSD_GetState} $finish_checkbox2 $2
+  	${If} $2 == ${BST_CHECKED}	
+		CreateShortcut "$DESKTOP\${PRODUCT_NAME}.lnk" '${PRODUCT_EXE}'
+	${EndIf} 
  
 FunctionEnd
+
+
+; installation
+Function InstallProduct
+	IfErrors continue1
+	continue1:
+		ReadRegStr $0 HKCU "SOFTWARE\Rambler\Update\${PRODUCT_GUID}" "Version"
+		IfErrors OnInstallProduct 0 
+		MessageBox MB_YESNO|MB_ICONQUESTION "Похоже, программа уже установлена. Текущая сборка $0. Выполнить обновление?" IDNO OnFinish 
+	OnInstallProduct:
+		IfErrors continue
+	continue:
+		ExecWait '"$LOCALAPPDATA\Rambler\RamblerUpdater\RUpdate.exe" ${PRODUCT_GUID}' $0
+		IfErrors 0 OnCont
+			MessageBox mb_iconstop "Не удалось запустить установить ядро установщика."
+			Abort
+	OnCont:
+	  ${if} $0 = 0
+		goto OnOK
+	  ${endif}
+	  
+	  ${If} $0 < 0
+		MessageBox mb_iconstop "Ошибка установки $0"
+		Abort
+	  ${endif}
+	  
+	  ${if} $0 = 131072035
+		MessageBox MB_ICONINFORMATION "Обновление не требуется."
+	  ${endif}
+  
+  OnOK:
+	Call WriteToFireWall
+
+  OnFinish:
+    StrCpy $R9 1
+	Call RelGotoPage
+FunctionEnd
+
 
 
 Function ElemBranding
@@ -227,27 +277,6 @@ Section "registry_works" aaa
   ${If} $R1 == 1
     ${RIS_WriteHomePage}
   ${EndIf} 
-
-;TODO
-;;;;;  ReadRegStr $0 HKLM "SOFTWARE\Rambler\Update\${PRODUCT_GUID}" "Version"
-;;;;;  IfErrors OnInstallProduct 0 
-;;;;;  MessageBox MB_YESNO|MB_ICONQUESTION "Похоже продукт ${PRODUCT_NAME} установлен. Текщая версия $0. Выполнить обновление?" IDNO OnFinish 
-;;;;;;  WriteRegStr HKLM "SOFTWARE\Rambler\Update\${PRODUCT_GUID}" "Version" "0.0.0.0"  
-;;;;;  OnInstallProduct:
-;;;;;  IfErrors continue
-;;;;;  continue:
-;;;;;  ExecWait '"$PROGRAMFILES\Rambler\RamblerUpdater\RUpdate.exe" ${PRODUCT_GUID}' $0
-;;;;;  ${if} $0 == "0"
-;;;;;    goto OnOK
-;;;;;  ${endif}
-;;;;;  IfErrors 0 OnOK
-;;;;;    MessageBox mb_iconstop "Ошибка установки $0"
-;;;;;    Abort
-;;;;;  OnOK:
-;;;;;  StrCmp ${PRODUCT_EXE} "void" OnFinish
-;;;;;  MessageBox MB_YESNO|MB_ICONQUESTION "Запустить ${PRODUCT_NAME}?" IDNO OnFinish
-;;;;;  Exec '${PRODUCT_EXE}'
-;;;;;  OnFinish:
 SectionEnd
 
 
@@ -284,4 +313,8 @@ Function GuiInit
   !insertmacro RUH_OnGuiInit
 FunctionEnd
 
-
+LangString "MUI_TEXT_LICENSE_SUBTITLE" 		"${LANG_${LANG}}"	"Пожалуйста, прочтите его перед установкой $(^NameDA)."
+LangString "MUI_INNERTEXT_LICENSE_BOTTOM" 	"${LANG_${LANG}}"	"Нажмите кнопку «Принимаю», если вы принимаете условия соглашения и хотите продолжить установку."
+LangString "MUI_TEXT_INSTALLING_SUBTITLE"	"${LANG_${LANG}}"	"Подождите, идет копирование файлов «Рамблер-Контактов»."
+LangString "MUI_TEXT_WELCOME_INFO_TEXT"		"${LANG_${LANG}}"	"«Рамблер-Контакты» будут установлены на ваш компьютер.$\r$\n$\r$\nПеред началом установки рекомендуется закрыть все работающие приложения. Это позволит программе установки обновить системные файлы без перезагрузки компьютера.$\r$\n$\r$\n$_CLICK"
+LangString "^ShowDetailsBtn"	"${LANG_${LANG}}"	"Детали"
