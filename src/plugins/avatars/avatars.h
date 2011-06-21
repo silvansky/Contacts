@@ -152,6 +152,8 @@ private:
 	QDir FAvatarsDir;
 	QImage FEmptyMaleAvatar;
 	QImage FEmptyFemaleAvatar;
+	QImage FEmptyMaleAvatarBig;
+	QImage FEmptyFemaleAvatarBig;
 	QImage FEmptyMaleAvatarOffline;
 	QImage FEmptyFemaleAvatarOffline;
 	QMap<Jid, QString> FStreamAvatars;

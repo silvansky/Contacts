@@ -22,6 +22,10 @@
 #define UNKNOWN_AVATAR            QString::null
 #define EMPTY_AVATAR              QString("")
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 Avatars::Avatars()
 {
 	FPluginManager = NULL;
@@ -317,7 +321,13 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 		}
 		else if (ARole == RDR_AVATAR_IMAGE_LARGE)
 		{
-			return ImageManager::roundSquared(avatarImage(AIndex->data(RDR_FULL_JID).toString(),!FShowEmptyAvatars), 36, 2);
+			QImage img = avatarImage(AIndex->data(RDR_FULL_JID).toString(), false);
+			qDebug() << img.size();
+			if (img == FEmptyMaleAvatar)
+				img = FEmptyMaleAvatarBig;
+			else if (img == FEmptyFemaleAvatar)
+				img = FEmptyFemaleAvatarBig;
+			return ImageManager::roundSquared(img, 36, 2);
 		}
 		else if (ARole == RDR_AVATAR_HASH)
 		{
@@ -408,7 +418,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool AAllowNull, bool AAllow
 {
 	QString hash = avatarHash(AContactJid);
 	QImage image = FAvatarImages.value(hash);
-	
+
 	if (image.isNull() && !hash.isEmpty())
 	{
 		image = loadAvatar(hash);
@@ -428,7 +438,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool AAllowNull, bool AAllow
 			vcard->unlock();
 			FContactGender.insert(bareJid,maleGender);
 		}
-	
+
 		if (FContactGender.value(bareJid,true))
 		{
 			emptyMaleAvatar = true;
@@ -456,7 +466,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool AAllowNull, bool AAllow
 			}
 			else if (!FAvatarImagesGrayscale.contains(hash))
 			{
-				image = ImageManager::grayscaled(image);
+				image = ImageManager::opacitized(image);
 				FAvatarImagesGrayscale.insert(hash, image);
 			}
 			else
@@ -678,6 +688,14 @@ void Avatars::updateAvatarObject(QObject *AObject)
 	}
 	if (!image.isNull())
 	{
+		if ((params.size.width() == params.size.height()) && (params.size.width() >= 32))
+		{
+			//qDebug() << params.size;
+			if (image == FEmptyMaleAvatar)
+				image = FEmptyMaleAvatarBig;
+			else if (image == FEmptyFemaleAvatar)
+				image = FEmptyFemaleAvatarBig;
+		}
 		if (!params.size.isEmpty() && (params.size.height() == params.size.width()) && (image.size() != params.size) && (image.height() != image.width()))
 			image = ImageManager::roundSquared(image, params.size.height(), 2);
 		QPixmap pixmap = !params.size.isEmpty() ? QPixmap::fromImage(image.scaled(params.size,Qt::KeepAspectRatio,Qt::SmoothTransformation)) : QPixmap::fromImage(image);
@@ -869,6 +887,8 @@ void Avatars::onIconStorageChanged()
 {
 	FEmptyMaleAvatar = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_MALE));
 	FEmptyFemaleAvatar = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_FEMALE));
+	FEmptyMaleAvatarBig = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_MALE, 1));
+	FEmptyFemaleAvatarBig = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_FEMALE, 1));
 	FEmptyMaleAvatarOffline = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_MALE_OFFLINE));
 	FEmptyFemaleAvatarOffline = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_FEMALE_OFFLINE));
 }

@@ -39,7 +39,7 @@ void MetaContextMenu::updateMenu()
 		QString name = FRosterIndex->data(Qt::DisplayRole).toString();
 		QImage avatar = FRosterIndex->data(RDR_AVATAR_IMAGE_LARGE).value<QImage>();
 		setIcon(QIcon(QPixmap::fromImage(avatar)));
-		setTitle(QString("<b>%1</b>").arg(name));
+		setTitle(name);
 		menuAction()->setVisible(true);
 	}
 	else

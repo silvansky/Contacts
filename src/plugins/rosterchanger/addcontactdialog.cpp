@@ -452,7 +452,7 @@ void AddContactDialog::setDialogEnabled(bool AEnabled)
 void AddContactDialog::setRealContactJid(const Jid &AContactJid)
 {
 	if (FAvatars)
-		FAvatars->insertAutoAvatar(ui.lblParamsPhoto,AContactJid,QSize(50,50),"pixmap");
+		FAvatars->insertAutoAvatar(ui.lblParamsPhoto,AContactJid,QSize(48, 48),"pixmap");
 	FContactJid = AContactJid.bare();
 }
 

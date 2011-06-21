@@ -124,6 +124,22 @@ QImage ImageManager::colorized(const QImage & image, QColor color)
 	return image;
 }
 
+QImage ImageManager::opacitized(const QImage & image, double opacity)
+{
+	if (!image.isNull())
+	{
+		QImage resultImage(image.size(), QImage::Format_ARGB32);
+		resultImage.fill(QColor::fromRgb(0, 0, 0, 0).rgba());
+		QPainter painter(&resultImage);
+		painter.setOpacity(opacity);
+		painter.drawImage(0, 0, image);
+		painter.end();
+		resultImage.setAlphaChannel(image.alphaChannel());
+		return resultImage;
+	}
+	return image;
+}
+
 void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter * painter)
 {
 	if (!image.isNull())

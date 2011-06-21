@@ -68,6 +68,12 @@ QToolBar#tlbToolBar QToolButton#contactMenu::menu-indicator:hover
 QToolBar#tlbToolBar QToolButton#tbSipCall
 {
 	width: 40px;
+	padding-right: 4px;
+}
+
+QToolBar#tlbToolBar QToolButton#tbSipCall::menu-indicator
+{
+	right: 2px;
 }
 
 QToolBar#tlbToolBar
