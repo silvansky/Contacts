@@ -5,6 +5,7 @@
 #include <QHostAddress>
 #include <QMutex>
 #include "RCameraFlow.h"
+#include "netdatatranslator.h"
 //#include "rtpdatasender.h"
 
 class QUdpSocket;
@@ -74,16 +75,18 @@ public slots:
 protected slots:
   //void hostFound();
   void dataArrived();
-  void dataArrived1();
+	void dataArrived1();
   void onSocketError(QAbstractSocket::SocketError);
   void sendImage();
   void updText();
   void procceedDataProcessing( const QByteArray& rtpPacket );
 	void procceedDataProcessingDebug( const QByteArray& rtpPacket );
+	void processPortionOfData();
 	
 private:
 	void pingOther();
 	
+
 
 private:
   // Поток с камеры. Получение картинки с камеры.
@@ -99,6 +102,8 @@ private:
   QUdpSocket *_udpSocketForSend;
   QHostAddress _remoteHost;
   int _remPort;
+
+	NetDataTranslator* _netTransThread;
 
   //RtpDataSender* _dataSender;
 

@@ -391,19 +391,20 @@ void SipPhone::onAboutToShowContactMenu()
 		IMetaContact metaContact = metaRoster->metaContact(metaId);
 		if(metaContact.items.size() > 0)
 		{
-			int i = 1;
 			foreach(Jid contactJid, metaContact.items)
 			{
-				Action *contactAction = new Action(contactsMenu);
-				connect(contactAction, SIGNAL(triggered(bool)), SLOT(continueCallToContact()));
-				contactAction->setText(contactJid.eFull());
+				if(contactJid.eFull().contains("@rambler.ru"))
+				{
+					Action *contactAction = new Action(contactsMenu);
+					connect(contactAction, SIGNAL(triggered(bool)), SLOT(continueCallToContact()));
+					contactAction->setText(contactJid.eFull());
 
-				contactAction->setData(ADR_STREAM_JID, streamJid.full());
-				contactAction->setData(ADR_CONTACT_JID, contactJid.full());
-				contactAction->setData(ADR_METAID_WINDOW, metaId);
+					contactAction->setData(ADR_STREAM_JID, streamJid.full());
+					contactAction->setData(ADR_CONTACT_JID, contactJid.full());
+					contactAction->setData(ADR_METAID_WINDOW, metaId);
 
-				contactsMenu->addAction(contactAction, AG_PHONECM_BASECONTACT + i);
-				i++;
+					contactsMenu->addAction(contactAction, AG_PHONECM_BASECONTACT);
+				}
 			}
 		}
 	}
@@ -449,8 +450,10 @@ void SipPhone::continueCallToContact()
 					//connect(pCallControl, SIGNAL(hangupCall()), SLOT(onHangupCallTest())); /*Test*/
 					connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
 					connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
+
+					// Обработка: при закрытии окна управления звонком, нужно вернуть кнопку вызова в исходное состояние
 					//connect(pCallControl, SIGNAL(closeAndDelete(bool)), senderAction, SLOT(setChecked(bool))); /// !!!!!
-					connect(pCallControl, SIGNAL(closeAndDelete(bool)), this, SLOT(onCloseCallControl(bool))); /// !!!!!
+					connect(pCallControl, SIGNAL(closeAndDelete(bool)), this, SLOT(onCloseCallControl(bool)));
 
 					connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
 					connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
@@ -1717,142 +1720,145 @@ void SipPhone::onNotificationRemoved(int ANotifyId)
 
 void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
-	// В случае обычных контактов
-	if (AIndex->type()==RIT_CONTACT && ASelected.count() < 2)
-	{
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
-		if (isSupported(streamJid,contactJid))
-		{
-			if (findStream(streamJid,contactJid).isEmpty())
-			{
-				Action *action = new Action(AMenu);
-				action->setText(tr("Call"));
-				action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
-				action->setData(ADR_STREAM_JID,streamJid.full());
-				action->setData(ADR_CONTACT_JID,contactJid.full());
-				connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
-				AMenu->addAction(action,AG_RVCM_SIPPHONE_CALL,true);
-			}
-		}
-		return;
-	}
+	return;
 
-	// В случае метаконтактов
-	if ( AIndex->type()==RIT_METACONTACT && ASelected.count() < 2)
-	{
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		QString metaId = AIndex->data(RDR_META_ID).toString();
+	//////////// В случае обычных контактов
+	//////////if (AIndex->type()==RIT_CONTACT && ASelected.count() < 2)
+	//////////{
+	//////////	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+	//////////	Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
+	//////////	if (isSupported(streamJid,contactJid))
+	//////////	{
+	//////////		if (findStream(streamJid,contactJid).isEmpty())
+	//////////		{
+	//////////			Action *action = new Action(AMenu);
+	//////////			action->setText(tr("Call"));
+	//////////			action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
+	//////////			action->setData(ADR_STREAM_JID,streamJid.full());
+	//////////			action->setData(ADR_CONTACT_JID,contactJid.full());
+	//////////			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
+	//////////			AMenu->addAction(action,AG_RVCM_SIPPHONE_CALL,true);
+	//////////		}
+	//////////	}
+	//////////	return;
+	//////////}
 
-		IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
-		IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
+	//////////// В случае метаконтактов
+	//////////if ( AIndex->type()==RIT_METACONTACT && ASelected.count() < 2)
+	//////////{
+	//////////	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+	//////////	QString metaId = AIndex->data(RDR_META_ID).toString();
 
-		if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
-		{
-			IMetaContact metaContact = metaRoster->metaContact(metaId);
-			if(metaContact.items.size() > 0)
-			{
-				foreach(Jid contactJid, metaContact.items)
-				{
-					QList<IPresenceItem> pItems = presence->presenceItems(contactJid);
+	//////////	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
+	//////////	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
 
-					if(pItems.size() > 0)
-					{
-						foreach(IPresenceItem pItem, pItems)
-						{
-							Jid contactJidWithPresence = pItem.itemJid;
-							if(isSupported(streamJid, contactJidWithPresence))
-							{
-								if (findStream(streamJid, contactJidWithPresence).isEmpty())
-								{
-									Action *action = new Action(AMenu);
-									action->setText(tr("Call"));
-									action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
-									action->setData(ADR_STREAM_JID,streamJid.full());
-									action->setData(ADR_CONTACT_JID,contactJidWithPresence.full());
-									action->setData(ADR_METAID_WINDOW, metaId);
-									connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
-									AMenu->addAction(action,AG_RVCM_SIPPHONE_CALL,true);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	//////////	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
+	//////////	{
+	//////////		IMetaContact metaContact = metaRoster->metaContact(metaId);
+	//////////		if(metaContact.items.size() > 0)
+	//////////		{
+	//////////			foreach(Jid contactJid, metaContact.items)
+	//////////			{
+	//////////				QList<IPresenceItem> pItems = presence->presenceItems(contactJid);
+
+	//////////				if(pItems.size() > 0)
+	//////////				{
+	//////////					foreach(IPresenceItem pItem, pItems)
+	//////////					{
+	//////////						Jid contactJidWithPresence = pItem.itemJid;
+	//////////						if(isSupported(streamJid, contactJidWithPresence))
+	//////////						{
+	//////////							if (findStream(streamJid, contactJidWithPresence).isEmpty())
+	//////////							{
+	//////////								Action *action = new Action(AMenu);
+	//////////								action->setText(tr("Call"));
+	//////////								action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
+	//////////								action->setData(ADR_STREAM_JID,streamJid.full());
+	//////////								action->setData(ADR_CONTACT_JID,contactJidWithPresence.full());
+	//////////								action->setData(ADR_METAID_WINDOW, metaId);
+	//////////								connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
+	//////////								AMenu->addAction(action,AG_RVCM_SIPPHONE_CALL,true);
+	//////////							}
+	//////////						}
+	//////////					}
+	//////////				}
+	//////////			}
+	//////////		}
+	//////////	}
+	//////////}
 }
 
 
 
 void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger)
 {
-	Q_UNUSED(AToolTips);
-	// В случае обычных контактов
-	if (ALabelId==RLID_DISPLAY && AIndex->type()==RIT_CONTACT)
-	{
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
-		if (isSupported(streamJid, contactJid))
-		{
-			if (findStream(streamJid, contactJid).isEmpty())
-			{
-				Action *action = new Action(AToolBarChanger->toolBar());
-				action->setText(tr("Call"));
-				action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
-				action->setData(ADR_STREAM_JID,streamJid.full());
-				action->setData(ADR_CONTACT_JID,contactJid.full());
-				connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
-				AToolBarChanger->insertAction(action);
-			}
-		}
-		return;
-	}
+	return;
+	//////////Q_UNUSED(AToolTips);
+	//////////// В случае обычных контактов
+	//////////if (ALabelId==RLID_DISPLAY && AIndex->type()==RIT_CONTACT)
+	//////////{
+	//////////	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+	//////////	Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
+	//////////	if (isSupported(streamJid, contactJid))
+	//////////	{
+	//////////		if (findStream(streamJid, contactJid).isEmpty())
+	//////////		{
+	//////////			Action *action = new Action(AToolBarChanger->toolBar());
+	//////////			action->setText(tr("Call"));
+	//////////			action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
+	//////////			action->setData(ADR_STREAM_JID,streamJid.full());
+	//////////			action->setData(ADR_CONTACT_JID,contactJid.full());
+	//////////			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
+	//////////			AToolBarChanger->insertAction(action);
+	//////////		}
+	//////////	}
+	//////////	return;
+	//////////}
 
-	// В случае метаконтактов
-	if (ALabelId==RLID_DISPLAY && AIndex->type()==RIT_METACONTACT)
-	{
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		QString metaId = AIndex->data(RDR_META_ID).toString();
+	//////////// В случае метаконтактов
+	//////////if (ALabelId==RLID_DISPLAY && AIndex->type()==RIT_METACONTACT)
+	//////////{
+	//////////	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+	//////////	QString metaId = AIndex->data(RDR_META_ID).toString();
 
-		IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
-		IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
+	//////////	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
+	//////////	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
 
-		if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
-		{
-			IMetaContact metaContact = metaRoster->metaContact(metaId);
-			if(metaContact.items.size() > 0)
-			{
-				foreach(Jid contactJid, metaContact.items)
-				{
-					QList<IPresenceItem> pItems = presence->presenceItems(contactJid);
+	//////////	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
+	//////////	{
+	//////////		IMetaContact metaContact = metaRoster->metaContact(metaId);
+	//////////		if(metaContact.items.size() > 0)
+	//////////		{
+	//////////			foreach(Jid contactJid, metaContact.items)
+	//////////			{
+	//////////				QList<IPresenceItem> pItems = presence->presenceItems(contactJid);
 
-					if(pItems.size() > 0)
-					{
-						foreach(IPresenceItem pItem, pItems)
-						{
-							Jid contactJidWithPresence = pItem.itemJid;
-							if(isSupported(streamJid, contactJidWithPresence))
-							{
-								if (findStream(streamJid, contactJidWithPresence).isEmpty())
-								{
-									Action *action = new Action(AToolBarChanger->toolBar());
-									action->setText(tr("Call"));
-									action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
-									action->setData(ADR_STREAM_JID,streamJid.full());
-									action->setData(ADR_CONTACT_JID,contactJidWithPresence.full());
-									//action->setData(ADR_CONTACT_JID,contactJid.full());
-									action->setData(ADR_METAID_WINDOW, metaId);
-									connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
-									AToolBarChanger->insertAction(action);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	//////////				if(pItems.size() > 0)
+	//////////				{
+	//////////					foreach(IPresenceItem pItem, pItems)
+	//////////					{
+	//////////						Jid contactJidWithPresence = pItem.itemJid;
+	//////////						if(isSupported(streamJid, contactJidWithPresence))
+	//////////						{
+	//////////							if (findStream(streamJid, contactJidWithPresence).isEmpty())
+	//////////							{
+	//////////								Action *action = new Action(AToolBarChanger->toolBar());
+	//////////								action->setText(tr("Call"));
+	//////////								action->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_CALL);
+	//////////								action->setData(ADR_STREAM_JID,streamJid.full());
+	//////////								action->setData(ADR_CONTACT_JID,contactJidWithPresence.full());
+	//////////								//action->setData(ADR_CONTACT_JID,contactJid.full());
+	//////////								action->setData(ADR_METAID_WINDOW, metaId);
+	//////////								connect(action,SIGNAL(triggered(bool)),SLOT(onOpenStreamByAction(bool)));
+	//////////								AToolBarChanger->insertAction(action);
+	//////////							}
+	//////////						}
+	//////////					}
+	//////////				}
+	//////////			}
+	//////////		}
+	//////////	}
+	//////////}
 
 }
 
