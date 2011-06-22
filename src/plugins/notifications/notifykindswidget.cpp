@@ -15,6 +15,9 @@ NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QStri
 	ui.chbSound->setEnabled(AKindMask & INotification::PlaySoundNotification);
 	ui.lblTest->setEnabled(AKindMask & INotification::TestNotify);
 
+	connect(this, SIGNAL(modified()), SLOT(onModified()));
+	connect(this, SIGNAL(childReset()), SLOT(onModified()));
+
 	connect(ui.chbPopup,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.chbSound,SIGNAL(stateChanged(int)),SIGNAL(modified()));
 	connect(ui.lblTest,SIGNAL(linkActivated(const QString &)),SLOT(onTestLinkActivated(const QString &)));
@@ -68,4 +71,11 @@ void NotifyKindsWidget::onTestLinkActivated(const QString &ALink)
 void NotifyKindsWidget::onTestButtonClicked()
 {
 	onTestLinkActivated(QString::null);
+}
+
+void NotifyKindsWidget::onModified()
+{
+	bool on = ui.chbPopup->isChecked() || ui.chbSound->isChecked();
+	ui.pbtTest->setEnabled(on);
+	ui.pbtTest->setCursor(on ? Qt::PointingHandCursor : Qt::ArrowCursor);
 }

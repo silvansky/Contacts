@@ -170,6 +170,19 @@ QPushButton#pbtChange, QPushButton#pbtTest
 	min-width: 10px;
 }
 
+QPushButton#pbtTest:disabled
+{
+	border-image: none;
+	background-color: transparent;
+	color: #72797f;
+	text-decoration: underline;
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	min-width: 10px;
+}
+
 /**********************
  * service name label *
  **********************/

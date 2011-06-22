@@ -12,8 +12,8 @@
         <translation>Позволяет другим модулям получать доступ к иконке и контекстному меню в трее</translation>
     </message>
     <message>
-        <source>Exit Rambler.Contacts</source>
-        <translation>Выйти из Рамблер.Контактов</translation>
+        <source>Exit</source>
+        <translation>Выход</translation>
     </message>
 </context>
 </TS>

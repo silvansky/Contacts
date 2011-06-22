@@ -59,7 +59,7 @@ bool TrayManager::initObjects()
 {
 	Action *action = new Action(FContextMenu);
 	action->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_QUIT);
-	action->setText(tr("Exit Rambler.Contacts"));
+	action->setText(tr("Exit"));
 	connect(action,SIGNAL(triggered()),FPluginManager->instance(),SLOT(quit()));
 	FContextMenu->addAction(action,AG_TMTM_TRAYMANAGER);
 	return true;

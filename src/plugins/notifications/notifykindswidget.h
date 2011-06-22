@@ -30,6 +30,7 @@ protected:
 protected slots:
 	void onTestLinkActivated(const QString &ALink);
 	void onTestButtonClicked();
+	void onModified();
 private:
 	Ui::NotifyKindsWidgetClass ui;
 private:
