@@ -102,7 +102,7 @@ bool MainWindowPlugin::initObjects()
 
 	FOpenAction = new Action(this);
 	FOpenAction->setVisible(false);
-	FOpenAction->setText(tr("Open Rambler.Contacts"));
+	FOpenAction->setText(tr("Show Contacts"));
 	FOpenAction->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_SHOW_ROSTER);
 	connect(FOpenAction,SIGNAL(triggered(bool)),SLOT(onShowMainWindowByAction(bool)));
 

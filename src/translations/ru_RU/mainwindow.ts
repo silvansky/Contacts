@@ -39,12 +39,12 @@
         <translation>Закрепить поверх остальных окон</translation>
     </message>
     <message>
-        <source>Open Rambler.Contacts</source>
-        <translation>Открыть Рамблер.Контакты</translation>
-    </message>
-    <message>
         <source>Contacts</source>
         <translation>Контакты</translation>
+    </message>
+    <message>
+        <source>Show Contacts</source>
+        <translation>Показать Контакты</translation>
     </message>
 </context>
 </TS>
