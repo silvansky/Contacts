@@ -155,6 +155,10 @@ bool MetaContacts::initConnections(IPluginManager *APluginManager, int &AInitOrd
 	if (plugin)
 		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
+	if (plugin)
+		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 
@@ -734,7 +738,7 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 
 			if (window->isContactPage() && FRostersViewPlugin && FRostersViewPlugin->rostersView()->rostersModel())
 			{
-				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(),FRostersViewPlugin->rostersView(),window);
+				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(),FRostersViewPlugin->rostersView(), FVCardPlugin, FRosterChanger, this, window);
 				QToolButton *button = window->toolBarChanger()->insertAction(menu->menuAction(),TBG_MCMTW_USER_TOOLS);
 				button->setObjectName("contactMenu");
 				window->toolBarChanger()->toolBar()->setIconSize(QSize(36, 36));
@@ -778,6 +782,42 @@ QString MetaContacts::deleteContactWithNotify(IMetaRoster *AMetaRoster, const QS
 		return requestId;
 	}
 	return QString::null;
+}
+
+void MetaContacts::showMetaProfileDialog(const Jid & streamJid, const QString & metaId)
+{
+	IMetaRoster *mroster = findMetaRoster(streamJid.full());
+	if (mroster && !mroster->metaContact(metaId).id.isEmpty())
+	{
+		MetaProfileDialog *dialog = findMetaProfileDialog(mroster->streamJid(),metaId);
+		if (dialog == NULL)
+		{
+			dialog = new MetaProfileDialog(FPluginManager,this,mroster,metaId);
+			connect(dialog,SIGNAL(dialogDestroyed()),SLOT(onMetaProfileDialogDestroyed()));
+			FMetaProfileDialogs.append(dialog);
+		}
+		WidgetManager::showActivateRaiseWindow(dialog->parentWidget()!=NULL ? dialog->parentWidget() : dialog);
+	}
+}
+
+void MetaContacts::renameContact(const Jid & streamJid, const QString & metaId, const QString & name)
+{
+	IMetaRoster *mroster = findMetaRoster(streamJid.full());
+	if (mroster && mroster->isOpen())
+	{
+		QString oldName = name;
+		CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::String);
+		dialog->setDefaultText(oldName);
+		dialog->setCaptionText(tr("Rename contact"));
+		dialog->setInfoText(tr("Enter new name"));
+		dialog->setProperty("oldName", oldName);
+		dialog->setProperty("metaId", metaId);
+		dialog->setProperty("streamJid", streamJid.full());
+		dialog->setAcceptButtonText(tr("Save"));
+		dialog->setRejectButtonText(tr("Cancel"));
+		connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewNameSelected(const QString&)));
+		dialog->show();
+	}
 }
 
 void MetaContacts::initMetaItemDescriptors()
@@ -1294,23 +1334,7 @@ void MetaContacts::onRenameContact(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
-		if (mroster && mroster->isOpen())
-		{
-			QString metaId = action->data(ADR_META_ID).toString();
-			QString oldName = action->data(ADR_NAME).toString();
-			CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::String);
-			dialog->setDefaultText(oldName);
-			dialog->setCaptionText(tr("Rename contact"));
-			dialog->setInfoText(tr("Enter new name"));
-			dialog->setProperty("oldName", oldName);
-			dialog->setProperty("metaId", metaId);
-			dialog->setProperty("streamJid", action->data(ADR_STREAM_JID).toString());
-			dialog->setAcceptButtonText(tr("Save"));
-			dialog->setRejectButtonText(tr("Cancel"));
-			connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewNameSelected(const QString&)));
-			dialog->show();
-		}
+		renameContact(action->data(ADR_STREAM_JID).toString(), action->data(ADR_META_ID).toString(), action->data(ADR_NAME).toString());
 	}
 }
 
@@ -1702,19 +1726,7 @@ void MetaContacts::onShowMetaProfileDialogAction(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		QString metaId = action->data(ADR_META_ID).toString();
-		IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
-		if (mroster && !mroster->metaContact(metaId).id.isEmpty())
-		{
-			MetaProfileDialog *dialog = findMetaProfileDialog(mroster->streamJid(),metaId);
-			if (dialog == NULL)
-			{
-				dialog = new MetaProfileDialog(FPluginManager,this,mroster,metaId);
-				connect(dialog,SIGNAL(dialogDestroyed()),SLOT(onMetaProfileDialogDestroyed()));
-				FMetaProfileDialogs.append(dialog);
-			}
-			WidgetManager::showActivateRaiseWindow(dialog->parentWidget()!=NULL ? dialog->parentWidget() : dialog);
-		}
+		showMetaProfileDialog(action->data(ADR_STREAM_JID).toString(), action->data(ADR_META_ID).toString());
 	}
 }
 

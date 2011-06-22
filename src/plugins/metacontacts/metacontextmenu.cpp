@@ -1,11 +1,21 @@
 #include "metacontextmenu.h"
 
-MetaContextMenu::MetaContextMenu(IRostersModel *AModel, IRostersView *AView, IMetaTabWindow *AWindow) : Menu(AWindow->instance())
+#include <QApplication>
+#include <QClipboard>
+#include <QStringBuilder>
+#include <definitions/metaitemorders.h>
+
+#include <QDebug>
+
+MetaContextMenu::MetaContextMenu(IRostersModel *AModel, IRostersView *AView, IVCardPlugin *AVCardPlugin, IRosterChanger *ARosterChanger, IMetaContacts *AMetaContacts, IMetaTabWindow *AWindow) : Menu(AWindow->instance())
 {
 	FRosterIndex = NULL;
 	FRostersModel = AModel;
 	FRostersView = AView;
 	FMetaTabWindow = AWindow;
+	FVCardPlugin = AVCardPlugin;
+	FRosterChanger = ARosterChanger;
+	FMetaContacts = AMetaContacts;
 
 	connect(this,SIGNAL(aboutToShow()),SLOT(onAboutToShow()));
 	connect(this,SIGNAL(aboutToHide()),SLOT(onAboutToHide()));
@@ -40,6 +50,24 @@ void MetaContextMenu::updateMenu()
 		QImage avatar = FRosterIndex->data(RDR_AVATAR_IMAGE_LARGE).value<QImage>();
 		setIcon(QIcon(QPixmap::fromImage(avatar)));
 		setTitle(name);
+
+
+		//FRostersView->contextMenuForIndex(FRosterIndex,QList<IRosterIndex *>()<<FRosterIndex,RLID_DISPLAY,this);
+		Action * action = new Action();
+		action->setText(tr("Contact informaton"));
+		connect(action, SIGNAL(triggered()), SLOT(onContactInformationAction()));
+		addAction(action);
+
+		action = new Action();
+		action->setText(tr("Copy information"));
+		connect(action, SIGNAL(triggered()), SLOT(onCopyInfoAction()));
+		addAction(action, AG_DEFAULT+1);
+
+		action = new Action();
+		action->setText(tr("Rename"));
+		connect(action, SIGNAL(triggered()), SLOT(onRenameAction()));
+		addAction(action, AG_DEFAULT+1);
+
 		menuAction()->setVisible(true);
 	}
 	else
@@ -50,15 +78,11 @@ void MetaContextMenu::updateMenu()
 
 void MetaContextMenu::onAboutToShow()
 {
-	if (FRosterIndex)
-	{
-		FRostersView->contextMenuForIndex(FRosterIndex,QList<IRosterIndex *>()<<FRosterIndex,RLID_DISPLAY,this);
-	}
 }
 
 void MetaContextMenu::onAboutToHide()
 {
-	clear();
+	//clear();
 }
 
 void MetaContextMenu::onRosterIndexInserted(IRosterIndex *AIndex)
@@ -109,4 +133,44 @@ void MetaContextMenu::onRosterIndexRemoved(IRosterIndex *AIndex)
 		FRosterIndex = searchRoot!=NULL ? searchRoot->findChilds(findData,true).value(0) : NULL;
 		updateMenu();
 	}
+}
+
+void MetaContextMenu::onContactInformationAction()
+{
+	if (FRosterIndex)
+		FMetaContacts->showMetaProfileDialog(FRosterIndex->data(RDR_STREAM_JID).toString(), FRosterIndex->data(RDR_META_ID).toString());
+}
+
+void MetaContextMenu::onCopyInfoAction()
+{
+	if (FRosterIndex)
+	{
+		// TODO: copy info about contact
+		QStringList text;
+		IMetaRoster * mroster = FMetaContacts->findMetaRoster(FRosterIndex->data(RDR_STREAM_JID).toString());
+		if (mroster)
+		{
+			IMetaContact contact = mroster->metaContact(FRosterIndex->data(RDR_META_ID).toString());
+			text << contact.name;
+			foreach (Jid jid, contact.items)
+			{
+				IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(jid);
+				QString itemLabel;
+				if (descriptor.metaOrder == MIO_SMS)
+					itemLabel = tr("Phone");
+				else if (descriptor.metaOrder == MIO_MAIL)
+					itemLabel = tr("E-mail");
+				else itemLabel = descriptor.name;
+				QString itemName = FMetaContacts->itemHint(jid);
+				text << QString("%1: %2").arg(itemLabel, itemName);
+			}
+		}
+		QApplication::clipboard()->setText(text.join("\r\n"));
+	}
+}
+
+void MetaContextMenu::onRenameAction()
+{
+	if (FRosterIndex)
+		FMetaContacts->renameContact(FRosterIndex->data(RDR_STREAM_JID).toString(), FRosterIndex->data(RDR_META_ID).toString(), FRosterIndex->data(RDR_NAME).toString());
 }

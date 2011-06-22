@@ -9,7 +9,7 @@
 
 #define METACONTACTS_UUID "{D2E1D146-F98F-4868-89C0-308F72062BFA}"
 
-struct IMetaContact 
+struct IMetaContact
 {
 	QString id;
 	QString name;
@@ -39,7 +39,7 @@ struct IMetaItemDescriptor
 	QList<QString> domains;
 };
 
-class IMetaRoster 
+class IMetaRoster
 {
 public:
 	virtual QObject *instance() =0;
@@ -144,6 +144,8 @@ public:
 	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) =0;
 	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const =0;
 	virtual QString deleteContactWithNotify(IMetaRoster *ARoster, const QString &AMetaId, const Jid &ItemJid = Jid::null) =0;
+	virtual void showMetaProfileDialog(const Jid & streamJid, const QString & metaId) =0;
+	virtual void renameContact(const Jid & streamJid, const QString & metaId, const QString & name) =0;
 protected:
 	virtual void metaRosterAdded(IMetaRoster *AMetaRoster) =0;
 	virtual void metaRosterOpened(IMetaRoster *AMetaRoster) =0;

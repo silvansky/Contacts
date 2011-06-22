@@ -27,6 +27,7 @@
 #include <interfaces/irostersearch.h>
 #include <interfaces/igateways.h>
 #include <interfaces/inotifications.h>
+#include <interfaces/ivcard.h>
 #include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>
 #include "metaroster.h"
@@ -113,6 +114,8 @@ public:
 	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId);
 	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const;
 	virtual QString deleteContactWithNotify(IMetaRoster *ARoster, const QString &AMetaId, const Jid &ItemJid = Jid::null);
+	virtual void showMetaProfileDialog(const Jid & streamJid, const QString & metaId);
+	virtual void renameContact(const Jid & streamJid, const QString & metaId, const QString & name);
 signals:
 	void metaRosterAdded(IMetaRoster *AMetaRoster);
 	void metaRosterOpened(IMetaRoster *AMetaRoster);
@@ -198,6 +201,7 @@ private:
 	IRosterSearch *FRosterSearch;
 	IGateways *FGateways;
 	INotifications *FNotifications;
+	IVCardPlugin *FVCardPlugin;
 private:
 	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;

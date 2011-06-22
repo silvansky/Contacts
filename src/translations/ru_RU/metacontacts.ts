@@ -258,6 +258,29 @@
     </message>
 </context>
 <context>
+    <name>MetaContextMenu</name>
+    <message>
+        <source>Contact informaton</source>
+        <translation>Информация о контакте</translation>
+    </message>
+    <message>
+        <source>Copy information</source>
+        <translation>Копировать данные</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>Переименовать</translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation>Телефон</translation>
+    </message>
+    <message>
+        <source>E-mail</source>
+        <translation>E-mail</translation>
+    </message>
+</context>
+<context>
     <name>MetaProfileDialog</name>
     <message>
         <source>Contact Profile</source>
