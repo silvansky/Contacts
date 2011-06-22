@@ -182,9 +182,10 @@ bool OptionsDialog::canExpandVertically(const QWidget *AWidget) const
 
 void OptionsDialog::correctAdjustSize()
 {
-	adjustSize();
 	if (parentWidget())
 		parentWidget()->adjustSize();
+	else
+		adjustSize();
 }
 
 void OptionsDialog::onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode)

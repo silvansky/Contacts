@@ -33,7 +33,7 @@
     </message>
     <message>
         <source>Internet connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Подключение к интернет</translation>
     </message>
 </context>
 <context>

@@ -235,10 +235,6 @@ which is linked to Rambler</source>
         <translation>Проверьте раскладку клавиатуры</translation>
     </message>
     <message>
-        <source>Contacts</source>
-        <translation>Контакты</translation>
-    </message>
-    <message>
         <source>This profile is already opened by another Contacts instance</source>
         <translation>Этот профиль уже открыт</translation>
     </message>
