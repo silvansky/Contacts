@@ -202,8 +202,9 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	initialize(APluginManager);
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
-	//IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
-	ui.lblLogo->setText(QString("<font size=+3>%1</font>").arg(tr("Contacts")));
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
+	ui.lblLogo->setFixedHeight(43);
+	//ui.lblLogo->setText(QString("<font size=+3>%1</font>").arg(tr("Contacts")));
 
 	ui.lblRegister->setText(tr("Enter your Rambler login and password, or %1.")
 				.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:9pt; text-decoration: underline; color:#ffffff;'>%1</span></a>")

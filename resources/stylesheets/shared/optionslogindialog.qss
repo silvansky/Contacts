@@ -109,20 +109,19 @@ QListView#completerPopUp::item:hover
 	padding-bottom: 14px;
 }
 
-#lblRegister, #lblLogo
+#lblRegister
 {
 	margin-left: 1px;
 }
 
 #lblRegister
 {
-	padding-top: 8px;
-/*	margin-bottom: 14px;*/
+	padding-top: 10px;
 }
 
 #lblLogo
 {
-	margin-left: 2px;
+	margin-left: 3px;
 }
 
 QCheckBox
