@@ -59,7 +59,7 @@
     </message>
     <message>
         <source>Waiting for host response...</source>
-        <translation>Ошидание ответа хоста...</translation>
+        <translation>Ожидание ответа хоста ...</translation>
     </message>
     <message>
         <source>Invalid registration params</source>
