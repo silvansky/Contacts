@@ -112,6 +112,8 @@ AVControl::AVControl(QWidget *parent)
 
 
 	connect(ui.btnAudioSettings, SIGNAL(clicked()), this, SLOT(onAudioSettings()));
+
+	ui.btnAudioSettings->setVisible(false);
 }
 
 void AVControl::onAudioSettings()

@@ -41,6 +41,7 @@ protected:
 	QWidget *createNodeWidget(const QString &ANodeId);
 	QStandardItem *createNodeItem(const QString &ANodeId);
 	bool canExpandVertically(const QWidget *AWidget) const;
+	void correctAdjustSize();
 protected slots:
 	void onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode);
 	void onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode);

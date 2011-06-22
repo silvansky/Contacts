@@ -38,12 +38,16 @@ RCallControl[ringing="true"]
 	background-position: left;
 }
 
-AVControl, RVolumeControl, #chkbtnMicOn
+AVControl,
+RVolumeControl,
+#chkbtnMicOn,
+#chkbtnCameraOn
 {
 	background-color: transparent;
 }
 
-#chkbtnMicOn
+#chkbtnMicOn,
+#chkbtnCameraOn
 {
 	border-image: none;
 }

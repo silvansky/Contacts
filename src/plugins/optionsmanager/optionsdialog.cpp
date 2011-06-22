@@ -89,9 +89,7 @@ void OptionsDialog::showNode(const QString &ANodeId)
 	ui.trvNodes->expandAll();
 	StyleStorage::updateStyle(this);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
-	adjustSize();
-	if (parentWidget())
-		parentWidget()->adjustSize();
+	correctAdjustSize();
 }
 
 QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
@@ -182,6 +180,13 @@ bool OptionsDialog::canExpandVertically(const QWidget *AWidget) const
 	return expanding;
 }
 
+void OptionsDialog::correctAdjustSize()
+{
+	adjustSize();
+	if (parentWidget())
+		parentWidget()->adjustSize();
+}
+
 void OptionsDialog::onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode)
 {
 	if (!ANode.nodeId.isEmpty() && !ANode.name.isEmpty())
@@ -248,13 +253,13 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 	Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).setValue(nodeID);
 	StyleStorage::updateStyle(this);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
-	if (parentWidget())
-		parentWidget()->adjustSize();
+	correctAdjustSize();
 }
 
 void OptionsDialog::onOptionsWidgetModified()
 {
 	ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(true);
+	correctAdjustSize();
 	//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(true);
 }
 

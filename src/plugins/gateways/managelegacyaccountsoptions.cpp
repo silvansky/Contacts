@@ -80,5 +80,6 @@ void ManageLegacyAccountsOptions::onStreamServicesChanged(const Jid &AStreamJid)
 			removeServiceOptions(serviceJid);
 
 		ui.lblNoAccount->setVisible(FOptions.isEmpty());
+		emit modified();
 	}
 }

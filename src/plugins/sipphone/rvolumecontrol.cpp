@@ -447,7 +447,7 @@ void RVolumeControl::wheelEvent(QWheelEvent * we)
 	int numSteps = numDegrees / 15;
 
 	int cv = value();
-	cv += numSteps;
+	cv += numSteps * 2;
 	if (cv > maximum())
 		cv = maximum();
 	if (cv < minimum())

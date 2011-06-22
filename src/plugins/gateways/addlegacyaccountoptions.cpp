@@ -122,5 +122,6 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 		{
 			ui.lblInfo->setText(tr("All available accounts are already linked"));
 		}
+		emit modified();
 	}
 }
