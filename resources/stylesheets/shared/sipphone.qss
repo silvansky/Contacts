@@ -3,10 +3,10 @@ QWidget#frmPopup
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 green, stop:1 palette(window));
 }
 
-TabBarItem[isActive="false"]
+/*TabBarItem[isActive="false"]
 {
 	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 green, stop:1 palette(window));
-}
+}*/
 
 RCallControl
 {
