@@ -7,7 +7,9 @@
 #include <interfaces/iservicediscovery.h>
 #include <utils/jid.h>
 
-#define GATEWAYS_UUID "{2a3ce0cd-bf67-4f15-8907-b7d0706be4b4}"
+#define GATEWAYS_UUID             "{2a3ce0cd-bf67-4f15-8907-b7d0706be4b4}"
+
+#define GATE_PREFIX_PATTERN       "(^gw\\d+\\.|^)%1\\..*"
 
 struct IGateServiceLogin
 {

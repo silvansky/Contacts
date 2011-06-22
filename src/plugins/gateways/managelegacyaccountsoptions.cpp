@@ -23,12 +23,12 @@ ManageLegacyAccountsOptions::~ManageLegacyAccountsOptions()
 
 void ManageLegacyAccountsOptions::apply()
 {
-
+   emit childApply();
 }
 
 void ManageLegacyAccountsOptions::reset()
 {
-
+   emit childReset();
 }
 
 void ManageLegacyAccountsOptions::appendServiceOptions(const Jid &AServiceJid)

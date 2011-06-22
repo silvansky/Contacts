@@ -573,18 +573,34 @@ IMetaItemDescriptor MetaContacts::metaDescriptorByItem(const Jid &AItemJid) cons
 	int order = FItemDescrCache.value(bareJid,-1);
 	if (order == -1)
 	{
-		QString domane = bareJid.pDomain();
-		for (QList<IMetaItemDescriptor>::const_iterator descrIt=FMetaItemDescriptors.constBegin(); descrIt!=FMetaItemDescriptors.constEnd(); descrIt++)
-		{
-			for(QList<QString>::const_iterator prefixIt=descrIt->domainPrefixes.constBegin(); prefixIt!=descrIt->domainPrefixes.constEnd(); prefixIt++)
-			{
-				if (domane.startsWith(*prefixIt))
-				{
-					FItemDescrCache.insert(bareJid,descrIt->metaOrder);
-					return *descrIt;
-				}
-			}
-		}
+      bool firstDomain = true;
+      do 
+      {
+         QString domain = bareJid.pDomain();
+         for (QList<IMetaItemDescriptor>::const_iterator descrIt=FMetaItemDescriptors.constBegin(); descrIt!=FMetaItemDescriptors.constEnd(); descrIt++)
+         {
+            if (descrIt->domains.isEmpty())
+            {
+               if (firstDomain)
+               {
+                  QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(descrIt->gatePrefix));
+                  if (regexp.exactMatch(domain))
+                  {
+                     FItemDescrCache.insert(bareJid,descrIt->metaOrder);
+                     return *descrIt;
+                  }
+               }
+            }
+            else if (descrIt->domains.contains(domain))
+            {
+               FItemDescrCache.insert(bareJid,descrIt->metaOrder);
+               return *descrIt;
+            }
+         }
+         firstDomain = false;
+         bareJid = FGateways!=NULL ? FGateways->legacyIdFromUserJid(bareJid) : Jid::null;
+      }
+      while (bareJid.isValid() && !bareJid.node().isEmpty());
 	}
 	else
 	{
@@ -784,7 +800,7 @@ void MetaContacts::initMetaItemDescriptors()
 	sms.persistent = true;
 	sms.metaOrder = MIO_SMS;
 	sms.gateId = GSID_SMS;
-	sms.domainPrefixes.append("sms.");
+   sms.gatePrefix = "sms";
 	FMetaItemDescriptors.append(sms);
 
 	IMetaItemDescriptor mail;
@@ -796,7 +812,7 @@ void MetaContacts::initMetaItemDescriptors()
 	mail.persistent = true;
 	mail.metaOrder = MIO_MAIL;
 	mail.gateId = GSID_MAIL;
-	mail.domainPrefixes.append("mail.");
+   mail.gatePrefix = "mail";
 	FMetaItemDescriptors.append(mail);
 
 	IMetaItemDescriptor icq;
@@ -808,7 +824,7 @@ void MetaContacts::initMetaItemDescriptors()
 	icq.persistent = false;
 	icq.metaOrder = MIO_ICQ;
 	icq.gateId = GSID_ICQ;
-	icq.domainPrefixes.append("gw1.icq.");
+   icq.gatePrefix = "icq";
 	FMetaItemDescriptors.append(icq);
 
 	IMetaItemDescriptor magent;
@@ -820,7 +836,7 @@ void MetaContacts::initMetaItemDescriptors()
 	magent.persistent = false;
 	magent.metaOrder = MIO_MAGENT;
 	magent.gateId = GSID_MAGENT;
-	magent.domainPrefixes.append("gw1.mrim.");
+   magent.gatePrefix = "mrim";
 	FMetaItemDescriptors.append(magent);
 
 	IMetaItemDescriptor twitter;
@@ -832,7 +848,7 @@ void MetaContacts::initMetaItemDescriptors()
 	twitter.persistent = false;
 	twitter.metaOrder = MIO_TWITTER;
 	twitter.gateId = GSID_TWITTER;
-	twitter.domainPrefixes.append("gw1.twitter.");
+   twitter.gatePrefix = "twitter";
 	FMetaItemDescriptors.append(twitter);
 
 	IMetaItemDescriptor fring;
@@ -844,7 +860,7 @@ void MetaContacts::initMetaItemDescriptors()
 	fring.persistent = false;
 	fring.metaOrder = MIO_FRING;
 	fring.gateId = GSID_TWITTER;
-	fring.domainPrefixes.append("gw1.fring.");
+   fring.gatePrefix = "fring";
 	FMetaItemDescriptors.append(fring);
 
 	IMetaItemDescriptor gtalk;
@@ -856,8 +872,9 @@ void MetaContacts::initMetaItemDescriptors()
 	gtalk.persistent = false;
 	gtalk.metaOrder = MIO_GTALK;
 	gtalk.gateId = GSID_GTALK;
-	gtalk.domainPrefixes.append("gw1.gmail.");
-	gtalk.domainPrefixes.append("googlemail.com");
+   gtalk.gatePrefix = "gmail";
+	gtalk.domains.append("gmail.com");
+	gtalk.domains.append("googlemail.com");
 	FMetaItemDescriptors.append(gtalk);
 
 	IMetaItemDescriptor yonline;
@@ -869,10 +886,16 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.persistent = false;
 	yonline.metaOrder = MIO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
-	yonline.domainPrefixes.append("gw1.yandex.");
-	yonline.domainPrefixes.append("ya.ru");
-	yonline.domainPrefixes.append("yandex-co.");
-	yonline.domainPrefixes.append("narod.ru");
+   yonline.gatePrefix = "yandex";
+   yonline.domains.append("ya.ru");
+	yonline.domains.append("yandex.ru");
+   yonline.domains.append("yandex.com");
+   yonline.domains.append("yandex.net");
+   yonline.domains.append("yandex.by");
+   yonline.domains.append("yandex.kz");
+   yonline.domains.append("yandex.ua");
+	yonline.domains.append("yandex-co.ru");
+	yonline.domains.append("narod.ru");
 	FMetaItemDescriptors.append(yonline);
 
 	IMetaItemDescriptor qip;
@@ -884,7 +907,8 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.persistent = false;
 	qip.metaOrder = MIO_QIP;
 	qip.gateId = GSID_QIP;
-	qip.domainPrefixes.append("gw1.qip.");
+   qip.gatePrefix = "qip";
+	qip.domains.append("qip.ru");
 	FMetaItemDescriptors.append(qip);
 
 	IMetaItemDescriptor vkontakte;
@@ -896,7 +920,8 @@ void MetaContacts::initMetaItemDescriptors()
 	vkontakte.persistent = false;
 	vkontakte.metaOrder = MIO_VKONTAKTE;
 	vkontakte.gateId = GSID_VKONTAKTE;
-	vkontakte.domainPrefixes.append("gw1.vk.");
+   vkontakte.gatePrefix = "vk";
+	vkontakte.domains.append("vk.com");
 	FMetaItemDescriptors.append(vkontakte);
 
 	IMetaItemDescriptor facebook;
@@ -908,8 +933,8 @@ void MetaContacts::initMetaItemDescriptors()
 	facebook.persistent = false;
 	facebook.metaOrder = MIO_FACEBOOK;
 	facebook.gateId = GSID_FACEBOOK;
-	facebook.domainPrefixes.append("gw1.fb.");
-	facebook.domainPrefixes.append("chat.facebook.com");
+   facebook.gatePrefix = "fb";
+	facebook.domains.append("chat.facebook.com");
 	FMetaItemDescriptors.append(facebook);
 
 	IMetaItemDescriptor livejournal;
@@ -921,7 +946,8 @@ void MetaContacts::initMetaItemDescriptors()
 	livejournal.persistent = false;
 	livejournal.metaOrder = MIO_LIVEJOURNAL;
 	livejournal.gateId = GSID_LIVEJOURNAL;
-	livejournal.domainPrefixes.append("gw1.livejournal.");
+   livejournal.gatePrefix = "livejournal";
+	livejournal.domains.append("livejournal.com");
 	FMetaItemDescriptors.append(livejournal);
 
 	IMetaItemDescriptor rambler;
@@ -933,13 +959,13 @@ void MetaContacts::initMetaItemDescriptors()
 	rambler.persistent = false;
 	rambler.metaOrder = MIO_RAMBLER;
 	rambler.gateId = GSID_RAMBLER;
-	rambler.domainPrefixes.append("gw1.rambler.");
-	rambler.domainPrefixes.append("rambler.ru");
-	rambler.domainPrefixes.append("lenta.ru");
-	rambler.domainPrefixes.append("myrambler.ru");
-	rambler.domainPrefixes.append("autorambler.ru");
-	rambler.domainPrefixes.append("ro.ru");
-	rambler.domainPrefixes.append("r0.ru");
+   //rambler.gatePrefix = "rambler";
+	rambler.domains.append("rambler.ru");
+	rambler.domains.append("lenta.ru");
+	rambler.domains.append("myrambler.ru");
+	rambler.domains.append("autorambler.ru");
+	rambler.domains.append("ro.ru");
+	rambler.domains.append("r0.ru");
 	FMetaItemDescriptors.append(rambler);
 }
 

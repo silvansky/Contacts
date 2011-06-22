@@ -47,6 +47,8 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	domainsMenu->setObjectName("domainsMenu");
 	ui.tlbDomains->setMenu(domainsMenu);
 
+   FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
+
 	FGateLabel = FGateways->serviceDescriptor(FPresence->streamJid(), FServiceJid);
 	if (!FGateLabel.id.isEmpty())
 	{
@@ -64,7 +66,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 			action->setText("@"+domain);
 			action->setProperty("domain", domain);
 			domainsMenu->addAction(action);
-			connect(action, SIGNAL(triggered()), SLOT(domainsMenuActionTriggered()));
+			connect(action, SIGNAL(triggered()), SLOT(onDomainsMenuActionTriggered()));
 			if (!i++)
 				action->trigger();
 		}
@@ -73,13 +75,13 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 
 		FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 		if (FRegisterId.isEmpty())
-			abort(tr("Gateway registration request failed"));
+			abort(FAbortMessage);
 		else
 			setWaitMode(true, tr("Waiting for host response..."));
 	}
 	else
 	{
-		abort(tr("Unsupported gateway type"));
+		abort(FAbortMessage);
 	}
 
 	//GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
@@ -104,7 +106,7 @@ void AddLegacyAccountDialog::abort(const QString &AMessage)
 	Q_UNUSED(AMessage);
 	CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::Info);
 	dialog->setCaptionText(tr("Error"));
-	dialog->setInfoText(tr("The service is temporarily unavailable, please try to connect later."));//.arg(AMessage));
+	dialog->setInfoText(AMessage);
 	dialog->setAcceptButtonText(tr("Ok"));
 	dialog->setDeleteOnClose(true);
 	dialog->show();
@@ -237,6 +239,16 @@ void AddLegacyAccountDialog::onCancelClicked()
 	reject();
 }
 
+void AddLegacyAccountDialog::onDomainsMenuActionTriggered()
+{
+   Action * action = qobject_cast<Action*>(sender());
+   if (action)
+   {
+      ui.tlbDomains->setText(action->text());
+      ui.tlbDomains->setProperty("domain", action->property("domain"));
+   }
+}
+
 void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegisterFields &AFields)
 {
 	if (AId == FRegisterId)
@@ -276,7 +288,7 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 		}
 		else
 		{
-			abort(tr("Unsupported gateway registration form"));
+			abort(FAbortMessage);
 		}
 		setWaitMode(false);
 	}
@@ -286,36 +298,27 @@ void AddLegacyAccountDialog::onRegisterSuccess(const QString &AId)
 {
 	if (AId == FRegisterId)
 	{
-		if (FGateways->setServiceEnabled(FPresence->streamJid(),FServiceJid,true))
-			accept();
-		else
-			setError(tr("Connection to gateway is lost"));
+      accept();
 	}
 }
 
 void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &AError)
 {
-	Log(QString("[Add legacy account register error] %1").arg(AError));
 	if (AId == FRegisterId)
 	{
+      Log(QString("[Add legacy account register error] %1").arg(AError));
 		if (FGateLogin.isValid)
 		{
 			setError(tr("Failed to add account, check your login and password"));
 			setWaitMode(false);
 		}
+      else if (AError == "resource-limit-exceeded") // јцкий хак, нужно везде передавать код ошибки!
+      {
+         abort(tr("You have connected the maximum number of %1 accounts.").arg(FGateLabel.name));
+      }
 		else
 		{
-			abort(tr("Gateway registration request failed"));
+			abort(FAbortMessage);
 		}
-	}
-}
-
-void AddLegacyAccountDialog::domainsMenuActionTriggered()
-{
-	Action * action = qobject_cast<Action*>(sender());
-	if (action)
-	{
-		ui.tlbDomains->setText(action->text());
-		ui.tlbDomains->setProperty("domain", action->property("domain"));
 	}
 }

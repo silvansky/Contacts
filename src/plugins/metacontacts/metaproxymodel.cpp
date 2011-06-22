@@ -414,7 +414,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 			rosterMetaIndexes.remove(AContact.id,index);
 		}
 
-		if (createdNewIndexes || AContact.items!=ABefore.items)
+		if (!AContact.items.isEmpty() && (createdNewIndexes || AContact.items!=ABefore.items))
 		{
 			FInvalidateTimer.start();
 			onMetaAvatarChanged(AMetaRoster,AContact.id);

@@ -4,11 +4,12 @@
 
 #define ADR_GATEJID				Action::DR_Parametr1
 
-AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
+AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, IServiceDiscovery *ADiscovery, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 
 	FGateways = AGateways;
+   FDiscovery = ADiscovery;
 	FStreamJid = AStreamJid;
 
 	connect(FGateways->instance(),SIGNAL(availServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
@@ -106,9 +107,14 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 		foreach(Jid serviceJid, availGates)
 		{
 			if (!usedGates.contains(serviceJid))
-				appendServiceButton(serviceJid);
+         {
+            if (!FDiscovery || FDiscovery->discoInfo(AStreamJid,serviceJid).features.contains(NS_RAMBLER_GATEWAY_REGISTER))
+               appendServiceButton(serviceJid);
+         }
 			else
-				removeServiceButton(serviceJid);
+         {
+            removeServiceButton(serviceJid);
+         }
 		}
 
 		foreach(Jid serviceJid, FWidgets.keys().toSet() - availGates.toSet())

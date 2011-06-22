@@ -9,6 +9,7 @@
 #include <interfaces/iregistraton.h>
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/idefaultconnection.h>
+#include <utils/log.h>
 #include <utils/stylestorage.h>
 #include <utils/custominputdialog.h>
 #include "ui_addfacebookaccountdialog.h"
@@ -40,6 +41,7 @@ private:
 private:
 	Jid FServiceJid;
 	QString FRegisterId;
+   QString FAbortMessage;
 	IGateServiceLogin FGateLogin;
 };
 

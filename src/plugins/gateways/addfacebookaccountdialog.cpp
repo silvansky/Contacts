@@ -42,9 +42,11 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
 		SLOT(onRegisterError(const QString &, const QString &)));
 
+   FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
+
 	FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 	if (FRegisterId.isEmpty())
-		abort(tr("Gateway registration request failed"));
+		abort(FAbortMessage);
 	else
 		setWaitMode(true, tr("Waiting for host response..."));
 }
@@ -75,17 +77,17 @@ void AddFacebookAccountDialog::checkResult()
 				if (!FRegisterId.isEmpty())
 					setWaitMode(true, tr("Waiting for host response..."));
 				else
-					abort(tr("Gateway registration request failed"));
+					abort(FAbortMessage);
 			}
 			else
 			{
-				abort(tr("Invalid registration params"));
+				abort(FAbortMessage);
 			}
 		}
 		else if (result.hasQueryItem("error"))
 		{
 			if (result.queryItemValue("error_reason") != "user_denied")
-				abort(result.queryItemValue("error_description").replace('+',' '));
+				abort(FAbortMessage/*result.queryItemValue("error_description").replace('+',' ')*/);
 			else
 				reject();
 		}
@@ -95,13 +97,13 @@ void AddFacebookAccountDialog::checkResult()
 void AddFacebookAccountDialog::abort(const QString &AMessage)
 {
 	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
-	dialog->setCaptionText(tr("Error connecting account"));
-	dialog->setInfoText(tr("Failed to connect account due to error:\n%1").arg(AMessage));
+	dialog->setCaptionText(tr("Error"));
+	dialog->setInfoText(AMessage);
 	dialog->setAcceptButtonText(tr("Ok"));
 	dialog->setDeleteOnClose(true);
 	dialog->show();
+   QTimer::singleShot(0,this,SLOT(reject()));
 	hide();
-	QTimer::singleShot(0,this,SLOT(reject()));
 }
 
 void AddFacebookAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
@@ -133,7 +135,7 @@ void AddFacebookAccountDialog::onRegisterFields(const QString &AId, const IRegis
 		}
 		else
 		{
-			abort(tr("Unsupported gateway registration form"));
+			abort(FAbortMessage);
 		}
 	}
 }
@@ -145,19 +147,21 @@ void AddFacebookAccountDialog::onRegisterSuccess(const QString &AId)
 		if (FGateways->setServiceEnabled(FPresence->streamJid(),FServiceJid,true))
 			accept();
 		else
-			abort(tr("Connection to gateway is lost"));
+			abort(FAbortMessage);
 	}
 }
 
 void AddFacebookAccountDialog::onRegisterError(const QString &AId, const QString &AError)
 {
-	Q_UNUSED(AError);
 	if (AId == FRegisterId)
 	{
+      Log(QString("[Add legacy account register error] %1").arg(AError));
 		if (FGateLogin.isValid)
-			abort(tr("Authorization failed"));
+			abort(FAbortMessage);
+      else if (AError == "resource-limit-exceeded") // јцкий хак, нужно везде передавать код ошибки!
+         abort(tr("You have connected the maximum number of %1 accounts.").arg(tr("Facebook")));
 		else
-			abort(tr("Gateway registration request failed"));
+			abort(FAbortMessage);
 	}
 }
 
@@ -171,7 +175,7 @@ void AddFacebookAccountDialog::onWebViewLoadFinished(bool AOk)
 	if (AOk)
 		checkResult();
 	else
-		abort(tr("Connection failed"));
+		abort(FAbortMessage);
 }
 
 void AddFacebookAccountDialog::onWebPageLinkClicked(const QUrl &ALink)

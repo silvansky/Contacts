@@ -261,7 +261,7 @@ bool Gateways::initObjects()
 	magent.loginField = "username";
 	magent.passwordField = "password";
 	magent.domainSeparator = "@";
-	magent.homeContactPattern = "^"MAIL_NODE_PATTERN"@(mail\\.ru|inbox\\.ru|bk\\.ru|list\\.ru)$";
+	magent.homeContactPattern = "^"MAIL_NODE_PATTERN"@(mail|inbox|bk|list)\\.ru$";
 	magent.availContactPattern = magent.homeContactPattern;
 	magent.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(magent);
@@ -282,7 +282,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor gtalk;
 	gtalk.id = GSID_GTALK;
 	gtalk.type = "xmpp";
-	gtalk.prefix = "gw1.gmail.";
+	gtalk.prefix = "gmail";
 	gtalk.name = tr("GTalk");
 	gtalk.iconKey = MNI_GATEWAYS_SERVICE_GTALK;
 	gtalk.loginLabel = tr("E-mail");
@@ -292,7 +292,7 @@ bool Gateways::initObjects()
 	gtalk.domainField = "server";
 	gtalk.passwordField = "password";
 	gtalk.domainSeparator = "@";
-	gtalk.homeContactPattern = "^"MAIL_NODE_PATTERN"@(gmail\\.com|googlemail\\.com)$";
+	gtalk.homeContactPattern = "^"MAIL_NODE_PATTERN"@(gmail|googlemail)\\.com$";
 	gtalk.availContactPattern = JabberContactPattern;
 	gtalk.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(gtalk);
@@ -300,7 +300,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor yonline;
 	yonline.id = GSID_YONLINE;
 	yonline.type = "xmpp";
-	yonline.prefix = "gw1.yandex.";
+	yonline.prefix = "yandex";
 	yonline.name = tr("Y.Online");
 	yonline.iconKey = MNI_GATEWAYS_SERVICE_YONLINE;
 	yonline.loginLabel = tr("E-mail");
@@ -325,7 +325,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor qip;
 	qip.id = GSID_QIP;
 	qip.type = "xmpp";
-	qip.prefix = "gw1.qip.";
+	qip.prefix = "qip";
 	qip.name = tr("QIP");
 	qip.iconKey = MNI_GATEWAYS_SERVICE_QIP;
 	qip.loginLabel = tr("Login");
@@ -344,7 +344,7 @@ bool Gateways::initObjects()
 	vkontakte.needGate = true;
 	vkontakte.readOnly = true;
 	vkontakte.type = "xmpp";
-	vkontakte.prefix = "gw1.vk.";
+	vkontakte.prefix = "vk";
 	vkontakte.name = tr("VKontakte");
 	vkontakte.iconKey = MNI_GATEWAYS_SERVICE_VKONTAKTE;
 	vkontakte.loginLabel = tr("Login");
@@ -363,7 +363,7 @@ bool Gateways::initObjects()
 	facebook.needGate = true;
 	facebook.readOnly = true;
 	facebook.type = "xmpp";
-	facebook.prefix = "gw1.fb.";
+	facebook.prefix = "fb";
 	facebook.name = tr("Facebook");
 	facebook.iconKey = MNI_GATEWAYS_SERVICE_FACEBOOK;
 	facebook.loginLabel = tr("Login");
@@ -380,7 +380,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor livejournal;
 	livejournal.id = GSID_LIVEJOURNAL;
 	livejournal.type = "xmpp";
-	livejournal.prefix = "gw1.livejournal.";
+	livejournal.prefix = "livejournal";
 	livejournal.name = tr("LiveJournal");
 	livejournal.iconKey = MNI_GATEWAYS_SERVICE_LIVEJOURNAL;
 	livejournal.loginLabel = tr("Login");
@@ -397,7 +397,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor rambler;
 	rambler.id = GSID_RAMBLER;
 	rambler.type = "xmpp";
-	rambler.prefix = "gw1.rambler.";
+	rambler.prefix = "rambler";
 	rambler.name = tr("Rambler");
 	rambler.iconKey = MNI_GATEWAYS_SERVICE_RAMBLER;
 	rambler.loginLabel = tr("Login");
@@ -411,7 +411,7 @@ bool Gateways::initObjects()
 	rambler.domainField = "server";
 	rambler.passwordField = "password";
 	rambler.domainSeparator = "@";
-	rambler.homeContactPattern = "^"MAIL_NODE_PATTERN"@(rambler\\.ru|lenta\\.ru|myrambler\\.ru|autorambler\\.ru|ro\\.ru|r0\\.ru)$";
+	rambler.homeContactPattern = "^"MAIL_NODE_PATTERN"@(rambler|lenta|myrambler|autorambler|ro|r0)\\.ru$";
 	rambler.availContactPattern = JabberContactPattern;
 	rambler.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(rambler);
@@ -484,7 +484,7 @@ QMultiMap<int, IOptionsWidget *> Gateways::optionsWidgets(const QString &ANodeId
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, FOptionsManager->optionsHeaderWidget(QString::null,tr("Accounts"),AParent));
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(this,FOptionsStreamJid,AParent));
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsHeaderWidget(QString::null,tr("Add account"),AParent));
-		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(this,FOptionsStreamJid,AParent));
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(this,FDiscovery,FOptionsStreamJid,AParent));
 	}
 	return widgets;
 }
@@ -890,9 +890,10 @@ QList<Jid> Gateways::gateDescriptorServices(const Jid &AStreamJid, const IGateSe
 	QList<Jid> gates = AStreamOnly ? streamServices(AStreamJid,identity) : availServices(AStreamJid,identity);
 	if (ADescriptor.needGate && !ADescriptor.prefix.isEmpty())
 	{
+      QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(ADescriptor.prefix));
 		for(QList<Jid>::iterator it = gates.begin(); it!=gates.end(); )
 		{
-			if (!it->domain().startsWith(ADescriptor.prefix))
+			if (regexp.exactMatch(it->pDomain()))
 				it = gates.erase(it);
 			else
 				it++;
@@ -1293,8 +1294,11 @@ IGateServiceDescriptor Gateways::findGateDescriptor(const IDiscoInfo &AInfo) con
 		QString domain = AInfo.contactJid.pDomain();
 		QString identType = AInfo.identity.at(index).type.toLower();
 		for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
-			if (it->type==identType && (it->prefix.isEmpty() || domain.startsWith(it->prefix)))
-				return *it;
+      {
+         QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(it->prefix));
+         if (it->type==identType && (it->prefix.isEmpty() || regexp.exactMatch(domain)))
+            return *it;
+      }
 	}
 	return IGateServiceDescriptor();
 }

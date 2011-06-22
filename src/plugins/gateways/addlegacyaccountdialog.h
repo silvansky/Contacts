@@ -35,10 +35,10 @@ protected slots:
 	void onDialogButtonClicked(QAbstractButton *AButton);
 	void onOkClicked();
 	void onCancelClicked();
+   void onDomainsMenuActionTriggered();
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
 	void onRegisterSuccess(const QString &AId);
 	void onRegisterError(const QString &AId, const QString &AError);
-	void domainsMenuActionTriggered();
 private:
 	Ui::AddLegacyAccountDialogClass ui;
 private:
@@ -53,6 +53,7 @@ private:
 private:
 	Jid FStreamJid;
 	Jid FServiceJid;
+   QString FAbortMessage;
 };
 
 #endif // ADDLEGACYACCOUNTDIALOG_H

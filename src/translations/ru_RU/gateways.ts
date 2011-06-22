@@ -4,30 +4,12 @@
 <context>
     <name>AddFacebookAccountDialog</name>
     <message>
-        <source>Gateway registration request failed</source>
-        <translation>Запрос регистрации завершился с ошибкой</translation>
-    </message>
-    <message>
         <source>Waiting for host response...</source>
         <translation>Ожидание ответа хоста...</translation>
     </message>
     <message>
         <source>Facebook has confirmed your authorization</source>
         <translation>Facebook подтвердил вашу авторризацию</translation>
-    </message>
-    <message>
-        <source>Invalid registration params</source>
-        <translation>Некорретные параметры регистрации</translation>
-    </message>
-    <message>
-        <source>Error connecting account</source>
-        <translation>Ошибка подключения учётной записи</translation>
-    </message>
-    <message>
-        <source>Failed to connect account due to error:
-%1</source>
-        <translation>Не удалось подключить учётную запись:
-%1</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -38,24 +20,24 @@
         <translation>Авторизация на Facebook</translation>
     </message>
     <message>
-        <source>Unsupported gateway registration form</source>
-        <translation>Неподдерживаемая форма регистрации на транспорте</translation>
-    </message>
-    <message>
-        <source>Connection to gateway is lost</source>
-        <translation>Подключение к транспорту потеряно</translation>
-    </message>
-    <message>
-        <source>Authorization failed</source>
-        <translation>Не удалось авторизоваться</translation>
-    </message>
-    <message>
         <source>Loading...</source>
         <translation>Загрузка...</translation>
     </message>
     <message>
-        <source>Connection failed</source>
-        <translation>Не удалось подключиться</translation>
+        <source>The service is temporarily unavailable, please try to connect later.</source>
+        <translation>Сервис временно недоступен, попробуйте подключиться позднее.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <source>You have connected the maximum number of %1 accounts.</source>
+        <translation>Вы уже подключили максимально возможное число учетных записей %1.</translation>
+    </message>
+    <message>
+        <source>Facebook</source>
+        <translation>Facebook</translation>
     </message>
 </context>
 <context>
@@ -80,20 +62,8 @@
         <translation>Ошидание ответа хоста...</translation>
     </message>
     <message>
-        <source>Unsupported gateway type</source>
-        <translation>Неподдерживаемый тип транспорта</translation>
-    </message>
-    <message>
         <source>Invalid registration params</source>
         <translation>Некорретные параметры регистрации</translation>
-    </message>
-    <message>
-        <source>Unsupported gateway registration form</source>
-        <translation>Неподдерживаемая форма регистрации на транспорте</translation>
-    </message>
-    <message>
-        <source>Connection to gateway is lost</source>
-        <translation>Подключение к транспорту потеряно</translation>
     </message>
     <message>
         <source>Change</source>
@@ -134,6 +104,10 @@
     <message>
         <source>The service is temporarily unavailable, please try to connect later.</source>
         <translation>Сервис временно недоступен, попробуйте подключиться позднее.</translation>
+    </message>
+    <message>
+        <source>You have connected the maximum number of %1 accounts.</source>
+        <translation>Вы уже подключили максимально возможное число учетных записей %1.</translation>
     </message>
 </context>
 <context>
