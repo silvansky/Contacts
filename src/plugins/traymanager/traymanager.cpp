@@ -1,6 +1,7 @@
 #include "traymanager.h"
 
 #include <QApplication>
+#include <QSysInfo>
 
 #include <utils/iconstorage.h>
 #include <definitions/resources.h>
@@ -67,7 +68,10 @@ bool TrayManager::initObjects()
 
 bool TrayManager::startPlugin()
 {
-	FSystemIcon.show();
+#ifdef Q_WS_WIN
+	if (QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7)
+#endif
+		FSystemIcon.show();
 	return true;
 }
 
@@ -192,6 +196,15 @@ void TrayManager::updateTray()
 
 		emit activeNotifyChanged(notifyId);
 	}
+#ifdef Q_WS_WIN
+	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+	{
+		if (FNotifyItems.isEmpty())
+			FSystemIcon.hide();
+		else
+			FSystemIcon.show();
+	}
+#endif
 }
 
 void TrayManager::onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason)

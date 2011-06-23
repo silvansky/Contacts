@@ -158,24 +158,25 @@ AdiumOptionsWidget > QToolButton
  * change and test buttons *
  ***************************/
 
-QPushButton#pbtChange, QPushButton#pbtTest
+QPushButton#pbtChange:enabled,
+QPushButton#pbtTest:enabled
 {
 	border-image: none;
 	color: #acacac;
-	text-decoration: underline;
 	padding-left: 0px;
 	padding-right: 0px;
 	padding-top: 0px;
 	padding-bottom: 0px;
 	min-width: 10px;
+	text-decoration: underline;
 }
 
-QPushButton#pbtTest:disabled
+QPushButton#pbtChange:!enabled,
+QPushButton#pbtTest:!enabled
 {
 	border-image: none;
 	background-color: transparent;
 	color: #72797f;
-	text-decoration: underline;
 	padding-left: 0px;
 	padding-right: 0px;
 	padding-top: 0px;

@@ -2,6 +2,7 @@
 
 #include <QTimer>
 #include <QToolButton>
+#include <QSysInfo>
 #include <utils/imagemanager.h>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
@@ -847,7 +848,10 @@ void StatusChanger::updateMainMenu()
 		if (statusId != STATUS_CONNECTING_ID)
 		{
 			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(FTrayManager->instance());
-			FTrayManager->setIcon(iconByShow(statusItemShow(statusId)));
+#ifdef Q_WS_WIN
+			if (QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7)
+#endif
+				FTrayManager->setIcon(iconByShow(statusItemShow(statusId)));
 		}
 		else
 		{

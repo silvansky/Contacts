@@ -32,6 +32,8 @@ MainWindowPlugin::MainWindowPlugin()
 #ifdef Q_WS_WIN
 		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
 			FMainWindowBorder->setMinimizeOnClose(true);
+		else
+			FMainWindowBorder->setShowInTaskBar(false);
 #endif
 	}
 	FMainWindow->installEventFilter(this);
