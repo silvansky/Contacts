@@ -24,6 +24,7 @@ MainWindowPlugin::MainWindowPlugin()
 #endif
 	FMainWindow->setObjectName("mainWindow");
 	FMainWindowBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FMainWindow, CBS_ROSTER);
+
 	if (FMainWindowBorder)
 	{
 		FMainWindowBorder->setMaximizeButtonVisible(false);
@@ -36,6 +37,13 @@ MainWindowPlugin::MainWindowPlugin()
 			FMainWindowBorder->setShowInTaskBar(false);
 #endif
 	}
+
+#ifdef Q_WS_WIN
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
+#endif
+
+
 	FMainWindow->installEventFilter(this);
 	//WidgetManager::setWindowSticky(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow, true);
 }
@@ -262,6 +270,14 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 void MainWindowPlugin::onShowMainWindowByAction(bool)
 {
 	showMainWindow();
+}
+
+void MainWindowPlugin::onMainWindowClosed()
+{
+#ifdef Q_WS_WIN
+	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		FPluginManager->quit();
+#endif
 }
 
 #ifdef Q_OS_MAC

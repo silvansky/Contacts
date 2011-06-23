@@ -936,6 +936,12 @@ void CustomBorderContainer::contextMenuEvent(QContextMenuEvent * event)
 	QWidget::contextMenuEvent(event);
 }
 
+void CustomBorderContainer::closeEvent(QCloseEvent * ce)
+{
+	emit closed();
+	QWidget::closeEvent(ce);
+}
+
 bool CustomBorderContainer::event(QEvent * evt)
 {
 	static int activatedCount = 0;

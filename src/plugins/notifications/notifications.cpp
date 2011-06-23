@@ -334,7 +334,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (FMessageWidgets && FMessageProcessor && Options::node(OPV_NOTIFICATIONS_CHATWINDOW).value().toBool() &&
-		(record.notification.kinds & INotification::TabPage)>0)
+		(record.notification.kinds & INotification::TabPage))
 	{
 		bool createTab = record.notification.data.value(NDR_TABPAGE_CREATE_TAB).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
@@ -355,6 +355,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 				notify.styleKey = record.notification.data.value(NDR_TABPAGE_STYLEKEY).toString();
 				record.tabPageId = window->tabPageNotifier()->insertNotify(notify);
 				record.tabPageNotifier = window->tabPageNotifier()->instance();
+				window->instance()->activateWindow();
 			}
 		}
 	}

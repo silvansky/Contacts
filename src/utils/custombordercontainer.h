@@ -66,6 +66,7 @@ protected:
 	void focusInEvent(QFocusEvent *);
 	void focusOutEvent(QFocusEvent *);
 	void contextMenuEvent(QContextMenuEvent *);
+	void closeEvent(QCloseEvent *);
 	// event filter
 	bool event(QEvent *);
 #ifdef Q_WS_WIN

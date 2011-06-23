@@ -25,8 +25,8 @@ class MainWindowPlugin :
 	public IOptionsHolder,
 	public IMainWindowPlugin
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IOptionsHolder IMainWindowPlugin);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IOptionsHolder IMainWindowPlugin)
 public:
 	MainWindowPlugin();
 	~MainWindowPlugin();
@@ -56,6 +56,7 @@ protected slots:
 	void onProfileRenamed(const QString &AProfile, const QString &ANewName);
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowMainWindowByAction(bool);
+	void onMainWindowClosed();
 #ifdef Q_OS_MAC
 	void onDockIconCLicked();
 #endif

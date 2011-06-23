@@ -381,7 +381,22 @@ void RosterIndexDelegate::drawLabelItem(QPainter *APainter, const QStyleOptionVi
 	case QVariant::Icon:
 	{
 		QIcon icon = qvariant_cast<QIcon>(ALabel.item.label);
-		QPixmap pixmap = style->generatedIconPixmap(getIconMode(AOption.state),icon.pixmap(AOption.decorationSize),&AOption);
+		QSize sz;// = AOption.decorationSize;
+		QList<QSize> availableSizes = icon.availableSizes();
+		sz = availableSizes.first();
+//		int minh = availableSizes.first().height();
+//		int d = abs(sz.height() - minh);
+//		foreach (QSize size, availableSizes)
+//		{
+//			if (abs(size.height() - minh) < d)
+//			{
+//				d = abs(size.height() - minh);
+//				minh = size.height();
+//				sz = size;
+//			}
+//		}
+
+		QPixmap pixmap = style->generatedIconPixmap(getIconMode(AOption.state),icon.pixmap(sz),&AOption);
 		style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
 		break;
 	}
