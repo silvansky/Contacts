@@ -97,6 +97,7 @@ private:
 	QPointer<CommentDialog> FCommentDialog;
 	QPointer<SetupPluginsDialog> FPluginsDialog;
 private:
+	bool FQuitStarted;
 	QString FDataPath;
 	QDomDocument FPluginsSetup;
 	QTranslator *FQtTranslator;

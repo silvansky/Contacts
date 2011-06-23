@@ -56,6 +56,7 @@
 
 PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 {
+	FQuitStarted = false;
 	FQtTranslator = new QTranslator(this);
 	FUtilsTranslator = new QTranslator(this);
 	FLoaderTranslator = new QTranslator(this);
@@ -170,13 +171,20 @@ QList<QUuid> PluginManager::pluginDependencesFor(const QUuid &AUuid) const
 
 void PluginManager::quit()
 {
-	QTimer::singleShot(0,qApp,SLOT(quit()));
-	emit quitStarted();
+	if (!FQuitStarted)
+	{
+		FQuitStarted = true;
+		QTimer::singleShot(0,qApp,SLOT(quit()));
+		emit quitStarted();
+	}
 }
 
 void PluginManager::restart()
 {
+	FQuitStarted = true;
 	onApplicationAboutToQuit();
+	FQuitStarted = false;
+	
 	loadSettings();
 	loadPlugins();
 	if (initPlugins())
@@ -187,7 +195,9 @@ void PluginManager::restart()
 		FBlockedPlugins.clear();
 	}
 	else
+	{
 		QTimer::singleShot(0,this,SLOT(restart()));
+	}
 }
 
 void PluginManager::shutdownRequested()
