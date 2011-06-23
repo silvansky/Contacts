@@ -114,8 +114,8 @@ public:
 	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId);
 	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const;
 	virtual QString deleteContactWithNotify(IMetaRoster *ARoster, const QString &AMetaId, const Jid &ItemJid = Jid::null);
-	virtual void showMetaProfileDialog(const Jid & streamJid, const QString & metaId);
-	virtual void renameContact(const Jid & streamJid, const QString & metaId, const QString & name);
+	virtual QDialog *showMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId);
+	virtual QDialog *showRenameContactDialog(const Jid &AStreamJid, const QString &AMetaId);
 signals:
 	void metaRosterAdded(IMetaRoster *AMetaRoster);
 	void metaRosterOpened(IMetaRoster *AMetaRoster);

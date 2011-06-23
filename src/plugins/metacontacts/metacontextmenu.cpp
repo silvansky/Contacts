@@ -172,5 +172,5 @@ void MetaContextMenu::onCopyInfoAction()
 void MetaContextMenu::onRenameAction()
 {
 	if (FRosterIndex)
-		FMetaContacts->renameContact(FRosterIndex->data(RDR_STREAM_JID).toString(), FRosterIndex->data(RDR_META_ID).toString(), FRosterIndex->data(RDR_NAME).toString());
+		FMetaContacts->showRenameContactDialog(FRosterIndex->data(RDR_STREAM_JID).toString(), FRosterIndex->data(RDR_META_ID).toString());
 }
