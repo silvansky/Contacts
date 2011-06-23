@@ -33,6 +33,8 @@ SipPhone::SipPhone() : __tmpMenu(NULL)
 	//FRostersViewPlugin = NULL;
 	FPresencePlugin = NULL;
 
+	FRosterChanger = NULL;
+
 	FSHISipRequest = -1;
 
 	FSipPhoneProxy = NULL;
@@ -88,6 +90,10 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow*)), SLOT(onMetaTabWindowCreated(IMetaTabWindow*)));
 		}
 	}
+
+	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
+	if (plugin)
+		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
@@ -408,6 +414,16 @@ void SipPhone::onAboutToShowContactMenu()
 			}
 		}
 	}
+
+	Action *addContactAction = new Action(contactsMenu);
+	connect(addContactAction, SIGNAL(triggered(bool)), SLOT(addContactToCall()));
+	addContactAction->setText(tr("Add Contact"));
+
+	addContactAction->setData(ADR_STREAM_JID, streamJid.full());
+	//addContactAction->setData(ADR_CONTACT_JID, contactJid.full());
+	addContactAction->setData(ADR_METAID_WINDOW, metaId);
+
+	contactsMenu->addAction(addContactAction, AG_PHONECM_BASECONTACT + 1);
 }
 
 void SipPhone::onAboutToHideContactMenu()
@@ -417,6 +433,35 @@ void SipPhone::onAboutToHideContactMenu()
 }
 
 
+void SipPhone::addContactToCall()
+{
+	Action *addContactAction = qobject_cast<Action*>(sender());
+	Jid streamJid = addContactAction->data(ADR_STREAM_JID).toString();
+	QString metaId = addContactAction->data(ADR_METAID_WINDOW).toString();
+
+	if (FRosterChanger) 
+	{
+		QWidget *widget = FRosterChanger->showAddContactDialog(streamJid);
+		if (widget)
+		{
+			IAddContactDialog * dialog = NULL;
+			if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+			{
+				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+					dialog = qobject_cast<IAddContactDialog*>(border->widget());
+			}
+			if (dialog)
+			{
+				IMetaRoster* iMetaRoster = FMetaContacts->findMetaRoster(streamJid);
+
+				IMetaContact contact = iMetaRoster->metaContact(metaId);
+				dialog->setGroup(contact.groups.toList().value(0));
+				//dialog->setNickName(ui.lneName->text());
+				dialog->setParentMetaContactId(metaId);
+			}
+		}
+	}
+}
 
 void SipPhone::continueCallToContact()
 {

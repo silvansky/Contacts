@@ -26,6 +26,7 @@
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/idefaultconnection.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/irosterchanger.h>
 #include <utils/errorhandler.h>
 #include <utils/action.h>
 
@@ -149,15 +150,17 @@ protected slots:
 
 private slots:
 	void continueCallToContact();
+	void addContactToCall();
 	void onAboutToShowContactMenu();
 	void onAboutToHideContactMenu();
 	void onCloseCallControl(bool);
-
+	
 private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
 	INotifications *FNotifications;
 	//IRostersViewPlugin *FRostersViewPlugin;
+	IRosterChanger *FRosterChanger;
 	IRostersView *FRostersView;
 	IMetaContacts *FMetaContacts;
 	IPresencePlugin *FPresencePlugin;
