@@ -300,7 +300,12 @@ void MainWindowPlugin::onApplicationQuitStarted()
 	if (!Options::isNull())
 	{
 		QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
-		Options::node(OPV_MAINWINDOW_SHOW).setValue(widget->isVisible());
+#ifdef Q_WS_WIN
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			Options::node(OPV_MAINWINDOW_SHOW).setValue(!widget->isMinimized());
+		else
+#endif
+			Options::node(OPV_MAINWINDOW_SHOW).setValue(widget->isVisible());
 		widget->close();
 	}
 }
