@@ -72,6 +72,7 @@ body {
 
 .v-chat-header-history {
     float:right;
+    margin-top:5px;
 }
 
 .v-chat-header-b:hover, .v-chat-header-history:hover {
