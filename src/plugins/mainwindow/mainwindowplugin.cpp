@@ -220,6 +220,12 @@ void MainWindowPlugin::onOptionsOpened()
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 	if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
 		showMainWindow();
+#ifdef Q_WS_WIN
+	else if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+	{
+		widget->showMinimized();
+	}
+#endif
 	updateTitle();
 }
 
