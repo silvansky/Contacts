@@ -37,8 +37,8 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 		FBorder->setMaximizeButtonVisible(false);
 		FBorder->setAttribute(Qt::WA_DeleteOnClose,true);
 		FBorder->setWindowTitle(ui.lblCaption->text());
-		connect(this, SIGNAL(accepted()), FBorder, SLOT(close()));
-		connect(this, SIGNAL(rejected()), FBorder, SLOT(close()));
+		connect(this, SIGNAL(accepted()), FBorder, SLOT(closeWidget()));
+		connect(this, SIGNAL(rejected()), FBorder, SLOT(closeWidget()));
 		connect(FBorder, SIGNAL(closeClicked()), SLOT(reject()));
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}

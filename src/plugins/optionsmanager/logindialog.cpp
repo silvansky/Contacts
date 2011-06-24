@@ -473,9 +473,21 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			FMainWindowVisible = true;
 			if (AWatched == FMainWindowPlugin->mainWindow()->instance())
-				QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(), SLOT(close()));
+			{
+#ifdef Q_WS_WIN
+				if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+					QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(), SLOT(hide()));
+				else
+#endif
+					QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(), SLOT(close()));
+			}
 			else
-				QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(close()));
+#ifdef Q_WS_WIN
+				if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+					QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(hide()));
+				else
+#endif
+				QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(closeWidget()));
 		}
 	}
 	if (AWatched == ui.lblConnectSettings)

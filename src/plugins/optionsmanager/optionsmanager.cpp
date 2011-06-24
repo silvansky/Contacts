@@ -576,7 +576,7 @@ void OptionsManager::closeProfile()
 		if (FOptionsDialog)
 		{
 			if (FOptionsDialogBorder)
-				FOptionsDialogBorder->close();
+				FOptionsDialogBorder->closeWidget();
 			else
 				FOptionsDialog->close();
 		}
