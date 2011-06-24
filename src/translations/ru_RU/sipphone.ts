@@ -340,6 +340,10 @@
         <source>Ok</source>
         <translation>Ок</translation>
     </message>
+    <message>
+        <source>Add Contact</source>
+        <translation>Добавить контакт</translation>
+    </message>
 </context>
 <context>
     <name>SipPhoneProxy</name>

@@ -326,7 +326,7 @@
     </message>
     <message>
         <source>ICQ disconnected (offline)</source>
-        <translation>ICQ лтключена (не в сети)</translation>
+        <translation>ICQ отключена (не в сети)</translation>
     </message>
     <message>
         <source>Your ICQ was connected from another computer. You can enable ICQ again.</source>

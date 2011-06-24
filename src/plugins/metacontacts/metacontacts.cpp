@@ -1012,7 +1012,7 @@ void MetaContacts::initMetaItemDescriptors()
 	rambler.persistent = false;
 	rambler.metaOrder = MIO_RAMBLER;
 	rambler.gateId = GSID_RAMBLER;
-   //rambler.gatePrefix = "rambler";
+	rambler.gatePrefix = "rambler";
 	rambler.domains.append("rambler.ru");
 	rambler.domains.append("lenta.ru");
 	rambler.domains.append("myrambler.ru");
