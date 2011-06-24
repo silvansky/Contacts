@@ -190,6 +190,10 @@ protected slots:
 	void onNotificationRemoved(int ANotifyId);
 	void onOptionsOpened();
 	void onOptionsClosed();
+protected slots:
+	void onAvatalLabelDestroyed(QObject *);
+protected:
+	bool eventFilter(QObject *, QEvent *);
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
@@ -216,6 +220,7 @@ private:
 private:
 	QList<int> FFailDeleteNotifies;
 	QMap<IMetaRoster *, QMap<QString, QString> > FDeleteActions;
+	QMap<QLabel*, MetaContextMenu*> FAvatarMenus;
 private:
 	mutable QHash<Jid, int> FItemDescrCache;
 };

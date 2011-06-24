@@ -57,6 +57,7 @@ void MetaContextMenu::updateMenu()
 		action->setText(tr("Contact informaton"));
 		connect(action, SIGNAL(triggered()), SLOT(onContactInformationAction()));
 		addAction(action);
+		setDefaultAction(action);
 
 		action = new Action();
 		action->setText(tr("Copy information"));

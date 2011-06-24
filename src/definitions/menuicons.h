@@ -172,6 +172,7 @@
 #define MNI_METACONTACTS_ITEM_JABBER             "metacontactsItemJabber"
 #define MNI_METACONTACTS_NOTIFY_BALOON           "metacontactsNotifyBalloon"
 #define MNI_METACONTACTS_ONLINE_ICON             "metacontactsOnlineIcon"
+#define MNI_METACONTACTS_MENU_INDICATOR          "metacontactsMenuIndicator"
 
 //MessageWidgets
 #define MNI_MESSAGEWIDGETS_SEND                  "messagewidgetsSend"

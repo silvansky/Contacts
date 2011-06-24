@@ -611,7 +611,7 @@ QScrollBar:vertical
 {
 	border: none;
 	width: 14px;
-	margin: 17px 0 17px 0;
+	margin: 16px 0 16px 0;
 	border-top: 0px;
 	border-bottom: 0px;
 	border-right: 0px;
@@ -641,7 +641,7 @@ QScrollBar::add-line:vertical
 	border: none;
 	border-top: 0px;
 	background: url(%IMAGES_PATH%/scrollbardownbutton.png);
-	height: 17px;
+	height: 16px;
 	subcontrol-position: bottom;
 	subcontrol-origin: margin;
 }
@@ -651,7 +651,7 @@ QScrollBar::sub-line:vertical
 	border: none;
 	border-bottom: 0px;
 	background: url(%IMAGES_PATH%/scrollbarupbutton.png);
-	height: 17px;
+	height: 16px;
 	subcontrol-position: top;
 	subcontrol-origin: margin;
 }

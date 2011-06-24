@@ -35,6 +35,7 @@ QToolBar#searchBar
 	border-right: 0px;
 	border-bottom: 0px;
 	border-top: 2px;
+	border-bottom: 1px;
 	border-image: url(%IMAGES_PATH%/searchbarborder.png);
 	min-height: 31px;
 	max-height: 31px;

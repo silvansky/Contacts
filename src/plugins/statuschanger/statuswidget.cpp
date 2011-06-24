@@ -166,6 +166,15 @@ void StatusWidget::resizeEvent(QResizeEvent * event)
 	QWidget::resizeEvent(event);
 }
 
+void StatusWidget::paintEvent(QPaintEvent * pe)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	p.setClipRect(pe->rect());
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
 bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 {
 	if ((AObject == ui.tlbStatus) && (AEvent->type() == QEvent::ActionChanged))
@@ -223,8 +232,8 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 			break;*/
 		case QEvent::MouseButtonRelease:
 			{
-				QPoint point = mapToGlobal(ui.lblAvatar->pos());
-				int dx = FSelectAvatarWidget ? FSelectAvatarWidget->width() / 2 : FProfileMenu->sizeHint().width() / 2;
+				QPoint point = ui.lblAvatar->mapToGlobal(QPoint(0, 0));
+				int dx = 0;//FSelectAvatarWidget ? FSelectAvatarWidget->width() / 2 : FProfileMenu->sizeHint().width() / 2;
 				point.setX(point.x() - dx);
 				point.setY(point.y() + ui.lblAvatar->height());
 				FProfileMenu->popup(point);

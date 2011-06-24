@@ -18,7 +18,7 @@ CustomLabel#lblError
 QPushButton#pbtAppend
 {
 	color: black;
-	min-height: 24px;
+	min-height: 25px;
 	border-image: url(%IMAGES_PATH%/whitebutton.png);
 }
 
@@ -36,4 +36,19 @@ QPushButton#pbtAppend:hover
 QPushButton#pbtAppend:pressed
 {
 	border-image: url(%IMAGES_PATH%/whitebutton_click.png);
+}
+
+QLineEdit#lneContact:enabled
+{
+	border-image: url(%IMAGES_PATH%/editborder_white.png);
+}
+
+QLineEdit#lneContact:focus
+{
+	border-image: url(%IMAGES_PATH%/editborderfocused_white.png);
+}
+
+QLineEdit#lneContact:!enabled
+{
+	border-image: url(%IMAGES_PATH%/editborderdisabled_white.png);
 }

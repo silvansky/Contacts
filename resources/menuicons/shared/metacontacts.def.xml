@@ -141,4 +141,8 @@
     <key>metacontactsOnlineIcon</key>
     <object mime="image/png">metacontactsonlineicon.png</object>
   </icon>
+  <icon>
+    <key>metacontactsMenuIndicator</key>
+    <object mime="image/png">metacontactsmenuindicator.png</object>
+  </icon>
 </icondef>

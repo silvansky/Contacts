@@ -1,6 +1,7 @@
 #include "metacontacts.h"
 
 #include <QDir>
+#include <QPainter>
 #include <QMimeData>
 #include <QDragMoveEvent>
 #include <QDragEnterEvent>
@@ -298,7 +299,7 @@ bool MetaContacts::keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt:
 			if (itemType == RIT_METACONTACT)
 			{
 				QString metaId = AIndex->data(RDR_META_ID).toString();
-				const IMetaContact &contact = mroster->metaContact(metaId);
+				//const IMetaContact &contact = mroster->metaContact(metaId);
 
 				QList<QVariant> selMetaIdList;
 				QHash<int,QVariant> data;
@@ -332,7 +333,7 @@ bool MetaContacts::keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRoster
 			if (itemType == RIT_METACONTACT)
 			{
 				QString metaId = AIndex->data(RDR_META_ID).toString();
-				const IMetaContact &contact = mroster->metaContact(metaId);
+				//const IMetaContact &contact = mroster->metaContact(metaId);
 
 				QList<QVariant> selMetaIdList;
 				foreach(IRosterIndex *index, ASelected)
@@ -576,31 +577,31 @@ IMetaItemDescriptor MetaContacts::metaDescriptorByItem(const Jid &AItemJid) cons
 	if (order == -1)
 	{
       bool firstDomain = true;
-      do 
+      do
       {
-         QString domain = bareJid.pDomain();
-         for (QList<IMetaItemDescriptor>::const_iterator descrIt=FMetaItemDescriptors.constBegin(); descrIt!=FMetaItemDescriptors.constEnd(); descrIt++)
-         {
-            if (descrIt->domains.isEmpty())
-            {
-               if (firstDomain)
-               {
-                  QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(descrIt->gatePrefix));
-                  if (regexp.exactMatch(domain))
-                  {
-                     FItemDescrCache.insert(bareJid,descrIt->metaOrder);
-                     return *descrIt;
-                  }
-               }
-            }
-            else if (descrIt->domains.contains(domain))
-            {
-               FItemDescrCache.insert(bareJid,descrIt->metaOrder);
-               return *descrIt;
-            }
-         }
-         firstDomain = false;
-         bareJid = FGateways!=NULL ? FGateways->legacyIdFromUserJid(bareJid) : Jid::null;
+	 QString domain = bareJid.pDomain();
+	 for (QList<IMetaItemDescriptor>::const_iterator descrIt=FMetaItemDescriptors.constBegin(); descrIt!=FMetaItemDescriptors.constEnd(); descrIt++)
+	 {
+	    if (descrIt->domains.isEmpty())
+	    {
+	       if (firstDomain)
+	       {
+		  QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(descrIt->gatePrefix));
+		  if (regexp.exactMatch(domain))
+		  {
+		     FItemDescrCache.insert(bareJid,descrIt->metaOrder);
+		     return *descrIt;
+		  }
+	       }
+	    }
+	    else if (descrIt->domains.contains(domain))
+	    {
+	       FItemDescrCache.insert(bareJid,descrIt->metaOrder);
+	       return *descrIt;
+	    }
+	 }
+	 firstDomain = false;
+	 bareJid = FGateways!=NULL ? FGateways->legacyIdFromUserJid(bareJid) : Jid::null;
       }
       while (bareJid.isValid() && !bareJid.node().isEmpty());
 	}
@@ -737,10 +738,20 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 			if (window->isContactPage() && FRostersViewPlugin && FRostersViewPlugin->rostersView()->rostersModel())
 			{
 				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(),FRostersViewPlugin->rostersView(), FVCardPlugin, FRosterChanger, this, window);
-				QToolButton *button = window->toolBarChanger()->insertAction(menu->menuAction(),TBG_MCMTW_USER_TOOLS);
-				button->setObjectName("contactMenu");
-				window->toolBarChanger()->toolBar()->setIconSize(QSize(36, 36));
-				button->setPopupMode(QToolButton::InstantPopup);
+//				QToolButton *button = window->toolBarChanger()->insertAction(menu->menuAction(),TBG_MCMTW_USER_TOOLS);
+//				button->setObjectName("contactMenu");
+//				window->toolBarChanger()->toolBar()->setIconSize(QSize(36, 36));
+//				button->setPopupMode(QToolButton::InstantPopup);
+				QLabel *contactMenu = new QLabel;
+				contactMenu->setProperty("ignoreFilter", true);
+				contactMenu->setObjectName("contactMenu");
+				contactMenu->setPixmap(menu->menuAction()->icon().pixmap(QSize(36, 36)));
+				contactMenu->setMouseTracking(true);
+				contactMenu->setContextMenuPolicy(Qt::DefaultContextMenu);
+				FAvatarMenus.insert(contactMenu, menu);
+				contactMenu->installEventFilter(this);
+				connect(contactMenu, SIGNAL(destroyed(QObject*)), SLOT(onAvatalLabelDestroyed(QObject*)));
+				window->toolBarChanger()->insertWidget(contactMenu, TBG_MCMTW_USER_TOOLS);
 			}
 
 			FMetaTabWindows.append(window);
@@ -2027,5 +2038,66 @@ void MetaContacts::onOptionsClosed()
 	stream << FTabPages;
 	Options::setFileValue(data,"messages.last-meta-tab-pages");
 }
+
+void MetaContacts::onAvatalLabelDestroyed(QObject *obj)
+{
+	if (QLabel * lbl = qobject_cast<QLabel*>(obj))
+	{
+		MetaContextMenu *menu = FAvatarMenus.value(lbl, NULL);
+		if (menu)
+		{
+			menu->deleteLater();
+		}
+		FAvatarMenus.remove(lbl);
+	}
+}
+
+bool MetaContacts::eventFilter(QObject * obj, QEvent * evt)
+{
+	if (QLabel * lbl = qobject_cast<QLabel*>(obj))
+	{
+		if (evt->type() == QEvent::ContextMenu)
+		{
+			QContextMenuEvent * cme = (QContextMenuEvent*)evt;
+			MetaContextMenu *menu = FAvatarMenus.value(lbl, NULL);
+			if (menu)
+			{
+				menu->popup(cme->globalPos());
+				return true;
+			}
+		}
+		if (evt->type() == QEvent::MouseButtonPress)
+		{
+			QMouseEvent * me = (QMouseEvent*)evt;
+			if (me->button() == Qt::LeftButton)
+			{
+				MetaContextMenu *menu = FAvatarMenus.value(lbl, NULL);
+				if (menu)
+				{
+					menu->defaultAction()->trigger();
+					return true;
+				}
+			}
+		}
+		if (evt->type() == QEvent::Paint)
+		{
+			QPaintEvent * pe = (QPaintEvent*)evt;
+			lbl->removeEventFilter(this);
+			QApplication::sendEvent(lbl, pe);
+			lbl->installEventFilter(this);
+			QImage img = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_METACONTACTS_MENU_INDICATOR);
+			QSize sz = img.size();
+			QPainter p(lbl);
+			p.setClipRect(pe->rect());
+			QRect r(QPoint(0, 0), sz);
+			// WARNING! 5 and 4 are magic numbers!
+			r.moveTopLeft(QPoint(lbl->size().width() - sz.width() - 5, lbl->size().height() - sz.height() - 4));
+			p.drawImage(r, img);
+			return true;
+		}
+	}
+	return QObject::eventFilter(obj, evt);
+}
+
 
 Q_EXPORT_PLUGIN2(plg_metacontacts, MetaContacts)
