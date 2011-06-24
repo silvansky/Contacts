@@ -112,11 +112,6 @@ MessageEditor
 	background-color: white;
 }
 
-StyleViewer
-{
-	position: absolute;
-	right: -10px;
-}
 
 /********************
  * Emoticons Button *
