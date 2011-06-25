@@ -222,9 +222,7 @@ void MainWindowPlugin::onOptionsOpened()
 		showMainWindow();
 #ifdef Q_WS_WIN
 	else if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-	{
 		widget->showMinimized();
-	}
 #endif
 	updateTitle();
 }
@@ -234,7 +232,12 @@ void MainWindowPlugin::onOptionsClosed()
 	QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 	Options::node(OPV_MAINWINDOW_SIZE).setValue(widget->size());
 	Options::node(OPV_MAINWINDOW_POSITION).setValue(widget->pos());
-	widget->close();
+#ifdef Q_WS_WIN
+	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		widget->hide();
+	else
+#endif
+		widget->close();
 	FOpenAction->setVisible(false);
 	updateTitle();
 }
@@ -267,7 +270,14 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 	{
 		QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 		if (FMainWindow->isActive() || qAbs(FActivationChanged.msecsTo(QTime::currentTime()))<qApp->doubleClickInterval())
-			widget->close();
+		{
+#ifdef Q_WS_WIN
+			if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+				widget->hide();
+			else
+#endif
+				widget->close();
+		}
 		else
 			showMainWindow();
 	}
@@ -306,7 +316,6 @@ void MainWindowPlugin::onApplicationQuitStarted()
 		else
 #endif
 			Options::node(OPV_MAINWINDOW_SHOW).setValue(widget->isVisible());
-		widget->close();
 	}
 }
 
