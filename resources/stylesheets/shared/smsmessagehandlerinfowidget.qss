@@ -1,0 +1,10 @@
+SmsInfoWidget,
+MainInfoWidget
+{
+	background-color: transparent;
+}
+
+QLabel
+{
+	color: #acacac;
+}

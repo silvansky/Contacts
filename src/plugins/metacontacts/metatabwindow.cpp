@@ -563,10 +563,17 @@ QIcon MetaTabWindow::createNotifyBalloon(int ACount) const
 {
 	QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON, 0));
 	QPainter painter(&balloon);
+	// TODO: make this customizable through style sheets/properties
+	QFont f = painter.font();
+	f.setPointSize(7);
+	painter.setFont(f);
+	QPen pen = painter.pen();
+	pen.setColor(QColor::fromRgb(55, 61, 67));
+	painter.setPen(pen);
 	QString text = QString::number(ACount);
 	QSize textSize = painter.fontMetrics().size(Qt::TextSingleLine, text);
 	QRect textRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, textSize, balloon.rect());
-	textRect.moveTopLeft(textRect.topLeft() + QPoint(1, -2)); // some magic numbers... may change
+	textRect.moveTopLeft(textRect.topLeft() + QPoint(0, -1)); // some magic numbers... may change
 	painter.drawText(textRect,text);
 	QIcon icon;
 	icon.addPixmap(balloon);
