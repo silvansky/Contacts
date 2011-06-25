@@ -355,7 +355,6 @@ int Notifications::appendNotification(const INotification &ANotification)
 				notify.styleKey = record.notification.data.value(NDR_TABPAGE_STYLEKEY).toString();
 				record.tabPageId = window->tabPageNotifier()->insertNotify(notify);
 				record.tabPageNotifier = window->tabPageNotifier()->instance();
-				window->instance()->activateWindow();
 			}
 		}
 	}
