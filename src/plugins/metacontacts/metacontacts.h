@@ -142,6 +142,8 @@ protected:
 	void unhideMetaContact(IMetaRoster *AMetaRoster, const QString &AMetaId);
 	void notifyContactDeleteFailed(IMetaRoster *ARoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void updateContactChatWindows(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
+protected:
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onMetaRosterOpened();
 	void onMetaAvatarChanged(const QString &AMetaId);
@@ -192,8 +194,6 @@ protected slots:
 	void onOptionsClosed();
 protected slots:
 	void onAvatalLabelDestroyed(QObject *);
-protected:
-	bool eventFilter(QObject *, QEvent *);
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;

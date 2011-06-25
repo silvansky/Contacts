@@ -298,39 +298,41 @@ void MetaTabWindow::setPageWidget(const QString &APageId, ITabPage *AWidget)
 {
 	if (FPageActions.contains(APageId))
 	{
-		bool show = false;
-
 		ITabPage *oldWidget = FPageWidgets.value(APageId);
-		if (oldWidget)
+		if (AWidget != oldWidget)
 		{
-			disconnectPageWidget(oldWidget);
-			show = ui.stwWidgets->currentWidget()==oldWidget->instance();
-			FPageWidgets.remove(APageId);
-			ui.stwWidgets->removeWidget(oldWidget->instance());
-		}
-
-		if (AWidget)
-		{
-			foreach(IMetaTabWindow *window, FMetaContacts->metaTabWindows())
+			bool show = false;
+			if (oldWidget)
 			{
-				QString pageId = window->widgetPage(AWidget);
-				if (!pageId.isEmpty())
-				{
-					window->setPageWidget(pageId,NULL);
-					window->removePage(pageId);
-				}
+				disconnectPageWidget(oldWidget);
+				show = ui.stwWidgets->currentWidget()==oldWidget->instance();
+				FPageWidgets.remove(APageId);
+				ui.stwWidgets->removeWidget(oldWidget->instance());
 			}
-			connectPageWidget(AWidget);
-			FPageWidgets.insert(APageId,AWidget);
-			ui.stwWidgets->addWidget(AWidget->instance());
+
+			if (AWidget)
+			{
+				foreach(IMetaTabWindow *window, FMetaContacts->metaTabWindows())
+				{
+					QString pageId = window->widgetPage(AWidget);
+					if (!pageId.isEmpty())
+					{
+						window->setPageWidget(pageId,NULL);
+						window->removePage(pageId);
+					}
+				}
+				connectPageWidget(AWidget);
+				FPageWidgets.insert(APageId,AWidget);
+				ui.stwWidgets->addWidget(AWidget->instance());
+			}
+
+			emit pageChanged(APageId);
+
+			if (AWidget && show)
+				AWidget->showTabPage();
+
+			createFirstPage();
 		}
-
-		emit pageChanged(APageId);
-
-		if (AWidget && show)
-			AWidget->showTabPage();
-
-		createFirstPage();
 	}
 }
 

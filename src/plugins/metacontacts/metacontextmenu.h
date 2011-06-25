@@ -16,14 +16,12 @@ class MetaContextMenu :
 {
 	Q_OBJECT
 public:
-	MetaContextMenu(IRostersModel *AModel, IRostersView *AView, IVCardPlugin *AVCardPlugin, IRosterChanger *ARosterChanger, IMetaContacts *AMetaContacts, IMetaTabWindow *AWindow);
+	MetaContextMenu(IRostersModel *AModel, IMetaContacts *AMetaContacts, IMetaTabWindow *AWindow);
 	~MetaContextMenu();
 protected:
 	bool isAcceptedIndex(IRosterIndex *AIndex);
 	void updateMenu();
 protected slots:
-	void onAboutToShow();
-	void onAboutToHide();
 	void onRosterIndexInserted(IRosterIndex *AIndex);
 	void onRosterIndexDataChanged(IRosterIndex *AIndex, int ARole);
 	void onRosterIndexRemoved(IRosterIndex *AIndex);
@@ -33,10 +31,7 @@ protected slots:
 private:
 	IRosterIndex *FRosterIndex;
 	IRostersModel *FRostersModel;
-	IRostersView *FRostersView;
 	IMetaTabWindow *FMetaTabWindow;
-	IVCardPlugin *FVCardPlugin;
-	IRosterChanger *FRosterChanger;
 	IMetaContacts *FMetaContacts;
 };
 

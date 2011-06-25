@@ -260,10 +260,6 @@
 <context>
     <name>MetaContextMenu</name>
     <message>
-        <source>Contact informaton</source>
-        <translation>Информация о контакте</translation>
-    </message>
-    <message>
         <source>Copy information</source>
         <translation>Копировать данные</translation>
     </message>
@@ -278,6 +274,10 @@
     <message>
         <source>E-mail</source>
         <translation>E-mail</translation>
+    </message>
+    <message>
+        <source>Contact information</source>
+        <translation>Информация о контакте</translation>
     </message>
 </context>
 <context>

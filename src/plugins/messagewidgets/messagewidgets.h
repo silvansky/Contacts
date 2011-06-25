@@ -75,12 +75,12 @@ public:
 	virtual QList<IMessageWindow *> messageWindows() const;
 	virtual IMessageWindow *newMessageWindow(const Jid &AStreamJid, const Jid &AContactJid, IMessageWindow::Mode AMode);
 	virtual IMessageWindow *findMessageWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
-	virtual QList<IMassSendDialog*> massSendDialogs() const;
-	virtual IMassSendDialog * newMassSendDialog(const Jid & AStreamJid);
-	virtual IMassSendDialog * findMassSendDialog(const Jid & AStreamJid);
 	virtual QList<IChatWindow *> chatWindows() const;
 	virtual IChatWindow *newChatWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual IChatWindow *findChatWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
+	virtual QList<IMassSendDialog*> massSendDialogs() const;
+	virtual IMassSendDialog * newMassSendDialog(const Jid &AStreamJid);
+	virtual IMassSendDialog * findMassSendDialog(const Jid &AStreamJid);
 	virtual QList<QUuid> tabWindowList() const;
 	virtual QUuid appendTabWindow(const QString &AName);
 	virtual void deleteTabWindow(const QUuid &AWindowId);

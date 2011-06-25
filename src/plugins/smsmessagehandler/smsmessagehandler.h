@@ -131,7 +131,7 @@ protected:
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
-	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
+	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch = true) const;
 	void clearWindow(IChatWindow *AWindow);
 	void updateWindow(IChatWindow *AWindow);
 	void resetWindowStatus(IChatWindow *AWindow);

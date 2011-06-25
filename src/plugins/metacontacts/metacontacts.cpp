@@ -737,11 +737,7 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 
 			if (window->isContactPage() && FRostersViewPlugin && FRostersViewPlugin->rostersView()->rostersModel())
 			{
-				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(),FRostersViewPlugin->rostersView(), FVCardPlugin, FRosterChanger, this, window);
-//				QToolButton *button = window->toolBarChanger()->insertAction(menu->menuAction(),TBG_MCMTW_USER_TOOLS);
-//				button->setObjectName("contactMenu");
-//				window->toolBarChanger()->toolBar()->setIconSize(QSize(36, 36));
-//				button->setPopupMode(QToolButton::InstantPopup);
+				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(), this, window);
 				QLabel *contactMenu = new QLabel;
 				contactMenu->setProperty("ignoreFilter", true);
 				contactMenu->setObjectName("contactMenu");
@@ -795,7 +791,7 @@ QString MetaContacts::deleteContactWithNotify(IMetaRoster *AMetaRoster, const QS
 
 QDialog *MetaContacts::showMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId)
 {
-   MetaProfileDialog *dialog = NULL;
+	MetaProfileDialog *dialog = NULL;
 	IMetaRoster *mroster = findMetaRoster(AStreamJid);
 	if (mroster && mroster->isEnabled() && !mroster->metaContact(AMetaId).id.isEmpty())
 	{
@@ -808,7 +804,7 @@ QDialog *MetaContacts::showMetaProfileDialog(const Jid &AStreamJid, const QStrin
 		}
 		WidgetManager::showActivateRaiseWindow(dialog->parentWidget()!=NULL ? dialog->parentWidget() : dialog);
 	}
-   return dialog;
+	return dialog;
 }
 
 QDialog *MetaContacts::showRenameContactDialog(const Jid &AStreamJid, const QString &AMetaId)
@@ -828,9 +824,9 @@ QDialog *MetaContacts::showRenameContactDialog(const Jid &AStreamJid, const QStr
 		dialog->setRejectButtonText(tr("Cancel"));
 		connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewNameSelected(const QString&)));
 		dialog->show();
-      return dialog;
+	return dialog;
 	}
-   return NULL;
+	return NULL;
 }
 
 void MetaContacts::initMetaItemDescriptors()
@@ -853,7 +849,7 @@ void MetaContacts::initMetaItemDescriptors()
 	sms.persistent = true;
 	sms.metaOrder = MIO_SMS;
 	sms.gateId = GSID_SMS;
-   sms.gatePrefix = "sms";
+	sms.gatePrefix = "sms";
 	FMetaItemDescriptors.append(sms);
 
 	IMetaItemDescriptor mail;
@@ -865,7 +861,7 @@ void MetaContacts::initMetaItemDescriptors()
 	mail.persistent = true;
 	mail.metaOrder = MIO_MAIL;
 	mail.gateId = GSID_MAIL;
-   mail.gatePrefix = "mail";
+	mail.gatePrefix = "mail";
 	FMetaItemDescriptors.append(mail);
 
 	IMetaItemDescriptor icq;
@@ -877,7 +873,7 @@ void MetaContacts::initMetaItemDescriptors()
 	icq.persistent = false;
 	icq.metaOrder = MIO_ICQ;
 	icq.gateId = GSID_ICQ;
-   icq.gatePrefix = "icq";
+	icq.gatePrefix = "icq";
 	FMetaItemDescriptors.append(icq);
 
 	IMetaItemDescriptor magent;
@@ -889,7 +885,7 @@ void MetaContacts::initMetaItemDescriptors()
 	magent.persistent = false;
 	magent.metaOrder = MIO_MAGENT;
 	magent.gateId = GSID_MAGENT;
-   magent.gatePrefix = "mrim";
+	magent.gatePrefix = "mrim";
 	FMetaItemDescriptors.append(magent);
 
 	IMetaItemDescriptor twitter;
@@ -901,7 +897,7 @@ void MetaContacts::initMetaItemDescriptors()
 	twitter.persistent = false;
 	twitter.metaOrder = MIO_TWITTER;
 	twitter.gateId = GSID_TWITTER;
-   twitter.gatePrefix = "twitter";
+	twitter.gatePrefix = "twitter";
 	FMetaItemDescriptors.append(twitter);
 
 	IMetaItemDescriptor fring;
@@ -913,7 +909,7 @@ void MetaContacts::initMetaItemDescriptors()
 	fring.persistent = false;
 	fring.metaOrder = MIO_FRING;
 	fring.gateId = GSID_TWITTER;
-   fring.gatePrefix = "fring";
+	fring.gatePrefix = "fring";
 	FMetaItemDescriptors.append(fring);
 
 	IMetaItemDescriptor gtalk;
@@ -925,7 +921,7 @@ void MetaContacts::initMetaItemDescriptors()
 	gtalk.persistent = false;
 	gtalk.metaOrder = MIO_GTALK;
 	gtalk.gateId = GSID_GTALK;
-   gtalk.gatePrefix = "gmail";
+	gtalk.gatePrefix = "gmail";
 	gtalk.domains.append("gmail.com");
 	gtalk.domains.append("googlemail.com");
 	FMetaItemDescriptors.append(gtalk);
@@ -939,14 +935,14 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.persistent = false;
 	yonline.metaOrder = MIO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
-   yonline.gatePrefix = "yandex";
-   yonline.domains.append("ya.ru");
+	yonline.gatePrefix = "yandex";
+	yonline.domains.append("ya.ru");
 	yonline.domains.append("yandex.ru");
-   yonline.domains.append("yandex.com");
-   yonline.domains.append("yandex.net");
-   yonline.domains.append("yandex.by");
-   yonline.domains.append("yandex.kz");
-   yonline.domains.append("yandex.ua");
+	yonline.domains.append("yandex.com");
+	yonline.domains.append("yandex.net");
+	yonline.domains.append("yandex.by");
+	yonline.domains.append("yandex.kz");
+	yonline.domains.append("yandex.ua");
 	yonline.domains.append("yandex-co.ru");
 	yonline.domains.append("narod.ru");
 	FMetaItemDescriptors.append(yonline);
@@ -960,7 +956,7 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.persistent = false;
 	qip.metaOrder = MIO_QIP;
 	qip.gateId = GSID_QIP;
-   qip.gatePrefix = "qip";
+	qip.gatePrefix = "qip";
 	qip.domains.append("qip.ru");
 	FMetaItemDescriptors.append(qip);
 
@@ -973,7 +969,7 @@ void MetaContacts::initMetaItemDescriptors()
 	vkontakte.persistent = false;
 	vkontakte.metaOrder = MIO_VKONTAKTE;
 	vkontakte.gateId = GSID_VKONTAKTE;
-   vkontakte.gatePrefix = "vk";
+	vkontakte.gatePrefix = "vk";
 	vkontakte.domains.append("vk.com");
 	FMetaItemDescriptors.append(vkontakte);
 
@@ -986,7 +982,7 @@ void MetaContacts::initMetaItemDescriptors()
 	facebook.persistent = false;
 	facebook.metaOrder = MIO_FACEBOOK;
 	facebook.gateId = GSID_FACEBOOK;
-   facebook.gatePrefix = "fb";
+	facebook.gatePrefix = "fb";
 	facebook.domains.append("chat.facebook.com");
 	FMetaItemDescriptors.append(facebook);
 
@@ -999,7 +995,7 @@ void MetaContacts::initMetaItemDescriptors()
 	livejournal.persistent = false;
 	livejournal.metaOrder = MIO_LIVEJOURNAL;
 	livejournal.gateId = GSID_LIVEJOURNAL;
-   livejournal.gatePrefix = "livejournal";
+	livejournal.gatePrefix = "livejournal";
 	livejournal.domains.append("livejournal.com");
 	FMetaItemDescriptors.append(livejournal);
 
@@ -1123,6 +1119,53 @@ void MetaContacts::updateContactChatWindows(IMetaRoster *AMetaRoster, const IMet
 			window->instance()->deleteLater();
 		}
 	}
+}
+
+bool MetaContacts::eventFilter(QObject *AObject, QEvent *AEvent)
+{
+	if (QLabel *lbl = qobject_cast<QLabel*>(AObject))
+	{
+		if (AEvent->type() == QEvent::ContextMenu)
+		{
+			QContextMenuEvent *cme = (QContextMenuEvent*)AEvent;
+			MetaContextMenu *menu = FAvatarMenus.value(lbl, NULL);
+			if (menu)
+			{
+				menu->popup(cme->globalPos());
+				return true;
+			}
+		}
+		if (AEvent->type() == QEvent::MouseButtonPress)
+		{
+			QMouseEvent *me = (QMouseEvent*)AEvent;
+			if (me->button() == Qt::LeftButton)
+			{
+				MetaContextMenu *menu = FAvatarMenus.value(lbl, NULL);
+				if (menu)
+				{
+					menu->defaultAction()->trigger();
+					return true;
+				}
+			}
+		}
+		if (AEvent->type() == QEvent::Paint)
+		{
+			QPaintEvent * pe = (QPaintEvent*)AEvent;
+			lbl->removeEventFilter(this);
+			QApplication::sendEvent(lbl, pe);
+			lbl->installEventFilter(this);
+			QImage img = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_METACONTACTS_MENU_INDICATOR);
+			QSize sz = img.size();
+			QPainter p(lbl);
+			p.setClipRect(pe->rect());
+			QRect r(QPoint(0, 0), sz);
+			// WARNING! 5 and 4 are magic numbers!
+			r.moveTopLeft(QPoint(lbl->size().width() - sz.width() - 5, lbl->size().height() - sz.height() - 4));
+			p.drawImage(r, img);
+			return true;
+		}
+	}
+	return QObject::eventFilter(AObject, AEvent);
 }
 
 void MetaContacts::onMetaRosterOpened()
@@ -1272,7 +1315,22 @@ void MetaContacts::onMetaTabWindowPageWidgetRequested(const QString &APageId)
 				}
 			}
 
-			IChatWindow *chatWindow = FMessageWidgets->findChatWindow(window->metaRoster()->streamJid(),itemJid);
+			IChatWindow *chatWindow = NULL;
+			foreach(IChatWindow *window, FMessageWidgets->chatWindows())
+			{
+				if (window->streamJid() == window->streamJid())
+				{
+					if (window->contactJid() == itemJid)
+					{
+						chatWindow = window;
+						break;
+					}
+					else if (!chatWindow && (window->contactJid() && itemJid))
+					{
+						chatWindow = window;
+					}
+				}
+			}
 			if (chatWindow)
 			{
 				chatWindow->closeTabPage();
@@ -2050,53 +2108,6 @@ void MetaContacts::onAvatalLabelDestroyed(QObject *obj)
 		}
 		FAvatarMenus.remove(lbl);
 	}
-}
-
-bool MetaContacts::eventFilter(QObject * obj, QEvent * evt)
-{
-	if (QLabel * lbl = qobject_cast<QLabel*>(obj))
-	{
-		if (evt->type() == QEvent::ContextMenu)
-		{
-			QContextMenuEvent * cme = (QContextMenuEvent*)evt;
-			MetaContextMenu *menu = FAvatarMenus.value(lbl, NULL);
-			if (menu)
-			{
-				menu->popup(cme->globalPos());
-				return true;
-			}
-		}
-		if (evt->type() == QEvent::MouseButtonPress)
-		{
-			QMouseEvent * me = (QMouseEvent*)evt;
-			if (me->button() == Qt::LeftButton)
-			{
-				MetaContextMenu *menu = FAvatarMenus.value(lbl, NULL);
-				if (menu)
-				{
-					menu->defaultAction()->trigger();
-					return true;
-				}
-			}
-		}
-		if (evt->type() == QEvent::Paint)
-		{
-			QPaintEvent * pe = (QPaintEvent*)evt;
-			lbl->removeEventFilter(this);
-			QApplication::sendEvent(lbl, pe);
-			lbl->installEventFilter(this);
-			QImage img = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_METACONTACTS_MENU_INDICATOR);
-			QSize sz = img.size();
-			QPainter p(lbl);
-			p.setClipRect(pe->rect());
-			QRect r(QPoint(0, 0), sz);
-			// WARNING! 5 and 4 are magic numbers!
-			r.moveTopLeft(QPoint(lbl->size().width() - sz.width() - 5, lbl->size().height() - sz.height() - 4));
-			p.drawImage(r, img);
-			return true;
-		}
-	}
-	return QObject::eventFilter(obj, evt);
 }
 
 

@@ -124,7 +124,7 @@ signals:
 	void tabPageDestroyed(ITabPage *ATabPage);
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
-	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
+	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch = true) const;
 	IChatWindow *findNotifiedMessageWindow(int AMessageId) const;
 	void clearWindow(IChatWindow *AWindow);
 	void updateWindow(IChatWindow *AWindow);

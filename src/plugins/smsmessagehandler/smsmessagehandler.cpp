@@ -514,50 +514,62 @@ IPresenceItem SmsMessageHandler::findPresenceItem(IPresence *APresence, const Ji
 
 IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	IChatWindow *window = findWindow(AStreamJid,AContactJid);
-	if (!window)
+	IChatWindow *window = NULL;
+	if (AStreamJid.isValid() && AContactJid.isValid())
 	{
-		window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
-		if (window)
+		window = findWindow(AStreamJid,AContactJid,false);
+		if (!window)
 		{
-			window->infoWidget()->autoUpdateFields();
-			window->editWidget()->setSendKey(QKeySequence::UnknownKey);
-			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
+			window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
+			if (window)
+			{
+				window->infoWidget()->autoUpdateFields();
+				window->editWidget()->setSendKey(QKeySequence::UnknownKey);
+				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
-			WindowStatus &wstatus = FWindowStatus[window];
-			wstatus.createTime = QDateTime::currentDateTime();
+				WindowStatus &wstatus = FWindowStatus[window];
+				wstatus.createTime = QDateTime::currentDateTime();
 
-			connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
-			connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
-			connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
-			connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
-			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
+				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
+				connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
+				connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
+				connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
+				connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
 
-			FWindows.append(window);
-			updateWindow(window);
-			setMessageStyle(window);
+				FWindows.append(window);
+				updateWindow(window);
+				setMessageStyle(window);
 
-			SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
-			window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
+				SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
+				window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
 
-			TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
-			pageInfo.page = window;
-			emit tabPageCreated(window);
+				TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+				pageInfo.page = window;
+				emit tabPageCreated(window);
 
-			requestHistoryMessages(window, HISTORY_MESSAGES_COUNT);
+				requestHistoryMessages(window, HISTORY_MESSAGES_COUNT);
 
-			window->instance()->installEventFilter(this);
+				window->instance()->installEventFilter(this);
+			}
 		}
 	}
 	return window;
 }
 
-IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid)
+IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch) const
 {
-	foreach(IChatWindow *window, FWindows)
-		if (window->streamJid()==AStreamJid && window->contactJid()==AContactJid)
-			return window;
-	return NULL;
+	IChatWindow *bareWindow = NULL;
+	foreach(IChatWindow *window,FWindows)
+	{
+		if (window->streamJid() == AStreamJid)
+		{
+			if (window->contactJid() == AContactJid)
+				return window;
+			else if (!AExactMatch && !bareWindow && (window->contactJid() && AContactJid))
+				bareWindow = window;
+		}
+	}
+	return bareWindow;
 }
 
 void SmsMessageHandler::clearWindow(IChatWindow *AWindow)

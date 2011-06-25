@@ -477,21 +477,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 	IChatWindow *window = NULL;
 	if (AStreamJid.isValid() && AContactJid.isValid())
 	{
-		if (AContactJid.resource().isEmpty())
-		{
-			foreach(IChatWindow *chatWindow, FWindows)
-			{
-				if (chatWindow->streamJid()==AStreamJid && chatWindow->contactJid().pBare()==AContactJid.pBare())
-				{
-					window = chatWindow;
-					break;
-				}
-			}
-		}
-		if (window == NULL)
-		{
-			window = findWindow(AStreamJid,AContactJid);
-		}
+		window = findWindow(AStreamJid,AContactJid,false);
 		if (window == NULL)
 		{
 			window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
@@ -513,6 +499,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 
 				FWindows.append(window);
 				updateWindow(window);
+				setMessageStyle(window);
 
 				if (FRostersView && FRostersModel)
 				{
@@ -527,8 +514,6 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 					button->setFixedSize(QSize(48,48));
 				}
 
-				setMessageStyle(window);
-
 				TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
 				pageInfo.page = window;
 				emit tabPageCreated(window);
@@ -542,12 +527,20 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 	return window;
 }
 
-IChatWindow *ChatMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid) const
+IChatWindow *ChatMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch) const
 {
+	IChatWindow *bareWindow = NULL;
 	foreach(IChatWindow *window,FWindows)
-		if (window->streamJid() == AStreamJid && window->contactJid() == AContactJid)
-			return window;
-	return NULL;
+	{
+		if (window->streamJid() == AStreamJid)
+		{
+			if (window->contactJid() == AContactJid)
+				return window;
+			else if (!AExactMatch && !bareWindow && (window->contactJid() && AContactJid))
+				bareWindow = window;
+		}
+	}
+	return bareWindow;
 }
 
 IChatWindow *ChatMessageHandler::findNotifiedMessageWindow(int AMessageId) const

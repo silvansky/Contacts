@@ -250,32 +250,6 @@ IMessageWindow *MessageWidgets::findMessageWindow(const Jid &AStreamJid, const J
 	return NULL;
 }
 
-QList<IMassSendDialog*> MessageWidgets::massSendDialogs() const
-{
-	return FMassSendDialogs;
-}
-
-IMassSendDialog * MessageWidgets::newMassSendDialog(const Jid & AStreamJid)
-{
-	IMassSendDialog * dlg = findMassSendDialog(AStreamJid);
-	if (!dlg)
-	{
-		dlg = new MassSendDialog(this, AStreamJid);
-		FMassSendDialogs.append(dlg);
-		FCleanupHandler.add(dlg->instance());
-		emit massSendDialogCreated(dlg);
-	}
-	return dlg;
-}
-
-IMassSendDialog * MessageWidgets::findMassSendDialog(const Jid & AStreamJid)
-{
-	foreach (IMassSendDialog* dialog, FMassSendDialogs)
-		if (dialog->streamJid() == AStreamJid)
-			return dialog;
-	return 0;
-}
-
 QList<IChatWindow *> MessageWidgets::chatWindows() const
 {
 	return FChatWindows;
@@ -301,6 +275,32 @@ IChatWindow *MessageWidgets::findChatWindow(const Jid &AStreamJid, const Jid &AC
 	foreach(IChatWindow *window,FChatWindows)
 		if (window->streamJid() == AStreamJid && window->contactJid() == AContactJid)
 			return window;
+	return NULL;
+}
+
+QList<IMassSendDialog*> MessageWidgets::massSendDialogs() const
+{
+	return FMassSendDialogs;
+}
+
+IMassSendDialog *MessageWidgets::newMassSendDialog(const Jid &AStreamJid)
+{
+	IMassSendDialog *dialog = findMassSendDialog(AStreamJid);
+	if (!dialog)
+	{
+		dialog = new MassSendDialog(this, AStreamJid);
+		FMassSendDialogs.append(dialog);
+		FCleanupHandler.add(dialog->instance());
+		emit massSendDialogCreated(dialog);
+	}
+	return dialog;
+}
+
+IMassSendDialog *MessageWidgets::findMassSendDialog(const Jid &AStreamJid)
+{
+	foreach (IMassSendDialog* dialog, FMassSendDialogs)
+		if (dialog->streamJid() == AStreamJid)
+			return dialog;
 	return NULL;
 }
 
