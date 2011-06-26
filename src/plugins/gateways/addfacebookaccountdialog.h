@@ -41,7 +41,7 @@ private:
 private:
 	Jid FServiceJid;
 	QString FRegisterId;
-   QString FAbortMessage;
+	QString FAbortMessage;
 	IGateServiceLogin FGateLogin;
 };
 

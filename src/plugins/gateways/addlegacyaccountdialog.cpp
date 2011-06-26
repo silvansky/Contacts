@@ -47,7 +47,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	domainsMenu->setObjectName("domainsMenu");
 	ui.tlbDomains->setMenu(domainsMenu);
 
-   FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
+	FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
 
 	FGateLabel = FGateways->serviceDescriptor(FPresence->streamJid(), FServiceJid);
 	if (!FGateLabel.id.isEmpty())
@@ -224,7 +224,7 @@ void AddLegacyAccountDialog::onOkClicked()
 		FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
 		FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
 		if (FRegisterId.isEmpty())
-			setError(tr("Gateway registration request failed"));
+			abort(FAbortMessage);
 		else
 			setWaitMode(true, tr("Waiting for host response..."));
 	}
@@ -241,12 +241,12 @@ void AddLegacyAccountDialog::onCancelClicked()
 
 void AddLegacyAccountDialog::onDomainsMenuActionTriggered()
 {
-   Action * action = qobject_cast<Action*>(sender());
-   if (action)
-   {
-      ui.tlbDomains->setText(action->text());
-      ui.tlbDomains->setProperty("domain", action->property("domain"));
-   }
+	Action * action = qobject_cast<Action*>(sender());
+	if (action)
+	{
+		ui.tlbDomains->setText(action->text());
+		ui.tlbDomains->setProperty("domain", action->property("domain"));
+	}
 }
 
 void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegisterFields &AFields)
@@ -298,7 +298,7 @@ void AddLegacyAccountDialog::onRegisterSuccess(const QString &AId)
 {
 	if (AId == FRegisterId)
 	{
-      accept();
+		accept();
 	}
 }
 
@@ -306,16 +306,11 @@ void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &
 {
 	if (AId == FRegisterId)
 	{
-      Log(QString("[Add legacy account register error] %1").arg(AError));
-		if (FGateLogin.isValid)
+		Log(QString("[Add legacy account register error] %1").arg(AError));
+		if (AError == "resource-limit-exceeded") // јцкий хак, нужно везде передавать код ошибки!
 		{
-			setError(tr("Failed to add account, check your login and password"));
-			setWaitMode(false);
+			abort(tr("You have connected the maximum number of %1 accounts.").arg(FGateLabel.name));
 		}
-      else if (AError == "resource-limit-exceeded") // јцкий хак, нужно везде передавать код ошибки!
-      {
-         abort(tr("You have connected the maximum number of %1 accounts.").arg(FGateLabel.name));
-      }
 		else
 		{
 			abort(FAbortMessage);

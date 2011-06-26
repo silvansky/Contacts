@@ -42,7 +42,7 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
 		SLOT(onRegisterError(const QString &, const QString &)));
 
-   FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
+	FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
 
 	FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 	if (FRegisterId.isEmpty())
@@ -102,7 +102,7 @@ void AddFacebookAccountDialog::abort(const QString &AMessage)
 	dialog->setAcceptButtonText(tr("Ok"));
 	dialog->setDeleteOnClose(true);
 	dialog->show();
-   QTimer::singleShot(0,this,SLOT(reject()));
+	QTimer::singleShot(0,this,SLOT(reject()));
 	hide();
 }
 
@@ -144,10 +144,7 @@ void AddFacebookAccountDialog::onRegisterSuccess(const QString &AId)
 {
 	if (AId == FRegisterId)
 	{
-		if (FGateways->setServiceEnabled(FPresence->streamJid(),FServiceJid,true))
-			accept();
-		else
-			abort(FAbortMessage);
+		accept();
 	}
 }
 
@@ -155,11 +152,9 @@ void AddFacebookAccountDialog::onRegisterError(const QString &AId, const QString
 {
 	if (AId == FRegisterId)
 	{
-      Log(QString("[Add legacy account register error] %1").arg(AError));
-		if (FGateLogin.isValid)
-			abort(FAbortMessage);
-      else if (AError == "resource-limit-exceeded") // јцкий хак, нужно везде передавать код ошибки!
-         abort(tr("You have connected the maximum number of %1 accounts.").arg(tr("Facebook")));
+		Log(QString("[Add legacy account register error] %1").arg(AError));
+		if (AError == "resource-limit-exceeded") // јцкий хак, нужно везде передавать код ошибки!
+			abort(tr("You have connected the maximum number of %1 accounts.").arg(tr("Facebook")));
 		else
 			abort(FAbortMessage);
 	}
