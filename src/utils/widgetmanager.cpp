@@ -16,6 +16,11 @@
 #define MESSAGE_SOURCE_PAGER          2
 #endif //Q_WS_X11
 
+namespace WidgetManagerData 
+{
+	static bool isAlertEnabled = true;
+};
+
 class WindowSticker :
 		public QObject
 {
@@ -186,6 +191,59 @@ void WidgetManager::setWindowSticky(QWidget *AWindow, bool ASticky)
 #else
 	Q_UNUSED(AWindow);
 	Q_UNUSED(ASticky);
+#endif
+}
+
+void WidgetManager::alertWidget(QWidget *AWidget)
+{
+	if (AWidget!=NULL && isWidgetAlertEnabled())
+		QApplication::alert(AWidget);
+}
+
+bool WidgetManager::isWidgetAlertEnabled()
+{
+	return WidgetManagerData::isAlertEnabled;
+}
+
+void WidgetManager::setWidgetAlertEnabled(bool AEnabled)
+{
+	WidgetManagerData::isAlertEnabled = AEnabled;
+}
+
+Qt::Alignment WidgetManager::windowAlignment(const QWidget *AWindow)
+{
+	static const int delta = 4;
+	Qt::Alignment align = 0;
+	QRect windowRect = AWindow->frameGeometry();
+	QRect screenRect = QApplication::desktop()->availableGeometry(AWindow);
+	if (!screenRect.isEmpty() && !windowRect.isEmpty())
+	{
+		if (qAbs(screenRect.left() - windowRect.left()) < delta)
+			align |= Qt::AlignLeft;
+		else if (qAbs(screenRect.right() - windowRect.right()) < delta)
+			align |= Qt::AlignRight;
+		if (qAbs(screenRect.top() - windowRect.top()) < delta)
+			align |= Qt::AlignTop;
+		else if (qAbs(screenRect.bottom() - windowRect.bottom()) < delta)
+			align |= Qt::AlignBottom;
+	}
+	return align;
+}
+
+void WidgetManager::alignWindow(QWidget *AWindow, Qt::Alignment AAlign)
+{
+#ifndef Q_WS_X11
+	if (AAlign > 0)
+	{
+		QRect frameRect = AWindow->frameGeometry();
+		QRect windowRect = AWindow->geometry();
+		QRect rect = alignGeometry(frameRect.size(),AWindow,AAlign);
+		rect.adjust(windowRect.left()-frameRect.left(),windowRect.top()-frameRect.top(),windowRect.right()-frameRect.right(),windowRect.bottom()-frameRect.bottom());
+		AWindow->setGeometry(rect);
+	}
+#else
+	Q_UNUSED(AWindow);
+	Q_UNUSED(AAlign);
 #endif
 }
 

@@ -1397,8 +1397,8 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 		notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name.split(" ").value(0)));
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SUBSCRIPTION);
 		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,1);
-		notify.data.insert(NDR_TABPAGE_CREATE_TAB,false);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP, Qt::escape(notifyMessage));
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
 		notify.data.insert(NDR_POPUP_NOTICE, notifyMessage);

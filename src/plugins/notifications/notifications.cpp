@@ -337,6 +337,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		(record.notification.kinds & INotification::TabPage))
 	{
 		bool createTab = record.notification.data.value(NDR_TABPAGE_CREATE_TAB).toBool();
+		bool alertWindow = record.notification.data.value(NDR_TABPAGE_ALERT_WINDOW).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
 		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
 		if (!createTab || FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_ADD_TAB))
@@ -355,6 +356,10 @@ int Notifications::appendNotification(const INotification &ANotification)
 				notify.styleKey = record.notification.data.value(NDR_TABPAGE_STYLEKEY).toString();
 				record.tabPageId = window->tabPageNotifier()->insertNotify(notify);
 				record.tabPageNotifier = window->tabPageNotifier()->instance();
+			}
+			if (window && alertWindow)
+			{
+				WidgetManager::alertWidget(window->instance());
 			}
 		}
 	}
