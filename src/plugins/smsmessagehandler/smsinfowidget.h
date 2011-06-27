@@ -19,15 +19,19 @@ public:
 	IChatWindow *chatWindow() const;
 protected slots:
 	void onEditWidgetTextChanged();
+	void onSupplementLinkActivated(const QString &ALink);
 	void onSmsBalanceChanged(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance);
+	void onSmsSupplementReceived(const QString &AId, const QString &ANumber, const QString &ACode, int ACount);
+	void onSmsSupplementError(const QString &AId, const QString &ACondition, const QString &AMessage);
 private:
-	Ui::SmsInfoWidget ui;
+	Ui::SmsInfoWidgetClass ui;
 private:
 	IChatWindow *FChatWindow;
 	ISmsMessageHandler *FSmsHandler;
 private:
 	int FBalance;
 	QKeySequence FSendKey;
+	QString FSupplementRequest;
 };
 
 #endif // SMSINFOWIDGET_H

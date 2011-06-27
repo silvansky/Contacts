@@ -758,7 +758,7 @@ void AddContactDialog::onContinueButtonclicked()
 				}
 				else
 				{
-					onMetaActionResult(FContactCreateRequest,ErrorHandler::coditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
+					onMetaActionResult(FContactCreateRequest,ErrorHandler::conditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
 				}
 			}
 			else

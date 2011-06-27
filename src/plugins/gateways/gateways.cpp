@@ -1510,7 +1510,7 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 	Q_UNUSED(ABefore);
 	if (AItem.itemJid.node().isEmpty())
 	{
-		QString conflictCond = ErrorHandler::coditionByCode(ErrorHandler::CONFLICT);
+		QString conflictCond = ErrorHandler::conditionByCode(ErrorHandler::CONFLICT);
 		if (AItem.errCondition==conflictCond && AItem.errCondition!=ABefore.errCondition && isServiceEnabled(APresence->streamJid(),AItem.itemJid))
 		{
 			setServiceEnabled(APresence->streamJid(),AItem.itemJid,false);

@@ -4,10 +4,6 @@
 <context>
     <name>SmsInfoWidget</name>
     <message>
-        <source>Refill</source>
-        <translation>Пополнить</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;%1&lt;/b&gt; from %2 characters</source>
         <translation>&lt;b&gt;%1&lt;/b&gt; из %2 знаков</translation>
     </message>
@@ -22,6 +18,10 @@
     <message>
         <source>SMS service is unavailable</source>
         <translation>SMS-сервис недоступен</translation>
+    </message>
+    <message>
+        <source>Supplement</source>
+        <translation>Пополнить</translation>
     </message>
 </context>
 <context>

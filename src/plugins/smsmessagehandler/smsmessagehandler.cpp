@@ -3,9 +3,10 @@
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    25
 
-#define WAIT_RECEIVE_TIMEOUT      60
-#define DESTROYWINDOW_TIMEOUT     30*60*1000
-#define BALANCE_REQUEST_TIMEOUT   30*1000
+#define WAIT_RECEIVE_TIMEOUT         60
+#define DESTROYWINDOW_TIMEOUT        30*60*1000
+#define BALANCE_REQUEST_TIMEOUT      30*1000
+#define SUPPLEMENT_REQUEST_TIMEOUT   10*1000
 
 #define ADR_TAB_PAGE_ID           Action::DR_Parametr2
 
@@ -225,7 +226,33 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 	if (FSmsBalanceRequests.contains(AStanza.id()))
 	{
 		Jid serviceJid = FSmsBalanceRequests.take(AStanza.id());
-		setSmsBalance(AStreamJid,serviceJid,smsBalanceFromStanza(AStanza));
+		if (AStanza.type() == "result")
+			setSmsBalance(AStreamJid,serviceJid,smsBalanceFromStanza(AStanza));
+	}
+	else if (FSmsSupplementRequests.contains(AStanza.id()))
+	{
+		FSmsSupplementRequests.remove(AStanza.id());
+		if (AStanza.type() == "result")
+		{
+			QDomElement query = AStanza.firstElement("query",NS_RAMBLER_SMS_SUPPLEMENT);
+			QString number = query.firstChildElement("number").text();
+			QString code = query.firstChildElement("code").text();
+			int count = query.firstChildElement("count").text().toInt();
+			if (!number.isEmpty() && !code.isEmpty() && count>0)
+			{
+				emit smsSupplementReceived(AStanza.id(),number,code,count);
+			}
+			else
+			{
+				ErrorHandler err(ErrorHandler::INTERNAL_SERVER_ERROR);
+				emit smsSupplementError(AStanza.id(),err.condition(),err.message());
+			}
+		}
+		else
+		{
+			ErrorHandler err(AStanza.element());
+			emit smsSupplementError(AStanza.id(),err.condition(),err.message());
+		}
 	}
 }
 
@@ -235,6 +262,11 @@ void SmsMessageHandler::stanzaRequestTimeout(const Jid &AStreamJid, const QStrin
 	{
 		Jid serviceJid = FSmsBalanceRequests.take(AStanzaId);
 		setSmsBalance(AStreamJid,serviceJid,-1);
+	}
+	else if (FSmsSupplementRequests.contains(AStanzaId))
+	{
+		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
+		emit smsSupplementError(AStanzaId,err.condition(),err.message());
 	}
 }
 
@@ -483,6 +515,23 @@ bool SmsMessageHandler::requestSmsBalance(const Jid &AStreamJid, const Jid &ASer
 		}
 	}
 	return false;
+}
+
+QString SmsMessageHandler::requestSmsSupplement(const Jid &AStreamJid, const Jid &AServiceJid)
+{
+	if (FStanzaProcessor)
+	{
+		Stanza request("iq");
+		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
+		request.addElement("query",NS_RAMBLER_SMS_SUPPLEMENT);
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,SUPPLEMENT_REQUEST_TIMEOUT))
+		{
+			FSmsSupplementRequests.insert(request.id(),AServiceJid);
+			return request.id();
+		}
+	}
+	return QString::null;
+
 }
 
 int SmsMessageHandler::smsBalanceFromStanza(const Stanza &AStanza) const

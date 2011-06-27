@@ -81,7 +81,7 @@ public:
 	static ErrorType typeByCondition(const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
 	static QString typeToString(ErrorType AErrorType);
 	static int codeByCondition(const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
-	static QString coditionByCode(int ACode, const QString &ANsURI = EHN_DEFAULT);
+	static QString conditionByCode(int ACode, const QString &ANsURI = EHN_DEFAULT);
 	static QString meaningByCode(int ACode, const QString &ANsURI = EHN_DEFAULT);
 	static QString meaningByCondition(const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
 protected:

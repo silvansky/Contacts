@@ -54,10 +54,6 @@
         <translation>Добавить</translation>
     </message>
     <message>
-        <source>Gateway registration request failed</source>
-        <translation>Запрос регистрации завершился с ошибкой</translation>
-    </message>
-    <message>
         <source>Waiting for host response...</source>
         <translation>Ожидание ответа хоста ...</translation>
     </message>
@@ -80,10 +76,6 @@
     <message>
         <source>Please, enter your login and password.</source>
         <translation>Пожалуйста, укажите ваш логин и пароль.</translation>
-    </message>
-    <message>
-        <source>Failed to add account, check your login and password</source>
-        <translation>Не удалось добавить учётную запись, проверьте ваш логин и пароль</translation>
     </message>
     <message>
         <source>Your account is not connected.</source>

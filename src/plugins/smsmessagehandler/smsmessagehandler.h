@@ -118,8 +118,11 @@ public:
 	virtual bool isSmsContact(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual int smsBalance(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual bool requestSmsBalance(const Jid &AStreamJid, const Jid &AServiceJid);
+	virtual QString requestSmsSupplement(const Jid &AStreamJid, const Jid &AServiceJid);
 signals:
 	void smsBalanceChanged(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance);
+	void smsSupplementReceived(const QString &AId, const QString &ANumber, const QString &ACode, int ACount);
+	void smsSupplementError(const QString &AId, const QString &ACondition, const QString &AMessage);
 	//ITabPageHandler
 	void tabPageCreated(ITabPage *ATabPage);
 	void tabPageDestroyed(ITabPage *ATabPage);
@@ -197,6 +200,7 @@ private:
 	QMap<Jid, int> FSHISmsBalance;
 	QMap<Jid, int> FSHIMessageReceipts;
 	QMap<QString, Jid> FSmsBalanceRequests;
+	QMap<QString, Jid> FSmsSupplementRequests;
 	QMap<Jid, QMap<Jid, int> > FSmsBalance;
 };
 

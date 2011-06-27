@@ -776,12 +776,12 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 			// Здесь проверяем возможность установки соединения
 			if (FStreams.contains(sid))
 			{
-				Stanza error = AStanza.replyError(ErrorHandler::coditionByCode(ErrorHandler::CONFLICT));
+				Stanza error = AStanza.replyError(ErrorHandler::conditionByCode(ErrorHandler::CONFLICT));
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else if (!findStream(AStreamJid,AStanza.from()).isEmpty())
 			{
-				Stanza error = AStanza.replyError(ErrorHandler::coditionByCode(ErrorHandler::NOT_ACCEPTABLE));
+				Stanza error = AStanza.replyError(ErrorHandler::conditionByCode(ErrorHandler::NOT_ACCEPTABLE));
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else

@@ -11,9 +11,14 @@ SmsInfoWidget::SmsInfoWidget(ISmsMessageHandler *ASmsHandler, IChatWindow *AWind
 	FSendKey = FChatWindow->editWidget()->sendKey();
 
 	ui.lblPhoneNumber->setText(AWindow->contactJid().node());
-	ui.lblRefill->setText(QString("<a href='%1'>%2</a>").arg("http://id.rambler.ru").arg(tr("Refill")));
-
+	ui.lblSupplement->setText(QString("<a href='%1'>%2</a>").arg("http://id.rambler.ru").arg(tr("Supplement")));
+	connect(ui.lblSupplement,SIGNAL(linkActivated(const QString &)),SLOT(onSupplementLinkActivated(const QString &)));
 	connect(FChatWindow->editWidget()->textEdit(),SIGNAL(textChanged()),SLOT(onEditWidgetTextChanged()));
+
+	connect(FSmsHandler->instance(),SIGNAL(smsSupplementReceived(const QString &, const QString &, const QString &, int)),
+		SLOT(onSmsSupplementReceived(const QString &, const QString &, const QString &, int)));
+	connect(FSmsHandler->instance(),SIGNAL(smsSupplementError(const QString &, const QString &, const QString &)),
+		SLOT(onSmsSupplementError(const QString &, const QString &, const QString &)));
 	connect(FSmsHandler->instance(),SIGNAL(smsBalanceChanged(const Jid &, const Jid &, int)),SLOT(onSmsBalanceChanged(const Jid &, const Jid &, int)));
 
 	FBalance = FSmsHandler->smsBalance(FChatWindow->streamJid(),FChatWindow->contactJid().domain());
@@ -54,23 +59,36 @@ void SmsInfoWidget::onEditWidgetTextChanged()
 	FChatWindow->editWidget()->setSendKey(chars>0 && chars<=maxChars ? FSendKey : QKeySequence::UnknownKey);
 }
 
+void SmsInfoWidget::onSupplementLinkActivated(const QString &ALink)
+{
+	Q_UNUSED(ALink);
+	if (FSupplementRequest.isEmpty())
+	{
+		FSupplementRequest = FSmsHandler->requestSmsSupplement(FChatWindow->streamJid(),FChatWindow->contactJid().domain());
+		if (FSupplementRequest.isEmpty())
+		{
+
+		}
+	}
+}
+
 void SmsInfoWidget::onSmsBalanceChanged(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance)
 {
 	if (AStreamJid==FChatWindow->streamJid() && AServiceJid==FChatWindow->contactJid().domain())
 	{
 		if (ABalance > 0)
 		{
-			ui.lblRefill->setVisible(true);
+			ui.lblSupplement->setVisible(true);
 			ui.lblBalance->setText(tr("Balance: <b>%1 SMS</b>").arg(ABalance));
 		}
 		else if (ABalance == 0)
 		{
-			ui.lblRefill->setVisible(true);
+			ui.lblSupplement->setVisible(true);
 			ui.lblBalance->setText(tr("You have run out of SMS"));
 		}
 		else
 		{
-			ui.lblRefill->setVisible(false);
+			ui.lblSupplement->setVisible(false);
 			ui.lblBalance->setText(tr("SMS service is unavailable"));
 		}
 
@@ -80,5 +98,22 @@ void SmsInfoWidget::onSmsBalanceChanged(const Jid &AStreamJid, const Jid &AServi
 
 		ui.lblBalance->setProperty("error", FBalance>0 ? false : true);
 		StyleStorage::updateStyle(this);
+	}
+}
+
+void SmsInfoWidget::onSmsSupplementReceived(const QString &AId, const QString &ANumber, const QString &ACode, int ACount)
+{
+	if (FSupplementRequest == AId)
+	{
+		FSupplementRequest.clear();
+	}
+}
+
+void SmsInfoWidget::onSmsSupplementError(const QString &AId, const QString &ACondition, const QString &AMessage)
+{
+	Q_UNUSED(ACondition); Q_UNUSED(AMessage);
+	if (FSupplementRequest == AId)
+	{
+		FSupplementRequest.clear();
 	}
 }

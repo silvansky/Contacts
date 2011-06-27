@@ -87,6 +87,7 @@
 #define NS_RAMBLER_METACONTACTS                 "rambler:roster:mc"
 #define NS_RAMBLER_SIP_PHONE                    "rambler:sip:phone"
 #define NS_RAMBLER_SMS_BALANCE                  "rambler:sms:balance"
+#define NS_RAMBLER_SMS_SUPPLEMENT               "rambler:sms:supplement"
 #define NS_RAMBLER_MAIL_NOTIFY                  "rambler:mail:notify"
 #define NS_RAMBLER_MAIL_NOTICE                  "rambler:mail:notice"
 #define NS_RAMBLER_GATEWAY_REGISTER             "rambler:gateway:register"

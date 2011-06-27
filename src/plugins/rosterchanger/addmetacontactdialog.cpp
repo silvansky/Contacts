@@ -432,7 +432,7 @@ void AddMetaContactDialog::onDialogAccepted()
 		}
 		else
 		{
-			onMetaActionResult(FCreateActionId,ErrorHandler::coditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
+			onMetaActionResult(FCreateActionId,ErrorHandler::conditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
 		}
 	}
 }
