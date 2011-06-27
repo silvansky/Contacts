@@ -154,7 +154,6 @@ protected:
 	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected slots:
 	void onScrollAfterResize();
-	void onSetScrollbarAllwaysVisible();
 	void onLinkClicked(const QUrl &AUrl);
 	void onStyleWidgetAdded(IMessageStyle *AStyle, QWidget *AWidget);
 	void onStyleWidgetDestroyed(QObject *AObject);

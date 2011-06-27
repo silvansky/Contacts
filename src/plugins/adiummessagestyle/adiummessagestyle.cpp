@@ -93,12 +93,6 @@ QWidget *AdiumMessageStyle::createWidget(const IMessageStyleOptions &AOptions, Q
 {
 	StyleViewer *view = new StyleViewer(AParent);
 	changeOptions(view,AOptions,true);
-
-	// Если для первого виджета сразу установить Qt::ScrollBarAlwaysOn, то слетит стилизция скролбара
-	if (FDelayedAllwaysOn)
-		QTimer::singleShot(1000,this,SLOT(onSetScrollbarAllwaysVisible()));
-	else
-		view->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical,Qt::ScrollBarAlwaysOn);
 	return view;
 }
 
@@ -769,17 +763,6 @@ void AdiumMessageStyle::onScrollAfterResize()
 			frame->setScrollBarValue(Qt::Vertical,frame->scrollBarMaximum(Qt::Vertical));
 			it->scrollStarted = false;
 		}
-	}
-}
-
-void AdiumMessageStyle::onSetScrollbarAllwaysVisible()
-{
-	FDelayedAllwaysOn = false;
-	for (QMap<QWidget*,WidgetStatus>::iterator it = FWidgetStatus.begin(); it!= FWidgetStatus.end(); it++)
-	{
-		QWebFrame *frame = ((StyleViewer *)it.key())->page()->mainFrame();
-		if (frame->scrollBarPolicy(Qt::Vertical) != Qt::ScrollBarAlwaysOn)
-			frame->setScrollBarPolicy(Qt::Vertical,Qt::ScrollBarAlwaysOn);
 	}
 }
 
