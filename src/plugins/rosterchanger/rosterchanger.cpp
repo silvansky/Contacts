@@ -563,23 +563,23 @@ bool RosterChanger::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, c
 //IRosterChanger
 bool RosterChanger::isAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	if (Options::node(OPV_ROSTER_AUTOSUBSCRIBE).value().toBool())
+	if (FGateways && AContactJid.node().isEmpty() && FGateways->availServices(AStreamJid).contains(AContactJid))
+		return true;
+	else if (Options::node(OPV_ROSTER_AUTOSUBSCRIBE).value().toBool())
 		return true;
 	else if (FAutoSubscriptions.value(AStreamJid).contains(AContactJid.bare()))
 		return FAutoSubscriptions.value(AStreamJid).value(AContactJid.bare()).autoSubscribe;
-	else if (FGateways && AContactJid.node().isEmpty() && FGateways->availServices(AStreamJid).contains(AContactJid))
-		return true;
 	return false;
 }
 
 bool RosterChanger::isAutoUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	if (Options::node(OPV_ROSTER_AUTOUNSUBSCRIBE).value().toBool())
+	if (FGateways && AContactJid.node().isEmpty() && FGateways->availServices(AStreamJid).contains(AContactJid))
+		return true;
+	else if (Options::node(OPV_ROSTER_AUTOUNSUBSCRIBE).value().toBool())
 		return true;
 	else if (FAutoSubscriptions.value(AStreamJid).contains(AContactJid.bare()))
 		return FAutoSubscriptions.value(AStreamJid).value(AContactJid.bare()).autoUnsubscribe;
-	else if (FGateways && AContactJid.node().isEmpty() && FGateways->availServices(AStreamJid).contains(AContactJid))
-		return true;
 	return false;
 }
 
