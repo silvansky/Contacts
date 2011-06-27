@@ -86,6 +86,11 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 	if (!styleKey.isEmpty())
 		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(ui.frmPopup,styleKey);
 
+	canActivate = ANotification.data.value(NDR_POPUP_CAN_ACTIVATE, true).toBool();
+
+	setCursor(canActivate ? Qt::PointingHandCursor : Qt::ArrowCursor);
+	ui.tbrText->setCursor(canActivate ? Qt::PointingHandCursor : Qt::ArrowCursor);
+
 	appendNotification(ANotification);
 	updateElidedText();
 }
@@ -196,7 +201,7 @@ void NotifyWidget::leaveEvent(QEvent *AEvent)
 void NotifyWidget::mouseReleaseEvent(QMouseEvent *AEvent)
 {
 	QWidget::mouseReleaseEvent(AEvent);
-	if (AEvent->button() == Qt::LeftButton)
+	if ((AEvent->button() == Qt::LeftButton) && canActivate)
 		emit notifyActivated();
 	else if (AEvent->button() == Qt::RightButton)
 		emit notifyRemoved();

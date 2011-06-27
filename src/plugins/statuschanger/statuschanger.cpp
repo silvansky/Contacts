@@ -997,6 +997,7 @@ void StatusChanger::updateStatusNotification(IPresence *APresence)
 				notify.data.insert(NDR_POPUP_TEXT,isFailed ? Qt::escape(APresence->status()) : QString());
 				notify.data.insert(NDR_POPUP_STYLEKEY,isFailed ? STS_SCHANGER_NOTIFYWIDGET_CONNECTION_ERROR : STS_SCHANGER_NOTIFYWIDGET_CONNECTION_RESTORE);
 				notify.data.insert(NDR_SOUND_FILE,isFailed ? SDF_SCHANGER_CONNECTION_ERROR : SDF_SCHANGER_CONNECTION_RESTORE);
+				notify.data.insert(NDR_POPUP_CAN_ACTIVATE, false);
 
 				notifyId = FNotifications->appendNotification(notify);
 				FConnectNotifyId.insert(APresence, isFailed ? 0-notifyId : notifyId);

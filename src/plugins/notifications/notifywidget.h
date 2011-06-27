@@ -53,6 +53,7 @@ private:
 	int FAnimateStep;
 	QTimer *FCloseTimer;
 	CustomBorderContainer * border;
+	bool canActivate;
 private:
 	QString FTitle;
 	QString FNotice;
