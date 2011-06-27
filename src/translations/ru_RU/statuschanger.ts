@@ -210,12 +210,12 @@
         <translation>Проблема</translation>
     </message>
     <message>
-        <source>Problem persists</source>
-        <translation>Проблема устранена</translation>
-    </message>
-    <message>
         <source>Contacts - %1</source>
         <translation>Контакты - %1</translation>
+    </message>
+    <message>
+        <source>Problem resolved</source>
+        <translation>Проблема устранена</translation>
     </message>
 </context>
 <context>
