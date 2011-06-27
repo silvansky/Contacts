@@ -392,14 +392,13 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 
 INotification ChatMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
 {
-	INotification notify;
-
 	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
 	WindowStatus &wstatus = FWindowStatus[window];
 
 	QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
 	QString messages = tr("%n message(s)","",wstatus.notified.count());
 
+	INotification notify;
 	notify.kinds = ANotifications->notificatorKinds(NID_CHAT_MESSAGE);
 	if (notify.kinds > 0)
 	{
@@ -452,7 +451,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 			{
 				int notifyId = FMessageProcessor->notifyByMessage(messageId);
 				if (notifyId>0 && notifyId!=replNotify)
-					notifyCount -= FNotifications->notificationById(notifyId).data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt();
+					notifyCount -= FNotifications!=NULL ? FNotifications->notificationById(notifyId).data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt() : 0;
 			}
 		}
 		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);

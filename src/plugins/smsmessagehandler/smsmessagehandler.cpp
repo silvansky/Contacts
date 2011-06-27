@@ -47,6 +47,7 @@ SmsMessageHandler::SmsMessageHandler()
 	FStanzaProcessor = NULL;
 	FRosterPlugin = NULL;
 	FPresencePlugin = NULL;
+	FNotifications = NULL;
 
 	FNotReceivedTimer.setInterval(1000);
 	connect(&FNotReceivedTimer,SIGNAL(timeout()),SLOT(onNotReceivedTimerTimeout()));
@@ -164,6 +165,10 @@ bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AIn
 			connect(FPresencePlugin->instance(),SIGNAL(presenceOpened(IPresence *)),SLOT(onPresenceOpened(IPresence *)));
 		}
 	}
+
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -382,7 +387,6 @@ INotification SmsMessageHandler::notification(INotifications *ANotifications, co
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
 		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
-		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,wstatus.notified.count());
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
 		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
@@ -393,7 +397,8 @@ INotification SmsMessageHandler::notification(INotifications *ANotifications, co
 		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
 		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
 
-		if (wstatus.notified.count() > 1)
+		int notifyCount = wstatus.notified.count();
+		if (notifyCount > 1)
 		{
 			int lastNotifyWithPopup = -1;
 			QList<int> notifies = ANotifications->notifications();
@@ -407,7 +412,17 @@ INotification SmsMessageHandler::notification(INotifications *ANotifications, co
 			int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
 			if (replNotify>0 && replNotify==lastNotifyWithPopup)
 				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
+			else
+				replNotify = -1;
+
+			foreach(int messageId, wstatus.notified)
+			{
+				int notifyId = FMessageProcessor->notifyByMessage(messageId);
+				if (notifyId>0 && notifyId!=replNotify)
+					notifyCount -= FNotifications!=NULL ? FNotifications->notificationById(notifyId).data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt() : 0;
+			}
 		}
+		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
 
 		QTextDocument doc;
 		FMessageProcessor->messageToText(&doc,AMessage);

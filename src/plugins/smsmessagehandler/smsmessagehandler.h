@@ -28,6 +28,7 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/istanzaprocessor.h>
+#include <interfaces/inotifications.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
 #include <utils/log.h>
@@ -181,6 +182,7 @@ private:
 	IStanzaProcessor *FStanzaProcessor;
 	IRosterPlugin *FRosterPlugin;
 	IPresencePlugin *FPresencePlugin;
+	INotifications *FNotifications;
 private:
 	QList<IRoster *> FRosters;
 	QHash<QString, TabPageInfo> FTabPages;
