@@ -189,6 +189,14 @@ void MainWindowPlugin::updateTitle()
 void MainWindowPlugin::correctWindowPosition() const
 {
 	QRect windowRect = FMainWindowBorder ? FMainWindowBorder->geometry() : FMainWindow->geometry();
+	if (FMainWindowBorder)
+	{
+		// correcting rect
+		windowRect.setLeft(windowRect.left() - FMainWindowBorder->leftBorderWidth());
+		windowRect.setRight(windowRect.right() + FMainWindowBorder->rightBorderWidth());
+		windowRect.setTop(windowRect.top() - FMainWindowBorder->topBorderWidth());
+		windowRect.setBottom(windowRect.bottom() + FMainWindowBorder->bottomBorderWidth());
+	}
 	QRect screenRect = qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(windowRect.topLeft()));
 	if (!screenRect.isEmpty() && !screenRect.adjusted(10,10,-10,-10).intersects(windowRect))
 	{
@@ -200,6 +208,14 @@ void MainWindowPlugin::correctWindowPosition() const
 			windowRect.moveBottom(screenRect.bottom());
 		else if (windowRect.bottom() <= screenRect.top())
 			windowRect.moveTop(screenRect.top());
+		if (FMainWindowBorder)
+		{
+			// correcting rect back
+			windowRect.setLeft(windowRect.left() + FMainWindowBorder->leftBorderWidth());
+			windowRect.setRight(windowRect.right() - FMainWindowBorder->rightBorderWidth());
+			windowRect.setTop(windowRect.top() + FMainWindowBorder->topBorderWidth());
+			windowRect.setBottom(windowRect.bottom() - FMainWindowBorder->bottomBorderWidth());
+		}
 		FMainWindowBorder ? FMainWindowBorder->move(windowRect.topLeft()) : FMainWindow->move(windowRect.topLeft());
 	}
 }

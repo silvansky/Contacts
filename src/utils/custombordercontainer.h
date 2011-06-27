@@ -98,7 +98,7 @@ protected:
 	};
 	enum HeaderButtons
 	{
-		NoneButton,
+		NoneButton = 0,
 		MinimizeButton,
 		MaximizeButton,
 		CloseButton

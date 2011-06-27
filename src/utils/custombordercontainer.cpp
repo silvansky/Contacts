@@ -1920,14 +1920,20 @@ void CustomBorderContainer::updateCursor(QWidget * widget)
 		break;
 	case NoneBorder:
 	default:
-		if (overrideCursorSet)
+		if (headerButtonUnderMouse())
+			newCursor.setShape(Qt::ArrowCursor);
+		else
 		{
-			QApplication::restoreOverrideCursor();
-			overrideCursorSet = false;
+			if (overrideCursorSet)
+			{
+				QApplication::restoreOverrideCursor();
+				overrideCursorSet = false;
+			}
+			return;
 		}
-		return;
 		break;
 	}
+
 	if (!overrideCursorSet || (QApplication::overrideCursor() && (QApplication::overrideCursor()->shape() != newCursor.shape())))
 	{
 		if (overrideCursorSet)
