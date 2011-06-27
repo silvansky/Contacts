@@ -53,12 +53,19 @@ static int SenderColorsCount = sizeof(SenderColors)/sizeof(SenderColors[0]);
 
 AdiumMessageStyle::AdiumMessageStyle(const QString &AStylePath, QObject *AParent) : QObject(AParent)
 {
+	FDelayedAllwaysOn = true;
 	FInfo = styleInfo(AStylePath);
 	FVariants = styleVariants(AStylePath);
 	FResourcePath = AStylePath+"/"STYLE_RESOURCES_PATH;
+
 	initStyleSettings();
 	loadTemplates();
 	loadSenderColors();
+
+	FScrollTimer.setSingleShot(true);
+	FScrollTimer.setInterval(100);
+	connect(&FScrollTimer,SIGNAL(timeout()),SLOT(onScrollAfterResize()));
+
 	connect(AParent,SIGNAL(styleWidgetAdded(IMessageStyle *, QWidget *)),SLOT(onStyleWidgetAdded(IMessageStyle *, QWidget *)));
 }
 
@@ -86,6 +93,12 @@ QWidget *AdiumMessageStyle::createWidget(const IMessageStyleOptions &AOptions, Q
 {
 	StyleViewer *view = new StyleViewer(AParent);
 	changeOptions(view,AOptions,true);
+
+	// Если для первого виджета сразу установить Qt::ScrollBarAlwaysOn, то слетит стилизция скролбара
+	if (FDelayedAllwaysOn)
+		QTimer::singleShot(1000,this,SLOT(onSetScrollbarAllwaysVisible()));
+	else
+		view->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical,Qt::ScrollBarAlwaysOn);
 	return view;
 }
 
@@ -114,6 +127,8 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 	{
 		if (!FWidgetStatus.contains(AWidget))
 		{
+			AClean = true;
+			view->installEventFilter(this);
 			connect(view,SIGNAL(linkClicked(const QUrl &)),SLOT(onLinkClicked(const QUrl &)));
 			connect(view,SIGNAL(destroyed(QObject *)),SLOT(onStyleWidgetDestroyed(QObject *)));
 			emit widgetAdded(AWidget);
@@ -124,7 +139,9 @@ bool AdiumMessageStyle::changeOptions(QWidget *AWidget, const IMessageStyleOptio
 			QString html = makeStyleTemplate(AOptions);
 			fillStyleKeywords(html,AOptions);
 			view->setHtml(html);
-			FWidgetStatus[AWidget].content.clear();
+			WidgetStatus &wstatus = FWidgetStatus[AWidget];
+			wstatus.content.clear();
+			wstatus.scrollStarted = false;
 		}
 		else
 		{
@@ -720,6 +737,50 @@ void AdiumMessageStyle::initStyleSettings()
 {
 	FCombineConsecutive = !FInfo.value(MSIV_DISABLE_COMBINE_CONSECUTIVE,false).toBool();
 	FAllowCustomBackground = !FInfo.value(MSIV_DISABLE_CUSTOM_BACKGROUND,false).toBool();
+}
+
+bool AdiumMessageStyle::eventFilter(QObject *AWatched, QEvent *AEvent)
+{
+	if (AEvent->type() == QEvent::Resize)
+	{
+		StyleViewer *view = qobject_cast<StyleViewer *>(AWatched);
+		if (FWidgetStatus.contains(view))
+		{
+			WidgetStatus &wstatus = FWidgetStatus[view];
+			QWebFrame *frame = view->page()->mainFrame();
+			if (!wstatus.scrollStarted && frame->scrollBarValue(Qt::Vertical)==frame->scrollBarMaximum(Qt::Vertical))
+			{
+				wstatus.scrollStarted = true;
+				FScrollTimer.start();
+			}
+		}
+	}
+	return QObject::eventFilter(AWatched,AEvent);
+}
+
+void AdiumMessageStyle::onScrollAfterResize()
+{
+	for (QMap<QWidget*,WidgetStatus>::iterator it = FWidgetStatus.begin(); it!= FWidgetStatus.end(); it++)
+	{
+		if (it->scrollStarted)
+		{
+			QWebFrame *frame = ((StyleViewer *)it.key())->page()->mainFrame();
+			frame->evaluateJavaScript("alignChat(false);");
+			frame->setScrollBarValue(Qt::Vertical,frame->scrollBarMaximum(Qt::Vertical));
+			it->scrollStarted = false;
+		}
+	}
+}
+
+void AdiumMessageStyle::onSetScrollbarAllwaysVisible()
+{
+	FDelayedAllwaysOn = false;
+	for (QMap<QWidget*,WidgetStatus>::iterator it = FWidgetStatus.begin(); it!= FWidgetStatus.end(); it++)
+	{
+		QWebFrame *frame = ((StyleViewer *)it.key())->page()->mainFrame();
+		if (frame->scrollBarPolicy(Qt::Vertical) != Qt::ScrollBarAlwaysOn)
+			frame->setScrollBarPolicy(Qt::Vertical,Qt::ScrollBarAlwaysOn);
+	}
 }
 
 void AdiumMessageStyle::onLinkClicked(const QUrl &AUrl)
