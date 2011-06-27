@@ -33,8 +33,7 @@
 				<File Id="VirtusUtils" KeyPath="yes" Source="$(var.VirtusProjectRoot)\ramblercontactsutils.dll"/>
 			</Component>
 			<Component Id="ProgramMenuDir" Directory="ProgramMenuDir" Guid="13261BA5-773B-4f49-B25F-3C2975ECBE83">
-				<RemoveFolder Id='ProgramMenuDir' On='uninstall' />
-				<RegistryValue Root='HKCU' Key='Software\Rambler\[ProductName]' Type='string' Value='' KeyPath='yes' />
+				<RemoveFolder Id='ProgramMenuDir' On='uninstall' />		
 			</Component>
 		</ComponentGroup>
 		<Icon Id="ramblercontacts.exe" SourceFile="$(var.VirtusProjectRoot)\ramblercontacts.exe" />

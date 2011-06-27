@@ -5,8 +5,12 @@
   <!-- 879 e423fe44-e1d5-4b4e-98b4-22c39e4133d7 -->
   <!-- 917 057c8dd7-ebca-4da7-9b6f-712617a8ed2e -->
   <!-- 919 e5f3964e-fa47-4813-b5e3-678c4f004830 -->
+  <!-- 922 204d0aae-d41e-4167-b995-a6990091a5bb -->
+  <!-- 924 ca539d4f-94bb-4799-97ec-5dd42d414373 -->
+  <!-- 928 066e0946-9c3a-4fa9-9ddd-827162df8e8d -->
+  <!-- 941 ec0f80f9-b73a-4f9e-bdac-200fc76ffa58 -->
 
-  <Product Id="e5f3964e-fa47-4813-b5e3-678c4f004830" 
+  <Product Id="ec0f80f9-b73a-4f9e-bdac-200fc76ffa58" 
            Name="$(var.product_name) $(var.virtus_version)" 
            Language="1049" 
            Version="$(var.virtus_version)" 
@@ -15,7 +19,7 @@
            Codepage="windows-1251">
     <Package Id="*" 
              Keywords="Installer" 
-             Description="$(var.product_name)" 
+             Description="$(var.product_name_en)" 
              Manufacturer="Rambler Internet Holding" 
              Languages="1033" 
              InstallerVersion="200" 
@@ -29,15 +33,13 @@
 	    <UpgradeVersion Minimum="0.1.0" IncludeMinimum="yes" Maximum="$(var.virtus_version)" IncludeMaximum="no" Property="OLDERVERSIONBEINGUPGRADED" />
 	</Upgrade>
 
-	<MajorUpgrade DowngradeErrorMessage="Can't downgrade." />
+	<MajorUpgrade DowngradeErrorMessage="У Вас установлена более новая версия $(var.product_name). Установка не будет производится." />
+    <Condition Message='Установку $(var.product_name) можно проивзести только для текущего пользователя'>
+      NOT ALLUSERS
+    </Condition>
 
 	<Property Id='ARPPRODUCTICON'>appicon.ico</Property>
 	<Icon Id="appicon.ico" SourceFile="nsis\application.ico" />
-
-  	<!-- 
-	<CustomAction Id='AlreadyUpdated' Error='[ProductName] is already installed.' />
-    <CustomAction Id='NoDowngrade' Error='A later version of [ProductName] is already installed.' />
-	-->
 
     <Media Id="1" Cabinet="virtus.cab" EmbedCab="yes" />
     <Directory Id="TARGETDIR" Name="SourceDir" >
@@ -73,8 +75,5 @@
       <ComponentGroupRef Id="Voip"/>
     </Feature>
 
-    <Condition Message='Virtus only runs as a non admin'>
-      NOT ALLUSERS
-    </Condition>
   </Product>
 </Wix>

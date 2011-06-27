@@ -28,7 +28,7 @@ candle.exe -dVersion=%VER% -out output/%VER%/obj/Virtus.wixobj wxs/Virtus.wxs
 candle.exe -dVersion=%VER% -out output/%VER%/obj/ms.wixobj wxs/ms.wxs
 candle.exe -dVersion=%VER% -out output/%VER%/obj/voip.wixobj wxs/voip.wxs
 
-light -out output/%VER%/obj/contacts.wixpdb output/%VER%/obj/OpenSSL.wixobj output/%VER%/obj/license.wixobj output/%VER%/obj/Qt.wixobj output/%VER%/obj/virtus_imageformats.wixobj output/%VER%/obj/virtus_plugins6.wixobj output/%VER%/obj/virtus_resources7.wixobj output/%VER%/obj/virtus_translations6.wixobj output/%VER%/obj/VirtusBase.wixobj output/%VER%/obj/Virtus.wixobj output/%VER%/obj/ms.wixobj output/%VER%/obj/voip.wixobj -o output/%VER%/contacts.%VER%.msi > output/%VER%/log_msi.txt
+light -out output/%VER%/obj/contacts.wixpdb output/%VER%/obj/OpenSSL.wixobj output/%VER%/obj/license.wixobj output/%VER%/obj/Qt.wixobj output/%VER%/obj/virtus_imageformats.wixobj output/%VER%/obj/virtus_plugins6.wixobj output/%VER%/obj/virtus_resources7.wixobj output/%VER%/obj/virtus_translations6.wixobj output/%VER%/obj/VirtusBase.wixobj output/%VER%/obj/Virtus.wixobj output/%VER%/obj/ms.wixobj output/%VER%/obj/voip.wixobj -o output/%VER%/contacts.msi > output/%VER%/log_msi.txt
 exit 0
 
 :error_specify_ver

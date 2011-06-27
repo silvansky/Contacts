@@ -1,9 +1,10 @@
 <Include>                              	 	 
-  <?define virtus_version="0.2.2.919" ?>    		
-  <?define VirtusProjectRoot="C:\rambler\virtusdesktop\trunk\install\source\0.2.2.919" ?> 	
+  <?define virtus_version="0.2.5.928" ?>    		
+  <?define VirtusProjectRoot="C:\rambler\virtusdesktop\trunk\install\source\0.2.5.928" ?> 	
   <?define VirtusImageformatsRoot="$(var.VirtusProjectRoot)/imageformats" ?>
   <?define VirtusPluginsRoot="$(var.VirtusProjectRoot)/plugins" ?>
   <?define VirtusResourcesRoot="$(var.VirtusProjectRoot)/resources" ?>
   <?define VirtusTranslationsRoot="$(var.VirtusProjectRoot)/translations" ?>
   <?define product_name="Рамблер-Контакты" ?>
+  <?define product_name_en="Rambler-Contacts" ?>
 </Include>

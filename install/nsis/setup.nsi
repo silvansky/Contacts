@@ -7,7 +7,7 @@
 
 !define PRODUCT_NAME "Рамблер-Контакты"
 
-Name "«Рамблер-Контакты»"
+Name "Рамблер-Контакты"
 Caption "Рамблер-Контакты"
 BrandingText 'ООО "Рамблер Интернет Холдинг"'
 
@@ -16,7 +16,7 @@ BrandingText 'ООО "Рамблер Интернет Холдинг"'
 !define MUI_CUSTOMFUNCTION_GUIINIT GuiInit
 
 !define MUI_COMPONENTSPAGE_NODESC
-!define MUI_PRODUCT ${PRODUCT_NAME};${PRODUCT_NAME}" 
+!define MUI_PRODUCT ${PRODUCT_NAME}
 !include "MUI2.nsh"
 !include "nsDialogs.nsh"
 
@@ -62,8 +62,8 @@ Var finish_image_handle
 ; utility functions
 Function InstallUpdater
   SetOutPath "$TEMP"
-  File "..\Holdem\Holdem.msi"
-  ExecWait '"msiexec" /i "$OUTDIR\Holdem.msi" /quiet'
+  File "..\Holdem\holdem.msi"
+  ExecWait '"msiexec" /i "$OUTDIR\holdem.msi" /quiet'
 FunctionEnd
 
 Function RelGotoPage
@@ -89,19 +89,20 @@ Function welcome_init
 	Pop $welcome_image
 	${NSD_SetImage} $welcome_image $PLUGINSDIR\image.png $welcome_image_handle
 
-	${NSD_CreateLabel} 120u 10u 100% 48u "Вас приветствует$\nмастер установки$\n«Рамблер-Контактов».$\n$\n"
-	Pop $0
-	SetCtlColors $0 '0x000000' transparent
+	;${NSD_CreateLabel} 120u 10u 100% 48u "Вас приветствует$\nмастер установки$\n«Рамблер-Контактов».$\n$\n"
+	;Pop $0	
+	;SetCtlColors $0 '0x000000' transparent
 
-	CreateFont $1 "$(^Font)" "15" "" 
-	SendMessage $0 ${WM_SETFONT} $1 0
-	${NSD_CreateLabel} 120u 62u 60% 48u "«Рамблер-Контакты» будут установлены на ваш компьютер.$\n$\nПеред началом установки рекомендуется закрыть все работающие приложения. Это позволит программе установки обновить системные файлы без перезагрузки компьютера."
+	${NSD_CreateLabel} 120u 10u 60% 50u "Рамблер-Контакты будут установлены на ваш компьютер."
 	Pop $0
+	
+	CreateFont $1 "$(^Font)" "13" "" 
+	SendMessage $0 ${WM_SETFONT} $1 0	
 	SetCtlColors $0 '0x000000' transparent
 
 	
 	; запустить после установки
-	${NSD_CreateCheckbox} 120u 130u 100% 17u "Сделать Рамблер домашней страницей"
+	${NSD_CreateCheckbox} 120u 60u 100% 20u "Сделать Рамблер домашней страницей"
 	Pop $welcome_checkbox1
 	SetCtlColors $welcome_checkbox1 '0x000000' transparent
 
@@ -109,7 +110,7 @@ Function welcome_init
 	${NSD_OnClick} $welcome_checkbox1 OnClickCheckAdminRights
 
 	; browser defaults
-	${NSD_CreateCheckbox} 120u 150u 100% 17u "Сделать Рамблер поиском по-умолчанию"
+	${NSD_CreateCheckbox} 120u 80u 100% 20u "Сделать Рамблер поиском по умолчанию"
 	Pop $welcome_checkbox2
 	SetCtlColors $welcome_checkbox2 '0x000000' transparent
 
@@ -169,24 +170,26 @@ Function finish_init
 	Pop $finish_image
 	${NSD_SetImage} $finish_image $PLUGINSDIR\image.png $finish_image_handle
 
-	${NSD_CreateLabel} 120u 10u 100% 48u "Завершение установки$\n«Рамблер-Контактов»."
+	;${NSD_CreateLabel} 120u 10u 100% 48u "Завершение установки$\n«Рамблер-Контактов»."
+	;Pop $0
+	
+	;SetCtlColors $0 '0x000000' '0xFFFFFF'
+	
+	${NSD_CreateLabel} 120u 10u 100% 60u 'Установка программы выполнена.$\nНажмите кнопку «Закрыть», чтобы$\nзавершить работу установщика.'
 	Pop $0
-	SetCtlColors $0 '0x000000' '0xFFFFFF'
-	CreateFont $1 "$(^Font)" "15" "" 
-	SendMessage $0 ${WM_SETFONT} $1 0
-	${NSD_CreateLabel} 120u 62u 100% 24u 'Установка программы выполнена.$\nНажмите кнопку «Закрыть»,$\nчтобы завершить работу установщика.'
-	Pop $0
+	CreateFont $1 "$(^Font)" "13" "" 
+	SendMessage $0 ${WM_SETFONT} $1 0	
 	SetCtlColors $0 '0x000000' '0xFFFFFF'
 
 	; запустить после установки
-	${NSD_CreateCheckbox} 120u 90u 100% 17u "Запустить «Рамблер-Контакты»"
+	${NSD_CreateCheckbox} 120u 80u 100% 17u "Запустить Рамблер-Контакты"
 	Pop $finish_checkbox1
 	SetCtlColors $finish_checkbox1 '0x000000' '0xFFFFFF'
 	${NSD_Check} $finish_checkbox1
 	${RUH_SetShield}
 
 	; browser defaults
-	${NSD_CreateCheckbox} 120u 110u 100% 17u "Добавить ярлык на рабочий стол"
+	${NSD_CreateCheckbox} 120u 100u 100% 17u "Добавить ярлык на рабочий стол"
 	Pop $finish_checkbox2
 	SetCtlColors $finish_checkbox2 '0x000000' '0xFFFFFF'
 	${NSD_Check} $finish_checkbox2
@@ -219,38 +222,28 @@ FunctionEnd
 
 ; installation
 Function InstallProduct
-	IfErrors continue1
-	continue1:
-		ReadRegStr $0 HKCU "SOFTWARE\Rambler\Update\${PRODUCT_GUID}" "Version"
-		IfErrors OnInstallProduct 0 
-		MessageBox MB_YESNO|MB_ICONQUESTION "Похоже, программа уже установлена. Текущая сборка $0. Выполнить обновление?" IDNO OnFinish 
-	OnInstallProduct:
-		IfErrors continue
-	continue:
-		ExecWait '"$LOCALAPPDATA\Rambler\RamblerUpdater\RUpdate.exe" ${PRODUCT_GUID}' $0
-		IfErrors 0 OnCont
-			MessageBox mb_iconstop "Не удалось запустить установить ядро установщика."
-			Abort
-	OnCont:
-	  ${if} $0 = 0
+	ReadRegStr $0 HKCU "SOFTWARE\Rambler\Update\${PRODUCT_GUID}" "Version"
+	ExecWait '"$LOCALAPPDATA\Rambler\RamblerUpdater\RUpdate.exe" ${PRODUCT_GUID}' $0
+	
+	${if} $0 = 0
 		goto OnOK
-	  ${endif}
-	  
-	  ${If} $0 < 0
+	${endif}
+  
+	${If} $0 < 0
 		MessageBox mb_iconstop "Ошибка установки $0"
 		Abort
-	  ${endif}
-	  
-	  ${if} $0 = 131072035
-		MessageBox MB_ICONINFORMATION "Обновление не требуется."
-	  ${endif}
+	${endif}
   
-  OnOK:
-	Call WriteToFireWall
+	${if} $0 = 131072035
+		;MessageBox MB_ICONINFORMATION "Обновление не требуется."
+	${endif}  
+	
+	OnOK:
+		Call WriteToFireWall
 
-  OnFinish:
-    StrCpy $R9 1
-	Call RelGotoPage
+	OnFinish:
+		StrCpy $R9 1
+		Call RelGotoPage
 FunctionEnd
 
 
@@ -313,8 +306,9 @@ Function GuiInit
   !insertmacro RUH_OnGuiInit
 FunctionEnd
 
-LangString "MUI_TEXT_LICENSE_SUBTITLE" 		"${LANG_${LANG}}"	"Пожалуйста, прочтите его перед установкой $(^NameDA)."
+LangString "MUI_INNERTEXT_LICENSE_TOP" 		"${LANG_${LANG}}"	""
+LangString "MUI_TEXT_ABORTWARNING" 			"${LANG_${LANG}}"	"Вы действительно хотите отменить установку Рамблер-Контактов?"
+LangString "MUI_TEXT_LICENSE_SUBTITLE" 		"${LANG_${LANG}}"	"Пожалуйста, прочтите его перед установкой Рамблер-Контактов."
 LangString "MUI_INNERTEXT_LICENSE_BOTTOM" 	"${LANG_${LANG}}"	"Нажмите кнопку «Принимаю», если вы принимаете условия соглашения и хотите продолжить установку."
-LangString "MUI_TEXT_INSTALLING_SUBTITLE"	"${LANG_${LANG}}"	"Подождите, идет копирование файлов «Рамблер-Контактов»."
-LangString "MUI_TEXT_WELCOME_INFO_TEXT"		"${LANG_${LANG}}"	"«Рамблер-Контакты» будут установлены на ваш компьютер.$\r$\n$\r$\nПеред началом установки рекомендуется закрыть все работающие приложения. Это позволит программе установки обновить системные файлы без перезагрузки компьютера.$\r$\n$\r$\n$_CLICK"
+LangString "MUI_TEXT_INSTALLING_SUBTITLE"	"${LANG_${LANG}}"	"Подождите, идет копирование файлов Рамблер-Контактов."
 LangString "^ShowDetailsBtn"	"${LANG_${LANG}}"	"Детали"
