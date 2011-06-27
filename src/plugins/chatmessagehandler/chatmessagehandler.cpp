@@ -416,7 +416,6 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
 		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
-		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,wstatus.notified.count());
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
 		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
@@ -431,7 +430,8 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 		if (roster && !roster->rosterItem(AMessage.from()).isValid)
 			notify.data.insert(NDR_POPUP_NOTICE,tr("Not in contact list"));
 
-		if (wstatus.notified.count() > 1)
+		int notifyCount = wstatus.notified.count();
+		if (notifyCount > 1)
 		{
 			int lastNotifyWithPopup = -1;
 			QList<int> notifies = ANotifications->notifications();
@@ -445,7 +445,17 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 			int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
 			if (replNotify>0 && replNotify==lastNotifyWithPopup)
 				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
+			else
+				replNotify = -1;
+
+			foreach(int messageId, wstatus.notified)
+			{
+				int notifyId = FMessageProcessor->notifyByMessage(messageId);
+				if (notifyId>0 && notifyId!=replNotify)
+					notifyCount -= FNotifications->notificationById(notifyId).data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt();
+			}
 		}
+		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
 
 		QTextDocument doc;
 		FMessageProcessor->messageToText(&doc,AMessage);

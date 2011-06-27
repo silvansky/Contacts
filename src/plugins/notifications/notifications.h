@@ -8,7 +8,6 @@
 #endif
 
 #include <QTimer>
-//#include <QtMultimedia>
 #include <definitions/notificationdataroles.h>
 #include <definitions/actiongroups.h>
 #include <definitions/toolbargroups.h>
@@ -64,10 +63,10 @@ struct Notificator
 };
 
 class Notifications :
-			public QObject,
-			public IPlugin,
-			public INotifications,
-			public IOptionsHolder
+	public QObject,
+	public IPlugin,
+	public INotifications,
+	public IOptionsHolder
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin INotifications IOptionsHolder)
@@ -156,8 +155,6 @@ private:
 #else
 	QSound *FSound;
 #endif
-	//QFile FSoundFile;
-	//QAudioOutput * FAudioOutput;
 	QTimer FTestNotifyTimer;
 	QList<int> FDelayedReplaces;
 	QList<int> FDelayedActivations;

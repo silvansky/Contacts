@@ -311,16 +311,15 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 		if (record.widget.isNull())
 		{
-			record.widget = new NotifyWidget(record.notification,false);
+			record.widget = new NotifyWidget(record.notification);
 			connect(record.widget,SIGNAL(showOptions()), SLOT(onWindowNotifyOptions()));
 			connect(record.widget,SIGNAL(notifyActivated()),SLOT(onWindowNotifyActivated()));
 			connect(record.widget,SIGNAL(notifyRemoved()),SLOT(onWindowNotifyRemoved()));
 			connect(record.widget,SIGNAL(windowDestroyed()),SLOT(onWindowNotifyDestroyed()));
-			bool ok = record.widget->appear();
-			if (!ok)
+			if (!record.widget->appear())
 			{
-				// TODO: find & fix tray crash
-				//record.widget->deleteLater();
+				record.widget->deleteLater();
+				record.widget = NULL;
 			}
 		}
 		else
@@ -402,21 +401,6 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
 		if (!soundFile.isEmpty())
 		{
-			/*if (!FAudioOutput)
-			{
-				QAudioFormat format = QAudioDeviceInfo::defaultOutputDevice().preferredFormat();
-				format.setCodec("audio/pcm");
-				FAudioOutput = new QAudioOutput(format, this);
-			}
-			if (FAudioOutput->state() != QAudio::ActiveState)
-			{
-				if (FSoundFile.isOpen())
-					FSoundFile.close();
-				FSoundFile.setFileName(soundFile);
-				FSoundFile.open(QIODevice::ReadOnly);
-				FAudioOutput->stop();
-				FAudioOutput->start(&FSoundFile);
-			}*/
 #ifdef QT_PHONON_LIB
 			if (!FMediaObject)
 			{
