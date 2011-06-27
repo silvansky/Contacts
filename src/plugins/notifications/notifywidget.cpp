@@ -173,7 +173,7 @@ void NotifyWidget::appendNotification(const INotification &ANotification)
 	ui.tbrText->setHtml(html);
 	ui.tbrText->setVisible(!html.isEmpty());
 
-	QTimer::singleShot(100,this,SLOT(onAdjustHeight()));
+	QTimer::singleShot(500,this,SLOT(onAdjustHeight()));
 }
 
 void NotifyWidget::updateElidedText()
