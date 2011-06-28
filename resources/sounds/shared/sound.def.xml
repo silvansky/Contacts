@@ -4,6 +4,7 @@
 
   <file>
     <key>default</key>
+    <key>rchangerSubscription</key>
     <key>presenceMoodChanged</key>
     <key>presenceStateChanged</key>
     <key>rosterContactAdded</key>
@@ -27,19 +28,14 @@
   <file>
     <key>sipphoneCallWait</key>
     <object mime='sound/wav'>wait.wav</object>
-  </file>  
+  </file>
   <file>
 	<key>sipphoneCallBusy</key>
     <object mime='sound/wav'>busy.wav</object>
-  </file>  
+  </file>
   <file>
 	<key>sipphoneCallRinging</key>
     <object mime='sound/wav'>ring.wav</object>
-  </file>  
-  
-  <file>
-    <key>subscription</key>
-    <object mime='sound/wav'>auth.wav</object>
   </file>
 
   <file>
