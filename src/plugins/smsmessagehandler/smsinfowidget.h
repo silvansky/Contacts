@@ -21,7 +21,7 @@ protected:
 	void showStyledStatus(const QString &AHtml);
 protected slots:
 	void onEditWidgetTextChanged();
-	void onSupplementLinkActivated(const QString &ALink);
+	void onSupplementLinkActivated();
 	void onSmsBalanceChanged(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance);
 	void onSmsSupplementReceived(const QString &AId, const QString &ANumber, const QString &ACode, int ACount);
 	void onSmsSupplementError(const QString &AId, const QString &ACondition, const QString &AMessage);
@@ -32,9 +32,14 @@ private:
 	ISmsMessageHandler *FSmsHandler;
 private:
 	int FBalance;
+	bool FSupplementMode;
 	QString FErrorMessage;
 	QKeySequence FSendKey;
 	QString FSupplementRequest;
+	QString FSupplementMessage;
+private:
+	bool FFormatEnabled;
+	Qt::TextInteractionFlags FInteractionFlags;
 };
 
 #endif // SMSINFOWIDGET_H

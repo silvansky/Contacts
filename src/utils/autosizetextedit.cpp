@@ -5,11 +5,14 @@
 #include <QScrollBar>
 #include "stylestorage.h"
 
-AutoSizeTextEdit::AutoSizeTextEdit(QWidget *AParent) : QTextEdit(AParent)
+AutoSizeTextEdit::AutoSizeTextEdit(QWidget *AParent) : QTextBrowser(AParent)
 {
 	FAutoResize = true;
 	FMinimumLines = 1;
+	setOpenLinks(false);
+	setOpenExternalLinks(false);
 	setAttribute(Qt::WA_MacShowFocusRect, false);
+	setTextInteractionFlags(Qt::TextEditorInteraction);
 	document()->setDocumentMargin(7);
 
 	setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);

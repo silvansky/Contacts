@@ -12,10 +12,6 @@
         <translation>Баланс: &lt;b&gt;%1 SMS&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>You have run out of SMS</source>
-        <translation>У вас закончились SMS</translation>
-    </message>
-    <message>
         <source>SMS service is unavailable</source>
         <translation>SMS-сервис недоступен</translation>
     </message>
@@ -34,6 +30,14 @@
     <message>
         <source>SMS service is unavailable, please try later.</source>
         <translation>SMS-сервис недоступен, пожалуйста, попробуйте позже.</translation>
+    </message>
+    <message>
+        <source>You have run out of SMS. Please, %1.</source>
+        <translation>У вас закончились SMS. Пожалуйста, %1.</translation>
+    </message>
+    <message>
+        <source>supplement the balance</source>
+        <translation>пополните баланс</translation>
     </message>
 </context>
 <context>

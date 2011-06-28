@@ -1,11 +1,11 @@
 #ifndef AUTOSIZETEXTEDIT_H
 #define AUTOSIZETEXTEDIT_H
 
-#include <QTextEdit>
+#include <QTextBrowser>
 #include "utilsexport.h"
 
 class UTILS_EXPORT AutoSizeTextEdit :
-	public QTextEdit
+	public QTextBrowser
 {
 	Q_OBJECT
 public:
