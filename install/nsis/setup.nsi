@@ -84,7 +84,7 @@ Function welcome_init
 	nsDialogs::Create /NOUNLOAD 1044;1044;1018;1044;1018
 	Pop $0
      	 
-	SetCtlColors welcome_dialog '0x000000' '0xFFFFFF'
+	;SetCtlColors welcome_dialog '0x000000' '0xFFFFFF'
 	${NSD_CreateBitmap} 0 0 100% 100% ""
 	Pop $welcome_image
 	${NSD_SetImage} $welcome_image $PLUGINSDIR\image.png $welcome_image_handle
@@ -98,13 +98,13 @@ Function welcome_init
 	
 	CreateFont $1 "$(^Font)" "13" "" 
 	SendMessage $0 ${WM_SETFONT} $1 0	
-	SetCtlColors $0 '0x000000' transparent
+	;SetCtlColors $0 '0x000000' transparent
 
 	
 	; запустить после установки
 	${NSD_CreateCheckbox} 120u 60u 100% 20u "Сделать Рамблер домашней страницей"
 	Pop $welcome_checkbox1
-	SetCtlColors $welcome_checkbox1 '0x000000' transparent
+	;SetCtlColors $welcome_checkbox1 '0x000000' transparent
 
 	${NSD_Check} $welcome_checkbox1 
 	${NSD_OnClick} $welcome_checkbox1 OnClickCheckAdminRights
@@ -112,7 +112,7 @@ Function welcome_init
 	; browser defaults
 	${NSD_CreateCheckbox} 120u 80u 100% 20u "Сделать Рамблер поиском по умолчанию"
 	Pop $welcome_checkbox2
-	SetCtlColors $welcome_checkbox2 '0x000000' transparent
+	;SetCtlColors $welcome_checkbox2 '0x000000' transparent
 
 	${NSD_Check} $welcome_checkbox2
 	${NSD_OnClick} $welcome_checkbox2 OnClickCheckAdminRights
@@ -165,7 +165,7 @@ Function finish_init
 	nsDialogs::Create /NOUNLOAD 1044;1044;1018;1044;1018
 	Pop $0
 	
-	SetCtlColors $0 '0x000000' '0xFFFFFF'
+	;SetCtlColors $0 '0x000000' '0xFFFFFF'
 	${NSD_CreateBitmap} 0 0 100% 100% ""
 	Pop $finish_image
 	${NSD_SetImage} $finish_image $PLUGINSDIR\image.png $finish_image_handle
@@ -184,14 +184,14 @@ Function finish_init
 	; запустить после установки
 	${NSD_CreateCheckbox} 120u 80u 100% 17u "Запустить Рамблер-Контакты"
 	Pop $finish_checkbox1
-	SetCtlColors $finish_checkbox1 '0x000000' '0xFFFFFF'
+	;SetCtlColors $finish_checkbox1 '0x000000' '0xFFFFFF'
 	${NSD_Check} $finish_checkbox1
 	${RUH_SetShield}
 
 	; browser defaults
 	${NSD_CreateCheckbox} 120u 100u 100% 17u "Добавить ярлык на рабочий стол"
 	Pop $finish_checkbox2
-	SetCtlColors $finish_checkbox2 '0x000000' '0xFFFFFF'
+	;SetCtlColors $finish_checkbox2 '0x000000' '0xFFFFFF'
 	${NSD_Check} $finish_checkbox2
 	${RUH_SetShield}
 

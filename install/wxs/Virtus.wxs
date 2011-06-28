@@ -9,9 +9,10 @@
   <!-- 924 ca539d4f-94bb-4799-97ec-5dd42d414373 -->
   <!-- 928 066e0946-9c3a-4fa9-9ddd-827162df8e8d -->
   <!-- 941 ec0f80f9-b73a-4f9e-bdac-200fc76ffa58 -->
+  <!-- 963 e14bc225-d9ac-41b3-b4d9-27699fa84705 -->
 
-  <Product Id="ec0f80f9-b73a-4f9e-bdac-200fc76ffa58" 
-           Name="$(var.product_name) $(var.virtus_version)" 
+  <Product Id="e14bc225-d9ac-41b3-b4d9-27699fa84705" 
+           Name="$(var.product_name_en) $(var.virtus_version)" 
            Language="1049" 
            Version="$(var.virtus_version)" 
            Manufacturer="Rambler Internet Holding" 
