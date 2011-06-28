@@ -9,6 +9,7 @@ SmsInfoWidget::SmsInfoWidget(ISmsMessageHandler *ASmsHandler, IChatWindow *AWind
 	FSmsHandler = ASmsHandler;
 
 	FSendKey = FChatWindow->editWidget()->sendKey();
+	FErrorMessage = Qt::escape(tr("SMS service is unavailable, please try later."));
 
 	ui.lblPhoneNumber->setText(AWindow->contactJid().node());
 	ui.lblSupplement->setText(QString("<a href='%1'>%2</a>").arg("http://id.rambler.ru").arg(tr("Supplement")));
@@ -39,6 +40,18 @@ IChatWindow *SmsInfoWidget::chatWindow() const
 	return FChatWindow;
 }
 
+void SmsInfoWidget::showStyledStatus(const QString &AHtml)
+{
+	IMessageContentOptions options;
+	options.kind = IMessageContentOptions::Status;
+	options.time = QDateTime::currentDateTime();
+	options.timeFormat = " ";
+	options.direction = IMessageContentOptions::DirectionIn;
+	options.senderId = FChatWindow->contactJid().pDomain();
+	options.senderName = tr("SMS Service");
+	FChatWindow->viewWidget()->changeContentHtml(AHtml,options);
+}
+
 void SmsInfoWidget::onEditWidgetTextChanged()
 {
 	QTextEdit *editor = FChatWindow->editWidget()->textEdit();
@@ -66,9 +79,7 @@ void SmsInfoWidget::onSupplementLinkActivated(const QString &ALink)
 	{
 		FSupplementRequest = FSmsHandler->requestSmsSupplement(FChatWindow->streamJid(),FChatWindow->contactJid().domain());
 		if (FSupplementRequest.isEmpty())
-		{
-
-		}
+			showStyledStatus(FErrorMessage);
 	}
 }
 
@@ -106,6 +117,7 @@ void SmsInfoWidget::onSmsSupplementReceived(const QString &AId, const QString &A
 	if (FSupplementRequest == AId)
 	{
 		FSupplementRequest.clear();
+		showStyledStatus(Qt::escape(tr("Send a SMS message with the code %2 to phone number %1 to supplement your balance at %3 SMS.").arg(ANumber).arg(ACode).arg(ACount)));
 	}
 }
 
@@ -115,5 +127,6 @@ void SmsInfoWidget::onSmsSupplementError(const QString &AId, const QString &ACon
 	if (FSupplementRequest == AId)
 	{
 		FSupplementRequest.clear();
+		showStyledStatus(FErrorMessage);
 	}
 }

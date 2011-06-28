@@ -17,6 +17,8 @@ public:
 	SmsInfoWidget(ISmsMessageHandler *ASmsHandler, IChatWindow *AWindow, QWidget *AParent = NULL);
 	~SmsInfoWidget();
 	IChatWindow *chatWindow() const;
+protected:
+	void showStyledStatus(const QString &AHtml);
 protected slots:
 	void onEditWidgetTextChanged();
 	void onSupplementLinkActivated(const QString &ALink);
@@ -30,6 +32,7 @@ private:
 	ISmsMessageHandler *FSmsHandler;
 private:
 	int FBalance;
+	QString FErrorMessage;
 	QKeySequence FSendKey;
 	QString FSupplementRequest;
 };

@@ -23,6 +23,18 @@
         <source>Supplement</source>
         <translation>Пополнить</translation>
     </message>
+    <message>
+        <source>SMS Service</source>
+        <translation>СМС Сервис</translation>
+    </message>
+    <message>
+        <source>Send a SMS message with the code %2 to phone number %1 to supplement your balance at %3 SMS.</source>
+        <translation>Отправьте сообщение с кодом %2 на номер %1, чтобы пополнить ваш баланс на %3 SMS.</translation>
+    </message>
+    <message>
+        <source>SMS service is unavailable, please try later.</source>
+        <translation>SMS-сервис недоступен, пожалуйста, попробуйте позже.</translation>
+    </message>
 </context>
 <context>
     <name>SmsMessageHandler</name>
