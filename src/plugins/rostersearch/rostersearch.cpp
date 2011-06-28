@@ -32,7 +32,7 @@ RosterSearch::RosterSearch()
 
 RosterSearch::~RosterSearch()
 {
-	destroySearchLinks();
+	//destroySearchLinks();
 	destroyNotFoundItem();
 	delete FSearchFieldsMenu;
 }
@@ -224,7 +224,7 @@ void RosterSearch::startSearch()
 			createNotFoundItem();
 		else
 			destroyNotFoundItem();
-		createSearchLinks();
+		//createSearchLinks();
 		if (!FSearchStarted && FRostersViewPlugin)
 		{
 			FLastShowOffline = Options::node(OPV_ROSTER_SHOWOFFLINE).value().toBool();
@@ -238,7 +238,7 @@ void RosterSearch::startSearch()
 	else
 	{
 		destroyNotFoundItem();
-		destroySearchLinks();
+		//destroySearchLinks();
 		if (FSearchStarted && FRostersViewPlugin)
 		{
 			FRostersViewPlugin->startRestoreExpandState();
