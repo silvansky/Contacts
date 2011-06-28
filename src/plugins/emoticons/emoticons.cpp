@@ -28,11 +28,11 @@ public:
 			QPushButton *button = new QPushButton(this);
 			button->setObjectName("emoticonsButton");
 			button->setToolTip(tr("Add emoticon"));
-			connect(AMenu, SIGNAL(aboutToShow()), SLOT(onMenuAboutToShow()));
-			connect(AMenu, SIGNAL(aboutToHide()), SLOT(onMenuAboutToHide()));
+			//connect(AMenu, SIGNAL(aboutToShow()), SLOT(onMenuAboutToShow()));
+			//connect(AMenu, SIGNAL(aboutToHide()), SLOT(onMenuAboutToHide()));
 			connect(button, SIGNAL(clicked()), SLOT(onShowEmoticonsMenuButtonClicked()));
 			button->setFlat(true);
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(button, MNI_EMOTICONS_BUTTON_ICON);
+			//IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(button, MNI_EMOTICONS_BUTTON_ICON);
 			FWidgets.insert(AMenu,button);
 			layout()->addWidget(button);
 		}
@@ -63,7 +63,9 @@ protected slots:
 		QPushButton * button = FWidgets.value(menu, NULL);
 		if (button)
 		{
-			button->setEnabled(false);
+			//button->setEnabled(false);
+			button->setProperty("isDown", true);
+			StyleStorage::updateStyle(this);
 		}
 	}
 	void onMenuAboutToHide()
@@ -72,7 +74,9 @@ protected slots:
 		QPushButton * button = FWidgets.value(menu, NULL);
 		if (button)
 		{
-			button->setEnabled(true);
+			//button->setEnabled(true);
+			button->setProperty("isDown", false);
+			StyleStorage::updateStyle(this);
 		}
 	}
 private:

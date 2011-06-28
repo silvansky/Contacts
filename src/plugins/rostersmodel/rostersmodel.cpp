@@ -82,7 +82,7 @@ bool RostersModel::initConnections(IPluginManager *APluginManager, int &/*AInitO
 
 bool RostersModel::initObjects()
 {
-	registerSingleGroup(RIT_GROUP_BLANK,tr("Without Groups"));
+	registerSingleGroup(RIT_GROUP_BLANK,tr("Outside Groups"));
 	registerSingleGroup(RIT_GROUP_AGENTS,tr("Agents"));
 	registerSingleGroup(RIT_GROUP_MY_RESOURCES,tr("My Resources"));
 	registerSingleGroup(RIT_GROUP_NOT_IN_ROSTER,tr("Not in Roster"));
@@ -221,13 +221,13 @@ IRosterIndex *RostersModel::streamRoot(const Jid &AStreamJid) const
 IRosterIndex *RostersModel::createRosterIndex(int AType, IRosterIndex *AParent)
 {
 	static const struct { int type; int order; }	DefTypeOrders[] = {
-		{RIT_STREAM_ROOT,         RITO_STREAM_ROOT}, 
+		{RIT_STREAM_ROOT,         RITO_STREAM_ROOT},
 		{RIT_GROUP_BLANK,         RITO_GROUP_BLANK},
-		{RIT_GROUP,               RITO_GROUP}, 
-		{RIT_GROUP_NOT_IN_ROSTER, RITO_GROUP_NOT_IN_ROSTER}, 
-		{RIT_GROUP_MY_RESOURCES,  RITO_GROUP_MY_RESOURCES}, 
-		{RIT_GROUP_AGENTS,        RITO_GROUP_AGENTS}, 
-		{RIT_CONTACT,             RITO_CONTACT}, 
+		{RIT_GROUP,               RITO_GROUP},
+		{RIT_GROUP_NOT_IN_ROSTER, RITO_GROUP_NOT_IN_ROSTER},
+		{RIT_GROUP_MY_RESOURCES,  RITO_GROUP_MY_RESOURCES},
+		{RIT_GROUP_AGENTS,        RITO_GROUP_AGENTS},
+		{RIT_CONTACT,             RITO_CONTACT},
 		{RIT_MY_RESOURCE,         RITO_MY_RESOURCE},
 		{RIT_AGENT,               RITO_AGENT},
 		{-1,                      -1}

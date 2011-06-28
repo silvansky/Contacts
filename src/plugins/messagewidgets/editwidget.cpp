@@ -36,7 +36,7 @@ EditWidget::EditWidget(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	FSendShortcut->setContext(Qt::WidgetShortcut);
 	connect(FSendShortcut,SIGNAL(activated()),SLOT(onShortcutActivated()));
 
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbSend,MNI_MESSAGEWIDGETS_SEND);
+	//IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbSend,MNI_MESSAGEWIDGETS_SEND);
 	connect(ui.tlbSend,SIGNAL(clicked(bool)),SLOT(onSendButtonCliked(bool)));
 
 	ui.medEditor->installEventFilter(this);

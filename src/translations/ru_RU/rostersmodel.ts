@@ -24,8 +24,8 @@
         <translation>Создает иерархическую модель для отображения списка</translation>
     </message>
     <message>
-        <source>Without Groups</source>
-        <translation>Без групп</translation>
+        <source>Outside Groups</source>
+        <translation>Вне групп</translation>
     </message>
 </context>
 </TS>

@@ -95,11 +95,6 @@ QToolBar#tlbToolBar, QFrame#wdtViewer
 	border: none;
 }
 
-#emoticonsButton
-{
-	min-width: 20px;
-}
-
 /******************
  * Message editor *
  ******************/
@@ -117,7 +112,7 @@ MessageEditor
  * Emoticons Button *
  ********************/
 
-#emoticonsButton
+QPushButton#emoticonsButton
 {
 	background-color: transparent;
 	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder.png);
@@ -135,20 +130,32 @@ MessageEditor
 	margin-top: 1px;
 }
 
+QPushButton#emoticonsButton:hover
+{
+	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder_hover.png);
+}
+
+QPushButton#emoticonsButton:pressed,
+QPushButton#emoticonsButton:!pressed[isDown="true"]
+{
+	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder_click.png);
+}
+
+QPushButton#emoticonsButton:disabled
+{
+	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder_disabled.png);
+}
+
 #emoticonsButton::menu-indicator
 {
-	right: -1px;
-	top: 1px;
-	subcontrol-origin: content;
-	subcontrol-position: right center;
-	image: url(%IMAGES_PATH%/emoticonsbuttonarrow.png);
+	image: none;
 }
 
 /***************
  * Send Button *
  ***************/
 
-#tlbSend
+QToolButton#tlbSend
 {
 	background-color: transparent;
 	border-image: url(%IMAGES_PATH%/sendbuttonborder.png);
@@ -164,6 +171,26 @@ MessageEditor
 	padding-left: -2px;
 	padding-right: 2px;
 	margin-bottom: 1px;
+}
+
+QToolButton#tlbSend:hover
+{
+	border-image: url(%IMAGES_PATH%/sendbuttonborder_hover.png);
+}
+
+QToolButton#tlbSend:pressed
+{
+	border-image: url(%IMAGES_PATH%/sendbuttonborder_click.png);
+}
+
+QToolButton#tlbSend:disabled
+{
+	border-image: url(%IMAGES_PATH%/sendbuttonborder_disabled.png);
+}
+
+QToolButton#tlbSend[error="true"]
+{
+	border-image: url(%IMAGES_PATH%/sendbuttonborder_error.png);
 }
 
 /**********
