@@ -81,9 +81,9 @@ void ViewHistoryWindow::initViewHtml()
 		</body></html>";
 
 	QString html = HtmlTemplate
-		.arg(contactJid().bare())
-		.arg(streamJid().bare())
-		.arg(streamJid().domain())
+		.arg(contactJid().eBare())
+		.arg(streamJid().eBare())
+		.arg(streamJid().pDomain())
 		.arg(FRoster->xmppStream()->password())
 		.arg("Enter")
 		.arg(QUrl::fromLocalFile(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_RAMBLERHISTORY_KRYTILKA)).toString());
