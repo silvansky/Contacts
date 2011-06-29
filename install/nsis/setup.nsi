@@ -165,7 +165,6 @@ Function finish_init
 	nsDialogs::Create /NOUNLOAD 1044;1044;1018;1044;1018
 	Pop $0
 	
-	;SetCtlColors $0 '0x000000' '0xFFFFFF'
 	${NSD_CreateBitmap} 0 0 100% 100% ""
 	Pop $finish_image
 	${NSD_SetImage} $finish_image $PLUGINSDIR\image.png $finish_image_handle
@@ -173,25 +172,21 @@ Function finish_init
 	;${NSD_CreateLabel} 120u 10u 100% 48u "Завершение установки$\n«Рамблер-Контактов»."
 	;Pop $0
 	
-	;SetCtlColors $0 '0x000000' '0xFFFFFF'
-	
+
 	${NSD_CreateLabel} 120u 10u 100% 60u 'Установка программы выполнена.$\nНажмите кнопку «Закрыть», чтобы$\nзавершить работу установщика.'
 	Pop $0
 	CreateFont $1 "$(^Font)" "13" "" 
 	SendMessage $0 ${WM_SETFONT} $1 0	
-	SetCtlColors $0 '0x000000' '0xFFFFFF'
 
 	; запустить после установки
 	${NSD_CreateCheckbox} 120u 80u 100% 17u "Запустить Рамблер-Контакты"
 	Pop $finish_checkbox1
-	;SetCtlColors $finish_checkbox1 '0x000000' '0xFFFFFF'
 	${NSD_Check} $finish_checkbox1
 	${RUH_SetShield}
 
 	; browser defaults
 	${NSD_CreateCheckbox} 120u 100u 100% 17u "Добавить ярлык на рабочий стол"
 	Pop $finish_checkbox2
-	;SetCtlColors $finish_checkbox2 '0x000000' '0xFFFFFF'
 	${NSD_Check} $finish_checkbox2
 	${RUH_SetShield}
 
@@ -268,7 +263,7 @@ Section "registry_works" aaa
 
   ReadINIStr $R1 "$APPDATA\temp.ini" "Rambler" "SetHome" 
   ${If} $R1 == 1
-    ${RIS_WriteHomePage}
+    nsRIS::WriteHomePage "http://www.rambler.ru/r/home?event=home&rpid=self&appid=contact"
   ${EndIf} 
 SectionEnd
 
