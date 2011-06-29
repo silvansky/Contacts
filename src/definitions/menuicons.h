@@ -245,9 +245,9 @@
 #define MNI_PLUGINMANAGER_ABOUT_QT               "pluginmanagerAboutQt"
 
 //RamblerMailNotify
-#define MNI_RAMBLERMAILNOTIFY_MAIL               "ramblermailnotifyMail"
 #define MNI_RAMBLERMAILNOTIFY_NOTIFY             "ramblermailnotifyNotify"
 #define MNI_RAMBLERMAILNOTIFY_AVATAR             "ramblermailnotifyAvatar"
+#define MNI_RAMBLERMAILNOTIFY_ROSTER             "ramblermailnotifyRoster"
 
 //RamblerHistory
 #define MNI_RAMBLERHISTORY_KRYTILKA              "ramblerhistoryKrytilka"

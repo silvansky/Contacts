@@ -127,6 +127,11 @@ Jid MailNotifyPage::serviceJid() const
 	return FServiceJid;
 }
 
+int MailNotifyPage::newMailsCount() const
+{
+	return ui.twtMails->rowCount();
+}
+
 void MailNotifyPage::appendNewMail(const Stanza &AStanza)
 {
 	Message message(AStanza);

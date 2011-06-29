@@ -116,7 +116,6 @@ private:
 	IRostersView *FRostersView;
 	IRostersModel *FRostersModel;
 	IMetaContacts *FMetaContacts;
-	IStatusIcons *FStatusIcons;
 	INotifications *FNotifications;
 	IStanzaProcessor *FStanzaProcessor;
 	IMessageWidgets *FMessageWidgets;

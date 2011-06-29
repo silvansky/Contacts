@@ -11,7 +11,6 @@ RamblerMailNotify::RamblerMailNotify()
 	FRostersView = NULL;
 	FRostersModel = NULL;
 	FMetaContacts = NULL;
-	FStatusIcons = NULL;
 	FNotifications = NULL;
 	FStanzaProcessor = NULL;
 	FMessageWidgets = NULL;
@@ -89,12 +88,6 @@ bool RamblerMailNotify::initConnections(IPluginManager *APluginManager, int &AIn
 	if (plugin)
 	{
 		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
-	}
-
-	plugin = APluginManager->pluginInterface("IStatusIcons").value(0);
-	if (plugin)
-	{
-		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
 	}
 
 	plugin = APluginManager->pluginInterface("INotifications").value(0);
@@ -220,10 +213,7 @@ IRosterIndex *RamblerMailNotify::getMailIndex(const Jid &AStreamJid)
 			mindex->setData(RDR_TYPE_ORDER,RITO_MAILNOTIFY);
 			mindex->setData(RDR_AVATAR_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_RAMBLERMAILNOTIFY_AVATAR));
 			if (FRostersView)
-			{
 				FRostersView->insertLabel(FAvatarLabelId,mindex);
-				FRostersView->insertFooterText(FTO_ROSTERSVIEW_STATUS,tr("No new messages"),mindex);
-			}
 			FMailIndexes.append(mindex);
 			FRostersModel->insertRosterIndex(mindex,sroot);
 			updateMailIndex(AStreamJid);
@@ -237,8 +227,12 @@ void RamblerMailNotify::updateMailIndex(const Jid &AStreamJid)
 	IRosterIndex *mindex = findMailIndex(AStreamJid);
 	if (mindex)
 	{
-		IXmppStream *stream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
-		QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByStatus(stream!=NULL && stream->isOpen() ? IPresence::Online : IPresence::Offline, SUBSCRIPTION_BOTH, false) : QIcon();
+		int mails = 0;
+		foreach(MailNotifyPage *page, FNotifyPages.values(mindex))
+			mails += page->newMailsCount();
+		QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RAMBLERMAILNOTIFY_ROSTER,mails>0 ? 1 : 0);
+		if (FRostersView)
+			FRostersView->insertFooterText(FTO_ROSTERSVIEW_STATUS,mails>0 ? tr("%n new mail(s)","",mails) : tr("No new mails"),mindex);
 		mindex->setData(Qt::DecorationRole, icon);
 	}
 }
@@ -351,6 +345,7 @@ void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AS
 			}
 
 			FMailNotifies.insertMulti(mindex,mnotify);
+			updateMailIndex(AStreamJid);
 		}
 	}
 }
@@ -482,7 +477,6 @@ void RamblerMailNotify::onXmppStreamOpened(IXmppStream *AXmppStream)
 void RamblerMailNotify::onXmppStreamClosed(IXmppStream *AXmppStream)
 {
 	clearMailNotifies(AXmppStream->streamJid());
-	updateMailIndex(AXmppStream->streamJid());
 }
 
 void RamblerMailNotify::onRosterModelStreamRemoved(const Jid &AStreamJid)

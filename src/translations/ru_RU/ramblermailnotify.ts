@@ -83,10 +83,6 @@
         <translation>Не в контакт-листе</translation>
     </message>
     <message>
-        <source>No new messages</source>
-        <translation>Новых писем нет</translation>
-    </message>
-    <message>
         <source>Vasilisa Premudraya</source>
         <translation>Василиса Премудрая</translation>
     </message>
@@ -109,6 +105,18 @@
     <message>
         <source>New e-mail</source>
         <translation>Новое письмо</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n new mail(s)</source>
+        <translation>
+            <numerusform>%n новое письмо</numerusform>
+            <numerusform>%n новых письма</numerusform>
+            <numerusform>%n новых писем</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>No new mails</source>
+        <translation>Новых писем нет</translation>
     </message>
 </context>
 </TS>

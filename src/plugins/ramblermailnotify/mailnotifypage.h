@@ -38,6 +38,7 @@ public:
 	//MailNotifyPage
 	virtual Jid streamJid() const;
 	virtual Jid serviceJid() const;
+	virtual int newMailsCount() const;
 	virtual void appendNewMail(const Stanza &AStanza);
 	virtual void clearNewMails();
 signals:
