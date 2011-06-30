@@ -166,7 +166,7 @@ void AddMetaItemPage::onAppendContactButtonClicked()
 		}
 		else
 		{
-			setErrorMessage(tr("Failed to create new contact."));
+			setErrorMessage(Qt::escape(tr("Failed to create new contact.")));
 		}
 	}
 }
@@ -185,7 +185,7 @@ void AddMetaItemPage::onMetaContactReceived(const IMetaContact &AContact, const 
 		FRosterChanger->subscribeContact(FMetaRoster->streamJid(),FAddWidget->contactJid());
 		FMergeRequestId = FMetaRoster->mergeContacts(FMetaId, QList<QString>() << AContact.id);
 		if (FMergeRequestId.isEmpty())
-			setErrorMessage(tr("Failed to merge contacts."));
+			setErrorMessage(Qt::escape(tr("Failed to merge contacts.")));
 	}
 	else if (FAddWidget && AContact.id==FMetaId && AContact.items.contains(FAddWidget->contactJid()))
 	{
@@ -199,11 +199,11 @@ void AddMetaItemPage::onMetaActionResult(const QString &AActionId, const QString
 	if (AActionId == FCreateRequestId)
 	{
 		if (!AErrCond.isEmpty())
-			setErrorMessage(tr("Failed to create new contact."));
+			setErrorMessage(Qt::escape(tr("Failed to create new contact.")));
 	}
 	else if (AActionId == FMergeRequestId)
 	{
 		if (!AErrCond.isEmpty())
-			setErrorMessage(tr("Failed to merge contacts."));
+			setErrorMessage(Qt::escape(tr("Failed to merge contacts.")));
 	}
 }

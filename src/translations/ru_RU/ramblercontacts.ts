@@ -19,10 +19,6 @@
         <source>Copyright 2010-2011, &quot;Rambler Internet Holding Ltd&quot;. All rights reserved.&lt;br&gt;%1</source>
         <translation>Copyright 2010-2011, «Rambler Internet Holding Ltd». Все права сохранены.&lt;br&gt;%1</translation>
     </message>
-    <message>
-        <source>Contacts</source>
-        <translation>Контакты</translation>
-    </message>
 </context>
 <context>
     <name>AboutBoxClass</name>

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>273</width>
-    <height>65</height>
+    <height>67</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -66,6 +66,9 @@
        </property>
        <property name="text">
         <string notr="true">lblError</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::RichText</enum>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

@@ -1,6 +1,7 @@
 #include "addmetaitemwidget.h"
 
 #include <QVBoxLayout>
+#include <QTextDocument>
 #include <utils/stylestorage.h>
 
 #define RESOLVE_WAIT_INTERVAL    1500
@@ -221,13 +222,13 @@ void AddMetaItemWidget::onProfilesChanged()
 	if (!FRoster->isOpen())
 	{
 		FServiceFailed = true;
-		setErrorMessage(tr("You are not connected to server."),false);
+		setErrorMessage(Qt::escape(tr("You are not connected to server.")),false);
 		ui.lneContact->setEnabled(false);
 	}
 	else if (FSelectProfileWidget->profiles().isEmpty())
 	{
 		FServiceFailed = true;
-		setErrorMessage(tr("Service '%1' is not available now.").arg(FDescriptor.name),false);
+		setErrorMessage(Qt::escape(tr("Service '%1' is not available now.")).arg(FDescriptor.name),false);
 		ui.lneContact->setEnabled(false);
 	}
 	else if (FServiceFailed)
@@ -264,7 +265,7 @@ void AddMetaItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid
 		if (!FRoster->rosterItem(AUserJid).isValid)
 			setRealContactJid(AUserJid);
 		else
-			setErrorMessage(tr("This contact is already present in your contact-list."),true);
+			setErrorMessage(Qt::escape(tr("This contact is already in your list.")),true);
 	}
 }
 
@@ -274,6 +275,6 @@ void AddMetaItemWidget::onGatewayErrorReceived(const QString &AId, const QString
 	if (FContactJidRequest == AId)
 	{
 		setRealContactJid(Jid::null);
-		setErrorMessage(tr("Failed to request contact JID from transport."),false);
+		setErrorMessage(Qt::escape(tr("Failed to request contact JID from transport.")),false);
 	}
 }
