@@ -1,7 +1,11 @@
+#include <QUrl>
 #include <QLibrary>
 #include <QApplication>
-#include <QCleanlooksStyle>
+#include <QNetworkReply>
 #include <QScopedPointer>
+#include <QNetworkRequest>
+#include <QCleanlooksStyle>
+#include <QNetworkAccessManager>
 #include "pluginmanager.h"
 #include "proxystyle.h"
 
@@ -15,7 +19,7 @@
 int main(int argc, char *argv[])
 {
 	// styles
-	//QApplication::setStyle(new QCleanlooksStyle); // damn, no effect at all!
+	// QApplication::setStyle(new QCleanlooksStyle); // damn, no effect at all!
 	// but we can simulate "-style cleanlooks" arguments and pass them to app's ctor...
 	// that would be a really dirty hack!
 	// but it solves selection problem on windows vista/seven...
@@ -34,13 +38,6 @@ int main(int argc, char *argv[])
 	// replace original argc and argv and passing them to app's ctor
 	argc = 3;
 	argv = newArgv;
-	// I think leak of these few bytes isn't so important...
-	// but we can put this at the end of main() instead of return app.exec():
-	/*int ret = app.exec();
-	for (int i = 0; i < argc; i++)
-		delete argv[i];
-	delete argv;
-	return ret;*/
 	// remark: we can set windows style explicitly to override vista/seven selection
 	// cleanlooks style brings ugly combo popups...
 
@@ -87,12 +84,20 @@ int main(int argc, char *argv[])
 	QObject::connect(holdem_module.data(), SIGNAL(shutdownRequested()), &pm, SLOT(shutdownRequested()));
 #endif
 
+	// TNS counter
+	QNetworkAccessManager *nmanager = new QNetworkAccessManager(&app);
+	QNetworkReply *reply = nmanager->get(QNetworkRequest(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/")));
+	QObject::connect(reply,SIGNAL(finished()),reply,SLOT(deleteLater()));
+	QObject::connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),reply,SLOT(deleteLater()));
+	QObject::connect(reply,SIGNAL(destroyed()),nmanager,SLOT(deleteLater()));
+
+	// Starting plugin manager
 	pm.restart();
 
-	//return app.exec();
 	int ret = app.exec();
 	for (int i = 0; i < argc; i++)
 		delete argv[i];
 	delete argv;
+
 	return ret;
 }
