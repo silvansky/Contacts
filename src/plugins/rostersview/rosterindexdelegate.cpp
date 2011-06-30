@@ -579,7 +579,8 @@ QSize RosterIndexDelegate::variantSize(const QStyleOptionViewItemV4 &AOption, co
 	{
 		QIcon icon = qvariant_cast<QIcon>(AValue);
 		if (!icon.isNull())
-			return AOption.decorationSize;
+			//return AOption.decorationSize;
+			return icon.availableSizes().first();
 		break;
 	}
 	case QVariant::String:

@@ -105,6 +105,7 @@ void ActionButton::paintEvent(QPaintEvent *)
 	QStyleOptionButton option;
 	initStyleOption(&option);
 	p.drawControl(QStyle::CE_PushButtonBevel, option);
+	option.rect.setBottom(option.rect.bottom() - 1); // dirty hack...
 	//p.drawControl(QStyle::CE_PushButtonLabel, option);
 	p.drawItemText(option.rect, Qt::AlignVCenter | hAlignment | additionalTextFlag, palette(), isEnabled(), text(), QPalette::ButtonText);
 }

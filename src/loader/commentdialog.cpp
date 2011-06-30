@@ -145,7 +145,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 
 	ui.lblSendCommentStatus->setVisible(false);
 
-	QString techInfo("<br><br><br><br><br><br><br>");
+	QString techInfo("<br><br><br>");
 	techInfo += "-----------------------------<br>";
 	techInfo += tr("TECHNICAL DATA (may be useful for developers)") + "<br>";
 	techInfo += QString(tr("Rambler Contacts version: %1 (r%2)")).arg(APluginManager->version(), APluginManager->revision())+"<br>";
