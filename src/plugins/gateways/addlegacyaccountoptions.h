@@ -40,7 +40,7 @@ private:
 	Ui::AddLegacyAccountOptionsClass ui;
 private:
 	IGateways *FGateways;
-   IServiceDiscovery *FDiscovery;
+	IServiceDiscovery *FDiscovery;
 private:
 	Jid FStreamJid;
 	QHBoxLayout *FLayout;

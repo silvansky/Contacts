@@ -9,7 +9,7 @@ AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, IServiceD
 	ui.setupUi(this);
 
 	FGateways = AGateways;
-   FDiscovery = ADiscovery;
+	FDiscovery = ADiscovery;
 	FStreamJid = AStreamJid;
 
 	connect(FGateways->instance(),SIGNAL(availServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
@@ -103,21 +103,34 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 
 		QList<Jid> usedGates = FGateways->streamServices(FStreamJid,identity);
 		QList<Jid> availGates = FGateways->availServices(FStreamJid,identity);
-
-		foreach(Jid serviceJid, availGates)
+		
+		QList<Jid> availRegisters;
+		foreach(Jid registerJid, availGates)
 		{
-			if (!usedGates.contains(serviceJid))
-	 {
-	    if (!FDiscovery || FDiscovery->discoInfo(AStreamJid,serviceJid).features.contains(NS_RAMBLER_GATEWAY_REGISTER))
-	       appendServiceButton(serviceJid);
-	 }
-			else
-	 {
-	    removeServiceButton(serviceJid);
-	 }
+			if (FDiscovery && FDiscovery->discoInfo(AStreamJid,registerJid).features.contains(NS_RAMBLER_GATEWAY_REGISTER))
+			{
+				availGates.removeAll(registerJid);
+				availRegisters.append(registerJid);
+				
+				bool showRegister = false;
+				IGateServiceDescriptor rdescriptor = FGateways->serviceDescriptor(AStreamJid,registerJid);
+				foreach(Jid serviceJid, availGates)
+				{
+					if (!usedGates.contains(serviceJid) && FGateways->serviceDescriptor(AStreamJid,serviceJid).id == rdescriptor.id)
+					{
+						showRegister = true;
+						break;
+					}
+				}
+
+				if (showRegister)
+					appendServiceButton(registerJid);
+				else
+					removeServiceButton(registerJid);
+			}
 		}
 
-		foreach(Jid serviceJid, FWidgets.keys().toSet() - availGates.toSet())
+		foreach(Jid serviceJid, FWidgets.keys().toSet() - availRegisters.toSet())
 			removeServiceButton(serviceJid);
 
 		if (!FWidgets.isEmpty())
