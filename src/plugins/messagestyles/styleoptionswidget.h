@@ -14,8 +14,8 @@ class StyleOptionsWidget :
 			public QWidget,
 			public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	StyleOptionsWidget(IMessageStyles *AMessageStyles, QWidget *AParent);
 	~StyleOptionsWidget();
@@ -25,6 +25,7 @@ public slots:
 	void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 public slots:

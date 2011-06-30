@@ -110,6 +110,7 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 			connect(this,SIGNAL(applied()),it.value()->instance(),SLOT(apply()));
 			connect(this,SIGNAL(reseted()),it.value()->instance(),SLOT(reset()));
 			connect(it.value()->instance(),SIGNAL(modified()),SLOT(onOptionsWidgetModified()));
+			connect(it.value()->instance(),SIGNAL(updated()),SLOT(onOptionsWidgetUpdated()));
 		}
 	}
 
@@ -260,8 +261,13 @@ void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QMod
 void OptionsDialog::onOptionsWidgetModified()
 {
 	ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(true);
-	correctAdjustSize();
+	//correctAdjustSize();
 	//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(true);
+}
+
+void OptionsDialog::onOptionsWidgetUpdated()
+{
+	correctAdjustSize();
 }
 
 void OptionsDialog::onDialogButtonClicked(QAbstractButton *AButton)

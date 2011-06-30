@@ -107,14 +107,14 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 		foreach(Jid serviceJid, availGates)
 		{
 			if (!usedGates.contains(serviceJid))
-         {
-            if (!FDiscovery || FDiscovery->discoInfo(AStreamJid,serviceJid).features.contains(NS_RAMBLER_GATEWAY_REGISTER))
-               appendServiceButton(serviceJid);
-         }
+	 {
+	    if (!FDiscovery || FDiscovery->discoInfo(AStreamJid,serviceJid).features.contains(NS_RAMBLER_GATEWAY_REGISTER))
+	       appendServiceButton(serviceJid);
+	 }
 			else
-         {
-            removeServiceButton(serviceJid);
-         }
+	 {
+	    removeServiceButton(serviceJid);
+	 }
 		}
 
 		foreach(Jid serviceJid, FWidgets.keys().toSet() - availGates.toSet())
@@ -128,6 +128,6 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 		{
 			ui.lblInfo->setText(tr("All available accounts are already linked"));
 		}
-		emit modified();
+		emit updated();
 	}
 }

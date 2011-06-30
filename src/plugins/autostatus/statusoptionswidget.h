@@ -12,7 +12,7 @@
 class Delegate :
 			public QItemDelegate
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	Delegate(IStatusChanger *AStatusChanger, QObject *AParent = NULL);
 	QWidget *createEditor(QWidget *AParent, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
@@ -27,8 +27,8 @@ class StatusOptionsWidget :
 			public QWidget,
 			public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	StatusOptionsWidget(IAutoStatus *AAutoStatus, IStatusChanger *AStatusChanger, QWidget *AParent);
 	~StatusOptionsWidget();
@@ -38,6 +38,7 @@ public slots:
 	virtual void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 protected:

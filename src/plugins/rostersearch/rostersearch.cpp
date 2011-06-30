@@ -249,7 +249,7 @@ void RosterSearch::startSearch()
 	}
 
 	emit searchResultUpdated();
-	emit rosterDataChanged(NULL, RDR_FOOTER_TEXT);
+	emit rosterDataChanged(NULL, RDR_FOOTER_TEXT);;
 }
 
 QString RosterSearch::searchPattern() const

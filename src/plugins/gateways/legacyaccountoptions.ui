@@ -35,6 +35,12 @@
       </item>
       <item>
        <widget class="QLabel" name="lblIcon">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string notr="true">lblIcon</string>
         </property>
@@ -45,6 +51,12 @@
       </item>
       <item>
        <widget class="QLabel" name="lblLogin">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string notr="true">lblLogin</string>
         </property>
@@ -63,7 +75,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>15</width>
+          <width>0</width>
           <height>0</height>
          </size>
         </property>
@@ -71,6 +83,12 @@
       </item>
       <item>
        <widget class="QLabel" name="lblInfo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string notr="true">lblInfo</string>
         </property>
@@ -78,6 +96,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="pbtChange">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="cursor">
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
@@ -95,7 +119,14 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="CloseButton" name="cbtDelete" native="true"/>
+         <widget class="CloseButton" name="cbtDelete" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

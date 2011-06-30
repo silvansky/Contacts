@@ -47,6 +47,7 @@ protected slots:
 	void onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode);
 	void onCurrentItemChanged(const QModelIndex &ACurrent, const QModelIndex &APrevious);
 	void onOptionsWidgetModified();
+	void onOptionsWidgetUpdated();
 	void onDialogButtonClicked(QAbstractButton *AButton);
 private:
 	Ui::OptionsDialogClass ui;

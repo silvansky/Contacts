@@ -7,8 +7,8 @@ class OptionsContainer :
 			public QWidget,
 			public IOptionsContainer
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsContainer);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsContainer)
 public:
 	OptionsContainer(const IOptionsManager *AOptionsManager, QWidget *AParent);
 	~OptionsContainer();
@@ -20,6 +20,7 @@ public slots:
 	virtual void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 private:

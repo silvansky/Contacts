@@ -45,6 +45,7 @@ void ManageLegacyAccountsOptions::appendServiceOptions(const Jid &AServiceJid)
 				frame->setObjectName("serviceSeparator");
 				FLayout->addWidget(frame);
 			}
+			connect(options, SIGNAL(updated()), SLOT(onOptionsUpdated()));
 			FLayout->addWidget(options);
 			FOptions.insert(AServiceJid,options);
 		}
@@ -80,6 +81,12 @@ void ManageLegacyAccountsOptions::onStreamServicesChanged(const Jid &AStreamJid)
 			removeServiceOptions(serviceJid);
 
 		ui.lblNoAccount->setVisible(FOptions.isEmpty());
-		emit modified();
+		emit updated();
 	}
+}
+
+void ManageLegacyAccountsOptions::onOptionsUpdated()
+{
+	adjustSize();
+	emit updated();
 }

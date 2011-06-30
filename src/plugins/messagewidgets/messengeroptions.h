@@ -11,8 +11,8 @@ class MessengerOptions :
 			public QWidget,
 			public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	MessengerOptions(QWidget *AParent);
 	~MessengerOptions();
@@ -22,6 +22,7 @@ public slots:
 	virtual void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 private:
