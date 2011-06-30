@@ -61,9 +61,9 @@ Var finish_image_handle
 
 ; utility functions
 Function InstallUpdater
-  SetOutPath "$TEMP"
-  File "..\Holdem\holdem.msi"
-  ExecWait '"msiexec" /i "$OUTDIR\holdem.msi" /quiet'
+	SetOutPath "$TEMP"
+	File "..\Holdem\holdem.msi"
+	ExecWait '"msiexec" /i "$OUTDIR\holdem.msi" REINSTALL=ALL REINSTALLMODE=vamus REBOOT=ReallySuppress /quiet'
 FunctionEnd
 
 Function RelGotoPage
