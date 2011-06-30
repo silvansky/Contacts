@@ -383,7 +383,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 				groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
 				FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
 
-				if (AContact.items != ABefore.items)
+				if (createdNewIndexes || AContact.items!=ABefore.items)
 				{
 					if (AContact.items.count() == 1)
 					{
