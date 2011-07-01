@@ -194,7 +194,6 @@ void MetaTabWindow::setCurrentPage(const QString &APageId)
 		else if (FPageButtons.contains(currentPage()))
 			FPageButtons.value(currentPage())->setChecked(true);
 	}
-	updateItemButtons();
 }
 
 QString MetaTabWindow::insertPage(int AOrder, bool ACombine)
@@ -264,6 +263,23 @@ void MetaTabWindow::setPageIcon(const QString &APageId, const QIcon &AIcon)
 		updatePageButton(APageId);
 		emit pageChanged(APageId);
 	}
+}
+
+void MetaTabWindow::setPageIcon(const QString &APageId, const QString &AMetaIcon)
+{
+	QIcon icon;
+
+	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 1)), QIcon::Normal, QIcon::Off);
+	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 2)), QIcon::Selected, QIcon::Off);
+	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 2)), QIcon::Active, QIcon::Off);
+	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 3)), QIcon::Disabled, QIcon::Off);
+
+	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 2)), QIcon::Normal, QIcon::On);
+	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 2)), QIcon::Selected, QIcon::On);
+	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 2)), QIcon::Active, QIcon::On);
+	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 3)), QIcon::Disabled, QIcon::On);
+
+	setPageIcon(APageId,icon);
 }
 
 QString MetaTabWindow::pageName(const QString &APageId) const
@@ -602,17 +618,7 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 	{
 		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
 		QString pageId = insertPage(descriptor.metaOrder,descriptor.combine);
-
-		QIcon icon;
-		if (pageId == currentPage())
-		{
-			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Normal);
-		}
-		else
-		{
-			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
-		}
-		setPageIcon(pageId,icon);
+		setPageIcon(pageId,descriptor.icon);
 		setPageName(pageId,FMetaContacts->itemHint(itemJid));
 
 		FItemPages.insert(itemJid,pageId);
@@ -629,43 +635,6 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 	}
 
 	updatePersistantPages();
-}
-
-void MetaTabWindow::updateItemButtons()
-{
-	QStringList pageIds;
-	QMap<QString, IMetaItemDescriptor> descriptors;
-	// items
-	foreach(Jid itemJid, FMetaRoster->metaContact(FMetaId).items)
-	{
-		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
-		QString pi = itemPage(itemJid);
-		pageIds << pi;
-		descriptors.insert(pi, descriptor);
-	}
-	// persistant buttons
-	foreach(int metaOrder, FPersistantList)
-	{
-		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByOrder(metaOrder);
-		QString pi = FPersistantPages.value(metaOrder);
-		pageIds << pi;
-		descriptors.insert(pi, descriptor);
-	}
-	foreach (QString pageId, pageIds)
-	{
-		IMetaItemDescriptor descriptor = descriptors.value(pageId);
-		QIcon icon;
-		QToolButton * tlb = FPageButtons.value(pageId);
-		if ((pageId == currentPage()) || (tlb && tlb->isChecked()))
-		{
-			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Normal);
-		}
-		else
-		{
-			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
-		}
-		setPageIcon(pageId,icon);
-	}
 }
 
 void MetaTabWindow::updateItemButtonStatus(const Jid &AItemJid)
@@ -749,20 +718,8 @@ void MetaTabWindow::updatePersistantPages()
 		{
 			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByOrder(metaOrder);
 			QString pageId = insertPage(descriptor.metaOrder, false);
-
-			QIcon icon;
-			QToolButton * tlb = FPageButtons.value(pageId);
-			if ((pageId == currentPage()) || (tlb && tlb->isChecked()))
-			{
-				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Normal);
-			}
-			else
-			{
-				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
-			}
-			setPageIcon(pageId,icon);
+			setPageIcon(pageId,descriptor.icon);
 			setPageName(pageId,tr("Add contact"));
-
 			FPersistantPages.insert(metaOrder,pageId);
 		}
 		else if (!FPersistantPages.value(metaOrder).isEmpty() && FItemTypeCount.value(metaOrder)>0)

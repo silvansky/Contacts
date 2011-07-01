@@ -101,6 +101,7 @@ public:
 	virtual QString insertPage(int AOrder, bool ACombine = false) =0;
 	virtual QIcon pageIcon(const QString &APageId) const =0;
 	virtual void setPageIcon(const QString &APageId, const QIcon &AIcon) =0;
+	virtual void setPageIcon(const QString &APageId, const QString &AMetaIcon) =0;
 	virtual QString pageName(const QString &APageId) const =0;
 	virtual void setPageName(const QString &APageId, const QString &AName) =0;
 	virtual QString widgetPage(ITabPage *APage) const =0;

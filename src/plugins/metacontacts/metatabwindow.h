@@ -54,6 +54,7 @@ public:
 	virtual QString insertPage(int AOrder, bool ACombine = false);
 	virtual QIcon pageIcon(const QString &APageId) const;
 	virtual void setPageIcon(const QString &APageId, const QIcon &AIcon);
+	virtual void setPageIcon(const QString &APageId, const QString &AMetaIcon);
 	virtual QString pageName(const QString &APageId) const;
 	virtual void setPageName(const QString &APageId, const QString &AName);
 	virtual QString widgetPage(ITabPage *APage) const;
@@ -98,7 +99,6 @@ protected:
 private:
 	Jid lastItemJid() const;
 	void updateItemPages(const QSet<Jid> &AItems);
-	void updateItemButtons();
 	void updateItemButtonStatus(const Jid &AItemJid);
 	void createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const;
 protected:
@@ -112,11 +112,11 @@ protected:
 	void saveWindowGeometry();
 	void loadWindowGeometry();
 protected:
-	virtual bool event(QEvent *AEvent);
-	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
-	virtual void showEvent(QShowEvent *AEvent);
-	virtual void closeEvent(QCloseEvent *AEvent);
-	virtual void contextMenuEvent(QContextMenuEvent *AEvent);
+	bool event(QEvent *AEvent);
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
+	void showEvent(QShowEvent *AEvent);
+	void closeEvent(QCloseEvent *AEvent);
+	void contextMenuEvent(QContextMenuEvent *AEvent);
 protected slots:
 	void onTabPageShow();
 	void onTabPageClose();
