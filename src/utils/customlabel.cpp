@@ -28,6 +28,7 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 	{
 		QPainter painter(this);
 		QRectF lr = contentsRect();
+		lr.moveBottom(lr.bottom() - 1); // angry and dirty hack!
 		QStyleOption opt;
 		opt.initFrom(this);
 		int align = QStyle::visualAlignment(text().isRightToLeft() ? Qt::RightToLeft : Qt::LeftToRight, alignment());

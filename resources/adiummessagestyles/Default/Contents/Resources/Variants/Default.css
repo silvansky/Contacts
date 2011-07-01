@@ -1,57 +1,62 @@
 @import url("../main.css");
 
 body {
-	background-color: rgba(255, 255, 255, 1);
-	margin: 0;
+    background-color: rgba(255, 255, 255, 1);
+    margin: 0;
 }
 
 .date {
-	color: rgba(177, 177, 177, 1);
-	float: right;
+    color: rgba(177, 177, 177, 1);
+    float: right;
 }
 
 .status {
-	color: rgba(177, 177, 177, 1);
+    color: rgba(177, 177, 177, 1);
 }
 
 .userName {
-	font-weight: bold;
-	float: left;
+    font-weight: bold;
+    float: left;
 }
 
 .contentText {
-	clear: both;
-	padding-right: 2em;
-	display: inline-block;
+    clear: both;
+    padding-right: 2em;
+    display: inline-block;
 }
 
 .content {
-	clear: both;
+    clear: both;
 }
 
 .status, .userName, .contentText, .date {
-	padding-left: 0.8em;
-	line-height: 2em;
+    padding-left: 14px;
+    line-height: 2em;
 }
 
 .date {
-	padding-right: 2em;
-	float: right;
+    padding-right: 14px;
+    float: right;
+}
+
+.contentText {
+    margin-top:-5px
 }
 
 .message1 .userName {
-	color: rgba(53, 143, 206, 1);
+    color: rgba(53, 143, 206, 1);
 }
 
 .message1, .message2 {
-	font-weight: normal !important;
-	border-top: 1px rgba(195, 196, 198, 1) dotted;
+    font-weight: normal !important;
+    border-top: 1px rgba(195, 196, 198, 1) dotted;
 }
 
 .v-chat-header {
-    padding: 14px 26px 15px 8px;
+    padding: 14px 13px 15px 8px;
     height: 20px;
     border-bottom: 1px dotted #c3c4c6;
+    margin-left:-14px;
 }
 
 .v-chat-header a {
@@ -75,6 +80,7 @@ body {
 .v-chat-header-history {
     float:right;
     margin-top:5px;
+    margin-right:0px;
 }
 
 .v-chat-header-b:hover, .v-chat-header-history:hover {
