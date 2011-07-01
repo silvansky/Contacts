@@ -1,4 +1,7 @@
 TARGET = console
 include(console.pri)
 include(../plugins.inc)
-INSTALLS =
+# TODO: remove this for release
+!macx {
+  INSTALLS =
+}

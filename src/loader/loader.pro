@@ -3,6 +3,11 @@ include(../config.inc)
 TARGET             = $$TARGET_LOADER
 TEMPLATE           = app
 QT                += xml network
+
+macx: {
+  QT              += webkit
+}
+
 LIBS              += -L../libs
 LIBS              += -l$$TARGET_UTILS
 win32:LIBS        += -lholdemutils -lAdvapi32 -lUser32 -lOle32
