@@ -254,10 +254,7 @@ bool Gateways::initObjects()
 	magent.name = tr("Agent@Mail.ru");
 	magent.iconKey = MNI_GATEWAYS_SERVICE_MAGENT;
 	magent.loginLabel = tr("E-mail");
-	magent.domains.append("mail.ru");
-	magent.domains.append("inbox.ru");
-	magent.domains.append("list.ru");
-	magent.domains.append("bk.ru");
+	magent.domains << "mail.ru" << "inbox.ru" << "list.ru" << "bk.ru";
 	magent.loginField = "username";
 	magent.passwordField = "password";
 	magent.domainSeparator = "@";
@@ -286,8 +283,7 @@ bool Gateways::initObjects()
 	gtalk.name = tr("GTalk");
 	gtalk.iconKey = MNI_GATEWAYS_SERVICE_GTALK;
 	gtalk.loginLabel = tr("E-mail");
-	gtalk.domains.append("gmail.com");
-	gtalk.domains.append("googlemail.com");
+	gtalk.domains << "gmail.com" << "googlemail.com";
 	gtalk.loginField = "username";
 	gtalk.domainField = "server";
 	gtalk.passwordField = "password";
@@ -304,15 +300,7 @@ bool Gateways::initObjects()
 	yonline.name = tr("Y.Online");
 	yonline.iconKey = MNI_GATEWAYS_SERVICE_YONLINE;
 	yonline.loginLabel = tr("E-mail");
-	yonline.domains.append("ya.ru");
-	yonline.domains.append("yandex.ru");
-	yonline.domains.append("yandex.net");
-	yonline.domains.append("yandex.com");
-	yonline.domains.append("yandex.by");
-	yonline.domains.append("yandex.kz");
-	yonline.domains.append("yandex.ua");
-	yonline.domains.append("yandex-co.ru");
-	yonline.domains.append("narod.ru");
+	yonline.domains << "ya.ru" << "yandex.ru" << "yandex.net" << "yandex.com" << "yandex.by" << "yandex.kz" << "yandex.ua" << "yandex-co.ru" << "narod.ru";
 	yonline.loginField = "username";
 	yonline.domainField = "server";
 	yonline.passwordField = "password";
@@ -329,30 +317,9 @@ bool Gateways::initObjects()
 	qip.name = tr("QIP");
 	qip.iconKey = MNI_GATEWAYS_SERVICE_QIP;
 	qip.loginLabel = tr("Login");
-	qip.domains << "qip.ru"
-		    << "pochta.ru"
-		    << "fromru.com"
-		    << "front.ru"
-		    << "hotbox.ru"
-		    << "hotmail.ru"
-		    << "krovatka.su"
-		    << "land.ru"
-		    << "mail15.com"
-		    << "mail333.com"
-		    << "newmail.ru"
-		    << "nightmail.ru"
-		    << "nm.ru"
-		    << "pisem.net"
-		    << "pochtamt.ru"
-		    << "pop3.ru"
-		    << "rbcmail.ru"
-		    << "smtp.ru"
-		    << "5ballov.ru"
-		    << "aeterna.ru"
-		    << "ziza.ru"
-		    << "memori.ru"
-		    << "photofile.ru"
-		    << "fotoplenka.ru";
+	qip.domains << "qip.ru" << "pochta.ru" << "fromru.com" << "front.ru" << "hotbox.ru"	<< "hotmail.ru"	<< "krovatka.su" << "land.ru"	<< "mail15.com"	<< "mail333.com"
+		<< "newmail.ru"	<< "nightmail.ru"	<< "nm.ru"	<< "pisem.net"	<< "pochtamt.ru"	<< "pop3.ru"	<< "rbcmail.ru"	<< "smtp.ru"	<< "5ballov.ru"	<< "aeterna.ru"
+		<< "ziza.ru"	<< "memori.ru"	<< "photofile.ru"	<< "fotoplenka.ru";
 	qip.loginField = "username";
 	qip.domainField = "server";
 	qip.passwordField = "password";
@@ -371,7 +338,7 @@ bool Gateways::initObjects()
 	vkontakte.name = tr("VKontakte");
 	vkontakte.iconKey = MNI_GATEWAYS_SERVICE_VKONTAKTE;
 	vkontakte.loginLabel = tr("Login");
-	vkontakte.domains.append("vk.com");
+	vkontakte.domains << "vk.com";
 	vkontakte.loginField = "username";
 	vkontakte.domainField = "server";
 	vkontakte.passwordField = "password";
@@ -390,7 +357,7 @@ bool Gateways::initObjects()
 	facebook.name = tr("Facebook");
 	facebook.iconKey = MNI_GATEWAYS_SERVICE_FACEBOOK;
 	facebook.loginLabel = tr("Login");
-	facebook.domains.append("chat.facebook.com");
+	facebook.domains << "chat.facebook.com";
 	facebook.loginField = "username";
 	facebook.domainField = "server";
 	facebook.passwordField = "password";
@@ -407,7 +374,7 @@ bool Gateways::initObjects()
 	livejournal.name = tr("LiveJournal");
 	livejournal.iconKey = MNI_GATEWAYS_SERVICE_LIVEJOURNAL;
 	livejournal.loginLabel = tr("Login");
-	livejournal.domains.append("livejournal.com");
+	livejournal.domains << "livejournal.com";
 	livejournal.loginField = "username";
 	livejournal.domainField = "server";
 	livejournal.passwordField = "password";
@@ -424,12 +391,7 @@ bool Gateways::initObjects()
 	rambler.name = tr("Rambler");
 	rambler.iconKey = MNI_GATEWAYS_SERVICE_RAMBLER;
 	rambler.loginLabel = tr("Login");
-	rambler.domains.append("rambler.ru");
-	rambler.domains.append("lenta.ru");
-	rambler.domains.append("myrambler.ru");
-	rambler.domains.append("autorambler.ru");
-	rambler.domains.append("ro.ru");
-	rambler.domains.append("r0.ru");
+	rambler.domains << "rambler.ru" << "lenta.ru" << "myrambler.ru" << "autorambler.ru" << "ro.ru" << "r0.ru";
 	rambler.loginField = "username";
 	rambler.domainField = "server";
 	rambler.passwordField = "password";
