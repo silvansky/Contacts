@@ -376,7 +376,7 @@ QPushButton::menu-indicator:hover
 QToolButton::menu-indicator:open, QToolButton::menu-indicator:pressed,
 QPushButton::menu-indicator:open, QPushButton::menu-indicator:pressed
 {
-	image: url("%IMAGES_PATH%/buttonarrowdown.png");
+	image: url("%IMAGES_PATH%/buttonarrowdown_click.png");
 }
 
 QToolButton::menu-arrow
@@ -386,7 +386,7 @@ QToolButton::menu-arrow
 
 QToolButton::menu-arrow:open
 {
-	image: url("%IMAGES_PATH%/buttonarrowdown.png");
+	image: url("%IMAGES_PATH%/buttonarrowdown_click.png");
 }
 
 
