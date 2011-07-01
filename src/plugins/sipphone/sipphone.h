@@ -115,6 +115,7 @@ protected slots:
 	void sipClearRegistration(const QString&);
 
 	void onMetaTabWindowCreated(IMetaTabWindow*);
+	void onMetaTabWindowDestroyed(IMetaTabWindow*);
 	void onToolBarActionTriggered(bool);
 //
 //	// «¿√À”ÿ »
@@ -154,7 +155,7 @@ private slots:
 	void onAboutToShowContactMenu();
 	void onAboutToHideContactMenu();
 	void onCloseCallControl(bool);
-	
+
 private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;

@@ -88,6 +88,7 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		if(FMetaContacts)
 		{
 			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow*)), SLOT(onMetaTabWindowCreated(IMetaTabWindow*)));
+			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowDestroyed(IMetaTabWindow*)), SLOT(onMetaTabWindowDestroyed(IMetaTabWindow*)));
 		}
 	}
 
@@ -383,6 +384,15 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 	}
 }
 
+void SipPhone::onMetaTabWindowDestroyed(IMetaTabWindow* metaTabWindow)
+{
+	if (metaTabWindow)
+	{
+		QString id = metaTabWindow->metaId();
+		FCallActions.remove(id);
+	}
+}
+
 void SipPhone::onAboutToShowContactMenu()
 {
 	Menu *contactsMenu = qobject_cast<Menu*>(sender());
@@ -424,12 +434,26 @@ void SipPhone::onAboutToShowContactMenu()
 	addContactAction->setData(ADR_METAID_WINDOW, metaId);
 
 	contactsMenu->addAction(addContactAction, AG_PHONECM_BASECONTACT + 1);
+
+	Action * action = FCallActions.value(metaId);
+	if (action)
+	{
+		action->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 1);
+	}
 }
 
 void SipPhone::onAboutToHideContactMenu()
 {
 	Menu *contactsMenu = qobject_cast<Menu*>(sender());
 	contactsMenu->clear();
+
+	QString metaId = contactsMenu->menuAction()->data(ADR_METAID_WINDOW).toString();
+
+	Action * action = FCallActions.value(metaId);
+	if (action)
+	{
+		action->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 0);
+	}
 }
 
 
@@ -439,7 +463,7 @@ void SipPhone::addContactToCall()
 	Jid streamJid = addContactAction->data(ADR_STREAM_JID).toString();
 	QString metaId = addContactAction->data(ADR_METAID_WINDOW).toString();
 
-	if (FRosterChanger) 
+	if (FRosterChanger)
 	{
 		QWidget *widget = FRosterChanger->showAddContactDialog(streamJid);
 		if (widget)
@@ -514,7 +538,7 @@ void SipPhone::continueCallToContact()
 					iMetaTabWindow->insertTopWidget(0, pCallControl);
 					FCallControls.insert(metaId, pCallControl);
 
-					
+
 				}
 			}
 			else
@@ -537,7 +561,7 @@ void SipPhone::continueCallToContact()
 			QString sid = openStream(streamJid, contactJidFull);
 			return;
 		}
-		
+
 	}
 
 	// Блок описывающий бряку невозможности вызова абонента
@@ -556,7 +580,7 @@ void SipPhone::continueCallToContact()
 			FCallActions[metaId]->setMenu(__tmpMenu);
 			__tmpMenu = NULL;
 		}
-		
+
 		//if(senderAction)
 		//	senderAction->setChecked(false);
 	}
@@ -648,7 +672,7 @@ void SipPhone::onToolBarActionTriggered(bool status)
 			////////////////////////				connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
 			////////////////////////				connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
 			////////////////////////				connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhoneProxy, SIGNAL(proxyCamResolutionChange(bool)));
-			////////////////////////				
+			////////////////////////
 			////////////////////////				connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
 
 			////////////////////////				// Issue 2264. Инициализация кнопок правильными картинками (присутствие/отсутствие элементов мультимедия)
