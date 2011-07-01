@@ -1037,6 +1037,12 @@
       <Component Id="cmp1D3C66111B6F74623643C596E237BE29" Directory="dirC6D6BC45D26AF8CEBE80DEB177892FFF" Guid="{BE93099F-9D31-41EE-A10C-92CCAEAB1BF3}">
         <File Id="fil371C625D7934773F7038C71401CFCE7F" KeyPath="yes" Source="$(var.VirtusResourcesRoot)\menuicons\shared\ramblermailnotifynotify.png" />
       </Component>
+      <Component Id="cmpFC1AE654A679E303896C2273AA981B96" Directory="dirC6D6BC45D26AF8CEBE80DEB177892FFF" Guid="{411DB10B-537E-40DE-8D0C-34582D6AE7E2}">
+        <File Id="fil1CE377151B3D14DDFD6E028D6A6E399B" KeyPath="yes" Source="$(var.VirtusResourcesRoot)\menuicons\shared\ramblermailnotifyroster_empty.png" />
+      </Component>
+      <Component Id="cmp86010559DF6C85093C8AF9875C42C5F2" Directory="dirC6D6BC45D26AF8CEBE80DEB177892FFF" Guid="{3B029FE2-643C-46D7-9B0B-67A997269DE6}">
+        <File Id="fil83F8110FF4F6D24D92FFE593D09472A9" KeyPath="yes" Source="$(var.VirtusResourcesRoot)\menuicons\shared\ramblermailnotifyroster_full.png" />
+      </Component>
       <Component Id="cmp2F6F3930EFD18330F2DD0069A2F8368D" Directory="dirC6D6BC45D26AF8CEBE80DEB177892FFF" Guid="{DFD7560D-B6B8-4A0D-A528-8AF012B0C455}">
         <File Id="fil4DFC36798C2E15C7917EEE00B0BA0276" KeyPath="yes" Source="$(var.VirtusResourcesRoot)\menuicons\shared\ramblermailrostericon.png" />
       </Component>
@@ -1552,6 +1558,9 @@
       </Component>
       <Component Id="cmp1CBFB59D1204ACFFE14461C67BDFDD21" Directory="dir0643DB0B50AFC2EE34FEB3E54E41DC3A" Guid="{8C677326-881C-4EF8-8DEB-29812FC6699C}">
         <File Id="fil9483ED816A59F7C1133E84D735EFCA2D" KeyPath="yes" Source="$(var.VirtusResourcesRoot)\stylesheets\shared\images\buttonarrowdown.png" />
+      </Component>
+      <Component Id="cmp20F3D2FEC7E1549A5C60FAE5237E8800" Directory="dir0643DB0B50AFC2EE34FEB3E54E41DC3A" Guid="{AB5A78D0-DE31-4834-8896-C747EF188340}">
+        <File Id="filAE60F4C97D8EBC7AD58E2E5718DEC342" KeyPath="yes" Source="$(var.VirtusResourcesRoot)\stylesheets\shared\images\buttonarrowdown_click.png" />
       </Component>
       <Component Id="cmp742F6B9F4B15CCA1AA4044A043298410" Directory="dir0643DB0B50AFC2EE34FEB3E54E41DC3A" Guid="{DBA78D46-246F-4A87-8AA7-CEC5ABCA67FE}">
         <File Id="filFF9119E0CA70319833002CCB676AF97E" KeyPath="yes" Source="$(var.VirtusResourcesRoot)\stylesheets\shared\images\buttonarrowup.png" />
