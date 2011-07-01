@@ -193,6 +193,7 @@ void MetaTabWindow::setCurrentPage(const QString &APageId)
 			ui.stwWidgets->setCurrentWidget(page->instance());
 		else if (FPageButtons.contains(currentPage()))
 			FPageButtons.value(currentPage())->setChecked(true);
+		updateItemButtons(FMetaRoster->metaContact(FMetaId).items);
 	}
 }
 
@@ -602,10 +603,18 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 		QString pageId = insertPage(descriptor.metaOrder,descriptor.combine);
 
 		QIcon icon;
-		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
-		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Selected);
-		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
-		icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+		if (pageId == currentPage())
+		{
+			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Normal);
+			//icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+
+		}
+		else
+		{
+			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
+			//icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+
+		}
 		setPageIcon(pageId,icon);
 		setPageName(pageId,FMetaContacts->itemHint(itemJid));
 
@@ -623,6 +632,32 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 	}
 
 	updatePersistantPages();
+}
+
+void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
+{
+	foreach(Jid itemJid, AItems)
+	{
+		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
+		QString pageId = itemPage(itemJid);
+
+		QIcon icon;
+		if (pageId == currentPage())
+		{
+			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Normal);
+			//icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+
+		}
+		else
+		{
+			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
+			//icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+
+		}
+		setPageIcon(pageId,icon);
+
+		updateItemButtonStatus(itemJid);
+	}
 }
 
 void MetaTabWindow::updateItemButtonStatus(const Jid &AItemJid)
@@ -708,10 +743,18 @@ void MetaTabWindow::updatePersistantPages()
 			QString pageId = insertPage(descriptor.metaOrder, false);
 
 			QIcon icon;
-			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
-			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Selected);
-			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Active);
-			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+			if (pageId == currentPage())
+			{
+				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Normal);
+				//icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+
+			}
+			else
+			{
+				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
+				//icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 3)), QIcon::Disabled);
+
+			}
 			setPageIcon(pageId,icon);
 			setPageName(pageId,tr("Add contact"));
 
@@ -1053,14 +1096,12 @@ void MetaTabWindow::onMetaContactReceived(const IMetaContact &AContact, const IM
 
 void MetaTabWindow::onPageButtonClicked(bool)
 {
-	Action *action = FButtonAction.value(qobject_cast<QToolButton *>(sender()));
-	if (action)
+	if (Action *action = FButtonAction.value(qobject_cast<QToolButton *>(sender())))
 		action->trigger();
 }
 
 void MetaTabWindow::onPageActionTriggered(bool)
 {
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
+	if (Action *action = qobject_cast<Action *>(sender()))
 		setCurrentPage(FPageActions.key(action));
 }
