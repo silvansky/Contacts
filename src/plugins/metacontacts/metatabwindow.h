@@ -98,7 +98,7 @@ protected:
 private:
 	Jid lastItemJid() const;
 	void updateItemPages(const QSet<Jid> &AItems);
-	void updateItemButtons(const QSet<Jid> &AItems);
+	void updateItemButtons();
 	void updateItemButtonStatus(const Jid &AItemJid);
 	void createItemContextMenu(const Jid &AItemJid, Menu *AMenu) const;
 protected:

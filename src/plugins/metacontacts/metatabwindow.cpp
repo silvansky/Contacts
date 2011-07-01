@@ -194,8 +194,7 @@ void MetaTabWindow::setCurrentPage(const QString &APageId)
 		else if (FPageButtons.contains(currentPage()))
 			FPageButtons.value(currentPage())->setChecked(true);
 	}
-	updateItemButtons(FMetaRoster->metaContact(FMetaId).items);
-	updatePersistantPages();
+	updateItemButtons();
 }
 
 QString MetaTabWindow::insertPage(int AOrder, bool ACombine)
@@ -632,13 +631,29 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 	updatePersistantPages();
 }
 
-void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
+void MetaTabWindow::updateItemButtons()
 {
-	foreach(Jid itemJid, AItems)
+	QStringList pageIds;
+	QMap<QString, IMetaItemDescriptor> descriptors;
+	// items
+	foreach(Jid itemJid, FMetaRoster->metaContact(FMetaId).items)
 	{
 		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
-		QString pageId = itemPage(itemJid);
-
+		QString pi = itemPage(itemJid);
+		pageIds << pi;
+		descriptors.insert(pi, descriptor);
+	}
+	// persistant buttons
+	foreach(int metaOrder, FPersistantList)
+	{
+		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByOrder(metaOrder);
+		QString pi = FPersistantPages.value(metaOrder);
+		pageIds << pi;
+		descriptors.insert(pi, descriptor);
+	}
+	foreach (QString pageId, pageIds)
+	{
+		IMetaItemDescriptor descriptor = descriptors.value(pageId);
 		QIcon icon;
 		QToolButton * tlb = FPageButtons.value(pageId);
 		if ((pageId == currentPage()) || (tlb && tlb->isChecked()))
@@ -650,8 +665,6 @@ void MetaTabWindow::updateItemButtons(const QSet<Jid> &AItems)
 			icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 1)), QIcon::Normal);
 		}
 		setPageIcon(pageId,icon);
-
-		updateItemButtonStatus(itemJid);
 	}
 }
 
@@ -738,7 +751,8 @@ void MetaTabWindow::updatePersistantPages()
 			QString pageId = insertPage(descriptor.metaOrder, false);
 
 			QIcon icon;
-			if (pageId == currentPage())
+			QToolButton * tlb = FPageButtons.value(pageId);
+			if ((pageId == currentPage()) || (tlb && tlb->isChecked()))
 			{
 				icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 2)), QIcon::Normal);
 			}
