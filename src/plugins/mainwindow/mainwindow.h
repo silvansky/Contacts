@@ -42,6 +42,8 @@ protected:
 protected slots:
 	void onStackedWidgetChanged(int AIndex);
 	void onInternalNoticeChanged(int ANoticeId);
+	void onMainMenuAboutToShow();
+	void onMainMenuAboutToHide();
 signals:
 	void closed();
 private:

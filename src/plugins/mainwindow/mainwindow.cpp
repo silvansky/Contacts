@@ -155,6 +155,8 @@ void MainWindow::createMenus()
 	FMainMenu = new Menu(this);
 	FMainMenu->setTitle(tr("Menu"));
 	FMainMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_MENU);
+	connect(FMainMenu, SIGNAL(aboutToShow()), SLOT(onMainMenuAboutToShow()));
+	connect(FMainMenu, SIGNAL(aboutToHide()), SLOT(onMainMenuAboutToHide()));
 	QToolButton *button = FTopToolBarChanger->insertAction(FMainMenu->menuAction(), TBG_MWTTB_MAINWINDOW_MAINMENU);
 	button->setObjectName("mainMenuButton");
 	button->setPopupMode(QToolButton::InstantPopup);
@@ -220,4 +222,14 @@ void MainWindow::onInternalNoticeChanged( int ANoticeId )
 {
 	Q_UNUSED(ANoticeId);
 	FNoticeWidget->setVisible(!FNoticeWidget->noticeQueue().isEmpty());
+}
+
+void MainWindow::onMainMenuAboutToShow()
+{
+	FMainMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_MENU, 1);
+}
+
+void MainWindow::onMainMenuAboutToHide()
+{
+	FMainMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_MENU);
 }

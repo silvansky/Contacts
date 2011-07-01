@@ -39,6 +39,7 @@
   <icon>
     <key>mainwindowMenu</key>
     <object mime="image/png">mainwindowmenu.png</object>
+    <object mime="image/png">mainwindowmenu_click.png</object>
   </icon>
   <icon>
     <key>mainwindowShowRoster</key>

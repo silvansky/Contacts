@@ -329,7 +329,30 @@ bool Gateways::initObjects()
 	qip.name = tr("QIP");
 	qip.iconKey = MNI_GATEWAYS_SERVICE_QIP;
 	qip.loginLabel = tr("Login");
-	qip.domains.append("qip.ru");
+	qip.domains << "qip.ru"
+		    << "pochta.ru"
+		    << "fromru.com"
+		    << "front.ru"
+		    << "hotbox.ru"
+		    << "hotmail.ru"
+		    << "krovatka.su"
+		    << "land.ru"
+		    << "mail15.com"
+		    << "mail333.com"
+		    << "newmail.ru"
+		    << "nightmail.ru"
+		    << "nm.ru"
+		    << "pisem.net"
+		    << "pochtamt.ru"
+		    << "pop3.ru"
+		    << "rbcmail.ru"
+		    << "smtp.ru"
+		    << "5ballov.ru"
+		    << "aeterna.ru"
+		    << "ziza.ru"
+		    << "memori.ru"
+		    << "photofile.ru"
+		    << "fotoplenka.ru";
 	qip.loginField = "username";
 	qip.domainField = "server";
 	qip.passwordField = "password";
@@ -422,6 +445,7 @@ bool Gateways::initObjects()
 	jabber.name = tr("Jabber");
 	jabber.iconKey = MNI_GATEWAYS_SERVICE_JABBER;
 	jabber.loginLabel = tr("Login");
+	jabber.domains << "jabber.ru";
 	jabber.loginField = "username";
 	jabber.domainField = "server";
 	jabber.passwordField = "password";
@@ -890,7 +914,7 @@ QList<Jid> Gateways::gateDescriptorServices(const Jid &AStreamJid, const IGateSe
 	QList<Jid> gates = AStreamOnly ? streamServices(AStreamJid,identity) : availServices(AStreamJid,identity);
 	if (ADescriptor.needGate && !ADescriptor.prefix.isEmpty())
 	{
-      QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(ADescriptor.prefix));
+		QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(ADescriptor.prefix));
 		for(QList<Jid>::iterator it = gates.begin(); it!=gates.end(); )
 		{
 			if (regexp.exactMatch(it->pDomain()))
@@ -1294,11 +1318,11 @@ IGateServiceDescriptor Gateways::findGateDescriptor(const IDiscoInfo &AInfo) con
 		QString domain = AInfo.contactJid.pDomain();
 		QString identType = AInfo.identity.at(index).type.toLower();
 		for (QList<IGateServiceDescriptor>::const_iterator it = FGateDescriptors.constBegin() ; it!=FGateDescriptors.constEnd(); it++)
-      {
-         QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(it->prefix));
-         if (it->type==identType && (it->prefix.isEmpty() || regexp.exactMatch(domain)))
-            return *it;
-      }
+		{
+			QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(it->prefix));
+			if (it->type==identType && (it->prefix.isEmpty() || regexp.exactMatch(domain)))
+				return *it;
+		}
 	}
 	return IGateServiceDescriptor();
 }
@@ -1618,89 +1642,89 @@ void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex
 {
 	Q_UNUSED(AIndex); Q_UNUSED(AMenu); Q_UNUSED(ASelected);
 	/*
-	if (AIndex->type() == RIT_STREAM_ROOT)
-	{
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
-		if (FDiscovery && presence && presence->isOpen())
-		{
-			Menu *addUserMenu = new Menu(AMenu);
-			addUserMenu->setTitle(tr("Add Legacy User"));
-			addUserMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_ADD_CONTACT);
+ if (AIndex->type() == RIT_STREAM_ROOT)
+ {
+  Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+  IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
+  if (FDiscovery && presence && presence->isOpen())
+  {
+   Menu *addUserMenu = new Menu(AMenu);
+   addUserMenu->setTitle(tr("Add Legacy User"));
+   addUserMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_ADD_CONTACT);
 
-			foreach(IPresenceItem pitem, presence->presenceItems())
-			{
-				if (pitem.show!=IPresence::Error && pitem.itemJid.node().isEmpty() && FDiscovery->discoInfo(streamJid,pitem.itemJid).features.contains(NS_JABBER_GATEWAY))
-				{
-					Action *action = new Action(addUserMenu);
-					action->setText(pitem.itemJid.full());
-					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(streamJid,pitem.itemJid) : QIcon());
-					action->setData(ADR_STREAM_JID,streamJid.full());
-					action->setData(ADR_SERVICE_JID,pitem.itemJid.full());
-					connect(action,SIGNAL(triggered(bool)),SLOT(onAddLegacyUserActionTriggered(bool)));
-					addUserMenu->addAction(action,AG_DEFAULT,true);
-				}
-			}
+   foreach(IPresenceItem pitem, presence->presenceItems())
+   {
+    if (pitem.show!=IPresence::Error && pitem.itemJid.node().isEmpty() && FDiscovery->discoInfo(streamJid,pitem.itemJid).features.contains(NS_JABBER_GATEWAY))
+    {
+     Action *action = new Action(addUserMenu);
+     action->setText(pitem.itemJid.full());
+     action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(streamJid,pitem.itemJid) : QIcon());
+     action->setData(ADR_STREAM_JID,streamJid.full());
+     action->setData(ADR_SERVICE_JID,pitem.itemJid.full());
+     connect(action,SIGNAL(triggered(bool)),SLOT(onAddLegacyUserActionTriggered(bool)));
+     addUserMenu->addAction(action,AG_DEFAULT,true);
+    }
+   }
 
-			if (!addUserMenu->isEmpty())
-				AMenu->addAction(addUserMenu->menuAction(), AG_RVCM_GATEWAYS_ADD_LEGACY_USER, true);
-			else
-				delete addUserMenu;
-		}
-	}
-	else if (AIndex->type() == RIT_AGENT)
-	{
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
-		if (presence && presence->isOpen())
-		{
-			Action *action = new Action(AMenu);
-			action->setText(tr("Log In"));
-			action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_LOG_IN);
-			action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-			action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
-			action->setData(ADR_LOG_IN,true);
-			connect(action,SIGNAL(triggered(bool)),SLOT(onLogActionTriggered(bool)));
-			AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
+   if (!addUserMenu->isEmpty())
+    AMenu->addAction(addUserMenu->menuAction(), AG_RVCM_GATEWAYS_ADD_LEGACY_USER, true);
+   else
+    delete addUserMenu;
+  }
+ }
+ else if (AIndex->type() == RIT_AGENT)
+ {
+  Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+  IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
+  if (presence && presence->isOpen())
+  {
+   Action *action = new Action(AMenu);
+   action->setText(tr("Log In"));
+   action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_LOG_IN);
+   action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
+   action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
+   action->setData(ADR_LOG_IN,true);
+   connect(action,SIGNAL(triggered(bool)),SLOT(onLogActionTriggered(bool)));
+   AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
 
-			action = new Action(AMenu);
-			action->setText(tr("Log Out"));
-			action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_LOG_OUT);
-			action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-			action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
-			action->setData(ADR_LOG_IN,false);
-			connect(action,SIGNAL(triggered(bool)),SLOT(onLogActionTriggered(bool)));
-			AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
+   action = new Action(AMenu);
+   action->setText(tr("Log Out"));
+   action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_LOG_OUT);
+   action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
+   action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
+   action->setData(ADR_LOG_IN,false);
+   connect(action,SIGNAL(triggered(bool)),SLOT(onLogActionTriggered(bool)));
+   AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
 
-			action = new Action(AMenu);
-			action->setText(tr("Keep connection"));
-			action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_KEEP_CONNECTION);
-			action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-			action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
-			action->setCheckable(true);
-			action->setChecked(FKeepConnections.value(streamJid).contains(AIndex->data(RDR_BARE_JID).toString()));
-			connect(action,SIGNAL(triggered(bool)),SLOT(onKeepActionTriggered(bool)));
-			AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
-		}
-	}
+   action = new Action(AMenu);
+   action->setText(tr("Keep connection"));
+   action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_KEEP_CONNECTION);
+   action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
+   action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
+   action->setCheckable(true);
+   action->setChecked(FKeepConnections.value(streamJid).contains(AIndex->data(RDR_BARE_JID).toString()));
+   connect(action,SIGNAL(triggered(bool)),SLOT(onKeepActionTriggered(bool)));
+   AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
+  }
+ }
 
-	if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
-	{
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = AIndex->data(RDR_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
-		if (FVCardPlugin && roster && roster->isOpen() && roster->rosterItem(contactJid).isValid)
-		{
-			Action *action = new Action(AMenu);
-			action->setText(contactJid.node().isEmpty() ? tr("Resolve nick names") : tr("Resolve nick name"));
-			action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_RESOLVE);
-			action->setData(ADR_STREAM_JID,streamJid.full());
-			action->setData(ADR_SERVICE_JID,contactJid.full());
-			connect(action,SIGNAL(triggered(bool)),SLOT(onResolveActionTriggered(bool)));
-			AMenu->addAction(action,AG_RVCM_GATEWAYS_RESOLVE,true);
-		}
-	}
-	*/
+ if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
+ {
+  Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+  Jid contactJid = AIndex->data(RDR_JID).toString();
+  IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+  if (FVCardPlugin && roster && roster->isOpen() && roster->rosterItem(contactJid).isValid)
+  {
+   Action *action = new Action(AMenu);
+   action->setText(contactJid.node().isEmpty() ? tr("Resolve nick names") : tr("Resolve nick name"));
+   action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_RESOLVE);
+   action->setData(ADR_STREAM_JID,streamJid.full());
+   action->setData(ADR_SERVICE_JID,contactJid.full());
+   connect(action,SIGNAL(triggered(bool)),SLOT(onResolveActionTriggered(bool)));
+   AMenu->addAction(action,AG_RVCM_GATEWAYS_RESOLVE,true);
+  }
+ }
+ */
 }
 
 void Gateways::onKeepTimerTimeout()
