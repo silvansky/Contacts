@@ -1,5 +1,7 @@
 #include "masssendhandler.h"
 
+#include <utils/log.h>
+
 #define MASSSEND_NOTIFICATOR_ID     "MassSend"
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
@@ -28,7 +30,7 @@ void MassSendHandler::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to send messagesages to multiple users");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 	APluginInfo->dependences.append(MESSAGEPROCESSOR_UUID);
 	APluginInfo->dependences.append(MESSAGESTYLES_UUID);
@@ -101,7 +103,7 @@ bool MassSendHandler::initConnections(IPluginManager *APluginManager, int &/*AIn
 			Action *action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
 			action->setText(tr("Mass send"));
 			connect(action, SIGNAL(triggered()), SLOT(onMassSendAction()));
-			FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_MASSSEND_SHOWDIALOG);
+			//FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_MASSSEND_SHOWDIALOG);
 		}
 	}
 	plugin = APluginManager->pluginInterface("IAccountManager").value(0, NULL);
@@ -272,6 +274,7 @@ void MassSendHandler::showStyledMessage(IMassSendDialog *ADialog, const Message 
 	if (AMessage.type() == Message::Error)
 	{
 		ErrorHandler err(AMessage.stanza().element());
+		Log(QString("[MassSend stanza error] %1").arg(err.message()));
 		QString html = tr("<b>The message with a error code %1 is received</b>").arg(err.code());
 		html += "<p style='color:red;'>"+Qt::escape(err.message())+"</p>";
 		html += "<hr>";
@@ -358,7 +361,7 @@ void MassSendHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRost
 	{
 		if (messageActionTypes.contains(AIndex->type()))
 		{
-			Jid contactJid = AIndex->data(RDR_JID).toString();
+			Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 			Action *action = new Action(AMenu);
 			action->setText(tr("Message"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_NORMAL_MHANDLER_MESSAGE);

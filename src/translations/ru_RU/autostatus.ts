@@ -9,20 +9,19 @@
     </message>
     <message>
         <source>Status changed automatically to &apos;away&apos;</source>
-        <translation>Статус автоматически изменен на &apos;ушел&apos;</translation>
+        <translation>Статус автоматически изменен на «Отошёл»</translation>
     </message>
     <message>
         <source>Auto Status</source>
-        <translation>Авто статус</translation>
+        <translation>Автостатус</translation>
     </message>
     <message>
         <source>Allows to change the status in accordance with the time of inactivity</source>
         <translation>Позволяет менять статус в зависимости от времени бездействия</translation>
     </message>
     <message>
-        <source>Automatically change status to &apos;Away&apos; if screen saver is on or system is locked</source>
-        <translation>Автоматически изменять статус на &quot;Отошел&quot;, если включена
-экранная заставка или компьютер заблокирован</translation>
+        <source>Change status to &apos;Away&apos; if screen saver is on or system is locked</source>
+        <translation>Менять статус на «Отошёл» во время работы заставки или блокировки компьютера</translation>
     </message>
 </context>
 <context>
@@ -41,7 +40,7 @@
     </message>
     <message>
         <source>Auto status: away</source>
-        <translation>Автостатус: ушел</translation>
+        <translation>Автостатус: Отошёл</translation>
     </message>
     <message>
         <source>You can insert date and time into auto status text:</source>
@@ -65,35 +64,35 @@
     </message>
     <message>
         <source>   d - the day as number without a leading zero (1 to 31)</source>
-        <translation>   d - день в виде числа без ведущего нуля (1 - 31)</translation>
+        <translation>   d - день в виде числа без нуля (1 - 31)</translation>
     </message>
     <message>
         <source>   dd - the day as number with a leading zero (01 to 31)</source>
-        <translation>   dd - день в виде числа с ведущим нулём (01 - 31)</translation>
+        <translation>   dd - день в виде числа с нулём (01 - 31)</translation>
     </message>
     <message>
         <source>   ddd - the abbreviated localized day name (e.g. &apos;Mon&apos; to &apos;Sun&apos;)</source>
-        <translation>   ddd - абривиатурное локализованное наименование дня недели (&apos;Пн&apos; - &apos;Вск&apos;)</translation>
+        <translation>   ddd - аббревиатура названия дня недели («Пн» - «Вск») </translation>
     </message>
     <message>
         <source>   dddd - the long localized day name (e.g. &apos;Monday&apos; to &apos;Sunday&apos;)</source>
-        <translation>   dddd - полное локализованное наименование дня недели (&apos;Понедельник&apos; - &apos;Воскресенье&apos;)</translation>
+        <translation>   dddd - полное название дня недели («Понедельник» - «Воскресенье»)</translation>
     </message>
     <message>
         <source>   M - the month as number without a leading zero (1-12)</source>
-        <translation>   M - месяц в виде числа без ведущего нуля (1 - 12)</translation>
+        <translation>   M - месяц в виде числа без нуля (1 - 12)</translation>
     </message>
     <message>
         <source>   MM - the month as number with a leading zero (01-12)</source>
-        <translation>   MM - месяц в виде числа с ведущим нулём (01 - 12)</translation>
+        <translation>   MM - месяц в виде числа с нулём (01 - 12)</translation>
     </message>
     <message>
         <source>   MMM - the abbreviated localized month name (e.g. &apos;Jan&apos; to &apos;Dec&apos;)</source>
-        <translation>   MMM - абривиатурное локалированное наименование месяца (&apos;Янв&apos; - &apos;Дек&apos;)</translation>
+        <translation>   MMM - аббревиатура названия месяца («Янв» - «Дек»)</translation>
     </message>
     <message>
         <source>   MMMM - the long localized month name (e.g. &apos;January&apos; to &apos;December&apos;)</source>
-        <translation>   MMMM - полное локализованное наименование месяца (&apos;Январь&apos; - &apos;Декабрь&apos;)</translation>
+        <translation>   MMMM - полное локализованное наименование месяца («Январь» - «Декабрь»)</translation>
     </message>
     <message>
         <source>   yy - the year as two digit number (00-99)</source>
@@ -101,7 +100,7 @@
     </message>
     <message>
         <source>   yyyy - the year as four digit number</source>
-        <translation>   yyyy - год в виде цетырёхзначного числа</translation>
+        <translation>   yyyy - год в виде четырёхзначного числа</translation>
     </message>
     <message>
         <source>Time Format:</source>
@@ -109,51 +108,51 @@
     </message>
     <message>
         <source>   h - the hour without a leading zero (0 to 23 or 1 to 12 if AM/PM display)</source>
-        <translation>   h - час без ведущего нуля (0-23 или 1-12 если используется AM/PM)</translation>
+        <translation>   h - час в виде числа без нуля (0-23 или 1-12 если используется AM/PM)</translation>
     </message>
     <message>
         <source>   hh - the hour with a leading zero (00 to 23 or 01 to 12 if AM/PM display)</source>
-        <translation>   hh - час с ведущим нулём (00-23 или 01-12 если используется AM/PM)</translation>
+        <translation>   hh - час в виде числа с нулём (00-23 или 01-12 если используется AM/PM)</translation>
     </message>
     <message>
         <source>   H - the hour without a leading zero (0 to 23, even with AM/PM display)</source>
-        <translation>   H - час без ведущего нуля (0-23 даже если используется AM/PM)</translation>
+        <translation>   H - час в виде числа без нуля (0-23 даже если используется AM/PM)</translation>
     </message>
     <message>
         <source>   HH - the hour with a leading zero (00 to 23, even with AM/PM display)</source>
-        <translation>   HH - час с ведущим нулём (00-23 даже если используется AM/PM)</translation>
+        <translation>   HH - час в виде числа с нулём (00-23 даже если используется AM/PM)</translation>
     </message>
     <message>
         <source>   m - the minute without a leading zero (0 to 59)</source>
-        <translation>   m - минуты без ведущего нуля (0 - 59)</translation>
+        <translation>   m - минуты в виде числа без нуля (0 - 59)</translation>
     </message>
     <message>
         <source>   mm - the minute with a leading zero (00 to 59)</source>
-        <translation>   mm - минуты с ведущим нулём (00 - 59)</translation>
+        <translation>   mm - минуты в виде числа с нулём (00 - 59)</translation>
     </message>
     <message>
         <source>   s - the second without a leading zero (0 to 59)</source>
-        <translation>   s - секунды без ведущего нуля (0 - 59)</translation>
+        <translation>   s - секунды в виде числа без нуля (0 - 59)</translation>
     </message>
     <message>
         <source>   ss - the second with a leading zero (00 to 59)</source>
-        <translation>   ss - секунды с ведущим нулём (00 - 59)</translation>
+        <translation>   ss - секунды в виде числа с нулём (00 - 59)</translation>
     </message>
     <message>
         <source>   z - the milliseconds without leading zeroes (0 to 999)</source>
-        <translation>   z - милисекунды без ведущего нуля (0 - 999)</translation>
+        <translation>   z - миллисекунды в виде числа без нуля (0 - 999)</translation>
     </message>
     <message>
         <source>   zzz - the milliseconds with leading zeroes (000 to 999)</source>
-        <translation>   zzz - милисекунды с ведущим нулём (000 - 999)</translation>
+        <translation>   zzz - миллисекунды в виде числа с нулём (000 - 999)</translation>
     </message>
     <message>
         <source>   AP or A - interpret as an AM/PM time. AP must be either &apos;AM&apos; or &apos;PM&apos;</source>
-        <translation>   AP или A - интерпретируется как AM/PM время. AP должен быть либо &apos;AM&apos; либо &apos;PM&apos;</translation>
+        <translation>   AP или A - интерпретируется как AM/PM время. AP должен быть либо «AM» либо «PM»</translation>
     </message>
     <message>
         <source>   ap or a - interpret as an AM/PM time. ap must be either &apos;am&apos; or &apos;pm&apos;</source>
-        <translation>   ap или a - интерпретируется как AM/PM время. ap должен быть либо &apos;am&apos; либо &apos;pm&apos;</translation>
+        <translation>   ap или a - интерпретируется как AM/PM время. ap должен быть либо «am» либо «pm»</translation>
     </message>
     <message>
         <source>Example:</source>
@@ -161,11 +160,11 @@
     </message>
     <message>
         <source>Auto Status</source>
-        <translation>Авто статус</translation>
+        <translation>Автостатус</translation>
     </message>
     <message>
         <source>   Status is set to &apos;away&apos; at %(hh:mm:ss), because of idle from $(hh:mm:ss) for #(mm) minutes and #(ss) seconds</source>
-        <translation>   Сатус изменен на ушел&apos; в %(hh:mm:ss), из-за бездействия с $(hh:mm:ss) в течение #(mm) минут и #(ss) секунд</translation>
+        <translation>   Сатус изменен на «Отошёл» в %(hh:mm:ss), неактивен с $(hh:mm:ss) в течение #(mm) минут и #(ss) секунд</translation>
     </message>
 </context>
 <context>

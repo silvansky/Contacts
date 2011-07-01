@@ -1,11 +1,11 @@
 #ifndef AUTOSIZETEXTEDIT_H
 #define AUTOSIZETEXTEDIT_H
 
-#include <QTextEdit>
+#include <QTextBrowser>
 #include "utilsexport.h"
 
 class UTILS_EXPORT AutoSizeTextEdit :
-	public QTextEdit
+	public QTextBrowser
 {
 	Q_OBJECT
 public:
@@ -23,6 +23,7 @@ protected:
 	int textHeight(int ALines = 0) const;
 protected slots:
 	void onTextChanged();
+	void onScrollBarRangeChanged(int min, int max);
 private:
 	bool FAutoResize;
 	int FMinimumLines;

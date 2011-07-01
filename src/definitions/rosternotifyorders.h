@@ -2,6 +2,7 @@
 #define DEF_ROSTERNOTIFYORDERS_H
 
 #define RNO_SIPPHONE_CALL                         200
+#define RNO_RAMBLER_MAIL_NOTIFY                   300
 #define RNO_CHAT_MHANDLER_MESSAGE                 300
 #define RNO_RCHANGER_SUBSCRIPTION                 500
 #define RNO_CHATSTATES_TYPING                     900

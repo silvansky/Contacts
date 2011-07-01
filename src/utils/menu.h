@@ -12,12 +12,22 @@
 #define AG_DEFAULT                500
 
 class Action;
+class CustomBorderContainer;
 
 class UTILS_EXPORT Menu :
 			public QMenu
 {
 	Q_OBJECT
 public:
+	enum Facing
+	{
+		Default, // use QMenu::popup()
+		// move to some point and show
+		TopLeft,
+		TopRight,
+		BottomLeft,
+		BottomRight
+	};
 	Menu(QWidget *AParent = NULL);
 	~Menu();
 	bool isEmpty() const;
@@ -29,11 +39,12 @@ public:
 	void addAction(Action *AAction, int AGroup = AG_DEFAULT, bool ASort = false);
 	void addMenuActions(const Menu *AMenu, int AGroup = AG_DEFAULT, bool ASort = false);
 	void removeAction(Action *AAction);
-	void addWidgetActiion(QWidgetAction * action);
+	void addWidgetAction(QWidgetAction * action);
 	void clear();
 	void setIcon(const QIcon &AIcon);
 	void setIcon(const QString &AStorageName, const QString &AIconKey, int AIconIndex = 0);
 	void setTitle(const QString &ATitle);
+	void showMenu(const QPoint & p, Facing facing = Default);
 signals:
 	void actionInserted(QAction *ABefour, Action *AAction, int AGroup, bool ASort);
 	void actionRemoved(Action *AAction);
@@ -42,12 +53,19 @@ signals:
 	void menuDestroyed(Menu *AMenu);
 protected slots:
 	void onActionDestroyed(Action *AAction);
+public slots:
+	void onAboutToShow();
+	void onAboutToHide();
+protected:
+	bool event(QEvent *);
 private:
 	Action *FMenuAction;
 	IconStorage *FIconStorage;
 private:
 	QMultiMap<int, Action *> FActions;
 	QMap<int, QAction *> FSeparators;
+	CustomBorderContainer * border;
+	bool menuAboutToShow;
 };
 
 #endif // MENU_H

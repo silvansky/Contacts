@@ -8,6 +8,7 @@
 #include <definitions/toolbargroups.h>
 #include <definitions/rosterdataholderorders.h>
 #include <definitions/rosterindextyperole.h>
+#include <definitions/rosterindextypeorders.h>
 #include <definitions/rosterproxyorders.h>
 #include <definitions/rosterfootertextorders.h>
 #include <definitions/resources.h>
@@ -38,13 +39,14 @@ struct SearchField
 };
 
 class RosterSearch :
-			public QSortFilterProxyModel,
-			public IPlugin,
-			public IRosterSearch,
-			public IRosterDataHolder
+	public QSortFilterProxyModel,
+	public IPlugin,
+	public IRosterSearch,
+	public IRosterDataHolder,
+	public IRostersClickHooker
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IRosterSearch IRosterDataHolder)
+	Q_INTERFACES(IPlugin IRosterSearch IRosterDataHolder IRostersClickHooker)
 public:
 	RosterSearch();
 	~RosterSearch();
@@ -74,6 +76,8 @@ public:
 	virtual QString searchFieldName(int ADataRole) const;
 	virtual void setSearchField(int ADataRole, const QString &AName, bool AEnabled);
 	virtual void removeSearchField(int ADataRole);
+	//IRostersClickHooker
+	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 signals:
 	void searchResultUpdated();
 	void searchStateChanged(bool AEnabled);
@@ -98,6 +102,7 @@ protected slots:
 	void onSearchActionTriggered(bool AChecked);
 	void onEditTimedOut();
 	void onSearchTextChanged(const QString &text);
+	void onRosterIndexActivated(const QModelIndex &AIndex);
 	void onRosterLabelClicked(IRosterIndex *AIndex, int ALabelId);
 	void onOptionsChanged(const OptionsNode &ANode);
 private:

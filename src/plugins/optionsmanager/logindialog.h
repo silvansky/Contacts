@@ -29,10 +29,11 @@
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
+#include <utils/menu.h>
 #include "ui_logindialog.h"
 
 class LoginDialog :
-			public QDialog
+	public QDialog
 {
 	Q_OBJECT
 public:
@@ -48,6 +49,7 @@ protected:
 	virtual void showEvent(QShowEvent *AEvent);
 	virtual void keyPressEvent(QKeyEvent *AEvent);
 	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
+	void moveEvent(QMoveEvent *);
 	void mousePressEvent(QMouseEvent *);
 protected:
 	void initialize(IPluginManager *APluginManager);
@@ -60,7 +62,7 @@ protected:
 	void hideConnectionError();
 	void showConnectionError(const QString &ACaption, const QString &AError);
 	void hideXmppStreamError();
-	void showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint);
+	void showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint, bool showPasswordEnabled = true);
 	void saveCurrentProfileSettings();
 	void loadCurrentProfileSettings();
 	bool readyToConnect() const;
@@ -72,6 +74,9 @@ protected slots:
 	void onCompleterHighLighted(const QString &AText);
 	void onCompleterActivated(const QString &AText);
 	void onDomainCurrentIntexChanged(int AIndex);
+	void onDomainActionTriggered();
+	void onNewDomainSelected(const QString & newDomain);
+	void onNewDomainRejected();
 	void onLabelLinkActivated(const QString &ALink);
 	void onLoginOrPasswordTextChanged();
 	void onShowConnectingAnimation();
@@ -95,10 +100,13 @@ private:
 	bool FNewProfile;
 	bool FFirstConnect;
 	bool FMainWindowVisible;
+	bool FSavedPasswordCleared;
 	QUuid FAccountId;
 	QTimer FReconnectTimer;
 	int FConnectionSettings;
-	QWidget * FConnectionErrorWidget;
+	int domainPrevIndex;
+	QWidget *FConnectionErrorWidget;
+	Menu * domainsMenu;
 };
 
 #endif // LOGINDIALOG_H

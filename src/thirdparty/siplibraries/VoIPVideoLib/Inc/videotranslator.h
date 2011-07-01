@@ -1,0 +1,143 @@
+#ifndef VIDEOTRANSLATOR_H
+#define VIDEOTRANSLATOR_H
+
+#include <QObject>
+#include <QHostAddress>
+#include <QMutex>
+#include "RCameraFlow.h"
+#include "netdatatranslator.h"
+//#include "rtpdatasender.h"
+
+class QUdpSocket;
+class H264Container;
+
+
+class EncodedFrame
+{
+public:
+  EncodedFrame(qint32 timestamp);
+  ~EncodedFrame();
+
+public:
+  bool insertSubframe(const QByteArray& subFrame, qint16 seqNum, qint32 timeStamp);
+
+  inline quint32 frameTS() const { return _frameTimeStamp;}
+
+  QByteArray frame();
+
+
+private:
+  QByteArray _netBuffer2;
+  quint32 _frameTimeStamp;
+  QList<QByteArray*> _frameHash;
+};
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+class VideoTranslator : public QObject
+{
+  Q_OBJECT
+
+public:
+  VideoTranslator(int width, int height, QObject *parent);
+  VideoTranslator(int width, int height, const QHostAddress& remoteHost, int remoteVideoPort, int localVideoPort, QObject *parent);
+  ~VideoTranslator();
+
+	bool cameraPresent() const;
+
+signals:
+  // Обновление полученной картинки
+  void updatePicture(const QImage& img);
+  void updatePicture(const QPixmap& pix);
+
+  // Обновление картинки полученной с камеры
+  void updateLocalPicture(const QImage& img);
+  void updateLocalPicture(const QPixmap& pix);
+
+  void updateSysInfo(const QString&);
+
+protected:
+  void timerEvent(QTimerEvent*);
+
+  // Отправка изображения по сети
+  void sendImage(QImage img);
+	void sendImage1(QImage img);
+
+
+public slots:
+	bool stopCamera();
+	bool startCamera();
+	void setFrameSize( int width, int height );
+
+protected slots:
+  //void hostFound();
+  void dataArrived();
+	void dataArrived1();
+  void onSocketError(QAbstractSocket::SocketError);
+  void sendImage();
+  void updText();
+  void procceedDataProcessing( const QByteArray& rtpPacket );
+	void procceedDataProcessingDebug( const QByteArray& rtpPacket );
+	void processPortionOfData();
+	
+private:
+	void pingOther();
+	
+
+
+private:
+  // Поток с камеры. Получение картинки с камеры.
+  RCameraFlow* _cameraFlow;
+	// Размер обрабатываемой картинки.
+	// С камеры берем картинку максимальновозможного размера и перед кодированием
+	// масштабируем ее до размера _frameSize
+	QSize _frameSize;
+
+	uchar* _rxRgbBuffer;
+
+  // Сокеты для отправки по сети и для чтения
+  QUdpSocket *_udpSocketForSend;
+  QHostAddress _remoteHost;
+  int _remPort;
+
+	NetDataTranslator* _netTransThread;
+
+  //RtpDataSender* _dataSender;
+
+  QUdpSocket *_udpSocketForRead;
+
+  // Входящее изображение
+  QImage _incImage;
+
+  // Буфер для отправки данных по сети
+  //uchar* _netBuffer;
+  QByteArray _netBuffer2;
+  QString _testStr;
+  QString _testStrIn;
+
+  int _ssrc; // Источник синхронизации для видео
+  quint32 _startTime;
+  quint16 _senderSeq;
+ 
+  // Идентификаторы таймеров: отображения картинки / посылка картинки по сети
+  int _showTimer;
+  int _sendTimer;
+	int _pingTimer;
+
+  // Частота соответсвующих таймеров Гц (тиков/сек.)
+  int _showTimerFreq;
+  int _sendTimerFreq;
+
+  // Объект класса управляющего кодированием/декодированием формата H.264
+  H264Container *_pH264;
+
+	QMutex mutex;
+	bool __suspended;
+	// Счетчик "плохих" кадров в начале
+
+};
+
+#endif // VIDEOTRANSLATOR_H

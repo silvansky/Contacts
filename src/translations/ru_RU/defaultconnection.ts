@@ -24,7 +24,7 @@
     <name>DefaultConnection</name>
     <message>
         <source>Disconnection timed out</source>
-        <translation>Превышено время отключения</translation>
+        <translation>Превышено время ожидания</translation>
     </message>
 </context>
 <context>

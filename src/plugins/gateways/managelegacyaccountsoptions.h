@@ -9,12 +9,12 @@
 #include "legacyaccountoptions.h"
 #include "ui_managelegacyaccountsoptions.h"
 
-class ManageLegacyAccountsOptions : 
+class ManageLegacyAccountsOptions :
 	public QWidget,
 	public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	ManageLegacyAccountsOptions(IGateways *AGateways, const Jid &AStreamJid, QWidget *AParent = NULL);
 	~ManageLegacyAccountsOptions();
@@ -24,6 +24,7 @@ public slots:
 	virtual void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 protected:
@@ -31,6 +32,7 @@ protected:
 	void removeServiceOptions(const Jid &AServiceJid);
 protected slots:
 	void onStreamServicesChanged(const Jid &AStreamJid);
+	void onOptionsUpdated();
 private:
 	Ui::ManageLegacyAccountsOptionsClass ui;
 private:

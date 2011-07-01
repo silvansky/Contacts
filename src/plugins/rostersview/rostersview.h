@@ -30,6 +30,7 @@ class RostersView :
 	Q_OBJECT
 	Q_INTERFACES(IRostersView IRosterDataHolder)
 	Q_PROPERTY(QBrush groupBrush READ groupBrush WRITE setGroupBrush)
+	Q_PROPERTY(QImage groupBorderImage READ groupBorderImage WRITE setGroupBorderImage)
 	Q_PROPERTY(QColor groupColor READ groupColor WRITE setGroupColor)
 	Q_PROPERTY(int groupFontSize READ groupFontSize WRITE setGroupFontSize)
 	Q_PROPERTY(QColor footerColor READ footerColor WRITE setFooterColor)
@@ -47,6 +48,8 @@ public:
 	virtual IRostersModel *rostersModel() const;
 	virtual void setRostersModel(IRostersModel *AModel);
 	virtual QList<IRosterIndex *> selectedRosterIndexes() const;
+	virtual void selectIndex(IRosterIndex * AIndex);
+	virtual void selectRow(int ARow);
 	virtual bool repaintRosterIndex(IRosterIndex *AIndex);
 	virtual void expandIndexParents(IRosterIndex *AIndex);
 	virtual void expandIndexParents(const QModelIndex &AIndex);
@@ -72,10 +75,14 @@ public:
 	virtual IRostersNotify notifyById(int ANotifyId) const;
 	virtual QList<IRosterIndex *> notifyIndexes(int ANotifyId) const;
 	virtual int insertNotify(const IRostersNotify &ANotify, const QList<IRosterIndex *> &AIndexes);
+	virtual void activateNotify(int ANotifyId);
 	virtual void removeNotify(int ANotifyId);
 	//--ClickHookers
 	virtual void insertClickHooker(int AOrder, IRostersClickHooker *AHooker);
 	virtual void removeClickHooker(int AOrder, IRostersClickHooker *AHooker);
+	//--KeyPressHookers
+	virtual void insertKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker);
+	virtual void removeKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker);
 	//--DragDrop
 	virtual void insertDragDropHandler(IRostersDragDropHandler *AHandler);
 	virtual void removeDragDropHandler(IRostersDragDropHandler *AHandler);
@@ -89,6 +96,8 @@ public:
 	// props
 	QBrush groupBrush() const;
 	void setGroupBrush(const QBrush & newBrush);
+	QImage groupBorderImage() const;
+	void setGroupBorderImage(const QImage & newGroupBorderImage);
 	QColor groupColor() const;
 	void setGroupColor(const QColor& newColor);
 	int groupFontSize() const;
@@ -129,6 +138,10 @@ protected:
 	void removeLabels();
 	void setDropIndicatorRect(const QRect &ARect);
 	void setInsertIndicatorRect(const QRect &ARect);
+	QModelIndex actualDragIndex(const QModelIndex &AIndex, const QPoint &ACursorPos) const;
+	// hookers
+	bool processClickHookers(IRosterIndex* AIndex);
+	bool processKeyPressHookers(IRosterIndex* AIndex, Qt::Key AKey, Qt::KeyboardModifiers AModifiers);
 protected:
 	//QTreeView
 	virtual void drawBranches(QPainter *APainter, const QRect &ARect, const QModelIndex &AIndex) const;
@@ -137,6 +150,7 @@ protected:
 	virtual void resizeEvent(QResizeEvent *AEvent);
 	//QWidget
 	virtual void paintEvent(QPaintEvent *AEvent);
+	virtual void keyPressEvent(QKeyEvent *event);
 	virtual void contextMenuEvent(QContextMenuEvent *AEvent);
 	virtual void mouseDoubleClickEvent(QMouseEvent *AEvent);
 	virtual void mousePressEvent(QMouseEvent *AEvent);
@@ -162,6 +176,8 @@ protected slots:
 	void onChangeGroupState();
 	void onExpandAllGroups();
 	void onCollapseAllGroups();
+	void onScrollBarRangeChanged(int min, int max);
+	void onRepaintNeeded();
 private:
 	IRostersModel *FRostersModel;
 private:
@@ -185,6 +201,7 @@ private:
 	QMultiMap<IRosterIndex *, int> FIndexNotifies;
 private:
 	QMultiMap<int, IRostersClickHooker *> FClickHookers;
+	QMultiMap<int, IRostersKeyPressHooker *> FKeyPressHookers;
 private:
 	RosterIndexDelegate *FRosterIndexDelegate;
 	QMultiMap<int, QAbstractProxyModel *> FProxyModels;
@@ -197,6 +214,7 @@ private:
 	QList<IRostersDragDropHandler *> FDragDropHandlers;
 	QList<IRostersDragDropHandler *> FActiveDragHandlers;
 	QBrush groupBackground;
+	QImage groupBorder;
 	QColor groupForeground;
 	int groupFont;
 	QColor footerTextColor;

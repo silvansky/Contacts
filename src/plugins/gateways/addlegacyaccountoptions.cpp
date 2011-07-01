@@ -4,17 +4,19 @@
 
 #define ADR_GATEJID				Action::DR_Parametr1
 
-AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
+AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, IServiceDiscovery *ADiscovery, const Jid &AStreamJid, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 
 	FGateways = AGateways;
+	FDiscovery = ADiscovery;
 	FStreamJid = AStreamJid;
 
 	connect(FGateways->instance(),SIGNAL(availServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
 	connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
 
 	FLayout = new QHBoxLayout(ui.wdtGateways);
+	FLayout->setContentsMargins(20, 6, 20, 6);
 	FLayout->addStretch();
 
 	onServicesChanged(FStreamJid);
@@ -35,33 +37,38 @@ void AddLegacyAccountOptions::reset()
 	emit childReset();
 }
 
-void AddLegacyAccountOptions::appendServiceButton( const Jid &AServiceJid )
+void AddLegacyAccountOptions::appendServiceButton(const Jid &AServiceJid)
 {
 	IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(FStreamJid,AServiceJid);
-	if (!FWidgets.contains(AServiceJid) && descriptor.valid && descriptor.needLogin)
+	if (!FWidgets.contains(AServiceJid) && !descriptor.id.isEmpty() && descriptor.needLogin)
 	{
 		QWidget *widget = new QWidget(ui.wdtGateways);
-		widget->setLayout(new QVBoxLayout);
-		widget->layout()->setMargin(0);
+		widget->setObjectName("serviceContainer");
+		//widget->setMinimumWidth(widget->fontMetrics().boundingRect("XXXXXXXXXXX").width());
+
+		QVBoxLayout *wlayout = new QVBoxLayout;
+		wlayout->setMargin(0);
+		widget->setLayout(wlayout);
 
 		QToolButton *button = new QToolButton(widget);
+		button->setObjectName("serviceButton");
 		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
 		button->setIconSize(QSize(32,32));
 
 		QLabel *label = new QLabel(descriptor.name,widget);
+		label->setObjectName("serviceName");
 		label->setAlignment(Qt::AlignCenter);
 
 		Action *action = new Action(button);
-		action->setIcon(RSR_STORAGE_MENUICONS,descriptor.iconKey,1);
+		action->setIcon(RSR_STORAGE_MENUICONS,descriptor.iconKey,0);
 		action->setText(descriptor.name);
 		action->setData(ADR_GATEJID,AServiceJid.full());
 		connect(action,SIGNAL(triggered(bool)),SLOT(onGateActionTriggeted(bool)));
 		button->setDefaultAction(action);
 
-		widget->layout()->addWidget(button);
-		widget->layout()->addWidget(label);
-		FLayout->addWidget(widget);
-		FLayout->addStretch();
+		wlayout->addWidget(button,0,Qt::AlignCenter);
+		wlayout->addWidget(label,0,Qt::AlignCenter);
+		FLayout->insertWidget(FLayout->count()-1, widget);
 
 		FWidgets.insert(AServiceJid,widget);
 	}
@@ -72,11 +79,6 @@ void AddLegacyAccountOptions::removeServiceButton(const Jid &AServiceJid)
 	if (FWidgets.contains(AServiceJid))
 	{
 		QWidget *widget = FWidgets.take(AServiceJid);
-		int index = FLayout->indexOf(widget);
-		QLayoutItem *litem = FLayout->itemAt(index+1);
-		if (litem)
-			FLayout->removeItem(litem);
-		delete litem;
 		FLayout->removeWidget(widget);
 		widget->deleteLater();
 	}
@@ -88,7 +90,7 @@ void AddLegacyAccountOptions::onGateActionTriggeted(bool)
 	if (action)
 	{
 		Jid gateJid = action->data(ADR_GATEJID).toString();
-		FGateways->showAddLegacyAccountDialog(FStreamJid,gateJid,this);
+		FGateways->showAddLegacyAccountDialog(FStreamJid,gateJid);
 	}
 }
 
@@ -101,27 +103,44 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 
 		QList<Jid> usedGates = FGateways->streamServices(FStreamJid,identity);
 		QList<Jid> availGates = FGateways->availServices(FStreamJid,identity);
-
-		foreach(Jid serviceJid, availGates)
+		
+		QList<Jid> availRegisters;
+		foreach(Jid registerJid, availGates)
 		{
-			if (!usedGates.contains(serviceJid))
-				appendServiceButton(serviceJid);
-			else
-				removeServiceButton(serviceJid);
+			if (FDiscovery && FDiscovery->discoInfo(AStreamJid,registerJid).features.contains(NS_RAMBLER_GATEWAY_REGISTER))
+			{
+				availGates.removeAll(registerJid);
+				availRegisters.append(registerJid);
+				
+				bool showRegister = false;
+				IGateServiceDescriptor rdescriptor = FGateways->serviceDescriptor(AStreamJid,registerJid);
+				foreach(Jid serviceJid, availGates)
+				{
+					if (!usedGates.contains(serviceJid) && FGateways->serviceDescriptor(AStreamJid,serviceJid).id == rdescriptor.id)
+					{
+						showRegister = true;
+						break;
+					}
+				}
+
+				if (showRegister)
+					appendServiceButton(registerJid);
+				else
+					removeServiceButton(registerJid);
+			}
 		}
 
-		foreach(Jid serviceJid, FWidgets.keys().toSet() - availGates.toSet())
+		foreach(Jid serviceJid, FWidgets.keys().toSet() - availRegisters.toSet())
 			removeServiceButton(serviceJid);
 
 		if (!FWidgets.isEmpty())
 		{
 			ui.lblInfo->setText(tr("You can link multiple accounts and communicate with your friends on other services"));
-			ui.lblInfo->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
 		}
 		else
 		{
 			ui.lblInfo->setText(tr("All available accounts are already linked"));
-			ui.lblInfo->setAlignment(Qt::AlignVCenter|Qt::AlignHCenter);
 		}
+		emit updated();
 	}
 }

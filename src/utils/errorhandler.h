@@ -46,7 +46,7 @@ public:
 		REMOUTE_SERVER_ERROR          = 502,
 		SERVICE_UNAVAILABLE           = 503,
 		REMOTE_SERVER_TIMEOUT         = 504,
-		DISCONNECTED                  = 510,
+		DISCONNECTED                  = 510
 	};
 	struct ErrorItem
 	{
@@ -73,7 +73,7 @@ public:
 	ErrorHandler &parseElement(const QDomElement &AErrElem, const QString &ANsURI = EHN_DEFAULT);
 public:
 	static void addErrorItem(const QString &ACondition, ErrorType AType, int ACode,
-	                         const QString &AMeaning, const QString &ANsURI = EHN_DEFAULT);
+				 const QString &AMeaning, const QString &ANsURI = EHN_DEFAULT);
 	static ErrorItem *itemByCode(int &ACode, const QString &ANsURI = EHN_DEFAULT);
 	static ErrorItem *itemByCondition(const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
 	static ErrorItem *itemByCodeCondition(int &ACode, const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
@@ -81,7 +81,7 @@ public:
 	static ErrorType typeByCondition(const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
 	static QString typeToString(ErrorType AErrorType);
 	static int codeByCondition(const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
-	static QString coditionByCode(int ACode, const QString &ANsURI = EHN_DEFAULT);
+	static QString conditionByCode(int ACode, const QString &ANsURI = EHN_DEFAULT);
 	static QString meaningByCode(int ACode, const QString &ANsURI = EHN_DEFAULT);
 	static QString meaningByCondition(const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
 protected:

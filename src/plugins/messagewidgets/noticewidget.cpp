@@ -1,11 +1,15 @@
 #include "noticewidget.h"
 
+#include <QPainter>
+#include <QPaintEvent>
 #include <QDesktopServices>
 
 ChatNoticeWidget::ChatNoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
 {
 	ui.setupUi(this);
 	setVisible(false);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_NOTICEWIDGET);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(ui.cbtClose,STS_MESSAGEWIDGETS_NOTICECLOSEBUTTON);
 
 	FMessageWidgets = AMessageWidgets;
 	FStreamJid = AStreamJid;
@@ -131,6 +135,8 @@ void ChatNoticeWidget::updateWidgets(int ANoticeId)
 			foreach(Action *action, notice.actions)
 			{
 				ActionButton *button = new ActionButton(action, ui.wdtButtons);
+				button->addTextFlag(TF_LIGHTSHADOW);
+				button->setObjectName(action->property("actionName").toString());
 				ui.hltButtonsLayout->insertWidget(ui.hltButtonsLayout->count()-1,button);
 				FButtonsCleanup.add(button);
 			}
@@ -145,6 +151,15 @@ void ChatNoticeWidget::updateWidgets(int ANoticeId)
 		FActiveNotice = ANoticeId;
 		emit noticeActivated(ANoticeId);
 	}
+}
+
+void ChatNoticeWidget::paintEvent(QPaintEvent *AEvent)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	p.setClipRect(AEvent->rect());
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 void ChatNoticeWidget::onUpdateTimerTimeout()

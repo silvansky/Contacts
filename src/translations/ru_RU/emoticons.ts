@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Allows to use your smiley images in messages</source>
-        <translation>Позволяет использовать изображения смайликов в сообщениях</translation>
+        <translation>Позволяет использовать графические смайлики в сообщениях</translation>
     </message>
     <message>
         <source>Smiley usage in messages</source>
@@ -18,6 +18,13 @@
     <message>
         <source>Automatically convert text smiles to graphical</source>
         <translation>Автоматически превращать текстовые смайлы в графические</translation>
+    </message>
+</context>
+<context>
+    <name>EmoticonsContainer</name>
+    <message>
+        <source>Add emoticon</source>
+        <translation>Добавить смайл</translation>
     </message>
 </context>
 </TS>

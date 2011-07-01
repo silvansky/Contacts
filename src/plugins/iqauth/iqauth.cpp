@@ -1,6 +1,7 @@
 #include "iqauth.h"
 
 #include <QCryptographicHash>
+#include <utils/log.h>
 
 IqAuth::IqAuth(IXmppStream *AXmppStream) : QObject(AXmppStream->instance())
 {
@@ -26,6 +27,7 @@ bool IqAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrder)
 		else if (AStanza.type() == "error")
 		{
 			ErrorHandler err(AStanza.element());
+			Log(QString("[IqAuth stanza error] %1").arg(err.message()));
 			emit error(err.message());
 		}
 		return true;
@@ -96,7 +98,7 @@ void IqAuthPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allow you to log on the Jabber server without support SASL authentication");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 }
 

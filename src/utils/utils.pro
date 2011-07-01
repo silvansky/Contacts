@@ -4,17 +4,17 @@ TARGET             = $$TARGET_UTILS
 
 TEMPLATE           = lib
 CONFIG            += dll
-QT                += xml
+QT                += xml webkit
 DEFINES           += UTILS_DLL
 LIBS              += -L../libs
 LIBS              += -lidn -lminizip -lzlib -lidle
 macx: {
-  QMAKE_LFLAGS    += -framework Carbon
+  QMAKE_LFLAGS    += -framework Carbon -framework Cocoa
 } else:unix {
   LIBS            += -lXss
   CONFIG          += x11
 } else:win32 {
-  LIBS            += -luser32
+  LIBS            += -luser32 -lComdlg32
   DLLDESTDIR       = ..\\..
   QMAKE_DISTCLEAN += $${DLLDESTDIR}\\$${TARGET}.dll
 }

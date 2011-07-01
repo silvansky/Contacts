@@ -54,6 +54,13 @@ public:
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder) =0;
 };
 
+class IRostersKeyPressHooker
+{
+public:
+	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers) =0;
+	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers) =0;
+};
+
 class IRostersDragDropHandler
 {
 public:
@@ -72,6 +79,8 @@ public:
 	virtual IRostersModel *rostersModel() const =0;
 	virtual void setRostersModel(IRostersModel *AModel) =0;
 	virtual QList<IRosterIndex *> selectedRosterIndexes() const =0;
+	virtual void selectIndex(IRosterIndex * AIndex) = 0;
+	virtual void selectRow(int ARow) = 0;
 	virtual bool repaintRosterIndex(IRosterIndex *AIndex) =0;
 	virtual void expandIndexParents(IRosterIndex *AIndex) =0;
 	virtual void expandIndexParents(const QModelIndex &AIndex) =0;
@@ -97,10 +106,14 @@ public:
 	virtual IRostersNotify notifyById(int ANotifyId) const =0;
 	virtual QList<IRosterIndex *> notifyIndexes(int ANotifyId) const =0;
 	virtual int insertNotify(const IRostersNotify &ANotify, const QList<IRosterIndex *> &AIndexes) =0;
+	virtual void activateNotify(int ANotifyId) =0;
 	virtual void removeNotify(int ANotifyId) =0;
 	//--ClickHookers
 	virtual void insertClickHooker(int AOrder, IRostersClickHooker *AHooker) =0;
 	virtual void removeClickHooker(int AOrder, IRostersClickHooker *AHooker) =0;
+	//--KeyPressHookers
+	virtual void insertKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker) =0;
+	virtual void removeKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker) =0;
 	//--DragDrop
 	virtual void insertDragDropHandler(IRostersDragDropHandler *AHandler) =0;
 	virtual void removeDragDropHandler(IRostersDragDropHandler *AHandler) =0;
@@ -124,7 +137,7 @@ protected:
 	virtual void indexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu) =0;
 	virtual void indexClipboardMenu(IRosterIndex *AIndex, Menu *AMenu) =0;
 	virtual void labelContextMenu(IRosterIndex *AIndex, int ALabelId, Menu *AMenu) =0;
-	virtual void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger * AToolBarChanger) =0;
+	virtual void labelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger) =0;
 	virtual void labelClicked(IRosterIndex *AIndex, int ALabelId) =0;
 	virtual void labelDoubleClicked(IRosterIndex *AIndex, int ALabelId, bool &AAccepted) =0;
 	virtual void notifyInserted(int ANotifyId) =0;
@@ -145,6 +158,7 @@ public:
 };
 
 Q_DECLARE_INTERFACE(IRostersClickHooker,"Virtus.Plugin.IRostersClickHooker/1.0")
+Q_DECLARE_INTERFACE(IRostersKeyPressHooker,"Virtus.Plugin.IRostersKeyPressHooker/1.0")
 Q_DECLARE_INTERFACE(IRostersDragDropHandler,"Virtus.Plugin.IRostersDragDropHandler/1.0")
 Q_DECLARE_INTERFACE(IRostersView,"Virtus.Plugin.IRostersView/1.0")
 Q_DECLARE_INTERFACE(IRostersViewPlugin,"Virtus.Plugin.IRostersViewPlugin/1.0")

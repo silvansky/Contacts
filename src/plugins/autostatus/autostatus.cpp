@@ -24,7 +24,7 @@ void AutoStatus::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to change the status in accordance with the time of inactivity");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(STATUSCHANGER_UUID);
 	APluginInfo->dependences.append(ACCOUNTMANAGER_UUID);
 }
@@ -93,7 +93,7 @@ QMultiMap<int, IOptionsWidget *> AutoStatus::optionsWidgets(const QString &ANode
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_COMMON)
 	{
-		widgets.insertMulti(OWO_COMMON_AUTOSTATUS, FOptionsManager->optionsNodeWidget(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK),tr("Automatically change status to 'Away' if screen saver is on or system is locked"),AParent));
+		widgets.insertMulti(OWO_COMMON_AUTOSTATUS, FOptionsManager->optionsNodeWidget(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK),tr("Change status to 'Away' if screen saver is on or system is locked"),AParent));
 	}
 	else if (ANodeId == OPN_AUTO_STATUS)
 	{
@@ -246,7 +246,8 @@ void AutoStatus::updateActiveRule()
 	int ruleTime = 0;
 	int idleSecs = SystemManager::systemIdle();
 
-	foreach(QUuid ruleId, rules())
+	QList<QUuid> rulesList = rules();
+	foreach(QUuid ruleId, rulesList)
 	{
 		IAutoStatusRule rule = ruleValue(ruleId);
 		if (isRuleEnabled(ruleId) && rule.time<idleSecs && rule.time>ruleTime)
@@ -255,6 +256,13 @@ void AutoStatus::updateActiveRule()
 			ruleTime = rule.time;
 		}
 	}
+
+	if (!rulesList.isEmpty() && newRuleId.isNull() && Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).value().toBool())
+	{
+		if (SystemManager::isScreenSaverRunning() || SystemManager::isWorkstationLocked())
+			newRuleId = rulesList.value(0);
+	}
+
 	setActiveRule(newRuleId);
 }
 

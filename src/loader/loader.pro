@@ -3,8 +3,14 @@ include(../config.inc)
 TARGET             = $$TARGET_LOADER
 TEMPLATE           = app
 QT                += xml network
+
+macx: {
+  QT              += webkit
+}
+
 LIBS              += -L../libs
 LIBS              += -l$$TARGET_UTILS
+win32:LIBS        += -lholdemutils -lAdvapi32 -lUser32 -lOle32
 DEPENDPATH        += ..
 INCLUDEPATH       += ..
 DESTDIR            = ../..
@@ -12,7 +18,7 @@ include(loader.pri)
 
 #Appication icon
 win32:RC_FILE      = loader.rc
-macx:ICON = ../../virtus.icns
+macx:ICON          = ../../virtus.icns
 
 #SVN Info
 SVN_REVISION=$$system(svnversion -n -c ./../../)

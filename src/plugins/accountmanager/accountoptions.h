@@ -14,8 +14,8 @@ class AccountOptions :
 			public QWidget,
 			public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	AccountOptions(IAccountManager *AManager, const QUuid &AAccountId, QWidget *AParent);
 	~AccountOptions();
@@ -25,6 +25,7 @@ public slots:
 	virtual void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 private:

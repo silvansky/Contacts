@@ -1,0 +1,9 @@
+CloseButton[isHover="false"]
+{
+	qproperty-icon: url(%IMAGES_PATH%/closebuttonchatnotice.png);
+}
+
+CloseButton[isHover="true"]
+{
+	qproperty-icon: url(%IMAGES_PATH%/closebuttonchatnoticehover.png);
+}

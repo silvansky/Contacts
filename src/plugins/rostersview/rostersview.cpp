@@ -7,6 +7,7 @@
 #include <QDropEvent>
 #include <QHelpEvent>
 #include <QClipboard>
+#include <QScrollBar>
 #include <QHeaderView>
 #include <QResizeEvent>
 #include <QApplication>
@@ -15,6 +16,10 @@
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <QContextMenuEvent>
+#include <utils/imagemanager.h>
+#include <utils/iconstorage.h>
+#include <definitions/menuicons.h>
+#include <definitions/resources.h>
 
 #define BLINK_VISIBLE           750
 #define BLINK_INVISIBLE         250
@@ -39,6 +44,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 {
 	setAttribute(Qt::WA_MacShowFocusRect, false);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_ROSTERVIEW_ROSTER);
+	connect(verticalScrollBar(), SIGNAL(rangeChanged(int,int)), SLOT(onScrollBarRangeChanged(int,int)));
 
 	FRostersModel = NULL;
 
@@ -65,6 +71,7 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 	setSelectionMode(ExtendedSelection);
 	setContextMenuPolicy(Qt::DefaultContextMenu);
 	setFrameShape(QFrame::NoFrame);
+	setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
 	FRosterIndexDelegate = new RosterIndexDelegate(this);
 	setItemDelegate(FRosterIndexDelegate);
@@ -79,6 +86,10 @@ RostersView::RostersView(QWidget *AParent) : QTreeView(AParent)
 		SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 	connect(this, SIGNAL(entered(const QModelIndex&)), SLOT(onIndexEntered(const QModelIndex&)));
 	connect(this, SIGNAL(viewportEntered()), SLOT(onViewportEntered()));
+
+	connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(onRepaintNeeded()));
+	connect(verticalScrollBar(), SIGNAL(rangeChanged(int,int)), SLOT(onRepaintNeeded()));
+	connect(verticalScrollBar(), SIGNAL(sliderMoved(int)), SLOT(onRepaintNeeded()));
 
 	qRegisterMetaTypeStreamOperators<IRostersLabel>("IRostersLabel");
 	qRegisterMetaTypeStreamOperators<RostersLabelItems>("RostersLabelItems");
@@ -98,8 +109,8 @@ int RostersView::rosterDataOrder() const
 QList<int> RostersView::rosterDataRoles() const
 {
 	static QList<int> dataRoles = QList<int>()
-		<< RDR_LABEL_ITEMS
-		<< RDR_FOOTER_TEXT << RDR_ALLWAYS_VISIBLE << RDR_DECORATION_FLAGS << Qt::DecorationRole << Qt::BackgroundColorRole;
+			<< RDR_LABEL_ITEMS
+			<< RDR_FOOTER_TEXT << RDR_ALLWAYS_VISIBLE << RDR_DECORATION_FLAGS << Qt::DecorationRole << Qt::BackgroundColorRole;
 	return dataRoles;
 }
 
@@ -160,7 +171,9 @@ QVariant RostersView::rosterData(const IRosterIndex *AIndex, int ARole) const
 		}
 		else if (ARole == Qt::BackgroundColorRole)
 		{
-			data = notify.background;
+			// let's disable that for a while...
+			//data = notify.background;
+			// no design - no implementation
 		}
 	}
 	return data;
@@ -237,6 +250,21 @@ QList<IRosterIndex *> RostersView::selectedRosterIndexes() const
 		}
 	}
 	return rosterIndexes;
+}
+
+void RostersView::selectIndex(IRosterIndex * AIndex)
+{
+	if (FRostersModel)
+	{
+		QModelIndex mindex = FRostersModel->modelIndexByRosterIndex(AIndex);
+		selectionModel()->select(mindex, QItemSelectionModel::Select);
+	}
+}
+
+void RostersView::selectRow(int ARow)
+{
+	QModelIndex mindex = model()->index(ARow, 0, QModelIndex());
+	setCurrentIndex(mindex);
 }
 
 bool RostersView::repaintRosterIndex(IRosterIndex *AIndex)
@@ -584,6 +612,14 @@ int RostersView::insertNotify(const IRostersNotify &ANotify, const QList<IRoster
 	return notifyId;
 }
 
+void RostersView::activateNotify(int ANotifyId)
+{
+	if (FNotifyItems.contains(ANotifyId))
+	{
+		emit notifyActivated(ANotifyId);
+	}
+}
+
 void RostersView::removeNotify(int ANotifyId)
 {
 	if (FNotifyItems.contains(ANotifyId))
@@ -621,6 +657,16 @@ void RostersView::insertClickHooker(int AOrder, IRostersClickHooker *AHooker)
 void RostersView::removeClickHooker(int AOrder, IRostersClickHooker *AHooker)
 {
 	FClickHookers.remove(AOrder,AHooker);
+}
+
+void RostersView::insertKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker)
+{
+	FKeyPressHookers.insertMulti(AOrder, AHooker);
+}
+
+void RostersView::removeKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker)
+{
+	FKeyPressHookers.remove(AOrder, AHooker);
 }
 
 void RostersView::insertDragDropHandler(IRostersDragDropHandler *AHandler)
@@ -683,11 +729,11 @@ void RostersView::clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu)
 {
 	if (AIndex && AMenu)
 	{
-		if (!AIndex->data(RDR_JID).toString().isEmpty())
+		if (!AIndex->data(RDR_FULL_JID).toString().isEmpty())
 		{
 			Action *action = new Action(AMenu);
 			action->setText(tr("Jabber ID"));
-			action->setData(ADR_CLIPBOARD_DATA, AIndex->data(RDR_JID));
+			action->setData(ADR_CLIPBOARD_DATA, AIndex->data(RDR_FULL_JID));
 			connect(action,SIGNAL(triggered(bool)),SLOT(onCopyToClipboardActionTriggered(bool)));
 			AMenu->addAction(action, AG_DEFAULT, true);
 		}
@@ -719,6 +765,16 @@ QBrush RostersView::groupBrush() const
 void RostersView::setGroupBrush(const QBrush & newBrush)
 {
 	groupBackground = newBrush;
+}
+
+QImage RostersView::groupBorderImage() const
+{
+	return groupBorder;
+}
+
+void RostersView::setGroupBorderImage(const QImage & newGroupBorderImage)
+{
+	groupBorder = newGroupBorderImage;
 }
 
 QColor RostersView::groupColor() const
@@ -761,7 +817,7 @@ void RostersView::updateStatusText(IRosterIndex *AIndex)
 		QMultiMap<int,QVariant> findData;
 		foreach(int type, statusTypes)
 			findData.insert(RDR_TYPE,type);
-		indexes = FRostersModel!=NULL ? FRostersModel->rootIndex()->findChild(findData,true) : QList<IRosterIndex *>();
+		indexes = FRostersModel!=NULL ? FRostersModel->rootIndex()->findChilds(findData,true) : QList<IRosterIndex *>();
 	}
 	else if (statusTypes.contains(AIndex->type()))
 	{
@@ -852,9 +908,53 @@ void RostersView::setInsertIndicatorRect(const QRect &ARect)
 	if (FInsertIndicatorRect != ARect)
 	{
 		FInsertIndicatorRect = ARect;
-		FInsertIndicatorRect.setHeight(1);
 		viewport()->update();
 	}
+}
+
+QModelIndex RostersView::actualDragIndex(const QModelIndex &AIndex, const QPoint &ACursorPos) const
+{
+	QModelIndex index = AIndex;
+	int indexType = index.data(RDR_TYPE).toInt();
+	if (indexType == RIT_CONTACT || indexType == RIT_METACONTACT)
+	{
+		if (index.data(RDR_GROUP)!=FPressedIndex.data(RDR_GROUP) || index.parent().data(RDR_TYPE)!=FPressedIndex.parent().data(RDR_TYPE))
+		{
+			// cutting 25% from top and bottom 
+			QRect rect = visualRect(index);
+			int r = rect.height() / 4;
+			if (!rect.adjusted(0, r, 0, -r).contains(ACursorPos)) // putting contact into parent group
+				index = index.parent();
+		}
+	}
+	return index;
+}
+
+bool RostersView::processClickHookers(IRosterIndex* AIndex)
+{
+	bool accepted = false;
+	QMultiMap<int,IRostersClickHooker *>::const_iterator it = FClickHookers.constBegin();
+	while (!accepted && it!=FClickHookers.constEnd())
+	{
+		accepted = it.value()->rosterIndexClicked(AIndex, it.key());
+		it++;
+	}
+	return accepted;
+}
+
+bool RostersView::processKeyPressHookers(IRosterIndex* AIndex, Qt::Key AKey, Qt::KeyboardModifiers AModifiers)
+{
+	bool accepted = false;
+	QMultiMap<int, IRostersKeyPressHooker *>::const_iterator it = FKeyPressHookers.constBegin();
+	while (!accepted && it!=FKeyPressHookers.constEnd())
+	{
+		// multi selection first
+		accepted = it.value()->keyOnRosterIndexesPressed(AIndex, selectedRosterIndexes(), it.key(), AKey, AModifiers);
+		if (!accepted)
+			accepted = it.value()->keyOnRosterIndexPressed(AIndex, it.key(), AKey, AModifiers);
+		it++;
+	}
+	return accepted;
 }
 
 void RostersView::drawBranches(QPainter *APainter, const QRect &ARect, const QModelIndex &AIndex) const
@@ -868,6 +968,7 @@ bool RostersView::viewportEvent(QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::ToolTip)
 	{
+		return true;
 		QHelpEvent *helpEvent = static_cast<QHelpEvent *>(AEvent);
 		QModelIndex viewIndex = indexAt(helpEvent->pos());
 		if (FRostersModel && viewIndex.isValid())
@@ -905,11 +1006,11 @@ void RostersView::paintEvent(QPaintEvent *AEvent)
 	QTreeView::paintEvent(AEvent);
 	if (!FDropIndicatorRect.isNull())
 	{
-		QStyleOption option;
-		option.init(this);
-		option.rect = FDropIndicatorRect.adjusted(0,0,-1,-1);
 		QPainter painter(viewport());
-		style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
+		QImage highlight = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_HIGHLIGHTED_ITEM, 1);
+		qreal border = 10.0; // yao border - magic! =)
+		painter.translate(FDropIndicatorRect.topLeft());
+		ImageManager::drawNinePartImage(highlight, FDropIndicatorRect, border, &painter);
 	}
 	if (!FInsertIndicatorRect.isNull())
 	{
@@ -917,7 +1018,55 @@ void RostersView::paintEvent(QPaintEvent *AEvent)
 		option.init(this);
 		option.rect = FInsertIndicatorRect.adjusted(0,0,-1,-1);
 		QPainter painter(viewport());
+		// TODO: custom drawing of insert indicator
 		style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
+	}
+}
+
+void RostersView::keyPressEvent(QKeyEvent *event)
+{
+	bool accepted = false;
+	QList<IRosterIndex *> indexes = selectedRosterIndexes();
+	if (!indexes.isEmpty())
+	{
+		// multi selection first
+		QMultiMap<int, IRostersKeyPressHooker *>::const_iterator it = FKeyPressHookers.constBegin();
+		while (!accepted && it!=FKeyPressHookers.constEnd())
+		{
+			accepted = it.value()->keyOnRosterIndexesPressed(indexes.first(), indexes, it.key(), (Qt::Key)event->key(), event->modifiers());
+			it++;
+		}
+		if (!accepted)
+		{
+			foreach (IRosterIndex *index, indexes)
+			{
+				if (index)
+				{
+					// enter or return acts as double click
+					if ((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) && (event->modifiers() == Qt::NoModifier))
+					{
+						int notifyId = FActiveNotifies.value(index,-1);
+						if (notifyId>0 && FNotifyItems.value(notifyId).hookClick)
+						{
+							activateNotify(notifyId);
+						}
+						else
+						{
+							accepted = processClickHookers(index);
+						}
+					}
+					else
+					{
+						// processing key event
+						accepted = processKeyPressHookers(index, (Qt::Key)event->key(), event->modifiers());
+					}
+				}
+			}
+		}
+	}
+	if (!accepted)
+	{
+		QTreeView::keyPressEvent(event);
 	}
 }
 
@@ -960,22 +1109,17 @@ void RostersView::mouseDoubleClickEvent(QMouseEvent *AEvent)
 		if (FRostersModel && viewIndex.isValid())
 		{
 			IRosterIndex *index = FRostersModel->rosterIndexByModelIndex(mapToModel(viewIndex));
-			if (index != NULL)
+			if (index)
 			{
 				int notifyId = FActiveNotifies.value(index,-1);
 				if (notifyId>0 && FNotifyItems.value(notifyId).hookClick)
 				{
-					emit notifyActivated(notifyId);
+					activateNotify(notifyId);
 				}
 				else
 				{
+					accepted = processClickHookers(index);
 					const int labelId = labelAt(AEvent->pos(),viewIndex);
-					QMultiMap<int,IRostersClickHooker *>::const_iterator it = FClickHookers.constBegin();
-					while (!accepted && it!=FClickHookers.constEnd())
-					{
-						accepted = it.value()->rosterIndexClicked(index,it.key());
-						it++;
-					}
 					emit labelDoubleClicked(index,labelId,accepted);
 				}
 			}
@@ -1007,7 +1151,7 @@ void RostersView::mousePressEvent(QMouseEvent *AEvent)
 void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 {
 	if (!FStartDragFailed && AEvent->buttons()!=Qt::NoButton && FPressedIndex.isValid() && selectedRosterIndexes().count()<2 &&
-	    (AEvent->pos()-FPressedPos).manhattanLength() > QApplication::startDragDistance())
+			(AEvent->pos()-FPressedPos).manhattanLength() > QApplication::startDragDistance())
 	{
 		QDrag *drag = new QDrag(this);
 		drag->setMimeData(new QMimeData);
@@ -1026,13 +1170,18 @@ void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 				option.state &= ~QStyle::State_Selected;
 				option.state &= ~QStyle::State_MouseOver;
 				option.rect = QRect(QPoint(0,0),option.rect.size());
-				QPixmap pixmap(option.rect.size());
+				const int border = 5; // yao magic border width
+				QRect pixmapRect = option.rect.adjusted(-border, -border, border, border);
+				QImage shadow = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_DRAG_SHADOW);
+				QPixmap pixmap(pixmapRect.size());
+				pixmap.fill(QColor(0, 0, 0, 0)); // that fixes transparency problem
 				QPainter painter(&pixmap);
-				painter.fillRect(option.rect,style()->standardPalette().color(QPalette::Normal,QPalette::Base));
+				ImageManager::drawNinePartImage(shadow, pixmapRect, border, &painter);
+				painter.setOpacity(0.9);
+				painter.translate(border, border);
 				itemDeletage->paint(&painter,option,FPressedIndex);
-				painter.drawRect(option.rect.adjusted(0,0,-1,-1));
 				drag->setPixmap(pixmap);
-				drag->setHotSpot(FPressedPos - indexPos);
+				drag->setHotSpot(FPressedPos - indexPos - pixmapRect.topLeft());
 			}
 
 			QByteArray data;
@@ -1049,6 +1198,7 @@ void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 
 			if (index)
 				index->setData(RDR_IS_DRAGGED, false);
+
 			setState(NoState);
 		}
 		else
@@ -1088,7 +1238,7 @@ void RostersView::dropEvent(QDropEvent *AEvent)
 	Menu *dropMenu = new Menu(this);
 
 	bool accepted = false;
-	QModelIndex index = indexAt(AEvent->pos());
+	QModelIndex index = actualDragIndex(indexAt(AEvent->pos()), AEvent->pos());
 	foreach(IRostersDragDropHandler *handler, FActiveDragHandlers)
 		if (handler->rosterDropAction(AEvent,index,dropMenu))
 			accepted = true;
@@ -1137,7 +1287,8 @@ void RostersView::dragEnterEvent(QDragEnterEvent *AEvent)
 
 void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 {
-	QModelIndex index = indexAt(AEvent->pos());
+	QModelIndex index = actualDragIndex(indexAt(AEvent->pos()),AEvent->pos());
+	FDragRect = visualRect(index);
 
 	bool accepted = false;
 	foreach(IRostersDragDropHandler *handler, FActiveDragHandlers)
@@ -1156,30 +1307,44 @@ void RostersView::dragMoveEvent(QDragMoveEvent *AEvent)
 
 	if (index != FPressedIndex)
 	{
-
-		QRect vRect = visualRect(index), highlightRect;
-		highlightRect = vRect;
-		FDragRect = vRect;
-		int indexType = index.data(RDR_TYPE).toInt();
-		if ((vRect.y() + vRect.height() / 2) < AEvent->pos().y())
+		QRect insertRect = FDragRect;
+		if (Options::node(OPV_ROSTER_SORTBYHAND).value().toBool())
 		{
-			highlightRect.setTop(vRect.bottom() + 1);
+			if (AEvent->pos().y() < insertRect.top()+(insertRect.height()/8))
+				insertRect.setBottom(insertRect.top()-1);
+			else if (AEvent->pos().y() > insertRect.bottom()-(insertRect.height()/8))
+				insertRect.setTop(insertRect.bottom()+1);
+			else
+				insertRect = QRect();
 		}
-		if (indexType == RIT_CONTACT || indexType == RIT_GROUP || indexType == RIT_GROUP_BLANK)
+		else
 		{
-			QModelIndex group = indexType == RIT_CONTACT ? index.parent() : index;
-			vRect = visualRect(group);
+			insertRect = QRect();
+		}
+		setInsertIndicatorRect(insertRect);
+
+		QRect dropRect = FDragRect;
+		int indexType = index.data(RDR_TYPE).toInt();
+		if (indexType == RIT_CONTACT || indexType == RIT_METACONTACT || indexType == RIT_GROUP || indexType == RIT_GROUP_BLANK)
+		{
+			QModelIndex group = indexType==RIT_CONTACT ? index.parent() : index;
+			dropRect = visualRect(group);
+
 			int irow = 0;
 			QModelIndex child;
 			while ((child = group.child(irow, 0)).isValid())
 			{
-				if (child.data(RDR_TYPE).toInt() == RIT_CONTACT)
-					vRect = vRect.united(visualRect(child));
+				int childType=child.data(RDR_TYPE).toInt();
+				if (childType==RIT_CONTACT || childType==RIT_METACONTACT)
+					dropRect = dropRect.united(visualRect(child));
 				irow++;
 			}
 		}
-		setDropIndicatorRect(vRect);
-		setInsertIndicatorRect(highlightRect);
+
+		if (FDragRect!=dropRect || insertRect.isNull())
+			setDropIndicatorRect(dropRect);
+		else
+			setDropIndicatorRect(QRect());
 	}
 	else
 	{
@@ -1235,20 +1400,20 @@ void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMul
 		if (!name.isEmpty())
 			AToolTips.insert(RTTO_CONTACT_NAME, "<b>" + Qt::escape(name) + "</b>");
 
-		QString jid = AIndex->data(RDR_JID).toString();
+		QString jid = AIndex->data(RDR_FULL_JID).toString();
 		if (!jid.isEmpty())
 			AToolTips.insert(RTTO_CONTACT_JID, "<font color=grey>" + Qt::escape(jid) + "</font>");
 
 		/*
-		QString priority = AIndex->data(RDR_PRIORITY).toString();
-		if (!priority.isEmpty())
-			AToolTips.insert(RTTO_CONTACT_PRIORITY, tr("Priority: %1").arg(priority.toInt()));
+  QString priority = AIndex->data(RDR_PRIORITY).toString();
+  if (!priority.isEmpty())
+   AToolTips.insert(RTTO_CONTACT_PRIORITY, tr("Priority: %1").arg(priority.toInt()));
 
-		QString ask = AIndex->data(RDR_ASK).toString();
-		QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
-		if (!subscription.isEmpty())
-			AToolTips.insert(RTTO_CONTACT_SUBSCRIPTION, tr("Subscription: %1 %2").arg(Qt::escape(subscription)).arg(Qt::escape(ask)));
-		*/
+  QString ask = AIndex->data(RDR_ASK).toString();
+  QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
+  if (!subscription.isEmpty())
+   AToolTips.insert(RTTO_CONTACT_SUBSCRIPTION, tr("Subscription: %1 %2").arg(Qt::escape(subscription)).arg(Qt::escape(ask)));
+  */
 
 		QString status = AIndex->data(RDR_STATUS).toString();
 		if (!status.isEmpty())
@@ -1313,7 +1478,8 @@ void RostersView::onUpdateIndexNotifyTimeout()
 	foreach(IRosterIndex *index, FNotifyUpdates)
 	{
 		int curNotify = activeNotify(index);
-		int newNotify = notifyQueue(index).value(0,-1);
+		QList<int> queque = notifyQueue(index);
+		int newNotify = !queque.isEmpty() ? queque.last() : -1;
 		if (curNotify != newNotify)
 		{
 			if (newNotify > 0)
@@ -1378,7 +1544,7 @@ void RostersView::onExpandAllGroups()
 		QMultiMap<int, QVariant> findData;
 		foreach(int type, groupIndexes)
 			findData.insert(RDR_TYPE,type);
-		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChild(findData,true)) {
+		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true)) {
 			expand(mapFromModel(FRostersModel->modelIndexByRosterIndex(index))); }
 	}
 }
@@ -1390,7 +1556,25 @@ void RostersView::onCollapseAllGroups()
 		QMultiMap<int, QVariant> findData;
 		foreach(int type, groupIndexes)
 			findData.insert(RDR_TYPE,type);
-		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChild(findData,true)) {
+		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true)) {
 			collapse(mapFromModel(FRostersModel->modelIndexByRosterIndex(index))); }
 	}
+}
+
+void RostersView::onScrollBarRangeChanged(int min, int max)
+{
+	Q_UNUSED(min)
+	Q_UNUSED(max)
+	StyleStorage::updateStyle(verticalScrollBar());
+}
+
+void RostersView::onRepaintNeeded()
+{
+	// TODO: some optimization (repaint only dirty regions, not the whole view)
+	QWidget * p = parentWidget();
+	while (p && !p->isWindow())
+		p = p->parentWidget();
+	if (p)
+		p->repaint();
+	viewport()->repaint();
 }

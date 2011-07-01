@@ -1,79 +1,129 @@
 #include "mergecontactsdialog.h"
 
 #include <QPushButton>
+#include <utils/customborderstorage.h>
+#include <utils/graphicseffectsstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
+#include <definitions/graphicseffects.h>
 
-MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<Jid> AMetaIds, QWidget *AParent) : QDialog(AParent)
+MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<QString> AMetaIds, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
 
 	ui.lneName->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-	setAttribute(Qt::WA_DeleteOnClose,true);
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_MERGECONTACTSDIALOG);
-
 	FMetaRoster = AMetaRoster;
 	FMetaContacts = AMetaContacts;
 	FMetaIds = AMetaIds;
 
-	ui.lblNotice->setText(tr("<b>%n contacts</b> will be merged into one:","",AMetaIds.count()));
+	ui.lblNotice->setText(tr("These %n contacts will be merged into one:","",AMetaIds.count()));
 
-	foreach(Jid metaId, FMetaIds)
+	QSet<Jid> items;
+	ui.ltContacts->addStretch();
+	foreach(QString metaId, FMetaIds)
 	{
 		IMetaContact contact = FMetaRoster->metaContact(metaId);
+		items += contact.items;
 
-		QImage avatar = FMetaRoster->metaAvatarImage(metaId).scaled(32,32,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+		QImage avatar = FMetaRoster->metaAvatarImage(metaId,false,false).scaled(24, 24, Qt::KeepAspectRatio,Qt::SmoothTransformation);
 		QString name = FMetaContacts->metaContactName(contact);
 
-		if (ui.ltwContacts->count() == 0)
-		{
+		if (ui.ltContacts->count() == 1)
 			ui.lneName->setText(name);
-			ui.lblAvatar->setPixmap(QPixmap::fromImage(avatar));
-		}
 
-		QListWidgetItem *item = new QListWidgetItem(name);
-		item->setData(Qt::DecorationRole, avatar);
-		item->setData(Qt::UserRole, metaId.pBare());
-		item->setFlags(Qt::ItemIsEnabled);
-		ui.ltwContacts->addItem(item);
+		QHBoxLayout *itemLayout = new QHBoxLayout();
+		itemLayout->setContentsMargins(0, 0, 0, 0);
+		itemLayout->setSpacing(8);
+
+		QLabel *avatarLabel = new QLabel(this);
+		avatarLabel->setFixedSize(24, 24);
+		avatarLabel->setPixmap(QPixmap::fromImage(avatar));
+		avatarLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+		itemLayout->addWidget(avatarLabel);
+
+		QLabel *nameLabel = new QLabel(this);
+		nameLabel->setText(name);
+		itemLayout->addWidget(nameLabel);
+
+		ui.ltContacts->addItem(itemLayout);
 	}
+	ui.ltContacts->addStretch();
 
-	ui.sprSplitter->setSizes(QList<int>() << 400 << 500);
+	QImage avatar;
+	QMultiMap<int,Jid> orders = FMetaContacts->itemOrders(items.toList());
+	for (QMultiMap<int,Jid>::const_iterator it=orders.constBegin(); avatar.isNull() && it!=orders.constEnd(); it++)
+	{
+		QString metaId = FMetaRoster->itemMetaContact(it.value());
+		avatar = FMetaRoster->metaAvatarImage(metaId,true,false);
+	}
+	if (avatar.isNull())
+		avatar = FMetaRoster->metaAvatarImage(FMetaIds.value(0),false,false);
+	ui.lblAvatar->setPixmap(QPixmap::fromImage(avatar.scaled(48, 48, Qt::KeepAspectRatio,Qt::SmoothTransformation)));
+
+	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (FBorder)
+	{
+		FBorder->setResizable(false);
+		FBorder->setMinimizeButtonVisible(false);
+		FBorder->setMaximizeButtonVisible(false);
+		FBorder->setAttribute(Qt::WA_DeleteOnClose,true);
+		FBorder->setWindowTitle(ui.lblCaption->text());
+		connect(this, SIGNAL(accepted()), FBorder, SLOT(closeWidget()));
+		connect(this, SIGNAL(rejected()), FBorder, SLOT(closeWidget()));
+		connect(FBorder, SIGNAL(closeClicked()), SLOT(reject()));
+		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	}
+	else
+		setAttribute(Qt::WA_DeleteOnClose,true);
+
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_MERGECONTACTSDIALOG);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+
+	ui.lneName->selectAll();
+	ui.lneName->setFocus();
 
 	connect(ui.lneName,SIGNAL(textChanged(const QString &)),SLOT(onContactNameChanged(const QString &)));
-
-	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Merge contacts"));
-	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
+	connect(ui.pbtCancel, SIGNAL(clicked()), SLOT(reject()));
+	connect(ui.pbtMerge, SIGNAL(clicked()), SLOT(onAcceptButtonClicked()));
 }
 
 MergeContactsDialog::~MergeContactsDialog()
 {
+	if (FBorder)
+		FBorder->deleteLater();
+}
 
+void MergeContactsDialog::show()
+{
+	if (FBorder)
+	{
+		// TODO: determine what of these are really needed
+		FBorder->layout()->update();
+		layout()->update();
+		FBorder->adjustSize();
+		FBorder->show();
+		FBorder->layout()->update();
+		FBorder->adjustSize();
+	}
+	else
+		QDialog::show();
 }
 
 void MergeContactsDialog::onContactNameChanged(const QString &AText)
 {
-	ui.dbbButtons->button(QDialogButtonBox::Ok)->setEnabled(!AText.trimmed().isEmpty());
+	ui.pbtMerge->setEnabled(!AText.trimmed().isEmpty());
 }
 
-void MergeContactsDialog::onDialogButtonClicked(QAbstractButton *AButton)
+void MergeContactsDialog::onAcceptButtonClicked()
 {
-	switch (ui.dbbButtons->buttonRole(AButton))
+	if (!ui.lneName->text().isEmpty())
 	{
-	case QDialogButtonBox::AcceptRole:
-		if (!ui.lneName->text().isEmpty())
-		{
-			Jid parentId = FMetaIds.value(0);
-			QList<Jid> childsId = FMetaIds.mid(1);
-			if (FMetaRoster->metaContact(parentId).name != ui.lneName->text())
-				FMetaRoster->renameContact(parentId,ui.lneName->text());
-			FMetaRoster->mergeContacts(parentId,childsId);
-			accept();
-		}
-		break;
-	case QDialogButtonBox::RejectRole:
-		reject();
-		break;
-	default:
-		break;
+		QString parentId = FMetaIds.value(0);
+		QList<QString> childsId = FMetaIds.mid(1);
+		if (FMetaRoster->metaContact(parentId).name != ui.lneName->text())
+			FMetaRoster->renameContact(parentId,ui.lneName->text());
+		FMetaRoster->mergeContacts(parentId,childsId);
+		accept();
 	}
 }

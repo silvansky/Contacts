@@ -4,30 +4,40 @@
 #include <QUrl>
 #include <QTimer>
 #include <QDialog>
-#include <definitions/vcardvaluenames.h>
+#include <QRadioButton>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/optionvalues.h>
 #include <definitions/stylesheets.h>
+#include <definitions/vcardvaluenames.h>
+#include <definitions/rosterindextyperole.h>
+#include <definitions/gateserviceidentifiers.h>
+#include <interfaces/ivcard.h>
+#include <interfaces/iroster.h>
+#include <interfaces/iavatars.h>
+#include <interfaces/igateways.h>
+#include <interfaces/imetacontacts.h>
+#include <interfaces/irostersview.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irosterchanger.h>
-#include <interfaces/iroster.h>
-#include <interfaces/igateways.h>
-#include <interfaces/iavatars.h>
-#include <interfaces/ivcard.h>
+#include <interfaces/ioptionsmanager.h>
+#include <interfaces/imessageprocessor.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/customlistview.h>
+#include <utils/custominputdialog.h>
+#include "selectprofilewidget.h"
 #include "ui_addcontactdialog.h"
 
 class AddContactDialog :
-			public QDialog,
-			public IAddContactDialog
+	public QDialog,
+	public IAddContactDialog
 {
 	Q_OBJECT
 	Q_INTERFACES(IAddContactDialog)
 public:
-	AddContactDialog(IRosterChanger *ARosterChanger, IPluginManager *APluginManager, const Jid &AStreamJid, QWidget *AParent = NULL);
+	AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChanger, IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~AddContactDialog();
 	//IAddContactDialog
 	virtual QDialog *instance() { return this; }
@@ -42,70 +52,83 @@ public:
 	virtual void setGroup(const QString &AGroup);
 	virtual Jid gatewayJid() const;
 	virtual void setGatewayJid(const Jid &AGatewayJid);
+	virtual QString parentMetaContactId() const;
+	virtual void setParentMetaContactId(const QString &AMetaId);
 signals:
 	void dialogDestroyed();
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void initGroups();
-	void updateGateways();
-	void updateServices(const Jid &AServiceJid = Jid::null);
 protected:
-	QString normalContactText(const QString &AText) const;
+	void selectRosterIndex();
 	QString defaultContactNick(const Jid &AContactJid) const;
-	QList<Jid> suitableServices(const IGateServiceDescriptor &ADescriptor) const;
-	QList<Jid> suitableServices(const QList<IGateServiceDescriptor> &ADescriptors) const;
+	QString confirmDescriptorText(const IGateServiceDescriptor &ADescriptor);
+	int registerDescriptorStatus(const IGateServiceDescriptor &ADescriptor);
 protected:
-	void startResolve(int ATimeout);
-	void setInfoMessage(const QString &AMessage);
-	void setErrorMessage(const QString &AMessage);
-	void setActionLink(const QString &AMessage, const QUrl &AUrl);
-	void setGatewaysEnabled(bool AEnabled);
-	void setContactAcceptable(bool AAcceptable);
+	void updatePageAddress();
+	void updatePageConfirm(const QList<IGateServiceDescriptor> &ADescriptors);
+	void updatePageParams(const IGateServiceDescriptor &ADescriptor);
+protected:
+	void setDialogState(int AState);
+	void setDialogEnabled(bool AEnabled);
 	void setRealContactJid(const Jid &AContactJid);
 	void setResolveNickState(bool AResole);
-protected slots:
-	void resolveServiceJid();
+	void setErrorMessage(const QString &AMessage, bool AInvalidInput);
+protected:
+	void resolveDescriptor();
 	void resolveContactJid();
 	void resolveContactName();
+	void resolveLinkedContactsJid();
 protected:
 	virtual void showEvent(QShowEvent *AEvent);
+	void mousePressEvent(QMouseEvent *);
+	void resizeEvent(QResizeEvent *);
+	void moveEvent(QMoveEvent *);
+	bool event(QEvent *);
+	bool eventFilter(QObject *, QEvent *);
 protected slots:
-	void onDialogAccepted();
+	void onBackButtonclicked();
+	void onContinueButtonclicked();
+	void onCancelButtonclicked();
 	void onAdjustDialogSize();
 	void onContactTextEdited(const QString &AText);
 	void onContactNickEdited(const QString &AText);
 	void onGroupCurrentIndexChanged(int AIndex);
-	void onProfileCurrentIndexChanged(int AIndex);
-	void onActionLinkActivated(const QString &ALink);
+	void onNewGroupNameSelected(const QString &AGroup);
+	void onSelectedProfileChanched();
 	void onVCardReceived(const Jid &AContactJid);
-	void onVCardError(const Jid &AContactJid, const QString &AError);
-	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onLegacyContactJidReceived(const QString &AId, const Jid &AUserJid);
-	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
+	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
+	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
+	void onBorderReszeMove();
 private:
 	Ui::AddContactDialogClass ui;
 private:
 	IRoster *FRoster;
 	IAvatars *FAvatars;
 	IGateways *FGateways;
+	IMetaRoster *FMetaRoster;
+	IRostersView *FRostersView;
 	IVCardPlugin *FVcardPlugin;
 	IRosterChanger *FRosterChanger;
+	IOptionsManager *FOptionsManager;
+	IMessageProcessor *FMessageProcessor;
 private:
-	QLabel *FServiceIcon;
-private:
-	Jid FStreamJid;
-	Jid FContactJid;
-	Jid FPreferGateJid;
+	QString FContactJidRequest;
+	QString FContactCreateRequest;
+	QMap<QString, Jid> FLinkedJidRequests;
 private:
 	bool FShown;
+	Jid FContactJid;
+	int FDialogState;
 	bool FResolveNick;
-	QTimer FResolveTimer;
-	QString FContactJidRequest;
-	QList<Jid> FEnabledGateways;
-	QList<Jid> FDisabledGateways;
-	QMap<QString, Jid> FServices;
-	QMap<QString, Jid> FLoginRequests;
+	bool FServiceFailed;
+	QString FParentMetaId;
+	QList<Jid> FLinkedContacts;
+	IGateServiceDescriptor FDescriptor;
+	SelectProfileWidget *FSelectProfileWidget;
+	QMap<QRadioButton *, IGateServiceDescriptor> FConfirmButtons;
 };
 
 #endif // ADDCONTACTDIALOG_H

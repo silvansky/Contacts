@@ -20,6 +20,7 @@ TabBarItem
 	padding-right: -1px;
 	margin-top: -1px;
 	margin-left: -1px;
+	color: black;
 }
 
 TabBarItem[isDraging="false"]
@@ -29,9 +30,11 @@ TabBarItem[isDraging="false"]
 
 TabBarItem[isDraging="false"][isActive="true"]
 {
-	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #c9cfd1, stop:1 #ffffff);
+	/*background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #c9cfd1, stop:1 #ffffff);*/
+	background-color: white;
 	border-top: 1px solid white;
-	border-left: 0px;
+	border-left: 1px solid transparent;
+	color: #acacac;
 /*	border-left: 0px;
 	border-right: 1px solid #22272d;
 	border-top: 0px;
@@ -51,12 +54,12 @@ TabBarItem[isDraging="false"][isActive="false"]:hover
 	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #34383e, stop:1 #6f7378);
 }
 
-TabBarItem *
+TabBarItem QLabel
 {
 	color: black;
 }
 
-TabBarItem[isActive="false"] *
+TabBarItem[isActive="false"] QLabel
 {
 	color: #acacac;
 }
@@ -67,36 +70,6 @@ TabBarItem[isDraging="true"], TabBarItem[isDraging="true"] *
 	background-color: transparent;
 }
 
-TabBarItem #closeButton
-{
-	min-width: 16;
-	min-height: 16;
-	background-color: transparent;
-	border: none;
-	border-image: none;
-	padding: 0px;
-	margin: 0px;
-}
-
-TabBarItem[isActive="false"] #closeButton:!hover
-{
-	qproperty-icon: url(%IMAGES_PATH%/closebutton.png);
-}
-
-TabBarItem[isActive="false"] #closeButton:hover
-{
-	qproperty-icon: url(%IMAGES_PATH%/closebuttonhover.png);
-}
-
-TabBarItem[isActive="true"] #closeButton:!hover
-{
-	qproperty-icon: url(%IMAGES_PATH%/activeclosebutton.png);
-}
-
-TabBarItem[isActive="true"] #closeButton:hover
-{
-	qproperty-icon: url(%IMAGES_PATH%/activeclosebuttonhover.png);
-}
 
 /**************
  * background *
@@ -104,7 +77,7 @@ TabBarItem[isActive="true"] #closeButton:hover
 
 TabWindow
 {
-	background-color: rgba(65, 70, 77, 245);
+	background-color: rgba(65, 70, 77, 250);
 }
 
 QStackedWidget, ChatWindow, ToolBarWidget, TabBar, CloseButton, SelectIconWidget, MetaTabWindow, QToolBar,
@@ -122,11 +95,6 @@ QToolBar#tlbToolBar, QFrame#wdtViewer
 	border: none;
 }
 
-#emoticonsButton
-{
-	min-width: 20px;
-}
-
 /******************
  * Message editor *
  ******************/
@@ -139,17 +107,12 @@ MessageEditor
 	background-color: white;
 }
 
-StyleViewer
-{
-	position: absolute;
-	right: -10px;
-}
 
 /********************
  * Emoticons Button *
  ********************/
 
-#emoticonsButton
+QPushButton#emoticonsButton
 {
 	background-color: transparent;
 	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder.png);
@@ -167,23 +130,35 @@ StyleViewer
 	margin-top: 1px;
 }
 
+QPushButton#emoticonsButton:hover
+{
+	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder_hover.png);
+}
+
+QPushButton#emoticonsButton:pressed,
+QPushButton#emoticonsButton:!pressed[isDown="true"]
+{
+	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder_click.png);
+}
+
+QPushButton#emoticonsButton:disabled
+{
+	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder_disabled.png);
+}
+
 #emoticonsButton::menu-indicator
 {
-	right: -1px;
-	top: 1px;
-	subcontrol-origin: content;
-	subcontrol-position: right center;
-	image: url(%IMAGES_PATH%/emoticonsbuttonarrow.png);
+	image: none;
 }
 
 /***************
  * Send Button *
  ***************/
 
-#tlbSend
+QToolButton#tlbSend
 {
 	background-color: transparent;
-	border-image: url(%IMAGES_PATH%/emoticonsbuttonborder.png);
+	border-image: url(%IMAGES_PATH%/sendbuttonborder.png);
 	border: 0px;
 	min-width: 32px;
 	max-width: 32px;
@@ -197,3 +172,34 @@ StyleViewer
 	padding-right: 2px;
 	margin-bottom: 1px;
 }
+
+QToolButton#tlbSend:hover
+{
+	border-image: url(%IMAGES_PATH%/sendbuttonborder_hover.png);
+}
+
+QToolButton#tlbSend:pressed
+{
+	border-image: url(%IMAGES_PATH%/sendbuttonborder_click.png);
+}
+
+QToolButton#tlbSend:disabled
+{
+	border-image: url(%IMAGES_PATH%/sendbuttonborder_disabled.png);
+}
+
+QToolButton#tlbSend[error="true"]
+{
+	border-image: url(%IMAGES_PATH%/sendbuttonborder_error.png);
+}
+
+/**********
+ * Header *
+ **********/
+
+#lblStatusIcon
+{
+	margin-left: 2px;
+	margin-top: 2px;
+}
+

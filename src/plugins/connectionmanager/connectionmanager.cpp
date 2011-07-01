@@ -24,7 +24,7 @@ void ConnectionManager::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to use different types of connections to a Jabber server");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool ConnectionManager::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -49,7 +49,7 @@ bool ConnectionManager::initConnections(IPluginManager *APluginManager, int &/*A
 		{
 			connect(FAccountManager->instance(),SIGNAL(shown(IAccount *)),SLOT(onAccountShown(IAccount *)));
 			connect(FAccountManager->instance(),SIGNAL(changed(IAccount *, const OptionsNode &)),
-			        SLOT(onAccountOptionsChanged(IAccount *, const OptionsNode &)));
+				SLOT(onAccountOptionsChanged(IAccount *, const OptionsNode &)));
 		}
 	}
 
@@ -103,7 +103,7 @@ bool ConnectionManager::initSettings()
 {
 	if (FOptionsManager)
 	{
-		IOptionsDialogNode dnode = { ONO_CONNECTION, OPN_CONNECTION, tr("Connection"), MNI_CONNECTION };
+		IOptionsDialogNode dnode = { ONO_CONNECTION, OPN_CONNECTION, tr("Connection"), MNI_CONNECTION_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
@@ -122,7 +122,7 @@ QMultiMap<int, IOptionsWidget *> ConnectionManager::optionsWidgets(const QString
 	{
 		IAccount *account = FAccountManager->accounts().value(0);
 		OptionsNode cnode = account!=NULL ? account->optionsNode().node("connection", account->optionsNode().node("connection-type").value().toString()) : OptionsNode();
-		widgets.insertMulti(OWO_CONNECTION-1, FOptionsManager->optionsHeaderWidget(QString::null,tr("Select the way you connected to internet"),AParent));
+		widgets.insertMulti(OWO_CONNECTION-1, FOptionsManager->optionsHeaderWidget(QString::null,tr("Internet connection"),AParent));
 		widgets.insertMulti(OWO_CONNECTION, new ProxyOptionsWidget(this, cnode, AParent));
 	}
 	return widgets;

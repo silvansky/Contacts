@@ -1,6 +1,11 @@
 #include "traymanager.h"
 
 #include <QApplication>
+#include <QSysInfo>
+
+#include <utils/iconstorage.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
 
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250
@@ -11,16 +16,18 @@ TrayManager::TrayManager()
 
 	FActiveNotify = -1;
 	FIconHidden = false;
-	
+
 	FContextMenu = new Menu;
 	FSystemIcon.setContextMenu(FContextMenu);
+
+	FSystemIcon.setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
 
 	FBlinkTimer.setSingleShot(true);
 	connect(&FBlinkTimer,SIGNAL(timeout()),SLOT(onBlinkTimerTimeout()));
 
 	FTriggerTimer.setSingleShot(true);
 	connect(&FTriggerTimer,SIGNAL(timeout()),SLOT(onTriggerTimerTimeout()));
-	
+
 	connect(&FSystemIcon,SIGNAL(messageClicked()), SIGNAL(messageClicked()));
 	connect(&FSystemIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)), SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
 }
@@ -38,13 +45,14 @@ void TrayManager::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to access the icon and context menu in the tray");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool TrayManager::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
 	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
+	connect(FPluginManager->instance(),SIGNAL(quitStarted()),SLOT(onApplicationQuitStarted()));
 	return true;
 }
 
@@ -52,7 +60,7 @@ bool TrayManager::initObjects()
 {
 	Action *action = new Action(FContextMenu);
 	action->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_QUIT);
-	action->setText(tr("Exit Virtus"));
+	action->setText(tr("Exit"));
 	connect(action,SIGNAL(triggered()),FPluginManager->instance(),SLOT(quit()));
 	FContextMenu->addAction(action,AG_TMTM_TRAYMANAGER);
 	return true;
@@ -60,7 +68,10 @@ bool TrayManager::initObjects()
 
 bool TrayManager::startPlugin()
 {
-	FSystemIcon.show();
+#ifdef Q_WS_WIN
+	if (QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7)
+#endif
+		FSystemIcon.show();
 	return true;
 }
 
@@ -185,6 +196,15 @@ void TrayManager::updateTray()
 
 		emit activeNotifyChanged(notifyId);
 	}
+#ifdef Q_WS_WIN
+	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+	{
+		if (FNotifyItems.isEmpty())
+			FSystemIcon.hide();
+		else
+			FSystemIcon.show();
+	}
+#endif
 }
 
 void TrayManager::onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason)
@@ -220,6 +240,11 @@ void TrayManager::onBlinkTimerTimeout()
 void TrayManager::onTriggerTimerTimeout()
 {
 	emit notifyActivated(FActiveNotify,QSystemTrayIcon::Trigger);
+}
+
+void TrayManager::onApplicationQuitStarted()
+{
+	FSystemIcon.hide();
 }
 
 Q_EXPORT_PLUGIN2(plg_traymanager, TrayManager)

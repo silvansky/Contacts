@@ -1,0 +1,9 @@
+QWidget#wbvHistoryView
+{
+	background-color: white;
+}
+
+QLabel#lblCaption
+{
+	margin-left: 10px;
+}

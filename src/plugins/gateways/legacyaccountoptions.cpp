@@ -1,22 +1,24 @@
 #include "legacyaccountoptions.h"
 
-#include <QMessageBox>
+#include <utils/custominputdialog.h>
+#include <definitions/menuicons.h>
 
 LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_LEGACYACCOUNTOPTIONSWIDGET);
+
 	FGateways = AGateways;
 	FStreamJid = AStreamJid;
 	FServiceJid = AServiceJid;
-	
+
 	FGateLabel = FGateways->serviceDescriptor(FStreamJid,FServiceJid);
-	ui.lblLogin->setText(FGateLabel.valid ? FGateLabel.name : FServiceJid.full());
+	ui.lblLogin->setText(!FGateLabel.id.isEmpty() ? FGateLabel.name : FServiceJid.full());
 	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,0,0,"pixmap");
 
-	connect(ui.pbtEnable,SIGNAL(clicked(bool)),SLOT(onEnableButtonClicked(bool)));
-	connect(ui.pbtDisable,SIGNAL(clicked(bool)),SLOT(onDisableButtonClicked(bool)));
-	connect(ui.lblChange,SIGNAL(linkActivated(const QString &)),SLOT(onChangeLinkActivated(const QString &)));
+	connect(ui.chbState, SIGNAL(toggled(bool)), SLOT(onStateCheckboxToggled(bool)));
+	connect(ui.pbtChange, SIGNAL(clicked(bool)), SLOT(onChangeButtonClicked(bool)));
 	connect(ui.cbtDelete,SIGNAL(clicked(bool)),SLOT(onDeleteButtonClicked(bool)));
 
 	connect(FGateways->instance(),SIGNAL(loginReceived(const QString &, const QString &)),
@@ -26,8 +28,7 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 	connect(FGateways->instance(),SIGNAL(servicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)),
 		SLOT(onServicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)));
 
-	onServiceEnableChanged(FStreamJid,FServiceJid,FGateways->isServiceEnabled(FStreamJid,FServiceJid));
-	onServicePresenceChanged(FStreamJid,FServiceJid,FGateways->servicePresence(FStreamJid,FServiceJid));
+	updateState(FGateways->servicePresence(FStreamJid,FServiceJid),FGateways->isServiceEnabled(FStreamJid,FServiceJid));
 }
 
 LegacyAccountOptions::~LegacyAccountOptions()
@@ -35,29 +36,80 @@ LegacyAccountOptions::~LegacyAccountOptions()
 
 }
 
-void LegacyAccountOptions::onEnableButtonClicked(bool)
+void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool AEnabled)
 {
-	if (FGateways->setServiceEnabled(FStreamJid,FServiceJid,true))
+		if (!AEnabled)
+		{
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
+			ui.lblInfo->setText(QString::null);
+			ui.lblInfo->setProperty("state",QString("disconnected"));
+		}
+		else if (APresenceItem.show == IPresence::Error)
+		{
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
+			ui.lblInfo->setText(tr("Failed to connect"));
+			ui.lblInfo->setProperty("state",QString("error"));
+		}
+		else if (APresenceItem.show == IPresence::Offline)
+		{
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_GATEWAYS_CONNECTING_ANIMATION, 0, 100, "pixmap");
+			//ui.lblInfo->setText(tr("Connecting..."));
+			ui.lblInfo->setText(QString::null);
+			ui.lblInfo->setProperty("state",QString("connected"));
+		}
+		else
+		{
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
+			ui.lblInfo->setText(tr("Connected"));
+			ui.lblInfo->setProperty("state",QString("connected"));
+		}
+		StyleStorage::updateStyle(this);
+		adjustSize();
+		emit updated();
+
+		ui.chbState->blockSignals(true);
+		if (AEnabled)
+		{
+			ui.chbState->setChecked(true);
+			ui.chbState->setEnabled(true);
+		}
+		else
+		{
+			ui.chbState->setChecked(false);
+			ui.chbState->setEnabled(true);
+		}
+		ui.chbState->blockSignals(false);
+}
+
+void LegacyAccountOptions::onStateCheckboxToggled(bool AChecked)
+{
+	if (FGateways->setServiceEnabled(FStreamJid,FServiceJid,AChecked))
 	{
-		ui.pbtEnable->setEnabled(false);
-		ui.pbtEnable->setText(tr("Enabling"));
+		if (AChecked)
+		{
+			ui.chbState->setEnabled(false);
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_GATEWAYS_CONNECTING_ANIMATION, 0, 100, "pixmap");
+			//ui.lblInfo->setText(tr("Connecting..."));
+			ui.lblInfo->setText(QString::null);
+			ui.lblInfo->setProperty("state",QString("connected"));
+		}
+		else
+		{
+			ui.chbState->setEnabled(false);
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_GATEWAYS_CONNECTING_ANIMATION, 0, 100, "pixmap");
+			//ui.lblInfo->setText(tr("Disconnecting..."));
+			ui.lblInfo->setText(QString::null);
+			ui.lblInfo->setProperty("state",QString("disconnected"));
+		}
+		StyleStorage::updateStyle(this);
+		adjustSize();
+		emit updated();
 	}
 }
 
-void LegacyAccountOptions::onDisableButtonClicked(bool)
+void LegacyAccountOptions::onChangeButtonClicked(bool)
 {
-
-	if (FGateways->setServiceEnabled(FStreamJid,FServiceJid,false))
-	{
-		ui.pbtDisable->setEnabled(false);
-		ui.pbtDisable->setText(tr("Disabling"));
-	}
-}
-
-void LegacyAccountOptions::onChangeLinkActivated(const QString &ALink)
-{
-	Q_UNUSED(ALink);
-	QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid,this);
+	QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid);
 	if (dialog)
 	{
 		connect(dialog,SIGNAL(accepted()),SLOT(onChangeDialogAccepted()));
@@ -71,12 +123,15 @@ void LegacyAccountOptions::onChangeDialogAccepted()
 
 void LegacyAccountOptions::onDeleteButtonClicked(bool)
 {
-	if (QMessageBox::question(this,tr("Account Deletion"),tr("Are you sure you want to delete <b>%1</b> account?").arg(ui.lblLogin->text()),
-		QMessageBox::Yes|QMessageBox::No,QMessageBox::No) == QMessageBox::Yes)
-	{
-		setEnabled(false);
-		FGateways->removeService(FStreamJid,FServiceJid);
-	}
+	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::None);
+	dialog->setCaptionText(tr("Account Deletion"));
+	dialog->setInfoText(tr("Are you sure you want to delete <b>%1</b> account?").arg(ui.lblLogin->text()));
+	dialog->setAcceptButtonText(tr("Delete"));
+	dialog->setRejectButtonText(tr("Cancel"));
+	dialog->setAcceptIsDefault(false);
+	dialog->setDeleteOnClose(true);
+	connect(dialog, SIGNAL(accepted()), SLOT(onDeleteDialogAccepted()));
+	dialog->show();
 }
 
 void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QString &ALogin)
@@ -86,43 +141,24 @@ void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QStr
 		if (!ALogin.isEmpty())
 			ui.lblLogin->setText(ALogin);
 		else
-			ui.lblLogin->setText(FGateLabel.valid ? FGateLabel.name : FServiceJid.full());
+			ui.lblLogin->setText(!FGateLabel.id.isEmpty() ? FGateLabel.name : FServiceJid.full());
 	}
 }
 
 void LegacyAccountOptions::onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
 {
 	if (AStreamJid==FStreamJid && AServiceJid==FServiceJid)
-	{
-		if (AEnabled)
-		{
-			ui.pbtEnable->setEnabled(false);
-			ui.pbtEnable->setText(tr("Enabled"));
-			ui.pbtDisable->setEnabled(true);
-			ui.pbtDisable->setText(tr("Disable"));
-		}
-		else
-		{
-			ui.pbtEnable->setEnabled(true);
-			ui.pbtEnable->setText(tr("Enable"));
-			ui.pbtDisable->setEnabled(false);
-			ui.pbtDisable->setText(tr("Disabled"));
-		}
-	}
+		updateState(FGateways->servicePresence(AStreamJid,AServiceJid),AEnabled);
 }
 
 void LegacyAccountOptions::onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem)
 {
 	if (AStreamJid==FStreamJid && AServiceJid==FServiceJid)
-	{
-		if (AItem.show == IPresence::Error)
-		{
-			ui.lblError->setText(AItem.status);
-			ui.lblError->setVisible(true);
-		}
-		else
-		{
-			ui.lblError->setVisible(false);
-		}
-	}
+		updateState(AItem,FGateways->isServiceEnabled(FStreamJid,FServiceJid));
+}
+
+void LegacyAccountOptions::onDeleteDialogAccepted()
+{
+	setEnabled(false);
+	FGateways->removeService(FStreamJid,FServiceJid, false);
 }

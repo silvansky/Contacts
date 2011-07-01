@@ -11,5 +11,6 @@
 #define RSR_STORAGE_STYLESHEETS             "stylesheets"
 #define RSR_STORAGE_CUSTOMBORDER            "customborder"
 #define RSR_STORAGE_GRAPHICSEFFECTS         "graphicseffects"
+#define RSR_STORAGE_FONTS                   "fonts"
 
 #endif

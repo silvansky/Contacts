@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<?include Product.wxs ?>
+	<Fragment>
+		<DirectoryRef Id="INSTALLLOCATION">
+			<Directory Id="DesktopFolder" Name="Desktop"></Directory>
+
+			<Directory Id="ProgramMenuFolder" Name="Programs">
+				<Directory Id="ProgramMenuDir" Name="$(var.product_name)"></Directory>
+			</Directory>
+		</DirectoryRef>
+		<ComponentGroup Id="VirtusBase">
+			<Component Id="ComponentVirtus" Directory="INSTALLLOCATION" Guid="{F9AFD0FA-16E2-49be-96E7-9A6D0A172B73}">
+				<File Id="VirtusBase" KeyPath="yes" Source="$(var.VirtusProjectRoot)\ramblercontacts.exe" DefaultLanguage="1033">
+					<Shortcut Id="startmenu" 
+						Directory="ProgramMenuDir" 
+						Name="$(var.product_name)" 
+						WorkingDirectory='INSTALLLOCATION' 
+						Icon="ramblercontacts.exe" IconIndex="0" Advertise="yes" />
+				</File>
+			</Component>
+			<Component Id="ComponentDesktopShortCut" Directory="INSTALLLOCATION" Guid="{b674163f-ce77-471c-918b-ced3a3055cba}">
+ 			    <Condition>0=1</Condition>
+				<File Id="VirtusBaseDesktop" KeyPath="yes" Source="$(var.VirtusProjectRoot)\ramblercontacts.exe" DefaultLanguage="1033">
+					<Shortcut Id="desktopshortcut" 
+						Directory="DesktopFolder" 
+						Name="$(var.product_name)" 
+						WorkingDirectory='INSTALLLOCATION' 
+						Icon="ramblercontacts.exe" IconIndex="0" Advertise="yes" />
+				</File>
+			</Component>
+			<Component Id="ComponentVirtusUtils" Directory="INSTALLLOCATION" Guid="{B76677C4-C4A6-4ca5-A841-F35B571DEF14}">
+				<File Id="VirtusUtils" KeyPath="yes" Source="$(var.VirtusProjectRoot)\ramblercontactsutils.dll"/>
+			</Component>
+			<Component Id="ProgramMenuDir" Directory="ProgramMenuDir" Guid="13261BA5-773B-4f49-B25F-3C2975ECBE83">
+				<RemoveFolder Id='ProgramMenuDir' On='uninstall' />		
+			</Component>
+		</ComponentGroup>
+		<Icon Id="ramblercontacts.exe" SourceFile="$(var.VirtusProjectRoot)\ramblercontacts.exe" />
+	</Fragment>
+</Wix>

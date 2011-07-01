@@ -12,8 +12,8 @@ class OptionsWidget :
 			public QWidget,
 			public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	OptionsWidget(INotifications *ANotifications, QWidget *AParent);
 	~OptionsWidget();
@@ -23,6 +23,7 @@ public slots:
 	virtual void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 private:

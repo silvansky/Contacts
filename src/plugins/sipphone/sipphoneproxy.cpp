@@ -16,6 +16,7 @@
 #include "callaudio.h"
 
 
+
 //#include "RCallWidget.h"
 
 #include "CrossDefine.h"
@@ -38,10 +39,11 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 
 	_pSipClient = NULL;
 	_pSipUser = NULL;
-	_audioForSettings = NULL;
+//	_audioForSettings = NULL;
 	_pSipAuthentication = NULL;
-	_pCallAudio = NULL;
+	//_pCallAudio = NULL;
 	_pWorkWidget = NULL;
+	_pWorkWidgetContainer = NULL;
 	_pSipRegister = NULL;
 	//atomId = 0;
 	_pSubscribeTimer = NULL;
@@ -64,6 +66,7 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 	//listenPort = settings.value( "/settings/General/ListenPort", 5060 ).toInt();
 	QString socketTypeStr = "UDP";
 	listenPort = gListenPort;
+
 
 	// Инициализируем SIP клиент (Терминал пользователя)
 	_pSipClient = new SipClient( 0, 0, listenPort, looseRoute, strictRoute, socketTypeStr );
@@ -155,7 +158,7 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 	//}
 
 	// Объект CallAudio создается для изменения настроек Audio (что-то тут не чисто... не правильно как-то)
-	_audioForSettings = new CallAudio();
+	//_audioForSettings = new CallAudio();
 
 	if( uriStr != QString::null )
 	{
@@ -200,6 +203,7 @@ SipPhoneProxy::SipPhoneProxy(QString localAddress, const QString& sipURI, const 
 
 }
 
+
 SipPhoneProxy::~SipPhoneProxy()
 {
 
@@ -210,7 +214,6 @@ SipPhoneProxy::~SipPhoneProxy()
 bool SipPhoneProxy::initRegistrationData( void )
 {
 	//QSettings settings;
-
 
 	SipRegistrationData regData;
 	//{
@@ -245,8 +248,11 @@ bool SipPhoneProxy::initRegistrationData( void )
 	}
 
 	//pp = "/settings/Registration/";
-	//regData.sipUserUri = _pSipUser->getUri().getRegisterUri();//  settings.value( pp + "/SipUri" ).toString();
-	regData.sipUserUri = _pSipUser->getUri().nameAddr_noTag();
+	////regData.sipUserUri = _pSipUser->getUri().getRegisterUri();//  settings.value( pp + "/SipUri" ).toString();
+
+	SipUri uri = _pSipUser->getUri();
+	regData.sipUserUri = uri.nameAddr_noTag();
+	//regData.sipUserUri = _pSipUser->getUri().nameAddr_noTag();
 
 	//SipUri userURI = _pSipUser->getUri();
 	//QString res;
@@ -286,7 +292,11 @@ bool SipPhoneProxy::initRegistrationData( void )
 	//{
 	//	regData.sipServerUri = settings.value( pp + "/SipServer" ).toString();
 	//}
-	regData.sipServerUri = "81.19.69.224";
+	//regData.sipServerUri = "81.19.69.224";
+	//regData.sipServerUri = "81.19.70.71";//"81.19.70.76";
+	regData.sipServerUri = "81.19.70.76";
+	//regData.sipServerUri = "81.19.80.213";
+
 	regData.qValue = "";// settings.value( pp + "/qValue", "" ).toString();
 	//regData.userName = settings.value( pp + "/UserName" ).toString();
 	//regData.password = settings.value( pp + "/Password" ).toString();
@@ -298,10 +308,10 @@ bool SipPhoneProxy::initRegistrationData( void )
 	//connect(this, SIGNAL(proxyTrueRegistrationStatus(bool)), this, SLOT(registrationStatus(bool)));
 
 	registrations = new RSipRegistrations(regData, _pSipClient, this);
-	
+
 	if(registrations == NULL)
 		return false;
-	
+
 	connect(registrations, SIGNAL(proxyTrueRegistrationStatus(bool)), this, SLOT(registrationStatus(bool)));
 	//connect(registrations, SIGNAL(proxyTrueRegistrationStatus(bool)), this, SLOT(trueRegistrationStatusSlot(bool)));
 
@@ -413,7 +423,7 @@ void SipPhoneProxy::incomingSubscribe( SipCallMember *member, bool sendSubscribe
 	if( !find && !remove_subscribe)
 	{
 		QString uristr = member->getUri().reqUri();
-		QMessageBox mb( tr("Virtus"),
+		QMessageBox mb( tr("Contacts"),
 			tr("Subscribe message from uri:") + "\n" + uristr + "\n\n" +
 			tr("Do you want to accept and create a contact ?"),
 			QMessageBox::Information,
@@ -632,13 +642,32 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	subject.sprintf( _pSipUser->getUri().uri().toLocal8Bit() );
 	newcall->setSubject( subject );
 
-	_pCallAudio = new CallAudio( this );
-	_pCallAudio->readAudioSettings();
-	_pCallAudio->readVideoSettings();
+	// Объект помещается в SipPhoneWidget и последней ответственен за его удаление
+	CallAudio* pCallAudio = new CallAudio( );
+	connect(pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
 
-	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, _pCallAudio, newcall, this );
+	connect(pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
+	connect(pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
+
+
+	emit camPresentChanged(pCallAudio->videoControl()->checkCameraPresent());
+
+
+	pCallAudio->readAudioSettings();
+	pCallAudio->readVideoSettings();
+	// Реакция на изменение состояния камеры
+	connect(this, SIGNAL(proxyStartCamera()), pCallAudio, SIGNAL(proxyStartCamera()));
+	connect(this, SIGNAL(proxyStopCamera()), pCallAudio, SIGNAL(proxyStopCamera()));
+	connect(this, SIGNAL(proxySuspendStateChange(bool)), pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
+	connect(this, SIGNAL(proxyCamResolutionChange(bool)), pCallAudio, SLOT(outputVideoResolutonChangedToHigh(bool)));
+
+
+	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, pCallAudio, newcall, this );
+	widget->setWindowTitle(tr("Videocall with: ") + subject);
 	connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
-	
+	connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
+	connect(widget, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
+
 	if(_pWorkWidget != NULL)
 	{
 		delete _pWorkWidget;
@@ -652,10 +681,73 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	{
 		widget->clickDial();
 	}
+
+
+	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(widget, CBS_VIDEOCALL);
+	border->setMinimizeButtonVisible(false);
+	border->setMaximizeButtonVisible(false);
+	border->setCloseButtonVisible(false);
+	border->setMovable(true);
+	border->setResizable(true);
+	border->resize(621, 480);
+	border->installEventFilter(this);
+
+	if(_pWorkWidgetContainer != NULL)
+	{
+		delete _pWorkWidgetContainer;
+		_pWorkWidgetContainer = NULL;
+	}
+	_pWorkWidgetContainer = border;
+
+
 	//connect( widget, SIGNAL( redirectCall( const SipUri &, const QString & ) ), this, SLOT( redirectCall( const SipUri &, const QString & ) ) );
-	widget->show();
+
+	//widget->show();
+	border->show(); //!!!!!!!!!!!!!!!!!!!!
 
 	return widget;
+}
+
+bool SipPhoneProxy::eventFilter( QObject *obj, QEvent *evt )
+{
+	if(_pWorkWidgetContainer != NULL)
+	{
+		if(obj == _pWorkWidgetContainer)
+		{
+			if (evt->type() == QEvent::KeyPress)
+			{
+				QKeyEvent *keyEvent = static_cast<QKeyEvent*>(evt);
+				if(keyEvent->key() == Qt::Key_Escape)
+				{
+					QApplication::sendEvent(_pWorkWidgetContainer->widget(), keyEvent);
+				}
+			}
+
+			if (evt->type() == QEvent::MouseMove)
+			{
+				QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(evt);
+				QApplication::sendEvent(_pWorkWidgetContainer->widget(), mouseEvent);
+			}
+		}
+	}
+
+
+	return QObject::eventFilter( obj, evt );
+}
+
+void SipPhoneProxy::onFullScreenState(bool state)
+{
+	if(state)
+	{
+		//_pWorkWidgetContainer->maximizeWidget();
+		_pWorkWidgetContainer->showFullScreen();
+	}
+	else
+	{
+		//if(_pWorkWidgetContainer->isFullScreen())
+		_pWorkWidgetContainer->showNormal();
+		_pWorkWidgetContainer->restoreWidget();
+	}
 }
 
 void SipPhoneProxy::makeNewCall( const QString& uri )
@@ -677,22 +769,62 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 	{
 		call->setSdpMessageMask( body );
 		call->setSubject( tr("Incoming call") );
-		_pCallAudio = new CallAudio( this );
-		_pCallAudio->readAudioSettings();
-		_pCallAudio->readVideoSettings();
-		SipPhoneWidget *widget = new SipPhoneWidget( 0, _pCallAudio, call, this );
+
+		// Объект помещается в SipPhoneWidget и последней ответственен за его удаление
+		CallAudio* pCallAudio = new CallAudio( );
+		connect(pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
+
+		connect(pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
+		connect(pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
+
+		emit camPresentChanged(pCallAudio->videoControl()->checkCameraPresent());
+
+		pCallAudio->readAudioSettings();
+		pCallAudio->readVideoSettings();
+		// Реакция на изменение состояния камеры
+		connect(this, SIGNAL(proxyStartCamera()), pCallAudio, SIGNAL(proxyStartCamera()));
+		connect(this, SIGNAL(proxyStopCamera()), pCallAudio, SIGNAL(proxyStopCamera()));
+		connect(this, SIGNAL(proxySuspendStateChange(bool)), pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
+		connect(this, SIGNAL(proxyCamResolutionChange(bool)), pCallAudio, SLOT(outputVideoResolutonChangedToHigh(bool)));
+
+		SipPhoneWidget *widget = new SipPhoneWidget(0, pCallAudio, call, this );
+		widget->setWindowTitle(tr("Videocall with: ") + call->getSubject());
+
 		connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
+		connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
+		connect(widget, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
 		//cwList.append( widget );
-		
+
 		if(_pWorkWidget != NULL)
 		{
 			delete _pWorkWidget;
 			_pWorkWidget = NULL;
 		}
-		
+
 		_pWorkWidget = widget;
 		connect( widget, SIGNAL( redirectCall( const SipUri &, const QString & ) ), this, SLOT( redirectCall( const SipUri &, const QString & ) ) );
-		widget->show();
+
+
+		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(widget, CBS_VIDEOCALL);
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+		border->setMovable(true);
+		border->setResizable(true);
+		border->resize(621, 480);
+		border->installEventFilter(this);
+
+		if(_pWorkWidgetContainer != NULL)
+		{
+			delete _pWorkWidgetContainer;
+			_pWorkWidgetContainer = NULL;
+		}
+		_pWorkWidgetContainer = border;
+
+
+
+		//widget->show();
+		_pWorkWidgetContainer->show();
 		widget->clickDial();
 	}
 }
@@ -717,12 +849,31 @@ void SipPhoneProxy::contactCall()
 	//////////widget->show();
 }
 
+void SipPhoneProxy::onHangupCall()
+{
+	//if(_pWorkWidgetContainer)
+	//{
+	//	_pWorkWidgetContainer->releaseWidget();
+	//	delete _pWorkWidgetContainer;
+	//	_pWorkWidgetContainer = NULL;
+	//}
+
+	//_pWorkWidget->hide();
+	_pWorkWidgetContainer->setHidden(true);
+}
+
 void SipPhoneProxy::hideCallWidget( SipCall *call )
 {
-	if(_pWorkWidget->getCall() == call)
+	SipPhoneWidget *spWidget = static_cast<SipPhoneWidget*>(_pWorkWidgetContainer->widget());
+	if(spWidget && spWidget->getCall() == call)
 	{
-		_pWorkWidget->setHidden(true);
+		_pWorkWidgetContainer->setHidden(true);
 	}
+
+	//////////////if(_pWorkWidget->getCall() == call)
+	//////////////{
+	//////////////	_pWorkWidget->setHidden(true);
+	//////////////}
 }
 
 void SipPhoneProxy::stateUpdated( int id )
@@ -775,8 +926,17 @@ void SipPhoneProxy::sendNotify( int id, SipCallMember *member )
 
 void SipPhoneProxy::kphoneQuit( void )
 {
-	if(_pWorkWidget != NULL && !_pWorkWidget->isHidden())
-		_pWorkWidget->clickHangup();
+	if(_pWorkWidgetContainer != NULL && !_pWorkWidgetContainer->isHidden())
+	{
+		SipPhoneWidget *spWidget = static_cast<SipPhoneWidget*>(_pWorkWidgetContainer->widget());
+		if(spWidget)
+		{
+			spWidget->clickHangup();
+		}
+	}
+
+	//////////////if(_pWorkWidget != NULL && !_pWorkWidget->isHidden())
+	//////////////	_pWorkWidget->clickHangup();
 
 	registrations->unregAllRegistration();
 
@@ -791,10 +951,6 @@ void SipPhoneProxy::kphoneQuit( void )
 //	ce->ignore();
 //	kphoneQuit();
 //}
-
-
-
-
 
 
 
@@ -826,4 +982,23 @@ void SipPhoneProxy::makeInviteProxySlot(const Jid &AClientSIP)
 void SipPhoneProxy::makeByeProxySlot(const Jid &AClientSIP)
 {
 
+}
+
+void SipPhoneProxy::hangupCall()
+{
+	if(_pWorkWidgetContainer)
+	{
+		SipPhoneWidget *spWidget = static_cast<SipPhoneWidget*>(_pWorkWidgetContainer->widget());
+		if(spWidget)
+		{
+			spWidget->clickHangup();
+		}
+	}
+
+
+	////////////QMessageBox::information(NULL, "SipPhoneProxy::hangupCall()", "");
+	//////////if(_pWorkWidget)
+	//////////{
+	//////////	_pWorkWidget->clickHangup();
+	//////////}
 }

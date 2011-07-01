@@ -2,6 +2,7 @@
 
 #include <QTextDocument>
 #include <utils/custombordercontainer.h>
+#include <utils/log.h>
 
 AddLegacyContactDialog::AddLegacyContactDialog(IGateways *AGateways, IRosterChanger *ARosterChanger, const Jid &AStreamJid,
     const Jid &AServiceJid, QWidget *AParent) : QDialog(AParent)
@@ -117,6 +118,7 @@ void AddLegacyContactDialog::onErrorReceived(const QString &AId, const QString &
 {
 	if (FRequestId == AId)
 	{
+		Log(QString("[Add legacy contact error] %1").arg(AError));
 		resetDialog();
 		ui.lblDescription->setText(tr("Requested operation failed: %1").arg(Qt::escape(AError)));
 		ui.dbbButtons->setStandardButtons(QDialogButtonBox::Retry|QDialogButtonBox::Cancel);

@@ -16,7 +16,7 @@ void StartTLSPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to establish a secure connection to the server after connecting");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 	APluginInfo->dependences.append(DEFAULTCONNECTION_UUID);
 }

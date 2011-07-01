@@ -8,18 +8,6 @@
         <translation>Стили сообщений</translation>
     </message>
     <message>
-        <source>d MMM yyyy hh:mm</source>
-        <translation>d MMM yyyy hh:mm</translation>
-    </message>
-    <message>
-        <source>d MMM hh:mm</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>hh:mm:ss</source>
-        <translation>hh:mm:ss</translation>
-    </message>
-    <message>
         <source>Styles options for custom messages</source>
         <translation>Настройки стилей сообщений</translation>
     </message>
@@ -30,6 +18,10 @@
     <message>
         <source>Allows to use different styles to display messages</source>
         <translation>Позволяет использовать различные стили для отображения сообщений</translation>
+    </message>
+    <message>
+        <source>hh:mm</source>
+        <translation>hh:mm</translation>
     </message>
 </context>
 <context>
@@ -64,11 +56,11 @@
     </message>
     <message>
         <source>Incoming history message</source>
-        <translation>Входящее старое сообщение</translation>
+        <translation>История входящих сообщений</translation>
     </message>
     <message>
         <source>Incoming history consecutive message</source>
-        <translation>Входящее старое последовательное сообщение</translation>
+        <translation>Входящая история последовательных сообщений</translation>
     </message>
     <message>
         <source>Incoming status message</source>
@@ -76,7 +68,7 @@
     </message>
     <message>
         <source>Outgoing history message</source>
-        <translation>Исходящее старое сообщение</translation>
+        <translation>История исходящих сообщений</translation>
     </message>
     <message>
         <source>Outgoing status message</source>
@@ -108,7 +100,7 @@
     </message>
     <message>
         <source>Outgoing consecutive message</source>
-        <translation>Исходящее последовательное сообщение</translation>
+        <translation>Исходящая история последовательных сообщений</translation>
     </message>
     <message>
         <source>Receiver</source>

@@ -13,30 +13,30 @@
     </message>
     <message>
         <source>Stream Compression</source>
-        <translation>Сжатие XMPP потока</translation>
+        <translation>Сжатие XMPP-потока</translation>
     </message>
     <message>
         <source>Allows to compress a stream of messages sent and received from the server</source>
-        <translation>Позволяет сжимать поток сообщений отправляемый и получаемый от сервера</translation>
+        <translation>Позволяет сжимать поток сообщений, отправляемый и получаемый от сервера</translation>
     </message>
 </context>
 <context>
     <name>Compression</name>
     <message>
         <source>Invalid compression level</source>
-        <translation>Неправильный уровень сжатия</translation>
+        <translation>Неверный уровень сжатия</translation>
     </message>
     <message>
         <source>invalid or incomplete deflate data</source>
-        <translation>неправильные или неполные данные для сжатия</translation>
+        <translation>Неправильные или неполные данные для сжатия</translation>
     </message>
     <message>
         <source>Out of memory for Zlib</source>
-        <translation>Нехватает памяти для Zlib</translation>
+        <translation>Не хватает памяти для Zlib</translation>
     </message>
     <message>
         <source>Zlib version mismatch!</source>
-        <translation>Неверная версия Zlib!</translation>
+        <translation>Некорректная версия Zlib!</translation>
     </message>
     <message>
         <source>Wrong compression negotiation response</source>

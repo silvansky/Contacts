@@ -3,6 +3,9 @@
 #include <QCursor>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <utils/graphicseffectsstorage.h>
+#include <definitions/resources.h>
+#include <definitions/graphicseffects.h>
 
 #define ADR_TAB_INDEX               Action::DR_Parametr1
 #define ADR_CLOSE_OTHER             Action::DR_Parametr2
@@ -16,6 +19,7 @@ TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 	setMinimumSize(500, 400);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_TABWINDOW);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
 	FWindowId = AWindowId;
 	FMessageWidgets = AMessageWidgets;
@@ -260,8 +264,16 @@ void TabWindow::updateWindow()
 	QWidget *widget = ui.twtTabs->currentWidget();
 	if (widget)
 	{
-		setWindowIcon(widget->windowIcon());
-		setWindowTitle(widget->windowTitle());
+		if (qobject_cast<CustomBorderContainer *>(parentWidget())!=NULL)
+		{
+			parentWidget()->setWindowIcon(widget->windowIcon());
+			parentWidget()->setWindowTitle(widget->windowTitle());
+		}
+		else
+		{
+			setWindowIcon(widget->windowIcon());
+			setWindowTitle(widget->windowTitle());
+		}
 		ui.lblStatusIcon->setPixmap(widget->windowIcon().pixmap(16, 16));
 		ui.lblCaption->setText(widget->windowTitle());
 		emit windowChanged();

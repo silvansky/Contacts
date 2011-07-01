@@ -12,11 +12,18 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <property name="margin">
      <number>0</number>
     </property>
     <item>
-     <layout class="QVBoxLayout" name="vlExtControls"/>
+     <layout class="QVBoxLayout" name="vlExtControls">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+     </layout>
     </item>
     <item>
      <widget class="QStackedWidget" name="stwWidgets"/>
@@ -24,6 +31,12 @@
    </layout>
   </widget>
   <widget class="QToolBar" name="tlbToolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="movable">
     <bool>false</bool>
    </property>

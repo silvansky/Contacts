@@ -4,8 +4,8 @@
 #include <QTimer>
 #include <QCoreApplication>
 
-#define DEFAULT_STYLE     "GoneDark"
-#define DEFAULT_VARIANT   "Rambler"
+#define DEFAULT_STYLE     "Default"
+#define DEFAULT_VARIANT   "Default"
 
 AdiumMessageStylePlugin::AdiumMessageStylePlugin()
 {
@@ -23,7 +23,7 @@ void AdiumMessageStylePlugin::pluginInfo( IPluginInfo *APluginInfo )
 	APluginInfo->description = tr("Allows to use a Adium style in message design");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool AdiumMessageStylePlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)

@@ -5,32 +5,42 @@
 #include <QObjectCleanupHandler>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/soundfiles.h>
 #include <definitions/actiongroups.h>
-#include <definitions/metaitempageorders.h>
+#include <definitions/metaitemorders.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <definitions/rosterproxyorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterclickhookerorders.h>
 #include <definitions/rosterdragdropmimetypes.h>
 #include <definitions/toolbargroups.h>
+#include <definitions/customborder.h>
+#include <definitions/notificators.h>
+#include <definitions/optionwidgetorders.h>
+#include <definitions/notificationdataroles.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/irosterchanger.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/irostersearch.h>
 #include <interfaces/igateways.h>
+#include <interfaces/inotifications.h>
 #include <interfaces/ivcard.h>
 #include <utils/widgetmanager.h>
+#include <utils/customborderstorage.h>
 #include "metaroster.h"
 #include "metaproxymodel.h"
 #include "metatabwindow.h"
 #include "mergecontactsdialog.h"
 #include "metacontextmenu.h"
+#include "metaprofiledialog.h"
 
 struct TabPageInfo
 {
 	Jid streamJid;
-	Jid metaId;
+	QString metaId;
 	ITabPage *page;
 };
 
@@ -51,11 +61,12 @@ class MetaContacts :
 	public IMetaContacts,
 	public ITabPageHandler,
 	public IRostersClickHooker,
+	public IRostersKeyPressHooker,
 	public IRostersDragDropHandler,
 	public IViewDropHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersDragDropHandler IViewDropHandler)
+	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersKeyPressHooker IRostersDragDropHandler IViewDropHandler)
 public:
 	MetaContacts();
 	~MetaContacts();
@@ -74,6 +85,9 @@ public:
 	virtual Action *tabPageAction(const QString &ATabPageId, QObject *AParent);
 	//IRostersClickHooker
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
+	//IRostersKeyPressHooker
+	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
+	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 	//IRostersDragDropHandler
 	virtual Qt::DropActions rosterDragStart(const QMouseEvent *AEvent, const QModelIndex &AIndex, QDrag *ADrag);
 	virtual bool rosterDragEnter(const QDragEnterEvent *AEvent);
@@ -86,22 +100,27 @@ public:
 	virtual void viewDragLeave(IViewWidget *AWidget, const QDragLeaveEvent *AEvent);
 	virtual bool viewDropAction(IViewWidget *AWidget, const QDropEvent *AEvent, Menu *AMenu);
 	//IMetaContacts
+	virtual QList<IMetaItemDescriptor> metaDescriptors() const;
+	virtual IMetaItemDescriptor metaDescriptorByOrder(int APageOrder) const;
+	virtual IMetaItemDescriptor metaDescriptorByItem(const Jid &AItemJid) const;
 	virtual QString itemHint(const Jid &AItemJid) const;
-	virtual IMetaItemDescriptor itemDescriptor(const Jid &AItemJid) const;
-	virtual QMultiMap<int, Jid> itemOrders(const QList<Jid> &AItems) const;
+	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const;
 	virtual QString metaContactName(const IMetaContact &AContact) const;
 	virtual IMetaRoster *newMetaRoster(IRoster *ARoster);
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const;
 	virtual void removeMetaRoster(IRoster *ARoster);
 	virtual QString metaRosterFileName(const Jid &AStreamJid) const;
 	virtual QList<IMetaTabWindow *> metaTabWindows() const;
-	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId);
-	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const Jid &AMetaId) const;
+	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId);
+	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const;
+	virtual QString deleteContactWithNotify(IMetaRoster *ARoster, const QString &AMetaId, const Jid &ItemJid = Jid::null);
+	virtual QDialog *showMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId);
+	virtual QDialog *showRenameContactDialog(const Jid &AStreamJid, const QString &AMetaId);
 signals:
 	void metaRosterAdded(IMetaRoster *AMetaRoster);
 	void metaRosterOpened(IMetaRoster *AMetaRoster);
-	void metaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
-	void metaPresenceChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId);
+	void metaAvatarChanged(IMetaRoster *AMetaRoster, const QString &AMetaId);
+	void metaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId);
 	void metaContactReceived(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
 	void metaActionResult(IMetaRoster *AMetaRoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void metaRosterClosed(IMetaRoster *AMetaRoster);
@@ -118,10 +137,17 @@ protected:
 	void initMetaItemDescriptors();
 	void deleteMetaRosterWindows(IMetaRoster *AMetaRoster);
 	IMetaRoster *findBareMetaRoster(const Jid &AStreamJid) const;
+	MetaProfileDialog *findMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId) const;
+	void hideMetaContact(IMetaRoster *AMetaRoster, const QString &AMetaId);
+	void unhideMetaContact(IMetaRoster *AMetaRoster, const QString &AMetaId);
+	void notifyContactDeleteFailed(IMetaRoster *ARoster, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
+	void updateContactChatWindows(IMetaRoster *AMetaRoster, const IMetaContact &AContact, const IMetaContact &ABefore);
+protected:
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onMetaRosterOpened();
-	void onMetaAvatarChanged(const Jid &AMetaId);
-	void onMetaPresenceChanged(const Jid &AMetaId);
+	void onMetaAvatarChanged(const QString &AMetaId);
+	void onMetaPresenceChanged(const QString &AMetaId);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 	void onMetaRosterClosed();
@@ -133,48 +159,70 @@ protected slots:
 	void onRosterRemoved(IRoster *ARoster);
 protected slots:
 	void onMetaTabWindowActivated();
-	void onMetaTabWindowItemPageRequested(const Jid &AItemJid);
+	void onMetaTabWindowPageWidgetRequested(const QString &APageId);
+	void omMetaTabWindowPageContextMenuRequested(const QString &APageId, Menu *AMenu);
 	void onMetaTabWindowDestroyed();
 protected slots:
 	void onRenameContact(bool);
+	void onNewNameSelected(const QString & newName);
 	void onDeleteContact(bool);
+	void onDeleteContactDialogAccepted();
 	void onMergeContacts(bool);
 	void onCopyToGroup(bool);
 	void onMoveToGroup(bool);
 	void onRemoveFromGroup(bool);
 	void onDetachContactItems(bool);
 	void onChangeContactGroups(bool AChecked);
+	void onNewGroupNameSelected(const QString & group);
+protected slots:
+	void onContactSubscription(bool);
+	void onContactItemSubscription(bool);
 protected slots:
 	void onLoadMetaRosters();
 	void onOpenTabPageAction(bool);
 	void onSendContactDataAction(bool);
 	void onShowMetaTabWindowAction(bool);
-	void onShowVCardDialogAction(bool);
+	void onShowMetaProfileDialogAction(bool);
+	void onMetaProfileDialogDestroyed();
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onRosterAcceptMultiSelection(QList<IRosterIndex *> ASelected, bool &AAccepted);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
+	void onNotificationActivated(int ANotifyId);
+	void onNotificationRemoved(int ANotifyId);
 	void onOptionsOpened();
 	void onOptionsClosed();
+protected slots:
+	void onAvatalLabelDestroyed(QObject *);
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
+	IRosterChanger *FRosterChanger;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 	IStatusIcons *FStatusIcons;
 	IRosterSearch *FRosterSearch;
 	IGateways *FGateways;
+	INotifications *FNotifications;
 	IVCardPlugin *FVCardPlugin;
 private:
 	QList<IMetaRoster *> FLoadQueue;
 	QList<IMetaRoster *> FMetaRosters;
 	QObjectCleanupHandler FCleanupHandler;
 private:
+	MetaProxyModel *FMetaProxyModel;
 	QHash<QString, TabPageInfo> FTabPages;
 	QList<IMetaTabWindow *> FMetaTabWindows;
 	IMetaItemDescriptor FDefaultItemDescriptor;
+	QList<MetaProfileDialog *> FMetaProfileDialogs;
 	QList<IMetaItemDescriptor> FMetaItemDescriptors;
+private:
+	QList<int> FFailDeleteNotifies;
+	QMap<IMetaRoster *, QMap<QString, QString> > FDeleteActions;
+	QMap<QLabel*, MetaContextMenu*> FAvatarMenus;
+private:
+	mutable QHash<Jid, int> FItemDescrCache;
 };
 
 #endif // METACONTACTS_H

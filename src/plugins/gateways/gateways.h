@@ -13,10 +13,14 @@
 #include <definitions/discoitemdataroles.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/soundfiles.h>
 #include <definitions/optionnodes.h>
 #include <definitions/optionvalues.h>
 #include <definitions/optionnodeorders.h>
 #include <definitions/optionwidgetorders.h>
+#include <definitions/gateserviceidentifiers.h>
+#include <definitions/notificators.h>
+#include <definitions/notificationdataroles.h>
 #include <definitions/internalnoticepriorities.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/igateways.h>
@@ -33,6 +37,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/idataforms.h>
 #include <interfaces/imainwindow.h>
+#include <interfaces/inotifications.h>
 #include <utils/errorhandler.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
@@ -40,19 +45,20 @@
 #include "addlegacyaccountdialog.h"
 #include "addlegacycontactdialog.h"
 #include "addlegacyaccountoptions.h"
+#include "addfacebookaccountdialog.h"
 #include "managelegacyaccountsoptions.h"
 #include "legacyaccountfilter.h"
 
 class Gateways :
-			public QObject,
-			public IPlugin,
-			public IGateways,
-			public IOptionsHolder,
-			public IStanzaRequestOwner,
-			public IDiscoFeatureHandler
+	public QObject,
+	public IPlugin,
+	public IGateways,
+	public IOptionsHolder,
+	public IStanzaRequestOwner,
+	public IDiscoFeatureHandler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IGateways IOptionsHolder IStanzaRequestOwner IDiscoFeatureHandler);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IGateways IOptionsHolder IStanzaRequestOwner IDiscoFeatureHandler)
 public:
 	Gateways();
 	~Gateways();
@@ -77,12 +83,17 @@ public:
 	virtual void sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bool ALogIn);
 	virtual QList<Jid> keepConnections(const Jid &AStreamJid) const;
 	virtual void setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
-	virtual QList<QString> availDescriptors() const;
-	virtual IGateServiceDescriptor descriptorByName(const QString &AServiceName) const;
-	virtual IGateServiceDescriptor descriptorByContact(const QString &AContact) const;
-	virtual QList<IGateServiceDescriptor> descriptorsByContact(const QString &AContact) const;
+	virtual QList<IGateServiceDescriptor> gateDescriptors() const;
+	virtual IGateServiceDescriptor gateDescriptorById(const QString &ADescriptorId) const;
+	virtual QList<IGateServiceDescriptor> gateHomeDescriptorsByContact(const QString &AContact) const;
+	virtual QList<IGateServiceDescriptor> gateAvailDescriptorsByContact(const QString &AContact) const;
+	virtual int gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const;
+	virtual QString formattedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const;
+	virtual QString normalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact, bool AComplete = false) const;
+	virtual QString checkNormalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
+	virtual QList<Jid> gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly = false) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IGateServiceDescriptor serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const;
@@ -91,7 +102,7 @@ public:
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual bool setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe);
-	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid);
+	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts);
 	virtual QString legacyIdFromUserJid(const Jid &AUserJid) const;
 	virtual QString sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
@@ -109,8 +120,11 @@ signals:
 	void errorReceived(const QString &AId, const QString &AError);
 protected:
 	void registerDiscoFeatures();
+	void startAutoLogin(const Jid &AStreamJid);
 	void savePrivateStorageSubscribe(const Jid &AStreamJid);
 	IGateServiceDescriptor findGateDescriptor(const IDiscoInfo &AInfo) const;
+	void insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid, const QString &ALogin);
+	void removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid);
 protected slots:
 	void onAddLegacyUserActionTriggered(bool);
 	void onLogActionTriggered(bool);
@@ -132,15 +146,19 @@ protected slots:
 	void onKeepTimerTimeout();
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
-	void onDiscoInfoReceived(const IDiscoInfo &AInfo);
+	void onDiscoInfoChanged(const IDiscoInfo &AInfo);
 	void onDiscoItemsReceived(const IDiscoItems &AItems);
 	void onDiscoItemsWindowCreated(IDiscoItemsWindow *AWindow);
 	void onDiscoItemContextMenu(const QModelIndex AIndex, Menu *AMenu);
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
+	void onRegisterSuccess(const QString &AId);
 	void onRegisterError(const QString &AId, const QString &AError);
 	void onInternalNoticeReady();
-	void onInternalNoticeActionTriggered();
+	void onInternalAccountNoticeActionTriggered();
+	void onInternalConflictNoticeActionTriggered();
 	void onInternalNoticeRemoved(int ANoticeId);
+	void onNotificationActivated(int ANotifyId);
+	void onNotificationRemoved(int ANotifyId);
 private:
 	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;
@@ -157,6 +175,7 @@ private:
 	IOptionsManager *FOptionsManager;
 	IDataForms *FDataForms;
 	IMainWindowPlugin *FMainWindowPlugin;
+	INotifications *FNotifications;
 private:
 	QTimer FKeepTimer;
 	QMap<Jid, QSet<Jid> > FKeepConnections;
@@ -167,11 +186,17 @@ private:
 	QMultiMap<Jid, Jid> FSubscribeServices;
 	QMap<QString, Jid> FLoginRequests;
 	QMap<QString, Jid> FShowRegisterRequests;
+	QMap<QString, QPair<Jid,Jid> > FAutoLoginRequests;
 private:
 	int FInternalNoticeId;
 	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
+	QMultiMap<Jid, Jid> FStreamAutoRegServices;
 	QList<IGateServiceDescriptor> FGateDescriptors;
+private:
+	QMap<int, Jid> FConflictNotifies;
+	QMap<QString, Jid> FConflictLoginRequests;
+	QMap<Jid, QMap<Jid, int> > FConflictNotices;
 };
 
 #endif // GATEWAYS_H

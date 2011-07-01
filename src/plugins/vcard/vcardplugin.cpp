@@ -45,7 +45,7 @@ void VCardPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to obtain personal contact information");
 	APluginInfo->author = "Potapov S.A. aka Lion";
 	APluginInfo->version = "1.0";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(BITSOFBINARY_UUID);
 }
 
@@ -118,6 +118,12 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 	if (plugin)
 	{
 		FStatusIcons = qobject_cast<IStatusIcons*>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
+	if (plugin)
+	{
+		FStatusChanger = qobject_cast<IStatusChanger*>(plugin->instance());
 	}
 
 	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
@@ -377,7 +383,10 @@ void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AConta
 		}
 		else if (AStreamJid.isValid() && AContactJid.isValid())
 		{
-			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons, FRosterPlugin, FPresencePlugin, FRosterChanger, AStreamJid, AContactJid);
+			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons,
+									  FStatusChanger, FRosterPlugin,
+									  FPresencePlugin, FRosterChanger,
+									  AStreamJid, AContactJid);
 			StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(dialog, STS_VCARDSIMPLEVCARDDIALOG);
 			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 			if (border)
@@ -464,7 +473,7 @@ void VCardPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIn
 			action->setText(tr("Contact info"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
 			action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-			action->setData(ADR_CONTACT_JID,Jid(AIndex->data(RDR_JID).toString()).bare());
+			action->setData(ADR_CONTACT_JID,Jid(AIndex->data(RDR_FULL_JID).toString()).bare());
 			AMenu->addAction(action,AG_RVCM_VCARD,true);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogByAction(bool)));
 		}

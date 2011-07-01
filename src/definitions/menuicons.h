@@ -5,6 +5,7 @@
 #define MNI_ACCOUNT                              "account"
 #define MNI_ACCOUNT_LIST                         "accountList"
 #define MNI_ACCOUNT_CHANGE                       "accountChange"
+#define MNI_ACCOUNT_OPTIONS                      "accountsOptions"
 
 //Annotations
 #define MNI_ANNOTATIONS                          "annotations"
@@ -54,8 +55,12 @@
 //Commands
 #define MNI_COMMANDS                             "commands"
 
+//Common
+#define MNI_MENUSEPARATOR                        "menuSeparator"
+
 //ConnectionManager
 #define MNI_CONNECTION                           "connection"
+#define MNI_CONNECTION_OPTIONS                   "connectionOptions"
 #define MNI_CONNECTION_ENCRYPTED                 "connectionEncrypted"
 
 //Console
@@ -64,6 +69,7 @@
 //ChatMessageHandler
 #define MNI_CHAT_MHANDLER_MESSAGE                "chatmessagehandlerMessage"
 #define MNI_CHAT_MHANDLER_USER_MENU              "chatmessagehandlerUserMenu"
+#define MNI_CHAT_MHANDLER_OPTIONS                "chatmessagehandlerOptions"
 
 //DataStreamsManager
 #define MNI_DATASTREAMSMANAGER                   "dataStreamsManager"
@@ -104,6 +110,8 @@
 #define MNI_GATEWAYS_SERVICE_TWITTER             "gatewaysServiceTwitter"
 #define MNI_GATEWAYS_SERVICE_LIVEJOURNAL         "gatewaysServiceLiveJournal"
 #define MNI_GATEWAYS_SERVICE_JABBER              "gatewaysServiceJabber"
+#define MNI_GATEWAYS_ADD_ACCOUNT_ERROR           "gatewaysAddAccountError"
+#define MNI_GATEWAYS_CONNECTING_ANIMATION        "gatewaysConnectingAnimation"
 
 //JabberSearch
 #define MNI_JSEARCH                              "jsearch"
@@ -116,6 +124,7 @@
 #define MNI_MAINWINDOW_LOGO64                    "mainwindowLogo64"
 #define MNI_MAINWINDOW_LOGO96                    "mainwindowLogo96"
 #define MNI_MAINWINDOW_LOGO128                   "mainwindowLogo128"
+#define MNI_MAINWINDOW_LOGO256                   "mainwindowLogo256"
 #define MNI_MAINWINDOW_QUIT                      "mainwindowQuit"
 #define MNI_MAINWINDOW_MENU                      "mainwindowMenu"
 #define MNI_MAINWINDOW_SHOW_ROSTER               "mainwindowShowRoster"
@@ -162,6 +171,8 @@
 #define MNI_METACONTACTS_ITEM_RAMBLER            "metacontactsItemRambler"
 #define MNI_METACONTACTS_ITEM_JABBER             "metacontactsItemJabber"
 #define MNI_METACONTACTS_NOTIFY_BALOON           "metacontactsNotifyBalloon"
+#define MNI_METACONTACTS_ONLINE_ICON             "metacontactsOnlineIcon"
+#define MNI_METACONTACTS_MENU_INDICATOR          "metacontactsMenuIndicator"
 
 //MessageWidgets
 #define MNI_MESSAGEWIDGETS_SEND                  "messagewidgetsSend"
@@ -170,6 +181,7 @@
 #define MNI_MESSAGEWIDGETS_LAST_OPEN_ALL         "messagewidgetsLastOpenAll"
 #define MNI_MESSAGEWIDGETS_QUOTE                 "messagewidgetsQuote"
 #define MNI_MESSAGEWIDGETS_CLOSE_TAB             "messagewidgetsCloseTab"
+#define MNI_MESSAGEWIDGETS_TABWINDOW_TRIANGLE    "messagewidgetsTabWindowTriangle"
 
 //MultiUserChat
 #define MNI_MUC_CONFERENCE                       "mucConference"
@@ -203,7 +215,7 @@
 #define MNI_NOTIFICATIONS_REMOVE_ALL             "notificationsRemoveAll"
 #define MNI_NOTIFICATIONS_SOUND_ON               "notificationsSoundOn"
 #define MNI_NOTIFICATIONS_SOUND_OFF              "notificationsSoundOff"
-#define MNI_NOTIFICATIONS_POPUP_OPTIONS          "notificationsPopupOptions"
+#define MNI_NOTIFICATIONS_OPTIONS                "notificationsOptions"
 
 //OptionsManager
 #define MNI_OPTIONS_DIALOG                       "optionsDialog"
@@ -231,6 +243,14 @@
 #define MNI_PLUGINMANAGER_SETUP                  "pluginmanagerSetup"
 #define MNI_PLUGINMANAGER_ABOUT                  "pluginmanagerAbout"
 #define MNI_PLUGINMANAGER_ABOUT_QT               "pluginmanagerAboutQt"
+
+//RamblerMailNotify
+#define MNI_RAMBLERMAILNOTIFY_NOTIFY             "ramblermailnotifyNotify"
+#define MNI_RAMBLERMAILNOTIFY_AVATAR             "ramblermailnotifyAvatar"
+#define MNI_RAMBLERMAILNOTIFY_ROSTER             "ramblermailnotifyRoster"
+
+//RamblerHistory
+#define MNI_RAMBLERHISTORY_KRYTILKA              "ramblerhistoryKrytilka"
 
 //Registration
 #define MNI_REGISTERATION                        "register"
@@ -263,6 +283,8 @@
 #define MNI_RCHANGER_ADDCONTACT_INFO             "rchangerAddContactInfo"
 #define MNI_RCHANGER_ADDCONTACT_ERROR            "rchangerAddContactError"
 #define MNI_RCHANGER_ADDCONTACT_SEARCH_NICK      "rchangerAddContactSearchNick"
+#define MNI_RCHANGER_ADDMETACONTACT_ADD_ITEM     "rchangerAddMetaContactAddItem"
+#define MNI_RCHANGER_ADDMETACONTACT_ERROR        "rchangerAddMetaContactError"
 
 //RosterSearch
 #define MNI_ROSTERSEARCH_MENU                    "rostersearchMenu"
@@ -280,6 +302,9 @@
 #define MNI_ROSTERVIEW_CLIPBOARD                 "rosterviewClipboard"
 #define MNI_ROSTERVIEW_GROUP_OPENED              "rosterviewGroupOpenedIndicator"
 #define MNI_ROSTERVIEW_GROUP_CLOSED              "rosterviewGroupClosedIndicator"
+#define MNI_ROSTERVIEW_DRAGGED_ITEM              "rosterviewDraggedItem"
+#define MNI_ROSTERVIEW_HIGHLIGHTED_ITEM          "rosterviewHighlightedItem"
+#define MNI_ROSTERVIEW_DRAG_SHADOW               "rosterviewDragShadow"
 
 //ServiceDiscovery
 #define MNI_SDISCOVERY_ARROW_LEFT                "sdiscoveryArrowLeft"
@@ -294,7 +319,46 @@
 #define MNI_SNEGOTIATION_TERMINATE               "snegotiationTerminate"
 
 //SipPhone
-#define MNI_SIPPHONE_CALL                        "sipphoneCall"
+#define MNI_SIPPHONE_CALL                        "sipCall"
+#define MNI_SIPPHONE_CALL_BUTTON                 "sipCallButton"
+#define MNI_SIPPHONE_BTN_ACCEPT                  "sipButtonAccept"
+#define MNI_SIPPHONE_BTN_HANGUP                  "sipButtonHangup"
+#define MNI_SIPPHONE_MIC_ON                      "sipmicon"
+#define MNI_SIPPHONE_MIC_OFF                     "sipmicoff"
+#define MNI_SIPPHONE_MIC_DISABLED                "sipmicdisabled"
+#define MNI_SIPPHONE_CAM_ON                      "sipcameraon"
+#define MNI_SIPPHONE_CAM_OFF                     "sipcameraoff"
+#define MNI_SIPPHONE_CAM_DISABLED                "sipcameradisabled"
+#define MNI_SIPPHONE_SOUND_VOLUME0               "sipvolume_0"
+#define MNI_SIPPHONE_SOUND_VOLUME1               "sipvolume_1"
+#define MNI_SIPPHONE_SOUND_VOLUME2               "sipvolume_2"
+#define MNI_SIPPHONE_SOUND_VOLUME3               "sipvolume_3"
+#define MNI_SIPPHONE_SOUND_VOLUME4               "sipvolume_4"
+#define MNI_SIPPHONE_SOUND_OFF                   "sipsoundoff"
+#define MNI_SIPPHONE_SOUND_DISABLED              "sipsounddisabled"
+#define MNI_SIPPHONE_WHITE_MIC_ON                "sipfsmicon"
+#define MNI_SIPPHONE_WHITE_MIC_OFF               "sipfsmicoff"
+#define MNI_SIPPHONE_WHITE_MIC_DISABLED          "sipfsmicdisabled"
+#define MNI_SIPPHONE_WHITE_CAM_ON                "sipfscameraon"
+#define MNI_SIPPHONE_WHITE_CAM_OFF               "sipfscameraoff"
+#define MNI_SIPPHONE_WHITE_CAM_DISABLED          "sipfscameradisabled"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME0         "sipfsvolume_0"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME1         "sipfsvolume_1"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME2         "sipfsvolume_2"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME3         "sipfsvolume_3"
+#define MNI_SIPPHONE_WHITE_SOUND_VOLUME4         "sipfsvolume_4"
+#define MNI_SIPPHONE_WHITE_SOUND_OFF             "sipfssoundoff"
+#define MNI_SIPPHONE_WHITE_SOUND_DISABLED        "sipfssounddisabled"
+#define MNI_SIPPHONE_WHITE_HANGUP                "sipfshangup"
+#define MNI_SIPPHONE_WHITE_FULLSCREEN_ON         "sipfullscreenon"
+#define MNI_SIPPHONE_WHITE_FULLSCREEN_OFF        "sipfullscreenoff"
+#define MNI_SIPPHONE_WHITE_SHOWCURRCAMERA        "sipfsshowcurrcamera"
+#define MNI_SIPPHONE_SEPARATOR                   "sipSeparator"
+#define MNI_SIPPHONE_MUTE                        "sipphoneMute"
+#define MNI_SIPPHONE_UNMUTE                      "sipphoneUnmute"
+#define MNI_SIPPHONE_CALL_ANSWER                 "sipCallAnswer"
+#define MNI_SIPPHONE_CALL_HANGUP                 "sipCallHangup"
+
 
 //StatusChanger
 #define MNI_SCHANGER_MODIFY_STATUS               "schangerModifyStatus"

@@ -13,7 +13,8 @@ public:
 		COR_PORT,
 		COR_DOMAINE,
 		COR_USE_SSL,
-		COR_IGNORE_SSL_ERRORS
+		COR_IGNORE_SSL_ERRORS,
+		COR_CHANGE_PROXY_TYPE
 	};
 public:
 	virtual QObject *instance() =0;

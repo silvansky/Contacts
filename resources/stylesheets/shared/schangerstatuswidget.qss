@@ -36,14 +36,45 @@ HtmlToolButton[popupMode="2"]:open
 
 QLabel#lblMood
 {
-	margin-left: 4px;
+	margin-left: 0px;
+	margin-bottom: 0px;
 	padding: 5px;
 	color: #acacac;
+	min-height: 28px;
+	max-height: 28px;
+	font-size: 11px;
+	height: 28px;
 }
+
 QLabel#lblMood:hover
 {
 	border: 6px;
 	border-image: url(%IMAGES_PATH%/moodborderhover.png);
+}
+
+/***************
+ * Status Menu *
+ ***************/
+
+QMenu#schangerMainMenu
+{
+}
+
+/***********
+ * margins *
+ ***********/
+
+#lblName
+{
+	margin-left: 6px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+StatusWidget
+{
+	max-height: 60px;
+	height: 60px;
 }
 
 #tlbStatus
@@ -54,4 +85,23 @@ QLabel#lblMood:hover
 	min-width: 21px;
 	width: 21px;
 	max-width: 21px;
+}
+
+QLabel#lblAvatar
+{
+	border: 5px solid transparent;
+	padding: -1px;
+}
+
+QLabel#lblAvatar:hover
+{
+	border-image: url(%IMAGES_PATH%/avatarhoverborder.png);
+}
+
+AutoSizeTextEdit#tedMood
+{
+	max-height: 32px;
+	font-size: 11px;
+	padding-left: -10px;
+	padding-right: -10px;
 }

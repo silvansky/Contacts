@@ -18,7 +18,7 @@
 #define ADR_PROFILE                     Action::DR_Parametr1
 
 #define PST_OPTIONS                     "options"
-#define PSN_OPTIONS                     "virtus:options"
+#define PSN_OPTIONS                     "ramblercontacts:options"
 
 OptionsManager::OptionsManager()
 {
@@ -52,7 +52,7 @@ void OptionsManager::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to save, load and manage user preferences");
 	APluginInfo ->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->conflicts.append("{6030FCB2-9F1E-4ea2-BE2B-B66EBE0C4367}"); // ISettings
 }
 
@@ -108,9 +108,11 @@ bool OptionsManager::initObjects()
 
 	FShowOptionsDialogAction = new Action(this);
 	FShowOptionsDialogAction->setVisible(false);
-	FShowOptionsDialogAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_DIALOG);
+	//FShowOptionsDialogAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_DIALOG);
 	FShowOptionsDialogAction->setText(tr("Options"));
-	FShowOptionsDialogAction->setShortcut(tr("Ctrl+P"));
+#ifdef Q_WS_MAC
+	FShowOptionsDialogAction->setShortcut(tr("Ctrl+,"));
+#endif
 	FShowOptionsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
 	FShowOptionsDialogAction->setData(Action::DR_SortString,QString("300"));
 	connect(FShowOptionsDialogAction,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
@@ -159,10 +161,10 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_COMMON)
 	{
-		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsHeaderWidget(QString::null,tr("Common settings"),AParent));
+		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsHeaderWidget(QString::null, tr("Common settings"),AParent));
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
 
-		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(MNI_OPTIONS_OPTIONS_SYNC,tr("Backing store your chat history and preferences"),AParent));
+		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"),AParent));
 		widgets.insertMulti(OWO_COMMON_SINC_OPTIONS, optionsNodeWidget(Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER), tr("Sync preferences on my several computers"), AParent));
 	}
 	return widgets;
@@ -498,14 +500,14 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		{
 			FOptionsDialog = new OptionsDialog(this,AParent);
 			connect(FOptionsDialog, SIGNAL(applied()), SLOT(onOptionsDialogApplied()));
-			connect(FOptionsDialog, SIGNAL(finished(int)), SLOT(onOptionsDialogClosed()));
-			connect(FOptionsDialog, SIGNAL(splitterMoved(int,int)), SLOT(onOpdionsDialogSplitterMoved(int,int)));
+			connect(FOptionsDialog, SIGNAL(dialogDestroyed()), SLOT(onOptionsDialogDestroyed()));
 			FOptionsDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FOptionsDialog, CBS_OPTIONSDIALOG);
 			if (FOptionsDialogBorder)
 			{
 				FOptionsDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
 				FOptionsDialogBorder->setMaximizeButtonVisible(false);
 				FOptionsDialogBorder->setResizable(false);
+				FOptionsDialogBorder->setMinimumSize(FOptionsDialog->minimumSize() + QSize(FOptionsDialogBorder->leftBorderWidth() + FOptionsDialogBorder->rightBorderWidth(), FOptionsDialogBorder->topBorderWidth() + FOptionsDialogBorder->bottomBorderWidth()));
 				connect(FOptionsDialog, SIGNAL(accepted()), FOptionsDialogBorder, SLOT(closeWidget()));
 				connect(FOptionsDialog, SIGNAL(rejected()), FOptionsDialogBorder, SLOT(closeWidget()));
 				connect(FOptionsDialogBorder, SIGNAL(closeClicked()), FOptionsDialog, SLOT(reject()));
@@ -513,7 +515,14 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
 		WidgetManager::showActivateRaiseWindow(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog);
-		(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog)->adjustSize();
+		FOptionsDialog->adjustSize();
+		FOptionsDialog->layout()->update();
+		if (FOptionsDialogBorder)
+		{
+			FOptionsDialogBorder->layout()->update();
+			//FOptionsDialogBorder->resize(FOptionsDialogBorder->minimumSizeHint());
+			FOptionsDialogBorder->adjustSize();
+		}
 	}
 	return FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog;
 }
@@ -567,7 +576,7 @@ void OptionsManager::closeProfile()
 		if (FOptionsDialog)
 		{
 			if (FOptionsDialogBorder)
-				FOptionsDialogBorder->close();
+				FOptionsDialogBorder->closeWidget();
 			else
 				FOptionsDialog->close();
 		}
@@ -722,7 +731,7 @@ void OptionsManager::onOptionsDialogApplied()
 	saveOptions();
 }
 
-void OptionsManager::onOptionsDialogClosed()
+void OptionsManager::onOptionsDialogDestroyed()
 {
 	FOptionsDialog = NULL;
 	FOptionsDialogBorder = NULL;
@@ -782,12 +791,6 @@ void OptionsManager::onPrivateStorageAboutToClose(const Jid &AStreamJid)
 void OptionsManager::onAboutToQuit()
 {
 	closeProfile();
-}
-
-void OptionsManager::onOpdionsDialogSplitterMoved(int pos, int index)
-{
-	if (FOptionsDialogBorder && (index == 1))
-		FOptionsDialogBorder->setHeaderMoveLeft(pos + FOptionsDialog->layout()->contentsMargins().left() + 6);
 }
 
 Q_EXPORT_PLUGIN2(plg_optionsmanager, OptionsManager)

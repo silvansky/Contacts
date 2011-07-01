@@ -12,7 +12,7 @@
 class IStanzaHandler
 {
 public:
-	virtual QObject* instance() =0;
+	virtual QObject *instance() =0;
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept) =0;
 };
 

@@ -30,6 +30,13 @@ struct IRosterItem
 	QString subscription;
 	QString ask;
 	QSet<QString> groups;
+	bool operator==(const IRosterItem &AOther) const {
+		return itemJid==AOther.itemJid && name==AOther.name && groups==AOther.groups &&
+			subscription==AOther.subscription && ask==AOther.ask;
+	}
+	bool operator!=(const IRosterItem &AOther) const {
+		return !operator==(AOther);
+	}
 };
 
 class IRoster {
@@ -58,6 +65,7 @@ public:
 	virtual void saveRosterItems(const QString &AFileName) const =0;
 	virtual void loadRosterItems(const QString &AFileName) =0;
 	//Operations  on subscription
+	virtual QSet<Jid> subscriptionRequests() const =0;
 	virtual void sendSubscription(const Jid &AItemJid, int ASubsType, const QString &AText = QString()) =0;
 	//Operations on items
 	virtual void renameItem(const Jid &AItemJid, const QString &AName) =0;

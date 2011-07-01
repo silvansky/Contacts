@@ -7,67 +7,84 @@
 #include <interfaces/iservicediscovery.h>
 #include <utils/jid.h>
 
-#define GATEWAYS_UUID "{2a3ce0cd-bf67-4f15-8907-b7d0706be4b4}"
+#define GATEWAYS_UUID             "{2a3ce0cd-bf67-4f15-8907-b7d0706be4b4}"
+
+#define GATE_PREFIX_PATTERN       "(^gw\\d+\\.|^)%1\\..*"
+
+struct IGateServiceLogin
+{
+	IGateServiceLogin() { 
+		isValid = false; 
+	}
+	bool isValid;
+	QString login;
+	QString domain;
+	QString password;
+	QString domainSeparator;
+	IRegisterFields fields;
+};
 
 struct IGateServiceLabel
 {
-	IGateServiceLabel() { 
-		valid = false; 
-	}
-	bool valid;
+	QString id;
 	QString name;
 	QString iconKey;
 	QString loginLabel;
 	QList<QString> domains;
 };
 
-struct IGateServiceLogin
-{
-	IGateServiceLogin() { 
-		valid = false; 
-	}
-	bool valid;
-	QString login;
-	QString domain;
-	QString password;
-	IRegisterFields fields;
-};
-
 struct IGateServiceDescriptor : 
 	public IGateServiceLabel
 {
 	IGateServiceDescriptor() { 
-		valid = false;
-		needGate = true;
+		needGate = false;
 		needLogin = true;
+		autoLogin = false;
+		readOnly = false;
 	}
 	bool needGate;
 	bool needLogin;
+	bool autoLogin;
+	bool readOnly;
 	QString type;
 	QString prefix;
 	QString loginField;
 	QString domainField;
 	QString passwordField;
 	QString domainSeparator;
-	QString homeContactRegexp;
-	QString availContactRegexp;
+	QString homeContactPattern;
+	QString availContactPattern;
+	QList<QString> linkedDescriptors;
+	QList<QString> blockedDescriptors;
 	QMap<QString, QVariant> extraFields;
 };
 
 class IGateways
 {
 public:
+	enum GateDescriptorStatuses {
+		GDS_UNAVAILABLE,
+		GDS_UNREGISTERED,
+		GDS_DISABLED,
+		GDS_ENABLED
+	};
+public:
 	virtual QObject *instance() =0;
 	virtual void resolveNickName(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual void sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bool ALogIn) =0;
 	virtual QList<Jid> keepConnections(const Jid &AStreamJid) const =0;
 	virtual void setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled) =0;
-	virtual QList<QString> availDescriptors() const =0;
-	virtual IGateServiceDescriptor descriptorByName(const QString &AServiceName) const =0;
-	virtual IGateServiceDescriptor descriptorByContact(const QString &AContact) const =0;
-	virtual QList<IGateServiceDescriptor> descriptorsByContact(const QString &AContact) const =0;
+	virtual QList<IGateServiceDescriptor> gateDescriptors() const =0;
+	virtual IGateServiceDescriptor gateDescriptorById(const QString &ADescriptorId) const =0;
+	virtual QList<IGateServiceDescriptor> gateHomeDescriptorsByContact(const QString &AContact) const =0;
+	virtual QList<IGateServiceDescriptor> gateAvailDescriptorsByContact(const QString &AContact) const =0;
+	virtual int gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const =0;
+	virtual QString formattedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const =0;
+	virtual QString normalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact, bool AComplete = false) const =0;
+	virtual QString checkNormalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const =0;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
+	virtual QList<Jid> gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly = false) const =0;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IGateServiceDescriptor serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
@@ -76,7 +93,7 @@ public:
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual bool setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled) =0;
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe) =0;
-	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid) =0;
+	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts) =0;
 	virtual QString legacyIdFromUserJid(const Jid &AUserJid) const =0;
 	virtual QString sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid) =0;
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid) =0;

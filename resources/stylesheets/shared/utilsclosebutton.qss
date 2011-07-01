@@ -1,0 +1,12 @@
+/***************
+ * CloseButton *
+ ***************/
+CloseButton[isHover="false"]
+{
+	qproperty-icon: url(%IMAGES_PATH%/closebutton.png);
+}
+
+CloseButton[isHover="true"]
+{
+	qproperty-icon: url(%IMAGES_PATH%/closebuttonhover.png);
+}

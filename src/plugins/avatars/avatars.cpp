@@ -6,7 +6,7 @@
 #include <QFileDialog>
 #include <QImageReader>
 #include <QCryptographicHash>
-#include <QDebug>
+#include <utils/imagemanager.h>
 
 #define DIR_AVATARS               "avatars"
 
@@ -32,7 +32,6 @@ Avatars::Avatars()
 	FRostersModel = NULL;
 	FRostersViewPlugin = NULL;
 	FOptionsManager = NULL;
-	FMetaContacts = NULL;
 
 	FRosterLabelId = -1;
 	FAvatarsVisible = false;
@@ -50,7 +49,7 @@ void Avatars::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to set and display avatars");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(VCARD_UUID);
 }
 
@@ -122,12 +121,6 @@ bool Avatars::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*
 	if (plugin)
 	{
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-	}
-
-	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
-	if (plugin)
-	{
-		FMetaContacts = qobject_cast<IMetaContacts*>(plugin->instance());
 	}
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
@@ -304,7 +297,7 @@ int Avatars::rosterDataOrder() const
 
 QList<int> Avatars::rosterDataRoles() const
 {
-	static const QList<int> indexRoles = QList<int>() << RDR_AVATAR_HASH << RDR_AVATAR_IMAGE;
+	static const QList<int> indexRoles = QList<int>() << RDR_AVATAR_HASH << RDR_AVATAR_IMAGE << RDR_AVATAR_IMAGE_LARGE;
 	return indexRoles;
 }
 
@@ -320,11 +313,20 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 	{
 		if (ARole == RDR_AVATAR_IMAGE)
 		{
-			return avatarImage(AIndex->data(RDR_JID).toString(),!FShowEmptyAvatars).scaled(24,24,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+			return ImageManager::roundSquared(avatarImage(AIndex->data(RDR_FULL_JID).toString(),!FShowEmptyAvatars), 24, 2);
+		}
+		else if (ARole == RDR_AVATAR_IMAGE_LARGE)
+		{
+			QImage img = avatarImage(AIndex->data(RDR_FULL_JID).toString(), false);
+			if (img == FEmptyMaleAvatar)
+				img = FEmptyMaleAvatarBig;
+			else if (img == FEmptyFemaleAvatar)
+				img = FEmptyFemaleAvatarBig;
+			return ImageManager::roundSquared(img, 36, 2);
 		}
 		else if (ARole == RDR_AVATAR_HASH)
 		{
-			return avatarHash(AIndex->data(RDR_JID).toString());
+			return avatarHash(AIndex->data(RDR_FULL_JID).toString());
 		}
 	}
 	return QVariant();
@@ -365,7 +367,8 @@ bool Avatars::hasAvatar(const QString &AHash) const
 
 QImage Avatars::loadAvatar(const QString &AHash) const
 {
-	return QImage(avatarFileName(AHash));
+	QString fileName = avatarFileName(AHash);
+	return QFile::exists(fileName) ? QImage(avatarFileName(AHash)) : QImage();
 }
 
 QString Avatars::saveAvatar(const QByteArray &AImageData) const
@@ -406,88 +409,65 @@ QString Avatars::avatarHash(const Jid &AContactJid) const
 	return hash;
 }
 
-QImage Avatars::avatarImage(const Jid &AContactJid, bool ANullImage) const
+QImage Avatars::avatarImage(const Jid &AContactJid, bool AAllowNull, bool AAllowGray) const
 {
-	static QVector<QRgb> monoTable;
-	if (monoTable.isEmpty())
-	{
-		for (int i = 0; i <= 255; i++)
-			monoTable.append(qRgb(i, i, i));
-	}
 	QString hash = avatarHash(AContactJid);
 	QImage image = FAvatarImages.value(hash);
+
 	if (image.isNull() && !hash.isEmpty())
 	{
-		QString fileName = avatarFileName(hash);
-		if (QFile::exists(fileName))
-		{
-			image = QImage(fileName);
-			if (!image.isNull())
-				FAvatarImages.insert(hash,image);
-		}
+		image = loadAvatar(hash);
+		if (!image.isNull())
+			FAvatarImages.insert(hash,image);
 	}
-	if (image.isNull() && !ANullImage)
+
+	bool emptyMaleAvatar = false;
+	bool emptyFemaleAvatar = false;
+	if (image.isNull() && !AAllowNull)
 	{
-		if (FContactGender.contains(AContactJid.bare()))
+		Jid bareJid = AContactJid.bare();
+		if (!FContactGender.contains(bareJid) && FVCardPlugin && FVCardPlugin->hasVCard(bareJid))
 		{
-			image = FContactGender.value(AContactJid.bare()) ? FEmptyMaleAvatar : FEmptyFemaleAvatar;
-		}
-		else if (FVCardPlugin && FVCardPlugin->hasVCard(AContactJid.bare()))
-		{
-			IVCard *vcard = FVCardPlugin->vcard(AContactJid.bare());
+			IVCard *vcard = FVCardPlugin->vcard(bareJid);
 			bool maleGender = vcard->value(VVN_GENDER).toLower()!="female";
 			vcard->unlock();
-			image = maleGender ? FEmptyMaleAvatar : FEmptyFemaleAvatar;
-			FContactGender.insert(AContactJid.bare(),maleGender);
+			FContactGender.insert(bareJid,maleGender);
+		}
+
+		if (FContactGender.value(bareJid,true))
+		{
+			emptyMaleAvatar = true;
+			image = FEmptyMaleAvatar;
 		}
 		else
 		{
-			image = FEmptyMaleAvatar;
+			emptyFemaleAvatar = true;
+			image = FEmptyFemaleAvatar;
 		}
 	}
-	if (!image.isNull() && FRostersModel)
+
+	if (AAllowGray && !image.isNull() && FPresencePlugin && !FPresencePlugin->isContactOnline(AContactJid))
 	{
-		QMultiMap<int,QVariant> findData;
-		foreach(int type, rosterDataTypes())
-			findData.insert(RDR_TYPE,type);
-		if (!AContactJid.isEmpty())
-			findData.insert(RDR_BARE_JID,AContactJid.pBare());
-		QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChild(findData, true);
-		foreach (IRosterIndex * index, indexes)
+		IPresence *presence = FPresencePlugin->getPresence(AContactJid);
+		if (presence==NULL || !presence->isOpen())
 		{
-			int show = index->data(RDR_SHOW).toInt();
-			if ((index->data(RDR_TYPE).toInt() != RIT_STREAM_ROOT) && FMetaContacts)
+			if (emptyMaleAvatar)
 			{
-				foreach (Jid sjid, FRostersModel->streams())
-				{
-					IMetaRoster * mroster = FMetaContacts->findMetaRoster(sjid);
-					if (mroster)
-					{
-						Jid mcontact = mroster->itemMetaContact(AContactJid);
-						IPresenceItem pi = mroster->metaPresence(mcontact);
-						show = pi.show;
-					}
-				}
+				image = FEmptyMaleAvatarOffline;
 			}
-			if (show == IPresence::Offline || show == IPresence::Error)
+			else if (emptyFemaleAvatar)
 			{
-				if (image == FEmptyMaleAvatar)
-					image = FEmptyMaleAvatarOffline;
-				else if (image == FEmptyFemaleAvatar)
-					image = FEmptyFemaleAvatarOffline;
-				else if (image != FEmptyMaleAvatarOffline && image != FEmptyFemaleAvatarOffline)
-				{
-					if (!FAvatarImagesGrayscale.contains(hash))
-					{
-						image = image.convertToFormat(QImage::Format_Indexed8, monoTable);
-						FAvatarImagesGrayscale.insert(hash, image);
-					}
-					else
-						image = FAvatarImagesGrayscale.value(hash);
-				}
+				image = FEmptyFemaleAvatarOffline;
 			}
-			if (index->data(RDR_TYPE).toInt() == RIT_STREAM_ROOT)
-				break;
+			else if (!FAvatarImagesGrayscale.contains(hash))
+			{
+				image = ImageManager::opacitized(image);
+				FAvatarImagesGrayscale.insert(hash, image);
+			}
+			else
+			{
+				image = FAvatarImagesGrayscale.value(hash);
+			}
 		}
 	}
 
@@ -590,20 +570,22 @@ void Avatars::updatePresence(const Jid &AStreamJid) const
 
 void Avatars::updateDataHolder(const Jid &AContactJid)
 {
-	if (FRostersModel)
-	{
-		QMultiMap<int,QVariant> findData;
-		foreach(int type, rosterDataTypes())
-			findData.insert(RDR_TYPE,type);
-		if (!AContactJid.isEmpty())
-			findData.insert(RDR_BARE_JID,AContactJid.pBare());
-		QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChild(findData,true);
-		foreach (IRosterIndex *index, indexes)
-		{
-			emit rosterDataChanged(index,RDR_AVATAR_HASH);
-			emit rosterDataChanged(index,RDR_AVATAR_IMAGE);
-		}
-	}
+	Q_UNUSED(AContactJid);
+	//if (FRostersModel)
+	//{
+	//	QMultiMap<int,QVariant> findData;
+	//	foreach(int type, rosterDataTypes())
+	//		findData.insert(RDR_TYPE,type);
+	//	if (!AContactJid.isEmpty())
+	//		findData.insert(RDR_PREP_BARE_JID,AContactJid.pBare());
+	//	QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChilds(findData,true);
+	//	foreach (IRosterIndex *index, indexes)
+	//	{
+	//		emit rosterDataChanged(index,RDR_AVATAR_HASH);
+	//		emit rosterDataChanged(index,RDR_AVATAR_IMAGE);
+	//		emit rosterDataChanged(index,RDR_AVATAR_IMAGE_LARGE);
+	//	}
+	//}
 }
 
 bool Avatars::updateVCardAvatar(const Jid &AContactJid, const QString &AHash, bool AFromVCard)
@@ -701,6 +683,15 @@ void Avatars::updateAvatarObject(QObject *AObject)
 	}
 	if (!image.isNull())
 	{
+		if ((params.size.width() == params.size.height()) && (params.size.width() >= 32))
+		{
+			if (image == FEmptyMaleAvatar)
+				image = FEmptyMaleAvatarBig;
+			else if (image == FEmptyFemaleAvatar)
+				image = FEmptyFemaleAvatarBig;
+		}
+		if (!params.size.isEmpty() && (params.size.height() == params.size.width()) && (image.size() != params.size) && (image.height() != image.width()))
+			image = ImageManager::roundSquared(image, params.size.height(), 2);
 		QPixmap pixmap = !params.size.isEmpty() ? QPixmap::fromImage(image.scaled(params.size,Qt::KeepAspectRatio,Qt::SmoothTransformation)) : QPixmap::fromImage(image);
 		if (params.prop == "pixmap")
 			AObject->setProperty(params.prop.toLatin1(),pixmap);
@@ -770,7 +761,7 @@ void Avatars::onRosterIndexInserted(IRosterIndex *AIndex)
 {
 	if (FRostersViewPlugin && rosterDataTypes().contains(AIndex->type()))
 	{
-		Jid contactJid = AIndex->data(RDR_BARE_JID).toString();
+		Jid contactJid = AIndex->data(RDR_PREP_BARE_JID).toString();
 		if (!FVCardAvatars.contains(contactJid))
 			onVCardChanged(contactJid);
 		if (FAvatarsVisible)
@@ -890,6 +881,8 @@ void Avatars::onIconStorageChanged()
 {
 	FEmptyMaleAvatar = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_MALE));
 	FEmptyFemaleAvatar = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_FEMALE));
+	FEmptyMaleAvatarBig = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_MALE, 1));
+	FEmptyFemaleAvatarBig = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_FEMALE, 1));
 	FEmptyMaleAvatarOffline = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_MALE_OFFLINE));
 	FEmptyFemaleAvatarOffline = QImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_AVATAR_EMPTY_FEMALE_OFFLINE));
 }
@@ -937,7 +930,7 @@ void Avatars::onOptionsChanged(const OptionsNode &ANode)
 				QMultiMap<int,QVariant> findData;
 				foreach(int type, rosterDataTypes())
 					findData.insertMulti(RDR_TYPE,type);
-				QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChild(findData, true);
+				QList<IRosterIndex *> indexes = FRostersModel->rootIndex()->findChilds(findData, true);
 
 				IRostersLabel rlabel;
 				rlabel.order = RLO_AVATAR_IMAGE;
@@ -979,16 +972,17 @@ void Avatars::onAvatarObjectDestroyed(QObject *AObject)
 	removeAutoAvatar(AObject);
 }
 
-void Avatars::onContactStateChanged(const Jid & AStreamJid, const Jid & AContactJid, bool AStateOnline)
+void Avatars::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline)
 {
-	Q_UNUSED(AStreamJid)
-	Q_UNUSED(AStateOnline)
+	Q_UNUSED(AStreamJid);
+	Q_UNUSED(AStateOnline);
+	updateDataHolder(AContactJid);
 	emit avatarChanged(AContactJid);
 }
 
-void Avatars::onStreamStateChanged(const Jid & AStreamJid, bool AStateOnline)
+void Avatars::onStreamStateChanged(const Jid &AStreamJid, bool AStateOnline)
 {
-	Q_UNUSED(AStateOnline)
+	Q_UNUSED(AStateOnline);
 	emit avatarChanged(AStreamJid);
 }
 

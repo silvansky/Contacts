@@ -48,7 +48,7 @@
     </message>
     <message>
         <source>Allows to set the status icons for contacts on the basis of standard rules or user-defined</source>
-        <translation>Позволяет устанавливать статус иконки контактам на основе стандартных правил или определенных пользователем</translation>
+        <translation>Позволяет устанавливать статус-иконки контактам на основе стандартных или ваших правил</translation>
     </message>
 </context>
 </TS>

@@ -9,10 +9,14 @@
     </message>
 </context>
 <context>
-    <name>EditWidgetClass</name>
+    <name>EditWidget</name>
     <message>
-        <source>Send</source>
-        <translation>Отправить</translation>
+        <source>Send message (%1)</source>
+        <translation>Отправить сообщение (%1)</translation>
+    </message>
+    <message>
+        <source>Send message</source>
+        <translation>Отправить сообщение</translation>
     </message>
 </context>
 <context>
@@ -30,7 +34,7 @@
     </message>
     <message>
         <source>Tab Window %1</source>
-        <translation>Окно  со вкладками %1</translation>
+        <translation>Окно  с вкладками %1</translation>
     </message>
     <message>
         <source>Main Tab Window</source>
@@ -46,7 +50,7 @@
     </message>
     <message>
         <source>Tab Window</source>
-        <translation>Окно  со вкладками</translation>
+        <translation>Окно  с вкладками</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -61,28 +65,20 @@
         <translation>Открыть ссылку</translation>
     </message>
     <message>
-        <source>Copy e-mail address</source>
-        <translation>Копировать адрес почты</translation>
-    </message>
-    <message>
-        <source>Copy link address</source>
-        <translation>Копировать адрес ссылки</translation>
-    </message>
-    <message>
-        <source>Search on Rambler &apos;%1&apos;</source>
-        <translation>Искать в Рамблере %1</translation>
-    </message>
-    <message>
-        <source>Search on Rambler</source>
-        <translation>Искать в Рамблере</translation>
-    </message>
-    <message>
         <source>Open All</source>
         <translation>Открыть все</translation>
     </message>
     <message>
         <source>Select the method of sending messages</source>
         <translation>Выберите способ отправки сообщений</translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Копировать адрес</translation>
+    </message>
+    <message>
+        <source>Search on Rambler &quot;%1&quot;</source>
+        <translation>Искать на Рамблере &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -186,7 +182,7 @@
     </message>
     <message>
         <source>Avalable (online, away)</source>
-        <translation>Не заняты (в сети, отошел)</translation>
+        <translation>Не заняты (В сети, Отошёл)</translation>
     </message>
     <message>
         <source>All male</source>
@@ -244,15 +240,15 @@
     </message>
     <message>
         <source>Next Tab</source>
-        <translation>След. вкладка</translation>
+        <translation>Следующая вкладка</translation>
     </message>
     <message>
         <source>Prev. Tab</source>
-        <translation>Пред. вкладка</translation>
+        <translation>Предыдущая вкладка</translation>
     </message>
     <message>
         <source>New Tab Window</source>
-        <translation>Новое окно со вкладкми</translation>
+        <translation>Новое окно с вкладками</translation>
     </message>
     <message>
         <source>Rename Tab Window</source>
@@ -264,11 +260,11 @@
     </message>
     <message>
         <source>Tab window name:</source>
-        <translation>Наименование окна:</translation>
+        <translation>Название окна:</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this tab window?</source>
-        <translation>Вы уверены что хотите удалить это окно со вкладками?</translation>
+        <translation>Вы уверены, что хотите удалить это окно со вкладками?</translation>
     </message>
     <message>
         <source>Ctrl+PgDown</source>

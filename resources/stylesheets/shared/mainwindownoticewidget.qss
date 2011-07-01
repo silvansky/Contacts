@@ -1,5 +1,59 @@
-QLabel#lblCaption
+CustomLabel
 {
-	font-size: 12px;
-	font-weight: bold;
+	font-size: 11px;
+	color: #435660;
+	qproperty-shadow: 2;
 }
+
+CustomLabel#lblCaption
+{
+	font-size: 13px;
+}
+
+InternalNoticeWidget
+{
+	background-color: #d1dce2;
+}
+
+ActionButton
+{
+	border-image: url(%IMAGES_PATH%/reminderbutton.png);
+	color: #24485d;
+}
+
+ActionButton:hover
+{
+	border-image: url(%IMAGES_PATH%/reminderbutton_hover.png);
+}
+
+ActionButton:pressed
+{
+	border-image: url(%IMAGES_PATH%/reminderbutton_click.png);
+}
+
+QPushButton#pbtClose
+{
+	border: none;
+	border-image: none;
+	background: transparent;
+	padding: 0px;
+	margin: 0px;
+	min-height: 16px;
+	max-height: 16px;
+	height: 16px;
+	min-width: 16px;
+	max-width: 16px;
+	width: 16px;
+}
+
+QLabel, CloseButton, #wdtActions
+{
+	background-color: transparent;
+}
+
+/*
+#noticeWidget
+{
+	background-color: #ccdce4;
+}
+*/

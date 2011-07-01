@@ -10,6 +10,10 @@
 #include <QTextDocument>
 #include <QWidgetAction>
 #include <QDesktopServices>
+#include <utils/imagemanager.h>
+#ifdef Q_WS_WIN
+# include <utils/nonmodalopenfiledialog.h>
+#endif
 
 #define MAX_CHARACTERS  140
 
@@ -26,6 +30,9 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	FAvatarHovered = false;
 	FSelectAvatarWidget = NULL;
 
+	ui.lblAvatar->setProperty("ignoreFilter", true);
+	ui.lblMood->setProperty("ignoreFilter", true);
+
 	ui.tlbStatus->installEventFilter(this);
 	ui.lblAvatar->installEventFilter(this);
 	ui.tedMood->installEventFilter(this);
@@ -33,7 +40,9 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 
 	ui.tedMood->setVisible(false);
 	ui.tedMood->setMinimumLines(1);
+	ui.tedMood->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	ui.lblAvatar->setAttribute(Qt::WA_Hover, true);
+	ui.lblAvatar->setMouseTracking(true);
 
 	ui.tlbStatus->addAction(FStatusChanger->statusMenu()->menuAction());
 	ui.tlbStatus->setDefaultAction(FStatusChanger->statusMenu()->menuAction());
@@ -43,7 +52,7 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	connect(FProfileMenu, SIGNAL(aboutToShow()), SLOT(onProfileMenuAboutToShow()));
 
 	Action *manageProfileAction = new Action(FProfileMenu);
-	manageProfileAction->setText(tr("Manage my profile"));
+	manageProfileAction->setText(tr("My account"));
 	connect(manageProfileAction, SIGNAL(triggered()), SLOT(onManageProfileTriggered()));
 	FProfileMenu->addAction(manageProfileAction);
 
@@ -97,13 +106,14 @@ void StatusWidget::startEditMood()
 
 void StatusWidget::finishEditMood()
 {
-	ui.lblMood->setVisible(true);
 	ui.tedMood->setVisible(false);
+	ui.lblMood->setVisible(true);
 	ui.lblMood->setFocus();
 
-	int statusId = FStatusChanger->mainStatus();
 	QString mood = ui.tedMood->toPlainText().left(MAX_CHARACTERS).trimmed();
-	FStatusChanger->updateStatusItem(statusId,FStatusChanger->statusItemName(statusId),FStatusChanger->statusItemShow(statusId),mood,FStatusChanger->statusItemPriority(statusId));
+	foreach(int statusId, FStatusChanger->statusItems())
+		if (statusId > STATUS_NULL_ID)
+			FStatusChanger->updateStatusItem(statusId,FStatusChanger->statusItemName(statusId),FStatusChanger->statusItemShow(statusId),mood,FStatusChanger->statusItemPriority(statusId));
 }
 
 void StatusWidget::cancelEditMood()
@@ -123,10 +133,11 @@ void StatusWidget::setUserName(const QString &AName)
 void StatusWidget::setMoodText(const QString &AMood)
 {
 	FUserMood = AMood;
-	if (AMood.length() <= 70)
+	const int maxMoodLength = 40;
+	if (AMood.length() <= maxMoodLength)
 		ui.lblMood->setText(AMood.isEmpty() ? tr("Tell your friends about your mood") : AMood);
 	else
-		ui.lblMood->setText(AMood.left(70) + "...");
+		ui.lblMood->setText(AMood.left(maxMoodLength) + "...");
 }
 
 QString StatusWidget::fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const
@@ -150,9 +161,18 @@ void StatusWidget::resizeEvent(QResizeEvent * event)
 		QPoint p = ui.tlbStatus->geometry().topRight();
 		p = mapToGlobal(p);
 		p = FMainWindowPlugin->mainWindowBorder()->widget()->mapFromGlobal(p);
-		FMainWindowPlugin->mainWindowBorder()->setHeaderMoveLeft(p.x() + 1);
+		//FMainWindowPlugin->mainWindowBorder()->setHeaderMoveLeft(p.x() + 1);
 	}
 	QWidget::resizeEvent(event);
+}
+
+void StatusWidget::paintEvent(QPaintEvent * pe)
+{
+	QStyleOption opt;
+	opt.init(this);
+	QPainter p(this);
+	p.setClipRect(pe->rect());
+	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
@@ -176,7 +196,7 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 	{
 		switch ((int)AEvent->type())
 		{
-		case QEvent::HoverEnter:
+		/*case QEvent::HoverEnter:
 			FAvatarHovered = true;
 			break;
 		case QEvent::HoverLeave:
@@ -209,15 +229,19 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 				painter.drawPolygon(triangle, Qt::OddEvenFill);
 				return true;
 			}
-			break;
+			break;*/
 		case QEvent::MouseButtonRelease:
 			{
-				QPoint point = mapToGlobal(ui.lblAvatar->pos());
-				int dx = FSelectAvatarWidget ? FSelectAvatarWidget->width() / 2 : FProfileMenu->sizeHint().width() / 2;
+				QPoint point = ui.lblAvatar->mapToGlobal(QPoint(0, 0));
+				int dx = 0;//FSelectAvatarWidget ? FSelectAvatarWidget->width() / 2 : FProfileMenu->sizeHint().width() / 2;
 				point.setX(point.x() - dx);
 				point.setY(point.y() + ui.lblAvatar->height());
 				FProfileMenu->popup(point);
+				return true;
 			}
+			break;
+		case QEvent::MouseButtonPress:
+			return true;
 			break;
 		default:
 			break;
@@ -228,6 +252,7 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 		QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(AEvent);
 		if (mouseEvent && mouseEvent->button() == Qt::LeftButton)
 			startEditMood();
+		return true;
 	}
 	else if (AObject == ui.tedMood)
 	{
@@ -262,18 +287,33 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 
 void StatusWidget::onAddAvatarTriggered()
 {
-	QString filename = QFileDialog::getOpenFileName(this, tr("Select new avatar image"), "", tr("Image files %1").arg("(*.jpg *.bmp *.png)"));
-	if (!filename.isEmpty())
+#ifdef Q_WS_WIN
+	NonModalOpenFileDialog * fd = new NonModalOpenFileDialog;
+	connect(fd, SIGNAL(fileNameSelected(const QString &)), SLOT(onAvatarFileSelected(const QString &)));
+	fd->show(tr("Select new avatar image"), tr("Image files %1").arg("(*.jpg *.bmp *.png)") + "|*.jpg;*.bmp;*.png|");
+#else
+	QFileDialog * dialog = new QFileDialog;
+	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+	dialog->setWindowTitle(tr("Select new avatar image"));
+	dialog->setNameFilter(tr("Image files %1").arg("(*.jpg *.bmp *.png)"));
+	connect(dialog, SIGNAL(fileSelected(const QString &)), SLOT(onAvatarFileSelected(const QString &)));
+	dialog->show();
+#endif
+}
+
+void StatusWidget::onAvatarFileSelected(const QString & fileName)
+{
+	if (!fileName.isEmpty())
 	{
 		QImage avatar;
-		if (avatar.load(filename))
+		if (avatar.load(fileName))
 			FAvatars->setAvatar(FStreamJid,avatar);
 	}
 }
 
 void StatusWidget::onManageProfileTriggered()
 {
-	QDesktopServices::openUrl(QUrl("http://id-planet.rambler.ru/"));
+	QDesktopServices::openUrl(QUrl("http://id.rambler.ru/"));
 }
 
 void StatusWidget::onProfileMenuAboutToHide()

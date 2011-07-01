@@ -20,12 +20,11 @@ bool BalloonTip::isBalloonVisible()
 QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString& message,
 				 const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition)
 {
-	hideBalloon();
-	if (!message.isEmpty() && !title.isEmpty())
+	BalloonTip::hideBalloon();
+	if (!(message.isEmpty() && title.isEmpty()))
 	{
 		theSolitaryBalloonTip = new BalloonTip(icon, title, message);
 		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow, arrowPosition);
-		theSolitaryBalloonTip->show();
 	}
 	return theSolitaryBalloonTip;
 }
@@ -33,12 +32,11 @@ QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString
 QWidget *BalloonTip::showBalloon(QIcon icon, QWidget * messageWidget,
 	const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition)
 {
-	hideBalloon();
+	BalloonTip::hideBalloon();
 	if (messageWidget)
 	{
 		theSolitaryBalloonTip = new BalloonTip(icon, messageWidget);
 		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow, arrowPosition);
-		theSolitaryBalloonTip->show();
 	}
 	return theSolitaryBalloonTip;
 }
@@ -47,8 +45,8 @@ void BalloonTip::hideBalloon()
 {
 	if (theSolitaryBalloonTip)
 	{
-		theSolitaryBalloonTip->hide();
-		theSolitaryBalloonTip->deleteLater();
+		theSolitaryBalloonTip->close();
+		delete theSolitaryBalloonTip;
 		theSolitaryBalloonTip = NULL;
 	}
 }
@@ -59,7 +57,6 @@ void BalloonTip::init()
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground, true);
-	setAutoFillBackground(true);
 	setMaximumWidth(250);
 	QPalette pal = palette();
 	pal.setColor(QPalette::Window, pal.toolTipBase().color());
@@ -119,23 +116,30 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message)
 #endif
 	}
 
-	QIcon si = icon;
 	QGridLayout *layout = new QGridLayout;
-	if (!si.isNull())
+	if (!icon.isNull())
 	{
 		QLabel *iconLabel = new QLabel;
-		iconLabel->setPixmap(si.pixmap(iconSize, iconSize));
+		iconLabel->setPixmap(icon.pixmap(iconSize, iconSize));
 		iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		iconLabel->setMargin(2);
 		layout->addWidget(iconLabel, 0, 0);
-		layout->addWidget(titleLabel, 0, 1);
+		if (!title.isEmpty())
+			layout->addWidget(titleLabel, 0, 1);
 	}
 	else
 	{
-		layout->addWidget(titleLabel, 0, 0, 1, 2);
+		if (!title.isEmpty())
+			layout->addWidget(titleLabel, 0, 0, 1, 2);
 	}
 
-	layout->addWidget(msgLabel, 1, 0, 1, 3);
+	if (title.isEmpty())
+	{
+		layout->addWidget(msgLabel, 0, 1, 2, 1);
+		layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), 1, 0);
+	}
+	else
+		layout->addWidget(msgLabel, 1, 0, 1, 3);
 	layout->setSizeConstraint(QLayout::SetFixedSize);
 	layout->setMargin(3);
 	setLayout(layout);
@@ -172,12 +176,12 @@ BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget) : QWidget(0, Qt::Too
 
 BalloonTip::~BalloonTip()
 {
+	theSolitaryBalloonTip = NULL;
 	if (widget)
 	{
 		widget->setParent(0);
 		widget = NULL;
 	}
-	theSolitaryBalloonTip = NULL;
 	emit closed();
 }
 
@@ -351,6 +355,7 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 
 	// Draw the border
 	pixmap = QPixmap(sz);
+	pixmap.fill(QColor(0, 0, 0, 0));
 	QPainter painter2(&pixmap);
 	painter2.setPen(QPen(palette().color(QPalette::Window).darker(160), border));
 	painter2.setBrush(palette().color(QPalette::Window));
@@ -361,10 +366,11 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 	show();
 }
 
-void BalloonTip::paintEvent(QPaintEvent *)
+void BalloonTip::paintEvent(QPaintEvent *evt)
 {
 	QPainter painter(this);
 	painter.drawPixmap(rect(), pixmap);
+	QWidget::paintEvent(evt);
 }
 
 void BalloonTip::mousePressEvent(QMouseEvent *ev)

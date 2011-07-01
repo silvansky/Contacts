@@ -29,7 +29,12 @@ HEADERS = utilsexport.h \
     customborderstorage.h \
     systemmanager.h \
     graphicseffectsstorage.h \
-    log.h
+    log.h \
+    imagemanager.h \
+    custominputdialog.h \
+    customlistview.h \
+    customlabel.h \
+    nonmodalopenfiledialog.h
 
 SOURCES = jid.cpp \
     versionparser.cpp \
@@ -59,4 +64,14 @@ SOURCES = jid.cpp \
     customborderstorage.cpp \
     systemmanager.cpp \
     graphicseffectsstorage.cpp \
-    log.cpp
+    log.cpp \
+    imagemanager.cpp \
+    custominputdialog.cpp \
+    customlistview.cpp \
+    customlabel.cpp \
+    nonmodalopenfiledialog.cpp
+
+macx: {
+  HEADERS += macdockhandler.h
+  OBJECTIVE_SOURCES += macdockhandler.mm
+}

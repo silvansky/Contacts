@@ -25,7 +25,7 @@
     </message>
     <message>
         <source>Typing...</source>
-        <translation>Печатает...</translation>
+        <translation>Пишет...</translation>
     </message>
 </context>
 <context>
@@ -68,7 +68,7 @@
     </message>
     <message>
         <source>Gone %1</source>
-        <translation>Ушел %1</translation>
+        <translation>Ушёл %1</translation>
     </message>
 </context>
 </TS>

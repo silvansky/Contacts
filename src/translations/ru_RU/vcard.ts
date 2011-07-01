@@ -27,12 +27,8 @@
         <translation>Примечания:</translation>
     </message>
     <message>
-        <source>Full name:</source>
-        <translation>Полное имя:</translation>
-    </message>
-    <message>
         <source>Add to roster</source>
-        <translation>Добавить в контакт лист</translation>
+        <translation>Добавить в контакт-лист</translation>
     </message>
     <message>
         <source>Rename</source>
@@ -44,11 +40,11 @@
     </message>
     <message>
         <source>not assigned</source>
-        <translation>не указан</translation>
+        <translation>Не указан</translation>
     </message>
     <message>
         <source>Profile: %1</source>
-        <translation>Провиль: %1</translation>
+        <translation>Профиль: %1</translation>
     </message>
     <message>
         <source>vCard error</source>
@@ -59,31 +55,35 @@
         <translation>Запрос vCard завершился с ошибкой. &lt;br&gt;%1</translation>
     </message>
     <message>
-        <source>Contact name</source>
-        <translation>Имя контакта</translation>
-    </message>
-    <message>
-        <source>Enter name for contact</source>
-        <translation>Укажите имя контакта</translation>
-    </message>
-    <message>
         <source>Not in contact list</source>
         <translation>Нет в контакт-листе</translation>
+    </message>
+    <message>
+        <source>Rename contact</source>
+        <translation>Переименовать контакт</translation>
+    </message>
+    <message>
+        <source>Edit profile online...</source>
+        <translation>Редактировать профиль на сайте...</translation>
+    </message>
+    <message>
+        <source>Enter new name</source>
+        <translation>Введите новое имя</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ок</translation>
     </message>
 </context>
 <context>
     <name>VCardDialog</name>
-    <message>
-        <source>vCard - %1</source>
-        <translation>vCard - %1</translation>
-    </message>
     <message>
         <source>vCard error</source>
         <translation>Ошибка vCard</translation>
     </message>
     <message>
         <source>vCard request or publish failed.&lt;br&gt;%1</source>
-        <translation>Запрос или публикация VCard не удалась.&lt;br&gt;%1</translation>
+        <translation>Запрос или публикация vCard не удалась.&lt;br&gt;%1</translation>
     </message>
     <message>
         <source>Save image</source>
@@ -91,7 +91,7 @@
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.bmp *.gif)</source>
-        <translation>Картинки (*.png *.jpg *.bmp *.gif)</translation>
+        <translation>Изображения (*.png *.jpg *.bmp *.gif)</translation>
     </message>
     <message>
         <source>Open image</source>
@@ -104,6 +104,14 @@
     <message>
         <source>Phone:</source>
         <translation>Телефон:</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ок</translation>
+    </message>
+    <message>
+        <source>vCard - %1</source>
+        <translation>vCard - %1</translation>
     </message>
 </context>
 <context>
@@ -142,7 +150,7 @@
     </message>
     <message>
         <source>Birthday</source>
-        <translation>Днь рождения</translation>
+        <translation>День рождения</translation>
     </message>
     <message>
         <source>dd.MMMM.yyyy</source>
@@ -170,15 +178,15 @@
     </message>
     <message>
         <source>Department</source>
-        <translation>Подразделение</translation>
+        <translation>Департамент</translation>
     </message>
     <message>
         <source>Role</source>
-        <translation>Роль</translation>
+        <translation>Должность</translation>
     </message>
     <message>
         <source>Home page</source>
-        <translation>Дом. страница</translation>
+        <translation>Домашняя страница</translation>
     </message>
     <message>
         <source>Adress</source>
@@ -202,7 +210,7 @@
     </message>
     <message>
         <source>Zip code</source>
-        <translation>Почтовый код</translation>
+        <translation>Почтовый индекс</translation>
     </message>
     <message>
         <source>Country</source>
@@ -250,7 +258,7 @@
     </message>
     <message>
         <source>Logo</source>
-        <translation>Лого</translation>
+        <translation>Логотип</translation>
     </message>
     <message>
         <source>Comments</source>
@@ -276,24 +284,24 @@
 <context>
     <name>VCardPlugin</name>
     <message>
-        <source>vCard</source>
-        <translation>vCard</translation>
-    </message>
-    <message>
         <source>vCard Manager</source>
         <translation>Диспетчер vCard</translation>
     </message>
     <message>
         <source>Allows to obtain personal contact information</source>
-        <translation>Позволяет получать личную информацию о контакте</translation>
+        <translation>Позволяет получать персональную информацию о контакте</translation>
     </message>
     <message>
         <source>Supports the requesting of the personal contact information</source>
-        <translation>Поддерживает запросы личной информации о контакте</translation>
+        <translation>Поддерживает запросы персональной информации о контакте</translation>
     </message>
     <message>
         <source>Contact info</source>
         <translation>Информация о контакте</translation>
+    </message>
+    <message>
+        <source>vCard</source>
+        <translation>vCard</translation>
     </message>
 </context>
 </TS>

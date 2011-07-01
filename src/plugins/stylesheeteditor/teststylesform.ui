@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>429</width>
-    <height>329</height>
+    <width>597</width>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="0" column="3">
        <widget class="QToolButton" name="toolButton_4">
         <property name="text">
          <string>...</string>
@@ -40,7 +40,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
+      <item row="0" column="4">
        <widget class="QToolButton" name="toolButton">
         <property name="text">
          <string>...</string>
@@ -51,7 +51,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
+      <item row="0" column="5">
        <widget class="QToolButton" name="popupBtn">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -77,7 +77,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
+      <item row="0" column="6">
        <widget class="QToolButton" name="menuBtn">
         <property name="text">
          <string>Menu button</string>
@@ -101,7 +101,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1" colspan="4">
+      <item row="1" column="3" colspan="4">
        <widget class="QPushButton" name="pushButton_3">
         <property name="text">
          <string>PushButton</string>
@@ -118,141 +118,144 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1" colspan="4">
+      <item row="2" column="3" colspan="4">
        <widget class="QCheckBox" name="checkBox">
         <property name="text">
          <string>CheckBox</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="5">
+      <item row="2" column="8">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>TextLabel</string>
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="qtgradienteditor/qtgradienteditor.qrc">:/trolltech/qtgradienteditor/images/logo225x90.gif</pixmap>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="5" column="0">
        <widget class="QRadioButton" name="radioButton_2">
         <property name="text">
          <string>RadioButton</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="5" column="3">
        <widget class="QCheckBox" name="checkBox_2">
         <property name="text">
          <string>CheckBox</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="6" column="0">
        <widget class="QRadioButton" name="radioButton_3">
         <property name="text">
          <string>RadioButton</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="7" column="0">
        <widget class="QComboBox" name="comboBox">
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
        </widget>
       </item>
-      <item row="5" column="1" colspan="3">
+      <item row="7" column="3" colspan="3">
        <widget class="QComboBox" name="comboBox_2">
         <property name="editable">
          <bool>true</bool>
         </property>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Новый элемент</string>
+          <string notr="true">Новый элемент</string>
          </property>
         </item>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="8" column="0">
        <widget class="QLineEdit" name="lineEdit"/>
       </item>
-      <item row="6" column="1" colspan="4">
+      <item row="8" column="3" colspan="4">
        <widget class="QGroupBox" name="groupBox">
         <property name="title">
          <string>GroupBox</string>
@@ -282,20 +285,127 @@
         </layout>
        </widget>
       </item>
-      <item row="6" column="5" rowspan="2">
+      <item row="8" column="8" rowspan="2">
        <widget class="QScrollBar" name="verticalScrollBar">
+        <property name="value">
+         <number>75</number>
+        </property>
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
+      <item row="9" column="0">
        <widget class="QSpinBox" name="spinBox"/>
       </item>
-      <item row="7" column="1" colspan="4">
+      <item row="9" column="3" colspan="4">
        <widget class="QScrollBar" name="horizontalScrollBar">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="8">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="8">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="8">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="8">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="8">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="7" rowspan="10">
+       <widget class="QScrollBar" name="verticalScrollBar_2">
+        <property name="maximum">
+         <number>30</number>
+        </property>
+        <property name="value">
+         <number>22</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QToolButton" name="toolButton_2">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QToolButton" name="toolButton_3">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QToolButton" name="toolButton_5">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="ti">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="qtgradienteditor/qtgradienteditor.qrc">:/trolltech/qtgradienteditor/images/testimage.png</pixmap>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QLabel" name="ti2">
+        <property name="text">
+         <string>TextLabel</string>
         </property>
        </widget>
       </item>

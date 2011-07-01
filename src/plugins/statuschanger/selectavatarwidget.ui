@@ -22,9 +22,6 @@
   <property name="windowTitle">
    <string>Select Avatar</string>
   </property>
-  <property name="autoFillBackground">
-   <bool>false</bool>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QLabel" name="userPic1">

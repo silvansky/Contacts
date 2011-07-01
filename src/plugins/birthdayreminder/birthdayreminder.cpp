@@ -40,7 +40,7 @@ void BirthdayReminder::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Reminds about birthdays of your friends");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(VCARD_UUID);
 }
 
@@ -144,7 +144,7 @@ bool BirthdayReminder::initObjects()
 		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification|INotification::TestNotify;
 		FNotifications->insertNotificator(NID_BIRTHDAY_REMIND,OWO_NOTIFICATIONS_BIRTHDAY,tr("Birthdays"),kindMask,0);
 	}
-	
+
 	QIcon cake = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_BIRTHDAYREMINDER_AVATAR_CAKE);
 	FAvatarCake = cake.pixmap(cake.availableSizes().value(0));
 
@@ -179,7 +179,7 @@ QVariant BirthdayReminder::rosterData(const IRosterIndex *AIndex, int ARole) con
 	QVariant data;
 	if (ARole == RDR_AVATAR_IMAGE)
 	{
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		if (FUpcomingBirthdays.value(contactJid.bare(),-1) == 0)
 		{
 			static bool blocked = false;
@@ -230,7 +230,7 @@ QImage BirthdayReminder::avatarWithCake(const Jid &AContactJid, const QImage &AA
 {
 	QImage avatar = AAvatar;
 	if (FAvatars && avatar.isNull())
-		avatar = FAvatars->avatarImage(AContactJid);
+		avatar = FAvatars->avatarImage(AContactJid,false,false);
 
 	if (!FAvatarCake.isNull() && FUpcomingBirthdays.value(AContactJid.bare(),-1)==0)
 	{
@@ -284,7 +284,7 @@ bool BirthdayReminder::updateBirthdayState(const Jid &AContactJid)
 {
 	bool notify = false;
 	int daysLeft = contactBithdayDaysLeft(AContactJid);
-	
+
 	bool isAvatarChanged = false;
 	if (daysLeft>=0 && daysLeft<=NOTIFY_WITHIN_DAYS)
 	{
@@ -303,10 +303,9 @@ bool BirthdayReminder::updateBirthdayState(const Jid &AContactJid)
 	if  (FRostersModel && isAvatarChanged)
 	{
 		QMultiMap<int, QVariant> findData;
-		findData.insert(RDR_TYPE, RIT_CONTACT);
-		findData.insert(RDR_BARE_JID,AContactJid.pBare());
-		FRostersModel->rootIndex()->findChild(findData,true);
-		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChild(findData,true))
+		findData.insert(RDR_TYPE,RIT_CONTACT);
+		findData.insert(RDR_PREP_BARE_JID,AContactJid.pBare());
+		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true))
 		{
 			emit rosterDataChanged(index,RDR_AVATAR_IMAGE);
 		}
@@ -340,19 +339,19 @@ void BirthdayReminder::onShowNotificationTimer()
 			{
 				Jid streamJid = findContactStream(contactJid);
 
-				notify.data.insert(NDR_POPUP_CAPTION,tr("Birthday of"));
 				notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 				notify.data.insert(NDR_POPUP_TITLE,FNotifications->contactName(streamJid,contactJid));
-				notify.data.insert(NDR_POPUP_STYLEKEY,STS_BIRTHDAYREMINDER_NOTIFYWIDGET);
+				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 
 				QDate	birthday = contactBithday(contactJid);
 				int daysLeft = FUpcomingBirthdays.value(contactJid);
-				QString text = daysLeft>0 ? tr("Birthday in %n day(s),<br> %1","",daysLeft).arg(birthday.toString(Qt::SystemLocaleLongDate)) : tr("Birthday <b>today</b>!");
-				notify.data.insert(NDR_POPUP_TEXT,text);
+				QString text = daysLeft>0 ? tr("Birthday in %n day(s),<br> %1","",daysLeft).arg(birthday.toString(Qt::SystemLocaleLongDate)) : tr("Birthday today!");
+				notify.data.insert(NDR_POPUP_NOTICE,text);
 
 				Action *action = new Action(NULL);
 				action->setText(tr("Congratulate with postcard"));
 				action->setData(ADR_CONTACT_JID, contactJid.bare());
+				action->setData(Action::DR_UserDefined + 1, "birthday");
 				connect(action,SIGNAL(triggered()),SLOT(onCongratulateWithPostcard()));
 				notify.actions.append(action);
 
@@ -365,7 +364,7 @@ void BirthdayReminder::onShowNotificationTimer()
 
 void BirthdayReminder::onCongratulateWithPostcard()
 {
-	QDesktopServices::openUrl(QUrl("http://id.rambler.ru"));
+	QDesktopServices::openUrl(QUrl("http://cards.rambler.ru"));
 }
 
 void BirthdayReminder::onNotificationActivated(int ANotifyId)
@@ -401,15 +400,15 @@ void BirthdayReminder::onNotificationTest(const QString &ANotificatorId, uchar A
 		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
-			Jid contactJid = "vasilisa@rambler/virtus";
-			notify.data.insert(NDR_POPUP_CAPTION,tr("Birthday of"));
+			Jid contactJid = "vasilisa@rambler/ramblercontacts";
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
-			notify.data.insert(NDR_POPUP_TEXT,tr("Birthday <b>today</b>!"));
-			notify.data.insert(NDR_POPUP_STYLEKEY,STS_BIRTHDAYREMINDER_NOTIFYWIDGET);
-			
+			notify.data.insert(NDR_POPUP_NOTICE,tr("Birthday today!"));
+			notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
+
 			Action *action = new Action(NULL);
 			action->setText(tr("Congratulate with postcard"));
+			action->setData(Action::DR_UserDefined + 1, "birthday");
 			notify.actions.append(action);
 		}
 		if (AKinds & INotification::PlaySoundNotification)
@@ -490,7 +489,7 @@ void BirthdayReminder::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId,
 		}
 		else if (AIndex->type() == RIT_CONTACT)
 		{
-			metaItems.append(AIndex->data(RDR_BARE_JID).toString());
+			metaItems.append(AIndex->data(RDR_PREP_BARE_JID).toString());
 		}
 
 		int daysLeft = -1;
@@ -500,13 +499,13 @@ void BirthdayReminder::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId,
 			if (daysLeft<0 || daysLeft<itemDaysLeft)
 				daysLeft = itemDaysLeft;
 		}
-		
+
 		if (daysLeft>=0 && daysLeft<=NOTIFY_WITHIN_DAYS)
 		{
 			QString tip = QString("<span style='color:green'>%1</span>");
 			tip = tip.arg(daysLeft>0 ? tr("Birthday in %n day(s)!","",daysLeft) : tr("Birthday today!"));
 			tip += "<br>";
-			tip += QString("<a href='%1'>%2</a>").arg("http://id.rambler.ru").arg(tr("Congratulate with postcard"));
+			tip += QString("<a href='%1'>%2</a>").arg("http://cards.rambler.ru").arg(tr("Congratulate with postcard"));
 			AToolTips.insert(RTTO_BIRTHDAY_NOTIFY,tip);
 		}
 	}
@@ -547,7 +546,7 @@ void BirthdayReminder::onOptionsOpened()
 {
 	FNotifyDate = Options::fileValue("birthdays.notify.date").toDate();
 	QStringList notified = Options::fileValue("birthdays.notify.notified").toStringList();
-	
+
 	FNotifiedContacts.clear();
 	foreach(QString contactJid, notified)
 		FNotifiedContacts.append(contactJid);

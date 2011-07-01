@@ -2,6 +2,7 @@
 #define ROSTERSMODEL_H
 
 #include <definitions/rosterindextyperole.h>
+#include <definitions/rosterindextypeorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/iroster.h>
@@ -12,12 +13,12 @@
 #include "rosterindex.h"
 
 class RostersModel :
-			public QAbstractItemModel,
-			public IPlugin,
-			public IRostersModel
+	public QAbstractItemModel,
+	public IPlugin,
+	public IRostersModel
 {
-	Q_OBJECT
-	Q_INTERFACES(IPlugin IRostersModel)
+	Q_OBJECT;
+	Q_INTERFACES(IPlugin IRostersModel);
 public:
 	RostersModel();
 	~RostersModel();
@@ -26,7 +27,7 @@ public:
 	virtual QUuid pluginUuid() const { return ROSTERSMODEL_UUID; }
 	virtual void pluginInfo(IPluginInfo *APluginInfo);
 	virtual bool initConnections(IPluginManager *APluginManager, int &AInitOrder);
-	virtual bool initObjects() { return true; }
+	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
 	//QAbstractItemModel
@@ -44,21 +45,18 @@ public:
 	virtual void removeStream(const Jid &AStreamJid);
 	virtual IRosterIndex *rootIndex() const;
 	virtual IRosterIndex *streamRoot(const Jid &AStreamJid) const;
-	virtual IRosterIndex *createRosterIndex(int AType, const QString &AId, IRosterIndex *AParent);
-	virtual IRosterIndex *createGroup(const QString &AName, const QString &AGroupDelim, int AType, IRosterIndex *AParent);
+	virtual IRosterIndex *createRosterIndex(int AType, IRosterIndex *AParent);
+	virtual IRosterIndex *findGroupIndex(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent) const;
+	virtual IRosterIndex *createGroupIndex(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent);
 	virtual void insertRosterIndex(IRosterIndex *AIndex, IRosterIndex *AParent);
 	virtual void removeRosterIndex(IRosterIndex *AIndex);
 	virtual QList<IRosterIndex *> getContactIndexList(const Jid &AStreamJid, const Jid &AContactJid, bool ACreate = false);
-	virtual IRosterIndex *findRosterIndex(int AType, const QString &AId, IRosterIndex *AParent) const;
-	virtual IRosterIndex *findGroup(const QString &AName, const QString &AGroupDelim, int AType, IRosterIndex *AParent) const;
-	virtual void insertDefaultDataHolder(IRosterDataHolder *ADataHolder);
-	virtual void removeDefaultDataHolder(IRosterDataHolder *ADataHolder);
 	virtual QModelIndex modelIndexByRosterIndex(IRosterIndex *AIndex) const;
 	virtual IRosterIndex *rosterIndexByModelIndex(const QModelIndex &AIndex) const;
-	virtual QString blankGroupName() const { return tr("Blank Group"); }
-	virtual QString agentsGroupName() const { return tr("Agents"); }
-	virtual QString myResourcesGroupName() const { return tr("My Resources"); }
-	virtual QString notInRosterGroupName() const { return tr("Not in Roster"); }
+	virtual QString singleGroupName(int AType) const;
+	virtual void registerSingleGroup(int AType, const QString &AName);
+	virtual void insertDefaultDataHolder(IRosterDataHolder *ADataHolder);
+	virtual void removeDefaultDataHolder(IRosterDataHolder *ADataHolder);
 signals:
 	void streamAdded(const Jid &AStreamJid);
 	void streamRemoved(const Jid &AStreamJid);
@@ -75,6 +73,7 @@ signals:
 protected:
 	void emitDelayedDataChanged(IRosterIndex *AIndex);
 	void insertDefaultDataHolders(IRosterIndex *AIndex);
+	QList<IRosterIndex *> findContactIndexes(const Jid &AStreamJid, const Jid &AContactJid, bool ABare, IRosterIndex *AParent = NULL) const;
 protected slots:
 	void onAccountShown(IAccount *AAccount);
 	void onAccountHidden(IAccount *AAccount);
@@ -99,6 +98,12 @@ private:
 	QMap<Jid,IRosterIndex *> FStreamsRoot;
 	QSet<IRosterIndex *> FChangedIndexes;
 	QList<IRosterDataHolder *> FDataHolders;
+	QMap<int, QString> FSingleGroups;
+private:
+	// streamRoot->bareJid->index
+	QHash<IRosterIndex *, QMultiHash<Jid, IRosterIndex *> > FContactsCache;
+	// parent->name->index
+	QHash<IRosterIndex *, QMultiHash<QString, IRosterIndex *> > FGroupsCache;
 };
 
 #endif // ROSTERSMODEL_H

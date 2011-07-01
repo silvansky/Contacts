@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include Product.wxs ?>
+  <Fragment>
+    <ComponentGroup Id="Ms">
+      <Component Id="ComponentMsvCp" Directory="INSTALLLOCATION" Guid="{CB30A2F7-F19D-403d-AE55-895224DD36FA}">
+        <File Id="FileMsvCp" KeyPath="yes" Source="$(var.VirtusProjectRoot)\msvcp90.dll"/>
+      </Component>
+      <Component Id="ComponentMsvCr" Directory="INSTALLLOCATION" Guid="{68F0442E-6063-4c25-A7B7-5178BDFCB678}">
+        <File Id="FileMsvCr" KeyPath="yes" Source="$(var.VirtusProjectRoot)\msvcr90.dll"/>
+      </Component>
+      <Component Id="ComponentMsvCm" Directory="INSTALLLOCATION" Guid="{68F0442E-7073-4c25-A7B7-5178BDFCB678}">
+        <File Id="FileMsvCm" KeyPath="yes" Source="$(var.VirtusProjectRoot)\msvcm90.dll"/>
+      </Component>
+
+      <Component Id="ComponentManifest" Directory="INSTALLLOCATION" Guid="{7811D369-28F5-45fd-99BF-0AB9E23D5FF2}">
+        <File Id="FileManifest" KeyPath="yes" Source="$(var.VirtusProjectRoot)\Microsoft.VC90.CRT.manifest"/>
+      </Component>
+
+    </ComponentGroup>
+  </Fragment>
+</Wix>

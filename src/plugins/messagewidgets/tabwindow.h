@@ -12,14 +12,15 @@
 #include <utils/options.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
+#include <utils/custombordercontainer.h>
 #include "ui_tabwindow.h"
 
 class TabWindow :
 			public QMainWindow,
 			public ITabWindow
 {
-	Q_OBJECT
-	Q_INTERFACES(ITabWindow)
+	Q_OBJECT;
+	Q_INTERFACES(ITabWindow);
 public:
 	TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId);
 	virtual ~TabWindow();

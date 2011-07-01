@@ -28,8 +28,10 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/istanzaprocessor.h>
+#include <interfaces/inotifications.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
+#include <utils/log.h>
 #include <utils/stanza.h>
 #include "smsinfowidget.h"
 
@@ -38,13 +40,14 @@ struct WindowStatus
 	QDateTime createTime;
 	QString historyId;
 	QDateTime historyTime;
-	QUuid historyRequestId;
+	QUuid historyContentId;
 	QString lastStatusShow;
 	QList<QDate> separators;
 	QList<int> notified;
 	QList<Message> unread;
 	QList<Message> offline;
 	QList<Message> requested;
+	QList<Message> pending;
 };
 
 struct TabPageInfo
@@ -69,7 +72,8 @@ struct StyleExtension
 enum HisloryLoadState {
 	HLS_READY,
 	HLS_WAITING,
-	HLS_FINISHED
+	HLS_FINISHED,
+	HLS_FAILED
 };
 
 class SmsMessageHandler :
@@ -114,8 +118,11 @@ public:
 	virtual bool isSmsContact(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual int smsBalance(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual bool requestSmsBalance(const Jid &AStreamJid, const Jid &AServiceJid);
+	virtual QString requestSmsSupplement(const Jid &AStreamJid, const Jid &AServiceJid);
 signals:
 	void smsBalanceChanged(const Jid &AStreamJid, const Jid &AServiceJid, int ABalance);
+	void smsSupplementReceived(const QString &AId, const QString &ANumber, const QString &ACode, int ACount);
+	void smsSupplementError(const QString &AId, const QString &ACondition, const QString &AMessage);
 	//ITabPageHandler
 	void tabPageCreated(ITabPage *ATabPage);
 	void tabPageDestroyed(ITabPage *ATabPage);
@@ -128,14 +135,16 @@ protected:
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
-	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
+	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch = true) const;
+	void clearWindow(IChatWindow *AWindow);
 	void updateWindow(IChatWindow *AWindow);
+	void resetWindowStatus(IChatWindow *AWindow);
 	void removeMessageNotifications(IChatWindow *AWindow);
 	void replaceUnreadMessages(IChatWindow *AWindow);
 	void replaceRequestedMessage(IChatWindow *AWindow, const QString &AMessageId, bool AReceived);
 protected:
 	void requestHistoryMessages(IChatWindow *AWindow, int ACount);
-	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit = false);
+	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState);
 protected:
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
@@ -156,6 +165,8 @@ protected slots:
 	void onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages);
 	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
+	void onDiscoInfoReceived(const IDiscoInfo &AInfo);
+	void onPresenceOpened(IPresence *APresence);
 	void onXmppStreamOpened(IXmppStream *AXmppStream);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onRosterAdded(IRoster *ARoster);
@@ -174,6 +185,7 @@ private:
 	IStanzaProcessor *FStanzaProcessor;
 	IRosterPlugin *FRosterPlugin;
 	IPresencePlugin *FPresencePlugin;
+	INotifications *FNotifications;
 private:
 	QList<IRoster *> FRosters;
 	QHash<QString, TabPageInfo> FTabPages;
@@ -188,6 +200,7 @@ private:
 	QMap<Jid, int> FSHISmsBalance;
 	QMap<Jid, int> FSHIMessageReceipts;
 	QMap<QString, Jid> FSmsBalanceRequests;
+	QMap<QString, Jid> FSmsSupplementRequests;
 	QMap<Jid, QMap<Jid, int> > FSmsBalance;
 };
 

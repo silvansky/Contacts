@@ -16,9 +16,10 @@ SearchEdit::SearchEdit(QWidget *parent) :
 	iconLabel = new QLabel(this);
 	iconLabel->setFixedSize(16, 16);
 	iconLabel->setMouseTracking(true);
-	currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_GLASS);
-	if (!currentIcon.isNull())
-		iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
+	iconLabel->setProperty("ignoreFilter", true);
+	//currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_GLASS);
+	//if (!currentIcon.isNull())
+	//	iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
 }
 
 void SearchEdit::processKeyPressEvent(QKeyEvent * event)
@@ -42,7 +43,7 @@ void SearchEdit::mouseMoveEvent(QMouseEvent * event)
 			updateIcon(Hover);
 		}
 		else
-			setCursor(QCursor(Qt::ArrowCursor));
+			setCursor(QCursor(Qt::IBeamCursor));
 	}
 	else
 	{
@@ -58,7 +59,12 @@ void SearchEdit::mouseMoveEvent(QMouseEvent * event)
 void SearchEdit::mousePressEvent(QMouseEvent *event)
 {
 	if (iconLabel->geometry().contains(event->pos()))
-		setText("");
+	{
+		if (!text().isEmpty())
+			setText("");
+		else
+			setFocus();
+	}
 }
 
 void SearchEdit::leaveEvent(QEvent *)
@@ -72,9 +78,15 @@ void SearchEdit::leaveEvent(QEvent *)
 void SearchEdit::onTextChanged(const QString &newText)
 {
 	if (newText.isEmpty())
+	{
 		updateIcon(Ready);
+		iconLabel->setToolTip(QString::null);
+	}
 	else
+	{
 		updateIcon(InProgress);
+		iconLabel->setToolTip(tr("Clear field"));
+	}
 }
 
 void SearchEdit::updateIcon(IconState iconState)
@@ -84,7 +96,7 @@ void SearchEdit::updateIcon(IconState iconState)
 		switch (iconState)
 		{
 		case Ready:
-			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_GLASS);
+			currentIcon = QIcon();//iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_GLASS);
 			break;
 		case InProgress:
 			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS);
@@ -93,7 +105,6 @@ void SearchEdit::updateIcon(IconState iconState)
 			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS_HOVER);
 			break;
 		}
-		if (!currentIcon.isNull())
-			iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
+		iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
 	}
 }

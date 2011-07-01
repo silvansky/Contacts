@@ -29,6 +29,10 @@
     <object mime="image/png">mainwindowlogo128.png</object>
   </icon>
   <icon>
+    <key>mainwindowLogo256</key>
+    <object mime="image/png">mainwindowlogo256.png</object>
+  </icon>
+  <icon>
     <key>mainwindowQuit</key>
     <object mime="image/png">mainwindowquit.png</object>
   </icon>

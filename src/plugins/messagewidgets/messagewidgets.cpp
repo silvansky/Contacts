@@ -1,11 +1,7 @@
 #include "messagewidgets.h"
 
-#include <QTextBlock>
 #include <QClipboard>
 #include <QDesktopServices>
-#include <utils/customborderstorage.h>
-#include <definitions/resources.h>
-#include <definitions/customborder.h>
 
 #define ADR_CONTEXT_DATA							Action::DR_Parametr1
 
@@ -28,7 +24,7 @@ void MessageWidgets::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to use standard widgets for messaging");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -122,7 +118,7 @@ bool MessageWidgets::initSettings()
 	{
 		FOptionsManager->insertServerOption(OPV_MESSAGES_EDITORSENDKEY);
 
-		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), MNI_CHAT_MHANDLER_MESSAGE };
+		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), MNI_CHAT_MHANDLER_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
@@ -254,32 +250,6 @@ IMessageWindow *MessageWidgets::findMessageWindow(const Jid &AStreamJid, const J
 	return NULL;
 }
 
-QList<IMassSendDialog*> MessageWidgets::massSendDialogs() const
-{
-	return FMassSendDialogs;
-}
-
-IMassSendDialog * MessageWidgets::newMassSendDialog(const Jid & AStreamJid)
-{
-	IMassSendDialog * dlg = findMassSendDialog(AStreamJid);
-	if (!dlg)
-	{
-		dlg = new MassSendDialog(this, AStreamJid);
-		FMassSendDialogs.append(dlg);
-		FCleanupHandler.add(dlg->instance());
-		emit massSendDialogCreated(dlg);
-	}
-	return dlg;
-}
-
-IMassSendDialog * MessageWidgets::findMassSendDialog(const Jid & AStreamJid)
-{
-	foreach (IMassSendDialog* dialog, FMassSendDialogs)
-		if (dialog->streamJid() == AStreamJid)
-			return dialog;
-	return 0;
-}
-
 QList<IChatWindow *> MessageWidgets::chatWindows() const
 {
 	return FChatWindows;
@@ -305,6 +275,32 @@ IChatWindow *MessageWidgets::findChatWindow(const Jid &AStreamJid, const Jid &AC
 	foreach(IChatWindow *window,FChatWindows)
 		if (window->streamJid() == AStreamJid && window->contactJid() == AContactJid)
 			return window;
+	return NULL;
+}
+
+QList<IMassSendDialog*> MessageWidgets::massSendDialogs() const
+{
+	return FMassSendDialogs;
+}
+
+IMassSendDialog *MessageWidgets::newMassSendDialog(const Jid &AStreamJid)
+{
+	IMassSendDialog *dialog = findMassSendDialog(AStreamJid);
+	if (!dialog)
+	{
+		dialog = new MassSendDialog(this, AStreamJid);
+		FMassSendDialogs.append(dialog);
+		FCleanupHandler.add(dialog->instance());
+		emit massSendDialogCreated(dialog);
+	}
+	return dialog;
+}
+
+IMassSendDialog *MessageWidgets::findMassSendDialog(const Jid &AStreamJid)
+{
+	foreach (IMassSendDialog* dialog, FMassSendDialogs)
+		if (dialog->streamJid() == AStreamJid)
+			return dialog;
 	return NULL;
 }
 
@@ -378,11 +374,15 @@ ITabWindow *MessageWidgets::createTabWindow(const QUuid &AWindowId)
 	{
 		window = new TabWindow(this,AWindowId);
 		FTabWindows.append(window);
-		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window->instance(), CBS_MESSAGEWINDOW);
+		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window->instance(), CBS_MESSAGEWINDOW);
 		if (border)
-			WidgetManager::setWindowSticky(border, true);
-		else
-			WidgetManager::setWindowSticky(window->instance(),true);
+		{
+			if (!border->restoreGeometry(Options::fileValue("messages.tabwindows.window.border.geometry",window->windowId()).toByteArray()))
+				border->setGeometry(WidgetManager::alignGeometry(QSize(640,480),border));
+			//WidgetManager::setWindowSticky(border, true);
+		}
+		//else
+			//WidgetManager::setWindowSticky(window->instance(),true);
 		connect(window->instance(),SIGNAL(tabPageAdded(ITabPage *)),SLOT(onTabPageAdded(ITabPage *)));
 		connect(window->instance(),SIGNAL(windowDestroyed()),SLOT(onTabWindowDestroyed()));
 		emit tabWindowCreated(window);
@@ -505,34 +505,6 @@ void MessageWidgets::deleteStreamWindows(const Jid &AStreamJid)
 			delete window->instance();
 }
 
-QString MessageWidgets::selectionHref(const QTextDocumentFragment &ASelection) const
-{
-	QString href;
-
-	QTextDocument doc;
-	doc.setHtml(ASelection.toHtml());
-
-	QTextBlock block = doc.firstBlock();
-	while (block.isValid())
-	{
-		for (QTextBlock::iterator it = block.begin(); !it.atEnd(); it++)
-		{
-			if (it.fragment().charFormat().isAnchor())
-			{
-				if (href.isNull())
-					href = it.fragment().charFormat().anchorHref();
-				else if (href != it.fragment().charFormat().anchorHref())
-					return QString::null;
-			}
-			else
-				return QString::null;
-		}
-		block = block.next();
-	}
-
-	return href;
-}
-
 QList<Action *> MessageWidgets::createLastTabPagesActions(QObject *AParent) const
 {
 	QList<Action *> actions;
@@ -574,36 +546,30 @@ void MessageWidgets::onViewWidgetContextMenu(const QPoint &APosition, const QTex
 		connect(copyAction,SIGNAL(triggered(bool)),SLOT(onViewContextCopyActionTriggered(bool)));
 		AMenu->addAction(copyAction,AG_VWCM_MESSAGEWIDGETS_COPY,true);
 
-		QUrl href = selectionHref(ASelection);
-		if (href.isValid() && !href.isEmpty())
+		QUrl href = getTextFragmentHref(ASelection);
+		if (href.isValid())
 		{
+			bool isMailto = href.scheme()=="mailto";
+
 			Action *urlAction = new Action(AMenu);
-			urlAction->setText(href.scheme()=="mailto" ? tr("Send mail") : tr("Open link"));
+			urlAction->setText(isMailto ? tr("Send mail") : tr("Open link"));
 			urlAction->setData(ADR_CONTEXT_DATA,href.toString());
 			connect(urlAction,SIGNAL(triggered(bool)),SLOT(onViewContextUrlActionTriggered(bool)));
 			AMenu->addAction(urlAction,AG_VWCM_MESSAGEWIDGETS_URL,true);
 			AMenu->setDefaultAction(urlAction);
 
 		  Action *copyHrefAction = new Action(AMenu);
-			copyHrefAction->setText(href.scheme()=="mailto" ? tr("Copy e-mail address") : tr("Copy link address"));
-			copyHrefAction->setData(ADR_CONTEXT_DATA,href.toString());
+			copyHrefAction->setText(tr("Copy address"));
+			copyHrefAction->setData(ADR_CONTEXT_DATA,isMailto ? href.path() : href.toString());
 			connect(copyHrefAction,SIGNAL(triggered(bool)),SLOT(onViewContextCopyActionTriggered(bool)));
 			AMenu->addAction(copyHrefAction,AG_VWCM_MESSAGEWIDGETS_COPY,true);
 		}
-
-		if (!href.isValid() || href.scheme()=="mailto")
+		else
 		{
+			QString plainSelection = ASelection.toPlainText().trimmed();
 			Action *searchAction = new Action(AMenu);
-			if (href.scheme()=="mailto")
-			{
-				searchAction->setText(tr("Search on Rambler '%1'").arg(href.path()));
-				searchAction->setData(ADR_CONTEXT_DATA,href.path());
-			}
-			else
-			{
-				searchAction->setText(tr("Search on Rambler"));
-				searchAction->setData(ADR_CONTEXT_DATA,ASelection.toPlainText());
-			}
+			searchAction->setText(tr("Search on Rambler \"%1\"").arg(plainSelection.length()>33 ? plainSelection.left(30)+"..." : plainSelection));
+			searchAction->setData(ADR_CONTEXT_DATA, plainSelection);
 			connect(searchAction,SIGNAL(triggered(bool)),SLOT(onViewContextSearchActionTriggered(bool)));
 			AMenu->addAction(searchAction,AG_VWCM_MESSAGEWIDGETS_SEARCH,true);
 		}
@@ -636,7 +602,9 @@ void MessageWidgets::onViewContextSearchActionTriggered(bool)
 	if (action)
 	{
 		QUrl url = QString("http://nova.rambler.ru/search");
-		url.setQueryItems(QList<QPair<QString,QString> >() << qMakePair<QString,QString>(QString("query"),action->data(ADR_CONTEXT_DATA).toString()));
+		url.setQueryItems(QList<QPair<QString,QString> >()
+			<< qMakePair<QString,QString>(QString("query"),action->data(ADR_CONTEXT_DATA).toString())
+			<< qMakePair<QString,QString>(QString("from"),QString("contacts_dialog")));
 		QDesktopServices::openUrl(url);
 	}
 }
@@ -704,6 +672,11 @@ void MessageWidgets::onTabWindowDestroyed()
 	ITabWindow *window = qobject_cast<ITabWindow *>(sender());
 	if (window)
 	{
+		CustomBorderContainer *border = qobject_cast<CustomBorderContainer *>(window->instance()->parentWidget());
+		if (border)
+		{
+			Options::setFileValue(border->saveGeometry(),"messages.tabwindows.window.border.geometry",window->windowId());
+		}
 		FTabWindows.removeAt(FTabWindows.indexOf(window));
 		emit tabWindowDestroyed(window);
 	}
@@ -733,6 +706,7 @@ void MessageWidgets::onTrayContextMenuAboutToShow()
 void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
 	Q_UNUSED(ANotifyId);
+#ifndef Q_OS_MAC
 	if (AReason==QSystemTrayIcon::Trigger && !FTabPageHandlers.isEmpty())
 	{
 		Menu *menu = new Menu;
@@ -758,8 +732,11 @@ void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Activ
 		else
 		{
 			delete menu;
+		}
 	}
-}
+#else
+	Q_UNUSED(AReason)
+#endif
 }
 
 void MessageWidgets::onOptionsOpened()

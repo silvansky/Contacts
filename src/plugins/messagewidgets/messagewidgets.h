@@ -3,6 +3,8 @@
 
 #include <QDesktopServices>
 #include <QObjectCleanupHandler>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 #include <definitions/actiongroups.h>
 #include <definitions/optionvalues.h>
 #include <definitions/optionnodes.h>
@@ -19,6 +21,7 @@
 #include <interfaces/ivcard.h>
 #include <utils/options.h>
 #include <utils/widgetmanager.h>
+#include <utils/customborderstorage.h>
 #include "infowidget.h"
 #include "viewwidget.h"
 #include "editwidget.h"
@@ -72,12 +75,12 @@ public:
 	virtual QList<IMessageWindow *> messageWindows() const;
 	virtual IMessageWindow *newMessageWindow(const Jid &AStreamJid, const Jid &AContactJid, IMessageWindow::Mode AMode);
 	virtual IMessageWindow *findMessageWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
-	virtual QList<IMassSendDialog*> massSendDialogs() const;
-	virtual IMassSendDialog * newMassSendDialog(const Jid & AStreamJid);
-	virtual IMassSendDialog * findMassSendDialog(const Jid & AStreamJid);
 	virtual QList<IChatWindow *> chatWindows() const;
 	virtual IChatWindow *newChatWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual IChatWindow *findChatWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
+	virtual QList<IMassSendDialog*> massSendDialogs() const;
+	virtual IMassSendDialog * newMassSendDialog(const Jid &AStreamJid);
+	virtual IMassSendDialog * findMassSendDialog(const Jid &AStreamJid);
 	virtual QList<QUuid> tabWindowList() const;
 	virtual QUuid appendTabWindow(const QString &AName);
 	virtual void deleteTabWindow(const QUuid &AWindowId);
@@ -126,7 +129,6 @@ signals:
 protected:
 	void deleteWindows();
 	void deleteStreamWindows(const Jid &AStreamJid);
-	QString selectionHref(const QTextDocumentFragment &ASelection) const;
 	QList<Action *> createLastTabPagesActions(QObject *AParent) const;
 protected slots:
 	void onViewWidgetUrlClicked(const QUrl &AUrl);

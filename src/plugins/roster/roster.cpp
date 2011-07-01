@@ -49,25 +49,28 @@ bool Roster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASta
 	}
 	else if (AHandlerId == FSHISubscription)
 	{
+		Jid contactJid = AStanza.from();
 		QString status = AStanza.firstElement("status").text();
 		if (AStanza.type() == SUBSCRIPTION_SUBSCRIBE)
 		{
-			emit subscriptionReceived(AStanza.from(),IRoster::Subscribe,status);
+			FSubscriptionRequests += contactJid.bare();
+			emit subscriptionReceived(contactJid,IRoster::Subscribe,status);
 			AAccept = true;
 		}
 		else if (AStanza.type() == SUBSCRIPTION_SUBSCRIBED)
 		{
-			emit subscriptionReceived(AStanza.from(),IRoster::Subscribed,status);
+			emit subscriptionReceived(contactJid,IRoster::Subscribed,status);
 			AAccept = true;
 		}
 		else if (AStanza.type() == SUBSCRIPTION_UNSUBSCRIBE)
 		{
-			emit subscriptionReceived(AStanza.from(),IRoster::Unsubscribe,status);
+			FSubscriptionRequests -= contactJid.bare();
+			emit subscriptionReceived(contactJid,IRoster::Unsubscribe,status);
 			AAccept = true;
 		}
 		else if (AStanza.type() == SUBSCRIPTION_UNSUBSCRIBED)
 		{
-			emit subscriptionReceived(AStanza.from(),IRoster::Unsubscribed,status);
+			emit subscriptionReceived(contactJid,IRoster::Unsubscribed,status);
 			AAccept = true;
 		}
 	}
@@ -219,29 +222,6 @@ void Roster::setItems(const QList<IRosterItem> &AItems)
 		setItem(ritem.itemJid,ritem.name,ritem.groups);
 }
 
-void Roster::sendSubscription(const Jid &AItemJid, int ASubsType, const QString &AText)
-{
-	QString type;
-	if (ASubsType == IRoster::Subscribe)
-		type = SUBSCRIPTION_SUBSCRIBE;
-	else if (ASubsType == IRoster::Subscribed)
-		type = SUBSCRIPTION_SUBSCRIBED;
-	else if (ASubsType == IRoster::Unsubscribe)
-		type = SUBSCRIPTION_UNSUBSCRIBE;
-	else if (ASubsType == IRoster::Unsubscribed)
-		type = SUBSCRIPTION_UNSUBSCRIBED;
-
-	if (!type.isEmpty())
-	{
-		Stanza subscr("presence");
-		subscr.setTo(AItemJid.eBare()).setType(type);
-		if (!AText.isEmpty())
-			subscr.addElement("status").appendChild(subscr.createTextNode(AText));
-		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),subscr))
-			emit subscriptionSent(AItemJid.bare(),ASubsType,AText);
-	}
-}
-
 void Roster::removeItem(const Jid &AItemJid)
 {
 	Stanza query("iq");
@@ -254,19 +234,8 @@ void Roster::removeItem(const Jid &AItemJid)
 
 void Roster::removeItems(const QList<IRosterItem> &AItems)
 {
-	if (!AItems.isEmpty())
-	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement elem = query.addElement("query",NS_JABBER_ROSTER);
-		foreach(IRosterItem ritem, AItems)
-		{
-			QDomElement itemElem = elem.appendChild(query.createElement("item")).toElement();
-			itemElem.setAttribute("jid", ritem.itemJid.eBare());
-			itemElem.setAttribute("subscription",SUBSCRIPTION_REMOVE);
-		}
-		FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),query);
-	}
+	foreach(const IRosterItem &ritem, AItems)
+		removeItem(ritem.itemJid);
 }
 
 void Roster::saveRosterItems(const QString &AFileName) const
@@ -313,6 +282,38 @@ void Roster::loadRosterItems(const QString &AFileName)
 				}
 			}
 			rosterFile.close();
+		}
+	}
+}
+
+QSet<Jid> Roster::subscriptionRequests() const
+{
+	return FSubscriptionRequests;
+}
+
+void Roster::sendSubscription(const Jid &AItemJid, int ASubsType, const QString &AText)
+{
+	QString type;
+	if (ASubsType == IRoster::Subscribe)
+		type = SUBSCRIPTION_SUBSCRIBE;
+	else if (ASubsType == IRoster::Subscribed)
+		type = SUBSCRIPTION_SUBSCRIBED;
+	else if (ASubsType == IRoster::Unsubscribe)
+		type = SUBSCRIPTION_UNSUBSCRIBE;
+	else if (ASubsType == IRoster::Unsubscribed)
+		type = SUBSCRIPTION_UNSUBSCRIBED;
+
+	if (!type.isEmpty())
+	{
+		Stanza subscr("presence");
+		subscr.setTo(AItemJid.eBare()).setType(type);
+		if (!AText.isEmpty())
+			subscr.addElement("status").appendChild(subscr.createTextNode(AText));
+		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),subscr))
+		{
+			if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribed)
+				FSubscriptionRequests -= AItemJid.bare();
+			emit subscriptionSent(AItemJid.bare(),ASubsType,AText);
 		}
 	}
 }
@@ -494,7 +495,8 @@ void Roster::processItemsElement(const QDomElement &AItemsElem, bool ACompleteRo
 					}
 					ritem.groups = allItemGroups;
 
-					emit received(ritem,before);
+					if (ritem != before)
+						emit received(ritem,before);
 				}
 			}
 			else if (subs==SUBSCRIPTION_REMOVE && FRosterItems.contains(itemJid))
@@ -595,6 +597,7 @@ void Roster::onStreamClosed()
 		emit closed();
 	}
 	FVerSupported = false;
+	FSubscriptionRequests.clear();
 	FXmppStream->insertXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
 }
 

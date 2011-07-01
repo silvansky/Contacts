@@ -7,6 +7,9 @@
 //ChatMessagehandler
 #define SDF_CHAT_MHANDLER_MESSAGE												  "chatmessagehandlerMessage"
 
+//Gateways
+#define SDF_GATEWAYS_CONFLICT                             "gatewaysConflict"
+
 //FileTransfer
 #define SDF_FILETRANSFER_INCOMING                         "filetransferIncoming"
 #define SDF_FILETRANSFER_COMPLETE                         "filetransferComplete"
@@ -14,6 +17,9 @@
 
 //NormalMessagehandler
 #define SDF_NORMAL_MHANDLER_MESSAGE                       "normalmessagehandlerMessage"
+
+//MetaContacts
+#define SDF_METACONTACTS_DELETE_FAIL                      "metacontactsDeleteFail"
 
 //MultiUserChat
 #define SDF_MUC_MESSAGE                                   "mucMessage"
@@ -24,6 +30,9 @@
 //Presence
 #define SDF_PRESENCE_MOOD_CHANGED                         "presenceMoodChanged"
 #define SDF_PRESENCE_STATE_CHANGED                        "presenceStateChanged"
+
+//RamblerMailNotify
+#define SDF_RAMBLERMAILNOTIFY_NOTIFY                      "ramblermailnotifyNotify"
 
 //Roster
 #define SDF_ROSTER_CONTACT_ADDED                          "rosterContactAdded"
@@ -36,6 +45,9 @@
 
 //SipPhone
 #define SDF_SIPPHONE_CALL                                 "sipphoneCall"
+#define SDF_SIPPHONE_CALL_WAIT                            "sipphoneCallWait"
+#define SDF_SIPPHONE_CALL_BUSY                            "sipphoneCallBusy"
+#define SDF_SIPPHONE_CALL_RINGING                         "sipphoneCallRinging"
 
 //StatusChanger
 #define SDF_SCHANGER_CONNECTION_ERROR                     "schangerConnectionError"

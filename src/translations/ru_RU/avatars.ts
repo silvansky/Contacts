@@ -13,15 +13,15 @@
     </message>
     <message>
         <source>Clear avatar</source>
-        <translation>Очистить аватар</translation>
+        <translation>Удалить аватар</translation>
     </message>
     <message>
         <source>Select avatar image</source>
-        <translation>Выбрать картинку аватара</translation>
+        <translation>Выбрать изображение</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.bmp *.gif)</source>
-        <translation>Картинки (*.png *.jpg *.bmp *.gif)</translation>
+        <translation>Изображения (*.png *.jpg *.bmp *.gif)</translation>
     </message>
     <message>
         <source>Avatars</source>
@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Allows to set and display avatars</source>
-        <translation>Позволяет устанавливать и отображать аватары</translation>
+        <translation>Позволяет загружать и показывать аватары</translation>
     </message>
 </context>
 </TS>

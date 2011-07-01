@@ -1,6 +1,4 @@
 #include "legacyaccountfilter.h"
-#include <QtDebug>
-
 
 LegacyAccountFilter::LegacyAccountFilter(IGateways *AGateways, QObject *AParent) : QSortFilterProxyModel(AParent)
 {
@@ -24,27 +22,21 @@ bool LegacyAccountFilter::filterAcceptsRow(int ASourceRow, const QModelIndex &AS
 		if (indexType == RIT_CONTACT)
 		{
 			Jid streamJid = Jid(index.data(RDR_STREAM_JID).toString()).bare();
-			Jid serviceJid = Jid(index.data(RDR_JID).toString()).domain();
+			Jid serviceJid = Jid(index.data(RDR_PREP_BARE_JID).toString()).domain();
 			return !FStreamGates.value(streamJid).contains(serviceJid) || FEnabledGates.value(streamJid).contains(serviceJid);
 		}
 		else if (indexType == RIT_METACONTACT)
 		{
 			Jid streamJid = Jid(index.data(RDR_STREAM_JID).toString()).bare();
-			QSet<Jid> sgates = FStreamGates.value(streamJid);
-			QSet<Jid> egates = FEnabledGates.value(streamJid);
 			foreach(Jid itemJid, index.data(RDR_METACONTACT_ITEMS).toStringList())
-			{
-				Jid serviceJid = itemJid.domain();
-				if (!itemJid.node().isEmpty() && (!sgates.contains(serviceJid) || egates.contains(serviceJid)))
+				if (!itemJid.node().isEmpty())
 					return true;
-			}
 			return false;
 		}
 		else if (indexType == RIT_AGENT)
 		{
 			return false;
 		}
-
 	}
 	return true;
 }
@@ -59,6 +51,7 @@ void LegacyAccountFilter::onStreamServicesChanged(const Jid &AStreamJid)
 	if (newServices != oldServices)
 	{
 		FStreamGates.insert(AStreamJid.bare(),newServices);
+		invalidateFilter();
 		reset();
 	}
 }
@@ -69,11 +62,13 @@ void LegacyAccountFilter::onServiceEnableChanged(const Jid &AStreamJid, const Ji
 	if (AEnabled && !services.contains(AServiceJid))
 	{
 		services += AServiceJid;
+		invalidateFilter();
 		reset();
 	}
 	else if (!AEnabled && services.contains(AServiceJid))
 	{
 		services -= AServiceJid;
+		invalidateFilter();
 		reset();
 	}
 }

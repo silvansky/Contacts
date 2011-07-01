@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include Product.wxs ?>
+
+  <Fragment>
+    <DirectoryRef Id="INSTALLLOCATION">
+      <Directory Id="phonon_backend_dir" Name="phonon_backend" />
+    </DirectoryRef>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="Qt">
+      <Component Id="ComponentQtCore" Directory="INSTALLLOCATION" Guid="{D15FE964-7338-4826-860D-0C678A765608}">
+        <File Id="QtCore" KeyPath="yes" Source="$(var.VirtusProjectRoot)\QtCore4.dll"/>
+      </Component>
+      <Component Id="ComponentQtGui" Directory="INSTALLLOCATION" Guid="{392C90BA-8217-4563-A1B2-35451BAA7F0F}">
+        <File Id="QtGui" 
+              KeyPath="yes" 
+              Source="$(var.VirtusProjectRoot)\QtGui4.dll"/>
+      </Component>
+      <Component Id="ComponentQtNetwork" Directory="INSTALLLOCATION" Guid="{2B0275EF-889F-4592-8B31-B4F397E014F8}">
+        <File Id="QtNetwork" KeyPath="yes" Source="$(var.VirtusProjectRoot)\QtNetwork4.dll"/>
+      </Component>
+      <Component Id="ComponentQtWebKit" Directory="INSTALLLOCATION" Guid="{90CCBB80-3270-466a-9AF2-7D84D4C76209}">
+        <File Id="QtWebKit" KeyPath="yes" Source="$(var.VirtusProjectRoot)\QtWebKit4.dll"/>
+      </Component>
+      <Component Id="ComponentQtXml" Directory="INSTALLLOCATION" Guid="{5824EFEA-C16D-4760-9392-8AC506A520EF}">
+        <File Id="QtXml" KeyPath="yes" Source="$(var.VirtusProjectRoot)\QtXml4.dll"/>
+      </Component>
+      <Component Id="ComponentQtMiltimedia" Directory="INSTALLLOCATION" Guid="{5824EFEA-C16D-4760-9392-8AC506AAAAEF}">
+        <File Id="QtMultimedia" KeyPath="yes" Source="$(var.VirtusProjectRoot)\QtMultimedia4.dll"/>
+      </Component>
+
+
+      <Component Id="ComponentQtXmlPatterns" Directory="INSTALLLOCATION" Guid="{F3D2684C-C5DF-4fad-B53A-1FE6AA19D418}">
+        <File Id="QtXmlPatterns" KeyPath="yes" Source="$(var.VirtusProjectRoot)\QtXmlPatterns4.dll"/>
+      </Component>
+
+      <Component Id="ComponentPhonon4" Directory="INSTALLLOCATION" Guid="{414B25FB-8EEE-47d8-AA85-2BF6A20476DF}">
+        <File Id="Phonon4" KeyPath="yes" Source="$(var.VirtusProjectRoot)\phonon4.dll"/>
+      </Component>
+
+      <Component Id="ComponentPhononBackend" Directory="phonon_backend_dir" Guid="{414B25FB-ABEE-47d8-AA85-2BF6A20476DF}">
+        <File Id="PhononBackendFile1" KeyPath="yes" Source="$(var.VirtusProjectRoot)\phonon_backend\phonon_ds94.dll"/>
+      </Component>
+
+    </ComponentGroup>
+  </Fragment>
+</Wix>

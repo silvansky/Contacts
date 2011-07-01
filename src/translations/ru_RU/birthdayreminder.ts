@@ -5,11 +5,11 @@
     <name>BirthdayReminder</name>
     <message>
         <source>Birthday Reminder</source>
-        <translation>Уведомления о днях рождения</translation>
+        <translation>Напоминания о днях рождения</translation>
     </message>
     <message>
         <source>Reminds about birthdays of your friends</source>
-        <translation>Уведомляеь о днях рождения ваших друзей</translation>
+        <translation>Напоминать о днях рождения ваших друзей</translation>
     </message>
     <message>
         <source>Birthdays</source>
@@ -18,14 +18,6 @@
     <message>
         <source>Enable a reminder to not miss the birthdays of your friends!</source>
         <translation>Включите напоминания, чтобы не пропустить дни рождения друзей!</translation>
-    </message>
-    <message>
-        <source>Birthday of</source>
-        <translation>День рождения у</translation>
-    </message>
-    <message>
-        <source>Birthday &lt;b&gt;today&lt;/b&gt;!</source>
-        <translation>День рождения &lt;b&gt;сегодня&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Congratulate with postcard</source>

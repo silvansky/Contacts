@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFile>
 #include <QCryptographicHash>
+#include <utils/log.h>
 
 #define SHC_DISCO_INFO          "/iq[@type='get']/query[@xmlns='" NS_DISCO_INFO "']"
 #define SHC_DISCO_ITEMS         "/iq[@type='get']/query[@xmlns='" NS_DISCO_ITEMS "']"
@@ -63,7 +64,7 @@ void ServiceDiscovery::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to receive information about Jabber entities");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
@@ -275,6 +276,17 @@ bool ServiceDiscovery::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, St
 
 			EntityCapabilities oldCaps = FEntityCaps.value(AStreamJid).value(contactJid);
 			bool capsChanged = !capsElem.isNull() && (oldCaps.ver!=newCaps.ver || oldCaps.node!=newCaps.node);
+
+			// Some gates can send back presence from your or another connection with EntityCaps!!!
+			// So we should ignore entity caps from all agents
+			if (!capsElem.isNull() && contactJid.node().isEmpty())
+			{
+				newCaps.node.clear();
+				newCaps.ver.clear();
+				newCaps.hash.clear();
+				capsChanged = true;
+			}
+
 			if (capsElem.isNull() || capsChanged)
 			{
 				if (hasEntityCaps(newCaps))
@@ -330,6 +342,7 @@ void ServiceDiscovery::stanzaRequestTimeout(const Jid &AStreamJid, const QString
 		IDiscoInfo dinfo;
 		DiscoveryRequest drequest = FInfoRequestsId.take(AStanzaId);
 		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
+		Log(QString("[ServiceDiscovery request timeout] %1").arg(err.message()));
 		dinfo.streamJid = drequest.streamJid;
 		dinfo.contactJid = drequest.contactJid;
 		dinfo.node = drequest.node;
@@ -344,6 +357,7 @@ void ServiceDiscovery::stanzaRequestTimeout(const Jid &AStreamJid, const QString
 		IDiscoItems ditems;
 		DiscoveryRequest drequest = FItemsRequestsId.take(AStanzaId);
 		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
+		Log(QString("[ServiceDiscovery request timeout] %1").arg(err.message()));
 		ditems.streamJid = drequest.streamJid;
 		ditems.contactJid = drequest.contactJid;
 		ditems.node = drequest.node;
@@ -401,7 +415,7 @@ bool ServiceDiscovery::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 	if (AIndex->type()==RIT_AGENT && FSelfCaps.contains(streamJid))
 	{
-		showDiscoItems(streamJid,AIndex->data(RDR_JID).toString(),QString::null);
+		showDiscoItems(streamJid,AIndex->data(RDR_FULL_JID).toString(),QString::null);
 	}
 	return false;
 }
@@ -781,6 +795,7 @@ IDiscoInfo ServiceDiscovery::parseDiscoInfo(const Stanza &AStanza, const Discove
 	if (AStanza.type() == "error")
 	{
 		ErrorHandler err(AStanza.element());
+		Log(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
@@ -788,6 +803,7 @@ IDiscoInfo ServiceDiscovery::parseDiscoInfo(const Stanza &AStanza, const Discove
 	else if (result.contactJid!=AStanza.from() || result.node!=query.attribute("node"))
 	{
 		ErrorHandler err(ErrorHandler::FEATURE_NOT_IMPLEMENTED);
+		Log(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
@@ -810,6 +826,7 @@ IDiscoItems ServiceDiscovery::parseDiscoItems(const Stanza &AStanza, const Disco
 	if (AStanza.type() == "error")
 	{
 		ErrorHandler err(AStanza.element());
+		Log(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
@@ -817,6 +834,7 @@ IDiscoItems ServiceDiscovery::parseDiscoItems(const Stanza &AStanza, const Disco
 	else if (result.contactJid!=AStanza.from() || result.node!=query.attribute("node"))
 	{
 		ErrorHandler err(ErrorHandler::FEATURE_NOT_IMPLEMENTED);
+		Log(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
@@ -1337,7 +1355,7 @@ void ServiceDiscovery::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId,
 	if (ALabelId == RLID_DISPLAY)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = AIndex->type()==RIT_STREAM_ROOT ? Jid(AIndex->data(RDR_JID).toString()).domain() : AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->type()==RIT_STREAM_ROOT ? Jid(AIndex->data(RDR_FULL_JID).toString()).domain() : AIndex->data(RDR_FULL_JID).toString();
 		if (hasDiscoInfo(streamJid,contactJid))
 		{
 			IDiscoInfo dinfo = discoInfo(streamJid,contactJid);

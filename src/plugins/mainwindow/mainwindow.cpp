@@ -165,11 +165,41 @@ void MainWindow::keyPressEvent(QKeyEvent * AEvent)
 	if (AEvent->key() == Qt::Key_Escape)
 	{
 		if (parentWidget())
-			parentWidget()->close();
+		{
+#ifdef Q_WS_WIN
+			if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			{
+				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget()))
+				{
+					border->minimizeWidget();
+				}
+				else
+					parentWidget()->showMinimized();
+			}
+			else
+#endif
+				parentWidget()->close();
+		}
 		else
+#ifdef Q_WS_WIN
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		{
+			showMinimized();
+		}
+		else
+#endif
 			close();
 	}
 	QMainWindow::keyPressEvent(AEvent);
+}
+
+void MainWindow::closeEvent(QCloseEvent * ce)
+{
+#ifdef Q_WS_WIN
+	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		emit closed();
+#endif
+	QMainWindow::closeEvent(ce);
 }
 
 void MainWindow::onStackedWidgetChanged(int AIndex)

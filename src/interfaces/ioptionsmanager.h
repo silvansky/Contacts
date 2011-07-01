@@ -28,6 +28,7 @@ public slots:
 	virtual void reset() =0;
 protected:
 	virtual void modified() =0;
+	virtual void updated() =0;
 	virtual void childApply() =0;
 	virtual void childReset() =0;
 };

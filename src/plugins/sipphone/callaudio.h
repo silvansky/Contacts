@@ -82,20 +82,42 @@ public:
   bool checkCodec( SipCallMember *member );
   void setStunSrv( QString newStunSrv );
 
+	VoIPVideo* videoControl() const;
+
+public slots:
+	void onTerminated();
+	void onFinished();
+	void onUserExit();
+	void outputVideoResolutonChangedToHigh(bool);
+
+
 signals:
   void outputDead( void );
   void statusUpdated( void );
 	void proxyPictureShow(const QImage&);
+	void proxyLocalPictureShow(const QImage&);
+	void proxyStopCamera();
+	void proxyStartCamera();
+	void proxySuspendStateChange(bool);
+	void incomingThreadTimeChange(qint64);
+
+	void audioOutputPresentChange(bool);
+	void audioInputPresentChange(bool);
 
 private slots:
   void memberStatusUpdated(SipCallMember *member);
-
+	void onProxySuspendStateChange(bool);
 
 private:
   void audioIn( void );
   void stopListeningAudio( void );
   void stopSendingAudio( void );
   void detachAndHold( void );
+
+
+
+protected:
+	void timerEvent(QTimerEvent *);
 
 private:
   //KPhoneView *view;
@@ -133,6 +155,8 @@ private:
 
   //QProcess *_pVideoProcess;
 	VoIPVideo* _pVideo;
+
+	int _incomingThreadTimeUpdateTimer;
 
   /*
   * Common socket for both streams, used only in symmetric mode

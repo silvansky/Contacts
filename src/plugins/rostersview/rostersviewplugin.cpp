@@ -45,7 +45,7 @@ void RostersViewPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Displays a hierarchical roster's model");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(ROSTERSMODEL_UUID);
 }
 
@@ -117,7 +117,7 @@ bool RostersViewPlugin::initObjects()
 		FShowOfflineAction = new Action(this);
 		FShowOfflineAction->setCheckable(true);
 		FShowOfflineAction->setText(tr("Show Offline"));
-		FShowOfflineAction->setShortcut(tr("Ctrl+O"));
+		//FShowOfflineAction->setShortcut(tr("Ctrl+O"));
 		FShowOfflineAction->setData(Action::DR_SortString,QString("100"));
 		connect(FShowOfflineAction,SIGNAL(triggered(bool)),SLOT(onShowOfflinesAction(bool)));
 		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FShowOfflineAction,AG_MMENU_ROSTERSVIEW_SHOWOFFLINE,true);
@@ -127,7 +127,7 @@ bool RostersViewPlugin::initObjects()
 		FGroupContactsAction->setText(tr("Group Contacts"));
 		FGroupContactsAction->setData(Action::DR_SortString,QString("200"));
 		connect(FGroupContactsAction,SIGNAL(triggered(bool)),SLOT(onGroupContactsAction(bool)));
-		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
+		//FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
 
 		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0,FRostersView);
 	}
@@ -171,7 +171,7 @@ QMultiMap<int, IOptionsWidget *> RostersViewPlugin::optionsWidgets(const QString
 	{
 		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contact List"),AParent));
 		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contacts"),AParent));
-		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"),AParent));
+		//widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"),AParent));
 
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_ORDER, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contacts Order"),AParent));
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_ORDER, new RosterContactOrderOptions(AParent));
@@ -198,8 +198,8 @@ QList<int> RostersViewPlugin::rosterDataRoles() const
 		<< Qt::BackgroundColorRole
 		<< Qt::ForegroundRole
 		<< RDR_FONT_WEIGHT
-		<< RDR_FONT_SIZE
-		<< RDR_GROUP_COUNTER;
+		<< RDR_FONT_SIZE;
+		//<< RDR_GROUP_COUNTER;
 	return dataRoles;
 }
 
@@ -229,7 +229,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 			{
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
-					display = AIndex->data(RDR_JID).toString();
+					display = AIndex->data(RDR_FULL_JID).toString();
 				return display;
 			}
 		case Qt::ForegroundRole:
@@ -253,9 +253,9 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		case Qt::BackgroundColorRole:
 			return FRostersView->palette().color(QPalette::Active, QPalette::AlternateBase);
 		case RDR_FONT_WEIGHT:
-			return QFont::DemiBold;
+			return QFont::Normal;
 		case RDR_GROUP_COUNTER:
-			return groupCounterLabel(AIndex);
+			return QString();//groupCounterLabel(AIndex);
 		}
 		break;
 
@@ -264,7 +264,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		{
 		case Qt::DisplayRole:
 			{
-				Jid indexJid = AIndex->data(RDR_JID).toString();
+				Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
 					display = indexJid.bare();
@@ -283,7 +283,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
 				{
-					Jid indexJid = AIndex->data(RDR_JID).toString();
+					Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
 					display = indexJid.bare();
 				}
 				return display;
@@ -296,7 +296,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		{
 		case Qt::DisplayRole:
 			{
-				Jid indexJid = AIndex->data(RDR_JID).toString();
+				Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
 				return indexJid.resource();
 			}
 		}
@@ -346,17 +346,9 @@ QString RostersViewPlugin::indexGroupName(const QModelIndex &AIndex) const
 	switch (indexType)
 	{
 	case RIT_GROUP:
-		return AIndex.data(RDR_GROUP).toString();
-	case RIT_GROUP_BLANK:
-		return FRostersModel!=NULL ? FRostersModel->blankGroupName() : QString::null;
-	case RIT_GROUP_NOT_IN_ROSTER:
-		return FRostersModel!=NULL ? FRostersModel->notInRosterGroupName() : QString::null;
-	case RIT_GROUP_MY_RESOURCES:
-		return FRostersModel!=NULL ? FRostersModel->myResourcesGroupName() : QString::null;
-	case RIT_GROUP_AGENTS:
-		return FRostersModel!=NULL ? FRostersModel->agentsGroupName() : QString::null;
+		return AIndex.data(RDR_NAME).toString();
 	default:
-		return QString::null;
+		return FRostersModel!=NULL ? FRostersModel->singleGroupName(indexType) : QString::null;
 	}
 	return QString::null;
 }
@@ -526,18 +518,20 @@ void RostersViewPlugin::onRosterIndexRemoved(IRosterIndex *AIndex)
 	{
 		FRostersView->removeLabel(FGroupCounterLabel,AIndex);
 	}
-	else if (AIndex->type() == RIT_CONTACT)
+	/*else if (AIndex->type() == RIT_CONTACT)
 	{
 		updateGroupCounter(AIndex);
-	}
+	}*/
 }
 
 void RostersViewPlugin::onRosterIndexDataChanged(IRosterIndex *AIndex, int ARole)
 {
-	if (AIndex->type()==RIT_CONTACT && ARole==RDR_SHOW)
+	Q_UNUSED(AIndex)
+	Q_UNUSED(ARole)
+	/*if (AIndex->type()==RIT_CONTACT && ARole==RDR_SHOW)
 	{
 		updateGroupCounter(AIndex);
-	}
+	}*/
 }
 
 void RostersViewPlugin::onRosterStreamJidAboutToBeChanged(IRoster *ARoster, const Jid &AAfter)

@@ -28,8 +28,8 @@ class XmppStream :
 			public IXmppStream,
 			public IXmppStanzaHadler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IXmppStream IXmppStanzaHadler);
+	Q_OBJECT
+	Q_INTERFACES(IXmppStream IXmppStanzaHadler)
 public:
 	XmppStream(IXmppStreams *AXmppStreams, const Jid &AStreamJid);
 	~XmppStream();
@@ -43,7 +43,7 @@ public:
 	virtual void close();
 	virtual void abort(const QString &AError);
 	virtual QString streamId() const;
-	virtual QString errorString() const;;
+	virtual QString errorString() const;
 	virtual Jid streamJid() const;
 	virtual void setStreamJid(const Jid &AJid);
 	virtual QString password() const;

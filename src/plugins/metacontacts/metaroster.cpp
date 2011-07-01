@@ -64,7 +64,7 @@ bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 		{
 			Stanza query("iq");
 			query.setType("get").setId(FStanzaProcessor->newId());
-			query.addElement("query",NS_RAMBLER_METACONTACTS);
+			query.addElement("query",NS_RAMBLER_METACONTACTS).setAttribute("ver",FRosterVer);
 
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,query,ROSTER_TIMEOUT))
 			{
@@ -93,20 +93,10 @@ bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 
 void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 {
-	if (FActionRequests.contains(AStanza.id()))
-	{
-		QString errCond;
-		QString errMessage;
-		if (AStanza.type() == "error")
-		{
-			ErrorHandler err(AStanza.element());
-			errCond = err.condition();
-			errMessage = err.message();
-		}
-		FActionRequests.removeAll(AStanza.id());
-		emit metaActionResult(AStanza.id(),errCond,errMessage);
-	}
-	else if (FOpenRequestId == AStanza.id())
+	if (AStanza.type()=="error")
+		FCreateItemRequest.remove(AStanza.id());
+
+	if (FOpenRequestId == AStanza.id())
 	{
 		if (AStanza.type() == "result")
 		{
@@ -128,21 +118,34 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			FStanzaProcessor->sendStanzaOut(AStreamJid,FRosterRequest);
 		}
 	}
+	else if (!FCreateItemRequest.contains(AStanza.id()))
+	{
+		QString errCond;
+		QString errMessage;
+		if (AStanza.type() == "error")
+		{
+			ErrorHandler err(AStanza.element());
+			errCond = err.condition();
+			errMessage = err.message();
+			Log(QString("[MetaRoster stanza error] condition %1 : %2").arg(errCond, errMessage));
+		}
+		processStanzaRequest(AStanza.id(),errCond,errMessage);
+	}
 }
 
 void MetaRoster::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
 {
-	if (FActionRequests.contains(AStanzaId))
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		FActionRequests.removeAll(AStanzaId);
-		emit metaActionResult(AStanzaId,err.condition(),err.message());
-	}
-	else if (FOpenRequestId == AStanzaId)
+	FCreateItemRequest.remove(AStanzaId);
+	if (FOpenRequestId == AStanzaId)
 	{
 		setEnabled(false);
 		removeStanzaHandlers();
 		FStanzaProcessor->sendStanzaOut(AStreamJid,FRosterRequest);
+	}
+	else if (!FCreateItemRequest.contains(AStanzaId))
+	{
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		processStanzaRequest(AStanzaId,err.condition(),err.message());
 	}
 }
 
@@ -166,22 +169,22 @@ bool MetaRoster::isOpen() const
 	return FOpened;
 }
 
-QList<Jid> MetaRoster::metaContacts() const
+QList<QString> MetaRoster::metaContacts() const
 {
 	return FContacts.keys();
 }
 
-IMetaContact MetaRoster::metaContact(const Jid &AMetaId) const
+IMetaContact MetaRoster::metaContact(const QString &AMetaId) const
 {
 	return FContacts.value(AMetaId);
 }
 
-Jid MetaRoster::itemMetaContact(const Jid &AItemJid) const
+QString MetaRoster::itemMetaContact(const Jid &AItemJid) const
 {
 	return FItemMetaId.value(AItemJid.pBare());
 }
 
-IPresenceItem MetaRoster::metaPresence(const Jid &AMetaId) const
+IPresenceItem MetaRoster::metaPresenceItem(const QString &AMetaId) const
 {
 	IPresenceItem pitem;
 	if (FContacts.contains(AMetaId))
@@ -189,22 +192,27 @@ IPresenceItem MetaRoster::metaPresence(const Jid &AMetaId) const
 		pitem.isValid = true;
 		if (FPresence)
 		{
-			QMultiMap<int, IPresenceItem> pitems;
+			bool hasNotServiceItem = false;
+			QMultiMap<int, IPresenceItem> contactItems;
+			QMultiMap<int, IPresenceItem> serviceItems;
 			IMetaContact contact = FContacts.value(AMetaId);
-			foreach(const Jid &itemJid, contact.items)
+			QMultiMap<int, Jid> orders = FMetaContacts->itemOrders(contact.items.toList());
+			foreach(const Jid &itemJid, orders.values())
 			{
-				if (!FMetaContacts->itemDescriptor(itemJid).service)
+				bool isService = FMetaContacts->metaDescriptorByItem(itemJid).service;
+				foreach(IPresenceItem item_pres, FPresence->presenceItems(itemJid))
 				{
-					foreach(IPresenceItem item_pres, FPresence->presenceItems(itemJid))
-					{
-						pitems.insertMulti(item_pres.show,item_pres);
-					}
+					if (isService)
+						serviceItems.insertMulti(item_pres.show,item_pres);
+					else
+						contactItems.insertMulti(item_pres.show,item_pres);
 				}
+				hasNotServiceItem |= !isService;
 			}
-			if (!pitems.isEmpty())
-			{
-				pitem = pitems.constBegin().value();
-			}
+			if (!contactItems.isEmpty())
+				pitem = contactItems.constBegin().value();
+			else if (!hasNotServiceItem && !serviceItems.isEmpty())
+				pitem = serviceItems.constBegin().value();
 		}
 	}
 	return pitem;
@@ -215,7 +223,7 @@ QList<IPresenceItem> MetaRoster::itemPresences(const Jid &AItemJid) const
 	return FPresence!=NULL ? FPresence->presenceItems(AItemJid) : QList<IPresenceItem>();
 }
 
-QString MetaRoster::metaAvatarHash(const Jid &AMetaId) const
+QString MetaRoster::metaAvatarHash(const QString &AMetaId) const
 {
 	QString hash;
 	if (FAvatars && FContacts.contains(AMetaId))
@@ -228,7 +236,7 @@ QString MetaRoster::metaAvatarHash(const Jid &AMetaId) const
 	return hash;
 }
 
-QImage MetaRoster::metaAvatarImage(const Jid &AMetaId, bool ANullImage) const
+QImage MetaRoster::metaAvatarImage(const QString &AMetaId, bool AAllowNull, bool AAllowGray) const
 {
 	QImage image;
 	if (FAvatars && FContacts.contains(AMetaId))
@@ -236,9 +244,18 @@ QImage MetaRoster::metaAvatarImage(const Jid &AMetaId, bool ANullImage) const
 		IMetaContact contact = FContacts.value(AMetaId);
 		QMultiMap<int, Jid> orders = FMetaContacts->itemOrders(contact.items.toList());
 		for (QMultiMap<int, Jid>::const_iterator it=orders.constBegin(); image.isNull() && it!=orders.constEnd(); it++)
-			image = FAvatars->avatarImage(it.value(),false);
-		if (image.isNull() && ANullImage)
-			image = FAvatars->avatarImage(AMetaId, ANullImage);
+			image = FAvatars->avatarImage(it.value(),true,false);
+
+		if (AAllowGray && !image.isNull())
+		{
+			IPresenceItem pitem = metaPresenceItem(AMetaId);
+			if (pitem.show==IPresence::Offline || pitem.show==IPresence::Error)
+				image = ImageManager::opacitized(image);
+		}
+		else if (!AAllowNull && image.isNull())
+		{
+			image = FAvatars->avatarImage(orders.constBegin().value(),false,AAllowGray);
+		}
 	}
 	return image;
 }
@@ -246,7 +263,7 @@ QImage MetaRoster::metaAvatarImage(const Jid &AMetaId, bool ANullImage) const
 QSet<QString> MetaRoster::groups() const
 {
 	QSet<QString> allGroups;
-	for (QHash<Jid, IMetaContact>::const_iterator it = FContacts.constBegin(); it!=FContacts.constEnd(); it++)
+	for (QHash<QString, IMetaContact>::const_iterator it = FContacts.constBegin(); it!=FContacts.constEnd(); it++)
 		allGroups += it->groups;
 	return allGroups;
 }
@@ -255,7 +272,7 @@ QList<IMetaContact> MetaRoster::groupContacts(const QString &AGroup) const
 {
 	QList<IMetaContact> contacts;
 	QString groupWithDelim = AGroup+roster()->groupDelimiter();
-	for (QHash<Jid, IMetaContact>::const_iterator it = FContacts.constBegin(); it!=FContacts.constEnd(); it++)
+	for (QHash<QString, IMetaContact>::const_iterator it = FContacts.constBegin(); it!=FContacts.constEnd(); it++)
 	{
 		foreach(QString group, it->groups)
 		{
@@ -275,12 +292,13 @@ void MetaRoster::saveMetaContacts(const QString &AFileName) const
 	{
 		QDomDocument xml;
 		QDomElement metasElem = xml.appendChild(xml.createElement("metacontacts")).toElement();
+		metasElem.setAttribute("ver",FRosterVer);
 		metasElem.setAttribute("streamJid",streamJid().pBare());
 		metasElem.setAttribute("groupDelimiter",roster()->groupDelimiter());
 		foreach(IMetaContact contact, FContacts)
 		{
 			QDomElement mcElem = metasElem.appendChild(xml.createElement("mc")).toElement();
-			mcElem.setAttribute("id",contact.id.eBare());
+			mcElem.setAttribute("id",contact.id);
 			mcElem.setAttribute("name",contact.name);
 			foreach(Jid itemJid, contact.items)
 			{
@@ -332,34 +350,58 @@ QString MetaRoster::createContact(const IMetaContact &AContact)
 {
 	if (isOpen())
 	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-		mcElem.setAttribute("action",MC_ACTION_CREATE);
-		mcElem.setAttribute("name",AContact.name);
+		QSet<Jid> mergeList;
+		QList<QString> requests;
 		foreach(Jid itemJid, AContact.items)
-			mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
-		foreach(QString group, AContact.groups)
-			mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
-			FActionRequests.append(query.id());
-			return query.id();
+			if (!FItemMetaId.contains(itemJid.bare()))
+			{
+				Stanza query("iq");
+				query.setType("set").setId(FStanzaProcessor->newId());
+
+				QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+				mcElem.setAttribute("action",MC_ACTION_CREATE);
+				mcElem.setAttribute("name",AContact.name);
+				mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
+
+				foreach(QString group, AContact.groups)
+					if (!group.isEmpty())
+						mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
+
+				if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+				{
+					mergeList += itemJid.bare();
+					requests.append(query.id());
+					FCreateItemRequest.insert(query.id(),itemJid);
+				}
+				else if (requests.isEmpty())
+				{
+					break;
+				}
+			}
 		}
+
+		QString multiId = startMultiRequest(requests);
+		if (!multiId.isEmpty() && mergeList.count()>1)
+			FCreateMergeList.insert(multiId,mergeList);
+
+		return multiId;
 	}
 	return QString::null;
 }
 
-QString MetaRoster::renameContact(const Jid &AMetaId, const QString &ANewName)
+QString MetaRoster::renameContact(const QString &AMetaId, const QString &ANewName)
 {
 	if (isOpen() && FContacts.contains(AMetaId))
 	{
 		Stanza query("iq");
 		query.setType("set").setId(FStanzaProcessor->newId());
+
 		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 		mcElem.setAttribute("action",MC_ACTION_RENAME);
-		mcElem.setAttribute("id",AMetaId.eBare());
+		mcElem.setAttribute("id",AMetaId);
 		mcElem.setAttribute("name",ANewName);
+
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
 			FActionRequests.append(query.id());
@@ -369,66 +411,74 @@ QString MetaRoster::renameContact(const Jid &AMetaId, const QString &ANewName)
 	return QString::null;
 }
 
-QString MetaRoster::deleteContact(const Jid &AMetaId)
+QString MetaRoster::deleteContact(const QString &AMetaId)
 {
 	if (isOpen() && FContacts.contains(AMetaId))
 	{
-		Stanza query("iq");
-		query.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-		mcElem.setAttribute("action",MC_ACTION_DELETE);
-		mcElem.setAttribute("id",AMetaId.eBare());
-		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+		QList<QString> requests;
+		IMetaContact contact = FContacts.value(AMetaId);
+		foreach(Jid itemJid, contact.items)
 		{
-			FActionRequests.append(query.id());
-			return query.id();
+			Stanza query("iq");
+			query.setType("set").setId(FStanzaProcessor->newId());
+
+			QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+			mcElem.setAttribute("action",MC_ACTION_DELETE);
+			mcElem.setAttribute("id",AMetaId);
+			mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
+
+			if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+				requests.append(query.id());
+			else if (requests.isEmpty())
+				break;
 		}
+		return startMultiRequest(requests);
 	}
 	return QString::null;
 }
 
-QString MetaRoster::mergeContacts(const Jid &AParentId, const QList<Jid> &AChildsId)
+QString MetaRoster::mergeContacts(const QString &AParentId, const QList<QString> &AChildsId)
 {
 	if (isOpen() && FContacts.contains(AParentId) && !AChildsId.isEmpty())
 	{
-		Stanza query("iq");
-		query.setType("set");
-		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
-		mcElem.setAttribute("action",MC_ACTION_MERGE);
-		mcElem.setAttribute("id",AParentId.eBare());
-		QDomElement metaElem = mcElem.appendChild(query.createElement("mc")).toElement();
+		QList<QString> requests;
+		foreach(QString metaId, AChildsId)
+		{
+			Stanza query("iq");
+			query.setType("set").setId(FStanzaProcessor->newId());
 
-		QString lastRequest;
-		foreach(Jid metaId, AChildsId)
-		{
-			query.setId(FStanzaProcessor->newId());
-			metaElem.setAttribute("id",metaId.eBare());
+			QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
+			mcElem.setAttribute("action",MC_ACTION_MERGE);
+			mcElem.setAttribute("id",AParentId);
+
+			QDomElement metaElem = mcElem.appendChild(query.createElement("mc")).toElement();
+			metaElem.setAttribute("id",metaId);
+
 			if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
-			{
-				lastRequest = query.id();
-			}
+				requests.append(query.id());
+			else if (requests.isEmpty())
+				break;
 		}
-		if (!lastRequest.isEmpty())
-		{
-			FActionRequests.append(lastRequest);
-			return lastRequest;
-		}
+		return startMultiRequest(requests);
 	}
 	return QString::null;
 }
 
-QString MetaRoster::setContactGroups(const Jid &AMetaId, const QSet<QString> &AGroups)
+QString MetaRoster::setContactGroups(const QString &AMetaId, const QSet<QString> &AGroups)
 {
 	IMetaContact contact = FContacts.value(AMetaId);
-	if (isOpen() && contact.id.isValid() && contact.groups!=AGroups)
+	if (isOpen() && !contact.id.isEmpty() && contact.groups!=AGroups)
 	{
 		Stanza query("iq");
 		query.setType("set").setId(FStanzaProcessor->newId());
+
 		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 		mcElem.setAttribute("action",MC_ACTION_GROUPS);
-		mcElem.setAttribute("id",AMetaId.eBare());
+		mcElem.setAttribute("id",AMetaId);
+
 		foreach(QString group, AGroups)
-			mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
+			if (!group.isEmpty())
+				mcElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(group));
 
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
@@ -439,16 +489,18 @@ QString MetaRoster::setContactGroups(const Jid &AMetaId, const QSet<QString> &AG
 	return QString::null;
 }
 
-QString MetaRoster::detachContactItem(const Jid &AMetaId, const Jid &AItemJid)
+QString MetaRoster::detachContactItem(const QString &AMetaId, const Jid &AItemJid)
 {
 	if (isOpen() && itemMetaContact(AItemJid)==AMetaId)
 	{
 		Stanza query("iq");
 		query.setType("set").setId(FStanzaProcessor->newId());
+
 		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 		mcElem.setAttribute("action",MC_ACTION_RELEASE);
-		mcElem.setAttribute("id",AMetaId.eBare());
+		mcElem.setAttribute("id",AMetaId);
 		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.eBare());
+
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
 			FActionRequests.append(query.id());
@@ -458,16 +510,18 @@ QString MetaRoster::detachContactItem(const Jid &AMetaId, const Jid &AItemJid)
 	return QString::null;
 }
 
-QString MetaRoster::deleteContactItem(const Jid &AMetaId, const Jid &AItemJid)
+QString MetaRoster::deleteContactItem(const QString &AMetaId, const Jid &AItemJid)
 {
 	if (isOpen() && itemMetaContact(AItemJid)==AMetaId)
 	{
 		Stanza query("iq");
 		query.setType("set").setId(FStanzaProcessor->newId());
+
 		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 		mcElem.setAttribute("action",MC_ACTION_DELETE);
-		mcElem.setAttribute("id",AMetaId.eBare());
+		mcElem.setAttribute("id",AMetaId);
 		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.eBare());
+
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
 			FActionRequests.append(query.id());
@@ -477,11 +531,11 @@ QString MetaRoster::deleteContactItem(const Jid &AMetaId, const Jid &AItemJid)
 	return QString::null;
 }
 
-bool MetaRoster::renameGroup(const QString &AGroup, const QString &ANewName)
+QString MetaRoster::renameGroup(const QString &AGroup, const QString &ANewName)
 {
 	if (isOpen())
 	{
-		QString requests;
+		QList<QString> requests;
 		QList<IMetaContact> allGroupContacts = groupContacts(AGroup);
 		for (QList<IMetaContact>::const_iterator it = allGroupContacts.constBegin(); it!=allGroupContacts.constEnd(); it++)
 		{
@@ -496,11 +550,16 @@ bool MetaRoster::renameGroup(const QString &AGroup, const QString &ANewName)
 				}
 				newItemGroups += newGroup;
 			}
-			requests += setContactGroups(it->id,newItemGroups);
+
+			QString queryId = setContactGroups(it->id,newItemGroups);
+			if (!queryId.isEmpty())
+				requests.append(queryId);
+			else if (requests.isEmpty())
+				break;
 		}
-		return !requests.isEmpty();
+		return startMultiRequest(requests);
 	}
-	return false;
+	return QString::null;
 }
 
 void MetaRoster::initialize(IPluginManager *APluginManager)
@@ -549,11 +608,12 @@ void MetaRoster::setEnabled(bool AEnabled)
 
 void MetaRoster::clearMetaContacts()
 {
-	foreach(Jid metaId, FContacts.keys()) {
+	foreach(QString metaId, FContacts.keys()) {
 		removeMetaContact(metaId); }
+	FRosterVer.clear();
 }
 
-void MetaRoster::removeMetaContact(const Jid &AMetaId)
+void MetaRoster::removeMetaContact(const QString &AMetaId)
 {
 	IMetaContact contact = FContacts.take(AMetaId);
 	IMetaContact before = contact;
@@ -566,17 +626,47 @@ void MetaRoster::removeMetaContact(const Jid &AMetaId)
 	emit metaContactReceived(contact,before);
 }
 
+IRosterItem MetaRoster::metaRosterItem(const QSet<Jid> AItems) const
+{
+	IRosterItem ritem;
+
+	QList<Jid> contactItems;
+	QList<Jid> serviceItems;
+	for (QSet<Jid>::const_iterator it=AItems.constBegin(); it!=AItems.constEnd(); it++)
+	{
+		if (FMetaContacts->metaDescriptorByItem(*it).service)
+			serviceItems.append(*it);
+		else
+			contactItems.append(*it);
+	}
+
+	QList<Jid> items = FMetaContacts->itemOrders(contactItems.isEmpty() ? serviceItems : contactItems).values();
+	for (QList<Jid>::const_iterator it=items.constBegin(); it!=items.constEnd(); it++)
+	{
+		IRosterItem childRosterItem = roster()->rosterItem(*it);
+		if (ritem.ask.isEmpty() && !childRosterItem.ask.isEmpty())
+			ritem.ask = childRosterItem.ask;
+		if (ritem.subscription == SUBSCRIPTION_NONE)
+			ritem.subscription = childRosterItem.subscription;
+		else if (childRosterItem.subscription == SUBSCRIPTION_BOTH)
+			ritem.subscription = childRosterItem.subscription;
+	}
+
+	return ritem;
+}
+
 void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRoster)
 {
 	if (!AMetasElement.isNull())
 	{
-		QSet<Jid> oldContacts = ACompleteRoster ? FContacts.keys().toSet() : QSet<Jid>();
+		FRosterVer = AMetasElement.attribute("ver");
+		QSet<QString> oldContacts = ACompleteRoster ? FContacts.keys().toSet() : QSet<QString>();
 		QDomElement mcElem = AMetasElement.firstChildElement("mc");
 		while (!mcElem.isNull())
 		{
-			Jid metaId = mcElem.attribute("id");
+			QString metaId = mcElem.attribute("id");
 			QString action = mcElem.attribute("action");
-			if (metaId.isValid() && action.isEmpty())
+			if (!metaId.isEmpty() && action.isEmpty())
 			{
 				IMetaContact &contact = FContacts[metaId];
 				IMetaContact before = contact;
@@ -586,13 +676,13 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 				oldContacts -= metaId;
 
 				contact.items.clear();
-				QSet<Jid> modContacts;
+				QSet<QString> modContacts;
 				QDomElement metaItem = mcElem.firstChildElement("item");
 				while (!metaItem.isNull())
 				{
 					Jid itemJid = Jid(metaItem.attribute("jid")).pBare();
-					Jid prevMetaId = FItemMetaId.value(itemJid);
-					if (prevMetaId.isValid() && prevMetaId!=metaId)
+					QString prevMetaId = FItemMetaId.value(itemJid);
+					if (!prevMetaId.isEmpty() && prevMetaId!=metaId)
 						modContacts += prevMetaId;
 					contact.items += itemJid;
 					FItemMetaId.insert(itemJid,metaId);
@@ -607,22 +697,47 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 				QDomElement groupElem = mcElem.firstChildElement("group");
 				while (!groupElem.isNull())
 				{
-					contact.groups += groupElem.text();
+					QString group = groupElem.text();
+					if (!group.isEmpty())
+						contact.groups += group;
 					groupElem = groupElem.nextSiblingElement("group");
 				}
 
-				foreach(Jid modMetaId, modContacts)
+				foreach(QString modMetaId, modContacts)
 				{
 					IMetaContact &modContact = FContacts[modMetaId];
 					IMetaContact modBefore = modContact;
 					modContact.items -= contact.items;
+
+					IRosterItem ritem = metaRosterItem(modContact.items);
+					modContact.ask = ritem.ask;
+					modContact.subscription = ritem.subscription;
+
 					if (!modContact.items.isEmpty())
 						emit metaContactReceived(modContact,modBefore);
 					else
 						removeMetaContact(modMetaId);
 				}
 
-				emit metaContactReceived(contact,before);
+				IRosterItem ritem = metaRosterItem(contact.items);
+				contact.ask = ritem.ask;
+				contact.subscription = ritem.subscription;
+
+				if (contact != before)
+					emit metaContactReceived(contact,before);
+
+				if (!FCreateItemRequest.isEmpty())
+				{
+					for(QSet<Jid>::const_iterator it=contact.items.constBegin(); it!=contact.items.constEnd(); it++)
+					{
+						QString requestId = FCreateItemRequest.key(*it);
+						if (!requestId.isEmpty())
+						{
+							FCreateItemRequest.remove(requestId);
+							processStanzaRequest(requestId,QString::null,QString::null);
+						}
+					}
+				}
 			}
 			else if (FContacts.contains(metaId))
 			{
@@ -668,7 +783,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 			mcElem = mcElem.nextSiblingElement("mc");
 		}
 
-		foreach(Jid metaId, oldContacts) {
+		foreach(QString metaId, oldContacts) {
 			removeMetaContact(metaId); }
 	}
 }
@@ -677,10 +792,13 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 {
 	Stanza iq("iq");
 	iq.setType("set").setFrom(streamJid().eFull()).setId(FStanzaProcessor->newId());
-	QDomElement queryElem = iq.element().appendChild(iq.createElement("query",NS_JABBER_ROSTER)).toElement();
 
 	if (!AMetaElem.isNull())
 	{
+		QDomElement queryElem = iq.element().appendChild(iq.createElement("query",NS_JABBER_ROSTER)).toElement();
+		if (!FRosterVer.isEmpty())
+			queryElem.setAttribute("ver",FRosterVer);
+
 		QDomElement mcElem = AMetaElem.firstChildElement("mc");
 		while (!mcElem.isNull())
 		{
@@ -788,11 +906,19 @@ Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 		while (!itemElem.isNull())
 		{
 			Jid itemJid = itemElem.attribute("jid");
-			Jid metaId = itemMetaContact(itemJid);
+			QString metaId = itemMetaContact(itemJid);
 			IRosterItem ritem = FRoster->rosterItem(itemJid);
 
+			// Удаление контакта
+			if (itemElem.attribute("subscription") == SUBSCRIPTION_REMOVE)
+			{
+				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
+				mcElem.setAttribute("action",MC_ACTION_DELETE);
+				mcElem.setAttribute("id",metaId);
+				mcElem.appendChild(iq.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
+			}
 			// Добавление нового контакта
-			if (!ritem.isValid)
+			else if (!ritem.isValid)
 			{
 				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
 				mcElem.setAttribute("action",MC_ACTION_CREATE);
@@ -811,7 +937,7 @@ Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 			{
 				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
 				mcElem.setAttribute("action",MC_ACTION_RENAME);
-				mcElem.setAttribute("id",metaId.eBare());
+				mcElem.setAttribute("id",metaId);
 				mcElem.setAttribute("name",itemElem.attribute("name"));
 			}
 
@@ -867,6 +993,103 @@ void MetaRoster::removeStanzaHandlers()
 	}
 }
 
+bool MetaRoster::processCreateMerge(const QString &AMultiId)
+{
+	if (FCreateMergeList.contains(AMultiId))
+	{
+		QList<QString> requests;
+
+		QString parentMetaId;
+		QSet<Jid> items = FCreateMergeList.take(AMultiId);
+		foreach(Jid itemJid, items)
+		{
+			QString metaId = itemMetaContact(itemJid);
+			if (!metaId.isEmpty())
+			{
+				if (!parentMetaId.isEmpty())
+				{
+					QString requestId = mergeContacts(parentMetaId,QList<QString>()<<metaId);
+					if (!requestId.isEmpty())
+					{
+						requests.append(requestId);
+						FActionRequests.removeAll(requestId);
+					}
+				}
+				else
+				{
+					parentMetaId = metaId;
+				}
+			}
+		}
+
+		if (!requests.isEmpty())
+		{
+			appendMultiRequest(AMultiId,requests);
+			return true;
+		}
+	}
+	return false;
+}
+
+QString MetaRoster::startMultiRequest(const QList<QString> &AActions)
+{
+	if (FStanzaProcessor)
+	{
+		if (AActions.count() > 1)
+		{
+			QString multiId = FStanzaProcessor->newId();
+			foreach(QString action, AActions)
+				FMultiRequests.insertMulti(multiId,action);
+			return multiId;
+		}
+		else if (AActions.count() == 1)
+		{
+			FActionRequests.append(AActions.at(0));
+			return AActions.at(0);
+		}
+	}
+	return QString::null;
+}
+
+void MetaRoster::appendMultiRequest(const QString &AMultiId, const QList<QString> &AActions)
+{
+	foreach(QString actionId, AActions)
+		FMultiRequests.insertMulti(AMultiId,actionId);
+}
+
+void MetaRoster::processMultiRequest(const QString &AMultiId, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
+{
+	if (FMultiRequests.contains(AMultiId,AActionId))
+	{
+		if (!AErrCond.isEmpty() && !FMultiErrors.contains(AMultiId))
+			FMultiErrors.insert(AMultiId, qMakePair<QString,QString>(AErrCond,AErrMessage));
+		FMultiRequests.remove(AMultiId,AActionId);
+
+		if (!FMultiRequests.contains(AMultiId))
+		{
+			if (!processCreateMerge(AMultiId))
+			{
+				QPair<QString,QString> errPair = FMultiErrors.take(AMultiId);
+				emit metaActionResult(AMultiId, errPair.first, errPair.second);
+			}
+		}
+	}
+}
+
+void MetaRoster::processStanzaRequest(const QString &AStanzaId, const QString &AErrCond, const QString &AErrMessage)
+{
+	if (FActionRequests.contains(AStanzaId))
+	{
+		FActionRequests.removeAll(AStanzaId);
+		emit metaActionResult(AStanzaId,AErrCond,AErrMessage);
+	}
+	else if (FMultiRequests.values().contains(AStanzaId))
+	{
+		QString multiId = FMultiRequests.key(AStanzaId);
+		processMultiRequest(multiId,AStanzaId,AErrCond,AErrMessage);
+	}
+}
+
 void MetaRoster::onStreamClosed()
 {
 	if (FOpened)
@@ -902,8 +1125,8 @@ void MetaRoster::onPresenceAdded(IPresence *APresence)
 void MetaRoster::onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
 	Q_UNUSED(ABefore);
-	Jid metaId = FItemMetaId.value(AItem.itemJid.pBare());
-	if (metaId.isValid())
+	QString metaId = FItemMetaId.value(AItem.itemJid.pBare());
+	if (!metaId.isEmpty())
 		emit metaPresenceChanged(metaId);
 }
 
@@ -915,7 +1138,7 @@ void MetaRoster::onPresenceRemoved(IPresence *APresence)
 
 void MetaRoster::onAvatarChanged(const Jid &AContactJid)
 {
-	Jid metaId = FItemMetaId.value(AContactJid.pBare());
-	if (metaId.isValid())
+	QString metaId = FItemMetaId.value(AContactJid.pBare());
+	if (!metaId.isEmpty())
 		emit metaAvatarChanged(metaId);
 }

@@ -3,12 +3,11 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHeaderView>
+#include <QResizeEvent>
 #include <QTextDocument>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
-
-#include <QDebug>
 
 static const QString NodeDelimiter = ".";
 
@@ -27,16 +26,14 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-	connect(ui.sprSplitter, SIGNAL(splitterMoved(int,int)), SIGNAL(splitterMoved(int,int)));
 	ui.trvNodes->installEventFilter(this);
 	setWindowTitle(tr("Options"));
+	FCurrentWidget = NULL;
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_OPTIONS_DIALOG,0,0,"windowIcon");
 
 	restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry").toByteArray());
-	if (!ui.sprSplitter->restoreState(Options::fileValue("optionsmanager.optionsdialog.splitter.state").toByteArray()))
-		ui.sprSplitter->setSizes(QList<int>() << 150 << 450);
 
-	delete ui.scaScroll->takeWidget();
+	//delete ui.scaScroll->takeWidget();
 	ui.trvNodes->sortByColumn(0,Qt::AscendingOrder);
 
 	FManager = AOptionsManager;
@@ -56,20 +53,32 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 	connect(ui.trvNodes->selectionModel(),SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
 		SLOT(onCurrentItemChanged(const QModelIndex &, const QModelIndex &)));
 
+	foreach (QAbstractButton * btn, ui.dbbButtons->buttons())
+	{
+		QPushButton * pb = qobject_cast<QPushButton*>(btn);
+		if (pb)
+			pb->setAutoDefault(false);
+	}
+
 	ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(false);
-	ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
-	ui.dbbButtons->button(QDialogButtonBox::Reset)->setVisible(false);
+	ui.dbbButtons->button(QDialogButtonBox::Ok)->setDefault(true);
+	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Ok"));
+	ui.dbbButtons->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
+	ui.dbbButtons->button(QDialogButtonBox::Apply)->setText(tr("Apply"));
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
 
 	foreach (const IOptionsDialogNode &node, FManager->optionsDialogNodes()) {
 		onOptionsDialogNodeInserted(node); }
+
+	ui.scaScroll->setVisible(false);
+
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_OPTIONSDIALOG);
 }
 
 OptionsDialog::~OptionsDialog()
 {
 	Options::setFileValue(saveGeometry(),"optionsmanager.optionsdialog.geometry");
-	Options::setFileValue(ui.sprSplitter->saveState(),"optionsmanager.optionsdialog.splitter.state");
+	emit dialogDestroyed();
 }
 
 void OptionsDialog::showNode(const QString &ANodeId)
@@ -78,8 +87,9 @@ void OptionsDialog::showNode(const QString &ANodeId)
 	if (item)
 		ui.trvNodes->setCurrentIndex(FProxyModel->mapFromSource(FItemsModel->indexFromItem(item)));
 	ui.trvNodes->expandAll();
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+	correctAdjustSize();
 }
 
 QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
@@ -100,6 +110,7 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 			connect(this,SIGNAL(applied()),it.value()->instance(),SLOT(apply()));
 			connect(this,SIGNAL(reseted()),it.value()->instance(),SLOT(reset()));
 			connect(it.value()->instance(),SIGNAL(modified()),SLOT(onOptionsWidgetModified()));
+			connect(it.value()->instance(),SIGNAL(updated()),SLOT(onOptionsWidgetUpdated()));
 		}
 	}
 
@@ -118,7 +129,7 @@ QWidget *OptionsDialog::createNodeWidget(const QString &ANodeId)
 		vblayout->addStretch();
 
 	FCleanupHandler.add(nodeWidget);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 	return nodeWidget;
 }
@@ -170,15 +181,12 @@ bool OptionsDialog::canExpandVertically(const QWidget *AWidget) const
 	return expanding;
 }
 
-bool OptionsDialog::eventFilter(QObject * obj, QEvent * evt)
+void OptionsDialog::correctAdjustSize()
 {
-	if (obj == ui.trvNodes && evt->type() == QEvent::Resize)
-	{
-		bool h = QDialog::eventFilter(obj, evt);
-		emit splitterMoved(ui.trvNodes->width(), 1);
-		return h;
-	}
-	return QDialog::eventFilter(obj, evt);
+	if (parentWidget())
+		parentWidget()->adjustSize();
+	else
+		adjustSize();
 }
 
 void OptionsDialog::onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode)
@@ -188,7 +196,12 @@ void OptionsDialog::onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode)
 		QStandardItem *item = FNodeItems.contains(ANode.nodeId) ? FNodeItems.value(ANode.nodeId) : createNodeItem(ANode.nodeId);
 		item->setData(ANode.order, IDR_ORDER);
 		item->setText(ANode.name);
-		item->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(ANode.iconkey));
+		QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(ANode.iconkey, 0);
+		QIcon iconSelected = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(ANode.iconkey, 1);
+		QIcon newIcon;
+		newIcon.addPixmap(icon.pixmap(18, 18));
+		newIcon.addPixmap(iconSelected.pixmap(18, 18), QIcon::Selected);
+		item->setIcon(newIcon);
 	}
 }
 
@@ -218,26 +231,43 @@ void OptionsDialog::onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode)
 void OptionsDialog::onCurrentItemChanged(const QModelIndex &ACurrent, const QModelIndex &APrevious)
 {
 	Q_UNUSED(APrevious);
-	ui.scaScroll->takeWidget();
+	//ui.scaScroll->takeWidget();
+	if (FCurrentWidget)
+	{
+		ui.mainFrame->layout()->removeWidget(FCurrentWidget);
+		FCurrentWidget->setVisible(false);
+		FCurrentWidget->setParent(NULL);
+	}
 
 	QStandardItem *curItem = FItemsModel->itemFromIndex(FProxyModel->mapToSource(ACurrent));
 	QString nodeID = FNodeItems.key(curItem);
 	if (curItem && !FItemWidgets.contains(curItem))
 		FItemWidgets.insert(curItem,createNodeWidget(nodeID));
 
-	QWidget *curWidget = FItemWidgets.value(curItem);
-	if (curWidget)
-		ui.scaScroll->setWidget(curWidget);
+	FCurrentWidget = FItemWidgets.value(curItem);
+	if (FCurrentWidget)
+	{
+		//ui.scaScroll->setWidget(curWidget);
+		ui.mainFrame->layout()->addWidget(FCurrentWidget);
+		FCurrentWidget->setVisible(true);
+	}
 
 	Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).setValue(nodeID);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+	correctAdjustSize();
 }
 
 void OptionsDialog::onOptionsWidgetModified()
 {
 	ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(true);
-	ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(true);
+	//correctAdjustSize();
+	//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(true);
+}
+
+void OptionsDialog::onOptionsWidgetUpdated()
+{
+	correctAdjustSize();
 }
 
 void OptionsDialog::onDialogButtonClicked(QAbstractButton *AButton)
@@ -251,12 +281,12 @@ void OptionsDialog::onDialogButtonClicked(QAbstractButton *AButton)
 	case QDialogButtonBox::ApplyRole:
 		emit applied();
 		ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(false);
-		ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
+		//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
 		break;
 	case QDialogButtonBox::ResetRole:
 		emit reseted();
 		ui.dbbButtons->button(QDialogButtonBox::Apply)->setEnabled(false);
-		ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
+		//ui.dbbButtons->button(QDialogButtonBox::Reset)->setEnabled(false);
 		break;
 	case QDialogButtonBox::RejectRole:
 		reject();

@@ -22,26 +22,27 @@ class NotifyWidget :
 {
 	Q_OBJECT
 public:
-	NotifyWidget(const INotification &ANotification, bool AOptionsAvailable);
+	NotifyWidget(const INotification &ANotification);
 	~NotifyWidget();
-	void appear();
+	bool appear();
 	void animateTo(int AYPos);
 	void appendAction(Action *AAction);
 	void appendNotification(const INotification &ANotification);
-public slots:
-	void adjustHeight();
-	void updateElidedText();
 signals:
 	void showOptions();
 	void notifyActivated();
 	void notifyRemoved();
 	void windowDestroyed();
 protected:
+	void updateElidedText();
+protected:
 	virtual void enterEvent(QEvent *AEvent);
 	virtual void leaveEvent(QEvent *AEvent);
 	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
 	virtual void resizeEvent(QResizeEvent *AEvent);
+	virtual void paintEvent(QPaintEvent *);
 protected slots:
+	void onAdjustHeight();
 	void onAnimateStep();
 	void onCloseTimerTimeout();
 private:
@@ -52,6 +53,7 @@ private:
 	int FAnimateStep;
 	QTimer *FCloseTimer;
 	CustomBorderContainer * border;
+	bool canActivate;
 private:
 	QString FTitle;
 	QString FNotice;

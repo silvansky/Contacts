@@ -18,7 +18,7 @@ void XmppUriQueries::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other plugins to handle XMPP URI queries");
 	APluginInfo ->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool XmppUriQueries::initConnections(IPluginManager *APluginManager, int &AInitOrder)

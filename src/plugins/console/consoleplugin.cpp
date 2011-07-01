@@ -17,7 +17,7 @@ void ConsolePlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to view XML stream between the client and server");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 	APluginInfo->dependences.append(MAINWINDOW_UUID);
 }
@@ -39,7 +39,7 @@ bool ConsolePlugin::initObjects()
 	{
 		Action *action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
 		action->setText(tr("XML Console"));
-		action->setIcon(RSR_STORAGE_MENUICONS,MNI_CONSOLE);
+		//action->setIcon(RSR_STORAGE_MENUICONS,MNI_CONSOLE);
 		connect(action,SIGNAL(triggered(bool)),SLOT(onShowXMLConsole(bool)));
 		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_CONSOLE_SHOW,true);
 	}

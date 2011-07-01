@@ -5,6 +5,10 @@
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 
+#ifdef Q_OS_MAC
+# include <utils/macdockhandler.h>
+#endif
+
 MainWindowPlugin::MainWindowPlugin()
 {
 	FPluginManager = NULL;
@@ -20,13 +24,28 @@ MainWindowPlugin::MainWindowPlugin()
 #endif
 	FMainWindow->setObjectName("mainWindow");
 	FMainWindowBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FMainWindow, CBS_ROSTER);
+
 	if (FMainWindowBorder)
 	{
 		FMainWindowBorder->setMaximizeButtonVisible(false);
 		FMainWindowBorder->setMinimizeButtonVisible(false);
+		FMainWindowBorder->setDockingEnabled(true);
+#ifdef Q_WS_WIN
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			FMainWindowBorder->setMinimizeOnClose(true);
+		else
+			FMainWindowBorder->setShowInTaskBar(false);
+#endif
 	}
+
+#ifdef Q_WS_WIN
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
+#endif
+
+
 	FMainWindow->installEventFilter(this);
-	WidgetManager::setWindowSticky(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow, true);
+	//WidgetManager::setWindowSticky(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow, true);
 }
 
 MainWindowPlugin::~MainWindowPlugin()
@@ -43,7 +62,7 @@ void MainWindowPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to place their widgets in the main window");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
@@ -77,6 +96,8 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AIni
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
+	connect(FPluginManager->instance(),SIGNAL(quitStarted()),SLOT(onApplicationQuitStarted()));
+
 	return true;
 }
 
@@ -91,21 +112,28 @@ bool MainWindowPlugin::initObjects()
 
 	FOpenAction = new Action(this);
 	FOpenAction->setVisible(false);
-	FOpenAction->setText(tr("Open Virtus"));
+	FOpenAction->setText(tr("Show Contacts"));
 	FOpenAction->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_SHOW_ROSTER);
 	connect(FOpenAction,SIGNAL(triggered(bool)),SLOT(onShowMainWindowByAction(bool)));
 
 	if (FTrayManager)
 		FTrayManager->contextMenu()->addAction(FOpenAction,AG_TMTM_MAINWINDOW,true);
 
+#ifdef Q_OS_MAC
+	connect(MacDockHandler::instance(), SIGNAL(dockIconClicked()), SLOT(onDockIconCLicked()));
+#endif
 	return true;
 }
 
 bool MainWindowPlugin::initSettings()
 {
 	Options::setDefaultValue(OPV_MAINWINDOW_SHOW,true);
-	Options::setDefaultValue(OPV_MAINWINDOW_SIZE,QSize(200,500));
-	Options::setDefaultValue(OPV_MAINWINDOW_POSITION,QPoint(0,0));
+	const QSize defSize(300, 550);
+	Options::setDefaultValue(OPV_MAINWINDOW_SIZE, defSize);
+	QDesktopWidget * desktop = QApplication::desktop();
+	QRect ps = desktop->availableGeometry(desktop->primaryScreen());
+	QRect defRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignRight | Qt::AlignTop, defSize, ps);
+	Options::setDefaultValue(OPV_MAINWINDOW_POSITION, defRect.topLeft());
 	Options::setDefaultValue(OPV_MAINWINDOW_STAYONTOP,false);
 
 	if (FOptionsManager)
@@ -155,12 +183,20 @@ void MainWindowPlugin::showMainWindow() const
 
 void MainWindowPlugin::updateTitle()
 {
-	FMainWindow->setWindowTitle(CLIENT_NAME" | R" + FPluginManager->revision());
+	FMainWindow->setWindowTitle(tr("Contacts"));
 }
 
 void MainWindowPlugin::correctWindowPosition() const
 {
 	QRect windowRect = FMainWindowBorder ? FMainWindowBorder->geometry() : FMainWindow->geometry();
+	if (FMainWindowBorder)
+	{
+		// correcting rect
+		windowRect.setLeft(windowRect.left() - FMainWindowBorder->leftBorderWidth());
+		windowRect.setRight(windowRect.right() + FMainWindowBorder->rightBorderWidth());
+		windowRect.setTop(windowRect.top() - FMainWindowBorder->topBorderWidth());
+		windowRect.setBottom(windowRect.bottom() + FMainWindowBorder->bottomBorderWidth());
+	}
 	QRect screenRect = qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(windowRect.topLeft()));
 	if (!screenRect.isEmpty() && !screenRect.adjusted(10,10,-10,-10).intersects(windowRect))
 	{
@@ -172,6 +208,14 @@ void MainWindowPlugin::correctWindowPosition() const
 			windowRect.moveBottom(screenRect.bottom());
 		else if (windowRect.bottom() <= screenRect.top())
 			windowRect.moveTop(screenRect.top());
+		if (FMainWindowBorder)
+		{
+			// correcting rect back
+			windowRect.setLeft(windowRect.left() + FMainWindowBorder->leftBorderWidth());
+			windowRect.setRight(windowRect.right() - FMainWindowBorder->rightBorderWidth());
+			windowRect.setTop(windowRect.top() + FMainWindowBorder->topBorderWidth());
+			windowRect.setBottom(windowRect.bottom() - FMainWindowBorder->bottomBorderWidth());
+		}
 		FMainWindowBorder ? FMainWindowBorder->move(windowRect.topLeft()) : FMainWindow->move(windowRect.topLeft());
 	}
 }
@@ -185,25 +229,33 @@ bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 
 void MainWindowPlugin::onOptionsOpened()
 {
-	QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
+	QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 	widget->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
 	widget->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 	if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
 		showMainWindow();
+#ifdef Q_WS_WIN
+	else if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		widget->showMinimized();
+#endif
 	updateTitle();
 }
 
 void MainWindowPlugin::onOptionsClosed()
 {
-	QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
-	Options::node(OPV_MAINWINDOW_SHOW).setValue(widget->isVisible());
+	QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 	Options::node(OPV_MAINWINDOW_SIZE).setValue(widget->size());
 	Options::node(OPV_MAINWINDOW_POSITION).setValue(widget->pos());
-	updateTitle();
-	widget->close();
+#ifdef Q_WS_WIN
+	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		widget->hide();
+	else
+#endif
+		widget->close();
 	FOpenAction->setVisible(false);
+	updateTitle();
 }
 
 void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
@@ -234,7 +286,14 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 	{
 		QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 		if (FMainWindow->isActive() || qAbs(FActivationChanged.msecsTo(QTime::currentTime()))<qApp->doubleClickInterval())
-			widget->close();
+		{
+#ifdef Q_WS_WIN
+			if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+				widget->hide();
+			else
+#endif
+				widget->close();
+		}
 		else
 			showMainWindow();
 	}
@@ -243,6 +302,37 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 void MainWindowPlugin::onShowMainWindowByAction(bool)
 {
 	showMainWindow();
+}
+
+void MainWindowPlugin::onMainWindowClosed()
+{
+#ifdef Q_WS_WIN
+	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		FPluginManager->quit();
+#endif
+}
+
+#ifdef Q_OS_MAC
+void MainWindowPlugin::onDockIconCLicked()
+{
+	if (!FMainWindow->isVisible())
+		showMainWindow();
+}
+#endif
+
+
+void MainWindowPlugin::onApplicationQuitStarted()
+{
+	if (!Options::isNull())
+	{
+		QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
+#ifdef Q_WS_WIN
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			Options::node(OPV_MAINWINDOW_SHOW).setValue(!widget->isMinimized());
+		else
+#endif
+			Options::node(OPV_MAINWINDOW_SHOW).setValue(widget->isVisible());
+	}
 }
 
 Q_EXPORT_PLUGIN2(plg_mainwindow, MainWindowPlugin)

@@ -10,7 +10,9 @@
 #include <sipcall.h>
 
 #include "utils/jid.h"
-
+#include <utils/customborderstorage.h>
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 class SipClient;
 class SipUser;
@@ -50,10 +52,12 @@ public:
 	~SipPhoneProxy();
 
 	bool initRegistrationData( void );
+	virtual bool eventFilter(QObject *, QEvent *);
 
 	enum State { ONLINE, OFFLINE };
 
 	void updateIdentity( SipUser *newUser, SipRegister *newReg = 0 );
+
 
 protected:
 	SipPhoneWidget* DoCall( QString num, SipCall::CallType ctype );
@@ -62,6 +66,7 @@ protected:
 signals:
 	void stateChanged( void );
 	void callDeletedProxy( bool );
+	void incomingThreadTimeChange(qint64);
 
 public slots:
 	void showIdentities( void );
@@ -75,8 +80,6 @@ public slots:
 	void makeVideoCall( const QString& uri );
 
 
-
-
 public slots:
 	void makeRegisterProxySlot(const Jid& AStreamJid, const Jid& AContactJid);
 	void makeRegisterResponderProxySlot(const QString& AStreamId);
@@ -84,10 +87,20 @@ public slots:
 
 	void makeInviteProxySlot(const Jid &AClientSIP);
 	void makeByeProxySlot(const Jid &AClientSIP);
+	void hangupCall();
+	void onHangupCall();
 
 signals:
 	void registrationStatusIs(bool status, const Jid& AStreamJid, const Jid& AContactJid);
 	void registrationStatusIs(bool status, const QString& AStreamId);
+	void proxyStartCamera();
+	void proxyStopCamera();
+	void proxySuspendStateChange(bool);
+	void proxyCamResolutionChange(bool);
+	
+	void camPresentChanged(bool);
+	void micPresentChanged(bool);
+	void volumePresentChanged(bool);
 
 	// ѕараметры временно передаваемые из SipPhone
 private:
@@ -107,6 +120,7 @@ private slots: // ”правл€ющие слоты
 
 	void timerTick( void );
 	void stun_timerTick( void );
+	void onFullScreenState(bool);
 
 
 protected:
@@ -118,12 +132,16 @@ private:
 
 private:
 	SipPhoneWidget* _pWorkWidget;//FPhoneWidget;
+	CustomBorderContainer* _pWorkWidgetContainer;
 
 	SipClient* _pSipClient;
 	SipUser* _pSipUser;
 
-	CallAudio* _audioForSettings;
-	CallAudio *_pCallAudio;
+	//CallAudio* _audioForSettings;
+	
+	// ќтдельно CallAudio в данном объекте не используетс€ и чтобы не вводить в заблуждение
+	// и не создавать серьезных ошибок исключаем его отсюда
+	//CallAudio *_pCallAudio;
 
 	KSipAuthentication *_pSipAuthentication;
 	SipRegister *_pSipRegister;

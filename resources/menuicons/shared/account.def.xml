@@ -5,6 +5,11 @@
     <object mime="image/png">account.png</object>
   </icon>
   <icon>
+    <key>accountsOptions</key>
+    <object mime="image/png">accountsoptions.png</object>
+    <object mime="image/png">accountsoptions_click.png</object>
+  </icon>
+  <icon>
     <key>accountList</key>
     <object mime="image/png">accountlist.png</object>
   </icon>

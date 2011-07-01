@@ -48,8 +48,8 @@ class VCardPlugin :
 			public IStanzaRequestOwner,
 			public IXmppUriHandler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IVCardPlugin IStanzaRequestOwner IXmppUriHandler);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IVCardPlugin IStanzaRequestOwner IXmppUriHandler)
 	friend class VCard;
 public:
 	VCardPlugin();
@@ -108,6 +108,7 @@ private:
 	IMessageWidgets *FMessageWidgets;
 	IBitsOfBinary *FBitsOfBinary;
 	IStatusIcons *FStatusIcons;
+	IStatusChanger *FStatusChanger;
 	IAvatars *FAvatars;
 	IRosterPlugin *FRosterPlugin;
 	IPresencePlugin *FPresencePlugin;

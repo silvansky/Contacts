@@ -4,4 +4,8 @@
     <key>emoticonsSelectIconWidget</key>
     <object mime='text/css'>emoticonsselecticonwidget.qss</object>
   </file>
+  <file>
+    <key>emoticonsSelectIconMenu</key>
+    <object mime='text/css'>emoticonsselecticonmenu.qss</object>
+  </file>
 </styledef>

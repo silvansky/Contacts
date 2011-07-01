@@ -2,6 +2,11 @@
 
 #include <QTimer>
 #include <QToolButton>
+#include <QSysInfo>
+#include <utils/imagemanager.h>
+#include <utils/graphicseffectsstorage.h>
+#include <definitions/resources.h>
+#include <definitions/graphicseffects.h>
 
 #define MAX_TEMP_STATUS_ID                  -10
 #define MAX_CUSTOM_STATUS_PER_SHOW          3
@@ -47,7 +52,7 @@ void StatusChanger::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to change the status in Jabber network");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(PRESENCE_UUID);
 }
 
@@ -169,6 +174,7 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 bool StatusChanger::initObjects()
 {
 	FMainMenu = new Menu;
+	FMainMenu->setObjectName("schangerMainMenu");
 
 	FModifyStatus = new Action(FMainMenu);
 	FModifyStatus->setCheckable(true);
@@ -204,12 +210,13 @@ bool StatusChanger::initObjects()
 		ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->statusToolBarChanger();
 		FStatusWidget = new StatusWidget(this, FAvatars, FVCardPlugin, FMainWindowPlugin, changer->toolBar());
 		changer->insertWidget(FStatusWidget);
+		FMainMenu->setStyleSheet(FStatusWidget->styleSheet());
 	}
 
 	if (FRostersViewPlugin)
 	{
 		FRostersView = FRostersViewPlugin->rostersView();
-		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)), 
+		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
 			SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 
 		IRostersLabel rlabel;
@@ -668,6 +675,7 @@ Action *StatusChanger::createStatusAction(int AStatusId, const Jid &AStreamJid, 
 	if (AStreamJid.isValid())
 		action->setData(ADR_STREAMJID,AStreamJid.full());
 	action->setData(ADR_STATUS_CODE,AStatusId);
+	//action->setCheckable(true);
 	connect(action,SIGNAL(triggered(bool)),SLOT(onSetStatusByAction(bool)));
 	updateStatusAction(AStatusId,action);
 	return action;
@@ -677,7 +685,19 @@ void StatusChanger::updateStatusAction(int AStatusId, Action *AAction) const
 {
 	StatusItem status = FStatusItems.value(AStatusId);
 	AAction->setText(status.name);
-	AAction->setIcon(iconByShow(status.show));
+
+	QIcon shadowedIcon;
+	QIcon srcIcon = iconByShow(status.show);
+	QGraphicsDropShadowEffect * shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_STATUSICONS));
+	if (shadow)
+	{
+		QImage img = srcIcon.pixmap(srcIcon.availableSizes().value(0)).toImage();
+		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), shadow->offset().toPoint());
+		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
+		AAction->setIcon(shadowedIcon);
+	}
+	else
+		AAction->setIcon(srcIcon);
 
 	int sortShow = status.show != IPresence::Offline ? status.show : 100;
 	AAction->setData(Action::DR_SortString,QString("%1-%2").arg(sortShow,5,10,QChar('0')).arg(status.name));
@@ -803,30 +823,42 @@ void StatusChanger::updateMainMenu()
 {
 	int statusId = visibleMainStatusId();
 
-	if (statusId != STATUS_CONNECTING_ID)
-		FMainMenu->setIcon(iconByShow(statusItemShow(statusId)));
+	QIcon shadowedIcon;
+	QIcon srcIcon = (statusId != STATUS_CONNECTING_ID) ? iconByShow(statusItemShow(statusId)) : IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SCHANGER_CONNECTING);
+	QGraphicsDropShadowEffect * shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_STATUSICONS));
+	if (shadow)
+	{
+		QImage img = srcIcon.pixmap(srcIcon.availableSizes().value(0)).toImage();
+		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), shadow->offset().toPoint());
+		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
+		FMainMenu->setIcon(shadowedIcon);
+	}
 	else
-		FMainMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_SCHANGER_CONNECTING);
+		FMainMenu->setIcon(srcIcon);
+
 	FMainMenu->setTitle(statusItemName(statusId));
 	FMainMenu->menuAction()->setVisible(!FCurrentStatus.isEmpty());
 
-	int statusCode = FStatusItems.value(statusId).code;
-	foreach (Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
-		action->setEnabled(action->data(ADR_STATUS_CODE).toInt() != statusCode);
+	//int statusCode = FStatusItems.value(statusId).code;
+	//foreach (Action *action, FMainMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
+	//	action->setChecked(action->data(ADR_STATUS_CODE).toInt() == statusCode);
 
 	if (FTrayManager)
 	{
 		if (statusId != STATUS_CONNECTING_ID)
 		{
 			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(FTrayManager->instance());
-			FTrayManager->setIcon(iconByShow(statusItemShow(statusId)));
+#ifdef Q_WS_WIN
+			if (QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7)
+#endif
+				FTrayManager->setIcon(iconByShow(statusItemShow(statusId)));
 		}
 		else
 		{
 			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(FTrayManager->instance(),MNI_SCHANGER_CONNECTING);
 		}
 
-		QString trayToolTip = QString(tr("Virtus - %1")).arg(statusItemName(visibleMainStatusId()));
+		QString trayToolTip = QString(tr("Contacts - %1")).arg(statusItemName(visibleMainStatusId()));
 		FTrayManager->setToolTip(trayToolTip);
 	}
 }
@@ -959,12 +991,13 @@ void StatusChanger::updateStatusNotification(IPresence *APresence)
 			{
 				notify.notificatior = NID_CONNECTION_STATE;
 				notify.data.insert(NDR_ICON,FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Error,QString::null,false) : QIcon());
-				notify.data.insert(NDR_POPUP_CAPTION,isFailed ? tr("Problem") : tr("Problem persists"));
+				notify.data.insert(NDR_POPUP_CAPTION,isFailed ? tr("Problem") : tr("Problem resolved"));
 				notify.data.insert(NDR_POPUP_IMAGE, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(isFailed ? MNI_SCHANGER_CONNECTION_ERROR : MNI_SCHANGER_CONNECTION_RESTORE));
 				notify.data.insert(NDR_POPUP_TITLE,isFailed ? tr("Temporary connection failure") : tr("Connection restored"));
 				notify.data.insert(NDR_POPUP_TEXT,isFailed ? Qt::escape(APresence->status()) : QString());
 				notify.data.insert(NDR_POPUP_STYLEKEY,isFailed ? STS_SCHANGER_NOTIFYWIDGET_CONNECTION_ERROR : STS_SCHANGER_NOTIFYWIDGET_CONNECTION_RESTORE);
 				notify.data.insert(NDR_SOUND_FILE,isFailed ? SDF_SCHANGER_CONNECTION_ERROR : SDF_SCHANGER_CONNECTION_RESTORE);
+				notify.data.insert(NDR_POPUP_CAN_ACTIVATE, false);
 
 				notifyId = FNotifications->appendNotification(notify);
 				FConnectNotifyId.insert(APresence, isFailed ? 0-notifyId : notifyId);
@@ -1142,14 +1175,14 @@ void StatusChanger::onOptionsOpened()
 	{
 		int statusId = ns.toInt();
 		OptionsNode soptions = Options::node(OPV_STATUS_ITEM, ns);
-		QString statusName = soptions.value("name").toString();
+		/*QString statusName = soptions.value("name").toString();
 		if (statusId > STATUS_MAX_STANDART_ID)
 		{
 			if (!statusName.isEmpty() && statusByName(statusName)==STATUS_NULL_ID)
 			{
 				StatusItem status;
 				status.code = statusId;
-				status.name = statusName;
+				status.name = nameByShow(status.show);//statusName;
 				status.show = (IPresence::Show)soptions.value("show").toInt();
 				status.text = soptions.value("text").toString();
 				status.priority = soptions.value("priority").toInt();
@@ -1158,17 +1191,23 @@ void StatusChanger::onOptionsOpened()
 				createStatusActions(status.code);
 			}
 		}
-		else if (statusId > STATUS_NULL_ID && FStatusItems.contains(statusId))
+		else*/
+		if (statusId > STATUS_NULL_ID && FStatusItems.contains(statusId))
 		{
 			StatusItem &status = FStatusItems[statusId];
-			if (!statusName.isEmpty())
-				status.name = statusName;
+			//if (!statusName.isEmpty())
+			//	status.name = statusName;
 			status.text = soptions.hasValue("text") ? soptions.value("text").toString() : QString::null;
 			status.priority = soptions.hasValue("priority") ? soptions.value("priority").toInt() : status.priority;
 			updateStatusActions(statusId);
 		}
 	}
 	removeRedundantCustomStatuses();
+
+	QString commonStatusText = statusItemText(STATUS_ONLINE);
+	foreach(int statusId, statusItems())
+		if (statusId>STATUS_NULL_ID && statusItemText(statusId)!=commonStatusText)
+			updateStatusItem(statusId,statusItemName(statusId),statusItemShow(statusId),commonStatusText,statusItemPriority(statusId));
 
 	FModifyStatus->setChecked(Options::node(OPV_STATUSES_MODIFY).value().toBool());
 	setMainStatusId(Options::node(OPV_STATUSES_MAINSTATUS).value().toInt());

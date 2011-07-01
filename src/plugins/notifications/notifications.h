@@ -1,9 +1,13 @@
 #ifndef NOTIFICATIONS_H
 #define NOTIFICATIONS_H
 
+#ifdef QT_PHONON_LIB
+#	include <Phonon/Phonon>
+#else
+#	include <QSound>
+#endif
+
 #include <QTimer>
-#include <QSound>
-#include <QPointer>
 #include <definitions/notificationdataroles.h>
 #include <definitions/actiongroups.h>
 #include <definitions/toolbargroups.h>
@@ -27,6 +31,7 @@
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
 #include <utils/options.h>
+#include <utils/systemmanager.h>
 #include "notifywidget.h"
 #include "optionswidget.h"
 #include "notifykindswidget.h"
@@ -58,10 +63,10 @@ struct Notificator
 };
 
 class Notifications :
-			public QObject,
-			public IPlugin,
-			public INotifications,
-			public IOptionsHolder
+	public QObject,
+	public IPlugin,
+	public INotifications,
+	public IOptionsHolder
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin INotifications IOptionsHolder)
@@ -144,7 +149,12 @@ private:
 	Menu *FNotifyMenu;
 private:
 	int FTestNotifyId;
+#ifdef QT_PHONON_LIB
+	Phonon::MediaObject *FMediaObject;
+	Phonon::AudioOutput *FAudioOutput;
+#else
 	QSound *FSound;
+#endif
 	QTimer FTestNotifyTimer;
 	QList<int> FDelayedReplaces;
 	QList<int> FDelayedActivations;

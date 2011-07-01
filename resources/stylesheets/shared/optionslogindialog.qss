@@ -4,10 +4,10 @@
 
 QDialog
 {
-	background-color: rgba(65, 70, 77, 235);
+	background-color: rgba(65, 70, 77, 250);
 }
 
-#wdtContent, #wdtHelp, QFrame, QLabel, QCheckBox, QDialogButtonBox
+#wdtContent, #wdtHelp, QFrame, QLabel, QCheckBox, QDialogButtonBox, #connectionErrorWidget
 {
 	background-color: transparent;
 }
@@ -16,7 +16,7 @@ QDialog
  * Domain Combo Box *
  ********************/
 
-#frmDomain[error="true"]
+/*#frmDomain[error="true"]
 {
 	border-left: 4px;
 	border-top: 4px;
@@ -24,12 +24,32 @@ QDialog
 	border-bottom: 4px;
 	border-image: url(%IMAGES_PATH%/comboboxerrorborder.png);
 	border-radius: 0px;
-}
+}*/
 
 QComboBox[error="true"]:!editable
 {
-	border: 0px solid transparent;
-	border-radius: 3px;
+	min-height: 22px;
+	border-top: 6px;
+	border-left: 6px;
+	border-bottom: 7px;
+	border-right: 6px;
+	padding: -1px 5px -1px 8px;
+	border-image: url(%IMAGES_PATH%/comboboxerrorborder.png);
+}
+
+QPushButton#tlbDomain
+{
+	margin-top: 1px;
+	min-width: 80px;
+	max-width: 80px;
+	width: 80px;
+	text-align: left;
+	min-height: 25px;
+}
+
+Menu#domainsMenu::item
+{
+	padding-left: 8px;
 }
 
 /******************
@@ -62,7 +82,7 @@ QListView#completerPopUp
 	selection-background-color: #c8d9e1;
 	border: 1px solid black;
 	selection-color: black;
-	font-size: 12px;
+	font-size: 11px;
 }
 
 QListView#completerPopUp:disabled
@@ -89,14 +109,19 @@ QListView#completerPopUp::item:hover
 	padding-bottom: 14px;
 }
 
-#lblRegister, #lblLogo
+#lblRegister
 {
-	margin-left: 3px;
+	margin-left: 1px;
 }
 
 #lblRegister
 {
-	padding-top: 14px;
+	padding-top: 10px;
+}
+
+#lblLogo
+{
+	margin-left: 3px;
 }
 
 QCheckBox
@@ -106,8 +131,9 @@ QCheckBox
 
 #frmLogin
 {
-	padding-top: 14px;
+	margin-top: 10px;
 	padding-right: 3px;
+	padding-bottom: 0px;
 }
 
 #chbSavePassword
@@ -125,11 +151,17 @@ QCheckBox
 	padding-top: 5px;
 }
 
-#cmbDomain
+QComboBox#cmbDomain
 {
-	margin-top: 1px;
-	min-width: 75px;
-	max-width: 75px;
+	margin-top: 2px;
+	min-width: 78px;
+	max-width: 78px;
+}
+
+QComboBox#cmbDomain[error="true"]
+{
+	margin-top: -1px;
+	margin-right: -3px;
 }
 
 /***********************

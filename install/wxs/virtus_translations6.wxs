@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include Product.wxs ?>	
+  <Fragment>
+    <DirectoryRef Id="INSTALLLOCATION">
+      <Directory Id="dir9E180B8EDF9644D1ABB02B7EE112F633" Name="translations" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="Translations">
+      <Component Id="cmp02A87D071BE5BEAB776FF65840EEE976" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{804CB5F8-2B24-47B5-A0A1-F1D584A3A32B}">
+        <File Id="fil3A256D1DEB76F0B4346FA9999F4E8B0D" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\accountmanager.qm" />
+      </Component>
+      <Component Id="cmp203DFE71F065BB6F1078038D4DC03E3A" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{D59FF80F-0896-4F57-8846-E8EAD5217826}">
+        <File Id="filA9EA6F31E11E496236FAEDBD0A1666C4" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\adiummessagestyle.qm" />
+      </Component>
+      <Component Id="cmp13C3DEBAFE21E715D28F54FFFC25C98D" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{F9CE815E-8B16-4C97-A364-B47DBFF2DED7}">
+        <File Id="fil5DD5CBE8B95CCB3F7E5D8D4DF55DBC5B" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\autostatus.qm" />
+      </Component>
+      <Component Id="cmp071D7A64BDB19C9F14DA44B6644429AE" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{13516780-4B1E-44F4-8E5C-6E9BC7F150CF}">
+        <File Id="filC688C312134007A62F5F404BE40788CC" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\avatars.qm" />
+      </Component>
+      <Component Id="cmp816F5C0D4A27A4AA751838FCEFAB2534" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{9070400C-7685-49B9-8BFC-B871732760B2}">
+        <File Id="fil7F359F88BE2541902262DEFBB99D664B" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\birthdayreminder.qm" />
+      </Component>
+      <Component Id="cmp3E9190562368FCE9D1999814C3F64C9D" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{2EDC59C6-93A4-4311-8A3C-A8F320564B9E}">
+        <File Id="filC9E2E5F11E643689F0D5135A49F48A19" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\bitsofbinary.qm" />
+      </Component>
+      <Component Id="cmp27DEEA7EA60F2060B4E4A162F57CDC3F" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{784A9844-F51E-4E0F-B526-1B21C43A2DA0}">
+        <File Id="fil1B0C22D9C2BC4D2C743B847EDC420693" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\chatmessagehandler.qm" />
+      </Component>
+      <Component Id="cmp10B4B2250A0EC4BE3A18B9B6C2103447" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{F69D290E-3869-40EC-849A-4BACFF43FACE}">
+        <File Id="fil9F6BD331E0908314D5A2EFF8DF88D326" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\chatstates.qm" />
+      </Component>
+      <Component Id="cmpD780108C0954E154930B3E2B9BB5F7CA" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{F7ECBE35-A34A-4652-A59F-3229E784FB75}">
+        <File Id="fil0B881A1D494425EEE67B796DF3270E82" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\clientinfo.qm" />
+      </Component>
+      <Component Id="cmpC5D33D9F7F1B6CFE265704D00E78F6F4" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{5665EB52-A4D6-4961-B1D5-B4F9B3438F10}">
+        <File Id="filCD2978CAF8AA766A246A8B2D227632ED" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\compress.qm" />
+      </Component>
+      <Component Id="cmpFD9B0B5EE78031635E8793B38FF2901E" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{398632D8-2CA4-4B42-B464-B9A922ACC9BB}">
+        <File Id="filE94364EDB75949DE6F2E25BD7EAADC98" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\connectionmanager.qm" />
+      </Component>
+      <Component Id="cmp1098A991C90242026AAA86DF0B4E93C3" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{1F75D4B8-E12E-46F0-A186-3C96E86CF5B5}">
+        <File Id="filE02501E66FF2BDFE25C4F73F2737C766" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\console.qm" />
+      </Component>
+      <Component Id="cmp722ADDB0211D1BEA798BDF83F0632945" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{C88436E1-7B35-4F42-ACC2-1FADFC8CE8B7}">
+        <File Id="fil99EBECBAE7F741638D766F3A1EA0ED4B" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\dataforms.qm" />
+      </Component>
+      <Component Id="cmp9E7B4ABFC8340B89E1388BB97596171C" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{BC36B068-0F56-48AA-BCF4-D783245497D3}">
+        <File Id="fil5E988D9F7E52E07C21F310251AAA7E9D" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\defaultconnection.qm" />
+      </Component>
+      <Component Id="cmp4D47D26E6A1C2F27A145995135762433" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{D765FDE9-60C5-4B6C-9371-4CF0E4C7FCF6}">
+        <File Id="filE579AE891B4E34F408EE8930492AB041" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\emoticons.qm" />
+      </Component>
+      <Component Id="cmp6E6B6291A2C09CEA5EC2F2723EBBD320" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{5ED07699-465C-4C33-8F63-0D727D083DA7}">
+        <File Id="filCFA66CEC93CFBDC9EDE5D7E0F013D471" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\gateways.qm" />
+      </Component>
+      <Component Id="cmpDCA19E937F5854CDEF6C807003EFCE08" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{38519B63-7D0B-4E6B-BC43-729E6F1FCE01}">
+        <File Id="fil6952F60DF7FE262368832B54C45D8F25" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\iqauth.qm" />
+      </Component>
+      <Component Id="cmp6DAA07D7C3ADEB7943958FEDD8121E34" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{5EDD1B9B-BCEB-480E-98D6-A6B1B5F10988}">
+        <File Id="fil22D3F080D2B0D7D85C301AB30E1FE2DF" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\mainwindow.qm" />
+      </Component>
+      <Component Id="cmpC3FF2DF25DCF7D63DEF64919ADCF35BD" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{BE31CCDB-42B1-4209-95BE-FD9757C0CD47}">
+        <File Id="fil7190F47CC519DD95367FE0F8D1FA50F4" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\masssendhandler.qm" />
+      </Component>
+      <Component Id="cmp9228888CE430395BDC05FD02D9E681E6" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{A55EC94C-13AA-4341-8DBC-8EB4E2BDC872}">
+        <File Id="filDFDBB0118334B18CCCD01BAB43ED1F70" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\messageprocessor.qm" />
+      </Component>
+      <Component Id="cmpAF02C29BE48CA72D5C8F19AFB739DDF3" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{B29AB918-7635-4DC3-9B42-091D1F5D4029}">
+        <File Id="fil4D6FB0EF338963BEB4752852C91DB2A0" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\messagestyles.qm" />
+      </Component>
+      <Component Id="cmpFCA226579AA92AE5AC6362CA90A54D79" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{475277FF-AC10-430D-961C-9236A49B6C54}">
+        <File Id="fil3BCC017B55CD72B2787A344A4FF7A3D9" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\messagewidgets.qm" />
+      </Component>
+      <Component Id="cmp08F40B538426BF0C582E255DF2D62156" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{A60F71AE-C2BF-4CEC-B62A-E2C199B7F366}">
+        <File Id="fil85930C7C6DAC61037C226BC62C7D5677" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\metacontacts.qm" />
+      </Component>
+      <Component Id="cmp8E39F832C2167D26D5C3F7F6492F7DD5" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{77FA302A-60E7-4F62-A74A-2A73B13A4A55}">
+        <File Id="filCD0076ACD40B1BDDBADB8C4F264E8609" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\notifications.qm" />
+      </Component>
+      <Component Id="cmpDDD0D3BAE6CBF663EF16101337442816" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{CF0D66A8-6A5C-45B0-81E2-677A4DFC34DB}">
+        <File Id="filF08F8AE1B148B6787FD8A7A817304EA2" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\optionsmanager.qm" />
+      </Component>
+      <Component Id="cmpA6F6CBA059A7AC5C56DAE4104BC90926" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{96BD40C4-08DA-4CE7-9395-8EE55D47C561}">
+        <File Id="fil9788C47649B361A4FF4FE56FE66AFA63" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\presence.qm" />
+      </Component>
+      <Component Id="cmp1F96B0DEA4336505A7463098526DB059" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{6133AA14-1D3D-480C-BCB9-4213CB61D3FA}">
+        <File Id="filF04CCC0DD6D162F0FB21F2AF96F0461D" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\privatestorage.qm" />
+      </Component>
+      <Component Id="cmpDD827326CE07180228D351937956D089" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{6DDB3EAC-C3EA-4EA0-A421-4A3945FDE8A3}">
+        <File Id="fil8F16D65097D74B8D13252B019D32E60B" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\qt_ru.qm" />
+      </Component>
+      <Component Id="cmp8696B2CE500F51986F30A048FCE9B644" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{5B34C66B-84F8-4E6A-A7EA-CDEF46EE7213}">
+        <File Id="fil8962B438DDE8E75B880C0659E400F818" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\ramblercontacts.qm" />
+      </Component>
+      <Component Id="cmp185D4A858D89F66C0AE4AA650E995F77" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{BA031D06-0072-4B87-97C5-FAD7525C3C14}">
+        <File Id="fil179900B063D31B8CB394FD32F3A0B168" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\ramblercontactsutils.qm" />
+      </Component>
+      <Component Id="cmpE9822D1C88D7C8D0EAFF6C02646D7F4D" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{150959D2-91B6-4698-AA67-CF519C65D5DF}">
+        <File Id="filF406084DE470EBFB399D76410A072870" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\ramblerhistory.qm" />
+      </Component>
+      <Component Id="cmp154EBA5046AE560EF280AD47D2788214" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{E9953288-1FEA-4D6F-9B7B-6F51EC6528EA}">
+        <File Id="filB0EF34B15F6EDAD90070E96546FD094F" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\ramblermailnotify.qm" />
+      </Component>
+      <Component Id="cmpF919277C10EC875EABA735444FA44E48" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{8BF79769-9440-4385-B6ED-94C608600B41}">
+        <File Id="filC6CCC88CA62545951ED1D0D5F1FF7251" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\registration.qm" />
+      </Component>
+      <Component Id="cmpF8B8F3BB9675F00412B088CEF92C1BD8" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{EBE27B0B-4EB9-46F2-ABD7-92440B21AF63}">
+        <File Id="filE2DD5C0E72C581915A6C5C92AC4300F9" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\roster.qm" />
+      </Component>
+      <Component Id="cmpAC6497125D367D6795C78E8791E91771" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{A570A263-2DC7-4EAE-956D-FD099F2D7125}">
+        <File Id="filF53371649276BC2E7EE28A227BE106C9" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\rosterchanger.qm" />
+      </Component>
+      <Component Id="cmpCC09D47581A2B602E8A7F12F050A5B9A" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{0828319B-7FEC-4A59-B51E-F780ACDA5A3E}">
+        <File Id="fil20EFA2251AF56BE7545355BAE26B9E18" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\rostersearch.qm" />
+      </Component>
+      <Component Id="cmp8AC2F68FD5D1EF71DDB30367D0D4FC93" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{4DED07FE-3E02-4651-BC7E-896DD40EF02C}">
+        <File Id="filB4C33D9A0D7F1A43E861BAF57EB3B850" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\rostersmodel.qm" />
+      </Component>
+      <Component Id="cmp6DB2477B227E7AEE28D984BD8EC24799" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{C2A37F6F-CA07-47B0-9571-AA55C950E035}">
+        <File Id="fil73CD1615784108D1906DEDDEAEE752BA" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\rostersview.qm" />
+      </Component>
+      <Component Id="cmp411F0E34736ED02BDDCC984915155C9A" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{04F2F8D1-97F6-4175-B9C1-A33171B53A28}">
+        <File Id="fil11C790BC9AAF53DA8C613A5295456763" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\saslauth.qm" />
+      </Component>
+      <Component Id="cmp8ACC7234607CB8CFC8E231D205DD089F" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{984A2F4B-DCFC-4CED-9DE8-DCFB5288909F}">
+        <File Id="fil125EF6DF8BDB057D3E7BFDCA8AFF15CA" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\servicediscovery.qm" />
+      </Component>
+      <Component Id="cmp309454B26D9365A97BB1AF1DBE8D483C" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{C631545C-D5E0-4FA1-9BD7-9AFD28AAD680}">
+        <File Id="fil96302AB3C0A4BFE15AE1046E6F75BEAB" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\sipphone.qm" />
+      </Component>
+      <Component Id="cmp5A5D3AE063771B9CD60775E91038196F" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{1E92AC6F-4735-4097-9CB0-5D9D7D3723EA}">
+        <File Id="filFA7CB7CBBCCA5BB0C3CF73D832FA23FE" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\smsmessagehandler.qm" />
+      </Component>
+      <Component Id="cmpF702E10137621912987045ECE91E0607" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{45EA1A87-1A16-4B12-B976-15B13A97F650}">
+        <File Id="fil713D968BA130D839641B6BCBEB88AEFC" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\stanzaprocessor.qm" />
+      </Component>
+      <Component Id="cmp2051E9985ACB2A0A8B195B0BBDE5BD82" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{CD6A2678-478C-499E-885F-4A119C248497}">
+        <File Id="fil33757E32944B6C35D59321DBCFBD7AE0" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\starttls.qm" />
+      </Component>
+      <Component Id="cmpB44BB91C1E85544A88CF7E0256C94815" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{05E4A78E-AAB1-4B9D-B2D2-5C6E7B73C729}">
+        <File Id="fil5C9C9B6243DCCB5A5E21E0E35D46EE53" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\statuschanger.qm" />
+      </Component>
+      <Component Id="cmpCB5B05BC85B9039F39A33D6E627862E4" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{AB133CC7-E438-4A9A-AD4E-5905A4E44DA3}">
+        <File Id="fil7E35A9CD2E46860060B4C99193A2A7FC" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\statusicons.qm" />
+      </Component>
+      <Component Id="cmpE60C37FC4E15D2C759B60C93E9DF01EB" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{1981A291-2AE1-44BF-9E17-13563C90A31D}">
+        <File Id="fil4F90D65AC0F8A36706F938C6D7EA40FB" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\stylesheeteditor.qm" />
+      </Component>
+      <Component Id="cmp4F15FABB453E1AF92C34656CCD69EA87" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{3E95EA28-461C-470B-8614-5CE1749F826E}">
+        <File Id="fil244AF57292CA0309850828B407FF7168" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\traymanager.qm" />
+      </Component>
+      <Component Id="cmp46B544301E61F2275EA2C4D0A4B8F3A3" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{C173D709-7059-41EB-8A5B-4FA729EB91B3}">
+        <File Id="filA6CCC66BB13D3DDD57D5138B4FD99F94" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\vcard.qm" />
+      </Component>
+      <Component Id="cmp69DEE8CB60354AABB6C25C463968DFA6" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{3D819B46-861F-4F50-A15E-ED1507D1AAA1}">
+        <File Id="filCA95749A82D261390B8766B8A2FE3B67" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\xmppstreams.qm" />
+      </Component>
+      <Component Id="cmp80EA737E3501D59038C4EAC091A9870D" Directory="dir835E234335A47BA66F0768651BE99955" Guid="{691FD547-AB4F-4A8F-A7FC-CE8C8E724FEB}">
+        <File Id="filE580F11405E486FE9F7973234CFA51AD" KeyPath="yes" Source="$(var.VirtusTranslationsRoot)\ru_RU\xmppuriqueries.qm" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir835E234335A47BA66F0768651BE99955" />
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir9E180B8EDF9644D1ABB02B7EE112F633">
+      <Directory Id="dir835E234335A47BA66F0768651BE99955" Name="ru_RU" />
+    </DirectoryRef>
+  </Fragment>
+</Wix>

@@ -1,0 +1,11 @@
+QTableWidget, QListWidget
+{
+	font-size: 12px;
+	background-color: rgb(255, 255, 255);
+}
+
+QHeaderView, QTabBar::tab
+{
+	font-size: 12px;
+	color: white;
+}

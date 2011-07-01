@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Allows other modules to obtain information about the status of contacts in the roster</source>
-        <translation>Позволяет другим модулям получать информацию о статусе контактов в ростере</translation>
+        <translation>Позволяет другим модулям получать информацию о статусе контактов в списке</translation>
     </message>
     <message>
         <source>State Changes</source>
@@ -33,7 +33,7 @@
     </message>
     <message>
         <source>Whatever was done, all the better</source>
-        <translation>Чтобы ни делалось, все к лучшему</translation>
+        <translation>Что бы ни делалось - все к лучшему</translation>
     </message>
     <message>
         <source>Changed mood</source>

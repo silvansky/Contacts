@@ -3,6 +3,7 @@
   <icon>
     <key>optionsDialog</key>
     <object mime="image/png">optionsdialog.png</object>
+    <object mime="image/png">optionsdialog_click.png</object>
   </icon>
   <icon>
     <key>optionsProfile</key>

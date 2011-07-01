@@ -3,6 +3,11 @@ include(../config.inc)
 TEMPLATE            = lib
 CONFIG             += plugin
 QT                 += network xml
+
+macx: {
+  QT              += webkit
+}
+
 LIBS               += -L../../libs
 LIBS               += -l$$TARGET_UTILS
 DEPENDPATH         += ../..

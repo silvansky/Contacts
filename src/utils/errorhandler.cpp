@@ -140,7 +140,7 @@ ErrorHandler &ErrorHandler::parseElement(const QDomElement &AErrElem, const QStr
 		FCode = codeByCondition(FCondition,ANsURI);
 
 	if (FCondition.isEmpty() && FCode != 0)
-		FCondition = coditionByCode(FCode,ANsURI);
+		FCondition = conditionByCode(FCode,ANsURI);
 
 	if (FType == UNKNOWNTYPE && FCode != 0)
 		FType = typeByCode(FCode,ANsURI);
@@ -243,7 +243,7 @@ int ErrorHandler::codeByCondition(const QString &ACondition, const QString &ANsU
 	return item != NULL ? item->code : UNKNOWNCODE;
 }
 
-QString ErrorHandler::coditionByCode(int ACode, const QString &ANsURI)
+QString ErrorHandler::conditionByCode(int ACode, const QString &ANsURI)
 {
 	ErrorItem *item = itemByCode(ACode,ANsURI);
 	return item != NULL ? item->condition : QString();

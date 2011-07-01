@@ -53,7 +53,7 @@
 #ifndef CSSHIGHLIGHTER_H
 #define CSSHIGHLIGHTER_H
 
-#include <QtGui/QSyntaxHighlighter>
+#include <QSyntaxHighlighter>
 //#include "shared_global_p.h"
 
 class CssHighlighter : public QSyntaxHighlighter

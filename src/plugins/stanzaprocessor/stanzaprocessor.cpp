@@ -1,6 +1,7 @@
 #include "stanzaprocessor.h"
 
 #include <QSet>
+#include <utils/log.h>
 
 StanzaProcessor::StanzaProcessor()
 {
@@ -18,7 +19,7 @@ void StanzaProcessor::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to send and receive XMPP stanzas");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 }
 
@@ -31,13 +32,13 @@ bool StanzaProcessor::initConnections(IPluginManager *APluginManager, int &/*AIn
 		if (FXmppStreams)
 		{
 			connect(FXmppStreams->instance(), SIGNAL(created(IXmppStream *)),
-			        SLOT(onStreamCreated(IXmppStream *)));
+				SLOT(onStreamCreated(IXmppStream *)));
 			connect(FXmppStreams->instance(), SIGNAL(jidChanged(IXmppStream *, const Jid &)),
-			        SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
+				SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
 			connect(FXmppStreams->instance(), SIGNAL(closed(IXmppStream *)),
-			        SLOT(onStreamClosed(IXmppStream *)));
+				SLOT(onStreamClosed(IXmppStream *)));
 			connect(FXmppStreams->instance(), SIGNAL(streamDestroyed(IXmppStream *)),
-			        SLOT(onStreamDestroyed(IXmppStream *)));
+				SLOT(onStreamDestroyed(IXmppStream *)));
 		}
 	}
 	return FXmppStreams!=NULL;
@@ -94,6 +95,7 @@ bool StanzaProcessor::sendStanzaOut(const Jid &AStreamJid, Stanza &AStanza)
 			emit stanzaSent(AStreamJid, AStanza);
 			return true;
 		}
+		Log(QString("[StanzaProcessor send stanza error] Failed to send stanza:\n%1\nwith stream %2").arg(AStanza.toString(), AStreamJid.full()));
 		return false;
 	}
 	return true;

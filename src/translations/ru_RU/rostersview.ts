@@ -5,7 +5,7 @@
     <name>RosterContactOrderOptionsClass</name>
     <message>
         <source>By Name (A-&gt;Z)</source>
-        <translation>По имени (А-&gt;Я)</translation>
+        <translation>По имени (А -&gt; Я)</translation>
     </message>
     <message>
         <source>By Status</source>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Manual</source>
-        <translation>Ручной порядок</translation>
+        <translation>Вручную</translation>
     </message>
 </context>
 <context>
@@ -70,11 +70,11 @@
     <name>RostersViewPlugin</name>
     <message>
         <source>Roster View</source>
-        <translation>Отображение ростера</translation>
+        <translation>Отображение контакт-листа</translation>
     </message>
     <message>
         <source>Displays a hierarchical roster&apos;s model</source>
-        <translation>Отображает иерархическую модель ростера</translation>
+        <translation>Отображает иерархическую модель контакт-листа</translation>
     </message>
     <message>
         <source>Contact List</source>
@@ -83,10 +83,6 @@
     <message>
         <source>Show offline contacts</source>
         <translation>Показывать отключенных (&quot;Не в сети&quot;)</translation>
-    </message>
-    <message>
-        <source>Group contacts</source>
-        <translation>Группировать контакты</translation>
     </message>
     <message>
         <source>Contacts Order</source>
@@ -99,10 +95,6 @@
     <message>
         <source>Show Offline</source>
         <translation>Показывать отключенных</translation>
-    </message>
-    <message>
-        <source>Ctrl+O</source>
-        <translation>Ctrl+O</translation>
     </message>
     <message>
         <source>Group Contacts</source>

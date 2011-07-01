@@ -4,4 +4,16 @@
     <key>pluginmanagerApplication</key>
     <object mime='text/css'>pluginmanagerapplication.qss</object>
   </file>
+  <file>
+    <key>pluginmanagerFeedback</key>
+    <object mime='text/css'>pluginmanagerfeedback.qss</object>
+  </file>
+  <file>
+    <key>pluginmanagerSetupPluginsDialog</key>
+    <object mime='text/css'>pluginmanagersetuppluginsdialog.qss</object>
+  </file>
+  <file>
+    <key>pluginmanagerAboutBox</key>
+    <object mime='text/css'>pluginmanageraboutbox.qss</object>
+  </file>
 </styledef>

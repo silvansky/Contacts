@@ -1,0 +1,36 @@
+QLabel#captionLabel
+{
+	font-size: 18px;
+	margin-top: 5px;
+	margin-left: 4px;
+	margin-right: 25px;
+}
+
+QLabel#infoLabel,
+QLabel#descrLabel
+{
+	margin-left: 6px;
+	margin-right: 25px;
+}
+
+QLineEdit
+{
+	margin-left: 6px;
+	margin-right: 4px;
+	margin-top: 2px;
+	margin-bottom: 8px;
+}
+
+QPushButton#acceptButton
+{
+	min-width: 60px;
+	max-width: 100px;
+
+}
+
+QPushButton#rejectButton
+{
+	min-width: 60px;
+	max-width: 60px;
+	width: 60px;
+}

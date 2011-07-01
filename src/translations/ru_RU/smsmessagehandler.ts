@@ -4,10 +4,6 @@
 <context>
     <name>SmsInfoWidget</name>
     <message>
-        <source>Refill</source>
-        <translation>Пополнить</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;%1&lt;/b&gt; from %2 characters</source>
         <translation>&lt;b&gt;%1&lt;/b&gt; из %2 знаков</translation>
     </message>
@@ -16,23 +12,43 @@
         <translation>Баланс: &lt;b&gt;%1 SMS&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>You have run out of SMS</source>
-        <translation>У вас закончились SMS</translation>
+        <source>SMS service is unavailable</source>
+        <translation>SMS-сервис недоступен</translation>
     </message>
     <message>
-        <source>SMS service is unavailable</source>
-        <translation>SMS сервис недоступен</translation>
+        <source>Supplement</source>
+        <translation>Пополнить</translation>
+    </message>
+    <message>
+        <source>SMS Service</source>
+        <translation>СМС Сервис</translation>
+    </message>
+    <message>
+        <source>Send a SMS message with the code %2 to phone number %1 to supplement your balance at %3 SMS.</source>
+        <translation>Отправьте сообщение с кодом %2 на номер %1, чтобы пополнить ваш баланс на %3 SMS.</translation>
+    </message>
+    <message>
+        <source>SMS service is unavailable, please try later.</source>
+        <translation>SMS-сервис недоступен, пожалуйста, попробуйте позже.</translation>
+    </message>
+    <message>
+        <source>You have run out of SMS. Please, %1.</source>
+        <translation>У вас закончились SMS. Пожалуйста, %1.</translation>
+    </message>
+    <message>
+        <source>supplement the balance</source>
+        <translation>пополните баланс</translation>
     </message>
 </context>
 <context>
     <name>SmsMessageHandler</name>
     <message>
         <source>SMS Messages</source>
-        <translation>SMS Сообщения</translation>
+        <translation>SMS-сообщения</translation>
     </message>
     <message>
         <source>Allows to exchange SMS messages via gateway</source>
-        <translation>Позволяет обмениваться SMS сообщениями через транспорт</translation>
+        <translation>Позволяет обмениваться SMS-сообщениями через транспорт</translation>
     </message>
     <message numerus="yes">
         <source>%n message(s)</source>
@@ -45,10 +61,6 @@
     <message>
         <source>Writing...</source>
         <translation>Пишет...</translation>
-    </message>
-    <message>
-        <source>Show previous messages</source>
-        <translation>Показать предыдущие сообщения</translation>
     </message>
     <message>
         <source>Loading messages from server...</source>
@@ -143,20 +155,28 @@
         <translation>%1, %2 dd, yyyy</translation>
     </message>
     <message>
-        <source>Failed to load history messages from server: %1</source>
-        <translation>Не удалось загрузить историю сообщений с сервера: %1</translation>
-    </message>
-    <message>
-        <source>SMS history</source>
-        <translation>История SMS</translation>
-    </message>
-    <message>
         <source>SMS not sent!</source>
         <translation>SMS не отправлено!</translation>
     </message>
     <message>
         <source>Sending...</source>
         <translation>Отправка...</translation>
+    </message>
+    <message>
+        <source>All messages loaded</source>
+        <translation>Все сообщения загружены</translation>
+    </message>
+    <message>
+        <source>Failed to load history messages from server</source>
+        <translation>Не удалось загрузить сообщения с сервера</translation>
+    </message>
+    <message>
+        <source>Chat history</source>
+        <translation>История чата</translation>
+    </message>
+    <message>
+        <source>Show previous messages</source>
+        <translation>Показать предыдущие сообщения</translation>
     </message>
 </context>
 </TS>

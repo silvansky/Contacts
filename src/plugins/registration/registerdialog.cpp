@@ -1,7 +1,6 @@
 #include "registerdialog.h"
 
 #include <QVBoxLayout>
-#include <QMessageBox>
 #include <QTextDocument>
 
 RegisterDialog::RegisterDialog(IRegistration *ARegistration, IDataForms *ADataForms, const Jid &AStremJid,
@@ -89,7 +88,7 @@ void RegisterDialog::doRegister()
 void RegisterDialog::doUnregister()
 {
 	resetDialog();
-	ui.lblInstuctions->setText(tr("Do you really want to remove registration from %1?").arg(FServiceJid.hFull()));
+	ui.lblInstuctions->setText(tr("Do you really want to remove registration from %1?").arg(FServiceJid.full()));
 	ui.dbbButtons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
 }
 
@@ -149,11 +148,11 @@ void RegisterDialog::onRegisterSuccess(const QString &AId)
 	{
 		resetDialog();
 		if (FOperation == IRegistration::Register)
-			ui.lblInstuctions->setText(tr("You are successfully registered at %1").arg(FSubmit.serviceJid.hFull()));
+			ui.lblInstuctions->setText(tr("You are successfully registered at %1").arg(FSubmit.serviceJid.full()));
 		else if (FOperation == IRegistration::Unregister)
-			ui.lblInstuctions->setText(tr("You are successfully unregistered from %1").arg(FSubmit.serviceJid.hFull()));
+			ui.lblInstuctions->setText(tr("You are successfully unregistered from %1").arg(FSubmit.serviceJid.full()));
 		else if (FOperation == IRegistration::ChangePassword)
-			ui.lblInstuctions->setText(tr("Password was successfully changed at %1").arg(FSubmit.serviceJid.hFull()));
+			ui.lblInstuctions->setText(tr("Password was successfully changed at %1").arg(FSubmit.serviceJid.full()));
 
 		ui.dbbButtons->setStandardButtons(QDialogButtonBox::Close);
 	}

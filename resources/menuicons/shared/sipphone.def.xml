@@ -1,7 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icondef>
   <icon>
-    <key>sipphoneCall</key>
+    <key>sipCall</key>
     <object mime="image/png">sipphonecall.png</object>
+  </icon>
+  <icon>
+    <key>sipButtonAccept</key>
+    <object mime="image/png">sipphonebuttonaccept.png</object>
+  </icon>
+  <icon>
+    <key>sipButtonHangup</key>
+    <object mime="image/png">sipphonebuttonhangup.png</object>
+  </icon>
+  <icon>
+    <key>sipcameraon</key>
+    <object mime="image/png">sipphonecameraon.png</object>
+  </icon>
+  <icon>
+    <key>sipcameraoff</key>
+    <object mime="image/png">sipphonecameraoff.png</object>
+  </icon>
+  <icon>
+    <key>sipcameradisabled</key>
+    <object mime="image/png">sipphonecameradisabled.png</object>
+  </icon>
+  <icon>
+    <key>sipmicon</key>
+    <object mime="image/png">sipphonemicon.png</object>
+  </icon>
+  <icon>
+    <key>sipmicoff</key>
+    <object mime="image/png">sipphonemicoff.png</object>
+  </icon>
+  <icon>
+    <key>sipmicdisabled</key>
+    <object mime="image/png">sipphonemicdisabled.png</object>
+  </icon>
+  <icon>
+    <key>sipsounddisabled</key>
+    <object mime="image/png">sipphonesounddisabled.png</object>
+  </icon>
+  <icon>
+    <key>sipsoundoff</key>
+    <object mime="image/png">sipphonesoundoff.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_0</key>
+    <object mime="image/png">sipphonevolume0.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_1</key>
+    <object mime="image/png">sipphonevolume1.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_2</key>
+    <object mime="image/png">sipphonevolume2.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_3</key>
+    <object mime="image/png">sipphonevolume3.png</object>
+  </icon>
+  <icon>
+    <key>sipvolume_4</key>
+    <object mime="image/png">sipphonevolume4.png</object>
+  </icon>
+  <icon>
+    <key>sipCallButton</key>
+    <object mime="image/png">sipphonebutton.png</object>
+    <object mime="image/png">sipphonebutton_click.png</object>
+  </icon>
+  <icon>
+    <key>sipfsmicon</key>
+    <object mime="image/png">sipphonevideomicrophone.png</object>
+  </icon>
+  <icon>
+    <key>sipfsmicoff</key>
+    <object mime="image/png">sipphonevideomicrophone_off.png</object>
+  </icon>
+  <icon>
+    <key>sipfsmicdisabled</key>
+    <object mime="image/png">sipphonevideomicrophonedisable.png</object>
+  </icon>
+
+   <icon>
+    <key>sipfscameraon</key>
+    <object mime="image/png">sipphonevideowebcam.png</object>
+  </icon>
+  <icon>
+    <key>sipfscameraoff</key>
+    <object mime="image/png">sipphonevideowebcam_off.png</object>
+  </icon>
+  <icon>
+    <key>sipfscameradisabled</key>
+    <object mime="image/png">sipphonevideowebcam_disable.png</object>
+  </icon>
+
+
+  <icon>
+    <key>sipfsvolume_0</key>
+    <object mime="image/png">sipphonevideovolume1.png</object>
+  </icon>
+  <icon>
+    <key>sipfsvolume_1</key>
+    <object mime="image/png">sipphonevideovolume1.png</object>
+  </icon>
+  <icon>
+    <key>sipfsvolume_2</key>
+    <object mime="image/png">sipphonevideovolume2.png</object>
+  </icon>
+  <icon>
+    <key>sipfsvolume_3</key>
+    <object mime="image/png">sipphonevideovolume3.png</object>
+  </icon>
+  <icon>
+    <key>sipfsvolume_4</key>
+    <object mime="image/png">sipphonevideovolume4.png</object>
+  </icon>
+  <icon>
+    <key>sipfssoundoff</key>
+    <object mime="image/png">sipphonevideovolume_off.png</object>
+  </icon>
+  <icon>
+    <key>sipfssounddisabled</key>
+    <object mime="image/png">sipphonevideovolume_disable.png</object>
+  </icon>
+
+
+   <icon>
+    <key>sipfsshowcurrcamera</key>
+    <object mime="image/png">sipphonefsshowcam.png</object>
+  </icon>
+
+  <icon>
+    <key>sipfshangup</key>
+    <object mime="image/png">sipphonevideoendcall.png</object>
+  </icon>
+
+  <icon>
+    <key>sipfullscreenon</key>
+    <object mime="image/png">sipphonevideofullscreen.png</object>
+  </icon>
+  <icon>
+    <key>sipfullscreenoff</key>
+    <object mime="image/png">sipphonevideofullscreen_off.png</object>
+  </icon>
+  <icon>
+    <key>sipSeparator</key>
+    <object mime="image/png">sipseparator.png</object>
+  </icon>
+  <icon>
+    <key>sipphoneMute</key>
+    <object mime="image/png">sipphonemute.png</object>
+  </icon>
+  <icon>
+    <key>sipphoneUnmute</key>
+    <object mime="image/png">sipphoneunmute.png</object>
+  </icon>
+  <icon>
+    <key>sipCallAnswer</key>
+    <object mime="image/png">sipcallanswer.png</object>
+  </icon>
+  <icon>
+    <key>sipCallHangup</key>
+    <object mime="image/png">sipcallhangup.png</object>
   </icon>
 </icondef>

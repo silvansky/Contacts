@@ -7,12 +7,12 @@
 #include <utils/options.h>
 #include "ui_rostercontactorderoptions.h"
 
-class RosterContactOrderOptions : 
+class RosterContactOrderOptions :
 	public QWidget,
 	public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	RosterContactOrderOptions(QWidget *AParent = NULL);
 	~RosterContactOrderOptions();
@@ -22,6 +22,7 @@ public slots:
 	virtual void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 private:

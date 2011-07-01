@@ -38,7 +38,9 @@
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ixmppuriqueries.h>
 #include <interfaces/imetacontacts.h>
+#include <utils/log.h>
 #include <utils/options.h>
+#include <utils/errorhandler.h>
 #include "usercontextmenu.h"
 
 struct WindowStatus
@@ -46,12 +48,13 @@ struct WindowStatus
 	QDateTime createTime;
 	QString historyId;
 	QDateTime historyTime;
-	QUuid historyRequestId;
+	QUuid historyContentId;
 	QString lastStatusShow;
 	QList<QDate> separators;
 	QList<int> notified;
 	QList<Message> unread;
 	QList<Message> offline;
+	QList<Message> pending;
 };
 
 struct TabPageInfo
@@ -75,16 +78,17 @@ struct StyleExtension
 enum HisloryLoadState {
 	HLS_READY,
 	HLS_WAITING,
-	HLS_FINISHED
+	HLS_FINISHED,
+	HLS_FAILED
 };
 
 class ChatMessageHandler :
-			public QObject,
-			public IPlugin,
-			public IMessageHandler,
-			public ITabPageHandler,
-			public IXmppUriHandler,
-			public IRostersClickHooker
+	public QObject,
+	public IPlugin,
+	public IMessageHandler,
+	public ITabPageHandler,
+	public IXmppUriHandler,
+	public IRostersClickHooker
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IMessageHandler ITabPageHandler IXmppUriHandler IRostersClickHooker)
@@ -120,8 +124,11 @@ signals:
 	void tabPageDestroyed(ITabPage *ATabPage);
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
-	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid);
+	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch = true) const;
+	IChatWindow *findNotifiedMessageWindow(int AMessageId) const;
+	void clearWindow(IChatWindow *AWindow);
 	void updateWindow(IChatWindow *AWindow);
+	void resetWindowStatus(IChatWindow *AWindow);
 	void removeMessageNotifications(IChatWindow *AWindow);
 	void replaceUnreadMessages(IChatWindow *AWindow);
 	void sendOfflineMessages(IChatWindow *AWindow);
@@ -129,7 +136,7 @@ protected:
 	void requestHistoryMessages(IChatWindow *AWindow, int ACount);
 	IPresence *findPresence(const Jid &AStreamJid) const;
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
-	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit = false);
+	void showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState);
 protected:
 	void setMessageStyle(IChatWindow *AWindow);
 	void fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const;
@@ -183,7 +190,7 @@ private:
 	QHash<QString, TabPageInfo> FTabPages;
 private:
 	QList<IChatWindow *> FWindows;
-	QMap<IChatWindow *, QTimer *> FWindowTimers;
+	QMap<IChatWindow *, QTimer *> FDestroyTimers;
 	QMap<IChatWindow *, WindowStatus> FWindowStatus;
 private:
 	QMap<QString, IChatWindow *> FHistoryRequests;

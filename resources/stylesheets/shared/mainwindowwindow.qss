@@ -2,7 +2,7 @@
 
 MainWindow
 {
-	background-color: rgba(65, 70, 77, 235);
+	background-color: rgba(65, 70, 77, 250);
 }
 
 #upperWidget, #rostersWidget, #bottomWidget, #noticeWidget, #StatusWidgetClass, #searchFrame
@@ -44,16 +44,3 @@ QToolButton#mainMenuButton
 	max-width: 25px;
 }
 
-/*****************
- * Notifications *
- *****************/
-
-QLabel, CloseButton, #wdtActions
-{
-	background-color: transparent;
-}
-
-#noticeWidget
-{
-	background-color: #ccdce4;
-}

@@ -11,7 +11,7 @@ QWidget#frmPopup, QWidget#wdtCaption, QWidget#wdtButtons, QWidget#wdtText
 
 QWidget#frmPopup:hover
 {
-	border: 1px solid palette(brighttext);
+	/*border: 1px solid palette(brighttext);*/
 }
 
 NotifyTextBrowser
@@ -20,24 +20,74 @@ NotifyTextBrowser
 	border: none;
 	border-image: none;
 	padding: 0px 0px 0px 0px;
+	color: white;
+	font-size: 11px;
 }
 
-QLabel#lblTitle 
+QLabel
 {
-	font-size: 12px;
-	font-weight: bold;
+	font-size: 11px;
+}
+
+QLabel#lblTitle
+{
+	font-size: 13px;
 }
 
 QLabel#lblNotice
 {
-	font-size: 10px;
-	font-style: italic;
+	color: #acacac;
 }
 
-QToolButton#tlbOptions
+ActionButton
+{
+	min-height: 20px;
+	max-height: 20px;
+	height: 20px;
+	font-size: 11px;
+	min-width: 40px;
+}
+
+ActionButton
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancel.png);
+}
+
+ActionButton:hover
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancelhover.png);
+}
+
+ActionButton:pressed
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancelclick.png);
+}
+
+/* ActionButton types */
+
+ActionButton[action="birthday"]
 {
 	background-color: transparent;
 	border-image: none;
 	border: none;
 	padding: 0px 0px 0px 0px;
+	color: white;
+	text-decoration: underline;
+	height: 10px;
+	qproperty-textHorizontalAlignment: 1; /* for we can't use text-align: left; */
+}
+
+ActionButton[action="authorize"]
+{
+	border-image: url(%IMAGES_PATH%/nwbuttonaccept.png);
+}
+
+ActionButton[action="authorize"]:hover
+{
+	border-image: url(%IMAGES_PATH%/nwbuttonaccepthover.png);
+}
+
+ActionButton[action="authorize"]:pressed
+{
+	border-image: url(%IMAGES_PATH%/nwbuttonacceptclick.png);
 }

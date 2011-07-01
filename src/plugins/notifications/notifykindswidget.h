@@ -21,6 +21,7 @@ public slots:
 	virtual void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 signals:
@@ -29,6 +30,8 @@ protected:
 	uchar changedKinds(uchar AActiveKinds) const;
 protected slots:
 	void onTestLinkActivated(const QString &ALink);
+	void onTestButtonClicked();
+	void onModified();
 private:
 	Ui::NotifyKindsWidgetClass ui;
 private:

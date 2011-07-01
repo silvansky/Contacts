@@ -5,7 +5,7 @@
     <name>ChatMessageHandler</name>
     <message>
         <source>Chat Messages</source>
-        <translation>Чат сообщения</translation>
+        <translation>Сообщения чата</translation>
     </message>
     <message>
         <source>%1 changed status to [%2] %3</source>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Allows to exchange chat messages</source>
-        <translation>Позволяет обмениваться чат сообщениями</translation>
+        <translation>Позволяет обмениваться сообщениями в чате</translation>
     </message>
     <message>
         <source>January</source>
@@ -128,28 +128,28 @@
         <translation>История чата</translation>
     </message>
     <message>
-        <source>Show previous messages</source>
-        <translation>Показать предыдущие сообщения</translation>
-    </message>
-    <message>
-        <source>Failed to load history messages from server: %1</source>
-        <translation>Не удалось загрузить историю сообщений с сервера: %1</translation>
-    </message>
-    <message>
         <source>Loading messages from server...</source>
         <translation>Загрузка сообщений с сервера...</translation>
     </message>
     <message>
-        <source>Writing...</source>
-        <translation>Пишет...</translation>
-    </message>
-    <message>
-        <source>Open dialog</source>
-        <translation>Открыть диалог</translation>
-    </message>
-    <message>
         <source>Not in contact list</source>
         <translation>Нет в контакт-листе</translation>
+    </message>
+    <message>
+        <source>All messages loaded</source>
+        <translation>Все сообщения загружены</translation>
+    </message>
+    <message>
+        <source>Failed to load history messages from server</source>
+        <translation>Не удалось загрузить сообщения с сервера</translation>
+    </message>
+    <message>
+        <source>Show previous messages</source>
+        <translation>Показать предыдущие сообщения</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Открыть</translation>
     </message>
 </context>
 </TS>

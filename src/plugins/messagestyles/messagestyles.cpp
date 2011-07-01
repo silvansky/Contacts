@@ -23,7 +23,7 @@ void MessageStyles::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to use different styles to display messages");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool MessageStyles::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -72,8 +72,10 @@ bool MessageStyles::initSettings()
 {
 	if (FOptionsManager)
 	{
+#ifdef DEBUG_ENABLED
 		IOptionsDialogNode dnode = { ONO_MESSAGE_STYLES, OPN_MESSAGE_STYLES, tr("Message Styles"), MNI_MESSAGESTYLES };
 		FOptionsManager->insertOptionsDialogNode(dnode);
+#endif
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
@@ -140,19 +142,25 @@ QString MessageStyles::userName(const Jid &AStreamJid, const Jid &AContactJid) c
 		if (!FStreamNames.contains(AStreamJid.bare()))
 		{
 			IVCard *vcard = FVCardPlugin!=NULL ? FVCardPlugin->vcard(AStreamJid.bare()) : NULL;
-			if (vcard!=NULL)
+			if (vcard)
 			{
 				name = vcard->value(VVN_NICKNAME);
 				vcard->unlock();
 			}
+
+			if (name.isEmpty())
+				name = defaultContactNick(AStreamJid);
+
 			FStreamNames.insert(AStreamJid.bare(),name);
 		}
 		else
+		{
 			name = FStreamNames.value(AStreamJid.bare());
+		}
 	}
 	else if (AStreamJid && AContactJid)
 	{
-		name = !AContactJid.resource().isEmpty() ? AContactJid.resource() : AContactJid.node();
+		name = AContactJid.resource();
 	}
 	else
 	{
@@ -161,12 +169,7 @@ QString MessageStyles::userName(const Jid &AStreamJid, const Jid &AContactJid) c
 	}
 
 	if (name.isEmpty())
-	{
-		if (AContactJid.isValid())
-			name = !AContactJid.node().isEmpty() ? AContactJid.node() : AContactJid.domain();
-		else
-			name = !AStreamJid.node().isEmpty() ? AStreamJid.node() : AStreamJid.domain();
-	}
+		name = defaultContactNick(AContactJid.isValid() ? AContactJid : AStreamJid);
 
 	return name;
 }
@@ -199,12 +202,30 @@ QString MessageStyles::userIcon(const Jid &AContactJid, int AShow, const QString
 
 QString MessageStyles::timeFormat(const QDateTime &AMessageTime, const QDateTime &ACurTime) const
 {
-	int daysDelta = AMessageTime.daysTo(ACurTime);
-	if (daysDelta > 365)
-		return tr("d MMM yyyy hh:mm");
-	else if (daysDelta > 0)
-		return tr("d MMM hh:mm");
-	return tr("hh:mm:ss");
+	Q_UNUSED(AMessageTime); Q_UNUSED(ACurTime);
+	//int daysDelta = AMessageTime.daysTo(ACurTime);
+	//if (daysDelta > 365)
+	//	return tr("d MMM yyyy hh:mm");
+	//else if (daysDelta > 0)
+	//	return tr("d MMM hh:mm");
+	return tr("hh:mm");
+}
+
+QString MessageStyles::defaultContactNick(const Jid &AContactJid) const
+{
+	QString nick = AContactJid.node();
+	nick = nick.isEmpty() ? AContactJid.domain() : nick;
+	if (!nick.isEmpty())
+	{
+		nick[0] = nick[0].toUpper();
+		for (int pos = nick.indexOf('_'); pos>=0; pos = nick.indexOf('_',pos+1))
+		{
+			if (pos+1 < nick.length())
+				nick[pos+1] = nick[pos+1].toUpper();
+			nick.replace(pos,1,' ');
+		}
+	}
+	return nick.trimmed();
 }
 
 void MessageStyles::appendPendingChanges(int AMessageType, const QString &AContext)

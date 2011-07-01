@@ -16,15 +16,15 @@
     <name>AdiumMessageStylePlugin</name>
     <message>
         <source>Adium Message Style</source>
-        <translation>Adium cтиль сообщений</translation>
+        <translation>Cтиль сообщений Adium</translation>
     </message>
     <message>
         <source>Allows to use a Adium style in message design</source>
-        <translation>Позволяет использовать Adium стиль оформления сообщений</translation>
+        <translation>Позволяет использовать стиль оформления сообщений Adium</translation>
     </message>
     <message>
         <source>Adium Style</source>
-        <translation>Адиум стиль</translation>
+        <translation>Стиль Adium</translation>
     </message>
 </context>
 <context>
@@ -47,7 +47,7 @@
     </message>
     <message>
         <source>Title center</source>
-        <translation>Мозаика по середине</translation>
+        <translation>Мозаика по центру</translation>
     </message>
     <message>
         <source>Scale</source>
@@ -55,7 +55,7 @@
     </message>
     <message>
         <source>Select font family and size</source>
-        <translation>Сыберите тип шрифта и его размер</translation>
+        <translation>Выберите шрифт и его размер</translation>
     </message>
     <message>
         <source>Select background image</source>
@@ -70,7 +70,7 @@
     <name>AdiumOptionsWidgetClass</name>
     <message>
         <source>Message Style:</source>
-        <translation>Стиль:</translation>
+        <translation>Стиль сообщений:</translation>
     </message>
     <message>
         <source>Variant:</source>
@@ -82,7 +82,7 @@
     </message>
     <message>
         <source>Set Font...</source>
-        <translation>Шрифт...</translation>
+        <translation>Установить шрифт...</translation>
     </message>
     <message>
         <source>Default</source>
@@ -98,7 +98,7 @@
     </message>
     <message>
         <source>Set Image...</source>
-        <translation>Изображение...</translation>
+        <translation>Настройки изображения...</translation>
     </message>
     <message>
         <source>Layout:</source>

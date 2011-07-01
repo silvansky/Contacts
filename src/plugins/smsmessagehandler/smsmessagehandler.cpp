@@ -3,9 +3,10 @@
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    25
 
-#define WAIT_RECEIVE_TIMEOUT      60
-#define DESTROYWINDOW_TIMEOUT     30*60*1000
-#define BALANCE_REQUEST_TIMEOUT   30*1000
+#define WAIT_RECEIVE_TIMEOUT         60
+#define DESTROYWINDOW_TIMEOUT        30*60*1000
+#define BALANCE_REQUEST_TIMEOUT      30*1000
+#define SUPPLEMENT_REQUEST_TIMEOUT   10*1000
 
 #define ADR_TAB_PAGE_ID           Action::DR_Parametr2
 
@@ -47,6 +48,7 @@ SmsMessageHandler::SmsMessageHandler()
 	FStanzaProcessor = NULL;
 	FRosterPlugin = NULL;
 	FPresencePlugin = NULL;
+	FNotifications = NULL;
 
 	FNotReceivedTimer.setInterval(1000);
 	connect(&FNotReceivedTimer,SIGNAL(timeout()),SLOT(onNotReceivedTimerTimeout()));
@@ -63,7 +65,7 @@ void SmsMessageHandler::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to exchange SMS messages via gateway");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A.";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(MESSAGESTYLES_UUID);
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 	APluginInfo->dependences.append(MESSAGEPROCESSOR_UUID);
@@ -122,7 +124,13 @@ bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AIn
 
 	plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
 	if (plugin)
+	{
 		FDiscovery = qobject_cast<IServiceDiscovery *>(plugin->instance());
+		if (FDiscovery)
+		{
+			connect(FDiscovery->instance(),SIGNAL(discoInfoReceived(const IDiscoInfo &)),SLOT(onDiscoInfoReceived(const IDiscoInfo &)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
 	if (plugin)
@@ -151,7 +159,17 @@ bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AIn
 
 	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
 	if (plugin)
+	{
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
+		if (FPresencePlugin)
+		{
+			connect(FPresencePlugin->instance(),SIGNAL(presenceOpened(IPresence *)),SLOT(onPresenceOpened(IPresence *)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -184,7 +202,7 @@ bool SmsMessageHandler::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, St
 	{
 		AAccept = true;
 		setSmsBalance(AStreamJid,AStanza.from(),smsBalanceFromStanza(AStanza));
-		
+
 		Stanza result("iq");
 		result.setType("result").setId(AStanza.id()).setTo(AStanza.from());
 		FStanzaProcessor->sendStanzaOut(AStreamJid,result);
@@ -208,7 +226,33 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 	if (FSmsBalanceRequests.contains(AStanza.id()))
 	{
 		Jid serviceJid = FSmsBalanceRequests.take(AStanza.id());
-		setSmsBalance(AStreamJid,serviceJid,smsBalanceFromStanza(AStanza));
+		if (AStanza.type() == "result")
+			setSmsBalance(AStreamJid,serviceJid,smsBalanceFromStanza(AStanza));
+	}
+	else if (FSmsSupplementRequests.contains(AStanza.id()))
+	{
+		FSmsSupplementRequests.remove(AStanza.id());
+		if (AStanza.type() == "result")
+		{
+			QDomElement query = AStanza.firstElement("query",NS_RAMBLER_SMS_SUPPLEMENT);
+			QString number = query.firstChildElement("number").text();
+			QString code = query.firstChildElement("code").text();
+			int count = query.firstChildElement("count").text().toInt();
+			if (!number.isEmpty() && !code.isEmpty() && count>0)
+			{
+				emit smsSupplementReceived(AStanza.id(),number,code,count);
+			}
+			else
+			{
+				ErrorHandler err(ErrorHandler::INTERNAL_SERVER_ERROR);
+				emit smsSupplementError(AStanza.id(),err.condition(),err.message());
+			}
+		}
+		else
+		{
+			ErrorHandler err(AStanza.element());
+			emit smsSupplementError(AStanza.id(),err.condition(),err.message());
+		}
 	}
 }
 
@@ -218,6 +262,11 @@ void SmsMessageHandler::stanzaRequestTimeout(const Jid &AStreamJid, const QStrin
 	{
 		Jid serviceJid = FSmsBalanceRequests.take(AStanzaId);
 		setSmsBalance(AStreamJid,serviceJid,-1);
+	}
+	else if (FSmsSupplementRequests.contains(AStanzaId))
+	{
+		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
+		emit smsSupplementError(AStanzaId,err.condition(),err.message());
 	}
 }
 
@@ -336,6 +385,11 @@ bool SmsMessageHandler::receiveMessage(int AMessageId)
 			message.setData(MDR_STYLE_CONTENT_ID,contentId.toString());
 			wstatus.unread.append(message);
 		}
+
+		if (wstatus.historyId.isNull() && FHistoryRequests.values().contains(window))
+		{
+			wstatus.pending.append(message);
+		}
 	}
 	return notify;
 }
@@ -365,9 +419,9 @@ INotification SmsMessageHandler::notification(INotifications *ANotifications, co
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
 		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
-		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,wstatus.notified.count());
-		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
+		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
 		notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
@@ -375,13 +429,32 @@ INotification SmsMessageHandler::notification(INotifications *ANotifications, co
 		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
 		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
 
-		if (wstatus.notified.count() > 1)
+		int notifyCount = wstatus.notified.count();
+		if (notifyCount > 1)
 		{
+			int lastNotifyWithPopup = -1;
 			QList<int> notifies = ANotifications->notifications();
+			while (lastNotifyWithPopup<0 && !notifies.isEmpty())
+			{
+				int notifyId = notifies.takeLast();
+				if ((ANotifications->notificationById(notifyId).kinds & INotification::PopupWindow) > 0)
+					lastNotifyWithPopup = notifyId;
+			}
+
 			int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
-			if (!notifies.isEmpty() && notifies.last()==replNotify)
+			if (replNotify>0 && replNotify==lastNotifyWithPopup)
 				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
+			else
+				replNotify = -1;
+
+			foreach(int messageId, wstatus.notified)
+			{
+				int notifyId = FMessageProcessor->notifyByMessage(messageId);
+				if (notifyId>0 && notifyId!=replNotify)
+					notifyCount -= FNotifications!=NULL ? FNotifications->notificationById(notifyId).data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt() : 0;
+			}
 		}
+		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
 
 		QTextDocument doc;
 		FMessageProcessor->messageToText(&doc,AMessage);
@@ -410,7 +483,8 @@ bool SmsMessageHandler::createWindow(int AOrder, const Jid &AStreamJid, const Ji
 
 bool SmsMessageHandler::isSmsContact(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	if (!AContactJid.node().isEmpty() && AContactJid.pDomain().endsWith("."+AStreamJid.pDomain()))
+	Q_UNUSED(AStreamJid);
+	if (!AContactJid.node().isEmpty())
 	{
 		//if (FDiscovery && FDiscovery->hasDiscoInfo(AStreamJid,AContactJid.domain()))
 		//{
@@ -441,6 +515,23 @@ bool SmsMessageHandler::requestSmsBalance(const Jid &AStreamJid, const Jid &ASer
 		}
 	}
 	return false;
+}
+
+QString SmsMessageHandler::requestSmsSupplement(const Jid &AStreamJid, const Jid &AServiceJid)
+{
+	if (FStanzaProcessor)
+	{
+		Stanza request("iq");
+		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
+		request.addElement("query",NS_RAMBLER_SMS_SUPPLEMENT);
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,SUPPLEMENT_REQUEST_TIMEOUT))
+		{
+			FSmsSupplementRequests.insert(request.id(),AServiceJid);
+			return request.id();
+		}
+	}
+	return QString::null;
+
 }
 
 int SmsMessageHandler::smsBalanceFromStanza(const Stanza &AStanza) const
@@ -488,50 +579,73 @@ IPresenceItem SmsMessageHandler::findPresenceItem(IPresence *APresence, const Ji
 
 IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	IChatWindow *window = findWindow(AStreamJid,AContactJid);
-	if (!window)
+	IChatWindow *window = NULL;
+	if (AStreamJid.isValid() && AContactJid.isValid())
 	{
-		window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
-		if (window)
+		window = findWindow(AStreamJid,AContactJid,false);
+		if (!window)
 		{
-			window->infoWidget()->autoUpdateFields();
-			window->editWidget()->setSendKey(QKeySequence::UnknownKey);
-			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
+			window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
+			if (window)
+			{
+				window->infoWidget()->autoUpdateFields();
+				window->editWidget()->setSendKey(QKeySequence::UnknownKey);
+				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
-			WindowStatus &wstatus = FWindowStatus[window];
-			wstatus.createTime = QDateTime::currentDateTime();
+				WindowStatus &wstatus = FWindowStatus[window];
+				wstatus.createTime = QDateTime::currentDateTime();
 
-			connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
-			connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
-			connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
-			connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
-			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
+				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
+				connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
+				connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
+				connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
+				connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
 
-			FWindows.append(window);
-			updateWindow(window);
-			setMessageStyle(window);
+				FWindows.append(window);
+				updateWindow(window);
+				setMessageStyle(window);
 
-			SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
-			window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
+				SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
+				window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
 
-			TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
-			pageInfo.page = window;
-			emit tabPageCreated(window);
+				TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+				pageInfo.page = window;
+				emit tabPageCreated(window);
 
-			requestHistoryMessages(window, HISTORY_MESSAGES_COUNT);
+				requestHistoryMessages(window, HISTORY_MESSAGES_COUNT);
 
-			window->instance()->installEventFilter(this);
+				window->instance()->installEventFilter(this);
+			}
 		}
 	}
 	return window;
 }
 
-IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid)
+IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch) const
 {
-	foreach(IChatWindow *window, FWindows)
-		if (window->streamJid()==AStreamJid && window->contactJid()==AContactJid)
-			return window;
-	return NULL;
+	IChatWindow *bareWindow = NULL;
+	foreach(IChatWindow *window,FWindows)
+	{
+		if (window->streamJid() == AStreamJid)
+		{
+			if (window->contactJid() == AContactJid)
+				return window;
+			else if (!AExactMatch && !bareWindow && (window->contactJid() && AContactJid))
+				bareWindow = window;
+		}
+	}
+	return bareWindow;
+}
+
+void SmsMessageHandler::clearWindow(IChatWindow *AWindow)
+{
+	IMessageStyle *style = AWindow->viewWidget()!=NULL ? AWindow->viewWidget()->messageStyle() : NULL;
+	if (style!=NULL)
+	{
+		IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
+		style->changeOptions(AWindow->viewWidget()->styleWidget(),soptions,true);
+		resetWindowStatus(AWindow);
+	}
 }
 
 void SmsMessageHandler::updateWindow(IChatWindow *AWindow)
@@ -544,8 +658,21 @@ void SmsMessageHandler::updateWindow(IChatWindow *AWindow)
 
 	QString name = AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
 	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
-	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+	QString title = name;// + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 	AWindow->updateWindow(icon,name,title,show);
+}
+
+void SmsMessageHandler::resetWindowStatus( IChatWindow *AWindow )
+{
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	wstatus.separators.clear();
+	wstatus.unread.clear();
+	wstatus.offline.clear();
+	wstatus.pending.clear();
+	wstatus.historyId = QString::null;
+	wstatus.historyTime = QDateTime();
+	wstatus.historyContentId = QUuid();
+	wstatus.lastStatusShow = QString::null;
 }
 
 void SmsMessageHandler::removeMessageNotifications(IChatWindow *AWindow)
@@ -616,9 +743,11 @@ void SmsMessageHandler::requestHistoryMessages(IChatWindow *AWindow, int ACount)
 	}
 }
 
-void SmsMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit)
+void SmsMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState)
 {
-	static QString urlMask = QString("<a href='%1'>%2</a>");
+	static QString urlMask = QString("<a class=\"%3\" href='%1'>%2</a>");
+	static QString msgMask = QString("<div class=\"%2\">%1</div>");
+
 	if (FRamblerHistory && FRamblerHistory->isSupported(AWindow->streamJid()))
 	{
 		IMessageContentOptions options;
@@ -626,39 +755,50 @@ void SmsMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState 
 		options.time = QDateTime::fromTime_t(0);
 		options.timeFormat = " ";
 		options.noScroll = true;
+		options.status = IMessageContentOptions::HistoryShow;
 
-		if (AInit && false)
-		{
-			QUrl showWindowUrl;
-			showWindowUrl.setScheme(URL_SCHEME_ACTION);
-			showWindowUrl.setPath(URL_PATH_HISTORY);
-			showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
-			options.status = IMessageContentOptions::HistoryShow;
-			AWindow->viewWidget()->changeContentHtml(urlMask.arg(showWindowUrl.toString()).arg(tr("SMS history")),options);
-		}
+		QString message = "<div class=\"v-chat-header\">";
 
-		QString message;
-		options.status = IMessageContentOptions::HistoryRequest;
 		if (AState == HLS_READY)
 		{
 			QUrl showMesagesUrl;
 			showMesagesUrl.setScheme(URL_SCHEME_ACTION);
 			showMesagesUrl.setPath(URL_PATH_HISTORY);
 			showMesagesUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("messages")));
-			message = urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages"));
+			message += urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages")).arg("v-chat-header-b");
 		}
 		else if (AState == HLS_WAITING)
 		{
-			message = tr("Loading messages from server...");
+			message += msgMask.arg(tr("Loading messages from server...")).arg("v-chat-header-message");
+		}
+		else if (AState == HLS_FINISHED)
+		{
+			message += msgMask.arg(tr("All messages loaded")).arg("v-chat-header-message");
+		}
+		else if (AState == HLS_FAILED)
+		{
+			message += msgMask.arg(tr("Failed to load history messages from server")).arg("v-chat-header-message");
 		}
 
+		QUrl updateHistoryUrl;
+		updateHistoryUrl.setScheme(URL_SCHEME_ACTION);
+		updateHistoryUrl.setPath(URL_PATH_HISTORY);
+		updateHistoryUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("update")));
+		message += urlMask.arg(updateHistoryUrl.toString()).arg(QString::null).arg("v-chat-header-b v-chat-header-reload");
+
+		QUrl showWindowUrl;
+		showWindowUrl.setScheme(URL_SCHEME_ACTION);
+		showWindowUrl.setPath(URL_PATH_HISTORY);
+		showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
+		message += urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history")).arg("v-chat-header-history");
+
 		WindowStatus &wstatus = FWindowStatus[AWindow];
-		if (!wstatus.historyRequestId.isNull())
+		if (!wstatus.historyContentId.isNull())
 		{
-			options.action = AState!=HLS_FINISHED ? IMessageContentOptions::Replace : IMessageContentOptions::Remove;
-			options.contentId = wstatus.historyRequestId;
+			options.action = IMessageContentOptions::Replace;
+			options.contentId = wstatus.historyContentId;
 		}
-		wstatus.historyRequestId =  AWindow->viewWidget()->changeContentHtml(message,options);
+		wstatus.historyContentId = AWindow->viewWidget()->changeContentHtml(message,options);
 	}
 }
 
@@ -667,16 +807,8 @@ void SmsMessageHandler::setMessageStyle(IChatWindow *AWindow)
 	IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
 	IMessageStyle *style = FMessageStyles->styleForOptions(soptions);
 	AWindow->viewWidget()->setMessageStyle(style,soptions);
-
-	WindowStatus &wstatus = FWindowStatus[AWindow];
-	wstatus.separators.clear();
-	wstatus.unread.clear();
-	wstatus.offline.clear();
-	wstatus.historyId = QString::null;
-	wstatus.historyTime = QDateTime();
-	wstatus.historyRequestId = QUuid();
-
-	showHistoryLinks(AWindow, HLS_READY, true);
+	resetWindowStatus(AWindow);
+	showHistoryLinks(AWindow, HLS_READY);
 }
 
 void SmsMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const
@@ -826,19 +958,17 @@ void SmsMessageHandler::onUrlClicked(const QUrl &AUrl)
 				{
 					requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
 				}
-				//else if (keyValue == "window")
-				//{
-
-				//}
+				else if (keyValue == "window")
+				{
+					if (FRamblerHistory)
+						FRamblerHistory->showViewHistoryWindow(window->streamJid(),window->contactJid());
+				}
+				else if (keyValue == "update")
+				{
+					clearWindow(window);
+					requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
+				}
 			}
-			//else if (AUrl.path() == URL_PATH_CONTENT)
-			//{
-			//	QUuid contentId = AUrl.queryItemValue("remove");
-			//	if (!contentId.isNull())
-			//	{
-			//		removeOfflineMessage(window,contentId);
-			//	}
-			//}
 		}
 	}
 }
@@ -931,9 +1061,30 @@ void SmsMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const
 		IChatWindow *window = FHistoryRequests.take(AId);
 		if (FWindows.contains(window))
 		{
-			for (int i=0; i<AMessages.messages.count(); i++)
+			QList<Message> historyMessages = AMessages.messages;
+
+			bool found = false;
+			WindowStatus &wstatus = FWindowStatus[window];
+			while (!wstatus.pending.isEmpty() && !historyMessages.isEmpty())
 			{
-				Message message = AMessages.messages.at(i);
+				Message pMessage = wstatus.pending.takeLast();
+				if (Jid(pMessage.to()).pBare() == Jid(historyMessages.last().to()).pBare() &&
+					pMessage.body() == historyMessages.last().body() && 
+					qAbs(pMessage.dateTime().secsTo(historyMessages.last().dateTime()))<=3*60)
+				{
+					found = true;
+					historyMessages.removeLast();
+				}
+				else if (found)
+				{
+					wstatus.pending.clear();
+				}
+			}
+			wstatus.pending.clear();
+
+			for (int i=0; i<historyMessages.count(); i++)
+			{
+				Message message = historyMessages.at(i);
 				showStyledMessage(window,message);
 			}
 
@@ -953,18 +1104,15 @@ void SmsMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const
 
 void SmsMessageHandler::onRamblerHistoryRequestFailed(const QString &AId, const QString &AError)
 {
+	Log(QString("[Rambler history error] %1").arg(AError));
 	if (FHistoryRequests.contains(AId))
 	{
 		IChatWindow *window = FHistoryRequests.take(AId);
 		if (FWindows.contains(window))
 		{
-			IMessageContentOptions options;
-			options.kind = IMessageContentOptions::Status;
-			options.type |= IMessageContentOptions::Event;
-			options.direction = IMessageContentOptions::DirectionIn;
-			options.time = QDateTime::currentDateTime();
-			window->viewWidget()->changeContentText(tr("Failed to load history messages from server: %1").arg(AError),options);
-			showHistoryLinks(window,HLS_FINISHED);
+			WindowStatus &wstatus = FWindowStatus[window];
+			wstatus.pending.clear();
+			showHistoryLinks(window,HLS_FAILED);
 		}
 	}
 }
@@ -979,6 +1127,30 @@ void SmsMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOptio
 			if (style==NULL || !style->changeOptions(window->viewWidget()->styleWidget(),AOptions,false))
 			{
 				setMessageStyle(window);
+				requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
+			}
+		}
+	}
+}
+
+void SmsMessageHandler::onDiscoInfoReceived(const IDiscoInfo &AInfo)
+{
+	if (AInfo.contactJid.node().isEmpty() && AInfo.node.isEmpty() && AInfo.features.contains(NS_RAMBLER_SMS_BALANCE))
+	{
+		if (smsBalance(AInfo.streamJid,AInfo.contactJid) < 0)
+			requestSmsBalance(AInfo.streamJid,AInfo.contactJid);
+	}
+}
+
+void SmsMessageHandler::onPresenceOpened(IPresence *APresence)
+{
+	foreach(IChatWindow *window, FWindows)
+	{
+		if (window->streamJid() == APresence->streamJid())
+		{
+			if (FRamblerHistory && FRamblerHistory->isSupported(window->streamJid()))
+			{
+				clearWindow(window);
 				requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
 			}
 		}

@@ -6,14 +6,38 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>454</width>
-    <height>376</height>
+    <width>355</width>
+    <height>454</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>355</width>
+    <height>350</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Your comments</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>12</number>
+   </property>
+   <property name="leftMargin">
+    <number>12</number>
+   </property>
+   <property name="topMargin">
+    <number>12</number>
+   </property>
+   <property name="rightMargin">
+    <number>14</number>
+   </property>
    <item>
     <layout class="QVBoxLayout" name="vertLayoutHeader">
      <item>
@@ -25,7 +49,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Left your comment about program.</string>
+        <string>Leave your feedback about program.</string>
        </property>
       </widget>
      </item>
@@ -38,7 +62,10 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Your own opinion very important for us</string>
+        <string>Your opinion is important to us, because all the suggestions and comments from users is a great way to make our chat better.</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -55,7 +82,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Your name:</string>
+        <string>Your name</string>
        </property>
       </widget>
      </item>
@@ -66,6 +93,39 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>255</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QLabel" name="lblEMail">
+       <property name="text">
+        <string>E-Mail for reply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lneEMail">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>255</width>
+         <height>0</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -81,12 +141,37 @@
       </widget>
      </item>
      <item>
-      <widget class="QTextEdit" name="tedComment"/>
+      <widget class="QTextEdit" name="tedComment">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>125</height>
+        </size>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="chbAddTechData">
        <property name="text">
-        <string>Add technical data (very good for us):</string>
+        <string>Add useful technical data</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -100,14 +185,37 @@
     </layout>
    </item>
    <item>
-    <widget class="QFrame" name="frame_2">
-     <property name="frameShape">
-      <enum>QFrame::HLine</enum>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="lblSendCommentStatus">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
      </property>
-    </widget>
+    </spacer>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizLayoutControls">
@@ -125,45 +233,37 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="lblSendStatusIcon">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="lblSendCommentStatus">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::PlainText</enum>
-       </property>
-       <property name="scaledContents">
-        <bool>true</bool>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="pbtSendComment">
-       <property name="text">
-        <string>Send comment</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel</set>
+       <property name="minimumSize">
+        <size>
+         <width>120</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Send comment</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbtClose">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -175,18 +275,18 @@
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
+   <sender>pbtClose</sender>
+   <signal>clicked()</signal>
    <receiver>CommentDialogClass</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>273</x>
-     <y>323</y>
+     <x>317</x>
+     <y>415</y>
     </hint>
     <hint type="destinationlabel">
-     <x>267</x>
-     <y>25</y>
+     <x>349</x>
+     <y>294</y>
     </hint>
    </hints>
   </connection>

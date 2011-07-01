@@ -18,7 +18,7 @@ void DefaultConnectionPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to set a standard TCP connection to Jabber server");
 	APluginInfo->author = "Potapov S.A. aka Lion";
 	APluginInfo->version = "1.0";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool DefaultConnectionPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -92,7 +92,11 @@ void DefaultConnectionPlugin::loadConnectionSettings(IConnection *AConnection, c
 		connection->setOption(IDefaultConnection::COR_USE_SSL,ANode.value("use-ssl").toBool());
 		connection->setOption(IDefaultConnection::COR_IGNORE_SSL_ERRORS,ANode.value("ignore-ssl-errors").toBool());
 		if (FConnectionManager)
-			connection->setProxy(FConnectionManager->proxyById(FConnectionManager->loadProxySettings(ANode.node("proxy"))).proxy);
+		{
+			QUuid proxyId = FConnectionManager->loadProxySettings(ANode.node("proxy"));
+			connection->setProxy(FConnectionManager->proxyById(proxyId).proxy);
+			connection->setOption(IDefaultConnection::COR_CHANGE_PROXY_TYPE,proxyId==MANUAL_PROXY_REF_UUID);
+		}
 	}
 }
 

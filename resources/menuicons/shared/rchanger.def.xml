@@ -100,4 +100,12 @@
     <key>rchangerAddContactSearchNick</key>
     <object mime="image/gif">rchangeraddcontactsearchnick.gif</object>
   </icon>
+  <icon>
+    <key>rchangerAddMetaContactAddItem</key>
+    <object mime="image/png">rchangeraddmetacontactadditem.png</object>
+  </icon>
+  <icon>
+    <key>rchangerAddMetaContactError</key>
+    <object mime="image/png">rchangeraddmetacontacterror.png</object>
+  </icon>
 </icondef>

@@ -4,6 +4,7 @@
 #define NS_XMPP_STREAMS                         "urn:ietf:params:xml:ns:xmpp-streams"
 #define NS_XMPP_DELAY                           "urn:xmpp:delay"
 #define NS_XMPP_TIME                            "urn:xmpp:time"
+#define NS_XMPP_PING                            "urn:xmpp:ping"
 #define NS_STANZA_SESSION                       "urn:xmpp:ssn"
 #define NS_CAPTCHA_FORMS                        "urn:xmpp:captcha"
 #define NS_BITS_OF_BINARY                       "urn:xmpp:bob"
@@ -86,5 +87,9 @@
 #define NS_RAMBLER_METACONTACTS                 "rambler:roster:mc"
 #define NS_RAMBLER_SIP_PHONE                    "rambler:sip:phone"
 #define NS_RAMBLER_SMS_BALANCE                  "rambler:sms:balance"
+#define NS_RAMBLER_SMS_SUPPLEMENT               "rambler:sms:supplement"
+#define NS_RAMBLER_MAIL_NOTIFY                  "rambler:mail:notify"
+#define NS_RAMBLER_MAIL_NOTICE                  "rambler:mail:notice"
+#define NS_RAMBLER_GATEWAY_REGISTER             "rambler:gateway:register"
 
 #endif

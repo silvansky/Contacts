@@ -1,9 +1,22 @@
 #include "metaproxymodel.h"
+#include <definitions/statusicons.h>
+#include <definitions/rosterlabelorders.h>
 
 MetaProxyModel::MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARostersView) : QSortFilterProxyModel(AMetaContacts->instance())
 {
 	FRostersModel = NULL;
 	FRostersView = ARostersView;
+
+	if (FRostersView)
+	{
+		IRostersLabel rlabel;
+		rlabel.order = RLO_GATEWAY_ICON;
+		rlabel.label = RDR_GATEWAY_ICON;
+		FRostersLabel = FRostersView->registerLabel(rlabel);
+	}
+	else
+		FRostersLabel = -1;
+
 	FMetaContacts = AMetaContacts;
 
 	FInvalidateTimer.setInterval(0);
@@ -13,12 +26,13 @@ MetaProxyModel::MetaProxyModel(IMetaContacts *AMetaContacts, IRostersView *ARost
 	onRostersModelSet(FRostersView->rostersModel());
 	connect(FRostersView->instance(),SIGNAL(modelSet(IRostersModel *)),SLOT(onRostersModelSet(IRostersModel *)));
 	connect(FRostersView->instance(),SIGNAL(notifyInserted(int)),SLOT(onRostersNotifyInserted(int)));
+	connect(FRostersView->instance(),SIGNAL(notifyActivated(int)),SLOT(onRostersNotifyActivated(int)));
 	connect(FRostersView->instance(),SIGNAL(notifyRemoved(int)),SLOT(onRostersNotifyRemoved(int)));
 
-	connect(FMetaContacts->instance(),SIGNAL(metaAvatarChanged(IMetaRoster *, const Jid &)),
-		SLOT(onMetaAvatarChanged(IMetaRoster *, const Jid &)));
-	connect(FMetaContacts->instance(),SIGNAL(metaPresenceChanged(IMetaRoster *, const Jid &)),
-		SLOT(onMetaPresenceChanged(IMetaRoster *, const Jid &)));
+	connect(FMetaContacts->instance(),SIGNAL(metaAvatarChanged(IMetaRoster *, const QString &)),
+		SLOT(onMetaAvatarChanged(IMetaRoster *, const QString &)));
+	connect(FMetaContacts->instance(),SIGNAL(metaPresenceChanged(IMetaRoster *, const QString &)),
+		SLOT(onMetaPresenceChanged(IMetaRoster *, const QString &)));
 	connect(FMetaContacts->instance(),SIGNAL(metaContactReceived(IMetaRoster *, const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(IMetaRoster *, const IMetaContact &, const IMetaContact &)));
 	connect(FMetaContacts->instance(),SIGNAL(metaRosterEnabled(IMetaRoster *, bool)), SLOT(onMetaRosterEnabled(IMetaRoster *, bool)));
@@ -35,18 +49,21 @@ int MetaProxyModel::rosterDataOrder() const
 
 QList<int> MetaProxyModel::rosterDataRoles() const
 {
-	static QList<int> roles = QList<int>() << Qt::DisplayRole;
+	static QList<int> roles = QList<int>() << RDR_FOOTER_TEXT << Qt::DecorationRole << Qt::DisplayRole << RDR_GATEWAY_ICON;
 	return roles;
 }
 
 QList<int> MetaProxyModel::rosterDataTypes() const
 {
-	static QList<int> types = QList<int>() << RIT_METACONTACT;
+	static QList<int> types = QList<int>()
+			<< RIT_METACONTACT;
 	return types;
 }
 
 QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 {
+	static bool block = false;
+
 	QVariant data;
 	switch (AIndex->type())
 	{
@@ -55,8 +72,55 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 		{
 			QString name = AIndex->data(RDR_NAME).toString();
 			if (name.isEmpty())
-				name = Jid(AIndex->data(RDR_INDEX_ID).toString()).node();
+				name = Jid(AIndex->data(RDR_METACONTACT_ITEMS).toStringList().value(0)).node();
 			data = name;
+		}
+		else if (!block)
+		{
+			block = true;
+			IMetaRoster *mroster = FMetaContacts->findMetaRoster(AIndex->data(RDR_STREAM_JID).toString());
+			IMetaContact contact = mroster->metaContact(AIndex->data(RDR_META_ID).toString());
+
+			if (!mroster->roster()->subscriptionRequests().intersect(contact.items).isEmpty())
+			{
+				if (ARole == RDR_FOOTER_TEXT)
+				{
+					QVariantMap footer = AIndex->data(ARole).toMap();
+					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Requests authorization"));
+					data = footer;
+				}
+				else if (ARole == Qt::DecorationRole)
+				{
+					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
+				}
+			}
+			else if (AIndex->data(RDR_ASK).toString() == SUBSCRIPTION_SUBSCRIBE)
+			{
+				if (ARole == RDR_FOOTER_TEXT)
+				{
+					QVariantMap footer = AIndex->data(ARole).toMap();
+					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Sent an authorization request"));
+					data = footer;
+				}
+				else if (ARole == Qt::DecorationRole)
+				{
+					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
+				}
+			}
+			else if (AIndex->data(RDR_SUBSCRIBTION).toString() == SUBSCRIPTION_NONE)
+			{
+				if (ARole == RDR_FOOTER_TEXT)
+				{
+					QVariantMap footer = AIndex->data(ARole).toMap();
+					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Not authorized"));
+					data = footer;
+				}
+				else if (ARole == Qt::DecorationRole)
+				{
+					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
+				}
+			}
+			block = false;
 		}
 		break;
 	default:
@@ -73,6 +137,11 @@ bool MetaProxyModel::setRosterData(IRosterIndex *AIndex, int ARole, const QVaria
 	return false;
 }
 
+QList<IRosterIndex *> MetaProxyModel::findMetaIndexes(IMetaRoster *AMetaRoster, const QString &AMetaId) const
+{
+	return FMetaIndexes.value(AMetaRoster).values(AMetaId);
+}
+
 bool MetaProxyModel::filterAcceptsRow(int ASourceRow, const QModelIndex &ASourceParent) const
 {
 	if (sourceModel())
@@ -82,10 +151,18 @@ bool MetaProxyModel::filterAcceptsRow(int ASourceRow, const QModelIndex &ASource
 		if (indexType==RIT_CONTACT || indexType==RIT_AGENT)
 		{
 			IMetaRoster *mroster = FMetaContacts->findMetaRoster(index.data(RDR_STREAM_JID).toString());
-			return mroster==NULL || !mroster->isEnabled() || !mroster->itemMetaContact(index.data(RDR_BARE_JID).toString()).isValid();
+			return mroster==NULL || !mroster->isEnabled() || mroster->itemMetaContact(index.data(RDR_PREP_BARE_JID).toString()).isEmpty();
 		}
 	}
 	return true;
+}
+
+IRosterIndex *MetaProxyModel::findChildIndex(const QList<IRosterIndex *> &AIndexes, IRosterIndex *AParent) const
+{
+	foreach(IRosterIndex *index, AIndexes)
+		if (index->parentIndex() == AParent)
+			return index;
+	return NULL;
 }
 
 void MetaProxyModel::onInvalidateTimerTimeout()
@@ -104,7 +181,7 @@ void MetaProxyModel::onRostersModelSet(IRostersModel *AModel)
 			IMetaRoster *mroster = FMetaContacts->findMetaRoster(streamJid);
 			if (mroster)
 			{
-				foreach(Jid metaId, mroster->metaContacts())
+				foreach(QString metaId, mroster->metaContacts())
 				{
 					onMetaContactReceived(mroster,mroster->metaContact(metaId),IMetaContact());
 				}
@@ -124,15 +201,9 @@ void MetaProxyModel::onRostersNotifyInserted(int ANotifyId)
 			IMetaRoster *mroster = FMetaContacts->findMetaRoster(index->data(RDR_STREAM_JID).toString());
 			if (mroster && mroster->isEnabled())
 			{
-				IRosterIndex *streamIndex = FRostersModel->streamRoot(mroster->streamJid());
-				Jid metaId = mroster->itemMetaContact(index->data(RDR_BARE_JID).toString());
-				if (streamIndex && metaId.isValid())
-				{
-					QMultiMap<int, QVariant> findData;
-					findData.insert(RDR_TYPE,RIT_METACONTACT);
-					findData.insert(RDR_INDEX_ID,metaId.pBare());
-					metaIndexes += streamIndex->findChild(findData,true).toSet();
-				}
+				QString metaId = mroster->itemMetaContact(index->data(RDR_PREP_BARE_JID).toString());
+				if (!metaId.isEmpty())
+					metaIndexes += findMetaIndexes(mroster,metaId).toSet();
 			}
 		}
 	}
@@ -143,11 +214,35 @@ void MetaProxyModel::onRostersNotifyInserted(int ANotifyId)
 	}
 }
 
+void MetaProxyModel::onRostersNotifyActivated(int ANotifyId)
+{
+	static int blockNotifyId = -1;
+	if (blockNotifyId != ANotifyId)
+	{
+		if (FIndexNotifies.contains(ANotifyId))
+		{
+			blockNotifyId = FIndexNotifies.value(ANotifyId);
+			FRostersView->activateNotify(blockNotifyId);
+			blockNotifyId = -1;
+		}
+		else if (FIndexNotifies.values().contains(ANotifyId))
+		{
+			blockNotifyId = FIndexNotifies.key(ANotifyId);
+			FRostersView->activateNotify(blockNotifyId);
+			blockNotifyId = -1;
+		}
+	}
+}
+
 void MetaProxyModel::onRostersNotifyRemoved(int ANotifyId)
 {
 	if (FIndexNotifies.contains(ANotifyId))
 	{
 		FRostersView->removeNotify(FIndexNotifies.take(ANotifyId));
+	}
+	else if (FIndexNotifies.values().contains(ANotifyId))
+	{
+		FRostersView->removeNotify(FIndexNotifies.key(ANotifyId));
 	}
 }
 
@@ -155,55 +250,48 @@ void MetaProxyModel::onMetaRosterEnabled(IMetaRoster *AMetaRoster, bool AEnabled
 {
 	if (!AEnabled)
 	{
-		IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
-		if (streamIndex)
+		QMultiHash<QString, IRosterIndex *> rosterMetaIndexes = FMetaIndexes[AMetaRoster];
+		QMultiHash<QString, IRosterIndex *>::iterator it=rosterMetaIndexes.begin();
+		while(it!=rosterMetaIndexes.end())
 		{
-			QMultiMap<int,QVariant> findData;
-			findData.insert(RDR_TYPE,RIT_METACONTACT);
-			foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
-			{
-				FRostersModel->removeRosterIndex(index);
-				index->instance()->deleteLater();
-			}
+			IRosterIndex *index = it.value();
+			FRostersModel->removeRosterIndex(index);
+			index->instance()->deleteLater();
+			it = rosterMetaIndexes.erase(it);
 		}
+		FMetaIndexes.remove(AMetaRoster);
 	}
 	FInvalidateTimer.start();
 }
 
-void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId)
+void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString &AMetaId)
 {
-	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
-	if (streamIndex)
+	QString hash = AMetaRoster->metaAvatarHash(AMetaId);
+	QImage originalAvatar = AMetaRoster->metaAvatarImage(AMetaId, false);
+	QImage avatar = ImageManager::roundSquared(originalAvatar, 24, 2);
+	originalAvatar = AMetaRoster->metaAvatarImage(AMetaId, true);
+	if (originalAvatar.isNull())
 	{
-		QMultiMap<int,QVariant> findData;
-		findData.insert(RDR_TYPE,RIT_METACONTACT);
-		findData.insert(RDR_INDEX_ID,AMetaId.pBare());
+		originalAvatar = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_AVATAR_EMPTY_MALE, 1);
+	}
+	QImage largeAvatar = ImageManager::roundSquared(originalAvatar, 36, 2);
 
-		QString hash = AMetaRoster->metaAvatarHash(AMetaId);
-		QImage avatar = AMetaRoster->metaAvatarImage(AMetaId).scaled(24,24,Qt::KeepAspectRatio,Qt::SmoothTransformation);
-		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
-		{
-			index->setData(RDR_AVATAR_HASH,hash);
-			index->setData(RDR_AVATAR_IMAGE,avatar);
-		}
+	foreach(IRosterIndex *index, findMetaIndexes(AMetaRoster,AMetaId))
+	{
+		index->setData(RDR_AVATAR_HASH, hash);
+		index->setData(RDR_AVATAR_IMAGE, avatar);
+		index->setData(RDR_AVATAR_IMAGE_LARGE, largeAvatar);
 	}
 }
 
-void MetaProxyModel::onMetaPresenceChanged(IMetaRoster *AMetaRoster, const Jid &AMetaId)
+void MetaProxyModel::onMetaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId)
 {
-	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
-	if (streamIndex)
+	IPresenceItem pitem = AMetaRoster->metaPresenceItem(AMetaId);
+	foreach(IRosterIndex *index, findMetaIndexes(AMetaRoster,AMetaId))
 	{
-		QMultiMap<int,QVariant> findData;
-		findData.insert(RDR_TYPE,RIT_METACONTACT);
-		findData.insert(RDR_INDEX_ID,AMetaId.pBare());
-		IPresenceItem pitem = AMetaRoster->metaPresence(AMetaId);
-		foreach(IRosterIndex *index, streamIndex->findChild(findData,true))
-		{
-			index->setData(RDR_SHOW,pitem.show);
-			index->setData(RDR_STATUS,pitem.status);
-			index->setData(RDR_PRIORITY,pitem.priority);
-		}
+		index->setData(RDR_SHOW,pitem.show);
+		index->setData(RDR_STATUS,pitem.status);
+		index->setData(RDR_PRIORITY,pitem.priority);
 	}
 }
 
@@ -212,17 +300,15 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 	IRosterIndex *streamIndex = FRostersModel!=NULL ? FRostersModel->streamRoot(AMetaRoster->streamJid()) : NULL;
 	if (streamIndex)
 	{
-		QMultiMap<int,QVariant> findData;
-		findData.insert(RDR_TYPE,RIT_METACONTACT);
-		findData.insert(RDR_INDEX_ID,AContact.id.pBare());
-		QList<IRosterIndex *> curItemList = streamIndex->findChild(findData,true);
+		QMultiHash<QString, IRosterIndex *> &rosterMetaIndexes = FMetaIndexes[AMetaRoster];
+		QList<IRosterIndex *> curItemList = rosterMetaIndexes.values(AContact.id);
 		QList<IRosterIndex *> oldItemList = curItemList;
 
 		bool createdNewIndexes = false;
 		if (!AContact.items.isEmpty())
 		{
 			QStringList contactItems;
-			foreach(Jid itemJid, AContact.items)
+			foreach(Jid itemJid, FMetaContacts->itemOrders(AContact.items.toList()).values())
 				contactItems.append(itemJid.pBare());
 
 			QSet<QString> curGroups;
@@ -230,24 +316,20 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 				curGroups.insert(index->data(RDR_GROUP).toString());
 
 			int groupType;
-			QString groupName;
 			QSet<QString> itemGroups;
 			if (AContact.items.count()==1 && AContact.items.toList().first().node().isEmpty())
 			{
 				groupType = RIT_GROUP_AGENTS;
-				groupName = FRostersModel->agentsGroupName();
 				itemGroups += QString::null;
 			}
 			else if (AContact.groups.isEmpty())
 			{
 				groupType = RIT_GROUP_BLANK;
-				groupName = FRostersModel->blankGroupName();
 				itemGroups += QString::null;
 			}
 			else
 			{
 				groupType = RIT_GROUP;
-				groupName = FRostersModel->blankGroupName();
 				itemGroups = AContact.groups;
 			}
 
@@ -257,7 +339,7 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 			QString groupDelim = AMetaRoster->roster()->groupDelimiter();
 			foreach(QString group, itemGroups)
 			{
-				IRosterIndex *groupIndex = FRostersModel->createGroup(!group.isEmpty() ? group : groupName,groupDelim,groupType,streamIndex);
+				IRosterIndex *groupIndex = FRostersModel->createGroupIndex(groupType,group,groupDelim,streamIndex);
 
 				IRosterIndex *groupItemIndex = NULL;
 				if (newGroups.contains(group) && !oldGroups.isEmpty())
@@ -265,11 +347,11 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 					IRosterIndex *oldGroupIndex;
 					QString oldGroup = oldGroups.values().value(0);
 					if (!oldGroup.isEmpty())
-						oldGroupIndex = FRostersModel->findGroup(oldGroup,groupDelim,RIT_GROUP,streamIndex);
+						oldGroupIndex = FRostersModel->findGroupIndex(RIT_GROUP,oldGroup,groupDelim,streamIndex);
 					else
-						oldGroupIndex = FRostersModel->findGroup(FRostersModel->blankGroupName(),groupDelim,RIT_GROUP_BLANK,streamIndex);
+						oldGroupIndex = FRostersModel->findGroupIndex(RIT_GROUP_BLANK,QString::null,groupDelim,streamIndex);
 
-					groupItemIndex = oldGroupIndex!=NULL ? oldGroupIndex->findChild(findData).value(0) : NULL;
+					groupItemIndex = oldGroupIndex!=NULL ? findChildIndex(curItemList,oldGroupIndex) : NULL;
 					if (groupItemIndex)
 					{
 						groupItemIndex->setData(RDR_GROUP,group);
@@ -280,23 +362,45 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 				}
 				else
 				{
-					groupItemIndex = groupIndex->findChild(findData).value(0);
+					groupItemIndex = findChildIndex(curItemList,groupIndex);
 				}
 
 				if (groupItemIndex == NULL)
 				{
 					createdNewIndexes = true;
-					groupItemIndex = FRostersModel->createRosterIndex(RIT_METACONTACT,AContact.id.pBare(),groupIndex);
+					groupItemIndex = FRostersModel->createRosterIndex(RIT_METACONTACT,groupIndex);
+					groupItemIndex->setData(RDR_TYPE_ORDER,RITO_METACONTACT);
 					groupItemIndex->setData(RDR_GROUP,group);
-					groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
-					groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
-					FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
+					groupItemIndex->setData(RDR_META_ID,AContact.id);
+					if (FRostersView)
+						FRostersView->insertLabel(FRostersLabel, groupItemIndex);
+					rosterMetaIndexes.insertMulti(AContact.id,groupItemIndex);
 				}
-				else
+
+				groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
+				groupItemIndex->setData(RDR_ASK,AContact.ask);
+				groupItemIndex->setData(RDR_SUBSCRIBTION,AContact.subscription);
+				groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
+				FRostersModel->insertRosterIndex(groupItemIndex,groupIndex);
+
+				if (createdNewIndexes || AContact.items!=ABefore.items)
 				{
-					groupItemIndex->setData(RDR_NAME,FMetaContacts->metaContactName(AContact));
-					groupItemIndex->setData(RDR_METACONTACT_ITEMS,contactItems);
+					if (AContact.items.count() == 1)
+					{
+						QIcon icon;
+						IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(*(AContact.items.constBegin()));
+						icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 4)));
+						icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.icon, 5)), QIcon::Selected);
+						groupItemIndex->setData(RDR_GATEWAY_ICON,icon);
+					}
+					else
+					{
+						groupItemIndex->setData(RDR_GATEWAY_ICON,QVariant());
+					}
 				}
+
+				emit rosterDataChanged(groupItemIndex,Qt::DecorationRole);
+				emit rosterDataChanged(groupItemIndex,RDR_FOOTER_TEXT);
 
 				oldItemList.removeAll(groupItemIndex);
 			}
@@ -307,9 +411,10 @@ void MetaProxyModel::onMetaContactReceived(IMetaRoster *AMetaRoster, const IMeta
 			FInvalidateTimer.start();
 			FRostersModel->removeRosterIndex(index);
 			index->instance()->deleteLater();
+			rosterMetaIndexes.remove(AContact.id,index);
 		}
 
-		if (createdNewIndexes || AContact.items!=ABefore.items)
+		if (!AContact.items.isEmpty() && (createdNewIndexes || AContact.items!=ABefore.items))
 		{
 			FInvalidateTimer.start();
 			onMetaAvatarChanged(AMetaRoster,AContact.id);

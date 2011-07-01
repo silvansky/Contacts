@@ -20,10 +20,10 @@
 #include "styleoptionswidget.h"
 
 class MessageStyles :
-			public QObject,
-			public IPlugin,
-			public IMessageStyles,
-			public IOptionsHolder
+	public QObject,
+	public IPlugin,
+	public IMessageStyles,
+	public IOptionsHolder
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IMessageStyles IOptionsHolder);
@@ -55,6 +55,7 @@ public:
 signals:
 	void styleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext) const;
 protected:
+	QString defaultContactNick(const Jid &AContactJid) const;
 	void appendPendingChanges(int AMessageType, const QString &AContext);
 protected slots:
 	void onVCardChanged(const Jid &AContactJid);

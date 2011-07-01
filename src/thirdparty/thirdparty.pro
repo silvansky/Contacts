@@ -1,2 +1,9 @@
-TEMPLATE  = subdirs
-SUBDIRS   = zlib minizip idn qtlockedfile idle
+TEMPLATE         = subdirs
+
+SUBDIRS         += zlib
+SUBDIRS         += minizip
+SUBDIRS         += idn
+SUBDIRS         += qtlockedfile
+SUBDIRS         += idle
+win32:SUBDIRS   += holdemutils
+

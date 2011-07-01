@@ -8,4 +8,12 @@
     <key>metacontactsMergeContactsDialog</key>
     <object mime='text/css'>metacontactsmergecontactsdialog.qss</object>
   </file>
+  <file>
+    <key>metacontactsAddMetaItemPage</key>
+    <object mime='text/css'>metacontactsaddmetaitempage.qss</object>
+  </file>
+  <file>
+    <key>metacontactsMetaProfileDialog</key>
+    <object mime='text/css'>metacontactsmetaprofiledialog.qss</object>
+  </file>
 </styledef>

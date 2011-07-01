@@ -2,8 +2,8 @@
 #define ADIUMMESSAGESTYLE_H
 
 #include <QList>
+#include <QTimer>
 #include <QWebView>
-#include <QScrollBar>
 #include <definitions/resources.h>
 #include <interfaces/imessagestyles.h>
 #include <utils/filestorage.h>
@@ -58,7 +58,6 @@
 #define MSSK_FILETRANSFER_CONPLETE          "fileTransferComplete"
 //Rambler only
 #define MSSK_HISTORY_SHOW                   "history_show"
-#define MSSK_HISTORY_REQUEST                "history_request"
 
 //Message Style Options
 #define MSO_STYLE_ID                        "styleId"
@@ -81,8 +80,8 @@
 #define MSO_BG_IMAGE_LAYOUT                 "bgImageLayout"
 
 class AdiumMessageStyle :
-			public QObject,
-			public IMessageStyle
+	public QObject,
+	public IMessageStyle
 {
 	Q_OBJECT
 	Q_INTERFACES(IMessageStyle)
@@ -106,6 +105,7 @@ public:
 		QString contentId;
 	};
 	struct WidgetStatus {
+		bool scrollStarted;
 		QList<ContentParams> content;
 	};
 public:
@@ -150,15 +150,13 @@ protected:
 	void loadTemplates();
 	void loadSenderColors();
 	void initStyleSettings();
-	void updateScrollBar(StyleViewer * view);
+protected:
+	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected slots:
+	void onScrollAfterResize();
 	void onLinkClicked(const QUrl &AUrl);
 	void onStyleWidgetAdded(IMessageStyle *AStyle, QWidget *AWidget);
 	void onStyleWidgetDestroyed(QObject *AObject);
-	void onViewContentsSizeChanged(const QSize & size);
-	void onScrollBarValueChanged(int value);
-protected:
-	bool eventFilter(QObject *, QEvent *);
 public slots:
 	void reloadTemplates();
 private:
@@ -186,12 +184,13 @@ private:
 	bool FUsingCustomTemplate;
 	bool FAllowCustomBackground;
 private:
+	bool FDelayedAllwaysOn;
+	QTimer FScrollTimer;
 	QString FResourcePath;
 	QList<QString> FVariants;
 	QList<QString> FSenderColors;
 	QMap<QString, QVariant> FInfo;
 	QMap<QWidget *, WidgetStatus> FWidgetStatus;
-	QMap<StyleViewer*, QScrollBar*> FViewScrollBars;
 };
 
 #endif // ADIUMMESSAGESTYLE_H

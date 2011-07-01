@@ -2,60 +2,69 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>AddFacebookAccountDialog</name>
+    <message>
+        <source>Waiting for host response...</source>
+        <translation>Ожидание ответа хоста...</translation>
+    </message>
+    <message>
+        <source>Facebook has confirmed your authorization</source>
+        <translation>Facebook подтвердил вашу авторризацию</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ок</translation>
+    </message>
+    <message>
+        <source>Facebook authorization</source>
+        <translation>Авторизация на Facebook</translation>
+    </message>
+    <message>
+        <source>Loading...</source>
+        <translation>Загрузка...</translation>
+    </message>
+    <message>
+        <source>The service is temporarily unavailable, please try to connect later.</source>
+        <translation>Сервис временно недоступен, попробуйте подключиться позднее.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <source>You have connected the maximum number of %1 accounts.</source>
+        <translation>Вы уже подключили максимально возможное число учетных записей %1.</translation>
+    </message>
+    <message>
+        <source>Facebook</source>
+        <translation>Facebook</translation>
+    </message>
+</context>
+<context>
+    <name>AddFacebookAccountDialogClass</name>
+    <message>
+        <source>about:blank</source>
+        <translation>about:blank</translation>
+    </message>
+</context>
+<context>
     <name>AddLegacyAccountDialog</name>
     <message>
         <source>Append</source>
         <translation>Добавить</translation>
     </message>
     <message>
-        <source>Error connecting account</source>
-        <translation>Ошибка подключения учётной записи</translation>
-    </message>
-    <message>
-        <source>Failed to connect account due to error:
-%1</source>
-        <translation>Не удалось подключить учётную запись  из-за ошибки:
-%1</translation>
-    </message>
-    <message>
-        <source>Account: %1</source>
-        <translation>Учётная запись: %1</translation>
-    </message>
-    <message>
-        <source>Gateway registration request failed</source>
-        <translation>Запрос регистрации завершился с ошибкой</translation>
-    </message>
-    <message>
         <source>Waiting for host response...</source>
-        <translation>Ошидание ответа хоста...</translation>
-    </message>
-    <message>
-        <source>Unsupported gateway type</source>
-        <translation>Неподдерживаемый тип транспорта</translation>
-    </message>
-    <message>
-        <source>Enter the username and password to your %1 account</source>
-        <translation>Укажите именя пользователя и пароль к вашей учётной записи %1</translation>
+        <translation>Ожидание ответа хоста ...</translation>
     </message>
     <message>
         <source>Invalid registration params</source>
-        <translation>Неверные параметры регистрации</translation>
-    </message>
-    <message>
-        <source>Unsupported gateway registration form</source>
-        <translation>Неподдерживаемая форма регистрации на транспорте</translation>
-    </message>
-    <message>
-        <source>Connection to gateway is lost</source>
-        <translation>Подключение к транспорту потеряно</translation>
+        <translation>Некорретные параметры регистрации</translation>
     </message>
     <message>
         <source>Change</source>
         <translation>Изменить</translation>
     </message>
-</context>
-<context>
-    <name>AddLegacyAccountDialogClass</name>
     <message>
         <source>Login</source>
         <translation>Логин</translation>
@@ -65,15 +74,54 @@
         <translation>Пароль</translation>
     </message>
     <message>
+        <source>Please, enter your login and password.</source>
+        <translation>Пожалуйста, укажите ваш логин и пароль.</translation>
+    </message>
+    <message>
+        <source>Your account is not connected.</source>
+        <translation>Ваша учётная запись ещё не подключена.</translation>
+    </message>
+    <message>
+        <source>Add %1 account</source>
+        <translation>Добавить учетную запись %1</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ок</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <source>The service is temporarily unavailable, please try to connect later.</source>
+        <translation>Сервис временно недоступен, попробуйте подключиться позднее.</translation>
+    </message>
+    <message>
+        <source>You have connected the maximum number of %1 accounts.</source>
+        <translation>Вы уже подключили максимально возможное число учетных записей %1.</translation>
+    </message>
+</context>
+<context>
+    <name>AddLegacyAccountDialogClass</name>
+    <message>
         <source>Show input password</source>
-        <translation>Показывать вводимый пароль</translation>
+        <translation>Показать вводимый пароль</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>Ок</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
     <name>AddLegacyAccountOptions</name>
     <message>
         <source>You can link multiple accounts and communicate with your friends on other services</source>
-        <translation>Вы можете подключить несколько учётных записей и общаться со своими друзьями на других сервисах</translation>
+        <translation>Вы можете подключить несколько учётных записей и общаться со своими друзьями с других сервисов</translation>
     </message>
     <message>
         <source>All available accounts are already linked</source>
@@ -92,7 +140,7 @@
     </message>
     <message>
         <source>Error: Can`t send request to host.</source>
-        <translation>Ошибка: Невозможно отправить запрос на хост.</translation>
+        <translation>Ошибка: невозможно отправить запрос на хост.</translation>
     </message>
     <message>
         <source>Contact ID:</source>
@@ -138,7 +186,7 @@
     </message>
     <message>
         <source>Allows to simplify the interaction with transports to other IM systems</source>
-        <translation>Позволяет упростить взаимодействие с транспортами в другие IM системы</translation>
+        <translation>Позволяет упростить взаимодействие с транспортами в другие IM-системы</translation>
     </message>
     <message>
         <source>Supports the adding of the contact by the username of the legacy system</source>
@@ -149,24 +197,12 @@
         <translation>Учётные записи</translation>
     </message>
     <message>
-        <source>Linked accounts</source>
-        <translation>Подключенные учётные записи</translation>
-    </message>
-    <message>
-        <source>Append account</source>
-        <translation>Добавить учётную запись</translation>
-    </message>
-    <message>
         <source>ICQ</source>
         <translation>ICQ</translation>
     </message>
     <message>
         <source>Login</source>
         <translation>Логин</translation>
-    </message>
-    <message>
-        <source>Agent@Mail</source>
-        <translation>Агент@Mail</translation>
     </message>
     <message>
         <source>E-mail</source>
@@ -194,15 +230,15 @@
     </message>
     <message>
         <source>Rambler</source>
-        <translation>Rambler</translation>
+        <translation>Рамблер</translation>
     </message>
     <message>
         <source>Add your accounts</source>
-        <translation>Добавьте ваши учетные записи</translation>
+        <translation>Добавьте ваши учётные записи</translation>
     </message>
     <message>
         <source>Add your accounts and send messages to your friends on these services</source>
-        <translation>Подключите свои учетные записи и отправляйте сообщения вашим друзьям на этих сервисах</translation>
+        <translation>Подключайте учётные записи и отправляйте сообщения вашим друзьям на этих сервисах</translation>
     </message>
     <message>
         <source>Add my accounts...</source>
@@ -228,17 +264,77 @@
         <source>LiveJournal</source>
         <translation>LiveJournal</translation>
     </message>
+    <message>
+        <source>Twitter</source>
+        <translation>Twitter</translation>
+    </message>
+    <message>
+        <source>Mail</source>
+        <translation>Почта</translation>
+    </message>
+    <message>
+        <source>Enter the entire number, including area code or operator code.</source>
+        <translation>Введите номер полностью, включая код города или оператора.</translation>
+    </message>
+    <message>
+        <source>Too many digits in the phone number.</source>
+        <translation>Слишком много цифр в номере.</translation>
+    </message>
+    <message>
+        <source>Entered address is not suitable for selected service.</source>
+        <translation>Введенный адрес не соответствует выбранному сервису.</translation>
+    </message>
+    <message>
+        <source>Entered phone number contains invalid characters.</source>
+        <translation>Указанный номер телефона содержит недопустимые символы.</translation>
+    </message>
+    <message>
+        <source>Agent@Mail.ru</source>
+        <translation>Агент@Mail.ru</translation>
+    </message>
+    <message>
+        <source>Add account</source>
+        <translation>Добавить учетную запись</translation>
+    </message>
+    <message>
+        <source>Account disconnected</source>
+        <translation>Учетная запись отключена</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <translation>Отключен</translation>
+    </message>
+    <message>
+        <source>Enable</source>
+        <translation>Включить</translation>
+    </message>
+    <message>
+        <source>Account %1 disconnected</source>
+        <translation>Учетная запись %1 отключена</translation>
+    </message>
+    <message>
+        <source>Your account %1 was connected from another computer. You can enable it again.</source>
+        <translation>Ваша учетная запись %1 была подключена с другого компьютера. Вы можете включить её снова.</translation>
+    </message>
+    <message>
+        <source>ICQ disconnected (offline)</source>
+        <translation>ICQ отключена (не в сети)</translation>
+    </message>
+    <message>
+        <source>Your ICQ was connected from another computer. You can enable ICQ again.</source>
+        <translation>Ваша ICQ была запущена с другого компьютера. Вы можете включить её снова.</translation>
+    </message>
+    <message>
+        <source>Agent@Mail disconnected (offline)</source>
+        <translation>Агент@Mail отключен (не в сети)</translation>
+    </message>
+    <message>
+        <source>Your Agent@Mail was connected from another computer. You can enable it again.</source>
+        <translation>Ваш Агент@Mail был запущен с другого компьютера. Вы можете включить его снова.</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>
-    <message>
-        <source>Enabling</source>
-        <translation>Включение</translation>
-    </message>
-    <message>
-        <source>Disabling</source>
-        <translation>Отключение</translation>
-    </message>
     <message>
         <source>Account Deletion</source>
         <translation>Удаление учётной записи</translation>
@@ -248,27 +344,27 @@
         <translation>Вы действительно хотите удалить учётную запись &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
     <message>
-        <source>Enabled</source>
-        <translation>Включено</translation>
+        <source>Failed to connect</source>
+        <translation>Не удалось подключиться</translation>
     </message>
     <message>
-        <source>Disable</source>
-        <translation>Выключить</translation>
+        <source>Connected</source>
+        <translation>Подключено</translation>
     </message>
     <message>
-        <source>Enable</source>
-        <translation>Включить</translation>
+        <source>Delete</source>
+        <translation>Удалить</translation>
     </message>
     <message>
-        <source>Disabled</source>
-        <translation>Выключено</translation>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
     <name>LegacyAccountOptionsClass</name>
     <message>
-        <source>&lt;a href=&apos;account:change&apos;&gt;Change...&lt;/a&gt;</source>
-        <translation>&lt;a href=&apos;account:change&apos;&gt;Изменить...&lt;/a&gt;</translation>
+        <source>Change...</source>
+        <translation>Изменить...</translation>
     </message>
 </context>
 <context>

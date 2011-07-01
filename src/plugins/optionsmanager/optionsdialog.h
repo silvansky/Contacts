@@ -36,18 +36,18 @@ public:
 signals:
 	void applied();
 	void reseted();
-	void splitterMoved(int, int);
+	void dialogDestroyed();
 protected:
 	QWidget *createNodeWidget(const QString &ANodeId);
 	QStandardItem *createNodeItem(const QString &ANodeId);
 	bool canExpandVertically(const QWidget *AWidget) const;
-protected:
-	bool eventFilter(QObject *, QEvent *);
+	void correctAdjustSize();
 protected slots:
 	void onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode);
 	void onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode);
 	void onCurrentItemChanged(const QModelIndex &ACurrent, const QModelIndex &APrevious);
 	void onOptionsWidgetModified();
+	void onOptionsWidgetUpdated();
 	void onDialogButtonClicked(QAbstractButton *AButton);
 private:
 	Ui::OptionsDialogClass ui;
@@ -60,6 +60,7 @@ private:
 	QObjectCleanupHandler FCleanupHandler;
 	QMap<QString, QStandardItem *> FNodeItems;
 	QMap<QStandardItem *, QWidget *> FItemWidgets;
+	QWidget * FCurrentWidget;
 };
 
 #endif // OPTIONSDIALOG_H

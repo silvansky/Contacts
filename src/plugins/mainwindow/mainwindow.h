@@ -10,8 +10,8 @@
 #include "noticewidget.h"
 
 class MainWindow :
-			public QMainWindow,
-			public IMainWindow
+	public QMainWindow,
+	public IMainWindow
 {
 	Q_OBJECT
 	Q_INTERFACES(IMainWindow)
@@ -38,9 +38,12 @@ protected:
 	void createMenus();
 protected:
 	void keyPressEvent(QKeyEvent *AEvent);
+	void closeEvent(QCloseEvent *);
 protected slots:
 	void onStackedWidgetChanged(int AIndex);
 	void onInternalNoticeChanged(int ANoticeId);
+signals:
+	void closed();
 private:
 	Menu *FMainMenu;
 	ToolBarChanger *FTopToolBarChanger;

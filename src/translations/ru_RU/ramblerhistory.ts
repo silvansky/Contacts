@@ -5,15 +5,25 @@
     <name>RamblerHistory</name>
     <message>
         <source>Rambler History</source>
-        <translation>Рамблер история</translation>
+        <translation>Рамблер История</translation>
     </message>
     <message>
         <source>Allows other modules to get access to message history on rambler server</source>
-        <translation>Позволяет другим плагинам получать доступ к истории на сервере рамблера</translation>
+        <translation>Позволяет другим плагинам получать доступ к истории на сервере Рамблера</translation>
     </message>
+</context>
+<context>
+    <name>ViewHistoryWindow</name>
     <message>
-        <source>Store the history of communication in my Rambler.Pochta</source>
-        <translation>Хранить историю общения в моей Рамблер.Почте</translation>
+        <source>Chat history - %1</source>
+        <translation>История чата - %1</translation>
+    </message>
+</context>
+<context>
+    <name>ViewHistoryWindowClass</name>
+    <message>
+        <source>about:blank</source>
+        <translation>about:blank</translation>
     </message>
 </context>
 </TS>

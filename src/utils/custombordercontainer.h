@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QLayout>
-#include <QDebug>
 #include "utilsexport.h"
 #include "menu.h"
 
@@ -31,6 +30,16 @@ public:
 	void setMovable(bool movable = true);
 	bool isResizable() const;
 	void setResizable(bool resizable = true);
+	bool isShowInTaskBarEnabled() const;
+	void setShowInTaskBar(bool show = true);
+	bool isCloseOnDeactivateEnabled() const;
+	void setCloseOnDeactivate(bool enabled = true);
+	bool staysOnTop() const;
+	void setStaysOnTop(bool on = true);
+	bool dockingEnabled() const;
+	void setDockingEnabled(bool enabled);
+	bool minimizeOnClose() const;
+	void setMinimizeOnClose(bool enabled);
 signals:
 	void minimizeClicked();
 	void maximizeClicked();
@@ -40,6 +49,8 @@ signals:
 	void minimized();
 	void maximized();
 	void closed();
+	void resized();
+	void moved();
 protected:
 	// event handlers
 	void changeEvent(QEvent *e);
@@ -55,15 +66,19 @@ protected:
 	void focusInEvent(QFocusEvent *);
 	void focusOutEvent(QFocusEvent *);
 	void contextMenuEvent(QContextMenuEvent *);
+	void closeEvent(QCloseEvent *);
 	// event filter
 	bool event(QEvent *);
 #ifdef Q_WS_WIN
 	bool winEvent(MSG *message, long *result);
 #endif
 	bool eventFilter(QObject *, QEvent *);
+private:
+	bool shouldFilterEvents(QObject* obj);
 protected:
 	// common initialization
 	void init();
+	void initMenu();
 	enum GeometryState
 	{
 		None,
@@ -83,7 +98,7 @@ protected:
 	};
 	enum HeaderButtons
 	{
-		NoneButton,
+		NoneButton = 0,
 		MinimizeButton,
 		MaximizeButton,
 		CloseButton
@@ -132,6 +147,9 @@ public:
 	int rightBorderWidth() const;
 	int topBorderWidth() const;
 	int bottomBorderWidth() const;
+	// move mode
+	bool canDragAnywhere() const;
+	void setCanDragAnywhere(bool on);
 protected:
 	// header button flags manipulations
 	void addHeaderButtonFlag(HeaderButtonsFlag flag);
@@ -147,8 +165,9 @@ protected:
 	void repaintHeaderButtons();
 	QRect windowIconRect() const;
 	void showWindowMenu(const QPoint & p);
+	void childsRecursive(QObject *object, bool install);
 	// etc...
-	enum BorderType
+	enum BorderType // note that order makes sence
 	{
 		NoneBorder = 0,
 		TopLeftCorner,
@@ -162,7 +181,7 @@ protected:
 	};
 	void mouseMove(const QPoint & p, QWidget * widget);
 	bool mousePress(const QPoint & p, QWidget * widget);
-	void mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button = Qt::LeftButton);
+	bool mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button = Qt::LeftButton);
 	bool mouseDoubleClick(const QPoint & p, QWidget * widget);
 	bool pointInBorder(BorderType border, const QPoint & p);
 	bool pointInHeader(const QPoint & p);
@@ -174,6 +193,7 @@ protected:
 	void setLayoutMargins();
 	QRect headerRect() const;
 	QRect headerMoveRect() const;
+	QRect headerMenuRect() const;
 	void drawHeader(QPainter * p);
 	void drawButton(HeaderButton & button, QPainter * p, HeaderButtonState state = Normal);
 	void drawButtons(QPainter * p);
@@ -185,17 +205,22 @@ protected:
 	QImage loadImage(const QString & key);
 	QIcon loadIcon(const QString & key);
 	QPixmap loadPixmap(const QString & key);
-protected slots:
+public:
+	bool isMaximized() const; // overriding QWidget's one
+	bool isFullScreen() const; // overriding QWidget's one
+public slots:
+	void showMaximized(); // overriding QWidget's one
+	void showFullScreen(); // overriding QWidget's one
 	void minimizeWidget();
 	void maximizeWidget();
 	void closeWidget();
 	void restoreWidget();
+protected slots:
 	void onContainedWidgetDestroyed(QObject*);
 private:
 	// widgets/layouts
 	QWidget * containedWidget;
 	QLayout * containerLayout;
-	QWidget * headerWidget;
 	GeometryState currentGeometryState;
 	QRect oldGeometry;
 	QPoint oldPressPoint;
@@ -207,7 +232,10 @@ private:
 	bool resizable;
 	HeaderButtonsFlags buttonsFlags;
 	HeaderButtons pressedHeaderButton;
-	bool isMaximized;
+	bool _isMaximized;
+	bool _isFullscreen;
+	bool _closeOnDeactivate;
+	bool _minimizeOnClose;
 	QRect normalGeometry;
 	Menu * windowMenu;
 	Action * minimizeAction;

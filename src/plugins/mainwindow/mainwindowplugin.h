@@ -20,10 +20,10 @@
 #include "mainwindow.h"
 
 class MainWindowPlugin :
-			public QObject,
-			public IPlugin,
-			public IOptionsHolder,
-			public IMainWindowPlugin
+	public QObject,
+	public IPlugin,
+	public IOptionsHolder,
+	public IMainWindowPlugin
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IOptionsHolder IMainWindowPlugin)
@@ -56,6 +56,11 @@ protected slots:
 	void onProfileRenamed(const QString &AProfile, const QString &ANewName);
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowMainWindowByAction(bool);
+	void onMainWindowClosed();
+#ifdef Q_OS_MAC
+	void onDockIconCLicked();
+#endif
+	void onApplicationQuitStarted();
 private:
 	IPluginManager *FPluginManager;
 	IOptionsManager *FOptionsManager;

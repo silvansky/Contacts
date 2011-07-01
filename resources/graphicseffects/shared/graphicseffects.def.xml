@@ -12,4 +12,8 @@
     <key>textShadows</key>
     <object mime="text/xml">textshadows.xml</object>
   </file>
+  <file>
+    <key>noticeWidget</key>
+    <object mime="text/xml">noticewidget.xml</object>
+  </file>
 </effectsdef>

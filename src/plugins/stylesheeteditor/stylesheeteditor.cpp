@@ -51,23 +51,22 @@
 #include <QtDesigner/QDesignerPropertySheetExtension>
 #include <QtDesigner/QExtensionManager>
 
-#include <QtCore/QSignalMapper>
-#include <QtGui/QAction>
-#include <QtGui/QColorDialog>
-#include <QtGui/QDialogButtonBox>
-#include <QtGui/QFontDialog>
-#include <QtGui/QMenu>
-#include <QtGui/QPushButton>
-#include <QtGui/QTextDocument>
-#include <QtGui/QToolBar>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QListView>
+#include <QSignalMapper>
+#include <QAction>
+#include <QColorDialog>
+#include <QDialogButtonBox>
+#include <QFontDialog>
+#include <QMenu>
+#include <QPushButton>
+#include <QTextDocument>
+#include <QToolBar>
+#include <QVBoxLayout>
+#include <QListView>
 #include "private/qcssparser_p.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QFile>
 #include <QByteArray>
-#include <QDebug>
 
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
@@ -78,18 +77,19 @@ StyleSheetEditor::StyleSheetEditor(QWidget *parent)
 	setFontFamily("Courier");
 	setFontPointSize(12);
 	setTabStopWidth(fontMetrics().width(QLatin1Char(' ')) * 14);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	new CssHighlighter(document());
 }
 
 // --- StyleSheetEditorDialog
 StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
-		QDialog(parent),
-		m_buttonBox(new QDialogButtonBox()),
-		m_editor(new StyleSheetEditor),
-		m_validityLabel(new QLabel(tr("Valid Style Sheet"))),
-		m_addGradientAction(new QAction(tr("Add Gradient..."), this)),
-		m_addColorAction(new QAction(tr("Add Color..."), this)),
-		m_addFontAction(new QAction(tr("Add Font..."), this))
+	QDialog(parent),
+	m_buttonBox(new QDialogButtonBox()),
+	m_editor(new StyleSheetEditor),
+	m_validityLabel(new QLabel(tr("Valid Style Sheet"))),
+	m_addGradientAction(new QAction(tr("Add Gradient..."), this)),
+	m_addColorAction(new QAction(tr("Add Color..."), this)),
+	m_addFontAction(new QAction(tr("Add Font..."), this))
 {
 
 	m_buttonBox->setObjectName("buttonBox");
@@ -103,9 +103,10 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
 
 	testForm = new TestStylesForm;
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(testForm, "stylesheeteditorTestForm");
+	setStyleSheet("QToolBar { border: none; background: transparent; }");
 	testFormContainer = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(testForm, CBS_WINDOW);
-//	testForm->setObjectName("testForm");
-//	testForm->setStyleSheet("#testForm { background-color: rgba(65, 70, 77, 245); } QGroupBox { background: transparent; }");
+	//	testForm->setObjectName("testForm");
+	//	testForm->setStyleSheet("#testForm { background-color: rgba(65, 70, 77, 245); } QGroupBox { background: transparent; }");
 
 	setStyleSheet("StyleSheetEditor { border: 1px solid black; background-color: white; padding: 0px; margin: 0px; border-image: none; }");
 
@@ -128,7 +129,8 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
 
 	connect(m_editor, SIGNAL(textChanged()), this, SLOT(validateStyleSheet()));
 
-	QToolBar *toolBar = new QToolBar;
+	QToolBar *toolBar = new QToolBar(this);
+	toolBar->setStyleSheet(styleSheet());
 
 	QGridLayout *layout = new QGridLayout;
 	layout->addWidget(toolBar, 0, 0, 1, 2);
@@ -256,10 +258,10 @@ void StyleSheetEditorDialog::slotAddColor(const QString &property)
 
 	if (color.alpha() == 255) {
 		colorStr = QString(QLatin1String("rgb(%1, %2, %3)")).arg(
-				color.red()).arg(color.green()).arg(color.blue());
+					color.red()).arg(color.green()).arg(color.blue());
 	} else {
 		colorStr = QString(QLatin1String("rgba(%1, %2, %3, %4)")).arg(
-				color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha());
+					color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha());
 	}
 
 	insertCssProperty(property, colorStr);

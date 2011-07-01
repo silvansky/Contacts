@@ -15,8 +15,8 @@ class EmoticonsOptions :
 			public QWidget,
 			public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	EmoticonsOptions(IEmoticons *AEmoticons, QWidget *AParent);
 	~EmoticonsOptions();
@@ -26,6 +26,7 @@ public slots:
 	virtual void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 protected slots:

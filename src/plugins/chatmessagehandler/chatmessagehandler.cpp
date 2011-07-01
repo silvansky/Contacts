@@ -61,7 +61,7 @@ void ChatMessageHandler::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to exchange chat messages");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 	APluginInfo->dependences.append(MESSAGEPROCESSOR_UUID);
 	APluginInfo->dependences.append(MESSAGESTYLES_UUID);
@@ -321,7 +321,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 	if (AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_MY_RESOURCE)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		return FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
 	}
 	return false;
@@ -330,37 +330,63 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 bool ChatMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 {
 	Q_UNUSED(AOrder);
-	return !AMessage.body().isEmpty();
+	return !AMessage.body().isEmpty() /*&& AMessage.type()!=Message::Error*/;
 }
 
 bool ChatMessageHandler::showMessage(int AMessageId)
 {
-	Message message = FMessageProcessor->messageById(AMessageId);
-	return createWindow(MHO_CHATMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
+	IChatWindow *window = findNotifiedMessageWindow(AMessageId);
+	if (!window)
+	{
+		Message message = FMessageProcessor->messageById(AMessageId);
+		return createWindow(MHO_CHATMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
+	}
+	else
+	{
+		window->showTabPage();
+		return true;
+	}
+	return false;
 }
 
 bool ChatMessageHandler::receiveMessage(int AMessageId)
 {
 	bool notify = false;
 	Message message = FMessageProcessor->messageById(AMessageId);
-	IChatWindow *window = getWindow(message.to(),message.from());
+	IChatWindow *window = message.type()!=Message::Error ? getWindow(message.to(),message.from()) : findWindow(message.to(),message.from());
 	if (window)
 	{
-		StyleExtension extension;
-		WindowStatus &wstatus = FWindowStatus[window];
-		if (!window->isActive())
+		if (message.type() != Message::Error)
 		{
-			notify = true;
-			extension.extensions = IMessageContentOptions::Unread;
-			wstatus.notified.append(AMessageId);
-			updateWindow(window);
-		}
+			StyleExtension extension;
+			WindowStatus &wstatus = FWindowStatus[window];
+			if (!window->isActive())
+			{
+				notify = true;
+				if (FDestroyTimers.contains(window))
+					delete FDestroyTimers.take(window);
+				extension.extensions = IMessageContentOptions::Unread;
+				wstatus.notified.append(AMessageId);
+				updateWindow(window);
+			}
 
-		QUuid contentId = showStyledMessage(window,message,extension);
-		if (!contentId.isNull() && notify)
+			QUuid contentId = showStyledMessage(window,message,extension);
+			if (!contentId.isNull() && notify)
+			{
+				message.setData(MDR_STYLE_CONTENT_ID,contentId.toString());
+				wstatus.unread.append(message);
+			}
+
+			if (wstatus.historyId.isNull() && FHistoryRequests.values().contains(window))
+			{
+				wstatus.pending.append(message);
+			}
+		}
+		else
 		{
-			message.setData(MDR_STYLE_CONTENT_ID,contentId.toString());
-			wstatus.unread.append(message);
+			QString errorMessage =  ErrorHandler(message.stanza().element()).message();
+			if (!errorMessage.isEmpty())
+				showStyledStatus(window,errorMessage);
 		}
 	}
 	return notify;
@@ -391,12 +417,12 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
 		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
-		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,wstatus.notified.count());
-		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
+		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
-		notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
+		notify.data.insert(NDR_POPUP_ICON, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE));
 		notify.data.insert(NDR_POPUP_TITLE,name);
 		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
 		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
@@ -405,13 +431,32 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 		if (roster && !roster->rosterItem(AMessage.from()).isValid)
 			notify.data.insert(NDR_POPUP_NOTICE,tr("Not in contact list"));
 
-		if (wstatus.notified.count() > 1)
+		int notifyCount = wstatus.notified.count();
+		if (notifyCount > 1)
 		{
+			int lastNotifyWithPopup = -1;
 			QList<int> notifies = ANotifications->notifications();
+			while (lastNotifyWithPopup<0 && !notifies.isEmpty())
+			{
+				int notifyId = notifies.takeLast();
+				if ((ANotifications->notificationById(notifyId).kinds & INotification::PopupWindow) > 0)
+					lastNotifyWithPopup = notifyId;
+			}
+
 			int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
-			if (!notifies.isEmpty() && notifies.last()==replNotify)
+			if (replNotify>0 && replNotify==lastNotifyWithPopup)
 				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
+			else
+				replNotify = -1;
+
+			foreach(int messageId, wstatus.notified)
+			{
+				int notifyId = FMessageProcessor->notifyByMessage(messageId);
+				if (notifyId>0 && notifyId!=replNotify)
+					notifyCount -= FNotifications!=NULL ? FNotifications->notificationById(notifyId).data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt() : 0;
+			}
 		}
+		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
 
 		QTextDocument doc;
 		FMessageProcessor->messageToText(&doc,AMessage);
@@ -444,21 +489,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 	IChatWindow *window = NULL;
 	if (AStreamJid.isValid() && AContactJid.isValid())
 	{
-		if (AContactJid.resource().isEmpty())
-		{
-			foreach(IChatWindow *chatWindow, FWindows)
-			{
-				if (chatWindow->streamJid()==AStreamJid && chatWindow->contactJid().pBare()==AContactJid.pBare())
-				{
-					window = chatWindow;
-					break;
-				}
-			}
-		}
-		if (window == NULL)
-		{
-			window = findWindow(AStreamJid,AContactJid);
-		}
+		window = findWindow(AStreamJid,AContactJid,false);
 		if (window == NULL)
 		{
 			window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
@@ -502,6 +533,7 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 
 				FWindows.append(window);
 				updateWindow(window);
+				setMessageStyle(window);
 
 				if (FRostersView && FRostersModel)
 				{
@@ -510,10 +542,12 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 						FAvatars->insertAutoAvatar(menu->menuAction(),AContactJid,QSize(48,48));
 					else
 						menu->menuAction()->setIcon(RSR_STORAGE_MENUICONS, MNI_CHAT_MHANDLER_USER_MENU);
+
 					QToolButton *button = window->toolBarWidget()->toolBarChanger()->insertAction(menu->menuAction(),TBG_CWTBW_USER_TOOLS);
 					button->setPopupMode(QToolButton::InstantPopup);
 					button->setFixedSize(QSize(48,48));
 				}
+
 
 				setMessageStyle(window);
 				// works only on adium styles
@@ -532,12 +566,39 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 	return window;
 }
 
-IChatWindow *ChatMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid)
+IChatWindow *ChatMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch) const
 {
+	IChatWindow *bareWindow = NULL;
 	foreach(IChatWindow *window,FWindows)
-		if (window->streamJid() == AStreamJid && window->contactJid() == AContactJid)
+	{
+		if (window->streamJid() == AStreamJid)
+		{
+			if (window->contactJid() == AContactJid)
+				return window;
+			else if (!AExactMatch && !bareWindow && (window->contactJid() && AContactJid))
+				bareWindow = window;
+		}
+	}
+	return bareWindow;
+}
+
+IChatWindow *ChatMessageHandler::findNotifiedMessageWindow(int AMessageId) const
+{
+	foreach(IChatWindow *window, FWindows)
+		if (FWindowStatus.value(window).notified.contains(AMessageId))
 			return window;
 	return NULL;
+}
+
+void ChatMessageHandler::clearWindow(IChatWindow *AWindow)
+{
+	IMessageStyle *style = AWindow->viewWidget()!=NULL ? AWindow->viewWidget()->messageStyle() : NULL;
+	if (style!=NULL)
+	{
+		IMessageStyleOptions soptions = FMessageStyles->styleOptions(Message::Chat);
+		style->changeOptions(AWindow->viewWidget()->styleWidget(),soptions,true);
+		resetWindowStatus(AWindow);
+	}
 }
 
 void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
@@ -548,10 +609,24 @@ void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 	else if (FStatusIcons)
 		icon = FStatusIcons->iconByJid(AWindow->streamJid(),AWindow->contactJid());
 
-	QString name = AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
-	QString show = FStatusChanger!=NULL ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
-	QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+	QString name = FMetaContacts!=NULL ? FMetaContacts->itemHint(AWindow->contactJid()) : AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
+	QString show = FStatusChanger ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
+	//QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
+	QString title = name;
 	AWindow->updateWindow(icon,name,title,show);
+}
+
+void ChatMessageHandler::resetWindowStatus(IChatWindow *AWindow)
+{
+	WindowStatus &wstatus = FWindowStatus[AWindow];
+	wstatus.separators.clear();
+	wstatus.unread.clear();
+	wstatus.offline.clear();
+	wstatus.pending.clear();
+	wstatus.historyId = QString::null;
+	wstatus.historyTime = QDateTime();
+	wstatus.historyContentId = QUuid();
+	wstatus.lastStatusShow = QString::null;
 }
 
 void ChatMessageHandler::removeMessageNotifications(IChatWindow *AWindow)
@@ -661,9 +736,11 @@ IPresenceItem ChatMessageHandler::findPresenceItem(IPresence *APresence, const J
 	return pitem;
 }
 
-void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState, bool AInit)
+void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState AState)
 {
-	static QString urlMask = QString("<a href='%1'>%2</a>");
+	static QString urlMask = QString("<a class=\"%3\" href='%1'>%2</a>");
+	static QString msgMask = QString("<div class=\"%2\">%1</div>");
+
 	if (FRamblerHistory && FRamblerHistory->isSupported(AWindow->streamJid()))
 	{
 		IMessageContentOptions options;
@@ -671,39 +748,59 @@ void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState
 		options.time = QDateTime::fromTime_t(0);
 		options.timeFormat = " ";
 		options.noScroll = true;
+		options.status = IMessageContentOptions::HistoryShow;
+//		if (AInit && false)
+//		{
+//			QUrl showWindowUrl;
+//			showWindowUrl.setScheme(URL_SCHEME_ACTION);
+//			showWindowUrl.setPath(URL_PATH_HISTORY);
+//			showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
+//			options.status = IMessageContentOptions::HistoryShow;
+//			AWindow->viewWidget()->changeContentHtml(urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history")),options);
+//		}
 
-		if (AInit && false)
-		{
-			QUrl showWindowUrl;
-			showWindowUrl.setScheme(URL_SCHEME_ACTION);
-			showWindowUrl.setPath(URL_PATH_HISTORY);
-			showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
-			options.status = IMessageContentOptions::HistoryShow;
-			AWindow->viewWidget()->changeContentHtml(urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history")),options);
-		}
+		QString message = "<div class=\"v-chat-header\">";
 
-		QString message;
-		options.status = IMessageContentOptions::HistoryRequest;
 		if (AState == HLS_READY)
 		{
 			QUrl showMesagesUrl;
 			showMesagesUrl.setScheme(URL_SCHEME_ACTION);
 			showMesagesUrl.setPath(URL_PATH_HISTORY);
 			showMesagesUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("messages")));
-			message = urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages"));
+			message += urlMask.arg(showMesagesUrl.toString()).arg(tr("Show previous messages")).arg("v-chat-header-b");
 		}
 		else if (AState == HLS_WAITING)
 		{
-			message = tr("Loading messages from server...");
+			message += msgMask.arg(tr("Loading messages from server...")).arg("v-chat-header-message");
+		}
+		else if (AState == HLS_FINISHED)
+		{
+			message += msgMask.arg(tr("All messages loaded")).arg("v-chat-header-message");
+		}
+		else if (AState == HLS_FAILED)
+		{
+			message += msgMask.arg(tr("Failed to load history messages from server")).arg("v-chat-header-message");
 		}
 
+		QUrl updateHistoryUrl;
+		updateHistoryUrl.setScheme(URL_SCHEME_ACTION);
+		updateHistoryUrl.setPath(URL_PATH_HISTORY);
+		updateHistoryUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("update")));
+		message += urlMask.arg(updateHistoryUrl.toString()).arg(QString::null).arg("v-chat-header-b v-chat-header-reload");
+
+		QUrl showWindowUrl;
+		showWindowUrl.setScheme(URL_SCHEME_ACTION);
+		showWindowUrl.setPath(URL_PATH_HISTORY);
+		showWindowUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("window")));
+		message += urlMask.arg(showWindowUrl.toString()).arg(tr("Chat history")).arg("v-chat-header-history");
+
 		WindowStatus &wstatus = FWindowStatus[AWindow];
-		if (!wstatus.historyRequestId.isNull())
+		if (!wstatus.historyContentId.isNull())
 		{
-			options.action = AState!=HLS_FINISHED ? IMessageContentOptions::Replace : IMessageContentOptions::Remove;
-			options.contentId = wstatus.historyRequestId;
+			options.action = IMessageContentOptions::Replace;
+			options.contentId = wstatus.historyContentId;
 		}
-		wstatus.historyRequestId =  AWindow->viewWidget()->changeContentHtml(message,options);
+		wstatus.historyContentId = AWindow->viewWidget()->changeContentHtml(message,options);
 	}
 }
 
@@ -717,6 +814,8 @@ void ChatMessageHandler::setMessageStyle(IChatWindow *AWindow)
 	QTimer::singleShot(10, &loop, SLOT(quit()));
 	loop.exec();
 	AWindow->viewWidget()->setMessageStyle(style,soptions);
+	resetWindowStatus(AWindow);
+	showHistoryLinks(AWindow, HLS_READY);
 	requestHistoryMessages(AWindow, 10);
 
 	WindowStatus &wstatus = FWindowStatus[AWindow];
@@ -725,9 +824,9 @@ void ChatMessageHandler::setMessageStyle(IChatWindow *AWindow)
 	wstatus.offline.clear();
 	wstatus.historyId = QString::null;
 	wstatus.historyTime = QDateTime();
-	wstatus.historyRequestId = QUuid();
+//	wstatus.historyRequestId = QUuid();
 
-	showHistoryLinks(AWindow, HLS_READY, true);
+	showHistoryLinks(AWindow, HLS_READY);
 }
 
 void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageContentOptions &AOptions) const
@@ -879,7 +978,13 @@ void ChatMessageHandler::onUrlClicked(const QUrl &AUrl)
 				}
 				else if (keyValue == "window")
 				{
-
+					if (FRamblerHistory)
+						FRamblerHistory->showViewHistoryWindow(window->streamJid(),window->contactJid());
+				}
+				else if (keyValue == "update")
+				{
+					clearWindow(window);
+					requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
 				}
 			}
 			else if (AUrl.path() == URL_PATH_CONTENT)
@@ -937,8 +1042,8 @@ void ChatMessageHandler::onWindowActivated()
 		pageInfo.contactJid = window->contactJid();
 		pageInfo.page = window;
 
-		if (FWindowTimers.contains(window))
-			delete FWindowTimers.take(window);
+		if (FDestroyTimers.contains(window))
+			delete FDestroyTimers.take(window);
 		removeMessageNotifications(window);
 	}
 }
@@ -946,16 +1051,16 @@ void ChatMessageHandler::onWindowActivated()
 void ChatMessageHandler::onWindowClosed()
 {
 	IChatWindow *window = qobject_cast<IChatWindow *>(sender());
-	if (window)
+	if (window && FWindowStatus.value(window).notified.isEmpty())
 	{
-		if (!FWindowTimers.contains(window))
+		if (!FDestroyTimers.contains(window))
 		{
 			QTimer *timer = new QTimer;
 			timer->setSingleShot(true);
 			connect(timer,SIGNAL(timeout()),window->instance(),SLOT(deleteLater()));
-			FWindowTimers.insert(window,timer);
+			FDestroyTimers.insert(window,timer);
 		}
-		FWindowTimers[window]->start(DESTROYWINDOW_TIMEOUT);
+		FDestroyTimers[window]->start(DESTROYWINDOW_TIMEOUT);
 	}
 }
 
@@ -966,8 +1071,8 @@ void ChatMessageHandler::onWindowDestroyed()
 	{
 		if (FTabPages.contains(window->tabPageId()))
 			FTabPages[window->tabPageId()].page = NULL;
-		if (FWindowTimers.contains(window))
-			delete FWindowTimers.take(window);
+		if (FDestroyTimers.contains(window))
+			delete FDestroyTimers.take(window);
 		removeMessageNotifications(window);
 		FWindows.removeAll(window);
 		FWindowStatus.remove(window);
@@ -1011,11 +1116,11 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IR
 	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
 	if (presence && presence->isOpen() && ASelected.count()<2)
 	{
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		if (chatActionTypes.contains(AIndex->type()))
 		{
 			Action *action = new Action(AMenu);
-			action->setText(tr("Open dialog"));
+			action->setText(tr("Open"));
 			//action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
 			action->setData(ADR_STREAM_JID,streamJid.full());
 			action->setData(ADR_CONTACT_JID,contactJid.full());
@@ -1035,11 +1140,11 @@ void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelI
 	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
 	if (presence && presence->isOpen())
 	{
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		if (AToolBarChanger && chatActionTypes.contains(AIndex->type()) && (ALabelId == RLID_DISPLAY))
 		{
 			Action *action = new Action(AToolBarChanger->toolBar());
-			action->setText(tr("Open dialog"));
+			action->setText(tr("Open"));
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
 			action->setData(ADR_STREAM_JID,streamJid.full());
 			action->setData(ADR_CONTACT_JID,contactJid.full());
@@ -1057,8 +1162,17 @@ void ChatMessageHandler::onPresenceAdded(IPresence *APresence)
 void ChatMessageHandler::onPresenceOpened(IPresence *APresence)
 {
 	foreach(IChatWindow *window, FWindows)
+	{
 		if (window->streamJid() == APresence->streamJid())
+		{
 			sendOfflineMessages(window);
+			if (FRamblerHistory && FRamblerHistory->isSupported(window->streamJid()))
+			{
+				clearWindow(window);
+				requestHistoryMessages(window,HISTORY_MESSAGES_COUNT);
+			}
+		}
+	}
 }
 
 void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
@@ -1073,7 +1187,7 @@ void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenc
 		{
 			if (!fullWindow)
 				bareWindow->setContactJid(AItem.itemJid);
-			else
+			else if (FWindowStatus.value(bareWindow).notified.isEmpty())
 				bareWindow->instance()->deleteLater();
 		}
 
@@ -1125,12 +1239,12 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
-			Jid contsctJid = "vasilisa@rambler/virtus";
+			Jid contsctJid = "vasilisa@rambler/ramblercontacts";
 			notify.data.insert(NDR_STREAM_JID,contsctJid.full());
 			notify.data.insert(NDR_CONTACT_JID,contsctJid.full());
 			notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
 			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-			notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
+			notify.data.insert(NDR_POPUP_ICON, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE));
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on www.rambler.ru :)"));
@@ -1153,9 +1267,30 @@ void ChatMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, cons
 		IChatWindow *window = FHistoryRequests.take(AId);
 		if (FWindows.contains(window))
 		{
-			for (int i=0; i<AMessages.messages.count(); i++)
+			QList<Message> historyMessages = AMessages.messages;
+
+			bool found = false;
+			WindowStatus &wstatus = FWindowStatus[window];
+			while (!wstatus.pending.isEmpty() && !historyMessages.isEmpty())
 			{
-				Message message = AMessages.messages.at(i);
+				Message pMessage = wstatus.pending.takeLast();
+				if (Jid(pMessage.to()).pBare() == Jid(historyMessages.last().to()).pBare() &&
+					pMessage.body() == historyMessages.last().body() &&
+					qAbs(pMessage.dateTime().secsTo(historyMessages.last().dateTime()))<=3*60)
+				{
+					found = true;
+					historyMessages.removeLast();
+				}
+				else if (found)
+				{
+					wstatus.pending.clear();
+				}
+			}
+			wstatus.pending.clear();
+
+			for (int i=0; i<historyMessages.count(); i++)
+			{
+				Message message = historyMessages.at(i);
 				showStyledMessage(window,message);
 			}
 
@@ -1175,18 +1310,15 @@ void ChatMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, cons
 
 void ChatMessageHandler::onRamblerHistoryRequestFailed(const QString &AId, const QString &AError)
 {
+	Log(QString("[Rambler history error] %1").arg(AError));
 	if (FHistoryRequests.contains(AId))
 	{
 		IChatWindow *window = FHistoryRequests.take(AId);
 		if (FWindows.contains(window))
 		{
-			IMessageContentOptions options;
-			options.kind = IMessageContentOptions::Status;
-			options.type |= IMessageContentOptions::Event;
-			options.direction = IMessageContentOptions::DirectionIn;
-			options.time = QDateTime::currentDateTime();
-			window->viewWidget()->changeContentText(tr("Failed to load history messages from server: %1").arg(AError),options);
-			showHistoryLinks(window,HLS_FINISHED);
+			WindowStatus &wstatus = FWindowStatus[window];
+			wstatus.pending.clear();
+			showHistoryLinks(window,HLS_FAILED);
 		}
 	}
 }

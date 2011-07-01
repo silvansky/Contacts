@@ -8,4 +8,8 @@
     <key>mainwindowNoticeWidget</key>
     <object mime='text/css'>mainwindownoticewidget.qss</object>
   </file>
+  <file>
+    <key>mainwindowNoticeCloseButton</key>
+    <object mime='text/css'>mainwindownoticeclosebutton.qss</object>
+  </file>
 </styledef>

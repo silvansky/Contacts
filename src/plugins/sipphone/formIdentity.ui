@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Настройка идентификации</string>
+   <string>Registration Settings</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
@@ -68,7 +68,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Полное имя:</string>
+    <string>Full name:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -81,7 +81,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Часть имени в SIP адресе:</string>
+    <string>SIP Login:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
@@ -94,7 +94,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Часть имени хоста в SIP адресе:</string>
+    <string>SIP Host:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
@@ -107,7 +107,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Прокся:</string>
+    <string>Proxy:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_5">
@@ -120,7 +120,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Имя для регистрации:</string>
+    <string>Registration name:</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="fullname">
@@ -183,7 +183,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Авторегистрация</string>
+    <string>Autoregistration</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="password">
@@ -206,7 +206,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Пароль:</string>
+    <string>Password:</string>
    </property>
   </widget>
   <widget class="QPushButton" name="buttonRegister">
@@ -219,7 +219,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Регистрация</string>
+    <string>Registration</string>
    </property>
   </widget>
   <widget class="QLabel" name="labelRegister">
@@ -232,7 +232,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string notr="true">labelRegister</string>
    </property>
   </widget>
  </widget>

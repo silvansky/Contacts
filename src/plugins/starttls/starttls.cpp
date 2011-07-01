@@ -1,5 +1,7 @@
 #include "starttls.h"
 
+#include <utils/log.h>
+
 StartTLS::StartTLS(IXmppStream *AXmppStream) : QObject(AXmppStream->instance())
 {
 	FConnection = NULL;
@@ -24,10 +26,12 @@ bool StartTLS::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 		}
 		else if (AStanza.tagName() == "failure")
 		{
+			Log(QString("[StartTLS stanza failure] %1").arg(tr("StartTLS negotiation failed")));
 			emit error(tr("StartTLS negotiation failed"));
 		}
 		else
 		{
+			Log(QString("[StartTLS stanza error] %1").arg(tr("Wrong StartTLS negotiation response")));
 			emit error(tr("Wrong StartTLS negotiation response"));
 		}
 		return true;

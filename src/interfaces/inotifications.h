@@ -21,8 +21,12 @@ struct INotification
 		TabPage       = 0x40,
 		TestNotify    = 0x80
 	};
-	INotification() { kinds = 0; }
+	INotification() { 
+		kinds = 0; 
+		removeInvisible = true;
+	}
 	uchar kinds;
+	bool removeInvisible;
 	QString notificatior;
 	QList<Action *> actions;
 	QMap<int, QVariant> data;

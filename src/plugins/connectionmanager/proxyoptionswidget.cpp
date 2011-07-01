@@ -1,6 +1,5 @@
 #include "proxyoptionswidget.h"
-
-#define MANUAL_PROXY_REF_UUID "{5acc925d-9729-4997-9fbd-0771554bf94d}"
+#include <QIntValidator>
 
 ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode ANode, QWidget *AParent) : QWidget(AParent)
 {
@@ -10,8 +9,13 @@ ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode
 	ui.lneProxyPassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneProxyUser->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+	ui.gbManualProxySettings->setEnabled(false);
+
 	FManager = AManager;
 	FConnectionNode = ANode;
+
+	ui.spbProxyPort->setVisible(false);
+	ui.lneProxyPort->setValidator(new QIntValidator(1, 65535, ui.lneProxyPort));
 
 	connect(ui.rdbAutoProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.rdbExplorerProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
@@ -19,6 +23,7 @@ ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode
 	connect(ui.rdbManualProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.lneProxyHost,SIGNAL(textChanged(const QString &)),SIGNAL(modified()));
 	connect(ui.spbProxyPort,SIGNAL(valueChanged(int)),SIGNAL(modified()));
+	connect(ui.lneProxyPort,SIGNAL(textChanged(const QString&)),SIGNAL(modified()));
 	connect(ui.chbProxyUserPassword,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.lneProxyUser,SIGNAL(textChanged(const QString &)),SIGNAL(modified()));
 	connect(ui.lneProxyPassword,SIGNAL(textChanged(const QString &)),SIGNAL(modified()));
@@ -41,7 +46,8 @@ void ProxyOptionsWidget::apply()
 	proxy.name = tr("Manual Proxy");
 	proxy.proxy.setType(QNetworkProxy::HttpProxy);
 	proxy.proxy.setHostName(ui.lneProxyHost->text());
-	proxy.proxy.setPort(ui.spbProxyPort->value());
+	//proxy.proxy.setPort(ui.spbProxyPort->value());
+	proxy.proxy.setPort(ui.lneProxyPort->text().toInt());
 	proxy.proxy.setUser(ui.chbProxyUserPassword->isChecked() ? ui.lneProxyUser->text() : QString::null);
 	proxy.proxy.setPassword(ui.chbProxyUserPassword->isChecked() ? ui.lneProxyPassword->text() : QString::null);
 	FManager->setProxy(MANUAL_PROXY_REF_UUID, proxy);
@@ -68,6 +74,7 @@ void ProxyOptionsWidget::reset()
 	IConnectionProxy proxy = FManager->proxyById(MANUAL_PROXY_REF_UUID);
 	ui.lneProxyHost->setText(proxy.proxy.hostName());
 	ui.spbProxyPort->setValue(proxy.proxy.port());
+	ui.lneProxyPort->setText(QString::number(proxy.proxy.port()));
 	ui.lneProxyUser->setText(proxy.proxy.user());
 	ui.lneProxyPassword->setText(proxy.proxy.password());
 	ui.chbProxyUserPassword->setChecked(!ui.lneProxyUser->text().isEmpty());

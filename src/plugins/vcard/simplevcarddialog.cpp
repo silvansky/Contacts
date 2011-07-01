@@ -1,12 +1,14 @@
 #include "simplevcarddialog.h"
 #include "ui_simplevcarddialog.h"
-#include <QMessageBox>
-#include <QInputDialog>
-#include <utils/customborderstorage.h>
-#include <definitions/resources.h>
-#include <definitions/customborder.h>
+#include <QUrl>
+#include <QDesktopServices>
+#include <utils/custominputdialog.h>
 
-SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars, IStatusIcons *AStatusIcons, IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin, IRosterChanger *ARosterChanger, const Jid &AStreamJid, const Jid &AContactJid) :
+SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars,
+				     IStatusIcons *AStatusIcons, IStatusChanger * AStatusChanger,
+				     IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin,
+				     IRosterChanger *ARosterChanger,
+				     const Jid &AStreamJid, const Jid &AContactJid) :
 		ui(new Ui::SimpleVCardDialog)
 {
 	ui->setupUi(this);
@@ -15,8 +17,10 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 
 	FContactJid = AContactJid;
 	FStreamJid = AStreamJid;
+
 	FAvatars = AAvatars;
 	FStatusIcons = AStatusIcons;
+	FStatusChanger = AStatusChanger;
 	FRosterChanger = ARosterChanger;
 
 	FPresence = APresencePlugin->getPresence(FStreamJid);
@@ -43,6 +47,7 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 
 SimpleVCardDialog::~SimpleVCardDialog()
 {
+	FVCard->unlock();
 	delete ui;
 }
 
@@ -64,14 +69,17 @@ void SimpleVCardDialog::updateDialog()
 		ui->name->setText(FVCard->value(VVN_FULL_NAME).isEmpty() ? FContactJid.bare() : FVCard->value(VVN_FULL_NAME));
 	setWindowTitle(tr("Profile: %1").arg(ui->name->text()));
 
-	ui->jid->setText(FContactJid.bare());
+	if (FAvatars)
+		FAvatars->insertAutoAvatar(ui->avatarLabel, FContactJid, QSize(48, 48), "pixmap");
+	else
+		ui->avatarLabel->clear();
 
-	FAvatars->insertAutoAvatar(ui->avatarLabel, FContactJid, QSize(100, 100), "pixmap");
-
-	IPresenceItem presence = FPresence->presenceItems(FContactJid).value(0);
+	IPresenceItem presence = FPresence!=NULL ? FPresence->presenceItems(FContactJid).value(0) : IPresenceItem();
 	ui->mood->setText(FRosterItem.isValid ? presence.status : tr("Not in contact list"));
-	ui->fullName->setText(FVCard->value(VVN_FULL_NAME));
-	ui->status->setPixmap(FStatusIcons->iconByJidStatus(FContactJid, presence.show, SUBSCRIPTION_BOTH, false).pixmap(100));
+	if (FStatusIcons)
+		ui->status->setPixmap(FStatusIcons->iconByJidStatus(FContactJid, presence.show, SUBSCRIPTION_BOTH, false).pixmap(100));
+	if (FStatusChanger)
+		ui->statusText->setText(FStatusChanger->nameByShow(presence.show));
 
 	QDate birthday = QDate::fromString(FVCard->value(VVN_BIRTHDAY),Qt::ISODate);
 	if (!birthday.isValid())
@@ -79,12 +87,15 @@ void SimpleVCardDialog::updateDialog()
 	QString birthdayString = birthday.isValid() ? birthday.toString(Qt::SystemLocaleLongDate) : "<font color=grey>" + tr("not assigned") + "</font>";
 	ui->birthDateLabel->setText(birthdayString);
 
+	// Временно скрываем комментарии из-за возможных проблем отображения
+	/*
 	QString remarkString = FVCard->value(VVN_DESCRIPTION);
 	if (!remarkString.isEmpty())
 	{
 		ui->remarkLabel->setText(remarkString);
 	}
 	else
+	*/
 	{
 		ui->remarkCaption->setVisible(false);
 		ui->remarkLabel->setVisible(false);
@@ -102,7 +113,12 @@ void SimpleVCardDialog::onVCardUpdated()
 
 void SimpleVCardDialog::onVCardError(const QString &AError)
 {
-	QMessageBox::critical(this, tr("vCard error"), tr("vCard request failed.<br>%1").arg(AError));
+	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+	dialog->setCaptionText(tr("vCard error"));
+	dialog->setInfoText(tr("vCard request failed.<br>%1").arg(AError));
+	dialog->setAcceptButtonText(tr("Ok"));
+	dialog->setDeleteOnClose(true);
+	dialog->show();
 }
 
 void SimpleVCardDialog::onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore)
@@ -116,30 +132,13 @@ void SimpleVCardDialog::onRosterItemReceived(const IRosterItem &AItem, const IRo
 void SimpleVCardDialog::on_renameButton_clicked()
 {
 	QString oldName = FRoster->rosterItem(FContactJid).name;
-	QInputDialog * dialog = new QInputDialog;
-	dialog->setStyleSheet(styleSheet());
-	dialog->setTextValue(oldName);
-	dialog->setWindowTitle(tr("Contact name"));
-	dialog->setLabelText(tr("Enter name for contact"));
-	connect(dialog, SIGNAL(textValueSelected(const QString&)), SLOT(onNewNameSelected(const QString&)));
-	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-	if (border)
-	{
-		border->setMinimizeButtonVisible(false);
-		border->setMaximizeButtonVisible(false);
-		border->setResizable(false);
-		border->setWindowModality(Qt::ApplicationModal);
-		border->setAttribute(Qt::WA_DeleteOnClose, true);
-		connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-		connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-		connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-		border->show();
-	}
-	else
-	{
-		dialog->setWindowModality(Qt::ApplicationModal);
-		dialog->show();
-	}
+	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::String);
+	dialog->setDefaultText(oldName);
+	dialog->setCaptionText(tr("Rename contact"));
+	dialog->setInfoText(tr("Enter new name"));
+	connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewNameSelected(const QString&)));
+	dialog->setDeleteOnClose(true);
+	dialog->show();
 }
 
 void SimpleVCardDialog::on_addToRosterButton_clicked()
@@ -166,4 +165,9 @@ void SimpleVCardDialog::onNewNameSelected(const QString & newName)
 		FRoster->renameItem(FContactJid, newName);
 		FRosterItem = FRoster->rosterItem(FContactJid);
 	}
+}
+
+void SimpleVCardDialog::on_editOnline_clicked()
+{
+	QDesktopServices::openUrl(QUrl("http://id.rambler.ru/script/settings.cgi"));
 }

@@ -5,11 +5,11 @@
     <name>StanzaProcessor</name>
     <message>
         <source>Stanza Manager</source>
-        <translation>Диспетчер XMPP строф</translation>
+        <translation>Диспетчер XMPP-станз</translation>
     </message>
     <message>
         <source>Allows other modules to send and receive XMPP stanzas</source>
-        <translation>Позволяет другим модулям отправлять и получать XMPP строфы</translation>
+        <translation>Позволяет другим модулям отправлять и получать XMPP-станзы</translation>
     </message>
 </context>
 </TS>

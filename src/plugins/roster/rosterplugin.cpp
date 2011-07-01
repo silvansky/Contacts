@@ -22,7 +22,7 @@ void RosterPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to get information about contacts in the roster");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
@@ -129,7 +129,7 @@ void RosterPlugin::notifyContactAdded(IRoster *ARoster, const IRosterItem &AItem
 			notify.notificatior = NID_CONTACT_ADDED;
 			notify.data.insert(NDR_STREAM_JID, ARoster->streamJid().full());
 			notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
-			notify.data.insert(NDR_POPUP_CAPTION,tr("Added to the contacts list"));
+			notify.data.insert(NDR_POPUP_NOTICE,tr("Added to the contacts list"));
 			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
 			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(ARoster->streamJid(),AItem.itemJid));
 			notify.data.insert(NDR_SOUND_FILE, SDF_ROSTER_CONTACT_ADDED);
@@ -150,8 +150,8 @@ void RosterPlugin::onRosterItemReceived(const IRosterItem &AItem, const IRosterI
 	Roster *roster = qobject_cast<Roster *>(sender());
 	if (roster)
 	{
-		if (AItem.subscription!=SUBSCRIPTION_REMOVE && !ABefore.isValid)
-			notifyContactAdded(roster,AItem);
+		//if (AItem.subscription!=SUBSCRIPTION_REMOVE && !ABefore.isValid)
+		//	notifyContactAdded(roster,AItem);
 		emit rosterItemReceived(roster,AItem,ABefore);
 	}
 }

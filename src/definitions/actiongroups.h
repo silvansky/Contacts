@@ -29,7 +29,6 @@
 #define AG_RVCM_ROSTERSVIEW_GROUP_STATE                         200
 #define AG_RVCM_METACONTACTS_MERGECONTACTS                      200
 #define AG_RVCM_STATUSCHANGER                                   300
-#define AG_RVCM_ROSTERCHANGER_GROUP                             300
 #define AG_RVCM_METACONTACTS_RELEASE                            300
 #define AG_RVCM_GATEWAYS_ADD_LEGACY_USER                        300
 #define AG_RVCM_GATEWAYS_LOGIN                                  350
@@ -45,8 +44,9 @@
 #define AG_RVCM_ANNOTATIONS                                     500
 #define AG_RVCM_ARCHIVER                                        500
 #define AG_RVCM_ROSTERSVIEW_GROUPS_STATE                        500
-#define AG_RVCM_ROSTERSVIEW_CLIPBOARD                           600
+#define AG_RVCM_ROSTERCHANGER_GROUP                             600
 #define AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT                    600
+#define AG_RVCM_ROSTERSVIEW_CLIPBOARD                           600
 #define AG_RVCM_ROSTERCHANGER_RENAME                            600
 #define AG_RVCM_VCARD                                           700
 
@@ -76,6 +76,7 @@
 #define AG_MWTW_MWIDGETS_WINDOW_OPTIONS                         800
 
 //MetaContact - ItemContextMenu
+#define AG_MCICM_AUTHORIZATION                                  400
 #define AG_MCICM_ITEM_ACTIONS                                   500
 
 //MultiuserChat - MultiUserContextMenu
@@ -100,8 +101,13 @@
 
 //ViewWidget - ContextMenu
 #define AG_VWCM_MESSAGEWIDGETS_URL                              300
+#define AG_VWCM_ROSTERCHANGER_ADD_CONTACT                       300
 #define AG_VWCM_MESSAGEWIDGETS_COPY                             500
 #define AG_VWCM_MESSAGEWIDGETS_QUOTE                            500
 #define AG_VWCM_MESSAGEWIDGETS_SEARCH                           700
+
+//SipPhone - Contact Menu
+#define AG_PHONECM_BASECONTACT                                  300
+
 
 #endif

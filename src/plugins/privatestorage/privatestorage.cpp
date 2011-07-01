@@ -1,6 +1,7 @@
 #include "privatestorage.h"
 
 #include <QCryptographicHash>
+#include <utils/log.h>
 
 #define PRIVATE_STORAGE_TIMEOUT       30000
 
@@ -21,7 +22,7 @@ void PrivateStorage::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to store arbitrary data on a server");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 
@@ -51,6 +52,7 @@ void PrivateStorage::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 		FLoadRequests.remove(AStanza.id());
 		FRemoveRequests.remove(AStanza.id());
 		ErrorHandler err(AStanza.element());
+		Log(QString("[Private storage stanza error] %1 : id %2 mess %3").arg(AStreamJid.full(), AStanza.id(), err.message()));
 		emit dataError(AStanza.id(),err.message());
 	}
 	else if (FSaveRequests.contains(AStanza.id()))
@@ -79,6 +81,7 @@ void PrivateStorage::stanzaRequestTimeout(const Jid &AStreamJid, const QString &
 	FLoadRequests.remove(AStanzaId);
 	FRemoveRequests.remove(AStanzaId);
 	ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+	Log(QString("[Private storage request timeout] %1 : %2").arg(AStanzaId, err.message()));
 	emit dataError(AStanzaId,err.message());
 }
 

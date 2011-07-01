@@ -2,8 +2,10 @@
 
 #include <QVariant>
 #include <QTextCursor>
+#include <utils/log.h>
 
 #define SHC_MESSAGE         "/message"
+#define MAIL_NODE_PATTERN   "[a-zA-Z0-9_\\-\\.]+"
 
 MessageProcessor::MessageProcessor()
 {
@@ -23,7 +25,7 @@ void MessageProcessor::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows other modules to send and receive messages");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
@@ -98,14 +100,34 @@ void MessageProcessor::writeText(int AOrder, Message &AMessage, QTextDocument *A
 	}
 	else if (AOrder == MWO_MESSAGEPROCESSOR_ANCHORS)
 	{
-		QRegExp regexp("\\b((https?|ftp)://|mailto:|www.|xmpp:)[\\w\\d/\\?.=:@&%#_;\\(\\)\\+\\-\\~\\*\\,]+");
-		regexp.setCaseSensitivity(Qt::CaseInsensitive);
-		for (QTextCursor cursor = ADocument->find(regexp); !cursor.isNull();  cursor = ADocument->find(regexp,cursor))
+		QRegExp href("\\b((https?|ftp)://|mailto:|www.|xmpp:)\\S+");
+		href.setCaseSensitivity(Qt::CaseInsensitive);
+		for (QTextCursor cursor = ADocument->find(href); !cursor.isNull();  cursor = ADocument->find(href,cursor))
 		{
-			QTextCharFormat linkFormat = cursor.charFormat();
-			linkFormat.setAnchor(true);
-			linkFormat.setAnchorHref(cursor.selectedText());
-			cursor.setCharFormat(linkFormat);
+			if (!cursor.charFormat().isAnchor())
+			{
+				QTextCharFormat linkFormat = cursor.charFormat();
+				linkFormat.setAnchor(true);
+				QUrl url = cursor.selectedText();
+				if (url.scheme().isEmpty())
+					linkFormat.setAnchorHref("http://"+url.toString());
+				else
+					linkFormat.setAnchorHref(url.toString());
+				cursor.setCharFormat(linkFormat);
+			}
+		}
+
+		QRegExp mail("\\b"MAIL_NODE_PATTERN"@"JID_DOMAIN_PATTERN);
+		mail.setCaseSensitivity(Qt::CaseInsensitive);
+		for (QTextCursor cursor = ADocument->find(mail); !cursor.isNull();  cursor = ADocument->find(mail,cursor))
+		{
+			if (!cursor.charFormat().isAnchor())
+			{
+				QTextCharFormat linkFormat = cursor.charFormat();
+				linkFormat.setAnchor(true);
+				linkFormat.setAnchorHref("mailto:"+cursor.selectedText());
+				cursor.setCharFormat(linkFormat);
+			}
 		}
 	}
 }
@@ -148,6 +170,7 @@ bool MessageProcessor::sendMessage(const Jid &AStreamJid, const Message &AMessag
 		emit messageSent(message);
 		return true;
 	}
+	Log(QString("[MessageProcessor send message error] Failed to send message with stanza:\n%1").arg(message.stanza().toString()));
 	return false;
 }
 
@@ -355,30 +378,17 @@ void MessageProcessor::onStreamOpened(IXmppStream *AXmppStream)
 
 void MessageProcessor::onStreamJidAboutToBeChanged(IXmppStream *AXmppStream, const Jid &AAfter)
 {
-	if (AAfter && AXmppStream->streamJid())
-	{
-		QMap<int,Message>::iterator it = FMessages.begin();
-		while (it != FMessages.end())
-		{
-			if (AXmppStream->streamJid() == it.value().to())
-			{
-				unNotifyMessage(it.key());
-				it.value().setTo(AAfter.eFull());
-			}
-			it++;
-		}
-	}
-	else
+	if (!(AAfter && AXmppStream->streamJid()))
 		removeStreamMessages(AXmppStream->streamJid());
 }
 
-void MessageProcessor::onStreamJidChanged(IXmppStream *AXmppStream, const Jid &/*ABefour*/)
+void MessageProcessor::onStreamJidChanged(IXmppStream *AXmppStream, const Jid &ABefour)
 {
 	QMap<int,Message>::iterator it = FMessages.begin();
 	while (it != FMessages.end())
 	{
-		if (AXmppStream->streamJid() == it.value().to())
-			notifyMessage(it.key());
+		if (ABefour == it.value().to())
+			it.value().setTo(AXmppStream->streamJid().eFull());
 		it++;
 	}
 }

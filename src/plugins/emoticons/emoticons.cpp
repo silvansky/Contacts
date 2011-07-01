@@ -9,6 +9,7 @@
 
 class EmoticonsContainer : public QWidget
 {
+	Q_OBJECT
 public:
 	EmoticonsContainer(IEditWidget *AParent) : QWidget(AParent->instance())
 	{
@@ -26,11 +27,12 @@ public:
 		{
 			QPushButton *button = new QPushButton(this);
 			button->setObjectName("emoticonsButton");
-			button->setMenu(AMenu);
+			button->setToolTip(tr("Add emoticon"));
+			//connect(AMenu, SIGNAL(aboutToShow()), SLOT(onMenuAboutToShow()));
+			//connect(AMenu, SIGNAL(aboutToHide()), SLOT(onMenuAboutToHide()));
+			connect(button, SIGNAL(clicked()), SLOT(onShowEmoticonsMenuButtonClicked()));
 			button->setFlat(true);
-//			if (AMenu->iconStorage())
-//				AMenu->iconStorage()->insertAutoIcon(button,AMenu->iconStorage()->fileKeys().value(0));
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(button, MNI_EMOTICONS_BUTTON_ICON);
+			//IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(button, MNI_EMOTICONS_BUTTON_ICON);
 			FWidgets.insert(AMenu,button);
 			layout()->addWidget(button);
 		}
@@ -40,6 +42,41 @@ public:
 		if (FWidgets.contains(AMenu))
 		{
 			delete FWidgets.take(AMenu);
+		}
+	}
+protected slots:
+	void onShowEmoticonsMenuButtonClicked()
+	{
+		QPushButton * button = qobject_cast<QPushButton*>(sender());
+		if (button)
+		{
+			SelectIconMenu * menu = FWidgets.key(button, NULL);
+			if (menu)
+			{
+				menu->showMenu(button->mapToGlobal(QPoint(button->geometry().width(), 0)), Menu::TopLeft);
+			}
+		}
+	}
+	void onMenuAboutToShow()
+	{
+		SelectIconMenu * menu = qobject_cast<SelectIconMenu*>(sender());
+		QPushButton * button = FWidgets.value(menu, NULL);
+		if (button)
+		{
+			//button->setEnabled(false);
+			button->setProperty("isDown", true);
+			StyleStorage::updateStyle(this);
+		}
+	}
+	void onMenuAboutToHide()
+	{
+		SelectIconMenu * menu = qobject_cast<SelectIconMenu*>(sender());
+		QPushButton * button = FWidgets.value(menu, NULL);
+		if (button)
+		{
+			//button->setEnabled(true);
+			button->setProperty("isDown", false);
+			StyleStorage::updateStyle(this);
 		}
 	}
 private:
@@ -65,7 +102,7 @@ void Emoticons::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to use your smiley images in messages");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 }
 
@@ -559,3 +596,5 @@ void Emoticons::onOptionsChanged(const OptionsNode &ANode)
 }
 
 Q_EXPORT_PLUGIN2(plg_emoticons, Emoticons)
+
+#include "emoticons.moc"

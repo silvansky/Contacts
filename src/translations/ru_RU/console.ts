@@ -5,7 +5,7 @@
     <name>ConsolePlugin</name>
     <message>
         <source>XML Console</source>
-        <translation>XML Консоль</translation>
+        <translation>XML консоль</translation>
     </message>
     <message>
         <source>Console</source>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Allows to view XML stream between the client and server</source>
-        <translation>Позволяет просматривать XML поток чежду клиентом и сервером</translation>
+        <translation>Позволяет просматривать XML поток между клиентом и сервером</translation>
     </message>
     <message>
         <source>Default Context</source>
@@ -28,11 +28,11 @@
     </message>
     <message>
         <source>XML Console - %1</source>
-        <translation>XML Консоль - %1</translation>
+        <translation>XML консоль - %1</translation>
     </message>
     <message>
         <source>Start sending user stanza...</source>
-        <translation>Ночало отправки станзы пользователя...</translation>
+        <translation>Начало отправки станзы пользователя...</translation>
     </message>
     <message>
         <source>User stanza sended.</source>
@@ -40,11 +40,11 @@
     </message>
     <message>
         <source>Stanza is not well formed.</source>
-        <translation>Станза не верно сформирована.</translation>
+        <translation>Станза неверно сформирована.</translation>
     </message>
     <message>
         <source>XML is not well formed.</source>
-        <translation>XML не верно сформирован.</translation>
+        <translation>XML неверно сформирован.</translation>
     </message>
     <message>
         <source>New Context</source>
@@ -54,12 +54,20 @@
         <source>Enter context name</source>
         <translation>Введите имя контекста</translation>
     </message>
+    <message>
+        <source>Start receiving user stanza...</source>
+        <translation>Начало получения станзы пользователя...</translation>
+    </message>
+    <message>
+        <source>User stanza received.</source>
+        <translation>Станза пользователя получена.</translation>
+    </message>
 </context>
 <context>
     <name>ConsoleWidgetClass</name>
     <message>
         <source>XML Console</source>
-        <translation>XML Консоль</translation>
+        <translation>XML консоль</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -87,7 +95,7 @@
     </message>
     <message>
         <source>Available context:</source>
-        <translation>Сохраненный контекст:</translation>
+        <translation>Сохранённый контекст:</translation>
     </message>
     <message>
         <source>Console</source>
@@ -104,6 +112,10 @@
     <message>
         <source>Hilight XML</source>
         <translation>Подсвечивать XML</translation>
+    </message>
+    <message>
+        <source>Receive</source>
+        <translation>Получить</translation>
     </message>
 </context>
 </TS>

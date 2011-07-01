@@ -10,9 +10,6 @@
     <height>235</height>
    </rect>
   </property>
-  <property name="autoFillBackground">
-   <bool>true</bool>
-  </property>
   <layout class="QVBoxLayout">
    <property name="margin">
     <number>2</number>

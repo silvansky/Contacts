@@ -17,7 +17,7 @@
     </message>
     <message>
         <source>Allows to send messagesages to multiple users</source>
-        <translation>Разрешить отправлять сообщения нескольким пользователям</translation>
+        <translation>Позволяет отправлять сообщения нескольким пользователям</translation>
     </message>
     <message>
         <source>Mass send</source>

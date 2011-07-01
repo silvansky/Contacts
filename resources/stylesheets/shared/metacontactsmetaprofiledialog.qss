@@ -1,0 +1,17 @@
+QLabel#lblCaption
+{
+	font-size: 18px;
+	/*margin-bottom: 5px;*/
+} 
+
+QLabel#lblStatusText, QLabel#lblBirthdayPostcard
+{
+	color: #acacac;
+}
+
+QScrollArea#scaContacts,
+QScrollArea#scaContacts QWidget,
+QFrame#contentsFrame
+{
+	background-color: transparent;
+}

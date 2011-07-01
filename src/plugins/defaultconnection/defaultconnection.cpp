@@ -61,8 +61,9 @@ bool DefaultConnection::connectToHost()
 		QString host = option(IDefaultConnection::COR_HOST).toString();
 		quint16 port = option(IDefaultConnection::COR_PORT).toInt();
 		QString domain = option(IDefaultConnection::COR_DOMAINE).toString();
-		FSSLConnection = option(IDefaultConnection::COR_USE_SSL).toBool();
+		FSSLConnection = true; //option(IDefaultConnection::COR_USE_SSL).toBool();
 		FIgnoreSSLErrors = option(IDefaultConnection::COR_IGNORE_SSL_ERRORS).toBool();
+		FChangeProxyType = option(IDefaultConnection::COR_CHANGE_PROXY_TYPE).toBool();
 
 		QJDns::Record record;
 		record.name = !host.isEmpty() ? host.toLatin1() : domain.toLatin1();
@@ -209,11 +210,26 @@ void DefaultConnection::connectToNextHost()
 		while (record.name.endsWith('.'))
 			record.name.chop(1);
 
-		if (FSSLConnection)
-			FSocket.connectToHostEncrypted(record.name, record.port);
-		else
-			FSocket.connectToHost(record.name, record.port);
+		if (FChangeProxyType && FSocket.proxy().type()!=QNetworkProxy::NoProxy)
+		{
+			QNetworkProxy httpProxy = FSocket.proxy();
+			httpProxy.setType(QNetworkProxy::HttpProxy);
+			FSocket.setProxy(httpProxy);
+		}
+
+		connectSocketToHost(record.name,5223/*record.port*/);
 	}
+}
+
+void DefaultConnection::connectSocketToHost(const QString &AHost, quint16 APort)
+{
+	FHost = AHost;
+	FPort = APort;
+
+	if (FSSLConnection)
+		FSocket.connectToHostEncrypted(FHost, FPort);
+	else
+		FSocket.connectToHost(FHost, FPort);
 }
 
 void DefaultConnection::setError(const QString &AError)
@@ -229,7 +245,7 @@ void DefaultConnection::onDnsResultsReady(int AId, const QJDns::Response &AResul
 	{
 		if (!AResults.answerRecords.isEmpty())
 		{
-			FSSLConnection = false;
+			//FSSLConnection = false;
 			FRecords = AResults.answerRecords;
 		}
 		FDns.shutdown();
@@ -238,11 +254,10 @@ void DefaultConnection::onDnsResultsReady(int AId, const QJDns::Response &AResul
 
 void DefaultConnection::onDnsError(int AId, QJDns::Error AError)
 {
-	Q_UNUSED(AError);
 	if (FSrvQueryId == AId)
 	{
 		FDns.shutdown();
-		Log(QString("[DefaultConnection error]: %1").arg("QJDns error"));
+		Log(QString("[DefaultConnection error]: %1 %2").arg("QJDns error").arg(AError));
 	}
 }
 
@@ -299,7 +314,14 @@ void DefaultConnection::onSocketSSLErrors(const QList<QSslError> &AErrors)
 
 void DefaultConnection::onSocketError(QAbstractSocket::SocketError)
 {
-	if (FRecords.isEmpty())
+	if (FChangeProxyType && FSocket.proxy().type()==QNetworkProxy::HttpProxy)
+	{
+		QNetworkProxy socksProxy = FSocket.proxy();
+		socksProxy.setType(QNetworkProxy::Socks5Proxy);
+		FSocket.setProxy(socksProxy);
+		connectSocketToHost(FHost,FPort);
+	}
+	else if (FRecords.isEmpty())
 	{
 		if (FSocket.state()!=QSslSocket::ConnectedState || FSSLError)
 		{
@@ -310,7 +332,9 @@ void DefaultConnection::onSocketError(QAbstractSocket::SocketError)
 			setError(FSocket.errorString());
 	}
 	else
+	{
 		connectToNextHost();
+	}
 }
 
 void DefaultConnection::onSocketDisconnected()

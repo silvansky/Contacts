@@ -5,7 +5,6 @@
 #include <QScrollBar>
 #include <QHBoxLayout>
 #include <QDebug>
-#include <QDebug>
 
 ViewWidget::ViewWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid)
 {

@@ -19,6 +19,13 @@ struct IPresenceItem {
 	int show;
 	int priority;
 	QString status;
+	QString errCondition;
+	bool operator==(const IPresenceItem &AOther) const {
+		return itemJid==AOther.itemJid && show==AOther.show && priority==AOther.priority && status==AOther.status;
+	}
+	bool operator!=(const IPresenceItem &AOther) const {
+		return !operator==(AOther);
+	}
 };
 
 class IPresence
@@ -45,6 +52,7 @@ public:
 	virtual bool setStatus(const QString &AStatus) =0;
 	virtual int priority() const =0;
 	virtual bool setPriority(int APriority) =0;
+	virtual QString errCondition() const =0;
 	virtual bool setPresence(int AShow, const QString &AStatus, int APriority) =0;
 	virtual bool sendPresence(const Jid &AContactJid, int AShow, const QString &AStatus, int APriority) =0;
 	virtual IPresenceItem presenceItem(const Jid &AItemJid) const =0;

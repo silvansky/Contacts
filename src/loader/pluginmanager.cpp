@@ -3,14 +3,22 @@
 #include <QDir>
 #include <QTimer>
 #include <QStack>
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
 #include <QProcess>
 #include <QLibrary>
 #include <QFileInfo>
 #include <QSettings>
+#include <QMessageBox>
+#include <QFontDatabase>
 #include <utils/log.h>
+#include <definitions/resources.h>
+#include <definitions/fonts.h>
+#include <interfaces/imainwindow.h>
 
 #define ORGANIZATION_NAME           "Rambler"
-#define APPLICATION_NAME            "Virtus"
+#define APPLICATION_NAME            "Contacts"
 
 #define FILE_PLUGINS_SETTINGS       "plugins.xml"
 
@@ -31,7 +39,7 @@
 #  define PATH_APP_DATA             ORGANIZATION_NAME"/"DIR_APP_DATA
 #elif defined(Q_WS_X11)
 #  define ENV_APP_DATA              "HOME"
-#  define DIR_APP_DATA              ".virtus"
+#  define DIR_APP_DATA              ".ramblercontacts"
 #  define PATH_APP_DATA             DIR_APP_DATA
 #elif defined(Q_WS_MAC)
 #  define ENV_APP_DATA              "HOME"
@@ -45,42 +53,19 @@
 #  define LIB_PREFIX_SIZE           3
 #endif
 
-//void startProcess(QString appName, QString appDir, QStringList args);
 
 PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 {
+	FQuitStarted = false;
 	FQtTranslator = new QTranslator(this);
 	FUtilsTranslator = new QTranslator(this);
 	FLoaderTranslator = new QTranslator(this);
 	connect(AParent,SIGNAL(aboutToQuit()),SLOT(onApplicationAboutToQuit()));
 	connect(AParent,SIGNAL(commitDataRequest(QSessionManager &)),SLOT(onApplicationCommitDataRequested(QSessionManager &)));
-
-	FUpdater = new Updater(this);
-	connect(FUpdater, SIGNAL(forceUpdate()), this, SLOT(forceUpdate()));
-	updateme = false;
 }
 
 PluginManager::~PluginManager()
 {
-	if(updateme)
-	{
-		QString uFileName = FUpdater->getUpdateFilename();
-		//uFileName = "virtus.zip";
-		// Запускаем сторонний процесс по обновлению файлов
-		QStringList args;
-		args << qApp->applicationDirPath();
-		args << "virtus.exe";
-		args << uFileName;
-
-		//startProcess("UpdateVirtus.exe", qApp->applicationDirPath() + "/update/", args);
-
-		QString updatePath = QDir::tempPath() + "\\virtus\\update\\";
-		QProcess* updateProcess = new QProcess();
-		//updateProcess->setWorkingDirectory(qApp->applicationDirPath() + "/update");
-		//updateProcess->startDetached(qApp->applicationDirPath() + "/update/UpdateVirtus.exe", args);
-		updateProcess->setWorkingDirectory(updatePath);
-		updateProcess->startDetached(updatePath + "UpdateVirtus.exe", args);
-	}
 }
 
 QString PluginManager::version() const
@@ -184,25 +169,22 @@ QList<QUuid> PluginManager::pluginDependencesFor(const QUuid &AUuid) const
 	return plugins;
 }
 
-QString PluginManager::styleSheet() const
-{
-	return FStyleSheet;
-}
-
-void PluginManager::setStyleSheet(const QString& newStyleSheet)
-{
-	FStyleSheet = newStyleSheet;
-	qApp->setStyleSheet(QString(FStyleSheet).replace("%IMAGES_PATH%", qApp->applicationDirPath()+"/resources/stylesheets/shared/images"));
-}
-
 void PluginManager::quit()
 {
-	QTimer::singleShot(0,qApp,SLOT(quit()));
+	if (!FQuitStarted)
+	{
+		FQuitStarted = true;
+		QTimer::singleShot(0,qApp,SLOT(quit()));
+		emit quitStarted();
+	}
 }
 
 void PluginManager::restart()
 {
+	FQuitStarted = true;
 	onApplicationAboutToQuit();
+	FQuitStarted = false;
+	
 	loadSettings();
 	loadPlugins();
 	if (initPlugins())
@@ -210,15 +192,42 @@ void PluginManager::restart()
 		saveSettings();
 		createMenuActions();
 		startPlugins();
-		FUpdater->checkUpdate(); // ПОПОВ проверка обновления
+		FBlockedPlugins.clear();
 	}
 	else
+	{
 		QTimer::singleShot(0,this,SLOT(restart()));
+	}
 }
 
-void PluginManager::forceUpdate()
+void PluginManager::shutdownRequested()
 {
+	// TODO: ask user to confirm quit operation
+	static int i = 0;
+	if (!i++)
+	{
+		QMessageBox * mb = new QMessageBox(tr("Rambler.Contacts updates ready"), tr("Updates are ready. Do you want to restart Rambler.Contacts now?"), QMessageBox::Question, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
+		mb->setWindowModality(Qt::ApplicationModal);
+		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(onMessageBoxButtonClicked(QAbstractButton*)));
+		WidgetManager::showActivateRaiseWindow(mb);
+	}
+#ifdef DEBUG_ENABLED
+	if (!(i % 100000))
+		qDebug() << "shutdown request #" << i;
+#endif
+}
 
+void PluginManager::showMainWindow()
+{
+	IPlugin * plugin = pluginInstance(MAINWINDOW_UUID);
+	if (plugin)
+	{
+		IMainWindowPlugin * mainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
+		if (mainWindowPlugin)
+		{
+			mainWindowPlugin->showMainWindow();
+		}
+	}
 }
 
 void PluginManager::loadSettings()
@@ -278,10 +287,26 @@ void PluginManager::loadSettings()
 		if (dir.exists() && (dir.exists(DIR_APP_DATA) || dir.mkpath(DIR_APP_DATA)) && dir.cd(DIR_APP_DATA))
 			FDataPath = dir.absolutePath();
 	}
+	Log::setLogFormat(Log::Simple);
 	Log::setLogPath(FDataPath);
 	FileStorage::setResourcesDirs(FileStorage::resourcesDirs()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");
+
+	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
+
+	FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
+	QString fontFile = fontStorage->fileFullName(FNT_SEGOEUI);
+	QFontDatabase::addApplicationFont(fontFile);
+	fontFile = fontStorage->fileFullName(FNT_SEGOEUI_ITALIC);
+	QFontDatabase::addApplicationFont(fontFile);
+	fontFile = fontStorage->fileFullName(FNT_SEGOEUI_BOLD);
+	QFontDatabase::addApplicationFont(fontFile);
+	fontFile = fontStorage->fileFullName(FNT_SEGOEUI_ITALIC_BOLD);
+	QFontDatabase::addApplicationFont(fontFile);
+	QFontDatabase fontDB;
+	QFont segoe = fontDB.font("Segoe UI", "", 12);
+	QApplication::setFont(segoe);
 
 	FPluginsSetup.clear();
 	QDir homeDir(FDataPath);
@@ -297,10 +322,6 @@ void PluginManager::loadSettings()
 	}
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(qApp, STS_PLUGINMANAGER_APPLICATION);
-
-	QFile sheetFile(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->fileFullName(STS_PLUGINMANAGER_APPLICATION));
-	sheetFile.open(QFile::ReadOnly);
-	FStyleSheet = QString::fromUtf8(sheetFile.readAll());
 }
 
 void PluginManager::saveSettings()
@@ -451,12 +472,6 @@ void PluginManager::startPlugins()
 		pluginItem.plugin->startPlugin();
 }
 
-
-
-
-
-
-
 void PluginManager::removePluginItem(const QUuid &AUuid, const QString &AError)
 {
 	if (FPluginItems.contains(AUuid))
@@ -550,10 +565,10 @@ QList<QUuid> PluginManager::getConflicts(const QUuid AUuid) const
 
 void PluginManager::loadCoreTranslations(const QString &ADir)
 {
-	if (FLoaderTranslator->load("virtus",ADir))
+	if (FLoaderTranslator->load("ramblercontacts",ADir))
 		qApp->installTranslator(FLoaderTranslator);
 
-	if (FUtilsTranslator->load("virtusutils",ADir))
+	if (FUtilsTranslator->load("ramblercontactsutils",ADir))
 		qApp->installTranslator(FUtilsTranslator);
 
 	if (FQtTranslator->load("qt_"+QLocale().name(),ADir))
@@ -613,6 +628,7 @@ QDomElement PluginManager::savePluginInfo(const QString &AFile, const IPluginInf
 
 void PluginManager::savePluginError(const QString &AFile, const QString &AError)
 {
+	Log(QString("[Plugin error] %1 : %2").arg(AFile, AError));
 	QDomElement pluginElem = FPluginsSetup.documentElement().firstChildElement(AFile);
 	if (pluginElem.isNull())
 		pluginElem = FPluginsSetup.firstChildElement("plugins").appendChild(FPluginsSetup.createElement(AFile)).toElement();
@@ -657,7 +673,7 @@ void PluginManager::createMenuActions()
 	if (mainWindowPligin)
 	{
 		Action *comments = new Action(mainWindowPligin->mainWindow()->mainMenu());
-		comments->setText(tr("User Comments"));
+		comments->setText(tr("Leave your feedback..."));
 		//comments->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_ABOUT);
 		connect(comments,SIGNAL(triggered()),SLOT(onShowCommentsDialog()));
 		mainWindowPligin->mainWindow()->mainMenu()->addAction(comments, AG_MMENU_PLUGINMANAGER_COMMENTS);
@@ -670,9 +686,11 @@ void PluginManager::createMenuActions()
 
 		Action *pluginsDialog = new Action(mainWindowPligin->mainWindow()->mainMenu());
 		pluginsDialog->setText(tr("Setup plugins"));
-		pluginsDialog->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_SETUP);
+		//pluginsDialog->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_SETUP);
 		connect(pluginsDialog,SIGNAL(triggered(bool)),SLOT(onShowSetupPluginsDialog(bool)));
+#ifdef DEBUG_ENABLED
 		mainWindowPligin->mainWindow()->mainMenu()->addAction(pluginsDialog, AG_MMENU_PLUGINMANAGER_SETUP, true);
+#endif
 	}
 }
 
@@ -686,6 +704,9 @@ void PluginManager::onApplicationAboutToQuit()
 
 	if (!FCommentDialog.isNull())
 		FCommentDialog->reject();
+
+	foreach(QWidget *widget, QApplication::topLevelWidgets())
+		widget->close();
 
 	emit aboutToQuit();
 
@@ -721,23 +742,21 @@ void PluginManager::onSetupPluginsDialogAccepted()
 void PluginManager::onShowAboutBoxDialog()
 {
 	if (FAboutDialog.isNull())
-		FAboutDialog = new AboutBox(this, FUpdater);
+		FAboutDialog = new AboutBox(this);
 
-	WidgetManager::showActivateRaiseWindow(FAboutDialog);
+	WidgetManager::showActivateRaiseWindow(FAboutDialog->parentWidget() ? FAboutDialog->parentWidget() : FAboutDialog);
 }
 
 void PluginManager::onShowCommentsDialog()
 {
 	if (FCommentDialog.isNull())
 		FCommentDialog = new CommentDialog(this);
-	WidgetManager::showActivateRaiseWindow(FCommentDialog);
+	WidgetManager::showActivateRaiseWindow(FCommentDialog->windowBorder() ? (QWidget*)FCommentDialog->windowBorder() : (QWidget*)FCommentDialog);
 }
 
-void PluginManager::updateMe(QString message, bool state)
+void PluginManager::onMessageBoxButtonClicked(QAbstractButton * button)
 {
-	updateme = state;
-	if(updateme)
-	{
+	QMessageBox * mb = qobject_cast<QMessageBox*>(sender());
+	if (mb && (mb->buttonRole(button) == QMessageBox::YesRole))
 		quit();
-	}
 }

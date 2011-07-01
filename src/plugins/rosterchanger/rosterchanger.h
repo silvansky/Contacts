@@ -36,8 +36,10 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imetacontacts.h>
 #include <utils/action.h>
+#include <utils/message.h>
 #include <utils/iconstorage.h>
 #include "addcontactdialog.h"
+#include "addmetacontactdialog.h"
 #include "subscriptiondialog.h"
 
 struct AutoSubscription {
@@ -83,10 +85,11 @@ class RosterChanger :
 			public IOptionsHolder,
 			public IRosterDataHolder,
 			public IRostersDragDropHandler,
-			public IXmppUriHandler
+			public IXmppUriHandler,
+			public IRostersKeyPressHooker
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IRosterChanger IOptionsHolder IRosterDataHolder IRostersDragDropHandler IXmppUriHandler);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IRosterChanger IOptionsHolder IRosterDataHolder IRostersDragDropHandler IXmppUriHandler IRostersKeyPressHooker)
 public:
 	RosterChanger();
 	~RosterChanger();
@@ -122,8 +125,13 @@ public:
 	virtual void removeAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
 	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
+	virtual IAddMetaItemWidget *newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent);
 	virtual QWidget *showAddContactDialog(const Jid &AStreamJid);
+	//IRostersKeyPressHooker
+	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
+	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 signals:
+	void addMetaItemWidgetCreated(IAddMetaItemWidget *AWidget);
 	void addContactDialogCreated(IAddContactDialog *ADialog);
 	void subscriptionDialogCreated(ISubscriptionDialog *ADialog);
 	//IRosterDataHolder
@@ -136,6 +144,7 @@ protected:
 	IChatWindow *findChatNoticeWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	IChatNotice createChatNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const;
 	int insertChatNotice(IChatWindow *AWindow, const IChatNotice &ANotice);
+	void removeWindowChatNotices(IChatWindow *AWindow);
 	void removeObsoleteChatNotices(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent);
 	QList<int> findNotifies(const Jid &AStreamJid, const Jid &AContactJid) const;
 	QList<Action *> createNotifyActions(int AActions);
@@ -166,6 +175,7 @@ protected slots:
 protected slots:
 	void onShowAddContactDialog(bool);
 	void onShowAddGroupDialog(bool);
+	void onGroupNameAccepted(QString);
 	void onShowAddAccountDialog(bool);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onRosterClosed(IRoster *ARoster);
@@ -178,11 +188,14 @@ protected slots:
 	void onChatWindowActivated();
 	void onChatWindowCreated(IChatWindow *AWindow);
 	void onChatWindowDestroyed(IChatWindow *AWindow);
+	void onViewWidgetCreated(IViewWidget *AWidget);
+	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
 	void onShowPendingChatNotices();
 	void onChatNoticeActionTriggered(bool);
 	void onChatNoticeRemoved(int ANoticeId);
 	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 private:
+	IGateways *FGateways;
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;
 	IMetaContacts *FMetaContacts;

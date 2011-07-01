@@ -32,30 +32,28 @@
         <translation>Новые сообщения</translation>
     </message>
     <message>
-        <source>Choose your method of notification</source>
-        <translation>Выберите подходящий способ уведомления</translation>
-    </message>
-    <message>
-        <source>Turn of all popup windows and sounds if status is &apos;Away&apos;</source>
-        <translation>Если выбран статус &quot;Отошел&quot;, то отключать все звуки и всплывающие окна</translation>
-    </message>
-    <message>
-        <source>Turn of all popup windows and sounds if status is &apos;Busy&apos;</source>
-        <translation>Если выбран статус &quot;Занят&quot;, то отключать все звуки и всплывающие окна</translation>
-    </message>
-    <message>
         <source>Full screen mode</source>
         <translation>Полноэкранный режим работы</translation>
     </message>
     <message>
-        <source>Temporarily disable all popup windows and sounds when working
-any full screen application (films, games, presentations)</source>
-        <translation>Временно отключать все всплывающие окна и звуки, когда работает
-какое-либо полноэкранное приложение (фильмы, игры, презентации)</translation>
+        <source>Method of notification</source>
+        <translation>Способ уведомления</translation>
     </message>
     <message>
-        <source>If status &apos;Away&apos; or &apos;Busy&apos;</source>
-        <translation>Если статус &quot;Отошел&quot; или &quot;Занят&quot;</translation>
+        <source>Disable all popup windows and sounds</source>
+        <translation>Отключать все звуки и всплывающие окна</translation>
+    </message>
+    <message>
+        <source>If status is &apos;Away&apos;</source>
+        <translation>Если выбран статус «Отошёл»</translation>
+    </message>
+    <message>
+        <source>If status is &apos;Busy&apos;</source>
+        <translation>Если выбран статус «Занят»</translation>
+    </message>
+    <message>
+        <source>Disable all popup windows when watching fullscreen movies or games</source>
+        <translation>Скрывать все уведомления при просмотре полноэкранных фильмов или игр</translation>
     </message>
 </context>
 <context>
@@ -65,19 +63,16 @@ any full screen application (films, games, presentations)</source>
         <translation>Всплывающее окно</translation>
     </message>
     <message>
-        <source>Sound signal</source>
-        <translation>Звук. сигнал</translation>
-    </message>
-    <message>
         <source>&lt;a href=&quot;test:notify&quot;&gt;Test&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;test:notify&quot;&gt;Тест&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>NotifyWidgetClass</name>
     <message>
-        <source>Setup Notifications</source>
-        <translation>Настроить уведомления</translation>
+        <source>Test</source>
+        <translation>Проверить</translation>
+    </message>
+    <message>
+        <source>Sound</source>
+        <translation>Звук</translation>
     </message>
 </context>
 <context>
@@ -92,7 +87,7 @@ any full screen application (films, games, presentations)</source>
     </message>
     <message>
         <source>Popup</source>
-        <translation>Всплыв. окно</translation>
+        <translation>Всплывающее окно</translation>
     </message>
     <message>
         <source>Tray</source>
@@ -112,7 +107,7 @@ any full screen application (films, games, presentations)</source>
     </message>
     <message>
         <source>Disable sounds when status is &apos;Do not disturb&apos;</source>
-        <translation>Отключать звуки, когда установлен статус &quot;Занят&quot;</translation>
+        <translation>Отключать звуки, когда установлен статус «Занят»</translation>
     </message>
     <message>
         <source>Chat</source>

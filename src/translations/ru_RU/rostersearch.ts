@@ -13,19 +13,15 @@
     </message>
     <message>
         <source>Allows to search for contacts in the roster</source>
-        <translation>Позволяет искать контакты в ростере</translation>
-    </message>
-    <message>
-        <source>Search in roster</source>
-        <translation>Искать в ростере</translation>
+        <translation>Позволяет искать контакты в списке</translation>
     </message>
     <message>
         <source>Search &quot;%1&quot; in history</source>
-        <translation>Искать &quot;%1&quot; в истории</translation>
+        <translation>Искать «%1» в истории</translation>
     </message>
     <message>
         <source>Search &quot;%1&quot; in Rambler</source>
-        <translation>Искать &quot;%1&quot; в Рамблере</translation>
+        <translation>Искать «%1» в Рамблере</translation>
     </message>
     <message>
         <source>Contacts not found</source>
@@ -38,6 +34,17 @@
     <message>
         <source>Search</source>
         <translation>Поиск</translation>
+    </message>
+    <message>
+        <source>Search in contact list</source>
+        <translation>Искать в списке контактов</translation>
+    </message>
+</context>
+<context>
+    <name>SearchEdit</name>
+    <message>
+        <source>Clear field</source>
+        <translation>Очистить поле</translation>
     </message>
 </context>
 </TS>

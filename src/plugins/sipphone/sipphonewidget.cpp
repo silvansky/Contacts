@@ -4,6 +4,7 @@
 #include <QMessageBox>
 //#include <QSettings>
 #include <QDateTime>
+#include <QTimer>
 
 #include "rsipauthentication.h"
 #include "sipphoneproxy.h"
@@ -12,7 +13,27 @@
 
 #include "CrossDefine.h"
 
+#include <QResizeEvent>
+#include "complexvideowidget.h"
 
+#include <utils/iconstorage.h>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+
+
+const int fstimerInterval = 3500;
+static void updateFSTimer(QTimer*& timer)
+{
+	if(timer->isActive())
+	{
+		timer->stop();
+		timer->start(fstimerInterval);
+	}
+	else
+	{
+		timer->start(fstimerInterval);
+	}
+}
 
 
 SipPhoneWidget::SipPhoneWidget(QWidget *parent)
@@ -20,14 +41,70 @@ SipPhoneWidget::SipPhoneWidget(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
+	setObjectName("SipPhoneWidget");
+	setMinimumSize(300, 200);
+	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
 }
 
 SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, SipCall *initCall, SipPhoneProxy *parent, const char *name) : QWidget(NULL), _pSipCall(initCall)
 {
 	ui.setupUi(this);
 
-	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
+	setObjectName("SipPhoneWidget");
+	setMinimumSize(300, 200);
+
+	ui.remote->hide();
+	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
+
+	{
+		_pCurrPic = new QImageLabel(ui.wgtRemoteImage);
+		_pShowCurrPic = new QToolButton(ui.wgtRemoteImage);
+
+		connect(_pCurrPic, SIGNAL(visibleState(bool)), _pShowCurrPic, SLOT(setHidden(bool)));
+		connect(_pShowCurrPic, SIGNAL(clicked()), _pCurrPic, SLOT(show()));
+
+		_pCurrPic->setFixedSize(160, 120);
+		_pCurrPic->setMouseTracking(true);
+		_pCurrPic->setScaledContents(true);
+
+
+		IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
+		QImage imgShowCurrPic = iconStorage->getImage(MNI_SIPPHONE_WHITE_SHOWCURRCAMERA);
+		QIcon iconCurrPic;
+		iconCurrPic.addPixmap(QPixmap::fromImage(imgShowCurrPic), QIcon::Normal, QIcon::On);
+		_pShowCurrPic->setIcon(iconCurrPic);
+
+		_pShowCurrPic->setFixedSize(20, 20);
+		_pShowCurrPic->hide();
+		_pShowCurrPic->setMouseTracking(true);
+
+		_pControls = new FullScreenControls(this);//ui.wgtRemoteImage);
+
+		// Issue 2264. В случае когда нет камеры, нодо заблокировать кнопку камеры с соответствующим значком
+		if(callAudio != NULL && callAudio->videoControl() != NULL)
+		{
+			_pControls->setCameraEnabled(callAudio->videoControl()->checkCameraPresent());
+		}
+		else
+		{
+			_pControls->setCameraEnabled(false);
+		}
+
+
+		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SLOT(fullScreenStateChange(bool)));
+		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SIGNAL(fullScreenState(bool)));
+		connect(_pControls, SIGNAL(camStateChange(bool)), this, SLOT(cameraStateChange(bool)));
+
+		
+
+		connect(_pControls, SIGNAL(hangup()), SLOT(hangupCall()));
+
+		_pControls->hide();
+
+		_pControls->setFixedSize(270, 40);
+		//_pControls->setMouseTracking(true);
+	}
+
 
 	_pSipCallMember = NULL;
 	_pSipAuthentication = NULL;
@@ -40,10 +117,10 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	_subject = "";
 
 
-	_pCurrentStatus = ui.lblStatus;
-	_pCurrentAudioStatus = ui.lblTime;
-	//_pDialButton = ui.btnDial;
-	_pHangupButton = ui.btnHangup;
+	//_pCurrentStatus = ui.lblStatus;
+	//_pCurrentAudioStatus = ui.lblTime;
+	////_pDialButton = ui.btnDial;
+	//_pHangupButton = ui.btnHangup;
 
 	_pSipAuthentication = auth;
 
@@ -56,6 +133,16 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	connect( _pAudioContoller, SIGNAL( outputDead() ), this, SLOT( audioOutputDead() ) );
 	connect( _pAudioContoller, SIGNAL( statusUpdated() ), this, SLOT( updateAudioStatus() ) );
 	connect( _pAudioContoller, SIGNAL( proxyPictureShow(const QImage&)), this, SLOT(remotePictureShow(const QImage&)));
+	connect( _pAudioContoller, SIGNAL( proxyLocalPictureShow(const QImage&)), this, SLOT(localPictureShow(const QImage&)));
+	// Подключение реакций на изменение состояния камеры
+	connect(this, SIGNAL(startCamera()), _pAudioContoller, SIGNAL(proxyStartCamera()));
+	connect(this, SIGNAL(stopCamera()), _pAudioContoller, SIGNAL(proxyStopCamera()));
+
+	connect(_pControls, SIGNAL(camResolutionChange(bool)), _pAudioContoller, SLOT(outputVideoResolutonChangedToHigh(bool)));
+
+	connect(_pAudioContoller, SIGNAL(audioOutputPresentChange(bool)), _pControls, SLOT(setVolumeEnabled(bool)));
+	connect(_pAudioContoller, SIGNAL(audioInputPresentChange(bool)), _pControls, SLOT(setMicEnabled(bool)));
+
 
 	// ОТЛАДКА
 	//connect( this, SIGNAL(callDeleted(bool)), this, SLOT(callDeletedSlot(bool)) );
@@ -68,18 +155,194 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	connect( _pAcceptCallTimer, SIGNAL( timeout() ), this, SLOT( acceptCallTimeout() ) );
 
 	switchCall(initCall);
+
+
+	// Таймер отслеживающий работу мыши в режиме fullscreen
+	_fsTimer = new QTimer(this);
+	_fsTimer->setSingleShot(true);
+	connect(_fsTimer, SIGNAL(timeout()), this, SLOT(processOneMouseIdle()));
+	setMouseTracking(true);
+	ui.wgtRemoteImage->setMouseTracking(true);
+	ui.wgtRemoteImage->installEventFilter(this);
+
+
+	// По умолчанию камера выключена (Issue 2249)
+	_pControls->SetCameraOn(false);
 }
 
 
 SipPhoneWidget::~SipPhoneWidget()
 {
+	ui.wgtRemoteImage->removeEventFilter(this);
 	delete _pRingTimer;
 	delete _pAcceptCallTimer;
 	if( _pSipCall )
 	{
 		delete _pSipCall;
 	}
+
+	if(_fsTimer)
+	{
+		if(_fsTimer->timerId() != -1)
+			_fsTimer->stop();
+		delete _fsTimer;
+		_fsTimer = NULL;
+	}
+
+	if(_pAudioContoller)
+	{
+		delete _pAudioContoller;
+		_pAudioContoller = NULL;
+	}
 }
+
+
+
+
+void SipPhoneWidget::SetCurrImage(const QImage& img)
+{
+	QPixmap tmpPix = QPixmap::fromImage(img);
+	_pCurrPic->setPixmap(tmpPix);
+}
+
+void SipPhoneWidget::SetRemoteImage(const QImage& img)
+{
+	QPixmap tmpPix = QPixmap::fromImage(img);
+
+	int h = ui.wgtRemoteImage->size().height() - 2;
+	int w = ui.wgtRemoteImage->size().width() - 2;
+
+	ui.wgtRemoteImage->setPicture(tmpPix);
+}
+
+
+
+void SipPhoneWidget::resizeEvent(QResizeEvent *r_event)
+{
+	QWidget::resizeEvent(r_event);
+
+	QPoint pt = ui.wgtRemoteImage->pos();
+	QSize size = ui.wgtRemoteImage->size();
+
+	if(_pCurrPic != NULL)
+	{
+		QSize currPicSize;
+		if(size.width() >= 250 || size.height() >= 150)
+		{
+			currPicSize.setWidth(160);
+			currPicSize.setHeight(120);
+		}
+		else
+		{
+
+		}
+		_pCurrPic->setFixedSize(currPicSize);
+		_pCurrPic->move(4, size.height() - _pCurrPic->rect().height() - 4);
+		//_pCurrPic->move(4/*pt.x()*/, /*pt.y()*/ size.height() - 124);
+	}
+
+	if(_pShowCurrPic != NULL)
+	{
+		_pShowCurrPic->move(4, size.height() - _pShowCurrPic->size().height() - 4);
+	}
+
+	QSize controlsSize = _pControls->size();
+	_pControls->move(size.width()/2 - controlsSize.width()/2, size.height() - controlsSize.height() - 4);
+}
+
+void SipPhoneWidget::closeEvent(QCloseEvent * ev)
+{
+	hangupCall();
+}
+
+void SipPhoneWidget::enterEvent(QEvent *e_event)
+{
+	_pControls->show();
+}
+
+void SipPhoneWidget::leaveEvent(QEvent *)
+{
+	_pControls->hide();
+}
+
+void SipPhoneWidget::keyPressEvent(QKeyEvent *ev)
+{
+	int k = ev->key();
+	if(k == Qt::Key_Escape)
+	{
+		_pControls->setFullScreen(false);
+	}
+}
+
+void SipPhoneWidget::mouseMoveEvent(QMouseEvent *ev)
+{
+	unsetCursor();
+	_pControls->show();
+	updateFSTimer(_fsTimer);
+}
+
+
+
+void SipPhoneWidget::fullScreenStateChange(bool state)
+{
+	if(state)
+	{
+		//showFullScreen();
+		//setCursor(QCursor( Qt::BlankCursor ));
+		_fsTimer->start(fstimerInterval);
+	}
+	else
+	{
+		//showNormal();
+		unsetCursor();
+		_fsTimer->stop();
+	}
+}
+
+void SipPhoneWidget::processOneMouseIdle()
+{
+	setCursor(QCursor( Qt::BlankCursor ));
+	_pControls->hide();
+}
+
+bool SipPhoneWidget::eventFilter( QObject *obj, QEvent *evt )
+{
+	if(isFullScreen() && obj == ui.wgtRemoteImage)
+	{
+		QEvent::Type tp = evt->type();
+		//if(tp != QEvent::Paint && tp != QEvent::WindowActivate && tp!=QEvent::WindowDeactivate)
+		{
+			if( tp == QEvent::MouseMove )
+			{
+				unsetCursor();
+				_pControls->show();
+				updateFSTimer(_fsTimer);
+			}
+		}
+	}
+
+	return QWidget::eventFilter( obj, evt );
+}
+
+
+
+
+void SipPhoneWidget::cameraStateChange(bool state)
+{
+	if(state)
+	{
+		emit startCamera();
+	}
+	else
+	{
+		emit stopCamera();
+	}
+}
+
+
+
+
+
 
 void SipPhoneWidget::callDeletedSlot( bool )
 {
@@ -106,57 +369,64 @@ void SipPhoneWidget::forceDisconnect( void )
 	}
 
 	emit callDeleted(_isHangupInitiator);
-	
+
 	_pRingTimer->stop();
-	//_pDialButton->setEnabled(false);
-	_pHangupButton->setEnabled(false);
-	//holdbutton->setEnabled(false);
-	//transferbutton->setEnabled(false);
-	//morebutton->setEnabled(false);
+	//_pHangupButton->setEnabled(false);
+
+	////_pDialButton->setEnabled(false);
+	////holdbutton->setEnabled(false);
+	////transferbutton->setEnabled(false);
+	////morebutton->setEnabled(false);
 }
 
 void SipPhoneWidget::callMemberStatusUpdated( void )
 {
 	SdpMessage sdpm;
 	SdpMessage rsdp;
-	if( _pSipCallMember->getState() == SipCallMember::state_Disconnected ) 
+	if( _pSipCallMember->getState() == SipCallMember::state_Disconnected )
 	{
 		if( _pSipCallMember->getLocalStatusDescription().left( 2 ) == "!!" )
 		{
-			_pCurrentStatus->setText( tr("Call Failed") );
-			QMessageBox::critical( this, "Virtus", _pSipCallMember->getLocalStatusDescription().remove(0,2) );
+			//_pCurrentStatus->setText( tr("Call Failed") );
+			statusChanged(tr("Call Failed"));
+			QMessageBox::critical( this, "Contacts", _pSipCallMember->getLocalStatusDescription().remove(0,2) );
 			//setHide();
 		}
 		else
 		{
-			_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() + " at " + QDateTime::currentDateTime().toString("hh:mm:ss"));
+			//_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() + " at " + QDateTime::currentDateTime().toString("hh:mm:ss"));
+			statusChanged(_pSipCallMember->getLocalStatusDescription() + " at " + QDateTime::currentDateTime().toString("hh:mm:ss"));
 		}
 		forceDisconnect();
 	}
 	else if( _pSipCallMember->getState() == SipCallMember::state_Redirected )
 	{
-		_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		//_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		statusChanged(_pSipCallMember->getLocalStatusDescription());
 		handleRedirect();
 	}
 	else if( _pSipCallMember->getState() == SipCallMember::state_Refer )
 	{
-		_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		//_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		statusChanged(_pSipCallMember->getLocalStatusDescription());
 		_pSipCallMember->setState( SipCallMember::state_Refer_handling );
 		//handleRefer();
 	}
 	else if( _pSipCallMember->getState() == SipCallMember::state_Connected )
 	{
-		_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		//_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		statusChanged(_pSipCallMember->getLocalStatusDescription());
 		// hidebutton->setEnabled( false );
 		//_pDialButton->setEnabled( false );
-		_pHangupButton->setEnabled( true );
+		//_pHangupButton->setEnabled( true );
 		_currentState = Connected;
 		//if (!dtmfsenderTimer->isActive())
 		//  dtmfsenderTimer->start(dtmfsenderdelay->value() * 10);
 	}
 	else
 	{
-		_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		//_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		statusChanged( _pSipCallMember->getLocalStatusDescription());
 	}
 }
 
@@ -171,10 +441,13 @@ void SipPhoneWidget::switchCall( SipCall *newCall )
 	dbgPrintf( "KCallWidget: Switching calls...\n" );
 
 	_pSipCall = newCall;
-	
+
+	if(_pSipCall == NULL)
+		return;
+
 	_pAudioContoller->setBodyMask( _pSipCall->getSdpMessageMask() );
-	//_pDialButton->setText( tr("Dial") );
-	_pHangupButton->setText( tr("Hangup") );
+	////_pDialButton->setText( tr("Dial") );
+	//_pHangupButton->setText( tr("Hangup") );
 
 	if( _pSipCallMember )
 		disconnect( _pSipCallMember, 0, this, 0 );
@@ -195,7 +468,8 @@ void SipPhoneWidget::switchCall( SipCall *newCall )
 			handleRedirect();
 			return;
 		}
-		_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		//_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+		emit statusChanged(_pSipCallMember->getLocalStatusDescription());
 		connect( _pSipCallMember, SIGNAL( statusUpdated( SipCallMember * ) ), this, SLOT( callMemberStatusUpdated() ) );
 		//setCaption( QString( tr("Call: ") ) + call->getCallId() );
 		if( _pSipCall->getSubject() == tr("Incoming call") )
@@ -231,31 +505,34 @@ void SipPhoneWidget::switchCall( SipCall *newCall )
 			_pRingTimer->setSingleShot(true);
 			_pRingTimer->start( ringTime_1 );
 		}
+
+		// REMOTE
 		ui.remote->setText( _pSipCallMember->getUri().uri() );
+
 		_subject = _pSipCall->getSubject();
-		_pHangupButton->setEnabled( true );
-		_pHangupButton->setFocus();
+		//_pHangupButton->setEnabled( true );
+		//_pHangupButton->setFocus();
 		if( _pSipCallMember->getState() == SipCallMember::state_InviteRequested )
 		{
-			//hidebutton->setEnabled( false );
-			//_pDialButton->setEnabled( false );
-			_pHangupButton->setEnabled( true );
+			////hidebutton->setEnabled( false );
+			////_pDialButton->setEnabled( false );
+			//_pHangupButton->setEnabled( true );
 			_currentState = Calling;
 		}
 		else if( _pSipCallMember->getState() == SipCallMember::state_RequestingInvite )
 		{
-			//_pDialButton->setText( tr("Accept") );
-			_pHangupButton->setText( tr("Reject") );
-			//hidebutton->setEnabled( false );
-			//_pDialButton->setEnabled( true );
-			_pHangupButton->setEnabled( true );
+			////_pDialButton->setText( tr("Accept") );
+			//_pHangupButton->setText( tr("Reject") );
+			////hidebutton->setEnabled( false );
+			////_pDialButton->setEnabled( true );
+			//_pHangupButton->setEnabled( true );
 			_currentState = Called;
 		}
 		else
 		{
-			//hidebutton->setEnabled( false );
-			//_pDialButton->setEnabled( false );
-			_pHangupButton->setEnabled( true );
+			////hidebutton->setEnabled( false );
+			////_pDialButton->setEnabled( false );
+			//_pHangupButton->setEnabled( true );
 			_currentState = Connected;
 			//if (!dtmfsenderTimer->isActive())
 			//  dtmfsenderTimer->start(dtmfsenderdelay->value() * 10);
@@ -263,7 +540,8 @@ void SipPhoneWidget::switchCall( SipCall *newCall )
 	}
 	else
 	{
-		_pCurrentStatus->setText( QString::null );
+		//_pCurrentStatus->setText( QString::null );
+		emit statusChanged(QString::null);
 		if( _pSipCall->getCallType() == SipCall::videoCall )
 		{
 			//setCaption( getUserPrefix() + QString( tr("Outgoing Video Call: ") ) + call->getCallId() );
@@ -277,11 +555,13 @@ void SipPhoneWidget::switchCall( SipCall *newCall )
 			//transferbutton->setEnabled( true );
 		}
 		_subject = _pSipCall->getSubject();
+
 		ui.remote->setText( QString::null );
-		//hidebutton->setEnabled( true );
-		//_pDialButton->setEnabled( true );
-		//_pDialButton->setFocus();
-		_pHangupButton->setEnabled( false );
+
+		////hidebutton->setEnabled( true );
+		////_pDialButton->setEnabled( true );
+		////_pDialButton->setFocus();
+		//_pHangupButton->setEnabled( false );
 		_currentState = PreDial;
 	}
 	updateAudioStatus();
@@ -292,19 +572,23 @@ void SipPhoneWidget::updateAudioStatus( void )
 	if( _pAudioContoller->getCurrentCall() == _pSipCall )
 	{
 		if( _pAudioContoller->isRemoteHold() )
-			_pCurrentAudioStatus->setText( tr("Attached [holding]") );
+			//_pCurrentAudioStatus->setText( tr("Attached [holding]") );
+			emit audioStatusChanged(tr("Attached [holding]"));
 		else
-			_pCurrentAudioStatus->setText( tr("Attached [active]") );
+			//_pCurrentAudioStatus->setText( tr("Attached [active]") );
+			emit audioStatusChanged(tr("Attached [active]"));
 	}
 	else
 	{
-		_pCurrentAudioStatus->setText( tr("Unattached") );
+		//_pCurrentAudioStatus->setText( tr("Unattached") );
+		emit audioStatusChanged(tr("Unattached"));
 	}
 }
 
 void SipPhoneWidget::audioOutputDead( void )
 {
 	dbgPrintf( "KCallAudio: Broken output pipe, disconnecting unpolitely\n" );
+	qDebug("SipPhoneWidget::audioOutputDead");
 	forceDisconnect();
 }
 
@@ -315,8 +599,18 @@ void SipPhoneWidget::setRemote( QString newremote )
 
 void SipPhoneWidget::remotePictureShow(const QImage& img)
 {
-	ui.lblRemoteImage->setPixmap(QPixmap::fromImage(img));
+	//ui.lblRemoteImage->setPixmap(QPixmap::fromImage(img));
+	//SetCurrImage(img);
+	SetRemoteImage(img);
 }
+
+
+void SipPhoneWidget::localPictureShow(const QImage& img)
+{
+	SetCurrImage(img);
+	//SetRemoteImage(img);
+}
+
 
 void SipPhoneWidget::clickDial()
 {
@@ -351,6 +645,7 @@ void SipPhoneWidget::dialClicked( void )
 		acceptCall();
 		return;
 	}
+
 	if( ui.remote->text().length() == 0 )
 	{
 		QMessageBox::critical( this, tr("Error: No Destination"), tr("You must specify someone to call.") );
@@ -418,10 +713,11 @@ void SipPhoneWidget::dialClicked( void )
 
 	_pSipCallMember->requestInvite(sdpMessageStr , MimeContentType( "application/sdp" ) );
 
-	//_pDialButton->setEnabled( false );
-	_pHangupButton->setEnabled( true );
+	////_pDialButton->setEnabled( false );
+	//_pHangupButton->setEnabled( true );
 	_currentState = Calling;
-	_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+	//_pCurrentStatus->setText( _pSipCallMember->getLocalStatusDescription() );
+	emit statusChanged(_pSipCallMember->getLocalStatusDescription());
 }
 
 
@@ -439,11 +735,11 @@ void SipPhoneWidget::acceptCallTimeout( void )
 		QString sdpMessage = invitee.message( _pAudioContoller->getRtpCodec(), _pAudioContoller->getVideoRtpCodec(), _pAudioContoller->getBodyMask() );
 
 		_pSipCallMember->acceptInvite(sdpMessage , MimeContentType( "application/sdp" ) );
-		//_pDialButton->setText( tr("Dial") );
-		_pHangupButton->setText( tr("Hangup") );
-		//hidebutton->setEnabled( false );
-		//_pDialButton->setEnabled( false );
-		_pHangupButton->setEnabled( true );
+		////_pDialButton->setText( tr("Dial") );
+		//_pHangupButton->setText( tr("Hangup") );
+		////hidebutton->setEnabled( false );
+		////_pDialButton->setEnabled( false );
+		//_pHangupButton->setEnabled( true );
 	}
 	else
 	{
@@ -466,10 +762,11 @@ void SipPhoneWidget::acceptCall( void )
 
 void SipPhoneWidget::hangupCall( void )
 {
-	if(!_pHangupButton || !_pHangupButton->isEnabled() )
-	{
-		return;
-	}
+	//if(!_pHangupButton || !_pHangupButton->isEnabled() )
+	//{
+	//	return;
+	//}
+
 	_pRingTimer->stop();
 	_isHangupInitiator = true;
 
@@ -479,11 +776,14 @@ void SipPhoneWidget::hangupCall( void )
 		_pSipCallMember->declineInvite();
 		setHidden(true);
 		//setHide();
+		emit callWasHangup();
 		return;
 	}
-	if( _pSipCall->getCallStatus() != SipCall::callDead )
+
+
+	if(_pSipCall && _pSipCall->getCallStatus() != SipCall::callDead )
 	{
-		_pHangupButton->setEnabled( false );
+		//_pHangupButton->setEnabled( false );
 		if( _pSipCallMember->getState() == SipCallMember::state_Connected )
 		{
 			_pSipCallMember->requestDisconnect();
@@ -502,6 +802,7 @@ void SipPhoneWidget::hangupCall( void )
 			}
 		}
 		setHidden(true);
+		emit callWasHangup();
 		return;
 	}
 }

@@ -23,8 +23,8 @@ class StanzaProcessor :
 			public IStanzaProcessor,
 			public IXmppStanzaHadler
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin IStanzaProcessor IXmppStanzaHadler);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin IStanzaProcessor IXmppStanzaHadler)
 public:
 	StanzaProcessor();
 	~StanzaProcessor();

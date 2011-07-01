@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include Product.wxs ?>
+  <Fragment>
+    <DirectoryRef Id="INSTALLLOCATION">
+      <Directory Id="dirBF6755E91353105EA42ED698B9939C98" Name="imageformats" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="Imageformats">
+      <Component Id="cmp876081C1C819CBFBDBF807C757508C14" Directory="dirBF6755E91353105EA42ED698B9939C98" Guid="{B4A4A783-650A-4A21-A6EF-974EBB835970}">
+        <File Id="fil951AC5D619C241EC940362623BAA116D" KeyPath="yes" Source="$(var.VirtusImageformatsRoot)\Microsoft.VC90.CRT.manifest" />
+      </Component>
+      <Component Id="cmp60590F598E858AC24D15E4AE8EF876CB" Directory="dirBF6755E91353105EA42ED698B9939C98" Guid="{3B271786-BB5F-4C82-8038-B29F1E28A7D5}">
+        <File Id="filC2C4B0C56A02E68D03D30B7E14EADAD7" KeyPath="yes" Source="$(var.VirtusImageformatsRoot)\qgif4.dll" />
+      </Component>
+      <Component Id="cmp7CAF29BF105C95670AE78C6D1D096801" Directory="dirBF6755E91353105EA42ED698B9939C98" Guid="{2C6D8D5E-DC3A-49A4-ACD3-9EF82782F9A6}">
+        <File Id="fil0DDCC985AA8F79BD28D3708C3EA0A0A2" KeyPath="yes" Source="$(var.VirtusImageformatsRoot)\qico4.dll" />
+      </Component>
+      <Component Id="cmp8FF261D610B00A08DB067570B0C954BD" Directory="dirBF6755E91353105EA42ED698B9939C98" Guid="{0BD0BB62-1F12-4546-BD87-63E4694751AF}">
+        <File Id="fil93F4EF6B0B5411BF46C50EBABF831832" KeyPath="yes" Source="$(var.VirtusImageformatsRoot)\qjpeg4.dll" />
+      </Component>
+      <Component Id="cmp74E502BB3CD0D0971102CEDE6D8524A6" Directory="dirBF6755E91353105EA42ED698B9939C98" Guid="{6660FC74-4B9A-4E17-9A79-A6EFA4EEE9D4}">
+        <File Id="fil0A05026603D109CF568B2345E53853FC" KeyPath="yes" Source="$(var.VirtusImageformatsRoot)\qmng4.dll" />
+      </Component>
+      <Component Id="cmpAD99D9D7CD83BC7D32177F154245C199" Directory="dirBF6755E91353105EA42ED698B9939C98" Guid="{795518FF-5B3F-4218-8D47-8E386BC50900}">
+        <File Id="filF8BE4EC4AFC18A9B03681B92802BDFD4" KeyPath="yes" Source="$(var.VirtusImageformatsRoot)\qsvg4.dll" />
+      </Component>
+      <Component Id="cmpD976CA2DFF09743C1F9A4EAC76FEC4E7" Directory="dirBF6755E91353105EA42ED698B9939C98" Guid="{A7616886-9EB8-4737-B780-5D9ABEC0803E}">
+        <File Id="fil9140BF6B34D6230AC09D52937F6A4521" KeyPath="yes" Source="$(var.VirtusImageformatsRoot)\qtiff4.dll" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dirBF6755E91353105EA42ED698B9939C98" />
+  </Fragment>
+</Wix>

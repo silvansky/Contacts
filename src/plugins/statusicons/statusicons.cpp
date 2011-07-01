@@ -31,7 +31,7 @@ void StatusIcons::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to set the status icons for contacts on the basis of standard rules or user-defined");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool StatusIcons::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -119,8 +119,8 @@ bool StatusIcons::initSettings()
 
 	if (FOptionsManager)
 	{
-//		IOptionsDialogNode dnode = { ONO_STATUSICONS, OPN_STATUSICONS, tr("Status icons"),tr("Configure status icons"), MNI_STATUSICONS_OPTIONS };
-//		FOptionsManager->insertOptionsDialogNode(dnode);
+		//		IOptionsDialogNode dnode = { ONO_STATUSICONS, OPN_STATUSICONS, tr("Status icons"),tr("Configure status icons"), MNI_STATUSICONS_OPTIONS };
+		//		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
@@ -144,18 +144,18 @@ int StatusIcons::rosterDataOrder() const
 QList<int> StatusIcons::rosterDataRoles() const
 {
 	static QList<int> dataRoles = QList<int>()
-				      << Qt::DecorationRole;
+			<< Qt::DecorationRole;
 	return dataRoles;
 }
 
 QList<int> StatusIcons::rosterDataTypes() const
 {
 	static QList<int> indexTypes = QList<int>()
-				       << RIT_STREAM_ROOT
-				       << RIT_CONTACT
-				       << RIT_AGENT
-				       << RIT_MY_RESOURCE
-						 << RIT_METACONTACT;
+			<< RIT_STREAM_ROOT
+			<< RIT_CONTACT
+			<< RIT_AGENT
+			<< RIT_MY_RESOURCE
+			<< RIT_METACONTACT;
 	return indexTypes;
 }
 
@@ -163,7 +163,7 @@ QVariant StatusIcons::rosterData(const IRosterIndex *AIndex, int ARole) const
 {
 	if (ARole == Qt::DecorationRole)
 	{
-		Jid contactJid = AIndex->data(RDR_JID).toString();
+		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
 		int show = AIndex->data(RDR_SHOW).toInt();
 		QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
 		bool ask = !AIndex->data(RDR_ASK).toString().isEmpty();
@@ -430,11 +430,11 @@ void StatusIcons::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIn
 {
 	Q_UNUSED(AIndex); Q_UNUSED(AMenu); Q_UNUSED(ASelected);
 	/*if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
-	{
-		updateCustomIconMenu(QRegExp::escape(AIndex->data(RDR_BARE_JID).toString()));
-		FCustomIconMenu->setIcon(iconByJidStatus(AIndex->data(RDR_JID).toString(),IPresence::Online,SUBSCRIPTION_BOTH,false));
-		AMenu->addAction(FCustomIconMenu->menuAction(),AG_RVCM_STATUSICONS,true);
-	}*/
+ {
+  updateCustomIconMenu(QRegExp::escape(AIndex->data(RDR_BARE_JID).toString()));
+  FCustomIconMenu->setIcon(iconByJidStatus(AIndex->data(RDR_JID).toString(),IPresence::Online,SUBSCRIPTION_BOTH,false));
+  AMenu->addAction(FCustomIconMenu->menuAction(),AG_RVCM_STATUSICONS,true);
+ }*/
 }
 
 void StatusIcons::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu)

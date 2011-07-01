@@ -1,17 +1,14 @@
 #include "proxystyle.h"
 
-#include <QDebug>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/textflags.h>
 #include <definitions/graphicseffects.h>
 
-
 void ProxyStyle::drawItemText(QPainter *painter, const QRect &rect, int flags, const QPalette &pal, bool enabled, const QString &text, QPalette::ColorRole textRole) const
 {
-	//qDebug() << "drawItemText: " << text << " role: " << textRole << " flags: " << QString::number(flags, 2);
-	if (textRole == QPalette::Text || textRole == QPalette::ButtonText)
+	if (textRole == QPalette::Text || textRole == QPalette::ButtonText || textRole == QPalette::WindowText)
 	{
 		// draw the dark shadow by default
 		int shadowType = TF_DARKSHADOW;
@@ -19,9 +16,13 @@ void ProxyStyle::drawItemText(QPainter *painter, const QRect &rect, int flags, c
 				shadowType = TF_NOSHADOW;
 		if (flags & TF_LIGHTSHADOW)
 			shadowType = TF_LIGHTSHADOW;
-		if (shadowType == TF_DARKSHADOW)
+		if (shadowType != TF_NOSHADOW)
 		{
-			QGraphicsDropShadowEffect * shadow = qobject_cast<QGraphicsDropShadowEffect*>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_TEXTSHADOWS));
+			QGraphicsDropShadowEffect * shadow;
+			if (shadowType == TF_DARKSHADOW)
+				shadow = qobject_cast<QGraphicsDropShadowEffect*>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_TEXTSHADOWS));
+			else
+				shadow = qobject_cast<QGraphicsDropShadowEffect*>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_NOTICEWIDGET));
 			if (shadow)
 			{
 				QRect shadowRect(rect);

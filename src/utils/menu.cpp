@@ -1,12 +1,35 @@
 #include "menu.h"
 #include <QResizeEvent>
+#include "customborderstorage.h"
+#include <definitions/resources.h>
+#include <definitions/customborder.h>
 
 Menu::Menu(QWidget *AParent) : QMenu(AParent)
 {
+	menuAboutToShow = false;
 	FIconStorage = NULL;
 
 	FMenuAction = new Action(this);
 	FMenuAction->setMenu(this);
+
+	border = NULL;//CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MENU);
+	if (border)
+	{
+		setWindowFlags(Qt::Widget);
+		border->setShowInTaskBar(false);
+		border->setResizable(false);
+		border->setMovable(false);
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+		border->setCloseOnDeactivate(true);
+		border->setStaysOnTop(true);
+		if (AParent)
+			connect(AParent,SIGNAL(destroyed()),SLOT(deleteLater()));
+		connect(this, SIGNAL(aboutToShow()), SLOT(onAboutToShow()));
+		connect(this, SIGNAL(aboutToHide()), SLOT(onAboutToHide()));
+		connect(this, SIGNAL(triggered(QAction*)), SLOT(hide()));
+	}
 
 	setSeparatorsCollapsible(true);
 }
@@ -73,7 +96,7 @@ QList<Action *> Menu::findActions(const QMultiHash<int, QVariant> AData, bool AS
 
 void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 {
-	QAction *befour = NULL;
+	QAction *before = NULL;
 	QAction *separator = NULL;
 	QMultiMap<int,Action *>::iterator it = qFind(FActions.begin(),FActions.end(),AAction);
 	if (it != FActions.end())
@@ -87,8 +110,8 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 	it = FActions.find(AGroup);
 	if (it == FActions.end())
 	{
-		befour = nextGroupSeparator(AGroup);
-		befour != NULL ? QMenu::insertAction(befour,AAction) : QMenu::addAction(AAction);
+		before = nextGroupSeparator(AGroup);
+		before != NULL ? QMenu::insertAction(before,AAction) : QMenu::addAction(AAction);
 		separator = insertSeparator(AAction);
 		FSeparators.insert(AGroup,separator);
 	}
@@ -106,7 +129,7 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 				sortRole = false;
 			}
 
-			for (int i = 0; !befour && i<actionList.count(); ++i)
+			for (int i = 0; !before && i<actionList.count(); ++i)
 			{
 				QAction *qaction = actionList.at(i);
 				if (FActions.key((Action *)qaction)==AGroup)
@@ -119,28 +142,31 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 							curSortString = action->data(Action::DR_SortString).toString();
 					}
 					if (QString::localeAwareCompare(curSortString,sortString) > 0)
-						befour = actionList.at(i);
+						before = actionList.at(i);
 				}
 			}
 		}
 
-		if (!befour)
+		if (!before)
 		{
 			QMap<int,QAction *>::const_iterator sepIt= FSeparators.upperBound(AGroup);
 			if (sepIt != FSeparators.constEnd())
-				befour = sepIt.value();
+				before = sepIt.value();
 		}
 
-		if (befour)
-			QMenu::insertAction(befour,AAction);
+		if (before)
+			QMenu::insertAction(before,AAction);
 		else
 			QMenu::addAction(AAction);
 	}
 
 	FActions.insertMulti(AGroup,AAction);
 	connect(AAction,SIGNAL(actionDestroyed(Action *)),SLOT(onActionDestroyed(Action *)));
-	emit actionInserted(befour,AAction,AGroup,ASort);
-	if (separator) emit separatorInserted(AAction,separator);
+	if (AAction->menu())
+		connect(AAction->menu(), SIGNAL(triggered(QAction*)), SIGNAL(triggered(QAction*)));
+	emit actionInserted(before,AAction,AGroup,ASort);
+	if (separator)
+		emit separatorInserted(AAction,separator);
 }
 
 void Menu::addMenuActions(const Menu *AMenu, int AGroup, bool ASort)
@@ -177,7 +203,7 @@ void Menu::removeAction(Action *AAction)
 	}
 }
 
-void Menu::addWidgetActiion(QWidgetAction * action)
+void Menu::addWidgetAction(QWidgetAction * action)
 {
 	QMenu::addAction(action);
 }
@@ -216,7 +242,91 @@ void Menu::setTitle(const QString &ATitle)
 	QMenu::setTitle(ATitle);
 }
 
+void Menu::showMenu(const QPoint & p, Facing facing)
+{
+	if (facing == Default)
+	{
+		QMenu::popup(p);
+		return;
+	}
+	emit aboutToShow();
+	QSize sz = sizeHint();
+	QPoint popupPoint = p;
+	switch (facing)
+	{
+	case TopLeft:
+		popupPoint.setX(p.x() - sz.width());
+		popupPoint.setY(p.y() - sz.height());
+		break;
+	case TopRight:
+		popupPoint.setY(p.y() - sz.height());
+		break;
+	case BottomLeft:
+		popupPoint.setX(p.x() - sz.width());
+		break;
+	case BottomRight:
+		break;
+	default:
+		break;
+	}
+	setGeometry(QRect(popupPoint, sz));
+	show();
+}
+
 void Menu::onActionDestroyed(Action *AAction)
 {
 	removeAction(AAction);
+}
+
+void Menu::onAboutToShow()
+{
+	menuAboutToShow = true;
+	setVisible(false);
+//	if (border)
+//	{
+//		border->setGeometry(geometry());
+//		border->show();
+//		//setVisible(true);
+//		border->adjustSize();
+//		border->layout()->update();
+//	}
+}
+
+void Menu::onAboutToHide()
+{
+	if (border)
+		border->hide();
+}
+
+bool Menu::event(QEvent * evt)
+{
+	switch(evt->type())
+	{
+	case QEvent::ShowToParent:
+		if (border && menuAboutToShow)
+		{
+			QRect geom = geometry();
+			QPoint p = geom.topLeft();
+			p.setX(p.x() - border->leftBorderWidth());
+			p.setY(p.y() - border->topBorderWidth());
+			geom.moveTopLeft(p);
+			geom.setWidth(geom.width() + border->leftBorderWidth() + border->rightBorderWidth());
+			geom.setHeight(geom.height() + border->topBorderWidth() + border->bottomBorderWidth());
+			border->setGeometry(geom);
+			border->show();
+			menuAboutToShow = false;
+		}
+		return QMenu::event(evt);
+		break;
+	case QEvent::Hide:
+		if (border)
+		{
+			border->hide();
+		}
+		return QMenu::event(evt);
+		break;
+	default:
+		return QMenu::event(evt);
+		break;
+	}
 }

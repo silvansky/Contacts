@@ -4,23 +4,27 @@
 #include <QFile>
 #include <QPainter>
 #include <QKeyEvent>
+#include <QListView>
 #include <QCompleter>
 #include <QTextCursor>
-#include <QInputDialog>
 #include <QDomDocument>
 #include <QItemDelegate>
 #include <QTextDocument>
 #include <QDialogButtonBox>
 #include <QDesktopServices>
+#include <QStandardItemModel>
+#include <QStyledItemDelegate>
 #include <QAbstractTextDocumentLayout>
-#include <QListView>
 #include <utils/customborderstorage.h>
 #include <definitions/customborder.h>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
-
-#include <QDebug>
+#include <definitions/menuicons.h>
+#include <utils/iconstorage.h>
+#include <utils/log.h>
+#include <utils/customlistview.h>
+#include <utils/custominputdialog.h>
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>
@@ -41,7 +45,7 @@ enum ConnectionSettings {
 };
 
 class CompleterDelegate :
-			public QItemDelegate
+		public QItemDelegate
 {
 public:
 	CompleterDelegate(QObject *AParent): QItemDelegate(AParent) {}
@@ -94,18 +98,76 @@ public:
 	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
 		QSize hint = drawIndex(NULL,AOption,AIndex);
+		//hint.setWidth(80);
 		hint.setHeight(27);
 		return hint;
 	}
 };
 
+class DomainComboDelegate : public QStyledItemDelegate
+{
+	Q_OBJECT
+public:
+	DomainComboDelegate(QObject *parent, QComboBox *cmb) : QStyledItemDelegate(parent), mCombo(cmb) {}
+
+	static bool isSeparator(const QModelIndex &index)
+	{
+		return index.data(Qt::AccessibleDescriptionRole).toString() == QLatin1String("separator");
+	}
+
+	static void setSeparator(QAbstractItemModel *model, const QModelIndex &index)
+	{
+		model->setData(index, QString::fromLatin1("separator"), Qt::AccessibleDescriptionRole);
+		if (QStandardItemModel *m = qobject_cast<QStandardItemModel*>(model))
+			if (QStandardItem *item = m->itemFromIndex(index))
+				item->setFlags(item->flags() & ~(Qt::ItemIsSelectable|Qt::ItemIsEnabled));
+	}
+
+protected:
+	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+	{
+		if (isSeparator(index))
+		{
+			QRect rect = option.rect;
+			if (const QStyleOptionViewItemV3 *v3 = qstyleoption_cast<const QStyleOptionViewItemV3*>(&option))
+				if (const QAbstractItemView *view = qobject_cast<const QAbstractItemView*>(v3->widget))
+					rect.setWidth(view->viewport()->width());
+			QImage separator = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MENUSEPARATOR);
+			painter->fillRect(rect, QBrush(separator));
+		}
+		else
+		{
+			QStyledItemDelegate::paint(painter, option, index);
+		}
+	}
+
+	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+	{
+		if (isSeparator(index))
+		{
+			QImage separator = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MENUSEPARATOR);
+			int pm = mCombo->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, mCombo);
+			return QSize(pm, separator.height());
+		}
+		return QStyledItemDelegate::sizeHint(option, index);
+	}
+private:
+	QComboBox *mCombo;
+};
+
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+//	ui.lblRegister->setProperty("ignoreFilter", true);
+//	ui.lblHelp->setProperty("ignoreFilter", true);
+//	ui.lblConnectSettings->setProperty("ignoreFilter", true);
+//	ui.lblForgotPassword->setProperty("ignoreFilter", true);
+	domainPrevIndex = 0;
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 	connect(ui.chbShowPassword, SIGNAL(stateChanged(int)), SLOT(onShowPasswordToggled(int)));
 	FConnectionErrorWidget = new QWidget;
+	FConnectionErrorWidget->setObjectName("connectionErrorWidget");
 	QVBoxLayout * vlayout = new QVBoxLayout;
 	vlayout->setSpacing(4);
 	vlayout->setContentsMargins(0, 0, 0, 0);
@@ -118,9 +180,15 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
-	ui.frmDomain->setProperty("error", false);
+	ui.tlbDomain->setProperty("error", false);
+
+	domainsMenu = new Menu(this);
+	domainsMenu->setObjectName("domainsMenu");
+	ui.tlbDomain->setMenu(domainsMenu);
+
+	//	ui.frmDomain->setProperty("error", false);
 	ui.cmbDomain->setView(new QListView());
-	ui.wdtHelp->setVisible(false);
+	ui.cmbDomain->view()->setItemDelegate(new DomainComboDelegate(ui.cmbDomain->view(), ui.cmbDomain));
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
@@ -129,15 +197,22 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	FConnectionErrorWidget->setStyleSheet(styleSheet());
 
 	FNewProfile = true;
+	FSavedPasswordCleared = false;
 	FConnectionSettings = CS_DEFAULT;
 	initialize(APluginManager);
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblHelp,MNI_OPTIONS_LOGIN_HELP,0,0,"pixmap");
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
+	ui.lblLogo->setFixedHeight(43);
+	//ui.lblLogo->setText(QString("<font size=+3>%1</font>").arg(tr("Contacts")));
+
+	ui.lblRegister->setText(tr("Enter your Rambler login and password, or %1.")
+				.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:9pt; text-decoration: underline; color:#ffffff;'>%1</span></a>")
+				.arg(tr("register")));
+	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:9pt; text-decoration: underline; color:#acacac;'>%1</span></a>")
+				      .arg(tr("Forgot your password?")));
 
 	connect(ui.lblRegister,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
-	connect(ui.lblHelp,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblForgotPassword,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblConnectSettings,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	ui.lblConnectSettings->setFocusPolicy(Qt::StrongFocus);
@@ -153,6 +228,47 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.cmbDomain->addItem("@ro.ru",QString("ro.ru"));
 	ui.cmbDomain->addItem("@r0.ru",QString("r0.ru"));
 
+	Action * action = new Action(domainsMenu);
+	action->setText("@rambler.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("rambler.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action->trigger();
+
+	action = new Action(domainsMenu);
+	action->setText("@lenta.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("lenta.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action = new Action(domainsMenu);
+	action->setText("@myrambler.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("myrambler.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action = new Action(domainsMenu);
+	action->setText("@autorambler.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("autorambler.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action = new Action(domainsMenu);
+	action->setText("@ro.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("ro.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	action = new Action(domainsMenu);
+	action->setText("@r0.ru");
+	action->setData(Action::DR_UserDefined + 1, QString("r0.ru"));
+	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
+	domainsMenu->addAction(action);
+
+	//ui.tlbDomain->setVisible(false);
+	ui.cmbDomain->setVisible(false);
+
 	QStringList profiles;
 	foreach(QString profile, FOptionsManager->profiles())
 	{
@@ -165,11 +281,13 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 		}
 	}
 	ui.cmbDomain->addItem(tr("Custom domain..."));
+	ui.cmbDomain->insertSeparator(ui.cmbDomain->count() - 1);
 	connect(ui.cmbDomain,SIGNAL(currentIndexChanged(int)),SLOT(onDomainCurrentIntexChanged(int)));
 
 	QCompleter *completer = new QCompleter(profiles,ui.lneNode);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	completer->setCompletionMode(QCompleter::PopupCompletion);
+	//completer->setPopup(new CustomListView);
 	completer->setPopup(new QListView);
 	completer->popup()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	completer->popup()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -185,6 +303,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	ui.lneNode->installEventFilter(this);
 	ui.lneNode->completer()->popup()->installEventFilter(this);
+	if (ui.lneNode->completer()->popup()->parentWidget())
+		ui.lneNode->completer()->popup()->parentWidget()->installEventFilter(this);
 	ui.cmbDomain->installEventFilter(this);
 	ui.lnePassword->installEventFilter(this);
 	ui.chbSavePassword->installEventFilter(this);
@@ -233,7 +353,10 @@ void LoginDialog::loadLastProfile()
 	if (lastStreamJid.isValid())
 	{
 		ui.lneNode->setText(lastStreamJid.pNode());
-		ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(lastStreamJid.pDomain()));
+		QString domain = lastStreamJid.pDomain();
+		ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(domain));
+		ui.tlbDomain->setText("@"+domain);
+		ui.tlbDomain->setProperty("domain", domain);
 		loadCurrentProfileSettings();
 	}
 }
@@ -246,7 +369,8 @@ void LoginDialog::connectIfReady()
 
 Jid LoginDialog::currentStreamJid() const
 {
-	Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString(),CLIENT_NAME);
+	//Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString(),CLIENT_NAME);
+	Jid streamJid(ui.lneNode->text().trimmed(), ui.tlbDomain->property("domain").toString(), CLIENT_NAME);
 	return streamJid;
 }
 
@@ -281,7 +405,7 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::MouseButtonPress)
 	{
-		if (AWatched == ui.lneNode || AWatched == ui.cmbDomain || AWatched == ui.lnePassword || AWatched == ui.chbSavePassword || AWatched == ui.chbAutoRun)
+		if (AWatched == ui.lneNode || AWatched == ui.tlbDomain || AWatched == ui.lnePassword || AWatched == ui.chbSavePassword || AWatched == ui.chbAutoRun)
 		{
 			stopReconnection();
 		}
@@ -301,9 +425,10 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
 			p.setY(p.y() - ui.lnePassword->height() / 2);
-			BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), tr("Caps Lock is ON"),
-				tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
-				p, 0, true, BalloonTip::ArrowRight);
+			if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+				BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), tr("Caps Lock is ON"),
+							tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
+							p, 0, true, BalloonTip::ArrowRight);
 		}
 	}
 	else if (AEvent->type() == QEvent::FocusOut)
@@ -311,6 +436,10 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		if (AWatched == ui.lnePassword)
 		{
 			BalloonTip::hideBalloon();
+		}
+		else if (AWatched == ui.lneNode)
+		{
+			ui.lneNode->completer()->popup()->hide();
 		}
 	}
 	else if (AEvent->type() == QEvent::KeyPress)
@@ -327,16 +456,38 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			// TODO: adjust size to popup contents
 			//ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->completer()->popup()->sizeHint().width());
-			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->completer()->popup()->width() * 1.2);
+			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->width() * 1.2);
 			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos().x() + 1, ui.lneNode->completer()->popup()->pos().y() + 1);
+		}
+		else if (AWatched == ui.lneNode->completer()->popup()->parentWidget())
+		{
+			//ui.lneNode->completer()->popup()->parentWidget()->setFixedWidth(ui.lneNode->width() * 1.2);
+			//ui.lneNode->completer()->popup()->parentWidget()->move(ui.lneNode->completer()->popup()->parentWidget()->pos().x() + 1, ui.lneNode->completer()->popup()->parentWidget()->pos().y() + 1);
+			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->width() * 1.2);
+			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos().x() + 1, ui.lneNode->completer()->popup()->pos().y() + 1);
+			ui.lneNode->completer()->popup()->show();
+			//ui.lneNode->completer()->popup()->parentWidget()->adjustSize();
+			//ui.lneNode->completer()->popup()->parentWidget()->layout()->update();
 		}
 		else if (FMainWindowPlugin && (AWatched == FMainWindowPlugin->mainWindow()->instance() || AWatched == FMainWindowPlugin->mainWindowBorder()))
 		{
 			FMainWindowVisible = true;
 			if (AWatched == FMainWindowPlugin->mainWindow()->instance())
-				QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(), SLOT(close()));
+			{
+#ifdef Q_WS_WIN
+				if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+					QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(), SLOT(hide()));
+				else
+#endif
+					QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(), SLOT(close()));
+			}
 			else
-				QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(close()));
+#ifdef Q_WS_WIN
+				if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+					QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(hide()));
+				else
+#endif
+				QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(closeWidget()));
 		}
 	}
 	if (AWatched == ui.lblConnectSettings)
@@ -346,12 +497,9 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			QMouseEvent * mouseEvent = (QMouseEvent*)AEvent;
 			if (mouseEvent->button() == Qt::LeftButton)
 			{
-//				qDebug() << "lblConnectSettings click!";
-//				QDialog::eventFilter(AWatched, AEvent);
 				hideConnectionError();
 				hideXmppStreamError();
 				showConnectionSettings();
-//				return true;
 			}
 		}
 	}
@@ -366,8 +514,19 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 				view->setCurrentIndex(index);
 		}
 	}
+	if (AWatched == parentWidget())
+	{
+		if (AEvent->type() == QEvent::Move)
+			BalloonTip::hideBalloon();
+	}
 
 	return QDialog::eventFilter(AWatched, AEvent);
+}
+
+void LoginDialog::moveEvent(QMoveEvent * evt)
+{
+	BalloonTip::hideBalloon();
+	QDialog::moveEvent(evt);
 }
 
 void LoginDialog::mousePressEvent(QMouseEvent * event)
@@ -525,6 +684,7 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 
 	ui.lneNode->setEnabled(AEnabled);
 	ui.cmbDomain->setEnabled(AEnabled);
+	ui.tlbDomain->setEnabled(AEnabled);
 	ui.lnePassword->setEnabled(AEnabled);
 	ui.chbSavePassword->setEnabled(AEnabled);
 	ui.chbAutoRun->setEnabled(AEnabled);
@@ -535,7 +695,7 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 	{
 		ui.pbtConnect->setEnabled(AEnabled);
 		ui.pbtConnect->setProperty("connecting", true);
-		setStyleSheet(styleSheet());
+		StyleStorage::updateStyle(this);
 	}
 	ui.pbtConnect->setText(AEnabled ? tr("Enter") : tr("Connecting..."));
 }
@@ -562,22 +722,48 @@ void LoginDialog::showConnectionSettings()
 		QDialog *dialog = new QDialog(this);
 		dialog->setAttribute(Qt::WA_DeleteOnClose,true);
 		dialog->setLayout(new QVBoxLayout);
-		dialog->layout()->setMargin(5);
-		dialog->setWindowTitle(tr("Connection settings"));
+		dialog->layout()->setContentsMargins(18, 4, 8, 7);
+		dialog->setFixedWidth(330);
+
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(dialog, STS_OPTIONS_CONNECTION_SETTINGS);
+
+		CustomBorderContainer * dialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+		if (dialogBorder)
+		{
+			dialogBorder->setMinimizeButtonVisible(false);
+			dialogBorder->setMaximizeButtonVisible(false);
+			dialogBorder->setWindowTitle(windowTitle());
+			dialogBorder->setResizable(false);
+			connect(this, SIGNAL(accepted()), dialogBorder, SLOT(closeWidget()));
+			connect(this, SIGNAL(rejected()), dialogBorder, SLOT(closeWidget()));
+			connect(dialogBorder, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+			dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+		}
+
+		// extra layout for contents
+		QVBoxLayout * settingsLayout = new QVBoxLayout;
+		settingsLayout->setContentsMargins(0, 0, 14, 8);
 
 		foreach(IOptionsWidget *widget, holder->optionsWidgets(OPN_CONNECTION, dialog))
 		{
-			dialog->layout()->addWidget(widget->instance());
+			settingsLayout->addWidget(widget->instance());
 			connect(dialog,SIGNAL(accepted()),widget->instance(),SLOT(apply()));
 		}
 
+		dialog->layout()->addItem(settingsLayout);
+
 		QDialogButtonBox *buttons = new QDialogButtonBox(dialog);
 		buttons->setStandardButtons(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
+		buttons->button(QDialogButtonBox::Ok)->setAutoDefault(false);
+		buttons->button(QDialogButtonBox::Ok)->setDefault(true);
+		buttons->button(QDialogButtonBox::Cancel)->setAutoDefault(false);
 		dialog->layout()->addWidget(buttons);
 		connect(buttons,SIGNAL(accepted()),dialog,SLOT(accept()));
 		connect(buttons,SIGNAL(rejected()),dialog,SLOT(reject()));
 
-		dialog->exec();
+		dialog->setWindowTitle(tr("Connection settings"));
+
+		WidgetManager::showActivateRaiseWindow(dialogBorder ? (QWidget*)dialogBorder : (QWidget*)dialog);
 	}
 }
 
@@ -591,13 +777,14 @@ void LoginDialog::hideConnectionError()
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
 {
+	Log(QString("[LoginDialog connection error] %1").arg(AError));
 	hideXmppStreamError();
 
 	QString message = ACaption;
 	message += message.isEmpty() || AError.isEmpty() ? AError : "<br>" + AError;
 	ui.lblConnectError->setText(message);
 
-	ui.lblConnectSettings->setText(QString("<a href='virtus.connection.settings'>%1</a>").arg(tr("Connection settings")));
+	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'>%1</a>").arg(tr("Connection settings")));
 
 	int tries = FReconnectTimer.property("tries").toInt();
 	if (tries > 0)
@@ -616,7 +803,8 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	ui.chbShowPassword->setVisible(false);
 	QPoint p = ui.pbtConnect->mapToGlobal(ui.pbtConnect->rect().topLeft());
 	p.setY(p.y() + ui.pbtConnect->height() / 2);
-	BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowRight);
+	if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+		BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowRight);
 }
 
 void LoginDialog::hideXmppStreamError()
@@ -624,14 +812,16 @@ void LoginDialog::hideXmppStreamError()
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
-	ui.frmDomain->setProperty("error", false);
-	setStyleSheet(styleSheet());
+	ui.tlbDomain->setProperty("error", false);
+	//	ui.frmDomain->setProperty("error", false);
+	StyleStorage::updateStyle(this);
 	ui.lblXmppError->setVisible(false);
 	BalloonTip::hideBalloon();
 }
 
-void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint)
+void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint, bool showPasswordEnabled)
 {
+	Log(QString("[LoginDialog stream error] %1 (%2)").arg(AError, AHint));
 	hideConnectionError();
 
 	QString message = ACaption;
@@ -642,31 +832,37 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	if (FNewProfile)
 	{
 		ui.lneNode->setProperty("error", true);
-		ui.frmDomain->setProperty("error", true);
+		//		ui.frmDomain->setProperty("error", true);
 		ui.cmbDomain->setProperty("error", true);
+		ui.tlbDomain->setProperty("error", true);
 	}
 	ui.lnePassword->setProperty("error", true);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 	ui.lblXmppError->setVisible(true);
-	ui.chbShowPassword->setVisible(true);
+	ui.chbShowPassword->setVisible(showPasswordEnabled);
 	QPoint p;
 	if (FNewProfile)
 	{
-		p = ui.cmbDomain->mapToGlobal(ui.cmbDomain->rect().topRight());
-		p.setY(p.y() + ui.cmbDomain->height() / 2);
+		//p = ui.cmbDomain->mapToGlobal(ui.cmbDomain->rect().topRight());
+		//p.setY(p.y() + ui.cmbDomain->height() / 2);
+		p = ui.tlbDomain->mapToGlobal(ui.tlbDomain->rect().topRight());
+		p.setY(p.y() + ui.tlbDomain->height() / 2);
 	}
 	else
 	{
 		p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().topRight());
 		p.setY(p.y() + ui.lnePassword->height() / 2);
 	}
-	BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft);
+	if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+		BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft);
 }
 
 void LoginDialog::onConnectClicked()
 {
 	if (ui.pbtConnect->isEnabled())
 	{
+		hideConnectionError();
+		hideXmppStreamError();
 		ui.lneNode->completer()->popup()->hide();
 		bool connecting = false;
 		setConnectEnabled(false);
@@ -698,7 +894,6 @@ void LoginDialog::onConnectClicked()
 					{
 						account->setName(streamJid.domain());
 						account->setStreamJid(streamJid);
-						account->setPassword(ui.lnePassword->text());
 						account->setActive(true);
 						if (FStatusChanger && account->isActive())
 						{
@@ -707,6 +902,9 @@ void LoginDialog::onConnectClicked()
 							disconnect(account->xmppStream()->instance(),0,this,0);
 							connect(account->xmppStream()->instance(),SIGNAL(opened()),SLOT(onXmppStreamOpened()));
 							connect(account->xmppStream()->instance(),SIGNAL(closed()),SLOT(onXmppStreamClosed()));
+
+							account->setPassword(ui.chbSavePassword->isChecked() ? ui.lnePassword->text() : QString::null);
+							account->xmppStream()->setPassword(ui.lnePassword->text());
 
 							FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(), STATUS_MAIN_ID);
 
@@ -721,7 +919,7 @@ void LoginDialog::onConnectClicked()
 						showXmppStreamError(tr("Unable to create account"), QString::null, tr("Internal error, contact support"));
 				}
 				else
-					showXmppStreamError(tr("Unable to open profile"), QString::null, tr("This profile is already opened by another Virtus instance"));
+					showXmppStreamError(tr("Unable to open profile"), QString::null, tr("This profile is already opened by another Contacts instance"), false);
 			}
 			else
 				showXmppStreamError(tr("Unable to create profile"), QString::null, tr("Check your system permissions to create folders"));
@@ -737,9 +935,6 @@ void LoginDialog::onConnectClicked()
 void LoginDialog::onXmppStreamOpened()
 {
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
-	if (account && !ui.chbSavePassword->isChecked())
-		account->setPassword(QString::null);
-
 	if (account && FConnectionSettings!=CS_DEFAULT)
 	{
 		OptionsNode coptions = account->optionsNode().node("connection",account->xmppStream()->connection()->ownerPlugin()->pluginId());
@@ -774,9 +969,6 @@ void LoginDialog::onXmppStreamOpened()
 void LoginDialog::onXmppStreamClosed()
 {
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
-	if (account && !ui.chbSavePassword->isChecked())
-		account->setPassword(QString::null);
-
 	if (account && account->xmppStream()->connection() == NULL)
 	{
 		showConnectionError(tr("Unable to set connection"), tr("Internal error, contact support"));
@@ -794,8 +986,8 @@ void LoginDialog::onXmppStreamClosed()
 	}
 	else if (account)
 	{
-		showXmppStreamError(tr("Unable to login on server"),account->xmppStream()->errorString(),
-			FNewProfile ? tr("Entered login or password is not correct") : tr("Maybe entered password is not correct"));
+		showXmppStreamError(FNewProfile ? tr("Login and password mismatch") : tr("Wrong password"), QString::null/*account->xmppStream()->errorString()*/,
+				    tr("Check keyboard layout"));
 	}
 
 	FFirstConnect = false;
@@ -823,6 +1015,8 @@ void LoginDialog::onCompleterHighLighted(const QString &AText)
 	Jid streamJid = AText;
 	ui.lneNode->setText(streamJid.node());
 	ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(streamJid.pDomain()));
+	ui.tlbDomain->setText("@"+streamJid.pDomain());
+	ui.tlbDomain->setProperty("domain", streamJid.pDomain());
 }
 
 void LoginDialog::onCompleterActivated(const QString &AText)
@@ -835,67 +1029,65 @@ void LoginDialog::onCompleterActivated(const QString &AText)
 
 void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 {
-	static int prevIndex = 0;
 	if (ui.cmbDomain->itemData(AIndex).toString().isEmpty())
 	{
-		QInputDialog *dialog = new QInputDialog();
-		dialog->setInputMode(QInputDialog::TextInput);
+		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::String);
+		dialog->setCaptionText(QString::null);
 		dialog->setWindowTitle(tr("Add custom domain"));
-		dialog->setLabelText(tr("Enter custom domain address"));
-		dialog->setOkButtonText(tr("Add"));
-		dialog->setStyleSheet(styleSheet());
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-		if (border)
-		{
-			border->setWindowModality(Qt::ApplicationModal);
-			border->show();
-			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-		}
-
-		QBoxLayout *layout = qobject_cast<QBoxLayout *>(dialog->layout());
-		foreach(QObject *object, dialog->children())
-		{
-			QLineEdit *editor = qobject_cast<QLineEdit *>(object);
-			if (layout && editor)
-			{
-				QLabel *label = new QLabel(dialog);
-				label->setText(tr("<a href=' '>How to connect your domain to Rambler?</a>"));
-				layout->insertWidget(layout->indexOf(editor)+1,label);
-				connect(label,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
-				break;
-			}
-		}
-
-		if (dialog->exec() && !dialog->textValue().trimmed().isEmpty())
-		{
-			Jid domain = dialog->textValue().trimmed();
-			int index = ui.cmbDomain->findData(domain.pDomain());
-			if (index < 0)
-			{
-				index = 0;
-				ui.cmbDomain->blockSignals(true);
-				ui.cmbDomain->insertItem(0,"@"+domain.pDomain(),domain.pDomain());
-				ui.cmbDomain->blockSignals(false);
-			}
-			ui.cmbDomain->setCurrentIndex(index);
-		}
-		else
-		{
-			ui.cmbDomain->setCurrentIndex(prevIndex);
-		}
-		if (border)
-			border->deleteLater();
-		else
-			dialog->deleteLater();
+		dialog->setInfoText(tr("Enter address of custom domain\nwhich is linked to Rambler"));
+		dialog->setAcceptButtonText(tr("Add"));
+		dialog->setRejectButtonText(tr("Cancel"));
+		dialog->setDeleteOnClose(true);
+		dialog->setDescriptionText(QString("<a href='http://partners.mail.rambler.ru'>%1</a>").arg(tr("How to link your domain?")));
+		connect(dialog, SIGNAL(stringAccepted(const QString &)), SLOT(onNewDomainSelected(const QString &)));
+		connect(dialog, SIGNAL(rejected()), SLOT(onNewDomainRejected()));
+		connect(dialog, SIGNAL(linkActivated(const QString &)), SLOT(onLabelLinkActivated(const QString &)));
+		dialog->show();
 	}
 	else
-		prevIndex = AIndex;
+		domainPrevIndex = AIndex;
+}
+
+void LoginDialog::onDomainActionTriggered()
+{
+	Action * action = qobject_cast<Action*>(sender());
+	if (action)
+	{
+		QString domain = action->data(Action::DR_UserDefined + 1).toString();
+		ui.tlbDomain->setText(action->text());
+		ui.tlbDomain->setProperty("domain", domain);
+	}
+}
+
+void LoginDialog::onNewDomainSelected(const QString & newDomain)
+{
+	if (!newDomain.isEmpty())
+	{
+		Jid domain = newDomain;
+		int index = ui.cmbDomain->findData(domain.pDomain());
+		if (index < 0)
+		{
+			index = 0;
+			ui.cmbDomain->blockSignals(true);
+			ui.cmbDomain->insertItem(0,"@"+domain.pDomain(),domain.pDomain());
+			ui.cmbDomain->blockSignals(false);
+		}
+		ui.cmbDomain->setCurrentIndex(index);
+	}
+	else
+	{
+		onNewDomainRejected();
+	}
+}
+
+void LoginDialog::onNewDomainRejected()
+{
+	ui.cmbDomain->setCurrentIndex(domainPrevIndex);
 }
 
 void LoginDialog::onLabelLinkActivated(const QString &ALink)
 {
-	qDebug() << ALink;
-	if (ALink == "virtus.connection.settings")
+	if (ALink == "ramblercontacts.connection.settings")
 		showConnectionSettings();
 	else
 		QDesktopServices::openUrl(ALink);
@@ -946,13 +1138,17 @@ void LoginDialog::loadCurrentProfileSettings()
 			QDomElement pasElem = doc.documentElement().firstChildElement("password");
 			if (!pasElem.isNull() && QVariant(pasElem.attribute("save")).toBool())
 			{
+				FSavedPasswordCleared = false;
 				ui.chbSavePassword->setChecked(true);
+				ui.chbShowPassword->setChecked(false);
+				ui.lnePassword->setEchoMode(QLineEdit::Password);
 				ui.lnePassword->setText(Options::decrypt(pasElem.text().toLatin1(),FOptionsManager->profileKey(profile,QString::null)).toString());
 			}
 			else
 			{
-				ui.lnePassword->setText(QString::null);
+				FSavedPasswordCleared = true;
 				ui.chbSavePassword->setChecked(false);
+				ui.lnePassword->setText(QString::null);
 			}
 
 			QDomElement autoElem = doc.documentElement().firstChildElement("auto-run");
@@ -978,7 +1174,7 @@ void LoginDialog::onLoginOrPasswordTextChanged()
 {
 	ui.pbtConnect->setEnabled(!ui.lneNode->text().isEmpty() && !ui.lnePassword->text().isEmpty());
 	ui.pbtConnect->setProperty("connecting", false);
-	setStyleSheet(styleSheet());
+	StyleStorage::updateStyle(this);
 }
 
 void LoginDialog::onShowConnectingAnimation()
@@ -1015,7 +1211,12 @@ void LoginDialog::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Activati
 void LoginDialog::onShowPasswordToggled(int state)
 {
 	if (state == Qt::Checked)
+	{
+		if (!FSavedPasswordCleared)
+			ui.lnePassword->clear();
+		FSavedPasswordCleared = true;
 		ui.lnePassword->setEchoMode(QLineEdit::Normal);
+	}
 	else
 		ui.lnePassword->setEchoMode(QLineEdit::Password);
 }
@@ -1025,3 +1226,5 @@ void LoginDialog::onStylePreviewReset()
 	if (ui.lneNode->completer())
 		ui.lneNode->completer()->popup()->setStyleSheet(styleSheet());
 }
+
+#include "logindialog.moc"

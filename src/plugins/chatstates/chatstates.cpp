@@ -48,7 +48,7 @@ void ChatStates::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to share information about the user's activity in the chat");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(PRESENCE_UUID);
 	APluginInfo->dependences.append(MESSAGEWIDGETS_UUID);
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
@@ -318,7 +318,7 @@ void ChatStates::sessionLocalize(const IStanzaSession &ASession, IDataForm &AFor
 
 bool ChatStates::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
 {
-	if (FSHIMessagesOut.value(AStreamJid)==AHandlerId && FChatParams.contains(AStreamJid))
+	if (FSHIMessagesOut.value(AStreamJid)==AHandlerId && FChatParams.contains(AStreamJid) && AStanza.type()!="error")
 	{
 		bool stateSent = false;
 		Jid contactJid = AStanza.to();
@@ -334,14 +334,14 @@ bool ChatStates::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 		FChatParams[AStreamJid][contactJid].canSendStates = stateSent;
 		setSelfState(AStreamJid,contactJid,IChatStates::StateActive,false);
 	}
-	else if (FSHIMessagesIn.value(AStreamJid)==AHandlerId && FChatParams.contains(AStreamJid))
+	else if (FSHIMessagesIn.value(AStreamJid)==AHandlerId && FChatParams.contains(AStreamJid) && AStanza.type()!="error")
 	{
 		Jid contactJid = AStanza.from();
 		bool hasBody = !AStanza.firstElement("body").isNull();
 		QDomElement elem = AStanza.firstElement(QString::null,NS_CHATSTATES);
 		if (!elem.isNull())
 		{
-			if (hasBody || FChatParams.value(AStreamJid).value(contactJid).canSendStates==true)
+			if (hasBody || FChatParams.value(AStreamJid).value(contactJid).canSendStates)
 			{
 				AAccept = true;
 				setSupported(AStreamJid,contactJid,true);
@@ -545,9 +545,8 @@ void ChatStates::notifyUserState(const Jid &AStreamJid, const Jid &AContactJid)
 				notify.data.insert(NDR_ICON_KEY, MNI_CHATSTATES_COMPOSING);
 				notify.data.insert(NDR_ICON_STORAGE, RSR_STORAGE_MENUICONS);
 				notify.data.insert(NDR_ROSTER_ORDER,RNO_CHATSTATES_TYPING);
-				notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink);
 				notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_CHATSTATE_TYPING);
-				notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+				notify.data.insert(NDR_TABPAGE_ICONBLINK,false);
 				notify.data.insert(NDR_TABPAGE_TOOLTIP,tr("Typing..."));
 				params.notifyId = FNotifications->appendNotification(notify);
 			}

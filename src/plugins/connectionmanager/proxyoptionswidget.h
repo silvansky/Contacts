@@ -11,8 +11,8 @@ class ProxyOptionsWidget :
 		public QWidget,
 		public IOptionsWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IOptionsWidget);
+	Q_OBJECT
+	Q_INTERFACES(IOptionsWidget)
 public:
 	ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode ANode, QWidget *AParent = NULL);
 	virtual QWidget* instance() { return this; }
@@ -21,6 +21,7 @@ public slots:
 	void reset();
 signals:
 	void modified();
+	void updated();
 	void childApply();
 	void childReset();
 private:

@@ -1,0 +1,54 @@
+AddMetaItemPage
+{
+	background-color: white;
+}
+
+AddMetaItemPage QWidget
+{
+	background-color: transparent;
+}
+
+CustomLabel#lblInfo,
+CustomLabel#lblError
+{
+	color: black;
+	qproperty-shadow: 0;
+}
+
+QPushButton#pbtAppend
+{
+	color: black;
+	min-height: 25px;
+	border-image: url(%IMAGES_PATH%/whitebutton.png);
+}
+
+QPushButton#pbtAppend:disabled
+{
+	color: #acacac;
+	border-image: url(%IMAGES_PATH%/whitebutton_disabled.png);
+}
+
+QPushButton#pbtAppend:hover
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_hover.png);
+}
+
+QPushButton#pbtAppend:pressed
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_click.png);
+}
+
+QLineEdit#lneContact:enabled
+{
+	border-image: url(%IMAGES_PATH%/editborder_white.png);
+}
+
+QLineEdit#lneContact:focus
+{
+	border-image: url(%IMAGES_PATH%/editborderfocused_white.png);
+}
+
+QLineEdit#lneContact:!enabled
+{
+	border-image: url(%IMAGES_PATH%/editborderdisabled_white.png);
+}

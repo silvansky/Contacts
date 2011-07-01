@@ -21,7 +21,7 @@ void StyleSheetEditorPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Allows to edit and preview the application stylesheet");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "V.Gorshkov";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool StyleSheetEditorPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
@@ -62,6 +62,7 @@ void StyleSheetEditorPlugin::showEditDialog()
 
 void StyleSheetEditorPlugin::styleSheetChanged(const QString& newSheet)
 {
+	Q_UNUSED(newSheet)
 }
 
 void StyleSheetEditorPlugin::resetStyleSheet()

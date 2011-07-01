@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>ramblermailnotifyNotify</key>
+    <object mime="image/png">ramblermailnotifynotify.png</object>
+  </icon>
+  <icon>
+    <key>ramblermailnotifyAvatar</key>
+    <object mime="image/png">ramblermailnotifyavatar.png</object>
+  </icon>
+  <icon>
+    <key>ramblermailnotifyRoster</key>
+    <object mime="image/png">ramblermailnotifyroster_empty.png</object>
+    <object mime="image/png">ramblermailnotifyroster_full.png</object>
+  </icon>
+</icondef>

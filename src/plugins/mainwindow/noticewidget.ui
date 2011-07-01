@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>299</width>
-    <height>69</height>
+    <width>253</width>
+    <height>140</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <property name="margin">
@@ -33,7 +39,7 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QLabel" name="lblCaption">
+        <widget class="CustomLabel" name="lblCaption">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -52,12 +58,35 @@
         </widget>
        </item>
        <item>
-        <widget class="CloseButton" name="cbtClose"/>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="CloseButton" name="cbtClose"/>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
      <item>
-      <widget class="QLabel" name="lblMessage">
+      <widget class="CustomLabel" name="lblMessage">
        <property name="text">
         <string notr="true">Message</string>
        </property>
@@ -82,6 +111,11 @@
    <class>CloseButton</class>
    <extends>QToolButton</extends>
    <header location="global">utils/closebutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

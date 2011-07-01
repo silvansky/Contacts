@@ -35,12 +35,16 @@
         <translation>Позволяет другим модулям размещать свои виджеты в главном окне</translation>
     </message>
     <message>
-        <source>Open Virtus</source>
-        <translation>Открыть Virtus</translation>
-    </message>
-    <message>
         <source>Stay on top of other windows</source>
         <translation>Закрепить поверх остальных окон</translation>
+    </message>
+    <message>
+        <source>Contacts</source>
+        <translation>Контакты</translation>
+    </message>
+    <message>
+        <source>Show Contacts</source>
+        <translation>Показать Контакты</translation>
     </message>
 </context>
 </TS>

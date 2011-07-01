@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>637</width>
-    <height>515</height>
+    <width>670</width>
+    <height>473</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,7 +33,7 @@
      </property>
      <widget class="QTableWidget" name="twtPlugins">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
         <horstretch>1</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -53,6 +53,25 @@
       <attribute name="horizontalHeaderHighlightSections">
        <bool>false</bool>
       </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="horizontalHeaderHighlightSections">
+       <bool>false</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Name</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>File</string>
+       </property>
+      </column>
      </widget>
      <widget class="QGroupBox" name="grbProperties">
       <property name="sizePolicy">
@@ -70,11 +89,24 @@
        </property>
        <item>
         <widget class="QLabel" name="lblName">
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
          <property name="wordWrap">
           <bool>true</bool>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblHomePage">
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -86,6 +118,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="textFormat">
+          <enum>Qt::PlainText</enum>
+         </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
          </property>
@@ -94,29 +129,6 @@
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="lblLabelHomePage">
-         <property name="text">
-          <string>Home page:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="lblHomePage">
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Sunken</enum>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -142,7 +154,7 @@
            <item>
             <widget class="QListWidget" name="ltwDepends">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -152,9 +164,6 @@
              </property>
              <property name="selectionMode">
               <enum>QAbstractItemView::NoSelection</enum>
-             </property>
-             <property name="isWrapping" stdset="0">
-              <bool>true</bool>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -174,7 +183,7 @@
            <item>
             <widget class="QListWidget" name="ltwDepend">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -184,9 +193,6 @@
              </property>
              <property name="selectionMode">
               <enum>QAbstractItemView::NoSelection</enum>
-             </property>
-             <property name="isWrapping" stdset="0">
-              <bool>true</bool>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -202,6 +208,9 @@
          <property name="text">
           <string>Error Message:</string>
          </property>
+         <property name="textFormat">
+          <enum>Qt::PlainText</enum>
+         </property>
         </widget>
        </item>
        <item>
@@ -211,6 +220,9 @@
          </property>
          <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::PlainText</enum>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -238,6 +250,9 @@
         <property name="text">
          <string>Language:</string>
         </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
+        </property>
         <property name="buddy">
          <cstring>cmbLanguage</cstring>
         </property>
@@ -254,6 +269,9 @@
        <widget class="QLabel" name="lblCountry">
         <property name="text">
          <string>Country:</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
         </property>
        </widget>
       </item>

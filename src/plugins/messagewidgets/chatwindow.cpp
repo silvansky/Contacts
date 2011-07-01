@@ -67,10 +67,11 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 
 	ui.wdtBottomWidgets->setLayout(new QVBoxLayout);
 	ui.wdtBottomWidgets->layout()->setMargin(0);
-	ui.wdtBottomWidgets->setVisible(false);
+	//ui.wdtBottomWidgets->setVisible(false);
 
 	FStatusBarWidget = FMessageWidgets->newStatusBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
 	FStatusBarWidget->instance()->setObjectName("statusBarWidget");
+	FStatusBarWidget->instance()->setVisible(false);
 	setStatusBar(FStatusBarWidget->instance());
 
 	initialize();
@@ -217,8 +218,8 @@ void ChatWindow::insertBottomWidget(int AOrder, QWidget *AWidget)
 		else
 			boxLayout->addWidget(AWidget);
 		FBottomWidgets.insertMulti(AOrder,AWidget);
-		if (FBottomWidgets.count() == 1)
-			ui.wdtBottomWidgets->setVisible(true);
+//		if (FBottomWidgets.count() == 1)
+//			ui.wdtBottomWidgets->setVisible(true);
 		connect(AWidget,SIGNAL(destroyed(QObject *)),SLOT(onTopOrBottomWidgetDestroyed(QObject *)));
 		emit bottomWidgetInserted(AOrder, AWidget);
 	}
@@ -230,8 +231,8 @@ void ChatWindow::removeBottomWidget(QWidget *AWidget)
 	{
 		FBottomWidgets.remove(FBottomWidgets.key(AWidget),AWidget);
 		ui.wdtBottomWidgets->layout()->removeWidget(AWidget);
-		if (FBottomWidgets.count() == 0)
-			ui.wdtBottomWidgets->setVisible(false);
+//		if (FBottomWidgets.count() == 0)
+//			ui.wdtBottomWidgets->setVisible(false);
 		emit bottomWidgetRemoved(AWidget);
 	}
 }
@@ -280,7 +281,7 @@ bool ChatWindow::event(QEvent *AEvent)
 	{
 		static QKeyEvent *sentEvent = NULL;
 		QKeyEvent *keyEvent = static_cast<QKeyEvent*>(AEvent);
-		if (sentEvent!=keyEvent && !keyEvent->text().isEmpty())
+		if (sentEvent!=keyEvent && !keyEvent->text().isEmpty() && FEditWidget->textEdit()->isEnabled())
 		{
 			sentEvent = keyEvent;
 			FEditWidget->textEdit()->setFocus();

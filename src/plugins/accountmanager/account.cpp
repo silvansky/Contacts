@@ -39,8 +39,8 @@ void Account::setActive(bool AActive)
 	if (AActive && FXmppStream==NULL && isValid())
 	{
 		FXmppStream = FXmppStreams->newXmppStream(streamJid());
+		FXmppStream->setPassword(password());
 		connect(FXmppStream->instance(),SIGNAL(closed()),SLOT(onXmppStreamClosed()),Qt::QueuedConnection);
-		onXmppStreamClosed();
 		FXmppStreams->addXmppStream(FXmppStream);
 		emit activeChanged(true);
 	}
@@ -98,7 +98,6 @@ void Account::onXmppStreamClosed()
 	if (FXmppStream)
 	{
 		FXmppStream->setStreamJid(streamJid());
-		FXmppStream->setPassword(password());
 	}
 }
 

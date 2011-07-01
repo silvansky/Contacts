@@ -31,6 +31,7 @@
 #define RLO_PRIVACY                               RLAP_RIGHT_TOP + 300
 #define RLO_CONNECTION_ENCRYPTED                  RLAP_RIGHT_TOP + 500
 
-#define RLO_AVATAR_IMAGE                          RLAP_RIGHT_CENTER + 500
+#define RLO_GATEWAY_ICON                          RLAP_RIGHT_CENTER + 500
+#define RLO_AVATAR_IMAGE                          RLAP_RIGHT_CENTER + 501
 
 #endif

@@ -9,15 +9,15 @@
     </message>
     <message>
         <source>Invalid response</source>
-        <translation>Неверный ответ</translation>
+        <translation>Некорректный ответ</translation>
     </message>
     <message>
         <source>Allows other modules to receive or send a small amount of binary data in XMPP stanza</source>
-        <translation>Позволяет другим модулям получать или отправлять небольшое количество бинарных данных в XMPP строфе</translation>
+        <translation>Позволяет другим модулям получать или отправлять некоторое количество бинарных данных в XMPP-станзе</translation>
     </message>
     <message>
         <source>Supports the exchange of a small amount of binary data in XMPP stanza</source>
-        <translation>Поддерживает обмен небольшим количеством бинарных данных в XMPP строфах</translation>
+        <translation>Поддерживает обмен некоторым количеством бинарных данных в XMPP-станзах</translation>
     </message>
 </context>
 </TS>

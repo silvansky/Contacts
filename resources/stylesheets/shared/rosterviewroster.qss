@@ -3,25 +3,27 @@ QTreeView#rostersView
 	background-color: white;
 	alternate-background-color: #f2f9fc;
 	color: black;
-	selection-color: black;
-	qproperty-groupBrush: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #16394e, stop:1 #5187a5);
+	selection-color: white;
+	selection-background-color: #275672;
+	qproperty-groupBorderImage: url(%IMAGES_PATH%/groups-border.png);
 	qproperty-groupColor: white;
-	qproperty-groupFontSize: 10;
+	qproperty-groupFontSize: 11;
 	qproperty-footerColor: #acacac;
 	font-size: 12px;
 }
 
-QTreeView#rostersView::item
+/*QTreeView#rostersView::item
 {
 	background-color: transparent;
 }
 
 QTreeView#rostersView::item:selected:active
 {
-	background-color: #c5d9e7;
+	background-color: #275672;
 }
 
 QTreeView#rostersView::item:selected!active
 {
-	background-color: transparent;
+	background-color: #275672;
 }
+*/

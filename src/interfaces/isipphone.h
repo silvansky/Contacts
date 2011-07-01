@@ -18,7 +18,7 @@ struct ISipStream
 		SS_CLOSE,
 		SS_CLOSED,
 	};
-	ISipStream() {
+	ISipStream() : noAnswer(false) {
 		kind = SK_INITIATOR;
 		state = SS_CLOSED;
 	};
@@ -27,6 +27,8 @@ struct ISipStream
 	QString sid;
 	Jid streamJid;
 	Jid contactJid;
+	bool noAnswer;
+	//QString metaId;
 };
 
 class ISipPhone

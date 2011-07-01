@@ -4,15 +4,18 @@
 #include <QTimer>
 #include <QWidget>
 #include <QObjectCleanupHandler>
+#include <definitions/textflags.h>
 #include <definitions/resources.h>
+#include <definitions/stylesheets.h>
 #include <interfaces/imessagewidgets.h>
 #include <utils/actionbutton.h>
 #include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
 #include "ui_noticewidget.h"
 
 class ChatNoticeWidget : 
-			public QWidget,
-			public IChatNoticeWidget
+	public QWidget,
+	public IChatNoticeWidget
 {
 	Q_OBJECT;
 	Q_INTERFACES(IChatNoticeWidget);
@@ -38,6 +41,8 @@ signals:
 protected:
 	void updateNotice();
 	void updateWidgets(int ANoticeId);
+protected:
+	void paintEvent(QPaintEvent *AEvent);
 protected slots:
 	void onUpdateTimerTimeout();
 	void onCloseTimerTimeout();

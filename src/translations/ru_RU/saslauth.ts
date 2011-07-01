@@ -5,14 +5,14 @@
     <name>SASLAuth</name>
     <message>
         <source>Wrong SASL authentication response</source>
-        <translation>Неверный ответ во время SASL авторизации</translation>
+        <translation>Неверный ответ во время SASL-авторизации</translation>
     </message>
 </context>
 <context>
     <name>SASLBind</name>
     <message>
         <source>Invalid XMPP stream JID in SASL bind response</source>
-        <translation>Некорректный JID в ответе на SASL-Bind</translation>
+        <translation>Некорректный JID в ответе на SASL-авторизацию</translation>
     </message>
 </context>
 <context>
@@ -31,11 +31,11 @@
     </message>
     <message>
         <source>Invalid Mechanism</source>
-        <translation>Неправильный механизм</translation>
+        <translation>Некорректный процесс обработки данных</translation>
     </message>
     <message>
         <source>Mechanism Too Weak</source>
-        <translation>Механизм слишком слаб</translation>
+        <translation>Процесс обработки данных слишком медленный</translation>
     </message>
     <message>
         <source>Not Authorized</source>
@@ -43,15 +43,15 @@
     </message>
     <message>
         <source>Temporary Auth Failure</source>
-        <translation>Временная авторизация не корректна</translation>
+        <translation>Некорректная временная авторизация</translation>
     </message>
     <message>
         <source>SASL Authentication</source>
-        <translation>SASL авторизация</translation>
+        <translation>SASL-авторизация</translation>
     </message>
     <message>
         <source>Allows to log in to Jabber server using SASL authentication</source>
-        <translation>Позволяет авторизоваться на сервере используя SASL авторизацию</translation>
+        <translation>Позволяет авторизоваться на сервере используя SASL-авторизацию</translation>
     </message>
 </context>
 </TS>

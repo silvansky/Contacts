@@ -5,36 +5,36 @@
     <name>Designer</name>
     <message>
         <source>Unable to launch %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Невозможно запустить %1.</translation>
     </message>
     <message>
         <source>%1 timed out.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 превышен интервал ожидания.</translation>
     </message>
 </context>
 <context>
     <name>DesignerMetaEnum</name>
     <message>
         <source>%1 is not a valid enumeration value of &apos;%2&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 не является допустимым значением перечисления &apos;%2&apos;.</translation>
     </message>
     <message>
         <source>&apos;%1&apos; could not be converted to an enumeration value of type &apos;%2&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; не могут быть преобразованы в значения перечисления типа &apos;%2&apos;.</translation>
     </message>
 </context>
 <context>
     <name>DesignerMetaFlags</name>
     <message>
         <source>&apos;%1&apos; could not be converted to a flag value of type &apos;%2&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; не может быть преобразована в значение флага типа &apos;%2&apos;.</translation>
     </message>
 </context>
 <context>
     <name>QtGradientDialog</name>
     <message>
         <source>Edit Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Редактировать градиент</translation>
     </message>
 </context>
 <context>
@@ -399,6 +399,10 @@
         <source>Invalid Style Sheet</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Test Form</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>StyleSheetEditorPlugin</name>
@@ -408,6 +412,49 @@
     </message>
     <message>
         <source>Allows to edit and preview the application stylesheet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Style Sheet Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TestStylesForm</name>
+    <message>
+        <source>Test Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PushButton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>popup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Menu button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RadioButton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CheckBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GroupBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

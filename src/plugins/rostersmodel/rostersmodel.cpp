@@ -10,7 +10,7 @@ RostersModel::RostersModel()
 	FPresencePlugin = NULL;
 	FAccountManager = NULL;
 
-	FRootIndex = new RosterIndex(RIT_ROOT,"IT_Root");
+	FRootIndex = new RosterIndex(RIT_ROOT);
 	FRootIndex->setParent(this);
 	connect(FRootIndex,SIGNAL(dataChanged(IRosterIndex *, int)),
 		SLOT(onIndexDataChanged(IRosterIndex *, int)));
@@ -35,7 +35,7 @@ void RostersModel::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->description = tr("Creates a hierarchical model for display roster");
 	APluginInfo->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
-	APluginInfo->homePage = "http://virtus.rambler.ru";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool RostersModel::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -77,6 +77,15 @@ bool RostersModel::initConnections(IPluginManager *APluginManager, int &/*AInitO
 		}
 	}
 
+	return true;
+}
+
+bool RostersModel::initObjects()
+{
+	registerSingleGroup(RIT_GROUP_BLANK,tr("Outside Groups"));
+	registerSingleGroup(RIT_GROUP_AGENTS,tr("Agents"));
+	registerSingleGroup(RIT_GROUP_MY_RESOURCES,tr("My Resources"));
+	registerSingleGroup(RIT_GROUP_NOT_IN_ROSTER,tr("Not in Roster"));
 	return true;
 }
 
@@ -145,12 +154,12 @@ IRosterIndex *RostersModel::addStream(const Jid &AStreamJid)
 
 		if (roster || presence)
 		{
-			IRosterIndex *streamIndex = createRosterIndex(RIT_STREAM_ROOT,AStreamJid.pFull(),FRootIndex);
+			IRosterIndex *streamIndex = createRosterIndex(RIT_STREAM_ROOT,FRootIndex);
 			streamIndex->setRemoveOnLastChildRemoved(false);
 			streamIndex->setData(RDR_STREAM_JID,AStreamJid.pFull());
-			streamIndex->setData(RDR_JID,AStreamJid.full());
-			streamIndex->setData(RDR_PJID,AStreamJid.pFull());
-			streamIndex->setData(RDR_BARE_JID,AStreamJid.pBare());
+			streamIndex->setData(RDR_FULL_JID,AStreamJid.full());
+			streamIndex->setData(RDR_PREP_FULL_JID,AStreamJid.pFull());
+			streamIndex->setData(RDR_PREP_BARE_JID,AStreamJid.pBare());
 
 			if (presence)
 			{
@@ -194,6 +203,7 @@ void RostersModel::removeStream(const Jid &AStreamJid)
 			connect(account->instance(),SIGNAL(optionsChanged(const OptionsNode &)),this,SLOT(onAccountOptionsChanged(const OptionsNode &)));
 		}
 		removeRosterIndex(streamIndex);
+		FContactsCache.remove(streamIndex);
 		emit streamRemoved(AStreamJid);
 	}
 }
@@ -208,61 +218,100 @@ IRosterIndex *RostersModel::streamRoot(const Jid &AStreamJid) const
 	return FStreamsRoot.value(AStreamJid);
 }
 
-IRosterIndex *RostersModel::createRosterIndex(int AType, const QString &AId, IRosterIndex *AParent)
+IRosterIndex *RostersModel::createRosterIndex(int AType, IRosterIndex *AParent)
 {
-	IRosterIndex *index = findRosterIndex(AType,AId,AParent);
-	if (!index)
+	static const struct { int type; int order; }	DefTypeOrders[] = {
+		{RIT_STREAM_ROOT,         RITO_STREAM_ROOT},
+		{RIT_GROUP_BLANK,         RITO_GROUP_BLANK},
+		{RIT_GROUP,               RITO_GROUP},
+		{RIT_GROUP_NOT_IN_ROSTER, RITO_GROUP_NOT_IN_ROSTER},
+		{RIT_GROUP_MY_RESOURCES,  RITO_GROUP_MY_RESOURCES},
+		{RIT_GROUP_AGENTS,        RITO_GROUP_AGENTS},
+		{RIT_CONTACT,             RITO_CONTACT},
+		{RIT_MY_RESOURCE,         RITO_MY_RESOURCE},
+		{RIT_AGENT,               RITO_AGENT},
+		{-1,                      -1}
+	};
+
+	IRosterIndex *index = new RosterIndex(AType);
+	connect(index->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onIndexDestroyed(IRosterIndex *)));
+
+	if (AParent)
+		index->setData(RDR_STREAM_JID,AParent->data(RDR_STREAM_JID));
+
+	for (int i=0; DefTypeOrders[i].type>=0; i++)
 	{
-		index = new RosterIndex(AType,AId);
-		connect(index->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onIndexDestroyed(IRosterIndex *)));
-		if (AParent)
-			index->setData(RDR_STREAM_JID,AParent->data(RDR_STREAM_JID));
-		emit indexCreated(index,AParent);
-		insertDefaultDataHolders(index);
+		if (AType == DefTypeOrders[i].type)
+		{
+			index->setData(RDR_TYPE_ORDER, DefTypeOrders[i].order);
+			break;
+		}
 	}
+
+	emit indexCreated(index,AParent);
+	insertDefaultDataHolders(index);
 	return index;
 }
 
-IRosterIndex *RostersModel::createGroup(const QString &AName, const QString &AGroupDelim, int AType, IRosterIndex *AParent)
+IRosterIndex *RostersModel::findGroupIndex(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent) const
 {
-	IRosterIndex *index = findGroup(AName, AGroupDelim, AType, AParent);
-	if (!index)
+	QString groupPath = AGroup.isEmpty() ? singleGroupName(AType) : AGroup;
+	QList<QString> groupTree = groupPath.split(AGroupDelim,QString::SkipEmptyParts);
+
+	IRosterIndex *groupIndex = AParent;
+	do
 	{
+		QList<IRosterIndex *> indexes = FGroupsCache.value(groupIndex).values(groupTree.takeFirst());
+
+		groupIndex = NULL;
+		for(QList<IRosterIndex *>::const_iterator it = indexes.constBegin(); !groupIndex && it!=indexes.constEnd(); it++)
+			if ((*it)->type() == AType)
+				groupIndex = *it;
+
+	} while (groupIndex && !groupTree.isEmpty());
+
+	return groupIndex;
+}
+
+IRosterIndex *RostersModel::createGroupIndex(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent)
+{
+	IRosterIndex *groupIndex = findGroupIndex(AType,AGroup,AGroupDelim,AParent);
+	if (!groupIndex)
+	{
+		QString groupPath = AGroup.isEmpty() ? singleGroupName(AType) : AGroup;
+		QList<QString> groupTree = groupPath.split(AGroupDelim,QString::SkipEmptyParts);
+
 		int i = 0;
-		index = AParent;
-		IRosterIndex *newIndex = (IRosterIndex *)true;
-		QList<QString> groupTree = AName.split(AGroupDelim,QString::SkipEmptyParts);
-
-		QString group;
-		if (AParent && AParent->data(RDR_GROUP).isValid())
-			group = AParent->data(RDR_GROUP).toString();
-
-		while (newIndex && i < groupTree.count())
+		groupIndex = AParent;
+		IRosterIndex *childGroupIndex = groupIndex;
+		QString group = AParent->data(RDR_GROUP).toString();
+		while (childGroupIndex && i<groupTree.count())
 		{
 			if (group.isEmpty())
 				group = groupTree.at(i);
 			else
 				group += AGroupDelim + groupTree.at(i);
 
-			newIndex = findGroup(groupTree.at(i), AGroupDelim, AType, index);
-			if (newIndex)
+			childGroupIndex = findGroupIndex(AType, groupTree.at(i), AGroupDelim, groupIndex);
+			if (childGroupIndex)
 			{
-				index = newIndex;
+				groupIndex = childGroupIndex;
 				i++;
 			}
 		}
 
 		while (i < groupTree.count())
 		{
-			newIndex = createRosterIndex(AType, groupTree.at(i), index);
-			newIndex->setData(RDR_GROUP, AType==RIT_GROUP ? group : QVariant(QString("")));
-			newIndex->setData(RDR_NAME, groupTree.at(i));
-			insertRosterIndex(newIndex, index);
-			index = newIndex;
+			childGroupIndex = createRosterIndex(AType, groupIndex);
+			childGroupIndex->setData(RDR_GROUP, !FSingleGroups.contains(AType) ? group : QVariant(QString("")));
+			childGroupIndex->setData(RDR_NAME, groupTree.at(i));
+			FGroupsCache[groupIndex].insertMulti(groupTree.at(i),childGroupIndex);
+			insertRosterIndex(childGroupIndex, groupIndex);
+			groupIndex = childGroupIndex;
 			group += AGroupDelim + groupTree.value(++i);
 		}
 	}
-	return index;
+	return groupIndex;
 }
 
 void RostersModel::insertRosterIndex(IRosterIndex *AIndex, IRosterIndex *AParent)
@@ -283,65 +332,59 @@ QList<IRosterIndex *> RostersModel::getContactIndexList(const Jid &AStreamJid, c
 	IRosterIndex *streamIndex = FStreamsRoot.value(AStreamJid);
 	if (streamIndex)
 	{
-		int type = RIT_CONTACT;
-		if (AContactJid.node().isEmpty())
-			type = RIT_AGENT;
-		else if (AContactJid && AStreamJid)
-			type = RIT_MY_RESOURCE;
-
-		QMultiMap<int,QVariant> findData;
-		findData.insert(RDR_TYPE, type);
-		if (AContactJid.resource().isEmpty())
-			findData.insert(RDR_BARE_JID, AContactJid.pBare());
-		else
-			findData.insert(RDR_PJID, AContactJid.pFull());
-		indexList = streamIndex->findChild(findData,true);
-
+		indexList = findContactIndexes(AStreamJid,AContactJid,AContactJid.resource().isEmpty());
 		if (indexList.isEmpty() && !AContactJid.resource().isEmpty())
-		{
-			findData.insert(RDR_PJID, AContactJid.pBare());
-			indexList = streamIndex->findChild(findData,true);
-		}
+			indexList = findContactIndexes(AStreamJid,AContactJid,true);
 
 		if (ACreate && indexList.isEmpty())
 		{
-			IRosterIndex *group;
+			int type = RIT_CONTACT;
+			if (AContactJid.node().isEmpty())
+				type = RIT_AGENT;
+			else if (AContactJid && AStreamJid)
+				type = RIT_MY_RESOURCE;
+
+			IRosterIndex *groupIndex;
 			if (type == RIT_MY_RESOURCE)
-				group = createGroup(myResourcesGroupName(),"::",RIT_GROUP_MY_RESOURCES,streamIndex);
+				groupIndex = createGroupIndex(RIT_GROUP_MY_RESOURCES,QString::null,"::",streamIndex);
 			else
-				group = createGroup(notInRosterGroupName(),"::",RIT_GROUP_NOT_IN_ROSTER,streamIndex);
-			IRosterIndex *index = createRosterIndex(type,AContactJid.pFull(),group);
-			index->setData(RDR_JID,AContactJid.full());
-			index->setData(RDR_PJID,AContactJid.pFull());
-			index->setData(RDR_BARE_JID,AContactJid.pBare());
-			index->setData(RDR_GROUP,group->data(RDR_GROUP));
-			insertRosterIndex(index,group);
-			indexList.append(index);
+				groupIndex = createGroupIndex(RIT_GROUP_NOT_IN_ROSTER,QString::null,"::",streamIndex);
+
+			IRosterIndex *itemIndex = createRosterIndex(type,groupIndex);
+			itemIndex->setData(RDR_FULL_JID,AContactJid.full());
+			itemIndex->setData(RDR_PREP_FULL_JID,AContactJid.pFull());
+			itemIndex->setData(RDR_PREP_BARE_JID,AContactJid.pBare());
+			itemIndex->setData(RDR_GROUP,groupIndex->data(RDR_GROUP));
+			FContactsCache[streamIndex].insertMulti(AContactJid.bare(),itemIndex);
+
+			indexList.append(itemIndex);
+			insertRosterIndex(itemIndex,groupIndex);
 		}
 	}
 	return indexList;
 }
 
-IRosterIndex *RostersModel::findRosterIndex(int AType, const QString &AId, IRosterIndex *AParent) const
+QModelIndex RostersModel::modelIndexByRosterIndex(IRosterIndex *AIndex) const
 {
-	QMultiMap<int,QVariant> findData;
-	findData.insert(RDR_TYPE,AType);
-	findData.insert(RDR_INDEX_ID,AId);
-	if (AParent)
-		return AParent->findChild(findData).value(0,NULL);
-	return FRootIndex->findChild(findData).value(0,NULL) ;
+	return AIndex!=NULL && AIndex!=FRootIndex ? createIndex(AIndex->row(),0,AIndex) : QModelIndex();
 }
 
-IRosterIndex *RostersModel::findGroup(const QString &AName, const QString &AGroupDelim,
-				      int AType, IRosterIndex *AParent) const
+IRosterIndex *RostersModel::rosterIndexByModelIndex(const QModelIndex &AIndex) const
 {
-	int i = 0;
-	IRosterIndex *index = AParent;
-	QList<QString> groupTree = AName.split(AGroupDelim,QString::SkipEmptyParts);
-	do {
-		index = findRosterIndex(AType,groupTree.at(i++),index);
-	} while (index && i<groupTree.count());
-	return index;
+	return AIndex.isValid() ? reinterpret_cast<IRosterIndex *>(AIndex.internalPointer()) : FRootIndex;
+}
+
+QString RostersModel::singleGroupName(int AType) const
+{
+	return FSingleGroups.contains(AType) ? FSingleGroups.value(AType) : FSingleGroups.value(RIT_GROUP_BLANK);
+}
+
+void RostersModel::registerSingleGroup(int AType, const QString &AName)
+{
+	if (!FSingleGroups.contains(AType))
+	{
+		FSingleGroups.insert(AType,AName);
+	}
 }
 
 void RostersModel::insertDefaultDataHolder(IRosterDataHolder *ADataHolder)
@@ -352,7 +395,7 @@ void RostersModel::insertDefaultDataHolder(IRosterDataHolder *ADataHolder)
 		foreach(int type, ADataHolder->rosterDataTypes())
 			findData.insertMulti(RDR_TYPE,type);
 
-		foreach(IRosterIndex *index, FRootIndex->findChild(findData,true))
+		foreach(IRosterIndex *index, FRootIndex->findChilds(findData,true))
 			index->insertDataHolder(ADataHolder);
 
 		FDataHolders.append(ADataHolder);
@@ -368,7 +411,7 @@ void RostersModel::removeDefaultDataHolder(IRosterDataHolder *ADataHolder)
 		foreach(int type, ADataHolder->rosterDataTypes())
 			findData.insertMulti(RDR_TYPE,type);
 
-		QList<IRosterIndex *> indexes = FRootIndex->findChild(findData,true);
+		QList<IRosterIndex *> indexes = FRootIndex->findChilds(findData,true);
 		foreach(IRosterIndex *index, indexes)
 			index->removeDataHolder(ADataHolder);
 
@@ -377,21 +420,11 @@ void RostersModel::removeDefaultDataHolder(IRosterDataHolder *ADataHolder)
 	}
 }
 
-QModelIndex RostersModel::modelIndexByRosterIndex(IRosterIndex *AIndex) const
-{
-	return AIndex!=NULL && AIndex!=FRootIndex ? createIndex(AIndex->row(),0,AIndex) : QModelIndex();
-}
-
-IRosterIndex *RostersModel::rosterIndexByModelIndex(const QModelIndex &AIndex) const
-{
-	return AIndex.isValid() ? reinterpret_cast<IRosterIndex *>(AIndex.internalPointer()) : FRootIndex;
-}
-
 void RostersModel::emitDelayedDataChanged(IRosterIndex *AIndex)
 {
 	FChangedIndexes -= AIndex;
 
-	if (AIndex!=FRootIndex)
+	if (AIndex != FRootIndex)
 	{
 		QModelIndex modelIndex = modelIndexByRosterIndex(AIndex);
 		emit dataChanged(modelIndex,modelIndex);
@@ -411,6 +444,35 @@ void RostersModel::insertDefaultDataHolders(IRosterIndex *AIndex)
 	foreach(IRosterDataHolder *dataHolder, FDataHolders)
 		if (dataHolder->rosterDataTypes().contains(RIT_ANY_TYPE) || dataHolder->rosterDataTypes().contains(AIndex->type()))
 			AIndex->insertDataHolder(dataHolder);
+}
+
+QList<IRosterIndex *> RostersModel::findContactIndexes(const Jid &AStreamJid, const Jid &AContactJid, bool ABare, IRosterIndex *AParent) const
+{
+	QList<IRosterIndex *> indexes = FContactsCache.value(FStreamsRoot.value(AStreamJid)).values(AContactJid.bare());
+
+	if (AParent)
+	{
+		for(QList<IRosterIndex *>::iterator it=indexes.begin(); it!=indexes.end(); )
+		{
+			if ((*it)->parentIndex() != AParent)
+				it = indexes.erase(it);
+			else
+				it++;
+		}
+	}
+
+	if (!ABare)
+	{
+		for(QList<IRosterIndex *>::iterator it=indexes.begin(); it!=indexes.end(); )
+		{
+			if (AContactJid != (*it)->data(RDR_FULL_JID).toString())
+				it = indexes.erase(it);
+			else
+				it++;
+		}
+	}
+
+	return indexes;
 }
 
 void RostersModel::onAccountShown(IAccount *AAccount)
@@ -445,38 +507,32 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 		int groupType;
 		QString groupDisplay;
 		QSet<QString> itemGroups;
-		int itemType = !AItem.itemJid.node().isEmpty() ? RIT_CONTACT : RIT_AGENT;
 
+		int itemType = !AItem.itemJid.node().isEmpty() ? RIT_CONTACT : RIT_AGENT;
 		if (itemType == RIT_AGENT)
 		{
 			groupType = RIT_GROUP_AGENTS;
-			groupDisplay = agentsGroupName();
-			itemGroups.insert("");
+			itemGroups += QString::null;
 		}
 		else if (AItem.groups.isEmpty())
 		{
 			groupType = RIT_GROUP_BLANK;
-			groupDisplay = blankGroupName();
-			itemGroups.insert("");
+			itemGroups += QString::null;
 		}
 		else
 		{
 			groupType = RIT_GROUP;
-			groupDisplay = blankGroupName();
 			itemGroups = AItem.groups;
 		}
 
-		QMultiMap<int,QVariant> findData;
-		findData.insert(RDR_TYPE,itemType);
-		findData.insert(RDR_BARE_JID,AItem.itemJid.pBare());
-		QList<IRosterIndex *> curItemList = streamIndex->findChild(findData,true);
-
 		QList<IRosterIndex *> itemList;
+		QList<IRosterIndex *> curItemList = findContactIndexes(ARoster->streamJid(),AItem.itemJid,true);
 		if (AItem.subscription != SUBSCRIPTION_REMOVE)
 		{
 			QSet<QString> curGroups;
 			foreach(IRosterIndex *index, curItemList)
 				curGroups.insert(index->data(RDR_GROUP).toString());
+
 			QSet<QString> newGroups = itemGroups - curGroups;
 			QSet<QString> oldGroups = curGroups - itemGroups;
 
@@ -484,7 +540,7 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(ARoster->streamJid()) : NULL;
 			foreach(QString group,itemGroups)
 			{
-				IRosterIndex *groupIndex = createGroup(!group.isEmpty() ? group : groupDisplay,groupDelim,groupType,streamIndex);
+				IRosterIndex *groupIndex = createGroupIndex(groupType,group,groupDelim,streamIndex);
 
 				QList<IRosterIndex *> groupItemList;
 				if (newGroups.contains(group) && !oldGroups.isEmpty())
@@ -492,22 +548,24 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 					IRosterIndex *oldGroupIndex;
 					QString oldGroup = oldGroups.values().value(0);
 					if (oldGroup.isEmpty())
-						oldGroupIndex = findGroup(blankGroupName(),groupDelim,RIT_GROUP_BLANK,streamIndex);
+						oldGroupIndex = findGroupIndex(RIT_GROUP_BLANK,QString::null,groupDelim,streamIndex);
 					else
-						oldGroupIndex = findGroup(oldGroup,groupDelim,RIT_GROUP,streamIndex);
+						oldGroupIndex = findGroupIndex(RIT_GROUP,oldGroup,groupDelim,streamIndex);
 					if (oldGroupIndex)
 					{
-						groupItemList = oldGroupIndex->findChild(findData);
-						foreach(IRosterIndex *index,groupItemList)
+						groupItemList = findContactIndexes(ARoster->streamJid(),AItem.itemJid,true,oldGroupIndex);
+						foreach(IRosterIndex *itemIndex, groupItemList)
 						{
-							index->setData(RDR_GROUP,group);
-							index->setParentIndex(groupIndex);
+							itemIndex->setData(RDR_GROUP,group);
+							itemIndex->setParentIndex(groupIndex);
 						}
 					}
 					oldGroups -= group;
 				}
 				else
-					groupItemList = groupIndex->findChild(findData);
+				{
+					groupItemList = findContactIndexes(ARoster->streamJid(),AItem.itemJid,true,groupIndex);
+				}
 
 				if (groupItemList.isEmpty())
 				{
@@ -515,41 +573,42 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 					QList<IPresenceItem> pitems = presence!=NULL ? presence->presenceItems(AItem.itemJid) : QList<IPresenceItem>();
 					do
 					{
-						IRosterIndex *index;
+						IRosterIndex *itemIndex;
 						IPresenceItem pitem = pitems.value(presIndex++);
 						if (pitem.isValid)
 						{
-							index = createRosterIndex(itemType,pitem.itemJid.pFull(),groupIndex);
-							index->setData(RDR_JID,pitem.itemJid.full());
-							index->setData(RDR_PJID,pitem.itemJid.pFull());
-							index->setData(RDR_SHOW,pitem.show);
-							index->setData(RDR_STATUS,pitem.status);
-							index->setData(RDR_PRIORITY,pitem.priority);
+							itemIndex = createRosterIndex(itemType,groupIndex);
+							itemIndex->setData(RDR_FULL_JID,pitem.itemJid.full());
+							itemIndex->setData(RDR_PREP_FULL_JID,pitem.itemJid.pFull());
+							itemIndex->setData(RDR_SHOW,pitem.show);
+							itemIndex->setData(RDR_STATUS,pitem.status);
+							itemIndex->setData(RDR_PRIORITY,pitem.priority);
 						}
 						else
 						{
-							index = createRosterIndex(itemType,AItem.itemJid.pBare(),groupIndex);
-							index->setData(RDR_JID,AItem.itemJid.bare());
-							index->setData(RDR_PJID,AItem.itemJid.pBare());
+							itemIndex = createRosterIndex(itemType,groupIndex);
+							itemIndex->setData(RDR_FULL_JID,AItem.itemJid.full());
+							itemIndex->setData(RDR_PREP_FULL_JID,AItem.itemJid.pFull());
 						}
+						FContactsCache[streamIndex].insertMulti(AItem.itemJid,itemIndex);
 
-						index->setData(RDR_BARE_JID,AItem.itemJid.pBare());
-						index->setData(RDR_NAME,AItem.name);
-						index->setData(RDR_SUBSCRIBTION,AItem.subscription);
-						index->setData(RDR_ASK,AItem.ask);
-						index->setData(RDR_GROUP,group);
+						itemIndex->setData(RDR_PREP_BARE_JID,AItem.itemJid.pBare());
+						itemIndex->setData(RDR_NAME,AItem.name);
+						itemIndex->setData(RDR_SUBSCRIBTION,AItem.subscription);
+						itemIndex->setData(RDR_ASK,AItem.ask);
+						itemIndex->setData(RDR_GROUP,group);
 
-						itemList.append(index);
-						insertRosterIndex(index,groupIndex);
+						itemList.append(itemIndex);
+						insertRosterIndex(itemIndex,groupIndex);
 					}
 					while (presIndex < pitems.count());
 				}
-				else foreach(IRosterIndex *index,groupItemList)
+				else foreach(IRosterIndex *itemIndex, groupItemList)
 				{
-					index->setData(RDR_NAME,AItem.name);
-					index->setData(RDR_SUBSCRIBTION,AItem.subscription);
-					index->setData(RDR_ASK,AItem.ask);
-					itemList.append(index);
+					itemIndex->setData(RDR_NAME,AItem.name);
+					itemIndex->setData(RDR_SUBSCRIBTION,AItem.subscription);
+					itemIndex->setData(RDR_ASK,AItem.ask);
+					itemList.append(itemIndex);
 				}
 			}
 		}
@@ -569,13 +628,12 @@ void RostersModel::onRosterStreamJidChanged(IRoster *ARoster, const Jid &ABefore
 
 		QMultiMap<int,QVariant> findData;
 		findData.insert(RDR_STREAM_JID,ABefore.pFull());
-		QList<IRosterIndex *> itemList = FRootIndex->findChild(findData,true);
+		QList<IRosterIndex *> itemList = FRootIndex->findChilds(findData,true);
 		foreach(IRosterIndex *index, itemList)
 			index->setData(RDR_STREAM_JID,after.pFull());
 
-		streamIndex->setData(RDR_INDEX_ID,after.pFull());
-		streamIndex->setData(RDR_JID,after.full());
-		streamIndex->setData(RDR_PJID,after.pFull());
+		streamIndex->setData(RDR_FULL_JID,after.full());
+		streamIndex->setData(RDR_PREP_FULL_JID,after.pFull());
 
 		FStreamsRoot.remove(ABefore);
 		FStreamsRoot.insert(after,streamIndex);
@@ -612,47 +670,37 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 
 		if (AItem.show == IPresence::Offline)
 		{
-			QMultiMap<int,QVariant> findData;
-			findData.insert(RDR_TYPE,itemType);
-			findData.insert(RDR_PJID,AItem.itemJid.pFull());
-			QList<IRosterIndex *> itemList = streamIndex->findChild(findData, true);
+			QList<IRosterIndex *> itemList = findContactIndexes(APresence->streamJid(),AItem.itemJid,false);
 			int pitemsCount = APresence->presenceItems(AItem.itemJid).count();
-			foreach (IRosterIndex *index,itemList)
+			foreach (IRosterIndex *itemIndex, itemList)
 			{
 				if (itemType == RIT_MY_RESOURCE || pitemsCount > 1)
 				{
-					removeRosterIndex(index);
+					removeRosterIndex(itemIndex);
 				}
 				else
 				{
-					index->setData(RDR_INDEX_ID,AItem.itemJid.pBare());
-					index->setData(RDR_JID,AItem.itemJid.bare());
-					index->setData(RDR_PJID,AItem.itemJid.pBare());
-					index->setData(RDR_SHOW,AItem.show);
-					index->setData(RDR_STATUS,AItem.status);
-					index->setData(RDR_PRIORITY,QVariant());
+					itemIndex->setData(RDR_FULL_JID,AItem.itemJid.bare());
+					itemIndex->setData(RDR_PREP_FULL_JID,AItem.itemJid.pBare());
+					itemIndex->setData(RDR_SHOW,AItem.show);
+					itemIndex->setData(RDR_STATUS,AItem.status);
+					itemIndex->setData(RDR_PRIORITY,QVariant());
 				}
 			}
 		}
 		else if (AItem.show == IPresence::Error)
 		{
-			QMultiMap<int,QVariant> findData;
-			findData.insert(RDR_TYPE,itemType);
-			findData.insert(RDR_BARE_JID,AItem.itemJid.pBare());
-			QList<IRosterIndex *> itemList = streamIndex->findChild(findData,true);
-			foreach(IRosterIndex *index,itemList)
+			QList<IRosterIndex *> itemList = findContactIndexes(APresence->streamJid(),AItem.itemJid,true);
+			foreach(IRosterIndex *itemIndex, itemList)
 			{
-				index->setData(RDR_SHOW,AItem.show);
-				index->setData(RDR_STATUS,AItem.status);
-				index->setData(RDR_PRIORITY,QVariant());
+				itemIndex->setData(RDR_SHOW,AItem.show);
+				itemIndex->setData(RDR_STATUS,AItem.status);
+				itemIndex->setData(RDR_PRIORITY,QVariant());
 			}
 		}
 		else
 		{
-			QMultiMap<int,QVariant> findData;
-			findData.insert(RDR_TYPE,itemType);
-			findData.insert(RDR_PJID,AItem.itemJid.pFull());
-			QList<IRosterIndex *> itemList = streamIndex->findChild(findData,true);
+			QList<IRosterIndex *> itemList = findContactIndexes(APresence->streamJid(),AItem.itemJid,false);
 			if (itemList.isEmpty())
 			{
 				IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(APresence->streamJid()) : NULL;
@@ -665,59 +713,58 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 					if (!ritem.groups.isEmpty())
 						itemGroups = ritem.groups;
 					else
-						itemGroups.insert(QString::null);
+						itemGroups += QString::null;
 				}
 				else if (itemType == RIT_MY_RESOURCE)
 				{
-					itemGroups.insert(QString::null);
+					itemGroups += QString::null;
 				}
 
-				foreach(QString group,itemGroups)
+				foreach(QString group, itemGroups)
 				{
 					IRosterIndex *groupIndex = NULL;
 					if (itemType == RIT_MY_RESOURCE)
-						groupIndex = createGroup(myResourcesGroupName(),groupDelim,RIT_GROUP_MY_RESOURCES,streamIndex);
+						groupIndex = createGroupIndex(RIT_GROUP_MY_RESOURCES,QString::null,groupDelim,streamIndex);
 					else if (!ritem.isValid)
-						groupIndex = createGroup(notInRosterGroupName(),groupDelim,RIT_GROUP_NOT_IN_ROSTER,streamIndex);
+						groupIndex = createGroupIndex(RIT_GROUP_NOT_IN_ROSTER,QString::null,groupDelim,streamIndex);
 					else if (itemType == RIT_AGENT)
-						groupIndex = findGroup(agentsGroupName(),groupDelim,RIT_GROUP_AGENTS,streamIndex);
+						groupIndex = findGroupIndex(RIT_GROUP_AGENTS,QString::null,groupDelim,streamIndex);
 					else if (group.isEmpty())
-						groupIndex = findGroup(blankGroupName(),groupDelim,RIT_GROUP_BLANK,streamIndex);
+						groupIndex = findGroupIndex(RIT_GROUP_BLANK,QString::null,groupDelim,streamIndex);
 					else
-						groupIndex = findGroup(group,groupDelim,RIT_GROUP,streamIndex);
+						groupIndex = findGroupIndex(RIT_GROUP,group,groupDelim,streamIndex);
 
 					if (groupIndex)
 					{
-						IRosterIndex *index = findRosterIndex(itemType,AItem.itemJid.pBare(),groupIndex);
-						if (!index)
+						IRosterIndex *itemIndex = findContactIndexes(APresence->streamJid(),AItem.itemJid.bare(),false).value(0);
+						if (!itemIndex)
 						{
-							index = createRosterIndex(itemType,AItem.itemJid.pFull(),groupIndex);
-							index->setData(RDR_BARE_JID,AItem.itemJid.pBare());
-							index->setData(RDR_GROUP,group);
+							itemIndex = createRosterIndex(itemType,groupIndex);
+							itemIndex->setData(RDR_PREP_BARE_JID,AItem.itemJid.pBare());
+							itemIndex->setData(RDR_GROUP,group);
 							if (ritem.isValid)
 							{
-								index->setData(RDR_NAME,ritem.name);
-								index->setData(RDR_SUBSCRIBTION,ritem.subscription);
-								index->setData(RDR_ASK,ritem.ask);
+								itemIndex->setData(RDR_NAME,ritem.name);
+								itemIndex->setData(RDR_SUBSCRIBTION,ritem.subscription);
+								itemIndex->setData(RDR_ASK,ritem.ask);
 							}
+							FContactsCache[streamIndex].insertMulti(AItem.itemJid.bare(),itemIndex);
 						}
-						else
-							index->setData(RDR_INDEX_ID,AItem.itemJid.pFull());
 
-						index->setData(RDR_JID,AItem.itemJid.full());
-						index->setData(RDR_PJID,AItem.itemJid.pFull());
-						index->setData(RDR_SHOW,AItem.show);
-						index->setData(RDR_STATUS,AItem.status);
-						index->setData(RDR_PRIORITY,AItem.priority);
-						insertRosterIndex(index,groupIndex);
+						itemIndex->setData(RDR_FULL_JID,AItem.itemJid.full());
+						itemIndex->setData(RDR_PREP_FULL_JID,AItem.itemJid.pFull());
+						itemIndex->setData(RDR_SHOW,AItem.show);
+						itemIndex->setData(RDR_STATUS,AItem.status);
+						itemIndex->setData(RDR_PRIORITY,AItem.priority);
+						insertRosterIndex(itemIndex,groupIndex);
 					}
 				}
 			}
-			else foreach(IRosterIndex *index,itemList)
+			else foreach(IRosterIndex *itemIndex,itemList)
 			{
-				index->setData(RDR_SHOW,AItem.show);
-				index->setData(RDR_STATUS,AItem.status);
-				index->setData(RDR_PRIORITY,AItem.priority);
+				itemIndex->setData(RDR_SHOW,AItem.show);
+				itemIndex->setData(RDR_STATUS,AItem.status);
+				itemIndex->setData(RDR_PRIORITY,AItem.priority);
 			}
 		}
 	}
@@ -757,6 +804,16 @@ void RostersModel::onIndexChildAboutToBeRemoved(IRosterIndex *AIndex)
 {
 	FChangedIndexes-=AIndex;
 	emit indexAboutToBeRemoved(AIndex);
+	if (FGroupsCache.contains(AIndex->parentIndex()))
+	{
+		FGroupsCache[AIndex->parentIndex()].remove(AIndex->data(RDR_NAME).toString(),AIndex);
+	}
+	if (AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_AGENT || AIndex->type()==RIT_MY_RESOURCE)
+	{
+		IRosterIndex *streamIndex = FStreamsRoot.value(AIndex->data(RDR_STREAM_JID).toString());
+		if (streamIndex)
+			FContactsCache[streamIndex].remove(AIndex->data(RDR_PREP_BARE_JID).toString(),AIndex);
+	}
 	beginRemoveRows(modelIndexByRosterIndex(AIndex->parentIndex()),AIndex->row(),AIndex->row());
 }
 
@@ -803,7 +860,9 @@ void RostersModel::onDelayedDataChanged()
 		emitDelayedDataChanged(FRootIndex);
 	}
 	else
+	{
 		reset();
+	}
 
 	FChangedIndexes.clear();
 }

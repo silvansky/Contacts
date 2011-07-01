@@ -7,7 +7,6 @@
 //#include <q3hbuttongroup>
 #include <qradiobutton.h>
 #include <qpushbutton.h>
-#include <qmessagebox.h>
 #include <qsettings.h>
 #include <qlayout.h>
 //Added by qt3to4:

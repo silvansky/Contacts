@@ -4,6 +4,7 @@
 #include <QSortFilterProxyModel>
 #include <definitions/optionvalues.h>
 #include <definitions/rosterindextyperole.h>
+#include <definitions/rosterindextypeorders.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/ipresence.h>
 #include <utils/options.h>
@@ -11,7 +12,7 @@
 class SortFilterProxyModel :
 			public QSortFilterProxyModel
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	SortFilterProxyModel(IRostersViewPlugin *ARostersViewPlugin, QObject *AParent = NULL);
 	~SortFilterProxyModel();

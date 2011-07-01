@@ -49,12 +49,12 @@ public:
 	virtual const IPluginInfo *pluginInfo(const QUuid &AUuid) const =0;
 	virtual QList<QUuid> pluginDependencesOn(const QUuid &AUuid) const =0;
 	virtual QList<QUuid> pluginDependencesFor(const QUuid &AUuid) const =0;
-	virtual QString styleSheet() const =0;
-	virtual void setStyleSheet(const QString&) =0;
 public slots:
 	virtual void quit() =0;
 	virtual void restart() =0;
+	virtual void shutdownRequested() =0;
 protected:
+	virtual void quitStarted() =0;
 	virtual void aboutToQuit() =0;
 };
 

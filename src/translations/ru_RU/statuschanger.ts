@@ -16,11 +16,11 @@
     <name>CustomStatusDialogClass</name>
     <message>
         <source>My Status</source>
-        <translation>Свой статус</translation>
+        <translation>Мой статус</translation>
     </message>
     <message>
         <source>Define your status and text for it</source>
-        <translation>Задайте свой статус и текст для него</translation>
+        <translation>Укажите свой статус и добавьте текст для него</translation>
     </message>
     <message>
         <source>Statuses can tell your friends what you are interested in or what you&apos;re doing.</source>
@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>For example, &quot;Who wants to the rink tomorrow?&quot;</source>
-        <translation>Например, &quot;Кто хочет на каток завтра?&quot;</translation>
+        <translation>Например: «Кто хочет на каток завтра?»</translation>
     </message>
 </context>
 <context>
@@ -55,11 +55,11 @@
     </message>
     <message>
         <source>Enter status name</source>
-        <translation>Введите имя статуса</translation>
+        <translation>Введите название статуса</translation>
     </message>
     <message>
         <source>Status name:</source>
-        <translation>Имя статуса:</translation>
+        <translation>Название статуса:</translation>
     </message>
     <message>
         <source>Wrong status name</source>
@@ -75,11 +75,11 @@
     </message>
     <message>
         <source>You can not delete standard statuses.</source>
-        <translation>Вы не можете удалить стандартные статусы.</translation>
+        <translation>Вы не можете удалять стандартные статусы.</translation>
     </message>
     <message>
         <source>You can not delete active statuses.</source>
-        <translation>Вы не можете удалить активные статусы.</translation>
+        <translation>Вы не можете удалять активные статусы.</translation>
     </message>
     <message>
         <source>Delete status</source>
@@ -147,15 +147,15 @@
     </message>
     <message>
         <source>Away</source>
-        <translation>Ушёл</translation>
+        <translation>Отошёл</translation>
     </message>
     <message>
         <source>Extended Away</source>
-        <translation>Ушёл надолго</translation>
+        <translation>Отошёл надолго</translation>
     </message>
     <message>
         <source>Do not disturb</source>
-        <translation>Не беспокоить</translation>
+        <translation>Занят</translation>
     </message>
     <message>
         <source>Invisible</source>
@@ -179,7 +179,7 @@
     </message>
     <message>
         <source>Allows to change the status in Jabber network</source>
-        <translation>Позволяет изменять статус в джаббер сети</translation>
+        <translation>Позволяет изменять статус в Jabber-сети</translation>
     </message>
     <message>
         <source>Connecting...</source>
@@ -187,7 +187,7 @@
     </message>
     <message>
         <source>Modify Status</source>
-        <translation>Изменять статус</translation>
+        <translation>Изменить статус</translation>
     </message>
     <message>
         <source>Auto connect on startup</source>
@@ -196,10 +196,6 @@
     <message>
         <source>Auto reconnect if disconnected</source>
         <translation>Автоматически восстанавливать соединение</translation>
-    </message>
-    <message>
-        <source>Virtus - %1</source>
-        <translation>Virtus - %1</translation>
     </message>
     <message>
         <source>Temporary connection failure</source>
@@ -214,23 +210,23 @@
         <translation>Проблема</translation>
     </message>
     <message>
-        <source>Problem persists</source>
+        <source>Contacts - %1</source>
+        <translation>Контакты - %1</translation>
+    </message>
+    <message>
+        <source>Problem resolved</source>
         <translation>Проблема устранена</translation>
     </message>
 </context>
 <context>
     <name>StatusWidget</name>
     <message>
-        <source>Manage my profile</source>
-        <translation>Изменить профиль</translation>
-    </message>
-    <message>
         <source>Add new photo...</source>
         <translation>Добавить новое фото...</translation>
     </message>
     <message>
         <source>Select new avatar image</source>
-        <translation>Выберите новое изображение аватара</translation>
+        <translation>Выберите новый аватар</translation>
     </message>
     <message>
         <source>Image files %1</source>
@@ -240,12 +236,9 @@
         <source>Tell your friends about your mood</source>
         <translation>Расскажите друзьям о своем настроении</translation>
     </message>
-</context>
-<context>
-    <name>StatusWidgetClass</name>
     <message>
-        <source>Click to edit...</source>
-        <translation>Нажмите для редактирования...</translation>
+        <source>My account</source>
+        <translation>Моя учётная запись</translation>
     </message>
 </context>
 </TS>

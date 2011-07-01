@@ -11,6 +11,7 @@
 #include <utils/closebutton.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/customlabel.h>
 
 class TabBarItem :
 			public QFrame
@@ -19,6 +20,8 @@ class TabBarItem :
 	Q_PROPERTY(bool isActive READ isActive WRITE setActive)
 	Q_PROPERTY(bool isDraging READ isDraging WRITE setDraging)
 	Q_PROPERTY(bool isCloseable READ isCloseable WRITE setCloseable)
+	// TODO: add bool properties like "first", "last", "top", "bottom", "left", "right" (maybe some others?)
+	// they are needed for more advanced stylesheet stylization
 public:
 	TabBarItem(QWidget *AParent);
 	virtual ~TabBarItem();
@@ -49,16 +52,14 @@ protected:
 	void showToolTip(const QString &AToolTip);
 	void showStyleKey(const QString &AStyleKey);
 protected:
-	virtual void enterEvent(QEvent *AEvent);
-	virtual void leaveEvent(QEvent *AEvent);
 	virtual void paintEvent(QPaintEvent *AEvent);
 	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onBlinkTimerTimeout();
 private:
 	QLabel *FIconLabel;
-	QLabel *FTextLabel;
-	QPushButton *FCloseButton;
+	CustomLabel *FTextLabel;
+	CloseButton *FCloseButton;
 private:
 	bool FActive;
 	bool FDraging;

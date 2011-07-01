@@ -1,6 +1,7 @@
 #include "xmppstream.h"
 
 #include <QInputDialog>
+#include <utils/log.h>
 
 #define KEEP_ALIVE_TIMEOUT          30000
 
@@ -133,6 +134,7 @@ void XmppStream::close()
 
 void XmppStream::abort(const QString &AError)
 {
+	Log(QString("[XmppStream abort] %1").arg(AError));
 	if (FStreamState!=SS_OFFLINE && FStreamState!=SS_ERROR)
 	{
 		FStreamState = SS_ERROR;
@@ -224,9 +226,19 @@ qint64 XmppStream::sendStanza(Stanza &AStanza)
 {
 	if (FStreamState!=SS_OFFLINE && FStreamState!=SS_ERROR)
 	{
+		QString stanzaText = AStanza.toString();
+		if (stanzaText.contains("mechanism=\"PLAIN\""))
+		{
+			// removing plain password
+			int start = stanzaText.indexOf('>');
+			int end = stanzaText.indexOf('<', start + 1);
+			stanzaText.replace(start + 1, end - start, "PLAIN_LOGIN_AND_PASSWORD");
+		}
+		Log(QString("[%1] Sending stanza:\n%2").arg(streamJid().full(), stanzaText));
 		if (!processStanzaHandlers(AStanza,true))
 			return sendData(AStanza.toByteArray());
 	}
+	Log(QString("[XmppStream send stanza failed] Can\'t send stanza\n%1\nstream state is %2").arg(AStanza.toString()).arg(FStreamState));
 	return -1;
 }
 
@@ -435,6 +447,7 @@ void XmppStream::onParserOpened(QDomElement AElem)
 void XmppStream::onParserElement(QDomElement AElem)
 {
 	Stanza stanza(AElem);
+	Log(QString("[%1] Got stanza:\n%2").arg(streamJid().full(), stanza.toString()));
 	processStanzaHandlers(stanza,false);
 }
 
