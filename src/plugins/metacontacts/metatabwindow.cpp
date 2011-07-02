@@ -20,12 +20,12 @@ MetaTabWindow::MetaTabWindow(IPluginManager *APluginManager, IMetaContacts *AMet
 	ui.tlbToolBar->installEventFilter(this);
 
 	FMetaId = AMetaId;
+	FPluginManager = APluginManager;
 	FMetaRoster = AMetaRoster;
 	FMetaContacts = AMetaContacts;
 	FMessageWidgets = NULL;
 	FStatusIcons = NULL;
 	FStatusChanger = NULL;
-	FRosterChanger = NULL;
 	initialize(APluginManager);
 
 	FTabPageNotifier = NULL;
@@ -474,10 +474,6 @@ void MetaTabWindow::initialize(IPluginManager *APluginManager)
 	plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
 	if (plugin)
 		FStatusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
-	if (plugin)
-		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
 }
 
 void MetaTabWindow::updateWindow()
@@ -699,7 +695,7 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 void MetaTabWindow::createPersistantList()
 {
 	static bool created = false;
-	if (FRosterChanger && !created)
+	if (!created)
 	{
 		foreach(const IMetaItemDescriptor &descriptor, FMetaContacts->metaDescriptors())
 		{
@@ -734,7 +730,7 @@ void MetaTabWindow::insertPersistantWidget(const QString &APageId)
 	IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByOrder(FPersistantPages.key(APageId));
 	if (!descriptor.gateId.isEmpty())
 	{
-		AddMetaItemPage *widget = new AddMetaItemPage(FRosterChanger, this, FMetaRoster, FMetaId, descriptor);
+		AddMetaItemPage *widget = new AddMetaItemPage(FPluginManager, this, descriptor);
 		setPageWidget(APageId,widget);
 	}
 }

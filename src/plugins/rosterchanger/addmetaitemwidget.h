@@ -27,6 +27,7 @@ public:
 	AddMetaItemWidget(IOptionsManager *AOptionsManager, IRoster *ARoster, IGateways *AGateways, const IGateServiceDescriptor &ADescriptor, QWidget *AParent = NULL);
 	~AddMetaItemWidget();
 	virtual QWidget *instance() { return this; }
+	virtual bool isContactJidReady() const;
 	virtual QString gateDescriptorId() const;
 	virtual Jid streamJid() const;
 	virtual Jid contactJid() const;
@@ -36,21 +37,26 @@ public:
 	virtual Jid gatewayJid() const;
 	virtual void setGatewayJid(const Jid &AGatewayJid);
 	virtual QString errorMessage() const;
-	virtual void setErrorMessage(const QString &AMessage, bool AInvalidInput);
+	virtual void setErrorMessage(const QString &AMessage, bool AInvalidInput, bool AClickable = false);
 	virtual bool isServiceIconVisible() const;
 	virtual void setServiceIconVisible(bool AVisible);
 	virtual bool isCloseButtonVisible() const;
 	virtual void setCloseButtonVisible(bool AVisible);
+	virtual bool isErrorClickable() const;
+	virtual void setErrorClickable(bool AClickable);
 	virtual void setCorrectSizes(int ANameSize, int APhotoSize);
 signals:
 	void adjustSizeRequested();
 	void deleteButtonClicked();
-	void contactJidChanged(const Jid &AContactJid);
+	void errorMessageClicked();
+	void contactJidChanged();
 protected:
 	QString placeholderTextForGate() const;
 protected:
 	void startResolve(int ATimeout);
-	void setRealContactJid(const Jid &AContactJid);
+	void setRealContactJid(const Jid &AContactJid, bool AReady);
+protected:
+	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected slots:
 	void resolveContactJid();
 protected slots:
@@ -66,12 +72,13 @@ private:
 	IRoster *FRoster;
 	IGateways *FGateways;
 private:
-	QString FContactJidRequest;
-private:
 	Jid FContactJid;
 	QTimer FResolveTimer;
 	bool FServiceFailed;
+	bool FErrorClickable;
+	bool FContactJidReady;
 	bool FContactTextChanged;
+	QString FContactJidRequest;
 	IGateServiceDescriptor FDescriptor;
 	SelectProfileWidget *FSelectProfileWidget;
 };

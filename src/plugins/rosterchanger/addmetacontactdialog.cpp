@@ -71,7 +71,7 @@ Jid AddMetaContactDialog::streamJid() const
 Jid AddMetaContactDialog::contactJid() const
 {
 	IAddMetaItemWidget *widget = FItemWidgets.value(0);
-	return widget!=NULL ? widget->contactJid() : Jid::null;
+	return widget!=NULL && widget->isContactJidReady() ? widget->contactJid() : Jid::null;
 }
 
 void AddMetaContactDialog::setContactJid(const Jid &AContactJid)
@@ -253,7 +253,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				widget->setContactText(AContact);
 				connect(widget->instance(),SIGNAL(adjustSizeRequested()),SLOT(onItemWidgetAdjustSizeRequested()));
 				connect(widget->instance(),SIGNAL(deleteButtonClicked()),SLOT(onItemWidgetDeleteButtonClicked()));
-				connect(widget->instance(),SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
+				connect(widget->instance(),SIGNAL(contactJidChanged()),SLOT(onItemWidgetContactJidChanged()));
 				FItemWidgets.append(widget);
 				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget->instance());
 				QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
@@ -296,9 +296,9 @@ void AddMetaContactDialog::updateDialogState()
 	bool isAcceptable = !FItemWidgets.isEmpty();
 	foreach(IAddMetaItemWidget *widget, FItemWidgets)
 	{
-		Jid contactJid = widget->contactJid().bare();
-		if (contactJid.isValid())
+		if (widget->isContactJidReady())
 		{
+			Jid contactJid = widget->contactJid().bare();
 			FValidContacts.append(contactJid);
 			if (FVcardPlugin && !FNoVcardContacts.contains(contactJid))
 			{
@@ -523,9 +523,10 @@ void AddMetaContactDialog::onItemWidgetDeleteButtonClicked()
 	}
 }
 
-void AddMetaContactDialog::onItemWidgetContactJidChanged(const Jid &AContactJid)
+void AddMetaContactDialog::onItemWidgetContactJidChanged()
 {
-	if (AContactJid.isValid() && !FNickResolved)
+	AddMetaItemWidget *widget = qobject_cast<AddMetaItemWidget *>(sender());
+	if (widget && widget->isContactJidReady() && !FNickResolved)
 		QTimer::singleShot(NICK_RESOLVE_TIMEOUT,this,SLOT(onNickResolveTimeout()));
 	updateDialogState();
 }

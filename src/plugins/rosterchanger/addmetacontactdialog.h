@@ -73,7 +73,7 @@ protected slots:
 	void onAddItemActionTriggered(bool);
 	void onItemWidgetAdjustSizeRequested();
 	void onItemWidgetDeleteButtonClicked();
-	void onItemWidgetContactJidChanged(const Jid &AContactJid);
+	void onItemWidgetContactJidChanged();
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);

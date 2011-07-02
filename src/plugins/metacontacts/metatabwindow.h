@@ -139,13 +139,13 @@ protected slots:
 private:
 	Ui::MetaTabWindowClass ui;
 private:
+	IPluginManager *FPluginManager;
 	IMetaRoster *FMetaRoster;
 	IMetaContacts *FMetaContacts;
 	IMessageWidgets *FMessageWidgets;
 	ITabPageNotifier *FTabPageNotifier;
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
-	IRosterChanger *FRosterChanger;
 private:
 	QString FMetaId;
 	bool FShownDetached;

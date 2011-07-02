@@ -4,27 +4,28 @@
 #include <QPaintEvent>
 #include <QVBoxLayout>
 
-AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster,
-				 const QString &AMetaId, const IMetaItemDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
+AddMetaItemPage::AddMetaItemPage(IPluginManager *APluginManager, IMetaTabWindow *AMetaTabWindow, const IMetaItemDescriptor &ADescriptor, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_ADDMETAITEMPAGE);
 
-	FMetaRoster = AMetaRoster;
 	FMetaTabWindow = AMetaTabWindow;
-	FRosterChanger = ARosterChanger;
-
-	FMetaId = AMetaId;
 	FDescriptor = ADescriptor;
+	
+	FRosterChanger = NULL;
+	FMessageProcessor = NULL;
+	initialize(APluginManager);
 
 	ui.lblInfo->setText(infoMessageForGate());
 
-	FAddWidget = FRosterChanger->newAddMetaItemWidget(FMetaRoster->streamJid(),ADescriptor.gateId,ui.wdtAddMetaItem);
+	FAddWidget = FRosterChanger->newAddMetaItemWidget(FMetaTabWindow->metaRoster()->streamJid(),ADescriptor.gateId,ui.wdtAddMetaItem);
 	if (FAddWidget)
 	{
+		FAddWidget->setErrorClickable(true);
 		FAddWidget->setServiceIconVisible(false);
 		FAddWidget->setCloseButtonVisible(false);
-		connect(FAddWidget->instance(),SIGNAL(contactJidChanged(const Jid &)),SLOT(onItemWidgetContactJidChanged(const Jid &)));
+		connect(FAddWidget->instance(),SIGNAL(errorMessageClicked()),SLOT(onItemWidgetErrorMessageClicked()));
+		connect(FAddWidget->instance(),SIGNAL(contactJidChanged()),SLOT(onItemWidgetContactJidChanged()));
 
 		ui.wdtAddMetaItem->setLayout(new QVBoxLayout);
 		ui.wdtAddMetaItem->layout()->setMargin(0);
@@ -33,13 +34,12 @@ AddMetaItemPage::AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow 
 
 	ui.pbtAppend->setEnabled(false);
 	ui.pbtAppend->addTextFlag(TF_LIGHTSHADOW);
-	//ui.gridLayout->addWidget(ui.pbtAppend, 2, 2, 1, 1, Qt::AlignTop|Qt::AlignHCenter); // Depend on ui layout!!!
 
 	connect(ui.pbtAppend,SIGNAL(clicked()),SLOT(onAppendContactButtonClicked()));
 
-	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
+	connect(FMetaTabWindow->metaRoster()->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
-	connect(FMetaRoster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
+	connect(FMetaTabWindow->metaRoster()->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
 		SLOT(onMetaActionResult(const QString &, const QString &, const QString &)));
 }
 
@@ -68,7 +68,7 @@ bool AddMetaItemPage::isActive() const
 
 QString AddMetaItemPage::tabPageId() const
 {
-	return "AddMetaTabPage|"+FMetaRoster->streamJid().pBare()+"|"+FMetaId;
+	return "AddMetaTabPage|"+FMetaTabWindow->metaRoster()->streamJid().pBare()+"|"+FMetaTabWindow->metaId();
 }
 
 QIcon AddMetaItemPage::tabPageIcon() const
@@ -96,6 +96,17 @@ void AddMetaItemPage::setTabPageNotifier(ITabPageNotifier *ANotifier)
 	Q_UNUSED(ANotifier);
 }
 
+void AddMetaItemPage::initialize(IPluginManager *APluginManager)
+{
+	IPlugin *plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
+	if (plugin)
+		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
+	if (plugin)
+		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
+}
+
 QString AddMetaItemPage::infoMessageForGate()
 {
 	QString info;
@@ -112,9 +123,9 @@ void AddMetaItemPage::setErrorMessage(const QString &AMessage)
 {
 	if (FAddWidget)
 	{
-		FAddWidget->setErrorMessage(AMessage,false);
 		ui.wdtAddMetaItem->setEnabled(true);
-		ui.pbtAppend->setEnabled(FAddWidget->contactJid().isValid());
+		FAddWidget->setErrorMessage(AMessage,false);
+		ui.pbtAppend->setEnabled(FAddWidget->isContactJidReady());
 	}
 }
 
@@ -154,11 +165,11 @@ void AddMetaItemPage::paintEvent(QPaintEvent *AEvent)
 
 void AddMetaItemPage::onAppendContactButtonClicked()
 {
-	if (FAddWidget && FAddWidget->contactJid().isValid())
+	if (FAddWidget && FAddWidget->isContactJidReady())
 	{
 		IMetaContact contact;
 		contact.items += FAddWidget->contactJid();
-		FCreateRequestId = FMetaRoster->createContact(contact);
+		FCreateRequestId = FMetaTabWindow->metaRoster()->createContact(contact);
 		if (!FCreateRequestId.isEmpty())
 		{
 			ui.wdtAddMetaItem->setEnabled(false);
@@ -171,23 +182,33 @@ void AddMetaItemPage::onAppendContactButtonClicked()
 	}
 }
 
-void AddMetaItemPage::onItemWidgetContactJidChanged(const Jid &AContactJid)
+void AddMetaItemPage::onItemWidgetErrorMessageClicked()
 {
-	Q_UNUSED(AContactJid);
+	QString metaId = FMetaTabWindow->metaRoster()->itemMetaContact(FAddWidget->contactJid());
+	if (FMessageProcessor && !metaId.isEmpty())
+	{
+		FMessageProcessor->createWindow(FMetaTabWindow->metaRoster()->streamJid(),FAddWidget->contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+		FAddWidget->setContactText(QString::null);
+	}
+}
+
+void AddMetaItemPage::onItemWidgetContactJidChanged()
+{
 	setErrorMessage(QString::null);
 }
 
 void AddMetaItemPage::onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore)
 {
 	Q_UNUSED(ABefore);
-	if (FAddWidget && AContact.id!=FMetaId && AContact.items.contains(FAddWidget->contactJid()))
+	if (FAddWidget && AContact.id!=FMetaTabWindow->metaId() && AContact.items.contains(FAddWidget->contactJid()))
 	{
-		FRosterChanger->subscribeContact(FMetaRoster->streamJid(),FAddWidget->contactJid());
-		FMergeRequestId = FMetaRoster->mergeContacts(FMetaId, QList<QString>() << AContact.id);
+		if (FRosterChanger)
+			FRosterChanger->subscribeContact(FMetaTabWindow->metaRoster()->streamJid(),FAddWidget->contactJid());
+		FMergeRequestId = FMetaTabWindow->metaRoster()->mergeContacts(FMetaTabWindow->metaId(), QList<QString>() << AContact.id);
 		if (FMergeRequestId.isEmpty())
 			setErrorMessage(Qt::escape(tr("Failed to merge contacts.")));
 	}
-	else if (FAddWidget && AContact.id==FMetaId && AContact.items.contains(FAddWidget->contactJid()))
+	else if (FAddWidget && AContact.id==FMetaTabWindow->metaId() && AContact.items.contains(FAddWidget->contactJid()))
 	{
 		FMetaTabWindow->setCurrentItem(FAddWidget->contactJid());
 	}

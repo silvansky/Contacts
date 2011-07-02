@@ -208,10 +208,6 @@
         <translation>Не удалось получить JID контакта от транспорта.</translation>
     </message>
     <message>
-        <source>This contact is already present in your contact-list.</source>
-        <translation>Этот контакт уже имеется в вашем контакт-листе.</translation>
-    </message>
-    <message>
         <source>This contact is already in your list.</source>
         <translation>Этот контакт уже есть в вашем списке.</translation>
     </message>

@@ -15,6 +15,11 @@ CustomLabel#lblError
 	qproperty-shadow: 0;
 }
 
+CustomLabel#lblError[clickable="true"]
+{
+	text-decoration: underline;
+}
+
 QPushButton#pbtAppend
 {
 	color: black;

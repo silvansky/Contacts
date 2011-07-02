@@ -11,6 +11,7 @@
 #include <interfaces/imetacontacts.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/irosterchanger.h>
+#include <interfaces/imessageprocessor.h>
 #include <utils/stylestorage.h>
 #include "ui_addmetaitempage.h"
 
@@ -21,8 +22,7 @@ class AddMetaItemPage :
 	Q_OBJECT;
 	Q_INTERFACES(ITabPage);
 public:
-	AddMetaItemPage(IRosterChanger *ARosterChanger, IMetaTabWindow *AMetaTabWindow, IMetaRoster *AMetaRoster, const QString &AMetaId,
-		const IMetaItemDescriptor &ADescriptor, QWidget *AParent = NULL);
+	AddMetaItemPage(IPluginManager *APluginManager, IMetaTabWindow *AMetaTabWindow,	const IMetaItemDescriptor &ADescriptor, QWidget *AParent = NULL);
 	~AddMetaItemPage();
 	//ITabPage
 	virtual QWidget *instance() { return this; }
@@ -46,6 +46,7 @@ signals:
 	void tabPageDestroyed();
 	void tabPageNotifierChanged();
 protected:
+	void initialize(IPluginManager *APluginManager);
 	QString infoMessageForGate();
 	void setErrorMessage(const QString &AMessage);
 protected:
@@ -55,21 +56,21 @@ protected:
 	virtual void paintEvent(QPaintEvent *AEvent);
 protected slots:
 	void onAppendContactButtonClicked();
-	void onItemWidgetContactJidChanged(const Jid &AContactJid);
+	void onItemWidgetErrorMessageClicked();
+	void onItemWidgetContactJidChanged();
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
 private:
 	Ui::AddMetaItemPageClass ui;
 private:
-	IMetaRoster *FMetaRoster;
 	IMetaTabWindow *FMetaTabWindow;
 	IRosterChanger *FRosterChanger;
 	IAddMetaItemWidget *FAddWidget;
+	IMessageProcessor *FMessageProcessor;
 private:
 	QString FCreateRequestId;
 	QString FMergeRequestId;
 private:
-	QString FMetaId;
 	IMetaItemDescriptor FDescriptor;
 };
 

@@ -14,7 +14,9 @@ AddMetaItemWidget::AddMetaItemWidget(IOptionsManager *AOptionsManager, IRoster *
 	FRoster = ARoster;
 	FGateways = AGateways;
 
+	FContactJidReady = false;
 	FServiceFailed = false;
+	FErrorClickable = false;
 	FContactTextChanged = false;
 	FDescriptor = ADescriptor;
 
@@ -53,6 +55,11 @@ AddMetaItemWidget::AddMetaItemWidget(IOptionsManager *AOptionsManager, IRoster *
 AddMetaItemWidget::~AddMetaItemWidget()
 {
 
+}
+
+bool AddMetaItemWidget::isContactJidReady() const
+{
+	return FContactJidReady;
 }
 
 QString AddMetaItemWidget::gateDescriptorId() const
@@ -111,12 +118,24 @@ QString AddMetaItemWidget::errorMessage() const
 	return ui.lblError->isVisible() ? ui.lblError->text() : QString::null;
 }
 
-void AddMetaItemWidget::setErrorMessage(const QString &AMessage, bool AInvalidInput)
+void AddMetaItemWidget::setErrorMessage(const QString &AMessage, bool AInvalidInput, bool AClickable)
 {
 	if (ui.lblError->text() != AMessage)
 	{
 		ui.lblError->setText(AMessage);
 		ui.lblError->setVisible(!AMessage.isEmpty());
+		if (FErrorClickable && AClickable)
+		{
+			ui.lblError->installEventFilter(this);
+			ui.lblError->setCursor(Qt::PointingHandCursor);
+			ui.lblError->setProperty("clickable", true);
+		}
+		else
+		{
+			ui.lblError->removeEventFilter(this);
+			ui.lblError->setCursor(Qt::ArrowCursor);
+			ui.lblError->setProperty("clickable", false);
+		}
 		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
 		ui.lneContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput  ? true : false);
 		StyleStorage::updateStyle(this);
@@ -144,6 +163,16 @@ void AddMetaItemWidget::setCloseButtonVisible(bool AVisible)
 	ui.cbtDelete->setVisible(AVisible);
 }
 
+bool AddMetaItemWidget::isErrorClickable() const
+{
+	return FErrorClickable;
+}
+
+void AddMetaItemWidget::setErrorClickable(bool AClickable)
+{
+	FErrorClickable = AClickable;
+}
+
 void AddMetaItemWidget::setCorrectSizes(int ANameWidth, int APhotoWidth)
 {
 	ui.lblIcon->setMinimumWidth(ANameWidth);
@@ -164,23 +193,38 @@ QString AddMetaItemWidget::placeholderTextForGate() const
 
 void AddMetaItemWidget::startResolve(int ATimeout)
 {
-	setRealContactJid(Jid::null);
+	setRealContactJid(Jid::null,false);
 	setErrorMessage(QString::null,false);
 	FResolveTimer.start(ATimeout);
 }
 
-void AddMetaItemWidget::setRealContactJid(const Jid &AContactJid)
+void AddMetaItemWidget::setRealContactJid(const Jid &AContactJid, bool AReady)
 {
-	if (FContactJid != AContactJid.bare())
+	if (FContactJid!=AContactJid.bare() || FContactJidReady!=AReady)
 	{
+		FContactJidReady = AReady;
 		FContactJid = AContactJid.bare();
-		emit contactJidChanged(AContactJid);
+		emit contactJidChanged();
 	}
+}
+
+bool AddMetaItemWidget::eventFilter(QObject *AWatched, QEvent *AEvent)
+{
+	if (AWatched == ui.lblError)
+	{
+		if (AEvent->type() == QEvent::MouseButtonRelease)
+		{
+			if (FErrorClickable)
+				emit errorMessageClicked();
+		}
+	}
+	return QWidget::eventFilter(AWatched,AEvent);
 }
 
 void AddMetaItemWidget::resolveContactJid()
 {
 	QString errMessage;
+	bool errClickable = false;
 
 	QString contact = FGateways->normalizedContactLogin(FDescriptor,contactText(),true);
 	if (contactText() != contact)
@@ -205,16 +249,18 @@ void AddMetaItemWidget::resolveContactJid()
 			}
 			else if (FRoster->rosterItem(contact).isValid)
 			{
-				errMessage = tr("This contact is already present in your contact-list.");
+				errClickable = true;
+				errMessage = tr("This contact is already in your list.");
+				setRealContactJid(contact,false);
 			}
 			else
 			{
-				setRealContactJid(contact);
+				setRealContactJid(contact,true);
 			}
 		}
 	}
 
-	setErrorMessage(errMessage,true);
+	setErrorMessage(errMessage,true,errClickable);
 }
 
 void AddMetaItemWidget::onProfilesChanged()
@@ -222,13 +268,13 @@ void AddMetaItemWidget::onProfilesChanged()
 	if (!FRoster->isOpen())
 	{
 		FServiceFailed = true;
-		setErrorMessage(Qt::escape(tr("You are not connected to server.")),false);
+		setErrorMessage(tr("You are not connected to server."),false);
 		ui.lneContact->setEnabled(false);
 	}
 	else if (FSelectProfileWidget->profiles().isEmpty())
 	{
 		FServiceFailed = true;
-		setErrorMessage(Qt::escape(tr("Service '%1' is not available now.")).arg(FDescriptor.name),false);
+		setErrorMessage(tr("Service '%1' is not available now.").arg(FDescriptor.name),false);
 		ui.lneContact->setEnabled(false);
 	}
 	else if (FServiceFailed)
@@ -262,10 +308,15 @@ void AddMetaItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid
 {
 	if (FContactJidRequest == AId)
 	{
-		if (!FRoster->rosterItem(AUserJid).isValid)
-			setRealContactJid(AUserJid);
+		if (FRoster->rosterItem(AUserJid).isValid)
+		{
+			setRealContactJid(AUserJid,false);
+			setErrorMessage(tr("This contact is already in your list."),true,true);
+		}
 		else
-			setErrorMessage(Qt::escape(tr("This contact is already in your list.")),true);
+		{
+			setRealContactJid(AUserJid,true);
+		}
 	}
 }
 
@@ -273,8 +324,5 @@ void AddMetaItemWidget::onGatewayErrorReceived(const QString &AId, const QString
 {
 	Q_UNUSED(AError);
 	if (FContactJidRequest == AId)
-	{
-		setRealContactJid(Jid::null);
-		setErrorMessage(Qt::escape(tr("Failed to request contact JID from transport.")),false);
-	}
+		setErrorMessage(tr("Failed to request contact JID from transport."),false);
 }
