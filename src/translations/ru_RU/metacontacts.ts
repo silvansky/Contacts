@@ -287,10 +287,6 @@
         <translation>Профиль контакта</translation>
     </message>
     <message>
-        <source>Send a postcard</source>
-        <translation>Отправить открытку</translation>
-    </message>
-    <message>
         <source>Delete contact address</source>
         <translation>Удаление контактных данных</translation>
     </message>
@@ -314,17 +310,13 @@
         <source>E-mail</source>
         <translation>E-mail</translation>
     </message>
+    <message>
+        <source>Birthday:</source>
+        <translation>День рождения:</translation>
+    </message>
 </context>
 <context>
     <name>MetaProfileDialogClass</name>
-    <message>
-        <source>Name:</source>
-        <translation>Имя:</translation>
-    </message>
-    <message>
-        <source>Contact Name</source>
-        <translation>Имя контакта</translation>
-    </message>
     <message>
         <source>Add Contact...</source>
         <translation>Добавить контакт...</translation>
@@ -332,10 +324,6 @@
     <message>
         <source>Close</source>
         <translation>Закрыть</translation>
-    </message>
-    <message>
-        <source>Birthday:</source>
-        <translation>День рождения:</translation>
     </message>
 </context>
 <context>

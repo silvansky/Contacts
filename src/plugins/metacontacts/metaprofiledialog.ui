@@ -6,31 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>354</width>
-    <height>250</height>
+    <width>367</width>
+    <height>234</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>10</number>
    </property>
-   <property name="leftMargin">
-    <number>8</number>
-   </property>
-   <property name="topMargin">
-    <number>12</number>
-   </property>
-   <property name="rightMargin">
-    <number>8</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>8</number>
    </property>
    <item>
-    <widget class="QFrame" name="contentsFrame">
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
+    <widget class="QFrame" name="frmContents">
      <property name="frameShadow">
       <enum>QFrame::Plain</enum>
      </property>
@@ -38,48 +26,42 @@
       <property name="spacing">
        <number>10</number>
       </property>
-      <property name="leftMargin">
-       <number>15</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
       <property name="rightMargin">
-       <number>15</number>
+       <number>20</number>
       </property>
-      <item>
-       <widget class="QLabel" name="lblCaption">
-        <property name="text">
-         <string notr="true">lblCaption</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::PlainText</enum>
-        </property>
-       </widget>
-      </item>
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <property name="verticalSpacing">
          <number>3</number>
         </property>
         <item row="0" column="0">
-         <widget class="QLabel" name="lblName">
-          <property name="text">
-           <string>Name:</string>
-          </property>
-          <property name="buddy">
-           <cstring>lneName</cstring>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="lblStatusIcon">
+            <property name="text">
+             <string notr="true">lblStatusIcon</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblStatusName">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string notr="true">lblStatusName</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::PlainText</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="lneName">
-          <property name="placeholderText">
-           <string>Contact Name</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2" rowspan="2">
+        <item row="0" column="1" rowspan="3">
          <widget class="QLabel" name="lblAvatar">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -104,70 +86,28 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="lblStatusIcon">
-            <property name="text">
-             <string notr="true">lblStatusIcon</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="lblStatusName">
-            <property name="text">
-             <string notr="true">lblStatusText</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::PlainText</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="lblStatusText">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string notr="true">lblStatusText</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::PlainText</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="lblBirthdayLabel">
+        <item row="1" column="0">
+         <widget class="QLabel" name="lblName">
           <property name="text">
-           <string>Birthday:</string>
+           <string notr="true">lblName</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="lblBirthday">
-            <property name="text">
-             <string notr="true">lblBirthday</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::PlainText</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="lblBirthdayPostcard">
-            <property name="text">
-             <string notr="true">lblBirthdayPostcard</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+        <item row="2" column="0">
+         <widget class="QLabel" name="lblStatusText">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string notr="true">lblStatusText</string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::PlainText</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -187,8 +127,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>308</width>
-           <height>83</height>
+           <width>322</width>
+           <height>105</height>
           </rect>
          </property>
         </widget>
@@ -199,19 +139,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QPushButton" name="pbtAddContact">
-       <property name="text">
-        <string>Add Contact...</string>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-       <property name="default">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -224,6 +151,19 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbtAddContact">
+       <property name="text">
+        <string>Add Contact...</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pbtClose">
@@ -241,7 +181,6 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>lneName</tabstop>
   <tabstop>pbtAddContact</tabstop>
   <tabstop>pbtClose</tabstop>
  </tabstops>

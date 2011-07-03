@@ -1,17 +1,22 @@
-QLabel#lblCaption
+QLabel#lblName
 {
 	font-size: 18px;
-	/*margin-bottom: 5px;*/
 } 
 
-QLabel#lblStatusText, QLabel#lblBirthdayPostcard
+QLabel#lblStatusText
 {
 	color: #acacac;
+	font-size: 11px;
+}
+
+QLabel#lblStatusName
+{
+	font-size: 13px;
 }
 
 QScrollArea#scaContacts,
 QScrollArea#scaContacts QWidget,
-QFrame#contentsFrame
+QFrame#frmContents
 {
 	background-color: transparent;
 }

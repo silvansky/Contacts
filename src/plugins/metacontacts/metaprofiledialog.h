@@ -59,11 +59,9 @@ protected:
 protected slots:
 	void onAdjustDialogSize();
 	void onAdjustBorderSize();
-	void onContactNameEditFinished();
 	void onAddContactButtonClicked();
 	void onDeleteContactButtonClicked();
 	void onDeleteContactDialogAccepted();
-	void onLabelLinkActivated(const QString &ALink);
 	void onMetaAvatarChanged(const QString &AMetaId);
 	void onMetaPresenceChanged(const QString &AMetaId);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);

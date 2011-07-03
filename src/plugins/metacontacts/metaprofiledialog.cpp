@@ -3,19 +3,18 @@
 #include <QTimer>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QDesktopServices>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/menuicons.h>
 
+#define BIRTHDAY_META_ORDER     -10
 #define MAX_STATUS_TEXT_SIZE    60
 
 MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-
 	setMinimumWidth(400);
-	ui.lneName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	setWindowIconText(tr("Contact Profile"));
 
 	FGateways = NULL;
 	FStatusIcons = NULL;
@@ -27,8 +26,6 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 	FMetaRoster = AMetaRoster;
 	FMetaContacts = AMetaContacts;
 
-	ui.lblCaption->setText(tr("Contact Profile"));
-
 	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (FBorder)
 	{
@@ -36,7 +33,7 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 		FBorder->setMinimizeButtonVisible(false);
 		FBorder->setMaximizeButtonVisible(false);
 		FBorder->setAttribute(Qt::WA_DeleteOnClose,true);
-		FBorder->setWindowTitle(ui.lblCaption->text());
+		FBorder->setWindowTitle(windowIconText());
 		connect(this, SIGNAL(accepted()), FBorder, SLOT(closeWidget()));
 		connect(this, SIGNAL(rejected()), FBorder, SLOT(closeWidget()));
 		connect(FBorder, SIGNAL(closeClicked()), SLOT(reject()));
@@ -46,14 +43,12 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 		setAttribute(Qt::WA_DeleteOnClose,true);
 
 	ui.sawContents->setLayout(new QVBoxLayout);
-	ui.sawContents->layout()->setMargin(0);
-	ui.sawContents->layout()->setSpacing(14);
+	ui.sawContents->layout()->setSpacing(10);
+	ui.sawContents->layout()->setContentsMargins(0,10,0,0);
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_METAPROFILEDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(ui.lblStatusIcon, GFX_STATUSICONS);
-
-	connect(ui.lblBirthdayPostcard,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 
 	connect(FMetaRoster->instance(),SIGNAL(metaContactReceived(const IMetaContact &, const IMetaContact &)),
 		SLOT(onMetaContactReceived(const IMetaContact &, const IMetaContact &)));
@@ -61,7 +56,6 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 	connect(FMetaRoster->instance(),SIGNAL(metaPresenceChanged(const QString &)),SLOT(onMetaPresenceChanged(const QString &)));
 
 	ui.pbtClose->setFocus();
-	connect(ui.lneName,SIGNAL(editingFinished()),SLOT(onContactNameEditFinished()));
 	connect(ui.pbtAddContact,SIGNAL(clicked()),SLOT(onAddContactButtonClicked()));
 	connect(ui.pbtClose,SIGNAL(clicked()),SLOT(reject()));
 
@@ -145,24 +139,28 @@ void MetaProfileDialog::updateBirthday()
 
 	if (birthday.isValid())
 	{
-		ui.lblBirthday->setText(birthday.toString(Qt::SystemLocaleLongDate));
-		ui.lblBirthdayPostcard->setText(QString("<a href='%2'>%1</a>").arg(tr("Send a postcard")).arg("http://cards.rambler.ru/list_cards.html?card_group_id=434"));
+		MetaContainer &container = FMetaContainers[BIRTHDAY_META_ORDER];
+		container.metaWidget = new QWidget(ui.sawContents);
+		container.metaWidget->setLayout(new QHBoxLayout);
+		container.metaWidget->layout()->setMargin(0);
+		ui.sawContents->layout()->addWidget(container.metaWidget);
+
+		container.metaLabel = new QLabel(tr("Birthday:"),container.metaWidget);
+		container.metaWidget->layout()->addWidget(container.metaLabel);
+
+		container.itemsWidget = new QLabel(birthday.toString(Qt::SystemLocaleLongDate), container.metaWidget);
+		container.itemsWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+		container.metaWidget->layout()->addWidget(container.itemsWidget);
 	}
-	ui.lblBirthdayLabel->setVisible(birthday.isValid());
-	ui.lblBirthday->setVisible(birthday.isValid());
-	ui.lblBirthdayPostcard->setVisible(birthday.isValid());
 }
 
 void MetaProfileDialog::updateLeftLabelsSizes()
 {
-	int maxWidth = ui.lblName->sizeHint().width();
-	if (ui.lblBirthdayLabel->isVisible())
-		maxWidth = qMax(ui.lblBirthdayLabel->sizeHint().width(),maxWidth);
+	int maxWidth = 0;
 	for (QMap<int, MetaContainer>::const_iterator it=FMetaContainers.constBegin(); it!=FMetaContainers.constEnd(); it++)
 		maxWidth = qMax(it->metaLabel->sizeHint().width(),maxWidth);
 
-	ui.lblName->setMinimumWidth(maxWidth);
-	ui.lblBirthdayLabel->setMinimumWidth(maxWidth);
+	maxWidth += 10;
 	for (QMap<int, MetaContainer>::const_iterator it=FMetaContainers.constBegin(); it!=FMetaContainers.constEnd(); it++)
 		it->metaLabel->setMinimumWidth(maxWidth);
 }
@@ -191,7 +189,7 @@ void MetaProfileDialog::onAdjustDialogSize()
 {
 	updateLeftLabelsSizes();
 	ui.scaContacts->setFixedHeight(qMin(ui.sawContents->minimumSizeHint().height(),350));
-	QTimer::singleShot(0,this,SLOT(onAdjustBorderSize()));
+	QTimer::singleShot(50,this,SLOT(onAdjustBorderSize()));
 }
 
 void MetaProfileDialog::onAdjustBorderSize()
@@ -200,15 +198,6 @@ void MetaProfileDialog::onAdjustBorderSize()
 		FBorder->adjustSize();
 	else
 		adjustSize();
-}
-
-void MetaProfileDialog::onContactNameEditFinished()
-{
-	QString name = ui.lneName->text().trimmed();
-	if (!name.isEmpty())
-	{
-		FMetaRoster->renameContact(FMetaId,name);
-	}
 }
 
 void MetaProfileDialog::onAddContactButtonClicked()
@@ -228,7 +217,7 @@ void MetaProfileDialog::onAddContactButtonClicked()
 			{
 				IMetaContact contact = FMetaRoster->metaContact(FMetaId);
 				dialog->setGroup(contact.groups.toList().value(0));
-				dialog->setNickName(ui.lneName->text());
+				dialog->setNickName(ui.lblName->text());
 				dialog->setParentMetaContactId(FMetaId);
 			}
 		}
@@ -264,20 +253,13 @@ void MetaProfileDialog::onDeleteContactDialogAccepted()
 	}
 }
 
-void MetaProfileDialog::onLabelLinkActivated(const QString &ALink)
-{
-	QDesktopServices::openUrl(ALink);
-}
-
 void MetaProfileDialog::onMetaAvatarChanged(const QString &AMetaId)
 {
 	if (AMetaId == FMetaId)
 	{
 		QImage avatar = ImageManager::roundSquared(FMetaRoster->metaAvatarImage(FMetaId, true, false),48,2);
 		if (avatar.isNull())
-		{
 			avatar = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_AVATAR_EMPTY_FEMALE, 1);
-		}
 		ui.lblAvatar->setPixmap(QPixmap::fromImage(avatar));
 	}
 }
@@ -301,7 +283,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 {
 	if (AContact.id == FMetaId)
 	{
-		ui.lneName->setText(FMetaContacts->metaContactName(AContact));
+		ui.lblName->setText(FMetaContacts->metaContactName(AContact));
 		if (AContact.items.isEmpty())
 		{
 			close();
@@ -324,7 +306,6 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 
 					container.metaLabel = new QLabel(metaLabelText(descriptor)+":",container.metaWidget);
 					container.metaLabel->setObjectName("metaLabel");
-					container.metaLabel->setMinimumWidth(50);
 					container.metaLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
 					container.metaWidget->layout()->addWidget(container.metaLabel);
 
@@ -332,6 +313,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 					container.itemsWidget->setObjectName("itemsWidget");
 					container.itemsWidget->setLayout(new QVBoxLayout);
 					container.itemsWidget->layout()->setMargin(0);
+					container.itemsWidget->layout()->setSpacing(2);
 					container.itemsWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 					container.metaWidget->layout()->addWidget(container.itemsWidget);
 				}
@@ -377,7 +359,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 					FMetaContainers.remove(descriptor.metaOrder);
 				}
 			}
-			QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
+			QTimer::singleShot(50,this,SLOT(onAdjustDialogSize()));
 		}
 	}
 }
