@@ -59,15 +59,30 @@ MetaTabWindow::~MetaTabWindow()
 	emit tabPageDestroyed();
 }
 
+void MetaTabWindow::assignTabPage()
+{
+	if (FMessageWidgets && isWindow() && !isVisible())
+		FMessageWidgets->assignTabWindowPage(this);
+	else
+		emit tabPageAssign();
+}
+
 void MetaTabWindow::showTabPage()
 {
-	if (isWindow() && !isVisible())
-		FMessageWidgets->assignTabWindowPage(this);
-
+	assignTabPage();
 	if (isWindow())
 		WidgetManager::showActivateRaiseWindow(this);
 	else
 		emit tabPageShow();
+}
+
+void MetaTabWindow::showMinimizedTabPage()
+{
+	assignTabPage();
+	if (isWindow() && !isVisible())
+		showMinimized();
+	else
+		emit tabPageShowMinimized();
 }
 
 void MetaTabWindow::closeTabPage()
@@ -739,7 +754,9 @@ void MetaTabWindow::connectPageWidget(ITabPage *AWidget)
 {
 	if (AWidget)
 	{
+		connect(AWidget->instance(),SIGNAL(tabPageAssign()),SLOT(onTabPageAssign()));
 		connect(AWidget->instance(),SIGNAL(tabPageShow()),SLOT(onTabPageShow()));
+		connect(AWidget->instance(),SIGNAL(tabPageShowMinimized()),SLOT(onTabPageShowMinimized()));
 		connect(AWidget->instance(),SIGNAL(tabPageClose()),SLOT(onTabPageClose()));
 		connect(AWidget->instance(),SIGNAL(tabPageChanged()),SLOT(onTabPageChanged()));
 		connect(AWidget->instance(),SIGNAL(tabPageDestroyed()),SLOT(onTabPageDestroyed()));
@@ -757,7 +774,9 @@ void MetaTabWindow::disconnectPageWidget(ITabPage *AWidget)
 	if (AWidget)
 	{
 		disconnect(AWidget->instance(),SIGNAL(tabPageNotifierChanged()),this,SLOT(onTabPageNotifierChanged()));
+		disconnect(AWidget->instance(),SIGNAL(tabPageAssign()),this,SLOT(onTabPageAssign()));
 		disconnect(AWidget->instance(),SIGNAL(tabPageShow()),this,SLOT(onTabPageShow()));
+		disconnect(AWidget->instance(),SIGNAL(tabPageShowMinimized()),this,SLOT(onTabPageShowMinimized()));
 		disconnect(AWidget->instance(),SIGNAL(tabPageClose()),this,SLOT(onTabPageClose()));
 		disconnect(AWidget->instance(),SIGNAL(tabPageChanged()),this,SLOT(onTabPageChanged()));
 		if (AWidget->tabPageNotifier())
@@ -876,7 +895,8 @@ void MetaTabWindow::showEvent(QShowEvent *AEvent)
 	FShownDetached = isWindow();
 	createFirstPage();
 	QMainWindow::showEvent(AEvent);
-	emit tabPageActivated();
+	if (isActive())
+		emit tabPageActivated();
 }
 
 void MetaTabWindow::closeEvent(QCloseEvent *AEvent)
@@ -907,11 +927,21 @@ void MetaTabWindow::contextMenuEvent(QContextMenuEvent *AEvent)
 	}
 }
 
+void MetaTabWindow::onTabPageAssign()
+{
+	assignTabPage();
+}
+
 void MetaTabWindow::onTabPageShow()
 {
 	ITabPage *widget = qobject_cast<ITabPage *>(sender());
 	setCurrentPage(widgetPage(widget));
 	showTabPage();
+}
+
+void MetaTabWindow::onTabPageShowMinimized()
+{
+	showMinimizedTabPage();
 }
 
 void MetaTabWindow::onTabPageClose()

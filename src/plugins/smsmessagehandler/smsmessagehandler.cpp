@@ -471,10 +471,12 @@ bool SmsMessageHandler::createWindow(int AOrder, const Jid &AStreamJid, const Ji
 		IChatWindow *window = getWindow(AStreamJid,AContactJid);
 		if (window)
 		{
-			if (AShowMode==IMessageHandler::SM_SHOW)
+			if (AShowMode == IMessageHandler::SM_SHOW)
 				window->showTabPage();
-			else if (!window->instance()->isVisible() && AShowMode==IMessageHandler::SM_ADD_TAB)
-				FMessageWidgets->assignTabWindowPage(window);
+			else if (AShowMode == IMessageHandler::SM_ASSIGN)
+				window->assignTabPage();
+			else if (AShowMode == IMessageHandler::SM_MINIMIZED)
+				window->showMinimizedTabPage();
 			return true;
 		}
 	}

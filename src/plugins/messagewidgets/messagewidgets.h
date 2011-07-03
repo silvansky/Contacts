@@ -4,7 +4,6 @@
 #include <QDesktopServices>
 #include <QObjectCleanupHandler>
 #include <definitions/resources.h>
-#include <definitions/customborder.h>
 #include <definitions/actiongroups.h>
 #include <definitions/optionvalues.h>
 #include <definitions/optionnodes.h>
@@ -21,7 +20,6 @@
 #include <interfaces/ivcard.h>
 #include <utils/options.h>
 #include <utils/widgetmanager.h>
-#include <utils/customborderstorage.h>
 #include "infowidget.h"
 #include "viewwidget.h"
 #include "editwidget.h"

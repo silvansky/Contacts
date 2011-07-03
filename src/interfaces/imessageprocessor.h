@@ -13,9 +13,9 @@ class IMessageHandler
 {
 public:
 	enum ShowMode {
-		SM_HIDE,
+		SM_ASSIGN,
 		SM_SHOW,
-		SM_ADD_TAB
+		SM_MINIMIZED
 	};
 public:
 	virtual bool checkMessage(int AOrder, const Message &AMessage) =0;

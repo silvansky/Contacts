@@ -374,15 +374,6 @@ ITabWindow *MessageWidgets::createTabWindow(const QUuid &AWindowId)
 	{
 		window = new TabWindow(this,AWindowId);
 		FTabWindows.append(window);
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(window->instance(), CBS_MESSAGEWINDOW);
-		if (border)
-		{
-			if (!border->restoreGeometry(Options::fileValue("messages.tabwindows.window.border.geometry",window->windowId()).toByteArray()))
-				border->setGeometry(WidgetManager::alignGeometry(QSize(640,480),border));
-			//WidgetManager::setWindowSticky(border, true);
-		}
-		//else
-			//WidgetManager::setWindowSticky(window->instance(),true);
 		connect(window->instance(),SIGNAL(tabPageAdded(ITabPage *)),SLOT(onTabPageAdded(ITabPage *)));
 		connect(window->instance(),SIGNAL(windowDestroyed()),SLOT(onTabWindowDestroyed()));
 		emit tabWindowCreated(window);

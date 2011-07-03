@@ -54,15 +54,30 @@ MailNotifyPage::~MailNotifyPage()
 	emit tabPageDestroyed();
 }
 
-void MailNotifyPage::showTabPage()
+void MailNotifyPage::assignTabPage()
 {
 	if (FMessageWidgets && isWindow() && !isVisible())
 		FMessageWidgets->assignTabWindowPage(this);
+	else
+		emit tabPageAssign();
+}
 
+void MailNotifyPage::showTabPage()
+{
+	assignTabPage();
 	if (isWindow())
 		WidgetManager::showActivateRaiseWindow(this);
 	else
 		emit tabPageShow();
+}
+
+void MailNotifyPage::showMinimizedTabPage()
+{
+	assignTabPage();
+	if (isWindow() && !isVisible())
+		showMinimized();
+	else
+		emit tabPageShowMinimized();
 }
 
 void MailNotifyPage::closeTabPage()
@@ -208,7 +223,8 @@ bool MailNotifyPage::event(QEvent *AEvent)
 void MailNotifyPage::showEvent(QShowEvent *AEvent)
 {
 	QWidget::showEvent(AEvent);
-	emit tabPageActivated();
+	if (isActive())
+		emit tabPageActivated();
 }
 
 void MailNotifyPage::closeEvent(QCloseEvent *AEvent)

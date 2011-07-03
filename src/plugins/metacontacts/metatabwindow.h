@@ -31,7 +31,9 @@ public:
 	~MetaTabWindow();
 	virtual QMainWindow *instance() { return this; }
 	//ITabPage
+	virtual void assignTabPage();
 	virtual void showTabPage();
+	virtual void showMinimizedTabPage();
 	virtual void closeTabPage();
 	virtual bool isActive() const;
 	virtual QString tabPageId() const;
@@ -71,7 +73,9 @@ public:
 	virtual void setItemWidget(const Jid &AItemJid, ITabPage *AWidget);
 signals:
 	//ITabPage
+	void tabPageAssign();
 	void tabPageShow();
+	void tabPageShowMinimized();
 	void tabPageClose();
 	void tabPageClosed();
 	void tabPageChanged();
@@ -118,7 +122,9 @@ protected:
 	void closeEvent(QCloseEvent *AEvent);
 	void contextMenuEvent(QContextMenuEvent *AEvent);
 protected slots:
+	void onTabPageAssign();
 	void onTabPageShow();
+	void onTabPageShowMinimized();
 	void onTabPageClose();
 	void onTabPageChanged();
 	void onTabPageDestroyed();

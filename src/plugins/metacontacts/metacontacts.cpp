@@ -1338,7 +1338,7 @@ void MetaContacts::onMetaTabWindowPageWidgetRequested(const QString &APageId)
 			}
 			else
 			{
-				FMessageProcessor->createWindow(window->metaRoster()->streamJid(),itemJid,Message::Chat,IMessageHandler::SM_ADD_TAB);
+				FMessageProcessor->createWindow(window->metaRoster()->streamJid(),itemJid,Message::Chat,IMessageHandler::SM_ASSIGN);
 			}
 		}
 	}

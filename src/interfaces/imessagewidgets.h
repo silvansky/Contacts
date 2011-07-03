@@ -236,7 +236,9 @@ class ITabPage
 {
 public:
 	virtual QWidget *instance() =0;
+	virtual void assignTabPage() =0;
 	virtual void showTabPage() =0;
+	virtual void showMinimizedTabPage() =0;
 	virtual void closeTabPage() =0;
 	virtual bool isActive() const =0;
 	virtual QString tabPageId() const =0;
@@ -246,7 +248,9 @@ public:
 	virtual ITabPageNotifier *tabPageNotifier() const =0;
 	virtual void setTabPageNotifier(ITabPageNotifier *ANotifier) =0;
 protected:
+	virtual void tabPageAssign() =0;
 	virtual void tabPageShow() =0;
+	virtual void tabPageShowMinimized() =0;
 	virtual void tabPageClose() =0;
 	virtual void tabPageClosed() =0;
 	virtual void tabPageChanged() =0;
@@ -261,6 +265,7 @@ class ITabWindow
 public:
 	virtual QMainWindow *instance() = 0;
 	virtual void showWindow() =0;
+	virtual void showMinimizedWindow() =0;
 	virtual QUuid windowId() const =0;
 	virtual QString windowName() const =0;
 	virtual Menu *windowMenu() const =0;
@@ -294,7 +299,6 @@ public:
 	virtual IToolBarWidget *toolBarWidget() const =0;
 	virtual IStatusBarWidget *statusBarWidget() const =0;
 	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle, const QString &AToolTip) =0;
-	// Расширен функционал IChatWindow. Позволяет добавлять виджеты в окно чата
 	virtual void insertTopWidget(int AOrder, QWidget *AWidget) =0;
 	virtual void removeTopWidget(QWidget *AWidget) =0;
 	virtual void insertBottomWidget(int AOrder, QWidget *AWidget) =0;

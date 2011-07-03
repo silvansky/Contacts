@@ -26,7 +26,9 @@ public:
 	virtual ~ChatWindow();
 	virtual QMainWindow *instance() { return this; }
 	//ITabPage
+	virtual void assignTabPage();
 	virtual void showTabPage();
+	virtual void showMinimizedTabPage();
 	virtual void closeTabPage();
 	virtual bool isActive() const;
 	virtual QString tabPageId() const;
@@ -53,7 +55,9 @@ public:
 	virtual void removeBottomWidget(QWidget *AWidget);
 signals:
 	//ITabPage
+	void tabPageAssign();
 	void tabPageShow();
+	void tabPageShowMinimized();
 	void tabPageClose();
 	void tabPageClosed();
 	void tabPageChanged();

@@ -76,12 +76,27 @@ MessageWindow::~MessageWindow()
 	delete FEditToolBarWidget->instance();
 }
 
+void MessageWindow::assignTabPage()
+{
+	emit assignTabPage();
+}
+
 void MessageWindow::showTabPage()
 {
+	assignTabPage();
 	if (isWindow())
 		WidgetManager::showActivateRaiseWindow(this);
 	else
 		emit tabPageShow();
+}
+
+void MessageWindow::showMinimizedTabPage()
+{
+	assignTabPage();
+	if (isWindow() && !isVisible())
+		showMinimized();
+	else
+		emit tabPageShowMinimized();
 }
 
 void MessageWindow::closeTabPage()
@@ -285,7 +300,8 @@ void MessageWindow::showEvent(QShowEvent *AEvent)
 	QMainWindow::showEvent(AEvent);
 	if (FMode == WriteMode)
 		FEditWidget->textEdit()->setFocus();
-	emit tabPageActivated();
+	if (isActive())
+		emit tabPageActivated();
 }
 
 void MessageWindow::closeEvent(QCloseEvent *AEvent)

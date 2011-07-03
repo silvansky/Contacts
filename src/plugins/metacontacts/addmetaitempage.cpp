@@ -48,9 +48,19 @@ AddMetaItemPage::~AddMetaItemPage()
 	emit tabPageDestroyed();
 }
 
+void AddMetaItemPage::assignTabPage()
+{
+	emit tabPageAssign();	
+}
+
 void AddMetaItemPage::showTabPage()
 {
 	emit tabPageShow();
+}
+
+void AddMetaItemPage::showMinimizedTabPage()
+{
+	emit tabPageShowMinimized();
 }
 
 void AddMetaItemPage::closeTabPage()
@@ -145,7 +155,8 @@ bool AddMetaItemPage::event(QEvent *AEvent)
 void AddMetaItemPage::showEvent(QShowEvent *AEvent)
 {
 	QWidget::showEvent(AEvent);
-	emit tabPageActivated();
+	if (isActive())
+		emit tabPageActivated();
 }
 
 void AddMetaItemPage::closeEvent(QCloseEvent *AEvent)

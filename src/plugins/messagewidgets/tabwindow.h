@@ -6,18 +6,19 @@
 #include <definitions/optionvalues.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/customborder.h>
 #include <definitions/stylesheets.h>
 #include <definitions/actiongroups.h>
 #include <interfaces/imessagewidgets.h>
 #include <utils/options.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
-#include <utils/custombordercontainer.h>
+#include <utils/customborderstorage.h>
 #include "ui_tabwindow.h"
 
 class TabWindow :
-			public QMainWindow,
-			public ITabWindow
+	public QMainWindow,
+	public ITabWindow
 {
 	Q_OBJECT;
 	Q_INTERFACES(ITabWindow);
@@ -26,6 +27,7 @@ public:
 	virtual ~TabWindow();
 	virtual QMainWindow *instance() { return this; }
 	virtual void showWindow();
+	virtual void showMinimizedWindow();
 	virtual QUuid windowId() const;
 	virtual QString windowName() const;
 	virtual Menu *windowMenu() const;
@@ -55,6 +57,7 @@ protected slots:
 	void onTabMenuRequested(int AIndex);
 	void onTabCloseRequested(int AIndex);
 	void onTabPageShow();
+	void onTabPageShowMinimized();
 	void onTabPageClose();
 	void onTabPageChanged();
 	void onTabPageDestroyed();
@@ -87,6 +90,7 @@ private:
 private:
 	QUuid FWindowId;
 	QString FLastClosedTab;
+	CustomBorderContainer *FBorder;
 };
 
 #endif // TABWINDOW_H

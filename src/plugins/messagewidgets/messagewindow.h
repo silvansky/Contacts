@@ -28,7 +28,9 @@ public:
 	virtual ~MessageWindow();
 	virtual QMainWindow *instance() { return this; }
 	//ITabPage
+	virtual void assignTabPage();
 	virtual void showTabPage();
+	virtual void showMinimizedTabPage();
 	virtual void closeTabPage();
 	virtual bool isActive() const;
 	virtual QString tabPageId() const;
@@ -61,7 +63,9 @@ public:
 	virtual void updateWindow(const QIcon &AIcon, const QString &AIconText, const QString &ATitle, const QString &AToolTip);
 signals:
 	//ITabPage
+	void tabPageAssign();
 	void tabPageShow();
+	void tabPageShowMinimized();
 	void tabPageClose();
 	void tabPageClosed();
 	void tabPageChanged();

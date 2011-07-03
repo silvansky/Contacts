@@ -339,7 +339,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		bool alertWindow = record.notification.data.value(NDR_TABPAGE_ALERT_WINDOW).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
 		Jid contactJid = record.notification.data.value(NDR_CONTACT_JID).toString();
-		if (!createTab || FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_ADD_TAB))
+		if (!createTab || FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,alertWindow ? IMessageHandler::SM_MINIMIZED : IMessageHandler::SM_ASSIGN))
 		{
 			IChatWindow *window = FMessageWidgets->findChatWindow(streamJid,contactJid);
 			if (window && window->tabPageNotifier()!=NULL)

@@ -91,15 +91,30 @@ ChatWindow::~ChatWindow()
 	delete FStatusBarWidget->instance();
 }
 
-void ChatWindow::showTabPage()
+void ChatWindow::assignTabPage()
 {
 	if (isWindow() && !isVisible())
 		FMessageWidgets->assignTabWindowPage(this);
+	else
+		emit tabPageAssign();
+}
 
+void ChatWindow::showTabPage()
+{
+	assignTabPage();
 	if (isWindow())
 		WidgetManager::showActivateRaiseWindow(this);
 	else
 		emit tabPageShow();
+}
+
+void ChatWindow::showMinimizedTabPage()
+{
+	assignTabPage();
+	if (isWindow() && !isVisible())
+		showMinimized();
+	else
+		emit tabPageShowMinimized();
 }
 
 void ChatWindow::closeTabPage()
@@ -309,7 +324,8 @@ void ChatWindow::showEvent(QShowEvent *AEvent)
 	FShownDetached = isWindow();
 	QMainWindow::showEvent(AEvent);
 	FEditWidget->textEdit()->setFocus();
-	emit tabPageActivated();
+	if (isActive())
+		emit tabPageActivated();
 }
 
 void ChatWindow::closeEvent(QCloseEvent *AEvent)

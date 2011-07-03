@@ -21,11 +21,22 @@ TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_TABWINDOW);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
+
 	FWindowId = AWindowId;
 	FMessageWidgets = AMessageWidgets;
 
 	initialize();
-	loadWindowStateAndGeometry();
+
+	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MESSAGEWINDOW);
+	if (FBorder)
+	{
+		if (!FBorder->restoreGeometry(Options::fileValue("messages.tabwindows.window.border.geometry",windowId()).toByteArray()))
+			FBorder->setGeometry(WidgetManager::alignGeometry(QSize(640,480),FBorder));
+	}
+	else
+	{
+		loadWindowStateAndGeometry();
+	}
 
 	FWindowMenu = new Menu(this);
 	createActions();
@@ -51,7 +62,18 @@ TabWindow::~TabWindow()
 
 void TabWindow::showWindow()
 {
-	WidgetManager::showActivateRaiseWindow(parentWidget() ? parentWidget() : this);
+	WidgetManager::showActivateRaiseWindow(FBorder ? (QWidget *)FBorder : (QWidget *)this);
+}
+
+void TabWindow::showMinimizedWindow()
+{
+	if (FBorder ? !FBorder->isVisible() : !isVisible())
+	{
+		if (FBorder)
+			FBorder->showMinimized();
+		else
+			showMinimized();
+	}
 }
 
 QUuid TabWindow::windowId() const
@@ -75,6 +97,7 @@ void TabWindow::addTabPage(ITabPage *APage)
 	{
 		int index = ui.twtTabs->addTab(APage->instance(),APage->instance()->windowTitle());
 		connect(APage->instance(),SIGNAL(tabPageShow()),SLOT(onTabPageShow()));
+		connect(APage->instance(),SIGNAL(tabPageShowMinimized()),SLOT(onTabPageShowMinimized()));
 		connect(APage->instance(),SIGNAL(tabPageClose()),SLOT(onTabPageClose()));
 		connect(APage->instance(),SIGNAL(tabPageChanged()),SLOT(onTabPageChanged()));
 		connect(APage->instance(),SIGNAL(tabPageDestroyed()),SLOT(onTabPageDestroyed()));
@@ -120,6 +143,7 @@ void TabWindow::removeTabPage(ITabPage *APage)
 		APage->instance()->close();
 		APage->instance()->setParent(NULL);
 		disconnect(APage->instance(),SIGNAL(tabPageShow()),this,SLOT(onTabPageShow()));
+		disconnect(APage->instance(),SIGNAL(tabPageShowMinimized()),this,SLOT(onTabPageShowMinimized()));
 		disconnect(APage->instance(),SIGNAL(tabPageClose()),this,SLOT(onTabPageClose()));
 		disconnect(APage->instance(),SIGNAL(tabPageChanged()),this,SLOT(onTabPageChanged()));
 		disconnect(APage->instance(),SIGNAL(tabPageDestroyed()),this,SLOT(onTabPageDestroyed()));
@@ -353,6 +377,11 @@ void TabWindow::onTabPageShow()
 		setCurrentTabPage(page);
 		showWindow();
 	}
+}
+
+void TabWindow::onTabPageShowMinimized()
+{
+	showMinimizedWindow();
 }
 
 void TabWindow::onTabPageClose()
