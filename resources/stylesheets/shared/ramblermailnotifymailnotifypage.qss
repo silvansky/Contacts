@@ -1,9 +1,9 @@
-MailNotifyPage
+QFrame#frmContents
 {
 	background-color: white;
 }
 
-MailNotifyPage QWidget
+QFrame#frmContents QWidget
 {
 	background-color: transparent;
 }

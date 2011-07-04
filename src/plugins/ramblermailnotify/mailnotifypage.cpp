@@ -158,7 +158,6 @@ void MailNotifyPage::appendNewMail(const Stanza &AStanza)
 	fromItem->setText(fromName.isEmpty() ? contactElem.firstChildElement("e-mail").text() : fromName);
 	fromItem->setData(Qt::UserRole,contactElem.firstChildElement("jid").text());
 	
-
 	QTableWidgetItem *subjectItem = new QTableWidgetItem();
 	subjectItem->setText(message.subject());
 
@@ -193,7 +192,7 @@ void MailNotifyPage::clearBoldFont()
 {
 	for (int row=0; row<ui.twtMails->rowCount(); row++)
 	{
-		for(int cmn=0; cmn<=CMN_COUNT; cmn++)
+		for(int cmn=0; cmn<CMN_COUNT; cmn++)
 		{
 			QTableWidgetItem *item = ui.twtMails->item(row,cmn);
 			if (item)
@@ -201,6 +200,9 @@ void MailNotifyPage::clearBoldFont()
 				QFont font = item->font();
 				font.setBold(false);
 				item->setFont(font);
+
+				if (cmn != CMN_FROM)
+					item->setForeground(Qt::gray);
 			}
 		}
 	}

@@ -1,9 +1,9 @@
-CustomMailPage
+QFrame#frmContents
 {
 	background-color: white;
 }
 
-CustomMailPage QWidget
+QFrame#frmContents QWidget
 {
 	background-color: transparent;
 }
