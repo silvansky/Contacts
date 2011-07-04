@@ -8,6 +8,7 @@
 #include <QNetworkAccessManager>
 #include "pluginmanager.h"
 #include "proxystyle.h"
+#include <utils/networking.h>
 
 #ifdef Q_WS_WIN32
 # include <thirdparty/holdemutils/RHoldemModule.h>
@@ -85,11 +86,12 @@ int main(int argc, char *argv[])
 #endif
 
 	// TNS counter
-	QNetworkAccessManager *nmanager = new QNetworkAccessManager(&app);
-	QNetworkReply *reply = nmanager->get(QNetworkRequest(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/")));
-	QObject::connect(reply,SIGNAL(finished()),reply,SLOT(deleteLater()));
-	QObject::connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),reply,SLOT(deleteLater()));
-	QObject::connect(reply,SIGNAL(destroyed()),nmanager,SLOT(deleteLater()));
+//	QNetworkAccessManager *nmanager = new QNetworkAccessManager(&app);
+//	QNetworkReply *reply = nmanager->get(QNetworkRequest(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/")));
+//	QObject::connect(reply,SIGNAL(finished()),reply,SLOT(deleteLater()));
+//	QObject::connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),reply,SLOT(deleteLater()));
+//	QObject::connect(reply,SIGNAL(destroyed()),nmanager,SLOT(deleteLater()));
+	Networking::httpGetImage(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/"));
 
 	// Starting plugin manager
 	pm.restart();

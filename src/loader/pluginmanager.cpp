@@ -184,7 +184,7 @@ void PluginManager::restart()
 	FQuitStarted = true;
 	onApplicationAboutToQuit();
 	FQuitStarted = false;
-	
+
 	loadSettings();
 	loadPlugins();
 	if (initPlugins())
@@ -287,7 +287,11 @@ void PluginManager::loadSettings()
 		if (dir.exists() && (dir.exists(DIR_APP_DATA) || dir.mkpath(DIR_APP_DATA)) && dir.cd(DIR_APP_DATA))
 			FDataPath = dir.absolutePath();
 	}
+#ifdef LOG_ENABLED
 	Log::setLogFormat(Log::Simple);
+#else
+	Log::setLogFormat(Log::None);
+#endif
 	Log::setLogPath(FDataPath);
 	FileStorage::setResourcesDirs(FileStorage::resourcesDirs()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
