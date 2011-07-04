@@ -1,0 +1,4 @@
+QLabel#caption
+{
+	font-size: 18px;
+}

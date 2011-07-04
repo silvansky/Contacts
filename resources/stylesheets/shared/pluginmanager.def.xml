@@ -16,4 +16,8 @@
     <key>pluginmanagerAboutBox</key>
     <object mime='text/css'>pluginmanageraboutbox.qss</object>
   </file>
+  <file>
+    <key>pluginmanagerAboutQt</key>
+    <object mime='text/css'>pluginmanageraboutqt.qss</object>
+  </file>
 </styledef>

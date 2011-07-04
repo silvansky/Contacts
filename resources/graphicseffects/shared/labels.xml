@@ -6,6 +6,9 @@
       <name>lblForgotPassword</name>
       <name>lblCopyright</name>
       <name>lblHomePage</name>
+      <name>lblFontInfo</name>
+      <name>lblAboutQt</name>
+      <name>lblAboutQtText</name>
     </names>
     <classes>
 	<!--<class>QLabel</class>

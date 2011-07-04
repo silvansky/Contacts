@@ -286,7 +286,7 @@ void MetaTabWindow::setPageIcon(const QString &APageId, const QString &AMetaIcon
 
 	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 1)), QIcon::Normal, QIcon::Off);
 	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 2)), QIcon::Selected, QIcon::Off);
-	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 2)), QIcon::Active, QIcon::Off);
+	//icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 2)), QIcon::Active, QIcon::Off);
 	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 3)), QIcon::Disabled, QIcon::Off);
 
 	icon.addPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(AMetaIcon, 2)), QIcon::Normal, QIcon::On);

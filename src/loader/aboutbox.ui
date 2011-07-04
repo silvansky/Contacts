@@ -101,6 +101,26 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="lblFontInfo">
+       <property name="text">
+        <string notr="true">font info</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblAboutQt">
+       <property name="text">
+        <string notr="true">Qt info</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
