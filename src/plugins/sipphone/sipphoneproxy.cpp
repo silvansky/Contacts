@@ -15,7 +15,7 @@
 #include "RSipAuthentication.h"
 #include "callaudio.h"
 
-
+#include <utils/widgetmanager.h>
 
 //#include "RCallWidget.h"
 
@@ -691,8 +691,10 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	border->setResizable(true);
 	border->resize(621, 480);
 	border->installEventFilter(this);
+	border->setStaysOnTop(true);
+	WidgetManager::alignWindow(border, Qt::AlignCenter);
 
-	if(_pWorkWidgetContainer != NULL)
+	if(_pWorkWidgetContainer)
 	{
 		delete _pWorkWidgetContainer;
 		_pWorkWidgetContainer = NULL;
@@ -710,7 +712,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 
 bool SipPhoneProxy::eventFilter( QObject *obj, QEvent *evt )
 {
-	if(_pWorkWidgetContainer != NULL)
+	if(_pWorkWidgetContainer)
 	{
 		if(obj == _pWorkWidgetContainer)
 		{
@@ -813,8 +815,10 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		border->setResizable(true);
 		border->resize(621, 480);
 		border->installEventFilter(this);
+		border->setStaysOnTop(true);
+		WidgetManager::alignWindow(border, Qt::AlignCenter);
 
-		if(_pWorkWidgetContainer != NULL)
+		if(_pWorkWidgetContainer)
 		{
 			delete _pWorkWidgetContainer;
 			_pWorkWidgetContainer = NULL;
@@ -859,7 +863,7 @@ void SipPhoneProxy::onHangupCall()
 	//}
 
 	//_pWorkWidget->hide();
-	_pWorkWidgetContainer->setHidden(true);
+	_pWorkWidgetContainer->close();
 }
 
 void SipPhoneProxy::hideCallWidget( SipCall *call )
@@ -867,7 +871,7 @@ void SipPhoneProxy::hideCallWidget( SipCall *call )
 	SipPhoneWidget *spWidget = static_cast<SipPhoneWidget*>(_pWorkWidgetContainer->widget());
 	if(spWidget && spWidget->getCall() == call)
 	{
-		_pWorkWidgetContainer->setHidden(true);
+		_pWorkWidgetContainer->close();
 	}
 
 	//////////////if(_pWorkWidget->getCall() == call)

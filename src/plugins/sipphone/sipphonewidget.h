@@ -30,6 +30,9 @@ public:
 	SipPhoneWidget(KSipAuthentication *auth, CallAudio *callaudio, SipCall *initcall, SipPhoneProxy *parent, const char *name = 0);
 	~SipPhoneWidget();
 
+	QSize sizeHint();
+
+protected:
 	bool eventFilter(QObject *, QEvent *);
 
 public:
@@ -114,6 +117,7 @@ public slots:
 protected slots:
 	void fullScreenStateChange(bool);
 	void processOneMouseIdle();
+	void adjustMySize();
 
 signals:
 	void startCamera();

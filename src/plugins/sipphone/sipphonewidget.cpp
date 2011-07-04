@@ -19,6 +19,8 @@
 #include <utils/iconstorage.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <utils/stylestorage.h>
+#include <definitions/stylesheets.h>
 
 
 const int fstimerInterval = 3500;
@@ -42,8 +44,9 @@ SipPhoneWidget::SipPhoneWidget(QWidget *parent)
 	ui.setupUi(this);
 
 	setObjectName("SipPhoneWidget");
-	setMinimumSize(300, 200);
+	setMinimumSize(250, 90);
 	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 }
 
 SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, SipCall *initCall, SipPhoneProxy *parent, const char *name) : QWidget(NULL), _pSipCall(initCall)
@@ -51,14 +54,14 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	ui.setupUi(this);
 
 	setObjectName("SipPhoneWidget");
-	setMinimumSize(300, 200);
+	setMinimumSize(250, 90);
 
 	ui.remote->hide();
 	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
-
 	{
 		_pCurrPic = new QImageLabel(ui.wgtRemoteImage);
 		_pShowCurrPic = new QToolButton(ui.wgtRemoteImage);
+		_pShowCurrPic->setObjectName("showCurrPic");
 
 		connect(_pCurrPic, SIGNAL(visibleState(bool)), _pShowCurrPic, SLOT(setHidden(bool)));
 		connect(_pShowCurrPic, SIGNAL(clicked()), _pCurrPic, SLOT(show()));
@@ -68,13 +71,14 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 		_pCurrPic->setScaledContents(true);
 
 
-		IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
-		QImage imgShowCurrPic = iconStorage->getImage(MNI_SIPPHONE_WHITE_SHOWCURRCAMERA);
-		QIcon iconCurrPic;
-		iconCurrPic.addPixmap(QPixmap::fromImage(imgShowCurrPic), QIcon::Normal, QIcon::On);
-		_pShowCurrPic->setIcon(iconCurrPic);
+//		IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
+//		QImage imgShowCurrPic = iconStorage->getImage(MNI_SIPPHONE_WHITE_SHOWCURRCAMERA);
+//		QIcon iconCurrPic;
+//		iconCurrPic.addPixmap(QPixmap::fromImage(imgShowCurrPic), QIcon::Normal, QIcon::On);
+//		_pShowCurrPic->setIcon(iconCurrPic);
 
-		_pShowCurrPic->setFixedSize(20, 20);
+		_pShowCurrPic->setFixedSize(24, 24);
+		_pShowCurrPic->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		_pShowCurrPic->hide();
 		_pShowCurrPic->setMouseTracking(true);
 
@@ -95,7 +99,7 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 		connect(_pControls, SIGNAL(fullScreenState(bool)), this, SIGNAL(fullScreenState(bool)));
 		connect(_pControls, SIGNAL(camStateChange(bool)), this, SLOT(cameraStateChange(bool)));
 
-		
+
 
 		connect(_pControls, SIGNAL(hangup()), SLOT(hangupCall()));
 
@@ -104,6 +108,8 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 		_pControls->setFixedSize(270, 40);
 		//_pControls->setMouseTracking(true);
 	}
+
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 
 
 	_pSipCallMember = NULL;
@@ -137,6 +143,9 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 	// Подключение реакций на изменение состояния камеры
 	connect(this, SIGNAL(startCamera()), _pAudioContoller, SIGNAL(proxyStartCamera()));
 	connect(this, SIGNAL(stopCamera()), _pAudioContoller, SIGNAL(proxyStopCamera()));
+
+	// TODO: implement sizeHint() and uncomment this
+	//connect(this, SIGNAL(startCamera()), SLOT(adjustMySize()));
 
 	connect(_pControls, SIGNAL(camResolutionChange(bool)), _pAudioContoller, SLOT(outputVideoResolutonChangedToHigh(bool)));
 
@@ -197,7 +206,11 @@ SipPhoneWidget::~SipPhoneWidget()
 }
 
 
-
+QSize SipPhoneWidget::sizeHint()
+{
+	// TODO: small when no video, big when video is active
+	return minimumSize();
+}
 
 void SipPhoneWidget::SetCurrImage(const QImage& img)
 {
@@ -305,6 +318,11 @@ void SipPhoneWidget::processOneMouseIdle()
 	_pControls->hide();
 }
 
+void SipPhoneWidget::adjustMySize()
+{
+	(parentWidget() ? parentWidget() : (QWidget*)this)->adjustSize();
+}
+
 bool SipPhoneWidget::eventFilter( QObject *obj, QEvent *evt )
 {
 	if(isFullScreen() && obj == ui.wgtRemoteImage)
@@ -325,8 +343,6 @@ bool SipPhoneWidget::eventFilter( QObject *obj, QEvent *evt )
 }
 
 
-
-
 void SipPhoneWidget::cameraStateChange(bool state)
 {
 	if(state)
@@ -338,10 +354,6 @@ void SipPhoneWidget::cameraStateChange(bool state)
 		emit stopCamera();
 	}
 }
-
-
-
-
 
 
 void SipPhoneWidget::callDeletedSlot( bool )
@@ -633,7 +645,7 @@ void SipPhoneWidget::dialClicked( void )
 	// Multi-purpose buttons hack
 	if( _currentState == Called )
 	{
-#pragma message("**** setAutoDelete не нужен KCallWidget::dialClicked")
+//#pragma message("**** setAutoDelete не нужен KCallWidget::dialClicked")
 		//missedCalls.setAutoDelete( false );
 
 		//missedCalls.remove( incomingCall );
