@@ -54,6 +54,7 @@ protected:
 	void updateBirthday();
 	void updateLeftLabelsSizes();
 	QString metaLabelText(const IMetaItemDescriptor &ADescriptor) const;
+	QString metaItemLink(const Jid &AItemJid, const IMetaItemDescriptor &ADescriptor) const;
 protected:
 	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
@@ -62,6 +63,7 @@ protected slots:
 	void onAddContactButtonClicked();
 	void onDeleteContactButtonClicked();
 	void onDeleteContactDialogAccepted();
+	void onItemNameLinkActivated(const QString &AUrl);
 	void onMetaAvatarChanged(const QString &AMetaId);
 	void onMetaPresenceChanged(const QString &AMetaId);
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);

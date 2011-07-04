@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QDesktopServices>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/menuicons.h>
@@ -174,6 +175,16 @@ QString MetaProfileDialog::metaLabelText(const IMetaItemDescriptor &ADescriptor)
 	return ADescriptor.name;
 }
 
+QString MetaProfileDialog::metaItemLink(const Jid &AItemJid, const IMetaItemDescriptor &ADescriptor) const
+{
+	if (ADescriptor.metaOrder == MIO_VKONTAKTE)
+	{
+		Jid contactJid = FMetaContacts->itemHint(AItemJid);
+		return QString("http://vk.com/%1").arg(contactJid.node());
+	}
+	return QString::null;
+}
+
 bool MetaProfileDialog::eventFilter(QObject *AObject, QEvent *AEvent)
 {
 	if (AObject->objectName()=="wdtItem" && (AEvent->type()==QEvent::Enter || AEvent->type() == QEvent::Leave))
@@ -252,6 +263,11 @@ void MetaProfileDialog::onDeleteContactDialogAccepted()
 	}
 }
 
+void MetaProfileDialog::onItemNameLinkActivated(const QString &AUrl)
+{
+	QDesktopServices::openUrl(AUrl);
+}
+
 void MetaProfileDialog::onMetaAvatarChanged(const QString &AMetaId)
 {
 	if (AMetaId == FMetaId)
@@ -304,12 +320,12 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 					ui.sawContents->layout()->addWidget(container.metaWidget);
 
 					container.metaLabel = new QLabel(metaLabelText(descriptor)+":",container.metaWidget);
-					container.metaLabel->setObjectName("metaLabel");
+					container.metaLabel->setObjectName("lblMetaLabel");
 					container.metaLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
 					container.metaWidget->layout()->addWidget(container.metaLabel);
 
 					container.itemsWidget = new QWidget(container.metaWidget);
-					container.itemsWidget->setObjectName("itemsWidget");
+					container.itemsWidget->setObjectName("wdtItemsWidget");
 					container.itemsWidget->setLayout(new QVBoxLayout);
 					container.itemsWidget->layout()->setMargin(0);
 					container.itemsWidget->layout()->setSpacing(2);
@@ -326,12 +342,16 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				container.itemWidgets.insert(itemIt.value(),wdtItem);
 
 				QString itemName = FMetaContacts->itemHint(itemIt.value());
-				QLabel *lblItemName = new QLabel(itemName,wdtItem);
-				lblItemName->setObjectName("itemName");
+				QString itemLink = metaItemLink(itemIt.value(),descriptor);
+				QLabel *lblItemName = new QLabel(wdtItem);
+				lblItemName->setTextFormat(Qt::RichText);
+				lblItemName->setText(itemLink.isEmpty() ? Qt::escape(itemName) : QString("<a href='%1'>%2</a>").arg(itemLink).arg(itemName));
+				lblItemName->setObjectName("lblItemName");
+				connect(lblItemName,SIGNAL(linkActivated(const QString &)),SLOT(onItemNameLinkActivated(const QString &)));
 				wdtItem->layout()->addWidget(lblItemName);
 
 				CloseButton *cbtDelete = new CloseButton(wdtItem);
-				cbtDelete->setObjectName("deleteButton");
+				cbtDelete->setObjectName("cbtDelete");
 				cbtDelete->setVisible(false);
 				cbtDelete->setProperty("itemJid",itemIt->bare());
 				cbtDelete->setProperty("itemName",itemName);
