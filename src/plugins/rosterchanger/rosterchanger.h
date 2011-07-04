@@ -35,6 +35,7 @@
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/imessagestyles.h>
 #include <utils/action.h>
 #include <utils/message.h>
 #include <utils/iconstorage.h>
@@ -209,6 +210,7 @@ private:
 	IAccountManager *FAccountManager;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
+	IMessageStyles *FMessageStyles;
 private:
 	QList<QString> FEmptyGroups;
 	QMap<int, int> FNotifyChatNotice;

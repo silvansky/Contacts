@@ -55,6 +55,7 @@ void GroupMenu::mouseReleaseEvent(QMouseEvent *AEvent)
 
 RosterChanger::RosterChanger()
 {
+	FGateways = NULL;
 	FPluginManager = NULL;
 	FRosterPlugin = NULL;
 	FMetaContacts = NULL;
@@ -68,7 +69,7 @@ RosterChanger::RosterChanger()
 	FAccountManager = NULL;
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
-	FGateways = NULL;
+	FMessageStyles = NULL;
 }
 
 RosterChanger::~RosterChanger()
@@ -185,6 +186,10 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
 	if (plugin)
 		FGateways = qobject_cast<IGateways *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMessageStyles").value(0,NULL);
+	if (plugin)
+		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
 
 	return FRosterPlugin!=NULL;
 }
@@ -1067,6 +1072,7 @@ void RosterChanger::showNotifyInChatWindow(IChatWindow *AWindow, const QString &
 	options.type |= IMessageContentOptions::Notification;
 	options.direction = IMessageContentOptions::DirectionIn;
 	options.time = QDateTime::currentDateTime();
+	options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
 
 	QString message = !AText.isEmpty() ? ANotify +" (" +AText+ ")" : ANotify;
 	AWindow->viewWidget()->changeContentText(message,options);
