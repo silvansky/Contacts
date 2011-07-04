@@ -746,6 +746,7 @@ IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QStr
 				contactMenu->setContextMenuPolicy(Qt::DefaultContextMenu);
 				FAvatarMenus.insert(contactMenu, menu);
 				contactMenu->installEventFilter(this);
+				connect(menu, SIGNAL(aboutToHide()), contactMenu, SLOT(update()));
 				connect(contactMenu, SIGNAL(destroyed(QObject*)), SLOT(onAvatalLabelDestroyed(QObject*)));
 				window->toolBarChanger()->insertWidget(contactMenu, TBG_MCMTW_USER_TOOLS);
 			}
