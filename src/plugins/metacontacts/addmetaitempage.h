@@ -64,6 +64,7 @@ protected slots:
 	void onItemWidgetContactJidChanged();
 	void onMetaContactReceived(const IMetaContact &AContact, const IMetaContact &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
+	void onDelayedMergeRequest();
 private:
 	Ui::AddMetaItemPageClass ui;
 private:

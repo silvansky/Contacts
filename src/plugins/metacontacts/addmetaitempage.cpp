@@ -213,11 +213,7 @@ void AddMetaItemPage::onMetaContactReceived(const IMetaContact &AContact, const 
 	Q_UNUSED(ABefore);
 	if (FAddWidget && AContact.id!=FMetaTabWindow->metaId() && AContact.items.contains(FAddWidget->contactJid()))
 	{
-		if (FRosterChanger)
-			FRosterChanger->subscribeContact(FMetaTabWindow->metaRoster()->streamJid(),FAddWidget->contactJid());
-		FMergeRequestId = FMetaTabWindow->metaRoster()->mergeContacts(FMetaTabWindow->metaId(), QList<QString>() << AContact.id);
-		if (FMergeRequestId.isEmpty())
-			setErrorMessage(Qt::escape(tr("Failed to merge contacts.")));
+		QTimer::singleShot(2000,this,SLOT(onDelayedMergeRequest()));
 	}
 	else if (FAddWidget && AContact.id==FMetaTabWindow->metaId() && AContact.items.contains(FAddWidget->contactJid()))
 	{
@@ -237,5 +233,15 @@ void AddMetaItemPage::onMetaActionResult(const QString &AActionId, const QString
 	{
 		if (!AErrCond.isEmpty())
 			setErrorMessage(Qt::escape(tr("Failed to merge contacts.")));
+		else if (FRosterChanger)
+			FRosterChanger->subscribeContact(FMetaTabWindow->metaRoster()->streamJid(),FAddWidget->contactJid());
 	}
+}
+
+void AddMetaItemPage::onDelayedMergeRequest()
+{
+	QString metaId = FMetaTabWindow->metaRoster()->itemMetaContact(FAddWidget->contactJid());
+	FMergeRequestId = !metaId.isEmpty() ? FMetaTabWindow->metaRoster()->mergeContacts(FMetaTabWindow->metaId(), QList<QString>() << metaId) : QString::null;
+	if (FMergeRequestId.isEmpty())
+		setErrorMessage(Qt::escape(tr("Failed to merge contacts.")));
 }
