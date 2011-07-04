@@ -307,7 +307,7 @@ void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &
 	if (AId == FRegisterId)
 	{
 		Log(QString("[Add legacy account register error] %1").arg(AMessage));
-		if (ACondition == "not-authorized")
+		if (ACondition=="not-authorized" || ACondition=="not-acceptable")
 		{
 			setError(tr("Failed to add account, check your login and password"));
 			setWaitMode(false);

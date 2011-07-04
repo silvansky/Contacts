@@ -17,6 +17,9 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,0,0,"pixmap");
 
+	if (FGateLabel.id == GSID_VKONTAKTE)
+		ui.pbtChange->setEnabled(false);
+
 	connect(ui.chbState, SIGNAL(toggled(bool)), SLOT(onStateCheckboxToggled(bool)));
 	connect(ui.pbtChange, SIGNAL(clicked(bool)), SLOT(onChangeButtonClicked(bool)));
 	connect(ui.cbtDelete,SIGNAL(clicked(bool)),SLOT(onDeleteButtonClicked(bool)));

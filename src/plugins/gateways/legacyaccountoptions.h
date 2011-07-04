@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <interfaces/igateways.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
