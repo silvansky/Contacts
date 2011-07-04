@@ -213,6 +213,8 @@ void AddMetaItemPage::onMetaContactReceived(const IMetaContact &AContact, const 
 	Q_UNUSED(ABefore);
 	if (FAddWidget && AContact.id!=FMetaTabWindow->metaId() && AContact.items.contains(FAddWidget->contactJid()))
 	{
+		if (FRosterChanger)
+			FRosterChanger->insertAutoSubscribe(FMetaTabWindow->metaRoster()->streamJid(),FAddWidget->contactJid(),true,true,false);
 		QTimer::singleShot(2000,this,SLOT(onDelayedMergeRequest()));
 	}
 	else if (FAddWidget && AContact.id==FMetaTabWindow->metaId() && AContact.items.contains(FAddWidget->contactJid()))
