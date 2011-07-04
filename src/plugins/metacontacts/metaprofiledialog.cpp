@@ -188,16 +188,15 @@ bool MetaProfileDialog::eventFilter(QObject *AObject, QEvent *AEvent)
 void MetaProfileDialog::onAdjustDialogSize()
 {
 	updateLeftLabelsSizes();
-	ui.scaContacts->setFixedHeight(qMin(ui.sawContents->minimumSizeHint().height(),350));
-	QTimer::singleShot(50,this,SLOT(onAdjustBorderSize()));
+	ui.scaContacts->setFixedHeight(qMin(ui.sawContents->sizeHint().height(),350));
+	QTimer::singleShot(0,this,SLOT(onAdjustBorderSize()));
 }
 
 void MetaProfileDialog::onAdjustBorderSize()
 {
+	adjustSize();
 	if (FBorder)
 		FBorder->adjustSize();
-	else
-		adjustSize();
 }
 
 void MetaProfileDialog::onAddContactButtonClicked()
@@ -359,7 +358,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 					FMetaContainers.remove(descriptor.metaOrder);
 				}
 			}
-			QTimer::singleShot(50,this,SLOT(onAdjustDialogSize()));
+			QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 		}
 	}
 }
