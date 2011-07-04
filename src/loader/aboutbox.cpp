@@ -18,13 +18,16 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 
+	QString styleBegin = "<html><style>a { color: #acacac; }</style><body><font color=#acacac>";
+	QString styleEnd = "</font></body></html>";
+
 	//ui.lblName->setText(tr("Contacts"));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblName, MNI_OPTIONS_LOGIN_LOGO, 0, 0, "pixmap");
-	ui.lblVersion->setText(tr("Version %1.%2 %3").arg(APluginManager->version()).arg(APluginManager->revision()).arg(CLIENT_VERSION_SUFIX).trimmed());
-	ui.lblHomePage->setText(tr("Official site: %1").arg("<a href='http://contacts.rambler.ru'>http://contacts.rambler.ru</a>"));
-	ui.lblCopyright->setText(tr("© 2011, \"Rambler Internet Holding LLC\".<br>%1").arg(QString("<a href='http://help.rambler.ru/legal/?s=44761'>%1</a>").arg(tr("Terms of Use"))));
-	ui.lblFontInfo->setText(tr("The program uses the Segoe UI font on the license granted Monotype Imaging Inc. %1").arg("<a href=\'http://www.fonts.com\'>http://www.fonts.com</a>"));
-	ui.lblAboutQt->setText(tr("The program is developed with %1.").arg("<a href=\'about:qt\'>Qt</a>"));
+	ui.lblVersion->setText(styleBegin + tr("Version %1.%2 %3").arg(APluginManager->version()).arg(APluginManager->revision()).arg(CLIENT_VERSION_SUFIX).trimmed() + styleEnd);
+	ui.lblHomePage->setText(styleBegin + tr("Official site: %1").arg("<a href='http://contacts.rambler.ru'>contacts.rambler.ru</a>") + "</font>");
+	ui.lblCopyright->setText(styleBegin + tr("© 2011, \"Rambler Internet Holding LLC\".<br>%1").arg(QString("<a href='http://help.rambler.ru/legal/?s=44761'>%1</a>").arg(tr("Terms of Use"))) + styleEnd);
+	ui.lblFontInfo->setText(styleBegin + tr("The program uses the Segoe UI font on the license granted Monotype Imaging Inc. %1").arg("<a href=\'http://www.fonts.com\'>www.fonts.com</a>") + styleEnd);
+	ui.lblAboutQt->setText(styleBegin + tr("The program is developed with %1.").arg("<a href=\'about:qt\'>Qt</a>") + styleEnd);
 
 	connect(ui.lblAboutQt, SIGNAL(linkActivated(const QString &)), SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblHomePage,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));

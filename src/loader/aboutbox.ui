@@ -75,19 +75,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblCopyright">
-       <property name="text">
-        <string notr="true">©</string>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::RichText</enum>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QLabel" name="lblHomePage">
        <property name="text">
         <string notr="true">homepage</string>
@@ -97,6 +84,19 @@
        </property>
        <property name="scaledContents">
         <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblCopyright">
+       <property name="text">
+        <string notr="true">©</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::RichText</enum>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
