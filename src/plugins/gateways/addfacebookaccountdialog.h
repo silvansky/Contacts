@@ -28,7 +28,7 @@ protected:
 protected slots:
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
 	void onRegisterSuccess(const QString &AId);
-	void onRegisterError(const QString &AId, const QString &AError);
+	void onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage);
 	void onWebViewLoadStarted();
 	void onWebViewLoadFinished(bool AOk);
 	void onWebPageLinkClicked(const QUrl &AUrl);

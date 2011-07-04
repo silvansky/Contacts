@@ -30,8 +30,8 @@ RegisterDialog::RegisterDialog(IRegistration *ARegistration, IDataForms *ADataFo
 		SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
 	connect(ARegistration->instance(),SIGNAL(registerSuccess(const QString &)),
 		SLOT(onRegisterSuccess(const QString &)));
-	connect(ARegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
-		SLOT(onRegisterError(const QString &, const QString &)));
+	connect(ARegistration->instance(),SIGNAL(registerError(const QString &, const QString &, const QString &)),
+		SLOT(onRegisterError(const QString &, const QString &, const QString &)));
 	connect(ui.dbbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonsClicked(QAbstractButton *)));
 
 	doRegisterOperation();
@@ -158,12 +158,13 @@ void RegisterDialog::onRegisterSuccess(const QString &AId)
 	}
 }
 
-void RegisterDialog::onRegisterError(const QString &AId, const QString &AError)
+void RegisterDialog::onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage)
 {
+	Q_UNUSED(ACondition);
 	if (FRequestId == AId)
 	{
 		resetDialog();
-		ui.lblInstuctions->setText(tr("Requested operation failed: %1").arg(AError));
+		ui.lblInstuctions->setText(tr("Requested operation failed: %1").arg(AMessage));
 		ui.dbbButtons->setStandardButtons(QDialogButtonBox::Retry|QDialogButtonBox::Cancel);
 	}
 }

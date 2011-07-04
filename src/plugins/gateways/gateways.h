@@ -152,7 +152,7 @@ protected slots:
 	void onDiscoItemContextMenu(const QModelIndex AIndex, Menu *AMenu);
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
 	void onRegisterSuccess(const QString &AId);
-	void onRegisterError(const QString &AId, const QString &AError);
+	void onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage);
 	void onInternalNoticeReady();
 	void onInternalAccountNoticeActionTriggered();
 	void onInternalConflictNoticeActionTriggered();

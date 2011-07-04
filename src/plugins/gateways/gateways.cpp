@@ -148,8 +148,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 				SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
 			connect(FRegistration->instance(),SIGNAL(registerSuccess(const QString &)),
 				SLOT(onRegisterSuccess(const QString &)));
-			connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
-				SLOT(onRegisterError(const QString &, const QString &)));
+			connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &, const QString &)),
+				SLOT(onRegisterError(const QString &, const QString &, const QString &)));
 		}
 	}
 
@@ -337,12 +337,12 @@ bool Gateways::initObjects()
 	vkontakte.prefix = "vk";
 	vkontakte.name = tr("VKontakte");
 	vkontakte.iconKey = MNI_GATEWAYS_SERVICE_VKONTAKTE;
-	vkontakte.loginLabel = tr("Login");
-	vkontakte.domains << "vk.com";
+	vkontakte.loginLabel = tr("E-mail or Login");
+	//vkontakte.domains << "vk.com";
 	vkontakte.loginField = "username";
-	vkontakte.domainField = "server";
+	//vkontakte.domainField = "server";
 	vkontakte.passwordField = "password";
-	vkontakte.domainSeparator = "@";
+	//vkontakte.domainSeparator = "@";
 	vkontakte.homeContactPattern = "^"MAIL_NODE_PATTERN"@vk\\.com$";
 	vkontakte.availContactPattern = JabberContactPattern;
 	vkontakte.blockedDescriptors.append(GSID_MAIL);
@@ -1874,13 +1874,14 @@ void Gateways::onRegisterSuccess(const QString &AId)
 	}
 }
 
-void Gateways::onRegisterError(const QString &AId, const QString &AError)
+void Gateways::onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage)
 {
-	Log(QString("[Gateway register error] id %1 : %2").arg(AId, AError));
+	Q_UNUSED(ACondition);
+	Log(QString("[Gateway register error] id %1 : %2").arg(AId, AMessage));
 	FLoginRequests.remove(AId);
 	FAutoLoginRequests.remove(AId);
 	FShowRegisterRequests.remove(AId);
-	emit errorReceived(AId,AError);
+	emit errorReceived(AId,AMessage);
 }
 
 void Gateways::onInternalNoticeReady()

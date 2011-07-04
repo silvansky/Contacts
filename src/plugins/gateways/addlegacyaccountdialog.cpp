@@ -40,8 +40,8 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 		SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
 	connect(FRegistration->instance(),SIGNAL(registerSuccess(const QString &)),
 		SLOT(onRegisterSuccess(const QString &)));
-	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
-		SLOT(onRegisterError(const QString &, const QString &)));
+	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &, const QString &)),
+		SLOT(onRegisterError(const QString &, const QString &, const QString &)));
 
 	domainsMenu = new Menu(this);
 	domainsMenu->setObjectName("domainsMenu");
@@ -302,12 +302,17 @@ void AddLegacyAccountDialog::onRegisterSuccess(const QString &AId)
 	}
 }
 
-void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &AError)
+void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage)
 {
 	if (AId == FRegisterId)
 	{
-		Log(QString("[Add legacy account register error] %1").arg(AError));
-		if (AError == "resource-limit-exceeded") // јцкий хак, нужно везде передавать код ошибки!
+		Log(QString("[Add legacy account register error] %1").arg(AMessage));
+		if (ACondition == "not-authorized")
+		{
+			setError(tr("Failed to add account, check your login and password"));
+			setWaitMode(false);
+		}
+		else if (ACondition == "resource-limit-exceeded")
 		{
 			abort(tr("You have connected the maximum number of %1 accounts.").arg(FGateLabel.name));
 		}

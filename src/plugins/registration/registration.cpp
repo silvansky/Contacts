@@ -174,7 +174,10 @@ void Registration::stanzaRequestResult(const Jid &AStreamJid, const Stanza &ASta
 			emit registerFields(AStanza.id(),fields);
 		}
 		else
-			emit registerError(AStanza.id(),ErrorHandler(AStanza.element()).message());
+		{
+			ErrorHandler err(AStanza.element());
+			emit registerError(AStanza.id(),err.condition(),err.message());
+		}
 		FSendRequests.removeAt(FSendRequests.indexOf(AStanza.id()));
 		FSubmitRequests.removeAt(FSubmitRequests.indexOf(AStanza.id()));
 	}
@@ -186,12 +189,14 @@ void Registration::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AS
 	if (FSendRequests.contains(AStanzaId))
 	{
 		FSendRequests.removeAt(FSendRequests.indexOf(AStanzaId));
-		emit registerError(AStanzaId,ErrorHandler(ErrorHandler::REQUEST_TIMEOUT).message());
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		emit registerError(AStanzaId,err.condition(),err.message());
 	}
 	else if (FSubmitRequests.contains(AStanzaId))
 	{
 		FSubmitRequests.removeAt(FSubmitRequests.indexOf(AStanzaId));
-		emit registerError(AStanzaId,ErrorHandler(ErrorHandler::REQUEST_TIMEOUT).message());
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		emit registerError(AStanzaId,err.condition(),err.message());
 	}
 }
 

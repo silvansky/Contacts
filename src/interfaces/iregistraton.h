@@ -56,7 +56,7 @@ public:
 protected:
 	virtual void registerFields(const QString &AId, const IRegisterFields &AFields) =0;
 	virtual void registerSuccess(const QString &AId) =0;
-	virtual void registerError(const QString &AId, const QString &AError) =0;
+	virtual void registerError(const QString &AId, const QString &ACondition, const QString &AMessage) =0;
 };
 
 Q_DECLARE_INTERFACE(IRegistration,"Virtus.Plugin.IRegistration/1.0")

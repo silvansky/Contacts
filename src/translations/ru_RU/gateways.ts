@@ -101,6 +101,10 @@
         <source>You have connected the maximum number of %1 accounts.</source>
         <translation>Вы уже подключили максимально возможное число учетных записей %1.</translation>
     </message>
+    <message>
+        <source>Failed to add account, check your login and password</source>
+        <translation>Не удалось добавить учётную запись, проверьте ваш логин и пароль</translation>
+    </message>
 </context>
 <context>
     <name>AddLegacyAccountDialogClass</name>
@@ -331,6 +335,10 @@
     <message>
         <source>Your Agent@Mail was connected from another computer. You can enable it again.</source>
         <translation>Ваш Агент@Mail был запущен с другого компьютера. Вы можете включить его снова.</translation>
+    </message>
+    <message>
+        <source>E-mail or Login</source>
+        <translation>E-mail или Логин</translation>
     </message>
 </context>
 <context>
