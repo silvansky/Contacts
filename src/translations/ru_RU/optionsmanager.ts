@@ -224,7 +224,7 @@ which is linked to Rambler</source>
     </message>
     <message>
         <source>Login and password mismatch</source>
-        <translation>Логин и пароль не совпадают</translation>
+        <translation>Пароль не подходит к логину</translation>
     </message>
     <message>
         <source>Wrong password</source>
