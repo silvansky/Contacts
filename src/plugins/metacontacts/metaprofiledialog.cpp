@@ -179,8 +179,13 @@ QString MetaProfileDialog::metaItemLink(const Jid &AItemJid, const IMetaItemDesc
 {
 	if (ADescriptor.metaOrder == MIO_VKONTAKTE)
 	{
-		Jid contactJid = FMetaContacts->itemHint(AItemJid);
-		return QString("http://vk.com/%1").arg(contactJid.node());
+		QString userId = Jid(FMetaContacts->itemHint(AItemJid)).node();
+		return QString("http://vk.com/%1").arg(userId);
+	}
+	else if (ADescriptor.metaOrder == MIO_FACEBOOK)
+	{
+		QString userId = Jid(FMetaContacts->itemHint(AItemJid)).node();
+		return QString("http://www.facebook.com/profile.php?id=%1").arg(userId.right(userId.size()-1));
 	}
 	return QString::null;
 }
