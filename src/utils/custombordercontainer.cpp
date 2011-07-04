@@ -985,6 +985,13 @@ bool CustomBorderContainer::event(QEvent * evt)
 		return QWidget::event(evt);
 	}
 
+	if (evt->type() == QEvent::WindowStateChange)
+	{
+		QWindowStateChangeEvent * wsce = (QWindowStateChangeEvent*)evt;
+		if (wsce->oldState() == Qt::WindowMinimized)
+			repaintHeaderButtons();
+	}
+
 	return QWidget::event(evt);
 }
 
