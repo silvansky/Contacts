@@ -9,10 +9,10 @@
 #include <utils/stylestorage.h>
 #include "ui_smsinfowidget.h"
 
-class SmsInfoWidget : 
+class SmsInfoWidget :
 	public QFrame
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	SmsInfoWidget(ISmsMessageHandler *ASmsHandler, IChatWindow *AWindow, QWidget *AParent = NULL);
 	~SmsInfoWidget();

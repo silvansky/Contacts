@@ -153,7 +153,7 @@ void MainWindow::createToolBars()
 void MainWindow::createMenus()
 {
 	FMainMenu = new Menu(this);
-	FMainMenu->setTitle(tr("Menu"));
+	//FMainMenu->setTitle(tr("Menu"));
 	FMainMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_MENU);
 	connect(FMainMenu, SIGNAL(aboutToShow()), SLOT(onMainMenuAboutToShow()));
 	connect(FMainMenu, SIGNAL(aboutToHide()), SLOT(onMainMenuAboutToHide()));

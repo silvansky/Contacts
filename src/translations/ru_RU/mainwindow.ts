@@ -12,10 +12,6 @@
         <translation>Левая панель</translation>
     </message>
     <message>
-        <source>Menu</source>
-        <translation>Меню</translation>
-    </message>
-    <message>
         <source>Status toolbar</source>
         <translation>Панель статуса</translation>
     </message>
@@ -45,6 +41,10 @@
     <message>
         <source>Show Contacts</source>
         <translation>Показать Контакты</translation>
+    </message>
+    <message>
+        <source>Menu</source>
+        <translation>Меню</translation>
     </message>
 </context>
 </TS>

@@ -109,6 +109,7 @@ bool MainWindowPlugin::initObjects()
 	//action->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_QUIT);
 	connect(action,SIGNAL(triggered()),FPluginManager->instance(),SLOT(quit()));
 	FMainWindow->mainMenu()->addAction(action,AG_MMENU_MAINWINDOW_QUIT,true);
+	FMainWindow->mainMenu()->setTitle(tr("Menu"));
 
 	FOpenAction = new Action(this);
 	FOpenAction->setVisible(false);
