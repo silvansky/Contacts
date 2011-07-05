@@ -1086,9 +1086,9 @@ void MetaContacts::notifyContactDeleteFailed(IMetaRoster *AMetaRoster, const QSt
 			{
 				notify.notificatior = NID_METACONTACTS_DELETEFAIL;
 				notify.data.insert(NDR_STREAM_JID,AMetaRoster->streamJid().full());
-				notify.data.insert(NDR_POPUP_IMAGE,AMetaRoster->metaAvatarImage(contact.id,false,true));
-				notify.data.insert(NDR_POPUP_CAPTION,tr("Not all contacts removed"));
 				notify.data.insert(NDR_POPUP_TITLE,metaContactName(contact));
+				notify.data.insert(NDR_POPUP_NOTICE,tr("Not all contacts removed"));
+				notify.data.insert(NDR_POPUP_IMAGE,AMetaRoster->metaAvatarImage(contact.id,false,true));
 				notify.data.insert(NDR_POPUP_TEXT,tr("Part of the contacts can not be removed directly from the application. More..."));
 				notify.data.insert(NDR_SOUND_FILE,SDF_METACONTACTS_DELETE_FAIL);
 				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);

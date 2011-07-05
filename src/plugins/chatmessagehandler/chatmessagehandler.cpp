@@ -1187,8 +1187,8 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 			notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
 			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 			notify.data.insert(NDR_POPUP_ICON, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE));
-			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on www.rambler.ru :)"));
 		}
 		if (AKinds & INotification::PlaySoundNotification)

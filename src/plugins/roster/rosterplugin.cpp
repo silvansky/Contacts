@@ -129,9 +129,9 @@ void RosterPlugin::notifyContactAdded(IRoster *ARoster, const IRosterItem &AItem
 			notify.notificatior = NID_CONTACT_ADDED;
 			notify.data.insert(NDR_STREAM_JID, ARoster->streamJid().full());
 			notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
+			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(ARoster->streamJid(),AItem.itemJid));
 			notify.data.insert(NDR_POPUP_NOTICE,tr("Added to the contacts list"));
 			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
-			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(ARoster->streamJid(),AItem.itemJid));
 			notify.data.insert(NDR_SOUND_FILE, SDF_ROSTER_CONTACT_ADDED);
 			FNotifies.insertMulti(ARoster,FNotifications->appendNotification(notify));
 		}

@@ -424,8 +424,8 @@ INotification SmsMessageHandler::notification(INotifications *ANotifications, co
 		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
-		notify.data.insert(NDR_POPUP_CAPTION,tr("Writing..."));
 		notify.data.insert(NDR_POPUP_TITLE,name);
+		notify.data.insert(NDR_POPUP_NOTICE,tr("Writing..."));
 		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.from()));
 		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
 

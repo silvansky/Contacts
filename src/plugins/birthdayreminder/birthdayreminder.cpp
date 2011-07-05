@@ -339,8 +339,8 @@ void BirthdayReminder::onShowNotificationTimer()
 			{
 				Jid streamJid = findContactStream(contactJid);
 
-				notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 				notify.data.insert(NDR_POPUP_TITLE,FNotifications->contactName(streamJid,contactJid));
+				notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 
 				QDate	birthday = contactBithday(contactJid);

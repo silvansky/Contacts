@@ -58,8 +58,8 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 	FCloseTimer->setSingleShot(false);
 	connect(FCloseTimer, SIGNAL(timeout()), SLOT(onCloseTimerTimeout()));
 
-	FCaption = ANotification.data.value(NDR_POPUP_CAPTION).toString();
 	FTitle = ANotification.data.value(NDR_POPUP_TITLE).toString();
+	FCaption = ANotification.data.value(NDR_POPUP_CAPTION).toString();
 	FNotice = ANotification.data.value(NDR_POPUP_NOTICE).toString();
 
 	QIcon icon = qvariant_cast<QIcon>(ANotification.data.value(NDR_POPUP_ICON));
@@ -78,8 +78,8 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 	{
 		ui.lblImage->setVisible(false);
 	}
-	ui.lblCaption->setVisible(!FCaption.isEmpty());
 	ui.lblTitle->setVisible(!FTitle.isEmpty());
+	ui.lblCaption->setVisible(!FCaption.isEmpty());
 	ui.lblNotice->setVisible(!FNotice.isEmpty());
 
 	QString styleKey = ANotification.data.value(NDR_POPUP_STYLEKEY).toString();

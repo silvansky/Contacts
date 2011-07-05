@@ -991,9 +991,9 @@ void StatusChanger::updateStatusNotification(IPresence *APresence)
 			{
 				notify.notificatior = NID_CONNECTION_STATE;
 				notify.data.insert(NDR_ICON,FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Error,QString::null,false) : QIcon());
-				notify.data.insert(NDR_POPUP_CAPTION,isFailed ? tr("Problem") : tr("Problem resolved"));
-				notify.data.insert(NDR_POPUP_IMAGE, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(isFailed ? MNI_SCHANGER_CONNECTION_ERROR : MNI_SCHANGER_CONNECTION_RESTORE));
 				notify.data.insert(NDR_POPUP_TITLE,isFailed ? tr("Temporary connection failure") : tr("Connection restored"));
+				notify.data.insert(NDR_POPUP_NOTICE,isFailed ? tr("Problem") : tr("Problem resolved"));
+				notify.data.insert(NDR_POPUP_IMAGE, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(isFailed ? MNI_SCHANGER_CONNECTION_ERROR : MNI_SCHANGER_CONNECTION_RESTORE));
 				notify.data.insert(NDR_POPUP_TEXT,isFailed ? Qt::escape(APresence->status()) : QString());
 				notify.data.insert(NDR_POPUP_STYLEKEY,isFailed ? STS_SCHANGER_NOTIFYWIDGET_CONNECTION_ERROR : STS_SCHANGER_NOTIFYWIDGET_CONNECTION_RESTORE);
 				notify.data.insert(NDR_SOUND_FILE,isFailed ? SDF_SCHANGER_CONNECTION_ERROR : SDF_SCHANGER_CONNECTION_RESTORE);

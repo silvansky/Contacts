@@ -330,16 +330,16 @@ void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AS
 				notify.notificatior = NID_MAIL_NOTIFY;
 				notify.data.insert(NDR_STREAM_JID,AStreamJid.full());
 				notify.data.insert(NDR_CONTACT_JID,mnotify->contactJid.full());
+				notify.data.insert(NDR_POPUP_TITLE,contactElem.firstChildElement("name").text());
 				notify.data.insert(NDR_POPUP_NOTICE,tr("New e-mail"));
 				notify.data.insert(NDR_POPUP_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_RAMBLERMAILNOTIFY_AVATAR));
-				notify.data.insert(NDR_POPUP_TITLE,contactElem.firstChildElement("name").text());
-				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 				notify.data.insert(NDR_POPUP_TEXT,AStanza.firstElement("subject").text());
+				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 				notify.data.insert(NDR_SOUND_FILE,SDF_RAMBLERMAILNOTIFY_NOTIFY);
 
-				IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-				if (roster && !roster->rosterItem(mnotify->contactJid).isValid)
-					notify.data.insert(NDR_POPUP_NOTICE,tr("Not in contact list"));
+				//IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+				//if (roster && !roster->rosterItem(mnotify->contactJid).isValid)
+				//	notify.data.insert(NDR_POPUP_NOTICE,tr("Not in contact list"));
 
 				mnotify->popupNotifyId = FNotifications->appendNotification(notify);
 			}
@@ -519,9 +519,9 @@ void RamblerMailNotify::onNotificationTest(const QString &ANotificatorId, uchar 
 		notify.notificatior = ANotificatorId;
 		if (AKinds & INotification::PopupWindow)
 		{
+			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_NOTICE,tr("New e-mail"));
 			notify.data.insert(NDR_POPUP_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_RAMBLERMAILNOTIFY_AVATAR));
-			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on mail.rambler.ru :)"));
 			notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 		}
