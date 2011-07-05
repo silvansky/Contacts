@@ -1,5 +1,6 @@
 #include "viewhistorywindow.h"
 
+#include <QUrl>
 #include <QWebFrame>
 #include <QNetworkRequest>
 #include <QDesktopServices>
@@ -81,7 +82,7 @@ void ViewHistoryWindow::initViewHtml()
 		</body></html>";
 
 	QString html = HtmlTemplate
-		.arg(contactJid().eBare())
+		.arg(QUrl::toPercentEncoding(contactJid().eBare()).constData())
 		.arg(streamJid().eBare())
 		.arg(streamJid().pDomain())
 		.arg(FRoster->xmppStream()->password())
