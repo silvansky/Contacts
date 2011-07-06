@@ -15,7 +15,8 @@ public:
 	static bool insertPixmap(const QUrl& src, QObject* target, const QString& property = "pixmap");
 	static QString httpGetString(const QUrl& src);
 private:
-	static NetworkingPrivate networkingPrivate;
+	static NetworkingPrivate * networkingPrivate;
+	static void init();
 };
 
 #endif // NETWORKING_H

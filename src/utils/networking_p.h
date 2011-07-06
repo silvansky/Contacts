@@ -2,12 +2,10 @@
 #define NETWORKING_P_H
 
 #include <QNetworkAccessManager>
-#include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QEventLoop>
-#include <QPixmap>
-#include <QImageReader>
-#include <QVariant>
+#include <QImage>
+#include <QObject>
 
 class NetworkingPrivate : public QObject
 {

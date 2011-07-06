@@ -1,9 +1,6 @@
 #include "networking.h"
 
-#include <QNetworkAccessManager>
 #include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QEventLoop>
 #include <QPixmap>
 #include <QImageReader>
 #include <QVariant>
@@ -77,37 +74,40 @@ void NetworkingPrivate::onFinished(QNetworkReply* reply)
 	if (requests.contains(reply))
 	{
 		QPair<QObject*, QPair<QUrl, const char *> > obj = requests.value(reply);
+		QImage img;
+		QImageReader reader(reply);
+		if (reply->error() == QNetworkReply::NoError)
+			reader.read(&img);
+		else
+			Log(QString("reply->error() == %1").arg(reply->error()));
 		if (obj.first)
 		{
-			QImage img;
-			QImageReader reader(reply);
-			if (reply->error() == QNetworkReply::NoError)
-				reader.read(&img);
-			else
-				Log(QString("reply->error() == %1").arg(reply->error()));
 			QMetaObject::invokeMethod(obj.first, obj.second.second, Qt::DirectConnection, Q_ARG(QUrl, obj.second.first), Q_ARG(QImage, img));
-			requests.remove(reply);
 		}
+		requests.remove(reply);
 		reply->deleteLater();
 	}
 }
 
 // Networking class
 
-NetworkingPrivate Networking::networkingPrivate;
+NetworkingPrivate * Networking::networkingPrivate = 0;
 
 QImage Networking::httpGetImage(const QUrl& src)
 {
-	return networkingPrivate.httpGetImage(src);
+	init();
+	return networkingPrivate->httpGetImage(src);
 }
 
 void Networking::httpGetImageAsync(const QUrl& src, QObject * receiver, const char * slot)
 {
-	networkingPrivate.httpGetImageAsync(src, receiver, slot);
+	init();
+	networkingPrivate->httpGetImageAsync(src, receiver, slot);
 }
 
 bool Networking::insertPixmap(const QUrl& src, QObject* target, const QString& property)
 {
+	init();
 	QImage img = httpGetImage(src);
 	if (!img.isNull())
 	{
@@ -120,5 +120,12 @@ bool Networking::insertPixmap(const QUrl& src, QObject* target, const QString& p
 
 QString Networking::httpGetString(const QUrl& src)
 {
-	return networkingPrivate.httpGetString(src);
+	init();
+	return networkingPrivate->httpGetString(src);
+}
+
+void Networking::init()
+{
+	if (!networkingPrivate)
+		networkingPrivate = new NetworkingPrivate;
 }
