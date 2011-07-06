@@ -33,3 +33,6 @@ include(../translations.inc)
   target.path      = $$INSTALL_LIBS
   INSTALLS         = target
 }
+
+win32:RC_FILE      = utils.rc
+

@@ -33,3 +33,8 @@ macx {
   name_tool.extra   = install_name_tool -change lib$${TARGET_UTILS}.1.dylib @executable_path/../Frameworks/lib$${TARGET_UTILS}.1.dylib $(INSTALL_ROOT)$$INSTALL_PLUGINS/lib$${TARGET}.dylib
   INSTALLS         += name_tool
 }
+
+#Windows resources
+win32: {
+  RC_FILE = plugin_resources.rc
+}
