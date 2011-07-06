@@ -35,7 +35,8 @@ HEADERS = utilsexport.h \
     customlistview.h \
     customlabel.h \
     nonmodalopenfiledialog.h \
-    networking.h
+    networking.h \
+    networking_p.h
 
 SOURCES = jid.cpp \
     versionparser.cpp \

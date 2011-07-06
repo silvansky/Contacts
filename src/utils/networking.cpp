@@ -13,61 +13,97 @@
 
 // private class for real manipulations
 
-class Networking::NetworkingPrivate : public QObject
+#include "networking_p.h"
+
+NetworkingPrivate::NetworkingPrivate()
 {
-public:
-	NetworkingPrivate()
+	nam = new QNetworkAccessManager();
+	loop = new QEventLoop();
+	connect(nam, SIGNAL(finished(QNetworkReply*)), loop, SLOT(quit()));
+	connect(nam, SIGNAL(finished(QNetworkReply*)), SLOT(onFinished(QNetworkReply*)));
+}
+
+NetworkingPrivate::~NetworkingPrivate()
+{
+	nam->deleteLater();
+	loop->deleteLater();
+}
+
+QImage NetworkingPrivate::httpGetImage(const QUrl& src) const
+{
+	QNetworkRequest request;
+	request.setUrl(src);
+	QNetworkReply * reply = nam->get(request);
+	loop->exec();
+	QImage img;
+	QImageReader reader(reply);
+	if (reply->error() == QNetworkReply::NoError)
+		reader.read(&img);
+	else
+		Log(QString("reply->error() == %1").arg(reply->error()));
+	reply->deleteLater();
+	return img;
+}
+
+void NetworkingPrivate::httpGetImageAsync(const QUrl& src, QObject * receiver, const char * slot)
+{
+	QNetworkRequest request;
+	request.setUrl(src);
+	QPair<QObject*, QPair<QUrl, const char *> > obj;
+	obj.first = receiver;
+	obj.second.first = src;
+	obj.second.second = slot;
+	QNetworkReply * reply = nam->get(request);
+	requests.insert(reply, obj);
+}
+
+QString NetworkingPrivate::httpGetString(const QUrl& src) const
+{
+	QNetworkRequest request;
+	request.setUrl(src);
+	QNetworkReply * reply = nam->get(request);
+	loop->exec();
+	QString answer;
+	if (reply->error() == QNetworkReply::NoError)
+		answer = QString::fromUtf8(reply->readAll());
+	else
+		Log(QString("reply->error() == %1").arg(reply->error()));
+	reply->deleteLater();
+	return answer;
+}
+
+void NetworkingPrivate::onFinished(QNetworkReply* reply)
+{
+	if (requests.contains(reply))
 	{
-		nam = new QNetworkAccessManager();
-		loop = new QEventLoop();
-		connect(nam, SIGNAL(finished(QNetworkReply*)), loop, SLOT(quit()));
-	}
-	~NetworkingPrivate()
-	{
-		nam->deleteLater();
-		loop->deleteLater();
-	}
-	QImage httpGetImage(const QUrl& src) const
-	{
-		QNetworkRequest request;
-		request.setUrl(src);
-		QNetworkReply * reply = nam->get(request);
-		loop->exec();
-		QImage img;
-		QImageReader reader(reply);
-		if (reply->error() == QNetworkReply::NoError)
-			reader.read(&img);
-		else
-			Log(QString("reply->error() == %1").arg(reply->error()));
+		QPair<QObject*, QPair<QUrl, const char *> > obj = requests.value(reply);
+		if (obj.first)
+		{
+			QImage img;
+			QImageReader reader(reply);
+			if (reply->error() == QNetworkReply::NoError)
+				reader.read(&img);
+			else
+				Log(QString("reply->error() == %1").arg(reply->error()));
+			QMetaObject::invokeMethod(obj.first, obj.second.second, Qt::DirectConnection, Q_ARG(QUrl, obj.second.first), Q_ARG(QImage, img));
+			requests.remove(reply);
+		}
 		reply->deleteLater();
-		return img;
 	}
-	QString httpGetString(const QUrl& src) const
-	{
-		QNetworkRequest request;
-		request.setUrl(src);
-		QNetworkReply * reply = nam->get(request);
-		loop->exec();
-		QString answer;
-		if (reply->error() == QNetworkReply::NoError)
-			answer = QString::fromUtf8(reply->readAll());
-		else
-			Log(QString("reply->error() == %1").arg(reply->error()));
-		reply->deleteLater();
-		return answer;
-	}
-private:
-	QNetworkAccessManager * nam;
-	QEventLoop * loop;
-};
+}
 
 // Networking class
 
-Networking::NetworkingPrivate Networking::networkingPrivate;
+NetworkingPrivate Networking::networkingPrivate;
 
 QImage Networking::httpGetImage(const QUrl& src)
 {
 	return networkingPrivate.httpGetImage(src);
+}
+
+void Networking::httpGetImageAsync(const QUrl& src, QObject * receiver, const char * slot)
+{
+	networkingPrivate.httpGetImageAsync(src, receiver, slot);
 }
 
 bool Networking::insertPixmap(const QUrl& src, QObject* target, const QString& property)

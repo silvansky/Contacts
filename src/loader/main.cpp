@@ -91,6 +91,8 @@ int main(int argc, char *argv[])
 //	QObject::connect(reply,SIGNAL(finished()),reply,SLOT(deleteLater()));
 //	QObject::connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),reply,SLOT(deleteLater()));
 //	QObject::connect(reply,SIGNAL(destroyed()),nmanager,SLOT(deleteLater()));
+
+	// TODO: make non-blocking version
 	Networking::httpGetImage(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/"));
 
 	// Starting plugin manager
