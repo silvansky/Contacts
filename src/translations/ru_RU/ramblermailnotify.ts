@@ -79,10 +79,6 @@
         <translation>Уведомляет о новых сообщениях в Рамблер-Почте</translation>
     </message>
     <message>
-        <source>Not in contact list</source>
-        <translation>Не в контакт-листе</translation>
-    </message>
-    <message>
         <source>Vasilisa Premudraya</source>
         <translation>Василиса Премудрая</translation>
     </message>

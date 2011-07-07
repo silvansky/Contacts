@@ -104,7 +104,8 @@ public:
 	}
 };
 
-class DomainComboDelegate : public QStyledItemDelegate
+class DomainComboDelegate : 
+	public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
@@ -158,14 +159,17 @@ private:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-//	ui.lblRegister->setProperty("ignoreFilter", true);
-//	ui.lblHelp->setProperty("ignoreFilter", true);
-//	ui.lblConnectSettings->setProperty("ignoreFilter", true);
-//	ui.lblForgotPassword->setProperty("ignoreFilter", true);
-	domainPrevIndex = 0;
+	setWindowModality(Qt::WindowModal);
+	setAttribute(Qt::WA_DeleteOnClose, true);
+
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
-	connect(ui.chbShowPassword, SIGNAL(stateChanged(int)), SLOT(onShowPasswordToggled(int)));
+
+	FDomainPrevIndex = 0;
+	FNewProfile = true;
+	FSavedPasswordCleared = false;
+	FConnectionSettings = CS_DEFAULT;
+
 	FConnectionErrorWidget = new QWidget;
 	FConnectionErrorWidget->setObjectName("connectionErrorWidget");
 	QVBoxLayout * vlayout = new QVBoxLayout;
@@ -177,47 +181,45 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	vlayout->addWidget(ui.lblReconnect);
 	vlayout->addWidget(ui.chbShowPassword);
 	FConnectionErrorWidget->setLayout(vlayout);
+
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
 	ui.tlbDomain->setProperty("error", false);
 
-	domainsMenu = new Menu(this);
-	domainsMenu->setObjectName("domainsMenu");
-	ui.tlbDomain->setMenu(domainsMenu);
+	FDomainsMenu = new Menu(this);
+	FDomainsMenu->setObjectName("domainsMenu");
+	ui.tlbDomain->setMenu(FDomainsMenu);
 
-	//	ui.frmDomain->setProperty("error", false);
 	ui.cmbDomain->setView(new QListView());
 	ui.cmbDomain->view()->setItemDelegate(new DomainComboDelegate(ui.cmbDomain->view(), ui.cmbDomain));
-	setWindowModality(Qt::WindowModal);
-	setAttribute(Qt::WA_DeleteOnClose, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
 	connect(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SIGNAL(stylePreviewReset()), SLOT(onStylePreviewReset()));
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 	FConnectionErrorWidget->setStyleSheet(styleSheet());
 
-	FNewProfile = true;
-	FSavedPasswordCleared = false;
-	FConnectionSettings = CS_DEFAULT;
 	initialize(APluginManager);
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
 	ui.lblLogo->setFixedHeight(43);
-	//ui.lblLogo->setText(QString("<font size=+3>%1</font>").arg(tr("Contacts")));
 
 	ui.lblRegister->setText(tr("Enter your Rambler login and password, or %1.")
-				.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:9pt; text-decoration: underline; color:#ffffff;'>%1</span></a>")
-				.arg(tr("register")));
+		.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:9pt; text-decoration: underline; color:#ffffff;'>%1</span></a>")
+		.arg(tr("register")));
 	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:9pt; text-decoration: underline; color:#acacac;'>%1</span></a>")
-				      .arg(tr("Forgot your password?")));
+		.arg(tr("Forgot your password?")));
+	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'><span style='font-size:9pt; text-decoration: underline; /*color:#acacac;*/'>%1</span></a>")
+		.arg(tr("Connection settings")));
+
+	ui.lblConnectSettings->setFocusPolicy(Qt::StrongFocus);
+	ui.lblConnectSettings->installEventFilter(this);
 
 	connect(ui.lblRegister,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblForgotPassword,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblConnectSettings,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
-	ui.lblConnectSettings->setFocusPolicy(Qt::StrongFocus);
-	ui.lblConnectSettings->installEventFilter(this);
 
+	connect(ui.chbShowPassword, SIGNAL(stateChanged(int)), SLOT(onShowPasswordToggled(int)));
 	connect(ui.lneNode,SIGNAL(textChanged(const QString &)),SLOT(onLoginOrPasswordTextChanged()));
 	connect(ui.lnePassword,SIGNAL(textChanged(const QString &)),SLOT(onLoginOrPasswordTextChanged()));
 
@@ -228,43 +230,42 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.cmbDomain->addItem("@ro.ru",QString("ro.ru"));
 	ui.cmbDomain->addItem("@r0.ru",QString("r0.ru"));
 
-	Action * action = new Action(domainsMenu);
+	Action *action = new Action(FDomainsMenu);
 	action->setText("@rambler.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("rambler.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
-	domainsMenu->addAction(action);
-
+	FDomainsMenu->addAction(action);
 	action->trigger();
 
-	action = new Action(domainsMenu);
+	action = new Action(FDomainsMenu);
 	action->setText("@lenta.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("lenta.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
-	domainsMenu->addAction(action);
+	FDomainsMenu->addAction(action);
 
-	action = new Action(domainsMenu);
+	action = new Action(FDomainsMenu);
 	action->setText("@myrambler.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("myrambler.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
-	domainsMenu->addAction(action);
+	FDomainsMenu->addAction(action);
 
-	action = new Action(domainsMenu);
+	action = new Action(FDomainsMenu);
 	action->setText("@autorambler.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("autorambler.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
-	domainsMenu->addAction(action);
+	FDomainsMenu->addAction(action);
 
-	action = new Action(domainsMenu);
+	action = new Action(FDomainsMenu);
 	action->setText("@ro.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("ro.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
-	domainsMenu->addAction(action);
+	FDomainsMenu->addAction(action);
 
-	action = new Action(domainsMenu);
+	action = new Action(FDomainsMenu);
 	action->setText("@r0.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("r0.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
-	domainsMenu->addAction(action);
+	FDomainsMenu->addAction(action);
 
 	//ui.tlbDomain->setVisible(false);
 	ui.cmbDomain->setVisible(false);
@@ -784,8 +785,6 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	message += message.isEmpty() || AError.isEmpty() ? AError : "<br>" + AError;
 	ui.lblConnectError->setText(message);
 
-	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'>%1</a>").arg(tr("Connection settings")));
-
 	int tries = FReconnectTimer.property("tries").toInt();
 	if (tries > 0)
 	{
@@ -832,7 +831,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	if (FNewProfile)
 	{
 		ui.lneNode->setProperty("error", true);
-		//		ui.frmDomain->setProperty("error", true);
+		//ui.frmDomain->setProperty("error", true);
 		ui.cmbDomain->setProperty("error", true);
 		ui.tlbDomain->setProperty("error", true);
 	}
@@ -986,8 +985,7 @@ void LoginDialog::onXmppStreamClosed()
 	}
 	else if (account)
 	{
-		showXmppStreamError(FNewProfile ? tr("Login and password mismatch") : tr("Wrong password"), QString::null/*account->xmppStream()->errorString()*/,
-				    tr("Check keyboard layout"));
+		showXmppStreamError(tr("The password is not suited to login"), QString::null/*account->xmppStream()->errorString()*/,tr("Check keyboard layout"));
 	}
 
 	FFirstConnect = false;
@@ -1045,7 +1043,7 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		dialog->show();
 	}
 	else
-		domainPrevIndex = AIndex;
+		FDomainPrevIndex = AIndex;
 }
 
 void LoginDialog::onDomainActionTriggered()
@@ -1082,7 +1080,7 @@ void LoginDialog::onNewDomainSelected(const QString & newDomain)
 
 void LoginDialog::onNewDomainRejected()
 {
-	ui.cmbDomain->setCurrentIndex(domainPrevIndex);
+	ui.cmbDomain->setCurrentIndex(FDomainPrevIndex);
 }
 
 void LoginDialog::onLabelLinkActivated(const QString &ALink)
@@ -1185,7 +1183,10 @@ void LoginDialog::onShowConnectingAnimation()
 
 void LoginDialog::onAdjustDialogSize()
 {
-	//resize(minimumSizeHint());
+	//if (parentWidget())
+	//	parentWidget()->resize(parentWidget()->minimumSizeHint());
+	//else
+	//	resize(minimumSizeHint());
 }
 
 void LoginDialog::onNotificationAppend(int ANotifyId, INotification &ANotification)

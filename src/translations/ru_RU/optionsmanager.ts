@@ -223,20 +223,16 @@ which is linked to Rambler</source>
         <translation>Как подключить свой домен?</translation>
     </message>
     <message>
-        <source>Login and password mismatch</source>
-        <translation>Пароль не подходит к логину</translation>
-    </message>
-    <message>
-        <source>Wrong password</source>
-        <translation>Неправильный пароль</translation>
-    </message>
-    <message>
         <source>Check keyboard layout</source>
         <translation>Проверьте раскладку клавиатуры</translation>
     </message>
     <message>
         <source>This profile is already opened by another Contacts instance</source>
         <translation>Этот профиль уже открыт</translation>
+    </message>
+    <message>
+        <source>The password is not suited to login</source>
+        <translation>Пароль не подходит к логину</translation>
     </message>
 </context>
 <context>

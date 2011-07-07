@@ -101,12 +101,12 @@ private:
 	bool FFirstConnect;
 	bool FMainWindowVisible;
 	bool FSavedPasswordCleared;
+	int FDomainPrevIndex;
+	int FConnectionSettings;
 	QUuid FAccountId;
 	QTimer FReconnectTimer;
-	int FConnectionSettings;
-	int domainPrevIndex;
+	Menu *FDomainsMenu;
 	QWidget *FConnectionErrorWidget;
-	Menu * domainsMenu;
 };
 
 #endif // LOGINDIALOG_H

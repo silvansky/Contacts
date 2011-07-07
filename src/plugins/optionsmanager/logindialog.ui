@@ -64,6 +64,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="text">
+         <string notr="true">lblLogo</string>
+        </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
         </property>
@@ -110,6 +113,9 @@
         </property>
         <property name="contextMenuPolicy">
          <enum>Qt::NoContextMenu</enum>
+        </property>
+        <property name="text">
+         <string notr="true">lblRegister</string>
         </property>
         <property name="textFormat">
          <enum>Qt::RichText</enum>
@@ -225,6 +231,9 @@
           </disabled>
          </palette>
         </property>
+        <property name="text">
+         <string notr="true">lblXmppError</string>
+        </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
@@ -318,6 +327,9 @@
         <property name="contextMenuPolicy">
          <enum>Qt::NoContextMenu</enum>
         </property>
+        <property name="text">
+         <string notr="true">lblForgotPassword</string>
+        </property>
         <property name="textFormat">
          <enum>Qt::RichText</enum>
         </property>
@@ -361,6 +373,9 @@
            </colorrole>
           </disabled>
          </palette>
+        </property>
+        <property name="text">
+         <string notr="true">lblConnectError</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -422,6 +437,9 @@
       </item>
       <item>
        <widget class="QLabel" name="lblConnectSettings">
+        <property name="text">
+         <string notr="true">lblConnectSettings</string>
+        </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
