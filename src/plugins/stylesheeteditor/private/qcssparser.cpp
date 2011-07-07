@@ -44,8 +44,8 @@
 #include <QDebug>
 #include <QColor>
 #include <QFont>
-#include <QFileinfo>
-#include <QFontmetrics>
+#include <QFileInfo>
+#include <QFontMetrics>
 #include <QBrush>
 #include <QImageReader>
 #include <QtGlobal>

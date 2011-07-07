@@ -1,4 +1,4 @@
-﻿#include "balloontip.h"
+#include "balloontip.h"
 
 #include <QLabel>
 #include <QPushButton>

@@ -1,4 +1,4 @@
-﻿#ifndef BALLOONTIP_H
+#ifndef BALLOONTIP_H
 #define BALLOONTIP_H
 
 #include <QWidget>

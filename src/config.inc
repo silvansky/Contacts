@@ -7,13 +7,17 @@ macx:CONFIG             += x86
 #Configurable values
 isEmpty(INSTALL_PREFIX) {
   win32:INSTALL_PREFIX   = "c:"
-  unix:!macx INSTALL_PREFIX   = /usr/local
+  unix:!macx {
+    INSTALL_PREFIX   = /usr/local
+  }
   macx: INSTALL_PREFIX   = /Applications
 }
 
 isEmpty(INSTALL_APP_DIR) {
   win32:INSTALL_APP_DIR  = ramblercontacts
-  unix:!macx INSTALL_APP_DIR  = ramblercontacts
+  unix:!macx {
+    INSTALL_APP_DIR  = ramblercontacts
+  }
   macx: INSTALL_APP_DIR  = ramblercontacts.app
 }
 
@@ -29,7 +33,9 @@ isEmpty(INSTALL_LIB_DIR) {
 
 isEmpty(INSTALL_RES_DIR) {
   win32:INSTALL_RES_DIR  = .
-  unix:!macx INSTALL_RES_DIR  = share
+  unix:!macx {
+    INSTALL_RES_DIR  = share
+  }
   macx: INSTALL_RES_DIR  = Resources
 }
 
