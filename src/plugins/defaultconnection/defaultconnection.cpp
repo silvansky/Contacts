@@ -61,7 +61,7 @@ bool DefaultConnection::connectToHost()
 		QString host = option(IDefaultConnection::COR_HOST).toString();
 		quint16 port = option(IDefaultConnection::COR_PORT).toInt();
 		QString domain = option(IDefaultConnection::COR_DOMAINE).toString();
-		FSSLConnection = true; //option(IDefaultConnection::COR_USE_SSL).toBool();
+		FSSLConnection = option(IDefaultConnection::COR_USE_SSL).toBool();
 		FIgnoreSSLErrors = option(IDefaultConnection::COR_IGNORE_SSL_ERRORS).toBool();
 		FChangeProxyType = option(IDefaultConnection::COR_CHANGE_PROXY_TYPE).toBool();
 
@@ -217,7 +217,7 @@ void DefaultConnection::connectToNextHost()
 			FSocket.setProxy(httpProxy);
 		}
 
-		connectSocketToHost(record.name,5223/*record.port*/);
+		connectSocketToHost(record.name,record.port);
 	}
 }
 
@@ -245,7 +245,7 @@ void DefaultConnection::onDnsResultsReady(int AId, const QJDns::Response &AResul
 	{
 		if (!AResults.answerRecords.isEmpty())
 		{
-			//FSSLConnection = false;
+			FSSLConnection = false;
 			FRecords = AResults.answerRecords;
 		}
 		FDns.shutdown();
