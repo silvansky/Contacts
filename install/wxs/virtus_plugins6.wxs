@@ -59,6 +59,9 @@
       <Component Id="cmp3DBAE2288AAF746F4776DD3641BFC030" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{367BD96B-8EA8-489E-947E-625379B4FF26}">
         <File Id="fil83F0FDA39AC9AD0EB4C10FA40AC35991" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\mainwindow.dll" />
       </Component>
+      <Component Id="cmp18D8A63F6B3DFE37D286B74EB7EE05BC" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{A669BB83-4126-4EA2-BB99-BB9CD132B06C}">
+        <File Id="filC159218555B6C65DD77B5144C5A17C16" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\Microsoft.VC90.CRT.manifest" />
+      </Component>
       <Component Id="cmp457E096C1FF1E9C79C06CF38836F9017" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{20A482DE-B145-4A59-BF13-3D7E6231EB85}">
         <File Id="fil758A1A8E4756703B6DD4B3C037A31DDA" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\messageprocessor.dll" />
       </Component>
@@ -139,9 +142,6 @@
       </Component>
       <Component Id="cmp71F0AEBDD9986C7C9AA527B9809002C4" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{7C925236-D02D-468E-8B79-08E8C0511AA1}">
         <File Id="filB5E4B83F1248C098356528109282AEC8" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\xmppstreams.dll" />
-      </Component>
-      <Component Id="cmpE8D8A95C396C65812A998CDF0268B343" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{6533584E-CCB6-4AE7-9784-B735992FA9FC}">
-        <File Id="fil55820F569EE3B38B8CDEAB3F38396B50" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\xmppuriqueries.dll" />
       </Component>
     </ComponentGroup>
   </Fragment>
