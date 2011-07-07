@@ -41,9 +41,6 @@
       <Component Id="cmpCAFB0482E302AB4276A2D3D2803C2BBB" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{A969A90B-7714-4BF9-B8ED-DA3A63245F08}">
         <File Id="fil994D448D49CF72C2BCCC2515FB98D311" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\connectionmanager.dll" />
       </Component>
-      <Component Id="cmp18472C6371CFD17D36FCCA658D3161E1" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{8B46500D-20FB-44D2-983F-2BDDAA9853FC}">
-        <File Id="filC0DBE931388B6BE4E0B616E2DB1AD052" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\console.dll" />
-      </Component>
       <Component Id="cmpDC021582416742CCDC75A20A09D6A84A" Directory="dir39BFC6679C619DCF84F1CADCE4F74E04" Guid="{30FBB517-8A4B-44B2-B4F4-271A8E5A77BC}">
         <File Id="fil332345E6411E0AEE025FF56E42FD2623" KeyPath="yes" Source="$(var.VirtusPluginsRoot)\dataforms.dll" />
       </Component>

@@ -13,8 +13,10 @@
   <!-- 975 34e19238-13ca-455c-980e-711229bafbc0 -->
   <!-- 985 31b6fb04-4169-4736-9d72-22e25617ce3c -->
   <!-- 995 1b422bbe-6dbd-4241-80c5-43417e762536 -->
+  <!-- 1000 e3595625-5ac1-4f73-8e53-9b68c5fedcdb -->
+  <!-- 10XX dd2fa98d-9e94-4dfa-8bb1-a3c0fdaa14d2 -->
  
-  <Product Id="1b422bbe-6dbd-4241-80c5-43417e762536" 
+  <Product Id="dd2fa98d-9e94-4dfa-8bb1-a3c0fdaa14d2" 
            Name="$(var.product_name_en) $(var.virtus_version)" 
            Language="1049" 
            Version="$(var.virtus_version)" 
@@ -79,5 +81,9 @@
       <ComponentGroupRef Id="Voip"/>
     </Feature>
 
+
+    <DirectoryRef Id="INSTALLLOCATION">
+		<Merge Id="VCRedist" SourceFile="wxs/Microsoft_VC90_CRT_x86.msm" DiskId="1" Language="0"/>
+    </DirectoryRef>
   </Product>
 </Wix>

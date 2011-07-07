@@ -20,14 +20,15 @@
 				</File>
 			</Component>
 			<Component Id="ComponentDesktopShortCut" Directory="INSTALLLOCATION" Guid="{b674163f-ce77-471c-918b-ced3a3055cba}">
- 			    <Condition>0=1</Condition>
-				<File Id="VirtusBaseDesktop" KeyPath="yes" Source="$(var.VirtusProjectRoot)\ramblercontacts.exe" DefaultLanguage="1033">
+ 			    <Condition>(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Condition>
+				<File Id="ProductBaseDesktop" KeyPath="yes" Source="$(var.VirtusProjectRoot)\ramblercontacts.exe" DefaultLanguage="1033">
 					<Shortcut Id="desktopshortcut" 
 						Directory="DesktopFolder" 
-						Name="$(var.product_name)" 
+						Name="$(var.product_name_short)" 
 						WorkingDirectory='INSTALLLOCATION' 
 						Icon="ramblercontacts.exe" IconIndex="0" Advertise="yes" />
 				</File>
+				<RemoveFile Id="ProductBaseDesktop" On="uninstall" Name="$(var.product_name_short).lnk"/>
 			</Component>
 			<Component Id="ComponentVirtusUtils" Directory="INSTALLLOCATION" Guid="{B76677C4-C4A6-4ca5-A841-F35B571DEF14}">
 				<File Id="VirtusUtils" KeyPath="yes" Source="$(var.VirtusProjectRoot)\ramblercontactsutils.dll"/>

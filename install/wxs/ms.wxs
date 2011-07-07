@@ -17,6 +17,10 @@
         <File Id="FileManifest" KeyPath="yes" Source="$(var.VirtusProjectRoot)\Microsoft.VC90.CRT.manifest"/>
       </Component>
 
+      <Component Id="ComponentMsvCRT" Directory="INSTALLLOCATION" Guid="{27c7b8d3-4d5b-42c1-a920-be616cff4bd1}">
+        <File Id="FileMsvCRT" KeyPath="yes" Source="$(var.VirtusProjectRoot)\msvcrt.dll"/>
+      </Component>
+
     </ComponentGroup>
   </Fragment>
 </Wix>

@@ -6,6 +6,7 @@
 !include nsRUH.nsh
 
 !define PRODUCT_NAME "Рамблер-Контакты"
+!define PRODUCT_NAME_SHORT "Контакты"
 
 Name "Рамблер-Контакты"
 Caption "Рамблер-Контакты"
@@ -209,7 +210,7 @@ Function finish_exit
 	; create desktop shortct	
   	${NSD_GetState} $finish_checkbox2 $2
   	${If} $2 == ${BST_CHECKED}	
-		CreateShortcut "$DESKTOP\${PRODUCT_NAME}.lnk" '${PRODUCT_EXE}'
+		CreateShortcut "$DESKTOP\${PRODUCT_NAME_SHORT}.lnk" '${PRODUCT_EXE}'
 	${EndIf} 
  
 FunctionEnd
