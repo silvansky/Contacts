@@ -24,12 +24,13 @@ patchFile MacOS/ramblercontacts QtXmlPatterns
 patchFile MacOS/ramblercontacts QtWebKit
 patchFile MacOS/ramblercontacts phonon
 
-# utils deps - core, gui, xml, webkit
+# utils deps - core, gui, xml, webkit, network
 
 patchFile Frameworks/libramblercontactsutils.1.dylib QtCore
 patchFile Frameworks/libramblercontactsutils.1.dylib QtXml
 patchFile Frameworks/libramblercontactsutils.1.dylib QtGui
 patchFile Frameworks/libramblercontactsutils.1.dylib QtWebKit
+patchFile Frameworks/libramblercontactsutils.1.dylib QtNetwork
 
 # phonon deps - gui, core, xml, dbus
 
