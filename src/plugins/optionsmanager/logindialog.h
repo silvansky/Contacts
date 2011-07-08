@@ -68,6 +68,7 @@ protected:
 	bool readyToConnect() const;
 protected slots:
 	void onConnectClicked();
+	void onAbortTimerTimeout();
 	void onXmppStreamOpened();
 	void onXmppStreamClosed();
 	void onReconnectTimerTimeout();
@@ -79,7 +80,7 @@ protected slots:
 	void onNewDomainRejected();
 	void onLabelLinkActivated(const QString &ALink);
 	void onLoginOrPasswordTextChanged();
-	void onShowConnectingAnimation();
+	void onShowCancelButton();
 	void onAdjustDialogSize();
 	void onNotificationAppend(int ANotifyId, INotification &ANotification);
 	void onNotificationAppended(int ANotifyId, const INotification &ANotification);
@@ -104,8 +105,9 @@ private:
 	int FDomainPrevIndex;
 	int FConnectionSettings;
 	QUuid FAccountId;
-	QTimer FReconnectTimer;
 	Menu *FDomainsMenu;
+	QTimer FAbortTimer;
+	QTimer FReconnectTimer;
 	QWidget *FConnectionErrorWidget;
 };
 

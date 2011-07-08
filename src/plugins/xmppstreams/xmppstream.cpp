@@ -84,24 +84,16 @@ bool XmppStream::open()
 {
 	if (FConnection && FStreamState==SS_OFFLINE)
 	{
-		//bool hasPassword = !FPassword.isEmpty() || !FSessionPassword.isEmpty();
-		//if (!hasPassword)
-		//{
-		//	FSessionPassword = QInputDialog::getText(NULL,tr("Password request"),tr("Enter password for <b>%1</b>").arg(FStreamJid.hBare()),
-		//	                   QLineEdit::Password,FSessionPassword,&hasPassword,Qt::Dialog);
-		//}
-
-		if (true/*hasPassword*/)
+		FErrorString.clear();
+		if (FConnection->connectToHost())
 		{
-			if (FConnection->connectToHost())
-			{
-				FStreamState = SS_CONNECTING;
-				return true;
-			}
-			else
-			{
-				abort(tr("Failed to start connection"));
-			}
+			FStreamState = SS_CONNECTING;
+			FKeepAliveTimer.start(KEEP_ALIVE_TIMEOUT);
+			return true;
+		}
+		else
+		{
+			abort(tr("Failed to start connection"));
 		}
 	}
 	else if (!FConnection)

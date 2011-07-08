@@ -35,7 +35,8 @@
 #	undef FocusOut
 #endif
 
-#define FILE_LOGIN		"login.xml"
+#define FILE_LOGIN            "login.xml"
+#define ABORT_TIMEOUT         2000
 
 enum ConnectionSettings {
 	CS_DEFAULT,
@@ -176,7 +177,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	vlayout->setSpacing(4);
 	vlayout->setContentsMargins(0, 0, 0, 0);
 	vlayout->addWidget(ui.lblConnectError);
-	vlayout->addWidget(ui.lblConnectSettings);
+	//vlayout->addWidget(ui.lblConnectSettings);
 	vlayout->addWidget(ui.lblXmppError);
 	vlayout->addWidget(ui.lblReconnect);
 	vlayout->addWidget(ui.chbShowPassword);
@@ -209,10 +210,10 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 		.arg(tr("register")));
 	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:9pt; text-decoration: underline; color:#acacac;'>%1</span></a>")
 		.arg(tr("Forgot your password?")));
-	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'><span style='font-size:9pt; text-decoration: underline; /*color:#acacac;*/'>%1</span></a>")
+	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'><span style='font-size:9pt; text-decoration: underline; color:#acacac;'>%1</span></a>")
 		.arg(tr("Connection settings")));
 
-	ui.lblConnectSettings->setFocusPolicy(Qt::StrongFocus);
+	//ui.lblConnectSettings->setFocusPolicy(Qt::StrongFocus);
 	ui.lblConnectSettings->installEventFilter(this);
 
 	connect(ui.lblRegister,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
@@ -333,6 +334,9 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	FReconnectTimer.setSingleShot(true);
 	connect(&FReconnectTimer,SIGNAL(timeout()),SLOT(onReconnectTimerTimeout()));
+
+	FAbortTimer.setSingleShot(true);
+	connect(&FAbortTimer,SIGNAL(timeout()),SLOT(onAbortTimerTimeout()));
 
 	ui.pbtConnect->setFocus();
 	connect(ui.pbtConnect,SIGNAL(clicked()),SLOT(onConnectClicked()));
@@ -675,7 +679,7 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 		if (!ui.lblReconnect->text().isEmpty())
 			ui.lblReconnect->setText(tr("Reconnecting..."));
 		BalloonTip::hideBalloon();
-		QTimer::singleShot(3000,this,SLOT(onShowConnectingAnimation()));
+		QTimer::singleShot(3000,this,SLOT(onShowCancelButton()));
 	}
 	else
 	{
@@ -690,15 +694,10 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 	ui.chbSavePassword->setEnabled(AEnabled);
 	ui.chbAutoRun->setEnabled(AEnabled);
 
-	if (AEnabled)
-		onLoginOrPasswordTextChanged();
-	else
-	{
-		ui.pbtConnect->setEnabled(AEnabled);
-		ui.pbtConnect->setProperty("connecting", true);
-		StyleStorage::updateStyle(this);
-	}
+	ui.pbtConnect->setEnabled(AEnabled);
+	ui.pbtConnect->setProperty("connecting", !AEnabled);
 	ui.pbtConnect->setText(AEnabled ? tr("Enter") : tr("Connecting..."));
+	StyleStorage::updateStyle(this);
 }
 
 void LoginDialog::stopReconnection()
@@ -858,7 +857,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 
 void LoginDialog::onConnectClicked()
 {
-	if (ui.pbtConnect->isEnabled())
+	if (!ui.pbtConnect->property("connecting").toBool())
 	{
 		hideConnectionError();
 		hideXmppStreamError();
@@ -928,7 +927,31 @@ void LoginDialog::onConnectClicked()
 
 		setConnectEnabled(!connecting);
 	}
+	else
+	{
+		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+		if (account && account->isActive())
+		{
+			FAbortTimer.start(ABORT_TIMEOUT);
+			account->xmppStream()->close();
+		}
+	}
 	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
+}
+
+void LoginDialog::onAbortTimerTimeout()
+{
+	if (ui.pbtConnect->property("connecting").toBool())
+	{
+		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+		if (account && account->isActive())
+		{
+			account->xmppStream()->abort(tr("Connection terminated by user"));
+			showConnectionError(tr("Unable to connect to server"),account->xmppStream()->errorString());
+			stopReconnection();
+			setConnectEnabled(true);
+		}
+	}
 }
 
 void LoginDialog::onXmppStreamOpened()
@@ -983,11 +1006,16 @@ void LoginDialog::onXmppStreamClosed()
 		else
 			showConnectionError(tr("Unable to connect to server"),account->xmppStream()->connection()->errorString());
 	}
-	else if (account)
+	else if (account && !account->xmppStream()->errorString().isEmpty())
 	{
 		showXmppStreamError(tr("The password is not suited to login"), QString::null/*account->xmppStream()->errorString()*/,tr("Check keyboard layout"));
 	}
+	else
+	{
+		ui.lblConnectSettings->setVisible(true);
+	}
 
+	FAbortTimer.stop();
 	FFirstConnect = false;
 	setConnectEnabled(true);
 	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
@@ -1171,14 +1199,16 @@ bool LoginDialog::readyToConnect() const
 void LoginDialog::onLoginOrPasswordTextChanged()
 {
 	ui.pbtConnect->setEnabled(!ui.lneNode->text().isEmpty() && !ui.lnePassword->text().isEmpty());
-	ui.pbtConnect->setProperty("connecting", false);
-	StyleStorage::updateStyle(this);
 }
 
-void LoginDialog::onShowConnectingAnimation()
+void LoginDialog::onShowCancelButton()
 {
-	if (!ui.pbtConnect->isEnabled())
+	if (ui.pbtConnect->property("connecting").toBool())
+	{
+		ui.pbtConnect->setEnabled(true);
+		ui.pbtConnect->setText(tr("Cancel"));
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.pbtConnect,MNI_OPTIONS_LOGIN_ANIMATION);
+	}
 }
 
 void LoginDialog::onAdjustDialogSize()

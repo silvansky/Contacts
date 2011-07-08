@@ -234,6 +234,10 @@ which is linked to Rambler</source>
         <source>The password is not suited to login</source>
         <translation>Пароль не подходит к логину</translation>
     </message>
+    <message>
+        <source>Connection terminated by user</source>
+        <translation>Подключение прервано пользователем</translation>
+    </message>
 </context>
 <context>
     <name>LoginDialogClass</name>

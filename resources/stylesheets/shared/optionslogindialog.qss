@@ -151,6 +151,11 @@ QCheckBox
 	padding-top: 5px;
 }
 
+#lblConnectSettings
+{
+	padding-top: 5px;
+}
+
 QComboBox#cmbDomain
 {
 	margin-top: 2px;
