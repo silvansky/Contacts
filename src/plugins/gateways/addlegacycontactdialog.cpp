@@ -118,7 +118,7 @@ void AddLegacyContactDialog::onErrorReceived(const QString &AId, const QString &
 {
 	if (FRequestId == AId)
 	{
-		Log(QString("[Add legacy contact error] %1").arg(AError));
+		LogError(QString("[Add legacy contact error] %1").arg(AError));
 		resetDialog();
 		ui.lblDescription->setText(tr("Requested operation failed: %1").arg(Qt::escape(AError)));
 		ui.dbbButtons->setStandardButtons(QDialogButtonBox::Retry|QDialogButtonBox::Cancel);

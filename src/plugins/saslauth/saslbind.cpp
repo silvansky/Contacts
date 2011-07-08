@@ -28,14 +28,14 @@ bool SASLBind::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 			}
 			else
 			{
-				Log(QString("[SASLBind stanza error] %1").arg(tr("Invalid XMPP stream JID in SASL bind response")));
+				LogError(QString("[SASLBind stanza error] %1").arg(tr("Invalid XMPP stream JID in SASL bind response")));
 				emit error(tr("Invalid XMPP stream JID in SASL bind response"));
 			}
 		}
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			Log(QString("[SASLBind stanza error] %1").arg(err.message()));
+			LogError(QString("[SASLBind stanza error] %1").arg(err.message()));
 			emit error(err.message());
 		}
 		return true;

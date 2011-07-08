@@ -41,8 +41,9 @@ isEmpty(INSTALL_RES_DIR) {
 
 CONFIG(debug) {
   DEFINES += DEBUG_ENABLED
-  DEFINES += LOG_ENABLED
 }
+
+DEFINES += LOG_ENABLED
 
 #Preprocessor definations
 CONFIG(debug, debug|release) {

@@ -104,18 +104,18 @@ bool SASLAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 			else if (AStanza.tagName() == "failure")
 			{
 				ErrorHandler err(AStanza.element(),NS_FEATURE_SASL);
-				Log(QString("[SASLAuth stanza error] %1").arg(err.message()));
+				LogError(QString("[SASLAuth stanza error] %1").arg(err.message()));
 				emit error(err.message());
 			}
 			else if (AStanza.tagName() == "abort")
 			{
 				ErrorHandler err("aborted",NS_FEATURE_SASL);
-				Log(QString("[SASLAuth stanza error] %1").arg(err.message()));
+				LogError(QString("[SASLAuth stanza error] %1").arg(err.message()));
 				emit error(err.message());
 			}
 			else
 			{
-				Log(QString("[SASLAuth stanza error] %1").arg(tr("Wrong SASL authentication response")));
+				LogError(QString("[SASLAuth stanza error] %1").arg(tr("Wrong SASL authentication response")));
 				emit error(tr("Wrong SASL authentication response"));
 			}
 		}

@@ -37,7 +37,7 @@ QImage NetworkingPrivate::httpGetImage(const QUrl& src) const
 	if (reply->error() == QNetworkReply::NoError)
 		reader.read(&img);
 	else
-		Log(QString("reply->error() == %1").arg(reply->error()));
+		LogError(QString("reply->error() == %1").arg(reply->error()));
 	reply->deleteLater();
 	return img;
 }
@@ -64,7 +64,7 @@ QString NetworkingPrivate::httpGetString(const QUrl& src) const
 	if (reply->error() == QNetworkReply::NoError)
 		answer = QString::fromUtf8(reply->readAll());
 	else
-		Log(QString("reply->error() == %1").arg(reply->error()));
+		LogError(QString("reply->error() == %1").arg(reply->error()));
 	reply->deleteLater();
 	return answer;
 }
@@ -79,7 +79,7 @@ void NetworkingPrivate::onFinished(QNetworkReply* reply)
 		if (reply->error() == QNetworkReply::NoError)
 			reader.read(&img);
 		else
-			Log(QString("reply->error() == %1").arg(reply->error()));
+			LogError(QString("reply->error() == %1").arg(reply->error()));
 		if (obj.first && obj.second.second)
 		{
 			QMetaObject::invokeMethod(obj.first, obj.second.second, Qt::DirectConnection, Q_ARG(QUrl, obj.second.first), Q_ARG(QImage, img));

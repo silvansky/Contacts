@@ -127,7 +127,7 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			ErrorHandler err(AStanza.element());
 			errCond = err.condition();
 			errMessage = err.message();
-			Log(QString("[MetaRoster stanza error] condition %1 : %2").arg(errCond, errMessage));
+			LogError(QString("[MetaRoster stanza error] condition %1 : %2").arg(errCond, errMessage));
 		}
 		processStanzaRequest(AStanza.id(),errCond,errMessage);
 	}

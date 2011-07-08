@@ -190,17 +190,17 @@ void CustomBorderContainerPrivate::parseFile(const QString &fileName)
 			}
 			else
 			{
-				Log(QString("Can\'t parse file %1! Unknown root element.").arg(fileName));
+				LogError(QString("[CustomBorderContainerPrivate] Can\'t parse file %1! Unknown root element.").arg(fileName));
 			}
 		}
 		else
 		{
-			Log(QString("Can\'t parse file %1!").arg(fileName));
+			LogError(QString("[CustomBorderContainerPrivate] Can\'t parse file %1!").arg(fileName));
 		}
 	}
 	else
 	{
-		Log(QString("Can\'t open file %1!").arg(fileName));
+		LogError(QString("[CustomBorderContainerPrivate] Can\'t open file %1!").arg(fileName));
 	}
 }
 
@@ -247,7 +247,7 @@ QColor CustomBorderContainerPrivate::parseColor(const QString & name)
 		}
 	}
 	if (!color.isValid())
-		Log(QString("Can\'t parse color: %1").arg(name));
+		LogError(QString("Can\'t parse color: %1").arg(name));
 	return color;
 }
 

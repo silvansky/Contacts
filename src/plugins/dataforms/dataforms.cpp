@@ -1035,7 +1035,7 @@ void DataForms::urlLoadSuccess(const QUrl &AUrl, const QByteArray &AData)
 
 void DataForms::urlLoadFailure(const QUrl &AUrl, const QString &AError)
 {
-	Log(QString("[URL load failure] %1 : %2").arg(AUrl.toString(), AError));
+	LogError(QString("[URL load failure] %1 : %2").arg(AUrl.toString(), AError));
 	FUrlRequests.remove(AUrl);
 	emit urlLoadFailed(AUrl,AError);
 }
@@ -1082,7 +1082,7 @@ void DataForms::onNetworkReplyError(QNetworkReply::NetworkError ACode)
 	if (reply)
 	{
 		urlLoadFailure(reply->url(),reply->errorString());
-		Log(QString("[Network reply error] %1").arg(reply->errorString()));
+		LogError(QString("[Network reply error] %1").arg(reply->errorString()));
 		reply->close();
 		reply->deleteLater();
 	}
@@ -1093,7 +1093,7 @@ void DataForms::onNetworkReplySSLErrors(const QList<QSslError> &AErrors)
 	QStringList errors;
 	foreach (QSslError err, AErrors)
 		errors.append(err.errorString());
-	Log(QString("[Network reply SSL errors] %1").arg(errors.join("; ")));
+	LogError(QString("[Network reply SSL errors] %1").arg(errors.join("; ")));
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	if (reply)
 		reply->ignoreSslErrors();

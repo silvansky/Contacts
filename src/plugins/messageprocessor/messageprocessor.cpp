@@ -170,7 +170,7 @@ bool MessageProcessor::sendMessage(const Jid &AStreamJid, const Message &AMessag
 		emit messageSent(message);
 		return true;
 	}
-	Log(QString("[MessageProcessor send message error] Failed to send message with stanza:\n%1").arg(message.stanza().toString()));
+	LogError(QString("[MessageProcessor send message error] Failed to send message with stanza:\n%1").arg(message.stanza().toString()));
 	return false;
 }
 

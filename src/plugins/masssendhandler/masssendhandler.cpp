@@ -274,7 +274,7 @@ void MassSendHandler::showStyledMessage(IMassSendDialog *ADialog, const Message 
 	if (AMessage.type() == Message::Error)
 	{
 		ErrorHandler err(AMessage.stanza().element());
-		Log(QString("[MassSend stanza error] %1").arg(err.message()));
+		LogError(QString("[MassSend stanza error] %1").arg(err.message()));
 		QString html = tr("<b>The message with a error code %1 is received</b>").arg(err.code());
 		html += "<p style='color:red;'>"+Qt::escape(err.message())+"</p>";
 		html += "<hr>";

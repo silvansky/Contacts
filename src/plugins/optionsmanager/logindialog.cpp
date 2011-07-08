@@ -104,7 +104,7 @@ public:
 	}
 };
 
-class DomainComboDelegate : 
+class DomainComboDelegate :
 	public QStyledItemDelegate
 {
 	Q_OBJECT
@@ -778,7 +778,7 @@ void LoginDialog::hideConnectionError()
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
 {
-	Log(QString("[LoginDialog connection error] %1").arg(AError));
+	LogError(QString("[LoginDialog connection error] %1").arg(AError));
 	hideXmppStreamError();
 
 	QString message = ACaption;
@@ -820,7 +820,7 @@ void LoginDialog::hideXmppStreamError()
 
 void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint, bool showPasswordEnabled)
 {
-	Log(QString("[LoginDialog stream error] %1 (%2)").arg(AError, AHint));
+	LogError(QString("[LoginDialog stream error] %1 (%2)").arg(AError, AHint));
 	hideConnectionError();
 
 	QString message = ACaption;

@@ -24,7 +24,7 @@ bool SASLSession::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AO
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			Log(QString("[SASLSession stanza error] %1").arg(err.message()));
+			LogError(QString("[SASLSession stanza error] %1").arg(err.message()));
 			emit error(err.message());
 		}
 		return true;

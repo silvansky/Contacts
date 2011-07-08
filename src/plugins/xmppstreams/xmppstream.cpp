@@ -134,7 +134,7 @@ void XmppStream::close()
 
 void XmppStream::abort(const QString &AError)
 {
-	Log(QString("[XmppStream abort] %1").arg(AError));
+	LogError(QString("[XmppStream abort] %1").arg(AError));
 	if (FStreamState!=SS_OFFLINE && FStreamState!=SS_ERROR)
 	{
 		FStreamState = SS_ERROR;
@@ -238,7 +238,7 @@ qint64 XmppStream::sendStanza(Stanza &AStanza)
 		if (!processStanzaHandlers(AStanza,true))
 			return sendData(AStanza.toByteArray());
 	}
-	Log(QString("[XmppStream send stanza failed] Can\'t send stanza\n%1\nstream state is %2").arg(AStanza.toString()).arg(FStreamState));
+	LogError(QString("[XmppStream send stanza failed] Can\'t send stanza\n%1\nstream state is %2").arg(AStanza.toString()).arg(FStreamState));
 	return -1;
 }
 

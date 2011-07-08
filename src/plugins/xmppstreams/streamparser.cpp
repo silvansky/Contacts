@@ -74,8 +74,8 @@ void StreamParser::parseData(const QByteArray &AData)
 	if (FReader.hasError() && FReader.error()!=QXmlStreamReader::PrematureEndOfDocumentError)
 	{
 		QString err = FReader.errorString();
-		Log(QString("StreamParser error %1, data:").arg(err));
-		Log(QString(AData));
+		LogError(QString("StreamParser error %1, data:").arg(err));
+		LogError(QString(AData));
 		emit error(err);
 	}
 }

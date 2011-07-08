@@ -117,7 +117,7 @@ void AddLegacyAccountDialog::abort(const QString &AMessage)
 void AddLegacyAccountDialog::setError(const QString &AMessage)
 {
 	if (!AMessage.isEmpty())
-		Log(QString("[Add legacy account error] %1").arg(AMessage));
+		LogError(QString("[Add legacy account error] %1").arg(AMessage));
 	if (ui.lblError->text() != AMessage)
 	{
 		ui.lblError->setText(AMessage);
@@ -306,7 +306,7 @@ void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &
 {
 	if (AId == FRegisterId)
 	{
-		Log(QString("[Add legacy account register error] %1").arg(AMessage));
+		LogError(QString("[Add legacy account register error] %1").arg(AMessage));
 		if (ACondition=="not-authorized" || ACondition=="not-acceptable")
 		{
 			setError(tr("Failed to add account, check your login and password"));

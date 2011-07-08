@@ -632,7 +632,7 @@ QDomElement PluginManager::savePluginInfo(const QString &AFile, const IPluginInf
 
 void PluginManager::savePluginError(const QString &AFile, const QString &AError)
 {
-	Log(QString("[Plugin error] %1 : %2").arg(AFile, AError));
+	LogError(QString("[Plugin error] %1 : %2").arg(AFile, AError));
 	QDomElement pluginElem = FPluginsSetup.documentElement().firstChildElement(AFile);
 	if (pluginElem.isNull())
 		pluginElem = FPluginsSetup.firstChildElement("plugins").appendChild(FPluginsSetup.createElement(AFile)).toElement();

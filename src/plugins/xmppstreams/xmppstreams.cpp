@@ -111,7 +111,7 @@ IXmppStream *XmppStreams::xmppStream(const Jid &AStreamJid) const
 	foreach(IXmppStream *stream,FStreams)
 		streams << stream->streamJid().full();
 
-	Log(QString("[XmppStreams get stream error] Can\'t find stream with jid %1, available streams are\n%2").arg(AStreamJid.full(), streams.join("\n")));
+	LogError(QString("[XmppStreams get stream error] Can\'t find stream with jid %1, available streams are\n%2").arg(AStreamJid.full(), streams.join("\n")));
 	return NULL;
 }
 

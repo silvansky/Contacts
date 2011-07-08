@@ -1252,7 +1252,7 @@ void ChatMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, cons
 
 void ChatMessageHandler::onRamblerHistoryRequestFailed(const QString &AId, const QString &AError)
 {
-	Log(QString("[Rambler history error] %1").arg(AError));
+	LogError(QString("[Rambler history error] %1").arg(AError));
 	if (FHistoryRequests.contains(AId))
 	{
 		IChatWindow *window = FHistoryRequests.take(AId);

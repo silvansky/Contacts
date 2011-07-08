@@ -1071,7 +1071,7 @@ void SmsMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const
 			{
 				Message pMessage = wstatus.pending.takeLast();
 				if (Jid(pMessage.to()).pBare() == Jid(historyMessages.last().to()).pBare() &&
-					pMessage.body() == historyMessages.last().body() && 
+					pMessage.body() == historyMessages.last().body() &&
 					qAbs(pMessage.dateTime().secsTo(historyMessages.last().dateTime()))<=3*60)
 				{
 					found = true;
@@ -1106,7 +1106,7 @@ void SmsMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const
 
 void SmsMessageHandler::onRamblerHistoryRequestFailed(const QString &AId, const QString &AError)
 {
-	Log(QString("[Rambler history error] %1").arg(AError));
+	LogError(QString("[Rambler history error] %1").arg(AError));
 	if (FHistoryRequests.contains(AId))
 	{
 		IChatWindow *window = FHistoryRequests.take(AId);

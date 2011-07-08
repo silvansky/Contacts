@@ -152,7 +152,7 @@ void AddFacebookAccountDialog::onRegisterError(const QString &AId, const QString
 {
 	if (AId == FRegisterId)
 	{
-		Log(QString("[Add legacy account register error] %1").arg(AMessage));
+		LogError(QString("[Add legacy account register error] %1").arg(AMessage));
 		if (ACondition == "resource-limit-exceeded")
 			abort(tr("You have connected the maximum number of %1 accounts.").arg(tr("Facebook")));
 		else

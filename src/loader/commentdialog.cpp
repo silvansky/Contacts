@@ -277,7 +277,7 @@ void CommentDialog::SendComment()
 	message.setFrom(streamJid.full());
 	bool ret = FMessageProcessor->sendMessage(streamJid, message);
 	if (!ret)
-		Log(QString("[Comment Dialog error] Can't send comment message!"));
+		LogError(QString("[Comment Dialog error] Can't send comment message!"));
 
 	if (ret)
 	{

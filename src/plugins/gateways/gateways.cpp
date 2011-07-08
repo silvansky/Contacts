@@ -489,7 +489,7 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			Log(QString("[Gateways stanza error] id %1 : %2").arg(AStanza.id(), err.message()));
+			LogError(QString("[Gateways stanza error] id %1 : %2").arg(AStanza.id(), err.message()));
 			emit errorReceived(AStanza.id(),err.message());
 		}
 		FPromptRequests.removeAt(FPromptRequests.indexOf(AStanza.id()));
@@ -504,7 +504,7 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			Log(QString("[Gateways stanza error] id %1 : %2").arg(AStanza.id(), err.message()));
+			LogError(QString("[Gateways stanza error] id %1 : %2").arg(AStanza.id(), err.message()));
 			emit errorReceived(AStanza.id(),err.message());
 		}
 		FUserJidRequests.removeAt(FUserJidRequests.indexOf(AStanza.id()));
@@ -517,7 +517,7 @@ void Gateways::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanz
 	if (FPromptRequests.contains(AStanzaId) || FUserJidRequests.contains(AStanzaId))
 	{
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		Log(QString("[Gateways stanza timeout] id %1 : %2").arg(AStanzaId, err.message()));
+		LogError(QString("[Gateways stanza timeout] id %1 : %2").arg(AStanzaId, err.message()));
 		emit errorReceived(AStanzaId,err.message());
 		FPromptRequests.removeAt(FPromptRequests.indexOf(AStanzaId));
 		FUserJidRequests.removeAt(FUserJidRequests.indexOf(AStanzaId));
@@ -1877,7 +1877,7 @@ void Gateways::onRegisterSuccess(const QString &AId)
 void Gateways::onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage)
 {
 	Q_UNUSED(ACondition);
-	Log(QString("[Gateway register error] id %1 : %2").arg(AId, AMessage));
+	LogError(QString("[Gateway register error] id %1 : %2").arg(AId, AMessage));
 	FLoginRequests.remove(AId);
 	FAutoLoginRequests.remove(AId);
 	FShowRegisterRequests.remove(AId);

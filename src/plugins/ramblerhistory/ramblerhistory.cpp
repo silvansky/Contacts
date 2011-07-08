@@ -129,7 +129,7 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			Log(QString("[Rambler history stanza error] %1 : %2").arg(AStanza.id(), err.message()));
+			LogError(QString("[Rambler history stanza error] %1 : %2").arg(AStanza.id(), err.message()));
 			emit requestFailed(AStanza.id(), err.message());
 		}
 		FRetrieveRequests.removeAll(AStanza.id());
@@ -142,7 +142,7 @@ void RamblerHistory::stanzaRequestTimeout(const Jid &AStreamJid, const QString &
 	if (FRetrieveRequests.contains(AStanzaId))
 	{
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		Log(QString("[Rambler history request timeout] %1 : %2").arg(AStanzaId, err.message()));
+		LogError(QString("[Rambler history request timeout] %1 : %2").arg(AStanzaId, err.message()));
 		emit requestFailed(AStanzaId, err.message());
 	}
 }

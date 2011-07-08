@@ -10,15 +10,29 @@
 
 QString Log::path = QDir::homePath();
 Log::LogFormat Log::format = Log::Both;
+Log::LogLevel Log::currentLogLevel = Log::Errors;
+QString Log::currentLogFile = QString::null;
+uint Log::currentMaxLogSize = 1024; // 1 MB by default
 
-void Log::writeLog(const QString & s)
+// TODO: make this func thread-safe
+void Log::writeLog(const QString & s, int _level)
 {
+	// checking level
+	if (!currentLogLevel || (_level > currentLogLevel))
+		return;
+
+	if (currentLogFile.isNull())
+	{
+		// creating name with current datetime: log_DDMMYYYY
+		currentLogFile = QString("log_%1").arg(QDateTime::currentDateTime().toString("ddMMyyyy"));
+	}
+
 	QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
 
 	// simple log
 	if (format == Simple || format == Both)
 	{
-		QFile logFile(path + "/log.txt");
+		QFile logFile(path + "/" + currentLogFile + ".txt");
 		logFile.open(QFile::WriteOnly | QFile::Append);
 		logFile.write(QString("[%1]: %2\r\n").arg(timestamp, s).toUtf8());
 		logFile.close();
@@ -27,7 +41,7 @@ void Log::writeLog(const QString & s)
 	// html log
 	if (format == HTML || format == Both)
 	{
-		QFile logFile_html(path + "/log.html");
+		QFile logFile_html(path + "/" + currentLogFile + ".html");
 		bool html_existed = QFile::exists(logFile_html.fileName());
 		logFile_html.open(QFile::WriteOnly | QFile::Append);
 		// writing header if needed
@@ -61,7 +75,12 @@ QString Log::logPath()
 void Log::setLogPath(const QString & newPath)
 {
 	path = newPath;
-	writeLog(QString("Log started at %1").arg(path));
+	writeLog(QString("Log started at %1").arg(path), Errors);
+}
+
+QString Log::currentFileName()
+{
+	return currentLogFile;
 }
 
 Log::LogFormat Log::logFormat()
@@ -74,9 +93,39 @@ void Log::setLogFormat(Log::LogFormat newFormat)
 	format = newFormat;
 }
 
+Log::LogLevel Log::level()
+{
+	return currentLogLevel;
+}
+
+void Log::setLevel(LogLevel newLevel)
+{
+	currentLogLevel = newLevel;
+}
+
+int Log::maxLogSize()
+{
+	return currentMaxLogSize;
+}
+
+void Log::setMaxLogSize(int kbytes)
+{
+	currentMaxLogSize = kbytes;
+}
+
 // non-class
 
-void Log(const QString &s)
+void Log(const QString &s, int level)
 {
-	Log::writeLog(s);
+	Log::writeLog(s, level);
+}
+
+void LogError(const QString &s)
+{
+	Log(s, Log::Errors);
+}
+
+void LogWarning(const QString &s)
+{
+	Log(s, Log::Warnings);
 }

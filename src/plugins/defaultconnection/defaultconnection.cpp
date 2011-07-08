@@ -236,7 +236,7 @@ void DefaultConnection::setError(const QString &AError)
 {
 	FErrorString = AError;
 	emit error(FErrorString);
-	Log(QString("[DefaultConnection error]: %1").arg(AError));
+	LogError(QString("[DefaultConnection error]: %1").arg(AError));
 }
 
 void DefaultConnection::onDnsResultsReady(int AId, const QJDns::Response &AResults)
@@ -257,7 +257,7 @@ void DefaultConnection::onDnsError(int AId, QJDns::Error AError)
 	if (FSrvQueryId == AId)
 	{
 		FDns.shutdown();
-		Log(QString("[DefaultConnection error]: %1 %2").arg("QJDns error").arg(AError));
+		LogError(QString("[DefaultConnection error]: %1 %2").arg("QJDns error").arg(AError));
 	}
 }
 
@@ -305,7 +305,7 @@ void DefaultConnection::onSocketSSLErrors(const QList<QSslError> &AErrors)
 	QStringList errors;
 	foreach (QSslError err, AErrors)
 		errors << err.errorString();
-	Log(QString("[DefaultConnection error]: SSL errors %1").arg(errors.join("; ")));
+	LogError(QString("[DefaultConnection error]: SSL errors %1").arg(errors.join("; ")));
 	if (!FIgnoreSSLErrors)
 		emit sslErrors(AErrors);
 	else
