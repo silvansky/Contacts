@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 //	QObject::connect(reply,SIGNAL(destroyed()),nmanager,SLOT(deleteLater()));
 
 	// TODO: make non-blocking version
-	Networking::httpGetImage(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/"));
+	Networking::httpGetImageAsync(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/"), NULL, NULL);
 
 	// Starting plugin manager
 	pm.restart();

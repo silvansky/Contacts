@@ -80,7 +80,7 @@ void NetworkingPrivate::onFinished(QNetworkReply* reply)
 			reader.read(&img);
 		else
 			Log(QString("reply->error() == %1").arg(reply->error()));
-		if (obj.first)
+		if (obj.first && obj.second.second)
 		{
 			QMetaObject::invokeMethod(obj.first, obj.second.second, Qt::DirectConnection, Q_ARG(QUrl, obj.second.first), Q_ARG(QImage, img));
 		}

@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Version %1.%2 %3</source>
-        <translation>Версия %1. %2 %3</translation>
+        <translation>Версия %1.%2 %3</translation>
     </message>
     <message>
         <source>Official site: %1</source>
@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>The program uses the Segoe UI font on the license granted Monotype Imaging Inc. %1</source>
-        <translation>Программа использует шрифт Segue UI по Лицензии, предоставленной Monotype Imaging Inc. %1</translation>
+        <translation>Программа использует шрифт Segoe UI по Лицензии, предоставленной Monotype Imaging Inc. %1</translation>
     </message>
     <message>
         <source>© 2011, &quot;Rambler Internet Holding LLC&quot;.&lt;br&gt;%1</source>
