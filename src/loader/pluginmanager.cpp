@@ -33,6 +33,7 @@
 #  define SVN_REVISION              "0:0"
 #endif
 
+#define DIR_LOGS                    "logs"
 #if defined(Q_WS_WIN)
 #  define ENV_APP_DATA              "APPDATA"
 #  define DIR_APP_DATA              APPLICATION_NAME
@@ -287,12 +288,16 @@ void PluginManager::loadSettings()
 		if (dir.exists() && (dir.exists(DIR_APP_DATA) || dir.mkpath(DIR_APP_DATA)) && dir.cd(DIR_APP_DATA))
 			FDataPath = dir.absolutePath();
 	}
+
 #ifdef LOG_ENABLED
+	QDir logDir(FDataPath);
+	if (logDir.exists() && (logDir.exists(DIR_LOGS) || logDir.mkpath(DIR_LOGS)) && logDir.cd(DIR_LOGS))
+		Log::setLogPath(logDir.absolutePath());
 	Log::setLogFormat(Log::Simple);
 #else
 	Log::setLogFormat(Log::None);
 #endif
-	Log::setLogPath(FDataPath);
+
 	FileStorage::setResourcesDirs(FileStorage::resourcesDirs()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");

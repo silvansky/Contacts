@@ -21,10 +21,15 @@ void Log::writeLog(const QString & s, int _level)
 	if (!currentLogLevel || (_level > currentLogLevel))
 		return;
 
+	// checking format
+	if (format == None)
+		return;
+
 	if (currentLogFile.isNull())
 	{
-		// creating name with current datetime: log_DDMMYYYY
-		currentLogFile = QString("log_%1").arg(QDateTime::currentDateTime().toString("ddMMyyyy"));
+		// creating name with current date: log_YYYY-MM-DD
+		currentLogFile = QString("log_%1").arg(QDate::currentDate().toString(Qt::ISODate));
+		writeLog(QString("Log started at %1").arg(path), Errors);
 	}
 
 	QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
@@ -75,7 +80,6 @@ QString Log::logPath()
 void Log::setLogPath(const QString & newPath)
 {
 	path = newPath;
-	writeLog(QString("Log started at %1").arg(path), Errors);
 }
 
 QString Log::currentFileName()
