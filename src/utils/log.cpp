@@ -34,7 +34,9 @@ void Log::writeLog(const QString & s, int _level)
 	{
 		// creating name with current date: log_YYYY-MM-DD
 		currentLogFile = QString("log_%1").arg(QDate::currentDate().toString(Qt::ISODate));
-		//writeLog(QString("Log started at %1").arg(path), Errors);
+		lock.unlock();
+		writeLog(QString("Log started at %1").arg(path), Errors);
+		lock.relock();
 	}
 
 	QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
