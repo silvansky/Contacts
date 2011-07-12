@@ -16,6 +16,7 @@ QString Log::currentLogFile = QString::null;
 uint Log::currentMaxLogSize = 1024; // 1 MB by default
 QMutex Log::mutex;
 
+// TODO: truncate log when it's over currentMaxLogSize
 void Log::writeLog(const QString & s, int _level)
 {
 	QMutexLocker lock(&mutex);
@@ -33,7 +34,7 @@ void Log::writeLog(const QString & s, int _level)
 	{
 		// creating name with current date: log_YYYY-MM-DD
 		currentLogFile = QString("log_%1").arg(QDate::currentDate().toString(Qt::ISODate));
-		writeLog(QString("Log started at %1").arg(path), Errors);
+		//writeLog(QString("Log started at %1").arg(path), Errors);
 	}
 
 	QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
@@ -60,17 +61,24 @@ void Log::writeLog(const QString & s, int _level)
 		}
 		// if we got '[' at the beginning, we gonna highlight it in html output (till ']')
 		QString htmlLog;
+		QString marker;
+		if (_level == Errors)
+			marker = "red";
+		else if (_level == Warnings)
+			marker = "orange";
+		else marker = "black";
+		marker = QString("<font color=%1>&#9679;</font>").arg(marker);
 		if (s[0] == '[')
 		{
 			int i = s.indexOf(']');
 			if (i != -1)
 			{
 				QString highlighted = s.left(i + 1);
-				htmlLog = QString("<p><pre><b>[%1]</b>: %2%3</pre></p>\r\n").arg(timestamp, QString("<font color=red>%1</font>").arg(highlighted), Qt::escape(s.right(s.length() - i - 1)));
+				htmlLog = QString("<p><pre><b>[%1]</b>: %2 %3%4</pre></p>\r\n").arg(timestamp, marker, QString("<font color=orange>%1</font>").arg(highlighted), Qt::escape(s.right(s.length() - i - 1)));
 			}
 		}
 		else
-			htmlLog = QString("<p><pre><b>[%1]</b>: %2</pre></p>\r\n").arg(timestamp, Qt::escape(s));
+			htmlLog = QString("<p><pre><b>[%1]</b>: %2 %3</pre></p>\r\n").arg(timestamp, marker, Qt::escape(s));
 		logFile_html.write(htmlLog.toUtf8());
 		logFile_html.close();
 	}
