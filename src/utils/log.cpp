@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QTextDocument>
+#include <QMutex>
 
 // class Log
 
@@ -13,10 +14,13 @@ Log::LogFormat Log::format = Log::Both;
 Log::LogLevel Log::currentLogLevel = Log::Errors;
 QString Log::currentLogFile = QString::null;
 uint Log::currentMaxLogSize = 1024; // 1 MB by default
+QMutex Log::mutex;
 
-// TODO: make this func thread-safe
 void Log::writeLog(const QString & s, int _level)
 {
+	QMutexLocker lock(&mutex);
+	Q_UNUSED(lock);
+
 	// checking level
 	if (!currentLogLevel || (_level > currentLogLevel))
 		return;

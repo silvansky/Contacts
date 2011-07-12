@@ -5,6 +5,8 @@
 
 #include <QString>
 
+class QMutex;
+
 class UTILS_EXPORT Log
 {
 public:
@@ -38,6 +40,7 @@ private:
 	static LogLevel currentLogLevel;
 	static QString currentLogFile;
 	static uint currentMaxLogSize;
+	static QMutex mutex;
 };
 
 void UTILS_EXPORT Log(const QString &, int level = 3 /* common */);
