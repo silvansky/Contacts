@@ -265,7 +265,7 @@ void AddMetaItemWidget::resolveContactJid()
 
 void AddMetaItemWidget::onProfilesChanged()
 {
-	if (!FRoster->isOpen())
+	if (!FRoster->xmppStream()->isOpen())
 	{
 		FServiceFailed = true;
 		setErrorMessage(tr("You are not connected to server."),false);
