@@ -393,6 +393,9 @@ void SipPhone::onMetaTabWindowDestroyed(IMetaTabWindow* metaTabWindow)
 	}
 }
 
+
+
+
 void SipPhone::onAboutToShowContactMenu()
 {
 	Menu *contactsMenu = qobject_cast<Menu*>(sender());
@@ -400,6 +403,10 @@ void SipPhone::onAboutToShowContactMenu()
 	Jid streamJid = contactsMenu->menuAction()->data(ADR_STREAM_JID).toString();
 	Jid contactJid = contactsMenu->menuAction()->data(ADR_CONTACT_JID).toString();
 	QString metaId = contactsMenu->menuAction()->data(ADR_METAID_WINDOW).toString();
+
+	QStringList ramblerDomens;
+	ramblerDomens << "@lenta.ru" << "@rambler.ru" << "@myrambler.ru" << "@autorambler.ru" << "@ro.ru" << "@r0.ru";
+
 
 	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
 	if(metaRoster != NULL && metaRoster->isEnabled())
@@ -409,17 +416,22 @@ void SipPhone::onAboutToShowContactMenu()
 		{
 			foreach(Jid contactJid, metaContact.items)
 			{
-				if(contactJid.eFull().contains("@rambler.ru"))
+				//if(contactJid.eFull().contains("@rambler.ru"))
+				foreach(QString domenName, ramblerDomens)
 				{
-					Action *contactAction = new Action(contactsMenu);
-					connect(contactAction, SIGNAL(triggered(bool)), SLOT(continueCallToContact()));
-					contactAction->setText(contactJid.eFull());
+					if(contactJid.eFull().contains(domenName))
+					{
+						Action *contactAction = new Action(contactsMenu);
+						connect(contactAction, SIGNAL(triggered(bool)), SLOT(continueCallToContact()));
+						contactAction->setText(contactJid.eFull());
 
-					contactAction->setData(ADR_STREAM_JID, streamJid.full());
-					contactAction->setData(ADR_CONTACT_JID, contactJid.full());
-					contactAction->setData(ADR_METAID_WINDOW, metaId);
+						contactAction->setData(ADR_STREAM_JID, streamJid.full());
+						contactAction->setData(ADR_CONTACT_JID, contactJid.full());
+						contactAction->setData(ADR_METAID_WINDOW, metaId);
 
-					contactsMenu->addAction(contactAction, AG_PHONECM_BASECONTACT);
+						contactsMenu->addAction(contactAction, AG_PHONECM_BASECONTACT);
+						break;
+					}
 				}
 			}
 		}
