@@ -4,6 +4,17 @@
 
 #define INDEX_CHANGES_FOR_RESET 20
 
+static const QList<int> RosterItemTypes = QList<int>() << RIT_CONTACT 
+                                                       << RIT_AGENT 
+                                                       << RIT_MY_RESOURCE;
+
+static const QList<int> RosterGroupTypes = QList<int>() << RIT_GROUP 
+                                                        << RIT_GROUP_BLANK 
+                                                        << RIT_GROUP_NOT_IN_ROSTER 
+                                                        << RIT_GROUP_MY_RESOURCES 
+                                                        << RIT_GROUP_AGENTS;
+
+
 RostersModel::RostersModel()
 {
 	FRosterPlugin = NULL;
@@ -12,16 +23,11 @@ RostersModel::RostersModel()
 
 	FRootIndex = new RosterIndex(RIT_ROOT);
 	FRootIndex->setParent(this);
-	connect(FRootIndex,SIGNAL(dataChanged(IRosterIndex *, int)),
-		SLOT(onIndexDataChanged(IRosterIndex *, int)));
-	connect(FRootIndex,SIGNAL(childAboutToBeInserted(IRosterIndex *)),
-		SLOT(onIndexChildAboutToBeInserted(IRosterIndex *)));
-	connect(FRootIndex,SIGNAL(childInserted(IRosterIndex *)),
-		SLOT(onIndexChildInserted(IRosterIndex *)));
-	connect(FRootIndex,SIGNAL(childAboutToBeRemoved(IRosterIndex *)),
-		SLOT(onIndexChildAboutToBeRemoved(IRosterIndex *)));
-	connect(FRootIndex,SIGNAL(childRemoved(IRosterIndex *)),
-		SLOT(onIndexChildRemoved(IRosterIndex *)));
+	connect(FRootIndex,SIGNAL(dataChanged(IRosterIndex *, int)),SLOT(onIndexDataChanged(IRosterIndex *, int)));
+	connect(FRootIndex,SIGNAL(childAboutToBeInserted(IRosterIndex *)),SLOT(onIndexChildAboutToBeInserted(IRosterIndex *)));
+	connect(FRootIndex,SIGNAL(childInserted(IRosterIndex *)),SLOT(onIndexChildInserted(IRosterIndex *)));
+	connect(FRootIndex,SIGNAL(childAboutToBeRemoved(IRosterIndex *)),SLOT(onIndexChildAboutToBeRemoved(IRosterIndex *)));
+	connect(FRootIndex,SIGNAL(childRemoved(IRosterIndex *)),SLOT(onIndexChildRemoved(IRosterIndex *)));
 }
 
 RostersModel::~RostersModel()
@@ -38,8 +44,9 @@ void RostersModel::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
-bool RostersModel::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool RostersModel::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	IPlugin *plugin = APluginManager->pluginInterface("IRosterPlugin").value(0,NULL);
 	if (plugin)
 	{
@@ -91,11 +98,11 @@ bool RostersModel::initObjects()
 
 QModelIndex RostersModel::index(int ARow, int AColumn, const QModelIndex &AParent) const
 {
-	IRosterIndex *parentIndex = rosterIndexByModelIndex(AParent);
+	IRosterIndex *pindex = rosterIndexByModelIndex(AParent);
 
-	IRosterIndex *childIndex = parentIndex->child(ARow);
-	if (childIndex)
-		return createIndex(ARow,AColumn,childIndex);
+	IRosterIndex *cindex = pindex->child(ARow);
+	if (cindex)
+		return createIndex(ARow,AColumn,cindex);
 
 	return QModelIndex();
 }
@@ -109,14 +116,14 @@ QModelIndex RostersModel::parent(const QModelIndex &AIndex) const
 
 bool RostersModel::hasChildren(const QModelIndex &AParent) const
 {
-	IRosterIndex *parentIndex = rosterIndexByModelIndex(AParent);
-	return parentIndex->childCount() > 0;
+	IRosterIndex *pindex = rosterIndexByModelIndex(AParent);
+	return pindex->childCount() > 0;
 }
 
 int RostersModel::rowCount(const QModelIndex &AParent) const
 {
-	IRosterIndex *parentIndex = rosterIndexByModelIndex(AParent);
-	return parentIndex->childCount();
+	IRosterIndex *pindex = rosterIndexByModelIndex(AParent);
+	return pindex->childCount();
 }
 
 int RostersModel::columnCount(const QModelIndex &AParent) const
@@ -127,30 +134,30 @@ int RostersModel::columnCount(const QModelIndex &AParent) const
 
 Qt::ItemFlags RostersModel::flags(const QModelIndex &AIndex) const
 {
-	IRosterIndex *rosterIndex = rosterIndexByModelIndex(AIndex);
-	return rosterIndex->flags();
+	IRosterIndex *rindex = rosterIndexByModelIndex(AIndex);
+	return rindex->flags();
 }
 
 QVariant RostersModel::data(const QModelIndex &AIndex, int ARole) const
 {
-	IRosterIndex *index = rosterIndexByModelIndex(AIndex);
-	return index->data(ARole);
+	IRosterIndex *rindex = rosterIndexByModelIndex(AIndex);
+	return rindex->data(ARole);
 }
 
 QMap<int, QVariant> RostersModel::itemData(const QModelIndex &AIndex) const
 {
-	IRosterIndex *index = rosterIndexByModelIndex(AIndex);
-	return index->data();
+	IRosterIndex *rindex = rosterIndexByModelIndex(AIndex);
+	return rindex->data();
 }
 
 IRosterIndex *RostersModel::addStream(const Jid &AStreamJid)
 {
 	IRosterIndex *streamIndex = FStreamsRoot.value(AStreamJid);
-	if (!streamIndex)
+	if (streamIndex == NULL)
 	{
-		IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-		IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
-		IAccount *account = FAccountManager ? FAccountManager->accountByStream(AStreamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+		IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountByStream(AStreamJid) : NULL;
 
 		if (roster || presence)
 		{
@@ -179,8 +186,8 @@ IRosterIndex *RostersModel::addStream(const Jid &AStreamJid)
 			if (roster)
 			{
 				IRosterItem empty;
-				foreach(IRosterItem item, roster->rosterItems()) {
-					onRosterItemReceived(roster,item,empty); }
+				foreach(IRosterItem ritem, roster->rosterItems()) {
+					onRosterItemReceived(roster,ritem,empty); }
 			}
 		}
 	}
@@ -199,9 +206,7 @@ void RostersModel::removeStream(const Jid &AStreamJid)
 	{
 		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountByStream(AStreamJid) : NULL;
 		if (account)
-		{
 			connect(account->instance(),SIGNAL(optionsChanged(const OptionsNode &)),this,SLOT(onAccountOptionsChanged(const OptionsNode &)));
-		}
 		removeRosterIndex(streamIndex);
 		FContactsCache.remove(streamIndex);
 		emit streamRemoved(AStreamJid);
@@ -233,24 +238,25 @@ IRosterIndex *RostersModel::createRosterIndex(int AType, IRosterIndex *AParent)
 		{-1,                      -1}
 	};
 
-	IRosterIndex *index = new RosterIndex(AType);
-	connect(index->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onIndexDestroyed(IRosterIndex *)));
+	IRosterIndex *rindex = new RosterIndex(AType);
+	connect(rindex->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onIndexDestroyed(IRosterIndex *)));
 
 	if (AParent)
-		index->setData(RDR_STREAM_JID,AParent->data(RDR_STREAM_JID));
+		rindex->setData(RDR_STREAM_JID,AParent->data(RDR_STREAM_JID));
 
 	for (int i=0; DefTypeOrders[i].type>=0; i++)
 	{
 		if (AType == DefTypeOrders[i].type)
 		{
-			index->setData(RDR_TYPE_ORDER, DefTypeOrders[i].order);
+			rindex->setData(RDR_TYPE_ORDER, DefTypeOrders[i].order);
 			break;
 		}
 	}
 
-	emit indexCreated(index,AParent);
-	insertDefaultDataHolders(index);
-	return index;
+	emit indexCreated(rindex,AParent);
+	insertDefaultDataHolders(rindex);
+
+	return rindex;
 }
 
 IRosterIndex *RostersModel::findGroupIndex(int AType, const QString &AGroup, const QString &AGroupDelim, IRosterIndex *AParent) const
@@ -305,7 +311,6 @@ IRosterIndex *RostersModel::createGroupIndex(int AType, const QString &AGroup, c
 			childGroupIndex = createRosterIndex(AType, groupIndex);
 			childGroupIndex->setData(RDR_GROUP, !FSingleGroups.contains(AType) ? group : QVariant(QString("")));
 			childGroupIndex->setData(RDR_NAME, groupTree.at(i));
-			FGroupsCache[groupIndex].insertMulti(groupTree.at(i),childGroupIndex);
 			insertRosterIndex(childGroupIndex, groupIndex);
 			groupIndex = childGroupIndex;
 			group += AGroupDelim + groupTree.value(++i);
@@ -328,15 +333,15 @@ void RostersModel::removeRosterIndex(IRosterIndex *AIndex)
 
 QList<IRosterIndex *> RostersModel::getContactIndexList(const Jid &AStreamJid, const Jid &AContactJid, bool ACreate)
 {
-	QList<IRosterIndex *> indexList;
+	QList<IRosterIndex *> indexes;
 	IRosterIndex *streamIndex = FStreamsRoot.value(AStreamJid);
 	if (streamIndex)
 	{
-		indexList = findContactIndexes(AStreamJid,AContactJid,AContactJid.resource().isEmpty());
-		if (indexList.isEmpty() && !AContactJid.resource().isEmpty())
-			indexList = findContactIndexes(AStreamJid,AContactJid,true);
+		indexes = findContactIndexes(AStreamJid,AContactJid,AContactJid.resource().isEmpty());
+		if (indexes.isEmpty() && !AContactJid.resource().isEmpty())
+			indexes = findContactIndexes(AStreamJid,AContactJid,true);
 
-		if (ACreate && indexList.isEmpty())
+		if (ACreate && indexes.isEmpty())
 		{
 			int type = RIT_CONTACT;
 			if (AContactJid.node().isEmpty())
@@ -355,13 +360,11 @@ QList<IRosterIndex *> RostersModel::getContactIndexList(const Jid &AStreamJid, c
 			itemIndex->setData(RDR_PREP_FULL_JID,AContactJid.pFull());
 			itemIndex->setData(RDR_PREP_BARE_JID,AContactJid.pBare());
 			itemIndex->setData(RDR_GROUP,groupIndex->data(RDR_GROUP));
-			FContactsCache[streamIndex].insertMulti(AContactJid.bare(),itemIndex);
-
-			indexList.append(itemIndex);
 			insertRosterIndex(itemIndex,groupIndex);
+			indexes.append(itemIndex);
 		}
 	}
-	return indexList;
+	return indexes;
 }
 
 QModelIndex RostersModel::modelIndexByRosterIndex(IRosterIndex *AIndex) const
@@ -382,9 +385,7 @@ QString RostersModel::singleGroupName(int AType) const
 void RostersModel::registerSingleGroup(int AType, const QString &AName)
 {
 	if (!FSingleGroups.contains(AType))
-	{
 		FSingleGroups.insert(AType,AName);
-	}
 }
 
 void RostersModel::insertDefaultDataHolder(IRosterDataHolder *ADataHolder)
@@ -393,10 +394,10 @@ void RostersModel::insertDefaultDataHolder(IRosterDataHolder *ADataHolder)
 	{
 		QMultiMap<int,QVariant> findData;
 		foreach(int type, ADataHolder->rosterDataTypes())
-			findData.insertMulti(RDR_TYPE,type);
+			findData.insertMulti(RDR_TYPE, type);
 
-		foreach(IRosterIndex *index, FRootIndex->findChilds(findData,true))
-			index->insertDataHolder(ADataHolder);
+		foreach(IRosterIndex *rindex, FRootIndex->findChilds(findData,true))
+			rindex->insertDataHolder(ADataHolder);
 
 		FDataHolders.append(ADataHolder);
 		emit defaultDataHolderInserted(ADataHolder);
@@ -409,11 +410,11 @@ void RostersModel::removeDefaultDataHolder(IRosterDataHolder *ADataHolder)
 	{
 		QMultiMap<int,QVariant> findData;
 		foreach(int type, ADataHolder->rosterDataTypes())
-			findData.insertMulti(RDR_TYPE,type);
+			findData.insertMulti(RDR_TYPE, type);
 
 		QList<IRosterIndex *> indexes = FRootIndex->findChilds(findData,true);
-		foreach(IRosterIndex *index, indexes)
-			index->removeDataHolder(ADataHolder);
+		foreach(IRosterIndex *rindex, indexes)
+			rindex->removeDataHolder(ADataHolder);
 
 		FDataHolders.removeAll(ADataHolder);
 		emit defaultDataHolderRemoved(ADataHolder);
@@ -422,7 +423,7 @@ void RostersModel::removeDefaultDataHolder(IRosterDataHolder *ADataHolder)
 
 void RostersModel::emitDelayedDataChanged(IRosterIndex *AIndex)
 {
-	FChangedIndexes -= AIndex;
+	removeChangedIndex(AIndex);
 
 	if (AIndex != FRootIndex)
 	{
@@ -431,12 +432,12 @@ void RostersModel::emitDelayedDataChanged(IRosterIndex *AIndex)
 	}
 
 	QList<IRosterIndex *> childs;
-	foreach(IRosterIndex *index, FChangedIndexes)
-		if (index->parentIndex() == AIndex)
-			childs.append(index);
+	foreach(IRosterIndex *rindex, FChangedIndexes)
+		if (rindex->parentIndex() == AIndex)
+			childs.append(rindex);
 
-	foreach(IRosterIndex *index, childs)
-		emitDelayedDataChanged(index);
+	foreach(IRosterIndex *rindex, childs)
+		emitDelayedDataChanged(rindex);
 }
 
 void RostersModel::insertDefaultDataHolders(IRosterIndex *AIndex)
@@ -444,6 +445,21 @@ void RostersModel::insertDefaultDataHolders(IRosterIndex *AIndex)
 	foreach(IRosterDataHolder *dataHolder, FDataHolders)
 		if (dataHolder->rosterDataTypes().contains(RIT_ANY_TYPE) || dataHolder->rosterDataTypes().contains(AIndex->type()))
 			AIndex->insertDataHolder(dataHolder);
+}
+
+void RostersModel::insertChangedIndex(IRosterIndex *AIndex)
+{
+	if (AIndex)
+	{
+		if (FChangedIndexes.isEmpty())
+			QTimer::singleShot(0,this,SLOT(onDelayedDataChanged()));
+		FChangedIndexes += AIndex;
+	}
+}
+
+void RostersModel::removeChangedIndex(IRosterIndex *AIndex)
+{
+	FChangedIndexes -= AIndex;
 }
 
 QList<IRosterIndex *> RostersModel::findContactIndexes(const Jid &AStreamJid, const Jid &AContactJid, bool ABare, IRosterIndex *AParent) const
@@ -504,8 +520,9 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 	IRosterIndex *streamIndex = FStreamsRoot.value(ARoster->streamJid());
 	if (streamIndex)
 	{
+		QList<IRosterIndex *> curItemList = findContactIndexes(ARoster->streamJid(),AItem.itemJid,true);
+
 		int groupType;
-		QString groupDisplay;
 		QSet<QString> itemGroups;
 
 		int itemType = !AItem.itemJid.node().isEmpty() ? RIT_CONTACT : RIT_AGENT;
@@ -526,12 +543,11 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 		}
 
 		QList<IRosterIndex *> itemList;
-		QList<IRosterIndex *> curItemList = findContactIndexes(ARoster->streamJid(),AItem.itemJid,true);
 		if (AItem.subscription != SUBSCRIPTION_REMOVE)
 		{
 			QSet<QString> curGroups;
-			foreach(IRosterIndex *index, curItemList)
-				curGroups.insert(index->data(RDR_GROUP).toString());
+			foreach(IRosterIndex *itemIndex, curItemList)
+				curGroups.insert(itemIndex->data(RDR_GROUP).toString());
 
 			QSet<QString> newGroups = itemGroups - curGroups;
 			QSet<QString> oldGroups = curGroups - itemGroups;
@@ -590,16 +606,14 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 							itemIndex->setData(RDR_FULL_JID,AItem.itemJid.full());
 							itemIndex->setData(RDR_PREP_FULL_JID,AItem.itemJid.pFull());
 						}
-						FContactsCache[streamIndex].insertMulti(AItem.itemJid,itemIndex);
 
 						itemIndex->setData(RDR_PREP_BARE_JID,AItem.itemJid.pBare());
 						itemIndex->setData(RDR_NAME,AItem.name);
 						itemIndex->setData(RDR_SUBSCRIBTION,AItem.subscription);
 						itemIndex->setData(RDR_ASK,AItem.ask);
 						itemIndex->setData(RDR_GROUP,group);
-
-						itemList.append(itemIndex);
 						insertRosterIndex(itemIndex,groupIndex);
+						itemList.append(itemIndex);
 					}
 					while (presIndex < pitems.count());
 				}
@@ -613,9 +627,9 @@ void RostersModel::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AIt
 			}
 		}
 
-		foreach(IRosterIndex *index, curItemList)
-			if (!itemList.contains(index))
-				removeRosterIndex(index);
+		foreach(IRosterIndex *itemIndex, curItemList)
+			if (!itemList.contains(itemIndex))
+				removeRosterIndex(itemIndex);
 	}
 }
 
@@ -628,9 +642,10 @@ void RostersModel::onRosterStreamJidChanged(IRoster *ARoster, const Jid &ABefore
 
 		QMultiMap<int,QVariant> findData;
 		findData.insert(RDR_STREAM_JID,ABefore.pFull());
+
 		QList<IRosterIndex *> itemList = FRootIndex->findChilds(findData,true);
-		foreach(IRosterIndex *index, itemList)
-			index->setData(RDR_STREAM_JID,after.pFull());
+		foreach(IRosterIndex *itemIndex, itemList)
+			itemIndex->setData(RDR_STREAM_JID,after.pFull());
 
 		streamIndex->setData(RDR_FULL_JID,after.full());
 		streamIndex->setData(RDR_PREP_FULL_JID,after.pFull());
@@ -670,8 +685,8 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 
 		if (AItem.show == IPresence::Offline)
 		{
-			QList<IRosterIndex *> itemList = findContactIndexes(APresence->streamJid(),AItem.itemJid,false);
 			int pitemsCount = APresence->presenceItems(AItem.itemJid).count();
+			QList<IRosterIndex *> itemList = findContactIndexes(APresence->streamJid(),AItem.itemJid,false);
 			foreach (IRosterIndex *itemIndex, itemList)
 			{
 				if (itemType == RIT_MY_RESOURCE || pitemsCount > 1)
@@ -748,7 +763,6 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 								itemIndex->setData(RDR_SUBSCRIBTION,ritem.subscription);
 								itemIndex->setData(RDR_ASK,ritem.ask);
 							}
-							FContactsCache[streamIndex].insertMulti(AItem.itemJid.bare(),itemIndex);
 						}
 
 						itemIndex->setData(RDR_FULL_JID,AItem.itemJid.full());
@@ -760,7 +774,7 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 					}
 				}
 			}
-			else foreach(IRosterIndex *itemIndex,itemList)
+			else foreach(IRosterIndex *itemIndex, itemList)
 			{
 				itemIndex->setData(RDR_SHOW,AItem.show);
 				itemIndex->setData(RDR_STATUS,AItem.status);
@@ -772,9 +786,7 @@ void RostersModel::onPresenceReceived(IPresence *APresence, const IPresenceItem 
 
 void RostersModel::onIndexDataChanged(IRosterIndex *AIndex, int ARole)
 {
-	if (FChangedIndexes.isEmpty())
-		QTimer::singleShot(0,this,SLOT(onDelayedDataChanged()));
-	FChangedIndexes+=AIndex;
+	insertChangedIndex(AIndex);
 	emit indexDataChanged(AIndex, ARole);
 }
 
@@ -796,29 +808,41 @@ void RostersModel::onIndexChildAboutToBeInserted(IRosterIndex *AIndex)
 
 void RostersModel::onIndexChildInserted(IRosterIndex *AIndex)
 {
+	insertChangedIndex(AIndex);
+	if (RosterItemTypes.contains(AIndex->type()))
+	{
+		IRosterIndex *streamIndex = FStreamsRoot.value(AIndex->data(RDR_STREAM_JID).toString());
+		if (streamIndex)
+			FContactsCache[streamIndex].insertMulti(AIndex->data(RDR_PREP_BARE_JID).toString(),AIndex);
+	}
+	else if (AIndex->parentIndex() && RosterGroupTypes.contains(AIndex->type()))
+	{
+		FGroupsCache[AIndex->parentIndex()].insertMulti(AIndex->data(RDR_NAME).toString(),AIndex);
+	}
 	endInsertRows();
 	emit indexInserted(AIndex);
 }
 
 void RostersModel::onIndexChildAboutToBeRemoved(IRosterIndex *AIndex)
 {
-	FChangedIndexes-=AIndex;
+	insertChangedIndex(AIndex->parentIndex());
 	emit indexAboutToBeRemoved(AIndex);
-	if (FGroupsCache.contains(AIndex->parentIndex()))
-	{
-		FGroupsCache[AIndex->parentIndex()].remove(AIndex->data(RDR_NAME).toString(),AIndex);
-	}
-	if (AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_AGENT || AIndex->type()==RIT_MY_RESOURCE)
+	beginRemoveRows(modelIndexByRosterIndex(AIndex->parentIndex()),AIndex->row(),AIndex->row());
+	if (RosterItemTypes.contains(AIndex->type()))
 	{
 		IRosterIndex *streamIndex = FStreamsRoot.value(AIndex->data(RDR_STREAM_JID).toString());
 		if (streamIndex)
 			FContactsCache[streamIndex].remove(AIndex->data(RDR_PREP_BARE_JID).toString(),AIndex);
 	}
-	beginRemoveRows(modelIndexByRosterIndex(AIndex->parentIndex()),AIndex->row(),AIndex->row());
+	else if (AIndex->parentIndex() && RosterGroupTypes.contains(AIndex->type()))
+	{
+		FGroupsCache[AIndex->parentIndex()].remove(AIndex->data(RDR_NAME).toString(),AIndex);
+	}
 }
 
 void RostersModel::onIndexChildRemoved(IRosterIndex *AIndex)
 {
+	removeChangedIndex(AIndex);
 	disconnect(AIndex->instance(),SIGNAL(dataChanged(IRosterIndex *, int)),
 		   this,SLOT(onIndexDataChanged(IRosterIndex *, int)));
 	disconnect(AIndex->instance(),SIGNAL(childAboutToBeInserted(IRosterIndex *)),
@@ -846,15 +870,15 @@ void RostersModel::onDelayedDataChanged()
 	{
 		//Вызывает dataChanged у всех родителей для поддержки SortFilterProxyModel
 		QSet<IRosterIndex *> childIndexes = FChangedIndexes;
-		foreach(IRosterIndex *index,childIndexes)
+		foreach(IRosterIndex *rindex, childIndexes)
 		{
-			IRosterIndex *parentIndex = index->parentIndex();
-			while (parentIndex && !FChangedIndexes.contains(parentIndex))
+			IRosterIndex *pindex = rindex->parentIndex();
+			while (pindex && !FChangedIndexes.contains(pindex))
 			{
-				FChangedIndexes+=parentIndex;
-				parentIndex = parentIndex->parentIndex();
+				FChangedIndexes += pindex;
+				pindex = pindex->parentIndex();
 			}
-			QModelIndex modelIndex = modelIndexByRosterIndex(index);
+			QModelIndex modelIndex = modelIndexByRosterIndex(rindex);
 			emit dataChanged(modelIndex,modelIndex);
 		}
 		emitDelayedDataChanged(FRootIndex);
@@ -863,7 +887,6 @@ void RostersModel::onDelayedDataChanged()
 	{
 		reset();
 	}
-
 	FChangedIndexes.clear();
 }
 
