@@ -591,7 +591,6 @@ IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACon
 			if (window)
 			{
 				window->infoWidget()->autoUpdateFields();
-				window->editWidget()->setSendKey(QKeySequence::UnknownKey);
 				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
 				WindowStatus &wstatus = FWindowStatus[window];
