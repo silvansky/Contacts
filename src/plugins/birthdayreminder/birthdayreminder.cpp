@@ -10,8 +10,6 @@
 #define NOTIFY_WITHIN_DAYS 7
 #define NOTIFY_TIMEOUT     90000
 
-#define ADR_CONTACT_JID    Action::DR_Parametr1
-
 BirthdayReminder::BirthdayReminder()
 {
 	FAvatars = NULL;
@@ -19,6 +17,7 @@ BirthdayReminder::BirthdayReminder()
 	FRosterPlugin = NULL;
 	FPresencePlugin = NULL;
 	FRostersModel = NULL;
+	FMetaContacts = NULL;
 	FNotifications = NULL;
 	FNotifications = NULL;
 	FRostersViewPlugin = NULL;
@@ -84,6 +83,12 @@ bool BirthdayReminder::initConnections(IPluginManager *APluginManager, int &AIni
 			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)),
 				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)));
 		}
+	}
+
+	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
+	if (plugin)
+	{
+		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
 	}
 
 	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
@@ -164,34 +169,46 @@ int BirthdayReminder::rosterDataOrder() const
 
 QList<int> BirthdayReminder::rosterDataRoles() const
 {
-	static QList<int> roles = QList<int>() << RDR_AVATAR_IMAGE;
+	static QList<int> roles = QList<int>() << RDR_AVATAR_IMAGE << RDR_AVATAR_IMAGE_LARGE;
 	return roles;
 }
 
 QList<int> BirthdayReminder::rosterDataTypes() const
 {
-	QList<int> types = QList<int>() << RIT_CONTACT;
+	QList<int> types = QList<int>() << RIT_CONTACT << RIT_METACONTACT;
 	return types;
 }
 
 QVariant BirthdayReminder::rosterData(const IRosterIndex *AIndex, int ARole) const
 {
 	QVariant data;
-	if (ARole == RDR_AVATAR_IMAGE)
+	if (ARole==RDR_AVATAR_IMAGE || ARole==RDR_AVATAR_IMAGE_LARGE)
 	{
-		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
-		if (FUpcomingBirthdays.value(contactJid.bare(),-1) == 0)
+		QList<Jid> metaItems;
+		if (AIndex->type() == RIT_METACONTACT)
 		{
-			static bool blocked = false;
-			if (!blocked)
+			foreach(QString itemJid, AIndex->data(RDR_METACONTACT_ITEMS).toStringList())
+				metaItems.append(itemJid);
+		}
+		else if (AIndex->type() == RIT_CONTACT)
+		{
+			metaItems.append(AIndex->data(RDR_PREP_BARE_JID).toString());
+		}
+
+		foreach(Jid contactJid, metaItems)
+		{
+			if (FUpcomingBirthdays.value(contactJid.bare(),-1) == 0)
 			{
-				blocked = true;
-				QImage avatar = AIndex->data(RDR_AVATAR_IMAGE).value<QImage>();
-				if (!avatar.isNull())
+				static bool blocked = false;
+				if (!blocked)
 				{
-					data = avatarWithCake(contactJid,avatar);
+					blocked = true;
+					QImage avatar = AIndex->data(ARole).value<QImage>();
+					if (!avatar.isNull())
+						data = avatarWithCake(contactJid,avatar);
+					blocked = false;
 				}
-				blocked = false;
+				break;
 			}
 		}
 	}
@@ -232,7 +249,7 @@ QImage BirthdayReminder::avatarWithCake(const Jid &AContactJid, const QImage &AA
 	if (FAvatars && avatar.isNull())
 		avatar = FAvatars->avatarImage(AContactJid,false,false);
 
-	if (!FAvatarCake.isNull() && FUpcomingBirthdays.value(AContactJid.bare(),-1)==0)
+	if (!FAvatarCake.isNull())
 	{
 		QRect cakeRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignLeft|Qt::AlignBottom,FAvatarCake.size().boundedTo(avatar.size()/2),avatar.rect());
 		QPainter painter(&avatar);
@@ -285,29 +302,39 @@ bool BirthdayReminder::updateBirthdayState(const Jid &AContactJid)
 	bool notify = false;
 	int daysLeft = contactBithdayDaysLeft(AContactJid);
 
-	bool isAvatarChanged = false;
+	bool isStateChanged = false;
 	if (daysLeft>=0 && daysLeft<=NOTIFY_WITHIN_DAYS)
 	{
 		notify = true;
-		if ((daysLeft==0 || FUpcomingBirthdays.value(AContactJid,-1)==0) && FUpcomingBirthdays.value(AContactJid,-1)!=daysLeft)
-			isAvatarChanged = true;
+		isStateChanged = !FUpcomingBirthdays.contains(AContactJid);
 		FUpcomingBirthdays.insert(AContactJid,daysLeft);
 	}
 	else
 	{
-		if (FUpcomingBirthdays.value(AContactJid,-1) == 0)
-			isAvatarChanged = true;
+		isStateChanged = FUpcomingBirthdays.contains(AContactJid);
 		FUpcomingBirthdays.remove(AContactJid);
 	}
 
-	if  (FRostersModel && isAvatarChanged)
+	if (FRostersModel && isStateChanged)
 	{
+		IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(findContactStream(AContactJid)) : NULL;
+		QString metaId = mroster!=NULL && mroster->isEnabled() ? mroster->itemMetaContact(AContactJid) : QString::null;
+
 		QMultiMap<int, QVariant> findData;
-		findData.insert(RDR_TYPE,RIT_CONTACT);
-		findData.insert(RDR_PREP_BARE_JID,AContactJid.pBare());
+		if (!metaId.isEmpty())
+		{
+			findData.insert(RDR_TYPE,RIT_METACONTACT);
+			findData.insert(RDR_META_ID,metaId);
+		}
+		else
+		{
+			findData.insert(RDR_TYPE,RIT_CONTACT);
+			findData.insert(RDR_PREP_BARE_JID,AContactJid.pBare());
+		}
 		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true))
 		{
-			emit rosterDataChanged(index,RDR_AVATAR_IMAGE);
+			emit rosterDataChanged(index,RDR_AVATAR_IMAGE); 
+			emit rosterDataChanged(index,RDR_AVATAR_IMAGE_LARGE); 
 		}
 	}
 
@@ -334,30 +361,37 @@ void BirthdayReminder::onShowNotificationTimer()
 		{
 			updateBirthdaysStates();
 			notify.notificatior = NID_BIRTHDAY_REMIND;
+
+			QSet<QString> notifiedMetaContacts;
 			QSet<Jid> notifyList = FUpcomingBirthdays.keys().toSet() - FNotifiedContacts.toSet();
 			foreach(Jid contactJid, notifyList)
 			{
 				Jid streamJid = findContactStream(contactJid);
+				IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(streamJid) : NULL;
+				QString metaId = mroster!=NULL && mroster->isEnabled() ? mroster->itemMetaContact(contactJid) : QString::null;
+				if (metaId.isEmpty() || !notifiedMetaContacts.contains(metaId))
+				{
+					notifiedMetaContacts += metaId;
 
-				notify.data.insert(NDR_POPUP_TITLE,FNotifications->contactName(streamJid,contactJid));
-				notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
-				notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
+					notify.data.insert(NDR_POPUP_TITLE,!metaId.isEmpty() ? FMetaContacts->metaContactName(mroster->metaContact(metaId)) : FNotifications->contactName(streamJid,contactJid));
+					notify.data.insert(NDR_POPUP_IMAGE,!metaId.isEmpty() ? mroster->metaAvatarImage(metaId) : FNotifications->contactAvatar(contactJid));
+					notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 
-				QDate	birthday = contactBithday(contactJid);
-				int daysLeft = FUpcomingBirthdays.value(contactJid);
-				QString text = daysLeft>0 ? tr("Birthday in %n day(s),<br> %1","",daysLeft).arg(birthday.toString(Qt::SystemLocaleLongDate)) : tr("Birthday today!");
-				notify.data.insert(NDR_POPUP_NOTICE,text);
+					QDate	birthday = contactBithday(contactJid);
+					int daysLeft = FUpcomingBirthdays.value(contactJid);
+					QString text = daysLeft>0 ? tr("Birthday in %n day(s), %1","",daysLeft).arg(birthday.toString(Qt::SystemLocaleLongDate)) : tr("Birthday today!");
+					notify.data.insert(NDR_POPUP_TEXT,text);
 
-				Action *action = new Action(NULL);
-				action->setText(tr("Congratulate with postcard"));
-				action->setData(ADR_CONTACT_JID, contactJid.bare());
-				action->setData(Action::DR_UserDefined + 1, "birthday");
-				connect(action,SIGNAL(triggered()),SLOT(onCongratulateWithPostcard()));
-				notify.actions.clear();
-				notify.actions.append(action);
+					Action *action = new Action(NULL);
+					action->setText(tr("Congratulate with postcard"));
+					action->setData(Action::DR_UserDefined + 1, "birthday");
+					connect(action,SIGNAL(triggered()),SLOT(onCongratulateWithPostcard()));
 
+					notify.actions.clear();
+					notify.actions.append(action);
+					FNotifies.insert(FNotifications->appendNotification(notify),contactJid);
+				}
 				FNotifiedContacts.append(contactJid);
-				FNotifies.insert(FNotifications->appendNotification(notify),contactJid);
 			}
 		}
 	}
@@ -404,7 +438,7 @@ void BirthdayReminder::onNotificationTest(const QString &ANotificatorId, uchar A
 			Jid contactJid = "vasilisa@rambler/ramblercontacts";
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
-			notify.data.insert(NDR_POPUP_NOTICE,tr("Birthday today!"));
+			notify.data.insert(NDR_POPUP_TEXT,tr("Birthday today!"));
 			notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 
 			Action *action = new Action(NULL);

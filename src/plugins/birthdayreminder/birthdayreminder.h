@@ -29,6 +29,7 @@
 #include <interfaces/irostersmodel.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/imessageprocessor.h>
+#include <interfaces/imetacontacts.h>
 #include <utils/options.h>
 #include <utils/datetime.h>
 #include <utils/iconstorage.h>
@@ -90,6 +91,7 @@ private:
 	IAvatars *FAvatars;
 	IVCardPlugin *FVCardPlugin;
 	IRosterPlugin *FRosterPlugin;
+	IMetaContacts *FMetaContacts;
 	IPresencePlugin *FPresencePlugin;
 	IRostersModel *FRostersModel;
 	INotifications *FNotifications;

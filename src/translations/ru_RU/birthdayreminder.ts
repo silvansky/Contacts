@@ -52,11 +52,11 @@
         <translation>Дни рождения друзей!</translation>
     </message>
     <message numerus="yes">
-        <source>Birthday in %n day(s),&lt;br&gt; %1</source>
+        <source>Birthday in %n day(s), %1</source>
         <translation>
-            <numerusform>День рождения через %n день,&lt;br&gt; %1</numerusform>
-            <numerusform>День рождения через %n дня,&lt;br&gt; %1</numerusform>
-            <numerusform>День рождения через %n дней,&lt;br&gt; %1</numerusform>
+            <numerusform>День рождения через %n день, %1</numerusform>
+            <numerusform>День рождения через %n дня, %1</numerusform>
+            <numerusform>День рождения через %n дней, %1</numerusform>
         </translation>
     </message>
 </context>
