@@ -353,6 +353,7 @@ void BirthdayReminder::onShowNotificationTimer()
 				action->setData(ADR_CONTACT_JID, contactJid.bare());
 				action->setData(Action::DR_UserDefined + 1, "birthday");
 				connect(action,SIGNAL(triggered()),SLOT(onCongratulateWithPostcard()));
+				notify.actions.clear();
 				notify.actions.append(action);
 
 				FNotifiedContacts.append(contactJid);
