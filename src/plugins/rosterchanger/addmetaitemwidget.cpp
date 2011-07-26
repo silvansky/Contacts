@@ -250,7 +250,7 @@ void AddMetaItemWidget::resolveContactJid()
 			else if (FRoster->rosterItem(contact).isValid)
 			{
 				errClickable = true;
-				errMessage = tr("This contact is already in your list.");
+				errMessage = tr("This contact is already present in your contact-list.");
 				setRealContactJid(contact,false);
 			}
 			else
@@ -311,7 +311,7 @@ void AddMetaItemWidget::onLegacyContactJidReceived(const QString &AId, const Jid
 		if (FRoster->rosterItem(AUserJid).isValid)
 		{
 			setRealContactJid(AUserJid,false);
-			setErrorMessage(tr("This contact is already in your list."),true,true);
+			setErrorMessage(tr("This contact is already present in your contact-list."),true,true);
 		}
 		else
 		{

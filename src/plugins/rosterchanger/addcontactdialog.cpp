@@ -94,8 +94,6 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 		ui.lneAddressContact->selectAll();
 	}
 
-	// event filters
-
 	ui.lneAddressContact->installEventFilter(this);
 	ui.lneParamsNick->installEventFilter(this);
 	ui.cmbParamsGroup->installEventFilter(this);
@@ -256,7 +254,7 @@ void AddContactDialog::initialize(IPluginManager *APluginManager)
 
 void AddContactDialog::initGroups()
 {
-	QList<QString> groups = FRoster!=NULL ? FRoster->groups().toList() : QList<QString>();
+	QList<QString> groups = FRoster->groups().toList();
 	qSort(groups);
 	ui.cmbParamsGroup->addItem(tr("<Common Group>"),QString(GROUP_EMPTY));
 	ui.cmbParamsGroup->addItems(groups);
@@ -411,7 +409,6 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtSelectProfile->setVisible(false);
 			ui.pbtBack->setVisible(false);
 			ui.pbtContinue->setText(tr("Continue"));
-			StyleStorage::updateStyle(this);
 		}
 		else if (AState == STATE_CONFIRM)
 		{
@@ -424,15 +421,15 @@ void AddContactDialog::setDialogState(int AState)
 		}
 		else if (AState == STATE_PARAMS)
 		{
-			resolveContactJid();
-			resolveLinkedContactsJid();
 			ui.wdtPageAddress->setVisible(false);
 			ui.wdtPageConfirm->setVisible(false);
 			ui.wdtPageParams->setVisible(true);
 			ui.wdtSelectProfile->setVisible(true);
 			ui.pbtBack->setVisible(true);
 			ui.pbtContinue->setText(tr("Add Contact"));
-			StyleStorage::updateStyle(this);
+
+			resolveContactJid();
+			resolveLinkedContactsJid();
 		}
 
 		FDialogState = AState;
@@ -493,7 +490,7 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 		//ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
 		ui.lneAddressContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput ? true : false);
 		StyleStorage::updateStyle(this);
-		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+		//QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
 	}
 }
 
@@ -589,7 +586,7 @@ void AddContactDialog::resolveContactName()
 	if (contactJid().isValid())
 	{
 		QString errMessage;
-		IRosterItem ritem = FRoster!=NULL ? FRoster->rosterItem(contactJid()) : IRosterItem();
+		IRosterItem ritem = FRoster->rosterItem(contactJid());
 		if (!ritem.isValid)
 		{
 			if (FVcardPlugin)
@@ -598,6 +595,7 @@ void AddContactDialog::resolveContactName()
 		}
 		else
 		{
+			ui.pbtContinue->setText(tr("Open"));
 			setNickName(!ritem.name.isEmpty() ? ritem.name : defaultContactNick(contactText()));
 			setGroup(ritem.groups.toList().value(0));
 			errMessage = tr("This contact is already present in your contact-list.");
@@ -657,54 +655,47 @@ void AddContactDialog::showEvent(QShowEvent *AEvent)
 	QDialog::showEvent(AEvent);
 }
 
-void AddContactDialog::mousePressEvent(QMouseEvent * e)
+void AddContactDialog::mousePressEvent(QMouseEvent *AEvent)
 {
 	BalloonTip::hideBalloon();
-	QDialog::mousePressEvent(e);
+	QDialog::mousePressEvent(AEvent);
 }
 
-void AddContactDialog::resizeEvent(QResizeEvent * evt)
+void AddContactDialog::moveEvent(QMoveEvent *AEvent)
 {
 	BalloonTip::hideBalloon();
-	QDialog::resizeEvent(evt);
+	QDialog::moveEvent(AEvent);
 }
 
-void AddContactDialog::moveEvent(QMoveEvent * evt)
+bool AddContactDialog::event(QEvent *AEvent)
 {
-	BalloonTip::hideBalloon();
-	QDialog::moveEvent(evt);
-}
-
-bool AddContactDialog::event(QEvent * evt)
-{
-	if (evt->type() == QEvent::MouseButtonPress)
+	if (AEvent->type() == QEvent::MouseButtonPress)
 	{
 		BalloonTip::hideBalloon();
 	}
-	if (evt->type() == QEvent::ParentChange)
+	else if (AEvent->type() == QEvent::ParentChange)
 	{
 		CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget());
 		if (border)
 		{
-			connect(border, SIGNAL(resized()), SLOT(onBorderReszeMove()));
-			connect(border, SIGNAL(moved()), SLOT(onBorderReszeMove()));
+			connect(border, SIGNAL(moved()), SLOT(onHideErrorBalloon()));
 			border->installEventFilter(this);
 		}
 	}
-	if (evt->type() == QEvent::ActivationChange)
+	else if (AEvent->type() == QEvent::ActivationChange)
 	{
 		BalloonTip::hideBalloon();
 	}
-	return QDialog::event(evt);
+	return QDialog::event(AEvent);
 }
 
-bool AddContactDialog::eventFilter(QObject * obj, QEvent * evt)
+bool AddContactDialog::eventFilter(QObject *AObject, QEvent *AEvent)
 {
-	if ((evt->type() == QEvent::MouseButtonPress) || (evt->type() == QEvent::ActivationChange))
+	if ((AEvent->type() == QEvent::MouseButtonPress) || (AEvent->type() == QEvent::ActivationChange))
 	{
 		BalloonTip::hideBalloon();
 	}
-	return QDialog::eventFilter(obj, evt);
+	return QDialog::eventFilter(AObject, AEvent);
 }
 
 void AddContactDialog::onBackButtonclicked()
@@ -741,7 +732,14 @@ void AddContactDialog::onContinueButtonclicked()
 	{
 		if (contactJid().isValid())
 		{
-			if (FMetaRoster && FMetaRoster->isEnabled())
+			if (FRoster->rosterItem(contactJid()).isValid)
+			{
+				selectRosterIndex();
+				if (FMessageProcessor)
+					FMessageProcessor->createMessageWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+				accept();
+			}
+			else if (FMetaRoster && FMetaRoster->isEnabled())
 			{
 				IMetaContact contact;
 				contact.name = nickName();
@@ -942,7 +940,7 @@ void AddContactDialog::onMetaActionResult(const QString &AActionId, const QStrin
 	}
 }
 
-void AddContactDialog::onBorderReszeMove()
+void AddContactDialog::onHideErrorBalloon()
 {
 	BalloonTip::hideBalloon();
 }

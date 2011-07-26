@@ -41,7 +41,7 @@
     </message>
     <message>
         <source>This contact is already present in your contact-list.</source>
-        <translation>Этот контакт уже есть в вашем контакт-листе.</translation>
+        <translation>Этот контакт уже есть в вашем списке контактов.</translation>
     </message>
     <message>
         <source>This is an ICQ number</source>
@@ -94,6 +94,10 @@
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Открыть</translation>
     </message>
 </context>
 <context>
@@ -208,8 +212,8 @@
         <translation>Не удалось получить JID контакта от транспорта.</translation>
     </message>
     <message>
-        <source>This contact is already in your list.</source>
-        <translation>Этот контакт уже есть в вашем списке.</translation>
+        <source>This contact is already present in your contact-list.</source>
+        <translation>Этот контакт уже есть в вашем списке контактов.</translation>
     </message>
 </context>
 <context>

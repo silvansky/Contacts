@@ -80,12 +80,11 @@ protected:
 	void resolveContactName();
 	void resolveLinkedContactsJid();
 protected:
-	virtual void showEvent(QShowEvent *AEvent);
-	void mousePressEvent(QMouseEvent *);
-	void resizeEvent(QResizeEvent *);
-	void moveEvent(QMoveEvent *);
-	bool event(QEvent *);
-	bool eventFilter(QObject *, QEvent *);
+	void showEvent(QShowEvent *AEvent);
+	void mousePressEvent(QMouseEvent *AEvent);
+	void moveEvent(QMoveEvent *AEvent);
+	bool event(QEvent *AEvent);
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onBackButtonclicked();
 	void onContinueButtonclicked();
@@ -101,7 +100,7 @@ protected slots:
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
-	void onBorderReszeMove();
+	void onHideErrorBalloon();
 private:
 	Ui::AddContactDialogClass ui;
 private:
