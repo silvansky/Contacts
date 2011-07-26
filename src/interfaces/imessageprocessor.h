@@ -21,8 +21,8 @@ public:
 	virtual bool checkMessage(int AOrder, const Message &AMessage) =0;
 	virtual bool showMessage(int AMessageId) =0;
 	virtual bool receiveMessage(int AMessageId) =0;
-	virtual INotification notification(INotifications *ANotifications, const Message &AMessage) =0;
-	virtual bool createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) =0;
+	virtual INotification notifyMessage(INotifications *ANotifications, const Message &AMessage) =0;
+	virtual bool createMessageWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) =0;
 };
 
 class IMessageWriter
@@ -44,9 +44,9 @@ public:
 	virtual int messageByNotify(int ANotifyId) const =0;
 	virtual Message messageById(int AMessageId) const =0;
 	virtual QList<int> messages(const Jid &AStreamJid, const Jid &AFromJid = Jid(), int AMesTypes = Message::AnyType) =0;
-	virtual void textToMessage(Message &AMessage, const QTextDocument *ADocument, const QString &ALang = "") const =0;
-	virtual void messageToText(QTextDocument *ADocument, const Message &AMessage, const QString &ALang = "") const =0;
-	virtual bool createWindow(const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) const =0;
+	virtual void textToMessage(Message &AMessage, const QTextDocument *ADocument, const QString &ALang = QString::null) const =0;
+	virtual void messageToText(QTextDocument *ADocument, const Message &AMessage, const QString &ALang = QString::null) const =0;
+	virtual bool createMessageWindow(const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) const =0;
 	virtual void insertMessageHandler(IMessageHandler *AHandler, int AOrder) =0;
 	virtual void removeMessageHandler(IMessageHandler *AHandler, int AOrder) =0;
 	virtual void insertMessageWriter(IMessageWriter *AWriter, int AOrder) =0;

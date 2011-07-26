@@ -367,7 +367,7 @@ QList<ITabWindow *> MessageWidgets::tabWindows() const
 	return FTabWindows;
 }
 
-ITabWindow *MessageWidgets::createTabWindow(const QUuid &AWindowId)
+ITabWindow *MessageWidgets::newTabWindow(const QUuid &AWindowId)
 {
 	ITabWindow *window = findTabWindow(AWindowId);
 	if (!window)
@@ -400,7 +400,7 @@ ITabWindow *MessageWidgets::assignTabWindowPage(ITabPage *APage)
 			windowId = Options::node(OPV_MESSAGES_TABWINDOWS_DEFAULT).value().toString();
 		if (!availWindows.contains(windowId))
 			windowId = availWindows.value(0);
-		ITabWindow *window = createTabWindow(windowId);
+		ITabWindow *window = newTabWindow(windowId);
 		window->addTabPage(APage);
 	}
 	return window;

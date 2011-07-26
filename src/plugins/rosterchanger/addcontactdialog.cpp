@@ -909,7 +909,7 @@ void AddContactDialog::onRosterItemReceived(const IRosterItem &AItem, const IRos
 		{
 			selectRosterIndex();
 			if (FMessageProcessor)
-				FMessageProcessor->createWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+				FMessageProcessor->createMessageWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
 			accept();
 		}
 	}
@@ -930,7 +930,7 @@ void AddContactDialog::onMetaActionResult(const QString &AActionId, const QStrin
 			else if (FMessageProcessor)
 			{
 				selectRosterIndex();
-				FMessageProcessor->createWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+				FMessageProcessor->createMessageWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
 			}
 			accept();
 		}

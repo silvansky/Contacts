@@ -286,7 +286,7 @@ void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AS
 	if (page)
 	{
 		page->appendNewMail(AStanza);
-		if (!page->isActive())
+		if (!page->isActiveTabPage())
 		{
 			IRosterIndex *mindex = FNotifyPages.key(page);
 			QDomElement contactElem = AStanza.firstElement("x",NS_RAMBLER_MAIL_NOTICE).firstChildElement("contact");
@@ -459,7 +459,7 @@ CustomMailPage *RamblerMailNotify::getCustomMailPage(const Jid &AStreamJid, cons
 void RamblerMailNotify::showChatWindow(const Jid &AStreamJid, const Jid &AContactJid) const
 {
 	if (FMessageProcessor)
-		FMessageProcessor->createWindow(AStreamJid, AContactJid, Message::Chat, IMessageHandler::SM_SHOW);
+		FMessageProcessor->createMessageWindow(AStreamJid, AContactJid, Message::Chat, IMessageHandler::SM_SHOW);
 }
 
 void RamblerMailNotify::showNotifyPage(const Jid &AStreamJid, const Jid &AServiceJid) const

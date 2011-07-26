@@ -91,6 +91,19 @@ ChatWindow::~ChatWindow()
 	delete FStatusBarWidget->instance();
 }
 
+QString ChatWindow::tabPageId() const
+{
+	return "ChatWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
+}
+
+bool ChatWindow::isActiveTabPage() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
 void ChatWindow::assignTabPage()
 {
 	if (isWindow() && !isVisible())
@@ -123,19 +136,6 @@ void ChatWindow::closeTabPage()
 		close();
 	else
 		emit tabPageClose();
-}
-
-bool ChatWindow::isActive() const
-{
-	const QWidget *widget = this;
-	while (widget->parentWidget())
-		widget = widget->parentWidget();
-	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
-}
-
-QString ChatWindow::tabPageId() const
-{
-	return "ChatWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
 }
 
 QIcon ChatWindow::tabPageIcon() const
@@ -324,7 +324,7 @@ void ChatWindow::showEvent(QShowEvent *AEvent)
 	FShownDetached = isWindow();
 	QMainWindow::showEvent(AEvent);
 	FEditWidget->textEdit()->setFocus();
-	if (isActive())
+	if (isActiveTabPage())
 		emit tabPageActivated();
 }
 

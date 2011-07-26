@@ -2039,7 +2039,7 @@ void RosterChanger::onNotificationActivated(int ANotifyId)
 		{
 			window->showTabPage();
 		}
-		else if (FMessageProcessor==NULL || !FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW))
+		else if (FMessageProcessor==NULL || !FMessageProcessor->createMessageWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW))
 		{
 			SubscriptionDialog *dialog = createSubscriptionDialog(streamJid,contactJid,notify.data.value(NDR_POPUP_TEXT).toString(),notify.data.value(NDR_SUBSCRIPTION_TEXT).toString());
 			if (dialog)
@@ -2157,7 +2157,7 @@ void RosterChanger::onShowPendingChatNotices()
 			{
 				showNotifyInChatWindow(window,pnotice.notify,pnotice.text);
 			}
-			if (window->isActive())
+			if (window->isActiveTabPage())
 				removeNotifies(window);
 		}
 	}

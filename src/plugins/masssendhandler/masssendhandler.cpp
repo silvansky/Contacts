@@ -139,7 +139,7 @@ bool MassSendHandler::showMessage(int AMessageId)
 	Message message = FMessageProcessor->messageById(AMessageId);
 	Jid streamJid = message.to();
 	Jid contactJid = message.from();
-	createWindow(MHO_NORMALMESSAGEHANDLER,streamJid,contactJid,message.type(), 0);
+	createMessageWindow(MHO_NORMALMESSAGEHANDLER,streamJid,contactJid,message.type(), 0);
 	return true;
 }
 
@@ -157,7 +157,7 @@ bool MassSendHandler::receiveMessage(int AMessageId)
 	return true;
 }
 
-INotification MassSendHandler::notification(INotifications *ANotifications, const Message &AMessage)
+INotification MassSendHandler::notifyMessage(INotifications *ANotifications, const Message &AMessage)
 {
 	IconStorage *storage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	QIcon icon =  storage->getIcon(MNI_NORMAL_MHANDLER_MESSAGE);
@@ -180,7 +180,7 @@ INotification MassSendHandler::notification(INotifications *ANotifications, cons
 	return notify;
 }
 
-bool MassSendHandler::createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
+bool MassSendHandler::createMessageWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
 {
 	Q_UNUSED(AOrder);
 	Q_UNUSED(AContactJid)
@@ -339,7 +339,7 @@ void MassSendHandler::onShowWindowAction(bool)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-		createWindow(MHO_NORMALMESSAGEHANDLER, streamJid, contactJid, Message::Normal, 0);
+		createMessageWindow(MHO_NORMALMESSAGEHANDLER, streamJid, contactJid, Message::Normal, 0);
 
 		QString group = action->data(ADR_GROUP).toString();
 		if (!group.isEmpty())

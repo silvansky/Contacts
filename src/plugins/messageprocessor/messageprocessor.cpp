@@ -247,10 +247,10 @@ void MessageProcessor::messageToText(QTextDocument *ADocument, const Message &AM
 	}
 }
 
-bool MessageProcessor::createWindow(const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) const
+bool MessageProcessor::createMessageWindow(const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) const
 {
 	for (QMultiMap<int, IMessageHandler *>::const_iterator it = FMessageHandlers.constBegin(); it!=FMessageHandlers.constEnd(); it++)
-		if (it.value()->createWindow(it.key(),AStreamJid,AContactJid,AType,AShowMode))
+		if (it.value()->createMessageWindow(it.key(),AStreamJid,AContactJid,AType,AShowMode))
 			return true;
 	return false;
 }
@@ -314,7 +314,7 @@ void MessageProcessor::notifyMessage(int AMessageId)
 		{
 			const Message &message = FMessages.value(AMessageId);
 			IMessageHandler *handler = FHandlerForMessage.value(AMessageId);
-			INotification notify = handler->notification(FNotifications, message);
+			INotification notify = handler->notifyMessage(FNotifications, message);
 			if (notify.kinds > 0)
 			{
 				notifyId = FNotifications->appendNotification(notify);

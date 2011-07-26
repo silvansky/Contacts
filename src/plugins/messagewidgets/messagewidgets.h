@@ -85,7 +85,7 @@ public:
 	virtual QString tabWindowName(const QUuid &AWindowId) const;
 	virtual void setTabWindowName(const QUuid &AWindowId, const QString &AName);
 	virtual QList<ITabWindow *> tabWindows() const;
-	virtual ITabWindow *createTabWindow(const QUuid &AWindowId);
+	virtual ITabWindow *newTabWindow(const QUuid &AWindowId);
 	virtual ITabWindow *findTabWindow(const QUuid &AWindowId) const;
 	virtual ITabWindow *assignTabWindowPage(ITabPage *APage);
 	virtual QList<IViewDropHandler *> viewDropHandlers() const;

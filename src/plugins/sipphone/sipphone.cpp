@@ -1599,7 +1599,7 @@ void SipPhone::showCallControlTab(const QString& sid/*const ISipStream &AStream*
 
 	ISipStream& stream = FStreams[sid];
 
-	if(!FMessageProcessor->createWindow(stream.streamJid, stream.contactJid, Message::Chat,IMessageHandler::SM_SHOW))
+	if(!FMessageProcessor->createMessageWindow(stream.streamJid, stream.contactJid, Message::Chat,IMessageHandler::SM_SHOW))
 		return;
 
 	//IMetaRoster* iMetaRoster = FMetaContacts->findMetaRoster(stream.streamJid);

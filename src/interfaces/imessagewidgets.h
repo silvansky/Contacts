@@ -236,12 +236,12 @@ class ITabPage
 {
 public:
 	virtual QWidget *instance() =0;
+	virtual QString tabPageId() const =0;
+	virtual bool isActiveTabPage() const =0;
 	virtual void assignTabPage() =0;
 	virtual void showTabPage() =0;
 	virtual void showMinimizedTabPage() =0;
 	virtual void closeTabPage() =0;
-	virtual bool isActive() const =0;
-	virtual QString tabPageId() const =0;
 	virtual QIcon tabPageIcon() const =0;
 	virtual QString tabPageCaption() const =0;
 	virtual QString tabPageToolTip() const =0;
@@ -419,7 +419,7 @@ public:
 	virtual QString tabWindowName(const QUuid &AWindowId) const =0;
 	virtual void setTabWindowName(const QUuid &AWindowId, const QString &AName) =0;
 	virtual QList<ITabWindow *> tabWindows() const =0;
-	virtual ITabWindow *createTabWindow(const QUuid &AWindowId) =0;
+	virtual ITabWindow *newTabWindow(const QUuid &AWindowId) =0;
 	virtual ITabWindow *findTabWindow(const QUuid &AWindowId) const =0;
 	virtual ITabWindow *assignTabWindowPage(ITabPage *APage) =0;
 	virtual QList<IViewDropHandler *> viewDropHandlers() const =0;

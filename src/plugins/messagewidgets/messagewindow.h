@@ -18,8 +18,8 @@
 #include "ui_messagewindow.h"
 
 class MessageWindow :
-			public QMainWindow,
-			public IMessageWindow
+	public QMainWindow,
+	public IMessageWindow
 {
 	Q_OBJECT;
 	Q_INTERFACES(IMessageWindow ITabPage);
@@ -28,12 +28,12 @@ public:
 	virtual ~MessageWindow();
 	virtual QMainWindow *instance() { return this; }
 	//ITabPage
+	virtual QString tabPageId() const;
+	virtual bool isActiveTabPage() const;
 	virtual void assignTabPage();
 	virtual void showTabPage();
 	virtual void showMinimizedTabPage();
 	virtual void closeTabPage();
-	virtual bool isActive() const;
-	virtual QString tabPageId() const;
 	virtual QIcon tabPageIcon() const;
 	virtual QString tabPageCaption() const;
 	virtual QString tabPageToolTip() const;

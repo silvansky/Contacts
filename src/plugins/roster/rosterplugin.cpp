@@ -243,7 +243,7 @@ void RosterPlugin::onNotificationActivated(int ANotifyId)
 		if (FMessageProcessor)
 		{
 			INotification notify = FNotifications->notificationById(ANotifyId);
-			FMessageProcessor->createWindow(notify.data.value(NDR_STREAM_JID).toString(),notify.data.value(NDR_CONTACT_JID).toString(),Message::Chat,IMessageHandler::SM_SHOW);
+			FMessageProcessor->createMessageWindow(notify.data.value(NDR_STREAM_JID).toString(),notify.data.value(NDR_CONTACT_JID).toString(),Message::Chat,IMessageHandler::SM_SHOW);
 		}
 		FNotifications->removeNotification(ANotifyId);
 	}

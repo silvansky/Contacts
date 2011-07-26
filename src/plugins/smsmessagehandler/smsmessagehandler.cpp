@@ -359,7 +359,7 @@ bool SmsMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 bool SmsMessageHandler::showMessage(int AMessageId)
 {
 	Message message = FMessageProcessor->messageById(AMessageId);
-	return createWindow(MHO_SMSMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
+	return createMessageWindow(MHO_SMSMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
 }
 
 bool SmsMessageHandler::receiveMessage(int AMessageId)
@@ -371,7 +371,7 @@ bool SmsMessageHandler::receiveMessage(int AMessageId)
 	{
 		StyleExtension extension;
 		WindowStatus &wstatus = FWindowStatus[window];
-		if (!window->isActive())
+		if (!window->isActiveTabPage())
 		{
 			notify = true;
 			extension.extensions = IMessageContentOptions::Unread;
@@ -394,7 +394,7 @@ bool SmsMessageHandler::receiveMessage(int AMessageId)
 	return notify;
 }
 
-INotification SmsMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
+INotification SmsMessageHandler::notifyMessage(INotifications *ANotifications, const Message &AMessage)
 {
 	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
 	WindowStatus &wstatus = FWindowStatus[window];
@@ -463,7 +463,7 @@ INotification SmsMessageHandler::notification(INotifications *ANotifications, co
 	return notify;
 }
 
-bool SmsMessageHandler::createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
+bool SmsMessageHandler::createMessageWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
 {
 	Q_UNUSED(AOrder);
 	if (AType==Message::Chat && isSmsContact(AStreamJid,AContactJid))

@@ -76,6 +76,19 @@ MessageWindow::~MessageWindow()
 	delete FEditToolBarWidget->instance();
 }
 
+QString MessageWindow::tabPageId() const
+{
+	return "MessageWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
+}
+
+bool MessageWindow::isActiveTabPage() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
 void MessageWindow::assignTabPage()
 {
 	emit assignTabPage();
@@ -105,19 +118,6 @@ void MessageWindow::closeTabPage()
 		close();
 	else
 		emit tabPageClose();
-}
-
-bool MessageWindow::isActive() const
-{
-	const QWidget *widget = this;
-	while (widget->parentWidget())
-		widget = widget->parentWidget();
-	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
-}
-
-QString MessageWindow::tabPageId() const
-{
-	return "MessageWindow|"+FStreamJid.pBare()+"|"+FContactJid.pBare();
 }
 
 QIcon MessageWindow::tabPageIcon() const
@@ -300,7 +300,7 @@ void MessageWindow::showEvent(QShowEvent *AEvent)
 	QMainWindow::showEvent(AEvent);
 	if (FMode == WriteMode)
 		FEditWidget->textEdit()->setFocus();
-	if (isActive())
+	if (isActiveTabPage())
 		emit tabPageActivated();
 }
 

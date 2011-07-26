@@ -685,7 +685,7 @@ void ChatStates::onUpdateSelfStates()
 		{
 			ChatParams &params = FChatParams[window->streamJid()][window->contactJid()];
 			uint timePassed = QDateTime::currentDateTime().toTime_t() - params.selfLastActive;
-			if (params.selfState==IChatStates::StateActive && window->isActive())
+			if (params.selfState==IChatStates::StateActive && window->isActiveTabPage())
 			{
 				setSelfState(window->streamJid(),window->contactJid(),IChatStates::StateActive);
 			}

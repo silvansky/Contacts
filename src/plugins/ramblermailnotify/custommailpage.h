@@ -24,12 +24,12 @@ public:
 	~CustomMailPage();
 	//ITabPage
 	virtual QWidget *instance() { return this; }
+	virtual QString tabPageId() const;
+	virtual bool isActiveTabPage() const;
 	virtual void assignTabPage();
 	virtual void showTabPage();
 	virtual void showMinimizedTabPage();
 	virtual void closeTabPage();
-	virtual bool isActive() const;
-	virtual QString tabPageId() const;
 	virtual QIcon tabPageIcon() const;
 	virtual QString tabPageCaption() const;
 	virtual QString tabPageToolTip() const;

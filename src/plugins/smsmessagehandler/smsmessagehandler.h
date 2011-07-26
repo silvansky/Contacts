@@ -112,8 +112,8 @@ public:
 	virtual bool checkMessage(int AOrder, const Message &AMessage);
 	virtual bool showMessage(int AMessageId);
 	virtual bool receiveMessage(int AMessageId);
-	virtual INotification notification(INotifications *ANotifications, const Message &AMessage);
-	virtual bool createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
+	virtual INotification notifyMessage(INotifications *ANotifications, const Message &AMessage);
+	virtual bool createMessageWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
 	//SmsMessageHandler
 	virtual bool isSmsContact(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual int smsBalance(const Jid &AStreamJid, const Jid &AServiceJid) const;

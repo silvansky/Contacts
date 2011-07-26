@@ -37,6 +37,19 @@ CustomMailPage::~CustomMailPage()
 	emit tabPageDestroyed();
 }
 
+QString CustomMailPage::tabPageId() const
+{
+	return "CustomMailPage|"+streamJid().pBare()+"|"+serviceJid().pBare();
+}
+
+bool CustomMailPage::isActiveTabPage() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
 void CustomMailPage::assignTabPage()
 {
 	if (FMessageWidgets && isWindow() && !isVisible())
@@ -69,19 +82,6 @@ void CustomMailPage::closeTabPage()
 		close();
 	else
 		emit tabPageClose();
-}
-
-bool CustomMailPage::isActive() const
-{
-	const QWidget *widget = this;
-	while (widget->parentWidget())
-		widget = widget->parentWidget();
-	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
-}
-
-QString CustomMailPage::tabPageId() const
-{
-	return "CustomMailPage|"+streamJid().pBare()+"|"+serviceJid().pBare();
 }
 
 QIcon CustomMailPage::tabPageIcon() const
@@ -135,7 +135,7 @@ bool CustomMailPage::event(QEvent *AEvent)
 void CustomMailPage::showEvent(QShowEvent *AEvent)
 {
 	QWidget::showEvent(AEvent);
-	if (isActive())
+	if (isActiveTabPage())
 		emit tabPageActivated();
 }
 

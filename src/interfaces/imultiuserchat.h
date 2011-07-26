@@ -164,7 +164,7 @@ class IMultiUserChatWindow :
 public:
 	virtual Jid streamJid() const =0;
 	virtual Jid roomJid() const =0;
-	virtual bool isActive() const =0;
+	virtual bool isActiveTabPage() const =0;
 	virtual IViewWidget *viewWidget() const =0;
 	virtual IEditWidget *editWidget() const =0;
 	virtual IMenuBarWidget *menuBarWidget() const =0;

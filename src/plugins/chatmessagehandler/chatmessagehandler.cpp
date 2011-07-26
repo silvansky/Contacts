@@ -320,7 +320,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
-		return FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
+		return FMessageProcessor->createMessageWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
 	}
 	return false;
 }
@@ -337,7 +337,7 @@ bool ChatMessageHandler::showMessage(int AMessageId)
 	if (!window)
 	{
 		Message message = FMessageProcessor->messageById(AMessageId);
-		return createWindow(MHO_CHATMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
+		return createMessageWindow(MHO_CHATMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
 	}
 	else
 	{
@@ -358,7 +358,7 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 		{
 			StyleExtension extension;
 			WindowStatus &wstatus = FWindowStatus[window];
-			if (!window->isActive())
+			if (!window->isActiveTabPage())
 			{
 				notify = true;
 				if (FDestroyTimers.contains(window))
@@ -390,7 +390,7 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 	return notify;
 }
 
-INotification ChatMessageHandler::notification(INotifications *ANotifications, const Message &AMessage)
+INotification ChatMessageHandler::notifyMessage(INotifications *ANotifications, const Message &AMessage)
 {
 	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
 	WindowStatus &wstatus = FWindowStatus[window];
@@ -464,7 +464,7 @@ INotification ChatMessageHandler::notification(INotifications *ANotifications, c
 	return notify;
 }
 
-bool ChatMessageHandler::createWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
+bool ChatMessageHandler::createMessageWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
 {
 	Q_UNUSED(AOrder);
 	if (AType == Message::Chat)
@@ -1035,7 +1035,7 @@ void ChatMessageHandler::onShowWindowAction(bool)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-		FMessageProcessor->createWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
+		FMessageProcessor->createMessageWindow(streamJid,contactJid,Message::Chat,IMessageHandler::SM_SHOW);
 	}
 }
 

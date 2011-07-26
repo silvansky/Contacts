@@ -509,7 +509,7 @@ void TabWindow::onWindowMenuActionTriggered(bool)
 		{
 			ITabPage *page = currentTabPage();
 			removeTabPage(page);
-			ITabWindow *window = FMessageWidgets->createTabWindow(FMessageWidgets->appendTabWindow(name));
+			ITabWindow *window = FMessageWidgets->newTabWindow(FMessageWidgets->appendTabWindow(name));
 			window->addTabPage(page);
 			window->showWindow();
 		}

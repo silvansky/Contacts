@@ -54,6 +54,19 @@ MailNotifyPage::~MailNotifyPage()
 	emit tabPageDestroyed();
 }
 
+QString MailNotifyPage::tabPageId() const
+{
+	return "MailNotifyPage|"+streamJid().pBare()+"|"+serviceJid().pBare();
+}
+
+bool MailNotifyPage::isActiveTabPage() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
 void MailNotifyPage::assignTabPage()
 {
 	if (FMessageWidgets && isWindow() && !isVisible())
@@ -86,19 +99,6 @@ void MailNotifyPage::closeTabPage()
 		close();
 	else
 		emit tabPageClose();
-}
-
-bool MailNotifyPage::isActive() const
-{
-	const QWidget *widget = this;
-	while (widget->parentWidget())
-		widget = widget->parentWidget();
-	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
-}
-
-QString MailNotifyPage::tabPageId() const
-{
-	return "MailNotifyPage|"+streamJid().pBare()+"|"+serviceJid().pBare();
 }
 
 QIcon MailNotifyPage::tabPageIcon() const
@@ -225,7 +225,7 @@ bool MailNotifyPage::event(QEvent *AEvent)
 void MailNotifyPage::showEvent(QShowEvent *AEvent)
 {
 	QWidget::showEvent(AEvent);
-	if (isActive())
+	if (isActiveTabPage())
 		emit tabPageActivated();
 }
 

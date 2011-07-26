@@ -48,6 +48,19 @@ AddMetaItemPage::~AddMetaItemPage()
 	emit tabPageDestroyed();
 }
 
+QString AddMetaItemPage::tabPageId() const
+{
+	return "AddMetaTabPage|"+FMetaTabWindow->metaRoster()->streamJid().pBare()+"|"+FMetaTabWindow->metaId();
+}
+
+bool AddMetaItemPage::isActiveTabPage() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
 void AddMetaItemPage::assignTabPage()
 {
 	emit tabPageAssign();	
@@ -66,19 +79,6 @@ void AddMetaItemPage::showMinimizedTabPage()
 void AddMetaItemPage::closeTabPage()
 {
 	emit tabPageClose();
-}
-
-bool AddMetaItemPage::isActive() const
-{
-	const QWidget *widget = this;
-	while (widget->parentWidget())
-		widget = widget->parentWidget();
-	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
-}
-
-QString AddMetaItemPage::tabPageId() const
-{
-	return "AddMetaTabPage|"+FMetaTabWindow->metaRoster()->streamJid().pBare()+"|"+FMetaTabWindow->metaId();
 }
 
 QIcon AddMetaItemPage::tabPageIcon() const
@@ -155,7 +155,7 @@ bool AddMetaItemPage::event(QEvent *AEvent)
 void AddMetaItemPage::showEvent(QShowEvent *AEvent)
 {
 	QWidget::showEvent(AEvent);
-	if (isActive())
+	if (isActiveTabPage())
 		emit tabPageActivated();
 }
 
@@ -198,7 +198,7 @@ void AddMetaItemPage::onItemWidgetErrorMessageClicked()
 	QString metaId = FMetaTabWindow->metaRoster()->itemMetaContact(FAddWidget->contactJid());
 	if (FMessageProcessor && !metaId.isEmpty())
 	{
-		FMessageProcessor->createWindow(FMetaTabWindow->metaRoster()->streamJid(),FAddWidget->contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+		FMessageProcessor->createMessageWindow(FMetaTabWindow->metaRoster()->streamJid(),FAddWidget->contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
 		FAddWidget->setContactText(QString::null);
 	}
 }

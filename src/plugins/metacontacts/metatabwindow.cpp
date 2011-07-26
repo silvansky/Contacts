@@ -59,6 +59,19 @@ MetaTabWindow::~MetaTabWindow()
 	emit tabPageDestroyed();
 }
 
+QString MetaTabWindow::tabPageId() const
+{
+	return "MetaTabWidget|"+FMetaRoster->streamJid().pBare()+"|"+FMetaId;
+}
+
+bool MetaTabWindow::isActiveTabPage() const
+{
+	const QWidget *widget = this;
+	while (widget->parentWidget())
+		widget = widget->parentWidget();
+	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
+}
+
 void MetaTabWindow::assignTabPage()
 {
 	if (FMessageWidgets && isWindow() && !isVisible())
@@ -91,19 +104,6 @@ void MetaTabWindow::closeTabPage()
 		close();
 	else
 		emit tabPageClose();
-}
-
-bool MetaTabWindow::isActive() const
-{
-	const QWidget *widget = this;
-	while (widget->parentWidget())
-		widget = widget->parentWidget();
-	return isVisible() && widget->isActiveWindow() && !widget->isMinimized() && widget->isVisible();
-}
-
-QString MetaTabWindow::tabPageId() const
-{
-	return "MetaTabWidget|"+FMetaRoster->streamJid().pBare()+"|"+FMetaId;
 }
 
 QIcon MetaTabWindow::tabPageIcon() const
@@ -895,7 +895,7 @@ void MetaTabWindow::showEvent(QShowEvent *AEvent)
 	FShownDetached = isWindow();
 	createFirstPage();
 	QMainWindow::showEvent(AEvent);
-	if (isActive())
+	if (isActiveTabPage())
 		emit tabPageActivated();
 }
 
@@ -977,7 +977,7 @@ void MetaTabWindow::onTabPageNotifierNotifyInserted(int ANotifyId)
 {
 	ITabPageNotifier *notifier = qobject_cast<ITabPageNotifier *>(sender());
 	QString pageId = notifier!=NULL ? widgetPage(notifier->tabPage()) : QString::null;
-	if (FTabPageNotifier && !pageId.isEmpty() && (!isActive() || currentPage()==pageId))
+	if (FTabPageNotifier && !pageId.isEmpty() && (!isActiveTabPage() || currentPage()==pageId))
 	{
 		ITabPageNotify notify = notifier->notifyById(ANotifyId);
 		int notifyId = FTabPageNotifier->insertNotify(notify);
