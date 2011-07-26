@@ -1,6 +1,8 @@
 include(../config.inc)
+include(../install.inc)
 
 TARGET             = $$TARGET_UTILS
+VERSION            = $$VERSION_UTILS
 
 TEMPLATE           = lib
 CONFIG            += dll
@@ -23,16 +25,15 @@ INCLUDEPATH       += .. ../thirdparty/zlib
 DESTDIR            = ../libs
 include(utils.pri)
 
+#Windows resources
+win32:RC_FILE      = utils.rc
+
 #Translation
 TRANS_SOURCE_ROOT  = ..
 include(../translations.inc)
 
 #Install (for Mac OS X - in loader.pro)
 !macx:{
-  include(../install.inc)
   target.path      = $$INSTALL_LIBS
-  INSTALLS         = target
+  INSTALLS        += target
 }
-
-win32:RC_FILE      = utils.rc
-

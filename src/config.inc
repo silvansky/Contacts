@@ -1,55 +1,42 @@
 TARGET_LOADER            = ramblercontacts
 
 TARGET_UTILS             = ramblercontactsutils
+unix:!macx:VERSION_UTILS = 1.0.0
 
 macx:CONFIG             += x86
 
 #Configurable values
 isEmpty(INSTALL_PREFIX) {
   win32:INSTALL_PREFIX   = "c:"
-  unix:!macx {
-    INSTALL_PREFIX   = /usr/local
-  }
+  unix: INSTALL_PREFIX   = /usr/local
   macx: INSTALL_PREFIX   = /Applications
 }
 
 isEmpty(INSTALL_APP_DIR) {
   win32:INSTALL_APP_DIR  = ramblercontacts
-  unix:!macx {
-    INSTALL_APP_DIR  = ramblercontacts
-  }
+  unix: INSTALL_APP_DIR  = ramblercontacts
   macx: INSTALL_APP_DIR  = ramblercontacts.app
 }
 
 isEmpty(INSTALL_LIB_DIR) {
   win32:INSTALL_LIB_DIR  = .
-  unix:!macx {
-    UNAME                = $$system(uname -m)
-    contains( UNAME, x86_64 ): LIB_SUFFIX = 64
-    INSTALL_LIB_DIR      = lib$${LIB_SUFFIX}
-  }
+  unix: INSTALL_LIB_DIR  = lib
   macx: INSTALL_LIB_DIR  = Frameworks
 }
 
 isEmpty(INSTALL_RES_DIR) {
   win32:INSTALL_RES_DIR  = .
-  unix:!macx {
-    INSTALL_RES_DIR  = share
-  }
+  unix: INSTALL_RES_DIR  = share
   macx: INSTALL_RES_DIR  = Resources
 }
 
-CONFIG(debug) {
-  DEFINES += DEBUG_ENABLED
-}
-
-DEFINES += LOG_ENABLED
-
 #Preprocessor definations
+DEFINES                 += LOG_ENABLED
 CONFIG(debug, debug|release) {
+  DEFINES               += DEBUG_ENABLED
   DEFINES               += PLUGINS_DIR='\\\"./plugins\\\"'
   DEFINES               += RESOURCES_DIR='\\\"./resources\\\"'
-  DEFINES               += TRANSLATIONS_DIR='\\\"./translations\\\"'
+  DEFINES               += TRANSLATIONS_DIR='\\\"./src/translations\\\"'
 } else:win32 {
   DEFINES               += PLUGINS_DIR='\\\"./$${INSTALL_LIB_DIR}/plugins\\\"'
   DEFINES               += RESOURCES_DIR='\\\"./$${INSTALL_RES_DIR}/resources\\\"'

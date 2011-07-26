@@ -1,13 +1,10 @@
 include(../config.inc)
+include(../install.inc)
 
 TARGET             = $$TARGET_LOADER
 TEMPLATE           = app
 QT                += xml network
-
-macx: {
-  QT              += webkit
-}
-
+macx:QT           += webkit
 LIBS              += -L../libs
 LIBS              += -l$$TARGET_UTILS
 win32:LIBS        += -lholdemutils -lAdvapi32 -lUser32 -lOle32
@@ -25,12 +22,14 @@ SVN_REVISION=$$system(svnversion -n -c ./../../)
 win32 {
   exists(svninfo.h):system(del svninfo.h)
   !isEmpty(SVN_REVISION):system(echo $${LITERAL_HASH}define SVN_REVISION \"$$SVN_REVISION\" >> svninfo.h) {
-    DEFINES       += SVNINFO
+    DEFINES         += SVNINFO
+    QMAKE_DISTCLEAN += svninfo.h
   }
 } else {
   exists(svninfo.h):system(rm -f svninfo.h)
   !isEmpty(SVN_REVISION):system(echo \\$${LITERAL_HASH}define SVN_REVISION \\\"$${SVN_REVISION}\\\" >> svninfo.h) {
-    DEFINES       += SVNINFO
+    DEFINES         += SVNINFO
+    QMAKE_DISTCLEAN += svninfo.h
   }
 }
 
@@ -39,15 +38,12 @@ TRANS_SOURCE_ROOT  = ..
 include(../translations.inc)
 
 #Install
-include(../install.inc)
 target.path        = $$INSTALL_BINS
 resources.path     = $$INSTALL_RESOURCES
 resources.files    = ../../resources/*
 documents.path     = $$INSTALL_DOCUMENTS
-documents.files    = ../../AUTHORS ../../CHANGELOG ../../README ../../COPYING
-translations.path  = $$INSTALL_TRANSLATIONS
-translations.files = ../../translations/*
-INSTALLS           = target resources documents translations
+documents.files    = ../../COPYING
+INSTALLS          += target resources documents
 
 #Linux desktop install
 unix:!macx {
