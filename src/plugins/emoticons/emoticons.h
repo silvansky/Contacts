@@ -6,7 +6,6 @@
 #include <definitions/actiongroups.h>
 #include <definitions/toolbargroups.h>
 #include <definitions/messagewriterorders.h>
-#include <definitions/resourceloaderorders.h>
 #include <definitions/optionvalues.h>
 #include <definitions/optionnodes.h>
 #include <definitions/optionnodeorders.h>
@@ -32,11 +31,11 @@ struct EmoticonTreeItem
 };
 
 class Emoticons :
-			public QObject,
-			public IPlugin,
-			public IEmoticons,
-			public IMessageWriter,
-			public IOptionsHolder
+	public QObject,
+	public IPlugin,
+	public IEmoticons,
+	public IMessageWriter,
+	public IOptionsHolder
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IEmoticons IMessageWriter IOptionsHolder)

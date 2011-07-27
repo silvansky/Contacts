@@ -4,7 +4,6 @@
 #include <definitions/namespaces.h>
 #include <definitions/actiongroups.h>
 #include <definitions/rosterindextyperole.h>
-#include <definitions/multiuserdataroles.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/xmppurihandlerorders.h>
@@ -13,7 +12,6 @@
 #include <interfaces/ivcard.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/irostersview.h>
-#include <interfaces/imultiuserchat.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/iservicediscovery.h>
 #include <interfaces/ixmppuriqueries.h>
@@ -42,11 +40,11 @@ struct VCardItem
 };
 
 class VCardPlugin :
-			public QObject,
-			public IPlugin,
-			public IVCardPlugin,
-			public IStanzaRequestOwner,
-			public IXmppUriHandler
+	public QObject,
+	public IPlugin,
+	public IVCardPlugin,
+	public IStanzaRequestOwner,
+	public IXmppUriHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IVCardPlugin IStanzaRequestOwner IXmppUriHandler)
@@ -88,13 +86,10 @@ protected:
 	void registerDiscoFeatures();
 protected slots:
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
-	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 	void onShowVCardDialogByAction(bool);
-	void onShowVCardDialogByChatWindowAction(bool);
 	void onVCardDialogDestroyed(QObject *ADialog);
 	void onSimpleVCardDialogDestroyed(QObject *ADialog);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
-	void onChatWindowCreated(IChatWindow *AWindow);
 	void onBinaryCached(const QString &AContentId, const QString &AType, const QByteArray &AData, quint64 AMaxAge);
 private:
 	IPluginManager *FPluginManager;
@@ -102,10 +97,8 @@ private:
 	IRostersView *FRostersView;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IStanzaProcessor *FStanzaProcessor;
-	IMultiUserChatPlugin *FMultiUserChatPlugin;
 	IServiceDiscovery *FDiscovery;
 	IXmppUriQueries *FXmppUriQueries;
-	IMessageWidgets *FMessageWidgets;
 	IBitsOfBinary *FBitsOfBinary;
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;

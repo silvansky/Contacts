@@ -16,7 +16,6 @@
 #include <interfaces/itraymanager.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/iaccountmanager.h>
-#include <interfaces/imessagearchiver.h>
 #include <interfaces/ivcard.h>
 #include <utils/options.h>
 #include <utils/widgetmanager.h>
@@ -36,11 +35,11 @@
 #include "masssenddialog.h"
 
 class MessageWidgets :
-			public QObject,
-			public IPlugin,
-			public IMessageWidgets,
-			public IOptionsHolder,
-			public IViewUrlHandler
+	public QObject,
+	public IPlugin,
+	public IMessageWidgets,
+	public IOptionsHolder,
+	public IViewUrlHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IMessageWidgets IOptionsHolder IViewUrlHandler)
@@ -152,10 +151,9 @@ private:
 	IXmppStreams *FXmppStreams;
 	ITrayManager *FTrayManager;
 	IOptionsManager *FOptionsManager;
-	IMainWindowPlugin * FMainWindowPlugin;
-	IAccountManager * FAccountManager;
-	IMessageArchiver * FMessageArchiver;
-	IVCardPlugin * FVCardPlugin;
+	IMainWindowPlugin *FMainWindowPlugin;
+	IAccountManager *FAccountManager;
+	IVCardPlugin *FVCardPlugin;
 private:
 	QList<ITabWindow *> FTabWindows;
 	QList<IChatWindow *> FChatWindows;

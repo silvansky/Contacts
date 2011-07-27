@@ -2,18 +2,18 @@
 #define STYLESHEETEDITORPLUGIN_H
 
 #include <interfaces/ipluginmanager.h>
-#include <interfaces/istylesheeteditor.h>
 #include <interfaces/imainwindow.h>
 #include <utils/action.h>
 #include "stylesheeteditor.h"
 
+#define STYLESHEETEDITOR_UUID		"{dcdd7857-af0e-4ccd-bfb4-fb1b7cbbb955}"
+
 class StyleSheetEditorPlugin :
-		public QObject,
-		public IPlugin,
-		public IStyleSheetEditorPlugin
+	public QObject,
+	public IPlugin
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IStyleSheetEditorPlugin)
+	Q_INTERFACES(IPlugin)
 public:
 	StyleSheetEditorPlugin();
 	~StyleSheetEditorPlugin();

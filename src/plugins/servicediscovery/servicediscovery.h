@@ -8,18 +8,9 @@
 #include <QMultiMap>
 #include <definitions/version.h>
 #include <definitions/namespaces.h>
-#include <definitions/rosterindextyperole.h>
-#include <definitions/rosterlabelorders.h>
-#include <definitions/rosterclickhookerorders.h>
-#include <definitions/multiuserdataroles.h>
-#include <definitions/actiongroups.h>
-#include <definitions/toolbargroups.h>
-#include <definitions/rostertooltiporders.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
-#include <definitions/serviceicons.h>
 #include <definitions/stanzahandlerorders.h>
-#include <definitions/xmppurihandlerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/iservicediscovery.h>
 #include <interfaces/ixmppstreams.h>
@@ -27,15 +18,8 @@
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/irostersview.h>
-#include <interfaces/imultiuserchat.h>
-#include <interfaces/imainwindow.h>
-#include <interfaces/itraymanager.h>
-#include <interfaces/istatusicons.h>
-#include <interfaces/ixmppuriqueries.h>
 #include <utils/errorhandler.h>
 #include <utils/iconstorage.h>
-#include "discoinfowindow.h"
-#include "discoitemswindow.h"
 
 struct DiscoveryRequest {
 	Jid streamJid;
@@ -55,17 +39,15 @@ struct EntityCapabilities {
 };
 
 class ServiceDiscovery :
-			public QObject,
-			public IPlugin,
-			public IServiceDiscovery,
-			public IStanzaHandler,
-			public IStanzaRequestOwner,
-			public IXmppUriHandler,
-			public IDiscoHandler,
-			public IRostersClickHooker
+	public QObject,
+	public IPlugin,
+	public IServiceDiscovery,
+	public IStanzaHandler,
+	public IStanzaRequestOwner,
+	public IDiscoHandler
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IServiceDiscovery IStanzaHandler IStanzaRequestOwner IXmppUriHandler IDiscoHandler IRostersClickHooker);
+	Q_INTERFACES(IPlugin IServiceDiscovery IStanzaHandler IStanzaRequestOwner IDiscoHandler);
 public:
 	ServiceDiscovery();
 	~ServiceDiscovery();
@@ -82,22 +64,14 @@ public:
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
 	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
-	//IXmppUriHandler
-	virtual bool xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, const QString &AAction, const QMultiMap<QString, QString> &AParams);
 	//IDiscoHandler
 	virtual void fillDiscoInfo(IDiscoInfo &ADiscoInfo);
 	virtual void fillDiscoItems(IDiscoItems &ADiscoItems);
-	//IRostersClickHooker
-	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 	//IServiceDiscovery
 	virtual IPluginManager *pluginManager() const { return FPluginManager; }
 	virtual IDiscoInfo selfDiscoInfo(const Jid &AStreamJid, const QString &ANode = "") const;
-	virtual void showDiscoInfo(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QWidget *AParent = NULL);
-	virtual void showDiscoItems(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QWidget *AParent = NULL);
 	virtual bool checkDiscoFeature(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, const QString &AFeature, bool ADefault = true);
 	virtual QList<IDiscoInfo> findDiscoInfo(const Jid &AStreamJid, const IDiscoIdentity &AIdentity, const QStringList &AFeatures, const IDiscoItem &AParent) const;
-	virtual QIcon identityIcon(const QList<IDiscoIdentity> &AIdentity) const;
-	virtual QIcon serviceIcon(const Jid &AStreamJid, const Jid AItemJid, const QString &ANode) const;
 	virtual void updateSelfEntityCapabilities();
 	//DiscoHandler
 	virtual void insertDiscoHandler(IDiscoHandler *AHandler);
@@ -122,8 +96,6 @@ public:
 	//DiscoItems
 	virtual bool requestDiscoItems(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode = "");
 signals:
-	void discoItemsWindowCreated(IDiscoItemsWindow *AWindow);
-	void discoItemsWindowDestroyed(IDiscoItemsWindow *AWindow);
 	void discoHandlerInserted(IDiscoHandler *AHandler);
 	void discoHandlerRemoved(IDiscoHandler *AHandler);
 	void featureHandlerInserted(const QString &AFeature, IDiscoFeatureHandler *AHandler);
@@ -150,23 +122,12 @@ protected:
 	bool compareFeatures(const QStringList &AFeatures, const QStringList &AWith) const;
 	void insertStreamMenu(const Jid &AStreamJid);
 	void removeStreamMenu(const Jid &AStreamJid);
-	Action *createDiscoInfoAction(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QObject *AParent) const;
-	Action *createDiscoItemsAction(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QObject *AParent) const;
 protected slots:
 	void onStreamOpened(IXmppStream *AXmppStream);
 	void onStreamClosed(IXmppStream *AXmppStream);
 	void onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onDiscoInfoReceived(const IDiscoInfo &ADiscoInfo);
-	void onMultiUserPresence(IMultiUser *AUser, int AShow, const QString &AStatus);
-	void onMultiUserChatCreated(IMultiUserChat *AMultiChat);
-	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
-	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips);
-	void onShowDiscoInfoByAction(bool);
-	void onShowDiscoItemsByAction(bool);
-	void onDiscoInfoWindowDestroyed(QObject *AObject);
-	void onDiscoItemsWindowDestroyed(IDiscoItemsWindow *AWindow);
 	void onQueueTimerTimeout();
 	void onSelfCapsChanged();
 private:
@@ -175,14 +136,7 @@ private:
 	IRosterPlugin *FRosterPlugin;
 	IPresencePlugin *FPresencePlugin;
 	IStanzaProcessor *FStanzaProcessor;
-	IRostersView *FRostersView;
-	IRostersViewPlugin *FRostersViewPlugin;
-	IMultiUserChatPlugin *FMultiUserChatPlugin;
-	ITrayManager *FTrayManager;
-	IMainWindowPlugin *FMainWindowPlugin;
-	IStatusIcons *FStatusIcons;
 	IDataForms *FDataForms;
-	IXmppUriQueries *FXmppUriQueries;
 private:
 	QTimer FQueueTimer;
 	QMap<Jid ,int> FSHIInfo;
@@ -201,8 +155,6 @@ private:
 	Menu *FDiscoMenu;
 	QList<IDiscoHandler *> FDiscoHandlers;
 	QMap<QString, IDiscoFeature> FDiscoFeatures;
-	QList<DiscoItemsWindow *> FDiscoItemsWindows;
-	QMap<Jid, DiscoInfoWindow *> FDiscoInfoWindows;
 	QMap<QString, QMultiMap<int, IDiscoFeatureHandler *> > FFeatureHandlers;
 };
 

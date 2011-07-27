@@ -10,7 +10,6 @@
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/istatusicons.h>
-#include <interfaces/imessagearchiver.h>
 #include <utils/options.h>
 #include <utils/stylestorage.h>
 #include <utils/errorhandler.h>

@@ -18,17 +18,16 @@
 #include <interfaces/ipresence.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/irostersview.h>
-#include <interfaces/imultiuserchat.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
 #include "iconsoptionswidget.h"
 
 class StatusIcons :
-			public QObject,
-			public IPlugin,
-			public IStatusIcons,
-			public IOptionsHolder,
-			public IRosterDataHolder
+	public QObject,
+	public IPlugin,
+	public IStatusIcons,
+	public IOptionsHolder,
+	public IRosterDataHolder
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IStatusIcons IOptionsHolder IRosterDataHolder);
@@ -79,7 +78,6 @@ protected:
 protected slots:
 	void onStatusIconsChangedTimer();
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
-	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 	void onOptionsOpened();
 	void onOptionsClosed();
 	void onOptionsChanged(const OptionsNode &ANode);
@@ -90,7 +88,6 @@ private:
 	IPresencePlugin *FPresencePlugin;
 	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
-	IMultiUserChatPlugin *FMultiUserChatPlugin;
 	IOptionsManager *FOptionsManager;
 private:
 	Menu *FCustomIconMenu;

@@ -9,7 +9,6 @@
 #include <definitions/rosterdragdropmimetypes.h>
 #include <definitions/rosterdataholderorders.h>
 #include <definitions/rosterfootertextorders.h>
-#include <definitions/multiuserdataroles.h>
 #include <definitions/notificators.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/optionvalues.h>
@@ -26,7 +25,6 @@
 #include <interfaces/irostersmodel.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/iroster.h>
-#include <interfaces/imultiuserchat.h>
 #include <interfaces/inotifications.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/ixmppuriqueries.h>
@@ -194,7 +192,6 @@ protected slots:
 	void onShowPendingChatNotices();
 	void onChatNoticeActionTriggered(bool);
 	void onChatNoticeRemoved(int ANoticeId);
-	void onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu);
 private:
 	IGateways *FGateways;
 	IPluginManager *FPluginManager;
@@ -205,7 +202,6 @@ private:
 	INotifications *FNotifications;
 	IOptionsManager *FOptionsManager;
 	IXmppUriQueries *FXmppUriQueries;
-	IMultiUserChatPlugin *FMultiUserChatPlugin;
 	IMainWindowPlugin *FMainWindowPlugin;
 	IAccountManager *FAccountManager;
 	IMessageWidgets *FMessageWidgets;

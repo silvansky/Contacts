@@ -10,7 +10,6 @@
 #include <definitions/rosterindextyperole.h>
 #include <definitions/discofeaturehandlerorders.h>
 #include <definitions/vcardvaluenames.h>
-#include <definitions/discoitemdataroles.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/soundfiles.h>
@@ -148,8 +147,6 @@ protected slots:
 	void onVCardError(const Jid &AContactJid, const QString &AError);
 	void onDiscoInfoChanged(const IDiscoInfo &AInfo);
 	void onDiscoItemsReceived(const IDiscoItems &AItems);
-	void onDiscoItemsWindowCreated(IDiscoItemsWindow *AWindow);
-	void onDiscoItemContextMenu(const QModelIndex AIndex, Menu *AMenu);
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
 	void onRegisterSuccess(const QString &AId);
 	void onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage);

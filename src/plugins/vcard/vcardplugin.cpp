@@ -9,8 +9,8 @@
 #include <definitions/customborder.h>
 #include <definitions/stylesheets.h>
 
-#define VCARD_DIRNAME		"vcards"
-#define VCARD_TIMEOUT		60000
+#define VCARD_DIRNAME		  "vcards"
+#define VCARD_TIMEOUT		  60000
 #define AVATARS_TIMEOUT		120000
 #define ADR_STREAM_JID		Action::DR_StreamJid
 #define ADR_CONTACT_JID		Action::DR_Parametr1
@@ -22,10 +22,8 @@ VCardPlugin::VCardPlugin()
 	FRostersView = NULL;
 	FRostersViewPlugin = NULL;
 	FStanzaProcessor = NULL;
-	FMultiUserChatPlugin = NULL;
 	FDiscovery = NULL;
 	FXmppUriQueries = NULL;
-	FMessageWidgets = NULL;
 	FBitsOfBinary = NULL;
 	FStatusIcons = NULL;
 	FAvatars = NULL;
@@ -71,17 +69,6 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 	if (plugin)
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("IMultiUserChatPlugin").value(0,NULL);
-	if (plugin)
-	{
-		FMultiUserChatPlugin = qobject_cast<IMultiUserChatPlugin *>(plugin->instance());
-		if (FMultiUserChatPlugin)
-		{
-			connect(FMultiUserChatPlugin->instance(),SIGNAL(multiUserContextMenu(IMultiUserChatWindow *,IMultiUser *, Menu *)),
-				SLOT(onMultiUserContextMenu(IMultiUserChatWindow *,IMultiUser *, Menu *)));
-		}
-	}
-
 	plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
 	if (plugin)
 	{
@@ -92,16 +79,6 @@ bool VCardPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 	if (plugin)
 	{
 		FXmppUriQueries = qobject_cast<IXmppUriQueries *>(plugin->instance());
-	}
-
-	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
-	if (plugin)
-	{
-		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
-		if (FMessageWidgets)
-		{
-			connect(FMessageWidgets->instance(), SIGNAL(chatWindowCreated(IChatWindow *)),SLOT(onChatWindowCreated(IChatWindow *)));
-		}
 	}
 
 	plugin = APluginManager->pluginInterface("IBitsOfBinary").value(0,NULL);
@@ -480,20 +457,6 @@ void VCardPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIn
 	}
 }
 
-void VCardPlugin::onMultiUserContextMenu(IMultiUserChatWindow * /*AWindow*/, IMultiUser *AUser, Menu *AMenu)
-{
-	Action *action = new Action(AMenu);
-	action->setText(tr("vCard"));
-	action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
-	action->setData(ADR_STREAM_JID,AUser->data(MUDR_STREAM_JID));
-	if (!AUser->data(MUDR_REAL_JID).toString().isEmpty())
-		action->setData(ADR_CONTACT_JID,Jid(AUser->data(MUDR_REAL_JID).toString()).bare());
-	else
-		action->setData(ADR_CONTACT_JID,AUser->data(MUDR_CONTACT_JID));
-	AMenu->addAction(action,AG_MUCM_VCARD,true);
-	connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogByAction(bool)));
-}
-
 void VCardPlugin::onShowVCardDialogByAction(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -502,24 +465,6 @@ void VCardPlugin::onShowVCardDialogByAction(bool)
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
 		showSimpleVCardDialog(streamJid,contactJid);
-	}
-}
-
-void VCardPlugin::onShowVCardDialogByChatWindowAction(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		IToolBarWidget *toolBarWidget = qobject_cast<IToolBarWidget *>(action->parent());
-		if (toolBarWidget && toolBarWidget->viewWidget())
-		{
-			bool isMucUser = false;
-			Jid contactJid = toolBarWidget->viewWidget()->contactJid();
-			QList<IMultiUserChatWindow *> windows = FMultiUserChatPlugin!=NULL ? FMultiUserChatPlugin->multiChatWindows() : QList<IMultiUserChatWindow *>();
-			for (int i=0; !isMucUser && i<windows.count(); i++)
-				isMucUser = windows.at(i)->findChatWindow(contactJid)!=NULL;
-			showSimpleVCardDialog(toolBarWidget->viewWidget()->streamJid(), isMucUser ? contactJid : contactJid.bare());
-		}
 	}
 }
 
@@ -544,19 +489,6 @@ void VCardPlugin::onXmppStreamClosed(IXmppStream *AXmppStream)
 	foreach(SimpleVCardDialog *dialog, FSimpleVCardDialogs.values())
 		if (dialog->streamJid() == AXmppStream->streamJid())
 			delete dialog;
-}
-
-void VCardPlugin::onChatWindowCreated(IChatWindow *AWindow)
-{
-	Q_UNUSED(AWindow);
-	//if (AWindow->toolBarWidget() && AWindow->toolBarWidget()->viewWidget())
-	//{
-	//	Action *action = new Action(AWindow->toolBarWidget()->instance());
-	//	action->setText(tr("vCard"));
-	//	action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
-	//	connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogByChatWindowAction(bool)));
-	//	AWindow->toolBarWidget()->toolBarChanger()->insertAction(action,TBG_MWTBW_VCARD_VIEW);
-	//}
 }
 
 void VCardPlugin::onBinaryCached(const QString &AContentId, const QString &AType, const QByteArray &AData, quint64 AMaxAge)

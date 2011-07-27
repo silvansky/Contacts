@@ -34,18 +34,11 @@ ServiceDiscovery::ServiceDiscovery()
 	FRosterPlugin = NULL;
 	FPresencePlugin = NULL;
 	FStanzaProcessor = NULL;
-	FRostersView = NULL;
-	FRostersViewPlugin = NULL;
-	FMultiUserChatPlugin = NULL;
-	FTrayManager = NULL;
-	FMainWindowPlugin = NULL;
-	FStatusIcons = NULL;
 	FDataForms = NULL;
-	FXmppUriQueries = NULL;
-
-	FUpdateSelfCapsStarted = false;
 
 	FDiscoMenu = NULL;
+	FUpdateSelfCapsStarted = false;
+
 	FQueueTimer.setSingleShot(false);
 	FQueueTimer.setInterval(QUEUE_TIMER_INTERVAL);
 	connect(&FQueueTimer,SIGNAL(timeout()),SLOT(onQueueTimerTimeout()));
@@ -106,46 +99,13 @@ bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &/*AI
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("IMultiUserChatPlugin").value(0,NULL);
-	if (plugin)
-	{
-		FMultiUserChatPlugin = qobject_cast<IMultiUserChatPlugin *>(plugin->instance());
-		if (FMultiUserChatPlugin)
-		{
-			connect(FMultiUserChatPlugin->instance(),SIGNAL(multiUserChatCreated(IMultiUserChat *)),
-				SLOT(onMultiUserChatCreated(IMultiUserChat *)));
-			connect(FMultiUserChatPlugin->instance(),SIGNAL(multiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)),
-				SLOT(onMultiUserContextMenu(IMultiUserChatWindow *, IMultiUser *, Menu *)));
-		}
-	}
-
 	plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0,NULL);
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
-	if (plugin)
-		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
-	if (plugin)
-		FStatusIcons = qobject_cast<IStatusIcons *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("ITrayManager").value(0,NULL);
-	if (plugin)
-		FTrayManager = qobject_cast<ITrayManager *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
-	if (plugin)
-		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
-
 	plugin = APluginManager->pluginInterface("IDataForms").value(0,NULL);
 	if (plugin)
 		FDataForms = qobject_cast<IDataForms *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("IXmppUriQueries").value(0,NULL);
-	if (plugin)
-		FXmppUriQueries = qobject_cast<IXmppUriQueries *>(plugin->instance());
 
 	return FXmppStreams!=NULL && FStanzaProcessor!=NULL;
 }
@@ -159,33 +119,6 @@ bool ServiceDiscovery::initObjects()
 
 	registerFeatures();
 	insertDiscoHandler(this);
-
-	if (FRostersViewPlugin)
-	{
-		FRostersView = FRostersViewPlugin->rostersView();
-		FRostersView->insertClickHooker(RCHO_DEFAULT,this);
-		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
-			SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
-		connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &, ToolBarChanger*)),
-			SLOT(onRosterLabelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &)));
-	}
-
-	if (FTrayManager)
-	{
-		//FTrayManager->contextMenu()->addAction(FDiscoMenu->menuAction(),AG_TMTM_DISCOVERY,true);
-	}
-
-	if (FMainWindowPlugin)
-	{
-		//ToolBarChanger *changer = FMainWindowPlugin->mainWindow()->topToolBarChanger();
-		//QToolButton *button = changer->insertAction(FDiscoMenu->menuAction(),TBG_MWTTB_DISCOVERY);
-		//button->setPopupMode(QToolButton::InstantPopup);
-	}
-
-	if (FXmppUriQueries)
-	{
-		FXmppUriQueries->insertUriHandler(this, XUHO_DEFAULT);
-	}
 
 	return true;
 }
@@ -368,26 +301,6 @@ void ServiceDiscovery::stanzaRequestTimeout(const Jid &AStreamJid, const QString
 	}
 }
 
-bool ServiceDiscovery::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, const QString &AAction, const QMultiMap<QString, QString> &AParams)
-{
-	if (AAction == "disco")
-	{
-		QString node = AParams.value("node");
-		QString request = AParams.value("request");
-		QString type = AParams.value("type");
-		if (request=="info" && type=="get")
-		{
-			showDiscoInfo(AStreamJid, AContactJid, node);
-		}
-		else if (request=="items" && type=="get")
-		{
-			showDiscoItems(AStreamJid, AContactJid, node);
-		}
-		return true;
-	}
-	return false;
-}
-
 void ServiceDiscovery::fillDiscoInfo(IDiscoInfo &ADiscoInfo)
 {
 	if (ADiscoInfo.node.isEmpty())
@@ -409,17 +322,6 @@ void ServiceDiscovery::fillDiscoItems(IDiscoItems &ADiscoItems)
 	Q_UNUSED(ADiscoItems);
 }
 
-bool ServiceDiscovery::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
-{
-	Q_UNUSED(AOrder);
-	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-	if (AIndex->type()==RIT_AGENT && FSelfCaps.contains(streamJid))
-	{
-		showDiscoItems(streamJid,AIndex->data(RDR_FULL_JID).toString(),QString::null);
-	}
-	return false;
-}
-
 IDiscoInfo ServiceDiscovery::selfDiscoInfo(const Jid &AStreamJid, const QString &ANode) const
 {
 	IDiscoInfo dinfo;
@@ -436,32 +338,6 @@ IDiscoInfo ServiceDiscovery::selfDiscoInfo(const Jid &AStreamJid, const QString 
 	dinfo.node = ANode;
 
 	return dinfo;
-}
-
-void ServiceDiscovery::showDiscoInfo(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QWidget *AParent)
-{
-	if (FSelfCaps.contains(AStreamJid))
-	{
-		if (FDiscoInfoWindows.contains(AContactJid))
-			FDiscoInfoWindows.take(AContactJid)->close();
-		DiscoInfoWindow *infoWindow = new DiscoInfoWindow(this,AStreamJid,AContactJid,ANode,AParent);
-		connect(infoWindow,SIGNAL(destroyed(QObject *)),SLOT(onDiscoInfoWindowDestroyed(QObject *)));
-		FDiscoInfoWindows.insert(AContactJid,infoWindow);
-		infoWindow->show();
-	}
-}
-
-void ServiceDiscovery::showDiscoItems(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QWidget *AParent)
-{
-	if (FSelfCaps.contains(AStreamJid))
-	{
-		DiscoItemsWindow *itemsWindow = new DiscoItemsWindow(this,AStreamJid,AParent);
-		connect(itemsWindow,SIGNAL(windowDestroyed(IDiscoItemsWindow *)),SLOT(onDiscoItemsWindowDestroyed(IDiscoItemsWindow *)));
-		FDiscoItemsWindows.append(itemsWindow);
-		emit discoItemsWindowCreated(itemsWindow);
-		itemsWindow->discover(AContactJid,ANode);
-		itemsWindow->show();
-	}
 }
 
 bool ServiceDiscovery::checkDiscoFeature(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, const QString &AFeature, bool ADefault)
@@ -486,45 +362,6 @@ QList<IDiscoInfo> ServiceDiscovery::findDiscoInfo(const Jid &AStreamJid, const I
 		}
 	}
 	return result;
-}
-
-QIcon ServiceDiscovery::identityIcon(const QList<IDiscoIdentity> &AIdentity) const
-{
-	QIcon icon;
-	IconStorage *storage = IconStorage::staticStorage(RSR_STORAGE_SERVICEICONS);
-	for (int i=0; icon.isNull() && i<AIdentity.count(); i++)
-	{
-		icon = storage->getIcon(AIdentity.at(i).category +"/"+ AIdentity.at(i).type);
-		if (icon.isNull())
-			icon = storage->getIcon(AIdentity.at(i).category);
-	}
-	if (icon.isNull())
-		icon = storage->getIcon(SRI_SERVICE);
-	return icon;
-}
-
-QIcon ServiceDiscovery::serviceIcon(const Jid &AStreamJid, const Jid AItemJid, const QString &ANode) const
-{
-	QIcon icon;
-	IDiscoInfo info = discoInfo(AStreamJid,AItemJid,ANode);
-	IconStorage *storage = IconStorage::staticStorage(RSR_STORAGE_SERVICEICONS);
-	DiscoveryRequest drequest;
-	drequest.streamJid = AStreamJid;
-	drequest.contactJid = AItemJid;
-	drequest.node = ANode;
-	if (FInfoRequestsId.values().contains(drequest))
-	{
-		icon = storage->getIcon(SRI_SERVICE_WAIT);
-	}
-	else if (info.identity.isEmpty())
-	{
-		icon = storage->getIcon(info.error.code==-1 ? SRI_SERVICE_EMPTY : SRI_SERVICE_ERROR);
-	}
-	else
-	{
-		icon = identityIcon(info.identity);
-	}
-	return icon;
 }
 
 void ServiceDiscovery::updateSelfEntityCapabilities()
@@ -1128,30 +965,6 @@ void ServiceDiscovery::removeStreamMenu(const Jid &AStreamJid)
 	}
 }
 
-Action *ServiceDiscovery::createDiscoInfoAction(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QObject *AParent) const
-{
-	Action *action = new Action(AParent);
-	action->setText(tr("Discovery Info"));
-	action->setIcon(RSR_STORAGE_MENUICONS,MNI_SDISCOVERY_DISCOINFO);
-	action->setData(ADR_STREAMJID,AStreamJid.full());
-	action->setData(ADR_CONTACTJID,AContactJid.full());
-	action->setData(ADR_NODE,ANode);
-	connect(action,SIGNAL(triggered(bool)),SLOT(onShowDiscoInfoByAction(bool)));
-	return action;
-}
-
-Action *ServiceDiscovery::createDiscoItemsAction(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QObject *AParent) const
-{
-	Action *action = new Action(AParent);
-	action->setText(tr("Service Discovery"));
-	action->setIcon(RSR_STORAGE_MENUICONS,MNI_SDISCOVERY_DISCOVER);
-	action->setData(ADR_STREAMJID,AStreamJid.full());
-	action->setData(ADR_CONTACTJID,AContactJid.full());
-	action->setData(ADR_NODE,ANode);
-	connect(action,SIGNAL(triggered(bool)),SLOT(onShowDiscoItemsByAction(bool)));
-	return action;
-}
-
 void ServiceDiscovery::onStreamOpened(IXmppStream *AXmppStream)
 {
 	if (FStanzaProcessor)
@@ -1220,14 +1033,6 @@ void ServiceDiscovery::onStreamClosed(IXmppStream *AXmppStream)
 	request.streamJid = AXmppStream->streamJid();
 	removeQueuedRequest(request);
 
-	foreach(DiscoInfoWindow *infoWindow, FDiscoInfoWindows)
-		if (infoWindow->streamJid() == AXmppStream->streamJid())
-			infoWindow->deleteLater();
-
-	foreach(DiscoItemsWindow *itemsWindow, FDiscoItemsWindows)
-		if (itemsWindow->streamJid() == AXmppStream->streamJid())
-			itemsWindow->deleteLater();
-
 	removeStreamMenu(AXmppStream->streamJid());
 
 	foreach(Jid contactJid, FDiscoInfo.value(AXmppStream->streamJid()).keys()) {
@@ -1277,133 +1082,6 @@ void ServiceDiscovery::onDiscoInfoReceived(const IDiscoInfo &ADiscoInfo)
 	request.contactJid = ADiscoInfo.contactJid;
 	request.node = ADiscoInfo.node;
 	removeQueuedRequest(request);
-}
-
-void ServiceDiscovery::onMultiUserPresence(IMultiUser *AUser, int AShow, const QString &AStatus)
-{
-	Q_UNUSED(AStatus);
-	if (AShow==IPresence::Offline || AShow==IPresence::Error)
-	{
-		bool isSingleUser = true;
-		Jid userStreamJid = AUser->data(MUDR_STREAM_JID).toString();
-		foreach(IMultiUserChat *mchat, FMultiUserChatPlugin->multiUserChats())
-		{
-			IMultiUser *muser = mchat->userByNick(AUser->nickName());
-			if (muser!=NULL && muser!=AUser && mchat->roomJid()==AUser->roomJid() && mchat->streamJid()==userStreamJid)
-			{
-				isSingleUser = false;
-				break;
-			}
-		}
-		if (isSingleUser)
-		{
-			DiscoveryRequest request;
-			request.streamJid = userStreamJid;
-			request.contactJid = AUser->contactJid();
-			removeQueuedRequest(request);
-			removeDiscoInfo(userStreamJid,AUser->contactJid());
-			FEntityCaps[userStreamJid].remove(AUser->contactJid());
-		}
-	}
-}
-
-void ServiceDiscovery::onMultiUserChatCreated(IMultiUserChat *AMultiChat)
-{
-	connect(AMultiChat->instance(), SIGNAL(userPresence(IMultiUser *, int, const QString &)), SLOT(onMultiUserPresence(IMultiUser *, int, const QString &)));
-}
-
-void ServiceDiscovery::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu)
-{
-	Action *action = createDiscoInfoAction(AWindow->streamJid(), AUser->contactJid(), QString::null, AMenu);
-	AMenu->addAction(action, AG_MUCM_DISCOVERY, true);
-}
-
-void ServiceDiscovery::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
-{
-	Q_UNUSED(AIndex);
-	Q_UNUSED(AMenu);
-	Q_UNUSED(ASelected);
-	/*int itype = AIndex->type();
-	if (itype == RIT_STREAM_ROOT || itype == RIT_CONTACT || itype == RIT_AGENT || itype == RIT_MY_RESOURCE)
-	{
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = itype == RIT_STREAM_ROOT ? Jid(AIndex->data(RDR_JID).toString()).domain() : AIndex->data(RDR_JID).toString();
-
-		if (FSelfCaps.contains(streamJid))
-		{
-			Action *action = createDiscoInfoAction(streamJid, contactJid, QString::null, AMenu);
-			AMenu->addAction(action,AG_RVCM_DISCOVERY,true);
-
-			if (itype == RIT_STREAM_ROOT || itype == RIT_AGENT)
-			{
-				action = createDiscoItemsAction(streamJid, contactJid, QString::null, AMenu);
-				AMenu->addAction(action,AG_RVCM_DISCOVERY,true);
-			}
-		}
-
-		IDiscoInfo dinfo = discoInfo(streamJid,contactJid);
-		foreach(QString feature, dinfo.features)
-		{
-			foreach(Action *action, createFeatureActions(streamJid,feature,dinfo,AMenu))
-				AMenu->addAction(action,AG_RVCM_DISCOVERY_FEATURES,true);
-		}
-	}*/
-}
-
-void ServiceDiscovery::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips)
-{
-	if (ALabelId == RLID_DISPLAY)
-	{
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Jid contactJid = AIndex->type()==RIT_STREAM_ROOT ? Jid(AIndex->data(RDR_FULL_JID).toString()).domain() : AIndex->data(RDR_FULL_JID).toString();
-		if (hasDiscoInfo(streamJid,contactJid))
-		{
-			IDiscoInfo dinfo = discoInfo(streamJid,contactJid);
-			foreach(IDiscoIdentity identity, dinfo.identity)
-				if (identity.category != DIC_CLIENT)
-					AToolTips.insertMulti(RTTO_DISCO_IDENTITY,tr("Categoty: %1; Type: %2").arg(Qt::escape(identity.category)).arg(Qt::escape(identity.type)));
-		}
-	}
-}
-
-void ServiceDiscovery::onShowDiscoInfoByAction(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		Jid streamJid = action->data(ADR_STREAMJID).toString();
-		Jid contactJid = action->data(ADR_CONTACTJID).toString();
-		QString node = action->data(ADR_NODE).toString();
-		showDiscoInfo(streamJid,contactJid,node);
-	}
-}
-
-void ServiceDiscovery::onShowDiscoItemsByAction(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		Jid streamJid = action->data(ADR_STREAMJID).toString();
-		Jid contactJid = action->data(ADR_CONTACTJID).toString();
-		QString node = action->data(ADR_NODE).toString();
-		showDiscoItems(streamJid,contactJid,node);
-	}
-}
-
-void ServiceDiscovery::onDiscoInfoWindowDestroyed(QObject *AObject)
-{
-	DiscoInfoWindow *infoWindow = static_cast<DiscoInfoWindow *>(AObject);
-	FDiscoInfoWindows.remove(FDiscoInfoWindows.key(infoWindow));
-}
-
-void ServiceDiscovery::onDiscoItemsWindowDestroyed(IDiscoItemsWindow *AWindow)
-{
-	DiscoItemsWindow *itemsWindow = static_cast<DiscoItemsWindow *>(AWindow->instance());
-	if (itemsWindow)
-	{
-		FDiscoItemsWindows.removeAt(FDiscoItemsWindows.indexOf(itemsWindow));
-		emit discoItemsWindowDestroyed(itemsWindow);
-	}
 }
 
 void ServiceDiscovery::onQueueTimerTimeout()

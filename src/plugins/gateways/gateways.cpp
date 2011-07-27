@@ -77,8 +77,6 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 				SLOT(onDiscoInfoChanged(const IDiscoInfo &)));
 			connect(FDiscovery->instance(),SIGNAL(discoItemsReceived(const IDiscoItems &)),
 				SLOT(onDiscoItemsReceived(const IDiscoItems &)));
-			connect(FDiscovery->instance(),SIGNAL(discoItemsWindowCreated(IDiscoItemsWindow *)),
-				SLOT(onDiscoItemsWindowCreated(IDiscoItemsWindow *)));
 		}
 	}
 
@@ -1753,55 +1751,6 @@ void Gateways::onDiscoItemsReceived(const IDiscoItems &AItems)
 				FDiscovery->requestDiscoInfo(AItems.streamJid,ditem.itemJid);
 		FStreamDiscoItems.insert(AItems.streamJid,AItems);
 		emit availServicesChanged(AItems.streamJid);
-	}
-}
-
-void Gateways::onDiscoItemsWindowCreated(IDiscoItemsWindow *AWindow)
-{
-	connect(AWindow->instance(),SIGNAL(indexContextMenu(const QModelIndex &, Menu *)),
-		SLOT(onDiscoItemContextMenu(const QModelIndex &, Menu *)));
-}
-
-void Gateways::onDiscoItemContextMenu(QModelIndex AIndex, Menu *AMenu)
-{
-	Jid itemJid = AIndex.data(DIDR_JID).toString();
-	QString itemNode = AIndex.data(DIDR_NODE).toString();
-	if (itemJid.node().isEmpty() && itemNode.isEmpty())
-	{
-		Jid streamJid = AIndex.data(DIDR_STREAM_JID).toString();
-		IDiscoInfo dinfo = FDiscovery->discoInfo(streamJid,itemJid,itemNode);
-		if (dinfo.error.code<0 && !dinfo.identity.isEmpty())
-		{
-			QList<Jid> services;
-			foreach(IDiscoIdentity ident, dinfo.identity)
-				services += streamServices(streamJid,ident);
-
-			foreach(Jid service, streamServices(streamJid))
-				if (!services.contains(service) && FDiscovery->discoInfo(streamJid,service).identity.isEmpty())
-					services.append(service);
-
-			if (!services.isEmpty() && !services.contains(itemJid))
-			{
-				Menu *change = new Menu(AMenu);
-				change->setTitle(tr("Use instead of"));
-				change->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_CHANGE);
-				foreach(Jid service, services)
-				{
-					Action *action = new Action(change);
-					action->setText(service.full());
-					if (FStatusIcons!=NULL)
-						action->setIcon(FStatusIcons->iconByJid(streamJid,service));
-					else
-						action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_LOG_IN);
-					action->setData(ADR_STREAM_JID,streamJid.full());
-					action->setData(ADR_SERVICE_JID,service.full());
-					action->setData(ADR_NEW_SERVICE_JID,itemJid.full());
-					connect(action,SIGNAL(triggered(bool)),SLOT(onChangeActionTriggered(bool)));
-					change->addAction(action,AG_DEFAULT,true);
-				}
-				AMenu->addAction(change->menuAction(),TBG_DIWT_DISCOVERY_ACTIONS,true);
-			}
-		}
 	}
 }
 

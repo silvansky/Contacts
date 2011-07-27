@@ -11,6 +11,9 @@ MessageWidgets::MessageWidgets()
 	FXmppStreams = NULL;
 	FTrayManager = NULL;
 	FOptionsManager = NULL;
+	FMainWindowPlugin = NULL;
+	FAccountManager = NULL;
+	FVCardPlugin = NULL;
 }
 
 MessageWidgets::~MessageWidgets()
@@ -64,24 +67,12 @@ bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &/*AIni
 	if (plugin)
 	{
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
-		if (FMainWindowPlugin)
-		{
-//			Action * action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
-//			action->setText(tr("Mass send"));
-//			FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action);
-//			connect(action, SIGNAL(triggered()), SLOT(onMassSend()));
-		}
 	}
+
 	plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);
 	if (plugin)
 	{
 		FAccountManager = qobject_cast<IAccountManager*>(plugin->instance());
-	}
-
-	plugin = APluginManager->pluginInterface("IMessageArchiver").value(0,NULL);
-	if (plugin)
-	{
-		FMessageArchiver = qobject_cast<IMessageArchiver*>(plugin->instance());
 	}
 
 	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
@@ -130,10 +121,6 @@ QMultiMap<int, IOptionsWidget *> MessageWidgets::optionsWidgets(const QString &A
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_MESSAGES)
 	{
-		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_TABWINDOWS_ENABLE),tr("Enable tab windows"),AParent));
-		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_SHOWSTATUS),tr("Show status changes in chat windows"),AParent));
-		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_EDITORAUTORESIZE),tr("Auto resize input field"),AParent));
-		//widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_SHOWINFOWIDGET),tr("Show contact information in chat windows"),AParent));
 		widgets.insertMulti(OWO_MESSAGES, FOptionsManager->optionsHeaderWidget(QString::null,tr("Select the method of sending messages"),AParent));
 		widgets.insertMulti(OWO_MESSAGES, new MessengerOptions(AParent));
 	}

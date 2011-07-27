@@ -99,12 +99,8 @@ public:
 	virtual QObject *instance() =0;
 	virtual IPluginManager *pluginManager() const =0;
 	virtual IDiscoInfo selfDiscoInfo(const Jid &AStreamJid, const QString &ANode = "") const =0;
-	virtual void showDiscoInfo(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QWidget *AParent = NULL) =0;
-	virtual void showDiscoItems(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, QWidget *AParent = NULL) =0;
 	virtual bool checkDiscoFeature(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode, const QString &AFeature, bool ADefault = true) =0;
 	virtual QList<IDiscoInfo> findDiscoInfo(const Jid &AStreamJid, const IDiscoIdentity &AIdentity, const QStringList &AFeatures, const IDiscoItem &AParent) const =0;
-	virtual QIcon identityIcon(const QList<IDiscoIdentity> &AIdentity) const =0;
-	virtual QIcon serviceIcon(const Jid &AStreamJid, const Jid AItemJid, const QString &ANode) const =0;
 	virtual void updateSelfEntityCapabilities() =0;
 	//DiscoHandler
 	virtual void insertDiscoHandler(IDiscoHandler *AHandler) =0;
@@ -129,8 +125,6 @@ public:
 	//DiscoItems
 	virtual bool requestDiscoItems(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode = "") =0;
 protected:
-	virtual void discoItemsWindowCreated(IDiscoItemsWindow *AWindow) =0;
-	virtual void discoItemsWindowDestroyed(IDiscoItemsWindow *AWindow) =0;
 	virtual void discoHandlerInserted(IDiscoHandler *AHandler) =0;
 	virtual void discoHandlerRemoved(IDiscoHandler *AHandler) =0;
 	virtual void featureHandlerInserted(const QString &AFeature, IDiscoFeatureHandler *AHandler) =0;

@@ -65,7 +65,6 @@ RosterChanger::RosterChanger()
 	FNotifications = NULL;
 	FOptionsManager = NULL;
 	FXmppUriQueries = NULL;
-	FMultiUserChatPlugin = NULL;
 	FAccountManager = NULL;
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
@@ -137,17 +136,6 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 		{
 			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivated(int)));
 			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
-		}
-	}
-
-	plugin = APluginManager->pluginInterface("IMultiUserChatPlugin").value(0,NULL);
-	if (plugin)
-	{
-		FMultiUserChatPlugin = qobject_cast<IMultiUserChatPlugin *>(plugin->instance());
-		if (FMultiUserChatPlugin)
-		{
-			connect(FMultiUserChatPlugin->instance(),SIGNAL(multiUserContextMenu(IMultiUserChatWindow *,IMultiUser *, Menu *)),
-				SLOT(onMultiUserContextMenu(IMultiUserChatWindow *,IMultiUser *, Menu *)));
 		}
 	}
 
@@ -2182,26 +2170,6 @@ void RosterChanger::onChatNoticeRemoved(int ANoticeId)
 		FNotifications->removeNotification(FNotifyChatNotice.key(ANoticeId));
 	FChatNoticeWindow.remove(ANoticeId);
 	FChatNoticeActions.remove(ANoticeId);
-}
-
-void RosterChanger::onMultiUserContextMenu(IMultiUserChatWindow *AWindow, IMultiUser *AUser, Menu *AMenu)
-{
-	Q_UNUSED(AWindow);
-	if (!AUser->data(MUDR_REAL_JID).toString().isEmpty())
-	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AUser->data(MUDR_STREAM_JID).toString()) : NULL;
-		if (roster && !roster->rosterItem(AUser->data(MUDR_REAL_JID).toString()).isValid)
-		{
-			Action *action = new Action(AMenu);
-			action->setText(tr("Add contact"));
-			action->setData(ADR_STREAM_JID,AUser->data(MUDR_STREAM_JID));
-			action->setData(ADR_CONTACT_JID,AUser->data(MUDR_REAL_JID));
-			action->setData(ADR_NICK,AUser->data(MUDR_NICK_NAME));
-			action->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_ADD_CONTACT);
-			connect(action,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
-			AMenu->addAction(action,AG_MUCM_ROSTERCHANGER,true);
-		}
-	}
 }
 
 Q_EXPORT_PLUGIN2(plg_rosterchanger, RosterChanger)
