@@ -10,8 +10,8 @@
 #include "ui_editwidget.h"
 
 class EditWidget :
-			public QWidget,
-			public IEditWidget
+	public QWidget,
+	public IEditWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(IEditWidget)

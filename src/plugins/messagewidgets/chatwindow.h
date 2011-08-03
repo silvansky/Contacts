@@ -16,8 +16,8 @@
 #include "ui_chatwindow.h"
 
 class ChatWindow :
-			public QMainWindow,
-			public IChatWindow
+	public QMainWindow,
+	public IChatWindow
 {
 	Q_OBJECT
 	Q_INTERFACES(IChatWindow ITabPage)

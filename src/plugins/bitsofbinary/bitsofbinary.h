@@ -15,12 +15,12 @@
 #include <utils/stanza.h>
 
 class BitsOfBinary :
-			public QObject,
-			public IPlugin,
-			public IBitsOfBinary,
-			public IXmppStanzaHadler,
-			public IStanzaHandler,
-			public IStanzaRequestOwner
+	public QObject,
+	public IPlugin,
+	public IBitsOfBinary,
+	public IXmppStanzaHadler,
+	public IStanzaHandler,
+	public IStanzaRequestOwner
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IBitsOfBinary IXmppStanzaHadler IStanzaHandler IStanzaRequestOwner);

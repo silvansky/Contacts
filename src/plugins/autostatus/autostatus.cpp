@@ -1,7 +1,5 @@
 #include "autostatus.h"
 
-#include <QCursor>
-
 #define IDLE_TIMER_TIMEOUT  1000
 
 AutoStatus::AutoStatus()
@@ -75,8 +73,6 @@ bool AutoStatus::initSettings()
 	if (FOptionsManager)
 	{
 		FOptionsManager->insertServerOption(OPV_AUTOSTARTUS_AWAYONLOCK);
-		//IOptionsDialogNode dnode = { ONO_AUTO_STATUS, OPN_AUTO_STATUS, tr("Auto status"),tr("Edit auto status rules"), MNI_AUTOSTATUS };
-		//FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
@@ -94,10 +90,6 @@ QMultiMap<int, IOptionsWidget *> AutoStatus::optionsWidgets(const QString &ANode
 	if (ANodeId == OPN_COMMON)
 	{
 		widgets.insertMulti(OWO_COMMON_AUTOSTATUS, FOptionsManager->optionsNodeWidget(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK),tr("Change status to 'Away' if screen saver is on or system is locked"),AParent));
-	}
-	else if (ANodeId == OPN_AUTO_STATUS)
-	{
-		widgets.insertMulti(OWO_AUTOSTATUS, new StatusOptionsWidget(this,FStatusChanger,AParent));
 	}
 	return widgets;
 }

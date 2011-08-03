@@ -7,10 +7,10 @@
 #include <definitions/viewurlhandlerorders.h>
 
 class XmppUriQueries :
-			public QObject,
-			public IPlugin,
-			public IXmppUriQueries,
-			public IViewUrlHandler
+	public QObject,
+	public IPlugin,
+	public IXmppUriQueries,
+	public IViewUrlHandler
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IXmppUriQueries IViewUrlHandler);

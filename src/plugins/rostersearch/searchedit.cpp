@@ -3,8 +3,7 @@
 #include <QPainter>
 #include <QResizeEvent>
 
-SearchEdit::SearchEdit(QWidget *parent) :
-		QLineEdit(parent)
+SearchEdit::SearchEdit(QWidget *parent) : QLineEdit(parent)
 {
 	setAttribute(Qt::WA_MacShowFocusRect, false);
 	setMouseTracking(true);

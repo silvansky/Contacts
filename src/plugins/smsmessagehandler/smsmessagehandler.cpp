@@ -817,9 +817,9 @@ void SmsMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageContent
 	if (AOptions.direction == IMessageContentOptions::DirectionIn)
 	{
 		AOptions.senderId = AWindow->contactJid().full();
-		AOptions.senderName = Qt::escape(FMessageStyles->userName(AWindow->streamJid(),AWindow->contactJid()));
-		AOptions.senderAvatar = FMessageStyles->userAvatar(AWindow->contactJid());
-		AOptions.senderIcon = FMessageStyles->userIcon(AWindow->streamJid(),AWindow->contactJid());
+		AOptions.senderName = Qt::escape(FMessageStyles->contactName(AWindow->streamJid(),AWindow->contactJid()));
+		AOptions.senderAvatar = FMessageStyles->contactAvatar(AWindow->contactJid());
+		AOptions.senderIcon = FMessageStyles->contactIcon(AWindow->streamJid(),AWindow->contactJid());
 		AOptions.senderColor = "blue";
 	}
 	else
@@ -828,9 +828,9 @@ void SmsMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageContent
 		if (AWindow->streamJid() && AWindow->contactJid())
 			AOptions.senderName = Qt::escape(!AWindow->streamJid().resource().isEmpty() ? AWindow->streamJid().resource() : AWindow->streamJid().node());
 		else
-			AOptions.senderName = Qt::escape(FMessageStyles->userName(AWindow->streamJid()));
-		AOptions.senderAvatar = FMessageStyles->userAvatar(AWindow->streamJid());
-		AOptions.senderIcon = FMessageStyles->userIcon(AWindow->streamJid());
+			AOptions.senderName = Qt::escape(FMessageStyles->contactName(AWindow->streamJid()));
+		AOptions.senderAvatar = FMessageStyles->contactAvatar(AWindow->streamJid());
+		AOptions.senderIcon = FMessageStyles->contactIcon(AWindow->streamJid());
 		AOptions.senderColor = "red";
 	}
 }

@@ -52,8 +52,6 @@ public:
 	virtual QString pluginId() const =0;
 	virtual QString pluginName() const =0;
 	virtual IConnection *newConnection(const OptionsNode &ANode, QObject *AParent) =0;
-	virtual IOptionsWidget *connectionSettingsWidget(const OptionsNode &ANode, QWidget *AParent) =0;
-	virtual void saveConnectionSettings(IOptionsWidget *AWidget, OptionsNode ANode = OptionsNode::null) =0;
 	virtual void loadConnectionSettings(IConnection *AConnection, const OptionsNode &ANode) =0;
 protected:
 	virtual void connectionCreated(IConnection *AConnection) =0;
@@ -72,9 +70,6 @@ public:
 	virtual void removeProxy(const QUuid &AProxyId) =0;
 	virtual QUuid defaultProxy() const =0;
 	virtual void setDefaultProxy(const QUuid &AProxyId) =0;
-	virtual QDialog *showEditProxyDialog(QWidget *AParent = NULL) =0;
-	virtual IOptionsWidget *proxySettingsWidget(const OptionsNode &ANode, QWidget *AParent) =0;
-	virtual void saveProxySettings(IOptionsWidget *AWidget, OptionsNode ANode = OptionsNode::null) =0;
 	virtual QUuid loadProxySettings(const OptionsNode &ANode) const =0;
 protected:
 	virtual void connectionCreated(IConnection *AConnection) =0;

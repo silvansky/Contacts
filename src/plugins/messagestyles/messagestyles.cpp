@@ -26,8 +26,10 @@ void MessageStyles::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
-bool MessageStyles::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool MessageStyles::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
+
 	QList<IPlugin *> plugins = APluginManager->pluginInterface("IMessageStylePlugin");
 	foreach (IPlugin *plugin, plugins)
 	{
@@ -75,8 +77,8 @@ bool MessageStyles::initSettings()
 #ifdef DEBUG_ENABLED
 		IOptionsDialogNode dnode = { ONO_MESSAGE_STYLES, OPN_MESSAGE_STYLES, tr("Message Styles"), MNI_MESSAGESTYLES };
 		FOptionsManager->insertOptionsDialogNode(dnode);
-#endif
 		FOptionsManager->insertOptionsHolder(this);
+#endif
 	}
 	return true;
 }
@@ -129,12 +131,12 @@ IMessageStyleOptions MessageStyles::styleOptions(int AMessageType, const QString
 	return styleOptions(node,AMessageType);
 }
 
-QString MessageStyles::userAvatar(const Jid &AContactJid) const
+QString MessageStyles::contactAvatar(const Jid &AContactJid) const
 {
 	return FAvatars!=NULL ? FAvatars->avatarFileName(FAvatars->avatarHash(AContactJid)) : QString::null;
 }
 
-QString MessageStyles::userName(const Jid &AStreamJid, const Jid &AContactJid) const
+QString MessageStyles::contactName(const Jid &AStreamJid, const Jid &AContactJid) const
 {
 	QString name;
 	if (!AContactJid.isValid())
@@ -174,7 +176,7 @@ QString MessageStyles::userName(const Jid &AStreamJid, const Jid &AContactJid) c
 	return name;
 }
 
-QString MessageStyles::userIcon(const Jid &AStreamJid, const Jid &AContactJid) const
+QString MessageStyles::contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const
 {
 	if (FStatusIcons)
 	{
@@ -189,7 +191,7 @@ QString MessageStyles::userIcon(const Jid &AStreamJid, const Jid &AContactJid) c
 	return QString::null;
 }
 
-QString MessageStyles::userIcon(const Jid &AContactJid, int AShow, const QString &ASubscription, bool AAsk) const
+QString MessageStyles::contactIcon(const Jid &AContactJid, int AShow, const QString &ASubscription, bool AAsk) const
 {
 	if (FStatusIcons)
 	{

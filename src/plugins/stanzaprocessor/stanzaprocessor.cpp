@@ -23,8 +23,9 @@ void StanzaProcessor::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 }
 
-bool StanzaProcessor::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool StanzaProcessor::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	IPlugin *plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
 	if (plugin)
 	{

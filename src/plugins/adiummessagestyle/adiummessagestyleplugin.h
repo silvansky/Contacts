@@ -14,9 +14,9 @@
 #define ADIUMMESSAGESTYLE_UUID    "{91da3fcb-5c20-4b52-a4a5-80722eef6ea2}"
 
 class AdiumMessageStylePlugin :
-			public QObject,
-			public IPlugin,
-			public IMessageStylePlugin
+	public QObject,
+	public IPlugin,
+	public IMessageStylePlugin
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IMessageStylePlugin)

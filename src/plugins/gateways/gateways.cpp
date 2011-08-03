@@ -11,9 +11,8 @@
 #define ADR_NEW_SERVICE_JID       Action::DR_Parametr2
 #define ADR_LOG_IN                Action::DR_Parametr3
 
-#define PSN_GATEWAYS_KEEP         "virtus:gateways:keep"
-#define PSN_GATEWAYS_SUBSCRIBE    "virtus:gateways:subscribe"
 #define PST_GATEWAYS_SERVICES     "services"
+#define PSN_GATEWAYS_KEEP         "virtus:gateways:keep"
 
 #define GATEWAY_TIMEOUT           30000
 #define KEEP_INTERVAL             120000
@@ -102,8 +101,6 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		if (FRosterPlugin)
 		{
 			connect(FRosterPlugin->instance(),SIGNAL(rosterOpened(IRoster *)),SLOT(onRosterOpened(IRoster *)));
-			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscriptionReceived(IRoster *, const Jid &, int , const QString &)),
-				SLOT(onRosterSubscriptionReceived(IRoster *, const Jid &, int , const QString &)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)),
 				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)));
 		}
@@ -115,8 +112,6 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 		if (FPresencePlugin)
 		{
-			connect(FPresencePlugin->instance(),SIGNAL(contactStateChanged(const Jid &, const Jid &, bool)),
-				SLOT(onContactStateChanged(const Jid &, const Jid &, bool)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
 				SLOT(onPresenceItemReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 		}
@@ -159,11 +154,6 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	if (plugin)
 	{
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
-		if (FRostersViewPlugin)
-		{
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
-				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
-		}
 	}
 
 	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
@@ -336,11 +326,8 @@ bool Gateways::initObjects()
 	vkontakte.name = tr("VKontakte");
 	vkontakte.iconKey = MNI_GATEWAYS_SERVICE_VKONTAKTE;
 	vkontakte.loginLabel = tr("E-mail or Login");
-	//vkontakte.domains << "vk.com";
 	vkontakte.loginField = "username";
-	//vkontakte.domainField = "server";
 	vkontakte.passwordField = "password";
-	//vkontakte.domainSeparator = "@";
 	vkontakte.homeContactPattern = "^"MAIL_NODE_PATTERN"@vk\\.com$";
 	vkontakte.availContactPattern = JabberContactPattern;
 	vkontakte.blockedDescriptors.append(GSID_MAIL);
@@ -433,7 +420,6 @@ bool Gateways::initObjects()
 	if (FDiscovery)
 	{
 		registerDiscoFeatures();
-		FDiscovery->insertFeatureHandler(NS_JABBER_GATEWAY,this,DFO_DEFAULT);
 	}
 
 	if (FRostersViewPlugin)
@@ -444,7 +430,7 @@ bool Gateways::initObjects()
 
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification;
+		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay;
 		FNotifications->insertNotificator(NID_GATEWAYS_CONFLICT,OWO_NOTIFICATIONS_GATEWAYS_CONFLICT,QString::null,kindMask,kindMask);
 	}
 
@@ -465,9 +451,9 @@ QMultiMap<int, IOptionsWidget *> Gateways::optionsWidgets(const QString &ANodeId
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_GATEWAYS_ACCOUNTS)
 	{
-		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, FOptionsManager->optionsHeaderWidget(QString::null,tr("Accounts"),AParent));
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE-1, FOptionsManager->optionsHeaderWidget(QString::null,tr("Accounts"),AParent));
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(this,FOptionsStreamJid,AParent));
-		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, FOptionsManager->optionsHeaderWidget(QString::null,tr("Add account"),AParent));
+		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND-1, FOptionsManager->optionsHeaderWidget(QString::null,tr("Add account"),AParent));
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_APPEND, new AddLegacyAccountOptions(this,FDiscovery,FOptionsStreamJid,AParent));
 	}
 	return widgets;
@@ -520,29 +506,6 @@ void Gateways::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanz
 		FPromptRequests.removeAt(FPromptRequests.indexOf(AStanzaId));
 		FUserJidRequests.removeAt(FUserJidRequests.indexOf(AStanzaId));
 	}
-}
-
-bool Gateways::execDiscoFeature(const Jid &AStreamJid, const QString &AFeature, const IDiscoInfo &ADiscoInfo)
-{
-	if (AFeature == NS_JABBER_GATEWAY)
-		return showAddLegacyContactDialog(AStreamJid,ADiscoInfo.contactJid)!=NULL;
-	return false;
-}
-
-Action *Gateways::createDiscoFeatureAction(const Jid &AStreamJid, const QString &AFeature, const IDiscoInfo &ADiscoInfo, QWidget *AParent)
-{
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
-	if (presence && presence->isOpen() && AFeature == NS_JABBER_GATEWAY)
-	{
-		Action *action = new Action(AParent);
-		action->setText(tr("Add Legacy User"));
-		action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_ADD_CONTACT);
-		action->setData(ADR_STREAM_JID,AStreamJid.full());
-		action->setData(ADR_SERVICE_JID,ADiscoInfo.contactJid.full());
-		connect(action,SIGNAL(triggered(bool)),SLOT(onAddLegacyUserActionTriggered(bool)));
-		return action;
-	}
-	return NULL;
 }
 
 void Gateways::resolveNickName(const Jid &AStreamJid, const Jid &AContactJid)
@@ -1015,7 +978,6 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 		{
 			if (FRosterChanger)
 				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,true,false);
-			FSubscribeServices.insertMulti(AStreamJid,AServiceJid);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Subscribe);
 			sendLogPresence(AStreamJid,AServiceJid,true);
@@ -1025,7 +987,6 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 		{
 			if (FRosterChanger)
 				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
-			FSubscribeServices.remove(AStreamJid,AServiceJid);
 			setKeepConnection(AStreamJid,AServiceJid,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribed);
@@ -1076,20 +1037,11 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 
 		if (ASubscribe)
 		{
-			FSubscribeServices.remove(AStreamJid,AServiceFrom.bare());
-			FSubscribeServices.insertMulti(AStreamJid,AServiceTo.bare());
-			savePrivateStorageSubscribe(AStreamJid);
-
 			curItems+=newItems;
 			foreach(IRosterItem ritem, curItems)
 				FRosterChanger->insertAutoSubscribe(AStreamJid,ritem.itemJid, true, true, false);
 			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceTo,true,true,false);
 			roster->sendSubscription(AServiceTo,IRoster::Subscribe);
-		}
-		else if (FSubscribeServices.contains(AStreamJid,AServiceFrom.bare()))
-		{
-			FSubscribeServices.remove(AStreamJid,AServiceFrom.bare());
-			savePrivateStorageSubscribe(AStreamJid);
 		}
 
 		return true;
@@ -1203,20 +1155,6 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 		{
 			dialog->show();
 		}
-
-		return dialog;
-	}
-	return NULL;
-}
-
-QDialog *Gateways::showAddLegacyContactDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)
-{
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
-	if (presence && presence->isOpen())
-	{
-		AddLegacyContactDialog *dialog = new AddLegacyContactDialog(this,FRosterChanger,AStreamJid,AServiceJid,AParent);
-		connect(presence->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
-		dialog->show();
 		return dialog;
 	}
 	return NULL;
@@ -1254,19 +1192,6 @@ void Gateways::startAutoLogin(const Jid &AStreamJid)
 				}
 			}
 		}
-	}
-}
-
-void Gateways::savePrivateStorageSubscribe(const Jid &AStreamJid)
-{
-	if (FPrivateStorage)
-	{
-		QDomDocument doc;
-		doc.appendChild(doc.createElement("services"));
-		QDomElement elem = doc.documentElement().appendChild(doc.createElementNS(PSN_GATEWAYS_SUBSCRIBE,PST_GATEWAYS_SERVICES)).toElement();
-		foreach(Jid service, FSubscribeServices.values(AStreamJid))
-			elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.eBare()));
-		FPrivateStorage->saveData(AStreamJid,elem);
 	}
 }
 
@@ -1319,77 +1244,6 @@ void Gateways::removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJi
 		noticeWidget->removeNotice(FConflictNotices.value(AStreamJid).value(AServiceJid));
 }
 
-void Gateways::onAddLegacyUserActionTriggered(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		Jid streamJid = action->data(ADR_STREAM_JID).toString();
-		Jid serviceJid = action->data(ADR_SERVICE_JID).toString();
-		showAddLegacyContactDialog(streamJid,serviceJid);
-	}
-}
-
-void Gateways::onLogActionTriggered(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		Jid streamJid = action->data(ADR_STREAM_JID).toString();
-		Jid serviceJid = action->data(ADR_SERVICE_JID).toString();
-		bool logIn = action->data(ADR_LOG_IN).toBool();
-		if (!logIn)
-			setKeepConnection(streamJid,serviceJid,logIn);
-		sendLogPresence(streamJid,serviceJid,logIn);
-	}
-}
-
-void Gateways::onResolveActionTriggered(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		Jid streamJid = action->data(ADR_STREAM_JID).toString();
-		Jid contactJid = action->data(ADR_SERVICE_JID).toString();
-		if (contactJid.node().isEmpty())
-		{
-			QList<Jid> contactJids = serviceContacts(streamJid,contactJid);
-			foreach(Jid contact, contactJids)
-				resolveNickName(streamJid,contact);
-		}
-		else
-			resolveNickName(streamJid,contactJid);
-	}
-}
-
-void Gateways::onKeepActionTriggered(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		Jid streamJid = action->data(ADR_STREAM_JID).toString();
-		Jid serviceJid = action->data(ADR_SERVICE_JID).toString();
-		setKeepConnection(streamJid,serviceJid,action->isChecked());
-	}
-}
-
-void Gateways::onChangeActionTriggered(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		Jid streamJid = action->data(ADR_STREAM_JID).toString();
-		Jid serviceFrom = action->data(ADR_SERVICE_JID).toString();
-		Jid serviceTo = action->data(ADR_NEW_SERVICE_JID).toString();
-		if (changeService(streamJid,serviceFrom,serviceTo,true,true))
-		{
-			QString id = FRegistration!=NULL ?  FRegistration->sendRegiterRequest(streamJid,serviceTo) : QString::null;
-			if (!id.isEmpty())
-				FShowRegisterRequests.insert(id,streamJid);
-		}
-	}
-}
-
 void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
 {
 	if (FOptionsManager)
@@ -1423,12 +1277,6 @@ void Gateways::onXmppStreamClosed(IXmppStream *AXmppStream)
 
 void Gateways::onRosterOpened(IRoster *ARoster)
 {
-	if (FRosterChanger)
-	{
-		foreach(Jid serviceJid, FSubscribeServices.values(ARoster->streamJid()))
-			foreach(Jid contactJid, serviceContacts(ARoster->streamJid(),serviceJid))
-				FRosterChanger->insertAutoSubscribe(ARoster->streamJid(),contactJid,true,true,false);
-	}
 	if (FDiscovery)
 	{
 		foreach(IRosterItem ritem, ARoster->rosterItems())
@@ -1461,34 +1309,6 @@ void Gateways::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, 
 	}
 }
 
-void Gateways::onRosterSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
-{
-	Q_UNUSED(AText);
-	if (ASubsType==IRoster::Subscribed && FSubscribeServices.contains(ARoster->streamJid(),AItemJid))
-		sendLogPresence(ARoster->streamJid(),AItemJid,true);
-}
-
-void Gateways::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline)
-{
-	if (AStateOnline && FSubscribeServices.contains(AStreamJid,AContactJid.bare()))
-	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-		if (roster)
-		{
-			FSubscribeServices.remove(AStreamJid,AContactJid.bare());
-			savePrivateStorageSubscribe(AStreamJid);
-			foreach(IRosterItem ritem, roster->rosterItems())
-			{
-				if (ritem.itemJid.pDomain()==AContactJid.pDomain())
-				{
-					if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
-						roster->sendSubscription(ritem.itemJid,IRoster::Subscribe);
-				}
-			}
-		}
-	}
-}
-
 void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
 	Q_UNUSED(ABefore);
@@ -1502,7 +1322,7 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 			{
 				INotification notify;
 				notify.kinds = FNotifications->notificatorKinds(NID_BIRTHDAY_REMIND);
-				if ((notify.kinds & (INotification::PopupWindow|INotification::PlaySoundNotification))>0)
+				if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 				{
 					IGateServiceDescriptor descriptor = serviceDescriptor(APresence->streamJid(),AItem.itemJid);
 					notify.notificatior = NID_GATEWAYS_CONFLICT;
@@ -1542,7 +1362,6 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 void Gateways::onPrivateStorateOpened(const Jid &AStreamJid)
 {
 	Q_UNUSED(AStreamJid);
-	//FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_SUBSCRIBE);
 }
 
 void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
@@ -1567,19 +1386,6 @@ void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid,
 			}
 		}
 	}
-	else if (AElement.tagName() == PST_GATEWAYS_SERVICES && AElement.namespaceURI() == PSN_GATEWAYS_SUBSCRIBE)
-	{
-		QDomElement elem = AElement.firstChildElement("service");
-		while (!elem.isNull())
-		{
-			Jid serviceJid = elem.text();
-			FSubscribeServices.insertMulti(AStreamJid,serviceJid);
-			QString id = FRegistration!=NULL ? FRegistration->sendRegiterRequest(AStreamJid,serviceJid) : QString::null;
-			if (!id.isEmpty())
-				FShowRegisterRequests.insert(id,AStreamJid);
-			elem = elem.nextSiblingElement("service");
-		}
-	}
 }
 
 void Gateways::onPrivateStorateAboutToClose(const Jid &AStreamJid)
@@ -1595,96 +1401,6 @@ void Gateways::onPrivateStorateAboutToClose(const Jid &AStreamJid)
 void Gateways::onPrivateStorateClosed(const Jid &AStreamJid)
 {
 	FKeepConnections.remove(AStreamJid);
-	FSubscribeServices.remove(AStreamJid);
-}
-
-void Gateways::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
-{
-	Q_UNUSED(AIndex); Q_UNUSED(AMenu); Q_UNUSED(ASelected);
-	/*
- if (AIndex->type() == RIT_STREAM_ROOT)
- {
-  Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-  IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
-  if (FDiscovery && presence && presence->isOpen())
-  {
-   Menu *addUserMenu = new Menu(AMenu);
-   addUserMenu->setTitle(tr("Add Legacy User"));
-   addUserMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_ADD_CONTACT);
-
-   foreach(IPresenceItem pitem, presence->presenceItems())
-   {
-    if (pitem.show!=IPresence::Error && pitem.itemJid.node().isEmpty() && FDiscovery->discoInfo(streamJid,pitem.itemJid).features.contains(NS_JABBER_GATEWAY))
-    {
-     Action *action = new Action(addUserMenu);
-     action->setText(pitem.itemJid.full());
-     action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(streamJid,pitem.itemJid) : QIcon());
-     action->setData(ADR_STREAM_JID,streamJid.full());
-     action->setData(ADR_SERVICE_JID,pitem.itemJid.full());
-     connect(action,SIGNAL(triggered(bool)),SLOT(onAddLegacyUserActionTriggered(bool)));
-     addUserMenu->addAction(action,AG_DEFAULT,true);
-    }
-   }
-
-   if (!addUserMenu->isEmpty())
-    AMenu->addAction(addUserMenu->menuAction(), AG_RVCM_GATEWAYS_ADD_LEGACY_USER, true);
-   else
-    delete addUserMenu;
-  }
- }
- else if (AIndex->type() == RIT_AGENT)
- {
-  Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-  IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
-  if (presence && presence->isOpen())
-  {
-   Action *action = new Action(AMenu);
-   action->setText(tr("Log In"));
-   action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_LOG_IN);
-   action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-   action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
-   action->setData(ADR_LOG_IN,true);
-   connect(action,SIGNAL(triggered(bool)),SLOT(onLogActionTriggered(bool)));
-   AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
-
-   action = new Action(AMenu);
-   action->setText(tr("Log Out"));
-   action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_LOG_OUT);
-   action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-   action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
-   action->setData(ADR_LOG_IN,false);
-   connect(action,SIGNAL(triggered(bool)),SLOT(onLogActionTriggered(bool)));
-   AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
-
-   action = new Action(AMenu);
-   action->setText(tr("Keep connection"));
-   action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_KEEP_CONNECTION);
-   action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
-   action->setData(ADR_SERVICE_JID,AIndex->data(RDR_BARE_JID));
-   action->setCheckable(true);
-   action->setChecked(FKeepConnections.value(streamJid).contains(AIndex->data(RDR_BARE_JID).toString()));
-   connect(action,SIGNAL(triggered(bool)),SLOT(onKeepActionTriggered(bool)));
-   AMenu->addAction(action,AG_RVCM_GATEWAYS_LOGIN,false);
-  }
- }
-
- if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
- {
-  Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-  Jid contactJid = AIndex->data(RDR_JID).toString();
-  IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
-  if (FVCardPlugin && roster && roster->isOpen() && roster->rosterItem(contactJid).isValid)
-  {
-   Action *action = new Action(AMenu);
-   action->setText(contactJid.node().isEmpty() ? tr("Resolve nick names") : tr("Resolve nick name"));
-   action->setIcon(RSR_STORAGE_MENUICONS,MNI_GATEWAYS_RESOLVE);
-   action->setData(ADR_STREAM_JID,streamJid.full());
-   action->setData(ADR_SERVICE_JID,contactJid.full());
-   connect(action,SIGNAL(triggered(bool)),SLOT(onResolveActionTriggered(bool)));
-   AMenu->addAction(action,AG_RVCM_GATEWAYS_RESOLVE,true);
-  }
- }
- */
 }
 
 void Gateways::onKeepTimerTimeout()
@@ -1794,12 +1510,6 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			FRosterChanger->subscribeContact(streamJid,AFields.serviceJid,QString::null,true);
 		}
 	}
-	else if (FShowRegisterRequests.contains(AId))
-	{
-		Jid streamJid = FShowRegisterRequests.take(AId);
-		if (!AFields.registered && FSubscribeServices.contains(streamJid,AFields.serviceJid))
-			FRegistration->showRegisterDialog(streamJid,AFields.serviceJid,IRegistration::Register);
-	}
 	else if (FConflictLoginRequests.contains(AId))
 	{
 		Jid streamJid = FConflictLoginRequests.take(AId);
@@ -1829,7 +1539,6 @@ void Gateways::onRegisterError(const QString &AId, const QString &ACondition, co
 	LogError(QString("[Gateway register error] id %1 : %2").arg(AId, AMessage));
 	FLoginRequests.remove(AId);
 	FAutoLoginRequests.remove(AId);
-	FShowRegisterRequests.remove(AId);
 	emit errorReceived(AId,AMessage);
 }
 

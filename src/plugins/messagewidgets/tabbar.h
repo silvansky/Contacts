@@ -7,7 +7,7 @@
 #include "tabbaritem.h"
 
 class TabBar :
-			public QFrame
+	public QFrame
 {
 	Q_OBJECT
 public:

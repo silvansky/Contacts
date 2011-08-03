@@ -12,7 +12,7 @@ NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QStri
 	FNotificatorKindDefs = AKindDefs;
 
 	ui.chbPopup->setEnabled(AKindMask & INotification::PopupWindow);
-	ui.chbSound->setEnabled(AKindMask & INotification::PlaySoundNotification);
+	ui.chbSound->setEnabled(AKindMask & INotification::SoundPlay);
 	ui.lblTest->setEnabled(AKindMask & INotification::TestNotify);
 
 	connect(this, SIGNAL(modified()), SLOT(onModified()));
@@ -40,7 +40,7 @@ void NotifyKindsWidget::reset()
 {
 	uchar kinds = FNotifications->notificatorKinds(FNotificatorId);
 	ui.chbPopup->setChecked(kinds & INotification::PopupWindow);
-	ui.chbSound->setChecked(kinds & INotification::PlaySoundNotification);
+	ui.chbSound->setChecked(kinds & INotification::SoundPlay);
 	emit childReset();
 }
 
@@ -55,9 +55,9 @@ uchar NotifyKindsWidget::changedKinds(uchar AActiveKinds) const
 		kinds &= ~INotification::PopupWindow;
 
 	if (ui.chbSound->isChecked())
-		kinds |= INotification::PlaySoundNotification;
+		kinds |= INotification::SoundPlay;
 	else
-		kinds &= ~INotification::PlaySoundNotification;
+		kinds &= ~INotification::SoundPlay;
 
 	return kinds;
 }

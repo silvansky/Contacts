@@ -185,8 +185,8 @@ bool SipPhone::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction;
-		uchar kindDefs = INotification::RosterIcon|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction;
+		uchar kindMask = INotification::RosterNotify|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction;
+		uchar kindDefs = INotification::RosterNotify|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction;
 		FNotifications->insertNotificator(NID_SIPPHONE_CALL,OWO_NOTIFICATIONS_SIPPHONE,QString::null,kindMask,kindDefs);
 	}
 

@@ -1,11 +1,9 @@
-FORMS = emoticonsoptions.ui
-
 HEADERS = selecticonwidget.h \
           selecticonmenu.h \
-          emoticonsoptions.h \
+          emoticonscontainer.h \
           emoticons.h
 
 SOURCES = selecticonwidget.cpp \
           selecticonmenu.cpp \
-          emoticonsoptions.cpp \
+          emoticonscontainer.cpp \
           emoticons.cpp 

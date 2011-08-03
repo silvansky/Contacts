@@ -32,7 +32,6 @@
 #include "chatwindow.h"
 #include "tabwindow.h"
 #include "messengeroptions.h"
-#include "masssenddialog.h"
 
 class MessageWidgets :
 	public QObject,
@@ -75,9 +74,6 @@ public:
 	virtual QList<IChatWindow *> chatWindows() const;
 	virtual IChatWindow *newChatWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual IChatWindow *findChatWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
-	virtual QList<IMassSendDialog*> massSendDialogs() const;
-	virtual IMassSendDialog * newMassSendDialog(const Jid &AStreamJid);
-	virtual IMassSendDialog * findMassSendDialog(const Jid &AStreamJid);
 	virtual QList<QUuid> tabWindowList() const;
 	virtual QUuid appendTabWindow(const QString &AName);
 	virtual void deleteTabWindow(const QUuid &AWindowId);
@@ -108,8 +104,6 @@ signals:
 	void tabPageNotifierCreated(ITabPageNotifier *ANotifier);
 	void messageWindowCreated(IMessageWindow *AWindow);
 	void messageWindowDestroyed(IMessageWindow *AWindow);
-	void massSendDialogCreated(IMassSendDialog*);
-	void massSendDialogDestroyed(IMassSendDialog*);
 	void chatWindowCreated(IChatWindow *AWindow);
 	void chatWindowDestroyed(IChatWindow *AWindow);
 	void tabWindowAppended(const QUuid &AWindowId, const QString &AName);
@@ -145,7 +139,6 @@ protected slots:
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onOptionsOpened();
 	void onOptionsClosed();
-	void onMassSend();
 private:
 	IPluginManager *FPluginManager;
 	IXmppStreams *FXmppStreams;
@@ -158,7 +151,6 @@ private:
 	QList<ITabWindow *> FTabWindows;
 	QList<IChatWindow *> FChatWindows;
 	QList<IMessageWindow *> FMessageWindows;
-	QList<IMassSendDialog *> FMassSendDialogs;
 	QObjectCleanupHandler FCleanupHandler;
 private:
 	QHash<QString, QUuid> FTabPageWindow;

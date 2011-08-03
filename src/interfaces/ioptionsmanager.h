@@ -69,7 +69,6 @@ public:
 	virtual void insertServerOption(const QString &APath) =0;
 	virtual void removeServerOption(const QString &APath) =0;
 	virtual QDialog *showLoginDialog(QWidget *AParent = NULL) =0;
-	virtual QDialog *showEditProfilesDialog(QWidget *AParent = NULL) =0;
 	//OptionsDialog
 	virtual QList<IOptionsHolder *> optionsHolders() const =0;
 	virtual void insertOptionsHolder(IOptionsHolder *AHolder) =0;
@@ -80,7 +79,6 @@ public:
 	virtual void removeOptionsDialogNode(const QString &ANodeId) =0;
 	virtual QWidget *showOptionsDialog(const QString &ANodeId = QString::null, QWidget *AParent = NULL) =0;
 	//OptionsWidgets
-	virtual IOptionsContainer *optionsContainer(QWidget *AParent) const =0;
 	virtual IOptionsWidget *optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const =0;
 	virtual IOptionsWidget *optionsNodeWidget(const OptionsNode &ANode, const QString &ACaption, QWidget *AParent) const =0;
 protected:

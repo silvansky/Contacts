@@ -57,9 +57,7 @@ protected slots:
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowMainWindowByAction(bool);
 	void onMainWindowClosed();
-#ifdef Q_OS_MAC
-	void onDockIconCLicked();
-#endif
+	void onDockIconClicked();
 	void onApplicationQuitStarted();
 private:
 	IPluginManager *FPluginManager;

@@ -8,33 +8,31 @@
 #include <definitions/menuicons.h>
 #include <utils/iconstorage.h>
 
-class SearchEdit : public QLineEdit
+class SearchEdit : 
+	public QLineEdit
 {
 	Q_OBJECT
 public:
-	explicit SearchEdit(QWidget *parent = 0);
 	enum IconState
 	{
 		Ready,
 		InProgress,
 		Hover
 	};
+	explicit SearchEdit(QWidget *parent = 0);
 	void processKeyPressEvent(QKeyEvent * event);
-
 protected:
 	void resizeEvent(QResizeEvent *);
 	void mouseMoveEvent(QMouseEvent *);
 	void mousePressEvent(QMouseEvent *);
 	void leaveEvent(QEvent *);
+public slots:
+	void onTextChanged(const QString & newText);
+	void updateIcon(IconState iconState);
 private:
 	IconStorage * iconStorage;
 	QIcon currentIcon;
 	QLabel * iconLabel;
-signals:
-
-public slots:
-	void onTextChanged(const QString & newText);
-	void updateIcon(IconState iconState);
 };
 
 #endif // SEARCHEDIT_H

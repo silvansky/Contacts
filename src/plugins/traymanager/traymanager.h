@@ -12,9 +12,9 @@
 #include <utils/versionparser.h>
 
 class TrayManager :
-			public QObject,
-			public IPlugin,
-			public ITrayManager
+	public QObject,
+	public IPlugin,
+	public ITrayManager
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin ITrayManager)
@@ -69,8 +69,8 @@ private:
 	int FActiveNotify;
 	QIcon FIcon;
 	QString FToolTip;
-	QList<int> FNotifyOrder;
 	QTimer FTriggerTimer;
+	QList<int> FNotifyOrder;
 	QMap<int, ITrayNotify> FNotifyItems;
 };
 

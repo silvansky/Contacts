@@ -70,18 +70,6 @@ IConnection *DefaultConnectionPlugin::newConnection(const OptionsNode &ANode, QO
 	return connection;
 }
 
-IOptionsWidget *DefaultConnectionPlugin::connectionSettingsWidget(const OptionsNode &ANode, QWidget *AParent)
-{
-	return new ConnectionOptionsWidget(FConnectionManager, ANode, AParent);
-}
-
-void DefaultConnectionPlugin::saveConnectionSettings(IOptionsWidget *AWidget, OptionsNode ANode)
-{
-	ConnectionOptionsWidget *widget = qobject_cast<ConnectionOptionsWidget *>(AWidget->instance());
-	if (widget)
-		widget->apply(ANode);
-}
-
 void DefaultConnectionPlugin::loadConnectionSettings(IConnection *AConnection, const OptionsNode &ANode)
 {
 	IDefaultConnection *connection = qobject_cast<IDefaultConnection *>(AConnection->instance());

@@ -10,9 +10,9 @@
 #include <utils/stanza.h>
 
 class StartTLS :
-			public QObject,
-			public IXmppFeature,
-			public IXmppStanzaHadler
+	public QObject,
+	public IXmppFeature,
+	public IXmppStanzaHadler
 {
 	Q_OBJECT;
 	Q_INTERFACES(IXmppFeature IXmppStanzaHadler);

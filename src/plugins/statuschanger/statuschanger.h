@@ -5,6 +5,7 @@
 #include <QPair>
 #include <QPointer>
 #include <QDateTime>
+#include <definitions/plugininitorders.h>
 #include <definitions/actiongroups.h>
 #include <definitions/rosterlabelorders.h>
 #include <definitions/optionvalues.h>
@@ -33,8 +34,6 @@
 #include <interfaces/ivcard.h>
 #include <interfaces/iavatars.h>
 #include <utils/options.h>
-#include "editstatusdialog.h"
-#include "modifystatusdialog.h"
 #include "statuswidget.h"
 #include "customstatusdialog.h"
 
@@ -55,13 +54,12 @@ struct StatusItem
 };
 
 class StatusChanger :
-			public QObject,
-			public IPlugin,
-			public IStatusChanger,
-			public IOptionsHolder
+	public QObject,
+	public IPlugin,
+	public IStatusChanger
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IStatusChanger IOptionsHolder)
+	Q_INTERFACES(IPlugin IStatusChanger)
 public:
 	StatusChanger();
 	~StatusChanger();
@@ -73,11 +71,8 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings();
 	virtual bool startPlugin();
-	//IOptionsHolder
-	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IStatusChanger
 	virtual Menu *statusMenu() const;
-	virtual Menu *streamMenu(const Jid &AStreamJid) const;
 	virtual int mainStatus() const;
 	virtual void setMainStatus(int AStatusId);
 	virtual int streamStatus(const Jid &AStreamJid) const;
@@ -110,16 +105,10 @@ protected:
 	void createStatusActions(int AStatusId);
 	void updateStatusActions(int AStatusId);
 	void removeStatusActions(int AStatusId);
-	void createStreamMenu(IPresence *APresence);
-	void updateStreamMenu(IPresence *APresence);
-	void removeStreamMenu(IPresence *APresence);
 	int visibleMainStatusId() const;
 	void updateMainMenu();
-	void updateMainStatusActions();
 	int createTempStatus(IPresence *APresence, int AShow, const QString &AText, int APriority);
 	void removeTempStatus(IPresence *APresence);
-	void insertConnectingLabel(IPresence *APresence);
-	void removeConnectingLabel(IPresence *APresence);
 	void autoReconnect(IPresence *APresence);
 	void resendUpdatedStatus(int AStatusId);
 	void removeAllCustomStatuses();
@@ -134,43 +123,32 @@ protected slots:
 	void onRosterOpened(IRoster *ARoster);
 	void onRosterClosed(IRoster *ARoster);
 	void onStreamJidChanged(const Jid &ABefour, const Jid &AAfter);
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onDefaultStatusIconsChanged();
 	void onOptionsOpened();
 	void onOptionsClosed();
-	void onOptionsChanged(const OptionsNode &ANode);
 	void onProfileOpened(const QString &AProfile);
 	void onReconnectTimer();
-	void onEditStatusAction(bool);
-	void onModifyStatusAction(bool);
 	void onCustomStatusAction(bool);
 	void onClearCustomStatusAction(bool);
 	void onTrayContextMenuAboutToShow();
 	void onTrayContextMenuAboutToHide();
-	void onAccountOptionsChanged(IAccount *AAccount, const OptionsNode &ANode);
 	void onNotificationActivated(int ANotifyId);
 private:
 	IPresencePlugin *FPresencePlugin;
 	IRosterPlugin *FRosterPlugin;
 	IMainWindowPlugin *FMainWindowPlugin;
 	IRostersView *FRostersView;
-	IRostersViewPlugin *FRostersViewPlugin;
 	IRostersModel *FRostersModel;
 	IOptionsManager *FOptionsManager;
 	ITrayManager *FTrayManager;
 	IAccountManager *FAccountManager;
 	IStatusIcons *FStatusIcons;
 	INotifications *FNotifications;
-	IVCardPlugin * FVCardPlugin;
-	IAvatars * FAvatars;
+	IVCardPlugin *FVCardPlugin;
+	IAvatars *FAvatars;
 private:
-	Menu *FMainMenu;
-	Action *FModifyStatus;
+	Menu *FStatusMenu;
 	StatusWidget *FStatusWidget;
-	QMap<IPresence *, Menu *> FStreamMenu;
-	QMap<IPresence *, Action *> FMainStatusActions;
-private:
-	int FConnectingLabel;
 	IPresence *FChangingPresence;
 	QMap<int, StatusItem> FStatusItems;
 	QSet<IPresence *> FMainStatusStreams;
@@ -180,8 +158,6 @@ private:
 	QMap<IPresence *, int> FTempStatus;
 	QMap<IPresence *, int> FConnectNotifyId;
 	QMap<IPresence *, QPair<QDateTime,int> > FPendingReconnect;
-	QPointer<EditStatusDialog> FEditStatusDialog;
-	QPointer<ModifyStatusDialog> FModifyStatusDialog;
 	QPointer<CustomStatusDialog> FCustomStatusDialog;
 };
 

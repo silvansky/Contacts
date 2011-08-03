@@ -5,8 +5,8 @@
 #include <interfaces/imessagewidgets.h>
 
 class MenuBarWidget :
-			public QMenuBar,
-			public IMenuBarWidget
+	public QMenuBar,
+	public IMenuBarWidget
 {
 	Q_OBJECT;
 	Q_INTERFACES(IMenuBarWidget);

@@ -19,9 +19,9 @@
 #include "presence.h"
 
 class PresencePlugin :
-			public QObject,
-			public IPlugin,
-			public IPresencePlugin
+	public QObject,
+	public IPlugin,
+	public IPresencePlugin
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IPresencePlugin);

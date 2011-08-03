@@ -8,10 +8,10 @@
 #include <thirdparty/zlib/zlib.h>
 
 class Compression :
-			public QObject,
-			public IXmppFeature,
-			public IXmppDataHandler,
-			public IXmppStanzaHadler
+	public QObject,
+	public IXmppFeature,
+	public IXmppDataHandler,
+	public IXmppStanzaHadler
 {
 	Q_OBJECT;
 	Q_INTERFACES(IXmppFeature IXmppDataHandler IXmppStanzaHadler);

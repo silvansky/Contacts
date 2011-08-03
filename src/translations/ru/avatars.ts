@@ -4,26 +4,6 @@
 <context>
     <name>Avatars</name>
     <message>
-        <source>Avatar</source>
-        <translation>Аватар</translation>
-    </message>
-    <message>
-        <source>Set avatar</source>
-        <translation>Установить аватар</translation>
-    </message>
-    <message>
-        <source>Clear avatar</source>
-        <translation>Удалить аватар</translation>
-    </message>
-    <message>
-        <source>Select avatar image</source>
-        <translation>Выбрать изображение</translation>
-    </message>
-    <message>
-        <source>Image Files (*.png *.jpg *.bmp *.gif)</source>
-        <translation>Изображения (*.png *.jpg *.bmp *.gif)</translation>
-    </message>
-    <message>
         <source>Avatars</source>
         <translation>Аватары</translation>
     </message>

@@ -33,7 +33,6 @@
 #include <utils/options.h>
 #include <utils/systemmanager.h>
 #include "notifywidget.h"
-#include "optionswidget.h"
 #include "notifykindswidget.h"
 
 struct NotifyRecord
@@ -42,13 +41,11 @@ struct NotifyRecord
 		trayId=0;
 		rosterId=0;
 		tabPageId=0;
-		action=NULL;
 		widget=NULL;
 	}
 	int trayId;
 	int rosterId;
 	int tabPageId;
-	Action *action;
 	INotification notification;
 	QPointer<NotifyWidget> widget;
 	QPointer<QObject> tabPageNotifier;
@@ -115,7 +112,6 @@ protected:
 protected slots:
 	void onActivateDelayedActivations();
 	void onActivateDelayedReplaces();
-	void onSoundOnOffActionTriggered(bool);
 	void onTrayActionTriggered(bool);
 	void onRosterNotifyActivated(int ANotifyId);
 	void onRosterNotifyTimeout(int ANotifyId);
@@ -126,10 +122,7 @@ protected slots:
 	void onWindowNotifyRemoved();
 	void onWindowNotifyOptions();
 	void onWindowNotifyDestroyed();
-	void onActionNotifyActivated(bool);
 	void onTestNotificationTimerTimedOut();
-	void onOptionsOpened();
-	void onOptionsChanged(const OptionsNode &ANode);
 private:
 	IAvatars *FAvatars;
 	IRosterPlugin *FRosterPlugin;
@@ -141,20 +134,16 @@ private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 	IOptionsManager *FOptionsManager;
-	IMainWindowPlugin *FMainWindowPlugin;
 private:
-	Action *FSoundOnOff;
-	Action *FActivateAll;
-	Action *FRemoveAll;
-	Menu *FNotifyMenu;
-private:
-	int FTestNotifyId;
 #ifdef QT_PHONON_LIB
 	Phonon::MediaObject *FMediaObject;
 	Phonon::AudioOutput *FAudioOutput;
 #else
 	QSound *FSound;
 #endif
+private:
+	int FTestNotifyId;
+	Action *FActivateAll;
 	QTimer FTestNotifyTimer;
 	QList<int> FDelayedReplaces;
 	QList<int> FDelayedActivations;

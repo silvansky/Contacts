@@ -1,5 +1,3 @@
-HEADERS = chatstates.h \
-          statewidget.h
+HEADERS = chatstates.h 
 
-SOURCES = chatstates.cpp \
-          statewidget.cpp
+SOURCES = chatstates.cpp 

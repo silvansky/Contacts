@@ -11,8 +11,8 @@
 #include "ui_receiverswidget.h"
 
 class ReceiversWidget :
-			public QWidget,
-			public IReceiversWidget
+	public QWidget,
+	public IReceiversWidget
 {
 	Q_OBJECT;
 	Q_INTERFACES(IReceiversWidget);

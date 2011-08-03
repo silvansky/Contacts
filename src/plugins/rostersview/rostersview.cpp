@@ -26,7 +26,7 @@
 
 #define ADR_CLIPBOARD_DATA      Action::DR_Parametr1
 
-static const QList<int> groupIndexes = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK << RIT_GROUP_NOT_IN_ROSTER << RIT_GROUP_MY_RESOURCES << RIT_GROUP_AGENTS;
+static const QList<int> GroupIndexes = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK << RIT_GROUP_NOT_IN_ROSTER << RIT_GROUP_MY_RESOURCES << RIT_GROUP_AGENTS;
 
 QDataStream &operator<<(QDataStream &AStream, const IRostersLabel &ALabel)
 {
@@ -109,8 +109,8 @@ int RostersView::rosterDataOrder() const
 QList<int> RostersView::rosterDataRoles() const
 {
 	static QList<int> dataRoles = QList<int>()
-			<< RDR_LABEL_ITEMS
-			<< RDR_FOOTER_TEXT << RDR_ALLWAYS_VISIBLE << RDR_DECORATION_FLAGS << Qt::DecorationRole << Qt::BackgroundColorRole;
+		<< RDR_LABEL_ITEMS
+		<< RDR_FOOTER_TEXT << RDR_ALLWAYS_VISIBLE << RDR_DECORATION_FLAGS << Qt::DecorationRole << Qt::BackgroundColorRole;
 	return dataRoles;
 }
 
@@ -1364,7 +1364,7 @@ void RostersView::dragLeaveEvent(QDragLeaveEvent *AEvent)
 
 void RostersView::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
-	if (groupIndexes.contains(AIndex->type()) && ASelected.count()<2)
+	if (GroupIndexes.contains(AIndex->type()) && ASelected.count()<2)
 	{
 		QModelIndex index = mapFromModel(FRostersModel->modelIndexByRosterIndex(AIndex));
 		if (index.isValid())
@@ -1403,17 +1403,6 @@ void RostersView::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMul
 		QString jid = AIndex->data(RDR_FULL_JID).toString();
 		if (!jid.isEmpty())
 			AToolTips.insert(RTTO_CONTACT_JID, "<font color=grey>" + Qt::escape(jid) + "</font>");
-
-		/*
-  QString priority = AIndex->data(RDR_PRIORITY).toString();
-  if (!priority.isEmpty())
-   AToolTips.insert(RTTO_CONTACT_PRIORITY, tr("Priority: %1").arg(priority.toInt()));
-
-  QString ask = AIndex->data(RDR_ASK).toString();
-  QString subscription = AIndex->data(RDR_SUBSCRIBTION).toString();
-  if (!subscription.isEmpty())
-   AToolTips.insert(RTTO_CONTACT_SUBSCRIPTION, tr("Subscription: %1 %2").arg(Qt::escape(subscription)).arg(Qt::escape(ask)));
-  */
 
 		QString status = AIndex->data(RDR_STATUS).toString();
 		if (!status.isEmpty())
@@ -1542,7 +1531,7 @@ void RostersView::onExpandAllGroups()
 	if (FRostersModel)
 	{
 		QMultiMap<int, QVariant> findData;
-		foreach(int type, groupIndexes)
+		foreach(int type, GroupIndexes)
 			findData.insert(RDR_TYPE,type);
 		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true)) {
 			expand(mapFromModel(FRostersModel->modelIndexByRosterIndex(index))); }
@@ -1554,7 +1543,7 @@ void RostersView::onCollapseAllGroups()
 	if (FRostersModel)
 	{
 		QMultiMap<int, QVariant> findData;
-		foreach(int type, groupIndexes)
+		foreach(int type, GroupIndexes)
 			findData.insert(RDR_TYPE,type);
 		foreach(IRosterIndex *index, FRostersModel->rootIndex()->findChilds(findData,true)) {
 			collapse(mapFromModel(FRostersModel->modelIndexByRosterIndex(index))); }

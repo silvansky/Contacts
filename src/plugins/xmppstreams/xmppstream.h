@@ -24,9 +24,9 @@ enum StreamState
 };
 
 class XmppStream :
-			public QObject,
-			public IXmppStream,
-			public IXmppStanzaHadler
+	public QObject,
+	public IXmppStream,
+	public IXmppStanzaHadler
 {
 	Q_OBJECT
 	Q_INTERFACES(IXmppStream IXmppStanzaHadler)

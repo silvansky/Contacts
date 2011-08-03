@@ -9,8 +9,8 @@
 #include "ui_infowidget.h"
 
 class InfoWidget :
-			public QWidget,
-			public IInfoWidget
+	public QWidget,
+	public IInfoWidget
 {
 	Q_OBJECT;
 	Q_INTERFACES(IInfoWidget);

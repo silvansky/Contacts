@@ -9,11 +9,6 @@
 class IClientInfo
 {
 public:
-	enum InfoType {
-		SoftwareVersion             =1,
-		LastActivity                =2,
-		EntityTime                  =4
-	};
 	enum SoftwareStatus {
 		SoftwareNotLoaded,
 		SoftwareLoaded,
@@ -23,7 +18,6 @@ public:
 public:
 	virtual QObject *instance() =0;
 	virtual QString osVersion() const =0;
-	virtual void showClientInfo(const Jid &AStreamJid, const Jid &AContactJid, int AInfoTypes) =0;
 	//Software Version
 	virtual bool hasSoftwareInfo(const Jid &AContactJid) const =0;
 	virtual bool requestSoftwareInfo(const Jid &AStreamJid, const Jid &AContactJid) =0;

@@ -2,80 +2,10 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
-    <name>RegisterDialog</name>
-    <message>
-        <source>Registration at %1</source>
-        <translation>Регистрация на %1</translation>
-    </message>
-    <message>
-        <source>Waiting for host response ...</source>
-        <translation>Ожидание ответа от хоста...</translation>
-    </message>
-    <message>
-        <source>Error: Can`t send request to host.</source>
-        <translation>Ошибка: невозможно отправить запрос на хост.</translation>
-    </message>
-    <message>
-        <source>Do you really want to remove registration from %1?</source>
-        <translation>Вы действительно хотите удалить регистрацию на %1?</translation>
-    </message>
-    <message>
-        <source>Enter your username and new password.</source>
-        <translation>Введите ваш логин и новый пароль.</translation>
-    </message>
-    <message>
-        <source>You are successfully registered at %1</source>
-        <translation>Вы успешно зарегистрировались на %1</translation>
-    </message>
-    <message>
-        <source>You are successfully unregistered from %1</source>
-        <translation>Вы успешно удалили регистрацию на %1</translation>
-    </message>
-    <message>
-        <source>Password was successfully changed at %1</source>
-        <translation>Пароль на %1 был успешно изменен</translation>
-    </message>
-    <message>
-        <source>Requested operation failed: %1</source>
-        <translation>Запрошенная операция выполнена с ошибкой: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RegisterDialogClass</name>
-    <message>
-        <source>Username:</source>
-        <translation>Имя пользователя:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>Пароль:</translation>
-    </message>
-    <message>
-        <source>Email:</source>
-        <translation>E-mail:</translation>
-    </message>
-</context>
-<context>
     <name>Registration</name>
     <message>
         <source>Registration</source>
         <translation>Регистрация</translation>
-    </message>
-    <message>
-        <source>Register</source>
-        <translation>Зарегистрировать</translation>
-    </message>
-    <message>
-        <source>Unregister</source>
-        <translation>Удалить регистрацию</translation>
-    </message>
-    <message>
-        <source>Change password</source>
-        <translation>Изменить пароль</translation>
-    </message>
-    <message>
-        <source>Register new account on server</source>
-        <translation>Зарегистрировать новый аккаунт на сервере</translation>
     </message>
     <message>
         <source>Registration Form</source>

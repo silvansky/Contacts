@@ -23,9 +23,9 @@
 class RostersViewPlugin;
 
 class RostersView :
-			public QTreeView,
-			public IRostersView,
-			public IRosterDataHolder
+	public QTreeView,
+	public IRostersView,
+	public IRosterDataHolder
 {
 	Q_OBJECT
 	Q_INTERFACES(IRostersView IRosterDataHolder)

@@ -1,10 +1,11 @@
 #include "pluginmanager.h"
 
-#include <QTimer>
-#include <QStack>
 #ifdef DEBUG_ENABLED
 # include <QDebug>
 #endif
+
+#include <QTimer>
+#include <QStack>
 #include <QProcess>
 #include <QLibrary>
 #include <QFileInfo>
@@ -12,10 +13,10 @@
 #include <QMessageBox>
 #include <QLibraryInfo>
 #include <QFontDatabase>
-#include <utils/log.h>
-#include <definitions/resources.h>
 #include <definitions/fonts.h>
+#include <definitions/resources.h>
 #include <interfaces/imainwindow.h>
+#include <utils/log.h>
 
 #define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Contacts"
@@ -67,6 +68,7 @@ PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 
 PluginManager::~PluginManager()
 {
+
 }
 
 QString PluginManager::version() const
@@ -223,7 +225,7 @@ void PluginManager::showMainWindow()
 	IPlugin * plugin = pluginInstance(MAINWINDOW_UUID);
 	if (plugin)
 	{
-		IMainWindowPlugin * mainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
+		IMainWindowPlugin *mainWindowPlugin = qobject_cast<IMainWindowPlugin*>(plugin->instance());
 		if (mainWindowPlugin)
 		{
 			mainWindowPlugin->showMainWindow();
@@ -689,21 +691,18 @@ void PluginManager::createMenuActions()
 	{
 		Action *comments = new Action(mainWindowPligin->mainWindow()->mainMenu());
 		comments->setText(tr("Leave your feedback..."));
-		//comments->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_ABOUT);
 		connect(comments,SIGNAL(triggered()),SLOT(onShowCommentsDialog()));
 		mainWindowPligin->mainWindow()->mainMenu()->addAction(comments, AG_MMENU_PLUGINMANAGER_COMMENTS);
 
 		Action *about = new Action(mainWindowPligin->mainWindow()->mainMenu());
 		about->setText(tr("About the program"));
-		//about->setIcon(RSR_STORAGE_MENUICONS,MNI_PLUGINMANAGER_ABOUT);
 		connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
 		mainWindowPligin->mainWindow()->mainMenu()->addAction(about,AG_MMENU_PLUGINMANAGER_ABOUT);
 
+#ifdef DEBUG_ENABLED
 		Action *pluginsDialog = new Action(mainWindowPligin->mainWindow()->mainMenu());
 		pluginsDialog->setText(tr("Setup plugins"));
-		//pluginsDialog->setIcon(RSR_STORAGE_MENUICONS, MNI_PLUGINMANAGER_SETUP);
 		connect(pluginsDialog,SIGNAL(triggered(bool)),SLOT(onShowSetupPluginsDialog(bool)));
-#ifdef DEBUG_ENABLED
 		mainWindowPligin->mainWindow()->mainMenu()->addAction(pluginsDialog, AG_MMENU_PLUGINMANAGER_SETUP, true);
 #endif
 	}
@@ -758,7 +757,6 @@ void PluginManager::onShowAboutBoxDialog()
 {
 	if (FAboutDialog.isNull())
 		FAboutDialog = new AboutBox(this);
-
 	WidgetManager::showActivateRaiseWindow(FAboutDialog->parentWidget() ? FAboutDialog->parentWidget() : FAboutDialog);
 }
 
@@ -769,9 +767,9 @@ void PluginManager::onShowCommentsDialog()
 	WidgetManager::showActivateRaiseWindow(FCommentDialog->windowBorder() ? (QWidget*)FCommentDialog->windowBorder() : (QWidget*)FCommentDialog);
 }
 
-void PluginManager::onMessageBoxButtonClicked(QAbstractButton * button)
+void PluginManager::onMessageBoxButtonClicked(QAbstractButton *AButton)
 {
-	QMessageBox * mb = qobject_cast<QMessageBox*>(sender());
-	if (mb && (mb->buttonRole(button) == QMessageBox::YesRole))
+	QMessageBox *mb = qobject_cast<QMessageBox*>(sender());
+	if (mb && (mb->buttonRole(AButton) == QMessageBox::YesRole))
 		quit();
 }

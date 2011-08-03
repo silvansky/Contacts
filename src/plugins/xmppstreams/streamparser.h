@@ -7,7 +7,7 @@
 #include <definitions/namespaces.h>
 
 class StreamParser :
-			public QObject
+	public QObject
 {
 	Q_OBJECT
 public:

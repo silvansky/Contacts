@@ -9,9 +9,9 @@
 #include "xmppstream.h"
 
 class XmppStreams :
-			public QObject,
-			public IPlugin,
-			public IXmppStreams
+	public QObject,
+	public IPlugin,
+	public IXmppStreams
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IXmppStreams)

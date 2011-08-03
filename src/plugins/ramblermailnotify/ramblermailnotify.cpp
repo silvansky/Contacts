@@ -149,7 +149,7 @@ bool RamblerMailNotify::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification;
+		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay;
 		FNotifications->insertNotificator(NID_MAIL_NOTIFY,OWO_NOTIFICATIONS_MAIL_NOTIFY,tr("New e-mail"),kindMask,kindMask);
 	}
 	if (FStanzaProcessor)
@@ -323,8 +323,8 @@ void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AS
 			}
 
 			INotification notify;
-			notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_MAIL_NOTIFY)|INotification::RosterIcon : 0;
-			if ((notify.kinds & (INotification::PopupWindow|INotification::PlaySoundNotification))>0)
+			notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_MAIL_NOTIFY)|INotification::RosterNotify : 0;
+			if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 			{
 				notify.removeInvisible = false;
 				notify.notificatior = NID_MAIL_NOTIFY;
@@ -525,7 +525,7 @@ void RamblerMailNotify::onNotificationTest(const QString &ANotificatorId, uchar 
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on mail.rambler.ru :)"));
 			notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 		}
-		if (AKinds & INotification::PlaySoundNotification)
+		if (AKinds & INotification::SoundPlay)
 		{
 			notify.data.insert(NDR_SOUND_FILE,SDF_RAMBLERMAILNOTIFY_NOTIFY);
 		}

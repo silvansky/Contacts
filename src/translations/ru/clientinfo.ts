@@ -52,124 +52,12 @@
         <translation>Поддерживает обмен информацией о локальном времени пользователя</translation>
     </message>
     <message>
-        <source>Service Uptime</source>
-        <translation>Время работы сервиса</translation>
-    </message>
-    <message>
-        <source>Idle Time</source>
-        <translation>Время бездействия</translation>
-    </message>
-    <message>
         <source>XMPP Ping</source>
         <translation>XMPP Ping</translation>
     </message>
     <message>
         <source>Supports the exchanging of the application-level pings over XML streams</source>
         <translation>Поддерживает обмен ping-ами на уровне приложения через XMPP подключение</translation>
-    </message>
-</context>
-<context>
-    <name>ClientInfoDialog</name>
-    <message>
-        <source>Client info - %1</source>
-        <translation>Информация о клиенте - %1</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Имя:</translation>
-    </message>
-    <message>
-        <source>Version:</source>
-        <translation>Версия:</translation>
-    </message>
-    <message>
-        <source>OS:</source>
-        <translation>ОС:</translation>
-    </message>
-    <message>
-        <source>Error:</source>
-        <translation>Ошибка:</translation>
-    </message>
-    <message>
-        <source>Status:</source>
-        <translation>Статус:</translation>
-    </message>
-    <message>
-        <source>Time:</source>
-        <translation>Время:</translation>
-    </message>
-    <message>
-        <source>Delta:</source>
-        <translation>Разность:</translation>
-    </message>
-    <message>
-        <source>Ping, msec:</source>
-        <translation>Пинг, мсек:</translation>
-    </message>
-    <message>
-        <source>Software Version</source>
-        <translation>Версия приложения</translation>
-    </message>
-    <message>
-        <source>Service Uptime</source>
-        <translation>Время работы сервиса</translation>
-    </message>
-    <message>
-        <source>Last Activity</source>
-        <translation>Последняя активность</translation>
-    </message>
-    <message>
-        <source>Idle Time</source>
-        <translation>Время бездействия</translation>
-    </message>
-    <message>
-        <source>Uptime:</source>
-        <translation>Работает:</translation>
-    </message>
-    <message>
-        <source>Inactive:</source>
-        <translation>Не активен:</translation>
-    </message>
-    <message>
-        <source>Idle:</source>
-        <translation>Бездействует:</translation>
-    </message>
-    <message>
-        <source>Entity Time</source>
-        <translation>Время контакта</translation>
-    </message>
-    <message>
-        <source>Not available</source>
-        <translation>Не доступно</translation>
-    </message>
-    <message>
-        <source>%1y</source>
-        <comment>years</comment>
-        <translation>%1г</translation>
-    </message>
-    <message>
-        <source>%1d</source>
-        <comment>days</comment>
-        <translation>%1д</translation>
-    </message>
-    <message>
-        <source>%1h</source>
-        <comment>hours</comment>
-        <translation>%1ч</translation>
-    </message>
-    <message>
-        <source>%1m</source>
-        <comment>minutes</comment>
-        <translation>%1м</translation>
-    </message>
-    <message>
-        <source>%1s</source>
-        <comment>seconds</comment>
-        <translation>%1с</translation>
-    </message>
-    <message>
-        <source>Waiting response...</source>
-        <translation>Ожидание ответа...</translation>
     </message>
 </context>
 </TS>

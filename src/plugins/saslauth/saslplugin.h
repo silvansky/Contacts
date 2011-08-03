@@ -14,10 +14,10 @@
 #define SASLAUTH_UUID "{4f54258f-b3e6-43b7-901f-e2291c49e0db}"
 
 class SASLPlugin :
-			public QObject,
-			public IPlugin,
-			public IXmppFeaturesPlugin,
-			public IXmppStanzaHadler
+	public QObject,
+	public IPlugin,
+	public IXmppFeaturesPlugin,
+	public IXmppStanzaHadler
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IXmppFeaturesPlugin IXmppStanzaHadler);

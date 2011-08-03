@@ -12,9 +12,9 @@
 #define COMPRESS_UUID "{e34791d9-be7a-4ab1-917f-6897d11a5116}"
 
 class CompressPlugin :
-			public QObject,
-			public IPlugin,
-			public IXmppFeaturesPlugin
+	public QObject,
+	public IPlugin,
+	public IXmppFeaturesPlugin
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IXmppFeaturesPlugin);

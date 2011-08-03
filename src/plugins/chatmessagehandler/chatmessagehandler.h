@@ -12,6 +12,7 @@
 #include <definitions/rosterclickhookerorders.h>
 #include <definitions/notificators.h>
 #include <definitions/notificationdataroles.h>
+#include <definitions/tabpagenotifypriorities.h>
 #include <definitions/vcardvaluenames.h>
 #include <definitions/actiongroups.h>
 #include <definitions/resources.h>
@@ -22,7 +23,6 @@
 #include <definitions/optionwidgetorders.h>
 #include <definitions/toolbargroups.h>
 #include <definitions/xmppurihandlerorders.h>
-#include <definitions/tabpagenotifypriorities.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imessagewidgets.h>

@@ -2,10 +2,9 @@
 
 Account::Account(IXmppStreams *AXmppStreams, const OptionsNode &AOptionsNode, QObject *AParent) : QObject(AParent)
 {
+	FXmppStream = NULL;
 	FXmppStreams = AXmppStreams;
 	FOptionsNode = AOptionsNode;
-	FXmppStream = NULL;
-
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 }
 
@@ -16,11 +15,11 @@ Account::~Account()
 
 bool Account::isValid() const
 {
-	Jid sJid = streamJid();
-	bool valid = sJid.isValid();
-	valid = valid && !sJid.node().isEmpty();
-	valid = valid && !sJid.domain().isEmpty();
-	valid = valid && (FXmppStream==FXmppStreams->xmppStream(sJid) || FXmppStreams->xmppStream(sJid)==NULL);
+	Jid stream = streamJid();
+	bool valid = stream.isValid();
+	valid = valid && !stream.node().isEmpty();
+	valid = valid && !stream.domain().isEmpty();
+	valid = valid && (FXmppStream==FXmppStreams->xmppStream(stream) || FXmppStreams->xmppStream(stream)==NULL);
 	return valid;
 }
 

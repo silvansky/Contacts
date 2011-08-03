@@ -25,17 +25,15 @@
 #include <utils/customborderstorage.h>
 #include <thirdparty/qtlockedfile/qtlockedfile.h>
 #include "logindialog.h"
-#include "editprofilesdialog.h"
 #include "optionswidget.h"
 #include "optionsheader.h"
-#include "optionscontainer.h"
 #include "optionsdialog.h"
 
 class OptionsManager :
-			public QObject,
-			public IPlugin,
-			public IOptionsManager,
-			public IOptionsHolder
+	public QObject,
+	public IPlugin,
+	public IOptionsManager,
+	public IOptionsHolder
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IOptionsManager IOptionsHolder)
@@ -70,7 +68,6 @@ public:
 	virtual void insertServerOption(const QString &APath);
 	virtual void removeServerOption(const QString &APath);
 	virtual QDialog *showLoginDialog(QWidget *AParent = NULL);
-	virtual QDialog *showEditProfilesDialog(QWidget *AParent = NULL);
 	virtual QList<IOptionsHolder *> optionsHolders() const;
 	virtual void insertOptionsHolder(IOptionsHolder *AHolder);
 	virtual void removeOptionsHolder(IOptionsHolder *AHolder);
@@ -79,7 +76,6 @@ public:
 	virtual void insertOptionsDialogNode(const IOptionsDialogNode &ANode);
 	virtual void removeOptionsDialogNode(const QString &ANodeId);
 	virtual QWidget *showOptionsDialog(const QString &ANodeId = QString::null, QWidget *AParent = NULL);
-	virtual IOptionsContainer *optionsContainer(QWidget *AParent) const;
 	virtual IOptionsWidget *optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const;
 	virtual IOptionsWidget *optionsNodeWidget(const OptionsNode &ANode, const QString &ACaption, QWidget *AParent) const;
 signals:
@@ -100,7 +96,6 @@ protected:
 	bool loadServerOptions(const Jid &AStreamJid);
 	bool saveServerOptions(const Jid &AStreamJid);
 	QDomDocument profileDocument(const QString &AProfile) const;
-	void importOldSettings();
 protected slots:
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onOptionsDialogApplied();
@@ -133,7 +128,6 @@ private:
 	Action *FChangeProfileAction;
 	LoginDialog* FLoginDialog;
 	CustomBorderContainer * FLoginDialogBorder;
-	QPointer<EditProfilesDialog> FEditProfilesDialog;
 private:
 	Action *FShowOptionsDialogAction;
 	QList<IOptionsHolder *> FOptionsHolders;

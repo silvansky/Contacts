@@ -36,13 +36,10 @@
 ClientInfo::ClientInfo()
 {
 	FPluginManager = NULL;
-	FRosterPlugin = NULL;
-	FPresencePlugin = NULL;
 	FStanzaProcessor = NULL;
-	FRostersViewPlugin = NULL;
+	FPresencePlugin = NULL;
 	FDiscovery = NULL;
 	FDataForms = NULL;
-	FOptionsManager = NULL;
 
 	FPingHandle = 0;
 	FTimeHandle = 0;
@@ -65,23 +62,14 @@ void ClientInfo::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 
-bool ClientInfo::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool ClientInfo::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
 
 	IPlugin *plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0,NULL);
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("IRosterPlugin").value(0,NULL);
-	if (plugin)
-	{
-		FRosterPlugin = qobject_cast<IRosterPlugin *>(plugin->instance());
-		if (FRosterPlugin)
-		{
-			connect(FRosterPlugin->instance(),SIGNAL(rosterRemoved(IRoster *)),SLOT(onRosterRemoved(IRoster *)));
-		}
-	}
 
 	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
 	if (plugin)
@@ -89,21 +77,8 @@ bool ClientInfo::initConnections(IPluginManager *APluginManager, int &/*AInitOrd
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 		if (FPresencePlugin)
 		{
-			connect(FPresencePlugin->instance(),SIGNAL(contactStateChanged(const Jid &, const Jid &, bool)),
-			        SLOT(onContactStateChanged(const Jid &, const Jid &, bool)));
+			connect(FPresencePlugin->instance(),SIGNAL(contactStateChanged(const Jid &, const Jid &, bool)),SLOT(onContactStateChanged(const Jid &, const Jid &, bool)));
 		}
-	}
-
-	plugin = APluginManager->pluginInterface("IOptionsManager").value(0);
-	if (plugin)
-	{
-		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-	}
-
-	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
-	if (plugin)
-	{
-		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 	}
 
 	plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
@@ -152,20 +127,9 @@ bool ClientInfo::initObjects()
 		FPingHandle = FStanzaProcessor->insertStanzaHandle(shandle);
 	}
 
-	if (FRostersViewPlugin)
-	{
-		connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *,QList<IRosterIndex *>,Menu*)),
-			SLOT(onRosterIndexContextMenu(IRosterIndex *,QList<IRosterIndex *>,Menu *)));
-		connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(labelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &, ToolBarChanger *)),
-			SLOT(onRosterLabelToolTips(IRosterIndex *, int , QMultiMap<int,QString> &, ToolBarChanger *)));
-	}
-
 	if (FDiscovery)
 	{
 		registerDiscoFeatures();
-		FDiscovery->insertFeatureHandler(NS_JABBER_VERSION,this,DFO_DEFAULT);
-		FDiscovery->insertFeatureHandler(NS_JABBER_LAST,this,DFO_DEFAULT);
-		FDiscovery->insertFeatureHandler(NS_XMPP_TIME,this,DFO_DEFAULT);
 	}
 
 	if (FDataForms)
@@ -179,10 +143,6 @@ bool ClientInfo::initObjects()
 bool ClientInfo::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_SHAREOSVERSION,true);
-	if (FOptionsManager)
-	{
-		FOptionsManager->insertOptionsHolder(this);
-	}
 	return true;
 }
 
@@ -190,17 +150,6 @@ bool ClientInfo::startPlugin()
 {
 	SystemManager::instance()->startSystemIdle();
 	return true;
-}
-
-QMultiMap<int, IOptionsWidget *> ClientInfo::optionsWidgets(const QString &ANodeId, QWidget *AParent)
-{
-	Q_UNUSED(ANodeId); Q_UNUSED(AParent);
-	QMultiMap<int, IOptionsWidget *> widgets;
-	//if (FOptionsManager && ANodeId == OPN_MISC)
-	//{
-	//	widgets.insertMulti(OWO_MISC_CLIENTINFO, FOptionsManager->optionsNodeWidget(Options::node(OPV_MISC_SHAREOSVERSION),tr("Share information about OS version"),AParent));
-	//}
-	return widgets;
 }
 
 bool ClientInfo::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
@@ -350,50 +299,6 @@ IDataFormLocale ClientInfo::dataFormLocale(const QString &AFormType)
 		locale.fields[FORM_FIELD_OS_VERSION].label = tr("OS Version");
 	}
 	return locale;
-}
-
-bool ClientInfo::execDiscoFeature(const Jid &AStreamJid, const QString &AFeature, const IDiscoInfo &ADiscoInfo)
-{
-	if (AFeature == NS_JABBER_VERSION)
-	{
-		showClientInfo(AStreamJid,ADiscoInfo.contactJid,IClientInfo::SoftwareVersion);
-		return true;
-	}
-	else if (AFeature == NS_JABBER_LAST)
-	{
-		showClientInfo(AStreamJid,ADiscoInfo.contactJid,IClientInfo::LastActivity);
-		return true;
-	}
-	else if (AFeature == NS_XMPP_TIME)
-	{
-		showClientInfo(AStreamJid,ADiscoInfo.contactJid,IClientInfo::EntityTime);
-		return true;
-	}
-	return false;
-}
-
-Action *ClientInfo::createDiscoFeatureAction(const Jid &AStreamJid, const QString &AFeature, const IDiscoInfo &ADiscoInfo, QWidget *AParent)
-{
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
-	if (presence && presence->isOpen())
-	{
-		if (AFeature == NS_JABBER_VERSION)
-		{
-			Action *action = createInfoAction(AStreamJid,ADiscoInfo.contactJid,AFeature,AParent);
-			return action;
-		}
-		else if (AFeature == NS_JABBER_LAST)
-		{
-			Action *action = createInfoAction(AStreamJid,ADiscoInfo.contactJid,AFeature,AParent);
-			return action;
-		}
-		else if (AFeature == NS_XMPP_TIME)
-		{
-			Action *action = createInfoAction(AStreamJid,ADiscoInfo.contactJid,AFeature,AParent);
-			return action;
-		}
-	}
-	return NULL;
 }
 
 QString ClientInfo::osVersion() const
@@ -565,41 +470,6 @@ QString ClientInfo::osVersion() const
 	return osver;
 }
 
-void ClientInfo::showClientInfo(const Jid &AStreamJid, const Jid &AContactJid, int AInfoTypes)
-{
-	if (AInfoTypes>0 && AContactJid.isValid() && AStreamJid.isValid())
-	{
-		ClientInfoDialog *dialog = FClientInfoDialogs.value(AContactJid,NULL);
-		if (!dialog)
-		{
-			QString contactName =  AContactJid.node();
-			if (FDiscovery!=NULL && FDiscovery->discoInfo(AStreamJid,AContactJid.bare()).identity.value(0).category == "conference")
-				contactName = AContactJid.resource();
-			if (contactName.isEmpty())
-				contactName = FDiscovery!=NULL ? FDiscovery->discoInfo(AStreamJid,AContactJid).identity.value(0).name : AContactJid.domain();
-			if (FRosterPlugin)
-			{
-				IRoster *roster = FRosterPlugin->getRoster(AStreamJid);
-				if (roster)
-				{
-					IRosterItem ritem = roster->rosterItem(AContactJid);
-					if (!ritem.name.isEmpty())
-						contactName = ritem.name;
-				}
-			}
-			dialog = new ClientInfoDialog(this,AStreamJid,AContactJid,!contactName.isEmpty() ? contactName : AContactJid.full(),AInfoTypes);
-			connect(dialog,SIGNAL(clientInfoDialogClosed(const Jid &)),SLOT(onClientInfoDialogClosed(const Jid &)));
-			FClientInfoDialogs.insert(AContactJid,dialog);
-			dialog->show();
-		}
-		else
-		{
-			dialog->setInfoTypes(dialog->infoTypes() | AInfoTypes);
-			WidgetManager::showActivateRaiseWindow(dialog);
-		}
-	}
-}
-
 bool ClientInfo::hasSoftwareInfo(const Jid &AContactJid) const
 {
 	return FSoftwareItems.value(AContactJid).status == SoftwareLoaded;
@@ -722,78 +592,23 @@ int ClientInfo::entityTimePing(const Jid &AContactJid) const
 	return FTimeItems.value(AContactJid).ping;
 }
 
-Action *ClientInfo::createInfoAction(const Jid &AStreamJid, const Jid &AContactJid, const QString &AFeature, QObject *AParent) const
-{
-	if (AFeature == NS_JABBER_VERSION)
-	{
-		Action *action = new Action(AParent);
-		action->setText(tr("Software Version"));
-		action->setIcon(RSR_STORAGE_MENUICONS,MNI_CLIENTINFO_VERSION);
-		action->setData(ADR_STREAM_JID,AStreamJid.full());
-		action->setData(ADR_CONTACT_JID,AContactJid.full());
-		action->setData(ADR_INFO_TYPES,IClientInfo::SoftwareVersion);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onClientInfoActionTriggered(bool)));
-		return action;
-	}
-	else if (AFeature == NS_JABBER_LAST)
-	{
-		Action *action = new Action(AParent);
-
-		if (AContactJid.node().isEmpty())
-			action->setText(tr("Service Uptime"));
-		else if (AContactJid.resource().isEmpty())
-			action->setText(tr("Last Activity"));
-		else
-			action->setText(tr("Idle Time"));
-
-		action->setIcon(RSR_STORAGE_MENUICONS,MNI_CLIENTINFO_ACTIVITY);
-		action->setData(ADR_STREAM_JID,AStreamJid.full());
-		action->setData(ADR_CONTACT_JID,AContactJid.full());
-		action->setData(ADR_INFO_TYPES,IClientInfo::LastActivity);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onClientInfoActionTriggered(bool)));
-		return action;
-	}
-	else if (AFeature == NS_XMPP_TIME)
-	{
-		Action *action = new Action(AParent);
-		action->setText(tr("Entity Time"));
-		action->setIcon(RSR_STORAGE_MENUICONS,MNI_CLIENTINFO_TIME);
-		action->setData(ADR_STREAM_JID,AStreamJid.full());
-		action->setData(ADR_CONTACT_JID,AContactJid.full());
-		action->setData(ADR_INFO_TYPES,IClientInfo::EntityTime);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onClientInfoActionTriggered(bool)));
-		return action;
-	}
-	return NULL;
-}
-
-void ClientInfo::deleteSoftwareDialogs(const Jid &AStreamJid)
-{
-	foreach(ClientInfoDialog *dialog, FClientInfoDialogs)
-		if (dialog->streamJid() == AStreamJid)
-			dialog->deleteLater();
-}
-
 void ClientInfo::registerDiscoFeatures()
 {
 	IDiscoFeature dfeature;
 
 	dfeature.active = true;
-	dfeature.icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CLIENTINFO_VERSION);
 	dfeature.var = NS_JABBER_VERSION;
 	dfeature.name = tr("Software Version");
 	dfeature.description = tr("Supports the exchanging of the information about the application version");
 	FDiscovery->insertDiscoFeature(dfeature);
 
 	dfeature.active = true;
-	dfeature.icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CLIENTINFO_ACTIVITY);
 	dfeature.var = NS_JABBER_LAST;
 	dfeature.name = tr("Last Activity");
 	dfeature.description = tr("Supports the exchanging of the information about the user last activity");
 	FDiscovery->insertDiscoFeature(dfeature);
 
 	dfeature.active = true;
-	dfeature.icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CLIENTINFO_TIME);
 	dfeature.var = NS_XMPP_TIME;
 	dfeature.name = tr("Entity Time");
 	dfeature.description = tr("Supports the exchanging of the information about the user local time");
@@ -839,69 +654,6 @@ void ClientInfo::onContactStateChanged(const Jid &AStreamJid, const Jid &AContac
 			emit entityTimeChanged(AContactJid);
 		}
 	}
-}
-
-void ClientInfo::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
-{
-	Q_UNUSED(AIndex); Q_UNUSED(ASelected); Q_UNUSED(AMenu);
-	//if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT || AIndex->type() == RIT_MY_RESOURCE)
-	//{
-	//	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-	//	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
-	//	if (presence && presence->xmppStream()->isOpen())
-	//	{
-	//		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
-	//		int show = AIndex->data(RDR_SHOW).toInt();
-	//		QStringList features = FDiscovery!=NULL ? FDiscovery->discoInfo(streamJid,contactJid).features : QStringList();
-	//		if (show != IPresence::Offline && show != IPresence::Error && !features.contains(NS_JABBER_VERSION))
-	//		{
-	//			Action *action = createInfoAction(streamJid,contactJid,NS_JABBER_VERSION,AMenu);
-	//			AMenu->addAction(action,AG_RVCM_CLIENTINFO,true);
-	//		}
-	//		if ((show == IPresence::Offline || show == IPresence::Error) && !features.contains(NS_JABBER_LAST))
-	//		{
-	//			Action *action = createInfoAction(streamJid,contactJid,NS_JABBER_LAST,AMenu);
-	//			AMenu->addAction(action,AG_RVCM_CLIENTINFO,true);
-	//		}
-	//	}
-	//}
-}
-
-void ClientInfo::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger)
-{
-	Q_UNUSED(AIndex); Q_UNUSED(ALabelId); Q_UNUSED(AToolTips); Q_UNUSED(AToolBarChanger);
-	//if (ALabelId == RLID_DISPLAY)
-	//{
-	//	Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
-
-	//	if (hasSoftwareInfo(contactJid))
-	//		AToolTips.insert(RTTO_SOFTWARE_INFO,tr("Software: %1 %2").arg(Qt::escape(softwareName(contactJid))).arg(Qt::escape(softwareVersion(contactJid))));
-
-	//	if (hasEntityTime(contactJid))
-	//		AToolTips.insert(RTTO_ENTITY_TIME,tr("Entity time: %1").arg(entityTime(contactJid).time().toString()));
-	//}
-}
-
-void ClientInfo::onClientInfoActionTriggered(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		Jid streamJid = action->data(ADR_STREAM_JID).toString();
-		Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-		int infoTypes = action->data(ADR_INFO_TYPES).toInt();
-		showClientInfo(streamJid,contactJid,infoTypes);
-	}
-}
-
-void ClientInfo::onClientInfoDialogClosed(const Jid &AContactJid)
-{
-	FClientInfoDialogs.remove(AContactJid);
-}
-
-void ClientInfo::onRosterRemoved(IRoster *ARoster)
-{
-	deleteSoftwareDialogs(ARoster->streamJid());
 }
 
 void ClientInfo::onDiscoInfoReceived(const IDiscoInfo &AInfo)

@@ -8,9 +8,9 @@
 #include <utils/stanza.h>
 
 class SASLAuth :
-			public QObject,
-			public IXmppFeature,
-			public IXmppStanzaHadler
+	public QObject,
+	public IXmppFeature,
+	public IXmppStanzaHadler
 {
 	Q_OBJECT;
 	Q_INTERFACES(IXmppFeature IXmppStanzaHadler);

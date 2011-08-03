@@ -2,25 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
-    <name>ConnectionOptionsWidgetClass</name>
-    <message>
-        <source>Host:</source>
-        <translation>Хост:</translation>
-    </message>
-    <message>
-        <source>Port:</source>
-        <translation>Порт:</translation>
-    </message>
-    <message>
-        <source>Use SSL connection</source>
-        <translation>Использовать SSL-соединение</translation>
-    </message>
-    <message>
-        <source>Ignore SSL errors</source>
-        <translation>Игнорировать ошибки SSL</translation>
-    </message>
-</context>
-<context>
     <name>DefaultConnection</name>
     <message>
         <source>Disconnection timed out</source>

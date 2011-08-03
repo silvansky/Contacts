@@ -8,8 +8,8 @@
 #include "ui_messengeroptions.h"
 
 class MessengerOptions :
-			public QWidget,
-			public IOptionsWidget
+	public QWidget,
+	public IOptionsWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(IOptionsWidget)

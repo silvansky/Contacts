@@ -21,6 +21,32 @@ VCard::VCard(const Jid &AContactJid, VCardPlugin *APlugin) : QObject(APlugin)
 
 VCard::~VCard()
 {
+
+}
+
+bool VCard::isValid() const
+{
+	return FContactJid.isValid() && !vcardElem().isNull();
+}
+
+bool VCard::isEmpty() const
+{
+	return !isValid() || !vcardElem().hasChildNodes();
+}
+
+const Jid &VCard::contactJid() const
+{
+	return FContactJid;
+}
+
+QDomElement VCard::vcardElem() const
+{
+	return FDoc.documentElement().firstChildElement(VCARD_TAGNAME);
+}
+
+QDateTime VCard::loadDateTime() const
+{
+	return FLoadDateTime;
 }
 
 QString VCard::value(const QString &AName, const QStringList &ATags, const QStringList &ATagList) const
@@ -130,6 +156,11 @@ void VCard::setValueForTags(const QString &AName, const QString &AValue, const Q
 	}
 }
 
+QImage VCard::logoImage() const
+{
+	return FLogo;
+}
+
 void VCard::setLogoImage(const QImage &AImage, const QByteArray &AFormat)
 {
 	if (!AImage.isNull())
@@ -148,6 +179,11 @@ void VCard::setLogoImage(const QImage &AImage, const QByteArray &AFormat)
 		setValueForTags(VVN_LOGO_VALUE,"");
 	}
 	FLogo = AImage;
+}
+
+QImage VCard::photoImage() const
+{
+	return FPhoto;
 }
 
 void VCard::setPhotoImage(const QImage &AImage, const QByteArray &AFormat)
@@ -332,4 +368,3 @@ void VCard::onVCardError(const Jid &AContactJid, const QString &AError)
 	if (FContactJid == AContactJid)
 		emit vcardError(AError);
 }
-

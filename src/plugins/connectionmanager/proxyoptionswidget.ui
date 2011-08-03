@@ -94,11 +94,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lneProxyPort">
-          <property name="text">
-           <string notr="true">1080</string>
-          </property>
-         </widget>
+         <widget class="QLineEdit" name="lneProxyPort"/>
         </item>
         <item>
          <widget class="QSpinBox" name="spbProxyPort">

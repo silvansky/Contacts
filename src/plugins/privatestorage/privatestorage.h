@@ -10,10 +10,10 @@
 #include <utils/stanza.h>
 
 class PrivateStorage :
-			public QObject,
-			public IPlugin,
-			public IPrivateStorage,
-			public IStanzaRequestOwner
+	public QObject,
+	public IPlugin,
+	public IPrivateStorage,
+	public IStanzaRequestOwner
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IPrivateStorage IStanzaRequestOwner);

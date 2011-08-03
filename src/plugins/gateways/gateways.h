@@ -42,7 +42,6 @@
 #include <utils/action.h>
 #include <utils/options.h>
 #include "addlegacyaccountdialog.h"
-#include "addlegacycontactdialog.h"
 #include "addlegacyaccountoptions.h"
 #include "addfacebookaccountdialog.h"
 #include "managelegacyaccountsoptions.h"
@@ -53,11 +52,10 @@ class Gateways :
 	public IPlugin,
 	public IGateways,
 	public IOptionsHolder,
-	public IStanzaRequestOwner,
-	public IDiscoFeatureHandler
+	public IStanzaRequestOwner
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IGateways IOptionsHolder IStanzaRequestOwner IDiscoFeatureHandler)
+	Q_INTERFACES(IPlugin IGateways IOptionsHolder IStanzaRequestOwner)
 public:
 	Gateways();
 	~Gateways();
@@ -74,9 +72,6 @@ public:
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
 	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
-	//IDiscoFeatureHandler
-	virtual bool execDiscoFeature(const Jid &AStreamJid, const QString &AFeature, const IDiscoInfo &ADiscoInfo);
-	virtual Action *createDiscoFeatureAction(const Jid &AStreamJid, const QString &AFeature, const IDiscoInfo &ADiscoInfo, QWidget *AParent);
 	//IGateways
 	virtual void resolveNickName(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual void sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bool ALogIn);
@@ -107,7 +102,6 @@ public:
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID);
 	virtual QDialog *showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
-	virtual QDialog *showAddLegacyContactDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL);
 signals:
 	void availServicesChanged(const Jid &AStreamJid);
 	void streamServicesChanged(const Jid &AStreamJid);
@@ -120,28 +114,19 @@ signals:
 protected:
 	void registerDiscoFeatures();
 	void startAutoLogin(const Jid &AStreamJid);
-	void savePrivateStorageSubscribe(const Jid &AStreamJid);
 	IGateServiceDescriptor findGateDescriptor(const IDiscoInfo &AInfo) const;
 	void insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid, const QString &ALogin);
 	void removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid);
 protected slots:
-	void onAddLegacyUserActionTriggered(bool);
-	void onLogActionTriggered(bool);
-	void onResolveActionTriggered(bool);
-	void onKeepActionTriggered(bool);
-	void onChangeActionTriggered(bool);
 	void onXmppStreamOpened(IXmppStream *AXmppStream);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onRosterOpened(IRoster *ARoster);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
-	void onRosterSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
-	void onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline);
 	void onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onPrivateStorateOpened(const Jid &AStreamJid);
 	void onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void onPrivateStorateAboutToClose(const Jid &AStreamJid);
 	void onPrivateStorateClosed(const Jid &AStreamJid);
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onKeepTimerTimeout();
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
@@ -180,9 +165,7 @@ private:
 	QList<QString> FPromptRequests;
 	QList<QString> FUserJidRequests;
 	QMultiMap<Jid, Jid> FResolveNicks;
-	QMultiMap<Jid, Jid> FSubscribeServices;
 	QMap<QString, Jid> FLoginRequests;
-	QMap<QString, Jid> FShowRegisterRequests;
 	QMap<QString, QPair<Jid,Jid> > FAutoLoginRequests;
 private:
 	int FInternalNoticeId;

@@ -5,7 +5,7 @@
 #include "tabbar.h"
 
 class TabWidget :
-			public QWidget
+	public QWidget
 {
 	Q_OBJECT
 public:

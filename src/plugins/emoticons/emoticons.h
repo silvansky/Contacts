@@ -19,10 +19,8 @@
 #include <utils/iconstorage.h>
 #include <utils/options.h>
 #include <utils/menu.h>
+#include "emoticonscontainer.h"
 #include "selecticonmenu.h"
-#include "emoticonsoptions.h"
-
-class EmoticonsContainer;
 
 struct EmoticonTreeItem
 {
@@ -50,11 +48,11 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings();
 	virtual bool startPlugin() { return true; }
+	//IOptionsHolder
+	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IMessageWriter
 	virtual void writeMessage(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang);
 	virtual void writeText(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang);
-	//IOptionsHolder
-	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IEmoticons
 	virtual QList<QString> activeIconsets() const;
 	virtual QUrl urlByKey(const QString &AKey) const;

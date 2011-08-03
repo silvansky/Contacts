@@ -55,11 +55,10 @@ class Avatars :
 	public IAvatars,
 	public IStanzaHandler,
 	public IStanzaRequestOwner,
-	public IRosterDataHolder,
-	public IOptionsHolder
+	public IRosterDataHolder
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IAvatars IStanzaHandler IRosterDataHolder IStanzaRequestOwner IOptionsHolder)
+	Q_INTERFACES(IPlugin IAvatars IStanzaHandler IRosterDataHolder IStanzaRequestOwner)
 public:
 	Avatars();
 	~Avatars();
@@ -82,8 +81,6 @@ public:
 	virtual QList<int> rosterDataTypes() const;
 	virtual QVariant rosterData(const IRosterIndex *AIndex, int ARole) const;
 	virtual bool setRosterData(IRosterIndex *AIndex, int ARole, const QVariant &AValue);
-	//IOptionsHolder
-	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IAvatars
 	virtual QString avatarFileName(const QString &AHash) const;
 	virtual bool hasAvatar(const QString &AHash) const;
@@ -113,10 +110,7 @@ protected slots:
 	void onStreamClosed(IXmppStream *AXmppStream);
 	void onVCardChanged(const Jid &AContactJid);
 	void onRosterIndexInserted(IRosterIndex *AIndex);
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips);
-	void onSetAvatarByAction(bool);
-	void onClearAvatarByAction(bool);
 	void onIconStorageChanged();
 	void onOptionsOpened();
 	void onOptionsClosed();

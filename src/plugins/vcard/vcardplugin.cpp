@@ -323,29 +323,11 @@ bool VCardPlugin::publishVCard(IVCard *AVCard, const Jid &AStreamJid)
 			}
 		}
 		else
+		{
 			return true;
+		}
 	}
 	return false;
-}
-
-void VCardPlugin::showVCardDialog(const Jid &AStreamJid, const Jid &AContactJid)
-{
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-	if (roster && roster->isOpen())
-	{
-		if (FVCardDialogs.contains(AContactJid))
-		{
-			VCardDialog *dialog = FVCardDialogs.value(AContactJid);
-			WidgetManager::showActivateRaiseWindow(dialog);
-		}
-		else if (AStreamJid.isValid() && AContactJid.isValid())
-		{
-			VCardDialog *dialog = new VCardDialog(this,AStreamJid,AContactJid);
-			connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onVCardDialogDestroyed(QObject *)));
-			FVCardDialogs.insert(AContactJid,dialog);
-			dialog->show();
-		}
-	}
 }
 
 void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AContactJid)
@@ -360,10 +342,7 @@ void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AConta
 		}
 		else if (AStreamJid.isValid() && AContactJid.isValid())
 		{
-			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons,
-									  FStatusChanger, FRosterPlugin,
-									  FPresencePlugin, FRosterChanger,
-									  AStreamJid, AContactJid);
+			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons, FStatusChanger, FRosterPlugin, FPresencePlugin, FRosterChanger, AStreamJid, AContactJid);
 			StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(dialog, STS_VCARDSIMPLEVCARDDIALOG);
 			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 			if (border)
@@ -468,12 +447,6 @@ void VCardPlugin::onShowVCardDialogByAction(bool)
 	}
 }
 
-void VCardPlugin::onVCardDialogDestroyed(QObject *ADialog)
-{
-	VCardDialog *dialog = static_cast<VCardDialog *>(ADialog);
-	FVCardDialogs.remove(FVCardDialogs.key(dialog));
-}
-
 void VCardPlugin::onSimpleVCardDialogDestroyed(QObject *ADialog)
 {
 	SimpleVCardDialog *dialog = static_cast<SimpleVCardDialog *>(ADialog);
@@ -482,10 +455,6 @@ void VCardPlugin::onSimpleVCardDialogDestroyed(QObject *ADialog)
 
 void VCardPlugin::onXmppStreamClosed(IXmppStream *AXmppStream)
 {
-	foreach(VCardDialog *dialog, FVCardDialogs.values())
-		if (dialog->streamJid() == AXmppStream->streamJid())
-			delete dialog;
-
 	foreach(SimpleVCardDialog *dialog, FSimpleVCardDialogs.values())
 		if (dialog->streamJid() == AXmppStream->streamJid())
 			delete dialog;

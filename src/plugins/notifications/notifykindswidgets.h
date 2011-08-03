@@ -6,16 +6,15 @@
 #include <interfaces/ioptionsmanager.h>
 
 class NotifyKindsWidgets :
-		public QWidget,
-		public IOptionsWidget
-
+	public QWidget,
+	public IOptionsWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(IOptionsWidget)
 public:
-	NotifyKindsWidgets(QWidget * parent);
+	NotifyKindsWidgets(QWidget *AParent);
 	virtual QWidget* instance() { return this; }
-	void addWidget(IOptionsWidget * widget);
+	void addWidget(IOptionsWidget *AWidget);
 public slots:
 	virtual void apply();
 	virtual void reset();

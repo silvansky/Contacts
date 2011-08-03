@@ -11,9 +11,9 @@
 #define STARTTLS_UUID "{0b68d138-7dea-4609-bf32-8ce2b325e22a}"
 
 class StartTLSPlugin :
-			public QObject,
-			public IPlugin,
-			public IXmppFeaturesPlugin
+	public QObject,
+	public IPlugin,
+	public IXmppFeaturesPlugin
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IXmppFeaturesPlugin);

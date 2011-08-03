@@ -37,7 +37,6 @@ public:
 	virtual void setCurrentTabPage(ITabPage *APage);
 	virtual void detachTabPage(ITabPage *APage);
 	virtual void removeTabPage(ITabPage *APage);
-	virtual void clear();
 signals:
 	void currentTabPageChanged(ITabPage *APage);
 	void tabPageAdded(ITabPage *APage);
@@ -46,10 +45,10 @@ signals:
 	void windowChanged();
 	void windowDestroyed();
 protected:
-	void initialize();
 	void createActions();
 	void saveWindowStateAndGeometry();
 	void loadWindowStateAndGeometry();
+	void clearTabs();
 	void updateWindow();
 	void updateTab(int AIndex);
 protected slots:
@@ -63,30 +62,20 @@ protected slots:
 	void onTabPageDestroyed();
 	void onTabPageNotifierChanged();
 	void onTabPageNotifierActiveNotifyChanged(int ANotifyId);
-	void onTabWindowAppended(const QUuid &AWindowId, const QString &AName);
 	void onTabWindowNameChanged(const QUuid &AWindowId, const QString &AName);
-	void onTabWindowDeleted(const QUuid &AWindowId);
 	void onTabMenuActionTriggered(bool);
 	void onWindowMenuActionTriggered(bool);
-	void onOptionsChanged(const OptionsNode &ANode);
 private:
 	Ui::TabWindowClass ui;
 private:
 	IMessageWidgets *FMessageWidgets;
 private:
 	Menu *FWindowMenu;
-	Menu *FJoinMenu;
-	Action *FCloseTab;
-	Action *FCloseAllTabs;
 	Action *FNextTab;
 	Action *FPrevTab;
-	Action *FNewTab;
-	Action *FDetachWindow;
-	Action *FShowCloseButtons;
-	Action *FSetAsDefault;
-	Action *FRenameWindow;
+	Action *FCloseTab;
+	Action *FCloseAllTabs;
 	Action *FCloseWindow;
-	Action *FDeleteWindow;
 private:
 	QUuid FWindowId;
 	QString FLastClosedTab;

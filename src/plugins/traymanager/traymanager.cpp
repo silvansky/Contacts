@@ -19,7 +19,6 @@ TrayManager::TrayManager()
 
 	FContextMenu = new Menu;
 	FSystemIcon.setContextMenu(FContextMenu);
-
 	FSystemIcon.setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
 
 	FBlinkTimer.setSingleShot(true);
@@ -216,9 +215,13 @@ void TrayManager::onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason)
 		emit notifyActivated(FActiveNotify,AReason);
 	}
 	else if (!FTriggerTimer.isActive())
+	{
 		FTriggerTimer.start(qApp->doubleClickInterval());
+	}
 	else
+	{
 		FTriggerTimer.stop();
+	}
 }
 
 void TrayManager::onBlinkTimerTimeout()

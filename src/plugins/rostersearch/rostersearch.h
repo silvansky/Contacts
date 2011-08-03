@@ -64,6 +64,8 @@ public:
 	virtual QList<int> rosterDataTypes() const;
 	virtual QVariant rosterData(const IRosterIndex *AIndex, int ARole) const;
 	virtual bool setRosterData(IRosterIndex *AIndex, int ARole, const QVariant &AValue);
+	//IRostersClickHooker
+	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 	//IRosterSearch
 	virtual void startSearch();
 	virtual QString searchPattern() const;
@@ -76,8 +78,6 @@ public:
 	virtual QString searchFieldName(int ADataRole) const;
 	virtual void setSearchField(int ADataRole, const QString &AName, bool AEnabled);
 	virtual void removeSearchField(int ADataRole);
-	//IRostersClickHooker
-	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 signals:
 	void searchResultUpdated();
 	void searchStateChanged(bool AEnabled);

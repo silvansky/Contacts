@@ -109,7 +109,7 @@ bool ChatStates::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterIcon|INotification::TabPage;
+		uchar kindMask = INotification::RosterNotify|INotification::TabPageNotify;
 		FNotifications->insertNotificator(NID_CHATSTATE_TYPING,OWO_NOTIFICATIONS_CHATSTATE,QString::null,kindMask,kindMask);
 	}
 	return true;
@@ -424,12 +424,6 @@ void ChatStates::onPresenceClosed(IPresence *APresence)
 
 void ChatStates::onChatWindowCreated(IChatWindow *AWindow)
 {
-	StateWidget *widget = new StateWidget(this,AWindow,AWindow->toolBarWidget()->toolBarChanger()->toolBar());
-	widget->setObjectName("stateWidget");
-	AWindow->toolBarWidget()->toolBarChanger()->insertWidget(widget,TBG_MWTBW_CHATSTATES)->setVisible(false);
-	widget->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-	widget->setPopupMode(QToolButton::InstantPopup);
-
 	FChatByEditor.insert(AWindow->editWidget()->textEdit(),AWindow);
 	connect(AWindow->instance(),SIGNAL(tabPageActivated()),SLOT(onChatWindowActivated()));
 	connect(AWindow->editWidget()->textEdit(),SIGNAL(textChanged()),SLOT(onChatWindowTextChanged()));
@@ -511,7 +505,6 @@ void ChatStates::onOptionsOpened()
 	QByteArray data = Options::fileValue("messages.chatstates.permit-status").toByteArray();
 	QDataStream stream(data);
 	stream >> FPermitStatus;
-
 	onOptionsChanged(Options::node(OPV_MESSAGES_CHATSTATESENABLED));
 }
 

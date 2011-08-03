@@ -11,11 +11,11 @@
 #include <interfaces/istanzaprocessor.h>
 
 class MessageProcessor :
-			public QObject,
-			public IPlugin,
-			public IMessageProcessor,
-			public IMessageWriter,
-			public IStanzaHandler
+	public QObject,
+	public IPlugin,
+	public IMessageProcessor,
+	public IMessageWriter,
+	public IStanzaHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IMessageProcessor IMessageWriter IStanzaHandler)

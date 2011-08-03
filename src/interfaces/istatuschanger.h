@@ -25,7 +25,6 @@ class IStatusChanger
 public:
 	virtual QObject *instance() =0;
 	virtual Menu *statusMenu() const =0;
-	virtual Menu *streamMenu(const Jid &AStreamJid) const =0;
 	virtual int mainStatus() const =0;
 	virtual void setMainStatus(int AStatusId) =0;
 	virtual int streamStatus(const Jid &AStreamJid) const =0;

@@ -2,87 +2,8 @@
 
 #include <QSet>
 #include <QTextBlock>
-#include <QPushButton>
-#include <QVBoxLayout>
 
 #define DEFAULT_ICONSET                 "smiles"
-
-class EmoticonsContainer : public QWidget
-{
-	Q_OBJECT
-public:
-	EmoticonsContainer(IEditWidget *AParent) : QWidget(AParent->instance())
-	{
-		FEditWidget = AParent;
-		setLayout(new QVBoxLayout);
-		layout()->setMargin(0);
-	}
-	IEditWidget *editWidget() const
-	{
-		return FEditWidget;
-	}
-	void insertMenu(SelectIconMenu *AMenu)
-	{
-		if (!FWidgets.contains(AMenu))
-		{
-			QPushButton *button = new QPushButton(this);
-			button->setObjectName("emoticonsButton");
-			button->setToolTip(tr("Add emoticon"));
-			//connect(AMenu, SIGNAL(aboutToShow()), SLOT(onMenuAboutToShow()));
-			//connect(AMenu, SIGNAL(aboutToHide()), SLOT(onMenuAboutToHide()));
-			connect(button, SIGNAL(clicked()), SLOT(onShowEmoticonsMenuButtonClicked()));
-			button->setFlat(true);
-			//IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(button, MNI_EMOTICONS_BUTTON_ICON);
-			FWidgets.insert(AMenu,button);
-			layout()->addWidget(button);
-		}
-	}
-	void removeMenu(SelectIconMenu *AMenu)
-	{
-		if (FWidgets.contains(AMenu))
-		{
-			delete FWidgets.take(AMenu);
-		}
-	}
-protected slots:
-	void onShowEmoticonsMenuButtonClicked()
-	{
-		QPushButton * button = qobject_cast<QPushButton*>(sender());
-		if (button)
-		{
-			SelectIconMenu * menu = FWidgets.key(button, NULL);
-			if (menu)
-			{
-				menu->showMenu(button->mapToGlobal(QPoint(button->geometry().width(), 0)), Menu::TopLeft);
-			}
-		}
-	}
-	void onMenuAboutToShow()
-	{
-		SelectIconMenu * menu = qobject_cast<SelectIconMenu*>(sender());
-		QPushButton * button = FWidgets.value(menu, NULL);
-		if (button)
-		{
-			//button->setEnabled(false);
-			button->setProperty("isDown", true);
-			StyleStorage::updateStyle(this);
-		}
-	}
-	void onMenuAboutToHide()
-	{
-		SelectIconMenu * menu = qobject_cast<SelectIconMenu*>(sender());
-		QPushButton * button = FWidgets.value(menu, NULL);
-		if (button)
-		{
-			//button->setEnabled(true);
-			button->setProperty("isDown", false);
-			StyleStorage::updateStyle(this);
-		}
-	}
-private:
-	IEditWidget *FEditWidget;
-	QMap<SelectIconMenu *, QPushButton *> FWidgets;
-};
 
 Emoticons::Emoticons()
 {
@@ -150,12 +71,20 @@ bool Emoticons::initSettings()
 	if (FOptionsManager)
 	{
 		FOptionsManager->insertServerOption(OPV_MESSAGES_EMOTICONS_ENABLED);
-
-//		IOptionsDialogNode dnode = { ONO_EMOTICONS, OPN_EMOTICONS, tr("Emoticons"), tr("Select emoticons iconsets"), MNI_EMOTICONS };
-//		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
+}
+
+QMultiMap<int, IOptionsWidget *> Emoticons::optionsWidgets(const QString &ANodeId, QWidget *AParent)
+{
+	QMultiMap<int, IOptionsWidget *> widgets;
+	if (FOptionsManager && ANodeId == OPN_MESSAGES)
+	{
+		widgets.insertMulti(OWO_MESSAGES_EMOTICONS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Smiley usage in messages"),AParent));
+		widgets.insertMulti(OWO_MESSAGES_EMOTICONS, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_EMOTICONS_ENABLED), tr("Automatically convert text smiles to graphical"),AParent));
+	}
+	return widgets;
 }
 
 void Emoticons::writeMessage(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang)
@@ -170,21 +99,6 @@ void Emoticons::writeText(int AOrder, Message &AMessage, QTextDocument *ADocumen
 	Q_UNUSED(AMessage);	Q_UNUSED(ALang);
 	if (AOrder == MWO_EMOTICONS)
 		replaceTextToImage(ADocument);
-}
-
-QMultiMap<int, IOptionsWidget *> Emoticons::optionsWidgets(const QString &ANodeId, QWidget *AParent)
-{
-	QMultiMap<int, IOptionsWidget *> widgets;
-	if (FOptionsManager && ANodeId == OPN_MESSAGES)
-	{
-		widgets.insertMulti(OWO_MESSAGES_EMOTICONS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Smiley usage in messages"),AParent));
-		widgets.insertMulti(OWO_MESSAGES_EMOTICONS, FOptionsManager->optionsNodeWidget(Options::node(OPV_MESSAGES_EMOTICONS_ENABLED), tr("Automatically convert text smiles to graphical"),AParent));
-	}
-	else if (ANodeId == OPN_EMOTICONS)
-	{
-		widgets.insertMulti(OWO_EMOTICONS, new EmoticonsOptions(this,AParent));
-	}
-	return widgets;
 }
 
 QList<QString> Emoticons::activeIconsets() const
@@ -462,17 +376,11 @@ void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 	QHBoxLayout *layout = qobject_cast<QHBoxLayout*>(AEditWidget->textEdit()->layout());
 	if (layout)
 	{
-//		AEditWidget->textEdit()->setLayout(layout);
-//		layout->setMargin(1);
-//		layout->addStretch();
-		//layout->insertWidget(0, container);
 		QVBoxLayout * vlayout = NULL;
 		for (int i = 0; i < layout->count(); i++)
 		{
 			if (vlayout = qobject_cast<QVBoxLayout*>(layout->itemAt(i)->layout()))
-			{
 				vlayout->insertWidget(0, container);
-			}
 		}
 	}
 
@@ -596,5 +504,3 @@ void Emoticons::onOptionsChanged(const OptionsNode &ANode)
 }
 
 Q_EXPORT_PLUGIN2(plg_emoticons, Emoticons)
-
-#include "emoticons.moc"

@@ -407,9 +407,6 @@ public:
 	virtual QList<IMessageWindow *> messageWindows() const =0;
 	virtual IMessageWindow *newMessageWindow(const Jid &AStreamJid, const Jid &AContactJid, IMessageWindow::Mode AMode) =0;
 	virtual IMessageWindow *findMessageWindow(const Jid &AStreamJid, const Jid &AContactJid) const =0;
-	virtual QList<IMassSendDialog*> massSendDialogs() const =0;
-	virtual IMassSendDialog * newMassSendDialog(const Jid & AStreamJid) =0;
-	virtual IMassSendDialog * findMassSendDialog(const Jid & AStreamJid) =0;
 	virtual QList<IChatWindow *> chatWindows() const =0;
 	virtual IChatWindow *newChatWindow(const Jid &AStreamJid, const Jid &AContactJid) =0;
 	virtual IChatWindow *findChatWindow(const Jid &AStreamJid, const Jid &AContactJid) const =0;
@@ -443,8 +440,6 @@ protected:
 	virtual void tabPageNotifierCreated(ITabPageNotifier *ANotifier) =0;
 	virtual void messageWindowCreated(IMessageWindow *AWindow) =0;
 	virtual void messageWindowDestroyed(IMessageWindow *AWindow) =0;
-	virtual void massSendDialogCreated(IMassSendDialog*) =0;
-	virtual void massSendDialogDestroyed(IMassSendDialog*) =0;
 	virtual void chatWindowCreated(IChatWindow *AWindow) =0;
 	virtual void chatWindowDestroyed(IChatWindow *AWindow) =0;
 	virtual void tabWindowAppended(const QUuid &AWindowId, const QString &AName) =0;

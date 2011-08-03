@@ -188,7 +188,7 @@ bool MetaContacts::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification;
+		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay;
 		FNotifications->insertNotificator(NID_METACONTACTS_DELETEFAIL,OWO_NOTIFICATIONS_META_DELETE_FAIL,QString::null,kindMask,kindMask);
 	}
 	return true;
@@ -1082,7 +1082,7 @@ void MetaContacts::notifyContactDeleteFailed(IMetaRoster *AMetaRoster, const QSt
 		{
 			INotification notify;
 			notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_METACONTACTS_DELETEFAIL) : 0;
-			if ((notify.kinds & (INotification::PopupWindow|INotification::PlaySoundNotification))>0)
+			if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 			{
 				notify.notificatior = NID_METACONTACTS_DELETEFAIL;
 				notify.data.insert(NDR_STREAM_JID,AMetaRoster->streamJid().full());

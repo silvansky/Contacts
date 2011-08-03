@@ -21,13 +21,10 @@ Notifications::Notifications()
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FOptionsManager = NULL;
-	FMainWindowPlugin = NULL;
-
-	FActivateAll = NULL;
-	FRemoveAll = NULL;
-	FNotifyMenu = NULL;
 
 	FTestNotifyId = -1;
+	FActivateAll = NULL;
+
 #ifdef QT_PHONON_LIB
 	FMediaObject = NULL;
 	FAudioOutput = NULL;
@@ -43,8 +40,6 @@ Notifications::Notifications()
 Notifications::~Notifications()
 {
 	delete FActivateAll;
-	delete FRemoveAll;
-	delete FNotifyMenu;
 #ifdef QT_PHONON_LIB
 	delete FMediaObject;
 	delete FAudioOutput;
@@ -112,10 +107,6 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &AInitOr
 	if (plugin)
 		FStatusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
-	if (plugin)
-		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
-
 	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
 	if (plugin)
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
@@ -128,46 +119,20 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &AInitOr
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 
-	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
-	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
-
 	return true;
 }
 
 bool Notifications::initObjects()
 {
-	FSoundOnOff = new Action(this);
-	FSoundOnOff->setToolTip(tr("Enable/Disable notifications sound"));
-	FSoundOnOff->setIcon(RSR_STORAGE_MENUICONS, MNI_NOTIFICATIONS_SOUND_ON);
-	connect(FSoundOnOff,SIGNAL(triggered(bool)),SLOT(onSoundOnOffActionTriggered(bool)));
-
 	FActivateAll = new Action(this);
 	FActivateAll->setVisible(false);
 	FActivateAll->setText(tr("New messages"));
 	FActivateAll->setIcon(RSR_STORAGE_MENUICONS,MNI_NOTIFICATIONS_ACTIVATE_ALL);
 	connect(FActivateAll,SIGNAL(triggered(bool)),SLOT(onTrayActionTriggered(bool)));
 
-	FRemoveAll = new Action(this);
-	FRemoveAll->setVisible(false);
-	FRemoveAll->setText(tr("Remove All Notifications"));
-	FRemoveAll->setIcon(RSR_STORAGE_MENUICONS,MNI_NOTIFICATIONS_REMOVE_ALL);
-	connect(FRemoveAll,SIGNAL(triggered(bool)),SLOT(onTrayActionTriggered(bool)));
-
-	FNotifyMenu = new Menu;
-	FNotifyMenu->setTitle(tr("Pending Notifications"));
-	FNotifyMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_NOTIFICATIONS);
-	FNotifyMenu->menuAction()->setVisible(false);
-
 	if (FTrayManager)
 	{
 		FTrayManager->contextMenu()->addAction(FActivateAll,AG_TMTM_NOTIFICATIONS,false);
-		//FTrayManager->contextMenu()->addAction(FRemoveAll,AG_TMTM_NOTIFICATIONS,false);
-		//FTrayManager->contextMenu()->addAction(FNotifyMenu->menuAction(),AG_TMTM_NOTIFICATIONS,false);
-	}
-
-	if (FMainWindowPlugin)
-	{
-		//FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(FSoundOnOff,TBG_MWTTB_NOTIFICATIONS_SOUND);
 	}
 
 	return true;
@@ -205,9 +170,10 @@ bool Notifications::initSettings()
 QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
 	QMultiMap<int, IOptionsWidget *> widgets;
-	QMultiMap<int, IOptionsWidget *> kindsWidgets;
 	if (FOptionsManager && ANodeId == OPN_NOTIFICATIONS)
 	{
+		QMultiMap<int, IOptionsWidget *> kindsWidgets;
+
 		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Method of notification"),AParent));
 		foreach(QString id, FNotificators.keys())
 		{
@@ -219,23 +185,20 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 				kindsWidgets.insertMulti(notificator.order, widget);
 			}
 		}
-		NotifyKindsWidgets * kindsWidgetsContainer = new NotifyKindsWidgets(AParent);
+
+		NotifyKindsWidgets *kindsWidgetsContainer = new NotifyKindsWidgets(AParent);
 		foreach (IOptionsWidget *widget, kindsWidgets)
-		{
 			kindsWidgetsContainer->addWidget(widget);
-		}
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS, kindsWidgetsContainer);
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Disable all popup windows and sounds"),AParent));
-		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY),
-												   tr("If status is 'Away'"),AParent));
-		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND),
-												   tr("If status is 'Busy'"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY),tr("If status is 'Away'"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFDND),tr("If status is 'Busy'"),AParent));
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsHeaderWidget(QString::null,tr("Full screen mode"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_FULLSCREEN,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN),
-												    tr("Disable all popup windows when watching fullscreen movies or games"),AParent));
+			tr("Disable all popup windows when watching fullscreen movies or games"),AParent));
 	}
 	return widgets;
 }
@@ -280,7 +243,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		replaceNotifyId = -1;
 
 	if (FRostersModel && FRostersViewPlugin && Options::node(OPV_NOTIFICATIONS_ROSTERICON).value().toBool() &&
-			(record.notification.kinds & INotification::RosterIcon)>0)
+			(record.notification.kinds & INotification::RosterNotify)>0)
 	{
 		bool createIndex = record.notification.data.value(NDR_ROSTER_CREATE_INDEX).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
@@ -333,7 +296,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	}
 
 	if (FMessageWidgets && FMessageProcessor && Options::node(OPV_NOTIFICATIONS_CHATWINDOW).value().toBool() &&
-		(record.notification.kinds & INotification::TabPage))
+		(record.notification.kinds & INotification::TabPageNotify))
 	{
 		bool createTab = record.notification.data.value(NDR_TABPAGE_CREATE_TAB).toBool();
 		bool alertWindow = record.notification.data.value(NDR_TABPAGE_ALERT_WINDOW).toBool();
@@ -368,7 +331,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QString toolTip = record.notification.data.value(NDR_TRAY_TOOLTIP).toString();
 
 		if (Options::node(OPV_NOTIFICATIONS_TRAYICON).value().toBool() &&
-			(record.notification.kinds & INotification::TrayIcon)>0)
+			(record.notification.kinds & INotification::TrayNotify)>0)
 		{
 			ITrayNotify notify;
 			notify.blink = true;
@@ -378,24 +341,10 @@ int Notifications::appendNotification(const INotification &ANotification)
 			notify.toolTip = toolTip;
 			record.trayId = FTrayManager->appendNotify(notify);
 		}
-
-		if (!toolTip.isEmpty() && Options::node(OPV_NOTIFICATIONS_TRAYACTION).value().toBool() &&
-			(record.notification.kinds & INotification::TrayAction)>0)
-		{
-			record.action = new Action(FNotifyMenu);
-			if (!iconKey.isEmpty())
-				record.action->setIcon(RSR_STORAGE_MENUICONS,iconKey);
-			else
-				record.action->setIcon(icon);
-			record.action->setText(toolTip);
-			record.action->setData(ADR_NOTIFYID,notifyId);
-			connect(record.action,SIGNAL(triggered(bool)),SLOT(onActionNotifyActivated(bool)));
-			FNotifyMenu->addAction(record.action);
-		}
 	}
 
 	if (!blockPopupAndSound && Options::node(OPV_NOTIFICATIONS_SOUND).value().toBool() &&
-		(record.notification.kinds & INotification::PlaySoundNotification)>0)
+		(record.notification.kinds & INotification::SoundPlay)>0)
 	{
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
@@ -454,12 +403,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		FTestNotifyTimer.start();
 	}
 
-	if (!FNotifyRecords.isEmpty())
-	{
-		FActivateAll->setVisible(true);
-		FRemoveAll->setVisible(true);
-	}
-	FNotifyMenu->menuAction()->setVisible(!FNotifyMenu->isEmpty());
+	FActivateAll->setVisible(true);
 
 	FNotifyRecords.insert(notifyId,record);
 	emit notificationAppended(notifyId, record.notification);
@@ -500,18 +444,11 @@ void Notifications::removeNotification(int ANotifyId)
 		{
 			record.widget->deleteLater();
 		}
-		if (record.action != NULL)
-		{
-			FNotifyMenu->removeAction(record.action);
-			delete record.action;
-		}
 		if (FNotifyRecords.isEmpty())
 		{
 			FActivateAll->setVisible(false);
-			FRemoveAll->setVisible(false);
 		}
 		qDeleteAll(record.notification.actions);
-		FNotifyMenu->menuAction()->setVisible(!FNotifyMenu->isEmpty());
 		emit notificationRemoved(ANotifyId);
 	}
 }
@@ -535,7 +472,7 @@ uchar Notifications::notificatorKinds(const QString &ANotificatorId) const
 			return Options::node(OPV_NOTIFICATIONS_NOTIFICATOR_ITEM,ANotificatorId).value().toInt() & notificator.kindMask;
 		return notificator.defaults;
 	}
-	return 0xFF;
+	return 0;
 }
 
 void Notifications::setNotificatorKinds(const QString &ANotificatorId, uchar AKinds)
@@ -582,8 +519,6 @@ bool Notifications::isInvisibleNotify(int ANotifyId) const
 		return false;
 	if (record.tabPageId != 0)
 		return false;
-	if (record.action != NULL)
-		return false;
 	if (record.widget != NULL)
 		return false;
 	return true;
@@ -622,7 +557,7 @@ void Notifications::activateAllNotifications()
 	foreach(int notifyId, FNotifyRecords.keys())
 	{
 		const NotifyRecord &record = FNotifyRecords.value(notifyId);
-		if (record.notification.kinds & INotification::TabPage)
+		if (record.notification.kinds & INotification::TabPageNotify)
 		{
 			if (!chatActivated)
 				activateNotification(notifyId);
@@ -659,19 +594,11 @@ void Notifications::onActivateDelayedReplaces()
 	FDelayedReplaces.clear();
 }
 
-void Notifications::onSoundOnOffActionTriggered(bool)
-{
-	OptionsNode node = Options::node(OPV_NOTIFICATIONS_SOUND);
-	node.setValue(!node.value().toBool());
-}
-
 void Notifications::onTrayActionTriggered(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
 	if (action == FActivateAll)
 		activateAllNotifications();
-	else if (action == FRemoveAll)
-		removeAllNotifications();
 }
 
 void Notifications::onRosterNotifyActivated(int ANotifyId)
@@ -737,32 +664,9 @@ void Notifications::onWindowNotifyDestroyed()
 	}
 }
 
-void Notifications::onActionNotifyActivated(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		int notifyId = action->data(ADR_NOTIFYID).toInt();
-		activateNotification(notifyId);
-	}
-}
-
 void Notifications::onTestNotificationTimerTimedOut()
 {
 	removeNotification(FTestNotifyId);
-}
-
-void Notifications::onOptionsOpened()
-{
-	onOptionsChanged(Options::node(OPV_NOTIFICATIONS_SOUND));
-}
-
-void Notifications::onOptionsChanged(const OptionsNode &ANode)
-{
-	if (ANode.path() == OPV_NOTIFICATIONS_SOUND)
-	{
-		FSoundOnOff->setIcon(RSR_STORAGE_MENUICONS, ANode.value().toBool() ? MNI_NOTIFICATIONS_SOUND_ON : MNI_NOTIFICATIONS_SOUND_OFF);
-	}
 }
 
 Q_EXPORT_PLUGIN2(plg_notifications, Notifications)

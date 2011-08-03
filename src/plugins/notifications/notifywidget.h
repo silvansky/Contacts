@@ -18,7 +18,7 @@
 class CustomBorderContainer;
 
 class NotifyWidget :
-			public QWidget
+	public QWidget
 {
 	Q_OBJECT
 public:

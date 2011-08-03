@@ -14,7 +14,7 @@
 #include <utils/customlabel.h>
 
 class TabBarItem :
-			public QFrame
+	public QFrame
 {
 	Q_OBJECT
 	Q_PROPERTY(bool isActive READ isActive WRITE setActive)

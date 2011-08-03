@@ -146,7 +146,7 @@ bool BirthdayReminder::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::PlaySoundNotification|INotification::TestNotify;
+		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay|INotification::TestNotify;
 		FNotifications->insertNotificator(NID_BIRTHDAY_REMIND,OWO_NOTIFICATIONS_BIRTHDAY,tr("Birthdays"),kindMask,0);
 	}
 
@@ -357,7 +357,7 @@ void BirthdayReminder::onShowNotificationTimer()
 	{
 		INotification notify;
 		notify.kinds = FNotifications->notificatorKinds(NID_BIRTHDAY_REMIND);
-		if ((notify.kinds & (INotification::PopupWindow|INotification::PlaySoundNotification))>0)
+		if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 		{
 			updateBirthdaysStates();
 			notify.notificatior = NID_BIRTHDAY_REMIND;
@@ -446,7 +446,7 @@ void BirthdayReminder::onNotificationTest(const QString &ANotificatorId, uchar A
 			action->setData(Action::DR_UserDefined + 1, "birthday");
 			notify.actions.append(action);
 		}
-		if (AKinds & INotification::PlaySoundNotification)
+		if (AKinds & INotification::SoundPlay)
 		{
 			notify.data.insert(NDR_SOUND_FILE,SDF_BITHDAY_REMIND);
 		}
@@ -462,7 +462,7 @@ void BirthdayReminder::onInternalNoticeReady()
 	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 	if (FNotifications && widget->isEmpty())
 	{
-		if ((FNotifications->notificatorKinds(NID_BIRTHDAY_REMIND) & (INotification::PopupWindow|INotification::PlaySoundNotification)) == 0)
+		if ((FNotifications->notificatorKinds(NID_BIRTHDAY_REMIND) & (INotification::PopupWindow|INotification::SoundPlay)) == 0)
 		{
 			int showCount = Options::node(OPV_BIRTHDAY_NOTICE_SHOWCOUNT).value().toInt();
 			QDateTime showLast = Options::node(OPV_BIRTHDAY_NOTICE_SHOWLAST).value().toDateTime();
@@ -492,7 +492,7 @@ void BirthdayReminder::onInternalNoticeActionTriggered()
 	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 	FInternalNoticeId = widget->insertNotice(notice);
 
-	FNotifications->setNotificatorKinds(NID_BIRTHDAY_REMIND,INotification::PopupWindow|INotification::PlaySoundNotification);
+	FNotifications->setNotificatorKinds(NID_BIRTHDAY_REMIND,INotification::PopupWindow|INotification::SoundPlay);
 
 	QTimer::singleShot(2000,this,SLOT(onInternalNoticeRemove()));
 }

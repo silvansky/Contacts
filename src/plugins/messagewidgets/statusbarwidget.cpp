@@ -13,3 +13,28 @@ StatusBarWidget::~StatusBarWidget()
 {
 
 }
+
+StatusBarChanger *StatusBarWidget::statusBarChanger() const
+{
+	return FStatusBarChanger;
+}
+
+IInfoWidget *StatusBarWidget::infoWidget() const
+{
+	return FInfoWidget;
+}
+
+IViewWidget *StatusBarWidget::viewWidget() const
+{
+	return FViewWidget;
+}
+
+IEditWidget *StatusBarWidget::editWidget() const
+{
+	return FEditWidget;
+}
+
+IReceiversWidget *StatusBarWidget::receiversWidget() const
+{
+	return FReceiversWidget;
+}

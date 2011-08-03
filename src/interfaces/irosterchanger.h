@@ -58,18 +58,6 @@ protected:
 	virtual void dialogDestroyed() =0;
 };
 
-class ISubscriptionDialog
-{
-public:
-	virtual QDialog *instance() =0;
-	virtual const Jid &streamJid() const =0;
-	virtual const Jid &contactJid() const =0;
-	virtual QVBoxLayout *actionsLayout() const =0;
-	virtual ToolBarChanger *toolBarChanger() const =0;
-protected:
-	virtual void dialogDestroyed() =0;
-};
-
 class IRosterChanger
 {
 public:
@@ -86,12 +74,10 @@ public:
 protected:
 	virtual void addMetaItemWidgetCreated(IAddMetaItemWidget *AWidget) =0;
 	virtual void addContactDialogCreated(IAddContactDialog *ADialog) =0;
-	virtual void subscriptionDialogCreated(ISubscriptionDialog *ADialog) =0;
 };
 
 Q_DECLARE_INTERFACE(IAddMetaItemWidget,"Virtus.Plugin.IAddMetaItemWidget/1.0")
 Q_DECLARE_INTERFACE(IAddContactDialog,"Virtus.Plugin.IAddContactDialog/1.0")
-Q_DECLARE_INTERFACE(ISubscriptionDialog,"Virtus.Plugin.ISubscriptionDialog/1.0")
 Q_DECLARE_INTERFACE(IRosterChanger,"Virtus.Plugin.IRosterChanger/1.0")
 
 #endif

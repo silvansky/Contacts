@@ -213,6 +213,15 @@ bool RosterSearch::setRosterData(IRosterIndex *AIndex, int ARole, const QVariant
 	return false;
 }
 
+bool RosterSearch::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
+{
+	Q_UNUSED(AIndex);
+	Q_UNUSED(AOrder);
+	if (!FSearchEdit->text().isEmpty())
+		FSearchEdit->setText(QString::null);
+	return false;
+}
+
 void RosterSearch::startSearch()
 {
 	FItemsFound = false;
@@ -333,15 +342,6 @@ void RosterSearch::removeSearchField(int ADataRole)
 		delete field.action;
 		emit searchFieldRemoved(ADataRole);
 	}
-}
-
-bool RosterSearch::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
-{
-	Q_UNUSED(AIndex)
-	Q_UNUSED(AOrder)
-	if (!FSearchEdit->text().isEmpty())
-		FSearchEdit->setText(QString::null);
-	return false;
 }
 
 bool RosterSearch::filterAcceptsRow(int ARow, const QModelIndex &AParent) const

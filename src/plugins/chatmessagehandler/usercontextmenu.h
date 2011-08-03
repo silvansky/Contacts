@@ -9,7 +9,7 @@
 #include <utils/menu.h>
 
 class UserContextMenu :
-			public Menu
+	public Menu
 {
 	Q_OBJECT;
 public:

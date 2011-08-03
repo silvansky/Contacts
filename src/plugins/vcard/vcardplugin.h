@@ -26,7 +26,6 @@
 #include <utils/stanza.h>
 #include <utils/action.h>
 #include "vcard.h"
-#include "vcarddialog.h"
 #include "simplevcarddialog.h"
 
 struct VCardItem
@@ -71,7 +70,6 @@ public:
 	virtual IVCard *vcard(const Jid &AContactJid);
 	virtual bool requestVCard(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual bool publishVCard(IVCard *AVCard, const Jid &AStreamJid);
-	virtual void showVCardDialog(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual void showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AContactJid);
 signals:
 	void vcardReceived(const Jid &AContactJid);
@@ -87,7 +85,6 @@ protected:
 protected slots:
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onShowVCardDialogByAction(bool);
-	void onVCardDialogDestroyed(QObject *ADialog);
 	void onSimpleVCardDialogDestroyed(QObject *ADialog);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onBinaryCached(const QString &AContentId, const QString &AType, const QByteArray &AData, quint64 AMaxAge);
@@ -111,7 +108,6 @@ private:
 	QMap<QString, Jid> FVCardRequestId;
 	QMap<QString, QString> FVCardPublishId;
 	QMap<QString, Stanza> FVCardPublishStanza;
-	QMap<Jid, VCardDialog *> FVCardDialogs;
 	QMap<Jid, SimpleVCardDialog *> FSimpleVCardDialogs;
 	QMap<QString, Jid> FAvatarsRequestId;
 	QMap<QString, Jid> FAvatarsBinaryCids;

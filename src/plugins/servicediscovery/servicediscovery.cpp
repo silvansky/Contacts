@@ -36,7 +36,6 @@ ServiceDiscovery::ServiceDiscovery()
 	FStanzaProcessor = NULL;
 	FDataForms = NULL;
 
-	FDiscoMenu = NULL;
 	FUpdateSelfCapsStarted = false;
 
 	FQueueTimer.setSingleShot(false);
@@ -48,7 +47,7 @@ ServiceDiscovery::ServiceDiscovery()
 
 ServiceDiscovery::~ServiceDiscovery()
 {
-	delete FDiscoMenu;
+
 }
 
 void ServiceDiscovery::pluginInfo(IPluginInfo *APluginInfo)
@@ -62,8 +61,9 @@ void ServiceDiscovery::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 
-bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
 
 	IPlugin *plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
@@ -112,14 +112,8 @@ bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &/*AI
 
 bool ServiceDiscovery::initObjects()
 {
-	FDiscoMenu = new Menu;
-	FDiscoMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_SDISCOVERY_DISCOVER);
-	FDiscoMenu->setTitle(tr("Service Discovery"));
-	FDiscoMenu->setEnabled(false);
-
 	registerFeatures();
 	insertDiscoHandler(this);
-
 	return true;
 }
 
@@ -481,7 +475,7 @@ IDiscoInfo ServiceDiscovery::discoInfo(const Jid &AStreamJid, const Jid &AContac
 
 bool ServiceDiscovery::requestDiscoInfo(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode)
 {
-	bool sended = false;
+	bool sent = false;
 
 	DiscoveryRequest drequest;
 	drequest.streamJid = AStreamJid;
@@ -489,7 +483,7 @@ bool ServiceDiscovery::requestDiscoInfo(const Jid &AStreamJid, const Jid &AConta
 	drequest.node = ANode;
 	if (FInfoRequestsId.values().contains(drequest))
 	{
-		sended = true;
+		sent = true;
 	}
 	else if (FStanzaProcessor && AStreamJid.isValid() && AContactJid.isValid())
 	{
@@ -498,11 +492,11 @@ bool ServiceDiscovery::requestDiscoInfo(const Jid &AStreamJid, const Jid &AConta
 		QDomElement query =  iq.addElement("query",NS_DISCO_INFO);
 		if (!ANode.isEmpty())
 			query.setAttribute("node",ANode);
-		sended = FStanzaProcessor->sendStanzaRequest(this,AStreamJid,iq,DISCO_TIMEOUT);
-		if (sended)
+		sent = FStanzaProcessor->sendStanzaRequest(this,AStreamJid,iq,DISCO_TIMEOUT);
+		if (sent)
 			FInfoRequestsId.insert(iq.id(),drequest);
 	}
-	return sended;
+	return sent;
 }
 
 void ServiceDiscovery::removeDiscoInfo(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode)
@@ -528,7 +522,7 @@ int ServiceDiscovery::findIdentity(const QList<IDiscoIdentity> &AIdentity, const
 
 bool ServiceDiscovery::requestDiscoItems(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANode)
 {
-	bool sended = false;
+	bool sent = false;
 
 	DiscoveryRequest drequest;
 	drequest.streamJid = AStreamJid;
@@ -536,7 +530,7 @@ bool ServiceDiscovery::requestDiscoItems(const Jid &AStreamJid, const Jid &ACont
 	drequest.node = ANode;
 	if (FItemsRequestsId.values().contains(drequest))
 	{
-		sended = true;
+		sent = true;
 	}
 	else if (FStanzaProcessor && AStreamJid.isValid() && AContactJid.isValid())
 	{
@@ -545,11 +539,11 @@ bool ServiceDiscovery::requestDiscoItems(const Jid &AStreamJid, const Jid &ACont
 		QDomElement query =  iq.addElement("query",NS_DISCO_ITEMS);
 		if (!ANode.isEmpty())
 			query.setAttribute("node",ANode);
-		sended = FStanzaProcessor->sendStanzaRequest(this,AStreamJid,iq,DISCO_TIMEOUT);
-		if (sended)
+		sent = FStanzaProcessor->sendStanzaRequest(this,AStreamJid,iq,DISCO_TIMEOUT);
+		if (sent)
 			FItemsRequestsId.insert(iq.id(),drequest);
 	}
-	return sended;
+	return sent;
 }
 
 void ServiceDiscovery::discoInfoToElem(const IDiscoInfo &AInfo, QDomElement &AElem) const
@@ -694,47 +688,40 @@ IDiscoItems ServiceDiscovery::parseDiscoItems(const Stanza &AStanza, const Disco
 
 void ServiceDiscovery::registerFeatures()
 {
-	IconStorage *storage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	IDiscoFeature dfeature;
 
 	dfeature.var = NS_DISCO;
 	dfeature.active = false;
-	dfeature.icon = storage->getIcon(MNI_SDISCOVERY_DISCOINFO);
 	dfeature.name = tr("Service Discovery");
 	dfeature.description = tr("Supports the exchange of the discovery information and items");
 	insertDiscoFeature(dfeature);
 
 	dfeature.var = NS_DISCO_INFO;
 	dfeature.active = true;
-	dfeature.icon = storage->getIcon(MNI_SDISCOVERY_DISCOINFO);
 	dfeature.name = tr("Discovery Information");
 	dfeature.description = tr("Supports the exchange of the discovery information");
 	insertDiscoFeature(dfeature);
 
 	dfeature.var = NS_DISCO_ITEMS;
 	dfeature.active = false;
-	dfeature.icon = storage->getIcon(MNI_SDISCOVERY_DISCOINFO);
 	dfeature.name = tr("Discovery Items");
 	dfeature.description = tr("Supports the exchange of the discovery items");
 	insertDiscoFeature(dfeature);
 
 	dfeature.var = NS_DISCO_PUBLISH;
 	dfeature.active = false;
-	dfeature.icon = QIcon();
 	dfeature.name = tr("Publish Items");
 	dfeature.description = tr("Supports the publishing of the discovery items");
 	insertDiscoFeature(dfeature);
 
 	dfeature.var = NS_CAPS;
 	dfeature.active = true;
-	dfeature.icon = QIcon();
 	dfeature.name = tr("Entity Capabilities");
 	dfeature.description = tr("Supports the caching of the discovery information");
 	insertDiscoFeature(dfeature);
 
 	dfeature.var = "Jid\\20Escaping";
 	dfeature.active = true;
-	dfeature.icon = QIcon();
 	dfeature.name = tr("JID Escaping");
 	dfeature.description = tr("Supports the displaying of the jabber identifiers with disallowed characters");
 	insertDiscoFeature(dfeature);
@@ -940,31 +927,6 @@ bool ServiceDiscovery::compareFeatures(const QStringList &AFeatures, const QStri
 	return true;
 }
 
-void ServiceDiscovery::insertStreamMenu(const Jid &AStreamJid)
-{
-	Action *action = new Action(FDiscoMenu);
-	action->setText(AStreamJid.full());
-	action->setIcon(RSR_STORAGE_MENUICONS,MNI_SDISCOVERY_DISCOVER);
-	action->setData(ADR_STREAMJID,AStreamJid.full());
-	action->setData(ADR_CONTACTJID,AStreamJid.domain());
-	action->setData(ADR_NODE,QString(""));
-	connect(action,SIGNAL(triggered(bool)),SLOT(onShowDiscoItemsByAction(bool)));
-	FDiscoMenu->addAction(action,AG_DEFAULT,true);
-	FDiscoMenu->setEnabled(true);
-}
-
-void ServiceDiscovery::removeStreamMenu(const Jid &AStreamJid)
-{
-	QMultiHash<int,QVariant> data;
-	data.insert(ADR_STREAMJID,AStreamJid.full());
-	Action *action = FDiscoMenu->findActions(data).value(0,NULL);
-	if (action)
-	{
-		FDiscoMenu->removeAction(action);
-		FDiscoMenu->setEnabled(!FDiscoMenu->isEmpty());
-	}
-}
-
 void ServiceDiscovery::onStreamOpened(IXmppStream *AXmppStream)
 {
 	if (FStanzaProcessor)
@@ -991,8 +953,6 @@ void ServiceDiscovery::onStreamOpened(IXmppStream *AXmppStream)
 		shandle.direction = IStanzaHandle::DirectionIn;
 		FSHIPresenceIn.insert(shandle.streamJid,FStanzaProcessor->insertStanzaHandle(shandle));
 	}
-
-	insertStreamMenu(AXmppStream->streamJid());
 
 	EntityCapabilities &myCaps = FSelfCaps[AXmppStream->streamJid()];
 	myCaps.streamJid = AXmppStream->streamJid();
@@ -1032,8 +992,6 @@ void ServiceDiscovery::onStreamClosed(IXmppStream *AXmppStream)
 	DiscoveryRequest request;
 	request.streamJid = AXmppStream->streamJid();
 	removeQueuedRequest(request);
-
-	removeStreamMenu(AXmppStream->streamJid());
 
 	foreach(Jid contactJid, FDiscoInfo.value(AXmppStream->streamJid()).keys()) {
 		foreach(QString node, FDiscoInfo.value(AXmppStream->streamJid()).value(contactJid).keys()) {

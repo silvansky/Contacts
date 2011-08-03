@@ -6,8 +6,7 @@ FORMS = infowidget.ui \
         chatwindow.ui \
         messagewindow.ui \
         tabwindow.ui \
-        messengeroptions.ui \
-    masssenddialog.ui
+        messengeroptions.ui
 
 HEADERS = messagewidgets.h \
           messageeditor.h \
@@ -27,8 +26,7 @@ HEADERS = messagewidgets.h \
           tabwidget.h \
           tabwindow.h \
           tabpagenotifier.h \
-	  messengeroptions.h \
-    masssenddialog.h
+	  messengeroptions.h
 
 SOURCES = messagewidgets.cpp \
           messageeditor.cpp \
@@ -48,5 +46,4 @@ SOURCES = messagewidgets.cpp \
           tabwidget.cpp \
           tabwindow.cpp \
           tabpagenotifier.cpp \
-          messengeroptions.cpp \
-    masssenddialog.cpp
+          messengeroptions.cpp

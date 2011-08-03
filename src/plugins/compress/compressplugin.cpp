@@ -32,10 +32,10 @@ bool CompressPlugin::initConnections(IPluginManager *APluginManager, int &/*AIni
 bool CompressPlugin::initObjects()
 {
 	ErrorHandler::addErrorItem("unsupported-method", ErrorHandler::CANCEL,
-	                           ErrorHandler::FEATURE_NOT_IMPLEMENTED, tr("Unsupported compression method"),NS_FEATURE_COMPRESS);
+		ErrorHandler::FEATURE_NOT_IMPLEMENTED, tr("Unsupported compression method"),NS_FEATURE_COMPRESS);
 
 	ErrorHandler::addErrorItem("setup-failed", ErrorHandler::CANCEL,
-	                           ErrorHandler::NOT_ACCEPTABLE, tr("Compression setup failed"), NS_FEATURE_COMPRESS);
+		ErrorHandler::NOT_ACCEPTABLE, tr("Compression setup failed"), NS_FEATURE_COMPRESS);
 
 	if (FXmppStreams)
 	{

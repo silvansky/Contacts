@@ -110,8 +110,6 @@ bool Avatars::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*
 		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (FRostersViewPlugin)
 		{
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
-				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger*)),
 				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &)));
 		}
@@ -155,7 +153,6 @@ bool Avatars::initSettings()
 	if (FOptionsManager)
 	{
 		FOptionsManager->insertServerOption(OPV_AVATARS_SHOW);
-		FOptionsManager->insertOptionsHolder(this);
 	}
 	return true;
 }
@@ -338,21 +335,6 @@ bool Avatars::setRosterData(IRosterIndex *AIndex, int ARole, const QVariant &AVa
 	Q_UNUSED(ARole);
 	Q_UNUSED(AValue);
 	return false;
-}
-
-QMultiMap<int, IOptionsWidget *> Avatars::optionsWidgets(const QString &ANodeId, QWidget *AParent)
-{
-	Q_UNUSED(ANodeId); Q_UNUSED(AParent);
-	QMultiMap<int, IOptionsWidget *> widgets;
-	//if (FOptionsManager && ANodeId == OPN_ROSTER)
-	//{
-	//	AOrder = OWO_ROSTER_AVATARS;
-	//	IOptionsContainer *container = FOptionsManager->optionsContainer(AParent);
-	//	container->appendChild(Options::node(OPV_AVATARS_SHOW),tr("Show avatars"));
-	//	container->appendChild(Options::node(OPV_AVATARS_SHOWEMPTY),tr("Show empty avatars"));
-	//	return container;
-	//}
-	return widgets;
 }
 
 QString Avatars::avatarFileName(const QString &AHash) const
@@ -769,58 +751,6 @@ void Avatars::onRosterIndexInserted(IRosterIndex *AIndex)
 	}
 }
 
-void Avatars::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
-{
-	if (AIndex->type()==RIT_STREAM_ROOT && FStreamAvatars.contains(AIndex->data(RDR_STREAM_JID).toString()) && ASelected.count()<2)
-	{
-		Menu *avatar = new Menu(AMenu);
-		avatar->setTitle(tr("Avatar"));
-		avatar->setIcon(RSR_STORAGE_MENUICONS,MNI_AVATAR_CHANGE);
-
-		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-		Action *setup = new Action(avatar);
-		setup->setText(tr("Set avatar"));
-		setup->setIcon(RSR_STORAGE_MENUICONS,MNI_AVATAR_SET);
-		setup->setData(ADR_STREAM_JID,streamJid.full());
-		connect(setup,SIGNAL(triggered(bool)),SLOT(onSetAvatarByAction(bool)));
-		avatar->addAction(setup,AG_DEFAULT,false);
-
-		Action *clear = new Action(avatar);
-		clear->setText(tr("Clear avatar"));
-		clear->setIcon(RSR_STORAGE_MENUICONS,MNI_AVATAR_REMOVE);
-		clear->setData(ADR_STREAM_JID,streamJid.full());
-		clear->setEnabled(!FStreamAvatars.value(streamJid).isEmpty());
-		connect(clear,SIGNAL(triggered(bool)),SLOT(onClearAvatarByAction(bool)));
-		avatar->addAction(clear,AG_DEFAULT,false);
-
-		AMenu->addAction(avatar->menuAction(),AG_RVCM_AVATARS,true);
-	}
-	/*else if (AIndex->type() == RIT_CONTACT)
-	{
-		Menu *picture = new Menu(AMenu);
-		picture->setTitle(tr("Custom picture"));
-		picture->setIcon(RSR_STORAGE_MENUICONS,MNI_AVATAR_CHANGE);
-
-		Jid contactJid = AIndex->data(RDR_JID).toString();
-		Action *setup = new Action(picture);
-		setup->setText(tr("Set custom picture"));
-		setup->setIcon(RSR_STORAGE_MENUICONS,MNI_AVATAR_CUSTOM);
-		setup->setData(ADR_CONTACT_JID,contactJid.bare());
-		connect(setup,SIGNAL(triggered(bool)),SLOT(onSetAvatarByAction(bool)));
-		picture->addAction(setup,AG_DEFAULT,false);
-
-		Action *clear = new Action(picture);
-		clear->setText(tr("Clear custom picture"));
-		clear->setIcon(RSR_STORAGE_MENUICONS,MNI_AVATAR_REMOVE);
-		clear->setData(ADR_CONTACT_JID,contactJid.bare());
-		clear->setEnabled(FCustomPictures.contains(contactJid.bare()));
-		connect(clear,SIGNAL(triggered(bool)),SLOT(onClearAvatarByAction(bool)));
-		picture->addAction(clear,AG_DEFAULT,false);
-
-		AMenu->addAction(picture->menuAction(),AG_RVCM_AVATARS,true);
-	}*/
-}
-
 void Avatars::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips)
 {
 	if ((ALabelId == RLID_DISPLAY || ALabelId == FRosterLabelId) && rosterDataTypes().contains(AIndex->type()))
@@ -833,46 +763,6 @@ void Avatars::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMa
 			imageSize.scale(ALabelId==FRosterLabelId ? QSize(128,128) : QSize(64,64), Qt::KeepAspectRatio);
 			QString avatarMask = "<img src='%1' width=%2 height=%3>";
 			AToolTips.insert(RTTO_AVATAR_IMAGE,avatarMask.arg(fileName).arg(imageSize.width()).arg(imageSize.height()));
-		}
-	}
-}
-
-void Avatars::onSetAvatarByAction(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		QString fileName = QFileDialog::getOpenFileName(NULL, tr("Select avatar image"),"",tr("Image Files (*.png *.jpg *.bmp *.gif)"));
-		if (!fileName.isEmpty())
-		{
-			if (!action->data(ADR_STREAM_JID).isNull())
-			{
-				Jid streamJid = action->data(ADR_STREAM_JID).toString();
-				setAvatar(streamJid,QImage(fileName),AVATAR_IMAGE_TYPE);
-			}
-			else if (!action->data(ADR_CONTACT_JID).isNull())
-			{
-				Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-				setCustomPictire(contactJid,fileName);
-			}
-		}
-	}
-}
-
-void Avatars::onClearAvatarByAction(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		if (!action->data(ADR_STREAM_JID).isNull())
-		{
-			Jid streamJid = action->data(ADR_STREAM_JID).toString();
-			setAvatar(streamJid,QImage());
-		}
-		else if (!action->data(ADR_CONTACT_JID).isNull())
-		{
-			Jid contactJid = action->data(ADR_CONTACT_JID).toString();
-			setCustomPictire(contactJid,QString::null);
 		}
 	}
 }

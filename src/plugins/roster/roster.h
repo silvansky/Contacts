@@ -8,11 +8,11 @@
 #include <interfaces/ixmppstreams.h>
 
 class Roster :
-			public QObject,
-			public IRoster,
-			public IStanzaHandler,
-			public IStanzaRequestOwner,
-			public IXmppStanzaHadler
+	public QObject,
+	public IRoster,
+	public IStanzaHandler,
+	public IStanzaRequestOwner,
+	public IXmppStanzaHadler
 {
 	Q_OBJECT
 	Q_INTERFACES(IRoster IStanzaHandler IStanzaRequestOwner IXmppStanzaHadler)

@@ -8,9 +8,9 @@
 #include <utils/errorhandler.h>
 
 class Presence :
-			public QObject,
-			public IPresence,
-			private IStanzaHandler
+	public QObject,
+	public IPresence,
+	private IStanzaHandler
 {
 	Q_OBJECT
 	Q_INTERFACES(IPresence IStanzaHandler)

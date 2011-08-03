@@ -20,17 +20,15 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
-#include "iconsoptionswidget.h"
 
 class StatusIcons :
 	public QObject,
 	public IPlugin,
 	public IStatusIcons,
-	public IOptionsHolder,
 	public IRosterDataHolder
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IStatusIcons IOptionsHolder IRosterDataHolder);
+	Q_INTERFACES(IPlugin IStatusIcons IRosterDataHolder);
 public:
 	StatusIcons();
 	~StatusIcons();
@@ -42,8 +40,6 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings();
 	virtual bool startPlugin() { return true; }
-	//IOptionsHolder
-	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IRosterDataHolder
 	virtual int rosterDataOrder() const;
 	virtual QList<int> rosterDataRoles() const;
@@ -74,29 +70,19 @@ protected:
 	void loadStorages();
 	void clearStorages();
 	void startStatusIconsChanged();
-	void updateCustomIconMenu(const QString &APattern);
 protected slots:
 	void onStatusIconsChangedTimer();
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onOptionsOpened();
 	void onOptionsClosed();
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onDefaultIconsetChanged();
-	void onSetCustomIconset(bool);
 private:
 	IRosterPlugin *FRosterPlugin;
 	IPresencePlugin *FPresencePlugin;
 	IRostersModel *FRostersModel;
-	IRostersViewPlugin *FRostersViewPlugin;
-	IOptionsManager *FOptionsManager;
-private:
-	Menu *FCustomIconMenu;
-	Action *FDefaultIconAction;
-	QHash<QString,Action *> FCustomIconActions;
-	IconStorage *FDefaultStorage;
 private:
 	bool FStatusIconsChangedStarted;
-	QString FDefaultIconset;
+	IconStorage *FDefaultStorage;
 	QSet<QString> FStatusRules;
 	QMap<QString, QString> FUserRules;
 	QMap<QString, QString> FDefaultRules;

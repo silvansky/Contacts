@@ -12,13 +12,13 @@
 struct INotification
 {
 	enum NotifyKinds {
-		RosterIcon    = 0x01,
+		RosterNotify  = 0x01,
 		PopupWindow   = 0x02,
-		TrayIcon      = 0x04,
+		TrayNotify    = 0x04,
 		TrayAction    = 0x08,
-		PlaySoundNotification     = 0x10,
+		SoundPlay     = 0x10,
 		AutoActivate  = 0x20,
-		TabPage       = 0x40,
+		TabPageNotify = 0x40,
 		TestNotify    = 0x80
 	};
 	INotification() { 

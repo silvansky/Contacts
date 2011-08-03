@@ -16,13 +16,12 @@
 #include <interfaces/ipresence.h>
 #include <utils/options.h>
 #include <utils/systemmanager.h>
-#include "statusoptionswidget.h"
 
 class AutoStatus :
-			public QObject,
-			public IPlugin,
-			public IAutoStatus,
-			public IOptionsHolder
+	public QObject,
+	public IPlugin,
+	public IAutoStatus,
+	public IOptionsHolder
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IAutoStatus IOptionsHolder);

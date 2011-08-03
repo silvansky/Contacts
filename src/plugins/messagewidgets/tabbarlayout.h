@@ -5,7 +5,7 @@
 #include <QLayout>
 
 class TabBarLayout :
-			public QLayout
+	public QLayout
 {
 	Q_OBJECT
 public:

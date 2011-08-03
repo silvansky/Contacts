@@ -21,8 +21,9 @@ void StartTLSPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->dependences.append(DEFAULTCONNECTION_UUID);
 }
 
-bool StartTLSPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool StartTLSPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	IPlugin *plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
 	if (plugin)
 		FXmppStreams = qobject_cast<IXmppStreams *>(plugin->instance());

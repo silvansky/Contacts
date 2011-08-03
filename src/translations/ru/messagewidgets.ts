@@ -20,13 +20,6 @@
     </message>
 </context>
 <context>
-    <name>MassSendDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Диалог</translation>
-    </message>
-</context>
-<context>
     <name>MessageWidgets</name>
     <message>
         <source>Messages</source>
@@ -245,26 +238,6 @@
     <message>
         <source>Prev. Tab</source>
         <translation>Предыдущая вкладка</translation>
-    </message>
-    <message>
-        <source>New Tab Window</source>
-        <translation>Новое окно с вкладками</translation>
-    </message>
-    <message>
-        <source>Rename Tab Window</source>
-        <translation>Переименовать окно</translation>
-    </message>
-    <message>
-        <source>Delete Tab Window</source>
-        <translation>Удалить окно</translation>
-    </message>
-    <message>
-        <source>Tab window name:</source>
-        <translation>Название окна:</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete this tab window?</source>
-        <translation>Вы уверены, что хотите удалить это окно со вкладками?</translation>
     </message>
     <message>
         <source>Ctrl+PgDown</source>

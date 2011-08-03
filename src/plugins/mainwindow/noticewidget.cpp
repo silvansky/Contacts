@@ -119,7 +119,7 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 
 			foreach(Action *action, notice.actions)
 			{
-				ActionButton * button = new ActionButton(action, ui.wdtActions);
+				ActionButton *button = new ActionButton(action, ui.wdtActions);
 				button->addTextFlag(TF_LIGHTSHADOW);
 				button->setText(action->text());
 				connect(action,SIGNAL(triggered()),SLOT(onNoticeActionTriggered()));

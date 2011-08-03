@@ -1,9 +1,3 @@
-FORMS = registerdialog.ui
+HEADERS = registration.h
 
-HEADERS = registration.h \
-          registerdialog.h \
-          registerstream.h
-
-SOURCES = registration.cpp \
-          registerdialog.cpp \
-          registerstream.cpp
+SOURCES = registration.cpp

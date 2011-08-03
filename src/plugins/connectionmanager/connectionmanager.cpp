@@ -7,9 +7,7 @@
 
 ConnectionManager::ConnectionManager()
 {
-	FEncryptedLabelId = -1;
 	FAccountManager = NULL;
-	FRostersViewPlugin = NULL;
 	FOptionsManager = NULL;
 }
 
@@ -27,8 +25,10 @@ void ConnectionManager::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
-bool ConnectionManager::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool ConnectionManager::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
+
 	QList<IPlugin *> plugins = APluginManager->pluginInterface("IConnectionPlugin");
 	foreach (IPlugin *plugin, plugins)
 	{
@@ -53,27 +53,10 @@ bool ConnectionManager::initConnections(IPluginManager *APluginManager, int &/*A
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
-	if (plugin)
-	{
-		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
-	}
-
 	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
 	if (plugin)
 	{
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-	}
-
-	plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
-	if (plugin)
-	{
-		IXmppStreams *xmppStreams = qobject_cast<IXmppStreams *>(plugin->instance());
-		if (xmppStreams)
-		{
-			connect(xmppStreams->instance(),SIGNAL(opened(IXmppStream *)),SLOT(onStreamOpened(IXmppStream *)));
-			connect(xmppStreams->instance(),SIGNAL(closed(IXmppStream *)),SLOT(onStreamClosed(IXmppStream *)));
-		}
 	}
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
@@ -88,14 +71,8 @@ bool ConnectionManager::initObjects()
 	Options::setDefaultValue(OPV_PROXY_DEFAULT,QString(APPLICATION_PROXY_REF_UUID));
 	Options::setDefaultValue(OPV_PROXY_NAME,tr("New Proxy"));
 	Options::setDefaultValue(OPV_PROXY_TYPE,(int)QNetworkProxy::NoProxy);
+	Options::setDefaultValue(OPV_PROXY_PORT,1080);
 
-	if (FRostersViewPlugin)
-	{
-		IRostersLabel rlabel;
-		rlabel.order = RLO_CONNECTION_ENCRYPTED;
-		rlabel.label = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CONNECTION_ENCRYPTED);
-		FEncryptedLabelId = FRostersViewPlugin->rostersView()->registerLabel(rlabel);
-	}
 	return true;
 }
 
@@ -113,12 +90,7 @@ bool ConnectionManager::initSettings()
 QMultiMap<int, IOptionsWidget *> ConnectionManager::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
 	QMultiMap<int, IOptionsWidget *> widgets;
-	QStringList nodeTree = ANodeId.split(".",QString::SkipEmptyParts);
-	if (nodeTree.count()==2 && nodeTree.at(0)==OPN_ACCOUNTS)
-	{
-		widgets.insertMulti(OWO_ACCOUNT_CONNECTION, new ConnectionOptionsWidget(this,Options::node(OPV_ACCOUNT_ITEM,nodeTree.at(1)),AParent));
-	}
-	else if (ANodeId == OPN_CONNECTION)
+	if (ANodeId == OPN_CONNECTION)
 	{
 		IAccount *account = FAccountManager->accounts().value(0);
 		OptionsNode cnode = account!=NULL ? account->optionsNode().node("connection", account->optionsNode().node("connection-type").value().toString()) : OptionsNode();
@@ -215,26 +187,6 @@ void ConnectionManager::setDefaultProxy(const QUuid &AProxyId)
 	}
 }
 
-QDialog *ConnectionManager::showEditProxyDialog(QWidget *AParent)
-{
-	EditProxyDialog *dialog = new EditProxyDialog(this, AParent);
-	dialog->show();
-	return dialog;
-}
-
-IOptionsWidget *ConnectionManager::proxySettingsWidget(const OptionsNode &ANode, QWidget *AParent)
-{
-	ProxySettingsWidget *widget = new ProxySettingsWidget(this,ANode,AParent);
-	return widget;
-}
-
-void ConnectionManager::saveProxySettings(IOptionsWidget *AWidget, OptionsNode ANode)
-{
-	ProxySettingsWidget *widget = qobject_cast<ProxySettingsWidget *>(AWidget->instance());
-	if (widget)
-		widget->apply(ANode);
-}
-
 QUuid ConnectionManager::loadProxySettings(const OptionsNode &ANode) const
 {
 	return ANode.value().toString();
@@ -285,28 +237,6 @@ void ConnectionManager::onAccountOptionsChanged(IAccount *AAccount, const Option
 			if (plugin)
 				plugin->loadConnectionSettings(AAccount->xmppStream()->connection(), coptions);
 		}
-	}
-}
-
-void ConnectionManager::onStreamOpened(IXmppStream *AXmppStream)
-{
-	if (FRostersViewPlugin && AXmppStream->connection() && AXmppStream->connection()->isEncrypted())
-	{
-		IRostersModel *model = FRostersViewPlugin->rostersView()->rostersModel();
-		IRosterIndex *index = model!=NULL ? model->streamRoot(AXmppStream->streamJid()) : NULL;
-		if (index!=NULL)
-			FRostersViewPlugin->rostersView()->insertLabel(FEncryptedLabelId,index);
-	}
-}
-
-void ConnectionManager::onStreamClosed(IXmppStream *AXmppStream)
-{
-	if (FRostersViewPlugin)
-	{
-		IRostersModel *model = FRostersViewPlugin->rostersView()->rostersModel();
-		IRosterIndex *index = model!=NULL ? model->streamRoot(AXmppStream->streamJid()) : NULL;
-		if (index!=NULL)
-			FRostersViewPlugin->rostersView()->removeLabel(FEncryptedLabelId,index);
 	}
 }
 

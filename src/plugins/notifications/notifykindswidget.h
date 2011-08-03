@@ -7,8 +7,8 @@
 #include "ui_notifykindswidget.h"
 
 class NotifyKindsWidget :
-			public QWidget,
-			public IOptionsWidget
+	public QWidget,
+	public IOptionsWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(IOptionsWidget)

@@ -15,3 +15,28 @@ ToolBarWidget::~ToolBarWidget()
 {
 
 }
+
+ToolBarChanger *ToolBarWidget::toolBarChanger() const
+{
+	return FToolBarChanger;
+}
+
+IInfoWidget *ToolBarWidget::infoWidget() const
+{
+	return FInfoWidget;
+}
+
+IViewWidget *ToolBarWidget::viewWidget() const
+{
+	return FViewWidget;
+}
+
+IEditWidget *ToolBarWidget::editWidget() const
+{
+	return FEditWidget;
+}
+
+IReceiversWidget *ToolBarWidget::receiversWidget() const
+{
+	return FReceiversWidget;
+}

@@ -43,9 +43,7 @@ MainWindowPlugin::MainWindowPlugin()
 			connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
 #endif
 
-
 	FMainWindow->installEventFilter(this);
-	//WidgetManager::setWindowSticky(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow, true);
 }
 
 MainWindowPlugin::~MainWindowPlugin()
@@ -106,7 +104,6 @@ bool MainWindowPlugin::initObjects()
 	Action *action = new Action(this);
 	action->setText(tr("Quit"));
 	action->setData(Action::DR_SortString,QString("900"));
-	//action->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_QUIT);
 	connect(action,SIGNAL(triggered()),FPluginManager->instance(),SLOT(quit()));
 	FMainWindow->mainMenu()->addAction(action,AG_MMENU_MAINWINDOW_QUIT,true);
 	FMainWindow->mainMenu()->setTitle(tr("Menu"));
@@ -114,15 +111,15 @@ bool MainWindowPlugin::initObjects()
 	FOpenAction = new Action(this);
 	FOpenAction->setVisible(false);
 	FOpenAction->setText(tr("Show Contacts"));
-	FOpenAction->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_SHOW_ROSTER);
 	connect(FOpenAction,SIGNAL(triggered(bool)),SLOT(onShowMainWindowByAction(bool)));
 
 	if (FTrayManager)
 		FTrayManager->contextMenu()->addAction(FOpenAction,AG_TMTM_MAINWINDOW,true);
 
 #ifdef Q_OS_MAC
-	connect(MacDockHandler::instance(), SIGNAL(dockIconClicked()), SLOT(onDockIconCLicked()));
+	connect(MacDockHandler::instance(), SIGNAL(dockIconClicked()), SLOT(onDockIconClicked()));
 #endif
+
 	return true;
 }
 
@@ -131,7 +128,7 @@ bool MainWindowPlugin::initSettings()
 	Options::setDefaultValue(OPV_MAINWINDOW_SHOW,true);
 	const QSize defSize(300, 550);
 	Options::setDefaultValue(OPV_MAINWINDOW_SIZE, defSize);
-	QDesktopWidget * desktop = QApplication::desktop();
+	QDesktopWidget *desktop = QApplication::desktop();
 	QRect ps = desktop->availableGeometry(desktop->primaryScreen());
 	QRect defRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignRight | Qt::AlignTop, defSize, ps);
 	Options::setDefaultValue(OPV_MAINWINDOW_POSITION, defRect.topLeft());
@@ -167,7 +164,7 @@ IMainWindow *MainWindowPlugin::mainWindow() const
 	return FMainWindow;
 }
 
-CustomBorderContainer * MainWindowPlugin::mainWindowBorder() const
+CustomBorderContainer *MainWindowPlugin::mainWindowBorder() const
 {
 	return FMainWindowBorder;
 }
@@ -313,14 +310,11 @@ void MainWindowPlugin::onMainWindowClosed()
 #endif
 }
 
-#ifdef Q_OS_MAC
-void MainWindowPlugin::onDockIconCLicked()
+void MainWindowPlugin::onDockIconClicked()
 {
 	if (!FMainWindow->isVisible())
 		showMainWindow();
 }
-#endif
-
 
 void MainWindowPlugin::onApplicationQuitStarted()
 {

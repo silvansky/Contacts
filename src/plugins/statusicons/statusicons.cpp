@@ -10,18 +10,14 @@ StatusIcons::StatusIcons()
 	FPresencePlugin = NULL;
 	FRosterPlugin = NULL;
 	FRostersModel = NULL;
-	FRostersViewPlugin = NULL;
-	FOptionsManager = NULL;
 
 	FDefaultStorage = NULL;
-	FCustomIconMenu = NULL;
-	FDefaultIconAction = NULL;
 	FStatusIconsChangedStarted = false;
 }
 
 StatusIcons::~StatusIcons()
 {
-	delete FCustomIconMenu;
+
 }
 
 void StatusIcons::pluginInfo(IPluginInfo *APluginInfo)
@@ -53,23 +49,6 @@ bool StatusIcons::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 		FRostersModel = qobject_cast<IRostersModel *>(plugin->instance());
 	}
 
-	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
-	if (plugin)
-	{
-		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
-		if (FRostersViewPlugin)
-		{
-			connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *,QList<IRosterIndex *>,Menu*)),
-				SLOT(onRosterIndexContextMenu(IRosterIndex *,QList<IRosterIndex *>,Menu *)));
-		}
-	}
-
-	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
-	if (plugin)
-	{
-		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-	}
-
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -79,15 +58,6 @@ bool StatusIcons::initConnections(IPluginManager *APluginManager, int &/*AInitOr
 
 bool StatusIcons::initObjects()
 {
-	FCustomIconMenu = new Menu;
-	FCustomIconMenu->setTitle(tr("Status icon"));
-
-	FDefaultIconAction = new Action(FCustomIconMenu);
-	FDefaultIconAction->setText(tr("Default"));
-	FDefaultIconAction->setCheckable(true);
-	connect(FDefaultIconAction,SIGNAL(triggered(bool)),SLOT(onSetCustomIconset(bool)));
-	FCustomIconMenu->addAction(FDefaultIconAction,AG_DEFAULT-1,true);
-
 	FDefaultStorage = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS);
 	connect(FDefaultStorage,SIGNAL(storageChanged()),SLOT(onDefaultIconsetChanged()));
 
@@ -95,7 +65,6 @@ bool StatusIcons::initObjects()
 	{
 		FRostersModel->insertDefaultDataHolder(this);
 	}
-
 	loadStorages();
 	return true;
 }
@@ -104,24 +73,7 @@ bool StatusIcons::initSettings()
 {
 	Options::setDefaultValue(OPV_STATUSICONS_DEFAULT,STORAGE_SHARED_DIR);
 	Options::setDefaultValue(OPV_STATUSICONS_RULE_ICONSET,STORAGE_SHARED_DIR);
-
-	if (FOptionsManager)
-	{
-		//		IOptionsDialogNode dnode = { ONO_STATUSICONS, OPN_STATUSICONS, tr("Status icons"),tr("Configure status icons"), MNI_STATUSICONS_OPTIONS };
-		//		FOptionsManager->insertOptionsDialogNode(dnode);
-		FOptionsManager->insertOptionsHolder(this);
-	}
 	return true;
-}
-
-QMultiMap<int, IOptionsWidget *> StatusIcons::optionsWidgets(const QString &ANodeId, QWidget *AParent)
-{
-	QMultiMap<int, IOptionsWidget *> widgets;
-	if (ANodeId == OPN_STATUSICONS)
-	{
-		widgets.insertMulti(OWO_STATUSICONS, new IconsOptionsWidget(this,AParent));
-	}
-	return widgets;
 }
 
 int StatusIcons::rosterDataOrder() const
@@ -131,19 +83,13 @@ int StatusIcons::rosterDataOrder() const
 
 QList<int> StatusIcons::rosterDataRoles() const
 {
-	static QList<int> dataRoles = QList<int>()
-			<< Qt::DecorationRole;
+	static const QList<int> dataRoles = QList<int>() << Qt::DecorationRole;
 	return dataRoles;
 }
 
 QList<int> StatusIcons::rosterDataTypes() const
 {
-	static QList<int> indexTypes = QList<int>()
-			<< RIT_STREAM_ROOT
-			<< RIT_CONTACT
-			<< RIT_AGENT
-			<< RIT_MY_RESOURCE
-			<< RIT_METACONTACT;
+	static const QList<int> indexTypes = QList<int>() << RIT_STREAM_ROOT << RIT_CONTACT << RIT_AGENT << RIT_MY_RESOURCE << RIT_METACONTACT;
 	return indexTypes;
 }
 
@@ -362,16 +308,6 @@ void StatusIcons::loadStorages()
 			insertRule(pattern,substorage,IStatusIcons::DefaultRule);
 			FStatusRules += pattern;
 		}
-
-		QString name = storage->option(STORAGE_NAME);
-		Action *action = new Action(FCustomIconMenu);
-		action->setCheckable(true);
-		action->setIcon(storage->getIcon(iconKeyByStatus(IPresence::Online,"",false)));
-		action->setText(!name.isEmpty() ? name : substorage);
-		action->setData(ADR_SUBSTORAGE,substorage);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onSetCustomIconset(bool)));
-		FCustomIconActions.insert(substorage,action);
-		FCustomIconMenu->addAction(action,AG_DEFAULT,true);
 	}
 }
 
@@ -380,9 +316,7 @@ void StatusIcons::clearStorages()
 	foreach(QString rule, FStatusRules)
 		removeRule(rule,IStatusIcons::DefaultRule);
 	FStatusRules.clear();
-	FCustomIconActions.clear();
 	qDeleteAll(FStorages);
-	qDeleteAll(FCustomIconMenu->groupActions(AG_DEFAULT));
 }
 
 void StatusIcons::startStatusIconsChanged()
@@ -394,35 +328,11 @@ void StatusIcons::startStatusIconsChanged()
 	}
 }
 
-void StatusIcons::updateCustomIconMenu(const QString &APattern)
-{
-	QString substorage = ruleIconset(APattern,IStatusIcons::UserRule);
-	FDefaultIconAction->setData(ADR_RULE,APattern);
-	FDefaultIconAction->setIcon(iconByStatus(IPresence::Online,SUBSCRIPTION_BOTH,false));
-	FDefaultIconAction->setChecked(FDefaultStorage!=NULL && FDefaultStorage->subStorage()==substorage);
-	foreach(Action *action, FCustomIconActions)
-	{
-		action->setData(ADR_RULE, APattern);
-		action->setChecked(action->data(ADR_SUBSTORAGE).toString() == substorage);
-	}
-}
-
 void StatusIcons::onStatusIconsChangedTimer()
 {
 	emit statusIconsChanged();
 	emit rosterDataChanged(NULL,Qt::DecorationRole);
 	FStatusIconsChangedStarted = false;
-}
-
-void StatusIcons::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
-{
-	Q_UNUSED(AIndex); Q_UNUSED(AMenu); Q_UNUSED(ASelected);
-	/*if (AIndex->type() == RIT_CONTACT || AIndex->type() == RIT_AGENT)
- {
-  updateCustomIconMenu(QRegExp::escape(AIndex->data(RDR_BARE_JID).toString()));
-  FCustomIconMenu->setIcon(iconByJidStatus(AIndex->data(RDR_JID).toString(),IPresence::Online,SUBSCRIPTION_BOTH,false));
-  AMenu->addAction(FCustomIconMenu->menuAction(),AG_RVCM_STATUSICONS,true);
- }*/
 }
 
 void StatusIcons::onOptionsOpened()
@@ -471,20 +381,6 @@ void StatusIcons::onDefaultIconsetChanged()
 		emit defaultIconsetChanged(storage->subStorage());
 		emit defaultIconsChanged();
 		startStatusIconsChanged();
-	}
-}
-
-void StatusIcons::onSetCustomIconset(bool)
-{
-	Action *action = qobject_cast<Action *>(sender());
-	if (action)
-	{
-		QString rule = action->data(ADR_RULE).toString();
-		QString substorage = action->data(ADR_SUBSTORAGE).toString();
-		if (substorage.isEmpty())
-			removeRule(rule,IStatusIcons::UserRule);
-		else
-			insertRule(rule,substorage,IStatusIcons::UserRule);
 	}
 }
 

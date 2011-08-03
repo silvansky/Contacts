@@ -11,7 +11,7 @@
 #include "ui_setuppluginsdialog.h"
 
 class SetupPluginsDialog :
-			public QDialog
+	public QDialog
 {
 	Q_OBJECT;
 public:

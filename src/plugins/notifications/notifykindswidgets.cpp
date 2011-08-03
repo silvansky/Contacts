@@ -2,31 +2,30 @@
 
 #include <QVBoxLayout>
 
-NotifyKindsWidgets::NotifyKindsWidgets(QWidget * parent) :
-	QWidget(parent)
+NotifyKindsWidgets::NotifyKindsWidgets(QWidget *AParent) : QWidget(AParent)
 {
-	QVBoxLayout * vbl = new QVBoxLayout(this);
+	QVBoxLayout *vbl = new QVBoxLayout(this);
 	setLayout(vbl);
 	vbl->setSpacing(0);
 	vbl->setContentsMargins(0, 0, 0, 0);
 	setObjectName("notifyKindsWidgets");
 }
 
-void NotifyKindsWidgets::addWidget(IOptionsWidget * widget)
+void NotifyKindsWidgets::addWidget(IOptionsWidget *AWidget)
 {
-	connect(widget->instance(), SIGNAL(modified()), SIGNAL(modified()));
-	connect(widget->instance(), SIGNAL(childApply()), SIGNAL(childApply()));
-	connect(widget->instance(), SIGNAL(childReset()), SIGNAL(childReset()));
-	layout()->addWidget(widget->instance());
+	connect(AWidget->instance(), SIGNAL(modified()), SIGNAL(modified()));
+	connect(AWidget->instance(), SIGNAL(childApply()), SIGNAL(childApply()));
+	connect(AWidget->instance(), SIGNAL(childReset()), SIGNAL(childReset()));
+	layout()->addWidget(AWidget->instance());
 }
 
 void NotifyKindsWidgets::apply()
 {
 	foreach (QObject* child, children())
 	{
-		if (IOptionsWidget * ow = qobject_cast<IOptionsWidget*>(child))
+		if (IOptionsWidget *widget = qobject_cast<IOptionsWidget*>(child))
 		{
-			ow->apply();
+			widget->apply();
 		}
 	}
 }
@@ -35,9 +34,9 @@ void NotifyKindsWidgets::reset()
 {
 	foreach (QObject* child, children())
 	{
-		if (IOptionsWidget * ow = qobject_cast<IOptionsWidget*>(child))
+		if (IOptionsWidget *reset = qobject_cast<IOptionsWidget*>(child))
 		{
-			ow->reset();
+			reset->reset();
 		}
 	}
 }

@@ -12,7 +12,6 @@
 #include <definitions/notificators.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/optionvalues.h>
-#include <definitions/optionnodes.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
@@ -20,8 +19,8 @@
 #include <definitions/soundfiles.h>
 #include <definitions/xmppurihandlerorders.h>
 #include <definitions/tabpagenotifypriorities.h>
-#include <interfaces/irosterchanger.h>
 #include <interfaces/ipluginmanager.h>
+#include <interfaces/irosterchanger.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/iroster.h>
@@ -39,7 +38,6 @@
 #include <utils/iconstorage.h>
 #include "addcontactdialog.h"
 #include "addmetacontactdialog.h"
-#include "subscriptiondialog.h"
 
 struct AutoSubscription {
 	AutoSubscription() {
@@ -78,17 +76,16 @@ protected:
 };
 
 class RosterChanger :
-			public QObject,
-			public IPlugin,
-			public IRosterChanger,
-			public IOptionsHolder,
-			public IRosterDataHolder,
-			public IRostersDragDropHandler,
-			public IXmppUriHandler,
-			public IRostersKeyPressHooker
+	public QObject,
+	public IPlugin,
+	public IRosterChanger,
+	public IRosterDataHolder,
+	public IRostersDragDropHandler,
+	public IXmppUriHandler,
+	public IRostersKeyPressHooker
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IRosterChanger IOptionsHolder IRosterDataHolder IRostersDragDropHandler IXmppUriHandler IRostersKeyPressHooker)
+	Q_INTERFACES(IPlugin IRosterChanger IRosterDataHolder IRostersDragDropHandler IXmppUriHandler IRostersKeyPressHooker)
 public:
 	RosterChanger();
 	~RosterChanger();
@@ -100,8 +97,6 @@ public:
 	virtual bool initObjects();
 	virtual bool initSettings();
 	virtual bool startPlugin() { return true; }
-	//IOptionsHolder
-	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IRosterDataHolder
 	virtual int rosterDataOrder() const;
 	virtual QList<int> rosterDataRoles() const;
@@ -116,6 +111,9 @@ public:
 	virtual bool rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu);
 	//IXmppUriHandler
 	virtual bool xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, const QString &AAction, const QMultiMap<QString, QString> &AParams);
+	//IRostersKeyPressHooker
+	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
+	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 	//IRosterChanger
 	virtual bool isAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual bool isAutoUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
@@ -126,20 +124,13 @@ public:
 	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
 	virtual IAddMetaItemWidget *newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent);
 	virtual QWidget *showAddContactDialog(const Jid &AStreamJid);
-	//IRostersKeyPressHooker
-	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
-	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 signals:
 	void addMetaItemWidgetCreated(IAddMetaItemWidget *AWidget);
 	void addContactDialogCreated(IAddContactDialog *ADialog);
-	void subscriptionDialogCreated(ISubscriptionDialog *ADialog);
 	//IRosterDataHolder
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);
 protected:
 	QString subscriptionNotify(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const;
-	Menu *createGroupMenu(const QHash<int,QVariant> &AData, const QSet<QString> &AExceptGroups,
-		bool ANewGroup, bool ARootGroup, const char *ASlot, Menu *AParent);
-	SubscriptionDialog *createSubscriptionDialog(const Jid &AStreamJid, const Jid &AContactJid, const QString &ANotify, const QString &AMessage);
 	IChatWindow *findChatNoticeWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	IChatNotice createChatNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const;
 	int insertChatNotice(IChatWindow *AWindow, const IChatNotice &ANotice);

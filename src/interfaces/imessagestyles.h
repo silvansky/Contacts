@@ -128,10 +128,10 @@ public:
 	virtual IMessageStyle *styleForOptions(const IMessageStyleOptions &AOptions) const =0;
 	virtual IMessageStyleOptions styleOptions(const OptionsNode &ANode, int AMessageType) const =0;
 	virtual IMessageStyleOptions styleOptions(int AMessageType, const QString &AContext = QString::null) const =0;
-	virtual QString userAvatar(const Jid &AContactJid) const =0;
-	virtual QString userName(const Jid &AStreamJid, const Jid &AContactJid = Jid()) const =0;
-	virtual QString userIcon(const Jid &AStreamJid, const Jid &AContactJid = Jid()) const =0;
-	virtual QString userIcon(const Jid &AContactJid, int AShow, const QString &ASubscription, bool AAsk) const =0;
+	virtual QString contactAvatar(const Jid &AContactJid) const =0;
+	virtual QString contactName(const Jid &AStreamJid, const Jid &AContactJid = Jid()) const =0;
+	virtual QString contactIcon(const Jid &AStreamJid, const Jid &AContactJid = Jid()) const =0;
+	virtual QString contactIcon(const Jid &AContactJid, int AShow, const QString &ASubscription, bool AAsk) const =0;
 	virtual QString timeFormat(const QDateTime &AMessageTime, const QDateTime &ACurTime = QDateTime::currentDateTime()) const =0;
 protected:
 	virtual void styleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext) const =0;

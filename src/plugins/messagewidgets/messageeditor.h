@@ -5,7 +5,7 @@
 #include <utils/autosizetextedit.h>
 
 class MessageEditor :
-			public AutoSizeTextEdit
+	public AutoSizeTextEdit
 {
 	Q_OBJECT
 public:

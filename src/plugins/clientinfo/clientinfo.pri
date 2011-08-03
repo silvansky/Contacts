@@ -1,7 +1,3 @@
-FORMS = clientinfodialog.ui
+HEADERS = clientinfo.h 
 
-HEADERS = clientinfo.h \
-          clientinfodialog.h
-
-SOURCES = clientinfo.cpp \
-          clientinfodialog.cpp
+SOURCES = clientinfo.cpp

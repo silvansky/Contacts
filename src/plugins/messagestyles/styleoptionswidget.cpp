@@ -98,7 +98,7 @@ void StyleOptionsWidget::createViewContent()
 		i_options.senderId = "remote";
 		i_options.senderName = tr("Receiver");
 		i_options.senderColor = "blue";
-		i_options.senderIcon = FMessageStyles->userIcon(i_options.senderId,IPresence::Chat,SUBSCRIPTION_BOTH,false);
+		i_options.senderIcon = FMessageStyles->contactIcon(i_options.senderId,IPresence::Chat,SUBSCRIPTION_BOTH,false);
 
 		o_options.noScroll = true;
 		o_options.kind = IMessageContentOptions::Message;
@@ -106,7 +106,7 @@ void StyleOptionsWidget::createViewContent()
 		o_options.senderId = "myself";
 		o_options.senderName = tr("Sender");
 		o_options.senderColor = "red";
-		o_options.senderIcon = FMessageStyles->userIcon(i_options.senderId,IPresence::Online,SUBSCRIPTION_BOTH,false);
+		o_options.senderIcon = FMessageStyles->contactIcon(i_options.senderId,IPresence::Online,SUBSCRIPTION_BOTH,false);
 
 		if (curMessageType==Message::Normal || curMessageType==Message::Headline || curMessageType==Message::Error)
 		{

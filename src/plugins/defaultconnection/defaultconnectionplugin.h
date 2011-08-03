@@ -9,13 +9,12 @@
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/ioptionsmanager.h>
 #include "defaultconnection.h"
-#include "connectionoptionswidget.h"
 
 class DefaultConnectionPlugin :
-			public QObject,
-			public IPlugin,
-			public IConnectionPlugin,
-			public IDefaultConnectionPlugin
+	public QObject,
+	public IPlugin,
+	public IConnectionPlugin,
+	public IDefaultConnectionPlugin
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IConnectionPlugin IDefaultConnectionPlugin);
@@ -34,8 +33,6 @@ public:
 	virtual QString pluginId() const;
 	virtual QString pluginName() const;
 	virtual IConnection *newConnection(const OptionsNode &ANode, QObject *AParent);
-	virtual IOptionsWidget *connectionSettingsWidget(const OptionsNode &ANode, QWidget *AParent);
-	virtual void saveConnectionSettings(IOptionsWidget *AWidget, OptionsNode ANode = OptionsNode::null);
 	virtual void loadConnectionSettings(IConnection *AConnection, const OptionsNode &ANode);
 signals:
 	void connectionCreated(IConnection *AConnection);

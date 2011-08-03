@@ -30,8 +30,9 @@ void MessageWidgets::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
-bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
 
 	IPlugin *plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
@@ -107,11 +108,10 @@ bool MessageWidgets::initSettings()
 
 	if (FOptionsManager)
 	{
-		FOptionsManager->insertServerOption(OPV_MESSAGES_EDITORSENDKEY);
-
 		IOptionsDialogNode dnode = { ONO_MESSAGES, OPN_MESSAGES, tr("Messages"), MNI_CHAT_MHANDLER_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
+		FOptionsManager->insertServerOption(OPV_MESSAGES_EDITORSENDKEY);
 	}
 	return true;
 }
@@ -127,9 +127,9 @@ QMultiMap<int, IOptionsWidget *> MessageWidgets::optionsWidgets(const QString &A
 	return widgets;
 }
 
-bool MessageWidgets::viewUrlOpen(IViewWidget* APage, const QUrl &AUrl, int AOrder)
+bool MessageWidgets::viewUrlOpen(IViewWidget *AViewWidget, const QUrl &AUrl, int AOrder)
 {
-	Q_UNUSED(APage);
+	Q_UNUSED(AViewWidget);
 	Q_UNUSED(AOrder);
 	return QDesktopServices::openUrl(AUrl);
 }
@@ -153,7 +153,7 @@ IViewWidget *MessageWidgets::newViewWidget(const Jid &AStreamJid, const Jid &ACo
 	return widget;
 }
 
-IChatNoticeWidget * MessageWidgets::newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid)
+IChatNoticeWidget *MessageWidgets::newNoticeWidget(const Jid &AStreamJid, const Jid &AContactJid)
 {
 	IChatNoticeWidget *widget = new ChatNoticeWidget(this,AStreamJid,AContactJid);
 	FCleanupHandler.add(widget->instance());
@@ -262,32 +262,6 @@ IChatWindow *MessageWidgets::findChatWindow(const Jid &AStreamJid, const Jid &AC
 	foreach(IChatWindow *window,FChatWindows)
 		if (window->streamJid() == AStreamJid && window->contactJid() == AContactJid)
 			return window;
-	return NULL;
-}
-
-QList<IMassSendDialog*> MessageWidgets::massSendDialogs() const
-{
-	return FMassSendDialogs;
-}
-
-IMassSendDialog *MessageWidgets::newMassSendDialog(const Jid &AStreamJid)
-{
-	IMassSendDialog *dialog = findMassSendDialog(AStreamJid);
-	if (!dialog)
-	{
-		dialog = new MassSendDialog(this, AStreamJid);
-		FMassSendDialogs.append(dialog);
-		FCleanupHandler.add(dialog->instance());
-		emit massSendDialogCreated(dialog);
-	}
-	return dialog;
-}
-
-IMassSendDialog *MessageWidgets::findMassSendDialog(const Jid &AStreamJid)
-{
-	foreach (IMassSendDialog* dialog, FMassSendDialogs)
-		if (dialog->streamJid() == AStreamJid)
-			return dialog;
 	return NULL;
 }
 
@@ -652,9 +626,7 @@ void MessageWidgets::onTabWindowDestroyed()
 	{
 		CustomBorderContainer *border = qobject_cast<CustomBorderContainer *>(window->instance()->parentWidget());
 		if (border)
-		{
 			Options::setFileValue(border->saveGeometry(),"messages.tabwindows.window.border.geometry",window->windowId());
-		}
 		FTabWindows.removeAt(FTabWindows.indexOf(window));
 		emit tabWindowDestroyed(window);
 	}
@@ -736,7 +708,6 @@ void MessageWidgets::onOptionsOpened()
 	data = Options::fileValue("messages.last-tab-pages-activity").toByteArray();
 	QDataStream stream3(data);
 	stream3 >> FLastPagesActivity;
-
 }
 
 void MessageWidgets::onOptionsClosed()
@@ -757,12 +728,6 @@ void MessageWidgets::onOptionsClosed()
 	Options::setFileValue(data,"messages.last-tab-pages-activity");
 
 	deleteWindows();
-}
-
-void MessageWidgets::onMassSend()
-{
-	IMassSendDialog * dlg = newMassSendDialog(FAccountManager->accounts().first()->xmppStream()->streamJid());
-	dlg->instance()->show();
 }
 
 Q_EXPORT_PLUGIN2(plg_messagewidgets, MessageWidgets)

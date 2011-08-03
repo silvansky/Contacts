@@ -53,7 +53,6 @@ void OptionsManager::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo ->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
 	APluginInfo->homePage = "http://contacts.rambler.ru";
-	APluginInfo->conflicts.append("{6030FCB2-9F1E-4ea2-BE2B-B66EBE0C4367}"); // ISettings
 }
 
 bool OptionsManager::initConnections(IPluginManager *APluginManager, int &AInitOrder)
@@ -101,14 +100,12 @@ bool OptionsManager::initObjects()
 	FProfilesDir.cd(DIR_PROFILES);
 
 	FChangeProfileAction = new Action(this);
-	//FChangeProfileAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_PROFILES);
 	FChangeProfileAction->setText(tr("Change User"));
 	FChangeProfileAction->setData(Action::DR_SortString,QString("100"));
 	connect(FChangeProfileAction,SIGNAL(triggered(bool)),SLOT(onChangeProfileByAction(bool)));
 
 	FShowOptionsDialogAction = new Action(this);
 	FShowOptionsDialogAction->setVisible(false);
-	//FShowOptionsDialogAction->setIcon(RSR_STORAGE_MENUICONS,MNI_OPTIONS_DIALOG);
 	FShowOptionsDialogAction->setText(tr("Options"));
 #ifdef Q_WS_MAC
 	FShowOptionsDialogAction->setShortcut(tr("Ctrl+,"));
@@ -125,7 +122,6 @@ bool OptionsManager::initObjects()
 
 	if (FTrayManager)
 	{
-		//FTrayManager->contextMenu()->addAction(FChangeProfileAction,AG_TMTM_OPTIONS,true);
 		FTrayManager->contextMenu()->addAction(FShowOptionsDialogAction,AG_TMTM_OPTIONS,true);
 	}
 
@@ -161,10 +157,10 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_COMMON)
 	{
-		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsHeaderWidget(QString::null, tr("Common settings"),AParent));
+		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsHeaderWidget(QString::null, tr("Common settings"), AParent));
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
 
-		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"),AParent));
+		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"), AParent));
 		widgets.insertMulti(OWO_COMMON_SINC_OPTIONS, optionsNodeWidget(Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER), tr("Sync preferences on my several computers"), AParent));
 	}
 	return widgets;
@@ -434,14 +430,6 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 	return FLoginDialog;
 }
 
-QDialog *OptionsManager::showEditProfilesDialog(QWidget *AParent)
-{
-	if (FEditProfilesDialog.isNull())
-		FEditProfilesDialog = new EditProfilesDialog(this,AParent);
-	WidgetManager::showActivateRaiseWindow(FEditProfilesDialog);
-	return FEditProfilesDialog;
-}
-
 QList<IOptionsHolder *> OptionsManager::optionsHolders() const
 {
 	return FOptionsHolders;
@@ -520,16 +508,10 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		if (FOptionsDialogBorder)
 		{
 			FOptionsDialogBorder->layout()->update();
-			//FOptionsDialogBorder->resize(FOptionsDialogBorder->minimumSizeHint());
 			FOptionsDialogBorder->adjustSize();
 		}
 	}
 	return FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog;
-}
-
-IOptionsContainer *OptionsManager::optionsContainer(QWidget *AParent) const
-{
-	return new OptionsContainer(this,AParent);
 }
 
 IOptionsWidget *OptionsManager::optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const
@@ -649,66 +631,6 @@ QDomDocument OptionsManager::profileDocument(const QString &AProfile) const
 		file.close();
 	}
 	return doc;
-}
-
-void OptionsManager::importOldSettings()
-{
-	IPlugin *plugin = FPluginManager->pluginInterface("IAccountManager").value(0);
-	IAccountManager *accountManager = plugin!=NULL ? qobject_cast<IAccountManager *>(plugin->instance()) : NULL;
-	if (accountManager)
-	{
-		foreach(QString dirName, FProfilesDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot))
-		{
-			QFile settings(FProfilesDir.absoluteFilePath(dirName + "/settings.xml"));
-			if (!FProfilesDir.exists(dirName + "/" FILE_PROFILE) && settings.open(QFile::ReadOnly))
-			{
-				QDomDocument doc;
-				if (doc.setContent(&settings,true) && addProfile(dirName,QString::null) && setCurrentProfile(dirName,QString::null))
-				{
-					QDomElement accountElem = doc.documentElement().firstChildElement("plugin");
-					while (!accountElem.isNull() &&  QUuid(accountElem.attribute("pluginId"))!=QUuid(ACCOUNTMANAGER_UUID))
-						accountElem = accountElem.nextSiblingElement("plugin");
-
-					accountElem = accountElem.firstChildElement("account");
-					while (!accountElem.isNull())
-					{
-						IAccount *account = accountManager->appendAccount(accountElem.attribute("ns"));
-						if (account)
-						{
-							QByteArray key = QUuid(accountElem.attribute("ns")).toString().toUtf8();
-							QByteArray password = QByteArray::fromBase64(qUncompress(QByteArray::fromBase64(accountElem.firstChildElement("password").attribute("value").toLocal8Bit())));
-							for (int i = 0; i<password.size(); ++i)
-								password[i] = password[i] ^ key[i % key.size()];
-
-							account->setName(accountElem.firstChildElement("name").attribute("value"));
-							account->setStreamJid(accountElem.firstChildElement("streamJid").attribute("value"));
-							account->setPassword(QString::fromUtf8(password));
-
-							QDomElement connectElem = doc.documentElement().firstChildElement("plugin");
-							while (!connectElem.isNull() &&  QUuid(connectElem.attribute("pluginId"))!=QUuid(accountElem.firstChildElement("connectionId").attribute("value")))
-								connectElem = connectElem.nextSiblingElement("plugin");
-
-							connectElem = connectElem.firstChildElement("connection");
-							while (!connectElem.isNull() && connectElem.attribute("ns")!=accountElem.attribute("ns"))
-								connectElem = connectElem.nextSiblingElement("connection");
-
-							if (!connectElem.isNull())
-							{
-								OptionsNode cnode = account->optionsNode().node("connection",account->optionsNode().value("connection-type").toString());
-								cnode.setValue(connectElem.firstChildElement("host").attribute("value"),"host");
-								cnode.setValue(connectElem.firstChildElement("port").attribute("value").toInt(),"port");
-								cnode.setValue(QVariant(connectElem.firstChildElement("useSSL").attribute("value")).toBool(),"use-ssl");
-								cnode.setValue(QVariant(connectElem.firstChildElement("ingnoreSSLErrors").attribute("value")).toBool(),"ignore-ssl-errors");
-							}
-						}
-						accountElem = accountElem.nextSiblingElement("account");
-					}
-					setCurrentProfile(QString::null,QString::null);
-				}
-				settings.close();
-			}
-		}
-	}
 }
 
 void OptionsManager::onOptionsChanged(const OptionsNode &ANode)

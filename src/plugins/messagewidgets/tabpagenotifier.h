@@ -5,8 +5,8 @@
 #include <interfaces/imessagewidgets.h>
 
 class TabPageNotifier : 
-			public QObject,
-			public ITabPageNotifier
+	public QObject,
+	public ITabPageNotifier
 {
 	Q_OBJECT;
 	Q_INTERFACES(ITabPageNotifier);

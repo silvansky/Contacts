@@ -99,7 +99,6 @@ public:
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid) =0;
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID) =0;
 	virtual QDialog *showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL) =0;
-	virtual QDialog *showAddLegacyContactDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent = NULL) =0;
 protected:
 	virtual void availServicesChanged(const Jid &AStreamJid) =0;
 	virtual void streamServicesChanged(const Jid &AStreamJid) =0;

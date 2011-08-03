@@ -39,7 +39,6 @@ SUBDIRS += console
 SUBDIRS += chatstates
 SUBDIRS += xmppuriqueries
 SUBDIRS += bitsofbinary
-SUBDIRS += masssendhandler
 SUBDIRS += registration
 SUBDIRS += ramblerhistory
 SUBDIRS += birthdayreminder

@@ -219,18 +219,6 @@
 <context>
     <name>RosterChanger</name>
     <message>
-        <source>This group</source>
-        <translation>В эту группу</translation>
-    </message>
-    <message>
-        <source>Create new...</source>
-        <translation>Создать новую...</translation>
-    </message>
-    <message>
-        <source>Root</source>
-        <translation>В корневую папку</translation>
-    </message>
-    <message>
         <source>Copy contact</source>
         <translation>Копировать контакт</translation>
     </message>
@@ -281,22 +269,6 @@
     <message>
         <source>Add contact</source>
         <translation>Добавить контакт</translation>
-    </message>
-    <message>
-        <source>Subscribe for contact presence</source>
-        <translation>Подписаться на получение статуса контакта</translation>
-    </message>
-    <message>
-        <source>You are assured that wish to subscribe for a contact &lt;b&gt;%1&lt;/b&gt; presence?</source>
-        <translation>Вы уверены, что хотите подписаться на получение статуса контакта &lt;b&gt;%1&lt;/b&gt;?</translation>
-    </message>
-    <message>
-        <source>Unsubscribe from contact presence</source>
-        <translation>Отписаться от получения статуса контакта</translation>
-    </message>
-    <message>
-        <source>You are assured that wish to unsubscribe from a contact &lt;b&gt;%1&lt;/b&gt; presence?</source>
-        <translation>Вы уверены, что хотите отписаться от получения статуса контакта &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
     <message>
         <source>Roster Editor</source>
@@ -443,44 +415,6 @@
     <message>
         <source>To contact-list:</source>
         <translation>В список контактов:</translation>
-    </message>
-</context>
-<context>
-    <name>SubscriptionDialog</name>
-    <message>
-        <source>Subscription request - %1</source>
-        <translation>Запрос авторизации - %1</translation>
-    </message>
-    <message>
-        <source>Chat</source>
-        <translation>Чат</translation>
-    </message>
-    <message>
-        <source>Open chat window</source>
-        <translation>Открыть окно чата</translation>
-    </message>
-    <message>
-        <source>VCard</source>
-        <translation>vCard</translation>
-    </message>
-    <message>
-        <source>Show VCard</source>
-        <translation>Показать vCard</translation>
-    </message>
-</context>
-<context>
-    <name>SubscriptionDialogClass</name>
-    <message>
-        <source>Add user to contact list</source>
-        <translation>Добавить пользователя в контакт-лист</translation>
-    </message>
-    <message>
-        <source>Authorize presence subscription</source>
-        <translation>Авторизовать</translation>
-    </message>
-    <message>
-        <source>Remove presence subscription</source>
-        <translation>Удалить авторизацию</translation>
     </message>
 </context>
 </TS>

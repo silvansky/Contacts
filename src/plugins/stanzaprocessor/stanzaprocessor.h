@@ -11,17 +11,20 @@
 
 struct StanzaRequest
 {
-	StanzaRequest() { timer=NULL; owner=NULL; }
+	StanzaRequest() { 
+		timer=NULL; 
+		owner=NULL; 
+	}
 	Jid streamJid;
 	QTimer *timer;
 	IStanzaRequestOwner *owner;
 };
 
 class StanzaProcessor :
-			public QObject,
-			public IPlugin,
-			public IStanzaProcessor,
-			public IXmppStanzaHadler
+	public QObject,
+	public IPlugin,
+	public IStanzaProcessor,
+	public IXmppStanzaHadler
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IStanzaProcessor IXmppStanzaHadler)

@@ -120,8 +120,6 @@ protected:
 	QString calcCapsHash(const IDiscoInfo &AInfo, const QString &AHash) const;
 	bool compareIdentities(const QList<IDiscoIdentity> &AIdentities, const IDiscoIdentity &AWith) const;
 	bool compareFeatures(const QStringList &AFeatures, const QStringList &AWith) const;
-	void insertStreamMenu(const Jid &AStreamJid);
-	void removeStreamMenu(const Jid &AStreamJid);
 protected slots:
 	void onStreamOpened(IXmppStream *AXmppStream);
 	void onStreamClosed(IXmppStream *AXmppStream);
@@ -152,7 +150,6 @@ private:
 	QMap<Jid, QHash<Jid, EntityCapabilities> > FEntityCaps;
 	QMap<Jid, QHash<Jid, QMap<QString, IDiscoInfo> > > FDiscoInfo;
 private:
-	Menu *FDiscoMenu;
 	QList<IDiscoHandler *> FDiscoHandlers;
 	QMap<QString, IDiscoFeature> FDiscoFeatures;
 	QMap<QString, QMultiMap<int, IDiscoFeatureHandler *> > FFeatureHandlers;

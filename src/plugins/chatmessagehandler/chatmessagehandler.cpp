@@ -1,6 +1,5 @@
 #include "chatmessagehandler.h"
 
-
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    25
 
@@ -66,8 +65,10 @@ void ChatMessageHandler::pluginInfo(IPluginInfo *APluginInfo)
 }
 
 
-bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
+
 	IPlugin *plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
 	if (plugin)
 		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
@@ -199,8 +200,8 @@ bool ChatMessageHandler::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterIcon|INotification::PopupWindow|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySoundNotification|INotification::AutoActivate|INotification::TestNotify;
-		uchar kindDefs = INotification::RosterIcon|INotification::PopupWindow|INotification::TabPage|INotification::TrayIcon|INotification::TrayAction|INotification::PlaySoundNotification;
+		uchar kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction|INotification::SoundPlay|INotification::AutoActivate|INotification::TestNotify;
+		uchar kindDefs = INotification::RosterNotify|INotification::PopupWindow|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction|INotification::SoundPlay;
 		FNotifications->insertNotificator(NID_CHAT_MESSAGE,OWO_NOTIFICATIONS_CHAT_MESSAGES,tr("New messages"),kindMask,kindDefs);
 	}
 	return true;
@@ -328,7 +329,7 @@ bool ChatMessageHandler::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 bool ChatMessageHandler::checkMessage(int AOrder, const Message &AMessage)
 {
 	Q_UNUSED(AOrder);
-	return !AMessage.body().isEmpty() /*&& AMessage.type()!=Message::Error*/;
+	return !AMessage.body().isEmpty();
 }
 
 bool ChatMessageHandler::showMessage(int AMessageId)
@@ -782,9 +783,9 @@ void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageConten
 	if (AOptions.direction == IMessageContentOptions::DirectionIn)
 	{
 		AOptions.senderId = AWindow->contactJid().full();
-		AOptions.senderName = Qt::escape(FMessageStyles->userName(AWindow->streamJid(),AWindow->contactJid()));
-		AOptions.senderAvatar = FMessageStyles->userAvatar(AWindow->contactJid());
-		AOptions.senderIcon = FMessageStyles->userIcon(AWindow->streamJid(),AWindow->contactJid());
+		AOptions.senderName = Qt::escape(FMessageStyles->contactName(AWindow->streamJid(),AWindow->contactJid()));
+		AOptions.senderAvatar = FMessageStyles->contactAvatar(AWindow->contactJid());
+		AOptions.senderIcon = FMessageStyles->contactIcon(AWindow->streamJid(),AWindow->contactJid());
 		AOptions.senderColor = "blue";
 	}
 	else
@@ -793,9 +794,9 @@ void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageConten
 		if (AWindow->streamJid() && AWindow->contactJid())
 			AOptions.senderName = Qt::escape(!AWindow->streamJid().resource().isEmpty() ? AWindow->streamJid().resource() : AWindow->streamJid().node());
 		else
-			AOptions.senderName = Qt::escape(FMessageStyles->userName(AWindow->streamJid()));
-		AOptions.senderAvatar = FMessageStyles->userAvatar(AWindow->streamJid());
-		AOptions.senderIcon = FMessageStyles->userIcon(AWindow->streamJid());
+			AOptions.senderName = Qt::escape(FMessageStyles->contactName(AWindow->streamJid()));
+		AOptions.senderAvatar = FMessageStyles->contactAvatar(AWindow->streamJid());
+		AOptions.senderIcon = FMessageStyles->contactIcon(AWindow->streamJid());
 		AOptions.senderColor = "red";
 	}
 }
@@ -1063,7 +1064,6 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IR
 		{
 			Action *action = new Action(AMenu);
 			action->setText(tr("Open"));
-			//action->setIcon(RSR_STORAGE_MENUICONS,MNI_CHAT_MHANDLER_MESSAGE);
 			action->setData(ADR_STREAM_JID,streamJid.full());
 			action->setData(ADR_CONTACT_JID,contactJid.full());
 			AMenu->setDefaultAction(action);
@@ -1191,7 +1191,7 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contsctJid.full()));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on www.rambler.ru :)"));
 		}
-		if (AKinds & INotification::PlaySoundNotification)
+		if (AKinds & INotification::SoundPlay)
 		{
 			notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
 		}
