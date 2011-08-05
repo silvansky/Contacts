@@ -154,7 +154,7 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 				notify.data.insert(NDR_ICON,FNotifications->contactIcon(APresence->streamJid(),AItem.itemJid));
 				notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
 				notify.data.insert(NDR_POPUP_NOTICE,tr("Changed mood"));
-				notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
+				notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(APresence->streamJid(),AItem.itemJid));
 				notify.data.insert(NDR_POPUP_TEXT, Qt::escape(AItem.status));
 				notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_MOOD_CHANGED);
 				FNotifies.insertMulti(APresence,FNotifications->appendNotification(notify));
@@ -190,7 +190,7 @@ void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceIte
 			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(isOnline ? IPresence::Online : IPresence::Offline, SUBSCRIPTION_BOTH, false) : QVariant());
 			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(APresence->streamJid(),AItem.itemJid));
 			notify.data.insert(NDR_POPUP_NOTICE, isOnline ? tr("Connected") : tr("Disconnected"));
-			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(AItem.itemJid));
+			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(APresence->streamJid(),AItem.itemJid));
 			notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_STATE_CHANGED);
 			FNotifies.insertMulti(APresence,FNotifications->appendNotification(notify));
 		}
@@ -338,7 +338,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Online, SUBSCRIPTION_BOTH, false) : QVariant());
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_NOTICE,tr("Changed mood"));
-			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
+         notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contactJid.full()));
 			notify.data.insert(NDR_POPUP_TEXT, Qt::escape(tr("Whatever was done, all the better")));
 		}
 		if (AKinds & INotification::SoundPlay)
@@ -361,7 +361,7 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Online, SUBSCRIPTION_BOTH, false) :QVariant());
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_NOTICE, tr("Connected"));
-			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
+         notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contactJid.full()));
 		}
 		if (AKinds & INotification::SoundPlay)
 		{

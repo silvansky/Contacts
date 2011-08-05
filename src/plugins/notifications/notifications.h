@@ -23,6 +23,7 @@
 #include <interfaces/itraymanager.h>
 #include <interfaces/iroster.h>
 #include <interfaces/iavatars.h>
+#include <interfaces/imetacontacts.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/istatuschanger.h>
@@ -92,7 +93,7 @@ public:
 	virtual void setNotificatorKinds(const QString &ANotificatorId, uchar AKinds);
 	virtual void removeNotificator(const QString &ANotificatorId);
 	//Notification Utilities
-	virtual QImage contactAvatar(const Jid &AContactJid) const;
+	virtual QImage contactAvatar(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual QIcon contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual QString contactName(const Jid &AStreamJId, const Jid &AContactJid) const;
 signals:
@@ -126,6 +127,7 @@ protected slots:
 private:
 	IAvatars *FAvatars;
 	IRosterPlugin *FRosterPlugin;
+   IMetaContacts *FMetaContacts;
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
 	ITrayManager *FTrayManager;

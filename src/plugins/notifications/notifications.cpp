@@ -13,6 +13,7 @@ Notifications::Notifications()
 {
 	FAvatars = NULL;
 	FRosterPlugin = NULL;
+   FMetaContacts = NULL;
 	FStatusIcons = NULL;
 	FStatusChanger = NULL;
 	FTrayManager = NULL;
@@ -90,6 +91,10 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &AInitOr
 	plugin = APluginManager->pluginInterface("IRostersModel").value(0,NULL);
 	if (plugin)
 		FRostersModel = qobject_cast<IRostersModel *>(plugin->instance());
+
+   plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
+   if (plugin)
+      FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
 	if (plugin)
@@ -489,9 +494,16 @@ void Notifications::removeNotificator(const QString &ANotificatorId)
 	Options::node(OPV_NOTIFICATIONS_NOTIFICATORS_ROOT).removeChilds("notificator",ANotificatorId);
 }
 
-QImage Notifications::contactAvatar(const Jid &AContactJid) const
+QImage Notifications::contactAvatar(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	return ImageManager::roundSquared(FAvatars ? FAvatars->avatarImage(AContactJid, false) : QImage(), 36, 2);
+   QImage avatar;
+   IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(AStreamJid) : NULL;
+   QString metaId = mroster->itemMetaContact(AContactJid);
+   if (!metaId.isEmpty())
+      avatar = mroster->metaAvatarImage(metaId,false,false);
+   else if (FAvatars)
+      avatar = FAvatars->avatarImage(AContactJid,false,false);
+	return ImageManager::roundSquared(avatar, 36, 2);
 }
 
 QIcon Notifications::contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const

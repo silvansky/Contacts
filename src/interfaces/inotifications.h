@@ -45,7 +45,7 @@ public:
 	virtual uchar notificatorKinds(const QString &ANotificatorId) const =0;
 	virtual void setNotificatorKinds(const QString &ANotificatorId, uchar AKinds) =0;
 	virtual void removeNotificator(const QString &ANotificatorId) =0;
-	virtual QImage contactAvatar(const Jid &AContactJid) const =0;
+	virtual QImage contactAvatar(const Jid &AStreamJid,const Jid &AContactJid) const =0;
 	virtual QIcon contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const =0;
 	virtual QString contactName(const Jid &AStreamJId, const Jid &AContactJid) const =0;
 protected:

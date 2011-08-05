@@ -374,7 +374,7 @@ void BirthdayReminder::onShowNotificationTimer()
 					notifiedMetaContacts += metaId;
 
 					notify.data.insert(NDR_POPUP_TITLE,!metaId.isEmpty() ? FMetaContacts->metaContactName(mroster->metaContact(metaId)) : FNotifications->contactName(streamJid,contactJid));
-					notify.data.insert(NDR_POPUP_IMAGE,!metaId.isEmpty() ? mroster->metaAvatarImage(metaId) : FNotifications->contactAvatar(contactJid));
+					notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(streamJid,contactJid));
 					notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);
 
 					QDate	birthday = contactBithday(contactJid);
@@ -436,7 +436,7 @@ void BirthdayReminder::onNotificationTest(const QString &ANotificatorId, uchar A
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contactJid = "vasilisa@rambler/ramblercontacts";
-			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(contactJid.full()));
+         notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contactJid.full()));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Birthday today!"));
 			notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);

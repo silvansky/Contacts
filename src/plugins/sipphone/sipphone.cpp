@@ -1696,7 +1696,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
   notify.data.insert(NDR_POPUP_STYLEKEY,STS_SIPPHONE_NOTIFYWIDGET_CALL);
   notify.data.insert(NDR_POPUP_TIMEOUT,0);
   notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL);*/
-		SipCallNotifyer * callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.contactJid));
+		SipCallNotifyer * callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.streamJid,AStream.contactJid));
 
 		callNotifyer->setProperty("streamId", AStream.sid);
 		connect(callNotifyer, SIGNAL(accepted()), SLOT(onAcceptStreamByAction()));
