@@ -3,4 +3,4 @@
 
 #define CNP_SUBSCRIPTION                                  300
 
-#endif
+#endif // DEF_CHATNOTICEPRIORITIES_H

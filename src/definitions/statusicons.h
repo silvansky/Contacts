@@ -16,4 +16,4 @@
 #define STI_OFFLINE     "offline"
 #define STI_ERROR       "error"
 
-#endif
+#endif // DEF_STATUCICONS_H

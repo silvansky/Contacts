@@ -132,12 +132,11 @@ bool Notifications::initObjects()
 	FActivateAll = new Action(this);
 	FActivateAll->setVisible(false);
 	FActivateAll->setText(tr("New messages"));
-	FActivateAll->setIcon(RSR_STORAGE_MENUICONS,MNI_NOTIFICATIONS_ACTIVATE_ALL);
 	connect(FActivateAll,SIGNAL(triggered(bool)),SLOT(onTrayActionTriggered(bool)));
 
 	if (FTrayManager)
 	{
-		FTrayManager->contextMenu()->addAction(FActivateAll,AG_TMTM_NOTIFICATIONS,false);
+		FTrayManager->contextMenu()->addAction(FActivateAll,AG_TMTM_NOTIFICATIONS_ACTIVATE,false);
 	}
 
 	return true;
@@ -152,7 +151,6 @@ bool Notifications::initSettings()
 	Options::setDefaultValue(OPV_NOTIFICATIONS_TRAYICON,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_TRAYACTION,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_AUTOACTIVATE,true);
-	Options::setDefaultValue(OPV_NOTIFICATIONS_EXPANDGROUP,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_NONOTIFYIFAWAY,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_NONOTIFYIFDND,true);
 	Options::setDefaultValue(OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN,true);

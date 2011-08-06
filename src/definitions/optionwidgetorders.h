@@ -1,15 +1,6 @@
 #ifndef DEF_OPTIONWIDGETORDERS_H
 #define DEF_OPTIONWIDGETORDERS_H
 
-//Node = OPN_ACCOUNTS.<AccountId>
-#define OWO_ACCOUNT_OPTIONS                       500
-#define OWO_ACCOUNT_CONNECTION                    600
-#define OWO_ACCOUNT_REGISTER                      800
-#define OWO_ACCOUNT_STATUS                        900
-
-//Node = OPN_STATUSICONS
-#define OWO_STATUSICONS                           500
-
 //Node = OPN_ROSTER
 #define OWO_ROSTER_VIEW                           200
 #define OWO_ROSTER_MAINWINDOW                     400
@@ -17,12 +8,6 @@
 #define OWO_ROSTER_CONTACTS_VIEW                  700
 #define OWO_ROSTER_AVATARS                        800
 #define OWO_ROSTER_CHANGER                        900
-
-//Node = OPN_EMOTICANS
-#define OWO_EMOTICONS                             500
-
-//Node = OPN_HISTORY
-#define OWO_HISTORY                               500
 
 //Node = OPN_NOTIFICATIONS
 #define OWO_NOTIFICATIONS_ITEM_OPTIONS            300
@@ -61,18 +46,8 @@
 //Node = OPN_MESSAGE_STYLES
 #define OWO_MESSAGE_STYLES                        500
 
-//Node = OPN_DATASTREAMS
-#define OWO_DATASTREAMS                           500
-
-//Node = OPN_FILETRANSFER
-#define OWO_FILESTREAMSMANAGER                    500
-#define OWO_FILETRANSFER                          600
-
-//Node = OPN_AUTOSTATUS
-#define OWO_AUTOSTATUS                            500
-
 //Node = OPN_GATEWAYS_ACCOUNTS
 #define OWO_GATEWAYS_ACCOUNTS_MANAGE              300
 #define OWO_GATEWAYS_ACCOUNTS_APPEND              600
 
-#endif
+#endif // DEF_OPTIONWIDGETORDERS_H

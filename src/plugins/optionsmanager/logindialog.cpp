@@ -134,7 +134,7 @@ protected:
 			if (const QStyleOptionViewItemV3 *v3 = qstyleoption_cast<const QStyleOptionViewItemV3*>(&option))
 				if (const QAbstractItemView *view = qobject_cast<const QAbstractItemView*>(v3->widget))
 					rect.setWidth(view->viewport()->width());
-			QImage separator = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MENUSEPARATOR);
+			QImage separator = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_COMMON_MENUSEPARATOR);
 			painter->fillRect(rect, QBrush(separator));
 		}
 		else
@@ -147,7 +147,7 @@ protected:
 	{
 		if (isSeparator(index))
 		{
-			QImage separator = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MENUSEPARATOR);
+			QImage separator = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_COMMON_MENUSEPARATOR);
 			int pm = mCombo->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, mCombo);
 			return QSize(pm, separator.height());
 		}

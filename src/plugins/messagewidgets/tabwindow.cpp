@@ -185,7 +185,7 @@ void TabWindow::createActions()
 	FCloseWindow = new Action(FWindowMenu);
 	FCloseWindow->setText(tr("Close Window"));
 	FCloseWindow->setShortcuts(QList<QKeySequence>() << tr("Esc") << tr("Alt+F4"));
-	FWindowMenu->addAction(FCloseWindow,AG_MWTW_MWIDGETS_WINDOW_OPTIONS);
+	FWindowMenu->addAction(FCloseWindow,AG_MWTW_MWIDGETS_TABWINDOW_OPTIONS);
 	connect(FCloseWindow,SIGNAL(triggered(bool)),SLOT(onWindowMenuActionTriggered(bool)));
 }
 

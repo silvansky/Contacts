@@ -449,7 +449,7 @@ bool Gateways::initSettings()
 QMultiMap<int, IOptionsWidget *> Gateways::optionsWidgets(const QString &ANodeId, QWidget *AParent)
 {
 	QMultiMap<int, IOptionsWidget *> widgets;
-	if (ANodeId == OPN_GATEWAYS_ACCOUNTS)
+	if (ANodeId == OPN_GATEWAYS)
 	{
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE-1, FOptionsManager->optionsHeaderWidget(QString::null,tr("Accounts"),AParent));
 		widgets.insertMulti(OWO_GATEWAYS_ACCOUNTS_MANAGE, new ManageLegacyAccountsOptions(this,FOptionsStreamJid,AParent));
@@ -1165,7 +1165,6 @@ void Gateways::registerDiscoFeatures()
 	IDiscoFeature dfeature;
 	dfeature.active = false;
 	dfeature.var = NS_JABBER_GATEWAY;
-	dfeature.icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_GATEWAYS);
 	dfeature.name = tr("Gateway Interaction");
 	dfeature.description = tr("Supports the adding of the contact by the username of the legacy system");
 	FDiscovery->insertDiscoFeature(dfeature);
@@ -1249,7 +1248,7 @@ void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
 	if (FOptionsManager)
 	{
 		FOptionsStreamJid = AXmppStream->streamJid();
-		IOptionsDialogNode dnode = { ONO_GATEWAYS_ACCOUNTS, OPN_GATEWAYS_ACCOUNTS, tr("Accounts"), MNI_ACCOUNT_OPTIONS };
+		IOptionsDialogNode dnode = { ONO_GATEWAYS, OPN_GATEWAYS, tr("Accounts"), MNI_GATEWAYS_ACCOUNTS_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 	}
 	if (FDiscovery)
@@ -1261,7 +1260,7 @@ void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
 void Gateways::onXmppStreamClosed(IXmppStream *AXmppStream)
 {
 	if (FOptionsManager)
-		FOptionsManager->removeOptionsDialogNode(OPN_GATEWAYS_ACCOUNTS);
+		FOptionsManager->removeOptionsDialogNode(OPN_GATEWAYS);
 
 	foreach(int notifyId, FConflictNotifies.keys(AXmppStream->streamJid()))
 		FNotifications->removeNotification(notifyId);
@@ -1558,7 +1557,6 @@ void Gateways::onInternalNoticeReady()
 			{
 				IInternalNotice notice;
 				notice.priority = INP_DEFAULT;
-				notice.iconKey = MNI_GATEWAYS_ACCOUNTS;
 				notice.iconStorage = RSR_STORAGE_MENUICONS;
 				notice.caption = tr("Add your accounts");
 				notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
@@ -1580,7 +1578,7 @@ void Gateways::onInternalAccountNoticeActionTriggered()
 {
 	if (FOptionsManager)
 	{
-		FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
+		FOptionsManager->showOptionsDialog(OPN_GATEWAYS);
 	}
 }
 

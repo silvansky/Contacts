@@ -3,7 +3,6 @@
 
 #define XFO_STARTTLS        100
 #define XFO_COMPRESS        200
-#define XFO_REGISTER        300
 #define XFO_SASL            400
 #define XFO_IQAUTH          500
 #define XFO_BIND            600

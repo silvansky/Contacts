@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icondef>
   <icon>
-    <key>connectionEncrypted</key>
-    <object mime="image/png">connectionencrypted.png</object>
-  </icon>
-  <icon>
-    <key>connection</key>
-    <object mime="image/png">connection.png</object>
-  </icon>
-  <icon>
     <key>connectionOptions</key>
     <object mime="image/png">connectionoptions.png</object>
     <object mime="image/png">connectionoptions_click.png</object>

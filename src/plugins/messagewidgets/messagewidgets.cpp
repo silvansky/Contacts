@@ -104,7 +104,6 @@ bool MessageWidgets::initSettings()
 	Options::setDefaultValue(OPV_MESSAGES_EDITORSENDKEY,QKeySequence(Qt::Key_Return));
 	Options::setDefaultValue(OPV_MESSAGES_TABWINDOWS_ENABLE,true);
 	Options::setDefaultValue(OPV_MESSAGES_TABWINDOW_NAME,tr("Tab Window"));
-	Options::setDefaultValue(OPV_MESSAGES_TABWINDOW_TABSCLOSABLE,true);
 
 	if (FOptionsManager)
 	{
@@ -667,7 +666,6 @@ void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Activ
 		{
 			Action *showAll = new Action(menu);
 			showAll->setText(tr("Open All"));
-			showAll->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_LAST_OPEN_ALL);
 			menu->addAction(showAll,AG_DEFAULT-1);
 
 			foreach(Action *action, actions)

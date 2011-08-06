@@ -4,4 +4,4 @@
 //QMap<int,QVariant>
 #define DDT_ROSTERSVIEW_INDEX_DATA        "ramblercontacts/x-roster-index-data"
 
-#endif
+#endif // DEF_ROSTERDRAGDROPMIMETYPES_H

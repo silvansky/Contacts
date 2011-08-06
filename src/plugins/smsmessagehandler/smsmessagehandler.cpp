@@ -411,7 +411,7 @@ INotification SmsMessageHandler::notifyMessage(INotifications *ANotifications, c
 		notify.data.insert(NDR_CONTACT_JID,AMessage.from());
 		notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
 		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-		notify.data.insert(NDR_ROSTER_ORDER,RNO_CHAT_MHANDLER_MESSAGE);
+		notify.data.insert(NDR_ROSTER_ORDER,RNO_CHATHANDLER_MESSAGE);
 		notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink|IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
 		notify.data.insert(NDR_ROSTER_HOOK_CLICK,true);
 		notify.data.insert(NDR_ROSTER_CREATE_INDEX,true);
@@ -423,11 +423,11 @@ INotification SmsMessageHandler::notifyMessage(INotifications *ANotifications, c
 		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
 		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
-		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
+		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHATHANDLER_TABBARITEM_NEWMESSAGE);
 		notify.data.insert(NDR_POPUP_TITLE,name);
 		notify.data.insert(NDR_POPUP_NOTICE,tr("Writing..."));
 		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.to(),AMessage.from()));
-		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
+		notify.data.insert(NDR_SOUND_FILE,SDF_CHATHANDLER_MESSAGE);
 
 		int notifyCount = wstatus.notified.count();
 		if (notifyCount > 1)

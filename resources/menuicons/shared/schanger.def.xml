@@ -1,20 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icondef>
   <icon>
-    <key>schangerModifyStatus</key>
-    <object mime="image/png">schangermodifystatus.png</object>
-  </icon>
-  <icon>
-    <key>schangerEditStatuses</key>
-    <object mime="image/png">schangereditstatuses.png</object>
-  </icon>
-  <icon>
     <key>schangerConnecting</key>
     <object mime="image/png">schangerconnecting.png</object>
-  </icon>
-  <icon>
-    <key>schangerRosterLogo</key>
-    <object mime="image/png">schangerrosterlogo.png</object>
   </icon>
   <icon>
     <key>schangerConnectionError</key>

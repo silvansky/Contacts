@@ -3,4 +3,4 @@
 
 #define FTO_ROSTERSVIEW_STATUS          100
 
-#endif
+#endif // DEF_ROSTERFOOTERTEXTORDERS_H

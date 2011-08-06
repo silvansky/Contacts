@@ -1883,7 +1883,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			dialogAction->setText(tr("Open"));
 			dialogAction->setData(data);
 			AMenu->setDefaultAction(dialogAction);
-			AMenu->addAction(dialogAction,AG_RVCM_CHATMESSAGEHANDLER);
+			AMenu->addAction(dialogAction,AG_RVCM_CHATMESSAGEHANDLER_OPENCHAT);
 			connect(dialogAction,SIGNAL(triggered(bool)),SLOT(onShowMetaTabWindowAction(bool)));
 
 			QSet<Jid> subscRequests = mroster->roster()->subscriptionRequests().intersect(contact.items);
@@ -1891,7 +1891,6 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			{
 				Action *authAction = new Action(AMenu);
 				authAction->setText(tr("Authorize"));
-				authAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_SUBSCRIBE);
 				authAction->setData(data);
 				authAction->setData(ADR_SUBSCRIPTION,IRoster::Subscribed);
 				connect(authAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
@@ -1899,7 +1898,6 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 
 				Action *unauthAction = new Action(AMenu);
 				unauthAction->setText(tr("Refuse authorization"));
-				unauthAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_UNSUBSCRIBE);
 				unauthAction->setData(data);
 				unauthAction->setData(ADR_SUBSCRIPTION,IRoster::Unsubscribed);
 				connect(unauthAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
@@ -1920,7 +1918,6 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			{
 				Action *askAuthAction = new Action(AMenu);
 				askAuthAction->setText(tr("Request authorization"));
-				askAuthAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_SUBSCRIBE);
 				askAuthAction->setData(data);
 				askAuthAction->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
 				connect(askAuthAction,SIGNAL(triggered(bool)),SLOT(onContactSubscription(bool)));
@@ -1967,7 +1964,6 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			//Delete
 			Action *deleteAction = new Action(AMenu);
 			deleteAction->setText(tr("Delete"));
-			deleteAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_REMOVE_CONTACT);
 			deleteAction->setData(data);
 			connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
 			AMenu->addAction(deleteAction,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
@@ -2026,17 +2022,15 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 
 				Action *renameAction = new Action(AMenu);
 				renameAction->setText(tr("Rename..."));
-				renameAction->setIcon(RSR_STORAGE_MENUICONS,MNI_RCHANGER_RENAME);
 				renameAction->setData(data);
 				connect(renameAction,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
 				AMenu->addAction(renameAction,AG_RVCM_ROSTERCHANGER_RENAME);
 
 				Action *vcardAction = new Action(AMenu);
 				vcardAction->setText(tr("Contact info"));
-				vcardAction->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
 				vcardAction->setData(data);
 				connect(vcardAction,SIGNAL(triggered(bool)),SLOT(onShowMetaProfileDialogAction(bool)));
-				AMenu->addAction(vcardAction,AG_RVCM_VCARD,true);
+				AMenu->addAction(vcardAction,AG_RVCM_VCARD_SHOWINFO,true);
 			}
 		}
 	}

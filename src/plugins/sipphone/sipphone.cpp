@@ -429,7 +429,7 @@ void SipPhone::onAboutToShowContactMenu()
 						contactAction->setData(ADR_CONTACT_JID, contactJid.full());
 						contactAction->setData(ADR_METAID_WINDOW, metaId);
 
-						contactsMenu->addAction(contactAction, AG_PHONECM_BASECONTACT);
+						contactsMenu->addAction(contactAction, AG_SPCM_SIPPHONE_BASECONTACT);
 						break;
 					}
 				}
@@ -445,7 +445,7 @@ void SipPhone::onAboutToShowContactMenu()
 	//addContactAction->setData(ADR_CONTACT_JID, contactJid.full());
 	addContactAction->setData(ADR_METAID_WINDOW, metaId);
 
-	contactsMenu->addAction(addContactAction, AG_PHONECM_BASECONTACT + 1);
+	contactsMenu->addAction(addContactAction, AG_SPCM_SIPPHONE_BASECONTACT + 1);
 
 	Action * action = FCallActions.value(metaId);
 	if (action)

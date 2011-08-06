@@ -33,7 +33,7 @@ AddMetaItemWidget::AddMetaItemWidget(IOptionsManager *AOptionsManager, IRoster *
 	connect(&FResolveTimer,SIGNAL(timeout()),SLOT(resolveContactJid()));
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,ADescriptor.iconKey,0,0,"pixmap");
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_RCHANGER_ADDMETACONTACT_ERROR,0,0,"pixmap");
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_RCHANGER_ADDCONTACT_ERROR,0,0,"pixmap");
 
 	ui.lneContact->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneContact->setPlaceholderText(placeholderTextForGate());

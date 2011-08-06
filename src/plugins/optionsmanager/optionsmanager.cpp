@@ -122,7 +122,7 @@ bool OptionsManager::initObjects()
 
 	if (FTrayManager)
 	{
-		FTrayManager->contextMenu()->addAction(FShowOptionsDialogAction,AG_TMTM_OPTIONS,true);
+		FTrayManager->contextMenu()->addAction(FShowOptionsDialogAction,AG_TMTM_OPTIONS_DIALOG,true);
 	}
 
 	return true;

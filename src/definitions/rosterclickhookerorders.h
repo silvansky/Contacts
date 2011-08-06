@@ -3,4 +3,4 @@
 
 #define RCHO_DEFAULT                        500
 
-#endif
+#endif // DEF_ROSTERCLICKHOOKERORDERS_H

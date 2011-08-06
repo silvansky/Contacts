@@ -98,10 +98,10 @@ void SearchEdit::updateIcon(IconState iconState)
 			currentIcon = QIcon();//iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_GLASS);
 			break;
 		case InProgress:
-			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS);
+			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS,0);
 			break;
 		case Hover:
-			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS_HOVER);
+			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS,1);
 			break;
 		}
 		iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));

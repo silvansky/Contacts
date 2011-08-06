@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icondef>
   <icon>
-    <key>messagewidgetsSend</key>
-    <object mime="image/png">messagewidgetssend.png</object>
-  </icon>
-  <icon>
-    <key>messagewidgetsTabMenu</key>
-    <object mime="image/png">messagewidgetstabmenu.png</object>
-  </icon>
-  <icon>
-    <key>messagewidgetsLastTabs</key>
-    <object mime="image/png">messagewidgetslasttabs.png</object>
-  </icon>
-  <icon>
-    <key>messagewidgetsLastOpenAll</key>
-    <object mime="image/png">messagewidgetslastopenall.png</object>
-  </icon>
-  <icon>
-    <key>messagewidgetsQuote</key>
-    <object mime="image/png">messagewidgetsquote.png</object>
-  </icon>
-  <icon>
-    <key>messagewidgetsCloseTab</key>
-    <object mime="image/png">messagewidgetsclosetab.png</object>
-  </icon>
-  <icon>
     <key>messagewidgetsTabWindowTriangle</key>
     <object mime="image/png">messagewidgetstabwindowtriangle.png</object>
   </icon>

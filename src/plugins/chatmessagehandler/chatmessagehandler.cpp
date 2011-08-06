@@ -408,7 +408,7 @@ INotification ChatMessageHandler::notifyMessage(INotifications *ANotifications, 
 		notify.data.insert(NDR_CONTACT_JID,AMessage.from());
 		notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
 		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-		notify.data.insert(NDR_ROSTER_ORDER,RNO_CHAT_MHANDLER_MESSAGE);
+		notify.data.insert(NDR_ROSTER_ORDER,RNO_CHATHANDLER_MESSAGE);
 		notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink|IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
 		notify.data.insert(NDR_ROSTER_HOOK_CLICK,true);
 		notify.data.insert(NDR_ROSTER_CREATE_INDEX,true);
@@ -420,11 +420,11 @@ INotification ChatMessageHandler::notifyMessage(INotifications *ANotifications, 
 		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
 		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
-		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE);
+		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHATHANDLER_TABBARITEM_NEWMESSAGE);
 		notify.data.insert(NDR_POPUP_ICON, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE));
 		notify.data.insert(NDR_POPUP_TITLE,name);
 		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.to(),AMessage.from()));
-		notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
+		notify.data.insert(NDR_SOUND_FILE,SDF_CHATHANDLER_MESSAGE);
 
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AMessage.to()) : NULL;
 		if (roster && !roster->rosterItem(AMessage.from()).isValid)
@@ -519,8 +519,6 @@ IChatWindow *ChatMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACo
 					UserContextMenu *menu = new UserContextMenu(FRostersModel,FRostersView,window);
 					if (FAvatars)
 						FAvatars->insertAutoAvatar(menu->menuAction(),AContactJid,QSize(48,48));
-					else
-						menu->menuAction()->setIcon(RSR_STORAGE_MENUICONS, MNI_CHAT_MHANDLER_USER_MENU);
 
 					QToolButton *button = window->toolBarWidget()->toolBarChanger()->insertAction(menu->menuAction(),TBG_CWTBW_USER_TOOLS);
 					button->setPopupMode(QToolButton::InstantPopup);
@@ -1067,7 +1065,7 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IR
 			action->setData(ADR_STREAM_JID,streamJid.full());
 			action->setData(ADR_CONTACT_JID,contactJid.full());
 			AMenu->setDefaultAction(action);
-			AMenu->addAction(action,AG_RVCM_CHATMESSAGEHANDLER,true);
+			AMenu->addAction(action,AG_RVCM_CHATMESSAGEHANDLER_OPENCHAT,true);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onShowWindowAction(bool)));
 		}
 	}
@@ -1193,7 +1191,7 @@ void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar
 		}
 		if (AKinds & INotification::SoundPlay)
 		{
-			notify.data.insert(NDR_SOUND_FILE,SDF_CHAT_MHANDLER_MESSAGE);
+			notify.data.insert(NDR_SOUND_FILE,SDF_CHATHANDLER_MESSAGE);
 		}
 		if (!notify.data.isEmpty())
 		{

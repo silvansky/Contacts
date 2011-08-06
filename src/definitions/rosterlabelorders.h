@@ -24,14 +24,10 @@
 /*************************************************************************/
 #define RLO_DECORATION                            RLAP_LEFT_CENTER + 500
 
-#define RLO_CONNECTING                            RLAP_LEFT_TOP + 100
 #define RLO_DISPLAY                               RLAP_LEFT_TOP + 500
 #define RLO_GROUP_COUNTER                         RLAP_LEFT_TOP + 600
-
-#define RLO_PRIVACY                               RLAP_RIGHT_TOP + 300
-#define RLO_CONNECTION_ENCRYPTED                  RLAP_RIGHT_TOP + 500
 
 #define RLO_GATEWAY_ICON                          RLAP_RIGHT_CENTER + 500
 #define RLO_AVATAR_IMAGE                          RLAP_RIGHT_CENTER + 501
 
-#endif
+#endif // DEF_ROSTERLABELORDERS_H

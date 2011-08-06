@@ -6,4 +6,4 @@
 #define TPNP_SUBSCRIPTION         400
 #define TPNP_NEW_MESSAGE          600
 
-#endif
+#endif // DEF_TABPAGENOTIFYPRIORITIES_H

@@ -11,9 +11,6 @@
   <icon>
     <key>rostersearchIconCross</key>
     <object mime="image/png">rostersearchiconcross.png</object>
-  </icon>
-  <icon>
-    <key>rostersearchIconCrossHover</key>
-    <object mime="image/png">rostersearchiconcrosshover.png</object>
+    <object mime="image/png">rostersearchiconcross_hover.png</object>
   </icon>
 </icondef>

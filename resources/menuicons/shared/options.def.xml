@@ -6,18 +6,6 @@
     <object mime="image/png">optionsdialog_click.png</object>
   </icon>
   <icon>
-    <key>optionsProfile</key>
-    <object mime="image/png">soptionsprofile.png</object>
-  </icon>
-  <icon>
-    <key>optionsProfiles</key>
-    <object mime="image/png">optionsprofiles.png</object>
-  </icon>
-  <icon>
-    <key>optionsEditProfiles</key>
-    <object mime="image/png">optionseditprofiles.png</object>
-  </icon>
-  <icon>
     <key>optionsLoginHelp</key>
     <object mime="image/png">optionsloginhelp.png</object>
   </icon>
@@ -28,10 +16,6 @@
   <icon>
     <key>optionsLoginAnimation</key>
     <object mime="image/gif">optionsloginanimation.gif</object>
-  </icon>
-  <icon>
-    <key>optionsOptionsSync</key>
-    <object mime="image/png">optionsoptionssync.png</object>
   </icon>
   <icon>
     <key>optionsErrorAlert</key>

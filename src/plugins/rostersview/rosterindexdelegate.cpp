@@ -15,16 +15,9 @@
 
 #define BRANCH_WIDTH  10
 
-//QImage RosterIndexDelegate::groupOpenedIndicator;
-//QImage RosterIndexDelegate::groupClosedIndicator;
-
 RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QStyledItemDelegate(AParent)
 {
 	FShowBlinkLabels = true;
-	//if (groupOpenedIndicator.isNull())
-	//	groupOpenedIndicator.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERVIEW_GROUP_OPENED));
-	//if (groupClosedIndicator.isNull())
-	//	groupClosedIndicator.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_ROSTERVIEW_GROUP_CLOSED));
 }
 
 RosterIndexDelegate::~RosterIndexDelegate()
@@ -40,9 +33,6 @@ void RosterIndexDelegate::paint(QPainter *APainter, const QStyleOptionViewItem &
 QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 {
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
-	//QStyle *style = option.widget ? option.widget->style() : QApplication::style();
-	//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin);
-	//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin);
 	const int hMargin = 7;
 	const int vMargin = 2;
 
@@ -164,17 +154,6 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	QHash<int,QRect> rectHash;
 
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
-	//QStyle *style = option.widget ? option.widget->style() : QApplication::style();
-
-	//#if defined(Q_WS_WIN) && !defined(QT_NO_STYLE_WINDOWSVISTA)
-	//	if (APainter && qobject_cast<QWindowsVistaStyle *>(QApplication::style()))
-	//	{
-	//		option.palette.setColor(QPalette::All, QPalette::HighlightedText, option.palette.color(QPalette::Active, QPalette::Text));
-	//		option.palette.setColor(QPalette::All, QPalette::Highlight, option.palette.base().color().darker(108));
-	//	}
-	//#endif
-	//	const int hMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin) >> 1;
-	//	const int vMargin = style->pixelMetric(QStyle::PM_FocusFrameVMargin) >> 1;
 
 	int hMargin = 7;
 	int vMargin = 1;
@@ -381,21 +360,7 @@ void RosterIndexDelegate::drawLabelItem(QPainter *APainter, const QStyleOptionVi
 	case QVariant::Icon:
 	{
 		QIcon icon = qvariant_cast<QIcon>(ALabel.item.label);
-		QSize sz;// = AOption.decorationSize;
-		QList<QSize> availableSizes = icon.availableSizes();
-		sz = availableSizes.first();
-//		int minh = availableSizes.first().height();
-//		int d = abs(sz.height() - minh);
-//		foreach (QSize size, availableSizes)
-//		{
-//			if (abs(size.height() - minh) < d)
-//			{
-//				d = abs(size.height() - minh);
-//				minh = size.height();
-//				sz = size;
-//			}
-//		}
-
+		QSize sz = icon.availableSizes().value(0);
 		QPixmap pixmap = style->generatedIconPixmap(getIconMode(AOption.state),icon.pixmap(sz),&AOption);
 		style->drawItemPixmap(APainter,ALabel.rect,Qt::AlignHCenter|Qt::AlignVCenter,pixmap);
 		break;
@@ -579,8 +544,7 @@ QSize RosterIndexDelegate::variantSize(const QStyleOptionViewItemV4 &AOption, co
 	{
 		QIcon icon = qvariant_cast<QIcon>(AValue);
 		if (!icon.isNull())
-			//return AOption.decorationSize;
-			return icon.availableSizes().first();
+			return icon.availableSizes().value(0);
 		break;
 	}
 	case QVariant::String:
@@ -619,7 +583,6 @@ QString RosterIndexDelegate::prepareText(const QString &AText) const
 
 QIcon::Mode RosterIndexDelegate::getIconMode(QStyle::State AState) const
 {
-	//Q_UNUSED(AState)
 	if (!(AState & QStyle::State_Enabled))
 		return QIcon::Disabled;
 	if (AState & QStyle::State_Selected)

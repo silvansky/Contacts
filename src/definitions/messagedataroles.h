@@ -7,4 +7,4 @@ enum MessageDataRoles {
 	MDR_SMS_REQUEST_TIME
 };
 
-#endif
+#endif // DEF_MESSAGEDATAROLERS_H

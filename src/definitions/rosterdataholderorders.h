@@ -7,4 +7,4 @@
 #define RDHO_ROSTER_AUTH            700
 #define RDHO_DEFAULT                1000
 
-#endif
+#endif // DEF_ROSTERDATAHOLDERORDERS_H

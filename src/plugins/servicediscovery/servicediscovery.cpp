@@ -122,7 +122,7 @@ bool ServiceDiscovery::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, St
 	bool hooked = false;
 	if (FSHIPresenceOut.value(AStreamJid)==AHandlerId && !FSelfCaps.value(AStreamJid).ver.isEmpty())
 	{
-		QDomElement capsElem = AStanza.addElement("c",NS_CAPS);
+		QDomElement capsElem = AStanza.addElement("c",NS_ENTITY_CAPS);
 		capsElem.setAttribute("node",FSelfCaps.value(AStreamJid).node);
 		capsElem.setAttribute("ver",FSelfCaps.value(AStreamJid).ver);
 		capsElem.setAttribute("hash",FSelfCaps.value(AStreamJid).hash);
@@ -192,7 +192,7 @@ bool ServiceDiscovery::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, St
 		if (AStanza.type().isEmpty())
 		{
 			Jid contactJid = AStanza.from();
-			QDomElement capsElem = AStanza.firstElement("c",NS_CAPS);
+			QDomElement capsElem = AStanza.firstElement("c",NS_ENTITY_CAPS);
 
 			EntityCapabilities newCaps;
 			newCaps.streamJid = AStreamJid;
@@ -714,7 +714,7 @@ void ServiceDiscovery::registerFeatures()
 	dfeature.description = tr("Supports the publishing of the discovery items");
 	insertDiscoFeature(dfeature);
 
-	dfeature.var = NS_CAPS;
+	dfeature.var = NS_ENTITY_CAPS;
 	dfeature.active = true;
 	dfeature.name = tr("Entity Capabilities");
 	dfeature.description = tr("Supports the caching of the discovery information");

@@ -3,4 +3,4 @@
 
 #define XUHO_DEFAULT                  1000
 
-#endif
+#endif // DEF_XMPPURIHANDLERORDERS_H

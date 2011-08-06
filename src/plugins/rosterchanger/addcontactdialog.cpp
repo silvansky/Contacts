@@ -33,7 +33,6 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle(tr("Adding a contact"));
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_RCHANGER_ADD_CONTACT,0,0,"windowIcon");
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDCONTACTDIALOG);
 
 	ui.lneAddressContact->setAttribute(Qt::WA_MacShowFocusRect, false);

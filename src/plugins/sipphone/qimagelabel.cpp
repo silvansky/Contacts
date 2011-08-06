@@ -110,18 +110,10 @@ void QImageLabel::updateIcon(IconCrossState iconState)
 		switch (iconState)
 		{
 		case Stable:
-			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS);
-			//{
-			//	QPixmap crossPic("D:\\cross.png");
-			//	iconLabel->setPixmap(crossPic);
-			//}
+			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS,0);
 			break;
 		case Hover:
-			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS_HOVER);
-			//{
-			//	QPixmap crosshoverPic("D:\\crosshover.png");
-			//	iconLabel->setPixmap(crosshoverPic);
-			//}
+			currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS,0);
 			break;
 		}
 		if (!currentIcon.isNull())

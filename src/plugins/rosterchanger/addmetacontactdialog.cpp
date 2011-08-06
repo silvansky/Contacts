@@ -16,7 +16,6 @@ AddMetaContactDialog::AddMetaContactDialog(IMetaRoster *AMetaRoster, IRosterChan
 	setWindowTitle(tr("Add Contact"));
 
 	setMinimumWidth(350);
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_RCHANGER_ADD_CONTACT,0,0,"windowIcon");
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDMETACONTACTDIALOG);
 
 	FMetaContacts = NULL;
@@ -42,8 +41,6 @@ AddMetaContactDialog::AddMetaContactDialog(IMetaRoster *AMetaRoster, IRosterChan
 	ui.lblPhotoIndex->setVisible(false);
 	connect(ui.tlbPhotoPrev,SIGNAL(clicked()),SLOT(onPrevPhotoButtonClicked()));
 	connect(ui.tlbPhotoNext,SIGNAL(clicked()),SLOT(onNextPhotoButtonClicked()));
-
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.pbtAddItem,MNI_RCHANGER_ADDMETACONTACT_ADD_ITEM);
 
 	ui.dbbButtons->button(QDialogButtonBox::Ok)->setText(tr("Add Contact"));
 	connect(ui.dbbButtons,SIGNAL(accepted()),SLOT(onDialogAccepted()));

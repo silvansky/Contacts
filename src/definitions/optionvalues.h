@@ -17,15 +17,11 @@
 #define OPV_ACCOUNT_CONNECTION_PROXY                    "accounts.account.connection.proxy"
 #define OPV_ACCOUNT_CONNECTION_USESSL                   "accounts.account.connection.use-ssl"
 #define OPV_ACCOUNT_CONNECTION_IGNORESSLERRORS          "accounts.account.connection.ignore-ssl-errors"
-// Registration
-#define OPV_ACCOUNT_REGISTER                            "accounts.account.register-on-server"
 // StatusChanger
 #define OPV_ACCOUNT_AUTOCONNECT                         "accounts.account.auto-connect"
 #define OPV_ACCOUNT_AUTORECONNECT                       "accounts.account.auto-reconnect"
 #define OPV_ACCOUNT_STATUS_ISMAIN                       "accounts.account.status.is-main"
 #define OPV_ACCOUNT_STATUS_LASTONLINE                   "accounts.account.status.last-online"
-// MessageArchiver
-#define OPV_ACCOUNT_ARCHIVEREPLICATION                  "accounts.account.archive-replication"
 
 //BirthdayReminder
 #define OPV_BIRTHDAY_NOTICE_SHOWCOUNT                   "birthday.notice.show-count"
@@ -39,35 +35,6 @@
 #define OPV_CONSOLE_CONTEXT_CONDITIONS                  "console.context.conditions"
 #define OPV_CONSOLE_CONTEXT_HIGHLIGHTXML                "console.context.highlight-xml"
 #define OPV_CONSOLE_CONTEXT_WORDWRAP                    "console.context.word-wrap"
-
-// DataStreamsManager
-#define OPV_DATASTREAMS_ROOT                            "datastreams"
-#define OPV_DATASTREAMS_SPROFILE_ITEM                   "datastreams.settings-profile"
-#define OPV_DATASTREAMS_SPROFILE_NAME                   "datastreams.settings-profile.name"
-#define OPV_DATASTREAMS_METHOD_ITEM                     "datastreams.settings-profile.method"
-// InBandStream
-#define OPV_DATASTREAMS_METHOD_BLOCKSIZE                "datastreams.settings-profile.method.block-size"
-#define OPV_DATASTREAMS_METHOD_MAXBLOCKSIZE             "datastreams.settings-profile.method.max-block-size"
-#define OPV_DATASTREAMS_METHOD_STANZATYPE               "datastreams.settings-profile.method.stanza-type"
-// SocksStreams
-#define OPV_DATASTREAMS_SOCKSLISTENPORT                 "datastreams.socks-listen-port"
-#define OPV_DATASTREAMS_METHOD_DISABLEDIRECT            "datastreams.settings-profile.method.disable-direct-connections"
-#define OPV_DATASTREAMS_METHOD_FORWARDHOST              "datastreams.settings-profile.method.forward-host"
-#define OPV_DATASTREAMS_METHOD_FORWARDPORT              "datastreams.settings-profile.method.forward-port"
-#define OPV_DATASTREAMS_METHOD_USEACCOUNTSTREAMPROXY    "datastreams.settings-profile.method.use-account-stream-proxy"
-#define OPV_DATASTREAMS_METHOD_STREAMPROXYLIST          "datastreams.settings-profile.method.stream-proxy-list"
-#define OPV_DATASTREAMS_METHOD_USEACCOUNTNETPROXY       "datastreams.settings-profile.method.use-account-network-proxy"
-#define OPV_DATASTREAMS_METHOD_NETWORKPROXY             "datastreams.settings-profile.method.network-proxy"
-
-// FileStreamsManager
-#define OPV_FILESTREAMS_DEFAULTDIR                      "filestreams.default-dir"
-#define OPV_FILESTREAMS_DEFAULTMETHOD                   "filestreams.default-method"
-#define OPV_FILESTREAMS_ACCEPTABLEMETHODS               "filestreams.acceptable-methods"
-// FileTransfer
-#define OPV_FILETRANSFER_ROOT                           "filestreams.filetransfer"
-#define OPV_FILETRANSFER_AUTORECEIVE                    "filestreams.filetransfer.autoreceive"
-#define OPV_FILETRANSFER_HIDEONSTART                    "filestreams.filetransfer.hide-dialog-on-start"
-#define OPV_FILETRANSFER_REMOVEONFINISH                 "filestreams.filetransfer.remove-stream-on-finish"
 
 //Gateways
 #define OPV_GATEWAYS_NOTICE_SHOWCOUNT                   "gateways.notice.show-count"
@@ -93,7 +60,6 @@
 #define OPV_MESSAGES_TABWINDOWS_DEFAULT                 "messages.tab-windows.default"
 #define OPV_MESSAGES_TABWINDOW_ITEM                     "messages.tab-windows.window"
 #define OPV_MESSAGES_TABWINDOW_NAME                     "messages.tab-windows.window.name"
-#define OPV_MESSAGES_TABWINDOW_TABSCLOSABLE             "messages.tab-windows.window.tabs-closable"
 // Emoticons
 #define OPV_MESSAGES_EMOTICONS                          "messages.emoticons"
 #define OPV_MESSAGES_EMOTICONS_ENABLED                  "messages.emoticons.enabled"
@@ -133,7 +99,6 @@
 #define OPV_NOTIFICATIONS_TRAYICON                      "notifications.tray-icon"
 #define OPV_NOTIFICATIONS_TRAYACTION                    "notifications.tray-action"
 #define OPV_NOTIFICATIONS_AUTOACTIVATE                  "notifications.auto-activate"
-#define OPV_NOTIFICATIONS_EXPANDGROUP                   "notifications.expand-groups"
 #define OPV_NOTIFICATIONS_NONOTIFYIFDND                 "notifications.no-notify-if-dnd"
 #define OPV_NOTIFICATIONS_NONOTIFYIFAWAY                "notifications.no-notify-if-away"
 #define OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN          "notifications.no-notify-if-fullscreen"
@@ -165,22 +130,18 @@
 #define OPV_ROSTER_AUTOSUBSCRIBE                        "roster.auto-subscribe"
 #define OPV_ROSTER_AUTOUNSUBSCRIBE                      "roster.auto-unsubscribe"
 #define OPV_ROSTER_ADDCONTACTDIALOG_LASTGROUP           "roster.add-contact-dialog.last-group"
-#define OPV_ROSTER_ADDCONTACTDIALOG_LASTPROFILE         "roster.add-contact-dialog.last-profile"
 // Avatars
 #define OPV_AVATARS_SHOW                                "roster.avatars.show"
 #define OPV_AVATARS_SHOWEMPTY                           "roster.avatars.show-empty"
-#define OPV_AVATARS_CUSTOM_ITEM                         "roster.avatars.custom"
 
 // StatusChanger
 #define OPV_STATUSES_ROOT                               "statuses"
 #define OPV_STATUSES_MAINSTATUS                         "statuses.main-status"
-#define OPV_STATUSES_MODIFY                             "statuses.modify-status"
 #define OPV_STATUS_ITEM                                 "statuses.status"
 #define OPV_STATUS_NAME                                 "statuses.status.name"
 #define OPV_STATUS_SHOW                                 "statuses.status.show"
 #define OPV_STATUS_TEXT                                 "statuses.status.text"
 #define OPV_STATUS_PRIORITY                             "statuses.status.priority"
-#define OPV_STATUS_LASTACTIVE                           "statuses.status.last-active"
 // AutoStatus
 #define OPV_AUTOSTARTUS_ROOT                            "statuses.autostatus"
 #define OPV_AUTOSTARTUS_AWAYONLOCK                      "statuses.autostatus.away-on-lock"

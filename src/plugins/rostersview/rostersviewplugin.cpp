@@ -18,7 +18,6 @@ RostersViewPlugin::RostersViewPlugin()
 
 	FSortFilterProxyModel = NULL;
 	FLastModel = NULL;
-	FShowResource = true;
 	FStartRestoreExpandState = false;
 
 	FViewSavedState.sliderPos = 0;
@@ -144,7 +143,6 @@ bool RostersViewPlugin::initObjects()
 bool RostersViewPlugin::initSettings()
 {
 	Options::setDefaultValue(OPV_ROSTER_SHOWOFFLINE,true);
-	Options::setDefaultValue(OPV_ROSTER_SHOWRESOURCE,false);
 	Options::setDefaultValue(OPV_ROSTER_SHOWSTATUSTEXT,true);
 	Options::setDefaultValue(OPV_ROSTER_SORTBYSTATUS,false);
 	Options::setDefaultValue(OPV_ROSTER_GROUPCONTACTS,true);
@@ -152,7 +150,6 @@ bool RostersViewPlugin::initSettings()
 	if (FOptionsManager)
 	{
 		FOptionsManager->insertServerOption(OPV_ROSTER_SHOWOFFLINE);
-		FOptionsManager->insertServerOption(OPV_ROSTER_SHOWRESOURCE);
 		FOptionsManager->insertServerOption(OPV_ROSTER_SHOWSTATUSTEXT);
 		FOptionsManager->insertServerOption(OPV_ROSTER_SORTBYSTATUS);
 		FOptionsManager->insertServerOption(OPV_ROSTER_GROUPCONTACTS);
@@ -178,10 +175,6 @@ QMultiMap<int, IOptionsWidget *> RostersViewPlugin::optionsWidgets(const QString
 
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_VIEW, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contacts View"),AParent));
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_VIEW, new RosterContactViewOptions(AParent));
-
-		//widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWRESOURCE),tr("Show contacts resource"),AParent));
-		//container->appendChild(Options::node(OPV_ROSTER_SHOWSTATUSTEXT),tr("Show status message in roster"));
-		//container->appendChild(Options::node(OPV_ROSTER_SORTBYSTATUS),tr("Sort contacts by status"));
 	}
 	return widgets;
 }
@@ -268,8 +261,6 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
 					display = indexJid.bare();
-				if (FShowResource && !indexJid.resource().isEmpty())
-					display += "/" + indexJid.resource();
 				return display;
 			}
 		}
@@ -580,7 +571,6 @@ void RostersViewPlugin::onRestoreExpandState()
 void RostersViewPlugin::onOptionsOpened()
 {
 	onOptionsChanged(Options::node(OPV_ROSTER_SHOWOFFLINE));
-	onOptionsChanged(Options::node(OPV_ROSTER_SHOWRESOURCE));
 	onOptionsChanged(Options::node(OPV_ROSTER_SHOWSTATUSTEXT));
 	onOptionsChanged(Options::node(OPV_ROSTER_SORTBYSTATUS));
 	onOptionsChanged(Options::node(OPV_ROSTER_GROUPCONTACTS));
@@ -594,11 +584,6 @@ void RostersViewPlugin::onOptionsChanged(const OptionsNode &ANode)
 		if (ANode.value().toBool())
 			restoreExpandState();
 		FShowOfflineAction->setChecked(ANode.value().toBool());
-	}
-	else if (ANode.path() == OPV_ROSTER_SHOWRESOURCE)
-	{
-		FShowResource = ANode.value().toBool();
-		emit rosterDataChanged(NULL, Qt::DisplayRole);
 	}
 	else if (ANode.path() == OPV_ROSTER_SHOWSTATUSTEXT)
 	{

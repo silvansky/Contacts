@@ -9,7 +9,7 @@
 #define STS_PLUGINMANAGER_ABOUT_QT                                      "pluginmanagerAboutQt"
 
 //ChatMessageHandler
-#define STS_CHAT_MHANDLER_TABBARITEM_NEWMESSAGE                         "chatmessagehandlerTabBarItemNewMessage"
+#define STS_CHATHANDLER_TABBARITEM_NEWMESSAGE                           "chatmessagehandlerTabBarItemNewMessage"
 
 //Emoticons
 #define STS_EMOTICONS_SELECTICONWIDGET                                  "emoticonsSelectIconWidget"

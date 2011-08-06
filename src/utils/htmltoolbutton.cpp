@@ -6,13 +6,6 @@
 #include <QStyleOptionFocusRect>
 #include <QPainter>
 #include <QApplication>
-//#include <definitions/resources.h>
-//#include <definitions/menuicons.h>
-//#include <utils/iconstorage.h>
-
-// statics
-//QImage HtmlToolButton::menuIndicatorUp;
-//QImage HtmlToolButton::menuIndicatorDown;
 
 // piece of code from qt\src\gui\styles\qcommonstyle.cpp
 static void drawArrow(const QStyle *style, const QStyleOptionToolButton *toolbutton,
@@ -43,17 +36,9 @@ static void drawArrow(const QStyle *style, const QStyleOptionToolButton *toolbut
 	style->drawPrimitive(pe, &arrowOpt, painter, widget);
 }
 
-HtmlToolButton::HtmlToolButton(QWidget *parent) :
-		QToolButton(parent)
+HtmlToolButton::HtmlToolButton(QWidget *parent) : QToolButton(parent)
 {
-	//if (menuIndicatorUp.isNull())
-	//{
-	//	menuIndicatorUp.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_MENU_INDICATOR_UP));
-	//}
-	//if (menuIndicatorDown.isNull())
-	//{
-	//	menuIndicatorDown.load(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_MENU_INDICATOR_DOWN));
-	//}
+
 }
 
 QString HtmlToolButton::html() const
@@ -292,7 +277,6 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 		if (mflags & (QStyle::State_Sunken | QStyle::State_On | QStyle::State_Raised))
 			paintStyle->drawPrimitive(QStyle::PE_IndicatorButtonDropDown, &tool, painter, this);
 		paintStyle->drawPrimitive(isDown() ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, &tool, painter, this);
-		//painter->drawImage(tool.rect.topLeft(), isDown() ? menuIndicatorUp : menuIndicatorDown);
 	}
 	else if (opt->features & QStyleOptionToolButton::HasMenu)
 	{
@@ -301,7 +285,6 @@ void HtmlToolButton::paintEvent(QPaintEvent *)
 		QStyleOptionToolButton newBtn = *opt;
 		newBtn.rect = QRect(sizeHint().width() - mbi, ir.y() + ir.height() / 2 - 2, mbi - 6, mbi - 6);
 		paintStyle->drawPrimitive(isDown() ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, &newBtn, painter, this);
-		//painter->drawImage(newBtn.rect.topLeft(), isDown() ? menuIndicatorUp : menuIndicatorDown);
 	}
 	painter->end();
 	delete painter;

@@ -411,7 +411,6 @@ void VCardPlugin::registerDiscoFeatures()
 	IDiscoFeature dfeature;
 
 	dfeature.active = false;
-	dfeature.icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_VCARD);
 	dfeature.var = NS_VCARD_TEMP;
 	dfeature.name = tr("vCard");
 	dfeature.description = tr("Supports the requesting of the personal contact information");
@@ -427,10 +426,9 @@ void VCardPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIn
 		{
 			Action *action = new Action(AMenu);
 			action->setText(tr("Contact info"));
-			action->setIcon(RSR_STORAGE_MENUICONS,MNI_VCARD);
 			action->setData(ADR_STREAM_JID,AIndex->data(RDR_STREAM_JID));
 			action->setData(ADR_CONTACT_JID,Jid(AIndex->data(RDR_FULL_JID).toString()).bare());
-			AMenu->addAction(action,AG_RVCM_VCARD,true);
+			AMenu->addAction(action,AG_RVCM_VCARD_SHOWINFO,true);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onShowVCardDialogByAction(bool)));
 		}
 	}

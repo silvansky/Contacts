@@ -87,9 +87,8 @@ bool RosterSearch::initObjects()
 {
 	if (FMainWindow)
 	{
-		FSearchFieldsMenu->setParent(FMainWindow->topToolBarChanger()->toolBar());
 		FSearchFieldsMenu->setVisible(false);
-		FSearchFieldsMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_ROSTERSEARCH_MENU);
+		FSearchFieldsMenu->setParent(FMainWindow->topToolBarChanger()->toolBar());
 
 		QFrame *searchFrame = new QFrame(FMainWindow->topToolBarChanger()->toolBar());
 		FMainWindow->topToolBarChanger()->toolBar()->setObjectName("searchBar");

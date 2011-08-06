@@ -216,7 +216,7 @@ void SelectProfileWidget::onProfileLabelLinkActivated(const QString &ALink)
 		else if (url.scheme() == "options")
 		{
 			if (FOptionsManager)
-				FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
+				FOptionsManager->showOptionsDialog(OPN_GATEWAYS);
 		}
 	}
 }

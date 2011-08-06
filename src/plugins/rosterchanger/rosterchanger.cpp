@@ -1000,7 +1000,7 @@ void RosterChanger::onShowAddAccountDialog(bool)
 {
 	if (FOptionsManager)
 	{
-		FOptionsManager->showOptionsDialog(OPN_GATEWAYS_ACCOUNTS);
+		FOptionsManager->showOptionsDialog(OPN_GATEWAYS);
 	}
 }
 

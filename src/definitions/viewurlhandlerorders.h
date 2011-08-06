@@ -4,4 +4,4 @@
 #define VUHO_XMPPURIQUERIES                   500
 #define VUHO_MESSAGEWIDGETS_DEFAULT           1000
 
-#endif
+#endif // URLHANDLERORDERS_H

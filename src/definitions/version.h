@@ -6,4 +6,4 @@
 #define CLIENT_VERSION_SUFIX    "beta"
 #define CLIENT_HOME_PAGE        "http://contacts.rambler.ru"
 
-#endif
+#endif // DEF_VERSION_H

@@ -206,7 +206,6 @@ bool StatusChanger::initSettings()
 	Options::setDefaultValue(OPV_STATUS_TEXT,nameByShow(IPresence::Online));
 	Options::setDefaultValue(OPV_STATUS_PRIORITY,0);
 	Options::setDefaultValue(OPV_STATUSES_MAINSTATUS,STATUS_ONLINE);
-	Options::setDefaultValue(OPV_STATUSES_MODIFY,false);
 	Options::setDefaultValue(OPV_ACCOUNT_AUTOCONNECT,false);
 	Options::setDefaultValue(OPV_ACCOUNT_AUTORECONNECT,true);
 	Options::setDefaultValue(OPV_ACCOUNT_STATUS_ISMAIN,true);
@@ -1041,12 +1040,12 @@ void StatusChanger::onTrayContextMenuAboutToShow()
 {
 	if (FStatusMenu->menuAction()->isVisible())
 		foreach(Action *action, FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS)) {
-			FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER,true); }
+			FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER_CHANGESTATUS,true); }
 }
 
 void StatusChanger::onTrayContextMenuAboutToHide()
 {
-	foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER)) {
+	foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER_CHANGESTATUS)) {
 		FTrayManager->contextMenu()->removeAction(action); }
 }
 

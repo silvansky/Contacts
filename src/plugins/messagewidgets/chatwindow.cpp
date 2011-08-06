@@ -377,7 +377,6 @@ void ChatWindow::onViewWidgetContextMenu(const QPoint &APosition, const QTextDoc
 	{
 		Action *action = new Action(AMenu);
 		action->setText(tr("Quote"));
-		action->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_QUOTE);
 		connect(action,SIGNAL(triggered(bool)),SLOT(onViewContextQuoteActionTriggered(bool)));
 		AMenu->addAction(action,AG_VWCM_MESSAGEWIDGETS_QUOTE,true);
 	}

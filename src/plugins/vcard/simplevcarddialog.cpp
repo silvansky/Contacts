@@ -13,7 +13,6 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 {
 	ui->setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this, MNI_VCARD, 0, 0, "windowIcon");
 
 	FContactJid = AContactJid;
 	FStreamJid = AStreamJid;

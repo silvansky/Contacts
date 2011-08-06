@@ -33,16 +33,8 @@
     <object mime="image/png">mainwindowlogo256.png</object>
   </icon>
   <icon>
-    <key>mainwindowQuit</key>
-    <object mime="image/png">mainwindowquit.png</object>
-  </icon>
-  <icon>
     <key>mainwindowMenu</key>
     <object mime="image/png">mainwindowmenu.png</object>
     <object mime="image/png">mainwindowmenu_click.png</object>
-  </icon>
-  <icon>
-    <key>mainwindowShowRoster</key>
-    <object mime="image/png">mainwindowshowroster.png</object>
   </icon>
 </icondef>

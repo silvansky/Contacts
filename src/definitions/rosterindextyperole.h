@@ -57,8 +57,6 @@ enum RosterIndexDataRoles
 	RDR_AVATAR_IMAGE_LARGE,
 	//Gateways icons
 	RDR_GATEWAY_ICON,
-	//Annotations
-	RDR_ANNOTATIONS,
 	//Search
 	RDR_SEARCH_LINK,
 	//DND
@@ -78,4 +76,4 @@ enum RosterIndexDataRoles
 	RDR_METACONTACT_ITEMS
 };
 
-#endif
+#endif // DEF_ROSTERINDEXTYPEROLE_H

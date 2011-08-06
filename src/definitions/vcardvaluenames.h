@@ -33,4 +33,4 @@
 #define VVN_KEY_TYPE              "KEY/TYPE"
 #define VVN_KEY_VALUE             "KEY/BINVAL"
 
-#endif
+#endif // DEF_VCARDVALUENAMES_H

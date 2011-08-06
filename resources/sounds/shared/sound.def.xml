@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <sounddef>
   <name>Default sounds</name>
-
   <file>
     <key>default</key>
     <key>rchangerSubscription</key>
@@ -16,10 +15,6 @@
   <file>
     <key>chatmessagehandlerMessage</key>
     <key>normalmessagehandlerMessage</key>
-    <key>mucMessage</key>
-    <key>mucDataMessage</key>
-    <key>mucPrivateMessage</key>
-    <key>mucInviteMessage</key>
     <key>sipphoneCall</key>
     <key>ramblermailnotifyNotify</key>
     <object mime='sound/wav'>message.wav</object>
@@ -30,11 +25,11 @@
     <object mime='sound/wav'>wait.wav</object>
   </file>
   <file>
-	<key>sipphoneCallBusy</key>
+    <key>sipphoneCallBusy</key>
     <object mime='sound/wav'>busy.wav</object>
   </file>
   <file>
-	<key>sipphoneCallRinging</key>
+    <key>sipphoneCallRinging</key>
     <object mime='sound/wav'>ring.wav</object>
   </file>
 

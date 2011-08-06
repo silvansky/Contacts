@@ -114,7 +114,7 @@ bool MainWindowPlugin::initObjects()
 	connect(FOpenAction,SIGNAL(triggered(bool)),SLOT(onShowMainWindowByAction(bool)));
 
 	if (FTrayManager)
-		FTrayManager->contextMenu()->addAction(FOpenAction,AG_TMTM_MAINWINDOW,true);
+		FTrayManager->contextMenu()->addAction(FOpenAction,AG_TMTM_MAINWINDOW_SHOW,true);
 
 #ifdef Q_OS_MAC
 	connect(MacDockHandler::instance(), SIGNAL(dockIconClicked()), SLOT(onDockIconClicked()));

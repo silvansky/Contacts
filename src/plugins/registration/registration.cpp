@@ -66,7 +66,6 @@ bool Registration::initObjects()
 
 bool Registration::initSettings()
 {
-	Options::setDefaultValue(OPV_ACCOUNT_REGISTER,false);
 	return true;
 }
 

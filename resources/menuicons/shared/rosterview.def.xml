@@ -6,14 +6,6 @@
     <object mime="image/png">rosterviewoptions_click.png</object>
   </icon>
   <icon>
-    <key>rosterviewShowOffline</key>
-    <object mime="image/png">rosterviewshowoffline.png</object>
-  </icon>
-  <icon>
-    <key>rosterviewHideOffline</key>
-    <object mime="image/png">rosterviewhideoffline.png</object>
-  </icon>
-  <icon>
     <key>rosterviewViewFull</key>
     <object mime="image/png">rosterviewviewfull.png</object>
   </icon>
@@ -24,10 +16,6 @@
   <icon>
     <key>rosterviewViewCompact</key>
     <object mime="image/png">rosterviewviewcompact.png</object>
-  </icon>
-  <icon>
-    <key>rosterviewClipboard</key>
-    <object mime="image/png">rosterviewclipboard.png</object>
   </icon>
   <icon>
     <key>rosterviewGroupOpenedIndicator</key>
