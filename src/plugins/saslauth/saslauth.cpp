@@ -1,5 +1,7 @@
 #include "saslauth.h"
 
+#include <stdlib.h>
+
 #include <QMap>
 #include <QStringList>
 #include <QCryptographicHash>
