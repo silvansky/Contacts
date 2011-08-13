@@ -8,6 +8,7 @@
 #include <interfaces/igateways.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/log.h>
 #include "ui_legacyaccountoptions.h"
 
 class LegacyAccountOptions :

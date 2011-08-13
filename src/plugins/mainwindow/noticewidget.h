@@ -8,6 +8,7 @@
 #include <definitions/stylesheets.h>
 #include <interfaces/imainwindow.h>
 #include <utils/stylestorage.h>
+#include <utils/log.h>
 #include "ui_noticewidget.h"
 
 class InternalNoticeWidget :

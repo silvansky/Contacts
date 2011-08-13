@@ -41,7 +41,7 @@ void ManageLegacyAccountsOptions::appendServiceOptions(const Jid &AServiceJid)
 			LegacyAccountOptions *options = new LegacyAccountOptions(FGateways,FStreamJid,AServiceJid,ui.wdtAccounts);
 			if (FLayout->count() && !qobject_cast<QFrame*>(FLayout->itemAt(FLayout->count() - 1)->widget()))
 			{
-				QFrame * frame = new QFrame;
+				QFrame *frame = new QFrame;
 				frame->setObjectName("serviceSeparator");
 				FLayout->addWidget(frame);
 			}

@@ -176,6 +176,7 @@ void PluginManager::quit()
 {
 	if (!FQuitStarted)
 	{
+		LogDetaile(QString("[PluginManager] Quit started"));
 		FQuitStarted = true;
 		QTimer::singleShot(0,qApp,SLOT(quit()));
 		emit quitStarted();
@@ -291,14 +292,30 @@ void PluginManager::loadSettings()
 			FDataPath = dir.absolutePath();
 	}
 
+	Log::setLogTypes(0);
 #ifdef LOG_ENABLED
 	QDir logDir(FDataPath);
 	if (logDir.exists() && (logDir.exists(DIR_LOGS) || logDir.mkpath(DIR_LOGS)) && logDir.cd(DIR_LOGS))
+	{
+		int types = args.contains(CLO_LOG_TYPES) ? args.value(args.indexOf(CLO_LOG_TYPES)+1).toInt() : Log::Error|Log::Warning|Log::Detaile;
+		Log::setLogTypes(types);
+		Log::setLogFormat(Log::Simple);
 		Log::setLogPath(logDir.absolutePath());
-	Log::setLogFormat(Log::Simple);
-#else
-	Log::setLogFormat(Log::None);
+	}
 #endif
+
+	FPluginsSetup.clear();
+	QDir homeDir(FDataPath);
+	QFile file(homeDir.absoluteFilePath(FILE_PLUGINS_SETTINGS));
+	if (file.exists() && file.open(QFile::ReadOnly))
+		FPluginsSetup.setContent(&file,true);
+	file.close();
+
+	if (FPluginsSetup.documentElement().tagName() != "plugins")
+	{
+		FPluginsSetup.clear();
+		FPluginsSetup.appendChild(FPluginsSetup.createElement("plugins"));
+	}
 
 	FileStorage::setResourcesDirs(FileStorage::resourcesDirs()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
@@ -318,19 +335,6 @@ void PluginManager::loadSettings()
 	QFontDatabase fontDB;
 	QFont segoe = fontDB.font("Segoe UI", "", 12);
 	QApplication::setFont(segoe);
-
-	FPluginsSetup.clear();
-	QDir homeDir(FDataPath);
-	QFile file(homeDir.absoluteFilePath(FILE_PLUGINS_SETTINGS));
-	if (file.exists() && file.open(QFile::ReadOnly))
-		FPluginsSetup.setContent(&file,true);
-	file.close();
-
-	if (FPluginsSetup.documentElement().tagName() != "plugins")
-	{
-		FPluginsSetup.clear();
-		FPluginsSetup.appendChild(FPluginsSetup.createElement("plugins"));
-	}
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(qApp, STS_PLUGINMANAGER_APPLICATION);
 }
@@ -355,6 +359,8 @@ void PluginManager::loadPlugins()
 	QDir pluginsDir(QApplication::applicationDirPath());
 	if (pluginsDir.cd(PLUGINS_DIR))
 	{
+		LogDetaile(QString("[PluginManager] Loading plugins from '%1'").arg(pluginsDir.absolutePath()));
+
 		QString localeName = QLocale().name();
 		QDir tsDir(QApplication::applicationDirPath());
 		tsDir.cd(TRANSLATIONS_DIR);
@@ -443,6 +449,7 @@ void PluginManager::loadPlugins()
 	}
 	else
 	{
+		LogError(QString("[PluginManager] Could not find plugins directory"));
 		quit();
 	}
 }
@@ -645,7 +652,8 @@ QDomElement PluginManager::savePluginInfo(const QString &AFile, const IPluginInf
 
 void PluginManager::savePluginError(const QString &AFile, const QString &AError)
 {
-	LogError(QString("[Plugin error] %1 : %2").arg(AFile, AError));
+	LogError(QString("[PluginManager] Failed to load plugin '%1': %2").arg(AFile, AError));
+
 	QDomElement pluginElem = FPluginsSetup.documentElement().firstChildElement(AFile);
 	if (pluginElem.isNull())
 		pluginElem = FPluginsSetup.firstChildElement("plugins").appendChild(FPluginsSetup.createElement(AFile)).toElement();
@@ -710,6 +718,8 @@ void PluginManager::createMenuActions()
 
 void PluginManager::onApplicationAboutToQuit()
 {
+	LogDetaile(QString("[PluginManager] Application about to quit"));
+
 	if (!FPluginsDialog.isNull())
 		FPluginsDialog->reject();
 

@@ -41,47 +41,48 @@ LegacyAccountOptions::~LegacyAccountOptions()
 
 void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool AEnabled)
 {
-		if (!AEnabled)
-		{
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
-			ui.lblInfo->setText(QString::null);
-			ui.lblInfo->setProperty("state",QString("disconnected"));
-		}
-		else if (APresenceItem.show == IPresence::Error)
-		{
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
-			ui.lblInfo->setText(tr("Failed to connect"));
-			ui.lblInfo->setProperty("state",QString("error"));
-		}
-		else if (APresenceItem.show == IPresence::Offline)
-		{
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_GATEWAYS_CONNECTING_ANIMATION, 0, 100, "pixmap");
-			//ui.lblInfo->setText(tr("Connecting..."));
-			ui.lblInfo->setText(QString::null);
-			ui.lblInfo->setProperty("state",QString("connected"));
-		}
-		else
-		{
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
-			ui.lblInfo->setText(tr("Connected"));
-			ui.lblInfo->setProperty("state",QString("connected"));
-		}
-		StyleStorage::updateStyle(this);
-		adjustSize();
-		emit updated();
+	if (!AEnabled)
+	{
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
+		ui.lblInfo->setText(QString::null);
+		ui.lblInfo->setProperty("state",QString("disconnected"));
+	}
+	else if (APresenceItem.show == IPresence::Error)
+	{
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
+		ui.lblInfo->setText(tr("Failed to connect"));
+		ui.lblInfo->setProperty("state",QString("error"));
+	}
+	else if (APresenceItem.show == IPresence::Offline)
+	{
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblInfo, MNI_GATEWAYS_CONNECTING_ANIMATION, 0, 100, "pixmap");
+		//ui.lblInfo->setText(tr("Connecting..."));
+		ui.lblInfo->setText(QString::null);
+		ui.lblInfo->setProperty("state",QString("connected"));
+	}
+	else
+	{
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
+		ui.lblInfo->setText(tr("Connected"));
+		ui.lblInfo->setProperty("state",QString("connected"));
+	}
 
-		ui.chbState->blockSignals(true);
-		if (AEnabled)
-		{
-			ui.chbState->setChecked(true);
-			ui.chbState->setEnabled(true);
-		}
-		else
-		{
-			ui.chbState->setChecked(false);
-			ui.chbState->setEnabled(true);
-		}
-		ui.chbState->blockSignals(false);
+	ui.chbState->blockSignals(true);
+	if (AEnabled)
+	{
+		ui.chbState->setChecked(true);
+		ui.chbState->setEnabled(true);
+	}
+	else
+	{
+		ui.chbState->setChecked(false);
+		ui.chbState->setEnabled(true);
+	}
+	ui.chbState->blockSignals(false);
+
+	StyleStorage::updateStyle(this);
+	adjustSize();
+	emit updated();
 }
 
 void LegacyAccountOptions::onStateCheckboxToggled(bool AChecked)
@@ -126,7 +127,7 @@ void LegacyAccountOptions::onChangeDialogAccepted()
 
 void LegacyAccountOptions::onDeleteButtonClicked(bool)
 {
-	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::None);
+	CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::None);
 	dialog->setCaptionText(tr("Account Deletion"));
 	dialog->setInfoText(tr("Are you sure you want to delete <b>%1</b> account?").arg(ui.lblLogin->text()));
 	dialog->setAcceptButtonText(tr("Delete"));

@@ -151,7 +151,7 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	if(FAILED(WSAStartup(MAKEWORD(2, 2), &ws)))
 	{
 		int error = WSAGetLastError();
-		LogError(QString("[WSAStartup error] code %1").arg(error));
+		LogError(QString("[SipPhone] WSAStartup error: %1").arg(error));
 		exit(1);
 	}
 #endif

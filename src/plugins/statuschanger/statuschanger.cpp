@@ -1,12 +1,12 @@
 #include "statuschanger.h"
 
 #include <QTimer>
-#include <QToolButton>
 #include <QSysInfo>
-#include <utils/imagemanager.h>
-#include <utils/graphicseffectsstorage.h>
+#include <QToolButton>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
+#include <utils/imagemanager.h>
+#include <utils/graphicseffectsstorage.h>
 
 #define MAX_TEMP_STATUS_ID                  -10
 #define MAX_CUSTOM_STATUS_PER_SHOW          3
@@ -302,11 +302,19 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 				if (!presence->setPresence(newStatus.show, newStatus.text, newStatus.priority))
 				{
 					FChangingPresence = NULL;
-					if (newStatus.show!=IPresence::Offline && !presence->xmppStream()->isOpen() && presence->xmppStream()->open())
+					if (newStatus.show!=IPresence::Offline && newStatus.show!=IPresence::Error && !presence->xmppStream()->isOpen())
 					{
-						setStreamStatusId(presence, STATUS_CONNECTING_ID);
-						FLastOnlineStatus.insert(presence,newStatusId);
-						FConnectStatus.insert(presence,FMainStatusStreams.contains(presence) ? STATUS_MAIN_ID : newStatus.code);
+						LogDetaile(QString("[StatusChanger] Opening XMPP stream '%1'").arg(presence->streamJid().full()));
+						if (presence->xmppStream()->open())
+						{
+							setStreamStatusId(presence, STATUS_CONNECTING_ID);
+							FLastOnlineStatus.insert(presence,newStatusId);
+							FConnectStatus.insert(presence,FMainStatusStreams.contains(presence) ? STATUS_MAIN_ID : newStatus.code);
+						}
+						else
+						{
+							LogError(QString("[StatusChanger] Failed to open XMPP stream '%1'").arg(presence->streamJid().bare()));
+						}
 					}
 				}
 				else
@@ -314,10 +322,15 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 					FChangingPresence = NULL;
 					setStreamStatusId(presence, FMainStatusStreams.contains(presence) ? STATUS_MAIN_ID : newStatus.code);
 
-					if (newStatus.show!=IPresence::Offline && newStatus.show!=IPresence::Error)
-						FLastOnlineStatus.insert(presence,newStatusId);
-					else
+					if (newStatus.show==IPresence::Offline && newStatus.show==IPresence::Error)
+					{
+						LogDetaile(QString("[StatusChanger] Closing XMPP stream '%1'").arg(presence->streamJid().bare()));
 						presence->xmppStream()->close();
+					}
+					else
+					{
+						FLastOnlineStatus.insert(presence,newStatusId);
+					}
 
 					emit statusChanged(presence->streamJid(), newStatus.code);
 				}
@@ -724,7 +737,8 @@ void StatusChanger::autoReconnect(IPresence *APresence)
 		int statusShow = statusItemShow(statusId);
 		if (statusShow!=IPresence::Offline && statusShow!=IPresence::Error)
 		{
-			const int reconSecs = 30;
+			static const int reconSecs = 30;
+			LogDetaile(QString("[StatusChanger] Starting auto reconnection of '%1' after %2 seconds").arg(APresence->streamJid().full()).arg(reconSecs));
 			FPendingReconnect.insert(APresence,QPair<QDateTime,int>(QDateTime::currentDateTime().addSecs(reconSecs),statusId));
 			QTimer::singleShot(reconSecs*1000+100,this,SLOT(onReconnectTimer()));
 		}
@@ -887,7 +901,10 @@ void StatusChanger::onRosterOpened(IRoster *ARoster)
 {
 	IPresence *presence = FPresencePlugin->getPresence(ARoster->streamJid());
 	if (FConnectStatus.contains(presence))
+	{
+		LogDetaile(QString("[StatusChanger] Sending initial presence of stream '%1'").arg(ARoster->streamJid().full()));
 		setStreamStatus(presence->streamJid(), FConnectStatus.value(presence));
+	}
 }
 
 void StatusChanger::onRosterClosed(IRoster *ARoster)

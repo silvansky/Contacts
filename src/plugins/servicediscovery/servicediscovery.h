@@ -20,6 +20,7 @@
 #include <interfaces/irostersview.h>
 #include <utils/errorhandler.h>
 #include <utils/iconstorage.h>
+#include <utils/log.h>
 
 struct DiscoveryRequest {
 	Jid streamJid;

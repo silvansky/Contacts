@@ -154,7 +154,6 @@ void MailNotifyPage::appendNewMail(const Stanza &AStanza)
 
 	QTableWidgetItem *fromItem = new QTableWidgetItem();
 	QString fromName = contactElem.firstChildElement("name").text().trimmed();
-	//fromItem->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RAMBLERMAILNOTIFY_MAIL));
 	fromItem->setText(fromName.isEmpty() ? contactElem.firstChildElement("e-mail").text() : fromName);
 	fromItem->setData(Qt::UserRole,contactElem.firstChildElement("jid").text());
 	

@@ -8,6 +8,7 @@
 #include <definitions/xmppstanzahandlerorders.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/iconnectionmanager.h>
+#include <utils/log.h>
 #include <utils/errorhandler.h>
 #include <utils/versionparser.h>
 #include "streamparser.h"

@@ -8,6 +8,7 @@
 #include <utils/filestorage.h>
 #include <utils/message.h>
 #include <utils/options.h>
+#include <utils/log.h>
 #include "adiummessagestyle.h"
 #include "adiumoptionswidget.h"
 

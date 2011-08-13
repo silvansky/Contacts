@@ -7,6 +7,7 @@
 #include <interfaces/ixmppstreams.h>
 #include <utils/errorhandler.h>
 #include <utils/stanza.h>
+#include <utils/log.h>
 
 class SASLSession :
 	public QObject,

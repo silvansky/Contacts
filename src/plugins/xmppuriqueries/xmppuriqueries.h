@@ -1,10 +1,11 @@
 #ifndef XMPPURIQUERIES_H
 #define XMPPURIQUERIES_H
 
+#include <definitions/viewurlhandlerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ixmppuriqueries.h>
 #include <interfaces/imessagewidgets.h>
-#include <definitions/viewurlhandlerorders.h>
+#include <utils/log.h>
 
 class XmppUriQueries :
 	public QObject,

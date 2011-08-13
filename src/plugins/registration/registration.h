@@ -10,6 +10,7 @@
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/iservicediscovery.h>
 #include <interfaces/ixmppstreams.h>
+#include <utils/log.h>
 #include <utils/stanza.h>
 #include <utils/options.h>
 

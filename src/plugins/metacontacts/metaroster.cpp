@@ -32,12 +32,15 @@ MetaRoster::MetaRoster(IPluginManager *APluginManager, IMetaContacts *AMetaConta
 
 	insertStanzaHandlers();
 	onPresenceAdded(FPresence);
+
+	LogDetaile(QString("[MetaRoster][%1] Meta-roster created").arg(streamJid().bare()));
 }
 
 MetaRoster::~MetaRoster()
 {
 	clearMetaContacts();
 	removeStanzaHandlers();
+	LogDetaile(QString("[MetaRoster][%1] Meta-roster destroyed").arg(streamJid().bare()));
 }
 
 bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
@@ -70,6 +73,11 @@ bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 			{
 				FOpenRequestId = query.id();
 				FRosterRequest = AStanza;
+				LogDetaile(QString("[MetaRoster][%1] Initial meta-roster request sent").arg(streamJid().bare()));
+			}
+			else
+			{
+				LogError(QString("[MetaRoster][%1] Failed to send initial meta-roster request").arg(streamJid().bare()));
 			}
 		}
 		else if (FRoster->isOpen() && AStanza.type()=="set")
@@ -93,13 +101,12 @@ bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 
 void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 {
-	if (AStanza.type()=="error")
-		FCreateItemRequest.remove(AStanza.id());
-
 	if (FOpenRequestId == AStanza.id())
 	{
 		if (AStanza.type() == "result")
 		{
+			LogDetaile(QString("[MetaRoster][%1] Initial meta-roster request received").arg(streamJid().bare()));
+
 			setEnabled(true);
 			QDomElement metasElem = AStanza.firstElement("query",NS_RAMBLER_METACONTACTS);
 
@@ -113,12 +120,24 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 		}
 		else
 		{
+			ErrorHandler err(AStanza.element());
+			LogError(QString("[MetaRoster][%1] Failed to receive initial meta-roster: %2").arg(streamJid().bare(),err.message()));
+
 			setEnabled(false);
 			removeStanzaHandlers();
 			FStanzaProcessor->sendStanzaOut(AStreamJid,FRosterRequest);
 		}
 	}
-	else if (!FCreateItemRequest.contains(AStanza.id()))
+	else if (FCreateItemRequest.contains(AStanza.id()))
+	{
+		if (AStanza.type() == "error")
+		{
+			ErrorHandler err(AStanza.element());
+			LogError(QString("[MetaRoster][%1] Failed to create meta-item, id='%2': %3").arg(streamJid().bare(),AStanza.id(),AStanza.id(),err.message()));
+			FCreateItemRequest.remove(AStanza.id());
+		}
+	}
+	else
 	{
 		QString errCond;
 		QString errMessage;
@@ -127,7 +146,6 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			ErrorHandler err(AStanza.element());
 			errCond = err.condition();
 			errMessage = err.message();
-			LogError(QString("[MetaRoster stanza error] condition %1 : %2").arg(errCond, errMessage));
 		}
 		processStanzaRequest(AStanza.id(),errCond,errMessage);
 	}
@@ -135,14 +153,22 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 
 void MetaRoster::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
 {
-	FCreateItemRequest.remove(AStanzaId);
 	if (FOpenRequestId == AStanzaId)
 	{
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		LogError(QString("[MetaRoster][%1] Failed to receive initial meta-roster: %2").arg(streamJid().bare(),err.message()));
+
 		setEnabled(false);
 		removeStanzaHandlers();
 		FStanzaProcessor->sendStanzaOut(AStreamJid,FRosterRequest);
 	}
-	else if (!FCreateItemRequest.contains(AStanzaId))
+	else if (FCreateItemRequest.contains(AStanzaId))
+	{
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		LogError(QString("[MetaRoster][%1] Failed to create meta-item id='%2': %3").arg(streamJid().bare(),AStanzaId,err.message()));
+		FCreateItemRequest.remove(AStanzaId);
+	}
+	else
 	{
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
 		processStanzaRequest(AStanzaId,err.condition(),err.message());
@@ -319,6 +345,11 @@ void MetaRoster::saveMetaContacts(const QString &AFileName) const
 		{
 			metaFile.write(xml.toByteArray());
 			metaFile.close();
+			LogDetaile(QString("[MetaRoster][%1] Meta-roster saved to file '%2'").arg(streamJid().bare(),AFileName));
+		}
+		else
+		{
+			LogError(QString("[MetaRoster][%1] Failed to save meta-roster to file '%2'").arg(streamJid().bare(),AFileName));
 		}
 	}
 }
@@ -336,6 +367,7 @@ void MetaRoster::loadMetaContacts(const QString &AFileName)
 				QDomElement metasElem = xml.firstChildElement("metacontacts");
 				if (!metasElem.isNull() && metasElem.attribute("streamJid")==streamJid().pBare() && metasElem.attribute("groupDelimiter")==roster()->groupDelimiter())
 				{
+					LogDetaile(QString("[MetaRoster][%1] Loading meta-roster from file '%2'").arg(streamJid().bare(),AFileName));
 					setEnabled(true);
 					processRosterStanza(streamJid(),convertMetaElemToRosterStanza(metasElem));
 					processMetasElement(metasElem,true);
@@ -350,6 +382,8 @@ QString MetaRoster::createContact(const IMetaContact &AContact)
 {
 	if (isOpen())
 	{
+		LogDetaile(QString("[MetaRoster][%1] Creating new meta-contact with %2 item(s)").arg(streamJid().bare()).arg(AContact.items.count()));
+
 		QSet<Jid> mergeList;
 		QList<QString> requests;
 		foreach(Jid itemJid, AContact.items)
@@ -373,17 +407,32 @@ QString MetaRoster::createContact(const IMetaContact &AContact)
 					mergeList += itemJid.bare();
 					requests.append(query.id());
 					FCreateItemRequest.insert(query.id(),itemJid);
+					LogDetaile(QString("[MetaRoster][%1] Create meta-item '%2' request sent, id='%3'").arg(streamJid().bare(),itemJid.bare(),query.id()));
 				}
-				else if (requests.isEmpty())
+				else
 				{
-					break;
+					LogError(QString("[MetaRoster][%1] Failed to send create meta-item '%2' request").arg(streamJid().bare(),itemJid.bare()));
 				}
+			}
+			else
+			{
+				LogError(QString("[MetaRoster][%1] Meta-item '%2' is already present in another meta-contact").arg(streamJid().bare(),itemJid.bare()));
 			}
 		}
 
 		QString multiId = startMultiRequest(requests);
-		if (!multiId.isEmpty() && mergeList.count()>1)
-			FCreateMergeList.insert(multiId,mergeList);
+		if (!multiId.isEmpty())
+		{
+			if (mergeList.count() > 1)
+			{
+				FCreateMergeList.insert(multiId,mergeList);
+				LogDetaile(QString("[MetaRoster][%1] Created merge list with %2 items, id='%3'").arg(streamJid().bare()).arg(mergeList.count()).arg(multiId));
+			}
+		}
+		else
+		{
+			LogError(QString("[MetaRoster][%1] Failed to create new meta-contact").arg(streamJid().bare()));
+		}
 
 		return multiId;
 	}
@@ -404,6 +453,7 @@ QString MetaRoster::renameContact(const QString &AMetaId, const QString &ANewNam
 
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
+			LogDetaile(QString("[MetaRoster][%1] Rename meta-contact '%2' request sent, id='%3'").arg(streamJid().bare(),AMetaId,query.id()));
 			FActionRequests.append(query.id());
 			return query.id();
 		}
@@ -415,8 +465,10 @@ QString MetaRoster::deleteContact(const QString &AMetaId)
 {
 	if (isOpen() && FContacts.contains(AMetaId))
 	{
-		QList<QString> requests;
 		IMetaContact contact = FContacts.value(AMetaId);
+		LogDetaile(QString("[MetaRoster][%1] Deleting meta-contact '%2' with %3 item(s)").arg(streamJid().bare(),AMetaId).arg(contact.items.count()));
+		
+		QList<QString> requests;
 		foreach(Jid itemJid, contact.items)
 		{
 			Stanza query("iq");
@@ -428,11 +480,20 @@ QString MetaRoster::deleteContact(const QString &AMetaId)
 			mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
 
 			if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+			{
 				requests.append(query.id());
-			else if (requests.isEmpty())
-				break;
+				LogDetaile(QString("[MetaRoster][%1] Delete meta-item '%2' request sent, id='%3'").arg(streamJid().bare(),itemJid.bare(),query.id()));
+			}
+			else
+			{
+				LogError(QString("[MetaRoster][%1] Failed to send delete meta-item '%2' request.").arg(streamJid().bare(),itemJid.bare()));
+			}
 		}
-		return startMultiRequest(requests);
+
+		if (requests.isEmpty())
+			LogError(QString("[MetaRoster][%1] Failed to delete meta-contact '%2'").arg(streamJid().bare(),AMetaId));
+
+		return startMultiRequest(requests);;
 	}
 	return QString::null;
 }
@@ -441,6 +502,8 @@ QString MetaRoster::mergeContacts(const QString &AParentId, const QList<QString>
 {
 	if (isOpen() && FContacts.contains(AParentId) && !AChildsId.isEmpty())
 	{
+		LogDetaile(QString("[MetaRoster][%1] Merging meta-contact '%2' with another %3 meta-contact(s)").arg(streamJid().bare(),AParentId).arg(AChildsId.count()));
+
 		QList<QString> requests;
 		foreach(QString metaId, AChildsId)
 		{
@@ -455,10 +518,19 @@ QString MetaRoster::mergeContacts(const QString &AParentId, const QList<QString>
 			metaElem.setAttribute("id",metaId);
 
 			if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
+			{
 				requests.append(query.id());
-			else if (requests.isEmpty())
-				break;
+				LogDetaile(QString("[MetaRoster][%1] Merge meta-contact with '%2' request sent, id='%3'").arg(streamJid().bare(),metaId,query.id()));
+			}
+			else
+			{
+				LogError(QString("[MetaRoster][%1] Failed to send merge meta-contact with '%2' request").arg(streamJid().bare(),metaId));
+			}
 		}
+
+		if (requests.isEmpty())
+			LogError(QString("[MetaRoster][%1] Failed to merge meta-contact '%2' with another contacts").arg(streamJid().bare(),AParentId));
+
 		return startMultiRequest(requests);
 	}
 	return QString::null;
@@ -482,6 +554,7 @@ QString MetaRoster::setContactGroups(const QString &AMetaId, const QSet<QString>
 
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
+			LogDetaile(QString("[MetaRoster][%1] Change meta-contact '%2' groups request sent, id='%3'").arg(streamJid().bare(),AMetaId,query.id()));
 			FActionRequests.append(query.id());
 			return query.id();
 		}
@@ -503,6 +576,7 @@ QString MetaRoster::detachContactItem(const QString &AMetaId, const Jid &AItemJi
 
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
+			LogDetaile(QString("[MetaRoster][%1] Detach meta-item '%2' from meta-contact '%3' request sent, id='%4'").arg(streamJid().bare(),AItemJid.bare(),AMetaId,query.id()));
 			FActionRequests.append(query.id());
 			return query.id();
 		}
@@ -524,6 +598,7 @@ QString MetaRoster::deleteContactItem(const QString &AMetaId, const Jid &AItemJi
 
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
+			LogDetaile(QString("[MetaRoster][%1] Delete meta-item '%2' from meta-contact '%3' request sent, id='%4'").arg(streamJid().bare(),AItemJid.bare(),AMetaId,query.id()));
 			FActionRequests.append(query.id());
 			return query.id();
 		}
@@ -535,8 +610,10 @@ QString MetaRoster::renameGroup(const QString &AGroup, const QString &ANewName)
 {
 	if (isOpen())
 	{
-		QList<QString> requests;
 		QList<IMetaContact> allGroupContacts = groupContacts(AGroup);
+		LogDetaile(QString("[MetaRoster][%1] Renaming group '%2' with %3 meta-contact(s) to '%4'").arg(streamJid().bare()).arg(allGroupContacts.count()).arg(AGroup,ANewName));
+
+		QList<QString> requests;
 		for (QList<IMetaContact>::const_iterator it = allGroupContacts.constBegin(); it!=allGroupContacts.constEnd(); it++)
 		{
 			QSet<QString> newItemGroups;
@@ -554,9 +631,13 @@ QString MetaRoster::renameGroup(const QString &AGroup, const QString &ANewName)
 			QString queryId = setContactGroups(it->id,newItemGroups);
 			if (!queryId.isEmpty())
 				requests.append(queryId);
-			else if (requests.isEmpty())
-				break;
+			else
+				LogError(QString("[MetaRoster][%1] Failed to send change meta-contact '%2' groups request").arg(streamJid().bare(),it->id));
 		}
+		
+		if (requests.isEmpty())
+			LogError(QString("[MetaRoster][%1] Failed to rename group '%2' to '%3'").arg(streamJid().bare(),AGroup,ANewName));
+
 		return startMultiRequest(requests);
 	}
 	return QString::null;
@@ -599,6 +680,7 @@ void MetaRoster::setEnabled(bool AEnabled)
 {
 	if (FEnabled != AEnabled)
 	{
+		LogDetaile(QString("[MetaRoster][%1] Meta roster enable=%2").arg(streamJid().bare()).arg(AEnabled));
 		if (!AEnabled)
 			clearMetaContacts();
 		FEnabled = AEnabled;
@@ -997,8 +1079,9 @@ bool MetaRoster::processCreateMerge(const QString &AMultiId)
 {
 	if (FCreateMergeList.contains(AMultiId))
 	{
-		QList<QString> requests;
+		LogDetaile(QString("[MetaRoster][%1] Processing create merge list, id='%2'").arg(streamJid().bare(),AMultiId));
 
+		QList<QString> requests;
 		QString parentMetaId;
 		QSet<Jid> items = FCreateMergeList.take(AMultiId);
 		foreach(Jid itemJid, items)
@@ -1027,6 +1110,10 @@ bool MetaRoster::processCreateMerge(const QString &AMultiId)
 			appendMultiRequest(AMultiId,requests);
 			return true;
 		}
+		else
+		{
+			LogError(QString("[MetaRoster][%1] Failed to process create merge list, id='%2'").arg(streamJid().bare(),AMultiId));
+		}
 	}
 	return false;
 }
@@ -1040,6 +1127,7 @@ QString MetaRoster::startMultiRequest(const QList<QString> &AActions)
 			QString multiId = FStanzaProcessor->newId();
 			foreach(QString action, AActions)
 				FMultiRequests.insertMulti(multiId,action);
+			LogDetaile(QString("[MetaRoster][%1] Multi-request id='%2' started with actions from '%3' to '%4'").arg(streamJid().bare(),multiId,AActions.first(),AActions.last()));
 			return multiId;
 		}
 		else if (AActions.count() == 1)
@@ -1053,14 +1141,23 @@ QString MetaRoster::startMultiRequest(const QList<QString> &AActions)
 
 void MetaRoster::appendMultiRequest(const QString &AMultiId, const QList<QString> &AActions)
 {
-	foreach(QString actionId, AActions)
-		FMultiRequests.insertMulti(AMultiId,actionId);
+	if (!AActions.isEmpty())
+	{
+		foreach(QString actionId, AActions)
+			FMultiRequests.insertMulti(AMultiId,actionId);
+		LogDetaile(QString("[MetaRoster][%1] To multi-request id='%2' appended actions from '%3' to '%4'").arg(streamJid().bare(),AMultiId,AActions.first(),AActions.last()));
+	}
 }
 
 void MetaRoster::processMultiRequest(const QString &AMultiId, const QString &AActionId, const QString &AErrCond, const QString &AErrMessage)
 {
 	if (FMultiRequests.contains(AMultiId,AActionId))
 	{
+		if (AErrMessage.isEmpty())
+			LogDetaile(QString("[MetaRoster][%1] Multi-request id='%2' action id='%3' processed successfully").arg(streamJid().bare(),AMultiId,AActionId));
+		else
+			LogError(QString("[MetaRoster][%1] Failed to process action id='%2' of multi-request id='%3': %4").arg(streamJid().bare(),AActionId,AMultiId,AErrMessage));
+
 		if (!AErrCond.isEmpty() && !FMultiErrors.contains(AMultiId))
 			FMultiErrors.insert(AMultiId, qMakePair<QString,QString>(AErrCond,AErrMessage));
 		FMultiRequests.remove(AMultiId,AActionId);
@@ -1070,6 +1167,10 @@ void MetaRoster::processMultiRequest(const QString &AMultiId, const QString &AAc
 			if (!processCreateMerge(AMultiId))
 			{
 				QPair<QString,QString> errPair = FMultiErrors.take(AMultiId);
+				if (errPair.second.isEmpty())
+					LogDetaile(QString("[MetaRoster][%1] Multi-request id='%2' processed successfully").arg(streamJid().bare(),AMultiId));
+				else
+					LogError(QString("[MetaRoster][%1] Failed to process multi-request id='%2': %3").arg(streamJid().bare(),AMultiId,errPair.second));
 				emit metaActionResult(AMultiId, errPair.first, errPair.second);
 			}
 		}
@@ -1081,6 +1182,10 @@ void MetaRoster::processStanzaRequest(const QString &AStanzaId, const QString &A
 	if (FActionRequests.contains(AStanzaId))
 	{
 		FActionRequests.removeAll(AStanzaId);
+		if (AErrMessage.isEmpty())
+			LogDetaile(QString("[MetaRoster][%1] Request id='%2' processed successfully").arg(streamJid().bare(),AStanzaId));
+		else
+			LogError(QString("[MetaRoster][%1] Failed to process request id='%2': %3").arg(streamJid().bare(),AStanzaId,AErrMessage));
 		emit metaActionResult(AStanzaId,AErrCond,AErrMessage);
 	}
 	else if (FMultiRequests.values().contains(AStanzaId))

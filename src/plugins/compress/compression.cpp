@@ -41,16 +41,19 @@ bool Compression::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AO
 		FXmppStream->removeXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
 		if (AStanza.tagName() == "compressed")
 		{
+			LogDetaile(QString("[Compression] XMPP stream compression started"));
 			FXmppStream->insertXmppDataHandler(this, XDHO_FEATURE_COMPRESS);
 			emit finished(true);
 		}
 		else if (AStanza.tagName() == "failure")
 		{
 			deleteLater();
+			LogError(QString("[Compression] Failed to start XMPP stream compression"));
 			emit finished(false);
 		}
 		else
 		{
+			LogError(QString("[Compression] Failed to start XMPP stream compression: Wrong response"));
 			emit error(tr("Wrong compression negotiation response"));
 		}
 		return true;
@@ -77,12 +80,17 @@ bool Compression::start(const QDomElement &AElem)
 			{
 				if (startZlib())
 				{
+					LogDetaile(QString("[Compression] Starting XMPP stream compression"));
 					Stanza compress("compress");
 					compress.setAttribute("xmlns",NS_PROTOCOL_COMPRESS);
 					compress.addElement("method").appendChild(compress.createTextNode("zlib"));
 					FXmppStream->insertXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
 					FXmppStream->sendStanza(compress);
 					return true;
+				}
+				else
+				{
+					LogError(QString("[Compression] Failed to initialize ZLib library"));
 				}
 				break;
 			}
@@ -170,15 +178,19 @@ void Compression::processData(QByteArray &AData, bool ADataOut)
 					FOutBuffer.reserve(FOutBuffer.capacity() + CHUNK);
 				break;
 			case Z_STREAM_ERROR:
+				LogError(QString("[Compression] Invalid compression level"));
 				emit error(tr("Invalid compression level"));
 				break;
 			case Z_DATA_ERROR:
-				emit error(tr("invalid or incomplete deflate data"));
+				LogError(QString("[Compression] Invalid or incomplete deflate data"));
+				emit error(tr("Invalid or incomplete deflate data"));
 				break;
 			case Z_MEM_ERROR:
+				LogError(QString("[Compression] Out of memory for Zlib"));
 				emit error(tr("Out of memory for Zlib"));
 				break;
 			case Z_VERSION_ERROR:
+				LogError(QString("[Compression] Zlib version mismatch!"));
 				emit error(tr("Zlib version mismatch!"));
 				break;
 			}

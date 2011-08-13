@@ -12,6 +12,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/iservicediscovery.h>
 #include <interfaces/iroster.h>
+#include <utils/log.h>
 #include <utils/stanza.h>
 #include <utils/options.h>
 #include <utils/datetime.h>

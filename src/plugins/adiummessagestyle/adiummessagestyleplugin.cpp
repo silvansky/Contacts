@@ -73,6 +73,7 @@ IMessageStyle *AdiumMessageStylePlugin::styleForOptions(const IMessageStyleOptio
 			}
 			else
 			{
+				LogError(QString("[AdiumMessageStylePlugin] Invalid Adium style '%1' in %2").arg(styleId, stylePath));
 				delete style;
 			}
 		}
@@ -128,6 +129,10 @@ IMessageStyleOptions AdiumMessageStylePlugin::styleOptions(const OptionsNode &AN
 		if (soptions.extended.value(MSO_FONT_SIZE).toInt()==0)
 			soptions.extended.insert(MSO_FONT_SIZE,info.value(MSIV_DEFAULT_FONT_SIZE));
 	}
+	else
+	{
+		LogError(QString("[AdiumMessageStylePlugin] Adium style options not found for node '%1'").arg(ANode.path()));
+	}
 	return soptions;
 }
 
@@ -179,8 +184,9 @@ void AdiumMessageStylePlugin::updateAvailStyles()
 				if (valid)
 				{
 					QMap<QString, QVariant> info = AdiumMessageStyle::styleInfo(dir.absolutePath());
-					if (!info.value(MSIV_NAME).toString().isEmpty())
-						FStylePaths.insert(info.value(MSIV_NAME).toString(),dir.absolutePath());
+					QString name = info.value(MSIV_NAME).toString();
+					if (!name.isEmpty())
+						FStylePaths.insert(name,dir.absolutePath());
 				}
 			}
 		}

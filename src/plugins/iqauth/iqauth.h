@@ -11,13 +11,14 @@
 #include <utils/errorhandler.h>
 #include <utils/stanza.h>
 #include <utils/jid.h>
+#include <utils/log.h>
 
 #define IQAUTH_UUID "{6d1651fd-0975-4f71-8018-6abad96ca952}"
 
 class IqAuth :
-			public QObject,
-			public IXmppFeature,
-			public IXmppStanzaHadler
+	public QObject,
+	public IXmppFeature,
+	public IXmppStanzaHadler
 {
 	Q_OBJECT;
 	Q_INTERFACES(IXmppFeature IXmppStanzaHadler);
@@ -41,9 +42,9 @@ private:
 };
 
 class IqAuthPlugin :
-			public QObject,
-			public IPlugin,
-			public IXmppFeaturesPlugin
+	public QObject,
+	public IPlugin,
+	public IXmppFeaturesPlugin
 {
 	Q_OBJECT;
 	Q_INTERFACES(IPlugin IXmppFeaturesPlugin);

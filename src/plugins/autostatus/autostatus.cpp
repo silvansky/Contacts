@@ -144,6 +144,7 @@ QUuid AutoStatus::insertRule(const IAutoStatusRule &ARule)
 	ruleNode.setValue(ARule.time,"time");
 	ruleNode.setValue(ARule.show,"show");
 	ruleNode.setValue(ARule.text,"text");
+	LogDetaile(QString("[AutoStatus] Auto status rule inserted, id:%1, time:%2, show:%3, text:%4").arg(ruleId.toString()).arg(ARule.time).arg(ARule.show).arg(ARule.text));
 	emit ruleInserted(ruleId);
 	return ruleId;
 }
@@ -197,6 +198,7 @@ void AutoStatus::setActiveRule(const QUuid &ARuleId)
 		{
 			IAutoStatusRule rule = ruleValue(ARuleId);
 			prepareRule(rule);
+			LogDetaile(QString("[AutoStatus] Active auto status rule changed to: %1").arg(ARuleId.toString()));
 			if (FAutoStatusId == STATUS_NULL_ID)
 			{
 				FAutoStatusId = FStatusChanger->addStatusItem(tr("Auto status"),rule.show,rule.text,FStatusChanger->statusItemPriority(STATUS_MAIN_ID));
@@ -222,6 +224,7 @@ void AutoStatus::setActiveRule(const QUuid &ARuleId)
 		}
 		else
 		{
+			LogDetaile(QString("[AutoStatus] Active auto status rule removed"));
 			foreach(Jid streamJid, FStreamStatus.keys())
 				FStatusChanger->setStreamStatus(streamJid, FStreamStatus.take(streamJid));
 			FStatusChanger->removeStatusItem(FAutoStatusId);

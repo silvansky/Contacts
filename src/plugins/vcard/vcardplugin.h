@@ -25,6 +25,7 @@
 #include <utils/widgetmanager.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
+#include <utils/log.h>
 #include "vcard.h"
 #include "simplevcarddialog.h"
 
@@ -70,6 +71,7 @@ public:
 	virtual IVCard *vcard(const Jid &AContactJid);
 	virtual bool requestVCard(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual bool publishVCard(IVCard *AVCard, const Jid &AStreamJid);
+	virtual bool requestAvatars(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual void showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AContactJid);
 signals:
 	void vcardReceived(const Jid &AContactJid);
@@ -106,7 +108,7 @@ private:
 private:
 	QMap<Jid, VCardItem> FVCards;
 	QMap<QString, Jid> FVCardRequestId;
-	QMap<QString, QString> FVCardPublishId;
+	QMap<QString, Jid> FVCardPublishId;
 	QMap<QString, Stanza> FVCardPublishStanza;
 	QMap<Jid, SimpleVCardDialog *> FSimpleVCardDialogs;
 	QMap<QString, Jid> FAvatarsRequestId;

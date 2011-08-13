@@ -3,7 +3,6 @@
 #include <QDir>
 #include <QFile>
 #include <QCryptographicHash>
-#include <utils/log.h>
 
 #define SHC_DISCO_INFO          "/iq[@type='get']/query[@xmlns='" NS_DISCO_INFO "']"
 #define SHC_DISCO_ITEMS         "/iq[@type='get']/query[@xmlns='" NS_DISCO_ITEMS "']"
@@ -138,7 +137,7 @@ bool ServiceDiscovery::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, St
 			Stanza reply = AStanza.replyError(dinfo.error.condition,EHN_DEFAULT,dinfo.error.code,dinfo.error.message);
 			FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
 		}
-		else if (!dinfo.identity.isEmpty() || !dinfo.features.isEmpty() || !dinfo.extensions.isEmpty())
+		else
 		{
 			AAccept = true;
 			Stanza reply("iq");
@@ -167,7 +166,7 @@ bool ServiceDiscovery::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, St
 			Stanza reply = AStanza.replyError(ditems.error.condition,EHN_DEFAULT,ditems.error.code,ditems.error.message);
 			FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
 		}
-		else if (!ditems.items.isEmpty())
+		else
 		{
 			AAccept = true;
 			Stanza reply("iq");
@@ -268,8 +267,7 @@ void ServiceDiscovery::stanzaRequestTimeout(const Jid &AStreamJid, const QString
 	{
 		IDiscoInfo dinfo;
 		DiscoveryRequest drequest = FInfoRequestsId.take(AStanzaId);
-		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
-		LogError(QString("[ServiceDiscovery request timeout] %1").arg(err.message()));
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
 		dinfo.streamJid = drequest.streamJid;
 		dinfo.contactJid = drequest.contactJid;
 		dinfo.node = drequest.node;
@@ -277,20 +275,21 @@ void ServiceDiscovery::stanzaRequestTimeout(const Jid &AStreamJid, const QString
 		dinfo.error.condition = err.condition();
 		dinfo.error.message = err.message();
 		FDiscoInfo[dinfo.streamJid][dinfo.contactJid].insert(dinfo.node,dinfo);
+		LogError(QString("[ServiceDiscovery] Failed to request discovery information from '%1' node='%2' id='%3': %4").arg(dinfo.contactJid.full(),dinfo.node,AStanzaId,err.message()));	
 		emit discoInfoReceived(dinfo);
 	}
 	else if (FItemsRequestsId.contains(AStanzaId))
 	{
 		IDiscoItems ditems;
 		DiscoveryRequest drequest = FItemsRequestsId.take(AStanzaId);
-		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
-		LogError(QString("[ServiceDiscovery request timeout] %1").arg(err.message()));
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
 		ditems.streamJid = drequest.streamJid;
 		ditems.contactJid = drequest.contactJid;
 		ditems.node = drequest.node;
 		ditems.error.code = err.code();
 		ditems.error.condition = err.condition();
 		ditems.error.message = err.message();
+		LogError(QString("[ServiceDiscovery] Failed to request discovery items from '%1' node='%2' id='%3': %4").arg(ditems.contactJid.full(),ditems.node,AStanzaId,err.message()));	
 		emit discoItemsReceived(ditems);
 	}
 }
@@ -494,7 +493,14 @@ bool ServiceDiscovery::requestDiscoInfo(const Jid &AStreamJid, const Jid &AConta
 			query.setAttribute("node",ANode);
 		sent = FStanzaProcessor->sendStanzaRequest(this,AStreamJid,iq,DISCO_TIMEOUT);
 		if (sent)
+		{
 			FInfoRequestsId.insert(iq.id(),drequest);
+			//LogDetaile(QString("[ServiceDiscovery] Discovery information request sent to='%1' node='%2' id='%3'").arg(AContactJid.full(),ANode,iq.id()));
+		}
+		else
+		{
+			LogError(QString("[ServiceDiscovery] Failed to send discovery information request to='%1' node='%2'").arg(AContactJid.full(),ANode));
+		}
 	}
 	return sent;
 }
@@ -507,6 +513,7 @@ void ServiceDiscovery::removeDiscoInfo(const Jid &AStreamJid, const Jid &AContac
 		IDiscoInfo dinfo = dnodeInfo.take(ANode);
 		if (dnodeInfo.isEmpty())
 			FDiscoInfo[AStreamJid].remove(AContactJid);
+		//LogDetaile(QString("[ServiceDiscovery] Discovery information removed jid='%1' node='%2'").arg(AContactJid.full(),ANode));
 		emit discoInfoRemoved(dinfo);
 	}
 }
@@ -541,7 +548,14 @@ bool ServiceDiscovery::requestDiscoItems(const Jid &AStreamJid, const Jid &ACont
 			query.setAttribute("node",ANode);
 		sent = FStanzaProcessor->sendStanzaRequest(this,AStreamJid,iq,DISCO_TIMEOUT);
 		if (sent)
+		{
 			FItemsRequestsId.insert(iq.id(),drequest);
+			LogDetaile(QString("[ServiceDiscovery] Discovery items request sent to='%1' node='%2' id='%3'").arg(AContactJid.full(),ANode,iq.id()));
+		}
+		else
+		{
+			LogError(QString("[ServiceDiscovery] Failed to send discovery items request to='%1' node='%2'").arg(AContactJid.full(),ANode));
+		}
 	}
 	return sent;
 }
@@ -626,22 +640,23 @@ IDiscoInfo ServiceDiscovery::parseDiscoInfo(const Stanza &AStanza, const Discove
 	if (AStanza.type() == "error")
 	{
 		ErrorHandler err(AStanza.element());
-		LogError(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
+		LogError(QString("[ServiceDiscovery] Failed to request discovery information from '%1' node='%2' id='%3': %4").arg(result.contactJid.full(),result.node,AStanza.id(),err.message()));	
 	}
 	else if (result.contactJid!=AStanza.from() || result.node!=query.attribute("node"))
 	{
-		ErrorHandler err(ErrorHandler::FEATURE_NOT_IMPLEMENTED);
-		LogError(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
+		ErrorHandler err(ErrorHandler::NOT_ACCEPTABLE);
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
+		LogError(QString("[ServiceDiscovery] Failed to request discovery information from '%1' node='%2' id='%3': %4").arg(result.contactJid.full(),result.node,AStanza.id(),err.message()));	
 	}
 	else
 	{
 		discoInfoFromElem(query,result);
+		//LogDetaile(QString("[ServiceDiscovery] Discovery information received from '%1' node='%2' id='%3'").arg(result.contactJid.full(),result.node,AStanza.id()));
 	}
 	return result;
 }
@@ -657,18 +672,18 @@ IDiscoItems ServiceDiscovery::parseDiscoItems(const Stanza &AStanza, const Disco
 	if (AStanza.type() == "error")
 	{
 		ErrorHandler err(AStanza.element());
-		LogError(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
+		LogError(QString("[ServiceDiscovery] Failed to request discovery items from '%1' node='%2' id='%3': %4").arg(result.contactJid.full(),result.node,AStanza.id(),err.message()));	
 	}
 	else if (result.contactJid!=AStanza.from() || result.node!=query.attribute("node"))
 	{
-		ErrorHandler err(ErrorHandler::FEATURE_NOT_IMPLEMENTED);
-		LogError(QString("[ServiceDiscovery stanza error] code %1 cond %2 mess %3").arg(err.code()).arg(err.condition(), err.message()));
+		ErrorHandler err(ErrorHandler::NOT_ACCEPTABLE);
 		result.error.code = err.code();
 		result.error.condition = err.condition();
 		result.error.message = err.message();
+		LogError(QString("[ServiceDiscovery] Failed to request discovery items from '%1' node='%2' id='%3': %4").arg(result.contactJid.full(),result.node,AStanza.id(),err.message()));	
 	}
 	else
 	{
@@ -682,6 +697,7 @@ IDiscoItems ServiceDiscovery::parseDiscoItems(const Stanza &AStanza, const Disco
 			result.items.append(ditem);
 			elem = elem.nextSiblingElement("item");
 		}
+		LogDetaile(QString("[ServiceDiscovery] Discovery items received from '%1' node='%2' id='%3'").arg(result.contactJid.full(),result.node,AStanza.id()));
 	}
 	return result;
 }
@@ -1070,7 +1086,10 @@ void ServiceDiscovery::onSelfCapsChanged()
 			myCaps.ver = newVer;
 			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
 			if (presence && presence->isOpen())
+			{
+				LogDetaile(QString("[ServiceDiscovery] Updating self entity caps on stream '%1'").arg(presence->streamJid().bare()));
 				presence->setPresence(presence->show(),presence->status(),presence->priority());
+			}
 		}
 	}
 	FUpdateSelfCapsStarted = false;

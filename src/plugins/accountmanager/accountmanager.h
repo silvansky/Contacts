@@ -7,6 +7,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/ixmppstreams.h>
 #include <utils/action.h>
+#include <utils/log.h>
 #include "account.h"
 
 class AccountManager :

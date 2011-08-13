@@ -1,10 +1,13 @@
 #ifndef DEF_COMMANDLINE_H
 #define DEF_COMMANDLINE_H
 
-// -h <AppDataDir>
-#define CLO_APP_DATA_DIR            "-h"
+// -home <AppDataDir>
+#define CLO_APP_DATA_DIR            "-home"
 
-// -l <Locale>
-#define CLO_LOCALE                  "-l"
+// -locale <Locale>
+#define CLO_LOCALE                  "-locale"
+
+// -logtypes <Log::LogTypes>
+#define CLO_LOG_TYPES               "-logtypes"
 
 #endif // DEF_COMMANDLINE_H

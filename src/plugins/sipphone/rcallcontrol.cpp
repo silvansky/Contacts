@@ -396,7 +396,7 @@ void RCallControl::callStatusChange(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
-			LogError(QString("[Call failure]"));
+			LogError(QString("[RCallControl] Call failure]"));
 			statusTextChange(tr("Calling failure..."));
 			ui.btnAccept->show();
 			ui.btnAccept->setEnabled(true);
@@ -501,7 +501,7 @@ void RCallControl::callStatusChange(CallStatus status)
 	{
 		if(_callSide == Caller)
 		{
-			LogError(QString("[Call error]"));
+			LogError(QString("[RCallControl] Call error]"));
 			statusTextChange(tr("Call Error..."));
 			ui.btnAccept->show();
 			ui.btnAccept->setEnabled(true);

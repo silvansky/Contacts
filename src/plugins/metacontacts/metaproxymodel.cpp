@@ -269,11 +269,10 @@ void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString
 	QString hash = AMetaRoster->metaAvatarHash(AMetaId);
 	QImage originalAvatar = AMetaRoster->metaAvatarImage(AMetaId, false);
 	QImage avatar = ImageManager::roundSquared(originalAvatar, 24, 2);
+
 	originalAvatar = AMetaRoster->metaAvatarImage(AMetaId, true);
 	if (originalAvatar.isNull())
-	{
 		originalAvatar = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_AVATAR_EMPTY_MALE, 1);
-	}
 	QImage largeAvatar = ImageManager::roundSquared(originalAvatar, 36, 2);
 
 	foreach(IRosterIndex *index, findMetaIndexes(AMetaRoster,AMetaId))

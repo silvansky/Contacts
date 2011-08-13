@@ -16,6 +16,7 @@
 #include <interfaces/ipresence.h>
 #include <utils/options.h>
 #include <utils/systemmanager.h>
+#include <utils/log.h>
 
 class AutoStatus :
 	public QObject,

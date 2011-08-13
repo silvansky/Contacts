@@ -270,15 +270,13 @@ void CommentDialog::SendComment()
 	Message message;
 	message.setType(Message::Chat);
 	QString commentHtml = QString("<b>%1</b><br><i>%2</i><br><b>%3</b><br><br>%4").arg(Qt::escape(ui.lneYourName->text()), Qt::escape(ui.lneEMail->text()), Qt::escape(ui.lblTechData->text()), Qt::escape(comment));
-	QTextDocument * doc = new QTextDocument;
+	QTextDocument *doc = new QTextDocument;
 	doc->setHtml(commentHtml);
 	FMessageProcessor->textToMessage(message, doc);
 	message.setTo("support@rambler.ru");
 	message.setFrom(streamJid.full());
-	bool ret = FMessageProcessor->sendMessage(streamJid, message);
-	if (!ret)
-		LogError(QString("[Comment Dialog error] Can't send comment message!"));
 
+	bool ret = FMessageProcessor->sendMessage(streamJid, message);
 	if (ret)
 	{
 		ui.pbtSendComment->setText(tr("Message delivered"));
@@ -301,6 +299,7 @@ void CommentDialog::SendComment()
 		ui.pbtClose->setText(tr("Cancel"));
 		ui.pbtSendComment->setDefault(true);
 
+		LogError(QString("[CommentDialog] Can't send comment message!"));
 	}
 	doc->deleteLater();
 }

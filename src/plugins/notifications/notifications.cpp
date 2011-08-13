@@ -496,7 +496,7 @@ QImage Notifications::contactAvatar(const Jid &AStreamJid, const Jid &AContactJi
 {
    QImage avatar;
    IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(AStreamJid) : NULL;
-   QString metaId = mroster->itemMetaContact(AContactJid);
+	QString metaId = mroster!=NULL ? mroster->itemMetaContact(AContactJid) : QString::null;
    if (!metaId.isEmpty())
       avatar = mroster->metaAvatarImage(metaId,false,false);
    else if (FAvatars)

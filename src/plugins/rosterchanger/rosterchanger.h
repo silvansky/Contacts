@@ -33,6 +33,7 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/imessagestyles.h>
+#include <utils/log.h>
 #include <utils/action.h>
 #include <utils/message.h>
 #include <utils/iconstorage.h>

@@ -383,9 +383,7 @@ bool ChatMessageHandler::receiveMessage(int AMessageId)
 		}
 		else
 		{
-			QString errorMessage =  ErrorHandler(message.stanza().element()).message();
-			if (!errorMessage.isEmpty())
-				showStyledStatus(window,errorMessage);
+			LogError(QString("[ChatMessageHandler] Received error message:\n%1").arg(message.stanza().toString()));
 		}
 	}
 	return notify;
@@ -648,6 +646,7 @@ void ChatMessageHandler::sendOfflineMessages(IChatWindow *AWindow)
 			}
 			else
 			{
+				LogError(QString("[ChatMessageHandler] Failed to send %1 stored offline messages").arg(wstatus.offline.count()));
 				break;
 			}
 		}
@@ -1250,7 +1249,7 @@ void ChatMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, cons
 
 void ChatMessageHandler::onRamblerHistoryRequestFailed(const QString &AId, const QString &AError)
 {
-	LogError(QString("[Rambler history error] %1").arg(AError));
+	Q_UNUSED(AError);
 	if (FHistoryRequests.contains(AId))
 	{
 		IChatWindow *window = FHistoryRequests.take(AId);

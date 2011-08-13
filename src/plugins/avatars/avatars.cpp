@@ -6,7 +6,6 @@
 #include <QFileDialog>
 #include <QImageReader>
 #include <QCryptographicHash>
-#include <utils/imagemanager.h>
 
 #define DIR_AVATARS               "avatars"
 
@@ -193,6 +192,7 @@ bool Avatars::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASt
 					QString hash = vcardUpdate.firstChildElement("photo").text().toLower();
 					if (!updateVCardAvatar(contactJid,hash,false))
 					{
+						LogDetaile(QString("[Avatars] Requesting vCard from %1").arg(contactJid.full()));
 						FVCardPlugin->requestVCard(AStreamJid,contactJid.bare());
 					}
 				}
@@ -213,6 +213,7 @@ bool Avatars::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASt
 					FBlockingResources.remove(AStreamJid, contactJid);
 					if (!FBlockingResources.contains(AStreamJid))
 					{
+						LogDetaile(QString("[Avatars] Requesting vCard from %1").arg(contactJid.full()));
 						FVCardPlugin->requestVCard(AStreamJid, contactJid.bare());
 					}
 				}
@@ -226,9 +227,14 @@ bool Avatars::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASt
 					query.setTo(contactJid.eFull()).setType("get").setId(FStanzaProcessor->newId());
 					query.addElement("query",NS_JABBER_IQ_AVATAR);
 					if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,query,AVATAR_IQ_TIMEOUT))
+					{
+						LogDetaile(QString("[Avatars] Requesting IqAvatar from %1").arg(contactJid.full()));
 						FIqAvatarRequests.insert(query.id(),contactJid);
+					}
 					else
+					{
 						FIqAvatars.remove(contactJid);
+					}
 				}
 			}
 			else
@@ -247,8 +253,8 @@ bool Avatars::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASt
 			result.setTo(AStanza.from()).setType("result").setId(AStanza.id());
 			QDomElement dataElem = result.addElement("query",NS_JABBER_IQ_AVATAR).appendChild(result.createElement("data")).toElement();
 			dataElem.appendChild(result.createTextNode(file.readAll().toBase64()));
-			FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 			file.close();
+			FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 		}
 	}
 	return false;
@@ -270,10 +276,17 @@ void Avatars::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				updateIqAvatar(contactJid,hash);
 			}
 			else
+			{
 				FIqAvatars.remove(contactJid);
+			}
 		}
 		else
+		{
+			Jid contactJid = FIqAvatarRequests.take(AStanza.id());
 			FIqAvatars.remove(contactJid);
+			ErrorHandler err(AStanza.element());
+			LogError(QString("[Avatars] Failed to request IqAvatar from '%1': %2").arg(contactJid.full(),err.message()));
+		}
 	}
 }
 
@@ -284,6 +297,8 @@ void Avatars::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanza
 	{
 		Jid contactJid = FIqAvatars.take(AStanzaId);
 		FIqAvatars.remove(contactJid);
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		LogError(QString("[Avatars] Failed to request IqAvatar from '%1': %2").arg(contactJid.full(),err.message()));
 	}
 }
 
@@ -367,9 +382,15 @@ QString Avatars::saveAvatar(const QByteArray &AImageData) const
 				file.close();
 				return hash;
 			}
+			else
+			{
+				LogError(QString("[Avatars] Failed to save avatar to file %1").arg(file.fileName()));
+			}
 		}
 		else
+		{
 			return hash;
+		}
 	}
 	return EMPTY_AVATAR;
 }
@@ -535,9 +556,7 @@ QByteArray Avatars::loadAvatarFromVCard(const Jid &AContactJid) const
 		{
 			QDomElement binElem = vcard.documentElement().firstChildElement("vCard").firstChildElement("PHOTO").firstChildElement("BINVAL");
 			if (!binElem.isNull())
-			{
 				return QByteArray::fromBase64(binElem.text().toLatin1());
-			}
 		}
 	}
 	return QByteArray();

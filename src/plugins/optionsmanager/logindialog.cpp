@@ -15,16 +15,16 @@
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 #include <QAbstractTextDocumentLayout>
-#include <utils/customborderstorage.h>
 #include <definitions/customborder.h>
-#include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/menuicons.h>
-#include <utils/iconstorage.h>
 #include <utils/log.h>
+#include <utils/iconstorage.h>
 #include <utils/customlistview.h>
 #include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
+#include <utils/graphicseffectsstorage.h>
 
 #ifdef Q_WS_WIN32
 #	include <windows.h>
@@ -345,11 +345,13 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	hideConnectionError();
 	setConnectEnabled(true);
 	onLoginOrPasswordTextChanged();
+
+	LogDetaile(QString("[LoginDialog] Login dialog created"));
 }
 
 LoginDialog::~LoginDialog()
 {
-
+	LogDetaile(QString("[LoginDialog] Login dialog destroyed"));
 }
 
 void LoginDialog::loadLastProfile()
@@ -644,6 +646,7 @@ bool LoginDialog::tryNextConnectionSettings()
 				{
 					if (FConnectionManager && FConnectionManager->proxyList().contains(IEXPLORER_PROXY_REF_UUID))
 					{
+						LogDetaile(QString("[LoginDialog] Trying IExplorer connection proxy"));
 						IConnectionProxy proxy = FConnectionManager->proxyById(IEXPLORER_PROXY_REF_UUID);
 						defConnection->setProxy(proxy.proxy);
 						return true;
@@ -654,6 +657,7 @@ bool LoginDialog::tryNextConnectionSettings()
 				{
 					if (FConnectionManager && FConnectionManager->proxyList().contains(FIREFOX_PROXY_REF_UUID))
 					{
+						LogDetaile(QString("[LoginDialog] Trying FireFox connection proxy"));
 						IConnectionProxy proxy = FConnectionManager->proxyById(FIREFOX_PROXY_REF_UUID);
 						defConnection->setProxy(proxy.proxy);
 						return true;
@@ -662,6 +666,7 @@ bool LoginDialog::tryNextConnectionSettings()
 				}
 				else
 				{
+					LogDetaile(QString("[LoginDialog] Reset connection proxy to default"));
 					FConnectionSettings = CS_DEFAULT;
 					connection->ownerPlugin()->loadConnectionSettings(connection,account->optionsNode().node("connection",connection->ownerPlugin()->pluginId()));
 				}
@@ -777,7 +782,7 @@ void LoginDialog::hideConnectionError()
 
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
 {
-	LogError(QString("[LoginDialog connection error] %1").arg(AError));
+	LogError(QString("[LoginDialog] Connection error '%1': %2").arg(ACaption,AError));
 	hideXmppStreamError();
 
 	QString message = ACaption;
@@ -819,7 +824,7 @@ void LoginDialog::hideXmppStreamError()
 
 void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint, bool showPasswordEnabled)
 {
-	LogError(QString("[LoginDialog stream error] %1 (%2)").arg(AError, AHint));
+	LogError(QString("[LoginDialog] Stream error '%1': %2").arg(ACaption, AHint));
 	hideConnectionError();
 
 	QString message = ACaption;
@@ -855,6 +860,79 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 		BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft);
 }
 
+void LoginDialog::saveCurrentProfileSettings()
+{
+	Jid streamJid = currentStreamJid();
+	QString profile = Jid::encode(streamJid.pBare());
+	if (FOptionsManager->profiles().contains(profile))
+	{
+		QFile login(QDir(FOptionsManager->profilePath(profile)).absoluteFilePath(FILE_LOGIN));
+		if (login.open(QFile::WriteOnly|QFile::Truncate))
+		{
+			QDomDocument doc;
+			doc.appendChild(doc.createElement("login-settings"));
+
+			QDomElement passElem = doc.documentElement().appendChild(doc.createElement("password")).toElement();
+			if (ui.chbSavePassword->isChecked())
+			{
+				passElem.setAttribute("save","true");
+				passElem.appendChild(doc.createTextNode(QString::fromLatin1(Options::encrypt(ui.lnePassword->text(),FOptionsManager->profileKey(profile,QString::null)))));
+			}
+			else
+			{
+				passElem.setAttribute("save","false");
+			}
+
+			QDomElement autoElem = doc.documentElement().appendChild(doc.createElement("auto-run")).toElement();
+			autoElem.appendChild(doc.createTextNode(QVariant(ui.chbAutoRun->isChecked()).toString()));
+
+			login.write(doc.toByteArray());
+			login.close();
+		}
+	}
+}
+
+void LoginDialog::loadCurrentProfileSettings()
+{
+	Jid streamJid = currentStreamJid();
+	QString profile = Jid::encode(streamJid.pBare());
+	if (FOptionsManager->profiles().contains(profile))
+	{
+		QDomDocument doc;
+		QFile login(QDir(FOptionsManager->profilePath(profile)).absoluteFilePath(FILE_LOGIN));
+		if (login.open(QFile::ReadOnly) && doc.setContent(&login))
+		{
+			QDomElement pasElem = doc.documentElement().firstChildElement("password");
+			if (!pasElem.isNull() && QVariant(pasElem.attribute("save")).toBool())
+			{
+				FSavedPasswordCleared = false;
+				ui.chbSavePassword->setChecked(true);
+				ui.chbShowPassword->setChecked(false);
+				ui.lnePassword->setEchoMode(QLineEdit::Password);
+				ui.lnePassword->setText(Options::decrypt(pasElem.text().toLatin1(),FOptionsManager->profileKey(profile,QString::null)).toString());
+			}
+			else
+			{
+				FSavedPasswordCleared = true;
+				ui.chbSavePassword->setChecked(false);
+				ui.lnePassword->setText(QString::null);
+			}
+
+			QDomElement autoElem = doc.documentElement().firstChildElement("auto-run");
+			if (!autoElem.isNull())
+				ui.chbAutoRun->setChecked(QVariant(autoElem.text()).toBool());
+			else
+				ui.chbAutoRun->setChecked(false);
+		}
+		login.close();
+	}
+}
+
+bool LoginDialog::readyToConnect() const
+{
+	return ui.chbSavePassword->isChecked() && !ui.lnePassword->text().isEmpty();
+}
+
 void LoginDialog::onConnectClicked()
 {
 	if (!ui.pbtConnect->property("connecting").toBool())
@@ -865,6 +943,8 @@ void LoginDialog::onConnectClicked()
 		bool connecting = false;
 		setConnectEnabled(false);
 		QApplication::processEvents();
+
+		LogDetaile(QString("[LoginDialog] Starting login"));
 
 		Jid streamJid = currentStreamJid();
 		QString profile = Jid::encode(streamJid.pBare());
@@ -932,6 +1012,7 @@ void LoginDialog::onConnectClicked()
 		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
 		if (account && account->isActive())
 		{
+			LogDetaile(QString("[LoginDialog] Terminating login"));
 			FAbortTimer.start(ABORT_TIMEOUT);
 			account->xmppStream()->close();
 		}
@@ -1008,7 +1089,7 @@ void LoginDialog::onXmppStreamClosed()
 	}
 	else if (account && !account->xmppStream()->errorString().isEmpty())
 	{
-		showXmppStreamError(tr("The password is not suited to login"), QString::null/*account->xmppStream()->errorString()*/,tr("Check keyboard layout"));
+		showXmppStreamError(tr("The password is not suited to login"),QString::null,tr("Check keyboard layout"));
 	}
 	else
 	{
@@ -1117,83 +1198,6 @@ void LoginDialog::onLabelLinkActivated(const QString &ALink)
 		showConnectionSettings();
 	else
 		QDesktopServices::openUrl(ALink);
-}
-
-void LoginDialog::saveCurrentProfileSettings()
-{
-	Jid streamJid = currentStreamJid();
-	QString profile = Jid::encode(streamJid.pBare());
-	if (FOptionsManager->profiles().contains(profile))
-	{
-		QFile login(QDir(FOptionsManager->profilePath(profile)).absoluteFilePath(FILE_LOGIN));
-		if (login.open(QFile::WriteOnly|QFile::Truncate))
-		{
-			QDomDocument doc;
-			doc.appendChild(doc.createElement("login-settings"));
-
-			QDomElement passElem = doc.documentElement().appendChild(doc.createElement("password")).toElement();
-			if (ui.chbSavePassword->isChecked())
-			{
-				passElem.setAttribute("save","true");
-				passElem.appendChild(doc.createTextNode(QString::fromLatin1(Options::encrypt(ui.lnePassword->text(),FOptionsManager->profileKey(profile,QString::null)))));
-			}
-			else
-			{
-				passElem.setAttribute("save","false");
-			}
-
-			QDomElement autoElem = doc.documentElement().appendChild(doc.createElement("auto-run")).toElement();
-			autoElem.appendChild(doc.createTextNode(QVariant(ui.chbAutoRun->isChecked()).toString()));
-
-			login.write(doc.toByteArray());
-			login.close();
-		}
-	}
-}
-
-void LoginDialog::loadCurrentProfileSettings()
-{
-	Jid streamJid = currentStreamJid();
-	QString profile = Jid::encode(streamJid.pBare());
-	if (FOptionsManager->profiles().contains(profile))
-	{
-		QDomDocument doc;
-		QFile login(QDir(FOptionsManager->profilePath(profile)).absoluteFilePath(FILE_LOGIN));
-		if (login.open(QFile::ReadOnly) && doc.setContent(&login))
-		{
-			QDomElement pasElem = doc.documentElement().firstChildElement("password");
-			if (!pasElem.isNull() && QVariant(pasElem.attribute("save")).toBool())
-			{
-				FSavedPasswordCleared = false;
-				ui.chbSavePassword->setChecked(true);
-				ui.chbShowPassword->setChecked(false);
-				ui.lnePassword->setEchoMode(QLineEdit::Password);
-				ui.lnePassword->setText(Options::decrypt(pasElem.text().toLatin1(),FOptionsManager->profileKey(profile,QString::null)).toString());
-			}
-			else
-			{
-				FSavedPasswordCleared = true;
-				ui.chbSavePassword->setChecked(false);
-				ui.lnePassword->setText(QString::null);
-			}
-
-			QDomElement autoElem = doc.documentElement().firstChildElement("auto-run");
-			if (!autoElem.isNull())
-			{
-				ui.chbAutoRun->setChecked(QVariant(autoElem.text()).toBool());
-			}
-			else
-			{
-				ui.chbAutoRun->setChecked(false);
-			}
-		}
-		login.close();
-	}
-}
-
-bool LoginDialog::readyToConnect() const
-{
-	return ui.chbSavePassword->isChecked() && !ui.lnePassword->text().isEmpty();
 }
 
 void LoginDialog::onLoginOrPasswordTextChanged()

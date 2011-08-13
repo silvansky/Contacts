@@ -3,17 +3,17 @@
 #include <QDir>
 #include <QFile>
 #include <QDomDocument>
-#include <utils/customborderstorage.h>
-#include <utils/stylestorage.h>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 #include <definitions/stylesheets.h>
+#include <utils/customborderstorage.h>
+#include <utils/stylestorage.h>
 
-#define VCARD_DIRNAME		  "vcards"
-#define VCARD_TIMEOUT		  60000
-#define AVATARS_TIMEOUT		120000
-#define ADR_STREAM_JID		Action::DR_StreamJid
-#define ADR_CONTACT_JID		Action::DR_Parametr1
+#define DIR_VCARDS		  "vcards"
+#define VCARD_TIMEOUT     60000
+#define AVATARS_TIMEOUT   120000
+#define ADR_STREAM_JID    Action::DR_StreamJid
+#define ADR_CONTACT_JID   Action::DR_Parametr1
 
 VCardPlugin::VCardPlugin()
 {
@@ -158,12 +158,14 @@ void VCardPlugin::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStan
 		QDomElement elem = AStanza.firstElement(VCARD_TAGNAME,NS_VCARD_TEMP);
 		if (AStanza.type()=="result")
 		{
+			LogDetaile(QString("[VCardPlugin] Received vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
 			saveVCardFile(elem,fromJid);
 			emit vcardReceived(fromJid);
 		}
 		else if (AStanza.type()=="error")
 		{
 			ErrorHandler err(AStanza.element());
+			LogError(QString("[VCardPlugin] Failed to request vCard of '%1', id='%2': %3").arg(fromJid.full(),AStanza.id(),err.message()));
 			emit vcardError(fromJid,err.message());
 		}
 	}
@@ -173,45 +175,47 @@ void VCardPlugin::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStan
 		Stanza stanza = FVCardPublishStanza.take(AStanza.id());
 		if (AStanza.type() == "result")
 		{
+			LogDetaile(QString("[VCardPlugin] Published vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
 			saveVCardFile(stanza.element().firstChildElement(VCARD_TAGNAME),fromJid);
 			emit vcardPublished(fromJid);
 		}
 		else if (AStanza.type() == "error")
 		{
 			ErrorHandler err(AStanza.element());
+			LogError(QString("[VCardPlugin] Failed to publish vCard of '%1', id='%2': %3").arg(fromJid.full(),AStanza.id(),err.message()));
 			emit vcardError(fromJid, err.message());
 		}
 	}
 	else if (FAvatarsRequestId.contains(AStanza.id()))
 	{
 		Jid fromJid = FAvatarsRequestId.take(AStanza.id());
-		QDomElement elem = AStanza.firstElement("query", NS_RAMBLER_AVATAR);
-		Stanza avatarRequest("iq");
-		avatarRequest.setTo("avatar.rambler.ru").setType("get").setId(FStanzaProcessor->newId());
-		for (QDomElement child = elem.firstChildElement("avatar"); !child.isNull(); child = child.nextSiblingElement("avatar"))
+		if (AStanza.type() == "result")
 		{
-			QDomAttr src = child.attributeNode("src");
-			if (!src.isNull())
+			QDomElement elem = AStanza.firstElement("query", NS_RAMBLER_AVATAR);
+			for (QDomElement child = elem.firstChildElement("avatar"); !child.isNull(); child = child.nextSiblingElement("avatar"))
 			{
-				QString cidString = src.nodeValue();
-				int	left = cidString.indexOf(':') + 1,
-					right = cidString.indexOf('@') - 1;
-				cidString = cidString.mid(left, right - left);
-				if (!FBitsOfBinary->hasBinary(cidString))
+				QDomAttr src = child.attributeNode("src");
+				if (!src.isNull())
 				{
-					FAvatarsBinaryCids.insert(cidString, AStreamJid);
-					FBitsOfBinary->loadBinary(cidString, AStreamJid, "avatar.rambler.ru");
+					QString cidString = src.nodeValue();
+					int left = cidString.indexOf(':') + 1;
+					int right = cidString.indexOf('@') - 1;
+					cidString = cidString.mid(left, right - left);
+					if (FBitsOfBinary->hasBinary(cidString))
+					{
+						FAvatarsBinaryCids.insert(cidString, AStreamJid);
+						FBitsOfBinary->loadBinary(cidString, AStreamJid, "avatar.rambler.ru");
+					}
 				}
 			}
-		}
-		if (AStanza.type()=="result")
-		{
 			saveVCardFile(elem,fromJid);
+			LogDetaile(QString("[VCardPlugin] Received avatrs of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
 			emit avatarsRecieved(fromJid);
 		}
 		else if (AStanza.type()=="error")
 		{
 			ErrorHandler err(AStanza.element());
+			LogError(QString("[VCardPlugin] Failed to request avatars of '%1', id='%2': %3").arg(fromJid.full(),AStanza.id(),err.message()));
 			emit avatarsError(fromJid, err.message());
 		}
 	}
@@ -222,14 +226,24 @@ void VCardPlugin::stanzaRequestTimeout(const Jid &AStreamJid, const QString &ASt
 	Q_UNUSED(AStreamJid);
 	if (FVCardRequestId.contains(AStanzaId))
 	{
-		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
-		emit vcardError(FVCardRequestId.take(AStanzaId),err.message());
+		Jid fromJid = FVCardRequestId.take(AStanzaId);
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		LogError(QString("[VCardPlugin] Failed to request vCard of '%1', id='%2': %3").arg(fromJid.full(),AStanzaId,err.message()));
+		emit vcardError(fromJid,err.message());
 	}
 	else if (FVCardPublishId.contains(AStanzaId))
 	{
-		FVCardPublishStanza.remove(AStanzaId);
-		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
-		emit vcardError(FVCardPublishId.take(AStanzaId),err.message());
+		Jid fromJid = FVCardPublishId.take(AStanzaId);
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		LogError(QString("[VCardPlugin] Failed to publish vCard of '%1', id='%2': %3").arg(fromJid.full(),AStanzaId,err.message()));
+		emit vcardError(fromJid,err.message());
+	}
+	else if (FAvatarsRequestId.contains(AStanzaId))
+	{
+		Jid fromJid = FAvatarsRequestId.take(AStanzaId);
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		LogError(QString("[VCardPlugin] Failed to request avatars of '%1', id='%2': %3").arg(fromJid.full(),AStanzaId,err.message()));
+		emit avatarsError(fromJid,err.message());
 	}
 }
 
@@ -247,9 +261,9 @@ bool VCardPlugin::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, con
 QString VCardPlugin::vcardFileName(const Jid &AContactJid) const
 {
 	QDir dir(FPluginManager->homePath());
-	if (!dir.exists(VCARD_DIRNAME))
-		dir.mkdir(VCARD_DIRNAME);
-	dir.cd(VCARD_DIRNAME);
+	if (!dir.exists(DIR_VCARDS))
+		dir.mkdir(DIR_VCARDS);
+	dir.cd(DIR_VCARDS);
 	return dir.absoluteFilePath(Jid::encode(AContactJid.pFull())+".xml");
 }
 
@@ -279,28 +293,19 @@ bool VCardPlugin::requestVCard(const Jid &AStreamJid, const Jid &AContactJid)
 			request.addElement(VCARD_TAGNAME,NS_VCARD_TEMP);
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,VCARD_TIMEOUT))
 			{
+				LogDetaile(QString("[VCardPlugin] Load vCard of '%1' request sent, id='%2'").arg(AContactJid.full(),request.id()));
 				FVCardRequestId.insert(request.id(),AContactJid);
 				return true;
-			};
-		}
-		else if (FAvatarsRequestId.key(AContactJid).isEmpty())
-		{
-			// if my vCard is requested
-			if (AStreamJid && AContactJid)
+			}
+			else
 			{
-				// requesting default avatars from the rambler server
-				Stanza request("iq");
-				request.setTo(AContactJid.eFull()).setType("get").setId(FStanzaProcessor->newId());
-				request.addElement("query", NS_RAMBLER_AVATAR);
-				if (FStanzaProcessor->sendStanzaRequest(this, AStreamJid, request, AVATARS_TIMEOUT))
-				{
-					FAvatarsRequestId.insert(request.id(),AContactJid);
-					return true;
-				};
+				LogError(QString("[VCardPlugin] Failed to send load vCard of '%1' request").arg(AContactJid.full()));
 			}
 		}
 		else
+		{
 			return true;
+		}
 	}
 	return false;
 }
@@ -317,9 +322,47 @@ bool VCardPlugin::publishVCard(IVCard *AVCard, const Jid &AStreamJid)
 			removeEmptyChildElements(elem);
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,publish,VCARD_TIMEOUT))
 			{
+				LogDetaile(QString("[VCardPlugin] Publish vCard of '%1' request sent, id='%2'").arg(AStreamJid.bare(),publish.id()));
 				FVCardPublishId.insert(publish.id(),AStreamJid.pBare());
 				FVCardPublishStanza.insert(publish.id(),publish);
 				return true;
+			}
+			else
+			{
+				LogError(QString("[VCardPlugin] Failed to send publish vCard of '%1' request").arg(AStreamJid.bare()));
+			}
+		}
+		else
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool VCardPlugin::requestAvatars(const Jid &AStreamJid, const Jid &AContactJid)
+{
+	if (FStanzaProcessor)
+	{
+		if (FAvatarsRequestId.key(AContactJid).isEmpty())
+		{
+			// if my vCard is requested
+			if (AStreamJid && AContactJid)
+			{
+				// requesting default avatars from the rambler server
+				Stanza request("iq");
+				request.setTo(AContactJid.eFull()).setType("get").setId(FStanzaProcessor->newId());
+				request.addElement("query", NS_RAMBLER_AVATAR);
+				if (FStanzaProcessor->sendStanzaRequest(this, AStreamJid, request, AVATARS_TIMEOUT))
+				{
+					LogDetaile(QString("[VCardPlugin] Load avatars of '%1' request sent, id='%2'").arg(AStreamJid.bare(),request.id()));
+					FAvatarsRequestId.insert(request.id(),AContactJid);
+					return true;
+				}
+				else
+				{
+					LogError(QString("[VCardPlugin] Failed to send load avatars of '%1' request").arg(AStreamJid.bare()));
+				}
 			}
 		}
 		else
@@ -460,12 +503,15 @@ void VCardPlugin::onXmppStreamClosed(IXmppStream *AXmppStream)
 
 void VCardPlugin::onBinaryCached(const QString &AContentId, const QString &AType, const QByteArray &AData, quint64 AMaxAge)
 {
+	Q_UNUSED(AContentId);
+	Q_UNUSED(AType);
+	Q_UNUSED(AData);
 	Q_UNUSED(AMaxAge);
-	if (FAvatarsBinaryCids.contains(AContentId))
-	{
-		Jid streamJid = FAvatarsBinaryCids.take(AContentId);
-		QImage img = QImage::fromData(AData, AType.toLatin1().data());
-	}
+	//if (FAvatarsBinaryCids.contains(AContentId))
+	//{
+	//	Jid streamJid = FAvatarsBinaryCids.take(AContentId);
+	//	QImage img = QImage::fromData(AData, AType.toLatin1().data());
+	//}
 }
 
 Q_EXPORT_PLUGIN2(plg_vcard, VCardPlugin)

@@ -19,6 +19,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	FRegistration = ARegistration;
 
 	FServiceJid = AServiceJid;
+	FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
 
 	ui.lneLogin->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -47,8 +48,6 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	domainsMenu->setObjectName("domainsMenu");
 	ui.tlbDomains->setMenu(domainsMenu);
 
-	FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
-
 	FGateLabel = FGateways->serviceDescriptor(FPresence->streamJid(), FServiceJid);
 	if (!FGateLabel.id.isEmpty())
 	{
@@ -75,12 +74,19 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 
 		FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 		if (FRegisterId.isEmpty())
+		{
+			LogError(QString("[AddLegacyAccountDialog][%1] Failed to send registration request").arg(FServiceJid.full()));
 			abort(FAbortMessage);
+		}
 		else
+		{
+			LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration request sent, id='%2'").arg(FServiceJid.full(),FRegisterId));
 			setWaitMode(true, tr("Waiting for host response..."));
+		}
 	}
 	else
 	{
+		LogError(QString("[AddLegacyAccountDialog][%1] Failed to find service descriptor").arg(FServiceJid.full()));
 		abort(FAbortMessage);
 	}
 
@@ -116,8 +122,6 @@ void AddLegacyAccountDialog::abort(const QString &AMessage)
 
 void AddLegacyAccountDialog::setError(const QString &AMessage)
 {
-	if (!AMessage.isEmpty())
-		LogError(QString("[Add legacy account error] %1").arg(AMessage));
 	if (ui.lblError->text() != AMessage)
 	{
 		ui.lblError->setText(AMessage);
@@ -193,13 +197,9 @@ void AddLegacyAccountDialog::onShowPasswordStateChanged(int AState)
 void AddLegacyAccountDialog::onDialogButtonClicked(QAbstractButton *AButton)
 {
 	if (ui.btbButtons->standardButton(AButton) == QDialogButtonBox::Ok)
-	{
 		onOkClicked();
-	}
 	else
-	{
 		onCancelClicked();
-	}
 }
 
 void AddLegacyAccountDialog::onOkClicked()
@@ -224,18 +224,26 @@ void AddLegacyAccountDialog::onOkClicked()
 		FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
 		FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
 		if (FRegisterId.isEmpty())
+		{
+			LogError(QString("[AddLegacyAccountDialog][%1] Failed to send registration submit").arg(FServiceJid.full()));
 			abort(FAbortMessage);
+		}
 		else
+		{
+			LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration submit sent, id='%2'").arg(FServiceJid.full(),FRegisterId));
 			setWaitMode(true, tr("Waiting for host response..."));
+		}
 	}
 	else
 	{
+		LogError(QString("[AddLegacyAccountDialog][%1] Failed to generate registration submit").arg(FServiceJid.full()));
 		setError(tr("Invalid registration params"));
 	}
 }
 
 void AddLegacyAccountDialog::onCancelClicked()
 {
+	LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration canceled by user").arg(FServiceJid.full()));
 	reject();
 }
 
@@ -256,6 +264,7 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 		FGateLogin = FGateways->serviceLogin(FPresence->streamJid(),FServiceJid,AFields);
 		if (FGateLogin.isValid)
 		{
+			LogDetaile(QString("[AddLegacyAccountDialog][%1] Received registration fields, id='%2'").arg(AFields.serviceJid.full(),AId));
 			if (FGateLabel.domains.isEmpty())
 			{
 				if (FGateLogin.domain.isEmpty())
@@ -288,6 +297,7 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 		}
 		else
 		{
+			LogError(QString("[AddLegacyAccountDialog][%1] Received unsupported registration fields, id='%2'").arg(FServiceJid.full(),AId));
 			abort(FAbortMessage);
 		}
 		setWaitMode(false);
@@ -298,6 +308,7 @@ void AddLegacyAccountDialog::onRegisterSuccess(const QString &AId)
 {
 	if (AId == FRegisterId)
 	{
+		LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration finished successfully, id='%2'").arg(FServiceJid.full(),AId));
 		accept();
 	}
 }
@@ -306,7 +317,7 @@ void AddLegacyAccountDialog::onRegisterError(const QString &AId, const QString &
 {
 	if (AId == FRegisterId)
 	{
-		LogError(QString("[Add legacy account register error] %1").arg(AMessage));
+		LogError(QString("[AddLegacyAccountDialog][%1] Registration error, id='%2': %3").arg(FServiceJid.full(),AId,AMessage));
 		if (ACondition=="not-authorized" || ACondition=="not-acceptable")
 		{
 			setError(tr("Failed to add account, check your login and password"));

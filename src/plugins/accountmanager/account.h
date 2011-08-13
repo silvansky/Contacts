@@ -4,6 +4,7 @@
 #include <interfaces/iaccountmanager.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/ioptionsmanager.h>
+#include <utils/log.h>
 
 class Account :
 	public QObject,

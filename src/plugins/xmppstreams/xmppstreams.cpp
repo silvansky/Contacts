@@ -1,5 +1,4 @@
 #include "xmppstreams.h"
-#include <utils/log.h>
 
 XmppStreams::XmppStreams()
 {
@@ -18,6 +17,13 @@ void XmppStreams::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo ->version = "1.0";
 	APluginInfo->author = "Potapov S.A. aka Lion";
 	APluginInfo->homePage = "http://contacts.rambler.ru";
+}
+
+bool XmppStreams::initConnections(IPluginManager * APluginManager, int &AInitOrder)
+{
+	Q_UNUSED(APluginManager);
+	Q_UNUSED(AInitOrder);
+	return true;
 }
 
 bool XmppStreams::initObjects()

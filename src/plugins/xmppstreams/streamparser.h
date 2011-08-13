@@ -5,11 +5,12 @@
 #include <QDomDocument>
 #include <QXmlStreamReader>
 #include <definitions/namespaces.h>
+#include <utils/log.h>
 
 class StreamParser :
 	public QObject
 {
-	Q_OBJECT
+	Q_OBJECT;
 public:
 	StreamParser(QObject *AParent = NULL);
 	~StreamParser();

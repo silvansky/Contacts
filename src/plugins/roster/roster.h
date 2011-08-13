@@ -6,6 +6,8 @@
 #include <interfaces/iroster.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/ixmppstreams.h>
+#include <utils/log.h>
+#include <utils/errorhandler.h>
 
 class Roster :
 	public QObject,

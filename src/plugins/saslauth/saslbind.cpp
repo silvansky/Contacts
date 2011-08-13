@@ -1,5 +1,4 @@
 #include "saslbind.h"
-#include <utils/log.h>
 
 SASLBind::SASLBind(IXmppStream *AXmppStream) : QObject(AXmppStream->instance())
 {
@@ -22,20 +21,21 @@ bool SASLBind::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 			Jid streamJid = AStanza.firstElement().firstChild().toElement().text();
 			if (streamJid.isValid())
 			{
+				LogDetaile(QString("[SASLBind][%1] XMPP session binded with resource='%2'").arg(FXmppStream->streamJid().bare()).arg(streamJid.resource()));
 				deleteLater();
 				FXmppStream->setStreamJid(streamJid);
 				emit finished(false);
 			}
 			else
 			{
-				LogError(QString("[SASLBind stanza error] %1").arg(tr("Invalid XMPP stream JID in SASL bind response")));
+				LogError(QString("[SASLBind][%1] Invalid XMPP stream JID in response").arg(FXmppStream->streamJid().bare()));
 				emit error(tr("Invalid XMPP stream JID in SASL bind response"));
 			}
 		}
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			LogError(QString("[SASLBind stanza error] %1").arg(err.message()));
+			LogError(QString("[SASLBind] Failed to bind XMPP session: %1").arg(err.message()));
 			emit error(err.message());
 		}
 		return true;
@@ -55,6 +55,7 @@ bool SASLBind::start(const QDomElement &AElem)
 {
 	if (AElem.tagName() == "bind")
 	{
+		LogDetaile(QString("[SASLBind][%1] Binding XMPP session with resource '%2'").arg(FXmppStream->streamJid().bare()).arg(FXmppStream->streamJid().resource()));
 		Stanza bind("iq");
 		bind.setType("set").setId("bind");
 		bind.addElement("bind",NS_FEATURE_BIND);

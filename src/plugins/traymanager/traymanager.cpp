@@ -1,11 +1,7 @@
 #include "traymanager.h"
 
-#include <QApplication>
 #include <QSysInfo>
-
-#include <utils/iconstorage.h>
-#include <definitions/resources.h>
-#include <definitions/menuicons.h>
+#include <QApplication>
 
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250

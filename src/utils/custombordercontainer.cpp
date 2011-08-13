@@ -246,8 +246,10 @@ QColor CustomBorderContainerPrivate::parseColor(const QString & name)
 			}
 		}
 	}
+
 	if (!color.isValid())
-		LogError(QString("Can\'t parse color: %1").arg(name));
+		LogError(QString("[CustomBorderContainerPrivate] Can\'t parse color: %1").arg(name));
+
 	return color;
 }
 

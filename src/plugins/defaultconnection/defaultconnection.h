@@ -3,12 +3,13 @@
 
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/idefaultconnection.h>
+#include <utils/log.h>
 #include <thirdparty/jdns/qjdns.h>
 
 class DefaultConnection :
-			public QObject,
-			public IConnection,
-			public IDefaultConnection
+	public QObject,
+	public IConnection,
+	public IDefaultConnection
 {
 	Q_OBJECT;
 	Q_INTERFACES(IConnection IDefaultConnection);

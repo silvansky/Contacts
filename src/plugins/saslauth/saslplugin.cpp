@@ -38,25 +38,25 @@ bool SASLPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrd
 bool SASLPlugin::initObjects()
 {
 	ErrorHandler::addErrorItem("aborted", ErrorHandler::CANCEL,
-	                           ErrorHandler::FORBIDDEN, tr("Authorization Aborted"),NS_FEATURE_SASL);
+		ErrorHandler::FORBIDDEN, tr("Authorization Aborted"),NS_FEATURE_SASL);
 
 	ErrorHandler::addErrorItem("incorrect-encoding", ErrorHandler::CANCEL,
-	                           ErrorHandler::NOT_ACCEPTABLE, tr("Incorrect Encoding"),NS_FEATURE_SASL);
+		ErrorHandler::NOT_ACCEPTABLE, tr("Incorrect Encoding"),NS_FEATURE_SASL);
 
 	ErrorHandler::addErrorItem("invalid-authzid", ErrorHandler::CANCEL,
-	                           ErrorHandler::FORBIDDEN, tr("Invalid Authzid"),NS_FEATURE_SASL);
+		ErrorHandler::FORBIDDEN, tr("Invalid Authzid"),NS_FEATURE_SASL);
 
 	ErrorHandler::addErrorItem("invalid-mechanism", ErrorHandler::CANCEL,
-	                           ErrorHandler::NOT_ACCEPTABLE, tr("Invalid Mechanism"),NS_FEATURE_SASL);
+		ErrorHandler::NOT_ACCEPTABLE, tr("Invalid Mechanism"),NS_FEATURE_SASL);
 
 	ErrorHandler::addErrorItem("mechanism-too-weak", ErrorHandler::CANCEL,
-	                           ErrorHandler::NOT_ACCEPTABLE, tr("Mechanism Too Weak"),NS_FEATURE_SASL);
+		ErrorHandler::NOT_ACCEPTABLE, tr("Mechanism Too Weak"),NS_FEATURE_SASL);
 
 	ErrorHandler::addErrorItem("not-authorized", ErrorHandler::CANCEL,
-	                           ErrorHandler::NOT_AUTHORIZED, tr("Not Authorized"),NS_FEATURE_SASL);
+		ErrorHandler::NOT_AUTHORIZED, tr("Not Authorized"),NS_FEATURE_SASL);
 
 	ErrorHandler::addErrorItem("temporary-auth-failure", ErrorHandler::CANCEL,
-	                           ErrorHandler::NOT_AUTHORIZED, tr("Temporary Auth Failure"),NS_FEATURE_SASL);
+		ErrorHandler::NOT_AUTHORIZED, tr("Temporary Auth Failure"),NS_FEATURE_SASL);
 
 	if (FXmppStreams)
 	{
@@ -81,14 +81,7 @@ bool SASLPlugin::xmppStanzaOut(IXmppStream *AXmppStream, Stanza &AStanza, int AO
 	if (AOrder==XSHO_SASL_VERSION && AStanza.element().nodeName()=="stream:stream")
 	{
 		if (!AStanza.element().hasAttribute("version"))
-		{
-			// GOOGLE HACK - sending xmpp stream version 0.0 for IQ authorization
-			QString domain = AXmppStream->streamJid().domain().toLower();
-			if (AXmppStream->connection()->isEncrypted() && (domain=="googlemail.com" || domain=="gmail.com"))
-				AStanza.element().setAttribute("version","0.0");
-			else
-				AStanza.element().setAttribute("version","1.0");
-		}
+			AStanza.element().setAttribute("version","1.0");
 	}
 	return false;
 }

@@ -5,6 +5,7 @@
 #include <definitions/xmppdatahandlerorders.h>
 #include <definitions/xmppstanzahandlerorders.h>
 #include <interfaces/ixmppstreams.h>
+#include <utils/log.h>
 #include <thirdparty/zlib/zlib.h>
 
 class Compression :

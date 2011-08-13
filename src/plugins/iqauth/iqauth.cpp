@@ -1,7 +1,6 @@
 #include "iqauth.h"
 
 #include <QCryptographicHash>
-#include <utils/log.h>
 
 IqAuth::IqAuth(IXmppStream *AXmppStream) : QObject(AXmppStream->instance())
 {
@@ -21,13 +20,14 @@ bool IqAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrder)
 		FXmppStream->removeXmppStanzaHandler(this,XSHO_XMPP_FEATURE);
 		if (AStanza.type() == "result")
 		{
+			LogDetaile(QString("[IqAuth] Iq authorization finished on '%1'").arg(FXmppStream->streamJid().full()));
 			deleteLater();
 			emit finished(false);
 		}
 		else if (AStanza.type() == "error")
 		{
 			ErrorHandler err(AStanza.element());
-			LogError(QString("[IqAuth stanza error] %1").arg(err.message()));
+			LogError(QString("[IqAuth] Iq authorization failed on '%1': %2").arg(FXmppStream->streamJid().full(),err.message()));
 			emit error(err.message());
 		}
 		return true;
@@ -73,6 +73,7 @@ bool IqAuth::start(const QDomElement &AElem)
 
 		query.appendChild(auth.createElement("resource")).appendChild(auth.createTextNode(FXmppStream->streamJid().resource()));
 
+		LogDetaile(QString("[IqAuth] Iq authorization started on '%1'").arg(FXmppStream->streamJid().full()));
 		FXmppStream->insertXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
 		FXmppStream->sendStanza(auth);
 		return true;
@@ -102,8 +103,9 @@ void IqAuthPlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 }
 
-bool IqAuthPlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool IqAuthPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	IPlugin *plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
 	if (plugin)
 		FXmppStreams = qobject_cast<IXmppStreams *>(plugin->instance());

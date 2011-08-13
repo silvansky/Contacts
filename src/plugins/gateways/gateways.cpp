@@ -2,9 +2,9 @@
 
 #include <QRegExp>
 #include <QTextDocument>
+#include <definitions/customborder.h>
 #include <utils/customborderstorage.h>
 #include <utils/log.h>
-#include <definitions/customborder.h>
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_SERVICE_JID           Action::DR_Parametr1
@@ -466,6 +466,7 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 	{
 		if (AStanza.type() == "result")
 		{
+			LogDetaile(QString("[Gateways] Gateway prompt received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
 			QString desc = AStanza.firstElement("query",NS_JABBER_GATEWAY).firstChildElement("desc").text();
 			QString prompt = AStanza.firstElement("query",NS_JABBER_GATEWAY).firstChildElement("prompt").text();
 			emit promptReceived(AStanza.id(),desc,prompt);
@@ -473,7 +474,7 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			LogError(QString("[Gateways stanza error] id %1 : %2").arg(AStanza.id(), err.message()));
+			LogError(QString("[Gateways] Failed to request gateway prompt from '%1', id='%2': %3").arg(AStanza.from(),AStanza.id(),err.message()));
 			emit errorReceived(AStanza.id(),err.message());
 		}
 		FPromptRequests.removeAt(FPromptRequests.indexOf(AStanza.id()));
@@ -482,13 +483,14 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 	{
 		if (AStanza.type() == "result")
 		{
+			LogDetaile(QString("[Gateways] User JID received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
 			Jid userJid = AStanza.firstElement("query",NS_JABBER_GATEWAY).firstChildElement("jid").text();
 			emit userJidReceived(AStanza.id(),userJid);
 		}
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			LogError(QString("[Gateways stanza error] id %1 : %2").arg(AStanza.id(), err.message()));
+			LogError(QString("[Gateways] Failed to request user JID from '%1' id='%2': %3").arg(AStanza.from(),AStanza.id(),err.message()));
 			emit errorReceived(AStanza.id(),err.message());
 		}
 		FUserJidRequests.removeAt(FUserJidRequests.indexOf(AStanza.id()));
@@ -498,12 +500,18 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 void Gateways::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
 {
 	Q_UNUSED(AStreamJid);
-	if (FPromptRequests.contains(AStanzaId) || FUserJidRequests.contains(AStanzaId))
+	if (FPromptRequests.contains(AStanzaId))
 	{
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		LogError(QString("[Gateways stanza timeout] id %1 : %2").arg(AStanzaId, err.message()));
+		LogError(QString("[Gateways] Failed to request gateway prompt id='%1': %2").arg(AStanzaId,err.message()));
 		emit errorReceived(AStanzaId,err.message());
 		FPromptRequests.removeAt(FPromptRequests.indexOf(AStanzaId));
+	}
+	else if (FUserJidRequests.contains(AStanzaId))
+	{
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		LogError(QString("[Gateways] Failed to request user JID id='%1': %2").arg(AStanzaId,err.message()));
+		emit errorReceived(AStanzaId,err.message());
 		FUserJidRequests.removeAt(FUserJidRequests.indexOf(AStanzaId));
 	}
 }
@@ -537,9 +545,15 @@ void Gateways::sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bo
 	if (presence && presence->isOpen())
 	{
 		if (ALogIn)
+		{
+			LogDetaile(QString("[Gateways] Sending Log-In presence to service '%1'").arg(AServiceJid.full()));
 			presence->sendPresence(AServiceJid,presence->show(),presence->status(),presence->priority());
+		}
 		else
+		{
+			LogDetaile(QString("[Gateways] Sending Log-Out presence to service '%1'").arg(AServiceJid.full()));
 			presence->sendPresence(AServiceJid,IPresence::Offline,tr("Log Out"),0);
+		}
 	}
 }
 
@@ -974,6 +988,7 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
+		LogDetaile(QString("[Gateways] Changing service '%1' state to enabled='%2'").arg(AServiceJid.full()).arg(AEnabled));
 		if (AEnabled)
 		{
 			if (FRosterChanger)
@@ -1002,6 +1017,8 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
 	if (roster && presence && FRosterChanger && presence->isOpen() && AServiceFrom.isValid() && AServiceTo.isValid() && AServiceFrom.pDomain()!=AServiceTo.pDomain())
 	{
+		LogDetaile(QString("[Gateways] Changing service from '%1' to '%2'").arg(AServiceFrom.full()).arg(AServiceTo.full()));
+		
 		IRosterItem ritemOld = roster->rosterItem(AServiceFrom);
 		IRosterItem ritemNew = roster->rosterItem(AServiceTo);
 
@@ -1054,6 +1071,8 @@ bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
+		LogDetaile(QString("[Gateways] Removing service '%1', with_contacts='%2'").arg(AServiceJid.full()).arg(AWithContacts));
+		
 		if (FRosterChanger)
 			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
 
@@ -1092,6 +1111,7 @@ QString Gateways::sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid
 		QString requestId = FRegistration->sendRegiterRequest(AStreamJid,AServiceJid);
 		if (!requestId.isEmpty())
 		{
+			LogDetaile(QString("[Gateways] Gateway login request sent to '%1' id='%2'").arg(AServiceJid.full(),requestId));
 			FLoginRequests.insert(requestId, AStreamJid);
 			return requestId;
 		}
@@ -1106,6 +1126,7 @@ QString Gateways::sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJi
 	request.addElement("query",NS_JABBER_GATEWAY);
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,GATEWAY_TIMEOUT))
 	{
+		LogDetaile(QString("[Gateways] Gateway prompt request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
 		FPromptRequests.append(request.id());
 		return request.id();
 	}
@@ -1120,6 +1141,7 @@ QString Gateways::sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJ
 	elem.appendChild(request.createElement("prompt")).appendChild(request.createTextNode(AContactID));
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,GATEWAY_TIMEOUT))
 	{
+		LogDetaile(QString("[Gateways] User JID request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
 		FUserJidRequests.append(request.id());
 		return request.id();
 	}
@@ -1182,10 +1204,11 @@ void Gateways::startAutoLogin(const Jid &AStreamJid)
 				IGateServiceDescriptor descriptor = findGateDescriptor(FDiscovery->discoInfo(AStreamJid,ditem.itemJid));
 				if (!descriptor.id.isEmpty() && descriptor.autoLogin)
 				{
-					QString id = FRegistration->sendRegiterRequest(AStreamJid,ditem.itemJid);
-					if (!id.isEmpty())
+					QString requestId = FRegistration->sendRegiterRequest(AStreamJid,ditem.itemJid);
+					if (!requestId.isEmpty())
 					{
-						FAutoLoginRequests.insert(id,qMakePair<Jid,Jid>(AStreamJid,ditem.itemJid));
+						LogDetaile(QString("[Gateways] Auto login register request sent to '%1' id='%2'").arg(ditem.itemJid.full(),requestId));
+						FAutoLoginRequests.insert(requestId,qMakePair<Jid,Jid>(AStreamJid,ditem.itemJid));
 						FStreamAutoRegServices.insertMulti(AStreamJid,ditem.itemJid);
 					}
 				}
@@ -1351,7 +1374,10 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 			{
 				QString requestId = FRegistration->sendRegiterRequest(APresence->streamJid(),AItem.itemJid);
 				if (!requestId.isEmpty())
+				{
+					LogDetaile(QString("[Gateways] Conflict login request sent to '%1' id='%2'").arg(AItem.itemJid.full(),requestId));
 					FConflictLoginRequests.insert(requestId,APresence->streamJid());
+				}
 			}
 		}
 		emit servicePresenceChanged(APresence->streamJid(),AItem.itemJid,AItem);
@@ -1375,12 +1401,8 @@ void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid,
 			while (!elem.isNull())
 			{
 				IRosterItem ritem = roster->rosterItem(elem.text());
-				if (ritem.isValid)
-				{
-					if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_FROM)
-						sendLogPresence(AStreamJid,ritem.itemJid,true);
+				if (ritem.isValid && isServiceEnabled(AStreamJid,ritem.itemJid))
 					setKeepConnection(AStreamJid,ritem.itemJid,true);
-				}
 				elem = elem.nextSiblingElement("service");
 			}
 		}
@@ -1418,7 +1440,7 @@ void Gateways::onKeepTimerTimeout()
 					const QList<IPresenceItem> pitems = presence->presenceItems(service);
 					if (pitems.isEmpty() || pitems.at(0).show==IPresence::Error)
 					{
-						presence->sendPresence(service,IPresence::Offline,"",0);
+						presence->sendPresence(service,IPresence::Offline,QString::null,0);
 						presence->sendPresence(service,presence->show(),presence->status(),presence->priority());
 					}
 				}
@@ -1480,15 +1502,18 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			QString login = gslogin.login;
 			if (!gslogin.domain.isEmpty())
 				login += "@" + gslogin.domain;
+			LogDetaile(QString("[Gateways] Gateway login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
 			emit loginReceived(AId, login);
 		}
 		else
 		{
+			LogError(QString("[Gateways] Failed to receive gateway login from '%1' id='%2': Unsupported registration fields").arg(AFields.serviceJid.full(),AId));
 			emit errorReceived(AId, tr("Unsupported gateway type"));
 		}
 	}
 	else if (FAutoLoginRequests.contains(AId))
 	{
+		LogDetaile(QString("[Gateways] Auto login register fields received from '%1' id='%2' registered='%3'").arg(AFields.serviceJid.full(),AId).arg(AFields.registered));
 		Jid streamJid = FAutoLoginRequests.take(AId).first;
 		if (!AFields.registered)
 		{
@@ -1498,13 +1523,14 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			submit.serviceJid = AFields.serviceJid;
 			submit.username = streamJid.pBare();
 
-			QString id = FRegistration->sendSubmit(streamJid,submit);
-			if (!id.isEmpty())
+			QString submitId = FRegistration->sendSubmit(streamJid,submit);
+			if (!submitId.isEmpty())
 			{
-				FAutoLoginRequests.insert(id,qMakePair<Jid,Jid>(streamJid,AFields.serviceJid));
+				LogDetaile(QString("[Gateways] Auto login register submit sent to '%1' id='%2'").arg(submit.serviceJid.full(),submitId));
+				FAutoLoginRequests.insert(submitId,qMakePair<Jid,Jid>(streamJid,AFields.serviceJid));
 			}
 		}
-		else if(FRosterChanger)
+		else if (FRosterChanger)
 		{
 			FRosterChanger->subscribeContact(streamJid,AFields.serviceJid,QString::null,true);
 		}
@@ -1518,7 +1544,12 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			QString login = gslogin.login;
 			if (!gslogin.domain.isEmpty())
 				login += "@" + gslogin.domain;
+			LogDetaile(QString("[Gateways] Conflict notice login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
 			insertConflictNotice(streamJid,AFields.serviceJid,login);
+		}
+		else
+		{
+			LogError(QString("[Gateways] Failed to receive conflict notice login from '%1' id='%2': Unsupported registration fields").arg(AFields.serviceJid.full(),AId));
 		}
 	}
 }
@@ -1528,6 +1559,7 @@ void Gateways::onRegisterSuccess(const QString &AId)
 	if (FAutoLoginRequests.contains(AId))
 	{
 		QPair<Jid,Jid> service = FAutoLoginRequests.take(AId);
+		LogDetaile(QString("[Gateways] Auto login registration finished on '%1' id='%2'").arg(service.second.full(),AId));
 		setServiceEnabled(service.first,service.second,true);
 	}
 }
@@ -1535,10 +1567,18 @@ void Gateways::onRegisterSuccess(const QString &AId)
 void Gateways::onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage)
 {
 	Q_UNUSED(ACondition);
-	LogError(QString("[Gateway register error] id %1 : %2").arg(AId, AMessage));
-	FLoginRequests.remove(AId);
-	FAutoLoginRequests.remove(AId);
-	emit errorReceived(AId,AMessage);
+	if (FLoginRequests.contains(AId))
+	{
+		LogError(QString("[Gateway] Login request failed id='%1': %2").arg(AId,AMessage));
+		FLoginRequests.remove(AId);
+		emit errorReceived(AId,AMessage);
+	}
+	else if (FAutoLoginRequests.contains(AId))
+	{
+		LogError(QString("[Gateway] Auto login register request failed id='%1': %2").arg(AId,AMessage));
+		FAutoLoginRequests.remove(AId);
+		emit errorReceived(AId,AMessage);
+	}
 }
 
 void Gateways::onInternalNoticeReady()

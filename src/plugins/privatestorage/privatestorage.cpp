@@ -46,42 +46,67 @@ bool PrivateStorage::initConnections(IPluginManager *APluginManager, int &AInitO
 
 void PrivateStorage::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 {
-	if (AStanza.type() == "error")
+	if (AStanza.type() == "result")
 	{
-		FSaveRequests.remove(AStanza.id());
-		FLoadRequests.remove(AStanza.id());
-		FRemoveRequests.remove(AStanza.id());
+		if (FSaveRequests.contains(AStanza.id()))
+		{
+			QDomElement elem = FSaveRequests.take(AStanza.id());
+			emit dataSaved(AStanza.id(),AStreamJid,elem);
+		}
+		else if (FLoadRequests.contains(AStanza.id()))
+		{
+			FLoadRequests.remove(AStanza.id());
+			QDomElement dataElem = AStanza.firstElement("query",NS_JABBER_PRIVATE).firstChildElement();
+			emit dataLoaded(AStanza.id(),AStreamJid,insertElement(AStreamJid,dataElem));
+		}
+		else if (FRemoveRequests.contains(AStanza.id()))
+		{
+			QDomElement dataElem = FRemoveRequests.take(AStanza.id());
+			emit dataRemoved(AStanza.id(),AStreamJid,dataElem);
+			removeElement(AStreamJid,dataElem.tagName(),dataElem.namespaceURI());
+		}
+	}
+	else
+	{
 		ErrorHandler err(AStanza.element());
-		LogError(QString("[Private storage stanza error] %1 : id %2 mess %3").arg(AStreamJid.full(), AStanza.id(), err.message()));
+		if (FSaveRequests.contains(AStanza.id()))
+		{
+			QDomElement elem = FSaveRequests.take(AStanza.id());
+			LogError(QString("[PrivateStorage] Failed to save private data '%1': %2").arg(elem.namespaceURI(), err.message()));
+		}
+		else if (FLoadRequests.contains(AStanza.id()))
+		{
+			QDomElement elem = FLoadRequests.take(AStanza.id());
+			LogError(QString("[PrivateStorage] Failed to load private data '%1': %2").arg(elem.namespaceURI(), err.message()));
+		}
+		else if (FRemoveRequests.contains(AStanza.id()))
+		{
+			QDomElement elem = FRemoveRequests.take(AStanza.id());
+			LogError(QString("[PrivateStorage] Failed to remove private data '%1': %2").arg(elem.namespaceURI(), err.message()));
+		}
 		emit dataError(AStanza.id(),err.message());
-	}
-	else if (FSaveRequests.contains(AStanza.id()))
-	{
-		QDomElement elem = FSaveRequests.take(AStanza.id());
-		emit dataSaved(AStanza.id(),AStreamJid,elem);
-	}
-	else if (FLoadRequests.contains(AStanza.id()))
-	{
-		FLoadRequests.remove(AStanza.id());
-		QDomElement dataElem = AStanza.firstElement("query",NS_JABBER_PRIVATE).firstChildElement();
-		emit dataLoaded(AStanza.id(),AStreamJid,insertElement(AStreamJid,dataElem));
-	}
-	else if (FRemoveRequests.contains(AStanza.id()))
-	{
-		QDomElement dataElem = FRemoveRequests.take(AStanza.id());
-		emit dataRemoved(AStanza.id(),AStreamJid,dataElem);
-		removeElement(AStreamJid,dataElem.tagName(),dataElem.namespaceURI());
 	}
 }
 
 void PrivateStorage::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
 {
 	Q_UNUSED(AStreamJid);
-	FSaveRequests.remove(AStanzaId);
-	FLoadRequests.remove(AStanzaId);
-	FRemoveRequests.remove(AStanzaId);
 	ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-	LogError(QString("[Private storage request timeout] %1 : %2").arg(AStanzaId, err.message()));
+	if (FSaveRequests.contains(AStanzaId))
+	{
+		QDomElement elem = FSaveRequests.take(AStanzaId);
+		LogError(QString("[PrivateStorage] Failed to save private data '%1': %2").arg(elem.namespaceURI(), err.message()));
+	}
+	else if (FLoadRequests.contains(AStanzaId))
+	{
+		QDomElement elem = FLoadRequests.take(AStanzaId);
+		LogError(QString("[PrivateStorage] Failed to load private data '%1': %2").arg(elem.namespaceURI(), err.message()));
+	}
+	else if (FRemoveRequests.contains(AStanzaId))
+	{
+		QDomElement elem = FRemoveRequests.take(AStanzaId);
+		LogError(QString("[PrivateStorage] Failed to remove private data '%1': %2").arg(elem.namespaceURI(), err.message()));
+	}
 	emit dataError(AStanzaId,err.message());
 }
 
@@ -108,8 +133,13 @@ QString PrivateStorage::saveData(const Jid &AStreamJid, const QDomElement &AElem
 		elem.appendChild(AElement.cloneNode(true));
 		if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
 		{
+			LogDetaile(QString("[PrivateStorage] Private data '%1' save request sent").arg(AElement.namespaceURI()));
 			FSaveRequests.insert(stanza.id(),insertElement(AStreamJid,AElement));
 			return stanza.id();
+		}
+		else
+		{
+			LogError(QString("[PrivateStorage] Failed to send private data '%1' save request").arg(AElement.namespaceURI()));
 		}
 	}
 	return QString::null;
@@ -125,8 +155,13 @@ QString PrivateStorage::loadData(const Jid &AStreamJid, const QString &ATagName,
 		QDomElement dataElem = elem.appendChild(stanza.createElement(ATagName,ANamespace)).toElement();
 		if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
 		{
+			LogDetaile(QString("[PrivateStorage] Private data '%1' load request sent").arg(ANamespace));
 			FLoadRequests.insert(stanza.id(),dataElem);
 			return stanza.id();
+		}
+		else
+		{
+			LogError(QString("[PrivateStorage] Failed to send private data '%1' load request").arg(ANamespace));
 		}
 	}
 	return QString::null;
@@ -142,11 +177,16 @@ QString PrivateStorage::removeData(const Jid &AStreamJid, const QString &ATagNam
 		elem = elem.appendChild(stanza.createElement(ATagName,ANamespace)).toElement();
 		if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
 		{
+			LogDetaile(QString("[PrivateStorage] Private data '%1' remove request sent").arg(ANamespace));
 			QDomElement dataElem = getData(AStreamJid,ATagName,ANamespace);
 			if (dataElem.isNull())
 				dataElem = insertElement(AStreamJid,elem);
 			FRemoveRequests.insert(stanza.id(),dataElem);
 			return stanza.id();
+		}
+		else
+		{
+			LogError(QString("[PrivateStorage] Failed to send private data '%1' remove request").arg(ANamespace));
 		}
 	}
 	return QString::null;

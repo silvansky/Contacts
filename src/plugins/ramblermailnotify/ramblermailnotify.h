@@ -37,6 +37,7 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/iservicediscovery.h>
 #include <utils/iconstorage.h>
+#include <utils/log.h>
 #include "mailnotifypage.h"
 #include "mailinfowidget.h"
 #include "custommailpage.h"

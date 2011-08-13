@@ -1,8 +1,5 @@
 #include "xmppstream.h"
 
-#include <QInputDialog>
-#include <utils/log.h>
-
 #define KEEP_ALIVE_TIMEOUT          30000
 
 XmppStream::XmppStream(IXmppStreams *AXmppStreams, const Jid &AStreamJid) : QObject(AXmppStreams->instance())
@@ -21,6 +18,8 @@ XmppStream::XmppStream(IXmppStreams *AXmppStreams, const Jid &AStreamJid) : QObj
 
 	FKeepAliveTimer.setSingleShot(false);
 	connect(&FKeepAliveTimer,SIGNAL(timeout()),SLOT(onKeepAliveTimeout()));
+
+	LogDetaile(QString("[XmppStream][%1] XMPP stream created").arg(FStreamJid.bare()));
 }
 
 XmppStream::~XmppStream()
@@ -30,6 +29,7 @@ XmppStream::~XmppStream()
 	foreach(IXmppFeature *feature, FActiveFeatures.toSet())
 		delete feature->instance();
 
+	LogDetaile(QString("[XmppStream][%1] XMPP stream destroyed").arg(FStreamJid.bare()));
 	emit streamDestroyed();
 }
 
@@ -39,6 +39,7 @@ bool XmppStream::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOr
 	{
 		if (FStreamState==SS_INITIALIZE && AStanza.element().nodeName()=="stream:stream")
 		{
+			LogDetaile(QString("[XmppStream][%1] XMPP stream initialized").arg(FStreamJid.bare()));
 			FStreamId = AStanza.id();
 			FStreamState = SS_FEATURES;
 			if (VersionParser(AStanza.element().attribute("version","0.0")) < VersionParser(1,0))
@@ -52,6 +53,7 @@ bool XmppStream::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOr
 		}
 		else if (FStreamState==SS_FEATURES && AStanza.element().nodeName()=="stream:features")
 		{
+			LogDetaile(QString("[XmppStream][%1] Processing XMPP stream features").arg(FStreamJid.bare()));
 			FServerFeatures = AStanza.element().cloneNode(true).toElement();
 			FAvailFeatures = FXmppStreams->xmppFeaturesOrdered();
 			processFeatures();
@@ -60,6 +62,7 @@ bool XmppStream::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOr
 		else if (AStanza.element().nodeName() == "stream:error")
 		{
 			ErrorHandler err(AStanza.element(),NS_XMPP_STREAMS);
+			LogError(QString("[XmppStream][%1] XMPP stream error received: %2").arg(FStreamJid.bare(),err.message()));
 			abort(err.message());
 			return true;
 		}
@@ -84,6 +87,7 @@ bool XmppStream::open()
 {
 	if (FConnection && FStreamState==SS_OFFLINE)
 	{
+		LogDetaile(QString("[XmppStream][%1] Opening XMPP stream").arg(FStreamJid.bare()));
 		FErrorString.clear();
 		if (FConnection->connectToHost())
 		{
@@ -93,11 +97,13 @@ bool XmppStream::open()
 		}
 		else
 		{
+			LogError(QString("[XmppStream][%1] Failed to start stream connection").arg(FStreamJid.bare()));
 			abort(tr("Failed to start connection"));
 		}
 	}
 	else if (!FConnection)
 	{
+		LogError(QString("[XmppStream][%1] XMPP stream connection is not specified").arg(FStreamJid.bare()));
 		emit error(tr("Connection not specified"));
 	}
 	return false;
@@ -107,6 +113,7 @@ void XmppStream::close()
 {
 	if (FConnection && FStreamState!=SS_OFFLINE && FStreamState!=SS_ERROR)
 	{
+		LogDetaile(QString("[XmppStream][%1] Closing XMPP stream").arg(FStreamJid.bare()));
 		FStreamState = SS_DISCONNECTING;
 		if (FConnection->isOpen())
 		{
@@ -126,9 +133,9 @@ void XmppStream::close()
 
 void XmppStream::abort(const QString &AError)
 {
-	LogError(QString("[XmppStream abort] %1").arg(AError));
 	if (FStreamState!=SS_OFFLINE && FStreamState!=SS_ERROR)
 	{
+		LogError(QString("[XmppStream][%1] XMPP stream aborted: %2").arg(FStreamJid.bare(),AError));
 		FStreamState = SS_ERROR;
 		FErrorString = AError;
 		emit error(AError);
@@ -155,6 +162,8 @@ void XmppStream::setStreamJid(const Jid &AJid)
 {
 	if (FStreamJid!=AJid && (FStreamState==SS_OFFLINE || FStreamState==SS_FEATURES))
 	{
+		LogDetaile(QString("[XmppStream][%1] XMPP stream JID changing from '%2' to '%3'").arg(FStreamJid.bare(),FStreamJid.full(),AJid.full()));
+
 		if (FStreamState==SS_FEATURES && !FOfflineJid.isValid())
 			FOfflineJid = FStreamJid;
 
@@ -163,6 +172,7 @@ void XmppStream::setStreamJid(const Jid &AJid)
 
 		Jid befour = FStreamJid;
 		emit jidAboutToBeChanged(AJid);
+
 		FStreamJid = AJid;
 		emit jidChanged(befour);
 	}
@@ -218,19 +228,14 @@ qint64 XmppStream::sendStanza(Stanza &AStanza)
 {
 	if (FStreamState!=SS_OFFLINE && FStreamState!=SS_ERROR)
 	{
-		QString stanzaText = AStanza.toString();
-		if (stanzaText.contains("mechanism=\"PLAIN\""))
-		{
-			// removing plain password
-			int start = stanzaText.indexOf('>');
-			int end = stanzaText.indexOf('<', start + 1);
-			stanzaText.replace(start + 1, end - start, "PLAIN_LOGIN_AND_PASSWORD");
-		}
-		Log(QString("[%1] Sending stanza:\n%2").arg(streamJid().full(), stanzaText));
+		LogStanza(QString("[XmppStream][%1] Sending stanza:\n%2").arg(FStreamJid.bare(),AStanza.toString()));
 		if (!processStanzaHandlers(AStanza,true))
 			return sendData(AStanza.toByteArray());
 	}
-	LogError(QString("[XmppStream send stanza failed] Can\'t send stanza\n%1\nstream state is %2").arg(AStanza.toString()).arg(FStreamState));
+	else
+	{
+		LogError(QString("[XmppStream][%1] Failed to send stanza:\n%2").arg(FStreamJid.bare(),AStanza.toString()));
+	}
 	return -1;
 }
 
@@ -272,6 +277,8 @@ void XmppStream::removeXmppStanzaHandler(IXmppStanzaHadler *AHandler, int AOrder
 
 void XmppStream::startStream()
 {
+	LogDetaile(QString("[XmppStream][%1] Initializing XMPP stream").arg(FStreamJid.bare()));
+
 	FParser.restart();
 	FKeepAliveTimer.start(KEEP_ALIVE_TIMEOUT);
 
@@ -306,6 +313,7 @@ void XmppStream::processFeatures()
 	}
 	if (!started)
 	{
+		LogDetaile(QString("[XmppStream][%1] XMPP stream opened").arg(FStreamJid.bare()));
 		FOpen = true;
 		FStreamState = SS_ONLINE;
 		removeXmppStanzaHandler(this,XSHO_XMPP_STREAM);
@@ -419,6 +427,7 @@ void XmppStream::onConnectionDisconnected()
 	if (FStreamState != SS_DISCONNECTING)
 		abort(tr("Connection closed unexpectedly"));
 
+	LogDetaile(QString("[XmppStream][%1] XMPP stream closed").arg(FStreamJid.bare()));
 	FStreamState = SS_OFFLINE;
 	removeXmppStanzaHandler(this,XSHO_XMPP_STREAM);
 	emit closed();
@@ -439,7 +448,7 @@ void XmppStream::onParserOpened(QDomElement AElem)
 void XmppStream::onParserElement(QDomElement AElem)
 {
 	Stanza stanza(AElem);
-	Log(QString("[%1] Got stanza:\n%2").arg(streamJid().full(), stanza.toString()));
+	LogStanza(QString("[XmppStream][%1] Received stanza:\n%2").arg(FStreamJid.bare(),stanza.toString()));
 	processStanzaHandlers(stanza,false);
 }
 

@@ -1,7 +1,6 @@
 #include "stanzaprocessor.h"
 
 #include <QSet>
-#include <utils/log.h>
 
 StanzaProcessor::StanzaProcessor()
 {
@@ -96,7 +95,6 @@ bool StanzaProcessor::sendStanzaOut(const Jid &AStreamJid, Stanza &AStanza)
 			emit stanzaSent(AStreamJid, AStanza);
 			return true;
 		}
-		LogError(QString("[StanzaProcessor send stanza error] Failed to send stanza:\n%1\nwith stream %2").arg(AStanza.toString(), AStreamJid.full()));
 		return false;
 	}
 	return true;

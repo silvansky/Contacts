@@ -5,7 +5,6 @@
 #include <QMap>
 #include <QStringList>
 #include <QCryptographicHash>
-#include <utils/log.h>
 
 #define AUTH_PLAIN        "PLAIN"
 #define AUTH_ANONYMOUS    "ANONYMOUS"
@@ -73,6 +72,7 @@ bool SASLAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 	{
 		if (AStanza.tagName() == "challenge")
 		{
+			LogDetaile(QString("[SASLAuth][%1] DIGEST-MD5 authorization challenge received").arg(FXmppStream->streamJid().bare()));
 			if (FChallengeStep == 0)
 			{
 				FChallengeStep++;
@@ -113,24 +113,25 @@ bool SASLAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 			FXmppStream->removeXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
 			if (AStanza.tagName() == "success")
 			{
+				LogDetaile(QString("[SASLAuth][%1] Authorization finished successfully").arg(FXmppStream->streamJid().bare()));
 				deleteLater();
 				emit finished(true);
 			}
 			else if (AStanza.tagName() == "failure")
 			{
 				ErrorHandler err(AStanza.element(),NS_FEATURE_SASL);
-				LogError(QString("[SASLAuth stanza error] %1").arg(err.message()));
+				LogError(QString("[SASLAuth][%1] Authorization failure: %2").arg(FXmppStream->streamJid().bare()).arg(err.message()));
 				emit error(err.message());
 			}
 			else if (AStanza.tagName() == "abort")
 			{
 				ErrorHandler err("aborted",NS_FEATURE_SASL);
-				LogError(QString("[SASLAuth stanza error] %1").arg(err.message()));
+				LogError(QString("[SASLAuth][%1] Authorization aborted: %2").arg(FXmppStream->streamJid().bare()).arg(err.message()));
 				emit error(err.message());
 			}
 			else
 			{
-				LogError(QString("[SASLAuth stanza error] %1").arg(tr("Wrong SASL authentication response")));
+				LogError(QString("[SASLAuth][%1] Wrong SASL authentication response").arg(FXmppStream->streamJid().bare()));
 				emit error(tr("Wrong SASL authentication response"));
 			}
 		}
@@ -149,7 +150,7 @@ bool SASLAuth::xmppStanzaOut(IXmppStream *AXmppStream, Stanza &AStanza, int AOrd
 
 bool SASLAuth::start(const QDomElement &AElem)
 {
-	if (AElem.tagName()=="mechanisms")
+	if (AElem.tagName() == "mechanisms")
 	{
 		FChallengeStep = 0;
 
@@ -163,6 +164,8 @@ bool SASLAuth::start(const QDomElement &AElem)
 
 		if (mechList.contains(AUTH_DIGEST_MD5))
 		{
+			LogDetaile(QString("[SASLAuth][%1] Authorization with %2 mechanism").arg(FXmppStream->streamJid().bare()).arg(AUTH_DIGEST_MD5));
+
 			Stanza auth("auth");
 			auth.setAttribute("xmlns",NS_FEATURE_SASL).setAttribute("mechanism",AUTH_DIGEST_MD5);
 			FXmppStream->insertXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
@@ -171,6 +174,8 @@ bool SASLAuth::start(const QDomElement &AElem)
 		}
 		else if (mechList.contains(AUTH_PLAIN))
 		{
+			LogDetaile(QString("[SASLAuth][%1] Authorization with %2 mechanism").arg(FXmppStream->streamJid().bare()).arg(AUTH_DIGEST_MD5));
+
 			QByteArray resp;
 			resp.append('\0').append(FXmppStream->streamJid().prepared().eNode().toUtf8()).append('\0').append(FXmppStream->password().toUtf8());
 
@@ -183,11 +188,17 @@ bool SASLAuth::start(const QDomElement &AElem)
 		}
 		else if (mechList.contains(AUTH_ANONYMOUS))
 		{
+			LogDetaile(QString("[SASLAuth][%1] Authorization with %2 mechanism").arg(FXmppStream->streamJid().bare()).arg(AUTH_DIGEST_MD5));
+
 			Stanza auth("auth");
 			auth.setAttribute("xmlns",NS_FEATURE_SASL).setAttribute("mechanism",AUTH_ANONYMOUS);
 			FXmppStream->insertXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
 			FXmppStream->sendStanza(auth);
 			return true;
+		}
+		else 
+		{
+			LogError(QString("[SASLAuth][%1] Unsupported authorization mechanisms").arg(FXmppStream->streamJid().bare()));
 		}
 	}
 	deleteLater();

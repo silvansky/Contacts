@@ -15,6 +15,7 @@
 #include <interfaces/iaccountmanager.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/widgetmanager.h>
+#include <utils/log.h>
 #include "proxyoptionswidget.h"
 
 class ConnectionManager :

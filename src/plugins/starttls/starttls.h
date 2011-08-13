@@ -8,6 +8,7 @@
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/idefaultconnection.h>
 #include <utils/stanza.h>
+#include <utils/log.h>
 
 class StartTLS :
 	public QObject,

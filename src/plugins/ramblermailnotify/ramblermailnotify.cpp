@@ -171,7 +171,12 @@ bool RamblerMailNotify::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, St
 		if (FGateways && FGateways->streamServices(AStreamJid).contains(AStanza.from()))
 		{
 			AAccept = true;
+			LogDetaile(QString("[RamblerMailNotify] Rambler mail notify received from '%1'").arg(AStanza.from()));
 			insertMailNotify(AStreamJid,AStanza);
+		}
+		else if (FGateways)
+		{
+			LogError(QString("[RamblerMailNotify] Rambler mail notify received from not stream service '%1'").arg(AStanza.from()));
 		}
 		return true;
 	}

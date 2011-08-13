@@ -13,6 +13,7 @@
 #include <interfaces/iservicediscovery.h>
 #include <utils/errorhandler.h>
 #include <utils/stanza.h>
+#include <utils/log.h>
 
 class BitsOfBinary :
 	public QObject,

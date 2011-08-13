@@ -21,6 +21,8 @@ Presence::Presence(IXmppStream *AXmppStream, IStanzaProcessor *AStanzaProcessor)
 
 	connect(AXmppStream->instance(),SIGNAL(error(const QString &)),SLOT(onStreamError(const QString &)));
 	connect(AXmppStream->instance(),SIGNAL(closed()),SLOT(onStreamClosed()));
+
+	LogDetaile(QString("[Presence][%1] Presence created").arg(streamJid().bare()));
 }
 
 Presence::~Presence()
@@ -94,6 +96,7 @@ bool Presence::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AS
 		}
 		else if (show!=IPresence::Offline && (FShow != show || FStatus != status || FPriority != priority))
 		{
+			LogDetaile(QString("[Presence][%1] Self presence changed by server, show=%2, status='%3'").arg(streamJid().bare()).arg(show).arg(status));
 			FShow = show;
 			FStatus = status;
 			FPriority = priority;
@@ -177,11 +180,13 @@ bool Presence::setPresence(int AShow, const QString &AStatus, int APriority)
 {
 	if (FXmppStream->isOpen() && AShow != Error)
 	{
+		LogDetaile(QString("[Presence][%1] Sending self presence, show=%2, status='%3'").arg(streamJid().bare()).arg(AShow).arg(AStatus));
+
 		QString show;
 		switch (AShow)
 		{
 		case Online:
-			show = "";
+			show = QString::null;
 			break;
 		case Chat:
 			show = "chat";
@@ -196,12 +201,13 @@ bool Presence::setPresence(int AShow, const QString &AStatus, int APriority)
 			show = "xa";
 			break;
 		case Invisible:
-			show="";
+			show = QString::null;
 			break;
 		case Offline:
-			show="";
+			show = QString::null;
 			break;
 		default:
+			LogError(QString("[Presence][%1] Invalid presence parameters").arg(streamJid().bare()));
 			return false;
 		}
 
@@ -233,12 +239,15 @@ bool Presence::setPresence(int AShow, const QString &AStatus, int APriority)
 			FStatus = AStatus;
 			FPriority = APriority;
 			FErrCondition.clear();
+
 			if (!FOpened && AShow!=Offline)
 			{
 				FOpened = true;
 				emit opened();
 			}
+
 			emit changed(FShow,FStatus,FPriority);
+
 			if (FOpened && AShow==Offline)
 			{
 				clearItems();
@@ -247,9 +256,15 @@ bool Presence::setPresence(int AShow, const QString &AStatus, int APriority)
 			}
 			return true;
 		}
+		else
+		{
+			LogError(QString("[Presence][%1] Failed to send self presence").arg(streamJid().bare()));
+		}
 	}
 	else if (AShow == Offline || AShow == Error)
 	{
+		LogDetaile(QString("[Presence][%1] Changing self presence, show=%2, status='%3'").arg(streamJid().bare()).arg(AShow).arg(AStatus));
+		
 		FShow = AShow;
 		FStatus = AStatus;
 		FPriority = 0;
@@ -270,11 +285,13 @@ bool Presence::sendPresence(const Jid &AContactJid, int AShow, const QString &AS
 {
 	if (FXmppStream->isOpen() && AContactJid.isValid() && AContactJid!=FXmppStream->streamJid().domain())
 	{
+		LogDetaile(QString("[Presence][%1] Sending direct presence to '%2' show=%3, status='%4'").arg(streamJid().bare(),AContactJid.full()).arg(AShow).arg(AStatus));
+
 		QString show;
 		switch (AShow)
 		{
 		case Online:
-			show = "";
+			show = QString::null;
 			break;
 		case Chat:
 			show = "chat";
@@ -289,12 +306,13 @@ bool Presence::sendPresence(const Jid &AContactJid, int AShow, const QString &AS
 			show = "xa";
 			break;
 		case Invisible:
-			show="";
+			show = QString::null;
 			break;
 		case Offline:
-			show="";
+			show = QString::null;
 			break;
 		default:
+			LogError(QString("[Presence][%1] Invalid presence parameters").arg(streamJid().bare()));
 			return false;
 		}
 
@@ -323,6 +341,10 @@ bool Presence::sendPresence(const Jid &AContactJid, int AShow, const QString &AS
 			emit sent(AContactJid,AShow,AStatus,APriority);
 			return true;
 		}
+		else
+		{
+			LogError(QString("[Presence][%1] Failed to send direct presence to '%2'").arg(streamJid().bare(),AContactJid.full()));
+		}
 	}
 	return false;
 }
@@ -345,7 +367,7 @@ void Presence::clearItems()
 void Presence::onStreamClosed()
 {
 	if (isOpen())
-		setPresence(Offline,"",0);
+		setPresence(Offline,QString::null,0);
 }
 
 void Presence::onStreamError(const QString &AError)

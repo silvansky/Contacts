@@ -41,7 +41,6 @@ protected:
 	void closeEvent(QCloseEvent *);
 protected slots:
 	void onStackedWidgetChanged(int AIndex);
-	void onInternalNoticeChanged(int ANoticeId);
 	void onMainMenuAboutToShow();
 	void onMainMenuAboutToHide();
 signals:

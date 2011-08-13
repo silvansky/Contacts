@@ -2,6 +2,8 @@
 
 #include <QDir>
 
+#define DIR_ROSTERS   "rosters"
+
 RosterPlugin::RosterPlugin()
 {
 	FPluginManager = NULL;
@@ -100,9 +102,9 @@ IRoster *RosterPlugin::getRoster(const Jid &AStreamJid) const
 QString RosterPlugin::rosterFileName(const Jid &AStreamJid) const
 {
 	QDir dir(FPluginManager->homePath());
-	if (!dir.exists("rosters"))
-		dir.mkdir("rosters");
-	dir.cd("rosters");
+	if (!dir.exists(DIR_ROSTERS))
+		dir.mkdir(DIR_ROSTERS);
+	dir.cd(DIR_ROSTERS);
 
 	return dir.absoluteFilePath(Jid::encode(AStreamJid.bare()).toLower()+".xml");
 }

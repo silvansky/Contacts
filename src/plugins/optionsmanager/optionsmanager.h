@@ -20,6 +20,7 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/itraymanager.h>
 #include <interfaces/iprivatestorage.h>
+#include <utils/log.h>
 #include <utils/action.h>
 #include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>

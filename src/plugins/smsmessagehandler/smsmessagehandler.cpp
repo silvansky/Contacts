@@ -3,10 +3,10 @@
 #define HISTORY_TIME_PAST         5
 #define HISTORY_MESSAGES_COUNT    25
 
-#define WAIT_RECEIVE_TIMEOUT         60
-#define DESTROYWINDOW_TIMEOUT        30*60*1000
-#define BALANCE_REQUEST_TIMEOUT      30*1000
-#define SUPPLEMENT_REQUEST_TIMEOUT   10*1000
+#define WAIT_RECEIVE_TIMEOUT      60
+#define DESTROYWINDOW_TIMEOUT     30*60*1000
+#define BALANCE_TIMEOUT           30*1000
+#define SUPPLEMENT_TIMEOUT        10*1000
 
 #define ADR_TAB_PAGE_ID           Action::DR_Parametr2
 
@@ -227,11 +227,19 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 	{
 		Jid serviceJid = FSmsBalanceRequests.take(AStanza.id());
 		if (AStanza.type() == "result")
+		{
+			LogDetaile(QString("[SmsMessageHandler] SMS balance received from '%1' id='%2'").arg(serviceJid.full(),AStanza.id()));
 			setSmsBalance(AStreamJid,serviceJid,smsBalanceFromStanza(AStanza));
+		}
+		else
+		{
+			ErrorHandler err(AStanza.element());
+			LogError(QString("[SmsMessageHandler] Failed to request SMS balance from '%1', id='%2': %3").arg(serviceJid.full(),AStanza.id(),err.message()));
+		}
 	}
 	else if (FSmsSupplementRequests.contains(AStanza.id()))
 	{
-		FSmsSupplementRequests.remove(AStanza.id());
+		Jid serviceJid = FSmsSupplementRequests.take(AStanza.id());
 		if (AStanza.type() == "result")
 		{
 			QDomElement query = AStanza.firstElement("query",NS_RAMBLER_SMS_SUPPLEMENT);
@@ -240,17 +248,20 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 			int count = query.firstChildElement("count").text().toInt();
 			if (!number.isEmpty() && !code.isEmpty() && count>0)
 			{
+				LogDetaile(QString("[SmsMessageHandler] SMS supplement received from '%1', id='%2', number='%3', code='%4', count='%5'").arg(serviceJid.full(),AStanza.id(),number,code).arg(count));
 				emit smsSupplementReceived(AStanza.id(),number,code,count);
 			}
 			else
 			{
 				ErrorHandler err(ErrorHandler::INTERNAL_SERVER_ERROR);
+				LogError(QString("[SmsMessageHandler] Failed to request SMS supplement from '%1', id='%2': %3").arg(serviceJid.full(),AStanza.id(),err.message()));
 				emit smsSupplementError(AStanza.id(),err.condition(),err.message());
 			}
 		}
 		else
 		{
 			ErrorHandler err(AStanza.element());
+			LogError(QString("[SmsMessageHandler] Failed to request SMS supplement from '%1', id='%2': %3").arg(serviceJid.full(),AStanza.id(),err.message()));
 			emit smsSupplementError(AStanza.id(),err.condition(),err.message());
 		}
 	}
@@ -260,12 +271,16 @@ void SmsMessageHandler::stanzaRequestTimeout(const Jid &AStreamJid, const QStrin
 {
 	if (FSmsBalanceRequests.contains(AStanzaId))
 	{
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
 		Jid serviceJid = FSmsBalanceRequests.take(AStanzaId);
+		LogError(QString("[SmsMessageHandler] Failed to request SMS balance from '%1', id='%2': %3").arg(serviceJid.full(),AStanzaId,err.message()));
 		setSmsBalance(AStreamJid,serviceJid,-1);
 	}
 	else if (FSmsSupplementRequests.contains(AStanzaId))
 	{
-		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
+		Jid serviceJid = FSmsSupplementRequests.take(AStanzaId);
+		LogError(QString("[SmsMessageHandler] Failed to request SMS supplement from '%1', id='%2': %3").arg(serviceJid.full(),AStanzaId,err.message()));
 		emit smsSupplementError(AStanzaId,err.condition(),err.message());
 	}
 }
@@ -510,10 +525,15 @@ bool SmsMessageHandler::requestSmsBalance(const Jid &AStreamJid, const Jid &ASer
 		Stanza request("iq");
 		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
 		request.addElement("query",NS_RAMBLER_SMS_BALANCE);
-		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_REQUEST_TIMEOUT))
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_TIMEOUT))
 		{
+			LogDetaile(QString("[SmsMessageHandler] SMS balance request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
 			FSmsBalanceRequests.insert(request.id(),AServiceJid);
 			return true;
+		}
+		else
+		{
+			LogError(QString("[SmsMessageHandler] Failed to send SMS balance request to '%1'").arg(AServiceJid.full()));
 		}
 	}
 	return false;
@@ -526,10 +546,15 @@ QString SmsMessageHandler::requestSmsSupplement(const Jid &AStreamJid, const Jid
 		Stanza request("iq");
 		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
 		request.addElement("query",NS_RAMBLER_SMS_SUPPLEMENT);
-		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,SUPPLEMENT_REQUEST_TIMEOUT))
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,SUPPLEMENT_TIMEOUT))
 		{
+			LogDetaile(QString("[SmsMessageHandler] SMS supplement request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
 			FSmsSupplementRequests.insert(request.id(),AServiceJid);
 			return request.id();
+		}
+		else
+		{
+			LogError(QString("[SmsMessageHandler] Failed to send SMS supplement request to '%1'").arg(AServiceJid.full()));
 		}
 	}
 	return QString::null;
@@ -546,6 +571,7 @@ void SmsMessageHandler::setSmsBalance(const Jid &AStreamJid, const Jid &AService
 {
 	if (FSmsBalance.contains(AStreamJid))
 	{
+		LogDetaile(QString("[SmsMessageHandler] SMS balance changed to %1").arg(ABalance));
 		if (ABalance >= 0)
 			FSmsBalance[AStreamJid].insert(AServiceJid,ABalance);
 		else
@@ -1105,7 +1131,7 @@ void SmsMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const
 
 void SmsMessageHandler::onRamblerHistoryRequestFailed(const QString &AId, const QString &AError)
 {
-	LogError(QString("[Rambler history error] %1").arg(AError));
+	Q_UNUSED(AError);
 	if (FHistoryRequests.contains(AId))
 	{
 		IChatWindow *window = FHistoryRequests.take(AId);

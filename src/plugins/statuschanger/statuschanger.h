@@ -34,6 +34,7 @@
 #include <interfaces/ivcard.h>
 #include <interfaces/iavatars.h>
 #include <utils/options.h>
+#include <utils/log.h>
 #include "statuswidget.h"
 #include "customstatusdialog.h"
 

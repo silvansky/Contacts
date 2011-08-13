@@ -8,6 +8,8 @@
 #include <QDragLeaveEvent>
 #include <utils/custominputdialog.h>
 
+#define DIR_METAROSTERS    "metarosters"
+
 #ifdef DEBUG_ENABLED
 # include <QDebug>
 #endif
@@ -576,34 +578,34 @@ IMetaItemDescriptor MetaContacts::metaDescriptorByItem(const Jid &AItemJid) cons
 	int order = FItemDescrCache.value(bareJid,-1);
 	if (order == -1)
 	{
-      bool firstDomain = true;
-      do
-      {
-	 QString domain = bareJid.pDomain();
-	 for (QList<IMetaItemDescriptor>::const_iterator descrIt=FMetaItemDescriptors.constBegin(); descrIt!=FMetaItemDescriptors.constEnd(); descrIt++)
-	 {
-	    if (descrIt->domains.isEmpty())
-	    {
-	       if (firstDomain)
-	       {
-		  QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(descrIt->gatePrefix));
-		  if (regexp.exactMatch(domain))
-		  {
-		     FItemDescrCache.insert(bareJid,descrIt->metaOrder);
-		     return *descrIt;
-		  }
-	       }
-	    }
-	    else if (descrIt->domains.contains(domain))
-	    {
-	       FItemDescrCache.insert(bareJid,descrIt->metaOrder);
-	       return *descrIt;
-	    }
-	 }
-	 firstDomain = false;
-	 bareJid = FGateways!=NULL ? FGateways->legacyIdFromUserJid(bareJid) : Jid::null;
-      }
-      while (bareJid.isValid() && !bareJid.node().isEmpty());
+		bool firstDomain = true;
+		do
+		{
+			QString domain = bareJid.pDomain();
+			for (QList<IMetaItemDescriptor>::const_iterator descrIt=FMetaItemDescriptors.constBegin(); descrIt!=FMetaItemDescriptors.constEnd(); descrIt++)
+			{
+				if (descrIt->domains.isEmpty())
+				{
+					if (firstDomain)
+					{
+						QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(descrIt->gatePrefix));
+						if (regexp.exactMatch(domain))
+						{
+							FItemDescrCache.insert(bareJid,descrIt->metaOrder);
+							return *descrIt;
+						}
+					}
+				}
+				else if (descrIt->domains.contains(domain))
+				{
+					FItemDescrCache.insert(bareJid,descrIt->metaOrder);
+					return *descrIt;
+				}
+			}
+			firstDomain = false;
+			bareJid = FGateways!=NULL ? FGateways->legacyIdFromUserJid(bareJid) : Jid::null;
+		}
+		while (bareJid.isValid() && !bareJid.node().isEmpty());
 	}
 	else
 	{
@@ -705,9 +707,9 @@ void MetaContacts::removeMetaRoster(IRoster *ARoster)
 QString MetaContacts::metaRosterFileName(const Jid &AStreamJid) const
 {
 	QDir dir(FPluginManager->homePath());
-	if (!dir.exists("metarosters"))
-		dir.mkdir("metarosters");
-	dir.cd("metarosters");
+	if (!dir.exists(DIR_METAROSTERS))
+		dir.mkdir(DIR_METAROSTERS);
+	dir.cd(DIR_METAROSTERS);
 	return dir.absoluteFilePath(Jid::encode(AStreamJid.pBare())+".xml");
 }
 
@@ -1136,7 +1138,7 @@ bool MetaContacts::eventFilter(QObject *AObject, QEvent *AEvent)
 				return true;
 			}
 		}
-		if (AEvent->type() == QEvent::MouseButtonPress)
+		else if (AEvent->type() == QEvent::MouseButtonPress)
 		{
 			QMouseEvent *me = (QMouseEvent*)AEvent;
 			if (me->button() == Qt::LeftButton)
@@ -1149,7 +1151,7 @@ bool MetaContacts::eventFilter(QObject *AObject, QEvent *AEvent)
 				}
 			}
 		}
-		if (AEvent->type() == QEvent::Paint)
+		else if (AEvent->type() == QEvent::Paint)
 		{
 			QPaintEvent * pe = (QPaintEvent*)AEvent;
 			lbl->removeEventFilter(this);
@@ -1412,7 +1414,7 @@ void MetaContacts::onRenameContact(bool)
 
 void MetaContacts::onNewNameSelected(const QString & newName)
 {
-	CustomInputDialog * dialog = qobject_cast<CustomInputDialog *>(sender());
+	CustomInputDialog *dialog = qobject_cast<CustomInputDialog *>(sender());
 	if (dialog)
 	{
 		QString metaId = dialog->property("metaId").toString();

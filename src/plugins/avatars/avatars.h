@@ -29,6 +29,8 @@
 #include <interfaces/imetacontacts.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
+#include <utils/imagemanager.h>
+#include <utils/log.h>
 
 struct AnimateAvatarParams
 {

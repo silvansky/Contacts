@@ -1,5 +1,4 @@
 #include "ramblerhistory.h"
-#include <utils/log.h>
 
 #define ARCHIVE_TIMEOUT 30000
 
@@ -124,12 +123,13 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 			result.beforeId = elem.firstChildElement("id").text();
 			result.beforeTime = DateTime(elem.firstChildElement("ctime").text()).toLocal();
 
+			LogDetaile(QString("[RamblerHistory] Loaded %1 history messages with '%2', id='%3'").arg(result.messages.count()).arg(result.with.full(),AStanza.id()));
 			emit serverMessagesLoaded(AStanza.id(), result);
 		}
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			LogError(QString("[Rambler history stanza error] %1 : %2").arg(AStanza.id(), err.message()));
+			LogError(QString("[RamblerHistory] Failed to load history id='%1': %2").arg(AStanza.id(),err.message()));
 			emit requestFailed(AStanza.id(), err.message());
 		}
 		FRetrieveRequests.removeAll(AStanza.id());
@@ -142,7 +142,7 @@ void RamblerHistory::stanzaRequestTimeout(const Jid &AStreamJid, const QString &
 	if (FRetrieveRequests.contains(AStanzaId))
 	{
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		LogError(QString("[Rambler history request timeout] %1 : %2").arg(AStanzaId, err.message()));
+		LogError(QString("[RamblerHistory] Failed to load history id='%1': %2").arg(AStanzaId,err.message()));
 		emit requestFailed(AStanzaId, err.message());
 	}
 }
@@ -171,8 +171,13 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IRambler
 		}
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,retrieve,ARCHIVE_TIMEOUT))
 		{
+			LogDetaile(QString("[RamblerHistory] Load history with '%1' request sent, id='%2'").arg(ARetrieve.with.full(),retrieve.id()));
 			FRetrieveRequests.append(retrieve.id());
 			return retrieve.id();
+		}
+		else
+		{
+			LogError(QString("[RamblerHistory] Failed to send load history with '%1' request").arg(ARetrieve.with.full()));
 		}
 	}
 	return QString::null;

@@ -16,6 +16,7 @@
 #include <utils/datetime.h>
 #include <utils/widgetmanager.h>
 #include <utils/systemmanager.h>
+#include <utils/log.h>
 
 struct SoftwareItem {
 	SoftwareItem() { 

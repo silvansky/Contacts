@@ -108,8 +108,6 @@ void MainWindow::createLayouts()
 	FNoticeWidget = new InternalNoticeWidget(this);
 	FNoticeWidget->setObjectName("noticeWidget");
 	FNoticeWidget->setVisible(false);
-	connect(FNoticeWidget,SIGNAL(noticeInserted(int)),SLOT(onInternalNoticeChanged(int)));
-	connect(FNoticeWidget,SIGNAL(noticeRemoved(int)),SLOT(onInternalNoticeChanged(int)));
 
 	FMainLayout = new QVBoxLayout;
 	FMainLayout->setMargin(0);
@@ -171,9 +169,7 @@ void MainWindow::keyPressEvent(QKeyEvent * AEvent)
 			if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
 			{
 				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget()))
-				{
 					border->minimizeWidget();
-				}
 				else
 					parentWidget()->showMinimized();
 			}
@@ -184,9 +180,7 @@ void MainWindow::keyPressEvent(QKeyEvent * AEvent)
 		else
 #ifdef Q_WS_WIN
 		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-		{
 			showMinimized();
-		}
 		else
 #endif
 			close();
@@ -215,12 +209,6 @@ void MainWindow::onStackedWidgetChanged(int AIndex)
 	{
 		widget->setVisible(false);
 	}
-}
-
-void MainWindow::onInternalNoticeChanged(int ANoticeId)
-{
-	Q_UNUSED(ANoticeId);
-	FNoticeWidget->setVisible(!FNoticeWidget->noticeQueue().isEmpty());
 }
 
 void MainWindow::onMainMenuAboutToShow()

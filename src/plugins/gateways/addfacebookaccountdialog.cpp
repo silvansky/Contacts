@@ -19,6 +19,7 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	FRegistration = ARegistration;
 
 	FServiceJid = AServiceJid;
+	FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
 
 	setMaximumSize(500,500);
 
@@ -42,13 +43,17 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &, const QString &)),
 		SLOT(onRegisterError(const QString &, const QString &, const QString &)));
 
-	FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
-
 	FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 	if (FRegisterId.isEmpty())
+	{
+		LogError(QString("[AddFacebookAccountDialog][%1] Failed to send registration request").arg(FServiceJid.full()));
 		abort(FAbortMessage);
+	}
 	else
+	{
+		LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration request sent, id='%2'").arg(FServiceJid.full(),FRegisterId));
 		setWaitMode(true, tr("Waiting for host response..."));
+	}
 }
 
 AddFacebookAccountDialog::~AddFacebookAccountDialog()
@@ -74,29 +79,42 @@ void AddFacebookAccountDialog::checkResult()
 			{
 				FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
 				FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
-				if (!FRegisterId.isEmpty())
-					setWaitMode(true, tr("Waiting for host response..."));
-				else
+				if (FRegisterId.isEmpty())
+				{
+					LogError(QString("[AddFacebookAccountDialog][%1] Failed to send registration submit").arg(FServiceJid.full()));
 					abort(FAbortMessage);
+				}
+				else
+				{
+					LogDetaile(QString("[AddFacebookAccountDialog][%1] Registration submit sent, id='%2'").arg(FServiceJid.full(),FRegisterId));
+					setWaitMode(true, tr("Waiting for host response..."));
+				}
 			}
 			else
 			{
+				LogError(QString("[AddFacebookAccountDialog][%1] Failed to generate registration submit").arg(FServiceJid.full()));
 				abort(FAbortMessage);
 			}
 		}
 		else if (result.hasQueryItem("error"))
 		{
 			if (result.queryItemValue("error_reason") != "user_denied")
+			{
+				LogError(QString("[AddFacebookAccountDialog][%1] Registration failed: %2").arg(FServiceJid.full(),result.queryItemValue("error_description")));
 				abort(FAbortMessage/*result.queryItemValue("error_description").replace('+',' ')*/);
+			}
 			else
+			{
+				LogDetaile(QString("[AddFacebookAccountDialog][%1] Registration canceled by user").arg(FServiceJid.full()));
 				reject();
+			}
 		}
 	}
 }
 
 void AddFacebookAccountDialog::abort(const QString &AMessage)
 {
-	CustomInputDialog * dialog = new CustomInputDialog(CustomInputDialog::Info);
+	CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::Info);
 	dialog->setCaptionText(tr("Error"));
 	dialog->setInfoText(AMessage);
 	dialog->setAcceptButtonText(tr("Ok"));
@@ -127,6 +145,7 @@ void AddFacebookAccountDialog::onRegisterFields(const QString &AId, const IRegis
 		FGateLogin = FGateways->serviceLogin(FPresence->streamJid(),FServiceJid,AFields);
 		if (FGateLogin.isValid)
 		{
+			LogDetaile(QString("[AddFacebookAccountDialog][%1] Loading registration web page").arg(FServiceJid.full()));
 			QUrl request;
 			request.setScheme("http");
 			request.setHost(AUTH_HOST);
@@ -135,6 +154,7 @@ void AddFacebookAccountDialog::onRegisterFields(const QString &AId, const IRegis
 		}
 		else
 		{
+			LogError(QString("[AddFacebookAccountDialog][%1] Unsupported registration fields received").arg(FServiceJid.full()));
 			abort(FAbortMessage);
 		}
 	}
@@ -144,6 +164,7 @@ void AddFacebookAccountDialog::onRegisterSuccess(const QString &AId)
 {
 	if (AId == FRegisterId)
 	{
+		LogDetaile(QString("[AddFacebookAccountDialog][%1] Registration finished successfully, id='%2'").arg(FServiceJid.full(),AId));
 		accept();
 	}
 }
@@ -152,7 +173,7 @@ void AddFacebookAccountDialog::onRegisterError(const QString &AId, const QString
 {
 	if (AId == FRegisterId)
 	{
-		LogError(QString("[Add legacy account register error] %1").arg(AMessage));
+		LogError(QString("[AddFacebookAccountDialog][%1] Registration error, id='%2': %3").arg(FServiceJid.full(),AId,AMessage));
 		if (ACondition == "resource-limit-exceeded")
 			abort(tr("You have connected the maximum number of %1 accounts.").arg(tr("Facebook")));
 		else
@@ -167,10 +188,15 @@ void AddFacebookAccountDialog::onWebViewLoadStarted()
 
 void AddFacebookAccountDialog::onWebViewLoadFinished(bool AOk)
 {
-	if (AOk)
-		checkResult();
-	else
+	if (!AOk)
+	{
+		LogError(QString("[AddFacebookAccountDialog][%1] Failed to load web page").arg(FServiceJid.full()));
 		abort(FAbortMessage);
+	}
+	else
+	{
+		checkResult();
+	}
 }
 
 void AddFacebookAccountDialog::onWebPageLinkClicked(const QUrl &ALink)

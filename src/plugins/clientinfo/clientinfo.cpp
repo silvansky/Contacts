@@ -210,6 +210,7 @@ void ClientInfo::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			software.version = query.firstChildElement("version").text();
 			software.os = query.firstChildElement("os").text();
 			software.status = SoftwareLoaded;
+			LogDetaile(QString("[ClientInfo] Received software version from %1").arg(contactJid.full()));
 		}
 		else if (AStanza.type() == "error")
 		{
@@ -218,6 +219,7 @@ void ClientInfo::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			software.version.clear();
 			software.os.clear();
 			software.status = SoftwareError;
+			LogError(QString("[ClientInfo] Failed to request software version from %1: %2").arg(contactJid.full(),err.message()));
 		}
 		emit softwareInfoChanged(contactJid);
 	}
@@ -230,12 +232,14 @@ void ClientInfo::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			QDomElement query = AStanza.firstElement("query");
 			activity.dateTime = QDateTime::currentDateTime().addSecs(0-query.attribute("seconds","0").toInt());
 			activity.text = query.text();
+			LogDetaile(QString("[ClientInfo] Received activity time from %1").arg(contactJid.full()));
 		}
 		else if (AStanza.type() == "error")
 		{
 			ErrorHandler err(AStanza.element());
 			activity.dateTime = QDateTime();
 			activity.text = err.message();
+			LogError(QString("[ClientInfo] Failed to request activity time from %1: %2").arg(contactJid.full(),err.message()));
 		}
 		emit lastActivityChanged(contactJid);
 	}
@@ -251,10 +255,13 @@ void ClientInfo::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			tItem.zone = DateTime::tzdFromX85(tzo);
 			tItem.delta = QDateTime::currentDateTime().secsTo(DateTime(utc).toLocal());
 			tItem.ping = tItem.ping - QTime::currentTime().msecsTo(QTime(0,0,0,0));
+			LogDetaile(QString("[ClientInfo] Received entity time from %1").arg(contactJid.full()));
 		}
 		else
 		{
 			FTimeItems.remove(contactJid);
+			ErrorHandler err(AStanza.element());
+			LogError(QString("[ClientInfo] Failed to request entity time from %1: %2").arg(contactJid.full(),err.message()));
 		}
 		emit entityTimeChanged(contactJid);
 	}
@@ -267,22 +274,25 @@ void ClientInfo::stanzaRequestTimeout(const Jid &AStreamJid, const QString &ASta
 	{
 		Jid contactJid = FSoftwareId.take(AStanzaId);
 		SoftwareItem &software = FSoftwareItems[contactJid];
-		ErrorHandler err(ErrorHandler::REMOTE_SERVER_TIMEOUT);
+		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
 		software.name = err.message();
 		software.version.clear();
 		software.os.clear();
 		software.status = SoftwareError;
+		LogError(QString("[ClientInfo] Failed to request software version from %1: Request Timeout").arg(contactJid.full()));
 		emit softwareInfoChanged(contactJid);
 	}
 	else if (FActivityId.contains(AStanzaId))
 	{
 		Jid contactJid = FActivityId.take(AStanzaId);
+		LogError(QString("[ClientInfo] Failed to request activity time from %1: Request Timeout").arg(contactJid.full()));
 		emit lastActivityChanged(contactJid);
 	}
 	else if (FTimeId.contains(AStanzaId))
 	{
 		Jid contactJid = FTimeId.take(AStanzaId);
 		FTimeItems.remove(contactJid);
+		LogError(QString("[ClientInfo] Failed to request entity time from %1: Request Timeout").arg(contactJid.full()));
 		emit entityTimeChanged(contactJid);
 	}
 }
@@ -488,6 +498,7 @@ bool ClientInfo::requestSoftwareInfo(const Jid &AStreamJid, const Jid &AContactJ
 		{
 			FSoftwareId.insert(iq.id(),AContactJid);
 			FSoftwareItems[AContactJid].status = SoftwareLoading;
+			LogDetaile(QString("[ClientInfo] Requesting software version from %1").arg(AContactJid.full()));
 		}
 	}
 	return sent;
@@ -528,7 +539,10 @@ bool ClientInfo::requestLastActivity(const Jid &AStreamJid, const Jid &AContactJ
 		iq.setTo(AContactJid.eFull()).setId(FStanzaProcessor->newId()).setType("get");
 		sent = FStanzaProcessor->sendStanzaRequest(this,AStreamJid,iq,LAST_ACTIVITY_TIMEOUT);
 		if (sent)
+		{
 			FActivityId.insert(iq.id(),AContactJid);
+			LogDetaile(QString("[ClientInfo] Requesting last activitty from %1").arg(AContactJid.full()));
+		}
 	}
 	return sent;
 }
@@ -562,6 +576,7 @@ bool ClientInfo::requestEntityTime(const Jid &AStreamJid, const Jid &AContactJid
 			TimeItem &tItem = FTimeItems[AContactJid];
 			tItem.ping = QTime::currentTime().msecsTo(QTime(0,0,0,0));
 			FTimeId.insert(iq.id(),AContactJid);
+			LogDetaile(QString("[ClientInfo] Requesting entity time from %1").arg(AContactJid.full()));
 			emit entityTimeChanged(AContactJid);
 		}
 	}

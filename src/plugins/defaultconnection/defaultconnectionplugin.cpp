@@ -83,7 +83,7 @@ void DefaultConnectionPlugin::loadConnectionSettings(IConnection *AConnection, c
 		{
 			QUuid proxyId = FConnectionManager->loadProxySettings(ANode.node("proxy"));
 			connection->setProxy(FConnectionManager->proxyById(proxyId).proxy);
-			connection->setOption(IDefaultConnection::COR_CHANGE_PROXY_TYPE,proxyId==MANUAL_PROXY_REF_UUID);
+			connection->setOption(IDefaultConnection::COR_CHANGE_PROXY_TYPE,true);
 		}
 	}
 }
