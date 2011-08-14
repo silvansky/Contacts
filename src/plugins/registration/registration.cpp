@@ -84,6 +84,7 @@ void Registration::stanzaRequestResult(const Jid &AStreamJid, const Stanza &ASta
 
 		if (FSubmitRequests.contains(AStanza.id()) && AStanza.type() == "result")
 		{
+			LogDetaile(QString("[Registration] Registration submit accepted by '%1' id='%2'").arg(AStanza.from(),AStanza.id()));
 			emit registerSuccess(AStanza.id());
 		}
 		else if (AStanza.type() == "result" || !formElem.isNull())
@@ -126,12 +127,14 @@ void Registration::stanzaRequestResult(const Jid &AStreamJid, const Stanza &ASta
 				fields.fieldMask += IRegisterFields::URL;
 				fields.url = oob.firstChildElement("url").text();
 			}
+
+			LogDetaile(QString("[Registration] Registration fields received from '%1' id='%2'").arg(AStanza.from(),AStanza.id()));
 			emit registerFields(AStanza.id(),fields);
 		}
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			LogError(QString("[Registration] Registration query error from '%1', id='%2': %3").arg(AStanza.from(),AStanza.id(),err.message()));
+			LogError(QString("[Registration] Failed to process registration request with '%1', id='%2': %3").arg(AStanza.from(),AStanza.id(),err.message()));
 			emit registerError(AStanza.id(),err.condition(),err.message());
 		}
 		FSendRequests.removeAll(AStanza.id());
@@ -145,7 +148,7 @@ void Registration::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AS
 	if (FSendRequests.contains(AStanzaId) || FSubmitRequests.contains(AStanzaId))
 	{
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		LogError(QString("[Registration] Registration query error id='%1': %2").arg(AStanzaId,err.message()));
+		LogError(QString("[Registration] Failed to process registration request id='%1': %2").arg(AStanzaId,err.message()));
 		emit registerError(AStanzaId,err.condition(),err.message());
 		FSendRequests.removeAll(AStanzaId);
 		FSubmitRequests.removeAll(AStanzaId);
@@ -182,13 +185,13 @@ QString Registration::sendRegiterRequest(const Jid &AStreamJid, const Jid &AServ
 	reg.addElement("query",NS_JABBER_REGISTER);
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,reg,REGISTRATION_TIMEOUT))
 	{
-		LogDetaile(QString("[Registration] Registration request sent to '%1', id='%2'").arg(AServiceJid.full(),reg.id()));
+		LogDetaile(QString("[Registration] Registration fields request sent to '%1', id='%2'").arg(AServiceJid.full(),reg.id()));
 		FSendRequests.append(reg.id());
 		return reg.id();
 	}
 	else
 	{
-		LogError(QString("[Registration] Failed to send registration request to '%1'").arg(AServiceJid.full()));
+		LogError(QString("[Registration] Failed to send registration fields request to '%1'").arg(AServiceJid.full()));
 	}
 	return QString::null;
 }
@@ -200,13 +203,13 @@ QString Registration::sendUnregiterRequest(const Jid &AStreamJid, const Jid &ASe
 	unreg.addElement("query",NS_JABBER_REGISTER).appendChild(unreg.createElement("remove"));
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,unreg,REGISTRATION_TIMEOUT))
 	{
-		LogDetaile(QString("[Registration] Unregister request sent to '%1', id='%2'").arg(AServiceJid.full(),unreg.id()));
+		LogDetaile(QString("[Registration] Unregister submit sent to '%1', id='%2'").arg(AServiceJid.full(),unreg.id()));
 		FSubmitRequests.append(unreg.id());
 		return unreg.id();
 	}
 	else
 	{
-		LogError(QString("[Registration] Failed to send unregister request to '%1'").arg(AServiceJid.full()));
+		LogError(QString("[Registration] Failed to send unregister submit to '%1'").arg(AServiceJid.full()));
 	}
 	return QString::null;
 }
@@ -220,13 +223,13 @@ QString Registration::sendChangePasswordRequest(const Jid &AStreamJid, const Jid
 	elem.appendChild(change.createElement("password")).appendChild(change.createTextNode(APassword));
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,change,REGISTRATION_TIMEOUT))
 	{
-		LogDetaile(QString("[Registration] Change password request sent to '%1', id='%2'").arg(AServiceJid.full(),change.id()));
+		LogDetaile(QString("[Registration] Change password submit sent to '%1', id='%2'").arg(AServiceJid.full(),change.id()));
 		FSubmitRequests.append(change.id());
 		return change.id();
 	}
 	else
 	{
-		LogError(QString("[Registration] Failed to send change password request to '%1'").arg(AServiceJid.full()));
+		LogError(QString("[Registration] Failed to send change password submit to '%1'").arg(AServiceJid.full()));
 	}
 	return QString();
 }
@@ -254,13 +257,13 @@ QString Registration::sendSubmit(const Jid &AStreamJid, const IRegisterSubmit &A
 
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,submit,REGISTRATION_TIMEOUT))
 	{
-		LogDetaile(QString("[Registration] Submit request sent to '%1', id='%2'").arg(ASubmit.serviceJid.full(),submit.id()));
+		LogDetaile(QString("[Registration] Registration submit sent to '%1', id='%2'").arg(ASubmit.serviceJid.full(),submit.id()));
 		FSubmitRequests.append(submit.id());
 		return submit.id();
 	}
 	else
 	{
-		LogError(QString("[Registration] Failed to send submit request to '%1'").arg(ASubmit.serviceJid.full()));
+		LogError(QString("[Registration] Failed to send registration submit to '%1'").arg(ASubmit.serviceJid.full()));
 	}
 	return QString();
 }

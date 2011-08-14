@@ -72,17 +72,12 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());
 		ui.tlbDomains->setVisible(!FGateLabel.domains.isEmpty());
 
+		LogDetaile(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
 		FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 		if (FRegisterId.isEmpty())
-		{
-			LogError(QString("[AddLegacyAccountDialog][%1] Failed to send registration request").arg(FServiceJid.full()));
 			abort(FAbortMessage);
-		}
 		else
-		{
-			LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration request sent, id='%2'").arg(FServiceJid.full(),FRegisterId));
 			setWaitMode(true, tr("Waiting for host response..."));
-		}
 	}
 	else
 	{
@@ -222,17 +217,12 @@ void AddLegacyAccountDialog::onOkClicked()
 	if (submit.serviceJid.isValid())
 	{
 		FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
+		LogDetaile(QString("[AddLegacyAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
 		FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
 		if (FRegisterId.isEmpty())
-		{
-			LogError(QString("[AddLegacyAccountDialog][%1] Failed to send registration submit").arg(FServiceJid.full()));
 			abort(FAbortMessage);
-		}
 		else
-		{
-			LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration submit sent, id='%2'").arg(FServiceJid.full(),FRegisterId));
 			setWaitMode(true, tr("Waiting for host response..."));
-		}
 	}
 	else
 	{
@@ -297,7 +287,7 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 		}
 		else
 		{
-			LogError(QString("[AddLegacyAccountDialog][%1] Received unsupported registration fields, id='%2'").arg(FServiceJid.full(),AId));
+			LogError(QString("[AddLegacyAccountDialog][%1] Unsupported registration fields received, id='%2'").arg(FServiceJid.full(),AId));
 			abort(FAbortMessage);
 		}
 		setWaitMode(false);

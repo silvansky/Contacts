@@ -43,17 +43,12 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &, const QString &)),
 		SLOT(onRegisterError(const QString &, const QString &, const QString &)));
 
+	LogDetaile(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
 	FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 	if (FRegisterId.isEmpty())
-	{
-		LogError(QString("[AddFacebookAccountDialog][%1] Failed to send registration request").arg(FServiceJid.full()));
 		abort(FAbortMessage);
-	}
 	else
-	{
-		LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration request sent, id='%2'").arg(FServiceJid.full(),FRegisterId));
 		setWaitMode(true, tr("Waiting for host response..."));
-	}
 }
 
 AddFacebookAccountDialog::~AddFacebookAccountDialog()
@@ -78,17 +73,12 @@ void AddFacebookAccountDialog::checkResult()
 			if (submit.serviceJid.isValid())
 			{
 				FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
+				LogDetaile(QString("[AddFacebookAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
 				FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
 				if (FRegisterId.isEmpty())
-				{
-					LogError(QString("[AddFacebookAccountDialog][%1] Failed to send registration submit").arg(FServiceJid.full()));
 					abort(FAbortMessage);
-				}
 				else
-				{
-					LogDetaile(QString("[AddFacebookAccountDialog][%1] Registration submit sent, id='%2'").arg(FServiceJid.full(),FRegisterId));
 					setWaitMode(true, tr("Waiting for host response..."));
-				}
 			}
 			else
 			{
@@ -154,7 +144,7 @@ void AddFacebookAccountDialog::onRegisterFields(const QString &AId, const IRegis
 		}
 		else
 		{
-			LogError(QString("[AddFacebookAccountDialog][%1] Unsupported registration fields received").arg(FServiceJid.full()));
+			LogError(QString("[AddFacebookAccountDialog][%1] Unsupported registration fields received, id='%2'").arg(FServiceJid.full(),AId));
 			abort(FAbortMessage);
 		}
 	}

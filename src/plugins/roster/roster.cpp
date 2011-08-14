@@ -105,7 +105,7 @@ void Roster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		}
 		else
 		{
-			LogError(QString("[Roster][%1] Failed to load roster group delimiter").arg(streamJid().full()));
+			LogError(QString("[Roster][%1] Failed to load roster group delimiter").arg(streamJid().bare()));
 		}
 		setGroupDelimiter(groupDelim);
 		requestRosterItems();
@@ -122,7 +122,7 @@ void Roster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		else
 		{
 			ErrorHandler err(AStanza.element());
-			LogError(QString("[Roster][%1] Failed to receive initial roster: %2").arg(streamJid().full(),err.message()));
+			LogError(QString("[Roster][%1] Failed to receive initial roster: %2").arg(streamJid().bare(),err.message()));
 			FXmppStream->abort(tr("Roster request failed"));
 		}
 	}
@@ -134,7 +134,7 @@ void Roster::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaI
 	if (AStanzaId==FDelimRequestId || AStanzaId == FOpenRequestId)
 	{
 		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		LogError(QString("[Roster][%1] Failed to receive initial roster: %2").arg(streamJid().full(),err.message()));
+		LogError(QString("[Roster][%1] Failed to receive initial roster: %2").arg(streamJid().bare(),err.message()));
 		FXmppStream->abort(tr("Roster request failed"));
 	}
 }
@@ -240,7 +240,7 @@ void Roster::setItem(const Jid &AItemJid, const QString &AName, const QSet<QStri
 				itemElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(groupName));
 
 		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(), query))
-			LogDetaile(QString("[Roster][%1] Change roster item request sent, jid='%2'").arg(streamJid().full(),AItemJid.bare()));
+			LogDetaile(QString("[Roster][%1] Change roster item request sent, jid='%2'").arg(streamJid().bare(),AItemJid.bare()));
 		else
 			LogError(QString("[Roster][%1] Failed to send change roster item request '%2'").arg(streamJid().bare(),AItemJid.bare()));
 	}
@@ -266,7 +266,7 @@ void Roster::removeItem(const Jid &AItemJid)
 		itemElem.setAttribute("subscription",SUBSCRIPTION_REMOVE);
 
 		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),query))
-			LogDetaile(QString("[Roster][%1] Remove roster item request sent '%2'").arg(streamJid().full(),AItemJid.bare()));
+			LogDetaile(QString("[Roster][%1] Remove roster item request sent '%2'").arg(streamJid().bare(),AItemJid.bare()));
 		else
 			LogError(QString("[Roster][%1] Failed to send remove roster item request '%2'").arg(streamJid().bare(),AItemJid.bare()));
 	}

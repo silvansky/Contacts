@@ -897,6 +897,7 @@ void StatusChanger::onPresenceRemoved(IPresence *APresence)
 	removeStatusNotification(APresence);
 	removeTempStatus(APresence);
 
+	FMainStatusStreams -= APresence;
 	FCurrentStatus.remove(APresence);
 	FConnectStatus.remove(APresence);
 	FLastOnlineStatus.remove(APresence);

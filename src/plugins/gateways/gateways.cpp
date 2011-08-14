@@ -4,7 +4,6 @@
 #include <QTextDocument>
 #include <definitions/customborder.h>
 #include <utils/customborderstorage.h>
-#include <utils/log.h>
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_SERVICE_JID           Action::DR_Parametr1
@@ -1108,10 +1107,10 @@ QString Gateways::sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid
 {
 	if (FRegistration)
 	{
+		LogDetaile(QString("[Gateways] Sending login request to '%1'").arg(AServiceJid.full()));
 		QString requestId = FRegistration->sendRegiterRequest(AStreamJid,AServiceJid);
 		if (!requestId.isEmpty())
 		{
-			LogDetaile(QString("[Gateways] Gateway login request sent to '%1' id='%2'").arg(AServiceJid.full(),requestId));
 			FLoginRequests.insert(requestId, AStreamJid);
 			return requestId;
 		}
@@ -1204,10 +1203,10 @@ void Gateways::startAutoLogin(const Jid &AStreamJid)
 				IGateServiceDescriptor descriptor = findGateDescriptor(FDiscovery->discoInfo(AStreamJid,ditem.itemJid));
 				if (!descriptor.id.isEmpty() && descriptor.autoLogin)
 				{
+					LogDetaile(QString("[Gateways] Sending auto login register request to '%1'").arg(ditem.itemJid.full()));
 					QString requestId = FRegistration->sendRegiterRequest(AStreamJid,ditem.itemJid);
 					if (!requestId.isEmpty())
 					{
-						LogDetaile(QString("[Gateways] Auto login register request sent to '%1' id='%2'").arg(ditem.itemJid.full(),requestId));
 						FAutoLoginRequests.insert(requestId,qMakePair<Jid,Jid>(AStreamJid,ditem.itemJid));
 						FStreamAutoRegServices.insertMulti(AStreamJid,ditem.itemJid);
 					}
@@ -1372,10 +1371,10 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 			}
 			if (FMainWindowPlugin && !FConflictNotices.value(APresence->streamJid()).contains(AItem.itemJid))
 			{
+				LogDetaile(QString("[Gateways] Sending conflict login request to '%1'").arg(AItem.itemJid.full()));
 				QString requestId = FRegistration->sendRegiterRequest(APresence->streamJid(),AItem.itemJid);
 				if (!requestId.isEmpty())
 				{
-					LogDetaile(QString("[Gateways] Conflict login request sent to '%1' id='%2'").arg(AItem.itemJid.full(),requestId));
 					FConflictLoginRequests.insert(requestId,APresence->streamJid());
 				}
 			}
@@ -1523,12 +1522,10 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			submit.serviceJid = AFields.serviceJid;
 			submit.username = streamJid.pBare();
 
+			LogDetaile(QString("[Gateways] Sending auto login register submit to '%1'").arg(submit.serviceJid.full()));
 			QString submitId = FRegistration->sendSubmit(streamJid,submit);
 			if (!submitId.isEmpty())
-			{
-				LogDetaile(QString("[Gateways] Auto login register submit sent to '%1' id='%2'").arg(submit.serviceJid.full(),submitId));
 				FAutoLoginRequests.insert(submitId,qMakePair<Jid,Jid>(streamJid,AFields.serviceJid));
-			}
 		}
 		else if (FRosterChanger)
 		{
@@ -1569,14 +1566,20 @@ void Gateways::onRegisterError(const QString &AId, const QString &ACondition, co
 	Q_UNUSED(ACondition);
 	if (FLoginRequests.contains(AId))
 	{
-		LogError(QString("[Gateway] Login request failed id='%1': %2").arg(AId,AMessage));
+		LogError(QString("[Gateway] Failed to receive gateway login id='%1': %2").arg(AId,AMessage));
 		FLoginRequests.remove(AId);
 		emit errorReceived(AId,AMessage);
 	}
 	else if (FAutoLoginRequests.contains(AId))
 	{
-		LogError(QString("[Gateway] Auto login register request failed id='%1': %2").arg(AId,AMessage));
+		LogError(QString("[Gateway] Failed to receive auto login id='%1': %2").arg(AId,AMessage));
 		FAutoLoginRequests.remove(AId);
+		emit errorReceived(AId,AMessage);
+	}
+	else if (FConflictLoginRequests.contains(AId))
+	{
+		LogError(QString("[Gateway] Failed to receive conflict notice login id='%1': %2").arg(AId,AMessage));
+		FConflictLoginRequests.remove(AId);
 		emit errorReceived(AId,AMessage);
 	}
 }

@@ -38,6 +38,7 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/inotifications.h>
 #include <utils/errorhandler.h>
+#include <utils/log.h>
 #include <utils/stanza.h>
 #include <utils/action.h>
 #include <utils/options.h>
