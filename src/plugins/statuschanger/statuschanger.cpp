@@ -893,7 +893,15 @@ void StatusChanger::onPresenceRemoved(IPresence *APresence)
 		else
 			account->optionsNode().setValue(QVariant(),"status.last-online");
 	}
+
 	removeStatusNotification(APresence);
+	removeTempStatus(APresence);
+
+	FCurrentStatus.remove(APresence);
+	FConnectStatus.remove(APresence);
+	FLastOnlineStatus.remove(APresence);
+	FPendingReconnect.remove(APresence);
+
 	updateMainMenu();
 }
 
