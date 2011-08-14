@@ -611,7 +611,7 @@ QString MetaRoster::renameGroup(const QString &AGroup, const QString &ANewName)
 	if (isOpen())
 	{
 		QList<IMetaContact> allGroupContacts = groupContacts(AGroup);
-		LogDetaile(QString("[MetaRoster][%1] Renaming group '%2' with %3 meta-contact(s) to '%4'").arg(streamJid().bare()).arg(allGroupContacts.count()).arg(AGroup,ANewName));
+		LogDetaile(QString("[MetaRoster][%1] Renaming group '%2' with %3 meta-contact(s) to '%4'").arg(streamJid().bare(),AGroup).arg(allGroupContacts.count()).arg(ANewName));
 
 		QList<QString> requests;
 		for (QList<IMetaContact>::const_iterator it = allGroupContacts.constBegin(); it!=allGroupContacts.constEnd(); it++)
@@ -1093,10 +1093,7 @@ bool MetaRoster::processCreateMerge(const QString &AMultiId)
 				{
 					QString requestId = mergeContacts(parentMetaId,QList<QString>()<<metaId);
 					if (!requestId.isEmpty())
-					{
 						requests.append(requestId);
-						FActionRequests.removeAll(requestId);
-					}
 				}
 				else
 				{
@@ -1125,8 +1122,11 @@ QString MetaRoster::startMultiRequest(const QList<QString> &AActions)
 		if (AActions.count() > 1)
 		{
 			QString multiId = FStanzaProcessor->newId();
-			foreach(QString action, AActions)
-				FMultiRequests.insertMulti(multiId,action);
+			foreach(QString actionId, AActions)
+			{
+				FActionRequests.removeAll(actionId);
+				FMultiRequests.insertMulti(multiId,actionId);
+			}
 			LogDetaile(QString("[MetaRoster][%1] Multi-request id='%2' started with actions from '%3' to '%4'").arg(streamJid().bare(),multiId,AActions.first(),AActions.last()));
 			return multiId;
 		}
@@ -1144,7 +1144,10 @@ void MetaRoster::appendMultiRequest(const QString &AMultiId, const QList<QString
 	if (!AActions.isEmpty())
 	{
 		foreach(QString actionId, AActions)
+		{
+			FActionRequests.removeAll(actionId);
 			FMultiRequests.insertMulti(AMultiId,actionId);
+		}
 		LogDetaile(QString("[MetaRoster][%1] To multi-request id='%2' appended actions from '%3' to '%4'").arg(streamJid().bare(),AMultiId,AActions.first(),AActions.last()));
 	}
 }
