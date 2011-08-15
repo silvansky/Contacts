@@ -30,6 +30,8 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 		SLOT(onServiceEnableChanged(const Jid &, const Jid &, bool)));
 	connect(FGateways->instance(),SIGNAL(servicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)),
 		SLOT(onServicePresenceChanged(const Jid &, const Jid &, const IPresenceItem &)));
+	connect(FGateways->instance(),SIGNAL(errorReceived(const QString &, const QString &)),
+		SLOT(onGatewaysErrorReceived(const QString &, const QString &)));
 
 	updateState(FGateways->servicePresence(FStreamJid,FServiceJid),FGateways->isServiceEnabled(FStreamJid,FServiceJid));
 }
@@ -81,7 +83,7 @@ void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool 
 	ui.chbState->blockSignals(false);
 
 	StyleStorage::updateStyle(this);
-	adjustSize();
+	//adjustSize();
 	emit updated();
 }
 
@@ -106,7 +108,7 @@ void LegacyAccountOptions::onStateCheckboxToggled(bool AChecked)
 			ui.lblInfo->setProperty("state",QString("disconnected"));
 		}
 		StyleStorage::updateStyle(this);
-		adjustSize();
+		//adjustSize();
 		emit updated();
 	}
 }
@@ -138,6 +140,12 @@ void LegacyAccountOptions::onDeleteButtonClicked(bool)
 	dialog->show();
 }
 
+void LegacyAccountOptions::onDeleteDialogAccepted()
+{
+	setEnabled(false);
+	FRemoveRequest = FGateways->removeService(FStreamJid,FServiceJid,false);
+}
+
 void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QString &ALogin)
 {
 	if (AId == FLoginRequest)
@@ -161,8 +169,16 @@ void LegacyAccountOptions::onServicePresenceChanged(const Jid &AStreamJid, const
 		updateState(AItem,FGateways->isServiceEnabled(FStreamJid,FServiceJid));
 }
 
-void LegacyAccountOptions::onDeleteDialogAccepted()
+void LegacyAccountOptions::onGatewaysErrorReceived(const QString &AId, const QString &AError)
 {
-	setEnabled(false);
-	FGateways->removeService(FStreamJid,FServiceJid, false);
+	if (FRemoveRequest == AId)
+	{
+		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::Info);
+		dialog->setCaptionText(tr("Error"));
+		dialog->setInfoText(tr("The service is temporarily unavailable, please try again later."));
+		dialog->setAcceptButtonText(tr("Ok"));
+		dialog->setDeleteOnClose(true);
+		dialog->show();
+		setEnabled(true);
+	}
 }

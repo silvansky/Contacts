@@ -48,6 +48,13 @@
 #include "managelegacyaccountsoptions.h"
 #include "legacyaccountfilter.h"
 
+struct RemoveRequestParams 
+{
+	Jid streamJid;
+	Jid serviceJid;
+	bool withContacts;
+};
+
 class Gateways :
 	public QObject,
 	public IPlugin,
@@ -99,7 +106,7 @@ public:
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual bool setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe);
-	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts);
+	virtual QString removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts);
 	virtual QString legacyIdFromUserJid(const Jid &AUserJid) const;
 	virtual QString sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
@@ -110,6 +117,7 @@ signals:
 	void streamServicesChanged(const Jid &AStreamJid);
 	void serviceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void servicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
+	void serviceRemoved(const QString &AId);
 	void loginReceived(const QString &AId, const QString &ALogin);
 	void promptReceived(const QString &AId, const QString &ADesc, const QString &APrompt);
 	void userJidReceived(const QString &AId, const Jid &AUserJid);
@@ -170,6 +178,7 @@ private:
 	QMultiMap<Jid, Jid> FResolveNicks;
 	QMap<QString, Jid> FLoginRequests;
 	QMap<QString, QPair<Jid,Jid> > FAutoLoginRequests;
+	QMap<QString, RemoveRequestParams > FRemoveRequests;
 private:
 	int FInternalNoticeId;
 	Jid FOptionsStreamJid;

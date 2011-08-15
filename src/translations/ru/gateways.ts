@@ -294,6 +294,10 @@
         <source>E-mail or Login</source>
         <translation>E-mail или Логин</translation>
     </message>
+    <message>
+        <source>Failed to remove service from roster</source>
+        <translation>Не удалось удалить сервис из списка-контактов</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>
@@ -320,6 +324,18 @@
     <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <source>The service is temporarily unavailable, please try again later.</source>
+        <translation>Сервис временно недоступен, попробуйте повторить позднее.</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ок</translation>
     </message>
 </context>
 <context>

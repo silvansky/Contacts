@@ -1121,31 +1121,28 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 	return false;
 }
 
-bool Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts)
+QString Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts)
 {
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-	if (roster && roster->isOpen())
+	if (FRegistration && roster && roster->isOpen())
 	{
 		LogDetaile(QString("[Gateways] Removing service '%1', with_contacts='%2'").arg(AServiceJid.full()).arg(AWithContacts));
-		
+
 		if (FRosterChanger)
 			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
 
-		if (FRegistration)
-			FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid);
-
-		roster->removeItem(AServiceJid);
-
-		if (AWithContacts)
+		QString requestId = FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid.full());
+		if (!requestId.isEmpty())
 		{
-			foreach(IRosterItem ritem, roster->rosterItems())
-				if (ritem.itemJid!=AServiceJid && ritem.itemJid.pDomain()==AServiceJid.pDomain())
-					roster->removeItem(ritem.itemJid);
+			RemoveRequestParams params;
+			params.streamJid = AStreamJid;
+			params.serviceJid = AServiceJid;
+			params.withContacts = AWithContacts;
+			FRemoveRequests.insert(requestId, params);
+			return requestId;
 		}
-
-		return true;
 	}
-	return false;
+	return QString::null;
 }
 
 QString Gateways::legacyIdFromUserJid(const Jid &AUserJid) const
@@ -1615,6 +1612,29 @@ void Gateways::onRegisterSuccess(const QString &AId)
 		LogDetaile(QString("[Gateways] Auto login registration finished on '%1' id='%2'").arg(service.second.full(),AId));
 		setServiceEnabled(service.first,service.second,true);
 	}
+	else if (FRemoveRequests.contains(AId))
+	{
+		RemoveRequestParams params = FRemoveRequests.take(AId);
+		LogDetaile(QString("[Gateways] Registration removed on '%1' id='%2'").arg(params.serviceJid.full(),AId));
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(params.streamJid) : NULL;
+		if (roster && roster->isOpen())
+		{
+			roster->removeItem(params.serviceJid);
+			if (params.withContacts)
+			{
+				foreach(IRosterItem ritem, roster->rosterItems())
+					if (ritem.itemJid!=params.serviceJid && ritem.itemJid.pDomain()==params.serviceJid.pDomain())
+						roster->removeItem(ritem.itemJid);
+			}
+			LogDetaile(QString("[Gateways] Service '%1' removed from roster id='%2'").arg(params.serviceJid.full(),AId));
+			emit serviceRemoved(AId);
+		}
+		else
+		{
+			LogError(QString("[Gateways] Failed to remove service '%1' from roster id='%2'").arg(params.serviceJid.full(),AId));
+			emit errorReceived(AId, tr("Failed to remove service from roster"));
+		}
+	}
 }
 
 void Gateways::onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage)
@@ -1630,13 +1650,17 @@ void Gateways::onRegisterError(const QString &AId, const QString &ACondition, co
 	{
 		LogError(QString("[Gateway] Failed to receive auto login id='%1': %2").arg(AId,AMessage));
 		FAutoLoginRequests.remove(AId);
-		emit errorReceived(AId,AMessage);
 	}
 	else if (FConflictLoginRequests.contains(AId))
 	{
 		LogError(QString("[Gateway] Failed to receive conflict notice login id='%1': %2").arg(AId,AMessage));
 		FConflictLoginRequests.remove(AId);
-		emit errorReceived(AId,AMessage);
+	}
+	else if (FRemoveRequests.contains(AId))
+	{
+		RemoveRequestParams params = FRemoveRequests.take(AId);
+		LogError(QString("[Gateway] Failed to remove service '%1' registration id='%2': %3").arg(params.serviceJid.full(),AId,AMessage));
+		emit errorReceived(AId, AMessage);
 	}
 }
 

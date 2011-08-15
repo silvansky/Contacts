@@ -25,10 +25,11 @@ protected slots:
 	void onChangeButtonClicked(bool);
 	void onChangeDialogAccepted();
 	void onDeleteButtonClicked(bool);
+	void onDeleteDialogAccepted();
 	void onServiceLoginReceived(const QString &AId, const QString &ALogin);
 	void onServiceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled);
 	void onServicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem);
-	void onDeleteDialogAccepted();
+	void onGatewaysErrorReceived(const QString &AId, const QString &AError);
 signals:
 	void updated();
 private:
@@ -40,6 +41,7 @@ private:
 	Jid FStreamJid;
 	Jid FServiceJid;
 	QString FLoginRequest;
+	QString FRemoveRequest;
 };
 
 #endif // LEGACYACCOUNTOPTIONS_H
