@@ -87,6 +87,5 @@ void ManageLegacyAccountsOptions::onStreamServicesChanged(const Jid &AStreamJid)
 
 void ManageLegacyAccountsOptions::onOptionsUpdated()
 {
-	adjustSize();
 	emit updated();
 }
