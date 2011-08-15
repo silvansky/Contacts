@@ -98,49 +98,17 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 {
 	if (FStreamJid == AStreamJid)
 	{
-		IDiscoIdentity identity;
-		identity.category = "gateway";
-
-		QList<Jid> usedGates = FGateways->streamServices(FStreamJid,identity);
-		QList<Jid> availGates = FGateways->availServices(FStreamJid,identity);
-		
-		QList<Jid> availRegisters;
-		foreach(Jid registerJid, availGates)
-		{
-			if (FDiscovery && FDiscovery->discoInfo(AStreamJid,registerJid).features.contains(NS_RAMBLER_GATEWAY_REGISTER))
-			{
-				availGates.removeAll(registerJid);
-				availRegisters.append(registerJid);
-				
-				bool showRegister = false;
-				IGateServiceDescriptor rdescriptor = FGateways->serviceDescriptor(AStreamJid,registerJid);
-				foreach(Jid serviceJid, availGates)
-				{
-					if (!usedGates.contains(serviceJid) && FGateways->serviceDescriptor(AStreamJid,serviceJid).id == rdescriptor.id)
-					{
-						showRegister = true;
-						break;
-					}
-				}
-
-				if (showRegister)
-					appendServiceButton(registerJid);
-				else
-					removeServiceButton(registerJid);
-			}
-		}
-
+		QList<Jid> availRegisters = FGateways->availRegistrators(AStreamJid,true);
+		foreach(Jid serviceJid, availRegisters.toSet() - FWidgets.keys().toSet())
+			appendServiceButton(serviceJid);
 		foreach(Jid serviceJid, FWidgets.keys().toSet() - availRegisters.toSet())
 			removeServiceButton(serviceJid);
 
 		if (!FWidgets.isEmpty())
-		{
 			ui.lblInfo->setText(tr("You can link multiple accounts and communicate with your friends on other services"));
-		}
 		else
-		{
 			ui.lblInfo->setText(tr("All available accounts are already linked"));
-		}
+
 		emit updated();
 	}
 }

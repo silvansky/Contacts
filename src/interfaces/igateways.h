@@ -79,9 +79,11 @@ public:
 	virtual QList<IGateServiceDescriptor> gateHomeDescriptorsByContact(const QString &AContact) const =0;
 	virtual QList<IGateServiceDescriptor> gateAvailDescriptorsByContact(const QString &AContact) const =0;
 	virtual int gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const =0;
+	virtual Jid gateDescriptorRegistrator(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AFree = true) const =0;
 	virtual QString formattedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const =0;
 	virtual QString normalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact, bool AComplete = false) const =0;
 	virtual QString checkNormalizedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const =0;
+	virtual QList<Jid> availRegistrators(const Jid &AStreamJid, bool AFree = true) const =0;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly = false) const =0;

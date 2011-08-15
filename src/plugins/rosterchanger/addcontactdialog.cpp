@@ -20,14 +20,6 @@ enum DialogState {
 	STATE_PARAMS
 };
 
-enum RegisterDescriptorStatus
-{
-	RDS_AVAILABLE,
-	RDS_UNAVAILABLE,
-	RDS_REGISTERED,
-	RDS_CANCELLED
-};
-
 AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChanger, IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
@@ -328,30 +320,25 @@ QString AddContactDialog::confirmDescriptorText(const IGateServiceDescriptor &AD
 	return text;
 }
 
-int AddContactDialog::registerDescriptorStatus(const IGateServiceDescriptor &ADescriptor)
+bool AddContactDialog::isDescriptorAcceptable(const IGateServiceDescriptor &ADescriptor)
 {
-	if (ADescriptor.needGate)
+	if (FGateways)
 	{
-		if (FGateways)
+		switch (FGateways->gateDescriptorStatus(streamJid(),ADescriptor))
 		{
-			IDiscoIdentity identity;
-			identity.category = "gateway";
-			identity.type = ADescriptor.type;
-			if (FGateways->gateDescriptorServices(streamJid(),ADescriptor, true).isEmpty())
+		case IGateways::GDS_UNREGISTERED:
 			{
-				QList<Jid> availGates = FGateways->gateDescriptorServices(streamJid(),ADescriptor);
-				if (!availGates.isEmpty())
-				{
-					QDialog *dialog = FGateways->showAddLegacyAccountDialog(streamJid(),availGates.first());
-					return dialog->exec()==QDialog::Accepted ? RDS_REGISTERED : RDS_CANCELLED;
-				}
-				return RDS_UNAVAILABLE;
+				QDialog *dialog = FGateways->showAddLegacyAccountDialog(streamJid(),FGateways->gateDescriptorRegistrator(streamJid(),ADescriptor));
+				return dialog->exec()==QDialog::Accepted ? true : false;
 			}
-			return RDS_AVAILABLE;
+			break;
+		case IGateways::GDS_UNAVAILABLE:
+			return false;
+		default:
+			return true;
 		}
-		return RDS_UNAVAILABLE;
 	}
-	return RDS_AVAILABLE;
+	return false;
 }
 
 void AddContactDialog::updatePageAddress()
@@ -530,7 +517,7 @@ void AddContactDialog::resolveDescriptor()
 	else if (!confirmDescriptors.isEmpty())
 	{
 		IGateServiceDescriptor descriptor = confirmDescriptors.value(0);
-		if (registerDescriptorStatus(descriptor) != RDS_CANCELLED)
+		if (isDescriptorAcceptable(descriptor))
 		{
 			updatePageParams(descriptor);
 			setDialogState(STATE_PARAMS);
@@ -718,7 +705,7 @@ void AddContactDialog::onContinueButtonclicked()
 		{
 			if (it.key()->isChecked())
 			{
-				if (registerDescriptorStatus(it.value()) != RDS_CANCELLED)
+				if (isDescriptorAcceptable(it.value()))
 				{
 					updatePageParams(it.value());
 					setDialogState(STATE_PARAMS);

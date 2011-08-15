@@ -63,7 +63,7 @@ protected:
 	void selectRosterIndex();
 	QString defaultContactNick(const Jid &AContactJid) const;
 	QString confirmDescriptorText(const IGateServiceDescriptor &ADescriptor);
-	int registerDescriptorStatus(const IGateServiceDescriptor &ADescriptor);
+	bool isDescriptorAcceptable(const IGateServiceDescriptor &ADescriptor);
 protected:
 	void updatePageAddress();
 	void updatePageConfirm(const QList<IGateServiceDescriptor> &ADescriptors);

@@ -229,16 +229,12 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				static bool blocked = false;
 				if (!blocked)
 				{
-					QList<Jid> availGates = FGateways->gateDescriptorServices(streamJid(),ADescriptor);
-					if (!availGates.isEmpty())
+					QDialog *dialog = FGateways->showAddLegacyAccountDialog(streamJid(),FGateways->gateDescriptorRegistrator(streamJid(),ADescriptor),this);
+					if (dialog->exec() == QDialog::Accepted)
 					{
-						QDialog *dialog = FGateways->showAddLegacyAccountDialog(streamJid(),availGates.at(0),this);
-						if (dialog->exec() == QDialog::Accepted)
-						{
-							blocked = true;
-							addContactItem(ADescriptor,AContact);
-							blocked = false;
-						}
+						blocked = true;
+						addContactItem(ADescriptor,AContact);
+						blocked = false;
 					}
 				}
 			}
@@ -254,11 +250,6 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 				FItemWidgets.append(widget);
 				FItemsLayout->insertWidget(FItemsLayout->count()-1,widget->instance());
 				QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
-			}
-			break;
-		case IGateways::GDS_DISABLED:
-			{
-
 			}
 			break;
 		default:

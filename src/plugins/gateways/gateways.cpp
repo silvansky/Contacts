@@ -656,7 +656,9 @@ int Gateways::gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDesc
 						if (isServiceEnabled(AStreamJid,gateJid))
 							return GDS_ENABLED;
 					}
-					return GDS_UNREGISTERED;
+					if (!gateDescriptorRegistrator(AStreamJid,ADescriptor).isEmpty())
+						return GDS_UNREGISTERED;
+					return GDS_UNAVAILABLE;
 				}
 				return GDS_ENABLED;
 			}
@@ -665,6 +667,27 @@ int Gateways::gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDesc
 		return GDS_ENABLED;
 	}
 	return GDS_UNAVAILABLE;
+}
+
+Jid Gateways::gateDescriptorRegistrator(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AFree) const
+{
+	QList<Jid> availGates = gateDescriptorServices(AStreamJid,ADescriptor);
+	foreach(Jid serviceJid, availGates)
+	{
+		IDiscoInfo dinfo = FDiscovery->discoInfo(AStreamJid,serviceJid);
+		if (dinfo.features.contains(NS_RAMBLER_GATEWAY_REGISTER))
+		{
+			if (AFree)
+			{
+				QSet<Jid> freeGates = availGates.toSet() - streamServices(AStreamJid).toSet();
+				freeGates -= serviceJid;
+				if (freeGates.isEmpty())
+					return Jid::null;
+			}
+			return serviceJid;
+		}
+	}
+	return Jid::null;
 }
 
 QString Gateways::formattedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const
@@ -785,6 +808,39 @@ QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADes
 	}
 
 	return errMessage;
+}
+
+QList<Jid> Gateways::availRegistrators(const Jid &AStreamJid, bool AFree) const
+{
+	IDiscoIdentity identity;
+	identity.category = "gateway";
+	QList<Jid> usedGates = streamServices(AStreamJid,identity);
+	QList<Jid> availGates = availServices(AStreamJid,identity);
+
+	QList<Jid> registrators;
+	foreach(Jid registratorJid, availGates)
+	{
+		if (FDiscovery && FDiscovery->discoInfo(AStreamJid,registratorJid).features.contains(NS_RAMBLER_GATEWAY_REGISTER))
+		{
+			if (AFree)
+			{
+				IGateServiceDescriptor rdescriptor = serviceDescriptor(AStreamJid,registratorJid);
+				foreach(Jid serviceJid, availGates)
+				{
+					if (serviceJid!=registratorJid && !usedGates.contains(serviceJid) && serviceDescriptor(AStreamJid,serviceJid).id==rdescriptor.id)
+					{
+						registrators.append(registratorJid);
+						break;
+					}
+				}
+			}
+			else
+			{
+				registrators.append(registratorJid);
+			}
+		}
+	}
+	return registrators;
 }
 
 QList<Jid> Gateways::availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity) const
@@ -1670,5 +1726,6 @@ void Gateways::onNotificationRemoved(int ANotifyId)
 		FConflictNotifies.remove(ANotifyId);
 	}
 }
+
 
 Q_EXPORT_PLUGIN2(plg_gateways, Gateways)
