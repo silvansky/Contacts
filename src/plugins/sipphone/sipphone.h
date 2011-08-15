@@ -12,12 +12,13 @@
 #include <definitions/toolbargroups.h>
 #include <definitions/rosterlabelorders.h>
 #include <definitions/rosterindextyperole.h>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/optionwidgetorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/isipphone.h>
 #include <interfaces/istanzaprocessor.h>
+#include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/iservicediscovery.h>
 #include <interfaces/irostersview.h>
@@ -165,7 +166,7 @@ private:
 	IRostersView *FRostersView;
 	IMetaContacts *FMetaContacts;
 	IPresencePlugin *FPresencePlugin;
-
+	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 
 private:

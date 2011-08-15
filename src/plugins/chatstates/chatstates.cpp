@@ -50,8 +50,9 @@ void ChatStates::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->dependences.append(STANZAPROCESSOR_UUID);
 }
 
-bool ChatStates::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
+bool ChatStates::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
+	Q_UNUSED(AInitOrder);
 	IPlugin *plugin = APluginManager->pluginInterface("IMessageWidgets").value(0);
 	if (plugin)
 	{
@@ -109,8 +110,11 @@ bool ChatStates::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterNotify|INotification::TabPageNotify;
-		FNotifications->insertNotificator(NID_CHATSTATE_TYPING,OWO_NOTIFICATIONS_CHATSTATE,QString::null,kindMask,kindMask);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_CHATSTATE;
+		notifyType.kindMask = INotification::RosterNotify|INotification::TabPageNotify;
+		notifyType.kindDefs = notifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_CHATSTATE_TYPING,notifyType);
 	}
 	return true;
 }
@@ -338,18 +342,25 @@ void ChatStates::notifyUserState(const Jid &AStreamJid, const Jid &AContactJid)
 		if (params.userState==IChatStates::StateComposing && params.notifyId<=0)
 		{
 			INotification notify;
-			notify.kinds = FNotifications->notificatorKinds(NID_CHATSTATE_TYPING);
+			notify.kinds = FNotifications->notificationKinds(NNT_CHATSTATE_TYPING);
 			if (notify.kinds > 0)
 			{
-				notify.notificatior = NID_CHATSTATE_TYPING;
+				notify.typeId = NNT_CHATSTATE_TYPING;
 				notify.data.insert(NDR_STREAM_JID, AStreamJid.full());
 				notify.data.insert(NDR_CONTACT_JID, AContactJid.full());
 				notify.data.insert(NDR_ICON_KEY, MNI_CHATSTATES_COMPOSING);
 				notify.data.insert(NDR_ICON_STORAGE, RSR_STORAGE_MENUICONS);
 				notify.data.insert(NDR_ROSTER_ORDER,RNO_CHATSTATES_TYPING);
-				notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_CHATSTATE_TYPING);
-				notify.data.insert(NDR_TABPAGE_ICONBLINK,false);
-				notify.data.insert(NDR_TABPAGE_TOOLTIP,tr("Typing..."));
+
+				IChatWindow *window = FMessageWidgets!=NULL ? FMessageWidgets->findChatWindow(AStreamJid,AContactJid) : NULL;
+				if (window)
+				{
+					notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)window->instance());
+					notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_CHATSTATE_TYPING);
+					notify.data.insert(NDR_TABPAGE_ICONBLINK,false);
+					notify.data.insert(NDR_TABPAGE_TOOLTIP,tr("Typing..."));
+				}
+
 				params.notifyId = FNotifications->appendNotification(notify);
 			}
 		}

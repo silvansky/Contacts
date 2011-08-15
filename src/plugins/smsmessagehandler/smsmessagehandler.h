@@ -11,7 +11,7 @@
 #include <definitions/chatwindowwidgetorders.h>
 #include <definitions/messagedataroles.h>
 #include <definitions/messagehandlerorders.h>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/rosternotifyorders.h>
 #include <definitions/tabpagenotifypriorities.h>

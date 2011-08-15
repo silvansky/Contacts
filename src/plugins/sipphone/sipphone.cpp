@@ -28,6 +28,7 @@ SipPhone::SipPhone() : __tmpMenu(NULL)
 	FDiscovery = NULL;
 	FMetaContacts = NULL;
 	FStanzaProcessor = NULL;
+	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FNotifications = NULL;
 	//FRostersViewPlugin = NULL;
@@ -70,6 +71,10 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	{
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
 	}
+
+	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
+	if (plugin)
+		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
 	if (plugin)
@@ -185,9 +190,11 @@ bool SipPhone::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterNotify|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction;
-		uchar kindDefs = INotification::RosterNotify|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction;
-		FNotifications->insertNotificator(NID_SIPPHONE_CALL,OWO_NOTIFICATIONS_SIPPHONE,QString::null,kindMask,kindDefs);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_SIPPHONE;
+		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::TabPageNotify;
+		notifyType.kindDefs = notifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_SIPPHONE_CALL,notifyType);
 	}
 
 //	SipCallNotifyer * callNotifyer = new SipCallNotifyer("Tester", tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(Jid()));
@@ -1665,13 +1672,13 @@ void SipPhone::showCallControlTab(const QString& sid/*const ISipStream &AStream*
 void SipPhone::insertNotify(const ISipStream &AStream)
 {
 	INotification notify;
-	notify.kinds = FNotifications ? FNotifications->notificatorKinds(NID_SIPPHONE_CALL) : 0;
+	notify.kinds = FNotifications ? FNotifications->notificationKinds(NNT_SIPPHONE_CALL) : 0;
 	if (notify.kinds > 0)
 	{
 		QString message = tr("Calling you...");
 		QString name = FNotifications->contactName(AStream.streamJid,AStream.contactJid);
 
-		notify.notificatior = NID_SIPPHONE_CALL;
+		notify.typeId = NNT_SIPPHONE_CALL;
 		notify.data.insert(NDR_STREAM_JID,AStream.streamJid.full());
 		notify.data.insert(NDR_CONTACT_JID,AStream.contactJid.full());
 		notify.data.insert(NDR_ICON_KEY,MNI_SIPPHONE_CALL);
@@ -1683,21 +1690,32 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		notify.data.insert(NDR_ROSTER_FOOTER,message);
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::green));
 		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(message));
-		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SIP_CALL);
-		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,0);
-		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
-		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
-		notify.data.insert(NDR_TABPAGE_TOOLTIP,message);
-		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_SIPPHONE_TABBARITEM_CALL);
-		/*		notify.data.insert(NDR_POPUP_NOTICE,message);
-  notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AStream.contactJid));
-  notify.data.insert(NDR_POPUP_TITLE,name);
-  notify.data.insert(NDR_POPUP_STYLEKEY,STS_SIPPHONE_NOTIFYWIDGET_CALL);
-  notify.data.insert(NDR_POPUP_TIMEOUT,0);
-  notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL);*/
-		SipCallNotifyer * callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.streamJid,AStream.contactJid));
+		
+		if (FMessageProcessor)
+			FMessageProcessor->createMessageWindow(AStream.streamJid,AStream.contactJid,Message::Chat,IMessageHandler::SM_ASSIGN);
+		
+		IChatWindow *winow = FMessageWidgets!=NULL ? FMessageWidgets->findChatWindow(AStream.streamJid,AStream.contactJid) : NULL;
+		if (winow)
+		{
+			notify.data.insert(NDR_ALERT_WIDGET,(qint64)winow->instance());
+			notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)winow->instance());
+			notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)winow->instance());
+			notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SIP_CALL);
+			notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,0);
+			notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+			notify.data.insert(NDR_TABPAGE_TOOLTIP,message);
+			notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_SIPPHONE_TABBARITEM_CALL);
+		}
 
+		//notify.data.insert(NDR_POPUP_NOTICE,message);
+		//notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AStream.contactJid));
+		//notify.data.insert(NDR_POPUP_TITLE,name);
+		//notify.data.insert(NDR_POPUP_STYLEKEY,STS_SIPPHONE_NOTIFYWIDGET_CALL);
+		//notify.data.insert(NDR_POPUP_TIMEOUT,0);
+		//notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL);
+
+			
+		SipCallNotifyer *callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.streamJid,AStream.contactJid));
 		callNotifyer->setProperty("streamId", AStream.sid);
 		connect(callNotifyer, SIGNAL(accepted()), SLOT(onAcceptStreamByAction()));
 		connect(callNotifyer, SIGNAL(rejected()), SLOT(onCloseStreamByAction()));

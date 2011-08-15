@@ -192,9 +192,11 @@ bool StatusChanger::initObjects()
 
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay;
-		uchar kindDefs = INotification::PopupWindow|INotification::SoundPlay;
-		FNotifications->insertNotificator(NID_CONNECTION_STATE,OWO_NOTIFICATIONS_CONNECTION,QString::null,kindMask,kindDefs);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_CONNECTION;
+		notifyType.kindMask = INotification::PopupWindow|INotification::SoundPlay;
+		notifyType.kindDefs = notifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_CONNECTION_STATE,notifyType);
 	}
 
 	return true;
@@ -797,10 +799,10 @@ void StatusChanger::updateStatusNotification(IPresence *APresence)
 			removeStatusNotification(APresence);
 
 			INotification notify;
-			notify.kinds = FNotifications->notificatorKinds(NID_CONNECTION_STATE);
+			notify.kinds = FNotifications->notificationKinds(NNT_CONNECTION_STATE);
 			if (notify.kinds > 0)
 			{
-				notify.notificatior = NID_CONNECTION_STATE;
+				notify.typeId = NNT_CONNECTION_STATE;
 				notify.data.insert(NDR_ICON,FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Error,QString::null,false) : QIcon());
 				notify.data.insert(NDR_POPUP_TITLE,isFailed ? tr("Temporary connection failure") : tr("Connection restored"));
 				notify.data.insert(NDR_POPUP_NOTICE,isFailed ? tr("Problem") : tr("Problem resolved"));

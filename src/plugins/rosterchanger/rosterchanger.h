@@ -9,7 +9,7 @@
 #include <definitions/rosterdragdropmimetypes.h>
 #include <definitions/rosterdataholderorders.h>
 #include <definitions/rosterfootertextorders.h>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/optionvalues.h>
 #include <definitions/optionwidgetorders.h>

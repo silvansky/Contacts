@@ -2,7 +2,7 @@
 #define ROSTERPLUGIN_H
 
 #include <QObjectCleanupHandler>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/soundfiles.h>

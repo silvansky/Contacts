@@ -429,8 +429,11 @@ bool Gateways::initObjects()
 
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay;
-		FNotifications->insertNotificator(NID_GATEWAYS_CONFLICT,OWO_NOTIFICATIONS_GATEWAYS_CONFLICT,QString::null,kindMask,kindMask);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_GATEWAYS_CONFLICT;
+		notifyType.kindMask = INotification::PopupWindow|INotification::SoundPlay;
+		notifyType.kindDefs = notifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_GATEWAYS_CONFLICT,notifyType);
 	}
 
 	return true;
@@ -1395,11 +1398,11 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 			if (FNotifications)
 			{
 				INotification notify;
-				notify.kinds = FNotifications->notificatorKinds(NID_BIRTHDAY_REMIND);
+				notify.kinds = FNotifications->notificationKinds(NNT_BIRTHDAY_REMIND);
 				if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 				{
 					IGateServiceDescriptor descriptor = serviceDescriptor(APresence->streamJid(),AItem.itemJid);
-					notify.notificatior = NID_GATEWAYS_CONFLICT;
+					notify.typeId = NNT_GATEWAYS_CONFLICT;
 					notify.data.insert(NDR_STREAM_JID,APresence->streamJid().full());
 					notify.data.insert(NDR_POPUP_IMAGE,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(descriptor.iconKey));
 					notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);

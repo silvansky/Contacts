@@ -117,7 +117,7 @@ bool BirthdayReminder::initConnections(IPluginManager *APluginManager, int &AIni
 		{
 			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivated(int)));
 			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
-			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, uchar)),SLOT(onNotificationTest(const QString &, uchar)));
+			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, ushort)),SLOT(onNotificationTest(const QString &, ushort)));
 		}
 	}
 
@@ -146,8 +146,12 @@ bool BirthdayReminder::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay|INotification::TestNotify;
-		FNotifications->insertNotificator(NID_BIRTHDAY_REMIND,OWO_NOTIFICATIONS_BIRTHDAY,tr("Birthdays"),kindMask,0);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_BIRTHDAY;
+		notifyType.title = tr("Birthdays");
+		notifyType.kindMask = INotification::PopupWindow|INotification::SoundPlay;
+		notifyType.kindDefs = 0;
+		FNotifications->registerNotificationType(NNT_BIRTHDAY_REMIND,notifyType);
 	}
 
 	QIcon cake = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_BIRTHDAYREMINDER_AVATAR_CAKE);
@@ -356,11 +360,11 @@ void BirthdayReminder::onShowNotificationTimer()
 	if (FNotifications && FNotifications->notifications().isEmpty())
 	{
 		INotification notify;
-		notify.kinds = FNotifications->notificatorKinds(NID_BIRTHDAY_REMIND);
+		notify.kinds = FNotifications->notificationKinds(NNT_BIRTHDAY_REMIND);
 		if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 		{
 			updateBirthdaysStates();
-			notify.notificatior = NID_BIRTHDAY_REMIND;
+			notify.typeId = NNT_BIRTHDAY_REMIND;
 
 			QSet<QString> notifiedMetaContacts;
 			QSet<Jid> notifyList = FUpcomingBirthdays.keys().toSet() - FNotifiedContacts.toSet();
@@ -426,13 +430,14 @@ void BirthdayReminder::onNotificationRemoved(int ANotifyId)
 	}
 }
 
-void BirthdayReminder::onNotificationTest(const QString &ANotificatorId, uchar AKinds)
+void BirthdayReminder::onNotificationTest(const QString &ATypeId, ushort AKinds)
 {
-	if (ANotificatorId == NID_BIRTHDAY_REMIND)
+	if (ATypeId == NNT_BIRTHDAY_REMIND)
 	{
 		INotification notify;
 		notify.kinds = AKinds;
-		notify.notificatior = ANotificatorId;
+		notify.typeId = ATypeId;
+		notify.flags |= INotification::TestNotify;
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contactJid = "vasilisa@rambler/ramblercontacts";
@@ -462,7 +467,7 @@ void BirthdayReminder::onInternalNoticeReady()
 	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 	if (FNotifications && widget->isEmpty())
 	{
-		if ((FNotifications->notificatorKinds(NID_BIRTHDAY_REMIND) & (INotification::PopupWindow|INotification::SoundPlay)) == 0)
+		if ((FNotifications->notificationKinds(NNT_BIRTHDAY_REMIND) & (INotification::PopupWindow|INotification::SoundPlay)) == 0)
 		{
 			int showCount = Options::node(OPV_BIRTHDAY_NOTICE_SHOWCOUNT).value().toInt();
 			QDateTime showLast = Options::node(OPV_BIRTHDAY_NOTICE_SHOWLAST).value().toDateTime();
@@ -492,7 +497,7 @@ void BirthdayReminder::onInternalNoticeActionTriggered()
 	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 	FInternalNoticeId = widget->insertNotice(notice);
 
-	FNotifications->setNotificatorKinds(NID_BIRTHDAY_REMIND,INotification::PopupWindow|INotification::SoundPlay);
+	FNotifications->setNotificationKinds(NNT_BIRTHDAY_REMIND,INotification::PopupWindow|INotification::SoundPlay);
 
 	QTimer::singleShot(2000,this,SLOT(onInternalNoticeRemove()));
 }

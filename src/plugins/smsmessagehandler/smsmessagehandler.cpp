@@ -418,10 +418,10 @@ INotification SmsMessageHandler::notifyMessage(INotifications *ANotifications, c
 	QString messages = tr("%n message(s)","",wstatus.notified.count());
 
 	INotification notify;
-	notify.kinds = ANotifications->notificatorKinds(NID_CHAT_MESSAGE);
+	notify.kinds = ANotifications->notificationKinds(NNT_CHAT_MESSAGE);
 	if (notify.kinds > 0)
 	{
-		notify.notificatior = NID_CHAT_MESSAGE;
+		notify.typeId = NNT_CHAT_MESSAGE;
 		notify.data.insert(NDR_STREAM_JID,AMessage.to());
 		notify.data.insert(NDR_CONTACT_JID,AMessage.from());
 		notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
@@ -433,10 +433,11 @@ INotification SmsMessageHandler::notifyMessage(INotifications *ANotifications, c
 		notify.data.insert(NDR_ROSTER_FOOTER,messages);
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
 		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
+		notify.data.insert(NDR_ALERT_WIDGET,(qint64)window->instance());
+		notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)window->instance());
+		notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)window->instance());
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
-		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHATHANDLER_TABBARITEM_NEWMESSAGE);
 		notify.data.insert(NDR_POPUP_TITLE,name);

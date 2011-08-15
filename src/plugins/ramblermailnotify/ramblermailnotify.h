@@ -8,7 +8,7 @@
 #include <definitions/menuicons.h>
 #include <definitions/resources.h>
 #include <definitions/namespaces.h>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/gateserviceidentifiers.h>
 #include <definitions/metaitemorders.h>
 #include <definitions/optionwidgetorders.h>
@@ -99,7 +99,7 @@ protected slots:
 	void onDiscoInfoReceived(const IDiscoInfo &AInfo);
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
-	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
+	void onNotificationTest(const QString &ATypeId, ushort AKinds);
 	void onRosterNotifyActivated(int ANotifyId);
 	void onRosterNotifyRemoved(int ANotifyId);
 	void onChatWindowCreated(IChatWindow *AWindow);

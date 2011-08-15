@@ -190,8 +190,11 @@ bool MetaContacts::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay;
-		FNotifications->insertNotificator(NID_METACONTACTS_DELETEFAIL,OWO_NOTIFICATIONS_META_DELETE_FAIL,QString::null,kindMask,kindMask);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_META_DELETE_FAIL;
+		notifyType.kindMask = INotification::PopupWindow|INotification::SoundPlay;
+		notifyType.kindDefs = notifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_METACONTACTS_DELETEFAIL,notifyType);
 	}
 	return true;
 }
@@ -1083,10 +1086,10 @@ void MetaContacts::notifyContactDeleteFailed(IMetaRoster *AMetaRoster, const QSt
 		if (FNotifications && !AErrCond.isEmpty())
 		{
 			INotification notify;
-			notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_METACONTACTS_DELETEFAIL) : 0;
+			notify.kinds = FNotifications!=NULL ? FNotifications->notificationKinds(NNT_METACONTACTS_DELETEFAIL) : 0;
 			if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 			{
-				notify.notificatior = NID_METACONTACTS_DELETEFAIL;
+				notify.typeId = NNT_METACONTACTS_DELETEFAIL;
 				notify.data.insert(NDR_STREAM_JID,AMetaRoster->streamJid().full());
 				notify.data.insert(NDR_POPUP_TITLE,metaContactName(contact));
 				notify.data.insert(NDR_POPUP_NOTICE,tr("Not all contacts removed"));

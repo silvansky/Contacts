@@ -135,8 +135,8 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &AI
 		FNotifications = qobject_cast<INotifications *>(plugin->instance());
 		if (FNotifications)
 		{
-			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, uchar)),
-				SLOT(onNotificationTest(const QString &, uchar)));
+			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, ushort)),
+				SLOT(onNotificationTest(const QString &, ushort)));
 		}
 	}
 
@@ -200,9 +200,12 @@ bool ChatMessageHandler::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction|INotification::SoundPlay|INotification::AutoActivate|INotification::TestNotify;
-		uchar kindDefs = INotification::RosterNotify|INotification::PopupWindow|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction|INotification::SoundPlay;
-		FNotifications->insertNotificator(NID_CHAT_MESSAGE,OWO_NOTIFICATIONS_CHAT_MESSAGES,tr("New messages"),kindMask,kindDefs);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_CHAT_MESSAGES;
+		notifyType.title = tr("New messages");
+		notifyType.kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::TrayNotify|INotification::SoundPlay|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::AutoActivate;
+		notifyType.kindDefs = notifyType.kindMask & ~(INotification::AutoActivate);
+		FNotifications->registerNotificationType(NNT_CHAT_MESSAGE,notifyType);
 	}
 	return true;
 }
@@ -398,10 +401,10 @@ INotification ChatMessageHandler::notifyMessage(INotifications *ANotifications, 
 	QString messages = tr("%n message(s)","",wstatus.notified.count());
 
 	INotification notify;
-	notify.kinds = ANotifications->notificatorKinds(NID_CHAT_MESSAGE);
+	notify.kinds = ANotifications->notificationKinds(NNT_CHAT_MESSAGE);
 	if (notify.kinds > 0)
 	{
-		notify.notificatior = NID_CHAT_MESSAGE;
+		notify.typeId = NNT_CHAT_MESSAGE;
 		notify.data.insert(NDR_STREAM_JID,AMessage.to());
 		notify.data.insert(NDR_CONTACT_JID,AMessage.from());
 		notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
@@ -413,10 +416,11 @@ INotification ChatMessageHandler::notifyMessage(INotifications *ANotifications, 
 		notify.data.insert(NDR_ROSTER_FOOTER,messages);
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
 		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
+		notify.data.insert(NDR_ALERT_WIDGET,(qint64)window->instance());
+		notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)window->instance());
+		notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)window->instance());
 		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
 		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-		notify.data.insert(NDR_TABPAGE_CREATE_TAB,true);
-		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
 		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
 		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHATHANDLER_TABBARITEM_NEWMESSAGE);
 		notify.data.insert(NDR_POPUP_ICON, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE));
@@ -1169,13 +1173,14 @@ void ChatMessageHandler::onStyleOptionsChanged(const IMessageStyleOptions &AOpti
 	}
 }
 
-void ChatMessageHandler::onNotificationTest(const QString &ANotificatorId, uchar AKinds)
+void ChatMessageHandler::onNotificationTest(const QString &ATypeId, ushort AKinds)
 {
-	if (ANotificatorId == NID_CHAT_MESSAGE)
+	if (ATypeId == NNT_CHAT_MESSAGE)
 	{
 		INotification notify;
 		notify.kinds = AKinds;
-		notify.notificatior = ANotificatorId;
+		notify.typeId = ATypeId;
+		notify.flags |= INotification::TestNotify;
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contsctJid = "vasilisa@rambler/ramblercontacts";

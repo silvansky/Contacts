@@ -10,7 +10,7 @@
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosternotifyorders.h>
 #include <definitions/rosterclickhookerorders.h>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/tabpagenotifypriorities.h>
 #include <definitions/vcardvaluenames.h>
@@ -162,7 +162,7 @@ protected slots:
 	void onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onPresenceRemoved(IPresence *APresence);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
-	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
+	void onNotificationTest(const QString &ATypeId, ushort AKinds);
 	void onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages);
 	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onOptionsOpened();

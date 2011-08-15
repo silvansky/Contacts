@@ -70,9 +70,11 @@ bool RosterPlugin::initObjects()
 {
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay;
-		uchar kindDefs = INotification::PopupWindow|INotification::SoundPlay;
-		FNotifications->insertNotificator(NID_CONTACT_ADDED,OWO_NOTIFICATIONS_CONTACT_ADDED,QString::null,kindMask,kindDefs);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_CONTACT_ADDED;
+		notifyType.kindMask = INotification::PopupWindow|INotification::SoundPlay;
+		notifyType.kindDefs = notifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_CONTACT_ADDED,notifyType);
 	}
 	return true;
 }
@@ -125,10 +127,10 @@ void RosterPlugin::notifyContactAdded(IRoster *ARoster, const IRosterItem &AItem
 	if (FNotifications && ARoster->isOpen() && !AItem.itemJid.node().isEmpty())
 	{
 		INotification notify;
-		notify.kinds = FNotifications->notificatorKinds(NID_CONTACT_ADDED);
+		notify.kinds = FNotifications->notificationKinds(NNT_CONTACT_ADDED);
 		if (notify.kinds > 0)
 		{
-			notify.notificatior = NID_CONTACT_ADDED;
+			notify.typeId = NNT_CONTACT_ADDED;
 			notify.data.insert(NDR_STREAM_JID, ARoster->streamJid().full());
 			notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
 			notify.data.insert(NDR_POPUP_TITLE, FNotifications->contactName(ARoster->streamJid(),AItem.itemJid));

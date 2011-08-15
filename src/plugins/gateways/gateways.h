@@ -18,7 +18,7 @@
 #include <definitions/optionnodeorders.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/gateserviceidentifiers.h>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/internalnoticepriorities.h>
 #include <interfaces/ipluginmanager.h>

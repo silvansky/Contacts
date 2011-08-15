@@ -98,7 +98,7 @@ bool RamblerMailNotify::initConnections(IPluginManager *APluginManager, int &AIn
 		{
 			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivated(int)));
 			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
-			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, uchar)),SLOT(onNotificationTest(const QString &, uchar)));
+			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, ushort)),SLOT(onNotificationTest(const QString &, ushort)));
 		}
 	}
 
@@ -149,8 +149,12 @@ bool RamblerMailNotify::initObjects()
 	}
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::PopupWindow|INotification::SoundPlay;
-		FNotifications->insertNotificator(NID_MAIL_NOTIFY,OWO_NOTIFICATIONS_MAIL_NOTIFY,tr("New e-mail"),kindMask,kindMask);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_MAIL_NOTIFY;
+		notifyType.title = tr("New e-mail");
+		notifyType.kindMask = INotification::PopupWindow|INotification::SoundPlay;
+		notifyType.kindDefs = notifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_MAIL_NOTIFY,notifyType);
 	}
 	if (FStanzaProcessor)
 	{
@@ -328,11 +332,11 @@ void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AS
 			}
 
 			INotification notify;
-			notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_MAIL_NOTIFY)|INotification::RosterNotify : 0;
+			notify.kinds = FNotifications!=NULL ? FNotifications->notificationKinds(NNT_MAIL_NOTIFY)|INotification::RosterNotify : 0;
 			if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 			{
-				notify.removeInvisible = false;
-				notify.notificatior = NID_MAIL_NOTIFY;
+				notify.typeId = NNT_MAIL_NOTIFY;
+				notify.flags &= ~INotification::RemoveInvisible;
 				notify.data.insert(NDR_STREAM_JID,AStreamJid.full());
 				notify.data.insert(NDR_CONTACT_JID,mnotify->contactJid.full());
 				notify.data.insert(NDR_POPUP_TITLE,contactElem.firstChildElement("name").text());
@@ -515,13 +519,14 @@ void RamblerMailNotify::onNotificationRemoved(int ANotifyId)
 	removeMailNotify(findMailNotifyByPopupId(ANotifyId));
 }
 
-void RamblerMailNotify::onNotificationTest(const QString &ANotificatorId, uchar AKinds)
+void RamblerMailNotify::onNotificationTest(const QString &ATypeId, ushort AKinds)
 {
-	if (ANotificatorId == NID_MAIL_NOTIFY)
+	if (ATypeId == NNT_MAIL_NOTIFY)
 	{
 		INotification notify;
+		notify.typeId = ATypeId;
 		notify.kinds = AKinds;
-		notify.notificatior = ANotificatorId;
+		notify.flags |= INotification::TestNotify;
 		if (AKinds & INotification::PopupWindow)
 		{
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));

@@ -15,7 +15,7 @@
 #include <definitions/rosterdragdropmimetypes.h>
 #include <definitions/toolbargroups.h>
 #include <definitions/customborder.h>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/notificationdataroles.h>
 #include <interfaces/ipluginmanager.h>

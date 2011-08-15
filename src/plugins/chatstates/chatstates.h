@@ -12,7 +12,7 @@
 #include <definitions/optionnodes.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/rosternotifyorders.h>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/tabpagenotifypriorities.h>
 #include <interfaces/ipluginmanager.h>

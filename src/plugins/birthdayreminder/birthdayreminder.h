@@ -4,7 +4,7 @@
 #include <QTimer>
 #include <QObject>
 #include <QPixmap>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/soundfiles.h>
@@ -77,7 +77,7 @@ protected slots:
 	void onCongratulateWithPostcard();
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
-	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
+	void onNotificationTest(const QString &ATypeId, ushort AKinds);
 	void onInternalNoticeReady();
 	void onInternalNoticeActionTriggered();
 	void onInternalNoticeRemove();

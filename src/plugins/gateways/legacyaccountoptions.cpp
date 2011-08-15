@@ -169,6 +169,7 @@ void LegacyAccountOptions::onServicePresenceChanged(const Jid &AStreamJid, const
 
 void LegacyAccountOptions::onGatewaysErrorReceived(const QString &AId, const QString &AError)
 {
+	Q_UNUSED(AError);
 	if (FRemoveRequest == AId)
 	{
 		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::Info);

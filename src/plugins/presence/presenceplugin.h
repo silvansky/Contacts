@@ -5,7 +5,7 @@
 #include <QVariant>
 #include <QObjectCleanupHandler>
 #include <definitions/optionwidgetorders.h>
-#include <definitions/notificators.h>
+#include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/rosternotifyorders.h>
 #include <definitions/soundfiles.h>
@@ -69,7 +69,7 @@ protected slots:
 	void onStreamRemoved(IXmppStream *AXmppStream);
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
-	void onNotificationTest(const QString &ANotificatorId, uchar AKinds);
+	void onNotificationTest(const QString &ATypeId, ushort AKinds);
 private:
 	IXmppStreams *FXmppStreams;
 	IStatusIcons *FStatusIcons;

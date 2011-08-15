@@ -39,25 +39,16 @@
 struct NotifyRecord
 {
 	NotifyRecord() {
-		trayId=0;
-		rosterId=0;
-		tabPageId=0;
-		widget=NULL;
+		trayId = 0;
+		rosterId = 0;
+		tabPageId = 0;
 	}
 	int trayId;
 	int rosterId;
 	int tabPageId;
 	INotification notification;
-	QPointer<NotifyWidget> widget;
 	QPointer<QObject> tabPageNotifier;
-};
-
-struct Notificator
-{
-	int order;
-	QString title;
-	uchar defaults;
-	uchar kindMask;
+	QPointer<NotifyWidget> popupWidget;
 };
 
 class Notifications :
@@ -66,8 +57,8 @@ class Notifications :
 	public INotifications,
 	public IOptionsHolder
 {
-	Q_OBJECT
-	Q_INTERFACES(IPlugin INotifications IOptionsHolder)
+	Q_OBJECT;
+	Q_INTERFACES(IPlugin INotifications IOptionsHolder);
 public:
 	Notifications();
 	~Notifications();
@@ -88,22 +79,23 @@ public:
 	virtual void activateNotification(int ANotifyId);
 	virtual void removeNotification(int ANotifyId);
 	//Kind options for notificators
-	virtual void insertNotificator(const QString &ANotificatorId, int AWidgetOrder, const QString &ATitle, uchar AKindMask, uchar ADefault);
-	virtual uchar notificatorKinds(const QString &ANotificatorId) const;
-	virtual void setNotificatorKinds(const QString &ANotificatorId, uchar AKinds);
-	virtual void removeNotificator(const QString &ANotificatorId);
+	virtual void registerNotificationType(const QString &ATypeId, const INotificationType &AType);
+	virtual QList<QString> notificationTypes() const;
+	virtual INotificationType notificationType(const QString &ATypeId) const;
+	virtual ushort notificationKinds(const QString &ATypeId) const;
+	virtual void setNotificationKinds(const QString &ATypeId, ushort AKinds);
+	virtual void removeNotificationType(const QString &ATypeId);
 	//Notification Utilities
 	virtual QImage contactAvatar(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual QIcon contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual QString contactName(const Jid &AStreamJId, const Jid &AContactJid) const;
 signals:
-	void notificationAppend(int ANotifyId, INotification &ANotification);
-	void notificationAppended(int ANotifyId, const INotification &ANotification);
 	void notificationActivated(int ANotifyId);
 	void notificationRemoved(int ANotifyId);
-	void notificationTest(const QString &ANotificatorId, uchar AKinds);
+	void notificationAppend(int ANotifyId, INotification &ANotification);
+	void notificationAppended(int ANotifyId, const INotification &ANotification);
+	void notificationTest(const QString &ATypeId, ushort AKinds);
 protected:
-	bool isInvisibleNotify(int ANotifyId) const;
 	int notifyIdByRosterId(int ARosterId) const;
 	int notifyIdByTrayId(int ATrayId) const;
 	int notifyIdByWidget(NotifyWidget *AWidget) const;
@@ -127,14 +119,12 @@ protected slots:
 private:
 	IAvatars *FAvatars;
 	IRosterPlugin *FRosterPlugin;
-   IMetaContacts *FMetaContacts;
+	IMetaContacts *FMetaContacts;
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
 	ITrayManager *FTrayManager;
 	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
-	IMessageWidgets *FMessageWidgets;
-	IMessageProcessor *FMessageProcessor;
 	IOptionsManager *FOptionsManager;
 private:
 #ifdef QT_PHONON_LIB
@@ -144,13 +134,14 @@ private:
 	QSound *FSound;
 #endif
 private:
+	int FNotifyId;
 	int FTestNotifyId;
 	Action *FActivateAll;
 	QTimer FTestNotifyTimer;
 	QList<int> FDelayedReplaces;
 	QList<int> FDelayedActivations;
 	QMap<int, NotifyRecord> FNotifyRecords;
-	QMap<QString, Notificator> FNotificators;
+	QMap<QString, INotificationType> FNotifyTypes;
 };
 
 #endif // NOTIFICATIONS_H

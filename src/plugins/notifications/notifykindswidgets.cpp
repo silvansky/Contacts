@@ -34,9 +34,9 @@ void NotifyKindsWidgets::reset()
 {
 	foreach (QObject* child, children())
 	{
-		if (IOptionsWidget *reset = qobject_cast<IOptionsWidget*>(child))
+		if (IOptionsWidget *widget = qobject_cast<IOptionsWidget*>(child))
 		{
-			reset->reset();
+			widget->reset();
 		}
 	}
 }

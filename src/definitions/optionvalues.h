@@ -92,19 +92,14 @@
 
 // Notifications
 #define OPV_NOTIFICATIONS_ROOT                          "notifications"
-#define OPV_NOTIFICATIONS_SOUND                         "notifications.sound"
-#define OPV_NOTIFICATIONS_ROSTERICON                    "notifications.roster-icon"
-#define OPV_NOTIFICATIONS_POPUPWINDOW                   "notifications.popup-window"
-#define OPV_NOTIFICATIONS_CHATWINDOW                    "notifications.chat-window"
-#define OPV_NOTIFICATIONS_TRAYICON                      "notifications.tray-icon"
-#define OPV_NOTIFICATIONS_TRAYACTION                    "notifications.tray-action"
-#define OPV_NOTIFICATIONS_AUTOACTIVATE                  "notifications.auto-activate"
 #define OPV_NOTIFICATIONS_NONOTIFYIFDND                 "notifications.no-notify-if-dnd"
 #define OPV_NOTIFICATIONS_NONOTIFYIFAWAY                "notifications.no-notify-if-away"
 #define OPV_NOTIFICATIONS_NONOTIFYIFFULLSCREEN          "notifications.no-notify-if-fullscreen"
 #define OPV_NOTIFICATIONS_SOUND_COMMAND                 "notifications.sound-command"
-#define OPV_NOTIFICATIONS_NOTIFICATORS_ROOT             "notifications.notificators"
-#define OPV_NOTIFICATIONS_NOTIFICATOR_ITEM              "notifications.notificators.notificator"
+#define OPV_NOTIFICATIONS_TYPEKINDS_ROOT                "notifications.type-kinds"
+#define OPV_NOTIFICATIONS_TYPEKINDS_ITEM                "notifications.type-kinds.type"
+#define OPV_NOTIFICATIONS_KINDENABLED_ROOT              "notifications.kind-enabled"
+#define OPV_NOTIFICATIONS_KINDENABLED_ITEM              "notifications.kind-enabled.kind"
 
 // ConnectionManager
 #define OPV_PROXY_ROOT                                  "proxy"

@@ -61,7 +61,7 @@ bool PresencePlugin::initConnections(IPluginManager *APluginManager, int &AInitO
 		{
 			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivated(int)));
 			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
-			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, uchar)),SLOT(onNotificationTest(const QString &, uchar)));
+			connect(FNotifications->instance(),SIGNAL(notificationTest(const QString &, ushort)),SLOT(onNotificationTest(const QString &, ushort)));
 		}
 	}
 
@@ -80,11 +80,19 @@ bool PresencePlugin::initObjects()
 {
 	if (FNotifications)
 	{
-		uchar stateKindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::SoundPlay|INotification::TestNotify;
-		FNotifications->insertNotificator(NID_CONTACT_STATE,OWO_NOTIFICATIONS_STATUS_CHANGES,tr("State Changes"),stateKindMask,0);
+		INotificationType stateType;
+		stateType.order = OWO_NOTIFICATIONS_STATUS_CHANGES;
+		stateType.title = tr("State Changes");
+		stateType.kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::SoundPlay;
+		stateType.kindDefs = 0;
+		FNotifications->registerNotificationType(NNT_CONTACT_STATE,stateType);
 
-		uchar moodKindMask = INotification::PopupWindow|INotification::SoundPlay|INotification::TestNotify;
-		FNotifications->insertNotificator(NID_CONTACT_MOOD,OWO_NOTIFICATIONS_MOOD_CHANGES,tr("Mood Changes"),moodKindMask,0);
+		INotificationType moodType;
+		moodType.order = OWO_NOTIFICATIONS_MOOD_CHANGES;
+		moodType.title = tr("Mood Changes");
+		moodType.kindMask = INotification::PopupWindow|INotification::SoundPlay;
+		moodType.kindDefs = 0;
+		FNotifications->registerNotificationType(NNT_CONTACT_MOOD,moodType);
 	}
 	return true;
 }
@@ -145,10 +153,10 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 		if (lastNotify.isNull() || lastNotify.secsTo(QDateTime::currentDateTime())>=MOOD_NOTIFY_TIMEOUT)
 		{
 			INotification notify;
-			notify.kinds = FNotifications->notificatorKinds(NID_CONTACT_MOOD);
+			notify.kinds = FNotifications->notificationKinds(NNT_CONTACT_MOOD);
 			if (notify.kinds > 0)
 			{
-				notify.notificatior = NID_CONTACT_MOOD;
+				notify.typeId = NNT_CONTACT_MOOD;
 				notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
 				notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
 				notify.data.insert(NDR_ICON,FNotifications->contactIcon(APresence->streamJid(),AItem.itemJid));
@@ -169,7 +177,7 @@ void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceIte
 	if (FNotifications && !AItem.itemJid.node().isEmpty() && FConnectTime.contains(APresence) && FConnectTime.value(APresence).secsTo(QDateTime::currentDateTime())>CONNECTION_NOTIFY_TIMEOUT)
 	{
 		INotification notify;
-		notify.kinds = FNotifications->notificatorKinds(NID_CONTACT_STATE);
+		notify.kinds = FNotifications->notificationKinds(NNT_CONTACT_STATE);
 
 		QDateTime lastNotify = FLastStateNotify.value(AItem.itemJid);
 		if (lastNotify.isNull() || lastNotify.secsTo(QDateTime::currentDateTime())>=STATE_NOTIFY_TIMEOUT)
@@ -180,7 +188,7 @@ void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceIte
 		if (notify.kinds > 0)
 		{
 			bool isOnline = AItem.show!=IPresence::Offline && AItem.show!=IPresence::Error;
-			notify.notificatior = NID_CONTACT_STATE;
+			notify.typeId = NNT_CONTACT_STATE;
 			notify.data.insert(NDR_STREAM_JID, APresence->streamJid().full());
 			notify.data.insert(NDR_CONTACT_JID, AItem.itemJid.full());
 			notify.data.insert(NDR_ROSTER_ORDER,RNO_PRESENCE_CONTACT_STATE);
@@ -325,20 +333,21 @@ void PresencePlugin::onNotificationRemoved(int ANotifyId)
 	FNotifies.remove(FNotifies.key(ANotifyId),ANotifyId);
 }
 
-void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKinds)
+void PresencePlugin::onNotificationTest(const QString &ATypeId, ushort AKinds)
 {
-	if (ANotificatorId == NID_CONTACT_MOOD)
+	if (ATypeId == NNT_CONTACT_MOOD)
 	{
 		INotification notify;
+		notify.typeId = ATypeId;
 		notify.kinds = AKinds;
-		notify.notificatior = ANotificatorId;
+		notify.flags |= INotification::TestNotify;
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contactJid = "vasilisa@rambler/ramblercontacts";
 			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Online, SUBSCRIPTION_BOTH, false) : QVariant());
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_NOTICE,tr("Changed mood"));
-         notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contactJid.full()));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contactJid.full()));
 			notify.data.insert(NDR_POPUP_TEXT, Qt::escape(tr("Whatever was done, all the better")));
 		}
 		if (AKinds & INotification::SoundPlay)
@@ -350,18 +359,19 @@ void PresencePlugin::onNotificationTest(const QString &ANotificatorId, uchar AKi
 			FNotifies.insertMulti(NULL,FNotifications->appendNotification(notify));
 		}
 	}
-	else if (ANotificatorId == NID_CONTACT_STATE)
+	else if (ATypeId == NNT_CONTACT_STATE)
 	{
 		INotification notify;
+		notify.typeId = ATypeId;
 		notify.kinds = AKinds;
-		notify.notificatior = ANotificatorId;
+		notify.flags |= INotification::TestNotify;
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contactJid = "vasilisa@rambler/ramblercontacts";
 			notify.data.insert(NDR_POPUP_ICON, FStatusIcons!=NULL ? FStatusIcons->iconByStatus(IPresence::Online, SUBSCRIPTION_BOTH, false) :QVariant());
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_NOTICE, tr("Connected"));
-         notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contactJid.full()));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contactJid.full()));
 		}
 		if (AKinds & INotification::SoundPlay)
 		{

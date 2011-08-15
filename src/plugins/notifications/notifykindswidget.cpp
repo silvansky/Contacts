@@ -1,19 +1,18 @@
 #include "notifykindswidget.h"
 
-NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QString &ANotificatorId, const QString &ATitle, uchar AKindMask, uchar AKindDefs, QWidget *AParent) : QWidget(AParent)
+NotifyKindsWidget::NotifyKindsWidget(INotifications *ANotifications, const QString &ATypeId, const QString &ATitle, ushort AKindMask, ushort AKindDefs, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
 	ui.lblTitle->setText(ATitle);
 	ui.lblTest->setVisible(false);
 
 	FNotifications = ANotifications;
-	FNotificatorId = ANotificatorId;
-	FNotificatorKindMask = AKindMask;
-	FNotificatorKindDefs = AKindDefs;
+	FTypeId = ATypeId;
+	FKindMask = AKindMask;
+	FKindDefs = AKindDefs;
 
 	ui.chbPopup->setEnabled(AKindMask & INotification::PopupWindow);
 	ui.chbSound->setEnabled(AKindMask & INotification::SoundPlay);
-	ui.lblTest->setEnabled(AKindMask & INotification::TestNotify);
 
 	connect(this, SIGNAL(modified()), SLOT(onModified()));
 	connect(this, SIGNAL(childReset()), SLOT(onModified()));
@@ -32,22 +31,21 @@ NotifyKindsWidget::~NotifyKindsWidget()
 
 void NotifyKindsWidget::apply()
 {
-	FNotifications->setNotificatorKinds(FNotificatorId,changedKinds(FNotificatorKindDefs));
+	FNotifications->setNotificationKinds(FTypeId,changedKinds(FKindDefs));
 	emit childApply();
 }
 
 void NotifyKindsWidget::reset()
 {
-	uchar kinds = FNotifications->notificatorKinds(FNotificatorId);
+	ushort kinds = FNotifications->notificationKinds(FTypeId);
 	ui.chbPopup->setChecked(kinds & INotification::PopupWindow);
 	ui.chbSound->setChecked(kinds & INotification::SoundPlay);
 	emit childReset();
 }
 
-uchar NotifyKindsWidget::changedKinds(uchar AActiveKinds) const
+ushort NotifyKindsWidget::changedKinds(ushort AActiveKinds) const
 {
-	uchar kinds = AActiveKinds;
-	kinds &= ~INotification::TestNotify;
+	ushort kinds = AActiveKinds;
 
 	if (ui.chbPopup->isChecked())
 		kinds |= INotification::PopupWindow;
@@ -65,7 +63,7 @@ uchar NotifyKindsWidget::changedKinds(uchar AActiveKinds) const
 void NotifyKindsWidget::onTestLinkActivated(const QString &ALink)
 {
 	Q_UNUSED(ALink);
-	emit notificationTest(FNotificatorId,changedKinds(0)|INotification::TestNotify);
+	emit notificationTest(FTypeId,changedKinds(0));
 }
 
 void NotifyKindsWidget::onTestButtonClicked()

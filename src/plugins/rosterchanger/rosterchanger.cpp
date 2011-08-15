@@ -186,9 +186,11 @@ bool RosterChanger::initObjects()
 {
 	if (FNotifications)
 	{
-		uchar kindMask = INotification::RosterNotify|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction|INotification::PopupWindow|INotification::SoundPlay|INotification::AutoActivate;
-		uchar kindDefs = INotification::RosterNotify|INotification::TabPageNotify|INotification::TrayNotify|INotification::TrayAction|INotification::PopupWindow|INotification::SoundPlay;
-		FNotifications->insertNotificator(NID_SUBSCRIPTION,OWO_NOTIFICATIONS_SUBSCRIPTIONS,QString::null,kindMask,kindDefs);
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_SUBSCRIPTIONS;
+		notifyType.kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::TrayNotify|INotification::SoundPlay|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::AutoActivate;
+		notifyType.kindDefs = notifyType.kindMask & ~(INotification::AutoActivate);
+		FNotifications->registerNotificationType(NNT_SUBSCRIPTION,notifyType);
 	}
 	if (FRostersView)
 	{
@@ -1179,13 +1181,13 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 	QString notifyMessage = subscriptionNotify(ARoster->streamJid(),AItemJid,ASubsType);
 
 	removeObsoleteNotifies(ARoster->streamJid(),AItemJid,ASubsType,false);
-	notify.kinds = FNotifications!=NULL ? FNotifications->notificatorKinds(NID_SUBSCRIPTION) : 0;
+	notify.kinds = FNotifications!=NULL ? FNotifications->notificationKinds(NNT_SUBSCRIPTION) : 0;
 	if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribe)
 		notify.kinds &= INotification::PopupWindow|INotification::SoundPlay;
 
 	if (notify.kinds > 0)
 	{
-		notify.notificatior = NID_SUBSCRIPTION;
+		notify.typeId = NNT_SUBSCRIPTION;
 		notify.data.insert(NDR_STREAM_JID,ARoster->streamJid().full());
 		notify.data.insert(NDR_CONTACT_JID,chatWindow!=NULL ? chatWindow->contactJid().full() : AItemJid.full());
 		notify.data.insert(NDR_ICON_KEY,MNI_RCHANGER_SUBSCRIBTION);
@@ -1197,12 +1199,6 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 		notify.data.insert(NDR_ROSTER_FOOTER,notifyMessage);
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::magenta));
 		notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name.split(" ").value(0)));
-		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SUBSCRIPTION);
-		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,1);
-		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-		notify.data.insert(NDR_TABPAGE_ALERT_WINDOW,true);
-		notify.data.insert(NDR_TABPAGE_TOOLTIP, Qt::escape(notifyMessage));
-		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
 		notify.data.insert(NDR_POPUP_TITLE, name);
 		notify.data.insert(NDR_POPUP_NOTICE, notifyMessage);
 		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(ARoster->streamJid(),AItemJid));
@@ -1211,6 +1207,18 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 		notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
 		notify.data.insert(NDR_SUBSCRIPTION_TYPE,ASubsType);
 		notify.data.insert(NDR_SUBSCRIPTION_TEXT,AText);
+
+		if (chatWindow)
+		{
+			notify.data.insert(NDR_ALERT_WIDGET,(qint64)chatWindow->instance());
+			notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)chatWindow->instance());
+			notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)chatWindow->instance());
+			notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SUBSCRIPTION);
+			notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,1);
+			notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+			notify.data.insert(NDR_TABPAGE_TOOLTIP, Qt::escape(notifyMessage));
+			notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
+		}
 	}
 
 	int notifyId = -1;
