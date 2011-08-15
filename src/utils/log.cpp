@@ -18,18 +18,18 @@ void qtMessagesHandler(QtMsgType AType, const char *AMessage)
 {
 	switch (AType) 
 	{
-	  case QtDebugMsg:
-		  LogDebug(QString("[QtDebugMsg] %1").arg(AMessage));
-		  break;
-	  case QtWarningMsg:
-		  LogWarning(QString("[QtWarningMsg] %1").arg(AMessage));
-		  break;
-	  case QtCriticalMsg:
-		  LogError(QString("[QtCriticalMsg] %1").arg(AMessage));
-		  break;
-	  case QtFatalMsg:
-		  LogError(QString("[QtFatalMsg] %1").arg(AMessage));
-		  abort();
+	case QtDebugMsg:
+		LogDebug(QString("[QtDebugMsg] %1").arg(AMessage));
+		break;
+	case QtWarningMsg:
+		LogWarning(QString("[QtWarningMsg] %1").arg(AMessage));
+		break;
+	case QtCriticalMsg:
+		LogError(QString("[QtCriticalMsg] %1").arg(AMessage));
+		break;
+	case QtFatalMsg:
+		LogError(QString("[QtFatalMsg] %1").arg(AMessage));
+		break;
 	}
 }
 
