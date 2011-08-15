@@ -19,5 +19,9 @@
         <source>Supports the exchange of a small amount of binary data in XMPP stanza</source>
         <translation>Поддерживает обмен некоторым количеством бинарных данных в XMPP-станзах</translation>
     </message>
+    <message>
+        <source>Failed to save data on disk</source>
+        <translation>Не удалось сохранить данные на диске</translation>
+    </message>
 </context>
 </TS>

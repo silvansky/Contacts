@@ -322,7 +322,7 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 					FChangingPresence = NULL;
 					setStreamStatusId(presence, FMainStatusStreams.contains(presence) ? STATUS_MAIN_ID : newStatus.code);
 
-					if (newStatus.show==IPresence::Offline && newStatus.show==IPresence::Error)
+					if (newStatus.show==IPresence::Offline || newStatus.show==IPresence::Error)
 					{
 						LogDetaile(QString("[StatusChanger] Closing XMPP stream '%1'").arg(presence->streamJid().bare()));
 						presence->xmppStream()->close();

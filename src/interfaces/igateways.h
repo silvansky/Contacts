@@ -95,7 +95,7 @@ public:
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual bool setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled) =0;
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe) =0;
-	virtual bool removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts) =0;
+	virtual QString removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts) =0;
 	virtual QString legacyIdFromUserJid(const Jid &AUserJid) const =0;
 	virtual QString sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid) =0;
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid) =0;
@@ -106,6 +106,7 @@ protected:
 	virtual void streamServicesChanged(const Jid &AStreamJid) =0;
 	virtual void serviceEnableChanged(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled) =0;
 	virtual void servicePresenceChanged(const Jid &AStreamJid, const Jid &AServiceJid, const IPresenceItem &AItem) =0;
+	virtual void serviceRemoved(const QString &AId) = 0;
 	virtual void loginReceived(const QString &AId, const QString &ALogin) =0;
 	virtual void promptReceived(const QString &AId, const QString &ADesc, const QString &APrompt) =0;
 	virtual void userJidReceived(const QString &AId, const Jid &AUserJid) =0;

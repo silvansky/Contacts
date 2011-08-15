@@ -27,10 +27,6 @@
         <translation>Неверный уровень сжатия</translation>
     </message>
     <message>
-        <source>invalid or incomplete deflate data</source>
-        <translation>Неправильные или неполные данные для сжатия</translation>
-    </message>
-    <message>
         <source>Out of memory for Zlib</source>
         <translation>Не хватает памяти для Zlib</translation>
     </message>
@@ -41,6 +37,10 @@
     <message>
         <source>Wrong compression negotiation response</source>
         <translation>Неверный ответ во время инициализации сжатия</translation>
+    </message>
+    <message>
+        <source>Invalid or incomplete deflate data</source>
+        <translation>Неправильные или неполные данные для сжатия</translation>
     </message>
 </context>
 </TS>
