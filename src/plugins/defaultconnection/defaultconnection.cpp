@@ -67,7 +67,7 @@ bool DefaultConnection::connectToHost()
 		FChangeProxyType = option(IDefaultConnection::COR_CHANGE_PROXY_TYPE).toBool();
 
 		QJDns::Record record;
-		record.name = !host.isEmpty() ? host.toLatin1() : domain.toLatin1();
+		record.name = !host.isEmpty() ? host.toLatin1() : QByteArray("xmpp.rambler.ru");
 		record.port = port;
 		record.priority = 0;
 		record.weight = 0;
