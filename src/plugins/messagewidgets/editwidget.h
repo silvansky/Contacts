@@ -31,6 +31,8 @@ public:
 	virtual void setAutoResize(bool AResize);
 	virtual int minimumLines() const;
 	virtual void setMinimumLines(int ALines);
+	virtual int maximumLines() const;
+	virtual void setMaximumLines(int ALines);
 	virtual QKeySequence sendKey() const;
 	virtual void setSendKey(const QKeySequence &AKey);
 	virtual bool sendButtonVisible() const;
@@ -48,9 +50,10 @@ signals:
 	void contactJidChanged(const Jid &ABefour);
 	void autoResizeChanged(bool AResize);
 	void minimumLinesChanged(int ALines);
+	void maximumLinesChanged(int ALines);
 	void sendKeyChanged(const QKeySequence &AKey);
 protected:
-	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
+	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected:
 	void appendMessageToBuffer();
 	void showBufferedMessage();

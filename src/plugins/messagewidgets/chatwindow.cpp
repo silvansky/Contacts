@@ -45,7 +45,7 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	FEditWidget = FMessageWidgets->newEditWidget(AStreamJid,AContactJid);
 	FEditWidget->instance()->setObjectName("editWidget");
 	ui.wdtEdit->setLayout(new QVBoxLayout);
-	ui.wdtEdit->layout()->setMargin(0);
+	ui.wdtEdit->layout()->setContentsMargins(0,4,0,0);
 	ui.wdtEdit->layout()->addWidget(FEditWidget->instance());
 	connect(FEditWidget->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 
@@ -67,7 +67,7 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 
 	ui.wdtBottomWidgets->setLayout(new QVBoxLayout);
 	ui.wdtBottomWidgets->layout()->setMargin(0);
-	//ui.wdtBottomWidgets->setVisible(false);
+	ui.wdtBottomWidgets->setVisible(false);
 
 	FStatusBarWidget = FMessageWidgets->newStatusBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
 	FStatusBarWidget->instance()->setObjectName("statusBarWidget");

@@ -126,6 +126,8 @@ public:
 	virtual void setAutoResize(bool AResize) =0;
 	virtual int minimumLines() const =0;
 	virtual void setMinimumLines(int ALines) =0;
+	virtual int maximumLines() const =0;
+	virtual void setMaximumLines(int ALines) =0;
 	virtual QKeySequence sendKey() const =0;
 	virtual void setSendKey(const QKeySequence &AKey) =0;
 	virtual bool sendButtonVisible() const =0;
@@ -143,6 +145,7 @@ protected:
 	virtual void contactJidChanged(const Jid &ABefour) =0;
 	virtual void autoResizeChanged(bool AResize) =0;
 	virtual void minimumLinesChanged(int ALines) =0;
+	virtual void maximumLinesChanged(int ALines) =0;
 	virtual void sendKeyChanged(const QKeySequence &AKey) =0;
 };
 
@@ -350,18 +353,6 @@ protected:
 	virtual void contactJidChanged(const Jid &ABefour) =0;
 };
 
-class IMassSendDialog
-{
-public:
-	virtual QDialog * instance() =0;
-	virtual const Jid &streamJid() const =0;
-	virtual IViewWidget *viewWidget() const =0;
-	virtual IEditWidget *editWidget() const =0;
-	virtual IReceiversWidget *receiversWidget() const =0;
-protected:
-	virtual void messageReady() =0;
-};
-
 class IViewDropHandler
 {
 public:
@@ -468,7 +459,6 @@ Q_DECLARE_INTERFACE(ITabPageNotifier,"Virtus.Plugin.ITabPageNotifier/1.0")
 Q_DECLARE_INTERFACE(ITabWindow,"Virtus.Plugin.ITabWindow/1.0")
 Q_DECLARE_INTERFACE(IChatWindow,"Virtus.Plugin.IChatWindow/1.0")
 Q_DECLARE_INTERFACE(IMessageWindow,"Virtus.Plugin.IMessageWindow/1.0")
-Q_DECLARE_INTERFACE(IMassSendDialog,"Virtus.Plugin.IMassSendDialog/1.0")
 Q_DECLARE_INTERFACE(IViewDropHandler,"Virtus.Plugin.IViewDropHandler/1.0")
 Q_DECLARE_INTERFACE(IViewUrlHandler,"Virtus.Plugin.IViewUrlHandler/1.0")
 Q_DECLARE_INTERFACE(ITabPageHandler,"Virtus.Plugin.ITabPageHandler/1.0")

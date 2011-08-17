@@ -17,10 +17,6 @@
     <object mime='text/css'>messagewidgetsmessagewindow.qss</object>
   </file>
   <file>
-    <key>messagewidgetsMassSendDialog</key>
-    <object mime='text/css'>messagewidgetsmasssenddialog.qss</object>
-  </file>
-  <file>
     <key>messagewidgetsNoticeWidget</key>
     <object mime='text/css'>messagewidgetsnoticewidget.qss</object>
   </file>

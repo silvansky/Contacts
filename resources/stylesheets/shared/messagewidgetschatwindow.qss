@@ -5,10 +5,6 @@ QToolBar
 	spacing: 2px;
 }
 
-#editWidget
-{
-	min-height: 80px;
-}
 
 QPushButton#rejectAuthRequest,
 QPushButton#authRequest,

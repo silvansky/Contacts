@@ -1,21 +1,23 @@
 #include "autosizetextedit.h"
 
 #include <QFrame>
-#include <QAbstractTextDocumentLayout>
 #include <QScrollBar>
+#include <QAbstractTextDocumentLayout>
 #include "stylestorage.h"
 
 AutoSizeTextEdit::AutoSizeTextEdit(QWidget *AParent) : QTextBrowser(AParent)
 {
 	FAutoResize = true;
 	FMinimumLines = 1;
+	FMaximumLines = 0;
+	
 	setOpenLinks(false);
 	setOpenExternalLinks(false);
 	setAttribute(Qt::WA_MacShowFocusRect, false);
 	setTextInteractionFlags(Qt::TextEditorInteraction);
 	document()->setDocumentMargin(7);
-
 	setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+
 	connect(verticalScrollBar(), SIGNAL(rangeChanged(int,int)), SLOT(onScrollBarRangeChanged(int,int)));
 	connect(this,SIGNAL(textChanged()),SLOT(onTextChanged()));
 }
@@ -49,7 +51,30 @@ void AutoSizeTextEdit::setMinimumLines(int ALines)
 	if (ALines != FMinimumLines)
 	{
 		FMinimumLines = ALines>0 ? ALines : 1;
-		setMinimumSize(minimumSizeHint());
+		setMinimumHeight(textHeight(FMinimumLines));
+		updateGeometry();
+	}
+}
+
+int AutoSizeTextEdit::maximumLines() const
+{
+	return FMaximumLines;
+}
+
+void AutoSizeTextEdit::setMaximumLines(int ALines)
+{
+	if (ALines != FMaximumLines)
+	{
+		if (ALines > 0)
+		{
+			FMaximumLines = ALines;
+			setMaximumHeight(textHeight(FMaximumLines));
+		}
+		else
+		{
+			FMaximumLines = 0;
+			setMaximumHeight(QWIDGETSIZE_MAX);
+		}
 		updateGeometry();
 	}
 }
@@ -57,7 +82,7 @@ void AutoSizeTextEdit::setMinimumLines(int ALines)
 QSize AutoSizeTextEdit::sizeHint() const
 {
 	QSize sh = QTextEdit::sizeHint();
-	sh.setHeight(textHeight(!FAutoResize ? FMinimumLines : 0));
+	sh.setHeight(qMin(textHeight(!FAutoResize ? FMinimumLines : 0),maximumHeight()));
 	return sh;
 }
 

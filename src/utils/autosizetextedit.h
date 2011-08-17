@@ -16,6 +16,8 @@ public:
 	void setAutoResize(bool AResize);
 	int minimumLines() const;
 	void setMinimumLines(int ALines);
+	int maximumLines() const;
+	void setMaximumLines(int ALines);
 public:
 	virtual QSize sizeHint() const;
 	virtual QSize minimumSizeHint() const;
@@ -27,6 +29,7 @@ protected slots:
 private:
 	bool FAutoResize;
 	int FMinimumLines;
+	int FMaximumLines;
 };
 
 #endif // AUTOSIZETEXTEDIT_H

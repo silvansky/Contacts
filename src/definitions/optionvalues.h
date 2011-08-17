@@ -54,6 +54,7 @@
 #define OPV_MESSAGES_LASTTABPAGESCOUNT                  "messages.last-tab-pages-count"
 #define OPV_MESSAGES_EDITORAUTORESIZE                   "messages.editor-auto-resize"
 #define OPV_MESSAGES_EDITORMINIMUMLINES                 "messages.editor-minimum-lines"
+#define OPV_MESSAGES_EDITORMAXIMUMLINES                 "messages.editor-maximum-lines"
 #define OPV_MESSAGES_EDITORSENDKEY                      "messages.editor-send-key"
 #define OPV_MESSAGES_TABWINDOWS_ROOT                    "messages.tab-windows"
 #define OPV_MESSAGES_TABWINDOWS_ENABLE                  "messages.tab-windows.enable"

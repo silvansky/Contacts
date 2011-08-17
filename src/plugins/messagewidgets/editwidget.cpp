@@ -15,14 +15,16 @@ EditWidget::EditWidget(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	ui.setupUi(this);
 	ui.medEditor->setAcceptRichText(true);
 	ui.medEditor->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-	QHBoxLayout * hlayout = new QHBoxLayout;
+	
+	QVBoxLayout *vlayout = new QVBoxLayout;
+	vlayout->setMargin(1);
+	vlayout->addWidget(ui.tlbSend,0,Qt::AlignBottom);
+
+	QHBoxLayout *hlayout = new QHBoxLayout;
 	hlayout->addStretch();
 	hlayout->setContentsMargins(2, 2, 20, 2);
-	QVBoxLayout * layout = new QVBoxLayout;
-	layout->setMargin(1);
-	layout->addStretch();
-	layout->addWidget(ui.tlbSend);
-	hlayout->addLayout(layout);
+	hlayout->addLayout(vlayout);
+
 	ui.medEditor->setLayout(hlayout);
 	ui.medEditor->setLineWrapMode(QTextEdit::FixedPixelWidth);
 
@@ -36,7 +38,6 @@ EditWidget::EditWidget(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	FSendShortcut->setContext(Qt::WidgetShortcut);
 	connect(FSendShortcut,SIGNAL(activated()),SLOT(onShortcutActivated()));
 
-	//IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbSend,MNI_MESSAGEWIDGETS_SEND);
 	connect(ui.tlbSend,SIGNAL(clicked(bool)),SLOT(onSendButtonCliked(bool)));
 
 	ui.medEditor->installEventFilter(this);
@@ -44,6 +45,7 @@ EditWidget::EditWidget(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 
 	onOptionsChanged(Options::node(OPV_MESSAGES_EDITORAUTORESIZE));
 	onOptionsChanged(Options::node(OPV_MESSAGES_EDITORMINIMUMLINES));
+	onOptionsChanged(Options::node(OPV_MESSAGES_EDITORMAXIMUMLINES));
 	onOptionsChanged(Options::node(OPV_MESSAGES_EDITORSENDKEY));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 }
@@ -128,6 +130,17 @@ void EditWidget::setMinimumLines(int ALines)
 	emit minimumLinesChanged(ui.medEditor->minimumLines());
 }
 
+int EditWidget::maximumLines() const
+{
+	return ui.medEditor->maximumLines();
+}
+
+void EditWidget::setMaximumLines(int ALines)
+{
+	ui.medEditor->setMaximumLines(ALines);
+	emit maximumLinesChanged(ui.medEditor->maximumLines());
+}
+
 QKeySequence EditWidget::sendKey() const
 {
 	return FSendShortcut->key();
@@ -198,8 +211,8 @@ bool EditWidget::eventFilter(QObject *AWatched, QEvent *AEvent)
 	}
 	else if (AWatched==ui.medEditor && AEvent->type()==QEvent::Resize)
 	{
-		QResizeEvent * resizeEvent = (QResizeEvent*)AEvent;
-		ui.medEditor->setLineWrapColumnOrWidth(resizeEvent->size().width() - 50); // 50 is a magic number
+		QResizeEvent * resEvent = (QResizeEvent*)AEvent;
+		ui.medEditor->setLineWrapColumnOrWidth(resEvent->size().width() - 50); // 50 is a magic number
 	}
 	return hooked || QWidget::eventFilter(AWatched,AEvent);
 }
@@ -270,6 +283,10 @@ void EditWidget::onOptionsChanged(const OptionsNode &ANode)
 	else if (ANode.path() == OPV_MESSAGES_EDITORMINIMUMLINES)
 	{
 		setMinimumLines(ANode.value().toInt());
+	}
+	else if (ANode.path() == OPV_MESSAGES_EDITORMAXIMUMLINES)
+	{
+		setMaximumLines(ANode.value().toInt());
 	}
 	else if (ANode.path() == OPV_MESSAGES_EDITORSENDKEY)
 	{

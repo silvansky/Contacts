@@ -26,7 +26,6 @@
 #define STS_MESSAGEWIDGETS_TABCLOSEBUTTON                               "messagewidgetsTabCloseButton"
 #define STS_MESSAGEWIDGETS_CHATWINDOW                                   "messagewidgetsChatWindow"
 #define STS_MESSAGEWIDGETS_MESSAGEWINDOW                                "messagewidgetsMessageWindow"
-#define STS_MESSAGEWIDGETS_MASSENDDIALOG                                "messagewidgetsMassSendDialog"
 #define STS_MESSAGEWIDGETS_NOTICEWIDGET                                 "messagewidgetsNoticeWidget"
 #define STS_MESSAGEWIDGETS_NOTICECLOSEBUTTON                            "messagewidgetsNoticeCloseButton"
 
