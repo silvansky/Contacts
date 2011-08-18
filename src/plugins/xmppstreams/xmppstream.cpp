@@ -316,7 +316,6 @@ void XmppStream::processFeatures()
 		LogDetaile(QString("[XmppStream][%1] XMPP stream opened").arg(FStreamJid.bare()));
 		FOpen = true;
 		FStreamState = SS_ONLINE;
-		removeXmppStanzaHandler(this,XSHO_XMPP_STREAM);
 		emit opened();
 	}
 }
