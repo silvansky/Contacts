@@ -100,7 +100,8 @@ QLabel#lblAvatar:hover
 
 AutoSizeTextEdit#tedMood
 {
-	max-height: 32px;
+	max-height: 31px;
+	min-height: 31px;
 	font-size: 11px;
 	padding-left: -10px;
 	padding-right: -10px;
