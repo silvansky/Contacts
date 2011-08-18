@@ -38,6 +38,8 @@
 #define FILE_LOGIN            "login.xml"
 #define ABORT_TIMEOUT         2000
 
+#include <QDebug>
+
 enum ConnectionSettings {
 	CS_DEFAULT,
 	CS_IE_PROXY,
@@ -421,7 +423,14 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 	}
 	else if (AEvent->type() == QEvent::FocusIn)
 	{
-		if (AWatched == ui.lneNode)
+		bool handleFocusIn = true;
+#ifdef Q_WS_WIN32
+			WId myid = (parentWidget() ? parentWidget() : this)->winId();
+			HWND foreground = GetForegroundWindow();
+			handleFocusIn = (myid == foreground);
+#endif
+
+		if (AWatched == ui.lneNode && isActiveWindow() && handleFocusIn)
 		{
 			ui.lneNode->event(AEvent);
 			disconnect(ui.lneNode->completer(),0,ui.lneNode,0);
