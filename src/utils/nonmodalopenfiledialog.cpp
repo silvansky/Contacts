@@ -40,7 +40,7 @@ protected:
 		title.toWCharArray(title_w);
 		title_w[title.length()] = '\0';
 		ofn.lpstrTitle = title_w;
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_DONTADDTORECENT | OFN_HIDEREADONLY;
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
 		// Display the Open dialog box.
 

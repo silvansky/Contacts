@@ -12,12 +12,18 @@
 
 #ifdef Q_WS_WIN
 #include <Windows.h>
-#include <comutil.h>
+#ifndef __MINGW32__
+# include <comutil.h>
+#endif
 typedef BOOL (WINAPI *IW64PFP)(HANDLE, BOOL *);
 
 static QString windowsLanguage()
 {
+#ifndef __MINGW32__
 	LANGID lid = GetUserDefaultUILanguage();
+#else
+	LANGID lid = 0x0409; // debug only! TODO: fix this function to fit mingw
+#endif
 	LCID lcid = MAKELCID(lid, SORT_DEFAULT);
 	wchar_t * buff = new wchar_t[10];
 	int size = GetLocaleInfo(lcid, LOCALE_SLANGUAGE, 0, 0);

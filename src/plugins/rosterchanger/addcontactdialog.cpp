@@ -458,7 +458,7 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 {
 	if (ui.lblError->text() != AMessage)
 	{
-		BalloonTip::hideBalloon();
+		//BalloonTip::hideBalloon();
 		if (!AMessage.isEmpty())
 		{
 			QPoint p = ui.lneAddressContact->mapToGlobal(QPoint(0, 0));
@@ -469,7 +469,7 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 						p,
 						0,
 						true,
-						BalloonTip::ArrowLeft);
+						BalloonTip::ArrowLeft, parentWidget() ? parentWidget() : this);
 		}
 		//ui.lblError->setText(AMessage);
 		//ui.lblError->setVisible(!AMessage.isEmpty());
@@ -655,11 +655,7 @@ void AddContactDialog::moveEvent(QMoveEvent *AEvent)
 
 bool AddContactDialog::event(QEvent *AEvent)
 {
-	if (AEvent->type() == QEvent::MouseButtonPress)
-	{
-		BalloonTip::hideBalloon();
-	}
-	else if (AEvent->type() == QEvent::ParentChange)
+	if (AEvent->type() == QEvent::ParentChange)
 	{
 		CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget());
 		if (border)
@@ -668,25 +664,40 @@ bool AddContactDialog::event(QEvent *AEvent)
 			border->installEventFilter(this);
 		}
 	}
-	else if (AEvent->type() == QEvent::ActivationChange)
-	{
-		BalloonTip::hideBalloon();
-	}
 	return QDialog::event(AEvent);
 }
 
 bool AddContactDialog::eventFilter(QObject *AObject, QEvent *AEvent)
 {
-	if ((AEvent->type() == QEvent::MouseButtonPress) || (AEvent->type() == QEvent::ActivationChange))
-	{
-		BalloonTip::hideBalloon();
-	}
+//	static bool f = true;
+//	if ((AEvent->type() == QEvent::MouseButtonPress) || (AEvent->type() == QEvent::ActivationChange) /*&& f*/)
+//	{
+//		//f = false;
+//		qDebug() << "AddContactDialog::eventFilter: object" << AObject->objectName() << AObject->metaObject()->className() << "event" << AEvent->type();
+//		if (AEvent->type() == QEvent::ActivationChange)
+//		{
+//			QWidget * w = qobject_cast<QWidget*>(AObject);
+//			if (w)
+//			{
+//				qDebug() << "active: " << w->isActiveWindow();
+//				//bool h = QDialog::eventFilter(AObject, AEvent);
+//				if (!w->isActiveWindow())
+//					BalloonTip::hideBalloon();
+//				//f = true;
+//				return true;
+//			}
+//		}
+//		bool h = QDialog::eventFilter(AObject, AEvent);
+//		BalloonTip::hideBalloon();
+//		//f = true;
+//		return h;
+//	}
 	return QDialog::eventFilter(AObject, AEvent);
 }
 
 void AddContactDialog::onBackButtonclicked()
 {
-	BalloonTip::hideBalloon();
+	//BalloonTip::hideBalloon();
 	setErrorMessage(QString::null,false);
 	updatePageAddress();
 	setDialogState(STATE_ADDRESS);

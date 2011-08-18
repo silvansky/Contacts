@@ -57,7 +57,7 @@ void MetaContextMenu::updateMenu()
 	{
 		QString name = FRosterIndex->data(Qt::DisplayRole).toString();
 		setTitle(name);
-		
+
 		QImage avatar = FRosterIndex->data(RDR_AVATAR_IMAGE_LARGE).value<QImage>();
 		setIcon(QIcon(QPixmap::fromImage(avatar)));
 
@@ -129,7 +129,6 @@ void MetaContextMenu::onCopyInfoAction()
 {
 	if (FRosterIndex)
 	{
-		// TODO: copy info about contact
 		QStringList text;
 		IMetaRoster * mroster = FMetaContacts->findMetaRoster(FRosterIndex->data(RDR_STREAM_JID).toString());
 		if (mroster)
@@ -144,7 +143,7 @@ void MetaContextMenu::onCopyInfoAction()
 					itemLabel = tr("Phone");
 				else if (descriptor.metaOrder == MIO_MAIL)
 					itemLabel = tr("E-mail");
-				else 
+				else
 					itemLabel = descriptor.name;
 				QString itemName = FMetaContacts->itemHint(jid);
 				text << QString("%1: %2").arg(itemLabel, itemName);

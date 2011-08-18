@@ -9,8 +9,10 @@
 #include <QBitmap>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QTimer>
+#include <QMutex>
 
-static BalloonTip *theSolitaryBalloonTip = NULL;
+BalloonTip * BalloonTip::theSolitaryBalloonTip = NULL;
 
 bool BalloonTip::isBalloonVisible()
 {
@@ -18,24 +20,24 @@ bool BalloonTip::isBalloonVisible()
 }
 
 QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString& message,
-				 const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition)
+				 const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition, QWidget * p)
 {
 	BalloonTip::hideBalloon();
 	if (!(message.isEmpty() && title.isEmpty()))
 	{
-		theSolitaryBalloonTip = new BalloonTip(icon, title, message);
+		theSolitaryBalloonTip = new BalloonTip(icon, title, message, p);
 		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow, arrowPosition);
 	}
 	return theSolitaryBalloonTip;
 }
 
 QWidget *BalloonTip::showBalloon(QIcon icon, QWidget * messageWidget,
-	const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition)
+	const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition, QWidget * p)
 {
 	BalloonTip::hideBalloon();
 	if (messageWidget)
 	{
-		theSolitaryBalloonTip = new BalloonTip(icon, messageWidget);
+		theSolitaryBalloonTip = new BalloonTip(icon, messageWidget, p);
 		theSolitaryBalloonTip->drawBalloon(pos, timeout, showArrow, arrowPosition);
 	}
 	return theSolitaryBalloonTip;
@@ -45,19 +47,24 @@ void BalloonTip::hideBalloon()
 {
 	if (theSolitaryBalloonTip)
 	{
-		theSolitaryBalloonTip->close();
-		delete theSolitaryBalloonTip;
+		QTimer::singleShot(10, theSolitaryBalloonTip, SLOT(hide()));
+		QTimer::singleShot(10, theSolitaryBalloonTip, SLOT(close()));
+		QTimer::singleShot(10, theSolitaryBalloonTip, SLOT(deleteLater()));
 		theSolitaryBalloonTip = NULL;
 	}
 }
 
 void BalloonTip::init()
 {
+	setWindowFlags(Qt::Window | Qt::ToolTip | Qt::FramelessWindowHint | Qt::WindowCloseButtonHint);
 	setFocusPolicy(Qt::NoFocus);
 	setAttribute(Qt::WA_DeleteOnClose, true);
-	setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground, true);
 	setMaximumWidth(250);
+	if (_p)
+	{
+		_p->installEventFilter(this);
+	}
 	QPalette pal = palette();
 	pal.setColor(QPalette::Window, pal.toolTipBase().color());
 	pal.setColor(QPalette::WindowText, pal.toolTipText().color());
@@ -65,10 +72,9 @@ void BalloonTip::init()
 	widget = NULL;
 }
 
-BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message) : QWidget(0, Qt::ToolTip), timerId(-1)
+BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message, QWidget * p) : QWidget(0, Qt::ToolTip), timerId(-1), _p(p)
 {
 	init();
-
 	QLabel *titleLabel = new QLabel;
 	titleLabel->installEventFilter(this);
 	titleLabel->setText(title);
@@ -78,7 +84,7 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message)
 	font.setPointSize(font.pointSize() - 2);
 #endif
 	titleLabel->setFont(font);
-	titleLabel->setTextFormat(Qt::PlainText); // to maintain compat with windows
+	titleLabel->setTextFormat(Qt::PlainText);
 
 #ifdef Q_WS_WINCE
 	const int iconSize = style()->pixelMetric(QStyle::PM_SmallIconSize);
@@ -145,10 +151,11 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message)
 	setLayout(layout);
 }
 
-BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget) : QWidget(0, Qt::ToolTip), timerId(-1)
+BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget, QWidget * p) : QWidget(0, Qt::ToolTip), timerId(-1), _p(p)
 {
 	init();
 	widget = messageWidget;
+	widget->installEventFilter(this);
 	QIcon si = icon;
 	QGridLayout *layout = new QGridLayout;
 #ifdef Q_WS_WINCE
@@ -176,7 +183,6 @@ BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget) : QWidget(0, Qt::Too
 
 BalloonTip::~BalloonTip()
 {
-	theSolitaryBalloonTip = NULL;
 	if (widget)
 	{
 		widget->setParent(0);
@@ -377,8 +383,9 @@ void BalloonTip::mousePressEvent(QMouseEvent *ev)
 {
 	if(ev->button() == Qt::LeftButton)
 		emit messageClicked();
-	deleteLater();
-	QWidget::mousePressEvent(ev);
+	BalloonTip::hideBalloon();
+	close();
+	//QWidget::mousePressEvent(ev);
 }
 
 void BalloonTip::timerEvent(QTimerEvent *ev)
@@ -387,7 +394,48 @@ void BalloonTip::timerEvent(QTimerEvent *ev)
 	{
 		killTimer(timerId);
 		if (!underMouse())
-			deleteLater();
+		{
+			BalloonTip::hideBalloon();
+			return;
+		}
 	}
-	QWidget::timerEvent(ev);
+	else
+		QWidget::timerEvent(ev);
+}
+
+bool BalloonTip::event(QEvent * ev)
+{
+	if (ev->type() == QEvent::ActivationChange)
+	{
+		ev->accept();
+		return true;
+	}
+	else
+		return QWidget::event(ev);
+}
+
+bool BalloonTip::eventFilter(QObject * obj, QEvent * evt)
+{
+	if (obj == _p)
+	{
+		if (evt->type() == QEvent::ActivationChange)
+		{
+			if (!_p->isActiveWindow())
+			{
+				BalloonTip::hideBalloon();
+				return true;
+			}
+		}
+		if (evt->type() == QEvent::Move || evt->type() == QEvent::Resize || evt->type() == QEvent::MouseButtonPress)
+		{
+			BalloonTip::hideBalloon();
+		}
+	}
+
+	if (obj == widget)
+	{
+		if (evt->type() == QEvent::MouseButtonPress)
+			return false;
+	}
+	return QWidget::eventFilter(obj, evt);
 }

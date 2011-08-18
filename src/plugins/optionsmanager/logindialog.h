@@ -87,6 +87,7 @@ protected slots:
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowPasswordToggled(int state);
 	void onStylePreviewReset();
+	//void hidePopup();
 private:
 	Ui::LoginDialogClass ui;
 private:

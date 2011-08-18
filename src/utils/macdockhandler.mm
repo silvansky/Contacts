@@ -3,6 +3,7 @@
 #import <objc/runtime.h>
 
 #include <QDebug>
+#include "log.h"
 
 void dockClickHandler(id self, SEL _cmd)
 {
@@ -15,10 +16,8 @@ MacDockHandler::MacDockHandler() :
 	QObject(NULL)
 {
 	Class cls = [[[NSApplication sharedApplication] delegate] class];
-	if (class_addMethod(cls, @selector(applicationShouldHandleReopen:hasVisibleWindows:), (IMP) dockClickHandler, "v@:"))
-		qDebug() << "class_addMethod ok";
-	else
-		qDebug() << "class_addMethod failed!";
+	if (!class_addMethod(cls, @selector(applicationShouldHandleReopen:hasVisibleWindows:), (IMP) dockClickHandler, "v@:"))
+		LogError("MacDockHandler::MacDockHandler() : class_addMethod failed!");
 }
 
 MacDockHandler * MacDockHandler::instance()
