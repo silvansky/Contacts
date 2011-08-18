@@ -10,7 +10,6 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QTimer>
-#include <QMutex>
 
 BalloonTip * BalloonTip::theSolitaryBalloonTip = NULL;
 
@@ -56,7 +55,7 @@ void BalloonTip::hideBalloon()
 
 void BalloonTip::init()
 {
-	setWindowFlags(Qt::Window | Qt::ToolTip | Qt::FramelessWindowHint | Qt::WindowCloseButtonHint);
+	setWindowFlags(Qt::Window | Qt::ToolTip | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 	setFocusPolicy(Qt::NoFocus);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setAttribute(Qt::WA_TranslucentBackground, true);
@@ -420,7 +419,7 @@ bool BalloonTip::eventFilter(QObject * obj, QEvent * evt)
 	{
 		if (evt->type() == QEvent::ActivationChange)
 		{
-			if (!_p->isActiveWindow())
+			if (!_p->isActiveWindow() && !isActiveWindow())
 			{
 				BalloonTip::hideBalloon();
 				return true;
@@ -436,6 +435,7 @@ bool BalloonTip::eventFilter(QObject * obj, QEvent * evt)
 	{
 		if (evt->type() == QEvent::MouseButtonPress)
 			return false;
+		}
 	}
 	return QWidget::eventFilter(obj, evt);
 }
