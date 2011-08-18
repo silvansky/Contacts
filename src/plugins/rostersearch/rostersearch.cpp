@@ -409,17 +409,21 @@ bool RosterSearch::eventFilter(QObject *AWatched, QEvent *AEvent)
 	return QSortFilterProxyModel::eventFilter(AWatched, AEvent);
 }
 
+QRegExp RosterSearch::searchRegExp(const QString &APattern) const
+{
+	return QRegExp(QRegExp::escape(searchPattern()).replace(" ","\\b\\s*"),Qt::CaseInsensitive);
+}
+
 int RosterSearch::findAcceptableField(const QModelIndex &AIndex) const
 {
-	const QString pattern = searchPattern();
+	const QRegExp regExp = searchRegExp(searchPattern());
 	for(QMap<int,SearchField>::const_iterator it = FSearchFields.constBegin(); it!=FSearchFields.constEnd(); it++)
 	{
 		if (it->enabled)
 		{
 			QVariant field = AIndex.data(it.key());
-			if (field.type()==QVariant::StringList && field.toStringList().join(" ").contains(pattern))
-				return it.key();
-			else if (field.toString().contains(pattern,Qt::CaseInsensitive))
+			QString string = field.type()==QVariant::StringList ? field.toStringList().join(" ") : field.toString();
+			if (string.contains(regExp))
 				return it.key();
 		}
 	}
@@ -428,24 +432,24 @@ int RosterSearch::findAcceptableField(const QModelIndex &AIndex) const
 
 QString RosterSearch::findFieldMatchedValue(const IRosterIndex *AIndex, int AField) const
 {
-	QString fieldValue;
 	if (FSearchFields.contains(AField))
 	{
-		QVariant fieldData = AIndex->data(AField);
-		fieldValue = fieldData.toString();
-		if (fieldValue.isEmpty())
+		QVariant field = AIndex->data(AField);
+		if (field.type() == QVariant::StringList)
 		{
-			if (fieldData.type() == QVariant::StringList)
+			const QRegExp regExp = searchRegExp(searchPattern());
+			foreach(QString string, field.toStringList())
 			{
-				foreach(QString listItem, fieldData.toStringList())
-				{
-					if (listItem.contains(searchPattern(),Qt::CaseInsensitive))
-						return listItem;
-				}
+				if (string.contains(regExp))
+					return string;
 			}
 		}
+		else
+		{
+			return field.toString();
+		}
 	}
-	return fieldValue;
+	return QString::null;
 }
 
 void RosterSearch::createSearchLinks()

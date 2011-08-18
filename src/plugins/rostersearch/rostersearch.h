@@ -90,6 +90,7 @@ protected:
 	virtual bool filterAcceptsRow(int ARow, const QModelIndex &AParent) const;
 	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected:
+	QRegExp searchRegExp(const QString &APattern) const;
 	int findAcceptableField(const QModelIndex &AIndex) const;
 	QString findFieldMatchedValue(const IRosterIndex *AIndex, int AField) const;
 protected:
