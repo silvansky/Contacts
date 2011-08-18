@@ -434,6 +434,7 @@ bool BalloonTip::eventFilter(QObject * obj, QEvent * evt)
 	if (obj == widget)
 	{
 		if (evt->type() == QEvent::MouseButtonPress)
+		{
 			return false;
 		}
 	}
