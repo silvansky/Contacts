@@ -37,7 +37,7 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 		border->setMaximizeButtonVisible(false);
 		border->setWindowFlags(border->windowFlags() | Qt::ToolTip);
 		border->setAttribute(Qt::WA_DeleteOnClose, true);
-		connect(border, SIGNAL(closeClicked()), SIGNAL(notifyRemoved()));
+		connect(border, SIGNAL(closeClicked()),border,SLOT(close()));
 	}
 
 	ui.wdtButtons->setVisible(ANotification.actions.count());
@@ -201,10 +201,13 @@ void NotifyWidget::leaveEvent(QEvent *AEvent)
 void NotifyWidget::mouseReleaseEvent(QMouseEvent *AEvent)
 {
 	QWidget::mouseReleaseEvent(AEvent);
-	if ((AEvent->button() == Qt::LeftButton) && canActivate)
-		emit notifyActivated();
-	else if (AEvent->button() == Qt::RightButton)
-		emit notifyRemoved();
+	if (isVisible())
+	{
+		if ((AEvent->button() == Qt::LeftButton) && canActivate)
+			emit notifyActivated();
+		else if (AEvent->button() == Qt::RightButton)
+			emit notifyRemoved();
+	}
 }
 
 void NotifyWidget::resizeEvent(QResizeEvent *AEvent)
@@ -270,13 +273,10 @@ void NotifyWidget::onCloseTimerTimeout()
 {
 	if (FTimeOut > 0)
 		FTimeOut--;
+	else if (border)
+		border->close();
 	else
-	{
-		if (border)
-			border->close();
-		else
-			close();
-	}
+		close();
 }
 
 void NotifyWidget::layoutWidgets()
