@@ -411,7 +411,7 @@ bool RosterSearch::eventFilter(QObject *AWatched, QEvent *AEvent)
 
 QRegExp RosterSearch::searchRegExp(const QString &APattern) const
 {
-	return QRegExp(QRegExp::escape(searchPattern()).replace(" ","\\b\\s*"),Qt::CaseInsensitive);
+	return QRegExp(QRegExp::escape(APattern).replace(" ","\\b\\s*"),Qt::CaseInsensitive);
 }
 
 int RosterSearch::findAcceptableField(const QModelIndex &AIndex) const
