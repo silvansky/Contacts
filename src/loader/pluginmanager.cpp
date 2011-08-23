@@ -17,6 +17,7 @@
 #include <definitions/resources.h>
 #include <interfaces/imainwindow.h>
 #include <utils/log.h>
+#include <utils/networking.h>
 
 #define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Contacts"
@@ -35,6 +36,7 @@
 #endif
 
 #define DIR_LOGS                    "logs"
+#define DIR_COOKIES                 "cookies"
 #if defined(Q_WS_WIN)
 #  define ENV_APP_DATA              "APPDATA"
 #  define DIR_APP_DATA              APPLICATION_NAME
@@ -303,6 +305,14 @@ void PluginManager::loadSettings()
 		Log::setLogPath(logDir.absolutePath());
 	}
 #endif
+	QDir cookiesDir(FDataPath);
+	if (cookiesDir.exists() && (cookiesDir.exists(DIR_COOKIES) || cookiesDir.mkpath(DIR_COOKIES)) && cookiesDir.cd(DIR_COOKIES))
+	{
+		Networking::setCookiePath(cookiesDir.absolutePath());
+	}
+
+	// TNS Counter
+	Networking::httpGetImageAsync(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/"), NULL, NULL);
 
 	FPluginsSetup.clear();
 	QDir homeDir(FDataPath);

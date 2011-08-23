@@ -3,25 +3,75 @@
 #include <QNetworkRequest>
 #include <QPixmap>
 #include <QImageReader>
+#include <QFile>
 #include <QVariant>
+#include <QApplication>
 #include <definitions/resources.h>
 #include "iconstorage.h"
 #include "log.h"
 
-// private class for real manipulations
-
+// internal header
 #include "networking_p.h"
+
+// class CookieJar - cookie storage
+
+CookieJar::CookieJar() : QNetworkCookieJar()
+{
+
+}
+
+CookieJar::~CookieJar()
+{
+
+}
+
+void CookieJar::loadCookies(const QString & cookiePath)
+{
+	QFile file(cookiePath + "/cookies.dat");
+	if (file.open(QIODevice::ReadOnly))
+	{
+		QByteArray cookies = file.readAll();
+		setAllCookies(QNetworkCookie::parseCookies(cookies));
+	}
+	else
+	{
+		LogError("[CookieJar::loadCookies] error: " + file.errorString());
+	}
+}
+
+void CookieJar::saveCookies(const QString & cookiePath)
+{
+	QFile file(cookiePath + "/cookies.dat");
+	if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+	{
+		QByteArray cookies;
+		foreach (QNetworkCookie cookie, allCookies())
+			cookies += cookie.toRawForm();
+		file.write(cookies);
+	}
+	else
+	{
+		LogError("[CookieJar::loadCookies] error: " + file.errorString());
+	}
+}
+
+// private class for real manipulations
 
 NetworkingPrivate::NetworkingPrivate()
 {
 	nam = new QNetworkAccessManager();
+	jar = new CookieJar();
+	nam->setCookieJar(jar);
 	loop = new QEventLoop();
 	connect(nam, SIGNAL(finished(QNetworkReply*)), loop, SLOT(quit()));
 	connect(nam, SIGNAL(finished(QNetworkReply*)), SLOT(onFinished(QNetworkReply*)));
+	_cookiePath = qApp->applicationDirPath();
+	jar->loadCookies(_cookiePath);
 }
 
 NetworkingPrivate::~NetworkingPrivate()
 {
+	jar->saveCookies(_cookiePath);
 	nam->deleteLater();
 	loop->deleteLater();
 }
@@ -69,21 +119,50 @@ QString NetworkingPrivate::httpGetString(const QUrl& src) const
 	return answer;
 }
 
+void NetworkingPrivate::setCookiePath(const QString & path)
+{
+	_cookiePath = path;
+	jar->loadCookies(_cookiePath);
+}
+
+QString NetworkingPrivate::cookiePath() const
+{
+	return _cookiePath;
+}
+
 void NetworkingPrivate::onFinished(QNetworkReply* reply)
 {
 	if (requests.contains(reply))
 	{
 		QPair<QObject*, QPair<QUrl, const char *> > obj = requests.value(reply);
-		QImage img;
-		QImageReader reader(reply);
-		if (reply->error() == QNetworkReply::NoError)
-			reader.read(&img);
+		QVariant redirectedUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+		QUrl redirectedTo = redirectedUrl.toUrl();
+		if (redirectedTo.isValid())
+		{
+			// guard from infinite redirect loop
+			if (redirectedTo != reply->request().url())
+			{
+				httpGetImageAsync(redirectedTo, obj.first, obj.second.second);
+			}
+			else
+			{
+				LogError("[Networking] infinite redirect loop at " + redirectedTo.toString());
+			}
+		}
 		else
-			LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
-		if (obj.first && obj.second.second)
-			QMetaObject::invokeMethod(obj.first, obj.second.second, Qt::DirectConnection, Q_ARG(QUrl, obj.second.first), Q_ARG(QImage, img));
+		{
+			QImage img;
+			QImageReader reader(reply);
+			if (reply->error() == QNetworkReply::NoError)
+				reader.read(&img);
+			else
+				LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
+			if (obj.first && obj.second.second)
+				QMetaObject::invokeMethod(obj.first, obj.second.second, Qt::DirectConnection, Q_ARG(QUrl, obj.second.first), Q_ARG(QImage, img));
+		}
 		requests.remove(reply);
 		reply->deleteLater();
+		jar->saveCookies(_cookiePath);
 	}
 }
 
@@ -120,6 +199,18 @@ QString Networking::httpGetString(const QUrl& src)
 {
 	init();
 	return networkingPrivate->httpGetString(src);
+}
+
+QString Networking::cookiePath()
+{
+	init();
+	return networkingPrivate->cookiePath();
+}
+
+void Networking::setCookiePath(const QString & path)
+{
+	init();
+	networkingPrivate->setCookiePath(path);
 }
 
 void Networking::init()

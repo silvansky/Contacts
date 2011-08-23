@@ -85,17 +85,6 @@ int main(int argc, char *argv[])
 	QObject::connect(holdem_module.data(), SIGNAL(shutdownRequested()), &pm, SLOT(shutdownRequested()));
 #endif
 
-	// TNS counter
-//	QNetworkAccessManager *nmanager = new QNetworkAccessManager(&app);
-//	QNetworkReply *reply = nmanager->get(QNetworkRequest(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/")));
-//	QObject::connect(reply,SIGNAL(finished()),reply,SLOT(deleteLater()));
-//	QObject::connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),reply,SLOT(deleteLater()));
-//	QObject::connect(reply,SIGNAL(destroyed()),nmanager,SLOT(deleteLater()));
-
-	// TODO: make two requests async... move to pluginmanager
-	Networking::httpGetImage(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/"));
-	Networking::httpGetImage(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/"));
-
 	// Starting plugin manager
 	pm.restart();
 
