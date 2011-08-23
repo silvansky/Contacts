@@ -32,6 +32,7 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	FIconLabel->setFixedSize(FIconSize);
 
 	layout()->addWidget(FTextLabel = new CustomLabel(this));
+	FTextLabel->setElideMode(Qt::ElideNone);
 	FTextLabel->setObjectName("tabBarItemLabel");
 	FTextLabel->setShadow(CustomLabel::LightShadow);
 	FTextLabel->setTextInteractionFlags(Qt::NoTextInteraction);

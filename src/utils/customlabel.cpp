@@ -8,6 +8,7 @@ CustomLabel::CustomLabel(QWidget *parent) :
 	QLabel(parent)
 {
 	shadowType = DarkShadow;
+	textElideMode = Qt::ElideNone;
 }
 
 int CustomLabel::shadow() const
@@ -18,6 +19,29 @@ int CustomLabel::shadow() const
 void CustomLabel::setShadow(int shadow)
 {
 	shadowType = (ShadowType)shadow;
+	update();
+}
+
+Qt::TextElideMode CustomLabel::elideMode() const
+{
+	return textElideMode;
+}
+
+void CustomLabel::setElideMode(/*Qt::TextElideMode*/ int mode)
+{
+	textElideMode = (Qt::TextElideMode)mode;
+	update();
+}
+
+bool CustomLabel::multilineElideEnabled() const
+{
+	return multilineElide;
+}
+
+void CustomLabel::setMultilineElideEnabled(bool on)
+{
+	multilineElide = on;
+	update();
 }
 
 void CustomLabel::paintEvent(QPaintEvent * pe)
@@ -49,7 +73,13 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 		default:
 			break;
 		}
-		style()->drawItemText(&painter, lr.toRect(), flags, opt.palette, isEnabled(), text(), QPalette::WindowText);
+		QString textToDraw = text();
+		int wd = lr.width();
+		if ((elideMode() != Qt::ElideNone) && !wordWrap())
+		{
+			textToDraw = fontMetrics().elidedText(text(), elideMode(), wd);
+		}
+		style()->drawItemText(&painter, lr.toRect(), flags, opt.palette, isEnabled(), textToDraw, QPalette::WindowText);
 	}
 	else
 		QLabel::paintEvent(pe);

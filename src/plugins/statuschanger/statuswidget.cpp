@@ -30,6 +30,8 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	FAvatarHovered = false;
 	FSelectAvatarWidget = NULL;
 
+	ui.lblName->setElideMode(Qt::ElideRight);
+
 	ui.lblAvatar->setProperty("ignoreFilter", true);
 	ui.lblMood->setProperty("ignoreFilter", true);
 
@@ -137,8 +139,16 @@ void StatusWidget::setMoodText(const QString &AMood)
 	const int maxMoodLength = 40;
 	if (AMood.length() <= maxMoodLength)
 		ui.lblMood->setText(AMood.isEmpty() ? tr("Tell your friends about your mood") : AMood);
+	else if (AMood.count('\n') > 1)
+	{
+		QStringList lst = AMood.split('\n');
+		QString newMood = (QStringList() << lst.at(0) << lst.at(1) + "...").join("\n");
+		ui.lblMood->setText(newMood);
+	}
 	else
+	{
 		ui.lblMood->setText(AMood.left(maxMoodLength) + "...");
+	}
 }
 
 QString StatusWidget::fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const
