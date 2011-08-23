@@ -18,6 +18,7 @@
 RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QStyledItemDelegate(AParent)
 {
 	FShowBlinkLabels = true;
+	FEditHandler = NULL;
 }
 
 RosterIndexDelegate::~RosterIndexDelegate()
@@ -111,6 +112,48 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 	return hint;
 }
 
+QWidget *RosterIndexDelegate::createEditor(QWidget *AParent, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+{
+	if (FEditHandler)
+		return FEditHandler->rosterEditEditor(FEditRole,AParent,AOption,AIndex);
+	return NULL;
+}
+
+void RosterIndexDelegate::setEditorData(QWidget *AEditor, const QModelIndex &AIndex) const
+{
+	if (FEditHandler)
+		FEditHandler->rosterEditLoadData(FEditRole,AEditor,AIndex);
+}
+
+void RosterIndexDelegate::setModelData(QWidget *AEditor, QAbstractItemModel *AModel, const QModelIndex &AIndex) const
+{
+	Q_UNUSED(AModel);
+	if (FEditHandler)
+		FEditHandler->rosterEditSaveData(FEditRole,AEditor,AIndex);
+}
+
+void RosterIndexDelegate::updateEditorGeometry(QWidget *AEditor, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+{
+	if (FEditHandler)
+		FEditHandler->rosterEditGeometry(FEditRole,AEditor,AOption,AIndex);
+}
+
+void RosterIndexDelegate::setShowBlinkLabels(bool AShow)
+{
+	FShowBlinkLabels = AShow;
+}
+
+IRostersEditHandler *RosterIndexDelegate::editHandler() const
+{
+	return FEditHandler;
+}
+
+void RosterIndexDelegate::setEditHandler(int ADataRole, IRostersEditHandler *AHandler)
+{
+	FEditRole = ADataRole;
+	FEditHandler = AHandler;
+}
+
 int RosterIndexDelegate::labelAt(const QPoint &APoint, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 {
 	if (!AOption.rect.contains(APoint))
@@ -127,26 +170,6 @@ int RosterIndexDelegate::labelAt(const QPoint &APoint, const QStyleOptionViewIte
 QRect RosterIndexDelegate::labelRect(int ALabelId, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 {
 	return drawIndex(NULL, AOption, AIndex).value(ALabelId);
-}
-
-void RosterIndexDelegate::setShowBlinkLabels(bool AShow)
-{
-	FShowBlinkLabels = AShow;
-}
-
-QWidget *RosterIndexDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-	Q_UNUSED(option);
-	Q_UNUSED(index);
-	QLineEdit * edit = new QLineEdit(parent);
-	edit->setAttribute(Qt::WA_MacShowFocusRect, false);
-	return edit;
-}
-
-void RosterIndexDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
-{
-	Q_UNUSED(editor);
-	Q_UNUSED(index);
 }
 
 QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
@@ -247,7 +270,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,paintRect).intersected(paintRect);
 		if (verticalAdd)
 			label.rect.moveTop(label.rect.top() + verticalAdd);
-		removeWidth(paintRect, label.rect.width(), AOption.direction == Qt::LeftToRight);
+		removeWidth(paintRect, label.rect.width(), AOption.direction==Qt::LeftToRight);
 		if (APainter && !isDragged)
 			drawLabelItem(APainter, option, label, labelFlags);
 		rectHash.insert(label.id, label.rect);
@@ -261,7 +284,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		label.rect = QStyle::alignedRect(option.direction,align,label.size,paintRect).intersected(paintRect);
 		if (verticalAdd)
 			label.rect.moveTop(label.rect.top() + verticalAdd);
-		removeWidth(paintRect,label.rect.width(),AOption.direction!=Qt::LeftToRight);
+		removeWidth(paintRect, label.rect.width(), AOption.direction!=Qt::LeftToRight);
 		if (APainter && !isDragged)
 			drawLabelItem(APainter, option, label, labelFlags);
 		rectHash.insert(label.id,label.rect);
@@ -273,7 +296,7 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	{
 		const LabelItem &label = labels.at(i);
 		middleTop.rheight() = qMax(middleTop.height(),label.size.height());
-		if (label.id !=RLID_DISPLAY)
+		if (label.id != RLID_DISPLAY)
 			topLabelsWidth += label.size.width()+spacing;
 	}
 
@@ -327,6 +350,13 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 		if (APainter && !isDragged)
 			drawLabelItem(APainter,indexFooterOptions(option), label, labelFlags);
 		rectHash.insert(label.id,label.rect);
+	}
+
+	if (rectHash.contains(RLID_DISPLAY))
+	{
+		QRect rect = rectHash.value(RLID_DISPLAY);
+		rect.setWidth(middleTop.width());
+		rectHash.insert(RLID_DISPLAY_EDIT,rect);
 	}
 
 	if (APainter)

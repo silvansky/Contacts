@@ -4,10 +4,12 @@
 #include <QDateTime>
 #include <definitions/actiongroups.h>
 #include <definitions/chatnoticepriorities.h>
+#include <definitions/rosterlabelorders.h>
 #include <definitions/rosternotifyorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterdragdropmimetypes.h>
 #include <definitions/rosterdataholderorders.h>
+#include <definitions/rosteredithandlerorders.h>
 #include <definitions/rosterfootertextorders.h>
 #include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
@@ -82,11 +84,12 @@ class RosterChanger :
 	public IRosterChanger,
 	public IRosterDataHolder,
 	public IRostersDragDropHandler,
-	public IXmppUriHandler,
-	public IRostersKeyPressHooker
+	public IRostersKeyPressHooker,
+	public IRostersEditHandler,
+	public IXmppUriHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IRosterChanger IRosterDataHolder IRostersDragDropHandler IXmppUriHandler IRostersKeyPressHooker)
+	Q_INTERFACES(IPlugin IRosterChanger IRosterDataHolder IRostersDragDropHandler IRostersKeyPressHooker IRostersEditHandler IXmppUriHandler)
 public:
 	RosterChanger();
 	~RosterChanger();
@@ -110,6 +113,12 @@ public:
 	virtual bool rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover);
 	virtual void rosterDragLeave(const QDragLeaveEvent *AEvent);
 	virtual bool rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu);
+	//IRostersEditHandler
+	virtual bool rosterEditStart(int ADataRole, const QModelIndex &AIndex) const;
+	virtual QWidget *rosterEditEditor(int ADataRole, QWidget *AParent, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
+	virtual void rosterEditLoadData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const;
+	virtual void rosterEditSaveData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const;
+	virtual void rosterEditGeometry(int ADataRole, QWidget *AEditor, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	//IXmppUriHandler
 	virtual bool xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, const QString &AAction, const QMultiMap<QString, QString> &AParams);
 	//IRostersKeyPressHooker

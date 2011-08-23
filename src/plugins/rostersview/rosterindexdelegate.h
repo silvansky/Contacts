@@ -17,14 +17,12 @@ struct LabelItem
 	QSize size;
 	QRect rect;
 	IRostersLabel item;
-	bool operator <(const LabelItem &AItem) const
-	{
-		return item.order < AItem.item.order;
-	}
+	bool operator <(const LabelItem &AItem) const {
+		return item.order < AItem.item.order; }
 };
 
 class RosterIndexDelegate :
-			public QStyledItemDelegate
+	public QStyledItemDelegate
 {
 	Q_OBJECT
 	friend class RostersView;
@@ -34,12 +32,16 @@ public:
 	//QStyledItemDelegate
 	virtual void paint(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
+	virtual QWidget *createEditor(QWidget *AParent, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
+	virtual void setEditorData(QWidget *AEditor, const QModelIndex &AIndex) const;
+	virtual void setModelData(QWidget *AEditor, QAbstractItemModel *AModel, const QModelIndex &AIndex) const;
+	virtual void updateEditorGeometry(QWidget *AEditor, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	//RosterIndexDelegate
+	void setShowBlinkLabels(bool AShow);
+	IRostersEditHandler *editHandler() const;
+	void setEditHandler(int ADataRole, IRostersEditHandler *AHandler);
 	int labelAt(const QPoint &APoint, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	QRect labelRect(int ALabelId, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
-	void setShowBlinkLabels(bool AShow);
-	virtual QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
 protected:
 	QHash<int,QRect> drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	void drawLabelItem(QPainter *APainter, const QStyleOptionViewItemV4 &AOption, const LabelItem &ALabel, int flags = 0) const;
@@ -58,6 +60,8 @@ private:
 	QIcon::State getIconState(QStyle::State AState) const;
 private:
 	bool FShowBlinkLabels;
+	int FEditRole;
+	IRostersEditHandler *FEditHandler;
 private:
 	static const int spacing = 4;
 };

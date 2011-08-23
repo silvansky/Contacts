@@ -71,6 +71,16 @@ public:
 	virtual bool rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu) =0;
 };
 
+class IRostersEditHandler
+{
+public:
+	virtual bool rosterEditStart(int ADataRole, const QModelIndex &AIndex) const =0;
+	virtual QWidget *rosterEditEditor(int ADataRole, QWidget *AParent, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const =0;
+	virtual void rosterEditLoadData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const =0;
+	virtual void rosterEditSaveData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const =0;
+	virtual void rosterEditGeometry(int ADataRole, QWidget *AEditor, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const =0;
+};
+
 class IRostersView
 {
 public:
@@ -79,11 +89,11 @@ public:
 	virtual IRostersModel *rostersModel() const =0;
 	virtual void setRostersModel(IRostersModel *AModel) =0;
 	virtual QList<IRosterIndex *> selectedRosterIndexes() const =0;
-	virtual void selectIndex(IRosterIndex * AIndex) = 0;
-	virtual void selectRow(int ARow) = 0;
+	virtual void selectRosterIndex(IRosterIndex * AIndex) = 0;
 	virtual bool repaintRosterIndex(IRosterIndex *AIndex) =0;
 	virtual void expandIndexParents(IRosterIndex *AIndex) =0;
 	virtual void expandIndexParents(const QModelIndex &AIndex) =0;
+	virtual bool editRosterIndex(int ADataRole, IRosterIndex *AIndex) =0;
 	//--ProxyModels
 	virtual void insertProxyModel(QAbstractProxyModel *AProxyModel, int AOrder) =0;
 	virtual QList<QAbstractProxyModel *> proxyModels() const =0;
@@ -114,9 +124,12 @@ public:
 	//--KeyPressHookers
 	virtual void insertKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker) =0;
 	virtual void removeKeyPressHooker(int AOrder, IRostersKeyPressHooker *AHooker) =0;
-	//--DragDrop
+	//--DragDropHandlers
 	virtual void insertDragDropHandler(IRostersDragDropHandler *AHandler) =0;
 	virtual void removeDragDropHandler(IRostersDragDropHandler *AHandler) =0;
+	//--EditHandlers
+	virtual void insertEditHandler(int AOrder, IRostersEditHandler *AHandler) =0;
+	virtual void removeEditHandler(int AOrder, IRostersEditHandler *AHandler) =0;
 	//--FooterText
 	virtual void insertFooterText(int AOrderAndId, const QVariant &AValue, IRosterIndex *AIndex) =0;
 	virtual void removeFooterText(int AOrderAndId, IRosterIndex *AIndex) =0;
@@ -160,6 +173,7 @@ public:
 Q_DECLARE_INTERFACE(IRostersClickHooker,"Virtus.Plugin.IRostersClickHooker/1.0")
 Q_DECLARE_INTERFACE(IRostersKeyPressHooker,"Virtus.Plugin.IRostersKeyPressHooker/1.0")
 Q_DECLARE_INTERFACE(IRostersDragDropHandler,"Virtus.Plugin.IRostersDragDropHandler/1.0")
+Q_DECLARE_INTERFACE(IRostersEditHandler,"Virtus.Plugin.IRostersEditHandler/1.0")
 Q_DECLARE_INTERFACE(IRostersView,"Virtus.Plugin.IRostersView/1.0")
 Q_DECLARE_INTERFACE(IRostersViewPlugin,"Virtus.Plugin.IRostersViewPlugin/1.0")
 

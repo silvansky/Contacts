@@ -9,10 +9,12 @@
 #include <definitions/actiongroups.h>
 #include <definitions/metaitemorders.h>
 #include <definitions/gateserviceidentifiers.h>
+#include <definitions/rosterlabelorders.h>
 #include <definitions/rosterproxyorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterclickhookerorders.h>
 #include <definitions/rosterdragdropmimetypes.h>
+#include <definitions/rosteredithandlerorders.h>
 #include <definitions/toolbargroups.h>
 #include <definitions/customborder.h>
 #include <definitions/notificationtypes.h>
@@ -63,10 +65,11 @@ class MetaContacts :
 	public IRostersClickHooker,
 	public IRostersKeyPressHooker,
 	public IRostersDragDropHandler,
+	public IRostersEditHandler,
 	public IViewDropHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersKeyPressHooker IRostersDragDropHandler IViewDropHandler)
+	Q_INTERFACES(IPlugin IMetaContacts ITabPageHandler IRostersClickHooker IRostersKeyPressHooker IRostersDragDropHandler IRostersEditHandler IViewDropHandler)
 public:
 	MetaContacts();
 	~MetaContacts();
@@ -94,6 +97,12 @@ public:
 	virtual bool rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover);
 	virtual void rosterDragLeave(const QDragLeaveEvent *AEvent);
 	virtual bool rosterDropAction(const QDropEvent *AEvent, const QModelIndex &AIndex, Menu *AMenu);
+	//IRostersEditHandler
+	virtual bool rosterEditStart(int ADataRole, const QModelIndex &AIndex) const;
+	virtual QWidget *rosterEditEditor(int ADataRole, QWidget *AParent, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
+	virtual void rosterEditLoadData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const;
+	virtual void rosterEditSaveData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const;
+	virtual void rosterEditGeometry(int ADataRole, QWidget *AEditor, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const;
 	// IViewDropHandler
 	virtual bool viewDragEnter(IViewWidget *AWidget, const QDragEnterEvent *AEvent);
 	virtual bool viewDragMove(IViewWidget *AWidget, const QDragMoveEvent *AEvent);

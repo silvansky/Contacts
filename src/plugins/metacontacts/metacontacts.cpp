@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QPainter>
 #include <QMimeData>
+#include <QLineEdit>
 #include <QDragMoveEvent>
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
@@ -19,10 +20,10 @@
 #define ADR_META_ID         Action::DR_Parametr1
 #define ADR_NAME            Action::DR_Parametr2
 #define ADR_VIEW_JID        Action::DR_Parametr2
+#define ADR_TAB_PAGE_ID     Action::DR_Parametr2
 #define ADR_GROUP           Action::DR_Parametr3
 #define ADR_RELEASE_ITEMS   Action::DR_Parametr3
 #define ADR_META_ID_LIST    Action::DR_Parametr4
-#define ADR_TAB_PAGE_ID     Action::DR_Parametr2
 #define ADR_TO_GROUP        Action::DR_UserDefined+1
 #define ADR_SUBSCRIPTION    Action::DR_UserDefined+1
 
@@ -183,6 +184,7 @@ bool MetaContacts::initObjects()
 		FRostersViewPlugin->rostersView()->insertClickHooker(RCHO_DEFAULT, this);
 		FRostersViewPlugin->rostersView()->insertKeyPressHooker(RCHO_DEFAULT, this);
 		FRostersViewPlugin->rostersView()->insertDragDropHandler(this);
+		FRostersViewPlugin->rostersView()->insertEditHandler(REHO_METACONTACTS_RENAME,this);
 	}
 	if (FRosterSearch)
 	{
@@ -284,7 +286,10 @@ bool MetaContacts::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 			QString metaId = AIndex->data(RDR_META_ID).toString();
 			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
 			if (window)
+			{
 				window->showTabPage();
+				return true;
+			}
 		}
 	}
 	return false;
@@ -481,6 +486,68 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 		}
 	}
 	return false;
+}
+
+bool MetaContacts::rosterEditStart(int ADataRole, const QModelIndex &AIndex) const
+{
+	if (ADataRole==RDR_NAME && AIndex.data(RDR_TYPE).toInt()==RIT_METACONTACT)
+	{
+		IMetaRoster *mroster = findMetaRoster(AIndex.data(RDR_STREAM_JID).toString());
+		return (mroster && mroster->isOpen());
+	}
+	return false;
+}
+
+QWidget *MetaContacts::rosterEditEditor(int ADataRole, QWidget *AParent, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+{
+	Q_UNUSED(AOption);
+	Q_UNUSED(AIndex);
+	if (ADataRole == RDR_NAME)
+	{
+		QLineEdit *editor = new QLineEdit(AParent);
+		editor->setObjectName("lneEditIndex");
+		editor->setAttribute(Qt::WA_MacShowFocusRect,false);
+		editor->setFrame(false);
+		return editor;
+	}
+	return NULL;
+}
+
+void MetaContacts::rosterEditLoadData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const
+{
+	if (ADataRole == RDR_NAME)
+	{
+		QLineEdit *editor = qobject_cast<QLineEdit *>(AEditor);
+		if (editor)
+			editor->setText(AIndex.data(RDR_NAME).toString());
+	}
+}
+
+void MetaContacts::rosterEditSaveData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const
+{
+	if (ADataRole==RDR_NAME && AIndex.data(RDR_TYPE).toInt()==RIT_METACONTACT)
+	{
+		QLineEdit *editor = qobject_cast<QLineEdit *>(AEditor);
+		QString newName = editor!=NULL ? editor->text().trimmed() : QString::null;
+		if (!newName.isEmpty() && AIndex.data(RDR_NAME).toString()!=newName)
+		{
+			IMetaRoster *mroster = findMetaRoster(AIndex.data(RDR_STREAM_JID).toString());
+			if (mroster && mroster->isOpen())
+				mroster->renameContact(AIndex.data(RDR_META_ID).toString(),editor->text().trimmed());
+		}
+	}
+}
+
+void MetaContacts::rosterEditGeometry(int ADataRole, QWidget *AEditor, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+{
+	if (ADataRole == RDR_NAME)
+	{
+		QRect rect = FRostersViewPlugin->rostersView()->labelRect(RLID_DISPLAY_EDIT,AIndex);
+		if (rect.isValid())
+			AEditor->setGeometry(rect);
+		else
+			AEditor->setGeometry(AOption.rect);
+	}
 }
 
 bool MetaContacts::viewDragEnter(IViewWidget *AWidget, const QDragEnterEvent *AEvent)
@@ -1411,7 +1478,24 @@ void MetaContacts::onRenameContact(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action)
 	{
-		showRenameContactDialog(action->data(ADR_STREAM_JID).toString(), action->data(ADR_META_ID).toString());
+		if (FRostersViewPlugin)
+		{
+			QString group = action->data(ADR_GROUP).toString();
+			IMetaRoster *mroster = findMetaRoster(action->data(ADR_STREAM_JID).toString());
+			QList<IRosterIndex *> indexes = mroster!=NULL ? FMetaProxyModel->findMetaIndexes(mroster,action->data(ADR_META_ID).toString()) : QList<IRosterIndex *>();
+			foreach(IRosterIndex *index, indexes)
+			{
+				if (index->data(RDR_GROUP).toString() == group)
+				{
+					FRostersViewPlugin->rostersView()->editRosterIndex(RDR_NAME,index);
+					break;
+				}
+			}
+		}
+		else
+		{
+			showRenameContactDialog(action->data(ADR_STREAM_JID).toString(),action->data(ADR_META_ID).toString());
+		}
 	}
 }
 
@@ -2028,6 +2112,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				Action *renameAction = new Action(AMenu);
 				renameAction->setText(tr("Rename..."));
 				renameAction->setData(data);
+				renameAction->setData(ADR_GROUP,AIndex->data(RDR_GROUP));
 				connect(renameAction,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
 				AMenu->addAction(renameAction,AG_RVCM_ROSTERCHANGER_RENAME);
 
@@ -2103,6 +2188,5 @@ void MetaContacts::onAvatalLabelDestroyed(QObject *obj)
 		FAvatarMenus.remove(lbl);
 	}
 }
-
 
 Q_EXPORT_PLUGIN2(plg_metacontacts, MetaContacts)

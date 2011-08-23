@@ -252,19 +252,13 @@ QList<IRosterIndex *> RostersView::selectedRosterIndexes() const
 	return rosterIndexes;
 }
 
-void RostersView::selectIndex(IRosterIndex * AIndex)
+void RostersView::selectRosterIndex(IRosterIndex *AIndex)
 {
 	if (FRostersModel)
 	{
 		QModelIndex mindex = FRostersModel->modelIndexByRosterIndex(AIndex);
 		selectionModel()->select(mindex, QItemSelectionModel::Select);
 	}
-}
-
-void RostersView::selectRow(int ARow)
-{
-	QModelIndex mindex = model()->index(ARow, 0, QModelIndex());
-	setCurrentIndex(mindex);
 }
 
 bool RostersView::repaintRosterIndex(IRosterIndex *AIndex)
@@ -300,6 +294,24 @@ void RostersView::expandIndexParents(const QModelIndex &AIndex)
 		expand(index.parent());
 		index = index.parent();
 	}
+}
+
+bool RostersView::editRosterIndex(int ADataRole, IRosterIndex *AIndex)
+{
+	QModelIndex index = FRostersModel!=NULL ? mapFromModel(FRostersModel->modelIndexByRosterIndex(AIndex)) : QModelIndex();
+	if (index.isValid() && state()==NoState)
+	{
+		IRostersEditHandler *handler = index.isValid() ? findEditHandler(ADataRole,index) : NULL;
+		if (handler)
+		{
+			FRosterIndexDelegate->setEditHandler(ADataRole,handler);
+			if (edit(index,AllEditTriggers,NULL))
+				return true;
+			else
+				FRosterIndexDelegate->setEditHandler(0,NULL);
+		}
+	}
+	return false;
 }
 
 void RostersView::insertProxyModel(QAbstractProxyModel *AProxyModel, int AOrder)
@@ -687,6 +699,18 @@ void RostersView::removeDragDropHandler(IRostersDragDropHandler *AHandler)
 	}
 }
 
+void RostersView::insertEditHandler(int AOrder, IRostersEditHandler *AHandler)
+{
+	if (AHandler)
+		FEditHandlers.insertMulti(AOrder,AHandler);
+}
+
+void RostersView::removeEditHandler(int AOrder, IRostersEditHandler *AHandler)
+{
+	if (AHandler)
+		FEditHandlers.remove(AOrder,AHandler);
+}
+
 void RostersView::insertFooterText(int AOrderAndId, const QVariant &AValue, IRosterIndex *AIndex)
 {
 	if (!AValue.isNull())
@@ -759,52 +783,52 @@ void RostersView::clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu)
 
 QBrush RostersView::groupBrush() const
 {
-	return groupBackground;
+	return FGroupBackground;
 }
 
-void RostersView::setGroupBrush(const QBrush & newBrush)
+void RostersView::setGroupBrush(const QBrush &ABrush)
 {
-	groupBackground = newBrush;
+	FGroupBackground = ABrush;
 }
 
 QImage RostersView::groupBorderImage() const
 {
-	return groupBorder;
+	return FGroupBorder;
 }
 
-void RostersView::setGroupBorderImage(const QImage & newGroupBorderImage)
+void RostersView::setGroupBorderImage(const QImage &AGroupBorderImage)
 {
-	groupBorder = newGroupBorderImage;
+	FGroupBorder = AGroupBorderImage;
 }
 
 QColor RostersView::groupColor() const
 {
-	return groupForeground;
+	return FGroupForeground;
 }
 
-void RostersView::setGroupColor(const QColor& newColor)
+void RostersView::setGroupColor(const QColor &AColor)
 {
-	groupForeground = newColor;
+	FGroupForeground = AColor;
 }
 
 int RostersView::groupFontSize() const
 {
-	return groupFont;
+	return FGroupFont;
 }
 
-void RostersView::setGroupFontSize(int size)
+void RostersView::setGroupFontSize(int ASize)
 {
-	groupFont = size;
+	FGroupFont = ASize;
 }
 
 QColor RostersView::footerColor() const
 {
-	return footerTextColor;
+	return FFooterTextColor;
 }
 
 void RostersView::setFooterColor(const QColor& newColor)
 {
-	footerTextColor = newColor;
+	FFooterTextColor = newColor;
 }
 
 void RostersView::updateStatusText(IRosterIndex *AIndex)
@@ -930,6 +954,14 @@ QModelIndex RostersView::actualDragIndex(const QModelIndex &AIndex, const QPoint
 	return index;
 }
 
+IRostersEditHandler *RostersView::findEditHandler(int ADataRole, const QModelIndex &AIndex) const
+{
+	for (QMultiMap<int,IRostersEditHandler *>::const_iterator it=FEditHandlers.constBegin(); it!=FEditHandlers.constEnd(); it++)
+		if (it.value()->rosterEditStart(ADataRole,AIndex))
+			return it.value();
+	return NULL;
+}
+
 bool RostersView::processClickHookers(IRosterIndex* AIndex)
 {
 	bool accepted = false;
@@ -1001,6 +1033,13 @@ void RostersView::resizeEvent(QResizeEvent *AEvent)
 	QTreeView::resizeEvent(AEvent);
 }
 
+bool RostersView::edit(const QModelIndex &AIndex, EditTrigger ATrigger, QEvent *AEvent)
+{
+	if (FRosterIndexDelegate->editHandler() != NULL)
+		return QTreeView::edit(AIndex,ATrigger,AEvent);
+	return false;
+}
+
 void RostersView::paintEvent(QPaintEvent *AEvent)
 {
 	QTreeView::paintEvent(AEvent);
@@ -1023,17 +1062,17 @@ void RostersView::paintEvent(QPaintEvent *AEvent)
 	}
 }
 
-void RostersView::keyPressEvent(QKeyEvent *event)
+void RostersView::keyPressEvent(QKeyEvent *AEvent)
 {
 	bool accepted = false;
 	QList<IRosterIndex *> indexes = selectedRosterIndexes();
-	if (!indexes.isEmpty())
+	if (!indexes.isEmpty() && state()==NoState)
 	{
 		// multi selection first
 		QMultiMap<int, IRostersKeyPressHooker *>::const_iterator it = FKeyPressHookers.constBegin();
 		while (!accepted && it!=FKeyPressHookers.constEnd())
 		{
-			accepted = it.value()->keyOnRosterIndexesPressed(indexes.first(), indexes, it.key(), (Qt::Key)event->key(), event->modifiers());
+			accepted = it.value()->keyOnRosterIndexesPressed(indexes.first(), indexes, it.key(), (Qt::Key)AEvent->key(), AEvent->modifiers());
 			it++;
 		}
 		if (!accepted)
@@ -1043,7 +1082,7 @@ void RostersView::keyPressEvent(QKeyEvent *event)
 				if (index)
 				{
 					// enter or return acts as double click
-					if ((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) && (event->modifiers() == Qt::NoModifier))
+					if ((AEvent->key() == Qt::Key_Enter || AEvent->key() == Qt::Key_Return) && (AEvent->modifiers() == Qt::NoModifier))
 					{
 						int notifyId = FActiveNotifies.value(index,-1);
 						if (notifyId>0 && FNotifyItems.value(notifyId).hookClick)
@@ -1058,7 +1097,7 @@ void RostersView::keyPressEvent(QKeyEvent *event)
 					else
 					{
 						// processing key event
-						accepted = processKeyPressHookers(index, (Qt::Key)event->key(), event->modifiers());
+						accepted = processKeyPressHookers(index, (Qt::Key)AEvent->key(), AEvent->modifiers());
 					}
 				}
 			}
@@ -1066,7 +1105,7 @@ void RostersView::keyPressEvent(QKeyEvent *event)
 	}
 	if (!accepted)
 	{
-		QTreeView::keyPressEvent(event);
+		QTreeView::keyPressEvent(AEvent);
 	}
 }
 
@@ -1360,6 +1399,12 @@ void RostersView::dragLeaveEvent(QDragLeaveEvent *AEvent)
 	stopAutoScroll();
 	setDropIndicatorRect(QRect());
 	setInsertIndicatorRect(QRect());
+}
+
+void RostersView::closeEditor(QWidget *AEditor, QAbstractItemDelegate::EndEditHint AHint)
+{
+	FRosterIndexDelegate->setEditHandler(0,NULL);
+	QTreeView::closeEditor(AEditor,AHint);
 }
 
 void RostersView::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)

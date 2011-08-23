@@ -239,6 +239,7 @@ IRosterIndex *RostersModel::createRosterIndex(int AType, IRosterIndex *AParent)
 	};
 
 	IRosterIndex *rindex = new RosterIndex(AType);
+	rindex->setFlags(rindex->flags()|Qt::ItemIsEditable);
 	connect(rindex->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onIndexDestroyed(IRosterIndex *)));
 
 	if (AParent)

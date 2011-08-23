@@ -195,6 +195,7 @@ bool RosterChanger::initObjects()
 	if (FRostersView)
 	{
 		FRostersView->insertDragDropHandler(this);
+		FRostersView->insertEditHandler(REHO_ROSTERCHANGER_RENAME,this);
 	}
 	if (FRostersModel)
 	{
@@ -451,6 +452,91 @@ bool RosterChanger::rosterDropAction(const QDropEvent *AEvent, const QModelIndex
 		}
 	}
 	return false;
+}
+
+bool RosterChanger::rosterEditStart(int ADataRole, const QModelIndex &AIndex) const
+{
+	int type = AIndex.data(RDR_TYPE).toInt();
+	if (ADataRole==RDR_NAME && (type==RIT_CONTACT || type==RIT_AGENT || type==RIT_GROUP))
+	{
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AIndex.data(RDR_STREAM_JID).toString()) : NULL;
+		return (roster && roster->isOpen());
+	}
+	return false;
+}
+
+QWidget * RosterChanger::rosterEditEditor(int ADataRole, QWidget *AParent, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+{
+	Q_UNUSED(AOption);
+	Q_UNUSED(AIndex);
+	if (ADataRole == RDR_NAME)
+	{
+		QLineEdit *editor = new QLineEdit(AParent);
+		editor->setObjectName("lneEditIndex");
+		editor->setAttribute(Qt::WA_MacShowFocusRect,false);
+		editor->setFrame(false);
+		return editor;
+	}
+	return NULL;
+}
+
+void RosterChanger::rosterEditLoadData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const
+{
+	if (ADataRole == RDR_NAME)
+	{
+		QLineEdit *editor = qobject_cast<QLineEdit *>(AEditor);
+		if (editor)
+			editor->setText(AIndex.data(RDR_NAME).toString());
+	}
+}
+
+void RosterChanger::rosterEditSaveData(int ADataRole, QWidget *AEditor, const QModelIndex &AIndex) const
+{
+	int type = AIndex.data(RDR_TYPE).toInt();
+	if (ADataRole==RDR_NAME && type==RIT_GROUP)
+	{
+		QLineEdit *editor = qobject_cast<QLineEdit *>(AEditor);
+		QString newName = editor!=NULL ? editor->text().trimmed() : QString::null;
+		if (!newName.isEmpty() && AIndex.data(RDR_NAME).toString()!=newName)
+		{
+			IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AIndex.data(RDR_STREAM_JID).toString()) : NULL;
+			if (roster && roster->isOpen())
+			{
+				QString fullName = AIndex.data(RDR_GROUP).toString();
+				fullName.chop(AIndex.data(RDR_NAME).toString().size());
+				fullName += newName;
+
+				IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(roster->streamJid()) : NULL;
+				if (mroster && mroster->isOpen())
+					mroster->renameGroup(AIndex.data(RDR_GROUP).toString(),fullName);
+				else
+					roster->renameGroup(AIndex.data(RDR_GROUP).toString(),fullName);
+			}
+		}
+	}
+	else if (ADataRole==RDR_NAME && (type==RIT_CONTACT || type==RIT_AGENT))
+	{
+		QLineEdit *editor = qobject_cast<QLineEdit *>(AEditor);
+		QString newName = editor!=NULL ? editor->text().trimmed() : QString::null;
+		if (!newName.isEmpty() && AIndex.data(RDR_NAME).toString()!=newName)
+		{
+			IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AIndex.data(RDR_STREAM_JID).toString()) : NULL;
+			if (roster && roster->isOpen())
+				roster->renameItem(AIndex.data(RDR_PREP_BARE_JID).toString(),newName);
+		}
+	}
+}
+
+void RosterChanger::rosterEditGeometry(int ADataRole, QWidget *AEditor, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
+{
+	if (ADataRole == RDR_NAME)
+	{
+		QRect rect = FRostersView->labelRect(RLID_DISPLAY_EDIT,AIndex);
+		if (rect.isValid())
+			AEditor->setGeometry(rect);
+		else
+			AEditor->setGeometry(AOption.rect);
+	}
 }
 
 bool RosterChanger::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, const QString &AAction, const QMultiMap<QString, QString> &AParams)
@@ -963,6 +1049,7 @@ void RosterChanger::onGroupNameAccepted(QString newGroupName)
 			QString completeGroupName = groupName;
 			completeGroupName.chop(groupTree.last().size());
 			completeGroupName += newGroupName;
+
 			if (FEmptyGroups.contains(groupName))
 			{
 				IRosterIndex *index = FRostersModel!=NULL ? FRostersModel->findGroupIndex(RIT_GROUP,groupName,roster->groupDelimiter(),FRostersModel->streamRoot(streamJid)) : NULL;
@@ -1064,6 +1151,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				action = new Action(AMenu);
 				action->setText(tr("Rename..."));
 				action->setData(data);
+				action->setData(RDR_GROUP,AIndex->data(RDR_GROUP).toString());
 				connect(action,SIGNAL(triggered(bool)),SLOT(onRenameItem(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
 
@@ -1365,11 +1453,27 @@ void RosterChanger::onRenameItem(bool)
 		if (roster && roster->isOpen())
 		{
 			Jid rosterJid = action->data(ADR_CONTACT_JID).toString();
-			QString oldName = action->data(ADR_NICK).toString();
-			bool ok = false;
-			QString newName = QInputDialog::getText(NULL,tr("Contact name"),tr("Enter name for contact"), QLineEdit::Normal, oldName, &ok);
-			if (ok && !newName.isEmpty() && newName != oldName)
-				roster->renameItem(rosterJid, newName);
+			if (FRostersView && FRostersView->rostersModel())
+			{
+				QString group = action->data(ADR_GROUP).toString();
+				QList<IRosterIndex *> indexes = FRostersView->rostersModel()->getContactIndexList(streamJid,rosterJid);
+				foreach(IRosterIndex *index, indexes)
+				{
+					if (index->data(RDR_GROUP).toString() == group)
+					{
+						FRostersView->editRosterIndex(RDR_NAME,index);
+						break;
+					}
+				}
+			}
+			else
+			{
+				bool ok = false;
+				QString oldName = action->data(ADR_NICK).toString();
+				QString newName = QInputDialog::getText(NULL,tr("Contact name"),tr("Enter name for contact"), QLineEdit::Normal, oldName, &ok);
+				if (ok && !newName.isEmpty() && newName != oldName)
+					roster->renameItem(rosterJid, newName);
+			}
 		}
 	}
 }
@@ -1612,34 +1716,48 @@ void RosterChanger::onRenameGroup(bool)
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
-			QString groupDelim = roster->groupDelimiter();
-			QString groupName = action->data(ADR_GROUP).toString();
-			QStringList groupTree = groupName.split(groupDelim,QString::SkipEmptyParts);
-			QInputDialog * dialog = new QInputDialog;
-			dialog->setProperty("groupTree", groupTree);
-			dialog->setProperty("groupName", groupName);
-			dialog->setProperty("streamJid", streamJid);
-			dialog->setInputMode(QInputDialog::TextInput);
-			dialog->setLabelText(tr("<font size=+2>Rename group</font><br>Enter new group name:"));
-			dialog->setWindowTitle(tr("Rename group"));
-			connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onGroupNameAccepted(QString)));
-			dialog->setProperty("rename", true);
-			//QString newGroupPart = QInputDialog::getText(NULL,tr("Rename group"),tr("Enter new group name:"),QLineEdit::Normal,groupTree.last(),&ok);
-			dialog->setTextValue(groupTree.last());
-			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-			if (border)
+			if (FRostersView && FRostersView->rostersModel())
 			{
-				border->setAttribute(Qt::WA_DeleteOnClose, true);
-				border->setMaximizeButtonVisible(false);
-				border->setMinimizeButtonVisible(false);
-				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-				border->setResizable(false);
-				border->show();
+				IRosterIndex *sroot = FRostersView->rostersModel()->streamRoot(roster->streamJid());
+				IRosterIndex *index = FRostersView->rostersModel()->findGroupIndex(RIT_GROUP,action->data(ADR_GROUP).toString(),roster->groupDelimiter(),sroot);
+				if (index)
+					FRostersView->editRosterIndex(RDR_NAME,index);
 			}
 			else
-				dialog->show();
+			{
+				QString groupDelim = roster->groupDelimiter();
+				QString groupName = action->data(ADR_GROUP).toString();
+				QStringList groupTree = groupName.split(groupDelim,QString::SkipEmptyParts);
+				//QString newGroupPart = QInputDialog::getText(NULL,tr("Rename group"),tr("Enter new group name:"),QLineEdit::Normal,groupTree.last(),&ok);
+
+				QInputDialog *dialog = new QInputDialog;
+				dialog->setProperty("groupTree", groupTree);
+				dialog->setProperty("groupName", groupName);
+				dialog->setProperty("streamJid", streamJid);
+				dialog->setInputMode(QInputDialog::TextInput);
+				dialog->setLabelText(tr("<font size=+2>Rename group</font><br>Enter new group name:"));
+				dialog->setWindowTitle(tr("Rename group"));
+				dialog->setProperty("rename", true);
+				dialog->setTextValue(groupTree.last());
+				connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onGroupNameAccepted(QString)));
+
+				CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
+				if (border)
+				{
+					border->setAttribute(Qt::WA_DeleteOnClose, true);
+					border->setMaximizeButtonVisible(false);
+					border->setMinimizeButtonVisible(false);
+					connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
+					connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
+					connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
+					border->setResizable(false);
+					border->show();
+				}
+				else
+				{
+					dialog->show();
+				}
+			}
 		}
 	}
 }

@@ -239,7 +239,7 @@ void RosterSearch::startSearch()
 			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(true);
 			FRostersViewPlugin->rostersView()->instance()->expandAll();
 			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(false);
-			FRostersViewPlugin->rostersView()->selectRow(1);
+			FRostersViewPlugin->rostersView()->instance()->setCurrentIndex(FRostersViewPlugin->rostersView()->instance()->model()->index(1, 0, QModelIndex()));
 		}
 		FSearchStarted = true;
 	}

@@ -48,11 +48,11 @@ public:
 	virtual IRostersModel *rostersModel() const;
 	virtual void setRostersModel(IRostersModel *AModel);
 	virtual QList<IRosterIndex *> selectedRosterIndexes() const;
-	virtual void selectIndex(IRosterIndex * AIndex);
-	virtual void selectRow(int ARow);
+	virtual void selectRosterIndex(IRosterIndex *AIndex);
 	virtual bool repaintRosterIndex(IRosterIndex *AIndex);
 	virtual void expandIndexParents(IRosterIndex *AIndex);
 	virtual void expandIndexParents(const QModelIndex &AIndex);
+	virtual bool editRosterIndex(int ADataRole, IRosterIndex *AIndex);
 	//--ProxyModels
 	virtual void insertProxyModel(QAbstractProxyModel *AProxyModel, int AOrder);
 	virtual QList<QAbstractProxyModel *> proxyModels() const;
@@ -86,6 +86,9 @@ public:
 	//--DragDrop
 	virtual void insertDragDropHandler(IRostersDragDropHandler *AHandler);
 	virtual void removeDragDropHandler(IRostersDragDropHandler *AHandler);
+	//--EditHandlers
+	virtual void insertEditHandler(int AOrder, IRostersEditHandler *AHandler);
+	virtual void removeEditHandler(int AOrder, IRostersEditHandler *AHandler);
 	//--FooterText
 	virtual void insertFooterText(int AOrderAndId, const QVariant &AValue, IRosterIndex *AIndex);
 	virtual void removeFooterText(int AOrderAndId, IRosterIndex *AIndex);
@@ -93,17 +96,18 @@ public:
 	virtual void contextMenuForIndex(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, int ALabelId, Menu *AMenu);
 	//--ClipboardMenu
 	virtual void clipboardMenuForIndex(IRosterIndex *AIndex, Menu *AMenu);
+public:
 	// props
 	QBrush groupBrush() const;
-	void setGroupBrush(const QBrush & newBrush);
+	void setGroupBrush(const QBrush &ABrush);
 	QImage groupBorderImage() const;
-	void setGroupBorderImage(const QImage & newGroupBorderImage);
+	void setGroupBorderImage(const QImage &AGroupBorderImage);
 	QColor groupColor() const;
-	void setGroupColor(const QColor& newColor);
+	void setGroupColor(const QColor &AColor);
 	int groupFontSize() const;
-	void setGroupFontSize(int size);
+	void setGroupFontSize(int ASize);
 	QColor footerColor() const;
-	void setFooterColor(const QColor& newColor);
+	void setFooterColor(const QColor &AColor);
 signals:
 	void modelAboutToBeSet(IRostersModel *AModel);
 	void modelSet(IRostersModel *AModel);
@@ -139,6 +143,7 @@ protected:
 	void setDropIndicatorRect(const QRect &ARect);
 	void setInsertIndicatorRect(const QRect &ARect);
 	QModelIndex actualDragIndex(const QModelIndex &AIndex, const QPoint &ACursorPos) const;
+	IRostersEditHandler *findEditHandler(int ADataRole, const QModelIndex &AIndex) const;
 	// hookers
 	bool processClickHookers(IRosterIndex* AIndex);
 	bool processKeyPressHookers(IRosterIndex* AIndex, Qt::Key AKey, Qt::KeyboardModifiers AModifiers);
@@ -148,9 +153,10 @@ protected:
 	//QAbstractItemView
 	virtual bool viewportEvent(QEvent *AEvent);
 	virtual void resizeEvent(QResizeEvent *AEvent);
+	virtual bool edit(const QModelIndex &AIndex, EditTrigger ATrigger, QEvent *AEvent);
 	//QWidget
 	virtual void paintEvent(QPaintEvent *AEvent);
-	virtual void keyPressEvent(QKeyEvent *event);
+	virtual void keyPressEvent(QKeyEvent *AEvent);
 	virtual void contextMenuEvent(QContextMenuEvent *AEvent);
 	virtual void mouseDoubleClickEvent(QMouseEvent *AEvent);
 	virtual void mousePressEvent(QMouseEvent *AEvent);
@@ -160,6 +166,9 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent *AEvent);
 	virtual void dragMoveEvent(QDragMoveEvent *AEvent);
 	virtual void dragLeaveEvent(QDragLeaveEvent *AEvent);
+protected slots:
+	//QAbstractItemView
+	virtual void closeEditor(QWidget *AEditor, QAbstractItemDelegate::EndEditHint AHint);
 protected slots:
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger* AToolBarChanger);
@@ -191,6 +200,12 @@ private:
 	QSet<int> FBlinkLabels;
 	QSet<int> FBlinkNotifies;
 private:
+	int FGroupFont;
+	QImage FGroupBorder;
+	QColor FGroupForeground;
+	QBrush FGroupBackground;
+	QColor FFooterTextColor;
+private:
 	QMap<int, IRostersLabel> FLabelItems;
 	QMultiMap<IRosterIndex *, int> FIndexLabels;
 private:
@@ -200,6 +215,7 @@ private:
 	QMap<IRosterIndex *, int> FActiveNotifies;
 	QMultiMap<IRosterIndex *, int> FIndexNotifies;
 private:
+	QMultiMap<int, IRostersEditHandler *> FEditHandlers;
 	QMultiMap<int, IRostersClickHooker *> FClickHookers;
 	QMultiMap<int, IRostersKeyPressHooker *> FKeyPressHookers;
 private:
@@ -213,11 +229,6 @@ private:
 	QRect FInsertIndicatorRect;
 	QList<IRostersDragDropHandler *> FDragDropHandlers;
 	QList<IRostersDragDropHandler *> FActiveDragHandlers;
-	QBrush groupBackground;
-	QImage groupBorder;
-	QColor groupForeground;
-	int groupFont;
-	QColor footerTextColor;
 };
 
 #endif // ROSTERSVIEW_H
