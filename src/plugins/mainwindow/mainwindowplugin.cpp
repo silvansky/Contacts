@@ -30,17 +30,11 @@ MainWindowPlugin::MainWindowPlugin()
 		FMainWindowBorder->setMaximizeButtonVisible(false);
 		FMainWindowBorder->setMinimizeButtonVisible(false);
 		FMainWindowBorder->setDockingEnabled(true);
-#ifdef Q_WS_WIN
-		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-			FMainWindowBorder->setMinimizeOnClose(true);
-		else
-			FMainWindowBorder->setShowInTaskBar(false);
-#endif
 	}
 
 #ifdef Q_WS_WIN
-		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-			connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
+//		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+//			connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
 #endif
 
 	FMainWindow->installEventFilter(this);
@@ -133,6 +127,7 @@ bool MainWindowPlugin::initSettings()
 	QRect defRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignRight | Qt::AlignTop, defSize, ps);
 	Options::setDefaultValue(OPV_MAINWINDOW_POSITION, defRect.topLeft());
 	Options::setDefaultValue(OPV_MAINWINDOW_STAYONTOP,false);
+	Options::setDefaultValue(OPV_MAINWINDOW_MINIMIZETOTRAY_W7,false);
 
 	if (FOptionsManager)
 	{
@@ -155,6 +150,10 @@ QMultiMap<int, IOptionsWidget *> MainWindowPlugin::optionsWidgets(const QString 
 	if (FOptionsManager && ANodeId == OPN_ROSTER)
 	{
 		widgets.insertMulti(OWO_ROSTER_MAINWINDOW, FOptionsManager->optionsNodeWidget(Options::node(OPV_MAINWINDOW_STAYONTOP),tr("Stay on top of other windows"),AParent));
+#ifdef Q_OS_WIN
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			widgets.insertMulti(OWO_ROSTER_MAINWINDOW+1, FOptionsManager->optionsNodeWidget(Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7),tr("Minimize to tray instead of taskbar"),AParent));
+#endif
 	}
 	return widgets;
 }
@@ -232,10 +231,11 @@ void MainWindowPlugin::onOptionsOpened()
 	widget->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
+	onOptionsChanged(Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7));
 	if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
 		showMainWindow();
 #ifdef Q_WS_WIN
-	else if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+	else if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
 		widget->showMinimized();
 #endif
 	updateTitle();
@@ -247,7 +247,7 @@ void MainWindowPlugin::onOptionsClosed()
 	Options::node(OPV_MAINWINDOW_SIZE).setValue(widget->size());
 	Options::node(OPV_MAINWINDOW_POSITION).setValue(widget->pos());
 #ifdef Q_WS_WIN
-	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+	if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
 		widget->hide();
 	else
 #endif
@@ -269,6 +269,25 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 		if (show)
 			showMainWindow();
 	}
+#ifdef Q_OS_WIN
+	else if (ANode.path() == OPV_MAINWINDOW_MINIMIZETOTRAY_W7)
+	{
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		{
+			bool minimize = ANode.value().toBool();
+			FMainWindowBorder->setMinimizeOnClose(!minimize);
+			FMainWindowBorder->setShowInTaskBar(!minimize);
+			if (minimize)
+			{
+				disconnect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), this, SLOT(onMainWindowClosed()));
+			}
+			else
+			{
+				connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
+			}
+		}
+	}
+#endif
 }
 
 void MainWindowPlugin::onProfileRenamed(const QString &AProfile, const QString &ANewName)
@@ -286,7 +305,7 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 		if (FMainWindow->isActive() || qAbs(FActivationChanged.msecsTo(QTime::currentTime()))<qApp->doubleClickInterval())
 		{
 #ifdef Q_WS_WIN
-			if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
 				widget->hide();
 			else
 #endif
@@ -322,7 +341,7 @@ void MainWindowPlugin::onApplicationQuitStarted()
 	{
 		QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 #ifdef Q_WS_WIN
-		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
 			Options::node(OPV_MAINWINDOW_SHOW).setValue(!widget->isMinimized());
 		else
 #endif
