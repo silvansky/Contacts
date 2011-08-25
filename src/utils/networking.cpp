@@ -82,14 +82,32 @@ QImage NetworkingPrivate::httpGetImage(const QUrl& src) const
 	request.setUrl(src);
 	QNetworkReply * reply = nam->get(request);
 	loop->exec();
-	QImage img;
-	QImageReader reader(reply);
-	if (reply->error() == QNetworkReply::NoError)
-		reader.read(&img);
+	QVariant redirectedUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+	QUrl redirectedTo = redirectedUrl.toUrl();
+	if (redirectedTo.isValid())
+	{
+		// guard from infinite redirect loop
+		if (redirectedTo != reply->request().url())
+		{
+			return httpGetImage(redirectedTo);
+		}
+		else
+		{
+			LogError("[Networking] infinite redirect loop at " + redirectedTo.toString());
+			return QImage();
+		}
+	}
 	else
-		LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
-	reply->deleteLater();
-	return img;
+	{
+		QImage img;
+		QImageReader reader(reply);
+		if (reply->error() == QNetworkReply::NoError)
+			reader.read(&img);
+		else
+			LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
+		reply->deleteLater();
+		return img;
+	}
 }
 
 void NetworkingPrivate::httpGetImageAsync(const QUrl& src, QObject * receiver, const char * slot)
@@ -110,13 +128,31 @@ QString NetworkingPrivate::httpGetString(const QUrl& src) const
 	request.setUrl(src);
 	QNetworkReply * reply = nam->get(request);
 	loop->exec();
-	QString answer;
-	if (reply->error() == QNetworkReply::NoError)
-		answer = QString::fromUtf8(reply->readAll());
+	QVariant redirectedUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+	QUrl redirectedTo = redirectedUrl.toUrl();
+	if (redirectedTo.isValid())
+	{
+		// guard from infinite redirect loop
+		if (redirectedTo != reply->request().url())
+		{
+			return httpGetString(redirectedTo);
+		}
+		else
+		{
+			LogError("[Networking] infinite redirect loop at " + redirectedTo.toString());
+			return QString::null;
+		}
+	}
 	else
-		LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
-	reply->deleteLater();
-	return answer;
+	{
+		QString answer;
+		if (reply->error() == QNetworkReply::NoError)
+			answer = QString::fromUtf8(reply->readAll());
+		else
+			LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
+		reply->deleteLater();
+		return answer;
+	}
 }
 
 void NetworkingPrivate::setCookiePath(const QString & path)
