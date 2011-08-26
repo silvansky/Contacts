@@ -1151,7 +1151,6 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				action = new Action(AMenu);
 				action->setText(tr("Rename..."));
 				action->setData(data);
-				action->setData(RDR_GROUP,AIndex->data(RDR_GROUP).toString());
 				connect(action,SIGNAL(triggered(bool)),SLOT(onRenameItem(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
 

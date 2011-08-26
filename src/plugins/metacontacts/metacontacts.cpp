@@ -316,6 +316,7 @@ bool MetaContacts::keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt:
 				data.insert(ADR_STREAM_JID,streamJid.full());
 				data.insert(ADR_META_ID,metaId);
 				data.insert(ADR_META_ID_LIST,selMetaIdList);
+				data.insert(ADR_GROUP,AIndex->data(RDR_GROUP));
 
 				Action *renameAction = new Action(this);
 				renameAction->setData(data);
