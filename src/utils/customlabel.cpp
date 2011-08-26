@@ -74,10 +74,67 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 			break;
 		}
 		QString textToDraw = text();
-		int wd = lr.width();
-		if ((elideMode() != Qt::ElideNone) && !wordWrap())
+		int textWidth = lr.width();
+		// eliding text
+		// TODO: move to text change / resize event handler, make textToDraw a member
+		if (elideMode() != Qt::ElideNone)
 		{
-			textToDraw = fontMetrics().elidedText(text(), elideMode(), wd);
+			QFontMetrics fm = fontMetrics();
+			if (!wordWrap())
+			{
+				textToDraw = fm.elidedText(text(), elideMode(), textWidth);
+			}
+			else if (elideMode() == Qt::ElideRight)
+			{
+				// multiline elide
+				int pxPerLine = fontMetrics().lineSpacing();
+				int lines = lr.height() / pxPerLine + 1;
+				QStringList srcLines = text().split("\n");
+				QStringList dstLines;
+				foreach (QString srcLine, srcLines)
+				{
+					int w = fm.width(srcLine);
+					if (w >= textWidth)
+					{
+						QStringList tmpList = srcLine.split(' ');
+						QString s;
+						int i = 0;
+						while (i < tmpList.count())
+						{
+							if (fm.width(s + " " + tmpList.at(i)) >= textWidth)
+							{
+								if (!s.isEmpty())
+								{
+									dstLines += s;
+									s = QString::null;
+								}
+							}
+							if (!s.isEmpty())
+							{
+								s += " ";
+							}
+							s += tmpList.at(i);
+							i++;
+						}
+						dstLines += s;
+					}
+					else
+					{
+						dstLines += srcLine;
+					}
+				}
+				int n = dstLines.count();
+				dstLines = dstLines.mid(0, lines);
+				if (n > lines)
+				{
+					dstLines.last() += "...";
+				}
+				for (QStringList::iterator it = dstLines.begin(); it != dstLines.end(); it++)
+				{
+					*it = fm.elidedText(*it, elideMode(), textWidth);
+				}
+				textToDraw = dstLines.join("\r\n");
+			}
 		}
 		style()->drawItemText(&painter, lr.toRect(), flags, opt.palette, isEnabled(), textToDraw, QPalette::WindowText);
 	}

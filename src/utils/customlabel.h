@@ -11,6 +11,7 @@ class UTILS_EXPORT CustomLabel : public QLabel
 	Q_PROPERTY(int elideMode READ elideMode WRITE setElideMode)
 public:
 	explicit CustomLabel(QWidget *parent = 0);
+	// see definitions/textflags.h for defines of shadow types
 	enum ShadowType
 	{
 		NoShadow = 0,
@@ -26,8 +27,7 @@ public:
 protected:
 	void paintEvent(QPaintEvent *);
 signals:
-
-public slots:
+protected slots:
 private:
 	ShadowType shadowType;
 	Qt::TextElideMode textElideMode;

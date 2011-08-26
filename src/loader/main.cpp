@@ -1,11 +1,7 @@
 #include <QUrl>
 #include <QLibrary>
 #include <QApplication>
-#include <QNetworkReply>
 #include <QScopedPointer>
-#include <QNetworkRequest>
-#include <QCleanlooksStyle>
-#include <QNetworkAccessManager>
 #include "pluginmanager.h"
 #include "proxystyle.h"
 #include <utils/networking.h>
@@ -19,17 +15,10 @@
 
 int main(int argc, char *argv[])
 {
-	// styles
-	// QApplication::setStyle(new QCleanlooksStyle); // damn, no effect at all!
-	// but we can simulate "-style cleanlooks" arguments and pass them to app's ctor...
-	// that would be a really dirty hack!
-	// but it solves selection problem on windows vista/seven...
-	// this would also make our app look the same at different platforms...
-	// here the code:
-
 	// WARNING! DIRTY HACK!
+	// totally ignoring all args and simulating "-style windows" args
+	// don't know why only this works...
 
-	// totally ignoring all args
 	char **newArgv = new char*[3];
 	// copying 0 arg
 	newArgv[0] = new char[strlen(argv[0])];
@@ -39,8 +28,6 @@ int main(int argc, char *argv[])
 	// replace original argc and argv and passing them to app's ctor
 	argc = 3;
 	argv = newArgv;
-	// remark: we can set windows style explicitly to override vista/seven selection
-	// cleanlooks style brings ugly combo popups...
 
 	SingleApp app(argc, argv, "Rambler.Contacts");
 
