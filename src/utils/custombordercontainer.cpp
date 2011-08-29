@@ -795,7 +795,7 @@ void CustomBorderContainer::setShowInTaskBar(bool show)
 		if (isShowInTaskBarEnabled())
 			setWindowFlags(windowFlags() ^ Qt::Tool);
 	}
-	else
+	else if (!isShowInTaskBarEnabled())
 	{
 		setWindowFlags(windowFlags() | Qt::Tool);
 	}
@@ -2050,21 +2050,21 @@ void CustomBorderContainer::updateShape()
 			int w = g.width();
 			int h = g.height();
 			cornerRectTL = QRect(0,
-					     0,
-					     borderStyle->topLeft.width - borderStyle->topLeft.resizeLeft,
-					     borderStyle->topLeft.height - borderStyle->topLeft.resizeTop);
+						 0,
+						 borderStyle->topLeft.width - borderStyle->topLeft.resizeLeft,
+						 borderStyle->topLeft.height - borderStyle->topLeft.resizeTop);
 			cornerRectTR = QRect(w - (borderStyle->topRight.width - borderStyle->topRight.resizeRight),
-					     0,
-					     borderStyle->topRight.width - borderStyle->topRight.resizeRight,
-					     borderStyle->topRight.height - borderStyle->topRight.resizeTop);
+						 0,
+						 borderStyle->topRight.width - borderStyle->topRight.resizeRight,
+						 borderStyle->topRight.height - borderStyle->topRight.resizeTop);
 			cornerRectBL = QRect(0,
-					     h - (borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom),
-					     borderStyle->bottomLeft.width - borderStyle->bottomLeft.resizeLeft,
-					     borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom);
+						 h - (borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom),
+						 borderStyle->bottomLeft.width - borderStyle->bottomLeft.resizeLeft,
+						 borderStyle->bottomLeft.height - borderStyle->bottomLeft.resizeBottom);
 			cornerRectBR = QRect(w - (borderStyle->bottomRight.width - borderStyle->bottomRight.resizeRight),
-					     h - (borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom),
-					     borderStyle->bottomRight.width - borderStyle->bottomRight.resizeRight,
-					     borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom);
+						 h - (borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom),
+						 borderStyle->bottomRight.width - borderStyle->bottomRight.resizeRight,
+						 borderStyle->bottomRight.height - borderStyle->bottomRight.resizeBottom);
 			QRegion reg(g);
 			reg -= cornerRectTL;
 			reg -= cornerRectTR;

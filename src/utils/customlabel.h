@@ -9,6 +9,7 @@ class UTILS_EXPORT CustomLabel : public QLabel
 	Q_OBJECT
 	Q_PROPERTY(int shadow READ shadow WRITE setShadow)
 	Q_PROPERTY(int elideMode READ elideMode WRITE setElideMode)
+	Q_PROPERTY(bool multilineElideEnabled READ multilineElideEnabled WRITE setMultilineElideEnabled)
 public:
 	explicit CustomLabel(QWidget *parent = 0);
 	// see definitions/textflags.h for defines of shadow types
