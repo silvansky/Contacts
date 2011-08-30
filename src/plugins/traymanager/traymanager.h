@@ -6,8 +6,10 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/actiongroups.h>
+#include <definitions/optionvalues.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/itraymanager.h>
+#include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/versionparser.h>
 
@@ -52,11 +54,14 @@ signals:
 	void messageShown(const QString &ATitle, const QString &AMessage,QSystemTrayIcon::MessageIcon AIcon, int ATimeout);
 protected:
 	void updateTray();
+	void updateTrayVisibility();
 protected slots:
 	void onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason);
 	void onBlinkTimerTimeout();
 	void onTriggerTimerTimeout();
 	void onApplicationQuitStarted();
+	void onOptionsOpened();
+	void onOptionsChanged(const OptionsNode &ANode);
 private:
 	IPluginManager *FPluginManager;
 private:

@@ -276,23 +276,11 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 		{
 			bool minimize = ANode.value().toBool();
 			FMainWindowBorder->setMinimizeOnClose(!minimize);
-			QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
-#ifdef Q_WS_WIN
-			if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
-				widget->hide();
-			else
-#endif
-				widget->close();
-			FMainWindowBorder->setShowInTaskBar(!minimize);
-			showMainWindow();
+			//FMainWindowBorder->setShowInTaskBar(!minimize);
 			if (minimize)
-			{
 				disconnect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), this, SLOT(onMainWindowClosed()));
-			}
 			else
-			{
 				connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
-			}
 		}
 	}
 #endif
@@ -332,7 +320,7 @@ void MainWindowPlugin::onShowMainWindowByAction(bool)
 void MainWindowPlugin::onMainWindowClosed()
 {
 #ifdef Q_WS_WIN
-	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+	if (QSysInfo::windowsVersion()==QSysInfo::WV_WINDOWS7 && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
 		FPluginManager->quit();
 #endif
 }

@@ -691,10 +691,7 @@ void StatusChanger::updateMainMenu()
 		if (statusId != STATUS_CONNECTING_ID)
 		{
 			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(FTrayManager->instance());
-#ifdef Q_WS_WIN
-			if (QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7)
-#endif
-				FTrayManager->setIcon(iconByShow(statusItemShow(statusId)));
+			FTrayManager->setIcon(iconByShow(statusItemShow(statusId)));
 		}
 		else
 		{

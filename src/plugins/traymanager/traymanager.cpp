@@ -2,8 +2,6 @@
 
 #include <QSysInfo>
 #include <QApplication>
-#include <utils/options.h>
-#include <definitions/optionvalues.h>
 
 #define BLINK_VISIBLE_TIME      750
 #define BLINK_INVISIBLE_TIME    250
@@ -50,6 +48,10 @@ bool TrayManager::initConnections(IPluginManager *APluginManager, int &AInitOrde
 	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
 	connect(FPluginManager->instance(),SIGNAL(quitStarted()),SLOT(onApplicationQuitStarted()));
+
+	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
+	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
+
 	return true;
 }
 
@@ -64,10 +66,7 @@ bool TrayManager::initObjects()
 
 bool TrayManager::startPlugin()
 {
-#ifdef Q_WS_WIN
-	if ((QSysInfo::windowsVersion() != QSysInfo::WV_WINDOWS7) || Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
-#endif
-		FSystemIcon.show();
+	updateTrayVisibility();
 	return true;
 }
 
@@ -192,14 +191,19 @@ void TrayManager::updateTray()
 
 		emit activeNotifyChanged(notifyId);
 	}
+	updateTrayVisibility();
+}
+
+void TrayManager::updateTrayVisibility()
+{
 #ifdef Q_WS_WIN
-	if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
-	{
-		if (FNotifyItems.isEmpty())
-			FSystemIcon.hide();
-		else
-			FSystemIcon.show();
-	}
+	if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool() && FNotifyItems.isEmpty())
+		FSystemIcon.hide();
+	else if (!FSystemIcon.isVisible())
+		FSystemIcon.show();
+#else
+	if (!FSystemIcon.isVisible())
+		FSystemIcon.show();
 #endif
 }
 
@@ -245,6 +249,17 @@ void TrayManager::onTriggerTimerTimeout()
 void TrayManager::onApplicationQuitStarted()
 {
 	FSystemIcon.hide();
+}
+
+void TrayManager::onOptionsOpened()
+{
+	updateTrayVisibility();
+}
+
+void TrayManager::onOptionsChanged(const OptionsNode &ANode)
+{
+	Q_UNUSED(ANode);
+	updateTrayVisibility();
 }
 
 Q_EXPORT_PLUGIN2(plg_traymanager, TrayManager)
