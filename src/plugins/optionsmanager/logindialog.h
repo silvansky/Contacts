@@ -54,6 +54,7 @@ protected:
 protected:
 	void initialize(IPluginManager *APluginManager);
 	bool isCapsLockOn() const;
+	void showCapsLockBalloon();
 	void closeCurrentProfile();
 	bool tryNextConnectionSettings();
 	void setConnectEnabled(bool AEnabled);
