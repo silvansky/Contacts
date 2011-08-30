@@ -1,7 +1,6 @@
 #include "aboutqtdialog.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QLabel>
 #include <QPainter>
 #include <QStyleOption>
 #include <QKeyEvent>
@@ -10,6 +9,7 @@
 #include <utils/stylestorage.h>
 #include <utils/graphicseffectsstorage.h>
 #include <utils/widgetmanager.h>
+#include <utils/customlabel.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/customborder.h>
@@ -48,24 +48,25 @@ AboutQtDialog::AboutQtDialog() :
 	// text and icon layout
 	QHBoxLayout * textLayout = new QHBoxLayout;
 	textLayout->setSpacing(6);
-	QLabel * icon = new QLabel(this);
+	CustomLabel * icon = new CustomLabel(this);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(icon, MNI_PLUGINMANAGER_ABOUT_QT, 0, 0, "pixmap");
 	icon->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 	icon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 	textLayout->addWidget(icon);
 	QVBoxLayout * captLayout = new QVBoxLayout;
 	captLayout->setSpacing(8);
-	QLabel * caption = new QLabel(this);
+	CustomLabel * caption = new CustomLabel(this);
 	caption->setObjectName("caption");
 	caption->setText(tr("About Qt"));
 
-	QLabel * text = new QLabel(this);
+	CustomLabel * text = new CustomLabel(this);
 	text->setTextFormat(Qt::RichText);
 	text->setWordWrap(true);
 	text->setMaximumWidth(350);
 	text->setOpenExternalLinks(true);
-	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(text, GFX_LABELS);
 	text->setObjectName("lblAboutQtText");
+
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(text, GFX_LABELS);
 	QString localizedText = tr("<p>This program uses Qt version %1.</p>"
 				   "<p>Qt is a C++ toolkit for cross-platform application "
 				   "development.</p>"

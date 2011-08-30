@@ -50,7 +50,7 @@
       <number>10</number>
      </property>
      <item>
-      <widget class="QLabel" name="lblName">
+      <widget class="CustomLabel" name="lblName">
        <property name="font">
         <font>
          <pointsize>30</pointsize>
@@ -62,7 +62,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblVersion">
+      <widget class="CustomLabel" name="lblVersion">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -75,7 +75,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblHomePage">
+      <widget class="CustomLabel" name="lblHomePage">
        <property name="text">
         <string notr="true">homepage</string>
        </property>
@@ -88,7 +88,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblCopyright">
+      <widget class="CustomLabel" name="lblCopyright">
        <property name="text">
         <string notr="true">©</string>
        </property>
@@ -101,7 +101,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblFontInfo">
+      <widget class="CustomLabel" name="lblFontInfo">
        <property name="text">
         <string notr="true">font info</string>
        </property>
@@ -114,7 +114,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblAboutQt">
+      <widget class="CustomLabel" name="lblAboutQt">
        <property name="text">
         <string notr="true">Qt info</string>
        </property>
@@ -187,6 +187,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

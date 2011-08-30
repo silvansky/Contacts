@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include "utilsexport.h"
 #include "custombordercontainer.h"
+#include "customlabel.h"
 
 class UTILS_EXPORT CustomInputDialog : public QDialog
 {
@@ -47,10 +48,10 @@ private:
 	CustomBorderContainer * border;
 	InputType inputType;
 	QLineEdit * valueEdit;
-	QLabel * captionLabel;
-	QLabel * infoLabel;
-	QLabel * iconLabel;
-	QLabel * descrLabel;
+	CustomLabel * captionLabel;
+	CustomLabel * infoLabel;
+	CustomLabel * iconLabel;
+	CustomLabel * descrLabel;
 	QPushButton * acceptButton;
 	QPushButton * rejectButton;
 };

@@ -41,7 +41,7 @@
    <item>
     <layout class="QVBoxLayout" name="vertLayoutHeader">
      <item>
-      <widget class="QLabel" name="lblHead">
+      <widget class="CustomLabel" name="lblHead">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -54,7 +54,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblBody">
+      <widget class="CustomLabel" name="lblBody">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -74,7 +74,7 @@
    <item>
     <layout class="QVBoxLayout" name="vertLayoutName">
      <item>
-      <widget class="QLabel" name="lblYourName">
+      <widget class="CustomLabel" name="lblYourName">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -107,7 +107,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QLabel" name="lblEMail">
+      <widget class="CustomLabel" name="lblEMail">
        <property name="text">
         <string>E-Mail for reply</string>
        </property>
@@ -134,7 +134,7 @@
    <item>
     <layout class="QVBoxLayout" name="vertLayoutComment">
      <item>
-      <widget class="QLabel" name="lblComment">
+      <widget class="CustomLabel" name="lblComment">
        <property name="text">
         <string>Enter your comment:</string>
        </property>
@@ -176,7 +176,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblTechData">
+      <widget class="CustomLabel" name="lblTechData">
        <property name="text">
         <string/>
        </property>
@@ -187,7 +187,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="lblSendCommentStatus">
+      <widget class="CustomLabel" name="lblSendCommentStatus">
        <property name="text">
         <string/>
        </property>
@@ -272,6 +272,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

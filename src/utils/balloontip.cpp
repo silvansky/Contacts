@@ -1,6 +1,6 @@
 #include "balloontip.h"
+#include "customlabel.h"
 
-#include <QLabel>
 #include <QPushButton>
 #include <QGridLayout>
 #include <QStyle>
@@ -74,7 +74,7 @@ void BalloonTip::init()
 BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message, QWidget * p) : QWidget(0, Qt::ToolTip), timerId(-1), _p(p)
 {
 	init();
-	QLabel *titleLabel = new QLabel;
+	CustomLabel *titleLabel = new CustomLabel;
 	titleLabel->installEventFilter(this);
 	titleLabel->setText(title);
 	QFont font = titleLabel->font();
@@ -91,7 +91,7 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message,
 	const int iconSize = 18;
 #endif
 
-	QLabel *msgLabel = new QLabel;
+	CustomLabel *msgLabel = new CustomLabel;
 #ifdef Q_WS_WINCE
 	font.setBold(false);
 	msgLabel->setFont(font);
@@ -124,7 +124,7 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message,
 	QGridLayout *layout = new QGridLayout;
 	if (!icon.isNull())
 	{
-		QLabel *iconLabel = new QLabel;
+		CustomLabel *iconLabel = new CustomLabel;
 		iconLabel->setPixmap(icon.pixmap(iconSize, iconSize));
 		iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		iconLabel->setMargin(2);
@@ -164,7 +164,7 @@ BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget, QWidget * p) : QWidg
 #endif
 	if (!si.isNull())
 	{
-		QLabel *iconLabel = new QLabel;
+		CustomLabel *iconLabel = new CustomLabel;
 		iconLabel->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 		iconLabel->setPixmap(si.pixmap(iconSize, iconSize));
 		iconLabel->setMargin(2);
@@ -311,7 +311,7 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 			path.lineTo(mr - ao - aw, mb);
 		}
 		move(qMin(pos.x() - sh.width() + ao, scr.right() - sh.width() - 2),
-		     pos.y() - sh.height());
+			 pos.y() - sh.height());
 	}
 	else if ((arrowPosition == ArrowBottom) && arrowAtLeft)
 	{

@@ -193,7 +193,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lblXmppError">
+       <widget class="CustomLabel" name="lblXmppError">
         <property name="text">
          <string notr="true">lblXmppError</string>
         </property>
@@ -302,7 +302,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="lblConnectError">
+       <widget class="CustomLabel" name="lblConnectError">
         <property name="text">
          <string notr="true">lblConnectError</string>
         </property>
@@ -312,7 +312,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lblReconnect">
+       <widget class="CustomLabel" name="lblReconnect">
         <property name="text">
          <string>Enter your Rambler login and password, or register</string>
         </property>
@@ -327,6 +327,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>lneNode</tabstop>
   <tabstop>lnePassword</tabstop>
