@@ -276,12 +276,14 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 		{
 			bool minimize = ANode.value().toBool();
 			FMainWindowBorder->setMinimizeOnClose(!minimize);
-			//FMainWindowBorder->setShowInTaskBar(!minimize);
+			FMainWindowBorder->setShowInTaskBar(!minimize);
 			if (minimize)
 				disconnect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), this, SLOT(onMainWindowClosed()));
 			else
 				connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
 		}
+		else
+			FMainWindowBorder->setShowInTaskBar(false);
 	}
 #endif
 }

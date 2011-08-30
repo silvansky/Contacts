@@ -785,7 +785,7 @@ void CustomBorderContainer::setResizable(bool resizable)
 
 bool CustomBorderContainer::isShowInTaskBarEnabled() const
 {
-	return !(windowFlags() & Qt::ToolTip);
+	return !(windowFlags() & (Qt::Tool ^ Qt::Window));
 }
 
 void CustomBorderContainer::setShowInTaskBar(bool show)
@@ -796,11 +796,11 @@ void CustomBorderContainer::setShowInTaskBar(bool show)
 	if (show)
 	{
 		if (!isShowInTaskBarEnabled())
-			setWindowFlags((windowFlags() ^ Qt::ToolTip) | Qt::Window);
+			setWindowFlags((windowFlags() ^ Qt::Tool) | Qt::Window);
 	}
 	else if (isShowInTaskBarEnabled())
 	{
-		setWindowFlags(windowFlags() | Qt::ToolTip);
+		setWindowFlags(windowFlags() | Qt::Tool);
 	}
 	if (wasVisible)
 		this->show();
