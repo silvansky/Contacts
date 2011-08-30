@@ -38,6 +38,7 @@ NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Q
 		//border->setWindowFlags(border->windowFlags() | Qt::ToolTip);
 		border->setShowInTaskBar(false);
 		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		border->setStaysOnTop(true);
 		connect(border, SIGNAL(closeClicked()),border,SLOT(close()));
 	}
 

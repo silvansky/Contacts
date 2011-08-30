@@ -823,7 +823,7 @@ bool CustomBorderContainer::staysOnTop() const
 
 void CustomBorderContainer::setStaysOnTop(bool on)
 {
-	if (on)
+	if (on && !staysOnTop())
 		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 	else
 		if (staysOnTop())
