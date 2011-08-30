@@ -442,7 +442,7 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
 			p.setY(p.y() - ui.lnePassword->height() / 2);
 			if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
-				showCapsLockBalloon();
+				showCapsLockBalloon(p);
 		}
 	}
 	else if (AEvent->type() == QEvent::FocusOut)
@@ -463,9 +463,11 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			BalloonTip::hideBalloon();
 		}
-		else if (isCapsLockOn() && !BalloonTip::isBalloonVisible())
+		else if (AWatched == ui.lnePassword && isCapsLockOn() && !BalloonTip::isBalloonVisible())
 		{
-			showCapsLockBalloon();
+			QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
+			p.setY(p.y() - ui.lnePassword->height() / 2);
+			showCapsLockBalloon(p);
 		}
 	}
 	else if (AEvent->type() == QEvent::Show)
@@ -627,7 +629,7 @@ bool LoginDialog::isCapsLockOn() const
 	return false;
 }
 
-void LoginDialog::showCapsLockBalloon()
+void LoginDialog::showCapsLockBalloon(const QPoint & p)
 {
 	BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), tr("Caps Lock is ON"),
 				tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
