@@ -115,7 +115,6 @@ void StyleStorage::updateStyle(QObject * object)
 	if (QWidget * w = qobject_cast<QWidget*>(object))
 	{
 		w->setStyleSheet(w->styleSheet());
-		w->update();
 	}
 	else
 	{

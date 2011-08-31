@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include "tabbaritem.h"
+#include <utils/stylestorage.h>
 
 TabBarLayout::TabBarLayout(QWidget *AParent) : QLayout(AParent)
 {
@@ -213,16 +214,22 @@ int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStretch, bool ARes
 			}
 		}
 	}
-	foreach(QLayoutItem *item, FItemsOrder)
+	if (AResize)
 	{
-		if (item->geometry().bottom() == FItemsOrder.last()->geometry().bottom())
+		foreach(QLayoutItem *item, FItemsOrder)
 		{
 			TabBarItem * tabBarItem = qobject_cast<TabBarItem*>(((QWidgetItem*)item)->widget());
 			if (tabBarItem)
 			{
-				tabBarItem->setBottom(true);
+				if (item->geometry().bottom() == FItemsOrder.last()->geometry().bottom())
+				{
+
+					tabBarItem->setBottom(true);
+				}
+				StyleStorage::updateStyle(tabBarItem);
 			}
 		}
+		//StyleStorage::updateStyle(parentWidget());
 	}
 
 	return y - availRect.top() + lineHeight + top + bottom;

@@ -160,8 +160,8 @@ int TabBar::addTab(const QString &AText)
 	if (index == 0)
 		setCurrentIndex(index);
 
-	StyleStorage::updateStyle(this);
-	StyleStorage::updateStyle(item);
+	//StyleStorage::updateStyle(this);
+	//StyleStorage::updateStyle(item);
 
 	return index;
 }
