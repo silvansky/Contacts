@@ -1,6 +1,6 @@
 #include "registration.h"
 
-#define REGISTRATION_TIMEOUT    30000
+#define REGISTRATION_TIMEOUT    60000
 
 #define ADR_StreamJid           Action::DR_StreamJid
 #define ADR_ServiceJid          Action::DR_Parametr1
