@@ -32,8 +32,8 @@ public:
 	virtual Qt::Orientations expandingDirections() const;
 	virtual void setGeometry(const QRect &ARect);
 protected:
-	void calcLayoutParams(int AWidth, int &AItemWidth, bool &AStreatch) const;
-	int doLayout(QRect ARect, int AItemWidth, bool AStreatch, bool AResize) const;
+	void calcLayoutParams(int AWidth, int &AItemWidth, bool &AStretch) const;
+	int doLayout(QRect ARect, int AItemWidth, bool AStretch, bool AResize) const;
 private:
 	int FMinWidth;
 	int FMaxWidth;

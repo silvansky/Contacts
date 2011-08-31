@@ -20,8 +20,10 @@ class TabBarItem :
 	Q_PROPERTY(bool isActive READ isActive WRITE setActive)
 	Q_PROPERTY(bool isDraging READ isDraging WRITE setDraging)
 	Q_PROPERTY(bool isCloseable READ isCloseable WRITE setCloseable)
-	// TODO: add bool properties like "first", "last", "top", "bottom", "left", "right" (maybe some others?)
-	// they are needed for more advanced stylesheet stylization
+	Q_PROPERTY(bool left READ isLeft WRITE setLeft)
+	Q_PROPERTY(bool right READ isRight WRITE setRight)
+	Q_PROPERTY(bool top READ isTop WRITE setTop)
+	Q_PROPERTY(bool bottom READ isBottom WRITE setBottom)
 public:
 	TabBarItem(QWidget *AParent);
 	virtual ~TabBarItem();
@@ -43,6 +45,15 @@ public:
 	void setToolTip(const QString &AToolTip);
 	ITabPageNotify notify() const;
 	void setNotify(const ITabPageNotify &ANotify);
+	// left-right-top-bottom props
+	bool isLeft() const;
+	void setLeft(bool on);
+	bool isRight() const;
+	void setRight(bool on);
+	bool isTop() const;
+	void setTop(bool on);
+	bool isBottom() const;
+	void setBottom(bool on);
 signals:
 	void closeButtonClicked();
 protected:
@@ -72,6 +83,7 @@ private:
 	bool FIconHidden;
 	QTimer FBlinkTimer;
 	ITabPageNotify FNotify;
+	bool left, right, top, bottom;
 };
 
 #endif // TABBARITEM_H

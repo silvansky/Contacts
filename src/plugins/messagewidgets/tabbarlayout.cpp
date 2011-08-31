@@ -1,6 +1,7 @@
 #include "tabbarlayout.h"
 
 #include <QWidget>
+#include "tabbaritem.h"
 
 TabBarLayout::TabBarLayout(QWidget *AParent) : QLayout(AParent)
 {
@@ -145,7 +146,7 @@ void TabBarLayout::setGeometry(const QRect &ARect)
 }
 
 #define LINES(itms,ipl) ((ipl)>0 ? (itms)/(ipl) + ((itms)%(ipl)>0 ? 1 : 0) : 1)
-void TabBarLayout::calcLayoutParams(int AWidth, int &AItemWidth, bool &AStreatch) const
+void TabBarLayout::calcLayoutParams(int AWidth, int &AItemWidth, bool &AStretch) const
 {
 	int left, right;
 	getContentsMargins(&left, NULL, &right, NULL);
@@ -159,16 +160,16 @@ void TabBarLayout::calcLayoutParams(int AWidth, int &AItemWidth, bool &AStreatch
 		while (itemsPerLine>1 && lines==LINES(FItems.count(),itemsPerLine-1))
 			itemsPerLine--;
 		AItemWidth = itemsPerLine>0 ? (availWidth-((itemsPerLine-1)*spacing())) / itemsPerLine : FMinWidth;
-		AStreatch = true;
+		AStretch = true;
 	}
 	else
 	{
 		AItemWidth = FMaxWidth;
-		AStreatch = false;
+		AStretch = false;
 	}
 }
 
-int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStreatch, bool AResize) const
+int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStretch, bool AResize) const
 {
 	int left, top, right, bottom;
 	getContentsMargins(&left, &top, &right, &bottom);
@@ -192,7 +193,7 @@ int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStreatch, bool ARe
 				y += lineHeight + spacing();
 				lineHeight = 0;
 			}
-			if (AStreatch)
+			if (AStretch)
 			{
 				itemRect.setRight(availRect.right());
 			}
@@ -202,8 +203,27 @@ int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStreatch, bool ARe
 		if (AResize)
 		{
 			item->setGeometry(itemRect);
+			TabBarItem * tabBarItem = qobject_cast<TabBarItem*>(((QWidgetItem*)item)->widget());
+			if (tabBarItem)
+			{
+				tabBarItem->setLeft(item->geometry().left() == availRect.left());
+				tabBarItem->setRight((item->geometry().right() == availRect.right()) || (item == FItemsOrder.last()));
+				tabBarItem->setTop(item->geometry().top() == availRect.top());
+				tabBarItem->setBottom(false);
+			}
 		}
-		// TODO: cast ((QWidgetItem*)item)->widget to TabBarItem and set some properties to it
 	}
+	foreach(QLayoutItem *item, FItemsOrder)
+	{
+		if (item->geometry().bottom() == FItemsOrder.last()->geometry().bottom())
+		{
+			TabBarItem * tabBarItem = qobject_cast<TabBarItem*>(((QWidgetItem*)item)->widget());
+			if (tabBarItem)
+			{
+				tabBarItem->setBottom(true);
+			}
+		}
+	}
+
 	return y - availRect.top() + lineHeight + top + bottom;
 }

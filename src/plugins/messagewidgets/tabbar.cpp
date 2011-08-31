@@ -57,6 +57,7 @@ void TabBar::setCurrentIndex(int AIndex)
 			item->setActive(true);
 
 		emit currentChanged(AIndex);
+		StyleStorage::updateStyle(this);
 	}
 }
 
@@ -158,6 +159,9 @@ int TabBar::addTab(const QString &AText)
 	int index = FItems.indexOf(item);
 	if (index == 0)
 		setCurrentIndex(index);
+
+	StyleStorage::updateStyle(this);
+	StyleStorage::updateStyle(item);
 
 	return index;
 }

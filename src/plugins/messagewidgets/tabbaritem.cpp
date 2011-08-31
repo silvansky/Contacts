@@ -17,6 +17,8 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	FDraging = false;
 	FIconSize = QSize(16,16);
 
+	left = right = top = bottom = false;
+
 	setProperty("ignoreFilter", true);
 
 	setMouseTracking(true);
@@ -208,6 +210,50 @@ void TabBarItem::setNotify(const ITabPageNotify &ANotify)
 		showToolTip(FToolTip);
 		showStyleKey(QString::null);
 	}
+}
+
+bool TabBarItem::isLeft() const
+{
+	return left;
+}
+
+void TabBarItem::setLeft(bool on)
+{
+	left = on;
+	update();
+}
+
+bool TabBarItem::isRight() const
+{
+	return right;
+}
+
+void TabBarItem::setRight(bool on)
+{
+	right = on;
+	update();
+}
+
+bool TabBarItem::isTop() const
+{
+	return top;
+}
+
+void TabBarItem::setTop(bool on)
+{
+	top = on;
+	update();
+}
+
+bool TabBarItem::isBottom() const
+{
+	return bottom;
+}
+
+void TabBarItem::setBottom(bool on)
+{
+	bottom = on;
+	update();
 }
 
 void TabBarItem::showIcon(const QIcon &AIcon)
