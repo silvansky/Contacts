@@ -18,6 +18,7 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	FIconSize = QSize(16,16);
 
 	left = right = top = bottom = false;
+	changed = false;
 
 	setProperty("ignoreFilter", true);
 
@@ -219,8 +220,12 @@ bool TabBarItem::isLeft() const
 
 void TabBarItem::setLeft(bool on)
 {
-	left = on;
-	update();
+	if (left != on)
+	{
+		setChanged(true);
+		left = on;
+//		update();
+	}
 }
 
 bool TabBarItem::isRight() const
@@ -230,8 +235,12 @@ bool TabBarItem::isRight() const
 
 void TabBarItem::setRight(bool on)
 {
-	right = on;
-	update();
+	if (right != on)
+	{
+		setChanged(true);
+		right = on;
+		//update();
+	}
 }
 
 bool TabBarItem::isTop() const
@@ -241,8 +250,12 @@ bool TabBarItem::isTop() const
 
 void TabBarItem::setTop(bool on)
 {
-	top = on;
-	update();
+	if (top != on)
+	{
+		setChanged(true);
+		top = on;
+		//update();
+	}
 }
 
 bool TabBarItem::isBottom() const
@@ -252,8 +265,22 @@ bool TabBarItem::isBottom() const
 
 void TabBarItem::setBottom(bool on)
 {
-	bottom = on;
-	update();
+	if (bottom != on)
+	{
+		setChanged(true);
+		bottom = on;
+		//update();
+	}
+}
+
+bool TabBarItem::isChanged() const
+{
+	return changed;
+}
+
+void TabBarItem::setChanged(bool c)
+{
+	changed = c;
 }
 
 void TabBarItem::showIcon(const QIcon &AIcon)

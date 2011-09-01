@@ -27,12 +27,12 @@
 #include "addmetaitemwidget.h"
 #include "ui_addmetacontactdialog.h"
 
-class AddMetaContactDialog : 
+class AddMetaContactDialog :
 	public QDialog,
 	public IAddContactDialog
 {
-	Q_OBJECT;
-	Q_INTERFACES(IAddContactDialog);
+	Q_OBJECT
+	Q_INTERFACES(IAddContactDialog)
 public:
 	AddMetaContactDialog(IMetaRoster *AMetaRoster, IRosterChanger *ARosterChanger, IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~AddMetaContactDialog();

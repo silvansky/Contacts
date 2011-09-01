@@ -207,6 +207,7 @@ int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStretch, bool ARes
 			TabBarItem * tabBarItem = qobject_cast<TabBarItem*>(((QWidgetItem*)item)->widget());
 			if (tabBarItem)
 			{
+				tabBarItem->setChanged(false);
 				tabBarItem->setLeft(item->geometry().left() == availRect.left());
 				tabBarItem->setRight((item->geometry().right() == availRect.right()) || (item == FItemsOrder.last()));
 				tabBarItem->setTop(item->geometry().top() == availRect.top());
@@ -223,10 +224,10 @@ int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStretch, bool ARes
 			{
 				if (item->geometry().bottom() == FItemsOrder.last()->geometry().bottom())
 				{
-
 					tabBarItem->setBottom(true);
 				}
-				StyleStorage::updateStyle(tabBarItem);
+				if (tabBarItem->isChanged())
+					StyleStorage::updateStyle(tabBarItem);
 			}
 		}
 		//StyleStorage::updateStyle(parentWidget());

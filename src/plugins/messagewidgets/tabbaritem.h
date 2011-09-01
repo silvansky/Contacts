@@ -54,6 +54,9 @@ public:
 	void setTop(bool on);
 	bool isBottom() const;
 	void setBottom(bool on);
+	// changed flag
+	bool isChanged() const;
+	void setChanged(bool c);
 signals:
 	void closeButtonClicked();
 protected:
@@ -84,6 +87,7 @@ private:
 	QTimer FBlinkTimer;
 	ITabPageNotify FNotify;
 	bool left, right, top, bottom;
+	bool changed;
 };
 
 #endif // TABBARITEM_H
