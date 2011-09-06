@@ -24,6 +24,7 @@
 #define AG_RVCM_ROSTERSVIEW_GROUP_STATE                         200
 #define AG_RVCM_METACONTACTS_MERGECONTACTS                      200
 #define AG_RVCM_METACONTACTS_RELEASE                            300
+#define AG_RVCM_MULTIUSERCHAT                                   500
 #define AG_RVCM_ROSTERSVIEW_GROUPS_STATE                        500
 #define AG_RVCM_ROSTERCHANGER_GROUP                             600
 #define AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT                    600
@@ -34,6 +35,7 @@
 #define AG_TMTM_MAINWINDOW_SHOW                                 300
 #define AG_TMTM_NOTIFICATIONS_ACTIVATE                          300
 #define AG_TMTM_OPTIONS_DIALOG                                  300
+#define AG_TMTM_MULTIUSERCHAT                                   500
 #define AG_TMTM_STATUSCHANGER_CHANGESTATUS                      700
 #define AG_TMTM_MESSAGEWIDGETS_LASTTABS                         800
 #define AG_TMTM_TRAYMANAGER_QUIT                                1000
@@ -45,6 +47,21 @@
 //MessageWidgets - TabWindowMenu
 #define AG_MWTW_MWIDGETS_TAB_ACTIONS                            500
 #define AG_MWTW_MWIDGETS_TABWINDOW_OPTIONS                      800
+
+//MultiuserChat - MultiUserContextMenu
+#define AG_MUCM_ROSTERCHANGER                                   500
+#define AG_MUCM_CLIENTINFO                                      500
+#define AG_MUCM_VCARD                                           500
+#define AG_MUCM_STATUSICONS                                     500
+#define AG_MUCM_ARCHIVER                                        500
+#define AG_MUCM_DISCOVERY                                       500
+#define AG_MUCM_DISCOVERY_FEATURES                              600
+#define AG_MUCM_MULTIUSERCHAT_UTILS                             800
+
+//MultiUserChat - MultiUserToolsMenu
+#define AG_MUTM_MULTIUSERCHAT_COMMON                            300
+#define AG_MUTM_MULTIUSERCHAT_TOOLS                             500
+#define AG_MUTM_MULTIUSERCHAT_EXIT                              1000
 
 //MetaContact - ItemContextMenu
 #define AG_MCICM_AUTHORIZATION                                  400

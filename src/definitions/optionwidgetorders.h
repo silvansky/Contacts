@@ -22,6 +22,10 @@
 #define OWO_NOTIFICATIONS_CHATSTATE               380
 #define OWO_NOTIFICATIONS_CONNECTION              390
 #define OWO_NOTIFICATIONS_SIPPHONE                400
+#define OWO_NOTIFICATIONS_MUC_GROUPCHAT_MESSAGE   410
+#define OWO_NOTIFICATIONS_MUC_PRIVATE_MESSAGE     420
+#define OWO_NOTIFICATIONS_MUC_MENTION_MESSAGE     430
+#define OWO_NOTIFICATIONS_MUC_INVITE_MESSAGE      440
 #define OWO_NOTIFICATIONS_IF_STATUS               600
 #define OWO_NOTIFICATIONS_FULLSCREEN              700
 #define OWO_NOTIFICATIONS_META_DELETE_FAIL        800
@@ -42,6 +46,9 @@
 #define OWO_MESSAGES                              300
 #define OWO_MESSAGES_EMOTICONS                    500
 #define OWO_MESSAGES_CHATSTATES                   700
+
+//Node = ON_CONFERENCES
+#define OWO_CONFERENCES                           500
 
 //Node = OPN_MESSAGE_STYLES
 #define OWO_MESSAGE_STYLES                        500

@@ -13,6 +13,12 @@
 //MetaContacts
 #define SDF_METACONTACTS_DELETE_FAIL                      "metacontactsDeleteFail"
 
+//MultiUserChat
+#define SDF_MUC_MESSAGE                                   "mucMessage"
+#define SDF_MUC_PRIVATE_MESSAGE                           "mucPrivateMessage"
+#define SDF_MUC_DATA_MESSAGE                              "mucDataMessage"
+#define SDF_MUC_INVITE_MESSAGE                            "mucInviteMessage"
+
 //Presence
 #define SDF_PRESENCE_MOOD_CHANGED                         "presenceMoodChanged"
 #define SDF_PRESENCE_STATE_CHANGED                        "presenceStateChanged"

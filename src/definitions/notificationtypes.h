@@ -13,5 +13,10 @@
 #define NNT_MAIL_NOTIFY              "MailNotify"
 #define NNT_METACONTACTS_DELETEFAIL  "MetaContactDeleteFail"
 #define NNT_GATEWAYS_CONFLICT        "GatewaysConflict"
+#define NNT_MUC_MESSAGE_INVITE       "MucMessageInvite"
+#define NNT_MUC_MESSAGE_GROUPCHAT    "MucMessageGroupchat"
+#define NNT_MUC_MESSAGE_PRIVATE      "MucMessagePrivate"
+#define NNT_MUC_MESSAGE_MENTION      "MucMessageMention"
+
 
 #endif // DEF_NOTIFICATORS_H

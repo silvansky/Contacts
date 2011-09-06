@@ -32,7 +32,7 @@ struct IMessageContentOptions
 		History         = 0x02,
 		Event           = 0x04,
 		Mention         = 0x08,
-		Notification    = 0x10,
+		Notification    = 0x10
 	};
 	enum ContentStatus {
 		DateSeparator,
@@ -46,13 +46,13 @@ struct IMessageContentOptions
 		InsertAfter,
 		InsertBefore,
 		Replace,
-		Remove          
+		Remove
 	};
 	enum ContentExtension {
 		Unread          = 0x01,
 		Offline         = 0x02
 	};
-	IMessageContentOptions() { 
+	IMessageContentOptions() {
 		kind            = Message;
 		type            = 0;
 		status          = 0;

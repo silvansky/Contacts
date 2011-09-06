@@ -33,6 +33,12 @@
 #define NS_FEATURE_REGISTER                     "http://jabber.org/features/iq-register"
 #define NS_FEATURE_ROSTER_VER                   "urn:xmpp:features:rosterver"
 
+#define NS_MUC                                  "http://jabber.org/protocol/muc"
+#define NS_MUC_USER                             "http://jabber.org/protocol/muc#user"
+#define NS_MUC_ADMIN                            "http://jabber.org/protocol/muc#admin"
+#define NS_MUC_OWNER                            "http://jabber.org/protocol/muc#owner"
+#define NS_MUC_UNIQUE                           "http://jabber.org/protocol/muc#unique"
+
 #define NS_DISCO                                "http://jabber.org/protocol/disco"
 #define NS_DISCO_INFO                           "http://jabber.org/protocol/disco#info"
 #define NS_DISCO_ITEMS                          "http://jabber.org/protocol/disco#items"

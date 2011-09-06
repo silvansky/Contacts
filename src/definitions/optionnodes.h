@@ -6,6 +6,7 @@
 #define OPN_MESSAGES            "Messages"
 #define OPN_NOTIFICATIONS       "Notifications"
 #define OPN_CONNECTION          "Connections"
+#define OPN_CONFERENCES         "Conferences"
 #define OPN_GATEWAYS            "GatewaysAccounts"
 
 #define OPN_MESSAGE_STYLES      "MessageStyles"

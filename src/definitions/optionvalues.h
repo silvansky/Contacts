@@ -57,6 +57,7 @@
 #define OPV_MESSAGES_EDITORMINIMUMLINES                 "messages.editor-minimum-lines"
 #define OPV_MESSAGES_EDITORMAXIMUMLINES                 "messages.editor-maximum-lines"
 #define OPV_MESSAGES_EDITORSENDKEY                      "messages.editor-send-key"
+#define OPV_MESSAGES_CLEANCHATTIMEOUT                   "messages.clean-chat-timeout"
 #define OPV_MESSAGES_TABWINDOWS_ROOT                    "messages.tab-windows"
 #define OPV_MESSAGES_TABWINDOWS_ENABLE                  "messages.tab-windows.enable"
 #define OPV_MESSAGES_TABWINDOWS_DEFAULT                 "messages.tab-windows.default"
@@ -67,6 +68,8 @@
 #define OPV_MESSAGES_EMOTICONS_ENABLED                  "messages.emoticons.enabled"
 // ChatStates
 #define OPV_MESSAGES_CHATSTATESENABLED                  "messages.chatstates-enabled"
+//MessageStyles
+#define OPV_MESSAGES_SHOWDATESEPARATORS                 "messages.show-date-separators"
 
 // MessageStyles
 #define OPV_MESSAGESTYLE_ROOT                           "message-styles"
@@ -82,6 +85,11 @@
 #define OPV_MESSAGESTYLE_STYLE_BGCOLOR                  "message-styles.message-type.context.style.bg-color"
 #define OPV_MESSAGESTYLE_STYLE_BGIMAGEFILE              "message-styles.message-type.context.style.bg-image-file"
 #define OPV_MESSAGESTYLE_STYLE_BGIMAGELAYOUT            "message-styles.message-type.context.style.bg-image-layout"
+
+// MultiUserChat
+#define OPV_MUC_GROUPCHAT_SHOWENTERS                    "muc.groupchat.show-enters"
+#define OPV_MUC_GROUPCHAT_SHOWSTATUS                    "muc.groupchat.show-status"
+#define OPV_MUC_GROUPCHAT_ARCHIVESTATUS                 "muc.groupchat.archive-status"
 
 // OptionsManager
 #define OPV_MISC_ROOT                                   "misc"

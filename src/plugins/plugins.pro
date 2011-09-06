@@ -18,6 +18,7 @@ SUBDIRS += privatestorage
 SUBDIRS += messageprocessor
 SUBDIRS += messagewidgets
 SUBDIRS += messagestyles
+SUBDIRS += multiuserchat
 SUBDIRS += adiummessagestyle
 SUBDIRS += chatmessagehandler
 SUBDIRS += compress
