@@ -124,11 +124,11 @@ protected slots:
 	void onJoinActionTriggered(bool);
 	void onShowAllRoomsTriggered(bool);
 	void onLeaveHiddenRoomsTriggered(bool);
-	void onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu);
+	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onChatActionTriggered(bool);
 	void onDiscoInfoReceived(const IDiscoInfo &ADiscoInfo);
 	void onRegisterFieldsReceived(const QString &AId, const IRegisterFields &AFields);
-	void onRegisterErrorReceived(const QString &AId, const QString &AError);
+	void onRegisterErrorReceived(const QString &AId, const QString &AError, const QString & AMessage);
 	void onInviteDialogFinished(int AResult);
 	void onInviteActionTriggered(bool);
 private:

@@ -141,8 +141,8 @@ bool MultiUserChatPlugin::initConnections(IPluginManager *APluginManager, int &/
 			{
 				connect(FRegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
 					SLOT(onRegisterFieldsReceived(const QString &, const IRegisterFields &)));
-				connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &)),
-					SLOT(onRegisterErrorReceived(const QString &, const QString &)));
+				connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &, const QString &)),
+					SLOT(onRegisterErrorReceived(const QString &, const QString &, const QString &)));
 			}
 		}
 	}
@@ -152,18 +152,18 @@ bool MultiUserChatPlugin::initConnections(IPluginManager *APluginManager, int &/
 
 bool MultiUserChatPlugin::initObjects()
 {
-//	Shortcuts::declareShortcut(SCT_APP_MUCJOIN, tr("Join conference"), QKeySequence::UnknownKey, Shortcuts::ApplicationShortcut);
-//	Shortcuts::declareShortcut(SCT_APP_MUC_LEAVEHIDDEN, tr("Leave all hidden conferences"), QKeySequence::UnknownKey, Shortcuts::ApplicationShortcut);
-//	Shortcuts::declareShortcut(SCT_APP_MUC_SHOWHIDDEN, tr("Show all hidden conferences"), QKeySequence::UnknownKey, Shortcuts::ApplicationShortcut);
+	//	Shortcuts::declareShortcut(SCT_APP_MUCJOIN, tr("Join conference"), QKeySequence::UnknownKey, Shortcuts::ApplicationShortcut);
+	//	Shortcuts::declareShortcut(SCT_APP_MUC_LEAVEHIDDEN, tr("Leave all hidden conferences"), QKeySequence::UnknownKey, Shortcuts::ApplicationShortcut);
+	//	Shortcuts::declareShortcut(SCT_APP_MUC_SHOWHIDDEN, tr("Show all hidden conferences"), QKeySequence::UnknownKey, Shortcuts::ApplicationShortcut);
 
-//	Shortcuts::declareGroup(SCTG_MESSAGEWINDOWS_MUC, tr("Multi-user chat window"), SGO_MESSAGEWINDOWS_MUC);
-//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_SENDMESSAGE, tr("Send message"), tr("Return","Send message"), Shortcuts::WidgetShortcut);
-//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_CLEARWINDOW, tr("Clear window"), QKeySequence::UnknownKey);
-//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_CHANGENICK, tr("Change nick"), QKeySequence::UnknownKey);
-//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_CHANGETOPIC, tr("Change topic"), QKeySequence::UnknownKey);
-//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_ROOMSETTINGS, tr("Setup conference"), QKeySequence::UnknownKey);
-//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_ENTER, tr("Enter the conference"), QKeySequence::UnknownKey);
-//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_EXIT, tr("Leave the conference"), tr("Ctrl+Q","Leave the conference"));
+	//	Shortcuts::declareGroup(SCTG_MESSAGEWINDOWS_MUC, tr("Multi-user chat window"), SGO_MESSAGEWINDOWS_MUC);
+	//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_SENDMESSAGE, tr("Send message"), tr("Return","Send message"), Shortcuts::WidgetShortcut);
+	//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_CLEARWINDOW, tr("Clear window"), QKeySequence::UnknownKey);
+	//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_CHANGENICK, tr("Change nick"), QKeySequence::UnknownKey);
+	//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_CHANGETOPIC, tr("Change topic"), QKeySequence::UnknownKey);
+	//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_ROOMSETTINGS, tr("Setup conference"), QKeySequence::UnknownKey);
+	//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_ENTER, tr("Enter the conference"), QKeySequence::UnknownKey);
+	//	Shortcuts::declareShortcut(SCT_MESSAGEWINDOWS_MUC_EXIT, tr("Leave the conference"), tr("Ctrl+Q","Leave the conference"));
 
 	if (FMessageProcessor)
 	{
@@ -194,29 +194,29 @@ bool MultiUserChatPlugin::initObjects()
 		Action *action = new Action(FChatMenu);
 		action->setIcon(RSR_STORAGE_MENUICONS,MNI_MUC_JOIN);
 		action->setText(tr("Join conference"));
-//		action->setShortcutId(SCT_APP_MUCJOIN);
+		//		action->setShortcutId(SCT_APP_MUCJOIN);
 		connect(action,SIGNAL(triggered(bool)),SLOT(onJoinActionTriggered(bool)));
 		FChatMenu->addAction(action,AG_DEFAULT+100,false);
 
 		action = new Action(FChatMenu);
 		action->setIcon(RSR_STORAGE_MENUICONS,MNI_MUC_SHOW_ALL_ROOMS);
 		action->setText(tr("Show all hidden conferences"));
-//		action->setShortcutId(SCT_APP_MUC_SHOWHIDDEN);
+		//		action->setShortcutId(SCT_APP_MUC_SHOWHIDDEN);
 		connect(action,SIGNAL(triggered(bool)),SLOT(onShowAllRoomsTriggered(bool)));
 		FChatMenu->addAction(action,AG_DEFAULT+100,false);
 
 		action = new Action(FChatMenu);
 		action->setIcon(RSR_STORAGE_MENUICONS,MNI_MUC_LEAVE_HIDDEN_ROOMS);
 		action->setText(tr("Leave all hidden conferences"));
-//		action->setShortcutId(SCT_APP_MUC_LEAVEHIDDEN);
+		//		action->setShortcutId(SCT_APP_MUC_LEAVEHIDDEN);
 		connect(action,SIGNAL(triggered(bool)),SLOT(onLeaveHiddenRoomsTriggered(bool)));
 		FChatMenu->addAction(action,AG_DEFAULT+100,false);
 	}
 
 	if (FRostersViewPlugin)
 	{
-		connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, Menu *)),
-			SLOT(onRosterIndexContextMenu(IRosterIndex *, Menu *)));
+		connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+			SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 	}
 
 	if (FMainWindowPlugin)
@@ -474,7 +474,7 @@ INotification MultiUserChatPlugin::notifyMessage(INotifications *ANotifications,
 			Jid fromJid = inviteElem.attribute("from");
 			notify.typeId = NNT_MUC_MESSAGE_INVITE;
 			notify.data.insert(NDR_ICON,IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MUC_INVITE));
-//			notify.data.insert(NDR_TOOLTIP,tr("You are invited to the conference %1").arg(roomJid.bare()));
+			//			notify.data.insert(NDR_TOOLTIP,tr("You are invited to the conference %1").arg(roomJid.bare()));
 			notify.data.insert(NDR_STREAM_JID,AMessage.to());
 			notify.data.insert(NDR_CONTACT_JID,fromJid.full());
 			notify.data.insert(NDR_ROSTER_ORDER,RNO_MUC_INVITE);
@@ -795,26 +795,29 @@ void MultiUserChatPlugin::onJoinActionTriggered(bool)
 void MultiUserChatPlugin::onShowAllRoomsTriggered(bool)
 {
 	foreach(IMultiUserChatWindow *window, FChatWindows)
-//		if (!window->isVisibleTabPage())
-			window->showTabPage();
+		//		if (!window->isVisibleTabPage())
+		window->showTabPage();
 }
 
 void MultiUserChatPlugin::onLeaveHiddenRoomsTriggered(bool)
 {
 	foreach(IMultiUserChatWindow *window, FChatWindows)
-//		if (!window->isVisibleTabPage())
-			window->exitAndDestroy(QString::null);
+		//		if (!window->isVisibleTabPage())
+		window->exitAndDestroy(QString::null);
 }
 
-void MultiUserChatPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, Menu *AMenu)
+void MultiUserChatPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
-	int show = AIndex->data(RDR_SHOW).toInt();
-	if (show!=IPresence::Offline && show!=IPresence::Error)
+	if (ASelected.count() == 1)
 	{
-		if (AIndex->type() == RIT_STREAM_ROOT)
+		int show = AIndex->data(RDR_SHOW).toInt();
+		if (show!=IPresence::Offline && show!=IPresence::Error)
 		{
-			Action *action = createJoinAction(AIndex->data(RDR_FULL_JID).toString(),Jid::null,AMenu);
-			AMenu->addAction(action,AG_RVCM_MULTIUSERCHAT,true);
+			if (AIndex->type() == RIT_STREAM_ROOT)
+			{
+				Action *action = createJoinAction(AIndex->data(RDR_FULL_JID).toString(),Jid::null,AMenu);
+				AMenu->addAction(action,AG_RVCM_MULTIUSERCHAT,true);
+			}
 		}
 	}
 }
@@ -865,9 +868,10 @@ void MultiUserChatPlugin::onRegisterFieldsReceived(const QString &AId, const IRe
 	}
 }
 
-void MultiUserChatPlugin::onRegisterErrorReceived(const QString &AId, const QString &AError)
+void MultiUserChatPlugin::onRegisterErrorReceived(const QString &AId, const QString &AError, const QString & AMessage)
 {
 	Q_UNUSED(AError);
+	Q_UNUSED(AMessage);
 	if (FNickRequests.contains(AId))
 	{
 		QPair<Jid,Jid> params = FNickRequests.take(AId);
