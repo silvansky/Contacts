@@ -270,8 +270,11 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 	FDomainsMenu->addAction(action);
 
-	//ui.tlbDomain->setVisible(false);
+#ifndef DEBUG_ENABLED
 	ui.cmbDomain->setVisible(false);
+#else
+	ui.tlbDomain->setVisible(false);
+#endif
 
 	QStringList profiles;
 	foreach(QString profile, FOptionsManager->profiles())
@@ -378,8 +381,11 @@ void LoginDialog::connectIfReady()
 
 Jid LoginDialog::currentStreamJid() const
 {
-	//Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString(),CLIENT_NAME);
+#ifndef DEBUG_ENABLED
 	Jid streamJid(ui.lneNode->text().trimmed(), ui.tlbDomain->property("domain").toString(), CLIENT_NAME);
+#else
+	Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString(),CLIENT_NAME);
+#endif
 	return streamJid;
 }
 
