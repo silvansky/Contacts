@@ -1,4 +1,6 @@
 #include "singleapp.h"
+
+#include <QtDebug>
 #include <QLocalSocket>
 
 SingleApp::SingleApp(int &argc, char *argv[], const QString uniqueKey) : QApplication(argc, argv), _uniqueKey(uniqueKey)
@@ -27,7 +29,7 @@ void SingleApp::receiveMessage()
 	QLocalSocket *localSocket = localServer->nextPendingConnection();
 	if (!localSocket->waitForReadyRead(timeout))
 	{
-		qDebug(localSocket->errorString().toLatin1());
+		qDebug() << localSocket->errorString().toLatin1();
 		return;
 	}
 	QByteArray byteArray = localSocket->readAll();
@@ -49,13 +51,13 @@ bool SingleApp::sendMessage(const QString &message)
 	localSocket.connectToServer(_uniqueKey, QIODevice::WriteOnly);
 	if (!localSocket.waitForConnected(timeout))
 	{
-		qDebug(localSocket.errorString().toLatin1());
+		qDebug() << localSocket.errorString().toLatin1();
 		return false;
 	}
 	localSocket.write(message.toUtf8());
 	if (!localSocket.waitForBytesWritten(timeout))
 	{
-		qDebug(localSocket.errorString().toLatin1());
+		qDebug() << localSocket.errorString().toLatin1();
 		return false;
 	}
 	localSocket.disconnectFromServer();
