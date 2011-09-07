@@ -5,7 +5,7 @@
 #define SDF_BITHDAY_REMIND                                "birthdayreminderRemind"
 
 //ChatMessagehandler
-#define SDF_CHATHANDLER_MESSAGE												    "chatmessagehandlerMessage"
+#define SDF_CHATHANDLER_MESSAGE                           "chatmessagehandlerMessage"
 
 //Gateways
 #define SDF_GATEWAYS_CONFLICT                             "gatewaysConflict"

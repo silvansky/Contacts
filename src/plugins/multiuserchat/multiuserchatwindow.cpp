@@ -19,23 +19,6 @@
 #define HISTORY_TIME_PAST           5
 
 
-QString getHtmlBody(const QString &AHtml)
-{
-	QRegExp body("<body.*>(.*)</body>");
-	body.setMinimal(false);
-	QString html = AHtml.indexOf(body)>=0 ? body.cap(1).trimmed() : AHtml;
-
-	// XXX Replace <P> inserted by QTextDocument with <SPAN>
-	if (html.leftRef(3).compare("<p ", Qt::CaseInsensitive) == 0 &&
-		html.rightRef(4).compare("</p>", Qt::CaseInsensitive) == 0)
-	{
-		html.replace(1, 1, "span");
-		html.replace(html.length() - 2, 1, "span");
-	}
-
-	return html;
-}
-
 MultiUserChatWindow::MultiUserChatWindow(IMultiUserChatPlugin *AChatPlugin, IMultiUserChat *AMultiChat)
 {
 	ui.setupUi(this);
@@ -1421,6 +1404,7 @@ void MultiUserChatWindow::showChatMessage(IChatWindow *AWindow, const Message &A
 
 void MultiUserChatWindow::showChatHistory(IChatWindow *AWindow)
 {
+	Q_UNUSED(AWindow);
 //	if (FMessageArchiver)
 //	{
 //		IArchiveRequest request;
@@ -1988,7 +1972,7 @@ void MultiUserChatWindow::onViewContextQuoteActionTriggered(bool)
 
 void MultiUserChatWindow::onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
 {
-//	Q_UNUSED(APosition);
+	Q_UNUSED(APosition); Q_UNUSED(ASelection); Q_UNUSED(AMenu);
 //	if (!ASelection.toPlainText().trimmed().isEmpty())
 //	{
 //		Action *quoteAction = new Action(AMenu);
@@ -2310,6 +2294,7 @@ void MultiUserChatWindow::onAccountOptionsChanged(const OptionsNode &ANode)
 
 void MultiUserChatWindow::onShortcutActivated(const QString &AId, QWidget *AWidget)
 {
+	Q_UNUSED(AId); Q_UNUSED(AWidget);
 //	if (AId==SCT_MESSAGEWINDOWS_CLOSEWINDOW && AWidget==this)
 //	{
 //		closeTabPage();
