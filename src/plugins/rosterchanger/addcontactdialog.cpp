@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QTextDocument>
 #include <utils/balloontip.h>
+#include <utils/log.h>
 
 #define GROUP_NEW                ":group_new:"
 #define GROUP_EMPTY              ":empty_group:"
@@ -522,6 +523,8 @@ void AddContactDialog::resolveDescriptor()
 			updatePageParams(descriptor);
 			setDialogState(STATE_PARAMS);
 		}
+		else
+			LogError(QString("[AddContactDialog] gateway descriptor %1 not acceptable for contact %2").arg(descriptor.name, contactText()));
 	}
 	else if (!readOnlyDescriptor.id.isEmpty())
 	{
