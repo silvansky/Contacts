@@ -6,6 +6,8 @@
 #include <QInputDialog>
 #include <QCoreApplication>
 #include <QContextMenuEvent>
+#include <utils/stylestorage.h>
+#include <definitions/stylesheets.h>
 
 #define ADR_STREAM_JID              Action::DR_StreamJid
 #define ADR_ROOM_JID                Action::DR_Parametr1
@@ -68,6 +70,9 @@ MultiUserChatWindow::MultiUserChatWindow(IMultiUserChatPlugin *AChatPlugin, IMul
 	connect(ui.ltvUsers,SIGNAL(doubleClicked(const QModelIndex &)),SLOT(onUserItemDoubleClicked(const QModelIndex &)));
 
 	ui.sprHSplitter->installEventFilter(this);
+
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_MULTIUSERCHAT_WINDOW);
+
 	connect(ui.sprHSplitter,SIGNAL(splitterMoved(int,int)),SLOT(onHorizontalSplitterMoved(int,int)));
 
 	connect(this,SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));

@@ -70,13 +70,14 @@ void QImageLabel::leaveEvent(QEvent *)
 
 void QImageLabel::paintEvent(QPaintEvent * evt)
 {
-	// Issue 
+	Q_UNUSED(evt);
+	// Issue
 	static qint64 prevCache = 0;
 	//static bool blackFill = false;
 
 	const QPixmap* px = pixmap();
 	qint64 cache = 0;
-	
+
 	QPainter p(this);
 	QRect curRect = rect();
 
@@ -94,7 +95,7 @@ void QImageLabel::paintEvent(QPaintEvent * evt)
 			p.fillRect(curRect, Qt::black);
 			//blackFill = true;
 		}
-		
+
 		QTextOption option(Qt::AlignCenter);
 		p.drawText(curRect, tr("no image"),  option);
 	}

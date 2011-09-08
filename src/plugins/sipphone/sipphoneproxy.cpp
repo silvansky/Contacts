@@ -755,12 +755,13 @@ void SipPhoneProxy::onFullScreenState(bool state)
 void SipPhoneProxy::makeNewCall( const QString& uri )
 {
 	//if (DoCall(ui.remote->text(), SipCall::StandardCall))
-	if (DoCall(uri, SipCall::videoCall))
+	/*if (*/DoCall(uri, SipCall::videoCall)//)
 		;//ui.remote->setText("");
 }
 
 void SipPhoneProxy::makeVideoCall( const QString& uri )
 {
+	Q_UNUSED(uri);
 	//if (DoCall(uri, SipCall::videoCall))
 	//  lineeditCall->setText("");
 }
@@ -925,7 +926,8 @@ void SipPhoneProxy::stateUpdated( int id )
 
 void SipPhoneProxy::sendNotify( int id, SipCallMember *member )
 {
-
+	Q_UNUSED(id);
+	Q_UNUSED(member);
 }
 
 void SipPhoneProxy::kphoneQuit( void )
@@ -980,12 +982,12 @@ void SipPhoneProxy::makeClearRegisterProxySlot()
 
 void SipPhoneProxy::makeInviteProxySlot(const Jid &AClientSIP)
 {
-
+	Q_UNUSED(AClientSIP);
 }
 
 void SipPhoneProxy::makeByeProxySlot(const Jid &AClientSIP)
 {
-
+	Q_UNUSED(AClientSIP);
 }
 
 void SipPhoneProxy::hangupCall()

@@ -35,6 +35,9 @@
 #define STS_METACONTACTS_ADDMETAITEMPAGE                                "metacontactsAddMetaItemPage"
 #define STS_METACONTACTS_METAPROFILEDIALOG                              "metacontactsMetaProfileDialog"
 
+//MultiUserChat
+#define STS_MULTIUSERCHAT_WINDOW                                        "multiuserchatWindow"
+
 //Notifications
 #define STS_NOTIFICATION_NOTIFYWIDGET                                   "notificationsNotifyWidget"
 

@@ -27,6 +27,8 @@ KSipAuthenticationRequest::KSipAuthenticationRequest(
   const QString &authtype, QWidget *parent, const char *name )
   : QDialog( parent )
 {
+	Q_UNUSED(name);
+	Q_UNUSED(authtype);
   //setName(prefix + authtype);
 
   userPrefix = prefix;
@@ -92,8 +94,8 @@ void KSipAuthenticationRequest::okClicked( void )
 {
   if (savePassword->isChecked())
   {
-    QString p = "/settings/Registration/";
-    QSettings().setValue( p + "Password", getPassword() );
+	QString p = "/settings/Registration/";
+	QSettings().setValue( p + "Password", getPassword() );
   }
   accept();
 }
@@ -113,74 +115,74 @@ KSipAuthentication::~KSipAuthentication( void )
 {
   if(_authRequest == NULL)
   {
-    delete _authRequest;
-    _authRequest = NULL;
+	delete _authRequest;
+	_authRequest = NULL;
   }
 }
 
 void KSipAuthentication::authRequest( SipCallMember *member )
 {
   if( member->getAuthState() != SipCallMember::authState_AuthenticationRequired &&
-      member->getAuthState() != SipCallMember::authState_AuthenticationRequiredWithNewPassword )
+	  member->getAuthState() != SipCallMember::authState_AuthenticationRequiredWithNewPassword )
   {
-    return;
+	return;
   }
 
   QString userName = member->getCall()->getProxyUsername();
   QString password = member->getCall()->getPassword();
 
   if( _execAuthreq )
-    return;
+	return;
 
   // Если не задан пароль или требуется аутентификация по новому паролю
   if( password.isEmpty() || member->getAuthState() == SipCallMember::authState_AuthenticationRequiredWithNewPassword )
   {
-    QString proxy = member->getCall()->getSipProxy();
-    SipUri localURI = member->getCall()->localAddress();
+	QString proxy = member->getCall()->getSipProxy();
+	SipUri localURI = member->getCall()->localAddress();
 
-    if( !_authRequest )
-    {
-      _authRequest = new KSipAuthenticationRequest( proxy, localURI.uri(), QString::null, QString::null );
-    }
+	if( !_authRequest )
+	{
+	  _authRequest = new KSipAuthenticationRequest( proxy, localURI.uri(), QString::null, QString::null );
+	}
 
-    _authRequest->setUsername( userName );
-    _authRequest->setPassword( password );
+	_authRequest->setUsername( userName );
+	_authRequest->setPassword( password );
 
-    // Вызов диалога запроса пароля
-    _execAuthreq = true;
-    if( _authRequest->exec() )
-    {
-      userName = _authRequest->getUsername();
-      password = _authRequest->getPassword();
-      if( userName.isEmpty() || password.isEmpty() )
-      {
+	// Вызов диалога запроса пароля
+	_execAuthreq = true;
+	if( _authRequest->exec() )
+	{
+	  userName = _authRequest->getUsername();
+	  password = _authRequest->getPassword();
+	  if( userName.isEmpty() || password.isEmpty() )
+	  {
 	return;
-      }
-      member->getCall()->setPassword( password );
-      _execAuthreq = false;
-    }
-    else
-    {
-      _execAuthreq = false;
-      return;
-    }
+	  }
+	  member->getCall()->setPassword( password );
+	  _execAuthreq = false;
+	}
+	else
+	{
+	  _execAuthreq = false;
+	  return;
+	}
   }
 
   switch( member->getCallMemberType() )
   {
   case SipCallMember::Subscribe:
-    member->sendRequestSubscribe( userName, password );
-    break;
+	member->sendRequestSubscribe( userName, password );
+	break;
   case SipCallMember::Notify:
-    member->sendRequestNotify( userName, password );
-    break;
+	member->sendRequestNotify( userName, password );
+	break;
   case SipCallMember::Message:
-    member->sendRequestMessage( userName, password );
-    break;
+	member->sendRequestMessage( userName, password );
+	break;
   case SipCallMember::Invite:
-    member->sendRequestInvite( userName, password );
-    break;
+	member->sendRequestInvite( userName, password );
+	break;
   default:
-    break;
+	break;
   }
 }

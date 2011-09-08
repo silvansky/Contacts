@@ -9,6 +9,7 @@
 
 int gettimeofday(struct timeval *tv, void *tzp)
 {
+	Q_UNUSED(tzp);
   if(tv == NULL) return -1;
 
   QTime time = QTime::currentTime();
@@ -22,6 +23,7 @@ int gettimeofday(struct timeval *tv, void *tzp)
 
 void dbgPrintf(const char* format)
 {
+	Q_UNUSED(format);
 
   //if(debugConsole == NULL)
   //{
@@ -44,6 +46,7 @@ void dbgPrintf(const char* format)
 
 void dbgPrintf(const char* format, ...)
 {
+	Q_UNUSED(format);
   ////#ifndef QT_NO_DEBUG
   //if(debugConsole == NULL)
   //{

@@ -919,6 +919,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 //
 void SipPhone::sipActionAfterInviteAnswer(bool AInviteStatus, const QString &AClientSIP)
 {
+	Q_UNUSED(AClientSIP);
 	if(AInviteStatus == true)
 	{
 
@@ -1690,10 +1691,10 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		notify.data.insert(NDR_ROSTER_FOOTER,message);
 		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::green));
 		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(message));
-		
+
 		if (FMessageProcessor)
 			FMessageProcessor->createMessageWindow(AStream.streamJid,AStream.contactJid,Message::Chat,IMessageHandler::SM_ASSIGN);
-		
+
 		IChatWindow *winow = FMessageWidgets!=NULL ? FMessageWidgets->findChatWindow(AStream.streamJid,AStream.contactJid) : NULL;
 		if (winow)
 		{
@@ -1714,7 +1715,7 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		//notify.data.insert(NDR_POPUP_TIMEOUT,0);
 		//notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL);
 
-			
+
 		SipCallNotifyer *callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.streamJid,AStream.contactJid));
 		callNotifyer->setProperty("streamId", AStream.sid);
 		connect(callNotifyer, SIGNAL(accepted()), SLOT(onAcceptStreamByAction()));
@@ -1820,6 +1821,10 @@ void SipPhone::onNotificationRemoved(int ANotifyId)
 
 void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
+
+	Q_UNUSED(AIndex);
+	Q_UNUSED(ASelected);
+	Q_UNUSED(AMenu);
 	return;
 
 	//////////// В случае обычных контактов
@@ -1892,6 +1897,10 @@ void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex
 
 void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger)
 {
+	Q_UNUSED(AIndex);
+	Q_UNUSED(ALabelId);
+	Q_UNUSED(AToolTips);
+	Q_UNUSED(AToolBarChanger);
 	return;
 	//////////Q_UNUSED(AToolTips);
 	//////////// В случае обычных контактов

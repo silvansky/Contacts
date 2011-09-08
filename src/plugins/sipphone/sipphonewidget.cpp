@@ -51,6 +51,8 @@ SipPhoneWidget::SipPhoneWidget(QWidget *parent)
 
 SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, SipCall *initCall, SipPhoneProxy *parent, const char *name) : QWidget(NULL), _pSipCall(initCall)
 {
+	Q_UNUSED(parent);
+	Q_UNUSED(name);
 	ui.setupUi(this);
 
 	setObjectName("SipPhoneWidget");
@@ -224,6 +226,8 @@ void SipPhoneWidget::SetRemoteImage(const QImage& img)
 
 	int h = ui.wgtRemoteImage->size().height() - 2;
 	int w = ui.wgtRemoteImage->size().width() - 2;
+	Q_UNUSED(h);
+	Q_UNUSED(w);
 
 	ui.wgtRemoteImage->setPicture(tmpPix);
 }
@@ -265,11 +269,13 @@ void SipPhoneWidget::resizeEvent(QResizeEvent *r_event)
 
 void SipPhoneWidget::closeEvent(QCloseEvent * ev)
 {
+	Q_UNUSED(ev);
 	hangupCall();
 }
 
 void SipPhoneWidget::enterEvent(QEvent *e_event)
 {
+	Q_UNUSED(e_event);
 	_pControls->show();
 }
 
@@ -289,6 +295,7 @@ void SipPhoneWidget::keyPressEvent(QKeyEvent *ev)
 
 void SipPhoneWidget::mouseMoveEvent(QMouseEvent *ev)
 {
+	Q_UNUSED(ev);
 	unsetCursor();
 	_pControls->show();
 	updateFSTimer(_fsTimer);

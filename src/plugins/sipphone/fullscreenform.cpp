@@ -29,9 +29,9 @@ FullScreenForm::FullScreenForm(QWidget *parent)
 	_pControls = new FullScreenControls(this);//ui.wgtRemoteImage);
 	connect(_pControls, SIGNAL(fullScreenState(bool)), this, SLOT(fullScreenStateChange(bool)));
 	connect(_pControls, SIGNAL(camStateChange(bool)), this, SLOT(cameraStateChange(bool)));
-	
+
 	_pControls->hide();
-	
+
 	_pControls->setFixedSize(270, 40);
 	//_pControls->setMouseTracking(true);
 
@@ -64,6 +64,8 @@ void FullScreenForm::SetRemoteImage(const QImage& img)
 
 		int h = ui.wgtRemoteImage->size().height() - 2;
 		int w = ui.wgtRemoteImage->size().width() - 2;
+		Q_UNUSED(h);
+		Q_UNUSED(w);
 		//tmpPix = tmpPix.scaledToHeight(h - 2, Qt::SmoothTransformation);
 		//tmpPix = tmpPix.scaledToHeight(h - 2, Qt::FastTransformation);
 		//tmpPix = tmpPix.scaled (w, h, Qt::KeepAspectRatio, Qt::SmoothTransformation );
@@ -119,6 +121,7 @@ void FullScreenForm::resizeEvent(QResizeEvent *r_event)
 
 void FullScreenForm::enterEvent(QEvent *e_event)
 {
+	Q_UNUSED(e_event);
 	_pControls->show();
 }
 

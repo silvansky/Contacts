@@ -13,6 +13,7 @@
 
 RIdentityForm::RIdentityForm(QWidget *parent, const char *name, QObject *reg) : QDialog(parent)
 {
+	Q_UNUSED(name);
   ui.setupUi(this);
 
   ui.fullname->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -36,24 +37,24 @@ void RIdentityForm::updateState( RSipState state )
 {
   if( state == OFFLINE )
   {
-    ui.buttonRegister->setText( tr("Register : not registered") );
-    ui.buttonRegister->setEnabled( false );
+	ui.buttonRegister->setText( tr("Register : not registered") );
+	ui.buttonRegister->setEnabled( false );
   }
   else if( state == REG )
   {
-    ui.labelRegister->setText( tr("Registration : registered"));
-    ui.buttonRegister->setText( tr("Unregister") );
-    ui.buttonRegister->setEnabled( true );
+	ui.labelRegister->setText( tr("Registration : registered"));
+	ui.buttonRegister->setText( tr("Unregister") );
+	ui.buttonRegister->setEnabled( true );
   }
   else if ( state == UNREG )
   {
-    ui.labelRegister->setText( tr("Registration : not registered"));
-    ui.buttonRegister->setText( tr("Register") );
-    ui.buttonRegister->setEnabled( true );
+	ui.labelRegister->setText( tr("Registration : not registered"));
+	ui.buttonRegister->setText( tr("Register") );
+	ui.buttonRegister->setEnabled( true );
   }
   else
   {
-    ui.labelRegister->setText( tr("Registration : ") );
+	ui.labelRegister->setText( tr("Registration : ") );
   }
 }
 
@@ -117,12 +118,12 @@ void RIdentityForm::accept()
 {
   if( ui.username->text() == "" || ui.hostname->text() == "" )
   {
-    QDialog::reject();
+	QDialog::reject();
   }
   else
   {
-    emit RIdentityForm::updateForm();
-    QDialog::accept();
+	emit RIdentityForm::updateForm();
+	QDialog::accept();
   }
 }
 void RIdentityForm::reject()
@@ -157,29 +158,29 @@ RSipRegistrations::RSipRegistrations(const SipRegistrationData& regData, SipClie
   _expires = regData.registrationExpiresTime;// settings.value( pp + "/RegistrationExpiresTime", constRegistrationExpiresTime ).toInt();
   if( _expires == 0 )
   {
-    _expires = -1;
+	_expires = -1;
   }
 
   //pp = "/settings/Registration/";
   if( !regData.sipUserUri.isEmpty() )// settings.value( pp + "/SipUri", "" ).toString() != "" )
   {
-    QString uristr = regData.sipUserUri; //settings.value( pp + "/SipUri" ).toString();
-    SipUri uri = SipUri( uristr );
-    _pSipUser = _extSipClient->getUser( uri );
-    if( _pSipUser == NULL )
-    {
-      _pSipUser = new SipUser( _extSipClient, uri );
-    }
+	QString uristr = regData.sipUserUri; //settings.value( pp + "/SipUri" ).toString();
+	SipUri uri = SipUri( uristr );
+	_pSipUser = _extSipClient->getUser( uri );
+	if( _pSipUser == NULL )
+	{
+	  _pSipUser = new SipUser( _extSipClient, uri );
+	}
 
-    _stunServer = "";
-    if( regData.useStun )//  settings.value( "/settings/STUN/UseStun", "" ).toString() == "Yes" )
-    {
-      _useStun = regData.useStun; //true;
-      //_stunServer = settings.value( "/settings/STUN/StunServer", constStunServer ).toString();
-      _stunServer = regData.stunServerWithPort;
+	_stunServer = "";
+	if( regData.useStun )//  settings.value( "/settings/STUN/UseStun", "" ).toString() == "Yes" )
+	{
+	  _useStun = regData.useStun; //true;
+	  //_stunServer = settings.value( "/settings/STUN/StunServer", constStunServer ).toString();
+	  _stunServer = regData.stunServerWithPort;
 
-      if( _stunServer.isEmpty() )
-      {
+	  if( _stunServer.isEmpty() )
+	  {
 	QString dname = _pSipUser->getMyUri()->getHostname();
 	_stunServer = dname;
 	QString srv = sipClient->getSRV( QString( "_stun._udp." ) + dname );
@@ -188,36 +189,36 @@ RSipRegistrations::RSipRegistrations(const SipRegistrationData& regData, SipClie
 	  _stunServer = srv;
 	}
 	_stunServer += ":3478";
-      }
-      else
-      {
+	  }
+	  else
+	  {
 	if( !_stunServer.contains( ':' ) )
 	{
 	  _stunServer += ":3478";
 	}
-      }
-    }
+	  }
+	}
 
-    QString sipServerUri = regData.sipServerUri;
-    // uristr = "";
-    //if( settings.value( pp + "/SipServer", "" ).toString() != "" )
-    //{
-    //  uristr = settings.value( pp + "/SipServer" ).toString();
-    //}
-    //QString qvalue = settings.value( pp + "/qValue", "" ).toString();
-    QString qValue = regData.qValue;
+	QString sipServerUri = regData.sipServerUri;
+	// uristr = "";
+	//if( settings.value( pp + "/SipServer", "" ).toString() != "" )
+	//{
+	//  uristr = settings.value( pp + "/SipServer" ).toString();
+	//}
+	//QString qvalue = settings.value( pp + "/qValue", "" ).toString();
+	QString qValue = regData.qValue;
 
-    //_sipReg = new SipRegister( _sipUser, SipUri( uristr ), _expires, qvalue );
-    _sipRegister = new SipRegister( _pSipUser, SipUri( sipServerUri ), _expires, qValue );
-    connect( _sipRegister, SIGNAL( statusUpdated() ), this, SLOT( registerStatusUpdated() ) );
-    connect( _sipRegister, SIGNAL(trueRegistrationStatus(bool)), this, SIGNAL(proxyTrueRegistrationStatus(bool)));
+	//_sipReg = new SipRegister( _sipUser, SipUri( uristr ), _expires, qvalue );
+	_sipRegister = new SipRegister( _pSipUser, SipUri( sipServerUri ), _expires, qValue );
+	connect( _sipRegister, SIGNAL( statusUpdated() ), this, SLOT( registerStatusUpdated() ) );
+	connect( _sipRegister, SIGNAL(trueRegistrationStatus(bool)), this, SIGNAL(proxyTrueRegistrationStatus(bool)));
 
 		// ОТЛАДКА
 		//connect( _sipRegister, SIGNAL(trueRegistrationStatus(bool)), this, SLOT(trueRegistrationStatusSlot(bool)));
 
 
-    _extPhoneObject->updateIdentity( _pSipUser, _sipRegister );
-    _extSipClient->updateIdentity( _pSipUser, _sipRegister->getOutboundProxy() );
+	_extPhoneObject->updateIdentity( _pSipUser, _sipRegister );
+	_extSipClient->updateIdentity( _pSipUser, _sipRegister->getOutboundProxy() );
 
 		if(!regData.userName.isEmpty())
 			_pSipUser->getMyUri()->setProxyUsername( regData.userName );
@@ -225,57 +226,58 @@ RSipRegistrations::RSipRegistrations(const SipRegistrationData& regData, SipClie
 			_pSipUser->getMyUri()->setPassword( regData.password );
 
 		_autoRegister = regData.autoRegister;
-    if( _autoRegister )
-    {
-      if( _useStun )
-      {
+	if( _autoRegister )
+	{
+	  if( _useStun )
+	  {
 	_sipRegister->setAutoRegister( _autoRegister );
-      }
-      else
-      {
+	  }
+	  else
+	  {
 	_sipRegister->requestRegister();
-      }
-    }
-    else
-    {
-      _sipRegister->setAutoRegister( _autoRegister );
-    }
+	  }
+	}
+	else
+	{
+	  _sipRegister->setAutoRegister( _autoRegister );
+	}
 
 
 
 
-    //////////QString str;
-    //////////str = settings.value( pp + "/UserName" ).toString();
-    //////////_sipUser->getMyUri()->setProxyUsername( str );
-    //////////str = settings.value( pp + "/Password" ).toString();
-    //////////_sipUser->getMyUri()->setPassword( str );
-    //////////str = settings.value( pp + "/AutoRegister" ).toString();
-    //////////if( str == "Yes" )
-    //////////{
-    //////////  _autoRegister = true;
-    //////////  if( _useStun )
-    //////////  {
-    //////////    _sipReg->setAutoRegister( true );
-    //////////  }
-    //////////  else
-    //////////  {
-    //////////    _sipReg->requestRegister();
-    //////////  }
-    //////////}
-    //////////else
-    //////////{
-    //////////  _autoRegister = false;
-    //////////  _sipReg->setAutoRegister( false );
-    //////////}
+	//////////QString str;
+	//////////str = settings.value( pp + "/UserName" ).toString();
+	//////////_sipUser->getMyUri()->setProxyUsername( str );
+	//////////str = settings.value( pp + "/Password" ).toString();
+	//////////_sipUser->getMyUri()->setPassword( str );
+	//////////str = settings.value( pp + "/AutoRegister" ).toString();
+	//////////if( str == "Yes" )
+	//////////{
+	//////////  _autoRegister = true;
+	//////////  if( _useStun )
+	//////////  {
+	//////////    _sipReg->setAutoRegister( true );
+	//////////  }
+	//////////  else
+	//////////  {
+	//////////    _sipReg->requestRegister();
+	//////////  }
+	//////////}
+	//////////else
+	//////////{
+	//////////  _autoRegister = false;
+	//////////  _sipReg->setAutoRegister( false );
+	//////////}
   }
   else
   {
-    editRegistration();
+	editRegistration();
   }
 }
 
 void RSipRegistrations::trueRegistrationStatusSlot(bool state)
 {
+	Q_UNUSED(state);
 	QMessageBox::information(NULL, "debug", "RSipRegistrations::trueRegistrationStatusSlot");
 }
 
@@ -404,25 +406,25 @@ void RSipRegistrations::editRegistration( void )
 {
   if( _sipRegister )
   {
-    setRegisterState();
-    _pIdentityForm->setFullname( _pSipUser->getUri().getFullname() );
-    _pIdentityForm->setUsername( _pSipUser->getUri().getUsername() );
-    _pIdentityForm->setHostname( _pSipUser->getUri().getHostname() );
-    _pIdentityForm->setSipProxy( _sipRegister->getOutboundProxy() );
-    _pIdentityForm->setSipProxyUsername( _pSipUser->getUri().getProxyUsername() );
-    _pIdentityForm->setAutoRegister( _autoRegister );
-    //edit->setQvalue( sipreg->getQvalue() );
+	setRegisterState();
+	_pIdentityForm->setFullname( _pSipUser->getUri().getFullname() );
+	_pIdentityForm->setUsername( _pSipUser->getUri().getUsername() );
+	_pIdentityForm->setHostname( _pSipUser->getUri().getHostname() );
+	_pIdentityForm->setSipProxy( _sipRegister->getOutboundProxy() );
+	_pIdentityForm->setSipProxyUsername( _pSipUser->getUri().getProxyUsername() );
+	_pIdentityForm->setAutoRegister( _autoRegister );
+	//edit->setQvalue( sipreg->getQvalue() );
   }
   else
   {
-    _pIdentityForm->updateState( OFFLINE );
-    _pIdentityForm->setFullname( "" );
-    _pIdentityForm->setUsername( "" );
-    _pIdentityForm->setHostname( "" );
-    _pIdentityForm->setSipProxy( "" );
-    _pIdentityForm->setSipProxyUsername( "" );
-    //edit->setQvalue( "" );
-    _pIdentityForm->setAutoRegister( true );
+	_pIdentityForm->updateState( OFFLINE );
+	_pIdentityForm->setFullname( "" );
+	_pIdentityForm->setUsername( "" );
+	_pIdentityForm->setHostname( "" );
+	_pIdentityForm->setSipProxy( "" );
+	_pIdentityForm->setSipProxyUsername( "" );
+	//edit->setQvalue( "" );
+	_pIdentityForm->setAutoRegister( true );
   }
   _pIdentityForm->show();
 }
@@ -435,25 +437,25 @@ void RSipRegistrations::update( void )
 
   QString s = _pIdentityForm->getSipProxy();
   if( settings.value( p + "/SipUri", "" ).toString() != _pIdentityForm->getUri() ||
-    settings.value( p + "/SipServer", "" ).toString() != _pIdentityForm->getSipProxy() ||
-    settings.value( p + "/UserName", "" ).toString() != _pIdentityForm->getSipProxyUsername()// ||
-    //settings.readEntry( p + "/qValue", "" ) != edit->getQvalue()
-    )
+	settings.value( p + "/SipServer", "" ).toString() != _pIdentityForm->getSipProxy() ||
+	settings.value( p + "/UserName", "" ).toString() != _pIdentityForm->getSipProxyUsername()// ||
+	//settings.readEntry( p + "/qValue", "" ) != edit->getQvalue()
+	)
   {
-    isDiff = true;
+	isDiff = true;
   }
   settings.setValue( p + "/SipUri", _pIdentityForm->getUri() );
   settings.setValue( p + "/SipServer", _pIdentityForm->getSipProxy() );
   settings.setValue( p + "/UserName", _pIdentityForm->getSipProxyUsername() );
   if( _pIdentityForm->getAutoRegister() )
   {
-    _autoRegister = true;
-    settings.setValue( p + "/AutoRegister", "Yes");
+	_autoRegister = true;
+	settings.setValue( p + "/AutoRegister", "Yes");
   }
   else
   {
-    _autoRegister = false;
-    settings.setValue( p + "/AutoRegister", "No");
+	_autoRegister = false;
+	settings.setValue( p + "/AutoRegister", "No");
   }
 
   s = _pIdentityForm->getSipProxy();
@@ -463,42 +465,42 @@ void RSipRegistrations::update( void )
 
   if( !_sipRegister )
   {
-    QString uristr = _pIdentityForm->getUri();
-    SipUri uri = SipUri( uristr );
-    _pSipUser = _extSipClient->getUser( uri );
-    if( _pSipUser == NULL )
-    {
-      _pSipUser = new SipUser( _extSipClient, uri );
-    }
-    uristr = _pIdentityForm->getSipProxy();
-    QString qvalue = settings.value( p + "qValue", "" ).toString();
-    _sipRegister = new SipRegister( _pSipUser, SipUri( uristr ), _expires, qvalue );
-    connect( _sipRegister, SIGNAL( statusUpdated() ), this, SLOT( registerStatusUpdated() ) );
-    _extPhoneObject->updateIdentity( _pSipUser, _sipRegister );
-    _extSipClient->updateIdentity( _pSipUser, _sipRegister->getOutboundProxy() );
-    QString str = _pIdentityForm->getSipProxyUsername();
-    _pSipUser->getMyUri()->setProxyUsername( str );
-    if( _pIdentityForm->getAutoRegister() )
-    {
-      _autoRegister = true;
-      _sipRegister->requestRegister();
-    }
-    else
-    {
-      _autoRegister = false;
-      _sipRegister->setAutoRegister( false );
-    }
-    if( _pIdentityForm->getAutoRegister() )
-    {
-      changeRegistration();
-    }
+	QString uristr = _pIdentityForm->getUri();
+	SipUri uri = SipUri( uristr );
+	_pSipUser = _extSipClient->getUser( uri );
+	if( _pSipUser == NULL )
+	{
+	  _pSipUser = new SipUser( _extSipClient, uri );
+	}
+	uristr = _pIdentityForm->getSipProxy();
+	QString qvalue = settings.value( p + "qValue", "" ).toString();
+	_sipRegister = new SipRegister( _pSipUser, SipUri( uristr ), _expires, qvalue );
+	connect( _sipRegister, SIGNAL( statusUpdated() ), this, SLOT( registerStatusUpdated() ) );
+	_extPhoneObject->updateIdentity( _pSipUser, _sipRegister );
+	_extSipClient->updateIdentity( _pSipUser, _sipRegister->getOutboundProxy() );
+	QString str = _pIdentityForm->getSipProxyUsername();
+	_pSipUser->getMyUri()->setProxyUsername( str );
+	if( _pIdentityForm->getAutoRegister() )
+	{
+	  _autoRegister = true;
+	  _sipRegister->requestRegister();
+	}
+	else
+	{
+	  _autoRegister = false;
+	  _sipRegister->setAutoRegister( false );
+	}
+	if( _pIdentityForm->getAutoRegister() )
+	{
+	  changeRegistration();
+	}
   }
   else
   {
-    if( isDiff )
-    {
-      QMessageBox::information( _parentWidget, tr("Identity"), tr("Restart RamblerPhone to apply identity changes.") );
-    }
+	if( isDiff )
+	{
+	  QMessageBox::information( _parentWidget, tr("Identity"), tr("Restart RamblerPhone to apply identity changes.") );
+	}
   }
 }
 
@@ -506,15 +508,15 @@ void RSipRegistrations::changeRegistration( void )
 {
   if( _sipRegister )
   {
-    if( _sipRegister->getRegisterState() == SipRegister::Connected )
-    {
-      _sipRegister->requestClearRegistration();
-    }
-    else
-    {
-      _sipRegister->updateRegister();
-      //view->setContactsOnline();
-    }
+	if( _sipRegister->getRegisterState() == SipRegister::Connected )
+	{
+	  _sipRegister->requestClearRegistration();
+	}
+	else
+	{
+	  _sipRegister->updateRegister();
+	  //view->setContactsOnline();
+	}
   }
 }
 
@@ -523,10 +525,10 @@ void RSipRegistrations::makeRegister( void )
 {
   if( _sipRegister )
   {
-    if( _sipRegister->getRegisterState() != SipRegister::Connected )
-    {
-      _sipRegister->updateRegister();
-    }
+	if( _sipRegister->getRegisterState() != SipRegister::Connected )
+	{
+	  _sipRegister->updateRegister();
+	}
 		else
 		{
 			// В случае если не было отмены регистрации, уведомляем о том что зарегистрированы уже
@@ -539,10 +541,10 @@ void RSipRegistrations::clearRegister( void )
 {
   if( _sipRegister )
   {
-    if( _sipRegister->getRegisterState() == SipRegister::Connected )
-    {
-      _sipRegister->requestClearRegistration();
-    }
+	if( _sipRegister->getRegisterState() == SipRegister::Connected )
+	{
+	  _sipRegister->requestClearRegistration();
+	}
   }
 }
 
@@ -552,10 +554,10 @@ void RSipRegistrations::unregAllRegistration( void )
 {
   if( _sipRegister )
   {
-    if( _sipRegister->getRegisterState() == SipRegister::Connected )
-    {
-      _sipRegister->requestClearRegistration();
-    }
+	if( _sipRegister->getRegisterState() == SipRegister::Connected )
+	{
+	  _sipRegister->requestClearRegistration();
+	}
   }
 }
 
@@ -564,25 +566,25 @@ void RSipRegistrations::setRegisterState( void )
   switch( _sipRegister->getRegisterState() )
   {
   case SipRegister::NotConnected:
-    _pIdentityForm->updateState(  UNREG );
-    break;
+	_pIdentityForm->updateState(  UNREG );
+	break;
   case SipRegister::TryingServer:
   case SipRegister::TryingServerWithPassword:
-    _pIdentityForm->updateState( PROC_TRY );
-    break;
+	_pIdentityForm->updateState( PROC_TRY );
+	break;
   case SipRegister::AuthenticationRequired:
   case SipRegister::AuthenticationRequiredWithNewPassword:
-    _pIdentityForm->updateState( AUTHREQ );
-    break;
+	_pIdentityForm->updateState( AUTHREQ );
+	break;
   case SipRegister::Connected:
-    _pIdentityForm->updateState( REG );
-    break;
+	_pIdentityForm->updateState( REG );
+	break;
   case SipRegister::Disconnecting:
-    _pIdentityForm->updateState( PROC_UNREG );
-    break;
+	_pIdentityForm->updateState( PROC_UNREG );
+	break;
   case SipRegister::Reconnecting:
-    _pIdentityForm->updateState( PROC_REG );
-    break;
+	_pIdentityForm->updateState( PROC_REG );
+	break;
   }
 }
 

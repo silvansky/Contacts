@@ -48,7 +48,7 @@ void ComplexVideoWidget::setPicture(const QPixmap& pxmp)
 	//k++;
 	//if(k > 50)
 	//	return;
-	
+
 	if(!_pPixmap || _pPixmap->cacheKey() != pxmp.cacheKey())
 	{
 		if(_pPixmap != NULL)
@@ -63,6 +63,7 @@ void ComplexVideoWidget::setPicture(const QPixmap& pxmp)
 
 void ComplexVideoWidget::paintEvent(QPaintEvent *ev)
 {
+	Q_UNUSED(ev);
 	//QWidget::paintEvent(ev);
 
 	QPainter painter(this);
@@ -75,6 +76,9 @@ void ComplexVideoWidget::paintEvent(QPaintEvent *ev)
 		QSize currSize = size();
 		int x = currRect.x() + currRect.width()/2;
 		int y = currRect.y() + currRect.height()/2;
+		Q_UNUSED(currSize);
+		Q_UNUSED(x);
+		Q_UNUSED(y);
 		//QRect pixRect(QPoint(x,y), QSize(scaledPixmap.width(), scaledPixmap.height()));
 		painter.drawText(currRect, Qt::AlignCenter, tr("Camera OFF"));
 	}
@@ -88,7 +92,7 @@ void ComplexVideoWidget::paintEvent(QPaintEvent *ev)
 		QRect pixRect(QPoint(x,y), QSize(scaledPixmap.width(), scaledPixmap.height()));
 		painter.drawPixmap(pixRect, scaledPixmap);
 	}
-	
+
 }
 
 //void ComplexVideoWidget::moveEvent(QMoveEvent *ev)

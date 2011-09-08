@@ -1,0 +1,19 @@
+MultiUserChatWindow,
+QWidget#centralWidget,
+QWidget#widget,
+QToolBar
+{
+	background-color: transparent;
+	border: none;
+}
+
+QListView#ltvUsers
+{
+	border: none;
+	background-color: white;
+	alternate-background-color: #f2f9fc;
+	color: black;
+	selection-color: white;
+	selection-background-color: #275672;
+	font-size: 12px;
+}
