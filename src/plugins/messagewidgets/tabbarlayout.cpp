@@ -202,35 +202,23 @@ int TabBarLayout::doLayout(QRect ARect, int AItemWidth, bool AStretch, bool ARes
 		}
 
 		if (AResize)
-		{
 			item->setGeometry(itemRect);
-			TabBarItem * tabBarItem = qobject_cast<TabBarItem*>(((QWidgetItem*)item)->widget());
-			if (tabBarItem)
-			{
-				tabBarItem->setChanged(false);
-				tabBarItem->setLeft(item->geometry().left() == availRect.left());
-				tabBarItem->setRight((item->geometry().right() == availRect.right()) || (item == FItemsOrder.last()));
-				tabBarItem->setTop(item->geometry().top() == availRect.top());
-				tabBarItem->setBottom(false);
-			}
-		}
 	}
+
 	if (AResize)
 	{
 		foreach(QLayoutItem *item, FItemsOrder)
 		{
-			TabBarItem * tabBarItem = qobject_cast<TabBarItem*>(((QWidgetItem*)item)->widget());
+			TabBarItem *tabBarItem = qobject_cast<TabBarItem*>(item->widget());
 			if (tabBarItem)
 			{
-				if (item->geometry().bottom() == FItemsOrder.last()->geometry().bottom())
-				{
-					tabBarItem->setBottom(true);
-				}
-				if (tabBarItem->isChanged())
-					StyleStorage::updateStyle(tabBarItem);
+				QRect itemRect = item->geometry();
+				tabBarItem->setLeft(itemRect.left() == availRect.left());
+				tabBarItem->setRight((itemRect.right() == availRect.right()) || (item == FItemsOrder.last()));
+				tabBarItem->setTop(itemRect.top() == availRect.top());
+				tabBarItem->setBottom(itemRect.bottom() == availRect.bottom());
 			}
 		}
-		//StyleStorage::updateStyle(parentWidget());
 	}
 
 	return y - availRect.top() + lineHeight + top + bottom;

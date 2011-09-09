@@ -1,9 +1,9 @@
 #include "tabbaritem.h"
 
+#include <QPainter>
 #include <QPaintEvent>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QPainter>
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
@@ -16,9 +16,7 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	FActive = true;
 	FDraging = false;
 	FIconSize = QSize(16,16);
-
-	left = right = top = bottom = false;
-	changed = false;
+	FLeft = FRight = FTop = FBottom = false;
 
 	setProperty("ignoreFilter", true);
 
@@ -53,6 +51,10 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	FIconHidden = false;
 	FBlinkTimer.setSingleShot(true);
 	connect(&FBlinkTimer,SIGNAL(timeout()),SLOT(onBlinkTimerTimeout()));
+
+	FUpdateTimer.setInterval(0);
+	FUpdateTimer.setSingleShot(true);
+	connect(&FUpdateTimer,SIGNAL(timeout()),SLOT(onUpdateTimerTimeout()));
 
 	FIconLabel->setProperty("ignoreFilter", true);
 	FTextLabel->setProperty("ignoreFilter", true);
@@ -215,72 +217,58 @@ void TabBarItem::setNotify(const ITabPageNotify &ANotify)
 
 bool TabBarItem::isLeft() const
 {
-	return left;
+	return FLeft;
 }
 
-void TabBarItem::setLeft(bool on)
+void TabBarItem::setLeft(bool ALeft)
 {
-	if (left != on)
+	if (FLeft != ALeft)
 	{
-		setChanged(true);
-		left = on;
-//		update();
+		FLeft = ALeft;
+		FUpdateTimer.start();
 	}
 }
 
 bool TabBarItem::isRight() const
 {
-	return right;
+	return FRight;
 }
 
-void TabBarItem::setRight(bool on)
+void TabBarItem::setRight(bool ARight)
 {
-	if (right != on)
+	if (FRight != ARight)
 	{
-		setChanged(true);
-		right = on;
-		//update();
+		FRight = ARight;
+		FUpdateTimer.start();
 	}
 }
 
 bool TabBarItem::isTop() const
 {
-	return top;
+	return FTop;
 }
 
-void TabBarItem::setTop(bool on)
+void TabBarItem::setTop(bool ATop)
 {
-	if (top != on)
+	if (FTop != ATop)
 	{
-		setChanged(true);
-		top = on;
-		//update();
+		FTop = ATop;
+		FUpdateTimer.start();
 	}
 }
 
 bool TabBarItem::isBottom() const
 {
-	return bottom;
+	return FBottom;
 }
 
-void TabBarItem::setBottom(bool on)
+void TabBarItem::setBottom(bool ABottom)
 {
-	if (bottom != on)
+	if (FBottom != ABottom)
 	{
-		setChanged(true);
-		bottom = on;
-		//update();
+		FBottom = ABottom;
+		FUpdateTimer.start();
 	}
-}
-
-bool TabBarItem::isChanged() const
-{
-	return changed;
-}
-
-void TabBarItem::setChanged(bool c)
-{
-	changed = c;
 }
 
 void TabBarItem::showIcon(const QIcon &AIcon)
@@ -349,4 +337,9 @@ void TabBarItem::onBlinkTimerTimeout()
 	else
 		FBlinkTimer.start(BLINK_VISIBLE_TIME);
 	update(FIconLabel->geometry());
+}
+
+void TabBarItem::onUpdateTimerTimeout()
+{
+	StyleStorage::updateStyle(this);
 }

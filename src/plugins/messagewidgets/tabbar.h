@@ -41,14 +41,14 @@ signals:
 protected slots:
 	void onCloseButtonClicked();
 protected:
-	virtual void enterEvent(QEvent *AEvent);
-	virtual void leaveEvent(QEvent *AEvent);
-	virtual void mousePressEvent(QMouseEvent *AEvent);
-	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
-	virtual void mouseMoveEvent(QMouseEvent *AEvent);
-	virtual void dragEnterEvent(QDragEnterEvent *AEvent);
-	virtual void dragMoveEvent(QDragMoveEvent *AEvent);
-	virtual void dragLeaveEvent(QDragLeaveEvent *AEvent);
+	void enterEvent(QEvent *AEvent);
+	void leaveEvent(QEvent *AEvent);
+	void mousePressEvent(QMouseEvent *AEvent);
+	void mouseReleaseEvent(QMouseEvent *AEvent);
+	void mouseMoveEvent(QMouseEvent *AEvent);
+	void dragEnterEvent(QDragEnterEvent *AEvent);
+	void dragMoveEvent(QDragMoveEvent *AEvent);
+	void dragLeaveEvent(QDragLeaveEvent *AEvent);
 private:
 	int FPressedIndex;
 	QPoint FPressedPos;

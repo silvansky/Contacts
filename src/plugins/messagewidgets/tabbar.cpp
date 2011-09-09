@@ -160,9 +160,6 @@ int TabBar::addTab(const QString &AText)
 	if (index == 0)
 		setCurrentIndex(index);
 
-	//StyleStorage::updateStyle(this);
-	//StyleStorage::updateStyle(item);
-
 	return index;
 }
 
@@ -268,6 +265,7 @@ void TabBar::dragEnterEvent(QDragEnterEvent *AEvent)
 		AEvent->acceptProposedAction();
 	else
 		AEvent->ignore();
+	QFrame::dragEnterEvent(AEvent);
 }
 
 void TabBar::dragMoveEvent(QDragMoveEvent *AEvent)
@@ -280,7 +278,8 @@ void TabBar::dragMoveEvent(QDragMoveEvent *AEvent)
 
 void TabBar::dragLeaveEvent(QDragLeaveEvent *AEvent)
 {
-	FLayout->moveItem(FPressedIndex, FLayout->orderToIndex(count()-1));
+	if (!rect().contains(mapFromGlobal(QCursor::pos())))
+		FLayout->moveItem(FPressedIndex, FLayout->orderToIndex(count()-1));
 	QFrame::dragLeaveEvent(AEvent);
 }
 

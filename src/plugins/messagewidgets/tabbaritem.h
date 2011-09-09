@@ -20,10 +20,10 @@ class TabBarItem :
 	Q_PROPERTY(bool isActive READ isActive WRITE setActive)
 	Q_PROPERTY(bool isDraging READ isDraging WRITE setDraging)
 	Q_PROPERTY(bool isCloseable READ isCloseable WRITE setCloseable)
-	Q_PROPERTY(bool left READ isLeft WRITE setLeft)
-	Q_PROPERTY(bool right READ isRight WRITE setRight)
-	Q_PROPERTY(bool top READ isTop WRITE setTop)
-	Q_PROPERTY(bool bottom READ isBottom WRITE setBottom)
+	Q_PROPERTY(bool isLeft READ isLeft WRITE setLeft)
+	Q_PROPERTY(bool isRight READ isRight WRITE setRight)
+	Q_PROPERTY(bool isTop READ isTop WRITE setTop)
+	Q_PROPERTY(bool isBottom READ isBottom WRITE setBottom)
 public:
 	TabBarItem(QWidget *AParent);
 	virtual ~TabBarItem();
@@ -47,16 +47,13 @@ public:
 	void setNotify(const ITabPageNotify &ANotify);
 	// left-right-top-bottom props
 	bool isLeft() const;
-	void setLeft(bool on);
+	void setLeft(bool ALeft);
 	bool isRight() const;
-	void setRight(bool on);
+	void setRight(bool ARight);
 	bool isTop() const;
-	void setTop(bool on);
+	void setTop(bool ATop);
 	bool isBottom() const;
-	void setBottom(bool on);
-	// changed flag
-	bool isChanged() const;
-	void setChanged(bool c);
+	void setBottom(bool ABottom);
 signals:
 	void closeButtonClicked();
 protected:
@@ -66,10 +63,11 @@ protected:
 	void showToolTip(const QString &AToolTip);
 	void showStyleKey(const QString &AStyleKey);
 protected:
-	virtual void paintEvent(QPaintEvent *AEvent);
-	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
+	void paintEvent(QPaintEvent *AEvent);
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onBlinkTimerTimeout();
+	void onUpdateTimerTimeout();
 private:
 	QLabel *FIconLabel;
 	CustomLabel *FTextLabel;
@@ -77,6 +75,8 @@ private:
 private:
 	bool FActive;
 	bool FDraging;
+	bool FLeft, FRight, FTop, FBottom;
+private:
 	QIcon FIcon;
 	QSize FIconSize;
 	QString FIconKey;
@@ -85,9 +85,8 @@ private:
 private:
 	bool FIconHidden;
 	QTimer FBlinkTimer;
+	QTimer FUpdateTimer;
 	ITabPageNotify FNotify;
-	bool left, right, top, bottom;
-	bool changed;
 };
 
 #endif // TABBARITEM_H
