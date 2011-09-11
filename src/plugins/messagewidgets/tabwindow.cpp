@@ -193,7 +193,6 @@ void TabWindow::saveWindowStateAndGeometry()
 				FBorder->maximizeWidget();
 			Options::setFileValue(widget->saveGeometry(),"messages.tabwindows.window.geometry",FWindowId.toString());
 		}
-		Options::node(OPV_MESSAGES_TABWINDOW_ITEM,FWindowId.toString()).setValue(ui.twtTabs->tabsClosable(),"tabs-closable");
 	}
 }
 
@@ -209,7 +208,6 @@ void TabWindow::loadWindowStateAndGeometry()
 			if (Options::fileValue("messages.tabwindows.window.state-maximized",FWindowId.toString()).toBool())
 				FBorder ? FBorder->maximizeWidget() : widget->setWindowState(widget->windowState() | Qt::WindowMaximized);
 		}
-		ui.twtTabs->setTabsClosable(Options::node(OPV_MESSAGES_TABWINDOW_ITEM,FWindowId.toString()).value("tabs-closable").toBool());
 	}
 }
 
