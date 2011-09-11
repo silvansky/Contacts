@@ -907,7 +907,7 @@ void StatusChanger::onPresenceRemoved(IPresence *APresence)
 
 void StatusChanger::onRosterOpened(IRoster *ARoster)
 {
-	IPresence *presence = FPresencePlugin->getPresence(ARoster->streamJid());
+	IPresence *presence = FPresencePlugin->findPresence(ARoster->streamJid());
 	if (FConnectStatus.contains(presence))
 	{
 		LogDetaile(QString("[StatusChanger] Sending initial presence of stream '%1'").arg(ARoster->streamJid().full()));
@@ -917,7 +917,7 @@ void StatusChanger::onRosterOpened(IRoster *ARoster)
 
 void StatusChanger::onRosterClosed(IRoster *ARoster)
 {
-	IPresence *presence = FPresencePlugin->getPresence(ARoster->streamJid());
+	IPresence *presence = FPresencePlugin->findPresence(ARoster->streamJid());
 	if (FConnectStatus.contains(presence))
 		setStreamStatus(presence->streamJid(), FConnectStatus.value(presence));
 }

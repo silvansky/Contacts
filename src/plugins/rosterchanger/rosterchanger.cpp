@@ -348,7 +348,7 @@ bool RosterChanger::rosterDragMove(const QDragMoveEvent *AEvent, const QModelInd
 	Q_UNUSED(AEvent);
 	if (DragGroups.contains(AHover.data(RDR_TYPE).toInt()))
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AHover.data(RDR_STREAM_JID).toString()) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AHover.data(RDR_STREAM_JID).toString()) : NULL;
 		if (roster && roster->isOpen())
 			return true;
 	}
@@ -366,7 +366,7 @@ bool RosterChanger::rosterDropAction(const QDropEvent *AEvent, const QModelIndex
 	if ((AEvent->dropAction() & Qt::CopyAction|Qt::MoveAction)>0 && (DragGroups.contains(hoverType) || hoverType==RIT_STREAM_ROOT || hoverType==RIT_CONTACT))
 	{
 		Jid hoverStreamJid = AIndex.data(RDR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(hoverStreamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(hoverStreamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QMap<int, QVariant> indexData;
@@ -459,7 +459,7 @@ bool RosterChanger::rosterEditStart(int ADataRole, const QModelIndex &AIndex) co
 	int type = AIndex.data(RDR_TYPE).toInt();
 	if (ADataRole==RDR_NAME && (type==RIT_CONTACT || type==RIT_AGENT || type==RIT_GROUP))
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AIndex.data(RDR_STREAM_JID).toString()) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AIndex.data(RDR_STREAM_JID).toString()) : NULL;
 		return (roster && roster->isOpen());
 	}
 	return false;
@@ -499,7 +499,7 @@ void RosterChanger::rosterEditSaveData(int ADataRole, QWidget *AEditor, const QM
 		QString newName = editor!=NULL ? editor->text().trimmed() : QString::null;
 		if (!newName.isEmpty() && AIndex.data(RDR_NAME).toString()!=newName)
 		{
-			IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AIndex.data(RDR_STREAM_JID).toString()) : NULL;
+			IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AIndex.data(RDR_STREAM_JID).toString()) : NULL;
 			if (roster && roster->isOpen())
 			{
 				QString fullName = AIndex.data(RDR_GROUP).toString();
@@ -520,7 +520,7 @@ void RosterChanger::rosterEditSaveData(int ADataRole, QWidget *AEditor, const QM
 		QString newName = editor!=NULL ? editor->text().trimmed() : QString::null;
 		if (!newName.isEmpty() && AIndex.data(RDR_NAME).toString()!=newName)
 		{
-			IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AIndex.data(RDR_STREAM_JID).toString()) : NULL;
+			IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AIndex.data(RDR_STREAM_JID).toString()) : NULL;
 			if (roster && roster->isOpen())
 				roster->renameItem(AIndex.data(RDR_PREP_BARE_JID).toString(),newName);
 		}
@@ -543,7 +543,7 @@ bool RosterChanger::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, c
 {
 	if (AAction == "roster")
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 		if (roster && roster->isOpen() && !roster->rosterItem(AContactJid).isValid)
 		{
 			IAddContactDialog * dialog = NULL;
@@ -636,7 +636,7 @@ void RosterChanger::removeAutoSubscribe(const Jid &AStreamJid, const Jid &AConta
 
 void RosterChanger::subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage, bool ASilently)
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
 		LogDetaile(QString("[RosterChanger] Subscribing contact '%1'").arg(AContactJid.bare()));
@@ -651,7 +651,7 @@ void RosterChanger::subscribeContact(const Jid &AStreamJid, const Jid &AContactJ
 
 void RosterChanger::unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage, bool ASilently)
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
 		LogDetaile(QString("[RosterChanger] Unsubscribing contact '%1'").arg(AContactJid.bare()));
@@ -666,7 +666,7 @@ void RosterChanger::unsubscribeContact(const Jid &AStreamJid, const Jid &AContac
 IAddMetaItemWidget *RosterChanger::newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent)
 {
 	IAddMetaItemWidget *widget = NULL;
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (FGateways && roster)
 	{
 		IGateServiceDescriptor descriptor = FGateways->gateDescriptorById(AGateDescriptorId);
@@ -681,7 +681,7 @@ IAddMetaItemWidget *RosterChanger::newAddMetaItemWidget(const Jid &AStreamJid, c
 
 QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 {
-	IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
 		QDialog *dialog;
@@ -1007,7 +1007,7 @@ void RosterChanger::onShowAddContactDialog(bool)
 void RosterChanger::onShowAddGroupDialog(bool)
 {
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accounts().value(0) : NULL;
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(account!=NULL ? account->xmppStream()->streamJid() : Jid::null) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(account!=NULL ? account->xmppStream()->streamJid() : Jid::null) : NULL;
 	if (FRostersModel && roster)
 	{
 		QInputDialog * dialog = new QInputDialog;
@@ -1038,7 +1038,7 @@ void RosterChanger::onShowAddGroupDialog(bool)
 void RosterChanger::onGroupNameAccepted(QString newGroupName)
 {
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accounts().value(0) : NULL;
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(account!=NULL ? account->xmppStream()->streamJid() : Jid::null) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(account!=NULL ? account->xmppStream()->streamJid() : Jid::null) : NULL;
 	if (sender()->property("rename").toBool())
 	{
 		if (!newGroupName.isEmpty())
@@ -1098,7 +1098,7 @@ void RosterChanger::onShowAddAccountDialog(bool)
 void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
 {
 	QString streamJid = AIndex->data(RDR_STREAM_JID).toString();
-	IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(streamJid) : NULL;
+	IRoster *roster = FRosterPlugin ? FRosterPlugin->findRoster(streamJid) : NULL;
 	if (roster && roster->isOpen() && ASelected.count()<2)
 	{
 		int itemType = AIndex->data(RDR_TYPE).toInt();
@@ -1221,7 +1221,7 @@ void RosterChanger::onContactSubscription(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QString contactJid = action->data(ADR_CONTACT_JID).toString();
@@ -1240,7 +1240,7 @@ void RosterChanger::onSendSubscription(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QString rosterJid = action->data(ADR_CONTACT_JID).toString();
@@ -1423,7 +1423,7 @@ void RosterChanger::onAddItemToGroup(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			Jid rosterJid = action->data(ADR_CONTACT_JID).toString();
@@ -1448,7 +1448,7 @@ void RosterChanger::onRenameItem(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			Jid rosterJid = action->data(ADR_CONTACT_JID).toString();
@@ -1483,7 +1483,7 @@ void RosterChanger::onCopyItemToGroup(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QString groupDelim = roster->groupDelimiter();
@@ -1514,7 +1514,7 @@ void RosterChanger::onMoveItemToGroup(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QString groupDelim = roster->groupDelimiter();
@@ -1546,7 +1546,7 @@ void RosterChanger::onRemoveItemFromGroup(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QString rosterJid = action->data(ADR_CONTACT_JID).toString();
@@ -1562,7 +1562,7 @@ void RosterChanger::onRemoveItemFromRoster(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			Jid rosterJid = action->data(ADR_CONTACT_JID).toString();
@@ -1595,7 +1595,7 @@ void RosterChanger::onChangeItemGroups(bool AChecked)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			IRosterItem ritem = roster->rosterItem(action->data(ADR_CONTACT_JID).toString());
@@ -1661,8 +1661,8 @@ void RosterChanger::onAddGroupToGroup(bool)
 	{
 		QString toStreamJid = action->data(ADR_STREAM_JID).toString();
 		QString fromStreamJid = action->data(ADR_FROM_STREAM_JID).toString();
-		IRoster *toRoster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(toStreamJid) : NULL;
-		IRoster *fromRoster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(fromStreamJid) : NULL;
+		IRoster *toRoster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(toStreamJid) : NULL;
+		IRoster *fromRoster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(fromStreamJid) : NULL;
 		if (fromRoster && toRoster && toRoster->isOpen())
 		{
 			QString toGroup = action->data(ADR_TO_GROUP).toString();
@@ -1712,7 +1712,7 @@ void RosterChanger::onRenameGroup(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			if (FRostersView && FRostersView->rostersModel())
@@ -1767,7 +1767,7 @@ void RosterChanger::onCopyGroupToGroup(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QString groupDelim = roster->groupDelimiter();
@@ -1798,7 +1798,7 @@ void RosterChanger::onMoveGroupToGroup(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QString groupDelim = roster->groupDelimiter();
@@ -1830,7 +1830,7 @@ void RosterChanger::onRemoveGroup(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QString groupName = action->data(ADR_GROUP).toString();
@@ -1856,7 +1856,7 @@ void RosterChanger::onRemoveGroupItems(bool)
 	if (action)
 	{
 		QString streamJid = action->data(ADR_STREAM_JID).toString();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			QString groupName = action->data(ADR_GROUP).toString();
@@ -1994,7 +1994,7 @@ void RosterChanger::onChatWindowActivated()
 
 void RosterChanger::onChatWindowCreated(IChatWindow *AWindow)
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AWindow->streamJid()) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AWindow->streamJid()) : NULL;
 	IRosterItem ritem = roster!=NULL ? roster->rosterItem(AWindow->contactJid()) : IRosterItem();
 	int pendingActions = FPendingChatNotices.value(AWindow->streamJid()).value(AWindow->contactJid().bare()).actions;
 	if (roster && !ritem.isValid)
@@ -2035,7 +2035,7 @@ void RosterChanger::onViewWidgetContextMenu(const QPoint &APosition, const QText
 	{
 		QUrl href = getTextFragmentHref(ASelection);
 		QString contact = href.isValid() ? href.path() : ASelection.toPlainText().trimmed();
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(view->streamJid()) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(view->streamJid()) : NULL;
 		if (roster && roster->isOpen() && !roster->rosterItem(contact).isValid)
 		{
 			IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->gateHomeDescriptorsByContact(contact).value(0) : IGateServiceDescriptor();

@@ -197,13 +197,15 @@ void InfoWidget::initialize()
 		{
 			if (FRoster)
 			{
-				disconnect(FRoster->instance(),SIGNAL(received(const IRosterItem &, const IRosterItem &)), this, SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
+				disconnect(FRoster->instance(),SIGNAL(itemReceived(const IRosterItem &, const IRosterItem &)), this, 
+					SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 			}
 
-			FRoster = rosterPlugin->getRoster(FStreamJid);
+			FRoster = rosterPlugin->findRoster(FStreamJid);
 			if (FRoster)
 			{
-				connect(FRoster->instance(),SIGNAL(received(const IRosterItem &, const IRosterItem &)), SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
+				connect(FRoster->instance(),SIGNAL(itemReceived(const IRosterItem &, const IRosterItem &)), 
+					SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 			}
 		}
 	}
@@ -216,13 +218,15 @@ void InfoWidget::initialize()
 		{
 			if (FPresence)
 			{
-				disconnect(FPresence->instance(),SIGNAL(received(const IPresenceItem &, const IPresenceItem &)), this, SLOT(onPresenceReceived(const IPresenceItem &, const IPresenceItem &)));
+				disconnect(FPresence->instance(),SIGNAL(itemReceived(const IPresenceItem &, const IPresenceItem &)), this, 
+					SLOT(onPresenceItemReceived(const IPresenceItem &, const IPresenceItem &)));
 			}
 
-			FPresence = presencePlugin->getPresence(FStreamJid);
+			FPresence = presencePlugin->findPresence(FStreamJid);
 			if (FPresence)
 			{
-				connect(FPresence->instance(),SIGNAL(received(const IPresenceItem &, const IPresenceItem &)), SLOT(onPresenceReceived(const IPresenceItem &, const IPresenceItem &)));
+				connect(FPresence->instance(),SIGNAL(itemReceived(const IPresenceItem &, const IPresenceItem &)), 
+					SLOT(onPresenceItemReceived(const IPresenceItem &, const IPresenceItem &)));
 			}
 		}
 	}
@@ -310,7 +314,7 @@ void InfoWidget::onRosterItemReceived(const IRosterItem &AItem, const IRosterIte
 		autoUpdateField(ContactName);
 }
 
-void InfoWidget::onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore)
+void InfoWidget::onPresenceItemReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
 	Q_UNUSED(ABefore);
 	if (AItem.itemJid == FContactJid)

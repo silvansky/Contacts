@@ -137,12 +137,12 @@ public:
 	virtual QString itemHint(const Jid &AItemJid) const =0;
 	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const =0;
 	virtual QString metaContactName(const IMetaContact &AContact) const =0;
-	virtual IMetaRoster *newMetaRoster(IRoster *ARoster) =0;
+	virtual IMetaRoster *getMetaRoster(IRoster *ARoster) =0;
 	virtual IMetaRoster *findMetaRoster(const Jid &AStreamJid) const =0;
 	virtual void removeMetaRoster(IRoster *ARoster) =0;
 	virtual QString metaRosterFileName(const Jid &AStreamJid) const =0;
 	virtual QList<IMetaTabWindow *> metaTabWindows() const =0;
-	virtual IMetaTabWindow *newMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) =0;
+	virtual IMetaTabWindow *getMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) =0;
 	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const =0;
 	virtual QString deleteContactWithNotify(IMetaRoster *ARoster, const QString &AMetaId, const Jid &ItemJid = Jid::null) =0;
 	virtual QDialog *showMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId) =0;

@@ -655,7 +655,7 @@ void MetaRoster::initialize(IPluginManager *APluginManager)
 		IPresencePlugin *presencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 		if (presencePlugin)
 		{
-			FPresence = presencePlugin->getPresence(FRoster->streamJid());
+			FPresence = presencePlugin->findPresence(FRoster->streamJid());
 			connect(presencePlugin->instance(),SIGNAL(presenceAdded(IPresence *)),SLOT(onPresenceAdded(IPresence *)));
 			connect(presencePlugin->instance(),SIGNAL(presenceRemoved(IPresence *)),SLOT(onPresenceRemoved(IPresence *)));
 		}
@@ -1225,12 +1225,12 @@ void MetaRoster::onPresenceAdded(IPresence *APresence)
 	if (APresence && APresence->streamJid()==FRoster->streamJid())
 	{
 		FPresence = APresence;
-		connect(FPresence->instance(),SIGNAL(received(const IPresenceItem &, const IPresenceItem &)),
-			SLOT(onPresenceReceived(const IPresenceItem &, const IPresenceItem &)));
+		connect(FPresence->instance(),SIGNAL(itemReceived(const IPresenceItem &, const IPresenceItem &)),
+			SLOT(onPresenceItemReceived(const IPresenceItem &, const IPresenceItem &)));
 	}
 }
 
-void MetaRoster::onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore)
+void MetaRoster::onPresenceItemReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
 	Q_UNUSED(ABefore);
 	QString metaId = FItemMetaId.value(AItem.itemJid.pBare());

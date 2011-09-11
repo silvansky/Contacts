@@ -550,7 +550,7 @@ void Roster::processItemsElement(const QDomElement &AItemsElem, bool ACompleteRo
 					ritem.groups = allItemGroups;
 
 					if (ritem != before)
-						emit received(ritem,before);
+						emit itemReceived(ritem,before);
 				}
 			}
 			else if (subs==SUBSCRIPTION_REMOVE && FRosterItems.contains(itemJid))
@@ -565,7 +565,7 @@ void Roster::processItemsElement(const QDomElement &AItemsElem, bool ACompleteRo
 			IRosterItem ritem = FRosterItems.take(itemJid);
 			IRosterItem before = ritem;
 			ritem.subscription = SUBSCRIPTION_REMOVE;
-			emit received(ritem,before);
+			emit itemReceived(ritem,before);
 		}
 	}
 }
@@ -577,7 +577,7 @@ void Roster::clearItems()
 		IRosterItem ritem = FRosterItems.take(itemJid);
 		IRosterItem before = ritem;
 		ritem.subscription = SUBSCRIPTION_REMOVE;
-		emit received(ritem,before);
+		emit itemReceived(ritem,before);
 	}
 	FRosterVer.clear();
 }

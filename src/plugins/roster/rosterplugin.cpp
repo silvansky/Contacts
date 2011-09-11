@@ -80,9 +80,9 @@ bool RosterPlugin::initObjects()
 }
 
 //IRosterPlugin
-IRoster *RosterPlugin::addRoster(IXmppStream *AXmppStream)
+IRoster *RosterPlugin::getRoster(IXmppStream *AXmppStream)
 {
-	IRoster *roster = getRoster(AXmppStream->streamJid());
+	IRoster *roster = findRoster(AXmppStream->streamJid());
 	if (!roster)
 	{
 		roster = new Roster(AXmppStream, FStanzaProcessor);
@@ -93,7 +93,7 @@ IRoster *RosterPlugin::addRoster(IXmppStream *AXmppStream)
 	return roster;
 }
 
-IRoster *RosterPlugin::getRoster(const Jid &AStreamJid) const
+IRoster *RosterPlugin::findRoster(const Jid &AStreamJid) const
 {
 	foreach(IRoster *roster, FRosters)
 		if (roster->streamJid() == AStreamJid)
@@ -113,7 +113,7 @@ QString RosterPlugin::rosterFileName(const Jid &AStreamJid) const
 
 void RosterPlugin::removeRoster(IXmppStream *AXmppStream)
 {
-	IRoster *roster = getRoster(AXmppStream->streamJid());
+	IRoster *roster = findRoster(AXmppStream->streamJid());
 	if (roster)
 	{
 		disconnect(roster->instance(),SIGNAL(destroyed(QObject *)),this,SLOT(onRosterDestroyed(QObject *)));
@@ -215,9 +215,10 @@ void RosterPlugin::onRosterDestroyed(QObject *AObject)
 
 void RosterPlugin::onStreamAdded(IXmppStream *AXmppStream)
 {
-	IRoster *roster = addRoster(AXmppStream);
+	IRoster *roster = getRoster(AXmppStream);
 	connect(roster->instance(),SIGNAL(opened()),SLOT(onRosterOpened()));
-	connect(roster->instance(),SIGNAL(received(const IRosterItem &,const IRosterItem &)),SLOT(onRosterItemReceived(const IRosterItem &,const IRosterItem &)));
+	connect(roster->instance(),SIGNAL(itemReceived(const IRosterItem &,const IRosterItem &)), 
+		SLOT(onRosterItemReceived(const IRosterItem &,const IRosterItem &)));
 	connect(roster->instance(),SIGNAL(subscriptionSent(const Jid &, int, const QString &)),
 		SLOT(onRosterSubscriptionSent(const Jid &, int, const QString &)));
 	connect(roster->instance(),SIGNAL(subscriptionReceived(const Jid &, int, const QString &)),
@@ -231,7 +232,7 @@ void RosterPlugin::onStreamAdded(IXmppStream *AXmppStream)
 
 void RosterPlugin::onStreamRemoved(IXmppStream *AXmppStream)
 {
-	IRoster *roster = getRoster(AXmppStream->streamJid());
+	IRoster *roster = findRoster(AXmppStream->streamJid());
 	if (roster)
 	{
 		roster->saveRosterItems(rosterFileName(roster->streamJid()));

@@ -61,7 +61,7 @@ public:
 	virtual void removeGroup(const QString &AGroup);
 signals:
 	void opened();
-	void received(const IRosterItem &AItem, const IRosterItem &ABefore);
+	void itemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 	void subscriptionSent(const Jid &AItemJid, int ASubsType, const QString &AText);
 	void subscriptionReceived(const Jid &AItemJid, int ASubsType, const QString &AText);
 	void closed();

@@ -309,7 +309,7 @@ ITabPage *SmsMessageHandler::tabPageCreate(const QString &ATabPageId)
 		IRoster *roster = findRoster(pageInfo.streamJid);
 		if (roster)
 		{
-			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(roster->streamJid()) : NULL;
+			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(roster->streamJid()) : NULL;
 			IPresenceItem pitem = findPresenceItem(presence,pageInfo.contactJid);
 			if (pitem.isValid)
 				page = getWindow(roster->streamJid(), pitem.itemJid);
@@ -352,7 +352,7 @@ Action *SmsMessageHandler::tabPageAction(const QString &ATabPageId, QObject *APa
 			}
 			else
 			{
-				IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(roster->streamJid()) : NULL;
+				IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(roster->streamJid()) : NULL;
 				IPresenceItem pitem = findPresenceItem(presence,pageInfo.contactJid);
 				if (pitem.isValid)
 					action->setIcon(FStatusIcons!=NULL ? FStatusIcons->iconByJid(presence->streamJid(),pitem.itemJid) : QIcon());
@@ -618,7 +618,7 @@ void SmsMessageHandler::setSmsBalance(const Jid &AStreamJid, const Jid &AService
 
 IRoster *SmsMessageHandler::findRoster(const Jid &AStreamJid) const
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	for (int i=0; roster==NULL && i<FRosters.count(); i++)
 		if (AStreamJid && FRosters.at(i)->streamJid())
 			roster = FRosters.at(i);

@@ -1855,7 +1855,7 @@ void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex
 	//////////	QString metaId = AIndex->data(RDR_META_ID).toString();
 
 	//////////	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
-	//////////	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
+	//////////	IPresence *presence = FPresencePlugin ? FPresencePlugin->findPresence(streamJid) : NULL;
 
 	//////////	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
 	//////////	{
@@ -1931,7 +1931,7 @@ void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiM
 	//////////	QString metaId = AIndex->data(RDR_META_ID).toString();
 
 	//////////	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(streamJid);
-	//////////	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
+	//////////	IPresence *presence = FPresencePlugin ? FPresencePlugin->findPresence(streamJid) : NULL;
 
 	//////////	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
 	//////////	{
@@ -1975,7 +1975,7 @@ void SipPhone::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiM
 bool SipPhone::isSupported(const Jid &AStreamJid, const QString &AMetaId) const
 {
 	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(AStreamJid);
-	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 
 	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
 	{
@@ -2006,7 +2006,7 @@ bool SipPhone::isSupported(const Jid &AStreamJid, const QString &AMetaId) const
 bool SipPhone::isSupportedAndFindStream(const Jid &AStreamJid, const QString &AMetaId, /*out*/QString& AStreamID) const
 {
 	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(AStreamJid);
-	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 
 	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
 	{
@@ -2038,7 +2038,7 @@ bool SipPhone::isSupportedAndFindStream(const Jid &AStreamJid, const QString &AM
 Jid SipPhone::getContactWithPresence(const Jid &AStreamJid, const QString &AMetaId) const
 {
 	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(AStreamJid);
-	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 
 	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
 	{
@@ -2069,7 +2069,7 @@ Jid SipPhone::getContactWithPresence(const Jid &AStreamJid, const QString &AMeta
 Jid SipPhone::getContactWithPresence(const Jid &AStreamJid, const Jid &AContactWithoutPresence, const QString &AMetaId) const
 {
 	IMetaRoster* metaRoster = FMetaContacts->findMetaRoster(AStreamJid);
-	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 
 	if(metaRoster != NULL && metaRoster->isEnabled() && presence && presence->isOpen())
 	{

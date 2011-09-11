@@ -545,7 +545,7 @@ void AddMetaContactDialog::onMetaActionResult(const QString &AActionId, const QS
 			}
 			else
 			{
-				IMetaTabWindow *window = FMetaContacts->newMetaTabWindow(streamJid(),metaId);
+				IMetaTabWindow *window = FMetaContacts->getMetaTabWindow(streamJid(),metaId);
 				if (window)
 					window->showTabPage();
 			}

@@ -451,7 +451,7 @@ QImage Avatars::avatarImage(const Jid &AContactJid, bool AAllowNull, bool AAllow
 
 	if (AAllowGray && !image.isNull() && FPresencePlugin && !FPresencePlugin->isContactOnline(AContactJid))
 	{
-		IPresence *presence = FPresencePlugin->getPresence(AContactJid);
+		IPresence *presence = FPresencePlugin->findPresence(AContactJid);
 		if (presence==NULL || !presence->isOpen())
 		{
 			if (emptyMaleAvatar)
@@ -564,7 +564,7 @@ QByteArray Avatars::loadAvatarFromVCard(const Jid &AContactJid) const
 
 void Avatars::updatePresence(const Jid &AStreamJid) const
 {
-	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 	if (presence && presence->isOpen())
 		presence->setPresence(presence->show(),presence->status(),presence->priority());
 }

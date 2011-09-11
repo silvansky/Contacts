@@ -375,7 +375,7 @@ bool VCardPlugin::requestAvatars(const Jid &AStreamJid, const Jid &AContactJid)
 
 void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
 		if (FSimpleVCardDialogs.contains(AContactJid))
@@ -464,7 +464,7 @@ void VCardPlugin::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIn
 {
 	if (AIndex->type()==RIT_STREAM_ROOT || AIndex->type()==RIT_CONTACT || AIndex->type()==RIT_AGENT)
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AIndex->data(RDR_STREAM_JID).toString()) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AIndex->data(RDR_STREAM_JID).toString()) : NULL;
 		if (roster && roster->isOpen() && ASelected.count()<2)
 		{
 			Action *action = new Action(AMenu);

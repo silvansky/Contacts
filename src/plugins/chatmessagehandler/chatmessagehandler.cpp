@@ -110,8 +110,8 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &AI
 		{
 			connect(FPresencePlugin->instance(),SIGNAL(presenceAdded(IPresence *)),SLOT(onPresenceAdded(IPresence *)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceOpened(IPresence *)),SLOT(onPresenceOpened(IPresence *)));
-			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
-				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceItemReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
+				SLOT(onPresenceItemReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 			connect(FPresencePlugin->instance(),SIGNAL(presenceRemoved(IPresence *)),SLOT(onPresenceRemoved(IPresence *)));
 		}
 	}
@@ -223,7 +223,7 @@ bool ChatMessageHandler::tabPageAvail(const QString &ATabPageId) const
 			{
 				if (pageInfo.page == NULL)
 				{
-					IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(presence->streamJid()) : NULL;
+					IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(presence->streamJid()) : NULL;
 					return roster!=NULL && roster->rosterItem(pageInfo.contactJid).isValid;
 				}
 				return true;
@@ -422,7 +422,7 @@ INotification ChatMessageHandler::messageNotify(INotifications *ANotifications, 
 				notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.to(),AMessage.from()));
 				notify.data.insert(NDR_SOUND_FILE,SDF_CHATHANDLER_MESSAGE);
 
-				IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AMessage.to()) : NULL;
+				IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AMessage.to()) : NULL;
 				if (roster && !roster->rosterItem(AMessage.from()).isValid)
 					notify.data.insert(NDR_POPUP_NOTICE,tr("Not in contact list"));
 
@@ -697,7 +697,7 @@ void ChatMessageHandler::requestHistoryMessages(IChatWindow *AWindow, int ACount
 
 IPresence *ChatMessageHandler::findPresence(const Jid &AStreamJid) const
 {
-	IPresence *precsence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *precsence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 	for (int i=0; precsence==NULL && i<FPrecences.count(); i++)
 		if (AStreamJid && FPrecences.at(i)->streamJid())
 			precsence = FPrecences.at(i);
@@ -1061,7 +1061,7 @@ void ChatMessageHandler::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IR
 	static QList<int> chatActionTypes = QList<int>() << RIT_CONTACT << RIT_AGENT << RIT_MY_RESOURCE;
 
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->findPresence(streamJid) : NULL;
 	if (presence && presence->isOpen() && ASelected.count()<2)
 	{
 		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
@@ -1084,7 +1084,7 @@ void ChatMessageHandler::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelI
 	static QList<int> chatActionTypes = QList<int>() << RIT_CONTACT << RIT_AGENT << RIT_MY_RESOURCE;
 
 	Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
-	IPresence *presence = FPresencePlugin ? FPresencePlugin->getPresence(streamJid) : NULL;
+	IPresence *presence = FPresencePlugin ? FPresencePlugin->findPresence(streamJid) : NULL;
 	if (presence && presence->isOpen())
 	{
 		Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
@@ -1122,7 +1122,7 @@ void ChatMessageHandler::onPresenceOpened(IPresence *APresence)
 	}
 }
 
-void ChatMessageHandler::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
+void ChatMessageHandler::onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
 	Q_UNUSED(ABefore);
 	if (!AItem.itemJid.resource().isEmpty() && AItem.show!=IPresence::Offline && AItem.show!=IPresence::Error)

@@ -281,7 +281,7 @@ Jid BirthdayReminder::findContactStream(const Jid &AContactJid) const
 	{
 		foreach(Jid streamJid, FRostersModel->streams())
 		{
-			IRoster *roster = FRosterPlugin->getRoster(streamJid);
+			IRoster *roster = FRosterPlugin->findRoster(streamJid);
 			if (roster && roster->rosterItem(AContactJid).isValid)
 				return streamJid;
 		}
@@ -414,7 +414,7 @@ void BirthdayReminder::onNotificationActivated(int ANotifyId)
 		{
 			Jid contactJid = FNotifies.value(ANotifyId);
 			Jid streamJid = findContactStream(contactJid);
-			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
+			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(streamJid) : NULL;
 			QList<IPresenceItem> presences = presence!=NULL ? presence->presenceItems(contactJid) : QList<IPresenceItem>();
 			FMessageProcessor->createMessageWindow(streamJid, !presences.isEmpty() ? presences.first().itemJid : contactJid, Message::Chat, IMessageHandler::SM_SHOW);
 		}

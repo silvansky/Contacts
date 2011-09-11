@@ -89,7 +89,7 @@ bool Presence::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AS
 			pitem.errCondition = errCond;
 
 			if (pitem != before)
-				emit received(pitem, before);
+				emit itemReceived(pitem, before);
 
 			if (show == Offline)
 				FItems.remove(fromJid);
@@ -338,7 +338,7 @@ bool Presence::sendPresence(const Jid &AContactJid, int AShow, const QString &AS
 
 		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(), pres))
 		{
-			emit sent(AContactJid,AShow,AStatus,APriority);
+			emit directSent(AContactJid,AShow,AStatus,APriority);
 			return true;
 		}
 		else
@@ -359,7 +359,7 @@ void Presence::clearItems()
 		pitem.show = Offline;
 		pitem.priority = 0;
 		pitem.status.clear();
-		emit received(pitem,before);
+		emit itemReceived(pitem,before);
 		FItems.remove(itemJid);
 	}
 }

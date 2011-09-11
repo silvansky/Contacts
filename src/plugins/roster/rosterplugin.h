@@ -31,8 +31,8 @@ public:
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
 	//IRosterPlugin
-	virtual IRoster *addRoster(IXmppStream *AXmppStream);
-	virtual IRoster *getRoster(const Jid &AStreamJid) const;
+	virtual IRoster *getRoster(IXmppStream *AXmppStream);
+	virtual IRoster *findRoster(const Jid &AStreamJid) const;
 	virtual QString rosterFileName(const Jid &AStreamJid) const;
 	virtual void removeRoster(IXmppStream *AXmppStream);
 signals:

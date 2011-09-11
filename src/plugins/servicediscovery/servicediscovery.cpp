@@ -82,8 +82,8 @@ bool ServiceDiscovery::initConnections(IPluginManager *APluginManager, int &AIni
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 		if (FPresencePlugin)
 		{
-			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
-				SLOT(onPresenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
+			connect(FPresencePlugin->instance(),SIGNAL(presenceItemReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
+				SLOT(onPresenceItemReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 		}
 	}
 
@@ -981,7 +981,7 @@ void ServiceDiscovery::onStreamOpened(IXmppStream *AXmppStream)
 	requestDiscoInfo(AXmppStream->streamJid(),streamDomane);
 	requestDiscoItems(AXmppStream->streamJid(),streamDomane);
 
-	IRoster *roster = FRosterPlugin->getRoster(AXmppStream->streamJid());
+	IRoster *roster = FRosterPlugin->findRoster(AXmppStream->streamJid());
 	QList<IRosterItem> ritems = roster!=NULL ? roster->rosterItems() : QList<IRosterItem>();
 	foreach(IRosterItem ritem, ritems)
 	{
@@ -1020,7 +1020,7 @@ void ServiceDiscovery::onStreamClosed(IXmppStream *AXmppStream)
 	FDiscoInfo.remove(AXmppStream->streamJid());
 }
 
-void ServiceDiscovery::onPresenceReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
+void ServiceDiscovery::onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
 {
 	Q_UNUSED(ABefore);
 	if (AItem.show==IPresence::Offline || AItem.show==IPresence::Error)
@@ -1084,7 +1084,7 @@ void ServiceDiscovery::onSelfCapsChanged()
 		if (myCaps.ver != newVer)
 		{
 			myCaps.ver = newVer;
-			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
+			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(streamJid) : NULL;
 			if (presence && presence->isOpen())
 			{
 				LogDetaile(QString("[ServiceDiscovery] Updating self entity caps on stream '%1'").arg(presence->streamJid().bare()));

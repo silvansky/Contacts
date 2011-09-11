@@ -79,7 +79,7 @@ public:
 	virtual void removeGroup(const QString &AGroup) =0;
 protected:
 	virtual void opened() =0;
-	virtual void received(const IRosterItem &AItem, const IRosterItem &ABefore) =0;
+	virtual void itemReceived(const IRosterItem &AItem, const IRosterItem &ABefore) =0;
 	virtual void subscriptionSent(const Jid &AItemJid, int ASubsType, const QString &AText) =0;
 	virtual void subscriptionReceived(const Jid &AItemJid, int ASubsType, const QString &AText) =0;
 	virtual void closed() =0;
@@ -90,8 +90,8 @@ protected:
 class IRosterPlugin {
 public:
 	virtual QObject *instance() =0;
-	virtual IRoster *addRoster(IXmppStream *AXmppStream) =0;
-	virtual IRoster *getRoster(const Jid &AStreamJid) const =0;
+	virtual IRoster *getRoster(IXmppStream *AXmppStream) =0;
+	virtual IRoster *findRoster(const Jid &AStreamJid) const =0;
 	virtual QString rosterFileName(const Jid &AStreamJid) const =0;
 	virtual void removeRoster(IXmppStream *AXmppStream) =0;
 protected:

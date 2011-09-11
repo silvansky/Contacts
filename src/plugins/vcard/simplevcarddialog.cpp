@@ -22,13 +22,13 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 	FStatusChanger = AStatusChanger;
 	FRosterChanger = ARosterChanger;
 
-	FPresence = APresencePlugin->getPresence(FStreamJid);
+	FPresence = APresencePlugin->findPresence(FStreamJid);
 
 	FVCard = AVCardPlugin->vcard(FContactJid);
 	connect(FVCard->instance(), SIGNAL(vcardUpdated()), SLOT(onVCardUpdated()));
 	connect(FVCard->instance(), SIGNAL(vcardError(const QString &)), SLOT(onVCardError(const QString &)));
 
-	FRoster = ARosterPlugin->getRoster(AStreamJid);
+	FRoster = ARosterPlugin->findRoster(AStreamJid);
 	connect(FRoster->instance(), SIGNAL(received(const IRosterItem &, const IRosterItem &)),
 		SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 

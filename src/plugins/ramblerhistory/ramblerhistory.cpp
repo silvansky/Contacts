@@ -188,7 +188,7 @@ QWidget *RamblerHistory::showViewHistoryWindow(const Jid &AStreamJid, const Jid 
 	ViewHistoryWindow *window = NULL;
 	if (isSupported(AStreamJid))
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 		if (roster)
 		{
 			window = findViewWindow(roster,AContactJid);

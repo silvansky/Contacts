@@ -111,7 +111,7 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 		if (FPresencePlugin)
 		{
-			connect(FPresencePlugin->instance(),SIGNAL(presenceReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
+			connect(FPresencePlugin->instance(),SIGNAL(presenceItemReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)),
 				SLOT(onPresenceItemReceived(IPresence *, const IPresenceItem &, const IPresenceItem &)));
 		}
 	}
@@ -520,7 +520,7 @@ void Gateways::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanz
 
 void Gateways::resolveNickName(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	IRosterItem ritem = roster!=NULL ? roster->rosterItem(AContactJid) : IRosterItem();
 	if (ritem.isValid)
 	{
@@ -543,7 +543,7 @@ void Gateways::resolveNickName(const Jid &AStreamJid, const Jid &AContactJid)
 
 void Gateways::sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bool ALogIn)
 {
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 	if (presence && presence->isOpen())
 	{
 		if (ALogIn)
@@ -874,7 +874,7 @@ QList<Jid> Gateways::availServices(const Jid &AStreamJid, const IDiscoIdentity &
 QList<Jid> Gateways::streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity) const
 {
 	QList<Jid> services;
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	QList<IRosterItem> ritems = roster!=NULL ? roster->rosterItems() : QList<IRosterItem>();
 	foreach(IRosterItem ritem, ritems)
 	{
@@ -924,7 +924,7 @@ QList<Jid> Gateways::gateDescriptorServices(const Jid &AStreamJid, const IGateSe
 QList<Jid> Gateways::serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
 	QList<Jid> contacts;
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	QList<IRosterItem> ritems = roster!=NULL ? roster->rosterItems() : QList<IRosterItem>();
 	foreach(IRosterItem ritem, ritems)
 		if (!ritem.itemJid.node().isEmpty() && ritem.itemJid.pDomain()==AServiceJid.pDomain())
@@ -934,7 +934,7 @@ QList<Jid> Gateways::serviceContacts(const Jid &AStreamJid, const Jid &AServiceJ
 
 IPresenceItem Gateways::servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 	return presence!=NULL ? presence->presenceItem(AServiceJid) : IPresenceItem();
 }
 
@@ -1032,7 +1032,7 @@ IRegisterSubmit Gateways::serviceSubmit(const Jid &AStreamJid, const Jid &AServi
 
 bool Gateways::isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster)
 	{
 		IRosterItem ritem = roster->rosterItem(AServiceJid);
@@ -1043,7 +1043,7 @@ bool Gateways::isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) c
 
 bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, bool AEnabled)
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
 		LogDetaile(QString("[Gateways] Changing service '%1' state to enabled='%2'").arg(AServiceJid.full()).arg(AEnabled));
@@ -1071,8 +1071,8 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 
 bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe)
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 	if (roster && presence && FRosterChanger && presence->isOpen() && AServiceFrom.isValid() && AServiceTo.isValid() && AServiceFrom.pDomain()!=AServiceTo.pDomain())
 	{
 		LogDetaile(QString("[Gateways] Changing service from '%1' to '%2'").arg(AServiceFrom.full()).arg(AServiceTo.full()));
@@ -1126,7 +1126,7 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 
 QString Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts)
 {
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (FRegistration && roster && roster->isOpen())
 	{
 		LogDetaile(QString("[Gateways] Removing service '%1', with_contacts='%2'").arg(AServiceJid.full()).arg(AWithContacts));
@@ -1205,7 +1205,7 @@ QString Gateways::sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJ
 
 QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &AServiceJid, QWidget *AParent)
 {
-	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(AStreamJid) : NULL;
+	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 	if (FRegistration && presence && presence->isOpen())
 	{
 		QDialog *dialog;
@@ -1449,7 +1449,7 @@ void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid,
 	Q_UNUSED(AId);
 	if (AElement.tagName() == PST_GATEWAYS_SERVICES && AElement.namespaceURI() == PSN_GATEWAYS_KEEP)
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AStreamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 		if (roster)
 		{
 			QDomElement elem = AElement.firstChildElement("service");
@@ -1483,8 +1483,8 @@ void Gateways::onKeepTimerTimeout()
 {
 	foreach(Jid streamJid, FKeepConnections.keys())
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(streamJid) : NULL;
-		IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->getPresence(streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid) : NULL;
+		IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(streamJid) : NULL;
 		if (roster && presence && presence->isOpen())
 		{
 			QSet<Jid> services = FKeepConnections.value(streamJid);
@@ -1525,7 +1525,7 @@ void Gateways::onDiscoInfoChanged(const IDiscoInfo &AInfo)
 {
 	if (AInfo.contactJid.node().isEmpty() && AInfo.node.isEmpty())
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(AInfo.streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AInfo.streamJid) : NULL;
 		if (roster && roster->isOpen())
 			startAutoLogin(roster->streamJid());
 		if (roster && roster->rosterItem(AInfo.contactJid).isValid)
@@ -1619,7 +1619,7 @@ void Gateways::onRegisterSuccess(const QString &AId)
 	{
 		RemoveRequestParams params = FRemoveRequests.take(AId);
 		LogDetaile(QString("[Gateways] Registration removed on '%1' id='%2'").arg(params.serviceJid.full(),AId));
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->getRoster(params.streamJid) : NULL;
+		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(params.streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
 			roster->removeItem(params.serviceJid);

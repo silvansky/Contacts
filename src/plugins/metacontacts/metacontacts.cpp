@@ -226,7 +226,7 @@ ITabPage *MetaContacts::tabPageCreate(const QString &ATabPageId)
 		IMetaRoster *mroster = findBareMetaRoster(pageInfo.streamJid);
 		if (mroster)
 		{
-			pageInfo.page = newMetaTabWindow(mroster->roster()->streamJid(),pageInfo.metaId);
+			pageInfo.page = getMetaTabWindow(mroster->roster()->streamJid(),pageInfo.metaId);
 			page = pageInfo.page;
 		}
 	}
@@ -284,7 +284,7 @@ bool MetaContacts::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 		if (FMessageWidgets && mroster && mroster->isEnabled())
 		{
 			QString metaId = AIndex->data(RDR_META_ID).toString();
-			IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
+			IMetaTabWindow *window = getMetaTabWindow(mroster->streamJid(), metaId);
 			if (window)
 			{
 				window->showTabPage();
@@ -743,7 +743,7 @@ QString MetaContacts::metaContactName(const IMetaContact &AContact) const
 	return AContact.name;
 }
 
-IMetaRoster *MetaContacts::newMetaRoster(IRoster *ARoster)
+IMetaRoster *MetaContacts::getMetaRoster(IRoster *ARoster)
 {
 	IMetaRoster *mroster = findMetaRoster(ARoster->streamJid());
 	if (mroster == NULL)
@@ -789,7 +789,7 @@ QList<IMetaTabWindow *> MetaContacts::metaTabWindows() const
 	return FMetaTabWindows;
 }
 
-IMetaTabWindow *MetaContacts::newMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId)
+IMetaTabWindow *MetaContacts::getMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId)
 {
 	IMetaTabWindow *window = findMetaTabWindow(AStreamJid,AMetaId);
 	if (!window && FMessageWidgets)
@@ -1182,7 +1182,7 @@ void MetaContacts::updateContactChatWindows(IMetaRoster *AMetaRoster, const IMet
 		{
 			if (window->instance()->isVisible())
 			{
-				IMetaTabWindow *newWindow = newMetaTabWindow(AMetaRoster->streamJid(),AContact.id);
+				IMetaTabWindow *newWindow = getMetaTabWindow(AMetaRoster->streamJid(),AContact.id);
 				if (newWindow)
 				{
 					newWindow->setCurrentItem(*it);
@@ -1327,7 +1327,7 @@ void MetaContacts::onMetaRosterDestroyed(QObject *AObject)
 
 void MetaContacts::onRosterAdded(IRoster *ARoster)
 {
-	IMetaRoster *mroster = newMetaRoster(ARoster);
+	IMetaRoster *mroster = getMetaRoster(ARoster);
 	connect(mroster->instance(),SIGNAL(metaRosterOpened()),SLOT(onMetaRosterOpened()));
 	connect(mroster->instance(),SIGNAL(metaAvatarChanged(const QString &)),SLOT(onMetaAvatarChanged(const QString &)));
 	connect(mroster->instance(),SIGNAL(metaPresenceChanged(const QString &)),SLOT(onMetaPresenceChanged(const QString &)));
@@ -1875,7 +1875,7 @@ void MetaContacts::onShowMetaTabWindowAction(bool)
 
 			foreach(QString metaId, metaIdList)
 			{
-				IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId);
+				IMetaTabWindow *window = getMetaTabWindow(mroster->streamJid(), metaId);
 				if (window)
 					window->showTabPage();
 			}
@@ -1904,7 +1904,7 @@ void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
 	if (mroster && mroster->isEnabled())
 	{
 		QString metaId = mroster->itemMetaContact(AWindow->contactJid());
-		IMetaTabWindow *window = newMetaTabWindow(mroster->streamJid(), metaId.isEmpty() ? QString(METAID_NOTINROSTER).arg(AWindow->contactJid().pBare()) : metaId);
+		IMetaTabWindow *window = getMetaTabWindow(mroster->streamJid(), metaId.isEmpty() ? QString(METAID_NOTINROSTER).arg(AWindow->contactJid().pBare()) : metaId);
 		if (window)
 		{
 			if (!window->isContactPage())

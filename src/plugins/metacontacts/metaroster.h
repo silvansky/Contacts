@@ -89,7 +89,7 @@ protected slots:
 	void onStreamJidAboutToBeChanged(const Jid &AAfter);
 	void onStreamJidChanged(const Jid &ABefore);
 	void onPresenceAdded(IPresence *APresence);
-	void onPresenceReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore);
+	void onPresenceItemReceived(const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onPresenceRemoved(IPresence *APresence);
 	void onAvatarChanged(const Jid &AContactJid);
 private:
