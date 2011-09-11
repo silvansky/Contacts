@@ -46,5 +46,9 @@
         <source>Menu</source>
         <translation>Меню</translation>
     </message>
+    <message>
+        <source>Minimize to tray instead of taskbar</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>

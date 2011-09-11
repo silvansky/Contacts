@@ -33,48 +33,44 @@ public:
 	//IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IMessageWriter
-	virtual void writeMessage(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang);
-	virtual void writeText(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang);
+	virtual void writeTextToMessage(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang);
+	virtual void writeMessageToText(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang);
 	//IMessageProcessor
-	virtual int receiveMessage(const Message &AMessage);
-	virtual bool sendMessage(const Jid &AStreamJid, const Message &AMessage);
-	virtual void showMessage(int AMessageId);
-	virtual void removeMessage(int AMessageId);
+	virtual bool sendMessage(const Jid &AStreamJid, Message &AMessage, int ADirection);
+	virtual bool processMessage(const Jid &AStreamJid, Message &AMessage, int ADirection);
+	virtual bool displayMessage(const Jid &AStreamJid, Message &AMessage, int ADirection);
 	virtual int notifyByMessage(int AMessageId) const;
 	virtual int messageByNotify(int ANotifyId) const;
-	virtual Message messageById(int AMessageId) const;
-	virtual QList<int> messages(const Jid &AStreamJid, const Jid &AFromJid = Jid(), int AMesTypes = Message::AnyType);
+	virtual void showNotifiedMessage(int AMessageId);
+	virtual void removeMessageNotify(int AMessageId);
 	virtual void textToMessage(Message &AMessage, const QTextDocument *ADocument, const QString &ALang = QString::null) const;
 	virtual void messageToText(QTextDocument *ADocument, const Message &AMessage, const QString &ALang = QString::null) const;
 	virtual bool createMessageWindow(const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode) const;
-	virtual void insertMessageHandler(IMessageHandler *AHandler, int AOrder);
-	virtual void removeMessageHandler(IMessageHandler *AHandler, int AOrder);
-	virtual void insertMessageWriter(IMessageWriter *AWriter, int AOrder);
-	virtual void removeMessageWriter(IMessageWriter *AWriter, int AOrder);
+	virtual void insertMessageHandler(int AOrder, IMessageHandler *AHandler);
+	virtual void removeMessageHandler(int AOrder, IMessageHandler *AHandler);
+	virtual void insertMessageWriter(int AOrder, IMessageWriter *AWriter);
+	virtual void removeMessageWriter(int AOrder, IMessageWriter *AWriter);
+	virtual void insertMessageEditor(int AOrder, IMessageEditor *AEditor);
+	virtual void removeMessageEditor(int AOrder, IMessageEditor *AEditor);
 signals:
-	void messageReceive(Message &AMessage);
-	void messageReceived(const Message &AMessage);
-	void messageSend(Message &AMessage);
 	void messageSent(const Message &AMessage);
-	void messageNotified(int AMessageId, int ANotifyId);
-	void messageUnNotified(int AMessageId, int ANotifyId);
-	void messageRemoved(const Message &AMessage);
-	void messageHandlerInserted(IMessageHandler *AHandler, int AOrder);
-	void messageHandlerRemoved(IMessageHandler *AHandler, int AOrder);
-	void messageWriterInserted(IMessageWriter *AWriter, int AOrder);
-	void messageWriterRemoved(IMessageWriter *AWriter, int AOrder);
+	void messageReceived(const Message &AMessage);
+	void messageNotifyInserted(int AMessageId);
+	void messageNotifyRemoved(int AMessageid);
+	void messageHandlerInserted(int AOrder, IMessageHandler *AHandler);
+	void messageHandlerRemoved(int AOrder, IMessageHandler *AHandler);
+	void messageWriterInserted(int AOrder, IMessageWriter *AWriter);
+	void messageWriterRemoved(int AOrder, IMessageWriter *AWriter);
+	void messageEditorInserted(int AOrder, IMessageEditor *AEditor);
+	void messageEditorRemoved(int AOrder, IMessageEditor *AEditor);
 protected:
 	int newMessageId();
-	IMessageHandler *getMessageHandler(const Message &AMessage);
-	void notifyMessage(int AMessageId);
-	void unNotifyMessage(int AMessageId);
-	void removeStreamMessages(const Jid &AStreamJid);
+	IMessageHandler *findMessageHandler(const Message &AMessage, int ADirection);
+	void notifyMessage(IMessageHandler *AHandler, const Message &AMessage, int ADirection);
 	QString prepareBodyForSend(const QString &AString) const;
 	QString prepareBodyForReceive(const QString &AString) const;
 protected slots:
 	void onStreamOpened(IXmppStream *AXmppStream);
-	void onStreamJidAboutToBeChanged(IXmppStream *AXmppStream, const Jid &AAfter);
-	void onStreamJidChanged(IXmppStream *AXmppStream, const Jid &ABefour);
 	void onStreamClosed(IXmppStream *AXmppStream);
 	void onStreamRemoved(IXmppStream *AXmppStream);
 	void onNotificationActivated(int ANotifyId);
@@ -85,11 +81,11 @@ private:
 	IStanzaProcessor *FStanzaProcessor;
 private:
 	QMap<Jid, int> FSHIMessages;
-	QMap<int, Message> FMessages;
 	QMap<int, int> FNotifyId2MessageId;
 	QMap<int, IMessageHandler *> FHandlerForMessage;
 	QMultiMap<int, IMessageHandler *> FMessageHandlers;
 	QMultiMap<int, IMessageWriter *> FMessageWriters;
+	QMultiMap<int, IMessageEditor *> FMessageEditors;
 };
 
 #endif // MESSAGEPROCESSOR_H

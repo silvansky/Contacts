@@ -185,7 +185,7 @@ bool SmsMessageHandler::initObjects()
 	}
 	if (FMessageProcessor)
 	{
-		FMessageProcessor->insertMessageHandler(this,MHO_SMSMESSAGEHANDLER);
+		FMessageProcessor->insertMessageHandler(MHO_SMSMESSAGEHANDLER,this);
 	}
 	return true;
 }
@@ -365,121 +365,156 @@ Action *SmsMessageHandler::tabPageAction(const QString &ATabPageId, QObject *APa
 	return NULL;
 }
 
-bool SmsMessageHandler::checkMessage(int AOrder, const Message &AMessage)
+bool SmsMessageHandler::messageCheck(int AOrder, const Message &AMessage, int ADirection)
 {
 	Q_UNUSED(AOrder);
-	return !AMessage.body().isEmpty() && isSmsContact(AMessage.to(),AMessage.from());
+	if (!AMessage.body().isEmpty())
+	{
+		return  ADirection==IMessageProcessor::MessageIn ? isSmsContact(AMessage.to(),AMessage.from()) : isSmsContact(AMessage.from(),AMessage.to());
+	}
+	return false;
 }
 
-bool SmsMessageHandler::showMessage(int AMessageId)
+bool SmsMessageHandler::messageDisplay(const Message &AMessage, int ADirection)
 {
-	Message message = FMessageProcessor->messageById(AMessageId);
-	return createMessageWindow(MHO_SMSMESSAGEHANDLER,message.to(),message.from(),Message::Chat,IMessageHandler::SM_SHOW);
-}
+	bool displayed = false;
 
-bool SmsMessageHandler::receiveMessage(int AMessageId)
-{
-	bool notify = false;
-	Message message = FMessageProcessor->messageById(AMessageId);
-	IChatWindow *window = getWindow(message.to(),message.from());
-	if (window)
+	IChatWindow *window = NULL;
+	if (ADirection == IMessageProcessor::MessageIn)
+		window = AMessage.type()!=Message::Error ? getWindow(AMessage.to(),AMessage.from()) : findWindow(AMessage.to(),AMessage.from());
+	else
+		window = AMessage.type()!=Message::Error ? getWindow(AMessage.from(),AMessage.to()) : findWindow(AMessage.from(),AMessage.to());
+
+	if (window && AMessage.type()!=Message::Error)
 	{
 		StyleExtension extension;
 		WindowStatus &wstatus = FWindowStatus[window];
-		if (!window->isActiveTabPage())
-		{
-			notify = true;
+		if (ADirection==IMessageProcessor::MessageIn && !window->isActiveTabPage())
 			extension.extensions = IMessageContentOptions::Unread;
-			wstatus.notified.append(AMessageId);
-			updateWindow(window);
-		}
+		if (ADirection == IMessageProcessor::MessageOut)
+			extension.notice = tr("Sending...");
+		extension.contentId = AMessage.data(MDR_STYLE_CONTENT_ID).toString();
 
-		QUuid contentId = showStyledMessage(window,message,extension);
-		if (!contentId.isNull() && notify)
+		QUuid contentId = showStyledMessage(window,AMessage,extension);
+		if (!contentId.isNull())
 		{
+			displayed = true;
+			Message message = AMessage;
 			message.setData(MDR_STYLE_CONTENT_ID,contentId.toString());
-			wstatus.unread.append(message);
+			if (ADirection == IMessageProcessor::MessageOut)
+			{
+				message.setData(MDR_SMS_REQUEST_TIME,QDateTime::currentDateTime());
+				FWindowStatus[window].requested.append(message);
+			}
+			if (extension.extensions & IMessageContentOptions::Unread)
+			{
+				wstatus.unread.append(message);
+			}
 		}
 
 		if (wstatus.historyId.isNull() && FHistoryRequests.values().contains(window))
 		{
-			wstatus.pending.append(message);
+			wstatus.pending.append(AMessage);
 		}
 	}
-	return notify;
-}
-
-INotification SmsMessageHandler::notifyMessage(INotifications *ANotifications, const Message &AMessage)
-{
-	IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
-	WindowStatus &wstatus = FWindowStatus[window];
-
-	QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
-	QString messages = tr("%n message(s)","",wstatus.notified.count());
-
-	INotification notify;
-	notify.kinds = ANotifications->notificationKinds(NNT_CHAT_MESSAGE);
-	if (notify.kinds > 0)
+	else if (AMessage.type() == Message::Error)
 	{
-		notify.typeId = NNT_CHAT_MESSAGE;
-		notify.data.insert(NDR_STREAM_JID,AMessage.to());
-		notify.data.insert(NDR_CONTACT_JID,AMessage.from());
-		notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
-		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-		notify.data.insert(NDR_ROSTER_ORDER,RNO_CHATHANDLER_MESSAGE);
-		notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink|IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
-		notify.data.insert(NDR_ROSTER_HOOK_CLICK,true);
-		notify.data.insert(NDR_ROSTER_CREATE_INDEX,true);
-		notify.data.insert(NDR_ROSTER_FOOTER,messages);
-		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
-		notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
-		notify.data.insert(NDR_ALERT_WIDGET,(qint64)window->instance());
-		notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)window->instance());
-		notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)window->instance());
-		notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
-		notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-		notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
-		notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHATHANDLER_TABBARITEM_NEWMESSAGE);
-		notify.data.insert(NDR_POPUP_TITLE,name);
-		notify.data.insert(NDR_POPUP_NOTICE,tr("Writing..."));
-		notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.to(),AMessage.from()));
-		notify.data.insert(NDR_SOUND_FILE,SDF_CHATHANDLER_MESSAGE);
+		LogError(QString("[SmsMessageHandler] Received error message:\n%1").arg(AMessage.stanza().toString()));
+	}
+	return displayed;
+}
 
-		int notifyCount = wstatus.notified.count();
-		if (notifyCount > 1)
+INotification SmsMessageHandler::messageNotify(INotifications *ANotifications, const Message &AMessage, int ADirection)
+{
+	INotification notify;
+	if (ADirection == IMessageProcessor::MessageIn)
+	{
+		IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
+		if (!window->isActiveTabPage())
 		{
-			int lastNotifyWithPopup = -1;
-			QList<int> notifies = ANotifications->notifications();
-			while (lastNotifyWithPopup<0 && !notifies.isEmpty())
-			{
-				int notifyId = notifies.takeLast();
-				if ((ANotifications->notificationById(notifyId).kinds & INotification::PopupWindow) > 0)
-					lastNotifyWithPopup = notifyId;
-			}
+			WindowStatus &wstatus = FWindowStatus[window];
 
-			int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
-			if (replNotify>0 && replNotify==lastNotifyWithPopup)
-				notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
-			else
-				replNotify = -1;
+			QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
+			QString messages = tr("%n message(s)","",wstatus.notified.count());
 
-			foreach(int messageId, wstatus.notified)
+			notify.kinds = ANotifications->notificationKinds(NNT_CHAT_MESSAGE);
+			if (notify.kinds > 0)
 			{
-				int notifyId = FMessageProcessor->notifyByMessage(messageId);
-				if (notifyId>0 && notifyId!=replNotify)
-					notifyCount -= FNotifications!=NULL ? FNotifications->notificationById(notifyId).data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt() : 0;
+				notify.typeId = NNT_CHAT_MESSAGE;
+				notify.data.insert(NDR_STREAM_JID,AMessage.to());
+				notify.data.insert(NDR_CONTACT_JID,AMessage.from());
+				notify.data.insert(NDR_ICON_KEY,MNI_CHAT_MHANDLER_MESSAGE);
+				notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
+				notify.data.insert(NDR_ROSTER_ORDER,RNO_CHATHANDLER_MESSAGE);
+				notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink|IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
+				notify.data.insert(NDR_ROSTER_HOOK_CLICK,true);
+				notify.data.insert(NDR_ROSTER_CREATE_INDEX,true);
+				notify.data.insert(NDR_ROSTER_FOOTER,messages);
+				notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
+				notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(messages));
+				notify.data.insert(NDR_ALERT_WIDGET,(qint64)window->instance());
+				notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)window->instance());
+				notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)window->instance());
+				notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_NEW_MESSAGE);
+				notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+				notify.data.insert(NDR_TABPAGE_TOOLTIP,messages);
+				notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_CHATHANDLER_TABBARITEM_NEWMESSAGE);
+				notify.data.insert(NDR_POPUP_TITLE,name);
+				notify.data.insert(NDR_POPUP_NOTICE,tr("Writing..."));
+				notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(AMessage.to(),AMessage.from()));
+				notify.data.insert(NDR_SOUND_FILE,SDF_CHATHANDLER_MESSAGE);
+
+				wstatus.notified.append(AMessage.data(MDR_MESSAGE_ID).toInt());
+				int notifyCount = wstatus.notified.count();
+				if (notifyCount > 1)
+				{
+					int lastNotifyWithPopup = -1;
+					QList<int> notifies = ANotifications->notifications();
+					while (lastNotifyWithPopup<0 && !notifies.isEmpty())
+					{
+						int notifyId = notifies.takeLast();
+						if ((ANotifications->notificationById(notifyId).kinds & INotification::PopupWindow) > 0)
+							lastNotifyWithPopup = notifyId;
+					}
+
+					int replNotify = FMessageProcessor->notifyByMessage(wstatus.notified.value(wstatus.notified.count()-2));
+					if (replNotify>0 && replNotify==lastNotifyWithPopup)
+						notify.data.insert(NDR_REPLACE_NOTIFY, replNotify);
+					else
+						replNotify = -1;
+
+					foreach(int messageId, wstatus.notified)
+					{
+						int notifyId = FMessageProcessor->notifyByMessage(messageId);
+						if (notifyId>0 && notifyId!=replNotify)
+							notifyCount -= FNotifications!=NULL ? FNotifications->notificationById(notifyId).data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt() : 0;
+					}
+				}
+				notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
+
+				QTextDocument doc;
+				FMessageProcessor->messageToText(&doc,AMessage);
+				notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
+
+				updateWindow(window);
 			}
 		}
-		notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
-
-		QTextDocument doc;
-		FMessageProcessor->messageToText(&doc,AMessage);
-		notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
 	}
 	return notify;
 }
 
-bool SmsMessageHandler::createMessageWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
+bool SmsMessageHandler::messageShowWindow(int AMessageId)
+{
+	IChatWindow *window = findNotifiedMessageWindow(AMessageId);
+	if (window)
+	{
+		window->showTabPage();
+		return true;
+	}
+	return false;
+}
+
+bool SmsMessageHandler::messageShowWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode)
 {
 	Q_UNUSED(AOrder);
 	if (AType==Message::Chat && isSmsContact(AStreamJid,AContactJid))
@@ -665,6 +700,14 @@ IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &ACo
 	return bareWindow;
 }
 
+IChatWindow * SmsMessageHandler::findNotifiedMessageWindow(int AMessageId) const
+{
+	foreach(IChatWindow *window, FWindows)
+		if (FWindowStatus.value(window).notified.contains(AMessageId))
+			return window;
+	return NULL;
+}
+
 void SmsMessageHandler::clearWindow(IChatWindow *AWindow)
 {
 	IMessageStyle *style = AWindow->viewWidget()!=NULL ? AWindow->viewWidget()->messageStyle() : NULL;
@@ -709,7 +752,7 @@ void SmsMessageHandler::removeMessageNotifications(IChatWindow *AWindow)
 	if (!wstatus.notified.isEmpty())
 	{
 		foreach(int messageId, wstatus.notified)
-			FMessageProcessor->removeMessage(messageId);
+			FMessageProcessor->removeMessageNotify(messageId);
 		wstatus.notified.clear();
 		updateWindow(AWindow);
 	}
@@ -951,22 +994,14 @@ void SmsMessageHandler::onMessageReady()
 	if (window)
 	{
 		Message message;
-		message.setFrom(window->streamJid().eFull()).setTo(window->contactJid().eFull()).setType(Message::Chat).setId(FStanzaProcessor->newId());
+		message.setTo(window->contactJid().eFull()).setType(Message::Chat).setId(FStanzaProcessor->newId());
 		FMessageProcessor->textToMessage(message,window->editWidget()->document());
-		message.stanza().addElement("request",NS_RECEIPTS);
-		if (!message.body().trimmed().isEmpty() && FMessageProcessor->sendMessage(window->streamJid(),message))
+		if (!message.body().trimmed().isEmpty())
 		{
-			StyleExtension extension;
-			extension.notice = tr("Sending...");
-			QUuid contentId = showStyledMessage(window, message, extension);
-			if (!contentId.isNull())
-			{
-				message.setData(MDR_STYLE_CONTENT_ID, contentId.toString());
-				message.setData(MDR_SMS_REQUEST_TIME,QDateTime::currentDateTime());
-				FWindowStatus[window].requested.append(message);
-			}
+			message.stanza().addElement("request",NS_RECEIPTS);
+			if (FMessageProcessor->sendMessage(window->streamJid(),message,IMessageProcessor::MessageOut))
+				window->editWidget()->clearEditor();
 			replaceUnreadMessages(window);
-			window->editWidget()->clearEditor();
 		}
 	}
 }

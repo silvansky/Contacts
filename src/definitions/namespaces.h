@@ -54,6 +54,9 @@
 
 #define NS_RECEIPTS                             "urn:xmpp:receipts"
 
+#define NS_MESSAGE_CARBONS                      "urn:xmpp:carbons:1"
+#define NS_MESSAGE_FORWARD                      "urn:xmpp:forward:0"
+
 #define NS_RAMBLER_AVATAR                       "rambler:avatar"
 #define NS_RAMBLER_ARCHIVE                      "urn:xmpp:archive:rambler"
 #define NS_RAMBLER_ARCHIVE_RSM                  "urn:xmpp:archive:rambler:rsm"

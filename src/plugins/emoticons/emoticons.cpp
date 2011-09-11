@@ -87,14 +87,14 @@ QMultiMap<int, IOptionsWidget *> Emoticons::optionsWidgets(const QString &ANodeI
 	return widgets;
 }
 
-void Emoticons::writeMessage(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang)
+void Emoticons::writeTextToMessage(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang)
 {
 	Q_UNUSED(AMessage);	Q_UNUSED(ALang);
 	if (AOrder == MWO_EMOTICONS)
 		replaceImageToText(ADocument);
 }
 
-void Emoticons::writeText(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang)
+void Emoticons::writeMessageToText(int AOrder, Message &AMessage, QTextDocument *ADocument, const QString &ALang)
 {
 	Q_UNUSED(AMessage);	Q_UNUSED(ALang);
 	if (AOrder == MWO_EMOTICONS)
@@ -470,9 +470,9 @@ void Emoticons::onOptionsChanged(const OptionsNode &ANode)
 		if (FMessageProcessor)
 		{
 			if (ANode.value().toBool())
-				FMessageProcessor->insertMessageWriter(this,MWO_EMOTICONS);
+				FMessageProcessor->insertMessageWriter(MWO_EMOTICONS,this);
 			else
-				FMessageProcessor->removeMessageWriter(this,MWO_EMOTICONS);
+				FMessageProcessor->removeMessageWriter(MWO_EMOTICONS,this);
 		}
 	}
 	else if (ANode.path() == OPV_MESSAGES_EMOTICONS)

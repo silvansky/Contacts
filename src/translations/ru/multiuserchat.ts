@@ -154,10 +154,6 @@ Check values and try again</source>
         <translation>Войти в конференцию</translation>
     </message>
     <message>
-        <source>You are invited to the conference %1</source>
-        <translation>Вы приглашены в конференцию %1</translation>
-    </message>
-    <message>
         <source>Invitation received</source>
         <translation>Получено приглашение</translation>
     </message>
@@ -508,48 +504,6 @@ Check values and try again</source>
     <message>
         <source>Save status messages to history</source>
         <translation>Сохранять статусные сообщения в истории</translation>
-    </message>
-    <message>
-        <source>Multi-user chat window</source>
-        <translation>Окно конференции</translation>
-    </message>
-    <message>
-        <source>Send message</source>
-        <translation>Отправить сообщение</translation>
-    </message>
-    <message>
-        <source>Return</source>
-        <comment>Send message</comment>
-        <translation>Return</translation>
-    </message>
-    <message>
-        <source>Clear window</source>
-        <translation>Отчистить окно</translation>
-    </message>
-    <message>
-        <source>Change nick</source>
-        <translation>Изменить ник</translation>
-    </message>
-    <message>
-        <source>Change topic</source>
-        <translation>Изменить тему</translation>
-    </message>
-    <message>
-        <source>Setup conference</source>
-        <translation>Настроить комнату</translation>
-    </message>
-    <message>
-        <source>Enter the conference</source>
-        <translation>Войти в комнату</translation>
-    </message>
-    <message>
-        <source>Leave the conference</source>
-        <translation>Выйти из комнаты</translation>
-    </message>
-    <message>
-        <source>Ctrl+Q</source>
-        <comment>Leave the conference</comment>
-        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <source>I&apos;m too busy right now</source>
@@ -961,10 +915,6 @@ Check values and try again</source>
     <message>
         <source>%1 has left the room</source>
         <translation>%1 вышел из комнаты</translation>
-    </message>
-    <message>
-        <source>Quote selected text</source>
-        <translation>Цитировать выделенный текст</translation>
     </message>
 </context>
 </TS>

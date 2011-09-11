@@ -113,11 +113,11 @@ public:
 	//IRostersClickHooker
 	virtual bool rosterIndexClicked(IRosterIndex *AIndex, int AOrder);
 	//IMessageHandler
-	virtual bool checkMessage(int AOrder, const Message &AMessage);
-	virtual bool showMessage(int AMessageId);
-	virtual bool receiveMessage(int AMessageId);
-	virtual INotification notifyMessage(INotifications *ANotifications, const Message &AMessage);
-	virtual bool createMessageWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
+	virtual bool messageCheck(int AOrder, const Message &AMessage, int ADirection);
+	virtual bool messageDisplay(const Message &AMessage, int ADirection);
+	virtual INotification messageNotify(INotifications *ANotifications, const Message &AMessage, int ADirection);
+	virtual bool messageShowWindow(int AMessageId);
+	virtual bool messageShowWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
 signals:
 	//ITabPageHandler
 	void tabPageCreated(ITabPage *ATabPage);

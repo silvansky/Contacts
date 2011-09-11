@@ -20,6 +20,6 @@
 #define SHO_IMPI_BITSOFBINARY         100
 
 //Iq Out
-#define  SHO_QO_METAROSTER            500
+#define SHO_QO_METAROSTER             500
 
 #endif // DEF_STANZAHANDLERORDERS_H

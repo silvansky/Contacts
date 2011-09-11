@@ -3,6 +3,7 @@
 
 #include <definitions/multiuserdataroles.h>
 #include <definitions/namespaces.h>
+#include <definitions/messageeditororders.h>
 #include <definitions/stanzahandlerorders.h>
 #include <interfaces/imultiuserchat.h>
 #include <interfaces/ipluginmanager.h>
@@ -16,15 +17,17 @@ class MultiUserChat :
 			public QObject,
 			public IMultiUserChat,
 			public IStanzaHandler,
-			public IStanzaRequestOwner
+			public IStanzaRequestOwner,
+			public IMessageEditor
 {
 	Q_OBJECT;
-	Q_INTERFACES(IMultiUserChat IStanzaHandler IStanzaRequestOwner);
+	Q_INTERFACES(IMultiUserChat IStanzaHandler IStanzaRequestOwner IMessageEditor);
 public:
-	MultiUserChat(IMultiUserChatPlugin *AChatPlugin, const Jid &AStreamJid, const Jid &ARoomJid,
-	              const QString &ANickName, const QString &APassword, QObject *AParent);
+	MultiUserChat(IMultiUserChatPlugin *AChatPlugin, const Jid &AStreamJid, const Jid &ARoomJid, const QString &ANickName, const QString &APassword, QObject *AParent);
 	~MultiUserChat();
 	virtual QObject *instance() { return this; }
+	//IMessageEditor
+	virtual bool messageReadWrite(int AOrder, const Jid &AStreamJid, Message &AMessage, int ADirection);
 	//IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IIqStanzaOwnner
@@ -79,10 +82,8 @@ signals:
 	void userNickChanged(IMultiUser *AUser, const QString &AOldNick, const QString &ANewNick);
 	void presenceChanged(int AShow, const QString &AStatus);
 	void serviceMessageReceived(const Message &AMessage);
-	void messageReceive(const QString &ANick, Message &AMessage);
-	void messageReceived(const QString &ANick, const Message &AMessage);
-	void messageSend(Message &AMessage);
 	void messageSent(const Message &AMessage);
+	void messageReceived(const QString &ANick, const Message &AMessage);
 	void inviteDeclined(const Jid &AContactJid, const QString &AReason);
 	//Moderator
 	void subjectChanged(const QString &ANick, const QString &ASubject);
@@ -100,16 +101,11 @@ signals:
 	void configFormRejected(const QString &AError);
 	void roomDestroyed(const QString &AReason);
 protected:
-	void prepareMessageForReceive(Message &AMessage);
 	bool processMessage(const Stanza &AStanza);
 	bool processPresence(const Stanza &AStanza);
 	void initialize();
 	void closeChat(int AShow, const QString &AStatus);
 protected slots:
-	void onMessageReceive(Message &AMessage);
-	void onMessageReceived(const Message &AMessage);
-	void onMessageSend(Message &AMessage);
-	void onMessageSent(const Message &AMessage);
 	void onUserDataChanged(int ARole, const QVariant &ABefore, const QVariant &AAfter);
 	void onPresenceChanged(int AShow, const QString &AStatus, int APriority);
 	void onPresenceAboutToClose(int AShow, const QString &AStatus);
@@ -130,11 +126,11 @@ private:
 private:
 	int FSHIPresence;
 	int FSHIMessage;
+	int FShow;
+	int FErrorCode;
 	bool FAutoPresence;
 	Jid FStreamJid;
 	Jid FRoomJid;
-	int FShow;
-	int FErrorCode;
 	QString FStatus;
 	QString FSubject;
 	QString FNickName;

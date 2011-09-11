@@ -109,11 +109,11 @@ public:
 	virtual ITabPage *tabPageCreate(const QString &ATabPageId);
 	virtual Action *tabPageAction(const QString &ATabPageId, QObject *AParent);
 	//IMessageHandler
-	virtual bool checkMessage(int AOrder, const Message &AMessage);
-	virtual bool showMessage(int AMessageId);
-	virtual bool receiveMessage(int AMessageId);
-	virtual INotification notifyMessage(INotifications *ANotifications, const Message &AMessage);
-	virtual bool createMessageWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
+	virtual bool messageCheck(int AOrder, const Message &AMessage, int ADirection);
+	virtual bool messageDisplay(const Message &AMessage, int ADirection);
+	virtual INotification messageNotify(INotifications *ANotifications, const Message &AMessage, int ADirection);
+	virtual bool messageShowWindow(int AMessageId);
+	virtual bool messageShowWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
 	//SmsMessageHandler
 	virtual bool isSmsContact(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual int smsBalance(const Jid &AStreamJid, const Jid &AServiceJid) const;
@@ -136,6 +136,7 @@ protected:
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
 	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch = true) const;
+	IChatWindow *findNotifiedMessageWindow(int AMessageId) const;
 	void clearWindow(IChatWindow *AWindow);
 	void updateWindow(IChatWindow *AWindow);
 	void resetWindowStatus(IChatWindow *AWindow);

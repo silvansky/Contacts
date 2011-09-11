@@ -282,7 +282,7 @@ void CommentDialog::SendComment()
 	message.setTo("support@rambler.ru");
 	message.setFrom(streamJid.full());
 
-	bool ret = FMessageProcessor->sendMessage(streamJid, message);
+	bool ret = FStanzaProcessor->sendStanzaOut(streamJid, message.stanza());
 	if (ret)
 	{
 		ui.pbtSendComment->setText(tr("Message delivered"));

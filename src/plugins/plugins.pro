@@ -18,7 +18,6 @@ SUBDIRS += privatestorage
 SUBDIRS += messageprocessor
 SUBDIRS += messagewidgets
 SUBDIRS += messagestyles
-SUBDIRS += multiuserchat
 SUBDIRS += adiummessagestyle
 SUBDIRS += chatmessagehandler
 SUBDIRS += compress
@@ -36,7 +35,6 @@ SUBDIRS += avatars
 SUBDIRS += notifications
 SUBDIRS += autostatus
 SUBDIRS += rostersearch
-SUBDIRS += console
 SUBDIRS += chatstates
 SUBDIRS += xmppuriqueries
 SUBDIRS += bitsofbinary
@@ -46,7 +44,12 @@ SUBDIRS += birthdayreminder
 SUBDIRS += metacontacts
 SUBDIRS += smsmessagehandler
 SUBDIRS += ramblermailnotify
-SUBDIRS += stylesheeteditor
+SUBDIRS += messagecarbons
 win32-msvc2008: {
   SUBDIRS += sipphone
 }
+
+
+SUBDIRS += console
+SUBDIRS += multiuserchat
+SUBDIRS += stylesheeteditor

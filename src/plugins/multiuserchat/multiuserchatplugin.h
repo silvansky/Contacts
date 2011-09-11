@@ -87,11 +87,11 @@ public:
 	//IDataLocalizer
 	virtual IDataFormLocale dataFormLocale(const QString &AFormType);
 	//IMessageHandler
-	virtual bool checkMessage(int AOrder, const Message &AMessage);
-	virtual bool receiveMessage(int AMessageId);
-	virtual bool showMessage(int AMessageId);
-	virtual INotification notifyMessage(INotifications *ANotifications, const Message &AMessage);
-	virtual bool createMessageWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
+	virtual bool messageCheck(int AOrder, const Message &AMessage, int ADirection);
+	virtual bool messageDisplay(const Message &AMessage, int ADirection);
+	virtual INotification messageNotify(INotifications *ANotifications, const Message &AMessage, int ADirection);
+	virtual bool messageShowWindow(int AMessageId);
+	virtual bool messageShowWindow(int AOrder, const Jid &AStreamJid, const Jid &AContactJid, Message::MessageType AType, int AShowMode);
 	//IMultiUserChatPlugin
 	virtual IPluginManager *pluginManager() const { return FPluginManager; }
 	virtual bool requestRoomNick(const Jid &AStreamJid, const Jid &ARoomJid);
@@ -149,11 +149,11 @@ private:
 private:
 	Menu *FChatMenu;
 private:
-	QList<int> FActiveInvites;
+	QMap<int, Message> FActiveInvites;
 	QList<IMultiUserChat *> FChats;
 	QList<IMultiUserChatWindow *> FChatWindows;
 	QMap<IMultiUserChatWindow *, Action *> FChatActions;
-	QMap<QMessageBox *,InviteFields> FInviteDialogs;
+	QMap<QMessageBox *, InviteFields> FInviteDialogs;
 	QMap<QString, QPair<Jid,Jid> > FNickRequests;
 };
 
