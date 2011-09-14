@@ -14,6 +14,7 @@ MainWindowPlugin::MainWindowPlugin()
 	FPluginManager = NULL;
 	FOptionsManager = NULL;
 	FTrayManager = NULL;
+	FMacIntegration = NULL;
 
 	FOpenAction = NULL;
 	FActivationChanged = QTime::currentTime();
@@ -83,6 +84,18 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AIni
 				SLOT(onTrayNotifyActivated(int,QSystemTrayIcon::ActivationReason)));
 		}
 	}
+#ifdef Q_WS_MAC
+	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+	if (plugin)
+	{
+		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
+		if (FMacIntegration)
+		{
+			connect(FMacIntegration->instance(),SIGNAL(dockClicked()),
+				SLOT(onDockIconClicked()));
+		}
+	}
+#endif
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -110,9 +123,9 @@ bool MainWindowPlugin::initObjects()
 	if (FTrayManager)
 		FTrayManager->contextMenu()->addAction(FOpenAction,AG_TMTM_MAINWINDOW_SHOW,true);
 
-#ifdef Q_OS_MAC
-	connect(MacDockHandler::instance(), SIGNAL(dockIconClicked()), SLOT(onDockIconClicked()));
-#endif
+//#ifdef Q_OS_MAC
+//	connect(MacDockHandler::instance(), SIGNAL(dockIconClicked()), SLOT(onDockIconClicked()));
+//#endif
 
 	return true;
 }

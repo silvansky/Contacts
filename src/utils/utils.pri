@@ -73,8 +73,3 @@ SOURCES = jid.cpp \
     customlabel.cpp \
     nonmodalopenfiledialog.cpp \
     networking.cpp
-
-macx: {
-  HEADERS += macdockhandler.h
-  OBJECTIVE_SOURCES += macdockhandler.mm
-}

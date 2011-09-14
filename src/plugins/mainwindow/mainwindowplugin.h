@@ -13,6 +13,7 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/itraymanager.h>
+#include <interfaces/imacintegration.h>
 #include <utils/widgetmanager.h>
 #include <utils/action.h>
 #include <utils/options.h>
@@ -63,6 +64,7 @@ private:
 	IPluginManager *FPluginManager;
 	IOptionsManager *FOptionsManager;
 	ITrayManager *FTrayManager;
+	IMacIntegration *FMacIntegration;
 private:
 	Action *FOpenAction;
 	MainWindow *FMainWindow;

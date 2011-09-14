@@ -45,11 +45,16 @@ SUBDIRS += metacontacts
 SUBDIRS += smsmessagehandler
 SUBDIRS += ramblermailnotify
 SUBDIRS += messagecarbons
+SUBDIRS += console
+SUBDIRS += multiuserchat
+SUBDIRS += stylesheeteditor
+
+# platform specific plugins
+
 win32-msvc2008: {
   SUBDIRS += sipphone
 }
 
-
-SUBDIRS += console
-SUBDIRS += multiuserchat
-SUBDIRS += stylesheeteditor
+macx: {
+  SUBDIRS += macintegration
+}

@@ -331,7 +331,11 @@ void PluginManager::loadSettings()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");
 
+#ifdef Q_WS_MAC
+	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO128));
+#else
 	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
+#endif
 
 	FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
 	QString fontFile = fontStorage->fileFullName(FNT_SEGOEUI);
