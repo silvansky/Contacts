@@ -836,6 +836,36 @@ void RosterChanger::removeWindowChatNotices(IChatWindow *AWindow)
 		AWindow->noticeWidget()->removeNotice(noticeId);
 }
 
+bool RosterChanger::isObsoleteChatNotice(int AActions, int ASubsType, bool ASent)
+{
+	bool remove = false;
+	if (ASubsType == IRoster::Subscribe)
+	{
+		if (ASent)
+			remove = (AActions & (NTA_ADD_CONTACT|NTA_ASK_SUBSCRIBE))>0;
+	}
+	else if (ASubsType == IRoster::Subscribed)
+	{
+		if (ASent)
+			remove = (AActions & (NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE))>0;
+		else
+			remove = (AActions & (NTA_ADD_CONTACT|NTA_ASK_SUBSCRIBE))>0;
+	}
+	else if (ASubsType == IRoster::Unsubscribe)
+	{
+		if (ASent)
+			remove = (AActions & NTA_ASK_SUBSCRIBE)>0;
+		else
+			remove = (AActions & (NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE))>0;
+	}
+	else if (ASubsType == IRoster::Unsubscribed)
+	{
+		if (ASent)
+			remove = (AActions & (NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE))>0;
+	}
+	return remove;
+}
+
 void RosterChanger::removeObsoleteChatNotices(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent)
 {
 	foreach(IChatWindow *window, FChatNoticeWindow.values())
@@ -843,37 +873,19 @@ void RosterChanger::removeObsoleteChatNotices(const Jid &AStreamJid, const Jid &
 		if (window->streamJid()==AStreamJid && (window->contactJid() && AContactJid))
 		{
 			int chatNoticeId = FChatNoticeWindow.key(window);
-			int actions = FChatNoticeActions.value(chatNoticeId);
-
-			bool obsolete = false;
-			if (ASubsType == IRoster::Subscribe)
-			{
-				if (ASent)
-					obsolete = (actions & (NTA_ADD_CONTACT|NTA_ASK_SUBSCRIBE))>0;
-			}
-			else if (ASubsType == IRoster::Subscribed)
-			{
-				if (ASent)
-					obsolete = (actions & (NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE))>0;
-				else
-					obsolete = (actions & (NTA_ADD_CONTACT|NTA_ASK_SUBSCRIBE))>0;
-			}
-			else if (ASubsType == IRoster::Unsubscribe)
-			{
-				if (ASent)
-					obsolete = (actions & NTA_ASK_SUBSCRIBE)>0;
-				else
-					obsolete = (actions & (NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE))>0;
-			}
-			else if (ASubsType == IRoster::Unsubscribed)
-			{
-				if (ASent)
-					obsolete = (actions & (NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE))>0;
-			}
-
-			if (obsolete)
+			if (isObsoleteChatNotice(FChatNoticeActions.value(chatNoticeId),ASubsType,ASent))
 				window->noticeWidget()->removeNotice(chatNoticeId);
 		}
+	}
+
+	QMap<Jid, PendingChatNotice> &notices = FPendingChatNotices[AStreamJid];
+	QMap<Jid, PendingChatNotice>::iterator it = notices.begin();
+	while(it != notices.end())
+	{
+		if ((it.key() && AContactJid) && isObsoleteChatNotice(it->actions,ASubsType,ASent))
+			it = notices.erase(it);
+		else
+			it++;
 	}
 }
 

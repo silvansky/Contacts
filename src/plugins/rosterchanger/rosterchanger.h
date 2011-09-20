@@ -145,6 +145,7 @@ protected:
 	IChatNotice createChatNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const;
 	int insertChatNotice(IChatWindow *AWindow, const IChatNotice &ANotice);
 	void removeWindowChatNotices(IChatWindow *AWindow);
+	bool isObsoleteChatNotice(int AActions, int ASubsType, bool ASent);
 	void removeObsoleteChatNotices(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent);
 	QList<int> findNotifies(const Jid &AStreamJid, const Jid &AContactJid) const;
 	QList<Action *> createNotifyActions(int AActions);
