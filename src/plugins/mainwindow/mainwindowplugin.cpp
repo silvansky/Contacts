@@ -5,10 +5,6 @@
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 
-#ifdef Q_OS_MAC
-# include <utils/macdockhandler.h>
-#endif
-
 MainWindowPlugin::MainWindowPlugin()
 {
 	FPluginManager = NULL;
