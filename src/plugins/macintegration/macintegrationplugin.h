@@ -17,7 +17,8 @@ class MacIntegrationPlugin :
 	Q_OBJECT
 	Q_INTERFACES(IPlugin IMacIntegration)
 public:
-	explicit MacIntegrationPlugin();
+	MacIntegrationPlugin();
+	~MacIntegrationPlugin();
 	//IPlugin
 	virtual QObject *instance() { return this; }
 	virtual QUuid pluginUuid() const { return MACINTEGRATION_UUID; }
@@ -29,13 +30,31 @@ public:
 	//IMacIntegration
 	Menu * dockMenu();
 	QMenuBar * menuBar();
+	Menu * fileMenu();
+	Menu * editMenu();
+	Menu * contactsMenu();
+	Menu * windowMenu();
 signals:
 	void dockClicked();
 
-public slots:
+private:
+	void initMenus();
+private slots:
+	void onMinimizeAction();
+	void onCloseAction();
+	void onCopyAction();
+	void onPasteAction();
+	void onCutAction();
+	void onUndoAction();
+	void onRedoAction();
+	void onSelectAllAction();
 private:
 	Menu * _dockMenu;
 	QMenuBar * _menuBar;
+	Menu * _fileMenu;
+	Menu * _editMenu;
+	Menu * _contactsMenu;
+	Menu * _windowMenu;
 	MacIntegrationPrivate * p;
 
 };

@@ -86,6 +86,17 @@ bool OptionsManager::initConnections(IPluginManager *APluginManager, int &AInitO
 			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorageAboutToClose(const Jid &)));
 		}
 	}
+#ifdef Q_WS_MAC
+	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+	if (plugin)
+	{
+		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
+		if (FMacIntegration)
+		{
+
+		}
+	}
+#endif
 
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
@@ -107,12 +118,21 @@ bool OptionsManager::initObjects()
 	FShowOptionsDialogAction = new Action(this);
 	FShowOptionsDialogAction->setVisible(false);
 	FShowOptionsDialogAction->setText(tr("Options"));
-#ifdef Q_WS_MAC
-	FShowOptionsDialogAction->setShortcut(tr("Ctrl+,"));
-#endif
 	FShowOptionsDialogAction->setShortcutContext(Qt::ApplicationShortcut);
 	FShowOptionsDialogAction->setData(Action::DR_SortString,QString("300"));
 	connect(FShowOptionsDialogAction,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
+
+#ifdef Q_WS_MAC
+	if (FMacIntegration)
+	{
+		Action * menuBarSettings = new Action;
+		menuBarSettings->setText(tr("settings"));
+		menuBarSettings->setShortcut(tr("Ctrl+,"));
+		connect(menuBarSettings,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
+		menuBarSettings->setMenuRole(QAction::PreferencesRole);
+		FMacIntegration->fileMenu()->addAction(menuBarSettings);
+	}
+#endif
 
 	if (FMainWindowPlugin)
 	{

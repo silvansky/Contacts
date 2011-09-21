@@ -11,6 +11,10 @@ public:
 	virtual QObject * instance() = 0;
 	virtual Menu * dockMenu() = 0;
 	virtual QMenuBar * menuBar() = 0;
+	virtual Menu * fileMenu() = 0;
+	virtual Menu * editMenu() = 0;
+	virtual Menu * contactsMenu() = 0;
+	virtual Menu * windowMenu() = 0;
 protected:
 	// signals
 	virtual void dockClicked() = 0;

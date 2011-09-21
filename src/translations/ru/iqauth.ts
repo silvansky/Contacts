@@ -5,11 +5,11 @@
     <name>IqAuthPlugin</name>
     <message>
         <source>Query Authentication</source>
-        <translation>Авторизация через запрос</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Allow you to log on the Jabber server without support SASL authentication</source>
-        <translation>Позволяет авторизоваться на Jabber-сервере без поддержки SASL-авторизации</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

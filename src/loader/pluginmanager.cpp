@@ -607,10 +607,20 @@ void PluginManager::loadCoreTranslations(const QDir &ADir, const QString &ALocal
 		qApp->installTranslator(FQtTranslator);
 
 	if (FLoaderTranslator->load("ramblercontacts",ADir.absoluteFilePath(ALocaleName)) || FLoaderTranslator->load("ramblercontacts",ADir.absoluteFilePath(ALocaleName.left(2))))
+	{
+		LogDetaile("[PluginManager::loadCoreTranslations] loaded ramblercontacts.ts");
 		qApp->installTranslator(FLoaderTranslator);
+	}
+	else
+		LogError("[PluginManager::loadCoreTranslations] failed to load rablercontacts.ts!");
 
 	if (FUtilsTranslator->load("ramblercontactsutils",ADir.absoluteFilePath(ALocaleName)) || FUtilsTranslator->load("ramblercontactsutils",ADir.absoluteFilePath(ALocaleName.left(2))))
+	{
+		LogDetaile("[PluginManager::loadCoreTranslations] loaded ramblercontactsutils.ts");
 		qApp->installTranslator(FUtilsTranslator);
+	}
+	else
+		LogError("[PluginManager::loadCoreTranslations] failed to load rablercontactsutils.ts!");
 }
 
 bool PluginManager::isPluginEnabled(const QString &AFile) const
