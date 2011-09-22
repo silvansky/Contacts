@@ -8,6 +8,4 @@ SOURCES += \
 OBJECTIVE_SOURCES += \
     macintegration.mm
 
-
-
-
+QT += webkit

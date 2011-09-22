@@ -40,6 +40,7 @@ signals:
 private:
 	void initMenus();
 private slots:
+	void onFocusChanged(QWidget * old, QWidget * now);
 	void onMinimizeAction();
 	void onCloseAction();
 	void onCopyAction();
@@ -56,6 +57,8 @@ private:
 	Menu * _contactsMenu;
 	Menu * _windowMenu;
 	MacIntegrationPrivate * p;
+	// actions
+	Action * copyAction, * cutAction, * pasteAction, * undoAction, * redoAction, * selectallAction;
 
 };
 

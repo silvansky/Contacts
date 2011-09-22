@@ -5,7 +5,10 @@
 #include <QApplication>
 #include <QLineEdit>
 #include <QPlainTextEdit>
+#include <QTextDocumentFragment>
 #include <QTextEdit>
+#include <QWebView>
+#include <QClipboard>
 
 #include <utils/custombordercontainer.h>
 
@@ -36,6 +39,7 @@ bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &
 {
 	Q_UNUSED(APluginManager)
 	Q_UNUSED(AInitOrder)
+
 	return true;
 }
 
@@ -50,6 +54,7 @@ bool MacIntegrationPlugin::initObjects()
 	qt_mac_set_dock_menu(_dockMenu); // setting dock menu
 
 	connect(MacIntegrationPrivate::instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
+	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
 
 	return true;
 }
@@ -98,37 +103,37 @@ void MacIntegrationPlugin::initMenus()
 	_editMenu->setTitle(tr("Edit"));
 	_menuBar->addMenu(_editMenu);
 
-	Action * copyAction = new Action;
+	copyAction = new Action;
 	copyAction->setText(tr("Copy"));
 	copyAction->setShortcut(QKeySequence("Ctrl+C"));
 	connect(copyAction, SIGNAL(triggered()), SLOT(onCopyAction()));
 	_editMenu->addAction(copyAction);
 
-	Action * cutAction = new Action;
+	cutAction = new Action;
 	cutAction->setText(tr("Cut"));
 	cutAction->setShortcut(QKeySequence("Ctrl+X"));
 	connect(cutAction, SIGNAL(triggered()), SLOT(onCutAction()));
 	_editMenu->addAction(cutAction);
 
-	Action * pasteAction = new Action;
+	pasteAction = new Action;
 	pasteAction->setText(tr("Paste"));
 	pasteAction->setShortcut(QKeySequence("Ctrl+V"));
 	connect(pasteAction, SIGNAL(triggered()), SLOT(onPasteAction()));
 	_editMenu->addAction(pasteAction);
 
-	Action * undoAction = new Action;
+	undoAction = new Action;
 	undoAction->setText(tr("Undo"));
 	undoAction->setShortcut(QKeySequence("Ctrl+Z"));
 	connect(undoAction, SIGNAL(triggered()), SLOT(onUndoAction()));
 	_editMenu->addAction(undoAction, 400);
 
-	Action * redoAction = new Action;
+	redoAction = new Action;
 	redoAction->setText(tr("Redo"));
 	redoAction->setShortcut(QKeySequence("Shift+Ctrl+Z"));
 	connect(redoAction, SIGNAL(triggered()), SLOT(onRedoAction()));
 	_editMenu->addAction(redoAction, 400);
 
-	Action * selectallAction = new Action;
+	selectallAction = new Action;
 	selectallAction->setText(tr("Select All"));
 	selectallAction->setShortcut(QKeySequence("Ctrl+A"));
 	connect(selectallAction, SIGNAL(triggered()), SLOT(onSelectAllAction()));
@@ -155,6 +160,60 @@ void MacIntegrationPlugin::initMenus()
 	closeAction->setShortcut(QKeySequence("Ctrl+W"));
 	connect(closeAction, SIGNAL(triggered()), SLOT(onCloseAction()));
 	_windowMenu->addAction(closeAction);
+}
+
+void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
+{
+	Q_UNUSED(old)
+	if (now)
+	{
+		bool copyEnabled = false;
+		bool cutEnabled = false;
+		bool pasteEnabled = false;
+		bool undoEnabled = false;
+		bool redoEnabled = false;
+		bool selectallEnabled = false;
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(now))
+		{
+			copyEnabled = !le->selectedText().isEmpty();
+			cutEnabled = copyEnabled && !le->isReadOnly();
+			pasteEnabled = !le->isReadOnly();
+			undoEnabled = le->isUndoAvailable();
+			redoEnabled = le->isRedoAvailable();
+			selectallEnabled = !le->text().isEmpty();
+		}
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(now))
+		{
+			copyEnabled = !pte->textCursor().selection().isEmpty();
+			cutEnabled = copyEnabled && !pte->isReadOnly();
+			pasteEnabled = !pte->isReadOnly();
+			undoEnabled = redoEnabled = pte->isUndoRedoEnabled();
+			selectallEnabled = !pte->toPlainText().isEmpty();
+		}
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(now))
+		{
+			copyEnabled = !te->textCursor().selection().isEmpty();
+			cutEnabled = copyEnabled && !te->isReadOnly();
+			pasteEnabled = !te->isReadOnly();
+			undoEnabled = redoEnabled = te->isUndoRedoEnabled();
+			selectallEnabled = !(te->toPlainText().isEmpty() && te->toHtml().isEmpty());
+		}
+		else if (QWebView * wv = qobject_cast<QWebView*>(now))
+		{
+			copyEnabled = !wv->page()->action(QWebPage::Copy)->isEnabled();
+			cutEnabled = !wv->page()->action(QWebPage::Cut)->isEnabled();
+			pasteEnabled = !wv->page()->action(QWebPage::Paste)->isEnabled();
+			undoEnabled = !wv->page()->action(QWebPage::Undo)->isEnabled();
+			redoEnabled = !wv->page()->action(QWebPage::Redo)->isEnabled();
+			selectallEnabled = !wv->page()->action(QWebPage::SelectAll)->isEnabled();
+		}
+		copyAction->setEnabled(copyEnabled);
+		cutAction->setEnabled(cutEnabled);
+		pasteAction->setEnabled(pasteEnabled);
+		undoAction->setEnabled(undoEnabled);
+		redoAction->setEnabled(undoEnabled);
+		selectallAction->setEnabled(selectallEnabled);
+	}
 }
 
 void MacIntegrationPlugin::onMinimizeAction()
@@ -186,6 +245,8 @@ void MacIntegrationPlugin::onCopyAction()
 			pte->copy();
 		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
 			te->copy();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Copy);
 	}
 }
 
@@ -199,6 +260,8 @@ void MacIntegrationPlugin::onPasteAction()
 			pte->paste();
 		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
 			te->paste();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Paste);
 	}
 }
 
@@ -212,6 +275,8 @@ void MacIntegrationPlugin::onCutAction()
 			pte->cut();
 		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
 			te->cut();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Cut);
 	}
 }
 
@@ -225,6 +290,8 @@ void MacIntegrationPlugin::onUndoAction()
 			pte->undo();
 		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
 			te->undo();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Undo);
 	}
 }
 
@@ -238,6 +305,8 @@ void MacIntegrationPlugin::onRedoAction()
 			pte->redo();
 		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
 			te->redo();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Redo);
 	}
 }
 
@@ -251,6 +320,8 @@ void MacIntegrationPlugin::onSelectAllAction()
 			pte->selectAll();
 		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
 			te->selectAll();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::SelectAll);
 	}
 }
 
