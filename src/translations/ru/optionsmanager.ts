@@ -229,9 +229,5 @@ which is linked to Rambler</source>
         <source>Ctrl+,</source>
         <translation>Ctrl+,</translation>
     </message>
-    <message>
-        <source>settings</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 </TS>

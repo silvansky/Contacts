@@ -126,7 +126,7 @@ bool OptionsManager::initObjects()
 	if (FMacIntegration)
 	{
 		Action * menuBarSettings = new Action;
-		menuBarSettings->setText(tr("settings"));
+		menuBarSettings->setText("settings");
 		menuBarSettings->setShortcut(tr("Ctrl+,"));
 		connect(menuBarSettings,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
 		menuBarSettings->setMenuRole(QAction::PreferencesRole);
