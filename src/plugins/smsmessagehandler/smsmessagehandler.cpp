@@ -435,7 +435,7 @@ INotification SmsMessageHandler::messageNotify(INotifications *ANotifications, c
 			WindowStatus &wstatus = FWindowStatus[window];
 
 			QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
-			QString messages = tr("%n message(s)","",wstatus.notified.count());
+			QString messages = tr("%n message(s)","",wstatus.notified.count()+1);
 
 			notify.kinds = ANotifications->notificationKinds(NNT_CHAT_MESSAGE);
 			if (notify.kinds > 0)

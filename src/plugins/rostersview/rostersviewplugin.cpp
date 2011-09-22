@@ -16,8 +16,9 @@ RostersViewPlugin::RostersViewPlugin()
 	FShowOfflineAction = NULL;
 	FGroupContactsAction = NULL;
 
-	FSortFilterProxyModel = NULL;
 	FLastModel = NULL;
+	FNoGroupsProxyModel = NULL;
+	FSortFilterProxyModel = NULL;
 	FStartRestoreExpandState = false;
 
 	FViewSavedState.sliderPos = 0;
@@ -126,7 +127,7 @@ bool RostersViewPlugin::initObjects()
 		FGroupContactsAction->setText(tr("Group Contacts"));
 		FGroupContactsAction->setData(Action::DR_SortString,QString("200"));
 		connect(FGroupContactsAction,SIGNAL(triggered(bool)),SLOT(onGroupContactsAction(bool)));
-		//FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
+		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
 
 		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0,FRostersView);
 	}
@@ -168,7 +169,7 @@ QMultiMap<int, IOptionsWidget *> RostersViewPlugin::optionsWidgets(const QString
 	{
 		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contact List"),AParent));
 		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_SHOWOFFLINE),tr("Show offline contacts"),AParent));
-		//widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"),AParent));
+		widgets.insertMulti(OWO_ROSTER_VIEW, FOptionsManager->optionsNodeWidget(Options::node(OPV_ROSTER_GROUPCONTACTS),tr("Group contacts"),AParent));
 
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_ORDER, FOptionsManager->optionsHeaderWidget(QString::null,tr("Contacts Order"),AParent));
 		widgets.insertMulti(OWO_ROSTER_CONTACTS_ORDER, new RosterContactOrderOptions(AParent));
@@ -596,7 +597,19 @@ void RostersViewPlugin::onOptionsChanged(const OptionsNode &ANode)
 	}
 	else if (ANode.path() == OPV_ROSTER_GROUPCONTACTS)
 	{
-		FGroupContactsAction->setChecked(ANode.value().toBool());
+		bool enableGroups = ANode.value().toBool();
+		if (enableGroups && FNoGroupsProxyModel!=NULL)
+		{
+			rostersView()->removeProxyModel(FNoGroupsProxyModel);
+			delete FNoGroupsProxyModel;
+			FNoGroupsProxyModel = NULL;
+		}
+		else if (!enableGroups && FNoGroupsProxyModel==NULL)
+		{
+			FNoGroupsProxyModel = new NoGroupsProxyModel(rostersView()->instance());
+			rostersView()->insertProxyModel(FNoGroupsProxyModel,RPO_ROSTERSVIEW_NOGROUPS);
+		}
+		FGroupContactsAction->setChecked(enableGroups);
 	}
 }
 

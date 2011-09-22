@@ -79,8 +79,8 @@ bool MessageCarbons::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanz
 	if (isEnabled(AStreamJid) && FSHIForwards.value(AStreamJid)==AHandleId)
 	{
 		QDomElement fwdElem = AStanza.firstElement("forwarded",NS_MESSAGE_FORWARD);
-		bool isSent = Stanza::findElement(fwdElem,"sent",NS_MESSAGE_CARBONS).isNull();
-		bool isReceived = Stanza::findElement(fwdElem,"received",NS_MESSAGE_CARBONS).isNull();
+		bool isSent = !Stanza::findElement(fwdElem,"sent",NS_MESSAGE_CARBONS).isNull();
+		bool isReceived = !Stanza::findElement(fwdElem,"received",NS_MESSAGE_CARBONS).isNull();
 		QDomElement msgElem = Stanza::findElement(fwdElem,"message");
 		if (!msgElem.isNull() && (isSent || isReceived))
 		{
@@ -184,9 +184,10 @@ bool MessageCarbons::setEnabled(const Jid &AStreamJid, bool AEnable)
 			else
 			{
 				LogError(QString("[MessageCarbons] Failed to send request to change Message Carbons state for '%1'").arg(AStreamJid.full()));
+				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 	return false;
 }

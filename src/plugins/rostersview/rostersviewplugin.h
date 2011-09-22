@@ -23,6 +23,7 @@
 #include <utils/options.h>
 #include "rostersview.h"
 #include "sortfilterproxymodel.h"
+#include "nogroupsproxymodel.h"
 #include "rostercontactorderoptions.h"
 #include "rostercontactviewoptions.h"
 
@@ -103,6 +104,7 @@ private:
 	int FGroupCounterLabel;
 	RostersView *FRostersView;
 	QAbstractItemModel *FLastModel;
+	NoGroupsProxyModel *FNoGroupsProxyModel;
 	SortFilterProxyModel *FSortFilterProxyModel;
 	QMap<Jid, QHash<QString, bool> > FExpandState;
 	struct { int sliderPos; IRosterIndex *currentIndex; } FViewSavedState;
