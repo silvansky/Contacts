@@ -18,6 +18,7 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 {
 	_dockMenu = _fileMenu = _editMenu = _contactsMenu = _windowMenu = NULL;
 	_menuBar = NULL;
+	lastFocusedWidget = NULL;
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()
@@ -162,10 +163,9 @@ void MacIntegrationPlugin::initMenus()
 	_windowMenu->addAction(closeAction);
 }
 
-void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
+void MacIntegrationPlugin::updateActions()
 {
-	Q_UNUSED(old)
-	if (now)
+	if (lastFocusedWidget)
 	{
 		bool copyEnabled = false;
 		bool cutEnabled = false;
@@ -173,7 +173,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 		bool undoEnabled = false;
 		bool redoEnabled = false;
 		bool selectallEnabled = false;
-		if (QLineEdit * le = qobject_cast<QLineEdit*>(now))
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(lastFocusedWidget))
 		{
 			copyEnabled = !le->selectedText().isEmpty();
 			cutEnabled = copyEnabled && !le->isReadOnly();
@@ -182,7 +182,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 			redoEnabled = le->isRedoAvailable();
 			selectallEnabled = !le->text().isEmpty();
 		}
-		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(now))
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(lastFocusedWidget))
 		{
 			copyEnabled = !pte->textCursor().selection().isEmpty();
 			cutEnabled = copyEnabled && !pte->isReadOnly();
@@ -190,7 +190,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 			undoEnabled = redoEnabled = pte->isUndoRedoEnabled();
 			selectallEnabled = !pte->toPlainText().isEmpty();
 		}
-		else if (QTextEdit * te = qobject_cast<QTextEdit*>(now))
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(lastFocusedWidget))
 		{
 			copyEnabled = !te->textCursor().selection().isEmpty();
 			cutEnabled = copyEnabled && !te->isReadOnly();
@@ -198,14 +198,14 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 			undoEnabled = redoEnabled = te->isUndoRedoEnabled();
 			selectallEnabled = !(te->toPlainText().isEmpty() && te->toHtml().isEmpty());
 		}
-		else if (QWebView * wv = qobject_cast<QWebView*>(now))
+		else if (QWebView * wv = qobject_cast<QWebView*>(lastFocusedWidget))
 		{
-			copyEnabled = !wv->page()->action(QWebPage::Copy)->isEnabled();
-			cutEnabled = !wv->page()->action(QWebPage::Cut)->isEnabled();
-			pasteEnabled = !wv->page()->action(QWebPage::Paste)->isEnabled();
-			undoEnabled = !wv->page()->action(QWebPage::Undo)->isEnabled();
-			redoEnabled = !wv->page()->action(QWebPage::Redo)->isEnabled();
-			selectallEnabled = !wv->page()->action(QWebPage::SelectAll)->isEnabled();
+			copyEnabled = wv->page()->action(QWebPage::Copy)->isEnabled();
+			cutEnabled = wv->page()->action(QWebPage::Cut)->isEnabled();
+			pasteEnabled = wv->page()->action(QWebPage::Paste)->isEnabled();
+			undoEnabled = wv->page()->action(QWebPage::Undo)->isEnabled();
+			redoEnabled = wv->page()->action(QWebPage::Redo)->isEnabled();
+			selectallEnabled = wv->page()->action(QWebPage::SelectAll)->isEnabled();
 		}
 		copyAction->setEnabled(copyEnabled);
 		cutAction->setEnabled(cutEnabled);
@@ -213,6 +213,41 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 		undoAction->setEnabled(undoEnabled);
 		redoAction->setEnabled(undoEnabled);
 		selectallAction->setEnabled(selectallEnabled);
+	}
+}
+
+void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
+{
+	Q_UNUSED(old)
+	if (lastFocusedWidget)
+		lastFocusedWidget->disconnect(this);
+	lastFocusedWidget = now;
+	if (now)
+	{
+		updateActions();
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(now))
+		{
+			connect(le, SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
+			connect(le, SIGNAL(textChanged(QString)), SLOT(onTextChanged()));
+		}
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(now))
+		{
+			connect(pte, SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
+			connect(pte, SIGNAL(textChanged()), SLOT(onTextChanged()));
+			//connect(pte, SIGNAL(copyAvailable(bool)), SLOT(onCopyAvailableChange(bool)));
+
+		}
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(now))
+		{
+			connect(te, SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
+			connect(te, SIGNAL(textChanged()), SLOT(onTextChanged()));
+			//connect(te, SIGNAL(copyAvailable(bool)), SLOT(onCopyAvailableChange(bool)));
+		}
+		else if (QWebView * wv = qobject_cast<QWebView*>(now))
+		{
+			connect(wv->page(), SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
+			connect(wv->page(), SIGNAL(contentsChanged()), SLOT(onTextChanged()));
+		}
 	}
 }
 
@@ -323,6 +358,21 @@ void MacIntegrationPlugin::onSelectAllAction()
 		else if (QWebView * wv = qobject_cast<QWebView*>(w))
 			wv->page()->triggerAction(QWebPage::SelectAll);
 	}
+}
+
+void MacIntegrationPlugin::onSelectionChanged()
+{
+	updateActions();
+}
+
+void MacIntegrationPlugin::onTextChanged()
+{
+	updateActions();
+}
+
+void MacIntegrationPlugin::onCopyAvailableChange(bool available)
+{
+	copyAction->setEnabled(available);
 }
 
 Q_EXPORT_PLUGIN2(plg_macintegration, MacIntegrationPlugin)

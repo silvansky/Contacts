@@ -39,6 +39,7 @@ signals:
 
 private:
 	void initMenus();
+	void updateActions();
 private slots:
 	void onFocusChanged(QWidget * old, QWidget * now);
 	void onMinimizeAction();
@@ -49,7 +50,12 @@ private slots:
 	void onUndoAction();
 	void onRedoAction();
 	void onSelectAllAction();
+	// slots for handling selection change events
+	void onSelectionChanged();
+	void onTextChanged();
+	void onCopyAvailableChange(bool);
 private:
+	QWidget * lastFocusedWidget;
 	Menu * _dockMenu;
 	QMenuBar * _menuBar;
 	Menu * _fileMenu;
