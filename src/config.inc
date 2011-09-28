@@ -35,6 +35,11 @@ isEmpty(INSTALL_RES_DIR) {
 DEFINES                 += LOG_ENABLED
 CONFIG(debug, debug|release) {
   DEFINES               += DEBUG_ENABLED
+}
+
+#under mac you should install app before debugging it
+#(and before running it)
+CONFIG(debug, debug|release)!macx {
   DEFINES               += PLUGINS_DIR='\\\"./plugins\\\"'
   DEFINES               += RESOURCES_DIR='\\\"./resources\\\"'
   DEFINES               += TRANSLATIONS_DIR='\\\"./src/translations\\\"'

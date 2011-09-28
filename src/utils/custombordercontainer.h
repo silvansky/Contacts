@@ -87,7 +87,7 @@ protected:
 	};
 	GeometryState geometryState() const;
 	void setGeometryState(GeometryState newGeometryState);
-	void updateGeometry(const QPoint & p);
+	bool updateGeometry(const QPoint & p);
 	enum HeaderButtonState
 	{
 		Normal,
@@ -179,7 +179,7 @@ protected:
 		TopBorder,
 		BottomBorder
 	};
-	void mouseMove(const QPoint & p, QWidget * widget);
+	bool mouseMove(const QPoint & p, QWidget * widget);
 	bool mousePress(const QPoint & p, QWidget * widget);
 	bool mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button = Qt::LeftButton);
 	bool mouseDoubleClick(const QPoint & p, QWidget * widget);

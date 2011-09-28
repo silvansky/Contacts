@@ -371,6 +371,9 @@ void PluginManager::saveSettings()
 void PluginManager::loadPlugins()
 {
 	QDir pluginsDir(QApplication::applicationDirPath());
+#ifdef DEBUG_ENABLED
+	qDebug() << pluginsDir << PLUGINS_DIR;
+#endif
 	if (pluginsDir.cd(PLUGINS_DIR))
 	{
 		LogDetaile(QString("[PluginManager] Loading plugins from '%1'").arg(pluginsDir.absolutePath()));
