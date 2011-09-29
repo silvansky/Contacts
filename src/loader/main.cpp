@@ -15,8 +15,9 @@
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_WS_WIN
 	// WARNING! DIRTY HACK!
-	// totally ignoring all args and simulating "-style windows" ("-style cleanlooks" on Mac) args
+	// totally ignoring all args and simulating "-style windows" args
 	// don't know why only this works...
 
 	char **newArgv = new char*[3];
@@ -24,14 +25,12 @@ int main(int argc, char *argv[])
 	newArgv[0] = new char[strlen(argv[0])];
 	// adding our fake args
 	newArgv[1] = "-style";
-#ifdef Q_WS_MAC
-	newArgv[2] = "cleanlooks";
-#else
+
 	newArgv[2] = "windows";
-#endif
 	// replace original argc and argv and passing them to app's ctor
 	argc = 3;
 	argv = newArgv;
+#endif
 
 	SingleApp app(argc, argv, "Rambler.Contacts");
 
@@ -79,10 +78,12 @@ int main(int argc, char *argv[])
 	// Starting plugin manager
 	pm.restart();
 
+#ifdef Q_WS_WIN
 	int ret = app.exec();
 	for (int i = 0; i < argc; i++)
 		delete argv[i];
 	delete argv;
+#endif
 
 	return ret;
 }
