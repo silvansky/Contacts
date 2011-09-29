@@ -770,3 +770,12 @@ QToolTip
 	border: 1px solid #1f2329;
 	padding: 0px 3px 0px 3px;
 }
+
+/************************
+ * Disable button icons *
+ ************************/
+
+QDialogButtonBox
+{
+	dialogbuttonbox-buttons-have-icons: 0;
+}

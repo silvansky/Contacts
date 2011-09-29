@@ -16,7 +16,7 @@
 int main(int argc, char *argv[])
 {
 	// WARNING! DIRTY HACK!
-	// totally ignoring all args and simulating "-style windows" args
+	// totally ignoring all args and simulating "-style windows" ("-style cleanlooks" on Mac) args
 	// don't know why only this works...
 
 	char **newArgv = new char*[3];
@@ -24,7 +24,11 @@ int main(int argc, char *argv[])
 	newArgv[0] = new char[strlen(argv[0])];
 	// adding our fake args
 	newArgv[1] = "-style";
+#ifdef Q_WS_MAC
+	newArgv[2] = "cleanlooks";
+#else
 	newArgv[2] = "windows";
+#endif
 	// replace original argc and argv and passing them to app's ctor
 	argc = 3;
 	argv = newArgv;

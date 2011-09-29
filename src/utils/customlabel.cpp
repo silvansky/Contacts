@@ -4,11 +4,16 @@
 #include <QStyleOption>
 #include <definitions/textflags.h>
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 CustomLabel::CustomLabel(QWidget *parent) :
 	QLabel(parent)
 {
 	shadowType = DarkShadow;
 	textElideMode = Qt::ElideNone;
+	multilineElide = false;
 }
 
 int CustomLabel::shadow() const
@@ -89,6 +94,9 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 				// multiline elide
 				int pxPerLine = fontMetrics().lineSpacing();
 				int lines = lr.height() / pxPerLine + 1;
+#ifdef Q_WS_MAC // mac hack, dunno why
+				lines--;
+#endif
 				QStringList srcLines = text().split("\n");
 				QStringList dstLines;
 				foreach (QString srcLine, srcLines)

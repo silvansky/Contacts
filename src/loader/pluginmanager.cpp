@@ -16,6 +16,7 @@
 #include <definitions/fonts.h>
 #include <definitions/resources.h>
 #include <interfaces/imainwindow.h>
+#include <interfaces/imacintegration.h>
 #include <utils/log.h>
 #include <utils/networking.h>
 
@@ -720,7 +721,7 @@ void PluginManager::removePluginsInfo(const QStringList &ACurFiles)
 void PluginManager::createMenuActions()
 {
 	IPlugin *plugin = pluginInterface("IMainWindowPlugin").value(0);
-	IMainWindowPlugin *mainWindowPligin = plugin!=NULL ? qobject_cast<IMainWindowPlugin *>(plugin->instance()) : NULL;
+	IMainWindowPlugin *mainWindowPligin = plugin ? qobject_cast<IMainWindowPlugin *>(plugin->instance()) : NULL;
 
 	if (mainWindowPligin)
 	{
@@ -741,6 +742,18 @@ void PluginManager::createMenuActions()
 		mainWindowPligin->mainWindow()->mainMenu()->addAction(pluginsDialog, AG_MMENU_PLUGINMANAGER_SETUP, true);
 #endif
 	}
+
+	plugin = pluginInterface("IMacIntegration").value(0);
+	IMacIntegration *macIntegrationPligin = plugin ? qobject_cast<IMacIntegration *>(plugin->instance()) : NULL;
+
+	if (macIntegrationPligin)
+	{
+		Action *about = new Action();
+		about->setText("about.*");
+		connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
+		macIntegrationPligin->fileMenu()->addAction(about);
+	}
+
 }
 
 void PluginManager::onApplicationAboutToQuit()

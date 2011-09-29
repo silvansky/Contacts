@@ -33,6 +33,8 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	ui.lblName->setElideMode(Qt::ElideRight);
 	ui.lblMood->setElideMode(Qt::ElideRight);
 
+	ui.lblMood->setMultilineElideEnabled(true);
+
 	ui.lblAvatar->setProperty("ignoreFilter", true);
 	ui.lblMood->setProperty("ignoreFilter", true);
 

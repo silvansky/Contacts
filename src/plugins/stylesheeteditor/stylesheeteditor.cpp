@@ -68,6 +68,8 @@
 #include <QFile>
 #include <QByteArray>
 
+#include <QDebug>
+
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 
@@ -320,7 +322,7 @@ void StyleSheetEditorDialog::insertCssProperty(const QString &name, const QStrin
 			const QTextCursor closing = doc->find(QLatin1String("}"), cursor, QTextDocument::FindBackward);
 			const QTextCursor opening = doc->find(QLatin1String("{"), cursor, QTextDocument::FindBackward);
 			const bool inSelector = !opening.isNull() && (closing.isNull() ||
-								      closing.position() < opening.position());
+									  closing.position() < opening.position());
 			QString insertion;
 			if (m_editor->textCursor().block().length() != 1)
 				insertion += QLatin1Char('\n');
@@ -401,7 +403,9 @@ void StyleSheetEditorDialog::onComboBoxSelectionChanged(const QString& key)
 		}
 	}
 	lastKey = key;
+	qDebug() << key;
 	QString fileName = styleStorage->fileFullName(key);
+	qDebug() << fileName;
 	loadFile(fileName);
 }
 
