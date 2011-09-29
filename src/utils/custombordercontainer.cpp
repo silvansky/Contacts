@@ -34,8 +34,6 @@
 # include <qt_windows.h>
 #endif
 
-#include <QFSFileEngine>
-
 // internal functions
 static void repaintRecursive(QWidget *widget, const QRect & globalRect)
 {
@@ -864,30 +862,21 @@ void CustomBorderContainer::resizeEvent(QResizeEvent * event)
 
 void CustomBorderContainer::mousePressEvent(QMouseEvent * event)
 {
-	bool h = false;
 	if (event->button() == Qt::LeftButton)
-		h = mousePress(event->globalPos(), this);
-	if (!h)
-		QWidget::mousePressEvent(event);
-	else
-		event->accept();
+		mousePress(event->globalPos(), this);
+	QWidget::mousePressEvent(event);
 }
 
 void CustomBorderContainer::mouseMoveEvent(QMouseEvent * event)
 {
 	mouseMove(event->globalPos(), this);
-	//if (!mouseMove(event->globalPos(), this))
-		QWidget::mouseMoveEvent(event);
-	//else
-	//	event->accept();
+	QWidget::mouseMoveEvent(event);
 }
 
 void CustomBorderContainer::mouseReleaseEvent(QMouseEvent * event)
 {
-	if (!mouseRelease(event->pos(), this, event->button()))
+	if (!mouseRelease(event->globalPos(), this, event->button()))
 		QWidget::mouseReleaseEvent(event);
-	else
-		event->accept();
 }
 
 void CustomBorderContainer::mouseDoubleClickEvent(QMouseEvent * event)
@@ -932,7 +921,7 @@ void CustomBorderContainer::leaveEvent(QEvent * event)
 	if (isVisible())
 	{
 		repaintHeaderButtons();
-		setGeometryState(None);
+		//setGeometryState(None);
 		resizeBorder = NoneBorder;
 		updateCursor();
 	}
@@ -1033,7 +1022,7 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 	switch (event->type())
 	{
 	case QEvent::MouseMove:
-		handled = mouseMove(((QMouseEvent*)event)->globalPos(), widget);
+		mouseMove(((QMouseEvent*)event)->globalPos(), widget);
 		break;
 	case QEvent::MouseButtonPress:
 	{
@@ -1056,7 +1045,7 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 	}
 	break;
 	case QEvent::MouseButtonRelease:
-		handled = mouseRelease(((QMouseEvent*)event)->pos(), widget, ((QMouseEvent*)event)->button());
+		handled = mouseRelease(((QMouseEvent*)event)->globalPos(), widget, ((QMouseEvent*)event)->button());
 		break;
 	case QEvent::MouseButtonDblClick:
 		if (shouldFilterEvents(object))
@@ -1239,9 +1228,8 @@ void CustomBorderContainer::setGeometryState(GeometryState newGeometryState)
 	currentGeometryState = newGeometryState;
 }
 
-bool CustomBorderContainer::updateGeometry(const QPoint & p)
+void CustomBorderContainer::updateGeometry(const QPoint & p)
 {
-	bool changed = false;
 	int dx, dy;
 	QDesktopWidget * desktop = qApp->desktop();
 	QRect screenRect = desktop->availableGeometry(p);
@@ -1373,16 +1361,13 @@ bool CustomBorderContainer::updateGeometry(const QPoint & p)
 			if (oldGeometry.height() > maxHeight)
 				oldGeometry.setHeight(maxHeight);
 		}
+		setGeometry(oldGeometry);
 		switch(geometryState())
 		{
 		case Resizing:
-			changed = true;
-			setGeometry(oldGeometry);
 			emit resized();
 			break;
 		case Moving:
-			changed = true;
-			move(oldGeometry.topLeft());
 			emit moved();
 			break;
 		default:
@@ -1390,7 +1375,6 @@ bool CustomBorderContainer::updateGeometry(const QPoint & p)
 		}
 		QApplication::flush();
 	}
-	return changed;
 }
 
 CustomBorderContainer::HeaderButtonsFlags CustomBorderContainer::headerButtonsFlags() const
@@ -1712,36 +1696,33 @@ void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 	}
 }
 
-bool CustomBorderContainer::mouseMove(const QPoint & point, QWidget * widget)
+void CustomBorderContainer::mouseMove(const QPoint & globalPos, QWidget * widget)
 {
-	bool needToRepaintHeaderButtons = (!headerButtonsRect().contains(mapFromGlobal(point))) && headerButtonsRect().contains(lastMousePosition);
-	lastMousePosition = mapFromGlobal(point);
+	bool needToRepaintHeaderButtons = (!headerButtonsRect().contains(mapFromGlobal(globalPos))) && headerButtonsRect().contains(lastMousePosition);
+	lastMousePosition = mapFromGlobal(globalPos);
 	if (needToRepaintHeaderButtons)
 		repaintHeaderButtons();
 	if (geometryState() != None)
 	{
-		return updateGeometry(point);
+		updateGeometry(globalPos);
+		return;
 	}
 	else
 	{
 		if (geometryState() != Resizing)
 		{
-			checkResizeCondition(mapFromGlobal(point));
+			checkResizeCondition(mapFromGlobal(globalPos));
 		}
-		else if (geometryState() != Moving)
+		if (geometryState() != Moving)
 		{
 			if (shouldFilterEvents(widget))
-				checkMoveCondition(mapFromGlobal(point));
+				checkMoveCondition(mapFromGlobal(globalPos));
 		}
 	}
-	return false;
 }
 
-bool CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
+bool CustomBorderContainer::mousePress(const QPoint & globalPos, QWidget * widget)
 {
-#ifdef DEBUG_CUSTOMBORDER
-	qDebug() << "MousePress: " << p << widget->objectName();
-#endif
 	bool handled = false;
 	pressedHeaderButton = headerButtonUnderMouse();
 	if (pressedHeaderButton == NoneButton)
@@ -1751,14 +1732,14 @@ bool CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
 			setGeometryState(Resizing);
 			handled = true;
 		}
-		else if (windowIconRect().contains(mapFromWidget(widget, widget->mapFromGlobal(p))) && headerRect().contains(mapFromWidget(widget, widget->mapFromGlobal(p))))
+		else if (windowIconRect().contains(mapFromGlobal(globalPos)) && headerRect().contains(mapFromGlobal(globalPos)))
 		{
 			showWindowMenu(mapToGlobal(windowIconRect().bottomLeft()));
 			handled = true;
 		}
 		else if (canMove && shouldFilterEvents(widget))
 		{
-			oldPressPoint = p;
+			oldPressPoint = globalPos;
 			setGeometryState(Moving);
 			handled = true;
 		}
@@ -1767,7 +1748,7 @@ bool CustomBorderContainer::mousePress(const QPoint & p, QWidget * widget)
 	return handled;
 }
 
-bool CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt::MouseButton button)
+bool CustomBorderContainer::mouseRelease(const QPoint & globalPos, QWidget * widget, Qt::MouseButton button)
 {
 	bool handled = false;
 	if (button == Qt::LeftButton)
@@ -1805,9 +1786,9 @@ bool CustomBorderContainer::mouseRelease(const QPoint & p, QWidget * widget, Qt:
 	}
 	else if ((button == Qt::RightButton) && shouldFilterEvents(widget))
 	{
-		if (headerMenuRect().contains(mapFromWidget(widget, p)) && !headerButtonsRect().contains(mapFromWidget(widget, p)))
+		if (headerMenuRect().contains(mapFromGlobal(globalPos)) && !headerButtonsRect().contains(mapFromGlobal(globalPos)))
 		{
-			showWindowMenu(widget->mapToGlobal(p));
+			showWindowMenu(globalPos);
 			handled = true;
 		}
 	}

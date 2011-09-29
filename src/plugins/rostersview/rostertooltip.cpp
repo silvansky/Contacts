@@ -55,6 +55,7 @@ RosterToolTip::~RosterToolTip()
 
 void RosterToolTip::createInstance(const QPoint &APos, QWidget *AWidget)
 {
+	Q_UNUSED(APos)
 	if (instance == NULL)
 	{
 #ifndef Q_WS_WIN
@@ -148,7 +149,7 @@ void RosterToolTip::placeTip(const QPoint &APos, QWidget *AWidget)
 		p.setX(screen.x());
 	if (p.y() + this->height() > screen.y() + screen.height())
 		p.setY(screen.y() + screen.height() - this->height());
-	
+
 	this->move(p);
 }
 
@@ -242,11 +243,11 @@ void RosterToolTip::mouseMoveEvent(QMouseEvent *AEvent)
 
 bool RosterToolTip::eventFilter(QObject *AWatch, QEvent *AEvent)
 {
-	switch (AEvent->type()) 
+	switch (AEvent->type())
 	{
 #ifdef Q_WS_MAC
 		case QEvent::KeyPress:
-		case QEvent::KeyRelease: 
+		case QEvent::KeyRelease:
 			{
 				int key = static_cast<QKeyEvent *>(AEvent)->key();
 				Qt::KeyboardModifiers mody = static_cast<QKeyEvent *>(AEvent)->modifiers();

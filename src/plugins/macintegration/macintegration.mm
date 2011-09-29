@@ -7,6 +7,8 @@
 
 void dockClickHandler(id self, SEL _cmd)
 {
+	Q_UNUSED(self)
+	Q_UNUSED(_cmd)
 	MacIntegrationPrivate::instance()->emitClick();
 }
 
