@@ -163,7 +163,7 @@ protected slots:
 	void onStatusIconsChanged();
 	void onOpenTabPageAction(bool);
 	void onNotReceivedTimerTimeout();
-	void onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages);
+	void onRamblerHistoryMessagesLoaded(const QString &AId, const IHistoryMessages &AMessages);
 	void onRamblerHistoryRequestFailed(const QString &AId, const QString &AError);
 	void onStyleOptionsChanged(const IMessageStyleOptions &AOptions, int AMessageType, const QString &AContext);
 	void onDiscoInfoReceived(const IDiscoInfo &AInfo);

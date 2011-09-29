@@ -122,8 +122,8 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &AI
 		FRamblerHistory = qobject_cast<IRamblerHistory *>(plugin->instance());
 		if (FRamblerHistory)
 		{
-			connect(FRamblerHistory->instance(),SIGNAL(serverMessagesLoaded(const QString &, const IRamblerHistoryMessages &)),
-				SLOT(onRamblerHistoryMessagesLoaded(const QString &, const IRamblerHistoryMessages &)));
+			connect(FRamblerHistory->instance(),SIGNAL(serverMessagesLoaded(const QString &, const IHistoryMessages &)),
+				SLOT(onRamblerHistoryMessagesLoaded(const QString &, const IHistoryMessages &)));
 			connect(FRamblerHistory->instance(),SIGNAL(requestFailed(const QString &, const QString &)),
 				SLOT(onRamblerHistoryRequestFailed(const QString &, const QString &)));
 		}
@@ -681,7 +681,7 @@ void ChatMessageHandler::requestHistoryMessages(IChatWindow *AWindow, int ACount
 {
 	if (FRamblerHistory && FRamblerHistory->isSupported(AWindow->streamJid()))
 	{
-		IRamblerHistoryRetrieve retrieve;
+		IHistoryRetrieve retrieve;
 		retrieve.with = AWindow->contactJid();
 		retrieve.beforeId = FWindowStatus.value(AWindow).historyId;
 		retrieve.beforeTime = FWindowStatus.value(AWindow).historyTime;
@@ -1208,7 +1208,7 @@ void ChatMessageHandler::onNotificationTest(const QString &ATypeId, ushort AKind
 	}
 }
 
-void ChatMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages)
+void ChatMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const IHistoryMessages &AMessages)
 {
 	if (FHistoryRequests.contains(AId))
 	{

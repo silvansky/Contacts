@@ -115,8 +115,8 @@ bool SmsMessageHandler::initConnections(IPluginManager *APluginManager, int &AIn
 		FRamblerHistory = qobject_cast<IRamblerHistory *>(plugin->instance());
 		if (FRamblerHistory)
 		{
-			connect(FRamblerHistory->instance(),SIGNAL(serverMessagesLoaded(const QString &, const IRamblerHistoryMessages &)),
-				SLOT(onRamblerHistoryMessagesLoaded(const QString &, const IRamblerHistoryMessages &)));
+			connect(FRamblerHistory->instance(),SIGNAL(serverMessagesLoaded(const QString &, const IHistoryMessages &)),
+				SLOT(onRamblerHistoryMessagesLoaded(const QString &, const IHistoryMessages &)));
 			connect(FRamblerHistory->instance(),SIGNAL(requestFailed(const QString &, const QString &)),
 				SLOT(onRamblerHistoryRequestFailed(const QString &, const QString &)));
 		}
@@ -800,7 +800,7 @@ void SmsMessageHandler::requestHistoryMessages(IChatWindow *AWindow, int ACount)
 {
 	if (FRamblerHistory && FRamblerHistory->isSupported(AWindow->streamJid()))
 	{
-		IRamblerHistoryRetrieve retrieve;
+		IHistoryRetrieve retrieve;
 		retrieve.with = AWindow->contactJid();
 		retrieve.beforeId = FWindowStatus.value(AWindow).historyId;
 		retrieve.beforeTime = FWindowStatus.value(AWindow).historyTime;
@@ -1117,7 +1117,7 @@ void SmsMessageHandler::onNotReceivedTimerTimeout()
 	}
 }
 
-void SmsMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const IRamblerHistoryMessages &AMessages)
+void SmsMessageHandler::onRamblerHistoryMessagesLoaded(const QString &AId, const IHistoryMessages &AMessages)
 {
 	if (FHistoryRequests.contains(AId))
 	{

@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>HistoryOptionsWidgetClass</name>
+    <message>
+        <source>Store the history of communication on server</source>
+        <translation>Хранить историю общения на сервере</translation>
+    </message>
+</context>
+<context>
     <name>RamblerHistory</name>
     <message>
         <source>Rambler History</source>

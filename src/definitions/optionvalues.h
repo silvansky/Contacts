@@ -97,8 +97,6 @@
 #define OPV_MISC_SHAREOSVERSION                         "misc.share-os-version"
 #define OPV_MISC_OPTIONS_SAVE_ON_SERVER                 "misc.options.save-on-server"
 #define OPV_MISC_OPTIONS_DIALOG_LASTNODE                "misc.options.dialog.last-node"
-// RamblerHistory
-#define OPV_MISC_HISTORY_SAVE_ON_SERVER                 "misc.history.save-on-server"
 
 // Notifications
 #define OPV_NOTIFICATIONS_ROOT                          "notifications"

@@ -1,7 +1,10 @@
-FORMS = viewhistorywindow.ui
+FORMS = viewhistorywindow.ui \
+        historyoptionswidget.ui
 
 HEADERS = ramblerhistory.h \
-          viewhistorywindow.h
+          viewhistorywindow.h \
+          historyoptionswidget.h
 
 SOURCES = ramblerhistory.cpp \
-          viewhistorywindow.cpp
+          viewhistorywindow.cpp \
+          historyoptionswidget.cpp
