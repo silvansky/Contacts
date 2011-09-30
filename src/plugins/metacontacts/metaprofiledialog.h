@@ -52,11 +52,12 @@ signals:
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void updateBirthday();
+	void updateStatusText();
 	void updateLeftLabelsSizes();
 	QString metaLabelText(const IMetaItemDescriptor &ADescriptor) const;
 	QString metaItemLink(const Jid &AItemJid, const IMetaItemDescriptor &ADescriptor) const;
 protected:
-	virtual bool eventFilter(QObject *AObject, QEvent *AEvent);
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onAdjustDialogSize();
 	void onAdjustBorderSize();

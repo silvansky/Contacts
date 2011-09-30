@@ -230,7 +230,7 @@ IPresenceItem MetaRoster::metaPresenceItem(const QString &AMetaId) const
 				{
 					if (isService)
 						serviceItems.insertMulti(item_pres.show,item_pres);
-					else
+					else if (item_pres.show != IPresence::Offline)
 						contactItems.insertMulti(item_pres.show,item_pres);
 				}
 				hasNotServiceItem |= !isService;

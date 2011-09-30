@@ -85,9 +85,12 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 			{
 				if (ARole == RDR_FOOTER_TEXT)
 				{
-					QVariantMap footer = AIndex->data(ARole).toMap();
-					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Requests authorization"));
-					data = footer;
+					if (Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool())
+					{
+						QVariantMap footer = AIndex->data(ARole).toMap();
+						footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Requests authorization"));
+						data = footer;
+					}
 				}
 				else if (ARole == Qt::DecorationRole)
 				{
@@ -98,9 +101,12 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 			{
 				if (ARole == RDR_FOOTER_TEXT)
 				{
-					QVariantMap footer = AIndex->data(ARole).toMap();
-					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Sent an authorization request"));
-					data = footer;
+					if (Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool())
+					{
+						QVariantMap footer = AIndex->data(ARole).toMap();
+						footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Sent an authorization request"));
+						data = footer;
+					}
 				}
 				else if (ARole == Qt::DecorationRole)
 				{
@@ -111,9 +117,12 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 			{
 				if (ARole == RDR_FOOTER_TEXT)
 				{
-					QVariantMap footer = AIndex->data(ARole).toMap();
-					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Not authorized"));
-					data = footer;
+					if (Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool())
+					{
+						QVariantMap footer = AIndex->data(ARole).toMap();
+						footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),tr("Not authorized"));
+						data = footer;
+					}
 				}
 				else if (ARole == Qt::DecorationRole)
 				{

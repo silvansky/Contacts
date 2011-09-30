@@ -314,6 +314,18 @@
         <source>Birthday:</source>
         <translation>День рождения:</translation>
     </message>
+    <message>
+        <source>Requests authorization</source>
+        <translation>Запрашивает авторизацию</translation>
+    </message>
+    <message>
+        <source>Sent an authorization request</source>
+        <translation>Отправлен запрос авторизации</translation>
+    </message>
+    <message>
+        <source>Not authorized</source>
+        <translation>Не авторизован</translation>
+    </message>
 </context>
 <context>
     <name>MetaProfileDialogClass</name>

@@ -356,7 +356,7 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IHistory
 		}
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,retrieve,ARCHIVE_TIMEOUT))
 		{
-			LogDetaile(QString("[RamblerHistory] Load history with '%1' request sent to '%2', id='%2'").arg(ARetrieve.with.full(),AStreamJid.full(),retrieve.id()));
+			LogDetaile(QString("[RamblerHistory] Load history with '%1' request sent to '%2', id='%3'").arg(ARetrieve.with.full(),AStreamJid.full(),retrieve.id()));
 			FRetrieveRequests.insert(retrieve.id(),ARetrieve.with);
 			return retrieve.id();
 		}

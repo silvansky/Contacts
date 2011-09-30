@@ -155,6 +155,24 @@ void MetaProfileDialog::updateBirthday()
 	}
 }
 
+void MetaProfileDialog::updateStatusText()
+{
+	QString status;
+	IMetaContact contact = FMetaRoster->metaContact(FMetaId);
+	if (!FMetaRoster->roster()->subscriptionRequests().intersect(contact.items).isEmpty())
+		status = tr("Requests authorization");
+	else if (contact.ask == SUBSCRIPTION_SUBSCRIBE)
+		status = tr("Sent an authorization request");
+	else if (contact.subscription == SUBSCRIPTION_NONE)
+		status = tr("Not authorized");
+	else
+		status = FMetaRoster->metaPresenceItem(FMetaId).status;
+
+	QString text = status.left(MAX_STATUS_TEXT_SIZE);
+	text += text.size() < status.size() ? "..." : "";
+	ui.lblStatusText->setText(text);
+}
+
 void MetaProfileDialog::updateLeftLabelsSizes()
 {
 	int maxWidth = 0;
@@ -292,10 +310,7 @@ void MetaProfileDialog::onMetaPresenceChanged(const QString &AMetaId)
 		QIcon icon = FStatusIcons!=NULL ? FStatusIcons->iconByStatus(pitem.show,SUBSCRIPTION_BOTH,false) : QIcon();
 		ui.lblStatusIcon->setPixmap(icon.pixmap(icon.availableSizes().value(0)));
 		ui.lblStatusName->setText(FStatusChanger!=NULL ? FStatusChanger->nameByShow(pitem.show) : QString::null);
-
-		QString status = pitem.status.left(MAX_STATUS_TEXT_SIZE);
-		status += status.size() < pitem.status.size() ? "..." : "";
-		ui.lblStatusText->setText(status);
+		updateStatusText();
 	}
 }
 
@@ -383,6 +398,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 					FMetaContainers.remove(descriptor.metaOrder);
 				}
 			}
+			updateStatusText();
 			QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 		}
 	}

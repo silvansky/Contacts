@@ -5,6 +5,7 @@
 #include <QSortFilterProxyModel>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/optionvalues.h>
 #include <definitions/rosterfootertextorders.h>
 #include <definitions/rosterindextyperole.h>
 #include <definitions/rosterindextypeorders.h>
