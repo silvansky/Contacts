@@ -53,6 +53,11 @@
             <numerusform>Эти %n контактов будут объединены в один:</numerusform>
         </translation>
     </message>
+    <message>
+        <source>([a-z])</source>
+        <comment>From first letter to last of alphabet</comment>
+        <translation>([а-я])</translation>
+    </message>
 </context>
 <context>
     <name>MetaContacts</name>

@@ -19,6 +19,10 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 
 	ui.lblNotice->setText(tr("These %n contacts will be merged into one:","",AMetaIds.count()));
 
+	QString name;
+	int nameCapCount = 0;
+	QRegExp nameRegExp(tr("([a-z])","From first letter to last of alphabet"),Qt::CaseInsensitive);
+
 	QSet<Jid> items;
 	ui.ltContacts->addStretch();
 	foreach(QString metaId, FMetaIds)
@@ -27,10 +31,24 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 		items += contact.items;
 
 		QImage avatar = FMetaRoster->metaAvatarImage(metaId,false,false).scaled(24, 24, Qt::KeepAspectRatio,Qt::SmoothTransformation);
-		QString name = FMetaContacts->metaContactName(contact);
+		QString itemName = FMetaContacts->metaContactName(contact);
 
-		if (ui.ltContacts->count() == 1)
-			ui.lneName->setText(name);
+		int pos = 0;
+		int itemNameCapCount = 0;
+		while ((pos = nameRegExp.indexIn(itemName, pos)) != -1) 
+		{
+			itemNameCapCount++;
+			pos += nameRegExp.matchedLength();
+		}
+		if (nameCapCount < itemNameCapCount)
+		{
+			name = itemName;
+			nameCapCount = itemNameCapCount;
+		}
+		else if (name.isEmpty())
+		{
+			name = itemName.trimmed();
+		}
 
 		QHBoxLayout *itemLayout = new QHBoxLayout();
 		itemLayout->setContentsMargins(0, 0, 0, 0);
@@ -43,12 +61,13 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 		itemLayout->addWidget(avatarLabel);
 
 		QLabel *nameLabel = new QLabel(this);
-		nameLabel->setText(name);
+		nameLabel->setText(itemName);
 		itemLayout->addWidget(nameLabel);
 
 		ui.ltContacts->addItem(itemLayout);
 	}
 	ui.ltContacts->addStretch();
+	ui.lneName->setText(name);
 
 	QImage avatar;
 	QMultiMap<int,Jid> orders = FMetaContacts->itemOrders(items.toList());
