@@ -1273,158 +1273,162 @@ void RosterChanger::onSubscriptionSent(IRoster *ARoster, const Jid &AItemJid, in
 
 void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
 {
-	INotification notify;
-	IRosterItem ritem = ARoster->rosterItem(AItemJid);
-	IChatWindow *chatWindow = findChatNoticeWindow(ARoster->streamJid(),AItemJid);
-	QString name = FNotifications!=NULL ? FNotifications->contactName(ARoster->streamJid(),AItemJid) : AItemJid.node();
-	QString notifyMessage = subscriptionNotify(ARoster->streamJid(),AItemJid,ASubsType);
-
-	removeObsoleteNotifies(ARoster->streamJid(),AItemJid,ASubsType,false);
-	notify.kinds = FNotifications!=NULL ? FNotifications->notificationKinds(NNT_SUBSCRIPTION) : 0;
-	if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribe)
-		notify.kinds &= INotification::PopupWindow|INotification::SoundPlay;
-
-	if (notify.kinds > 0)
+	bool isService =  FMetaContacts!=NULL ? FMetaContacts->metaDescriptorByItem(AItemJid).service : false;
+	if (!isService)
 	{
-		notify.typeId = NNT_SUBSCRIPTION;
-		notify.data.insert(NDR_STREAM_JID,ARoster->streamJid().full());
-		notify.data.insert(NDR_CONTACT_JID,chatWindow!=NULL ? chatWindow->contactJid().full() : AItemJid.full());
-		notify.data.insert(NDR_ICON_KEY,MNI_RCHANGER_SUBSCRIBTION);
-		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
-		notify.data.insert(NDR_ROSTER_ORDER,RNO_RCHANGER_SUBSCRIPTION);
-		notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink|IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
-		notify.data.insert(NDR_ROSTER_HOOK_CLICK,true);
-		notify.data.insert(NDR_ROSTER_CREATE_INDEX,true);
-		notify.data.insert(NDR_ROSTER_FOOTER,notifyMessage);
-		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::magenta));
-		notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name.split(" ").value(0)));
-		notify.data.insert(NDR_POPUP_TITLE, name);
-		notify.data.insert(NDR_POPUP_NOTICE, notifyMessage);
-		notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(ARoster->streamJid(),AItemJid));
-		//notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));
-		notify.data.insert(NDR_POPUP_STYLEKEY, STS_RCHANGER_NOTIFYWIDGET_SUBSCRIPTION);
-		notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
-		notify.data.insert(NDR_SUBSCRIPTION_TYPE,ASubsType);
-		notify.data.insert(NDR_SUBSCRIPTION_TEXT,AText);
+		INotification notify;
+		IRosterItem ritem = ARoster->rosterItem(AItemJid);
+		IChatWindow *chatWindow = findChatNoticeWindow(ARoster->streamJid(),AItemJid);
+		QString name = FNotifications!=NULL ? FNotifications->contactName(ARoster->streamJid(),AItemJid) : AItemJid.node();
+		QString notifyMessage = subscriptionNotify(ARoster->streamJid(),AItemJid,ASubsType);
 
-		if (chatWindow)
-		{
-			notify.data.insert(NDR_ALERT_WIDGET,(qint64)chatWindow->instance());
-			notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)chatWindow->instance());
-			notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)chatWindow->instance());
-			notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SUBSCRIPTION);
-			notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,1);
-			notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
-			notify.data.insert(NDR_TABPAGE_TOOLTIP, Qt::escape(notifyMessage));
-			notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
-		}
-	}
+		removeObsoleteNotifies(ARoster->streamJid(),AItemJid,ASubsType,false);
+		notify.kinds = FNotifications!=NULL ? FNotifications->notificationKinds(NNT_SUBSCRIPTION) : 0;
+		if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribe)
+			notify.kinds &= INotification::PopupWindow|INotification::SoundPlay;
 
-	int notifyId = -1;
-	bool showNotice = false;
-	int noticeActions = NTA_NO_ACTIONS;
-	if (ASubsType == IRoster::Subscribe)
-	{
-		FSubscriptionRequests.insertMulti(ARoster->streamJid(),AItemJid);
-		if (!isAutoSubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_FROM && ritem.subscription!=SUBSCRIPTION_BOTH)
+		if (notify.kinds > 0)
 		{
-			if (FNotifications && notify.kinds>0)
+			notify.typeId = NNT_SUBSCRIPTION;
+			notify.data.insert(NDR_STREAM_JID,ARoster->streamJid().full());
+			notify.data.insert(NDR_CONTACT_JID,chatWindow!=NULL ? chatWindow->contactJid().full() : AItemJid.full());
+			notify.data.insert(NDR_ICON_KEY,MNI_RCHANGER_SUBSCRIBTION);
+			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
+			notify.data.insert(NDR_ROSTER_ORDER,RNO_RCHANGER_SUBSCRIPTION);
+			notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::Blink|IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
+			notify.data.insert(NDR_ROSTER_HOOK_CLICK,true);
+			notify.data.insert(NDR_ROSTER_CREATE_INDEX,true);
+			notify.data.insert(NDR_ROSTER_FOOTER,notifyMessage);
+			notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::magenta));
+			notify.data.insert(NDR_TRAY_TOOLTIP,tr("%1 - authorization").arg(name.split(" ").value(0)));
+			notify.data.insert(NDR_POPUP_TITLE, name);
+			notify.data.insert(NDR_POPUP_NOTICE, notifyMessage);
+			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(ARoster->streamJid(),AItemJid));
+			//notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));
+			notify.data.insert(NDR_POPUP_STYLEKEY, STS_RCHANGER_NOTIFYWIDGET_SUBSCRIPTION);
+			notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
+			notify.data.insert(NDR_SUBSCRIPTION_TYPE,ASubsType);
+			notify.data.insert(NDR_SUBSCRIPTION_TEXT,AText);
+
+			if (chatWindow)
 			{
-				notify.actions = createNotifyActions(NFA_SUBSCRIBE|NFA_UNSUBSCRIBE);
-				foreach(Action *action, notify.actions)
-				{
-					action->setData(ADR_STREAM_JID,ARoster->streamJid().full());
-					action->setData(ADR_CONTACT_JID,AItemJid.full());
-					action->setData(ADR_NOTIFY_ID, notifyId);
-					connect(action,SIGNAL(triggered(bool)),SLOT(onNotificationActionTriggered(bool)));
-				}
-				notifyId = FNotifications->appendNotification(notify);
+				notify.data.insert(NDR_ALERT_WIDGET,(qint64)chatWindow->instance());
+				notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)chatWindow->instance());
+				notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)chatWindow->instance());
+				notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SUBSCRIPTION);
+				notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,1);
+				notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
+				notify.data.insert(NDR_TABPAGE_TOOLTIP, Qt::escape(notifyMessage));
+				notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_RCHANGER_TABBARITEM_SUBSCRIPTION);
 			}
-			showNotice = true;
-			if (ritem.isValid)
-				noticeActions = NTA_SUBSCRIBE|NTA_UNSUBSCRIBE|NTA_CLOSE;
+		}
+
+		int notifyId = -1;
+		bool showNotice = false;
+		int noticeActions = NTA_NO_ACTIONS;
+		if (ASubsType == IRoster::Subscribe)
+		{
+			FSubscriptionRequests.insertMulti(ARoster->streamJid(),AItemJid);
+			if (!isAutoSubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_FROM && ritem.subscription!=SUBSCRIPTION_BOTH)
+			{
+				if (FNotifications && notify.kinds>0)
+				{
+					notify.actions = createNotifyActions(NFA_SUBSCRIBE|NFA_UNSUBSCRIBE);
+					foreach(Action *action, notify.actions)
+					{
+						action->setData(ADR_STREAM_JID,ARoster->streamJid().full());
+						action->setData(ADR_CONTACT_JID,AItemJid.full());
+						action->setData(ADR_NOTIFY_ID, notifyId);
+						connect(action,SIGNAL(triggered(bool)),SLOT(onNotificationActionTriggered(bool)));
+					}
+					notifyId = FNotifications->appendNotification(notify);
+				}
+				showNotice = true;
+				if (ritem.isValid)
+					noticeActions = NTA_SUBSCRIBE|NTA_UNSUBSCRIBE|NTA_CLOSE;
+				else
+					noticeActions = NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE|NTA_CLOSE;
+			}
 			else
-				noticeActions = NTA_ADD_CONTACT|NTA_SUBSCRIBE|NTA_UNSUBSCRIBE|NTA_CLOSE;
+			{
+				ARoster->sendSubscription(AItemJid,IRoster::Subscribed);
+				if (isAutoSubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_BOTH)
+					ARoster->sendSubscription(AItemJid,IRoster::Subscribe);
+			}
 		}
-		else
+		else if (ASubsType == IRoster::Unsubscribed)
 		{
-			ARoster->sendSubscription(AItemJid,IRoster::Subscribed);
-			if (isAutoSubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_BOTH)
-				ARoster->sendSubscription(AItemJid,IRoster::Subscribe);
+			if (!isSilentSubsctiption(ARoster->streamJid(),AItemJid) && ritem.isValid)
+			{
+				if (FNotifications && notify.kinds>0)
+					notifyId = FNotifications->appendNotification(notify);
+				showNotice = true;
+				noticeActions = NTA_ASK_SUBSCRIBE|NTA_CLOSE;
+			}
+
+			if (isAutoUnsubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_NONE)
+				ARoster->sendSubscription(AItemJid,IRoster::Unsubscribed);
 		}
-	}
-	else if (ASubsType == IRoster::Unsubscribed)
-	{
-		if (!isSilentSubsctiption(ARoster->streamJid(),AItemJid) && ritem.isValid)
+		else  if (ASubsType == IRoster::Subscribed)
 		{
-			if (FNotifications && notify.kinds>0)
-				notifyId = FNotifications->appendNotification(notify);
-			showNotice = true;
-			noticeActions = NTA_ASK_SUBSCRIBE|NTA_CLOSE;
+			if (!isSilentSubsctiption(ARoster->streamJid(),AItemJid))
+			{
+				if (FNotifications && notify.kinds>0)
+					notifyId = FNotifications->appendNotification(notify);
+				showNotice = true;
+			}
+		}
+		else if (ASubsType == IRoster::Unsubscribe)
+		{
+			FSubscriptionRequests.remove(ARoster->streamJid(),AItemJid);
+			if (!isSilentSubsctiption(ARoster->streamJid(),AItemJid) && ritem.isValid)
+			{
+				if (FNotifications && notify.kinds>0)
+					notifyId = FNotifications->appendNotification(notify);
+				showNotice = true;
+			}
 		}
 
-		if (isAutoUnsubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_NONE)
-			ARoster->sendSubscription(AItemJid,IRoster::Unsubscribed);
-	}
-	else  if (ASubsType == IRoster::Subscribed)
-	{
-		if (!isSilentSubsctiption(ARoster->streamJid(),AItemJid))
+		int chatNoticeId = -1;
+		removeObsoleteChatNotices(ARoster->streamJid(),AItemJid,ASubsType,false);
+		chatWindow = chatWindow==NULL ? findChatNoticeWindow(ARoster->streamJid(),AItemJid) : chatWindow;
+		if (chatWindow && showNotice)
 		{
-			if (FNotifications && notify.kinds>0)
-				notifyId = FNotifications->appendNotification(notify);
-			showNotice = true;
+			if (noticeActions != NTA_NO_ACTIONS)
+			{
+				removeWindowChatNotices(chatWindow);
+				chatNoticeId = insertChatNotice(chatWindow,createChatNotice(CNP_SUBSCRIPTION,noticeActions,notifyMessage,AText));
+			}
+			else
+				showNotifyInChatWindow(chatWindow,notifyMessage,AText);
 		}
-	}
-	else if (ASubsType == IRoster::Unsubscribe)
-	{
-		FSubscriptionRequests.remove(ARoster->streamJid(),AItemJid);
-		if (!isSilentSubsctiption(ARoster->streamJid(),AItemJid) && ritem.isValid)
+		else if (showNotice)
 		{
-			if (FNotifications && notify.kinds>0)
-				notifyId = FNotifications->appendNotification(notify);
-			showNotice = true;
+			PendingChatNotice pnotice;
+			pnotice.priority = CNP_SUBSCRIPTION;
+			pnotice.notifyId = notifyId;
+			pnotice.actions = noticeActions;
+			pnotice.notify = notifyMessage;
+			pnotice.text = AText;
+			FPendingChatNotices[ARoster->streamJid()].insert(AItemJid.bare(),pnotice);
 		}
-	}
 
-	int chatNoticeId = -1;
-	removeObsoleteChatNotices(ARoster->streamJid(),AItemJid,ASubsType,false);
-	chatWindow = chatWindow==NULL ? findChatNoticeWindow(ARoster->streamJid(),AItemJid) : chatWindow;
-	if (chatWindow && showNotice)
-	{
-		if (noticeActions != NTA_NO_ACTIONS)
+		if (notifyId > 0)
 		{
-			removeWindowChatNotices(chatWindow);
-			chatNoticeId = insertChatNotice(chatWindow,createChatNotice(CNP_SUBSCRIPTION,noticeActions,notifyMessage,AText));
+			FNotifyChatNotice.insert(notifyId,chatNoticeId);
 		}
-		else
-			showNotifyInChatWindow(chatWindow,notifyMessage,AText);
-	}
-	else if (showNotice)
-	{
-		PendingChatNotice pnotice;
-		pnotice.priority = CNP_SUBSCRIPTION;
-		pnotice.notifyId = notifyId;
-		pnotice.actions = noticeActions;
-		pnotice.notify = notifyMessage;
-		pnotice.text = AText;
-		FPendingChatNotices[ARoster->streamJid()].insert(AItemJid.bare(),pnotice);
-	}
 
-	if (notifyId > 0)
-	{
-		FNotifyChatNotice.insert(notifyId,chatNoticeId);
-	}
-
-	if (FRostersModel)
-	{
-		QMultiMap<int, QVariant> findData;
-		findData.insertMulti(RDR_TYPE,RIT_CONTACT);
-		findData.insertMulti(RDR_PREP_BARE_JID,AItemJid.pBare());
-		IRosterIndex *root = FRostersModel->streamRoot(ARoster->streamJid());
-		foreach(IRosterIndex *index, root!=NULL ? root->findChilds(findData,true) : QList<IRosterIndex *>())
+		if (FRostersModel)
 		{
-			emit rosterDataChanged(index,Qt::DecorationRole);
-			emit rosterDataChanged(index,RDR_FOOTER_TEXT);
+			QMultiMap<int, QVariant> findData;
+			findData.insertMulti(RDR_TYPE,RIT_CONTACT);
+			findData.insertMulti(RDR_PREP_BARE_JID,AItemJid.pBare());
+			IRosterIndex *root = FRostersModel->streamRoot(ARoster->streamJid());
+			foreach(IRosterIndex *index, root!=NULL ? root->findChilds(findData,true) : QList<IRosterIndex *>())
+			{
+				emit rosterDataChanged(index,Qt::DecorationRole);
+				emit rosterDataChanged(index,RDR_FOOTER_TEXT);
+			}
 		}
 	}
 }
