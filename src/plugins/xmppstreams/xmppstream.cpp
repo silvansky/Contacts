@@ -1,5 +1,6 @@
 #include "xmppstream.h"
 
+#define DISCONNECT_TIMEOUT          5000
 #define KEEP_ALIVE_TIMEOUT          30000
 
 XmppStream::XmppStream(IXmppStreams *AXmppStreams, const Jid &AStreamJid) : QObject(AXmppStreams->instance())
@@ -121,9 +122,12 @@ void XmppStream::close()
 			QByteArray data = "</stream:stream>";
 			if (!processDataHandlers(data,true))
 				FConnection->write(data);
-			FKeepAliveTimer.start(KEEP_ALIVE_TIMEOUT);
+			FKeepAliveTimer.start(DISCONNECT_TIMEOUT);
 		}
-		FConnection->disconnectFromHost();
+		else
+		{
+			FConnection->disconnectFromHost();
+		}
 	}
 	else
 	{
@@ -470,6 +474,7 @@ void XmppStream::onParserError(const QString &AError)
 
 void XmppStream::onParserClosed()
 {
+	LogDetaile(QString("[XmppStream][%1] Parser closed").arg(FStreamJid.bare()));
 	FConnection->disconnectFromHost();
 }
 
@@ -496,8 +501,17 @@ void XmppStream::onFeatureDestroyed()
 void XmppStream::onKeepAliveTimeout()
 {
 	static const QByteArray space(1,' ');
-	if (FStreamState!=SS_ONLINE)
+	if (FStreamState == SS_DISCONNECTING)
+	{
+		LogError(QString("[XmppStream][%1] Timeout receiving xmpp stream close request from server").arg(FStreamJid.bare()));
+		FConnection->disconnectFromHost();
+	}
+	else if (FStreamState != SS_ONLINE)
+	{
 		abort(tr("XMPP connection timed out"));
+	}
 	else
+	{
 		sendData(space);
+	}
 }
