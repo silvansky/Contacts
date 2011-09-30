@@ -771,9 +771,9 @@ QToolTip
 	padding: 0px 3px 0px 3px;
 }
 
-/************************
- * Disable button icons *
- ************************/
+/********************
+ * QDialogButtonBox *
+ ********************/
 
 QDialogButtonBox
 {

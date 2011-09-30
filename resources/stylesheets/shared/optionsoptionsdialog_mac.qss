@@ -1,0 +1,9 @@
+/****************
+ * mac specials *
+ ****************/
+
+QFrame#dbbFrame
+{
+	margin-left: 6px;
+	margin-right: 6px;
+}

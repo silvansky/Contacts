@@ -83,6 +83,7 @@ private slots:
 	void slotClicked(QAbstractButton*);
 	void onStorageChanged();
 	void onComboBoxSelectionChanged(const QString& key);
+	void onSuffixChanged(const QString& suffix);
 signals:
 	void styleSheetChanged(const QString&);
 	void fileOpened(const QString&);
@@ -109,7 +110,8 @@ private:
 	bool fileSaved;
 	StyleStorage * styleStorage;
 	QComboBox * styleKeys;
-	QString lastKey;
+	QComboBox * styleSuffixes;
+	QString lastKey, lastSuffix;
 	TestStylesForm * testForm;
 	CustomBorderContainer * testFormContainer;
 };

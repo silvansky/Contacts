@@ -7,11 +7,14 @@
 #include <QFileInfo>
 #include <QApplication>
 
+#include <QDebug>
+
 #define FOLDER_DEFAULT         "images"
 #define IMAGES_FOLDER_PATH     "%IMAGES_PATH%"
 
 QHash<QString, StyleStorage *> StyleStorage::FStaticStorages;
 QHash<QObject *, StyleStorage *> StyleStorage::FObjectStorage;
+QStringList StyleStorage::_systemStyleSuffixes;
 
 struct StyleStorage::StyleUpdateParams
 {
@@ -32,14 +35,25 @@ StyleStorage::~StyleStorage()
 
 QString StyleStorage::getStyle(const QString &AKey, int AIndex) const
 {
-	QFile file(fileFullName(AKey,AIndex));
+	QFile file(fileFullName(AKey, AIndex));
 	if (file.open(QFile::ReadOnly))
 	{
 		QString folder = fileOption(AKey, STYLE_STORAGE_OPTION_IMAGES_FOLDER);
 		if (folder.isEmpty())
 			folder = FOLDER_DEFAULT;
 		folder = QFileInfo(file.fileName()).absoluteDir().absoluteFilePath(folder);
-		return QString::fromUtf8(file.readAll()).replace(IMAGES_FOLDER_PATH,folder);
+		QString resultingStyle = QString::fromUtf8(file.readAll());
+		foreach (QString suffix, systemStyleSuffixes())
+		{
+			QString sFileName = fileFullName(AKey, AIndex, suffix);
+			QFile sFile(sFileName);
+			if (sFile.open(QFile::ReadOnly))
+			{
+				resultingStyle += "\n";
+				resultingStyle += QString::fromUtf8(sFile.readAll());
+			}
+		}
+		return resultingStyle.replace(IMAGES_FOLDER_PATH,folder);;
 	}
 	return QString::null;
 }
@@ -84,6 +98,18 @@ void StyleStorage::removeAutoStyle(QObject *AObject)
 	}
 }
 
+QString StyleStorage::fileFullName(const QString AKey, int AIndex) const
+{
+	return FileStorage::fileFullName(AKey, AIndex);
+}
+
+QString StyleStorage::fileFullName(const QString AKey, int AIndex, const QString & suffix) const
+{
+	QString filename = fileFullName(AKey, AIndex);
+	QFileInfo finfo(filename);
+	return finfo.absoluteDir().absolutePath() + "/" +finfo.baseName() + suffix + "." + finfo.completeSuffix();
+}
+
 void StyleStorage::previewReset()
 {
 	onStorageChanged();
@@ -120,6 +146,23 @@ void StyleStorage::updateStyle(QObject * object)
 	{
 		object->setProperty("styleSheet", object->property("styleSheet"));
 	}
+}
+
+QStringList StyleStorage::systemStyleSuffixes()
+{
+	if (_systemStyleSuffixes.isEmpty())
+	{
+#ifdef Q_WS_MAC
+		_systemStyleSuffixes += "_mac";
+#elif Q_WS_WIN
+		systemStyleSuffixes += "_win";
+#elif Q_WS_X11
+		systemStyleSuffixes += "_x11";
+#elif Q_WS_S60
+		systemStyleSuffixes += "_s60";
+#endif
+	}
+	return _systemStyleSuffixes;
 }
 
 void StyleStorage::updateObject(QObject *AObject)

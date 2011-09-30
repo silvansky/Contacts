@@ -16,6 +16,8 @@ public:
 	QString getStyle(const QString &AKey, int AIndex = 0) const;
 	void insertAutoStyle(QObject *AObject, const QString &AKey, int AIndex = 0);
 	void removeAutoStyle(QObject *AObject);
+	QString fileFullName(const QString AKey, int AIndex = 0) const;
+	QString fileFullName(const QString AKey, int AIndex, const QString & suffix) const;
 public slots:
 	void previewReset();
 	void previewStyle(const QString &AStyleSheet, const QString &AKey, int AIndex);
@@ -24,6 +26,7 @@ signals:
 public:
 	static StyleStorage *staticStorage(const QString &AStorage);
 	static void updateStyle(QObject * object);
+	static QStringList systemStyleSuffixes();
 protected:
 	void updateObject(QObject *AObject);
 	void removeObject(QObject *AObject);
@@ -35,6 +38,7 @@ private:
 private:
 	static QHash<QString, StyleStorage *> FStaticStorages;
 	static QHash<QObject *, StyleStorage *> FObjectStorage;
+	static QStringList _systemStyleSuffixes;
 };
 
 #endif // STYLESTORAGE_H

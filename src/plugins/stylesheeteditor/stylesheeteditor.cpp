@@ -68,8 +68,6 @@
 #include <QFile>
 #include <QByteArray>
 
-#include <QDebug>
-
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 
@@ -77,7 +75,7 @@ StyleSheetEditor::StyleSheetEditor(QWidget *parent)
 	: QTextEdit(parent)
 {
 	setFontFamily("Courier");
-	setFontPointSize(12);
+	setFontPointSize(14);
 	setTabStopWidth(fontMetrics().width(QLatin1Char(' ')) * 14);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	new CssHighlighter(document());
@@ -123,6 +121,11 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
 	styleKeys = new QComboBox(this);
 	styleKeys->setView(new QListView);
 	connect(styleKeys, SIGNAL(currentIndexChanged(const QString&)), SLOT(onComboBoxSelectionChanged(const QString&)));
+
+	styleSuffixes = new QComboBox(this);
+	styleSuffixes->setView(new QListView);
+	connect(styleSuffixes, SIGNAL(currentIndexChanged(const QString&)), SLOT(onSuffixChanged(const QString&)));
+
 	gm = new QtGradientManager;
 	setWindowTitle(tr("Edit Style Sheet"));
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -193,6 +196,8 @@ StyleSheetEditorDialog::StyleSheetEditorDialog(QWidget *parent):
 	toolBar->addAction(m_addColorAction);
 	toolBar->addAction(m_addFontAction);
 	toolBar->addWidget(styleKeys);
+	toolBar->addWidget(styleSuffixes);
+	styleSuffixes->setVisible(false);
 	setMinimumSize(640, 480);
 
 	m_editor->setFocus();
@@ -403,10 +408,50 @@ void StyleSheetEditorDialog::onComboBoxSelectionChanged(const QString& key)
 		}
 	}
 	lastKey = key;
-	qDebug() << key;
 	QString fileName = styleStorage->fileFullName(key);
-	qDebug() << fileName;
 	loadFile(fileName);
+	styleSuffixes->clear();
+	styleSuffixes->addItem("default");
+	bool visible = false;
+	foreach (QString suffix, StyleStorage::systemStyleSuffixes())
+	{
+		if (QFile::exists(styleStorage->fileFullName(key, 0, suffix)))
+		{
+			styleSuffixes->addItem(suffix);
+			visible = true;
+		}
+	}
+	styleSuffixes->setCurrentIndex(0);
+	styleSuffixes->setVisible(visible);
+}
+
+void StyleSheetEditorDialog::onSuffixChanged(const QString& suffix)
+{
+	if (!fileSaved && suffix != lastSuffix)
+	{
+		QMessageBox::StandardButton btn = (QMessageBox::StandardButton)QMessageBox::question(this, "Save file?", "File changed. Do you want to save changes?", QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel);
+		switch (btn)
+		{
+		case QMessageBox::Yes:
+			saveFile();
+			break;
+		case QMessageBox::No:
+			break;
+		case QMessageBox::Cancel:
+			styleSuffixes->setCurrentIndex(styleSuffixes->findText(lastSuffix));
+			return;
+			break;
+		default:
+			break;
+		}
+	}
+	lastSuffix = suffix;
+	if (suffix == "default")
+	{
+		loadFile(styleStorage->fileFullName(lastKey));
+	}
+	else
+		loadFile(styleStorage->fileFullName(lastKey, 0, suffix));
 }
 
 QDialogButtonBox * StyleSheetEditorDialog::buttonBox() const

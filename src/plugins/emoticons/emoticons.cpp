@@ -379,7 +379,7 @@ void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 		QVBoxLayout *vlayout = NULL;
 		for (int i = 0; i < hlayout->count(); i++)
 		{
-			if (vlayout = qobject_cast<QVBoxLayout*>(hlayout->itemAt(i)->layout()))
+			if ((vlayout = qobject_cast<QVBoxLayout*>(hlayout->itemAt(i)->layout())))
 				vlayout->insertWidget(0, container,0,Qt::AlignTop);
 		}
 	}

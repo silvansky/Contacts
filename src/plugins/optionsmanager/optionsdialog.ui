@@ -137,7 +137,7 @@
            <x>0</x>
            <y>0</y>
            <width>712</width>
-           <height>286</height>
+           <height>277</height>
           </rect>
          </property>
         </widget>
@@ -152,10 +152,19 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QDialogButtonBox" name="dbbButtons">
-          <property name="standardButtons">
-           <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-          </property>
+         <widget class="QFrame" name="dbbFrame">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QDialogButtonBox" name="dbbButtons">
+             <property name="standardButtons">
+              <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
