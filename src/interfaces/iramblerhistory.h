@@ -53,7 +53,6 @@ public:
 	virtual IHistoryStreamPrefs historyPrefs(const Jid &AStreamJid) const =0;
 	virtual IHistoryItemPrefs historyItemPrefs(const Jid &AStreamJid, const Jid &AItemJid) const =0;
 	virtual QString setHistoryPrefs(const Jid &AStreamJid, const IHistoryStreamPrefs &APrefs) =0;
-	virtual QString removeHistoryItemPrefs(const Jid &AStreamJid, const Jid &AItemJid) =0;
 	virtual QString loadServerMessages(const Jid &AStreamJid, const IHistoryRetrieve &ARetrieve) =0;
 	virtual QWidget *showViewHistoryWindow(const Jid &AStreamJid, const Jid &AContactJid) =0;
 protected:

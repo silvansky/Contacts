@@ -2,7 +2,6 @@
 
 #define ARCHIVE_TIMEOUT       30000
 #define SHC_PREFS_UPDATE      "/iq[@type='set']/pref[@xmlns=" NS_RAMBLER_ARCHIVE "]"
-#define SHC_PREFS_REMOVE      "/iq[@type='set']/itemremove[@xmlns=" NS_RAMBLER_ARCHIVE "]"
 
 RamblerHistory::RamblerHistory()
 {
@@ -118,16 +117,6 @@ bool RamblerHistory::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stan
 		reply.setTo(AStanza.from()).setType("result").setId(AStanza.id());
 		FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
 	}
-	else if (FSHIPrefsRemove.value(AStreamJid)==AHandlerId && AStreamJid==AStanza.from())
-	{
-		QDomElement removeElem = AStanza.firstElement("itemremove",NS_RAMBLER_ARCHIVE);
-		applyArchivePrefs(AStreamJid,removeElem);
-
-		AAccept = true;
-		Stanza reply("iq");
-		reply.setTo(AStanza.from()).setType("result").setId(AStanza.id());
-		FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
-	}
 	return false;
 }
 
@@ -192,10 +181,6 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 	{
 		FPrefsSaveRequests.remove(AStanza.id());
 	}
-	else if (FPrefsRemoveRequests.contains(AStanza.id()))
-	{
-		FPrefsRemoveRequests.remove(AStanza.id());
-	}
 
 	if (AStanza.type() == "result")
 	{
@@ -226,10 +211,6 @@ void RamblerHistory::stanzaRequestTimeout(const Jid &AStreamJid, const QString &
 	else if (FPrefsSaveRequests.contains(AStanzaId))
 	{
 		FPrefsSaveRequests.remove(AStanzaId);
-	}
-	else if (FPrefsRemoveRequests.contains(AStanzaId))
-	{
-		FPrefsRemoveRequests.remove(AStanzaId);
 	}
 
 	LogError(QString("[RamblerHistory] Failed to process request id='%1' to '%2': %3").arg(AStanzaId,AStreamJid.full(),err.message()));
@@ -324,9 +305,17 @@ QString RamblerHistory::setHistoryPrefs(const Jid &AStreamJid, const IHistoryStr
 			bool itemChanged = oldItemPrefs.save != newItemPrefs.save;
 			if (itemChanged)
 			{
-				QDomElement itemElem = prefElem.appendChild(save.createElement("item")).toElement();
-				itemElem.setAttribute("jid",itemJid.eFull());
-				itemElem.setAttribute("save",newItemPrefs.save);
+				if (!newItemPrefs.save.isEmpty())
+				{
+					QDomElement itemElem = prefElem.appendChild(save.createElement("item")).toElement();
+					itemElem.setAttribute("jid",itemJid.eFull());
+					itemElem.setAttribute("save",newItemPrefs.save);
+				}
+				else
+				{
+					QDomElement itemElem = prefElem.appendChild(save.createElement("itemremove")).toElement();
+					itemElem.setAttribute("jid",itemJid.eFull());
+				}
 			}
 			itemsChanged |= itemChanged;
 		}
@@ -343,28 +332,6 @@ QString RamblerHistory::setHistoryPrefs(const Jid &AStreamJid, const IHistoryStr
 			{
 				LogError(QString("[RamblerHistory] Failed to send preferences save request to '%1'").arg(AStreamJid.full()));
 			}
-		}
-	}
-	return QString::null;
-}
-
-QString RamblerHistory::removeHistoryItemPrefs(const Jid &AStreamJid, const Jid &AItemJid)
-{
-	if (isReady(AStreamJid) && historyPrefs(AStreamJid).itemPrefs.contains(AItemJid))
-	{
-		Stanza remove("iq");
-		remove.setType("set").setId(FStanzaProcessor->newId());
-		QDomElement itemElem = remove.addElement("itemremove",NS_RAMBLER_ARCHIVE).appendChild(remove.createElement("item")).toElement();
-		itemElem.setAttribute("jid",AItemJid.eFull());
-		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,remove,ARCHIVE_TIMEOUT))
-		{
-			FPrefsRemoveRequests.insert(remove.id(),AItemJid);
-			LogDetaile(QString("[RamblerHistory] Remove item request sent to '%1', id='%2'").arg(AStreamJid.full(),remove.id()));
-			return remove.id();
-		}
-		else
-		{
-			LogError(QString("[RamblerHistory] Failed to send remove item request to '%1'").arg(AStreamJid.full()));
 		}
 	}
 	return QString::null;
@@ -482,6 +449,15 @@ void RamblerHistory::applyArchivePrefs(const Jid &AStreamJid, const QDomElement 
 			itemElem = itemElem.nextSiblingElement("item");
 		}
 
+		QDomElement removeElem = AElem.firstChildElement("itemremove");
+		while (!removeElem.isNull())
+		{
+			Jid itemJid = itemElem.attribute("jid");
+			prefs.itemPrefs.remove(itemJid);
+			emit historyItemPrefsChanged(AStreamJid,itemJid,IHistoryItemPrefs());
+			removeElem = itemElem.nextSiblingElement("itemremove");
+		}
+
 		emit historyPrefsChanged(AStreamJid,prefs);
 	}
 }
@@ -506,10 +482,6 @@ void RamblerHistory::onStreamOpened(IXmppStream *AXmppStream)
 		shandle.direction = IStanzaHandle::DirectionIn;
 		shandle.conditions.append(SHC_PREFS_UPDATE);
 		FSHIPrefsUpdate.insert(shandle.streamJid,FStanzaProcessor->insertStanzaHandle(shandle));
-
-		shandle.conditions.clear();
-		shandle.conditions.append(SHC_PREFS_REMOVE);
-		FSHIPrefsRemove.insert(shandle.streamJid,FStanzaProcessor->insertStanzaHandle(shandle));
 	}
 }
 
@@ -518,7 +490,6 @@ void RamblerHistory::onStreamClosed(IXmppStream *AXmppStream)
 	if (FStanzaProcessor)
 	{
 		FStanzaProcessor->removeStanzaHandle(FSHIPrefsUpdate.take(AXmppStream->streamJid()));
-		FStanzaProcessor->removeStanzaHandle(FSHIPrefsRemove.take(AXmppStream->streamJid()));
 	}
 
 	FHistoryPrefs.remove(AXmppStream->streamJid());

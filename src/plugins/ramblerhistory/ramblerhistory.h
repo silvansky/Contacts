@@ -54,7 +54,6 @@ public:
 	virtual IHistoryStreamPrefs historyPrefs(const Jid &AStreamJid) const;
 	virtual IHistoryItemPrefs historyItemPrefs(const Jid &AStreamJid, const Jid &AItemJid) const;
 	virtual QString setHistoryPrefs(const Jid &AStreamJid, const IHistoryStreamPrefs &APrefs);
-	virtual QString removeHistoryItemPrefs(const Jid &AStreamJid, const Jid &AItemJid);
 	virtual QString loadServerMessages(const Jid &AStreamJid, const IHistoryRetrieve &ARetrieve);
 	virtual QWidget *showViewHistoryWindow(const Jid &AStreamJid, const Jid &AContactJid);
 signals:
@@ -83,12 +82,10 @@ private:
 	IStanzaProcessor *FStanzaProcessor;
 private:
 	QMap<Jid,int> FSHIPrefsUpdate;
-	QMap<Jid,int> FSHIPrefsRemove;
 private:
 	QMap<QString,Jid> FRetrieveRequests;
 	QMap<QString,Jid> FPrefsLoadRequests;
 	QMap<QString,Jid> FPrefsSaveRequests;
-	QMap<QString,Jid> FPrefsRemoveRequests;
 private:
 	QMap<Jid,IHistoryStreamPrefs> FHistoryPrefs;
 	QMultiMap<IRoster *, ViewHistoryWindow *> FViewWindows;
