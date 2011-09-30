@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
 	QObject::connect(&app, SIGNAL(messageAvailable(const QString&)), &pm, SLOT(showMainWindow()));
 
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN
 	GUID guid = (GUID)QUuid(RAMBLERCONTACTS_GUID);
 	QScopedPointer<holdem_utils::RHoldemModule> holdem_module(new holdem_utils::RHoldemModule(guid));
 	QObject::connect(holdem_module.data(), SIGNAL(shutdownRequested()), &pm, SLOT(shutdownRequested()));
@@ -78,8 +78,9 @@ int main(int argc, char *argv[])
 	// Starting plugin manager
 	pm.restart();
 
-#ifdef Q_WS_WIN
 	int ret = app.exec();
+
+#ifdef Q_WS_WIN
 	for (int i = 0; i < argc; i++)
 		delete argv[i];
 	delete argv;

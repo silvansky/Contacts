@@ -2,7 +2,6 @@
 #include "macintegration_p.h"
 #import <objc/runtime.h>
 
-#include <QDebug>
 #include <utils/log.h>
 
 void dockClickHandler(id self, SEL _cmd)
