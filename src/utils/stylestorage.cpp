@@ -152,14 +152,14 @@ QStringList StyleStorage::systemStyleSuffixes()
 {
 	if (_systemStyleSuffixes.isEmpty())
 	{
-#ifdef Q_WS_MAC
+#if defined Q_WS_MAC
 		_systemStyleSuffixes += "_mac";
-#elif Q_WS_WIN
-		systemStyleSuffixes += "_win";
-#elif Q_WS_X11
-		systemStyleSuffixes += "_x11";
-#elif Q_WS_S60
-		systemStyleSuffixes += "_s60";
+#elif defined Q_WS_WIN
+		_systemStyleSuffixes += "_win";
+#elif defined Q_WS_X11
+		_systemStyleSuffixes += "_x11";
+#elif defined Q_WS_S60
+		_systemStyleSuffixes += "_s60";
 #endif
 	}
 	return _systemStyleSuffixes;
