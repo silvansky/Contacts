@@ -751,11 +751,13 @@ void ChatMessageHandler::showHistoryLinks(IChatWindow *AWindow, HisloryLoadState
 			message += msgMask.arg(tr("Failed to load history messages from server")).arg("v-chat-header-message");
 		}
 
+#ifdef DEBUG_ENABLED
 		QUrl updateHistoryUrl;
 		updateHistoryUrl.setScheme(URL_SCHEME_ACTION);
 		updateHistoryUrl.setPath(URL_PATH_HISTORY);
 		updateHistoryUrl.setQueryItems(QList< QPair<QString, QString> >() << qMakePair<QString,QString>(QString("show"),QString("update")));
 		message += urlMask.arg(updateHistoryUrl.toString()).arg(QString::null).arg("v-chat-header-b v-chat-header-reload");
+#endif
 
 		QUrl showWindowUrl;
 		showWindowUrl.setScheme(URL_SCHEME_ACTION);
