@@ -1698,8 +1698,11 @@ void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 
 void CustomBorderContainer::mouseMove(const QPoint & globalPos, QWidget * widget)
 {
-	bool needToRepaintHeaderButtons = (!headerButtonsRect().contains(mapFromGlobal(globalPos))) && headerButtonsRect().contains(lastMousePosition);
+	bool needToRepaintHeaderButtons = headerButtonsRect().contains(mapFromGlobal(globalPos)) || headerButtonsRect().contains(lastMousePosition);
 	lastMousePosition = mapFromGlobal(globalPos);
+//#ifdef DEBUG_CUSTOMBORDER
+//	qDebug() << "mouseMove: needToRepaintHeaderButtons:" << needToRepaintHeaderButtons << " pos:" << globalPos;
+//#endif
 	if (needToRepaintHeaderButtons)
 		repaintHeaderButtons();
 	if (geometryState() != None)
@@ -1725,6 +1728,9 @@ bool CustomBorderContainer::mousePress(const QPoint & globalPos, QWidget * widge
 {
 	bool handled = false;
 	pressedHeaderButton = headerButtonUnderMouse();
+//#ifdef DEBUG_CUSTOMBORDER
+//	qDebug() << "mousePress: header button:" << pressedHeaderButton << " pos:" << globalPos;
+//#endif
 	if (pressedHeaderButton == NoneButton)
 	{
 		if (resizeBorder != NoneBorder)
@@ -1762,6 +1768,9 @@ bool CustomBorderContainer::mouseRelease(const QPoint & globalPos, QWidget * wid
 		}
 		else
 		{
+//#ifdef DEBUG_CUSTOMBORDER
+//			qDebug() << "mouseRelease: header button:" << pressedHeaderButton << " pos:" << globalPos;
+//#endif
 			if (headerButtonUnderMouse() == pressedHeaderButton)
 			{
 				switch (pressedHeaderButton)

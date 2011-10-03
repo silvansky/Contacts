@@ -182,9 +182,16 @@ void CustomInputDialog::initLayout()
 	descrLabel->setVisible(false);
 	QHBoxLayout * buttonsLayout = new QHBoxLayout;
 	buttonsLayout->addStretch();
-	buttonsLayout->addWidget(acceptButton = new QPushButton);
+	acceptButton = new QPushButton;
 	acceptButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-	buttonsLayout->addWidget(rejectButton = new QPushButton);
+	rejectButton = new QPushButton;
+#ifdef Q_WS_MAC
+	buttonsLayout->addWidget(rejectButton);
+	buttonsLayout->addWidget(acceptButton);
+#else
+	buttonsLayout->addWidget(acceptButton);
+	buttonsLayout->addWidget(rejectButton);
+#endif
 	buttonsLayout->setContentsMargins(0, 5, 0, 0);
 	mainLayout->addLayout(buttonsLayout);
 	container->setLayout(mainLayout);

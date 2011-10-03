@@ -19,7 +19,7 @@
 namespace WidgetManagerData 
 {
 	static bool isAlertEnabled = true;
-};
+}
 
 class WindowSticker :
 		public QObject
@@ -176,7 +176,9 @@ void WidgetManager::showActivateRaiseWindow(QWidget *AWindow)
 		{
 			AWindow->show();
 		}
+#ifndef Q_WS_MAC
 		AWindow->activateWindow();
+#endif
 		WidgetManager::raiseWidget(AWindow);
 	}
 }

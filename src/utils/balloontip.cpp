@@ -11,6 +11,8 @@
 #include <QMouseEvent>
 #include <QTimer>
 
+#include <QDebug>
+
 BalloonTip * BalloonTip::theSolitaryBalloonTip = NULL;
 
 bool BalloonTip::isBalloonVisible()
@@ -217,7 +219,8 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 	sh  = sizeHint();
 
 	int ml, mr, mt, mb;
-	QSize sz = sizeHint();
+	QSize sz = sh;
+	qDebug() << "drawBalloon: sz = " << sz;
 	switch (arrowPosition)
 	{
 	case ArrowLeft:
@@ -365,6 +368,7 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 	painter2.setPen(QPen(palette().color(QPalette::Window).darker(160), border));
 	painter2.setBrush(palette().color(QPalette::Window));
 	painter2.drawPath(path);
+	qDebug() << "drawBalloon: path.boundingRect() = " << path.boundingRect();
 
 	if (msecs > 0)
 		timerId = startTimer(msecs);
@@ -373,7 +377,9 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 
 void BalloonTip::paintEvent(QPaintEvent *evt)
 {
+	qDebug() << evt->rect() << rect() << pixmap.size();
 	QPainter painter(this);
+	painter.setClipRect(rect());
 	painter.drawPixmap(rect(), pixmap);
 	QWidget::paintEvent(evt);
 }
@@ -391,9 +397,9 @@ void BalloonTip::timerEvent(QTimerEvent *ev)
 {
 	if (ev->timerId() == timerId)
 	{
-		killTimer(timerId);
 		if (!underMouse())
 		{
+			killTimer(timerId);
 			BalloonTip::hideBalloon();
 			return;
 		}
