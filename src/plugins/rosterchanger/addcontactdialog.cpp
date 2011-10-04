@@ -72,6 +72,11 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	ui.pbtCancel->setText(tr("Cancel"));
 	ui.pbtContinue->setEnabled(false);
 
+#ifdef Q_WS_MAC
+	ui.buttonsLayout->addWidget(ui.pbtContinue);
+	ui.buttonsLayout->setSpacing(16);
+#endif
+
 	initialize(APluginManager);
 	initGroups();
 

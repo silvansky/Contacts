@@ -61,19 +61,22 @@ QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
 {
 	if (!image.isNull())
 	{
-		QBitmap bmp(size, size);
-		QPainter bp(&bmp);
+		QBitmap shape(size, size);
+		QPainter bp(&shape);
 		bp.fillRect(0, 0, size, size, Qt::color0);
 		bp.setPen(QPen(Qt::color1));
 		bp.setBrush(QBrush(Qt::color1));
+#ifndef Q_WS_MAC
 		bp.drawRoundedRect(QRect(0, 0, size - 1, size - 1), radius, radius);
+#else
+		bp.drawRoundedRect(QRect(0, 0, size - 1, size - 1), radius, radius);
+#endif
 		bp.end();
-		QRegion shape(bmp);
 		QImage roundSquaredImage(size, size, QImage::Format_ARGB32);
 		roundSquaredImage.fill(QColor(0, 0, 0, 0).rgba());
 		QPainter p(&roundSquaredImage);
 		p.fillRect(0, 0, size, size, Qt::transparent);
-		p.setClipRegion(shape);
+		p.setClipRegion(QRegion(shape));
 		p.drawImage(0, 0, squared(image, size));
 		p.end();
 		return roundSquaredImage;

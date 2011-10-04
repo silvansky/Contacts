@@ -56,6 +56,11 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 	connect(FMetaRoster->instance(),SIGNAL(metaAvatarChanged(const QString &)),SLOT(onMetaAvatarChanged(const QString &)));
 	connect(FMetaRoster->instance(),SIGNAL(metaPresenceChanged(const QString &)),SLOT(onMetaPresenceChanged(const QString &)));
 
+#ifdef Q_WS_MAC
+	ui.buttonsLayout->setSpacing(16);
+	ui.buttonsLayout->addWidget(ui.pbtAddContact);
+#endif
+
 	ui.pbtClose->setFocus();
 	connect(ui.pbtAddContact,SIGNAL(clicked()),SLOT(onAddContactButtonClicked()));
 	connect(ui.pbtClose,SIGNAL(clicked()),SLOT(reject()));

@@ -32,6 +32,8 @@
 #include "iconstorage.h"
 #ifdef Q_WS_WIN
 # include <qt_windows.h>
+#elif defined Q_WS_MAC
+# include "macwidgets.h"
 #endif
 
 // internal functions
@@ -1155,6 +1157,9 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 
 void CustomBorderContainer::init()
 {
+#ifdef Q_WS_MAC
+	ChangeWindowAttributes(windowRefFromWidget(this), kWindowNoShadowAttribute, kWindowNoAttributes);
+#endif
 	windowMenu = NULL;
 	// vars
 	containedWidget = NULL;
