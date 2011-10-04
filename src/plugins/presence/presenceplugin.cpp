@@ -10,8 +10,10 @@
 
 PresencePlugin::PresencePlugin()
 {
+	FGateways = NULL;
 	FXmppStreams = NULL;
 	FStatusIcons = NULL;
+	FMetaContacts = NULL;
 	FNotifications = NULL;
 	FStanzaProcessor = NULL;
 	FMessageProcessor = NULL;
@@ -73,6 +75,14 @@ bool PresencePlugin::initConnections(IPluginManager *APluginManager, int &AInitO
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
+	if (plugin)
+		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
+
 	return FXmppStreams!=NULL && FStanzaProcessor!=NULL;
 }
 
@@ -84,7 +94,7 @@ bool PresencePlugin::initObjects()
 		stateType.order = OWO_NOTIFICATIONS_STATUS_CHANGES;
 		stateType.title = tr("State Changes");
 		stateType.kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::SoundPlay;
-		stateType.kindDefs = 0;
+		stateType.kindDefs = INotification::RosterNotify;
 		FNotifications->registerNotificationType(NNT_CONTACT_STATE,stateType);
 
 		INotificationType moodType;
@@ -145,11 +155,46 @@ void PresencePlugin::removePresence(IXmppStream *AXmppStream)
 	}
 }
 
+bool PresencePlugin::isNotifyAvailable(IPresence *APresence, const Jid &AContactJid) const
+{
+	if (!FConnectTime.contains(APresence))
+		return false;
+
+	if (FConnectTime.value(APresence).secsTo(QDateTime::currentDateTime())<CONNECTION_NOTIFY_TIMEOUT)
+		return false;
+
+	if (AContactJid.node().isEmpty())
+		return false;
+
+	if (APresence->streamJid().pBare() == AContactJid.pBare())
+		return false;
+
+	IMetaItemDescriptor descriptor = FMetaContacts!=NULL ? FMetaContacts->metaDescriptorByItem(AContactJid) : IMetaItemDescriptor();
+	if (descriptor.service)
+		return false;
+
+	return true;
+}
+
+QDateTime PresencePlugin::lastNotifyTime(IPresence *APresence, const Jid &AContactJid, const QHash<Jid, QDateTime> &ALastNotify) const
+{
+	QDateTime lastNotify = ALastNotify.value(AContactJid.bare());
+	IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(APresence->streamJid()) : NULL;
+	IMetaContact contact = mroster!=NULL ? mroster->metaContact(mroster->itemMetaContact(AContactJid)) : IMetaContact();
+	foreach(Jid itemJid, contact.items)
+	{
+		QDateTime itemLastNotify = ALastNotify.value(itemJid);
+		if (!itemLastNotify.isNull() && (lastNotify.isNull() || lastNotify<itemLastNotify))
+			lastNotify = itemLastNotify;
+	}
+	return lastNotify;
+}
+
 void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem &AItem)
 {
-	if (FNotifications && !AItem.itemJid.node().isEmpty() && FConnectTime.contains(APresence))
+	if (FNotifications && isNotifyAvailable(APresence,AItem.itemJid))
 	{
-		QDateTime lastNotify = FLastMoodNotify.value(AItem.itemJid);
+		QDateTime lastNotify = lastNotifyTime(APresence,AItem.itemJid,FLastMoodNotify);
 		if (lastNotify.isNull() || lastNotify.secsTo(QDateTime::currentDateTime())>=MOOD_NOTIFY_TIMEOUT)
 		{
 			INotification notify;
@@ -167,23 +212,43 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 				notify.data.insert(NDR_SOUND_FILE, SDF_PRESENCE_MOOD_CHANGED);
 				FNotifies.insertMulti(APresence,FNotifications->appendNotification(notify));
 			}
-			FLastMoodNotify.insert(AItem.itemJid,QDateTime::currentDateTime());
+			FLastMoodNotify.insert(AItem.itemJid.bare(),QDateTime::currentDateTime());
 		}
 	}
 }
 
 void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceItem &AItem)
 {
-	if (FNotifications && !AItem.itemJid.node().isEmpty() && FConnectTime.contains(APresence) && FConnectTime.value(APresence).secsTo(QDateTime::currentDateTime())>CONNECTION_NOTIFY_TIMEOUT)
+	if (FNotifications && isNotifyAvailable(APresence,AItem.itemJid))
 	{
 		INotification notify;
 		notify.kinds = FNotifications->notificationKinds(NNT_CONTACT_STATE);
 
-		QDateTime lastNotify = FLastStateNotify.value(AItem.itemJid);
+		QDateTime lastNotify = lastNotifyTime(APresence,AItem.itemJid,FLastStateNotify);
 		if (lastNotify.isNull() || lastNotify.secsTo(QDateTime::currentDateTime())>=STATE_NOTIFY_TIMEOUT)
-			FLastStateNotify.insert(AItem.itemJid,QDateTime::currentDateTime());
+		{
+			bool isMetaStateChanged = true;
+			IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(APresence->streamJid()) : NULL;
+			IMetaContact contact = mroster!=NULL ? mroster->metaContact(mroster->itemMetaContact(AItem.itemJid)) : IMetaContact();
+			foreach(Jid itemJid, contact.items)
+			{
+				IMetaItemDescriptor descriptor = FMetaContacts!=NULL ? FMetaContacts->metaDescriptorByItem(itemJid) : IMetaItemDescriptor();
+				if (!descriptor.service && itemJid.pBare()!=AItem.itemJid.pBare() && isContactOnline(itemJid))
+				{
+					isMetaStateChanged = false;
+					break;
+				}
+			}
+			if (isMetaStateChanged)
+				FLastStateNotify.insert(AItem.itemJid.bare(),QDateTime::currentDateTime());
+			else
+				notify.kinds = notify.kinds & INotification::RosterNotify;
+		}
 		else
+		{
 			notify.kinds = notify.kinds & INotification::RosterNotify;
+		}
+
 
 		if (notify.kinds > 0)
 		{
@@ -234,7 +299,7 @@ void PresencePlugin::onPresenceItemReceived(const IPresenceItem &AItem, const IP
 		{
 			notifyMoodChanged(presence,AItem);
 		}
-		else if (AItem.show != IPresence::Offline && AItem.show != IPresence::Error)
+		else if (AItem.show!=IPresence::Offline && AItem.show!=IPresence::Error)
 		{
 			QSet<IPresence *> &presences = FContactPresences[AItem.itemJid];
 			if (presences.isEmpty())

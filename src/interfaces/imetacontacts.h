@@ -35,7 +35,7 @@ struct IMetaItemDescriptor
 	bool persistent;
 	int metaOrder;
 	QString gateId;
-   QString gatePrefix;
+	QString gatePrefix;
 	QList<QString> domains;
 };
 

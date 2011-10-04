@@ -12,8 +12,10 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/iroster.h>
+#include <interfaces/igateways.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/istatusicons.h>
+#include <interfaces/imetacontacts.h>
 #include <interfaces/inotifications.h>
 #include <interfaces/imessageprocessor.h>
 #include "presence.h"
@@ -55,6 +57,8 @@ signals:
 	void presenceClosed(IPresence *APresence);
 	void presenceRemoved(IPresence *APresence);
 protected:
+	bool isNotifyAvailable(IPresence *APresence, const Jid &AContactJid) const;
+	QDateTime lastNotifyTime(IPresence *APresence, const Jid &AContactJid, const QHash<Jid, QDateTime> &ALastNotify) const;
 	void notifyMoodChanged(IPresence *APresence, const IPresenceItem &AItem);
 	void notifyStateChanged(IPresence *APresence, const IPresenceItem &AItem);
 protected slots:
@@ -71,20 +75,22 @@ protected slots:
 	void onNotificationRemoved(int ANotifyId);
 	void onNotificationTest(const QString &ATypeId, ushort AKinds);
 private:
+	IGateways *FGateways;
 	IXmppStreams *FXmppStreams;
 	IStatusIcons *FStatusIcons;
+	IMetaContacts *FMetaContacts;
 	INotifications *FNotifications;
 	IStanzaProcessor *FStanzaProcessor;
 	IMessageProcessor *FMessageProcessor;
 private:
 	QList<IPresence *> FPresences;
 	QObjectCleanupHandler FCleanupHandler;
-	QMap<IPresence *, QDateTime> FConnectTime;
 	QHash<Jid, QSet<IPresence *> > FContactPresences;
 private:
 	QMultiMap<IPresence *, int> FNotifies;
 	QHash<Jid, QDateTime> FLastMoodNotify;
 	QHash<Jid, QDateTime> FLastStateNotify;
+	QMap<IPresence *, QDateTime> FConnectTime;
 };
 
 #endif // PRESENCEPLUGIN_H
