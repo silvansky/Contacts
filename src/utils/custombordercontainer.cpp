@@ -1709,7 +1709,7 @@ void CustomBorderContainer::mouseMove(const QPoint & globalPos, QWidget * widget
 //	qDebug() << "mouseMove: needToRepaintHeaderButtons:" << needToRepaintHeaderButtons << " pos:" << globalPos;
 //#endif
 	if (needToRepaintHeaderButtons)
-		repaintHeaderButtons();
+		QTimer::singleShot(10, this, SLOT(repaintHeaderButtons()));
 	if (geometryState() != None)
 	{
 		updateGeometry(globalPos);
@@ -1913,10 +1913,10 @@ void CustomBorderContainer::checkResizeCondition(const QPoint & p)
 
 void CustomBorderContainer::checkMoveCondition(const QPoint & p)
 {
-	if (headerButtonsRect().contains(p))
-	{
-		repaintHeaderButtons();
-	}
+//	if (headerButtonsRect().contains(p))
+//	{
+//		repaintHeaderButtons();
+//	}
 	if (_isMaximized || isFullScreen() || !movable)
 		canMove = false;
 	else

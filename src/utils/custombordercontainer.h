@@ -162,7 +162,9 @@ protected:
 	bool closeButtonUnderMouse() const;
 	HeaderButtons headerButtonUnderMouse() const;
 	QRect headerButtonsRect() const;
+protected slots:
 	void repaintHeaderButtons();
+protected:
 	QRect windowIconRect() const;
 	void showWindowMenu(const QPoint & p);
 	void childsRecursive(QObject *object, bool install);
