@@ -18,4 +18,3 @@ NSView * nsViewFromWidget(QWidget * w)
 {
 	return (NSView *)w->winId();
 }
-

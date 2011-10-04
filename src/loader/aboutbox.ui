@@ -139,7 +139,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="buttonsLayout">
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">

@@ -149,6 +149,11 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	ui.lneEMail->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.tedComment->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+#ifdef Q_WS_MAC
+	ui.buttonsLayout->setSpacing(16);
+	ui.buttonsLayout->addWidget(ui.pbtSendComment);
+#endif
+
 	ui.lblSendCommentStatus->setVisible(false);
 
 	QString techInfo("<br><br><br>");

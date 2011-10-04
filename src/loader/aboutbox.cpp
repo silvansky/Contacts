@@ -18,6 +18,11 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 
+#ifdef Q_WS_MAC
+	ui.buttonsLayout->setSpacing(16);
+	ui.buttonsLayout->addWidget(ui.pbtSendComment);
+#endif
+
 	QString styleBegin = "<html><style>a { color: #acacac; }</style><body><font color=#acacac>";
 	QString styleEnd = "</font></body></html>";
 

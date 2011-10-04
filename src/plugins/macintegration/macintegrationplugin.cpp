@@ -9,10 +9,33 @@
 #include <QTextEdit>
 #include <QWebView>
 #include <QClipboard>
-
+#include <interfaces/imessagewidgets.h>
 #include <utils/custombordercontainer.h>
 
 extern void qt_mac_set_dock_menu(QMenu *); // Qt internal function
+
+static ITabWindow * findTabWindow(QObject * parent)
+{
+	ITabWindow * tw = NULL;
+	if (parent)
+	{
+		foreach (QObject * child, parent->children())
+		{
+			if (child->inherits("ITabWindow"))
+			{
+				return qobject_cast<ITabWindow*>(child);
+			}
+			else
+			{
+				tw = findTabWindow(child);
+				if (tw)
+					break;
+			}
+		}
+	}
+	return tw;
+}
+
 
 MacIntegrationPlugin::MacIntegrationPlugin()
 {
@@ -156,7 +179,7 @@ void MacIntegrationPlugin::initMenus()
 	connect(minimizeAction, SIGNAL(triggered()), SLOT(onMinimizeAction()));
 	_windowMenu->addAction(minimizeAction);
 
-	Action * closeAction = new Action;
+	closeAction = new Action;
 	closeAction->setText(tr("Close"));
 	closeAction->setShortcut(QKeySequence("Ctrl+W"));
 	connect(closeAction, SIGNAL(triggered()), SLOT(onCloseAction()));
@@ -249,6 +272,21 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 			connect(wv->page(), SIGNAL(contentsChanged()), SLOT(onTextChanged()));
 		}
 	}
+	if (qApp->activeWindow())
+	{
+		ITabWindow * tw = findTabWindow(qApp->activeWindow());
+		if (tw)
+		{
+			closeAction->setText(tr("Close Tab"));
+		}
+		else
+		{
+			closeAction->setText(tr("Close"));
+		}
+		closeAction->setEnabled(true);
+	}
+	else
+		closeAction->setEnabled(false);
 }
 
 void MacIntegrationPlugin::onMinimizeAction()
@@ -260,13 +298,21 @@ void MacIntegrationPlugin::onMinimizeAction()
 
 void MacIntegrationPlugin::onCloseAction()
 {
-	QWidget * activeWindow = QApplication::activeWindow();
-	if (CustomBorderContainer* border = qobject_cast<CustomBorderContainer*>(activeWindow))
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
 	{
-		border->closeWidget();
+		tw->currentTabPage()->closeTabPage();
 	}
-	else if (activeWindow)
-		activeWindow->close();
+	else
+	{
+		QWidget * activeWindow = QApplication::activeWindow();
+		if (CustomBorderContainer* border = qobject_cast<CustomBorderContainer*>(activeWindow))
+		{
+			border->closeWidget();
+		}
+		else if (activeWindow)
+			activeWindow->close();
+	}
 }
 
 // copy/cut/paste/undo/redo/selectall are handled by widgets, these slots do nothing for now

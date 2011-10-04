@@ -8,6 +8,7 @@
 #define MACINTEGRATION_UUID "{c936122e-cbf3-442d-b01f-8ecc5b0ad530}"
 
 class MacIntegrationPrivate;
+class ITabWindow;
 
 class MacIntegrationPlugin :
 		public QObject,
@@ -65,6 +66,7 @@ private:
 	MacIntegrationPrivate * p;
 	// actions
 	Action * copyAction, * cutAction, * pasteAction, * undoAction, * redoAction, * selectallAction;
+	Action * closeAction;
 
 };
 
