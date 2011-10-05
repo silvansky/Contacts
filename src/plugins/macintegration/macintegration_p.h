@@ -17,6 +17,7 @@ signals:
 	void dockClicked();
 public:
 	void emitClick();
+	void setDockBadge(const QString & badgeText);
 private:
 	static MacIntegrationPrivate * _instance;
 };

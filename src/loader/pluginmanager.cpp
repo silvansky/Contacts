@@ -117,7 +117,7 @@ IPlugin *PluginManager::pluginInstance(const QUuid &AUuid) const
 
 QList<IPlugin *> PluginManager::pluginInterface(const QString &AInterface) const
 {
-	QList<IPlugin *> plugins;
+	//QList<IPlugin *> plugins;
 	if (!FPlugins.contains(AInterface))
 	{
 		foreach(PluginItem pluginItem, FPluginItems)
@@ -333,7 +333,7 @@ void PluginManager::loadSettings()
 		<< FDataPath+"/resources");
 
 #ifdef Q_WS_MAC
-	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO128));
+	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO256));
 #else
 	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
 #endif

@@ -15,6 +15,7 @@ public:
 	virtual Menu * editMenu() = 0;
 	virtual Menu * contactsMenu() = 0;
 	virtual Menu * windowMenu() = 0;
+	virtual void setDockBadge(const QString & badgeText) = 0;
 protected:
 	// signals
 	virtual void dockClicked() = 0;

@@ -37,3 +37,11 @@ void MacIntegrationPrivate::emitClick()
 {
 	emit dockClicked();
 }
+
+void MacIntegrationPrivate::setDockBadge(const QString & badgeText)
+{
+	const char * utf8String = badgeText.toUtf8().constData();
+	NSString * badgeString = [[NSString alloc] initWithUTF8String: utf8String];
+	[[NSApp dockTile] setBadgeLabel: badgeString];
+	[badgeString release];
+}

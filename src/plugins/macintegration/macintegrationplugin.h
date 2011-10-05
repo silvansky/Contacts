@@ -35,6 +35,7 @@ public:
 	Menu * editMenu();
 	Menu * contactsMenu();
 	Menu * windowMenu();
+	void setDockBadge(const QString & badgeText);
 signals:
 	void dockClicked();
 

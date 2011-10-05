@@ -113,6 +113,11 @@ Menu * MacIntegrationPlugin::windowMenu()
 	return _windowMenu;
 }
 
+void MacIntegrationPlugin::setDockBadge(const QString & badgeText)
+{
+	MacIntegrationPrivate::instance()->setDockBadge(badgeText);
+}
+
 void MacIntegrationPlugin::initMenus()
 {
 	_menuBar = new QMenuBar(NULL); // this must be the first parentless QMenuBar
