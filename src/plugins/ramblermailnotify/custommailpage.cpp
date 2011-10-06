@@ -62,7 +62,14 @@ void CustomMailPage::showTabPage()
 {
 	assignTabPage();
 	if (isWindow())
+	{
+#ifdef Q_WS_MAC
+		show();
+		WidgetManager::alertWidget(this);
+#else
 		WidgetManager::showActivateRaiseWindow(this);
+#endif
+	}
 	else
 		emit tabPageShow();
 }

@@ -116,7 +116,14 @@ void ChatWindow::showTabPage()
 {
 	assignTabPage();
 	if (isWindow())
+	{
+#ifdef Q_WS_MAC
+		window()->show();
+		WidgetManager::alertWidget(this);
+#else
 		WidgetManager::showActivateRaiseWindow(this);
+#endif
+	}
 	else
 		emit tabPageShow();
 }

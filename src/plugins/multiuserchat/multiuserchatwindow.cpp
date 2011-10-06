@@ -124,7 +124,14 @@ void MultiUserChatWindow::showTabPage()
 {
 	assignTabPage();
 	if (isWindow())
+	{
+#ifdef Q_WS_MAC
+		show();
+		WidgetManager::alertWidget(this);
+#else
 		WidgetManager::showActivateRaiseWindow(this);
+#endif
+	}
 	else
 		emit tabPageShow();
 }
@@ -271,7 +278,7 @@ INotification MultiUserChatWindow::messageNotify(INotifications *ANotifications,
 					notify.data.insert(NDR_ICON,storage->getIcon(MNI_MUC_MESSAGE));
 					notify.data.insert(NDR_POPUP_TITLE,tr("[%1] in conference %2").arg(contactJid.resource()).arg(contactJid.node()));
 					notify.data.insert(NDR_SOUND_FILE,SDF_MUC_MESSAGE);
-					
+
 					FActiveMessages.append(messageId);
 					updateWindow();
 				}

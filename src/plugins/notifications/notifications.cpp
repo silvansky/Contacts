@@ -247,7 +247,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (!blockPopupAndSound && (record.notification.kinds & INotification::PopupWindow)>0 && 
+	if (!blockPopupAndSound && (record.notification.kinds & INotification::PopupWindow)>0 &&
 		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::PopupWindow)).value().toBool())
 	{
 		if (replaceNotifyId > 0)
@@ -336,7 +336,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if ((record.notification.kinds & INotification::ShowMinimized)>0 && 
+	if ((record.notification.kinds & INotification::ShowMinimized)>0 &&
 		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::ShowMinimized)).value().toBool())
 	{
 		QWidget *widget = qobject_cast<QWidget *>((QWidget *)record.notification.data.value(NDR_SHOWMINIMIZED_WIDGET).toLongLong());
@@ -344,13 +344,17 @@ int Notifications::appendNotification(const INotification &ANotification)
 		{
 			ITabPage *page = qobject_cast<ITabPage *>(widget);
 			if (page)
+#ifdef Q_WS_MAC
+				page->showTabPage();
+#else
 				page->showMinimizedTabPage();
+#endif
 			else if (widget->isWindow() && !widget->isVisible())
 				widget->showMinimized();
 		}
 	}
 
-	if ((record.notification.kinds & INotification::AlertWidget)>0 && 
+	if ((record.notification.kinds & INotification::AlertWidget)>0 &&
 		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::AlertWidget)).value().toBool())
 	{
 		QWidget *widget = qobject_cast<QWidget *>((QWidget *)record.notification.data.value(NDR_ALERT_WIDGET).toLongLong());
@@ -358,7 +362,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 			WidgetManager::alertWidget(widget);
 	}
 
-	if ((record.notification.kinds & INotification::TabPageNotify)>0 && 
+	if ((record.notification.kinds & INotification::TabPageNotify)>0 &&
 		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::TabPageNotify)).value().toBool())
 	{
 		ITabPage *page = qobject_cast<ITabPage *>((QWidget *)record.notification.data.value(NDR_TABPAGE_WIDGET).toLongLong());

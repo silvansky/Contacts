@@ -79,7 +79,14 @@ void MailNotifyPage::showTabPage()
 {
 	assignTabPage();
 	if (isWindow())
+	{
+#ifdef Q_WS_MAC
+		show();
+		WidgetManager::alertWidget(this);
+#else
 		WidgetManager::showActivateRaiseWindow(this);
+#endif
+	}
 	else
 		emit tabPageShow();
 }
@@ -156,7 +163,7 @@ void MailNotifyPage::appendNewMail(const Stanza &AStanza)
 	QString fromName = contactElem.firstChildElement("name").text().trimmed();
 	fromItem->setText(fromName.isEmpty() ? contactElem.firstChildElement("e-mail").text() : fromName);
 	fromItem->setData(Qt::UserRole,contactElem.firstChildElement("jid").text());
-	
+
 	QTableWidgetItem *subjectItem = new QTableWidgetItem();
 	subjectItem->setText(message.subject());
 
