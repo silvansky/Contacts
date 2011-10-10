@@ -29,7 +29,7 @@ SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvat
 	connect(FVCard->instance(), SIGNAL(vcardError(const QString &)), SLOT(onVCardError(const QString &)));
 
 	FRoster = ARosterPlugin->findRoster(AStreamJid);
-	connect(FRoster->instance(), SIGNAL(received(const IRosterItem &, const IRosterItem &)),
+	connect(FRoster->instance(), SIGNAL(itemReceived(const IRosterItem &, const IRosterItem &)),
 		SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 
 	FRosterItem = FRoster->rosterItem(FContactJid);

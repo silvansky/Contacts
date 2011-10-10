@@ -59,5 +59,9 @@
         <source>Select All</source>
         <translation>Выбрать всё</translation>
     </message>
+    <message>
+        <source>Close Tab</source>
+        <translation>Закрыть вкладку</translation>
+    </message>
 </context>
 </TS>

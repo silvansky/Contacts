@@ -25,7 +25,7 @@ ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, Q
 	}
 	resize(650,500);
 
-	connect(FRoster->instance(),SIGNAL(received(const IRosterItem &, const IRosterItem &)),
+	connect(FRoster->instance(),SIGNAL(itemReceived(const IRosterItem &, const IRosterItem &)),
 		SLOT(onRosterItemReceived(const IRosterItem &, const IRosterItem &)));
 	connect(FRoster->instance(),SIGNAL(destroyed(QObject *)),SLOT(deleteLater()));
 

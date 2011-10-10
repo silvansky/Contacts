@@ -654,10 +654,15 @@ int Gateways::gateDescriptorStatus(const Jid &AStreamJid, const IGateServiceDesc
 			{
 				if (ADescriptor.needLogin)
 				{
-					foreach(Jid gateJid, gateDescriptorServices(AStreamJid,ADescriptor,true))
+					QList<Jid> streamGates = gateDescriptorServices(AStreamJid,ADescriptor,true);
+					if (!streamGates.isEmpty())
 					{
-						if (isServiceEnabled(AStreamJid,gateJid))
-							return GDS_ENABLED;
+						foreach(Jid gateJid, streamGates)
+						{
+							if (isServiceEnabled(AStreamJid,gateJid))
+								return GDS_ENABLED;
+						}
+						return GDS_DISABLED;
 					}
 					if (!gateDescriptorRegistrator(AStreamJid,ADescriptor).isEmpty())
 						return GDS_UNREGISTERED;

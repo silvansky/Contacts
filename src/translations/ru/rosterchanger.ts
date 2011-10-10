@@ -99,6 +99,10 @@
         <source>Open</source>
         <translation>Открыть</translation>
     </message>
+    <message>
+        <source>%1 service is temporarily unavailable, please try later.</source>
+        <translation>Сервис %1 временно недоступен, попробуйте повторить позднее.</translation>
+    </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>

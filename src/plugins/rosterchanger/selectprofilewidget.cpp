@@ -5,6 +5,7 @@ SelectProfileWidget::SelectProfileWidget(IRoster *ARoster, IGateways *AGateways,
 {
 	ui.setupUi(this);
 
+	FVisible = true;
 	FRoster = ARoster;
 	FGateways = AGateways;
 	FOptionsManager = AOptionsManager;
@@ -81,6 +82,7 @@ void SelectProfileWidget::updateProfiles()
 			it++;
 	}
 
+	Jid oldSelected = selectedProfile();
 	QList<Jid> newProfiles = (gates.toSet() - FProfiles.keys().toSet()).toList();
 	QList<Jid> oldProfiles = (FProfiles.keys().toSet() - gates.toSet()).toList();
 
@@ -166,16 +168,24 @@ void SelectProfileWidget::updateProfiles()
 			label->setEnabled(true);
 		}
 	}
-	setVisible(hasDisabledProfiles || FProfiles.count()>1);
 
-	if (selectedProfile().isEmpty())
+	Jid newSelected = selectedProfile();
+	if (newSelected.isEmpty())
 	{
 		if (!FDescriptor.needGate)
 			setSelectedProfile(streamJid());
 		else if (!enabledProfiles.isEmpty())
 			setSelectedProfile(enabledProfiles.value(0));
-		else if (!oldProfiles.isEmpty())
+		else if (oldSelected != newSelected)
 			emit selectedProfileChanged();
+	}
+
+	bool newVisible = hasDisabledProfiles || FProfiles.count()>1;
+	if (FVisible != newVisible)
+	{
+		FVisible = newVisible;
+		setVisible(FVisible);
+		emit adjustSizeRequested();
 	}
 
 	if (!newProfiles.isEmpty() || !oldProfiles.isEmpty())
