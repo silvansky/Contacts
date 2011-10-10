@@ -494,7 +494,11 @@ INotification SmsMessageHandler::messageNotify(INotifications *ANotifications, c
 
 				QTextDocument doc;
 				FMessageProcessor->messageToText(&doc,AMessage);
+#ifdef Q_WS_MAC
+				notify.data.insert(NDR_POPUP_TEXT, doc.toPlainText());
+#else
 				notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
+#endif
 
 				updateWindow(window);
 			}

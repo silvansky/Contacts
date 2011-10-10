@@ -9,6 +9,7 @@
 #include <QTextEdit>
 #include <QWebView>
 #include <QClipboard>
+#include <QStyle>
 #include <interfaces/imessagewidgets.h>
 #include <utils/custombordercontainer.h>
 
@@ -78,7 +79,9 @@ bool MacIntegrationPlugin::initObjects()
 	qt_mac_set_dock_menu(_dockMenu); // setting dock menu
 
 	connect(MacIntegrationPrivate::instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
+	connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(growlNotifyClicked(int)));
 	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
+	//postGrowlNotify(QApplication::style()->standardPixmap(QStyle::SP_MessageBoxCritical).toImage(), "Done!", "Growl notifications work ok.", "Error", 1);
 
 	return true;
 }
@@ -116,6 +119,11 @@ Menu * MacIntegrationPlugin::windowMenu()
 void MacIntegrationPlugin::setDockBadge(const QString & badgeText)
 {
 	MacIntegrationPrivate::instance()->setDockBadge(badgeText);
+}
+
+void MacIntegrationPlugin::postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)
+{
+	MacIntegrationPrivate::instance()->postGrowlNotify(icon, title, text, type, id);
 }
 
 void MacIntegrationPlugin::initMenus()

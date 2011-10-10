@@ -1,13 +1,36 @@
 #include "notifications.h"
 
+#include <QIcon>
+#include <QImage>
 #include <QProcess>
 #include <QVBoxLayout>
 #include <utils/imagemanager.h>
+#include <definitions/notificationtypes.h>
 #include "notifykindswidgets.h"
 
 #define TEST_NOTIFY_TIMEOUT             10000
 
 #define ADR_NOTIFYID                    Action::DR_Parametr1
+
+#ifdef Q_WS_MAC
+static QString resolveGrowlType(const QString & notifyType)
+{
+	if (notifyType == NNT_CHAT_MESSAGE)
+		return "New Message";
+	else if (notifyType == NNT_MAIL_NOTIFY)
+		return "New EMail";
+	else if (notifyType == NNT_CONTACT_STATE)
+		return "Status Changed";
+	else if (notifyType == NNT_CONTACT_MOOD)
+		return "Mood Changed";
+	else if (notifyType == NNT_BIRTHDAY_REMIND)
+		return "Birthday Reminder";
+	else if (notifyType == NNT_SUBSCRIPTION)
+		return "Subscription Message";
+	else
+		return "Error";
+}
+#endif
 
 Notifications::Notifications()
 {
@@ -114,6 +137,18 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &AInitOr
 	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
 	if (plugin)
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+
+#ifdef Q_WS_MAC
+	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+	if (plugin)
+	{
+		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
+		if (FMacIntegration)
+		{
+			connect(FMacIntegration->instance(), SIGNAL(growlNotifyClicked(int)), SLOT(onGrowlNotifyClicked(int)));
+		}
+	}
+#endif
 
 	return true;
 }
@@ -250,6 +285,17 @@ int Notifications::appendNotification(const INotification &ANotification)
 	if (!blockPopupAndSound && (record.notification.kinds & INotification::PopupWindow)>0 &&
 		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::PopupWindow)).value().toBool())
 	{
+#ifdef Q_WS_MAC
+		if (FMacIntegration)
+		{
+			QImage icon = qvariant_cast<QImage>(record.notification.data.value(NDR_POPUP_IMAGE));
+			QString title = record.notification.data.value(NDR_POPUP_TITLE).toString();
+			QString text = record.notification.data.value(NDR_POPUP_TEXT).toString();
+			QString type = resolveGrowlType(record.notification.typeId);
+			int id = notifyId;
+			FMacIntegration->postGrowlNotify(icon, title, text, type, id);
+		}
+#else
 		if (replaceNotifyId > 0)
 		{
 			NotifyRecord &replRecord = FNotifyRecords[replaceNotifyId];
@@ -277,6 +323,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		{
 			record.popupWidget->appendAction(action);
 		}
+#endif
 	}
 
 	if (FTrayManager)
@@ -345,7 +392,8 @@ int Notifications::appendNotification(const INotification &ANotification)
 			ITabPage *page = qobject_cast<ITabPage *>(widget);
 			if (page)
 #ifdef Q_WS_MAC
-				page->showTabPage();
+				//page->showTabPage();
+				;
 #else
 				page->showMinimizedTabPage();
 #endif
@@ -354,8 +402,11 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if ((record.notification.kinds & INotification::AlertWidget)>0 &&
-		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::AlertWidget)).value().toBool())
+	if ((record.notification.kinds & INotification::AlertWidget)>0
+#ifndef Q_WS_MAC
+			&& Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::AlertWidget)).value().toBool()
+#endif
+			)
 	{
 		QWidget *widget = qobject_cast<QWidget *>((QWidget *)record.notification.data.value(NDR_ALERT_WIDGET).toLongLong());
 		if (widget)
@@ -676,5 +727,13 @@ void Notifications::onTestNotificationTimerTimedOut()
 {
 	removeNotification(FTestNotifyId);
 }
+
+#ifdef Q_WS_MAC
+void Notifications::onGrowlNotifyClicked(int ANotifyId)
+{
+	activateNotification(ANotifyId);
+}
+#endif
+
 
 Q_EXPORT_PLUGIN2(plg_notifications, Notifications)

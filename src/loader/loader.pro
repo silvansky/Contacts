@@ -22,14 +22,14 @@ SVN_REVISION=$$system(svnversion -n -c ./../../)
 win32 {
   exists(svninfo.h):system(del svninfo.h)
   !isEmpty(SVN_REVISION):system(echo $${LITERAL_HASH}define SVN_REVISION \"$$SVN_REVISION\" >> svninfo.h) {
-    DEFINES         += SVNINFO
-    QMAKE_DISTCLEAN += svninfo.h
+	DEFINES         += SVNINFO
+	QMAKE_DISTCLEAN += svninfo.h
   }
 } else {
   exists(svninfo.h):system(rm -f svninfo.h)
   !isEmpty(SVN_REVISION):system(echo \\$${LITERAL_HASH}define SVN_REVISION \\\"$${SVN_REVISION}\\\" >> svninfo.h) {
-    DEFINES         += SVNINFO
-    QMAKE_DISTCLEAN += svninfo.h
+	DEFINES         += SVNINFO
+	QMAKE_DISTCLEAN += svninfo.h
   }
 }
 
@@ -63,7 +63,7 @@ macx {
 
   lib_utils.path   = $$INSTALL_LIBS
   lib_utils.extra  = cp -f ../libs/$$UTILS_LIB_NAME $(INSTALL_ROOT)$$INSTALL_LIBS/$$UTILS_LIB_NAME && \
-		     ln -sf $$UTILS_LIB_NAME $(INSTALL_ROOT)$$INSTALL_LIBS/$$UTILS_LIB_LINK
+			 ln -sf $$UTILS_LIB_NAME $(INSTALL_ROOT)$$INSTALL_LIBS/$$UTILS_LIB_LINK
   INSTALLS        += lib_utils
 
   name_tool.path   = $$INSTALL_BINS

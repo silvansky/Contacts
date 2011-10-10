@@ -48,14 +48,11 @@ TabWindow::~TabWindow()
 
 void TabWindow::showWindow()
 {
-#ifdef Q_WS_MAC
-#ifdef DEBUG_ENABLED
-	qDebug("showWindow");
-#endif
-	(FBorder ? (QWidget *)FBorder : (QWidget *)this)->show();
-#else
+//#ifdef Q_WS_MAC
+//	(FBorder ? (QWidget *)FBorder : (QWidget *)this)->show();
+//#else
 	WidgetManager::showActivateRaiseWindow(FBorder ? (QWidget *)FBorder : (QWidget *)this);
-#endif
+//#endif
 }
 
 void TabWindow::showMinimizedWindow()

@@ -339,7 +339,7 @@ bool ChatMessageHandler::messageCheck(int AOrder, const Message &AMessage, int A
 bool ChatMessageHandler::messageDisplay(const Message &AMessage, int ADirection)
 {
 	bool displayed = false;
-	
+
 	IChatWindow *window = NULL;
 	if (ADirection == IMessageProcessor::MessageIn)
 		window = AMessage.type()!=Message::Error ? getWindow(AMessage.to(),AMessage.from()) : findWindow(AMessage.to(),AMessage.from());
@@ -456,7 +456,11 @@ INotification ChatMessageHandler::messageNotify(INotifications *ANotifications, 
 
 				QTextDocument doc;
 				FMessageProcessor->messageToText(&doc,AMessage);
+#ifdef Q_WS_MAC
+				notify.data.insert(NDR_POPUP_TEXT,doc.toPlainText());
+#else
 				notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
+#endif
 
 				updateWindow(window);
 			}
@@ -1196,7 +1200,7 @@ void ChatMessageHandler::onNotificationTest(const QString &ATypeId, ushort AKind
 			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 			notify.data.insert(NDR_POPUP_ICON, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
-         notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contsctJid.full()));
+		 notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contsctJid.full()));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on www.rambler.ru :)"));
 		}
 		if (AKinds & INotification::SoundPlay)

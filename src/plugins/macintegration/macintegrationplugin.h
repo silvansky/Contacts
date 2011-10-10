@@ -36,9 +36,10 @@ public:
 	Menu * contactsMenu();
 	Menu * windowMenu();
 	void setDockBadge(const QString & badgeText);
+	void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 signals:
 	void dockClicked();
-
+	void growlNotifyClicked(int);
 private:
 	void initMenus();
 	void updateActions();

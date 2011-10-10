@@ -31,6 +31,9 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
+#ifdef Q_WS_MAC
+# include <interfaces/imacintegration.h>
+#endif
 #include <utils/options.h>
 #include <utils/systemmanager.h>
 #include "notifywidget.h"
@@ -57,8 +60,8 @@ class Notifications :
 	public INotifications,
 	public IOptionsHolder
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin INotifications IOptionsHolder);
+	Q_OBJECT
+	Q_INTERFACES(IPlugin INotifications IOptionsHolder)
 public:
 	Notifications();
 	~Notifications();
@@ -116,6 +119,9 @@ protected slots:
 	void onWindowNotifyOptions();
 	void onWindowNotifyDestroyed();
 	void onTestNotificationTimerTimedOut();
+#ifdef Q_WS_MAC
+	void onGrowlNotifyClicked(int ANotifyId);
+#endif
 private:
 	IAvatars *FAvatars;
 	IRosterPlugin *FRosterPlugin;
@@ -126,6 +132,9 @@ private:
 	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IOptionsManager *FOptionsManager;
+#ifdef Q_WS_MAC
+	IMacIntegration * FMacIntegration;
+#endif
 private:
 #ifdef QT_PHONON_LIB
 	Phonon::MediaObject *FMediaObject;

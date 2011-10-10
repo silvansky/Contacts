@@ -184,10 +184,10 @@ void WidgetManager::showActivateRaiseWindow(QWidget *AWindow)
 		{
 			AWindow->show();
 		}
-#ifndef Q_WS_MAC
+//#ifndef Q_WS_MAC
 		AWindow->activateWindow();
 		WidgetManager::raiseWidget(AWindow);
-#endif
+//#endif
 	}
 }
 
