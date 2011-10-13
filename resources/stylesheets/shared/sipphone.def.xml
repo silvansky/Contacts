@@ -8,4 +8,8 @@
     <key>sipCallNotifyer</key>
     <object mime='text/css'>sipcallnotifyer.qss</object>
   </file>
+  <file>
+    <key>sipphoneDialWidget</key>
+    <object mime='text/css'>sipphonedialwidget.qss</object>
+  </file>
 </styledef>

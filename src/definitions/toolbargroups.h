@@ -4,9 +4,10 @@
 //MainWindow - TopToolBar
 #define TBG_MWTTB_ROSTERSEARCH                                  100
 #define TBG_MWTTB_MULTIUSERCHAT                                 500
+#define TBG_MWTTB_SIPPHONE_DIAL                                 700
 #define TBG_MWTTB_MAINWINDOW_MAINMENU                           900
 
-
+//MessageWidgets - ToolBarWidget
 #define TBG_MWTBW_CLEAR_WINDOW                                  1800
 
 //ChatWindow - ToolBarWidget

@@ -128,7 +128,7 @@ bool RostersViewPlugin::initObjects()
 		connect(FGroupContactsAction,SIGNAL(triggered(bool)),SLOT(onGroupContactsAction(bool)));
 		//FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
 
-		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0,FRostersView);
+		FMainWindowPlugin->mainWindow()->rostersWidget()->addWidget(FRostersView);
 	}
 
 	if (FRostersModel)
@@ -157,6 +157,15 @@ bool RostersViewPlugin::initSettings()
 		IOptionsDialogNode dnode = { ONO_ROSTER, OPN_ROSTER, tr("Contact List"),MNI_ROSTERVIEW_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
+	}
+	return true;
+}
+
+bool RostersViewPlugin::startPlugin()
+{
+	if (FMainWindowPlugin)
+	{
+		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(FRostersView);
 	}
 	return true;
 }

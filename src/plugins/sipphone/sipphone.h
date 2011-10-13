@@ -28,6 +28,7 @@
 #include <interfaces/idefaultconnection.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/irosterchanger.h>
+#include <interfaces/imainwindow.h>
 #include <utils/errorhandler.h>
 #include <utils/action.h>
 
@@ -35,6 +36,7 @@
 //#include "sipphonewidget.h"
 #include "sipphoneproxy.h"
 #include "voipmediainit.h"
+#include "dialwidget.h"
 
 
 
@@ -140,6 +142,9 @@ protected slots:
 	void onNotificationRemoved(int ANotifyId);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
+	
+	void onDialActionTriggered(bool AChecked);
+	void onMainWindowRosterWidgetChanged(int AIndex);
 
 	void onTabActionHangup();
 
@@ -161,13 +166,13 @@ private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
 	INotifications *FNotifications;
-	//IRostersViewPlugin *FRostersViewPlugin;
 	IRosterChanger *FRosterChanger;
 	IRostersView *FRostersView;
 	IMetaContacts *FMetaContacts;
 	IPresencePlugin *FPresencePlugin;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
+	IMainWindow *FMainWindow;
 
 private:
 	int FSHISipRequest;
@@ -180,6 +185,10 @@ private:
 	QMap<int, QString> FNotifies;
 	QMap<QString, RCallControl*> FCallControls;
 	QMap<QString, Action*> FCallActions;
+
+	int FLastRosterWidget;
+	Action *FDialAction;
+	DialWidget *FDialWidget;
 
 	SipPhoneProxy* FSipPhoneProxy;
 

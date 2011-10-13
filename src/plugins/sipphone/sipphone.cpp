@@ -31,13 +31,14 @@ SipPhone::SipPhone() : __tmpMenu(NULL)
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FNotifications = NULL;
-	//FRostersViewPlugin = NULL;
 	FPresencePlugin = NULL;
-
+	FMainWindow = NULL;
 	FRosterChanger = NULL;
 
-	FSHISipRequest = -1;
+	FDialWidget = NULL;
+	FLastRosterWidget = 0;
 
+	FSHISipRequest = -1;
 	FSipPhoneProxy = NULL;
 
 	connect(this, SIGNAL(streamStateChanged(const QString&, int)), this, SLOT(onStreamStateChanged(const QString&, int)));
@@ -104,7 +105,6 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
 	{
-
 		IRostersViewPlugin *rostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (rostersViewPlugin)
 		{
@@ -114,15 +114,6 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 			connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)),
 				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)));
 		}
-
-		//FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
-		//if (FRostersViewPlugin)
-		//{
-		//	connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
-		//		SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
-		//	connect(FRostersViewPlugin->rostersView()->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)),
-		//		SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)));
-		//}
 	}
 
 	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
@@ -150,6 +141,14 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		connect(plugin->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onStreamClosed(IXmppStream *)));
 	}
 
+	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+	if (plugin)
+	{
+		IMainWindowPlugin *mainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+		if (mainWindowPlugin)
+			FMainWindow = mainWindowPlugin->mainWindow();
+	}
+
 
 #ifdef WIN32
 	WSADATA ws;
@@ -157,9 +156,10 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	{
 		int error = WSAGetLastError();
 		LogError(QString("[SipPhone] WSAStartup error: %1").arg(error));
-		exit(1);
+		return false;
 	}
 #endif
+
 	SipProtoInit::Init();
 	VoIPMediaInit::Init();
 	SipProtoInit::SetListenSipPort(5060);
@@ -195,6 +195,22 @@ bool SipPhone::initObjects()
 		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::TabPageNotify;
 		notifyType.kindDefs = notifyType.kindMask;
 		FNotifications->registerNotificationType(NNT_SIPPHONE_CALL,notifyType);
+	}
+
+	if (FMainWindow)
+	{
+		FLastRosterWidget = FMainWindow->rostersWidget()->currentIndex();
+		FDialWidget = new DialWidget(this,FMainWindow->rostersWidget());
+		FMainWindow->rostersWidget()->addWidget(FDialWidget);
+		connect(FMainWindow->rostersWidget(),SIGNAL(currentChanged(int)),SLOT(onMainWindowRosterWidgetChanged(int)));
+
+		FDialAction = new Action(FMainWindow->topToolBarChanger()->toolBar());
+		FDialAction->setText("Dial");
+		FDialAction->setCheckable(true);
+		FDialAction->setChecked(FMainWindow->rostersWidget()->currentWidget() == FDialWidget);
+		connect(FDialAction,SIGNAL(triggered(bool)),SLOT(onDialActionTriggered(bool)));
+		FMainWindow->topToolBarChanger()->insertAction(FDialAction,TBG_MWTTB_SIPPHONE_DIAL);
+		
 	}
 
 //	SipCallNotifyer * callNotifyer = new SipCallNotifyer("Tester", tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(Jid()));
@@ -2102,8 +2118,34 @@ Jid SipPhone::getContactWithPresence(const Jid &AStreamJid, const Jid &AContactW
 	return Jid::null;
 }
 
+void SipPhone::onDialActionTriggered(bool AChecked)
+{
+	if (!AChecked)
+	{
+		if (FLastRosterWidget>=0 && FLastRosterWidget<FMainWindow->rostersWidget()->count())
+			FMainWindow->rostersWidget()->setCurrentIndex(FLastRosterWidget);
+		else if (FRostersView && FMainWindow->rostersWidget()->indexOf(FRostersView->instance())>=0)
+			FMainWindow->rostersWidget()->setCurrentWidget(FRostersView->instance());
+	}
+	else
+	{
+		FMainWindow->rostersWidget()->setCurrentWidget(FDialWidget);
+	}
+	FDialAction->setChecked(FMainWindow->rostersWidget()->currentWidget() == FDialWidget);
+}
 
-
+void SipPhone::onMainWindowRosterWidgetChanged(int AIndex)
+{
+	if (FMainWindow->rostersWidget()->currentWidget() != FDialWidget)
+	{
+		FLastRosterWidget = AIndex;
+		FDialAction->setChecked(false);
+	}
+	else
+	{
+		FDialAction->setChecked(true);
+	}
+}
 
 
 Q_EXPORT_PLUGIN2(plg_sipphone, SipPhone)
