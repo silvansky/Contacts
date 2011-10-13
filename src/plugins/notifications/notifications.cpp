@@ -12,26 +12,6 @@
 
 #define ADR_NOTIFYID                    Action::DR_Parametr1
 
-#ifdef Q_WS_MAC
-static QString resolveGrowlType(const QString & notifyType)
-{
-	if (notifyType == NNT_CHAT_MESSAGE)
-		return "New Message";
-	else if (notifyType == NNT_MAIL_NOTIFY)
-		return "New EMail";
-	else if (notifyType == NNT_CONTACT_STATE)
-		return "Status Changed";
-	else if (notifyType == NNT_CONTACT_MOOD)
-		return "Mood Changed";
-	else if (notifyType == NNT_BIRTHDAY_REMIND)
-		return "Birthday Reminder";
-	else if (notifyType == NNT_SUBSCRIPTION)
-		return "Subscription Message";
-	else
-		return "Error";
-}
-#endif
-
 Notifications::Notifications()
 {
 	FAvatars = NULL;
@@ -291,7 +271,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 			QImage icon = qvariant_cast<QImage>(record.notification.data.value(NDR_POPUP_IMAGE));
 			QString title = record.notification.data.value(NDR_POPUP_TITLE).toString();
 			QString text = record.notification.data.value(NDR_POPUP_TEXT).toString();
-			QString type = resolveGrowlType(record.notification.typeId);
+			QString type = record.notification.typeId;
 			int id = notifyId;
 			FMacIntegration->postGrowlNotify(icon, title, text, type, id);
 		}

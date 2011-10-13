@@ -11,7 +11,7 @@
 	<string>Mood Changed</string>
 	<string>Status Changed</string>
 	<string>Birthday Reminder</string>
-	<string>New EMail</string>
+	<string>New E-Mail</string>
 	<string>Error</string>
 	<string>Subscription Message</string>
   </array>
@@ -19,7 +19,7 @@
   <array>
 	<string>New Message</string>
 	<string>Birthday Reminder</string>
-	<string>New EMail</string>
+	<string>New E-Mail</string>
 	<string>Error</string>
 	<string>Subscription Message</string>
   </array>

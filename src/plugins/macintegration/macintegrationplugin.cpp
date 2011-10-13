@@ -43,6 +43,14 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	_dockMenu = _fileMenu = _editMenu = _contactsMenu = _windowMenu = NULL;
 	_menuBar = NULL;
 	lastFocusedWidget = NULL;
+	// dummi translations
+	tr("New Message");
+	tr("New E-Mail");
+	tr("Mood Changed");
+	tr("Status Changed");
+	tr("Birthday Reminder");
+	tr("Error");
+	tr("Subscription Message");
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()

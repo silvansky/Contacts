@@ -63,5 +63,33 @@
         <source>Close Tab</source>
         <translation>Закрыть вкладку</translation>
     </message>
+    <message>
+        <source>New Message</source>
+        <translation>Новое сообщение</translation>
+    </message>
+    <message>
+        <source>New E-Mail</source>
+        <translation>Новое Письмо</translation>
+    </message>
+    <message>
+        <source>Mood Changed</source>
+        <translation>Смена настроения</translation>
+    </message>
+    <message>
+        <source>Status Changed</source>
+        <translation>Смена статуса</translation>
+    </message>
+    <message>
+        <source>Birthday Reminder</source>
+        <translation>Напоминания о днях рождения</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <source>Subscription Message</source>
+        <translation>Сообщения об авторизации</translation>
+    </message>
 </context>
 </TS>
