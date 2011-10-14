@@ -121,6 +121,7 @@ protected slots:
 	void onTestNotificationTimerTimedOut();
 #ifdef Q_WS_MAC
 	void onGrowlNotifyClicked(int ANotifyId);
+	void onShowGrowlPreferences();
 #endif
 private:
 	IAvatars *FAvatars;

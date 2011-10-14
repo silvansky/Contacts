@@ -209,3 +209,10 @@ void MacIntegrationPrivate::postGrowlNotify(const QImage & icon, const QString &
 	[nsId release];
 	[nsIcon release];
 }
+
+void MacIntegrationPrivate::showGrowlPrefPane()
+{
+	NSString * growlPath = [NSHomeDirectory() stringByAppendingPathComponent:@"/Library/PreferencePanes/Growl.prefPane"];
+	BOOL ok = [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath:growlPath]];
+	NSLog(@"opening %@: %@", growlPath, (ok ? @"OK" : @"FAILED"));
+}

@@ -126,12 +126,17 @@ Menu * MacIntegrationPlugin::windowMenu()
 
 void MacIntegrationPlugin::setDockBadge(const QString & badgeText)
 {
-	MacIntegrationPrivate::instance()->setDockBadge(badgeText);
+	MacIntegrationPrivate::setDockBadge(badgeText);
 }
 
 void MacIntegrationPlugin::postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)
 {
-	MacIntegrationPrivate::instance()->postGrowlNotify(icon, title, text, type, id);
+	MacIntegrationPrivate::postGrowlNotify(icon, title, text, type, id);
+}
+
+void MacIntegrationPlugin::showGrowlPreferencePane()
+{
+	MacIntegrationPrivate::showGrowlPrefPane();
 }
 
 void MacIntegrationPlugin::initMenus()

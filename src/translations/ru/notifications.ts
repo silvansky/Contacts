@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>GrowlPreferences</name>
+    <message>
+        <source>Rambler.Contacts uses Growl for notifications.</source>
+        <translation>Рамблер.Контакты испоьзуют Growl для уведомлений.</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&apos;growl.preferences&apos;&gt;Show Growl preferences.&lt;/a&gt;</source>
+        <translation>&lt;a href=&apos;growl.preferences&apos;&gt;Показать настройки Growl.&lt;/a&gt;</translation>
+    </message>
+</context>
+<context>
     <name>Notifications</name>
     <message>
         <source>Notifications</source>
@@ -42,6 +53,10 @@
     <message>
         <source>Disable all popup windows when watching fullscreen movies or games</source>
         <translation>Скрывать все уведомления при просмотре полноэкранных фильмов или игр</translation>
+    </message>
+    <message>
+        <source>Growl options</source>
+        <translation>Настройки Growl</translation>
     </message>
 </context>
 <context>

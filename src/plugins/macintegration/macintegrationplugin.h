@@ -37,6 +37,7 @@ public:
 	Menu * windowMenu();
 	void setDockBadge(const QString & badgeText);
 	void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
+	void showGrowlPreferencePane();
 signals:
 	void dockClicked();
 	void growlNotifyClicked(int);

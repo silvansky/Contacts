@@ -26,8 +26,10 @@ signals:
 public:
 	void emitClick();
 	void emitGrowlNotifyClick(int id);
-	void setDockBadge(const QString & badgeText);
-	void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
+	// static
+	static void setDockBadge(const QString & badgeText);
+	static void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
+	static void showGrowlPrefPane();
 private:
 	static MacIntegrationPrivate * _instance;
 };

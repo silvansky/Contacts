@@ -7,6 +7,9 @@
 #include <utils/imagemanager.h>
 #include <definitions/notificationtypes.h>
 #include "notifykindswidgets.h"
+#ifdef Q_WS_MAC
+# include "growlpreferences.h"
+#endif
 
 #define TEST_NOTIFY_TIMEOUT             10000
 
@@ -174,6 +177,7 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_NOTIFICATIONS)
 	{
+#ifndef Q_WS_MAC
 		QMultiMap<int, IOptionsWidget *> kindsWidgets;
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Method of notification"),AParent));
@@ -193,6 +197,12 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 			kindsWidgetsContainer->addWidget(widget);
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS, kindsWidgetsContainer);
+#else
+		widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Growl options"),AParent));
+		GrowlPreferences * growlPrefs = new GrowlPreferences;
+		connect(growlPrefs, SIGNAL(showGrowlPreferences()), SLOT(onShowGrowlPreferences()));
+		widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, growlPrefs);
+#endif
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Disable all popup windows and sounds"),AParent));
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsNodeWidget(Options::node(OPV_NOTIFICATIONS_NONOTIFYIFAWAY),tr("If status is 'Away'"),AParent));
@@ -715,6 +725,14 @@ void Notifications::onGrowlNotifyClicked(int ANotifyId)
 {
 	activateNotification(ANotifyId);
 }
+
+void Notifications::onShowGrowlPreferences()
+{
+	if (FMacIntegration)
+		FMacIntegration->showGrowlPreferencePane();
+
+}
+
 #endif
 
 

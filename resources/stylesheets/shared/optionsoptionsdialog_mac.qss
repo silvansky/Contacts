@@ -7,3 +7,8 @@ QFrame#dbbFrame
 	margin-left: 6px;
 	margin-right: 6px;
 }
+
+GrowlPreferences QLabel
+{
+	margin-left: 22px;
+}
