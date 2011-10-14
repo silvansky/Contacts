@@ -882,70 +882,37 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 
 void LoginDialog::saveCurrentProfileSettings()
 {
-	Jid streamJid = currentStreamJid();
-	QString profile = Jid::encode(streamJid.pBare());
-	if (FOptionsManager->profiles().contains(profile))
-	{
-		QFile login(QDir(FOptionsManager->profilePath(profile)).absoluteFilePath(FILE_LOGIN));
-		if (login.open(QFile::WriteOnly|QFile::Truncate))
-		{
-			QDomDocument doc;
-			doc.appendChild(doc.createElement("login-settings"));
-
-			QDomElement passElem = doc.documentElement().appendChild(doc.createElement("password")).toElement();
-			if (ui.chbSavePassword->isChecked())
-			{
-				passElem.setAttribute("save","true");
-				passElem.appendChild(doc.createTextNode(QString::fromLatin1(Options::encrypt(ui.lnePassword->text(),FOptionsManager->profileKey(profile,QString::null)))));
-			}
-			else
-			{
-				passElem.setAttribute("save","false");
-			}
-
-			QDomElement autoElem = doc.documentElement().appendChild(doc.createElement("auto-run")).toElement();
-			autoElem.appendChild(doc.createTextNode(QVariant(ui.chbAutoRun->isChecked()).toString()));
-
-			login.write(doc.toByteArray());
-			login.close();
-		}
-	}
+	QString profile = Jid::encode(currentStreamJid().pBare());
+	QMap<QString,QVariant> data = FOptionsManager->profileData(profile);
+	if (ui.chbSavePassword->isChecked())
+		data.insert("password",QString::fromLatin1(Options::encrypt(ui.lnePassword->text(),FOptionsManager->profileKey(profile,QString::null))));
+	else
+		data.remove("password");
+	data.insert("auto-run",ui.chbAutoRun->isChecked());
+	FOptionsManager->setProfileData(profile,data);
 }
 
 void LoginDialog::loadCurrentProfileSettings()
 {
-	Jid streamJid = currentStreamJid();
-	QString profile = Jid::encode(streamJid.pBare());
-	if (FOptionsManager->profiles().contains(profile))
+	QString profile = Jid::encode(currentStreamJid().pBare());
+	QMap<QString,QVariant> data = FOptionsManager->profileData(profile);
+	
+	if (data.contains("password"))
 	{
-		QDomDocument doc;
-		QFile login(QDir(FOptionsManager->profilePath(profile)).absoluteFilePath(FILE_LOGIN));
-		if (login.open(QFile::ReadOnly) && doc.setContent(&login))
-		{
-			QDomElement pasElem = doc.documentElement().firstChildElement("password");
-			if (!pasElem.isNull() && QVariant(pasElem.attribute("save")).toBool())
-			{
-				FSavedPasswordCleared = false;
-				ui.chbSavePassword->setChecked(true);
-				ui.chbShowPassword->setChecked(false);
-				ui.lnePassword->setEchoMode(QLineEdit::Password);
-				ui.lnePassword->setText(Options::decrypt(pasElem.text().toLatin1(),FOptionsManager->profileKey(profile,QString::null)).toString());
-			}
-			else
-			{
-				FSavedPasswordCleared = true;
-				ui.chbSavePassword->setChecked(false);
-				ui.lnePassword->setText(QString::null);
-			}
-
-			QDomElement autoElem = doc.documentElement().firstChildElement("auto-run");
-			if (!autoElem.isNull())
-				ui.chbAutoRun->setChecked(QVariant(autoElem.text()).toBool());
-			else
-				ui.chbAutoRun->setChecked(false);
-		}
-		login.close();
+		FSavedPasswordCleared = false;
+		ui.chbSavePassword->setChecked(true);
+		ui.chbShowPassword->setChecked(false);
+		ui.lnePassword->setEchoMode(QLineEdit::Password);
+		ui.lnePassword->setText(Options::decrypt(data.value("password").toString().toLatin1(),FOptionsManager->profileKey(profile,QString::null)).toString());
 	}
+	else
+	{
+		FSavedPasswordCleared = true;
+		ui.chbSavePassword->setChecked(false);
+		ui.lnePassword->setText(QString::null);
+	}
+
+	ui.chbAutoRun->setChecked(data.value("auto-run").toBool());
 }
 
 bool LoginDialog::readyToConnect() const
@@ -1067,8 +1034,6 @@ void LoginDialog::onXmppStreamOpened()
 			coptions.setValue(FIREFOX_PROXY_REF_UUID,"proxy");
 	}
 
-	Options::node(OPV_MISC_AUTOSTART).setValue(ui.chbAutoRun->isChecked());
-
 	if (FMainWindowPlugin)
 	{
 		if (FMainWindowPlugin->mainWindowBorder())
@@ -1086,6 +1051,8 @@ void LoginDialog::onXmppStreamOpened()
 	}
 
 	saveCurrentProfileSettings();
+	Options::node(OPV_MISC_AUTOSTART).setValue(ui.chbAutoRun->isChecked());
+	
 	accept();
 }
 

@@ -60,6 +60,9 @@ public:
 	virtual QByteArray currentProfileKey() const =0;
 	virtual bool setCurrentProfile(const QString &AProfile, const QString &APassword) =0;
 	virtual QByteArray profileKey(const QString &AProfile, const QString &APassword) const =0;
+	virtual QMap<QString, QVariant> profileData(const QString &AProfile) const =0;
+	virtual bool setProfileData(const QString &AProfile, const QMap<QString, QVariant> &AData) =0;
+	virtual bool setProfileData(const QString &AProfile, const QString &AKey, const QVariant &AValue) =0;
 	virtual bool checkProfilePassword(const QString &AProfile, const QString &APassword) const =0;
 	virtual bool changeProfilePassword(const QString &AProfile, const QString &AOldPassword, const QString &ANewPassword) =0;
 	virtual bool addProfile(const QString &AProfile, const QString &APassword) =0;

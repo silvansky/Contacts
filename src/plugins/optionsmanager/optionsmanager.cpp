@@ -10,7 +10,9 @@
 #define DIR_PROFILES                    "profiles"
 #define DIR_BINARY                      "binary"
 #define FILE_PROFILE                    "profile.xml"
+#define FILE_PROFILEDATA                "login.xml"
 #define FILE_OPTIONS                    "options.xml"
+
 #define FILE_BLOCKER                    "blocked"
 
 #define PROFILE_VERSION                 "1.0"
@@ -296,6 +298,58 @@ QByteArray OptionsManager::profileKey(const QString &AProfile, const QString &AP
 		return Options::decrypt(keyValue, QCryptographicHash::hash(APassword.toUtf8(),QCryptographicHash::Md5)).toByteArray();
 	}
 	return QByteArray();
+}
+
+QMap<QString, QVariant> OptionsManager::profileData(const QString &AProfile) const
+{
+	QMap<QString,QVariant> data;
+	if (profiles().contains(AProfile))
+	{
+		QDomDocument doc;
+		QFile login(QDir(profilePath(AProfile)).absoluteFilePath(FILE_PROFILEDATA));
+		if (login.open(QFile::ReadOnly) && doc.setContent(&login))
+		{
+			QDomElement elem = doc.documentElement().firstChildElement();
+			while(!elem.isNull())
+			{
+				data.insert(elem.tagName(),elem.text());
+				elem = elem.nextSiblingElement();
+			}
+		}
+		login.close();
+	}
+	return data;
+}
+
+bool OptionsManager::setProfileData(const QString &AProfile, const QMap<QString, QVariant> &AData)
+{
+	if (profiles().contains(AProfile))
+	{
+		QFile login(QDir(profilePath(AProfile)).absoluteFilePath(FILE_PROFILEDATA));
+		if (login.open(QFile::WriteOnly|QFile::Truncate))
+		{
+			QDomDocument doc;
+			doc.appendChild(doc.createElement("profile-data"));
+
+			for(QMap<QString, QVariant>::const_iterator it=AData.constBegin(); it!=AData.constEnd(); it++)
+				doc.documentElement().appendChild(doc.createElement(it.key())).appendChild(doc.createTextNode(it->toString()));
+
+			login.write(doc.toByteArray());
+			login.close();
+			return true;
+		}
+	}
+	return false;
+}
+
+bool OptionsManager::setProfileData(const QString &AProfile, const QString &AKey, const QVariant &AValue)
+{
+	QMap<QString, QVariant> data = profileData(AProfile);
+	if (AValue.isValid())
+		data.insert(AKey,AValue);
+	else
+		data.remove(AKey);
+	return setProfileData(AProfile,data);
 }
 
 bool OptionsManager::checkProfilePassword(const QString &AProfile, const QString &APassword) const
@@ -699,6 +753,7 @@ void OptionsManager::onOptionsChanged(const OptionsNode &ANode)
 			reg.setValue(CLIENT_NAME, QDir::toNativeSeparators(QApplication::applicationFilePath()));
 		else
 			reg.remove(CLIENT_NAME);
+		setProfileData(currentProfile(),"auto-run",ANode.value().toBool());
 #endif
 	}
 	FAutoSaveTimer.start();

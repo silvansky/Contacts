@@ -46,9 +46,9 @@ public:
 public slots:
 	virtual void reject();
 protected:
-	virtual void showEvent(QShowEvent *AEvent);
-	virtual void keyPressEvent(QKeyEvent *AEvent);
-	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
+	void showEvent(QShowEvent *AEvent);
+	void keyPressEvent(QKeyEvent *AEvent);
+	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 	void moveEvent(QMoveEvent *);
 	void mousePressEvent(QMouseEvent *);
 protected:
@@ -88,7 +88,6 @@ protected slots:
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowPasswordToggled(int state);
 	void onStylePreviewReset();
-	//void hidePopup();
 private:
 	Ui::LoginDialogClass ui;
 private:
