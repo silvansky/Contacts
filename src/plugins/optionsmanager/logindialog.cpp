@@ -207,12 +207,19 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
 	ui.lblLogo->setFixedHeight(43);
 
+	int fontSize = 9;
+#ifdef Q_WS_MAC
+	fontSize = 12;
+#endif
 	ui.lblRegister->setText(tr("Enter your Rambler login and password, or %1.")
-		.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:9pt; text-decoration: underline; color:#ffffff;'>%1</span></a>")
+		.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:%1pt; text-decoration: underline; color:#ffffff;'>%2</span></a>")
+		.arg(fontSize)
 		.arg(tr("register")));
-	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:9pt; text-decoration: underline; color:#acacac;'>%1</span></a>")
+	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:%1pt; text-decoration: underline; color:#acacac;'>%2</span></a>")
+		.arg(fontSize)
 		.arg(tr("Forgot your password?")));
-	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'><span style='font-size:9pt; text-decoration: underline; color:#acacac;'>%1</span></a>")
+	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'><span style='font-size:%1pt; text-decoration: underline; color:#acacac;'>%2</span></a>")
+		.arg(fontSize)
 		.arg(tr("Connection settings")));
 
 	//ui.lblConnectSettings->setFocusPolicy(Qt::StrongFocus);
@@ -896,7 +903,7 @@ void LoginDialog::loadCurrentProfileSettings()
 {
 	QString profile = Jid::encode(currentStreamJid().pBare());
 	QMap<QString,QVariant> data = FOptionsManager->profileData(profile);
-	
+
 	if (data.contains("password"))
 	{
 		FSavedPasswordCleared = false;
@@ -1052,7 +1059,7 @@ void LoginDialog::onXmppStreamOpened()
 
 	saveCurrentProfileSettings();
 	Options::node(OPV_MISC_AUTOSTART).setValue(ui.chbAutoRun->isChecked());
-	
+
 	accept();
 }
 

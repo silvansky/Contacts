@@ -10,6 +10,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QTimer>
+#include <QStyleOption>
 
 #include <QDebug>
 
@@ -21,7 +22,7 @@ bool BalloonTip::isBalloonVisible()
 }
 
 QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString& message,
-				 const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition, QWidget * p)
+								 const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition, QWidget * p)
 {
 	BalloonTip::hideBalloon();
 	if (!(message.isEmpty() && title.isEmpty()))
@@ -33,7 +34,7 @@ QWidget *BalloonTip::showBalloon(QIcon icon, const QString& title, const QString
 }
 
 QWidget *BalloonTip::showBalloon(QIcon icon, QWidget * messageWidget,
-	const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition, QWidget * p)
+								 const QPoint& pos, int timeout, bool showArrow, ArrowPosition arrowPosition, QWidget * p)
 {
 	BalloonTip::hideBalloon();
 	if (messageWidget)
@@ -57,11 +58,12 @@ void BalloonTip::hideBalloon()
 
 void BalloonTip::init()
 {
-	setWindowFlags(Qt::Window | Qt::ToolTip | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 	setFocusPolicy(Qt::NoFocus);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setAttribute(Qt::WA_TranslucentBackground, true);
 	setMaximumWidth(250);
+	setMinimumSize(230, 90);
 	if (_p)
 	{
 		_p->installEventFilter(this);
@@ -70,10 +72,11 @@ void BalloonTip::init()
 	pal.setColor(QPalette::Window, pal.toolTipBase().color());
 	pal.setColor(QPalette::WindowText, pal.toolTipText().color());
 	setPalette(pal);
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	widget = NULL;
 }
 
-BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message, QWidget * p) : QWidget(0, Qt::ToolTip), timerId(-1), _p(p)
+BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message, QWidget * p) : QWidget(0), timerId(-1), _p(p)
 {
 	init();
 	CustomLabel *titleLabel = new CustomLabel;
@@ -107,7 +110,7 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message,
 #ifdef Q_WS_WINCE
 	int limit = QApplication::desktop()->availableGeometry(msgLabel).size().width() / 2;
 #else
-	int limit = 200; // QApplication::desktop()->availableGeometry(msgLabel).size().width() / 4;
+	int limit = 230; // QApplication::desktop()->availableGeometry(msgLabel).size().width() / 4;
 #endif
 	if (msgLabel->sizeHint().width() > limit)
 	{
@@ -152,7 +155,7 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message,
 	setLayout(layout);
 }
 
-BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget, QWidget * p) : QWidget(0, Qt::ToolTip), timerId(-1), _p(p)
+BalloonTip::BalloonTip(QIcon icon, QWidget * messageWidget, QWidget * p) : QWidget(0), timerId(-1), _p(p)
 {
 	init();
 	widget = messageWidget;
@@ -352,13 +355,14 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 	path.arcTo(QRect(ml, mt, rc*2, rc*2), 180, -90);
 
 	// Set the mask
-	QBitmap bitmap = QBitmap(sizeHint());
+	QBitmap bitmap = QBitmap(path.boundingRect().size().toSize());
 	bitmap.fill(Qt::color0);
 	QPainter painter1(&bitmap);
 	painter1.setPen(QPen(Qt::color1, border));
 	painter1.setBrush(QBrush(Qt::color1));
 	painter1.drawPath(path);
-	setMask(bitmap);
+	bitmap.save("/Users/valentinegorshkov/Documents/mask.png");
+	//setMask(bitmap);
 #endif
 
 	// Draw the border
@@ -368,7 +372,8 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 	painter2.setPen(QPen(palette().color(QPalette::Window).darker(160), border));
 	painter2.setBrush(palette().color(QPalette::Window));
 	painter2.drawPath(path);
-	qDebug() << "drawBalloon: path.boundingRect() = " << path.boundingRect();
+	//qDebug() << "drawBalloon: path.boundingRect() = " << path.boundingRect() << "mask().boundingRect(): " << mask().boundingRect();
+	pixmap.save("/Users/valentinegorshkov/Documents/balloon.png");
 
 	if (msecs > 0)
 		timerId = startTimer(msecs);
@@ -377,11 +382,18 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 
 void BalloonTip::paintEvent(QPaintEvent *evt)
 {
-	qDebug() << evt->rect() << rect() << pixmap.size();
+	//qDebug() << evt->rect() << rect() << pixmap.size() << mask().boundingRect();
+
 	QPainter painter(this);
-	painter.setClipRect(rect());
-	painter.drawPixmap(rect(), pixmap);
-	QWidget::paintEvent(evt);
+	//painter.setClipRect(rect());
+	//painter.drawPixmap(rect(), pixmap);
+	//painter.fillRect(rect(), QColor(255, 0, 0));
+	painter.drawPixmap(0, 0, pixmap);
+//	QStyleOption opt;
+//	opt.init(this);
+//	QPainter p(this);
+//	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+	//QWidget::paintEvent(evt);
 }
 
 void BalloonTip::mousePressEvent(QMouseEvent *ev)
@@ -414,6 +426,10 @@ bool BalloonTip::event(QEvent * ev)
 	{
 		ev->accept();
 		return true;
+	}
+	else if (ev->type() == QEvent::Resize)
+	{
+		qDebug() << "resize!" << size();
 	}
 	else
 		return QWidget::event(ev);

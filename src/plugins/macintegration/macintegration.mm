@@ -97,16 +97,10 @@ static QString resolveGrowlType(const QString & notifyType)
 //	return registration;
 //}
 
-
-- (void) growlIsReady
-{
-	NSLog(@"growl is ready!");
-}
-
 - (void) growlNotificationWasClicked:(id)clickContext
 {
 	NSNumber * num = (NSNumber*)clickContext;
-	NSLog(@"Growl notify clicked! id: %@", num);
+	//NSLog(@"Growl notify clicked! id: %@", num);
 	MacIntegrationPrivate::instance()->emitGrowlNotifyClick([num intValue]);
 	[num release];
 }
@@ -200,7 +194,7 @@ void MacIntegrationPrivate::postGrowlNotify(const QImage & icon, const QString &
 	NSNumber * nsId = [NSNumber numberWithInt: id];
 	NSImage * nsIcon = nsImageFromQImage(icon);
 	//qDebug() << "Growl notify: " << title << text << type << id;
-	NSLog(@"Growl notify: type: %@ text: %@ title: %@ id: %@", nsType, nsText, nsTitle, nsId);
+	//NSLog(@"Growl notify: type: %@ text: %@ title: %@ id: %@", nsType, nsText, nsTitle, nsId);
 	[GrowlApplicationBridge notifyWithTitle: nsTitle description: nsText notificationName: nsType iconData: [nsIcon TIFFRepresentation] priority: 0 isSticky: NO clickContext: nsId identifier: [NSString stringWithFormat:@"ID%d", id]];
 
 	[nsTitle release];
@@ -214,5 +208,4 @@ void MacIntegrationPrivate::showGrowlPrefPane()
 {
 	NSString * growlPath = [NSHomeDirectory() stringByAppendingPathComponent:@"/Library/PreferencePanes/Growl.prefPane"];
 	BOOL ok = [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath:growlPath]];
-	NSLog(@"opening %@: %@", growlPath, (ok ? @"OK" : @"FAILED"));
 }
