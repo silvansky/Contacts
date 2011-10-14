@@ -235,10 +235,9 @@ void RosterSearch::startSearch()
 		//createSearchLinks();
 		if (!FSearchStarted && FRostersViewPlugin)
 		{
+			FRostersViewPlugin->setExpandedMode(true);
 			FLastShowOffline = Options::node(OPV_ROSTER_SHOWOFFLINE).value().toBool();
 			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(true);
-			FRostersViewPlugin->rostersView()->instance()->expandAll();
-			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(false);
 			FRostersViewPlugin->rostersView()->instance()->setCurrentIndex(FRostersViewPlugin->rostersView()->instance()->model()->index(1, 0, QModelIndex()));
 		}
 		FSearchStarted = true;
@@ -249,8 +248,7 @@ void RosterSearch::startSearch()
 		//destroySearchLinks();
 		if (FSearchStarted && FRostersViewPlugin)
 		{
-			FRostersViewPlugin->startRestoreExpandState();
-			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(true);
+			FRostersViewPlugin->setExpandedMode(false);
 			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(FLastShowOffline);
 		}
 		FSearchStarted = false;

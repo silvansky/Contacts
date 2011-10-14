@@ -18,6 +18,8 @@ RostersViewPlugin::RostersViewPlugin()
 
 	FSortFilterProxyModel = NULL;
 	FLastModel = NULL;
+
+	FExpandedMode = false;
 	FStartRestoreExpandState = false;
 
 	FViewSavedState.sliderPos = 0;
@@ -309,6 +311,30 @@ IRostersView *RostersViewPlugin::rostersView()
 	return FRostersView;
 }
 
+bool RostersViewPlugin::isExpandedMode() const
+{
+	return FExpandedMode;
+}
+
+void RostersViewPlugin::setExpandedMode(bool AEnabled)
+{
+	if (FExpandedMode != AEnabled)
+	{
+		FExpandedMode = AEnabled;
+		if (AEnabled)
+		{
+			FRostersView->expandAll();
+			FRostersView->setItemsExpandable(false);
+		}
+		else
+		{
+			restoreExpandState();
+			FRostersView->setItemsExpandable(true);
+		}
+		emit expandedModeChanged(FExpandedMode);
+	}
+}
+
 void RostersViewPlugin::startRestoreExpandState()
 {
 	if (!FStartRestoreExpandState)
@@ -350,7 +376,7 @@ void RostersViewPlugin::loadExpandState(const QModelIndex &AIndex)
 	if (!groupName.isEmpty() || AIndex.data(RDR_TYPE).toInt()==RIT_STREAM_ROOT)
 	{
 		Jid streamJid = AIndex.data(RDR_STREAM_JID).toString();
-		bool isExpanded = FExpandState.value(streamJid).value(groupName,true);
+		bool isExpanded = FExpandedMode || FExpandState.value(streamJid).value(groupName,true);
 		if (isExpanded && !FRostersView->isExpanded(AIndex))
 			FRostersView->expand(AIndex);
 		else if (!isExpanded && FRostersView->isExpanded(AIndex))
@@ -360,14 +386,17 @@ void RostersViewPlugin::loadExpandState(const QModelIndex &AIndex)
 
 void RostersViewPlugin::saveExpandState(const QModelIndex &AIndex)
 {
-	QString groupName = indexGroupName(AIndex);
-	if (!groupName.isEmpty() || AIndex.data(RDR_TYPE).toInt()==RIT_STREAM_ROOT)
+	if (!FExpandedMode)
 	{
-		Jid streamJid = AIndex.data(RDR_STREAM_JID).toString();
-		if (!FRostersView->isExpanded(AIndex))
-			FExpandState[streamJid][groupName] = false;
-		else
-			FExpandState[streamJid].remove(groupName);
+		QString groupName = indexGroupName(AIndex);
+		if (!groupName.isEmpty() || AIndex.data(RDR_TYPE).toInt()==RIT_STREAM_ROOT)
+		{
+			Jid streamJid = AIndex.data(RDR_STREAM_JID).toString();
+			if (!FRostersView->isExpanded(AIndex))
+				FExpandState[streamJid][groupName] = false;
+			else
+				FExpandState[streamJid].remove(groupName);
+		}
 	}
 }
 
@@ -609,5 +638,7 @@ void RostersViewPlugin::onGroupContactsAction(bool AChecked)
 {
 	Options::node(OPV_ROSTER_GROUPCONTACTS).setValue(AChecked);
 }
+
+
 
 Q_EXPORT_PLUGIN2(plg_rostersview, RostersViewPlugin)

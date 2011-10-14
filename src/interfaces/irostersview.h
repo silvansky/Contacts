@@ -166,6 +166,8 @@ class IRostersViewPlugin
 public:
 	virtual QObject *instance() = 0;
 	virtual IRostersView *rostersView() =0;
+	virtual bool isExpandedMode() const =0;
+	virtual void setExpandedMode(bool AEnabled) =0;
 	virtual void startRestoreExpandState() =0;
 	virtual void restoreExpandState(const QModelIndex &AParent = QModelIndex()) =0;
 };

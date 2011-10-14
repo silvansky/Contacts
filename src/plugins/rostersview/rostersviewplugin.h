@@ -56,9 +56,12 @@ public:
 	virtual bool setRosterData(IRosterIndex *AIndex, int ARole, const QVariant &AValue);
 	//IRostersViewPlugin
 	virtual IRostersView *rostersView();
+	virtual bool isExpandedMode() const;
+	virtual void setExpandedMode(bool AEnabled);
 	virtual void startRestoreExpandState();
 	virtual void restoreExpandState(const QModelIndex &AParent = QModelIndex());
 signals:
+	void expandedModeChanged(bool AEnabled);
 	//IRosterDataHolder
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = RDR_ANY_ROLE);
 protected:
@@ -99,6 +102,7 @@ private:
 	Action *FShowOfflineAction;
 	Action *FGroupContactsAction;
 private:
+	bool FExpandedMode;
 	bool FStartRestoreExpandState;
 	int FGroupCounterLabel;
 	RostersView *FRostersView;
