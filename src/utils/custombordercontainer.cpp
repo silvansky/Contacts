@@ -1703,13 +1703,15 @@ void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 
 void CustomBorderContainer::mouseMove(const QPoint & globalPos, QWidget * widget)
 {
-	bool needToRepaintHeaderButtons = headerButtonsRect().contains(mapFromGlobal(globalPos)) || headerButtonsRect().contains(lastMousePosition);
+	QRect hbr = headerButtonsRect();
+	bool needToRepaintHeaderButtons = hbr.contains(mapFromGlobal(globalPos)) || hbr.contains(lastMousePosition);
+	// TODO: debug this variable!
 	lastMousePosition = mapFromGlobal(globalPos);
 #ifdef DEBUG_CUSTOMBORDER
 	qDebug() << "mouseMove: needToRepaintHeaderButtons:" << needToRepaintHeaderButtons << " pos:" << globalPos;
 #endif
 	if (needToRepaintHeaderButtons)
-		QTimer::singleShot(10, this, SLOT(repaintHeaderButtons()));
+		QTimer::singleShot(0, this, SLOT(repaintHeaderButtons()));
 	if (geometryState() != None)
 	{
 		updateGeometry(globalPos);
