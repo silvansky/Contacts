@@ -326,11 +326,12 @@ int Notifications::appendNotification(const INotification &ANotification)
 	if (!blockPopupAndSound && (record.notification.kinds & INotification::SoundPlay)>0 &&
 		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::SoundPlay)).value().toBool())
 	{
+#ifndef Q_WS_MAC // disabling sounds on Mac, user should deine sounds in Growl
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
 		if (!soundFile.isEmpty())
 		{
-#ifdef QT_PHONON_LIB
+# ifdef QT_PHONON_LIB
 			if (!FMediaObject)
 			{
 				FMediaObject = new Phonon::MediaObject(this);
@@ -342,7 +343,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 				FMediaObject->setCurrentSource(soundFile);
 				FMediaObject->play();
 			}
-#else
+# else // phonon
 			if (QSound::isAvailable())
 			{
 				if (!FSound || (FSound && FSound->isFinished()))
@@ -353,14 +354,15 @@ int Notifications::appendNotification(const INotification &ANotification)
 					FSound->play();
 				}
 			}
-#	ifdef Q_WS_X11
+#  ifdef Q_WS_X11
 			else
 			{
 				QProcess::startDetached(Options::node(OPV_NOTIFICATIONS_SOUND_COMMAND).value().toString(),QStringList()<<soundFile);
 			}
-#	endif
-#endif
+#  endif // x11
+# endif // phonon
 		}
+#endif // mac
 	}
 
 	if ((record.notification.kinds & INotification::ShowMinimized)>0 &&
