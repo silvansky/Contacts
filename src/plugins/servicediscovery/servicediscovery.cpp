@@ -981,7 +981,7 @@ void ServiceDiscovery::onStreamOpened(IXmppStream *AXmppStream)
 	requestDiscoInfo(AXmppStream->streamJid(),streamDomane);
 	requestDiscoItems(AXmppStream->streamJid(),streamDomane);
 
-	IRoster *roster = FRosterPlugin->findRoster(AXmppStream->streamJid());
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AXmppStream->streamJid()) : NULL;
 	QList<IRosterItem> ritems = roster!=NULL ? roster->rosterItems() : QList<IRosterItem>();
 	foreach(IRosterItem ritem, ritems)
 	{
