@@ -25,11 +25,8 @@ XmppStream::XmppStream(IXmppStreams *AXmppStreams, const Jid &AStreamJid) : QObj
 
 XmppStream::~XmppStream()
 {
-	close();
-
-	foreach(IXmppFeature *feature, FActiveFeatures.toSet())
-		delete feature->instance();
-
+	abort(tr("XMPP stream destroyed"));
+	clearActiveFeatures();
 	LogDetaile(QString("[XmppStream][%1] XMPP stream destroyed").arg(FStreamJid.bare()));
 	emit streamDestroyed();
 }
@@ -304,6 +301,13 @@ void XmppStream::startStream()
 	}
 }
 
+void XmppStream::clearActiveFeatures()
+{
+	foreach(IXmppFeature *feature, FActiveFeatures.toSet())
+		delete feature->instance();
+	FActiveFeatures.clear();
+}
+
 void XmppStream::processFeatures()
 {
 	bool started = false;
@@ -435,6 +439,7 @@ void XmppStream::onConnectionDisconnected()
 	removeXmppStanzaHandler(this,XSHO_XMPP_STREAM);
 	emit closed();
 
+	clearActiveFeatures();
 	if (FOfflineJid.isValid())
 	{
 		setStreamJid(FOfflineJid);
