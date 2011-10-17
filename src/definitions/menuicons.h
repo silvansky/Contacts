@@ -61,6 +61,7 @@
 #define MNI_MAINWINDOW_LOGO96                    "mainwindowLogo96"
 #define MNI_MAINWINDOW_LOGO128                   "mainwindowLogo128"
 #define MNI_MAINWINDOW_LOGO256                   "mainwindowLogo256"
+#define MNI_MAINWINDOW_LOGO512                   "mainwindowLogo512"
 #define MNI_MAINWINDOW_MENU                      "mainwindowMenu"
 
 //MessageStyles

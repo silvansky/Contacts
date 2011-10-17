@@ -333,9 +333,11 @@ void PluginManager::loadSettings()
 		<< FDataPath+"/resources");
 
 #ifdef Q_WS_MAC
-	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO256));
-#else
+	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO512));
+#elif defined Q_WS_WIN
 	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
+#else
+	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO32));
 #endif
 
 	FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
