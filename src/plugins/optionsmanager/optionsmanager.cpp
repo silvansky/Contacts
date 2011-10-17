@@ -12,6 +12,8 @@
 #define FILE_PROFILE                    "profile.xml"
 #define FILE_PROFILEDATA                "login.xml"
 #define FILE_OPTIONS                    "options.xml"
+#define FILE_OPTIONS_COPY               "options.xml.copy"
+#define FILE_OPTIONS_FAIL               "options.xml.fail"
 
 #define FILE_BLOCKER                    "blocked"
 
@@ -258,11 +260,27 @@ bool OptionsManager::setCurrentProfile(const QString &AProfile, const QString &A
 			if (!profileDir.exists(DIR_BINARY))
 				profileDir.mkdir(DIR_BINARY);
 
+			// Loading options from file
 			QFile optionsFile(profileDir.filePath(FILE_OPTIONS));
 			if (!optionsFile.open(QFile::ReadOnly) || !FProfileOptions.setContent(optionsFile.readAll(),true))
 			{
-				FProfileOptions.clear();
-				FProfileOptions.appendChild(FProfileOptions.createElement("options")).toElement();
+				// Trying to open valid copy of options
+				optionsFile.close();
+				optionsFile.setFileName(profileDir.filePath(FILE_OPTIONS_COPY));
+				if (!optionsFile.open(QFile::ReadOnly) || !FProfileOptions.setContent(optionsFile.readAll(),true))
+				{
+					FProfileOptions.clear();
+					FProfileOptions.appendChild(FProfileOptions.createElement("options")).toElement();
+				}
+				// Renaming invalid options file
+				QFile::remove(profileDir.filePath(FILE_OPTIONS_FAIL));
+				QFile::rename(profileDir.filePath(FILE_OPTIONS),profileDir.filePath(FILE_OPTIONS_FAIL));
+			}
+			else
+			{
+				// Saving the copy of valid options
+				QFile::remove(profileDir.filePath(FILE_OPTIONS_COPY));
+				QFile::copy(profileDir.filePath(FILE_OPTIONS),profileDir.filePath(FILE_OPTIONS_COPY));
 			}
 			optionsFile.close();
 
