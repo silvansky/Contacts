@@ -72,6 +72,9 @@ protected:
 	void startStatusIconsChanged();
 protected slots:
 	void onStatusIconsChangedTimer();
+	void onPresenceChanged(IPresence *APresence, int AShow, const QString &AStatus, int APriority);
+	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
+	void onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onOptionsOpened();
 	void onOptionsClosed();
 	void onOptionsChanged(const OptionsNode &ANode);
