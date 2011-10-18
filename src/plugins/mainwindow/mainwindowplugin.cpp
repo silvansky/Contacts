@@ -97,7 +97,7 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AIni
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
-	connect(FPluginManager->instance(),SIGNAL(quitStarted()),SLOT(onApplicationQuitStarted()));
+	connect(FPluginManager->instance(),SIGNAL(shutdownStarted()),SLOT(onShutdownStarted()));
 
 	return true;
 }
@@ -342,7 +342,7 @@ void MainWindowPlugin::onDockIconClicked()
 		showMainWindow();
 }
 
-void MainWindowPlugin::onApplicationQuitStarted()
+void MainWindowPlugin::onShutdownStarted()
 {
 	if (!Options::isNull())
 	{

@@ -20,6 +20,9 @@
 #include <utils/log.h>
 #include <utils/networking.h>
 
+#define DELAYED_QUIT_TIMEOUT        5000
+#define DELAYED_COMMIT_TIMEOUT      2000
+
 #define ORGANIZATION_NAME           "Rambler"
 #define APPLICATION_NAME            "Contacts"
 
@@ -61,10 +64,16 @@
 
 PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 {
-	FQuitStarted = false;
+	FShutdownKind = SK_WORK;
+	FShutdownDelayCount = 0;
+
 	FQtTranslator = new QTranslator(this);
 	FUtilsTranslator = new QTranslator(this);
 	FLoaderTranslator = new QTranslator(this);
+
+	FShutdownTimer.setSingleShot(true);
+	connect(&FShutdownTimer,SIGNAL(timeout()),SLOT(onShutdownTimerTimeout()));
+
 	connect(AParent,SIGNAL(aboutToQuit()),SLOT(onApplicationAboutToQuit()));
 	connect(AParent,SIGNAL(commitDataRequest(QSessionManager &)),SLOT(onApplicationCommitDataRequested(QSessionManager &)));
 }
@@ -88,6 +97,11 @@ QString PluginManager::revision() const
 QDateTime PluginManager::revisionDate() const
 {
 	return QDateTime::fromString(SVN_DATE,"yyyy/MM/dd hh:mm:ss");
+}
+
+bool PluginManager::isShutingDown() const
+{
+	return FShutdownKind != SK_WORK;
 }
 
 QString PluginManager::homePath() const
@@ -177,33 +191,38 @@ QList<QUuid> PluginManager::pluginDependencesFor(const QUuid &AUuid) const
 
 void PluginManager::quit()
 {
-	if (!FQuitStarted)
+	if (FShutdownKind == SK_WORK)
 	{
 		LogDetaile(QString("[PluginManager] Quit started"));
-		FQuitStarted = true;
-		QTimer::singleShot(0,qApp,SLOT(quit()));
-		emit quitStarted();
+		FShutdownKind = SK_QUIT;
+		startShutdown();
 	}
 }
 
 void PluginManager::restart()
 {
-	FQuitStarted = true;
-	onApplicationAboutToQuit();
-	FQuitStarted = false;
-
-	loadSettings();
-	loadPlugins();
-	if (initPlugins())
+	if (FShutdownKind == SK_WORK)
 	{
-		saveSettings();
-		createMenuActions();
-		startPlugins();
-		FBlockedPlugins.clear();
+		FShutdownKind = SK_RESTART;
+		startShutdown();
 	}
-	else
+}
+
+void PluginManager::delayShutdown()
+{
+	if (FShutdownKind != SK_WORK)
 	{
-		QTimer::singleShot(0,this,SLOT(restart()));
+		FShutdownDelayCount++;
+	}
+}
+
+void PluginManager::continueShutdown()
+{
+	if (FShutdownKind != SK_WORK)
+	{
+		FShutdownDelayCount--;
+		if (FShutdownDelayCount <= 0)
+			FShutdownTimer.start(0);
 	}
 }
 
@@ -218,10 +237,6 @@ void PluginManager::shutdownRequested()
 		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(onMessageBoxButtonClicked(QAbstractButton*)));
 		WidgetManager::showActivateRaiseWindow(mb);
 	}
-#ifdef DEBUG_ENABLED
-	if (!(i % 100000))
-		qDebug() << "shutdown request #" << i;
-#endif
 }
 
 void PluginManager::showMainWindow()
@@ -511,6 +526,51 @@ void PluginManager::startPlugins()
 		pluginItem.plugin->startPlugin();
 }
 
+void PluginManager::startShutdown()
+{
+	FShutdownTimer.start(DELAYED_QUIT_TIMEOUT);
+	delayShutdown();
+	emit shutdownStarted();
+	closeTopLevelWidgets();
+	continueShutdown();
+}
+
+void PluginManager::finishShutdown()
+{
+	FShutdownTimer.stop();
+	if (FShutdownKind == SK_RESTART)
+	{
+		onApplicationAboutToQuit();
+		FShutdownKind = SK_WORK;
+		FShutdownDelayCount = 0;
+
+		loadSettings();
+		loadPlugins();
+		if (initPlugins())
+		{
+			saveSettings();
+			createMenuActions();
+			startPlugins();
+			FBlockedPlugins.clear();
+		}
+		else
+		{
+			QTimer::singleShot(0,this,SLOT(restart()));
+		}
+	}
+	else if (FShutdownKind == SK_QUIT)
+	{
+		QTimer::singleShot(0,qApp,SLOT(quit()));
+	}
+
+}
+
+void PluginManager::closeTopLevelWidgets()
+{
+	foreach(QWidget *widget, QApplication::topLevelWidgets())
+		widget->close();
+}
+
 void PluginManager::removePluginItem(const QUuid &AUuid, const QString &AError)
 {
 	if (FPluginItems.contains(AUuid))
@@ -758,6 +818,7 @@ void PluginManager::createMenuActions()
 void PluginManager::onApplicationAboutToQuit()
 {
 	LogDetaile(QString("[PluginManager] Application about to quit"));
+	emit aboutToQuit();
 
 	if (!FPluginsDialog.isNull())
 		FPluginsDialog->reject();
@@ -767,11 +828,6 @@ void PluginManager::onApplicationAboutToQuit()
 
 	if (!FCommentDialog.isNull())
 		FCommentDialog->reject();
-
-	foreach(QWidget *widget, QApplication::topLevelWidgets())
-		widget->close();
-
-	emit aboutToQuit();
 
 	foreach(QUuid uid, FPluginItems.keys())
 		unloadPlugin(uid);
@@ -784,7 +840,13 @@ void PluginManager::onApplicationAboutToQuit()
 void PluginManager::onApplicationCommitDataRequested(QSessionManager &AManager)
 {
 	Q_UNUSED(AManager);
-	onApplicationAboutToQuit();
+	FShutdownKind = SK_QUIT;
+	startShutdown();
+	QDateTime stopTime = QDateTime::currentDateTime().addMSecs(DELAYED_COMMIT_TIMEOUT);
+	while (stopTime>QDateTime::currentDateTime() && FShutdownDelayCount>0)
+		QApplication::processEvents();
+	finishShutdown();
+	qApp->quit();
 }
 
 void PluginManager::onShowSetupPluginsDialog(bool)
@@ -821,4 +883,10 @@ void PluginManager::onMessageBoxButtonClicked(QAbstractButton *AButton)
 	QMessageBox *mb = qobject_cast<QMessageBox*>(sender());
 	if (mb && (mb->buttonRole(AButton) == QMessageBox::YesRole))
 		quit();
+}
+
+
+void PluginManager::onShutdownTimerTimeout()
+{
+	finishShutdown();
 }

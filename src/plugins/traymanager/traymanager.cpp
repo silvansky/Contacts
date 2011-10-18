@@ -47,7 +47,7 @@ bool TrayManager::initConnections(IPluginManager *APluginManager, int &AInitOrde
 {
 	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
-	connect(FPluginManager->instance(),SIGNAL(quitStarted()),SLOT(onApplicationQuitStarted()));
+	connect(FPluginManager->instance(),SIGNAL(shutdownStarted()),SLOT(onShutdownStarted()));
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -246,7 +246,7 @@ void TrayManager::onTriggerTimerTimeout()
 	emit notifyActivated(FActiveNotify,QSystemTrayIcon::Trigger);
 }
 
-void TrayManager::onApplicationQuitStarted()
+void TrayManager::onShutdownStarted()
 {
 	FSystemIcon.hide();
 }

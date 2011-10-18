@@ -59,7 +59,7 @@ protected slots:
 	void onShowMainWindowByAction(bool);
 	void onMainWindowClosed();
 	void onDockIconClicked();
-	void onApplicationQuitStarted();
+	void onShutdownStarted();
 private:
 	IPluginManager *FPluginManager;
 	IOptionsManager *FOptionsManager;

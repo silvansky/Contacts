@@ -59,7 +59,7 @@ protected slots:
 	void onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason);
 	void onBlinkTimerTimeout();
 	void onTriggerTimerTimeout();
-	void onApplicationQuitStarted();
+	void onShutdownStarted();
 	void onOptionsOpened();
 	void onOptionsChanged(const OptionsNode &ANode);
 private:

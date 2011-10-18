@@ -111,19 +111,22 @@ void XmppStream::close()
 {
 	if (FConnection && FStreamState!=SS_OFFLINE && FStreamState!=SS_ERROR)
 	{
-		LogDetaile(QString("[XmppStream][%1] Closing XMPP stream").arg(FStreamJid.bare()));
-		FStreamState = SS_DISCONNECTING;
-		if (FConnection->isOpen())
+		if (FStreamState != SS_DISCONNECTING)
 		{
-			emit aboutToClose();
-			QByteArray data = "</stream:stream>";
-			if (!processDataHandlers(data,true))
-				FConnection->write(data);
-			FKeepAliveTimer.start(DISCONNECT_TIMEOUT);
-		}
-		else
-		{
-			FConnection->disconnectFromHost();
+			LogDetaile(QString("[XmppStream][%1] Closing XMPP stream").arg(FStreamJid.bare()));
+			FStreamState = SS_DISCONNECTING;
+			if (FConnection->isOpen())
+			{
+				emit aboutToClose();
+				QByteArray data = "</stream:stream>";
+				if (!processDataHandlers(data,true))
+					FConnection->write(data);
+				FKeepAliveTimer.start(DISCONNECT_TIMEOUT);
+			}
+			else
+			{
+				FConnection->disconnectFromHost();
+			}
 		}
 	}
 	else
