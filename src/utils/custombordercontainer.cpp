@@ -1158,7 +1158,7 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 void CustomBorderContainer::init()
 {
 #ifdef Q_WS_MAC
-	ChangeWindowAttributes(windowRefFromWidget(this), kWindowNoShadowAttribute, kWindowNoAttributes);
+	setWindowShadowEnabled(this, false);
 #endif
 	windowMenu = NULL;
 	// vars

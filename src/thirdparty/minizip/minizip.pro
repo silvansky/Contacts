@@ -1,5 +1,9 @@
 include(../../config.inc)
 
+macx: {
+  DEFINES += USE_FILE32API
+}
+
 TARGET         = minizip
 TEMPLATE       = lib
 CONFIG        -= qt

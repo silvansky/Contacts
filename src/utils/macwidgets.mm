@@ -18,3 +18,8 @@ NSView * nsViewFromWidget(QWidget * w)
 {
 	return (NSView *)w->winId();
 }
+
+void setWindowShadowEnabled(QWidget * window, bool enabled)
+{
+	[[nsViewFromWidget(window) window] setHasShadow: (enabled ? YES : NO)];
+}
