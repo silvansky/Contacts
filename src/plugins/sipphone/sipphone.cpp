@@ -2130,6 +2130,7 @@ void SipPhone::onDialActionTriggered(bool AChecked)
 	else
 	{
 		FMainWindow->rostersWidget()->setCurrentWidget(FDialWidget);
+		FDialWidget->setFocus();
 	}
 	FDialAction->setChecked(FMainWindow->rostersWidget()->currentWidget() == FDialWidget);
 }
