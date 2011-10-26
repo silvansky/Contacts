@@ -29,7 +29,7 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 	ui.trvNodes->installEventFilter(this);
 	setWindowTitle(tr("Options"));
 	FCurrentWidget = NULL;
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_OPTIONS_DIALOG,0,0,"windowIcon");
+	//IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_OPTIONS_DIALOG,0,0,"windowIcon");
 
 	restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry").toByteArray());
 

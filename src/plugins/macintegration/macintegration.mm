@@ -41,7 +41,6 @@ static QString resolveGrowlType(const QString & notifyType)
 	NSDictionary * registration;
 }
 
-- (void) growlIsReady;
 - (void) growlNotificationWasClicked:(id)clickContext;
 - (void) growlNotificationTimedOut:(id)clickContext;
 
@@ -206,6 +205,14 @@ void MacIntegrationPrivate::postGrowlNotify(const QImage & icon, const QString &
 
 void MacIntegrationPrivate::showGrowlPrefPane()
 {
-	NSString * growlPath = [NSHomeDirectory() stringByAppendingPathComponent:@"/Library/PreferencePanes/Growl.prefPane"];
+	NSString * growlCommonPath = @"/Library/PreferencePanes/Growl.prefPane";
+	NSString * growlPath = [NSHomeDirectory() stringByAppendingPathComponent:growlCommonPath];
 	BOOL ok = [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath:growlPath]];
+	if (!ok)
+	{
+		NSLog(@"Error opening Growl preference pane at %@. Trying %@...", growlPath, growlCommonPath);
+		ok = [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath:growlCommonPath]];
+		if (!ok)
+			NSLog(@"Error opening Growl preference pane at %@. Possibly, Growl isn\' installed.", growlCommonPath);
+	}
 }

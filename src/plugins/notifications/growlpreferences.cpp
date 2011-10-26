@@ -15,8 +15,8 @@ GrowlPreferences::~GrowlPreferences()
 
 void GrowlPreferences::on_lblSettings_linkActivated(const QString &link)
 {
-	if (link == "growl.preferences")
-	{
+	//if (link == "growl.preferences")
+	//{
 		emit showGrowlPreferences();
-	}
+	//}
 }
