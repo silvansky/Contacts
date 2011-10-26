@@ -17,8 +17,8 @@ extern void qt_mac_set_dock_menu(QMenu *); // Qt internal function
 
 static ITabWindow * findTabWindow(QObject * parent)
 {
-	ITabWindow * tw = NULL;
-	if (parent)
+	ITabWindow * tw = qobject_cast<ITabWindow*>(parent);
+	if (parent && !tw)
 	{
 		foreach (QObject * child, parent->children())
 		{
