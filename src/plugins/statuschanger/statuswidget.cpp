@@ -20,6 +20,14 @@
 StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, IVCardPlugin *AVCardPlugin, IMainWindowPlugin* AMainWindowPlugin, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+
+#ifdef Q_WS_MAC
+	ui.lblName->setVisible(false);
+	QLayoutItem * spacer = ui.avatarLt->itemAt(0);
+	ui.avatarLt->removeItem(spacer);
+	ui.avatarLt->addItem(spacer);
+#endif
+
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_STATUSWIDGET);
 
 	FAvatars = AAvatars;
@@ -133,26 +141,17 @@ void StatusWidget::setUserName(const QString &AName)
 {
 	FUserName = AName;
 	//ui.tlbStatus->setText(fitCaptionToWidth(FUserName, ui.tlbStatus->defaultAction()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
+#ifdef Q_WS_MAC
+	window()->setWindowTitle(AName);
+#else
 	ui.lblName->setText(AName);
+#endif
 }
 
 void StatusWidget::setMoodText(const QString &AMood)
 {
 	FUserMood = AMood;
 	ui.lblMood->setText(AMood.isEmpty() ? tr("Tell your friends about your mood") : AMood);
-//	const int maxMoodLength = 40;
-//	if (AMood.length() <= maxMoodLength)
-//		ui.lblMood->setText(AMood.isEmpty() ? tr("Tell your friends about your mood") : AMood);
-//	else if (AMood.count('\n') > 1)
-//	{
-//		QStringList lst = AMood.split('\n');
-//		QString newMood = (QStringList() << lst.at(0) << lst.at(1) + "...").join("\n");
-//		ui.lblMood->setText(newMood);
-//	}
-//	else
-//	{
-//		ui.lblMood->setText(AMood.left(maxMoodLength) + "...");
-//	}
 }
 
 QString StatusWidget::fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const

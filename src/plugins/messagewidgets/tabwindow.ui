@@ -19,7 +19,7 @@
      <number>0</number>
     </property>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="captionLayout">
       <property name="leftMargin">
        <number>5</number>
       </property>

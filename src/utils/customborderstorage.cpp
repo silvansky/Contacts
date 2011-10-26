@@ -12,6 +12,7 @@ CustomBorderStorage::~CustomBorderStorage()
 
 CustomBorderContainer * CustomBorderStorage::addBorder(QWidget *widget, const QString &key)
 {
+#ifndef Q_WS_MAC
 	CustomBorderContainerPrivate * style = borderStyleCache.value(key, NULL);
 	if (!style)
 	{
@@ -36,6 +37,9 @@ CustomBorderContainer * CustomBorderStorage::addBorder(QWidget *widget, const QS
 	}
 	else
 		return NULL;
+#else
+	return NULL;
+#endif
 }
 
 void CustomBorderStorage::removeBorder(QWidget *widget)

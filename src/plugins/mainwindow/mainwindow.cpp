@@ -6,7 +6,6 @@ MainWindow::MainWindow(QWidget *AParent, Qt::WindowFlags AFlags) : QMainWindow(A
 {
 	setAttribute(Qt::WA_DeleteOnClose,false);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MAINWINDOW_WINDOW);
-
 	QIcon icon;
 	IconStorage *iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO16), QSize(16,16));
@@ -16,6 +15,8 @@ MainWindow::MainWindow(QWidget *AParent, Qt::WindowFlags AFlags) : QMainWindow(A
 	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO64), QSize(64,64));
 	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO96), QSize(96,96));
 	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO128), QSize(128,128));
+	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO256), QSize(256,256));
+	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO512), QSize(512,512));
 	setWindowIcon(icon);
 
 	setIconSize(QSize(16,16));

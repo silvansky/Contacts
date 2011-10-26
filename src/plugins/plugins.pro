@@ -47,7 +47,9 @@ SUBDIRS += ramblermailnotify
 SUBDIRS += messagecarbons
 SUBDIRS += console
 SUBDIRS += multiuserchat
-SUBDIRS += stylesheeteditor
+CONFIG(debug, debug|release) {
+  SUBDIRS += stylesheeteditor
+}
 
 # platform specific plugins
 

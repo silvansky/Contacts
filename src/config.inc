@@ -6,8 +6,8 @@ unix:!macx:VERSION_UTILS = 1.1.0
 macx: {
   #CONFIG -= x86_64
   #CONFIG += x86
+  QMAKE_INFO_PLIST = MyInfo.plist
 }
-macx:QMAKE_INFO_PLIST = MyInfo.plist
 
 #Configurable values
 isEmpty(INSTALL_PREFIX) {

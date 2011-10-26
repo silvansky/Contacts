@@ -22,9 +22,9 @@ static ITabWindow * findTabWindow(QObject * parent)
 	{
 		foreach (QObject * child, parent->children())
 		{
-			if (child->inherits("ITabWindow"))
+			if (tw = qobject_cast<ITabWindow*>(child))
 			{
-				return qobject_cast<ITabWindow*>(child);
+				break;
 			}
 			else
 			{
