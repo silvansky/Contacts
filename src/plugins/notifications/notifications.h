@@ -122,6 +122,7 @@ protected slots:
 #ifdef Q_WS_MAC
 	void onGrowlNotifyClicked(int ANotifyId);
 	void onShowGrowlPreferences();
+	void onNotifyCountChanged();
 #endif
 private:
 	IAvatars *FAvatars;

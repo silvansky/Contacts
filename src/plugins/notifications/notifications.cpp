@@ -11,6 +11,10 @@
 # include "growlpreferences.h"
 #endif
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 #define TEST_NOTIFY_TIMEOUT             10000
 
 #define ADR_NOTIFYID                    Action::DR_Parametr1
@@ -37,6 +41,9 @@ Notifications::Notifications()
 #else
 	FSound = NULL;
 #endif
+
+	connect(this, SIGNAL(notificationAppended(int,INotification)), SLOT(onNotifyCountChanged()));
+	connect(this, SIGNAL(notificationRemoved(int)), SLOT(onNotifyCountChanged()));
 
 	FTestNotifyTimer.setSingleShot(true);
 	FTestNotifyTimer.setInterval(TEST_NOTIFY_TIMEOUT);
@@ -730,9 +737,19 @@ void Notifications::onShowGrowlPreferences()
 {
 	if (FMacIntegration)
 		FMacIntegration->showGrowlPreferencePane();
-
 }
 
+void Notifications::onNotifyCountChanged()
+{
+	if (FMacIntegration)
+	{
+		int count = notifications().count();
+# ifdef DEBUG_ENABLED
+		qDebug() << "Notifications count:" << count;
+# endif
+		FMacIntegration->setDockBadge(count ? QString::number(count) : QString::null);
+	}
+}
 #endif
 
 
