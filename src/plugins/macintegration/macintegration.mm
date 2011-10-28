@@ -9,6 +9,7 @@
 #include <Growl.h>
 
 #include <utils/log.h>
+#include <utils/macwidgets.h>
 
 #include <QDebug>
 
@@ -215,4 +216,104 @@ void MacIntegrationPrivate::showGrowlPrefPane()
 		if (!ok)
 			NSLog(@"Error opening Growl preference pane at %@. Possibly, Growl isn\' installed.", growlCommonPath);
 	}
+}
+
+@interface DrawHelper : NSObject
+{
+	NSColor * color;
+}
+
+@property (nonatomic, retain) NSColor * color;
+
+- (float)roundedCornerRadius;
+- (void)drawRectOriginal:(NSRect)rect;
+- (NSWindow*)window;
+- (id)_displayName;
+
+- (void)drawRect:(NSRect)rect;
+@end
+
+@implementation DrawHelper
+
+@synthesize color;
+
+- (void)drawRect:(NSRect)rect
+{
+	// Call original drawing method
+	[self drawRectOriginal:rect];
+
+	// Build clipping path : intersection of frame clip (bezier path with rounded corners) and rect argument
+	//
+	NSRect windowRect = [[self window] frame];
+	windowRect.origin = NSMakePoint(0, 0);
+
+	float cornerRadius = [self roundedCornerRadius];
+	[[NSBezierPath bezierPathWithRoundedRect:windowRect xRadius:cornerRadius yRadius:cornerRadius] addClip];
+	[[NSBezierPath bezierPathWithRect:rect] addClip];
+
+	//
+	// Draw background image (extend drawing rect : biggest rect dimension become's rect size)
+	//
+//	NSRect imageRect = windowRect;
+//	if (imageRect.size.width > imageRect.size.height)
+//	{
+//		imageRect.origin.y = -(imageRect.size.width-imageRect.size.height)/2;
+//		imageRect.size.height = imageRect.size.width;
+//	}
+//	else
+//	{
+//		imageRect.origin.x = -(imageRect.size.height-imageRect.size.width)/2;
+//		imageRect.size.width = imageRect.size.height;
+//	}
+	//[[NSImage imageNamed:NSImageNameActionTemplate] drawInRect:imageRect fromRect:NSZeroRect operation:NSCompositeSourceAtop fraction:0.15];
+
+	//
+	// Draw a background color on top of everything
+	//
+	CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
+	CGContextSetBlendMode(context, kCGBlendModeSourceIn);
+
+	// background
+	[[NSColor colorWithSRGBRed: (65 / 255.0) green: (70 / 255.0) blue: (77 / 255.0) alpha: 1.0] set];
+	[[NSBezierPath bezierPathWithRect:rect] fill];
+
+	// text
+	[[NSColor colorWithSRGBRed: 1.0 green: 1.0 blue: 1.0 alpha: 1.0] set];
+	NSFont *font = [NSFont fontWithName:@"Palatino-Roman" size:14.0];
+
+	NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
+	NSLog(@"display name: %@", [self _displayName]);
+	[[self _displayName] drawAtPoint: NSMakePoint(0, 0) withAttributes: attrsDictionary];
+}
+
+@end
+
+void MacIntegrationPrivate::setCustomBorderColor(QWidget * window, const QColor & color)
+{
+	id nswindow = [nsViewFromWidget(window) window];
+	NSLog(@"setCustomBorderColor: done %@", nswindow);
+
+
+	// Get window's frame view class
+	id _class = [[[nswindow contentView] superview] class];
+	NSLog(@"setCustomBorderColor: class=%@", _class);
+
+	static DrawHelper * dhelper = [[DrawHelper alloc] init];
+	NSColor * nsColor = [NSColor colorWithSRGBRed: color.redF() green: color.greenF() blue: color.blueF() alpha: color.alphaF()];
+
+	dhelper.color = nsColor;
+
+	// Exchange draw rect
+	Method m0 = class_getInstanceMethod([dhelper class], @selector(drawRect:));
+	class_addMethod(_class, @selector(drawRectOriginal:), method_getImplementation(m0), method_getTypeEncoding(m0));
+
+	Method m1 = class_getInstanceMethod(_class, @selector(drawRect:));
+	Method m2 = class_getInstanceMethod(_class, @selector(drawRectOriginal:));
+
+	method_exchangeImplementations(m1, m2);
+}
+
+void MacIntegrationPrivate::setWindowMovableByBackground(QWidget * window, bool movable)
+{
+	[[nsViewFromWidget(window) window] setMovableByWindowBackground: (movable ? YES : NO)];
 }

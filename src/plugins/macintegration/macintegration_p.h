@@ -2,6 +2,7 @@
 #define MACINTEGRATION_P_H
 
 #include <QObject>
+#include <QColor>
 
 class NSImage;
 class NSString;
@@ -30,6 +31,8 @@ public:
 	static void setDockBadge(const QString & badgeText);
 	static void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 	static void showGrowlPrefPane();
+	static void setCustomBorderColor(QWidget * window, const QColor & color);
+	static void setWindowMovableByBackground(QWidget * window, bool movable);
 private:
 	static MacIntegrationPrivate * _instance;
 };

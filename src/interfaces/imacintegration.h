@@ -18,6 +18,8 @@ public:
 	virtual void setDockBadge(const QString & badgeText) = 0;
 	virtual void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id) = 0;
 	virtual void showGrowlPreferencePane() = 0;
+	virtual void setCustomBorderColor(QWidget * window, const QColor & color) = 0;
+	virtual void setWindowMovableByBackground(QWidget * window, bool movable) = 0;
 protected:
 	// signals
 	virtual void dockClicked() = 0;
