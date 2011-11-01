@@ -131,7 +131,6 @@ IPlugin *PluginManager::pluginInstance(const QUuid &AUuid) const
 
 QList<IPlugin *> PluginManager::pluginInterface(const QString &AInterface) const
 {
-	//QList<IPlugin *> plugins;
 	if (!FPlugins.contains(AInterface))
 	{
 		foreach(PluginItem pluginItem, FPluginItems)

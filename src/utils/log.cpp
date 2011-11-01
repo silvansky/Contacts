@@ -2,9 +2,17 @@
 
 #include <QDir>
 #include <QFile>
+#include <QLocale>
+#include <QProcess>
 #include <QDateTime>
-#include <QTextDocument>
 #include <QApplication>
+#include <QTextDocument>
+#include <definitions/version.h>
+#include <definitions/applicationreportparams.h>
+#include "datetime.h"
+
+#define APP_REPORT_VERSION         "1.0"
+#define DIR_HOLDEM_REPORTS         "Rambler/Holdem/Reports"
 
 // class Log
 QMutex Log::FMutex;
@@ -13,6 +21,7 @@ uint Log::FMaxLogSize = 1024; // 1 MB by default
 QString Log::FLogFile = QString::null;
 QString Log::FLogPath = QDir::homePath();
 Log::LogFormat Log::FLogFormat = Log::Simple;
+QMap<QString,QString> Log::FReportParams;
 
 void qtMessagesHandler(QtMsgType AType, const char *AMessage)
 {
@@ -96,11 +105,8 @@ void Log::writeMessage(uint AType, const QString &AMessage)
 			// Устанавливаем перехватчик Qt-шных сообщений только для релиза, чтобы видеть во время отладки
 			qInstallMsgHandler(qtMessagesHandler);
 #endif
-			// creating name with current date: log_YYYY-MM-DD
-			FLogFile = QString("log_%1").arg(QDate::currentDate().toString(Qt::ISODate));
-			lock.unlock();
-			writeMessage(Detaile,QString("-= Log started %1/%2.txt =-").arg(FLogPath,FLogFile));
-			lock.relock();
+			// creating name with current date and time: log_YYYY-MM-DDTHH-MM-SS+TZ.txt
+			FLogFile = QString("log_%1").arg(DateTime(QDateTime::currentDateTime()).toX85DateTime().replace(":","-"));
 		}
 
 		QDateTime curDateTime = QDateTime::currentDateTime();
@@ -152,6 +158,101 @@ void Log::writeMessage(uint AType, const QString &AMessage)
 			logFile_html.close();
 		}
 	}
+}
+
+void Log::setStaticReportParam(const QString &AKey, const QString &AValue)
+{
+	if (!AValue.isNull())
+		FReportParams.insert(AKey,AValue);
+	else
+		FReportParams.remove(AKey);
+}
+
+QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeLog)
+{
+	QDomDocument report;
+
+	// Заполняем общие параметры
+	AParams.insert(ARP_REPORTTIME,DateTime(QDateTime::currentDateTime()).toX85DateTime());
+	
+	AParams.insert(ARP_APPLICATION_GUID,CLIENT_GUID);
+	AParams.insert(ARP_APPLICATION_NAME,CLIENT_NAME);
+	AParams.insert(ARP_APPLICATION_VERSION,CLIENT_VERSION);
+	
+	AParams.insert(ARP_SYSTEM_QTVERSIONRUN,qVersion());
+	AParams.insert(ARP_SYSTEM_QTVERSIONBUILD,QT_VERSION_STR);
+
+	AParams.insert(ARP_LOCALE_NAME,QLocale().name());
+	
+	// Добавляем фаил лога
+	if (AIncludeLog && !FLogFile.isEmpty())
+	{
+		QFile file(FLogPath + "/" + FLogFile + ".txt");
+		if (file.open(QFile::ReadOnly))
+		{
+			QByteArray data = file.readAll();
+			if (!data.isEmpty())
+			{
+				AParams.insert(ARP_FILE_LOG_NAME,FLogFile);
+				AParams.insert(ARP_FILE_LOG_BASE64,data.toBase64());
+			}
+			file.close();
+		}
+	}
+
+	// Добавляем заранее установленные параметры
+	for (QMap<QString,QString>::const_iterator it = FReportParams.constBegin(); it!=FReportParams.constEnd(); it++)
+	{
+		if (!AParams.contains(it.key()))
+			AParams.insert(it.key(),it.value());
+	}
+
+	// Создаем XML документ отчета
+	QDomElement reportElem = report.appendChild(report.createElement("report")).toElement();
+	reportElem.setAttribute("version",APP_REPORT_VERSION);
+	for (QMap<QString,QString>::const_iterator it = AParams.constBegin(); it!=AParams.constEnd(); it++)
+	{
+		QDomElement paramElem = reportElem;
+		QStringList paramPath = it.key().split(".",QString::SkipEmptyParts);
+		foreach(QString paramItem, paramPath)
+		{
+			QDomElement itemElem = paramElem.firstChildElement(paramItem);
+			if (itemElem.isNull())
+				paramElem = paramElem.appendChild(report.createElement(paramItem)).toElement();
+			else
+				paramElem = itemElem;
+		}
+		paramElem.appendChild(report.createTextNode(it.value()));
+	}
+
+	return report;
+}
+
+bool Log::sendReport(QDomDocument AReport)
+{
+	if (!AReport.isNull())
+	{
+		QString dirPath = QDir::homePath();
+		foreach(QString env, QProcess::systemEnvironment())
+		{
+			if (env.startsWith("APPDATA="))
+				dirPath = env.split("=").value(1);
+		}
+
+		QDir dir(dirPath);
+		if (dir.exists() && (dir.exists(DIR_HOLDEM_REPORTS) || dir.mkpath(DIR_HOLDEM_REPORTS)) && dir.cd(DIR_HOLDEM_REPORTS))
+		{
+			QString fileName = QString("contacts_%1.xml").arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate).replace(":","="));
+			QFile file(dir.absoluteFilePath(fileName));
+			if (file.open(QFile::WriteOnly|QFile::Truncate))
+			{
+				file.write(AReport.toString(3).toUtf8());
+				file.close();
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 // non-class

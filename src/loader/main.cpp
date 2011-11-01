@@ -1,20 +1,42 @@
+#include <signal.h>
+
 #include <QUrl>
 #include <QLibrary>
 #include <QApplication>
 #include <QScopedPointer>
+#include <definitions/applicationreportparams.h>
+#include <utils/log.h>
+#include <utils/networking.h>
 #include "pluginmanager.h"
 #include "proxystyle.h"
-#include <utils/networking.h>
+#include "singleapp.h"
 
 #ifdef Q_WS_WIN32
 # include <thirdparty/holdemutils/RHoldemModule.h>
-# define RAMBLERCONTACTS_GUID "{9732304B-B640-4C54-B2CD-3C2297D649A1}"
 #endif
 
-#include "singleapp.h"
+void generateSegfaultReport(int ASigNum)
+{
+	static bool fault = false;
+	if (!fault)
+	{
+		fault = true;
+		QMap<QString,QString> params;
+		params.insert(ARP_REPORTTYPE,"error");
+		params.insert(ARP_REPORTDESCRIPTION,QString("Segmentation fault with code %1").arg(ASigNum));
+		Log::sendReport(Log::generateReport(params));
+	}
+	signal(ASigNum, SIG_DFL);
+	exit(ASigNum);
+}
 
 int main(int argc, char *argv[])
 {
+#ifndef DEBUG_ENABLED // Позволяем отладчику обрабатывать эти ошибки
+	foreach(int sig, QList<int>() << SIGSEGV << SIGILL << SIGFPE << SIGTERM << SIGABRT)
+		signal(sig, generateSegfaultReport);
+#endif
+
 #ifdef Q_WS_WIN
 	// WARNING! DIRTY HACK!
 	// totally ignoring all args and simulating "-style windows" args
@@ -70,7 +92,7 @@ int main(int argc, char *argv[])
 	QObject::connect(&app, SIGNAL(messageAvailable(const QString&)), &pm, SLOT(showMainWindow()));
 
 #ifdef Q_WS_WIN
-	GUID guid = (GUID)QUuid(RAMBLERCONTACTS_GUID);
+	GUID guid = (GUID)QUuid(CLIENT_GUID);
 	QScopedPointer<holdem_utils::RHoldemModule> holdem_module(new holdem_utils::RHoldemModule(guid));
 	QObject::connect(holdem_module.data(), SIGNAL(shutdownRequested()), &pm, SLOT(shutdownRequested()));
 #endif

@@ -70,11 +70,11 @@ public slots:
 	virtual void delayShutdown();
 	virtual void continueShutdown();
 	virtual void shutdownRequested();
-public slots:
-	void showMainWindow();
 signals:
 	void aboutToQuit();
 	void shutdownStarted();
+public slots:
+	void showMainWindow();
 protected:
 	void loadSettings();
 	void saveSettings();
