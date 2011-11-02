@@ -74,7 +74,6 @@ public:
 	//IDataLocalizer
 	virtual IDataFormLocale dataFormLocale(const QString &AFormType);
 	//IClientInfo
-	virtual QString osVersion() const;
 	//Software Version
 	virtual bool hasSoftwareInfo(const Jid &AContactJid) const;
 	virtual bool requestSoftwareInfo( const Jid &AStreamJid, const Jid &AContactJid);

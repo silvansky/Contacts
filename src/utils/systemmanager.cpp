@@ -1,6 +1,9 @@
 #include "systemmanager.h"
 
 #include <QTimer>
+#include <QProcess>
+#include <QTextStream>
+#include <QStringList>
 #include <thirdparty/idle/idle.h>
 
 #ifdef Q_WS_WIN
@@ -13,6 +16,10 @@ static const int dummy = (wv >= QSysInfo::WV_2000) ?
 	      0 : 1;
 # endif
 # include <windows.h>
+#endif
+
+#if defined(Q_WS_X11)
+# include <sys/utsname.h>
 #endif
 
 struct SystemManager::SystemManagerData
@@ -112,6 +119,104 @@ bool SystemManager::isFullScreenMode()
 # endif
 #endif
 	return false;
+}
+
+QString SystemManager::systemOSVersion()
+{
+	QString osver = "System Unknown";
+
+#ifdef Q_WS_X11
+
+	QStringList path;
+	foreach(QString env, QProcess::systemEnvironment())
+	{
+		if (env.startsWith("PATH="))
+			path = env.split('=').value(1).split(':');
+	}
+
+	QString found;
+	foreach(QString dirname, path)
+	{
+		QDir dir(dirname);
+		QFileInfo cand(dir.filePath("lsb_release"));
+		if (cand.isExecutable())
+		{
+			found = cand.absoluteFilePath();
+			break;
+		}
+	}
+
+	if (!found.isEmpty())
+	{
+		QProcess process;
+		process.start(found, QStringList()<<"--description"<<"--short", QIODevice::ReadOnly);
+		if (process.waitForStarted())
+		{
+			QTextStream stream(&process);
+			while (process.waitForReadyRead())
+				osver += stream.readAll();
+			process.close();
+			osver = osver.trimmed();
+		}
+	}
+
+	if (osver.isEmpty())
+	{
+		utsname buf;
+		if (uname(&buf) != -1)
+		{
+			osver.append(buf.release).append(QLatin1Char(' '));
+			osver.append(buf.sysname).append(QLatin1Char(' '));
+			osver.append(buf.machine).append(QLatin1Char(' '));
+			osver.append(QLatin1String(" (")).append(buf.machine).append(QLatin1Char(')'));
+		}
+		else
+		{
+			osver = ("Linux/Unix Unknown");
+		}
+	}
+
+#elif defined(Q_WS_WIN) || defined(Q_OS_CYGWIN)
+
+	static const struct { int ver; QString name; } versions[] = 
+	{
+		{ QSysInfo::WV_NT,          "Windows NT" },
+		{ QSysInfo::WV_2000,        "Windows 2000" },
+		{ QSysInfo::WV_XP,          "Windows XP" },
+		{ QSysInfo::WV_2003,        "Windows 2003" },
+		{ QSysInfo::WV_VISTA,       "Windows Vista" },
+		{ QSysInfo::WV_WINDOWS7,    "Windows 7" },
+		{ -1,                       "Windows Unknown" },
+	};
+
+	int index = 0;
+	while (versions[index].ver>0 && versions[index].ver!=QSysInfo::WindowsVersion)
+		index++;
+	osver = versions[index].name;
+
+#elif defined(Q_WS_MAC)
+
+	static const struct { int ver; QString name; } versions[] = 
+	{
+		{ QSysInfo::MV_SNOWLEOPARD, "MacOS 10.6 (SnowLeopard)" },
+		{ QSysInfo::MV_LEOPARD,     "MacOS 10.5 (Leopard)" },
+		{ QSysInfo::MV_TIGER,       "MacOS 10.4 (Tiger)" },
+		{ QSysInfo::MV_PANTHER,     "MacOS 10.3 (Panther)" },
+		{ QSysInfo::MV_JAGUAR,      "MacOS 10.2 (Jaguar)" },
+		{ QSysInfo::MV_PUMA,        "MacOS 10.1 (Puma)" },
+		{ QSysInfo::MV_CHEETAH,     "MacOS 10.0(Cheetah)" },
+		{ QSysInfo::MV_9,           "MacOS 9" },
+		{ -1,                       "MacOS Unknown" }
+	};
+
+	int index = 0;
+	while (versions[index].ver>0 && versions[index].ver!=QSysInfo::MacintoshVersion)
+		index++;
+	osver = versions[index].name;
+
+#endif
+
+	return osver;
 }
 
 void SystemManager::startSystemIdle()

@@ -1,7 +1,9 @@
 #include <signal.h>
 
 #include <QUrl>
+#include <QUuid>
 #include <QLibrary>
+#include <QSettings>
 #include <QApplication>
 #include <QScopedPointer>
 #include <definitions/applicationreportparams.h>
@@ -36,6 +38,16 @@ int main(int argc, char *argv[])
 	foreach(int sig, QList<int>() << SIGSEGV << SIGILL << SIGFPE << SIGTERM << SIGABRT)
 		signal(sig, generateSegfaultReport);
 #endif
+
+	// Генерируем уникальный идентификатор системы
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"Rambler");
+	QUuid systemUuid = settings.value("system/uuid").toString();
+	if (systemUuid.isNull())
+	{
+		systemUuid = QUuid::createUuid();
+		settings.setValue("system/uuid",systemUuid.toString());
+	}
+	Log::setStaticReportParam(ARP_SYSTEM_UUID,systemUuid.toString());
 
 #ifdef Q_WS_WIN
 	// WARNING! DIRTY HACK!

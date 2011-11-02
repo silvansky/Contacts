@@ -16,6 +16,7 @@ public:
 	static bool isWorkstationLocked();
 	static bool isScreenSaverRunning();
 	static bool isFullScreenMode();
+	static QString systemOSVersion();
 public:
 	void startSystemIdle();
 	void stopSystemIdle();

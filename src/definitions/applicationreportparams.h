@@ -9,6 +9,7 @@
 #define ARP_APPLICATION_NAME                                     "application.name"
 #define ARP_APPLICATION_VERSION                                  "application.version"
 
+#define ARP_SYSTEM_UUID                                          "system.uuid"
 #define ARP_SYSTEM_OSVERSION                                     "system.os-version"
 #define ARP_SYSTEM_QTVERSIONRUN                                  "system.qt-version-run"
 #define ARP_SYSTEM_QTVERSIONBUILD                                "system.qt-version-build"

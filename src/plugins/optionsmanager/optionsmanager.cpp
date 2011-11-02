@@ -34,6 +34,7 @@ OptionsManager::OptionsManager()
 	FOptionsDialogBorder = NULL;
 	FLoginDialog = NULL;
 	FLoginDialogBorder = NULL;
+	FMacIntegration = NULL;
 
 	FAutoSaveTimer.setInterval(30*1000);
 	FAutoSaveTimer.setSingleShot(true);

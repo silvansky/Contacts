@@ -10,6 +10,7 @@
 #include <definitions/version.h>
 #include <definitions/applicationreportparams.h>
 #include "datetime.h"
+#include "systemmanager.h"
 
 #define APP_REPORT_VERSION         "1.0"
 #define DIR_HOLDEM_REPORTS         "Rambler/Holdem/Reports"
@@ -179,6 +180,7 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 	AParams.insert(ARP_APPLICATION_NAME,CLIENT_NAME);
 	AParams.insert(ARP_APPLICATION_VERSION,CLIENT_VERSION);
 	
+	AParams.insert(ARP_SYSTEM_OSVERSION,SystemManager::systemOSVersion());
 	AParams.insert(ARP_SYSTEM_QTVERSIONRUN,qVersion());
 	AParams.insert(ARP_SYSTEM_QTVERSIONBUILD,QT_VERSION_STR);
 
