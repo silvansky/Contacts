@@ -5,33 +5,34 @@ appname=ramblercontacts.app
 
 # copy qt frameworks
 
-qtpath=/Library/Frameworks
+frameworkspath=/Library/Frameworks
 
 qtapppath=$appname/Contents/Frameworks
 mkdir $qtapppath
 
-function copyqt {
+function copyframework {
 	# copy all
 	echo copying $1...
-	cp -R $qtpath/$1.framework $qtapppath/
+	cp -R $frameworkspath/$1.framework $qtapppath/
 	#remove debug libs
 	cd $qtapppath/$1.framework
 	rm -rf $1_debug.dSYM
 	rm -f $1_debug
 	rm -f $1_debug.prl
-	cd Versions/4/
+	cd Versions/Current/
 	rm -f $1_debug
 	rm -rf Headers
 	# return to apps dir
 	cd /Applications
 }
 
-copyqt QtCore
-copyqt QtGui
-copyqt QtNetwork
-copyqt QtMultimedia
-copyqt QtXml
-copyqt QtXmlPatterns
-copyqt QtWebKit
-copyqt QtDBus
-copyqt phonon
+copyframework QtCore
+copyframework QtGui
+copyframework QtNetwork
+copyframework QtMultimedia
+copyframework QtXml
+copyframework QtXmlPatterns
+copyframework QtWebKit
+copyframework QtDBus
+copyframework phonon
+copyframework Growl

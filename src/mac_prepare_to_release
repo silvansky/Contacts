@@ -23,6 +23,7 @@ patchFile MacOS/ramblercontacts QtXml
 patchFile MacOS/ramblercontacts QtXmlPatterns
 patchFile MacOS/ramblercontacts QtWebKit
 patchFile MacOS/ramblercontacts phonon
+patchFile MacOS/ramblercontacts Growl
 
 # utils deps - core, gui, xml, webkit, network
 
@@ -88,5 +89,6 @@ patchFile Plugins/$i QtWebKit
 patchFile Plugins/$i QtXml
 patchFile Plugins/$i QtXmlPatterns
 patchFile Plugins/$i phonon
+patchFile Plugins/$i Growl
 
 done
