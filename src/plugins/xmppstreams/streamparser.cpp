@@ -71,6 +71,7 @@ void StreamParser::parseData(const QByteArray &AData)
 	{
 		QString err = FReader.errorString();
 		LogError(QString("[StreamParser] Failed to parse data: %1\n%2").arg(err).arg(QString::fromUtf8(AData)));
+		ReportError("STANZA-PARSE-ERROR",QString("[StreamParser] Failed to parse data: %1").arg(err));
 		emit error(err);
 	}
 }

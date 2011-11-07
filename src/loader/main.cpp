@@ -23,10 +23,7 @@ void generateSegfaultReport(int ASigNum)
 	if (!fault)
 	{
 		fault = true;
-		QMap<QString,QString> params;
-		params.insert(ARP_REPORTTYPE,"error");
-		params.insert(ARP_REPORTDESCRIPTION,QString("Segmentation fault with code %1").arg(ASigNum));
-		Log::sendReport(Log::generateReport(params));
+		ReportError("SEGFAULT",QString("Segmentation fault with code %1").arg(ASigNum));
 	}
 	signal(ASigNum, SIG_DFL);
 	exit(ASigNum);

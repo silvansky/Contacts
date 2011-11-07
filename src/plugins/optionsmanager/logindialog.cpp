@@ -810,6 +810,8 @@ void LoginDialog::hideConnectionError()
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
 {
 	LogError(QString("[LoginDialog] Connection error '%1': %2").arg(ACaption,AError));
+	ReportError("CONNECT-ERROR",QString("[LoginDialog] Connection error '%1': %2").arg(ACaption,AError));
+
 	hideXmppStreamError();
 
 	QString message = ACaption;

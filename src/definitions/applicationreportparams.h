@@ -1,9 +1,10 @@
 #ifndef DEF_APPLICATIONREPORTPARAMS_H
 #define DEF_APPLICATIONREPORTPARAMS_H
 
-#define ARP_REPORTTYPE                                           "report-type"
-#define ARP_REPORTTIME                                           "report-time"
-#define ARP_REPORTDESCRIPTION                                    "report-description"
+#define ARP_REPORT_TYPE                                          "report.type"
+#define ARP_REPORT_CODE                                          "report.code"
+#define ARP_REPORT_TIME                                          "report.time"
+#define ARP_REPORT_DESCRIPTION                                   "report.description"
 
 #define ARP_APPLICATION_GUID                                     "application.guid"
 #define ARP_APPLICATION_NAME                                     "application.name"

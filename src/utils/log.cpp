@@ -36,9 +36,11 @@ void qtMessagesHandler(QtMsgType AType, const char *AMessage)
 		break;
 	case QtCriticalMsg:
 		LogError(QString("[QtCriticalMsg] %1").arg(AMessage));
+		ReportError("QT-CRITICAL-MSG",QString("[QtCriticalMsg] %1").arg(AMessage));
 		break;
 	case QtFatalMsg:
 		LogError(QString("[QtFatalMsg] %1").arg(AMessage));
+		ReportError("QT-FATAL-MSG",QString("[QtFatalMsg] %1").arg(AMessage));
 		break;
 	}
 }
@@ -174,7 +176,7 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 	QDomDocument report;
 
 	// Заполняем общие параметры
-	AParams.insert(ARP_REPORTTIME,DateTime(QDateTime::currentDateTime()).toX85DateTime());
+	AParams.insert(ARP_REPORT_TIME,DateTime(QDateTime::currentDateTime()).toX85DateTime());
 	
 	AParams.insert(ARP_APPLICATION_GUID,CLIENT_GUID);
 	AParams.insert(ARP_APPLICATION_NAME,CLIENT_NAME);
@@ -289,4 +291,13 @@ void LogStanza(const QString &AMessage)
 void LogDebug(const QString &AMessage)
 {
 	Log::writeMessage(Log::Debug, AMessage);
+}
+
+void UTILS_EXPORT ReportError(const QString &ACode, const QString &ADescr, bool AIncludeLog)
+{
+	QMap<QString,QString> params;
+	params.insert(ARP_REPORT_TYPE,"ERROR");
+	params.insert(ARP_REPORT_CODE,ACode);
+	params.insert(ARP_REPORT_DESCRIPTION,ADescr);
+	Log::sendReport(Log::generateReport(params,AIncludeLog));
 }

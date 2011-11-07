@@ -483,7 +483,8 @@ void PluginManager::loadPlugins()
 	}
 	else
 	{
-		LogError(QString("[PluginManager] Could not find plugins directory"));
+		LogError(QString("[PluginManager] Could not find plugins directory: '%1'").arg(PLUGINS_DIR));
+		ReportError("NO-PLUGINS-DIR",QString("[PluginManager] Could not find plugins directory: '%1'").arg(PLUGINS_DIR),false);
 		quit();
 	}
 }
@@ -742,6 +743,7 @@ QDomElement PluginManager::savePluginInfo(const QString &AFile, const IPluginInf
 void PluginManager::savePluginError(const QString &AFile, const QString &AError)
 {
 	LogError(QString("[PluginManager] Failed to load plugin '%1': %2").arg(AFile, AError));
+	ReportError("LOAD-PLUGIN-ERROR",QString("[PluginManager] Failed to load plugin '%1': %2").arg(AFile, AError),false);
 
 	QDomElement pluginElem = FPluginsSetup.documentElement().firstChildElement(AFile);
 	if (pluginElem.isNull())

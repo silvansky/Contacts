@@ -461,6 +461,7 @@ bool OptionsManager::addProfile(const QString &AProfile, const QString &APasswor
 		else
 		{
 			LogError(QString("[OptionsManager] Failed to create profile directory '%1'").arg(FProfilesDir.absoluteFilePath(AProfile)));
+			ReportError("FAILED-CREATE-PROFILE-DIR",QString("[OptionsManager] Failed to create profile directory '%1'").arg(FProfilesDir.absoluteFilePath(AProfile)),false);
 		}
 	}
 	return false;
@@ -716,6 +717,7 @@ bool OptionsManager::saveOptions() const
 		else
 		{
 			LogError(QString("[OptionsManager] Failed to save options to file '%1'").arg(file.fileName()));
+			ReportError("FAILED-SAVE-OPTIONS",QString("[OptionsManager] Failed to save options to file '%1'").arg(file.fileName()),false);
 		}
 	}
 	return false;

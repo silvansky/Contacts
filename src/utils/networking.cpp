@@ -14,7 +14,6 @@
 #include "networking_p.h"
 
 // class CookieJar - cookie storage
-
 CookieJar::CookieJar() : QNetworkCookieJar()
 {
 
@@ -35,7 +34,7 @@ void CookieJar::loadCookies(const QString & cookiePath)
 	}
 	else
 	{
-		LogError("[CookieJar::loadCookies] error: " + file.errorString());
+		LogError("[CookieJar] Failed to load cookies: " + file.errorString());
 	}
 }
 
@@ -51,12 +50,11 @@ void CookieJar::saveCookies(const QString & cookiePath)
 	}
 	else
 	{
-		LogError("[CookieJar::loadCookies] error: " + file.errorString());
+		LogError("[CookieJar] Failed to save cookies: " + file.errorString());
 	}
 }
 
 // private class for real manipulations
-
 NetworkingPrivate::NetworkingPrivate()
 {
 	nam = new QNetworkAccessManager();
@@ -93,7 +91,7 @@ QImage NetworkingPrivate::httpGetImage(const QUrl& src) const
 		}
 		else
 		{
-			LogError("[Networking] infinite redirect loop at " + redirectedTo.toString());
+			LogError("[NetworkingPrivate] Infinite redirect loop at " + redirectedTo.toString());
 			return QImage();
 		}
 	}
@@ -139,7 +137,7 @@ QString NetworkingPrivate::httpGetString(const QUrl& src) const
 		}
 		else
 		{
-			LogError("[Networking] infinite redirect loop at " + redirectedTo.toString());
+			LogError("[NetworkingPrivate] Infinite redirect loop at " + redirectedTo.toString());
 			return QString::null;
 		}
 	}
@@ -182,7 +180,7 @@ void NetworkingPrivate::onFinished(QNetworkReply* reply)
 			}
 			else
 			{
-				LogError("[Networking] infinite redirect loop at " + redirectedTo.toString());
+				LogError("[NetworkingPrivate] Infinite redirect loop at " + redirectedTo.toString());
 			}
 		}
 		else
@@ -204,7 +202,7 @@ void NetworkingPrivate::onFinished(QNetworkReply* reply)
 
 // Networking class
 
-NetworkingPrivate * Networking::networkingPrivate = 0;
+NetworkingPrivate *Networking::networkingPrivate = 0;
 
 QImage Networking::httpGetImage(const QUrl& src)
 {
@@ -227,8 +225,7 @@ bool Networking::insertPixmap(const QUrl& src, QObject* target, const QString& p
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(target);
 		return target->setProperty(property.toLatin1(), QVariant(QPixmap::fromImage(img)));
 	}
-	else
-		return false;
+	return false;
 }
 
 QString Networking::httpGetString(const QUrl& src)

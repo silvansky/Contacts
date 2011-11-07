@@ -53,4 +53,6 @@ void UTILS_EXPORT LogDetaile(const QString &AMessage);
 void UTILS_EXPORT LogStanza(const QString &AMessage);
 void UTILS_EXPORT LogDebug(const QString &AMessage);
 
+void UTILS_EXPORT ReportError(const QString &ACode, const QString &ADescr, bool AIncludeLog = true);
+
 #endif // LOG_H

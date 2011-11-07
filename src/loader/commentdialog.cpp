@@ -310,7 +310,8 @@ void CommentDialog::SendComment()
 		ui.pbtClose->setText(tr("Cancel"));
 		ui.pbtSendComment->setDefault(true);
 
-		LogError(QString("[CommentDialog] Can't send comment message!"));
+		LogError(QString("[CommentDialog] Can't send comment message: %1").arg(message.body()));
+		ReportError("FAILED-SEND-COMMENT",QString("[CommentDialog] Can't send comment message: %1").arg(message.body()));
 	}
 	doc->deleteLater();
 }
