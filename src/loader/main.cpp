@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QApplication>
 #include <QScopedPointer>
+#include <definitions/commandline.h>
 #include <definitions/applicationreportparams.h>
 #include <utils/log.h>
 #include <utils/networking.h>
@@ -46,20 +47,30 @@ int main(int argc, char *argv[])
 	}
 	Log::setStaticReportParam(ARP_SYSTEM_UUID,systemUuid.toString());
 
+	//Ищем наличие ключа -checkinstall
+	for (int i=1; i<argc; i++)
+	{
+		if (!strcmp(argv[i],CLO_CHECK_INSTALL))
+			return 0;
+	}
+
 #ifdef Q_WS_WIN
 	// WARNING! DIRTY HACK!
-	// totally ignoring all args and simulating "-style windows" args
+	// adding "-style windows" args
 	// don't know why only this works...
+	bool changeStyle = true;
+	char **newArgv = new char*[argc+2];
+	for (int i=0; i<argc; i++)
+	{
+		int argLen = strlen(argv[i])+1;
+		newArgv[i] = new char[argLen];
+		memcpy(newArgv[i],argv[i],argLen);
+		changeStyle = changeStyle && strcmp(argv[i],"-style")!=0;
+	}
+	newArgv[argc] = changeStyle ? "-style" : "";
+	newArgv[argc+1] = changeStyle ? "windows" : "";
 
-	char **newArgv = new char*[3];
-	// copying 0 arg
-	newArgv[0] = new char[strlen(argv[0])];
-	// adding our fake args
-	newArgv[1] = "-style";
-
-	newArgv[2] = "windows";
-	// replace original argc and argv and passing them to app's ctor
-	argc = 3;
+	argc = argc+2;
 	argv = newArgv;
 #endif
 
