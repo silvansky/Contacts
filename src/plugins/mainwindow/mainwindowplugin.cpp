@@ -158,10 +158,10 @@ QMultiMap<int, IOptionsWidget *> MainWindowPlugin::optionsWidgets(const QString 
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (FOptionsManager && ANodeId == OPN_ROSTER)
 	{
-		widgets.insertMulti(OWO_ROSTER_MAINWINDOW, FOptionsManager->optionsNodeWidget(Options::node(OPV_MAINWINDOW_STAYONTOP),tr("Stay on top of other windows"),AParent));
+		widgets.insertMulti(OWO_ROSTER_MAINWINDOW_STAYONTOP, FOptionsManager->optionsNodeWidget(Options::node(OPV_MAINWINDOW_STAYONTOP),tr("Stay on top of other windows"),AParent));
 #ifdef Q_OS_WIN
 		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-			widgets.insertMulti(OWO_ROSTER_MAINWINDOW+1, FOptionsManager->optionsNodeWidget(Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7),tr("Minimize to tray instead of taskbar"),AParent));
+			widgets.insertMulti(OWO_ROSTER_MAINWINDOW_MINIMIZETOTRAY, FOptionsManager->optionsNodeWidget(Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7),tr("Show application icon in tray"),AParent));
 #endif
 	}
 	return widgets;
