@@ -51,7 +51,10 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	tr("Birthday Reminder");
 	tr("Error");
 	tr("Subscription Message");
-	//MacIntegrationPrivate::setCustomBorderColor(NULL, QColor(65, 70, 77, 250));
+	MacIntegrationPrivate::installCustomFrame();
+	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
+	setCustomTitleColor(QColor(250, 250, 250, 255));
+
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()
@@ -140,9 +143,14 @@ void MacIntegrationPlugin::showGrowlPreferencePane()
 	MacIntegrationPrivate::showGrowlPrefPane();
 }
 
-void MacIntegrationPlugin::setCustomBorderColor(QWidget * window, const QColor & color)
+void MacIntegrationPlugin::setCustomBorderColor(const QColor & color)
 {
-	MacIntegrationPrivate::setCustomBorderColor(window, color);
+	MacIntegrationPrivate::setCustomBorderColor(color);
+}
+
+void MacIntegrationPlugin::setCustomTitleColor(const QColor & color)
+{
+	MacIntegrationPrivate::setCustomTitleColor(color);
 }
 
 void MacIntegrationPlugin::setWindowMovableByBackground(QWidget * window, bool movable)

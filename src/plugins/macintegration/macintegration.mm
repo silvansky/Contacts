@@ -4,6 +4,8 @@
 
 #include <QImage>
 #include <QPixmap>
+#include <QApplication>
+#include <QWidget>
 
 //#include "growl/GrowlApplicationBridge.h"
 #include <Growl.h>
@@ -218,99 +220,145 @@ void MacIntegrationPrivate::showGrowlPrefPane()
 	}
 }
 
+static NSColor * gFrameColor = nil;
+static NSColor * gTitleColor = nil;
+
 @interface DrawHelper : NSObject
 {
-	NSColor * color;
 }
-
-@property (nonatomic, retain) NSColor * color;
 
 - (float)roundedCornerRadius;
 - (void)drawRectOriginal:(NSRect)rect;
 - (NSWindow*)window;
 - (id)_displayName;
+- (NSRect)bounds;
 
 - (void)drawRect:(NSRect)rect;
+- (void) _drawTitleStringIn: (NSRect) rect withColor: (NSColor *) color;
 @end
 
 @implementation DrawHelper
 
-@synthesize color;
+#define CLIP_METHOD2
 
 - (void)drawRect:(NSRect)rect
 {
 	// Call original drawing method
 	[self drawRectOriginal:rect];
+	[self _setTextShadow:NO];
+
+	NSRect titleRect;
 
 	// Build clipping path : intersection of frame clip (bezier path with rounded corners) and rect argument
-	//
+#ifndef CLIP_METHOD2
 	NSRect windowRect = [[self window] frame];
 	windowRect.origin = NSMakePoint(0, 0);
 
 	float cornerRadius = [self roundedCornerRadius];
 	[[NSBezierPath bezierPathWithRoundedRect:windowRect xRadius:cornerRadius yRadius:cornerRadius] addClip];
 	[[NSBezierPath bezierPathWithRect:rect] addClip];
+	titleRect = NSMakeRect(0, 0, windowRect.size.width, windowRect.size.height);
+#else
+	NSRect brect = [self bounds];
+//	[[NSColor clearColor] set];
+//	NSRectFill(brect);
+//	NSRectFill(rect);
 
-	//
-	// Draw background image (extend drawing rect : biggest rect dimension become's rect size)
-	//
-//	NSRect imageRect = windowRect;
-//	if (imageRect.size.width > imageRect.size.height)
-//	{
-//		imageRect.origin.y = -(imageRect.size.width-imageRect.size.height)/2;
-//		imageRect.size.height = imageRect.size.width;
-//	}
-//	else
-//	{
-//		imageRect.origin.x = -(imageRect.size.height-imageRect.size.width)/2;
-//		imageRect.size.width = imageRect.size.height;
-//	}
-	//[[NSImage imageNamed:NSImageNameActionTemplate] drawInRect:imageRect fromRect:NSZeroRect operation:NSCompositeSourceAtop fraction:0.15];
+	float radius = [self roundedCornerRadius];
+	NSBezierPath *path = [NSBezierPath alloc];
+	NSPoint topMid = NSMakePoint(NSMidX(brect), NSMaxY(brect));
+	NSPoint topLeft = NSMakePoint(NSMinX(brect), NSMaxY(brect));
+	NSPoint topRight = NSMakePoint(NSMaxX(brect), NSMaxY(brect));
+	NSPoint bottomRight = NSMakePoint(NSMaxX(brect), NSMinY(brect));
 
-	//
-	// Draw a background color on top of everything
-	//
+	[path moveToPoint: topMid];
+	[path appendBezierPathWithArcFromPoint: topRight
+		toPoint: bottomRight
+		radius: radius];
+	[path appendBezierPathWithArcFromPoint: bottomRight
+		toPoint: brect.origin
+		radius: radius];
+	[path appendBezierPathWithArcFromPoint: brect.origin
+		toPoint: topLeft
+		radius: radius];
+	[path appendBezierPathWithArcFromPoint: topLeft
+		toPoint: topRight
+		radius: radius];
+	[path closePath];
+
+	[path addClip];
+	titleRect = NSMakeRect(0, 0, brect.size.width, brect.size.height);
+#endif
+
 	CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
-	CGContextSetBlendMode(context, kCGBlendModeSourceIn);
+	CGContextSetBlendMode(context, kCGBlendModeMultiply);
 
 	// background
-	[[NSColor colorWithSRGBRed: (65 / 255.0) green: (70 / 255.0) blue: (77 / 255.0) alpha: 1.0] set];
+	if (gFrameColor == nil)
+	{
+		NSLog(@"frame color is nil, setting default");
+		gFrameColor = [[NSColor colorWithCalibratedRed: (65 / 255.0) green: (70 / 255.0) blue: (77 / 255.0) alpha: 1.0] retain];
+	}
+
+	[gFrameColor set];
+
+#ifndef CLIP_METHOD2
 	[[NSBezierPath bezierPathWithRect:rect] fill];
+#else
+	[[NSBezierPath bezierPathWithRect:rect] fill];
+#endif
 
-	// text
-	[[NSColor colorWithSRGBRed: 1.0 green: 1.0 blue: 1.0 alpha: 1.0] set];
-	NSFont *font = [NSFont fontWithName:@"Palatino-Roman" size:14.0];
+	CGContextSetBlendMode(context, kCGBlendModeCopy);
+	// draw title text
+	[self _drawTitleStringIn: titleRect withColor: nil];
+}
 
-	NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
-	NSLog(@"display name: %@", [self _displayName]);
-	[[self _displayName] drawAtPoint: NSMakePoint(0, 0) withAttributes: attrsDictionary];
+- (void)_drawTitleStringIn: (NSRect) rect withColor: (NSColor *) color
+{
+	if (!gTitleColor)
+		gTitleColor = [[NSColor colorWithCalibratedRed: .6 green: .6 blue: .6 alpha: 1.0] retain];
+	[self _drawTitleStringOriginalIn: rect withColor: gTitleColor];
 }
 
 @end
 
-void MacIntegrationPrivate::setCustomBorderColor(QWidget * window, const QColor & color)
+@class NSThemeFrame;
+
+void MacIntegrationPrivate::installCustomFrame()
 {
-	id nswindow = [nsViewFromWidget(window) window];
-	NSLog(@"setCustomBorderColor: done %@", nswindow);
+	id _class = [NSThemeFrame class];
 
-
-	// Get window's frame view class
-	id _class = [[[nswindow contentView] superview] class];
-	NSLog(@"setCustomBorderColor: class=%@", _class);
-
-	static DrawHelper * dhelper = [[DrawHelper alloc] init];
-	NSColor * nsColor = [NSColor colorWithSRGBRed: color.redF() green: color.greenF() blue: color.blueF() alpha: color.alphaF()];
-
-	dhelper.color = nsColor;
-
-	// Exchange draw rect
-	Method m0 = class_getInstanceMethod([dhelper class], @selector(drawRect:));
+	// Exchange drawRect:
+	Method m0 = class_getInstanceMethod([DrawHelper class], @selector(drawRect:));
 	class_addMethod(_class, @selector(drawRectOriginal:), method_getImplementation(m0), method_getTypeEncoding(m0));
 
 	Method m1 = class_getInstanceMethod(_class, @selector(drawRect:));
 	Method m2 = class_getInstanceMethod(_class, @selector(drawRectOriginal:));
 
 	method_exchangeImplementations(m1, m2);
+
+	// Exchange _drawTitleStringIn:withColor:
+	Method m3 = class_getInstanceMethod([DrawHelper class], @selector(_drawTitleStringIn:withColor:));
+	class_addMethod(_class, @selector(_drawTitleStringOriginalIn:withColor:), method_getImplementation(m3), method_getTypeEncoding(m3));
+
+	Method m4 = class_getInstanceMethod(_class, @selector(_drawTitleStringIn:withColor:));
+	Method m5 = class_getInstanceMethod(_class, @selector(_drawTitleStringOriginalIn:withColor:));
+
+	method_exchangeImplementations(m4, m5);
+}
+
+void MacIntegrationPrivate::setCustomBorderColor(const QColor & frameColor)
+{
+	gFrameColor = [[NSColor colorWithCalibratedRed: frameColor.redF() green: frameColor.greenF() blue: frameColor.blueF() alpha: frameColor.alphaF()] retain];
+	foreach (QWidget * w, QApplication::topLevelWidgets())
+		w->update();
+}
+
+void MacIntegrationPrivate::setCustomTitleColor(const QColor & titleColor)
+{
+	gTitleColor = [[NSColor colorWithCalibratedRed: titleColor.redF() green: titleColor.greenF() blue: titleColor.blueF() alpha: titleColor.alphaF()] retain];
+	foreach (QWidget * w, QApplication::topLevelWidgets())
+		w->update();
 }
 
 void MacIntegrationPrivate::setWindowMovableByBackground(QWidget * window, bool movable)

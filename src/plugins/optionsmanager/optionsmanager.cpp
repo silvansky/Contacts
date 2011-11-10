@@ -536,12 +536,11 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 			connect(FLoginDialog, SIGNAL(accepted()), FLoginDialogBorder, SLOT(close()));
 			connect(FLoginDialog, SIGNAL(rejected()), FLoginDialogBorder, SLOT(close()));
 		}
-		WidgetManager::showActivateRaiseWindow(FLoginDialog->window());
 		if (FMacIntegration)
 		{
 			FMacIntegration->setWindowMovableByBackground(FLoginDialog->window(), true);
-			FMacIntegration->setCustomBorderColor(FLoginDialog->window(), QColor(255, 0, 0));
 		}
+		WidgetManager::showActivateRaiseWindow(FLoginDialog->window());
 		if (FLoginDialogBorder)
 			FLoginDialogBorder->adjustSize();
 		else

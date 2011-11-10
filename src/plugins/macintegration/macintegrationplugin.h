@@ -38,7 +38,8 @@ public:
 	void setDockBadge(const QString & badgeText);
 	void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 	void showGrowlPreferencePane();
-	void setCustomBorderColor(QWidget * window, const QColor & color);
+	void setCustomBorderColor(const QColor & color);
+	void setCustomTitleColor(const QColor & color);
 	void setWindowMovableByBackground(QWidget * window, bool movable);
 signals:
 	void dockClicked();
