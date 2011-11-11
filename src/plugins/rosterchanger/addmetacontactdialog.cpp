@@ -4,6 +4,9 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <utils/custominputdialog.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 #define ADR_GATE_DESCRIPTOR_ID      Action::DR_Parametr1
 
@@ -14,6 +17,10 @@ AddMetaContactDialog::AddMetaContactDialog(IMetaRoster *AMetaRoster, IRosterChan
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle(tr("Add Contact"));
+
+#ifdef Q_WS_MAC
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
 
 	setMinimumWidth(350);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDMETACONTACTDIALOG);

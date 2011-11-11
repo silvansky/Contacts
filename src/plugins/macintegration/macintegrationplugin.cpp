@@ -53,7 +53,7 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	tr("Subscription Message");
 	MacIntegrationPrivate::installCustomFrame();
 	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
-	setCustomTitleColor(QColor(250, 250, 250, 255));
+	setCustomTitleColor(QColor(240, 240, 240, 255));
 
 }
 

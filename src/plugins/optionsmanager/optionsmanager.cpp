@@ -536,10 +536,6 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 			connect(FLoginDialog, SIGNAL(accepted()), FLoginDialogBorder, SLOT(close()));
 			connect(FLoginDialog, SIGNAL(rejected()), FLoginDialogBorder, SLOT(close()));
 		}
-		if (FMacIntegration)
-		{
-			FMacIntegration->setWindowMovableByBackground(FLoginDialog->window(), true);
-		}
 		WidgetManager::showActivateRaiseWindow(FLoginDialog->window());
 		if (FLoginDialogBorder)
 			FLoginDialogBorder->adjustSize();

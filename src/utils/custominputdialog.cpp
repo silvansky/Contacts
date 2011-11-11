@@ -7,6 +7,9 @@
 #include <definitions/stylesheets.h>
 #include "graphicseffectsstorage.h"
 #include <definitions/graphicseffects.h>
+#ifdef Q_WS_MAC
+# include "macwidgets.h"
+#endif
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -34,6 +37,9 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget 
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
+#ifdef Q_WS_MAC
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 }

@@ -8,6 +8,9 @@
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 static const QString NodeDelimiter = ".";
 
@@ -26,6 +29,11 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
+
+#ifdef Q_WS_MAC
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
+
 	ui.trvNodes->installEventFilter(this);
 	setWindowTitle(tr("Options"));
 	FCurrentWidget = NULL;

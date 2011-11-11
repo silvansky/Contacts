@@ -9,6 +9,9 @@
 #include <QSysInfo>
 #include <QDesktopWidget>
 #include <QScrollBar>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 #ifdef Q_WS_WIN
 #include <Windows.h>
@@ -135,7 +138,7 @@ static QString resolveMacVersion(QSysInfo::MacVersion ver)
 		version = "10.6 (Snow Leopard)";
 		break;
 	default:
-		version = "Unknown";
+		version = "Unknown (Lion?)";
 		break;
 	}
 	return mac.arg(version);
@@ -152,6 +155,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->setSpacing(16);
 	ui.buttonsLayout->addWidget(ui.pbtSendComment);
+	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
 	ui.lblSendCommentStatus->setVisible(false);

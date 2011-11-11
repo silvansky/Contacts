@@ -15,6 +15,9 @@
 #include <definitions/customborder.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/stylesheets.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 AboutQtDialog::AboutQtDialog() :
 	QWidget(NULL)
@@ -34,6 +37,10 @@ AboutQtDialog::AboutQtDialog() :
 		setAttribute(Qt::WA_DeleteOnClose, true);
 		setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
 	}
+
+#ifdef Q_WS_MAC
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
 
 	setWindowTitle(tr("About Qt"));
 

@@ -26,6 +26,10 @@
 #include <utils/customborderstorage.h>
 #include <utils/graphicseffectsstorage.h>
 
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
+
 #ifdef Q_WS_WIN32
 #	include <windows.h>
 #elif defined Q_WS_X11
@@ -164,6 +168,9 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.setupUi(this);
 	setWindowModality(Qt::WindowModal);
 	setAttribute(Qt::WA_DeleteOnClose, true);
+#ifdef Q_WS_MAC
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
 
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);

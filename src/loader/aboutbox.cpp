@@ -12,6 +12,9 @@
 #include <definitions/stylesheets.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/menuicons.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
@@ -21,6 +24,7 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->setSpacing(16);
 	ui.buttonsLayout->addWidget(ui.pbtSendComment);
+	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
 	QString styleBegin = "<html><style>a { color: #acacac; }</style><body><font color=#acacac>";

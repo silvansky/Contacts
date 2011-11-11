@@ -4,6 +4,9 @@
 #include <QDesktopWidget>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 MainWindowPlugin::MainWindowPlugin()
 {
@@ -16,6 +19,9 @@ MainWindowPlugin::MainWindowPlugin()
 	FActivationChanged = QTime::currentTime();
 #ifdef Q_WS_WIN
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
+#elif defined(Q_WS_MAC)
+	FMainWindow = new MainWindow(NULL, Qt::Window);
+	setWindowGrowButtonEnabled(FMainWindow, false);
 #else
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 #endif

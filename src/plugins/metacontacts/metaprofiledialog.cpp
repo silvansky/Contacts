@@ -7,6 +7,9 @@
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/menuicons.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 #define BIRTHDAY_META_ORDER     -10
 #define MAX_STATUS_TEXT_SIZE    60
@@ -59,6 +62,7 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->setSpacing(16);
 	ui.buttonsLayout->addWidget(ui.pbtAddContact);
+	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
 	ui.pbtClose->setFocus();

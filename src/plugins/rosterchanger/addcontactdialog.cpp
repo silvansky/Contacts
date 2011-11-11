@@ -11,6 +11,9 @@
 #include <QTextDocument>
 #include <utils/balloontip.h>
 #include <utils/log.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 #define GROUP_NEW                ":group_new:"
 #define GROUP_EMPTY              ":empty_group:"
@@ -27,6 +30,10 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle(tr("Adding a contact"));
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDCONTACTDIALOG);
+
+#ifdef Q_WS_MAC
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
 
 	ui.lneAddressContact->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneParamsNick->setAttribute(Qt::WA_MacShowFocusRect, false);
