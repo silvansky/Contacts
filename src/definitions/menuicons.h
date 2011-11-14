@@ -48,6 +48,7 @@
 #define MNI_GATEWAYS_SERVICE_TWITTER             "gatewaysServiceTwitter"
 #define MNI_GATEWAYS_SERVICE_LIVEJOURNAL         "gatewaysServiceLiveJournal"
 #define MNI_GATEWAYS_SERVICE_JABBER              "gatewaysServiceJabber"
+#define MNI_GATEWAYS_SERVICE_PHONE                "gatewaysServicePhone"
 #define MNI_GATEWAYS_ADD_ACCOUNT_ERROR           "gatewaysAddAccountError"
 #define MNI_GATEWAYS_CONNECTING_ANIMATION        "gatewaysConnectingAnimation"
 #define MNI_GATEWAYS_ACCOUNTS_OPTIONS            "gatewaysAccountsOptions"
@@ -96,6 +97,7 @@
 //MetaContacts
 #define MNI_METACONTACTS_ITEM_SMS                "metacontactsItemSms"
 #define MNI_METACONTACTS_ITEM_MAIL               "metacontactsItemMail"
+#define MNI_METACONTACTS_ITEM_PHONE              "metacontactsItemPhone"
 #define MNI_METACONTACTS_ITEM_ICQ                "metacontactsItemIcq"
 #define MNI_METACONTACTS_ITEM_MAGENT             "metacontactsItemMAgent"
 #define MNI_METACONTACTS_ITEM_TWITTER            "metacontactsItemTwitter"

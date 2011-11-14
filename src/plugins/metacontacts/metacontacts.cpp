@@ -911,6 +911,7 @@ void MetaContacts::initMetaItemDescriptors()
 	FDefaultItemDescriptor.detach = true;
 	FDefaultItemDescriptor.service = false;
 	FDefaultItemDescriptor.persistent = false;
+	FDefaultItemDescriptor.hidden = false;
 	FDefaultItemDescriptor.metaOrder = MIO_JABBER;
 	FDefaultItemDescriptor.gateId = GSID_JABBER;
 
@@ -921,6 +922,7 @@ void MetaContacts::initMetaItemDescriptors()
 	sms.detach = false;
 	sms.service = true;
 	sms.persistent = true;
+	sms.hidden = false;
 	sms.metaOrder = MIO_SMS;
 	sms.gateId = GSID_SMS;
 	sms.gatePrefix = "sms";
@@ -933,10 +935,24 @@ void MetaContacts::initMetaItemDescriptors()
 	mail.detach = false;
 	mail.service = true;
 	mail.persistent = true;
+	mail.hidden = false;
 	mail.metaOrder = MIO_MAIL;
 	mail.gateId = GSID_MAIL;
 	mail.gatePrefix = "mail";
 	FMetaItemDescriptors.append(mail);
+
+	IMetaItemDescriptor phone;
+	phone.name = tr("Phone");
+	phone.icon = MNI_METACONTACTS_ITEM_MAIL;
+	phone.combine = true;
+	phone.detach = false;
+	phone.service = true;
+	phone.persistent = false;
+	phone.hidden = true;
+	phone.metaOrder = MIO_PHONE;
+	phone.gateId = GSID_PHONE;
+	phone.gatePrefix = "phone";
+	FMetaItemDescriptors.append(phone);
 
 	IMetaItemDescriptor icq;
 	icq.name = tr("ICQ");
@@ -945,6 +961,7 @@ void MetaContacts::initMetaItemDescriptors()
 	icq.detach = true;
 	icq.service = false;
 	icq.persistent = false;
+	icq.hidden = false;
 	icq.metaOrder = MIO_ICQ;
 	icq.gateId = GSID_ICQ;
 	icq.gatePrefix = "icq";
@@ -957,6 +974,7 @@ void MetaContacts::initMetaItemDescriptors()
 	magent.detach = true;
 	magent.service = false;
 	magent.persistent = false;
+	magent.hidden = false;
 	magent.metaOrder = MIO_MAGENT;
 	magent.gateId = GSID_MAGENT;
 	magent.gatePrefix = "mrim";
@@ -969,6 +987,7 @@ void MetaContacts::initMetaItemDescriptors()
 	twitter.detach = true;
 	twitter.service = false;
 	twitter.persistent = false;
+	twitter.hidden = false;
 	twitter.metaOrder = MIO_TWITTER;
 	twitter.gateId = GSID_TWITTER;
 	twitter.gatePrefix = "twitter";
@@ -981,6 +1000,7 @@ void MetaContacts::initMetaItemDescriptors()
 	fring.detach = true;
 	fring.service = false;
 	fring.persistent = false;
+	fring.hidden = false;
 	fring.metaOrder = MIO_FRING;
 	fring.gateId = GSID_TWITTER;
 	fring.gatePrefix = "fring";
@@ -993,6 +1013,7 @@ void MetaContacts::initMetaItemDescriptors()
 	gtalk.detach = true;
 	gtalk.service = false;
 	gtalk.persistent = false;
+	gtalk.hidden = false;
 	gtalk.metaOrder = MIO_GTALK;
 	gtalk.gateId = GSID_GTALK;
 	gtalk.gatePrefix = "gmail";
@@ -1007,6 +1028,7 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.detach = true;
 	yonline.service = false;
 	yonline.persistent = false;
+	yonline.hidden = false;
 	yonline.metaOrder = MIO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
 	yonline.gatePrefix = "yandex";
@@ -1028,6 +1050,7 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.detach = true;
 	qip.service = false;
 	qip.persistent = false;
+	qip.hidden = false;
 	qip.metaOrder = MIO_QIP;
 	qip.gateId = GSID_QIP;
 	qip.gatePrefix = "qip";
@@ -1041,6 +1064,7 @@ void MetaContacts::initMetaItemDescriptors()
 	vkontakte.detach = true;
 	vkontakte.service = false;
 	vkontakte.persistent = false;
+	vkontakte.hidden = false;
 	vkontakte.metaOrder = MIO_VKONTAKTE;
 	vkontakte.gateId = GSID_VKONTAKTE;
 	vkontakte.gatePrefix = "vk";
@@ -1054,6 +1078,7 @@ void MetaContacts::initMetaItemDescriptors()
 	facebook.detach = true;
 	facebook.service = false;
 	facebook.persistent = false;
+	facebook.hidden = false;
 	facebook.metaOrder = MIO_FACEBOOK;
 	facebook.gateId = GSID_FACEBOOK;
 	facebook.gatePrefix = "fb";
@@ -1067,6 +1092,7 @@ void MetaContacts::initMetaItemDescriptors()
 	livejournal.detach = true;
 	livejournal.service = false;
 	livejournal.persistent = false;
+	livejournal.hidden = false;
 	livejournal.metaOrder = MIO_LIVEJOURNAL;
 	livejournal.gateId = GSID_LIVEJOURNAL;
 	livejournal.gatePrefix = "livejournal";
@@ -1080,6 +1106,7 @@ void MetaContacts::initMetaItemDescriptors()
 	rambler.detach = true;
 	rambler.service = false;
 	rambler.persistent = false;
+	rambler.hidden = false;
 	rambler.metaOrder = MIO_RAMBLER;
 	rambler.gateId = GSID_RAMBLER;
 	rambler.gatePrefix = "rambler";

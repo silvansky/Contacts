@@ -221,6 +221,19 @@ bool Gateways::initObjects()
 	sms.availContactPattern = sms.homeContactPattern;
 	FGateDescriptors.append(sms);
 
+	IGateServiceDescriptor phone;
+	phone.id = GSID_PHONE;
+	phone.needGate = true;
+	phone.needLogin = false;
+	phone.autoLogin = true;
+	phone.type = "phone";
+	phone.name = tr("Phone");
+	phone.iconKey = MNI_GATEWAYS_SERVICE_PHONE;
+	phone.loginLabel = tr("Phone");
+	phone.homeContactPattern = "^\\+\\d{11,}[\\d|\\*|\\#]*$";
+	phone.availContactPattern = phone.homeContactPattern;
+	FGateDescriptors.append(phone);
+
 	IGateServiceDescriptor icq;
 	icq.id = GSID_ICQ;
 	icq.needGate = true;

@@ -36,7 +36,7 @@ DialWidget::DialWidget(ISipPhone *ASipPhone, QWidget *AParent) : QWidget(AParent
 	connect(ui.pbtNumber_12,SIGNAL(clicked()),&FMapper,SLOT(map()));
 	connect(&FMapper,SIGNAL(mapped(const QString &)),SLOT(onButtonMapped(const QString &)));
 
-	QRegExp phoneNumber("[\\d|\\*|\\#]+");
+	QRegExp phoneNumber("\\+?[\\d|\\*|\\#]+");
 	ui.lneNumber->setValidator(new QRegExpValidator(phoneNumber,ui.lneNumber));
 
 	ui.lneNumber->setAlignment(Qt::AlignHCenter);

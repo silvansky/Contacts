@@ -33,6 +33,7 @@ struct IMetaItemDescriptor
 	bool combine;
 	bool service;
 	bool persistent;
+	bool hidden;
 	int metaOrder;
 	QString gateId;
 	QString gatePrefix;

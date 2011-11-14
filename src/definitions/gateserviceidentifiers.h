@@ -16,5 +16,6 @@
 #define GSID_JABBER               "jabber"
 #define GSID_MAIL                 "mail"
 #define GSID_SMS                  "sms"
+#define GSID_PHONE                "phone"
 
 #endif //DEF_GATESERVICEIDENTIFIERS_H

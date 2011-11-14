@@ -16,5 +16,6 @@
 #define MIO_FRING                700
 #define MIO_MAIL                 750
 #define MIO_SMS                  800
+#define MIO_PHONE                1000
 
 #endif // DEF_METAITEMORDERS_H

@@ -635,14 +635,17 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 	foreach(Jid itemJid, newItems)
 	{
 		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
-		QString pageId = insertPage(descriptor.metaOrder,descriptor.combine);
-		setPageIcon(pageId,descriptor.icon);
-		setPageName(pageId,FMetaContacts->itemHint(itemJid));
+		if (!descriptor.hidden)
+		{
+			QString pageId = insertPage(descriptor.metaOrder,descriptor.combine);
+			setPageIcon(pageId,descriptor.icon);
+			setPageName(pageId,FMetaContacts->itemHint(itemJid));
 
-		FItemPages.insert(itemJid,pageId);
-		FItemTypeCount[descriptor.metaOrder]++;
+			FItemPages.insert(itemJid,pageId);
+			FItemTypeCount[descriptor.metaOrder]++;
 
-		updateItemButtonStatus(itemJid);
+			updateItemButtonStatus(itemJid);
+		}
 	}
 
 	foreach(Jid itemJid, oldItems)
@@ -735,10 +738,13 @@ void MetaTabWindow::updatePersistantPages()
 		if (isContactPage() && FPersistantPages.value(metaOrder).isEmpty() && FItemTypeCount.value(metaOrder)==0)
 		{
 			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByOrder(metaOrder);
-			QString pageId = insertPage(descriptor.metaOrder, false);
-			setPageIcon(pageId,descriptor.icon);
-			setPageName(pageId,tr("Add contact"));
-			FPersistantPages.insert(metaOrder,pageId);
+			if (!descriptor.hidden)
+			{
+				QString pageId = insertPage(descriptor.metaOrder, false);
+				setPageIcon(pageId,descriptor.icon);
+				setPageName(pageId,tr("Add contact"));
+				FPersistantPages.insert(metaOrder,pageId);
+			}
 		}
 		else if (!FPersistantPages.value(metaOrder).isEmpty() && FItemTypeCount.value(metaOrder)>0)
 		{
