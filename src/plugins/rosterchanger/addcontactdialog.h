@@ -90,6 +90,7 @@ protected slots:
 	void onContinueButtonclicked();
 	void onCancelButtonclicked();
 	void onAdjustDialogSize();
+	void onStartAdjustDialogSize();
 	void onContactTextEdited(const QString &AText);
 	void onContactNickEdited(const QString &AText);
 	void onGroupCurrentIndexChanged(int AIndex);
@@ -123,6 +124,7 @@ private:
 	int FDialogState;
 	bool FResolveNick;
 	bool FServiceFailed;
+	QTimer FAdjustTimer;
 	QString FParentMetaId;
 	QList<Jid> FLinkedContacts;
 	IGateServiceDescriptor FDescriptor;

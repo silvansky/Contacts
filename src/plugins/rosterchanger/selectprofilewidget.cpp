@@ -107,6 +107,7 @@ void SelectProfileWidget::updateProfiles()
 
 		QHBoxLayout *layout = new QHBoxLayout();
 		layout->setMargin(0);
+		layout->setSpacing(0);
 		layout->addWidget(button);
 		layout->addWidget(label);
 		layout->addStretch();
@@ -122,6 +123,7 @@ void SelectProfileWidget::updateProfiles()
 
 	QList<Jid> enabledProfiles;
 	bool hasDisabledProfiles = false;
+	bool hasChangedProfiles = false;
 	for (QMap<Jid,QRadioButton *>::const_iterator it=FProfiles.constBegin(); it!=FProfiles.constEnd(); it++)
 	{
 		Jid serviceJid = it.key();
@@ -152,6 +154,9 @@ void SelectProfileWidget::updateProfiles()
 					labelText = " - " + tr("connecting...");
 			}
 
+			if (labelText != label->text())
+				hasChangedProfiles = true;
+
 			if (!labelText.isEmpty())
 			{
 				label->setText(labelText);
@@ -180,17 +185,23 @@ void SelectProfileWidget::updateProfiles()
 			emit selectedProfileChanged();
 	}
 
+	bool adjustSize = hasChangedProfiles;
 	bool newVisible = hasDisabledProfiles || FProfiles.count()>1;
 	if (FVisible != newVisible)
 	{
+		adjustSize = true;
 		FVisible = newVisible;
 		setVisible(FVisible);
-		emit adjustSizeRequested();
 	}
 
 	if (!newProfiles.isEmpty() || !oldProfiles.isEmpty())
 	{
+		adjustSize = true;
 		emit profilesChanged();
+	}
+	
+	if (adjustSize)
+	{
 		emit adjustSizeRequested();
 	}
 }

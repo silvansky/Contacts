@@ -84,6 +84,10 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	ui.buttonsLayout->setSpacing(16);
 #endif
 
+	FAdjustTimer.setSingleShot(true);
+	FAdjustTimer.setInterval(1);
+	connect(&FAdjustTimer,SIGNAL(timeout()),SLOT(onStartAdjustDialogSize()));
+
 	initialize(APluginManager);
 	initGroups();
 
@@ -392,7 +396,7 @@ void AddContactDialog::updatePageParams(const IGateServiceDescriptor &ADescripto
 		FSelectProfileWidget = new SelectProfileWidget(FRoster,FGateways,FOptionsManager,FDescriptor,ui.wdtSelectProfile);
 		connect(FSelectProfileWidget,SIGNAL(profilesChanged()),SLOT(onSelectedProfileChanched()));
 		connect(FSelectProfileWidget,SIGNAL(selectedProfileChanged()),SLOT(onSelectedProfileChanched()));
-		connect(FSelectProfileWidget,SIGNAL(adjustSizeRequested()),SLOT(onAdjustDialogSize()));
+		connect(FSelectProfileWidget,SIGNAL(adjustSizeRequested()),&FAdjustTimer,SLOT(start()),Qt::QueuedConnection);
 		ui.wdtSelectProfile->layout()->addWidget(FSelectProfileWidget);
 	}
 }
@@ -436,7 +440,7 @@ void AddContactDialog::setDialogState(int AState)
 
 		FDialogState = AState;
 		adjustSize();
-		QTimer::singleShot(1, this, SLOT(onAdjustDialogSize()));
+		FAdjustTimer.start();
 	}
 }
 
@@ -492,7 +496,7 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
 		ui.lneAddressContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput ? true : false);
 		StyleStorage::updateStyle(this);
-		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+		FAdjustTimer.start();
 	}
 }
 
@@ -656,7 +660,7 @@ void AddContactDialog::showEvent(QShowEvent *AEvent)
 	if (!FShown)
 	{
 		FShown = true;
-		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
+		FAdjustTimer.start();
 	}
 	QDialog::showEvent(AEvent);
 }
@@ -810,6 +814,12 @@ void AddContactDialog::onAdjustDialogSize()
 
 }
 
+void AddContactDialog::onStartAdjustDialogSize()
+{
+	// Пути Господни неисповедимы
+	QTimer::singleShot(50,this,SLOT(onAdjustDialogSize()));
+}
+
 void AddContactDialog::onContactTextEdited(const QString &AText)
 {
 	BalloonTip::hideBalloon();
@@ -958,3 +968,4 @@ void AddContactDialog::onHideErrorBalloon()
 {
 	BalloonTip::hideBalloon();
 }
+
