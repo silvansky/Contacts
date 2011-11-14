@@ -41,13 +41,14 @@ protected:
 	QWidget *createNodeWidget(const QString &ANodeId);
 	QStandardItem *createNodeItem(const QString &ANodeId);
 	bool canExpandVertically(const QWidget *AWidget) const;
-	void correctAdjustSize();
+protected:
+	bool event(QEvent *AEvent);
 protected slots:
+	void onAdjustDialogSize();
 	void onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode);
 	void onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode);
 	void onCurrentItemChanged(const QModelIndex &ACurrent, const QModelIndex &APrevious);
 	void onOptionsWidgetModified();
-	void onOptionsWidgetUpdated();
 	void onDialogButtonClicked(QAbstractButton *AButton);
 private:
 	Ui::OptionsDialogClass ui;

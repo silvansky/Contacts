@@ -45,6 +45,7 @@ private:
 	QMap<QString, Jid> FLoginRequests;
 private:
 	bool FVisible;
+	QList<Jid> FUpdateLogins;
 	IGateServiceDescriptor FDescriptor;
 	QMap<Jid, QString> FProfileLogins;
 	QMap<Jid, QLabel *> FProfileLabels;

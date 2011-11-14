@@ -80,17 +80,12 @@ protected:
 	void resolveContactName();
 	void resolveLinkedContactsJid();
 protected:
-	void showEvent(QShowEvent *AEvent);
-	void mousePressEvent(QMouseEvent *AEvent);
-	void moveEvent(QMoveEvent *AEvent);
 	bool event(QEvent *AEvent);
-	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onBackButtonclicked();
 	void onContinueButtonclicked();
 	void onCancelButtonclicked();
 	void onAdjustDialogSize();
-	void onStartAdjustDialogSize();
 	void onContactTextEdited(const QString &AText);
 	void onContactNickEdited(const QString &AText);
 	void onGroupCurrentIndexChanged(int AIndex);
@@ -101,7 +96,6 @@ protected slots:
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
-	void onHideErrorBalloon();
 private:
 	Ui::AddContactDialogClass ui;
 private:
@@ -119,7 +113,6 @@ private:
 	QString FContactCreateRequest;
 	QMap<QString, Jid> FLinkedJidRequests;
 private:
-	bool FShown;
 	Jid FContactJid;
 	int FDialogState;
 	bool FResolveNick;

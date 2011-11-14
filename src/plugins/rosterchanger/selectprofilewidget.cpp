@@ -134,12 +134,13 @@ void SelectProfileWidget::updateProfiles()
 
 		if (streamJid() != serviceJid)
 		{
-			if (!FProfileLogins.contains(serviceJid) && !FLoginRequests.values().contains(serviceJid))
+			if (!FLoginRequests.values().contains(serviceJid) && (FUpdateLogins.contains(serviceJid) || !FProfileLogins.contains(serviceJid)))
 			{
 				QString requestId = FGateways->sendLoginRequest(streamJid(),serviceJid);
 				if (!requestId.isEmpty())
 					FLoginRequests.insert(requestId,serviceJid);
 			}
+			FUpdateLogins.removeAll(serviceJid);
 
 			QString labelText;
 			QLabel *label = FProfileLabels.value(serviceJid);
@@ -277,7 +278,7 @@ void SelectProfileWidget::onServiceEnableChanged(const Jid &AStreamJid, const Ji
 	Q_UNUSED(AServiceJid); 
 	if (streamJid() == AStreamJid)
 	{
-		FProfileLogins.remove(AServiceJid);
+		FUpdateLogins.append(AServiceJid);
 		updateProfiles();
 	}
 }
