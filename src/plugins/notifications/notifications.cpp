@@ -42,9 +42,6 @@ Notifications::Notifications()
 	FSound = NULL;
 #endif
 
-	connect(this, SIGNAL(notificationAppended(int,INotification)), SLOT(onNotifyCountChanged()));
-	connect(this, SIGNAL(notificationRemoved(int)), SLOT(onNotifyCountChanged()));
-
 	FTestNotifyTimer.setSingleShot(true);
 	FTestNotifyTimer.setInterval(TEST_NOTIFY_TIMEOUT);
 	connect(&FTestNotifyTimer,SIGNAL(timeout()),SLOT(onTestNotificationTimerTimedOut()));
@@ -138,6 +135,11 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &AInitOr
 			connect(FMacIntegration->instance(), SIGNAL(growlNotifyClicked(int)), SLOT(onGrowlNotifyClicked(int)));
 		}
 	}
+#endif
+
+#ifdef Q_WS_MAC
+	connect(this, SIGNAL(notificationAppended(int,const INotification &)), SLOT(onNotifyCountChanged()));
+	connect(this, SIGNAL(notificationRemoved(int)), SLOT(onNotifyCountChanged()));
 #endif
 
 	return true;
