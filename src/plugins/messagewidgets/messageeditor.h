@@ -11,6 +11,13 @@ class MessageEditor :
 public:
 	MessageEditor(QWidget* parent);
 	~MessageEditor();
+	virtual bool isTextFormatEnabled() const;
+	virtual void setTextFormatEnabled(bool AEnabled);
+protected:
+	virtual bool canInsertFromMimeData(const QMimeData *ASource) const;
+	virtual void insertFromMimeData(const QMimeData *ASource);
+private:
+	bool FFormatEnabled;
 };
 
 #endif // MESSAGEEDITOR_H
