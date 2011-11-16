@@ -26,8 +26,9 @@ EditWidget::EditWidget(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	hlayout->addLayout(vlayout);
 
 	ui.medEditor->setLayout(hlayout);
-	ui.medEditor->setLineWrapMode(QTextEdit::FixedPixelWidth);
+	ui.medEditor->setAcceptRichText(false);
 	ui.medEditor->installEventFilter(this);
+	ui.medEditor->setLineWrapMode(QTextEdit::FixedPixelWidth);
 
 	FMessageWidgets = AMessageWidgets;
 	FStreamJid = AStreamJid;
