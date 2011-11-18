@@ -40,7 +40,7 @@ static ITabWindow * findTabWindow(QObject * parent)
 
 MacIntegrationPlugin::MacIntegrationPlugin()
 {
-	_dockMenu = _fileMenu = _editMenu = _contactsMenu = _windowMenu = NULL;
+	_dockMenu = _fileMenu = _editMenu = _viewMenu = _statusMenu = _windowMenu = _helpMenu = NULL;
 	_menuBar = NULL;
 	lastFocusedWidget = NULL;
 	// dummi translations
@@ -51,6 +51,7 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	tr("Birthday Reminder");
 	tr("Error");
 	tr("Subscription Message");
+	// custom window frame
 	MacIntegrationPrivate::installCustomFrame();
 	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
 	setCustomTitleColor(QColor(240, 240, 240, 255));
@@ -118,14 +119,24 @@ Menu * MacIntegrationPlugin::editMenu()
 	return _editMenu;
 }
 
-Menu * MacIntegrationPlugin::contactsMenu()
+Menu * MacIntegrationPlugin::viewMenu()
 {
-	return _contactsMenu;
+	return _viewMenu;
+}
+
+Menu * MacIntegrationPlugin::statusMenu()
+{
+	return _statusMenu;
 }
 
 Menu * MacIntegrationPlugin::windowMenu()
 {
 	return _windowMenu;
+}
+
+Menu * MacIntegrationPlugin::helpMenu()
+{
+	return _helpMenu;
 }
 
 void MacIntegrationPlugin::setDockBadge(const QString & badgeText)
@@ -208,15 +219,25 @@ void MacIntegrationPlugin::initMenus()
 	connect(selectallAction, SIGNAL(triggered()), SLOT(onSelectAllAction()));
 	_editMenu->addAction(selectallAction);
 
-	// Contacts
-	_contactsMenu = new Menu;
-	_contactsMenu->setTitle(tr("Contacts"));
-	_menuBar->addMenu(_contactsMenu);
+	// View
+	_viewMenu = new Menu;
+	_viewMenu->setTitle(tr("View"));
+	_menuBar->addMenu(_viewMenu);
+
+	// Status
+	_statusMenu = new Menu;
+	_statusMenu->setTitle(tr("Status"));
+	_menuBar->addMenu(_statusMenu);
 
 	// Window
 	_windowMenu = new Menu;
 	_windowMenu->setTitle(tr("Window"));
 	_menuBar->addMenu(_windowMenu);
+
+	// Help
+	_helpMenu = new Menu;
+	_helpMenu->setTitle(tr("Help"));
+	_menuBar->addMenu(_helpMenu);
 
 	Action * minimizeAction = new Action();
 	minimizeAction->setText(tr("Minimize"));

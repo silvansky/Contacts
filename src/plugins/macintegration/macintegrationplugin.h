@@ -33,8 +33,10 @@ public:
 	QMenuBar * menuBar();
 	Menu * fileMenu();
 	Menu * editMenu();
-	Menu * contactsMenu();
+	Menu * viewMenu();
+	Menu * statusMenu();
 	Menu * windowMenu();
+	Menu * helpMenu();
 	void setDockBadge(const QString & badgeText);
 	void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 	void showGrowlPreferencePane();
@@ -67,8 +69,10 @@ private:
 	QMenuBar * _menuBar;
 	Menu * _fileMenu;
 	Menu * _editMenu;
-	Menu * _contactsMenu;
+	Menu * _viewMenu;
+	Menu * _statusMenu;
 	Menu * _windowMenu;
+	Menu * _helpMenu;
 	MacIntegrationPrivate * p;
 	// actions
 	Action * copyAction, * cutAction, * pasteAction, * undoAction, * redoAction, * selectallAction;

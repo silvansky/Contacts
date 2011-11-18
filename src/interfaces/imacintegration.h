@@ -13,8 +13,10 @@ public:
 	virtual QMenuBar * menuBar() = 0;
 	virtual Menu * fileMenu() = 0;
 	virtual Menu * editMenu() = 0;
-	virtual Menu * contactsMenu() = 0;
+	virtual Menu * viewMenu() = 0;
+	virtual Menu * statusMenu() = 0;
 	virtual Menu * windowMenu() = 0;
+	virtual Menu * helpMenu() = 0;
 	virtual void setDockBadge(const QString & badgeText) = 0;
 	virtual void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id) = 0;
 	virtual void showGrowlPreferencePane() = 0;
