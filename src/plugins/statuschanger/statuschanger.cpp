@@ -1,5 +1,7 @@
 #include "statuschanger.h"
 
+#include <stdlib.h>
+
 #include <QTimer>
 #include <QSysInfo>
 #include <QToolButton>
@@ -13,6 +15,14 @@
 
 #define ADR_STREAMJID                       Action::DR_StreamJid
 #define ADR_STATUS_CODE                     Action::DR_Parametr1
+
+#define MAX_RECON_STEP                      2
+
+static const struct {int base; int random; } ReconSteps[] = {
+	{ 5, 5 },
+	{ 10, 20 },
+	{ 30, 60 }
+};
 
 StatusChanger::StatusChanger()
 {
@@ -220,6 +230,7 @@ bool StatusChanger::initSettings()
 
 bool StatusChanger::startPlugin()
 {
+	qsrand(QDateTime::currentDateTime().toTime_t());
 	updateMainMenu();
 	return true;
 }
@@ -739,7 +750,10 @@ void StatusChanger::autoReconnect(IPresence *APresence)
 		int statusShow = statusItemShow(statusId);
 		if (statusShow!=IPresence::Offline && statusShow!=IPresence::Error)
 		{
-			static const int reconSecs = 30;
+			int reconStep = qMin(FReconnectStep.value(APresence,0),MAX_RECON_STEP);
+			int reconSecs = ReconSteps[reconStep].base + qRound(ReconSteps[reconStep].random * qrand() / (RAND_MAX + 1.0));
+			FReconnectStep[APresence] = reconStep+1;
+
 			LogDetaile(QString("[StatusChanger] Starting auto reconnection of '%1' after %2 seconds").arg(APresence->streamJid().full()).arg(reconSecs));
 			FPendingReconnect.insert(APresence,QPair<QDateTime,int>(QDateTime::currentDateTime().addSecs(reconSecs),statusId));
 			QTimer::singleShot(reconSecs*1000+100,this,SLOT(onReconnectTimer()));
@@ -916,6 +930,7 @@ void StatusChanger::onRosterOpened(IRoster *ARoster)
 		LogDetaile(QString("[StatusChanger] Sending initial presence of stream '%1'").arg(ARoster->streamJid().full()));
 		setStreamStatus(presence->streamJid(), FConnectStatus.value(presence));
 	}
+	FReconnectStep.remove(presence);
 }
 
 void StatusChanger::onRosterClosed(IRoster *ARoster)
