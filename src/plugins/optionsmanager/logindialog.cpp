@@ -557,7 +557,9 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		}
 	}
 
-	disconnect(ui.lneNode->completer(),NULL,ui.lneNode,NULL);
+	if (ui.lneNode->completer())
+		disconnect(ui.lneNode->completer(),NULL,ui.lneNode,NULL);
+
 	return QDialog::eventFilter(AWatched, AEvent);
 }
 
