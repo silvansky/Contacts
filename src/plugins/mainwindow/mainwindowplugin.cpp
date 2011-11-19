@@ -209,6 +209,7 @@ void MainWindowPlugin::correctWindowPosition() const
 		windowRect.setTop(windowRect.top() - FMainWindowBorder->topBorderWidth());
 		windowRect.setBottom(windowRect.bottom() + FMainWindowBorder->bottomBorderWidth());
 	}
+
 	QRect screenRect = qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(windowRect.topLeft()));
 	if (!screenRect.isEmpty() && !screenRect.adjusted(10,10,-10,-10).intersects(windowRect))
 	{

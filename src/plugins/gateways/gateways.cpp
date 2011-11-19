@@ -1306,7 +1306,7 @@ void Gateways::insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJi
 		notice.iconKey = descriptor.iconKey;
 		notice.iconStorage = RSR_STORAGE_MENUICONS;
 		notice.caption = tr("Account disconnected");
-		notice.message = QString("%1<br><i>%2</i>").arg(ALogin).arg(tr("Disconnected"));
+		notice.message = QString("%1<br><i>%2</i>").arg(ALogin).arg(tr("disconnected"));
 
 		Action *action = new Action(this);
 		action->setText(tr("Enable"));
@@ -1414,12 +1414,12 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 					notify.data.insert(NDR_SOUND_FILE,SDF_GATEWAYS_CONFLICT);
 					if (descriptor.id == GSID_ICQ)
 					{
-						notify.data.insert(NDR_POPUP_TITLE,tr("ICQ disconnected (offline)").arg(descriptor.name));
+						notify.data.insert(NDR_POPUP_TITLE,tr("ICQ disconnected (offline)"));
 						notify.data.insert(NDR_POPUP_TEXT,tr("Your ICQ was connected from another computer. You can enable ICQ again."));
 					}
 					else if (descriptor.id == GSID_MAGENT)
 					{
-						notify.data.insert(NDR_POPUP_TITLE,tr("Agent@Mail disconnected (offline)").arg(descriptor.name));
+						notify.data.insert(NDR_POPUP_TITLE,tr("Agent@Mail disconnected (offline)"));
 						notify.data.insert(NDR_POPUP_TEXT,tr("Your Agent@Mail was connected from another computer. You can enable it again."));
 					}
 					else
@@ -1435,9 +1435,7 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 				LogDetaile(QString("[Gateways] Sending conflict login request to '%1'").arg(AItem.itemJid.full()));
 				QString requestId = FRegistration->sendRegiterRequest(APresence->streamJid(),AItem.itemJid);
 				if (!requestId.isEmpty())
-				{
 					FConflictLoginRequests.insert(requestId,APresence->streamJid());
-				}
 			}
 		}
 		emit servicePresenceChanged(APresence->streamJid(),AItem.itemJid,AItem);
