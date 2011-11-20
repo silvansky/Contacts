@@ -115,7 +115,12 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 QWidget *RosterIndexDelegate::createEditor(QWidget *AParent, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 {
 	if (FEditHandler)
-		return FEditHandler->rosterEditEditor(FEditRole,AParent,AOption,AIndex);
+	{
+		QWidget *editor = FEditHandler->rosterEditEditor(FEditRole,AParent,AOption,AIndex);
+		if (editor)
+			editor->installEventFilter(const_cast<RosterIndexDelegate *>(this));
+		return editor;
+	}
 	return NULL;
 }
 
@@ -609,6 +614,27 @@ QString RosterIndexDelegate::prepareText(const QString &AText) const
 	QString ptext = AText;
 	ptext.replace('\n',' ');
 	return ptext;
+}
+
+bool RosterIndexDelegate::eventFilter(QObject *AObject, QEvent *AEvent)
+{
+	if (AEvent->type() == QEvent::FocusOut)
+	{
+		QWidget *editor = qobject_cast<QWidget *>(AObject);
+		QWidget *focus = QApplication::focusWidget();
+		if (editor && (!editor->isActiveWindow() || focus!=editor))
+		{
+			while (focus && focus!=editor) 
+				focus = focus->parentWidget();
+
+			if (focus != editor)
+			{
+				emit closeEditor(editor,QAbstractItemDelegate::RevertModelCache);
+				return false;
+			}
+		}
+	}
+	return QStyledItemDelegate::eventFilter(AObject,AEvent);
 }
 
 QIcon::Mode RosterIndexDelegate::getIconMode(QStyle::State AState) const

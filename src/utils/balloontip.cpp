@@ -431,8 +431,7 @@ bool BalloonTip::event(QEvent * ev)
 	{
 		qDebug() << "resize!" << size();
 	}
-	else
-		return QWidget::event(ev);
+	return QWidget::event(ev);
 }
 
 bool BalloonTip::eventFilter(QObject * obj, QEvent * evt)

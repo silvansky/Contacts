@@ -26,22 +26,20 @@ EditWidget::EditWidget(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	hlayout->addLayout(vlayout);
 
 	ui.medEditor->setLayout(hlayout);
+	ui.medEditor->setAcceptRichText(false);
+	ui.medEditor->installEventFilter(this);
 	ui.medEditor->setLineWrapMode(QTextEdit::FixedPixelWidth);
 
 	FMessageWidgets = AMessageWidgets;
 	FStreamJid = AStreamJid;
 	FContactJid = AContactJid;
 	FBufferPos = -1;
-	FFormatEnabled = false;
 
 	FSendShortcut = new QShortcut(ui.medEditor);
 	FSendShortcut->setContext(Qt::WidgetShortcut);
 	connect(FSendShortcut,SIGNAL(activated()),SLOT(onShortcutActivated()));
 
 	connect(ui.tlbSend,SIGNAL(clicked(bool)),SLOT(onSendButtonCliked(bool)));
-
-	ui.medEditor->installEventFilter(this);
-	connect(ui.medEditor->document(),SIGNAL(contentsChange(int,int,int)),SLOT(onContentsChanged(int,int,int)));
 
 	onOptionsChanged(Options::node(OPV_MESSAGES_EDITORAUTORESIZE));
 	onOptionsChanged(Options::node(OPV_MESSAGES_EDITORMINIMUMLINES));
@@ -178,12 +176,12 @@ void EditWidget::setSendButtonEnabled(bool AEnabled)
 
 bool EditWidget::textFormatEnabled() const
 {
-	return FFormatEnabled;
+	return ui.medEditor->isTextFormatEnabled();
 }
 
 void EditWidget::setTextFormatEnabled(bool AEnabled)
 {
-	FFormatEnabled = AEnabled;
+	ui.medEditor->setTextFormatEnabled(AEnabled);
 }
 
 bool EditWidget::eventFilter(QObject *AWatched, QEvent *AEvent)
@@ -291,40 +289,5 @@ void EditWidget::onOptionsChanged(const OptionsNode &ANode)
 	else if (ANode.path() == OPV_MESSAGES_EDITORSENDKEY)
 	{
 		setSendKey(ANode.value().value<QKeySequence>());
-	}
-}
-
-void EditWidget::onContentsChanged(int APosition, int ARemoved, int AAdded)
-{
-	Q_UNUSED(ARemoved);
-	if (!FFormatEnabled && AAdded>0)
-	{
-		QTextCharFormat emptyFormat;
-		QList< QPair<int,int> > formats;
-		QTextBlock block = ui.medEditor->document()->findBlock(APosition);
-		while (block.isValid() && block.position()<=APosition+AAdded)
-		{
-			for (QTextBlock::iterator it = block.begin(); !it.atEnd(); it++)
-			{
-				QTextCharFormat textFormat = it.fragment().charFormat();
-				if (!textFormat.isImageFormat() && textFormat!=emptyFormat)
-					formats.append(qMakePair(it.fragment().position(),it.fragment().length()));
-			}
-			block = block.next();
-		}
-
-		if (!formats.isEmpty())
-		{
-			QTextCursor cursor(ui.medEditor->document());
-			cursor.beginEditBlock();
-			for (int i=0; i<formats.count(); i++)
-			{
-				const QPair<int,int> &format = formats.at(i);
-				cursor.setPosition(format.first);
-				cursor.setPosition(format.first + format.second, QTextCursor::KeepAnchor);
-				cursor.setCharFormat(emptyFormat);
-			}
-			cursor.endEditBlock();
-		}
 	}
 }

@@ -19,6 +19,10 @@
         <source>Connection closed unexpectedly</source>
         <translation>Соединение неожиданно прервалось</translation>
     </message>
+    <message>
+        <source>XMPP stream destroyed</source>
+        <translation>XMPP поток удален</translation>
+    </message>
 </context>
 <context>
     <name>XmppStreams</name>

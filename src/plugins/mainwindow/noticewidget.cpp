@@ -107,6 +107,8 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 		if (ANoticeId > 0)
 		{
 			const IInternalNotice &notice = FNotices.value(ANoticeId);
+
+			ui.lblIcon->setVisible(true);
 			if (!notice.iconKey.isEmpty() && !notice.iconStorage.isEmpty())
 				IconStorage::staticStorage(notice.iconStorage)->insertAutoIcon(ui.lblIcon,notice.iconKey,0,0,"pixmap");
 			else if (!notice.icon.isNull())

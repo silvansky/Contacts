@@ -1,5 +1,7 @@
 #include "logindialog.h"
 
+#include <QDebug>
+
 #include <QDir>
 #include <QFile>
 #include <QPainter>
@@ -38,13 +40,17 @@
 #define FILE_LOGIN            "login.xml"
 #define ABORT_TIMEOUT         2000
 
-#include <QDebug>
-
 enum ConnectionSettings {
 	CS_DEFAULT,
 	CS_IE_PROXY,
 	CS_FF_PROXY,
 	CS_COUNT
+};
+
+enum ActiveErrorType {
+	NoActiveError,
+	ActiveXmppError,
+	ActiveConnectionError
 };
 
 class CompleterDelegate :
@@ -168,6 +174,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+	FActiveErrorType = NoActiveError;
 	FDomainPrevIndex = 0;
 	FNewProfile = true;
 	FSavedPasswordCleared = false;
@@ -310,7 +317,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	completer->popup()->setAlternatingRowColors(true);
 	completer->popup()->setItemDelegate(new CompleterDelegate(completer));
 	connect(completer,SIGNAL(activated(const QString &)),SLOT(onCompleterActivated(const QString &)));
-	connect(completer,SIGNAL(highlighted(const QString &)),SLOT(onCompleterHighLighted(const QString &)));
+	//connect(completer,SIGNAL(highlighted(const QString &)),SLOT(onCompleterHighLighted(const QString &)));
 	ui.lneNode->setCompleter(completer);
 	ui.lneNode->completer()->popup()->viewport()->installEventFilter(this);
 	onStylePreviewReset();
@@ -407,10 +414,17 @@ void LoginDialog::reject()
 	QDialog::reject();
 }
 
-void LoginDialog::showEvent(QShowEvent *AEvent)
+bool LoginDialog::event(QEvent *AEvent)
 {
-	QDialog::showEvent(AEvent);
-	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
+	if (AEvent->type() == QEvent::LayoutRequest)
+	{
+		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
+	}
+	else if (AEvent->type() == QEvent::WindowActivate)
+	{
+		showErrorBalloon();
+	}
+	return QDialog::event(AEvent);
 }
 
 void LoginDialog::keyPressEvent(QKeyEvent *AEvent)
@@ -431,31 +445,35 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			stopReconnection();
 		}
-		if ( AWatched != ui.lnePassword)
-			BalloonTip::hideBalloon();
+	}
+	else if (AEvent->type() == QEvent::MouseMove)
+	{
+		QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(AEvent);
+		if (ui.lneNode->completer()->popup() && (AWatched == ui.lneNode->completer()->popup()->viewport()))
+		{
+			QListView *view = qobject_cast<QListView*>(ui.lneNode->completer()->popup());
+			if (view)
+			{
+				QModelIndex index = view->indexAt(mouseEvent->pos());
+				if (index.isValid() && index != view->currentIndex())
+					view->setCurrentIndex(index);
+			}
+		}
 	}
 	else if (AEvent->type() == QEvent::FocusIn)
 	{
-		bool handleFocusIn = true;
-#ifdef Q_WS_WIN32
-			WId myid = (parentWidget() ? parentWidget() : this)->winId();
-			HWND foreground = GetForegroundWindow();
-			handleFocusIn = (myid == foreground);
-#endif
-
-		if (AWatched == ui.lneNode && isActiveWindow() && handleFocusIn)
+		QFocusEvent *focusEvent = static_cast<QFocusEvent *>(AEvent);
+		if (AWatched==ui.lneNode && focusEvent->reason()==Qt::MouseFocusReason)
 		{
 			ui.lneNode->event(AEvent);
-			disconnect(ui.lneNode->completer(),0,ui.lneNode,0);
 			ui.lneNode->completer()->complete();
 			return true;
 		}
-		else if (AWatched == ui.lnePassword && isCapsLockOn())
+		else if (AWatched==ui.lnePassword && isCapsLockOn())
 		{
 			QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
 			p.setY(p.y() - ui.lnePassword->height() / 2);
-			if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
-				showCapsLockBalloon(p);
+			showCapsLockBalloon(p);
 		}
 	}
 	else if (AEvent->type() == QEvent::FocusOut)
@@ -472,15 +490,23 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 	else if (AEvent->type() == QEvent::KeyPress)
 	{
 		QKeyEvent *keyEvent = static_cast<QKeyEvent *>(AEvent);
-		if (keyEvent->key() == Qt::Key_CapsLock && !isCapsLockOn())
+		if (AWatched == ui.lnePassword)
 		{
-			BalloonTip::hideBalloon();
+			if (isCapsLockOn() && !BalloonTip::isBalloonVisible())
+			{
+				QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
+				p.setY(p.y() - ui.lnePassword->height() / 2);
+				showCapsLockBalloon(p);
+			}
+			else if (!isCapsLockOn())
+			{
+				BalloonTip::hideBalloon();
+			}
 		}
-		else if (AWatched == ui.lnePassword && isCapsLockOn() && !BalloonTip::isBalloonVisible())
+		else if (AWatched==ui.lneNode && keyEvent->key()==Qt::Key_Down)
 		{
-			QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
-			p.setY(p.y() - ui.lnePassword->height() / 2);
-			showCapsLockBalloon(p);
+			if (ui.lneNode->completer()->popup() && !ui.lneNode->completer()->popup()->isVisible())
+				ui.lneNode->completer()->complete();
 		}
 	}
 	else if (AEvent->type() == QEvent::Show)
@@ -523,43 +549,11 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 				QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(closeWidget()));
 		}
 	}
-	if (AWatched == ui.lblConnectSettings)
-	{
-		if (AEvent->type() == QEvent::MouseButtonPress)
-		{
-			QMouseEvent * mouseEvent = (QMouseEvent*)AEvent;
-			if (mouseEvent->button() == Qt::LeftButton)
-			{
-				hideConnectionError();
-				hideXmppStreamError();
-				showConnectionSettings();
-			}
-		}
-	}
-	if (ui.lneNode->completer()->popup() && (AWatched == ui.lneNode->completer()->popup()->viewport()) && (AEvent->type() == QEvent::MouseMove))
-	{
-		QMouseEvent * mouseEvent = (QMouseEvent*)AEvent;
-		QListView * view = qobject_cast<QListView*>(ui.lneNode->completer()->popup());
-		if (view)
-		{
-			QModelIndex index = view->indexAt(mouseEvent->pos());
-			if (index.isValid() && index != view->currentIndex())
-				view->setCurrentIndex(index);
-		}
-	}
+
+	if (ui.lneNode->completer())
+		disconnect(ui.lneNode->completer(),NULL,ui.lneNode,NULL);
 
 	return QDialog::eventFilter(AWatched, AEvent);
-}
-
-void LoginDialog::moveEvent(QMoveEvent * evt)
-{
-	QDialog::moveEvent(evt);
-}
-
-void LoginDialog::mousePressEvent(QMouseEvent * event)
-{
-	BalloonTip::hideBalloon();
-	QDialog::mousePressEvent(event);
 }
 
 void LoginDialog::initialize(IPluginManager *APluginManager)
@@ -642,11 +636,49 @@ bool LoginDialog::isCapsLockOn() const
 	return false;
 }
 
-void LoginDialog::showCapsLockBalloon(const QPoint & p)
+void LoginDialog::showCapsLockBalloon(const QPoint &APoint)
 {
 	BalloonTip::showBalloon(style()->standardIcon(QStyle::SP_MessageBoxWarning), tr("Caps Lock is ON"),
 				tr("Password can be entered incorrectly because of <CapsLock> key is pressed.\nTurn off <CapsLock> before entering password."),
-				p, 0, true, BalloonTip::ArrowRight, parentWidget() ? parentWidget() : this);
+				APoint, 0, true, BalloonTip::ArrowRight, parentWidget() ? parentWidget() : this);
+}
+
+void LoginDialog::showErrorBalloon()
+{
+	if (FActiveErrorType == ActiveXmppError)
+	{
+		QPoint point;
+		if (FNewProfile)
+		{
+#ifndef DEBUG_ENABLED
+			point = ui.tlbDomain->mapToGlobal(ui.tlbDomain->rect().topRight());
+			point.setY(point.y() + ui.tlbDomain->height() / 2);
+#else
+			point = ui.cmbDomain->mapToGlobal(ui.cmbDomain->rect().topRight());
+			point.setY(point.y() + ui.cmbDomain->height() / 2);
+#endif
+		}
+		else
+		{
+			point = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().topRight());
+			point.setY(point.y() + ui.lnePassword->height() / 2);
+		}
+		if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+			BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, point, 0, true, BalloonTip::ArrowLeft, parentWidget() ? parentWidget() : this);
+	}
+	else if (FActiveErrorType == ActiveConnectionError)
+	{
+		QPoint point = ui.pbtConnect->mapToGlobal(ui.pbtConnect->rect().topLeft());
+		point.setY(point.y() + ui.pbtConnect->height() / 2);
+		if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+			BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, point, 0, true, BalloonTip::ArrowRight, parentWidget() ? parentWidget() : this);
+	}
+}
+
+void LoginDialog::hideErrorBallon()
+{
+	FActiveErrorType = NoActiveError;
+	BalloonTip::hideBalloon();
 }
 
 void LoginDialog::closeCurrentProfile()
@@ -710,7 +742,7 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 		FReconnectTimer.stop();
 		if (!ui.lblReconnect->text().isEmpty())
 			ui.lblReconnect->setText(tr("Reconnecting..."));
-		BalloonTip::hideBalloon();
+		hideErrorBallon();
 		QTimer::singleShot(3000,this,SLOT(onShowCancelButton()));
 	}
 	else
@@ -734,20 +766,18 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 
 void LoginDialog::stopReconnection()
 {
-	if (FReconnectTimer.isActive())
-	{
-		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
-		if (FStatusChanger && account && account->isActive())
-			FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(),STATUS_OFFLINE);
+	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+	if (FStatusChanger && account && account->isActive())
+		FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(),STATUS_OFFLINE);
 
-		FReconnectTimer.stop();
-		ui.lblReconnect->setText(QString::null);
-	}
+	FReconnectTimer.stop();
+	ui.lblReconnect->setText(QString::null);
 }
 
 void LoginDialog::showConnectionSettings()
 {
-	stopReconnection();
+	hideConnectionError();
+	hideXmppStreamError();
 	IOptionsHolder *holder = FConnectionManager!=NULL ? qobject_cast<IOptionsHolder *>(FConnectionManager->instance()) : NULL;
 	if (holder)
 	{
@@ -801,7 +831,8 @@ void LoginDialog::showConnectionSettings()
 
 void LoginDialog::hideConnectionError()
 {
-	BalloonTip::hideBalloon();
+	hideErrorBallon();
+	stopReconnection();
 	ui.lblConnectError->setVisible(false);
 	ui.lblReconnect->setVisible(false);
 	ui.lblConnectSettings->setVisible(false);
@@ -831,22 +862,21 @@ void LoginDialog::showConnectionError(const QString &ACaption, const QString &AE
 	ui.lblReconnect->setVisible(true);
 	ui.lblConnectSettings->setVisible(true);
 	ui.chbShowPassword->setVisible(false);
-	QPoint p = ui.pbtConnect->mapToGlobal(ui.pbtConnect->rect().topLeft());
-	p.setY(p.y() + ui.pbtConnect->height() / 2);
-	if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
-		BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowRight, parentWidget() ? parentWidget() : this);
+
+	FActiveErrorType = ActiveConnectionError;
+	showErrorBalloon();
 }
 
 void LoginDialog::hideXmppStreamError()
 {
+	hideErrorBallon();
+	stopReconnection();
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
 	ui.tlbDomain->setProperty("error", false);
-	//	ui.frmDomain->setProperty("error", false);
 	StyleStorage::updateStyle(this);
 	ui.lblXmppError->setVisible(false);
-	BalloonTip::hideBalloon();
 }
 
 void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint, bool showPasswordEnabled)
@@ -862,7 +892,6 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	if (FNewProfile)
 	{
 		ui.lneNode->setProperty("error", true);
-		//ui.frmDomain->setProperty("error", true);
 		ui.cmbDomain->setProperty("error", true);
 		ui.tlbDomain->setProperty("error", true);
 	}
@@ -870,21 +899,9 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	StyleStorage::updateStyle(this);
 	ui.lblXmppError->setVisible(true);
 	ui.chbShowPassword->setVisible(showPasswordEnabled);
-	QPoint p;
-	if (FNewProfile)
-	{
-		//p = ui.cmbDomain->mapToGlobal(ui.cmbDomain->rect().topRight());
-		//p.setY(p.y() + ui.cmbDomain->height() / 2);
-		p = ui.tlbDomain->mapToGlobal(ui.tlbDomain->rect().topRight());
-		p.setY(p.y() + ui.tlbDomain->height() / 2);
-	}
-	else
-	{
-		p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().topRight());
-		p.setY(p.y() + ui.lnePassword->height() / 2);
-	}
-	if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
-		BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, p, 0, true, BalloonTip::ArrowLeft, parentWidget() ? parentWidget() : this);
+
+	FActiveErrorType = ActiveXmppError;
+	showErrorBalloon();
 }
 
 void LoginDialog::saveCurrentProfileSettings()
@@ -1011,7 +1028,6 @@ void LoginDialog::onConnectClicked()
 			account->xmppStream()->close();
 		}
 	}
-	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
 
 void LoginDialog::onAbortTimerTimeout()
@@ -1093,7 +1109,8 @@ void LoginDialog::onXmppStreamClosed()
 	FAbortTimer.stop();
 	FFirstConnect = false;
 	setConnectEnabled(true);
-	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
+
+	WidgetManager::alertWidget(parentWidget() ? parentWidget() : this);
 }
 
 void LoginDialog::onReconnectTimerTimeout()
@@ -1114,22 +1131,26 @@ void LoginDialog::onReconnectTimerTimeout()
 void LoginDialog::onCompleterHighLighted(const QString &AText)
 {
 	Jid streamJid = AText;
-	ui.lneNode->setText(streamJid.node());
-	ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(streamJid.pDomain()));
-	ui.tlbDomain->setText("@"+streamJid.pDomain());
-	ui.tlbDomain->setProperty("domain", streamJid.pDomain());
+	int domainIndex = ui.cmbDomain->findData(streamJid.pDomain());
+	if (!streamJid.pDomain().isEmpty() && domainIndex>=0)
+	{
+		ui.lneNode->setText(streamJid.node());
+		ui.cmbDomain->setCurrentIndex(domainIndex);
+		ui.tlbDomain->setText("@"+streamJid.pDomain());
+		ui.tlbDomain->setProperty("domain", streamJid.pDomain());
+	}
 }
 
 void LoginDialog::onCompleterActivated(const QString &AText)
 {
 	onCompleterHighLighted(AText);
 	loadCurrentProfileSettings();
-	hideXmppStreamError();
-	hideConnectionError();
 }
 
 void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 {
+	hideXmppStreamError();
+	hideConnectionError();
 	if (ui.cmbDomain->itemData(AIndex).toString().isEmpty())
 	{
 		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::String);
@@ -1146,11 +1167,15 @@ void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 		dialog->show();
 	}
 	else
+	{
 		FDomainPrevIndex = AIndex;
+	}
 }
 
 void LoginDialog::onDomainActionTriggered()
 {
+	hideXmppStreamError();
+	hideConnectionError();
 	Action * action = qobject_cast<Action*>(sender());
 	if (action)
 	{
@@ -1196,6 +1221,8 @@ void LoginDialog::onLabelLinkActivated(const QString &ALink)
 
 void LoginDialog::onLoginOrPasswordTextChanged()
 {
+	hideConnectionError();
+	hideXmppStreamError();
 	ui.pbtConnect->setEnabled(!ui.lneNode->text().isEmpty() && !ui.lnePassword->text().isEmpty());
 }
 
@@ -1211,10 +1238,10 @@ void LoginDialog::onShowCancelButton()
 
 void LoginDialog::onAdjustDialogSize()
 {
-	//if (parentWidget())
-	//	parentWidget()->resize(parentWidget()->minimumSizeHint());
-	//else
-	//	resize(minimumSizeHint());
+	if (parentWidget())
+		parentWidget()->adjustSize();
+	else
+		adjustSize();
 }
 
 void LoginDialog::onNotificationAppend(int ANotifyId, INotification &ANotification)

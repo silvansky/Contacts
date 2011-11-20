@@ -3,11 +3,10 @@
 
 //Node = OPN_ROSTER
 #define OWO_ROSTER_VIEW                           200
-#define OWO_ROSTER_MAINWINDOW                     400
+#define OWO_ROSTER_MAINWINDOW_STAYONTOP           400
+#define OWO_ROSTER_MAINWINDOW_MINIMIZETOTRAY      500
 #define OWO_ROSTER_CONTACTS_ORDER                 600
 #define OWO_ROSTER_CONTACTS_VIEW                  700
-#define OWO_ROSTER_AVATARS                        800
-#define OWO_ROSTER_CHANGER                        900
 
 //Node = OPN_NOTIFICATIONS
 #define OWO_NOTIFICATIONS_GROWL_PREFS             200
@@ -46,7 +45,6 @@
 //Node = OPN_MESSAGES
 #define OWO_MESSAGES                              300
 #define OWO_MESSAGES_EMOTICONS                    500
-#define OWO_MESSAGES_CHATSTATES                   700
 
 //Node = ON_CONFERENCES
 #define OWO_CONFERENCES                           500

@@ -46,15 +46,15 @@ public:
 public slots:
 	virtual void reject();
 protected:
-	void showEvent(QShowEvent *AEvent);
+	bool event(QEvent *AEvent);
 	void keyPressEvent(QKeyEvent *AEvent);
 	bool eventFilter(QObject *AWatched, QEvent *AEvent);
-	void moveEvent(QMoveEvent *);
-	void mousePressEvent(QMouseEvent *);
 protected:
 	void initialize(IPluginManager *APluginManager);
 	bool isCapsLockOn() const;
-	void showCapsLockBalloon(const QPoint & p);
+	void showCapsLockBalloon(const QPoint &APoint);
+	void showErrorBalloon();
+	void hideErrorBallon();
 	void closeCurrentProfile();
 	bool tryNextConnectionSettings();
 	void setConnectEnabled(bool AEnabled);
@@ -105,6 +105,7 @@ private:
 	bool FSavedPasswordCleared;
 	int FDomainPrevIndex;
 	int FConnectionSettings;
+	int FActiveErrorType;
 	QUuid FAccountId;
 	Menu *FDomainsMenu;
 	QTimer FAbortTimer;

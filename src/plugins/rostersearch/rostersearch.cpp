@@ -65,7 +65,13 @@ bool RosterSearch::initConnections(IPluginManager *APluginManager, int &AInitOrd
 
 	plugin = APluginManager->pluginInterface("IRostersModel").value(0,NULL);
 	if (plugin)
+	{
 		FRostersModel = qobject_cast<IRostersModel *>(plugin->instance());
+		if (FRostersModel)
+		{
+			connect(FRostersModel->instance(),SIGNAL(streamRemoved(const Jid &)),SLOT(onRosterStreamRemoved(const Jid &)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
 	if (plugin)
@@ -469,6 +475,7 @@ void RosterSearch::createSearchLinks()
 		FSearchHistory->setData(RDR_TYPE_ORDER,RITO_SEARCH);
 		FSearchHistory->setData(RDR_SEARCH_LINK, "http://id-planet.rambler.ru");
 		FSearchHistory->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
+		connect(FSearchHistory->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onRosterIndexDestroyed(IRosterIndex *)));
 		FRostersModel->insertRosterIndex(FSearchHistory, searchRoot);
 
 		if (!FSearchRambler)
@@ -479,6 +486,7 @@ void RosterSearch::createSearchLinks()
 		FSearchRambler->setData(RDR_TYPE_ORDER,RITO_SEARCH);
 		FSearchRambler->setData(RDR_SEARCH_LINK, searchUrl.toString());
 		FSearchRambler->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
+		connect(FSearchRambler->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onRosterIndexDestroyed(IRosterIndex *)));
 		FRostersModel->insertRosterIndex(FSearchRambler, searchRoot);
 	}
 }
@@ -507,6 +515,7 @@ void RosterSearch::createNotFoundItem()
 		FSearchNotFound->setFlags(0);
 		FSearchNotFound->setData(Qt::DisplayRole, tr("Contacts not found"));
 		FSearchNotFound->setData(RDR_TYPE_ORDER,RITO_SEARCH_NOT_FOUND);
+		connect(FSearchNotFound->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onRosterIndexDestroyed(IRosterIndex *)));
 		FRostersModel->insertRosterIndex(FSearchNotFound, searchRoot);
 	}
 }
@@ -553,6 +562,23 @@ void RosterSearch::onRosterLabelClicked(IRosterIndex *AIndex, int ALabelId)
 	{
 		QDesktopServices::openUrl(QUrl(AIndex->data(RDR_SEARCH_LINK).toString()));
 	}
+}
+
+void RosterSearch::onRosterIndexDestroyed(IRosterIndex *AIndex)
+{
+	if (AIndex == FSearchHistory)
+		FSearchHistory = NULL;
+	else if (AIndex == FSearchRambler)
+		FSearchRambler = NULL;
+	else if (AIndex == FSearchNotFound)
+		FSearchNotFound = NULL;
+}
+
+void RosterSearch::onRosterStreamRemoved(const Jid &AStreamJid)
+{
+	Q_UNUSED(AStreamJid);
+	if (FRostersModel->streams().isEmpty())
+		setSearchPattern(QString::null);
 }
 
 void RosterSearch::onOptionsChanged(const OptionsNode &ANode)

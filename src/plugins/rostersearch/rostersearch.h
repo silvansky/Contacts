@@ -105,6 +105,8 @@ protected slots:
 	void onSearchTextChanged(const QString &text);
 	void onRosterIndexActivated(const QModelIndex &AIndex);
 	void onRosterLabelClicked(IRosterIndex *AIndex, int ALabelId);
+	void onRosterIndexDestroyed(IRosterIndex *AIndex);
+	void onRosterStreamRemoved(const Jid &AStreamJid);
 	void onOptionsChanged(const OptionsNode &ANode);
 private:
 	IMainWindow *FMainWindow;

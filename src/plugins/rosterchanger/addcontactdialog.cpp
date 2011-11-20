@@ -9,7 +9,6 @@
 #include <QInputDialog>
 #include <QApplication>
 #include <QTextDocument>
-#include <utils/balloontip.h>
 #include <utils/log.h>
 
 #define GROUP_NEW                ":group_new:"
@@ -42,7 +41,6 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	FRoster = ARoster;
 	FRosterChanger = ARosterChanger;
 
-	FShown = false;
 	FServiceFailed = false;
 	FDialogState = -1;
 	FSelectProfileWidget = NULL;
@@ -98,7 +96,6 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 
 AddContactDialog::~AddContactDialog()
 {
-	BalloonTip::hideBalloon();
 	emit dialogDestroyed();
 }
 
@@ -385,7 +382,6 @@ void AddContactDialog::updatePageParams(const IGateServiceDescriptor &ADescripto
 		FSelectProfileWidget = new SelectProfileWidget(FRoster,FGateways,FOptionsManager,FDescriptor,ui.wdtSelectProfile);
 		connect(FSelectProfileWidget,SIGNAL(profilesChanged()),SLOT(onSelectedProfileChanched()));
 		connect(FSelectProfileWidget,SIGNAL(selectedProfileChanged()),SLOT(onSelectedProfileChanched()));
-		connect(FSelectProfileWidget,SIGNAL(adjustSizeRequested()),SLOT(onAdjustDialogSize()));
 		ui.wdtSelectProfile->layout()->addWidget(FSelectProfileWidget);
 	}
 }
@@ -428,8 +424,6 @@ void AddContactDialog::setDialogState(int AState)
 		}
 
 		FDialogState = AState;
-		adjustSize();
-		QTimer::singleShot(1, this, SLOT(onAdjustDialogSize()));
 	}
 }
 
@@ -467,25 +461,11 @@ void AddContactDialog::setErrorMessage(const QString &AMessage, bool AInvalidInp
 {
 	if (ui.lblError->text() != AMessage)
 	{
-		//BalloonTip::hideBalloon();
-		//if (!AMessage.isEmpty())
-		//{
-		//	QPoint p = ui.lneAddressContact->mapToGlobal(QPoint(0, 0));
-		//	p += QPoint(ui.lneAddressContact->width(), ui.lneAddressContact->height() / 2);
-		//	BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_RCHANGER_ADDCONTACT_ERROR),
-		//				QString::null,
-		//				AMessage,
-		//				p,
-		//				0,
-		//				true,
-		//				BalloonTip::ArrowLeft, parentWidget() ? parentWidget() : this);
-		//}
 		ui.lblError->setText(AMessage);
 		ui.lblError->setVisible(!AMessage.isEmpty());
 		ui.lblErrorIcon->setVisible(!AMessage.isEmpty());
 		ui.lneAddressContact->setProperty("error", !AMessage.isEmpty() && AInvalidInput ? true : false);
 		StyleStorage::updateStyle(this);
-		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
 	}
 }
 
@@ -644,73 +624,15 @@ void AddContactDialog::resolveLinkedContactsJid()
 	}
 }
 
-void AddContactDialog::showEvent(QShowEvent *AEvent)
-{
-	if (!FShown)
-	{
-		FShown = true;
-		QTimer::singleShot(1,this,SLOT(onAdjustDialogSize()));
-	}
-	QDialog::showEvent(AEvent);
-}
-
-void AddContactDialog::mousePressEvent(QMouseEvent *AEvent)
-{
-	BalloonTip::hideBalloon();
-	QDialog::mousePressEvent(AEvent);
-}
-
-void AddContactDialog::moveEvent(QMoveEvent *AEvent)
-{
-	BalloonTip::hideBalloon();
-	QDialog::moveEvent(AEvent);
-}
-
 bool AddContactDialog::event(QEvent *AEvent)
 {
-	//if (AEvent->type() == QEvent::ParentChange)
-	//{
-	//	CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget());
-	//	if (border)
-	//	{
-	//		connect(border, SIGNAL(moved()), SLOT(onHideErrorBalloon()));
-	//		border->installEventFilter(this);
-	//	}
-	//}
+	if (AEvent->type() == QEvent::LayoutRequest)
+		QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 	return QDialog::event(AEvent);
-}
-
-bool AddContactDialog::eventFilter(QObject *AObject, QEvent *AEvent)
-{
-//	static bool f = true;
-//	if ((AEvent->type() == QEvent::MouseButtonPress) || (AEvent->type() == QEvent::ActivationChange) /*&& f*/)
-//	{
-//		//f = false;
-//		qDebug() << "AddContactDialog::eventFilter: object" << AObject->objectName() << AObject->metaObject()->className() << "event" << AEvent->type();
-//		if (AEvent->type() == QEvent::ActivationChange)
-//		{
-//			QWidget * w = qobject_cast<QWidget*>(AObject);
-//			if (w)
-//			{
-//				qDebug() << "active: " << w->isActiveWindow();
-//				//bool h = QDialog::eventFilter(AObject, AEvent);
-//				if (!w->isActiveWindow())
-//					BalloonTip::hideBalloon();
-//				//f = true;
-//				return true;
-//			}
-//		}
-//		bool h = QDialog::eventFilter(AObject, AEvent);
-//		BalloonTip::hideBalloon();
-//		//f = true;
-//		return h;
-//	}
-	return QDialog::eventFilter(AObject, AEvent);
 }
 
 void AddContactDialog::onBackButtonclicked()
 {
-	//BalloonTip::hideBalloon();
 	setErrorMessage(QString::null,false);
 	updatePageAddress();
 	setDialogState(STATE_ADDRESS);
@@ -718,7 +640,6 @@ void AddContactDialog::onBackButtonclicked()
 
 void AddContactDialog::onContinueButtonclicked()
 {
-	BalloonTip::hideBalloon();
 	if (FDialogState == STATE_ADDRESS)
 	{
 		resolveDescriptor();
@@ -790,7 +711,6 @@ void AddContactDialog::onContinueButtonclicked()
 
 void AddContactDialog::onCancelButtonclicked()
 {
-	BalloonTip::hideBalloon();
 	reject();
 }
 
@@ -800,26 +720,22 @@ void AddContactDialog::onAdjustDialogSize()
 		parentWidget()->adjustSize();
 	else
 		adjustSize();
-
 }
 
 void AddContactDialog::onContactTextEdited(const QString &AText)
 {
-	BalloonTip::hideBalloon();
 	setErrorMessage(QString::null,false);
 	ui.pbtContinue->setEnabled(!AText.isEmpty());
 }
 
 void AddContactDialog::onContactNickEdited(const QString &AText)
 {
-	BalloonTip::hideBalloon();
 	Q_UNUSED(AText);
 	setResolveNickState(false);
 }
 
 void AddContactDialog::onGroupCurrentIndexChanged(int AIndex)
 {
-	BalloonTip::hideBalloon();
 	if (ui.cmbParamsGroup->itemData(AIndex).toString() == GROUP_NEW)
 	{
 		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::String);
@@ -945,9 +861,4 @@ void AddContactDialog::onMetaActionResult(const QString &AActionId, const QStrin
 			setDialogEnabled(true);
 		}
 	}
-}
-
-void AddContactDialog::onHideErrorBalloon()
-{
-	BalloonTip::hideBalloon();
 }

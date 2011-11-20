@@ -259,10 +259,6 @@
         <translation>Учетная запись отключена</translation>
     </message>
     <message>
-        <source>Disconnected</source>
-        <translation>Отключен</translation>
-    </message>
-    <message>
         <source>Enable</source>
         <translation>Включить</translation>
     </message>
@@ -297,6 +293,10 @@
     <message>
         <source>Failed to remove service from roster</source>
         <translation>Не удалось удалить сервис из списка-контактов</translation>
+    </message>
+    <message>
+        <source>disconnected</source>
+        <translation>отключен</translation>
     </message>
 </context>
 <context>

@@ -47,8 +47,8 @@
         <translation>Меню</translation>
     </message>
     <message>
-        <source>Minimize to tray instead of taskbar</source>
-        <translation type="unfinished"></translation>
+        <source>Show application icon in tray</source>
+        <translation>Показывать иконку приложения в трее</translation>
     </message>
 </context>
 </TS>

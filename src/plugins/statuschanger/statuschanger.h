@@ -161,6 +161,7 @@ private:
 	QMap<IPresence *, int> FConnectStatus;
 	QMap<IPresence *, int> FTempStatus;
 	QMap<IPresence *, int> FConnectNotifyId;
+	QMap<IPresence *, int> FReconnectStep;
 	QMap<IPresence *, QPair<QDateTime,int> > FPendingReconnect;
 	QPointer<CustomStatusDialog> FCustomStatusDialog;
 };
