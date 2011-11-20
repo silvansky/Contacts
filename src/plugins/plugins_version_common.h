@@ -1,11 +1,11 @@
 #ifndef PLUGINS_VERSION_COMMON_H
 #define PLUGINS_VERSION_COMMON_H
 
-#define VER_FILEVERSION             0,4,0,0
-#define VER_FILEVERSION_STR         "0.4.0.0\0"
+#define VER_FILEVERSION             0,4,1,0
+#define VER_FILEVERSION_STR         "0.4.1.0\0"
 
-#define VER_PRODUCTVERSION          0,4,0,1186
-#define VER_PRODUCTVERSION_STR      "0.4.0\0"
+#define VER_PRODUCTVERSION          0,4,1,1218
+#define VER_PRODUCTVERSION_STR      "0.4.1\0"
 
 #define VER_COMPANYNAME_STR         "Rambler Internet Holding LLC"
 #define VER_LEGALCOPYRIGHT_STR      "Copyright © 2011 Rambler Internet Holding LLC"
