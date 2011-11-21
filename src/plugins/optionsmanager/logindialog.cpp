@@ -923,6 +923,7 @@ void LoginDialog::saveCurrentProfileSettings()
 		data.remove("password");
 	data.insert("auto-run",ui.chbAutoRun->isChecked());
 	FOptionsManager->setProfileData(profile,data);
+	Options::node(OPV_MISC_AUTOSTART).setValue(ui.chbAutoRun->isChecked());
 }
 
 void LoginDialog::loadCurrentProfileSettings()
@@ -995,6 +996,9 @@ void LoginDialog::onConnectClicked()
 						account->setActive(true);
 						if (FStatusChanger && account->isActive())
 						{
+							if (!FNewProfile)
+								saveCurrentProfileSettings();
+
 							connecting = true;
 							FAccountId = account->accountId();
 							disconnect(account->xmppStream()->instance(),0,this,0);
@@ -1083,8 +1087,6 @@ void LoginDialog::onXmppStreamOpened()
 	}
 
 	saveCurrentProfileSettings();
-	Options::node(OPV_MISC_AUTOSTART).setValue(ui.chbAutoRun->isChecked());
-
 	accept();
 }
 
