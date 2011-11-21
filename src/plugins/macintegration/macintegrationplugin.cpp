@@ -11,7 +11,11 @@
 #include <QClipboard>
 #include <QStyle>
 #include <interfaces/imessagewidgets.h>
+#include <interfaces/imainwindow.h>
 #include <utils/custombordercontainer.h>
+#include <definitions/optionnodes.h>
+
+#include <QDebug>
 
 extern void qt_mac_set_dock_menu(QMenu *); // Qt internal function
 
@@ -22,7 +26,7 @@ static ITabWindow * findTabWindow(QObject * parent)
 	{
 		foreach (QObject * child, parent->children())
 		{
-			if (tw = qobject_cast<ITabWindow*>(child))
+			if ((tw = qobject_cast<ITabWindow*>(child)))
 			{
 				break;
 			}
@@ -35,6 +39,28 @@ static ITabWindow * findTabWindow(QObject * parent)
 		}
 	}
 	return tw;
+}
+
+static IMainWindow * findMainWindow(QObject * parent)
+{
+	IMainWindow * mw = qobject_cast<IMainWindow*>(parent);
+	if (parent && !mw)
+	{
+		foreach (QObject * child, parent->children())
+		{
+			if ((mw = qobject_cast<IMainWindow*>(child)))
+			{
+				break;
+			}
+			else
+			{
+				mw = findMainWindow(child);
+				if (mw)
+					break;
+			}
+		}
+	}
+	return mw;
 }
 
 
@@ -52,10 +78,10 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	tr("Error");
 	tr("Subscription Message");
 	// custom window frame
+	// TODO: read these colors from style
 	MacIntegrationPrivate::installCustomFrame();
 	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
 	setCustomTitleColor(QColor(240, 240, 240, 255));
-
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()
@@ -78,6 +104,40 @@ bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &
 	Q_UNUSED(APluginManager)
 	Q_UNUSED(AInitOrder)
 
+	if (APluginManager)
+	{
+		connect(APluginManager->instance(),SIGNAL(aboutToQuit()),SLOT(onAboutToQuit()));
+
+		IPlugin *plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);
+		if (plugin)
+		{
+			accountManager = qobject_cast<IAccountManager *>(plugin->instance());
+		}
+
+		plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
+		if (plugin)
+		{
+			rosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+		}
+
+		plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
+		if (plugin)
+		{
+			optionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+		}
+
+		plugin = APluginManager->pluginInterface("IRosterSearch").value(0,NULL);
+		if (plugin)
+		{
+			rosterSearch = qobject_cast<IRosterSearch *>(plugin->instance());
+		}
+
+		plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+		if (plugin)
+		{
+			mainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+		}
+	}
 	return true;
 }
 
@@ -178,6 +238,39 @@ void MacIntegrationPlugin::initMenus()
 	_fileMenu->setTitle(tr("File"));
 	_menuBar->addMenu(_fileMenu);
 
+	newContactAction = new Action;
+	newContactAction->setText(tr("New contact..."));
+	newContactAction->setShortcut(QKeySequence("Ctrl+N"));
+	newContactAction->setEnabled(false);
+	connect(newContactAction, SIGNAL(triggered()), SLOT(onNewContactAction()));
+	_fileMenu->addAction(newContactAction);
+
+	newGroupAction = new Action;
+	newGroupAction->setText(tr("New gorup..."));
+	newGroupAction->setEnabled(false);
+	connect(newGroupAction, SIGNAL(triggered()), SLOT(onNewGroupAction()));
+	_fileMenu->addAction(newGroupAction);
+
+	newAccountAction = new Action;
+	newAccountAction->setText(tr("New account..."));
+	newAccountAction->setEnabled(false);
+	connect(newAccountAction, SIGNAL(triggered()), SLOT(onNewAccountAction()));
+	_fileMenu->addAction(newAccountAction);
+
+	closeTabAction = new Action;
+	closeTabAction->setText(tr("Close tab"));
+	closeTabAction->setShortcut(QKeySequence("Ctrl+W"));
+	closeTabAction->setEnabled(false);
+	connect(closeTabAction, SIGNAL(triggered()), SLOT(onCloseTabAction()));
+	_fileMenu->addAction(closeTabAction, 501);
+
+	closeAllTabsAction = new Action;
+	closeAllTabsAction->setText(tr("Close all tabs"));
+	closeAllTabsAction->setShortcut(QKeySequence("Shift+Ctrl+W"));
+	closeAllTabsAction->setEnabled(false);
+	connect(closeAllTabsAction, SIGNAL(triggered()), SLOT(onCloseAllTabsAction()));
+	_fileMenu->addAction(closeAllTabsAction, 501);
+
 	// Edit
 	_editMenu = new Menu;
 	_editMenu->setTitle(tr("Edit"));
@@ -219,6 +312,13 @@ void MacIntegrationPlugin::initMenus()
 	connect(selectallAction, SIGNAL(triggered()), SLOT(onSelectAllAction()));
 	_editMenu->addAction(selectallAction);
 
+	findAction = new Action;
+	findAction->setText(tr("Find"));
+	findAction->setShortcut(QKeySequence("Ctrl+F"));
+	findAction->setEnabled(false);
+	connect(findAction, SIGNAL(triggered()), SLOT(onFindAction()));
+	_editMenu->addAction(findAction, 600);
+
 	// View
 	_viewMenu = new Menu;
 	_viewMenu->setTitle(tr("View"));
@@ -234,26 +334,58 @@ void MacIntegrationPlugin::initMenus()
 	_windowMenu->setTitle(tr("Window"));
 	_menuBar->addMenu(_windowMenu);
 
-	// Help
-	_helpMenu = new Menu;
-	_helpMenu->setTitle(tr("Help"));
-	_menuBar->addMenu(_helpMenu);
-
-	Action * minimizeAction = new Action();
-	minimizeAction->setText(tr("Minimize"));
+	minimizeAction = new Action();
+	minimizeAction->setText(tr("Minimize to Dock"));
 	minimizeAction->setShortcut(QKeySequence("Ctrl+M"));
 	connect(minimizeAction, SIGNAL(triggered()), SLOT(onMinimizeAction()));
 	_windowMenu->addAction(minimizeAction);
+
+	zoomAction = new Action();
+	zoomAction->setText(tr("Zoom"));
+	connect(zoomAction, SIGNAL(triggered()), SLOT(onZoomAction()));
+	_windowMenu->addAction(zoomAction);
 
 	closeAction = new Action;
 	closeAction->setText(tr("Close"));
 	closeAction->setShortcut(QKeySequence("Ctrl+W"));
 	connect(closeAction, SIGNAL(triggered()), SLOT(onCloseAction()));
 	_windowMenu->addAction(closeAction);
+
+	prevTabAction = new Action;
+	prevTabAction->setText(tr("Previous tab"));
+	prevTabAction->setShortcut(QKeySequence("Meta+Shift+Tab"));
+	connect(prevTabAction, SIGNAL(triggered()), SLOT(onPrevTabAction()));
+	_windowMenu->addAction(prevTabAction, 550);
+
+	nextTabAction = new Action;
+	nextTabAction->setText(tr("Next tab"));
+	nextTabAction->setShortcut(QKeySequence("Meta+Tab"));
+	connect(nextTabAction, SIGNAL(triggered()), SLOT(onNextTabAction()));
+	_windowMenu->addAction(nextTabAction, 550);
+
+	Action * showMainWindowAction = new Action;
+	showMainWindowAction->setText(tr("Contact list"));
+	showMainWindowAction->setShortcut(QKeySequence("Ctrl+/"));
+	connect(showMainWindowAction, SIGNAL(triggered()), SLOT(onShowMainWindowAction()));
+	_windowMenu->addAction(showMainWindowAction, 600);
+
+	// Help
+	_helpMenu = new Menu;
+	_helpMenu->setTitle(tr("Help"));
+	_menuBar->addMenu(_helpMenu);
 }
 
 void MacIntegrationPlugin::updateActions()
 {
+	if (accountManager && rosterChanger)
+	{
+		bool newContactEnabled;
+		IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
+		newContactEnabled = (acc && acc->isActive());
+		newContactAction->setEnabled(newContactEnabled);
+		//newGroupAction->setEnabled(newContactEnabled);
+		newAccountAction->setEnabled(newContactEnabled);
+	}
 	if (lastFocusedWidget)
 	{
 		bool copyEnabled = false;
@@ -305,6 +437,11 @@ void MacIntegrationPlugin::updateActions()
 	}
 }
 
+void MacIntegrationPlugin::onAboutToQuit()
+{
+
+}
+
 void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 {
 	Q_UNUSED(old)
@@ -341,18 +478,66 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 	if (qApp->activeWindow())
 	{
 		ITabWindow * tw = findTabWindow(qApp->activeWindow());
-		if (tw)
-		{
-			closeAction->setText(tr("Close Tab"));
-		}
-		else
-		{
-			closeAction->setText(tr("Close"));
-		}
-		closeAction->setEnabled(true);
+		closeAction->setEnabled(!tw);
+		closeTabAction->setEnabled(tw);
+		closeAllTabsAction->setEnabled(tw);
+		nextTabAction->setEnabled(tw);
+		prevTabAction->setEnabled(tw);
+		IMainWindow * mw = findMainWindow(qApp->activeWindow());
+		findAction->setEnabled(mw);
+		minimizeAction->setEnabled(true);
+		zoomAction->setEnabled(true);
 	}
 	else
+	{
 		closeAction->setEnabled(false);
+		closeTabAction->setEnabled(false);
+		closeAllTabsAction->setEnabled(false);
+		nextTabAction->setEnabled(false);
+		prevTabAction->setEnabled(false);
+		minimizeAction->setEnabled(false);
+		zoomAction->setEnabled(false);
+	}
+}
+
+void MacIntegrationPlugin::onNewContactAction()
+{
+	if (accountManager && rosterChanger)
+	{
+		IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
+		if (acc && acc->isActive())
+		{
+			rosterChanger->showAddContactDialog(acc->xmppStream()->streamJid());
+		}
+	}
+}
+
+void MacIntegrationPlugin::onNewGroupAction()
+{
+	// TODO
+	qDebug() << "New Grop Action: not implemented!";
+}
+
+void MacIntegrationPlugin::onNewAccountAction()
+{
+	if (optionsManager)
+	{
+		optionsManager->showOptionsDialog(OPN_GATEWAYS);
+	}
+}
+
+void MacIntegrationPlugin::onCloseTabAction()
+{
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
+		tw->closeCurrentTab();
+}
+
+void MacIntegrationPlugin::onCloseAllTabsAction()
+{
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
+		tw->closeAllTabs();
 }
 
 void MacIntegrationPlugin::onMinimizeAction()
@@ -362,12 +547,20 @@ void MacIntegrationPlugin::onMinimizeAction()
 		activeWindow->showMinimized();
 }
 
+void MacIntegrationPlugin::onZoomAction()
+{
+	QWidget * activeWindow = QApplication::activeWindow();
+	if (activeWindow && (activeWindow->sizePolicy() != QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed)))
+		activeWindow->showMaximized();
+}
+
 void MacIntegrationPlugin::onCloseAction()
 {
 	ITabWindow * tw = findTabWindow(qApp->activeWindow());
 	if (tw)
 	{
-		tw->currentTabPage()->closeTabPage();
+		//tw->currentTabPage()->closeTabPage();
+		// nothing to do, see onCloseTabAction()
 	}
 	else
 	{
@@ -379,6 +572,26 @@ void MacIntegrationPlugin::onCloseAction()
 		else if (activeWindow)
 			activeWindow->close();
 	}
+}
+
+void MacIntegrationPlugin::onNextTabAction()
+{
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
+		tw->nextTab();
+}
+
+void MacIntegrationPlugin::onPrevTabAction()
+{
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
+		tw->previousTab();
+}
+
+void MacIntegrationPlugin::onShowMainWindowAction()
+{
+	if (mainWindowPlugin)
+		mainWindowPlugin->showMainWindow();
 }
 
 // copy/cut/paste/undo/redo/selectall are handled by widgets, these slots do nothing for now
@@ -470,6 +683,12 @@ void MacIntegrationPlugin::onSelectAllAction()
 		else if (QWebView * wv = qobject_cast<QWebView*>(w))
 			wv->page()->triggerAction(QWebPage::SelectAll);
 	}
+}
+
+void MacIntegrationPlugin::onFindAction()
+{
+	if (rosterSearch)
+		rosterSearch->startSearch();
 }
 
 void MacIntegrationPlugin::onSelectionChanged()

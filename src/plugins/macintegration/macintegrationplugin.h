@@ -4,6 +4,11 @@
 #include <QObject>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imacintegration.h>
+#include <interfaces/iaccountmanager.h>
+#include <interfaces/irosterchanger.h>
+#include <interfaces/ioptionsmanager.h>
+#include <interfaces/irostersearch.h>
+#include <interfaces/imainwindow.h>
 
 #define MACINTEGRATION_UUID "{c936122e-cbf3-442d-b01f-8ecc5b0ad530}"
 
@@ -50,15 +55,29 @@ private:
 	void initMenus();
 	void updateActions();
 private slots:
+	void onAboutToQuit();
 	void onFocusChanged(QWidget * old, QWidget * now);
+	// file menu
+	void onNewContactAction();
+	void onNewGroupAction();
+	void onNewAccountAction();
+	void onCloseTabAction();
+	void onCloseAllTabsAction();
+	// window menu
 	void onMinimizeAction();
+	void onZoomAction();
 	void onCloseAction();
+	void onNextTabAction();
+	void onPrevTabAction();
+	void onShowMainWindowAction();
+	// edit menu
 	void onCopyAction();
 	void onPasteAction();
 	void onCutAction();
 	void onUndoAction();
 	void onRedoAction();
 	void onSelectAllAction();
+	void onFindAction();
 	// slots for handling selection change events
 	void onSelectionChanged();
 	void onTextChanged();
@@ -76,8 +95,19 @@ private:
 	MacIntegrationPrivate * p;
 	// actions
 	Action * copyAction, * cutAction, * pasteAction, * undoAction, * redoAction, * selectallAction;
-	Action * closeAction;
-
+	Action * closeAction, * closeTabAction, * closeAllTabsAction;
+	Action * minimizeAction, * zoomAction;
+	Action * nextTabAction, * prevTabAction;
+	Action * newContactAction;
+	Action * newGroupAction;
+	Action * newAccountAction;
+	Action * findAction;
+	// other plugins
+	IAccountManager * accountManager;
+	IRosterChanger * rosterChanger;
+	IOptionsManager * optionsManager;
+	IRosterSearch * rosterSearch;
+	IMainWindowPlugin * mainWindowPlugin;
 };
 
 #endif // MACINTEGRATIONPLUGIN_H

@@ -157,19 +157,41 @@ void TabWindow::removeTabPage(ITabPage *APage)
 	}
 }
 
+void TabWindow::nextTab()
+{
+	ui.twtTabs->showNextTab();
+}
+
+void TabWindow::previousTab()
+{
+	ui.twtTabs->showPrevTab();
+}
+
+void TabWindow::closeCurrentTab()
+{
+	removeTabPage(currentTabPage());
+}
+
+void TabWindow::closeAllTabs()
+{
+	clearTabs();
+	close();
+}
+
 void TabWindow::createActions()
 {
+#ifndef Q_WS_MAC
 	FNextTab = new Action(FWindowMenu);
 	FNextTab->setText(tr("Next Tab"));
 	FNextTab->setShortcuts(QList<QKeySequence>() << tr("Ctrl+Tab") << tr("Ctrl+PgDown"));
 	FWindowMenu->addAction(FNextTab,AG_MWTW_MWIDGETS_TAB_ACTIONS);
-	connect(FNextTab,SIGNAL(triggered()),ui.twtTabs,SLOT(showNextTab()));
+	connect(FNextTab, SIGNAL(triggered()), SLOT(nextTab()));
 
 	FPrevTab = new Action(FWindowMenu);
 	FPrevTab->setText(tr("Prev. Tab"));
 	FPrevTab->setShortcuts(QList<QKeySequence>() << tr("Ctrl+Shift+Tab") << tr("Ctrl+PgUp"));
 	FWindowMenu->addAction(FPrevTab,AG_MWTW_MWIDGETS_TAB_ACTIONS);
-	connect(FPrevTab,SIGNAL(triggered()),ui.twtTabs,SLOT(showPrevTab()));
+	connect(FPrevTab, SIGNAL(triggered()), SLOT(previousTab()));
 
 	FCloseTab = new Action(FWindowMenu);
 	FCloseTab->setText(tr("Close Tab"));
@@ -188,6 +210,7 @@ void TabWindow::createActions()
 	FCloseWindow->setShortcuts(QList<QKeySequence>() << tr("Esc") << tr("Alt+F4"));
 	FWindowMenu->addAction(FCloseWindow,AG_MWTW_MWIDGETS_TABWINDOW_OPTIONS);
 	connect(FCloseWindow,SIGNAL(triggered(bool)),SLOT(onWindowMenuActionTriggered(bool)));
+#endif
 }
 
 void TabWindow::saveWindowStateAndGeometry()
@@ -421,18 +444,14 @@ void TabWindow::onWindowMenuActionTriggered(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action == FCloseTab)
 	{
-		removeTabPage(currentTabPage());
+		closeCurrentTab();
 	}
 	else if (action == FCloseAllTabs)
 	{
-		clearTabs();
-		close();
+		closeAllTabs();
 	}
 	else if (action == FCloseWindow)
 	{
-		if (parentWidget())
-			parentWidget()->close();
-		else
-			close();
+		window()->close();
 	}
 }

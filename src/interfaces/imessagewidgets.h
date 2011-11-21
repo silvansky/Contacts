@@ -278,6 +278,11 @@ public:
 	virtual void setCurrentTabPage(ITabPage *APage) =0;
 	virtual void detachTabPage(ITabPage *APage) =0;
 	virtual void removeTabPage(ITabPage *APage) =0;
+public: // slots
+	virtual void nextTab() = 0;
+	virtual void previousTab() = 0;
+	virtual void closeCurrentTab() = 0;
+	virtual void closeAllTabs() = 0;
 protected:
 	virtual void currentTabPageChanged(ITabPage *APage) =0;
 	virtual void tabPageAdded(ITabPage *APage) =0;

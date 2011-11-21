@@ -250,6 +250,7 @@ void RosterSearch::startSearch()
 	}
 	else
 	{
+		FSearchEdit->setFocus();
 		destroyNotFoundItem();
 		//destroySearchLinks();
 		if (FSearchStarted && FRostersViewPlugin)
