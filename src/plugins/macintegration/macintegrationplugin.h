@@ -9,6 +9,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/irostersearch.h>
 #include <interfaces/imainwindow.h>
+#include <interfaces/imetacontacts.h>
 
 #define MACINTEGRATION_UUID "{c936122e-cbf3-442d-b01f-8ecc5b0ad530}"
 
@@ -69,6 +70,7 @@ private slots:
 	void onCloseAction();
 	void onNextTabAction();
 	void onPrevTabAction();
+    void onBringAllToTopAction();
 	void onShowMainWindowAction();
 	// edit menu
 	void onCopyAction();
@@ -96,18 +98,20 @@ private:
 	// actions
 	Action * copyAction, * cutAction, * pasteAction, * undoAction, * redoAction, * selectallAction;
 	Action * closeAction, * closeTabAction, * closeAllTabsAction;
-	Action * minimizeAction, * zoomAction;
+    Action * minimizeAction, * zoomAction, * bringAllToTopAction;
 	Action * nextTabAction, * prevTabAction;
 	Action * newContactAction;
 	Action * newGroupAction;
 	Action * newAccountAction;
 	Action * findAction;
+    QList<Action*> activeChatsActions;
 	// other plugins
 	IAccountManager * accountManager;
 	IRosterChanger * rosterChanger;
 	IOptionsManager * optionsManager;
 	IRosterSearch * rosterSearch;
 	IMainWindowPlugin * mainWindowPlugin;
+    IMetaContacts * metaContactsPlugin;
 };
 
 #endif // MACINTEGRATIONPLUGIN_H

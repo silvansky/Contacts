@@ -283,7 +283,7 @@ public: // slots
 	virtual void previousTab() = 0;
 	virtual void closeCurrentTab() = 0;
 	virtual void closeAllTabs() = 0;
-protected:
+protected: // signals
 	virtual void currentTabPageChanged(ITabPage *APage) =0;
 	virtual void tabPageAdded(ITabPage *APage) =0;
 	virtual void tabPageRemoved(ITabPage *APage) =0;

@@ -24,7 +24,16 @@ void setWindowShadowEnabled(QWidget * window, bool enabled)
 	[[nsViewFromWidget(window) window] setHasShadow: (enabled ? YES : NO)];
 }
 
+bool isWindowGrowButtonEnabled(QWidget * window)
+{
+    if (window)
+        return [[[nsViewFromWidget(window) window] standardWindowButton: NSWindowZoomButton] isEnabled] == YES;
+    else
+        return false;
+}
+
 void setWindowGrowButtonEnabled(QWidget * window, bool enabled)
 {
-	[[[nsViewFromWidget(window) window] standardWindowButton: NSWindowZoomButton] setEnabled: (enabled ? YES : NO)];
+    if (window)
+        [[[nsViewFromWidget(window) window] standardWindowButton: NSWindowZoomButton] setEnabled: (enabled ? YES : NO)];
 }

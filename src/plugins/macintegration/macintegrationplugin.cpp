@@ -13,6 +13,7 @@
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imainwindow.h>
 #include <utils/custombordercontainer.h>
+#include <utils/macwidgets.h>
 #include <definitions/optionnodes.h>
 
 #include <QDebug>
@@ -137,6 +138,12 @@ bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &
 		{
 			mainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
 		}
+
+        plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
+        if (plugin)
+        {
+            metaContactsPlugin = qobject_cast<IMetaContacts *>(plugin->instance());
+        }
 	}
 	return true;
 }
@@ -239,33 +246,33 @@ void MacIntegrationPlugin::initMenus()
 	_menuBar->addMenu(_fileMenu);
 
 	newContactAction = new Action;
-	newContactAction->setText(tr("New contact..."));
+    newContactAction->setText(tr("New Contact..."));
 	newContactAction->setShortcut(QKeySequence("Ctrl+N"));
 	newContactAction->setEnabled(false);
 	connect(newContactAction, SIGNAL(triggered()), SLOT(onNewContactAction()));
 	_fileMenu->addAction(newContactAction);
 
 	newGroupAction = new Action;
-	newGroupAction->setText(tr("New gorup..."));
+    newGroupAction->setText(tr("New Gorup..."));
 	newGroupAction->setEnabled(false);
 	connect(newGroupAction, SIGNAL(triggered()), SLOT(onNewGroupAction()));
 	_fileMenu->addAction(newGroupAction);
 
 	newAccountAction = new Action;
-	newAccountAction->setText(tr("New account..."));
+    newAccountAction->setText(tr("New Account..."));
 	newAccountAction->setEnabled(false);
 	connect(newAccountAction, SIGNAL(triggered()), SLOT(onNewAccountAction()));
 	_fileMenu->addAction(newAccountAction);
 
 	closeTabAction = new Action;
-	closeTabAction->setText(tr("Close tab"));
+    closeTabAction->setText(tr("Close Tab"));
 	closeTabAction->setShortcut(QKeySequence("Ctrl+W"));
 	closeTabAction->setEnabled(false);
 	connect(closeTabAction, SIGNAL(triggered()), SLOT(onCloseTabAction()));
 	_fileMenu->addAction(closeTabAction, 501);
 
 	closeAllTabsAction = new Action;
-	closeAllTabsAction->setText(tr("Close all tabs"));
+    closeAllTabsAction->setText(tr("Close All Tabs"));
 	closeAllTabsAction->setShortcut(QKeySequence("Shift+Ctrl+W"));
 	closeAllTabsAction->setEnabled(false);
 	connect(closeAllTabsAction, SIGNAL(triggered()), SLOT(onCloseAllTabsAction()));
@@ -352,22 +359,27 @@ void MacIntegrationPlugin::initMenus()
 	_windowMenu->addAction(closeAction);
 
 	prevTabAction = new Action;
-	prevTabAction->setText(tr("Previous tab"));
+    prevTabAction->setText(tr("Select Previous Tab"));
 	prevTabAction->setShortcut(QKeySequence("Meta+Shift+Tab"));
 	connect(prevTabAction, SIGNAL(triggered()), SLOT(onPrevTabAction()));
 	_windowMenu->addAction(prevTabAction, 550);
 
 	nextTabAction = new Action;
-	nextTabAction->setText(tr("Next tab"));
+    nextTabAction->setText(tr("Select Next Tab"));
 	nextTabAction->setShortcut(QKeySequence("Meta+Tab"));
 	connect(nextTabAction, SIGNAL(triggered()), SLOT(onNextTabAction()));
 	_windowMenu->addAction(nextTabAction, 550);
 
+    bringAllToTopAction = new Action;
+    bringAllToTopAction->setText(tr("Bring All to Front"));
+    connect(bringAllToTopAction, SIGNAL(triggered()), SLOT(onBringAllToTopAction()));
+    _windowMenu->addAction(bringAllToTopAction, 600);
+
 	Action * showMainWindowAction = new Action;
-	showMainWindowAction->setText(tr("Contact list"));
+    showMainWindowAction->setText(tr("Contact List"));
 	showMainWindowAction->setShortcut(QKeySequence("Ctrl+/"));
 	connect(showMainWindowAction, SIGNAL(triggered()), SLOT(onShowMainWindowAction()));
-	_windowMenu->addAction(showMainWindowAction, 600);
+    _windowMenu->addAction(showMainWindowAction, 650);
 
 	// Help
 	_helpMenu = new Menu;
@@ -486,7 +498,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 		IMainWindow * mw = findMainWindow(qApp->activeWindow());
 		findAction->setEnabled(mw);
 		minimizeAction->setEnabled(true);
-		zoomAction->setEnabled(true);
+        zoomAction->setEnabled(isWindowGrowButtonEnabled(qApp->activeWindow()));
 	}
 	else
 	{
@@ -550,8 +562,13 @@ void MacIntegrationPlugin::onMinimizeAction()
 void MacIntegrationPlugin::onZoomAction()
 {
 	QWidget * activeWindow = QApplication::activeWindow();
-	if (activeWindow && (activeWindow->sizePolicy() != QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed)))
-		activeWindow->showMaximized();
+    if (activeWindow && isWindowGrowButtonEnabled(activeWindow))
+    {
+        if (activeWindow->isMaximized())
+            activeWindow->showNormal();
+        else
+            activeWindow->showMaximized();
+    }
 }
 
 void MacIntegrationPlugin::onCloseAction()
@@ -586,6 +603,21 @@ void MacIntegrationPlugin::onPrevTabAction()
 	ITabWindow * tw = findTabWindow(qApp->activeWindow());
 	if (tw)
 		tw->previousTab();
+}
+
+void MacIntegrationPlugin::onBringAllToTopAction()
+{
+    QWidget * oldFocusedWidget = lastFocusedWidget;
+    QWidget * oldActiveWindow = qApp->activeWindow();
+    foreach (QWidget * w, qApp->topLevelWidgets())
+    {
+        if (!w->isHidden())
+            w->raise();
+    }
+    if (oldActiveWindow)
+        oldActiveWindow->activateWindow();
+    if (oldFocusedWidget)
+        oldFocusedWidget->setFocus();
 }
 
 void MacIntegrationPlugin::onShowMainWindowAction()
