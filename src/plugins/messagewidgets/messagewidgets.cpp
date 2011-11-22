@@ -96,7 +96,7 @@ bool MessageWidgets::initObjects()
 
 bool MessageWidgets::initSettings()
 {
-	Options::setDefaultValue(OPV_MESSAGES_SHOWSTATUS,true);
+	Options::setDefaultValue(OPV_MESSAGES_SHOWSTATUS,false);
 	Options::setDefaultValue(OPV_MESSAGES_EDITORAUTORESIZE,true);
 	Options::setDefaultValue(OPV_MESSAGES_SHOWINFOWIDGET,false);
 	Options::setDefaultValue(OPV_MESSAGES_LASTTABPAGESCOUNT,10);
