@@ -143,6 +143,21 @@ QImage ImageManager::opacitized(const QImage & image, double opacity)
 	return image;
 }
 
+QImage ImageManager::addSpace(const QImage & image, int left, int top, int right, int bottom)
+{
+    if (!image.isNull())
+    {
+        QImage resultImage(image.size() + QSize(left + right, top + bottom), QImage::Format_ARGB32);
+        resultImage.fill(QColor::fromRgb(0, 0, 0, 0).rgba());
+        QPainter painter(&resultImage);
+        painter.drawImage(left, top, image);
+        painter.end();
+        resultImage.setAlphaChannel(image.alphaChannel());
+        return resultImage;
+    }
+    return image;
+}
+
 void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter * painter)
 {
 	if (!image.isNull())
