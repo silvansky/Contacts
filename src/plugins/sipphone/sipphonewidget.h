@@ -66,6 +66,7 @@ private slots:
 	void acceptCallTimeout( void );
 	void remotePictureShow(const QImage&);
 	void localPictureShow(const QImage&);
+	void moveCurPicLabel(const QPoint &);
 
 private:
 	// Sip Stuff
@@ -106,10 +107,6 @@ private:
 	bool _isHangupInitiator;
 
 
-
-
-
-
 public slots:
 	void SetCurrImage(const QImage& img);
 	void SetRemoteImage(const QImage& img);
@@ -139,10 +136,11 @@ protected:
 	virtual void closeEvent(QCloseEvent *);
 
 private:
+	bool curPicMoved;
+	Qt::Alignment curPicAlign;
 	QImageLabel* _pCurrPic;
 	QToolButton* _pShowCurrPic;
 	FullScreenControls* _pControls;
-
 	QTimer* _fsTimer;
 private:
 	Ui::SipPhoneWidget ui;

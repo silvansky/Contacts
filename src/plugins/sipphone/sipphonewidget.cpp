@@ -42,9 +42,11 @@ SipPhoneWidget::SipPhoneWidget(QWidget *parent)
 	: QWidget(parent)
 {
 	ui.setupUi(this);
-
 	setObjectName("SipPhoneWidget");
+
 	setMinimumSize(250, 90);
+	curPicAlign = Qt::AlignBottom|Qt::AlignLeft;
+
 	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 }
@@ -57,16 +59,18 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 
 	setObjectName("SipPhoneWidget");
 	setMinimumSize(250, 90);
+	curPicAlign = Qt::AlignBottom|Qt::AlignLeft;
 
 	ui.remote->hide();
 	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
 	{
 		_pCurrPic = new QImageLabel(ui.wgtRemoteImage);
+		connect(_pCurrPic,SIGNAL(moveTo(const QPoint &)),SLOT(moveCurPicLabel(const QPoint &)));
+
 		_pShowCurrPic = new QToolButton(ui.wgtRemoteImage);
 		_pShowCurrPic->setObjectName("showCurrPic");
-
-		connect(_pCurrPic, SIGNAL(visibleState(bool)), _pShowCurrPic, SLOT(setHidden(bool)));
 		connect(_pShowCurrPic, SIGNAL(clicked()), _pCurrPic, SLOT(show()));
+		connect(_pCurrPic, SIGNAL(visibleState(bool)), _pShowCurrPic, SLOT(setHidden(bool)));
 
 		_pCurrPic->setFixedSize(160, 120);
 		_pCurrPic->setMouseTracking(true);
@@ -160,7 +164,7 @@ SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, S
 
 	_ringCount = 0;
 	_pRingTimer = new QTimer();
-	connect( _pRingTimer, SIGNAL( timeout() ), this, SLOT( ringTimeout() ) );
+	//connect( _pRingTimer, SIGNAL( timeout() ), this, SLOT( ringTimeout() ) );
 
 	_pAcceptCallTimer = new QTimer();
 	connect( _pAcceptCallTimer, SIGNAL( timeout() ), this, SLOT( acceptCallTimeout() ) );
@@ -249,13 +253,18 @@ void SipPhoneWidget::resizeEvent(QResizeEvent *r_event)
 			currPicSize.setWidth(160);
 			currPicSize.setHeight(120);
 		}
-		else
-		{
-
-		}
 		_pCurrPic->setFixedSize(currPicSize);
-		_pCurrPic->move(4, size.height() - _pCurrPic->rect().height() - 4);
-		//_pCurrPic->move(4/*pt.x()*/, /*pt.y()*/ size.height() - 124);
+
+		QPoint newPos = _pCurrPic->correctTopLeftPos(_pCurrPic->geometry().topLeft());
+		if (curPicAlign & Qt::AlignTop)
+			newPos.setY(QImageLabel::spacing);
+		else if (curPicAlign & Qt::AlignBottom)
+			newPos.setY(rect().height()-_pCurrPic->geometry().height()-QImageLabel::spacing);
+		if (curPicAlign & Qt::AlignLeft)
+			newPos.setX(QImageLabel::spacing);
+		else if (curPicAlign & Qt::AlignRight)
+			newPos.setX(rect().width()-_pCurrPic->geometry().width()-QImageLabel::spacing);
+		_pCurrPic->move(newPos);
 	}
 
 	if(_pShowCurrPic != NULL)
@@ -630,6 +639,24 @@ void SipPhoneWidget::localPictureShow(const QImage& img)
 	//SetRemoteImage(img);
 }
 
+void SipPhoneWidget::moveCurPicLabel(const QPoint & point)
+{
+	_pCurrPic->move(point);
+
+	QRect remouteRect = rect();
+	QRect localRect = _pCurrPic->geometry();
+	localRect.moveTo(point);
+
+	curPicAlign = 0;
+	if (localRect.left() <= QImageLabel::spacing+2)
+		curPicAlign |= Qt::AlignLeft;
+	else if (localRect.right() >= remouteRect.right()-QImageLabel::spacing-2)
+		curPicAlign |= Qt::AlignRight;
+	if (localRect.top() <= QImageLabel::spacing+2)
+		curPicAlign |= Qt::AlignTop;
+	else if (localRect.bottom() >= remouteRect.bottom()-QImageLabel::spacing-2)
+		curPicAlign |= Qt::AlignBottom;
+}
 
 void SipPhoneWidget::clickDial()
 {

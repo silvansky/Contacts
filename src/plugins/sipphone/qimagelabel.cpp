@@ -5,38 +5,45 @@
 #include <QPainter>
 #include <QResizeEvent>
 
+int QImageLabel::spacing = 4;
 
 QImageLabel::QImageLabel(QWidget *parent) : QLabel(parent)
 {
-	setObjectName("QImageLabel");
-
 	setMouseTracking(true);
-
+	setObjectName("lblLocalImage");
 	setProperty("ignoreFilter", true);
 
-	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
-	//icon.addFile(iconStorage->fileFullName(MNI_ROSTERSEARCH_ICON_CROSS), QSize(16,16));
-	//icon.addFile(iconStorage->fileFullName(MNI_ROSTERSEARCH_ICON_CROSS_HOVER), QSize(24,24));
-
-	//iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	iconLabel = new QLabel(this);
 	iconLabel->setFixedSize(16, 16);
 	iconLabel->setMouseTracking(true);
 	iconLabel->setProperty("ignoreFilter", true);
+	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 
 	currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_CROSS);
 	if (!currentIcon.isNull())
 		iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
-
-	//QPixmap crossPic("D:\\cross.png");
-	//iconLabel->setPixmap(crossPic);
 }
 
 
-
-void QImageLabel::resizeEvent(QResizeEvent * revent)
+QPoint QImageLabel::correctTopLeftPos( const QPoint &APos ) const
 {
-	iconLabel->move(revent->size().width() - 20, 4);//(revent->size().height() - 16) / 2);
+	QPoint newPos = APos;
+	QRect parentRect = parentWidget()->rect();
+	if (newPos.x()+width()+spacing > parentRect.right())
+		newPos.setX(parentRect.right()-width()-spacing);
+	if (newPos.x() < spacing)
+		newPos.setX(spacing);
+	if (newPos.y() < spacing)
+		newPos.setY(spacing);
+	if (newPos.y()+height()+spacing > parentRect.bottom())
+		newPos.setY(parentRect.bottom()-height()-spacing);
+	return newPos;
+}
+
+
+void QImageLabel::resizeEvent(QResizeEvent *revent)
+{
+	iconLabel->move(revent->size().width() - 20, 4);
 	QLabel::resizeEvent(revent);
 }
 
@@ -46,6 +53,11 @@ void QImageLabel::mouseMoveEvent(QMouseEvent * mevent)
 	{
 		setCursor(QCursor(Qt::PointingHandCursor));
 		updateIcon(Hover);
+	}
+	else if (!pressedPos.isNull())
+	{
+		QPoint newPos = mapToParent(mevent->pos())-pressedPos;
+		emit moveTo(correctTopLeftPos(newPos));
 	}
 	else
 	{
@@ -61,6 +73,22 @@ void QImageLabel::mousePressEvent(QMouseEvent *pevent)
 	{
 		hide();
 	}
+	else if (pevent->button() == Qt::LeftButton)
+	{
+		pressedPos = mapToParent(pevent->pos()) - geometry().topLeft();
+	}
+	else
+	{
+		QLabel::mousePressEvent(pevent);
+	}
+}
+
+void QImageLabel::mouseReleaseEvent(QMouseEvent *revent)
+{
+	if (!pressedPos.isNull())
+		pressedPos = QPoint();
+	else
+		QLabel::mouseReleaseEvent(revent);
 }
 
 void QImageLabel::leaveEvent(QEvent *)
@@ -68,39 +96,30 @@ void QImageLabel::leaveEvent(QEvent *)
 
 }
 
-void QImageLabel::paintEvent(QPaintEvent * evt)
+void QImageLabel::paintEvent(QPaintEvent *evt)
 {
 	Q_UNUSED(evt);
-	// Issue
-	static qint64 prevCache = 0;
-	//static bool blackFill = false;
-
-	const QPixmap* px = pixmap();
-	qint64 cache = 0;
 
 	QPainter p(this);
-	QRect curRect = rect();
+	p.setPen(Qt::white);
 
-	if(px)
+	QRect borderRect = rect().adjusted(0,0,-1,-1);
+	QRect imageRect = borderRect.adjusted(1,1,-1,-1);
+
+	const QPixmap *px = pixmap();
+	if(px && !px->isNull())
 	{
-		p.drawPixmap(rect(), *px);
-		cache = px->cacheKey();
-		//blackFill = false;
+		p.drawRect(borderRect);
+		p.drawPixmap(imageRect, *px);
 	}
-
-	if(px == NULL || px->isNull() || cache == prevCache)
+	else
 	{
-		//if(!blackFill)
-		{
-			p.fillRect(curRect, Qt::black);
-			//blackFill = true;
-		}
+		p.setBrush(Qt::black);
+		p.drawRect(borderRect);
 
 		QTextOption option(Qt::AlignCenter);
-		p.drawText(curRect, tr("no image"),  option);
+		p.drawText(imageRect, tr("no image"),  option);
 	}
-
-	prevCache = cache;
 }
 
 
@@ -130,6 +149,10 @@ void QImageLabel::setVisible(bool state)
 
 void QImageLabel::setPixmap(const QPixmap &pix)
 {
-	QLabel::setPixmap(pix);
-	update(rect());
+	if (!pix.isNull() && (pixmap()==NULL || pix.cacheKey()!=pixmap()->cacheKey()))
+		QLabel::setPixmap(pix);
+	else
+		QLabel::clear();
+	update();
 }
+

@@ -23,10 +23,12 @@ public:
 		Hover
 	};
 
+	QPoint correctTopLeftPos(const QPoint &APos) const;
 protected:
 	void resizeEvent(QResizeEvent *);
 	void mouseMoveEvent(QMouseEvent *);
 	void mousePressEvent(QMouseEvent *);
+	void mouseReleaseEvent(QMouseEvent *);
 	void leaveEvent(QEvent *);
 	void paintEvent(QPaintEvent *);
 
@@ -34,16 +36,20 @@ private:
 	IconStorage * iconStorage;
 	QIcon currentIcon;
 	QLabel * iconLabel;
-	//QPixmap *crossPic;
+	QPoint pressedPos;
 
 signals:
 	void visibleState(bool);
+	void moveTo(const QPoint &APoint);
 
 
 public slots:
 	void updateIcon(IconCrossState iconState);
 	virtual void setVisible(bool);
 	void setPixmap(const QPixmap &);
+
+public:
+	static int spacing;
 };
 
 #endif // QIMAGELABEL_H
