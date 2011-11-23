@@ -529,6 +529,7 @@ void StatusChanger::createDefaultStatus()
 	status.priority = 30;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
+    emit statusItemAdded(status.code);
 
 	status.code = STATUS_AWAY;
 	status.name = nameByShow(IPresence::Away);
@@ -536,6 +537,7 @@ void StatusChanger::createDefaultStatus()
 	status.priority = 20;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
+    emit statusItemAdded(status.code);
 
 	status.code = STATUS_DND;
 	status.name = nameByShow(IPresence::DoNotDisturb);
@@ -543,6 +545,7 @@ void StatusChanger::createDefaultStatus()
 	status.priority = 15;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
+    emit statusItemAdded(status.code);
 
 	status.code = STATUS_OFFLINE;
 	status.name = nameByShow(IPresence::Offline);
@@ -550,6 +553,7 @@ void StatusChanger::createDefaultStatus()
 	status.priority = 0;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
+    emit statusItemAdded(status.code);
 
 	status.code = STATUS_ERROR_ID;
 	status.name = nameByShow(IPresence::Error);

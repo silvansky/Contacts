@@ -10,12 +10,15 @@
 #include <QWebView>
 #include <QClipboard>
 #include <QStyle>
+#include <QDesktopServices>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imainwindow.h>
 #include <utils/custombordercontainer.h>
 #include <utils/macwidgets.h>
 #include <utils/imagemanager.h>
+#include <utils/options.h>
 #include <definitions/optionnodes.h>
+#include <definitions/optionvalues.h>
 
 #include <QDebug>
 
@@ -103,8 +106,9 @@ void MacIntegrationPlugin::pluginInfo(IPluginInfo *APluginInfo)
 
 bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
-    Q_UNUSED(APluginManager)
     Q_UNUSED(AInitOrder)
+
+    pluginManager = APluginManager;
 
     if (APluginManager)
     {
@@ -126,6 +130,11 @@ bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &
         if (plugin)
         {
             optionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+            if (optionsManager)
+            {
+                connect(optionsManager->instance(), SIGNAL(profileOpened(const QString &)), SLOT(onProfileOpened(const QString &)));
+                connect(optionsManager->instance(), SIGNAL(profileClosed(const QString &)), SLOT(onProfileClosed(const QString &)));
+            }
         }
 
         plugin = APluginManager->pluginInterface("IRosterSearch").value(0,NULL);
@@ -149,7 +158,28 @@ bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &
                 connect(metaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow *)), SLOT(onMetaTabWindowCreated(IMetaTabWindow *)));
             }
         }
+
+        plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
+        if (plugin)
+        {
+            statusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
+            if (statusChanger)
+            {
+                connect(statusChanger->instance(), SIGNAL(statusChanged(const Jid&, int)), SLOT(onStatusChanged(const Jid&,int)));
+                connect(statusChanger->instance(), SIGNAL(statusItemAdded(int)), SLOT(onStatusItemAdded(int)));
+                connect(statusChanger->instance(), SIGNAL(statusItemChanged(int)), SLOT(onStatusItemChanged(int)));
+                connect(statusChanger->instance(), SIGNAL(statusItemRemoved(int)), SLOT(onStatusItemRemoved(int)));
+            }
+        }
+
+        plugin = APluginManager->pluginInterface("IEmoticons").value(0,NULL);
+        if (plugin)
+        {
+            emoticons = qobject_cast<IEmoticons *>(plugin->instance());
+        }
     }
+
+    connect(Options::instance(), SIGNAL(optionsChanged(const OptionsNode&)), SLOT(onOptionsChanged(const OptionsNode&)));
     return true;
 }
 
@@ -168,6 +198,12 @@ bool MacIntegrationPlugin::initObjects()
     connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
     //postGrowlNotify(QApplication::style()->standardPixmap(QStyle::SP_MessageBoxCritical).toImage(), "Done!", "Growl notifications work ok.", "Error", 1);
 
+    return true;
+}
+
+bool MacIntegrationPlugin::initSettings()
+{
+    //autoStatusAction->setChecked(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).value().toBool());
     return true;
 }
 
@@ -331,6 +367,10 @@ void MacIntegrationPlugin::initMenus()
     connect(findAction, SIGNAL(triggered()), SLOT(onFindAction()));
     _editMenu->addAction(findAction, 600);
 
+    emoticonsMenu = new Menu;
+    emoticonsMenu->menuAction()->setText(tr("Insert Emoticon"));
+    _editMenu->addAction(emoticonsMenu->menuAction(), 700);
+
     // View
     _viewMenu = new Menu;
     _viewMenu->setTitle(tr("View"));
@@ -340,6 +380,19 @@ void MacIntegrationPlugin::initMenus()
     _statusMenu = new Menu;
     _statusMenu->setTitle(tr("Status"));
     _menuBar->addMenu(_statusMenu);
+
+    manageAccountsAction = new Action;
+    manageAccountsAction->setText(tr("Manage Accounts..."));
+    manageAccountsAction->setEnabled(false);
+    connect(manageAccountsAction, SIGNAL(triggered()), SLOT(onNewAccountAction()));
+    _statusMenu->addAction(manageAccountsAction, 550);
+
+    autoStatusAction = new Action;
+    autoStatusAction->setText(tr("Change Status to \"Away\" on Idle"));
+    autoStatusAction->setCheckable(true);
+    autoStatusAction->setEnabled(false);
+    connect(autoStatusAction, SIGNAL(toggled(bool)), SLOT(onAutoStatusAction(bool)));
+    _statusMenu->addAction(autoStatusAction, 600);
 
     // Window
     _windowMenu = new Menu;
@@ -396,6 +449,28 @@ void MacIntegrationPlugin::initMenus()
     _helpMenu = new Menu;
     _helpMenu->setTitle(tr("Help"));
     _menuBar->addMenu(_helpMenu);
+
+    onlineHelpAction =  new Action;
+    onlineHelpAction->setText(tr("Online Help"));
+    connect(onlineHelpAction, SIGNAL(triggered()), SLOT(onOnlineHelpAction()));
+    _helpMenu->addAction(onlineHelpAction);
+
+    feedbackAction = new Action;
+    feedbackAction->setText(tr("Leave Feedback..."));
+    connect(feedbackAction, SIGNAL(triggered()), SLOT(onFeedbackAction()));
+    _helpMenu->addAction(feedbackAction, 600);
+
+    facebookAction = new Action;
+    facebookAction->setText(tr("Facebook Group"));
+    connect(facebookAction, SIGNAL(triggered()), SLOT(onFacebookAction()));
+    _helpMenu->addAction(facebookAction, 600);
+
+    rulesAction = new Action;
+    rulesAction->setText(tr("Terms of Usage And Confidentiality"));
+    connect(rulesAction, SIGNAL(triggered()), SLOT(onRulesAction()));
+    _helpMenu->addAction(rulesAction, 600);
+
+    // TODO: init fun actions and select one
 }
 
 void MacIntegrationPlugin::updateActions()
@@ -470,6 +545,14 @@ void MacIntegrationPlugin::onAboutToQuit()
 
 }
 
+void MacIntegrationPlugin::onOptionsChanged(const OptionsNode &ANode)
+{
+    if (ANode.path() == OPV_AUTOSTARTUS_AWAYONLOCK)
+    {
+        autoStatusAction->setChecked(ANode.value().toBool());
+    }
+}
+
 void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 {
     Q_UNUSED(old)
@@ -502,6 +585,20 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
             connect(wv->page(), SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
             connect(wv->page(), SIGNAL(contentsChanged()), SLOT(onTextChanged()));
         }
+        if (IEditWidget * ew = qobject_cast<IEditWidget*>(now->parentWidget()))
+        {
+            emoticonsMenu->setEnabled(true);
+            if (emoticonsMenu->isEmpty())
+            {
+                // TODO: fill it with emoticons
+                Action * dummy = new Action;
+                dummy->setText(tr("He will be emoticons... Somewhen =)"));
+                dummy->setEnabled(false);
+                emoticonsMenu->addAction(dummy);
+            }
+        }
+        else
+            emoticonsMenu->setEnabled(false);
     }
     if (qApp->activeWindow())
     {
@@ -526,6 +623,30 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
         minimizeAction->setEnabled(false);
         zoomAction->setEnabled(false);
     }
+}
+
+void MacIntegrationPlugin::onProfileOpened(const QString & name)
+{
+    Q_UNUSED(name)
+    foreach(Action* a, availableStatuses.values())
+        a->setEnabled(true);
+    manageAccountsAction->setEnabled(true);
+    autoStatusAction->setEnabled(true);
+    newContactAction->setEnabled(true);
+    //newGroupAction->setEnabled(true);
+    newAccountAction->setEnabled(true);
+}
+
+void MacIntegrationPlugin::onProfileClosed(const QString & name)
+{
+    Q_UNUSED(name)
+    foreach(Action* a, availableStatuses.values())
+        a->setEnabled(false);
+    manageAccountsAction->setEnabled(false);
+    autoStatusAction->setEnabled(false);
+    newContactAction->setEnabled(false);
+    //newGroupAction->setEnabled(false);
+    newAccountAction->setEnabled(false);
 }
 
 void MacIntegrationPlugin::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
@@ -593,16 +714,56 @@ void MacIntegrationPlugin::onMetaTabPageActivated()
     }
 }
 
-void MacIntegrationPlugin::onMetaTabPageDeactivated()
+void MacIntegrationPlugin::onStatusChanged(const Jid &AStreamJid, int AStatusId)
 {
-//    qDebug() << "tab page deactivated!";
-//    ITabPage * page = qobject_cast<ITabPage*>(sender());
-//    if (page)
-//    {
-//        Action * a = activeChatsActions.value(page);
-//        if (a)
-//            a->setChecked(false);
-//    }
+    Q_UNUSED(AStreamJid)
+    Action * a = availableStatuses.value(AStatusId);
+    if (a)
+    {
+        foreach(Action * action, availableStatuses.values())
+        {
+            action->setChecked(false);
+        }
+        a->setChecked(true);
+    }
+}
+
+void MacIntegrationPlugin::onStatusItemAdded(int status)
+{
+    if (statusChanger)
+    {
+        Action * statusAction = new Action;
+        statusAction->setCheckable(true);
+        availableStatuses.insert(status, statusAction);
+        connect(statusAction, SIGNAL(triggered()), SLOT(onStatusAction()));
+        onStatusItemChanged(status);
+        _statusMenu->addAction(statusAction);
+
+        if (optionsManager)
+            statusAction->setEnabled(!optionsManager->currentProfile().isNull());
+    }
+}
+
+void MacIntegrationPlugin::onStatusItemChanged(int status)
+{
+    Action * statusAction = availableStatuses.value(status);
+    if (statusAction)
+    {
+        statusAction->setText(statusChanger->statusItemName(status));
+        int show = statusChanger->statusItemShow(status);
+        statusAction->setIcon(statusChanger->iconByShow(show));
+    }
+}
+
+void MacIntegrationPlugin::onStatusItemRemoved(int status)
+{
+    Action * statusAction = availableStatuses.value(status);
+    if (statusAction)
+    {
+        _statusMenu->removeAction(statusAction);
+        availableStatuses.take(status);
+        statusAction->deleteLater();
+    }
 }
 
 void MacIntegrationPlugin::onNewContactAction()
@@ -643,6 +804,31 @@ void MacIntegrationPlugin::onCloseAllTabsAction()
     ITabWindow * tw = findTabWindow(qApp->activeWindow());
     if (tw)
         tw->closeAllTabs();
+}
+
+void MacIntegrationPlugin::onStatusAction()
+{
+    Action * a = qobject_cast<Action*>(sender());
+    if (a && statusChanger && accountManager)
+    {
+        a->setChecked(false);
+        IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
+        if (acc && acc->isActive())
+        {
+            int statusId = availableStatuses.key(a);
+            statusChanger->setStreamStatus(acc->xmppStream()->streamJid(), statusId);
+        }
+    }
+}
+
+void MacIntegrationPlugin::onManageAccountsAction()
+{
+    onNewAccountAction();
+}
+
+void MacIntegrationPlugin::onAutoStatusAction(bool on)
+{
+    Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).setValue(on);
 }
 
 void MacIntegrationPlugin::onMinimizeAction()
@@ -732,6 +918,34 @@ void MacIntegrationPlugin::onContactAction()
             page->showTabPage();
         }
     }
+}
+
+void MacIntegrationPlugin::onOnlineHelpAction()
+{
+    QDesktopServices::openUrl(QUrl("http://contacts.rambler.ru/faq.html"));
+}
+
+void MacIntegrationPlugin::onFeedbackAction()
+{
+    if (pluginManager)
+    {
+        pluginManager->showFeedbackDialog();
+    }
+}
+
+void MacIntegrationPlugin::onFacebookAction()
+{
+    QDesktopServices::openUrl(QUrl("http://www.facebook.com/groups/185080491548525/"));
+}
+
+void MacIntegrationPlugin::onRulesAction()
+{
+    QDesktopServices::openUrl(QUrl("http://help.rambler.ru/legal/?s=101705"));
+}
+
+void MacIntegrationPlugin::onFunAction()
+{
+    // TODO: some fun!
 }
 
 // copy/cut/paste/undo/redo/selectall are handled by widgets, these slots do nothing for now

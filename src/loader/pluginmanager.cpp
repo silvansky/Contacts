@@ -188,6 +188,11 @@ QList<QUuid> PluginManager::pluginDependencesFor(const QUuid &AUuid) const
 	return plugins;
 }
 
+void PluginManager::showFeedbackDialog()
+{
+    onShowCommentsDialog();
+}
+
 void PluginManager::quit()
 {
 	if (FShutdownKind == SK_WORK)
