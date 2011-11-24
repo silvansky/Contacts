@@ -820,14 +820,12 @@ void SipPhoneWidget::hangupCall( void )
 	if( _currentState == Called )
 	{
 		_pSipCallMember->declineInvite();
-		setHidden(true);
 		//setHide();
+		//setHidden(true);
+		deleteLater();
 		emit callWasHangup();
-		return;
 	}
-
-
-	if(_pSipCall && _pSipCall->getCallStatus() != SipCall::callDead )
+	else if(_pSipCall && _pSipCall->getCallStatus() != SipCall::callDead )
 	{
 		//_pHangupButton->setEnabled( false );
 		if( _pSipCallMember->getState() == SipCallMember::state_Connected )
@@ -847,9 +845,9 @@ void SipPhoneWidget::hangupCall( void )
 				_pAudioContoller->detachFromCall();
 			}
 		}
-		setHidden(true);
+		//setHidden(true);
+		deleteLater();
 		emit callWasHangup();
-		return;
 	}
 }
 

@@ -45,7 +45,9 @@ signals:
 	void stateChange(bool);
 
 public slots:
-	void onStateChange(bool);
+	void setCheckState(bool);
+	void setEnabledState(bool);
+	void setToolTipState(const QString &);
 };
 
 class AVControl : public QWidget
@@ -61,11 +63,15 @@ public:
 	~AVControl();
 
 	void setDark(bool isDark);
+	void updateMicToolTip();
+	void updateCamToolTip();
+	void updateHQToolTip();
 
 public slots:
-	void SetCameraOn(bool);
-	void SetResolutionHigh(bool isHigh);
+	void setCameraOn(bool);
 	void setCameraEnabled(bool);
+	void setResolutionHigh(bool);
+	void setMicOn(bool);
 	void setMicEnabled( bool );
 	void setVolumeEnabled( bool );
 
@@ -74,9 +80,8 @@ signals:
 	void camPresentChanged(bool);
 	void camResolutionChange(bool);
 	void micStateChange(bool);
-	void micVolumeChange(int);
-
 	void micPresentChanged(bool);
+	void micVolumeChange(int);
 	void volumePresentChanged(bool);
 
 protected:
@@ -87,7 +92,6 @@ private slots:
 
 private:
 	Ui::AVControl ui;
-	bool _isDark;
 };
 
 #endif // AVCONTROL_H

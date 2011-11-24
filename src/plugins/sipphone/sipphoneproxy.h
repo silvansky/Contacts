@@ -2,6 +2,7 @@
 #define SIPPHONEPROXY_H
 
 #include <QObject>
+#include <QPointer>
 #include "sipphonewidget.h"
 
 #include "ridentityform.h"
@@ -9,7 +10,7 @@
 //#include "raudioform.h"
 #include <sipcall.h>
 
-#include "utils/jid.h"
+#include <utils/jid.h>
 #include <utils/customborderstorage.h>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
@@ -131,8 +132,8 @@ private:
 	QTimer *quitTimer;
 
 private:
-	SipPhoneWidget* _pWorkWidget;//FPhoneWidget;
-	CustomBorderContainer* _pWorkWidgetContainer;
+	QPointer<SipPhoneWidget> _pWorkWidget;//FPhoneWidget;
+	QPointer<CustomBorderContainer> _pWorkWidgetContainer;
 
 	SipClient* _pSipClient;
 	SipUser* _pSipUser;

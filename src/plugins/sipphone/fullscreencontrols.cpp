@@ -71,13 +71,13 @@ void FullScreenControls::setVolumeEnabled(bool isEnabled)
 
 void FullScreenControls::SetCameraOn(bool isOn)
 {
-	ui.wgtAVControl->SetCameraOn(isOn);
+	ui.wgtAVControl->setCameraOn(isOn);
 	//emit camStateChange(isOn);
 }
 
 void FullScreenControls::SetResolutionHigh(bool isHigh)
 {
-	ui.wgtAVControl->SetResolutionHigh(isHigh);
+	ui.wgtAVControl->setResolutionHigh(isHigh);
 }
 
 void FullScreenControls::setFullScreen(bool state)

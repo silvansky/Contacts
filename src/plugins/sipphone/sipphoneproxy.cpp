@@ -645,7 +645,6 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	// Объект помещается в SipPhoneWidget и последней ответственен за его удаление
 	CallAudio* pCallAudio = new CallAudio( );
 	connect(pCallAudio, SIGNAL(incomingThreadTimeChange(qint64)), this, SIGNAL(incomingThreadTimeChange(qint64)));
-
 	connect(pCallAudio, SIGNAL(audioInputPresentChange(bool)), this, SIGNAL(micPresentChanged(bool)));
 	connect(pCallAudio, SIGNAL(audioOutputPresentChange(bool)), this, SIGNAL(volumePresentChanged(bool)));
 
@@ -668,14 +667,11 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
 	connect(widget, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
 
-	if(_pWorkWidget != NULL)
-	{
+	if(!_pWorkWidget.isNull())
 		delete _pWorkWidget;
-		_pWorkWidget = NULL;
-	}
+	_pWorkWidget = widget;
 
 	//cwList.append( widget );
-	_pWorkWidget = widget;
 	widget->setRemote( num );
 	if( !num.isEmpty() )
 	{
@@ -694,46 +690,38 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	border->setStaysOnTop(true);
 	WidgetManager::alignWindow(border, Qt::AlignCenter);
 
-	if(_pWorkWidgetContainer)
-	{
+	if(!_pWorkWidgetContainer.isNull())
 		delete _pWorkWidgetContainer;
-		_pWorkWidgetContainer = NULL;
-	}
 	_pWorkWidgetContainer = border;
 
 
 	//connect( widget, SIGNAL( redirectCall( const SipUri &, const QString & ) ), this, SLOT( redirectCall( const SipUri &, const QString & ) ) );
 
 	//widget->show();
-	border->show(); //!!!!!!!!!!!!!!!!!!!!
+	WidgetManager::showActivateRaiseWindow(border); //!!!!!!!!!!!!!!!!!!!!
 
 	return widget;
 }
 
 bool SipPhoneProxy::eventFilter( QObject *obj, QEvent *evt )
 {
-	if(_pWorkWidgetContainer)
+	if(obj == _pWorkWidgetContainer)
 	{
-		if(obj == _pWorkWidgetContainer)
+		if (evt->type() == QEvent::KeyPress)
 		{
-			if (evt->type() == QEvent::KeyPress)
+			QKeyEvent *keyEvent = static_cast<QKeyEvent*>(evt);
+			if(keyEvent->key() == Qt::Key_Escape)
 			{
-				QKeyEvent *keyEvent = static_cast<QKeyEvent*>(evt);
-				if(keyEvent->key() == Qt::Key_Escape)
-				{
-					QApplication::sendEvent(_pWorkWidgetContainer->widget(), keyEvent);
-				}
-			}
-
-			if (evt->type() == QEvent::MouseMove)
-			{
-				QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(evt);
-				QApplication::sendEvent(_pWorkWidgetContainer->widget(), mouseEvent);
+				QApplication::sendEvent(_pWorkWidgetContainer->widget(), keyEvent);
 			}
 		}
+
+		if (evt->type() == QEvent::MouseMove)
+		{
+			QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(evt);
+			QApplication::sendEvent(_pWorkWidgetContainer->widget(), mouseEvent);
+		}
 	}
-
-
 	return QObject::eventFilter( obj, evt );
 }
 
@@ -741,12 +729,10 @@ void SipPhoneProxy::onFullScreenState(bool state)
 {
 	if(state)
 	{
-		//_pWorkWidgetContainer->maximizeWidget();
 		_pWorkWidgetContainer->showFullScreen();
 	}
 	else
 	{
-		//if(_pWorkWidgetContainer->isFullScreen())
 		_pWorkWidgetContainer->showNormal();
 		_pWorkWidgetContainer->restoreWidget();
 	}
@@ -798,15 +784,9 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		connect(widget, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
 		//cwList.append( widget );
 
-		if(_pWorkWidget != NULL)
-		{
+		if(!_pWorkWidget.isNull())
 			delete _pWorkWidget;
-			_pWorkWidget = NULL;
-		}
-
 		_pWorkWidget = widget;
-		connect( widget, SIGNAL( redirectCall( const SipUri &, const QString & ) ), this, SLOT( redirectCall( const SipUri &, const QString & ) ) );
-
 
 		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(widget, CBS_VIDEOCALL);
 		border->setMinimizeButtonVisible(false);
@@ -819,14 +799,9 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		border->setStaysOnTop(true);
 		WidgetManager::alignWindow(border, Qt::AlignCenter);
 
-		if(_pWorkWidgetContainer)
-		{
+		if(!_pWorkWidgetContainer.isNull())
 			delete _pWorkWidgetContainer;
-			_pWorkWidgetContainer = NULL;
-		}
 		_pWorkWidgetContainer = border;
-
-
 
 		//widget->show();
 		_pWorkWidgetContainer->show();
@@ -932,7 +907,7 @@ void SipPhoneProxy::sendNotify( int id, SipCallMember *member )
 
 void SipPhoneProxy::kphoneQuit( void )
 {
-	if(_pWorkWidgetContainer != NULL && !_pWorkWidgetContainer->isHidden())
+	if(_pWorkWidgetContainer!=NULL && !_pWorkWidgetContainer->isHidden())
 	{
 		SipPhoneWidget *spWidget = static_cast<SipPhoneWidget*>(_pWorkWidgetContainer->widget());
 		if(spWidget)

@@ -611,12 +611,14 @@ void SipPhone::onCloseCallControl(bool)
 	if(pCallControl)
 	{
 		QString metaId = pCallControl->getMetaId();
-
-		FCallActions[metaId]->setChecked(false);
-		if(__tmpMenu != NULL)
+		if (FCallActions.contains(metaId))
 		{
-			FCallActions[metaId]->setMenu(__tmpMenu);
-			__tmpMenu = NULL;
+			FCallActions[metaId]->setChecked(false);
+			if(__tmpMenu != NULL)
+			{
+				FCallActions[metaId]->setMenu(__tmpMenu);
+				__tmpMenu = NULL;
+			}
 		}
 	}
 }

@@ -12,8 +12,6 @@ public:
 	FullScreenControls(QWidget *parent = 0);
 	~FullScreenControls();
 
-	//AVControl* avControl() const { return ui.wgtAVControl; }
-
 public slots:
 	void setCameraEnabled(bool isEnabled);
 	void SetCameraOn(bool);

@@ -4,8 +4,40 @@
 <context>
     <name>AVControl</name>
     <message>
-        <source>HQ</source>
-        <translation type="unfinished"></translation>
+        <source>Failed to find the microphone</source>
+        <translation>Не удалось найти подключенный микрофон</translation>
+    </message>
+    <message>
+        <source>Turn off microphone</source>
+        <translation>Выключить микрофон</translation>
+    </message>
+    <message>
+        <source>Turn on microphone</source>
+        <translation>Включить микрофон</translation>
+    </message>
+    <message>
+        <source>Failed to find a web camera on your computer</source>
+        <translation>Не удалось найти веб-камеру на вашем компьютере</translation>
+    </message>
+    <message>
+        <source>Turn off web camera</source>
+        <translation>Выключить вебкамеру</translation>
+    </message>
+    <message>
+        <source>Turn on web camera</source>
+        <translation>Включить вебкамеру</translation>
+    </message>
+    <message>
+        <source>High quality video is not available</source>
+        <translation>Видео высокой четкости недоступно</translation>
+    </message>
+    <message>
+        <source>Turn off high quality video</source>
+        <translation>Выключить видео высокой четкости</translation>
+    </message>
+    <message>
+        <source>Turn on high quality video</source>
+        <translation>Включить видео высокой четкости</translation>
     </message>
 </context>
 <context>

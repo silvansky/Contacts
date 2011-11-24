@@ -9,28 +9,28 @@ BtnSynchro* AVControl::__bSyncCamera = NULL;
 BtnSynchro* AVControl::__bSyncMic = NULL;
 BtnSynchro* AVControl::__bSyncHQ = NULL;
 
-void BtnSynchro::onStateChange(bool state)
+void BtnSynchro::setCheckState(bool state)
 {
 	foreach(QAbstractButton* btn, _buttons)
-	{
-		if(btn == sender())
-			continue;
 		btn->setChecked(state);
-	}
 }
 
+void BtnSynchro::setEnabledState(bool state)
+{
+	foreach(QAbstractButton* btn, _buttons)
+		btn->setEnabled(state);
+}
 
-AVControl::AVControl(QWidget *parent)
-	: QWidget(parent), _isDark(true)
+void BtnSynchro::setToolTipState(const QString &state)
+{
+	foreach(QAbstractButton* btn, _buttons)
+		btn->setToolTip(state);
+}
+
+AVControl::AVControl(QWidget *parent) : QWidget(parent)
 {
 	ui.setupUi(this);
-
-
-	// 我仕拮人 HQ
-	ui.chkbtnHQ->setEnabled(false);
-	ui.chkbtnHQ->setVisible(false);
-
-
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 
 	if(__bSyncCamera == NULL)
 	{
@@ -59,85 +59,21 @@ AVControl::AVControl(QWidget *parent)
 		__bSyncHQ->AddRef(ui.chkbtnHQ);
 	}
 
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
-
-	IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
-
-	QIcon iconOn = iconStorage->getIcon(MNI_SIPPHONE_CAM_ON);
-	QIcon iconOff = iconStorage->getIcon(MNI_SIPPHONE_CAM_OFF);
-	QIcon iconDisabled = iconStorage->getIcon(MNI_SIPPHONE_CAM_DISABLED);
-
-	QImage imgOn = iconStorage->getImage(MNI_SIPPHONE_CAM_ON);
-	QImage imgOff = iconStorage->getImage(MNI_SIPPHONE_CAM_OFF);
-	QImage imgDisabled = iconStorage->getImage(MNI_SIPPHONE_CAM_DISABLED);
-
-		//if(!currentIcon.isNull())
-			//_pixList.append(currentIcon.pixmap(42, 24, QIcon::Normal, QIcon::On));
-
-	QIcon icon;
-	icon.addPixmap(QPixmap::fromImage(imgOn), QIcon::Normal, QIcon::On);
-	icon.addPixmap(QPixmap::fromImage(imgOff), QIcon::Normal, QIcon::Off);
-	icon.addPixmap(QPixmap::fromImage(imgDisabled), QIcon::Disabled, QIcon::On);
-	icon.addPixmap(QPixmap::fromImage(imgDisabled), QIcon::Disabled, QIcon::Off);
-	ui.chkbtnCameraOn->setIcon(icon);
-
-
-	QImage imgAOn = iconStorage->getImage(MNI_SIPPHONE_MIC_ON);
-	QImage imgAOff = iconStorage->getImage(MNI_SIPPHONE_MIC_OFF);
-	QImage imgADisabled = iconStorage->getImage(MNI_SIPPHONE_MIC_DISABLED);
-
-	QIcon iconAudio;
-	iconAudio.addPixmap(QPixmap::fromImage(imgAOn), QIcon::Normal, QIcon::On);
-	iconAudio.addPixmap(QPixmap::fromImage(imgAOff), QIcon::Normal, QIcon::Off);
-	iconAudio.addPixmap(QPixmap::fromImage(imgADisabled), QIcon::Disabled, QIcon::On);
-	iconAudio.addPixmap(QPixmap::fromImage(imgADisabled), QIcon::Disabled, QIcon::Off);
-	ui.chkbtnMicOn->setIcon(iconAudio);
-
-	//ui.chkbtnCameraOn->setEnabled(false);
-	//ui.chkbtnMicOn->setEnabled(false);
-	ui.chkbtnMicOn->setChecked(true);
-
-	//connect(ui.chkbtnCameraOn, SIGNAL(clicked(bool)), this, SIGNAL(camStateChange(bool)));
-	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), this, SIGNAL(camStateChange(bool)));
-	connect(ui.chkbtnHQ, SIGNAL(toggled(bool)), this, SIGNAL(camResolutionChange(bool)));
-
-	connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), this, SIGNAL(micStateChange(bool)));
-	//connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), this, SLOT(onMicStateChange(bool)));
-
+	// 我仕拮人 HQ
+	ui.chkbtnHQ->setEnabled(false);
+	ui.chkbtnHQ->setVisible(false);
+	connect(ui.chkbtnHQ, SIGNAL(toggled(bool)), SLOT(setResolutionHigh(bool)));
+	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), SLOT(setCameraOn(bool)));
+	connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), SLOT(setMicOn(bool)));
 	connect(ui.hslSoundVolume, SIGNAL(valueChanged(int)), this, SIGNAL(micVolumeChange(int)));
-
-	connect(ui.chkbtnCameraOn, SIGNAL(toggled(bool)), __bSyncCamera, SLOT(onStateChange(bool)));
-	connect(ui.chkbtnMicOn, SIGNAL(toggled(bool)), __bSyncMic, SLOT(onStateChange(bool)));
-	connect(ui.chkbtnHQ, SIGNAL(toggled(bool)), __bSyncHQ, SLOT(onStateChange(bool)));
-
-
 	connect(ui.btnAudioSettings, SIGNAL(clicked()), this, SLOT(onAudioSettings()));
 
 	ui.btnAudioSettings->setVisible(false);
+
+	setDark(true);
+	setMicOn(true);
+	setCameraEnabled(false);
 }
-
-void AVControl::onAudioSettings()
-{
-
-	//QSysInfo::windowsVersion();
-
-	// ONLY FOR WINDOWS
-	OSVERSIONINFO m_osinfo;
-	ZeroMemory(&m_osinfo, sizeof(m_osinfo));
-	m_osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	if (GetVersionEx((LPOSVERSIONINFO) &m_osinfo))
-	{
-		if(m_osinfo.dwMajorVersion < 6)
-		{
-			QProcess::startDetached("sndvol32.exe");
-		}
-		else
-		{
-			QProcess::startDetached("sndvol.exe");
-		}
-	}
-}
-
 
 AVControl::~AVControl()
 {
@@ -154,17 +90,92 @@ AVControl::~AVControl()
 			__bSyncHQ = NULL;
 }
 
+void AVControl::setDark(bool isDark)
+{
+	IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
+
+	QIcon camIcon;
+	camIcon.addPixmap(QPixmap::fromImage(iconStorage->getImage(isDark ? MNI_SIPPHONE_CAM_ON : MNI_SIPPHONE_WHITE_CAM_ON)), QIcon::Normal, QIcon::On);
+	camIcon.addPixmap(QPixmap::fromImage(iconStorage->getImage(isDark ? MNI_SIPPHONE_CAM_OFF : MNI_SIPPHONE_WHITE_CAM_OFF)), QIcon::Normal, QIcon::Off);
+	camIcon.addPixmap(QPixmap::fromImage(iconStorage->getImage(isDark ? MNI_SIPPHONE_CAM_DISABLED : MNI_SIPPHONE_WHITE_CAM_DISABLED)), QIcon::Disabled, QIcon::On);
+	camIcon.addPixmap(QPixmap::fromImage(iconStorage->getImage(isDark ? MNI_SIPPHONE_CAM_DISABLED : MNI_SIPPHONE_WHITE_CAM_DISABLED)), QIcon::Disabled, QIcon::Off);
+	ui.chkbtnCameraOn->setIcon(camIcon);
+
+	QIcon micIcon;
+	micIcon.addPixmap(QPixmap::fromImage(iconStorage->getImage(isDark ? MNI_SIPPHONE_MIC_ON : MNI_SIPPHONE_WHITE_MIC_ON)), QIcon::Normal, QIcon::On);
+	micIcon.addPixmap(QPixmap::fromImage(iconStorage->getImage(isDark ? MNI_SIPPHONE_MIC_OFF : MNI_SIPPHONE_WHITE_MIC_OFF)), QIcon::Normal, QIcon::Off);
+	micIcon.addPixmap(QPixmap::fromImage(iconStorage->getImage(isDark ? MNI_SIPPHONE_MIC_DISABLED : MNI_SIPPHONE_WHITE_MIC_DISABLED)), QIcon::Disabled, QIcon::On);
+	micIcon.addPixmap(QPixmap::fromImage(iconStorage->getImage(isDark ? MNI_SIPPHONE_MIC_DISABLED : MNI_SIPPHONE_WHITE_MIC_DISABLED)), QIcon::Disabled, QIcon::Off);
+	ui.chkbtnMicOn->setIcon(micIcon);
+
+	ui.hslSoundVolume->setDark(isDark);
+}
+
+void AVControl::updateMicToolTip()
+{
+	if (!ui.chkbtnMicOn->isEnabled())
+		__bSyncMic->setToolTipState(tr("Failed to find the microphone"));
+	else if (ui.chkbtnMicOn->isChecked())
+		__bSyncMic->setToolTipState(tr("Turn off microphone"));
+	else
+		__bSyncMic->setToolTipState(tr("Turn on microphone"));
+}
+
+void AVControl::updateCamToolTip()
+{
+	if (!ui.chkbtnCameraOn->isEnabled())
+		__bSyncCamera->setToolTipState(tr("Failed to find a web camera on your computer"));
+	else if (ui.chkbtnCameraOn->isChecked())
+		__bSyncCamera->setToolTipState(tr("Turn off web camera"));
+	else
+		__bSyncCamera->setToolTipState(tr("Turn on web camera"));
+}
+
+void AVControl::updateHQToolTip()
+{
+	if (!ui.chkbtnHQ->isEnabled())
+		__bSyncHQ->setToolTipState(tr("High quality video is not available"));
+	else if (ui.chkbtnHQ->isChecked())
+		__bSyncHQ->setToolTipState(tr("Turn off high quality video"));
+	else
+		__bSyncHQ->setToolTipState(tr("Turn on high quality video"));
+}
+
+void AVControl::setCameraOn(bool isOn)
+{
+	__bSyncCamera->setCheckState(isOn);
+	updateCamToolTip();
+	emit camStateChange(isOn);
+}
+
 void AVControl::setCameraEnabled(bool isEnabled)
 {
-	ui.chkbtnCameraOn->setEnabled(isEnabled);
-	ui.chkbtnHQ->setEnabled(isEnabled);
+	__bSyncCamera->setEnabledState(isEnabled);
+	updateCamToolTip();
+	__bSyncHQ->setEnabledState(isEnabled);
+	updateHQToolTip();
 	emit camPresentChanged(isEnabled);
 }
 
 
+void AVControl::setResolutionHigh(bool isHigh)
+{
+	__bSyncHQ->setCheckState(isHigh);
+	updateHQToolTip();
+	emit camResolutionChange(isHigh);
+}
+
+void AVControl::setMicOn(bool isOn)
+{
+	__bSyncMic->setCheckState(isOn);
+	updateMicToolTip();
+	emit micStateChange(isOn);
+}
+
 void AVControl::setMicEnabled( bool isEnabled )
 {
-	ui.chkbtnMicOn->setEnabled(isEnabled);
+	__bSyncMic->setEnabledState(isEnabled);
+	updateMicToolTip();
 	emit micPresentChanged(isEnabled);
 }
 
@@ -172,62 +183,6 @@ void AVControl::setVolumeEnabled( bool isEnabled )
 {
 	ui.hslSoundVolume->setEnabled(isEnabled);
 	emit volumePresentChanged(isEnabled);
-}
-
-void AVControl::SetCameraOn(bool isOn)
-{
-	ui.chkbtnCameraOn->setChecked(isOn);
-	emit camStateChange(isOn);
-}
-
-void AVControl::SetResolutionHigh(bool isHigh)
-{
-	ui.chkbtnHQ->setChecked(isHigh);
-	emit camResolutionChange(isHigh);
-}
-
-void AVControl::setDark(bool isDark)
-{
-	if(_isDark == isDark)
-		return;
-	_isDark = isDark;
-
-	IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
-
-	QImage imgOn = iconStorage->getImage(MNI_SIPPHONE_CAM_ON);
-	QImage imgOff = iconStorage->getImage(MNI_SIPPHONE_CAM_OFF);
-	QImage imgDisabled = iconStorage->getImage(MNI_SIPPHONE_CAM_DISABLED);
-
-	QImage imgAOn = iconStorage->getImage(MNI_SIPPHONE_MIC_ON);
-	QImage imgAOff = iconStorage->getImage(MNI_SIPPHONE_MIC_OFF);
-	QImage imgADisabled = iconStorage->getImage(MNI_SIPPHONE_MIC_DISABLED);
-
-	if(!_isDark)
-	{
-		imgOn = iconStorage->getImage(MNI_SIPPHONE_WHITE_CAM_ON);
-		imgOff = iconStorage->getImage(MNI_SIPPHONE_WHITE_CAM_OFF);
-		imgDisabled = iconStorage->getImage(MNI_SIPPHONE_WHITE_CAM_DISABLED);
-
-		imgAOn = iconStorage->getImage(MNI_SIPPHONE_WHITE_MIC_ON);
-		imgAOff = iconStorage->getImage(MNI_SIPPHONE_WHITE_MIC_OFF);
-		imgADisabled = iconStorage->getImage(MNI_SIPPHONE_WHITE_MIC_DISABLED);
-	}
-
-	QIcon icon;
-	icon.addPixmap(QPixmap::fromImage(imgOn), QIcon::Normal, QIcon::On);
-	icon.addPixmap(QPixmap::fromImage(imgOff), QIcon::Normal, QIcon::Off);
-	icon.addPixmap(QPixmap::fromImage(imgDisabled), QIcon::Disabled, QIcon::On);
-	icon.addPixmap(QPixmap::fromImage(imgDisabled), QIcon::Disabled, QIcon::Off);
-	ui.chkbtnCameraOn->setIcon(icon);
-
-	QIcon iconAudio;
-	iconAudio.addPixmap(QPixmap::fromImage(imgAOn), QIcon::Normal, QIcon::On);
-	iconAudio.addPixmap(QPixmap::fromImage(imgAOff), QIcon::Normal, QIcon::Off);
-	iconAudio.addPixmap(QPixmap::fromImage(imgADisabled), QIcon::Disabled, QIcon::On);
-	iconAudio.addPixmap(QPixmap::fromImage(imgADisabled), QIcon::Disabled, QIcon::Off);
-	ui.chkbtnMicOn->setIcon(iconAudio);
-
-	ui.hslSoundVolume->setDark(isDark);
 }
 
 void AVControl::paintEvent(QPaintEvent *)
@@ -238,4 +193,21 @@ void AVControl::paintEvent(QPaintEvent *)
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
-
+void AVControl::onAudioSettings()
+{
+	// ONLY FOR WINDOWS
+	OSVERSIONINFO m_osinfo;
+	ZeroMemory(&m_osinfo, sizeof(m_osinfo));
+	m_osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if (GetVersionEx((LPOSVERSIONINFO) &m_osinfo))
+	{
+		if(m_osinfo.dwMajorVersion < 6)
+		{
+			QProcess::startDetached("sndvol32.exe");
+		}
+		else
+		{
+			QProcess::startDetached("sndvol.exe");
+		}
+	}
+}
