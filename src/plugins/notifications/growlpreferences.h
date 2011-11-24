@@ -31,7 +31,7 @@ signals:
 	void showGrowlPreferences();
 
 private slots:
-	void on_lblSettings_linkActivated(const QString &link);
+    void onGrowlSettingsButtonClicked();
 
 private:
 	Ui::GrowlPreferences *ui;

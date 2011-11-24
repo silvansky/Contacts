@@ -207,7 +207,7 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS, kindsWidgetsContainer);
 #else
-		widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Growl options"),AParent));
+        widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Growl Notifications"),AParent));
 		GrowlPreferences * growlPrefs = new GrowlPreferences;
 		connect(growlPrefs, SIGNAL(showGrowlPreferences()), SLOT(onShowGrowlPreferences()));
 		widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, growlPrefs);

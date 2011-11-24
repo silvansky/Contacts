@@ -8,7 +8,7 @@ QFrame#dbbFrame
 	margin-right: 6px;
 }
 
-GrowlPreferences QLabel
+GrowlPreferences QPushButton
 {
 	margin-left: 22px;
 }

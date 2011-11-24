@@ -155,10 +155,11 @@ bool RostersViewPlugin::initSettings()
 		FOptionsManager->insertServerOption(OPV_ROSTER_SHOWSTATUSTEXT);
 		FOptionsManager->insertServerOption(OPV_ROSTER_SORTBYSTATUS);
 		FOptionsManager->insertServerOption(OPV_ROSTER_GROUPCONTACTS);
-
+#ifndef Q_WS_MAC
 		IOptionsDialogNode dnode = { ONO_ROSTER, OPN_ROSTER, tr("Contact List"),MNI_ROSTERVIEW_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
+#endif
 	}
 	return true;
 }

@@ -80,6 +80,14 @@ private slots:
     void onNewAccountAction();
     void onCloseTabAction();
     void onCloseAllTabsAction();
+    // view menu
+    void onFullViewAction(bool on);
+    void onSimpleViewAction(bool on);
+    void onCompactViewAction(bool on);
+    void onSortByStatusAction(bool on);
+    void onSortByNameAction(bool on);
+    void onShowOfflineAction(bool on);
+    void onStayOnTopAction(bool on);
     // status menu
     void onStatusAction();
     void onManageAccountsAction();
@@ -146,6 +154,7 @@ private:
     Action * fullViewAction, * simpleViewAction, * compactViewAction;
     Action * sortByStatusAction, * sortByNameAction;
     Action * showOfflineAction;
+    Action * stayOnTopAction;
     // other plugins
     IPluginManager * pluginManager;
     IAccountManager * accountManager;

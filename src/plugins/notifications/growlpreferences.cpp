@@ -6,6 +6,7 @@ GrowlPreferences::GrowlPreferences(QWidget *parent) :
 	ui(new Ui::GrowlPreferences)
 {
 	ui->setupUi(this);
+    connect(ui->configureGrowlButton, SIGNAL(clicked()), SLOT(onGrowlSettingsButtonClicked()));
 }
 
 GrowlPreferences::~GrowlPreferences()
@@ -13,10 +14,7 @@ GrowlPreferences::~GrowlPreferences()
 	delete ui;
 }
 
-void GrowlPreferences::on_lblSettings_linkActivated(const QString &link)
+void GrowlPreferences::onGrowlSettingsButtonClicked()
 {
-	//if (link == "growl.preferences")
-	//{
-		emit showGrowlPreferences();
-	//}
+    emit showGrowlPreferences();
 }

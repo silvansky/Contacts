@@ -203,7 +203,24 @@ bool MacIntegrationPlugin::initObjects()
 
 bool MacIntegrationPlugin::initSettings()
 {
-    //autoStatusAction->setChecked(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).value().toBool());
+//    autoStatusAction->setChecked(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).value().toBool());
+//    showOfflineAction->setChecked(Options::node(OPV_ROSTER_SHOWOFFLINE).value().toBool());
+//    sortByStatusAction->setChecked(Options::node(OPV_ROSTER_SORTBYSTATUS).value().toBool());
+//    sortByNameAction->setChecked(Options::node(OPV_ROSTER_SORTBYNAME).value().toBool());
+//    bool showAvatars = Options::node(OPV_AVATARS_SHOW).value().toBool();
+//    bool showStatus = Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool();
+//    if (showAvatars && showStatus)
+//    {
+//        fullViewAction->setChecked(true);
+//    }
+//    else if (showAvatars)
+//    {
+//        simpleViewAction->setChecked(true);
+//    }
+//    else
+//    {
+//        compactViewAction->setChecked(true);
+//    }
     return true;
 }
 
@@ -375,6 +392,55 @@ void MacIntegrationPlugin::initMenus()
     _viewMenu = new Menu;
     _viewMenu->setTitle(tr("View"));
     _menuBar->addMenu(_viewMenu);
+
+    fullViewAction = new Action;
+    fullViewAction->setText(tr("Full"));
+    fullViewAction->setCheckable(true);
+    fullViewAction->setEnabled(false);
+    connect(fullViewAction, SIGNAL(triggered(bool)), SLOT(onFullViewAction(bool)));
+    _viewMenu->addAction(fullViewAction);
+
+    simpleViewAction = new Action;
+    simpleViewAction->setText(tr("Simplifyed"));
+    simpleViewAction->setCheckable(true);
+    simpleViewAction->setEnabled(false);
+    connect(simpleViewAction, SIGNAL(triggered(bool)), SLOT(onSimpleViewAction(bool)));
+    _viewMenu->addAction(simpleViewAction);
+
+    compactViewAction = new Action;
+    compactViewAction->setText(tr("Compact"));
+    compactViewAction->setCheckable(true);
+    compactViewAction->setEnabled(false);
+    connect(compactViewAction, SIGNAL(triggered(bool)), SLOT(onCompactViewAction(bool)));
+    _viewMenu->addAction(compactViewAction);
+
+    sortByNameAction = new Action;
+    sortByNameAction->setText(tr("Sort By Name"));
+    sortByNameAction->setCheckable(true);
+    sortByNameAction->setEnabled(false);
+    connect(sortByNameAction, SIGNAL(triggered(bool)), SLOT(onSortByNameAction(bool)));
+    _viewMenu->addAction(sortByNameAction, 600);
+
+    sortByStatusAction = new Action;
+    sortByStatusAction->setText(tr("Sort By Status"));
+    sortByStatusAction->setCheckable(true);
+    sortByStatusAction->setEnabled(false);
+    connect(sortByStatusAction, SIGNAL(triggered(bool)), SLOT(onSortByStatusAction(bool)));
+    _viewMenu->addAction(sortByStatusAction, 600);
+
+    showOfflineAction = new Action;
+    showOfflineAction->setText(tr("Show Offline"));
+    showOfflineAction->setCheckable(true);
+    showOfflineAction->setEnabled(false);
+    connect(showOfflineAction, SIGNAL(triggered(bool)), SLOT(onShowOfflineAction(bool)));
+    _viewMenu->addAction(showOfflineAction, 700);
+
+    stayOnTopAction = new Action;
+    stayOnTopAction->setText(tr("Stay On Top"));
+    stayOnTopAction->setCheckable(true);
+    stayOnTopAction->setEnabled(false);
+    connect(stayOnTopAction, SIGNAL(triggered(bool)), SLOT(onStayOnTopAction(bool)));
+    _viewMenu->addAction(stayOnTopAction, 800);
 
     // Status
     _statusMenu = new Menu;
@@ -551,6 +617,50 @@ void MacIntegrationPlugin::onOptionsChanged(const OptionsNode &ANode)
     {
         autoStatusAction->setChecked(ANode.value().toBool());
     }
+    else if (ANode.path() == OPV_ROSTER_SHOWOFFLINE)
+    {
+        showOfflineAction->setChecked(ANode.value().toBool());
+    }
+    else if (ANode.path() == OPV_ROSTER_SORTBYNAME)
+    {
+        sortByNameAction->setChecked(ANode.value().toBool());
+        sortByStatusAction->setChecked(!ANode.value().toBool());
+    }
+    else if (ANode.path() == OPV_ROSTER_SORTBYSTATUS)
+    {
+        sortByNameAction->setChecked(!ANode.value().toBool());
+        sortByStatusAction->setChecked(ANode.value().toBool());
+    }
+    else if ((ANode.path() == OPV_AVATARS_SHOW) || (ANode.path() == OPV_ROSTER_SHOWSTATUSTEXT))
+    {
+        bool showAvatars = Options::node(OPV_AVATARS_SHOW).value().toBool();
+        bool showStatus = Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool();
+        if (showAvatars && showStatus)
+        {
+            // full view
+            fullViewAction->setChecked(true);
+            simpleViewAction->setChecked(false);
+            compactViewAction->setChecked(false);
+        }
+        else if (showAvatars)
+        {
+            // simplifyed view
+            fullViewAction->setChecked(false);
+            simpleViewAction->setChecked(true);
+            compactViewAction->setChecked(false);
+        }
+        else
+        {
+            // compact view
+            fullViewAction->setChecked(false);
+            simpleViewAction->setChecked(false);
+            compactViewAction->setChecked(true);
+        }
+    }
+    else if (ANode.path() == OPV_MAINWINDOW_STAYONTOP)
+    {
+        stayOnTopAction->setChecked(ANode.value().toBool());
+    }
 }
 
 void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
@@ -635,6 +745,22 @@ void MacIntegrationPlugin::onProfileOpened(const QString & name)
     newContactAction->setEnabled(true);
     //newGroupAction->setEnabled(true);
     newAccountAction->setEnabled(true);
+
+    fullViewAction->setEnabled(true);
+    simpleViewAction->setEnabled(true);
+    compactViewAction->setEnabled(true);
+    sortByStatusAction->setEnabled(true);
+    sortByNameAction->setEnabled(true);
+    showOfflineAction->setEnabled(true);
+    stayOnTopAction->setEnabled(true);
+
+    onOptionsChanged(Options::node(OPV_ROSTER_SORTBYSTATUS));
+    onOptionsChanged(Options::node(OPV_ROSTER_SORTBYNAME));
+    onOptionsChanged(Options::node(OPV_ROSTER_SHOWOFFLINE));
+    onOptionsChanged(Options::node(OPV_ROSTER_SHOWSTATUSTEXT));
+    onOptionsChanged(Options::node(OPV_AVATARS_SHOW));
+    onOptionsChanged(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK));
+    onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 }
 
 void MacIntegrationPlugin::onProfileClosed(const QString & name)
@@ -647,6 +773,14 @@ void MacIntegrationPlugin::onProfileClosed(const QString & name)
     newContactAction->setEnabled(false);
     //newGroupAction->setEnabled(false);
     newAccountAction->setEnabled(false);
+
+    fullViewAction->setEnabled(false);
+    simpleViewAction->setEnabled(false);
+    compactViewAction->setEnabled(false);
+    sortByStatusAction->setEnabled(false);
+    sortByNameAction->setEnabled(false);
+    showOfflineAction->setEnabled(false);
+    stayOnTopAction->setEnabled(false);
 }
 
 void MacIntegrationPlugin::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
@@ -804,6 +938,54 @@ void MacIntegrationPlugin::onCloseAllTabsAction()
     ITabWindow * tw = findTabWindow(qApp->activeWindow());
     if (tw)
         tw->closeAllTabs();
+}
+
+void MacIntegrationPlugin::onFullViewAction(bool on)
+{
+    Q_UNUSED(on)
+    fullViewAction->setChecked(false);
+    Options::node(OPV_AVATARS_SHOW).setValue(true);
+    Options::node(OPV_ROSTER_SHOWSTATUSTEXT).setValue(true);
+}
+
+void MacIntegrationPlugin::onSimpleViewAction(bool on)
+{
+    Q_UNUSED(on)
+    simpleViewAction->setChecked(false);
+    Options::node(OPV_AVATARS_SHOW).setValue(true);
+    Options::node(OPV_ROSTER_SHOWSTATUSTEXT).setValue(false);
+}
+
+void MacIntegrationPlugin::onCompactViewAction(bool on)
+{
+    Q_UNUSED(on)
+    compactViewAction->setChecked(false);
+    Options::node(OPV_AVATARS_SHOW).setValue(false);
+    Options::node(OPV_ROSTER_SHOWSTATUSTEXT).setValue(false);
+}
+
+void MacIntegrationPlugin::onSortByStatusAction(bool on)
+{
+    Q_UNUSED(on)
+    Options::node(OPV_ROSTER_SORTBYSTATUS).setValue(true);
+    Options::node(OPV_ROSTER_SORTBYNAME).setValue(false);
+}
+
+void MacIntegrationPlugin::onSortByNameAction(bool on)
+{
+    Q_UNUSED(on)
+    Options::node(OPV_ROSTER_SORTBYNAME).setValue(true);
+    Options::node(OPV_ROSTER_SORTBYSTATUS).setValue(false);
+}
+
+void MacIntegrationPlugin::onShowOfflineAction(bool on)
+{
+    Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(on);
+}
+
+void MacIntegrationPlugin::onStayOnTopAction(bool on)
+{
+    Options::node(OPV_MAINWINDOW_STAYONTOP).setValue(on);
 }
 
 void MacIntegrationPlugin::onStatusAction()

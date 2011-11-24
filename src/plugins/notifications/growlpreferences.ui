@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>294</width>
-    <height>40</height>
+    <width>201</width>
+    <height>32</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,16 +21,15 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLabel" name="lblGrowlInfo">
-     <property name="text">
-      <string>Rambler.Contacts uses Growl for notifications.</string>
+    <widget class="QPushButton" name="configureGrowlButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="lblSettings">
      <property name="text">
-      <string>&lt;a href='growl.preferences'&gt;Show Growl preferences.&lt;/a&gt;</string>
+      <string>Configure Notifications...</string>
      </property>
     </widget>
    </item>
