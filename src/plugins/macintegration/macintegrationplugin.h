@@ -143,6 +143,9 @@ private:
     Action * rulesAction;
     Action * funAction;
     QMap<QString, QString> funLinks;
+    Action * fullViewAction, * simpleViewAction, * compactViewAction;
+    Action * sortByStatusAction, * sortByNameAction;
+    Action * showOfflineAction;
     // other plugins
     IPluginManager * pluginManager;
     IAccountManager * accountManager;
