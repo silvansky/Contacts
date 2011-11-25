@@ -107,6 +107,7 @@ private slots:
 	void onFacebookAction();
 	void onRulesAction();
 	void onFunAction();
+	void onHelpMenuAboutToShow();
 	// edit menu
 	void onCopyAction();
 	void onPasteAction();
@@ -155,6 +156,8 @@ private:
 	Action * sortByStatusAction, * sortByNameAction;
 	Action * showOfflineAction;
 	Action * stayOnTopAction;
+	// fun
+	QString currentFunLink;
 	// other plugins
 	IPluginManager * pluginManager;
 	IAccountManager * accountManager;

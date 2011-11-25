@@ -537,6 +537,20 @@ void MacIntegrationPlugin::initMenus()
 	_helpMenu->addAction(rulesAction, 600);
 
 	// TODO: init fun actions and select one
+	connect(_helpMenu, SIGNAL(aboutToShow()), SLOT(onHelpMenuAboutToShow()));
+
+	funAction = new Action;
+	connect(funAction, SIGNAL(triggered()), SLOT(onFunAction()));
+	_helpMenu->addAction(funAction, 900);
+
+	funLinks.insert("http://eda.ru/", tr("What to cook for dinner?"));
+	funLinks.insert("http://avia.rambler.ru/anytime?f=MOW&t=TR&min_days=7&max_days=14&one_way=&week_days=&stops=&airlines=", tr("When is it cheaper to fly to Turkey?"));
+	funLinks.insert("http://www.afisha.ru/#eventsbyfriends", tr("Where my friends are going to?"));
+	funLinks.insert("http://weather.rambler.ru", tr("What will the weather be tomorrow?"));
+	funLinks.insert("http://finance.rambler.ru/currency/world/", tr("How much is one buck?"));
+	funLinks.insert("http://audio.rambler.ru/radios/echo", tr("What do they talk about at Echo of Moscow?"));
+	funLinks.insert("http://maps.rambler.ru/?ZinGs2o", tr("Where Lahdenpohja is?"));
+	funLinks.insert("http://nova.rambler.ru/search?query=%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0+%D0%B4%D0%BB%D1%8F+%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%D0%B0", tr("Medical paper for swimming pool"));
 }
 
 void MacIntegrationPlugin::updateActions()
@@ -1135,7 +1149,22 @@ void MacIntegrationPlugin::onRulesAction()
 
 void MacIntegrationPlugin::onFunAction()
 {
-	// TODO: some fun!
+	QDesktopServices::openUrl(QUrl(currentFunLink));
+}
+
+void MacIntegrationPlugin::onHelpMenuAboutToShow()
+{
+	if (funLinks.keys().count())
+	{
+		int index = qrand() % funLinks.keys().count();
+		currentFunLink = funLinks.keys().at(index);
+		QString funText = funLinks.value(currentFunLink);
+		funAction->setText(funText);
+		if (!funAction->isEnabled())
+			funAction->setEnabled(true);
+	}
+	else
+		funAction->setEnabled(false);
 }
 
 // copy/cut/paste/undo/redo/selectall are handled by widgets, these slots do nothing for now
