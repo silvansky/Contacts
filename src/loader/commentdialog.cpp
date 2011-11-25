@@ -121,27 +121,34 @@ static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
 #ifdef Q_WS_MAC
 static QString resolveMacVersion(QSysInfo::MacVersion ver)
 {
-	QString mac("Mac OS X %1");
+	QString mac("Mac OS X %1.%2.%3 (%4)");
 	QString version;
-	switch(ver)
+	SInt32 majVer = 0, minVer = 0, fixVer = 0;
+	Gestalt(gestaltSystemVersionMajor, &majVer);
+	Gestalt(gestaltSystemVersionMinor, &minVer);
+	Gestalt(gestaltSystemVersionBugFix, &fixVer);
+	switch(minVer)
 	{
-	case QSysInfo::MV_10_3:
-		version = "10.3 (Panther)";
+	case 3:
+		version = "Panther";
 		break;
-	case QSysInfo::MV_10_4:
-		version = "10.4 (Tiger)";
+	case 4:
+		version = "Tiger";
 		break;
-	case QSysInfo::MV_10_5:
-		version = "10.5 (Leopard)";
+	case 5:
+		version = "Leopard";
 		break;
-	case QSysInfo::MV_10_6:
-		version = "10.6 (Snow Leopard)";
+	case 6:
+		version = "Snow Leopard";
+		break;
+	case 7:
+		version = "Lion";
 		break;
 	default:
-		version = "Unknown (Lion?)";
+		version = "Unknown";
 		break;
 	}
-	return mac.arg(version);
+	return mac.arg(majVer).arg(minVer).arg(fixVer).arg(version);
 }
 #endif
 

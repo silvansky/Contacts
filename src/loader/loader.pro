@@ -70,3 +70,7 @@ macx {
   name_tool.extra  = install_name_tool -change $$UTILS_LIB_LINK @executable_path/../Frameworks/$$UTILS_LIB_LINK $(INSTALL_ROOT)$$INSTALL_BINS/$$INSTALL_APP_DIR/Contents/MacOS/$$TARGET_LOADER
   INSTALLS        += name_tool
 }
+
+macx {
+    QMAKE_LFLAGS    += -framework Carbon
+}
