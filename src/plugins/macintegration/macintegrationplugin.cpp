@@ -26,579 +26,579 @@ extern void qt_mac_set_dock_menu(QMenu *); // Qt internal function
 
 static ITabWindow * findTabWindow(QObject * parent)
 {
-    ITabWindow * tw = qobject_cast<ITabWindow*>(parent);
-    if (parent && !tw)
-    {
-        foreach (QObject * child, parent->children())
-        {
-            if ((tw = qobject_cast<ITabWindow*>(child)))
-            {
-                break;
-            }
-            else
-            {
-                tw = findTabWindow(child);
-                if (tw)
-                    break;
-            }
-        }
-    }
-    return tw;
+	ITabWindow * tw = qobject_cast<ITabWindow*>(parent);
+	if (parent && !tw)
+	{
+		foreach (QObject * child, parent->children())
+		{
+			if ((tw = qobject_cast<ITabWindow*>(child)))
+			{
+				break;
+			}
+			else
+			{
+				tw = findTabWindow(child);
+				if (tw)
+					break;
+			}
+		}
+	}
+	return tw;
 }
 
 static IMainWindow * findMainWindow(QObject * parent)
 {
-    IMainWindow * mw = qobject_cast<IMainWindow*>(parent);
-    if (parent && !mw)
-    {
-        foreach (QObject * child, parent->children())
-        {
-            if ((mw = qobject_cast<IMainWindow*>(child)))
-            {
-                break;
-            }
-            else
-            {
-                mw = findMainWindow(child);
-                if (mw)
-                    break;
-            }
-        }
-    }
-    return mw;
+	IMainWindow * mw = qobject_cast<IMainWindow*>(parent);
+	if (parent && !mw)
+	{
+		foreach (QObject * child, parent->children())
+		{
+			if ((mw = qobject_cast<IMainWindow*>(child)))
+			{
+				break;
+			}
+			else
+			{
+				mw = findMainWindow(child);
+				if (mw)
+					break;
+			}
+		}
+	}
+	return mw;
 }
 
 
 MacIntegrationPlugin::MacIntegrationPlugin()
 {
-    _dockMenu = _fileMenu = _editMenu = _viewMenu = _statusMenu = _windowMenu = _helpMenu = NULL;
-    _menuBar = NULL;
-    lastFocusedWidget = NULL;
-    // dummi translations
-    tr("New Message");
-    tr("New E-Mail");
-    tr("Mood Changed");
-    tr("Status Changed");
-    tr("Birthday Reminder");
-    tr("Error");
-    tr("Subscription Message");
-    // custom window frame
-    // TODO: read these colors from style
-    MacIntegrationPrivate::installCustomFrame();
-    setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
-    setCustomTitleColor(QColor(240, 240, 240, 255));
+	_dockMenu = _fileMenu = _editMenu = _viewMenu = _statusMenu = _windowMenu = _helpMenu = NULL;
+	_menuBar = NULL;
+	lastFocusedWidget = NULL;
+	// dummi translations
+	tr("New Message");
+	tr("New E-Mail");
+	tr("Mood Changed");
+	tr("Status Changed");
+	tr("Birthday Reminder");
+	tr("Error");
+	tr("Subscription Message");
+	// custom window frame
+	// TODO: read these colors from style
+	MacIntegrationPrivate::installCustomFrame();
+	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
+	setCustomTitleColor(QColor(240, 240, 240, 255));
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()
 {
-    delete _dockMenu;
-    delete _menuBar;
+	delete _dockMenu;
+	delete _menuBar;
 }
 
 void MacIntegrationPlugin::pluginInfo(IPluginInfo *APluginInfo)
 {
-    APluginInfo->name = tr("Mac OS X Integration");
-    APluginInfo->description = tr("Allow integration in Mac OS X Dock and Menu Bar");
-    APluginInfo->version = "1.0";
-    APluginInfo->author = "Valentine Gorshkov aka Silvansky";
-    APluginInfo->homePage = "http://contacts.rambler.ru";
+	APluginInfo->name = tr("Mac OS X Integration");
+	APluginInfo->description = tr("Allow integration in Mac OS X Dock and Menu Bar");
+	APluginInfo->version = "1.0";
+	APluginInfo->author = "Valentine Gorshkov aka Silvansky";
+	APluginInfo->homePage = "http://contacts.rambler.ru";
 }
 
 bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
-    Q_UNUSED(AInitOrder)
+	Q_UNUSED(AInitOrder)
 
-    pluginManager = APluginManager;
+	pluginManager = APluginManager;
 
-    if (APluginManager)
-    {
-        connect(APluginManager->instance(),SIGNAL(aboutToQuit()),SLOT(onAboutToQuit()));
+	if (APluginManager)
+	{
+		connect(APluginManager->instance(),SIGNAL(aboutToQuit()),SLOT(onAboutToQuit()));
 
-        IPlugin *plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);
-        if (plugin)
-        {
-            accountManager = qobject_cast<IAccountManager *>(plugin->instance());
-        }
+		IPlugin *plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);
+		if (plugin)
+		{
+			accountManager = qobject_cast<IAccountManager *>(plugin->instance());
+		}
 
-        plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
-        if (plugin)
-        {
-            rosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
-        }
+		plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
+		if (plugin)
+		{
+			rosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+		}
 
-        plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
-        if (plugin)
-        {
-            optionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-            if (optionsManager)
-            {
-                connect(optionsManager->instance(), SIGNAL(profileOpened(const QString &)), SLOT(onProfileOpened(const QString &)));
-                connect(optionsManager->instance(), SIGNAL(profileClosed(const QString &)), SLOT(onProfileClosed(const QString &)));
-            }
-        }
+		plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
+		if (plugin)
+		{
+			optionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+			if (optionsManager)
+			{
+				connect(optionsManager->instance(), SIGNAL(profileOpened(const QString &)), SLOT(onProfileOpened(const QString &)));
+				connect(optionsManager->instance(), SIGNAL(profileClosed(const QString &)), SLOT(onProfileClosed(const QString &)));
+			}
+		}
 
-        plugin = APluginManager->pluginInterface("IRosterSearch").value(0,NULL);
-        if (plugin)
-        {
-            rosterSearch = qobject_cast<IRosterSearch *>(plugin->instance());
-        }
+		plugin = APluginManager->pluginInterface("IRosterSearch").value(0,NULL);
+		if (plugin)
+		{
+			rosterSearch = qobject_cast<IRosterSearch *>(plugin->instance());
+		}
 
-        plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
-        if (plugin)
-        {
-            mainWindow = qobject_cast<IMainWindowPlugin *>(plugin->instance());
-        }
+		plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+		if (plugin)
+		{
+			mainWindow = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+		}
 
-        plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
-        if (plugin)
-        {
-            metaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
-            if (metaContacts)
-            {
-                connect(metaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow *)), SLOT(onMetaTabWindowCreated(IMetaTabWindow *)));
-            }
-        }
+		plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
+		if (plugin)
+		{
+			metaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
+			if (metaContacts)
+			{
+				connect(metaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow *)), SLOT(onMetaTabWindowCreated(IMetaTabWindow *)));
+			}
+		}
 
-        plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
-        if (plugin)
-        {
-            statusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
-            if (statusChanger)
-            {
-                connect(statusChanger->instance(), SIGNAL(statusChanged(const Jid&, int)), SLOT(onStatusChanged(const Jid&,int)));
-                connect(statusChanger->instance(), SIGNAL(statusItemAdded(int)), SLOT(onStatusItemAdded(int)));
-                connect(statusChanger->instance(), SIGNAL(statusItemChanged(int)), SLOT(onStatusItemChanged(int)));
-                connect(statusChanger->instance(), SIGNAL(statusItemRemoved(int)), SLOT(onStatusItemRemoved(int)));
-            }
-        }
+		plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
+		if (plugin)
+		{
+			statusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
+			if (statusChanger)
+			{
+				connect(statusChanger->instance(), SIGNAL(statusChanged(const Jid&, int)), SLOT(onStatusChanged(const Jid&,int)));
+				connect(statusChanger->instance(), SIGNAL(statusItemAdded(int)), SLOT(onStatusItemAdded(int)));
+				connect(statusChanger->instance(), SIGNAL(statusItemChanged(int)), SLOT(onStatusItemChanged(int)));
+				connect(statusChanger->instance(), SIGNAL(statusItemRemoved(int)), SLOT(onStatusItemRemoved(int)));
+			}
+		}
 
-        plugin = APluginManager->pluginInterface("IEmoticons").value(0,NULL);
-        if (plugin)
-        {
-            emoticons = qobject_cast<IEmoticons *>(plugin->instance());
-        }
-    }
+		plugin = APluginManager->pluginInterface("IEmoticons").value(0,NULL);
+		if (plugin)
+		{
+			emoticons = qobject_cast<IEmoticons *>(plugin->instance());
+		}
+	}
 
-    connect(Options::instance(), SIGNAL(optionsChanged(const OptionsNode&)), SLOT(onOptionsChanged(const OptionsNode&)));
-    return true;
+	connect(Options::instance(), SIGNAL(optionsChanged(const OptionsNode&)), SLOT(onOptionsChanged(const OptionsNode&)));
+	return true;
 }
 
 bool MacIntegrationPlugin::initObjects()
 {
-    // menus
-    initMenus();
+	// menus
+	initMenus();
 
-    // dock
-    _dockMenu = new Menu();
+	// dock
+	_dockMenu = new Menu();
 
-    qt_mac_set_dock_menu(_dockMenu); // setting dock menu
+	qt_mac_set_dock_menu(_dockMenu); // setting dock menu
 
-    connect(MacIntegrationPrivate::instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
-    connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(growlNotifyClicked(int)));
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
-    //postGrowlNotify(QApplication::style()->standardPixmap(QStyle::SP_MessageBoxCritical).toImage(), "Done!", "Growl notifications work ok.", "Error", 1);
+	connect(MacIntegrationPrivate::instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
+	connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(growlNotifyClicked(int)));
+	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
+	//postGrowlNotify(QApplication::style()->standardPixmap(QStyle::SP_MessageBoxCritical).toImage(), "Done!", "Growl notifications work ok.", "Error", 1);
 
-    return true;
+	return true;
 }
 
 bool MacIntegrationPlugin::initSettings()
 {
-//    autoStatusAction->setChecked(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).value().toBool());
-//    showOfflineAction->setChecked(Options::node(OPV_ROSTER_SHOWOFFLINE).value().toBool());
-//    sortByStatusAction->setChecked(Options::node(OPV_ROSTER_SORTBYSTATUS).value().toBool());
-//    sortByNameAction->setChecked(Options::node(OPV_ROSTER_SORTBYNAME).value().toBool());
-//    bool showAvatars = Options::node(OPV_AVATARS_SHOW).value().toBool();
-//    bool showStatus = Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool();
-//    if (showAvatars && showStatus)
-//    {
-//        fullViewAction->setChecked(true);
-//    }
-//    else if (showAvatars)
-//    {
-//        simpleViewAction->setChecked(true);
-//    }
-//    else
-//    {
-//        compactViewAction->setChecked(true);
-//    }
-    return true;
+	//    autoStatusAction->setChecked(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).value().toBool());
+	//    showOfflineAction->setChecked(Options::node(OPV_ROSTER_SHOWOFFLINE).value().toBool());
+	//    sortByStatusAction->setChecked(Options::node(OPV_ROSTER_SORTBYSTATUS).value().toBool());
+	//    sortByNameAction->setChecked(Options::node(OPV_ROSTER_SORTBYNAME).value().toBool());
+	//    bool showAvatars = Options::node(OPV_AVATARS_SHOW).value().toBool();
+	//    bool showStatus = Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool();
+	//    if (showAvatars && showStatus)
+	//    {
+	//        fullViewAction->setChecked(true);
+	//    }
+	//    else if (showAvatars)
+	//    {
+	//        simpleViewAction->setChecked(true);
+	//    }
+	//    else
+	//    {
+	//        compactViewAction->setChecked(true);
+	//    }
+	return true;
 }
 
 Menu * MacIntegrationPlugin::dockMenu()
 {
-    return _dockMenu;
+	return _dockMenu;
 }
 
 QMenuBar * MacIntegrationPlugin::menuBar()
 {
-    return _menuBar;
+	return _menuBar;
 }
 
 Menu * MacIntegrationPlugin::fileMenu()
 {
-    return _fileMenu;
+	return _fileMenu;
 }
 
 Menu * MacIntegrationPlugin::editMenu()
 {
-    return _editMenu;
+	return _editMenu;
 }
 
 Menu * MacIntegrationPlugin::viewMenu()
 {
-    return _viewMenu;
+	return _viewMenu;
 }
 
 Menu * MacIntegrationPlugin::statusMenu()
 {
-    return _statusMenu;
+	return _statusMenu;
 }
 
 Menu * MacIntegrationPlugin::windowMenu()
 {
-    return _windowMenu;
+	return _windowMenu;
 }
 
 Menu * MacIntegrationPlugin::helpMenu()
 {
-    return _helpMenu;
+	return _helpMenu;
 }
 
 void MacIntegrationPlugin::setDockBadge(const QString & badgeText)
 {
-    MacIntegrationPrivate::setDockBadge(badgeText);
+	MacIntegrationPrivate::setDockBadge(badgeText);
 }
 
 void MacIntegrationPlugin::postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)
 {
-    MacIntegrationPrivate::postGrowlNotify(icon, title, text, type, id);
+	MacIntegrationPrivate::postGrowlNotify(icon, title, text, type, id);
 }
 
 void MacIntegrationPlugin::showGrowlPreferencePane()
 {
-    MacIntegrationPrivate::showGrowlPrefPane();
+	MacIntegrationPrivate::showGrowlPrefPane();
 }
 
 void MacIntegrationPlugin::setCustomBorderColor(const QColor & color)
 {
-    MacIntegrationPrivate::setCustomBorderColor(color);
+	MacIntegrationPrivate::setCustomBorderColor(color);
 }
 
 void MacIntegrationPlugin::setCustomTitleColor(const QColor & color)
 {
-    MacIntegrationPrivate::setCustomTitleColor(color);
+	MacIntegrationPrivate::setCustomTitleColor(color);
 }
 
 void MacIntegrationPlugin::setWindowMovableByBackground(QWidget * window, bool movable)
 {
-    MacIntegrationPrivate::setWindowMovableByBackground(window, movable);
+	MacIntegrationPrivate::setWindowMovableByBackground(window, movable);
 }
 
 void MacIntegrationPlugin::initMenus()
 {
-    _menuBar = new QMenuBar(NULL); // this must be the first parentless QMenuBar
+	_menuBar = new QMenuBar(NULL); // this must be the first parentless QMenuBar
 
-    // File
-    _fileMenu = new Menu();
-    _fileMenu->setTitle(tr("File"));
-    _menuBar->addMenu(_fileMenu);
+	// File
+	_fileMenu = new Menu();
+	_fileMenu->setTitle(tr("File"));
+	_menuBar->addMenu(_fileMenu);
 
-    newContactAction = new Action;
-    newContactAction->setText(tr("New Contact..."));
-    newContactAction->setShortcut(QKeySequence("Ctrl+N"));
-    newContactAction->setEnabled(false);
-    connect(newContactAction, SIGNAL(triggered()), SLOT(onNewContactAction()));
-    _fileMenu->addAction(newContactAction);
+	newContactAction = new Action;
+	newContactAction->setText(tr("New Contact..."));
+	newContactAction->setShortcut(QKeySequence("Ctrl+N"));
+	newContactAction->setEnabled(false);
+	connect(newContactAction, SIGNAL(triggered()), SLOT(onNewContactAction()));
+	_fileMenu->addAction(newContactAction);
 
-    newGroupAction = new Action;
-    newGroupAction->setText(tr("New Gorup..."));
-    newGroupAction->setEnabled(false);
-    connect(newGroupAction, SIGNAL(triggered()), SLOT(onNewGroupAction()));
-    _fileMenu->addAction(newGroupAction);
+	newGroupAction = new Action;
+	newGroupAction->setText(tr("New Gorup..."));
+	newGroupAction->setEnabled(false);
+	connect(newGroupAction, SIGNAL(triggered()), SLOT(onNewGroupAction()));
+	_fileMenu->addAction(newGroupAction);
 
-    newAccountAction = new Action;
-    newAccountAction->setText(tr("New Account..."));
-    newAccountAction->setEnabled(false);
-    connect(newAccountAction, SIGNAL(triggered()), SLOT(onNewAccountAction()));
-    _fileMenu->addAction(newAccountAction);
+	newAccountAction = new Action;
+	newAccountAction->setText(tr("New Account..."));
+	newAccountAction->setEnabled(false);
+	connect(newAccountAction, SIGNAL(triggered()), SLOT(onNewAccountAction()));
+	_fileMenu->addAction(newAccountAction);
 
-    closeTabAction = new Action;
-    closeTabAction->setText(tr("Close Tab"));
-    closeTabAction->setShortcut(QKeySequence("Ctrl+W"));
-    closeTabAction->setEnabled(false);
-    connect(closeTabAction, SIGNAL(triggered()), SLOT(onCloseTabAction()));
-    _fileMenu->addAction(closeTabAction, 501);
+	closeTabAction = new Action;
+	closeTabAction->setText(tr("Close Tab"));
+	closeTabAction->setShortcut(QKeySequence("Ctrl+W"));
+	closeTabAction->setEnabled(false);
+	connect(closeTabAction, SIGNAL(triggered()), SLOT(onCloseTabAction()));
+	_fileMenu->addAction(closeTabAction, 501);
 
-    closeAllTabsAction = new Action;
-    closeAllTabsAction->setText(tr("Close All Tabs"));
-    closeAllTabsAction->setShortcut(QKeySequence("Shift+Ctrl+W"));
-    closeAllTabsAction->setEnabled(false);
-    connect(closeAllTabsAction, SIGNAL(triggered()), SLOT(onCloseAllTabsAction()));
-    _fileMenu->addAction(closeAllTabsAction, 501);
+	closeAllTabsAction = new Action;
+	closeAllTabsAction->setText(tr("Close All Tabs"));
+	closeAllTabsAction->setShortcut(QKeySequence("Shift+Ctrl+W"));
+	closeAllTabsAction->setEnabled(false);
+	connect(closeAllTabsAction, SIGNAL(triggered()), SLOT(onCloseAllTabsAction()));
+	_fileMenu->addAction(closeAllTabsAction, 501);
 
-    // Edit
-    _editMenu = new Menu;
-    _editMenu->setTitle(tr("Edit"));
-    _menuBar->addMenu(_editMenu);
+	// Edit
+	_editMenu = new Menu;
+	_editMenu->setTitle(tr("Edit"));
+	_menuBar->addMenu(_editMenu);
 
-    copyAction = new Action;
-    copyAction->setText(tr("Copy"));
-    copyAction->setShortcut(QKeySequence("Ctrl+C"));
-    connect(copyAction, SIGNAL(triggered()), SLOT(onCopyAction()));
-    _editMenu->addAction(copyAction);
+	copyAction = new Action;
+	copyAction->setText(tr("Copy"));
+	copyAction->setShortcut(QKeySequence("Ctrl+C"));
+	connect(copyAction, SIGNAL(triggered()), SLOT(onCopyAction()));
+	_editMenu->addAction(copyAction);
 
-    cutAction = new Action;
-    cutAction->setText(tr("Cut"));
-    cutAction->setShortcut(QKeySequence("Ctrl+X"));
-    connect(cutAction, SIGNAL(triggered()), SLOT(onCutAction()));
-    _editMenu->addAction(cutAction);
+	cutAction = new Action;
+	cutAction->setText(tr("Cut"));
+	cutAction->setShortcut(QKeySequence("Ctrl+X"));
+	connect(cutAction, SIGNAL(triggered()), SLOT(onCutAction()));
+	_editMenu->addAction(cutAction);
 
-    pasteAction = new Action;
-    pasteAction->setText(tr("Paste"));
-    pasteAction->setShortcut(QKeySequence("Ctrl+V"));
-    connect(pasteAction, SIGNAL(triggered()), SLOT(onPasteAction()));
-    _editMenu->addAction(pasteAction);
+	pasteAction = new Action;
+	pasteAction->setText(tr("Paste"));
+	pasteAction->setShortcut(QKeySequence("Ctrl+V"));
+	connect(pasteAction, SIGNAL(triggered()), SLOT(onPasteAction()));
+	_editMenu->addAction(pasteAction);
 
-    undoAction = new Action;
-    undoAction->setText(tr("Undo"));
-    undoAction->setShortcut(QKeySequence("Ctrl+Z"));
-    connect(undoAction, SIGNAL(triggered()), SLOT(onUndoAction()));
-    _editMenu->addAction(undoAction, 400);
+	undoAction = new Action;
+	undoAction->setText(tr("Undo"));
+	undoAction->setShortcut(QKeySequence("Ctrl+Z"));
+	connect(undoAction, SIGNAL(triggered()), SLOT(onUndoAction()));
+	_editMenu->addAction(undoAction, 400);
 
-    redoAction = new Action;
-    redoAction->setText(tr("Redo"));
-    redoAction->setShortcut(QKeySequence("Shift+Ctrl+Z"));
-    connect(redoAction, SIGNAL(triggered()), SLOT(onRedoAction()));
-    _editMenu->addAction(redoAction, 400);
+	redoAction = new Action;
+	redoAction->setText(tr("Redo"));
+	redoAction->setShortcut(QKeySequence("Shift+Ctrl+Z"));
+	connect(redoAction, SIGNAL(triggered()), SLOT(onRedoAction()));
+	_editMenu->addAction(redoAction, 400);
 
-    selectallAction = new Action;
-    selectallAction->setText(tr("Select All"));
-    selectallAction->setShortcut(QKeySequence("Ctrl+A"));
-    connect(selectallAction, SIGNAL(triggered()), SLOT(onSelectAllAction()));
-    _editMenu->addAction(selectallAction);
+	selectallAction = new Action;
+	selectallAction->setText(tr("Select All"));
+	selectallAction->setShortcut(QKeySequence("Ctrl+A"));
+	connect(selectallAction, SIGNAL(triggered()), SLOT(onSelectAllAction()));
+	_editMenu->addAction(selectallAction);
 
-    findAction = new Action;
-    findAction->setText(tr("Find"));
-    findAction->setShortcut(QKeySequence("Ctrl+F"));
-    findAction->setEnabled(false);
-    connect(findAction, SIGNAL(triggered()), SLOT(onFindAction()));
-    _editMenu->addAction(findAction, 600);
+	findAction = new Action;
+	findAction->setText(tr("Find"));
+	findAction->setShortcut(QKeySequence("Ctrl+F"));
+	findAction->setEnabled(false);
+	connect(findAction, SIGNAL(triggered()), SLOT(onFindAction()));
+	_editMenu->addAction(findAction, 600);
 
-    emoticonsMenu = new Menu;
-    emoticonsMenu->menuAction()->setText(tr("Insert Emoticon"));
-    _editMenu->addAction(emoticonsMenu->menuAction(), 700);
+	emoticonsMenu = new Menu;
+	emoticonsMenu->menuAction()->setText(tr("Insert Emoticon"));
+	_editMenu->addAction(emoticonsMenu->menuAction(), 700);
 
-    // View
-    _viewMenu = new Menu;
-    _viewMenu->setTitle(tr("View"));
-    _menuBar->addMenu(_viewMenu);
+	// View
+	_viewMenu = new Menu;
+	_viewMenu->setTitle(tr("View"));
+	_menuBar->addMenu(_viewMenu);
 
-    fullViewAction = new Action;
-    fullViewAction->setText(tr("Full"));
-    fullViewAction->setCheckable(true);
-    fullViewAction->setEnabled(false);
-    connect(fullViewAction, SIGNAL(triggered(bool)), SLOT(onFullViewAction(bool)));
-    _viewMenu->addAction(fullViewAction);
+	fullViewAction = new Action;
+	fullViewAction->setText(tr("Full"));
+	fullViewAction->setCheckable(true);
+	fullViewAction->setEnabled(false);
+	connect(fullViewAction, SIGNAL(triggered(bool)), SLOT(onFullViewAction(bool)));
+	_viewMenu->addAction(fullViewAction);
 
-    simpleViewAction = new Action;
-    simpleViewAction->setText(tr("Simplifyed"));
-    simpleViewAction->setCheckable(true);
-    simpleViewAction->setEnabled(false);
-    connect(simpleViewAction, SIGNAL(triggered(bool)), SLOT(onSimpleViewAction(bool)));
-    _viewMenu->addAction(simpleViewAction);
+	simpleViewAction = new Action;
+	simpleViewAction->setText(tr("Simplifyed"));
+	simpleViewAction->setCheckable(true);
+	simpleViewAction->setEnabled(false);
+	connect(simpleViewAction, SIGNAL(triggered(bool)), SLOT(onSimpleViewAction(bool)));
+	_viewMenu->addAction(simpleViewAction);
 
-    compactViewAction = new Action;
-    compactViewAction->setText(tr("Compact"));
-    compactViewAction->setCheckable(true);
-    compactViewAction->setEnabled(false);
-    connect(compactViewAction, SIGNAL(triggered(bool)), SLOT(onCompactViewAction(bool)));
-    _viewMenu->addAction(compactViewAction);
+	compactViewAction = new Action;
+	compactViewAction->setText(tr("Compact"));
+	compactViewAction->setCheckable(true);
+	compactViewAction->setEnabled(false);
+	connect(compactViewAction, SIGNAL(triggered(bool)), SLOT(onCompactViewAction(bool)));
+	_viewMenu->addAction(compactViewAction);
 
-    sortByNameAction = new Action;
-    sortByNameAction->setText(tr("Sort By Name"));
-    sortByNameAction->setCheckable(true);
-    sortByNameAction->setEnabled(false);
-    connect(sortByNameAction, SIGNAL(triggered(bool)), SLOT(onSortByNameAction(bool)));
-    _viewMenu->addAction(sortByNameAction, 600);
+	sortByNameAction = new Action;
+	sortByNameAction->setText(tr("Sort By Name"));
+	sortByNameAction->setCheckable(true);
+	sortByNameAction->setEnabled(false);
+	connect(sortByNameAction, SIGNAL(triggered(bool)), SLOT(onSortByNameAction(bool)));
+	_viewMenu->addAction(sortByNameAction, 600);
 
-    sortByStatusAction = new Action;
-    sortByStatusAction->setText(tr("Sort By Status"));
-    sortByStatusAction->setCheckable(true);
-    sortByStatusAction->setEnabled(false);
-    connect(sortByStatusAction, SIGNAL(triggered(bool)), SLOT(onSortByStatusAction(bool)));
-    _viewMenu->addAction(sortByStatusAction, 600);
+	sortByStatusAction = new Action;
+	sortByStatusAction->setText(tr("Sort By Status"));
+	sortByStatusAction->setCheckable(true);
+	sortByStatusAction->setEnabled(false);
+	connect(sortByStatusAction, SIGNAL(triggered(bool)), SLOT(onSortByStatusAction(bool)));
+	_viewMenu->addAction(sortByStatusAction, 600);
 
-    showOfflineAction = new Action;
-    showOfflineAction->setText(tr("Show Offline"));
-    showOfflineAction->setCheckable(true);
-    showOfflineAction->setEnabled(false);
-    connect(showOfflineAction, SIGNAL(triggered(bool)), SLOT(onShowOfflineAction(bool)));
-    _viewMenu->addAction(showOfflineAction, 700);
+	showOfflineAction = new Action;
+	showOfflineAction->setText(tr("Show Offline"));
+	showOfflineAction->setCheckable(true);
+	showOfflineAction->setEnabled(false);
+	connect(showOfflineAction, SIGNAL(triggered(bool)), SLOT(onShowOfflineAction(bool)));
+	_viewMenu->addAction(showOfflineAction, 700);
 
-    stayOnTopAction = new Action;
-    stayOnTopAction->setText(tr("Stay On Top"));
-    stayOnTopAction->setCheckable(true);
-    stayOnTopAction->setEnabled(false);
-    connect(stayOnTopAction, SIGNAL(triggered(bool)), SLOT(onStayOnTopAction(bool)));
-    _viewMenu->addAction(stayOnTopAction, 800);
+	stayOnTopAction = new Action;
+	stayOnTopAction->setText(tr("Stay On Top"));
+	stayOnTopAction->setCheckable(true);
+	stayOnTopAction->setEnabled(false);
+	connect(stayOnTopAction, SIGNAL(triggered(bool)), SLOT(onStayOnTopAction(bool)));
+	_viewMenu->addAction(stayOnTopAction, 800);
 
-    // Status
-    _statusMenu = new Menu;
-    _statusMenu->setTitle(tr("Status"));
-    _menuBar->addMenu(_statusMenu);
+	// Status
+	_statusMenu = new Menu;
+	_statusMenu->setTitle(tr("Status"));
+	_menuBar->addMenu(_statusMenu);
 
-    manageAccountsAction = new Action;
-    manageAccountsAction->setText(tr("Manage Accounts..."));
-    manageAccountsAction->setEnabled(false);
-    connect(manageAccountsAction, SIGNAL(triggered()), SLOT(onNewAccountAction()));
-    _statusMenu->addAction(manageAccountsAction, 550);
+	manageAccountsAction = new Action;
+	manageAccountsAction->setText(tr("Manage Accounts..."));
+	manageAccountsAction->setEnabled(false);
+	connect(manageAccountsAction, SIGNAL(triggered()), SLOT(onNewAccountAction()));
+	_statusMenu->addAction(manageAccountsAction, 550);
 
-    autoStatusAction = new Action;
-    autoStatusAction->setText(tr("Change Status to \"Away\" on Idle"));
-    autoStatusAction->setCheckable(true);
-    autoStatusAction->setEnabled(false);
-    connect(autoStatusAction, SIGNAL(toggled(bool)), SLOT(onAutoStatusAction(bool)));
-    _statusMenu->addAction(autoStatusAction, 600);
+	autoStatusAction = new Action;
+	autoStatusAction->setText(tr("Change Status to \"Away\" on Idle"));
+	autoStatusAction->setCheckable(true);
+	autoStatusAction->setEnabled(false);
+	connect(autoStatusAction, SIGNAL(toggled(bool)), SLOT(onAutoStatusAction(bool)));
+	_statusMenu->addAction(autoStatusAction, 600);
 
-    // Window
-    _windowMenu = new Menu;
-    _windowMenu->setTitle(tr("Window"));
-    _menuBar->addMenu(_windowMenu);
+	// Window
+	_windowMenu = new Menu;
+	_windowMenu->setTitle(tr("Window"));
+	_menuBar->addMenu(_windowMenu);
 
-    minimizeAction = new Action();
-    minimizeAction->setText(tr("Minimize to Dock"));
-    minimizeAction->setShortcut(QKeySequence("Ctrl+M"));
-    connect(minimizeAction, SIGNAL(triggered()), SLOT(onMinimizeAction()));
-    _windowMenu->addAction(minimizeAction);
+	minimizeAction = new Action();
+	minimizeAction->setText(tr("Minimize to Dock"));
+	minimizeAction->setShortcut(QKeySequence("Ctrl+M"));
+	connect(minimizeAction, SIGNAL(triggered()), SLOT(onMinimizeAction()));
+	_windowMenu->addAction(minimizeAction);
 
-    zoomAction = new Action();
-    zoomAction->setText(tr("Zoom"));
-    connect(zoomAction, SIGNAL(triggered()), SLOT(onZoomAction()));
-    _windowMenu->addAction(zoomAction);
+	zoomAction = new Action();
+	zoomAction->setText(tr("Zoom"));
+	connect(zoomAction, SIGNAL(triggered()), SLOT(onZoomAction()));
+	_windowMenu->addAction(zoomAction);
 
-    closeAction = new Action;
-    closeAction->setText(tr("Close"));
-    closeAction->setShortcut(QKeySequence("Ctrl+W"));
-    connect(closeAction, SIGNAL(triggered()), SLOT(onCloseAction()));
-    _windowMenu->addAction(closeAction);
+	closeAction = new Action;
+	closeAction->setText(tr("Close"));
+	closeAction->setShortcut(QKeySequence("Ctrl+W"));
+	connect(closeAction, SIGNAL(triggered()), SLOT(onCloseAction()));
+	_windowMenu->addAction(closeAction);
 
-    prevTabAction = new Action;
-    prevTabAction->setText(tr("Select Previous Tab"));
-    prevTabAction->setShortcut(QKeySequence("Meta+Shift+Tab"));
-    connect(prevTabAction, SIGNAL(triggered()), SLOT(onPrevTabAction()));
-    _windowMenu->addAction(prevTabAction, 550);
+	prevTabAction = new Action;
+	prevTabAction->setText(tr("Select Previous Tab"));
+	prevTabAction->setShortcut(QKeySequence("Meta+Shift+Tab"));
+	connect(prevTabAction, SIGNAL(triggered()), SLOT(onPrevTabAction()));
+	_windowMenu->addAction(prevTabAction, 550);
 
-    nextTabAction = new Action;
-    nextTabAction->setText(tr("Select Next Tab"));
-    nextTabAction->setShortcut(QKeySequence("Meta+Tab"));
-    connect(nextTabAction, SIGNAL(triggered()), SLOT(onNextTabAction()));
-    _windowMenu->addAction(nextTabAction, 550);
+	nextTabAction = new Action;
+	nextTabAction->setText(tr("Select Next Tab"));
+	nextTabAction->setShortcut(QKeySequence("Meta+Tab"));
+	connect(nextTabAction, SIGNAL(triggered()), SLOT(onNextTabAction()));
+	_windowMenu->addAction(nextTabAction, 550);
 
-    bringAllToTopAction = new Action;
-    bringAllToTopAction->setText(tr("Bring All to Front"));
-    connect(bringAllToTopAction, SIGNAL(triggered()), SLOT(onBringAllToTopAction()));
-    _windowMenu->addAction(bringAllToTopAction, 600);
+	bringAllToTopAction = new Action;
+	bringAllToTopAction->setText(tr("Bring All to Front"));
+	connect(bringAllToTopAction, SIGNAL(triggered()), SLOT(onBringAllToTopAction()));
+	_windowMenu->addAction(bringAllToTopAction, 600);
 
-    Action * showMainWindowAction = new Action;
-    showMainWindowAction->setText(tr("Contact List"));
-    showMainWindowAction->setShortcut(QKeySequence("Ctrl+/"));
-    connect(showMainWindowAction, SIGNAL(triggered()), SLOT(onShowMainWindowAction()));
-    _windowMenu->addAction(showMainWindowAction, 650);
+	Action * showMainWindowAction = new Action;
+	showMainWindowAction->setText(tr("Contact List"));
+	showMainWindowAction->setShortcut(QKeySequence("Ctrl+/"));
+	connect(showMainWindowAction, SIGNAL(triggered()), SLOT(onShowMainWindowAction()));
+	_windowMenu->addAction(showMainWindowAction, 650);
 
-    chatsAction = new Action;
-    chatsAction->setText(tr("Chats"));
-    chatsAction->setEnabled(false);
-    chatsAction->setVisible(false);
-    _windowMenu->addAction(chatsAction, 650);
+	chatsAction = new Action;
+	chatsAction->setText(tr("Chats"));
+	chatsAction->setEnabled(false);
+	chatsAction->setVisible(false);
+	_windowMenu->addAction(chatsAction, 650);
 
-    // Help
-    _helpMenu = new Menu;
-    _helpMenu->setTitle(tr("Help"));
-    _menuBar->addMenu(_helpMenu);
+	// Help
+	_helpMenu = new Menu;
+	_helpMenu->setTitle(tr("Help"));
+	_menuBar->addMenu(_helpMenu);
 
-    onlineHelpAction =  new Action;
-    onlineHelpAction->setText(tr("Online Help"));
-    connect(onlineHelpAction, SIGNAL(triggered()), SLOT(onOnlineHelpAction()));
-    _helpMenu->addAction(onlineHelpAction);
+	onlineHelpAction =  new Action;
+	onlineHelpAction->setText(tr("Online Help"));
+	connect(onlineHelpAction, SIGNAL(triggered()), SLOT(onOnlineHelpAction()));
+	_helpMenu->addAction(onlineHelpAction);
 
-    feedbackAction = new Action;
-    feedbackAction->setText(tr("Leave Feedback..."));
-    connect(feedbackAction, SIGNAL(triggered()), SLOT(onFeedbackAction()));
-    _helpMenu->addAction(feedbackAction, 600);
+	feedbackAction = new Action;
+	feedbackAction->setText(tr("Leave Feedback..."));
+	connect(feedbackAction, SIGNAL(triggered()), SLOT(onFeedbackAction()));
+	_helpMenu->addAction(feedbackAction, 600);
 
-    facebookAction = new Action;
-    facebookAction->setText(tr("Facebook Group"));
-    connect(facebookAction, SIGNAL(triggered()), SLOT(onFacebookAction()));
-    _helpMenu->addAction(facebookAction, 600);
+	facebookAction = new Action;
+	facebookAction->setText(tr("Facebook Group"));
+	connect(facebookAction, SIGNAL(triggered()), SLOT(onFacebookAction()));
+	_helpMenu->addAction(facebookAction, 600);
 
-    rulesAction = new Action;
-    rulesAction->setText(tr("Terms of Usage And Confidentiality"));
-    connect(rulesAction, SIGNAL(triggered()), SLOT(onRulesAction()));
-    _helpMenu->addAction(rulesAction, 600);
+	rulesAction = new Action;
+	rulesAction->setText(tr("Terms of Usage And Confidentiality"));
+	connect(rulesAction, SIGNAL(triggered()), SLOT(onRulesAction()));
+	_helpMenu->addAction(rulesAction, 600);
 
-    // TODO: init fun actions and select one
+	// TODO: init fun actions and select one
 }
 
 void MacIntegrationPlugin::updateActions()
 {
-    if (accountManager && rosterChanger)
-    {
-        bool newContactEnabled;
-        IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
-        newContactEnabled = (acc && acc->isActive());
-        newContactAction->setEnabled(newContactEnabled);
-        //newGroupAction->setEnabled(newContactEnabled);
-        newAccountAction->setEnabled(newContactEnabled);
-    }
-    if (lastFocusedWidget)
-    {
-        bool copyEnabled = false;
-        bool cutEnabled = false;
-        bool pasteEnabled = false;
-        bool undoEnabled = false;
-        bool redoEnabled = false;
-        bool selectallEnabled = false;
-        if (QLineEdit * le = qobject_cast<QLineEdit*>(lastFocusedWidget))
-        {
-            copyEnabled = !le->selectedText().isEmpty();
-            cutEnabled = copyEnabled && !le->isReadOnly();
-            pasteEnabled = !le->isReadOnly();
-            undoEnabled = le->isUndoAvailable();
-            redoEnabled = le->isRedoAvailable();
-            selectallEnabled = !le->text().isEmpty();
-        }
-        else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(lastFocusedWidget))
-        {
-            copyEnabled = !pte->textCursor().selection().isEmpty();
-            cutEnabled = copyEnabled && !pte->isReadOnly();
-            pasteEnabled = !pte->isReadOnly();
-            undoEnabled = redoEnabled = pte->isUndoRedoEnabled();
-            selectallEnabled = !pte->toPlainText().isEmpty();
-        }
-        else if (QTextEdit * te = qobject_cast<QTextEdit*>(lastFocusedWidget))
-        {
-            copyEnabled = !te->textCursor().selection().isEmpty();
-            cutEnabled = copyEnabled && !te->isReadOnly();
-            pasteEnabled = !te->isReadOnly();
-            undoEnabled = redoEnabled = te->isUndoRedoEnabled();
-            selectallEnabled = !(te->toPlainText().isEmpty() && te->toHtml().isEmpty());
-        }
-        else if (QWebView * wv = qobject_cast<QWebView*>(lastFocusedWidget))
-        {
-            copyEnabled = wv->page()->action(QWebPage::Copy)->isEnabled();
-            cutEnabled = wv->page()->action(QWebPage::Cut)->isEnabled();
-            pasteEnabled = wv->page()->action(QWebPage::Paste)->isEnabled();
-            undoEnabled = wv->page()->action(QWebPage::Undo)->isEnabled();
-            redoEnabled = wv->page()->action(QWebPage::Redo)->isEnabled();
-            selectallEnabled = wv->page()->action(QWebPage::SelectAll)->isEnabled();
-        }
-        copyAction->setEnabled(copyEnabled);
-        cutAction->setEnabled(cutEnabled);
-        pasteAction->setEnabled(pasteEnabled);
-        undoAction->setEnabled(undoEnabled);
-        redoAction->setEnabled(undoEnabled);
-        selectallAction->setEnabled(selectallEnabled);
-    }
+	if (accountManager && rosterChanger)
+	{
+		bool newContactEnabled;
+		IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
+		newContactEnabled = (acc && acc->isActive());
+		newContactAction->setEnabled(newContactEnabled);
+		//newGroupAction->setEnabled(newContactEnabled);
+		newAccountAction->setEnabled(newContactEnabled);
+	}
+	if (lastFocusedWidget)
+	{
+		bool copyEnabled = false;
+		bool cutEnabled = false;
+		bool pasteEnabled = false;
+		bool undoEnabled = false;
+		bool redoEnabled = false;
+		bool selectallEnabled = false;
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(lastFocusedWidget))
+		{
+			copyEnabled = !le->selectedText().isEmpty();
+			cutEnabled = copyEnabled && !le->isReadOnly();
+			pasteEnabled = !le->isReadOnly();
+			undoEnabled = le->isUndoAvailable();
+			redoEnabled = le->isRedoAvailable();
+			selectallEnabled = !le->text().isEmpty();
+		}
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(lastFocusedWidget))
+		{
+			copyEnabled = !pte->textCursor().selection().isEmpty();
+			cutEnabled = copyEnabled && !pte->isReadOnly();
+			pasteEnabled = !pte->isReadOnly();
+			undoEnabled = redoEnabled = pte->isUndoRedoEnabled();
+			selectallEnabled = !pte->toPlainText().isEmpty();
+		}
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(lastFocusedWidget))
+		{
+			copyEnabled = !te->textCursor().selection().isEmpty();
+			cutEnabled = copyEnabled && !te->isReadOnly();
+			pasteEnabled = !te->isReadOnly();
+			undoEnabled = redoEnabled = te->isUndoRedoEnabled();
+			selectallEnabled = !(te->toPlainText().isEmpty() && te->toHtml().isEmpty());
+		}
+		else if (QWebView * wv = qobject_cast<QWebView*>(lastFocusedWidget))
+		{
+			copyEnabled = wv->page()->action(QWebPage::Copy)->isEnabled();
+			cutEnabled = wv->page()->action(QWebPage::Cut)->isEnabled();
+			pasteEnabled = wv->page()->action(QWebPage::Paste)->isEnabled();
+			undoEnabled = wv->page()->action(QWebPage::Undo)->isEnabled();
+			redoEnabled = wv->page()->action(QWebPage::Redo)->isEnabled();
+			selectallEnabled = wv->page()->action(QWebPage::SelectAll)->isEnabled();
+		}
+		copyAction->setEnabled(copyEnabled);
+		cutAction->setEnabled(cutEnabled);
+		pasteAction->setEnabled(pasteEnabled);
+		undoAction->setEnabled(undoEnabled);
+		redoAction->setEnabled(undoEnabled);
+		selectallAction->setEnabled(selectallEnabled);
+	}
 }
 
 void MacIntegrationPlugin::updateContactActions()
@@ -613,633 +613,631 @@ void MacIntegrationPlugin::onAboutToQuit()
 
 void MacIntegrationPlugin::onOptionsChanged(const OptionsNode &ANode)
 {
-    if (ANode.path() == OPV_AUTOSTARTUS_AWAYONLOCK)
-    {
-        autoStatusAction->setChecked(ANode.value().toBool());
-    }
-    else if (ANode.path() == OPV_ROSTER_SHOWOFFLINE)
-    {
-        showOfflineAction->setChecked(ANode.value().toBool());
-    }
-    else if (ANode.path() == OPV_ROSTER_SORTBYNAME)
-    {
-        sortByNameAction->setChecked(ANode.value().toBool());
-        sortByStatusAction->setChecked(!ANode.value().toBool());
-    }
-    else if (ANode.path() == OPV_ROSTER_SORTBYSTATUS)
-    {
-        sortByNameAction->setChecked(!ANode.value().toBool());
-        sortByStatusAction->setChecked(ANode.value().toBool());
-    }
-    else if ((ANode.path() == OPV_AVATARS_SHOW) || (ANode.path() == OPV_ROSTER_SHOWSTATUSTEXT))
-    {
-        bool showAvatars = Options::node(OPV_AVATARS_SHOW).value().toBool();
-        bool showStatus = Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool();
-        if (showAvatars && showStatus)
-        {
-            // full view
-            fullViewAction->setChecked(true);
-            simpleViewAction->setChecked(false);
-            compactViewAction->setChecked(false);
-        }
-        else if (showAvatars)
-        {
-            // simplifyed view
-            fullViewAction->setChecked(false);
-            simpleViewAction->setChecked(true);
-            compactViewAction->setChecked(false);
-        }
-        else
-        {
-            // compact view
-            fullViewAction->setChecked(false);
-            simpleViewAction->setChecked(false);
-            compactViewAction->setChecked(true);
-        }
-    }
-    else if (ANode.path() == OPV_MAINWINDOW_STAYONTOP)
-    {
-        stayOnTopAction->setChecked(ANode.value().toBool());
-    }
+	if (ANode.path() == OPV_AUTOSTARTUS_AWAYONLOCK)
+	{
+		autoStatusAction->setChecked(ANode.value().toBool());
+	}
+	else if (ANode.path() == OPV_ROSTER_SHOWOFFLINE)
+	{
+		showOfflineAction->setChecked(ANode.value().toBool());
+	}
+	else if (ANode.path() == OPV_ROSTER_SORTBYNAME)
+	{
+		sortByNameAction->setChecked(ANode.value().toBool());
+		sortByStatusAction->setChecked(!ANode.value().toBool());
+	}
+	else if (ANode.path() == OPV_ROSTER_SORTBYSTATUS)
+	{
+		sortByNameAction->setChecked(!ANode.value().toBool());
+		sortByStatusAction->setChecked(ANode.value().toBool());
+	}
+	else if ((ANode.path() == OPV_AVATARS_SHOW) || (ANode.path() == OPV_ROSTER_SHOWSTATUSTEXT))
+	{
+		bool showAvatars = Options::node(OPV_AVATARS_SHOW).value().toBool();
+		bool showStatus = Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool();
+		if (showAvatars && showStatus)
+		{
+			// full view
+			fullViewAction->setChecked(true);
+			simpleViewAction->setChecked(false);
+			compactViewAction->setChecked(false);
+		}
+		else if (showAvatars)
+		{
+			// simplifyed view
+			fullViewAction->setChecked(false);
+			simpleViewAction->setChecked(true);
+			compactViewAction->setChecked(false);
+		}
+		else
+		{
+			// compact view
+			fullViewAction->setChecked(false);
+			simpleViewAction->setChecked(false);
+			compactViewAction->setChecked(true);
+		}
+	}
+	else if (ANode.path() == OPV_MAINWINDOW_STAYONTOP)
+	{
+		stayOnTopAction->setChecked(ANode.value().toBool());
+	}
 }
 
 void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 {
-    Q_UNUSED(old)
-    if (lastFocusedWidget)
-        lastFocusedWidget->disconnect(this);
-    lastFocusedWidget = now;
-    if (now)
-    {
-        updateActions();
-        if (QLineEdit * le = qobject_cast<QLineEdit*>(now))
-        {
-            connect(le, SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
-            connect(le, SIGNAL(textChanged(QString)), SLOT(onTextChanged()));
-        }
-        else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(now))
-        {
-            connect(pte, SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
-            connect(pte, SIGNAL(textChanged()), SLOT(onTextChanged()));
-            //connect(pte, SIGNAL(copyAvailable(bool)), SLOT(onCopyAvailableChange(bool)));
+	Q_UNUSED(old)
+	if (lastFocusedWidget)
+		lastFocusedWidget->disconnect(this);
+	lastFocusedWidget = now;
+	if (now)
+	{
+		updateActions();
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(now))
+		{
+			connect(le, SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
+			connect(le, SIGNAL(textChanged(QString)), SLOT(onTextChanged()));
+		}
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(now))
+		{
+			connect(pte, SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
+			connect(pte, SIGNAL(textChanged()), SLOT(onTextChanged()));
 
-        }
-        else if (QTextEdit * te = qobject_cast<QTextEdit*>(now))
-        {
-            connect(te, SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
-            connect(te, SIGNAL(textChanged()), SLOT(onTextChanged()));
-            //connect(te, SIGNAL(copyAvailable(bool)), SLOT(onCopyAvailableChange(bool)));
-        }
-        else if (QWebView * wv = qobject_cast<QWebView*>(now))
-        {
-            connect(wv->page(), SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
-            connect(wv->page(), SIGNAL(contentsChanged()), SLOT(onTextChanged()));
-        }
-        if (IEditWidget * ew = qobject_cast<IEditWidget*>(now->parentWidget()))
-        {
-            emoticonsMenu->setEnabled(true);
-            if (emoticonsMenu->isEmpty())
-            {
-                // TODO: fill it with emoticons
-                Action * dummy = new Action;
-                dummy->setText(tr("He will be emoticons... Somewhen =)"));
-                dummy->setEnabled(false);
-                emoticonsMenu->addAction(dummy);
-            }
-        }
-        else
-            emoticonsMenu->setEnabled(false);
-    }
-    if (qApp->activeWindow())
-    {
-        ITabWindow * tw = findTabWindow(qApp->activeWindow());
-        closeAction->setEnabled(!tw);
-        closeTabAction->setEnabled(tw);
-        closeAllTabsAction->setEnabled(tw);
-        nextTabAction->setEnabled(tw);
-        prevTabAction->setEnabled(tw);
-        IMainWindow * mw = findMainWindow(qApp->activeWindow());
-        findAction->setEnabled(mw);
-        minimizeAction->setEnabled(true);
-        zoomAction->setEnabled(isWindowGrowButtonEnabled(qApp->activeWindow()));
-    }
-    else
-    {
-        closeAction->setEnabled(false);
-        closeTabAction->setEnabled(false);
-        closeAllTabsAction->setEnabled(false);
-        nextTabAction->setEnabled(false);
-        prevTabAction->setEnabled(false);
-        minimizeAction->setEnabled(false);
-        zoomAction->setEnabled(false);
-    }
+		}
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(now))
+		{
+			connect(te, SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
+			connect(te, SIGNAL(textChanged()), SLOT(onTextChanged()));
+		}
+		else if (QWebView * wv = qobject_cast<QWebView*>(now))
+		{
+			connect(wv->page(), SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
+			connect(wv->page(), SIGNAL(contentsChanged()), SLOT(onTextChanged()));
+		}
+		if (IEditWidget * ew = qobject_cast<IEditWidget*>(now->parentWidget()))
+		{
+			emoticonsMenu->setEnabled(true);
+			if (emoticonsMenu->isEmpty())
+			{
+				// TODO: fill it with emoticons
+				Action * dummy = new Action;
+				dummy->setText(tr("TODO"));
+				dummy->setEnabled(false);
+				emoticonsMenu->addAction(dummy);
+			}
+		}
+		else
+			emoticonsMenu->setEnabled(false);
+	}
+	if (qApp->activeWindow())
+	{
+		ITabWindow * tw = findTabWindow(qApp->activeWindow());
+		closeAction->setEnabled(!tw);
+		closeTabAction->setEnabled(tw);
+		closeAllTabsAction->setEnabled(tw);
+		nextTabAction->setEnabled(tw);
+		prevTabAction->setEnabled(tw);
+		IMainWindow * mw = findMainWindow(qApp->activeWindow());
+		findAction->setEnabled(mw);
+		minimizeAction->setEnabled(true);
+		zoomAction->setEnabled(isWindowGrowButtonEnabled(qApp->activeWindow()));
+	}
+	else
+	{
+		closeAction->setEnabled(false);
+		closeTabAction->setEnabled(false);
+		closeAllTabsAction->setEnabled(false);
+		nextTabAction->setEnabled(false);
+		prevTabAction->setEnabled(false);
+		minimizeAction->setEnabled(false);
+		zoomAction->setEnabled(false);
+	}
 }
 
 void MacIntegrationPlugin::onProfileOpened(const QString & name)
 {
-    Q_UNUSED(name)
-    foreach(Action* a, availableStatuses.values())
-        a->setEnabled(true);
-    manageAccountsAction->setEnabled(true);
-    autoStatusAction->setEnabled(true);
-    newContactAction->setEnabled(true);
-    //newGroupAction->setEnabled(true);
-    newAccountAction->setEnabled(true);
+	Q_UNUSED(name)
+	foreach(Action* a, availableStatuses.values())
+		a->setEnabled(true);
+	manageAccountsAction->setEnabled(true);
+	autoStatusAction->setEnabled(true);
+	newContactAction->setEnabled(true);
+	//newGroupAction->setEnabled(true);
+	newAccountAction->setEnabled(true);
 
-    fullViewAction->setEnabled(true);
-    simpleViewAction->setEnabled(true);
-    compactViewAction->setEnabled(true);
-    sortByStatusAction->setEnabled(true);
-    sortByNameAction->setEnabled(true);
-    showOfflineAction->setEnabled(true);
-    stayOnTopAction->setEnabled(true);
+	fullViewAction->setEnabled(true);
+	simpleViewAction->setEnabled(true);
+	compactViewAction->setEnabled(true);
+	sortByStatusAction->setEnabled(true);
+	sortByNameAction->setEnabled(true);
+	showOfflineAction->setEnabled(true);
+	stayOnTopAction->setEnabled(true);
 
-    onOptionsChanged(Options::node(OPV_ROSTER_SORTBYSTATUS));
-    onOptionsChanged(Options::node(OPV_ROSTER_SORTBYNAME));
-    onOptionsChanged(Options::node(OPV_ROSTER_SHOWOFFLINE));
-    onOptionsChanged(Options::node(OPV_ROSTER_SHOWSTATUSTEXT));
-    onOptionsChanged(Options::node(OPV_AVATARS_SHOW));
-    onOptionsChanged(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK));
-    onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
+	onOptionsChanged(Options::node(OPV_ROSTER_SORTBYSTATUS));
+	onOptionsChanged(Options::node(OPV_ROSTER_SORTBYNAME));
+	onOptionsChanged(Options::node(OPV_ROSTER_SHOWOFFLINE));
+	onOptionsChanged(Options::node(OPV_ROSTER_SHOWSTATUSTEXT));
+	onOptionsChanged(Options::node(OPV_AVATARS_SHOW));
+	onOptionsChanged(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK));
+	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 }
 
 void MacIntegrationPlugin::onProfileClosed(const QString & name)
 {
-    Q_UNUSED(name)
-    foreach(Action* a, availableStatuses.values())
-        a->setEnabled(false);
-    manageAccountsAction->setEnabled(false);
-    autoStatusAction->setEnabled(false);
-    newContactAction->setEnabled(false);
-    //newGroupAction->setEnabled(false);
-    newAccountAction->setEnabled(false);
+	Q_UNUSED(name)
+	foreach(Action* a, availableStatuses.values())
+		a->setEnabled(false);
+	manageAccountsAction->setEnabled(false);
+	autoStatusAction->setEnabled(false);
+	newContactAction->setEnabled(false);
+	//newGroupAction->setEnabled(false);
+	newAccountAction->setEnabled(false);
 
-    fullViewAction->setEnabled(false);
-    simpleViewAction->setEnabled(false);
-    compactViewAction->setEnabled(false);
-    sortByStatusAction->setEnabled(false);
-    sortByNameAction->setEnabled(false);
-    showOfflineAction->setEnabled(false);
-    stayOnTopAction->setEnabled(false);
+	fullViewAction->setEnabled(false);
+	simpleViewAction->setEnabled(false);
+	compactViewAction->setEnabled(false);
+	sortByStatusAction->setEnabled(false);
+	sortByNameAction->setEnabled(false);
+	showOfflineAction->setEnabled(false);
+	stayOnTopAction->setEnabled(false);
 }
 
 void MacIntegrationPlugin::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
 {
-    if (AWindow)
-    {
-        IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
-        if (acc && acc->isActive())
-        {
-            IMetaRoster * mr = metaContacts->findMetaRoster(acc->xmppStream()->streamJid());
-            if (mr)
-            {
-                QImage avatarImage = mr->metaAvatarImage(AWindow->metaId(), false);
-                Action * contactAction = new Action;
-                QIcon contactIcon;
-                contactIcon.addPixmap(QPixmap::fromImage(avatarImage.scaled(16, 16)));
-                contactAction->setIcon(contactIcon);
-                QString contactName = metaContacts->metaContactName(mr->metaContact(AWindow->metaId()));
-                if (contactName.length() > 31)
-                    contactName = contactName.left(31) + "...";
-                contactAction->setText(contactName);
-                contactAction->setCheckable(true);
-                connect(contactAction, SIGNAL(triggered()), SLOT(onContactAction()));
-                activeChatsActions.insert(AWindow, contactAction);
-                if (!chatsAction->isVisible())
-                    chatsAction->setVisible(true);
+	if (AWindow)
+	{
+		IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
+		if (acc && acc->isActive())
+		{
+			IMetaRoster * mr = metaContacts->findMetaRoster(acc->xmppStream()->streamJid());
+			if (mr)
+			{
+				QImage avatarImage = mr->metaAvatarImage(AWindow->metaId(), false);
+				Action * contactAction = new Action;
+				QIcon contactIcon;
+				contactIcon.addPixmap(QPixmap::fromImage(avatarImage.scaled(16, 16)));
+				contactAction->setIcon(contactIcon);
+				QString contactName = metaContacts->metaContactName(mr->metaContact(AWindow->metaId()));
+				if (contactName.length() > 31)
+					contactName = contactName.left(31) + "...";
+				contactAction->setText(contactName);
+				contactAction->setCheckable(true);
+				connect(contactAction, SIGNAL(triggered()), SLOT(onContactAction()));
+				activeChatsActions.insert(AWindow, contactAction);
+				if (!chatsAction->isVisible())
+					chatsAction->setVisible(true);
 
-                connect(AWindow->instance(), SIGNAL(tabPageClosed()), SLOT(onMetaTabPageClosed()));
-                connect(AWindow->instance(), SIGNAL(tabPageActivated()), SLOT(onMetaTabPageActivated()));
+				connect(AWindow->instance(), SIGNAL(tabPageClosed()), SLOT(onMetaTabPageClosed()));
+				connect(AWindow->instance(), SIGNAL(tabPageActivated()), SLOT(onMetaTabPageActivated()));
 
-                _windowMenu->addAction(contactAction, 650);
-            }
-        }
-    }
+				_windowMenu->addAction(contactAction, 650);
+			}
+		}
+	}
 }
 
 void MacIntegrationPlugin::onMetaTabPageClosed()
 {
-    IMetaTabWindow * window = qobject_cast<IMetaTabWindow*>(sender());
-    if (window)
-    {
-        Action * a = activeChatsActions.take(window);
-        if (a)
-        {
-            _windowMenu->removeAction(a);
-            a->deleteLater();
-        }
-        if (!activeChatsActions.count())
-            chatsAction->setVisible(false);
-    }
+	IMetaTabWindow * window = qobject_cast<IMetaTabWindow*>(sender());
+	if (window)
+	{
+		Action * a = activeChatsActions.take(window);
+		if (a)
+		{
+			_windowMenu->removeAction(a);
+			a->deleteLater();
+		}
+		if (!activeChatsActions.count())
+			chatsAction->setVisible(false);
+	}
 }
 
 void MacIntegrationPlugin::onMetaTabPageActivated()
 {
-    ITabPage * page = qobject_cast<ITabPage*>(sender());
-    if (page)
-    {
-        Action * a = activeChatsActions.value(page);
-        if (a)
-        {
-            foreach(Action * action, activeChatsActions.values())
-                action->setChecked(false);
-            a->setChecked(true);
-        }
-    }
+	ITabPage * page = qobject_cast<ITabPage*>(sender());
+	if (page)
+	{
+		Action * a = activeChatsActions.value(page);
+		if (a)
+		{
+			foreach(Action * action, activeChatsActions.values())
+				action->setChecked(false);
+			a->setChecked(true);
+		}
+	}
 }
 
 void MacIntegrationPlugin::onStatusChanged(const Jid &AStreamJid, int AStatusId)
 {
-    Q_UNUSED(AStreamJid)
-    Action * a = availableStatuses.value(AStatusId);
-    if (a)
-    {
-        foreach(Action * action, availableStatuses.values())
-        {
-            action->setChecked(false);
-        }
-        a->setChecked(true);
-    }
+	Q_UNUSED(AStreamJid)
+	Action * a = availableStatuses.value(AStatusId);
+	if (a)
+	{
+		foreach(Action * action, availableStatuses.values())
+		{
+			action->setChecked(false);
+		}
+		a->setChecked(true);
+	}
 }
 
 void MacIntegrationPlugin::onStatusItemAdded(int status)
 {
-    if (statusChanger)
-    {
-        Action * statusAction = new Action;
-        statusAction->setCheckable(true);
-        availableStatuses.insert(status, statusAction);
-        connect(statusAction, SIGNAL(triggered()), SLOT(onStatusAction()));
-        onStatusItemChanged(status);
-        _statusMenu->addAction(statusAction);
+	if (statusChanger)
+	{
+		Action * statusAction = new Action;
+		statusAction->setCheckable(true);
+		availableStatuses.insert(status, statusAction);
+		connect(statusAction, SIGNAL(triggered()), SLOT(onStatusAction()));
+		onStatusItemChanged(status);
+		_statusMenu->addAction(statusAction);
 
-        if (optionsManager)
-            statusAction->setEnabled(!optionsManager->currentProfile().isNull());
-    }
+		if (optionsManager)
+			statusAction->setEnabled(!optionsManager->currentProfile().isNull());
+	}
 }
 
 void MacIntegrationPlugin::onStatusItemChanged(int status)
 {
-    Action * statusAction = availableStatuses.value(status);
-    if (statusAction)
-    {
-        statusAction->setText(statusChanger->statusItemName(status));
-        int show = statusChanger->statusItemShow(status);
-        statusAction->setIcon(statusChanger->iconByShow(show));
-    }
+	Action * statusAction = availableStatuses.value(status);
+	if (statusAction)
+	{
+		statusAction->setText(statusChanger->statusItemName(status));
+		int show = statusChanger->statusItemShow(status);
+		statusAction->setIcon(statusChanger->iconByShow(show));
+	}
 }
 
 void MacIntegrationPlugin::onStatusItemRemoved(int status)
 {
-    Action * statusAction = availableStatuses.value(status);
-    if (statusAction)
-    {
-        _statusMenu->removeAction(statusAction);
-        availableStatuses.take(status);
-        statusAction->deleteLater();
-    }
+	Action * statusAction = availableStatuses.value(status);
+	if (statusAction)
+	{
+		_statusMenu->removeAction(statusAction);
+		availableStatuses.take(status);
+		statusAction->deleteLater();
+	}
 }
 
 void MacIntegrationPlugin::onNewContactAction()
 {
-    if (accountManager && rosterChanger)
-    {
-        IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
-        if (acc && acc->isActive())
-        {
-            rosterChanger->showAddContactDialog(acc->xmppStream()->streamJid());
-        }
-    }
+	if (accountManager && rosterChanger)
+	{
+		IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
+		if (acc && acc->isActive())
+		{
+			rosterChanger->showAddContactDialog(acc->xmppStream()->streamJid());
+		}
+	}
 }
 
 void MacIntegrationPlugin::onNewGroupAction()
 {
-    // TODO
-    qDebug() << "New Grop Action: not implemented!";
+	// TODO
+	qDebug() << "New Grop Action: not implemented!";
 }
 
 void MacIntegrationPlugin::onNewAccountAction()
 {
-    if (optionsManager)
-    {
-        optionsManager->showOptionsDialog(OPN_GATEWAYS);
-    }
+	if (optionsManager)
+	{
+		optionsManager->showOptionsDialog(OPN_GATEWAYS);
+	}
 }
 
 void MacIntegrationPlugin::onCloseTabAction()
 {
-    ITabWindow * tw = findTabWindow(qApp->activeWindow());
-    if (tw)
-        tw->closeCurrentTab();
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
+		tw->closeCurrentTab();
 }
 
 void MacIntegrationPlugin::onCloseAllTabsAction()
 {
-    ITabWindow * tw = findTabWindow(qApp->activeWindow());
-    if (tw)
-        tw->closeAllTabs();
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
+		tw->closeAllTabs();
 }
 
 void MacIntegrationPlugin::onFullViewAction(bool on)
 {
-    Q_UNUSED(on)
-    fullViewAction->setChecked(false);
-    Options::node(OPV_AVATARS_SHOW).setValue(true);
-    Options::node(OPV_ROSTER_SHOWSTATUSTEXT).setValue(true);
+	Q_UNUSED(on)
+	fullViewAction->setChecked(false);
+	Options::node(OPV_AVATARS_SHOW).setValue(true);
+	Options::node(OPV_ROSTER_SHOWSTATUSTEXT).setValue(true);
 }
 
 void MacIntegrationPlugin::onSimpleViewAction(bool on)
 {
-    Q_UNUSED(on)
-    simpleViewAction->setChecked(false);
-    Options::node(OPV_AVATARS_SHOW).setValue(true);
-    Options::node(OPV_ROSTER_SHOWSTATUSTEXT).setValue(false);
+	Q_UNUSED(on)
+	simpleViewAction->setChecked(false);
+	Options::node(OPV_AVATARS_SHOW).setValue(true);
+	Options::node(OPV_ROSTER_SHOWSTATUSTEXT).setValue(false);
 }
 
 void MacIntegrationPlugin::onCompactViewAction(bool on)
 {
-    Q_UNUSED(on)
-    compactViewAction->setChecked(false);
-    Options::node(OPV_AVATARS_SHOW).setValue(false);
-    Options::node(OPV_ROSTER_SHOWSTATUSTEXT).setValue(false);
+	Q_UNUSED(on)
+	compactViewAction->setChecked(false);
+	Options::node(OPV_AVATARS_SHOW).setValue(false);
+	Options::node(OPV_ROSTER_SHOWSTATUSTEXT).setValue(false);
 }
 
 void MacIntegrationPlugin::onSortByStatusAction(bool on)
 {
-    Q_UNUSED(on)
-    Options::node(OPV_ROSTER_SORTBYSTATUS).setValue(true);
-    Options::node(OPV_ROSTER_SORTBYNAME).setValue(false);
+	Q_UNUSED(on)
+	Options::node(OPV_ROSTER_SORTBYSTATUS).setValue(true);
+	Options::node(OPV_ROSTER_SORTBYNAME).setValue(false);
 }
 
 void MacIntegrationPlugin::onSortByNameAction(bool on)
 {
-    Q_UNUSED(on)
-    Options::node(OPV_ROSTER_SORTBYNAME).setValue(true);
-    Options::node(OPV_ROSTER_SORTBYSTATUS).setValue(false);
+	Q_UNUSED(on)
+	Options::node(OPV_ROSTER_SORTBYNAME).setValue(true);
+	Options::node(OPV_ROSTER_SORTBYSTATUS).setValue(false);
 }
 
 void MacIntegrationPlugin::onShowOfflineAction(bool on)
 {
-    Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(on);
+	Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(on);
 }
 
 void MacIntegrationPlugin::onStayOnTopAction(bool on)
 {
-    Options::node(OPV_MAINWINDOW_STAYONTOP).setValue(on);
+	Options::node(OPV_MAINWINDOW_STAYONTOP).setValue(on);
 }
 
 void MacIntegrationPlugin::onStatusAction()
 {
-    Action * a = qobject_cast<Action*>(sender());
-    if (a && statusChanger && accountManager)
-    {
-        a->setChecked(false);
-        IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
-        if (acc && acc->isActive())
-        {
-            int statusId = availableStatuses.key(a);
-            statusChanger->setStreamStatus(acc->xmppStream()->streamJid(), statusId);
-        }
-    }
+	Action * a = qobject_cast<Action*>(sender());
+	if (a && statusChanger && accountManager)
+	{
+		a->setChecked(false);
+		IAccount * acc = accountManager->accounts().isEmpty() ? NULL : accountManager->accounts().first();
+		if (acc && acc->isActive())
+		{
+			int statusId = availableStatuses.key(a);
+			statusChanger->setStreamStatus(acc->xmppStream()->streamJid(), statusId);
+		}
+	}
 }
 
 void MacIntegrationPlugin::onManageAccountsAction()
 {
-    onNewAccountAction();
+	onNewAccountAction();
 }
 
 void MacIntegrationPlugin::onAutoStatusAction(bool on)
 {
-    Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).setValue(on);
+	Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).setValue(on);
 }
 
 void MacIntegrationPlugin::onMinimizeAction()
 {
-    QWidget * activeWindow = QApplication::activeWindow();
-    if (activeWindow)
-        activeWindow->showMinimized();
+	QWidget * activeWindow = QApplication::activeWindow();
+	if (activeWindow)
+		activeWindow->showMinimized();
 }
 
 void MacIntegrationPlugin::onZoomAction()
 {
-    QWidget * activeWindow = QApplication::activeWindow();
-    if (activeWindow && isWindowGrowButtonEnabled(activeWindow))
-    {
-        if (activeWindow->isMaximized())
-            activeWindow->showNormal();
-        else
-            activeWindow->showMaximized();
-    }
+	QWidget * activeWindow = QApplication::activeWindow();
+	if (activeWindow && isWindowGrowButtonEnabled(activeWindow))
+	{
+		if (activeWindow->isMaximized())
+			activeWindow->showNormal();
+		else
+			activeWindow->showMaximized();
+	}
 }
 
 void MacIntegrationPlugin::onCloseAction()
 {
-    ITabWindow * tw = findTabWindow(qApp->activeWindow());
-    if (tw)
-    {
-        //tw->currentTabPage()->closeTabPage();
-        // nothing to do, see onCloseTabAction()
-    }
-    else
-    {
-        QWidget * activeWindow = QApplication::activeWindow();
-        if (CustomBorderContainer* border = qobject_cast<CustomBorderContainer*>(activeWindow))
-        {
-            border->closeWidget();
-        }
-        else if (activeWindow)
-            activeWindow->close();
-    }
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
+	{
+		//tw->currentTabPage()->closeTabPage();
+		// nothing to do, see onCloseTabAction()
+	}
+	else
+	{
+		QWidget * activeWindow = QApplication::activeWindow();
+		if (CustomBorderContainer* border = qobject_cast<CustomBorderContainer*>(activeWindow))
+		{
+			border->closeWidget();
+		}
+		else if (activeWindow)
+			activeWindow->close();
+	}
 }
 
 void MacIntegrationPlugin::onNextTabAction()
 {
-    ITabWindow * tw = findTabWindow(qApp->activeWindow());
-    if (tw)
-        tw->nextTab();
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
+		tw->nextTab();
 }
 
 void MacIntegrationPlugin::onPrevTabAction()
 {
-    ITabWindow * tw = findTabWindow(qApp->activeWindow());
-    if (tw)
-        tw->previousTab();
+	ITabWindow * tw = findTabWindow(qApp->activeWindow());
+	if (tw)
+		tw->previousTab();
 }
 
 void MacIntegrationPlugin::onBringAllToTopAction()
 {
-    QWidget * oldFocusedWidget = lastFocusedWidget;
-    QWidget * oldActiveWindow = qApp->activeWindow();
-    foreach (QWidget * w, qApp->topLevelWidgets())
-    {
-        if (!w->isHidden())
-            w->raise();
-    }
-    if (oldActiveWindow)
-        oldActiveWindow->activateWindow();
-    if (oldFocusedWidget)
-        oldFocusedWidget->setFocus();
+	QWidget * oldFocusedWidget = lastFocusedWidget;
+	QWidget * oldActiveWindow = qApp->activeWindow();
+	foreach (QWidget * w, qApp->topLevelWidgets())
+	{
+		if (!w->isHidden())
+			w->raise();
+	}
+	if (oldActiveWindow)
+		oldActiveWindow->activateWindow();
+	if (oldFocusedWidget)
+		oldFocusedWidget->setFocus();
 }
 
 void MacIntegrationPlugin::onShowMainWindowAction()
 {
-    if (mainWindow)
-        mainWindow->showMainWindow();
+	if (mainWindow)
+		mainWindow->showMainWindow();
 }
 
 void MacIntegrationPlugin::onContactAction()
 {
-    // TODO: activate tabwindow and open tab with metacontact
-    Action * a = qobject_cast<Action*>(sender());
-    if (a)
-    {
-        ITabPage * page = activeChatsActions.key(a);
-        if (page)
-        {
-            a->setChecked(true);
-            page->showTabPage();
-        }
-    }
+	// TODO: activate tabwindow and open tab with metacontact
+	Action * a = qobject_cast<Action*>(sender());
+	if (a)
+	{
+		ITabPage * page = activeChatsActions.key(a);
+		if (page)
+		{
+			a->setChecked(true);
+			page->showTabPage();
+		}
+	}
 }
 
 void MacIntegrationPlugin::onOnlineHelpAction()
 {
-    QDesktopServices::openUrl(QUrl("http://contacts.rambler.ru/faq.html"));
+	QDesktopServices::openUrl(QUrl("http://contacts.rambler.ru/faq.html"));
 }
 
 void MacIntegrationPlugin::onFeedbackAction()
 {
-    if (pluginManager)
-    {
-        pluginManager->showFeedbackDialog();
-    }
+	if (pluginManager)
+	{
+		pluginManager->showFeedbackDialog();
+	}
 }
 
 void MacIntegrationPlugin::onFacebookAction()
 {
-    QDesktopServices::openUrl(QUrl("http://www.facebook.com/groups/185080491548525/"));
+	QDesktopServices::openUrl(QUrl("http://www.facebook.com/groups/185080491548525/"));
 }
 
 void MacIntegrationPlugin::onRulesAction()
 {
-    QDesktopServices::openUrl(QUrl("http://help.rambler.ru/legal/?s=101705"));
+	QDesktopServices::openUrl(QUrl("http://help.rambler.ru/legal/?s=101705"));
 }
 
 void MacIntegrationPlugin::onFunAction()
 {
-    // TODO: some fun!
+	// TODO: some fun!
 }
 
 // copy/cut/paste/undo/redo/selectall are handled by widgets, these slots do nothing for now
 void MacIntegrationPlugin::onCopyAction()
 {
-    if (QWidget * w = QApplication::focusWidget())
-    {
-        if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
-            le->copy();
-        else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
-            pte->copy();
-        else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
-            te->copy();
-        else if (QWebView * wv = qobject_cast<QWebView*>(w))
-            wv->page()->triggerAction(QWebPage::Copy);
-    }
+	if (QWidget * w = QApplication::focusWidget())
+	{
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
+			le->copy();
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
+			pte->copy();
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
+			te->copy();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Copy);
+	}
 }
 
 void MacIntegrationPlugin::onPasteAction()
 {
-    if (QWidget * w = QApplication::focusWidget())
-    {
-        if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
-            le->paste();
-        else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
-            pte->paste();
-        else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
-            te->paste();
-        else if (QWebView * wv = qobject_cast<QWebView*>(w))
-            wv->page()->triggerAction(QWebPage::Paste);
-    }
+	if (QWidget * w = QApplication::focusWidget())
+	{
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
+			le->paste();
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
+			pte->paste();
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
+			te->paste();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Paste);
+	}
 }
 
 void MacIntegrationPlugin::onCutAction()
 {
-    if (QWidget * w = QApplication::focusWidget())
-    {
-        if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
-            le->cut();
-        else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
-            pte->cut();
-        else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
-            te->cut();
-        else if (QWebView * wv = qobject_cast<QWebView*>(w))
-            wv->page()->triggerAction(QWebPage::Cut);
-    }
+	if (QWidget * w = QApplication::focusWidget())
+	{
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
+			le->cut();
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
+			pte->cut();
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
+			te->cut();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Cut);
+	}
 }
 
 void MacIntegrationPlugin::onUndoAction()
 {
-    if (QWidget * w = QApplication::focusWidget())
-    {
-        if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
-            le->undo();
-        else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
-            pte->undo();
-        else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
-            te->undo();
-        else if (QWebView * wv = qobject_cast<QWebView*>(w))
-            wv->page()->triggerAction(QWebPage::Undo);
-    }
+	if (QWidget * w = QApplication::focusWidget())
+	{
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
+			le->undo();
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
+			pte->undo();
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
+			te->undo();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Undo);
+	}
 }
 
 void MacIntegrationPlugin::onRedoAction()
 {
-    if (QWidget * w = QApplication::focusWidget())
-    {
-        if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
-            le->redo();
-        else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
-            pte->redo();
-        else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
-            te->redo();
-        else if (QWebView * wv = qobject_cast<QWebView*>(w))
-            wv->page()->triggerAction(QWebPage::Redo);
-    }
+	if (QWidget * w = QApplication::focusWidget())
+	{
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
+			le->redo();
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
+			pte->redo();
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
+			te->redo();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::Redo);
+	}
 }
 
 void MacIntegrationPlugin::onSelectAllAction()
 {
-    if (QWidget * w = QApplication::focusWidget())
-    {
-        if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
-            le->selectAll();
-        else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
-            pte->selectAll();
-        else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
-            te->selectAll();
-        else if (QWebView * wv = qobject_cast<QWebView*>(w))
-            wv->page()->triggerAction(QWebPage::SelectAll);
-    }
+	if (QWidget * w = QApplication::focusWidget())
+	{
+		if (QLineEdit * le = qobject_cast<QLineEdit*>(w))
+			le->selectAll();
+		else if (QPlainTextEdit * pte = qobject_cast<QPlainTextEdit*>(w))
+			pte->selectAll();
+		else if (QTextEdit * te = qobject_cast<QTextEdit*>(w))
+			te->selectAll();
+		else if (QWebView * wv = qobject_cast<QWebView*>(w))
+			wv->page()->triggerAction(QWebPage::SelectAll);
+	}
 }
 
 void MacIntegrationPlugin::onFindAction()
 {
-    if (rosterSearch)
-        rosterSearch->startSearch();
+	if (rosterSearch)
+		rosterSearch->startSearch();
 }
 
 void MacIntegrationPlugin::onSelectionChanged()
 {
-    updateActions();
+	updateActions();
 }
 
 void MacIntegrationPlugin::onTextChanged()
 {
-    updateActions();
+	updateActions();
 }
 
 void MacIntegrationPlugin::onCopyAvailableChange(bool available)
 {
-    copyAction->setEnabled(available);
+	copyAction->setEnabled(available);
 }
 
 Q_EXPORT_PLUGIN2(plg_macintegration, MacIntegrationPlugin)

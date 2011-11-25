@@ -352,7 +352,7 @@ void PluginManager::loadSettings()
 		<< FDataPath+"/resources");
 
 #ifdef Q_WS_MAC
-	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO512));
+	//qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO512));
 #elif defined Q_WS_WIN
 	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
 		qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO48));
