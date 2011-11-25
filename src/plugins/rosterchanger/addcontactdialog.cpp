@@ -28,10 +28,13 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
-	setWindowTitle(tr("Adding a contact"));
+	setWindowTitle(tr("New contact"));
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDCONTACTDIALOG);
 
 #ifdef Q_WS_MAC
+	ui.lblCaption->setVisible(false);
+	ui.buttonsLayout->addWidget(ui.pbtContinue);
+	ui.buttonsLayout->setSpacing(16);
 	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
@@ -77,11 +80,6 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	ui.pbtBack->setText(tr("Back"));
 	ui.pbtCancel->setText(tr("Cancel"));
 	ui.pbtContinue->setEnabled(false);
-
-#ifdef Q_WS_MAC
-	ui.buttonsLayout->addWidget(ui.pbtContinue);
-	ui.buttonsLayout->setSpacing(16);
-#endif
 
 	initialize(APluginManager);
 	initGroups();

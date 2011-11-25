@@ -262,12 +262,16 @@ void TabWindow::updateWindow()
 	{
 		if (qobject_cast<CustomBorderContainer *>(parentWidget())!=NULL)
 		{
+#ifndef Q_WS_MAC
 			parentWidget()->setWindowIcon(widget->windowIcon());
+#endif
 			parentWidget()->setWindowTitle(widget->windowTitle());
 		}
 		else
 		{
+#ifndef Q_WS_MAC
 			setWindowIcon(widget->windowIcon());
+#endif
 			setWindowTitle(widget->windowTitle());
 		}
 		ui.lblStatusIcon->setPixmap(widget->windowIcon().pixmap(16, 16));

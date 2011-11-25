@@ -21,6 +21,8 @@ ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, Q
 	}
 	else
 	{
+		ui.lblCaption->setVisible(false);
+		ui.centralWidget->layout()->setContentsMargins(0, 0, 0, 0);
 		setAttribute(Qt::WA_DeleteOnClose,true);
 	}
 	resize(650,500);

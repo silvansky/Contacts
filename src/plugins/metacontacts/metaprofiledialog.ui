@@ -10,6 +10,9 @@
     <height>234</height>
    </rect>
   </property>
+  <property name="windowTitle">
+   <string>Information</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>10</number>

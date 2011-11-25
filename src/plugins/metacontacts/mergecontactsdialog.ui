@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>440</width>
-    <height>190</height>
+    <height>205</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -110,7 +110,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="buttonsLayout">
      <property name="topMargin">
       <number>10</number>
      </property>

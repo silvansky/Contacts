@@ -6,10 +6,19 @@
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 #include <definitions/graphicseffects.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<QString> AMetaIds, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
+#ifdef Q_WS_MAC
+	ui.buttonsLayout->setSpacing(16);
+	ui.buttonsLayout->addWidget(ui.pbtMerge);
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
 
 	ui.lneName->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -94,7 +103,10 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
 	else
+	{
+		ui.lblCaption->setVisible(false);
 		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_MERGECONTACTSDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);

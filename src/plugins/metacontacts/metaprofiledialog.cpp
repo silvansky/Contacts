@@ -61,7 +61,7 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->setSpacing(16);
-	ui.buttonsLayout->addWidget(ui.pbtAddContact);
+	//ui.buttonsLayout->addWidget(ui.pbtAddContact);
 	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 

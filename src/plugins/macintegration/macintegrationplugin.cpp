@@ -671,6 +671,16 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 	lastFocusedWidget = now;
 	if (now)
 	{
+		qDebug() << "focused: " << now->objectName()
+			 << " of class " << now->metaObject()->className();
+		QStringList hierarchy;
+		QWidget * parent = now->parentWidget();
+		while (parent)
+		{
+			hierarchy << QString("%1 (%2)").arg(parent->objectName(), parent->metaObject()->className());
+			parent = parent->parentWidget();
+		}
+		qDebug() << "hierarchy: " << hierarchy.join(" -> ");
 		updateActions();
 		if (QLineEdit * le = qobject_cast<QLineEdit*>(now))
 		{
