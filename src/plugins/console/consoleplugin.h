@@ -8,6 +8,9 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/imainwindow.h>
+#ifdef Q_WS_MAC
+# include <interfaces/imacintegration.h>
+#endif
 #include <utils/iconstorage.h>
 #include <utils/action.h>
 #include "consolewidget.h"
@@ -18,8 +21,8 @@ class ConsolePlugin :
 			public QObject,
 			public IPlugin
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin);
+    Q_OBJECT
+    Q_INTERFACES(IPlugin)
 public:
 	ConsolePlugin();
 	~ConsolePlugin();
@@ -36,6 +39,9 @@ protected slots:
 private:
 	IPluginManager *FPluginManager;
 	IMainWindowPlugin *FMainWindowPlugin;
+#ifdef Q_WS_MAC
+    IMacIntegration * FMacIntegration;
+#endif
 private:
 	QObjectCleanupHandler FCleanupHandler;
 };

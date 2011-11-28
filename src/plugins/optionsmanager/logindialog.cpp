@@ -30,6 +30,7 @@
 
 #ifdef Q_WS_MAC
 # include <utils/macwidgets.h>
+# include <Carbon/Carbon.h>
 #endif
 
 #ifdef Q_WS_WIN32
@@ -172,7 +173,7 @@ private:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-	setWindowModality(Qt::WindowModal);
+	//setWindowModality(Qt::WindowModal); // what for?
 	setAttribute(Qt::WA_DeleteOnClose, true);
 #ifdef Q_WS_MAC
 	setWindowGrowButtonEnabled(this->window(), false);
@@ -639,6 +640,11 @@ bool LoginDialog::isCapsLockOn() const
 		caps_state = (n & 0x01) == 1;
 	}
 	return caps_state;
+#elif defined(Q_WS_MAC)
+	UInt32 km = GetCurrentKeyModifiers();
+	QString kms = QString("key modifiers: %1 (%2)").arg(km).arg(QString::number(km, 2));
+	qDebug(kms.toAscii().constData());
+	return (km & 0x400);
 #endif
 	return false;
 }

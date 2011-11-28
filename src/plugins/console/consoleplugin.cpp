@@ -4,6 +4,9 @@ ConsolePlugin::ConsolePlugin()
 {
 	FPluginManager = NULL;
 	FMainWindowPlugin = NULL;
+#ifdef Q_WS_MAC
+	FMacIntegration = NULL;
+#endif
 }
 
 ConsolePlugin::~ConsolePlugin()
@@ -20,6 +23,9 @@ void ConsolePlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 	APluginInfo->dependences.append(MAINWINDOW_UUID);
+#ifdef Q_WS_MAC
+	APluginInfo->dependences.append(MACINTEGRATION_UUID);
+#endif
 }
 
 bool ConsolePlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -29,6 +35,12 @@ bool ConsolePlugin::initConnections(IPluginManager *APluginManager, int &/*AInit
 	IPlugin *plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
 	if (plugin)
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+
+#ifdef Q_WS_MAC
+	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+	if (plugin)
+		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
+#endif
 
 	return FMainWindowPlugin!=NULL;
 }
@@ -41,7 +53,11 @@ bool ConsolePlugin::initObjects()
 		action->setText(tr("XML Console"));
 		//action->setIcon(RSR_STORAGE_MENUICONS,MNI_CONSOLE);
 		connect(action,SIGNAL(triggered(bool)),SLOT(onShowXMLConsole(bool)));
+#ifdef Q_WS_MAC
+		FMacIntegration->windowMenu()->addAction(action, 510);
+#else
 		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_CONSOLE_SHOW,true);
+#endif
 	}
 	return true;
 }

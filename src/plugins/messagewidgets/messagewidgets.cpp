@@ -62,6 +62,7 @@ bool MessageWidgets::initConnections(IPluginManager *APluginManager, int &AInitO
 			connect(FTrayManager->instance(),SIGNAL(notifyActivated(int, QSystemTrayIcon::ActivationReason)),
 				SLOT(onTrayNotifyActivated(int,QSystemTrayIcon::ActivationReason)));
 			connect(FTrayManager->contextMenu(),SIGNAL(aboutToShow()),SLOT(onTrayContextMenuAboutToShow()));
+			connect(FTrayManager->contextMenu(),SIGNAL(aboutToHide()),SLOT(onTrayContextMenuAboutToHide()));
 		}
 	}
 	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
@@ -438,6 +439,24 @@ void MessageWidgets::removeTabPageHandler(ITabPageHandler *AHandler)
 	}
 }
 
+QList<Action *> MessageWidgets::createLastTabPagesActions(QObject *AParent) const
+{
+	QList<Action *> actions;
+	for (int i = 0; i<FLastPagesOrder.count(); i++)
+	{
+		foreach(ITabPageHandler *handler, FTabPageHandlers)
+		{
+			Action *action = handler->tabPageAction(FLastPagesOrder.at(i), AParent);
+			if (action)
+			{
+				actions.append(action);
+				break;
+			}
+		}
+	}
+	return actions;
+}
+
 void MessageWidgets::deleteWindows()
 {
 	foreach(ITabWindow *window, tabWindows())
@@ -455,24 +474,6 @@ void MessageWidgets::deleteStreamWindows(const Jid &AStreamJid)
 	foreach(IMessageWindow *window, messageWindows)
 		if (window->streamJid() == AStreamJid)
 			delete window->instance();
-}
-
-QList<Action *> MessageWidgets::createLastTabPagesActions(QObject *AParent) const
-{
-	QList<Action *> actions;
-	for (int i = 0; i<FLastPagesOrder.count(); i++)
-	{
-		foreach(ITabPageHandler *handler, FTabPageHandlers)
-		{
-			Action *action = handler->tabPageAction(FLastPagesOrder.at(i), AParent);
-			if (action)
-			{
-				actions.append(action);
-				break;
-			}
-		}
-	}
-	return actions;
 }
 
 void MessageWidgets::onViewWidgetUrlClicked(const QUrl &AUrl)
@@ -645,12 +646,26 @@ void MessageWidgets::onStreamRemoved(IXmppStream *AXmppStream)
 
 void MessageWidgets::onTrayContextMenuAboutToShow()
 {
-	QList<Action *> actions = createLastTabPagesActions(FTrayManager->contextMenu());
+	// remove old actions
+	foreach(Action * a, FTrayManager->contextMenu()->groupActions(AG_TMTM_MESSAGEWIDGETS_LASTTABS))
+	{
+		FTrayManager->contextMenu()->removeAction(a);
+		a->setVisible(false);
+		a->deleteLater();
+	}
+
+	// create new actions
+	QList<Action *> actions = createLastTabPagesActions(NULL/*FTrayManager->contextMenu()*/);
 	foreach(Action *action, actions)
 	{
 		FTrayManager->contextMenu()->addAction(action,AG_TMTM_MESSAGEWIDGETS_LASTTABS);
-		connect(FTrayManager->contextMenu(),SIGNAL(aboutToHide()),action,SLOT(deleteLater()));
+		//connect(FTrayManager->contextMenu(),SIGNAL(aboutToHide()),action,SLOT(deleteLater())); // no effect on Mac OS X
 	}
+}
+
+void MessageWidgets::onTrayContextMenuAboutToHide()
+{
+
 }
 
 void MessageWidgets::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)

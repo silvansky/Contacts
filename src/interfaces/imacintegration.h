@@ -5,6 +5,8 @@
 #include <QMenuBar>
 #include <utils/menu.h>
 
+#define MACINTEGRATION_UUID "{c936122e-cbf3-442d-b01f-8ecc5b0ad530}"
+
 class IMacIntegration
 {
 public:

@@ -621,7 +621,8 @@ void StatusChanger::updateStatusAction(int AStatusId, Action *AAction) const
 	{
 		QImage img = srcIcon.pixmap(srcIcon.availableSizes().value(0)).toImage();
 		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), shadow->offset().toPoint());
-		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
+		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage), QIcon::Normal);
+		AAction->setData(Action::DR_UserDefined + 2, srcIcon);
 		AAction->setIcon(shadowedIcon);
 	}
 	else
@@ -1106,15 +1107,31 @@ void StatusChanger::onClearCustomStatusAction(bool)
 
 void StatusChanger::onTrayContextMenuAboutToShow()
 {
+	// remove old actions
+	foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER_CHANGESTATUS))
+	{
+		FTrayManager->contextMenu()->removeAction(action);
+		action->deleteLater();
+	}
+
+	// create new actions
 	if (FStatusMenu->menuAction()->isVisible())
-		foreach(Action *action, FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS)) {
-			FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER_CHANGESTATUS,true); }
+		foreach(Action *action, FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
+		{
+			Action * newAction = new Action;
+			newAction->setText(action->text());
+			QIcon newIcon = action->data(Action::DR_UserDefined + 2).value<QIcon>();
+			newAction->setIcon(newIcon);
+			connect(newAction, SIGNAL(triggered()), action, SLOT(trigger()));
+			FTrayManager->contextMenu()->addAction(newAction,AG_TMTM_STATUSCHANGER_CHANGESTATUS,true);
+		}
 }
 
 void StatusChanger::onTrayContextMenuAboutToHide()
 {
-	foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER_CHANGESTATUS)) {
-		FTrayManager->contextMenu()->removeAction(action); }
+	// moved to onShow for Mac OS X compitability
+	//foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER_CHANGESTATUS)) {
+	//	FTrayManager->contextMenu()->removeAction(action); }
 }
 
 void StatusChanger::onNotificationActivated(int ANotifyId)

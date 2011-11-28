@@ -12,8 +12,7 @@
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/iemoticons.h>
-
-#define MACINTEGRATION_UUID "{c936122e-cbf3-442d-b01f-8ecc5b0ad530}"
+#include <interfaces/imessagewidgets.h>
 
 class MacIntegrationPrivate;
 class ITabWindow;
@@ -56,6 +55,7 @@ signals:
 	void growlNotifyClicked(int);
 private:
 	void initMenus();
+	void initDock();
 	void updateActions();
 	void updateContactActions();
 private slots:
@@ -120,9 +120,17 @@ private slots:
 	void onSelectionChanged();
 	void onTextChanged();
 	void onCopyAvailableChange(bool);
+	// dock menu slots
+	void onShowMainWindowDockAction();
+	void onRecentContactAction();
+	void onDockMenuAboutToShow();
 private:
 	QWidget * lastFocusedWidget;
+	MacIntegrationPrivate * p;
+	// menus
+	// dock menu
 	Menu * _dockMenu;
+	// application menu
 	QMenuBar * _menuBar;
 	Menu * _fileMenu;
 	Menu * _editMenu;
@@ -130,33 +138,42 @@ private:
 	Menu * _statusMenu;
 	Menu * _windowMenu;
 	Menu * _helpMenu;
-	MacIntegrationPrivate * p;
 	// actions
+	// edit menu
 	Action * copyAction, * cutAction, * pasteAction, * undoAction, * redoAction, * selectallAction;
+	Action * findAction;
+	Menu * emoticonsMenu;
+	// window menu
 	Action * closeAction, * closeTabAction, * closeAllTabsAction;
 	Action * minimizeAction, * zoomAction, * bringAllToTopAction;
 	Action * nextTabAction, * prevTabAction;
 	Action * chatsAction;
+	QMap<ITabPage*, Action*> activeChatsActions;
+	// file menu
 	Action * newContactAction;
 	Action * newGroupAction;
 	Action * newAccountAction;
+	// status menu
 	Action * autoStatusAction;
 	Action * manageAccountsAction;
-	Action * findAction;
-	Menu * emoticonsMenu;
-	QMap<ITabPage*, Action*> activeChatsActions;
 	QMap<int, Action *> availableStatuses;
+	// help menu
 	Action * onlineHelpAction;
 	Action * feedbackAction;
 	Action * facebookAction;
 	Action * rulesAction;
 	Action * funAction;
 	QMap<QString, QString> funLinks;
+	// view menu
 	Action * fullViewAction, * simpleViewAction, * compactViewAction;
 	Action * sortByStatusAction, * sortByNameAction;
 	Action * showOfflineAction;
 	Action * stayOnTopAction;
-	// fun
+	// dock menu
+	Action * dockShowMainWindowAction;
+	Action * dockChatsAction;
+	QList<Action*> recentContactsActions;
+	// for fun =)
 	QString currentFunLink;
 	// other plugins
 	IPluginManager * pluginManager;
@@ -168,6 +185,7 @@ private:
 	IMetaContacts * metaContacts;
 	IStatusChanger * statusChanger;
 	IEmoticons * emoticons;
+	IMessageWidgets * messageWidgets;
 };
 
 #endif // MACINTEGRATIONPLUGIN_H

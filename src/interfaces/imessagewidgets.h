@@ -424,6 +424,7 @@ public:
 	virtual QList<ITabPageHandler *> tabPageHandlers() const =0;
 	virtual void insertTabPageHandler(ITabPageHandler *AHandler) =0;
 	virtual void removeTabPageHandler(ITabPageHandler *AHandler) =0;
+    virtual QList<Action *> createLastTabPagesActions(QObject *AParent) const =0;
 protected:
 	virtual void infoWidgetCreated(IInfoWidget *AInfoWidget) =0;
 	virtual void viewWidgetCreated(IViewWidget *AViewWidget) =0;

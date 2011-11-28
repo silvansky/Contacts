@@ -820,6 +820,11 @@ void PluginManager::createMenuActions()
 		about->setText("about.*");
 		connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
 		macIntegrationPligin->fileMenu()->addAction(about);
+
+		Action *pluginsDialog = new Action;
+		pluginsDialog->setText(tr("Setup plugins"));
+		connect(pluginsDialog,SIGNAL(triggered(bool)),SLOT(onShowSetupPluginsDialog(bool)));
+		macIntegrationPligin->windowMenu()->addAction(pluginsDialog, 510);
 	}
 
 }

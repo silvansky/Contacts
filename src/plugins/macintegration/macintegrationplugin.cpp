@@ -87,6 +87,10 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	MacIntegrationPrivate::installCustomFrame();
 	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
 	setCustomTitleColor(QColor(240, 240, 240, 255));
+
+	// init menus and dock
+	initMenus();
+	initDock();
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()
@@ -177,6 +181,12 @@ bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &
 		{
 			emoticons = qobject_cast<IEmoticons *>(plugin->instance());
 		}
+
+		plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
+		if (plugin)
+		{
+			messageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
+		}
 	}
 
 	connect(Options::instance(), SIGNAL(optionsChanged(const OptionsNode&)), SLOT(onOptionsChanged(const OptionsNode&)));
@@ -185,18 +195,13 @@ bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &
 
 bool MacIntegrationPlugin::initObjects()
 {
+	// moved to ctor
+
 	// menus
-	initMenus();
+	//initMenus();
 
 	// dock
-	_dockMenu = new Menu();
-
-	qt_mac_set_dock_menu(_dockMenu); // setting dock menu
-
-	connect(MacIntegrationPrivate::instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
-	connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(growlNotifyClicked(int)));
-	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
-	//postGrowlNotify(QApplication::style()->standardPixmap(QStyle::SP_MessageBoxCritical).toImage(), "Done!", "Growl notifications work ok.", "Error", 1);
+	//initDock();
 
 	return true;
 }
@@ -536,7 +541,6 @@ void MacIntegrationPlugin::initMenus()
 	connect(rulesAction, SIGNAL(triggered()), SLOT(onRulesAction()));
 	_helpMenu->addAction(rulesAction, 600);
 
-	// TODO: init fun actions and select one
 	connect(_helpMenu, SIGNAL(aboutToShow()), SLOT(onHelpMenuAboutToShow()));
 
 	funAction = new Action;
@@ -550,7 +554,32 @@ void MacIntegrationPlugin::initMenus()
 	funLinks.insert("http://finance.rambler.ru/currency/world/", tr("How much is one buck?"));
 	funLinks.insert("http://audio.rambler.ru/radios/echo", tr("What do they talk about at Echo of Moscow?"));
 	funLinks.insert("http://maps.rambler.ru/?ZinGs2o", tr("Where Lahdenpohja is?"));
-	funLinks.insert("http://nova.rambler.ru/search?query=%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0+%D0%B4%D0%BB%D1%8F+%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD%D0%B0", tr("Medical paper for swimming pool"));
+	// TODO: replace google shortener with rambler's one
+	funLinks.insert("http://goo.gl/TMwtu", tr("Medical certificate for swimming pool"));
+}
+
+void MacIntegrationPlugin::initDock()
+{
+	_dockMenu = new Menu();
+
+	qt_mac_set_dock_menu(_dockMenu); // setting dock menu
+
+	dockShowMainWindowAction = new Action;
+	dockShowMainWindowAction->setText(tr("Contact List"));
+	connect(dockShowMainWindowAction, SIGNAL(triggered()), SLOT(onShowMainWindowDockAction()));
+	_dockMenu->addAction(dockShowMainWindowAction);
+
+//	dockChatsAction = new Action;
+//	dockChatsAction->setText(tr("Chats"));
+//	dockChatsAction->setEnabled(false);
+//	dockChatsAction->setVisible(false);
+//	_dockMenu->addAction(dockChatsAction);
+
+	connect(_dockMenu, SIGNAL(aboutToShow()), SLOT(onDockMenuAboutToShow()));
+
+	connect(MacIntegrationPrivate::instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
+	connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(growlNotifyClicked(int)));
+	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
 }
 
 void MacIntegrationPlugin::updateActions()
@@ -686,7 +715,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 	if (now)
 	{
 		qDebug() << "focused: " << now->objectName()
-			 << " of class " << now->metaObject()->className();
+				 << " of class " << now->metaObject()->className();
 		QStringList hierarchy;
 		QWidget * parent = now->parentWidget();
 		while (parent)
@@ -1277,6 +1306,33 @@ void MacIntegrationPlugin::onTextChanged()
 void MacIntegrationPlugin::onCopyAvailableChange(bool available)
 {
 	copyAction->setEnabled(available);
+}
+
+void MacIntegrationPlugin::onShowMainWindowDockAction()
+{
+	if (mainWindow)
+		mainWindow->showMainWindow();
+}
+
+void MacIntegrationPlugin::onRecentContactAction()
+{
+
+}
+
+void MacIntegrationPlugin::onDockMenuAboutToShow()
+{
+	qDebug() << "dock menu about to show!";
+	foreach (Action * a, recentContactsActions)
+	{
+		_dockMenu->removeAction(a);
+		a->deleteLater();
+	}
+	if (messageWidgets)
+		recentContactsActions = messageWidgets->createLastTabPagesActions(NULL);
+	foreach (Action * action, recentContactsActions)
+	{
+		_dockMenu->addAction(action);
+	}
 }
 
 Q_EXPORT_PLUGIN2(plg_macintegration, MacIntegrationPlugin)
