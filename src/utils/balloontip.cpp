@@ -58,7 +58,11 @@ void BalloonTip::hideBalloon()
 
 void BalloonTip::init()
 {
+#ifdef Q_WS_MAC
+	setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+#else
 	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+#endif
 	setFocusPolicy(Qt::NoFocus);
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setAttribute(Qt::WA_TranslucentBackground, true);
@@ -106,12 +110,8 @@ BalloonTip::BalloonTip(QIcon icon, const QString& title, const QString& message,
 	msgLabel->setTextFormat(Qt::PlainText);
 	msgLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
-	// smart size for the message label
-#ifdef Q_WS_WINCE
-	int limit = QApplication::desktop()->availableGeometry(msgLabel).size().width() / 2;
-#else
+	// size for the message label
 	int limit = 230; // QApplication::desktop()->availableGeometry(msgLabel).size().width() / 4;
-#endif
 	if (msgLabel->sizeHint().width() > limit)
 	{
 		msgLabel->setWordWrap(true);
