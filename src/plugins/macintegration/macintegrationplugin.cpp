@@ -87,10 +87,6 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	MacIntegrationPrivate::installCustomFrame();
 	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
 	setCustomTitleColor(QColor(240, 240, 240, 255));
-
-	// init menus and dock
-	initMenus();
-	initDock();
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()
@@ -111,6 +107,10 @@ void MacIntegrationPlugin::pluginInfo(IPluginInfo *APluginInfo)
 bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
 	Q_UNUSED(AInitOrder)
+
+	// init menus and dock
+	initMenus();
+	initDock();
 
 	pluginManager = APluginManager;
 

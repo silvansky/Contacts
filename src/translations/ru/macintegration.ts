@@ -104,10 +104,6 @@
         <translation>Найти</translation>
     </message>
     <message>
-        <source>Insert Emoticon</source>
-        <translation>Вставить смайлик</translation>
-    </message>
-    <message>
         <source>View</source>
         <translation>Вид</translation>
     </message>
@@ -230,10 +226,6 @@
     <message>
         <source>Medical certificate for swimming pool</source>
         <translation>Справка для бассейна</translation>
-    </message>
-    <message>
-        <source>TODO</source>
-        <translation>ТУДУшечка</translation>
     </message>
 </context>
 </TS>
