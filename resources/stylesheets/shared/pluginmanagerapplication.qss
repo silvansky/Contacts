@@ -7,6 +7,7 @@
 QWidget
 {
 	background-color: rgba(65, 70, 77, 250);
+	font: normal normal 12 "Segoe UI";
 }
 
 /*************

@@ -95,13 +95,13 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 				int pxPerLine = fontMetrics().lineSpacing();
 				int lines = lr.height() / pxPerLine + 1;
 #ifdef DEBUG_ENABLED
-				if (lines > 1)
-				{
-					qDebug() << pxPerLine << lines << lr << fm.height() << font().toString();
-				}
+//				if (lines > 1)
+//				{
+//					qDebug() << pxPerLine << lines << lr << fm.height() << font().toString();
+//				}
 #endif
 #ifdef Q_WS_MAC // mac hack, dunno why
-				lines--;
+				//lines--;
 				// TODO: debug this!!!
 #endif
 				QStringList srcLines = text().split("\n");

@@ -44,6 +44,7 @@ QLabel#lblMood
 	max-height: 28px;
 	font-size: 11px;
 	height: 28px;
+	font-family: "Segoe UI";
 }
 
 QLabel#lblMood:hover
