@@ -630,7 +630,7 @@ bool LoginDialog::isCapsLockOn() const
 {
 #ifdef Q_WS_WIN
 	return GetKeyState(VK_CAPITAL) == 1;
-#elif defined Q_WS_X11
+#elif defined(Q_WS_X11)
 	Display * d = XOpenDisplay((char*)0);
 	bool caps_state = false;
 	if (d)
@@ -642,8 +642,6 @@ bool LoginDialog::isCapsLockOn() const
 	return caps_state;
 #elif defined(Q_WS_MAC)
 	UInt32 km = GetCurrentKeyModifiers();
-	QString kms = QString("key modifiers: %1 (%2)").arg(km).arg(QString::number(km, 2));
-	qDebug(kms.toAscii().constData());
 	return (km & 0x400);
 #endif
 	return false;

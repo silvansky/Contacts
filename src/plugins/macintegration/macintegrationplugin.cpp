@@ -389,10 +389,6 @@ void MacIntegrationPlugin::initMenus()
 	connect(findAction, SIGNAL(triggered()), SLOT(onFindAction()));
 	_editMenu->addAction(findAction, 600);
 
-	emoticonsMenu = new Menu;
-	emoticonsMenu->menuAction()->setText(tr("Insert Emoticon"));
-	_editMenu->addAction(emoticonsMenu->menuAction(), 700);
-
 	// View
 	_viewMenu = new Menu;
 	_viewMenu->setTitle(tr("View"));
@@ -746,20 +742,6 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 			connect(wv->page(), SIGNAL(selectionChanged()), SLOT(onSelectionChanged()));
 			connect(wv->page(), SIGNAL(contentsChanged()), SLOT(onTextChanged()));
 		}
-		if (IEditWidget * ew = qobject_cast<IEditWidget*>(now->parentWidget()))
-		{
-			emoticonsMenu->setEnabled(true);
-			if (emoticonsMenu->isEmpty())
-			{
-				// TODO: fill it with emoticons
-				Action * dummy = new Action;
-				dummy->setText(tr("TODO"));
-				dummy->setEnabled(false);
-				emoticonsMenu->addAction(dummy);
-			}
-		}
-		else
-			emoticonsMenu->setEnabled(false);
 	}
 	if (qApp->activeWindow())
 	{

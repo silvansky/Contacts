@@ -5,11 +5,25 @@
 
 #define DEFAULT_ICONSET                 "smiles"
 
+#ifdef Q_WS_MAC
+template <typename T>
+QList<T> reversed(const QList<T> & in)
+{
+	QList<T> result;
+	result.reserve(in.size());
+	std::reverse_copy(in.begin(), in.end(), std::back_inserter(result));
+	return result;
+}
+#endif
+
 Emoticons::Emoticons()
 {
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FOptionsManager = NULL;
+#ifdef Q_WS_MAC
+	FMacIntegration = NULL;
+#endif
 }
 
 Emoticons::~Emoticons()
@@ -52,6 +66,14 @@ bool Emoticons::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
 	}
 
+#ifdef Q_WS_MAC
+	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+	if (plugin)
+	{
+		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
+	}
+#endif
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
@@ -60,6 +82,15 @@ bool Emoticons::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 
 bool Emoticons::initObjects()
 {
+#ifdef Q_WS_MAC
+	emoticonsMenu = new Menu;
+	emoticonsMenu->menuAction()->setText(tr("Insert Emoticon"));
+	emoticonsMenu->setEnabled(false);
+	if (FMacIntegration)
+	{
+		FMacIntegration->editMenu()->addAction(emoticonsMenu->menuAction(), 700);
+	}
+#endif
 	return true;
 }
 
@@ -360,6 +391,45 @@ void Emoticons::removeSelectIconMenu(const QString &ASubStorage)
 	}
 }
 
+#ifdef Q_WS_MAC
+bool Emoticons::eventFilter(QObject * obj, QEvent * evt)
+{
+	if (QTextEdit * te = qobject_cast<QTextEdit*>(obj))
+	{
+		switch (evt->type())
+		{
+		case QEvent::FocusIn:
+			{
+				currentEditWidget = qobject_cast<IEditWidget*>(te->parentWidget());
+				emoticonsMenu->setEnabled(true);
+				break;
+			}
+		case QEvent::FocusOut:
+			{
+				currentEditWidget = NULL;
+				emoticonsMenu->setEnabled(false);
+				break;
+			}
+		default:
+			break;
+		}
+	}
+	return QObject::eventFilter(obj, evt);
+}
+
+void Emoticons::onEmoticonAction()
+{
+	Action * action = qobject_cast<Action*>(sender());
+	if (action)
+	{
+		QString substorage = action->data(Action::DR_UserDefined + 3).toString();
+		QString key = action->data(Action::DR_UserDefined + 4).toString();
+		onIconSelected(substorage, key);
+	}
+}
+
+#endif
+
 void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 {
 	EmoticonsContainer *container = new EmoticonsContainer(AEditWidget);
@@ -383,6 +453,10 @@ void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 				vlayout->insertWidget(0, container,0,Qt::AlignTop);
 		}
 	}
+
+#ifdef Q_WS_MAC
+	AEditWidget->textEdit()->installEventFilter(this);
+#endif
 
 	connect(AEditWidget->textEdit()->document(),SIGNAL(contentsChange(int,int,int)),SLOT(onEditWidgetContentsChanged(int,int,int)));
 	connect(container,SIGNAL(destroyed(QObject *)),SLOT(onEmoticonsContainerDestroyed(QObject *)));
@@ -442,18 +516,23 @@ void Emoticons::onIconSelected(const QString &ASubStorage, const QString &AIconK
 {
 	Q_UNUSED(ASubStorage);
 	SelectIconMenu *menu = qobject_cast<SelectIconMenu *>(sender());
+	IEditWidget *widget = NULL;
 	if (FContainerByMenu.contains(menu))
 	{
-		IEditWidget *widget = FContainerByMenu.value(menu)->editWidget();
-		if (widget)
-		{
-			QTextEdit *editor = widget->textEdit();
-			editor->textCursor().beginEditBlock();
-			editor->textCursor().insertText(AIconKey);
-			editor->textCursor().insertText(" ");
-			editor->textCursor().endEditBlock();
-			editor->setFocus();
-		}
+		widget = FContainerByMenu.value(menu)->editWidget();
+	}
+#ifdef Q_WS_MAC
+	else
+		widget = currentEditWidget;
+#endif
+	if (widget)
+	{
+		QTextEdit *editor = widget->textEdit();
+		editor->textCursor().beginEditBlock();
+		editor->textCursor().insertText(AIconKey);
+		editor->textCursor().insertText(" ");
+		editor->textCursor().endEditBlock();
+		editor->setFocus();
 	}
 }
 
@@ -498,6 +577,33 @@ void Emoticons::onOptionsChanged(const OptionsNode &ANode)
 			removeSelectIconMenu(substorage);
 			delete FStorages.take(substorage);
 		}
+
+#ifdef Q_WS_MAC
+		emoticonsMenu->clear();
+		foreach(Action * a, emoticonsActions)
+			a->deleteLater();
+
+		emoticonsActions.clear();
+
+		QList<Action*> tmp;
+		foreach(IconStorage * storage, FStorages.values())
+		{
+			foreach (QString key, storage->fileFirstKeys())
+			{
+				Action * action = new Action;
+				action->setText(storage->fileOption(key, "comment"));
+				action->setIcon(storage->getIcon(key));
+				action->setData(Action::DR_UserDefined + 3, storage->storage());
+				action->setData(Action::DR_UserDefined + 4, key);
+				connect(action, SIGNAL(triggered()), SLOT(onEmoticonAction()));
+				tmp << action;
+			}
+		}
+
+		emoticonsActions = reversed<Action*>(tmp);
+
+		emoticonsMenu->addActions(emoticonsActions, -1);
+#endif
 
 		createIconsetUrls();
 	}

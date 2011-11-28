@@ -142,7 +142,6 @@ private:
 	// edit menu
 	Action * copyAction, * cutAction, * pasteAction, * undoAction, * redoAction, * selectallAction;
 	Action * findAction;
-	Menu * emoticonsMenu;
 	// window menu
 	Action * closeAction, * closeTabAction, * closeAllTabsAction;
 	Action * minimizeAction, * zoomAction, * bringAllToTopAction;

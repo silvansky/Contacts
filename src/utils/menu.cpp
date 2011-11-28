@@ -170,6 +170,12 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 		emit separatorInserted(AAction,separator);
 }
 
+void Menu::addActions(QList<Action *> AActions, int AGroup)
+{
+	foreach(Action * a, AActions)
+		addAction(a, AGroup);
+}
+
 void Menu::addMenuActions(const Menu *AMenu, int AGroup, bool ASort)
 {
 	foreach(Action *action,AMenu->groupActions(AGroup))
