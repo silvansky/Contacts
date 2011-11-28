@@ -20,7 +20,9 @@
 #include <definitions/optionnodes.h>
 #include <definitions/optionvalues.h>
 
-#include <QDebug>
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
 
 extern void qt_mac_set_dock_menu(QMenu *); // Qt internal function
 
@@ -195,37 +197,11 @@ bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &
 
 bool MacIntegrationPlugin::initObjects()
 {
-	// moved to ctor
-
-	// menus
-	//initMenus();
-
-	// dock
-	//initDock();
-
 	return true;
 }
 
 bool MacIntegrationPlugin::initSettings()
 {
-	//    autoStatusAction->setChecked(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK).value().toBool());
-	//    showOfflineAction->setChecked(Options::node(OPV_ROSTER_SHOWOFFLINE).value().toBool());
-	//    sortByStatusAction->setChecked(Options::node(OPV_ROSTER_SORTBYSTATUS).value().toBool());
-	//    sortByNameAction->setChecked(Options::node(OPV_ROSTER_SORTBYNAME).value().toBool());
-	//    bool showAvatars = Options::node(OPV_AVATARS_SHOW).value().toBool();
-	//    bool showStatus = Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool();
-	//    if (showAvatars && showStatus)
-	//    {
-	//        fullViewAction->setChecked(true);
-	//    }
-	//    else if (showAvatars)
-	//    {
-	//        simpleViewAction->setChecked(true);
-	//    }
-	//    else
-	//    {
-	//        compactViewAction->setChecked(true);
-	//    }
 	return true;
 }
 
@@ -710,6 +686,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 	lastFocusedWidget = now;
 	if (now)
 	{
+#ifdef DEBUG_ENABLED
 		qDebug() << "focused: " << now->objectName()
 				 << " of class " << now->metaObject()->className();
 		QStringList hierarchy;
@@ -720,6 +697,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 			parent = parent->parentWidget();
 		}
 		qDebug() << "hierarchy: " << hierarchy.join(" -> ");
+#endif
 		updateActions();
 		if (QLineEdit * le = qobject_cast<QLineEdit*>(now))
 		{
@@ -948,7 +926,9 @@ void MacIntegrationPlugin::onNewContactAction()
 void MacIntegrationPlugin::onNewGroupAction()
 {
 	// TODO
+#ifdef DEBUG_ENABLED
 	qDebug() << "New Grop Action: not implemented!";
+#endif
 }
 
 void MacIntegrationPlugin::onNewAccountAction()
@@ -1303,7 +1283,6 @@ void MacIntegrationPlugin::onRecentContactAction()
 
 void MacIntegrationPlugin::onDockMenuAboutToShow()
 {
-	qDebug() << "dock menu about to show!";
 	foreach (Action * a, recentContactsActions)
 	{
 		_dockMenu->removeAction(a);
