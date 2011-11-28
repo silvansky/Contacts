@@ -4,12 +4,8 @@
 <context>
     <name>GrowlPreferences</name>
     <message>
-        <source>Rambler.Contacts uses Growl for notifications.</source>
-        <translation>Рамблер.Контакты испоьзуют Growl для уведомлений.</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&apos;growl.preferences&apos;&gt;Show Growl preferences.&lt;/a&gt;</source>
-        <translation>&lt;a href=&apos;growl.preferences&apos;&gt;Показать настройки Growl.&lt;/a&gt;</translation>
+        <source>Configure Notifications...</source>
+        <translation>Настроить уведомления...</translation>
     </message>
 </context>
 <context>
@@ -55,8 +51,8 @@
         <translation>Скрывать все уведомления при просмотре полноэкранных фильмов или игр</translation>
     </message>
     <message>
-        <source>Growl options</source>
-        <translation>Настройки Growl</translation>
+        <source>Growl Notifications</source>
+        <translation>Уведомления Growl</translation>
     </message>
 </context>
 <context>

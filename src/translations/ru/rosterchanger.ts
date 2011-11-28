@@ -16,10 +16,6 @@
         <translation>Добавить контакт</translation>
     </message>
     <message>
-        <source>Adding a contact</source>
-        <translation>Добавление контакта</translation>
-    </message>
-    <message>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>%1 service is temporarily unavailable, please try later.</source>
         <translation>Сервис %1 временно недоступен, попробуйте повторить позднее.</translation>
+    </message>
+    <message>
+        <source>New contact</source>
+        <translation>Новый контакт</translation>
     </message>
 </context>
 <context>

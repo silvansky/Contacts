@@ -20,16 +20,8 @@
         <translation>Правка</translation>
     </message>
     <message>
-        <source>Contacts</source>
-        <translation>Контакты</translation>
-    </message>
-    <message>
         <source>Window</source>
         <translation>Окно</translation>
-    </message>
-    <message>
-        <source>Minimize</source>
-        <translation>Свернуть</translation>
     </message>
     <message>
         <source>Close</source>
@@ -90,6 +82,158 @@
     <message>
         <source>Subscription Message</source>
         <translation>Сообщения об авторизации</translation>
+    </message>
+    <message>
+        <source>New Contact...</source>
+        <translation>Новый контакт...</translation>
+    </message>
+    <message>
+        <source>New Gorup...</source>
+        <translation>Новая группа...</translation>
+    </message>
+    <message>
+        <source>New Account...</source>
+        <translation>Новая учётная запись...</translation>
+    </message>
+    <message>
+        <source>Close All Tabs</source>
+        <translation>Закрыть все вкладки</translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation>Найти</translation>
+    </message>
+    <message>
+        <source>Insert Emoticon</source>
+        <translation>Вставить смайлик</translation>
+    </message>
+    <message>
+        <source>View</source>
+        <translation>Вид</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation>Полный</translation>
+    </message>
+    <message>
+        <source>Simplifyed</source>
+        <translation>Упрощённый</translation>
+    </message>
+    <message>
+        <source>Compact</source>
+        <translation>Компакнтый</translation>
+    </message>
+    <message>
+        <source>Sort By Name</source>
+        <translation>Упорядочить по имени</translation>
+    </message>
+    <message>
+        <source>Sort By Status</source>
+        <translation>Упорядочить по статусу</translation>
+    </message>
+    <message>
+        <source>Show Offline</source>
+        <translation>Показывать отключённых</translation>
+    </message>
+    <message>
+        <source>Stay On Top</source>
+        <translation>Закрепить поверх всех окон</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Статус</translation>
+    </message>
+    <message>
+        <source>Manage Accounts...</source>
+        <translation>Уравление учётными записями...</translation>
+    </message>
+    <message>
+        <source>Change Status to &quot;Away&quot; on Idle</source>
+        <translation>Менять на &quot;Отошёл&quot; при бездействии компьютера</translation>
+    </message>
+    <message>
+        <source>Minimize to Dock</source>
+        <translation>Убрать в Dock</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>Изменить масштаб</translation>
+    </message>
+    <message>
+        <source>Select Previous Tab</source>
+        <translation>Выбрать предыдущую вкладку</translation>
+    </message>
+    <message>
+        <source>Select Next Tab</source>
+        <translation>Выбрать следующую вкладку</translation>
+    </message>
+    <message>
+        <source>Bring All to Front</source>
+        <translation>Все окна - на передний план</translation>
+    </message>
+    <message>
+        <source>Contact List</source>
+        <translation>Список контактов</translation>
+    </message>
+    <message>
+        <source>Chats</source>
+        <translation>Чаты</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Справка</translation>
+    </message>
+    <message>
+        <source>Online Help</source>
+        <translation>Справка онлайн</translation>
+    </message>
+    <message>
+        <source>Leave Feedback...</source>
+        <translation>Оставьте Ваш отзыв...</translation>
+    </message>
+    <message>
+        <source>Facebook Group</source>
+        <translation>Группа в Facebook</translation>
+    </message>
+    <message>
+        <source>Terms of Usage And Confidentiality</source>
+        <translation>Правила пользования и конфиденциальность</translation>
+    </message>
+    <message>
+        <source>What to cook for dinner?</source>
+        <translation>Что приготовить на ужин?</translation>
+    </message>
+    <message>
+        <source>When is it cheaper to fly to Turkey?</source>
+        <translation>Когда дешевле поехать в Турцию?</translation>
+    </message>
+    <message>
+        <source>Where my friends are going to?</source>
+        <translation>Куда собрались мои друзья?</translation>
+    </message>
+    <message>
+        <source>What will the weather be tomorrow?</source>
+        <translation>Какая завтра погода?</translation>
+    </message>
+    <message>
+        <source>How much is one buck?</source>
+        <translation>Сколько дают за доллар?</translation>
+    </message>
+    <message>
+        <source>What do they talk about at Echo of Moscow?</source>
+        <translation>О чём говорят на Эхо Москвы?</translation>
+    </message>
+    <message>
+        <source>Where Lahdenpohja is?</source>
+        <translation>Где находится Лахденпохья?</translation>
+    </message>
+    <message>
+        <source>Medical certificate for swimming pool</source>
+        <translation>Справка для бассейна</translation>
+    </message>
+    <message>
+        <source>TODO</source>
+        <translation>ТУДУшечка</translation>
     </message>
 </context>
 </TS>

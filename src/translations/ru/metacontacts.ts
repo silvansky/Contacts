@@ -342,6 +342,10 @@
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
+    <message>
+        <source>Information</source>
+        <translation>Информация</translation>
+    </message>
 </context>
 <context>
     <name>MetaProxyModel</name>
