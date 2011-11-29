@@ -121,6 +121,13 @@
     </message>
 </context>
 <context>
+    <name>MessengerOptions</name>
+    <message>
+        <source>By pressing </source>
+        <translation>По нажатию </translation>
+    </message>
+</context>
+<context>
     <name>MessengerOptionsClass</name>
     <message>
         <source>By pressing Enter</source>

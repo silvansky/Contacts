@@ -112,8 +112,9 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 	{
 		before = nextGroupSeparator(AGroup);
 		before != NULL ? QMenu::insertAction(before,AAction) : QMenu::addAction(AAction);
-		if (!FActions.isEmpty())
-			separator = insertSeparator(AAction);
+		separator = insertSeparator(AAction);
+//		if (FActions.isEmpty())
+//			separator->setVisible(false);
 		FSeparators.insert(AGroup,separator);
 	}
 	else

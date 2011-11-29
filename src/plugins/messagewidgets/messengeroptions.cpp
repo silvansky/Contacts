@@ -6,6 +6,11 @@ MessengerOptions::MessengerOptions(QWidget *AParent) : QWidget(AParent)
 
 	connect(ui.rdbSendByEnter,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.rdbSendByCtrlEnter,SIGNAL(toggled(bool)),SIGNAL(modified()));
+
+#ifdef Q_WS_MAC
+	ui.rdbSendByEnter->setText(tr("By pressing ") + QChar(0x23CE)); // Enter symbol
+	ui.rdbSendByCtrlEnter->setText(tr("By pressing ") + QChar(0x2318) + QChar(0x23CE)); // Cmd and Enter symbols
+#endif
 	
 	reset();
 }

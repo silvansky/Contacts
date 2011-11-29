@@ -308,14 +308,14 @@ void MacIntegrationPlugin::initMenus()
 	closeTabAction->setShortcut(QKeySequence("Ctrl+W"));
 	closeTabAction->setEnabled(false);
 	connect(closeTabAction, SIGNAL(triggered()), SLOT(onCloseTabAction()));
-	_fileMenu->addAction(closeTabAction, 501);
+	_fileMenu->addAction(closeTabAction, 600);
 
 	closeAllTabsAction = new Action;
 	closeAllTabsAction->setText(tr("Close All Tabs"));
 	closeAllTabsAction->setShortcut(QKeySequence("Shift+Ctrl+W"));
 	closeAllTabsAction->setEnabled(false);
 	connect(closeAllTabsAction, SIGNAL(triggered()), SLOT(onCloseAllTabsAction()));
-	_fileMenu->addAction(closeAllTabsAction, 501);
+	_fileMenu->addAction(closeAllTabsAction, 600);
 
 	// Edit
 	_editMenu = new Menu;
@@ -428,14 +428,14 @@ void MacIntegrationPlugin::initMenus()
 	manageAccountsAction->setText(tr("Manage Accounts..."));
 	manageAccountsAction->setEnabled(false);
 	connect(manageAccountsAction, SIGNAL(triggered()), SLOT(onNewAccountAction()));
-	_statusMenu->addAction(manageAccountsAction, 550);
+	//_statusMenu->addAction(manageAccountsAction, 550);
 
 	autoStatusAction = new Action;
 	autoStatusAction->setText(tr("Change Status to \"Away\" on Idle"));
 	autoStatusAction->setCheckable(true);
 	autoStatusAction->setEnabled(false);
 	connect(autoStatusAction, SIGNAL(toggled(bool)), SLOT(onAutoStatusAction(bool)));
-    _statusMenu->addAction(autoStatusAction, 800);
+	_statusMenu->addAction(autoStatusAction, 200);
 
 	// Window
 	_windowMenu = new Menu;
@@ -540,12 +540,18 @@ void MacIntegrationPlugin::initDock()
 	dockShowMainWindowAction->setText(tr("Contact List"));
 	connect(dockShowMainWindowAction, SIGNAL(triggered()), SLOT(onShowMainWindowDockAction()));
 	_dockMenu->addAction(dockShowMainWindowAction);
+	foreach(QAction * a, _dockMenu->actions())
+		if (a->isSeparator())
+		{
+			qobject_cast<QMenu*>(_dockMenu)->removeAction(a);
+			a->deleteLater();
+		}
 
-//	dockChatsAction = new Action;
-//	dockChatsAction->setText(tr("Chats"));
-//	dockChatsAction->setEnabled(false);
-//	dockChatsAction->setVisible(false);
-//	_dockMenu->addAction(dockChatsAction);
+	//	dockChatsAction = new Action;
+	//	dockChatsAction->setText(tr("Chats"));
+	//	dockChatsAction->setEnabled(false);
+	//	dockChatsAction->setVisible(false);
+	//	_dockMenu->addAction(dockChatsAction);
 
 	connect(_dockMenu, SIGNAL(aboutToShow()), SLOT(onDockMenuAboutToShow()));
 
@@ -688,7 +694,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 	{
 #ifdef DEBUG_ENABLED
 		qDebug() << "focused: " << now->objectName()
-				 << " of class " << now->metaObject()->className();
+			 << " of class " << now->metaObject()->className();
 		QStringList hierarchy;
 		QWidget * parent = now->parentWidget();
 		while (parent)
@@ -882,7 +888,7 @@ void MacIntegrationPlugin::onStatusItemAdded(int status)
 		availableStatuses.insert(status, statusAction);
 		connect(statusAction, SIGNAL(triggered()), SLOT(onStatusAction()));
 		onStatusItemChanged(status);
-        _statusMenu->addAction(statusAction, 700);
+		_statusMenu->addAction(statusAction, 100);
 
 		if (optionsManager)
 			statusAction->setEnabled(!optionsManager->currentProfile().isNull());
