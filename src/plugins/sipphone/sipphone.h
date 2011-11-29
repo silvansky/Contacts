@@ -32,10 +32,8 @@
 #include <utils/action.h>
 
 #include "rcallcontrol.h"
-//#include "sipphonewidget.h"
 #include "sipphoneproxy.h"
 #include "voipmediainit.h"
-
 
 
 class SipPhone :
@@ -68,34 +66,33 @@ public:
 	//ISipPhone
 	virtual bool isSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual bool isSupported(const Jid &AStreamJid, const QString &AMetaId) const;
-	virtual bool isSupportedAndFindStream(const Jid &AStreamJid, const QString &AMetaId, /*out*/QString& AStreamID) const;
 	virtual QList<QString> streams() const;
 	virtual ISipStream streamById(const QString &AStreamId) const;
 	virtual QString findStream(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual QString openStream(const Jid &AStreamJid, const Jid &AContactJid);
 	virtual bool acceptStream(const QString &AStreamId);
 	virtual void closeStream(const QString &AStreamId);
-
-	Jid getContactWithPresence(const Jid &AStreamJid, const QString &AMetaId) const;
-	Jid getContactWithPresence(const Jid &AStreamJid, const Jid &AContactWithoutPresence, const QString &AMetaId) const;
-	QString findMetaId(const Jid& AStreamJid, const Jid& AContactJid) const;
-
 signals:
 	void streamCreated(const QString &AStreamId);
 	void streamStateChanged(const QString &AStreamId, int AState);
 	void streamRemoved(const QString &AStreamId);
 	void hideCallNotifyer();
-
-
-	// Сигналы относящиеся к взаимодействию с SIP протоколом
 signals:
+	// Сигналы относящиеся к взаимодействию с SIP протоколом
 	void sipSendRegisterAsInitiator(const Jid &AStreamJid, const Jid &AContactJid);
 	void sipSendRegisterAsResponder(const QString& AStreamId);
-
 	void sipSendInvite(const QString &AClientSIP);
 	void sipSendBye(const QString &AClientSIP);
 	void sipSendUnRegister();
-
+protected:
+	void insertNotify(const ISipStream &AStream);
+	void removeNotify(const QString &AStreamId);
+	void removeStream(const QString &AStreamId);
+	void showCallControlTab(const QString& sid);
+	Jid getContactWithPresence(const Jid &AStreamJid, const QString &AMetaId) const;
+	IMetaTabWindow *findMetaWindow(const QString &AMetaId);
+	QString findMetaId(const Jid& AStreamJid, const Jid& AContactJid) const;
+	RCallControl *newRCallControl(const QString &AStreamId, RCallControl::CallSide ASide, IMetaTabWindow *AMetaWindow);
 protected slots:
 	void onRedialCall();
 	void onHangupCallTest();
@@ -106,32 +103,12 @@ protected slots:
 	void sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, const Jid& AStreamJid, const Jid& AContactJid);
 	// Действие после получения ответа на регистрацию. Регистрация на принимающей стороне
 	void sipActionAfterRegistrationAsResponder(bool ARegistrationResult, const QString &AStreamId);
-	// Действие в случае ответа пользователя на INVITE
-	void sipActionAfterInviteAnswer(bool AInviteStatus, const QString &AClientSIP);
-	void finalActionAfterHangup();
-
 	// Слот обработки завершения звонка
 	void sipCallDeletedSlot(bool);
-
 	void sipClearRegistration(const QString&);
-
 	void onMetaTabWindowCreated(IMetaTabWindow*);
 	void onMetaTabWindowDestroyed(IMetaTabWindow*);
-	void onToolBarActionTriggered(bool);
-//
-//	// ЗАГЛУШКИ
-//	void sipRegisterInitiatorSlot(, const Jid& AStreamJid, const Jid& AContactJid);
-//	void sipRegisterResponderSlot(const QString &AStreamId);
-//	//void sipSendInviteSlot(const QString &AClientSIP);
-
-
-
-protected:
-	virtual void insertNotify(const ISipStream &AStream);
-	virtual void removeNotify(const QString &AStreamId);
-	virtual void removeStream(const QString &AStreamId);
-	virtual void showCallControlTab(const QString& sid);
-
+	void onCallActionTriggered(bool);
 protected slots:
 	void onOpenStreamByAction(bool);
 	void onAcceptStreamByAction();
@@ -140,56 +117,40 @@ protected slots:
 	void onNotificationRemoved(int ANotifyId);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
-
-	void onTabActionHangup();
-
-	void onStreamOpened(IXmppStream *);
-	void onStreamClosed(IXmppStream *);
-
+	void onXmppStreamOpened(IXmppStream *);
+	void onXmppStreamClosed(IXmppStream *);
 	void onStreamCreated(const QString&);
-
-	void incomingThreadTimeChanged(qint64);
-
+	void onIncomingThreadTimeChanged(qint64);
 private slots:
-	void continueCallToContact();
-	void addContactToCall();
+	void onStartCallToContact();
+	void onShowAddContactDialog();
 	void onAboutToShowContactMenu();
 	void onAboutToHideContactMenu();
 	void onCloseCallControl(bool);
-
 private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
 	INotifications *FNotifications;
-	//IRostersViewPlugin *FRostersViewPlugin;
 	IRosterChanger *FRosterChanger;
 	IRostersView *FRostersView;
 	IMetaContacts *FMetaContacts;
 	IPresencePlugin *FPresencePlugin;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
-
 private:
 	int FSHISipRequest;
 	QMap<QString, QString> FOpenRequests;
 	QMap<QString, QString> FCloseRequests;
 	QMap<QString, QString> FPendingRequests;
-
 private:
 	QMap<QString, ISipStream> FStreams;
 	QMap<int, QString> FNotifies;
-	QMap<QString, RCallControl*> FCallControls;
-	QMap<QString, Action*> FCallActions;
-
+	QMap<QString, RCallControl *> FCallControls;
+	QMap<QString, Action *> FCallActions;
 	SipPhoneProxy* FSipPhoneProxy;
-
-	Jid userJid;
-	QString sipUri;
-	QString username;
-	QString pass;
-	QString streamId;
-
-	Menu* __tmpMenu;
+private:
+	QString FStreamId;
+	Menu* FBackupCallActionMenu;
 };
 
 #endif // SIPPHONE_H

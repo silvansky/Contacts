@@ -42,7 +42,6 @@ public:
 	};
 
 public:
-	RCallControl(CallSide, QWidget *parent = 0);
 	RCallControl(QString sid, CallSide, QWidget *parent = 0);
 	~RCallControl();
 

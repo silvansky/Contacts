@@ -4,65 +4,6 @@
 #include <QPaintEvent>
 #include <utils/log.h>
 
-RCallControl::RCallControl(CallSide callSide, QWidget *parent)
-	: QWidget(parent), _callStatus(Undefined), _sid("")
-{
-	ui.setupUi(this);
-
-	setProperty("ringing", true);
-
-
-#ifdef QT_PHONON_LIB
-	FMediaObject = NULL;
-	FAudioOutput = NULL;
-#else
-	_pSoundWait = NULL;
-	_pSoundBusy = NULL;
-	_pSoundRinging = NULL;
-#endif
-
-
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
-
-	//IconStorage * iconStorage;
-	//QIcon currentIcon;
-
-	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
-	acceptIcon = iconStorage->getIcon(MNI_SIPPHONE_BTN_ACCEPT);
-	hangupIcon = iconStorage->getIcon(MNI_SIPPHONE_BTN_HANGUP);
-	//if (!currentIcon.isNull())
-	//	iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
-
-	ui.btnAccept->setIcon(acceptIcon);
-	ui.btnHangup->setIcon(hangupIcon);
-	//ui.btnAccept->setPixmap(acceptIcon.pixmap(16, QIcon::Normal, QIcon::On));
-	//ui.btnHangup->setPixmap(hangupIcon.pixmap(16, QIcon::Normal, QIcon::On));
-
-
-	_callSide = callSide;
-	if(callSide == Receiver)
-	{
-		ui.btnAccept->show();
-		ui.btnHangup->show();
-	}
-	else
-	{
-		ui.btnAccept->hide();
-		ui.btnHangup->show();
-	}
-
-	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SIGNAL(camStateChange(bool)));
-	connect(ui.wgtAVControl, SIGNAL(camResolutionChange(bool)), SIGNAL(camResolutionChange(bool)));
-	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), SIGNAL(micStateChange(bool)));
-	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), SIGNAL(micVolumeChange(int)));
-
-	connect(ui.btnAccept, SIGNAL(clicked()), this, SLOT(onAccept()));
-	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(onHangup()));
-
-	callStatusChange(Register);
-}
-
-
 RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 : QWidget(parent), _callStatus(Undefined), _sid(sid)
 {
@@ -80,20 +21,12 @@ RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 
-	//IconStorage * iconStorage;
-	//QIcon currentIcon;
-
 	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	acceptIcon = iconStorage->getIcon(MNI_SIPPHONE_BTN_ACCEPT);
 	hangupIcon = iconStorage->getIcon(MNI_SIPPHONE_BTN_HANGUP);
-	//if (!currentIcon.isNull())
-	//	iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
 
 	ui.btnAccept->setIcon(acceptIcon);
 	ui.btnHangup->setIcon(hangupIcon);
-	//ui.btnAccept->setPixmap(acceptIcon.pixmap(16, QIcon::Normal, QIcon::On));
-	//ui.btnHangup->setPixmap(hangupIcon.pixmap(16, QIcon::Normal, QIcon::On));
-
 
 	_callSide = callSide;
 	if(callSide == Receiver)
@@ -107,22 +40,24 @@ RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 		ui.btnHangup->show();
 	}
 
-	//if(_sid == "")
-	//{
-	//	callStatusChange(Register);
-	//}
-
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SIGNAL(camStateChange(bool)));
-	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SLOT(onCamStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(camResolutionChange(bool)), SIGNAL(camResolutionChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), SIGNAL(micVolumeChange(int)));
 
-
 	connect(ui.btnAccept, SIGNAL(clicked()), this, SLOT(onAccept()));
 	connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(onHangup()));
 
-	callStatusChange(Ringing);
+	if (!_sid.isEmpty())
+	{
+		connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), SLOT(onCamStateChange(bool)));
+		callStatusChange(Ringing);
+	}
+	else
+	{
+		setProperty("ringing", true);
+		callStatusChange(Register);
+	}
 }
 
 RCallControl::~RCallControl()
