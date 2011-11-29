@@ -177,6 +177,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	setAttribute(Qt::WA_DeleteOnClose, true);
 #ifdef Q_WS_MAC
 	setWindowGrowButtonEnabled(this->window(), false);
+    ui.frmLogin->layout()->setSpacing(6);
 #endif
 
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);

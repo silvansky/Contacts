@@ -435,7 +435,7 @@ void MacIntegrationPlugin::initMenus()
 	autoStatusAction->setCheckable(true);
 	autoStatusAction->setEnabled(false);
 	connect(autoStatusAction, SIGNAL(toggled(bool)), SLOT(onAutoStatusAction(bool)));
-	_statusMenu->addAction(autoStatusAction, 600);
+    _statusMenu->addAction(autoStatusAction, 800);
 
 	// Window
 	_windowMenu = new Menu;
@@ -882,7 +882,7 @@ void MacIntegrationPlugin::onStatusItemAdded(int status)
 		availableStatuses.insert(status, statusAction);
 		connect(statusAction, SIGNAL(triggered()), SLOT(onStatusAction()));
 		onStatusItemChanged(status);
-		_statusMenu->addAction(statusAction);
+        _statusMenu->addAction(statusAction, 700);
 
 		if (optionsManager)
 			statusAction->setEnabled(!optionsManager->currentProfile().isNull());

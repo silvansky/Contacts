@@ -136,6 +136,8 @@ bool OptionsManager::initObjects()
 		connect(menuBarSettings,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
 		menuBarSettings->setMenuRole(QAction::PreferencesRole);
 		FMacIntegration->fileMenu()->addAction(menuBarSettings);
+
+        FMacIntegration->statusMenu()->addAction(FChangeProfileAction, 900);
 	}
 #endif
 

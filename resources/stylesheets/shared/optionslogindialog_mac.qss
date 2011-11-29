@@ -1,0 +1,4 @@
+QPushButton#tlbDomain
+{
+	margin-bottom: 2px;
+}
