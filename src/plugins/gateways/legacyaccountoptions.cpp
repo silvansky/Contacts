@@ -115,13 +115,12 @@ void LegacyAccountOptions::onChangeButtonClicked(bool)
 {
 	QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid);
 	if (dialog)
-	{
 		connect(dialog,SIGNAL(accepted()),SLOT(onChangeDialogAccepted()));
-	}
 }
 
 void LegacyAccountOptions::onChangeDialogAccepted()
 {
+	FGateways->sendLogPresence(FStreamJid,FServiceJid,true);
 	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
 }
 
