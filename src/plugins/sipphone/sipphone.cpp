@@ -202,6 +202,7 @@ void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 		FSipPhoneProxy->initRegistrationData();
 		connect(this, SIGNAL(sipSendInvite(const QString &)), FSipPhoneProxy, SLOT(makeNewCall(const QString&)));
 		connect(this, SIGNAL(sipSendUnRegister()), FSipPhoneProxy, SLOT(makeClearRegisterProxySlot()));
+		connect(FSipPhoneProxy, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
 		connect(FSipPhoneProxy, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
 		connect(FSipPhoneProxy, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
 	}
@@ -574,9 +575,7 @@ void SipPhone::sipCallDeletedSlot(bool initiator)
 {
 	emit sipSendUnRegister();
 	if(initiator)
-	{
 		closeStream(FStreamId);
-	}
 }
 
 void SipPhone::sipClearRegistration(const QString&)
@@ -690,9 +689,9 @@ void SipPhone::onRedialCall()
 	}
 }
 
-void SipPhone::onHangupCallTest()
+void SipPhone::onHangupCall()
 {
-	sipCallDeletedSlot(true);
+	closeStream(FStreamId);
 }
 
 void SipPhone::onStreamStateChanged(const QString& sid, int state)
@@ -953,8 +952,8 @@ RCallControl *SipPhone::newRCallControl(const QString &AStreamId, RCallControl::
 	pCallControl->setMetaId(AMetaWindow->metaId());
 
 	connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
+	connect(pCallControl, SIGNAL(abortCall()),  SLOT(onAbortCall()));
 	connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
-	connect(pCallControl, SIGNAL(abortCall()), this, SLOT(onAbortCall()));
 
 	// Обработка: при закрытии окна управления звонком, нужно вернуть кнопку вызова в исходное состояние
 	connect(pCallControl, SIGNAL(closeAndDelete(bool)), this, SLOT(onCloseCallControl(bool)));

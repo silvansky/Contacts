@@ -67,6 +67,7 @@ protected:
 signals:
 	void stateChanged( void );
 	void callDeletedProxy( bool );
+	void callWasHangup();
 	void incomingThreadTimeChange(qint64);
 
 public slots:

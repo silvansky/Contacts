@@ -840,6 +840,7 @@ void SipPhoneProxy::onHangupCall()
 
 	//_pWorkWidget->hide();
 	_pWorkWidgetContainer->close();
+	emit callWasHangup();
 }
 
 void SipPhoneProxy::hideCallWidget( SipCall *call )

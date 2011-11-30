@@ -95,7 +95,7 @@ protected:
 	RCallControl *newRCallControl(const QString &AStreamId, RCallControl::CallSide ASide, IMetaTabWindow *AMetaWindow);
 protected slots:
 	void onRedialCall();
-	void onHangupCallTest();
+	void onHangupCall();
 	void onStreamStateChanged(const QString &AStreamId, int AState);
 	void onAcceptStreamByCallControl();
 	void onAbortCall();
