@@ -975,8 +975,15 @@ void SipPhoneProxy::hangupCall()
 		{
 			spWidget->clickHangup();
 		}
+		else
+		{
+			emit callWasHangup();
+		}
 	}
-
+	else
+	{
+		emit callWasHangup();
+	}
 
 	////////////QMessageBox::information(NULL, "SipPhoneProxy::hangupCall()", "");
 	//////////if(_pWorkWidget)

@@ -175,7 +175,7 @@ bool SipPhone::initObjects()
 	{
 		INotificationType notifyType;
 		notifyType.order = OWO_NOTIFICATIONS_SIPPHONE;
-		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::TabPageNotify;
+		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify;
 		notifyType.kindDefs = notifyType.kindMask;
 		FNotifications->registerNotificationType(NNT_SIPPHONE_CALL,notifyType);
 	}
@@ -433,6 +433,7 @@ void SipPhone::onCloseCallControl(bool)
 			metaWindow->removeTopWidget(pCallControl);
 		}
 
+		FSipPhoneProxy->hangupCall();
 		closeStream(pCallControl->getSessionID());
 		FCallControls.remove(metaId);
 	}
@@ -673,6 +674,13 @@ void SipPhone::onAbortCall()
 			pCallControl->deleteLater();
 		}
 	}
+}
+
+void SipPhone::onAcceptCall()
+{
+	RCallControl *pCallControl = qobject_cast<RCallControl *>(sender());
+	if(pCallControl)
+		acceptStream(pCallControl->getSessionID());
 }
 
 void SipPhone::onRedialCall()
@@ -951,6 +959,7 @@ RCallControl *SipPhone::newRCallControl(const QString &AStreamId, RCallControl::
 	pCallControl->setStreamJid(AMetaWindow->metaRoster()->streamJid());
 	pCallControl->setMetaId(AMetaWindow->metaId());
 
+	connect(pCallControl, SIGNAL(acceptCall()), SLOT(onAcceptCall()));
 	connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
 	connect(pCallControl, SIGNAL(abortCall()),  SLOT(onAbortCall()));
 	connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
@@ -986,11 +995,7 @@ void SipPhone::showCallControlTab(const QString& sid)
 	if(!FStreams.contains(sid))
 		return;
 
-	ISipStream& stream = FStreams[sid];
-
-	if(!FMessageProcessor->createMessageWindow(stream.streamJid, stream.contactJid, Message::Chat,IMessageHandler::SM_SHOW))
-		return;
-
+	ISipStream &stream = FStreams[sid];
 	QString metaId = findMetaId(stream.streamJid, stream.contactJid);
 	if(!FCallControls.contains(metaId))
 	{

@@ -94,6 +94,7 @@ protected:
 	QString findMetaId(const Jid& AStreamJid, const Jid& AContactJid) const;
 	RCallControl *newRCallControl(const QString &AStreamId, RCallControl::CallSide ASide, IMetaTabWindow *AMetaWindow);
 protected slots:
+	void onAcceptCall();
 	void onRedialCall();
 	void onHangupCall();
 	void onStreamStateChanged(const QString &AStreamId, int AState);
