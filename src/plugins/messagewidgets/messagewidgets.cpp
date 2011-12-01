@@ -449,6 +449,8 @@ QList<Action *> MessageWidgets::createLastTabPagesActions(QObject *AParent) cons
 			Action *action = handler->tabPageAction(FLastPagesOrder.at(i), AParent);
 			if (action)
 			{
+				if (action->text().length() > 21)
+					action->setText(action->text().left(21) + "...");
 				actions.append(action);
 				break;
 			}

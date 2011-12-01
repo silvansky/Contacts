@@ -149,7 +149,9 @@ bool OptionsManager::initObjects()
 
 	if (FTrayManager)
 	{
+#ifndef Q_WS_MAC
 		FTrayManager->contextMenu()->addAction(FShowOptionsDialogAction,AG_TMTM_OPTIONS_DIALOG,true);
+#endif
 	}
 
 	return true;
