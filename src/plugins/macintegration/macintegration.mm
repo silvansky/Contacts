@@ -365,3 +365,8 @@ void MacIntegrationPrivate::setWindowMovableByBackground(QWidget * window, bool 
 {
 	[[nsViewFromWidget(window) window] setMovableByWindowBackground: (movable ? YES : NO)];
 }
+
+void MacIntegrationPrivate::requestAttention()
+{
+	[NSApp requestUserAttention: NSInformationalRequest];
+}

@@ -250,6 +250,11 @@ void MacIntegrationPlugin::setDockBadge(const QString & badgeText)
 	MacIntegrationPrivate::setDockBadge(badgeText);
 }
 
+void MacIntegrationPlugin::requestUserAttention()
+{
+	MacIntegrationPrivate::requestAttention();
+}
+
 void MacIntegrationPlugin::postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)
 {
 	MacIntegrationPrivate::postGrowlNotify(icon, title, text, type, id);

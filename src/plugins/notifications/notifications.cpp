@@ -411,7 +411,11 @@ int Notifications::appendNotification(const INotification &ANotification)
 	{
 		QWidget *widget = qobject_cast<QWidget *>((QWidget *)record.notification.data.value(NDR_ALERT_WIDGET).toLongLong());
 		if (widget)
+#ifdef Q_WS_MAC
+			FMacIntegration->requestUserAttention();
+#else
 			WidgetManager::alertWidget(widget);
+#endif
 	}
 
 	if ((record.notification.kinds & INotification::TabPageNotify)>0 &&
@@ -745,7 +749,14 @@ void Notifications::onNotifyCountChanged()
 {
 	if (FMacIntegration)
 	{
-		int count = notifications().count();
+		int count = 0;
+		foreach (int i, FNotifyRecords.keys())
+		{
+			if (FNotifyRecords.value(i).notification.kinds & INotification::PopupWindow)
+				count++;
+		}
+
+		//int count = notifications().count();
 # ifdef DEBUG_ENABLED
 		qDebug() << "Notifications count:" << count;
 # endif
