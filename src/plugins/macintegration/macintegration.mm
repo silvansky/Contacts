@@ -349,6 +349,8 @@ void MacIntegrationPrivate::installCustomFrame()
 
 void MacIntegrationPrivate::setCustomBorderColor(const QColor & frameColor)
 {
+	if (gFrameColor)
+		[gFrameColor release];
 	gFrameColor = [[NSColor colorWithCalibratedRed: frameColor.redF() green: frameColor.greenF() blue: frameColor.blueF() alpha: frameColor.alphaF()] retain];
 	foreach (QWidget * w, QApplication::topLevelWidgets())
 		w->update();
@@ -356,6 +358,8 @@ void MacIntegrationPrivate::setCustomBorderColor(const QColor & frameColor)
 
 void MacIntegrationPrivate::setCustomTitleColor(const QColor & titleColor)
 {
+	if (gTitleColor)
+		[gTitleColor release];
 	gTitleColor = [[NSColor colorWithCalibratedRed: titleColor.redF() green: titleColor.greenF() blue: titleColor.blueF() alpha: titleColor.alphaF()] retain];
 	foreach (QWidget * w, QApplication::topLevelWidgets())
 		w->update();
