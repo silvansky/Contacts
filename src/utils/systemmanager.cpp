@@ -1,5 +1,6 @@
 #include "systemmanager.h"
 
+#include <QDir>
 #include <QTimer>
 #include <QProcess>
 #include <QTextStream>
