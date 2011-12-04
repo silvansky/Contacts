@@ -88,7 +88,7 @@ signals:
 protected:
 	void insertNotify(const ISipStream &AStream);
 	void removeNotify(const QString &AStreamId);
-	void showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify) const;
+	void showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify);
 	void removeStream(const QString &AStreamId);
 	void showCallControlTab(const QString& sid);
 	Jid getContactWithPresence(const Jid &AStreamJid, const QString &AMetaId) const;
@@ -122,6 +122,7 @@ protected slots:
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips, ToolBarChanger *AToolBarChanger);
 	void onXmppStreamOpened(IXmppStream *);
+	void onXmppStreamAboutToClose(IXmppStream *);
 	void onXmppStreamClosed(IXmppStream *);
 	void onStreamCreated(const QString&);
 	void onIncomingThreadTimeChanged(qint64);

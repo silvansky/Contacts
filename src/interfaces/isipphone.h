@@ -29,6 +29,8 @@ struct ISipStream
 	Jid streamJid;
 	Jid contactJid;
 	bool timeout;
+	QUuid contentId;
+	QDateTime startTime;
 };
 
 class ISipPhone

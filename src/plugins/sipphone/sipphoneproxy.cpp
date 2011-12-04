@@ -968,7 +968,7 @@ void SipPhoneProxy::makeByeProxySlot(const Jid &AClientSIP)
 
 void SipPhoneProxy::hangupCall()
 {
-	if(_pWorkWidgetContainer)
+	if(!_pWorkWidgetContainer.isNull())
 	{
 		SipPhoneWidget *spWidget = static_cast<SipPhoneWidget*>(_pWorkWidgetContainer->widget());
 		if(spWidget)

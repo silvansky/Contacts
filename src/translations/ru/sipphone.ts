@@ -376,6 +376,46 @@
         <source>Add Contact</source>
         <translation>Добавить контакт</translation>
     </message>
+    <message>
+        <source>Calling to %1.</source>
+        <translation>Вызываем %1.</translation>
+    </message>
+    <message>
+        <source>Call to %1.</source>
+        <translation>Звонок к %1.</translation>
+    </message>
+    <message>
+        <source>Call to %1 finished, duration %2.</source>
+        <translation>Звонок к %1 завершен, продолжительность %2.</translation>
+    </message>
+    <message>
+        <source>Call to %1 canceled.</source>
+        <translation>Звонок к %1 отменен.</translation>
+    </message>
+    <message>
+        <source>%1 calling you.</source>
+        <translation>%1 звонит Вам.</translation>
+    </message>
+    <message>
+        <source>Missed call from %1.</source>
+        <translation>Пропущен завонок от %1.</translation>
+    </message>
+    <message>
+        <source>%1 is not responding.</source>
+        <translation>%1 не отвечает.</translation>
+    </message>
+    <message>
+        <source>Call from %1.</source>
+        <translation>Звонок от %1.</translation>
+    </message>
+    <message>
+        <source>Call from %1 finished, duration %2.</source>
+        <translation>Звонок от %1 завершен, продолжительность %2.</translation>
+    </message>
+    <message>
+        <source>Call from %1 canceled.</source>
+        <translation>Звонок от %1 отменен.</translation>
+    </message>
 </context>
 <context>
     <name>SipPhoneProxy</name>
