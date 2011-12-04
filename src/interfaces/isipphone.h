@@ -18,17 +18,17 @@ struct ISipStream
 		SS_CLOSE,
 		SS_CLOSED,
 	};
-	ISipStream() : noAnswer(false) {
+	ISipStream() {
 		kind = SK_INITIATOR;
 		state = SS_CLOSED;
+		timeout = false;
 	};
 	int kind;
 	int state;
 	QString sid;
 	Jid streamJid;
 	Jid contactJid;
-	bool noAnswer;
-	//QString metaId;
+	bool timeout;
 };
 
 class ISipPhone

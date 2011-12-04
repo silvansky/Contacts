@@ -28,6 +28,7 @@
 #include <interfaces/idefaultconnection.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/irosterchanger.h>
+#include <interfaces/imessagestyles.h>
 #include <utils/errorhandler.h>
 #include <utils/action.h>
 
@@ -87,6 +88,7 @@ signals:
 protected:
 	void insertNotify(const ISipStream &AStream);
 	void removeNotify(const QString &AStreamId);
+	void showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify) const;
 	void removeStream(const QString &AStreamId);
 	void showCallControlTab(const QString& sid);
 	Jid getContactWithPresence(const Jid &AStreamJid, const QString &AMetaId) const;
@@ -97,6 +99,7 @@ protected slots:
 	void onAcceptCall();
 	void onRedialCall();
 	void onHangupCall();
+	void onCallbackCall();
 	void onStreamStateChanged(const QString &AStreamId, int AState);
 	void onAcceptStreamByCallControl();
 	void onAbortCall();
@@ -138,6 +141,7 @@ private:
 	IPresencePlugin *FPresencePlugin;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
+	IMessageStyles *FMessageStyles;
 private:
 	int FSHISipRequest;
 	QMap<QString, QString> FOpenRequests;

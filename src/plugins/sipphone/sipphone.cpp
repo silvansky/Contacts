@@ -33,6 +33,7 @@ SipPhone::SipPhone()
 	FNotifications = NULL;
 	FPresencePlugin = NULL;
 	FRosterChanger = NULL;
+	FMessageStyles = NULL;
 
 	FSHISipRequest = -1;
 	FSipPhoneProxy = NULL;
@@ -136,6 +137,12 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	{
 		connect(plugin->instance(), SIGNAL(opened(IXmppStream *)), SLOT(onXmppStreamOpened(IXmppStream *)));
 		connect(plugin->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onXmppStreamClosed(IXmppStream *)));
+	}
+
+	plugin = APluginManager->pluginInterface("IMessageStyles").value(0,NULL);
+	if (plugin)
+	{
+		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
 	}
 
 #ifdef WIN32
@@ -492,12 +499,13 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 				stream.contactJid = AStanza.from();
 				stream.kind = ISipStream::SK_RESPONDER;
 				stream.state = ISipStream::SS_OPEN;
+				stream.timeout = true;
 				FStreams.insert(sid,stream);
 				FPendingRequests.insert(sid,AStanza.id());
 				insertNotify(stream);
-				// И окно чата отображаем и панель управления
 				showCallControlTab(sid);
 				emit streamCreated(sid);
+				emit streamStateChanged(sid,stream.state);
 			}
 		}
 		else if (actionElem.tagName() == "close")
@@ -561,7 +569,7 @@ void SipPhone::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanz
 		QString sid = FOpenRequests.take(AStanzaId);
 		// Если нет ответа от принимающей стороны, то устанавливаем соответствующий флаг
 		ISipStream& stream = FStreams[sid];
-		stream.noAnswer = true;
+		stream.timeout = true;
 		closeStream(sid);
 	}
 	else if (FCloseRequests.contains(AStanzaId))
@@ -587,29 +595,15 @@ void SipPhone::sipClearRegistration(const QString&)
 void SipPhone::onStreamCreated(const QString& sid)
 {
 	FStreamId = sid;
-
 	if(FStreams.contains(sid))
 	{
 		ISipStream stream = FStreams.value(sid);
 		QString metaId = findMetaId(stream.streamJid, stream.contactJid);
-
-		// Если панель звонка еще не отображена, то отображаем
-		if(!FCallControls.contains(metaId))
+		RCallControl* pCallControl = FCallControls.value(metaId);
+		if(pCallControl)
 		{
-			IMetaTabWindow* metaWindow = FMetaContacts->findMetaTabWindow(stream.streamJid, metaId);
-			if(metaWindow != NULL)
-			{
-				newRCallControl(sid,RCallControl::Caller,metaWindow);
-			}
-		}
-		else // Панель звонка отображена - обновляем статус
-		{
-			RCallControl* pCallControl = FCallControls.value(metaId);
-			if(pCallControl)
-			{
-				pCallControl->setSessionId(sid);
-				pCallControl->callStatusChange(RCallControl::Ringing);
-			}
+			pCallControl->setSessionId(sid);
+			pCallControl->callStatusChange(RCallControl::Ringing);
 		}
 	}
 }
@@ -697,8 +691,25 @@ void SipPhone::onRedialCall()
 	}
 }
 
+void SipPhone::onCallbackCall()
+{
+	RCallControl *pCallControl = qobject_cast<RCallControl *>(sender());
+	if(pCallControl)
+	{
+		Jid contactJidFull = getContactWithPresence(pCallControl->getStreamJid(), pCallControl->getMetaId());
+		if(contactJidFull.isValid() && !contactJidFull.isEmpty())
+		{
+			pCallControl->callSideChange(RCallControl::Caller);
+			pCallControl->callStatusChange(RCallControl::Ringing);
+			openStream(pCallControl->getStreamJid(), contactJidFull);
+		}
+	}
+}
+
 void SipPhone::onHangupCall()
 {
+	if (FStreams.contains(FStreamId))
+		FStreams[FStreamId].timeout = false;
 	closeStream(FStreamId);
 }
 
@@ -707,7 +718,7 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 	if(!FStreams.contains(sid))
 		return;
 
-	ISipStream stream = FStreams.value(sid);
+	ISipStream &stream = FStreams[sid];
 	QString metaId = findMetaId(stream.streamJid, stream.contactJid);
 
 	if(metaId.isEmpty())
@@ -722,7 +733,11 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 
 	if(pCallControl->side() == RCallControl::Caller)
 	{
-		if(state == ISipStream::SS_OPENED)
+		if(state == ISipStream::SS_OPEN)
+		{
+			showNotifyInChatWindow(sid,tr("Outgoing call to %1.").arg(FMessageStyles->contactName(stream.streamJid,stream.contactJid)));
+		}
+		else if(state == ISipStream::SS_OPENED)
 		{
 			pCallControl->callStatusChange(RCallControl::Accepted);
 		}
@@ -730,37 +745,37 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 		{
 			// Если нет ответа за таймаут от принимающей стороны, то не закрываем панель,
 			// устанавливаем соответствующий статус для возможности совершения повторного вызова
-			if(stream.noAnswer)
-			{
+			if(stream.timeout)
 				pCallControl->callStatusChange(RCallControl::RingTimeout);
-			}
 			else
-			{
 				pCallControl->deleteLater();
-			}
 		}
 		else if(state == ISipStream::SS_CLOSED) // Удаленный пользователь повесил трубку
 		{
-			if(pCallControl->status() == RCallControl::Ringing)
-			{
-				// Говорим что пользователь не захотел брать трубку. Дальнейшие действия:
-				pCallControl->callStatusChange(RCallControl::Hangup);
-			}
-			else if(pCallControl->status() == RCallControl::Accepted) // Удаленный пользователь повесил трубку во время разговора. Нам тоже надо.
-			{
-				pCallControl->deleteLater();
-			}
+			if(pCallControl->status() == RCallControl::Ringing) 
+				pCallControl->callStatusChange(RCallControl::Hangup); // Говорим что пользователь не захотел брать трубку.
+			else if(pCallControl->status() == RCallControl::Accepted) 
+				pCallControl->deleteLater(); // Удаленный пользователь повесил трубку во время разговора. Нам тоже надо.
+			showNotifyInChatWindow(sid,tr("Call finished."));
 		}
 	}
 	else if(pCallControl->side() == RCallControl::Receiver)
 	{
-		if(state == ISipStream::SS_OPENED)
+		if(state == ISipStream::SS_OPEN)
+		{
+			showNotifyInChatWindow(sid,tr("Incoming call from %1").arg(FMessageStyles->contactName(stream.streamJid,stream.contactJid)));
+		}
+		else if(state == ISipStream::SS_OPENED)
 		{
 			pCallControl->callStatusChange(RCallControl::Accepted);
 		}
 		else if(state == ISipStream::SS_CLOSE || state == ISipStream::SS_CLOSED)
 		{
-			pCallControl->deleteLater();
+			if(stream.timeout)
+				pCallControl->callStatusChange(RCallControl::RingTimeout);
+			else
+				pCallControl->deleteLater();
+			showNotifyInChatWindow(sid,tr("Call finished."));
 		}
 	}
 }
@@ -819,6 +834,7 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, c
 			FStreams.insert(sid,stream);
 			FOpenRequests.insert(open.id(),sid);
 			emit streamCreated(sid);
+			emit streamStateChanged(sid,stream.state);
 		}
 	}
 	else
@@ -847,6 +863,8 @@ bool SipPhone::acceptStream(const QString &AStreamId)
 
 		// Переводим панель в режим Register
 		ISipStream &stream = FStreams[AStreamId];
+		stream.timeout = false;
+
 		QString metaId = findMetaId(stream.streamJid, stream.contactJid);
 		if(FCallControls.contains(metaId))
 		{
@@ -911,18 +929,16 @@ void SipPhone::closeStream(const QString &AStreamId)
 				closeElem = close.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(close.createElement("close")).toElement();
 			}
 			closeElem.setAttribute("sid",stream.sid);
+
+			stream.state = ISipStream::SS_CLOSE;
+			emit streamStateChanged(AStreamId,stream.state);
+
 			if (isResult ? FStanzaProcessor->sendStanzaOut(stream.streamJid,close) : FStanzaProcessor->sendStanzaRequest(this,stream.streamJid,close,CLOSE_TIMEOUT))
 			{
 				if (!isResult)
-				{
 					FCloseRequests.insert(close.id(),AStreamId);
-					stream.state = ISipStream::SS_CLOSE;
-					emit streamStateChanged(AStreamId,stream.state);
-				}
 				else
-				{
 					removeStream(AStreamId);
-				}
 			}
 			else
 			{
@@ -962,6 +978,7 @@ RCallControl *SipPhone::newRCallControl(const QString &AStreamId, RCallControl::
 	connect(pCallControl, SIGNAL(acceptCall()), SLOT(onAcceptCall()));
 	connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
 	connect(pCallControl, SIGNAL(abortCall()),  SLOT(onAbortCall()));
+	connect(pCallControl, SIGNAL(callbackCall()), SLOT(onCallbackCall()));
 	connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
 
 	// Обработка: при закрытии окна управления звонком, нужно вернуть кнопку вызова в исходное состояние
@@ -1071,7 +1088,6 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		connect(callNotifyer, SIGNAL(accepted()), SLOT(onAcceptStreamByAction()));
 		connect(callNotifyer, SIGNAL(rejected()), SLOT(onCloseStreamByAction()));
 		connect(this, SIGNAL(hideCallNotifyer()), callNotifyer, SLOT(disappear()));
-
 		callNotifyer->appear();
 
 		Action *acceptCall = new Action(this);
@@ -1095,6 +1111,29 @@ void SipPhone::removeNotify(const QString &AStreamId)
 	if (FNotifications)
 		FNotifications->removeNotification(FNotifies.key(AStreamId));
 	emit hideCallNotifyer();
+}
+
+void SipPhone::showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify) const
+{
+	if (FMessageProcessor && FMessageWidgets && FStreams.contains(AStreamId))
+	{
+		ISipStream stream = FStreams.value(AStreamId);
+		if (FMessageProcessor->createMessageWindow(stream.streamJid,stream.contactJid,Message::Chat,IMessageHandler::SM_ASSIGN))
+		{
+			IChatWindow *window = FMessageWidgets->findChatWindow(stream.streamJid,stream.contactJid);
+			if (window)
+			{
+				IMessageContentOptions options;
+				options.kind = IMessageContentOptions::Status;
+				options.type |= IMessageContentOptions::Notification;
+				options.direction = IMessageContentOptions::DirectionIn;
+				options.time = QDateTime::currentDateTime();
+				options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
+
+				window->viewWidget()->changeContentText(ANotify,options);
+			}
+		}
+	}
 }
 
 void SipPhone::removeStream(const QString &AStreamId)
@@ -1145,6 +1184,8 @@ void SipPhone::onCloseStreamByAction()
 	if (action)
 	{
 		QString streamId = action->data(ADR_STREAM_ID).toString();
+		if (FStreams.contains(streamId))
+			FStreams[streamId].timeout = false;
 		closeStream(streamId);
 	}
 	else
@@ -1153,6 +1194,8 @@ void SipPhone::onCloseStreamByAction()
 		if (callNotifyer)
 		{
 			QString streamId = callNotifyer->property("streamId").toString();
+			if (FStreams.contains(streamId))
+				FStreams[streamId].timeout = false;
 			closeStream(streamId);
 		}
 	}

@@ -117,18 +117,6 @@ void RCallControl::onAccept()
 	//QMessageBox::information(NULL, "Accept", "");
 	if(_callSide == Caller)
 	{
-		//switch(_callStatus)
-		//{
-		//	case Accepted:
-		//	break;
-		//	case Hangup:
-		//	case RingTimeout:
-		//	case CallError:
-		//		emit redialCall();
-		//	break;
-		//	default:
-		//	break;
-		//}
 		if(_callStatus == Accepted)
 		{
 			// Не должно такого быть
@@ -152,17 +140,6 @@ void RCallControl::onAccept()
 	}
 	if(_callSide == Receiver)
 	{
-		//switch(_callStatus)
-		//{
-		//case Ringing:
-		//	emit acceptCall();
-		//	break;
-		//case RingTimeout:
-		//	emit callbackCall();
-		//	break;
-		//default:
-		//	break;
-		//}
 		if(_callStatus == Accepted)
 		{
 			// Не может быть
@@ -416,7 +393,7 @@ void RCallControl::callStatusChange(CallStatus status)
 			ui.btnAccept->show();
 			ui.btnAccept->setEnabled(true);
 			ui.btnAccept->setText(tr("Callback"));
-			ui.btnHangup->setText(tr(""));
+			ui.btnHangup->setText(QString::null);
 			ui.btnHangup->hide();
 			//stopSignal();
 		}

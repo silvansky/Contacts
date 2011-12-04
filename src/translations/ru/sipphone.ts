@@ -206,7 +206,7 @@
     </message>
     <message>
         <source>Incoming Call...</source>
-        <translation>Исходящий вызов...</translation>
+        <translation>Входящий вызов...</translation>
     </message>
     <message>
         <source>No answer...</source>
