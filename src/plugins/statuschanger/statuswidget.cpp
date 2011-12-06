@@ -32,8 +32,9 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	ui.mainLt->insertLayout(0, ui.avatarLt);
 	ui.mainLt->insertLayout(1, ui.nameMoodLt);
 	ui.mainLt->insertLayout(2, ui.statusLt);
-	ui.avatarLt->setContentsMargins(0, 10, 0, 0);
-	ui.statusLt->setContentsMargins(0, 10, 0, 0);
+	ui.avatarLt->setContentsMargins(0, 3, 0, 0);
+	ui.statusLt->setContentsMargins(0, 5, 0, 0);
+	ui.nameMoodLt->setContentsMargins(0, -10, 0, 0);
 #endif
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_STATUSWIDGET);
@@ -253,14 +254,14 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 			}
 			break;*/
 		case QEvent::MouseButtonRelease:
-		{
-			QPoint point = ui.lblAvatar->mapToGlobal(QPoint(0, 0));
-			int dx = 0;//FSelectAvatarWidget ? FSelectAvatarWidget->width() / 2 : FProfileMenu->sizeHint().width() / 2;
-			point.setX(point.x() - dx);
-			point.setY(point.y() + ui.lblAvatar->height());
-			FProfileMenu->popup(point);
-			return true;
-		}
+			{
+				QPoint point = ui.lblAvatar->mapToGlobal(QPoint(0, 0));
+				int dx = 0;//FSelectAvatarWidget ? FSelectAvatarWidget->width() / 2 : FProfileMenu->sizeHint().width() / 2;
+				point.setX(point.x() - dx);
+				point.setY(point.y() + ui.lblAvatar->height());
+				FProfileMenu->popup(point);
+				return true;
+			}
 			break;
 		case QEvent::MouseButtonPress:
 			return true;

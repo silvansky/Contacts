@@ -373,7 +373,7 @@ void PluginManager::loadSettings()
 	QFontDatabase::addApplicationFont(fontFile);
 	QFontDatabase fontDB;
 	QFont segoe = fontDB.font("Segoe UI", "", 12);
-	QApplication::setFont(segoe);
+    QApplication::setFont(segoe);
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(qApp, STS_PLUGINMANAGER_APPLICATION);
 }
