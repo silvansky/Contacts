@@ -134,10 +134,6 @@
         <translation>GTalk</translation>
     </message>
     <message>
-        <source>Y.Online</source>
-        <translation>Я.Онлайн</translation>
-    </message>
-    <message>
         <source>QIP</source>
         <translation>QIP</translation>
     </message>
@@ -260,6 +256,10 @@
     <message>
         <source>Remove contacts</source>
         <translation>Удалить контакты</translation>
+    </message>
+    <message>
+        <source>Ya.Online</source>
+        <translation>Я.Онлайн</translation>
     </message>
 </context>
 <context>

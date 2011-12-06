@@ -171,10 +171,6 @@
         <translation>GTalk</translation>
     </message>
     <message>
-        <source>Y.Online</source>
-        <translation>Я.Онлайн</translation>
-    </message>
-    <message>
         <source>Jabber</source>
         <translation>Jabber</translation>
     </message>
@@ -297,6 +293,10 @@
     <message>
         <source>disconnected</source>
         <translation>отключен</translation>
+    </message>
+    <message>
+        <source>Ya.Online</source>
+        <translation>Я.Онлайн</translation>
     </message>
 </context>
 <context>

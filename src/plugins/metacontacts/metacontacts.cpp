@@ -1001,7 +1001,7 @@ void MetaContacts::initMetaItemDescriptors()
 	FMetaItemDescriptors.append(gtalk);
 
 	IMetaItemDescriptor yonline;
-	yonline.name = tr("Y.Online");
+	yonline.name = tr("Ya.Online");
 	yonline.icon = MNI_METACONTACTS_ITEM_YONLINE;
 	yonline.combine = false;
 	yonline.detach = true;

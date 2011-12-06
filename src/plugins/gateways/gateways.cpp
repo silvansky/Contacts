@@ -284,7 +284,7 @@ bool Gateways::initObjects()
 	yonline.id = GSID_YONLINE;
 	yonline.type = "xmpp";
 	yonline.prefix = "yandex";
-	yonline.name = tr("Y.Online");
+	yonline.name = tr("Ya.Online");
 	yonline.iconKey = MNI_GATEWAYS_SERVICE_YONLINE;
 	yonline.loginLabel = tr("E-mail");
 	yonline.domains << "ya.ru" << "yandex.ru" << "yandex.net" << "yandex.com" << "yandex.by" << "yandex.kz" << "yandex.ua" << "yandex-co.ru" << "narod.ru";
