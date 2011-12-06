@@ -18,10 +18,7 @@ FullScreenControls::FullScreenControls( QWidget *parent)
 
 	connect(ui.wgtAVControl, SIGNAL(camPresentChanged(bool)), this, SIGNAL(camPresentChanged(bool)));
 	connect(ui.wgtAVControl, SIGNAL(camStateChange(bool)), this, SIGNAL(camStateChange(bool)));
-	
-	//connect(ui.wgtAVControl, SIGNAL(camResolutionChange(bool)), SIGNAL(camResolutionChange(bool)));
-	connect(ui.wgtAVControl, SIGNAL(camResolutionChange(bool)), SLOT(onCamResolutionChange(bool)));
-
+	connect(ui.wgtAVControl, SIGNAL(camResolutionChange(bool)), SIGNAL(camResolutionChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micStateChange(bool)), this, SIGNAL(micStateChange(bool)));
 	connect(ui.wgtAVControl, SIGNAL(micVolumeChange(int)), this, SIGNAL(micVolumeChange(int)));
 
@@ -30,7 +27,6 @@ FullScreenControls::FullScreenControls( QWidget *parent)
 	iconHangup.addPixmap(QPixmap::fromImage(imgHangup), QIcon::Normal, QIcon::On);
 	ui.btnHangup->setIcon(iconHangup);
 	connect(ui.btnHangup, SIGNAL(clicked()), this, SIGNAL(hangup()));
-
 
 	QImage imgOn = iconStorage->getImage(MNI_SIPPHONE_WHITE_FULLSCREEN_OFF);
 	QImage imgOff = iconStorage->getImage(MNI_SIPPHONE_WHITE_FULLSCREEN_ON);
@@ -48,21 +44,18 @@ FullScreenControls::~FullScreenControls()
 
 }
 
-void FullScreenControls::onCamResolutionChange(bool isHigh)
-{
-	qDebug("FullScreenControls::onCamResolutionChange: %d", (int)isHigh);
-	emit camResolutionChange(isHigh);
-}
-
 void FullScreenControls::setCameraEnabled(bool isEnabled)
 {
 	ui.wgtAVControl->setCameraEnabled(isEnabled);
+	emit camPresentChanged(isEnabled);
 }
 
 void FullScreenControls::setMicEnabled(bool isEnabled)
 {
 	ui.wgtAVControl->setMicEnabled(isEnabled);
+	emit micStateChange(isEnabled);
 }
+
 void FullScreenControls::setVolumeEnabled(bool isEnabled)
 {
 	ui.wgtAVControl->setVolumeEnabled(isEnabled);
@@ -72,7 +65,7 @@ void FullScreenControls::setVolumeEnabled(bool isEnabled)
 void FullScreenControls::SetCameraOn(bool isOn)
 {
 	ui.wgtAVControl->setCameraOn(isOn);
-	//emit camStateChange(isOn);
+	emit camStateChange(isOn);
 }
 
 void FullScreenControls::SetResolutionHigh(bool isHigh)

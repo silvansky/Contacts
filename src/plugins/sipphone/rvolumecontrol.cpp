@@ -66,6 +66,7 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 
 	// ’¿  Œ“ ¬¿À≈Õ“»Õ¿
 	setProperty("ignoreFilter", true);
+	setToolTip(tr("Volume control"));
 
 	BOOL mute = false;
 	float currVolume = 0.;

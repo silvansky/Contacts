@@ -27,6 +27,40 @@ void BtnSynchro::setToolTipState(const QString &state)
 		btn->setToolTip(state);
 }
 
+BtnSynchro::BtnSynchro( QAbstractButton* btn ) : _refCount(1)
+{
+	_buttons.append(btn);
+}
+
+int BtnSynchro::AddRef( QAbstractButton* btn )
+{
+	if(!_buttons.contains(btn)) // Не реально что такое может случиться, но тем не менее
+	{
+		QAbstractButton *curButton = _buttons.value(0);
+		if (curButton)
+		{
+			btn->setChecked(curButton->isChecked());
+			btn->setEnabled(curButton->isEnabled());
+			btn->setToolTip(curButton->toolTip());
+		}
+		_buttons.append(btn);
+	}
+	return _refCount++;
+}
+
+int BtnSynchro::Release( QAbstractButton* btn )
+{
+	_refCount--;
+	_buttons.removeOne(btn);
+	if (_refCount == 0)
+	{
+		delete this;
+		return 0;
+	}
+	return _refCount;
+}
+
+
 AVControl::AVControl(QWidget *parent) : QWidget(parent)
 {
 	ui.setupUi(this);

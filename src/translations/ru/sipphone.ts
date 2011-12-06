@@ -82,6 +82,17 @@
     </message>
 </context>
 <context>
+    <name>FullScreenControls</name>
+    <message>
+        <source>Hangup</source>
+        <translation>Отклонить</translation>
+    </message>
+    <message>
+        <source>Toggle full screen on/off</source>
+        <translation>Переключить полноэкранный режим вкл/выкл</translation>
+    </message>
+</context>
+<context>
     <name>IdentityDialog</name>
     <message>
         <source>OK</source>
@@ -293,6 +304,13 @@
     <message>
         <source>Ok</source>
         <translation>Ок</translation>
+    </message>
+</context>
+<context>
+    <name>RVolumeControl</name>
+    <message>
+        <source>Volume control</source>
+        <translation>Регулятор громкости</translation>
     </message>
 </context>
 <context>

@@ -14,36 +14,13 @@ class BtnSynchro : public QObject
 	Q_OBJECT
 	int _refCount;
 	~BtnSynchro(){}
-
 	QList<QAbstractButton*> _buttons;
-
 public:
-	BtnSynchro(QAbstractButton* btn)  : _refCount(1)
-	{
-		_buttons.append(btn);
-	}
-
-	int AddRef(QAbstractButton* btn)
-	{
-		if(!_buttons.contains(btn)) // Не реально что такое может случиться, но тем не менее
-			_buttons.append(btn);
-		return _refCount++;
-	}
-	int Release(QAbstractButton* btn)
-	{
-		_refCount--;
-		_buttons.removeOne(btn);
-		if (_refCount == 0)
-    {
-			delete this;
-      return 0;
-    }
-		return _refCount;
-	}
-
+	BtnSynchro(QAbstractButton* btn);
+	int AddRef(QAbstractButton* btn);
+	int Release(QAbstractButton* btn);
 signals:
 	void stateChange(bool);
-
 public slots:
 	void setCheckState(bool);
 	void setEnabledState(bool);
