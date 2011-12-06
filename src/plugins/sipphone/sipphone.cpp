@@ -249,15 +249,13 @@ void SipPhone::onXmppStreamClosed(IXmppStream *)
 
 void SipPhone::onIncomingThreadTimeChanged(qint64 timeMS)
 {
-	QTime time(0,0,0);
-	QTime time1 = time.addMSecs(timeMS);
-	QString timeString = time1.toString("hh:mm:ss");
-
 	foreach(RCallControl* control, FCallControls.values())
 	{
-		if(control->status() == RCallControl::Accepted)
+		if (control->status()==RCallControl::Accepted && FStreams.contains(control->getSessionID()))
 		{
-			control->statusTextChange(timeString);
+			ISipStream stream = FStreams.value(control->getSessionID());
+			QTime time= QTime(0,0,0).addSecs(stream.startTime.time().secsTo(QTime::currentTime()));
+			control->statusTextChange(time.toString("hh:mm:ss"));
 		}
 	}
 }
