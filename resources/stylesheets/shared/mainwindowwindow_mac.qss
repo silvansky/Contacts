@@ -1,0 +1,4 @@
+QToolBar#statusToolBar
+{
+	min-height: 40px;
+}

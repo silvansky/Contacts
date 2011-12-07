@@ -130,6 +130,9 @@ void MainWindow::createToolBars()
 	toolbar->setMovable(false);
 	toolbar->setObjectName("statusToolBar");
 	addToolBar(Qt::TopToolBarArea, toolbar);
+#ifdef Q_WS_MAC
+	toolbar->layout()->setContentsMargins(0, 0, 0, 0);
+#endif
 	FStatusToolBarChanger = new ToolBarChanger(toolbar);
 	FStatusToolBarChanger->setSeparatorsVisible(false);
 

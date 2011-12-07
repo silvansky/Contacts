@@ -32,8 +32,9 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 	ui.mainLt->insertLayout(0, ui.avatarLt);
 	ui.mainLt->insertLayout(1, ui.nameMoodLt);
 	ui.mainLt->insertLayout(2, ui.statusLt);
-	ui.avatarLt->setContentsMargins(0, 3, 0, 0);
-	ui.statusLt->setContentsMargins(0, 5, 0, 0);
+	layout()->setContentsMargins(2, 0, 2, 0);
+	ui.avatarLt->setContentsMargins(0, 4, 0, 0);
+	ui.statusLt->setContentsMargins(0, 6, 0, 0);
 	ui.nameMoodLt->setContentsMargins(0, -10, 0, 0);
 #endif
 

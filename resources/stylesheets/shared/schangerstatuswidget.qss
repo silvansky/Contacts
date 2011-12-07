@@ -74,8 +74,8 @@ QMenu#schangerMainMenu
 
 StatusWidget
 {
-	max-height: 40px;
-	height: 40px;
+	max-height: 60px;
+	height: 60px;
 }
 
 #tlbStatus
