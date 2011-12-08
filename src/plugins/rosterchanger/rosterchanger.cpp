@@ -1317,7 +1317,9 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 			notify.data.insert(NDR_POPUP_TITLE, name);
 			notify.data.insert(NDR_POPUP_NOTICE, notifyMessage);
 			notify.data.insert(NDR_POPUP_IMAGE, FNotifications->contactAvatar(ARoster->streamJid(),AItemJid));
-			//notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));
+#ifdef Q_WS_MAC
+			notify.data.insert(NDR_POPUP_TEXT,Qt::escape(notifyMessage));
+#endif
 			notify.data.insert(NDR_POPUP_STYLEKEY, STS_RCHANGER_NOTIFYWIDGET_SUBSCRIPTION);
 			notify.data.insert(NDR_SOUND_FILE,SDF_RCHANGER_SUBSCRIPTION);
 			notify.data.insert(NDR_SUBSCRIPTION_TYPE,ASubsType);
