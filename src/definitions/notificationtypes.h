@@ -10,6 +10,7 @@
 #define NNT_CHATSTATE_TYPING         "ChatStateTyping"
 #define NNT_BIRTHDAY_REMIND          "BirthdayRemind"
 #define NNT_SIPPHONE_CALL            "SipPhoneCall"
+#define NNT_SIPPHONE_MISSEDCALL      "SipPhoneMissedCall"
 #define NNT_MAIL_NOTIFY              "MailNotify"
 #define NNT_METACONTACTS_DELETEFAIL  "MetaContactDeleteFail"
 #define NNT_GATEWAYS_CONFLICT        "GatewaysConflict"

@@ -86,8 +86,10 @@ signals:
 	void sipSendBye(const QString &AClientSIP);
 	void sipSendUnRegister();
 protected:
-	void insertNotify(const ISipStream &AStream);
-	void removeNotify(const QString &AStreamId);
+	void insertIncomingNotify(const ISipStream &AStream);
+	void removeIncomingNotify(const QString &AStreamId);
+	void insertMissedNotify(const ISipStream &AStream);
+	void removeMissedNotify(IChatWindow *AWindow);
 	void showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify);
 	void removeStream(const QString &AStreamId);
 	void showCallControlTab(const QString& sid);
@@ -112,6 +114,8 @@ protected slots:
 	void sipClearRegistration(const QString&);
 	void onMetaTabWindowCreated(IMetaTabWindow*);
 	void onMetaTabWindowDestroyed(IMetaTabWindow*);
+	void onChatWindowActivated();
+	void onChatWindowDestroyed();
 	void onCallActionTriggered(bool);
 protected slots:
 	void onOpenStreamByAction(bool);
@@ -150,7 +154,8 @@ private:
 	QMap<QString, QString> FPendingRequests;
 private:
 	QMap<QString, ISipStream> FStreams;
-	QMap<int, QString> FNotifies;
+	QMap<int, QString> FIncomingNotifies;
+	QMap<int, IChatWindow *> FMissedNotifies;
 	QMap<QString, RCallControl *> FCallControls;
 	QMap<QString, Action *> FCallActions;
 	SipPhoneProxy* FSipPhoneProxy;

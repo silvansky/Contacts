@@ -434,6 +434,14 @@
         <source>Call from %1 canceled.</source>
         <translation>Звонок от %1 отменен.</translation>
     </message>
+    <message numerus="yes">
+        <source>%n missed call(s)</source>
+        <translation>
+            <numerusform>%n пропущенный вызов</numerusform>
+            <numerusform>%n пропущенных вызова</numerusform>
+            <numerusform>%n пропущенных вызовов</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>SipPhoneProxy</name>

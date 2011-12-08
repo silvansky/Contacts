@@ -181,15 +181,23 @@ bool SipPhone::initObjects()
 	}
 	if (FNotifications)
 	{
-		INotificationType notifyType;
-		notifyType.order = OWO_NOTIFICATIONS_SIPPHONE;
-#ifndef Q_WS_MAC
-		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify;
-#else
-		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge;
+		INotificationType incomingNotifyType;
+		incomingNotifyType.order = OWO_NOTIFICATIONS_SIPPHONE;
+		incomingNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify;
+#ifdef Q_WS_MAC
+		incomingNotifyType.kindMask |= INotification::DockBadge;
 #endif
-		notifyType.kindDefs = notifyType.kindMask;
-		FNotifications->registerNotificationType(NNT_SIPPHONE_CALL,notifyType);
+		incomingNotifyType.kindDefs = incomingNotifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_SIPPHONE_CALL,incomingNotifyType);
+
+		INotificationType missedNotifyType;
+		missedNotifyType.order = OWO_NOTIFICATIONS_SIPPHONE_MISSED;
+		missedNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify;
+#ifdef Q_WS_MAC
+		missedNotifyType.kindMask |= INotification::DockBadge;
+#endif
+		missedNotifyType.kindDefs = incomingNotifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_SIPPHONE_MISSEDCALL,missedNotifyType);
 	}
 
 	SipProtoInit::Init();
@@ -253,6 +261,7 @@ void SipPhone::onXmppStreamClosed(IXmppStream *)
 
 void SipPhone::onIncomingThreadTimeChanged(qint64 timeMS)
 {
+	Q_UNUSED(timeMS);
 	foreach(RCallControl* control, FCallControls.values())
 	{
 		if (control->status()==RCallControl::Accepted && FStreams.contains(control->getSessionID()))
@@ -311,6 +320,18 @@ void SipPhone::onMetaTabWindowDestroyed(IMetaTabWindow* AMetaWindow)
 		FCallActions.remove(metaId);
 		FCallControls.remove(metaId);
 	}
+}
+
+void SipPhone::onChatWindowActivated()
+{
+	IChatWindow *window = qobject_cast<IChatWindow *>(sender());
+	removeMissedNotify(window);
+}
+
+void SipPhone::onChatWindowDestroyed()
+{
+	IChatWindow *window = qobject_cast<IChatWindow *>(sender());
+	removeMissedNotify(window);
 }
 
 void SipPhone::onAboutToShowContactMenu()
@@ -518,7 +539,7 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 				stream.timeout = true;
 				FStreams.insert(sid,stream);
 				FPendingRequests.insert(sid,AStanza.id());
-				insertNotify(stream);
+				insertIncomingNotify(stream);
 				showCallControlTab(sid);
 				emit streamCreated(sid);
 				emit streamStateChanged(sid,stream.state);
@@ -676,6 +697,8 @@ void SipPhone::onAbortCall()
 		QString streamId = pCallControl->getSessionID();
 		if(!streamId.isEmpty())
 		{
+			if (FStreams.contains(FStreamId))
+				FStreams[FStreamId].timeout = false;
 			closeStream(streamId);
 		}
 		else
@@ -813,8 +836,12 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 		{
 			if(stream.timeout)
 			{
-				pCallControl->callStatusChange(RCallControl::RingTimeout);
-				showNotifyInChatWindow(sid,tr("Missed call from %1.").arg(userNick));
+				if (state == ISipStream::SS_CLOSED)
+				{
+					pCallControl->callStatusChange(RCallControl::RingTimeout);
+					showNotifyInChatWindow(sid,tr("Missed call from %1.").arg(userNick));
+					insertMissedNotify(stream);
+				}
 			}
 			else
 			{
@@ -953,7 +980,7 @@ void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult, c
 		{
 			FPendingRequests.remove(AStreamId);
 			stream.state = ISipStream::SS_OPENED;
-			removeNotify(AStreamId);
+			removeIncomingNotify(AStreamId);
 			emit streamStateChanged(AStreamId, stream.state);
 		}
 	}
@@ -1002,7 +1029,7 @@ void SipPhone::closeStream(const QString &AStreamId)
 				removeStream(AStreamId);
 			}
 			FPendingRequests.remove(AStreamId);
-			removeNotify(AStreamId);
+			removeIncomingNotify(AStreamId);
 		}
 	}
 }
@@ -1093,7 +1120,7 @@ void SipPhone::showCallControlTab(const QString& sid)
 	}
 }
 
-void SipPhone::insertNotify(const ISipStream &AStream)
+void SipPhone::insertIncomingNotify(const ISipStream &AStream)
 {
 	INotification notify;
 	notify.kinds = FNotifications ? FNotifications->notificationKinds(NNT_SIPPHONE_CALL) : 0;
@@ -1131,14 +1158,6 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 			notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_SIPPHONE_TABBARITEM_CALL);
 		}
 
-		//notify.data.insert(NDR_POPUP_NOTICE,message);
-		//notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(AStream.contactJid));
-		//notify.data.insert(NDR_POPUP_TITLE,name);
-		//notify.data.insert(NDR_POPUP_STYLEKEY,STS_SIPPHONE_NOTIFYWIDGET_CALL);
-		//notify.data.insert(NDR_POPUP_TIMEOUT,0);
-		//notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL);
-
-
 		SipCallNotifyer *callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.streamJid,AStream.contactJid));
 		callNotifyer->setProperty("streamId", AStream.sid);
 		connect(callNotifyer, SIGNAL(accepted()), SLOT(onAcceptStreamByAction()));
@@ -1158,15 +1177,71 @@ void SipPhone::insertNotify(const ISipStream &AStream)
 		connect(declineCall,SIGNAL(triggered()),SLOT(onCloseStreamByAction()));
 		notify.actions.append(declineCall);
 
-		FNotifies.insert(FNotifications->appendNotification(notify), AStream.sid);
+		FIncomingNotifies.insert(FNotifications->appendNotification(notify), AStream.sid);
 	}
 }
 
-void SipPhone::removeNotify(const QString &AStreamId)
+void SipPhone::removeIncomingNotify(const QString &AStreamId)
 {
 	if (FNotifications)
-		FNotifications->removeNotification(FNotifies.key(AStreamId));
+		FNotifications->removeNotification(FIncomingNotifies.key(AStreamId));
 	emit hideCallNotifyer();
+}
+
+void SipPhone::insertMissedNotify(const ISipStream &AStream)
+{
+	INotification notify;
+	notify.kinds = FNotifications ? FNotifications->notificationKinds(NNT_SIPPHONE_MISSEDCALL) : 0;
+	if (notify.kinds > 0)
+	{
+		int callsCount = 1;
+		IChatWindow *winow = FMessageWidgets!=NULL ? FMessageWidgets->findChatWindow(AStream.streamJid,AStream.contactJid) : NULL;
+		if (winow)
+		{
+			int oldNotifyId = FMissedNotifies.key(winow);
+			if (oldNotifyId > 0)
+			{
+				callsCount += FNotifications->notificationById(oldNotifyId).data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt();
+				removeMissedNotify(winow);
+			}
+		}
+		QString message = tr("%n missed call(s)","",callsCount);
+
+		notify.typeId = NNT_SIPPHONE_MISSEDCALL;
+		notify.data.insert(NDR_STREAM_JID,AStream.streamJid.full());
+		notify.data.insert(NDR_CONTACT_JID,AStream.contactJid.full());
+		notify.data.insert(NDR_ICON_KEY,MNI_SIPPHONE_BTN_HANGUP);
+		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
+		notify.data.insert(NDR_ROSTER_ORDER,RNO_SIPPHONE_MISSED_CALL);
+		notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
+		notify.data.insert(NDR_ROSTER_HOOK_CLICK,true);
+		notify.data.insert(NDR_ROSTER_CREATE_INDEX,false);
+		notify.data.insert(NDR_ROSTER_FOOTER,message);
+		notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
+
+		if (winow)
+		{
+			notify.data.insert(NDR_ALERT_WIDGET,(qint64)winow->instance());
+			notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)winow->instance());
+			notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)winow->instance());
+			notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_SIP_MISSED_CALL);
+			notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,callsCount);
+			notify.data.insert(NDR_TABPAGE_ICONBLINK,false);
+			notify.data.insert(NDR_TABPAGE_TOOLTIP,message);
+			notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_SIPPHONE_TABBARITEM_CALL);
+
+			connect(winow->instance(),SIGNAL(tabPageActivated()),SLOT(onChatWindowActivated()));
+			connect(winow->instance(),SIGNAL(tabPageDestroyed()),SLOT(onChatWindowDestroyed()));
+		}
+
+		FMissedNotifies.insert(FNotifications->appendNotification(notify), winow);
+	}
+}
+
+void SipPhone::removeMissedNotify(IChatWindow *AWindow)
+{
+	if (FNotifications)
+		FNotifications->removeNotification(FMissedNotifies.key(AWindow));
 }
 
 void SipPhone::showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify)
@@ -1267,12 +1342,22 @@ void SipPhone::onCloseStreamByAction()
 
 void SipPhone::onNotificationActivated(int ANotifyId)
 {
-	acceptStream(FNotifies.value(ANotifyId));
+	if (FIncomingNotifies.contains(ANotifyId))
+	{
+		acceptStream(FIncomingNotifies.value(ANotifyId));
+		FNotifications->removeNotification(ANotifyId);
+	}
+	else if (FMissedNotifies.contains(ANotifyId))
+	{
+		FMissedNotifies.value(ANotifyId)->showTabPage();
+		FNotifications->removeNotification(ANotifyId);
+	}
 }
 
 void SipPhone::onNotificationRemoved(int ANotifyId)
 {
-	FNotifies.remove(ANotifyId);
+	FIncomingNotifies.remove(ANotifyId);
+	FMissedNotifies.remove(ANotifyId);
 }
 
 void SipPhone::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu)
