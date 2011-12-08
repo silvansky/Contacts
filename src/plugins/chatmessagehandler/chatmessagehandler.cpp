@@ -14,6 +14,10 @@
 #define URL_PATH_HISTORY          "history"
 #define URL_PATH_CONTENT          "content"
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
 {
 	AStream << AInfo.streamJid;
@@ -454,11 +458,11 @@ INotification ChatMessageHandler::messageNotify(INotifications *ANotifications, 
 				}
 				notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
 
+#ifdef Q_WS_MAC
+				notify.data.insert(NDR_POPUP_TEXT,AMessage.body());
+#else
 				QTextDocument doc;
 				FMessageProcessor->messageToText(&doc,AMessage);
-#ifdef Q_WS_MAC
-				notify.data.insert(NDR_POPUP_TEXT,doc.toPlainText());
-#else
 				notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
 #endif
 
