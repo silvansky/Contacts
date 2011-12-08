@@ -257,7 +257,10 @@ void MacIntegrationPlugin::requestUserAttention()
 
 void MacIntegrationPlugin::postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)
 {
-	MacIntegrationPrivate::postGrowlNotify(icon, title, text, type, id);
+	QString croppedText = text;
+	if (croppedText.length() > 140)
+		croppedText = croppedText.left(140) + "...";
+	MacIntegrationPrivate::postGrowlNotify(icon, title, croppedText, type, id);
 }
 
 void MacIntegrationPlugin::showGrowlPreferencePane()

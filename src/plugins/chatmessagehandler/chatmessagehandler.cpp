@@ -459,7 +459,7 @@ INotification ChatMessageHandler::messageNotify(INotifications *ANotifications, 
 				notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
 
 #ifdef Q_WS_MAC
-				notify.data.insert(NDR_POPUP_TEXT,AMessage.body());
+				notify.data.insert(NDR_POPUP_TEXT, AMessage.body());
 #else
 				QTextDocument doc;
 				FMessageProcessor->messageToText(&doc,AMessage);
