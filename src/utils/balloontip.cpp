@@ -382,6 +382,7 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 
 void BalloonTip::paintEvent(QPaintEvent *evt)
 {
+	Q_UNUSED(evt);
 	//qDebug() << evt->rect() << rect() << pixmap.size() << mask().boundingRect();
 
 	QPainter painter(this);
@@ -427,12 +428,7 @@ bool BalloonTip::event(QEvent * ev)
 		ev->accept();
 		return true;
 	}
-	else if (ev->type() == QEvent::Resize)
-	{
-		qDebug() << "resize!" << size();
-	}
-	else
-		return QWidget::event(ev);
+	return QWidget::event(ev);
 }
 
 bool BalloonTip::eventFilter(QObject * obj, QEvent * evt)
