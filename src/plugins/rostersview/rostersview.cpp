@@ -1513,7 +1513,7 @@ void RostersView::onUpdateIndexNotifyTimeout()
 	{
 		int curNotify = activeNotify(index);
 		QList<int> queque = notifyQueue(index);
-		int newNotify = !queque.isEmpty() ? queque.last() : -1;
+		int newNotify = !queque.isEmpty() ? queque.first() : -1;
 		if (curNotify != newNotify)
 		{
 			if (newNotify > 0)
