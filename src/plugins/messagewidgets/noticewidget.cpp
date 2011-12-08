@@ -11,6 +11,10 @@ ChatNoticeWidget::ChatNoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_NOTICEWIDGET);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(ui.cbtClose,STS_MESSAGEWIDGETS_NOTICECLOSEBUTTON);
 
+#ifdef Q_WS_MAC
+	ui.wdtButtons->layout()->setSpacing(16);
+#endif
+
 	FMessageWidgets = AMessageWidgets;
 	FStreamJid = AStreamJid;
 	FContactJid = AContactJid;
