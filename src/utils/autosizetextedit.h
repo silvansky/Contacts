@@ -22,6 +22,8 @@ public:
 	virtual QSize sizeHint() const;
 	virtual QSize minimumSizeHint() const;
 protected:
+	virtual void keyPressEvent(QKeyEvent *ev);
+protected:
 	int textHeight(int ALines = 0) const;
 protected slots:
 	void onTextChanged();
