@@ -183,7 +183,11 @@ bool SipPhone::initObjects()
 	{
 		INotificationType notifyType;
 		notifyType.order = OWO_NOTIFICATIONS_SIPPHONE;
+#ifndef Q_WS_MAC
 		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify;
+#else
+		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge;
+#endif
 		notifyType.kindDefs = notifyType.kindMask;
 		FNotifications->registerNotificationType(NNT_SIPPHONE_CALL,notifyType);
 	}

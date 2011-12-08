@@ -492,11 +492,11 @@ INotification SmsMessageHandler::messageNotify(INotifications *ANotifications, c
 				}
 				notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
 
+#ifdef Q_WS_MAC
+				notify.data.insert(NDR_POPUP_TEXT, AMessage.body());
+#else
 				QTextDocument doc;
 				FMessageProcessor->messageToText(&doc,AMessage);
-#ifdef Q_WS_MAC
-				notify.data.insert(NDR_POPUP_TEXT, doc.toPlainText());
-#else
 				notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
 #endif
 

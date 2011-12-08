@@ -188,7 +188,11 @@ bool RosterChanger::initObjects()
 	{
 		INotificationType notifyType;
 		notifyType.order = OWO_NOTIFICATIONS_SUBSCRIPTIONS;
+#ifndef Q_WS_MAC
 		notifyType.kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::TrayNotify|INotification::SoundPlay|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::AutoActivate;
+#else
+		notifyType.kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::TrayNotify|INotification::SoundPlay|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge|INotification::AutoActivate;
+#endif
 		notifyType.kindDefs = notifyType.kindMask & ~(INotification::AutoActivate);
 		FNotifications->registerNotificationType(NNT_SUBSCRIPTION,notifyType);
 	}

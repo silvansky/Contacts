@@ -752,7 +752,7 @@ void Notifications::onNotifyCountChanged()
 		int count = 0;
 		foreach (int i, FNotifyRecords.keys())
 		{
-			if (FNotifyRecords.value(i).notification.kinds & INotification::PopupWindow)
+			if (FNotifyRecords.value(i).notification.kinds & INotification::DockBadge)
 				count++;
 		}
 
