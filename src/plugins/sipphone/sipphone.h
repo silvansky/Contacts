@@ -90,7 +90,7 @@ protected:
 	void removeIncomingNotify(const QString &AStreamId);
 	void insertMissedNotify(const ISipStream &AStream);
 	void removeMissedNotify(IChatWindow *AWindow);
-	void showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify);
+	void showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify, const QString &AIconId = MNI_SIPPHONE_CALL);
 	void removeStream(const QString &AStreamId);
 	void showCallControlTab(const QString& sid);
 	Jid getContactWithPresence(const Jid &AStreamJid, const QString &AMetaId) const;

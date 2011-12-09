@@ -839,7 +839,7 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 				if (state == ISipStream::SS_CLOSED)
 				{
 					pCallControl->callStatusChange(RCallControl::RingTimeout);
-					showNotifyInChatWindow(sid,tr("Missed call from %1.").arg(userNick));
+					showNotifyInChatWindow(sid,tr("Missed call from %1.").arg(userNick),MNI_SIPPHONE_CALL_MISSED);
 					insertMissedNotify(stream);
 				}
 			}
@@ -1210,7 +1210,7 @@ void SipPhone::insertMissedNotify(const ISipStream &AStream)
 		notify.typeId = NNT_SIPPHONE_MISSEDCALL;
 		notify.data.insert(NDR_STREAM_JID,AStream.streamJid.full());
 		notify.data.insert(NDR_CONTACT_JID,AStream.contactJid.full());
-		notify.data.insert(NDR_ICON_KEY,MNI_SIPPHONE_BTN_HANGUP);
+		notify.data.insert(NDR_ICON_KEY,MNI_SIPPHONE_CALL_MISSED);
 		notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 		notify.data.insert(NDR_ROSTER_ORDER,RNO_SIPPHONE_MISSED_CALL);
 		notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
@@ -1244,7 +1244,7 @@ void SipPhone::removeMissedNotify(IChatWindow *AWindow)
 		FNotifications->removeNotification(FMissedNotifies.key(AWindow));
 }
 
-void SipPhone::showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify)
+void SipPhone::showNotifyInChatWindow(const QString &AStreamId, const QString &ANotify, const QString &AIconId)
 {
 	if (FMessageProcessor && FMessageWidgets && FStreams.contains(AStreamId))
 	{
@@ -1266,7 +1266,7 @@ void SipPhone::showNotifyInChatWindow(const QString &AStreamId, const QString &A
 				options.time = QDateTime::currentDateTime();
 				options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
 
-				QUrl iconFile = QUrl::fromLocalFile(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_SIPPHONE_CALL));
+				QUrl iconFile = QUrl::fromLocalFile(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(AIconId));
 				QString html = QString("<img src='%1'/> <b>%2</b>").arg(iconFile.toString()).arg(Qt::escape(ANotify));
 
 				stream.contentId = window->viewWidget()->changeContentHtml(html,options);

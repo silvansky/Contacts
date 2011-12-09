@@ -200,5 +200,6 @@
 #define MNI_SIPPHONE_UNMUTE                      "sipphoneUnmute"
 #define MNI_SIPPHONE_CALL_ANSWER                 "sipCallAnswer"
 #define MNI_SIPPHONE_CALL_HANGUP                 "sipCallHangup"
+#define MNI_SIPPHONE_CALL_MISSED                 "sipCallMissed"
 
 #endif //DEF_MENUICONS_H

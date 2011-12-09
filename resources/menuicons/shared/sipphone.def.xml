@@ -164,4 +164,8 @@
     <key>sipCallHangup</key>
     <object mime="image/png">sipcallhangup.png</object>
   </icon>
+  <icon>
+    <key>sipCallMissed</key>
+    <object mime="image/png">sipcallmissed.png</object>
+  </icon>
 </icondef>
