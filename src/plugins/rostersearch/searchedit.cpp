@@ -29,7 +29,11 @@ void SearchEdit::processKeyPressEvent(QKeyEvent * event)
 void SearchEdit::resizeEvent(QResizeEvent * event)
 {
 	QLineEdit::resizeEvent(event);
+#ifdef Q_WS_MAC
+	iconLabel->move(event->size().width() - 26, (event->size().height() - 16) / 2);
+#else
 	iconLabel->move(event->size().width() - 22, (event->size().height() - 16) / 2);
+#endif
 }
 
 void SearchEdit::mouseMoveEvent(QMouseEvent * event)
@@ -72,6 +76,16 @@ void SearchEdit::leaveEvent(QEvent *)
 		updateIcon(Ready);
 	else
 		updateIcon(InProgress);
+}
+
+void SearchEdit::keyPressEvent(QKeyEvent * ke)
+{
+	if (ke->key() == Qt::Key_Escape)
+	{
+		setText("");
+	}
+	else
+		QLineEdit::keyPressEvent(ke);
 }
 
 void SearchEdit::onTextChanged(const QString &newText)
