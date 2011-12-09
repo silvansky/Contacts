@@ -80,7 +80,7 @@ void SearchEdit::leaveEvent(QEvent *)
 
 void SearchEdit::keyPressEvent(QKeyEvent * ke)
 {
-	if (ke->key() == Qt::Key_Escape)
+	if ((ke->key() == Qt::Key_Escape) && !text().isEmpty())
 	{
 		setText("");
 	}
