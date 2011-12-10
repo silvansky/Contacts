@@ -92,10 +92,10 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 						data = footer;
 					}
 				}
-				else if (ARole == Qt::DecorationRole)
-				{
-					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
-				}
+				//else if (ARole == Qt::DecorationRole)
+				//{
+				//	data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
+				//}
 			}
 			else if (AIndex->data(RDR_ASK).toString() == SUBSCRIPTION_SUBSCRIBE)
 			{
@@ -108,10 +108,10 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 						data = footer;
 					}
 				}
-				else if (ARole == Qt::DecorationRole)
-				{
-					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
-				}
+				//else if (ARole == Qt::DecorationRole)
+				//{
+				//	data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
+				//}
 			}
 			else if (AIndex->data(RDR_SUBSCRIBTION).toString() == SUBSCRIPTION_NONE)
 			{
@@ -124,10 +124,10 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 						data = footer;
 					}
 				}
-				else if (ARole == Qt::DecorationRole)
-				{
-					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
-				}
+				//else if (ARole == Qt::DecorationRole)
+				//{
+				//	data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
+				//}
 			}
 			block = false;
 		}
