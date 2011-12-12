@@ -60,7 +60,7 @@ static QString resolveGrowlType(const QString & notifyType)
 		// set self as a growl delegate
 
 		[GrowlApplicationBridge setGrowlDelegate: self];
-		NSLog(@"growl agent init... installed: %d running: %d delegate: %@", [GrowlApplicationBridge isGrowlInstalled], [GrowlApplicationBridge isGrowlRunning], [GrowlApplicationBridge growlDelegate]);
+		//NSLog(@"growl agent init... installed: %d running: %d delegate: %@", [GrowlApplicationBridge isGrowlInstalled], [GrowlApplicationBridge isGrowlRunning], [GrowlApplicationBridge growlDelegate]);
 	}
 	return self;
 }
@@ -109,7 +109,7 @@ static QString resolveGrowlType(const QString & notifyType)
 
 - (void) growlNotificationTimedOut:(id)clickContext
 {
-	NSLog(@"Growl notify timed out! id: %@", (NSNumber*)clickContext);
+	//NSLog(@"Growl notify timed out! id: %@", (NSNumber*)clickContext);
 }
 
 @end
@@ -195,9 +195,19 @@ void MacIntegrationPrivate::postGrowlNotify(const QImage & icon, const QString &
 	NSString * nsType = nsStringFromQString(resolveGrowlType(type));
 	NSNumber * nsId = [NSNumber numberWithInt: id];
 	NSImage * nsIcon = nsImageFromQImage(icon);
-	//qDebug() << "Growl notify: " << title << text << type << id;
-	//NSLog(@"Growl notify: type: %@ text: %@ title: %@ id: %@", nsType, nsText, nsTitle, nsId);
-	[GrowlApplicationBridge notifyWithTitle: nsTitle description: nsText notificationName: nsType iconData: [nsIcon TIFFRepresentation] priority: 0 isSticky: NO clickContext: nsId identifier: [NSString stringWithFormat:@"ID%d", id]];
+NSLog(@"Notification: %@ | %@", nsTitle, nsText);
+	if ([GrowlApplicationBridge isGrowlRunning])
+	{
+		[GrowlApplicationBridge notifyWithTitle: nsTitle description: nsText notificationName: nsType iconData: [nsIcon TIFFRepresentation] priority: 0 isSticky: NO clickContext: nsId identifier: [NSString stringWithFormat:@"ID%d", id]];
+	}
+	else
+	{
+		NSLog(@"Notification: %@ | %@", nsTitle, nsText);
+		if ([GrowlApplicationBridge isGrowlInstalled])
+			LogError("Growl installed, but not running!");
+		else
+			LogError("Growl is not installed!");
+	}
 
 	[nsTitle release];
 	[nsText release];
@@ -216,7 +226,12 @@ void MacIntegrationPrivate::showGrowlPrefPane()
 		NSLog(@"Error opening Growl preference pane at %@. Trying %@...", growlPath, growlCommonPath);
 		ok = [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath:growlCommonPath]];
 		if (!ok)
-			NSLog(@"Error opening Growl preference pane at %@. Possibly, Growl isn\' installed.", growlCommonPath);
+		{
+			NSLog(@"Error opening Growl preference pane at %@. Possibly, Growl isn\' installed. Trying Growl 1.3.x bundle...", growlCommonPath);
+			ok = [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath:@"/Applications/Growl.app"]];
+			if (!ok)
+				NSLog(@"Error opening Growl.app! Growl isn\'t installed?");
+		}
 	}
 }
 

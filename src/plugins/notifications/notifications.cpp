@@ -290,8 +290,11 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (!blockPopupAndSound && (record.notification.kinds & INotification::PopupWindow)>0 &&
-		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::PopupWindow)).value().toBool())
+	if (!blockPopupAndSound && (record.notification.kinds & INotification::PopupWindow)>0
+#ifndef Q_WS_MAC
+			&& Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::PopupWindow)).value().toBool()
+#endif
+			)
 	{
 #ifdef Q_WS_MAC
 		if (FMacIntegration)
