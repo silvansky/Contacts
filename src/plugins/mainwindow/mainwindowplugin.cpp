@@ -13,7 +13,6 @@ MainWindowPlugin::MainWindowPlugin()
 	FPluginManager = NULL;
 	FOptionsManager = NULL;
 	FTrayManager = NULL;
-	FMacIntegration = NULL;
 
 	FOpenAction = NULL;
 	FActivationChanged = QTime::currentTime();
@@ -86,18 +85,6 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AIni
 				SLOT(onTrayNotifyActivated(int,QSystemTrayIcon::ActivationReason)));
 		}
 	}
-#ifdef Q_WS_MAC
-	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
-	if (plugin)
-	{
-		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
-		if (FMacIntegration)
-		{
-			connect(FMacIntegration->instance(),SIGNAL(dockClicked()),
-				SLOT(onDockIconClicked()));
-		}
-	}
-#endif
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
@@ -341,12 +328,6 @@ void MainWindowPlugin::onMainWindowClosed()
 	if (QSysInfo::windowsVersion()==QSysInfo::WV_WINDOWS7 && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
 		FPluginManager->quit();
 #endif
-}
-
-void MainWindowPlugin::onDockIconClicked()
-{
-	if (!FMainWindow->isVisible())
-		showMainWindow();
 }
 
 void MainWindowPlugin::onShutdownStarted()

@@ -30,6 +30,10 @@ Notifications::Notifications()
 	FRostersModel = NULL;
 	FRostersViewPlugin = NULL;
 	FOptionsManager = NULL;
+#ifdef Q_WS_MAC
+	FMacIntegration = NULL;
+	FMainWindow = NULL;
+#endif
 
 	FNotifyId = 0;
 	FTestNotifyId = -1;
@@ -136,9 +140,13 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &AInitOr
 			connect(FMacIntegration->instance(), SIGNAL(dockClicked()), SLOT(onDockClicked()));
 		}
 	}
-#endif
 
-#ifdef Q_WS_MAC
+	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FMainWindow = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+	}
+
 	connect(this, SIGNAL(notificationAppended(int,const INotification &)), SLOT(onNotifyCountChanged()));
 	connect(this, SIGNAL(notificationRemoved(int)), SLOT(onNotifyCountChanged()));
 #endif
@@ -767,7 +775,16 @@ void Notifications::onNotifyCountChanged()
 
 void Notifications::onDockClicked()
 {
+	bool haveUnreadNotifications = false;
+	foreach (int id, FNotifyRecords.keys())
+		if (FNotifyRecords.value(id).notification.kinds & INotification::TabPageNotify)
+		{
+			haveUnreadNotifications = true;
+			break;
+		}
 	activateAllNotifications();
+	if (!haveUnreadNotifications && FMainWindow)
+		FMainWindow->showMainWindow();
 }
 
 #endif

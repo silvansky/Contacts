@@ -137,6 +137,7 @@ private:
 	IOptionsManager *FOptionsManager;
 #ifdef Q_WS_MAC
 	IMacIntegration * FMacIntegration;
+	IMainWindowPlugin * FMainWindow;
 #endif
 private:
 #ifdef QT_PHONON_LIB

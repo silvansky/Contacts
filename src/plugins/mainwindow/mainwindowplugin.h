@@ -13,7 +13,6 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/itraymanager.h>
-#include <interfaces/imacintegration.h>
 #include <utils/widgetmanager.h>
 #include <utils/action.h>
 #include <utils/options.h>
@@ -58,13 +57,11 @@ protected slots:
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowMainWindowByAction(bool);
 	void onMainWindowClosed();
-	void onDockIconClicked();
 	void onShutdownStarted();
 private:
 	IPluginManager *FPluginManager;
 	IOptionsManager *FOptionsManager;
 	ITrayManager *FTrayManager;
-	IMacIntegration *FMacIntegration;
 private:
 	Action *FOpenAction;
 	MainWindow *FMainWindow;
