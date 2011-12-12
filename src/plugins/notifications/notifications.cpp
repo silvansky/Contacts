@@ -133,6 +133,7 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &AInitOr
 		if (FMacIntegration)
 		{
 			connect(FMacIntegration->instance(), SIGNAL(growlNotifyClicked(int)), SLOT(onGrowlNotifyClicked(int)));
+			connect(FMacIntegration->instance(), SIGNAL(dockClicked()), SLOT(onDockClicked()));
 		}
 	}
 #endif
@@ -763,6 +764,12 @@ void Notifications::onNotifyCountChanged()
 		FMacIntegration->setDockBadge(count ? QString::number(count) : QString::null);
 	}
 }
+
+void Notifications::onDockClicked()
+{
+	activateAllNotifications();
+}
+
 #endif
 
 

@@ -123,6 +123,7 @@ protected slots:
 	void onGrowlNotifyClicked(int ANotifyId);
 	void onShowGrowlPreferences();
 	void onNotifyCountChanged();
+	void onDockClicked();
 #endif
 private:
 	IAvatars *FAvatars;
