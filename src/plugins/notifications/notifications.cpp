@@ -784,7 +784,8 @@ void Notifications::onDockClicked()
 		}
 	activateAllNotifications();
 	if (!haveUnreadNotifications && FMainWindow)
-		FMainWindow->showMainWindow();
+		if (!FMainWindow->mainWindow()->instance()->isVisible())
+			FMainWindow->showMainWindow();
 }
 
 #endif
