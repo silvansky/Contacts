@@ -186,6 +186,18 @@
         <source>Updates are ready. Do you want to restart Rambler.Contacts now?</source>
         <translation>Обновление выполнено. Хотите перезапустить Рамблер.Контакты?</translation>
     </message>
+    <message>
+        <source>Login first</source>
+        <translation>Требуется вход</translation>
+    </message>
+    <message>
+        <source>To send a feedback you should login first!</source>
+        <translation>Вы должны войти чтобы оставить отзыв!</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ок</translation>
+    </message>
 </context>
 <context>
     <name>SetupPluginsDialog</name>

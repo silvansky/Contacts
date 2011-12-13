@@ -894,7 +894,7 @@ void PluginManager::onShowCommentsDialog()
 	if (accManager)
 	{
 		if (accManager->accounts().count())
-			WidgetManager::showActivateRaiseWindow(FCommentDialog->windowBorder() ? (QWidget*)FCommentDialog->windowBorder() : (QWidget*)FCommentDialog);
+			WidgetManager::showActivateRaiseWindow(FCommentDialog->window());
 		else
 		{
 			CustomInputDialog * cid = new CustomInputDialog(CustomInputDialog::Info);
