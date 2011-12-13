@@ -779,6 +779,8 @@ void MacIntegrationPlugin::onProfileOpened(const QString & name)
 	showOfflineAction->setEnabled(true);
 	stayOnTopAction->setEnabled(true);
 
+	feedbackAction->setEnabled(true);
+
 	onOptionsChanged(Options::node(OPV_ROSTER_SORTBYSTATUS));
 	onOptionsChanged(Options::node(OPV_ROSTER_SORTBYNAME));
 	onOptionsChanged(Options::node(OPV_ROSTER_SHOWOFFLINE));
@@ -806,6 +808,8 @@ void MacIntegrationPlugin::onProfileClosed(const QString & name)
 	sortByNameAction->setEnabled(false);
 	showOfflineAction->setEnabled(false);
 	stayOnTopAction->setEnabled(false);
+
+	feedbackAction->setEnabled(true);
 }
 
 void MacIntegrationPlugin::onMetaTabWindowCreated(IMetaTabWindow *AWindow)

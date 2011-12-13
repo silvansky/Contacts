@@ -17,6 +17,7 @@
 MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.lblName->setElideMode(Qt::ElideRight);
 	setMinimumWidth(400);
 	setWindowIconText(tr("Contact Profile"));
 

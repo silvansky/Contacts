@@ -90,14 +90,14 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="lblName">
+         <widget class="CustomLabel" name="lblName">
           <property name="text">
            <string notr="true">lblName</string>
           </property>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="lblStatusText">
+         <widget class="CustomLabel" name="lblStatusText">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -183,6 +183,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>pbtAddContact</tabstop>
   <tabstop>pbtClose</tabstop>

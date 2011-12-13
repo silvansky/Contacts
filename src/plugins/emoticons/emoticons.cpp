@@ -435,6 +435,7 @@ void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 	EmoticonsContainer *container = new EmoticonsContainer(AEditWidget);
 	container->setObjectName("emoticonsContainer");
 	FContainers.append(container);
+	container->setCursor(Qt::ArrowCursor);
 
 	foreach(QString substorage, activeIconsets())
 	{
