@@ -898,6 +898,7 @@ void PluginManager::onShowCommentsDialog()
 		else
 		{
 			CustomInputDialog * cid = new CustomInputDialog(CustomInputDialog::Info);
+			cid->setAttribute(Qt::WA_DeleteOnClose, true);
 			cid->setCaptionText(tr("Login first"));
 			cid->setInfoText(tr("To send a feedback you should login first!"));
 			cid->setAcceptButtonText(tr("Ok"));
