@@ -19,6 +19,7 @@
 #include <interfaces/imacintegration.h>
 #include <utils/log.h>
 #include <utils/networking.h>
+#include <utils/custominputdialog.h>
 
 #define DELAYED_QUIT_TIMEOUT        5000
 #define DELAYED_COMMIT_TIMEOUT      2000
@@ -889,7 +890,20 @@ void PluginManager::onShowCommentsDialog()
 {
 	if (FCommentDialog.isNull())
 		FCommentDialog = new CommentDialog(this);
-	WidgetManager::showActivateRaiseWindow(FCommentDialog->windowBorder() ? (QWidget*)FCommentDialog->windowBorder() : (QWidget*)FCommentDialog);
+	IAccountManager * accManager = qobject_cast<IAccountManager*>(pluginInterface("IAccountManager").value(0)->instance());
+	if (accManager)
+	{
+		if (accManager->accounts().count())
+			WidgetManager::showActivateRaiseWindow(FCommentDialog->windowBorder() ? (QWidget*)FCommentDialog->windowBorder() : (QWidget*)FCommentDialog);
+		else
+		{
+			CustomInputDialog * cid = new CustomInputDialog(CustomInputDialog::Info);
+			cid->setCaptionText(tr("Login first"));
+			cid->setInfoText(tr("To send a feedback you should login first!"));
+			cid->setAcceptButtonText(tr("Ok"));
+			cid->show();
+		}
+	}
 }
 
 void PluginManager::onMessageBoxButtonClicked(QAbstractButton *AButton)

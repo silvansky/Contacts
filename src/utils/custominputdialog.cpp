@@ -85,9 +85,12 @@ void CustomInputDialog::setDefaultText(const QString &text)
 
 void CustomInputDialog::setCaptionText(const QString &text)
 {
-	captionLabel->setText(text);
 	setWindowTitle(text);
-	captionLabel->setVisible(!text.isEmpty());
+	if (captionLabel)
+	{
+		captionLabel->setText(text);
+		captionLabel->setVisible(!text.isEmpty());
+	}
 }
 
 void CustomInputDialog::setInfoText(const QString &text)
@@ -177,10 +180,16 @@ void CustomInputDialog::initLayout()
 	iconLabel->setMinimumSize(0, 0);
 	iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 	iconLabel->setVisible(false);
+#ifdef Q_WS_MAC
+	captionLayout->addWidget(infoLabel = new CustomLabel);
+	mainLayout->addLayout(captionLayout);
+	captionLabel = NULL;
+#else
 	captionLayout->addWidget(captionLabel = new CustomLabel);
 	captionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 	mainLayout->addLayout(captionLayout);
 	mainLayout->addWidget(infoLabel = new CustomLabel);
+#endif
 	infoLabel->setVisible(false);
 	mainLayout->addWidget(valueEdit = new QLineEdit);
 	connect(valueEdit, SIGNAL(textChanged(const QString &)), SLOT(onTextChanged(const QString &)));
@@ -206,7 +215,8 @@ void CustomInputDialog::initLayout()
 	myLayout->addWidget(container);
 	setLayout(myLayout);
 	iconLabel->setObjectName("iconLabel");
-	captionLabel->setObjectName("captionLabel");
+	if (captionLabel)
+		captionLabel->setObjectName("captionLabel");
 	infoLabel->setObjectName("infoLabel");
 	descrLabel->setObjectName("descrLabel");
 	valueEdit->setObjectName("valueEdit");
@@ -226,9 +236,9 @@ void CustomInputDialog::initLayout()
 	container->installEventFilter(this);
 	valueEdit->installEventFilter(this);
 	// default strings
-	captionLabel->setText(inputType == String ? tr("Enter string value") : tr("Yes or no?"));
-	acceptButton->setText(inputType == String ? tr("OK") : tr("Yes"));
-	rejectButton->setText(inputType == String ? tr("Cancel") : tr("No"));
+	setCaptionText(inputType == String ? tr("Enter string value") : tr("Yes or no?"));
+	setAcceptButtonText(inputType == String ? tr("OK") : tr("Yes"));
+	setRejectButtonText(inputType == String ? tr("Cancel") : tr("No"));
 	rejectButton->setVisible(inputType != Info);
 	acceptButton->setEnabled(inputType != String);
 }
