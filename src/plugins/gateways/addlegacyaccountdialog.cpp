@@ -14,6 +14,12 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 
+#ifdef Q_WS_MAC
+	ui.buttonsLayout->addWidget(ui.pbtOk);
+	ui.buttonsLayout->setSpacing(16);
+	ui.loginLayout->setSpacing(6);
+#endif
+
 	FPresence = APresence;
 	FGateways = AGateways;
 	FRegistration = ARegistration;

@@ -14,6 +14,11 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_ADDFACEBOOKACCOUNTDIALOG);
 
+#ifdef Q_WS_MAC
+	ui.lblCaption->setVisible(false);
+	layout()->setContentsMargins(0, 0, 0, 0);
+#endif
+
 	FPresence = APresence;
 	FGateways = AGateways;
 	FRegistration = ARegistration;
