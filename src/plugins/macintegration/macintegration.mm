@@ -280,7 +280,7 @@ static NSColor * gTitleColor = nil;
 //	NSRectFill(rect);
 
 	float radius = [self roundedCornerRadius];
-	NSBezierPath *path = [NSBezierPath alloc];
+	NSBezierPath *path = [[NSBezierPath alloc] init];
 	NSPoint topMid = NSMakePoint(NSMidX(brect), NSMaxY(brect));
 	NSPoint topLeft = NSMakePoint(NSMinX(brect), NSMaxY(brect));
 	NSPoint topRight = NSMakePoint(NSMaxX(brect), NSMaxY(brect));
@@ -302,6 +302,7 @@ static NSColor * gTitleColor = nil;
 	[path closePath];
 
 	[path addClip];
+	[path release];
 	titleRect = NSMakeRect(0, 0, brect.size.width, brect.size.height);
 #endif
 
