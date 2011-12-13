@@ -161,7 +161,13 @@ QList<QGraphicsEffect*> GraphicsEffectsStorage::getEffects(const QString & key)
 QGraphicsEffect * GraphicsEffectsStorage::getFirstEffect(const QString & key)
 {
 	QList<QGraphicsEffect*> effects = getEffects(key);
-	return effects.isEmpty() ? NULL : effects.first();
+	QGraphicsEffect * effect = effects.isEmpty() ? NULL : effects.first();
+	if (effect)
+	{
+		effects.removeFirst();
+		qDeleteAll(effects);
+	}
+	return effect;
 }
 
 GraphicsEffectsStorage * GraphicsEffectsStorage::staticStorage(const QString & storage)

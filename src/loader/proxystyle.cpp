@@ -30,6 +30,7 @@ void ProxyStyle::drawItemText(QPainter *painter, const QRect &rect, int flags, c
 				QPalette shadowPal(pal);
 				shadowPal.setColor(QPalette::Text, shadow->color());
 				QProxyStyle::drawItemText(painter, shadowRect, flags, shadowPal, enabled, text, QPalette::Text);
+				shadow->deleteLater();
 			}
 		}
 	}

@@ -624,6 +624,7 @@ void StatusChanger::updateStatusAction(int AStatusId, Action *AAction) const
 		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage), QIcon::Normal);
 		AAction->setData(Action::DR_UserDefined + 2, srcIcon);
 		AAction->setIcon(shadowedIcon);
+		shadow->deleteLater();
 	}
 	else
 	{
@@ -697,6 +698,7 @@ void StatusChanger::updateMainMenu()
 		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), shadow->offset().toPoint());
 		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
 		FStatusMenu->setIcon(shadowedIcon);
+		shadow->deleteLater();
 	}
 	else
 		FStatusMenu->setIcon(srcIcon);

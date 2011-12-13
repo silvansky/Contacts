@@ -155,6 +155,7 @@ NSImage * MacIntegrationPrivate::nsImageFromQImage(const QImage & image)
 {
 	CGImageRef ref = QPixmap::fromImage(image).toMacCGImageRef();
 	NSImage * nsimg = [[NSImage alloc] initWithCGImage: ref size: NSZeroSize];
+	CGImageRelease(ref);
 	return nsimg;
 }
 
