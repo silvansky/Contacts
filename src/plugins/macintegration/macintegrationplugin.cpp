@@ -508,6 +508,7 @@ void MacIntegrationPlugin::initMenus()
 
 	feedbackAction = new Action;
 	feedbackAction->setText(tr("Leave Feedback..."));
+	feedbackAction->setEnabled(false);
 	connect(feedbackAction, SIGNAL(triggered()), SLOT(onFeedbackAction()));
 	_helpMenu->addAction(feedbackAction, 600);
 
@@ -809,7 +810,7 @@ void MacIntegrationPlugin::onProfileClosed(const QString & name)
 	showOfflineAction->setEnabled(false);
 	stayOnTopAction->setEnabled(false);
 
-	feedbackAction->setEnabled(true);
+	feedbackAction->setEnabled(false);
 }
 
 void MacIntegrationPlugin::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
