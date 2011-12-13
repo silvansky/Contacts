@@ -8,7 +8,7 @@
 class EmoticonsContainer : 
 	public QWidget
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	EmoticonsContainer(IEditWidget *AParent);
 	IEditWidget *editWidget() const;
