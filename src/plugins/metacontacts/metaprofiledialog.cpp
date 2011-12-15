@@ -305,7 +305,7 @@ void MetaProfileDialog::onMetaAvatarChanged(const QString &AMetaId)
 {
 	if (AMetaId == FMetaId)
 	{
-		QImage avatar = ImageManager::roundSquared(FMetaRoster->metaAvatarImage(FMetaId, true, false),48,2);
+		QImage avatar = ImageManager::roundSquared(FMetaRoster->metaAvatarImage(FMetaId, true, false), 48, 3);
 		if (avatar.isNull())
 			avatar = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_AVATAR_EMPTY_FEMALE, 1);
 		ui.lblAvatar->setPixmap(QPixmap::fromImage(avatar));

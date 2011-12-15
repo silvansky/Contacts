@@ -325,7 +325,7 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 	{
 		if (ARole == RDR_AVATAR_IMAGE)
 		{
-			return ImageManager::roundSquared(avatarImage(AIndex->data(RDR_FULL_JID).toString(),!FShowEmptyAvatars), 24, 2);
+			return ImageManager::roundSquared(avatarImage(AIndex->data(RDR_FULL_JID).toString(),!FShowEmptyAvatars), 24, 3);
 		}
 		else if (ARole == RDR_AVATAR_IMAGE_LARGE)
 		{
@@ -334,7 +334,7 @@ QVariant Avatars::rosterData(const IRosterIndex *AIndex, int ARole) const
 				img = FEmptyMaleAvatarBig;
 			else if (img == FEmptyFemaleAvatar)
 				img = FEmptyFemaleAvatarBig;
-			return ImageManager::roundSquared(img, 36, 2);
+			return ImageManager::roundSquared(img, 36, 3);
 		}
 		else if (ARole == RDR_AVATAR_HASH)
 		{
@@ -692,7 +692,7 @@ void Avatars::updateAvatarObject(QObject *AObject)
 				image = FEmptyFemaleAvatarBig;
 		}
 		if (!params.size.isEmpty() && (params.size.height() == params.size.width()) && (image.size() != params.size) && (image.height() != image.width()))
-			image = ImageManager::roundSquared(image, params.size.height(), 2);
+			image = ImageManager::roundSquared(image, params.size.height(), 3);
 		QPixmap pixmap = !params.size.isEmpty() ? QPixmap::fromImage(image.scaled(params.size,Qt::KeepAspectRatio,Qt::SmoothTransformation)) : QPixmap::fromImage(image);
 		if (params.prop == "pixmap")
 			AObject->setProperty(params.prop.toLatin1(),pixmap);

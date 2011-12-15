@@ -25,7 +25,8 @@ QImage ImageManager::grayscaled(const QImage & image)
 		if (pixels*(int)sizeof(QRgb) <= img.byteCount())
 		{
 			QRgb *data = (QRgb *)img.bits();
-			for (int i = 0; i < pixels; ++i) {
+			for (int i = 0; i < pixels; i++)
+			{
 				int val = qGray(data[i]);
 				data[i] = qRgba(val, val, val, qAlpha(data[i]));
 			}
@@ -61,22 +62,21 @@ QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
 {
 	if (!image.isNull())
 	{
-		QBitmap shape(size, size);
-		QPainter bp(&shape);
-		bp.fillRect(0, 0, size, size, Qt::color0);
-		bp.setPen(QPen(Qt::color1));
-		bp.setBrush(QBrush(Qt::color1));
-#ifndef Q_WS_MAC
-		bp.drawRoundedRect(QRect(0, 0, size - 1, size - 1), radius, radius);
-#else
-		bp.drawRoundedRect(QRect(0, 0, size - 1, size - 1), radius, radius);
-#endif
-		bp.end();
-		QImage roundSquaredImage(size, size, QImage::Format_ARGB32);
+		QImage shapeImg(QSize(size, size), QImage::Format_ARGB32_Premultiplied);
+		shapeImg.fill(QColor(0, 0, 0, 0).rgba());
+		QPainter sp(&shapeImg);
+		sp.setRenderHint(QPainter::Antialiasing);
+		sp.fillRect(0, 0, size, size, Qt::transparent);
+		sp.setPen(QPen(Qt::color1));
+		sp.setBrush(QBrush(Qt::color1));
+		sp.drawRoundedRect(QRect(0, 0, size, size), radius + 1, radius + 1);
+		sp.end();
+		QImage roundSquaredImage(size, size, QImage::Format_ARGB32_Premultiplied);
 		roundSquaredImage.fill(QColor(0, 0, 0, 0).rgba());
 		QPainter p(&roundSquaredImage);
 		p.fillRect(0, 0, size, size, Qt::transparent);
-		p.setClipRegion(QRegion(shape));
+		p.drawImage(0, 0, shapeImg);
+		p.setCompositionMode(QPainter::CompositionMode_SourceIn);
 		p.drawImage(0, 0, squared(image, size));
 		p.end();
 		return roundSquaredImage;

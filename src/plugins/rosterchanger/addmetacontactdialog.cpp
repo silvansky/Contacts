@@ -309,7 +309,7 @@ void AddMetaContactDialog::updateDialogState()
 					QImage avatar = vcard->photoImage();
 					if (!avatar.isNull())
 					{
-						avatar = ImageManager::roundSquared(avatar, 36, 2);
+						avatar = ImageManager::roundSquared(avatar, 36, 3);
 						FAvatarContacts.append(contactJid);
 						FContactAvatars.insert(contactJid,avatar);
 					}

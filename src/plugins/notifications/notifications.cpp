@@ -572,7 +572,7 @@ QImage Notifications::contactAvatar(const Jid &AStreamJid, const Jid &AContactJi
 		avatar = mroster->metaAvatarImage(metaId,false,false);
 	else if (FAvatars)
 		avatar = FAvatars->avatarImage(AContactJid,false,false);
-	return ImageManager::roundSquared(avatar, 36, 2);
+	return ImageManager::roundSquared(avatar, 36, 3);
 }
 
 QIcon Notifications::contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const
