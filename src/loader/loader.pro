@@ -15,7 +15,9 @@ include(loader.pri)
 
 #Appication icon
 win32:RC_FILE      = loader.rc
-macx:ICON          = ../../virtus.icns
+#macx:ICON          = ../../virtus.icns
+
+#macx: QMAKE_INFO_PLIST = MyInfo.plist
 
 #SVN Info
 SVN_REVISION=$$system(svnversion -n -c ./../../)
@@ -69,6 +71,10 @@ macx {
   name_tool.path   = $$INSTALL_BINS
   name_tool.extra  = install_name_tool -change $$UTILS_LIB_LINK @executable_path/../Frameworks/$$UTILS_LIB_LINK $(INSTALL_ROOT)$$INSTALL_BINS/$$INSTALL_APP_DIR/Contents/MacOS/$$TARGET_LOADER
   INSTALLS        += name_tool
+
+  plist.path       = $$INSTALL_PREFIX/$$INSTALL_APP_DIR/Contents
+  plist.files      = ../../Info.plist
+  INSTALLS        += plist
 }
 
 macx {

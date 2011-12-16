@@ -287,12 +287,16 @@ QGraphicsEffect * GraphicsEffectsStorage::copyEffect(const QGraphicsEffect * eff
 
 QGraphicsEffect * GraphicsEffectsStorage::effectForMask(const GraphicsEffectsStorage::EffectMask & mask, QObject * parent) const
 {
-	// graphics effects work bad on Qt 4.8
+	// graphics effects work bad on Qt 4.8.0
+	// see https://bugreports.qt.nokia.com/browse/QTBUG-23205
+	// TODO: test on Windows and Linux
 #if (QT_VERSION < 0x040800)
 	QGraphicsEffect * effect = copyEffect(effectCache.value(mask, NULL));
 	effect->setParent(parent);
 	return effect;
 #else
+	Q_UNUSED(mask)
+	Q_UNUSED(parent)
 	return NULL;
 #endif
 }

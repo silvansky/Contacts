@@ -121,6 +121,7 @@ static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
 #ifdef Q_WS_MAC
 static QString resolveMacVersion(QSysInfo::MacVersion ver)
 {
+	Q_UNUSED(ver)
 	QString mac("Mac OS X %1.%2.%3 (%4)");
 	QString version;
 	SInt32 majVer = 0, minVer = 0, fixVer = 0;
@@ -213,7 +214,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	if (fullName.isEmpty())
 		fullName = streamJid.node();
 	QString email = vCard->value(VVN_EMAIL);
-	if (emailIsJid = email.isEmpty())
+	if ((emailIsJid = email.isEmpty()))
 		email = streamJid.bare();
 
 	ui.lneEMail->setText(email);

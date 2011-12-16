@@ -1,7 +1,7 @@
 #!/bin/bash
 cd /Applications
 
-appname=ramblercontacts.app
+appname=Contacts.app
 
 # usage: "patchFile MacOS/file QtNetwork"
 function patchFile {
@@ -13,17 +13,18 @@ function patchFile {
 	install_name_tool -change $QM.framework/Versions/4/$QM @executable_path/../Frameworks/$QM.framework/Versions/4/$QM $appname/Contents/$file
 }
 
-# ramblercontacts
+# Contacts deps - core, network, gui, multimedia, xml, xmlpatterns, webkit, phonon, growl, sparkle
 
-patchFile MacOS/ramblercontacts QtNetwork
-patchFile MacOS/ramblercontacts QtCore
-patchFile MacOS/ramblercontacts QtGui
-patchFile MacOS/ramblercontacts QtMultimedia
-patchFile MacOS/ramblercontacts QtXml
-patchFile MacOS/ramblercontacts QtXmlPatterns
-patchFile MacOS/ramblercontacts QtWebKit
-patchFile MacOS/ramblercontacts phonon
-patchFile MacOS/ramblercontacts Growl
+patchFile MacOS/Contacts QtNetwork
+patchFile MacOS/Contacts QtCore
+patchFile MacOS/Contacts QtGui
+patchFile MacOS/Contacts QtMultimedia
+patchFile MacOS/Contacts QtXml
+patchFile MacOS/Contacts QtXmlPatterns
+patchFile MacOS/Contacts QtWebKit
+patchFile MacOS/Contacts phonon
+patchFile MacOS/Contacts Growl
+patchFile MacOS/Contacts Sparkle
 
 # utils deps - core, gui, xml, webkit, network
 
@@ -76,19 +77,20 @@ patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit phonon
 patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtDBus
 patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtNetwork
 
-# plugins deps - core, gui, xml, network, webkit
+# plugins deps - core, gui, xml, xmlpatterns, network, webkit, phonon, growl, sparkle
 
 for i in $(ls $appname/Contents/PlugIns/); do
 
-echo patching $appname/Contents/Plugins/$i
+	echo patching $appname/Contents/Plugins/$i
 
-patchFile Plugins/$i QtCore
-patchFile Plugins/$i QtGui
-patchFile Plugins/$i QtNetwork
-patchFile Plugins/$i QtWebKit
-patchFile Plugins/$i QtXml
-patchFile Plugins/$i QtXmlPatterns
-patchFile Plugins/$i phonon
-patchFile Plugins/$i Growl
+	patchFile Plugins/$i QtCore
+	patchFile Plugins/$i QtGui
+	patchFile Plugins/$i QtNetwork
+	patchFile Plugins/$i QtWebKit
+	patchFile Plugins/$i QtXml
+	patchFile Plugins/$i QtXmlPatterns
+	patchFile Plugins/$i phonon
+	patchFile Plugins/$i Growl
+	patchFile Plugins/$i Sparkle
 
 done

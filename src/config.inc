@@ -1,36 +1,34 @@
-TARGET_LOADER            = ramblercontacts
+macx: {
+  TARGET_LOADER            = Contacts
+} else {
+  TARGET_LOADER            = ramblercontacts
+}
 
 TARGET_UTILS             = ramblercontactsutils
 unix:!macx:VERSION_UTILS = 1.1.0
 
-macx: {
-  #CONFIG -= x86_64
-  #CONFIG += x86
-  QMAKE_INFO_PLIST = MyInfo.plist
-}
-
 #Configurable values
 isEmpty(INSTALL_PREFIX) {
   win32:INSTALL_PREFIX   = "c:"
-  unix: INSTALL_PREFIX   = /usr/local
+  unix:!macx: INSTALL_PREFIX   = /usr/local
   macx: INSTALL_PREFIX   = /Applications
 }
 
 isEmpty(INSTALL_APP_DIR) {
   win32:INSTALL_APP_DIR  = ramblercontacts
-  unix: INSTALL_APP_DIR  = ramblercontacts
-  macx: INSTALL_APP_DIR  = ramblercontacts.app
+  unix:!macx: INSTALL_APP_DIR  = ramblercontacts
+  macx: INSTALL_APP_DIR  = Contacts.app
 }
 
 isEmpty(INSTALL_LIB_DIR) {
   win32:INSTALL_LIB_DIR  = .
-  unix: INSTALL_LIB_DIR  = lib
+  unix:!macx: INSTALL_LIB_DIR  = lib
   macx: INSTALL_LIB_DIR  = Frameworks
 }
 
 isEmpty(INSTALL_RES_DIR) {
   win32:INSTALL_RES_DIR  = .
-  unix: INSTALL_RES_DIR  = share
+  unix:!macx: INSTALL_RES_DIR  = share
   macx: INSTALL_RES_DIR  = Resources
 }
 

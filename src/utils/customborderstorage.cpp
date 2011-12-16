@@ -38,6 +38,8 @@ CustomBorderContainer * CustomBorderStorage::addBorder(QWidget *widget, const QS
 	else
 		return NULL;
 #else
+	Q_UNUSED(widget)
+	Q_UNUSED(key)
 	return NULL;
 #endif
 }

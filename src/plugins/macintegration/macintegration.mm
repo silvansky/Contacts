@@ -249,6 +249,7 @@ static NSColor * gTitleColor = nil;
 
 - (float)roundedCornerRadius;
 - (void)drawRectOriginal:(NSRect)rect;
+- (void)_drawTitleStringOriginalIn: (NSRect) rect withColor: (NSColor *) color;
 - (NSWindow*)window;
 - (id)_displayName;
 - (NSRect)bounds;

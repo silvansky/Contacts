@@ -92,6 +92,9 @@ QMultiMap<int, IOptionsWidget *> AutoStatus::optionsWidgets(const QString &ANode
 	{
 		widgets.insertMulti(OWO_COMMON_AUTOSTATUS, FOptionsManager->optionsNodeWidget(Options::node(OPV_AUTOSTARTUS_AWAYONLOCK),tr("Change status to 'Away' if screen saver is on or system is locked"),AParent));
 	}
+#else
+	Q_UNUSED(ANodeId)
+	Q_UNUSED(AParent)
 #endif
 	return widgets;
 }
