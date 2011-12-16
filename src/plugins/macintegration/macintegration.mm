@@ -1,5 +1,8 @@
 #include <Cocoa/Cocoa.h>
+
+#define COCOA_CLASSES_DEFINED
 #include "macintegration_p.h"
+
 #import <objc/runtime.h>
 
 #include <QImage>
@@ -109,6 +112,7 @@ static QString resolveGrowlType(const QString & notifyType)
 
 - (void) growlNotificationTimedOut:(id)clickContext
 {
+	Q_UNUSED(clickContext)
 	//NSLog(@"Growl notify timed out! id: %@", (NSNumber*)clickContext);
 }
 
@@ -261,7 +265,7 @@ static NSColor * gTitleColor = nil;
 {
 	// Call original drawing method
 	[self drawRectOriginal:rect];
-	[self _setTextShadow:NO];
+	//[self _setTextShadow:NO];
 
 	NSRect titleRect;
 
@@ -332,6 +336,7 @@ static NSColor * gTitleColor = nil;
 
 - (void)_drawTitleStringIn: (NSRect) rect withColor: (NSColor *) color
 {
+	Q_UNUSED(color)
 	if (!gTitleColor)
 		gTitleColor = [[NSColor colorWithCalibratedRed: .6 green: .6 blue: .6 alpha: 1.0] retain];
 	[self _drawTitleStringOriginalIn: rect withColor: gTitleColor];

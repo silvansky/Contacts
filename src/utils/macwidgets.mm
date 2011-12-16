@@ -1,6 +1,7 @@
-#import "macwidgets.h"
-
 #import <Cocoa/Cocoa.h>
+
+#define COCOA_CLASSES_DEFINED
+#import "macwidgets.h"
 
 static NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 

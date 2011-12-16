@@ -4,8 +4,10 @@
 #include <Carbon/Carbon.h>
 #include <QWidget>
 
+#ifndef COCOA_CLASSES_DEFINED
 class NSView;
 class NSWindow;
+#endif
 
 WindowRef windowRefFromWidget(QWidget * w);
 NSWindow * nsWindowFromWidget(QWidget * w);

@@ -58,7 +58,8 @@ protected:
 				painter->setClipRect(indicatorWidth, 0, w->width() - indicatorWidth, w->height());
 			}
 		}
-		QGraphicsDropShadowEffect::draw(painter);
+		if (painter->isActive())
+			QGraphicsDropShadowEffect::draw(painter);
 	}
 };
 
@@ -286,9 +287,14 @@ QGraphicsEffect * GraphicsEffectsStorage::copyEffect(const QGraphicsEffect * eff
 
 QGraphicsEffect * GraphicsEffectsStorage::effectForMask(const GraphicsEffectsStorage::EffectMask & mask, QObject * parent) const
 {
+	// graphics effects work bad on Qt 4.8
+#if (QT_VERSION < 0x040800)
 	QGraphicsEffect * effect = copyEffect(effectCache.value(mask, NULL));
 	effect->setParent(parent);
 	return effect;
+#else
+	return NULL;
+#endif
 }
 
 bool GraphicsEffectsStorage::widetMatchesTheMask(QWidget* widget, const GraphicsEffectsStorage::EffectMask & mask) const

@@ -4,8 +4,11 @@
 #include <QObject>
 #include <QColor>
 
+#ifndef COCOA_CLASSES_DEFINED
 class NSImage;
 class NSString;
+#endif
+
 class QImage;
 
 // private class
