@@ -21,6 +21,7 @@ private:
 public:
 	~MacIntegrationPrivate();
 	static MacIntegrationPrivate * instance();
+	static void release();
 	static NSImage * nsImageFromQImage(const QImage & image);
 	static QImage qImageFromNSImage(NSImage * image);
 	static NSString * nsStringFromQString(const QString & s);

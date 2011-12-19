@@ -160,7 +160,8 @@ MacIntegrationPrivate::MacIntegrationPrivate() :
 
 MacIntegrationPrivate::~MacIntegrationPrivate()
 {
-
+	[growlAgent release];
+	[sparkleUpdater release];
 }
 
 MacIntegrationPrivate * MacIntegrationPrivate::instance()
@@ -168,6 +169,15 @@ MacIntegrationPrivate * MacIntegrationPrivate::instance()
 	if (!_instance)
 		_instance = new MacIntegrationPrivate;
 	return _instance;
+}
+
+void MacIntegrationPrivate::release()
+{
+	if (_instance)
+	{
+		delete _instance;
+		_instance = NULL;
+	}
 }
 
 // warning! nsimage isn't released!

@@ -638,7 +638,7 @@ void MacIntegrationPlugin::updateContactActions()
 
 void MacIntegrationPlugin::onAboutToQuit()
 {
-
+	MacIntegrationPrivate::release();
 }
 
 void MacIntegrationPlugin::onOptionsChanged(const OptionsNode &ANode)
