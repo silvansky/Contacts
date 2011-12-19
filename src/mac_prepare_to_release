@@ -3,14 +3,14 @@ cd /Applications
 
 appname=Contacts.app
 
-# usage: "patchFile MacOS/file QtNetwork"
+# usage: "patchFile file frameworkName"
 function patchFile {
 	# file to patch
 	file=$1
-	# Qt Module
-	QM=$2
+	# frmework
+	FW=$2
 	# patching...
-	install_name_tool -change $QM.framework/Versions/4/$QM @executable_path/../Frameworks/$QM.framework/Versions/4/$QM $appname/Contents/$file
+	install_name_tool -change $FW.framework/Versions/Current/$FW @executable_path/../Frameworks/$FW.framework/Versions/Current/$FW $appname/Contents/$file
 }
 
 # Contacts deps - core, network, gui, multimedia, xml, xmlpatterns, webkit, phonon, growl, sparkle

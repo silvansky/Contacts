@@ -155,7 +155,7 @@ MacIntegrationPrivate::MacIntegrationPrivate() :
 	[sparkleUpdater setAutomaticallyChecksForUpdates: YES];
 	[sparkleUpdater setSendsSystemProfile: YES];
 	[sparkleUpdater setUpdateCheckInterval: UPDATE_CHECK_INTERVAL];
-	[sparkleUpdater setFeedURL: [NSURL URLWithString: @"http://updates.rambler.ru/contacts/mac"]];
+	[sparkleUpdater setFeedURL: [NSURL URLWithString: @"https://update.rambler.ru/contacts/mac.xml"]];
 }
 
 MacIntegrationPrivate::~MacIntegrationPrivate()
