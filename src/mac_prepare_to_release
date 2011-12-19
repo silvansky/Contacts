@@ -73,6 +73,7 @@ patchFile Frameworks/QtDBus.framework/Versions/4/QtDBus QtXml
 patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtCore
 patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtGui
 patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtXml
+patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtXmlPatterns
 patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit phonon
 patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtDBus
 patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtNetwork
