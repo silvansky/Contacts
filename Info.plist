@@ -21,6 +21,6 @@
 	<key>SUPublicDSAKeyFile</key>
 	<string>dsa_pub.pem</string>
 	<key>CFBundleVersion</key>
-	<string>0.5.1</string>
+	<string>0.5.1.1293</string>
 </dict>
 </plist>
