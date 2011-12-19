@@ -13,8 +13,13 @@
 //#include "growl/GrowlApplicationBridge.h"
 #include <Growl.h>
 
+#include <Sparkle.h>
+
 #include <utils/log.h>
 #include <utils/macwidgets.h>
+
+// 24 hours
+#define UPDATE_CHECK_INTERVAL (60*60*24)
 
 #include <QDebug>
 
@@ -132,14 +137,25 @@ void dockClickHandler(id self, SEL _cmd)
 MacIntegrationPrivate * MacIntegrationPrivate::_instance = NULL;
 
 static GrowlAgent * growlAgent = nil;
+static SUUpdater * sparkleUpdater = nil;
 
 MacIntegrationPrivate::MacIntegrationPrivate() :
 	QObject(NULL)
 {
+	// dock click handler
 	Class cls = [[[NSApplication sharedApplication] delegate] class];
 	if (!class_addMethod(cls, @selector(applicationShouldHandleReopen:hasVisibleWindows:), (IMP) dockClickHandler, "v@:"))
 		LogError("MacIntegrationPrivate::MacIntegrationPrivate() : class_addMethod failed!");
+
+	// growl agent
 	growlAgent = [[GrowlAgent alloc] init];
+
+	// sparkle updater
+	sparkleUpdater = [[SUUpdater alloc] init];
+	[sparkleUpdater setAutomaticallyChecksForUpdates: YES];
+	[sparkleUpdater setSendsSystemProfile: YES];
+	[sparkleUpdater setUpdateCheckInterval: UPDATE_CHECK_INTERVAL];
+	[sparkleUpdater setFeedURL: [NSURL URLWithString: @"http://updates.rambler.ru/contacts/mac"]];
 }
 
 MacIntegrationPrivate::~MacIntegrationPrivate()

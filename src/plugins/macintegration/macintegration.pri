@@ -26,12 +26,3 @@ OBJECTIVE_SOURCES += \
 #	growl/CFGrowlAdditions.c \
 #	growl/GrowlPathUtilities.m \
 #	growl/GrowlApplicationBridge.m
-
-
-# note: put Growl.framework to /Library/Frameworks/
-
-LIBS += -framework Growl
-
-INCLUDEPATH += /Library/Frameworks/Growl.framework/Headers
-
-QT += webkit
