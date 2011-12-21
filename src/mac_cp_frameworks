@@ -19,6 +19,7 @@ function copyframework {
 	rm -rf $1_debug.dSYM
 	rm -f $1_debug
 	rm -f $1_debug.prl
+	rm -f Headers
 	cd Versions/Current/
 	rm -f $1_debug
 	rm -rf Headers

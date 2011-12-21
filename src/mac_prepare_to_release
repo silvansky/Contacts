@@ -9,74 +9,76 @@ function patchFile {
 	file=$1
 	# frmework
 	FW=$2
+	# version
+	VER=$3
 	# patching...
-	install_name_tool -change $FW.framework/Versions/Current/$FW @executable_path/../Frameworks/$FW.framework/Versions/Current/$FW $appname/Contents/$file
+	install_name_tool -change $FW.framework/Versions/$VER/$FW @executable_path/../Frameworks/$FW.framework/Versions/$VER/$FW $appname/Contents/$file
 }
 
 # Contacts deps - core, network, gui, multimedia, xml, xmlpatterns, webkit, phonon, growl, sparkle
 
-patchFile MacOS/Contacts QtNetwork
-patchFile MacOS/Contacts QtCore
-patchFile MacOS/Contacts QtGui
-patchFile MacOS/Contacts QtMultimedia
-patchFile MacOS/Contacts QtXml
-patchFile MacOS/Contacts QtXmlPatterns
-patchFile MacOS/Contacts QtWebKit
-patchFile MacOS/Contacts phonon
-patchFile MacOS/Contacts Growl
-patchFile MacOS/Contacts Sparkle
+patchFile MacOS/Contacts QtNetwork 4
+patchFile MacOS/Contacts QtCore 4
+patchFile MacOS/Contacts QtGui 4
+patchFile MacOS/Contacts QtMultimedia 4
+patchFile MacOS/Contacts QtXml 4
+patchFile MacOS/Contacts QtXmlPatterns 4
+patchFile MacOS/Contacts QtWebKit 4
+patchFile MacOS/Contacts phonon 4
+patchFile MacOS/Contacts Growl A
+patchFile MacOS/Contacts Sparkle A
 
 # utils deps - core, gui, xml, webkit, network
 
-patchFile Frameworks/libramblercontactsutils.1.dylib QtCore
-patchFile Frameworks/libramblercontactsutils.1.dylib QtXml
-patchFile Frameworks/libramblercontactsutils.1.dylib QtGui
-patchFile Frameworks/libramblercontactsutils.1.dylib QtWebKit
-patchFile Frameworks/libramblercontactsutils.1.dylib QtNetwork
+patchFile Frameworks/libramblercontactsutils.1.dylib QtCore 4
+patchFile Frameworks/libramblercontactsutils.1.dylib QtXml 4
+patchFile Frameworks/libramblercontactsutils.1.dylib QtGui 4
+patchFile Frameworks/libramblercontactsutils.1.dylib QtWebKit 4
+patchFile Frameworks/libramblercontactsutils.1.dylib QtNetwork 4
 
 # phonon deps - gui, core, xml, dbus
 
-patchFile Frameworks/phonon.framework/Versions/4/phonon QtCore
-patchFile Frameworks/phonon.framework/Versions/4/phonon QtGui
-patchFile Frameworks/phonon.framework/Versions/4/phonon QtXml
-patchFile Frameworks/phonon.framework/Versions/4/phonon QtDBus
+patchFile Frameworks/phonon.framework/Versions/Current/phonon QtCore 4
+patchFile Frameworks/phonon.framework/Versions/Current/phonon QtGui 4
+patchFile Frameworks/phonon.framework/Versions/Current/phonon QtXml 4
+patchFile Frameworks/phonon.framework/Versions/Current/phonon QtDBus 4
 
 # gui deps - core
 
-patchFile Frameworks/QtGui.framework/Versions/4/QtGui QtCore
+patchFile Frameworks/QtGui.framework/Versions/Current/QtGui QtCore 4
 
 # network deps - core
 
-patchFile Frameworks/QtNetwork.framework/Versions/4/QtNetwork QtCore
+patchFile Frameworks/QtNetwork.framework/Versions/Current/QtNetwork QtCore 4
 
 # mm deps - core, gui
 
-patchFile Frameworks/QtMultimedia.framework/Versions/4/QtMultimedia QtCore
-patchFile Frameworks/QtMultimedia.framework/Versions/4/QtMultimedia QtGui
+patchFile Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtCore 4
+patchFile Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtGui 4
 
 # xml deps - core
 
-patchFile Frameworks/QtXml.framework/Versions/4/QtXml QtCore
+patchFile Frameworks/QtXml.framework/Versions/Current/QtXml QtCore 4
 
 # xmlpat deps - core, network
 
-patchFile Frameworks/QtXmlPatterns.framework/Versions/4/QtXmlPatterns QtCore
-patchFile Frameworks/QtXmlPatterns.framework/Versions/4/QtXmlPatterns QtNetwork
+patchFile Frameworks/QtXmlPatterns.framework/Versions/Current/QtXmlPatterns QtCore 4
+patchFile Frameworks/QtXmlPatterns.framework/Versions/Current/QtXmlPatterns QtNetwork 4
 
 # dbus deps - xml, core
 
-patchFile Frameworks/QtDBus.framework/Versions/4/QtDBus QtCore
-patchFile Frameworks/QtDBus.framework/Versions/4/QtDBus QtXml
+patchFile Frameworks/QtDBus.framework/Versions/Current/QtDBus QtCore 4
+patchFile Frameworks/QtDBus.framework/Versions/Current/QtDBus QtXml 4
 
 # webkit deps - core, gui, xml, dbus, phonon, network
 
-patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtCore
-patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtGui
-patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtXml
-patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtXmlPatterns
-patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit phonon
-patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtDBus
-patchFile Frameworks/QtWebKit.framework/Versions/4/QtWebKit QtNetwork
+patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtCore 4
+patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtGui 4
+patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtXml 4
+patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtXmlPatterns 4
+patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit phonon 4
+patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtDBus 4
+patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtNetwork 4
 
 # plugins deps - core, gui, xml, xmlpatterns, network, webkit, phonon, growl, sparkle
 
@@ -84,14 +86,14 @@ for i in $(ls $appname/Contents/PlugIns/); do
 
 	echo patching $appname/Contents/Plugins/$i
 
-	patchFile Plugins/$i QtCore
-	patchFile Plugins/$i QtGui
-	patchFile Plugins/$i QtNetwork
-	patchFile Plugins/$i QtWebKit
-	patchFile Plugins/$i QtXml
-	patchFile Plugins/$i QtXmlPatterns
-	patchFile Plugins/$i phonon
-	patchFile Plugins/$i Growl
-	patchFile Plugins/$i Sparkle
+	patchFile Plugins/$i QtCore 4
+	patchFile Plugins/$i QtGui 4
+	patchFile Plugins/$i QtNetwork 4
+	patchFile Plugins/$i QtWebKit 4
+	patchFile Plugins/$i QtXml 4
+	patchFile Plugins/$i QtXmlPatterns 4
+	patchFile Plugins/$i phonon 4
+	patchFile Plugins/$i Growl A
+	patchFile Plugins/$i Sparkle A
 
 done
