@@ -75,6 +75,8 @@ private slots:
 	void onStatusItemAdded(int status);
 	void onStatusItemChanged(int status);
 	void onStatusItemRemoved(int status);
+	// app menu
+	void onCheckForUpdatesAction();
 	// file menu
 	void onNewContactAction();
 	void onNewGroupAction();
@@ -140,6 +142,8 @@ private:
 	Menu * _windowMenu;
 	Menu * _helpMenu;
 	// actions
+	// app menu
+	Action * checkForUpdatesAction;
 	// edit menu
 	Action * copyAction, * cutAction, * pasteAction, * undoAction, * redoAction, * selectallAction;
 	Action * findAction;

@@ -325,6 +325,13 @@ void MacIntegrationPlugin::initMenus()
 	connect(closeAllTabsAction, SIGNAL(triggered()), SLOT(onCloseAllTabsAction()));
 	_fileMenu->addAction(closeAllTabsAction, 600);
 
+	// app menu
+	checkForUpdatesAction = new Action;
+	checkForUpdatesAction->setMenuRole(QAction::ApplicationSpecificRole);
+	checkForUpdatesAction->setText(tr("Check for Updates..."));
+	connect(checkForUpdatesAction, SIGNAL(triggered()), SLOT(onCheckForUpdatesAction()));
+	_fileMenu->addAction(checkForUpdatesAction);
+
 	// Edit
 	_editMenu = new Menu;
 	_editMenu->setTitle(tr("Edit"));
@@ -928,6 +935,11 @@ void MacIntegrationPlugin::onStatusItemRemoved(int status)
 		availableStatuses.take(status);
 		statusAction->deleteLater();
 	}
+}
+
+void MacIntegrationPlugin::onCheckForUpdatesAction()
+{
+	MacIntegrationPrivate::checkForUpdates();
 }
 
 void MacIntegrationPlugin::onNewContactAction()

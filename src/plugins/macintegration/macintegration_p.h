@@ -40,6 +40,7 @@ public:
 	static void setCustomTitleColor(const QColor & color);
 	static void setWindowMovableByBackground(QWidget * window, bool movable);
 	static void requestAttention();
+	static void checkForUpdates();
 private:
 	static MacIntegrationPrivate * _instance;
 };
