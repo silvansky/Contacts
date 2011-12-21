@@ -88,6 +88,11 @@ StatusWidget
 	max-width: 21px;
 }
 
+#tlbStatus:hover
+{
+	padding-left: -4px;
+}
+
 QLabel#lblAvatar
 {
 	border: 5px solid transparent;
