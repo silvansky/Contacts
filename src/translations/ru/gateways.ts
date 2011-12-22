@@ -337,6 +337,10 @@
         <source>Ok</source>
         <translation>Ок</translation>
     </message>
+    <message>
+        <source>The password is not suited to login</source>
+        <translation>Пароль не подходит к логину</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptionsClass</name>

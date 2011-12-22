@@ -52,7 +52,10 @@ void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool 
 	else if (APresenceItem.show == IPresence::Error)
 	{
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
-		ui.lblInfo->setText(tr("Failed to connect"));
+		if (APresenceItem.errCondition == "not-authorized")
+			ui.lblInfo->setText(tr("The password is not suited to login"));
+		else
+			ui.lblInfo->setText(tr("Failed to connect"));
 		ui.lblInfo->setProperty("state",QString("error"));
 	}
 	else if (APresenceItem.show == IPresence::Offline)
