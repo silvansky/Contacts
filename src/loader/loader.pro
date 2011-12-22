@@ -37,7 +37,10 @@ win32 {
 
 #Translation
 TRANS_SOURCE_ROOT  = ..
+# Mac OS X translations hack
+macx: TARGET = ramblercontacts
 include(../translations.inc)
+macx: TARGET             = $$TARGET_LOADER
 
 #Install
 target.path        = $$INSTALL_BINS

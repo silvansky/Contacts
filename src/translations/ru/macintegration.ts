@@ -227,5 +227,9 @@
         <source>Medical certificate for swimming pool</source>
         <translation>Справка для бассейна</translation>
     </message>
+    <message>
+        <source>Check for Updates...</source>
+        <translation>Проверить наличие обновлений...</translation>
+    </message>
 </context>
 </TS>

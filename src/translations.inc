@@ -2,9 +2,6 @@ TRANS_LANGS  = ru
 
 FIRST_TARGET = $$member(TARGET,0)
 
-equals(FIRST_TARGET, "Contacts") {
-	FIRST_TARGET = ramblercontacts
-}
 TRANSLATIONS = \
 	$${TRANS_SOURCE_ROOT}/translations/ru/$${FIRST_TARGET}.ts
 
