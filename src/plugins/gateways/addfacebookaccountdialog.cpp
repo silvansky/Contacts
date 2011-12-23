@@ -1,8 +1,8 @@
 #include "addfacebookaccountdialog.h"
 
-#include <QDebug>
 #include <QWebFrame>
 #include <QTextDocument>
+#include <QNetworkRequest>
 #include <QDesktopServices>
 
 #define AUTH_HOST "fb.tx.contacts.rambler.ru"
@@ -141,10 +141,8 @@ void AddFacebookAccountDialog::onRegisterFields(const QString &AId, const IRegis
 		if (FGateLogin.isValid)
 		{
 			LogDetaile(QString("[AddFacebookAccountDialog][%1] Loading registration web page").arg(FServiceJid.full()));
-			QUrl request;
-			request.setScheme("http");
-			request.setHost(AUTH_HOST);
-			request.setPath("auth");
+			QNetworkRequest request(QUrl("http://"AUTH_HOST"/auth"));
+			request.setRawHeader("Accept-Encoding","identity");
 			ui.wbvView->load(request);
 		}
 		else
