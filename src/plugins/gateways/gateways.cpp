@@ -311,7 +311,7 @@ bool Gateways::initObjects()
 	qip.domainField = "server";
 	qip.passwordField = "password";
 	qip.domainSeparator = "@";
-	qip.homeContactPattern = "^"MAIL_NODE_PATTERN"@qip\\.ru$";
+	qip.homeContactPattern = "^"MAIL_NODE_PATTERN"@((qip|pochta|front|hotbox|hotmail|land|newmail|nightmail|nm|pochtamt|pop3|rbcmail|smtp|5ballov|aeterna|ziza|memori|photofile|fotoplenka)\\.ru|(fromru|mail15|mail333)\\.com|(krovatka)\\.su|(pisem)\\.net)$";
 	qip.availContactPattern = JabberContactPattern;
 	qip.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(qip);
