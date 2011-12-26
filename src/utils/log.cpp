@@ -237,11 +237,15 @@ bool Log::sendReport(QDomDocument AReport)
 	if (!AReport.isNull())
 	{
 		QString dirPath = QDir::homePath();
+#if defined(Q_WS_WIN)
 		foreach(QString env, QProcess::systemEnvironment())
 		{
 			if (env.startsWith("APPDATA="))
 				dirPath = env.split("=").value(1);
 		}
+#elif defined(Q_WS_MAC)
+		dirPath = QDir::tempPath() + "/";
+#endif
 
 		QDir dir(dirPath);
 		if (dir.exists() && (dir.exists(DIR_HOLDEM_REPORTS) || dir.mkpath(DIR_HOLDEM_REPORTS)) && dir.cd(DIR_HOLDEM_REPORTS))
@@ -252,6 +256,11 @@ bool Log::sendReport(QDomDocument AReport)
 			{
 				file.write(AReport.toString(3).toUtf8());
 				file.close();
+#ifndef Q_WS_WIN
+				// sending file via cURL
+				QProcess::startDetached(QString("curl --form report_file=@\"%1\" --form OS=nix rupdate.rambler.ru/log").arg(dir.absoluteFilePath(fileName)));
+				dir.remove(fileName);
+#endif
 				return true;
 			}
 		}
