@@ -700,7 +700,7 @@ QString MetaContacts::itemHint(const Jid &AItemJid) const
 			{
 				foreach (IMetaRoster *mroster, FMetaRosters)
 				{
-					if (FGateways->availServices(mroster->streamJid()).contains(AItemJid.domain()))
+					if (FGateways->streamServices(mroster->streamJid()).contains(AItemJid.domain()))
 					{
 						hint = FGateways->legacyIdFromUserJid(AItemJid);
 						break;
