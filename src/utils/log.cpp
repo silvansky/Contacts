@@ -197,8 +197,9 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 			QByteArray data = file.readAll();
 			if (!data.isEmpty())
 			{
-				AParams.insert(ARP_FILE_LOG_NAME,FLogFile);
-				AParams.insert(ARP_FILE_LOG_BASE64,data.toBase64());
+				AParams.insert(ARP_FILE_LOG_NAME, FLogFile);
+				AParams.insert(ARP_FILE_LOG_ESCAPED, Qt::escape(QString::fromUtf8(data.constData())));
+				//AParams.insert(ARP_FILE_LOG_BASE64, data.toBase64());
 			}
 			file.close();
 		}
@@ -258,8 +259,7 @@ bool Log::sendReport(QDomDocument AReport)
 				file.close();
 #ifndef Q_WS_WIN
 				// sending file via cURL
-				QProcess::startDetached(QString("curl --form report_file=@\"%1\" --form OS=nix rupdate.rambler.ru/log").arg(dir.absoluteFilePath(fileName)));
-				dir.remove(fileName);
+				QProcess::startDetached(QString("curl --form report_file=@\"%1\" rupdate.rambler.ru/log").arg(dir.absoluteFilePath(fileName)));
 #endif
 				return true;
 			}

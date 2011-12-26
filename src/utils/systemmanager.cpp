@@ -21,6 +21,8 @@ static const int dummy = (wv >= QSysInfo::WV_2000) ?
 
 #if defined(Q_WS_X11)
 # include <sys/utsname.h>
+#elif defined(Q_WS_MAC)
+# include <Carbon/Carbon.h>
 #endif
 
 struct SystemManager::SystemManagerData
@@ -197,23 +199,52 @@ QString SystemManager::systemOSVersion()
 
 #elif defined(Q_WS_MAC)
 
-	static const struct { int ver; QString name; } versions[] = 
-	{
-		{ QSysInfo::MV_SNOWLEOPARD, "MacOS 10.6 (SnowLeopard)" },
-		{ QSysInfo::MV_LEOPARD,     "MacOS 10.5 (Leopard)" },
-		{ QSysInfo::MV_TIGER,       "MacOS 10.4 (Tiger)" },
-		{ QSysInfo::MV_PANTHER,     "MacOS 10.3 (Panther)" },
-		{ QSysInfo::MV_JAGUAR,      "MacOS 10.2 (Jaguar)" },
-		{ QSysInfo::MV_PUMA,        "MacOS 10.1 (Puma)" },
-		{ QSysInfo::MV_CHEETAH,     "MacOS 10.0(Cheetah)" },
-		{ QSysInfo::MV_9,           "MacOS 9" },
-		{ -1,                       "MacOS Unknown" }
-	};
+//	static const struct { int ver; QString name; } versions[] =
+//	{
+//		{ QSysInfo::MV_LION,        "Mac OS 10.6 (Lion)"},
+//		{ QSysInfo::MV_SNOWLEOPARD, "Mac OS 10.6 (SnowLeopard)" },
+//		{ QSysInfo::MV_LEOPARD,     "Mac OS 10.5 (Leopard)" },
+//		{ QSysInfo::MV_TIGER,       "Mac OS 10.4 (Tiger)" },
+//		{ QSysInfo::MV_PANTHER,     "Mac OS 10.3 (Panther)" },
+//		{ QSysInfo::MV_JAGUAR,      "Mac OS 10.2 (Jaguar)" },
+//		{ QSysInfo::MV_PUMA,        "Mac OS 10.1 (Puma)" },
+//		{ QSysInfo::MV_CHEETAH,     "Mac OS 10.0 (Cheetah)" },
+//		{ QSysInfo::MV_9,           "Mac OS 9" },
+//		{ -1,                       "Mac OS Unknown" }
+//	};
 
-	int index = 0;
-	while (versions[index].ver>0 && versions[index].ver!=QSysInfo::MacintoshVersion)
-		index++;
-	osver = versions[index].name;
+//	int index = 0;
+//	while (versions[index].ver>0 && versions[index].ver!=QSysInfo::MacintoshVersion)
+//		index++;
+//	osver = versions[index].name;
+	QString mac("Mac OS X %1.%2.%3 (%4)");
+	QString version;
+	SInt32 majVer = 0, minVer = 0, fixVer = 0;
+	Gestalt(gestaltSystemVersionMajor, &majVer);
+	Gestalt(gestaltSystemVersionMinor, &minVer);
+	Gestalt(gestaltSystemVersionBugFix, &fixVer);
+	switch(minVer)
+	{
+	case 3:
+		version = "Panther";
+		break;
+	case 4:
+		version = "Tiger";
+		break;
+	case 5:
+		version = "Leopard";
+		break;
+	case 6:
+		version = "Snow Leopard";
+		break;
+	case 7:
+		version = "Lion";
+		break;
+	default:
+		version = "Unknown";
+		break;
+	}
+	osver = mac.arg(majVer).arg(minVer).arg(fixVer).arg(version);
 
 #endif
 

@@ -19,5 +19,6 @@
 
 #define ARP_FILE_LOG_NAME                                        "file.log.name"
 #define ARP_FILE_LOG_BASE64                                      "file.log.base64"
+#define ARP_FILE_LOG_ESCAPED                                     "file.log.escaped"
 
 #endif // DEF_APPLICATIONREPORTPARAMS_H
