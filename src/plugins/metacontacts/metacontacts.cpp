@@ -996,8 +996,7 @@ void MetaContacts::initMetaItemDescriptors()
 	gtalk.metaOrder = MIO_GTALK;
 	gtalk.gateId = GSID_GTALK;
 	gtalk.gatePrefix = "gmail";
-	gtalk.domains.append("gmail.com");
-	gtalk.domains.append("googlemail.com");
+	gtalk.domains << "gmail.com" << "googlemail.com";
 	FMetaItemDescriptors.append(gtalk);
 
 	IMetaItemDescriptor yonline;
@@ -1010,15 +1009,8 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.metaOrder = MIO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
 	yonline.gatePrefix = "yandex";
-	yonline.domains.append("ya.ru");
-	yonline.domains.append("yandex.ru");
-	yonline.domains.append("yandex.com");
-	yonline.domains.append("yandex.net");
-	yonline.domains.append("yandex.by");
-	yonline.domains.append("yandex.kz");
-	yonline.domains.append("yandex.ua");
-	yonline.domains.append("yandex-co.ru");
-	yonline.domains.append("narod.ru");
+	yonline.domains << "ya.ru" << "yandex.ru" << "yandex.net" << "yandex.com" << "yandex.by" << "yandex.kz" 
+      << "yandex.ua" << "yandex-co.ru" << "narod.ru";
 	FMetaItemDescriptors.append(yonline);
 
 	IMetaItemDescriptor qip;
@@ -1031,7 +1023,10 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.metaOrder = MIO_QIP;
 	qip.gateId = GSID_QIP;
 	qip.gatePrefix = "qip";
-	qip.domains.append("qip.ru");
+   qip.domains << "qip.ru" << "pochta.ru" << "fromru.com" << "front.ru" << "hotbox.ru"	<< "hotmail.ru"
+      << "krovatka.su" << "land.ru"	<< "mail15.com" << "mail333.com" << "newmail.ru" << "nightmail.ru"
+      << "nm.ru" << "pisem.net"	<< "pochtamt.ru" << "pop3.ru" << "rbcmail.ru" << "smtp.ru" << "5ballov.ru"
+      << "aeterna.ru"<< "ziza.ru" << "memori.ru" << "photofile.ru" << "fotoplenka.ru";
 	FMetaItemDescriptors.append(qip);
 
 	IMetaItemDescriptor vkontakte;
@@ -1044,7 +1039,7 @@ void MetaContacts::initMetaItemDescriptors()
 	vkontakte.metaOrder = MIO_VKONTAKTE;
 	vkontakte.gateId = GSID_VKONTAKTE;
 	vkontakte.gatePrefix = "vk";
-	vkontakte.domains.append("vk.com");
+	vkontakte.domains << "vk.com";
 	FMetaItemDescriptors.append(vkontakte);
 
 	IMetaItemDescriptor facebook;
@@ -1057,7 +1052,7 @@ void MetaContacts::initMetaItemDescriptors()
 	facebook.metaOrder = MIO_FACEBOOK;
 	facebook.gateId = GSID_FACEBOOK;
 	facebook.gatePrefix = "fb";
-	facebook.domains.append("chat.facebook.com");
+	facebook.domains << "chat.facebook.com";
 	FMetaItemDescriptors.append(facebook);
 
 	IMetaItemDescriptor livejournal;
@@ -1070,7 +1065,7 @@ void MetaContacts::initMetaItemDescriptors()
 	livejournal.metaOrder = MIO_LIVEJOURNAL;
 	livejournal.gateId = GSID_LIVEJOURNAL;
 	livejournal.gatePrefix = "livejournal";
-	livejournal.domains.append("livejournal.com");
+	livejournal.domains << "livejournal.com";
 	FMetaItemDescriptors.append(livejournal);
 
 	IMetaItemDescriptor rambler;
@@ -1083,12 +1078,7 @@ void MetaContacts::initMetaItemDescriptors()
 	rambler.metaOrder = MIO_RAMBLER;
 	rambler.gateId = GSID_RAMBLER;
 	rambler.gatePrefix = "rambler";
-	rambler.domains.append("rambler.ru");
-	rambler.domains.append("lenta.ru");
-	rambler.domains.append("myrambler.ru");
-	rambler.domains.append("autorambler.ru");
-	rambler.domains.append("ro.ru");
-	rambler.domains.append("r0.ru");
+	rambler.domains << "rambler.ru" << "lenta.ru" << "myrambler.ru" << "autorambler.ru" << "ro.ru" << "r0.ru";
 	FMetaItemDescriptors.append(rambler);
 }
 
