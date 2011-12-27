@@ -7,15 +7,15 @@ QToolBar
 
 
 QPushButton#rejectAuthRequest,
-QPushButton#authRequest,
-QPushButton#addRequest
-{
-	min-width: 130px;
-}
-
+QPushButton#addRequest,
 QPushButton#authorize
 {
 	min-width: 100px;
+}
+
+QPushButton#authRequest
+{
+	min-width: 130px;
 }
 
 #wdtBottomWidgets
