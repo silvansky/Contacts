@@ -34,6 +34,7 @@
 
 #include "rcallcontrol.h"
 #include "sipphoneproxy.h"
+#include "rsipphone.h"
 #include "voipmediainit.h"
 
 
@@ -106,9 +107,9 @@ protected slots:
 	void onAcceptStreamByCallControl();
 	void onAbortCall();
 	// Действие после получения ответа на регистрацию. Регистрация инициатора.
-	void sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, const Jid& AStreamJid, const Jid& AContactJid);
+	void sipActionAfterRegistrationAsInitiator(bool ARegistrationResult/*, const Jid& AStreamJid, const Jid& AContactJid*/);
 	// Действие после получения ответа на регистрацию. Регистрация на принимающей стороне
-	void sipActionAfterRegistrationAsResponder(bool ARegistrationResult, const QString &AStreamId);
+	void sipActionAfterRegistrationAsResponder(bool ARegistrationResult/*, const QString &AStreamId*/);
 	// Слот обработки завершения звонка
 	void sipCallDeletedSlot(bool);
 	void sipClearRegistration(const QString&);
@@ -159,6 +160,13 @@ private:
 	QMap<QString, RCallControl *> FCallControls;
 	QMap<QString, Action *> FCallActions;
 	SipPhoneProxy* FSipPhoneProxy;
+
+	RSipPhone* FSipPhone;
+	Jid tempAStreamJid;
+	Jid tempAContactJid;
+	QString tempAStreamId;
+
+
 private:
 	QString FStreamId;
 	Menu* FBackupCallActionMenu;

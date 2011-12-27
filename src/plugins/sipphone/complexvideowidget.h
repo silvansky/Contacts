@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPixmap>
+#include <QMutex>
 #include "qimagelabel.h"
 
 class ComplexVideoWidget : public QWidget
@@ -41,6 +42,10 @@ private:
 	//QImageLabel* _pCurrPic;
 	bool _noSignal;
 	QPixmap* _pPixmap;
+
+private:
+	QMutex mutex;
+
 };
 
 #endif // COMPLEXVIDEOWIDGET_H

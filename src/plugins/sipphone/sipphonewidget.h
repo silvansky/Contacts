@@ -5,21 +5,14 @@
 //#include <QDialog>
 #include "ui_sipphonewidget.h"
 
-#include "qimagelabel.h"
-#include "fullscreencontrols.h"
+//#include "qimagelabel.h"
+//#include "fullscreencontrols.h"
 
-class SipUri;
-class SipUser;
-class SipCall;
-class SipCallMember;
-class SipTransaction;
-class CallAudio;
-class IncomingCall;
-class SipMessage;
-class KSipAuthentication;
-class SipPhoneProxy;
+//#include "rsipphone.h"
 
-
+class RSipPhone;
+class QImageLabel;
+class FullScreenControls;
 
 class SipPhoneWidget : public QWidget
 {
@@ -27,7 +20,8 @@ class SipPhoneWidget : public QWidget
 
 public:
 	SipPhoneWidget(QWidget *parent = 0);
-	SipPhoneWidget(KSipAuthentication *auth, CallAudio *callaudio, SipCall *initcall, SipPhoneProxy *parent, const char *name = 0);
+	//SipPhoneWidget(KSipAuthentication *auth, CallAudio *callaudio, SipCall *initcall, SipPhoneProxy *parent, const char *name = 0);
+	SipPhoneWidget( RSipPhone *parent, const char *name = 0);
 	~SipPhoneWidget();
 
 	QSize sizeHint();
@@ -36,46 +30,48 @@ protected:
 	bool eventFilter(QObject *, QEvent *);
 
 public:
-	SipCall *getCall();
-	void switchCall( SipCall *newcall );
+	//SipCall *getCall();
+	//void switchCall( SipCall *newcall );
 	void setRemote( QString newremote );
 	void clickDial( void );
 	void clickHangup( void );
 	//
+
 public slots:
-	void pleaseDial( const SipUri &dialuri );
-	void callDeletedSlot( bool );
+	//void pleaseDial( const SipUri &dialuri );
+	//void callDeletedSlot( bool );
 		//
 signals:
 		void callDeleted( bool );
-		void redirectCall( const SipUri &calluri, const QString &subject );
-		void statusChanged(const QString&);
-		void audioStatusChanged(const QString&);
-		void callWasHangup();
+		void hangupCall();
+		//void redirectCall( const SipUri &calluri, const QString &subject );
+		//void statusChanged(const QString&);
+		//void audioStatusChanged(const QString&);
+		//void callWasHangup();
 
 private slots:
-	void hangupCall( void );
-	void dialClicked( void );
+	//void hangupCall( void );
+	//void dialClicked( void );
 	void audioOutputDead( void );
 	void acceptCall( void );
-	void callMemberStatusUpdated( void );
-	void updateAudioStatus( void );
-	void handleRedirect( void );
+	//void callMemberStatusUpdated( void );
+	//void updateAudioStatus( void );
+	//void handleRedirect( void );
 	//void getUri( void );
 	// void ringTimeout( void );
-	void acceptCallTimeout( void );
+	//void acceptCallTimeout( void );
 	void remotePictureShow(const QImage&);
 	void localPictureShow(const QImage&);
 	void moveCurPicLabel(const QPoint &);
 
 private:
 	// Sip Stuff
-	SipCall *_pSipCall;
-	SipCallMember *_pSipCallMember;
-	KSipAuthentication *_pSipAuthentication;
+	//SipCall *_pSipCall;
+	//SipCallMember *_pSipCallMember;
+	//KSipAuthentication *_pSipAuthentication;
 
 	// Audio Stuff
-	CallAudio *_pAudioContoller;
+	//CallAudio *_pAudioContoller;
 
 	int _ringCount;
 	QTimer *_pRingTimer;
@@ -142,6 +138,7 @@ private:
 	QToolButton* _pShowCurrPic;
 	FullScreenControls* _pControls;
 	QTimer* _fsTimer;
+
 private:
 	Ui::SipPhoneWidget ui;
 };

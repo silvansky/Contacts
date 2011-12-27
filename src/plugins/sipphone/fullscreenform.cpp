@@ -50,7 +50,6 @@ void FullScreenForm::SetCurrImage(const QImage& img)
 	//QRect rect = ui.lblRemotePic->geometry();
 	//int h = ui.wgtRemoteImage->size().height();
 	//tmpPix = tmpPix.scaledToHeight(h /*- 2*/);
-
 	_pCurrPic->setPixmap(tmpPix);
 }
 

@@ -1,13 +1,14 @@
 #include "qimagelabel.h"
 
-
+#include <windows.h>
 
 #include <QPainter>
 #include <QResizeEvent>
 
 int QImageLabel::spacing = 4;
 
-QImageLabel::QImageLabel(QWidget *parent) : QLabel(parent)
+QImageLabel::QImageLabel( QWidget *parent) : QLabel(parent)
+//QImageLabel::QImageLabel( QWidget *parent) : QLabel(parent)
 {
 	setMouseTracking(true);
 	setObjectName("lblLocalImage");
@@ -24,6 +25,10 @@ QImageLabel::QImageLabel(QWidget *parent) : QLabel(parent)
 		iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));
 }
 
+QImageLabel::~QImageLabel()
+{
+
+}
 
 QPoint QImageLabel::correctTopLeftPos( const QPoint &APos ) const
 {
@@ -100,6 +105,8 @@ void QImageLabel::paintEvent(QPaintEvent *evt)
 {
 	Q_UNUSED(evt);
 
+	mutex.lock();
+
 	QPainter p(this);
 	p.setPen(Qt::white);
 
@@ -120,6 +127,8 @@ void QImageLabel::paintEvent(QPaintEvent *evt)
 		QTextOption option(Qt::AlignCenter);
 		p.drawText(imageRect, tr("no image"),  option);
 	}
+
+	mutex.unlock();
 }
 
 
@@ -149,10 +158,14 @@ void QImageLabel::setVisible(bool state)
 
 void QImageLabel::setPixmap(const QPixmap &pix)
 {
+	mutex.lock();
+
 	if (!pix.isNull() && (pixmap()==NULL || pix.cacheKey()!=pixmap()->cacheKey()))
 		QLabel::setPixmap(pix);
 	else
 		QLabel::clear();
 	update();
+
+	mutex.unlock();
 }
 

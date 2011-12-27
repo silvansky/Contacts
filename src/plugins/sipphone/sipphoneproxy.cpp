@@ -661,7 +661,7 @@ SipPhoneWidget* SipPhoneProxy::DoCall( QString num, SipCall::CallType ctype )
 	connect(this, SIGNAL(proxyCamResolutionChange(bool)), pCallAudio, SLOT(outputVideoResolutonChangedToHigh(bool)));
 
 
-	SipPhoneWidget *widget = new SipPhoneWidget( _pSipAuthentication, pCallAudio, newcall, this );
+	SipPhoneWidget *widget = new SipPhoneWidget(NULL, NULL);
 	widget->setWindowTitle(tr("Videocall with: ") + subject);
 	connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));
 	connect(widget, SIGNAL(fullScreenState(bool)), this, SLOT(onFullScreenState(bool)));
@@ -776,7 +776,7 @@ void SipPhoneProxy::incomingCall( SipCall *call, QString body )
 		connect(this, SIGNAL(proxySuspendStateChange(bool)), pCallAudio, SIGNAL(proxySuspendStateChange(bool)));
 		connect(this, SIGNAL(proxyCamResolutionChange(bool)), pCallAudio, SLOT(outputVideoResolutonChangedToHigh(bool)));
 
-		SipPhoneWidget *widget = new SipPhoneWidget(0, pCallAudio, call, this );
+		SipPhoneWidget *widget = new SipPhoneWidget( NULL, NULL );
 		widget->setWindowTitle(tr("Videocall with: ") + call->getSubject());
 
 		connect(widget, SIGNAL(callDeleted(bool)), this, SIGNAL(callDeletedProxy(bool)));

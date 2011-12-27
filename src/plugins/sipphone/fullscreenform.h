@@ -2,6 +2,7 @@
 #define FULLSCREENFORM_H
 
 #include <QWidget>
+//#include <QMutex>
 
 #include "ui_fullscreenform.h"
 #include "qimagelabel.h"
@@ -43,6 +44,9 @@ private:
 	QImageLabel* _pCurrPic;
 	QToolButton* _pShowCurrPic;
 	FullScreenControls* _pControls;
+
+	//QMutex mutex;
+
 private:
 	Ui::FullScreenForm ui;
 };

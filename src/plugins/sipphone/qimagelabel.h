@@ -1,9 +1,13 @@
 #ifndef QIMAGELABEL_H
 #define QIMAGELABEL_H
 
+//#include <pjsua.h>
+
+
 #include <QLabel>
 #include <QIcon>
 #include <QPicture>
+#include <QMutex>
 
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
@@ -11,12 +15,15 @@
 #include <definitions/toolbargroups.h>
 #include <utils/iconstorage.h>
 
+
 class QImageLabel : public QLabel
 {
 	Q_OBJECT
 
 public:
-	explicit QImageLabel(QWidget *parent = 0);
+	explicit QImageLabel( QWidget *parent = 0);
+	//explicit QImageLabel( QWidget *parent = 0);
+	virtual ~QImageLabel();
 	enum IconCrossState
 	{
 		Stable,
@@ -50,6 +57,10 @@ public slots:
 
 public:
 	static int spacing;
+
+private:
+	QMutex mutex;
+
 };
 
 #endif // QIMAGELABEL_H

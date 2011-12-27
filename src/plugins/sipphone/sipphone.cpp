@@ -36,7 +36,8 @@ SipPhone::SipPhone()
 	FMessageStyles = NULL;
 
 	FSHISipRequest = -1;
-	FSipPhoneProxy = NULL;
+//	FSipPhoneProxy = NULL;
+	FSipPhone = NULL;
 	FBackupCallActionMenu = NULL;
 
 	connect(this, SIGNAL(streamStateChanged(const QString&, int)), this, SLOT(onStreamStateChanged(const QString&, int)));
@@ -44,10 +45,15 @@ SipPhone::SipPhone()
 
 SipPhone::~SipPhone()
 {
-	if(FSipPhoneProxy != NULL)
+	//if(FSipPhoneProxy != NULL)
+	//{
+	//	delete FSipPhoneProxy;
+	//	FSipPhoneProxy = NULL;
+	//}
+	if(FSipPhone != NULL)
 	{
-		delete FSipPhoneProxy;
-		FSipPhoneProxy = NULL;
+		delete FSipPhone;
+		FSipPhone = NULL;
 	}
 }
 
@@ -146,15 +152,15 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
 	}
 
-#ifdef WIN32
-	WSADATA ws;
-	if(FAILED(WSAStartup(MAKEWORD(2, 2), &ws)))
-	{
-		int error = WSAGetLastError();
-		LogError(QString("[SipPhone] WSAStartup error: %1").arg(error));
-		return false;
-	}
-#endif
+//#ifdef WIN32
+//	WSADATA ws;
+//	if(FAILED(WSAStartup(MAKEWORD(2, 2), &ws)))
+//	{
+//		int error = WSAGetLastError();
+//		LogError(QString("[SipPhone] WSAStartup error: %1").arg(error));
+//		return false;
+//	}
+//#endif
 
 	return FStanzaProcessor!=NULL;
 }
@@ -200,10 +206,10 @@ bool SipPhone::initObjects()
 		FNotifications->registerNotificationType(NNT_SIPPHONE_MISSEDCALL,missedNotifyType);
 	}
 
-	SipProtoInit::Init();
-	VoIPMediaInit::Init();
-	SipProtoInit::SetListenSipPort(5060);
-	SipProtoInit::SetProxySipPort(5060);
+	//SipProtoInit::Init();
+	//VoIPMediaInit::Init();
+	//SipProtoInit::SetListenSipPort(5060);
+	//SipProtoInit::SetProxySipPort(5060);
 
 	return true;
 }
@@ -216,16 +222,40 @@ void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 	if (defConnection)
 		hostAddress = defConnection->localAddress();
 
-	FSipPhoneProxy = new SipPhoneProxy(hostAddress, AXmppStream->streamJid().pBare(), AXmppStream->streamJid().pBare(), AXmppStream->password(), this);
-	if(FSipPhoneProxy)
+	//FSipPhoneProxy = new SipPhoneProxy(hostAddress, AXmppStream->streamJid().pBare(), AXmppStream->streamJid().pBare(), AXmppStream->password(), this);
+	//if(FSipPhoneProxy)
+	//{
+	//	FSipPhoneProxy->initRegistrationData();
+	//	connect(this, SIGNAL(sipSendInvite(const QString &)), FSipPhoneProxy, SLOT(makeNewCall(const QString&)));
+	//	connect(this, SIGNAL(sipSendUnRegister()), FSipPhoneProxy, SLOT(makeClearRegisterProxySlot()));
+	//	connect(FSipPhoneProxy, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
+	//	connect(FSipPhoneProxy, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
+	//	connect(FSipPhoneProxy, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
+	//}
+
+
+	 FSipPhone = new RSipPhone();
+	if(FSipPhone)
 	{
-		FSipPhoneProxy->initRegistrationData();
-		connect(this, SIGNAL(sipSendInvite(const QString &)), FSipPhoneProxy, SLOT(makeNewCall(const QString&)));
-		connect(this, SIGNAL(sipSendUnRegister()), FSipPhoneProxy, SLOT(makeClearRegisterProxySlot()));
-		connect(FSipPhoneProxy, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
-		connect(FSipPhoneProxy, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
-		connect(FSipPhoneProxy, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
+		if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), AXmppStream->password()))
+		{
+			connect(this, SIGNAL(sipSendInvite(const QString&)), FSipPhone, SLOT(call(const QString&)));
+			//connect(this, SIGNAL(sipSendUnRegister()), FSipPhone, SLOT(makeClearRegisterProxySlot()));
+
+			connect(FSipPhone, SIGNAL(signalCallReleased()), this, SLOT(onHangupCall()));
+			connect(FSipPhone, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
+			connect(FSipPhone, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
+
+			////connect(ui.btnPreview, SIGNAL(clicked()), _pPhone, SLOT(preview()));
+			////connect(ui.btnCall, SIGNAL(clicked()), this, SLOT(call()));
+			//connect(ui.btnAccept, SIGNAL(clicked()), _pPhone, SLOT(call()));
+			//connect(ui.btnCancel, SIGNAL(clicked()), _pPhone, SLOT(hangup()));
+			////connect(quitButton_, SIGNAL(clicked()), this, SLOT(quit()));
+			//connect(ui.btnRegister, SIGNAL(clicked()), this, SLOT(registerAccount()));
+		}
+
 	}
+
 
 	foreach(Action *action, FCallActions.values())
 		action->setEnabled(true);
@@ -238,6 +268,13 @@ void SipPhone::onXmppStreamAboutToClose(IXmppStream *)
 {
 	foreach(QString sid, FStreams.keys())
 		closeStream(sid);
+
+	if(FSipPhone != NULL)
+	{
+		FSipPhone->hangup();
+		delete FSipPhone;
+		FSipPhone = NULL;
+	}
 }
 
 void SipPhone::onXmppStreamClosed(IXmppStream *)
@@ -251,11 +288,18 @@ void SipPhone::onXmppStreamClosed(IXmppStream *)
 		delete pCallControl;
 	}
 
-	if(FSipPhoneProxy != NULL)
+	//if(FSipPhoneProxy != NULL)
+	//{
+	//	FSipPhoneProxy->hangupCall();
+	//	FSipPhoneProxy->deleteLater();
+	//	FSipPhoneProxy = NULL;
+	//}
+
+	if(FSipPhone != NULL)
 	{
-		FSipPhoneProxy->hangupCall();
-		FSipPhoneProxy->deleteLater();
-		FSipPhoneProxy = NULL;
+		FSipPhone->hangup();
+		delete FSipPhone;
+		FSipPhone = NULL;
 	}
 }
 
@@ -284,7 +328,8 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 		Action* callAction = new Action(tbChanger);
 		callAction->setText(tr("Call"));
 		callAction->setCheckable(true);
-		callAction->setEnabled(FSipPhoneProxy!=NULL);
+		//callAction->setEnabled(FSipPhoneProxy!=NULL);
+		callAction->setEnabled(FSipPhone!=NULL);
 		callAction->setData(ADR_METAID_WINDOW, iMetaTabWindow->metaId());
 		callAction->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON);
 		connect(callAction, SIGNAL(triggered(bool)), SLOT(onCallActionTriggered(bool)));
@@ -476,8 +521,12 @@ void SipPhone::onCloseCallControl(bool)
 			metaWindow->removeTopWidget(pCallControl);
 		}
 
-		if (FSipPhoneProxy)
-			FSipPhoneProxy->hangupCall();
+		//if (FSipPhoneProxy)
+		//	FSipPhoneProxy->hangupCall();
+
+		if(FSipPhone)
+			FSipPhone->hangup();
+
 		closeStream(pCallControl->getSessionID());
 		FCallControls.remove(metaId);
 	}
@@ -570,7 +619,8 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				// Для протокола SIP это означает следующие действия в этом месте:
 				// -1) Регистрация на сарвере SIP уже должна быть выполнена!
 				// 1) Отправка запроса INVITE
-				QString uri = Jid(AStanza.from()).pBare();
+				//QString uri = Jid(AStanza.from()).pBare();
+				QString uri = Jid(AStanza.from()).eNode();
 				emit sipSendInvite(uri);
 				// 2) Получение акцепта на запрос INVITE
 				// 3) Установка соединения
@@ -620,6 +670,8 @@ void SipPhone::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanz
 void SipPhone::sipCallDeletedSlot(bool initiator)
 {
 	emit sipSendUnRegister();
+	FSipPhone->registerAccount(false);
+
 	if(initiator)
 		closeStream(FStreamId);
 }
@@ -704,6 +756,7 @@ void SipPhone::onAbortCall()
 		else
 		{
 			emit sipSendUnRegister();
+			FSipPhone->registerAccount(false);
 			pCallControl->deleteLater();
 		}
 	}
@@ -867,19 +920,31 @@ void SipPhone::onAcceptStreamByCallControl()
 
 QString SipPhone::openStream(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	connect(this, SIGNAL(sipSendRegisterAsInitiator(const Jid&,const Jid&)),
-		FSipPhoneProxy, SLOT(makeRegisterProxySlot(const Jid&, const Jid&)));
-	connect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const Jid&, const Jid&)),
-		this, SLOT(sipActionAfterRegistrationAsInitiator(bool, const Jid&, const Jid&)));
-	emit sipSendRegisterAsInitiator(AStreamJid, AContactJid);
+	//////////connect(this, SIGNAL(sipSendRegisterAsInitiator(const Jid&,const Jid&)),
+	//////////	FSipPhoneProxy, SLOT(makeRegisterProxySlot(const Jid&, const Jid&)));
+	//////////connect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const Jid&, const Jid&)),
+	//////////	this, SLOT(sipActionAfterRegistrationAsInitiator(bool, const Jid&, const Jid&)));
+
+	//////////emit sipSendRegisterAsInitiator(AStreamJid, AContactJid);
+
+	tempAStreamJid = AStreamJid;
+	tempAContactJid = AContactJid;
+	//connect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), this, SLOT(sipActionAfterRegistrationAsInitiator(bool, const Jid&, const Jid&)));
+	connect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), this, SLOT(sipActionAfterRegistrationAsInitiator(bool)));
+	FSipPhone->registerAccount(true);
 
 	return QString::null;
 }
 
-void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult, const Jid& AStreamJid, const Jid& AContactJid)
+void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult/*, const Jid& NOT_AStreamJid, const Jid& NOT_AContactJid*/)
 {
-	disconnect(this, SIGNAL(sipSendRegisterAsInitiator(const Jid&,const Jid&)), 0, 0);
-	disconnect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const Jid&, const Jid&)), 0, 0);
+	//////////disconnect(this, SIGNAL(sipSendRegisterAsInitiator(const Jid&,const Jid&)), 0, 0);
+	//////////disconnect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const Jid&, const Jid&)), 0, 0);
+
+	disconnect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), 0, 0);
+
+	Jid AStreamJid = tempAStreamJid;
+	Jid AContactJid = tempAContactJid;
 
 	if(ARegistrationResult)
 	{
@@ -934,11 +999,17 @@ bool SipPhone::acceptStream(const QString &AStreamId)
 	// ПОДКЛЮЧЕНИЕ SIP
 	if (FPendingRequests.contains(AStreamId))
 	{
-		connect(this, SIGNAL(sipSendRegisterAsResponder(const QString&)),
-			FSipPhoneProxy, SLOT(makeRegisterResponderProxySlot(const QString&)));
+		//////////connect(this, SIGNAL(sipSendRegisterAsResponder(const QString&)),
+		//////////	FSipPhoneProxy, SLOT(makeRegisterResponderProxySlot(const QString&)));
 
-		connect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const QString&)),
-			this, SLOT(sipActionAfterRegistrationAsResponder(bool, const QString&)));
+		//////////connect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const QString&)),
+		//////////	this, SLOT(sipActionAfterRegistrationAsResponder(bool, const QString&)));
+
+		tempAStreamId = AStreamId;
+		//connect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), this, SLOT(sipActionAfterRegistrationAsResponder(bool, const QString&)));
+		connect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), this, SLOT(sipActionAfterRegistrationAsResponder(bool)));
+		//FSipPhone->registerAccount(true);
+
 
 		// Переводим панель в режим Register
 		ISipStream &stream = FStreams[AStreamId];
@@ -952,16 +1023,21 @@ bool SipPhone::acceptStream(const QString &AStreamId)
 		}
 
 		// Сигнализируем о необходимости SIP регистрации клиента
-		emit sipSendRegisterAsResponder(AStreamId);
+		//emit sipSendRegisterAsResponder(AStreamId);
+		FSipPhone->registerAccount(true);
 		return true;
 	}
 	return false;
 }
 
-void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult, const QString &AStreamId)
+void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult/*, const QString &NOT_AStreamId*/)
 {
-	disconnect(this, SIGNAL(sipSendRegisterAsResponder(const QString&)), 0, 0);
-	disconnect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const QString&)), 0, 0);
+	//disconnect(this, SIGNAL(sipSendRegisterAsResponder(const QString&)), 0, 0);
+	//disconnect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const QString&)), 0, 0);
+
+	disconnect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), 0, 0);
+
+	QString AStreamId = tempAStreamId;
 
 	if(ARegistrationResult)
 	{
@@ -1062,20 +1138,32 @@ RCallControl *SipPhone::newRCallControl(const QString &AStreamId, RCallControl::
 	connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
 	connect(pCallControl, SIGNAL(abortCall()),  SLOT(onAbortCall()));
 	connect(pCallControl, SIGNAL(callbackCall()), SLOT(onCallbackCall()));
-	connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+	//connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
+	connect(pCallControl, SIGNAL(hangupCall()), FSipPhone, SLOT(hangup()));
+
 
 	// Обработка: при закрытии окна управления звонком, нужно вернуть кнопку вызова в исходное состояние
 	connect(pCallControl, SIGNAL(closeAndDelete(bool)), this, SLOT(onCloseCallControl(bool)));
 
-	connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
-	connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
-	connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhoneProxy, SIGNAL(proxyCamResolutionChange(bool)));
-	connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
+	//connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
+	//connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
+	//connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhoneProxy, SIGNAL(proxyCamResolutionChange(bool)));
+	//connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
+
+	connect(pCallControl, SIGNAL(startCamera()), FSipPhone, SIGNAL(proxyStartCamera()));
+	connect(pCallControl, SIGNAL(stopCamera()), FSipPhone, SIGNAL(proxyStopCamera()));
+	//connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhone, SIGNAL(proxyCamResolutionChange(bool)));
+	connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhone, SIGNAL(proxySuspendStateChange(bool)));
 
 	// Issue 2264. Инициализация кнопок правильными картинками (присутствие/отсутствие элементов мультимедия)
-	connect(FSipPhoneProxy, SIGNAL(camPresentChanged(bool)), pCallControl, SLOT(setCameraEnabled(bool)));
-	connect(FSipPhoneProxy, SIGNAL(micPresentChanged(bool)), pCallControl, SLOT(setMicEnabled(bool)));
-	connect(FSipPhoneProxy, SIGNAL(volumePresentChanged(bool)), pCallControl, SLOT(setVolumeEnabled(bool)));
+	//connect(FSipPhoneProxy, SIGNAL(camPresentChanged(bool)), pCallControl, SLOT(setCameraEnabled(bool)));
+	//connect(FSipPhoneProxy, SIGNAL(micPresentChanged(bool)), pCallControl, SLOT(setMicEnabled(bool)));
+	//connect(FSipPhoneProxy, SIGNAL(volumePresentChanged(bool)), pCallControl, SLOT(setVolumeEnabled(bool)));
+
+	connect(FSipPhone, SIGNAL(camPresentChanged(bool)), pCallControl, SLOT(setCameraEnabled(bool)));
+	connect(FSipPhone, SIGNAL(micPresentChanged(bool)), pCallControl, SLOT(setMicEnabled(bool)));
+	connect(FSipPhone, SIGNAL(volumePresentChanged(bool)), pCallControl, SLOT(setVolumeEnabled(bool)));
+
 
 	FCallActions[AMetaWindow->metaId()]->setChecked(true);
 	if(FBackupCallActionMenu == NULL)
