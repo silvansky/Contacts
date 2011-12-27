@@ -7,6 +7,9 @@
 #include <QDateTime>
 #include <QApplication>
 #include <QTextDocument>
+#ifndef Q_WS_WIN
+# include <execinfo.h>
+#endif
 #include <definitions/version.h>
 #include <definitions/applicationreportparams.h>
 #include "datetime.h"
@@ -26,7 +29,7 @@ QMap<QString,QString> Log::FReportParams;
 
 void qtMessagesHandler(QtMsgType AType, const char *AMessage)
 {
-	switch (AType) 
+	switch (AType)
 	{
 	case QtDebugMsg:
 		LogDebug(QString("[QtDebugMsg] %1").arg(AMessage));
@@ -174,6 +177,21 @@ void Log::setStaticReportParam(const QString &AKey, const QString &AValue)
 QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeLog)
 {
 	QDomDocument report;
+
+#ifndef Q_WS_WIN
+	// getting backtrace on *nix
+	void * callstack[128];
+	int i, frames = backtrace(callstack, 128);
+	char ** strs = backtrace_symbols(callstack, frames);
+	QStringList backtraceStrings;
+	for (i = 0; i < frames; ++i)
+	{
+		backtraceStrings << QString(strs[i]);
+		printf("%s\n", strs[i]);
+	}
+	free(strs);
+	AParams.insert(ARP_APPLICATION_BACKTRACE, Qt::escape(backtraceStrings.join("\n")));
+#endif
 
 	// Заполняем общие параметры
 	AParams.insert(ARP_REPORT_TIME,DateTime(QDateTime::currentDateTime()).toX85DateTime());

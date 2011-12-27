@@ -9,6 +9,7 @@
 #define ARP_APPLICATION_GUID                                     "application.guid"
 #define ARP_APPLICATION_NAME                                     "application.name"
 #define ARP_APPLICATION_VERSION                                  "application.version"
+#define ARP_APPLICATION_BACKTRACE                                "application.backtrace"
 
 #define ARP_SYSTEM_UUID                                          "system.uuid"
 #define ARP_SYSTEM_OSVERSION                                     "system.os-version"
