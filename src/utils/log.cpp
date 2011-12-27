@@ -7,7 +7,7 @@
 #include <QDateTime>
 #include <QApplication>
 #include <QTextDocument>
-#ifndef Q_WS_WIN
+#ifdef Q_OS_UNIX
 # include <execinfo.h>
 #endif
 #include <definitions/version.h>
@@ -178,19 +178,19 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 {
 	QDomDocument report;
 
-#ifndef Q_WS_WIN
+#ifdef Q_OS_UNIX
 	// getting backtrace on *nix
 	void * callstack[128];
 	int i, frames = backtrace(callstack, 128);
 	char ** strs = backtrace_symbols(callstack, frames);
-	QStringList backtraceStrings;
+	QStringList btItems;
 	for (i = 0; i < frames; ++i)
 	{
-		backtraceStrings << QString(strs[i]);
-		printf("%s\n", strs[i]);
+		btItems << QString(strs[i]);
+		//printf("%s\n", strs[i]);
 	}
+	AParams.insert(ARP_APPLICATION_BACKTRACE, Qt::escape(btItems.join("\n")));
 	free(strs);
-	AParams.insert(ARP_APPLICATION_BACKTRACE, Qt::escape(backtraceStrings.join("\n")));
 #endif
 
 	// Заполняем общие параметры
@@ -262,7 +262,7 @@ bool Log::sendReport(QDomDocument AReport)
 			if (env.startsWith("APPDATA="))
 				dirPath = env.split("=").value(1);
 		}
-#elif defined(Q_WS_MAC)
+#elif defined(Q_OS_UNIX)
 		dirPath = QDir::tempPath() + "/";
 #endif
 
@@ -275,8 +275,9 @@ bool Log::sendReport(QDomDocument AReport)
 			{
 				file.write(AReport.toString(3).toUtf8());
 				file.close();
-#ifndef Q_WS_WIN
+#ifdef Q_OS_UNIX
 				// sending file via cURL
+				QProcess::startDetached(QString("cat \"%1\"").arg(dir.absoluteFilePath(fileName)));
 				QProcess::startDetached(QString("curl --form report_file=@\"%1\" rupdate.rambler.ru/log").arg(dir.absoluteFilePath(fileName)));
 #endif
 				return true;
