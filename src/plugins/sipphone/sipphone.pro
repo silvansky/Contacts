@@ -7,6 +7,7 @@ USE_PHONON {
   QT  += phonon
 }
 
+LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/sdllib/lib
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/SipLib/lib
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPMediaLib/lib
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPVideoLib/lib
@@ -25,12 +26,14 @@ CONFIG(debug, debug|release) {
   LIBS  += -llibpjproject-i386-Win32-vc8-Release.lib
 }
 
+
 INCLUDEPATH += ../../thirdparty/siplibraries/SipLib/inc 
 INCLUDEPATH += ../../thirdparty/siplibraries/SPEEX/include
 INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/Inc/iLBC
 INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/inc 
 INCLUDEPATH += ../../thirdparty/siplibraries/VoIPVideoLib/inc
 
+INCLUDEPATH += ../../thirdparty/siplibraries/sdllib/include
 INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjlib/include
 INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjlib-util/include
 INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjmedia/include
