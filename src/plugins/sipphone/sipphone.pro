@@ -7,6 +7,7 @@ USE_PHONON {
   QT  += phonon
 }
 
+LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/baseclasses/lib
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/ffmpeg/lib
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/sdllib/lib
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/SipLib/lib
@@ -34,6 +35,7 @@ INCLUDEPATH += ../../thirdparty/siplibraries/VoIPVideoLib/inc
 
 
 
+INCLUDEPATH += ../../thirdparty/siplibraries/baseclasses/include
 INCLUDEPATH += ../../thirdparty/siplibraries/ffmpeg/include
 INCLUDEPATH += ../../thirdparty/siplibraries/sdllib/include
 INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjlib/include
