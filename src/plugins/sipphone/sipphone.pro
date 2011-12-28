@@ -14,16 +14,15 @@ LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPMediaLib/lib
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPVideoLib/lib
 
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/pjsip/lib
+LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/directxsdk/lib
 
 LIBS  += -lWs2_32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32 -lwinmm
-LIBS  += -lIphlpapi.lib -lIphlpapi.lib -ldsound.lib -ldxguid.lib -lnetapi32.lib -lmswsock.lib -luser32.lib -lgdi32.lib -ladvapi32.lib
+LIBS  += -lIphlpapi -lIphlpapi -ldsound -ldxguid -lnetapi32 -lmswsock -luser32 -lgdi32 -ladvapi32
 
 CONFIG(debug, debug|release) {
-//  LIBS  += -lVoIPVideoLibD -lVoIPMediaD -lSipProtocolD -llibpjproject-i386-Win32-vc8-Debug.lib
-  LIBS  += -llibpjproject-i386-Win32-vc8-Debug.lib
+  LIBS  += -llibpjproject-i386-Win32-vc8-Debug
 } else {
-//  LIBS  += -lVoIPVideoLib -lVoIPMedia -lSipProtocol
-  LIBS  += -llibpjproject-i386-Win32-vc8-Release.lib
+  LIBS  += -llibpjproject-i386-Win32-vc8-Release
 }
 
 

@@ -33,7 +33,6 @@
 #include <utils/action.h>
 
 #include "rcallcontrol.h"
-#include "sipphoneproxy.h"
 #include "rsipphone.h"
 #include "voipmediainit.h"
 
@@ -159,7 +158,6 @@ private:
 	QMap<int, IChatWindow *> FMissedNotifies;
 	QMap<QString, RCallControl *> FCallControls;
 	QMap<QString, Action *> FCallActions;
-	SipPhoneProxy* FSipPhoneProxy;
 
 	RSipPhone* FSipPhone;
 	Jid tempAStreamJid;

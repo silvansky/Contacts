@@ -5,7 +5,7 @@
 #include <QPointer>
 #include "sipphonewidget.h"
 
-#include "ridentityform.h"
+//#include "ridentityform.h"
 //#include "rsipform.h"
 //#include "raudioform.h"
 #include <sipcall.h>
