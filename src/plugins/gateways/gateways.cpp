@@ -404,6 +404,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor jabber;
 	jabber.id = GSID_JABBER;
 	jabber.type = "xmpp";
+	jabber.prefix = "jabber";
 	jabber.name = tr("Jabber");
 	jabber.iconKey = MNI_GATEWAYS_SERVICE_JABBER;
 	jabber.loginLabel = tr("Login");
