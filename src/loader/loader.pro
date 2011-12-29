@@ -15,9 +15,6 @@ include(loader.pri)
 
 #Appication icon
 win32:RC_FILE      = loader.rc
-#macx:ICON          = ../../virtus.icns
-
-#macx: QMAKE_INFO_PLIST = MyInfo.plist
 
 #SVN Info
 SVN_REVISION=$$system(svnversion -n -c ./../../)

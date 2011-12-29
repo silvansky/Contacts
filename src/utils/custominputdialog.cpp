@@ -235,6 +235,9 @@ void CustomInputDialog::initLayout()
 	rejectButton->setAutoDefault(false);
 	container->installEventFilter(this);
 	valueEdit->installEventFilter(this);
+#ifdef Q_WS_MAC
+	valueEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
+#endif
 	// default strings
 	setCaptionText(inputType == String ? tr("Enter string value") : tr("Yes or no?"));
 	setAcceptButtonText(inputType == String ? tr("OK") : tr("Yes"));
