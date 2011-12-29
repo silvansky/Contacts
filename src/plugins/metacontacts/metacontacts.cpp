@@ -1042,6 +1042,19 @@ void MetaContacts::initMetaItemDescriptors()
 	vkontakte.domains << "vk.com";
 	FMetaItemDescriptors.append(vkontakte);
 
+	IMetaItemDescriptor odnoklasniki;
+	odnoklasniki.name = tr("Odnoklassniki");
+	odnoklasniki.icon = MNI_METACONTACTS_ITEM_ODNOKLASNIKI;
+	odnoklasniki.combine = false;
+	odnoklasniki.detach = true;
+	odnoklasniki.service = false;
+	odnoklasniki.persistent = false;
+	odnoklasniki.metaOrder = MIO_ODNOKLASNIKI;
+	odnoklasniki.gateId = GSID_ODNOKLASNIKI;
+	odnoklasniki.gatePrefix = "ok";
+	odnoklasniki.domains << "odnoklassniki.ru";
+	FMetaItemDescriptors.append(odnoklasniki);
+
 	IMetaItemDescriptor facebook;
 	facebook.name = tr("Facebook");
 	facebook.icon = MNI_METACONTACTS_ITEM_FACEBOOK;

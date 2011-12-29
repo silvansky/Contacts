@@ -332,6 +332,22 @@ bool Gateways::initObjects()
 	vkontakte.blockedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(vkontakte);
 
+	IGateServiceDescriptor odnoklasniki;
+	odnoklasniki.id = GSID_ODNOKLASNIKI;
+	odnoklasniki.needGate = true;
+	odnoklasniki.readOnly = true;
+	odnoklasniki.type = "xmpp";
+	odnoklasniki.prefix = "ok";
+	odnoklasniki.name = tr("Odnoklassniki");
+	odnoklasniki.iconKey = MNI_GATEWAYS_SERVICE_ODNOKLASNIKI;
+	odnoklasniki.loginLabel = tr("Login");
+	odnoklasniki.loginField = "username";
+	odnoklasniki.passwordField = "password";
+	odnoklasniki.homeContactPattern = "^"MAIL_NODE_PATTERN"@odnoklassniki\\.ru$";
+	odnoklasniki.availContactPattern = JabberContactPattern;
+	odnoklasniki.blockedDescriptors.append(GSID_MAIL);
+	FGateDescriptors.append(odnoklasniki);
+
 	IGateServiceDescriptor facebook;
 	facebook.id = GSID_FACEBOOK;
 	facebook.needGate = true;

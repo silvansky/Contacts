@@ -298,6 +298,10 @@
         <source>Ya.Online</source>
         <translation>Я.Онлайн</translation>
     </message>
+    <message>
+        <source>Odnoklassniki</source>
+        <translation>Одноклассники</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>
