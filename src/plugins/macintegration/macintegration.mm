@@ -5,6 +5,7 @@
 
 #import <objc/runtime.h>
 #import "drawhelper.h"
+#import "dockoverlayhelper.h"
 
 #include <QImage>
 #include <QPixmap>
@@ -138,6 +139,7 @@ MacIntegrationPrivate * MacIntegrationPrivate::_instance = NULL;
 
 static GrowlAgent * growlAgent = nil;
 static SUUpdater * sparkleUpdater = nil;
+static DockOverlayHelper * dockOverlay = nil;
 
 MacIntegrationPrivate::MacIntegrationPrivate() :
 	QObject(NULL)
@@ -156,12 +158,17 @@ MacIntegrationPrivate::MacIntegrationPrivate() :
 	[sparkleUpdater setSendsSystemProfile: YES];
 	[sparkleUpdater setUpdateCheckInterval: UPDATE_CHECK_INTERVAL];
 	[sparkleUpdater setFeedURL: [NSURL URLWithString: @"https://update.rambler.ru/contacts/mac.xml"]];
+
+	// dock overlay
+	dockOverlay = [[DockOverlayHelper alloc] init];
+	[[NSApp dockTile] setContentView: dockOverlay];
 }
 
 MacIntegrationPrivate::~MacIntegrationPrivate()
 {
 	[growlAgent release];
 	[sparkleUpdater release];
+	[dockOverlay release];
 }
 
 MacIntegrationPrivate * MacIntegrationPrivate::instance()
@@ -217,6 +224,15 @@ void MacIntegrationPrivate::setDockBadge(const QString & badgeText)
 	NSString * badgeString = nsStringFromQString(badgeText);
 	[[NSApp dockTile] setBadgeLabel: badgeString];
 	[badgeString release];
+}
+
+void MacIntegrationPrivate::setDockOverlay(const QImage & overlay, Qt::Alignment align)
+{
+	NSLog(@"setting overlay... %@", dockOverlay);
+	NSImage * nsOverlay = nsImageFromQImage(overlay);
+	dockOverlay.overlayImage = nsOverlay;
+	[nsOverlay release];
+	[[NSApp dockTile] display];
 }
 
 void MacIntegrationPrivate::postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)

@@ -33,6 +33,7 @@ public:
 	void emitGrowlNotifyClick(int id);
 	// static
 	static void setDockBadge(const QString & badgeText);
+	static void setDockOverlay(const QImage & overlay, Qt::Alignment align = Qt::AlignLeft | Qt::AlignBottom);
 	static void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 	static void showGrowlPrefPane();
 	static void installCustomFrame();

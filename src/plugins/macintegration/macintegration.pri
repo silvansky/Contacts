@@ -6,9 +6,12 @@ SOURCES += \
 	macintegrationplugin.cpp
 
 OBJECTIVE_HEADERS += \
-	drawhelper.h
+	drawhelper.h \
+	dockoverlayhelper.h
 
 OBJECTIVE_SOURCES += \
 	macintegration.mm \
-	drawhelper.mm
+	drawhelper.mm \
+	dockoverlayhelper.mm
+
 

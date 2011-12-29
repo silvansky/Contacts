@@ -15,3 +15,4 @@ INCLUDEPATH += /Library/Frameworks/Growl.framework/Headers \
 			   /Library/Frameworks/Sparkle.framework/Headers
 
 QT += webkit
+
