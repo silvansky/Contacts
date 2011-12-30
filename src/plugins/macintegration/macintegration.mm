@@ -197,17 +197,26 @@ void MacIntegrationPrivate::release()
 // warning! nsimage isn't released!
 NSImage * MacIntegrationPrivate::nsImageFromQImage(const QImage & image)
 {
-	CGImageRef ref = QPixmap::fromImage(image).toMacCGImageRef();
-	NSImage * nsimg = [[NSImage alloc] initWithCGImage: ref size: NSZeroSize];
-	CGImageRelease(ref);
-	return nsimg;
+	if (!image.isNull())
+	{
+		CGImageRef ref = QPixmap::fromImage(image).toMacCGImageRef();
+		NSImage * nsimg = [[NSImage alloc] initWithCGImage: ref size: NSZeroSize];
+		CGImageRelease(ref);
+		return nsimg;
+	}
+	else
+		return nil;
 }
 
 QImage MacIntegrationPrivate::qImageFromNSImage(NSImage * image)
 {
-	CGImageRef ref = [image CGImageForProposedRect:NULL context:nil hints:nil];
-	QImage result = QPixmap::fromMacCGImageRef(ref).toImage();
-	return result;
+	if (image)
+	{
+		CGImageRef ref = [image CGImageForProposedRect:NULL context:nil hints:nil];
+		QImage result = QPixmap::fromMacCGImageRef(ref).toImage();
+		return result;
+	}
+	return QImage();
 }
 
 // warning! nsstring isn't released!
