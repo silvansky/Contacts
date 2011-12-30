@@ -250,6 +250,11 @@ void MacIntegrationPlugin::setDockBadge(const QString & badgeText)
 	MacIntegrationPrivate::setDockBadge(badgeText);
 }
 
+void MacIntegrationPlugin::setDockOverlayImage(const QImage & image, Qt::Alignment alignment, bool showAppIcon)
+{
+	MacIntegrationPrivate::setDockOverlay(image, alignment, showAppIcon);
+}
+
 void MacIntegrationPlugin::requestUserAttention()
 {
 	MacIntegrationPrivate::requestAttention();

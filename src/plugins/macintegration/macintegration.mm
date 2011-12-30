@@ -1,23 +1,26 @@
-#include <Cocoa/Cocoa.h>
+#import <Cocoa/Cocoa.h>
+#import <objc/runtime.h>
+
+#include <Growl.h>
+#include <Sparkle.h>
 
 #define COCOA_CLASSES_DEFINED
-#include "macintegration_p.h"
-
-#import <objc/runtime.h>
-#import "drawhelper.h"
-#import "dockoverlayhelper.h"
 
 #include <QImage>
 #include <QPixmap>
 #include <QApplication>
 #include <QWidget>
-
-#include <Growl.h>
-
-#include <Sparkle.h>
+#include <QPainter>
+#include <QTimer>
 
 #include <utils/log.h>
 #include <utils/macwidgets.h>
+#include <utils/imagemanager.h>
+
+#include "macintegration_p.h"
+
+#import "drawhelper.h"
+#import "dockoverlayhelper.h"
 
 // 24 hours
 #define UPDATE_CHECK_INTERVAL (60*60*24)
@@ -161,7 +164,11 @@ MacIntegrationPrivate::MacIntegrationPrivate() :
 
 	// dock overlay
 	dockOverlay = [[DockOverlayHelper alloc] init];
-	[[NSApp dockTile] setContentView: dockOverlay];
+
+	updateTimer = new QTimer(this);
+	updateTimer->setInterval(200);
+	updateTimer->setProperty("angle", 0);
+	connect(updateTimer, SIGNAL(timeout()), SLOT(onUpdateTimer()));
 }
 
 MacIntegrationPrivate::~MacIntegrationPrivate()
@@ -199,7 +206,8 @@ NSImage * MacIntegrationPrivate::nsImageFromQImage(const QImage & image)
 QImage MacIntegrationPrivate::qImageFromNSImage(NSImage * image)
 {
 	CGImageRef ref = [image CGImageForProposedRect:NULL context:nil hints:nil];
-	return QPixmap::fromMacCGImageRef(ref).toImage();
+	QImage result = QPixmap::fromMacCGImageRef(ref).toImage();
+	return result;
 }
 
 // warning! nsstring isn't released!
@@ -226,13 +234,23 @@ void MacIntegrationPrivate::setDockBadge(const QString & badgeText)
 	[badgeString release];
 }
 
-void MacIntegrationPrivate::setDockOverlay(const QImage & overlay, Qt::Alignment align)
+void MacIntegrationPrivate::setDockOverlay(const QImage & overlay, Qt::Alignment align, bool showAppIcon)
 {
-	NSLog(@"setting overlay... %@", dockOverlay);
-	NSImage * nsOverlay = nsImageFromQImage(overlay);
-	dockOverlay.overlayImage = nsOverlay;
-	[nsOverlay release];
-	[[NSApp dockTile] display];
+	if (!overlay.isNull())
+	{
+		NSLog(@"setting overlay...");
+		NSImage * nsOverlay = nsImageFromQImage(overlay);
+		dockOverlay.overlayImage = nsOverlay;
+		dockOverlay.alignment = align;
+		dockOverlay.drawAppIcon = showAppIcon ? YES : NO;
+		[nsOverlay release];
+		[dockOverlay set];
+	}
+	else
+	{
+		NSLog(@"unsetting overlay...");
+		[dockOverlay unset];
+	}
 }
 
 void MacIntegrationPrivate::postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)
@@ -339,4 +357,11 @@ void MacIntegrationPrivate::checkForUpdates()
 {
 	if (sparkleUpdater)
 		[sparkleUpdater checkForUpdates:nil];
+}
+
+void MacIntegrationPrivate::onUpdateTimer()
+{
+	QImage dockImage = ImageManager::rotatedImage(qImageFromNSImage([NSApp applicationIconImage]), updateTimer->property("angle").toFloat());
+	setDockOverlay(dockImage, Qt::AlignCenter, false);
+	updateTimer->setProperty("angle", updateTimer->property("angle").toFloat() + 5.0);
 }

@@ -45,6 +45,7 @@ public:
 	virtual Menu * windowMenu();
 	virtual Menu * helpMenu();
 	virtual void setDockBadge(const QString & badgeText);
+	virtual void setDockOverlayImage(const QImage & image, Qt::Alignment alignment = Qt::AlignCenter, bool showAppIcon = true);
 	virtual void requestUserAttention();
 	virtual void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 	virtual void showGrowlPreferencePane();

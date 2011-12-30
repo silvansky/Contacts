@@ -158,6 +158,19 @@ QImage ImageManager::addSpace(const QImage & image, int left, int top, int right
     return image;
 }
 
+QImage ImageManager::rotatedImage(const QImage & img, qreal angle)
+{
+	QImage rotated(img.size(), QImage::Format_ARGB32_Premultiplied);
+	QPainter p(&rotated);
+	qreal dx = img.size().width() / 2.0, dy = img.size().height() / 2.0;
+	p.translate(dx, dy);
+	p.rotate(angle);
+	p.translate(-dx, -dy);
+	p.drawImage(0, 0, img);
+	p.end();
+	return rotated;
+}
+
 void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter * painter)
 {
 	if (!image.isNull())
