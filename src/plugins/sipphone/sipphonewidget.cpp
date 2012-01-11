@@ -238,6 +238,10 @@ void SipPhoneWidget::SetRemoteImage(const QImage& img)
 {
 	QPixmap tmpPix = QPixmap::fromImage(img);
 
+	//free((void*)img.bits());
+	delete[] img.bits();
+
+
 	int h = ui.wgtRemoteImage->size().height() - 2;
 	int w = ui.wgtRemoteImage->size().width() - 2;
 	Q_UNUSED(h);

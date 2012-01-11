@@ -523,16 +523,18 @@ pj_status_t RSipPhone::on_my_put_frame_callback(pjmedia_frame *frame, int w, int
 
 	//YUV422PtoRGB32(w, h, (unsigned char *)frame->buf, dst, dstSize);
 	YUV420PtoRGB32(w, h, stride, (unsigned char *)frame->buf, dst, dstSize);
-	//_img = QImage((uchar*)frame->buf, w, h, QImage::Format_RGB888);
+	////_img = QImage((uchar*)frame->buf, w, h, QImage::Format_RGB888);
 	_img = QImage((uchar*)dst, w, h, QImage::Format_RGB888);
-	//_img = QImage((uchar*)dst, w, h, QImage::Format_ARGB32);
-	//_img = QImage((uchar*)dst, w, h, QImage::Format_ARGB32_Premultiplied);
+	////_img = QImage((uchar*)dst, w, h, QImage::Format_ARGB32);
+	////_img = QImage((uchar*)dst, w, h, QImage::Format_ARGB32_Premultiplied);
 
 	if(_pPhoneWidget)
 	{
-		//_pPhoneWidget->SetCurrImage(_img);
-		_pPhoneWidget->SetRemoteImage(_img);
+		////_pPhoneWidget->SetCurrImage(_img);
+		//_pPhoneWidget->SetRemoteImage(_img);
+		emit signal_SetRomoteImage(_img);
 	}
+
 	return 0;
 }
 
@@ -731,6 +733,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	_pPhoneWidget = new SipPhoneWidget( this );
 
 	connect(_pPhoneWidget, SIGNAL(hangupCall()), this, SLOT(hangup()));
+	connect(this, SIGNAL(signal_SetRomoteImage(const QImage&)), _pPhoneWidget, SLOT(SetRemoteImage(const QImage&)), Qt::QueuedConnection);
 
 	//_pPhoneWidget->show();
 	//return;

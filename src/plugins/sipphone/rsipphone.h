@@ -71,6 +71,8 @@ signals:
 
 	void signalShowSipPhoneWidget(void* hwnd);
 
+	void signal_SetRomoteImage(const QImage&);
+
 
 public slots:
 		void preview();
