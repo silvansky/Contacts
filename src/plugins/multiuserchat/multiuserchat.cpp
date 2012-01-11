@@ -63,7 +63,7 @@ bool MultiUserChat::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanz
 {
 	Jid fromJid = AStanza.from();
 	Jid toJid = AStanza.to();
-	if ( (fromJid && FRoomJid) && (AStreamJid == FStreamJid) )
+	if (AStreamJid==FStreamJid && (fromJid && FRoomJid))
 	{
 		AAccept = true;
 		if (AHandlerId == FSHIPresence)
@@ -158,37 +158,6 @@ void MultiUserChat::stanzaRequestResult(const Jid &AStreamJid, const Stanza &ASt
 	{
 		ErrorHandler err(AStanza.element());
 		emit chatError(err.message());
-	}
-}
-
-void MultiUserChat::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	Q_UNUSED(AStreamJid);
-	if (AStanzaId == FConfigRequestId)
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		emit chatError(err.message());
-		FConfigRequestId.clear();
-	}
-	else if (AStanzaId == FConfigSubmitId)
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		emit chatError(err.message());
-		FConfigRequestId.clear();
-	}
-	else if (FAffilListRequests.contains(AStanzaId))
-	{
-		QString affiliation = FAffilListRequests.take(AStanzaId);
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		emit chatError(tr("Request for list of %1s is failed: %2").arg(affiliation).arg(err.message()));
-		FAffilListRequests.remove(AStanzaId);
-	}
-	else if (FAffilListSubmits.contains(AStanzaId))
-	{
-		QString affiliation = FAffilListSubmits.take(AStanzaId);
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		emit chatError(tr("Changes in list of %1s may not be accepted: %2").arg(affiliation).arg(err.message()));
-		FAffilListRequests.remove(AStanzaId);
 	}
 }
 

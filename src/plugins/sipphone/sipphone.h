@@ -63,7 +63,6 @@ public:
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
-	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//ISipPhone
 	virtual bool isSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual bool isSupported(const Jid &AStreamJid, const QString &AMetaId) const;

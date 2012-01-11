@@ -62,18 +62,18 @@ public:
 	ErrorHandler(const QString &ACondition, int ACode, const QString &ANsURI = EHN_DEFAULT);
 	ErrorHandler(const QDomElement &AElem, const QString &ANsURI = EHN_DEFAULT);
 	~ErrorHandler();
-	ErrorType type() const { return FType; }
-	int code() const { return FCode; }
-	QString condition() const { return FCondition; }
-	QString meaning() const { return FMeaning; }
-	QString text() const { return FText; }
+	ErrorType type() const;
+	int code() const;
+	QString condition() const;
+	QString namespaceURI() const;
+	QString meaning() const;
+	QString text() const;
 	QString message() const;
-	QString context() const { return FContext; }
-	ErrorHandler &setContext(const QString &AContext) { FContext = AContext; return *this; }
+	QString context() const;
+	ErrorHandler &setContext(const QString &AContext);
 	ErrorHandler &parseElement(const QDomElement &AErrElem, const QString &ANsURI = EHN_DEFAULT);
 public:
-	static void addErrorItem(const QString &ACondition, ErrorType AType, int ACode,
-				 const QString &AMeaning, const QString &ANsURI = EHN_DEFAULT);
+	static void addErrorItem(const QString &ACondition, ErrorType AType, int ACode,const QString &AMeaning, const QString &ANsURI = EHN_DEFAULT);
 	static ErrorItem *itemByCode(int &ACode, const QString &ANsURI = EHN_DEFAULT);
 	static ErrorItem *itemByCondition(const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
 	static ErrorItem *itemByCodeCondition(int &ACode, const QString &ACondition, const QString &ANsURI = EHN_DEFAULT);
@@ -87,13 +87,13 @@ public:
 protected:
 	static void init();
 private:
-	QString   FNsURI;
+	int FCode;
+	QString FNsURI;
 	ErrorType FType;
-	int			  FCode;
-	QString   FCondition;
-	QString   FMeaning;
-	QString   FText;
-	QString   FContext;
+	QString FCondition;
+	QString FMeaning;
+	QString FText;
+	QString FContext;
 private:
 	static QMultiHash<QString, ErrorHandler::ErrorItem *> FItemByNS;
 };

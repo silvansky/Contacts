@@ -374,8 +374,6 @@ bool XmppStream::processStanzaHandlers(Stanza &AStanza, bool AStanzaOut)
 	QMapIterator<int, IXmppStanzaHadler *> it(FStanzaHandlers);
 	if (!AStanzaOut)
 	{
-		if (AStanza.from().isEmpty() || Jid(FStreamJid.bare())==AStanza.from())
-			AStanza.setFrom(FStreamJid.eFull());
 		AStanza.setTo(FStreamJid.eFull());
 		it.toBack();
 	}

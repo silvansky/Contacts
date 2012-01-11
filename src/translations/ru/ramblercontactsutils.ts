@@ -134,10 +134,6 @@
         <translation>Не реализовано</translation>
     </message>
     <message>
-        <source>Remoute Server Error</source>
-        <translation>Ошибка удаленного сервера</translation>
-    </message>
-    <message>
         <source>Service Unavailable</source>
         <translation>Сервис недоступен</translation>
     </message>
@@ -148,6 +144,10 @@
     <message>
         <source>Disconnected</source>
         <translation>Отключен</translation>
+    </message>
+    <message>
+        <source>Remote Server Error</source>
+        <translation>Ошибка удалённого сервера</translation>
     </message>
 </context>
 </TS>

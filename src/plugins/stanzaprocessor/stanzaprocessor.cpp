@@ -31,14 +31,10 @@ bool StanzaProcessor::initConnections(IPluginManager *APluginManager, int &AInit
 		FXmppStreams = qobject_cast<IXmppStreams *>(plugin->instance());
 		if (FXmppStreams)
 		{
-			connect(FXmppStreams->instance(), SIGNAL(created(IXmppStream *)),
-				SLOT(onStreamCreated(IXmppStream *)));
-			connect(FXmppStreams->instance(), SIGNAL(jidChanged(IXmppStream *, const Jid &)),
-				SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
-			connect(FXmppStreams->instance(), SIGNAL(closed(IXmppStream *)),
-				SLOT(onStreamClosed(IXmppStream *)));
-			connect(FXmppStreams->instance(), SIGNAL(streamDestroyed(IXmppStream *)),
-				SLOT(onStreamDestroyed(IXmppStream *)));
+			connect(FXmppStreams->instance(), SIGNAL(created(IXmppStream *)),SLOT(onStreamCreated(IXmppStream *)));
+			connect(FXmppStreams->instance(), SIGNAL(jidChanged(IXmppStream *, const Jid &)),SLOT(onStreamJidChanged(IXmppStream *, const Jid &)));
+			connect(FXmppStreams->instance(), SIGNAL(closed(IXmppStream *)),SLOT(onStreamClosed(IXmppStream *)));
+			connect(FXmppStreams->instance(), SIGNAL(streamDestroyed(IXmppStream *)),SLOT(onStreamDestroyed(IXmppStream *)));
 		}
 	}
 	return FXmppStreams!=NULL;
@@ -51,10 +47,10 @@ bool StanzaProcessor::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, in
 	{
 		if (!sendStanzaIn(AXmppStream->streamJid(),AStanza))
 		{
-			if (AStanza.canReplyError())
+			if (AStanza.tagName()=="iq" && (AStanza.type()=="set" || AStanza.type()=="get"))
 			{
-				Stanza reply = AStanza.replyError("service-unavailable");
-				sendStanzaOut(AXmppStream->streamJid(), reply);
+				Stanza error = makeReplyError(AStanza,ErrorHandler(ErrorHandler::SERVICE_UNAVAILABLE));
+				sendStanzaOut(AXmppStream->streamJid(), error);
 			}
 		}
 	}
@@ -107,8 +103,9 @@ bool StanzaProcessor::sendStanzaRequest(IStanzaRequestOwner *AIqOwner, const Jid
 		if ((AStanza.type() == "set" || AStanza.type() == "get") && sendStanzaOut(AStreamJid,AStanza))
 		{
 			StanzaRequest request;
-			request.streamJid = AStreamJid;
 			request.owner = AIqOwner;
+			request.streamJid = AStreamJid;
+			request.contactJid = AStanza.to();
 			if (ATimeout > 0)
 			{
 				request.timer = new QTimer;
@@ -122,6 +119,26 @@ bool StanzaProcessor::sendStanzaRequest(IStanzaRequestOwner *AIqOwner, const Jid
 		}
 	}
 	return false;
+}
+
+Stanza StanzaProcessor::makeReplyResult(const Stanza &AStanza) const
+{
+	Stanza result(AStanza.tagName());
+	result.setType("result").setId(AStanza.id()).setTo(AStanza.from());
+	return result;
+}
+
+Stanza StanzaProcessor::makeReplyError(const Stanza &AStanza, const ErrorHandler &AError) const
+{
+	Stanza error(AStanza);
+	error.setType("error").setId(AStanza.id()).setTo(AStanza.from()).setFrom(QString::null);
+	insertErrorElement(error,AError);
+	return error;
+}
+
+bool StanzaProcessor::checkStanza(const Stanza &AStanza, const QString &ACondition) const
+{
+	return checkCondition(AStanza.element(),ACondition);
 }
 
 QList<int> StanzaProcessor::stanzaHandles() const
@@ -161,14 +178,9 @@ void StanzaProcessor::removeStanzaHandle(int AHandleId)
 	}
 }
 
-bool StanzaProcessor::checkStanza(const Stanza &AStanza, const QString &ACondition) const
-{
-	return checkCondition(AStanza.element(),ACondition);
-}
-
 bool StanzaProcessor::checkCondition(const QDomElement &AElem, const QString &ACondition, const int APos) const
 {
-	static QSet<QChar> delimiters = QSet<QChar>()<<' '<<'/'<<'\\'<<'\t'<<'\n'<<'['<<']'<<'='<<'\''<<'"'<<'@';
+	static const QSet<QChar> delimiters = QSet<QChar>()<<' '<<'/'<<'\\'<<'\t'<<'\n'<<'['<<']'<<'='<<'\''<<'"'<<'@';
 
 	QDomElement elem = AElem;
 
@@ -305,6 +317,33 @@ bool StanzaProcessor::processStanzaRequest(const Jid &AStreamJid, const Stanza &
 	return false;
 }
 
+void StanzaProcessor::processRequestTimeout(const QString &AStanzaId) const
+{
+	if (FRequests.contains(AStanzaId))
+	{
+		const StanzaRequest &request = FRequests.value(AStanzaId);
+
+		Stanza timeout("iq");
+		timeout.setType("error").setId(AStanzaId).setFrom(request.contactJid.eFull()).setTo(request.streamJid.eFull());
+		insertErrorElement(timeout,ErrorHandler(ErrorHandler::REQUEST_TIMEOUT));
+
+		request.owner->stanzaRequestResult(request.streamJid, timeout);
+	}
+}
+
+void StanzaProcessor::insertErrorElement(Stanza &AStanza, const ErrorHandler &AError) const
+{
+	QDomElement errElem = AStanza.addElement("error");
+	if (AError.code() != ErrorHandler::UNKNOWNCODE)
+		errElem.setAttribute("code",AError.code());
+	if (AError.type() != ErrorHandler::UNKNOWNTYPE)
+		errElem.setAttribute("type",ErrorHandler::typeToString(AError.type()));
+	if (!AError.condition().isEmpty())
+		errElem.appendChild(AStanza.createElement(AError.condition(),AError.namespaceURI()));
+	if (!AError.text().isEmpty())
+		errElem.appendChild(AStanza.createElement("text",AError.namespaceURI())).appendChild(AStanza.createTextNode(AError.text()));
+}
+
 void StanzaProcessor::removeStanzaRequest(const QString &AStanzaId)
 {
 	StanzaRequest request = FRequests.take(AStanzaId);
@@ -330,7 +369,7 @@ void StanzaProcessor::onStreamClosed(IXmppStream *AXmppStream)
 		const StanzaRequest &request = FRequests.value(stanzaId);
 		if (request.streamJid == AXmppStream->streamJid())
 		{
-			request.owner->stanzaRequestTimeout(request.streamJid, stanzaId);
+			processRequestTimeout(stanzaId);
 			removeStanzaRequest(stanzaId);
 		}
 	}
@@ -346,13 +385,12 @@ void StanzaProcessor::onStanzaRequestTimeout()
 	QTimer *timer = qobject_cast<QTimer *>(sender());
 	if (timer != NULL)
 	{
-		foreach(QString stanzaId, FRequests.keys())
+		for(QMap<QString,StanzaRequest>::const_iterator it=FRequests.constBegin(); it!=FRequests.constEnd(); ++it)
 		{
-			const StanzaRequest &request = FRequests.value(stanzaId);
-			if (request.timer == timer)
+			if (it->timer == timer)
 			{
-				request.owner->stanzaRequestTimeout(request.streamJid, stanzaId);
-				removeStanzaRequest(stanzaId);
+				processRequestTimeout(it.key());
+				removeStanzaRequest(it.key());
 				break;
 			}
 		}

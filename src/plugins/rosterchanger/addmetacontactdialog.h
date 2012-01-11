@@ -24,6 +24,7 @@
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/imagemanager.h>
+#include <utils/errorhandler.h>
 #include "addmetaitemwidget.h"
 #include "ui_addmetacontactdialog.h"
 

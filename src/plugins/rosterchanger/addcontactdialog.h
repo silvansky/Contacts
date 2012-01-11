@@ -24,6 +24,7 @@
 #include <interfaces/imessageprocessor.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
+#include <utils/errorhandler.h>
 #include <utils/stylestorage.h>
 #include <utils/customlistview.h>
 #include <utils/custominputdialog.h>

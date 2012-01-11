@@ -33,6 +33,7 @@
 //#include <utils/shortcuts.h>
 //#include <utils/textmanager.h>
 #include <utils/widgetmanager.h>
+#include <utils/errorhandler.h>
 #include "edituserslistdialog.h"
 #include "usercontextmenu.h"
 #include "inputtextdialog.h"

@@ -1687,9 +1687,7 @@ void MultiUserChatWindow::onChatClosed()
 {
 	if (!FDestroyOnChatClosed)
 	{
-		if (FMultiChat->show()==IPresence::Error &&
-			FMultiChat->errorCode()==ErrorHandler::CONFLICT &&
-			!FMultiChat->nickName().endsWith("/"+FMultiChat->streamJid().resource()))
+		if (FMultiChat->show()==IPresence::Error && FMultiChat->errorCode()==ErrorHandler::CONFLICT && !FMultiChat->nickName().endsWith("/"+FMultiChat->streamJid().resource()))
 		{
 			FMultiChat->setNickName(FMultiChat->nickName()+"/"+FMultiChat->streamJid().resource());
 			FEnterRoom->trigger();

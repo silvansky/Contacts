@@ -139,15 +139,6 @@ void MessageCarbons::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 	FDisableRequests.removeAll(AStanza.id());
 }
 
-void MessageCarbons::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	FEnableRequests.removeAll(AStanzaId);
-	FDisableRequests.removeAll(AStanzaId);
-	ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-	LogError(QString("[MessageCarbons] Failed to change Message Carbons state for '%1': %2").arg(AStreamJid.full(),err.message()));
-	emit errorReceived(AStreamJid,err.condition(),err.message());
-}
-
 bool MessageCarbons::isSupported(const Jid &AStreamJid) const
 {
 	return FDiscovery!=NULL && FDiscovery->discoInfo(AStreamJid,AStreamJid.domain()).features.contains(NS_MESSAGE_CARBONS);

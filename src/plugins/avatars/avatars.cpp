@@ -249,8 +249,7 @@ bool Avatars::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASt
 		if (file.open(QFile::ReadOnly))
 		{
 			AAccept = true;
-			Stanza result("iq");
-			result.setTo(AStanza.from()).setType("result").setId(AStanza.id());
+			Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
 			QDomElement dataElem = result.addElement("query",NS_JABBER_IQ_AVATAR).appendChild(result.createElement("data")).toElement();
 			dataElem.appendChild(result.createTextNode(file.readAll().toBase64()));
 			file.close();
@@ -287,18 +286,6 @@ void Avatars::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			ErrorHandler err(AStanza.element());
 			LogError(QString("[Avatars] Failed to request IqAvatar from '%1': %2").arg(contactJid.full(),err.message()));
 		}
-	}
-}
-
-void Avatars::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	Q_UNUSED(AStreamJid);
-	if (FIqAvatarRequests.contains(AStanzaId))
-	{
-		Jid contactJid = FIqAvatars.take(AStanzaId);
-		FIqAvatars.remove(contactJid);
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		LogError(QString("[Avatars] Failed to request IqAvatar from '%1': %2").arg(contactJid.full(),err.message()));
 	}
 }
 

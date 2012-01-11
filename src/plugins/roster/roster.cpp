@@ -40,13 +40,12 @@ bool Roster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASta
 {
 	if (AHandlerId == FSHIRosterPush)
 	{
-		if (isOpen() && AStreamJid==AStanza.from())
+		if (isOpen() && AStanza.isFromServer())
 		{
 			AAccept = true;
 			processItemsElement(AStanza.firstElement("query",NS_JABBER_ROSTER),false);
 
-			Stanza result("iq");
-			result.setType("result").setId(AStanza.id());
+			Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
 			FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 		}
 	}
@@ -125,17 +124,6 @@ void Roster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			LogError(QString("[Roster][%1] Failed to receive initial roster: %2").arg(streamJid().bare(),err.message()));
 			FXmppStream->abort(tr("Roster request failed"));
 		}
-	}
-}
-
-void Roster::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	Q_UNUSED(AStreamJid);
-	if (AStanzaId==FDelimRequestId || AStanzaId == FOpenRequestId)
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		LogError(QString("[Roster][%1] Failed to receive initial roster: %2").arg(streamJid().bare(),err.message()));
-		FXmppStream->abort(tr("Roster request failed"));
 	}
 }
 

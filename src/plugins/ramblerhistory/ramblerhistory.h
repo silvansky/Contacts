@@ -47,7 +47,6 @@ public:
 	virtual bool stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
-	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//IRamblerHistory
 	virtual bool isReady(const Jid &AStreamJid) const;
 	virtual bool isSupported(const Jid &AStreamJid) const;

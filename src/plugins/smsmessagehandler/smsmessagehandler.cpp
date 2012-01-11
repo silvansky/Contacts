@@ -203,8 +203,7 @@ bool SmsMessageHandler::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, St
 		AAccept = true;
 		setSmsBalance(AStreamJid,AStanza.from(),smsBalanceFromStanza(AStanza));
 
-		Stanza result("iq");
-		result.setType("result").setId(AStanza.id()).setTo(AStanza.from());
+		Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
 		FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 	}
 	else if (FSHIMessageReceipts.value(AStreamJid) == AHandleId)
@@ -264,24 +263,6 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 			LogError(QString("[SmsMessageHandler] Failed to request SMS supplement from '%1', id='%2': %3").arg(serviceJid.full(),AStanza.id(),err.message()));
 			emit smsSupplementError(AStanza.id(),err.condition(),err.message());
 		}
-	}
-}
-
-void SmsMessageHandler::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	if (FSmsBalanceRequests.contains(AStanzaId))
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		Jid serviceJid = FSmsBalanceRequests.take(AStanzaId);
-		LogError(QString("[SmsMessageHandler] Failed to request SMS balance from '%1', id='%2': %3").arg(serviceJid.full(),AStanzaId,err.message()));
-		setSmsBalance(AStreamJid,serviceJid,-1);
-	}
-	else if (FSmsSupplementRequests.contains(AStanzaId))
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		Jid serviceJid = FSmsSupplementRequests.take(AStanzaId);
-		LogError(QString("[SmsMessageHandler] Failed to request SMS supplement from '%1', id='%2': %3").arg(serviceJid.full(),AStanzaId,err.message()));
-		emit smsSupplementError(AStanzaId,err.condition(),err.message());
 	}
 }
 

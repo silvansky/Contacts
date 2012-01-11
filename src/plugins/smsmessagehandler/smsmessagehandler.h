@@ -102,7 +102,6 @@ public:
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
-	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//ITabPageHandler
 	virtual bool tabPageAvail(const QString &ATabPageId) const;
 	virtual ITabPage *tabPageFind(const QString &ATabPageId) const;

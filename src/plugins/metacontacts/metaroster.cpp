@@ -47,7 +47,7 @@ bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 {
 	if (FSHIMetaContacts == AHandlerId)
 	{
-		if (isOpen() && AStreamJid==AStanza.from())
+		if (isOpen() && AStanza.isFromServer())
 		{
 			AAccept = true;
 
@@ -55,8 +55,7 @@ bool MetaRoster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 			processRosterStanza(AStreamJid,convertMetaElemToRosterStanza(metasElem));
 			processMetasElement(metasElem,false);
 
-			Stanza result("iq");
-			result.setType("result").setId(AStanza.id());
+			Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
 			FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 		}
 	}
@@ -151,29 +150,6 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 	}
 }
 
-void MetaRoster::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	if (FOpenRequestId == AStanzaId)
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		LogError(QString("[MetaRoster][%1] Failed to receive initial meta-roster: %2").arg(streamJid().bare(),err.message()));
-
-		setEnabled(false);
-		removeStanzaHandlers();
-		FStanzaProcessor->sendStanzaOut(AStreamJid,FRosterRequest);
-	}
-	else if (FCreateItemRequest.contains(AStanzaId))
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		LogError(QString("[MetaRoster][%1] Failed to create meta-item id='%2': %3").arg(streamJid().bare(),AStanzaId,err.message()));
-		FCreateItemRequest.remove(AStanzaId);
-	}
-	else
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		processStanzaRequest(AStanzaId,err.condition(),err.message());
-	}
-}
 
 bool MetaRoster::isEnabled() const
 {

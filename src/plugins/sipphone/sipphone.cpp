@@ -568,12 +568,12 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 			// Здесь проверяем возможность установки соединения
 			if (FStreams.contains(sid))
 			{
-				Stanza error = AStanza.replyError(ErrorHandler::conditionByCode(ErrorHandler::CONFLICT));
+				Stanza error = FStanzaProcessor->makeReplyError(AStanza,ErrorHandler(ErrorHandler::CONFLICT));
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else if (!findStream(AStreamJid,AStanza.from()).isEmpty())
 			{
-				Stanza error = AStanza.replyError(ErrorHandler::conditionByCode(ErrorHandler::NOT_ACCEPTABLE));
+				Stanza error = FStanzaProcessor->makeReplyError(AStanza,ErrorHandler(ErrorHandler::NOT_ACCEPTABLE));
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else
@@ -646,7 +646,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		removeStream(sid);
 	}
 }
-
+/*
 void SipPhone::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
 {
 	Q_UNUSED(AStreamJid);
@@ -666,7 +666,7 @@ void SipPhone::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanz
 		removeStream(sid);
 	}
 }
-
+*/
 void SipPhone::sipCallDeletedSlot(bool initiator)
 {
 	emit sipSendUnRegister();

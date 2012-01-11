@@ -107,15 +107,14 @@ QMultiMap<int, IOptionsWidget *> RamblerHistory::optionsWidgets(const QString &A
 
 bool RamblerHistory::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
 {
-	if (FSHIPrefsUpdate.value(AStreamJid)==AHandlerId && AStreamJid==AStanza.from())
+	if (FSHIPrefsUpdate.value(AStreamJid)==AHandlerId && AStanza.isFromServer())
 	{
 		QDomElement prefElem = AStanza.firstElement("pref",NS_RAMBLER_ARCHIVE);
 		applyArchivePrefs(AStreamJid,prefElem);
 
 		AAccept = true;
-		Stanza reply("iq");
-		reply.setTo(AStanza.from()).setType("result").setId(AStanza.id());
-		FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
+		Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
+		FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 	}
 	return false;
 }
@@ -193,28 +192,6 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 		LogError(QString("[RamblerHistory] Failed to process request id='%1' to '%2': %3").arg(AStanza.id(),AStreamJid.full(),err.message()));
 		emit requestFailed(AStanza.id(),ErrorHandler(AStanza.element()).message());
 	}
-}
-
-void RamblerHistory::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	Q_UNUSED(AStreamJid);
-
-	ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-	if (FRetrieveRequests.contains(AStanzaId))
-	{
-		FRetrieveRequests.remove(AStanzaId);
-	}
-	else if (FPrefsLoadRequests.contains(AStanzaId))
-	{
-		FPrefsLoadRequests.remove(AStanzaId);
-	}
-	else if (FPrefsSaveRequests.contains(AStanzaId))
-	{
-		FPrefsSaveRequests.remove(AStanzaId);
-	}
-
-	LogError(QString("[RamblerHistory] Failed to process request id='%1' to '%2': %3").arg(AStanzaId,AStreamJid.full(),err.message()));
-	emit requestFailed(AStanzaId, err.message());
 }
 
 bool RamblerHistory::isReady(const Jid &AStreamJid) const
