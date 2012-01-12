@@ -20,8 +20,8 @@
 #define ADR_STREAM_ID     Action::DR_Parametr2
 #define ADR_METAID_WINDOW Action::DR_Parametr3
 
+#define RING_TIMEOUT    30000
 #define CLOSE_TIMEOUT   10000
-#define REQUEST_TIMEOUT 30000
 
 SipPhone::SipPhone()
 {
@@ -636,7 +636,18 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		else
 		{
 			// Получили ошибку, по её коду можно определить причину, уведомляем пользоователя в окне звонка и закрываем сессию
-			removeStream(sid);
+			ErrorHandler err(AStanza.element());
+			if (err.code() == ErrorHandler::REQUEST_TIMEOUT)
+			{
+				// Если нет ответа от принимающей стороны, то устанавливаем соответствующий флаг и зкрываем соединение
+				ISipStream& stream = FStreams[sid];
+				stream.timeout = true;
+				closeStream(sid);
+			}
+			else
+			{
+				removeStream(sid);
+			}
 		}
 	}
 	else if (FCloseRequests.contains(AStanza.id()))
@@ -646,27 +657,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		removeStream(sid);
 	}
 }
-/*
-void SipPhone::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	Q_UNUSED(AStreamJid);
-	if (FOpenRequests.contains(AStanzaId))
-	{
-		// Удаленная сторона не ответила на звонок, закрываем соединение
-		QString sid = FOpenRequests.take(AStanzaId);
-		// Если нет ответа от принимающей стороны, то устанавливаем соответствующий флаг
-		ISipStream& stream = FStreams[sid];
-		stream.timeout = true;
-		closeStream(sid);
-	}
-	else if (FCloseRequests.contains(AStanzaId))
-	{
-		// Нет ответа на закрытие соединения, считаем сесиию закрытой
-		QString sid = FCloseRequests.take(AStanzaId);
-		removeStream(sid);
-	}
-}
-*/
+
 void SipPhone::sipCallDeletedSlot(bool initiator)
 {
 	emit sipSendUnRegister();
@@ -967,7 +958,7 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult/*,
 		if (FMessageProcessor)
 			FMessageProcessor->createMessageWindow(AStreamJid,AContactJid,Message::Chat,IMessageHandler::SM_SHOW);
 
-		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,open,REQUEST_TIMEOUT))
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,open,RING_TIMEOUT))
 		{
 			ISipStream stream;
 			stream.sid = sid;
