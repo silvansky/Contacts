@@ -40,6 +40,7 @@ public:
 	void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_event *e);
 
 	pj_status_t on_my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride);
+	pj_status_t on_my_preview_frame_callback(pjmedia_frame *frame, int w, int h, int stride);
 
 
 signals:
@@ -72,6 +73,8 @@ signals:
 	void signalShowSipPhoneWidget(void* hwnd);
 
 	void signal_SetRomoteImage(const QImage&);
+	void signal_SetCurrentImage(const QImage&);
+	
 
 
 public slots:
@@ -126,7 +129,7 @@ private:
 
 	//void initLayout();
 private:
-	QImage _img;
+	QImage _img, _currimg;
 	SipPhoneWidget* _pPhoneWidget;
 
 	//pjmedia_vid_dev_myframe myframe;

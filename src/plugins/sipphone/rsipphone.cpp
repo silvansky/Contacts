@@ -104,6 +104,11 @@ static void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjs
 #define _G(y,u,v) (0x2568*(y) - 0x0c92*(v) - 0x1a1e*(u)) /0x2000
 #define _B(y,u,v) (0x2568*(y) + 0x40cf*(v))					     /0x2000
 
+//#define _R(y,u,v) (1.164*(y)  			       + 1.596*(u))
+//#define _G(y,u,v) (1.164*(y) - 0.813*(v) - 0.391*(u))
+//#define _B(y,u,v) (1.164*(y) + 2.018*(v))
+
+
 
 //void YUV420PtoRGB32(int width, int height, int stride, const unsigned char *src, unsigned char *dst, int dstSize)
 //{
@@ -216,7 +221,7 @@ void YUV422PtoRGB32(int width, int height, const unsigned char *src, unsigned ch
 	pu = py + (width * height);
 	pv = pu + (width * height) / 4;
 
-	if (dstSize < (width*height*4))
+	if (dstSize < (width*height*4))//if (dstSize < (width*height*4))
 	{
 		//cout << "YUVtoRGB buffer (" << dstSize << ") too small for " << width << "x" << height << " pixels" << endl;
 		return;
@@ -234,6 +239,7 @@ void YUV422PtoRGB32(int width, int height, const unsigned char *src, unsigned ch
 			u = pu[w>>1] - 128;
 			v = pv[w>>1] - 128;
 
+
 			_r = _R(y,u,v);
 			_g = _G(y,u,v);
 			_b = _B(y,u,v);
@@ -248,8 +254,65 @@ void YUV422PtoRGB32(int width, int height, const unsigned char *src, unsigned ch
 			*dst++ = 0;
 		}
 
-		pu += (width>>1);
-		pv += (width>>1);
+		//pu += (width>>1);
+		//pv += (width>>1);
+	}
+}
+
+void YUYV422PtoRGB32(int width, int height, const unsigned char *src, unsigned char *dst, int dstSize)
+{
+	int macropixel = 0;
+	int len = height * width / 2;
+	const unsigned char *py, *pu, *pv;
+	py = src;
+	pu = py + 1;//py + (width * height);
+	pv = py + 3;//pu + (width * height) / 4;
+
+	if (dstSize < (width*height*3))//if (dstSize < (width*height*4))
+	{
+		//cout << "YUVtoRGB buffer (" << dstSize << ") too small for " << width << "x" << height << " pixels" << endl;
+		return;
+	}
+
+	for (macropixel = 0; macropixel < len; macropixel++)
+	{
+		signed int _r,_g,_b; 
+		signed int r, g, b;
+		signed int y0, y1, u, v;
+
+		y0 = *py - 16;
+		y1 = *(py+2) - 16;
+		u = *pu - 128;
+		v = *pv - 128;
+
+		_b = _R(y0,u,v);
+		_g = _G(y0,u,v);
+		_r = _B(y0,u,v);
+
+		r = _S(_r);
+		g = _S(_g);
+		b = _S(_b);
+
+		*dst++ = r;
+		*dst++ = g;
+		*dst++ = b;
+		//*dst++ = 0;
+
+		_b = _R(y1,u,v);
+		_g = _G(y1,u,v);
+		_r = _B(y1,u,v);
+
+		r = _S(_r);
+		g = _S(_g);
+		b = _S(_b);
+
+		*dst++ = r;
+		*dst++ = g;
+		*dst++ = b;
+
+		py = py + 4; // new
+		pu = py + 1;
+		pv = py + 3;
 	}
 }
 
@@ -511,6 +574,35 @@ pj_status_t my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride
 {
 	return RSipPhone::instance()->on_my_put_frame_callback(frame, w, h, stride);
 }
+pj_status_t my_preview_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
+{
+	return RSipPhone::instance()->on_my_preview_frame_callback(frame, w, h, stride);
+}
+
+
+pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
+{
+	if(frame->type != PJMEDIA_FRAME_TYPE_VIDEO)
+		return 0;
+
+
+	int dstSize = w * h * 3;
+	unsigned char * dst = new unsigned char[dstSize];
+
+	YUYV422PtoRGB32(w, h, (unsigned char *)frame->buf, dst, dstSize);
+	//YUV420PtoRGB32(w, h, stride, (unsigned char *)frame->buf, dst, dstSize);
+	_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB888);
+	//_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB666);
+	//_currimg = QImage((uchar*)dst, w, h, QImage::Format_ARGB32);
+
+	if(_pPhoneWidget)
+	{
+		//_pPhoneWidget->SetCurrImage(_currimg);
+		emit signal_SetCurrentImage(_currimg);
+	}
+
+	return 0;
+}
 
 pj_status_t RSipPhone::on_my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
 {
@@ -542,6 +634,7 @@ pj_status_t RSipPhone::on_my_put_frame_callback(pjmedia_frame *frame, int w, int
 void RSipPhone::initVideoWindow()
 {
 	myframe.put_frame_callback = &my_put_frame_callback;
+	myframe.preview_frame_callback = &my_preview_frame_callback;
 
 	pjsua_call_info ci;
 	unsigned i;
@@ -734,6 +827,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 	connect(_pPhoneWidget, SIGNAL(hangupCall()), this, SLOT(hangup()));
 	connect(this, SIGNAL(signal_SetRomoteImage(const QImage&)), _pPhoneWidget, SLOT(SetRemoteImage(const QImage&)), Qt::QueuedConnection);
+	connect(this, SIGNAL(signal_SetCurrentImage(const QImage&)), _pPhoneWidget, SLOT(SetCurrImage(const QImage&)), Qt::QueuedConnection);
 
 	//_pPhoneWidget->show();
 	//return;

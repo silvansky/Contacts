@@ -231,6 +231,8 @@ QSize SipPhoneWidget::sizeHint()
 void SipPhoneWidget::SetCurrImage(const QImage& img)
 {
 	QPixmap tmpPix = QPixmap::fromImage(img);
+	delete[] img.bits();
+
 	_pCurrPic->setPixmap(tmpPix);
 }
 
