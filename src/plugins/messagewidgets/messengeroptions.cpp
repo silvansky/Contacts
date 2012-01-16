@@ -10,6 +10,7 @@ MessengerOptions::MessengerOptions(QWidget *AParent) : QWidget(AParent)
 #ifdef Q_WS_MAC
 	ui.rdbSendByEnter->setText(tr("By pressing ") + QChar(0x23CE)); // Enter symbol
 	ui.rdbSendByCtrlEnter->setText(tr("By pressing ") + QChar(0x2318) + QChar(0x23CE)); // Cmd and Enter symbols
+	ui.groupBox->layout()->setSpacing(16);
 #endif
 	
 	reset();

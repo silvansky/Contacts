@@ -6,9 +6,15 @@ QFrame#dbbFrame
 {
 	margin-left: 6px;
 	margin-right: 6px;
-}
+} 
 
 GrowlPreferences QPushButton
 {
 	margin-left: 22px;
+}
+
+#optionsWidgetCheckBox
+{
+	margin-left: 3px;
+	margin-right: 16px;
 }

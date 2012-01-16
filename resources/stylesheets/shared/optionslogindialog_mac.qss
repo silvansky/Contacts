@@ -2,3 +2,8 @@ QPushButton#tlbDomain
 {
 	margin-bottom: 2px;
 }
+
+QCheckBox
+{
+	margin-left: 4px;
+}

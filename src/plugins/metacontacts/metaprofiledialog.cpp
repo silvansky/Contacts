@@ -18,7 +18,6 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 {
 	ui.setupUi(this);
 	ui.lblName->setElideMode(Qt::ElideRight);
-	setMinimumWidth(400);
 	setWindowIconText(tr("Contact Profile"));
 
 	FGateways = NULL;

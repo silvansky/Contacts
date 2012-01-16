@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>367</width>
-    <height>234</height>
+    <width>400</width>
+    <height>226</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>400</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>16777215</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Information</string>
@@ -94,6 +106,9 @@
           <property name="text">
            <string notr="true">lblName</string>
           </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          </property>
          </widget>
         </item>
         <item row="2" column="0">
@@ -109,6 +124,9 @@
           </property>
           <property name="textFormat">
            <enum>Qt::PlainText</enum>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
           </property>
          </widget>
         </item>
@@ -130,8 +148,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>319</width>
-           <height>84</height>
+           <width>352</width>
+           <height>76</height>
           </rect>
          </property>
         </widget>
