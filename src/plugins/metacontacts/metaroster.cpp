@@ -849,7 +849,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 {
 	Stanza iq("iq");
-	iq.setType("set").setFrom(streamJid().eFull()).setId(FStanzaProcessor->newId());
+	iq.setType("set").setTo(streamJid().eFull()).setId(FStanzaProcessor->newId());
 
 	if (!AMetaElem.isNull())
 	{
