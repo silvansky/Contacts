@@ -40,7 +40,7 @@ public:
 	void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_event *e);
 
 	pj_status_t on_my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride);
-	pj_status_t on_my_preview_frame_callback(pjmedia_frame *frame, int w, int h, int stride);
+	pj_status_t on_my_preview_frame_callback(pjmedia_frame *frame, const char*, int w, int h, int stride);
 
 
 signals:
@@ -91,7 +91,11 @@ private slots:
 		void onNewCall(int cid, bool incoming);
 		void onCallReleased();
 		void initVideoWindow();
+		
 		//void doShowStatus(const QString& msg);
+
+private:
+	bool isCameraReady() const;
 
 private:
 	static RSipPhone *_pInstance;

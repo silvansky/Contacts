@@ -574,13 +574,13 @@ pj_status_t my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride
 {
 	return RSipPhone::instance()->on_my_put_frame_callback(frame, w, h, stride);
 }
-pj_status_t my_preview_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
+pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
 {
-	return RSipPhone::instance()->on_my_preview_frame_callback(frame, w, h, stride);
+	return RSipPhone::instance()->on_my_preview_frame_callback(frame, colormodelName, w, h, stride);
 }
 
 
-pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
+pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
 {
 	if(frame->type != PJMEDIA_FRAME_TYPE_VIDEO)
 		return 0;
@@ -589,11 +589,34 @@ pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, int w,
 	int dstSize = w * h * 3;
 	unsigned char * dst = new unsigned char[dstSize];
 
-	YUYV422PtoRGB32(w, h, (unsigned char *)frame->buf, dst, dstSize);
-	//YUV420PtoRGB32(w, h, stride, (unsigned char *)frame->buf, dst, dstSize);
-	_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB888);
-	//_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB666);
-	//_currimg = QImage((uchar*)dst, w, h, QImage::Format_ARGB32);
+	if(strstr(colormodelName, "RGB") != 0)
+	{
+		memcpy(dst, frame->buf, dstSize);
+		//_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB888);
+		_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB888).rgbSwapped();
+
+		delete[] dst;
+	}
+	else if(strstr(colormodelName, "YUY") != 0)
+	{
+		YUYV422PtoRGB32(w, h, (unsigned char *)frame->buf, dst, dstSize);
+		_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB888).copy();
+
+		delete[] dst;
+	}
+	else
+	{
+		YUV420PtoRGB32(w, h, stride, (unsigned char *)frame->buf, dst, dstSize);
+		_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB888).copy();
+
+		delete[] dst;
+	}
+
+	//////////YUYV422PtoRGB32(w, h, (unsigned char *)frame->buf, dst, dstSize);
+	////////////YUV420PtoRGB32(w, h, stride, (unsigned char *)frame->buf, dst, dstSize);
+	//////////_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB888);
+	////////////_currimg = QImage((uchar*)dst, w, h, QImage::Format_RGB666);
+	////////////_currimg = QImage((uchar*)dst, w, h, QImage::Format_ARGB32);
 
 	if(_pPhoneWidget)
 	{
@@ -814,6 +837,19 @@ void RSipPhone::on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx,
 }
 
 
+bool RSipPhone::isCameraReady() const
+{
+	int devCount = pjmedia_vid_dev_count();
+	for (int id=0; id<devCount; id++)
+	{
+		pjmedia_vid_dev_info info;
+		pjmedia_vid_dev_get_info(id, &info);
+		if(info.dir == PJMEDIA_DIR_CAPTURE && !strstr(info.name, "Colorbar"))
+			return true;
+	}
+	return false;
+}
+
 
 
 void RSipPhone::onShowSipPhoneWidget(void* hwnd)
@@ -829,6 +865,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	connect(this, SIGNAL(signal_SetRomoteImage(const QImage&)), _pPhoneWidget, SLOT(SetRemoteImage(const QImage&)), Qt::QueuedConnection);
 	connect(this, SIGNAL(signal_SetCurrentImage(const QImage&)), _pPhoneWidget, SLOT(SetCurrImage(const QImage&)), Qt::QueuedConnection);
 
+	bool camera = isCameraReady();
 	//_pPhoneWidget->show();
 	//return;
 
@@ -1023,7 +1060,8 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 	acc_cfg.vid_cap_dev = DEFAULT_CAP_DEV;
 	acc_cfg.vid_rend_dev = DEFAULT_REND_DEV;
 	acc_cfg.vid_in_auto_show = PJ_TRUE;
-	acc_cfg.vid_out_auto_transmit = PJ_TRUE;
+	//acc_cfg.vid_out_auto_transmit = PJ_TRUE;
+	acc_cfg.vid_out_auto_transmit = PJ_FALSE;
 	acc_cfg.register_on_acc_add = PJ_FALSE;
 
 	status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &_accountId);
