@@ -11,10 +11,6 @@
 
 #define DIR_METAROSTERS    "metarosters"
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_CONTACT_JID     Action::DR_Parametr1
 #define ADR_META_ID         Action::DR_Parametr1

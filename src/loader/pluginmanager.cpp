@@ -1,9 +1,5 @@
 #include "pluginmanager.h"
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 #include <QTimer>
 #include <QStack>
 #include <QProcess>

@@ -7,8 +7,6 @@
 #include <QFileInfo>
 #include <QApplication>
 
-#include <QDebug>
-
 #define FOLDER_DEFAULT         "images"
 #define IMAGES_FOLDER_PATH     "%IMAGES_PATH%"
 

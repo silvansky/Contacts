@@ -14,10 +14,6 @@
 #define URL_PATH_HISTORY          "history"
 #define URL_PATH_CONTENT          "content"
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
 {
 	AStream << AInfo.streamJid;

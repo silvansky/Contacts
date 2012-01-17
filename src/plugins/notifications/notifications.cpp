@@ -11,10 +11,6 @@
 # include "growlpreferences.h"
 #endif
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 #define TEST_NOTIFY_TIMEOUT             10000
 
 #define ADR_NOTIFYID                    Action::DR_Parametr1
@@ -767,11 +763,6 @@ void Notifications::onNotifyCountChanged()
 			if (FNotifyRecords.value(i).notification.kinds & INotification::DockBadge)
 				count++;
 		}
-
-		//int count = notifications().count();
-# ifdef DEBUG_ENABLED
-		qDebug() << "Notifications count:" << count;
-# endif
 		FMacIntegration->setDockBadge(count ? QString::number(count) : QString::null);
 	}
 }

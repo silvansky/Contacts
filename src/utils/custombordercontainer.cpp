@@ -1,12 +1,7 @@
 #include "custombordercontainer.h"
-#include "log.h"
 #include <QEvent>
 #include <QMouseEvent>
 #include <QVBoxLayout>
-#include "custombordercontainer_p.h"
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
 #include <QLinearGradient>
 #include <QGradientStop>
 #include <QPainter>
@@ -29,7 +24,14 @@
 #include <QScrollBar>
 // damn, i didn't want that!
 #include <QWebView>
+#include "log.h"
 #include "iconstorage.h"
+#include "custombordercontainer_p.h"
+
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 #ifdef Q_WS_WIN
 # include <qt_windows.h>
 #elif defined Q_WS_MAC

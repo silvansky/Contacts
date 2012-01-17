@@ -16,10 +16,6 @@
 #define MESSAGE_SOURCE_PAGER          2
 #endif //Q_WS_X11
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 namespace WidgetManagerData
 {
 	static bool isAlertEnabled = true;
@@ -166,10 +162,6 @@ void WidgetManager::showActivateRaiseWindow(QWidget *AWindow)
 {
 	if (AWindow)
 	{
-#ifdef DEBUG_ENABLED
-		qDebug() << "WidgetManager::showActivateRaiseWindow" << AWindow->objectName() << AWindow->metaObject()->className();
-#endif
-
 		if (AWindow->isVisible())
 		{
 			if (AWindow->isMinimized())
@@ -208,9 +200,6 @@ void WidgetManager::alertWidget(QWidget *AWidget)
 {
 	if (AWidget!=NULL && isWidgetAlertEnabled())
 	{
-#ifdef DEBUG_ENABLED
-		qDebug() << "WidgetManager::alertWidget" << AWidget->objectName() << AWidget->metaObject()->className();
-#endif
 		QApplication::alert(AWidget->window());
 	}
 }

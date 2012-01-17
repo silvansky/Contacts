@@ -12,7 +12,7 @@
 #include <QTimer>
 #include <QStyleOption>
 
-#include <QDebug>
+//#include <QDebug>
 
 BalloonTip * BalloonTip::theSolitaryBalloonTip = NULL;
 
@@ -223,7 +223,7 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 
 	int ml, mr, mt, mb;
 	QSize sz = sh;
-	qDebug() << "drawBalloon: sz = " << sz;
+	//qDebug() << "drawBalloon: sz = " << sz;
 	switch (arrowPosition)
 	{
 	case ArrowLeft:
