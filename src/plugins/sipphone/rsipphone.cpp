@@ -1060,8 +1060,8 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 	acc_cfg.vid_cap_dev = DEFAULT_CAP_DEV;
 	acc_cfg.vid_rend_dev = DEFAULT_REND_DEV;
 	acc_cfg.vid_in_auto_show = PJ_TRUE;
-	//acc_cfg.vid_out_auto_transmit = PJ_TRUE;
-	acc_cfg.vid_out_auto_transmit = PJ_FALSE;
+	acc_cfg.vid_out_auto_transmit = PJ_TRUE;
+	//acc_cfg.vid_out_auto_transmit = PJ_FALSE;
 	acc_cfg.register_on_acc_add = PJ_FALSE;
 
 	status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &_accountId);
