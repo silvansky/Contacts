@@ -33,7 +33,6 @@ OptionsManager::OptionsManager()
 	FOptionsDialog = NULL;
 	FOptionsDialogBorder = NULL;
 	FLoginDialog = NULL;
-	FLoginDialogBorder = NULL;
 	FMacIntegration = NULL;
 
 	FAutoSaveTimer.setInterval(30*1000);
@@ -534,22 +533,25 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 	if (!FLoginDialog)
 	{
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
-		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
 		connect(FLoginDialog,SIGNAL(accepted()),SLOT(onLoginDialogAccepted()));
-		if (FLoginDialogBorder)
-			FLoginDialogBorder->deleteLater();
-		FLoginDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
-		if (FLoginDialogBorder)
+		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
+
+		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
+		if (border)
 		{
-			FLoginDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
-			FLoginDialogBorder->setResizable(false);
-			FLoginDialogBorder->setMinimizeButtonVisible(false);
-			FLoginDialogBorder->setMaximizeButtonVisible(false);
-			connect(FLoginDialogBorder, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
-			connect(FLoginDialog, SIGNAL(accepted()), FLoginDialogBorder, SLOT(close()));
-			connect(FLoginDialog, SIGNAL(rejected()), FLoginDialogBorder, SLOT(close()));
+			border->setAttribute(Qt::WA_DeleteOnClose, true);
+			border->setResizable(false);
+			border->setMinimizeButtonVisible(false);
+			border->setMaximizeButtonVisible(false);
+			connect(border, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
+			connect(FLoginDialog, SIGNAL(accepted()), border, SLOT(deleteLater()));
+			connect(FLoginDialog, SIGNAL(rejected()), border, SLOT(deleteLater()));
+			WidgetManager::showActivateRaiseWindow(border);
 		}
-		WidgetManager::showActivateRaiseWindow(FLoginDialog->window());
+		else
+		{
+			WidgetManager::showActivateRaiseWindow(FLoginDialog);
+		}
 	}
 	return FLoginDialog;
 }
@@ -810,18 +812,16 @@ void OptionsManager::onShowOptionsDialogByAction(bool)
 	showOptionsDialog();
 }
 
-void OptionsManager::onLoginDialogRejected()
-{
-	FLoginDialog = NULL;
-	FLoginDialogBorder = NULL;
-	if (!isOpened())
-		FPluginManager->quit();
-}
-
 void OptionsManager::onLoginDialogAccepted()
 {
 	FLoginDialog = NULL;
-	FLoginDialogBorder = NULL;
+}
+
+void OptionsManager::onLoginDialogRejected()
+{
+	FLoginDialog = NULL;
+	if (!isOpened())
+		FPluginManager->quit();
 }
 
 void OptionsManager::onAutoSaveTimerTimeout()

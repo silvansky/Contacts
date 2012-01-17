@@ -1,7 +1,5 @@
 #include "logindialog.h"
 
-#include <QDebug>
-
 #include <QDir>
 #include <QFile>
 #include <QPainter>
@@ -197,7 +195,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	FConnectionErrorWidget = new QWidget;
 	FConnectionErrorWidget->setObjectName("connectionErrorWidget");
-	QVBoxLayout * vlayout = new QVBoxLayout;
+	QVBoxLayout *vlayout = new QVBoxLayout;
 	vlayout->setSpacing(4);
 	vlayout->setContentsMargins(0, 0, 0, 0);
 	vlayout->addWidget(ui.lblConnectError);
@@ -216,7 +214,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	FDomainsMenu->setObjectName("domainsMenu");
 	ui.tlbDomain->setMenu(FDomainsMenu);
 
-	ui.cmbDomain->setView(new QListView());
+	ui.cmbDomain->setView(new QListView(ui.cmbDomain));
 	ui.cmbDomain->view()->setItemDelegate(new DomainComboDelegate(ui.cmbDomain->view(), ui.cmbDomain));
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
 	connect(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SIGNAL(stylePreviewReset()), SLOT(onStylePreviewReset()));
@@ -385,6 +383,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 LoginDialog::~LoginDialog()
 {
+	delete FConnectionErrorWidget;
 	LogDetaile(QString("[LoginDialog] Login dialog destroyed"));
 }
 

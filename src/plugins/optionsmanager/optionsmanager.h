@@ -107,8 +107,8 @@ protected slots:
 	void onOptionsDialogDestroyed();
 	void onChangeProfileByAction(bool);
 	void onShowOptionsDialogByAction(bool);
-	void onLoginDialogRejected();
 	void onLoginDialogAccepted();
+	void onLoginDialogRejected();
 	void onAutoSaveTimerTimeout();
 	void onPrivateStorageOpened(const Jid &AStreamJid);
 	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
@@ -133,7 +133,6 @@ private:
 private:
 	Action *FChangeProfileAction;
 	LoginDialog* FLoginDialog;
-	CustomBorderContainer * FLoginDialogBorder;
 private:
 	Action *FShowOptionsDialogAction;
 	QList<IOptionsHolder *> FOptionsHolders;
