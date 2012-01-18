@@ -48,7 +48,7 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &, const QString &)),
 		SLOT(onRegisterError(const QString &, const QString &, const QString &)));
 
-	LogDetaile(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
+	LogDetail(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
 	FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 	if (FRegisterId.isEmpty())
 		abort(FAbortMessage);
@@ -78,7 +78,7 @@ void AddFacebookAccountDialog::checkResult()
 			if (submit.serviceJid.isValid())
 			{
 				FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
-				LogDetaile(QString("[AddFacebookAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
+				LogDetail(QString("[AddFacebookAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
 				FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
 				if (FRegisterId.isEmpty())
 					abort(FAbortMessage);
@@ -100,7 +100,7 @@ void AddFacebookAccountDialog::checkResult()
 			}
 			else
 			{
-				LogDetaile(QString("[AddFacebookAccountDialog][%1] Registration canceled by user").arg(FServiceJid.full()));
+				LogDetail(QString("[AddFacebookAccountDialog][%1] Registration canceled by user").arg(FServiceJid.full()));
 				reject();
 			}
 		}
@@ -140,7 +140,7 @@ void AddFacebookAccountDialog::onRegisterFields(const QString &AId, const IRegis
 		FGateLogin = FGateways->serviceLogin(FPresence->streamJid(),FServiceJid,AFields);
 		if (FGateLogin.isValid)
 		{
-			LogDetaile(QString("[AddFacebookAccountDialog][%1] Loading registration web page").arg(FServiceJid.full()));
+			LogDetail(QString("[AddFacebookAccountDialog][%1] Loading registration web page").arg(FServiceJid.full()));
 			QNetworkRequest request(QUrl("http://"AUTH_HOST"/auth"));
 			request.setRawHeader("Accept-Encoding","identity");
 			ui.wbvView->load(request);
@@ -157,7 +157,7 @@ void AddFacebookAccountDialog::onRegisterSuccess(const QString &AId)
 {
 	if (AId == FRegisterId)
 	{
-		LogDetaile(QString("[AddFacebookAccountDialog][%1] Registration finished successfully, id='%2'").arg(FServiceJid.full(),AId));
+		LogDetail(QString("[AddFacebookAccountDialog][%1] Registration finished successfully, id='%2'").arg(FServiceJid.full(),AId));
 		accept();
 	}
 }

@@ -298,7 +298,7 @@ void LogWarning(const QString &AMessage)
 	Log::writeMessage(Log::Warning, AMessage);
 }
 
-void LogDetaile(const QString &AMessage)
+void LogDetail(const QString &AMessage)
 {
 	Log::writeMessage(Log::Detaile, AMessage);
 }

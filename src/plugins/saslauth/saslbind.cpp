@@ -21,7 +21,7 @@ bool SASLBind::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 			Jid streamJid = AStanza.firstElement().firstChild().toElement().text();
 			if (streamJid.isValid())
 			{
-				LogDetaile(QString("[SASLBind][%1] XMPP session binded with resource='%2'").arg(FXmppStream->streamJid().bare()).arg(streamJid.resource()));
+				LogDetail(QString("[SASLBind][%1] XMPP session binded with resource='%2'").arg(FXmppStream->streamJid().bare()).arg(streamJid.resource()));
 				deleteLater();
 				FXmppStream->setStreamJid(streamJid);
 				emit finished(false);
@@ -55,7 +55,7 @@ bool SASLBind::start(const QDomElement &AElem)
 {
 	if (AElem.tagName() == "bind")
 	{
-		LogDetaile(QString("[SASLBind][%1] Binding XMPP session with resource '%2'").arg(FXmppStream->streamJid().bare()).arg(FXmppStream->streamJid().resource()));
+		LogDetail(QString("[SASLBind][%1] Binding XMPP session with resource '%2'").arg(FXmppStream->streamJid().bare()).arg(FXmppStream->streamJid().resource()));
 		Stanza bind("iq");
 		bind.setType("set").setId("bind");
 		bind.addElement("bind",NS_FEATURE_BIND);

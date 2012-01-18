@@ -49,7 +49,7 @@ private:
 
 void UTILS_EXPORT LogError(const QString &AMessage);
 void UTILS_EXPORT LogWarning(const QString &AMessage);
-void UTILS_EXPORT LogDetaile(const QString &AMessage);
+void UTILS_EXPORT LogDetail(const QString &AMessage);
 void UTILS_EXPORT LogStanza(const QString &AMessage);
 void UTILS_EXPORT LogDebug(const QString &AMessage);
 

@@ -269,7 +269,6 @@ void MacIntegrationPrivate::postGrowlNotify(const QImage & icon, const QString &
 	NSString * nsType = nsStringFromQString(resolveGrowlType(type));
 	NSNumber * nsId = [NSNumber numberWithInt: id];
 	NSImage * nsIcon = nsImageFromQImage(icon);
-	NSLog(@"Notification: %@ | %@", nsTitle, nsText);
 	if ([GrowlApplicationBridge isGrowlRunning])
 	{
 		[GrowlApplicationBridge notifyWithTitle: nsTitle description: nsText notificationName: nsType iconData: [nsIcon TIFFRepresentation] priority: 0 isSticky: NO clickContext: nsId identifier: [NSString stringWithFormat:@"ID%d", id]];

@@ -263,7 +263,7 @@ bool OptionsManager::setCurrentProfile(const QString &AProfile, const QString &A
 	}
 	else if (checkProfilePassword(AProfile, APassword))
 	{
-		LogDetaile(QString("[OptionsManager] Changing current profile to '%1'").arg(AProfile));
+		LogDetail(QString("[OptionsManager] Changing current profile to '%1'").arg(AProfile));
 
 		closeProfile();
 		FProfileLocker = new QtLockedFile(QDir(profilePath(AProfile)).absoluteFilePath(FILE_BLOCKER));
@@ -445,7 +445,7 @@ bool OptionsManager::addProfile(const QString &AProfile, const QString &APasswor
 {
 	if (!profiles().contains(AProfile))
 	{
-		LogDetaile(QString("[OptionsManager] Creating new profile '%1'").arg(AProfile));
+		LogDetail(QString("[OptionsManager] Creating new profile '%1'").arg(AProfile));
 		if (FProfilesDir.exists(AProfile) || FProfilesDir.mkdir(AProfile))
 		{
 			QDomDocument profileDoc;
@@ -494,7 +494,7 @@ bool OptionsManager::removeProfile(const QString &AProfile)
 	QDir profileDir(profilePath(AProfile));
 	if (profileDir.exists())
 	{
-		LogDetaile(QString("[OptionsManager] Removing profile '%1'").arg(AProfile));
+		LogDetail(QString("[OptionsManager] Removing profile '%1'").arg(AProfile));
 
 		if (AProfile == currentProfile())
 			closeProfile();
@@ -654,7 +654,7 @@ void OptionsManager::openProfile(const QString &AProfile, const QString &APasswo
 {
 	if (!isOpened())
 	{
-		LogDetaile(QString("[OptionsManager] Opening profile '%1'").arg(AProfile));
+		LogDetail(QString("[OptionsManager] Opening profile '%1'").arg(AProfile));
 		FProfile = AProfile;
 		FProfileKey = profileKey(AProfile, APassword);
 		Options::setOptions(FProfileOptions, profilePath(AProfile) + "/" DIR_BINARY, FProfileKey);
@@ -684,7 +684,7 @@ void OptionsManager::closeProfile()
 {
 	if (isOpened())
 	{
-		LogDetaile(QString("[OptionsManager] Closing profile '%1'").arg(currentProfile()));
+		LogDetail(QString("[OptionsManager] Closing profile '%1'").arg(currentProfile()));
 		emit profileClosed(currentProfile());
 		FAutoSaveTimer.stop();
 		if (FOptionsDialog)
@@ -713,7 +713,7 @@ bool OptionsManager::saveOptions() const
 	if (isOpened())
 	{
 		QFile file(QDir(profilePath(currentProfile())).filePath(FILE_OPTIONS));
-		LogDetaile(QString("[OptionsManager] Saving options to file '%1'").arg(file.fileName()));
+		LogDetail(QString("[OptionsManager] Saving options to file '%1'").arg(file.fileName()));
 		if (file.open(QIODevice::WriteOnly|QIODevice::Truncate))
 		{
 			file.write(FProfileOptions.toString(2).toUtf8());
@@ -754,7 +754,7 @@ bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 		foreach(QString path, FServerOptions)
 			Options::exportNode(path,root);
 
-		LogDetaile(QString("[OptionsManager] Saving server options"));
+		LogDetail(QString("[OptionsManager] Saving server options"));
 		if (FPrivateStorage->saveData(AStreamJid,root).isEmpty())
 			LogError(QString("[OptionsManager] Failed to save server options"));
 		else
@@ -834,7 +834,7 @@ void OptionsManager::onPrivateStorageOpened(const Jid &AStreamJid)
 	if (Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
 	{
 		if (loadServerOptions(AStreamJid))
-			LogDetaile(QString("[OptionsManager] Loading options from server"));
+			LogDetail(QString("[OptionsManager] Loading options from server"));
 		else
 			LogError(QString("[OptionsManager] Failed to load options from server"));
 	}
@@ -845,7 +845,7 @@ void OptionsManager::onPrivateStorageDataLoaded(const QString &AId, const Jid &A
 	Q_UNUSED(AId); Q_UNUSED(AStreamJid);
 	if (AElement.tagName()==PST_OPTIONS && AElement.namespaceURI()==PSN_OPTIONS)
 	{
-		LogDetaile(QString("[OptionsManager] Importing options from server"));
+		LogDetail(QString("[OptionsManager] Importing options from server"));
 		foreach(QString path, FServerOptions)
 			Options::importNode(path,AElement);
 	}

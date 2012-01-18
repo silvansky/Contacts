@@ -378,13 +378,13 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	setConnectEnabled(true);
 	onLoginOrPasswordTextChanged();
 
-	LogDetaile(QString("[LoginDialog] Login dialog created"));
+	LogDetail(QString("[LoginDialog] Login dialog created"));
 }
 
 LoginDialog::~LoginDialog()
 {
 	delete FConnectionErrorWidget;
-	LogDetaile(QString("[LoginDialog] Login dialog destroyed"));
+	LogDetail(QString("[LoginDialog] Login dialog destroyed"));
 }
 
 void LoginDialog::loadLastProfile()
@@ -722,7 +722,7 @@ bool LoginDialog::tryNextConnectionSettings()
 				{
 					if (FConnectionManager && FConnectionManager->proxyList().contains(IEXPLORER_PROXY_REF_UUID))
 					{
-						LogDetaile(QString("[LoginDialog] Trying IExplorer connection proxy"));
+						LogDetail(QString("[LoginDialog] Trying IExplorer connection proxy"));
 						IConnectionProxy proxy = FConnectionManager->proxyById(IEXPLORER_PROXY_REF_UUID);
 						defConnection->setProxy(proxy.proxy);
 						return true;
@@ -733,7 +733,7 @@ bool LoginDialog::tryNextConnectionSettings()
 				{
 					if (FConnectionManager && FConnectionManager->proxyList().contains(FIREFOX_PROXY_REF_UUID))
 					{
-						LogDetaile(QString("[LoginDialog] Trying FireFox connection proxy"));
+						LogDetail(QString("[LoginDialog] Trying FireFox connection proxy"));
 						IConnectionProxy proxy = FConnectionManager->proxyById(FIREFOX_PROXY_REF_UUID);
 						defConnection->setProxy(proxy.proxy);
 						return true;
@@ -742,7 +742,7 @@ bool LoginDialog::tryNextConnectionSettings()
 				}
 				else
 				{
-					LogDetaile(QString("[LoginDialog] Reset connection proxy to default"));
+					LogDetail(QString("[LoginDialog] Reset connection proxy to default"));
 					FConnectionSettings = CS_DEFAULT;
 					connection->ownerPlugin()->loadConnectionSettings(connection,account->optionsNode().node("connection",connection->ownerPlugin()->pluginId()));
 				}
@@ -975,7 +975,7 @@ void LoginDialog::onConnectClicked()
 		setConnectEnabled(false);
 		QApplication::processEvents();
 
-		LogDetaile(QString("[LoginDialog] Starting login"));
+		LogDetail(QString("[LoginDialog] Starting login"));
 
 		Jid streamJid = currentStreamJid();
 		QString profile = Jid::encode(streamJid.pBare());
@@ -1046,7 +1046,7 @@ void LoginDialog::onConnectClicked()
 		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
 		if (account && account->isActive())
 		{
-			LogDetaile(QString("[LoginDialog] Terminating login"));
+			LogDetail(QString("[LoginDialog] Terminating login"));
 			FAbortTimer.start(ABORT_TIMEOUT);
 			account->xmppStream()->close();
 		}

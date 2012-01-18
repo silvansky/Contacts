@@ -133,7 +133,7 @@ QString PrivateStorage::saveData(const Jid &AStreamJid, const QDomElement &AElem
 		elem.appendChild(AElement.cloneNode(true));
 		if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
 		{
-			LogDetaile(QString("[PrivateStorage] Private data '%1' save request sent").arg(AElement.namespaceURI()));
+			LogDetail(QString("[PrivateStorage] Private data '%1' save request sent").arg(AElement.namespaceURI()));
 			FSaveRequests.insert(stanza.id(),insertElement(AStreamJid,AElement));
 			return stanza.id();
 		}
@@ -155,7 +155,7 @@ QString PrivateStorage::loadData(const Jid &AStreamJid, const QString &ATagName,
 		QDomElement dataElem = elem.appendChild(stanza.createElement(ATagName,ANamespace)).toElement();
 		if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
 		{
-			LogDetaile(QString("[PrivateStorage] Private data '%1' load request sent").arg(ANamespace));
+			LogDetail(QString("[PrivateStorage] Private data '%1' load request sent").arg(ANamespace));
 			FLoadRequests.insert(stanza.id(),dataElem);
 			return stanza.id();
 		}
@@ -177,7 +177,7 @@ QString PrivateStorage::removeData(const Jid &AStreamJid, const QString &ATagNam
 		elem = elem.appendChild(stanza.createElement(ATagName,ANamespace)).toElement();
 		if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
 		{
-			LogDetaile(QString("[PrivateStorage] Private data '%1' remove request sent").arg(ANamespace));
+			LogDetail(QString("[PrivateStorage] Private data '%1' remove request sent").arg(ANamespace));
 			QDomElement dataElem = getData(AStreamJid,ATagName,ANamespace);
 			if (dataElem.isNull())
 				dataElem = insertElement(AStreamJid,elem);

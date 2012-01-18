@@ -210,7 +210,7 @@ IConnection *ConnectionManager::updateAccountConnection(IAccount *AAccount) cons
 		{
 			connection = plugin->newConnection(aoptions.node("connection",pluginId),AAccount->xmppStream()->instance());
 			AAccount->xmppStream()->setConnection(connection);
-			LogDetaile(QString("[ConnectionManager] Inserted IConnection from plugin '%1' to XMPP stream '%2'").arg(plugin->pluginName(),AAccount->streamJid().full()));
+			LogDetail(QString("[ConnectionManager] Inserted IConnection from plugin '%1' to XMPP stream '%2'").arg(plugin->pluginName(),AAccount->streamJid().full()));
 		}
 		return connection;
 	}
@@ -309,7 +309,7 @@ void ConnectionManager::onOptionsOpened()
 					ffProxy.proxy.setPort(regexp.cap(1).trimmed().toInt());
 
 				setProxy(FIREFOX_PROXY_REF_UUID,ffProxy);
-				LogDetaile(QString("[ConnectionManager] Inserted FireFox connection proxy, host='%1', port='%2'").arg(ffProxy.proxy.hostName()).arg(ffProxy.proxy.port()));
+				LogDetail(QString("[ConnectionManager] Inserted FireFox connection proxy, host='%1', port='%2'").arg(ffProxy.proxy.hostName()).arg(ffProxy.proxy.port()));
 			}
 		}
 	}

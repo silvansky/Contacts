@@ -118,13 +118,13 @@ void MessageCarbons::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 	{
 		if (FEnableRequests.contains(AStanza.id()))
 		{
-			LogDetaile(QString("[MessageCarbons] Message Carbons enabled for '%1'").arg(AStreamJid.full()));
+			LogDetail(QString("[MessageCarbons] Message Carbons enabled for '%1'").arg(AStreamJid.full()));
 			FEnabled[AStreamJid] = true;
 			emit enableChanged(AStreamJid,true);
 		}
 		else if(FDisableRequests.contains(AStanza.id()))
 		{
-			LogDetaile(QString("[MessageCarbons] Message Carbons disabled for '%1'").arg(AStreamJid.full()));
+			LogDetail(QString("[MessageCarbons] Message Carbons disabled for '%1'").arg(AStreamJid.full()));
 			FEnabled[AStreamJid] = false;
 			emit enableChanged(AStreamJid,false);
 		}
@@ -163,12 +163,12 @@ bool MessageCarbons::setEnabled(const Jid &AStreamJid, bool AEnable)
 				if (AEnable)
 				{
 					FEnableRequests.append(request.id());
-					LogDetaile(QString("[MessageCarbons] Changing Message Carbons state for '%1' to enabled").arg(AStreamJid.full()));
+					LogDetail(QString("[MessageCarbons] Changing Message Carbons state for '%1' to enabled").arg(AStreamJid.full()));
 				}
 				else
 				{
 					FDisableRequests.append(request.id());
-					LogDetaile(QString("[MessageCarbons] Changing Message Carbons state for '%1' to disabled").arg(AStreamJid.full()));
+					LogDetail(QString("[MessageCarbons] Changing Message Carbons state for '%1' to disabled").arg(AStreamJid.full()));
 				}
 				return true;
 			}

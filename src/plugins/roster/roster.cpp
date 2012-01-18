@@ -26,14 +26,14 @@ Roster::Roster(IXmppStream *AXmppStream, IStanzaProcessor *AStanzaProcessor) : Q
 	connect(FXmppStream->instance(),SIGNAL(jidChanged(const Jid &)),
 		SLOT(onStreamJidChanged(const Jid &)));
 
-	LogDetaile(QString("[Roster][%1] Roster created").arg(streamJid().bare()));
+	LogDetail(QString("[Roster][%1] Roster created").arg(streamJid().bare()));
 }
 
 Roster::~Roster()
 {
 	clearItems();
 	removeStanzaHandlers();
-	LogDetaile(QString("[Roster][%1] Roster destroyed").arg(streamJid().bare()));
+	LogDetail(QString("[Roster][%1] Roster destroyed").arg(streamJid().bare()));
 }
 
 bool Roster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
@@ -55,27 +55,27 @@ bool Roster::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASta
 		QString status = AStanza.firstElement("status").text();
 		if (AStanza.type() == SUBSCRIPTION_SUBSCRIBE)
 		{
-			LogDetaile(QString("[Roster][%1] Subscription presence received from '%2', type='%3'").arg(streamJid().bare(),contactJid.full(),AStanza.type()));
+			LogDetail(QString("[Roster][%1] Subscription presence received from '%2', type='%3'").arg(streamJid().bare(),contactJid.full(),AStanza.type()));
 			FSubscriptionRequests += contactJid.bare();
 			emit subscriptionReceived(contactJid,IRoster::Subscribe,status);
 			AAccept = true;
 		}
 		else if (AStanza.type() == SUBSCRIPTION_SUBSCRIBED)
 		{
-			LogDetaile(QString("[Roster][%1] Subscription presence received from '%2', type='%3'").arg(streamJid().bare(),contactJid.full(),AStanza.type()));
+			LogDetail(QString("[Roster][%1] Subscription presence received from '%2', type='%3'").arg(streamJid().bare(),contactJid.full(),AStanza.type()));
 			emit subscriptionReceived(contactJid,IRoster::Subscribed,status);
 			AAccept = true;
 		}
 		else if (AStanza.type() == SUBSCRIPTION_UNSUBSCRIBE)
 		{
-			LogDetaile(QString("[Roster][%1] Subscription presence received from '%2', type='%3'").arg(streamJid().bare(),contactJid.full(),AStanza.type()));
+			LogDetail(QString("[Roster][%1] Subscription presence received from '%2', type='%3'").arg(streamJid().bare(),contactJid.full(),AStanza.type()));
 			FSubscriptionRequests -= contactJid.bare();
 			emit subscriptionReceived(contactJid,IRoster::Unsubscribe,status);
 			AAccept = true;
 		}
 		else if (AStanza.type() == SUBSCRIPTION_UNSUBSCRIBED)
 		{
-			LogDetaile(QString("[Roster][%1] Subscription presence received from '%2', type='%3'").arg(streamJid().bare(),contactJid.full(),AStanza.type()));
+			LogDetail(QString("[Roster][%1] Subscription presence received from '%2', type='%3'").arg(streamJid().bare(),contactJid.full(),AStanza.type()));
 			emit subscriptionReceived(contactJid,IRoster::Unsubscribed,status);
 			AAccept = true;
 		}
@@ -99,7 +99,7 @@ void Roster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				QDomElement elem = delim.addElement("query",NS_JABBER_PRIVATE);
 				elem.appendChild(delim.createElement("roster",NS_GROUP_DELIMITER)).appendChild(delim.createTextNode(groupDelim));
 				FStanzaProcessor->sendStanzaOut(AStreamJid,delim);
-				LogDetaile(QString("[Roster][%1] Saving group delimiter as '%2'").arg(streamJid().bare(),groupDelim));
+				LogDetail(QString("[Roster][%1] Saving group delimiter as '%2'").arg(streamJid().bare(),groupDelim));
 			}
 		}
 		else
@@ -113,7 +113,7 @@ void Roster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 	{
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[Roster][%1] Initial roster request received").arg(streamJid().bare()));
+			LogDetail(QString("[Roster][%1] Initial roster request received").arg(streamJid().bare()));
 			processItemsElement(AStanza.firstElement("query",NS_JABBER_ROSTER),true);
 			FOpened = true;
 			emit opened();
@@ -228,7 +228,7 @@ void Roster::setItem(const Jid &AItemJid, const QString &AName, const QSet<QStri
 				itemElem.appendChild(query.createElement("group")).appendChild(query.createTextNode(groupName));
 
 		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(), query))
-			LogDetaile(QString("[Roster][%1] Change roster item request sent, jid='%2'").arg(streamJid().bare(),AItemJid.bare()));
+			LogDetail(QString("[Roster][%1] Change roster item request sent, jid='%2'").arg(streamJid().bare(),AItemJid.bare()));
 		else
 			LogError(QString("[Roster][%1] Failed to send change roster item request '%2'").arg(streamJid().bare(),AItemJid.bare()));
 	}
@@ -254,7 +254,7 @@ void Roster::removeItem(const Jid &AItemJid)
 		itemElem.setAttribute("subscription",SUBSCRIPTION_REMOVE);
 
 		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),query))
-			LogDetaile(QString("[Roster][%1] Remove roster item request sent '%2'").arg(streamJid().bare(),AItemJid.bare()));
+			LogDetail(QString("[Roster][%1] Remove roster item request sent '%2'").arg(streamJid().bare(),AItemJid.bare()));
 		else
 			LogError(QString("[Roster][%1] Failed to send remove roster item request '%2'").arg(streamJid().bare(),AItemJid.bare()));
 	}
@@ -292,7 +292,7 @@ void Roster::saveRosterItems(const QString &AFileName) const
 	{
 		rosterFile.write(xml.toByteArray());
 		rosterFile.close();
-		LogDetaile(QString("[Roster][%1] Roster saved to file '%2'").arg(streamJid().bare(),AFileName));
+		LogDetail(QString("[Roster][%1] Roster saved to file '%2'").arg(streamJid().bare(),AFileName));
 	}
 	else
 	{
@@ -313,7 +313,7 @@ void Roster::loadRosterItems(const QString &AFileName)
 				QDomElement itemsElem = xml.firstChildElement("roster");
 				if (!itemsElem.isNull() && itemsElem.attribute("streamJid")==streamJid().pBare())
 				{
-					LogDetaile(QString("[Roster][%1] Loading roster from file '%2'").arg(streamJid().bare(),AFileName));
+					LogDetail(QString("[Roster][%1] Loading roster from file '%2'").arg(streamJid().bare(),AFileName));
 					setGroupDelimiter(itemsElem.attribute("groupDelimiter"));
 					processItemsElement(itemsElem,true);
 				}
@@ -350,7 +350,7 @@ void Roster::sendSubscription(const Jid &AItemJid, int ASubsType, const QString 
 		{
 			if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribed)
 				FSubscriptionRequests -= AItemJid.bare();
-			LogDetaile(QString("[Roster][%1] Subscription presence sent to '%2', type='%3'").arg(streamJid().bare(),AItemJid.bare(),type));
+			LogDetail(QString("[Roster][%1] Subscription presence sent to '%2', type='%3'").arg(streamJid().bare(),AItemJid.bare(),type));
 			emit subscriptionSent(AItemJid.bare(),ASubsType,AText);
 		}
 		else
@@ -580,7 +580,7 @@ void Roster::requestGroupDelimiter()
 	if (FStanzaProcessor->sendStanzaRequest(this,FXmppStream->streamJid(),query,ROSTER_TIMEOUT))
 	{
 		FDelimRequestId = query.id();
-		LogDetaile(QString("[Roster][%1] Roster delimiter request sent").arg(streamJid().bare()));
+		LogDetail(QString("[Roster][%1] Roster delimiter request sent").arg(streamJid().bare()));
 	}
 	else
 	{
@@ -593,7 +593,7 @@ void Roster::setGroupDelimiter(const QString &ADelimiter)
 	if (FGroupDelim != ADelimiter)
 	{
 		clearItems();
-		LogDetaile(QString("[Roster][%1] Group delimiter set to '%2'").arg(streamJid().bare(),ADelimiter));
+		LogDetail(QString("[Roster][%1] Group delimiter set to '%2'").arg(streamJid().bare(),ADelimiter));
 	}
 	FGroupDelim = ADelimiter;
 }
@@ -611,7 +611,7 @@ void Roster::requestRosterItems()
 	if (FStanzaProcessor->sendStanzaRequest(this,FXmppStream->streamJid(),query,ROSTER_TIMEOUT))
 	{
 		FOpenRequestId = query.id();
-		LogDetaile(QString("[Roster][%1] Initial roster request sent").arg(streamJid().bare()));
+		LogDetail(QString("[Roster][%1] Initial roster request sent").arg(streamJid().bare()));
 	}
 	else
 	{

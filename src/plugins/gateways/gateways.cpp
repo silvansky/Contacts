@@ -207,7 +207,7 @@ bool Gateways::initObjects()
 {
 	static const QString JabberContactPattern = "^"JID_NODE_PATTERN"@"JID_DOMAIN_PATTERN"$";
 
-	// !!Последовательность добавления дескрипторов имеет значение!!
+	// !!    !!
 	IGateServiceDescriptor sms;
 	sms.id = GSID_SMS;
 	sms.needGate = true;
@@ -419,7 +419,7 @@ bool Gateways::initObjects()
 	jabber.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(jabber);
 
-	// Почта должна быть после джаббера т.к. их идентификаторы идентичны
+	//      ..   
 	IGateServiceDescriptor mail;
 	mail.id = GSID_MAIL;
 	mail.needGate = true;
@@ -487,7 +487,7 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 	{
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[Gateways] Gateway prompt received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
+			LogDetail(QString("[Gateways] Gateway prompt received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
 			QString desc = AStanza.firstElement("query",NS_JABBER_GATEWAY).firstChildElement("desc").text();
 			QString prompt = AStanza.firstElement("query",NS_JABBER_GATEWAY).firstChildElement("prompt").text();
 			emit promptReceived(AStanza.id(),desc,prompt);
@@ -504,7 +504,7 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 	{
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[Gateways] User JID received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
+			LogDetail(QString("[Gateways] User JID received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
 			Jid userJid = AStanza.firstElement("query",NS_JABBER_GATEWAY).firstChildElement("jid").text();
 			emit userJidReceived(AStanza.id(),userJid);
 		}
@@ -567,12 +567,12 @@ void Gateways::sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bo
 	{
 		if (ALogIn)
 		{
-			LogDetaile(QString("[Gateways] Sending Log-In presence to service '%1'").arg(AServiceJid.full()));
+			LogDetail(QString("[Gateways] Sending Log-In presence to service '%1'").arg(AServiceJid.full()));
 			presence->sendPresence(AServiceJid,presence->show(),presence->status(),presence->priority());
 		}
 		else
 		{
-			LogDetaile(QString("[Gateways] Sending Log-Out presence to service '%1'").arg(AServiceJid.full()));
+			LogDetail(QString("[Gateways] Sending Log-Out presence to service '%1'").arg(AServiceJid.full()));
 			presence->sendPresence(AServiceJid,IPresence::Offline,tr("Log Out"),0);
 		}
 	}
@@ -745,7 +745,7 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 	QString contact = AContact.trimmed();
 	if (!contact.isEmpty())
 	{
-		// Очистим номер от мусора
+		//    
 		if (ADescriptor.id == GSID_SMS)
 		{
 			QString number;
@@ -785,13 +785,13 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 		}
 		else
 		{
-			// Добавим домен, если не указан
+			//  ,   
 			if (AComplete && !ADescriptor.domainSeparator.isEmpty() && !contact.contains(ADescriptor.domainSeparator) && !ADescriptor.domains.isEmpty())
 			{
 				contact += ADescriptor.domainSeparator + ADescriptor.domains.value(0);
 			}
 
-			// Поддержка Jid Escaping
+			//  Jid Escaping
 			if (ADescriptor.type == "xmpp")
 			{
 				contact = Jid(contact).eFull();
@@ -805,7 +805,7 @@ QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADes
 {
 	QString errMessage;
 
-	// Проверки на правильность ввода
+	//    
 	if (ADescriptor.id == GSID_SMS)
 	{
 		bool validChars = true;
@@ -826,7 +826,7 @@ QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADes
 		}
 	}
 
-	// Проверка на соответствие контакта дескриптору
+	//     
 	QRegExp availRegExp(ADescriptor.availContactPattern);
 	availRegExp.setCaseSensitivity(Qt::CaseInsensitive);
 	if (errMessage.isEmpty() && !availRegExp.exactMatch(AContact))
@@ -1070,7 +1070,7 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
-		LogDetaile(QString("[Gateways] Changing service '%1' state to enabled='%2'").arg(AServiceJid.full()).arg(AEnabled));
+		LogDetail(QString("[Gateways] Changing service '%1' state to enabled='%2'").arg(AServiceJid.full()).arg(AEnabled));
 		if (AEnabled)
 		{
 			if (FRosterChanger)
@@ -1099,7 +1099,7 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 	if (roster && presence && FRosterChanger && presence->isOpen() && AServiceFrom.isValid() && AServiceTo.isValid() && AServiceFrom.pDomain()!=AServiceTo.pDomain())
 	{
-		LogDetaile(QString("[Gateways] Changing service from '%1' to '%2'").arg(AServiceFrom.full()).arg(AServiceTo.full()));
+		LogDetail(QString("[Gateways] Changing service from '%1' to '%2'").arg(AServiceFrom.full()).arg(AServiceTo.full()));
 		
 		IRosterItem ritemOld = roster->rosterItem(AServiceFrom);
 		IRosterItem ritemNew = roster->rosterItem(AServiceTo);
@@ -1153,7 +1153,7 @@ QString Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, b
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (FRegistration && roster && roster->isOpen())
 	{
-		LogDetaile(QString("[Gateways] Removing service '%1', with_contacts='%2'").arg(AServiceJid.full()).arg(AWithContacts));
+		LogDetail(QString("[Gateways] Removing service '%1', with_contacts='%2'").arg(AServiceJid.full()).arg(AWithContacts));
 
 		if (FRosterChanger)
 			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
@@ -1187,7 +1187,7 @@ QString Gateways::sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid
 {
 	if (FRegistration)
 	{
-		LogDetaile(QString("[Gateways] Sending login request to '%1'").arg(AServiceJid.full()));
+		LogDetail(QString("[Gateways] Sending login request to '%1'").arg(AServiceJid.full()));
 		QString requestId = FRegistration->sendRegiterRequest(AStreamJid,AServiceJid);
 		if (!requestId.isEmpty())
 		{
@@ -1205,7 +1205,7 @@ QString Gateways::sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJi
 	request.addElement("query",NS_JABBER_GATEWAY);
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,GATEWAY_TIMEOUT))
 	{
-		LogDetaile(QString("[Gateways] Gateway prompt request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
+		LogDetail(QString("[Gateways] Gateway prompt request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
 		FPromptRequests.append(request.id());
 		return request.id();
 	}
@@ -1220,7 +1220,7 @@ QString Gateways::sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJ
 	elem.appendChild(request.createElement("prompt")).appendChild(request.createTextNode(AContactID));
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,GATEWAY_TIMEOUT))
 	{
-		LogDetaile(QString("[Gateways] User JID request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
+		LogDetail(QString("[Gateways] User JID request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
 		FUserJidRequests.append(request.id());
 		return request.id();
 	}
@@ -1283,7 +1283,7 @@ void Gateways::startAutoLogin(const Jid &AStreamJid)
 				IGateServiceDescriptor descriptor = findGateDescriptor(FDiscovery->discoInfo(AStreamJid,ditem.itemJid));
 				if (!descriptor.id.isEmpty() && descriptor.autoLogin)
 				{
-					LogDetaile(QString("[Gateways] Sending auto login register request to '%1'").arg(ditem.itemJid.full()));
+					LogDetail(QString("[Gateways] Sending auto login register request to '%1'").arg(ditem.itemJid.full()));
 					QString requestId = FRegistration->sendRegiterRequest(AStreamJid,ditem.itemJid);
 					if (!requestId.isEmpty())
 					{
@@ -1451,7 +1451,7 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 			}
 			if (FMainWindowPlugin && !FConflictNotices.value(APresence->streamJid()).contains(AItem.itemJid))
 			{
-				LogDetaile(QString("[Gateways] Sending conflict login request to '%1'").arg(AItem.itemJid.full()));
+				LogDetail(QString("[Gateways] Sending conflict login request to '%1'").arg(AItem.itemJid.full()));
 				QString requestId = FRegistration->sendRegiterRequest(APresence->streamJid(),AItem.itemJid);
 				if (!requestId.isEmpty())
 					FConflictLoginRequests.insert(requestId,APresence->streamJid());
@@ -1579,7 +1579,7 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			QString login = gslogin.login;
 			if (!gslogin.domain.isEmpty())
 				login += "@" + gslogin.domain;
-			LogDetaile(QString("[Gateways] Gateway login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
+			LogDetail(QString("[Gateways] Gateway login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
 			emit loginReceived(AId, login);
 		}
 		else
@@ -1590,7 +1590,7 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 	}
 	else if (FAutoLoginRequests.contains(AId))
 	{
-		LogDetaile(QString("[Gateways] Auto login register fields received from '%1' id='%2' registered='%3'").arg(AFields.serviceJid.full(),AId).arg(AFields.registered));
+		LogDetail(QString("[Gateways] Auto login register fields received from '%1' id='%2' registered='%3'").arg(AFields.serviceJid.full(),AId).arg(AFields.registered));
 		Jid streamJid = FAutoLoginRequests.take(AId).first;
 		if (!AFields.registered)
 		{
@@ -1600,7 +1600,7 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			submit.serviceJid = AFields.serviceJid;
 			submit.username = streamJid.pBare();
 
-			LogDetaile(QString("[Gateways] Sending auto login register submit to '%1'").arg(submit.serviceJid.full()));
+			LogDetail(QString("[Gateways] Sending auto login register submit to '%1'").arg(submit.serviceJid.full()));
 			QString submitId = FRegistration->sendSubmit(streamJid,submit);
 			if (!submitId.isEmpty())
 				FAutoLoginRequests.insert(submitId,qMakePair<Jid,Jid>(streamJid,AFields.serviceJid));
@@ -1619,7 +1619,7 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			QString login = gslogin.login;
 			if (!gslogin.domain.isEmpty())
 				login += "@" + gslogin.domain;
-			LogDetaile(QString("[Gateways] Conflict notice login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
+			LogDetail(QString("[Gateways] Conflict notice login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
 			insertConflictNotice(streamJid,AFields.serviceJid,login);
 		}
 		else
@@ -1634,13 +1634,13 @@ void Gateways::onRegisterSuccess(const QString &AId)
 	if (FAutoLoginRequests.contains(AId))
 	{
 		QPair<Jid,Jid> service = FAutoLoginRequests.take(AId);
-		LogDetaile(QString("[Gateways] Auto login registration finished on '%1' id='%2'").arg(service.second.full(),AId));
+		LogDetail(QString("[Gateways] Auto login registration finished on '%1' id='%2'").arg(service.second.full(),AId));
 		setServiceEnabled(service.first,service.second,true);
 	}
 	else if (FRemoveRequests.contains(AId))
 	{
 		RemoveRequestParams params = FRemoveRequests.take(AId);
-		LogDetaile(QString("[Gateways] Registration removed on '%1' id='%2'").arg(params.serviceJid.full(),AId));
+		LogDetail(QString("[Gateways] Registration removed on '%1' id='%2'").arg(params.serviceJid.full(),AId));
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(params.streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
@@ -1651,7 +1651,7 @@ void Gateways::onRegisterSuccess(const QString &AId)
 					if (ritem.itemJid!=params.serviceJid && ritem.itemJid.pDomain()==params.serviceJid.pDomain())
 						roster->removeItem(ritem.itemJid);
 			}
-			LogDetaile(QString("[Gateways] Service '%1' removed from roster id='%2'").arg(params.serviceJid.full(),AId));
+			LogDetail(QString("[Gateways] Service '%1' removed from roster id='%2'").arg(params.serviceJid.full(),AId));
 			emit serviceRemoved(AId);
 		}
 		else

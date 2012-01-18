@@ -158,7 +158,7 @@ void VCardPlugin::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStan
 		QDomElement elem = AStanza.firstElement(VCARD_TAGNAME,NS_VCARD_TEMP);
 		if (AStanza.type()=="result")
 		{
-			LogDetaile(QString("[VCardPlugin] Received vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
+			LogDetail(QString("[VCardPlugin] Received vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
 			saveVCardFile(elem,fromJid);
 			emit vcardReceived(fromJid);
 		}
@@ -175,7 +175,7 @@ void VCardPlugin::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStan
 		Stanza stanza = FVCardPublishStanza.take(AStanza.id());
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[VCardPlugin] Published vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
+			LogDetail(QString("[VCardPlugin] Published vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
 			saveVCardFile(stanza.element().firstChildElement(VCARD_TAGNAME),fromJid);
 			emit vcardPublished(fromJid);
 		}
@@ -209,7 +209,7 @@ void VCardPlugin::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStan
 				}
 			}
 			saveVCardFile(elem,fromJid);
-			LogDetaile(QString("[VCardPlugin] Received avatrs of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
+			LogDetail(QString("[VCardPlugin] Received avatrs of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
 			emit avatarsRecieved(fromJid);
 		}
 		else if (AStanza.type()=="error")
@@ -293,7 +293,7 @@ bool VCardPlugin::requestVCard(const Jid &AStreamJid, const Jid &AContactJid)
 			request.addElement(VCARD_TAGNAME,NS_VCARD_TEMP);
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,VCARD_TIMEOUT))
 			{
-				LogDetaile(QString("[VCardPlugin] Load vCard of '%1' request sent, id='%2'").arg(AContactJid.full(),request.id()));
+				LogDetail(QString("[VCardPlugin] Load vCard of '%1' request sent, id='%2'").arg(AContactJid.full(),request.id()));
 				FVCardRequestId.insert(request.id(),AContactJid);
 				return true;
 			}
@@ -322,7 +322,7 @@ bool VCardPlugin::publishVCard(IVCard *AVCard, const Jid &AStreamJid)
 			removeEmptyChildElements(elem);
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,publish,VCARD_TIMEOUT))
 			{
-				LogDetaile(QString("[VCardPlugin] Publish vCard of '%1' request sent, id='%2'").arg(AStreamJid.bare(),publish.id()));
+				LogDetail(QString("[VCardPlugin] Publish vCard of '%1' request sent, id='%2'").arg(AStreamJid.bare(),publish.id()));
 				FVCardPublishId.insert(publish.id(),AStreamJid.pBare());
 				FVCardPublishStanza.insert(publish.id(),publish);
 				return true;
@@ -355,7 +355,7 @@ bool VCardPlugin::requestAvatars(const Jid &AStreamJid, const Jid &AContactJid)
 				request.addElement("query", NS_RAMBLER_AVATAR);
 				if (FStanzaProcessor->sendStanzaRequest(this, AStreamJid, request, AVATARS_TIMEOUT))
 				{
-					LogDetaile(QString("[VCardPlugin] Load avatars of '%1' request sent, id='%2'").arg(AStreamJid.bare(),request.id()));
+					LogDetail(QString("[VCardPlugin] Load avatars of '%1' request sent, id='%2'").arg(AStreamJid.bare(),request.id()));
 					FAvatarsRequestId.insert(request.id(),AContactJid);
 					return true;
 				}

@@ -20,7 +20,7 @@ bool IqAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrder)
 		FXmppStream->removeXmppStanzaHandler(this,XSHO_XMPP_FEATURE);
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[IqAuth] Iq authorization finished on '%1'").arg(FXmppStream->streamJid().full()));
+			LogDetail(QString("[IqAuth] Iq authorization finished on '%1'").arg(FXmppStream->streamJid().full()));
 			deleteLater();
 			emit finished(false);
 		}
@@ -73,7 +73,7 @@ bool IqAuth::start(const QDomElement &AElem)
 
 		query.appendChild(auth.createElement("resource")).appendChild(auth.createTextNode(FXmppStream->streamJid().resource()));
 
-		LogDetaile(QString("[IqAuth] Iq authorization started on '%1'").arg(FXmppStream->streamJid().full()));
+		LogDetail(QString("[IqAuth] Iq authorization started on '%1'").arg(FXmppStream->streamJid().full()));
 		FXmppStream->insertXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
 		FXmppStream->sendStanza(auth);
 		return true;

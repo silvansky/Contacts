@@ -162,7 +162,7 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 			result.beforeId = elem.firstChildElement("id").text();
 			result.beforeTime = DateTime(elem.firstChildElement("ctime").text()).toLocal();
 
-			LogDetaile(QString("[RamblerHistory] Loaded %1 history messages with '%2', id='%3'").arg(result.messages.count()).arg(result.with.full(),AStanza.id()));
+			LogDetail(QString("[RamblerHistory] Loaded %1 history messages with '%2', id='%3'").arg(result.messages.count()).arg(result.with.full(),AStanza.id()));
 			emit serverMessagesLoaded(AStanza.id(), result);
 		}
 		FRetrieveRequests.remove(AStanza.id());
@@ -183,7 +183,7 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 
 	if (AStanza.type() == "result")
 	{
-		LogDetaile(QString("[RamblerHistory] Request id='%1' to '%2' precessed successfully").arg(AStanza.id(),AStreamJid.full()));
+		LogDetail(QString("[RamblerHistory] Request id='%1' to '%2' precessed successfully").arg(AStanza.id(),AStreamJid.full()));
 		emit requestCompleted(AStanza.id());
 	}
 	else
@@ -302,7 +302,7 @@ QString RamblerHistory::setHistoryPrefs(const Jid &AStreamJid, const IHistoryStr
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,save,ARCHIVE_TIMEOUT))
 			{
 				FPrefsSaveRequests.insert(save.id(),AStreamJid);
-				LogDetaile(QString("[RamblerHistory] Save history preferences request sent to '%1', id='%2'").arg(AStreamJid.full(),save.id()));
+				LogDetail(QString("[RamblerHistory] Save history preferences request sent to '%1', id='%2'").arg(AStreamJid.full(),save.id()));
 				return save.id();
 			}
 			else
@@ -333,7 +333,7 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IHistory
 		}
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,retrieve,ARCHIVE_TIMEOUT))
 		{
-			LogDetaile(QString("[RamblerHistory] Load history with '%1' request sent to '%2', id='%3'").arg(ARetrieve.with.full(),AStreamJid.full(),retrieve.id()));
+			LogDetail(QString("[RamblerHistory] Load history with '%1' request sent to '%2', id='%3'").arg(ARetrieve.with.full(),AStreamJid.full(),retrieve.id()));
 			FRetrieveRequests.insert(retrieve.id(),ARetrieve.with);
 			return retrieve.id();
 		}
@@ -374,7 +374,7 @@ QString RamblerHistory::loadServerPrefs(const Jid &AStreamJid)
 	if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,load,ARCHIVE_TIMEOUT))
 	{
 		FPrefsLoadRequests.insert(load.id(),AStreamJid);
-		LogDetaile(QString("[RamblerHistory] Load history preferences request sent to '%1', id='%2'").arg(AStreamJid.full(),load.id()));
+		LogDetail(QString("[RamblerHistory] Load history preferences request sent to '%1', id='%2'").arg(AStreamJid.full(),load.id()));
 		return load.id();
 	}
 	else

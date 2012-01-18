@@ -78,7 +78,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());
 		ui.tlbDomains->setVisible(!FGateLabel.domains.isEmpty());
 
-		LogDetaile(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
+		LogDetail(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
 		FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 		if (FRegisterId.isEmpty())
 			abort(FAbortMessage);
@@ -223,7 +223,7 @@ void AddLegacyAccountDialog::onOkClicked()
 	if (submit.serviceJid.isValid())
 	{
 		FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
-		LogDetaile(QString("[AddLegacyAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
+		LogDetail(QString("[AddLegacyAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
 		FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
 		if (FRegisterId.isEmpty())
 			abort(FAbortMessage);
@@ -239,7 +239,7 @@ void AddLegacyAccountDialog::onOkClicked()
 
 void AddLegacyAccountDialog::onCancelClicked()
 {
-	LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration canceled by user").arg(FServiceJid.full()));
+	LogDetail(QString("[AddLegacyAccountDialog][%1] Registration canceled by user").arg(FServiceJid.full()));
 	reject();
 }
 
@@ -260,7 +260,7 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 		FGateLogin = FGateways->serviceLogin(FPresence->streamJid(),FServiceJid,AFields);
 		if (FGateLogin.isValid)
 		{
-			LogDetaile(QString("[AddLegacyAccountDialog][%1] Received registration fields, id='%2'").arg(AFields.serviceJid.full(),AId));
+			LogDetail(QString("[AddLegacyAccountDialog][%1] Received registration fields, id='%2'").arg(AFields.serviceJid.full(),AId));
 			if (FGateLabel.domains.isEmpty())
 			{
 				if (FGateLogin.domain.isEmpty())
@@ -304,7 +304,7 @@ void AddLegacyAccountDialog::onRegisterSuccess(const QString &AId)
 {
 	if (AId == FRegisterId)
 	{
-		LogDetaile(QString("[AddLegacyAccountDialog][%1] Registration finished successfully, id='%2'").arg(FServiceJid.full(),AId));
+		LogDetail(QString("[AddLegacyAccountDialog][%1] Registration finished successfully, id='%2'").arg(FServiceJid.full(),AId));
 		accept();
 	}
 }

@@ -320,7 +320,7 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 					FChangingPresence = NULL;
 					if (newStatus.show!=IPresence::Offline && newStatus.show!=IPresence::Error && !presence->xmppStream()->isOpen())
 					{
-						LogDetaile(QString("[StatusChanger] Opening XMPP stream '%1'").arg(presence->streamJid().full()));
+						LogDetail(QString("[StatusChanger] Opening XMPP stream '%1'").arg(presence->streamJid().full()));
 						if (presence->xmppStream()->open())
 						{
 							setStreamStatusId(presence, STATUS_CONNECTING_ID);
@@ -340,7 +340,7 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 
 					if (newStatus.show==IPresence::Offline || newStatus.show==IPresence::Error)
 					{
-						LogDetaile(QString("[StatusChanger] Closing XMPP stream '%1'").arg(presence->streamJid().bare()));
+						LogDetail(QString("[StatusChanger] Closing XMPP stream '%1'").arg(presence->streamJid().bare()));
 						presence->xmppStream()->close();
 					}
 					else
@@ -761,7 +761,7 @@ void StatusChanger::autoReconnect(IPresence *APresence)
 			int reconSecs = ReconSteps[reconStep].base + qRound(ReconSteps[reconStep].random * qrand() / (RAND_MAX + 1.0));
 			FReconnectStep[APresence] = reconStep+1;
 
-			LogDetaile(QString("[StatusChanger] Starting auto reconnection of '%1' after %2 seconds").arg(APresence->streamJid().full()).arg(reconSecs));
+			LogDetail(QString("[StatusChanger] Starting auto reconnection of '%1' after %2 seconds").arg(APresence->streamJid().full()).arg(reconSecs));
 			FPendingReconnect.insert(APresence,QPair<QDateTime,int>(QDateTime::currentDateTime().addSecs(reconSecs),statusId));
 			QTimer::singleShot(reconSecs*1000+100,this,SLOT(onReconnectTimer()));
 		}
@@ -934,7 +934,7 @@ void StatusChanger::onRosterOpened(IRoster *ARoster)
 	IPresence *presence = FPresencePlugin->findPresence(ARoster->streamJid());
 	if (FConnectStatus.contains(presence))
 	{
-		LogDetaile(QString("[StatusChanger] Sending initial presence of stream '%1'").arg(ARoster->streamJid().full()));
+		LogDetail(QString("[StatusChanger] Sending initial presence of stream '%1'").arg(ARoster->streamJid().full()));
 		setStreamStatus(presence->streamJid(), FConnectStatus.value(presence));
 	}
 	FReconnectStep.remove(presence);

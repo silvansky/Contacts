@@ -134,14 +134,14 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 			setVisible(true);
 			FReadyTimer.stop();
 
-			LogDetaile(QString("[InternalNoticeWidget] Internal notice activated '%1'").arg(notice.caption));
+			LogDetail(QString("[InternalNoticeWidget] Internal notice activated '%1'").arg(notice.caption));
 		}
 		else
 		{
 			setVisible(false);
 			FReadyTimer.start();
 
-			LogDetaile(QString("[InternalNoticeWidget] Internal notice widget closed"));
+			LogDetail(QString("[InternalNoticeWidget] Internal notice widget closed"));
 		}
 		FActiveNotice = ANoticeId;
 		emit noticeActivated(ANoticeId);

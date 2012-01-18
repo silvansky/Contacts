@@ -194,7 +194,7 @@ void PluginManager::quit()
 {
 	if (FShutdownKind == SK_WORK)
 	{
-		LogDetaile(QString("[PluginManager] Quit started"));
+		LogDetail(QString("[PluginManager] Quit started"));
 		FShutdownKind = SK_QUIT;
 		startShutdown();
 	}
@@ -395,7 +395,7 @@ void PluginManager::loadPlugins()
 	QDir pluginsDir(QApplication::applicationDirPath());
 	if (pluginsDir.cd(PLUGINS_DIR))
 	{
-		LogDetaile(QString("[PluginManager] Loading plugins from '%1'").arg(pluginsDir.absolutePath()));
+		LogDetail(QString("[PluginManager] Loading plugins from '%1'").arg(pluginsDir.absolutePath()));
 
 		QString localeName = QLocale().name();
 		QDir tsDir(QApplication::applicationDirPath());
@@ -676,19 +676,19 @@ void PluginManager::loadCoreTranslations(const QDir &ADir, const QString &ALocal
 
 	if (FLoaderTranslator->load("ramblercontacts",ADir.absoluteFilePath(ALocaleName)) || FLoaderTranslator->load("ramblercontacts",ADir.absoluteFilePath(ALocaleName.left(2))))
 	{
-		LogDetaile("[PluginManager::loadCoreTranslations] loaded ramblercontacts.ts");
+		LogDetail("[PluginManager::loadCoreTranslations] loaded ramblercontacts.qm");
 		qApp->installTranslator(FLoaderTranslator);
 	}
 	else
-		LogError("[PluginManager::loadCoreTranslations] failed to load rablercontacts.ts!");
+		LogError("[PluginManager::loadCoreTranslations] failed to load ramblercontacts.qm!");
 
 	if (FUtilsTranslator->load("ramblercontactsutils",ADir.absoluteFilePath(ALocaleName)) || FUtilsTranslator->load("ramblercontactsutils",ADir.absoluteFilePath(ALocaleName.left(2))))
 	{
-		LogDetaile("[PluginManager::loadCoreTranslations] loaded ramblercontactsutils.ts");
+		LogDetail("[PluginManager::loadCoreTranslations] loaded ramblercontactsutils.qm");
 		qApp->installTranslator(FUtilsTranslator);
 	}
 	else
-		LogError("[PluginManager::loadCoreTranslations] failed to load rablercontactsutils.ts!");
+		LogError("[PluginManager::loadCoreTranslations] failed to load ramblercontactsutils.qm!");
 }
 
 bool PluginManager::isPluginEnabled(const QString &AFile) const
@@ -828,7 +828,7 @@ void PluginManager::createMenuActions()
 
 void PluginManager::onApplicationAboutToQuit()
 {
-	LogDetaile(QString("[PluginManager] Application about to quit"));
+	LogDetail(QString("[PluginManager] Application about to quit"));
 	emit aboutToQuit();
 
 	if (!FPluginsDialog.isNull())

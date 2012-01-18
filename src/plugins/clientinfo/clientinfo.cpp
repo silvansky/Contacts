@@ -194,7 +194,7 @@ void ClientInfo::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			software.version = query.firstChildElement("version").text();
 			software.os = query.firstChildElement("os").text();
 			software.status = SoftwareLoaded;
-			LogDetaile(QString("[ClientInfo] Received software version from %1").arg(contactJid.full()));
+			LogDetail(QString("[ClientInfo] Received software version from %1").arg(contactJid.full()));
 		}
 		else if (AStanza.type() == "error")
 		{
@@ -216,7 +216,7 @@ void ClientInfo::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			QDomElement query = AStanza.firstElement("query");
 			activity.dateTime = QDateTime::currentDateTime().addSecs(0-query.attribute("seconds","0").toInt());
 			activity.text = query.text();
-			LogDetaile(QString("[ClientInfo] Received activity time from %1").arg(contactJid.full()));
+			LogDetail(QString("[ClientInfo] Received activity time from %1").arg(contactJid.full()));
 		}
 		else if (AStanza.type() == "error")
 		{
@@ -239,7 +239,7 @@ void ClientInfo::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			tItem.zone = DateTime::tzdFromX85(tzo);
 			tItem.delta = QDateTime::currentDateTime().secsTo(DateTime(utc).toLocal());
 			tItem.ping = tItem.ping - QTime::currentTime().msecsTo(QTime(0,0,0,0));
-			LogDetaile(QString("[ClientInfo] Received entity time from %1").arg(contactJid.full()));
+			LogDetail(QString("[ClientInfo] Received entity time from %1").arg(contactJid.full()));
 		}
 		else
 		{
@@ -283,7 +283,7 @@ bool ClientInfo::requestSoftwareInfo(const Jid &AStreamJid, const Jid &AContactJ
 		{
 			FSoftwareId.insert(iq.id(),AContactJid);
 			FSoftwareItems[AContactJid].status = SoftwareLoading;
-			LogDetaile(QString("[ClientInfo] Requesting software version from %1").arg(AContactJid.full()));
+			LogDetail(QString("[ClientInfo] Requesting software version from %1").arg(AContactJid.full()));
 		}
 	}
 	return sent;
@@ -326,7 +326,7 @@ bool ClientInfo::requestLastActivity(const Jid &AStreamJid, const Jid &AContactJ
 		if (sent)
 		{
 			FActivityId.insert(iq.id(),AContactJid);
-			LogDetaile(QString("[ClientInfo] Requesting last activitty from %1").arg(AContactJid.full()));
+			LogDetail(QString("[ClientInfo] Requesting last activitty from %1").arg(AContactJid.full()));
 		}
 	}
 	return sent;
@@ -361,7 +361,7 @@ bool ClientInfo::requestEntityTime(const Jid &AStreamJid, const Jid &AContactJid
 			TimeItem &tItem = FTimeItems[AContactJid];
 			tItem.ping = QTime::currentTime().msecsTo(QTime(0,0,0,0));
 			FTimeId.insert(iq.id(),AContactJid);
-			LogDetaile(QString("[ClientInfo] Requesting entity time from %1").arg(AContactJid.full()));
+			LogDetail(QString("[ClientInfo] Requesting entity time from %1").arg(AContactJid.full()));
 			emit entityTimeChanged(AContactJid);
 		}
 	}

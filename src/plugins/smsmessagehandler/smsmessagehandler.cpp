@@ -227,7 +227,7 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 		Jid serviceJid = FSmsBalanceRequests.take(AStanza.id());
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[SmsMessageHandler] SMS balance received from '%1' id='%2'").arg(serviceJid.full(),AStanza.id()));
+			LogDetail(QString("[SmsMessageHandler] SMS balance received from '%1' id='%2'").arg(serviceJid.full(),AStanza.id()));
 			setSmsBalance(AStreamJid,serviceJid,smsBalanceFromStanza(AStanza));
 		}
 		else
@@ -247,7 +247,7 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 			int count = query.firstChildElement("count").text().toInt();
 			if (!number.isEmpty() && !code.isEmpty() && count>0)
 			{
-				LogDetaile(QString("[SmsMessageHandler] SMS supplement received from '%1', id='%2', number='%3', code='%4', count='%5'").arg(serviceJid.full(),AStanza.id(),number,code).arg(count));
+				LogDetail(QString("[SmsMessageHandler] SMS supplement received from '%1', id='%2', number='%3', code='%4', count='%5'").arg(serviceJid.full(),AStanza.id(),number,code).arg(count));
 				emit smsSupplementReceived(AStanza.id(),number,code,count);
 			}
 			else
@@ -548,7 +548,7 @@ bool SmsMessageHandler::requestSmsBalance(const Jid &AStreamJid, const Jid &ASer
 		request.addElement("query",NS_RAMBLER_SMS_BALANCE);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_TIMEOUT))
 		{
-			LogDetaile(QString("[SmsMessageHandler] SMS balance request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
+			LogDetail(QString("[SmsMessageHandler] SMS balance request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
 			FSmsBalanceRequests.insert(request.id(),AServiceJid);
 			return true;
 		}
@@ -569,7 +569,7 @@ QString SmsMessageHandler::requestSmsSupplement(const Jid &AStreamJid, const Jid
 		request.addElement("query",NS_RAMBLER_SMS_SUPPLEMENT);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,SUPPLEMENT_TIMEOUT))
 		{
-			LogDetaile(QString("[SmsMessageHandler] SMS supplement request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
+			LogDetail(QString("[SmsMessageHandler] SMS supplement request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
 			FSmsSupplementRequests.insert(request.id(),AServiceJid);
 			return request.id();
 		}
@@ -592,7 +592,7 @@ void SmsMessageHandler::setSmsBalance(const Jid &AStreamJid, const Jid &AService
 {
 	if (FSmsBalance.contains(AStreamJid))
 	{
-		LogDetaile(QString("[SmsMessageHandler] SMS balance changed to %1").arg(ABalance));
+		LogDetail(QString("[SmsMessageHandler] SMS balance changed to %1").arg(ABalance));
 		if (ABalance >= 0)
 			FSmsBalance[AStreamJid].insert(AServiceJid,ABalance);
 		else

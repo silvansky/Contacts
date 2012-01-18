@@ -52,7 +52,7 @@ bool DefaultConnection::connectToHost()
 {
 	if (FSrvQueryId==START_QUERY_ID && FSocket.state()==QAbstractSocket::UnconnectedState)
 	{
-		LogDetaile(QString("[DefaultConnection] Starting connection"));
+		LogDetail(QString("[DefaultConnection] Starting connection"));
 		emit aboutToConnect();
 
 		FRecords.clear();
@@ -75,7 +75,7 @@ bool DefaultConnection::connectToHost()
 
 		if (host.isEmpty() && FDns.init(QJDns::Unicast, QHostAddress::Any))
 		{
-			LogDetaile(QString("[DefaultConnection] Starting SRV lookup on host '%1'").arg(domain));
+			LogDetail(QString("[DefaultConnection] Starting SRV lookup on host '%1'").arg(domain));
 			FDns.setNameServers(QJDns::systemInfo().nameServers);
 			FSrvQueryId = FDns.queryStart(QString("_xmpp-client._tcp.%1.").arg(domain).toLatin1(),QJDns::Srv);
 		}
@@ -95,7 +95,7 @@ void DefaultConnection::disconnectFromHost()
 	{
 		if (FSocket.state() == QSslSocket::ConnectedState)
 		{
-			LogDetaile(QString("[DefaultConnection] Starting socket disconnection from host"));
+			LogDetail(QString("[DefaultConnection] Starting socket disconnection from host"));
 			emit aboutToDisconnect();
 			FSocket.flush();
 			FSocket.disconnectFromHost();
@@ -109,7 +109,7 @@ void DefaultConnection::disconnectFromHost()
 	}
 	else if (FSrvQueryId != START_QUERY_ID)
 	{
-		LogDetaile(QString("[DefaultConnection] Shutdown SRV lookup"));
+		LogDetail(QString("[DefaultConnection] Shutdown SRV lookup"));
 		FSrvQueryId = STOP_QUERY_ID;
 		FDns.shutdown();
 	}
@@ -134,7 +134,7 @@ QByteArray DefaultConnection::read(qint64 ABytes)
 
 void DefaultConnection::startClientEncryption()
 {
-	LogDetaile(QString("[DefaultConnection] Starting connection encryption"));
+	LogDetail(QString("[DefaultConnection] Starting connection encryption"));
 	FSocket.startClientEncryption();
 }
 
@@ -183,7 +183,7 @@ void DefaultConnection::setProxy(const QNetworkProxy &AProxy)
 {
 	if (AProxy!= FSocket.proxy())
 	{
-		LogDetaile(QString("[DefaultConnection] Connection proxy changed, host='%1', port='%2', type='%3'").arg(AProxy.hostName()).arg(AProxy.port()).arg(AProxy.type()));
+		LogDetail(QString("[DefaultConnection] Connection proxy changed, host='%1', port='%2', type='%3'").arg(AProxy.hostName()).arg(AProxy.port()).arg(AProxy.type()));
 		FSocket.setProxy(AProxy);
 		emit proxyChanged(AProxy);
 	}
@@ -234,12 +234,12 @@ void DefaultConnection::connectSocketToHost(const QString &AHost, quint16 APort)
 
 	if (FSSLConnection)
 	{
-		LogDetaile(QString("[DefaultConnection] Connecting socket to host with legacy-SSL, host='%1', port='%2'").arg(AHost).arg(APort));
+		LogDetail(QString("[DefaultConnection] Connecting socket to host with legacy-SSL, host='%1', port='%2'").arg(AHost).arg(APort));
 		FSocket.connectToHostEncrypted(FHost, FPort);
 	}
 	else
 	{
-		LogDetaile(QString("[DefaultConnection] Connecting socket to host, host='%1', port='%2'").arg(AHost).arg(APort));
+		LogDetail(QString("[DefaultConnection] Connecting socket to host, host='%1', port='%2'").arg(AHost).arg(APort));
 		FSocket.connectToHost(FHost, FPort);
 	}
 }
@@ -254,7 +254,7 @@ void DefaultConnection::onDnsResultsReady(int AId, const QJDns::Response &AResul
 {
 	if (FSrvQueryId == AId)
 	{
-		LogDetaile(QString("[DefaultConnection] SRV lookup results ready"));
+		LogDetail(QString("[DefaultConnection] SRV lookup results ready"));
 		if (!AResults.answerRecords.isEmpty())
 		{
 			FSSLConnection = false;
@@ -275,7 +275,7 @@ void DefaultConnection::onDnsError(int AId, QJDns::Error AError)
 
 void DefaultConnection::onDnsShutdownFinished()
 {
-	LogDetaile(QString("[DefaultConnection] SRV lookup finished"));
+	LogDetail(QString("[DefaultConnection] SRV lookup finished"));
 	if (FSrvQueryId != STOP_QUERY_ID)
 	{
 		FSrvQueryId = START_QUERY_ID;
@@ -290,7 +290,7 @@ void DefaultConnection::onDnsShutdownFinished()
 
 void DefaultConnection::onSocketConnected()
 {
-	LogDetaile(QString("[DefaultConnection] Socket connected to host"));
+	LogDetail(QString("[DefaultConnection] Socket connected to host"));
 	if (!FSSLConnection)
 	{
 		FRecords.clear();
@@ -300,7 +300,7 @@ void DefaultConnection::onSocketConnected()
 
 void DefaultConnection::onSocketEncrypted()
 {
-	LogDetaile(QString("[DefaultConnection] Socket connection encrypted"));
+	LogDetail(QString("[DefaultConnection] Socket connection encrypted"));
 	emit encrypted();
 	if (FSSLConnection)
 	{
@@ -354,6 +354,6 @@ void DefaultConnection::onSocketError(QAbstractSocket::SocketError AError)
 
 void DefaultConnection::onSocketDisconnected()
 {
-	LogDetaile(QString("[DefaultConnection] Socket disconnected from host"));
+	LogDetail(QString("[DefaultConnection] Socket disconnected from host"));
 	emit disconnected();
 }

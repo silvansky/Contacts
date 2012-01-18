@@ -41,7 +41,7 @@ bool Compression::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AO
 		FXmppStream->removeXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
 		if (AStanza.tagName() == "compressed")
 		{
-			LogDetaile(QString("[Compression] XMPP stream compression started"));
+			LogDetail(QString("[Compression] XMPP stream compression started"));
 			FXmppStream->insertXmppDataHandler(this, XDHO_FEATURE_COMPRESS);
 			emit finished(true);
 		}
@@ -80,7 +80,7 @@ bool Compression::start(const QDomElement &AElem)
 			{
 				if (startZlib())
 				{
-					LogDetaile(QString("[Compression] Starting XMPP stream compression"));
+					LogDetail(QString("[Compression] Starting XMPP stream compression"));
 					Stanza compress("compress");
 					compress.setAttribute("xmlns",NS_PROTOCOL_COMPRESS);
 					compress.addElement("method").appendChild(compress.createTextNode("zlib"));

@@ -1138,7 +1138,6 @@ void MacIntegrationPlugin::onShowMainWindowAction()
 
 void MacIntegrationPlugin::onContactAction()
 {
-	// TODO: activate tabwindow and open tab with metacontact
 	Action * a = qobject_cast<Action*>(sender());
 	if (a)
 	{

@@ -514,7 +514,7 @@ bool ServiceDiscovery::requestDiscoItems(const Jid &AStreamJid, const Jid &ACont
 		if (sent)
 		{
 			FItemsRequestsId.insert(iq.id(),drequest);
-			LogDetaile(QString("[ServiceDiscovery] Discovery items request sent to='%1' node='%2' id='%3'").arg(AContactJid.full(),ANode,iq.id()));
+			LogDetail(QString("[ServiceDiscovery] Discovery items request sent to='%1' node='%2' id='%3'").arg(AContactJid.full(),ANode,iq.id()));
 		}
 		else
 		{
@@ -661,7 +661,7 @@ IDiscoItems ServiceDiscovery::parseDiscoItems(const Stanza &AStanza, const Disco
 			result.items.append(ditem);
 			elem = elem.nextSiblingElement("item");
 		}
-		LogDetaile(QString("[ServiceDiscovery] Discovery items received from '%1' node='%2' id='%3'").arg(result.contactJid.full(),result.node,AStanza.id()));
+		LogDetail(QString("[ServiceDiscovery] Discovery items received from '%1' node='%2' id='%3'").arg(result.contactJid.full(),result.node,AStanza.id()));
 	}
 	return result;
 }
@@ -1051,7 +1051,7 @@ void ServiceDiscovery::onSelfCapsChanged()
 			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(streamJid) : NULL;
 			if (presence && presence->isOpen())
 			{
-				LogDetaile(QString("[ServiceDiscovery] Updating self entity caps on stream '%1'").arg(presence->streamJid().bare()));
+				LogDetail(QString("[ServiceDiscovery] Updating self entity caps on stream '%1'").arg(presence->streamJid().bare()));
 				presence->setPresence(presence->show(),presence->status(),presence->priority());
 			}
 		}

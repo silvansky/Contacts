@@ -80,7 +80,7 @@ IAccount *AccountManager::appendAccount(const QUuid &AAccountId)
 		Account *account = new Account(FXmppStreams,Options::node(OPV_ACCOUNT_ITEM,AAccountId.toString()),this);
 		connect(account,SIGNAL(activeChanged(bool)),SLOT(onAccountActiveChanged(bool)));
 		connect(account,SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onAccountOptionsChanged(const OptionsNode &)));
-		LogDetaile(QString("[AccountManager] Account append: %1").arg(account->streamJid().full()));
+		LogDetail(QString("[AccountManager] Account append: %1").arg(account->streamJid().full()));
 		FAccounts.insert(AAccountId,account);
 		emit appended(account);
 		return account;
@@ -107,7 +107,7 @@ void AccountManager::removeAccount(const QUuid &AAccountId)
 	IAccount *account = FAccounts.value(AAccountId);
 	if (account)
 	{
-		LogDetaile(QString("[AccountManager] Account remove: %1").arg(account->streamJid().full()));
+		LogDetail(QString("[AccountManager] Account remove: %1").arg(account->streamJid().full()));
 		hideAccount(AAccountId);
 		emit removed(account);
 		FAccounts.remove(AAccountId);

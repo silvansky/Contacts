@@ -192,7 +192,7 @@ bool Avatars::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASt
 					QString hash = vcardUpdate.firstChildElement("photo").text().toLower();
 					if (!updateVCardAvatar(contactJid,hash,false))
 					{
-						LogDetaile(QString("[Avatars] Requesting vCard from %1").arg(contactJid.full()));
+						LogDetail(QString("[Avatars] Requesting vCard from %1").arg(contactJid.full()));
 						FVCardPlugin->requestVCard(AStreamJid,contactJid.bare());
 					}
 				}
@@ -213,7 +213,7 @@ bool Avatars::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASt
 					FBlockingResources.remove(AStreamJid, contactJid);
 					if (!FBlockingResources.contains(AStreamJid))
 					{
-						LogDetaile(QString("[Avatars] Requesting vCard from %1").arg(contactJid.full()));
+						LogDetail(QString("[Avatars] Requesting vCard from %1").arg(contactJid.full()));
 						FVCardPlugin->requestVCard(AStreamJid, contactJid.bare());
 					}
 				}
@@ -228,7 +228,7 @@ bool Avatars::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &ASt
 					query.addElement("query",NS_JABBER_IQ_AVATAR);
 					if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,query,AVATAR_IQ_TIMEOUT))
 					{
-						LogDetaile(QString("[Avatars] Requesting IqAvatar from %1").arg(contactJid.full()));
+						LogDetail(QString("[Avatars] Requesting IqAvatar from %1").arg(contactJid.full()));
 						FIqAvatarRequests.insert(query.id(),contactJid);
 					}
 					else

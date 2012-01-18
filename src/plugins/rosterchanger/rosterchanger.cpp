@@ -652,7 +652,7 @@ void RosterChanger::subscribeContact(const Jid &AStreamJid, const Jid &AContactJ
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
-		LogDetaile(QString("[RosterChanger] Subscribing contact '%1'").arg(AContactJid.bare()));
+		LogDetail(QString("[RosterChanger] Subscribing contact '%1'").arg(AContactJid.bare()));
 		IRosterItem ritem = roster->rosterItem(AContactJid);
 		if (FSubscriptionRequests.contains(AStreamJid,AContactJid.pBare()))
 			roster->sendSubscription(AContactJid,IRoster::Subscribed,AMessage);
@@ -667,7 +667,7 @@ void RosterChanger::unsubscribeContact(const Jid &AStreamJid, const Jid &AContac
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
-		LogDetaile(QString("[RosterChanger] Unsubscribing contact '%1'").arg(AContactJid.bare()));
+		LogDetail(QString("[RosterChanger] Unsubscribing contact '%1'").arg(AContactJid.bare()));
 		IRosterItem ritem = roster->rosterItem(AContactJid);
 		roster->sendSubscription(AContactJid,IRoster::Unsubscribed,AMessage);
 		if (ritem.subscription!=SUBSCRIPTION_FROM && ritem.subscription!=SUBSCRIPTION_NONE)
