@@ -71,7 +71,7 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	connect(ui.lneAddressContact,SIGNAL(textEdited(const QString &)),SLOT(onContactTextEdited(const QString &)));
 
 	connect(ui.pbtBack, SIGNAL(clicked()), SLOT(onBackButtonclicked()));
-	connect(ui.pbtContinue, SIGNAL(clicked()), SLOT(onContinueButtonclicked()));
+	connect(ui.pbtContinue, SIGNAL(clicked()), SLOT(onContinueButtonClicked()));
 	connect(ui.pbtCancel, SIGNAL(clicked()), SLOT(onCancelButtonclicked()));
 
 	ui.lblError->setVisible(false);
@@ -439,6 +439,8 @@ void AddContactDialog::setDialogEnabled(bool AEnabled)
 	ui.wdtPageConfirm->setEnabled(AEnabled);
 	ui.wdtPageParams->setEnabled(AEnabled);
 	ui.wdtSelectProfile->setEnabled(AEnabled);
+	ui.pbtBack->setEnabled(AEnabled);
+	ui.pbtContinue->setEnabled(AEnabled);
 }
 
 void AddContactDialog::setRealContactJid(const Jid &AContactJid)
@@ -644,7 +646,7 @@ void AddContactDialog::onBackButtonclicked()
 	setDialogState(STATE_ADDRESS);
 }
 
-void AddContactDialog::onContinueButtonclicked()
+void AddContactDialog::onContinueButtonClicked()
 {
 	if (FDialogState == STATE_ADDRESS)
 	{

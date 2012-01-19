@@ -132,8 +132,9 @@ void MetaRoster::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 		if (AStanza.type() == "error")
 		{
 			ErrorHandler err(AStanza.element());
-			LogError(QString("[MetaRoster][%1] Failed to create meta-item, id='%2': %3").arg(streamJid().bare(),AStanza.id(),AStanza.id(),err.message()));
+			LogError(QString("[MetaRoster][%1] Failed to create meta-item, id='%2': %3").arg(streamJid().bare(),AStanza.id(),err.message()));
 			FCreateItemRequest.remove(AStanza.id());
+			processStanzaRequest(AStanza.id(),err.condition(),err.message());
 		}
 	}
 	else

@@ -84,7 +84,7 @@ protected:
 	bool event(QEvent *AEvent);
 protected slots:
 	void onBackButtonclicked();
-	void onContinueButtonclicked();
+	void onContinueButtonClicked();
 	void onCancelButtonclicked();
 	void onAdjustDialogSize();
 	void onContactTextEdited(const QString &AText);
