@@ -258,7 +258,7 @@ void ConnectionManager::onOptionsOpened()
 		ieProxy.proxy.setHostName(proxyServer.split(':').value(0));
 		ieProxy.proxy.setPort(proxyServer.split(':').value(1).toInt());
 		setProxy(IEXPLORER_PROXY_REF_UUID,ieProxy);
-		LogDetaile(QString("[ConnectionManager] Inserted IExplorer connection proxy, host='%1', port='%2'").arg(ieProxy.proxy.hostName()).arg(ieProxy.proxy.port()));
+		LogDetail(QString("[ConnectionManager] Inserted IExplorer connection proxy, host='%1', port='%2'").arg(ieProxy.proxy.hostName()).arg(ieProxy.proxy.port()));
 	}
 #endif
 
