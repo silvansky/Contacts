@@ -17,6 +17,7 @@
 #include <utils/macwidgets.h>
 #include <utils/imagemanager.h>
 #include <utils/options.h>
+#include <utils/custominputdialog.h>
 #include <definitions/optionnodes.h>
 #include <definitions/optionvalues.h>
 
@@ -270,7 +271,18 @@ void MacIntegrationPlugin::postGrowlNotify(const QImage & icon, const QString & 
 
 void MacIntegrationPlugin::showGrowlPreferencePane()
 {
-	MacIntegrationPrivate::showGrowlPrefPane();
+	if (MacIntegrationPrivate::isGrowlInstalled())
+		MacIntegrationPrivate::showGrowlPrefPane();
+	else
+	{
+		CustomInputDialog * info = new CustomInputDialog(CustomInputDialog::Info);
+		info->setAttribute(Qt::WA_DeleteOnClose, true);
+		info->setCaptionText(tr("Growl application not found"));
+		info->setInfoText(tr("Growl is required to show notifications about new messages. Please, install it from <a href=\"http://growl.info/documentation/growl-package-install.php\">official website</a>."));
+		info->setAcceptButtonText(tr("OK"));
+		connect(info, SIGNAL(linkActivated(const QString &)), SLOT(onLinkActivated(const QString &)));
+		info->open();
+	}
 }
 
 void MacIntegrationPlugin::setCustomBorderColor(const QColor & color)
@@ -646,6 +658,15 @@ void MacIntegrationPlugin::updateActions()
 void MacIntegrationPlugin::updateContactActions()
 {
 
+}
+
+void MacIntegrationPlugin::onLinkActivated(const QString &url)
+{
+	QDesktopServices::openUrl(QUrl(url));
+	if (CustomInputDialog * dialog = qobject_cast<CustomInputDialog*>(sender()))
+	{
+		dialog->accept();
+	}
 }
 
 void MacIntegrationPlugin::onAboutToQuit()

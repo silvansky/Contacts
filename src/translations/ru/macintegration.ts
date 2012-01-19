@@ -231,5 +231,17 @@
         <source>Check for Updates...</source>
         <translation>Проверить наличие обновлений...</translation>
     </message>
+    <message>
+        <source>Growl application not found</source>
+        <translation>Не найдено приложение Growl</translation>
+    </message>
+    <message>
+        <source>Growl is required to show notifications about new messages. Please, install it from &lt;a href=&quot;http://growl.info/documentation/growl-package-install.php&quot;&gt;official website&lt;/a&gt;.</source>
+        <translation>Приложение Growl необходимо для показа уведомлений о новых сообщениях. Пожалуйста, установите это приложение с &lt;a href=&quot;http://growl.info/documentation/growl-package-install.php&quot;&gt;официального сайта&lt;/a&gt;.</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>Ок</translation>
+    </message>
 </context>
 </TS>

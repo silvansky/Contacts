@@ -61,6 +61,7 @@ private:
 	void updateActions();
 	void updateContactActions();
 private slots:
+	void onLinkActivated(const QString &);
 	void onAboutToQuit();
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onFocusChanged(QWidget * old, QWidget * now);

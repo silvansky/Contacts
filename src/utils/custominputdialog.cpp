@@ -226,8 +226,8 @@ void CustomInputDialog::initLayout()
 	descrLabel->setWordWrap(true);
 	valueEdit->selectAll();
 	valueEdit->setVisible(inputType == String);
-	connect(infoLabel, SIGNAL(linkActivated(QString)), SIGNAL(linkActivated(QString)));
-	connect(descrLabel, SIGNAL(linkActivated(QString)), SIGNAL(linkActivated(QString)));
+	connect(infoLabel, SIGNAL(linkActivated(const QString &)), SIGNAL(linkActivated(const QString &)));
+	connect(descrLabel, SIGNAL(linkActivated(const QString &)), SIGNAL(linkActivated(const QString &)));
 	connect(acceptButton, SIGNAL(clicked()), SLOT(onAcceptButtonClicked()));
 	connect(rejectButton, SIGNAL(clicked()), SLOT(onRejectButtonClicked()));
 	acceptButton->setDefault(true);

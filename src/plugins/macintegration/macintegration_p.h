@@ -37,6 +37,8 @@ public:
 	static void setDockOverlay(const QImage & overlay, Qt::Alignment align = Qt::AlignLeft | Qt::AlignBottom, bool showAppIcon = true);
 	static void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 	static void showGrowlPrefPane();
+	static bool isGrowlInstalled();
+	static bool isGrowlRunning();
 	static void installCustomFrame();
 	static void setCustomBorderColor(const QColor & color);
 	static void setCustomTitleColor(const QColor & color);

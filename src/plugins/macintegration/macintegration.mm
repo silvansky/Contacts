@@ -269,14 +269,14 @@ void MacIntegrationPrivate::postGrowlNotify(const QImage & icon, const QString &
 	NSString * nsType = nsStringFromQString(resolveGrowlType(type));
 	NSNumber * nsId = [NSNumber numberWithInt: id];
 	NSImage * nsIcon = nsImageFromQImage(icon);
-	if ([GrowlApplicationBridge isGrowlRunning])
+	if (isGrowlRunning())
 	{
 		[GrowlApplicationBridge notifyWithTitle: nsTitle description: nsText notificationName: nsType iconData: [nsIcon TIFFRepresentation] priority: 0 isSticky: NO clickContext: nsId identifier: [NSString stringWithFormat:@"ID%d", id]];
 	}
 	else
 	{
 		NSLog(@"Notification: %@ | %@", nsTitle, nsText);
-		if ([GrowlApplicationBridge isGrowlInstalled])
+		if (isGrowlInstalled())
 			LogError("Growl installed, but not running!");
 		else
 			LogError("Growl is not installed!");
@@ -306,6 +306,16 @@ void MacIntegrationPrivate::showGrowlPrefPane()
 				NSLog(@"Error opening Growl.app! Growl isn\'t installed?");
 		}
 	}
+}
+
+bool MacIntegrationPrivate::isGrowlInstalled()
+{
+	return [GrowlApplicationBridge isGrowlInstalled];
+}
+
+bool MacIntegrationPrivate::isGrowlRunning()
+{
+	[GrowlApplicationBridge isGrowlRunning];
 }
 
 
