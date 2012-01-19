@@ -7,6 +7,7 @@
 
 RosterSearch::RosterSearch()
 {
+	FGateways = NULL;
 	FMainWindow = NULL;
 	FRostersModel = NULL;
 	FRostersViewPlugin = NULL;
@@ -81,6 +82,16 @@ bool RosterSearch::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		{
 			FMainWindow = mainWindowPlugin->mainWindow();
 			FMainWindow->instance()->installEventFilter(this);
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+	{
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+		if (FGateways)
+		{
+			connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onStreamServicesChanged(const Jid &)));
 		}
 	}
 
@@ -186,12 +197,12 @@ QVariant RosterSearch::rosterData(const IRosterIndex *AIndex, int ARole) const
 			if (!block && FRostersModel && FSearchStarted)
 			{
 				block = true;
-				int field = findAcceptableField(FRostersModel->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex)));
-				if ((field >= 0) && (field != RDR_NAME))
+				int fieldRole = findAcceptableField(FRostersModel->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex)));
+				if ((fieldRole >= 0) && (fieldRole != RDR_NAME))
 				{
 					QVariantMap footer = AIndex->data(ARole).toMap();
-					QString fieldValue = findFieldMatchedValue(AIndex,field);
-					QString note = QString("%1: %2").arg(FSearchFields.value(field).name).arg(fieldValue);
+					QString fieldValue = findFieldMatchedValue(AIndex,fieldRole);
+					QString note = QString("%1: %2").arg(FSearchFields.value(fieldRole).name).arg(fieldValue);
 					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),note);
 					data = footer;
 				}
@@ -426,8 +437,8 @@ int RosterSearch::findAcceptableField(const QModelIndex &AIndex) const
 	{
 		if (it->enabled)
 		{
-			QVariant field = AIndex.data(it.key());
-			QString string = field.type()==QVariant::StringList ? field.toStringList().join(" ") : field.toString();
+			QVariant fieldValue = prepareFieldValue(it.key(),AIndex.data(it.key()));
+			QString string = fieldValue.type()==QVariant::StringList ? fieldValue.toStringList().join(" ") : fieldValue.toString();
 			if (string.contains(regExp))
 				return it.key();
 		}
@@ -439,11 +450,11 @@ QString RosterSearch::findFieldMatchedValue(const IRosterIndex *AIndex, int AFie
 {
 	if (FSearchFields.contains(AField))
 	{
-		QVariant field = AIndex->data(AField);
-		if (field.type() == QVariant::StringList)
+		QVariant fieldValue = prepareFieldValue(AField, AIndex->data(AField));
+		if (fieldValue.type() == QVariant::StringList)
 		{
 			const QRegExp regExp = searchRegExp(searchPattern());
-			foreach(QString string, field.toStringList())
+			foreach(QString string, fieldValue.toStringList())
 			{
 				if (string.contains(regExp))
 					return string;
@@ -451,10 +462,32 @@ QString RosterSearch::findFieldMatchedValue(const IRosterIndex *AIndex, int AFie
 		}
 		else
 		{
-			return field.toString();
+			return fieldValue.toString();
 		}
 	}
 	return QString::null;
+}
+
+QVariant RosterSearch::prepareFieldValue(int AFieldRole, const QVariant &AValue) const
+{
+	if (FGateways && AValue.isValid())
+	{
+		if (AFieldRole == RDR_PREP_BARE_JID)
+		{
+			Jid itemJid = AValue.toString();
+			if (FStreamServices.contains(itemJid.domain()))
+				return FGateways->legacyIdFromUserJid(itemJid);
+		}
+		else if (AFieldRole == RDR_METACONTACT_ITEMS)
+		{
+			QStringList itemJidList;
+			foreach(Jid itemJid, AValue.toStringList())
+				if (FStreamServices.contains(itemJid.domain()))
+					itemJidList.append(FGateways->legacyIdFromUserJid(itemJid));
+			return itemJidList;
+		}
+	}
+	return AValue;
 }
 
 void RosterSearch::createSearchLinks()
@@ -580,6 +613,11 @@ void RosterSearch::onRosterStreamRemoved(const Jid &AStreamJid)
 	Q_UNUSED(AStreamJid);
 	if (FRostersModel->streams().isEmpty())
 		setSearchPattern(QString::null);
+}
+
+void RosterSearch::onStreamServicesChanged(const Jid &AStreamJid)
+{
+	FStreamServices = FGateways->streamServices(AStreamJid);
 }
 
 void RosterSearch::onOptionsChanged(const OptionsNode &ANode)
