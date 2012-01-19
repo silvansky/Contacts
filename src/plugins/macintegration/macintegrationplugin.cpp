@@ -317,7 +317,7 @@ void MacIntegrationPlugin::initMenus()
 	_fileMenu->addAction(newContactAction);
 
 	newGroupAction = new Action;
-	newGroupAction->setText(tr("New Gorup..."));
+	newGroupAction->setText(tr("New Group..."));
 	newGroupAction->setEnabled(false);
 	connect(newGroupAction, SIGNAL(triggered()), SLOT(onNewGroupAction()));
 	_fileMenu->addAction(newGroupAction);

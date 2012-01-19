@@ -88,10 +88,6 @@
         <translation>Новый контакт...</translation>
     </message>
     <message>
-        <source>New Gorup...</source>
-        <translation>Новая группа...</translation>
-    </message>
-    <message>
         <source>New Account...</source>
         <translation>Новая учётная запись...</translation>
     </message>
@@ -242,6 +238,10 @@
     <message>
         <source>OK</source>
         <translation>Ок</translation>
+    </message>
+    <message>
+        <source>New Group...</source>
+        <translation>Новая группа...</translation>
     </message>
 </context>
 </TS>
