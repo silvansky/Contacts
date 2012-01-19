@@ -231,7 +231,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 #ifdef Q_WS_MAC
 	fontSize = 12;
 #endif
-	ui.lblRegister->setText(tr("Enter your Rambler login and password, or %1.")
+	ui.lblRegister->setText(tr("Enter your Rambler login and password or %1.")
 		.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:%1pt; text-decoration: underline; color:#ffffff;'>%2</span></a>")
 		.arg(fontSize)
 		.arg(tr("register")));

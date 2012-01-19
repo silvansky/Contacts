@@ -91,10 +91,6 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <translation>Свой домен...</translation>
     </message>
     <message>
-        <source>Enter your Rambler login and password, or %1.</source>
-        <translation>Введите ваш логин и пароль на Рамблере или %1.</translation>
-    </message>
-    <message>
         <source>register</source>
         <translation>зарегистрируйтесь</translation>
     </message>
@@ -131,6 +127,10 @@ which is linked to Rambler</source>
     <message>
         <source>Connection terminated by user</source>
         <translation>Подключение прервано пользователем</translation>
+    </message>
+    <message>
+        <source>Enter your Rambler login and password or %1.</source>
+        <translation>Введите ваш логин и пароль на Рамблере или %1.</translation>
     </message>
 </context>
 <context>
