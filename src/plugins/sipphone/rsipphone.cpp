@@ -355,10 +355,32 @@ RSipPhone::~RSipPhone()
 	//	_pVideoInputWidget = NULL;
 	//}
 
+	//pj_status_t status;
+	//unsigned int maxCount = 32;
+	//pjsua_transport_id id[32];
+	//pj_status_t num = pjsua_enum_transports(id, &maxCount);
+	//for(int i=0; i<maxCount; i++)
+	//{
+	//	status = pjsua_transport_close(id[i], false);
+	//}
+
 	pjsua_destroy();
+	//pjsua_destroy2(PJSUA_DESTROY_NO_RX_MSG);
+	
+
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	//SDL_Quit();
 	//qApp->quit();
 
 	_pInstance = NULL;
+}
+
+void RSipPhone::cleanup()
+{
+	pjsua_destroy();
+	//pjsua_destroy2(PJSUA_DESTROY_NO_RX_MSG);
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	//SDL_Quit();
 }
 
 void RSipPhone::showStatus(const char *message)
@@ -919,12 +941,12 @@ bool RSipPhone::initStack(const QString& sip_domain, int sipPortNum, const QStri
 }
 bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* sip_username, const char* sip_password)
 {
-
 	if ( SDL_InitSubSystem(SDL_INIT_VIDEO) < 0 )
 	{
 		printf("Unable to init SDL: %s\n", SDL_GetError());
 		return false;
 	}
+
 
 	pj_status_t status;
 
@@ -952,10 +974,12 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 
 	pjsua_logging_config log_cfg;
 	pjsua_logging_config_default(&log_cfg);
-	log_cfg.log_filename = pj_str((char*)LOG_FILE);
+	//////log_cfg.log_filename = pj_str((char*)LOG_FILE);
 
 	pjsua_media_config med_cfg;
 	pjsua_media_config_default(&med_cfg);
+
+	
 
 	//status = pjsua_init(&ua_cfg, &log_cfg, &med_cfg);
 	status = pjsua_init(&ua_cfg, NULL, &med_cfg);

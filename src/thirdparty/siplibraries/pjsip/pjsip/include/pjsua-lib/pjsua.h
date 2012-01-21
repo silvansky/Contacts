@@ -1,4 +1,4 @@
-/* $Id: pjsua.h 3908 2011-12-13 04:59:15Z nanang $ */
+/* $Id: pjsua.h 3938 2012-01-09 11:51:56Z ming $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -335,10 +335,10 @@ typedef struct pjsua_msg_data pjsua_msg_data;
 /**
  * Interval between two keyframe requests, in milliseconds.
  *
- * Default: 500 ms
+ * Default: 3000 ms
  */
 #ifndef PJSUA_VID_REQ_KEYFRAME_INTERVAL
-#   define PJSUA_VID_REQ_KEYFRAME_INTERVAL	500
+#   define PJSUA_VID_REQ_KEYFRAME_INTERVAL	3000
 #endif
 
 
@@ -589,7 +589,7 @@ typedef struct pjsua_call_setting
      *
      * Default: 1
      */
-    unsigned         audio_cnt;
+    unsigned         aud_cnt;
 
     /**
      * Number of simultaneous active video streams for this call. Setting
@@ -597,7 +597,7 @@ typedef struct pjsua_call_setting
      *
      * Default: 1 (if video feature is enabled, otherwise it is zero)
      */
-    unsigned         video_cnt;
+    unsigned         vid_cnt;
 
 } pjsua_call_setting;
 
@@ -1996,7 +1996,7 @@ PJ_DECL(pj_status_t) pjsua_verify_url(const char *url);
  * not.
  *
  * @param entry		Timer heap entry.
- * @param delay     The interval to expire.
+ * @param delay         The interval to expire.
  *
  * @return		PJ_SUCCESS on success, or the appropriate error code.
  *
@@ -2005,6 +2005,20 @@ PJ_DECL(pj_status_t) pjsua_verify_url(const char *url);
 PJ_DECL(pj_status_t) pjsua_schedule_timer(pj_timer_entry *entry,
 					  const pj_time_val *delay);
 
+/**
+ * Schedule a callback function to be called after a specified time interval.
+ * Note that the callback may be executed by different thread, depending on
+ * whether worker thread is enabled or not.
+ *
+ * @param cb		The callback function.
+ * @param user_data     The user data.
+ * @param msec_delay    The time interval in msec.
+ *
+ * @return		PJ_SUCCESS on success, or the appropriate error code.
+ */
+PJ_DECL(pj_status_t) pjsua_schedule_timer2(void (*cb)(void *user_data),
+                                           void *user_data,
+                                           unsigned msec_delay);
 
 /**
  * Cancel the previously scheduled timer.
@@ -3614,10 +3628,10 @@ typedef struct pjsua_call_info
     pj_bool_t		rem_offerer;
 
     /** Number of audio streams offered by remote */
-    unsigned		rem_audio_cnt;
+    unsigned		rem_aud_cnt;
 
     /** Number of video streams offered by remote */
-    unsigned		rem_video_cnt;
+    unsigned		rem_vid_cnt;
 
     /** Internal */
     struct {

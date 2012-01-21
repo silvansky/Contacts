@@ -40,6 +40,28 @@ SipPhone::SipPhone()
 	FSipPhone = NULL;
 	FBackupCallActionMenu = NULL;
 
+	//////FSipPhone = new RSipPhone();
+	//////if(FSipPhone->initStack("vsip.rambler.ru", 5065, "rvoip-1@rambler.ru", "a111111"))
+	//////{
+	//////	FSipPhone->hangup();
+	//////	FSipPhone->cleanup();
+	//////}
+	//////if(FSipPhone->initStack("vsip.rambler.ru", 5065, "rvoip-2@rambler.ru", "a111111"))
+	//////{
+	//////	FSipPhone->hangup();
+	//////	FSipPhone->cleanup();
+	//////}
+	//////	if(FSipPhone->initStack("vsip.rambler.ru", 5065, "rvoip-1@rambler.ru", "a111111"))
+	//////{
+	//////	FSipPhone->hangup();
+	//////	FSipPhone->cleanup();
+	//////}
+	//////if(FSipPhone->initStack("vsip.rambler.ru", 5065, "rvoip-2@rambler.ru", "a111111"))
+	//////{
+	//////	FSipPhone->hangup();
+	//////	FSipPhone->cleanup();
+	//////}
+
 	connect(this, SIGNAL(streamStateChanged(const QString&, int)), this, SLOT(onStreamStateChanged(const QString&, int)));
 }
 
@@ -52,6 +74,8 @@ SipPhone::~SipPhone()
 	//}
 	if(FSipPhone != NULL)
 	{
+		FSipPhone->hangup();
+		FSipPhone->cleanup();
 		delete FSipPhone;
 		FSipPhone = NULL;
 	}
@@ -217,10 +241,10 @@ bool SipPhone::initObjects()
 
 void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 {
-	QString hostAddress;
-	IDefaultConnection *defConnection = qobject_cast<IDefaultConnection *>(AXmppStream->connection()->instance());
-	if (defConnection)
-		hostAddress = defConnection->localAddress();
+	//////////QString hostAddress;
+	//////////IDefaultConnection *defConnection = qobject_cast<IDefaultConnection *>(AXmppStream->connection()->instance());
+	//////////if (defConnection)
+	//////////	hostAddress = defConnection->localAddress();
 
 	//FSipPhoneProxy = new SipPhoneProxy(hostAddress, AXmppStream->streamJid().pBare(), AXmppStream->streamJid().pBare(), AXmppStream->password(), this);
 	//if(FSipPhoneProxy)
@@ -233,8 +257,7 @@ void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 	//	connect(FSipPhoneProxy, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
 	//}
 
-
-	 FSipPhone = new RSipPhone();
+	FSipPhone = new RSipPhone();
 	if(FSipPhone)
 	{
 		if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), AXmppStream->password()))
@@ -269,12 +292,12 @@ void SipPhone::onXmppStreamAboutToClose(IXmppStream *)
 	foreach(QString sid, FStreams.keys())
 		closeStream(sid);
 
-	if(FSipPhone != NULL)
-	{
-		FSipPhone->hangup();
-		delete FSipPhone;
-		FSipPhone = NULL;
-	}
+	//if(FSipPhone != NULL)
+	//{
+	//	FSipPhone->hangup();
+	//	delete FSipPhone;
+	//	FSipPhone = NULL;
+	//}
 }
 
 void SipPhone::onXmppStreamClosed(IXmppStream *)
@@ -298,6 +321,7 @@ void SipPhone::onXmppStreamClosed(IXmppStream *)
 	if(FSipPhone != NULL)
 	{
 		FSipPhone->hangup();
+		FSipPhone->cleanup();
 		delete FSipPhone;
 		FSipPhone = NULL;
 	}

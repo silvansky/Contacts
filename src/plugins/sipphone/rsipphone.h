@@ -85,6 +85,7 @@ public slots:
 
 		void hangup();
 		void onShowSipPhoneWidget(void* hwnd);
+		void cleanup();
 		//void quit();
 
 private slots:
