@@ -17,8 +17,11 @@
 #define SMS_DISCO_TYPE            "sms"
 #define SMS_DISCO_CATEGORY        "gateway"
 
+#define SMS_CONTACT_DOMAIN        "sms.rambler.ru"
+
 #define SHC_SMS_BALANCE           "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SMS_BALANCE "']"
 #define SHC_MESSAGE_RECEIPTS      "/message/received[@xmlns='" NS_RECEIPTS "']"
+
 
 QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
 {
@@ -529,7 +532,7 @@ bool SmsMessageHandler::isSmsContact(const Jid &AStreamJid, const Jid &AContactJ
 		//	IDiscoIdentity ident = FDiscovery->discoInfo(AStreamJid,AContactJid.domain()).identity.value(0);
 		//	return ident.category==SMS_DISCO_CATEGORY && ident.type==SMS_DISCO_TYPE;
 		//}
-		return AContactJid.pDomain().startsWith("sms.");
+		return AContactJid.pDomain() == SMS_CONTACT_DOMAIN;
 	}
 	return false;
 }
@@ -631,61 +634,53 @@ IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACon
 	IChatWindow *window = NULL;
 	if (AStreamJid.isValid() && AContactJid.isValid())
 	{
-		window = findWindow(AStreamJid,AContactJid,false);
-		if (!window)
+		window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
+		if (window)
 		{
-			window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
-			if (window)
-			{
-				window->infoWidget()->autoUpdateFields();
-				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
+			window->infoWidget()->autoUpdateFields();
+			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
-				WindowStatus &wstatus = FWindowStatus[window];
-				wstatus.createTime = QDateTime::currentDateTime();
+			WindowStatus &wstatus = FWindowStatus[window];
+			wstatus.createTime = QDateTime::currentDateTime();
 
-				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
-				connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
-				connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
-				connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
-				connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
+			connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
+			connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
+			connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
+			connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
+			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
 
-				FWindows.append(window);
-				updateWindow(window);
-				setMessageStyle(window);
+			FWindows.append(window);
+			updateWindow(window);
+			setMessageStyle(window);
 
-				SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
-				window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
+			SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
+			window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
 
-				TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
-				pageInfo.page = window;
-				emit tabPageCreated(window);
+			TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+			pageInfo.page = window;
+			emit tabPageCreated(window);
 
-				requestHistoryMessages(window, HISTORY_MESSAGES_COUNT);
+			requestHistoryMessages(window, HISTORY_MESSAGES_COUNT);
 
-				window->instance()->installEventFilter(this);
-			}
+			window->instance()->installEventFilter(this);
+		}
+		else
+		{
+			window = findWindow(AStreamJid,AContactJid);
 		}
 	}
 	return window;
 }
 
-IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch) const
+IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	IChatWindow *bareWindow = NULL;
-	foreach(IChatWindow *window,FWindows)
-	{
-		if (window->streamJid() == AStreamJid)
-		{
-			if (window->contactJid() == AContactJid)
-				return window;
-			else if (!AExactMatch && !bareWindow && (window->contactJid() && AContactJid))
-				bareWindow = window;
-		}
-	}
-	return bareWindow;
+	foreach(IChatWindow *window, FWindows)
+		if (window->streamJid()==AStreamJid && window->contactJid()==AContactJid)
+			return window;
+	return NULL;
 }
 
-IChatWindow * SmsMessageHandler::findNotifiedMessageWindow(int AMessageId) const
+IChatWindow *SmsMessageHandler::findNotifiedMessageWindow(int AMessageId) const
 {
 	foreach(IChatWindow *window, FWindows)
 		if (FWindowStatus.value(window).notified.contains(AMessageId))
