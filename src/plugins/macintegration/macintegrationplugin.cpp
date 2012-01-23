@@ -90,6 +90,7 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	MacIntegrationPrivate::installCustomFrame();
 	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
 	setCustomTitleColor(QColor(240, 240, 240, 255));
+	//setCustomTitleColor(QColor(0, 0, 0, 255));
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()

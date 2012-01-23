@@ -13,6 +13,7 @@
 - (NSWindow*)window;
 - (id)_displayName;
 - (NSRect)bounds;
+- (NSString *)title;
 
 - (void)drawRect:(NSRect)rect;
 - (void) _drawTitleStringIn: (NSRect) rect withColor: (NSColor *) color;

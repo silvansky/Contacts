@@ -11,11 +11,11 @@ static NSColor * gTitleColor = nil;
 {
 	// Call original drawing method
 	[self drawRectOriginal:rect];
-	//[self _setTextShadow:NO];
+	[self _setTextShadow:NO];
 
 	NSRect titleRect;
 
-	// Build clipping path : intersection of frame clip (bezier path with rounded corners) and rect argument
+	// Build clipping path
 #ifndef CLIP_METHOD2
 	NSRect windowRect = [[self window] frame];
 	windowRect.origin = NSMakePoint(0, 0);
@@ -26,9 +26,6 @@ static NSColor * gTitleColor = nil;
 	titleRect = NSMakeRect(0, 0, windowRect.size.width, windowRect.size.height);
 #else
 	NSRect brect = [self bounds];
-//	[[NSColor clearColor] set];
-//	NSRectFill(brect);
-//	NSRectFill(rect);
 
 	float radius = [self roundedCornerRadius];
 	NSBezierPath *path = [[NSBezierPath alloc] init];
@@ -38,18 +35,10 @@ static NSColor * gTitleColor = nil;
 	NSPoint bottomRight = NSMakePoint(NSMaxX(brect), NSMinY(brect));
 
 	[path moveToPoint: topMid];
-	[path appendBezierPathWithArcFromPoint: topRight
-		toPoint: bottomRight
-		radius: radius];
-	[path appendBezierPathWithArcFromPoint: bottomRight
-		toPoint: brect.origin
-		radius: radius];
-	[path appendBezierPathWithArcFromPoint: brect.origin
-		toPoint: topLeft
-		radius: radius];
-	[path appendBezierPathWithArcFromPoint: topLeft
-		toPoint: topRight
-		radius: radius];
+	[path appendBezierPathWithArcFromPoint: topRight toPoint: bottomRight radius: radius];
+	[path appendBezierPathWithArcFromPoint: bottomRight toPoint: brect.origin radius: radius];
+	[path appendBezierPathWithArcFromPoint: brect.origin toPoint: topLeft radius: radius];
+	[path appendBezierPathWithArcFromPoint: topLeft toPoint: topRight radius: radius];
 	[path closePath];
 
 	[path addClip];
@@ -85,7 +74,13 @@ static NSColor * gTitleColor = nil;
 {
 	if (!gTitleColor)
 		gTitleColor = [[NSColor colorWithCalibratedRed: .6 green: .6 blue: .6 alpha: 1.0] retain];
-	[self _drawTitleStringOriginalIn: rect withColor: gTitleColor];
+	//[self _drawTitleStringOriginalIn: rect withColor: gTitleColor];
+
+	NSLog(@"title: %@", [self title]);
+
+	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"SegoeUI" size:10], NSFontAttributeName, gTitleColor, NSForegroundColorAttributeName, nil];
+	NSAttributedString * str = [[NSAttributedString alloc] initWithString:[self title] attributes:attributes];
+	[str drawWithRect:rect options:NSStringDrawingTruncatesLastVisibleLine];
 }
 
 @end
