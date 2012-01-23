@@ -87,6 +87,7 @@ public slots:
 		void onShowSipPhoneWidget(void* hwnd);
 		void cleanup();
 		//void quit();
+		bool sendVideo(bool isSending);
 
 private slots:
 		void onNewCall(int cid, bool incoming);
@@ -136,6 +137,7 @@ private:
 private:
 	QImage _img, _currimg;
 	SipPhoneWidget* _pPhoneWidget;
+	bool _initialized;
 
 	//pjmedia_vid_dev_myframe myframe;
 };

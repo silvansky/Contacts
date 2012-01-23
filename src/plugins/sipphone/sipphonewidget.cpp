@@ -380,10 +380,12 @@ void SipPhoneWidget::cameraStateChange(bool state)
 	if(state)
 	{
 		emit startCamera();
+		emit signal_CameraStateChange(true);
 	}
 	else
 	{
 		emit stopCamera();
+		emit signal_CameraStateChange(false);
 		_pCurrPic->setPixmap(QPixmap());
 	}
 }

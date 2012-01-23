@@ -116,6 +116,7 @@ signals:
 	void startCamera();
 	void stopCamera();
 	void fullScreenState(bool);
+	void signal_CameraStateChange(bool);
 
 public slots:
 	void cameraStateChange(bool);

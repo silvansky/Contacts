@@ -93,6 +93,18 @@ static void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjs
 //PJSIP_TSX_STATE_TRYING
 }
 
+//pj_status_t (*put_frame_callback)(pjmedia_frame *frame, int, int);
+// ПОПОВ. callback ф-ия передающая кадр
+pj_status_t my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
+{
+	return RSipPhone::instance()->on_my_put_frame_callback(frame, w, h, stride);
+}
+pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
+{
+	return RSipPhone::instance()->on_my_preview_frame_callback(frame, colormodelName, w, h, stride);
+}
+
+
 #define RGB24_LEN(w,h)      ((w) * (h) * 3)
 #define RGB32_LEN(w,h)      ((w) * (h) * 4)
 #define YUV420P_LEN(w,h)    (((w) * (h) * 3) / 2)
@@ -322,7 +334,7 @@ RSipPhone *RSipPhone::_pInstance;
 
 RSipPhone::RSipPhone(QObject *parent) : QObject(parent), _uri(""),
 											//_pVideoInputWidget(NULL), _pVideoPrevWidget(NULL),
-											_is_preview_on(false), _pPhoneWidget(NULL),
+											_is_preview_on(false), _pPhoneWidget(NULL), _initialized(false),
 											_currentCall(-1), _accountId(-1), _currentRegisterStatus(false)
 {
 	_pInstance = this;
@@ -404,6 +416,9 @@ void RSipPhone::showError(const char *title, pj_status_t status)
 
 void RSipPhone::onNewCall(int cid, bool incoming)
 {
+	myframe.put_frame_callback = &my_put_frame_callback;
+	myframe.preview_frame_callback = &my_preview_frame_callback;
+
 	pjsua_call_info ci;
 
 	pj_assert(_currentCall == -1);
@@ -416,6 +431,8 @@ void RSipPhone::onNewCall(int cid, bool incoming)
 	else if(ci.role == PJSIP_ROLE_UAC)
 		_currentRole = OUTGOING;
 	
+
+
 
 	//url_->setText(ci.remote_info.ptr);
 	//url_->setEnabled(false);
@@ -455,6 +472,7 @@ void RSipPhone::onCallReleased()
 	//}
 
 	myframe.put_frame_callback = NULL;
+	myframe.preview_frame_callback = NULL;
 	if(_pPhoneWidget)
 	{
 		delete _pPhoneWidget;
@@ -527,10 +545,18 @@ void RSipPhone::preview()
 
 void RSipPhone::call()
 {
+	pjsua_call_setting call_setting;
+
 	if (_currentRole == INCOMMING)// (callButton_->text() == "Answer")
 	{
 		pj_assert(_currentCall != -1);
 		pjsua_call_answer(_currentCall, 200, NULL, NULL);
+
+		
+		//pjsua_call_setting_default(&call_setting);
+		//call_setting.vid_cnt = 0;
+		//pjsua_call_answer2(_currentCall, &call_setting, 200, NULL, NULL);
+
 		//callButton_->setEnabled(false);
 	}
 	else if(_currentRole == OUTGOING)
@@ -550,6 +576,18 @@ void RSipPhone::call()
 			showError("make call", status);
 			return;
 		}
+
+
+		//pjsua_call_setting_default(&call_setting);
+		//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
+
+		//status = pjsua_call_make_call(_accountId, &uri, &call_setting, NULL, NULL, &_currentCall);
+		//if (status != PJ_SUCCESS)
+		//{
+		//	showError("make call", status);
+		//	return;
+		//}
+
 	}
 }
 
@@ -569,6 +607,11 @@ void RSipPhone::call(const char* uriToCall)
 	pj_str_t uri = pj_str((char*)uriTmp);
 
 	pj_assert(_currentCall == -1);
+
+
+	//pjsua_call_setting call_setting;
+	//pjsua_call_setting_default(&call_setting);
+	//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 
 	status = pjsua_call_make_call(_accountId, &uri, 0, NULL, NULL, &_currentCall);
 	if (status != PJ_SUCCESS)
@@ -590,16 +633,7 @@ void RSipPhone::hangup()
 }
 
 
-//pj_status_t (*put_frame_callback)(pjmedia_frame *frame, int, int);
-// ПОПОВ. callback ф-ия передающая кадр
-pj_status_t my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
-{
-	return RSipPhone::instance()->on_my_put_frame_callback(frame, w, h, stride);
-}
-pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
-{
-	return RSipPhone::instance()->on_my_preview_frame_callback(frame, colormodelName, w, h, stride);
-}
+
 
 
 pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
@@ -678,8 +712,8 @@ pj_status_t RSipPhone::on_my_put_frame_callback(pjmedia_frame *frame, int w, int
 
 void RSipPhone::initVideoWindow()
 {
-	myframe.put_frame_callback = &my_put_frame_callback;
-	myframe.preview_frame_callback = &my_preview_frame_callback;
+	//myframe.put_frame_callback = &my_put_frame_callback;
+	//myframe.preview_frame_callback = &my_preview_frame_callback;
 
 	pjsua_call_info ci;
 	unsigned i;
@@ -709,6 +743,7 @@ void RSipPhone::initVideoWindow()
 			break;
 		}
 	}
+	//emit signalShowSipPhoneWidget(0);
 }
 
 
@@ -816,6 +851,11 @@ void RSipPhone::on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjs
 	// ВНИМАНИЕ! Автоматически акцептим входящий вызов !!!
 	pjsua_call_answer(call_id, 200, NULL, NULL);
 
+	//pjsua_call_setting call_setting;
+	//pjsua_call_setting_default(&call_setting);
+	//call_setting.vid_cnt = 0;
+	//pjsua_call_answer2(call_id, &call_setting, 200, NULL, NULL);
+
 	showStatus(status);
 }
 
@@ -861,6 +901,9 @@ void RSipPhone::on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx,
 
 bool RSipPhone::isCameraReady() const
 {
+	if(!_initialized)
+		return false;
+
 	int devCount = pjmedia_vid_dev_count();
 	for (int id=0; id<devCount; id++)
 	{
@@ -870,6 +913,21 @@ bool RSipPhone::isCameraReady() const
 			return true;
 	}
 	return false;
+}
+
+bool RSipPhone::sendVideo(bool isSending)
+{
+	pjsua_call_setting call_setting;
+
+	if(!_initialized || _currentCall == -1)
+		return false;
+
+  pjsua_call_setting_default(&call_setting);
+	call_setting.vid_cnt = isSending ? 1 : 0;
+
+  pjsua_call_reinvite2(_currentCall, &call_setting, NULL);
+
+	return true;
 }
 
 
@@ -886,6 +944,9 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	connect(_pPhoneWidget, SIGNAL(hangupCall()), this, SLOT(hangup()));
 	connect(this, SIGNAL(signal_SetRomoteImage(const QImage&)), _pPhoneWidget, SLOT(SetRemoteImage(const QImage&)), Qt::QueuedConnection);
 	connect(this, SIGNAL(signal_SetCurrentImage(const QImage&)), _pPhoneWidget, SLOT(SetCurrImage(const QImage&)), Qt::QueuedConnection);
+
+	connect(_pPhoneWidget, SIGNAL(signal_CameraStateChange(bool)), this, SLOT(sendVideo(bool)));
+
 
 	bool camera = isCameraReady();
 	//_pPhoneWidget->show();
@@ -1116,10 +1177,12 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 
 	showStatus("Ready");
 
+	_initialized = true;
 	return true;
 
 on_error:
 	pjsua_destroy();
+	_initialized = false;
 	return false;
 }
 
