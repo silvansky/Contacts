@@ -1226,7 +1226,7 @@ void SipPhone::showCallControlTab(const QString& sid)
 void SipPhone::insertIncomingNotify(const ISipStream &AStream)
 {
 	INotification notify;
-	notify.kinds = FNotifications ? FNotifications->notificationKinds(NNT_SIPPHONE_CALL) : 0;
+	notify.kinds = FNotifications ? FNotifications->enabledTypeNotificationKinds(NNT_SIPPHONE_CALL) : 0;
 	if (notify.kinds > 0)
 	{
 		QString message = tr("Calling you...");
@@ -1294,7 +1294,7 @@ void SipPhone::removeIncomingNotify(const QString &AStreamId)
 void SipPhone::insertMissedNotify(const ISipStream &AStream)
 {
 	INotification notify;
-	notify.kinds = FNotifications ? FNotifications->notificationKinds(NNT_SIPPHONE_MISSEDCALL) : 0;
+	notify.kinds = FNotifications ? FNotifications->enabledTypeNotificationKinds(NNT_SIPPHONE_MISSEDCALL) : 0;
 	if (notify.kinds > 0)
 	{
 		int callsCount = 1;

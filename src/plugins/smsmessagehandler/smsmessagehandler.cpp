@@ -421,7 +421,7 @@ INotification SmsMessageHandler::messageNotify(INotifications *ANotifications, c
 			QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
 			QString messages = tr("%n message(s)","",wstatus.notified.count()+1);
 
-			notify.kinds = ANotifications->notificationKinds(NNT_CHAT_MESSAGE);
+			notify.kinds = ANotifications->enabledTypeNotificationKinds(NNT_CHAT_MESSAGE);
 			if (notify.kinds > 0)
 			{
 				notify.typeId = NNT_CHAT_MESSAGE;

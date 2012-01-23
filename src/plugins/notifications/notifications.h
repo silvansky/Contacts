@@ -85,9 +85,12 @@ public:
 	virtual void registerNotificationType(const QString &ATypeId, const INotificationType &AType);
 	virtual QList<QString> notificationTypes() const;
 	virtual INotificationType notificationType(const QString &ATypeId) const;
-	virtual ushort notificationKinds(const QString &ATypeId) const;
-	virtual void setNotificationKinds(const QString &ATypeId, ushort AKinds);
 	virtual void removeNotificationType(const QString &ATypeId);
+	virtual ushort enabledNotificationKinds() const;
+	virtual void setEnabledNotificationKinds(ushort AKinds);
+	virtual ushort enabledTypeNotificationKinds(const QString &ATypeId) const;
+	virtual ushort typeNotificationKinds(const QString &ATypeId) const;
+	virtual void setTypeNotificationKinds(const QString &ATypeId, ushort AKinds);
 	//Notification Utilities
 	virtual QImage contactAvatar(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual QIcon contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const;

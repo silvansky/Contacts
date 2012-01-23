@@ -332,7 +332,7 @@ void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AS
 			}
 
 			INotification notify;
-			notify.kinds = FNotifications!=NULL ? FNotifications->notificationKinds(NNT_MAIL_NOTIFY)|INotification::RosterNotify : 0;
+			notify.kinds = FNotifications!=NULL ? FNotifications->enabledTypeNotificationKinds(NNT_MAIL_NOTIFY)|INotification::RosterNotify : 0;
 			if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 			{
 				notify.typeId = NNT_MAIL_NOTIFY;

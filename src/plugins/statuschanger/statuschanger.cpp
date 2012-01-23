@@ -820,7 +820,7 @@ void StatusChanger::updateStatusNotification(IPresence *APresence)
 			removeStatusNotification(APresence);
 
 			INotification notify;
-			notify.kinds = FNotifications->notificationKinds(NNT_CONNECTION_STATE);
+			notify.kinds = FNotifications->enabledTypeNotificationKinds(NNT_CONNECTION_STATE);
 			if (notify.kinds > 0)
 			{
 				notify.typeId = NNT_CONNECTION_STATE;

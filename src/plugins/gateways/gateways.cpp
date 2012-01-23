@@ -1422,7 +1422,7 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 			if (FNotifications)
 			{
 				INotification notify;
-				notify.kinds = FNotifications->notificationKinds(NNT_BIRTHDAY_REMIND);
+				notify.kinds = FNotifications->enabledTypeNotificationKinds(NNT_BIRTHDAY_REMIND);
 				if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 				{
 					IGateServiceDescriptor descriptor = serviceDescriptor(APresence->streamJid(),AItem.itemJid);

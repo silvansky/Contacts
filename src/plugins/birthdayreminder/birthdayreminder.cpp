@@ -360,7 +360,7 @@ void BirthdayReminder::onShowNotificationTimer()
 	if (FNotifications && FNotifications->notifications().isEmpty())
 	{
 		INotification notify;
-		notify.kinds = FNotifications->notificationKinds(NNT_BIRTHDAY_REMIND);
+		notify.kinds = FNotifications->enabledTypeNotificationKinds(NNT_BIRTHDAY_REMIND);
 		if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 		{
 			updateBirthdaysStates();
@@ -467,7 +467,7 @@ void BirthdayReminder::onInternalNoticeReady()
 	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 	if (FNotifications && widget->isEmpty())
 	{
-		if ((FNotifications->notificationKinds(NNT_BIRTHDAY_REMIND) & (INotification::PopupWindow|INotification::SoundPlay)) == 0)
+		if ((FNotifications->enabledTypeNotificationKinds(NNT_BIRTHDAY_REMIND) & (INotification::PopupWindow|INotification::SoundPlay)) == 0)
 		{
 			int showCount = Options::node(OPV_BIRTHDAY_NOTICE_SHOWCOUNT).value().toInt();
 			QDateTime showLast = Options::node(OPV_BIRTHDAY_NOTICE_SHOWLAST).value().toDateTime();
@@ -497,7 +497,7 @@ void BirthdayReminder::onInternalNoticeActionTriggered()
 	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 	FInternalNoticeId = widget->insertNotice(notice);
 
-	FNotifications->setNotificationKinds(NNT_BIRTHDAY_REMIND,INotification::PopupWindow|INotification::SoundPlay);
+	FNotifications->setTypeNotificationKinds(NNT_BIRTHDAY_REMIND,INotification::PopupWindow|INotification::SoundPlay);
 
 	QTimer::singleShot(2000,this,SLOT(onInternalNoticeRemove()));
 }

@@ -198,7 +198,7 @@ void PresencePlugin::notifyMoodChanged(IPresence *APresence, const IPresenceItem
 		if (lastNotify.isNull() || lastNotify.secsTo(QDateTime::currentDateTime())>=MOOD_NOTIFY_TIMEOUT)
 		{
 			INotification notify;
-			notify.kinds = FNotifications->notificationKinds(NNT_CONTACT_MOOD);
+			notify.kinds = FNotifications->enabledTypeNotificationKinds(NNT_CONTACT_MOOD);
 			if (notify.kinds > 0)
 			{
 				notify.typeId = NNT_CONTACT_MOOD;
@@ -222,7 +222,7 @@ void PresencePlugin::notifyStateChanged(IPresence *APresence, const IPresenceIte
 	if (FNotifications && isNotifyAvailable(APresence,AItem.itemJid))
 	{
 		INotification notify;
-		notify.kinds = FNotifications->notificationKinds(NNT_CONTACT_STATE);
+		notify.kinds = FNotifications->enabledTypeNotificationKinds(NNT_CONTACT_STATE);
 
 		QDateTime lastNotify = lastNotifyTime(APresence,AItem.itemJid,FLastStateNotify);
 		if (lastNotify.isNull() || lastNotify.secsTo(QDateTime::currentDateTime())>=STATE_NOTIFY_TIMEOUT)

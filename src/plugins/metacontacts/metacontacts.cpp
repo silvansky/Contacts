@@ -1153,7 +1153,7 @@ void MetaContacts::notifyContactDeleteFailed(IMetaRoster *AMetaRoster, const QSt
 		if (FNotifications && !AErrCond.isEmpty())
 		{
 			INotification notify;
-			notify.kinds = FNotifications!=NULL ? FNotifications->notificationKinds(NNT_METACONTACTS_DELETEFAIL) : 0;
+			notify.kinds = FNotifications!=NULL ? FNotifications->enabledTypeNotificationKinds(NNT_METACONTACTS_DELETEFAIL) : 0;
 			if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 			{
 				notify.typeId = NNT_METACONTACTS_DELETEFAIL;

@@ -11,6 +11,10 @@
 # include "growlpreferences.h"
 #endif
 
+#define FIRST_KIND                      0x0001
+#define LAST_KIND                       0x8000
+#define UNDEFINED_KINDS                 0xFFFF
+
 #define TEST_NOTIFY_TIMEOUT             10000
 
 #define ADR_NOTIFYID                    Action::DR_Parametr1
@@ -212,7 +216,7 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_ITEM_OPTIONS, kindsWidgetsContainer);
 #else
-        widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Growl Notifications"),AParent));
+		widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Growl Notifications"),AParent));
 		GrowlPreferences * growlPrefs = new GrowlPreferences;
 		connect(growlPrefs, SIGNAL(showGrowlPreferences()), SLOT(onShowGrowlPreferences()));
 		widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, growlPrefs);
@@ -265,8 +269,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	if (!FNotifyRecords.contains(replaceNotifyId))
 		replaceNotifyId = -1;
 
-	if (FRostersModel && FRostersViewPlugin && (record.notification.kinds & INotification::RosterNotify)>0 &&
-		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::RosterNotify)).value().toBool())
+	if (FRostersModel && FRostersViewPlugin && (record.notification.kinds & INotification::RosterNotify)>0)
 	{
 		bool createIndex = record.notification.data.value(NDR_ROSTER_CREATE_INDEX).toBool();
 		Jid streamJid = record.notification.data.value(NDR_STREAM_JID).toString();
@@ -286,11 +289,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (!blockPopupAndSound && (record.notification.kinds & INotification::PopupWindow)>0
-#ifndef Q_WS_MAC
-			&& Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::PopupWindow)).value().toBool()
-#endif
-			)
+	if (!blockPopupAndSound && (record.notification.kinds & INotification::PopupWindow)>0)
 	{
 #ifdef Q_WS_MAC
 		if (FMacIntegration)
@@ -337,8 +336,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 	{
 		QString toolTip = record.notification.data.value(NDR_TRAY_TOOLTIP).toString();
 
-		if ((record.notification.kinds & INotification::TrayNotify)>0 &&
-			Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::TrayNotify)).value().toBool())
+		if ((record.notification.kinds & INotification::TrayNotify)>0)
 		{
 			ITrayNotify notify;
 			notify.blink = true;
@@ -350,8 +348,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if (!blockPopupAndSound && (record.notification.kinds & INotification::SoundPlay)>0 &&
-		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::SoundPlay)).value().toBool())
+	if (!blockPopupAndSound && (record.notification.kinds & INotification::SoundPlay)>0)
 	{
 #ifndef Q_WS_MAC // disabling sounds on Mac, user should deine sounds in Growl
 		QString soundName = record.notification.data.value(NDR_SOUND_FILE).toString();
@@ -392,8 +389,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 #endif // mac
 	}
 
-	if ((record.notification.kinds & INotification::ShowMinimized)>0 &&
-		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::ShowMinimized)).value().toBool())
+	if ((record.notification.kinds & INotification::ShowMinimized)>0)
 	{
 		QWidget *widget = qobject_cast<QWidget *>((QWidget *)record.notification.data.value(NDR_SHOWMINIMIZED_WIDGET).toLongLong());
 		if (widget)
@@ -411,11 +407,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if ((record.notification.kinds & INotification::AlertWidget)>0
-#ifndef Q_WS_MAC
-			&& Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::AlertWidget)).value().toBool()
-#endif
-			)
+	if ((record.notification.kinds & INotification::AlertWidget)>0)
 	{
 		QWidget *widget = qobject_cast<QWidget *>((QWidget *)record.notification.data.value(NDR_ALERT_WIDGET).toLongLong());
 		if (widget)
@@ -426,8 +418,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 #endif
 	}
 
-	if ((record.notification.kinds & INotification::TabPageNotify)>0 &&
-		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::TabPageNotify)).value().toBool())
+	if ((record.notification.kinds & INotification::TabPageNotify)>0)
 	{
 		ITabPage *page = qobject_cast<ITabPage *>((QWidget *)record.notification.data.value(NDR_TABPAGE_WIDGET).toLongLong());
 		if (page && page->tabPageNotifier())
@@ -446,8 +437,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		}
 	}
 
-	if ((record.notification.kinds & INotification::AutoActivate)>0 &&
-		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(INotification::AutoActivate)).value().toBool())
+	if ((record.notification.kinds & INotification::AutoActivate)>0)
 	{
 		FDelayedActivations.append(notifyId);
 		QTimer::singleShot(0,this,SLOT(onActivateDelayedActivations()));
@@ -535,7 +525,34 @@ INotificationType Notifications::notificationType(const QString &ATypeId) const
 	return FNotifyTypes.value(ATypeId);
 }
 
-ushort Notifications::notificationKinds(const QString &ATypeId) const
+void Notifications::removeNotificationType(const QString &ATypeId)
+{
+	FNotifyTypes.remove(ATypeId);
+}
+
+ushort Notifications::enabledNotificationKinds() const
+{
+	ushort kinds = 0;
+	for (ushort kind=FIRST_KIND; kind>0; kind=kind<<1)
+	{
+		if (Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(kind)).value().toBool())
+			kinds |= kind;
+	}
+	return kinds;
+}
+
+void Notifications::setEnabledNotificationKinds(ushort AKinds)
+{
+	for (ushort kind=FIRST_KIND; kind>0; kind=kind<<1)
+		Options::node(OPV_NOTIFICATIONS_KINDENABLED_ITEM,QString::number(kind)).setValue((AKinds & kind)>0 ? true : false);
+}
+
+ushort Notifications::enabledTypeNotificationKinds(const QString &ATypeId) const
+{
+	return typeNotificationKinds(ATypeId) & enabledNotificationKinds();
+}
+
+ushort Notifications::typeNotificationKinds(const QString &ATypeId) const
 {
 	if (FNotifyTypes.contains(ATypeId))
 	{
@@ -545,18 +562,13 @@ ushort Notifications::notificationKinds(const QString &ATypeId) const
 	return 0;
 }
 
-void Notifications::setNotificationKinds(const QString &ATypeId, ushort AKinds)
+void Notifications::setTypeNotificationKinds(const QString &ATypeId, ushort AKinds)
 {
 	if (FNotifyTypes.contains(ATypeId))
 	{
 		INotificationType notifyType = FNotifyTypes.value(ATypeId);
 		Options::node(OPV_NOTIFICATIONS_TYPEKINDS_ITEM,ATypeId).setValue((AKinds & notifyType.kindMask) ^ notifyType.kindDefs);
 	}
-}
-
-void Notifications::removeNotificationType(const QString &ATypeId)
-{
-	FNotifyTypes.remove(ATypeId);
 }
 
 QImage Notifications::contactAvatar(const Jid &AStreamJid, const Jid &AContactJid) const

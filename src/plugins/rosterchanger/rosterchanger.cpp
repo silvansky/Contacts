@@ -1296,7 +1296,7 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 		QString notifyMessage = subscriptionNotify(ARoster->streamJid(),AItemJid,ASubsType);
 
 		removeObsoleteNotifies(ARoster->streamJid(),AItemJid,ASubsType,false);
-		notify.kinds = FNotifications!=NULL ? FNotifications->notificationKinds(NNT_SUBSCRIPTION) : 0;
+		notify.kinds = FNotifications!=NULL ? FNotifications->enabledTypeNotificationKinds(NNT_SUBSCRIPTION) : 0;
 		if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribe)
 			notify.kinds &= INotification::PopupWindow|INotification::SoundPlay;
 

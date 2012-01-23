@@ -447,7 +447,7 @@ INotification MultiUserChatPlugin::messageNotify(INotifications *ANotifications,
 		QDomElement inviteElem = AMessage.stanza().firstElement("x",NS_MUC_USER).firstChildElement("invite");
 		if (!multiChatWindow(AMessage.to(),roomJid))
 		{
-			notify.kinds = ANotifications->notificationKinds(NNT_MUC_MESSAGE_INVITE);
+			notify.kinds = ANotifications->enabledTypeNotificationKinds(NNT_MUC_MESSAGE_INVITE);
 			if (notify.kinds > 0)
 			{
 				Jid fromJid = inviteElem.attribute("from");
