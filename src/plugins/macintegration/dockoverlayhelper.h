@@ -7,12 +7,12 @@
 @interface DockOverlayHelper : NSView
 {
 	NSImage * img;
-	Qt::Alignment align;
+	int /*Qt::Alignment*/ align;
 	BOOL drawAppIcon;
 }
 
 @property (nonatomic, retain) NSImage * overlayImage;
-@property (nonatomic, assign) Qt::Alignment alignment;
+@property (nonatomic, assign) int /*Qt::Alignment*/ alignment;
 @property (nonatomic, assign) BOOL drawAppIcon;
 
 - (void)set;

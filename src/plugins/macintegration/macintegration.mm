@@ -6,6 +6,7 @@
 
 #define COCOA_CLASSES_DEFINED
 
+#include <QVariant>
 #include <QImage>
 #include <QPixmap>
 #include <QApplication>
@@ -250,7 +251,7 @@ void MacIntegrationPrivate::setDockOverlay(const QImage & overlay, Qt::Alignment
 		NSLog(@"setting overlay...");
 		NSImage * nsOverlay = nsImageFromQImage(overlay);
 		dockOverlay.overlayImage = nsOverlay;
-		dockOverlay.alignment = align;
+		dockOverlay.alignment = (int)align;
 		dockOverlay.drawAppIcon = showAppIcon ? YES : NO;
 		[nsOverlay release];
 		[dockOverlay set];
