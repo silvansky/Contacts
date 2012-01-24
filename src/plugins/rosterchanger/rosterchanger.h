@@ -11,6 +11,7 @@
 #include <definitions/rosterdataholderorders.h>
 #include <definitions/rosteredithandlerorders.h>
 #include <definitions/rosterfootertextorders.h>
+#include <definitions/rosterclickhookerorders.h>
 #include <definitions/notificationtypes.h>
 #include <definitions/notificationdataroles.h>
 #include <definitions/optionvalues.h>
