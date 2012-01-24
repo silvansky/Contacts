@@ -28,6 +28,9 @@
 
 #include <QDebug>
 
+// forward declaration of private class
+@class NSThemeFrame;
+
 // helper func
 
 #include <definitions/notificationtypes.h>
@@ -316,12 +319,8 @@ bool MacIntegrationPrivate::isGrowlInstalled()
 
 bool MacIntegrationPrivate::isGrowlRunning()
 {
-	[GrowlApplicationBridge isGrowlRunning];
+	return [GrowlApplicationBridge isGrowlRunning];
 }
-
-
-
-@class NSThemeFrame;
 
 void MacIntegrationPrivate::installCustomFrame()
 {

@@ -42,8 +42,13 @@ static NSColor * gTitleColor = nil;
 	[path closePath];
 
 	[path addClip];
-	[path release];
-	titleRect = NSMakeRect(0, 0, brect.size.width, brect.size.height);
+
+	NSSize tbSz = [self sizeOfTitlebarButtons];
+	NSPoint pt = [self _zoomButtonOrigin];
+	NSLog(@"sizeOfTitlebarButtons: %.2f x %.2f, zoom button origin: (%.2f, %.2f)", tbSz.width, tbSz.width, pt.x, pt.y);
+	//titleRect = NSMakeRect(0.0, 1.0, brect.size.width, brect.size.height);
+	CGFloat dx = pt.x + tbSz.width;
+	titleRect = NSMakeRect(brect.origin.x + dx, brect.origin.y + brect.size.height - 22, brect.size.width - dx, 22);
 #endif
 
 	CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
@@ -67,20 +72,42 @@ static NSColor * gTitleColor = nil;
 
 	CGContextSetBlendMode(context, kCGBlendModeCopy);
 	// draw title text
+
+	//[path setClip];
+
+	[path release];
+
 	[self _drawTitleStringIn: titleRect withColor: nil];
 }
 
 - (void)_drawTitleStringIn: (NSRect) rect withColor: (NSColor *) color
 {
-	if (!gTitleColor)
-		gTitleColor = [[NSColor colorWithCalibratedRed: .6 green: .6 blue: .6 alpha: 1.0] retain];
-	//[self _drawTitleStringOriginalIn: rect withColor: gTitleColor];
+	if (!color)
+	{
+		if (!gTitleColor)
+			gTitleColor = [[NSColor colorWithCalibratedRed: .6 green: .6 blue: .6 alpha: 1.0] retain];
+		//[self _drawTitleStringOriginalIn: rect withColor: gTitleColor];	return;
 
-	NSLog(@"title: %@", [self title]);
+		NSLog(@"title: %@, rect: (%f, %f)x(%f, %f)", [self title], rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 
-	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"SegoeUI" size:10], NSFontAttributeName, gTitleColor, NSForegroundColorAttributeName, nil];
-	NSAttributedString * str = [[NSAttributedString alloc] initWithString:[self title] attributes:attributes];
-	[str drawWithRect:rect options:NSStringDrawingTruncatesLastVisibleLine];
+		NSFont * font = [NSFont fontWithName:@"SegoeUI" size:16.0];
+
+		NSMutableParagraphStyle * paragraphStyle =
+			[[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
+		[paragraphStyle setAlignment:NSCenterTextAlignment];
+
+		[[NSColor whiteColor] set];
+
+		[NSBezierPath strokeRect: rect];
+
+		NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:font, NSFontAttributeName, gTitleColor, NSForegroundColorAttributeName, paragraphStyle, NSParagraphStyleAttributeName, nil];
+		NSAttributedString * str = [[NSAttributedString alloc] initWithString:[self title] attributes:attributes];
+		[str drawWithRect:rect options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingDisableScreenFontSubstitution];
+	}
+	else
+	{
+		NSLog(@"system text color: %@", color);
+	}
 }
 
 @end
