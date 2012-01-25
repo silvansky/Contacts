@@ -42,13 +42,9 @@ static NSColor * gTitleColor = nil;
 	[path closePath];
 
 	[path addClip];
+	[path release];
 
-	NSSize tbSz = [self sizeOfTitlebarButtons];
-	NSPoint pt = [self _zoomButtonOrigin];
-	NSLog(@"sizeOfTitlebarButtons: %.2f x %.2f, zoom button origin: (%.2f, %.2f)", tbSz.width, tbSz.width, pt.x, pt.y);
-	//titleRect = NSMakeRect(0.0, 1.0, brect.size.width, brect.size.height);
-	CGFloat dx = pt.x + tbSz.width;
-	titleRect = NSMakeRect(brect.origin.x + dx, brect.origin.y + brect.size.height - 22, brect.size.width - dx, 22);
+	titleRect = NSMakeRect(brect.origin.x, brect.origin.y + brect.size.height - 22, brect.size.width, 22);
 #endif
 
 	CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
@@ -71,12 +67,8 @@ static NSColor * gTitleColor = nil;
 #endif
 
 	CGContextSetBlendMode(context, kCGBlendModeCopy);
+
 	// draw title text
-
-	//[path setClip];
-
-	[path release];
-
 	[self _drawTitleStringIn: titleRect withColor: nil];
 }
 
@@ -86,28 +78,72 @@ static NSColor * gTitleColor = nil;
 	{
 		if (!gTitleColor)
 			gTitleColor = [[NSColor colorWithCalibratedRed: .6 green: .6 blue: .6 alpha: 1.0] retain];
-		//[self _drawTitleStringOriginalIn: rect withColor: gTitleColor];	return;
 
 		NSLog(@"title: %@, rect: (%f, %f)x(%f, %f)", [self title], rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+		NSRect tmp = [self _titlebarTitleRect];
 
-		NSFont * font = [NSFont fontWithName:@"SegoeUI" size:16.0];
+		[[NSColor blueColor] set];
+		[NSBezierPath strokeRect: tmp];
 
-		NSMutableParagraphStyle * paragraphStyle =
-			[[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
-		[paragraphStyle setAlignment:NSCenterTextAlignment];
+		NSLog(@"_titlebarTitleRect: (%f, %f)x(%f, %f)", tmp.origin.x, tmp.origin.y, tmp.size.width, tmp.size.height);
 
-		[[NSColor whiteColor] set];
+		NSAttributedString * str = [self attributedTitle];
 
+		[[NSColor redColor] set];
 		[NSBezierPath strokeRect: rect];
 
-		NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:font, NSFontAttributeName, gTitleColor, NSForegroundColorAttributeName, paragraphStyle, NSParagraphStyleAttributeName, nil];
-		NSAttributedString * str = [[NSAttributedString alloc] initWithString:[self title] attributes:attributes];
-		[str drawWithRect:rect options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingDisableScreenFontSubstitution];
+		NSRect textRect = [self _titlebarTitleRect];
+
+		[[NSColor greenColor] set];
+		[NSBezierPath strokeRect: textRect];
+
+		[str drawWithRect:textRect options:NSStringDrawingTruncatesLastVisibleLine /*| NSStringDrawingUsesLineFragmentOrigin*/];
+		[str release];
 	}
 	else
 	{
 		NSLog(@"system text color: %@", color);
 	}
+}
+
+- (NSRect)_titlebarTitleRect
+{
+	NSRect originalRect = [self _titlebarTitleRectOriginal];
+	NSAttributedString * str = [self attributedTitle];
+	NSRect brect = [self bounds];
+	NSRect titleRect = NSMakeRect(brect.origin.x, brect.origin.y + brect.size.height - 22, brect.size.width, 22);
+
+	NSSize tbSz = [self sizeOfTitlebarButtons];
+	NSPoint pt = [self _zoomButtonOrigin];
+	NSSize strSize = [str size];
+
+	CGFloat dx = pt.x + tbSz.width + 6;
+	CGFloat dy = 5.0;
+
+	if (strSize.width < titleRect.size.width - dx)
+		dx = 0;
+
+	NSRect textRect = NSMakeRect(titleRect.origin.x + dx, titleRect.origin.y + dy, titleRect.size.width - dx, titleRect.size.height - dy);
+	return textRect;
+}
+
+-(NSAttributedString*)attributedTitle
+{
+	NSFont * font = [NSFont fontWithName:@"SegoeUI" size:16.0];
+
+	NSMutableParagraphStyle * paragraphStyle =
+		[[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
+	[paragraphStyle setAlignment:NSCenterTextAlignment];
+
+	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+			font, NSFontAttributeName,
+			gTitleColor, NSForegroundColorAttributeName,
+			paragraphStyle, NSParagraphStyleAttributeName,
+			//[NSNumber numberWithFloat: 5.0], NSBaselineOffsetAttributeName,
+			nil];
+
+	NSAttributedString * str = [[NSAttributedString alloc] initWithString:[self title] attributes:attributes];
+	return str;
 }
 
 @end

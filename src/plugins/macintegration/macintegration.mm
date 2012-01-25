@@ -28,9 +28,6 @@
 
 #include <QDebug>
 
-// forward declaration of private class
-@class NSThemeFrame;
-
 // helper func
 
 #include <definitions/notificationtypes.h>
@@ -324,25 +321,38 @@ bool MacIntegrationPrivate::isGrowlRunning()
 
 void MacIntegrationPrivate::installCustomFrame()
 {
-	id _class = [NSThemeFrame class];
+	id frameClass = [NSThemeFrame class];
 
 	// Exchange drawRect:
 	Method m0 = class_getInstanceMethod([DrawHelper class], @selector(drawRect:));
-	class_addMethod(_class, @selector(drawRectOriginal:), method_getImplementation(m0), method_getTypeEncoding(m0));
+	class_addMethod(frameClass, @selector(drawRectOriginal:), method_getImplementation(m0), method_getTypeEncoding(m0));
 
-	Method m1 = class_getInstanceMethod(_class, @selector(drawRect:));
-	Method m2 = class_getInstanceMethod(_class, @selector(drawRectOriginal:));
+	Method m1 = class_getInstanceMethod(frameClass, @selector(drawRect:));
+	Method m2 = class_getInstanceMethod(frameClass, @selector(drawRectOriginal:));
 
 	method_exchangeImplementations(m1, m2);
 
 	// Exchange _drawTitleStringIn:withColor:
 	Method m3 = class_getInstanceMethod([DrawHelper class], @selector(_drawTitleStringIn:withColor:));
-	class_addMethod(_class, @selector(_drawTitleStringOriginalIn:withColor:), method_getImplementation(m3), method_getTypeEncoding(m3));
+	class_addMethod(frameClass, @selector(_drawTitleStringOriginalIn:withColor:), method_getImplementation(m3), method_getTypeEncoding(m3));
 
-	Method m4 = class_getInstanceMethod(_class, @selector(_drawTitleStringIn:withColor:));
-	Method m5 = class_getInstanceMethod(_class, @selector(_drawTitleStringOriginalIn:withColor:));
+	Method m4 = class_getInstanceMethod(frameClass, @selector(_drawTitleStringIn:withColor:));
+	Method m5 = class_getInstanceMethod(frameClass, @selector(_drawTitleStringOriginalIn:withColor:));
 
 	method_exchangeImplementations(m4, m5);
+
+	// Exchange _titlebarTitleRect
+	Method m6 = class_getInstanceMethod([DrawHelper class], @selector(_titlebarTitleRect));
+	class_addMethod(frameClass, @selector(_titlebarTitleRectOriginal), method_getImplementation(m6), method_getTypeEncoding(m6));
+
+	Method m7 = class_getInstanceMethod(frameClass, @selector(_titlebarTitleRect));
+	Method m8 = class_getInstanceMethod(frameClass, @selector(_titlebarTitleRectOriginal));
+
+	method_exchangeImplementations(m7, m8);
+
+	// Add attributedTitle
+	Method m9 = class_getInstanceMethod([DrawHelper class], @selector(attributedTitle));
+	class_addMethod(frameClass, @selector(attributedTitle), method_getImplementation(m9), method_getTypeEncoding(m9));
 }
 
 void MacIntegrationPrivate::setCustomBorderColor(const QColor & frameColor)

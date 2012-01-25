@@ -3,14 +3,18 @@
 
 #import <Cocoa/Cocoa.h>
 
+// forward declaration of private class
+@class NSThemeFrame;
+
+// see http://zathras.de/programming/cocoa/UKCustomWindowFrame.zip/UKCustomWindowFrame/PrivateHeaders/NSThemeFrame.h
+// for reversed private header
+
 @interface DrawHelper : NSObject
 {
 }
 
 // dummy declarations of some undocumented functions of NSThemeFrame and its superclasses
 - (float)roundedCornerRadius;
-- (void)drawRectOriginal:(NSRect)rect;
-- (void)_drawTitleStringOriginalIn: (NSRect) rect withColor: (NSColor *) color;
 - (NSWindow*)window;
 - (id)_displayName;
 - (NSRect)bounds;
@@ -21,8 +25,18 @@
 - (NSPoint)_collapseButtonOrigin;
 - (void)_setTextShadow:(BOOL)on;
 
+// methods to exchange with NSThemeFrame class
 - (void)drawRect:(NSRect)rect;
-- (void) _drawTitleStringIn: (NSRect) rect withColor: (NSColor *) color;
+- (void)_drawTitleStringIn:(NSRect)rect withColor:(NSColor *)color;
+- (NSRect)_titlebarTitleRect;
+
+// renamed original methods of NSThemeFrame class
+- (void)drawRectOriginal:(NSRect)rect;
+- (void)_drawTitleStringOriginalIn: (NSRect) rect withColor: (NSColor *) color;
+- (NSRect)_titlebarTitleRectOriginal;
+
+// methods to add to NSThemeFrame class
+-(NSAttributedString*)attributedTitle;
 
 @end
 
