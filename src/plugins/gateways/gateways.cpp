@@ -341,10 +341,10 @@ bool Gateways::initObjects()
 	odnoklasniki.name = tr("Odnoklassniki");
 	odnoklasniki.iconKey = MNI_GATEWAYS_SERVICE_ODNOKLASNIKI;
 	odnoklasniki.loginLabel = tr("Login");
-   odnoklasniki.domains << "odnoklassniki.ru";
+	odnoklasniki.domains << "odnoklassniki.ru";
 	odnoklasniki.loginField = "username";
 	odnoklasniki.passwordField = "password";
-   odnoklasniki.domainSeparator = "@";
+	odnoklasniki.domainSeparator = "@";
 	odnoklasniki.homeContactPattern = "^"MAIL_NODE_PATTERN"@odnoklassniki\\.ru$";
 	odnoklasniki.availContactPattern = JabberContactPattern;
 	odnoklasniki.blockedDescriptors.append(GSID_MAIL);

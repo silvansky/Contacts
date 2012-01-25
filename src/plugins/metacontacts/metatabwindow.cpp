@@ -708,7 +708,7 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 		Action *deleteAction = new Action(AMenu);
 		deleteAction->setText(tr("Delete"));
 		deleteAction->setData(ADR_ITEM_JID,AItemJid.pBare());
-		deleteAction->setEnabled(FMetaRoster->isOpen());
+		deleteAction->setEnabled(FMetaRoster->isOpen() && FMetaContacts->canDeleteMetaContact(FMetaRoster->streamJid(),FMetaId,AItemJid));
 		connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteItemByAction(bool)));
 		AMenu->addAction(deleteAction,AG_MCICM_ITEM_ACTIONS);
 	}
@@ -1030,17 +1030,17 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 		dialog->setAcceptButtonText(tr("Remove"));
 		dialog->setRejectButtonText(tr("Cancel"));
 		dialog->setProperty("itemJid", itemJid.bare());
-		connect(dialog, SIGNAL(accepted()), SLOT(onDeleteItemConfirmed()));
+		connect(dialog, SIGNAL(accepted()), SLOT(onDeleteItemDialogAccepted()));
 		dialog->show();
 	}
 }
 
-void MetaTabWindow::onDeleteItemConfirmed()
+void MetaTabWindow::onDeleteItemDialogAccepted()
 {
 	CustomInputDialog *dialog = qobject_cast<CustomInputDialog*>(sender());
 	if (dialog)
 	{
-		FMetaContacts->deleteContactWithNotify(FMetaRoster, FMetaId, dialog->property("itemJid").toString());
+		FMetaContacts->deleteContactWithNotify(FMetaRoster->streamJid(), FMetaId, dialog->property("itemJid").toString());
 		dialog->deleteLater();
 	}
 }

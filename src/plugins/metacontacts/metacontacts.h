@@ -122,7 +122,9 @@ public:
 	virtual QList<IMetaTabWindow *> metaTabWindows() const;
 	virtual IMetaTabWindow *getMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId);
 	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const;
-	virtual QString deleteContactWithNotify(IMetaRoster *ARoster, const QString &AMetaId, const Jid &ItemJid = Jid::null);
+	virtual bool canEditMetaContact(const Jid &AStreamJid, const QString &AMetaId) const;
+	virtual bool canDeleteMetaContact(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid = Jid::null) const;
+	virtual QString deleteContactWithNotify(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid = Jid::null);
 	virtual QDialog *showMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId);
 	virtual QDialog *showRenameContactDialog(const Jid &AStreamJid, const QString &AMetaId);
 signals:
@@ -173,7 +175,7 @@ protected slots:
 	void onMetaTabWindowDestroyed();
 protected slots:
 	void onRenameContact(bool);
-	void onNewNameSelected(const QString & newName);
+	void onRenameContactDialogAccepted(const QString &ANewName);
 	void onDeleteContact(bool);
 	void onDeleteContactDialogAccepted();
 	void onMergeContacts(bool);

@@ -1052,7 +1052,7 @@ void RosterChanger::onShowAddGroupDialog(bool)
 		dialog->setLabelText(tr("<font size=+2>Add group</font><br>Enter new group name:"));
 		dialog->setWindowTitle(tr("Add group"));
 		//QString newGroupName = QInputDialog::getText(NULL, tr("Add group"), tr("Enter new group name:"));
-		connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onGroupNameAccepted(QString)));
+		connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onRenameGroupDialogAccepted(QString)));
 		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 		if (border)
 		{
@@ -1072,20 +1072,20 @@ void RosterChanger::onShowAddGroupDialog(bool)
 	}
 }
 
-void RosterChanger::onGroupNameAccepted(QString newGroupName)
+void RosterChanger::onRenameGroupDialogAccepted(QString ANewGroupName)
 {
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accounts().value(0) : NULL;
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(account!=NULL ? account->xmppStream()->streamJid() : Jid::null) : NULL;
 	if (sender()->property("rename").toBool())
 	{
-		if (!newGroupName.isEmpty())
+		if (!ANewGroupName.isEmpty())
 		{
 			QString groupName = sender()->property("groupName").toString();
 			QString streamJid = sender()->property("streamJid").toString();
 			QStringList groupTree = sender()->property("groupTree").toStringList();
 			QString completeGroupName = groupName;
 			completeGroupName.chop(groupTree.last().size());
-			completeGroupName += newGroupName;
+			completeGroupName += ANewGroupName;
 
 			if (FEmptyGroups.contains(groupName))
 			{
@@ -1093,7 +1093,7 @@ void RosterChanger::onGroupNameAccepted(QString newGroupName)
 				if (index && !roster->groups().contains(completeGroupName))
 				{
 					index->setData(RDR_GROUP,completeGroupName);
-					index->setData(RDR_NAME,newGroupName);
+					index->setData(RDR_NAME,ANewGroupName);
 					FEmptyGroups.removeAll(groupName);
 					FEmptyGroups.append(completeGroupName);
 				}
@@ -1110,12 +1110,12 @@ void RosterChanger::onGroupNameAccepted(QString newGroupName)
 	}
 	else
 	{
-		if (FRostersModel && roster && !newGroupName.isEmpty() && !newGroupName.contains(roster->groupDelimiter()) && FRostersModel->findGroupIndex(RIT_GROUP,newGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()))==NULL)
+		if (FRostersModel && roster && !ANewGroupName.isEmpty() && !ANewGroupName.contains(roster->groupDelimiter()) && FRostersModel->findGroupIndex(RIT_GROUP,ANewGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()))==NULL)
 		{
-			IRosterIndex *group = FRostersModel->createGroupIndex(RIT_GROUP,newGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()));
+			IRosterIndex *group = FRostersModel->createGroupIndex(RIT_GROUP,ANewGroupName,roster->groupDelimiter(),FRostersModel->streamRoot(roster->streamJid()));
 			if (group)
 			{
-				FEmptyGroups.append(newGroupName);
+				FEmptyGroups.append(ANewGroupName);
 				group->setData(RDR_ALLWAYS_VISIBLE, group->data(RDR_ALLWAYS_VISIBLE).toInt()+1);
 				connect(group->instance(),SIGNAL(childInserted(IRosterIndex *)),SLOT(onEmptyGroupChildInserted(IRosterIndex *)));
 				connect(group->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onEmptyGroupIndexDestroyed(IRosterIndex *)));
@@ -1142,6 +1142,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 		if (itemType == RIT_CONTACT || itemType == RIT_AGENT)
 		{
 			QString contactJid = AIndex->data(RDR_FULL_JID).toString();
+			IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->serviceDescriptor(streamJid,Jid(contactJid).domain()) : IGateServiceDescriptor();
 
 			QHash<int,QVariant> data;
 			data.insert(ADR_STREAM_JID,streamJid);
@@ -1177,6 +1178,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 			Action *action = new Action(AMenu);
 			action->setText(tr("Delete"));
 			action->setData(data);
+			action->setEnabled(!descriptor.readOnly);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onRemoveItemFromRoster(bool)));
 			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 
@@ -1188,6 +1190,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				action = new Action(AMenu);
 				action->setText(tr("Rename..."));
 				action->setData(data);
+				action->setEnabled(!descriptor.readOnly);
 				connect(action,SIGNAL(triggered(bool)),SLOT(onRenameItem(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
 
@@ -1195,6 +1198,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				{
 					GroupMenu *groupMenu = new GroupMenu(AMenu);
 					groupMenu->setTitle(tr("Group"));
+					groupMenu->setEnabled(!descriptor.readOnly);
 
 					Action *blankGroupAction = new Action(groupMenu);
 					blankGroupAction->setText(FRostersModel->singleGroupName(RIT_GROUP_BLANK));
@@ -1232,6 +1236,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				action->setText(tr("Add contact"));
 				action->setData(ADR_STREAM_JID,streamJid);
 				action->setData(ADR_CONTACT_JID,contactJid);
+				action->setEnabled(!descriptor.readOnly);
 				connect(action,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_ADD_CONTACT);
 			}
@@ -1242,9 +1247,21 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 			data.insert(ADR_STREAM_JID,streamJid);
 			data.insert(ADR_GROUP,AIndex->data(RDR_GROUP));
 
+			bool canEdit = false;
+			foreach(IRosterItem groupItem, roster->groupItems(AIndex->data(RDR_GROUP).toString()))
+			{
+				IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->serviceDescriptor(streamJid,groupItem.itemJid.domain()) : IGateServiceDescriptor();
+				if (!descriptor.readOnly)
+				{
+					canEdit = true;
+					break;
+				}
+			}
+
 			Action *action = new Action(AMenu);
 			action->setText(tr("Rename group..."));
 			action->setData(data);
+			action->setEnabled(canEdit);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onRenameGroup(bool)));
 			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
 		}
@@ -1784,7 +1801,7 @@ void RosterChanger::onRenameGroup(bool)
 				dialog->setWindowTitle(tr("Rename group"));
 				dialog->setProperty("rename", true);
 				dialog->setTextValue(groupTree.last());
-				connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onGroupNameAccepted(QString)));
+				connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onRenameGroupDialogAccepted(QString)));
 
 				CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 				if (border)

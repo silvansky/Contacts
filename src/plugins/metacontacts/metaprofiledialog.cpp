@@ -223,7 +223,7 @@ bool MetaProfileDialog::eventFilter(QObject *AObject, QEvent *AEvent)
 	{
 		CloseButton *cbtDelete = AObject->findChild<CloseButton *>();
 		if (cbtDelete)
-			cbtDelete->setVisible(AEvent->type()==QEvent::Enter);
+			cbtDelete->setVisible(AEvent->type()==QEvent::Enter && cbtDelete->property("canDelete").toBool());
 	}
 	return QDialog::eventFilter(AObject,AEvent);
 }
@@ -291,7 +291,7 @@ void MetaProfileDialog::onDeleteContactDialogAccepted()
 	CustomInputDialog *dialog = qobject_cast<CustomInputDialog *>(sender());
 	if (dialog)
 	{
-		FMetaContacts->deleteContactWithNotify(FMetaRoster,FMetaId,dialog->property("itemJid").toString());
+		FMetaContacts->deleteContactWithNotify(FMetaRoster->streamJid(),FMetaId,dialog->property("itemJid").toString());
 	}
 }
 
@@ -384,6 +384,8 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				cbtDelete->setVisible(false);
 				cbtDelete->setProperty("itemJid",itemIt->bare());
 				cbtDelete->setProperty("itemName",itemName);
+				cbtDelete->setProperty("canDelete",FMetaContacts->canDeleteMetaContact(FMetaRoster->streamJid(),FMetaId,itemIt->bare()));
+
 				connect(cbtDelete,SIGNAL(clicked()),SLOT(onDeleteContactButtonClicked()));
 				wdtItem->layout()->addWidget(cbtDelete);
 				wdtItem->layout()->setAlignment(cbtDelete,Qt::AlignCenter);

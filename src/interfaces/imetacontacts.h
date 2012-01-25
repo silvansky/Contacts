@@ -144,7 +144,9 @@ public:
 	virtual QList<IMetaTabWindow *> metaTabWindows() const =0;
 	virtual IMetaTabWindow *getMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) =0;
 	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const =0;
-	virtual QString deleteContactWithNotify(IMetaRoster *ARoster, const QString &AMetaId, const Jid &ItemJid = Jid::null) =0;
+	virtual bool canEditMetaContact(const Jid &AStreamJid, const QString &AMetaId) const =0;
+	virtual bool canDeleteMetaContact(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid = Jid::null) const =0;
+	virtual QString deleteContactWithNotify(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid = Jid::null) =0;
 	virtual QDialog *showMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId) =0;
 	virtual QDialog *showRenameContactDialog(const Jid &AStreamJid, const QString &AMetaId) =0;
 protected:

@@ -12,21 +12,21 @@ MetaContextMenu::MetaContextMenu(IRostersModel *AModel, IMetaContacts *AMetaCont
 	FMetaTabWindow = AWindow;
 	FMetaContacts = AMetaContacts;
 
-	Action *action = new Action(this);
-	action->setText(tr("Contact information"));
-	connect(action, SIGNAL(triggered()), SLOT(onContactInformationAction()));
-	addAction(action,AG_DEFAULT);
-	setDefaultAction(action);
+	Action *infoAction = new Action(this);
+	infoAction->setText(tr("Contact information"));
+	connect(infoAction, SIGNAL(triggered()), SLOT(onContactInformationAction()));
+	addAction(infoAction,AG_DEFAULT);
+	setDefaultAction(infoAction);
 
-	action = new Action(this);
-	action->setText(tr("Copy information"));
-	connect(action, SIGNAL(triggered()), SLOT(onCopyInfoAction()));
-	addAction(action, AG_DEFAULT+1);
+	Action *copyAction = new Action(this);
+	copyAction->setText(tr("Copy information"));
+	connect(copyAction, SIGNAL(triggered()), SLOT(onCopyInfoAction()));
+	addAction(copyAction, AG_DEFAULT+1);
 
-	action = new Action(this);
-	action->setText(tr("Rename"));
-	connect(action, SIGNAL(triggered()), SLOT(onRenameAction()));
-	addAction(action, AG_DEFAULT+1);
+	FRenameAction = new Action(this);
+	FRenameAction->setText(tr("Rename"));
+	connect(FRenameAction, SIGNAL(triggered()), SLOT(onRenameAction()));
+	addAction(FRenameAction, AG_DEFAULT+1);
 
 	connect(FRostersModel->instance(),SIGNAL(indexInserted(IRosterIndex *)),SLOT(onRosterIndexInserted(IRosterIndex *)));
 	connect(FRostersModel->instance(),SIGNAL(indexDataChanged(IRosterIndex *,int)),SLOT(onRosterIndexDataChanged(IRosterIndex *,int)));
@@ -60,6 +60,8 @@ void MetaContextMenu::updateMenu()
 
 		QImage avatar = FRosterIndex->data(RDR_AVATAR_IMAGE_LARGE).value<QImage>();
 		setIcon(QIcon(QPixmap::fromImage(avatar)));
+
+		FRenameAction->setEnabled(FMetaContacts->canEditMetaContact(FRosterIndex->data(RDR_STREAM_JID).toString(),FRosterIndex->data(RDR_META_ID).toString()));
 
 		menuAction()->setVisible(true);
 	}

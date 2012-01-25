@@ -134,7 +134,7 @@ protected slots:
 protected slots:
 	void onDetachItemByAction(bool);
 	void onDeleteItemByAction(bool);
-	void onDeleteItemConfirmed();
+	void onDeleteItemDialogAccepted();
 protected slots:
 	void onCurrentWidgetChanged(int AIndex);
 	void onMetaPresenceChanged(const QString &AMetaId);

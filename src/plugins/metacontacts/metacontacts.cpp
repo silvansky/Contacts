@@ -291,66 +291,59 @@ bool MetaContacts::rosterIndexClicked(IRosterIndex *AIndex, int AOrder)
 	return false;
 }
 
-bool MetaContacts::keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers)
+bool MetaContacts::keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key AKey, Qt::KeyboardModifiers AModifiers)
 {
-	bool hooked = false;
 	Q_UNUSED(AOrder)
-	if (AIndex->type() == RIT_METACONTACT && (key == Qt::Key_F2) && (modifiers == Qt::NoModifier))
+	bool hooked = false;
+	if (AIndex->type()==RIT_METACONTACT && AKey==Qt::Key_F2 && AModifiers==Qt::NoModifier)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+		QString metaId = AIndex->data(RDR_META_ID).toString();
 		IMetaRoster *mroster = findMetaRoster(streamJid);
-		if (mroster && mroster->isOpen())
+		if (mroster && mroster->isOpen() && canEditMetaContact(streamJid,metaId))
 		{
-			int itemType = AIndex->data(RDR_TYPE).toInt();
-			if (itemType == RIT_METACONTACT)
-			{
-				QString metaId = AIndex->data(RDR_META_ID).toString();
-				//const IMetaContact &contact = mroster->metaContact(metaId);
+			QList<QVariant> selMetaIdList;
+			QHash<int,QVariant> data;
+			data.insert(ADR_STREAM_JID,streamJid.full());
+			data.insert(ADR_META_ID,metaId);
+			data.insert(ADR_META_ID_LIST,selMetaIdList);
+			data.insert(ADR_GROUP,AIndex->data(RDR_GROUP));
 
-				QList<QVariant> selMetaIdList;
-				QHash<int,QVariant> data;
-				data.insert(ADR_STREAM_JID,streamJid.full());
-				data.insert(ADR_META_ID,metaId);
-				data.insert(ADR_META_ID_LIST,selMetaIdList);
-				data.insert(ADR_GROUP,AIndex->data(RDR_GROUP));
-
-				Action *renameAction = new Action(this);
-				renameAction->setData(data);
-				connect(renameAction,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
-				renameAction->trigger();
-				renameAction->deleteLater();
-				hooked = true;
-			}
+			Action *renameAction = new Action(this);
+			renameAction->setData(data);
+			connect(renameAction,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
+			renameAction->trigger();
+			renameAction->deleteLater();
+			hooked = true;
 		}
 	}
 	return hooked;
 }
 
-bool MetaContacts::keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers)
+bool MetaContacts::keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key AKey, Qt::KeyboardModifiers AModifiers)
 {
-	bool hooked = false;
 	Q_UNUSED(AOrder)
-	if (AIndex->type() == RIT_METACONTACT && (key == Qt::Key_Delete) && (modifiers == Qt::NoModifier))
+	bool hooked = false;
+	if (AIndex->type()==RIT_METACONTACT && AKey==Qt::Key_Delete && AModifiers==Qt::NoModifier)
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		IMetaRoster *mroster = findMetaRoster(streamJid);
 		if (mroster && mroster->isOpen())
 		{
-			int itemType = AIndex->data(RDR_TYPE).toInt();
-			if (itemType == RIT_METACONTACT)
+			bool canDelete = true;
+			QList<QVariant> selMetaIdList;
+			foreach(IRosterIndex *index, ASelected)
 			{
-				QString metaId = AIndex->data(RDR_META_ID).toString();
-				//const IMetaContact &contact = mroster->metaContact(metaId);
+				if (index != AIndex)
+					selMetaIdList.append(index->data(RDR_META_ID));
+				canDelete = canDelete && canDeleteMetaContact(streamJid,index->data(RDR_META_ID).toString());
+			}
 
-				QList<QVariant> selMetaIdList;
-				foreach(IRosterIndex *index, ASelected)
-				{
-					if (index != AIndex)
-						selMetaIdList.append(index->data(RDR_META_ID));
-				}
+			if (canDelete)
+			{
 				QHash<int,QVariant> data;
 				data.insert(ADR_STREAM_JID,streamJid.full());
-				data.insert(ADR_META_ID,metaId);
+				data.insert(ADR_META_ID,AIndex->data(RDR_META_ID).toString());
 				data.insert(ADR_META_ID_LIST,selMetaIdList);
 
 				Action *deleteAction = new Action(this);
@@ -395,11 +388,23 @@ bool MetaContacts::rosterDragEnter(const QDragEnterEvent *AEvent)
 bool MetaContacts::rosterDragMove(const QDragMoveEvent *AEvent, const QModelIndex &AHover)
 {
 	Q_UNUSED(AEvent);
-	if (AHover.data(RDR_TYPE).toInt()==RIT_METACONTACT || DragGroups.contains(AHover.data(RDR_TYPE).toInt()))
+	if (AHover.data(RDR_TYPE).toInt()==RIT_METACONTACT)
 	{
 		IMetaRoster *mroster = findMetaRoster(AHover.data(RDR_STREAM_JID).toString());
 		if (mroster && mroster->isOpen())
 			return true;
+	}
+	else if (DragGroups.contains(AHover.data(RDR_TYPE).toInt()))
+	{
+		IMetaRoster *mroster = findMetaRoster(AHover.data(RDR_STREAM_JID).toString());
+		if (mroster && mroster->isOpen())
+		{
+			QMap<int, QVariant> indexData;
+			QDataStream stream(AEvent->mimeData()->data(DDT_ROSTERSVIEW_INDEX_DATA));
+			stream >> indexData;
+
+			return canEditMetaContact(mroster->streamJid(),indexData.value(RDR_META_ID).toString());
+		}
 	}
 	return false;
 }
@@ -421,6 +426,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 		QString indexMetaId = indexData.value(RDR_META_ID).toString();
 		QString hoverGroup = AIndex.data(RDR_GROUP).toString();
 		QString indexGroup = indexData.value(RDR_GROUP).toString();
+		bool canEdit = canEditMetaContact(mroster->streamJid(),indexMetaId);
 
 		if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
 		{
@@ -439,7 +445,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 					AMenu->setDefaultAction(mergeAction);
 					return true;
 				}
-				else if (hoverGroup!=indexGroup && !indexGroup.isEmpty())
+				else if (canEdit && hoverGroup!=indexGroup && !indexGroup.isEmpty())
 				{
 					Action *removeAction = new Action(AMenu);
 					removeAction->setText(tr("Remove from group"));
@@ -453,7 +459,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 				}
 			}
 		}
-		else if (DragGroups.contains(AIndex.data(RDR_TYPE).toInt()))
+		else if (canEdit && DragGroups.contains(AIndex.data(RDR_TYPE).toInt()))
 		{
 			if (AEvent->dropAction() == Qt::MoveAction)
 			{
@@ -843,18 +849,67 @@ IMetaTabWindow *MetaContacts::findMetaTabWindow(const Jid &AStreamJid, const QSt
 	return NULL;
 }
 
-QString MetaContacts::deleteContactWithNotify(IMetaRoster *AMetaRoster, const QString &AMetaId, const Jid &AItemJid)
+bool MetaContacts::canEditMetaContact(const Jid &AStreamJid, const QString &AMetaId) const
 {
-	if (AMetaRoster && !AMetaId.isEmpty())
+	bool canEdit = true;
+	if (FGateways)
 	{
-		QString requestId = AItemJid.isEmpty() ? AMetaRoster->deleteContact(AMetaId) : AMetaRoster->deleteContactItem(AMetaId,AItemJid);
-		if (FNotifications && !requestId.isEmpty())
+		IMetaRoster *mroster = findMetaRoster(AStreamJid);
+		if (mroster)
 		{
-			if (AItemJid.isEmpty())
-				hideMetaContact(AMetaRoster,AMetaId);
-			FDeleteActions[AMetaRoster].insert(requestId,AMetaId);
+			const IMetaContact &contact = mroster->metaContact(AMetaId);
+			if (contact.items.count() == 1)
+				canEdit = !FGateways->serviceDescriptor(AStreamJid,contact.items.constBegin()->domain()).readOnly;
 		}
-		return requestId;
+	}
+	return canEdit;
+}
+
+bool MetaContacts::canDeleteMetaContact(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid) const
+{
+	bool canDelete = true;
+	if (FGateways)
+	{
+		if (AItemJid.isEmpty())
+		{
+			IMetaRoster *mroster = findMetaRoster(AStreamJid);
+			if (mroster)
+			{
+				const IMetaContact &contact = mroster->metaContact(AMetaId);
+				foreach(Jid itemJid, contact.items)
+				{
+					if (FGateways->serviceDescriptor(AStreamJid,itemJid.domain()).readOnly)
+					{
+						canDelete = false;
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			canDelete = !FGateways->serviceDescriptor(AStreamJid,AItemJid.domain()).readOnly;
+		}
+	}
+	return canDelete;
+}
+
+QString MetaContacts::deleteContactWithNotify(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid)
+{
+	if (!AMetaId.isEmpty())
+	{
+		IMetaRoster *mroster = findMetaRoster(AStreamJid);
+		if (mroster)
+		{
+			QString requestId = AItemJid.isEmpty() ? mroster->deleteContact(AMetaId) : mroster->deleteContactItem(AMetaId,AItemJid);
+			if (FNotifications && !requestId.isEmpty())
+			{
+				if (AItemJid.isEmpty())
+					hideMetaContact(mroster,AMetaId);
+				FDeleteActions[mroster].insert(requestId,AMetaId);
+			}
+			return requestId;
+		}
 	}
 	return QString::null;
 }
@@ -892,7 +947,7 @@ QDialog *MetaContacts::showRenameContactDialog(const Jid &AStreamJid, const QStr
 		dialog->setProperty("streamJid", AStreamJid.full());
 		dialog->setAcceptButtonText(tr("Save"));
 		dialog->setRejectButtonText(tr("Cancel"));
-		connect(dialog, SIGNAL(stringAccepted(const QString&)), SLOT(onNewNameSelected(const QString&)));
+		connect(dialog, SIGNAL(stringAccepted(const QString &)), SLOT(onRenameContactDialogAccepted(const QString &)));
 		dialog->show();
 	return dialog;
 	}
@@ -1499,7 +1554,7 @@ void MetaContacts::onRenameContact(bool)
 	}
 }
 
-void MetaContacts::onNewNameSelected(const QString & newName)
+void MetaContacts::onRenameContactDialogAccepted(const QString &ANewName)
 {
 	CustomInputDialog *dialog = qobject_cast<CustomInputDialog *>(sender());
 	if (dialog)
@@ -1510,8 +1565,8 @@ void MetaContacts::onNewNameSelected(const QString & newName)
 		IMetaRoster *mroster = findMetaRoster(streamJid);
 		if (mroster && mroster->isOpen())
 		{
-			if (!newName.isEmpty() && (oldName != newName))
-				mroster->renameContact(metaId, newName);
+			if (!ANewName.isEmpty() && (oldName != ANewName))
+				mroster->renameContact(metaId, ANewName);
 		}
 		dialog->deleteLater();
 	}
@@ -1569,7 +1624,7 @@ void MetaContacts::onDeleteContactDialogAccepted()
 		if (mroster && mroster->isOpen())
 		{
 			foreach(QString metaId, metaIdList)
-				deleteContactWithNotify(mroster,metaId);
+				deleteContactWithNotify(mroster->streamJid(),metaId);
 		}
 		dialog->deleteLater();
 	}
@@ -1956,10 +2011,17 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			const IMetaContact &contact = mroster->metaContact(metaId);
 
 			QList<QVariant> selMetaIdList;
+			bool canEdit = canEditMetaContact(mroster->streamJid(),metaId);
+			bool canDelete = canDeleteMetaContact(mroster->streamJid(),metaId);
 			foreach(IRosterIndex *index, ASelected)
 			{
 				if (index != AIndex)
-					selMetaIdList.append(index->data(RDR_META_ID));
+				{
+					QVariant selMetaId = index->data(RDR_META_ID);
+					selMetaIdList.append(selMetaId);
+					canEdit = canEdit && canEditMetaContact(mroster->streamJid(),selMetaId.toString());
+					canDelete = canDelete && canDeleteMetaContact(mroster->streamJid(),selMetaId.toString());
+				}
 			}
 
 			QHash<int,QVariant> data;
@@ -2016,6 +2078,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			// Change group menu
 			GroupMenu *groupMenu = new GroupMenu(AMenu);
 			groupMenu->setTitle(tr("Group"));
+			groupMenu->setEnabled(canEdit);
 
 			QSet<QString> commonGroups = contact.groups;
 			foreach(QVariant selMetaId, selMetaIdList)
@@ -2054,6 +2117,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			Action *deleteAction = new Action(AMenu);
 			deleteAction->setText(tr("Delete"));
 			deleteAction->setData(data);
+			deleteAction->setEnabled(canDelete);
 			connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
 			AMenu->addAction(deleteAction,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 
@@ -2113,6 +2177,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				renameAction->setText(tr("Rename..."));
 				renameAction->setData(data);
 				renameAction->setData(ADR_GROUP,AIndex->data(RDR_GROUP));
+				renameAction->setEnabled(canEdit);
 				connect(renameAction,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
 				AMenu->addAction(renameAction,AG_RVCM_ROSTERCHANGER_RENAME);
 

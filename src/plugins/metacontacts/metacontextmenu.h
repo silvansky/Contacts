@@ -5,10 +5,7 @@
 #include <definitions/rosterlabelorders.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
-#include <interfaces/imessagewidgets.h>
 #include <interfaces/imetacontacts.h>
-#include <interfaces/ivcard.h>
-#include <interfaces/irosterchanger.h>
 #include <utils/menu.h>
 
 class MetaContextMenu :
@@ -33,6 +30,8 @@ private:
 	IRostersModel *FRostersModel;
 	IMetaTabWindow *FMetaTabWindow;
 	IMetaContacts *FMetaContacts;
+private:
+	Action *FRenameAction;
 };
 
 #endif // METACONTEXTMENU_H
