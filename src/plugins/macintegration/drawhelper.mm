@@ -97,7 +97,7 @@ static NSColor * gTitleColor = nil;
 		[[NSColor greenColor] set];
 		[NSBezierPath strokeRect: textRect];
 
-		[str drawWithRect:textRect options:NSStringDrawingTruncatesLastVisibleLine /*| NSStringDrawingUsesLineFragmentOrigin*/];
+		[str drawWithRect:textRect options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin];
 		[str release];
 	}
 	else
@@ -116,14 +116,19 @@ static NSColor * gTitleColor = nil;
 	NSSize tbSz = [self sizeOfTitlebarButtons];
 	NSPoint pt = [self _zoomButtonOrigin];
 	NSSize strSize = [str size];
+	[str release];
 
 	CGFloat dx = pt.x + tbSz.width + 6;
 	CGFloat dy = 5.0;
 
-	if (strSize.width < titleRect.size.width - dx)
-		dx = 0;
+	CGFloat titleLeft, centeredLeft = (brect.size.width - strSize.width) / 2.0;
 
-	NSRect textRect = NSMakeRect(titleRect.origin.x + dx, titleRect.origin.y + dy, titleRect.size.width - dx, titleRect.size.height - dy);
+	if (centeredLeft > dx)
+		titleLeft = titleRect.origin.x + centeredLeft;
+	else
+		titleLeft = titleRect.origin.x + dx;
+
+	NSRect textRect = NSMakeRect(titleLeft, titleRect.origin.y + dy, titleRect.size.width - dx, 0.0 /*titleRect.size.height - dy*/);
 	return textRect;
 }
 
@@ -131,14 +136,9 @@ static NSColor * gTitleColor = nil;
 {
 	NSFont * font = [NSFont fontWithName:@"SegoeUI" size:16.0];
 
-	NSMutableParagraphStyle * paragraphStyle =
-		[[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
-	[paragraphStyle setAlignment:NSCenterTextAlignment];
-
 	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
 			font, NSFontAttributeName,
 			gTitleColor, NSForegroundColorAttributeName,
-			paragraphStyle, NSParagraphStyleAttributeName,
 			//[NSNumber numberWithFloat: 5.0], NSBaselineOffsetAttributeName,
 			nil];
 
