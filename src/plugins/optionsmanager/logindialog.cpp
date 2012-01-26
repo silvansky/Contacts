@@ -259,6 +259,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.cmbDomain->addItem("@autorambler.ru",QString("autorambler.ru"));
 	ui.cmbDomain->addItem("@ro.ru",QString("ro.ru"));
 	ui.cmbDomain->addItem("@r0.ru",QString("r0.ru"));
+	ui.cmbDomain->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
 	Action *action = new Action(FDomainsMenu);
 	action->setText("@rambler.ru");
