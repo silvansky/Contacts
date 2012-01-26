@@ -23,6 +23,7 @@ Emoticons::Emoticons()
 	FOptionsManager = NULL;
 #ifdef Q_WS_MAC
 	FMacIntegration = NULL;
+	emoticonsMenu = new Menu;
 #endif
 }
 
@@ -83,7 +84,6 @@ bool Emoticons::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 bool Emoticons::initObjects()
 {
 #ifdef Q_WS_MAC
-	emoticonsMenu = new Menu;
 	emoticonsMenu->menuAction()->setText(tr("Insert Emoticon"));
 	emoticonsMenu->setEnabled(false);
 	if (FMacIntegration)

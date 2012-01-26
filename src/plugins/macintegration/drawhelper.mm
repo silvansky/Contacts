@@ -122,7 +122,7 @@ static NSColor * gTitleColor = nil;
 {
 	NSFont * font = [NSFont fontWithName:@"SegoeUI" size:16.0];
 
-	NSMutableParagraphStyle * paragraphStyle = [[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
+	NSMutableParagraphStyle * paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
 	[paragraphStyle setLineBreakMode: NSLineBreakByTruncatingTail];
 
 	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -132,6 +132,7 @@ static NSColor * gTitleColor = nil;
 			nil];
 
 	NSAttributedString * str = [[NSAttributedString alloc] initWithString:[self title] attributes:attributes];
+	[paragraphStyle release];
 	return str;
 }
 

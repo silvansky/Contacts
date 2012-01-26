@@ -9,6 +9,7 @@
 #include <QTextDocument>
 #ifdef Q_OS_UNIX
 # include <execinfo.h>
+# include <stdlib.h>
 #endif
 #include <definitions/version.h>
 #include <definitions/applicationreportparams.h>
