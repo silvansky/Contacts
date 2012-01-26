@@ -69,6 +69,7 @@ void MetaContextMenu::updateMenu()
 	{
 		menuAction()->setVisible(false);
 	}
+	emit updated(this);
 }
 
 void MetaContextMenu::onRosterIndexInserted(IRosterIndex *AIndex)

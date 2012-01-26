@@ -204,7 +204,8 @@ protected slots:
 	void onOptionsOpened();
 	void onOptionsClosed();
 protected slots:
-	void onAvatalLabelDestroyed(QObject *);
+	void onAvatarLabelMenuUpdated(MetaContextMenu *AMenu);
+	void onAvatarLabelDestroyed(QObject *);
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;

@@ -813,17 +813,20 @@ IMetaTabWindow *MetaContacts::getMetaTabWindow(const Jid &AStreamJid, const QStr
 			if (window->isContactPage() && FRostersViewPlugin && FRostersViewPlugin->rostersView()->rostersModel())
 			{
 				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(), this, window);
-				QLabel *contactMenu = new QLabel;
-				contactMenu->setProperty("ignoreFilter", true);
-				contactMenu->setObjectName("contactMenu");
-				contactMenu->setPixmap(menu->menuAction()->icon().pixmap(QSize(36, 36)));
-				contactMenu->setMouseTracking(true);
-				contactMenu->setContextMenuPolicy(Qt::DefaultContextMenu);
-				FAvatarMenus.insert(contactMenu, menu);
-				contactMenu->installEventFilter(this);
-				connect(menu, SIGNAL(aboutToHide()), contactMenu, SLOT(update()));
-				connect(contactMenu, SIGNAL(destroyed(QObject*)), SLOT(onAvatalLabelDestroyed(QObject*)));
-				window->toolBarChanger()->insertWidget(contactMenu, TBG_MCMTW_USER_TOOLS);
+
+				QLabel *avatarLabel = new QLabel;
+				avatarLabel->setProperty("ignoreFilter", true);
+				avatarLabel->setObjectName("contactMenu");
+				avatarLabel->setMouseTracking(true);
+				avatarLabel->setContextMenuPolicy(Qt::DefaultContextMenu);
+				avatarLabel->installEventFilter(this);
+				connect(menu, SIGNAL(aboutToHide()), avatarLabel, SLOT(update()));
+				connect(menu, SIGNAL(updated(MetaContextMenu *)), SLOT(onAvatarLabelMenuUpdated(MetaContextMenu *)));
+				connect(avatarLabel, SIGNAL(destroyed(QObject*)), SLOT(onAvatarLabelDestroyed(QObject*)));
+				window->toolBarChanger()->insertWidget(avatarLabel, TBG_MCMTW_USER_TOOLS);
+
+				FAvatarMenus.insert(avatarLabel, menu);
+				onAvatarLabelMenuUpdated(menu);
 			}
 
 			FMetaTabWindows.append(window);
@@ -2241,17 +2244,18 @@ void MetaContacts::onOptionsClosed()
 	Options::setFileValue(data,"messages.last-meta-tab-pages");
 }
 
-void MetaContacts::onAvatalLabelDestroyed(QObject *obj)
+void MetaContacts::onAvatarLabelMenuUpdated(MetaContextMenu *AMenu)
 {
-	if (QLabel * lbl = qobject_cast<QLabel*>(obj))
-	{
-		MetaContextMenu *menu = FAvatarMenus.value(lbl, NULL);
-		if (menu)
-		{
-			menu->deleteLater();
-		}
-		FAvatarMenus.remove(lbl);
-	}
+	QLabel *avatarLabel = FAvatarMenus.key(AMenu);
+	if (avatarLabel)
+		avatarLabel->setPixmap(AMenu->icon().pixmap(QSize(36, 36)));
+}
+
+void MetaContacts::onAvatarLabelDestroyed(QObject *AObject)
+{
+	MetaContextMenu *menu = FAvatarMenus.take(qobject_cast<QLabel *>(AObject));
+	if (menu)
+		menu->deleteLater();
 }
 
 Q_EXPORT_PLUGIN2(plg_metacontacts, MetaContacts)

@@ -15,6 +15,8 @@ class MetaContextMenu :
 public:
 	MetaContextMenu(IRostersModel *AModel, IMetaContacts *AMetaContacts, IMetaTabWindow *AWindow);
 	~MetaContextMenu();
+signals:
+	void updated(MetaContextMenu *AMenu);
 protected:
 	bool isAcceptedIndex(IRosterIndex *AIndex);
 	void updateMenu();
