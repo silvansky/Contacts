@@ -227,6 +227,36 @@ NSString * MacIntegrationPrivate::nsStringFromQString(const QString & s)
 	return [[NSString alloc] initWithUTF8String: utf8String];
 }
 
+void MacIntegrationPrivate::startDockAnimation()
+{
+	updateTimer->start();
+}
+
+void MacIntegrationPrivate::startDockAnimation(const QImage & imageToRotate, Qt::Alignment align)
+{
+	updateTimer->start();
+	Q_UNUSED(imageToRotate)
+	Q_UNUSED(align)
+}
+
+void MacIntegrationPrivate::startDockAnimation(QList<QImage> imageSequence, Qt::Alignment align)
+{
+	updateTimer->start();
+	Q_UNUSED(imageSequence)
+	Q_UNUSED(align)
+}
+
+void MacIntegrationPrivate::stopDockAnimation()
+{
+	updateTimer->stop();
+	setDockOverlay(QImage());
+}
+
+bool MacIntegrationPrivate::isDockAnimationRunning() const
+{
+	return updateTimer->isActive();
+}
+
 void MacIntegrationPrivate::emitClick()
 {
 	emit dockClicked();

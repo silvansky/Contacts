@@ -79,30 +79,16 @@ static NSColor * gTitleColor = nil;
 		if (!gTitleColor)
 			gTitleColor = [[NSColor colorWithCalibratedRed: .6 green: .6 blue: .6 alpha: 1.0] retain];
 
-		NSLog(@"title: %@, rect: (%f, %f)x(%f, %f)", [self title], rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-		NSRect tmp = [self _titlebarTitleRect];
-
-		[[NSColor blueColor] set];
-		[NSBezierPath strokeRect: tmp];
-
-		NSLog(@"_titlebarTitleRect: (%f, %f)x(%f, %f)", tmp.origin.x, tmp.origin.y, tmp.size.width, tmp.size.height);
-
 		NSAttributedString * str = [self attributedTitle];
-
-		[[NSColor redColor] set];
-		[NSBezierPath strokeRect: rect];
 
 		NSRect textRect = [self _titlebarTitleRect];
 
-		[[NSColor greenColor] set];
-		[NSBezierPath strokeRect: textRect];
-
-		[str drawWithRect:textRect options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin];
+		[str drawWithRect:textRect options: NSStringDrawingUsesLineFragmentOrigin];
 		[str release];
 	}
 	else
 	{
-		NSLog(@"system text color: %@", color);
+		//NSLog(@"system text color: %@", color);
 	}
 }
 
@@ -119,7 +105,7 @@ static NSColor * gTitleColor = nil;
 	[str release];
 
 	CGFloat dx = pt.x + tbSz.width + 6;
-	CGFloat dy = 5.0;
+	CGFloat dy = 0.0;
 
 	CGFloat titleLeft, centeredLeft = (brect.size.width - strSize.width) / 2.0;
 
@@ -136,10 +122,13 @@ static NSColor * gTitleColor = nil;
 {
 	NSFont * font = [NSFont fontWithName:@"SegoeUI" size:16.0];
 
+	NSMutableParagraphStyle * paragraphStyle = [[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
+	[paragraphStyle setLineBreakMode: NSLineBreakByTruncatingTail];
+
 	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
 			font, NSFontAttributeName,
+			paragraphStyle, NSParagraphStyleAttributeName,
 			gTitleColor, NSForegroundColorAttributeName,
-			//[NSNumber numberWithFloat: 5.0], NSBaselineOffsetAttributeName,
 			nil];
 
 	NSAttributedString * str = [[NSAttributedString alloc] initWithString:[self title] attributes:attributes];

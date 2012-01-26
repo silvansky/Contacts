@@ -1,7 +1,7 @@
 #ifndef MACINTEGRATION_P_H
 #define MACINTEGRATION_P_H
 
-#include <QObject>
+#include <QImage>
 #include <QColor>
 
 #ifndef COCOA_CLASSES_DEFINED
@@ -29,7 +29,13 @@ public:
 signals:
 	void dockClicked();
 	void growlNotifyClicked(int);
+public slots:
+	void startDockAnimation();
+	void startDockAnimation(const QImage & imageToRotate, Qt::Alignment align = Qt::AlignCenter);
+	void startDockAnimation(QList<QImage> imageSequence, Qt::Alignment align = Qt::AlignCenter);
+	void stopDockAnimation();
 public:
+	bool isDockAnimationRunning() const;
 	void emitClick();
 	void emitGrowlNotifyClick(int id);
 	// static

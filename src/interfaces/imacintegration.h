@@ -27,6 +27,11 @@ public:
 	virtual void setCustomBorderColor(const QColor & color) = 0;
 	virtual void setCustomTitleColor(const QColor & color) = 0;
 	virtual void setWindowMovableByBackground(QWidget * window, bool movable) = 0;
+	virtual void startDockAnimation() = 0;
+	virtual void startDockAnimation(const QImage & imageToRotate, Qt::Alignment align = Qt::AlignCenter) = 0;
+	virtual void startDockAnimation(QList<QImage> imageSequence, Qt::Alignment align = Qt::AlignCenter) = 0;
+	virtual void stopDockAnimation() = 0;
+	virtual bool isDockAnimationRunning() const = 0;
 protected:
 	// signals
 	virtual void dockClicked() = 0;

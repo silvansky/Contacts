@@ -55,7 +55,7 @@ QImage ImageManager::squared(const QImage & image, int size)
 		p.end();
 		return squaredImage;
 	}
-	return image;
+	return QImage();
 }
 
 QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
@@ -81,7 +81,7 @@ QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
 		p.end();
 		return roundSquaredImage;
 	}
-	return image;
+	return QImage();
 }
 
 QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset, bool canResize)
@@ -108,7 +108,7 @@ QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset
 		p.end();
 		return shadowed;
 	}
-	return image;
+	return QImage();
 }
 
 QImage ImageManager::colorized(const QImage & image, QColor color)
@@ -124,7 +124,7 @@ QImage ImageManager::colorized(const QImage & image, QColor color)
 		resultImage.setAlphaChannel(image.alphaChannel());
 		return resultImage;
 	}
-	return image;
+	return QImage();
 }
 
 QImage ImageManager::opacitized(const QImage & image, double opacity)
@@ -140,7 +140,7 @@ QImage ImageManager::opacitized(const QImage & image, double opacity)
 		resultImage.setAlphaChannel(image.alphaChannel());
 		return resultImage;
 	}
-	return image;
+	return QImage();
 }
 
 QImage ImageManager::addSpace(const QImage & image, int left, int top, int right, int bottom)
@@ -155,20 +155,26 @@ QImage ImageManager::addSpace(const QImage & image, int left, int top, int right
         resultImage.setAlphaChannel(image.alphaChannel());
         return resultImage;
     }
-    return image;
+	return QImage();
 }
 
-QImage ImageManager::rotatedImage(const QImage & img, qreal angle)
+QImage ImageManager::rotatedImage(const QImage & image, qreal angle)
 {
-	QImage rotated(img.size(), QImage::Format_ARGB32_Premultiplied);
-	QPainter p(&rotated);
-	qreal dx = img.size().width() / 2.0, dy = img.size().height() / 2.0;
-	p.translate(dx, dy);
-	p.rotate(angle);
-	p.translate(-dx, -dy);
-	p.drawImage(0, 0, img);
-	p.end();
-	return rotated;
+	if (!image.isNull())
+	{
+		QImage rotated(image.size(), QImage::Format_ARGB32_Premultiplied);
+		QPainter p(&rotated);
+		p.setRenderHint(QPainter::Antialiasing);
+		p.setRenderHint(QPainter::SmoothPixmapTransform);
+		qreal dx = image.size().width() / 2.0, dy = image.size().height() / 2.0;
+		p.translate(dx, dy);
+		p.rotate(angle);
+		p.translate(-dx, -dy);
+		p.drawImage(0, 0, image);
+		p.end();
+		return rotated;
+	}
+	return QImage();
 }
 
 void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter * painter)

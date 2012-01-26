@@ -301,6 +301,31 @@ void MacIntegrationPlugin::setWindowMovableByBackground(QWidget * window, bool m
 	MacIntegrationPrivate::setWindowMovableByBackground(window, movable);
 }
 
+void MacIntegrationPlugin::startDockAnimation()
+{
+	MacIntegrationPrivate::instance()->startDockAnimation();
+}
+
+void MacIntegrationPlugin::startDockAnimation(const QImage & imageToRotate, Qt::Alignment align)
+{
+	MacIntegrationPrivate::instance()->startDockAnimation(imageToRotate, align);
+}
+
+void MacIntegrationPlugin::startDockAnimation(QList<QImage> imageSequence, Qt::Alignment align)
+{
+	MacIntegrationPrivate::instance()->startDockAnimation(imageSequence, align);
+}
+
+void MacIntegrationPlugin::stopDockAnimation()
+{
+	MacIntegrationPrivate::instance()->stopDockAnimation();
+}
+
+bool MacIntegrationPlugin::isDockAnimationRunning() const
+{
+	return MacIntegrationPrivate::instance()->isDockAnimationRunning();
+}
+
 void MacIntegrationPlugin::initMenus()
 {
 	_menuBar = new QMenuBar(NULL); // this must be the first parentless QMenuBar
