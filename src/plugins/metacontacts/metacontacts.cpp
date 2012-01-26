@@ -862,7 +862,22 @@ bool MetaContacts::canEditMetaContact(const Jid &AStreamJid, const QString &AMet
 		{
 			const IMetaContact &contact = mroster->metaContact(AMetaId);
 			if (contact.items.count() == 1)
-				canEdit = !FGateways->serviceDescriptor(AStreamJid,contact.items.constBegin()->domain()).readOnly;
+			{
+				Jid itemJid = *contact.items.constBegin();
+				if (!FGateways->serviceDescriptor(AStreamJid,itemJid.domain()).readOnly)
+				{
+					if (!itemJid.node().isEmpty() && FGateways->streamServices(AStreamJid).contains(itemJid.domain()))
+					{
+						IPresenceItem pitem = FGateways->servicePresence(AStreamJid,itemJid.domain());
+						if (pitem.show==IPresence::Offline || pitem.show==IPresence::Error)
+							canEdit = false;
+					}
+				}
+				else
+				{
+					canEdit = false;
+				}
+			}
 		}
 	}
 	return canEdit;
@@ -873,25 +888,30 @@ bool MetaContacts::canDeleteMetaContact(const Jid &AStreamJid, const QString &AM
 	bool canDelete = true;
 	if (FGateways)
 	{
-		if (AItemJid.isEmpty())
+		IMetaRoster *mroster = findMetaRoster(AStreamJid);
+		if (mroster)
 		{
-			IMetaRoster *mroster = findMetaRoster(AStreamJid);
-			if (mroster)
+			QList<Jid> streamServices = FGateways->streamServices(AStreamJid);
+			const IMetaContact &contact = mroster->metaContact(AMetaId);
+			for(QSet<Jid>::const_iterator it=contact.items.constBegin(); canDelete && it!=contact.items.constEnd();++it)
 			{
-				const IMetaContact &contact = mroster->metaContact(AMetaId);
-				foreach(Jid itemJid, contact.items)
+				if (AItemJid.isEmpty() || AItemJid==*it)
 				{
-					if (FGateways->serviceDescriptor(AStreamJid,itemJid.domain()).readOnly)
+					if (!FGateways->serviceDescriptor(AStreamJid,it->domain()).readOnly)
+					{
+						if (!it->node().isEmpty() && streamServices.contains(it->domain()))
+						{
+							IPresenceItem pitem = FGateways->servicePresence(AStreamJid,it->domain());
+							if (pitem.show==IPresence::Offline || pitem.show==IPresence::Error)
+								canDelete = false;
+						}
+					}
+					else
 					{
 						canDelete = false;
-						break;
 					}
 				}
 			}
-		}
-		else
-		{
-			canDelete = !FGateways->serviceDescriptor(AStreamJid,AItemJid.domain()).readOnly;
 		}
 	}
 	return canDelete;

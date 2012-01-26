@@ -1142,7 +1142,26 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 		if (itemType == RIT_CONTACT || itemType == RIT_AGENT)
 		{
 			QString contactJid = AIndex->data(RDR_FULL_JID).toString();
-			IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->serviceDescriptor(streamJid,Jid(contactJid).domain()) : IGateServiceDescriptor();
+
+			bool canEdit = true;
+			if (FGateways)
+			{
+				IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(streamJid,Jid(contactJid).domain());
+				if (!descriptor.readOnly)
+				{
+					Jid itemJid = contactJid;
+					if (!itemJid.node().isEmpty() && FGateways->streamServices(streamJid).contains(itemJid.domain()))
+					{
+						IPresenceItem pitem = FGateways->servicePresence(streamJid,itemJid.domain());
+						if (pitem.show==IPresence::Offline || pitem.show==IPresence::Error)
+							canEdit = false;
+					}
+				}
+				else
+				{
+					canEdit = false;
+				}
+			}
 
 			QHash<int,QVariant> data;
 			data.insert(ADR_STREAM_JID,streamJid);
@@ -1178,7 +1197,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 			Action *action = new Action(AMenu);
 			action->setText(tr("Delete"));
 			action->setData(data);
-			action->setEnabled(!descriptor.readOnly);
+			action->setEnabled(canEdit);
 			connect(action,SIGNAL(triggered(bool)),SLOT(onRemoveItemFromRoster(bool)));
 			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 
@@ -1190,7 +1209,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				action = new Action(AMenu);
 				action->setText(tr("Rename..."));
 				action->setData(data);
-				action->setEnabled(!descriptor.readOnly);
+				action->setEnabled(canEdit);
 				connect(action,SIGNAL(triggered(bool)),SLOT(onRenameItem(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
 
@@ -1198,7 +1217,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				{
 					GroupMenu *groupMenu = new GroupMenu(AMenu);
 					groupMenu->setTitle(tr("Group"));
-					groupMenu->setEnabled(!descriptor.readOnly);
+					groupMenu->setEnabled(canEdit);
 
 					Action *blankGroupAction = new Action(groupMenu);
 					blankGroupAction->setText(FRostersModel->singleGroupName(RIT_GROUP_BLANK));
@@ -1236,7 +1255,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				action->setText(tr("Add contact"));
 				action->setData(ADR_STREAM_JID,streamJid);
 				action->setData(ADR_CONTACT_JID,contactJid);
-				action->setEnabled(!descriptor.readOnly);
+				action->setEnabled(canEdit);
 				connect(action,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_ADD_CONTACT);
 			}
