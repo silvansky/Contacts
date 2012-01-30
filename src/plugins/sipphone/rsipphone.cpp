@@ -603,7 +603,8 @@ void RSipPhone::call(const char* uriToCall)
 	char uriTmp[512];
 
 	//pj_ansi_strncpy(uriTmp, uriToCall, sizeof(uriTmp));
-	pj_ansi_sprintf(uriTmp, "sip:%s@vsip.rambler.ru", uriToCall);
+	//pj_ansi_sprintf(uriTmp, "sip:%s@vsip.rambler.ru", uriToCall);
+	pj_ansi_sprintf(uriTmp, "sip:%s", uriToCall);
 	pj_str_t uri = pj_str((char*)uriTmp);
 
 	pj_assert(_currentCall == -1);
@@ -1185,6 +1186,192 @@ on_error:
 	_initialized = false;
 	return false;
 }
+
+
+
+
+
+bool RSipPhone::initStack(const QString& sip_server, int sipPortNum, const QString& sip_username, const QString& sip_password, const QString& sip_domain)
+{
+	return RSipPhone::initStack(sip_server.toUtf8().data(), sipPortNum, sip_username.toUtf8().data(), sip_password.toUtf8().data(), sip_domain.toUtf8().data());
+}
+bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* sip_username, const char* sip_password, const char* sip_domain)
+{
+	if ( SDL_InitSubSystem(SDL_INIT_VIDEO) < 0 )
+	{
+		printf("Unable to init SDL: %s\n", SDL_GetError());
+		return false;
+	}
+
+
+	pj_status_t status;
+
+	//showStatus("Creating stack..");
+	status = pjsua_create();
+	if (status != PJ_SUCCESS)
+	{
+		showError("pjsua_create", status);
+		return false;
+	}
+
+	showStatus("Initializing stack..");
+
+	pjsua_config ua_cfg;
+	pjsua_config_default(&ua_cfg);
+	pjsua_callback ua_cb;
+	pj_bzero(&ua_cb, sizeof(ua_cb));
+	ua_cfg.cb.on_reg_state = &::on_reg_state;
+	ua_cfg.cb.on_call_state = &::on_call_state;
+	ua_cfg.cb.on_incoming_call = &::on_incoming_call;
+	ua_cfg.cb.on_call_media_state = &::on_call_media_state;
+	ua_cfg.cb.on_call_tsx_state = &::on_call_tsx_state;
+
+	
+
+	pjsua_logging_config log_cfg;
+	pjsua_logging_config_default(&log_cfg);
+	//////log_cfg.log_filename = pj_str((char*)LOG_FILE);
+
+	pjsua_media_config med_cfg;
+	pjsua_media_config_default(&med_cfg);
+
+	
+
+	//status = pjsua_init(&ua_cfg, &log_cfg, &med_cfg);
+	status = pjsua_init(&ua_cfg, NULL, &med_cfg);
+	if (status != PJ_SUCCESS)
+	{
+		showError("pjsua_init", status);
+		goto on_error;
+	}
+
+	//
+	// Create UDP and TCP transports
+	//
+	pjsua_transport_config udp_cfg;
+	pjsua_transport_id udp_id;
+	pjsua_transport_config_default(&udp_cfg);
+	//udp_cfg.port =  SIP_PORT;
+	udp_cfg.port = sipPortNum;
+	//udp_cfg.public_addr = pj_str((char*)"vsip.rambler.ru");
+
+	status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &udp_cfg, &udp_id);
+	if (status != PJ_SUCCESS)
+	{
+		showError("UDP transport creation", status);
+		goto on_error;
+	}
+
+	pjsua_transport_info udp_info;
+	status = pjsua_transport_get_info(udp_id, &udp_info);
+	if (status != PJ_SUCCESS)
+	{
+		showError("UDP transport info", status);
+		goto on_error;
+	}
+
+	pjsua_transport_config tcp_cfg;
+	pjsua_transport_config_default(&tcp_cfg);
+	tcp_cfg.port = 0;
+
+	status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
+	if (status != PJ_SUCCESS)
+	{
+		showError("TCP transport creation", status);
+		goto on_error;
+	}
+
+	//
+	// Create account
+	//
+	pjsua_acc_config acc_cfg;
+	pjsua_acc_config_default(&acc_cfg);
+
+
+	//if(!sip_domain.isEmpty())
+	{
+		char idtmp[1024];
+		//pj_ansi_strncpy(idtmp, QString("sip:" + sip_username + "@" + sip_domain).toUtf8().data(), sizeof(idtmp));
+		pj_ansi_snprintf(idtmp, sizeof(idtmp), "sip:%s@%s",sip_username, sip_domain);
+
+		acc_cfg.id = pj_str((char*)idtmp);
+
+		char reg_uritmp[1024];
+		//pj_ansi_strncpy(reg_uritmp, QString("sip:" + sip_domain).toUtf8().data(), sizeof(reg_uritmp));
+		//pj_ansi_snprintf(reg_uritmp, sizeof(reg_uritmp), "sip:%s", sip_server);
+		pj_ansi_snprintf(reg_uritmp, sizeof(reg_uritmp), "sip:%s", sip_domain);
+		acc_cfg.reg_uri = pj_str((char*)reg_uritmp);
+
+		acc_cfg.proxy_cnt = 1;
+		char proxyTmp[512];
+		//pj_ansi_strncpy(proxyTmp, sip_server, sizeof(proxyTmp));
+		pj_ansi_snprintf(proxyTmp, sizeof(proxyTmp), "sip:%s", sip_server);
+		//acc_cfg.proxy[0] = pj_str((char*)reg_uritmp);
+		acc_cfg.proxy[0] = pj_str((char*)proxyTmp);
+
+
+		acc_cfg.cred_count = 1;
+		acc_cfg.cred_info[0].realm = pj_str((char*)"*");
+		acc_cfg.cred_info[0].scheme = pj_str((char*)"digest");
+
+		char usernametmp[512];
+		//pj_ansi_strncpy(usernametmp, sip_username.toUtf8().data(), sizeof(usernametmp));
+		pj_ansi_strncpy(usernametmp, sip_username, sizeof(usernametmp));
+		//pj_ansi_vsnprintf(usernametmp, sizeof(usernametmp), "%s", sip_username);
+		//acc_cfg.cred_info[0].username = pj_str((char*)idtmp);
+		acc_cfg.cred_info[0].username = pj_str((char*)usernametmp);
+
+		char passwordtmp[512];
+		//pj_ansi_strncpy(passwordtmp, sip_password.toUtf8().data(), sizeof(passwordtmp));
+		pj_ansi_strncpy(passwordtmp, sip_password, sizeof(passwordtmp));
+		acc_cfg.cred_info[0].data = pj_str((char*)passwordtmp);
+	}
+
+
+	//acc_cfg.max_video_cnt = 1;
+	acc_cfg.vid_cap_dev = DEFAULT_CAP_DEV;
+	acc_cfg.vid_rend_dev = DEFAULT_REND_DEV;
+	acc_cfg.vid_in_auto_show = PJ_TRUE;
+	acc_cfg.vid_out_auto_transmit = PJ_TRUE;
+	//acc_cfg.vid_out_auto_transmit = PJ_FALSE;
+	acc_cfg.register_on_acc_add = PJ_FALSE;
+
+	status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &_accountId);
+	if (status != PJ_SUCCESS)
+	{
+		showError("Account creation", status);
+		goto on_error;
+	}
+
+	//
+	// Start pjsua!
+	//
+	showStatus("Starting stack..");
+	status = pjsua_start();
+	if (status != PJ_SUCCESS)
+	{
+		showError("pjsua_start", status);
+		goto on_error;
+	}
+
+	/* We want to be registrar too! */
+	if (pjsua_get_pjsip_endpt())
+	{
+		pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
+	}
+
+	showStatus("Ready");
+
+	_initialized = true;
+	return true;
+
+on_error:
+	pjsua_destroy();
+	_initialized = false;
+	return false;
+}
+
+
 
 void RSipPhone::registerAccount(bool rstatus)
 {

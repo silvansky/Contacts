@@ -260,7 +260,8 @@ void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 	FSipPhone = new RSipPhone();
 	if(FSipPhone)
 	{
-		if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), AXmppStream->password()))
+		//if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), AXmppStream->password()))
+		if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), AXmppStream->password(), AXmppStream->streamJid().pDomain()))
 		{
 			connect(this, SIGNAL(sipSendInvite(const QString&)), FSipPhone, SLOT(call(const QString&)));
 			//connect(this, SIGNAL(sipSendUnRegister()), FSipPhone, SLOT(makeClearRegisterProxySlot()));
@@ -643,8 +644,10 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				// Для протокола SIP это означает следующие действия в этом месте:
 				// -1) Регистрация на сарвере SIP уже должна быть выполнена!
 				// 1) Отправка запроса INVITE
+				Jid juri(AStanza.from());
 				//QString uri = Jid(AStanza.from()).pBare();
-				QString uri = Jid(AStanza.from()).eNode();
+				//QString uri = Jid(AStanza.from()).eNode();
+				QString uri = juri.eNode() + "@" + juri.pDomain();
 				emit sipSendInvite(uri);
 				// 2) Получение акцепта на запрос INVITE
 				// 3) Установка соединения
