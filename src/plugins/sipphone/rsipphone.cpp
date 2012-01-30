@@ -473,11 +473,21 @@ void RSipPhone::onCallReleased()
 
 	myframe.put_frame_callback = NULL;
 	myframe.preview_frame_callback = NULL;
+
+	////////////////////////////////////////if(_pPhoneWidget)
+	////////////////////////////////////////{
+	////////////////////////////////////////	delete _pPhoneWidget;
+	////////////////////////////////////////	_pPhoneWidget = NULL;
+	////////////////////////////////////////}
+
 	if(_pPhoneWidget)
 	{
-		delete _pPhoneWidget;
+		if (_pPhoneWidget->parentWidget())
+			_pPhoneWidget->parentWidget()->deleteLater();
+		_pPhoneWidget->deleteLater();
 		_pPhoneWidget = NULL;
 	}
+
 
 }
 
@@ -935,11 +945,23 @@ bool RSipPhone::sendVideo(bool isSending)
 
 void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 {
+	//if(_pPhoneWidget)
+	//{
+	//	delete _pPhoneWidget;
+	//	_pPhoneWidget = NULL;
+	//}
+
 	if(_pPhoneWidget)
 	{
-		delete _pPhoneWidget;
+		if (_pPhoneWidget->parentWidget())
+			_pPhoneWidget->parentWidget()->deleteLater();
+		_pPhoneWidget->deleteLater();
 		_pPhoneWidget = NULL;
 	}
+
+
+
+
 	_pPhoneWidget = new SipPhoneWidget( this );
 
 	connect(_pPhoneWidget, SIGNAL(hangupCall()), this, SLOT(hangup()));
