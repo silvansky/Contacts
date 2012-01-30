@@ -1230,15 +1230,15 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 
 	pjsua_logging_config log_cfg;
 	pjsua_logging_config_default(&log_cfg);
-	//////log_cfg.log_filename = pj_str((char*)LOG_FILE);
+	log_cfg.log_filename = pj_str((char*)LOG_FILE);
 
 	pjsua_media_config med_cfg;
 	pjsua_media_config_default(&med_cfg);
 
 	
 
-	//status = pjsua_init(&ua_cfg, &log_cfg, &med_cfg);
-	status = pjsua_init(&ua_cfg, NULL, &med_cfg);
+	status = pjsua_init(&ua_cfg, &log_cfg, &med_cfg);
+	//status = pjsua_init(&ua_cfg, NULL, &med_cfg);
 	if (status != PJ_SUCCESS)
 	{
 		showError("pjsua_init", status);
