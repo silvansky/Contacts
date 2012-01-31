@@ -63,13 +63,13 @@ public:
 	CompleterDelegate(QObject *AParent): QItemDelegate(AParent) {}
 	QSize drawIndex(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
-		QStyleOptionViewItemV4 option = QItemDelegate::setOptions(AIndex, AOption);
+		QStyleOptionViewItemV4 option = setOptions(AIndex, AOption);
 
 		if (APainter)
 		{
 			APainter->save();
 			APainter->setClipRect(option.rect);
-			QItemDelegate::drawBackground(APainter,option,AIndex);
+			drawBackground(APainter,option,AIndex);
 		}
 
 		Jid streamJid = AIndex.data(Qt::DisplayRole).toString();
@@ -88,20 +88,18 @@ public:
 		cursor.insertText("@",domainFormat);
 		cursor.insertText(streamJid.domain(),domainFormat);
 
+		QSize docSize = doc.documentLayout()->documentSize().toSize();
 		if (APainter)
 		{
 			QAbstractTextDocumentLayout::PaintContext context;
 			context.palette = option.palette;
-			QRect rect = option.rect;
-			rect.moveLeft(rect.left() + 6);
-			// TODO: vertically center text in option.rect
-			rect.moveTop(rect.top() + 2);
-			APainter->translate(rect.topLeft());
+			QRect rect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignLeft|Qt::AlignVCenter,docSize,option.rect);
+			APainter->translate(rect.topLeft() + QPoint(6,0));
 			doc.documentLayout()->draw(APainter, context);
 			APainter->restore();
 		}
 
-		return doc.documentLayout()->documentSize().toSize();
+		return docSize;
 	}
 	virtual void paint(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
@@ -110,8 +108,7 @@ public:
 	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
 		QSize hint = drawIndex(NULL,AOption,AIndex);
-		//hint.setWidth(80);
-		hint.setHeight(27);
+		hint.setHeight(qMax(hint.height(),27));
 		return hint;
 	}
 };
@@ -216,6 +213,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	ui.cmbDomain->setView(new QListView(ui.cmbDomain));
 	ui.cmbDomain->view()->setItemDelegate(new DomainComboDelegate(ui.cmbDomain->view(), ui.cmbDomain));
+
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
 	connect(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SIGNAL(stylePreviewReset()), SLOT(onStylePreviewReset()));
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
@@ -322,8 +320,6 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	QCompleter *completer = new QCompleter(profiles,ui.lneNode);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	completer->setCompletionMode(QCompleter::PopupCompletion);
-	//completer->setPopup(new CustomListView);
-	completer->setPopup(new QListView);
 	completer->popup()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	completer->popup()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	completer->popup()->setObjectName("completerPopUp");
@@ -528,20 +524,8 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 	{
 		if (AWatched == ui.lneNode->completer()->popup())
 		{
-			// TODO: adjust size to popup contents
-			//ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->completer()->popup()->sizeHint().width());
-			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->width() * 1.2);
-			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos().x() + 1, ui.lneNode->completer()->popup()->pos().y() + 1);
-		}
-		else if (AWatched == ui.lneNode->completer()->popup()->parentWidget())
-		{
-			//ui.lneNode->completer()->popup()->parentWidget()->setFixedWidth(ui.lneNode->width() * 1.2);
-			//ui.lneNode->completer()->popup()->parentWidget()->move(ui.lneNode->completer()->popup()->parentWidget()->pos().x() + 1, ui.lneNode->completer()->popup()->parentWidget()->pos().y() + 1);
-			ui.lneNode->completer()->popup()->setFixedWidth(ui.lneNode->width() * 1.2);
-			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos().x() + 1, ui.lneNode->completer()->popup()->pos().y() + 1);
-			ui.lneNode->completer()->popup()->show();
-			//ui.lneNode->completer()->popup()->parentWidget()->adjustSize();
-			//ui.lneNode->completer()->popup()->parentWidget()->layout()->update();
+			ui.lneNode->completer()->popup()->setFixedWidth(ui.frmLogin->width()-2);
+			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos() + QPoint(1,1));
 		}
 		else if (FMainWindowPlugin && (AWatched == FMainWindowPlugin->mainWindow()->instance() || AWatched == FMainWindowPlugin->mainWindowBorder()))
 		{
