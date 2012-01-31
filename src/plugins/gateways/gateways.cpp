@@ -1605,9 +1605,16 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			if (!submitId.isEmpty())
 				FAutoLoginRequests.insert(submitId,qMakePair<Jid,Jid>(streamJid,AFields.serviceJid));
 		}
-		else if (FRosterChanger)
+		else if (FRosterPlugin)
 		{
-			FRosterChanger->subscribeContact(streamJid,AFields.serviceJid,QString::null,true);
+			IRoster *roster = FRosterPlugin->findRoster(streamJid);
+			IRosterItem ritem = roster!=NULL ? roster->rosterItem(AFields.serviceJid) : IRosterItem();
+			if (ritem.subscription != SUBSCRIPTION_BOTH)
+			{
+				if (ritem.subscription == SUBSCRIPTION_TO)
+					roster->sendSubscription(AFields.serviceJid,IRoster::Unsubscribe);
+				roster->sendSubscription(AFields.serviceJid,IRoster::Subscribe);
+			}
 		}
 	}
 	else if (FConflictLoginRequests.contains(AId))
