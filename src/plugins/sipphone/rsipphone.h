@@ -38,6 +38,7 @@ public:
 
 
 	void on_reg_state(pjsua_acc_id acc_id);
+	void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info);
 	void on_call_state(pjsua_call_id call_id, pjsip_event *e);
 	void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_rx_data *rdata);
 	void on_call_media_state(pjsua_call_id call_id);

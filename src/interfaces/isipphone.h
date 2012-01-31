@@ -16,15 +16,24 @@ struct ISipStream
 		SS_OPEN,
 		SS_OPENED,
 		SS_CLOSE,
-		SS_CLOSED,
+		SS_CLOSED
 	};
-	ISipStream() {
+	enum ErrorFlag
+	{
+		EF_NO_ERROR = 0,
+		EF_REGFAIL
+	};
+	ISipStream()
+	{
 		kind = SK_INITIATOR;
 		state = SS_CLOSED;
+		errFlag = EF_NO_ERROR;
 		timeout = false;
 	};
 	int kind;
 	int state;
+	int errFlag;
+	QString failReason;
 	QString sid;
 	Jid streamJid;
 	Jid contactJid;

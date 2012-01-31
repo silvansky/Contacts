@@ -162,6 +162,7 @@ private:
 	Jid tempAStreamJid;
 	Jid tempAContactJid;
 	QString tempAStreamId;
+	QString tmpSid;
 
 
 private:

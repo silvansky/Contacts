@@ -71,6 +71,10 @@ static void on_reg_state(pjsua_acc_id acc_id)
 {
 	RSipPhone::instance()->on_reg_state(acc_id);
 }
+static void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
+{
+	RSipPhone::instance()->on_reg_state2(acc_id, info);
+}
 
 static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
 {
@@ -757,7 +761,13 @@ void RSipPhone::initVideoWindow()
 	//emit signalShowSipPhoneWidget(0);
 }
 
+void RSipPhone::on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
+{
+	int i;
+	i = info->cbparam->code;
+	i++;
 
+}
 
 void RSipPhone::on_reg_state(pjsua_acc_id acc_id)
 {
@@ -768,7 +778,7 @@ void RSipPhone::on_reg_state(pjsua_acc_id acc_id)
 	char reg_status[80];
 	char status[120];
 
-	if (!info.has_registration)
+	if(info.status != PJSIP_SC_OK)
 	{
 		pj_ansi_snprintf(reg_status, sizeof(reg_status), "%.*s",
 			(int)info.status_text.slen,
@@ -783,11 +793,27 @@ void RSipPhone::on_reg_state(pjsua_acc_id acc_id)
 			info.status_text.ptr,
 			info.expires);
 	}
+	//if (!info.has_registration)
+	//{
+	//	pj_ansi_snprintf(reg_status, sizeof(reg_status), "%.*s",
+	//		(int)info.status_text.slen,
+	//		info.status_text.ptr);
+	//}
+	//else
+	//{
+	//	pj_ansi_snprintf(reg_status, sizeof(reg_status),
+	//		"%d/%.*s (expires=%d)",
+	//		info.status,
+	//		(int)info.status_text.slen,
+	//		info.status_text.ptr,
+	//		info.expires);
+	//}
 
 	// “екущий статус регистрации сравниваем с вновь полученым
 	// и выдаем сигнал, если статус изменилс€.
 	bool regStatus = false;
-	if(info.has_registration > 0)
+	//if(info.has_registration > 0)
+	if(info.status == PJSIP_SC_OK)
 	{
 		regStatus = true;
 	}
@@ -1243,6 +1269,7 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 	pjsua_callback ua_cb;
 	pj_bzero(&ua_cb, sizeof(ua_cb));
 	ua_cfg.cb.on_reg_state = &::on_reg_state;
+	ua_cfg.cb.on_reg_state2 = &::on_reg_state2;
 	ua_cfg.cb.on_call_state = &::on_call_state;
 	ua_cfg.cb.on_incoming_call = &::on_incoming_call;
 	ua_cfg.cb.on_call_media_state = &::on_call_media_state;
