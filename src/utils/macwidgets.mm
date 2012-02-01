@@ -3,7 +3,7 @@
 #define COCOA_CLASSES_DEFINED
 #import "macwidgets.h"
 
-static NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+//static NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
 WindowRef windowRefFromWidget(QWidget * w)
 {

@@ -134,6 +134,7 @@ void dockClickHandler(id self, SEL _cmd)
 {
 	Q_UNUSED(self)
 	Q_UNUSED(_cmd)
+	NSLog(@"void dockClickHandler(id self, SEL _cmd)");
 	MacIntegrationPrivate::instance()->emitClick();
 }
 
@@ -150,6 +151,7 @@ MacIntegrationPrivate::MacIntegrationPrivate() :
 {
 	// dock click handler
 	Class cls = [[[NSApplication sharedApplication] delegate] class];
+	NSLog(@"App delegate class: %@", cls);
 	if (!class_addMethod(cls, @selector(applicationShouldHandleReopen:hasVisibleWindows:), (IMP) dockClickHandler, "v@:"))
 		LogError("MacIntegrationPrivate::MacIntegrationPrivate() : class_addMethod failed!");
 
@@ -259,6 +261,7 @@ bool MacIntegrationPrivate::isDockAnimationRunning() const
 
 void MacIntegrationPrivate::emitClick()
 {
+	NSLog(@"void MacIntegrationPrivate::emitClick()");
 	emit dockClicked();
 }
 

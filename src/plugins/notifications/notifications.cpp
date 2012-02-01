@@ -11,6 +11,10 @@
 # include "growlpreferences.h"
 #endif
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 #define FIRST_KIND                      0x0001
 #define LAST_KIND                       0x8000
 #define UNDEFINED_KINDS                 0xFFFF
@@ -626,6 +630,9 @@ int Notifications::notifyIdByWidget(NotifyWidget *AWidget) const
 
 void Notifications::activateAllNotifications()
 {
+#ifdef DEBUG_ENABLED
+	qDebug() << "void Notifications::activateAllNotifications()";
+#endif
 	bool chatActivated = false;
 	foreach(int notifyId, FNotifyRecords.keys())
 	{
@@ -781,6 +788,9 @@ void Notifications::onNotifyCountChanged()
 
 void Notifications::onDockClicked()
 {
+#ifdef DEBUG_ENABLED
+	qDebug() << "void Notifications::onDockClicked()";
+#endif
 	bool haveUnreadNotifications = false;
 	foreach (int id, FNotifyRecords.keys())
 		if (FNotifyRecords.value(id).notification.kinds & INotification::TabPageNotify)
