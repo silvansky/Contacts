@@ -1183,6 +1183,13 @@ QString Gateways::legacyIdFromUserJid(const Jid &AUserJid) const
 	return legacyId;
 }
 
+QString Gateways::legacyIdFromUserJid(const Jid &AStreamJid, const Jid &AUserJid) const
+{
+	if (streamServices(AStreamJid).contains(AUserJid.domain()))
+		return legacyIdFromUserJid(AUserJid);
+	return AUserJid.bare();
+}
+
 QString Gateways::sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid)
 {
 	if (FRegistration)

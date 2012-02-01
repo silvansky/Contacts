@@ -108,6 +108,7 @@ public:
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe);
 	virtual QString removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts);
 	virtual QString legacyIdFromUserJid(const Jid &AUserJid) const;
+	virtual QString legacyIdFromUserJid(const Jid &AStreamJid, const Jid &AUserJid) const;
 	virtual QString sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID);

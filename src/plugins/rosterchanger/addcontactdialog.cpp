@@ -119,10 +119,7 @@ void AddContactDialog::setContactJid(const Jid &AContactJid)
 {
 	if (FContactJid != AContactJid.bare())
 	{
-		QString contact = AContactJid.bare();
-		Jid serviceJid = AContactJid.domain();
-		if (FGateways && FGateways->availServices(streamJid()).contains(serviceJid))
-			contact = FGateways->legacyIdFromUserJid(AContactJid);
+		QString contact = FGateways!=NULL ? FGateways->legacyIdFromUserJid(streamJid(),AContactJid) : AContactJid.bare();
 		setContactText(contact);
 	}
 }

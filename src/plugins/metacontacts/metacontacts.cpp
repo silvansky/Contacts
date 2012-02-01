@@ -1920,15 +1920,12 @@ void MetaContacts::onSendContactDataAction(bool)
 			if (window && window->editWidget())
 			{
 				QTextEdit *editor = window->editWidget()->textEdit();
-				QList<Jid> gates = FGateways!=NULL ? FGateways->availServices(mroster->streamJid()) : QList<Jid>();
 				IMetaContact contact = mroster->metaContact(action->data(ADR_META_ID).toString());
 				editor->append(metaContactName(contact));
 				foreach(Jid itemJid, contact.items)
 				{
 					IMetaItemDescriptor descriptor = metaDescriptorByItem(itemJid);
-					QString login = itemJid.bare();
-					if (gates.contains(itemJid.domain()))
-						login = FGateways->legacyIdFromUserJid(itemJid);
+					QString login = FGateways!=NULL ? FGateways->legacyIdFromUserJid(mroster->streamJid(),itemJid) : itemJid.bare();
 					if (!login.isEmpty())
 						editor->append(descriptor.name + ": " + login);
 				}
