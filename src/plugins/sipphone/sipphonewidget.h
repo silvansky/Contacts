@@ -76,7 +76,7 @@ private:
 	int _ringCount;
 	QTimer *_pRingTimer;
 	bool _isRingingTone;
-	QTimer *_pAcceptCallTimer;
+	//QTimer *_pAcceptCallTimer;
 	QString _subject; // Клиент кому звоним
 
 	//// DTMF Stuff

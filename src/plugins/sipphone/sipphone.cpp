@@ -25,6 +25,7 @@
 
 SipPhone::SipPhone()
 {
+	FGateways = NULL;
 	FDiscovery = NULL;
 	FMetaContacts = NULL;
 	FStanzaProcessor = NULL;
@@ -36,7 +37,6 @@ SipPhone::SipPhone()
 	FMessageStyles = NULL;
 
 	FSHISipRequest = -1;
-//	FSipPhoneProxy = NULL;
 	FSipPhone = NULL;
 	FBackupCallActionMenu = NULL;
 
@@ -67,11 +67,6 @@ SipPhone::SipPhone()
 
 SipPhone::~SipPhone()
 {
-	//if(FSipPhoneProxy != NULL)
-	//{
-	//	delete FSipPhoneProxy;
-	//	FSipPhoneProxy = NULL;
-	//}
 	if(FSipPhone != NULL)
 	{
 		FSipPhone->hangup();
@@ -97,9 +92,7 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 
 	IPlugin *plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0,NULL);
 	if (plugin)
-	{
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
-	}
 
 	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
 	if (plugin)
@@ -109,11 +102,13 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+
 	plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
 	if (plugin)
-	{
 		FDiscovery = qobject_cast<IServiceDiscovery *>(plugin->instance());
-	}
 
 	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
 	if (plugin)
@@ -147,9 +142,7 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 
 	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
 	if (plugin)
-	{
 		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
-	}
 
 	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
 	if (plugin)
@@ -172,19 +165,9 @@ bool SipPhone::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 
 	plugin = APluginManager->pluginInterface("IMessageStyles").value(0,NULL);
 	if (plugin)
-	{
 		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
-	}
 
-//#ifdef WIN32
-//	WSADATA ws;
-//	if(FAILED(WSAStartup(MAKEWORD(2, 2), &ws)))
-//	{
-//		int error = WSAGetLastError();
-//		LogError(QString("[SipPhone] WSAStartup error: %1").arg(error));
-//		return false;
-//	}
-//#endif
+	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
 
 	return FStanzaProcessor!=NULL;
 }
@@ -230,34 +213,13 @@ bool SipPhone::initObjects()
 		FNotifications->registerNotificationType(NNT_SIPPHONE_MISSEDCALL,missedNotifyType);
 	}
 
-	//SipProtoInit::Init();
-	//VoIPMediaInit::Init();
-	//SipProtoInit::SetListenSipPort(5060);
-	//SipProtoInit::SetProxySipPort(5060);
-
 	return true;
 }
 
 
 void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 {
-	//////////QString hostAddress;
-	//////////IDefaultConnection *defConnection = qobject_cast<IDefaultConnection *>(AXmppStream->connection()->instance());
-	//////////if (defConnection)
-	//////////	hostAddress = defConnection->localAddress();
-
-	//FSipPhoneProxy = new SipPhoneProxy(hostAddress, AXmppStream->streamJid().pBare(), AXmppStream->streamJid().pBare(), AXmppStream->password(), this);
-	//if(FSipPhoneProxy)
-	//{
-	//	FSipPhoneProxy->initRegistrationData();
-	//	connect(this, SIGNAL(sipSendInvite(const QString &)), FSipPhoneProxy, SLOT(makeNewCall(const QString&)));
-	//	connect(this, SIGNAL(sipSendUnRegister()), FSipPhoneProxy, SLOT(makeClearRegisterProxySlot()));
-	//	connect(FSipPhoneProxy, SIGNAL(callWasHangup()), this, SLOT(onHangupCall()));
-	//	connect(FSipPhoneProxy, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
-	//	connect(FSipPhoneProxy, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
-	//}
-
-	FSipPhone = new RSipPhone();
+	FSipPhone = new RSipPhone(this);
 	if(FSipPhone)
 	{
 		//if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), AXmppStream->password()))
@@ -265,41 +227,18 @@ void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 		//if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), "fakepass", AXmppStream->streamJid().pDomain()))
 		{
 			connect(this, SIGNAL(sipSendInvite(const QString&)), FSipPhone, SLOT(call(const QString&)));
-			//connect(this, SIGNAL(sipSendUnRegister()), FSipPhone, SLOT(makeClearRegisterProxySlot()));
-
 			connect(FSipPhone, SIGNAL(signalCallReleased()), this, SLOT(onHangupCall()));
-			connect(FSipPhone, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
-			connect(FSipPhone, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
-
-			////connect(ui.btnPreview, SIGNAL(clicked()), _pPhone, SLOT(preview()));
-			////connect(ui.btnCall, SIGNAL(clicked()), this, SLOT(call()));
-			//connect(ui.btnAccept, SIGNAL(clicked()), _pPhone, SLOT(call()));
-			//connect(ui.btnCancel, SIGNAL(clicked()), _pPhone, SLOT(hangup()));
-			////connect(quitButton_, SIGNAL(clicked()), this, SLOT(quit()));
-			//connect(ui.btnRegister, SIGNAL(clicked()), this, SLOT(registerAccount()));
 		}
-
 	}
-
 
 	foreach(Action *action, FCallActions.values())
 		action->setEnabled(true);
-
-	connect(this, SIGNAL(streamRemoved(const QString&)), this, SLOT(sipClearRegistration(const QString&)));
-	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
 }
 
 void SipPhone::onXmppStreamAboutToClose(IXmppStream *)
 {
 	foreach(QString sid, FStreams.keys())
 		closeStream(sid);
-
-	//if(FSipPhone != NULL)
-	//{
-	//	FSipPhone->hangup();
-	//	delete FSipPhone;
-	//	FSipPhone = NULL;
-	//}
 }
 
 void SipPhone::onXmppStreamClosed(IXmppStream *)
@@ -313,13 +252,6 @@ void SipPhone::onXmppStreamClosed(IXmppStream *)
 		delete pCallControl;
 	}
 
-	//if(FSipPhoneProxy != NULL)
-	//{
-	//	FSipPhoneProxy->hangupCall();
-	//	FSipPhoneProxy->deleteLater();
-	//	FSipPhoneProxy = NULL;
-	//}
-
 	if(FSipPhone != NULL)
 	{
 		FSipPhone->hangup();
@@ -329,9 +261,8 @@ void SipPhone::onXmppStreamClosed(IXmppStream *)
 	}
 }
 
-void SipPhone::onIncomingThreadTimeChanged(qint64 timeMS)
+void SipPhone::onCallTimerTimeout()
 {
-	Q_UNUSED(timeMS);
 	foreach(RCallControl* control, FCallControls.values())
 	{
 		if (control->status()==RCallControl::Accepted && FStreams.contains(control->getSessionID()))
@@ -339,6 +270,7 @@ void SipPhone::onIncomingThreadTimeChanged(qint64 timeMS)
 			ISipStream stream = FStreams.value(control->getSessionID());
 			QTime time= QTime(0,0,0).addSecs(stream.startTime.time().secsTo(QTime::currentTime()));
 			control->statusTextChange(time.toString("hh:mm:ss"));
+			QTimer::singleShot(1000,this,SLOT(onCallTimerTimeout()));
 		}
 	}
 }
@@ -354,7 +286,6 @@ void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 		Action* callAction = new Action(tbChanger);
 		callAction->setText(tr("Call"));
 		callAction->setCheckable(true);
-		//callAction->setEnabled(FSipPhoneProxy!=NULL);
 		callAction->setEnabled(FSipPhone!=NULL);
 		callAction->setData(ADR_METAID_WINDOW, iMetaTabWindow->metaId());
 		callAction->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON);
@@ -421,12 +352,14 @@ void SipPhone::onAboutToShowContactMenu()
 		IMetaContact mcontact = mroster->metaContact(metaId);
 		foreach(Jid contactJid, mcontact.items)
 		{
-			foreach(IPresenceItem pitem, mroster->itemPresences(contactJid))
+			QList<IPresenceItem> pitems = mroster->itemPresences(contactJid);
+			foreach(IPresenceItem pitem, pitems)
 			{
 				if (isSupported(mroster->streamJid(),pitem.itemJid))
 				{
 					Action *contactAction = new Action(contactsMenu);
-					contactAction->setText(contactJid.full());
+					QString contactId = FGateways!=NULL ? FGateways->legacyIdFromUserJid(mroster->streamJid(),contactJid) : contactJid.bare();
+					contactAction->setText(pitems.count()>1 ? contactId+"/"+pitem.itemJid.resource() : contactId);
 					contactAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
 					contactAction->setData(ADR_CONTACT_JID,pitem.itemJid.full());
 					contactAction->setData(ADR_METAID_WINDOW,metaId);
@@ -506,11 +439,8 @@ void SipPhone::onStartCallToContact()
 			{
 				RCallControl* pCallControl = FCallControls.value(metaId);
 				if(pCallControl)
-				{
 					pCallControl->callStatusChange(RCallControl::Register);
-				}
 			}
-
 			openStream(metaWindow->metaRoster()->streamJid(), contactAction->data(ADR_CONTACT_JID).toString());
 		}
 		else
@@ -546,9 +476,6 @@ void SipPhone::onCloseCallControl(bool)
 		{
 			metaWindow->removeTopWidget(pCallControl);
 		}
-
-		//if (FSipPhoneProxy)
-		//	FSipPhoneProxy->hangupCall();
 
 		if(FSipPhone)
 			FSipPhone->hangup();
@@ -690,20 +617,6 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		QString sid = FCloseRequests.take(AStanza.id());
 		removeStream(sid);
 	}
-}
-
-void SipPhone::sipCallDeletedSlot(bool initiator)
-{
-	emit sipSendUnRegister();
-	FSipPhone->registerAccount(false);
-
-	if(initiator)
-		closeStream(FStreamId);
-}
-
-void SipPhone::sipClearRegistration(const QString&)
-{
-	//emit sipSendUnRegister();
 }
 
 void SipPhone::onStreamCreated(const QString& sid)
@@ -865,6 +778,7 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 			stream.startTime = QDateTime::currentDateTime();
 			pCallControl->callStatusChange(RCallControl::Accepted);
 			showNotifyInChatWindow(sid,tr("Call to %1.").arg(userNick));
+			QTimer::singleShot(1000,this,SLOT(onCallTimerTimeout()));
 		}
 		else if(state == ISipStream::SS_CLOSE) // Хотим повесить трубку
 		{
@@ -926,6 +840,7 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 			stream.startTime = QDateTime::currentDateTime();
 			pCallControl->callStatusChange(RCallControl::Accepted);
 			showNotifyInChatWindow(sid,tr("Call from %1.").arg(userNick));
+			QTimer::singleShot(1000,this,SLOT(onCallTimerTimeout()));
 		}
 		else if(state == ISipStream::SS_CLOSE || state == ISipStream::SS_CLOSED)
 		{

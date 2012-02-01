@@ -24,6 +24,7 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/inotifications.h>
 #include <interfaces/ixmppstreams.h>
+#include <interfaces/igateways.h>
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/idefaultconnection.h>
 #include <interfaces/imetacontacts.h>
@@ -108,9 +109,6 @@ protected slots:
 	void sipActionAfterRegistrationAsInitiator(bool ARegistrationResult/*, const Jid& AStreamJid, const Jid& AContactJid*/);
 	// Действие после получения ответа на регистрацию. Регистрация на принимающей стороне
 	void sipActionAfterRegistrationAsResponder(bool ARegistrationResult/*, const QString &AStreamId*/);
-	// Слот обработки завершения звонка
-	void sipCallDeletedSlot(bool);
-	void sipClearRegistration(const QString&);
 	void onMetaTabWindowCreated(IMetaTabWindow*);
 	void onMetaTabWindowDestroyed(IMetaTabWindow*);
 	void onChatWindowActivated();
@@ -128,7 +126,7 @@ protected slots:
 	void onXmppStreamAboutToClose(IXmppStream *);
 	void onXmppStreamClosed(IXmppStream *);
 	void onStreamCreated(const QString&);
-	void onIncomingThreadTimeChanged(qint64);
+	void onCallTimerTimeout();
 private slots:
 	void onStartCallToContact();
 	void onShowAddContactDialog();
@@ -136,6 +134,7 @@ private slots:
 	void onAboutToHideContactMenu();
 	void onCloseCallControl(bool);
 private:
+	IGateways *FGateways;
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
 	INotifications *FNotifications;
@@ -157,14 +156,12 @@ private:
 	QMap<int, IChatWindow *> FMissedNotifies;
 	QMap<QString, RCallControl *> FCallControls;
 	QMap<QString, Action *> FCallActions;
-
+private:
 	RSipPhone* FSipPhone;
 	Jid tempAStreamJid;
 	Jid tempAContactJid;
 	QString tempAStreamId;
 	QString tmpSid;
-
-
 private:
 	QString FStreamId;
 	Menu* FBackupCallActionMenu;

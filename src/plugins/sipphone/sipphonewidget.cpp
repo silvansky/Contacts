@@ -134,7 +134,7 @@ SipPhoneWidget::SipPhoneWidget( RSipPhone *parent, const char *name) : QWidget(N
 	_ringCount = 0;
 	_pRingTimer = NULL;
 	_isRingingTone = false;
-	_pAcceptCallTimer = NULL;
+	//_pAcceptCallTimer = NULL;
 	_subject = "";
 
 
@@ -176,8 +176,8 @@ SipPhoneWidget::SipPhoneWidget( RSipPhone *parent, const char *name) : QWidget(N
 	_pRingTimer = new QTimer();
 	//connect( _pRingTimer, SIGNAL( timeout() ), this, SLOT( ringTimeout() ) );
 
-	_pAcceptCallTimer = new QTimer();
-	connect( _pAcceptCallTimer, SIGNAL( timeout() ), this, SLOT( acceptCallTimeout() ) );
+	//_pAcceptCallTimer = new QTimer();
+	//connect( _pAcceptCallTimer, SIGNAL( timeout() ), this, SLOT( acceptCallTimeout() ) );
 
 	//switchCall(initCall);
 
@@ -200,7 +200,7 @@ SipPhoneWidget::~SipPhoneWidget()
 {
 	ui.wgtRemoteImage->removeEventFilter(this);
 	delete _pRingTimer;
-	delete _pAcceptCallTimer;
+	//delete _pAcceptCallTimer;
 	//if( _pSipCall )
 	//{
 	//	delete _pSipCall;
@@ -820,7 +820,7 @@ void SipPhoneWidget::acceptCall( void )
 {
 	_pRingTimer->stop();
 
-	_pAcceptCallTimer->setSingleShot(true);
+	//_pAcceptCallTimer->setSingleShot(true);
 	//_pAcceptCallTimer->start( acceptTime );
 }
 
