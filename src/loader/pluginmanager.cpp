@@ -356,7 +356,7 @@ void PluginManager::loadSettings()
 	else
 		qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
 #else
-	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO32));
+	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO64));
 #endif
 
 	FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
@@ -370,7 +370,7 @@ void PluginManager::loadSettings()
 	QFontDatabase::addApplicationFont(fontFile);
 	QFontDatabase fontDB;
 	QFont segoe = fontDB.font("Segoe UI", "", 12);
-    QApplication::setFont(segoe);
+	QApplication::setFont(segoe);
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(qApp, STS_PLUGINMANAGER_APPLICATION);
 }
