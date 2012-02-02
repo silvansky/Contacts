@@ -187,7 +187,7 @@ QList<QUuid> PluginManager::pluginDependencesFor(const QUuid &AUuid) const
 
 void PluginManager::showFeedbackDialog()
 {
-    onShowCommentsDialog();
+	onShowCommentsDialog();
 }
 
 void PluginManager::quit()

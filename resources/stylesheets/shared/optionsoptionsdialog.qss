@@ -45,7 +45,7 @@ QTreeView
 QTreeView::item
 {
 	min-height : 34px;
-	background-color: transparent;
+	background-color: rgba(65, 70, 77, 250);
 	border-bottom: 2px;
 	border-right: 24px;
 	padding-right: -22px;
