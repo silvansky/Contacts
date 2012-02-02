@@ -94,7 +94,6 @@ static NSColor * gTitleColor = nil;
 
 - (NSRect)_titlebarTitleRect
 {
-	NSRect originalRect = [self _titlebarTitleRectOriginal];
 	NSAttributedString * str = [self attributedTitle];
 	NSRect brect = [self bounds];
 	NSRect titleRect = NSMakeRect(brect.origin.x, brect.origin.y + brect.size.height - 22, brect.size.width, 22);

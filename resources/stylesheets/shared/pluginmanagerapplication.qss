@@ -469,6 +469,12 @@ QMenu::item:selected
 	padding-top: -1px;
 }
 
+QMenu::right-arrow
+{
+	image: url(%IMAGES_PATH%/menusub.png);
+	padding-right: 7px;
+}
+
 /*************
  * QComboBox *
  *************/
