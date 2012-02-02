@@ -139,12 +139,9 @@
 
 // StatusChanger
 #define OPV_STATUSES_ROOT                               "statuses"
+#define OPV_STATUSES_MOOD                               "statuses.mood"
 #define OPV_STATUSES_MAINSTATUS                         "statuses.main-status"
-#define OPV_STATUS_ITEM                                 "statuses.status"
-#define OPV_STATUS_NAME                                 "statuses.status.name"
-#define OPV_STATUS_SHOW                                 "statuses.status.show"
-#define OPV_STATUS_TEXT                                 "statuses.status.text"
-#define OPV_STATUS_PRIORITY                             "statuses.status.priority"
+
 // AutoStatus
 #define OPV_AUTOSTARTUS_ROOT                            "statuses.autostatus"
 #define OPV_AUTOSTARTUS_AWAYONLOCK                      "statuses.autostatus.away-on-lock"

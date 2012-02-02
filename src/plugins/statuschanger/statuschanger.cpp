@@ -217,9 +217,6 @@ bool StatusChanger::initObjects()
 
 bool StatusChanger::initSettings()
 {
-	Options::setDefaultValue(OPV_STATUS_SHOW,IPresence::Online);
-	Options::setDefaultValue(OPV_STATUS_TEXT,nameByShow(IPresence::Online));
-	Options::setDefaultValue(OPV_STATUS_PRIORITY,0);
 	Options::setDefaultValue(OPV_STATUSES_MAINSTATUS,STATUS_ONLINE);
 	Options::setDefaultValue(OPV_ACCOUNT_AUTOCONNECT,false);
 	Options::setDefaultValue(OPV_ACCOUNT_AUTORECONNECT,true);
@@ -976,69 +973,19 @@ void StatusChanger::onDefaultStatusIconsChanged()
 void StatusChanger::onOptionsOpened()
 {
 	removeAllCustomStatuses();
-	/*foreach (QString ns, Options::node(OPV_STATUSES_ROOT).childNSpaces("status"))
-	{
-		int statusId = ns.toInt();
-		OptionsNode soptions = Options::node(OPV_STATUS_ITEM, ns);
-		QString statusName = soptions.value("name").toString();
-		if (statusId > STATUS_MAX_STANDART_ID)
-		{
-			if (!statusName.isEmpty() && statusByName(statusName)==STATUS_NULL_ID)
-			{
-				StatusItem status;
-				status.code = statusId;
-				status.name = nameByShow(status.show);//statusName;
-				status.show = (IPresence::Show)soptions.value("show").toInt();
-				status.text = soptions.value("text").toString();
-				status.priority = soptions.value("priority").toInt();
-				status.lastActive = soptions.value("last-active").toDateTime();
-				FStatusItems.insert(status.code,status);
-				createStatusActions(status.code);
-			}
-		}
-		else if (statusId > STATUS_NULL_ID && FStatusItems.contains(statusId))
-		{
-			StatusItem &status = FStatusItems[statusId];
-			if (!statusName.isEmpty())
-				status.name = statusName;
-			status.text = soptions.hasValue("text") ? soptions.value("text").toString() : QString::null;
-			status.priority = soptions.hasValue("priority") ? soptions.value("priority").toInt() : status.priority;
-			updateStatusActions(statusId);
-		}
-	}*/
 	removeRedundantCustomStatuses();
 
-	QString commonStatusText = statusItemText(STATUS_ONLINE);
+	QString mood = Options::node(OPV_STATUSES_MOOD).value().toString();
 	foreach(int statusId, statusItems())
-		if (statusId>STATUS_NULL_ID && statusItemText(statusId)!=commonStatusText)
-			updateStatusItem(statusId,statusItemName(statusId),statusItemShow(statusId),commonStatusText,statusItemPriority(statusId));
+		if (statusId > STATUS_NULL_ID)
+			updateStatusItem(statusId,statusItemName(statusId),statusItemShow(statusId),mood,statusItemPriority(statusId));
 
 	setMainStatusId(Options::node(OPV_STATUSES_MAINSTATUS).value().toInt());
 }
 
 void StatusChanger::onOptionsClosed()
 {
-	/*QList<QString> oldNS = Options::node(OPV_STATUSES_ROOT).childNSpaces("status");
-	foreach (StatusItem status, FStatusItems)
-	{
-		if (status.code > STATUS_NULL_ID)
-		{
-			OptionsNode soptions = Options::node(OPV_STATUS_ITEM, QString::number(status.code));
-			if (status.code > STATUS_MAX_STANDART_ID)
-			{
-				soptions.setValue(status.show,"show");
-				soptions.setValue(status.lastActive,"last-active");
-			}
-			soptions.setValue(status.name,"name");
-			soptions.setValue(status.text,"text");
-			soptions.setValue(status.priority,"priority");
-		}
-		oldNS.removeAll(QString::number(status.code));
-	}
-
-	foreach(QString ns, oldNS)
-		Options::node(OPV_STATUSES_ROOT).removeChilds("status",ns);*/
-
+	Options::node(OPV_STATUSES_MOOD).setValue(statusItemText(STATUS_ONLINE));
 	Options::node(OPV_STATUSES_MAINSTATUS).setValue(FStatusItems.value(STATUS_MAIN_ID).code);
 
 	setMainStatusId(STATUS_OFFLINE);
