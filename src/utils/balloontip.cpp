@@ -49,9 +49,11 @@ void BalloonTip::hideBalloon()
 {
 	if (theSolitaryBalloonTip)
 	{
-		QTimer::singleShot(10, theSolitaryBalloonTip, SLOT(hide()));
+		theSolitaryBalloonTip->hide();
+		theSolitaryBalloonTip->close();
+		//QTimer::singleShot(10, theSolitaryBalloonTip, SLOT(hide()));
 		QTimer::singleShot(10, theSolitaryBalloonTip, SLOT(close()));
-		QTimer::singleShot(10, theSolitaryBalloonTip, SLOT(deleteLater()));
+		//QTimer::singleShot(10, theSolitaryBalloonTip, SLOT(deleteLater()));
 		theSolitaryBalloonTip = NULL;
 	}
 }
@@ -399,11 +401,11 @@ void BalloonTip::paintEvent(QPaintEvent *evt)
 
 void BalloonTip::mousePressEvent(QMouseEvent *ev)
 {
+	QWidget::mousePressEvent(ev);
 	if(ev->button() == Qt::LeftButton)
 		emit messageClicked();
 	BalloonTip::hideBalloon();
-	close();
-	//QWidget::mousePressEvent(ev);
+	//close();
 }
 
 void BalloonTip::timerEvent(QTimerEvent *ev)
