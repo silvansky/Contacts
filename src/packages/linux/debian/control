@@ -1,0 +1,17 @@
+Source: ramblercontacts
+Section: net
+Priority: optional
+Maintainer: Rambler Team <support@rambler.ru>
+Build-Depends: debhelper (>= 7.0.50~), openssl, libqtwebkit-dev | libqt4-dev, libx11-dev, zlib1g-dev, libidn11-dev
+Standards-Version: 3.9.1
+Homepage: http://contacts.rambler.ru
+
+Package: ramblercontacts
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: nas
+Description: Jabber client built with Qt4
+ Rambler Contacts is a free instant messaging application designed for the Jabber
+ (XMPP) IM network and some others (including Google Talk, ICQ and MRIM).
+ It has full Unicode support, and supports most important XMPP features.
+
