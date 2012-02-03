@@ -171,8 +171,17 @@ void MainWindow::keyPressEvent(QKeyEvent * AEvent)
 	{
 		if (parentWidget())
 		{
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
 			if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+			{
+				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget()))
+					border->minimizeWidget();
+				else
+					parentWidget()->showMinimized();
+			}
+			else
+#elif defined(Q_WS_X11)
+			if ((QString(getenv("XDG_CURRENT_DESKTOP")) == "Unity") || (QString(getenv("DESKTOP_SESSION")) == "gnome"))
 			{
 				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget()))
 					border->minimizeWidget();

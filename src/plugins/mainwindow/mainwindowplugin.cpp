@@ -272,7 +272,7 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 		if (show)
 			showMainWindow();
 	}
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
 	else if (ANode.path() == OPV_MAINWINDOW_MINIMIZETOTRAY_W7)
 	{
 		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
@@ -288,6 +288,9 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 		else
 			FMainWindowBorder->setShowInTaskBar(false);
 	}
+#elif defined(Q_WS_X11)
+	if ((QString(getenv("XDG_CURRENT_DESKTOP")) == "Unity") || (QString(getenv("DESKTOP_SESSION")) == "gnome"))
+		FMainWindowBorder->setMinimizeOnClose(true);
 #endif
 }
 
