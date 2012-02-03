@@ -556,6 +556,11 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 	return FLoginDialog;
 }
 
+bool OptionsManager::isLoginDialogActive() const
+{
+	return FLoginDialog && FLoginDialog->isVisible();
+}
+
 QList<IOptionsHolder *> OptionsManager::optionsHolders() const
 {
 	return FOptionsHolders;

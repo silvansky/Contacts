@@ -174,9 +174,12 @@ void MainWindowPlugin::showMainWindow() const
 {
 	if (!Options::isNull())
 	{
-		correctWindowPosition();
-		WidgetManager::showActivateRaiseWindow(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow);
-		QApplication::processEvents();
+		if (!FOptionsManager->isLoginDialogActive())
+		{
+			correctWindowPosition();
+			WidgetManager::showActivateRaiseWindow(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow);
+			QApplication::processEvents();
+		}
 	}
 }
 

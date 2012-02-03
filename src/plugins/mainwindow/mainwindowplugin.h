@@ -13,6 +13,7 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/itraymanager.h>
+#include <interfaces/iaccountmanager.h>
 #include <utils/widgetmanager.h>
 #include <utils/action.h>
 #include <utils/options.h>
@@ -62,6 +63,7 @@ private:
 	IPluginManager *FPluginManager;
 	IOptionsManager *FOptionsManager;
 	ITrayManager *FTrayManager;
+	IAccountManager *FAccountManager;
 private:
 	Action *FOpenAction;
 	MainWindow *FMainWindow;
