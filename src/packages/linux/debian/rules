@@ -30,7 +30,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE)
+	$(MAKE) -j4
 
 	touch $@
 
@@ -52,7 +52,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/ramblercontacts.
-	$(MAKE) INSTALL_ROOT=$(CURDIR)/debian/ramblercontacts install
+	$(MAKE) -j4 INSTALL_ROOT=$(CURDIR)/debian/ramblercontacts install
 	install -Dm644 $(CURDIR)/src/packages/linux/ramblercontacts.desktop $(CURDIR)/debian/ramblercontacts/usr/share/applications/ramblercontacts.desktop
 	for size in 16 24 32 48 64 96 128 ; do \
 	    install -Dm644 $(CURDIR)/resources/menuicons/shared/mainwindowlogo$${size}.png $(CURDIR)/debian/ramblercontacts/usr/share/icons/hicolor/$${size}x$${size}/apps/ramblercontacts.png ; \
