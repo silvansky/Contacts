@@ -64,10 +64,6 @@
         <translation>Не удалось добавить контакт из-за ошибки: %1</translation>
     </message>
     <message>
-        <source>Could not find such address. Check that you have not done a mistake.</source>
-        <translation>Не удалось найти такой адрес. Проверьте, не сделали ли вы опечатки.</translation>
-    </message>
-    <message>
         <source>Select a contact-list in which you want to add a contact.</source>
         <translation>Выберите список контактов, в который вы хотите добавить контакт.</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>New contact</source>
         <translation>Новый контакт</translation>
+    </message>
+    <message>
+        <source>Could not find such address.</source>
+        <translation>Не удалось найти такой адрес.</translation>
     </message>
 </context>
 <context>

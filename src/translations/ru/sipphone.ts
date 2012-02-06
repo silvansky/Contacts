@@ -267,6 +267,18 @@
             <numerusform>%n пропущенных вызовов</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Registration on SIP server has failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 is not responding. Reason: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Call abort! Registration on SIP server has failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SipPhoneWidget</name>

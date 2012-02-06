@@ -523,7 +523,7 @@ void AddContactDialog::resolveDescriptor()
 	}
 	else
 	{
-		setErrorMessage(tr("Could not find such address. Check that you have not done a mistake."),true);
+		setErrorMessage(tr("Could not find such address."),true);
 	}
 }
 
