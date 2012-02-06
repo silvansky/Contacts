@@ -67,13 +67,7 @@ SipPhone::SipPhone()
 
 SipPhone::~SipPhone()
 {
-	if(FSipPhone != NULL)
-	{
-		FSipPhone->hangup();
-		FSipPhone->cleanup();
-		delete FSipPhone;
-		FSipPhone = NULL;
-	}
+
 }
 
 void SipPhone::pluginInfo(IPluginInfo *APluginInfo)
@@ -223,11 +217,16 @@ void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 	if(FSipPhone)
 	{
 		//if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), AXmppStream->password()))
-		if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), AXmppStream->password(), AXmppStream->streamJid().pDomain()))
 		//if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), "fakepass", AXmppStream->streamJid().pDomain()))
+		if(FSipPhone->initStack("vsip.rambler.ru", 5065, AXmppStream->streamJid().eNode(), AXmppStream->password(), AXmppStream->streamJid().pDomain()))
 		{
+			LogDetail(QString("[SipPhone] SIP stack initialized for '%1'").arg(AXmppStream->streamJid().full()));
 			connect(this, SIGNAL(sipSendInvite(const QString&)), FSipPhone, SLOT(call(const QString&)));
 			connect(FSipPhone, SIGNAL(signalCallReleased()), this, SLOT(onHangupCall()));
+		}
+		else
+		{
+			LogError(QString("[SipPhone] Failed to initialize SIP stack for '%1'").arg(AXmppStream->streamJid().full()));
 		}
 	}
 
@@ -241,7 +240,7 @@ void SipPhone::onXmppStreamAboutToClose(IXmppStream *)
 		closeStream(sid);
 }
 
-void SipPhone::onXmppStreamClosed(IXmppStream *)
+void SipPhone::onXmppStreamClosed(IXmppStream *AXmppStream)
 {
 	foreach(Action *action, FCallActions.values())
 		action->setEnabled(false);
@@ -258,6 +257,7 @@ void SipPhone::onXmppStreamClosed(IXmppStream *)
 		FSipPhone->cleanup();
 		delete FSipPhone;
 		FSipPhone = NULL;
+		LogDetail(QString("[SipPhone] SIP stack destroyed for '%1'").arg(AXmppStream->streamJid().full()));
 	}
 }
 
@@ -445,6 +445,7 @@ void SipPhone::onStartCallToContact()
 		}
 		else
 		{
+			LogError(QString("[SipPhone] Failed to find meta-window for meta-contact '%1'").arg(metaId));
 			CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::Info);
 			dialog->setDeleteOnClose(true);
 			dialog->setCaptionText(tr("Call failure"));
@@ -521,16 +522,19 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 			// Здесь проверяем возможность установки соединения
 			if (FStreams.contains(sid))
 			{
+				LogError(QString("[SipPhone] Duplicate session id request received from '%1', sid='%2'").arg(AStanza.from()).arg(sid));
 				Stanza error = FStanzaProcessor->makeReplyError(AStanza,ErrorHandler(ErrorHandler::CONFLICT));
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else if (!findStream(AStreamJid,AStanza.from()).isEmpty())
 			{
+				LogError(QString("[SipPhone] Second session request received from '%1', sid='%2'").arg(AStanza.from()).arg(sid));
 				Stanza error = FStanzaProcessor->makeReplyError(AStanza,ErrorHandler(ErrorHandler::NOT_ACCEPTABLE));
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else
 			{
+				LogDetail(QString("[SipPhone] Incoming call request received from '%1', sid='%2'").arg(AStanza.from()).arg(sid));
 				//Здесь все проверки пройдены, заводим сессию и уведомляем пользователя о входящем звонке
 				ISipStream stream;
 				stream.sid = sid;
@@ -549,6 +553,7 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 		}
 		else if (actionElem.tagName() == "close")
 		{
+			LogDetail(QString("[SipPhone] Close call request received from '%1', sid='%2'").arg(AStanza.from()).arg(sid));
 			AAccept = true;
 			FPendingRequests.insert(sid,AStanza.id());
 			closeStream(sid);
@@ -568,6 +573,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 		{
 			if (actionElem.tagName()=="opened" && actionElem.attribute("sid")==sid)
 			{
+				LogDetail(QString("[SipPhone] Call accepted by '%1', sid='%2', id='%3'").arg(AStanza.from()).arg(sid).arg(AStanza.id()));
 				// Удаленный пользователь принял звонок, устанавливаем соединение
 				// Для протокола SIP это означает следующие действия в этом месте:
 				// -1) Регистрация на сарвере SIP уже должна быть выполнена!
@@ -583,14 +589,16 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				stream.state = ISipStream::SS_OPENED;
 				emit streamStateChanged(sid, stream.state);
 			}
-			else if (actionElem.tagName()=="closed" && actionElem.attribute("sid")==sid && actionElem.hasAttribute("reason"))
+			else if (actionElem.tagName()=="closed" && actionElem.attribute("sid")==sid)
 			{
-				ISipStream& stream = FStreams[sid];
-				stream.failReason = actionElem.attribute("reason");
+				LogDetail(QString("[SipPhone] Call rejected by '%1', sid='%2', id='%3', reason='%4'").arg(AStanza.from()).arg(sid).arg(AStanza.id()).arg(actionElem.attribute("reason")));
+				if ( actionElem.hasAttribute("reason"))
+					FStreams[sid].failReason = actionElem.attribute("reason");
 				removeStream(sid);
 			}
 			else // Пользователь отказался принимать звонок
 			{
+				LogError(QString("[SipPhone] Unexpected response received from '%1', sid='%2', id='%3'").arg(AStanza.from()).arg(sid).arg(AStanza.id()));
 				removeStream(sid);
 			}
 		}
@@ -600,6 +608,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			ErrorHandler err(AStanza.element());
 			if (err.code() == ErrorHandler::REQUEST_TIMEOUT)
 			{
+				LogError(QString("[SipPhone] Open session timeout received from '%1', sid='%2', id='3'").arg(AStanza.from()).arg(sid).arg(AStanza.id()));
 				// Если нет ответа от принимающей стороны, то устанавливаем соответствующий флаг и зкрываем соединение
 				ISipStream& stream = FStreams[sid];
 				stream.timeout = true;
@@ -607,6 +616,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			}
 			else
 			{
+				LogError(QString("[SipPhone] Failed to open session with '%1', sid='%2', id='3', error='4'").arg(AStanza.from()).arg(sid).arg(AStanza.id()).arg(ErrorHandler(AStanza.element()).message()));
 				removeStream(sid);
 			}
 		}
@@ -615,6 +625,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 	{
 		// Получили ответ на закрытие сессии, есть ошибка или нет уже не важно
 		QString sid = FCloseRequests.take(AStanza.id());
+		LogDetail(QString("[SipPhone] Close response received from '%1', sid='%2', id='%3'").arg(AStanza.from()).arg(sid).arg(AStanza.id()));
 		removeStream(sid);
 	}
 }
@@ -632,6 +643,7 @@ void SipPhone::onStreamCreated(const QString& sid)
 			pCallControl->setSessionId(sid);
 			pCallControl->callStatusChange(RCallControl::Ringing);
 		}
+		LogDetail(QString("[SipPhone] SIP stream sid='%1' created with '%2'").arg(sid).arg(stream.contactJid.full()));
 	}
 }
 
@@ -685,6 +697,7 @@ void SipPhone::onAbortCall()
 	if (pCallControl)
 	{
 		QString streamId = pCallControl->getSessionID();
+		LogDetail(QString("[SipPhone] Abort call requested by user, sid='%1'").arg(streamId));
 		if(!streamId.isEmpty())
 		{
 			if (FStreams.contains(FStreamId))
@@ -704,7 +717,10 @@ void SipPhone::onAcceptCall()
 {
 	RCallControl *pCallControl = qobject_cast<RCallControl *>(sender());
 	if(pCallControl)
+	{
+		LogDetail(QString("[SipPhone] Accept call requested by user, sid='%1'").arg(pCallControl->getSessionID()));
 		acceptStream(pCallControl->getSessionID());
+	}
 }
 
 void SipPhone::onRedialCall()
@@ -712,6 +728,7 @@ void SipPhone::onRedialCall()
 	RCallControl *pCallControl = qobject_cast<RCallControl *>(sender());
 	if(pCallControl)
 	{
+		LogDetail(QString("[SipPhone] Redial requested by user, sid='%1'").arg(pCallControl->getSessionID()));
 		Jid contactJidFull = getContactWithPresence(pCallControl->getStreamJid(), pCallControl->getMetaId());
 		if(contactJidFull.isValid() && !contactJidFull.isEmpty())
 		{
@@ -726,6 +743,7 @@ void SipPhone::onCallbackCall()
 	RCallControl *pCallControl = qobject_cast<RCallControl *>(sender());
 	if(pCallControl)
 	{
+		LogDetail(QString("[SipPhone] Callback requested by user, sid='%1'").arg(pCallControl->getSessionID()));
 		Jid contactJidFull = getContactWithPresence(pCallControl->getStreamJid(), pCallControl->getMetaId());
 		if(contactJidFull.isValid() && !contactJidFull.isEmpty())
 		{
@@ -738,6 +756,7 @@ void SipPhone::onCallbackCall()
 
 void SipPhone::onHangupCall()
 {
+	LogDetail(QString("[SipPhone] Hangup call, sid='%1'").arg(FStreamId));
 	if (FStreams.contains(FStreamId))
 		FStreams[FStreamId].timeout = false;
 	closeStream(FStreamId);
@@ -745,6 +764,8 @@ void SipPhone::onHangupCall()
 
 void SipPhone::onStreamStateChanged(const QString& sid, int state)
 {
+	LogDetail(QString("[SipPhone] Stream state changed, sid='%1', state='%2'").arg(FStreamId).arg(state));
+
 	if(!FStreams.contains(sid))
 		return;
 
@@ -871,16 +892,6 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 	}
 }
 
-void SipPhone::onAcceptStreamByCallControl()
-{
-	RCallControl *pCallControl = qobject_cast<RCallControl *>(sender());
-	if(pCallControl)
-	{
-		QString sid = pCallControl->getSessionID();
-		acceptStream(sid);
-	}
-}
-
 QString SipPhone::openStream(const Jid &AStreamJid, const Jid &AContactJid)
 {
 	//////////connect(this, SIGNAL(sipSendRegisterAsInitiator(const Jid&,const Jid&)),
@@ -900,11 +911,10 @@ QString SipPhone::openStream(const Jid &AStreamJid, const Jid &AContactJid)
 	FStreams.insert(sid,stream);
 
 	tmpSid = sid;
+	tempStreamJid = AStreamJid;
+	tempContactJid = AContactJid;
 
-
-
-	tempAStreamJid = AStreamJid;
-	tempAContactJid = AContactJid;
+	LogDetail(QString("[SipPhone] Opening SIP stream with '%1', sid='%2'").arg(AContactJid.full()).arg(sid));
 
 	//connect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), this, SLOT(sipActionAfterRegistrationAsInitiator(bool, const Jid&, const Jid&)));
 	connect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), this, SLOT(sipActionAfterRegistrationAsInitiator(bool)));
@@ -920,18 +930,19 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult/*,
 
 	disconnect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), 0, 0);
 
-	Jid AStreamJid = tempAStreamJid;
-	Jid AContactJid = tempAContactJid;
+	Jid AStreamJid = tempStreamJid;
+	Jid AContactJid = tempContactJid;
 
 	QString sid = tmpSid;
 
 	if(ARegistrationResult)
 	{
+		LogDetail(QString("[SipPhone] Registration on SIP server as initiator is completed, sid='%1'").arg(sid));
+
 		Stanza open("iq");
 		open.setType("set").setId(FStanzaProcessor->newId()).setTo(AContactJid.eFull());
 		QDomElement openElem = open.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(open.createElement("open")).toElement();
 
-		//QString sid = QUuid::createUuid().toString();
 		openElem.setAttribute("sid",sid);
 
 		// Переводим панель в режим Ringing
@@ -948,31 +959,20 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult/*,
 
 		if (FStanzaProcessor->sendStanzaRequest(this, AStreamJid, open, RING_TIMEOUT))
 		{
+			LogDetail(QString("[SipPhone] Open request sent to '%1', sid='%2', id='%3'").arg(AContactJid.full()).arg(sid).arg(open.id()));
 			ISipStream &stream = FStreams[sid];
-			//ISipStream stream;
-			//stream.sid = sid;
-			//stream.streamJid = AStreamJid;
-			//stream.contactJid = AContactJid;
-			//stream.kind = ISipStream::SK_INITIATOR;
-			//stream.state = ISipStream::SS_OPEN;
-			//FStreams.insert(sid,stream);
-
 			FOpenRequests.insert(open.id(),sid);
 			emit streamCreated(sid);
 			emit streamStateChanged(sid,stream.state);
 		}
+		else
+		{
+			LogError(QString("[SipPhone] Failed to send open request to '%1', sid='%2'").arg(AContactJid.full()).arg(sid));
+		}
 	}
 	else
 	{
-		// ВЫКИНУТЬ ПОСЛЕ ПРОВЕРКИ РАБОТОСПОСОБНОСТИ НОВОГО КОДА НИЖЕ
-		//////////////// Скрываем панель звонка
-		//////////////QString metaId = findMetaId(AStreamJid, AContactJid);
-		//////////////if(FCallControls.contains(metaId))
-		//////////////{
-		//////////////	RCallControl *pCallControl = FCallControls[metaId];
-		//////////////	pCallControl->deleteLater();
-		//////////////}
-
+		LogError(QString("[SipPhone] Failed to register on SIP server as initiator, sid='%1'").arg(sid));
 		ISipStream &stream = FStreams[sid];
 		stream.state = ISipStream::SS_CLOSED;
 		stream.errFlag = ISipStream::EF_REGFAIL;
@@ -986,17 +986,10 @@ bool SipPhone::acceptStream(const QString &AStreamId)
 	// ПОДКЛЮЧЕНИЕ SIP
 	if (FPendingRequests.contains(AStreamId))
 	{
-		//////////connect(this, SIGNAL(sipSendRegisterAsResponder(const QString&)),
-		//////////	FSipPhoneProxy, SLOT(makeRegisterResponderProxySlot(const QString&)));
+		LogDetail(QString("[SipPhone] Accepting SIP stream, sid='%1'").arg(AStreamId));
 
-		//////////connect(FSipPhoneProxy, SIGNAL(registrationStatusIs(bool, const QString&)),
-		//////////	this, SLOT(sipActionAfterRegistrationAsResponder(bool, const QString&)));
-
-		tempAStreamId = AStreamId;
-		//connect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), this, SLOT(sipActionAfterRegistrationAsResponder(bool, const QString&)));
+		tempStreamId = AStreamId;
 		connect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), this, SLOT(sipActionAfterRegistrationAsResponder(bool)));
-		//FSipPhone->registerAccount(true);
-
 
 		// Переводим панель в режим Register
 		ISipStream &stream = FStreams[AStreamId];
@@ -1009,8 +1002,6 @@ bool SipPhone::acceptStream(const QString &AStreamId)
 			pCallControl->callStatusChange(RCallControl::Register);
 		}
 
-		// Сигнализируем о необходимости SIP регистрации клиента
-		//emit sipSendRegisterAsResponder(AStreamId);
 		FSipPhone->registerAccount(true);
 		return true;
 	}
@@ -1024,16 +1015,18 @@ void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult/*,
 
 	disconnect(FSipPhone, SIGNAL(signalRegistrationStatusChanged(bool)), 0, 0);
 
-	QString AStreamId = tempAStreamId;
+	QString sid = tempStreamId;
 
 	if(ARegistrationResult)
 	{
-		ISipStream &stream = FStreams[AStreamId];
+		LogDetail(QString("[SipPhone] Registration on SIP server as responder is completed, sid='%1'").arg(sid));
+
+		ISipStream &stream = FStreams[sid];
 
 		Stanza opened("iq");
-		opened.setType("result").setId(FPendingRequests.value(AStreamId)).setTo(stream.contactJid.eFull());
+		opened.setType("result").setId(FPendingRequests.value(sid)).setTo(stream.contactJid.eFull());
 		QDomElement openedElem = opened.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(opened.createElement("opened")).toElement();
-		openedElem.setAttribute("sid",AStreamId);
+		openedElem.setAttribute("sid",sid);
 
 		// Открываем вкладку контакта
 		if (FMessageProcessor)
@@ -1041,19 +1034,20 @@ void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult/*,
 
 		if (FStanzaProcessor->sendStanzaOut(stream.streamJid,opened))
 		{
-			FPendingRequests.remove(AStreamId);
+			FPendingRequests.remove(sid);
 			stream.state = ISipStream::SS_OPENED;
-			removeIncomingNotify(AStreamId);
-			emit streamStateChanged(AStreamId, stream.state);
+			removeIncomingNotify(sid);
+			emit streamStateChanged(sid, stream.state);
 		}
 	}
 	else
 	{
-		ISipStream &stream = FStreams[AStreamId];
+		LogError(QString("[SipPhone] Failed to register on SIP server as responder, sid='%1'").arg(sid));
+		ISipStream &stream = FStreams[sid];
 		stream.errFlag = ISipStream::EF_REGFAIL;
 		//removeIncomingNotify(AStreamId);
 		//emit streamStateChanged(AStreamId, stream.state);
-		closeStream(AStreamId);
+		closeStream(sid);
 		//showNotifyInChatWindow(AStreamId, tr("Registration on SIP server has failed."), MNI_SIPPHONE_CALL_HANGUP);
 	}
 }
@@ -1065,6 +1059,8 @@ void SipPhone::closeStream(const QString &AStreamId)
 		ISipStream &stream = FStreams[AStreamId];
 		if (stream.state != ISipStream::SS_CLOSE)
 		{
+			LogDetail(QString("[SipPhone] Closing SIP stream, sid='%1'").arg(AStreamId));
+
 			bool isResult = FPendingRequests.contains(AStreamId);
 
 			Stanza close("iq");
@@ -1089,6 +1085,7 @@ void SipPhone::closeStream(const QString &AStreamId)
 
 			if (isResult ? FStanzaProcessor->sendStanzaOut(stream.streamJid,close) : FStanzaProcessor->sendStanzaRequest(this,stream.streamJid,close,CLOSE_TIMEOUT))
 			{
+				LogDetail(QString("[SipPhone] Close request sent to '%1', sid='%2', id='%3'").arg(stream.contactJid.full()).arg(stream.sid).arg(close.id()));
 				if (!isResult)
 					FCloseRequests.insert(close.id(),AStreamId);
 				else
@@ -1097,6 +1094,7 @@ void SipPhone::closeStream(const QString &AStreamId)
 			else
 			{
 				//Не удалось отправить запрос, возможно связь с сервером прервалась, считаем сессию закрытой
+				LogError(QString("[SipPhone] Failed to send close request to '%1', sid='%2'").arg(stream.contactJid.full()).arg(stream.sid));
 				removeStream(AStreamId);
 			}
 			FPendingRequests.remove(AStreamId);
@@ -1133,32 +1131,19 @@ RCallControl *SipPhone::newRCallControl(const QString &AStreamId, RCallControl::
 	connect(pCallControl, SIGNAL(redialCall()), SLOT(onRedialCall()));
 	connect(pCallControl, SIGNAL(abortCall()),  SLOT(onAbortCall()));
 	connect(pCallControl, SIGNAL(callbackCall()), SLOT(onCallbackCall()));
-	//connect(pCallControl, SIGNAL(hangupCall()), FSipPhoneProxy, SLOT(hangupCall()));
 	connect(pCallControl, SIGNAL(hangupCall()), FSipPhone, SLOT(hangup()));
-
 
 	// Обработка: при закрытии окна управления звонком, нужно вернуть кнопку вызова в исходное состояние
 	connect(pCallControl, SIGNAL(closeAndDelete(bool)), this, SLOT(onCloseCallControl(bool)));
-
-	//connect(pCallControl, SIGNAL(startCamera()), FSipPhoneProxy, SIGNAL(proxyStartCamera()));
-	//connect(pCallControl, SIGNAL(stopCamera()), FSipPhoneProxy, SIGNAL(proxyStopCamera()));
-	//connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhoneProxy, SIGNAL(proxyCamResolutionChange(bool)));
-	//connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhoneProxy, SIGNAL(proxySuspendStateChange(bool)));
 
 	connect(pCallControl, SIGNAL(startCamera()), FSipPhone, SIGNAL(proxyStartCamera()));
 	connect(pCallControl, SIGNAL(stopCamera()), FSipPhone, SIGNAL(proxyStopCamera()));
 	//connect(pCallControl, SIGNAL(camResolutionChange(bool)), FSipPhone, SIGNAL(proxyCamResolutionChange(bool)));
 	connect(pCallControl, SIGNAL(micStateChange(bool)), FSipPhone, SIGNAL(proxySuspendStateChange(bool)));
 
-	// Issue 2264. Инициализация кнопок правильными картинками (присутствие/отсутствие элементов мультимедия)
-	//connect(FSipPhoneProxy, SIGNAL(camPresentChanged(bool)), pCallControl, SLOT(setCameraEnabled(bool)));
-	//connect(FSipPhoneProxy, SIGNAL(micPresentChanged(bool)), pCallControl, SLOT(setMicEnabled(bool)));
-	//connect(FSipPhoneProxy, SIGNAL(volumePresentChanged(bool)), pCallControl, SLOT(setVolumeEnabled(bool)));
-
 	connect(FSipPhone, SIGNAL(camPresentChanged(bool)), pCallControl, SLOT(setCameraEnabled(bool)));
 	connect(FSipPhone, SIGNAL(micPresentChanged(bool)), pCallControl, SLOT(setMicEnabled(bool)));
 	connect(FSipPhone, SIGNAL(volumePresentChanged(bool)), pCallControl, SLOT(setVolumeEnabled(bool)));
-
 
 	FCallActions[AMetaWindow->metaId()]->setChecked(true);
 	if(FBackupCallActionMenu == NULL)

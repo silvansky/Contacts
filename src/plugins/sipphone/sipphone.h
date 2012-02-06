@@ -103,7 +103,6 @@ protected slots:
 	void onHangupCall();
 	void onCallbackCall();
 	void onStreamStateChanged(const QString &AStreamId, int AState);
-	void onAcceptStreamByCallControl();
 	void onAbortCall();
 	// Действие после получения ответа на регистрацию. Регистрация инициатора.
 	void sipActionAfterRegistrationAsInitiator(bool ARegistrationResult/*, const Jid& AStreamJid, const Jid& AContactJid*/);
@@ -158,9 +157,9 @@ private:
 	QMap<QString, Action *> FCallActions;
 private:
 	RSipPhone* FSipPhone;
-	Jid tempAStreamJid;
-	Jid tempAContactJid;
-	QString tempAStreamId;
+	Jid tempStreamJid;
+	Jid tempContactJid;
+	QString tempStreamId;
 	QString tmpSid;
 private:
 	QString FStreamId;
