@@ -132,6 +132,17 @@
     </message>
 </context>
 <context>
+    <name>RSipPhone</name>
+    <message>
+        <source>Call from %1</source>
+        <translation>Звонок от %1</translation>
+    </message>
+    <message>
+        <source>Call to %1</source>
+        <translation>Звонок к %1</translation>
+    </message>
+</context>
+<context>
     <name>RVolumeControl</name>
     <message>
         <source>Volume control</source>
@@ -241,7 +252,7 @@
     </message>
     <message>
         <source>Missed call from %1.</source>
-        <translation>Пропущен завонок от %1.</translation>
+        <translation>Пропущен звонок от %1.</translation>
     </message>
     <message>
         <source>%1 is not responding.</source>
@@ -269,22 +280,11 @@
     </message>
     <message>
         <source>Registration on SIP server has failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Регистрация на SIP-сервере не удалась.</translation>
     </message>
     <message>
         <source>%1 is not responding. Reason: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Call abort! Registration on SIP server has failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SipPhoneWidget</name>
-    <message>
-        <source>Rambler.Contacts SIP Call</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 не отвечает. Причина %2</translation>
     </message>
 </context>
 </TS>

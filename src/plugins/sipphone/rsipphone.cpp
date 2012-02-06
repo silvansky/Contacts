@@ -952,6 +952,21 @@ bool RSipPhone::isCameraReady() const
 	return false;
 }
 
+void RSipPhone::updateCallerName()
+{
+	QWidget *topWidget = _pPhoneWidget;
+	while(topWidget && topWidget->parentWidget()!=NULL)
+		topWidget = topWidget->parentWidget();
+
+	if (topWidget)
+	{
+		if (_currentRole == INCOMMING)
+			topWidget->setWindowTitle(tr("Call from %1").arg(_callerName));
+		else
+			topWidget->setWindowTitle(tr("Call to %1").arg(_callerName));
+	}
+}
+
 bool RSipPhone::sendVideo(bool isSending)
 {
 	pjsua_call_setting call_setting;
@@ -1037,6 +1052,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	//connect( widget, SIGNAL( redirectCall( const SipUri &, const QString & ) ), this, SLOT( redirectCall( const SipUri &, const QString & ) ) );
 
 	//widget->show();
+	updateCallerName();
 	WidgetManager::showActivateRaiseWindow(border); //!!!!!!!!!!!!!!!!!!!!
 }
 
@@ -1425,6 +1441,17 @@ on_error:
 void RSipPhone::registerAccount(bool rstatus)
 {
 	pjsua_acc_set_registration(_accountId, rstatus);
+}
+
+QString RSipPhone::callerName() const
+{
+	return _callerName;
+}
+
+void RSipPhone::setCallerName( const QString &AName )
+{
+	_callerName = AName;
+	updateCallerName();
 }
 
 /*

@@ -771,6 +771,7 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 	{
 		if(state == ISipStream::SS_OPEN)
 		{
+			FSipPhone->setCallerName(userNick);
 			showNotifyInChatWindow(sid,tr("Calling to %1.").arg(userNick));
 		}
 		else if(state == ISipStream::SS_OPENED)
@@ -833,6 +834,7 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 	{
 		if(state == ISipStream::SS_OPEN)
 		{
+			FSipPhone->setCallerName(userNick);
 			showNotifyInChatWindow(sid,tr("%1 calling you.").arg(userNick));
 		}
 		else if(state == ISipStream::SS_OPENED)
@@ -863,7 +865,7 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 			}
 			if(stream.errFlag == ISipStream::EF_REGFAIL)
 			{
-				showNotifyInChatWindow(sid, tr("Call abort! Registration on SIP server has failed."), MNI_SIPPHONE_CALL_HANGUP);
+				showNotifyInChatWindow(sid, tr("Registration on SIP server has failed."), MNI_SIPPHONE_CALL_HANGUP);
 			}
 		}
 	}
@@ -1080,7 +1082,7 @@ void SipPhone::closeStream(const QString &AStreamId)
 			closeElem.setAttribute("sid",stream.sid);
 
 			if(stream.errFlag == ISipStream::EF_REGFAIL)
-				closeElem.setAttribute("reason", "Registration on SIP server has failed");
+				closeElem.setAttribute("reason", tr("Registration on SIP server has failed."));
 
 			stream.state = ISipStream::SS_CLOSE;
 			emit streamStateChanged(AStreamId,stream.state);

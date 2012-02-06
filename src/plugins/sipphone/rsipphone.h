@@ -36,6 +36,8 @@ public:
 	void registerAccount(bool);
 	bool regStatus() const { return _currentRegisterStatus; }
 
+	QString callerName() const;
+	void setCallerName(const QString &AName);
 
 	void on_reg_state(pjsua_acc_id acc_id);
 	void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info);
@@ -103,6 +105,7 @@ private slots:
 
 private:
 	bool isCameraReady() const;
+	void updateCallerName();
 
 private:
 	static RSipPhone *_pInstance;
@@ -143,6 +146,7 @@ private:
 	QImage _img, _currimg;
 	SipPhoneWidget* _pPhoneWidget;
 	bool _initialized;
+	QString _callerName;
 
 	//pjmedia_vid_dev_myframe myframe;
 };
