@@ -21,7 +21,8 @@ struct ISipStream
 	enum ErrorFlag
 	{
 		EF_NO_ERROR = 0,
-		EF_REGFAIL
+		EF_REGFAIL,
+		EF_DEVERR
 	};
 	ISipStream()
 	{

@@ -126,6 +126,10 @@ protected slots:
 	void onXmppStreamClosed(IXmppStream *);
 	void onStreamCreated(const QString&);
 	void onCallTimerTimeout();
+	//void onSomeInviteError();
+	void onInviteStatus(bool status, int errorCode, const QString& errorString);
+
+
 private slots:
 	void onStartCallToContact();
 	void onShowAddContactDialog();

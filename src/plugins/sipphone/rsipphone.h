@@ -81,7 +81,9 @@ signals:
 
 	void signal_SetRomoteImage(const QImage&);
 	void signal_SetCurrentImage(const QImage&);
-	
+
+	void signal_DeviceError();
+	void signal_InviteStatus(bool, int, const QString&);
 
 
 public slots:

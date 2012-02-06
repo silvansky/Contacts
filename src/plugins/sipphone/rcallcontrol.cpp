@@ -718,7 +718,8 @@ void RCallControl::stopSignal()
 				//usleep(50);
 				qApp->processEvents();
 			}
-			delete _pSoundWait;
+			//delete _pSoundWait;
+			_pSoundWait->deleteLater();
 			_pSoundWait = NULL;
 		}
 		if(_pSoundBusy)
@@ -731,7 +732,8 @@ void RCallControl::stopSignal()
 				//usleep(50);
 				qApp->processEvents();
 			}
-			delete _pSoundBusy;
+			//delete _pSoundBusy;
+			_pSoundBusy->deleteLater();
 			_pSoundBusy = NULL;
 		}
 		if(_pSoundRinging)
@@ -744,7 +746,8 @@ void RCallControl::stopSignal()
 				//usleep(50);
 				qApp->processEvents();
 			}
-			delete _pSoundRinging;
+			//delete _pSoundRinging;
+			_pSoundRinging->deleteLater();
 			_pSoundRinging = NULL;
 		}
 	}

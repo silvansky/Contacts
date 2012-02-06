@@ -223,6 +223,18 @@ void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 			LogDetail(QString("[SipPhone] SIP stack initialized for '%1'").arg(AXmppStream->streamJid().full()));
 			connect(this, SIGNAL(sipSendInvite(const QString&)), FSipPhone, SLOT(call(const QString&)));
 			connect(FSipPhone, SIGNAL(signalCallReleased()), this, SLOT(onHangupCall()));
+			connect(FSipPhone, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
+			connect(FSipPhone, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
+
+			//connect(FSipPhone, SIGNAL(signal_DeviceError()), this, SLOT(onSomeInviteError()));
+			connect(FSipPhone, SIGNAL(signal_InviteStatus(bool, int, const QString&)), this, SLOT(onInviteStatus(bool, int, const QString&)));
+
+			////connect(ui.btnPreview, SIGNAL(clicked()), _pPhone, SLOT(preview()));
+			////connect(ui.btnCall, SIGNAL(clicked()), this, SLOT(call()));
+			//connect(ui.btnAccept, SIGNAL(clicked()), _pPhone, SLOT(call()));
+			//connect(ui.btnCancel, SIGNAL(clicked()), _pPhone, SLOT(hangup()));
+			////connect(quitButton_, SIGNAL(clicked()), this, SLOT(quit()));
+			//connect(ui.btnRegister, SIGNAL(clicked()), this, SLOT(registerAccount()));
 		}
 		else
 		{
@@ -274,6 +286,39 @@ void SipPhone::onCallTimerTimeout()
 		}
 	}
 }
+
+void SipPhone::onInviteStatus(bool status, int errorCode, const QString& errorString)
+{
+	if(status == true)
+	{
+		ISipStream &stream = FStreams[tmpSid];
+		stream.state = ISipStream::SS_OPENED;
+		emit streamStateChanged(tmpSid, stream.state);
+	}
+	else
+	{
+		FSipPhone->registerAccount(false);
+		ISipStream &stream = FStreams[tmpSid];
+		//stream.errFlag = ISipStream::EF_DEVERR;
+		stream.errFlag = errorCode;
+		stream.failReason = errorString;
+		//removeIncomingNotify(AStreamId);
+		//emit streamStateChanged(AStreamId, stream.state);
+		closeStream(tmpSid);
+		
+	}
+
+}
+
+//void SipPhone::onSomeInviteError()
+//{
+//	ISipStream &stream = FStreams[tmpSid];
+//	stream.errFlag = ISipStream::EF_DEVERR;
+//	stream.failReason = "Some device error.";
+//	//removeIncomingNotify(AStreamId);
+//	//emit streamStateChanged(AStreamId, stream.state);
+//	closeStream(tmpSid);
+//}
 
 void SipPhone::onMetaTabWindowCreated(IMetaTabWindow* iMetaTabWindow)
 {
@@ -479,7 +524,11 @@ void SipPhone::onCloseCallControl(bool)
 		}
 
 		if(FSipPhone)
+		{
 			FSipPhone->hangup();
+			FSipPhone->registerAccount(false);
+		}
+
 
 		closeStream(pCallControl->getSessionID());
 		FCallControls.remove(metaId);
@@ -555,7 +604,12 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 		{
 			LogDetail(QString("[SipPhone] Close call request received from '%1', sid='%2'").arg(AStanza.from()).arg(sid));
 			AAccept = true;
-			FPendingRequests.insert(sid,AStanza.id());
+			FPendingRequests.insert(sid, AStanza.id());
+			// Тут надо добавить в ISipStream причину закрытия, если есть и код ошибки.
+			ISipStream &stream = FStreams[sid];
+			if(actionElem.hasAttribute("reason"))
+				stream.failReason = actionElem.attribute("reason");
+			
 			closeStream(sid);
 		}
 	}
@@ -574,6 +628,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			if (actionElem.tagName()=="opened" && actionElem.attribute("sid")==sid)
 			{
 				LogDetail(QString("[SipPhone] Call accepted by '%1', sid='%2', id='%3'").arg(AStanza.from()).arg(sid).arg(AStanza.id()));
+				tmpSid = sid;
 				// Удаленный пользователь принял звонок, устанавливаем соединение
 				// Для протокола SIP это означает следующие действия в этом месте:
 				// -1) Регистрация на сарвере SIP уже должна быть выполнена!
@@ -585,9 +640,9 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				emit sipSendInvite(uri);
 				// 2) Получение акцепта на запрос INVITE
 				// 3) Установка соединения
-				ISipStream &stream = FStreams[sid];
-				stream.state = ISipStream::SS_OPENED;
-				emit streamStateChanged(sid, stream.state);
+				//////////ISipStream &stream = FStreams[sid];
+				//////////stream.state = ISipStream::SS_OPENED;
+				//////////emit streamStateChanged(sid, stream.state);
 			}
 			else if (actionElem.tagName()=="closed" && actionElem.attribute("sid")==sid)
 			{
@@ -595,6 +650,12 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				if ( actionElem.hasAttribute("reason"))
 					FStreams[sid].failReason = actionElem.attribute("reason");
 				removeStream(sid);
+			}
+			else if (actionElem.tagName()=="close" && actionElem.attribute("sid")==sid && actionElem.hasAttribute("reason"))
+			{
+				ISipStream& stream = FStreams[sid];
+				stream.failReason = actionElem.attribute("reason");
+				//removeStream(sid);
 			}
 			else // Пользователь отказался принимать звонок
 			{
@@ -811,6 +872,11 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 				pCallControl->callStatusChange(RCallControl::RingTimeout);
 				showNotifyInChatWindow(sid,tr("%1 is not responding.").arg(userNick));
 			}
+			else if(stream.errFlag != 0)
+			{
+				showNotifyInChatWindow(sid,tr("Call to %1 has filed. Reason: %2").arg(userNick).arg(stream.failReason), MNI_SIPPHONE_CALL_HANGUP);
+				pCallControl->deleteLater();
+			}
 			else
 			{
 				if (callTime.isValid())
@@ -876,6 +942,7 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 					insertMissedNotify(stream);
 				}
 			}
+
 			else
 			{
 				if (callTime.isValid())
@@ -887,6 +954,10 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 			if(stream.errFlag == ISipStream::EF_REGFAIL)
 			{
 				showNotifyInChatWindow(sid, tr("Registration on SIP server has failed."), MNI_SIPPHONE_CALL_HANGUP);
+			}
+			if(!stream.failReason.isEmpty())
+			{
+				showNotifyInChatWindow(sid, tr("Call abort by caller side! Reason: %1").arg(stream.failReason), MNI_SIPPHONE_CALL_HANGUP);
 			}
 		}
 	}
@@ -1079,6 +1150,8 @@ void SipPhone::closeStream(const QString &AStreamId)
 
 			if(stream.errFlag == ISipStream::EF_REGFAIL)
 				closeElem.setAttribute("reason", tr("Registration on SIP server has failed."));
+			else if(stream.errFlag == ISipStream::EF_DEVERR)
+				closeElem.setAttribute("reason", stream.failReason);
 
 			stream.state = ISipStream::SS_CLOSE;
 			emit streamStateChanged(AStreamId,stream.state);

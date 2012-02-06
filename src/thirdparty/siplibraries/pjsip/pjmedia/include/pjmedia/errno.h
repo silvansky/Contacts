@@ -1,4 +1,4 @@
-/* $Id: errno.h 3901 2011-12-07 10:43:28Z nanang $ */
+/* $Id: errno.h 3945 2012-01-27 09:12:59Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -171,6 +171,11 @@ PJ_BEGIN_DECL
  * Invalid SDP media transport protocol.
  */
 #define PJMEDIA_SDP_EINPROTO	    (PJMEDIA_ERRNO_START+36)    /* 220036 */
+/**
+ * @hideinitializer
+ * Invalid SDP bandwidth info (b=) line.
+ */
+#define PJMEDIA_SDP_EINBANDW	    (PJMEDIA_ERRNO_START+37)    /* 220037 */
 
 
 /************************************************************

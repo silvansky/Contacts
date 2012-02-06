@@ -1,4 +1,4 @@
-/* $Id: sdp.h 3664 2011-07-19 03:42:28Z nanang $ */
+/* $Id: sdp.h 3945 2012-01-27 09:12:59Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -614,8 +614,11 @@ struct pjmedia_sdp_session
 	pj_str_t    addr;	    /**< The address.			*/
     } origin;
 
-    pj_str_t	     name;	    /**< Subject line (s=)		*/
-    pjmedia_sdp_conn *conn;	    /**< Connection line (c=)		*/
+    pj_str_t	       name;	    /**< Subject line (s=)		*/
+    pjmedia_sdp_conn  *conn;	    /**< Connection line (c=)		*/
+    unsigned	       bandw_count; /**< Number of bandwidth info (b=)	*/
+    pjmedia_sdp_bandw *bandw[PJMEDIA_MAX_SDP_BANDW];
+				    /**< Bandwidth info array (b=)	*/
     
     /** Session time (t= line)	*/
     struct

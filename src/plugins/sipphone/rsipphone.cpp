@@ -380,11 +380,8 @@ RSipPhone::~RSipPhone()
 	//	status = pjsua_transport_close(id[i], false);
 	//}
 
-	pjsua_destroy();
-	//pjsua_destroy2(PJSUA_DESTROY_NO_RX_MSG);
-	
-
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	//pjsua_destroy();
+	//SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	//SDL_Quit();
 	//qApp->quit();
 
@@ -629,11 +626,18 @@ void RSipPhone::call(const char* uriToCall)
 	//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 
 	status = pjsua_call_make_call(_accountId, &uri, 0, NULL, NULL, &_currentCall);
+	//status = PJMEDIA_EAUD_NODEFDEV;
 	if (status != PJ_SUCCESS)
 	{
+		if(status == PJMEDIA_EAUD_NODEFDEV)
+		{
+			//emit signal_DeviceError();
+			emit signal_InviteStatus(false, 2, "Some device initialization error");
+		}
 		showError("make call", status);
 		return;
 	}
+	emit signal_InviteStatus(true, 0, "");
 }
 
 void RSipPhone::hangup()
@@ -1381,8 +1385,8 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 
 		char usernametmp[512];
 		//pj_ansi_strncpy(usernametmp, sip_username.toUtf8().data(), sizeof(usernametmp));
-		pj_ansi_strncpy(usernametmp, sip_username, sizeof(usernametmp));
-		//pj_ansi_vsnprintf(usernametmp, sizeof(usernametmp), "%s", sip_username);
+		//pj_ansi_strncpy(usernametmp, sip_username, sizeof(usernametmp));
+		pj_ansi_snprintf(usernametmp, sizeof(usernametmp), "%s@%s", sip_username, sip_domain);
 		//acc_cfg.cred_info[0].username = pj_str((char*)idtmp);
 		acc_cfg.cred_info[0].username = pj_str((char*)usernametmp);
 
