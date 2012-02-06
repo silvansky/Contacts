@@ -131,7 +131,7 @@ QCheckBox
 
 #frmLogin
 {
-	margin-top: 10px;
+	margin-top: 6px;
 	padding-right: 3px;
 	padding-bottom: 0px;
 }
