@@ -9,6 +9,10 @@ AddMetaItemPage::AddMetaItemPage(IPluginManager *APluginManager, IMetaTabWindow 
 	ui.setupUi(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_ADDMETAITEMPAGE);
 
+#ifdef Q_WS_MAC
+	ui.appendLayout->setContentsMargins(0, 6, 0, 0);
+#endif
+
 	FMetaTabWindow = AMetaTabWindow;
 	FDescriptor = ADescriptor;
 	
