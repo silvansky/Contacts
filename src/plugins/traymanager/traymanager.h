@@ -9,6 +9,7 @@
 #include <definitions/optionvalues.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/itraymanager.h>
+#include <interfaces/imainwindow.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/versionparser.h>
@@ -64,6 +65,7 @@ protected slots:
 	void onOptionsChanged(const OptionsNode &ANode);
 private:
 	IPluginManager *FPluginManager;
+	IMainWindowPlugin *FMainWindowPlugin;
 private:
 	Menu *FContextMenu;
 private:

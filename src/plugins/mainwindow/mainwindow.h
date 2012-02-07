@@ -32,19 +32,18 @@ public:
 	virtual ToolBarChanger *statusToolBarChanger() const;
 public:
 	virtual QMenu *createPopupMenu();
+signals:
+	void closed();
 protected:
 	void createLayouts();
 	void createToolBars();
 	void createMenus();
 protected:
-	void keyPressEvent(QKeyEvent *AEvent);
 	void closeEvent(QCloseEvent *);
 protected slots:
 	void onStackedWidgetChanged(int AIndex);
 	void onMainMenuAboutToShow();
 	void onMainMenuAboutToHide();
-signals:
-	void closed();
 private:
 	Menu *FMainMenu;
 	ToolBarChanger *FTopToolBarChanger;

@@ -42,8 +42,10 @@ public:
 	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IMainWindowPlugin
 	virtual IMainWindow *mainWindow() const;
-	virtual CustomBorderContainer * mainWindowBorder() const;
+	virtual QWidget *mainWindowTopWidget() const;
+	virtual bool isMinimizeToTray() const;
 	virtual void showMainWindow() const;
+	virtual void closeMainWindow() const;
 protected:
 	void updateTitle();
 	void correctWindowPosition() const;

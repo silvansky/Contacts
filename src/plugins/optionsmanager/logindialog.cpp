@@ -220,6 +220,16 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	FConnectionErrorWidget->setStyleSheet(styleSheet());
 
 	initialize(APluginManager);
+	if (FMainWindowPlugin)
+	{
+		FMainWindowVisible = FMainWindowPlugin->mainWindowTopWidget()->isVisible();
+		if (FMainWindowPlugin->isMinimizeToTray())
+			FMainWindowPlugin->mainWindowTopWidget()->close();
+		else
+			FMainWindowPlugin->mainWindowTopWidget()->hide();
+		FMainWindowPlugin->mainWindowTopWidget()->installEventFilter(this);
+	}
+
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
@@ -344,22 +354,6 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lblForgotPassword->installEventFilter(this);
 	ui.lblRegister->installEventFilter(this);
 	ui.wdtContent->installEventFilter(this);
-
-	if (FMainWindowPlugin)
-	{
-		if (FMainWindowPlugin->mainWindowBorder())
-		{
-			FMainWindowPlugin->mainWindowBorder()->installEventFilter(this);
-			FMainWindowVisible = FMainWindowPlugin->mainWindowBorder()->isVisible();
-			FMainWindowPlugin->mainWindowBorder()->hide();
-		}
-		else
-		{
-			FMainWindowPlugin->mainWindow()->instance()->installEventFilter(this);
-			FMainWindowVisible = FMainWindowPlugin->mainWindow()->instance()->isVisible();
-			FMainWindowPlugin->mainWindow()->instance()->hide();
-		}
-	}
 
 	FReconnectTimer.setSingleShot(true);
 	connect(&FReconnectTimer,SIGNAL(timeout()),SLOT(onReconnectTimerTimeout()));
@@ -527,25 +521,10 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			ui.lneNode->completer()->popup()->setFixedWidth(ui.frmLogin->width()-2);
 			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos() + QPoint(1,1));
 		}
-		else if (FMainWindowPlugin && (AWatched == FMainWindowPlugin->mainWindow()->instance() || AWatched == FMainWindowPlugin->mainWindowBorder()))
+		else if (FMainWindowPlugin && (AWatched==FMainWindowPlugin->mainWindowTopWidget()))
 		{
 			FMainWindowVisible = true;
-			if (AWatched == FMainWindowPlugin->mainWindow()->instance())
-			{
-#ifdef Q_WS_WIN
-				if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-					QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(), SLOT(hide()));
-				else
-#endif
-					QTimer::singleShot(0,FMainWindowPlugin->mainWindow()->instance(), SLOT(close()));
-			}
-			else
-#ifdef Q_WS_WIN
-				if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-					QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(hide()));
-				else
-#endif
-				QTimer::singleShot(0,FMainWindowPlugin->mainWindowBorder(), SLOT(closeWidget()));
+			FMainWindowPlugin->mainWindowTopWidget()->close();
 		}
 	}
 
@@ -1067,18 +1046,11 @@ void LoginDialog::onXmppStreamOpened()
 
 	if (FMainWindowPlugin)
 	{
-		if (FMainWindowPlugin->mainWindowBorder())
-		{
-			FMainWindowPlugin->mainWindowBorder()->removeEventFilter(this);
-			if (FMainWindowVisible)
-				FMainWindowPlugin->mainWindowBorder()->show();
-		}
-		else
-		{
-			FMainWindowPlugin->mainWindow()->instance()->removeEventFilter(this);
-			if (FMainWindowVisible)
-				FMainWindowPlugin->mainWindow()->instance()->show();
-		}
+		FMainWindowPlugin->mainWindowTopWidget()->removeEventFilter(this);
+		if (FMainWindowVisible || Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
+			FMainWindowPlugin->showMainWindow();
+		else if (!FMainWindowPlugin->isMinimizeToTray())
+			FMainWindowPlugin->mainWindowTopWidget()->showMinimized();
 	}
 
 	saveCurrentProfileSettings();

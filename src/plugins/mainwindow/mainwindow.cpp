@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *AParent, Qt::WindowFlags AFlags) : QMainWindow(A
 {
 	setAttribute(Qt::WA_DeleteOnClose,false);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MAINWINDOW_WINDOW);
+	
 	QIcon icon;
 	IconStorage *iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO16), QSize(16,16));
@@ -165,51 +166,10 @@ void MainWindow::createMenus()
 #endif
 }
 
-void MainWindow::keyPressEvent(QKeyEvent * AEvent)
+void MainWindow::closeEvent(QCloseEvent *AEvent)
 {
-	if (AEvent->key() == Qt::Key_Escape)
-	{
-		if (parentWidget())
-		{
-#if defined(Q_WS_WIN)
-			if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-			{
-				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget()))
-					border->minimizeWidget();
-				else
-					parentWidget()->showMinimized();
-			}
-			else
-#elif defined(Q_WS_X11)
-			if ((QString(getenv("XDG_CURRENT_DESKTOP")) == "Unity") || (QString(getenv("DESKTOP_SESSION")) == "gnome"))
-			{
-				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget()))
-					border->minimizeWidget();
-				else
-					parentWidget()->showMinimized();
-			}
-			else
-#endif
-				parentWidget()->close();
-		}
-		else
-#ifdef Q_WS_WIN
-		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-			showMinimized();
-		else
-#endif
-			close();
-	}
-	QMainWindow::keyPressEvent(AEvent);
-}
-
-void MainWindow::closeEvent(QCloseEvent * ce)
-{
-#ifdef Q_WS_WIN
-	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-		emit closed();
-#endif
-	QMainWindow::closeEvent(ce);
+	QMainWindow::closeEvent(AEvent);
+	emit closed();
 }
 
 void MainWindow::onStackedWidgetChanged(int AIndex)

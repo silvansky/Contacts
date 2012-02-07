@@ -1,5 +1,6 @@
 #include "mainwindowplugin.h"
 
+#include <QKeyEvent>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <definitions/resources.h>
@@ -25,29 +26,26 @@ MainWindowPlugin::MainWindowPlugin()
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 #endif
 	FMainWindow->setObjectName("mainWindow");
-	FMainWindowBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FMainWindow, CBS_ROSTER);
 
+	FMainWindowBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FMainWindow, CBS_ROSTER);
 	if (FMainWindowBorder)
 	{
 		FMainWindowBorder->setMaximizeButtonVisible(false);
 		FMainWindowBorder->setMinimizeButtonVisible(false);
 		FMainWindowBorder->setDockingEnabled(true);
+		FMainWindowBorder->installEventFilter(this);
+		connect(FMainWindowBorder, SIGNAL(closed()), SLOT(onMainWindowClosed()));
 	}
-
-#ifdef Q_WS_WIN
-//		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-//			connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
-#endif
-
-	FMainWindow->installEventFilter(this);
+	else
+	{
+		FMainWindow->installEventFilter(this);
+		connect(FMainWindow, SIGNAL(closed()),SLOT(onMainWindowClosed()));
+	}
 }
 
 MainWindowPlugin::~MainWindowPlugin()
 {
-	if (FMainWindowBorder)
-		FMainWindowBorder->deleteLater();
-	else
-		FMainWindow->deleteLater();
+	mainWindowTopWidget()->deleteLater();
 }
 
 void MainWindowPlugin::pluginInfo(IPluginInfo *APluginInfo)
@@ -121,12 +119,13 @@ bool MainWindowPlugin::initObjects()
 
 bool MainWindowPlugin::initSettings()
 {
-	Options::setDefaultValue(OPV_MAINWINDOW_SHOW,true);
 	const QSize defSize(300, 550);
-	Options::setDefaultValue(OPV_MAINWINDOW_SIZE, defSize);
 	QDesktopWidget *desktop = QApplication::desktop();
 	QRect ps = desktop->availableGeometry(desktop->primaryScreen());
 	QRect defRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignRight | Qt::AlignTop, defSize, ps);
+
+	Options::setDefaultValue(OPV_MAINWINDOW_SHOW,true);
+	Options::setDefaultValue(OPV_MAINWINDOW_SIZE, defSize);
 	Options::setDefaultValue(OPV_MAINWINDOW_POSITION, defRect.topLeft());
 	Options::setDefaultValue(OPV_MAINWINDOW_STAYONTOP,false);
 	Options::setDefaultValue(OPV_MAINWINDOW_MINIMIZETOTRAY_W7,false);
@@ -165,21 +164,42 @@ IMainWindow *MainWindowPlugin::mainWindow() const
 	return FMainWindow;
 }
 
-CustomBorderContainer *MainWindowPlugin::mainWindowBorder() const
+QWidget *MainWindowPlugin::mainWindowTopWidget() const
 {
-	return FMainWindowBorder;
+	return FMainWindowBorder!=NULL ? (QWidget*)FMainWindowBorder : (QWidget *)FMainWindow;
+}
+
+bool MainWindowPlugin::isMinimizeToTray() const
+{
+#ifdef Q_WS_WIN
+	return !(QSysInfo::windowsVersion()==QSysInfo::WV_WINDOWS7) || Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool();
+#elif defined(Q_WS_X11)
+	return QString(getenv("XDG_CURRENT_DESKTOP"))!="Unity" && QString(getenv("DESKTOP_SESSION"))!="gnome";
+#endif
+	return true;
 }
 
 void MainWindowPlugin::showMainWindow() const
 {
 	if (!Options::isNull())
 	{
-		if (!FOptionsManager->isLoginDialogActive())
-		{
-			correctWindowPosition();
-			WidgetManager::showActivateRaiseWindow(FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow);
-			QApplication::processEvents();
-		}
+		correctWindowPosition();
+		WidgetManager::showActivateRaiseWindow(mainWindowTopWidget());
+	}
+}
+
+void MainWindowPlugin::closeMainWindow() const
+{
+	if (isMinimizeToTray())
+	{
+		mainWindowTopWidget()->close();
+	}
+	else if (mainWindowTopWidget()->isVisible())
+	{
+		if (FMainWindowBorder)
+			FMainWindowBorder->minimizeWidget();
+		else
+			FMainWindow->showMinimized();
 	}
 }
 
@@ -219,52 +239,51 @@ void MainWindowPlugin::correctWindowPosition() const
 			windowRect.setTop(windowRect.top() + FMainWindowBorder->topBorderWidth());
 			windowRect.setBottom(windowRect.bottom() - FMainWindowBorder->bottomBorderWidth());
 		}
-		FMainWindowBorder ? FMainWindowBorder->move(windowRect.topLeft()) : FMainWindow->move(windowRect.topLeft());
+		mainWindowTopWidget()->move(windowRect.topLeft());
 	}
 }
 
 bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 {
-	if (AWatched==FMainWindow && AEvent->type()==QEvent::ActivationChange)
-		FActivationChanged = QTime::currentTime();
+	if (AWatched == mainWindowTopWidget())
+	{
+		if (AEvent->type() == QEvent::ActivationChange)
+		{
+			FActivationChanged = QTime::currentTime();
+		}
+		else if (AEvent->type() == QEvent::KeyPress)
+		{
+			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(AEvent);
+			if (keyEvent && keyEvent->key()==Qt::Key_Escape)
+				closeMainWindow();
+		}
+	}
 	return QObject::eventFilter(AWatched,AEvent);
 }
 
 void MainWindowPlugin::onOptionsOpened()
 {
-	QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
-	widget->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
-	widget->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
+	mainWindowTopWidget()->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
+	mainWindowTopWidget()->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
+	updateTitle();
+
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7));
-	if (Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
-		showMainWindow();
-#ifdef Q_WS_WIN
-	else if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
-		widget->showMinimized();
-#endif
-	updateTitle();
 }
 
 void MainWindowPlugin::onOptionsClosed()
 {
-	QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
-	Options::node(OPV_MAINWINDOW_SIZE).setValue(widget->size());
-	Options::node(OPV_MAINWINDOW_POSITION).setValue(widget->pos());
-#ifdef Q_WS_WIN
-	if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
-		widget->hide();
-	else
-#endif
-		widget->close();
+	Options::node(OPV_MAINWINDOW_SIZE).setValue(mainWindowTopWidget()->size());
+	Options::node(OPV_MAINWINDOW_POSITION).setValue(mainWindowTopWidget()->pos());
 	FOpenAction->setVisible(false);
+	closeMainWindow();
 	updateTitle();
 }
 
 void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 {
-	QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
+	QWidget *widget = mainWindowTopWidget();
 	if (ANode.path() == OPV_MAINWINDOW_STAYONTOP)
 	{
 		bool show = widget->isVisible();
@@ -275,26 +294,18 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 		if (show)
 			showMainWindow();
 	}
-#if defined(Q_OS_WIN)
 	else if (ANode.path() == OPV_MAINWINDOW_MINIMIZETOTRAY_W7)
 	{
-		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		if (FMainWindowBorder)
 		{
-			bool minimize = ANode.value().toBool();
-			FMainWindowBorder->setMinimizeOnClose(!minimize);
-			FMainWindowBorder->setShowInTaskBar(!minimize);
-			if (minimize)
-				disconnect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), this, SLOT(onMainWindowClosed()));
-			else
-				connect(FMainWindowBorder ? (QObject*)FMainWindowBorder : (QObject*)FMainWindow, SIGNAL(closed()), SLOT(onMainWindowClosed()));
+			FMainWindowBorder->setMinimizeOnClose(!isMinimizeToTray());
+			FMainWindowBorder->setShowInTaskBar(!isMinimizeToTray());
 		}
-		else
-			FMainWindowBorder->setShowInTaskBar(false);
+		if (!isMinimizeToTray() && !mainWindowTopWidget()->isVisible())
+		{
+			mainWindowTopWidget()->showMinimized();
+		}
 	}
-#elif defined(Q_WS_X11)
-	if ((QString(getenv("XDG_CURRENT_DESKTOP")) == "Unity") || (QString(getenv("DESKTOP_SESSION")) == "gnome"))
-		FMainWindowBorder->setMinimizeOnClose(true);
-#endif
 }
 
 void MainWindowPlugin::onProfileRenamed(const QString &AProfile, const QString &ANewName)
@@ -308,16 +319,8 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 {
 	if (ANotifyId<0 && AReason==QSystemTrayIcon::DoubleClick)
 	{
-		QWidget * widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
 		if (FMainWindow->isActive() || qAbs(FActivationChanged.msecsTo(QTime::currentTime()))<qApp->doubleClickInterval())
-		{
-#ifdef Q_WS_WIN
-			if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
-				widget->hide();
-			else
-#endif
-				widget->close();
-		}
+			closeMainWindow();
 		else
 			showMainWindow();
 	}
@@ -330,23 +333,15 @@ void MainWindowPlugin::onShowMainWindowByAction(bool)
 
 void MainWindowPlugin::onMainWindowClosed()
 {
-#ifdef Q_WS_WIN
-	if (QSysInfo::windowsVersion()==QSysInfo::WV_WINDOWS7 && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
+	if (!isMinimizeToTray())
 		FPluginManager->quit();
-#endif
 }
 
 void MainWindowPlugin::onShutdownStarted()
 {
 	if (!Options::isNull())
 	{
-		QWidget *widget = FMainWindowBorder ? (QWidget*)FMainWindowBorder : (QWidget*)FMainWindow;
-#ifdef Q_WS_WIN
-		if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool())
-			Options::node(OPV_MAINWINDOW_SHOW).setValue(!widget->isMinimized());
-		else
-#endif
-			Options::node(OPV_MAINWINDOW_SHOW).setValue(widget->isVisible());
+		Options::node(OPV_MAINWINDOW_SHOW).setValue(isMinimizeToTray() ? mainWindowTopWidget()->isVisible() : !mainWindowTopWidget()->isMinimized());
 	}
 }
 

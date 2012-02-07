@@ -36,7 +36,6 @@ protected:
 	void setMoodText(const QString &AMood);
 	QString fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const;
 protected:
-	void resizeEvent(QResizeEvent *);
 	void paintEvent(QPaintEvent *);
 	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:

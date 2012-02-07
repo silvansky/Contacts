@@ -9,6 +9,7 @@
 TrayManager::TrayManager()
 {
 	FPluginManager = NULL;
+	FMainWindowPlugin = NULL;
 
 	FActiveNotify = -1;
 	FIconHidden = false;
@@ -47,6 +48,13 @@ bool TrayManager::initConnections(IPluginManager *APluginManager, int &AInitOrde
 {
 	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
+
+	IPlugin *plugin = FPluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+	}
+
 	connect(FPluginManager->instance(),SIGNAL(shutdownStarted()),SLOT(onShutdownStarted()));
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
@@ -196,15 +204,10 @@ void TrayManager::updateTray()
 
 void TrayManager::updateTrayVisibility()
 {
-#ifdef Q_WS_WIN
-	if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool() && FNotifyItems.isEmpty())
+	if (FMainWindowPlugin && !FMainWindowPlugin->isMinimizeToTray() && FNotifyItems.isEmpty())
 		FSystemIcon.hide();
 	else if (!FSystemIcon.isVisible())
 		FSystemIcon.show();
-#else
-	if (!FSystemIcon.isVisible())
-		FSystemIcon.show();
-#endif
 }
 
 void TrayManager::onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason)

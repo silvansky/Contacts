@@ -178,18 +178,6 @@ QString StatusWidget::fitCaptionToWidth(const QString &AName, const QString &ASt
 	return getHtmlBody(doc.toHtml());
 }
 
-void StatusWidget::resizeEvent(QResizeEvent * event)
-{
-	if (FMainWindowPlugin && FMainWindowPlugin->mainWindowBorder())
-	{
-		QPoint p = ui.tlbStatus->geometry().topRight();
-		p = mapToGlobal(p);
-		p = FMainWindowPlugin->mainWindowBorder()->widget()->mapFromGlobal(p);
-		//FMainWindowPlugin->mainWindowBorder()->setHeaderMoveLeft(p.x() + 1);
-	}
-	QWidget::resizeEvent(event);
-}
-
 void StatusWidget::paintEvent(QPaintEvent * pe)
 {
 	QStyleOption opt;

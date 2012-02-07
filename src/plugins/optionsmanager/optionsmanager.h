@@ -73,7 +73,6 @@ public:
 	virtual void insertServerOption(const QString &APath);
 	virtual void removeServerOption(const QString &APath);
 	virtual QDialog *showLoginDialog(QWidget *AParent = NULL);
-	virtual bool isLoginDialogActive() const;
 	virtual QList<IOptionsHolder *> optionsHolders() const;
 	virtual void insertOptionsHolder(IOptionsHolder *AHolder);
 	virtual void removeOptionsHolder(IOptionsHolder *AHolder);

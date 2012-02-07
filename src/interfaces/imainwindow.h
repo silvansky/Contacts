@@ -63,8 +63,10 @@ class IMainWindowPlugin
 public:
 	virtual QObject *instance() = 0;
 	virtual IMainWindow *mainWindow() const = 0;
-	virtual CustomBorderContainer * mainWindowBorder() const = 0;
+	virtual QWidget *mainWindowTopWidget() const = 0;
+	virtual bool isMinimizeToTray() const =0;
 	virtual void showMainWindow() const =0;
+	virtual void closeMainWindow() const =0;
 };
 
 Q_DECLARE_INTERFACE(IInternalNoticeWidget,"Virtus.Plugin.IInternalNoticeWidget/1.0")
