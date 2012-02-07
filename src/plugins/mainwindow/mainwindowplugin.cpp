@@ -303,7 +303,7 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 			FMainWindowBorder->setMinimizeOnClose(!isMinimizeToTray());
 			FMainWindowBorder->setShowInTaskBar(!isMinimizeToTray());
 		}
-		if (!isMinimizeToTray() && !mainWindowTopWidget()->isVisible())
+		if (false && !isMinimizeToTray() && !mainWindowTopWidget()->isVisible())
 		{
 			if (FMainWindowBorder)
 				FMainWindowBorder->minimizeWidget();
