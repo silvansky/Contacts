@@ -166,7 +166,7 @@ IMainWindow *MainWindowPlugin::mainWindow() const
 
 QWidget *MainWindowPlugin::mainWindowTopWidget() const
 {
-	return FMainWindowBorder!=NULL ? (QWidget*)FMainWindowBorder : (QWidget *)FMainWindow;
+	return FMainWindow->window();
 }
 
 bool MainWindowPlugin::isMinimizeToTray() const
@@ -303,7 +303,10 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 		}
 		if (!isMinimizeToTray() && !mainWindowTopWidget()->isVisible())
 		{
-			mainWindowTopWidget()->showMinimized();
+			if (FMainWindowBorder)
+				FMainWindowBorder->minimizeWidget();
+			else
+				FMainWindow->showMinimized();
 		}
 	}
 }
