@@ -30,13 +30,13 @@
 - (void)_drawTitleStringIn:(NSRect)rect withColor:(NSColor *)color;
 - (NSRect)_titlebarTitleRect;
 
+// methods to add to NSThemeFrame class
+-(NSAttributedString*)attributedTitle;
+
 // renamed original methods of NSThemeFrame class
 - (void)drawRectOriginal:(NSRect)rect;
 - (void)_drawTitleStringOriginalIn: (NSRect) rect withColor: (NSColor *) color;
 - (NSRect)_titlebarTitleRectOriginal;
-
-// methods to add to NSThemeFrame class
--(NSAttributedString*)attributedTitle;
 
 @end
 

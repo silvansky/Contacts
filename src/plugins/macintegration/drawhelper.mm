@@ -7,6 +7,31 @@ static NSColor * gTitleColor = nil;
 
 #define CLIP_METHOD2
 
+/* dummy functions implementation - to prevent compiler warnings */
+
+- (float)roundedCornerRadius { return 0; }
+
+- (NSWindow*)window { return nil; }
+
+- (id)_displayName { return nil; }
+
+- (NSRect)bounds { return NSRect(); }
+
+- (NSString *)title { return nil; }
+
+- (NSSize)sizeOfTitlebarButtons { return NSSize(); }
+
+- (NSPoint)_closeButtonOrigin { return NSPoint(); }
+
+- (NSPoint)_zoomButtonOrigin { return NSPoint(); }
+
+- (NSPoint)_collapseButtonOrigin { return NSPoint(); }
+
+- (void)_setTextShadow:(BOOL)on { (void)on; }
+
+
+/* real functions */
+
 - (void)drawRect:(NSRect)rect
 {
 	// Call original drawing method
@@ -74,6 +99,7 @@ static NSColor * gTitleColor = nil;
 
 - (void)_drawTitleStringIn: (NSRect) rect withColor: (NSColor *) color
 {
+	(void)rect;
 	if (!color)
 	{
 		if (!gTitleColor)
@@ -134,6 +160,12 @@ static NSColor * gTitleColor = nil;
 	[paragraphStyle release];
 	return str;
 }
+
+/* renamed function dummy implementations */
+
+- (void)drawRectOriginal:(NSRect)rect { (void)rect; }
+- (void)_drawTitleStringOriginalIn: (NSRect) rect withColor: (NSColor *) color { (void)rect; (void)color; }
+- (NSRect)_titlebarTitleRectOriginal { return NSRect(); }
 
 @end
 

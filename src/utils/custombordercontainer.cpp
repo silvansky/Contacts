@@ -66,6 +66,7 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(CustomBorderContainer
 }
 
 CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderContainerPrivate& other) :
+	p(NULL),
 	topLeft(other.topLeft),
 	topRight(other.topRight),
 	bottomLeft(other.bottomLeft),
@@ -84,7 +85,6 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderCon
 	restore(other.restore),
 	headerButtons(other.headerButtons),
 	dragAnywhere(other.dragAnywhere),
-	p(NULL),
 	dockingEnabled(other.dockingEnabled),
 	dockWidth(other.dockWidth)
 {
