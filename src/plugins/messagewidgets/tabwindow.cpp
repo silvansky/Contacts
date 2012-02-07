@@ -324,7 +324,7 @@ void TabWindow::onTabMenuRequested(int AIndex)
 	{
 		Action *action = new Action(tabMenu);
 		action->setText(tr("Close Window"));
-		connect(action,SIGNAL(triggered()),SLOT(close()));
+		connect(action,SIGNAL(triggered()),window(), SLOT(close()));
 		tabMenu->addAction(action,AG_DEFAULT+1);
 	}
 
