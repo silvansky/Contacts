@@ -2,7 +2,7 @@ Source: ramblercontacts
 Section: net
 Priority: optional
 Maintainer: Rambler Team <support@rambler.ru>
-Build-Depends: debhelper (>= 7.0.50~), openssl, libqtwebkit-dev | libqt4-dev, libx11-dev, zlib1g-dev, libidn11-dev
+Build-Depends: debhelper (>= 7.0.50~), openssl, libqtwebkit-dev | libqt4-dev, libx11-dev, zlib1g-dev, libidn11-dev, libxss-dev, curl
 Standards-Version: 3.9.1
 Homepage: http://contacts.rambler.ru
 

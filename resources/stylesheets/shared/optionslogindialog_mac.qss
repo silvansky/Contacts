@@ -3,6 +3,11 @@ QPushButton#tlbDomain
 	margin-bottom: 2px;
 }
 
+QComboBox
+{
+	padding-top: -1px;
+}
+
 QCheckBox
 {
 	margin-left: 4px;

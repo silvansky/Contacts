@@ -83,8 +83,8 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderCon
 	maximize(other.maximize),
 	close(other.close),
 	restore(other.restore),
-	headerButtons(other.headerButtons),
 	dragAnywhere(other.dragAnywhere),
+	headerButtons(other.headerButtons),
 	dockingEnabled(other.dockingEnabled),
 	dockWidth(other.dockWidth)
 {
