@@ -286,5 +286,13 @@
         <source>%1 is not responding. Reason: %2</source>
         <translation>%1 не отвечает. Причина %2</translation>
     </message>
+    <message>
+        <source>Call to %1 has failed. Reason: %2</source>
+        <translation>Звонок к %1 не удался. Причина: %2</translation>
+    </message>
+    <message>
+        <source>Call abort by caller side! Reason: %1</source>
+        <translation>Звонок отменен на вызывающей стороне. Причина: %1</translation>
+    </message>
 </context>
 </TS>
