@@ -66,7 +66,7 @@ public:
 	virtual QWidget *mainWindowTopWidget() const = 0;
 	virtual bool isMinimizeToTray() const =0;
 	virtual void showMainWindow() const =0;
-	virtual void closeMainWindow() const =0;
+	virtual void hideMainWindow() const =0;
 };
 
 Q_DECLARE_INTERFACE(IInternalNoticeWidget,"Virtus.Plugin.IInternalNoticeWidget/1.0")

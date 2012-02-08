@@ -27,7 +27,6 @@ MainWindowPlugin::MainWindowPlugin()
 
 	FOpenAction = NULL;
 	FActivationChanged = QTime::currentTime();
-
 }
 
 MainWindowPlugin::~MainWindowPlugin()
@@ -175,7 +174,7 @@ void MainWindowPlugin::showMainWindow() const
 	}
 }
 
-void MainWindowPlugin::closeMainWindow() const
+void MainWindowPlugin::hideMainWindow() const
 {
 	if (isMinimizeToTray())
 	{
@@ -242,7 +241,7 @@ bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(AEvent);
 			if (keyEvent && keyEvent->key()==Qt::Key_Escape)
-				closeMainWindow();
+				hideMainWindow();
 		}
 	}
 	return QObject::eventFilter(AWatched,AEvent);
@@ -279,7 +278,7 @@ void MainWindowPlugin::onOptionsClosed()
 	Options::node(OPV_MAINWINDOW_SIZE).setValue(mainWindowTopWidget()->size());
 	Options::node(OPV_MAINWINDOW_POSITION).setValue(mainWindowTopWidget()->pos());
 	FOpenAction->setVisible(false);
-	closeMainWindow();
+	hideMainWindow();
 	updateTitle();
 }
 
@@ -303,12 +302,15 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 			FMainWindowBorder->setMinimizeOnClose(!isMinimizeToTray());
 			FMainWindowBorder->setShowInTaskBar(!isMinimizeToTray());
 		}
-		if (false && !isMinimizeToTray() && !mainWindowTopWidget()->isVisible())
+		if (!isMinimizeToTray() && !mainWindowTopWidget()->isVisible())
 		{
-			if (FMainWindowBorder)
-				FMainWindowBorder->minimizeWidget();
-			else
-				FMainWindow->showMinimized();
+			if (FOptionsManager==NULL || !FOptionsManager->isLoginDialogVisible())
+			{
+				if (FMainWindowBorder)
+					FMainWindowBorder->minimizeWidget();
+				else
+					FMainWindow->showMinimized();
+			}
 		}
 	}
 }
@@ -325,7 +327,7 @@ void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::Act
 	if (ANotifyId<0 && AReason==QSystemTrayIcon::DoubleClick)
 	{
 		if (FMainWindow->isActive() || qAbs(FActivationChanged.msecsTo(QTime::currentTime()))<qApp->doubleClickInterval())
-			closeMainWindow();
+			hideMainWindow();
 		else
 			showMainWindow();
 	}
@@ -339,7 +341,10 @@ void MainWindowPlugin::onShowMainWindowByAction(bool)
 void MainWindowPlugin::onMainWindowClosed()
 {
 	if (!isMinimizeToTray())
-		FPluginManager->quit();
+	{
+		if (FOptionsManager==NULL || !FOptionsManager->isLoginDialogVisible())
+			FPluginManager->quit();
+	}
 }
 
 void MainWindowPlugin::onShutdownStarted()

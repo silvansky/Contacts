@@ -45,7 +45,7 @@ public:
 	virtual QWidget *mainWindowTopWidget() const;
 	virtual bool isMinimizeToTray() const;
 	virtual void showMainWindow() const;
-	virtual void closeMainWindow() const;
+	virtual void hideMainWindow() const;
 protected:
 	void updateTitle();
 	void correctWindowPosition() const;

@@ -47,6 +47,7 @@ public slots:
 	virtual void reject();
 protected:
 	bool event(QEvent *AEvent);
+	void showEvent(QShowEvent *AEvent);
 	void keyPressEvent(QKeyEvent *AEvent);
 	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected:

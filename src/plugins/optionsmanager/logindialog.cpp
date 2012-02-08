@@ -220,16 +220,6 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	FConnectionErrorWidget->setStyleSheet(styleSheet());
 
 	initialize(APluginManager);
-	if (FMainWindowPlugin)
-	{
-		FMainWindowVisible = FMainWindowPlugin->mainWindowTopWidget()->isVisible();
-		if (FMainWindowPlugin->isMinimizeToTray())
-			FMainWindowPlugin->mainWindowTopWidget()->close();
-		else
-			FMainWindowPlugin->mainWindowTopWidget()->hide();
-		FMainWindowPlugin->mainWindowTopWidget()->installEventFilter(this);
-	}
-
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
@@ -430,6 +420,17 @@ bool LoginDialog::event(QEvent *AEvent)
 		showErrorBalloon();
 	}
 	return QDialog::event(AEvent);
+}
+
+void LoginDialog::showEvent(QShowEvent *AEvent)
+{
+	QDialog::showEvent(AEvent);
+	if (FMainWindowPlugin)
+	{
+		FMainWindowVisible = FMainWindowPlugin->mainWindowTopWidget()->isVisible();
+		FMainWindowPlugin->mainWindowTopWidget()->installEventFilter(this);
+		FMainWindowPlugin->mainWindowTopWidget()->close();
+	}
 }
 
 void LoginDialog::keyPressEvent(QKeyEvent *AEvent)

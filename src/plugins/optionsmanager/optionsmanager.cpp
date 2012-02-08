@@ -538,6 +538,11 @@ void OptionsManager::removeServerOption(const QString &APath)
 	FServerOptions.removeAll(APath);
 }
 
+bool OptionsManager::isLoginDialogVisible() const
+{
+	return FLoginDialog!=NULL && FLoginDialog->isVisible();
+}
+
 QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 {
 	if (!FLoginDialog)
