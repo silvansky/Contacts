@@ -625,6 +625,9 @@ void RSipPhone::call(const char* uriToCall)
 	//pjsua_call_setting_default(&call_setting);
 	//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 
+	//status = pjsua_set_null_snd_dev();
+
+
 	status = pjsua_call_make_call(_accountId, &uri, 0, NULL, NULL, &_currentCall);
 	//status = PJMEDIA_EAUD_NODEFDEV;
 	if (status != PJ_SUCCESS)

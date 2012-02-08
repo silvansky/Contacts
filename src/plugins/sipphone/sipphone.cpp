@@ -874,7 +874,7 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 			}
 			else if(stream.errFlag != 0)
 			{
-				showNotifyInChatWindow(sid,tr("Call to %1 has filed. Reason: %2").arg(userNick).arg(stream.failReason), MNI_SIPPHONE_CALL_HANGUP);
+				showNotifyInChatWindow(sid,tr("Call to %1 has failed. Reason: %2").arg(userNick).arg(stream.failReason), MNI_SIPPHONE_CALL_HANGUP);
 				pCallControl->deleteLater();
 			}
 			else
