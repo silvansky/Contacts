@@ -94,7 +94,6 @@
 // OptionsManager
 #define OPV_MISC_ROOT                                   "misc"
 #define OPV_MISC_AUTOSTART                              "misc.autostart"
-#define OPV_MISC_CUSTOMBORDER                           "misc.customborder"
 #define OPV_MISC_SHAREOSVERSION                         "misc.share-os-version"
 #define OPV_MISC_OPTIONS_SAVE_ON_SERVER                 "misc.options.save-on-server"
 #define OPV_MISC_OPTIONS_DIALOG_LASTNODE                "misc.options.dialog.last-node"

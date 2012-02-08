@@ -14,6 +14,9 @@ MainWindowPlugin::MainWindowPlugin()
 	FPluginManager = NULL;
 	FOptionsManager = NULL;
 	FTrayManager = NULL;
+
+	FOpenAction = NULL;
+	FActivationChanged = QTime::currentTime();
 #ifdef Q_WS_WIN
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 #elif defined(Q_WS_MAC)
@@ -23,10 +26,21 @@ MainWindowPlugin::MainWindowPlugin()
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 #endif
 	FMainWindow->setObjectName("mainWindow");
-	FMainWindowBorder = NULL;
 
-	FOpenAction = NULL;
-	FActivationChanged = QTime::currentTime();
+	FMainWindowBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FMainWindow, CBS_ROSTER);
+	if (FMainWindowBorder)
+	{
+		FMainWindowBorder->setMaximizeButtonVisible(false);
+		FMainWindowBorder->setMinimizeButtonVisible(false);
+		FMainWindowBorder->setDockingEnabled(true);
+		FMainWindowBorder->installEventFilter(this);
+		connect(FMainWindowBorder, SIGNAL(closed()), SLOT(onMainWindowClosed()));
+	}
+	else
+	{
+		FMainWindow->installEventFilter(this);
+		connect(FMainWindow, SIGNAL(closed()),SLOT(onMainWindowClosed()));
+	}
 }
 
 MainWindowPlugin::~MainWindowPlugin()
@@ -249,21 +263,6 @@ bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 
 void MainWindowPlugin::onOptionsOpened()
 {
-	FMainWindowBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FMainWindow, CBS_ROSTER);
-	if (FMainWindowBorder)
-	{
-		FMainWindowBorder->setMaximizeButtonVisible(false);
-		FMainWindowBorder->setMinimizeButtonVisible(false);
-		FMainWindowBorder->setDockingEnabled(true);
-		FMainWindowBorder->installEventFilter(this);
-		connect(FMainWindowBorder, SIGNAL(closed()), SLOT(onMainWindowClosed()));
-	}
-	else
-	{
-		FMainWindow->installEventFilter(this);
-		connect(FMainWindow, SIGNAL(closed()),SLOT(onMainWindowClosed()));
-	}
-
 	mainWindowTopWidget()->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
 	mainWindowTopWidget()->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
