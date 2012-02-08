@@ -4,7 +4,7 @@
 #define VER_FILEVERSION             0,6,0,0
 #define VER_FILEVERSION_STR         "0.6.0.0\0"
 
-#define VER_PRODUCTVERSION          0,6,0,1407
+#define VER_PRODUCTVERSION          0,6,0,1410
 #define VER_PRODUCTVERSION_STR      "0.6.0\0"
 
 #define VER_COMPANYNAME_STR         "Rambler Internet Holding LLC"
