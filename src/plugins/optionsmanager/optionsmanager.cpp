@@ -159,6 +159,13 @@ bool OptionsManager::initObjects()
 bool OptionsManager::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
+	bool customBorder =
+#ifdef Q_WS_MAC
+			false;
+#else
+			true;
+#endif
+	Options::setDefaultValue(OPV_MISC_CUSTOMBORDER, customBorder);
 	Options::setDefaultValue(OPV_MISC_OPTIONS_SAVE_ON_SERVER, true);
 #ifdef Q_WS_MAC
 	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_GATEWAYS));
@@ -197,6 +204,9 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
 
 		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"), AParent));
+#endif
+#ifdef DEBUG_ENABLED
+		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDER), tr("Use custom window borders (restart needed)"), AParent));
 #endif
 		widgets.insertMulti(OWO_COMMON_SINC_OPTIONS, optionsNodeWidget(Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER), tr("Sync preferences on my several computers"), AParent));
 	}
@@ -792,6 +802,11 @@ void OptionsManager::onOptionsChanged(const OptionsNode &ANode)
 			reg.remove(CLIENT_NAME);
 		setProfileData(currentProfile(),"auto-run",ANode.value().toBool());
 #endif
+	}
+	else if (ANode.path() == OPV_MISC_CUSTOMBORDER)
+	{
+		QTimer::singleShot(20, FPluginManager->instance(), SLOT(restart()));
+		saveOptions();
 	}
 	FAutoSaveTimer.start();
 }
