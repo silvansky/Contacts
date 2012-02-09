@@ -181,7 +181,7 @@ bool MainWindowPlugin::isMinimizeToTray() const
 
 void MainWindowPlugin::showMainWindow() const
 {
-	if (!Options::isNull())
+	if (FOptionsManager==NULL || !FOptionsManager->isLoginDialogVisible())
 	{
 		correctWindowPosition();
 		WidgetManager::showActivateRaiseWindow(mainWindowTopWidget());
@@ -194,7 +194,7 @@ void MainWindowPlugin::hideMainWindow() const
 	{
 		mainWindowTopWidget()->close();
 	}
-	else if (mainWindowTopWidget()->isVisible())
+	else if (FOptionsManager==NULL || !FOptionsManager->isLoginDialogVisible())
 	{
 		if (FMainWindowBorder)
 			FMainWindowBorder->minimizeWidget();
@@ -277,7 +277,7 @@ void MainWindowPlugin::onOptionsClosed()
 	Options::node(OPV_MAINWINDOW_SIZE).setValue(mainWindowTopWidget()->size());
 	Options::node(OPV_MAINWINDOW_POSITION).setValue(mainWindowTopWidget()->pos());
 	FOpenAction->setVisible(false);
-	hideMainWindow();
+	mainWindowTopWidget()->hide();
 	updateTitle();
 }
 
@@ -303,13 +303,7 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 		}
 		if (!isMinimizeToTray() && !mainWindowTopWidget()->isVisible())
 		{
-			if (FOptionsManager==NULL || !FOptionsManager->isLoginDialogVisible())
-			{
-				if (FMainWindowBorder)
-					FMainWindowBorder->minimizeWidget();
-				else
-					FMainWindow->showMinimized();
-			}
+			hideMainWindow();
 		}
 	}
 }
@@ -339,11 +333,8 @@ void MainWindowPlugin::onShowMainWindowByAction(bool)
 
 void MainWindowPlugin::onMainWindowClosed()
 {
-	if (!isMinimizeToTray())
-	{
-		if (FOptionsManager==NULL || !FOptionsManager->isLoginDialogVisible())
-			FPluginManager->quit();
-	}
+	if (!isMinimizeToTray() && (FOptionsManager==NULL || !FOptionsManager->isLoginDialogVisible()))
+		FPluginManager->quit();
 }
 
 void MainWindowPlugin::onShutdownStarted()

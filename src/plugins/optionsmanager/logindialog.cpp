@@ -522,11 +522,6 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			ui.lneNode->completer()->popup()->setFixedWidth(ui.frmLogin->width()-2);
 			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos() + QPoint(1,1));
 		}
-		else if (FMainWindowPlugin && (AWatched==FMainWindowPlugin->mainWindowTopWidget()))
-		{
-			FMainWindowVisible = true;
-			FMainWindowPlugin->mainWindowTopWidget()->close();
-		}
 	}
 
 	if (ui.lneNode->completer())
@@ -1035,6 +1030,8 @@ void LoginDialog::onAbortTimerTimeout()
 
 void LoginDialog::onXmppStreamOpened()
 {
+	hide();
+
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
 	if (account && FConnectionSettings!=CS_DEFAULT)
 	{
@@ -1050,8 +1047,8 @@ void LoginDialog::onXmppStreamOpened()
 		FMainWindowPlugin->mainWindowTopWidget()->removeEventFilter(this);
 		if (FMainWindowVisible || Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
 			FMainWindowPlugin->showMainWindow();
-		else if (!FMainWindowPlugin->isMinimizeToTray())
-			FMainWindowPlugin->mainWindowTopWidget()->showMinimized();
+		else 
+			FMainWindowPlugin->hideMainWindow();
 	}
 
 	saveCurrentProfileSettings();
