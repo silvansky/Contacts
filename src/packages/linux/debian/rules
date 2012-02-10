@@ -21,7 +21,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	qmake INSTALL_PREFIX=/usr -recursive virtus.pro
+	qmake INSTALL_PREFIX=/usr DEFINES+=USE_PHONON -recursive virtus.pro
 	touch configure-stamp
 
 

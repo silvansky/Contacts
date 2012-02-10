@@ -36,6 +36,8 @@ isEmpty(INSTALL_RES_DIR) {
 DEFINES                 += LOG_ENABLED
 CONFIG(debug, debug|release) {
   DEFINES               += DEBUG_ENABLED
+  DEFINES               += WITH_CONSOLE
+  DEFINES               += WITH_SSEDITOR
 }
 
 #under mac you should install app before debugging it
