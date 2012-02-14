@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>383</width>
-    <height>284</height>
+    <width>314</width>
+    <height>192</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -91,36 +91,15 @@
             <height>0</height>
            </size>
           </property>
+          <property name="placeholderText">
+           <string>Host</string>
+          </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lneProxyPort"/>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spbProxyPort">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>62</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>62</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="maximum">
-           <number>65535</number>
-          </property>
-          <property name="value">
-           <number>1080</number>
+         <widget class="QLineEdit" name="lneProxyPort">
+          <property name="placeholderText">
+           <string>Port</string>
           </property>
          </widget>
         </item>
@@ -168,6 +147,9 @@
             <height>0</height>
            </size>
           </property>
+          <property name="placeholderText">
+           <string>Login</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -190,6 +172,9 @@
           <property name="echoMode">
            <enum>QLineEdit::Password</enum>
           </property>
+          <property name="placeholderText">
+           <string>Password</string>
+          </property>
          </widget>
         </item>
        </layout>
@@ -201,7 +186,6 @@
  </widget>
  <tabstops>
   <tabstop>lneProxyHost</tabstop>
-  <tabstop>spbProxyPort</tabstop>
   <tabstop>chbProxyUserPassword</tabstop>
  </tabstops>
  <resources/>
