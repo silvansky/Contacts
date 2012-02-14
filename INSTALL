@@ -4,8 +4,9 @@ If you want to build with XML Console plugin, add DEFINES+=WITH_CONSOLE to qmake
 
 * Linux
 
-1. To create a deb package, just run "./src/packages/linux/make_deb.sh" in source root. After installation of it, you will find item "Контакты" at your app menu.
-2. To build manually, run following:
+1. Dependency list: openssl, libqtwebkit-dev | libqt4-dev, libx11-dev, zlib1g-dev, libidn11-dev, libxss-dev, curl
+2. To create a deb package, just run "./src/packages/linux/make_deb.sh" in source root. After installation of it, you will find item "Контакты" at your app menu.
+3. To build manually, run following:
 
   qmake -r virtus.pro INSTALL_PREFIX=/usr DEFINES+=USE_PHONON
   make
