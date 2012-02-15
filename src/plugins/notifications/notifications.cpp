@@ -628,7 +628,7 @@ int Notifications::notifyIdByWidget(NotifyWidget *AWidget) const
 	return -1;
 }
 
-void Notifications::activateAllNotifications()
+void Notifications::activateAllNotifications(uint kinds)
 {
 #ifdef DEBUG_ENABLED
 	qDebug() << "void Notifications::activateAllNotifications()";
@@ -637,7 +637,7 @@ void Notifications::activateAllNotifications()
 	foreach(int notifyId, FNotifyRecords.keys())
 	{
 		const NotifyRecord &record = FNotifyRecords.value(notifyId);
-		if (record.notification.kinds & INotification::TabPageNotify)
+		if (record.notification.kinds & kinds)
 		{
 			if (!chatActivated)
 				activateNotification(notifyId);
@@ -793,12 +793,12 @@ void Notifications::onDockClicked()
 #endif
 	bool haveUnreadNotifications = false;
 	foreach (int id, FNotifyRecords.keys())
-		if (FNotifyRecords.value(id).notification.kinds & INotification::TabPageNotify)
+		if (FNotifyRecords.value(id).notification.kinds & INotification::DockBadge)
 		{
 			haveUnreadNotifications = true;
 			break;
 		}
-	activateAllNotifications();
+	activateAllNotifications(INotification::DockBadge);
 	if (!haveUnreadNotifications && FMainWindow)
 		if (!FMainWindow->mainWindow()->instance()->isVisible())
 			FMainWindow->showMainWindow();

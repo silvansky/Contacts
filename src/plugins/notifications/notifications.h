@@ -105,7 +105,7 @@ protected:
 	int notifyIdByRosterId(int ARosterId) const;
 	int notifyIdByTrayId(int ATrayId) const;
 	int notifyIdByWidget(NotifyWidget *AWidget) const;
-	void activateAllNotifications();
+	void activateAllNotifications(uint kinds = INotification::TabPageNotify);
 	void removeAllNotifications();
 	void removeInvisibleNotification(int ANotifyId);
 protected slots:
