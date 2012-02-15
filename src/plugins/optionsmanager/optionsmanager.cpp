@@ -136,7 +136,8 @@ bool OptionsManager::initObjects()
 		menuBarSettings->setMenuRole(QAction::PreferencesRole);
 		FMacIntegration->fileMenu()->addAction(menuBarSettings);
 
-	FMacIntegration->fileMenu()->addAction(FChangeProfileAction, 700);
+		FChangeProfileAction->setMenuRole(QAction::ApplicationSpecificRole);
+		FMacIntegration->fileMenu()->addAction(FChangeProfileAction);
 	}
 #endif
 

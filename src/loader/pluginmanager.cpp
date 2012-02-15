@@ -818,10 +818,12 @@ void PluginManager::createMenuActions()
 		connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
 		macIntegrationPligin->fileMenu()->addAction(about);
 
+#ifdef DEBUG_ENABLED
 		Action *pluginsDialog = new Action;
 		pluginsDialog->setText(tr("Setup plugins"));
 		connect(pluginsDialog,SIGNAL(triggered(bool)),SLOT(onShowSetupPluginsDialog(bool)));
 		macIntegrationPligin->windowMenu()->addAction(pluginsDialog, 510);
+#endif
 	}
 
 }
