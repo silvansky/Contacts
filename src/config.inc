@@ -1,3 +1,14 @@
+# common definitions
+DEFINES                 += LOG_ENABLED
+DEFINES                 += WITH_CONSOLE
+CONFIG(debug, debug|release) {
+  # debug definitions
+  DEFINES               += DEBUG_ENABLED
+  DEFINES               += WITH_SSEDITOR
+} else {
+  # release definitions
+}
+
 macx: {
   TARGET_LOADER            = Contacts
 } else {
@@ -30,14 +41,6 @@ isEmpty(INSTALL_RES_DIR) {
   win32:INSTALL_RES_DIR  = .
   unix:!macx: INSTALL_RES_DIR  = share
   macx: INSTALL_RES_DIR  = Resources
-}
-
-#Preprocessor definations
-DEFINES                 += LOG_ENABLED
-CONFIG(debug, debug|release) {
-  DEFINES               += DEBUG_ENABLED
-  DEFINES               += WITH_CONSOLE
-  DEFINES               += WITH_SSEDITOR
 }
 
 #under mac you should install app before debugging it

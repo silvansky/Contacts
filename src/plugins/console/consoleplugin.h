@@ -2,6 +2,7 @@
 #define CONSOLEPLUGIN_H
 
 #include <QObjectCleanupHandler>
+#include <QShortcut>
 #include <definitions/actiongroups.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
@@ -35,15 +36,16 @@ public:
 	virtual bool initSettings();
 	virtual bool startPlugin() { return true; }
 protected slots:
-	void onShowXMLConsole(bool);
+	void onShowXMLConsole();
 private:
 	IPluginManager *FPluginManager;
 	IMainWindowPlugin *FMainWindowPlugin;
 #ifdef Q_WS_MAC
-    IMacIntegration * FMacIntegration;
+	IMacIntegration * FMacIntegration;
 #endif
 private:
 	QObjectCleanupHandler FCleanupHandler;
+	QShortcut * showConsoleShortcut;
 };
 
 #endif // CONSOLEPLUGIN_H
