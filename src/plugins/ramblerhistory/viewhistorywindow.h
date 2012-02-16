@@ -29,7 +29,10 @@ signals:
 	void windowDestroyed();
 protected:
 	void initViewHtml();
+	void updateTitle();
 protected slots:
+	void onWebLoadProgress(int AProgress);
+	void onWebLoadFinished(bool AOk);
 	void onWebPageLinkClicked(const QUrl &AUrl);
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 private:
@@ -38,6 +41,7 @@ private:
 	IRoster *FRoster;
 	CustomBorderContainer *FBorder;
 private:
+	int FProgress;
 	Jid FContactJid;
 };
 
