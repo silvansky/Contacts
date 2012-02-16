@@ -85,13 +85,13 @@ void ViewHistoryWindow::initViewHtml()
 			<script>document.forms.auth_form.submit()</script> \
 		</body></html>";
 
-	QString html = HtmlTemplate
-		.arg(QUrl::toPercentEncoding(contactJid().eBare()).constData())
-		.arg(streamJid().eBare())
-		.arg(streamJid().pDomain())
-		.arg(FRoster->xmppStream()->password())
-		.arg("Enter")
-		.arg(QUrl::fromLocalFile(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_RAMBLERHISTORY_KRYTILKA)).toString());
+	QString html = HtmlTemplate.arg(
+		QUrl::toPercentEncoding(contactJid().eBare()).constData(),
+		streamJid().eBare(),
+		streamJid().pDomain(),
+		FRoster->xmppStream()->password(),
+		QString("Enter"),
+		QUrl::fromLocalFile(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_RAMBLERHISTORY_KRYTILKA)).toString());
 
 	ui.wbvHistoryView->setHtml(html);
 
