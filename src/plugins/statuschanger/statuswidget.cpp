@@ -210,40 +210,6 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 	{
 		switch ((int)AEvent->type())
 		{
-		/*case QEvent::HoverEnter:
-			FAvatarHovered = true;
-			break;
-		case QEvent::HoverLeave:
-			FAvatarHovered = false;
-			break;
-		case QEvent::Paint:
-			if (FAvatarHovered || FProfileMenu->isVisible())
-			{
-				QPaintEvent *paintEvent = (QPaintEvent*)AEvent;
-				QPainter painter(ui.lblAvatar);
-				QIcon * icon = 0;
-				if (ui.lblAvatar->pixmap())
-				{
-					icon = new QIcon((*(ui.lblAvatar->pixmap())));
-					icon->paint(&painter, paintEvent->rect(), Qt::AlignCenter, QIcon::Selected, QIcon::On);
-					delete icon;
-				}
-				painter.setPen(QColor::fromRgb(0, 0, 255, 50));
-				QRect rect = paintEvent->rect();
-				rect.setWidth(rect.width() - 1);
-				rect.setHeight(rect.height() - 1);
-				painter.drawRect(rect);
-				QPolygon triangle;
-				triangle.append(QPoint(0, 0));
-				triangle.append(QPoint(6, 0));
-				triangle.append(QPoint(3, 3));
-				painter.translate(QPoint(paintEvent->rect().width() / 2 - 3, paintEvent->rect().height() - 5));
-				painter.setPen(Qt::white);
-				painter.setBrush(QBrush(Qt::black, Qt::SolidPattern));
-				painter.drawPolygon(triangle, Qt::OddEvenFill);
-				return true;
-			}
-			break;*/
 		case QEvent::MouseButtonRelease:
 			{
 				QPoint point = ui.lblAvatar->mapToGlobal(QPoint(0, 0));
