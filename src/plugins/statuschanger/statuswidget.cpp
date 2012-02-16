@@ -40,6 +40,8 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_STATUSWIDGET);
 
+	connect(ui.tedMood, SIGNAL(textChanged()), SLOT(onMoodChanged()));
+
 	FAvatars = AAvatars;
 	FVCardPlugin = AVCardPlugin;
 	FStatusChanger = AStatusChanger;
@@ -283,7 +285,8 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 				return true;
 			default:
 				QChar keyChar(keyEvent->key());
-				if (keyChar.isPrint() && ui.tedMood->toPlainText().length()>=MAX_CHARACTERS)
+				bool ctrlModifyer = keyEvent->modifiers() & Qt::ControlModifier;
+				if (keyChar.isPrint() && (!ctrlModifyer) && ui.tedMood->toPlainText().length()>=MAX_CHARACTERS)
 					return true;
 				break;
 			}
@@ -367,5 +370,16 @@ void StatusWidget::onStatusChanged(const Jid &AStreamJid, int AStatusId)
 		setMoodText(FStatusChanger->statusItemText(AStatusId));
 		if (FAvatars)
 			FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(24, 24), "pixmap");
+	}
+}
+
+void StatusWidget::onMoodChanged()
+{
+	if (ui.tedMood->toPlainText().length() > MAX_CHARACTERS)
+	{
+		ui.tedMood->setPlainText(ui.tedMood->toPlainText().left(MAX_CHARACTERS));
+		QTextCursor c(ui.tedMood->document());
+		c.setPosition(MAX_CHARACTERS);
+		ui.tedMood->setTextCursor(c);
 	}
 }
