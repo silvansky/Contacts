@@ -164,7 +164,7 @@ static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
 		version = "XP";
 		break;
 	case QSysInfo::WV_2003:
-		version = "2003";
+		version = "2003/XP64";
 		break;
 	case QSysInfo::WV_VISTA:
 		version = "Vista";
