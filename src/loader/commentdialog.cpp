@@ -3,6 +3,7 @@
 #include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/systemmanager.h>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 #include <definitions/stylesheets.h>
@@ -11,146 +12,6 @@
 #include <QScrollBar>
 #ifdef Q_WS_MAC
 # include <utils/macwidgets.h>
-#endif
-
-#ifdef Q_WS_WIN
-#include <Windows.h>
-#ifndef __MINGW32__
-# include <comutil.h>
-#endif
-typedef BOOL (WINAPI *IW64PFP)(HANDLE, BOOL *);
-
-static QString windowsLanguage()
-{
-#ifndef __MINGW32__
-	LANGID lid = GetUserDefaultUILanguage();
-#else
-	LANGID lid = 0x0409; // debug only! TODO: fix this function to fit mingw
-#endif
-	LCID lcid = MAKELCID(lid, SORT_DEFAULT);
-	wchar_t * buff = new wchar_t[10];
-	int size = GetLocaleInfo(lcid, LOCALE_SLANGUAGE, 0, 0);
-	if (size)
-	{
-		buff = new wchar_t[size];
-		int ret = GetLocaleInfo(lcid, LOCALE_SLANGUAGE, buff, size);
-		QString res = QString::fromWCharArray(buff);
-		delete buff;
-		return ret ? res : QString::null;
-	}
-	return QString::null;
-}
-
-static QString windowsSP()
-{
-	OSVERSIONINFO ovi;
-	ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-
-	if (GetVersionEx(&ovi))
-	{
-		if (ovi.szCSDVersion == L"")
-			return "no SP";
-		else
-			return QString::fromWCharArray(ovi.szCSDVersion);
-	}
-	else
-		return QString::null;
-}
-
-static QString windowsBitness()
-{
-	IW64PFP IW64P = (IW64PFP)GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process");
-	BOOL res = FALSE;
-	if (IW64P != NULL)
-	{
-		IW64P(GetCurrentProcess(), &res);
-	}
-	return res ? "64" : "32";
-}
-
-static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
-{
-	QString win("Windows %1 %2 %3 %4-bit");
-	QString version;
-	switch (ver)
-	{
-	case QSysInfo::WV_32s:
-		version = "32s";
-		break;
-	case QSysInfo::WV_95:
-		version = "95";
-		break;
-	case QSysInfo::WV_98:
-		version = "98";
-		break;
-	case QSysInfo::WV_Me:
-		version = "Me";
-		break;
-	case QSysInfo::WV_DOS_based:
-		version = "DOS based";
-		break;
-	case QSysInfo::WV_NT:
-		version = "NT";
-		break;
-	case QSysInfo::WV_2000:
-		version = "2000";
-		break;
-	case QSysInfo::WV_XP:
-		version = "XP";
-		break;
-	case QSysInfo::WV_2003:
-		version = "2003";
-		break;
-	case QSysInfo::WV_VISTA:
-		version = "Vista";
-		break;
-	case QSysInfo::WV_WINDOWS7:
-		version = "Seven";
-		break;
-	case QSysInfo::WV_NT_based:
-		version = "NT Based";
-		break;
-	default:
-		version = "Unknown";
-		break;
-	}
-	return win.arg(version, windowsSP(), windowsLanguage(), windowsBitness());
-}
-#endif
-
-#ifdef Q_WS_MAC
-static QString resolveMacVersion(QSysInfo::MacVersion ver)
-{
-	Q_UNUSED(ver)
-	QString mac("Mac OS X %1.%2.%3 (%4)");
-	QString version;
-	SInt32 majVer = 0, minVer = 0, fixVer = 0;
-	Gestalt(gestaltSystemVersionMajor, &majVer);
-	Gestalt(gestaltSystemVersionMinor, &minVer);
-	Gestalt(gestaltSystemVersionBugFix, &fixVer);
-	switch(minVer)
-	{
-	case 3:
-		version = "Panther";
-		break;
-	case 4:
-		version = "Tiger";
-		break;
-	case 5:
-		version = "Leopard";
-		break;
-	case 6:
-		version = "Snow Leopard";
-		break;
-	case 7:
-		version = "Lion";
-		break;
-	default:
-		version = "Unknown";
-		break;
-	}
-	return mac.arg(majVer).arg(minVer).arg(fixVer).arg(version);
-}
 #endif
 
 CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
@@ -172,12 +33,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	techInfo += "-----------------------------<br>";
 	techInfo += tr("TECHNICAL DATA (may be useful for developers)") + "<br>";
 	techInfo += QString(tr("Rambler Contacts version: %1 (r%2)")).arg(APluginManager->version(), APluginManager->revision())+"<br>";
-	QString os;
-#ifdef Q_WS_WIN
-	os = resolveWidowsVersion(QSysInfo::windowsVersion());
-#elif defined (Q_WS_MAC)
-	os = resolveMacVersion(QSysInfo::MacintoshVersion);
-#endif
+	QString os = SystemManager::systemOSVersion();
 
 	techInfo += tr("Operating system: %1").arg(os)+"<br>";
 	QDesktopWidget * dw = QApplication::desktop();
