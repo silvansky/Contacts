@@ -625,7 +625,12 @@ void RSipPhone::call(const char* uriToCall)
 	//pjsua_call_setting_default(&call_setting);
 	//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 
-	//status = pjsua_set_null_snd_dev();
+	// NULL SOUND
+	//int capture_dev = -99;
+	//int playback_dev = -99;
+	//pjsua_get_snd_dev(&capture_dev, &playback_dev);
+	////status = pjsua_set_null_snd_dev();
+	//pjsua_set_snd_dev(-99, playback_dev);
 
 
 	status = pjsua_call_make_call(_accountId, &uri, 0, NULL, NULL, &_currentCall);
@@ -1146,16 +1151,15 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 		goto on_error;
 	}
 
-	pjsua_transport_config tcp_cfg;
-	pjsua_transport_config_default(&tcp_cfg);
-	tcp_cfg.port = 0;
-
-	status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
-	if (status != PJ_SUCCESS)
-	{
-		showError("TCP transport creation", status);
-		goto on_error;
-	}
+	//pjsua_transport_config tcp_cfg;
+	//pjsua_transport_config_default(&tcp_cfg);
+	//tcp_cfg.port = 0;
+	//status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
+	//if (status != PJ_SUCCESS)
+	//{
+	//	showError("TCP transport creation", status);
+	//	goto on_error;
+	//}
 
 	//
 	// Create account
@@ -1298,7 +1302,13 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 	ua_cfg.cb.on_call_media_state = &::on_call_media_state;
 	ua_cfg.cb.on_call_tsx_state = &::on_call_tsx_state;
 
-	
+	ua_cfg.outbound_proxy_cnt = 1;
+	char proxyTmp[512];
+	//pj_ansi_strncpy(proxyTmp, sip_server, sizeof(proxyTmp));
+	pj_ansi_snprintf(proxyTmp, sizeof(proxyTmp), "sip:%s", sip_server);
+	//acc_cfg.proxy[0] = pj_str((char*)reg_uritmp);
+	ua_cfg.outbound_proxy[0] = pj_str((char*)proxyTmp);
+
 
 	pjsua_logging_config log_cfg;
 	pjsua_logging_config_default(&log_cfg);
@@ -1342,16 +1352,16 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 		goto on_error;
 	}
 
-	pjsua_transport_config tcp_cfg;
-	pjsua_transport_config_default(&tcp_cfg);
-	tcp_cfg.port = 0;
+	////pjsua_transport_config tcp_cfg;
+	////pjsua_transport_config_default(&tcp_cfg);
+	////tcp_cfg.port = 0;
 
-	status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
-	if (status != PJ_SUCCESS)
-	{
-		showError("TCP transport creation", status);
-		goto on_error;
-	}
+	////status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
+	////if (status != PJ_SUCCESS)
+	////{
+	////	showError("TCP transport creation", status);
+	////	goto on_error;
+	////}
 
 	//
 	// Create account
@@ -1374,12 +1384,12 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 		pj_ansi_snprintf(reg_uritmp, sizeof(reg_uritmp), "sip:%s", sip_domain);
 		acc_cfg.reg_uri = pj_str((char*)reg_uritmp);
 
-		acc_cfg.proxy_cnt = 1;
-		char proxyTmp[512];
-		//pj_ansi_strncpy(proxyTmp, sip_server, sizeof(proxyTmp));
-		pj_ansi_snprintf(proxyTmp, sizeof(proxyTmp), "sip:%s", sip_server);
-		//acc_cfg.proxy[0] = pj_str((char*)reg_uritmp);
-		acc_cfg.proxy[0] = pj_str((char*)proxyTmp);
+		//////////acc_cfg.proxy_cnt = 1;
+		//////////char proxyTmp[512];
+		////////////pj_ansi_strncpy(proxyTmp, sip_server, sizeof(proxyTmp));
+		//////////pj_ansi_snprintf(proxyTmp, sizeof(proxyTmp), "sip:%s", sip_server);
+		////////////acc_cfg.proxy[0] = pj_str((char*)reg_uritmp);
+		//////////acc_cfg.proxy[0] = pj_str((char*)proxyTmp);
 
 
 		acc_cfg.cred_count = 1;

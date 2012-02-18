@@ -637,6 +637,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				//QString uri = Jid(AStanza.from()).pBare();
 				//QString uri = Jid(AStanza.from()).eNode();
 				QString uri = juri.eNode() + "@" + juri.pDomain();
+				//QString uri = juri.eNode() + "@vsip.rambler.ru";
 				emit sipSendInvite(uri);
 				// 2) Получение акцепта на запрос INVITE
 				// 3) Установка соединения
