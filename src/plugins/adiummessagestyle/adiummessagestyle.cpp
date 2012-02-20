@@ -492,6 +492,12 @@ QString AdiumMessageStyle::makeContentTemplate(const IMessageContentOptions &AOp
 		html = templ.replace("%html%",html);
 	}
 
+	if (AOptions.extensions & IMessageContentOptions::Error)
+	{
+		QString templ = FErrorHTML;
+		html = templ.replace("%html%",html);
+	}
+
 	return html;
 }
 
@@ -527,6 +533,8 @@ void AdiumMessageStyle::fillContentKeywords(QString &AHtml, const IMessageConten
 		messageStatus = MSSK_DATE_SEPARATOR;
 	else if (AOptions.status == IMessageContentOptions::HistoryShow)
 		messageStatus = MSSK_HISTORY_SHOW;
+	else if (AOptions.status == IMessageContentOptions::ErrorMessage)
+		messageStatus = MSSK_ERROR;
 	if (!messageStatus.isEmpty())
 		messageClasses << messageStatus;
 
@@ -684,9 +692,6 @@ QString AdiumMessageStyle::loadFileData(const QString &AFileName, const QString 
 
 void AdiumMessageStyle::loadTemplates()
 {
-	FStatusHTML =          loadFileData(FResourcePath+"/Status.html",FIn_ContentHTML);
-	FTopicHTML =           loadFileData(FResourcePath+"/Topic.html",QString::null);
-
 	FIn_ContentHTML =      loadFileData(FResourcePath+"/Incoming/Content.html",QString::null);
 	FIn_NextContentHTML =  loadFileData(FResourcePath+"/Incoming/NextContent.html",FIn_ContentHTML);
 
@@ -718,6 +723,12 @@ void AdiumMessageStyle::loadTemplates()
 	FOut_OfflineHTML =     loadFileData(FResourcePath+"/Outgoing/Offline.html",FOut_OfflineHTML);
 	FOut_NextOfflineHTML = loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/NextOffline.html", FOut_OfflineHTML);
 	FOut_NextOfflineHTML = loadFileData(FResourcePath+"/Outgoing/NextOffline.html",FOut_NextOfflineHTML);
+
+	FStatusHTML =          loadFileData(FResourcePath+"/Status.html",FIn_ContentHTML);
+	FTopicHTML =           loadFileData(FResourcePath+"/Topic.html",QString::null);
+	
+	FErrorHTML =           loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Error.html", QString::null);
+	FErrorHTML =           loadFileData(FResourcePath+"/Error.html",FErrorHTML);
 }
 
 void AdiumMessageStyle::loadSenderColors()

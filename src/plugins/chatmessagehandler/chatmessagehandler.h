@@ -73,6 +73,7 @@ struct StyleExtension
 	int action;
 	int extensions;
 	QString contentId;
+	QString notice;
 };
 
 enum HisloryLoadState {

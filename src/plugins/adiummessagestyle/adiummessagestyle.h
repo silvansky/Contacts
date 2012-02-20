@@ -169,6 +169,7 @@ private:
 	QString FOut_ContextHTML;
 	QString FOut_NextContextHTML;
 private:
+	QString FErrorHTML;
 	QString FIn_UnreadHTML;
 	QString FIn_NextUnreadHTML;
 	QString FIn_OfflineHTML;

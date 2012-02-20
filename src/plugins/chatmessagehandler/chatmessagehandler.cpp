@@ -344,13 +344,8 @@ bool ChatMessageHandler::messageDisplay(const Message &AMessage, int ADirection)
 {
 	bool displayed = false;
 
-	IChatWindow *window = NULL;
-	if (ADirection == IMessageProcessor::MessageIn)
-		window = AMessage.type()!=Message::Error ? getWindow(AMessage.to(),AMessage.from()) : findWindow(AMessage.to(),AMessage.from());
-	else
-		window = AMessage.type()!=Message::Error ? getWindow(AMessage.from(),AMessage.to()) : findWindow(AMessage.from(),AMessage.to());
-
-	if (window && AMessage.type()!=Message::Error)
+	IChatWindow *window = ADirection==IMessageProcessor::MessageIn ? getWindow(AMessage.to(),AMessage.from()) : getWindow(AMessage.from(),AMessage.to());
+	if (window)
 	{
 		StyleExtension extension;
 		WindowStatus &wstatus = FWindowStatus[window];
@@ -379,17 +374,14 @@ bool ChatMessageHandler::messageDisplay(const Message &AMessage, int ADirection)
 			wstatus.pending.append(AMessage);
 		}
 	}
-	else if (AMessage.type() == Message::Error)
-	{
-		LogError(QString("[ChatMessageHandler] Received error message:\n%1").arg(AMessage.stanza().toString()));
-	}
+
 	return displayed;
 }
 
 INotification ChatMessageHandler::messageNotify(INotifications *ANotifications, const Message &AMessage, int ADirection)
 {
 	INotification notify;
-	if (ADirection == IMessageProcessor::MessageIn)
+	if (ADirection==IMessageProcessor::MessageIn && AMessage.type()!=Message::Error)
 	{
 		IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
 		if (!window->isActiveTabPage())
@@ -921,6 +913,11 @@ QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message 
 	options.kind = IMessageContentOptions::Message;
 	options.time = AMessage.dateTime();
 	options.timeFormat = FMessageStyles->timeFormat(options.time);
+	
+	options.action = AExtension.action;
+	options.notice = AExtension.notice;
+	options.extensions = AExtension.extensions;
+	options.contentId = AExtension.contentId;
 
 	if (AWindow->streamJid() && AWindow->contactJid() ? AWindow->contactJid() != AMessage.to() : !(AWindow->contactJid() && AMessage.to()))
 		options.direction = IMessageContentOptions::DirectionIn;
@@ -933,9 +930,13 @@ QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message 
 		options.type |= IMessageContentOptions::History;
 	}
 
-	options.action = AExtension.action;
-	options.extensions = AExtension.extensions;
-	options.contentId = AExtension.contentId;
+	if (AMessage.type() == Message::Error)
+	{
+		ErrorHandler err(AMessage.stanza().element());
+		options.extensions = IMessageContentOptions::Error;
+		options.status = IMessageContentOptions::ErrorMessage;
+		options.notice = tr("An error message received: %1").arg(err.message());
+	}
 
 	fillContentOptions(AWindow,options);
 	showDateSeparator(AWindow,AMessage.dateTime().date());

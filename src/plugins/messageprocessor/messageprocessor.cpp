@@ -1,6 +1,9 @@
 #include "messageprocessor.h"
 
+#include <QtDebug>
+
 #include <QVariant>
+#include <QTextFrame>
 #include <QTextCursor>
 #include <utils/log.h>
 
@@ -66,6 +69,7 @@ bool MessageProcessor::initObjects()
 {
 	insertMessageWriter(MWO_MESSAGEPROCESSOR,this);
 	insertMessageWriter(MWO_MESSAGEPROCESSOR_ANCHORS,this);
+	insertMessageWriter(MWO_MESSAGEPROCESSOR_ERROR,this);
 	return true;
 }
 
@@ -74,6 +78,10 @@ bool MessageProcessor::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, St
 	if (FSHIMessages.value(AStreamJid) == AHandlerId)
 	{
 		Message message(AStanza);
+
+		if (message.type() == Message::Error)
+			LogError(QString("[MessageProcessor] Received error message:\n%1").arg(AStanza.toString()));
+
 		AAccept = sendMessage(AStreamJid,message,IMessageProcessor::MessageIn) || AAccept;
 	}
 	return false;
@@ -123,6 +131,20 @@ void MessageProcessor::writeMessageToText(int AOrder, Message &AMessage, QTextDo
 				linkFormat.setAnchor(true);
 				linkFormat.setAnchorHref("mailto:"+cursor.selectedText());
 				cursor.setCharFormat(linkFormat);
+			}
+		}
+	}
+	else if (AOrder == MWO_MESSAGEPROCESSOR_ERROR)
+	{
+		if (AMessage.type() == Message::Error)
+		{
+			if (ADocument->rootFrame()->lastPosition() > 140)
+			{
+				QTextCursor cursor(ADocument);
+				cursor.movePosition(QTextCursor::NextCharacter,QTextCursor::MoveAnchor,120);
+				cursor.movePosition(QTextCursor::End,QTextCursor::KeepAnchor);
+				cursor.removeSelectedText();
+				cursor.insertText("...");
 			}
 		}
 	}

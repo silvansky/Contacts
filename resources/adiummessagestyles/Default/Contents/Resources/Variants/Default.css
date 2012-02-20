@@ -23,8 +23,8 @@ body {
     clear: both;
     padding-right: 2em;
     display: inline-block;
-	width: 92%;
-	word-wrap: break-word;
+    width: 92%;
+    word-wrap: break-word;
 }
 
 .content {
@@ -52,6 +52,17 @@ body {
 .message1, .message2 {
     font-weight: normal !important;
     border-top: 1px rgba(195, 196, 198, 1) dotted;
+}
+
+.error {
+    padding-top: 10px;
+    padding-left: 14px;
+    color: rgba(177, 177, 177, 1);
+    border-top: 1px rgba(195, 196, 198, 1) dotted;
+}
+
+.error .notice {
+    color: darkred;
 }
 
 .v-chat-header {
