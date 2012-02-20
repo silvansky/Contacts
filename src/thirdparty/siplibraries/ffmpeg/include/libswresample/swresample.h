@@ -30,12 +30,8 @@
 #include "libavutil/samplefmt.h"
 
 #define LIBSWRESAMPLE_VERSION_MAJOR 0
-#define LIBSWRESAMPLE_VERSION_MINOR 6
-#define LIBSWRESAMPLE_VERSION_MICRO 100
-
-#define LIBSWRESAMPLE_VERSION_INT  AV_VERSION_INT(LIBSWRESAMPLE_VERSION_MAJOR, \
-                                                  LIBSWRESAMPLE_VERSION_MINOR, \
-                                                  LIBSWRESAMPLE_VERSION_MICRO)
+#define LIBSWRESAMPLE_VERSION_MINOR 5
+#define LIBSWRESAMPLE_VERSION_MICRO 0
 
 #define SWR_CH_MAX 16   ///< Maximum number of channels
 
@@ -114,7 +110,7 @@ int swr_convert(struct SwrContext *s, uint8_t *out[SWR_CH_MAX], int out_count,
 /**
  * Activate resampling compensation.
  */
-int swr_set_compensation(struct SwrContext *s, int sample_delta, int compensation_distance);
+void swr_compensate(struct SwrContext *s, int sample_delta, int compensation_distance);
 
 /**
  * Set a customized input channel mapping.
@@ -125,20 +121,5 @@ int swr_set_compensation(struct SwrContext *s, int sample_delta, int compensatio
  * @return AVERROR error code in case of failure.
  */
 int swr_set_channel_mapping(struct SwrContext *s, const int *channel_map);
-
-/**
- * Return the LIBSWRESAMPLE_VERSION_INT constant.
- */
-unsigned swresample_version(void);
-
-/**
- * Return the swr build-time configuration.
- */
-const char *swresample_configuration(void);
-
-/**
- * Return the swr license.
- */
-const char *swresample_license(void);
 
 #endif
