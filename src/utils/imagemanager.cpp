@@ -1,4 +1,5 @@
 #include "imagemanager.h"
+#include "log.h"
 
 #include <QPainter>
 #include <QBitmap>
@@ -247,4 +248,30 @@ void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qrea
 void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal border, QPainter * painter)
 {
 	drawNinePartImage(image, paintRect, border, border, border, border, painter);
+}
+
+QColor ImageManager::resolveColor(const QString & name)
+{
+	QColor color;
+	if (QColor::isValidColor(name))
+		color.setNamedColor(name);
+	else
+	{
+		// trying to parse "#RRGGBBAA" color
+		if (name.length() == 9)
+		{
+			QString solidColor = name.left(7);
+			if (QColor::isValidColor(solidColor))
+			{
+				color.setNamedColor(solidColor);
+				int alpha = name.right(2).toInt(0, 16);
+				color.setAlpha(alpha);
+			}
+		}
+	}
+
+	if (!color.isValid())
+		LogError(QString("[ImageManager::resolveColor] Can\'t parse color: %1").arg(name));
+
+	return color;
 }

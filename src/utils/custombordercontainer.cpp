@@ -27,6 +27,7 @@
 #include "log.h"
 #include "iconstorage.h"
 #include "custombordercontainer_p.h"
+#include "imagemanager.h"
 
 #ifdef DEBUG_ENABLED
 # include <QDebug>
@@ -233,28 +234,7 @@ void CustomBorderContainerPrivate::setAllDefaults()
 
 QColor CustomBorderContainerPrivate::parseColor(const QString & name)
 {
-	QColor color;
-	if (QColor::isValidColor(name))
-		color.setNamedColor(name);
-	else
-	{
-		// trying to parse "#RRGGBBAA" color
-		if (name.length() == 9)
-		{
-			QString solidColor = name.left(7);
-			if (QColor::isValidColor(solidColor))
-			{
-				color.setNamedColor(solidColor);
-				int alpha = name.right(2).toInt(0, 16);
-				color.setAlpha(alpha);
-			}
-		}
-	}
-
-	if (!color.isValid())
-		LogError(QString("[CustomBorderContainerPrivate] Can\'t parse color: %1").arg(name));
-
-	return color;
+	return ImageManager::resolveColor(name);
 }
 
 // HINT: only linear gradients are supported for now
@@ -1125,21 +1105,6 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 
 	//static QStringList exceptions;
 	// TODO: make this list customizable
-//	if (exceptions.isEmpty())
-//		exceptions << "QAbstractButton"
-//			   << "QLineEdit"
-//			   << "QTextEdit"
-//			   << "QScrollBar"
-//			   << "QWebView"
-//			   << "QAbstractItemView";
-//	foreach (QString item, exceptions)
-//	{
-//		if (obj->inherits(item.toLatin1()))
-//		{
-//			filter = false;
-//			break;
-//		}
-//	}
 	// TODO: optimize
 	if (qobject_cast<QAbstractButton*>(obj) ||
 			qobject_cast<QLineEdit*>(obj) ||

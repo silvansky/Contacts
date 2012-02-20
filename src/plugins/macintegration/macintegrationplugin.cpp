@@ -18,8 +18,10 @@
 #include <utils/imagemanager.h>
 #include <utils/options.h>
 #include <utils/custominputdialog.h>
+#include <utils/stylestorage.h>
 #include <definitions/optionnodes.h>
 #include <definitions/optionvalues.h>
+#include <definitions/resources.h>
 
 #ifdef DEBUG_ENABLED
 # include <QDebug>
@@ -86,11 +88,9 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	tr("Error");
 	tr("Subscription Message");
 	// custom window frame
-	// TODO: read these colors from style
 	MacIntegrationPrivate::installCustomFrame();
-	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
-	setCustomTitleColor(QColor(240, 240, 240, 255));
-	//setCustomTitleColor(QColor(0, 0, 0, 255));
+	setCustomBorderColor(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_MAC_CUSTOM_HEADER_COLOR));
+	setCustomTitleColor(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_MAC_CUSTOM_HEADER_TEXT_COLOR));
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()

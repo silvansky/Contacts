@@ -2,6 +2,9 @@
 #define STYLESTORAGE_H
 
 #include "filestorage.h"
+#include <definitions/stylevalues.h>
+#include <QColor>
+#include <QMap>
 
 #define STYLE_STORAGE_OPTION_IMAGES_FOLDER "folder"
 
@@ -18,6 +21,10 @@ public:
 	void removeAutoStyle(QObject *AObject);
 	QString fileFullName(const QString AKey, int AIndex = 0) const;
 	QString fileFullName(const QString AKey, int AIndex, const QString & suffix) const;
+	QVariant getStyleValue(const QString & AKey);
+	QColor getStyleColor(const QString & AKey);
+	int getStyleInt(const QString & AKey);
+	bool getStyleBool(const QString & AKey);
 public slots:
 	void previewReset();
 	void previewStyle(const QString &AStyleSheet, const QString &AKey, int AIndex);
@@ -28,6 +35,7 @@ public:
 	static void updateStyle(QObject * object);
 	static QStringList systemStyleSuffixes();
 protected:
+	void loadStyleValues();
 	void updateObject(QObject *AObject);
 	void removeObject(QObject *AObject);
 protected slots:
@@ -35,6 +43,8 @@ protected slots:
 	void onObjectDestroyed(QObject *AObject);
 private:
 	QHash<QObject *, StyleUpdateParams *> FUpdateParams;
+	QMap<QString, QVariant> FStyleValues;
+	bool FStyleValuesLoaded;
 private:
 	static QHash<QString, StyleStorage *> FStaticStorages;
 	static QHash<QObject *, StyleStorage *> FObjectStorage;

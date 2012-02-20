@@ -17,6 +17,7 @@ public:
 	static QImage rotatedImage(const QImage & image, qreal angle);
 	static void drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter * painter);
 	static void drawNinePartImage(const QImage &image, QRectF paintRect, qreal border, QPainter * painter);
+	static QColor resolveColor(const QString & name);
 };
 
 #endif // IMAGEMANAGER_H

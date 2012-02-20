@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<stylevalues>
+	<stylevalue key="metaTabWindowNotifyBalloonColor" type="color" value="#373d43" />
+	<stylevalue key="metaTabWindowNotifyBalloonFontSize" type="int" value="7" />
+	<stylevalue key="metaTabWindowNotifyBalloonFontBold" type="bool" value="true" />
+	<stylevalue key="macCustomHeaderColor" type="color" value="#616973" />
+	<stylevalue key="macCustomHeaderTextColor" type="color" value="#f0f0f0" />
+</stylevalues>

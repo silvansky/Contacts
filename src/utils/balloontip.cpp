@@ -363,7 +363,7 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 	painter1.setPen(QPen(Qt::color1, border));
 	painter1.setBrush(QBrush(Qt::color1));
 	painter1.drawPath(path);
-	bitmap.save("/Users/valentinegorshkov/Documents/mask.png");
+	//bitmap.save("/Users/valentinegorshkov/Documents/mask.png");
 	//setMask(bitmap);
 #endif
 
@@ -375,7 +375,7 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 	painter2.setBrush(palette().color(QPalette::Window));
 	painter2.drawPath(path);
 	//qDebug() << "drawBalloon: path.boundingRect() = " << path.boundingRect() << "mask().boundingRect(): " << mask().boundingRect();
-	pixmap.save("/Users/valentinegorshkov/Documents/balloon.png");
+	//pixmap.save("/Users/valentinegorshkov/Documents/balloon.png");
 
 	if (msecs > 0)
 		timerId = startTimer(msecs);
