@@ -4,6 +4,9 @@
 #include <QTextDocument>
 #include <definitions/customborder.h>
 #include <utils/customborderstorage.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_SERVICE_JID           Action::DR_Parametr1
@@ -1263,6 +1266,9 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 		{
 			dialog->show();
 		}
+#ifdef Q_WS_MAC
+		setWindowGrowButtonEnabled(dialog->window(), false);
+#endif
 		return dialog;
 	}
 	return NULL;
