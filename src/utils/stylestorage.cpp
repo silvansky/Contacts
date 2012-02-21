@@ -117,10 +117,22 @@ QVariant StyleStorage::getStyleValue(const QString & AKey)
 	if (!FStyleValuesLoaded)
 		loadStyleValues();
 
-	if (FStyleValues.contains(AKey))
-		return FStyleValues.value(AKey);
-	else
-		return QVariant();
+	QStringList keys;
+
+	foreach(QString suffix, systemStyleSuffixes())
+	{
+		keys += AKey + suffix;
+	}
+
+	keys += AKey;
+
+	foreach(QString key, keys)
+	{
+		if (FStyleValues.contains(key))
+			return FStyleValues.value(key);
+	}
+
+	return QVariant();
 }
 
 QColor StyleStorage::getStyleColor(const QString & AKey)

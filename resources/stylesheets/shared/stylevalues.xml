@@ -3,6 +3,9 @@
 	<stylevalue key="metaTabWindowNotifyBalloonColor" type="color" value="#373d43" />
 	<stylevalue key="metaTabWindowNotifyBalloonFontSize" type="int" value="7" />
 	<stylevalue key="metaTabWindowNotifyBalloonFontBold" type="bool" value="true" />
+	<stylevalue key="metaTabWindowNotifyBalloonTextOffsetX" type="int" value="0" />
+	<stylevalue key="metaTabWindowNotifyBalloonTextOffsetX_mac" type="int" value="1" />
+	<stylevalue key="metaTabWindowNotifyBalloonTextOffsetY" type="int" value="-1" />
 	<stylevalue key="macCustomHeaderColor" type="color" value="#616973" />
 	<stylevalue key="macCustomHeaderTextColor" type="color" value="#f0f0f0" />
 </stylevalues>

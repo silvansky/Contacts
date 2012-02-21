@@ -608,7 +608,12 @@ QIcon MetaTabWindow::createNotifyBalloon(int ACount) const
 	QString text = QString::number(ACount);
 	QSize textSize = painter.fontMetrics().size(Qt::TextSingleLine, text);
 	QRect textRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, textSize, balloon.rect());
-	textRect.moveTopLeft(textRect.topLeft() + QPoint(0, -1)); // some magic numbers... may change
+
+	// reading some magic numbers from style...
+	int xOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MTW_NOTIFY_BALLOON_TEXT_OFFSET_X);
+	int yOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MTW_NOTIFY_BALLOON_TEXT_OFFSET_Y);
+
+	textRect.moveTopLeft(textRect.topLeft() + QPoint(xOffset, yOffset));
 	painter.drawText(textRect,text);
 	QIcon icon;
 	icon.addPixmap(balloon);
