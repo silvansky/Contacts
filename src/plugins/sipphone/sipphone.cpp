@@ -1129,11 +1129,11 @@ void SipPhone::closeStream(const QString &AStreamId)
 	if (FStanzaProcessor && FStreams.contains(AStreamId))
 	{
 		ISipStream &stream = FStreams[AStreamId];
-		if (stream.state != ISipStream::SS_CLOSE)
+		bool isResult = FPendingRequests.contains(AStreamId);
+		if (stream.state!=ISipStream::SS_CLOSE || isResult)
 		{
 			LogDetail(QString("[SipPhone] Closing SIP stream, sid='%1'").arg(AStreamId));
 
-			bool isResult = FPendingRequests.contains(AStreamId);
 
 			Stanza close("iq");
 			QDomElement closeElem;

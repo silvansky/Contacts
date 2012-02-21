@@ -640,7 +640,7 @@ void RSipPhone::call(const char* uriToCall)
 		if(status == PJMEDIA_EAUD_NODEFDEV)
 		{
 			//emit signal_DeviceError();
-			emit signal_InviteStatus(false, 2, "Some device initialization error");
+			emit signal_InviteStatus(false, 2, tr("Failed to find default audio device"));
 		}
 		showError("make call", status);
 		return;
