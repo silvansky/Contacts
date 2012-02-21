@@ -38,9 +38,10 @@ void CloseButton::leaveEvent(QEvent *AEvent)
 
 void CloseButton::paintEvent(QPaintEvent *AEvent)
 {
+	Q_UNUSED(AEvent)
 	if (!icon().isNull())
 	{
 		QPainter p(this);
-		icon().paint(&p,AEvent->rect());
+		icon().paint(&p,rect());
 	}
 }
