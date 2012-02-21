@@ -324,7 +324,7 @@ bool MetaContacts::keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRoster
 {
 	Q_UNUSED(AOrder)
 	bool hooked = false;
-	if (AIndex->type()==RIT_METACONTACT && AKey==Qt::Key_Delete && AModifiers==Qt::NoModifier)
+	if ((AIndex->type()==RIT_METACONTACT) && ((AKey==Qt::Key_Delete) || (AKey == Qt::Key_Backspace)) && (AModifiers==Qt::NoModifier))
 	{
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		IMetaRoster *mroster = findMetaRoster(streamJid);

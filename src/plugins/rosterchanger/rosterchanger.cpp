@@ -587,7 +587,7 @@ bool RosterChanger::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, c
 bool RosterChanger::keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers)
 {
 	Q_UNUSED(AOrder);
-	if (AIndex->type()==RIT_CONTACT && (key == Qt::Key_Delete) && (modifiers == Qt::NoModifier))
+	if (AIndex->type()==RIT_CONTACT && ((key == Qt::Key_Delete) || (key == Qt::Key_Backspace)) && (modifiers == Qt::NoModifier))
 	{
 		Action *remove = new Action;
 		connect(remove,SIGNAL(triggered(bool)),SLOT(onRemoveItemFromRoster(bool)));

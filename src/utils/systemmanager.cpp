@@ -210,6 +210,9 @@ static QString resolveMacVersion(QSysInfo::MacVersion ver)
 	case 7:
 		version = "Lion";
 		break;
+	case 8:
+		version = "Mountain Lion";
+		break;
 	default:
 		version = "Unknown";
 		break;
@@ -281,6 +284,7 @@ bool SystemManager::isWorkstationLocked()
 	CloseDesktop(hDesk);
 	return bLocked;
 #endif
+	// TODO: Linux and MacOSX implementations
 	return false;
 }
 
@@ -291,6 +295,7 @@ bool SystemManager::isScreenSaverRunning()
 	if (SystemParametersInfo(SPI_GETSCREENSAVERRUNNING,0,&aRunning,0))
 		return aRunning;
 #endif
+	// TODO: Linux and MacOSX implementations
 	return false;
 }
 
@@ -314,6 +319,7 @@ bool SystemManager::isFullScreenMode()
 	}
 # endif
 #endif
+	// TODO: Linux and MacOSX implementations
 	return false;
 }
 
