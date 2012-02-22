@@ -1474,11 +1474,10 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 				notifyId = FNotifications->appendNotification(notify);
 			noticeActions = NTA_ASK_SUBSCRIBE|NTA_CLOSE;
 		}
+		showNotice = !isService;
 
 		if (isAutoUnsubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_NONE)
 			ARoster->sendSubscription(AItemJid,IRoster::Unsubscribed);
-
-		showNotice = true;
 	}
 	else if (ASubsType == IRoster::Subscribed)
 	{
@@ -1487,7 +1486,7 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 			if (FNotifications && notify.kinds>0)
 				notifyId = FNotifications->appendNotification(notify);
 		}
-		showNotice = true;
+		showNotice = !isService;
 	}
 	else if (ASubsType == IRoster::Unsubscribe)
 	{
@@ -1497,7 +1496,7 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 			if (FNotifications && notify.kinds>0)
 				notifyId = FNotifications->appendNotification(notify);
 		}
-		showNotice = true;
+		showNotice = !isService;
 	}
 
 	int chatNoticeId = -1;
