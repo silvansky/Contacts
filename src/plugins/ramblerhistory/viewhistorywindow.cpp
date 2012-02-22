@@ -74,7 +74,7 @@ void ViewHistoryWindow::initViewHtml()
 			<div style=\"position:absolute; left:50%; top:50%; width:18px; height:18px; margin:-9px 0 0 -9px; background: transparent url('%6') no-repeat;\"></div> \
 			<div style=\"display:none\"> \
 				<form method=\"post\" action=\"http://id.rambler.ru/script/auth.cgi?mode=login\" name=\"auth_form\"> \
-					<input type=\"hidden\" name=\"back\" value=\"http://mail.rambler.ru/m/history/talks/%1\"> \
+					<input type=\"hidden\" name=\"back\" value=\"http://history.xmpp.rambler.ru/m/history/talks/%1\"> \
 					<input type=\"text\" name=\"login\" value=\"%2\"> \
 					<input type=\"text\" name=\"domain\" value=\"%3\"> \
 					<input type=\"password\" name=\"passw\" value=\"%4\"> \
