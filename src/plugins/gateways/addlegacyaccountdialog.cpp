@@ -104,6 +104,7 @@ AddLegacyAccountDialog::~AddLegacyAccountDialog()
 
 void AddLegacyAccountDialog::showEvent(QShowEvent *AEvent)
 {
+	onAdjustDialogSize();
 	QDialog::showEvent(AEvent);
 	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
@@ -170,10 +171,7 @@ void AddLegacyAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
 
 void AddLegacyAccountDialog::onAdjustDialogSize()
 {
-	if (parentWidget())
-		parentWidget()->adjustSize();
-	else
-		adjustSize();
+	window()->adjustSize();
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG);
 }
 

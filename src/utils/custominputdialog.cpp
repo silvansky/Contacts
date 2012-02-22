@@ -259,3 +259,9 @@ bool CustomInputDialog::eventFilter(QObject * obj, QEvent * evt)
 	}
 	return QDialog::eventFilter(obj, evt);
 }
+
+void CustomInputDialog::showEvent(QShowEvent * evt)
+{
+	(rejectButton->isDefault() ? rejectButton : acceptButton)->setFocus();
+	QDialog::showEvent(evt);
+}

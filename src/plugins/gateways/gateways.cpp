@@ -1259,16 +1259,12 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 			connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
 			connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
 			border->setResizable(false);
-			border->show();
-			border->adjustSize();
-		}
-		else
-		{
-			dialog->show();
 		}
 #ifdef Q_WS_MAC
 		setWindowGrowButtonEnabled(dialog->window(), false);
 #endif
+		dialog->window()->show();
+		dialog->window()->adjustSize();
 		return dialog;
 	}
 	return NULL;
