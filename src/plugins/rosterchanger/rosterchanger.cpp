@@ -2126,7 +2126,8 @@ void RosterChanger::onChatWindowActivated()
 void RosterChanger::onChatWindowCreated(IChatWindow *AWindow)
 {
 	int pendingActions = FPendingChatNotices.value(AWindow->streamJid()).value(AWindow->contactJid().bare()).actions;
-	if (pendingActions == NTA_NO_ACTIONS)
+	bool isService = FMetaContacts!=NULL ? FMetaContacts->metaDescriptorByItem(AWindow->contactJid()).service : false;
+	if (!isService && pendingActions==NTA_NO_ACTIONS)
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AWindow->streamJid()) : NULL;
 		IRosterItem ritem = roster!=NULL ? roster->rosterItem(AWindow->contactJid()) : IRosterItem();
