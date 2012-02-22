@@ -121,6 +121,7 @@ void AddContactDialog::setContactJid(const Jid &AContactJid)
 	{
 		QString contact = FGateways!=NULL ? FGateways->legacyIdFromUserJid(streamJid(),AContactJid) : AContactJid.bare();
 		setContactText(contact);
+		setGatewayJid(AContactJid.domain());
 	}
 }
 
@@ -167,13 +168,17 @@ void AddContactDialog::setGroup(const QString &AGroup)
 
 Jid AddContactDialog::gatewayJid() const
 {
-	return FSelectProfileWidget!=NULL ? FSelectProfileWidget->selectedProfile() : Jid::null;
+	return FSelectProfileWidget!=NULL ? FSelectProfileWidget->selectedProfile() : FGatewayJid;
 }
 
 void AddContactDialog::setGatewayJid(const Jid &AGatewayJid)
 {
-	if (FSelectProfileWidget)
-		FSelectProfileWidget->setSelectedProfile(AGatewayJid);
+	if (FGateways && FGateways->streamServices(streamJid()).contains(AGatewayJid))
+	{
+		if (FSelectProfileWidget)
+			FSelectProfileWidget->setSelectedProfile(AGatewayJid);
+		FGatewayJid = AGatewayJid;
+	}
 }
 
 QString AddContactDialog::parentMetaContactId() const
@@ -186,6 +191,12 @@ void AddContactDialog::setParentMetaContactId(const QString &AMetaId)
 	FParentMetaId = AMetaId;
 	ui.lneParamsNick->setVisible(FParentMetaId.isEmpty());
 	ui.cmbParamsGroup->setVisible(FParentMetaId.isEmpty());
+}
+
+void AddContactDialog::executeRequiredContactChecks()
+{
+	if (FDialogState!=STATE_PARAMS && ui.pbtContinue->isEnabled())
+		QTimer::singleShot(0,this,SLOT(onContinueButtonClicked()));
 }
 
 void AddContactDialog::initialize(IPluginManager *APluginManager)
@@ -386,6 +397,7 @@ void AddContactDialog::updatePageParams(const IGateServiceDescriptor &ADescripto
 		connect(FSelectProfileWidget,SIGNAL(profilesChanged()),SLOT(onSelectedProfileChanched()));
 		connect(FSelectProfileWidget,SIGNAL(selectedProfileChanged()),SLOT(onSelectedProfileChanched()));
 		ui.wdtSelectProfile->layout()->addWidget(FSelectProfileWidget);
+		FSelectProfileWidget->setSelectedProfile(FGatewayJid);
 	}
 }
 
@@ -420,7 +432,6 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtPageParams->setVisible(true);
 			ui.wdtSelectProfile->setVisible(true);
 			ui.pbtBack->setVisible(true);
-			ui.pbtContinue->setText(tr("Add Contact"));
 
 			resolveContactJid();
 			resolveLinkedContactsJid();
@@ -481,11 +492,12 @@ void AddContactDialog::resolveDescriptor()
 	QList<QString> confirmBlocked;
 	IGateServiceDescriptor readOnlyDescriptor;
 	QList<IGateServiceDescriptor> confirmDescriptors;
+
 	foreach(const IGateServiceDescriptor &descriptor, FGateways!=NULL ? FGateways->gateHomeDescriptorsByContact(contactText()) : confirmDescriptors)
 	{
 		if (!confirmTypes.contains(descriptor.type) && !confirmLinked.contains(descriptor.id) && !confirmBlocked.contains(descriptor.id))
 		{
-			if (!(descriptor.needGate && descriptor.readOnly))
+			if (!descriptor.needGate || !descriptor.readOnly)
 				confirmDescriptors.append(descriptor);
 			else
 				readOnlyDescriptor = descriptor;
@@ -495,9 +507,12 @@ void AddContactDialog::resolveDescriptor()
 		}
 	}
 
+	IGateServiceDescriptor gateDescriptor = FGateways!=NULL && FGatewayJid.isValid() ? FGateways->serviceDescriptor(streamJid(),FGatewayJid) : IGateServiceDescriptor();
 	for (QList<IGateServiceDescriptor>::iterator it=confirmDescriptors.begin(); it!=confirmDescriptors.end(); )
 	{
-		if (confirmLinked.contains(it->id) || confirmBlocked.contains(it->id))
+		if (!gateDescriptor.id.isEmpty() && it->type!=gateDescriptor.type)
+			it = confirmDescriptors.erase(it);
+		else if (confirmLinked.contains(it->id) || confirmBlocked.contains(it->id))
 			it = confirmDescriptors.erase(it);
 		else
 			it++;
@@ -533,9 +548,10 @@ void AddContactDialog::resolveContactJid()
 	bool nextResolve = false;
 
 	setRealContactJid(Jid::null);
+	ui.pbtContinue->setText(tr("Add Contact"));
 	QString contact = FGateways!=NULL ? FGateways->normalizedContactLogin(FDescriptor,contactText()) : contactText().trimmed();
 
-	Jid gateJid = FSelectProfileWidget->selectedProfile();
+	Jid gateJid = gatewayJid();
 	if (gateJid == streamJid())
 	{
 		nextResolve = true;
@@ -773,9 +789,7 @@ void AddContactDialog::onNewGroupNameSelected(const QString &AGroup)
 void AddContactDialog::onSelectedProfileChanched()
 {
 	if (FDialogState == STATE_PARAMS)
-	{
 		resolveContactJid();
-	}
 }
 
 void AddContactDialog::onVCardReceived(const Jid &AContactJid)

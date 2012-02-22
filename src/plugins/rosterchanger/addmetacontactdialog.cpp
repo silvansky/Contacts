@@ -156,6 +156,11 @@ void AddMetaContactDialog::setParentMetaContactId(const QString &AMetaId)
 	ui.lneNick->setEnabled(FParentMetaId.isEmpty());
 }
 
+void AddMetaContactDialog::processAllChecks()
+{
+
+}
+
 void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 {
 	IPlugin *plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);

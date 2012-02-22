@@ -1077,7 +1077,7 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 		if (AEnabled)
 		{
 			if (FRosterChanger)
-				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,true,false);
+				FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,true,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Subscribe);
 			sendLogPresence(AStreamJid,AServiceJid,true);
@@ -1086,7 +1086,7 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 		else
 		{
 			if (FRosterChanger)
-				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
+				FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,false,true);
 			setKeepConnection(AStreamJid,AServiceJid,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribed);
@@ -1130,7 +1130,7 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 				if (ARemove)
 				{
 					oldItems.append(ritem);
-					FRosterChanger->insertAutoSubscribe(AStreamJid, ritem.itemJid, true, false, true);
+					FRosterChanger->insertAutoSubscribtion(AStreamJid, ritem.itemJid, true, false, true);
 				}
 			}
 		}
@@ -1141,8 +1141,8 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 		{
 			curItems+=newItems;
 			foreach(IRosterItem ritem, curItems)
-				FRosterChanger->insertAutoSubscribe(AStreamJid,ritem.itemJid, true, true, false);
-			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceTo,true,true,false);
+				FRosterChanger->insertAutoSubscribtion(AStreamJid,ritem.itemJid, true, true, false);
+			FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceTo,true,true,false);
 			roster->sendSubscription(AServiceTo,IRoster::Subscribe);
 		}
 
@@ -1159,7 +1159,7 @@ QString Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, b
 		LogDetail(QString("[Gateways] Removing service '%1', with_contacts='%2'").arg(AServiceJid.full()).arg(AWithContacts));
 
 		if (FRosterChanger)
-			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
+			FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,false,true);
 
 		QString requestId = FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid.full());
 		if (!requestId.isEmpty())

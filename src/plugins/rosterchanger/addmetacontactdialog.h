@@ -51,6 +51,7 @@ public:
 	virtual void setGatewayJid(const Jid &AGatewayJid);
 	virtual QString parentMetaContactId() const;
 	virtual void setParentMetaContactId(const QString &AMetaId);
+	virtual void processAllChecks();
 signals:
 	void dialogDestroyed();
 protected:

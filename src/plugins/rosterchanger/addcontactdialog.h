@@ -55,6 +55,7 @@ public:
 	virtual void setGatewayJid(const Jid &AGatewayJid);
 	virtual QString parentMetaContactId() const;
 	virtual void setParentMetaContactId(const QString &AMetaId);
+	virtual void executeRequiredContactChecks();
 signals:
 	void dialogDestroyed();
 protected:
@@ -115,6 +116,7 @@ private:
 	QMap<QString, Jid> FLinkedJidRequests;
 private:
 	Jid FContactJid;
+	Jid FGatewayJid;
 	int FDialogState;
 	bool FResolveNick;
 	bool FServiceFailed;

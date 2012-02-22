@@ -54,6 +54,7 @@ public:
 	virtual void setGatewayJid(const Jid &AGatewayJid) =0;
 	virtual QString parentMetaContactId() const =0;
 	virtual void setParentMetaContactId(const QString &AMetaId) =0;
+	virtual void executeRequiredContactChecks() = 0;
 protected:
 	virtual void dialogDestroyed() =0;
 };
@@ -64,11 +65,12 @@ public:
 	virtual QObject *instance() =0;
 	virtual bool isAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const =0;
 	virtual bool isAutoUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const =0;
-	virtual bool isSilentSubsctiption(const Jid &AStreamJid, const Jid &AContactJid) const =0;
-	virtual void insertAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid, bool ASilently, bool ASubscr, bool AUnsubscr) =0;
-	virtual void removeAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) =0;
-	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false) =0;
-	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false) =0;
+	virtual bool isSilentSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const =0;
+	virtual bool isSilentUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const =0;
+	virtual void insertAutoSubscribtion(const Jid &AStreamJid, const Jid &AContactJid, bool ASilently, bool ASubscr, bool AUnsubscr) =0;
+	virtual void removeAutoSubscribtion(const Jid &AStreamJid, const Jid &AContactJid) =0;
+	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = QString::null, bool ASilently = false) =0;
+	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = QString::null, bool ASilently = false) =0;
 	virtual IAddMetaItemWidget *newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent) =0;
 	virtual QWidget *showAddContactDialog(const Jid &AStreamJid) =0;
 protected:

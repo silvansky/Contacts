@@ -128,11 +128,12 @@ public:
 	//IRosterChanger
 	virtual bool isAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual bool isAutoUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
-	virtual bool isSilentSubsctiption(const Jid &AStreamJid, const Jid &AContactJid) const;
-	virtual void insertAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid, bool ASilently, bool ASubscr, bool AUnsubscr);
-	virtual void removeAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid);
-	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
-	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
+	virtual bool isSilentSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
+	virtual bool isSilentUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
+	virtual void insertAutoSubscribtion(const Jid &AStreamJid, const Jid &AContactJid, bool ASilently, bool ASubscr, bool AUnsubscr);
+	virtual void removeAutoSubscribtion(const Jid &AStreamJid, const Jid &AContactJid);
+	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = QString::null, bool ASilently = false);
+	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = QString::null, bool ASilently = false);
 	virtual IAddMetaItemWidget *newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent);
 	virtual QWidget *showAddContactDialog(const Jid &AStreamJid);
 signals:
@@ -141,7 +142,9 @@ signals:
 	//IRosterDataHolder
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);
 protected:
+	QString contactName(const Jid &AStreamJid, const Jid &AContactJid) const;
 	QString subscriptionNotify(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const;
+	QString subscriptionNotice(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const;
 	IChatWindow *findChatNoticeWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	IChatNotice createChatNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const;
 	int insertChatNotice(IChatWindow *AWindow, const IChatNotice &ANotice);
