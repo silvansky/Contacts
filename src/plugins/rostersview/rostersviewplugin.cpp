@@ -7,6 +7,7 @@ const QList<int> GroupsWithCounter = QList<int>() << RIT_GROUP << RIT_GROUP_BLAN
 
 RostersViewPlugin::RostersViewPlugin()
 {
+	FGateways = NULL;
 	FRostersModel = NULL;
 	FMainWindowPlugin = NULL;
 	FOptionsManager = NULL;
@@ -91,6 +92,12 @@ bool RostersViewPlugin::initConnections(IPluginManager *APluginManager, int &/*A
 	if (plugin)
 	{
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+	{
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
 	}
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
@@ -260,10 +267,17 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		{
 		case Qt::DisplayRole:
 			{
-				Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
-					display = indexJid.bare();
+				{
+					Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
+					if (FGateways)
+					{
+						Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+						contactJid = FGateways->legacyIdFromUserJid(streamJid,contactJid);
+					}
+					display = contactJid.bare();
+				}
 				return display;
 			}
 		}

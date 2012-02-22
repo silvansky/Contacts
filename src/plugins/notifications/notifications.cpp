@@ -26,6 +26,7 @@
 Notifications::Notifications()
 {
 	FAvatars = NULL;
+	FGateways = NULL;
 	FRosterPlugin = NULL;
 	FMetaContacts = NULL;
 	FStatusIcons = NULL;
@@ -116,6 +117,10 @@ bool Notifications::initConnections(IPluginManager *APluginManager, int &AInitOr
 	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
 	if (plugin)
 		FAvatars = qobject_cast<IAvatars *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IRosterPlugin").value(0,NULL);
 	if (plugin)
@@ -592,12 +597,15 @@ QIcon Notifications::contactIcon(const Jid &AStreamJid, const Jid &AContactJid) 
 	return FStatusIcons!=NULL ? FStatusIcons->iconByJid(AStreamJid,AContactJid) : QIcon();
 }
 
-QString Notifications::contactName(const Jid &AStreamJId, const Jid &AContactJid) const
+QString Notifications::contactName(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	IRoster *roster = FRosterPlugin ? FRosterPlugin->findRoster(AStreamJId) : NULL;
-	QString name = roster ? roster->rosterItem(AContactJid).name : AContactJid.node();
+	IRoster *roster = FRosterPlugin ? FRosterPlugin->findRoster(AStreamJid) : NULL;
+	QString name = roster ? roster->rosterItem(AContactJid).name : QString::null;
 	if (name.isEmpty())
-		name = AContactJid.bare();
+	{
+		Jid legacyJid = FGateways!=NULL ? FGateways->legacyIdFromUserJid(AStreamJid,AContactJid) : AContactJid;
+		name = legacyJid.bare();
+	}
 	return name;
 }
 

@@ -23,6 +23,7 @@
 #include <interfaces/itraymanager.h>
 #include <interfaces/iroster.h>
 #include <interfaces/iavatars.h>
+#include <interfaces/igateways.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/ipresence.h>
@@ -130,6 +131,7 @@ protected slots:
 #endif
 private:
 	IAvatars *FAvatars;
+	IGateways *FGateways;
 	IRosterPlugin *FRosterPlugin;
 	IMetaContacts *FMetaContacts;
 	IStatusIcons *FStatusIcons;
