@@ -994,9 +994,9 @@ IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServ
 		}
 		if (login.isValid && !descriptor.domainSeparator.isEmpty() && login.domain.isEmpty())
 		{
-			QStringList parts = login.login.split(descriptor.domainSeparator);
-			login.login = parts.value(0);
-			login.domain = parts.value(1);
+			int sepPos = login.login.lastIndexOf(descriptor.domainSeparator);
+			login.domain = sepPos>=0 ? login.login.right(login.login.length()-sepPos-1) : QString::null;
+			login.login = sepPos>=0 ? login.login.left(sepPos) : login.login;
 			login.isValid = login.domain.isEmpty() || descriptor.domains.isEmpty() || descriptor.domains.contains(login.domain);
 		}
 	}
