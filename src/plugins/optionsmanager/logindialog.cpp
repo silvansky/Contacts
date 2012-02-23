@@ -110,7 +110,7 @@ public:
 	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
 		QSize hint = drawIndex(NULL,AOption,AIndex);
-		hint.setHeight(qMax(hint.height(),27));
+		hint.setHeight(qMax(hint.height(),27));// TODO!!!
 		return hint;
 	}
 };
