@@ -94,7 +94,9 @@ public:
 			QAbstractTextDocumentLayout::PaintContext context;
 			context.palette = option.palette;
 			QRect rect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignLeft|Qt::AlignVCenter,docSize,option.rect);
-			APainter->translate(rect.topLeft() + QPoint(6,0));
+			static const int hOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_COMPLETER_H_OFFSET);
+			static const int vOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_COMPLETER_V_OFFSET);
+			APainter->translate(rect.topLeft() + QPoint(hOffset, vOffset));
 			doc.documentLayout()->draw(APainter, context);
 			APainter->restore();
 		}
@@ -225,10 +227,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
 	ui.lblLogo->setFixedHeight(43);
 
-	int fontSize = 9;
-#ifdef Q_WS_MAC
-	fontSize = 12;
-#endif
+	int fontSize = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_LABEL_FONT_SIZE);
+
 	ui.lblRegister->setText(tr("Enter your Rambler login and password or %1.")
 		.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
 		.arg(fontSize)

@@ -1310,8 +1310,9 @@ bool MetaContacts::eventFilter(QObject *AObject, QEvent *AEvent)
 			QPainter p(lbl);
 			p.setClipRect(pe->rect());
 			QRect r(QPoint(0, 0), sz);
-			// WARNING! 5 and 4 are magic numbers!
-			r.moveTopLeft(QPoint(lbl->size().width() - sz.width() - 5, lbl->size().height() - sz.height() - 4));
+			static const int hMargin = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MC_LABEL_MARGIN_H);
+			static const int vMargin = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MC_LABEL_MARGIN_V);
+			r.moveTopLeft(QPoint(lbl->size().width() - sz.width() - hMargin, lbl->size().height() - sz.height() - vMargin));
 			p.drawImage(r, img);
 			return true;
 		}

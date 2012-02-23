@@ -127,7 +127,8 @@ void SmsInfoWidget::onSmsBalanceChanged(const Jid &AStreamJid, const Jid &AServi
 
 			FChatWindow->editWidget()->textEdit()->setHtml(html
 				.arg(Qt::escape(tr("You have run out of SMS. Please, %1."))
-				.arg(QString("<a href='supplement'><span style='color:#acacac;'>%1</span></a>")
+				.arg(QString("<a href='supplement'><span style='color:%1;'>%2</span></a>")
+				.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_DARK_LINK_COLOR).name())
 				.arg(Qt::escape(tr("supplement the balance")))))
 				.arg(FSupplementMessage));
 

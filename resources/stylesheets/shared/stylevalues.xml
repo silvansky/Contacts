@@ -10,7 +10,12 @@
 	<stylevalue key="macCustomHeaderTextColor" type="color" value="#f0f0f0" />
 	<stylevalue key="aboutDialogTextColor" type="color" value="#acacac" />
 	<stylevalue key="loginDialogLinkColor" type="color" value="#acacac" />
+	<stylevalue key="loginDialogLabelFontSize" type="int" value="9" />
+	<stylevalue key="loginDialogLabelFontSize_mac" type="int" value="12" />
+	<stylevalue key="loginDialogCompleterHOffset" type="int" value="6" />
+	<stylevalue key="loginDialogCompleterVOffset" type="int" value="0" />
 	<stylevalue key="globalLinkColor" type="color" value="#ffffff" />
+	<stylevalue key="globalDarkLinkColor" type="color" value="#acacac" />
 	<stylevalue key="rostersViewDelegateMarginH" type="int" value="7" />
 	<stylevalue key="rostersViewDelegateMarginV" type="int" value="2" />
 	<stylevalue key="rostersViewDelegateMarginDrawH" type="int" value="7" />
@@ -20,4 +25,21 @@
 	<stylevalue key="rostersViewDelegateContactFullHeight" type="int" value="42" />
 	<stylevalue key="rostersViewDelegateContactMiniHeight" type="int" value="30" />
 	<stylevalue key="rostersViewDelegateDragBorderWidth" type="real" value="10.0" />
+	<stylevalue key="rostersViewDragBorderWidth" type="real" value="10.0" />
+	<stylevalue key="rostersViewDragImageBorderWidth" type="int" value="5" />
+	<stylevalue key="rostersViewDragImageOpacity" type="real" value="0.9" />
+	<stylevalue key="messageWidgetsEditRightMargin" type="int" value="50" />
+	<stylevalue key="metacontactsLabelMarginH" type="int" value="5" />
+	<stylevalue key="metacontactsLabelMarginV" type="int" value="4" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="int" value="0" />
 </stylevalues>
