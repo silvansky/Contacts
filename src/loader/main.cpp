@@ -97,9 +97,9 @@ int main(int argc, char *argv[])
 	QApplication::setEffectEnabled(Qt::UI_FadeTooltip, false);
 
 	// This should be done in Style Sheet
-	QPalette pal = QApplication::palette();
-	pal.setColor(QPalette::Link,QColor(Qt::white));
-	QApplication::setPalette(pal);
+//	QPalette pal = QApplication::palette();
+//	pal.setColor(QPalette::Link,QColor(Qt::white));
+//	QApplication::setPalette(pal);
 
 	// utils
 	app.addLibraryPath(app.applicationDirPath());

@@ -145,6 +145,11 @@ int StyleStorage::getStyleInt(const QString & AKey)
 	return getStyleValue(AKey).toInt();
 }
 
+qreal StyleStorage::getStyleReal(const QString & AKey)
+{
+	return getStyleValue(AKey).toReal();
+}
+
 bool StyleStorage::getStyleBool(const QString & AKey)
 {
 	return getStyleValue(AKey).toBool();
@@ -243,7 +248,7 @@ void StyleStorage::loadStyleValues()
 		}
 		else
 		{
-			// save as string
+			// save as common variant
 			FStyleValues.insert(key, value);
 		}
 		valueEl = valueEl.nextSiblingElement("stylevalue");

@@ -311,6 +311,10 @@ void PluginManager::loadSettings()
 			FDataPath = dir.absolutePath();
 	}
 
+	QPalette pal = QApplication::palette();
+	pal.setColor(QPalette::Link, StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR));
+	QApplication::setPalette(pal);
+
 	Log::setLogTypes(0);
 #ifdef LOG_ENABLED
 	QDir logDir(FDataPath);

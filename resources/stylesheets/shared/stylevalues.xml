@@ -8,4 +8,16 @@
 	<stylevalue key="metaTabWindowNotifyBalloonTextOffsetY" type="int" value="-1" />
 	<stylevalue key="macCustomHeaderColor" type="color" value="#616973" />
 	<stylevalue key="macCustomHeaderTextColor" type="color" value="#f0f0f0" />
+	<stylevalue key="aboutDialogTextColor" type="color" value="#acacac" />
+	<stylevalue key="loginDialogLinkColor" type="color" value="#acacac" />
+	<stylevalue key="globalLinkColor" type="color" value="#ffffff" />
+	<stylevalue key="rostersViewDelegateMarginH" type="int" value="7" />
+	<stylevalue key="rostersViewDelegateMarginV" type="int" value="2" />
+	<stylevalue key="rostersViewDelegateMarginDrawH" type="int" value="7" />
+	<stylevalue key="rostersViewDelegateMarginDrawV" type="int" value="1" />
+	<stylevalue key="rostersViewDelegateBranchWidth" type="int" value="10" />
+	<stylevalue key="rostersViewDelegateGroupHeight" type="int" value="18" />
+	<stylevalue key="rostersViewDelegateContactFullHeight" type="int" value="42" />
+	<stylevalue key="rostersViewDelegateContactMiniHeight" type="int" value="30" />
+	<stylevalue key="rostersViewDelegateDragBorderWidth" type="real" value="10.0" />
 </stylevalues>

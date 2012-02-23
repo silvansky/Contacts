@@ -24,6 +24,7 @@ public:
 	QVariant getStyleValue(const QString & AKey);
 	QColor getStyleColor(const QString & AKey);
 	int getStyleInt(const QString & AKey);
+	qreal getStyleReal(const QString & AKey);
 	bool getStyleBool(const QString & AKey);
 public slots:
 	void previewReset();

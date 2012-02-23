@@ -1,6 +1,7 @@
 #include "aboutbox.h"
 
 #include <QShowEvent>
+#include <QColor>
 #include <QDesktopServices>
 #include "aboutqtdialog.h"
 #include <utils/customborderstorage.h>
@@ -27,7 +28,8 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
-	QString styleBegin = "<html><style>a { color: #acacac; }</style><body><font color=#acacac>";
+	QString textColor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_ABOUT_TEXT_COLOR).name();
+	QString styleBegin = QString("<html><style>a { color: %1; }</style><body><font color=%1>").arg(textColor, textColor);
 	QString styleEnd = "</font></body></html>";
 
 	//ui.lblName->setText(tr("Contacts"));
