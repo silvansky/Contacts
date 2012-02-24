@@ -62,7 +62,9 @@ protected:
 	void initialize(IPluginManager *APluginManager);
 	void initGroups();
 protected:
-	void selectRosterIndex();
+	void selectRosterIndex() const;
+	void showChatDialogAndAccept();
+	bool isContactPresentInRoster() const;
 	QString defaultContactNick(const Jid &AContactJid) const;
 	QString confirmDescriptorText(const IGateServiceDescriptor &ADescriptor);
 	bool acceptDescriptor(const IGateServiceDescriptor &ADescriptor);
@@ -81,12 +83,13 @@ protected:
 	void resolveContactJid();
 	void resolveContactName();
 	void resolveLinkedContactsJid();
+	void resolveReady();
 protected:
 	bool event(QEvent *AEvent);
 protected slots:
 	void onBackButtonclicked();
 	void onContinueButtonClicked();
-	void onCancelButtonclicked();
+	void onCancelButtonClicked();
 	void onAdjustDialogSize();
 	void onContactTextEdited(const QString &AText);
 	void onContactNickEdited(const QString &AText);
@@ -113,14 +116,14 @@ private:
 private:
 	QString FContactJidRequest;
 	QString FContactCreateRequest;
+	QString FContactMergeRequest;
 	QMap<QString, Jid> FLinkedJidRequests;
 private:
 	Jid FContactJid;
 	Jid FGatewayJid;
 	int FDialogState;
 	bool FResolveNick;
-	bool FServiceFailed;
-	QTimer FAdjustTimer;
+	bool FCreateBaseContact;
 	QString FParentMetaId;
 	QList<Jid> FLinkedContacts;
 	IGateServiceDescriptor FDescriptor;

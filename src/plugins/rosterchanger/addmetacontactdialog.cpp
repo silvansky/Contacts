@@ -156,7 +156,7 @@ void AddMetaContactDialog::setParentMetaContactId(const QString &AMetaId)
 	ui.lneNick->setEnabled(FParentMetaId.isEmpty());
 }
 
-void AddMetaContactDialog::processAllChecks()
+void AddMetaContactDialog::executeRequiredContactChecks()
 {
 
 }
