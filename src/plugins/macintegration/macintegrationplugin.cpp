@@ -576,7 +576,7 @@ void MacIntegrationPlugin::initMenus()
 
 	funAction = new Action;
 	connect(funAction, SIGNAL(triggered()), SLOT(onFunAction()));
-	_helpMenu->addAction(funAction, 900);
+	//_helpMenu->addAction(funAction, 900);
 
 	funLinks.insert("http://eda.ru/", tr("What to cook for dinner?"));
 	funLinks.insert("http://avia.rambler.ru/anytime?f=MOW&t=TR&min_days=7&max_days=14&one_way=&week_days=&stops=&airlines=", tr("When is it cheaper to fly to Turkey?"));
