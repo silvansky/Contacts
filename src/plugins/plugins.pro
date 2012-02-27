@@ -50,3 +50,4 @@ SUBDIRS += multiuserchat
 SUBDIRS += stylesheeteditor
 SUBDIRS += sipphone
 SUBDIRS += macintegration
+SUBDIRS += systemintegration
