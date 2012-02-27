@@ -1505,35 +1505,39 @@ void MetaContacts::omMetaTabWindowPageContextMenuRequested(const QString &APageI
 		IChatWindow *chatWindow = widget!=NULL ? qobject_cast<IChatWindow *>(widget->instance()) : NULL;
 		if (chatWindow)
 		{
-			QHash<int,QVariant> data;
-			data.insert(ADR_STREAM_JID,chatWindow->streamJid().full());
-			data.insert(ADR_CONTACT_JID,chatWindow->contactJid().bare());
-
-			IRosterItem ritem = window->metaRoster()->roster()->rosterItem(chatWindow->contactJid());
-			if (window->metaRoster()->roster()->subscriptionRequests().contains(chatWindow->contactJid().bare()))
+			IMetaItemDescriptor descriptor = metaDescriptorByItem(chatWindow->contactJid());
+			if (!descriptor.service)
 			{
-				Action *action = new Action(AMenu);
-				action->setText(tr("Authorize"));
-				action->setData(data);
-				action->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
-				connect(action,SIGNAL(triggered(bool)),SLOT(onContactItemSubscription(bool)));
-				AMenu->addAction(action,AG_MCICM_AUTHORIZATION);
+				QHash<int,QVariant> data;
+				data.insert(ADR_STREAM_JID,chatWindow->streamJid().full());
+				data.insert(ADR_CONTACT_JID,chatWindow->contactJid().bare());
 
-				action = new Action(AMenu);
-				action->setText(tr("Refuse authorization"));
-				action->setData(data);
-				action->setData(ADR_SUBSCRIPTION,IRoster::Unsubscribe);
-				connect(action,SIGNAL(triggered(bool)),SLOT(onContactItemSubscription(bool)));
-				AMenu->addAction(action,AG_MCICM_AUTHORIZATION);
-			}
-			else if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
-			{
-				Action *action = new Action(AMenu);
-				action->setText(tr("Request authorization"));
-				action->setData(data);
-				action->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
-				connect(action,SIGNAL(triggered(bool)),SLOT(onContactItemSubscription(bool)));
-				AMenu->addAction(action,AG_MCICM_AUTHORIZATION);
+				IRosterItem ritem = window->metaRoster()->roster()->rosterItem(chatWindow->contactJid());
+				if (window->metaRoster()->roster()->subscriptionRequests().contains(chatWindow->contactJid().bare()))
+				{
+					Action *action = new Action(AMenu);
+					action->setText(tr("Authorize"));
+					action->setData(data);
+					action->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+					connect(action,SIGNAL(triggered(bool)),SLOT(onContactItemSubscription(bool)));
+					AMenu->addAction(action,AG_MCICM_AUTHORIZATION);
+
+					action = new Action(AMenu);
+					action->setText(tr("Refuse authorization"));
+					action->setData(data);
+					action->setData(ADR_SUBSCRIPTION,IRoster::Unsubscribe);
+					connect(action,SIGNAL(triggered(bool)),SLOT(onContactItemSubscription(bool)));
+					AMenu->addAction(action,AG_MCICM_AUTHORIZATION);
+				}
+				else if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
+				{
+					Action *action = new Action(AMenu);
+					action->setText(tr("Request authorization"));
+					action->setData(data);
+					action->setData(ADR_SUBSCRIPTION,IRoster::Subscribe);
+					connect(action,SIGNAL(triggered(bool)),SLOT(onContactItemSubscription(bool)));
+					AMenu->addAction(action,AG_MCICM_AUTHORIZATION);
+				}
 			}
 		}
 	}
@@ -2032,6 +2036,8 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			const IMetaContact &contact = mroster->metaContact(metaId);
 
 			QList<QVariant> selMetaIdList;
+			QSet<Jid> commonItems = contact.items;
+			QSet<QString> commonGroups = contact.groups;
 			bool canEdit = canEditMetaContact(mroster->streamJid(),metaId);
 			bool canDelete = canDeleteMetaContact(mroster->streamJid(),metaId);
 			foreach(IRosterIndex *index, ASelected)
@@ -2039,7 +2045,10 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				if (index != AIndex)
 				{
 					QVariant selMetaId = index->data(RDR_META_ID);
+					IMetaContact selContact = mroster->metaContact(selMetaId.toString());
 					selMetaIdList.append(selMetaId);
+					commonItems += selContact.items;
+					commonGroups += selContact.groups;
 					canEdit = canEdit && canEditMetaContact(mroster->streamJid(),selMetaId.toString());
 					canDelete = canDelete && canDeleteMetaContact(mroster->streamJid(),selMetaId.toString());
 				}
@@ -2058,7 +2067,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			AMenu->addAction(dialogAction,AG_RVCM_CHATMESSAGEHANDLER_OPENCHAT);
 			connect(dialogAction,SIGNAL(triggered(bool)),SLOT(onShowMetaTabWindowAction(bool)));
 
-			QSet<Jid> subscRequests = mroster->roster()->subscriptionRequests().intersect(contact.items);
+			QSet<Jid> subscRequests = mroster->roster()->subscriptionRequests().intersect(commonItems);
 			if (!subscRequests.isEmpty())
 			{
 				Action *authAction = new Action(AMenu);
@@ -2077,13 +2086,17 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			}
 
 			bool askSubsc = false;
-			foreach(Jid itemJid, contact.items)
+			foreach(Jid itemJid, commonItems)
 			{
-				IRosterItem ritem = mroster->roster()->rosterItem(itemJid);
-				if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
+				IMetaItemDescriptor descriptor = metaDescriptorByItem(itemJid);
+				if (!descriptor.service)
 				{
-					askSubsc = true;
-					break;
+					IRosterItem ritem = mroster->roster()->rosterItem(itemJid);
+					if (ritem.subscription!=SUBSCRIPTION_BOTH && ritem.subscription!=SUBSCRIPTION_TO && ritem.ask!=SUBSCRIPTION_SUBSCRIBE)
+					{
+						askSubsc = true;
+						break;
+					}
 				}
 			}
 			if (subscRequests.isEmpty() && askSubsc)
@@ -2100,10 +2113,6 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			GroupMenu *groupMenu = new GroupMenu(AMenu);
 			groupMenu->setTitle(tr("Group"));
 			groupMenu->setEnabled(canEdit);
-
-			QSet<QString> commonGroups = contact.groups;
-			foreach(QVariant selMetaId, selMetaIdList)
-				commonGroups += mroster->metaContact(selMetaId.toString()).groups;
 
 			Action *blankGroupAction = new Action(groupMenu);
 			blankGroupAction->setText(FRostersViewPlugin->rostersView()->rostersModel()->singleGroupName(RIT_GROUP_BLANK));
@@ -2142,9 +2151,9 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
 			AMenu->addAction(deleteAction,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 
-			// Merge Items
 			if (ASelected.count() > 1)
 			{
+				// Merge Items
 				Action *mergeAction = new Action(AMenu);
 				mergeAction->setText(tr("Merge contacts"));
 				mergeAction->setData(ADR_STREAM_JID,mroster->streamJid().full());
@@ -2153,9 +2162,9 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				connect(mergeAction,SIGNAL(triggered(bool)),SLOT(onMergeContacts(bool)));
 				AMenu->addAction(mergeAction,AG_RVCM_METACONTACTS_MERGECONTACTS);
 			}
-			// Detach items menu
 			else if (ASelected.count() < 2)
 			{
+				// Detach items menu
 				QList<Jid> detachItems;
 				foreach(Jid itemJid, contact.items)
 				{
