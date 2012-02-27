@@ -124,10 +124,6 @@
 <context>
     <name>AddLegacyAccountOptions</name>
     <message>
-        <source>You can link multiple accounts and communicate with your friends on other services</source>
-        <translation>Вы можете подключить несколько учётных записей и общаться со своими друзьями с других сервисов</translation>
-    </message>
-    <message>
         <source>All available accounts are already linked</source>
         <translation>Все возможные учётные записи уже подключены</translation>
     </message>

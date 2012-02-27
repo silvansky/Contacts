@@ -104,10 +104,9 @@ void AddLegacyAccountOptions::onServicesChanged(const Jid &AStreamJid)
 		foreach(Jid serviceJid, FWidgets.keys().toSet() - availRegisters.toSet())
 			removeServiceButton(serviceJid);
 
-		if (!FWidgets.isEmpty())
-			ui.lblInfo->setText(tr("You can link multiple accounts and communicate with your friends on other services"));
-		else
+		if (FWidgets.isEmpty())
 			ui.lblInfo->setText(tr("All available accounts are already linked"));
+		ui.lblInfo->setVisible(FWidgets.isEmpty());
 
 		emit updated();
 	}

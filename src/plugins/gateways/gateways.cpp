@@ -210,7 +210,6 @@ bool Gateways::initObjects()
 {
 	static const QString JabberContactPattern = "^"JID_NODE_PATTERN"@"JID_DOMAIN_PATTERN"$";
 
-	// !!    !!
 	IGateServiceDescriptor sms;
 	sms.id = GSID_SMS;
 	sms.needGate = true;
@@ -227,13 +226,14 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor icq;
 	icq.id = GSID_ICQ;
 	icq.needGate = true;
+	icq.readOnly = true;
 	icq.type = "icq";
 	icq.name = tr("ICQ");
 	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
 	icq.loginLabel = tr("Login");
 	icq.loginField = "username";
 	icq.passwordField = "password";
-	icq.homeContactPattern = "^\\d{5,10}$";
+	icq.homeContactPattern = "^(\\d{5,10}|"MAIL_NODE_PATTERN"@"JID_DOMAIN_PATTERN")$";
 	icq.availContactPattern = icq.homeContactPattern;
 	FGateDescriptors.append(icq);
 
@@ -422,7 +422,6 @@ bool Gateways::initObjects()
 	jabber.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(jabber);
 
-	//      ..   
 	IGateServiceDescriptor mail;
 	mail.id = GSID_MAIL;
 	mail.needGate = true;
@@ -733,8 +732,9 @@ QString Gateways::formattedContactLogin(const IGateServiceDescriptor &ADescripto
 	}
 	else if (ADescriptor.id == GSID_ICQ)
 	{
-		for(int pos=3; contact.length()-pos>=2; pos+=4)
-			contact.insert(pos,"-");
+		if (!contact.contains("@"))
+			for(int pos=3; contact.length()-pos>=2; pos+=4)
+				contact.insert(pos,"-");
 	}
 	else if (ADescriptor.type == "xmpp")
 	{
@@ -748,7 +748,6 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 	QString contact = AContact.trimmed();
 	if (!contact.isEmpty())
 	{
-		//    
 		if (ADescriptor.id == GSID_SMS)
 		{
 			QString number;
@@ -777,28 +776,25 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 		}
 		else if (ADescriptor.id == GSID_ICQ)
 		{
-			QString number;
-			for (int i=0; i<contact.length(); i++)
+			if (!contact.contains("@"))
 			{
-				QChar ch = contact.at(i);
-				if (ch.isDigit() || ch.isLetter())
-					number += ch;
+				QString number;
+				for (int i=0; i<contact.length(); i++)
+				{
+					QChar ch = contact.at(i);
+					if (ch.isDigit() || ch.isLetter())
+						number += ch;
+				}
+				contact = number;
 			}
-			contact = number;
 		}
 		else
 		{
-			//  ,   
 			if (AComplete && !ADescriptor.domainSeparator.isEmpty() && !contact.contains(ADescriptor.domainSeparator) && !ADescriptor.domains.isEmpty())
-			{
 				contact += ADescriptor.domainSeparator + ADescriptor.domains.value(0);
-			}
 
-			//  Jid Escaping
 			if (ADescriptor.type == "xmpp")
-			{
 				contact = Jid(contact).eFull();
-			}
 		}
 	}
 	return contact;
@@ -808,7 +804,6 @@ QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADes
 {
 	QString errMessage;
 
-	//    
 	if (ADescriptor.id == GSID_SMS)
 	{
 		bool validChars = true;
@@ -829,7 +824,6 @@ QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADes
 		}
 	}
 
-	//     
 	QRegExp availRegExp(ADescriptor.availContactPattern);
 	availRegExp.setCaseSensitivity(Qt::CaseInsensitive);
 	if (errMessage.isEmpty() && !availRegExp.exactMatch(AContact))

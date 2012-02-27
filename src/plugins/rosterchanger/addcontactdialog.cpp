@@ -553,7 +553,10 @@ void AddContactDialog::resolveDescriptor()
 	}
 	else if (!readOnlyDescriptor.id.isEmpty())
 	{
-		setErrorMessage(tr("You can add this contact only on %1 site.").arg(readOnlyDescriptor.name),false);
+		if (readOnlyDescriptor.id == GSID_ICQ)
+			setErrorMessage(tr("Unfortunately, addition of %1 contacts temporarily is not available.").arg(readOnlyDescriptor.name),false);
+		else
+			setErrorMessage(tr("You can add this contact only on %1 site.").arg(readOnlyDescriptor.name),false);
 	}
 	else
 	{
@@ -601,13 +604,10 @@ void AddContactDialog::resolveContactJid()
 
 void AddContactDialog::resolveContactName()
 {
-	if (contactJid().isValid())
+	if (FVcardPlugin && contactJid().isValid())
 	{
-		if (FVcardPlugin)
-		{
-			FVcardPlugin->requestVCard(streamJid(), contactJid());
-			setResolveNickState(true);
-		}
+		FVcardPlugin->requestVCard(streamJid(), contactJid());
+		setResolveNickState(true);
 	}
 	resolveReady();
 }
