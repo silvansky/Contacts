@@ -554,7 +554,7 @@ void AddContactDialog::resolveDescriptor()
 	else if (!readOnlyDescriptor.id.isEmpty())
 	{
 		if (readOnlyDescriptor.id == GSID_ICQ)
-			setErrorMessage(tr("Unfortunately, addition of %1 contacts temporarily is not available.").arg(readOnlyDescriptor.name),false);
+			setErrorMessage(tr("Currently you can’t add %1 contacts.").arg(readOnlyDescriptor.name),false);
 		else
 			setErrorMessage(tr("You can add this contact only on %1 site.").arg(readOnlyDescriptor.name),false);
 	}

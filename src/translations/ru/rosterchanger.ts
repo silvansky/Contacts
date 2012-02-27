@@ -104,8 +104,8 @@
         <translation>Не удалось найти такой адрес.</translation>
     </message>
     <message>
-        <source>Unfortunately, addition of %1 contacts temporarily is not available.</source>
-        <translation>К сожалению, добавление %1 контактов временно не доступно.</translation>
+        <source>Currently you cant add %1 contacts.</source>
+        <translation>Добавление контактов %1 временно недоступно.</translation>
     </message>
 </context>
 <context>
