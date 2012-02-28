@@ -29,6 +29,7 @@ void SearchEdit::processKeyPressEvent(QKeyEvent * event)
 void SearchEdit::resizeEvent(QResizeEvent * event)
 {
 	QLineEdit::resizeEvent(event);
+	// TODO: read 22/26/16/2 from style
 #ifdef Q_WS_MAC
 	iconLabel->move(event->size().width() - 26, (event->size().height() - 16) / 2);
 #else

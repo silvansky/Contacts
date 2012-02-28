@@ -12,6 +12,12 @@ class ISystemIntegrationImplementation
 public:
 	virtual QObject * instance() = 0;
 
+	// initialization
+	virtual void init() = 0;
+
+	// finalization
+	virtual void finalize() = 0;
+
 	// information
 	virtual bool isGlobalMenuPresent() const = 0;
 	virtual bool isDockMenuPresent() const = 0;
@@ -31,6 +37,7 @@ public:
 	// dock
 	virtual void setDockBadge(const QString & badgeText) = 0;
 	virtual void setDockOverlayImage(const QImage & image, Qt::Alignment alignment = Qt::AlignCenter, bool showAppIcon = true) = 0;
+	virtual bool isRequestUserAttentionPresent() const = 0;
 	virtual void requestUserAttention() = 0;
 
 	// notifications
@@ -60,17 +67,19 @@ public:
 		HelpRole,
 		DockRole
 	};
+	virtual QObject * instance() = 0;
 	// system implementation
 	virtual ISystemIntegrationImplementation * implementation() = 0;
 	// menus
 	virtual bool isGlobalMenuPresent() const = 0;
 	virtual bool isDockMenuPresent() const = 0;
 	virtual void addAction(MenuActionRole role, Action * action, int group = AG_DEFAULT) = 0;
-	virtual void removeAction(Action * action) = 0;
+	virtual void removeAction(MenuActionRole role, Action * action) = 0;
 	// dock
 	virtual bool isDockPresent() const = 0;
 	virtual void setDockBadge(const QString & badge) = 0;
 	virtual void setDockOverlayImage(const QImage & image, Qt::Alignment alignment = Qt::AlignCenter, bool showAppIcon = true) = 0;
+	virtual bool isRequestUserAttentionPresent() const = 0;
 	virtual void requestUserAttention() = 0;
 	// notifications
 	virtual bool isSystemNotificationsSettingsAccessible() const = 0;

@@ -1,5 +1,8 @@
 #include "systemintegration.h"
 
+#include <interfaces/imacintegration.h>
+#include <utils/log.h>
+
 SystemIntegration::SystemIntegration()
 {
 	impl = NULL;
@@ -19,7 +22,30 @@ void SystemIntegration::pluginInfo(IPluginInfo *APluginInfo)
 
 bool SystemIntegration::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
-	// TODO: load implementation plugin
+	Q_UNUSED(AInitOrder)
+	if (APluginManager)
+	{
+		connect(APluginManager->instance(), SIGNAL(aboutToQuit()), SLOT(onAboutToQuit()));
+#ifdef Q_WS_MAC
+		IPlugin *plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+		if (plugin)
+		{
+			IMacIntegration * macIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
+			if ((impl = qobject_cast<ISystemIntegrationImplementation*>(macIntegration->instance())))
+			{
+				LogDetail("[SystemIntegration]: Loaded Mac OS X Integration plugin");
+				plugin->initConnections(APluginManager, AInitOrder);
+				impl->init();
+			}
+			else
+			{
+				LogError("[SystemIntegration]: Failed to load Mac OS X Integration plugin! Interface ISystemIntegrationImplementation not implemented");
+			}
+		}
+		else
+			LogError("[SystemIntegration]: Failed to load Mac OS X Integration plugin! IMacIntegration plugin not found");
+#endif
+	}
 	return true;
 }
 
@@ -50,17 +76,102 @@ bool SystemIntegration::isDockMenuPresent() const
 
 void SystemIntegration::addAction(MenuActionRole role, Action * action, int group)
 {
-	// TODO
+	switch (role)
+	{
+	case ApplicationRole:
+		action->setMenuRole(QAction::ApplicationSpecificRole);
+		if (impl && impl->fileMenu())
+			impl->fileMenu()->addAction(action, group);
+		break;
+	case SettingsRole:
+		action->setMenuRole(QAction::PreferencesRole);
+		if (impl && impl->fileMenu())
+			impl->fileMenu()->addAction(action, group);
+		break;
+	case FileRole:
+		if (impl && impl->fileMenu())
+			impl->fileMenu()->addAction(action, group);
+		break;
+	case EditRole:
+		if (impl && impl->editMenu())
+			impl->editMenu()->addAction(action, group);
+		break;
+	case ViewRole:
+		if (impl && impl->viewMenu())
+			impl->viewMenu()->addAction(action, group);
+		break;
+	case StatusRole:
+		if (impl && impl->statusMenu())
+			impl->statusMenu()->addAction(action, group);
+		break;
+	case WindowRole:
+		if (impl && impl->windowMenu())
+			impl->windowMenu()->addAction(action, group);
+		break;
+	case HelpRole:
+		if (impl && impl->helpMenu())
+			impl->helpMenu()->addAction(action, group);
+		break;
+	case DockRole:
+		if (impl && impl->dockMenu())
+			impl->dockMenu()->addAction(action, group);
+		break;
+	default:
+		break;
+	}
 }
 
-void SystemIntegration::removeAction(Action * action)
+void SystemIntegration::removeAction(MenuActionRole role, Action * action)
 {
-	// TODO
+	switch (role)
+	{
+	case ApplicationRole:
+		action->setMenuRole(QAction::ApplicationSpecificRole);
+		if (impl && impl->fileMenu())
+			impl->fileMenu()->removeAction(action);
+		break;
+	case SettingsRole:
+		action->setMenuRole(QAction::PreferencesRole);
+		if (impl && impl->fileMenu())
+			impl->fileMenu()->removeAction(action);
+		break;
+	case FileRole:
+		if (impl && impl->fileMenu())
+			impl->fileMenu()->removeAction(action);
+		break;
+	case EditRole:
+		if (impl && impl->editMenu())
+			impl->editMenu()->removeAction(action);
+		break;
+	case ViewRole:
+		if (impl && impl->viewMenu())
+			impl->viewMenu()->removeAction(action);
+		break;
+	case StatusRole:
+		if (impl && impl->statusMenu())
+			impl->statusMenu()->removeAction(action);
+		break;
+	case WindowRole:
+		if (impl && impl->windowMenu())
+			impl->windowMenu()->removeAction(action);
+		break;
+	case HelpRole:
+		if (impl && impl->helpMenu())
+			impl->helpMenu()->removeAction(action);
+		break;
+	case DockRole:
+		if (impl && impl->dockMenu())
+			impl->dockMenu()->removeAction(action);
+		break;
+	default:
+		break;
+	}
+
 }
 
 bool SystemIntegration::isDockPresent() const
 {
-	return impl ? impl->isDockPresent() : false;
+	return (impl && impl->isDockPresent());
 }
 
 void SystemIntegration::setDockBadge(const QString & badge)
@@ -73,6 +184,11 @@ void SystemIntegration::setDockOverlayImage(const QImage & image, Qt::Alignment 
 {
 	if (impl)
 		impl->setDockOverlayImage(image, alignment, showAppIcon);
+}
+
+bool SystemIntegration::isRequestUserAttentionPresent() const
+{
+	return (impl && impl->isRequestUserAttentionPresent());
 }
 
 void SystemIntegration::requestUserAttention()
@@ -96,6 +212,12 @@ void SystemIntegration::showSystemNotificationsSettings()
 {
 	if (impl)
 		impl->showSystemNotificationsSettings();
+}
+
+void SystemIntegration::onAboutToQuit()
+{
+	if (impl)
+		impl->finalize();
 }
 
 Q_EXPORT_PLUGIN2(plg_systemintegration, SystemIntegration)

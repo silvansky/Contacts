@@ -9,9 +9,7 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/imainwindow.h>
-#ifdef Q_WS_MAC
-# include <interfaces/imacintegration.h>
-#endif
+#include <interfaces/isystemintegration.h>
 #include <utils/iconstorage.h>
 #include <utils/action.h>
 #include "consolewidget.h"
@@ -40,9 +38,7 @@ protected slots:
 private:
 	IPluginManager *FPluginManager;
 	IMainWindowPlugin *FMainWindowPlugin;
-#ifdef Q_WS_MAC
-	IMacIntegration * FMacIntegration;
-#endif
+	ISystemIntegration * FSystemIntegration;
 private:
 	QObjectCleanupHandler FCleanupHandler;
 	QShortcut * showConsoleShortcut;

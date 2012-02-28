@@ -29,16 +29,19 @@ public:
 	virtual bool isGlobalMenuPresent() const;
 	virtual bool isDockMenuPresent() const;
 	virtual void addAction(MenuActionRole role, Action * action, int group = AG_DEFAULT);
-	virtual void removeAction(Action * action);
+	virtual void removeAction(MenuActionRole role, Action * action);
 	// dock
 	virtual bool isDockPresent() const;
 	virtual void setDockBadge(const QString & badge);
 	virtual void setDockOverlayImage(const QImage & image, Qt::Alignment alignment = Qt::AlignCenter, bool showAppIcon = true);
+	virtual bool isRequestUserAttentionPresent() const;
 	virtual void requestUserAttention();
 	// notifications
 	virtual bool isSystemNotificationsSettingsAccessible() const;
 	virtual void postSystemNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 	virtual void showSystemNotificationsSettings();
+protected slots:
+	void onAboutToQuit();
 signals:
 	void dockClicked();
 	void systemNotificationClicked(int);

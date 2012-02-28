@@ -5,9 +5,7 @@
 #include <interfaces/imainwindow.h>
 #include <utils/action.h>
 #include "stylesheeteditor.h"
-#ifdef Q_WS_MAC
-# include <interfaces/imacintegration.h>
-#endif
+#include <interfaces/isystemintegration.h>
 
 #define STYLESHEETEDITOR_UUID		"{dcdd7857-af0e-4ccd-bfb4-fb1b7cbbb955}"
 
@@ -33,9 +31,7 @@ protected slots:
 private:
 	IPluginManager * pluginManager;
 	IMainWindowPlugin * mainWindowPlugin;
-#ifdef Q_WS_MAC
-	IMacIntegration * macIntegration;
-#endif
+	ISystemIntegration * systemIntegration;
 	StyleSheetEditorDialog * editor;
 	Action * showDialog;
 protected slots:

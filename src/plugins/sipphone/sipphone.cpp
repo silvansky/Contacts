@@ -190,19 +190,13 @@ bool SipPhone::initObjects()
 	{
 		INotificationType incomingNotifyType;
 		incomingNotifyType.order = OWO_NOTIFICATIONS_SIPPHONE;
-		incomingNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify;
-#ifdef Q_WS_MAC
-		incomingNotifyType.kindMask |= INotification::DockBadge;
-#endif
+		incomingNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge;
 		incomingNotifyType.kindDefs = incomingNotifyType.kindMask;
 		FNotifications->registerNotificationType(NNT_SIPPHONE_CALL,incomingNotifyType);
 
 		INotificationType missedNotifyType;
 		missedNotifyType.order = OWO_NOTIFICATIONS_SIPPHONE_MISSED;
-		missedNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify;
-#ifdef Q_WS_MAC
-		missedNotifyType.kindMask |= INotification::DockBadge;
-#endif
+		missedNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge;
 		missedNotifyType.kindDefs = incomingNotifyType.kindMask;
 		FNotifications->registerNotificationType(NNT_SIPPHONE_MISSEDCALL,missedNotifyType);
 	}

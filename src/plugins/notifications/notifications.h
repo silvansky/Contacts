@@ -32,9 +32,7 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
-#ifdef Q_WS_MAC
-# include <interfaces/imacintegration.h>
-#endif
+#include <interfaces/isystemintegration.h>
 #include <utils/options.h>
 #include <utils/systemmanager.h>
 #include "notifywidget.h"
@@ -123,12 +121,10 @@ protected slots:
 	void onWindowNotifyOptions();
 	void onWindowNotifyDestroyed();
 	void onTestNotificationTimerTimedOut();
-#ifdef Q_WS_MAC
-	void onGrowlNotifyClicked(int ANotifyId);
-	void onShowGrowlPreferences();
+	void onSystemNotifyClicked(int ANotifyId);
+	void onShowSystemNotificationsSettings();
 	void onNotifyCountChanged();
 	void onDockClicked();
-#endif
 private:
 	IAvatars *FAvatars;
 	IGateways *FGateways;
@@ -140,10 +136,8 @@ private:
 	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IOptionsManager *FOptionsManager;
-#ifdef Q_WS_MAC
-	IMacIntegration * FMacIntegration;
+	ISystemIntegration * FSystemIntegration;
 	IMainWindowPlugin * FMainWindow;
-#endif
 private:
 #ifdef QT_PHONON_LIB
 	Phonon::MediaObject *FMediaObject;

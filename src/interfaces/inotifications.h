@@ -19,9 +19,7 @@ struct INotification
 		AlertWidget           = 0x0010,
 		ShowMinimized         = 0x0020,
 		TabPageNotify         = 0x0040,
-#ifdef Q_WS_MAC
 		DockBadge             = 0x0080,
-#endif
 		AutoActivate          = 0x8000
 	};
 	enum NotifyFlags {

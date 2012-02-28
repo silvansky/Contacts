@@ -5,7 +5,6 @@ FIRST_TARGET = $$member(TARGET,0)
 TRANSLATIONS = \
 	$${TRANS_SOURCE_ROOT}/translations/ru/$${FIRST_TARGET}.ts
 
-
 #Building Translations
 qm_build_all.target = build_qm
 for(LANG, TRANS_LANGS) {

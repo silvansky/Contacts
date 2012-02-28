@@ -20,7 +20,7 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/itraymanager.h>
 #include <interfaces/iprivatestorage.h>
-#include <interfaces/imacintegration.h>
+#include <interfaces/isystemintegration.h>
 #include <utils/log.h>
 #include <utils/action.h>
 #include <utils/widgetmanager.h>
@@ -120,7 +120,7 @@ private:
 	ITrayManager *FTrayManager;
 	IMainWindowPlugin *FMainWindowPlugin;
 	IPrivateStorage *FPrivateStorage;
-	IMacIntegration * FMacIntegration;
+	ISystemIntegration * FSystemIntegration;
 private:
 	QDir FProfilesDir;
 	QTimer FAutoSaveTimer;

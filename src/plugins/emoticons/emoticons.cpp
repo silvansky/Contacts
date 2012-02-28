@@ -5,7 +5,6 @@
 
 #define DEFAULT_ICONSET                 "smiles"
 
-#ifdef Q_WS_MAC
 template <typename T>
 QList<T> reversed(const QList<T> & in)
 {
@@ -14,17 +13,14 @@ QList<T> reversed(const QList<T> & in)
 	std::reverse_copy(in.begin(), in.end(), std::back_inserter(result));
 	return result;
 }
-#endif
 
 Emoticons::Emoticons()
 {
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FOptionsManager = NULL;
-#ifdef Q_WS_MAC
-	FMacIntegration = NULL;
+	FSystemIntegration = NULL;
 	emoticonsMenu = new Menu;
-#endif
 }
 
 Emoticons::~Emoticons()
@@ -67,13 +63,11 @@ bool Emoticons::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
 	}
 
-#ifdef Q_WS_MAC
-	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+	plugin = APluginManager->pluginInterface("ISystemIntegration").value(0,NULL);
 	if (plugin)
 	{
-		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
+		FSystemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
 	}
-#endif
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -83,14 +77,12 @@ bool Emoticons::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 
 bool Emoticons::initObjects()
 {
-#ifdef Q_WS_MAC
 	emoticonsMenu->menuAction()->setText(tr("Insert Emoticon"));
 	emoticonsMenu->setEnabled(false);
-	if (FMacIntegration)
+	if (FSystemIntegration)
 	{
-		FMacIntegration->editMenu()->addAction(emoticonsMenu->menuAction(), 700);
+		FSystemIntegration->addAction(ISystemIntegration::EditRole, emoticonsMenu->menuAction(), 700);
 	}
-#endif
 	return true;
 }
 
@@ -391,7 +383,6 @@ void Emoticons::removeSelectIconMenu(const QString &ASubStorage)
 	}
 }
 
-#ifdef Q_WS_MAC
 bool Emoticons::eventFilter(QObject * obj, QEvent * evt)
 {
 	if (QTextEdit * te = qobject_cast<QTextEdit*>(obj))
@@ -428,8 +419,6 @@ void Emoticons::onEmoticonAction()
 	}
 }
 
-#endif
-
 void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 {
 	EmoticonsContainer *container = new EmoticonsContainer(AEditWidget);
@@ -454,9 +443,7 @@ void Emoticons::onEditWidgetCreated(IEditWidget *AEditWidget)
 		}
 	}
 
-#ifdef Q_WS_MAC
 	AEditWidget->textEdit()->installEventFilter(this);
-#endif
 
 	connect(AEditWidget->textEdit()->document(),SIGNAL(contentsChange(int,int,int)),SLOT(onEditWidgetContentsChanged(int,int,int)));
 	connect(container,SIGNAL(destroyed(QObject *)),SLOT(onEmoticonsContainerDestroyed(QObject *)));
@@ -521,10 +508,8 @@ void Emoticons::onIconSelected(const QString &ASubStorage, const QString &AIconK
 	{
 		widget = FContainerByMenu.value(menu)->editWidget();
 	}
-#ifdef Q_WS_MAC
 	else
 		widget = currentEditWidget;
-#endif
 	if (widget)
 	{
 		QTextEdit *editor = widget->textEdit();
@@ -578,7 +563,6 @@ void Emoticons::onOptionsChanged(const OptionsNode &ANode)
 			delete FStorages.take(substorage);
 		}
 
-#ifdef Q_WS_MAC
 		emoticonsMenu->clear();
 		foreach(Action * a, emoticonsActions)
 			a->deleteLater();
@@ -603,7 +587,6 @@ void Emoticons::onOptionsChanged(const OptionsNode &ANode)
 		emoticonsActions = reversed<Action*>(tmp);
 
 		emoticonsMenu->addActions(emoticonsActions, -1);
-#endif
 
 		createIconsetUrls();
 	}

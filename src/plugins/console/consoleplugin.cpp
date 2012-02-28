@@ -4,9 +4,7 @@ ConsolePlugin::ConsolePlugin()
 {
 	FPluginManager = NULL;
 	FMainWindowPlugin = NULL;
-#ifdef Q_WS_MAC
-	FMacIntegration = NULL;
-#endif
+	FSystemIntegration = NULL;
 	showConsoleShortcut = NULL;
 }
 
@@ -24,9 +22,7 @@ void ConsolePlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 	APluginInfo->dependences.append(MAINWINDOW_UUID);
-#ifdef Q_WS_MAC
-	APluginInfo->dependences.append(MACINTEGRATION_UUID);
-#endif
+	APluginInfo->dependences.append(SYSTEMINTEGRATION_UUID);
 }
 
 bool ConsolePlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -39,18 +35,11 @@ bool ConsolePlugin::initConnections(IPluginManager *APluginManager, int &/*AInit
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
 	}
 
-#ifdef Q_WS_MAC
-	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+	plugin = APluginManager->pluginInterface("ISystemIntegration").value(0,NULL);
 	if (plugin)
-		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
-#endif
+		FSystemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
 
-	return
-		FMainWindowPlugin
-#ifdef Q_WS_MAC
-		&& FMacIntegration
-#endif
-			;
+	return FMainWindowPlugin && FSystemIntegration;
 }
 
 bool ConsolePlugin::initObjects()
@@ -65,12 +54,10 @@ bool ConsolePlugin::initObjects()
 		Action *action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
 		action->setText(tr("XML Console"));
 		connect(action,SIGNAL(triggered()),SLOT(onShowXMLConsole()));
-# ifdef Q_WS_MAC
-		if (FMacIntegration)
-			FMacIntegration->windowMenu()->addAction(action, 510);
-# else
-		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_CONSOLE_SHOW,true);
-# endif
+		if (FSystemIntegration && FSystemIntegration->isGlobalMenuPresent())
+			FSystemIntegration->addAction(ISystemIntegration::WindowRole, action, 510);
+		else
+			FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_CONSOLE_SHOW,true);
 #endif
 	}
 	return true;
