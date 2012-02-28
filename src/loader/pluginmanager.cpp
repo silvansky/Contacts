@@ -311,10 +311,6 @@ void PluginManager::loadSettings()
 			FDataPath = dir.absolutePath();
 	}
 
-	QPalette pal = QApplication::palette();
-	pal.setColor(QPalette::Link, StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR));
-	QApplication::setPalette(pal);
-
 	Log::setLogTypes(0);
 #ifdef LOG_ENABLED
 	QDir logDir(FDataPath);
@@ -351,6 +347,10 @@ void PluginManager::loadSettings()
 	FileStorage::setResourcesDirs(FileStorage::resourcesDirs()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");
+
+	QPalette pal = QApplication::palette();
+	pal.setColor(QPalette::Link, StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR));
+	QApplication::setPalette(pal);
 
 #ifdef Q_WS_MAC
 	//qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO512));
