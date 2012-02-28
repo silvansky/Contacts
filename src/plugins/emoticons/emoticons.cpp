@@ -2,6 +2,7 @@
 
 #include <QSet>
 #include <QTextBlock>
+#include <algorithm>
 
 #define DEFAULT_ICONSET                 "smiles"
 
