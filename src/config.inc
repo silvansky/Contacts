@@ -9,11 +9,6 @@ CONFIG(debug, debug|release) {
   # release definitions
 }
 
-win32-msvc2008: {
-  QMAKE_CXXFLAGS += /nologo
-  QMAKE_LFLAGS += /nologo
-}
-
 macx: {
   TARGET_LOADER            = Contacts
 } else {
