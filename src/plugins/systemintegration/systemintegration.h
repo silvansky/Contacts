@@ -40,8 +40,8 @@ public:
 	virtual void postSystemNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 	virtual void showSystemNotificationsSettings();
 signals:
-	virtual void dockClicked();
-	virtual void systemNotificationClicked(int);
+	void dockClicked();
+	void systemNotificationClicked(int);
 private:
 	ISystemIntegrationImplementation * impl;
 };
