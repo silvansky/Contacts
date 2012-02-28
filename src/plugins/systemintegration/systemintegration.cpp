@@ -197,9 +197,19 @@ void SystemIntegration::requestUserAttention()
 		impl->requestUserAttention();
 }
 
+bool SystemIntegration::isSystemNotificationsAccessible() const
+{
+	return (impl && impl->isSystemNotificationsAccessible());
+}
+
+QString SystemIntegration::systemNotificationsSystemName() const
+{
+	return impl->systemNotificationsSystemName();
+}
+
 bool SystemIntegration::isSystemNotificationsSettingsAccessible() const
 {
-	return impl ? impl->isSystemNotificationsSettingsAccessible() : false;
+	return (impl && impl->isSystemNotificationsSettingsAccessible());
 }
 
 void SystemIntegration::postSystemNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)

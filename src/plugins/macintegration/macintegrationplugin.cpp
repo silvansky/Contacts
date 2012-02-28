@@ -137,6 +137,16 @@ bool MacIntegrationPlugin::initSettings()
 	return true;
 }
 
+bool MacIntegrationPlugin::isSystemNotificationsAccessible() const
+{
+	return MacIntegrationPrivate::isGrowlInstalled();
+}
+
+QString MacIntegrationPlugin::systemNotificationsSystemName() const
+{
+	return "Growl";
+}
+
 bool MacIntegrationPlugin::isSystemNotificationsSettingsAccessible() const
 {
 	return MacIntegrationPrivate::isGrowlInstalled();

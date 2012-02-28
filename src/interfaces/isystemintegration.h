@@ -22,6 +22,8 @@ public:
 	virtual bool isGlobalMenuPresent() const = 0;
 	virtual bool isDockMenuPresent() const = 0;
 	virtual bool isDockPresent() const = 0;
+	virtual bool isSystemNotificationsAccessible() const = 0;
+	virtual QString systemNotificationsSystemName() const = 0;
 	virtual bool isSystemNotificationsSettingsAccessible() const = 0;
 
 	// menus
@@ -82,6 +84,8 @@ public:
 	virtual bool isRequestUserAttentionPresent() const = 0;
 	virtual void requestUserAttention() = 0;
 	// notifications
+	virtual bool isSystemNotificationsAccessible() const = 0;
+	virtual QString systemNotificationsSystemName() const = 0;
 	virtual bool isSystemNotificationsSettingsAccessible() const = 0;
 	virtual void postSystemNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id) = 0;
 	virtual void showSystemNotificationsSettings() = 0;

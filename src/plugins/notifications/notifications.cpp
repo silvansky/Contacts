@@ -222,10 +222,10 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 		}
 		else
 		{
-			widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Growl Notifications"),AParent));
+			widgets.insertMulti(OWO_NOTIFICATIONS_SYSTEM_NOTIFY_PREFS, FOptionsManager->optionsHeaderWidget(QString::null,tr("%1 Notifications").arg(FSystemIntegration->systemNotificationsSystemName()),AParent));
 			SystemNotifyPreferences * notifyPrefs = new SystemNotifyPreferences;
 			connect(notifyPrefs, SIGNAL(showPreferences()), SLOT(onShowSystemNotificationsSettings()));
-			widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, notifyPrefs);
+			widgets.insertMulti(OWO_NOTIFICATIONS_SYSTEM_NOTIFY_PREFS, notifyPrefs);
 		}
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Disable all popup windows and sounds"),AParent));

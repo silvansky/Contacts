@@ -37,6 +37,8 @@ public:
 	virtual bool isRequestUserAttentionPresent() const;
 	virtual void requestUserAttention();
 	// notifications
+	virtual bool isSystemNotificationsAccessible() const;
+	virtual QString systemNotificationsSystemName() const;
 	virtual bool isSystemNotificationsSettingsAccessible() const;
 	virtual void postSystemNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
 	virtual void showSystemNotificationsSettings();

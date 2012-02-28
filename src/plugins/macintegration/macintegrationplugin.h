@@ -48,6 +48,8 @@ public:
 	virtual bool isGlobalMenuPresent() const { return true; }
 	virtual bool isDockMenuPresent() const { return true; }
 	virtual bool isDockPresent() const { return true; }
+	virtual bool isSystemNotificationsAccessible() const;
+	virtual QString systemNotificationsSystemName() const;
 	virtual bool isSystemNotificationsSettingsAccessible() const;
 	virtual Menu * dockMenu();
 	virtual QMenuBar * menuBar();
