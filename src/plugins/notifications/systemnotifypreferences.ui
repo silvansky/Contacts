@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GrowlPreferences</class>
- <widget class="QWidget" name="GrowlPreferences">
+ <class>SystemNotifyPreferences</class>
+ <widget class="QWidget" name="SystemNotifyPreferences">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -21,7 +21,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QPushButton" name="configureGrowlButton">
+    <widget class="QPushButton" name="configureButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>

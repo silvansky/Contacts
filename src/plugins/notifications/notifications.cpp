@@ -7,7 +7,7 @@
 #include <utils/imagemanager.h>
 #include <definitions/notificationtypes.h>
 #include "notifykindswidgets.h"
-# include "growlpreferences.h"
+#include "systemnotifypreferences.h"
 
 #ifdef DEBUG_ENABLED
 # include <QDebug>
@@ -223,9 +223,9 @@ QMultiMap<int, IOptionsWidget *> Notifications::optionsWidgets(const QString &AN
 		else
 		{
 			widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, FOptionsManager->optionsHeaderWidget(QString::null,tr("Growl Notifications"),AParent));
-			GrowlPreferences * growlPrefs = new GrowlPreferences;
-			connect(growlPrefs, SIGNAL(showGrowlPreferences()), SLOT(onShowSystemNotificationsSettings()));
-			widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, growlPrefs);
+			SystemNotifyPreferences * notifyPrefs = new SystemNotifyPreferences;
+			connect(notifyPrefs, SIGNAL(showPreferences()), SLOT(onShowSystemNotificationsSettings()));
+			widgets.insertMulti(OWO_NOTIFICATIONS_GROWL_PREFS, notifyPrefs);
 		}
 
 		widgets.insertMulti(OWO_NOTIFICATIONS_IF_STATUS,FOptionsManager->optionsHeaderWidget(QString::null,tr("Disable all popup windows and sounds"),AParent));

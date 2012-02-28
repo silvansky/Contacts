@@ -5,17 +5,17 @@
 #include <interfaces/ioptionsmanager.h>
 
 namespace Ui {
-	class GrowlPreferences;
+	class SystemNotifyPreferences;
 }
 
-class GrowlPreferences : public QWidget, public IOptionsWidget
+class SystemNotifyPreferences : public QWidget, public IOptionsWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(IOptionsWidget)
 
 public:
-	explicit GrowlPreferences(QWidget *parent = 0);
-	~GrowlPreferences();
+	explicit SystemNotifyPreferences(QWidget *parent = 0);
+	~SystemNotifyPreferences();
 	// IOptionsWidget
 	QWidget* instance() { return this; }
 public slots:
@@ -28,13 +28,13 @@ signals:
 	void childReset();
 
 	// growl preferences
-	void showGrowlPreferences();
+	void showPreferences();
 
 private slots:
-    void onGrowlSettingsButtonClicked();
+	void onSettingsButtonClicked();
 
 private:
-	Ui::GrowlPreferences *ui;
+	Ui::SystemNotifyPreferences *ui;
 };
 
 #endif // GROWLPREFERENCES_H
