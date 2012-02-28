@@ -36,6 +36,7 @@
 #include <pjmedia-codec/ipp_codecs.h>
 #include <pjmedia-codec/passthrough.h>
 #include <pjmedia-codec/opencore_amrnb.h>
+#include <pjmedia-codec/x264_codec.h>
 
 
 #endif	/* __PJMEDIA_CODEC_PJMEDIA_CODEC_H__ */
