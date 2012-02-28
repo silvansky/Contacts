@@ -1,0 +1,1334 @@
+23:09:44.884 sip_endpoint.c  .Module "mod-pjsua-log" registered
+23:09:44.884 sip_endpoint.c  .Module "mod-tsx-layer" registered
+23:09:44.884 sip_endpoint.c  .Module "mod-stateful-util" registered
+23:09:44.884 sip_endpoint.c  .Module "mod-ua" registered
+23:09:44.884 sip_endpoint.c  .Module "mod-100rel" registered
+23:09:44.884 sip_endpoint.c  .Module "mod-pjsua" registered
+23:09:44.884 sip_endpoint.c  .Module "mod-invite" registered
+23:09:45.877     wmme_dev.c  ..WMME found 4 devices:
+23:09:45.877     wmme_dev.c  .. dev_id 0: Wave mapper  (in=2, out=2)
+23:09:45.877     wmme_dev.c  .. dev_id 1: Микрофон (Realtek High Definiti  (in=2, out=0)
+23:09:45.877     wmme_dev.c  .. dev_id 2: Громкоговоритель и наушники (Re  (in=0, out=2)
+23:09:45.877     wmme_dev.c  .. dev_id 3: Digital Output(Optical) (Realte  (in=0, out=2)
+23:09:45.877     wmme_dev.c  ..WMME initialized
+23:09:45.877          pjlib  ..select() I/O Queue created (009031A4)
+23:09:45.878   conference.c  ..Creating conference bridge with 254 ports
+23:09:45.878   Master/sound  ..Using delay buffer with WSOLA.
+23:09:45.882    pjsua_vid.c  ..Initializing video subsystem..
+23:09:45.883 ffmpeg_codecs.  ...The XVID codec is using base codec (MP4V)
+23:09:47.725    dshow_dev.c  ...DShow has 2 devices:
+23:09:47.725    dshow_dev.c  ... dev_id 0: Sony Visual Communication Camera (capture)
+23:09:47.725    dshow_dev.c  ... dev_id 1: Matrox A/V Input (capture)
+23:09:47.725 colorbar_dev.c  ...Colorbar video src initialized with 1 device(s):
+23:09:47.725 colorbar_dev.c  ... 0: Colorbar generator
+23:09:47.727      sdl_dev.c  ...SDL 1.3 initialized
+23:09:47.727 sip_endpoint.c  .Module "mod-evsub" registered
+23:09:47.727 sip_endpoint.c  .Module "mod-presence" registered
+23:09:47.727        evsub.c  .Event pkg "presence" registered by mod-presence
+23:09:47.727 sip_endpoint.c  .Module "mod-mwi" registered
+23:09:47.727        evsub.c  .Event pkg "message-summary" registered by mod-mwi
+23:09:47.727 sip_endpoint.c  .Module "mod-refer" registered
+23:09:47.727        evsub.c  .Event pkg "refer" registered by mod-refer
+23:09:47.727 sip_endpoint.c  .Module "mod-pjsua-pres" registered
+23:09:47.728 sip_endpoint.c  .Module "mod-pjsua-im" registered
+23:09:47.728 sip_endpoint.c  .Module "mod-pjsua-options" registered
+23:09:47.728   pjsua_core.c  .1 SIP worker threads created
+23:09:47.728   pjsua_core.c  .pjsua version 2.0.0-alpha2-svn for win32-6.1/i386/msvc-15.0 initialized
+23:09:47.729   pjsua_core.c  .PJSUA state changed: CREATED --> INIT
+23:09:47.734   pjsua_core.c  SIP UDP socket reachable at 172.16.1.53:5067
+23:09:47.734    udp00917D78  SIP UDP transport started, published address is 172.16.1.53:5067
+23:09:47.740   tcplis:49385  SIP TCP listener ready for incoming connections at 172.16.1.53:49385
+23:09:47.740    pjsua_acc.c  Adding account: id=sip:rvoip-1@vsip.rambler.ru
+23:09:47.740    pjsua_acc.c  .Account sip:rvoip-1@vsip.rambler.ru added with id 0
+23:09:47.740    pjsua_acc.c  .Acc 0: setting registration..
+23:09:47.740       endpoint  ..Request msg REGISTER/cseq=37027 (tdta0091C478) created.
+23:09:47.740    tsx0091D51C  ...Transaction created for Request msg REGISTER/cseq=37028 (tdta0091C478)
+23:09:47.740    tsx0091D51C  ..Sending Request msg REGISTER/cseq=37028 (tdta0091C478) in state Null
+23:09:47.740  sip_resolve.c  ...DNS resolver not available, target 'vsip.rambler.ru:0' type=Unspecified will be resolved with getaddrinfo()
+23:09:47.740  sip_resolve.c  ...Target 'vsip.rambler.ru:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+23:09:47.740   pjsua_core.c  ...TX 461 bytes Request msg REGISTER/cseq=37028 (tdta0091C478) to UDP 81.19.70.76:5060:
+REGISTER sip:vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPj8fb892dc87854479b3873d4a77a43b3a
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=5f61b3625b7340f1abce4ad6d8d64278
+t: <sip:rvoip-1@vsip.rambler.ru>
+i: 2fde4f9a775b42e98b8837c7a5dd8165
+CSeq: 37028 REGISTER
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Expires: 300
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+l:  0
+
+
+--end msg--
+23:09:47.740    tsx0091D51C  ...State changed from Null to Calling, event=TX_MSG
+23:09:47.740    pjsua_acc.c  ..Acc 0: Registration sent
+23:09:47.741     vidgui.cpp  Starting stack..
+23:09:47.741   pjsua_core.c  PJSUA state changed: INIT --> STARTING
+23:09:47.741  pjsua_media.c  ..NAT type detection failed: Invalid STUN server or server not configured (PJNATH_ESTUNINSERVER)
+23:09:47.741 sip_endpoint.c  .Module "mod-unsolicited-mwi" registered
+23:09:47.741   pjsua_core.c  .PJSUA state changed: STARTING --> RUNNING
+23:09:47.741     vidgui.cpp  Ready
+23:09:47.741 sip_endpoint.c  Module "mod-default-handler" registered
+23:09:47.844 sip_endpoint.c !Processing incoming message: Response msg 401/REGISTER/cseq=37028 (rdata0091924C)
+23:09:47.844   pjsua_core.c  .RX 472 bytes Response msg 401/REGISTER/cseq=37028 (rdata0091924C) from UDP 81.19.70.76:5060:
+SIP/2.0 401 Unauthorized
+v: SIP/2.0/UDP 172.16.1.53:5067;rport=5067;branch=z9hG4bKPj8fb892dc87854479b3873d4a77a43b3a
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=5f61b3625b7340f1abce4ad6d8d64278
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=55f576c530866cae25bd5851ec979fff.e54d
+i: 2fde4f9a775b42e98b8837c7a5dd8165
+CSeq: 37028 REGISTER
+WWW-Authenticate: Digest realm="vsip.rambler.ru", nonce="4ef4d21700005b5685ae99abdf391285b9e6df85580aa514"
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+23:09:47.844    tsx0091D51C  .Incoming Response msg 401/REGISTER/cseq=37028 (rdata0091924C) in state Calling
+23:09:47.845    tsx0091D51C  ..State changed from Calling to Completed, event=RX_MSG
+23:09:47.845    tsx0091FCDC  ....Transaction created for Request msg REGISTER/cseq=37029 (tdta0091C478)
+23:09:47.845    tsx0091FCDC  ...Sending Request msg REGISTER/cseq=37029 (tdta0091C478) in state Null
+23:09:47.845       endpoint  ....Request msg REGISTER/cseq=37029 (tdta0091C478): skipping target resolution because address is already set
+23:09:47.845   pjsua_core.c  ....TX 658 bytes Request msg REGISTER/cseq=37029 (tdta0091C478) to UDP 81.19.70.76:5060:
+REGISTER sip:vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPj8ff0e56a48a84c56a3bb2edde998b05d
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=5f61b3625b7340f1abce4ad6d8d64278
+t: <sip:rvoip-1@vsip.rambler.ru>
+i: 2fde4f9a775b42e98b8837c7a5dd8165
+CSeq: 37029 REGISTER
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Expires: 300
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+Authorization: Digest username="rvoip-1", realm="vsip.rambler.ru", nonce="4ef4d21700005b5685ae99abdf391285b9e6df85580aa514", uri="sip:vsip.rambler.ru", response="3d8a6455acae0a017a3f1e8181b1fce8"
+l:  0
+
+
+--end msg--
+23:09:47.845    tsx0091FCDC  ....State changed from Null to Calling, event=TX_MSG
+23:09:47.855 sip_endpoint.c  Processing incoming message: Response msg 200/REGISTER/cseq=37029 (rdata0091924C)
+23:09:47.855   pjsua_core.c  .RX 442 bytes Response msg 200/REGISTER/cseq=37029 (rdata0091924C) from UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 172.16.1.53:5067;rport=5067;branch=z9hG4bKPj8ff0e56a48a84c56a3bb2edde998b05d
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=5f61b3625b7340f1abce4ad6d8d64278
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=55f576c530866cae25bd5851ec979fff.da01
+i: 2fde4f9a775b42e98b8837c7a5dd8165
+CSeq: 37029 REGISTER
+Contact: <sip:rvoip-1@172.16.1.53:5067;ob>;expires=300;received="sip:172.16.1.53:5067"
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+23:09:47.855    tsx0091FCDC  .Incoming Response msg 200/REGISTER/cseq=37029 (rdata0091924C) in state Calling
+23:09:47.855    tsx0091FCDC  ..State changed from Calling to Completed, event=RX_MSG
+23:09:47.855    pjsua_acc.c  ....SIP outbound status for acc 0 is not active
+23:09:47.855    pjsua_acc.c  ....sip:rvoip-1@vsip.rambler.ru: registration success, status=200 (OK), will re-register in 300 seconds
+23:09:47.855    pjsua_acc.c  ....Keep-alive timer started for acc 0, destination:81.19.70.76:5060, interval:15s
+23:09:47.855     vidgui.cpp  ....sip:rvoip-1@vsip.rambler.ru: 200/OK (expires=295)
+
+23:09:52.845    tsx0091D51C  Timeout timer event
+23:09:52.845    tsx0091D51C  .State changed from Completed to Terminated, event=TIMER
+23:09:52.845    tsx0091D51C  Timeout timer event
+23:09:52.845    tsx0091D51C  .State changed from Terminated to Destroyed, event=TIMER
+23:09:52.845    tsx0091D51C  ..Transaction destroyed!
+23:09:52.854    tsx0091FCDC  Timeout timer event
+23:09:52.854    tsx0091FCDC  .State changed from Completed to Terminated, event=TIMER
+23:09:52.854    tsx0091FCDC  Timeout timer event
+23:09:52.854    tsx0091FCDC  .State changed from Terminated to Destroyed, event=TIMER
+23:09:52.854   tdta0091C478  ..Destroying txdata Request msg REGISTER/cseq=37029 (tdta0091C478)
+23:09:52.854    tsx0091FCDC  ..Transaction destroyed!
+23:10:02.855    pjsua_acc.c  Sending 2 bytes keep-alive packet for acc 0 to 81.19.70.76:5060
+23:10:02.855   tdta0095D8F8  Destroying txdata raw
+23:10:14.702 sip_endpoint.c  Processing incoming message: Request msg INVITE/cseq=30223 (rdata0091924C)
+23:10:14.702   pjsua_core.c  .RX 1416 bytes Request msg INVITE/cseq=30223 (rdata0091924C) from UDP 81.19.70.76:5060:
+INVITE sip:rvoip-1@172.16.1.53:5067;ob SIP/2.0
+Record-Route: <sip:81.19.70.76;lr=on;did=1ae.c253e79>
+Via: SIP/2.0/UDP 81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;received=81.19.90.124;rport=5067;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Max-Forwards: 69
+f: sip:spendtime@vsip.rambler.ru;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: sip:rvoip-1@vsip.rambler.ru
+m: <sip:spendtime@81.19.90.124:5067;ob>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 30223 INVITE
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800
+Min-SE: 90
+Proxy-Authorization: Digest username="spendtime", realm="vsip.rambler.ru", nonce="4ef4d23200005b579847607efb23f6cd5eb3928d664871b3", uri="sip:rvoip-1@vsip.rambler.ru", response="577565acc52e73b037205169d7ff017e"
+c: application/sdp
+Content-Length: 509
+
+v=0
+o=- 3533670609 3533670609 IN IP4 81.19.70.74
+s=pjmedia
+c=IN IP4 81.19.90.124
+t=0 0
+a=X-nat:0
+m=audio 50462 RTP/AVP 3 0 8 96
+c=IN IP4 81.19.70.74
+a=rtcp:50463 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 37208 RTP/AVP 97
+c=IN IP4 81.19.70.74
+a=rtcp:37209 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+a=sdpmangled:yes
+
+--end msg--
+23:10:14.702   pjsua_call.c  .Incoming Request msg INVITE/cseq=30223 (rdata0091924C)
+23:10:14.703    tsx0095E19C  ...Transaction created for Request msg INVITE/cseq=30223 (rdata0091924C)
+23:10:14.703    tsx0095E19C  ..Incoming Request msg INVITE/cseq=30223 (rdata0091924C) in state Null
+23:10:14.703    tsx0095E19C  ...State changed from Null to Trying, event=RX_MSG
+23:10:14.703    dlg0095D95C  ....Transaction tsx0095E19C state changed to Trying
+23:10:14.703    dlg0095D95C  ..UAS dialog created
+23:10:14.703    dlg0095D95C  ..Module mod-invite added as dialog usage, data=008C31A0
+23:10:14.703    dlg0095D95C  ...Session count inc to 2 by mod-invite
+23:10:14.703    inv0095D95C  ..UAS invite session created for dialog dlg0095D95C
+23:10:14.703  pjsua_media.c  ..Call 0: initializing media..
+23:10:14.708  pjsua_media.c  ...RTP socket reachable at 172.16.1.53:40000
+23:10:14.708  pjsua_media.c  ...RTCP socket reachable at 172.16.1.53:40001
+23:10:14.713  pjsua_media.c  ...RTP socket reachable at 172.16.1.53:40002
+23:10:14.713  pjsua_media.c  ...RTCP socket reachable at 172.16.1.53:40003
+23:10:14.713  pjsua_media.c  ...Media index 0 selected for audio call 0
+23:10:16.659   pjsua_call.c  ..Call 0: remote NAT type is 0 (Unknown)
+23:10:16.659       endpoint  ...Response msg 100/INVITE/cseq=30223 (tdta0092BB48) created
+23:10:16.659    dlg0095D95C  ...Initial answer Response msg 100/INVITE/cseq=30223 (tdta0092BB48)
+23:10:16.659    inv0095D95C  ...Sending Response msg 100/INVITE/cseq=30223 (tdta0092BB48)
+23:10:16.659    dlg0095D95C  ....Sending Response msg 100/INVITE/cseq=30223 (tdta0092BB48)
+23:10:16.659    tsx0095E19C  ....Sending Response msg 100/INVITE/cseq=30223 (tdta0092BB48) in state Trying
+23:10:16.659  sip_resolve.c  .....Target '81.19.70.76:5060' type=UDP resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+23:10:16.659   pjsua_core.c  .....TX 440 bytes Response msg 100/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 100 Trying
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>
+CSeq: 30223 INVITE
+l:  0
+
+
+--end msg--
+23:10:16.660    tsx0095E19C  .....State changed from Trying to Proceeding, event=TX_MSG
+23:10:16.660    dlg0095D95C  ......Transaction tsx0095E19C state changed to Proceeding
+23:10:16.660     vidgui.cpp  ........Call is INCOMING
+23:10:17.930     vidgui.cpp  ..Incoming call from <sip:spendtime@vsip.rambler.ru>
+23:10:17.930 sip_endpoint.c  Processing incoming message: Request msg INVITE/cseq=30223 (rdata0091924C)
+23:10:17.930   pjsua_core.c  .RX 1416 bytes Request msg INVITE/cseq=30223 (rdata0091924C) from UDP 81.19.70.76:5060:
+INVITE sip:rvoip-1@172.16.1.53:5067;ob SIP/2.0
+Record-Route: <sip:81.19.70.76;lr=on;did=1ae.c253e79>
+Via: SIP/2.0/UDP 81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;received=81.19.90.124;rport=5067;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Max-Forwards: 69
+f: sip:spendtime@vsip.rambler.ru;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: sip:rvoip-1@vsip.rambler.ru
+m: <sip:spendtime@81.19.90.124:5067;ob>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 30223 INVITE
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800
+Min-SE: 90
+Proxy-Authorization: Digest username="spendtime", realm="vsip.rambler.ru", nonce="4ef4d23200005b579847607efb23f6cd5eb3928d664871b3", uri="sip:rvoip-1@vsip.rambler.ru", response="577565acc52e73b037205169d7ff017e"
+c: application/sdp
+Content-Length: 509
+
+v=0
+o=- 3533670609 3533670609 IN IP4 81.19.70.74
+s=pjmedia
+c=IN IP4 81.19.90.124
+t=0 0
+a=X-nat:0
+m=audio 50462 RTP/AVP 3 0 8 96
+c=IN IP4 81.19.70.74
+a=rtcp:50463 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 37208 RTP/AVP 97
+c=IN IP4 81.19.70.74
+a=rtcp:37209 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+a=sdpmangled:yes
+
+--end msg--
+23:10:17.930    tsx0095E19C  .Incoming Request msg INVITE/cseq=30223 (rdata0091924C) in state Proceeding
+23:10:17.930   pjsua_core.c  ..TX 440 bytes Response msg 100/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 100 Trying
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>
+CSeq: 30223 INVITE
+l:  0
+
+
+--end msg--
+23:10:17.930 sip_endpoint.c  Processing incoming message: Request msg INVITE/cseq=30223 (rdata0092EB1C)
+23:10:17.930   pjsua_core.c  .RX 1416 bytes Request msg INVITE/cseq=30223 (rdata0092EB1C) from UDP 81.19.70.76:5060:
+INVITE sip:rvoip-1@172.16.1.53:5067;ob SIP/2.0
+Record-Route: <sip:81.19.70.76;lr=on;did=1ae.c253e79>
+Via: SIP/2.0/UDP 81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;received=81.19.90.124;rport=5067;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Max-Forwards: 69
+f: sip:spendtime@vsip.rambler.ru;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: sip:rvoip-1@vsip.rambler.ru
+m: <sip:spendtime@81.19.90.124:5067;ob>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 30223 INVITE
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800
+Min-SE: 90
+Proxy-Authorization: Digest username="spendtime", realm="vsip.rambler.ru", nonce="4ef4d23200005b579847607efb23f6cd5eb3928d664871b3", uri="sip:rvoip-1@vsip.rambler.ru", response="577565acc52e73b037205169d7ff017e"
+c: application/sdp
+Content-Length: 509
+
+v=0
+o=- 3533670609 3533670609 IN IP4 81.19.70.74
+s=pjmedia
+c=IN IP4 81.19.90.124
+t=0 0
+a=X-nat:0
+m=audio 50462 RTP/AVP 3 0 8 96
+c=IN IP4 81.19.70.74
+a=rtcp:50463 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 37208 RTP/AVP 97
+c=IN IP4 81.19.70.74
+a=rtcp:37209 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+a=sdpmangled:yes
+
+--end msg--
+23:10:17.930    tsx0095E19C  .Incoming Request msg INVITE/cseq=30223 (rdata0092EB1C) in state Proceeding
+23:10:17.930   pjsua_core.c  ..TX 440 bytes Response msg 100/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 100 Trying
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>
+CSeq: 30223 INVITE
+l:  0
+
+
+--end msg--
+23:10:17.931    pjsua_acc.c  Sending 2 bytes keep-alive packet for acc 0 to 81.19.70.76:5060
+23:10:17.931   tdta009195A0  Destroying txdata raw
+23:10:20.366   pjsua_call.c !Answering call 0: code=200
+23:10:20.367    inv0095D95C  ..SDP negotiation done, status=0
+23:10:20.367   pjsua_call.c  ...Call 0: remote NAT type is 0 (Unknown)
+23:10:20.367  pjsua_media.c  ...Call 0: updating media..
+23:10:20.367  pjsua_media.c  .....Media session call00:0 is destroyed
+23:10:20.367  pjsua_media.c  .....Media session call00:1 is destroyed
+23:10:20.367  pjsua_media.c  ....Audio channel update..
+23:10:20.367   strm03375F4C  .....VAD temporarily disabled
+23:10:20.367          rtp.c  .....pjmedia_rtp_session_init: ses=03375D18, default_pt=3, ssrc=0x294823
+23:10:20.367          rtp.c  .....pjmedia_rtp_session_init: ses=03375EBC, default_pt=3, ssrc=0x294823
+23:10:20.367       stream.c  .....Stream strm03375F4C created
+23:10:20.367   strm03375F4C  .....Encoder stream started
+23:10:20.367   strm03375F4C  .....Decoder stream started
+23:10:20.367     resample.c  .....resample created: high qualiy, large filter, in/out rate=8000/16000
+23:10:20.367     resample.c  .....resample created: high qualiy, large filter, in/out rate=16000/8000
+23:10:20.367  pjsua_media.c  .....Audio updated, stream #0: GSM (sendrecv)
+23:10:20.367    pjsua_vid.c  ....Video channel update..
+23:10:20.605          rtp.c  .....pjmedia_rtp_session_init: ses=0093AC94, default_pt=97, ssrc=0x18be6784
+23:10:20.605 vstdec0093A79C  .....Decoding channel created 720x576 I420<-H264 30000/1001(~29)fps
+23:10:20.606          rtp.c  .....pjmedia_rtp_session_init: ses=0093AD48, default_pt=97, ssrc=0x18be6784
+23:10:20.606 vstenc0093A79C  .....Encoding channel created 720x480 I420->H264 30000/1001(~29)fps
+23:10:20.608   vid_stream.c  .....Video stream vstrm0093A79C created
+23:10:20.608 vstenc0093A79C  .....Encoder stream started
+23:10:20.608 vstdec0093A79C  .....Decoder stream started
+23:10:20.608    pjsua_vid.c  .....Setting up RX..
+23:10:20.608    pjsua_vid.c  ......Creating video window: type=stream, cap_id=-1, rend_id=3
+23:10:20.608     vid_port.c  .......Opening device SDL renderer [SDL] for render: format=I420, size=720x576 @30000:1001 fps
+23:10:21.686     vid_port.c  .......Device SDL renderer [SDL] opened: format=I420, size=720x576 @30000:1001 fps
+23:10:21.687    pjsua_vid.c  .......stream window id 0 created for cap_dev=-1 rend_dev=3
+23:10:21.687    pjsua_vid.c  .......Window 0 created
+23:10:21.687      sdl_dev.c  ......Starting sdl video stream
+23:10:21.687    pjsua_vid.c  .....Setting up TX..
+23:10:21.687    pjsua_vid.c  ......Creating video window: type=preview, cap_id=0, rend_id=3
+23:10:21.687     vid_port.c  .......Opening device Sony Visual Communication Camera [dshow] for capture: format=YUY2, size=720x480 @30000:1001 fps
+23:10:21.699    dshow_dev.c  .......Error creating filter graph: Указан неправильный тип носителя. (hr=0x80040200)
+23:10:21.701    dshow_dev.c  .......Trying to open dshow dev with default fps
+23:10:21.708    dshow_dev.c  .......Error creating filter graph: Указан неправильный тип носителя. (hr=0x80040200)
+23:10:21.709    dshow_dev.c  .......Trying to open dshow dev with default size & fps
+23:10:21.722     vid_port.c  .......Device Sony Visual Communication Camera [dshow] opened: format=YUY2, size=640x480 @10000000:333333 fps
+23:10:21.746     vid_port.c  .......Opening device SDL renderer [SDL] for render: format=I420, size=720x480 @30000:1001 fps
+23:10:21.806     vid_port.c  .......Device SDL renderer [SDL] opened: format=I420, size=720x480 @30000:1001 fps
+23:10:21.806    pjsua_vid.c  .......preview window id 1 created for cap_dev=0 rend_dev=3
+23:10:21.806    pjsua_vid.c  .......Window 1 created
+23:10:21.837    dshow_dev.c  ......Starting dshow video stream
+23:10:21.837    pjsua_vid.c  .....Video updated, stream #1: H264 (sendrecv)
+23:10:21.837  pjsua_media.c  ...Conf connect: 1 --> 0
+23:10:21.837  pjsua_media.c  ....Set sound device: capture=-1, playback=-2
+23:10:21.838  pjsua_media.c  .....Opening sound device PCM@16000/1/20ms
+23:10:22.125     wmme_dev.c  ...... WaveAPI Sound player "Wave mapper" initialized (format=PCM, clock_rate=16000, channel_count=1, samples_per_frame=320 (20ms))
+23:10:22.159     wmme_dev.c  ...... WaveAPI Sound recorder "Wave mapper" initialized (format=PCM, clock_rate=16000, channel_count=1, samples_per_frame=320 (20ms))
+23:10:22.246     ec0095D490  ......Creating AEC
+23:10:22.247     ec0095D490  ......Using delay buffer with WSOLA.
+23:10:22.247     ec0095D490  ......AEC created, clock_rate=16000, channel=1, samples per frame=320, tail length=200 ms, latency=100 ms
+23:10:22.247     wmme_dev.c  ......WMME playback stream started
+23:10:22.247     wmme_dev.c  ......WMME capture stream started
+23:10:22.248   conference.c  ....Port 1 (sip:spendtime@vsip.rambler.ru) transmitting to port 0 (Wave mapper)
+23:10:22.248  pjsua_media.c  ...Conf connect: 0 --> 1
+23:10:22.248   conference.c  ....Port 0 (Wave mapper) transmitting to port 1 (sip:spendtime@vsip.rambler.ru)
+23:10:22.254     vidwin.cpp  ...0001093C size = 721x577
+23:10:22.260     ec0095D490 !Prefetching..
+23:10:22.280     ec0095D490  Prefetching..
+23:10:22.288   strm03375F4C  Jitter buffer is bufferring (prefetch=0), plc invoked
+23:10:22.288   strm03375F4C  Start talksprut..
+23:10:22.300     ec0095D490  Prefetching..
+23:10:22.321     ec0095D490  Prefetching..
+23:10:22.341     ec0095D490  Prefetching..
+23:10:22.362     ec0095D490  Prefetching..
+23:10:22.382     ec0095D490  Prefetching..
+23:10:22.390     ec0095D490  Latency bufferring complete
+23:10:22.608     vidwin.cpp !...0001093C new parent handle = 00010952
+23:10:22.608    inv0095D95C  ..Sending Response msg 200/INVITE/cseq=30223 (tdta0092BB48)
+23:10:22.608    dlg0095D95C  ...Sending Response msg 200/INVITE/cseq=30223 (tdta0092BB48)
+23:10:22.608    tsx0095E19C  ...Sending Response msg 200/INVITE/cseq=30223 (tdta0092BB48) in state Proceeding
+23:10:22.608   pjsua_core.c  ....TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:22.608    tsx0095E19C  ....State changed from Proceeding to Completed, event=TX_MSG
+23:10:22.608    dlg0095D95C  .....Transaction tsx0095E19C state changed to Completed
+23:10:22.608     vidgui.cpp  .......Call is CONNECTING
+23:10:22.659   strm03375F4C !RTP status: badpt=0, badssrc=0, dup=0, outorder=0, probation=-1, restart=0
+23:10:22.674   strm03375F4C !Jitter buffer starts returning normal frames (after 19 empty/lost)
+23:10:22.758     vidwin.cpp !0001093C new size = 721x577
+23:10:22.908   strm03375F4C !VAD re-enabled
+23:10:22.908   strm03375F4C  Starting silence
+23:10:23.108    tsx0095E19C !Retransmit timer event
+23:10:23.108    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=0, restart?=1
+23:10:23.108   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:23.293   strm03375F4C !Jitter buffer empty (prefetch=0), plc invoked
+23:10:23.771    dshow_dev.c !Capture thread started
+23:10:24.108    tsx0095E19C !Retransmit timer event
+23:10:24.108    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=1, restart?=1
+23:10:24.108   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:24.889   silencedet.c !Re-adjust threshold (in silence)to 436
+23:10:25.509   silencedet.c  Starting talk burst (level=509 threshold=436)
+23:10:25.509   strm03375F4C  Start talksprut..
+23:10:26.108    tsx0095E19C !Retransmit timer event
+23:10:26.108    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=2, restart?=1
+23:10:26.108   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:26.413   silencedet.c !Starting silence (level=104 threshold=350)
+23:10:26.413   strm03375F4C  Starting silence
+23:10:26.931   silencedet.c  Starting talk burst (level=548 threshold=350)
+23:10:26.931   strm03375F4C  Start talksprut..
+23:10:27.692   strm03375F4C  Jitter buffer starts returning normal frames (after 220 empty/lost)
+23:10:27.712   strm03375F4C  Jitter buffer empty (prefetch=0), plc invoked
+23:10:27.936   silencedet.c  Starting silence (level=55 threshold=206)
+23:10:27.936   strm03375F4C  Starting silence
+23:10:27.977   silencedet.c  Starting talk burst (level=258 threshold=206)
+23:10:27.977   strm03375F4C  Start talksprut..
+23:10:28.769   silencedet.c  Starting silence (level=98 threshold=104)
+23:10:28.769   strm03375F4C  Starting silence
+23:10:28.911   silencedet.c  Starting talk burst (level=142 threshold=104)
+23:10:28.912   strm03375F4C  Start talksprut..
+23:10:29.409   silencedet.c  Starting silence (level=26 threshold=46)
+23:10:29.409   strm03375F4C  Starting silence
+23:10:29.553   silencedet.c  Starting talk burst (level=69 threshold=46)
+23:10:29.553   strm03375F4C  Start talksprut..
+23:10:30.109    tsx0095E19C !Retransmit timer event
+23:10:30.109    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=3, restart?=1
+23:10:30.109   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:32.731   strm03375F4C !Jitter buffer starts returning normal frames (after 251 empty/lost)
+23:10:32.752   strm03375F4C  Jitter buffer empty (prefetch=0), plc invoked
+23:10:32.924    pjsua_acc.c !Sending 2 bytes keep-alive packet for acc 0 to 81.19.70.76:5060
+23:10:32.924   tdta034CE048  Destroying txdata raw
+23:10:33.138   silencedet.c !Starting silence (level=10 threshold=32)
+23:10:33.138   strm03375F4C  Starting silence
+23:10:33.433   silencedet.c  Starting talk burst (level=99 threshold=32)
+23:10:33.433   strm03375F4C  Start talksprut..
+23:10:34.109    tsx0095E19C !Retransmit timer event
+23:10:34.109    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=4, restart?=1
+23:10:34.109   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:36.877   silencedet.c !Starting silence (level=13 threshold=26)
+23:10:36.877   strm03375F4C  Starting silence
+23:10:37.049   silencedet.c  Starting talk burst (level=38 threshold=26)
+23:10:37.049   strm03375F4C  Start talksprut..
+23:10:37.750   strm03375F4C  Jitter buffer starts returning normal frames (after 250 empty/lost)
+23:10:37.770   strm03375F4C  Jitter buffer empty (prefetch=0), plc invoked
+23:10:38.108    tsx0095E19C !Retransmit timer event
+23:10:38.108    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=5, restart?=1
+23:10:38.108   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:38.471   silencedet.c !Starting silence (level=8 threshold=26)
+23:10:38.471   strm03375F4C  Starting silence
+23:10:38.674   silencedet.c  Starting talk burst (level=67 threshold=26)
+23:10:38.675   strm03375F4C  Start talksprut..
+23:10:42.108    tsx0095E19C !Retransmit timer event
+23:10:42.108    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=6, restart?=1
+23:10:42.108   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:42.830   sound_port.c !EC suspended because of inactivity
+23:10:46.108    tsx0095E19C !Retransmit timer event
+23:10:46.108    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=7, restart?=1
+23:10:46.108   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:46.852   silencedet.c !Re-adjust threshold (in talk burst)to 49
+23:10:47.925    pjsua_acc.c !Sending 2 bytes keep-alive packet for acc 0 to 81.19.70.76:5060
+23:10:47.925   tdta034CE048  Destroying txdata raw
+23:10:50.109    tsx0095E19C  Retransmit timer event
+23:10:50.109    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=8, restart?=1
+23:10:50.109   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:50.876   silencedet.c !Re-adjust threshold (in talk burst)to 66
+23:10:54.109    tsx0095E19C !Retransmit timer event
+23:10:54.109    tsx0095E19C  .Retransmiting Response msg 200/INVITE/cseq=30223 (tdta0092BB48), count=9, restart?=1
+23:10:54.109   pjsua_core.c  .TX 1131 bytes Response msg 200/INVITE/cseq=30223 (tdta0092BB48) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb291.bfe7c242.0
+v: SIP/2.0/UDP 81.19.90.124:5067;rport=5067;received=81.19.90.124;branch=z9hG4bKPj5ca699494d6745d39d976dcc2fd2652e
+Record-Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+f: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+CSeq: 30223 INVITE
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533670616 3533670617 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+23:10:54.609    tsx0095E19C  Timeout timer event
+23:10:54.609    tsx0095E19C  .State changed from Completed to Terminated, event=TIMER
+23:10:54.609    dlg0095D95C  ..Transaction tsx0095E19C state changed to Terminated
+23:10:54.609       endpoint  ...Request msg BYE/cseq=11539 (tdta034CE048) created.
+23:10:54.609    inv0095D95C  ....Sending Request msg BYE/cseq=11539 (tdta034CE048)
+23:10:54.609    dlg0095D95C  .....Sending Request msg BYE/cseq=11539 (tdta034CE048)
+23:10:54.609    tsx034CF0EC  ......Transaction created for Request msg BYE/cseq=11538 (tdta034CE048)
+23:10:54.609    tsx034CF0EC  .....Sending Request msg BYE/cseq=11538 (tdta034CE048) in state Null
+23:10:54.609  sip_resolve.c  ......Target '81.19.70.76:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+23:10:54.609   pjsua_core.c  ......TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:10:54.609    tsx034CF0EC  ......State changed from Null to Calling, event=TX_MSG
+23:10:54.609    dlg0095D95C  .......Transaction tsx034CF0EC state changed to Calling
+23:10:54.610    tsx0095E19C  Timeout timer event
+23:10:54.610    tsx0095E19C  .State changed from Terminated to Destroyed, event=TIMER
+23:10:54.610   tdta0092BB48  ..Destroying txdata Response msg 200/INVITE/cseq=30223 (tdta0092BB48)
+23:10:54.610    tsx0095E19C  ..Transaction destroyed!
+23:10:55.110    tsx034CF0EC  Retransmit timer event
+23:10:55.110    tsx034CF0EC  .Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=0, restart?=1
+23:10:55.110   pjsua_core.c  .TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:10:56.109    tsx034CF0EC  Retransmit timer event
+23:10:56.109    tsx034CF0EC  .Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=1, restart?=1
+23:10:56.109   pjsua_core.c  .TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:10:58.109    tsx034CF0EC  Retransmit timer event
+23:10:58.109    tsx034CF0EC  .Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=2, restart?=1
+23:10:58.109   pjsua_core.c  .TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:02.109    tsx034CF0EC  Retransmit timer event
+23:11:02.109    tsx034CF0EC  .Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=3, restart?=1
+23:11:02.109   pjsua_core.c  .TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:02.924    pjsua_acc.c  Sending 2 bytes keep-alive packet for acc 0 to 81.19.70.76:5060
+23:11:02.924   tdta034CF8C8  Destroying txdata raw
+23:11:06.110    tsx034CF0EC  Retransmit timer event
+23:11:06.110    tsx034CF0EC  .Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=4, restart?=1
+23:11:06.110   pjsua_core.c  .TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:10.110    tsx034CF0EC  Retransmit timer event
+23:11:10.110    tsx034CF0EC  .Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=5, restart?=1
+23:11:10.110   pjsua_core.c  .TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:14.110    tsx034CF0EC  Retransmit timer event
+23:11:14.110    tsx034CF0EC  .Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=6, restart?=1
+23:11:14.110   pjsua_core.c  .TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:17.925    pjsua_acc.c  Sending 2 bytes keep-alive packet for acc 0 to 81.19.70.76:5060
+23:11:17.925   tdta034CF8C8  Destroying txdata raw
+23:11:18.110    tsx034CF0EC  Retransmit timer event
+23:11:18.110    tsx034CF0EC  .Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=7, restart?=1
+23:11:18.110   pjsua_core.c  .TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:22.111    tsx034CF0EC  Retransmit timer event
+23:11:22.111    tsx034CF0EC  .Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=8, restart?=1
+23:11:22.111   pjsua_core.c  .TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:24.369     vidwin.cpp !0001093C revert parent handle to 00000000
+23:11:24.369   pjsua_core.c  PJSUA state changed: RUNNING --> CLOSING
+23:11:24.371          pjsua !Thread stack max usage=12833 by d:\dev\pjsiplast\pjlib\src\pj\pool_policy_malloc.c:37
+23:11:24.371   pjsua_core.c !Shutting down, flags=0...
+23:11:24.371   pjsua_call.c  .Hangup all calls..
+23:11:24.371   pjsua_call.c  ..Call 0 hanging up: code=0..
+23:11:24.371       endpoint  ....Request msg BYE/cseq=11540 (tdta0092B890) created.
+23:11:24.371    inv0095D95C  ....Sending Request msg BYE/cseq=11540 (tdta0092B890)
+23:11:24.371    dlg0095D95C  .....Sending Request msg BYE/cseq=11540 (tdta0092B890)
+23:11:24.372    tsx0092C934  ......Transaction created for Request msg BYE/cseq=11539 (tdta0092B890)
+23:11:24.372    tsx0092C934  .....Sending Request msg BYE/cseq=11539 (tdta0092B890) in state Null
+23:11:24.372  sip_resolve.c  ......Target '81.19.70.76:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+23:11:24.372   pjsua_core.c  ......TX 406 bytes Request msg BYE/cseq=11539 (tdta0092B890) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPj49936ed4028748eb9ee031b70ec7cc37
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11539 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:24.372    tsx0092C934  ......State changed from Null to Calling, event=TX_MSG
+23:11:24.372    dlg0095D95C  .......Transaction tsx0092C934 state changed to Calling
+23:11:24.372   pjsua_pres.c  .Shutting down presence..
+23:11:24.372  pjsua_media.c  .Shutting down media..
+23:11:24.372  pjsua_media.c  ...Closing Wave mapper sound playback device and Wave mapper sound capture device
+23:11:24.374     wmme_dev.c  ...Stopped WMME playback stream
+23:11:24.375     wmme_dev.c  ...Stopped WMME capture stream
+23:11:24.375     wmme_dev.c  ...Stopped WMME playback stream
+23:11:24.375     wmme_dev.c  ...Stopped WMME capture stream
+23:11:24.375     wmme_dev.c !WMME: thread stopping..
+23:11:24.375           wmme  Thread stack max usage=6285 by d:\dev\pjsiplast\pjlib\src\pj\string.c:175
+23:11:24.495  pjsua_media.c !..Call 0: deinitializing media..
+23:11:24.495   strm03375F4C  ....JB summary:
+  size=0/eff=0 prefetch=0 level=1
+  delay (min/max/avg/dev)=20/40/22/5 ms
+  burst (min/max/avg/dev)=1/2/1/0 frames
+  lost=0 discard=0 empty=3071
+23:11:24.495  pjsua_media.c  ....Media session call00:0 is destroyed
+23:11:24.495    pjsua_vid.c  ....Stopping video stream..
+23:11:28.206    dshow_dev.c  .....Stopping dshow video stream
+23:11:28.206    pjsua_vid.c  .....Window 1: destroying..
+23:11:29.708    dshow_dev.c  ......Stopping dshow video stream
+23:11:29.708     vid_port.c  ......Closing Sony Visual Communication Camera..
+23:11:31.158    dshow_dev.c  ......Stopping dshow video stream
+23:11:31.164      sdl_dev.c  ......Stopping sdl video stream
+23:11:31.164     vid_port.c  ......Closing SDL renderer..
+23:11:31.164      sdl_dev.c  ......Stopping sdl video stream
+23:11:31.213          clock !Thread stack max usage=765 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:924
+23:11:31.213      sdl_dev.c !.....Stopping sdl video stream
+23:11:31.213    pjsua_vid.c  .....Window 0: destroying..
+23:11:31.213      sdl_dev.c  ......Stopping sdl video stream
+23:11:31.213     vid_port.c  ......Closing SDL renderer..
+23:11:31.213      sdl_dev.c  ......Stopping sdl video stream
+23:11:31.404 vstdec0093A79C  .....JB summary:
+  size=0/eff=0 prefetch=0 level=0
+  delay (min/max/avg/dev)=0/0/0/0 ms
+  burst (min/max/avg/dev)=0/0/0/0 frames
+  lost=0 discard=0 empty=0
+23:11:31.405  pjsua_media.c  ....Media session call00:1 is destroyed
+23:11:31.406    pjsua_vid.c  ..Destroying video subsystem..
+23:11:31.406    pjsua_vid.c  ...Window 0: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 1: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 2: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 3: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 4: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 5: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 6: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 7: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 8: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 9: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 10: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 11: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 12: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 13: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 14: destroying..
+23:11:31.406    pjsua_vid.c  ...Window 15: destroying..
+23:11:31.406     sdl_thread !Thread stack max usage=509 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:1119
+23:11:31.407         job_th !Thread stack max usage=941 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:924
+23:11:31.408      ev_thread !Thread stack max usage=381 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:1119
+23:11:31.906          media !Thread stack max usage=6809 by d:\dev\pjsiplast\pjlib\src\pj\string.c:175
+23:11:31.907    pjsua_acc.c !.Acc 0: setting unregistration..
+23:11:31.907       endpoint  ..Request msg REGISTER/cseq=37029 (tdta00912058) created.
+23:11:31.907    tsx0093A3AC  ...Transaction created for Request msg REGISTER/cseq=37030 (tdta00912058)
+23:11:31.907    tsx0093A3AC  ..Sending Request msg REGISTER/cseq=37030 (tdta00912058) in state Null
+23:11:31.907  sip_resolve.c  ...DNS resolver not available, target 'vsip.rambler.ru:0' type=Unspecified will be resolved with getaddrinfo()
+23:11:31.908  sip_resolve.c  ...Target 'vsip.rambler.ru:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+23:11:31.908   pjsua_core.c  ...TX 367 bytes Request msg REGISTER/cseq=37030 (tdta00912058) to UDP 81.19.70.76:5060:
+REGISTER sip:vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjd99aea7d8d6440009686a75c5ef8d271
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=9a3a386c639e4340b4b18ca52d90a69f
+t: <sip:rvoip-1@vsip.rambler.ru>
+i: 2fde4f9a775b42e98b8837c7a5dd8165
+CSeq: 37030 REGISTER
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Expires: 0
+l:  0
+
+
+--end msg--
+23:11:31.908    tsx0093A3AC  ...State changed from Null to Calling, event=TX_MSG
+23:11:31.908    pjsua_acc.c  ..Acc 0: Unregistration sent
+23:11:31.908    tsx0092C934  .Retransmit timer event
+23:11:31.908    tsx0092C934  ..Retransmiting Request msg BYE/cseq=11539 (tdta0092B890), count=0, restart?=1
+23:11:31.908   pjsua_core.c  ..TX 406 bytes Request msg BYE/cseq=11539 (tdta0092B890) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPj49936ed4028748eb9ee031b70ec7cc37
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11539 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:31.908    tsx034CF0EC  .Retransmit timer event
+23:11:31.908    tsx034CF0EC  ..Retransmiting Request msg BYE/cseq=11538 (tdta034CE048), count=9, restart?=1
+23:11:31.908   pjsua_core.c  ..TX 406 bytes Request msg BYE/cseq=11538 (tdta034CE048) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:31.908    tsx034CF0EC  .Timeout timer event
+23:11:31.908    tsx034CF0EC  ..State changed from Calling to Terminated, event=TIMER
+23:11:31.908    dlg0095D95C  ...Transaction tsx034CF0EC state changed to Terminated
+23:11:31.908     vidgui.cpp  .....Call is DISCONNCTD (Decline)
+23:11:31.908  pjsua_media.c  .....Call 0: deinitializing media..
+23:11:31.908  pjsua_media.c  .......Media session call00:0 is destroyed
+23:11:31.908  pjsua_media.c  .......Media session call00:1 is destroyed
+23:11:31.908    dlg0095D95C  .....Session count dec to 1 by mod-invite
+23:11:31.908 sip_endpoint.c  .Processing incoming message: Response msg 408/BYE/cseq=11538 (rdata0092EB1C)
+23:11:31.908   pjsua_core.c  ..RX 359 bytes Response msg 408/BYE/cseq=11538 (rdata0092EB1C) from UDP 81.19.70.76:5060:
+SIP/2.0 408 Request Timeout
+v: SIP/2.0/UDP 172.16.1.53:5067;rport=5067;branch=z9hG4bKPjc7c3a0da0d98497296b642023876bfe4
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11538 BYE
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+23:11:31.909 sip_endpoint.c  ..Message Response msg 408/BYE/cseq=11538 (rdata0092EB1C) from 81.19.70.76:5060 was dropped/unhandled by any modules
+23:11:31.909    tsx034CF0EC  .Timeout timer event
+23:11:31.909    tsx034CF0EC  ..State changed from Terminated to Destroyed, event=TIMER
+23:11:31.909   tdta034CE048  ...Destroying txdata Request msg BYE/cseq=11538 (tdta034CE048)
+23:11:31.909    tsx034CF0EC  ...Transaction destroyed!
+23:11:31.910 sip_endpoint.c  .Processing incoming message: Response msg 401/REGISTER/cseq=37030 (rdata00913AB4)
+23:11:31.910   pjsua_core.c  ..RX 472 bytes Response msg 401/REGISTER/cseq=37030 (rdata00913AB4) from UDP 81.19.70.76:5060:
+SIP/2.0 401 Unauthorized
+v: SIP/2.0/UDP 172.16.1.53:5067;rport=5067;branch=z9hG4bKPjd99aea7d8d6440009686a75c5ef8d271
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=9a3a386c639e4340b4b18ca52d90a69f
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=55f576c530866cae25bd5851ec979fff.a50b
+i: 2fde4f9a775b42e98b8837c7a5dd8165
+CSeq: 37030 REGISTER
+WWW-Authenticate: Digest realm="vsip.rambler.ru", nonce="4ef4d27f00005b599fdf3f729b368825924bdad8102c2caa"
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+23:11:31.910    tsx0093A3AC  ..Incoming Response msg 401/REGISTER/cseq=37030 (rdata00913AB4) in state Calling
+23:11:31.910    tsx0093A3AC  ...State changed from Calling to Completed, event=RX_MSG
+23:11:31.910    tsx0093ABEC  .....Transaction created for Request msg REGISTER/cseq=37031 (tdta00912058)
+23:11:31.910    tsx0093ABEC  ....Sending Request msg REGISTER/cseq=37031 (tdta00912058) in state Null
+23:11:31.910       endpoint  .....Request msg REGISTER/cseq=37031 (tdta00912058): skipping target resolution because address is already set
+23:11:31.910   pjsua_core.c  .....TX 564 bytes Request msg REGISTER/cseq=37031 (tdta00912058) to UDP 81.19.70.76:5060:
+REGISTER sip:vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPjc86987c4bf4d4c638b4f2df2a17369af
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=9a3a386c639e4340b4b18ca52d90a69f
+t: <sip:rvoip-1@vsip.rambler.ru>
+i: 2fde4f9a775b42e98b8837c7a5dd8165
+CSeq: 37031 REGISTER
+m: <sip:rvoip-1@172.16.1.53:5067;ob>
+Expires: 0
+Authorization: Digest username="rvoip-1", realm="vsip.rambler.ru", nonce="4ef4d27f00005b599fdf3f729b368825924bdad8102c2caa", uri="sip:vsip.rambler.ru", response="d799e2a9bb0a5655c1d43cd5aae9f4a0"
+l:  0
+
+
+--end msg--
+23:11:31.910    tsx0093ABEC  .....State changed from Null to Calling, event=TX_MSG
+23:11:31.921 sip_endpoint.c  .Processing incoming message: Response msg 200/REGISTER/cseq=37031 (rdata00913AB4)
+23:11:31.921   pjsua_core.c  ..RX 354 bytes Response msg 200/REGISTER/cseq=37031 (rdata00913AB4) from UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 172.16.1.53:5067;rport=5067;branch=z9hG4bKPjc86987c4bf4d4c638b4f2df2a17369af
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=9a3a386c639e4340b4b18ca52d90a69f
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=55f576c530866cae25bd5851ec979fff.fad4
+i: 2fde4f9a775b42e98b8837c7a5dd8165
+CSeq: 37031 REGISTER
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+23:11:31.921    tsx0093ABEC  ..Incoming Response msg 200/REGISTER/cseq=37031 (rdata00913AB4) in state Calling
+23:11:31.921    tsx0093ABEC  ...State changed from Calling to Completed, event=RX_MSG
+23:11:31.921    pjsua_acc.c  .....sip:rvoip-1@vsip.rambler.ru: unregistration success
+23:11:31.921     vidgui.cpp  .....sip:rvoip-1@vsip.rambler.ru: 200/OK (expires=-1)
+
+23:11:32.908    tsx0092C934  .Retransmit timer event
+23:11:32.908    tsx0092C934  ..Retransmiting Request msg BYE/cseq=11539 (tdta0092B890), count=1, restart?=1
+23:11:32.908   pjsua_core.c  ..TX 406 bytes Request msg BYE/cseq=11539 (tdta0092B890) to UDP 81.19.70.76:5060:
+BYE sip:spendtime@81.19.90.124:5067;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5067;rport;branch=z9hG4bKPj49936ed4028748eb9ee031b70ec7cc37
+Max-Forwards: 70
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=739aed501b8040d9b67523936bf41480
+t: <sip:spendtime@vsip.rambler.ru>;tag=4a6eb7529bcc48c7ab670fea3b94fdfa
+i: 06ad6b040b4c448ca4a4b8e40b2690ed
+CSeq: 11539 BYE
+Route: <sip:81.19.70.76;lr;did=1ae.c253e79>
+l:  0
+
+
+--end msg--
+23:11:32.928   pjsua_core.c  .Destroying...
+23:11:32.928 sip_endpoint.c  .Destroying endpoing instance..
+23:11:32.928 sip_transactio  .Stopping transaction layer module
+23:11:32.928    tsx0093A3AC  .Request to terminate transaction
+23:11:32.928    tsx0093A3AC  ..State changed from Completed to Terminated, event=USER
+23:11:32.928    tsx0093A3AC  .Transaction destroyed!
+23:11:32.928    tsx0092C934  .Request to terminate transaction
+23:11:32.928    tsx0092C934  ..State changed from Calling to Terminated, event=USER
+23:11:32.928    dlg0095D95C  ...Transaction tsx0092C934 state changed to Terminated
+23:11:32.928    dlg0095D95C  ....Dialog destroyed
+23:11:32.928   tdta0092B890  .Destroying txdata Request msg BYE/cseq=11539 (tdta0092B890)
+23:11:32.928    tsx0092C934  .Transaction destroyed!
+23:11:32.928    tsx0093ABEC  .Request to terminate transaction
+23:11:32.928    tsx0093ABEC  ..State changed from Completed to Terminated, event=USER
+23:11:32.928   tdta00912058  .Destroying txdata Request msg REGISTER/cseq=37031 (tdta00912058)
+23:11:32.928    tsx0093ABEC  .Transaction destroyed!
+23:11:32.928 sip_endpoint.c  .Module "mod-default-handler" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-unsolicited-mwi" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-pjsua-options" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-pjsua-im" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-pjsua-pres" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-pjsua" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-stateful-util" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-refer" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-mwi" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-presence" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-evsub" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-invite" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-100rel" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-ua" unregistered
+23:11:32.928 sip_transactio  .Transaction layer module destroyed
+23:11:32.928 sip_endpoint.c  .Module "mod-tsx-layer" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-msg-print" unregistered
+23:11:32.928 sip_endpoint.c  .Module "mod-pjsua-log" unregistered
+23:11:32.928 sip_transport.  .Destroying transport manager
+23:11:32.929   tcplis:49385  .SIP TCP listener destroyed
+23:11:32.929 sip_endpoint.c  .Endpoint 008C4F8C destroyed
+23:11:32.929   pjsua_core.c  .PJSUA state changed: CLOSING --> NULL
+23:11:32.929   pjsua_core.c  .PJSUA destroyed...

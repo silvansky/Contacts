@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vidgui", "vidgui.vcproj", "{F8FCA7DF-8648-3DC7-918E-1E1A40C7F7BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F8FCA7DF-8648-3DC7-918E-1E1A40C7F7BF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F8FCA7DF-8648-3DC7-918E-1E1A40C7F7BF}.Debug|Win32.Build.0 = Debug|Win32
+		{F8FCA7DF-8648-3DC7-918E-1E1A40C7F7BF}.Release|Win32.ActiveCfg = Release|Win32
+		{F8FCA7DF-8648-3DC7-918E-1E1A40C7F7BF}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

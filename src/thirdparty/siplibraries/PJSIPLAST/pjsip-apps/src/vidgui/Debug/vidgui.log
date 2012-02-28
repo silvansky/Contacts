@@ -1,0 +1,1169 @@
+00:33:02.275 sip_endpoint.c  .Module "mod-pjsua-log" registered
+00:33:02.276 sip_endpoint.c  .Module "mod-tsx-layer" registered
+00:33:02.276 sip_endpoint.c  .Module "mod-stateful-util" registered
+00:33:02.276 sip_endpoint.c  .Module "mod-ua" registered
+00:33:02.276 sip_endpoint.c  .Module "mod-100rel" registered
+00:33:02.276 sip_endpoint.c  .Module "mod-pjsua" registered
+00:33:02.276 sip_endpoint.c  .Module "mod-invite" registered
+00:33:02.291     wmme_dev.c  ..WMME found 4 devices:
+00:33:02.291     wmme_dev.c  .. dev_id 0: Wave mapper  (in=2, out=2)
+00:33:02.291     wmme_dev.c  .. dev_id 1: Микрофон (Realtek High Definiti  (in=2, out=0)
+00:33:02.291     wmme_dev.c  .. dev_id 2: Громкоговоритель и наушники (Re  (in=0, out=2)
+00:33:02.291     wmme_dev.c  .. dev_id 3: Digital Output(Optical) (Realte  (in=0, out=2)
+00:33:02.291     wmme_dev.c  ..WMME initialized
+00:33:02.292          pjlib  ..select() I/O Queue created (0079C224)
+00:33:02.292   conference.c  ..Creating conference bridge with 254 ports
+00:33:02.292   Master/sound  ..Using delay buffer with WSOLA.
+00:33:02.297    pjsua_vid.c  ..Initializing video subsystem..
+00:33:02.297 ffmpeg_codecs.  ...The XVID codec is using base codec (MP4V)
+00:33:02.324    dshow_dev.c  ...DShow has 2 devices:
+00:33:02.324    dshow_dev.c  ... dev_id 0: Sony Visual Communication Camera (capture)
+00:33:02.324    dshow_dev.c  ... dev_id 1: Matrox A/V Input (capture)
+00:33:02.324 colorbar_dev.c  ...Colorbar video src initialized with 1 device(s):
+00:33:02.324 colorbar_dev.c  ... 0: Colorbar generator
+00:33:02.324      sdl_dev.c  ...SDL 1.3 initialized
+00:33:02.325 sip_endpoint.c  .Module "mod-evsub" registered
+00:33:02.325 sip_endpoint.c  .Module "mod-presence" registered
+00:33:02.325        evsub.c  .Event pkg "presence" registered by mod-presence
+00:33:02.325 sip_endpoint.c  .Module "mod-mwi" registered
+00:33:02.325        evsub.c  .Event pkg "message-summary" registered by mod-mwi
+00:33:02.325 sip_endpoint.c  .Module "mod-refer" registered
+00:33:02.325        evsub.c  .Event pkg "refer" registered by mod-refer
+00:33:02.325 sip_endpoint.c  .Module "mod-pjsua-pres" registered
+00:33:02.325 sip_endpoint.c  .Module "mod-pjsua-im" registered
+00:33:02.325 sip_endpoint.c  .Module "mod-pjsua-options" registered
+00:33:02.325   pjsua_core.c  .1 SIP worker threads created
+00:33:02.325   pjsua_core.c  .pjsua version 2.0.0-alpha2-svn for win32-6.1/i386/msvc-15.0 initialized
+00:33:02.325   pjsua_core.c  .PJSUA state changed: CREATED --> INIT
+00:33:02.329   pjsua_core.c  SIP UDP socket reachable at 172.16.1.53:5065
+00:33:02.329    udp05CC2BD8  SIP UDP transport started, published address is 172.16.1.53:5065
+00:33:02.334   tcplis:53054  SIP TCP listener ready for incoming connections at 172.16.1.53:53054
+00:33:02.334    pjsua_acc.c  Adding account: id=sip:spendtime@vsip.rambler.ru
+00:33:02.334    pjsua_acc.c  .Account sip:spendtime@vsip.rambler.ru added with id 0
+00:33:02.334    pjsua_acc.c  .Acc 0: setting registration..
+00:33:02.334       endpoint  ..Request msg REGISTER/cseq=39716 (tdta05CC6A78) created.
+00:33:02.334    tsx05CC7B0C  ...Transaction created for Request msg REGISTER/cseq=39717 (tdta05CC6A78)
+00:33:02.334    tsx05CC7B0C  ..Sending Request msg REGISTER/cseq=39717 (tdta05CC6A78) in state Null
+00:33:02.334  sip_resolve.c  ...DNS resolver not available, target 'vsip.rambler.ru:0' type=Unspecified will be resolved with getaddrinfo()
+00:33:02.334  sip_resolve.c  ...Target 'vsip.rambler.ru:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+00:33:02.334   pjsua_core.c  ...TX 467 bytes Request msg REGISTER/cseq=39717 (tdta05CC6A78) to UDP 81.19.70.76:5060:
+REGISTER sip:vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPj75652430b09c45b190cc5daccf276745
+Max-Forwards: 70
+f: <sip:spendtime@vsip.rambler.ru>;tag=f3196c09728a435cbbc93de630920b85
+t: <sip:spendtime@vsip.rambler.ru>
+i: 75cd8aed396c4007ab9db1d3c4442921
+CSeq: 39717 REGISTER
+m: <sip:spendtime@172.16.1.53:5065;ob>
+Expires: 300
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+l:  0
+
+
+--end msg--
+00:33:02.335    tsx05CC7B0C  ...State changed from Null to Calling, event=TX_MSG
+00:33:02.335    pjsua_acc.c  ..Acc 0: Registration sent
+00:33:02.335     vidgui.cpp  Starting stack..
+00:33:02.335   pjsua_core.c  PJSUA state changed: INIT --> STARTING
+00:33:02.335  pjsua_media.c  ..NAT type detection failed: Invalid STUN server or server not configured (PJNATH_ESTUNINSERVER)
+00:33:02.335 sip_endpoint.c  .Module "mod-unsolicited-mwi" registered
+00:33:02.335   pjsua_core.c  .PJSUA state changed: STARTING --> RUNNING
+00:33:02.335     vidgui.cpp  Ready
+00:33:02.335 sip_endpoint.c  Module "mod-default-handler" registered
+00:33:02.336 sip_endpoint.c !Processing incoming message: Response msg 401/REGISTER/cseq=39717 (rdata05CC42BC)
+00:33:02.336   pjsua_core.c  .RX 476 bytes Response msg 401/REGISTER/cseq=39717 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+SIP/2.0 401 Unauthorized
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;branch=z9hG4bKPj75652430b09c45b190cc5daccf276745
+f: <sip:spendtime@vsip.rambler.ru>;tag=f3196c09728a435cbbc93de630920b85
+t: <sip:spendtime@vsip.rambler.ru>;tag=55f576c530866cae25bd5851ec979fff.fe5d
+i: 75cd8aed396c4007ab9db1d3c4442921
+CSeq: 39717 REGISTER
+WWW-Authenticate: Digest realm="vsip.rambler.ru", nonce="4ef4e59a00005bbfa7fe63e3d2c418484daaf163676d888d"
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+00:33:02.336    tsx05CC7B0C  .Incoming Response msg 401/REGISTER/cseq=39717 (rdata05CC42BC) in state Calling
+00:33:02.336    tsx05CC7B0C  ..State changed from Calling to Completed, event=RX_MSG
+00:33:02.336    tsx05CCA2AC  ....Transaction created for Request msg REGISTER/cseq=39718 (tdta05CC6A78)
+00:33:02.336    tsx05CCA2AC  ...Sending Request msg REGISTER/cseq=39718 (tdta05CC6A78) in state Null
+00:33:02.336       endpoint  ....Request msg REGISTER/cseq=39718 (tdta05CC6A78): skipping target resolution because address is already set
+00:33:02.336   pjsua_core.c  ....TX 666 bytes Request msg REGISTER/cseq=39718 (tdta05CC6A78) to UDP 81.19.70.76:5060:
+REGISTER sip:vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPj78b93148fce34d5694121fa03b7882b4
+Max-Forwards: 70
+f: <sip:spendtime@vsip.rambler.ru>;tag=f3196c09728a435cbbc93de630920b85
+t: <sip:spendtime@vsip.rambler.ru>
+i: 75cd8aed396c4007ab9db1d3c4442921
+CSeq: 39718 REGISTER
+m: <sip:spendtime@172.16.1.53:5065;ob>
+Expires: 300
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+Authorization: Digest username="spendtime", realm="vsip.rambler.ru", nonce="4ef4e59a00005bbfa7fe63e3d2c418484daaf163676d888d", uri="sip:vsip.rambler.ru", response="696ae3ea0296ebed2da400f671fc77c6"
+l:  0
+
+
+--end msg--
+00:33:02.337    tsx05CCA2AC  ....State changed from Null to Calling, event=TX_MSG
+00:33:02.348 sip_endpoint.c  Processing incoming message: Response msg 200/REGISTER/cseq=39718 (rdata05CC42BC)
+00:33:02.348   pjsua_core.c  .RX 448 bytes Response msg 200/REGISTER/cseq=39718 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;branch=z9hG4bKPj78b93148fce34d5694121fa03b7882b4
+f: <sip:spendtime@vsip.rambler.ru>;tag=f3196c09728a435cbbc93de630920b85
+t: <sip:spendtime@vsip.rambler.ru>;tag=55f576c530866cae25bd5851ec979fff.eef7
+i: 75cd8aed396c4007ab9db1d3c4442921
+CSeq: 39718 REGISTER
+Contact: <sip:spendtime@172.16.1.53:5065;ob>;expires=300;received="sip:172.16.1.53:5065"
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+00:33:02.348    tsx05CCA2AC  .Incoming Response msg 200/REGISTER/cseq=39718 (rdata05CC42BC) in state Calling
+00:33:02.348    tsx05CCA2AC  ..State changed from Calling to Completed, event=RX_MSG
+00:33:02.348    pjsua_acc.c  ....SIP outbound status for acc 0 is not active
+00:33:02.349    pjsua_acc.c  ....sip:spendtime@vsip.rambler.ru: registration success, status=200 (OK), will re-register in 300 seconds
+00:33:02.349    pjsua_acc.c  ....Keep-alive timer started for acc 0, destination:81.19.70.76:5060, interval:15s
+00:33:02.349     vidgui.cpp  ....sip:spendtime@vsip.rambler.ru: 200/OK (expires=294)
+
+00:33:07.337    tsx05CC7B0C  Timeout timer event
+00:33:07.337    tsx05CC7B0C  .State changed from Completed to Terminated, event=TIMER
+00:33:07.338    tsx05CC7B0C  Timeout timer event
+00:33:07.338    tsx05CC7B0C  .State changed from Terminated to Destroyed, event=TIMER
+00:33:07.338    tsx05CC7B0C  ..Transaction destroyed!
+00:33:07.348    tsx05CCA2AC  Timeout timer event
+00:33:07.348    tsx05CCA2AC  .State changed from Completed to Terminated, event=TIMER
+00:33:07.348    tsx05CCA2AC  Timeout timer event
+00:33:07.348    tsx05CCA2AC  .State changed from Terminated to Destroyed, event=TIMER
+00:33:07.348   tdta05CC6A78  ..Destroying txdata Request msg REGISTER/cseq=39718 (tdta05CC6A78)
+00:33:07.348    tsx05CCA2AC  ..Transaction destroyed!
+00:33:17.349    pjsua_acc.c  Sending 2 bytes keep-alive packet for acc 0 to 81.19.70.76:5060
+00:33:17.349   tdta05CCFF40  Destroying txdata raw
+00:33:21.704   pjsua_call.c !Making call with acc #0 to sip:rvoip-1@vsip.rambler.ru
+00:33:21.704  pjsua_media.c  .Set sound device: capture=-1, playback=-2
+00:33:21.704  pjsua_media.c  ..Opening sound device PCM@16000/1/20ms
+00:33:22.060     wmme_dev.c  ... WaveAPI Sound player "Wave mapper" initialized (format=PCM, clock_rate=16000, channel_count=1, samples_per_frame=320 (20ms))
+00:33:22.091     wmme_dev.c  ... WaveAPI Sound recorder "Wave mapper" initialized (format=PCM, clock_rate=16000, channel_count=1, samples_per_frame=320 (20ms))
+00:33:22.091     ec05CEC5C8  ...Creating AEC
+00:33:22.092     ec05CEC5C8  ...Using delay buffer with WSOLA.
+00:33:22.092     ec05CEC5C8  ...AEC created, clock_rate=16000, channel=1, samples per frame=320, tail length=200 ms, latency=100 ms
+00:33:22.092     wmme_dev.c  ...WMME playback stream started
+00:33:22.092     wmme_dev.c  ...WMME capture stream started
+00:33:22.093    dlg05D3F304  .UAC dialog created
+00:33:22.093    dlg05D3F304  ..Session count inc to 1 by mod-pjsua
+00:33:22.093  pjsua_media.c  .Call 0: initializing media..
+00:33:22.098  pjsua_media.c  ..RTP socket reachable at 172.16.1.53:40000
+00:33:22.098  pjsua_media.c  ..RTCP socket reachable at 172.16.1.53:40001
+00:33:22.102  pjsua_media.c  ..RTP socket reachable at 172.16.1.53:40002
+00:33:22.102  pjsua_media.c  ..RTCP socket reachable at 172.16.1.53:40003
+00:33:22.103  pjsua_media.c  ..Media index 0 selected for audio call 0
+00:33:22.103    dlg05D3F304  ..Session count dec to 1 by mod-pjsua
+00:33:22.103    dlg05D3F304  .Module mod-invite added as dialog usage, data=05D437BC
+00:33:22.103    dlg05D3F304  ..Session count inc to 3 by mod-invite
+00:33:22.103    dlg05D3F304  .Module mod-100rel added as dialog usage, data=05D4C3A8
+00:33:22.103    dlg05D3F304  .100rel module attached
+00:33:22.103    inv05D3F304  .UAC invite session created for dialog dlg05D3F304
+00:33:22.103       endpoint  .Request msg INVITE/cseq=31676 (tdta05D53BF0) created.
+00:33:22.103    inv05D3F304  ..Sending Request msg INVITE/cseq=31676 (tdta05D53BF0)
+00:33:22.103    dlg05D3F304  ...Sending Request msg INVITE/cseq=31676 (tdta05D53BF0)
+00:33:22.103    tsx05D55C54  ....Transaction created for Request msg INVITE/cseq=31675 (tdta05D53BF0)
+00:33:22.103    tsx05D55C54  ...Sending Request msg INVITE/cseq=31675 (tdta05D53BF0) in state Null
+00:33:22.103  sip_resolve.c  ....DNS resolver not available, target 'vsip.rambler.ru:0' type=Unspecified will be resolved with getaddrinfo()
+00:33:22.103  sip_resolve.c  ....Target 'vsip.rambler.ru:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+00:33:22.103   pjsua_core.c  ....TX 1025 bytes Request msg INVITE/cseq=31675 (tdta05D53BF0) to UDP 81.19.70.76:5060:
+INVITE sip:rvoip-1@vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPje143da5c3f784c3c8ef2328c0e5de4a2
+Max-Forwards: 70
+f: sip:spendtime@vsip.rambler.ru;tag=472497c34833449f801eec131bb86a85
+t: sip:rvoip-1@vsip.rambler.ru
+m: <sip:spendtime@172.16.1.53:5065;ob>
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+CSeq: 31675 INVITE
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800
+Min-SE: 90
+c: application/sdp
+l:   490
+
+v=0
+o=- 3533675602 3533675602 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 0 8 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+00:33:22.103    tsx05D55C54  ....State changed from Null to Calling, event=TX_MSG
+00:33:22.103    dlg05D3F304  .....Transaction tsx05D55C54 state changed to Calling
+00:33:22.104     vidgui.cpp  .......Call is CALLING
+00:33:22.111     ec05CEC5C8 !Prefetching..
+00:33:22.112 sip_endpoint.c !Processing incoming message: Response msg 407/INVITE/cseq=31675 (rdata05CC42BC)
+00:33:22.112   pjsua_core.c  .RX 487 bytes Response msg 407/INVITE/cseq=31675 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+SIP/2.0 407 Proxy Authentication Required
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;branch=z9hG4bKPje143da5c3f784c3c8ef2328c0e5de4a2
+f: sip:spendtime@vsip.rambler.ru;tag=472497c34833449f801eec131bb86a85
+t: sip:rvoip-1@vsip.rambler.ru;tag=55f576c530866cae25bd5851ec979fff.9251
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+CSeq: 31675 INVITE
+Proxy-Authenticate: Digest realm="vsip.rambler.ru", nonce="4ef4e5ae00005bc229d6270330559edac7dea658f821e818"
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+00:33:22.112    tsx05D55C54  .Incoming Response msg 407/INVITE/cseq=31675 (rdata05CC42BC) in state Calling
+00:33:22.112       endpoint  ..Request msg ACK/cseq=31675 (tdta05D58390) created.
+00:33:22.112   pjsua_core.c  ..TX 355 bytes Request msg ACK/cseq=31675 (tdta05D58390) to UDP 81.19.70.76:5060:
+ACK sip:rvoip-1@vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPje143da5c3f784c3c8ef2328c0e5de4a2
+Max-Forwards: 70
+f: sip:spendtime@vsip.rambler.ru;tag=472497c34833449f801eec131bb86a85
+t: sip:rvoip-1@vsip.rambler.ru;tag=55f576c530866cae25bd5851ec979fff.9251
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+CSeq: 31675 ACK
+l:  0
+
+
+--end msg--
+00:33:22.112    tsx05D55C54  ..State changed from Calling to Completed, event=RX_MSG
+00:33:22.112    dlg05D3F304  ...Received Response msg 407/INVITE/cseq=31675 (rdata05CC42BC)
+00:33:22.112    dlg05D3F304  ...Transaction tsx05D55C54 state changed to Completed
+00:33:22.112    inv05D3F304  .....Sending Request msg INVITE/cseq=31675 (tdta05D53BF0)
+00:33:22.112    dlg05D3F304  ......Sending Request msg INVITE/cseq=31675 (tdta05D53BF0)
+00:33:22.112    tsx05D59424  .......Transaction created for Request msg INVITE/cseq=31676 (tdta05D53BF0)
+00:33:22.112    tsx05D59424  ......Sending Request msg INVITE/cseq=31676 (tdta05D53BF0) in state Null
+00:33:22.112       endpoint  .......Request msg INVITE/cseq=31676 (tdta05D53BF0): skipping target resolution because address is already set
+00:33:22.112   pjsua_core.c  .......TX 1238 bytes Request msg INVITE/cseq=31676 (tdta05D53BF0) to UDP 81.19.70.76:5060:
+INVITE sip:rvoip-1@vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPj153ec192682d486ebf83bc7eaad5b342
+Max-Forwards: 70
+f: sip:spendtime@vsip.rambler.ru;tag=472497c34833449f801eec131bb86a85
+t: sip:rvoip-1@vsip.rambler.ru
+m: <sip:spendtime@172.16.1.53:5065;ob>
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+CSeq: 31676 INVITE
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800
+Min-SE: 90
+Proxy-Authorization: Digest username="spendtime", realm="vsip.rambler.ru", nonce="4ef4e5ae00005bc229d6270330559edac7dea658f821e818", uri="sip:rvoip-1@vsip.rambler.ru", response="73575a35ab5f647e2e95e96c4da14134"
+c: application/sdp
+l:   490
+
+v=0
+o=- 3533675602 3533675602 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40000 RTP/AVP 3 0 8 96
+c=IN IP4 172.16.1.53
+a=rtcp:40001 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40002 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40003 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+00:33:22.112    tsx05D59424  .......State changed from Null to Calling, event=TX_MSG
+00:33:22.112    dlg05D3F304  ........Transaction tsx05D59424 state changed to Calling
+00:33:22.123 sip_endpoint.c  Processing incoming message: Response msg 100/INVITE/cseq=31676 (rdata05CC42BC)
+00:33:22.123   pjsua_core.c  .RX 318 bytes Response msg 100/INVITE/cseq=31676 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+SIP/2.0 100 Giving a try
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;branch=z9hG4bKPj153ec192682d486ebf83bc7eaad5b342
+f: sip:spendtime@vsip.rambler.ru;tag=472497c34833449f801eec131bb86a85
+t: sip:rvoip-1@vsip.rambler.ru
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+CSeq: 31676 INVITE
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+00:33:22.123    tsx05D59424  .Incoming Response msg 100/INVITE/cseq=31676 (rdata05CC42BC) in state Calling
+00:33:22.123    tsx05D59424  ..State changed from Calling to Proceeding, event=RX_MSG
+00:33:22.123    dlg05D3F304  ...Received Response msg 100/INVITE/cseq=31676 (rdata05CC42BC)
+00:33:22.123    dlg05D3F304  ...Transaction tsx05D59424 state changed to Proceeding
+00:33:22.131     ec05CEC5C8 !Prefetching..
+00:33:22.151     ec05CEC5C8  Prefetching..
+00:33:22.171     ec05CEC5C8  Prefetching..
+00:33:22.192     ec05CEC5C8  Prefetching..
+00:33:22.212     ec05CEC5C8  Prefetching..
+00:33:22.230     ec05CEC5C8  Latency bufferring complete
+00:33:23.743 sip_endpoint.c !Processing incoming message: Response msg 200/INVITE/cseq=31676 (rdata05CC42BC)
+00:33:23.743   pjsua_core.c  .RX 1090 bytes Response msg 200/INVITE/cseq=31676 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;received=172.16.1.53;branch=z9hG4bKPj153ec192682d486ebf83bc7eaad5b342
+Record-Route: <sip:81.19.70.76;lr;nat=yes;did=b05.05596eb5>
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+f: <sip:spendtime@vsip.rambler.ru>;tag=472497c34833449f801eec131bb86a85
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=f9acdb5290f547ceae04782cbd49d144
+CSeq: 31676 INVITE
+m: <sip:rvoip-1@81.19.90.124:5065;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+Content-Length: 461
+
+v=0
+o=- 3533675600 3533675601 IN IP4 81.19.70.74
+s=pjmedia
+c=IN IP4 81.19.90.124
+t=0 0
+a=X-nat:0
+m=audio 43996 RTP/AVP 3 96
+c=IN IP4 81.19.70.74
+a=rtcp:43997 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 64980 RTP/AVP 97
+c=IN IP4 81.19.70.74
+a=rtcp:64981 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+a=sdpmangled:yes
+
+--end msg--
+00:33:23.743    tsx05D59424  .Incoming Response msg 200/INVITE/cseq=31676 (rdata05CC42BC) in state Proceeding
+00:33:23.743    tsx05D59424  ..State changed from Proceeding to Terminated, event=RX_MSG
+00:33:23.743    dlg05D3F304  ...Received Response msg 200/INVITE/cseq=31676 (rdata05CC42BC)
+00:33:23.743    dlg05D3F304  ....Route-set updated
+00:33:23.743    dlg05D3F304  ....Route-set frozen
+00:33:23.743    dlg05D3F304  ...Transaction tsx05D59424 state changed to Terminated
+00:33:23.743     vidgui.cpp  .....Call is CONNECTING
+00:33:23.743    inv05D3F304  ....Got SDP answer in Response msg 200/INVITE/cseq=31676 (rdata05CC42BC)
+00:33:23.743    inv05D3F304  ....SDP negotiation done, status=0
+00:33:23.743   pjsua_call.c  .....Call 0: remote NAT type is 0 (Unknown)
+00:33:23.743  pjsua_media.c  .....Call 0: updating media..
+00:33:23.743  pjsua_media.c  .......Media session call00:0 is destroyed
+00:33:23.743  pjsua_media.c  .......Media session call00:1 is destroyed
+00:33:23.744  pjsua_media.c  ......Audio channel update..
+00:33:23.744   strm05D5A594  .......VAD temporarily disabled
+00:33:23.744          rtp.c  .......pjmedia_rtp_session_init: ses=05D4C6B8, default_pt=3, ssrc=0x3ad1252e
+00:33:23.744          rtp.c  .......pjmedia_rtp_session_init: ses=05D4C85C, default_pt=3, ssrc=0x3ad1252e
+00:33:23.744       stream.c  .......Stream strm05D5A594 created
+00:33:23.744   strm05D5A594  .......Encoder stream started
+00:33:23.744   strm05D5A594  .......Decoder stream started
+00:33:23.744     resample.c  .......resample created: high qualiy, large filter, in/out rate=8000/16000
+00:33:23.744     resample.c  .......resample created: high qualiy, large filter, in/out rate=16000/8000
+00:33:23.744  pjsua_media.c  .......Audio updated, stream #0: GSM (sendrecv)
+00:33:23.744    pjsua_vid.c  ......Video channel update..
+00:33:23.753   strm05D5A594 !Start talksprut..
+00:33:23.754          rtp.c !.......pjmedia_rtp_session_init: ses=05D12984, default_pt=97, ssrc=0xc6716bc
+00:33:23.754 vstdec05D1248C  .......Decoding channel created 720x576 I420<-H264 30000/1001(~29)fps
+00:33:23.754          rtp.c  .......pjmedia_rtp_session_init: ses=05D12A38, default_pt=97, ssrc=0xc6716bc
+00:33:23.754 vstenc05D1248C  .......Encoding channel created 720x480 I420->H264 30000/1001(~29)fps
+00:33:23.756   vid_stream.c  .......Video stream vstrm05D1248C created
+00:33:23.756 vstenc05D1248C  .......Encoder stream started
+00:33:23.756 vstdec05D1248C  .......Decoder stream started
+00:33:23.756    pjsua_vid.c  .......Setting up RX..
+00:33:23.756    pjsua_vid.c  ........Creating video window: type=stream, cap_id=-1, rend_id=3
+00:33:23.756     vid_port.c  .........Opening device SDL renderer [SDL] for render: format=I420, size=720x576 @30000:1001 fps
+00:33:23.767   strm05D5A594 !RTP status: badpt=0, badssrc=0, dup=0, outorder=0, probation=-1, restart=0
+00:33:23.829     vid_port.c !.........Device SDL renderer [SDL] opened: format=I420, size=720x576 @30000:1001 fps
+00:33:23.829    pjsua_vid.c  .........stream window id 0 created for cap_dev=-1 rend_dev=3
+00:33:23.829    pjsua_vid.c  .........Window 0 created
+00:33:23.829      sdl_dev.c  ........Starting sdl video stream
+00:33:23.829    pjsua_vid.c  .......Setting up TX..
+00:33:23.829    pjsua_vid.c  ........Creating video window: type=preview, cap_id=0, rend_id=3
+00:33:23.829     vid_port.c  .........Opening device Sony Visual Communication Camera [dshow] for capture: format=YUY2, size=720x480 @30000:1001 fps
+00:33:23.838    dshow_dev.c  .........Error creating filter graph: Указан неправильный тип носителя. (hr=0x80040200)
+00:33:23.839    dshow_dev.c  .........Trying to open dshow dev with default fps
+00:33:23.846    dshow_dev.c  .........Error creating filter graph: Указан неправильный тип носителя. (hr=0x80040200)
+00:33:23.848    dshow_dev.c  .........Trying to open dshow dev with default size & fps
+00:33:23.862     vid_port.c  .........Device Sony Visual Communication Camera [dshow] opened: format=YUY2, size=640x480 @10000000:333333 fps
+00:33:23.863     vid_port.c  .........Opening device SDL renderer [SDL] for render: format=I420, size=720x480 @30000:1001 fps
+00:33:23.884     vid_port.c  .........Device SDL renderer [SDL] opened: format=I420, size=720x480 @30000:1001 fps
+00:33:23.884    pjsua_vid.c  .........preview window id 1 created for cap_dev=0 rend_dev=3
+00:33:23.884    pjsua_vid.c  .........Window 1 created
+00:33:23.890    dshow_dev.c  ........Starting dshow video stream
+00:33:23.890    pjsua_vid.c  .......Video updated, stream #1: H264 (sendrecv)
+00:33:23.890  pjsua_media.c  .....Conf connect: 1 --> 0
+00:33:23.890   conference.c  ......Port 1 (sip:rvoip-1@vsip.rambler.ru) transmitting to port 0 (Wave mapper)
+00:33:23.890  pjsua_media.c  .....Conf connect: 0 --> 1
+00:33:23.890   conference.c  ......Port 0 (Wave mapper) transmitting to port 1 (sip:rvoip-1@vsip.rambler.ru)
+00:33:23.890    inv05D3F304  ....Received Response msg 200/INVITE/cseq=31676 (rdata05CC42BC), sending ACK
+00:33:23.890       endpoint  ....Request msg ACK/cseq=31676 (tdta05E7C510) created.
+00:33:23.890    dlg05D3F304  .....Sending Request msg ACK/cseq=31676 (tdta05E7C510)
+00:33:23.890  sip_resolve.c  .....Target '81.19.70.76:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+00:33:23.890   pjsua_core.c  .....TX 409 bytes Request msg ACK/cseq=31676 (tdta05E7C510) to UDP 81.19.70.76:5060:
+ACK sip:rvoip-1@81.19.90.124:5065;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPje129750f7f5f4d06858b7e15cee8ca63
+Max-Forwards: 70
+f: sip:spendtime@vsip.rambler.ru;tag=472497c34833449f801eec131bb86a85
+t: sip:rvoip-1@vsip.rambler.ru;tag=f9acdb5290f547ceae04782cbd49d144
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+CSeq: 31676 ACK
+Route: <sip:81.19.70.76;lr;nat=yes;did=b05.05596eb5>
+l:  0
+
+
+--end msg--
+00:33:23.891     vidgui.cpp  .....Call is CONFIRMED
+00:33:23.891    tsx05D59424  Timeout timer event
+00:33:23.891    tsx05D59424  .State changed from Terminated to Destroyed, event=TIMER
+00:33:23.891    tsx05D59424  ..Transaction destroyed!
+00:33:23.897     vidwin.cpp !000B03A6 size = 721x577
+00:33:23.989     vidwin.cpp  000B03A6 new parent handle = 002B1000
+00:33:24.093     vidwin.cpp  000B03A6 new size = 721x577
+00:33:24.368   strm05D5A594 !VAD re-enabled
+00:33:24.368   strm05D5A594  Starting silence
+00:33:24.428   strm05D5A594  Frame lost, recovered!
+00:33:24.448   strm05D5A594  Jitter buffer starts returning normal frames (after 1 empty/lost)
+00:33:24.509   strm05D5A594  Jitter buffer empty (prefetch=0), plc invoked
+00:33:25.829    dshow_dev.c !Capture thread started
+00:33:25.955 vstdec05D1248C !RTP status: badpt=0, badssrc=0, dup=0, outorder=0, probation=-1, restart=0
+00:33:26.095 vstdec05D1248C !codec decode() error: Bad or corrupted bitstream (PJMEDIA_CODEC_EBADBITSTREAM) [err:220087]
+00:33:26.125 vstdec05D1248C !codec decode() error: Bad or corrupted bitstream (PJMEDIA_CODEC_EBADBITSTREAM) [err:220087]
+00:33:26.128  pjsua_media.c !Sending video keyframe request via SIP INFO
+00:33:26.128   pjsua_call.c  Call 0 sending INFO request..
+00:33:26.128       endpoint  .Request msg INFO/cseq=31678 (tdta05E80958) created.
+00:33:26.128    dlg05D3F304  ..Sending Request msg INFO/cseq=31678 (tdta05E80958)
+00:33:26.128    tsx05D041F4  ...Transaction created for Request msg INFO/cseq=31677 (tdta05E80958)
+00:33:26.128    tsx05D041F4  ..Sending Request msg INFO/cseq=31677 (tdta05E80958) in state Null
+00:33:26.128  sip_resolve.c  ...Target '81.19.70.76:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+00:33:26.128   pjsua_core.c  ...TX 594 bytes Request msg INFO/cseq=31677 (tdta05E80958) to UDP 81.19.70.76:5060:
+INFO sip:rvoip-1@81.19.90.124:5065;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPjfab57064b2f14bb3af945803f3a8e439
+Max-Forwards: 70
+f: sip:spendtime@vsip.rambler.ru;tag=472497c34833449f801eec131bb86a85
+t: sip:rvoip-1@vsip.rambler.ru;tag=f9acdb5290f547ceae04782cbd49d144
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+CSeq: 31677 INFO
+Route: <sip:81.19.70.76;lr;nat=yes;did=b05.05596eb5>
+c: application/media_control+xml
+l:   146
+
+<?xml version="1.0" encoding="utf-8" ?><media_control><vc_primitive><to_encoder><picture_fast_update/></to_encoder></vc_primitive></media_control>
+--end msg--
+00:33:26.128    tsx05D041F4  ...State changed from Null to Calling, event=TX_MSG
+00:33:26.128    dlg05D3F304  ....Transaction tsx05D041F4 state changed to Calling
+00:33:26.137 sip_endpoint.c !Processing incoming message: Response msg 200/INFO/cseq=31677 (rdata05CC42BC)
+00:33:26.137   pjsua_core.c  .RX 338 bytes Response msg 200/INFO/cseq=31677 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;received=172.16.1.53;branch=z9hG4bKPjfab57064b2f14bb3af945803f3a8e439
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+f: <sip:spendtime@vsip.rambler.ru>;tag=472497c34833449f801eec131bb86a85
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=f9acdb5290f547ceae04782cbd49d144
+CSeq: 31677 INFO
+l:  0
+
+
+--end msg--
+00:33:26.137    tsx05D041F4  .Incoming Response msg 200/INFO/cseq=31677 (rdata05CC42BC) in state Calling
+00:33:26.137    tsx05D041F4  ..State changed from Calling to Completed, event=RX_MSG
+00:33:26.137    dlg05D3F304  ...Received Response msg 200/INFO/cseq=31677 (rdata05CC42BC)
+00:33:26.137    dlg05D3F304  ...Transaction tsx05D041F4 state changed to Completed
+00:33:26.175 vstdec05D1248C !codec decode() error: Bad or corrupted bitstream (PJMEDIA_CODEC_EBADBITSTREAM) [err:220087]
+00:33:26.188 vstdec05D1248C  RTP status: badpt=0, badssrc=0, dup=0, outorder=-1, probation=0, restart=0
+00:33:26.189 vstdec05D1248C  RTP status: badpt=0, badssrc=0, dup=0, outorder=-1, probation=0, restart=0
+00:33:26.191 vstdec05D1248C  RTP status: badpt=0, badssrc=0, dup=0, outorder=-1, probation=0, restart=0
+00:33:26.328 vstdec05D1248C ! Decoding format changed: 720x480 I420<- 30000/1001(~29)fps
+00:33:26.328      sdl_dev.c  Stopping sdl video stream
+00:33:26.348   silencedet.c !Re-adjust threshold (in silence)to 136
+00:33:26.370      sdl_dev.c !Starting sdl video stream
+00:33:26.845   strm05D5A594 !Jitter buffer starts returning normal frames (after 117 empty/lost)
+00:33:26.865   silencedet.c  Starting talk burst (level=138 threshold=136)
+00:33:26.866   strm05D5A594  Start talksprut..
+00:33:27.667   strm05D5A594  Jitter buffer empty (prefetch=0), plc invoked
+00:33:27.841   silencedet.c  Starting silence (level=35 threshold=92)
+00:33:27.841   strm05D5A594  Starting silence
+00:33:27.922   silencedet.c  Starting talk burst (level=114 threshold=92)
+00:33:27.922   strm05D5A594  Start talksprut..
+00:33:27.962   strm05D5A594  Jitter buffer starts returning normal frames (after 15 empty/lost)
+00:33:28.368   strm05D5A594  Jitter buffer empty (prefetch=0), plc invoked
+00:33:28.622   strm05D5A594  Jitter buffer starts returning normal frames (after 13 empty/lost)
+00:33:29.029   strm05D5A594  Jitter buffer empty (prefetch=0), plc invoked
+00:33:29.492   pjsua_call.c !Hangup all calls..
+00:33:29.492   pjsua_call.c  .Call 0 hanging up: code=0..
+00:33:29.492       endpoint  ...Request msg BYE/cseq=31679 (tdta05EB4138) created.
+00:33:29.492    inv05D3F304  ...Sending Request msg BYE/cseq=31679 (tdta05EB4138)
+00:33:29.492    dlg05D3F304  ....Sending Request msg BYE/cseq=31679 (tdta05EB4138)
+00:33:29.492    tsx05CE8E24  .....Transaction created for Request msg BYE/cseq=31678 (tdta05EB4138)
+00:33:29.492    tsx05CE8E24  ....Sending Request msg BYE/cseq=31678 (tdta05EB4138) in state Null
+00:33:29.492  sip_resolve.c  .....Target '81.19.70.76:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+00:33:29.492   pjsua_core.c  .....TX 409 bytes Request msg BYE/cseq=31678 (tdta05EB4138) to UDP 81.19.70.76:5060:
+BYE sip:rvoip-1@81.19.90.124:5065;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPj5dd49b4cafa14b6fb2df55357de49688
+Max-Forwards: 70
+f: sip:spendtime@vsip.rambler.ru;tag=472497c34833449f801eec131bb86a85
+t: sip:rvoip-1@vsip.rambler.ru;tag=f9acdb5290f547ceae04782cbd49d144
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+CSeq: 31678 BYE
+Route: <sip:81.19.70.76;lr;nat=yes;did=b05.05596eb5>
+l:  0
+
+
+--end msg--
+00:33:29.492    tsx05CE8E24  .....State changed from Null to Calling, event=TX_MSG
+00:33:29.492    dlg05D3F304  ......Transaction tsx05CE8E24 state changed to Calling
+00:33:29.501 sip_endpoint.c !Processing incoming message: Response msg 200/BYE/cseq=31678 (rdata05CC42BC)
+00:33:29.501   pjsua_core.c  .RX 337 bytes Response msg 200/BYE/cseq=31678 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;received=172.16.1.53;branch=z9hG4bKPj5dd49b4cafa14b6fb2df55357de49688
+i: 52aa6b42e6ea44f4a0dbc8bc74602530
+f: <sip:spendtime@vsip.rambler.ru>;tag=472497c34833449f801eec131bb86a85
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=f9acdb5290f547ceae04782cbd49d144
+CSeq: 31678 BYE
+l:  0
+
+
+--end msg--
+00:33:29.501    tsx05CE8E24  .Incoming Response msg 200/BYE/cseq=31678 (rdata05CC42BC) in state Calling
+00:33:29.501    tsx05CE8E24  ..State changed from Calling to Completed, event=RX_MSG
+00:33:29.501    dlg05D3F304  ...Received Response msg 200/BYE/cseq=31678 (rdata05CC42BC)
+00:33:29.501    dlg05D3F304  ...Transaction tsx05CE8E24 state changed to Completed
+00:33:29.501     vidgui.cpp  .....Call is DISCONNCTD (Normal call clearing)
+00:33:29.501  pjsua_media.c  .....Call 0: deinitializing media..
+00:33:29.501   strm05D5A594  .......JB summary:
+  size=0/eff=0 prefetch=0 level=2
+  delay (min/max/avg/dev)=20/160/55/56 ms
+  burst (min/max/avg/dev)=1/2/1/0 frames
+  lost=1 discard=0 empty=169
+00:33:29.501  pjsua_media.c  .......Media session call00:0 is destroyed
+00:33:29.501    pjsua_vid.c  .......Stopping video stream..
+00:33:29.727     vidwin.cpp !000B03A6 revert parent handle to 00000000
+00:33:30.758    dshow_dev.c !........Stopping dshow video stream
+00:33:30.759    pjsua_vid.c  ........Window 1: destroying..
+00:33:31.759    dshow_dev.c  .........Stopping dshow video stream
+00:33:31.759     vid_port.c  .........Closing Sony Visual Communication Camera..
+00:33:32.760    dshow_dev.c  .........Stopping dshow video stream
+00:33:32.767      sdl_dev.c  .........Stopping sdl video stream
+00:33:32.767     vid_port.c  .........Closing SDL renderer..
+00:33:32.767      sdl_dev.c  .........Stopping sdl video stream
+00:33:32.810          clock !Thread stack max usage=6077 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:1405
+00:33:32.810      sdl_dev.c !........Stopping sdl video stream
+00:33:32.810    pjsua_vid.c  ........Window 0: destroying..
+00:33:32.810      sdl_dev.c  .........Stopping sdl video stream
+00:33:32.810     vid_port.c  .........Closing SDL renderer..
+00:33:32.810      sdl_dev.c  .........Stopping sdl video stream
+00:33:32.843 vstdec05D1248C  ........JB summary:
+  size=2/eff=2 prefetch=0 level=0
+  delay (min/max/avg/dev)=0/0/0/0 ms
+  burst (min/max/avg/dev)=0/0/0/0 frames
+  lost=0 discard=0 empty=0
+00:33:32.844  pjsua_media.c  .......Media session call00:1 is destroyed
+00:33:32.844   tdta05E7C510  ....Destroying txdata Request msg ACK/cseq=31676 (tdta05E7C510)
+00:33:32.844   tdta05D53BF0  ....Destroying txdata Request msg INVITE/cseq=31676 (tdta05D53BF0)
+00:33:32.845    dlg05D3F304  .....Session count dec to 1 by mod-invite
+00:33:32.845  pjsua_media.c  Closing sound device after idle for 1 seconds
+00:33:32.847  pjsua_media.c  .Closing Wave mapper sound playback device and Wave mapper sound capture device
+00:33:32.850     wmme_dev.c  .Stopped WMME playback stream
+00:33:32.852     wmme_dev.c  .Stopped WMME capture stream
+00:33:32.852     wmme_dev.c  .Stopped WMME playback stream
+00:33:32.852     wmme_dev.c  .Stopped WMME capture stream
+00:33:32.852     wmme_dev.c !WMME: thread stopping..
+00:33:32.852           wmme  Thread stack max usage=6285 by d:\dev\pjsiplast\pjlib\src\pj\string.c:175
+00:33:32.868    tsx05D041F4 !Timeout timer event
+00:33:32.868    tsx05D041F4  .State changed from Completed to Terminated, event=TIMER
+00:33:32.868    dlg05D3F304  ..Transaction tsx05D041F4 state changed to Terminated
+00:33:32.868    pjsua_acc.c  Sending 2 bytes keep-alive packet for acc 0 to 81.19.70.76:5060
+00:33:32.868   tdta05D56420  Destroying txdata raw
+00:33:32.878    tsx05D041F4  Timeout timer event
+00:33:32.878    tsx05D041F4  .State changed from Terminated to Destroyed, event=TIMER
+00:33:32.878   tdta05E80958  ..Destroying txdata Request msg INFO/cseq=31677 (tdta05E80958)
+00:33:32.878    tsx05D041F4  ..Transaction destroyed!
+00:33:33.399 sip_endpoint.c  Processing incoming message: Request msg INVITE/cseq=10318 (rdata05CC42BC)
+00:33:33.399   pjsua_core.c  .RX 1419 bytes Request msg INVITE/cseq=10318 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+INVITE sip:spendtime@172.16.1.53:5065;ob SIP/2.0
+Record-Route: <sip:81.19.70.76;lr=on;did=fe3.0c8ddcc2>
+Via: SIP/2.0/UDP 81.19.70.76;branch=z9hG4bKb65f.fcc5a6f5.0
+v: SIP/2.0/UDP 81.19.90.124:5065;received=81.19.90.124;rport=5065;branch=z9hG4bKPj09a220b349ea418ca01b5a511b9a5367
+Max-Forwards: 69
+f: sip:rvoip-1@vsip.rambler.ru;tag=86232102941249b5862896e51eb633ad
+t: <sip:spendtime@vsip.rambler.ru>
+m: <sip:rvoip-1@81.19.90.124:5065;ob>
+i: 745ba67d6b8e4659a3755726c12af894
+CSeq: 10318 INVITE
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800
+Min-SE: 90
+Proxy-Authorization: Digest username="rvoip-1", realm="vsip.rambler.ru", nonce="4ef4e5b900005bc32ccfdf9ce308b27837a60d5fe788a121", uri="sip:spendtime@vsip.rambler.ru", response="ace60bb5d9bb4cc669e1450d849ec892"
+c: application/sdp
+Content-Length: 509
+
+v=0
+o=- 3533675611 3533675611 IN IP4 81.19.70.74
+s=pjmedia
+c=IN IP4 81.19.90.124
+t=0 0
+a=X-nat:0
+m=audio 52192 RTP/AVP 3 0 8 96
+c=IN IP4 81.19.70.74
+a=rtcp:52193 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 52078 RTP/AVP 97
+c=IN IP4 81.19.70.74
+a=rtcp:52079 IN IP4 81.19.70.74
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+a=sdpmangled:yes
+
+--end msg--
+00:33:33.399   pjsua_call.c  .Incoming Request msg INVITE/cseq=10318 (rdata05CC42BC)
+00:33:33.399    tsx05D041F4  ...Transaction created for Request msg INVITE/cseq=10318 (rdata05CC42BC)
+00:33:33.399    tsx05D041F4  ..Incoming Request msg INVITE/cseq=10318 (rdata05CC42BC) in state Null
+00:33:33.399    tsx05D041F4  ...State changed from Null to Trying, event=RX_MSG
+00:33:33.399    dlg05CE9654  ....Transaction tsx05D041F4 state changed to Trying
+00:33:33.399    dlg05CE9654  ..UAS dialog created
+00:33:33.399    dlg05CE9654  ..Module mod-invite added as dialog usage, data=05CC3A90
+00:33:33.399    dlg05CE9654  ...Session count inc to 2 by mod-invite
+00:33:33.399    inv05CE9654  ..UAS invite session created for dialog dlg05CE9654
+00:33:33.399  pjsua_media.c  ..Call 1: initializing media..
+00:33:33.404  pjsua_media.c  ...RTP socket reachable at 172.16.1.53:40004
+00:33:33.404  pjsua_media.c  ...RTCP socket reachable at 172.16.1.53:40005
+00:33:33.409  pjsua_media.c  ...RTP socket reachable at 172.16.1.53:40006
+00:33:33.409  pjsua_media.c  ...RTCP socket reachable at 172.16.1.53:40007
+00:33:33.410  pjsua_media.c  ...Media index 0 selected for audio call 1
+00:33:33.410   pjsua_call.c  ..Call 1: remote NAT type is 0 (Unknown)
+00:33:33.410       endpoint  ...Response msg 100/INVITE/cseq=10318 (tdta05D53F20) created
+00:33:33.410    dlg05CE9654  ...Initial answer Response msg 100/INVITE/cseq=10318 (tdta05D53F20)
+00:33:33.410    inv05CE9654  ...Sending Response msg 100/INVITE/cseq=10318 (tdta05D53F20)
+00:33:33.410    dlg05CE9654  ....Sending Response msg 100/INVITE/cseq=10318 (tdta05D53F20)
+00:33:33.410    tsx05D041F4  ....Sending Response msg 100/INVITE/cseq=10318 (tdta05D53F20) in state Trying
+00:33:33.410  sip_resolve.c  .....Target '81.19.70.76:5060' type=UDP resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+00:33:33.410   pjsua_core.c  .....TX 441 bytes Response msg 100/INVITE/cseq=10318 (tdta05D53F20) to UDP 81.19.70.76:5060:
+SIP/2.0 100 Trying
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb65f.fcc5a6f5.0
+v: SIP/2.0/UDP 81.19.90.124:5065;rport=5065;received=81.19.90.124;branch=z9hG4bKPj09a220b349ea418ca01b5a511b9a5367
+Record-Route: <sip:81.19.70.76;lr;did=fe3.0c8ddcc2>
+i: 745ba67d6b8e4659a3755726c12af894
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=86232102941249b5862896e51eb633ad
+t: <sip:spendtime@vsip.rambler.ru>
+CSeq: 10318 INVITE
+l:  0
+
+
+--end msg--
+00:33:33.410    tsx05D041F4  .....State changed from Trying to Proceeding, event=TX_MSG
+00:33:33.410    dlg05CE9654  ......Transaction tsx05D041F4 state changed to Proceeding
+00:33:33.410     vidgui.cpp  ........Call is INCOMING
+00:33:33.410   pjsua_call.c  ..Answering call 1: code=200
+00:33:33.410    inv05CE9654  ....SDP negotiation done, status=0
+00:33:33.410   pjsua_call.c  .....Call 1: remote NAT type is 0 (Unknown)
+00:33:33.410  pjsua_media.c  .....Call 1: updating media..
+00:33:33.410  pjsua_media.c  .......Media session call01:0 is destroyed
+00:33:33.410  pjsua_media.c  .......Media session call01:1 is destroyed
+00:33:33.410  pjsua_media.c  ......Audio channel update..
+00:33:33.410   strm05D54F64  .......VAD temporarily disabled
+00:33:33.410          rtp.c  .......pjmedia_rtp_session_init: ses=05D4DC20, default_pt=3, ssrc=0x60322c3b
+00:33:33.410          rtp.c  .......pjmedia_rtp_session_init: ses=05D4DDC4, default_pt=3, ssrc=0x60322c3b
+00:33:33.410       stream.c  .......Stream strm05D54F64 created
+00:33:33.410   strm05D54F64  .......Encoder stream started
+00:33:33.410   strm05D54F64  .......Decoder stream started
+00:33:33.411     resample.c  .......resample created: high qualiy, large filter, in/out rate=8000/16000
+00:33:33.411     resample.c  .......resample created: high qualiy, large filter, in/out rate=16000/8000
+00:33:33.411  pjsua_media.c  .......Audio updated, stream #0: GSM (sendrecv)
+00:33:33.411    pjsua_vid.c  ......Video channel update..
+00:33:33.425          rtp.c  .......pjmedia_rtp_session_init: ses=05CD044C, default_pt=97, ssrc=0x15a15422
+00:33:33.425 vstdec05CCFF54  .......Decoding channel created 720x576 I420<-H264 30000/1001(~29)fps
+00:33:33.426          rtp.c  .......pjmedia_rtp_session_init: ses=05CD0500, default_pt=97, ssrc=0x15a15422
+00:33:33.426 vstenc05CCFF54  .......Encoding channel created 720x480 I420->H264 30000/1001(~29)fps
+00:33:33.429   vid_stream.c  .......Video stream vstrm05CCFF54 created
+00:33:33.429 vstenc05CCFF54  .......Encoder stream started
+00:33:33.429 vstdec05CCFF54  .......Decoder stream started
+00:33:33.429    pjsua_vid.c  .......Setting up RX..
+00:33:33.429    pjsua_vid.c  ........Creating video window: type=stream, cap_id=-1, rend_id=3
+00:33:33.429     vid_port.c  .........Opening device SDL renderer [SDL] for render: format=I420, size=720x576 @30000:1001 fps
+00:33:33.479     vid_port.c  .........Device SDL renderer [SDL] opened: format=I420, size=720x576 @30000:1001 fps
+00:33:33.480    pjsua_vid.c  .........stream window id 0 created for cap_dev=-1 rend_dev=3
+00:33:33.480    pjsua_vid.c  .........Window 0 created
+00:33:33.480      sdl_dev.c  ........Starting sdl video stream
+00:33:33.480    pjsua_vid.c  .......Setting up TX..
+00:33:33.480    pjsua_vid.c  ........Creating video window: type=preview, cap_id=0, rend_id=3
+00:33:33.480     vid_port.c  .........Opening device Sony Visual Communication Camera [dshow] for capture: format=YUY2, size=720x480 @30000:1001 fps
+00:33:33.486    dshow_dev.c  .........Error creating filter graph: Указан неправильный тип носителя. (hr=0x80040200)
+00:33:33.488    dshow_dev.c  .........Trying to open dshow dev with default fps
+00:33:33.494    dshow_dev.c  .........Error creating filter graph: Указан неправильный тип носителя. (hr=0x80040200)
+00:33:33.495    dshow_dev.c  .........Trying to open dshow dev with default size & fps
+00:33:33.507     vid_port.c  .........Device Sony Visual Communication Camera [dshow] opened: format=YUY2, size=640x480 @10000000:333333 fps
+00:33:33.509     vid_port.c  .........Opening device SDL renderer [SDL] for render: format=I420, size=720x480 @30000:1001 fps
+00:33:33.534     vid_port.c  .........Device SDL renderer [SDL] opened: format=I420, size=720x480 @30000:1001 fps
+00:33:33.534    pjsua_vid.c  .........preview window id 1 created for cap_dev=0 rend_dev=3
+00:33:33.534    pjsua_vid.c  .........Window 1 created
+00:33:33.539    dshow_dev.c  ........Starting dshow video stream
+00:33:33.539    pjsua_vid.c  .......Video updated, stream #1: H264 (sendrecv)
+00:33:33.539  pjsua_media.c  .....Conf connect: 1 --> 0
+00:33:33.539  pjsua_media.c  ......Set sound device: capture=-1, playback=-2
+00:33:33.539  pjsua_media.c  .......Opening sound device PCM@16000/1/20ms
+00:33:33.626     wmme_dev.c  ........ WaveAPI Sound player "Wave mapper" initialized (format=PCM, clock_rate=16000, channel_count=1, samples_per_frame=320 (20ms))
+00:33:33.647     wmme_dev.c  ........ WaveAPI Sound recorder "Wave mapper" initialized (format=PCM, clock_rate=16000, channel_count=1, samples_per_frame=320 (20ms))
+00:33:33.648     ec05CED810  ........Creating AEC
+00:33:33.649     ec05CED810  ........Using delay buffer with WSOLA.
+00:33:33.649     ec05CED810  ........AEC created, clock_rate=16000, channel=1, samples per frame=320, tail length=200 ms, latency=100 ms
+00:33:33.649     wmme_dev.c  ........WMME playback stream started
+00:33:33.649     wmme_dev.c  ........WMME capture stream started
+00:33:33.649   conference.c  ......Port 1 (sip:rvoip-1@vsip.rambler.ru) transmitting to port 0 (Wave mapper)
+00:33:33.649  pjsua_media.c  .....Conf connect: 0 --> 1
+00:33:33.649   conference.c  ......Port 0 (Wave mapper) transmitting to port 1 (sip:rvoip-1@vsip.rambler.ru)
+00:33:33.649    inv05CE9654  ....Sending Response msg 200/INVITE/cseq=10318 (tdta05D53F20)
+00:33:33.649    dlg05CE9654  .....Sending Response msg 200/INVITE/cseq=10318 (tdta05D53F20)
+00:33:33.649    tsx05D041F4  .....Sending Response msg 200/INVITE/cseq=10318 (tdta05D53F20) in state Proceeding
+00:33:33.649   pjsua_core.c  ......TX 1134 bytes Response msg 200/INVITE/cseq=10318 (tdta05D53F20) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb65f.fcc5a6f5.0
+v: SIP/2.0/UDP 81.19.90.124:5065;rport=5065;received=81.19.90.124;branch=z9hG4bKPj09a220b349ea418ca01b5a511b9a5367
+Record-Route: <sip:81.19.70.76;lr;did=fe3.0c8ddcc2>
+i: 745ba67d6b8e4659a3755726c12af894
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=86232102941249b5862896e51eb633ad
+t: <sip:spendtime@vsip.rambler.ru>;tag=23eb711eb85148bbbc97c1f73f59fefb
+CSeq: 10318 INVITE
+m: <sip:spendtime@172.16.1.53:5065;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533675613 3533675614 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40004 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40005 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40006 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40007 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+00:33:33.650    tsx05D041F4  ......State changed from Proceeding to Completed, event=TX_MSG
+00:33:33.650    dlg05CE9654  .......Transaction tsx05D041F4 state changed to Completed
+00:33:33.650     vidgui.cpp  .........Call is CONNECTING
+00:33:33.650     vidgui.cpp  ..Incoming call from <sip:rvoip-1@vsip.rambler.ru>
+00:33:33.652     vidwin.cpp !001D0688 size = 721x577
+00:33:33.667     ec05CED810 !Prefetching..
+00:33:33.688     ec05CED810  Prefetching..
+00:33:33.689   strm05D54F64  Jitter buffer is bufferring (prefetch=0), plc invoked
+00:33:33.690   strm05D54F64  Start talksprut..
+00:33:33.708     ec05CED810  Prefetching..
+00:33:33.728     ec05CED810  Prefetching..
+00:33:33.749     ec05CED810  Prefetching..
+00:33:33.769     ec05CED810  Prefetching..
+00:33:33.789     ec05CED810  Prefetching..
+00:33:33.791     ec05CED810  Latency bufferring complete
+00:33:33.890     vidwin.cpp !001D0688 new parent handle = 002C1000
+00:33:34.040     vidwin.cpp  001D0688 new size = 721x577
+00:33:34.150    tsx05D041F4 !Retransmit timer event
+00:33:34.150    tsx05D041F4  .Retransmiting Response msg 200/INVITE/cseq=10318 (tdta05D53F20), count=0, restart?=1
+00:33:34.150   pjsua_core.c  .TX 1134 bytes Response msg 200/INVITE/cseq=10318 (tdta05D53F20) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKb65f.fcc5a6f5.0
+v: SIP/2.0/UDP 81.19.90.124:5065;rport=5065;received=81.19.90.124;branch=z9hG4bKPj09a220b349ea418ca01b5a511b9a5367
+Record-Route: <sip:81.19.70.76;lr;did=fe3.0c8ddcc2>
+i: 745ba67d6b8e4659a3755726c12af894
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=86232102941249b5862896e51eb633ad
+t: <sip:spendtime@vsip.rambler.ru>;tag=23eb711eb85148bbbc97c1f73f59fefb
+CSeq: 10318 INVITE
+m: <sip:spendtime@172.16.1.53:5065;ob>
+Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+k: replaces, 100rel, timer, norefersub
+x: 1800;refresher=uac
+c: application/sdp
+l:   442
+
+v=0
+o=- 3533675613 3533675614 IN IP4 172.16.1.53
+s=pjmedia
+c=IN IP4 172.16.1.53
+t=0 0
+a=X-nat:0
+m=audio 40004 RTP/AVP 3 96
+c=IN IP4 172.16.1.53
+a=rtcp:40005 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:3 GSM/8000
+a=rtpmap:96 telephone-event/8000
+a=fmtp:96 0-15
+m=video 40006 RTP/AVP 97
+c=IN IP4 172.16.1.53
+a=rtcp:40007 IN IP4 172.16.1.53
+a=sendrecv
+a=rtpmap:97 H264/90000
+a=fmtp:97 profile-level-id=42e01e; packetization-mode=1
+
+--end msg--
+00:33:34.310   strm05D54F64 !VAD re-enabled
+00:33:34.495    tsx05CE8E24 !Timeout timer event
+00:33:34.495    tsx05CE8E24  .State changed from Completed to Terminated, event=TIMER
+00:33:34.495    dlg05D3F304  ..Transaction tsx05CE8E24 state changed to Terminated
+00:33:34.495    tsx05CE8E24  Timeout timer event
+00:33:34.495    tsx05CE8E24  .State changed from Terminated to Destroyed, event=TIMER
+00:33:34.495   tdta05EB4138  ..Destroying txdata Request msg BYE/cseq=31678 (tdta05EB4138)
+00:33:34.495    tsx05CE8E24  ..Transaction destroyed!
+00:33:34.950   silencedet.c !Starting silence (level=21 threshold=78)
+00:33:34.950   strm05D54F64  Starting silence
+00:33:35.120 sip_endpoint.c !Processing incoming message: Request msg ACK/cseq=10318 (rdata05CC42BC)
+00:33:35.120   pjsua_core.c  .RX 467 bytes Request msg ACK/cseq=10318 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+ACK sip:spendtime@172.16.1.53:5065;ob SIP/2.0
+Via: SIP/2.0/UDP 81.19.70.76;branch=z9hG4bKb65f.fcc5a6f5.2
+v: SIP/2.0/UDP 81.19.90.124:5065;received=81.19.90.124;rport=5065;branch=z9hG4bKPj68b4c46aafb44a279a2ceb0d5afea83d
+Max-Forwards: 69
+f: sip:rvoip-1@vsip.rambler.ru;tag=86232102941249b5862896e51eb633ad
+t: <sip:spendtime@vsip.rambler.ru>;tag=23eb711eb85148bbbc97c1f73f59fefb
+i: 745ba67d6b8e4659a3755726c12af894
+CSeq: 10318 ACK
+l:  0
+P-hint: rr-enforced
+
+
+--end msg--
+00:33:35.120    dlg05CE9654  .Received Request msg ACK/cseq=10318 (rdata05CC42BC)
+00:33:35.120    tsx05D041F4  ..Request to terminate transaction
+00:33:35.120    tsx05D041F4  ...State changed from Completed to Terminated, event=USER
+00:33:35.120    dlg05CE9654  ....Transaction tsx05D041F4 state changed to Terminated
+00:33:35.120     vidgui.cpp  ...Call is CONFIRMED
+00:33:35.120    tsx05D041F4  Timeout timer event
+00:33:35.120    tsx05D041F4  .State changed from Terminated to Destroyed, event=TIMER
+00:33:35.120   tdta05D53F20  ..Destroying txdata Response msg 200/INVITE/cseq=10318 (tdta05D53F20)
+00:33:35.120    tsx05D041F4  ..Transaction destroyed!
+00:33:35.124 sip_endpoint.c  Processing incoming message: Request msg ACK/cseq=10318 (rdata05CC42BC)
+00:33:35.124   pjsua_core.c  .RX 467 bytes Request msg ACK/cseq=10318 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+ACK sip:spendtime@172.16.1.53:5065;ob SIP/2.0
+Via: SIP/2.0/UDP 81.19.70.76;branch=z9hG4bKb65f.fcc5a6f5.2
+v: SIP/2.0/UDP 81.19.90.124:5065;received=81.19.90.124;rport=5065;branch=z9hG4bKPj68b4c46aafb44a279a2ceb0d5afea83d
+Max-Forwards: 69
+f: sip:rvoip-1@vsip.rambler.ru;tag=86232102941249b5862896e51eb633ad
+t: <sip:spendtime@vsip.rambler.ru>;tag=23eb711eb85148bbbc97c1f73f59fefb
+i: 745ba67d6b8e4659a3755726c12af894
+CSeq: 10318 ACK
+l:  0
+P-hint: rr-enforced
+
+
+--end msg--
+00:33:35.124    dlg05CE9654  .Received Request msg ACK/cseq=10318 (rdata05CC42BC)
+00:33:35.146   strm05D54F64 !RTP status: badpt=0, badssrc=0, dup=0, outorder=0, probation=-1, restart=0
+00:33:35.152   strm05D54F64 !Jitter buffer starts returning normal frames (after 73 empty/lost)
+00:33:35.213   strm05D54F64  Jitter buffer empty (prefetch=0), plc invoked
+00:33:35.233   strm05D54F64  Jitter buffer starts returning normal frames (after 1 empty/lost)
+00:33:35.356   silencedet.c  Starting talk burst (level=79 threshold=78)
+00:33:35.357   strm05D54F64  Start talksprut..
+00:33:35.475    dshow_dev.c !Capture thread started
+00:33:35.492 vstdec05CCFF54 !RTP status: badpt=0, badssrc=0, dup=0, outorder=0, probation=-1, restart=0
+00:33:35.535 vstdec05CCFF54  codec decode() error: Bad or corrupted bitstream (PJMEDIA_CODEC_EBADBITSTREAM) [err:220087]
+00:33:35.544  pjsua_media.c !Sending video keyframe request via SIP INFO
+00:33:35.544   pjsua_call.c  Call 1 sending INFO request..
+00:33:35.544       endpoint  .Request msg INFO/cseq=24768 (tdta05D53F20) created.
+00:33:35.544    dlg05CE9654  ..Sending Request msg INFO/cseq=24768 (tdta05D53F20)
+00:33:35.544    tsx05D041F4  ...Transaction created for Request msg INFO/cseq=24767 (tdta05D53F20)
+00:33:35.544    tsx05D041F4  ..Sending Request msg INFO/cseq=24767 (tdta05D53F20) in state Null
+00:33:35.544  sip_resolve.c  ...Target '81.19.70.76:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+00:33:35.544   pjsua_core.c  ...TX 590 bytes Request msg INFO/cseq=24767 (tdta05D53F20) to UDP 81.19.70.76:5060:
+INFO sip:rvoip-1@81.19.90.124:5065;ob SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPj061e42a6fca847759a9107b037e6ac05
+Max-Forwards: 70
+f: <sip:spendtime@vsip.rambler.ru>;tag=23eb711eb85148bbbc97c1f73f59fefb
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=86232102941249b5862896e51eb633ad
+i: 745ba67d6b8e4659a3755726c12af894
+CSeq: 24767 INFO
+Route: <sip:81.19.70.76;lr;did=fe3.0c8ddcc2>
+c: application/media_control+xml
+l:   146
+
+<?xml version="1.0" encoding="utf-8" ?><media_control><vc_primitive><to_encoder><picture_fast_update/></to_encoder></vc_primitive></media_control>
+--end msg--
+00:33:35.544    tsx05D041F4  ...State changed from Null to Calling, event=TX_MSG
+00:33:35.544    dlg05CE9654  ....Transaction tsx05D041F4 state changed to Calling
+00:33:35.553 sip_endpoint.c !Processing incoming message: Response msg 200/INFO/cseq=24767 (rdata05CC42BC)
+00:33:35.553   pjsua_core.c  .RX 338 bytes Response msg 200/INFO/cseq=24767 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;received=172.16.1.53;branch=z9hG4bKPj061e42a6fca847759a9107b037e6ac05
+i: 745ba67d6b8e4659a3755726c12af894
+f: <sip:spendtime@vsip.rambler.ru>;tag=23eb711eb85148bbbc97c1f73f59fefb
+t: <sip:rvoip-1@vsip.rambler.ru>;tag=86232102941249b5862896e51eb633ad
+CSeq: 24767 INFO
+l:  0
+
+
+--end msg--
+00:33:35.553    tsx05D041F4  .Incoming Response msg 200/INFO/cseq=24767 (rdata05CC42BC) in state Calling
+00:33:35.553    tsx05D041F4  ..State changed from Calling to Completed, event=RX_MSG
+00:33:35.553    dlg05CE9654  ...Received Response msg 200/INFO/cseq=24767 (rdata05CC42BC)
+00:33:35.553    dlg05CE9654  ...Transaction tsx05D041F4 state changed to Completed
+00:33:35.585 vstdec05CCFF54 !codec decode() error: Bad or corrupted bitstream (PJMEDIA_CODEC_EBADBITSTREAM) [err:220087]
+00:33:35.642 vstdec05CCFF54  codec decode() error: Bad or corrupted bitstream (PJMEDIA_CODEC_EBADBITSTREAM) [err:220087]
+00:33:35.677 vstdec05CCFF54 ! Decoding format changed: 720x480 I420<- 30000/1001(~29)fps
+00:33:35.677      sdl_dev.c  Stopping sdl video stream
+00:33:35.717      sdl_dev.c  Starting sdl video stream
+00:33:35.873   silencedet.c !Starting silence (level=17 threshold=56)
+00:33:35.873   strm05D54F64  Starting silence
+00:33:35.954   silencedet.c  Starting talk burst (level=366 threshold=56)
+00:33:35.954   strm05D54F64  Start talksprut..
+00:33:37.071   strm05D54F64  Jitter buffer empty (prefetch=0), plc invoked
+00:33:38.714 sip_endpoint.c !Processing incoming message: Request msg BYE/cseq=10319 (rdata05CC42BC)
+00:33:38.714   pjsua_core.c  .RX 467 bytes Request msg BYE/cseq=10319 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+BYE sip:spendtime@172.16.1.53:5065;ob SIP/2.0
+Via: SIP/2.0/UDP 81.19.70.76;branch=z9hG4bKa65f.67ed0a23.0
+v: SIP/2.0/UDP 81.19.90.124:5065;received=81.19.90.124;rport=5065;branch=z9hG4bKPjbc0f3cbb02de44ec8c391afb1337e7cd
+Max-Forwards: 69
+f: sip:rvoip-1@vsip.rambler.ru;tag=86232102941249b5862896e51eb633ad
+t: <sip:spendtime@vsip.rambler.ru>;tag=23eb711eb85148bbbc97c1f73f59fefb
+i: 745ba67d6b8e4659a3755726c12af894
+CSeq: 10319 BYE
+l:  0
+P-hint: rr-enforced
+
+
+--end msg--
+00:33:38.714    dlg05CE9654  .Received Request msg BYE/cseq=10319 (rdata05CC42BC)
+00:33:38.714    tsx05CE8E24  ...Transaction created for Request msg BYE/cseq=10319 (rdata05CC42BC)
+00:33:38.714    tsx05CE8E24  ..Incoming Request msg BYE/cseq=10319 (rdata05CC42BC) in state Null
+00:33:38.714    tsx05CE8E24  ...State changed from Null to Trying, event=RX_MSG
+00:33:38.714    dlg05CE9654  ....Transaction tsx05CE8E24 state changed to Trying
+00:33:38.714       endpoint  .....Response msg 200/BYE/cseq=10319 (tdta0E590098) created
+00:33:38.714    dlg05CE9654  ......Sending Response msg 200/BYE/cseq=10319 (tdta0E590098)
+00:33:38.714    tsx05CE8E24  ......Sending Response msg 200/BYE/cseq=10319 (tdta0E590098) in state Trying
+00:33:38.714  sip_resolve.c  .......Target '81.19.70.76:5060' type=UDP resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+00:33:38.714   pjsua_core.c  .......TX 418 bytes Response msg 200/BYE/cseq=10319 (tdta0E590098) to UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 81.19.70.76;received=81.19.70.76;branch=z9hG4bKa65f.67ed0a23.0
+v: SIP/2.0/UDP 81.19.90.124:5065;rport=5065;received=81.19.90.124;branch=z9hG4bKPjbc0f3cbb02de44ec8c391afb1337e7cd
+i: 745ba67d6b8e4659a3755726c12af894
+f: <sip:rvoip-1@vsip.rambler.ru>;tag=86232102941249b5862896e51eb633ad
+t: <sip:spendtime@vsip.rambler.ru>;tag=23eb711eb85148bbbc97c1f73f59fefb
+CSeq: 10319 BYE
+l:  0
+
+
+--end msg--
+00:33:38.714    tsx05CE8E24  .......State changed from Trying to Completed, event=TX_MSG
+00:33:38.714    dlg05CE9654  ........Transaction tsx05CE8E24 state changed to Completed
+00:33:38.714     vidgui.cpp  ......Call is DISCONNCTD (Normal call clearing)
+00:33:38.714  pjsua_media.c  ......Call 1: deinitializing media..
+00:33:38.714   strm05D54F64  ........JB summary:
+  size=0/eff=0 prefetch=0 level=2
+  delay (min/max/avg/dev)=20/40/37/7 ms
+  burst (min/max/avg/dev)=1/2/1/0 frames
+  lost=0 discard=0 empty=156
+00:33:38.714  pjsua_media.c  ........Media session call01:0 is destroyed
+00:33:38.714    pjsua_vid.c  ........Stopping video stream..
+00:33:38.931     vidwin.cpp !001D0688 revert parent handle to 00000000
+00:33:39.892    dshow_dev.c !.........Stopping dshow video stream
+00:33:39.892    pjsua_vid.c  .........Window 1: destroying..
+00:33:40.790   pjsua_core.c !PJSUA state changed: RUNNING --> CLOSING
+00:33:40.892    dshow_dev.c !..........Stopping dshow video stream
+00:33:40.892     vid_port.c  ..........Closing Sony Visual Communication Camera..
+00:33:41.892    dshow_dev.c  ..........Stopping dshow video stream
+00:33:41.896      sdl_dev.c  ..........Stopping sdl video stream
+00:33:41.896     vid_port.c  ..........Closing SDL renderer..
+00:33:41.896      sdl_dev.c  ..........Stopping sdl video stream
+00:33:41.956          clock !Thread stack max usage=6077 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:1405
+00:33:41.956      sdl_dev.c !.........Stopping sdl video stream
+00:33:41.956    pjsua_vid.c  .........Window 0: destroying..
+00:33:41.956      sdl_dev.c  ..........Stopping sdl video stream
+00:33:41.956     vid_port.c  ..........Closing SDL renderer..
+00:33:41.956      sdl_dev.c  ..........Stopping sdl video stream
+00:33:41.984 vstdec05CCFF54  .........JB summary:
+  size=2/eff=2 prefetch=0 level=0
+  delay (min/max/avg/dev)=0/0/0/0 ms
+  burst (min/max/avg/dev)=0/0/0/0 frames
+  lost=0 discard=0 empty=0
+00:33:41.986  pjsua_media.c  ........Media session call01:1 is destroyed
+00:33:41.986    dlg05CE9654  ......Session count dec to 3 by mod-invite
+00:33:41.986          pjsua  Thread stack max usage=14345 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:1405
+00:33:41.987   pjsua_core.c !Shutting down, flags=0...
+00:33:41.987   pjsua_call.c  .Hangup all calls..
+00:33:41.987   pjsua_pres.c  .Shutting down presence..
+00:33:41.987  pjsua_media.c  .Shutting down media..
+00:33:41.987  pjsua_media.c  ...Closing Wave mapper sound playback device and Wave mapper sound capture device
+00:33:41.987     wmme_dev.c  ...Stopped WMME playback stream
+00:33:41.989     wmme_dev.c  ...Stopped WMME capture stream
+00:33:41.989     wmme_dev.c  ...Stopped WMME playback stream
+00:33:41.989     wmme_dev.c  ...Stopped WMME capture stream
+00:33:41.989     wmme_dev.c !WMME: thread stopping..
+00:33:41.989           wmme  Thread stack max usage=6285 by d:\dev\pjsiplast\pjlib\src\pj\string.c:175
+00:33:42.007    pjsua_vid.c !..Destroying video subsystem..
+00:33:42.007    pjsua_vid.c  ...Window 0: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 1: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 2: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 3: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 4: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 5: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 6: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 7: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 8: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 9: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 10: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 11: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 12: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 13: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 14: destroying..
+00:33:42.007    pjsua_vid.c  ...Window 15: destroying..
+00:33:42.007     sdl_thread !Thread stack max usage=509 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:1119
+00:33:42.008         job_th !Thread stack max usage=941 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:924
+00:33:42.009      ev_thread !Thread stack max usage=7621 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:1405
+00:33:42.486          media !Thread stack max usage=6921 by d:\dev\pjsiplast\pjlib\src\pj\os_core_win32.c:1405
+00:33:42.486    pjsua_acc.c !.Acc 0: setting unregistration..
+00:33:42.486       endpoint  ..Request msg REGISTER/cseq=39718 (tdta007ADBB8) created.
+00:33:42.486    tsx05CE5714  ...Transaction created for Request msg REGISTER/cseq=39719 (tdta007ADBB8)
+00:33:42.486    tsx05CE5714  ..Sending Request msg REGISTER/cseq=39719 (tdta007ADBB8) in state Null
+00:33:42.486  sip_resolve.c  ...DNS resolver not available, target 'vsip.rambler.ru:0' type=Unspecified will be resolved with getaddrinfo()
+00:33:42.486  sip_resolve.c  ...Target 'vsip.rambler.ru:0' type=Unspecified resolved to '81.19.70.76:5060' type=UDP (UDP transport)
+00:33:42.486   pjsua_core.c  ...TX 373 bytes Request msg REGISTER/cseq=39719 (tdta007ADBB8) to UDP 81.19.70.76:5060:
+REGISTER sip:vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPjaa87697e20f04dd4a731399cb50b610f
+Max-Forwards: 70
+f: <sip:spendtime@vsip.rambler.ru>;tag=d96863b1ad974b0e9c5682e5e7a6f94c
+t: <sip:spendtime@vsip.rambler.ru>
+i: 75cd8aed396c4007ab9db1d3c4442921
+CSeq: 39719 REGISTER
+m: <sip:spendtime@172.16.1.53:5065;ob>
+Expires: 0
+l:  0
+
+
+--end msg--
+00:33:42.486    tsx05CE5714  ...State changed from Null to Calling, event=TX_MSG
+00:33:42.486    pjsua_acc.c  ..Acc 0: Unregistration sent
+00:33:42.487  pjsua_media.c  .Closing sound device after idle for 1 seconds
+00:33:42.487    tsx05D041F4  .Timeout timer event
+00:33:42.487    tsx05D041F4  ..State changed from Completed to Terminated, event=TIMER
+00:33:42.487    dlg05CE9654  ...Transaction tsx05D041F4 state changed to Terminated
+00:33:42.487    tsx05D041F4  .Timeout timer event
+00:33:42.487    tsx05D041F4  ..State changed from Terminated to Destroyed, event=TIMER
+00:33:42.487   tdta05D53F20  ...Destroying txdata Request msg INFO/cseq=24767 (tdta05D53F20)
+00:33:42.487    tsx05D041F4  ...Transaction destroyed!
+00:33:42.492 sip_endpoint.c  .Processing incoming message: Response msg 401/REGISTER/cseq=39719 (rdata05CC42BC)
+00:33:42.492   pjsua_core.c  ..RX 476 bytes Response msg 401/REGISTER/cseq=39719 (rdata05CC42BC) from UDP 81.19.70.76:5060:
+SIP/2.0 401 Unauthorized
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;branch=z9hG4bKPjaa87697e20f04dd4a731399cb50b610f
+f: <sip:spendtime@vsip.rambler.ru>;tag=d96863b1ad974b0e9c5682e5e7a6f94c
+t: <sip:spendtime@vsip.rambler.ru>;tag=55f576c530866cae25bd5851ec979fff.1595
+i: 75cd8aed396c4007ab9db1d3c4442921
+CSeq: 39719 REGISTER
+WWW-Authenticate: Digest realm="vsip.rambler.ru", nonce="4ef4e5c200005bc404d8b5cbdf48c101488c37c445cbe44f"
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+00:33:42.492    tsx05CE5714  ..Incoming Response msg 401/REGISTER/cseq=39719 (rdata05CC42BC) in state Calling
+00:33:42.492    tsx05CE5714  ...State changed from Calling to Completed, event=RX_MSG
+00:33:42.492    tsx05D041F4  .....Transaction created for Request msg REGISTER/cseq=39720 (tdta007ADBB8)
+00:33:42.492    tsx05D041F4  ....Sending Request msg REGISTER/cseq=39720 (tdta007ADBB8) in state Null
+00:33:42.492       endpoint  .....Request msg REGISTER/cseq=39720 (tdta007ADBB8): skipping target resolution because address is already set
+00:33:42.492   pjsua_core.c  .....TX 572 bytes Request msg REGISTER/cseq=39720 (tdta007ADBB8) to UDP 81.19.70.76:5060:
+REGISTER sip:vsip.rambler.ru SIP/2.0
+v: SIP/2.0/UDP 172.16.1.53:5065;rport;branch=z9hG4bKPjd73055e3be074356b6347ca40d89f0cc
+Max-Forwards: 70
+f: <sip:spendtime@vsip.rambler.ru>;tag=d96863b1ad974b0e9c5682e5e7a6f94c
+t: <sip:spendtime@vsip.rambler.ru>
+i: 75cd8aed396c4007ab9db1d3c4442921
+CSeq: 39720 REGISTER
+m: <sip:spendtime@172.16.1.53:5065;ob>
+Expires: 0
+Authorization: Digest username="spendtime", realm="vsip.rambler.ru", nonce="4ef4e5c200005bc404d8b5cbdf48c101488c37c445cbe44f", uri="sip:vsip.rambler.ru", response="f15950f14ea8ef7ea45e70fef7b163f1"
+l:  0
+
+
+--end msg--
+00:33:42.492    tsx05D041F4  .....State changed from Null to Calling, event=TX_MSG
+00:33:42.502 sip_endpoint.c  .Processing incoming message: Response msg 200/REGISTER/cseq=39720 (rdata05D53C04)
+00:33:42.502   pjsua_core.c  ..RX 358 bytes Response msg 200/REGISTER/cseq=39720 (rdata05D53C04) from UDP 81.19.70.76:5060:
+SIP/2.0 200 OK
+v: SIP/2.0/UDP 172.16.1.53:5065;rport=5065;branch=z9hG4bKPjd73055e3be074356b6347ca40d89f0cc
+f: <sip:spendtime@vsip.rambler.ru>;tag=d96863b1ad974b0e9c5682e5e7a6f94c
+t: <sip:spendtime@vsip.rambler.ru>;tag=55f576c530866cae25bd5851ec979fff.c8a6
+i: 75cd8aed396c4007ab9db1d3c4442921
+CSeq: 39720 REGISTER
+Server: OpenSIPS
+Content-Length: 0
+
+
+--end msg--
+00:33:42.502    tsx05D041F4  ..Incoming Response msg 200/REGISTER/cseq=39720 (rdata05D53C04) in state Calling
+00:33:42.502    tsx05D041F4  ...State changed from Calling to Completed, event=RX_MSG
+00:33:42.502    pjsua_acc.c  .....sip:spendtime@vsip.rambler.ru: unregistration success
+00:33:42.502     vidgui.cpp  .....sip:spendtime@vsip.rambler.ru: 200/OK (expires=-1)
+
+00:33:43.492   pjsua_core.c  .Destroying...
+00:33:43.492 sip_endpoint.c  .Destroying endpoing instance..
+00:33:43.492 sip_transactio  .Stopping transaction layer module
+00:33:43.492    tsx05CE5714  .Request to terminate transaction
+00:33:43.492    tsx05CE5714  ..State changed from Completed to Terminated, event=USER
+00:33:43.492    tsx05CE5714  .Transaction destroyed!
+00:33:43.492    tsx05D55C54  .Request to terminate transaction
+00:33:43.492    tsx05D55C54  ..State changed from Completed to Terminated, event=USER
+00:33:43.492    dlg05D3F304  ...Transaction tsx05D55C54 state changed to Terminated
+00:33:43.492    dlg05D3F304  ....Dialog destroyed
+00:33:43.492   tdta05D58390  .Destroying txdata Request msg ACK/cseq=31675 (tdta05D58390)
+00:33:43.492    tsx05D55C54  .Transaction destroyed!
+00:33:43.492    tsx05CE8E24  .Request to terminate transaction
+00:33:43.492    tsx05CE8E24  ..State changed from Completed to Terminated, event=USER
+00:33:43.492    dlg05CE9654  ...Transaction tsx05CE8E24 state changed to Terminated
+00:33:43.492    dlg05CE9654  ....Dialog destroyed
+00:33:43.492   tdta0E590098  .Destroying txdata Response msg 200/BYE/cseq=10319 (tdta0E590098)
+00:33:43.492    tsx05CE8E24  .Transaction destroyed!
+00:33:43.492    tsx05D041F4  .Request to terminate transaction
+00:33:43.492    tsx05D041F4  ..State changed from Completed to Terminated, event=USER
+00:33:43.492   tdta007ADBB8  .Destroying txdata Request msg REGISTER/cseq=39720 (tdta007ADBB8)
+00:33:43.492    tsx05D041F4  .Transaction destroyed!
+00:33:43.492 sip_endpoint.c  .Module "mod-default-handler" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-unsolicited-mwi" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-pjsua-options" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-pjsua-im" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-pjsua-pres" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-pjsua" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-stateful-util" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-refer" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-mwi" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-presence" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-evsub" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-invite" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-100rel" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-ua" unregistered
+00:33:43.492 sip_transactio  .Transaction layer module destroyed
+00:33:43.492 sip_endpoint.c  .Module "mod-tsx-layer" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-msg-print" unregistered
+00:33:43.492 sip_endpoint.c  .Module "mod-pjsua-log" unregistered
+00:33:43.492 sip_transport.  .Destroying transport manager
+00:33:43.493   tcplis:53054  .SIP TCP listener destroyed
+00:33:43.493 sip_endpoint.c  .Endpoint 0078D06C destroyed
+00:33:43.493   pjsua_core.c  .PJSUA state changed: CLOSING --> NULL
+00:33:43.493   pjsua_core.c  .PJSUA destroyed...
