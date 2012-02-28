@@ -1,7 +1,10 @@
 #include "systemintegration.h"
 
 #include <interfaces/imacintegration.h>
+#include <interfaces/iwin7integration.h>
 #include <utils/log.h>
+
+#include <QSysInfo>
 
 SystemIntegration::SystemIntegration()
 {
@@ -26,7 +29,7 @@ bool SystemIntegration::initConnections(IPluginManager *APluginManager, int &AIn
 	if (APluginManager)
 	{
 		connect(APluginManager->instance(), SIGNAL(aboutToQuit()), SLOT(onAboutToQuit()));
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC)
 		IPlugin *plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
 		if (plugin)
 		{
@@ -44,6 +47,29 @@ bool SystemIntegration::initConnections(IPluginManager *APluginManager, int &AIn
 		}
 		else
 			LogError("[SystemIntegration]: Failed to load Mac OS X Integration plugin! IMacIntegration plugin not found");
+#elif defined(Q_WS_WIN)
+		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		{
+			IPlugin *plugin = APluginManager->pluginInterface("IWin7Integration").value(0,NULL);
+			if (plugin)
+			{
+				IWin7Integration * win7Integration = qobject_cast<IWin7Integration *>(plugin->instance());
+				if ((impl = qobject_cast<ISystemIntegrationImplementation*>(win7Integration->instance())))
+				{
+					LogDetail("[SystemIntegration]: Loaded Windows 7 Integration plugin");
+					plugin->initConnections(APluginManager, AInitOrder);
+					impl->init();
+				}
+				else
+				{
+					LogError("[SystemIntegration]: Failed to load Windows 7 Integration plugin! Interface ISystemIntegrationImplementation not implemented");
+				}
+			}
+			else
+				LogError("[SystemIntegration]: Failed to load Windows 7 Integration plugin! IWin7Integration plugin not found");
+		}
+#elif defined(Q_WS_X11)
+		// TODO: unity integration plugin
 #endif
 	}
 	return true;
