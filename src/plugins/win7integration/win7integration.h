@@ -19,8 +19,8 @@ public:
 	//IPlugin
 	virtual QObject *instance() { return this; }
 	virtual QUuid pluginUuid() const { return WIN7INTEGRATION_UUID; }
-	virtual void pluginInfo(IPluginInfo *APluginInfo) {;}
-	virtual bool initConnections(IPluginManager *APluginManager, int &AInitOrder) {;}
+	virtual void pluginInfo(IPluginInfo *APluginInfo);
+	virtual bool initConnections(IPluginManager *APluginManager, int &AInitOrder) { return true; }
 	virtual bool initObjects() { return true; }
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
