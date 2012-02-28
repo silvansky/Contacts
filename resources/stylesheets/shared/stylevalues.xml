@@ -14,6 +14,7 @@
 	<stylevalue key="loginDialogLabelFontSize_mac" type="int" value="12" />
 	<stylevalue key="loginDialogCompleterHOffset" type="int" value="6" />
 	<stylevalue key="loginDialogCompleterVOffset" type="int" value="0" />
+	<stylevalue key="loginDialogCompleterMinRowHeight" type="int" value="27" />
 	<stylevalue key="globalLinkColor" type="color" value="#ffffff" />
 	<stylevalue key="globalDarkLinkColor" type="color" value="#acacac" />
 	<stylevalue key="rostersViewDelegateMarginH" type="int" value="7" />
@@ -31,6 +32,10 @@
 	<stylevalue key="messageWidgetsEditRightMargin" type="int" value="50" />
 	<stylevalue key="metacontactsLabelMarginH" type="int" value="5" />
 	<stylevalue key="metacontactsLabelMarginV" type="int" value="4" />
+	<stylevalue key="rosterSearchSearchEditRightMargin" type="int" value="22" />
+	<stylevalue key="rosterSearchSearchEditRightMargin_mac" type="int" value="26" />
+	<stylevalue key="rosterSearchSearchEditBottomMargin" type="int" value="16" />
+<!--
 	<stylevalue key="" type="int" value="0" />
 	<stylevalue key="" type="int" value="0" />
 	<stylevalue key="" type="int" value="0" />
@@ -39,7 +44,5 @@
 	<stylevalue key="" type="int" value="0" />
 	<stylevalue key="" type="int" value="0" />
 	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
+-->
 </stylevalues>
