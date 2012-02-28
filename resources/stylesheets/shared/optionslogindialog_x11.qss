@@ -1,0 +1,13 @@
+QTreeView::item
+{
+	min-height : 34px;
+	background-color: rgba(65, 70, 77, 250);
+	border-bottom: 2px;
+	border-right: 24px;
+	padding-right: -22px;
+	border-left: 0px;
+	border-top: 0px;
+	border-image: url(%IMAGES_PATH%/treeviewitembottomrightborder.png);
+	color: white;
+	padding-left: 7px;
+}
