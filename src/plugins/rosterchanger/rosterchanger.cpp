@@ -69,6 +69,7 @@ RosterChanger::RosterChanger()
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FMessageStyles = NULL;
+	FWelcomeScreen = NULL;
 }
 
 RosterChanger::~RosterChanger()
@@ -85,6 +86,8 @@ void RosterChanger::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->author = "Potapov S.A. aka Lion";
 	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(ROSTER_UUID);
+	APluginInfo->dependences.append(MAINWINDOW_UUID);
+	APluginInfo->dependences.append(METACONTACTS_UUID);
 }
 
 bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOrder)
@@ -105,6 +108,7 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscriptionReceived(IRoster *, const Jid &, int, const QString &)),
 				SLOT(onSubscriptionReceived(IRoster *, const Jid &, int, const QString &)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterClosed(IRoster *)),SLOT(onRosterClosed(IRoster *)));
+			connect(FRosterPlugin->instance(),SIGNAL(rosterOpened(IRoster *)),SLOT(onRosterOpened(IRoster *)));
 		}
 	}
 
@@ -149,7 +153,14 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 
 	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
 	if (plugin)
+	{
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+		if (FMainWindowPlugin)
+		{
+			FWelcomeScreen = new WelcomeScreenWidget;
+			connect(FWelcomeScreen, SIGNAL(addressEntered(const QString &)), SLOT(onAddressEntered(const QString &)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);
 	if (plugin)
@@ -179,7 +190,7 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 	if (plugin)
 		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
 
-	return FRosterPlugin!=NULL;
+	return FRosterPlugin && FMainWindowPlugin && FMetaContacts;
 }
 
 bool RosterChanger::initObjects()
@@ -1048,6 +1059,54 @@ void RosterChanger::showNotifyInChatWindow(IChatWindow *AWindow, const QString &
 
 	QString message = !AText.isEmpty() ? ANotify +" (" +AText+ ")" : ANotify;
 	AWindow->viewWidget()->changeContentText(message,options);
+}
+
+void RosterChanger::checkWelcomeScreenNeeded(QList<IRosterItem> items)
+{
+	static QWidget * lastRosterWidget = FMainWindowPlugin->mainWindow()->rostersWidget()->currentWidget();
+	bool needShowWelcomeScreen = FSubscriptionRequests.isEmpty();
+	if (needShowWelcomeScreen)
+	{
+		foreach (IRosterItem item, items)
+		{
+			if ((!item.itemJid.node().isEmpty()) || (!FMetaContacts->metaDescriptorByItem(item.itemJid).service))
+			{
+				needShowWelcomeScreen = false;
+				break;
+			}
+		}
+	}
+	if (needShowWelcomeScreen)
+	{
+		if (FMainWindowPlugin->mainWindow()->rostersWidget()->indexOf(FWelcomeScreen) == -1)
+			FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0, FWelcomeScreen);
+		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(FWelcomeScreen);
+	}
+	else
+		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(lastRosterWidget);
+}
+
+void RosterChanger::onAddressEntered(const QString & address)
+{
+	IAccount *account = FAccountManager ? FAccountManager->accounts().first() : NULL;
+	if (account && account->isActive())
+	{
+		IAddContactDialog * dialog = NULL;
+		QWidget *widget = showAddContactDialog(account->xmppStream()->streamJid());
+		if (widget)
+		{
+			if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+			{
+				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+					dialog = qobject_cast<IAddContactDialog*>(border->widget());
+			}
+			if (dialog)
+			{
+				dialog->setContactJid(address);
+				dialog->executeRequiredContactChecks();
+			}
+		}
+	}
 }
 
 void RosterChanger::onShowAddContactDialog(bool)
@@ -2029,6 +2088,12 @@ void RosterChanger::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AI
 			removeObsoleteChatNotices(ARoster->streamJid(),AItem.itemJid,IRoster::Subscribe,true);
 		}
 	}
+	checkWelcomeScreenNeeded(ARoster->rosterItems());
+}
+
+void RosterChanger::onRosterOpened(IRoster *ARoster)
+{
+	checkWelcomeScreenNeeded(ARoster->rosterItems());
 }
 
 void RosterChanger::onRosterClosed(IRoster *ARoster)

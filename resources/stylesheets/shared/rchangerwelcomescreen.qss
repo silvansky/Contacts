@@ -1,0 +1,15 @@
+#WelcomeScreenWidget
+{
+	background-color: white;
+	color: black;
+}
+
+#caption
+{
+	color: black;
+}
+
+#comment
+{
+	color: #acacac;
+}

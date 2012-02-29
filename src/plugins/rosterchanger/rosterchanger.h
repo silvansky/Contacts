@@ -42,6 +42,7 @@
 #include <utils/iconstorage.h>
 #include "addcontactdialog.h"
 #include "addmetacontactdialog.h"
+#include "welcomescreenwidget.h"
 
 struct AutoSubscription {
 	AutoSubscription() {
@@ -156,6 +157,7 @@ protected:
 	void removeNotifies(IChatWindow *AWindow);
 	void removeObsoleteNotifies(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent);
 	void showNotifyInChatWindow(IChatWindow *AWindow, const QString &ANotify, const QString &AText) const;
+	void checkWelcomeScreenNeeded(QList<IRosterItem> items);
 protected slots:
 	//Operations on subscription
 	void onContactSubscription(bool);
@@ -178,11 +180,13 @@ protected slots:
 	void onRemoveGroup(bool);
 	void onRemoveGroupItems(bool);
 protected slots:
+	void onAddressEntered(const QString & address);
 	void onShowAddContactDialog(bool);
 	void onShowAddGroupDialog(bool);
 	void onRenameGroupDialogAccepted(QString);
 	void onShowAddAccountDialog(bool);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
+	void onRosterOpened(IRoster *ARoster);
 	void onRosterClosed(IRoster *ARoster);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onEmptyGroupChildInserted(IRosterIndex *AIndex);
@@ -222,6 +226,7 @@ private:
 	QMultiMap<Jid, Jid> FSubscriptionRequests;
 	QMap<Jid, QMap<Jid, PendingChatNotice> > FPendingChatNotices;
 	QMap<Jid, QMap<Jid, AutoSubscription> > FAutoSubscriptions;
+	WelcomeScreenWidget * FWelcomeScreen;
 };
 
 #endif // ROSTERCHANGER_H
