@@ -181,6 +181,9 @@ bool MessageProcessor::processMessage(const Jid &AStreamJid, Message &AMessage, 
 	else
 		AMessage.setFrom(AStreamJid.eFull());
 
+	if (AMessage.id().isEmpty())
+		AMessage.setId(QUuid::createUuid().toString());
+
 	bool hooked = false;
 	QMapIterator<int,IMessageEditor *> it(FMessageEditors);
 	ADirection == MessageIn ? it.toFront() : it.toBack();

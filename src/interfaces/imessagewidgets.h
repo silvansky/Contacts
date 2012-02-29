@@ -61,6 +61,8 @@ public:
 	virtual QWidget *styleWidget() const =0;
 	virtual IMessageStyle *messageStyle() const =0;
 	virtual void setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptions &AOptions) =0;
+	virtual Message messageByContentId(const QUuid &AId) const =0;
+	virtual QUuid contentIdByMessageId(const QString &AId) const =0;
 	virtual QUuid changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions) =0;
 	virtual QUuid changeContentText(const QString &AText, const IMessageContentOptions &AOptions) =0;
 	virtual QUuid changeContentMessage(const Message &AMessage, const IMessageContentOptions &AOptions) =0;

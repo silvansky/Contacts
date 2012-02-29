@@ -40,6 +40,7 @@ ChatMessageHandler::ChatMessageHandler()
 	FRostersView = NULL;
 	FRostersModel = NULL;
 	FAvatars = NULL;
+	FGateways = NULL;
 	FStatusIcons = NULL;
 	FStatusChanger = NULL;
 	FXmppUriQueries = NULL;
@@ -161,6 +162,10 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &AI
 	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
 	if (plugin)
 		FAvatars = qobject_cast<IAvatars *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
 	if (plugin)
@@ -905,9 +910,11 @@ QUuid ChatMessageHandler::showStyledStatus(IChatWindow *AWindow, const QString &
 
 QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message &AMessage, const StyleExtension &AExtension)
 {
+	Message message = AMessage;
+
 	IMessageContentOptions options;
 	options.kind = IMessageContentOptions::Message;
-	options.time = AMessage.dateTime();
+	options.time = message.dateTime();
 	options.timeFormat = FMessageStyles->timeFormat(options.time);
 	
 	options.action = AExtension.action;
@@ -915,7 +922,7 @@ QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message 
 	options.extensions = AExtension.extensions;
 	options.contentId = AExtension.contentId;
 
-	if (AWindow->streamJid() && AWindow->contactJid() ? AWindow->contactJid() != AMessage.to() : !(AWindow->contactJid() && AMessage.to()))
+	if (AWindow->streamJid() && AWindow->contactJid() ? AWindow->contactJid() != message.to() : !(AWindow->contactJid() && message.to()))
 		options.direction = IMessageContentOptions::DirectionIn;
 	else
 		options.direction = IMessageContentOptions::DirectionOut;
@@ -926,17 +933,44 @@ QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message 
 		options.type |= IMessageContentOptions::History;
 	}
 
-	if (AMessage.type() == Message::Error)
+	if (message.type() == Message::Error)
 	{
-		ErrorHandler err(AMessage.stanza().element());
-		options.extensions = IMessageContentOptions::Error;
+		ErrorHandler err(message.stanza().element());
 		options.status = IMessageContentOptions::ErrorMessage;
-		options.notice = tr("An error message received: %1").arg(err.message());
+
+		QUuid uid = AWindow->viewWidget()->contentIdByMessageId(message.id());
+		if (!uid.isNull())
+		{
+			options.contentId = uid;
+			options.action = IMessageContentOptions::Replace;
+			options.extensions |= IMessageContentOptions::ErrorReceipt;
+			message = AWindow->viewWidget()->messageByContentId(uid);
+			options.direction = message.data(MDR_MESSAGE_DIRECTION).toInt()==IMessageProcessor::MessageIn ? IMessageContentOptions::DirectionIn : IMessageContentOptions::DirectionOut;
+			
+			if (FGateways && FGateways->streamServices(AWindow->streamJid()).contains(AWindow->contactJid().domain()) && !FGateways->isServiceEnabled(AWindow->streamJid(),AWindow->contactJid()))
+			{
+				IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(AWindow->streamJid(),AWindow->contactJid().domain());
+				options.notice = tr("Not sent. Use settings to switch on your %1 account.").arg(descriptor.name);
+			}
+			else if (err.type() == ErrorHandler::WAIT)
+			{
+				options.notice = tr("Not sent. Try again a bit later.");
+			}
+			else
+			{
+				options.notice = tr("Not sent. Check whether the contact's address is correct.");
+			}
+		}
+		else
+		{
+			options.extensions |= IMessageContentOptions::Error;
+			options.notice = tr("An error message received: %1").arg(err.message());
+		}
 	}
 
 	fillContentOptions(AWindow,options);
-	showDateSeparator(AWindow,AMessage.dateTime().date());
-	return AWindow->viewWidget()->changeContentMessage(AMessage,options);
+	showDateSeparator(AWindow,message.dateTime().date());
+	return AWindow->viewWidget()->changeContentMessage(message,options);
 }
 
 bool ChatMessageHandler::eventFilter(QObject *AObject, QEvent *AEvent)

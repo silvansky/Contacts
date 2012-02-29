@@ -10,6 +10,11 @@ body {
     float: right;
 }
 
+.errorReceipt {
+    position:absolute;
+    right:14px;
+}
+
 .status {
     color: rgba(177, 177, 177, 1);
 }
@@ -25,6 +30,11 @@ body {
     display: inline-block;
     width: 92%;
     word-wrap: break-word;
+}
+
+.errorReceiptText {
+
+    color: rgba(177, 177, 177, 1);
 }
 
 .content {

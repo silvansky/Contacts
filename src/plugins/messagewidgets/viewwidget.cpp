@@ -78,7 +78,6 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 		}
 		if (FMessageStyle)
 		{
-
 			FStyleWidget = FMessageStyle->createWidget(AOptions,ui.wdtViewer);
 			FStyleWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(FStyleWidget,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onCustomContextMenuRequested(const QPoint &)));
@@ -89,6 +88,22 @@ void ViewWidget::setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptio
 		}
 		emit messageStyleChanged(befour,AOptions);
 	}
+}
+
+Message ViewWidget::messageByContentId(const QUuid &AId) const
+{
+	return FMessages.value(AId);
+}
+
+QUuid ViewWidget::contentIdByMessageId(const QString &AId) const
+{
+	if (!AId.isEmpty())
+	{
+		for (QHash<QUuid, Message>::const_iterator it=FMessages.constBegin(); it!=FMessages.constEnd(); it++)
+			if (it->id() == AId)
+				return it.key();
+	}
+	return QUuid();
 }
 
 QUuid ViewWidget::changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions)
@@ -110,7 +125,11 @@ QUuid ViewWidget::changeContentMessage(const Message &AMessage, const IMessageCo
 		FMessageProcessor->messageToText(&messageDoc,AMessage);
 	else
 		messageDoc.setPlainText(AMessage.body());
-	return changeContentHtml(getHtmlBody(messageDoc.toHtml()),AOptions);
+
+	QUuid uid =  changeContentHtml(getHtmlBody(messageDoc.toHtml()),AOptions);
+	FMessages.insert(uid,AMessage);
+
+	return uid;
 }
 
 void ViewWidget::contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
@@ -123,13 +142,6 @@ void ViewWidget::initialize()
 	IPlugin *plugin = FMessageWidgets->pluginManager()->pluginInterface("IMessageProcessor").value(0,NULL);
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
-}
-
-QString ViewWidget::getHtmlBody(const QString &AHtml)
-{
-	QRegExp body("<body.*>(.*)</body>");
-	body.setMinimal(false);
-	return AHtml.indexOf(body)>=0 ? body.cap(1).trimmed() : AHtml;
 }
 
 void ViewWidget::dropEvent(QDropEvent *AEvent)

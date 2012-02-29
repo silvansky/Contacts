@@ -26,6 +26,8 @@ public:
 	virtual QWidget *styleWidget() const;
 	virtual IMessageStyle *messageStyle() const;
 	virtual void setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptions &AOptions);
+	virtual Message messageByContentId(const QUuid &AId) const;
+	virtual QUuid contentIdByMessageId(const QString &AId) const;
 	virtual QUuid changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions);
 	virtual QUuid changeContentText(const QString &AText, const IMessageContentOptions &AOptions);
 	virtual QUuid changeContentMessage(const Message &AMessage, const IMessageContentOptions &AOptions);
@@ -39,7 +41,6 @@ signals:
 	void urlClicked(const QUrl &AUrl) const;
 protected:
 	void initialize();
-	QString getHtmlBody(const QString &AHtml);
 protected:
 	virtual void dropEvent(QDropEvent *AEvent);
 	virtual void dragEnterEvent(QDragEnterEvent *AEvent);
@@ -59,6 +60,7 @@ private:
 	Jid FStreamJid;
 	Jid FContactJid;
 	QWidget *FStyleWidget;
+	QHash<QUuid,Message> FMessages;
 	QList<IViewDropHandler *> FActiveDropHandlers;
 };
 
