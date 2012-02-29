@@ -437,8 +437,8 @@
 <context>
     <name>SelectProfileWidgetClass</name>
     <message>
-        <source>To contact-list:</source>
-        <translation>В список контактов:</translation>
+        <source>Save in the contact list of the following account:</source>
+        <translation>Сохранить в списке контактов учетной записи:</translation>
     </message>
 </context>
 </TS>
