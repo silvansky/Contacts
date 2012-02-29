@@ -29,16 +29,15 @@ bool SystemIntegration::initConnections(IPluginManager *APluginManager, int &AIn
 	if (APluginManager)
 	{
 		connect(APluginManager->instance(), SIGNAL(aboutToQuit()), SLOT(onAboutToQuit()));
+		IPlugin *plugin = NULL;
 #if defined(Q_WS_MAC)
-		IPlugin *plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+		plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
 		if (plugin)
 		{
 			IMacIntegration * macIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
 			if ((impl = qobject_cast<ISystemIntegrationImplementation*>(macIntegration->instance())))
 			{
 				LogDetail("[SystemIntegration]: Loaded Mac OS X Integration plugin");
-				plugin->initConnections(APluginManager, AInitOrder);
-				impl->init();
 			}
 			else
 			{
@@ -50,15 +49,13 @@ bool SystemIntegration::initConnections(IPluginManager *APluginManager, int &AIn
 #elif defined(Q_WS_WIN)
 		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
 		{
-			IPlugin *plugin = APluginManager->pluginInterface("IWin7Integration").value(0,NULL);
+			plugin = APluginManager->pluginInterface("IWin7Integration").value(0,NULL);
 			if (plugin)
 			{
 				IWin7Integration * win7Integration = qobject_cast<IWin7Integration *>(plugin->instance());
 				if ((impl = qobject_cast<ISystemIntegrationImplementation*>(win7Integration->instance())))
 				{
 					LogDetail("[SystemIntegration]: Loaded Windows 7 Integration plugin");
-					plugin->initConnections(APluginManager, AInitOrder);
-					impl->init();
 				}
 				else
 				{
@@ -71,6 +68,13 @@ bool SystemIntegration::initConnections(IPluginManager *APluginManager, int &AIn
 #elif defined(Q_WS_X11)
 		// TODO: unity integration plugin
 #endif
+		if (impl)
+		{
+			plugin->initConnections(APluginManager, AInitOrder);
+			impl->init();
+			connect(impl->instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
+			connect(impl->instance(), SIGNAL(systemNotificationClicked(int)), SIGNAL(systemNotificationClicked(int)));
+		}
 	}
 	return true;
 }
