@@ -47,7 +47,10 @@ INSTALLS          += target resources documents
 
 #Translation
 TRANS_SOURCE_ROOT  = ..
+#Mac OS X translations hack
+macx:TARGET        = ramblercontacts
 include(../translations.inc)
+macx:TARGET        = $$TARGET_LOADER
 
 #Linux desktop install
 unix:!macx {
