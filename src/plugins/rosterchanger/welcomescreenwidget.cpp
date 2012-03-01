@@ -18,7 +18,7 @@ WelcomeScreenWidget::WelcomeScreenWidget(QWidget *parent) :
 	ui->add->addTextFlag(TF_LIGHTSHADOW);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_RCHANGER_WELCOMESCREEN);
 
-	connect(ui->add, SIGNAL(clicked(), SLOT(onAddPressed()));
+	connect(ui->add, SIGNAL(clicked()), SLOT(onAddPressed()));
 	connect(ui->address, SIGNAL(textChanged(const QString &)), SLOT(onTextChanged(const QString &)));
 
 	ui->address->installEventFilter(this);

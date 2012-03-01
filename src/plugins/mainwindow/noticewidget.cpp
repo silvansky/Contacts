@@ -20,6 +20,7 @@ InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 
 	ui.wdtActions->setLayout(new QHBoxLayout);
 	ui.wdtActions->layout()->setContentsMargins(0, 0, 0, 8);
+	ui.wdtActions->setProperty("ignoreFilter", true);
 
 	FActiveNotice = -1;
 
