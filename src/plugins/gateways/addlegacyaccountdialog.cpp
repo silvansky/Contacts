@@ -73,10 +73,17 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 			domainsMenu->addAction(action);
 			connect(action, SIGNAL(triggered()), SLOT(onDomainsMenuActionTriggered()));
 			if (!i++)
+			{
 				action->trigger();
+				ui.lblDomain->setText("@" + domain);
+			}
 		}
-		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());
-		ui.tlbDomains->setVisible(!FGateLabel.domains.isEmpty());
+		int domainsCount = FGateLabel.domains.count();
+		ui.cmbDomains->setVisible(domainsCount > 1);
+		ui.tlbDomains->setVisible(domainsCount > 1);
+		ui.lblDomain->setVisible(domainsCount == 1);
+		if (domainsCount == 1)
+			ui.loginLayout->setSpacing(0);
 
 		LogDetail(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
 		FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);

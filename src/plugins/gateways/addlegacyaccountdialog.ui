@@ -62,7 +62,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="loginLayout">
+    <layout class="QHBoxLayout" name="loginLayout" stretch="0,0,0,0">
      <property name="spacing">
       <number>3</number>
      </property>
@@ -71,6 +71,13 @@
      </property>
      <item>
       <widget class="QLineEdit" name="lneLogin"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblDomain">
+       <property name="text">
+        <string>lblDomain</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QComboBox" name="cmbDomains"/>
