@@ -37,6 +37,7 @@ protected:
 	void updateWidgets(int ANoticeId);
 protected:
 	void paintEvent(QPaintEvent *AEvent);
+	bool eventFilter(QObject * obj, QEvent * evt);
 protected slots:
 	void onReadyTimerTimeout();
 	void onUpdateTimerTimeout();
@@ -50,7 +51,8 @@ private:
 	QTimer FUpdateTimer;
 	QMultiMap<int, int> FNoticeQueue;
 	QMap<int, IInternalNotice> FNotices;
-	QObjectCleanupHandler FButtonsCleanup;
+	QMap<QLabel*, Action*> FActionLabels;
+	QObjectCleanupHandler FActionWidgetsCleanup;
 };
 
 #endif // NOTICEWIDGET_H

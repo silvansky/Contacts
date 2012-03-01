@@ -9,6 +9,7 @@
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <definitions/customborder.h>
+#include <definitions/internalnoticepriorities.h>
 #include <definitions/statusicons.h>
 #include <utils/customborderstorage.h>
 
@@ -1057,12 +1058,32 @@ void RosterChanger::setWelcomeScreen(bool visible)
 {
 	static QWidget * lastRosterWidget = FMainWindowPlugin->mainWindow()->rostersWidget()->currentWidget();
 	static WelcomeScreenWidget * welcomeScreen = NULL;
+	static int internalNoticeId = -1;
+	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 	if (visible)
 	{
 		welcomeScreen = new WelcomeScreenWidget;
 		connect(welcomeScreen, SIGNAL(addressEntered(const QString &)), SLOT(onAddressEntered(const QString &)));
 		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0, welcomeScreen);
 		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(welcomeScreen);
+//		while (!widget->noticeQueue().isEmpty())
+//		{
+//			widget->removeNotice(widget->activeNotice());
+//		}
+		IInternalNotice notice;
+		notice.priority = INP_HIGH;
+		notice.iconStorage = RSR_STORAGE_MENUICONS;
+		notice.caption = tr("Add your accounts");
+		notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
+
+		Action *action = new Action(this);
+		action->setData(IInternalNotice::TypeRole, IInternalNotice::ImageAction);
+		action->setData(IInternalNotice::ImageRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ALL_SERVICES));
+		action->setText(tr("Add my accounts..."));
+		connect(action, SIGNAL(triggered()), SLOT(onNoticeWidgetAction()));
+		notice.actions.append(action);
+
+		internalNoticeId = widget->insertNotice(notice);
 	}
 	else
 	{
@@ -1070,6 +1091,8 @@ void RosterChanger::setWelcomeScreen(bool visible)
 		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(lastRosterWidget);
 		welcomeScreen->deleteLater();
 		welcomeScreen = NULL;
+		widget->removeNotice(internalNoticeId);
+		internalNoticeId = -1;
 	}
 }
 
@@ -1110,6 +1133,14 @@ void RosterChanger::onAddressEntered(const QString & address)
 				dialog->executeRequiredContactChecks();
 			}
 		}
+	}
+}
+
+void RosterChanger::onNoticeWidgetAction()
+{
+	if (FOptionsManager)
+	{
+		FOptionsManager->showOptionsDialog(OPN_GATEWAYS);
 	}
 }
 

@@ -182,6 +182,7 @@ protected slots:
 	void onRemoveGroupItems(bool);
 protected slots:
 	void onAddressEntered(const QString & address);
+	void onNoticeWidgetAction();
 	void onShowAddContactDialog(bool);
 	void onShowAddGroupDialog(bool);
 	void onRenameGroupDialogAccepted(QString);

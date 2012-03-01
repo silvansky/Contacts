@@ -51,6 +51,7 @@
 #define MNI_GATEWAYS_ADD_ACCOUNT_ERROR           "gatewaysAddAccountError"
 #define MNI_GATEWAYS_CONNECTING_ANIMATION        "gatewaysConnectingAnimation"
 #define MNI_GATEWAYS_ACCOUNTS_OPTIONS            "gatewaysAccountsOptions"
+#define MNI_GATEWAYS_ALL_SERVICES                "gatewaysAllServices"
 
 //MainWindow
 #define MNI_MAINWINDOW_LOGO16                    "mainwindowLogo16"
