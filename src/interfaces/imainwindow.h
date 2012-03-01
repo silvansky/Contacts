@@ -21,8 +21,8 @@ struct IInternalNotice
 	};
 	enum ActionRoles
 	{
-		TypeRole = Action::DR_UserDefined + 1,
-		ImageRole
+		TypeRole = Action::DR_UserDefined + 100,
+		ImageRole = Action::DR_UserDefined + 101
 	};
 
 	IInternalNotice() {

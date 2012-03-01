@@ -1079,8 +1079,8 @@ void RosterChanger::setWelcomeScreen(bool visible)
 		notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
 
 		Action *action = new Action(this);
-		//action->setData(IInternalNotice::TypeRole, IInternalNotice::ImageAction);
-		//action->setData(IInternalNotice::ImageRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ALL_SERVICES));
+		action->setData(IInternalNotice::TypeRole, IInternalNotice::ImageAction);
+		action->setData(IInternalNotice::ImageRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ALL_SERVICES));
 		action->setText(tr("Add my accounts..."));
 		connect(action, SIGNAL(triggered()), SLOT(onNoticeWidgetAction()));
 		notice.actions.append(action);

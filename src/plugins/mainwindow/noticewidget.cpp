@@ -90,6 +90,7 @@ void InternalNoticeWidget::removeNotice(int ANoticeId)
 		FNoticeQueue.remove(notice.priority,ANoticeId);
 		FActionLabels.clear();
 		qDeleteAll(notice.actions);
+		notice.actions.clear();
 		emit noticeRemoved(ANoticeId);
 		updateNotice();
 	}
