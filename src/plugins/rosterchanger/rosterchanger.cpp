@@ -25,6 +25,10 @@
 #define ADR_NOTIFY_ID       Action::DR_UserDefined+2
 #define ADR_NOTICE_ACTION   Action::DR_UserDefined+3
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
 
 enum NoticeActions
@@ -1056,20 +1060,18 @@ void RosterChanger::showNotifyInChatWindow(IChatWindow *AWindow, const QString &
 
 void RosterChanger::setWelcomeScreen(bool visible)
 {
-	static QWidget * lastRosterWidget = FMainWindowPlugin->mainWindow()->rostersWidget()->currentWidget();
+	static QWidget * lastRosterWidget = NULL;
 	static WelcomeScreenWidget * welcomeScreen = NULL;
 	static int internalNoticeId = -1;
 	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
-	if (visible)
+	if (visible && !welcomeScreen)
 	{
+		lastRosterWidget = FMainWindowPlugin->mainWindow()->rostersWidget()->currentWidget();
 		welcomeScreen = new WelcomeScreenWidget;
 		connect(welcomeScreen, SIGNAL(addressEntered(const QString &)), SLOT(onAddressEntered(const QString &)));
 		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0, welcomeScreen);
 		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(welcomeScreen);
-//		while (!widget->noticeQueue().isEmpty())
-//		{
-//			widget->removeNotice(widget->activeNotice());
-//		}
+
 		IInternalNotice notice;
 		notice.priority = INP_HIGH;
 		notice.iconStorage = RSR_STORAGE_MENUICONS;
@@ -1077,8 +1079,8 @@ void RosterChanger::setWelcomeScreen(bool visible)
 		notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
 
 		Action *action = new Action(this);
-		action->setData(IInternalNotice::TypeRole, IInternalNotice::ImageAction);
-		action->setData(IInternalNotice::ImageRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ALL_SERVICES));
+		//action->setData(IInternalNotice::TypeRole, IInternalNotice::ImageAction);
+		//action->setData(IInternalNotice::ImageRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ALL_SERVICES));
 		action->setText(tr("Add my accounts..."));
 		connect(action, SIGNAL(triggered()), SLOT(onNoticeWidgetAction()));
 		notice.actions.append(action);
@@ -1087,12 +1089,18 @@ void RosterChanger::setWelcomeScreen(bool visible)
 	}
 	else
 	{
-		FMainWindowPlugin->mainWindow()->rostersWidget()->removeWidget(welcomeScreen);
-		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(lastRosterWidget);
-		welcomeScreen->deleteLater();
-		welcomeScreen = NULL;
-		widget->removeNotice(internalNoticeId);
-		internalNoticeId = -1;
+		if (internalNoticeId != -1)
+		{
+			widget->removeNotice(internalNoticeId);
+			internalNoticeId = -1;
+		}
+		if (welcomeScreen)
+		{
+			FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(lastRosterWidget);
+			FMainWindowPlugin->mainWindow()->rostersWidget()->removeWidget(welcomeScreen);
+			welcomeScreen->deleteLater();
+			welcomeScreen = NULL;
+		}
 	}
 }
 

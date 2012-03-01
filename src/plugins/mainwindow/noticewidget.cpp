@@ -135,6 +135,7 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 						imageLabel->setPixmap(QPixmap::fromImage(img));
 						imageLabel->setCursor(QCursor(Qt::PointingHandCursor));
 						imageLabel->setToolTip(action->text());
+						imageLabel->setProperty("ignoreFilter", true);
 						FActionLabels.insert(imageLabel, action);
 						imageLabel->installEventFilter(this);
 						ui.wdtActions->layout()->addWidget(imageLabel);
