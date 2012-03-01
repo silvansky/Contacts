@@ -28,7 +28,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QLabel" name="caption">
+    <widget class="CustomLabel" name="caption">
      <property name="text">
       <string>Address of a new contact:</string>
      </property>
@@ -38,7 +38,13 @@
     <widget class="QLineEdit" name="address"/>
    </item>
    <item>
-    <widget class="QLabel" name="comment">
+    <widget class="CustomLabel" name="comment">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>• Rambler address
 • Google Talk, Ya.Online, Jabber.ru login
@@ -93,6 +99,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
