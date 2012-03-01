@@ -1087,7 +1087,7 @@ void RosterChanger::setWelcomeScreen(bool visible)
 
 		internalNoticeId = widget->insertNotice(notice);
 	}
-	else
+	else if (!visible)
 	{
 		if (internalNoticeId != -1)
 		{
