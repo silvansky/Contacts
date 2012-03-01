@@ -118,6 +118,7 @@ void MainWindow::createLayouts()
 	FMainLayout->addWidget(FRostersWidget);
 	FMainLayout->addWidget(FBottomWidget);
 	FMainLayout->addWidget(FNoticeWidget);
+	FMainLayout->setStretch(1, 10);
 
 	QWidget *centralWidget = new QWidget(this);
 	centralWidget->setLayout(FMainLayout);

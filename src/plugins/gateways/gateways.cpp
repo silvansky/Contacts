@@ -1363,7 +1363,7 @@ void Gateways::showServicesNotice(int priority)
 		IInternalNotice notice;
 		notice.priority = priority;
 		notice.iconStorage = RSR_STORAGE_MENUICONS;
-		notice.caption = tr("Connect with other services to see all your friends in one place");
+		notice.message = tr("Connect with other services to see all your friends in one place");
 		//notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
 
 		Action *action = new Action(this);

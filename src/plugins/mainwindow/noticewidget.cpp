@@ -19,7 +19,7 @@ InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(ui.cbtClose,STS_MESSAGEWIDGETS_NOTICECLOSEBUTTON);
 
 	ui.wdtActions->setLayout(new QHBoxLayout);
-	ui.wdtActions->layout()->setMargin(0);
+	ui.wdtActions->layout()->setContentsMargins(0, 0, 0, 8);
 
 	FActiveNotice = -1;
 
@@ -120,6 +120,7 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 				ui.lblIcon->setVisible(false);
 
 			ui.lblCaption->setText(notice.caption);
+			ui.lblCaption->setVisible(!notice.caption.isEmpty());
 			ui.lblMessage->setText(notice.message);
 			ui.lblMessage->setVisible(!notice.message.isEmpty());
 
