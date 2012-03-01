@@ -1062,8 +1062,6 @@ void RosterChanger::setWelcomeScreen(bool visible)
 {
 	static QWidget * lastRosterWidget = NULL;
 	static WelcomeScreenWidget * welcomeScreen = NULL;
-	static int internalNoticeId = -1;
-	IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 	if (visible && !welcomeScreen)
 	{
 		lastRosterWidget = FMainWindowPlugin->mainWindow()->rostersWidget()->currentWidget();
@@ -1071,29 +1069,9 @@ void RosterChanger::setWelcomeScreen(bool visible)
 		connect(welcomeScreen, SIGNAL(addressEntered(const QString &)), SLOT(onAddressEntered(const QString &)));
 		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0, welcomeScreen);
 		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(welcomeScreen);
-
-		IInternalNotice notice;
-		notice.priority = INP_HIGH;
-		notice.iconStorage = RSR_STORAGE_MENUICONS;
-		notice.caption = tr("Add your accounts");
-		notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
-
-		Action *action = new Action(this);
-		action->setData(IInternalNotice::TypeRole, IInternalNotice::ImageAction);
-		action->setData(IInternalNotice::ImageRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ALL_SERVICES));
-		action->setText(tr("Add my accounts..."));
-		connect(action, SIGNAL(triggered()), SLOT(onNoticeWidgetAction()));
-		notice.actions.append(action);
-
-		internalNoticeId = widget->insertNotice(notice);
 	}
 	else if (!visible)
 	{
-		if (internalNoticeId != -1)
-		{
-			widget->removeNotice(internalNoticeId);
-			internalNoticeId = -1;
-		}
 		if (welcomeScreen)
 		{
 			FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(lastRosterWidget);
@@ -2139,7 +2117,7 @@ void RosterChanger::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AI
 void RosterChanger::onRosterOpened(IRoster *ARoster)
 {
 	Q_UNUSED(ARoster)
-	//checkWelcomeScreenNeeded(ARoster->rosterItems());
+	checkWelcomeScreenNeeded(ARoster->rosterItems());
 }
 
 void RosterChanger::onRosterClosed(IRoster *ARoster)

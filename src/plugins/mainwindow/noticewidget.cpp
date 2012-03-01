@@ -121,6 +121,7 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 
 			ui.lblCaption->setText(notice.caption);
 			ui.lblMessage->setText(notice.message);
+			ui.lblMessage->setVisible(!notice.message.isEmpty());
 
 			foreach(Action *action, notice.actions)
 			{
@@ -164,6 +165,14 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 			}
 			ui.wdtActions->layout()->addItem(spacer);
 			ui.wdtActions->setVisible(!notice.actions.isEmpty());
+
+			if (!ui.lblIcon->isVisible())
+			{
+				int lm, tm, rm, bm;
+				layout()->getContentsMargins(&lm, &tm, &rm, &bm);
+				lm += 8;
+				layout()->setContentsMargins(lm, tm, rm, bm);
+			}
 
 			setVisible(true);
 			FReadyTimer.stop();

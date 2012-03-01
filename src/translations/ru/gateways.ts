@@ -183,14 +183,6 @@
         <translation>Рамблер</translation>
     </message>
     <message>
-        <source>Add your accounts</source>
-        <translation>Добавьте ваши учётные записи</translation>
-    </message>
-    <message>
-        <source>Add your accounts and send messages to your friends on these services</source>
-        <translation>Подключайте учётные записи и отправляйте сообщения вашим друзьям на этих сервисах</translation>
-    </message>
-    <message>
         <source>Add my accounts...</source>
         <translation>Добавить мои учетные записи...</translation>
     </message>
@@ -297,6 +289,10 @@
     <message>
         <source>Odnoklassniki</source>
         <translation>Одноклассники</translation>
+    </message>
+    <message>
+        <source>Connect with other services to see all your friends in one place</source>
+        <translation>Подключите другие сервисы и общайтесь со всеми друзьями в одной программе</translation>
     </message>
 </context>
 <context>
