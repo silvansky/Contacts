@@ -39,6 +39,8 @@
 # include "macwidgets.h"
 #endif
 
+#define SHOW_IN_TASKBAR_FLAG (Qt::SplashScreen)
+
 // internal functions
 static void repaintRecursive(QWidget *widget, const QRect & globalRect)
 {
@@ -769,7 +771,7 @@ void CustomBorderContainer::setResizable(bool resizable)
 
 bool CustomBorderContainer::isShowInTaskBarEnabled() const
 {
-	return !(windowFlags() & (Qt::Tool ^ Qt::Window));
+	return !(windowFlags() & (SHOW_IN_TASKBAR_FLAG ^ Qt::Window));
 }
 
 void CustomBorderContainer::setShowInTaskBar(bool show)
@@ -780,11 +782,11 @@ void CustomBorderContainer::setShowInTaskBar(bool show)
 	if (show)
 	{
 		if (!isShowInTaskBarEnabled())
-			setWindowFlags((windowFlags() ^ Qt::Tool) | Qt::Window);
+			setWindowFlags((windowFlags() ^ SHOW_IN_TASKBAR_FLAG) | Qt::Window);
 	}
 	else if (isShowInTaskBarEnabled())
 	{
-		setWindowFlags(windowFlags() | Qt::Tool);
+		setWindowFlags(windowFlags() | SHOW_IN_TASKBAR_FLAG);
 	}
 	if (wasVisible)
 		this->show();
