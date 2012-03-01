@@ -157,6 +157,7 @@ protected:
 	void removeNotifies(IChatWindow *AWindow);
 	void removeObsoleteNotifies(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent);
 	void showNotifyInChatWindow(IChatWindow *AWindow, const QString &ANotify, const QString &AText) const;
+	void setWelcomeScreen(bool visible = true);
 	void checkWelcomeScreenNeeded(QList<IRosterItem> items);
 protected slots:
 	//Operations on subscription
@@ -226,7 +227,6 @@ private:
 	QMultiMap<Jid, Jid> FSubscriptionRequests;
 	QMap<Jid, QMap<Jid, PendingChatNotice> > FPendingChatNotices;
 	QMap<Jid, QMap<Jid, AutoSubscription> > FAutoSubscriptions;
-	WelcomeScreenWidget * FWelcomeScreen;
 };
 
 #endif // ROSTERCHANGER_H

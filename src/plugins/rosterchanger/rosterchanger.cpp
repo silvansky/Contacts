@@ -69,7 +69,6 @@ RosterChanger::RosterChanger()
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FMessageStyles = NULL;
-	FWelcomeScreen = NULL;
 }
 
 RosterChanger::~RosterChanger()
@@ -153,14 +152,7 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 
 	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
 	if (plugin)
-	{
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
-		if (FMainWindowPlugin)
-		{
-			FWelcomeScreen = new WelcomeScreenWidget;
-			connect(FWelcomeScreen, SIGNAL(addressEntered(const QString &)), SLOT(onAddressEntered(const QString &)));
-		}
-	}
 
 	plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);
 	if (plugin)
@@ -1061,9 +1053,28 @@ void RosterChanger::showNotifyInChatWindow(IChatWindow *AWindow, const QString &
 	AWindow->viewWidget()->changeContentText(message,options);
 }
 
-void RosterChanger::checkWelcomeScreenNeeded(QList<IRosterItem> items)
+void RosterChanger::setWelcomeScreen(bool visible)
 {
 	static QWidget * lastRosterWidget = FMainWindowPlugin->mainWindow()->rostersWidget()->currentWidget();
+	static WelcomeScreenWidget * welcomeScreen = NULL;
+	if (visible)
+	{
+		welcomeScreen = new WelcomeScreenWidget;
+		connect(welcomeScreen, SIGNAL(addressEntered(const QString &)), SLOT(onAddressEntered(const QString &)));
+		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0, welcomeScreen);
+		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(welcomeScreen);
+	}
+	else
+	{
+		FMainWindowPlugin->mainWindow()->rostersWidget()->removeWidget(welcomeScreen);
+		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(lastRosterWidget);
+		welcomeScreen->deleteLater();
+		welcomeScreen = NULL;
+	}
+}
+
+void RosterChanger::checkWelcomeScreenNeeded(QList<IRosterItem> items)
+{
 	bool needShowWelcomeScreen = FSubscriptionRequests.isEmpty();
 	if (needShowWelcomeScreen)
 	{
@@ -1076,14 +1087,7 @@ void RosterChanger::checkWelcomeScreenNeeded(QList<IRosterItem> items)
 			}
 		}
 	}
-	if (needShowWelcomeScreen)
-	{
-		if (FMainWindowPlugin->mainWindow()->rostersWidget()->indexOf(FWelcomeScreen) == -1)
-			FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0, FWelcomeScreen);
-		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(FWelcomeScreen);
-	}
-	else
-		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(lastRosterWidget);
+	setWelcomeScreen(needShowWelcomeScreen);
 }
 
 void RosterChanger::onAddressEntered(const QString & address)
@@ -1430,6 +1434,7 @@ void RosterChanger::onSubscriptionSent(IRoster *ARoster, const Jid &AItemJid, in
 		FSubscriptionRequests.remove(ARoster->streamJid(),AItemJid);
 	removeObsoleteChatNotices(ARoster->streamJid(),AItemJid,ASubsType,true);
 	removeObsoleteNotifies(ARoster->streamJid(),AItemJid,ASubsType,true);
+	checkWelcomeScreenNeeded(ARoster->rosterItems());
 }
 
 void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
@@ -1597,6 +1602,7 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 			emit rosterDataChanged(index,RDR_FOOTER_TEXT);
 		}
 	}
+	checkWelcomeScreenNeeded(ARoster->rosterItems());
 }
 
 void RosterChanger::onAddItemToGroup(bool)
@@ -2093,7 +2099,8 @@ void RosterChanger::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AI
 
 void RosterChanger::onRosterOpened(IRoster *ARoster)
 {
-	checkWelcomeScreenNeeded(ARoster->rosterItems());
+	Q_UNUSED(ARoster)
+	//checkWelcomeScreenNeeded(ARoster->rosterItems());
 }
 
 void RosterChanger::onRosterClosed(IRoster *ARoster)
@@ -2117,6 +2124,7 @@ void RosterChanger::onRosterClosed(IRoster *ARoster)
 	FPendingChatNotices.remove(ARoster->streamJid());
 	FAutoSubscriptions.remove(ARoster->streamJid());
 	FSubscriptionRequests.remove(ARoster->streamJid());
+	setWelcomeScreen(false);
 }
 
 void RosterChanger::onEmptyGroupChildInserted(IRosterIndex *AIndex)

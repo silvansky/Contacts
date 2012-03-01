@@ -53,6 +53,7 @@ bool WelcomeScreenWidget::eventFilter(QObject * obj, QEvent * evt)
 void WelcomeScreenWidget::onAddPressed()
 {
 	emit addressEntered(ui->address->text());
+	ui->address->setText(QString::null);
 }
 
 void WelcomeScreenWidget::onTextChanged(const QString & text)
