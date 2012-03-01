@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>250</width>
+    <width>280</width>
     <height>184</height>
    </size>
   </property>
@@ -59,6 +59,9 @@
      <property name="wordWrap">
       <bool>true</bool>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -75,7 +78,7 @@
      <item>
       <widget class="QLabel" name="lblDomain">
        <property name="text">
-        <string>lblDomain</string>
+        <string notr="true">lblDomain</string>
        </property>
       </widget>
      </item>

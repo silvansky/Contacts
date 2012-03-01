@@ -105,6 +105,10 @@
         <source>Failed to add account, check your login and password</source>
         <translation>Не удалось добавить учётную запись, проверьте ваш логин и пароль</translation>
     </message>
+    <message>
+        <source>Please, enter your ID and password. You can find your ID on the &lt;a href=&apos;http://www.odnoklassniki.ru/settings&apos;&gt;Odnoklassniki settings page&lt;/a&gt;.</source>
+        <translation>Пожалуйста, укажите ваш ID и пароль. Свой ID можно найти внизу &lt;a href=&apos;http://www.odnoklassniki.ru/settings&apos;&gt;страницы настроек Одноклассников&lt;/a&gt;.</translation>
+    </message>
 </context>
 <context>
     <name>AddLegacyAccountDialogClass</name>
