@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -40,11 +40,11 @@
    <item>
     <widget class="QLabel" name="comment">
      <property name="text">
-      <string>• Rambler adress
-• Google Talk, Ya.Online or Jabber.ru login
-• ICQ number or Mail.ru Agent adress
-• E-mail
-• Phone number (starting from +7 or 8)</string>
+      <string>• Rambler address
+• Google Talk, Ya.Online, Jabber.ru login
+• ICQ number or Mail.ru Agent address
+• e-mail
+• phone number (starting with a + sign)</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

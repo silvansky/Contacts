@@ -441,4 +441,27 @@
         <translation>Сохранить в списке контактов учетной записи:</translation>
     </message>
 </context>
+<context>
+    <name>WelcomeScreenWidget</name>
+    <message>
+        <source>Address of a new contact:</source>
+        <translation>Адрес нового контакта:</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message utf8="true">
+        <source>• Rambler address
+• Google Talk, Ya.Online, Jabber.ru login
+• ICQ number or Mail.ru Agent address
+• e-mail
+• phone number (starting with a + sign)</source>
+        <translation>• адрес на Рамблере
+• логин Google Talk, Я.Онлайн, Jabber.ru
+• номер ICQ или адрес Mail.ru Агент
+• электронная почта
+• телефон (на +7 или 8)</translation>
+    </message>
+</context>
 </TS>
