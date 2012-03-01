@@ -7,6 +7,7 @@
 #include <utils/stylestorage.h>
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
+#include <definitions/textflags.h>
 
 WelcomeScreenWidget::WelcomeScreenWidget(QWidget *parent) :
 	QWidget(parent),
@@ -14,6 +15,7 @@ WelcomeScreenWidget::WelcomeScreenWidget(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->address->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui->add->addTextFlag(TF_LIGHTSHADOW);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_RCHANGER_WELCOMESCREEN);
 
 	connect(ui->add, SIGNAL(pressed()), SLOT(onAddPressed()));

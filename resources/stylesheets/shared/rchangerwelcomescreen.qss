@@ -7,11 +7,13 @@
 #caption
 {
 	color: black;
+	qproperty-shadow: 0;
 }
 
 #comment
 {
 	color: #888888;
+	qproperty-shadow: 0;
 }
 
 QPushButton#add
