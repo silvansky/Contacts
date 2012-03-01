@@ -35,6 +35,7 @@
 
 #ifdef Q_WS_WIN
 # include <qt_windows.h>
+# include <shellapi.h>
 #elif defined Q_WS_MAC
 # include "macwidgets.h"
 #endif
@@ -2412,7 +2413,18 @@ void CustomBorderContainer::maximizeWidget()
 	{
 		normalGeometry = geometry();
 		setLayoutMargins();
-		setGeometry(qApp->desktop()->availableGeometry(this));
+		QRect availGeometry = qApp->desktop()->availableGeometry(this);
+#ifdef Q_WS_WIN
+		APPBARDATA pabd;
+		memset(&pabd, 0, sizeof(APPBARDATA));
+		pabd.cbSize = sizeof(APPBARDATA);
+		UINT state = SHAppBarMessage(ABM_GETSTATE, &pabd);
+		if (state & ABS_AUTOHIDE)
+		{
+			availGeometry.moveBottom(availGeometry.bottom() - 1);
+		}
+#endif
+		setGeometry(availGeometry);
 		//updateShape();
 	}
 }
