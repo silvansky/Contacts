@@ -458,7 +458,7 @@
 • e-mail
 • phone number (starting with a + sign)</source>
         <translation>• адрес на Рамблере
-• логин Google Talk, Я.Онлайн, Jabber.ru
+• логин Google Talk, Я.Онлайн, Jabber.ru
 • номер ICQ или адрес Mail.ru Агент
 • электронная почта
 • телефон (на +7 или 8)</translation>

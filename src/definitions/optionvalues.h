@@ -47,6 +47,8 @@
 #define OPV_MAINWINDOW_POSITION                         "mainwindow.position"
 #define OPV_MAINWINDOW_STAYONTOP                        "mainwindow.stay-on-top"
 #define OPV_MAINWINDOW_MINIMIZETOTRAY_W7                "mainwindow.minimize-to-tray-w7"
+#define OPV_MAINWINDOW_MINIMIZENOTIFY_SHOWCOUNT         "mainwindow.minimize-notify.show-count"
+#define OPV_MAINWINDOW_MINIMIZENOTIFY_LASTSHOW          "mainwindow.minimize-notify.last-show"
 
 // MessageWidgets
 #define OPV_MESSAGES_ROOT                               "messages"
