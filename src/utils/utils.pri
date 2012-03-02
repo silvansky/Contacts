@@ -83,9 +83,3 @@ OBJECTIVE_SOURCES += \
 	macwidgets.mm
 
 }
-
-win32: {
-
-LIBS += Shell32.lib
-
-}

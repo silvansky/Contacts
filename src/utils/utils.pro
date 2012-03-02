@@ -16,7 +16,7 @@ macx: {
   LIBS            += -lXss
   CONFIG          += x11
 } else:win32 {
-  LIBS            += -luser32 -lComdlg32
+  LIBS            += -luser32 -lComdlg32 -lshell32
   DLLDESTDIR       = ..\\..
   QMAKE_DISTCLEAN += $${DLLDESTDIR}\\$${TARGET}.dll
 }
