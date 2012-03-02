@@ -127,6 +127,7 @@ public:
 	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 	//IRosterChanger
+	virtual bool isWelcomeScreenVisible() const;
 	virtual bool isAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual bool isAutoUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual bool isSilentSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
@@ -140,6 +141,7 @@ public:
 signals:
 	void addMetaItemWidgetCreated(IAddMetaItemWidget *AWidget);
 	void addContactDialogCreated(IAddContactDialog *ADialog);
+	void welcomeScreenVisibleChanged(bool AVisible);
 	//IRosterDataHolder
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);
 protected:
@@ -157,8 +159,7 @@ protected:
 	void removeNotifies(IChatWindow *AWindow);
 	void removeObsoleteNotifies(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent);
 	void showNotifyInChatWindow(IChatWindow *AWindow, const QString &ANotify, const QString &AText) const;
-	void setWelcomeScreen(bool visible = true);
-	void checkWelcomeScreenNeeded(QList<IRosterItem> items);
+	void showWelcomeScreenIfNeeded(IRoster *ARoster);
 protected slots:
 	//Operations on subscription
 	void onContactSubscription(bool);
@@ -181,7 +182,7 @@ protected slots:
 	void onRemoveGroup(bool);
 	void onRemoveGroupItems(bool);
 protected slots:
-	void onAddressEntered(const QString & address);
+	void onWelcomeScreenAddressEntered(const QString & address);
 	void onNoticeWidgetAction();
 	void onShowAddContactDialog(bool);
 	void onShowAddGroupDialog(bool);
@@ -225,7 +226,7 @@ private:
 	QMap<int, int> FChatNoticeActions;
 	QMap<int, IChatWindow *> FChatNoticeWindow;
 	QList<IChatWindow *> FPendingChatWindows;
-	QMultiMap<Jid, Jid> FSubscriptionRequests;
+	WelcomeScreenWidget *FWelcomeScreenWidget;
 	QMap<Jid, QMap<Jid, PendingChatNotice> > FPendingChatNotices;
 	QMap<Jid, QMap<Jid, AutoSubscription> > FAutoSubscriptions;
 };

@@ -37,7 +37,6 @@
 #include <interfaces/idataforms.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/inotifications.h>
-#include <interfaces/imetacontacts.h>
 #include <utils/errorhandler.h>
 #include <utils/log.h>
 #include <utils/stanza.h>
@@ -130,17 +129,12 @@ protected:
 	IGateServiceDescriptor findGateDescriptor(const IDiscoInfo &AInfo) const;
 	void insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid, const QString &ALogin);
 	void removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid);
-	void showServicesNotice(int priority);
-	void hideServicesNotice();
-	void checkServiceNoticeNeeded(QList<IRosterItem> rosterItems);
+	void insertInternalServicesNotice();
 protected slots:
 	void onXmppStreamOpened(IXmppStream *AXmppStream);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onRosterOpened(IRoster *ARoster);
-	void onRosterClosed(IRoster *ARoster);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
-	void onSubscriptionSent(IRoster * ARoster, const Jid & AItemJid, int ASubsType, const QString & AText);
-	void onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText);
 	void onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
 	void onPrivateStorateOpened(const Jid &AStreamJid);
 	void onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
@@ -155,11 +149,12 @@ protected slots:
 	void onRegisterSuccess(const QString &AId);
 	void onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage);
 	void onInternalNoticeReady();
-	void onInternalAccountNoticeActionTriggered();
+	void onInternalServicesNoticeActionTriggered();
 	void onInternalConflictNoticeActionTriggered();
 	void onInternalNoticeRemoved(int ANoticeId);
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
+	void onWelcomeScreenVisibleChanged(bool AVisible);
 private:
 	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;
@@ -177,7 +172,6 @@ private:
 	IDataForms *FDataForms;
 	IMainWindowPlugin *FMainWindowPlugin;
 	INotifications *FNotifications;
-	IMetaContacts *FMetaContacts;
 private:
 	QTimer FKeepTimer;
 	QMap<Jid, QSet<Jid> > FKeepConnections;
@@ -189,16 +183,15 @@ private:
 	QMap<QString, QPair<Jid,Jid> > FAutoLoginRequests;
 	QMap<QString, RemoveRequestParams > FRemoveRequests;
 private:
-	int FInternalNoticeId;
 	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
 	QMultiMap<Jid, Jid> FStreamAutoRegServices;
 	QList<IGateServiceDescriptor> FGateDescriptors;
 private:
+	int FInternalServicesNoticeId;
 	QMap<int, Jid> FConflictNotifies;
 	QMap<QString, Jid> FConflictLoginRequests;
 	QMap<Jid, QMap<Jid, int> > FConflictNotices;
-	QMultiMap<Jid, Jid> FSubscriptionRequests;
 };
 
 #endif // GATEWAYS_H

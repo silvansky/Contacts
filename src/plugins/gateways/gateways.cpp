@@ -40,7 +40,7 @@ Gateways::Gateways()
 	FMainWindowPlugin = NULL;
 	FNotifications = NULL;
 
-	FInternalNoticeId = -1;
+	FInternalServicesNoticeId = -1;
 
 	FKeepTimer.setSingleShot(false);
 	connect(&FKeepTimer,SIGNAL(timeout()),SLOT(onKeepTimerTimeout()));
@@ -103,11 +103,8 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		if (FRosterPlugin)
 		{
 			connect(FRosterPlugin->instance(),SIGNAL(rosterOpened(IRoster *)),SLOT(onRosterOpened(IRoster *)));
-			connect(FRosterPlugin->instance(),SIGNAL(rosterClosed(IRoster *)),SLOT(onRosterClosed(IRoster *)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)),
 				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)));
-			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscriptionSent(IRoster *, const Jid &, int, const QString &)),
-				SLOT(onSubscriptionSent(IRoster *, const Jid &, int, const QString &)));
 		}
 	}
 
@@ -153,7 +150,13 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 
 	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
 	if (plugin)
+	{
 		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+		if (FRosterChanger)
+		{
+			connect(FRosterChanger->instance(),SIGNAL(welcomeScreenVisibleChanged(bool)),SLOT(onWelcomeScreenVisibleChanged(bool)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
@@ -205,10 +208,6 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
 		}
 	}
-
-	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
-	if (plugin)
-		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
 
 	return FStanzaProcessor;
 }
@@ -1355,56 +1354,23 @@ void Gateways::removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJi
 		noticeWidget->removeNotice(FConflictNotices.value(AStreamJid).value(AServiceJid));
 }
 
-void Gateways::showServicesNotice(int priority)
+void Gateways::insertInternalServicesNotice()
 {
-	if (FInternalNoticeId == -1)
+	if (FMainWindowPlugin && FInternalServicesNoticeId==-1)
 	{
-		IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
 		IInternalNotice notice;
-		notice.priority = priority;
-		notice.iconStorage = RSR_STORAGE_MENUICONS;
+		notice.priority = INP_GATEWAYS_SERVICES;
 		notice.message = tr("Connect with other services to see all your friends in one place");
-		//notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
 
 		Action *action = new Action(this);
 		action->setData(IInternalNotice::TypeRole, IInternalNotice::ImageAction);
 		action->setData(IInternalNotice::ImageRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ALL_SERVICES));
 		action->setText(tr("Add my accounts..."));
-		connect(action, SIGNAL(triggered()), SLOT(onInternalAccountNoticeActionTriggered()));
+		connect(action, SIGNAL(triggered()), SLOT(onInternalServicesNoticeActionTriggered()));
 		notice.actions.append(action);
 
-		FInternalNoticeId = widget->insertNotice(notice);
+		FInternalServicesNoticeId = FMainWindowPlugin->mainWindow()->noticeWidget()->insertNotice(notice);
 	}
-}
-
-void Gateways::hideServicesNotice()
-{
-	if (FInternalNoticeId != -1)
-	{
-		IInternalNoticeWidget *widget = FMainWindowPlugin->mainWindow()->noticeWidget();
-		widget->removeNotice(FInternalNoticeId);
-		FInternalNoticeId = -1;
-	}
-}
-
-void Gateways::checkServiceNoticeNeeded(QList<IRosterItem> rosterItems)
-{
-	bool needShowServicesNotice = FSubscriptionRequests.isEmpty();
-	if (needShowServicesNotice)
-	{
-		foreach (IRosterItem item, rosterItems)
-		{
-			if ((!item.itemJid.node().isEmpty()) || (!FMetaContacts->metaDescriptorByItem(item.itemJid).service))
-			{
-				needShowServicesNotice = false;
-				break;
-			}
-		}
-	}
-	if (needShowServicesNotice)
-		showServicesNotice(INP_HIGH);
-	else
-		hideServicesNotice();
 }
 
 void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
@@ -1452,13 +1418,6 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 		FKeepTimer.start(KEEP_INTERVAL);
 	}
 	startAutoLogin(ARoster->streamJid());
-	checkServiceNoticeNeeded(ARoster->rosterItems());
-}
-
-void Gateways::onRosterClosed(IRoster *ARoster)
-{
-	FSubscriptionRequests.remove(ARoster->streamJid());
-	hideServicesNotice();
 }
 
 void Gateways::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore)
@@ -1477,25 +1436,6 @@ void Gateways::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, 
 		}
 		emit streamServicesChanged(ARoster->streamJid());
 	}
-	checkServiceNoticeNeeded(ARoster->rosterItems());
-}
-
-void Gateways::onSubscriptionSent(IRoster * ARoster, const Jid & AItemJid, int ASubsType, const QString & AText)
-{
-	Q_UNUSED(AText)
-	if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribed)
-		FSubscriptionRequests.remove(ARoster->streamJid(),AItemJid);
-	checkServiceNoticeNeeded(ARoster->rosterItems());
-}
-
-void Gateways::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
-{
-	Q_UNUSED(AText)
-	if (ASubsType == IRoster::Subscribe)
-		FSubscriptionRequests.insertMulti(ARoster->streamJid(),AItemJid);
-	else if (ASubsType == IRoster::Unsubscribe)
-		FSubscriptionRequests.remove(ARoster->streamJid(),AItemJid);
-	checkServiceNoticeNeeded(ARoster->rosterItems());
 }
 
 void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore)
@@ -1794,11 +1734,10 @@ void Gateways::onInternalNoticeReady()
 		if (streamServices(FOptionsStreamJid,identity).isEmpty() && !availServices(FOptionsStreamJid,identity).isEmpty())
 		{
 			int showCount = Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).value().toInt();
-			int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
 			QDateTime showLast = Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).value().toDateTime();
-			if (showCount <= 3 && (!showLast.isValid() || showLast.daysTo(QDateTime::currentDateTime())>=7*removeCount))
+			if (showCount<=3 && (!showLast.isValid() || showLast.daysTo(QDateTime::currentDateTime())>=7*showCount))
 			{
-				showServicesNotice(INP_DEFAULT);
+				insertInternalServicesNotice();
 				Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).setValue(showCount+1);
 				Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).setValue(QDateTime::currentDateTime());
 			}
@@ -1806,7 +1745,7 @@ void Gateways::onInternalNoticeReady()
 	}
 }
 
-void Gateways::onInternalAccountNoticeActionTriggered()
+void Gateways::onInternalServicesNoticeActionTriggered()
 {
 	if (FOptionsManager)
 	{
@@ -1825,11 +1764,9 @@ void Gateways::onInternalConflictNoticeActionTriggered()
 
 void Gateways::onInternalNoticeRemoved(int ANoticeId)
 {
-	if (ANoticeId>0 && ANoticeId==FInternalNoticeId)
+	if (ANoticeId == FInternalServicesNoticeId)
 	{
-		int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
-		Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).setValue(removeCount+1);
-		FInternalNoticeId = -1;
+		FInternalServicesNoticeId = -1;
 	}
 	else foreach(Jid streamJid, FConflictNotices.keys())
 	{
@@ -1860,5 +1797,12 @@ void Gateways::onNotificationRemoved(int ANotifyId)
 	}
 }
 
+void Gateways::onWelcomeScreenVisibleChanged(bool AVisible)
+{
+	if (AVisible)
+		insertInternalServicesNotice();
+	else if (FMainWindowPlugin)
+		FMainWindowPlugin->mainWindow()->noticeWidget()->removeNotice(FInternalServicesNoticeId);
+}
 
 Q_EXPORT_PLUGIN2(plg_gateways, Gateways)

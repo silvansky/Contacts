@@ -1,7 +1,7 @@
 #ifndef DEF_INTERNALNOTICEPRIORITIES_H
 #define DEF_INTERNALNOTICEPRIORITIES_H
 
-#define INP_HIGH                     100
+#define INP_GATEWAYS_SERVICES        300
 #define INP_DEFAULT                  500
 #define INP_GATEWAYS_CONFLICT        800
 
