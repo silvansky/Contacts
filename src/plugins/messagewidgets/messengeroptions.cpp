@@ -6,13 +6,9 @@ MessengerOptions::MessengerOptions(QWidget *AParent) : QWidget(AParent)
 
 	connect(ui.rdbSendByEnter,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.rdbSendByCtrlEnter,SIGNAL(toggled(bool)),SIGNAL(modified()));
+	ui.rdbSendByEnter->setText(tr("By pressing %1").arg(QKeySequence(Qt::Key_Return).toString(QKeySequence::NativeText).replace("Return","Enter")));
+	ui.rdbSendByCtrlEnter->setText(tr("By pressing %1").arg(QKeySequence(Qt::CTRL | Qt::Key_Return).toString(QKeySequence::NativeText).replace("Return","Enter")));
 
-#ifdef Q_WS_MAC
-	ui.rdbSendByEnter->setText(tr("By pressing ") + QChar(0x23CE)); // Enter symbol
-	ui.rdbSendByCtrlEnter->setText(tr("By pressing ") + QChar(0x2318) + QChar(0x23CE)); // Cmd and Enter symbols
-	ui.groupBox->layout()->setSpacing(16);
-#endif
-	
 	reset();
 }
 
@@ -32,9 +28,9 @@ void MessengerOptions::apply()
 
 void MessengerOptions::reset()
 {
-	if (Options::node(OPV_MESSAGES_EDITORSENDKEY).value().value<QKeySequence>() == QKeySequence(Qt::Key_Return))
-		ui.rdbSendByEnter->setChecked(true);
-	else
+	if (Options::node(OPV_MESSAGES_EDITORSENDKEY).value().value<QKeySequence>() == QKeySequence(Qt::CTRL | Qt::Key_Return))
 		ui.rdbSendByCtrlEnter->setChecked(true);
+	else
+		ui.rdbSendByEnter->setChecked(true);
 	emit childReset();
 }
