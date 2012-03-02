@@ -9,6 +9,10 @@ MessengerOptions::MessengerOptions(QWidget *AParent) : QWidget(AParent)
 	ui.rdbSendByEnter->setText(tr("By pressing %1").arg(QKeySequence(Qt::Key_Return).toString(QKeySequence::NativeText).replace("Return","Enter")));
 	ui.rdbSendByCtrlEnter->setText(tr("By pressing %1").arg(QKeySequence(Qt::CTRL | Qt::Key_Return).toString(QKeySequence::NativeText).replace("Return","Enter")));
 
+#ifdef Q_WS_MAC
+	ui.groupBox->layout()->setSpacing(16);
+#endif
+
 	reset();
 }
 
