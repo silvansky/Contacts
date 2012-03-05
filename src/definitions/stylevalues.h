@@ -10,6 +10,7 @@
 #define SV_LOGIN_LABEL_FONT_SIZE               "loginDialogLabelFontSize"
 #define SV_LOGIN_COMPLETER_H_OFFSET            "loginDialogCompleterHOffset"
 #define SV_LOGIN_COMPLETER_V_OFFSET            "loginDialogCompleterVOffset"
+#define SV_LOGIN_COMPLETER_MIN_ROW_HEIGHT      "loginDialogCompleterMinRowHeight"
 
 // about dialog
 #define SV_ABOUT_TEXT_COLOR                    "aboutDialogTextColor"
@@ -45,5 +46,9 @@
 // metacontacts
 #define SV_MC_LABEL_MARGIN_H                   "metacontactsLabelMarginH"
 #define SV_MC_LABEL_MARGIN_V                   "metacontactsLabelMarginV"
+
+// roster search
+#define SV_RS_SEARCHEDIT_RIGHT_MARGIN          "rosterSearchSearchEditRightMargin"
+#define SV_RS_SEARCHEDIT_BOTTOM_MARGIN         "rosterSearchSearchEditBottomMargin"
 
 #endif // STYLEVALUES_H

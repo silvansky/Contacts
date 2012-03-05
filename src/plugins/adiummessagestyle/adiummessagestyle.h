@@ -174,10 +174,14 @@ private:
 	QString FIn_NextUnreadHTML;
 	QString FIn_OfflineHTML;
 	QString FIn_NextOfflineHTML;
+	QString FIn_ErrorReceiptHTML;
+	QString FIn_NextErrorReceiptHTML;
 	QString FOut_UnreadHTML;
 	QString FOut_NextUnreadHTML;
 	QString FOut_OfflineHTML;
 	QString FOut_NextOfflineHTML;
+	QString FOut_ErrorReceiptHTML;
+	QString FOut_NextErrorReceiptHTML;
 private:
 	bool FCombineConsecutive;
 	bool FUsingCustomTemplate;

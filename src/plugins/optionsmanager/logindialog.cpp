@@ -109,8 +109,9 @@ public:
 	}
 	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
+		static const int minHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_COMPLETER_MIN_ROW_HEIGHT);
 		QSize hint = drawIndex(NULL,AOption,AIndex);
-		hint.setHeight(qMax(hint.height(),27));// TODO!!!
+		hint.setHeight(qMax(hint.height(), minHeight));
 		return hint;
 	}
 };

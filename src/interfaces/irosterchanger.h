@@ -63,6 +63,7 @@ class IRosterChanger
 {
 public:
 	virtual QObject *instance() =0;
+	virtual bool isWelcomeScreenVisible() const =0;
 	virtual bool isAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const =0;
 	virtual bool isAutoUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const =0;
 	virtual bool isSilentSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const =0;
@@ -76,6 +77,7 @@ public:
 protected:
 	virtual void addMetaItemWidgetCreated(IAddMetaItemWidget *AWidget) =0;
 	virtual void addContactDialogCreated(IAddContactDialog *ADialog) =0;
+	virtual void welcomeScreenVisibleChanged(bool AVisible) =0;
 };
 
 Q_DECLARE_INTERFACE(IAddMetaItemWidget,"Virtus.Plugin.IAddMetaItemWidget/1.0")

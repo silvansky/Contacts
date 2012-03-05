@@ -138,6 +138,7 @@ bool RostersViewPlugin::initObjects()
 		//FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
 
 		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0,FRostersView);
+		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(FRostersView);
 	}
 
 	if (FRostersModel)

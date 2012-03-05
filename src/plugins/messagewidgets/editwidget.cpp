@@ -291,6 +291,10 @@ void EditWidget::onOptionsChanged(const OptionsNode &ANode)
 	}
 	else if (ANode.path() == OPV_MESSAGES_EDITORSENDKEY)
 	{
-		setSendKey(ANode.value().value<QKeySequence>());
+		QKeySequence key = ANode.value().value<QKeySequence>();
+		if (key.isEmpty())
+			key = Options::defaultValue(OPV_MESSAGES_EDITORSENDKEY).value<QKeySequence>();
+		setSendKey(key);
+		;
 	}
 }

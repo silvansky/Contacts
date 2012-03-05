@@ -649,7 +649,7 @@ void MacIntegrationPlugin::initDock()
 	connect(_dockMenu, SIGNAL(aboutToShow()), SLOT(onDockMenuAboutToShow()));
 
 	connect(MacIntegrationPrivate::instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
-	connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(growlNotifyClicked(int)));
+	connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(systemNotificationClicked(int)));
 	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
 }
 

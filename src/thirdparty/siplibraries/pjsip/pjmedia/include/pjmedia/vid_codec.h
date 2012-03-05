@@ -1,4 +1,4 @@
-/* $Id: vid_codec.h 3901 2011-12-07 10:43:28Z nanang $ */
+/* $Id: vid_codec.h 3956 2012-02-21 08:31:26Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -173,9 +173,7 @@ typedef struct pjmedia_vid_codec_param
  *
  * @return	    Duplicated codec parameter.
  */
-PJ_DECL(pjmedia_vid_codec_param*) pjmedia_vid_codec_param_clone(
-					pj_pool_t *pool, 
-					const pjmedia_vid_codec_param *src);
+PJ_DECL(pjmedia_vid_codec_param*) pjmedia_vid_codec_param_clone(pj_pool_t *pool, const pjmedia_vid_codec_param *src);
 
 /**
  * Forward declaration for video codec.
@@ -615,7 +613,6 @@ pjmedia_vid_codec_mgr_get_default_param(pjmedia_vid_codec_mgr *mgr,
  */
 PJ_DECL(pj_status_t) 
 pjmedia_vid_codec_mgr_set_default_param(pjmedia_vid_codec_mgr *mgr,
-                                        pj_pool_t *pool,
 				        const pjmedia_vid_codec_info *info,
 				        const pjmedia_vid_codec_param *param);
 
@@ -637,6 +634,11 @@ pjmedia_vid_codec_mgr_alloc_codec( pjmedia_vid_codec_mgr *mgr,
 			           const pjmedia_vid_codec_info *info,
 			           pjmedia_vid_codec **p_codec);
 
+PJ_DEF(pj_status_t)
+pjmedia_vid_codec_mgr_alloc_codecs(pjmedia_vid_codec_mgr *mgr,
+																	 const pjmedia_vid_codec_info *info,
+																	 pjmedia_vid_codec **p_codec_encode, pjmedia_vid_codec **p_codec_decode);
+
 /**
  * Deallocate the specified codec instance. The codec manager will return
  * the instance of the codec back to its factory.
@@ -647,9 +649,7 @@ pjmedia_vid_codec_mgr_alloc_codec( pjmedia_vid_codec_mgr *mgr,
  *
  * @return	    PJ_SUCESS on success.
  */
-PJ_DECL(pj_status_t) pjmedia_vid_codec_mgr_dealloc_codec(
-                                                pjmedia_vid_codec_mgr *mgr, 
-						pjmedia_vid_codec *codec);
+PJ_DECL(pj_status_t) pjmedia_vid_codec_mgr_dealloc_codec( pjmedia_vid_codec_mgr *mgr, pjmedia_vid_codec *codec);
 
 
 
@@ -662,8 +662,7 @@ PJ_DECL(pj_status_t) pjmedia_vid_codec_mgr_dealloc_codec(
  *
  * @return	    PJ_SUCCESS on success.
  */
-PJ_INLINE(pj_status_t) pjmedia_vid_codec_init( pjmedia_vid_codec *codec, 
-					       pj_pool_t *pool )
+PJ_INLINE(pj_status_t) pjmedia_vid_codec_init( pjmedia_vid_codec *codec, pj_pool_t *pool )
 {
     return (*codec->op->init)(codec, pool);
 }
@@ -681,8 +680,7 @@ PJ_INLINE(pj_status_t) pjmedia_vid_codec_init( pjmedia_vid_codec *codec,
  *
  * @return	    PJ_SUCCESS on success.
  */
-PJ_INLINE(pj_status_t) pjmedia_vid_codec_open(pjmedia_vid_codec *codec,
-                                              pjmedia_vid_codec_param *param)
+PJ_INLINE(pj_status_t) pjmedia_vid_codec_open(pjmedia_vid_codec *codec, pjmedia_vid_codec_param *param)
 {
     return (*codec->op->open)(codec, param);
 }
@@ -714,8 +712,7 @@ PJ_INLINE(pj_status_t) pjmedia_vid_codec_close( pjmedia_vid_codec *codec )
  * @return		PJ_SUCCESS on success.
  */
 PJ_INLINE(pj_status_t)
-pjmedia_vid_codec_modify(pjmedia_vid_codec *codec,
-                         const pjmedia_vid_codec_param *param)
+pjmedia_vid_codec_modify(pjmedia_vid_codec *codec, const pjmedia_vid_codec_param *param)
 {
     return (*codec->op->modify)(codec, param);
 }
@@ -730,8 +727,7 @@ pjmedia_vid_codec_modify(pjmedia_vid_codec *codec,
  * @return		PJ_SUCCESS on success.
  */
 PJ_INLINE(pj_status_t)
-pjmedia_vid_codec_get_param(pjmedia_vid_codec *codec,
-			    pjmedia_vid_codec_param *param)
+pjmedia_vid_codec_get_param(pjmedia_vid_codec *codec, pjmedia_vid_codec_param *param)
 {
     return (*codec->op->get_param)(codec, param);
 }
@@ -767,8 +763,7 @@ pjmedia_vid_codec_encode_begin( pjmedia_vid_codec *codec,
 				pjmedia_frame *output,
 				pj_bool_t *has_more)
 {
-    return (*codec->op->encode_begin)(codec, opt, input, out_size, output,
-				      has_more);
+    return (*codec->op->encode_begin)(codec, opt, input, out_size, output, has_more);
 }
 
 /**

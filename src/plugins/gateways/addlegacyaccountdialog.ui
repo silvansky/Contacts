@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>250</width>
+    <width>280</width>
     <height>184</height>
    </size>
   </property>
@@ -59,10 +59,13 @@
      <property name="wordWrap">
       <bool>true</bool>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="loginLayout">
+    <layout class="QHBoxLayout" name="loginLayout" stretch="0,0,0,0">
      <property name="spacing">
       <number>3</number>
      </property>
@@ -71,6 +74,13 @@
      </property>
      <item>
       <widget class="QLineEdit" name="lneLogin"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblDomain">
+       <property name="text">
+        <string notr="true">lblDomain</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QComboBox" name="cmbDomains"/>

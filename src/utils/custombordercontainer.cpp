@@ -35,9 +35,12 @@
 
 #ifdef Q_WS_WIN
 # include <qt_windows.h>
+# include <shellapi.h>
 #elif defined Q_WS_MAC
 # include "macwidgets.h"
 #endif
+
+#define SHOW_IN_TASKBAR_FLAG (Qt::SplashScreen)
 
 // internal functions
 static void repaintRecursive(QWidget *widget, const QRect & globalRect)
@@ -769,7 +772,7 @@ void CustomBorderContainer::setResizable(bool resizable)
 
 bool CustomBorderContainer::isShowInTaskBarEnabled() const
 {
-	return !(windowFlags() & (Qt::Tool ^ Qt::Window));
+	return !(windowFlags() & (SHOW_IN_TASKBAR_FLAG ^ Qt::Window));
 }
 
 void CustomBorderContainer::setShowInTaskBar(bool show)
@@ -780,11 +783,11 @@ void CustomBorderContainer::setShowInTaskBar(bool show)
 	if (show)
 	{
 		if (!isShowInTaskBarEnabled())
-			setWindowFlags((windowFlags() ^ Qt::Tool) | Qt::Window);
+			setWindowFlags((windowFlags() ^ SHOW_IN_TASKBAR_FLAG) | Qt::Window);
 	}
 	else if (isShowInTaskBarEnabled())
 	{
-		setWindowFlags(windowFlags() | Qt::Tool);
+		setWindowFlags(windowFlags() | SHOW_IN_TASKBAR_FLAG);
 	}
 	if (wasVisible)
 		this->show();
@@ -2410,7 +2413,18 @@ void CustomBorderContainer::maximizeWidget()
 	{
 		normalGeometry = geometry();
 		setLayoutMargins();
-		setGeometry(qApp->desktop()->availableGeometry(this));
+		QRect availGeometry = qApp->desktop()->availableGeometry(this);
+#ifdef Q_WS_WIN
+		APPBARDATA pabd;
+		memset(&pabd, 0, sizeof(APPBARDATA));
+		pabd.cbSize = sizeof(APPBARDATA);
+		UINT state = SHAppBarMessage(ABM_GETSTATE, &pabd);
+		if (state & ABS_AUTOHIDE)
+		{
+			availGeometry.moveBottom(availGeometry.bottom() - 1);
+		}
+#endif
+		setGeometry(availGeometry);
 		//updateShape();
 	}
 }

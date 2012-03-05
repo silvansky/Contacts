@@ -59,6 +59,7 @@
 #define STS_RCHANGER_ADDMETACONTACTDIALOG                               "rchangerAddMetaContactDialog"
 #define STS_RCHANGER_TABBARITEM_SUBSCRIPTION                            "rchangerTabBarItemSubscription"
 #define STS_RCHANGER_NOTIFYWIDGET_SUBSCRIPTION                          "rchangerNotifyWidgetSubscription"
+#define STS_RCHANGER_WELCOMESCREEN                                      "rchangerWelcomeScreen"
 
 //RosterSearch
 #define STS_ROSTERSEARCH_SEARCHFRAME                                    "rostersearchSearchFrame"

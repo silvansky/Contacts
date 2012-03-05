@@ -15,6 +15,7 @@
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <definitions/optionvalues.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irostersearch.h>
 #include <interfaces/igateways.h>
@@ -95,6 +96,7 @@ protected:
 	int findAcceptableField(const QModelIndex &AIndex) const;
 	QString findFieldMatchedValue(const IRosterIndex *AIndex, int AField) const;
 	QVariant prepareFieldValue(int AField, const QVariant &AValue) const;
+	QVariant preparedItemJidValue(const Jid &AItemJid, const IGateServiceDescriptor &ADescriptor) const;
 protected:
 	void createSearchLinks();
 	void destroySearchLinks();
@@ -128,8 +130,8 @@ private:
 	QTimer FEditTimeout;
 	SearchEdit *FSearchEdit;
 	Menu *FSearchFieldsMenu;
-	QList<Jid> FStreamServices;
 	QMap<int, SearchField> FSearchFields;
+	QMap<Jid, IGateServiceDescriptor> FStreamServices;
 };
 
 #endif // ROSTERSEARCH_H

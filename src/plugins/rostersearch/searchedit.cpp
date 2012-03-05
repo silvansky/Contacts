@@ -2,6 +2,8 @@
 
 #include <QPainter>
 #include <QResizeEvent>
+#include <utils/stylestorage.h>
+#include <definitions/resources.h>
 
 SearchEdit::SearchEdit(QWidget *parent) : QLineEdit(parent)
 {
@@ -9,7 +11,7 @@ SearchEdit::SearchEdit(QWidget *parent) : QLineEdit(parent)
 	setMouseTracking(true);
 	int padding_left, padding_top, padding_right, padding_bottom;
 	getTextMargins(&padding_left, &padding_top, &padding_right, &padding_bottom);
-	setTextMargins(padding_left, padding_top, padding_right + 18, padding_bottom);
+	setTextMargins(padding_left, padding_top, padding_right, padding_bottom);
 	connect(this, SIGNAL(textChanged(const QString &)), SLOT(onTextChanged(const QString &)));
 	iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	iconLabel = new QLabel(this);
@@ -29,12 +31,9 @@ void SearchEdit::processKeyPressEvent(QKeyEvent * event)
 void SearchEdit::resizeEvent(QResizeEvent * event)
 {
 	QLineEdit::resizeEvent(event);
-	// TODO: read 22/26/16/2 from style
-#ifdef Q_WS_MAC
-	iconLabel->move(event->size().width() - 26, (event->size().height() - 16) / 2);
-#else
-	iconLabel->move(event->size().width() - 22, (event->size().height() - 16) / 2);
-#endif
+	static const int rightMargin = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RS_SEARCHEDIT_RIGHT_MARGIN);
+	static const int bottomMargin = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RS_SEARCHEDIT_BOTTOM_MARGIN);
+	iconLabel->move(event->size().width() - rightMargin, (event->size().height() - bottomMargin) / 2);
 }
 
 void SearchEdit::mouseMoveEvent(QMouseEvent * event)

@@ -1,6 +1,6 @@
 * Common
 
-If you want to build with XML Console plugin, add DEFINES+=WITH_CONSOLE to qmake arguments.
+You need Qt version > 4.7.0, but there are some issues with Linux build on 4.8.0.
 
 * Linux
 
@@ -16,7 +16,7 @@ Then you can run "ramblercontacts" from terminal.
 
 * Mac OS X
 
-First, you have to download Growl.framework (version 1.3+) and Sparkle.framework and cp them to /Library/Frameworks/.
+First, you have to download Growl.framework (from Growl SDK version 1.3+) and Sparkle.framework and cp them to /Library/Frameworks/.
 Then run following commands:
 
   qmake -r virtus.pro CONFIG+=release CONFIG-=debug CONFIG-=debug_and_release DEFINES+=USE_PHONON
@@ -25,7 +25,8 @@ Then run following commands:
 
 This will create Contacts.app at /Applications/.
 
-If you want to create a distributable version, run mac_cp_frameworks and mac_prepare_to_release scripts from ./src/.
+If you want to create a distributable version run ./src/packages/macosx/make_bundle.sh from sources root.
+To autocreate .dmg image file run ./src/packages/macosx/make_dmg.sh
 
 * Windows
 

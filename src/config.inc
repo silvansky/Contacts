@@ -10,9 +10,9 @@ CONFIG(debug, debug|release) {
 }
 
 macx: {
-  TARGET_LOADER            = Contacts
+  TARGET_LOADER          = Contacts
 } else {
-  TARGET_LOADER            = ramblercontacts
+  TARGET_LOADER          = ramblercontacts
 }
 
 TARGET_UTILS             = ramblercontactsutils

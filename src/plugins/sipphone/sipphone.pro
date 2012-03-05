@@ -15,7 +15,8 @@ LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPMediaLib/lib
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPVideoLib/lib
 
 LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/pjsiplast/lib
-LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/directxsdk/lib
+	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/x264/lib
+	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/directxsdk/lib
 
 LIBS  += -lWs2_32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32 -lwinmm
 LIBS  += -lIphlpapi -lIphlpapi -ldsound -ldxguid -lnetapi32 -lmswsock -luser32 -lgdi32 -ladvapi32
@@ -43,11 +44,5 @@ INCLUDEPATH += ../../thirdparty/siplibraries/pjsiplast/pjlib-util/include
 INCLUDEPATH += ../../thirdparty/siplibraries/pjsiplast/pjmedia/include
 INCLUDEPATH += ../../thirdparty/siplibraries/pjsiplast/pjnath/include
 INCLUDEPATH += ../../thirdparty/siplibraries/pjsiplast/pjsip/include
-
-
-
-
-
-
-
+INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/x264/include
 

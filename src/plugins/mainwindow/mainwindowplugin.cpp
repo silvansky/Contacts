@@ -9,13 +9,17 @@
 # include <utils/macwidgets.h>
 #endif
 
+#define MINIMIZENOTIFY_MAX_SHOWCOUNT    3
+
 MainWindowPlugin::MainWindowPlugin()
 {
 	FPluginManager = NULL;
 	FOptionsManager = NULL;
 	FTrayManager = NULL;
+	FNotifications = NULL;
 
 	FOpenAction = NULL;
+	FMinimizeNotifyId = 0;
 	FActivationChanged = QTime::currentTime();
 #ifdef Q_WS_WIN
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
@@ -84,6 +88,17 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AIni
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+	{
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
+		if (FNotifications)
+		{
+			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)), SLOT(onNotificationActivated(int)));
+			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)), SLOT(onNotificationRemoved(int)));
+		}
+	}
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -129,6 +144,8 @@ bool MainWindowPlugin::initSettings()
 	Options::setDefaultValue(OPV_MAINWINDOW_POSITION, defRect.topLeft());
 	Options::setDefaultValue(OPV_MAINWINDOW_STAYONTOP,false);
 	Options::setDefaultValue(OPV_MAINWINDOW_MINIMIZETOTRAY_W7,false);
+	Options::setDefaultValue(OPV_MAINWINDOW_MINIMIZENOTIFY_SHOWCOUNT,0);
+	Options::setDefaultValue(OPV_MAINWINDOW_MINIMIZENOTIFY_LASTSHOW,QDateTime());
 
 	if (FOptionsManager)
 	{
@@ -243,6 +260,31 @@ void MainWindowPlugin::correctWindowPosition() const
 	}
 }
 
+void MainWindowPlugin::showMinimizeToTrayNotify()
+{
+#ifdef Q_WS_WIN
+	if (FMinimizeNotifyId<0 && !FPluginManager->isShutingDown() && (FOptionsManager==NULL || !FOptionsManager->isLoginDialogVisible()))
+	{
+		if (FNotifications && !isMinimizeToTray() && QSysInfo::windowsVersion()==QSysInfo::WV_WINDOWS7)
+		{
+			int showCount = Options::node(OPV_MAINWINDOW_MINIMIZENOTIFY_SHOWCOUNT).value().toInt();
+			QDateTime lastShow = Options::node(OPV_MAINWINDOW_MINIMIZENOTIFY_LASTSHOW).value().toDateTime();
+			if (showCount<MINIMIZENOTIFY_MAX_SHOWCOUNT && (!lastShow.isValid() || lastShow.daysTo(QDateTime::currentDateTime())>=7*showCount))
+			{
+				INotification notify;
+				notify.typeId == NNT_MAINWINDOW_HIDETOTRAY;
+				notify.kinds = INotification::PopupWindow;
+				notify.data.insert(NDR_POPUP_TITLE, tr("Feel like hiding the icon?"));
+				notify.data.insert(NDR_POPUP_TEXT, tr("You can move the Contacts icon to the notification area using <u>Settings</u>."));
+				FMinimizeNotifyId = FNotifications->appendNotification(notify);
+				Options::node(OPV_MAINWINDOW_MINIMIZENOTIFY_SHOWCOUNT).setValue(showCount+1);
+				Options::node(OPV_MAINWINDOW_MINIMIZENOTIFY_LASTSHOW).setValue(QDateTime::currentDateTime());
+			}
+		}
+	}
+#endif
+}
+
 bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 {
 	if (AWatched == mainWindowTopWidget())
@@ -257,12 +299,17 @@ bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 			if (keyEvent && keyEvent->key()==Qt::Key_Escape)
 				hideMainWindow();
 		}
+		else if (AEvent->type() == QEvent::Hide)
+		{
+			showMinimizeToTrayNotify();
+		}
 	}
 	return QObject::eventFilter(AWatched,AEvent);
 }
 
 void MainWindowPlugin::onOptionsOpened()
 {
+	FMinimizeNotifyId = -1; // Enable minimize notify
 	mainWindowTopWidget()->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
 	mainWindowTopWidget()->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
@@ -274,6 +321,7 @@ void MainWindowPlugin::onOptionsOpened()
 
 void MainWindowPlugin::onOptionsClosed()
 {
+	FMinimizeNotifyId = 0; // Disable minimize notify
 	Options::node(OPV_MAINWINDOW_SIZE).setValue(mainWindowTopWidget()->size());
 	Options::node(OPV_MAINWINDOW_POSITION).setValue(mainWindowTopWidget()->pos());
 	FOpenAction->setVisible(false);
@@ -296,10 +344,14 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 	}
 	else if (ANode.path() == OPV_MAINWINDOW_MINIMIZETOTRAY_W7)
 	{
+		if (isMinimizeToTray())
+		{
+			Options::node(OPV_MAINWINDOW_MINIMIZENOTIFY_SHOWCOUNT).setValue(MINIMIZENOTIFY_MAX_SHOWCOUNT+1);
+		}
 		if (FMainWindowBorder)
 		{
 			FMainWindowBorder->setMinimizeOnClose(!isMinimizeToTray());
-			FMainWindowBorder->setShowInTaskBar(!isMinimizeToTray());
+			//FMainWindowBorder->setShowInTaskBar(!isMinimizeToTray());
 		}
 		if (!isMinimizeToTray() && !mainWindowTopWidget()->isVisible())
 		{
@@ -313,6 +365,24 @@ void MainWindowPlugin::onProfileRenamed(const QString &AProfile, const QString &
 	Q_UNUSED(AProfile);
 	Q_UNUSED(ANewName);
 	updateTitle();
+}
+
+void MainWindowPlugin::onNotificationActivated(int ANotifyId)
+{
+	if (ANotifyId == FMinimizeNotifyId)
+	{
+		if (FOptionsManager)
+			FOptionsManager->showOptionsDialog(OPN_ROSTER);
+		FNotifications->removeNotification(ANotifyId);
+	}
+}
+
+void MainWindowPlugin::onNotificationRemoved(int ANotifyId)
+{
+	if (ANotifyId == FMinimizeNotifyId)
+	{
+		FMinimizeNotifyId = -1;
+	}
 }
 
 void MainWindowPlugin::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)

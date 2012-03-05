@@ -6,6 +6,7 @@
 #include <utils/graphicseffectsstorage.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/resources.h>
+#include <definitions/gateserviceidentifiers.h>
 
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
@@ -73,10 +74,17 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 			domainsMenu->addAction(action);
 			connect(action, SIGNAL(triggered()), SLOT(onDomainsMenuActionTriggered()));
 			if (!i++)
+			{
 				action->trigger();
+				ui.lblDomain->setText("@" + domain);
+			}
 		}
-		ui.cmbDomains->setVisible(!FGateLabel.domains.isEmpty());
-		ui.tlbDomains->setVisible(!FGateLabel.domains.isEmpty());
+		int domainsCount = FGateLabel.domains.count();
+		ui.cmbDomains->setVisible(domainsCount > 1);
+		ui.tlbDomains->setVisible(domainsCount > 1);
+		ui.lblDomain->setVisible(domainsCount == 1);
+		if (domainsCount == 1)
+			ui.loginLayout->setSpacing(0);
 
 		LogDetail(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
 		FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
@@ -154,9 +162,17 @@ void AddLegacyAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
 	}
 	else
 	{
-		QString info = tr("Please, enter your login and password.");
-		if (!FGateways->streamServices(FPresence->streamJid()).contains(FServiceJid))
-			info = tr("Your account is not connected.") + " " + info;
+		QString info;
+		if (FGateLabel.id == GSID_ODNOKLASNIKI)
+		{
+			info = tr("Please, enter your ID and password. You can find your ID on the <a href=\'http://www.odnoklassniki.ru/settings\'>Odnoklassniki settings page</a>.");
+		}
+		else
+		{
+			info = tr("Please, enter your login and password.");
+		}
+//		if (!FGateways->streamServices(FPresence->streamJid()).contains(FServiceJid))
+//			info = tr("Your account is not connected.") + " " + info;
 		ui.lblInfo->setText(info);
 		onLineEditTextChanged(QString::null);
 	}

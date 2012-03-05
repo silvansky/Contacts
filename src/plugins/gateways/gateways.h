@@ -129,6 +129,7 @@ protected:
 	IGateServiceDescriptor findGateDescriptor(const IDiscoInfo &AInfo) const;
 	void insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid, const QString &ALogin);
 	void removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid);
+	void insertInternalServicesNotice();
 protected slots:
 	void onXmppStreamOpened(IXmppStream *AXmppStream);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
@@ -148,11 +149,12 @@ protected slots:
 	void onRegisterSuccess(const QString &AId);
 	void onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage);
 	void onInternalNoticeReady();
-	void onInternalAccountNoticeActionTriggered();
+	void onInternalServicesNoticeActionTriggered();
 	void onInternalConflictNoticeActionTriggered();
 	void onInternalNoticeRemoved(int ANoticeId);
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
+	void onWelcomeScreenVisibleChanged(bool AVisible);
 private:
 	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;
@@ -181,12 +183,12 @@ private:
 	QMap<QString, QPair<Jid,Jid> > FAutoLoginRequests;
 	QMap<QString, RemoveRequestParams > FRemoveRequests;
 private:
-	int FInternalNoticeId;
 	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
 	QMultiMap<Jid, Jid> FStreamAutoRegServices;
 	QList<IGateServiceDescriptor> FGateDescriptors;
 private:
+	int FInternalServicesNoticeId;
 	QMap<int, Jid> FConflictNotifies;
 	QMap<QString, Jid> FConflictLoginRequests;
 	QMap<Jid, QMap<Jid, int> > FConflictNotices;

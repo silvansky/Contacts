@@ -9,6 +9,7 @@
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <definitions/customborder.h>
+#include <definitions/internalnoticepriorities.h>
 #include <definitions/statusicons.h>
 #include <utils/customborderstorage.h>
 
@@ -23,6 +24,10 @@
 #define ADR_CHATNOTICE_ID   Action::DR_UserDefined+1
 #define ADR_NOTIFY_ID       Action::DR_UserDefined+2
 #define ADR_NOTICE_ACTION   Action::DR_UserDefined+3
+
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
 
 static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
 
@@ -69,6 +74,8 @@ RosterChanger::RosterChanger()
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FMessageStyles = NULL;
+
+	FWelcomeScreenWidget = NULL;
 }
 
 RosterChanger::~RosterChanger()
@@ -105,6 +112,7 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 			connect(FRosterPlugin->instance(),SIGNAL(rosterSubscriptionReceived(IRoster *, const Jid &, int, const QString &)),
 				SLOT(onSubscriptionReceived(IRoster *, const Jid &, int, const QString &)));
 			connect(FRosterPlugin->instance(),SIGNAL(rosterClosed(IRoster *)),SLOT(onRosterClosed(IRoster *)));
+			connect(FRosterPlugin->instance(),SIGNAL(rosterOpened(IRoster *)),SLOT(onRosterOpened(IRoster *)));
 		}
 	}
 
@@ -179,7 +187,7 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 	if (plugin)
 		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
 
-	return FRosterPlugin!=NULL;
+	return FRosterPlugin;
 }
 
 bool RosterChanger::initObjects()
@@ -267,7 +275,8 @@ QVariant RosterChanger::rosterData(const IRosterIndex *AIndex, int ARole) const
 			Jid contactJid = AIndex->data(RDR_PREP_BARE_JID).toString();
 			QString ask = AIndex->data(RDR_ASK).toString();
 			QString subs = AIndex->data(RDR_SUBSCRIBTION).toString();
-			if (FSubscriptionRequests.contains(streamJid,contactJid))
+			IRoster *roster = FRosterPlugin->findRoster(streamJid);
+			if (roster && roster->subscriptionRequests().contains(contactJid))
 			{
 				if (ARole == RDR_FOOTER_TEXT)
 				{
@@ -611,6 +620,11 @@ bool RosterChanger::keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRoste
 }
 
 //IRosterChanger
+bool RosterChanger::isWelcomeScreenVisible() const
+{
+	return FWelcomeScreenWidget!=NULL;
+}
+
 bool RosterChanger::isAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const
 {
 	if (FGateways && AContactJid.node().isEmpty() && FGateways->availServices(AStreamJid).contains(AContactJid))
@@ -681,7 +695,7 @@ void RosterChanger::subscribeContact(const Jid &AStreamJid, const Jid &AContactJ
 	{
 		LogDetail(QString("[RosterChanger] Subscribing contact '%1'").arg(AContactJid.bare()));
 		IRosterItem ritem = roster->rosterItem(AContactJid);
-		if (FSubscriptionRequests.contains(AStreamJid,AContactJid.bare()))
+		if (roster->subscriptionRequests().contains(AContactJid.bare()))
 			roster->sendSubscription(AContactJid,IRoster::Subscribed,AMessage);
 		if (ritem.subscription!=SUBSCRIPTION_TO && ritem.subscription!=SUBSCRIPTION_BOTH)
 			roster->sendSubscription(AContactJid,IRoster::Subscribe,AMessage);
@@ -1050,6 +1064,76 @@ void RosterChanger::showNotifyInChatWindow(IChatWindow *AWindow, const QString &
 	AWindow->viewWidget()->changeContentText(message,options);
 }
 
+void RosterChanger::showWelcomeScreenIfNeeded(IRoster *ARoster)
+{
+	if (FMainWindowPlugin)
+	{
+		bool show = false;
+		if (ARoster && ARoster->isOpen() && ARoster->subscriptionRequests().isEmpty())
+		{
+			show = true;
+			foreach (IRosterItem item, ARoster->rosterItems())
+			{
+				if ((!item.itemJid.node().isEmpty()) || (FMetaContacts!=NULL ? !FMetaContacts->metaDescriptorByItem(item.itemJid).service : false))
+				{
+					show = false;
+					break;
+				}
+			}
+		}
+
+		static QWidget *lastRosterWidget = NULL;
+		if (show && !FWelcomeScreenWidget)
+		{
+			lastRosterWidget = FMainWindowPlugin->mainWindow()->rostersWidget()->currentWidget();
+			FWelcomeScreenWidget = new WelcomeScreenWidget;
+			connect(FWelcomeScreenWidget, SIGNAL(addressEntered(const QString &)), SLOT(onWelcomeScreenAddressEntered(const QString &)));
+			FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0, FWelcomeScreenWidget);
+			FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(FWelcomeScreenWidget);
+			emit welcomeScreenVisibleChanged(true);
+		}
+		else if (!show && FWelcomeScreenWidget)
+		{
+			FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(lastRosterWidget);
+			FMainWindowPlugin->mainWindow()->rostersWidget()->removeWidget(FWelcomeScreenWidget);
+			FWelcomeScreenWidget->deleteLater();
+			FWelcomeScreenWidget = NULL;
+			emit welcomeScreenVisibleChanged(false);
+		}
+	}
+}
+
+void RosterChanger::onWelcomeScreenAddressEntered(const QString & address)
+{
+	IAccount *account = FAccountManager ? FAccountManager->accounts().first() : NULL;
+	if (account && account->isActive())
+	{
+		IAddContactDialog * dialog = NULL;
+		QWidget *widget = showAddContactDialog(account->xmppStream()->streamJid());
+		if (widget)
+		{
+			if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+			{
+				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+					dialog = qobject_cast<IAddContactDialog*>(border->widget());
+			}
+			if (dialog)
+			{
+				dialog->setContactJid(address);
+				dialog->executeRequiredContactChecks();
+			}
+		}
+	}
+}
+
+void RosterChanger::onNoticeWidgetAction()
+{
+	if (FOptionsManager)
+	{
+		FOptionsManager->showOptionsDialog(OPN_GATEWAYS);
+	}
+}
+
 void RosterChanger::onShowAddContactDialog(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -1210,7 +1294,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 			data.insert(ADR_CONTACT_JID,contactJid);
 
 			IRosterItem ritem = roster->rosterItem(contactJid);
-			if (FSubscriptionRequests.contains(streamJid,contactJid))
+			if (roster->subscriptionRequests().contains(contactJid))
 			{
 				Action *action = new Action(AMenu);
 				action->setText(tr("Authorize"));
@@ -1367,10 +1451,9 @@ void RosterChanger::onSendSubscription(bool)
 void RosterChanger::onSubscriptionSent(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
 {
 	Q_UNUSED(AText);
-	if (ASubsType==IRoster::Subscribed || ASubsType==IRoster::Unsubscribed)
-		FSubscriptionRequests.remove(ARoster->streamJid(),AItemJid);
 	removeObsoleteChatNotices(ARoster->streamJid(),AItemJid,ASubsType,true);
 	removeObsoleteNotifies(ARoster->streamJid(),AItemJid,ASubsType,true);
+	showWelcomeScreenIfNeeded(ARoster);
 }
 
 void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid, int ASubsType, const QString &AText)
@@ -1431,7 +1514,6 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 	int noticeActions = NTA_NO_ACTIONS;
 	if (ASubsType == IRoster::Subscribe)
 	{
-		FSubscriptionRequests.insertMulti(ARoster->streamJid(),AItemJid);
 		if (!isAutoSubscribe(ARoster->streamJid(),AItemJid) && ritem.subscription!=SUBSCRIPTION_FROM && ritem.subscription!=SUBSCRIPTION_BOTH)
 		{
 			if (!isService)
@@ -1486,7 +1568,6 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 	}
 	else if (ASubsType == IRoster::Unsubscribe)
 	{
-		FSubscriptionRequests.remove(ARoster->streamJid(),AItemJid);
 		if (!isService && !isSilentUnsubscribe(ARoster->streamJid(),AItemJid) && ritem.isValid)
 		{
 			if (FNotifications && notify.kinds>0)
@@ -1538,6 +1619,7 @@ void RosterChanger::onSubscriptionReceived(IRoster *ARoster, const Jid &AItemJid
 			emit rosterDataChanged(index,RDR_FOOTER_TEXT);
 		}
 	}
+	showWelcomeScreenIfNeeded(ARoster);
 }
 
 void RosterChanger::onAddItemToGroup(bool)
@@ -2029,6 +2111,12 @@ void RosterChanger::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AI
 			removeObsoleteChatNotices(ARoster->streamJid(),AItem.itemJid,IRoster::Subscribe,true);
 		}
 	}
+	showWelcomeScreenIfNeeded(ARoster);
+}
+
+void RosterChanger::onRosterOpened(IRoster *ARoster)
+{
+	showWelcomeScreenIfNeeded(ARoster);
 }
 
 void RosterChanger::onRosterClosed(IRoster *ARoster)
@@ -2051,7 +2139,7 @@ void RosterChanger::onRosterClosed(IRoster *ARoster)
 
 	FPendingChatNotices.remove(ARoster->streamJid());
 	FAutoSubscriptions.remove(ARoster->streamJid());
-	FSubscriptionRequests.remove(ARoster->streamJid());
+	showWelcomeScreenIfNeeded(ARoster);
 }
 
 void RosterChanger::onEmptyGroupChildInserted(IRosterIndex *AIndex)

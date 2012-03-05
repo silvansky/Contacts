@@ -492,6 +492,16 @@ QString AdiumMessageStyle::makeContentTemplate(const IMessageContentOptions &AOp
 		html = templ.replace("%html%",html);
 	}
 
+	if (AOptions.extensions & IMessageContentOptions::ErrorReceipt)
+	{
+		QString templ;
+		if (AOptions.direction == IMessageContentOptions::DirectionIn)
+			templ = ASameSender ? FIn_NextErrorReceiptHTML : FIn_ErrorReceiptHTML;
+		else
+			templ = ASameSender ? FOut_NextErrorReceiptHTML : FOut_ErrorReceiptHTML;
+		html = templ.replace("%html%",html);
+	}
+
 	if (AOptions.extensions & IMessageContentOptions::Error)
 	{
 		QString templ = FErrorHTML;
@@ -692,43 +702,53 @@ QString AdiumMessageStyle::loadFileData(const QString &AFileName, const QString 
 
 void AdiumMessageStyle::loadTemplates()
 {
-	FIn_ContentHTML =      loadFileData(FResourcePath+"/Incoming/Content.html",QString::null);
-	FIn_NextContentHTML =  loadFileData(FResourcePath+"/Incoming/NextContent.html",FIn_ContentHTML);
+	FIn_ContentHTML =           loadFileData(FResourcePath+"/Incoming/Content.html",QString::null);
+	FIn_NextContentHTML =       loadFileData(FResourcePath+"/Incoming/NextContent.html",FIn_ContentHTML);
 
-	FIn_ContextHTML =      loadFileData(FResourcePath+"/Incoming/Context.html",FIn_ContentHTML);
-	FIn_NextContextHTML =  loadFileData(FResourcePath+"/Incoming/NextContext.html",FIn_NextContentHTML);
+	FIn_ContextHTML =           loadFileData(FResourcePath+"/Incoming/Context.html",FIn_ContentHTML);
+	FIn_NextContextHTML =       loadFileData(FResourcePath+"/Incoming/NextContext.html",FIn_NextContentHTML);
 
-	FOut_ContentHTML =     loadFileData(FResourcePath+"/Outgoing/Content.html",FIn_ContentHTML);
-	FOut_NextContentHTML = loadFileData(FResourcePath+"/Outgoing/NextContent.html",FOut_ContentHTML);
+	FOut_ContentHTML =          loadFileData(FResourcePath+"/Outgoing/Content.html",FIn_ContentHTML);
+	FOut_NextContentHTML =      loadFileData(FResourcePath+"/Outgoing/NextContent.html",FOut_ContentHTML);
 
-	FOut_ContextHTML =     loadFileData(FResourcePath+"/Outgoing/Context.html",FOut_ContentHTML);
-	FOut_NextContextHTML = loadFileData(FResourcePath+"/Outgoing/NextContext.html",FOut_NextContentHTML);
+	FOut_ContextHTML =          loadFileData(FResourcePath+"/Outgoing/Context.html",FOut_ContentHTML);
+	FOut_NextContextHTML =      loadFileData(FResourcePath+"/Outgoing/NextContext.html",FOut_NextContentHTML);
 
-	FIn_UnreadHTML =       loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/Unread.html", QString::null);
-	FIn_UnreadHTML =       loadFileData(FResourcePath+"/Incoming/Unread.html",FIn_UnreadHTML);
-	FIn_NextUnreadHTML =   loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/NextUnread.html", FIn_UnreadHTML);
-	FIn_NextUnreadHTML =   loadFileData(FResourcePath+"/Incoming/NextUnread.html",FIn_NextUnreadHTML);
+	FIn_UnreadHTML =            loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/Unread.html", QString::null);
+	FIn_UnreadHTML =            loadFileData(FResourcePath+"/Incoming/Unread.html",FIn_UnreadHTML);
+	FIn_NextUnreadHTML =        loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/NextUnread.html", FIn_UnreadHTML);
+	FIn_NextUnreadHTML =        loadFileData(FResourcePath+"/Incoming/NextUnread.html",FIn_NextUnreadHTML);
 
-	FIn_OfflineHTML =      loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/Offline.html", QString::null);
-	FIn_OfflineHTML =      loadFileData(FResourcePath+"/Incoming/Offline.html",FIn_OfflineHTML);
-	FIn_NextOfflineHTML =  loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/NextOffline.html", FIn_OfflineHTML);
-	FIn_NextOfflineHTML =  loadFileData(FResourcePath+"/Incoming/NextOffline.html",FIn_NextOfflineHTML);
+	FIn_OfflineHTML =           loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/Offline.html", QString::null);
+	FIn_OfflineHTML =           loadFileData(FResourcePath+"/Incoming/Offline.html",FIn_OfflineHTML);
+	FIn_NextOfflineHTML =       loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/NextOffline.html", FIn_OfflineHTML);
+	FIn_NextOfflineHTML =       loadFileData(FResourcePath+"/Incoming/NextOffline.html",FIn_NextOfflineHTML);
 
-	FOut_UnreadHTML =      loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/Unread.html", FIn_UnreadHTML);
-	FOut_UnreadHTML =      loadFileData(FResourcePath+"/Outgoing/Unread.html",FOut_UnreadHTML);
-	FOut_NextUnreadHTML =  loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/NextUnread.html", FOut_UnreadHTML);
-	FOut_NextUnreadHTML =  loadFileData(FResourcePath+"/Outgoing/NextUnread.html",FOut_NextUnreadHTML);
+	FIn_ErrorReceiptHTML      = loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/ErrorReceipt.html", QString::null);
+	FIn_ErrorReceiptHTML      = loadFileData(FResourcePath+"/Incoming/ErrorReceipt.html",FIn_ErrorReceiptHTML);
+	FIn_NextErrorReceiptHTML  = loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Incoming/NextErrorReceipt.html", FIn_ErrorReceiptHTML);
+	FIn_NextErrorReceiptHTML  = loadFileData(FResourcePath+"/Incoming/NextErrorReceipt.html",FIn_NextErrorReceiptHTML);
 
-	FOut_OfflineHTML =     loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/Offline.html", FIn_OfflineHTML);
-	FOut_OfflineHTML =     loadFileData(FResourcePath+"/Outgoing/Offline.html",FOut_OfflineHTML);
-	FOut_NextOfflineHTML = loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/NextOffline.html", FOut_OfflineHTML);
-	FOut_NextOfflineHTML = loadFileData(FResourcePath+"/Outgoing/NextOffline.html",FOut_NextOfflineHTML);
+	FOut_UnreadHTML =           loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/Unread.html", FIn_UnreadHTML);
+	FOut_UnreadHTML =           loadFileData(FResourcePath+"/Outgoing/Unread.html",FOut_UnreadHTML);
+	FOut_NextUnreadHTML =       loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/NextUnread.html", FOut_UnreadHTML);
+	FOut_NextUnreadHTML =       loadFileData(FResourcePath+"/Outgoing/NextUnread.html",FOut_NextUnreadHTML);
 
-	FStatusHTML =          loadFileData(FResourcePath+"/Status.html",FIn_ContentHTML);
-	FTopicHTML =           loadFileData(FResourcePath+"/Topic.html",QString::null);
+	FOut_OfflineHTML =          loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/Offline.html", FIn_OfflineHTML);
+	FOut_OfflineHTML =          loadFileData(FResourcePath+"/Outgoing/Offline.html",FOut_OfflineHTML);
+	FOut_NextOfflineHTML =      loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/NextOffline.html", FOut_OfflineHTML);
+	FOut_NextOfflineHTML =      loadFileData(FResourcePath+"/Outgoing/NextOffline.html",FOut_NextOfflineHTML);
+
+	FOut_ErrorReceiptHTML      = loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/ErrorReceipt.html", FIn_ErrorReceiptHTML);
+	FOut_ErrorReceiptHTML      = loadFileData(FResourcePath+"/Outgoing/ErrorReceipt.html",FOut_ErrorReceiptHTML);
+	FOut_NextErrorReceiptHTML  = loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Outgoing/NextErrorReceipt.html", FOut_ErrorReceiptHTML);
+	FOut_NextErrorReceiptHTML  = loadFileData(FResourcePath+"/Outgoing/NextErrorReceipt.html",FOut_ErrorReceiptHTML);
+
+	FStatusHTML =               loadFileData(FResourcePath+"/Status.html",FIn_ContentHTML);
+	FTopicHTML =                loadFileData(FResourcePath+"/Topic.html",QString::null);
 	
-	FErrorHTML =           loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Error.html", QString::null);
-	FErrorHTML =           loadFileData(FResourcePath+"/Error.html",FErrorHTML);
+	FErrorHTML =                loadFileData(qApp->applicationDirPath()+"/"SHARED_STYLE_PATH"/Error.html", QString::null);
+	FErrorHTML =                loadFileData(FResourcePath+"/Error.html",FErrorHTML);
 }
 
 void AdiumMessageStyle::loadSenderColors()

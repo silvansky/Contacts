@@ -155,5 +155,17 @@
         <source>An error message received: %1</source>
         <translation>Получено сообщение об ошибке: %1</translation>
     </message>
+    <message>
+        <source>Not sent. Use settings to switch on your %1 account.</source>
+        <translation>Не отправлено. Включите учетную запись %1 в настройках.</translation>
+    </message>
+    <message>
+        <source>Not sent. Try again a bit later.</source>
+        <translation>Не отправлено. Попробуйте снова через некоторое время.</translation>
+    </message>
+    <message>
+        <source>Not sent. Check whether the contact&apos;s address is correct.</source>
+        <translation>Не отправлено. Проверьте адрес получателя.</translation>
+    </message>
 </context>
 </TS>

@@ -1390,15 +1390,18 @@ void SipPhone::showNotifyInChatWindow(const QString &AStreamId, const QString &A
 			IChatWindow *window = FMessageWidgets->findChatWindow(stream.streamJid,stream.contactJid);
 			if (window)
 			{
+				if (!stream.contentId.isNull())
+				{
+					IMessageContentOptions options;
+					options.action = IMessageContentOptions::Remove;
+					options.contentId = stream.contentId;
+					window->viewWidget()->changeContentHtml(QString::null,options);
+				}
+
 				IMessageContentOptions options;
 				options.kind = IMessageContentOptions::Status;
 				options.type |= IMessageContentOptions::Notification;
 				options.direction = IMessageContentOptions::DirectionIn;
-				if (!stream.contentId.isNull())
-				{
-					options.action = IMessageContentOptions::Replace;
-					options.contentId = stream.contentId;
-				}
 				options.time = QDateTime::currentDateTime();
 				options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
 

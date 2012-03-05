@@ -204,10 +204,12 @@ void TrayManager::updateTray()
 
 void TrayManager::updateTrayVisibility()
 {
+#ifndef Q_WS_MAC
 	if (FMainWindowPlugin && !FMainWindowPlugin->isMinimizeToTray() && FNotifyItems.isEmpty())
 		FSystemIcon.hide();
 	else if (!FSystemIcon.isVisible())
 		FSystemIcon.show();
+#endif
 }
 
 void TrayManager::onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason)

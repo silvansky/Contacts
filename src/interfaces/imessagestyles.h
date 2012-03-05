@@ -50,9 +50,10 @@ struct IMessageContentOptions
 		Remove
 	};
 	enum ContentExtension {
-		Unread          = 0x01,
-		Offline         = 0x02,
-		Error           = 0x04,
+		Unread          = 0x0001,
+		Offline         = 0x0002,
+		Error           = 0x0004,
+		ErrorReceipt    = 0x0008,
 	};
 	IMessageContentOptions() {
 		kind            = Message;

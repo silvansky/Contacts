@@ -35,6 +35,7 @@
 #include <interfaces/iavatars.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
+#include <interfaces/igateways.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ixmppuriqueries.h>
 #include <interfaces/imetacontacts.h>
@@ -179,6 +180,7 @@ private:
 	IRostersView *FRostersView;
 	IRostersModel *FRostersModel;
 	IAvatars *FAvatars;
+	IGateways *FGateways;
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
 	IXmppUriQueries *FXmppUriQueries;
