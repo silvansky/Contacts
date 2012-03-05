@@ -27,6 +27,7 @@ body {
 .contentText {
     clear: both;
     padding-right: 2em;
+    padding-left: 14px;
     display: inline-block;
     width: 92%;
     word-wrap: break-word;
@@ -41,7 +42,7 @@ body {
     clear: both;
 }
 
-.status, .userName, .contentText, .date {
+.status, .userName, .date {
     padding-left: 14px;
     line-height: 2em;
 }
@@ -49,10 +50,6 @@ body {
 .date {
     padding-right: 14px;
     float: right;
-}
-
-.contentText {
-    margin-top:-5px
 }
 
 .message1 .userName {
