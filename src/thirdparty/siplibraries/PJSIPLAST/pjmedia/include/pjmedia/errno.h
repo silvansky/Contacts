@@ -357,6 +357,9 @@ PJ_BEGIN_DECL
  */
 #define PJMEDIA_CODEC_EBADBITSTREAM (PJMEDIA_ERRNO_START+87)    /* 220087 */
 
+#define PJMEDIA_CODEC_DIR_ENCODE (PJMEDIA_ERRNO_START+88)    /* 220088 */
+#define PJMEDIA_CODEC_DIR_DECODE (PJMEDIA_ERRNO_START+89)    /* 220089 */
+
 
 /************************************************************
  * MEDIA

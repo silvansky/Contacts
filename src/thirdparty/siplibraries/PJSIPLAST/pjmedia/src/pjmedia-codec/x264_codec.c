@@ -351,7 +351,7 @@ static pj_status_t h264_preopen(x264_private *x264)
 		/* Limit NAL unit size as we prefer single NAL unit packetization */
 		ctx->i_slice_max_size = x264->param.enc_mtu;
 
-		x264_param_default_preset(ctx, "ultrafast", "zerolatency");
+		/*x264_param_default_preset(ctx, "ultrafast", "zerolatency");*/
 		ctx->b_sliced_threads = 0;
 		//param.i_slice_max_size = 1300;
 		ctx->i_bframe = 0;
@@ -434,12 +434,20 @@ static const x264_codec_desc* find_codec_desc_by_info(const pjmedia_vid_codec_in
 	{
 		x264_codec_desc *desc = &codec_desc[i];
 
+		//if (desc->enabled &&
+		//	(desc->info.fmt_id == info->fmt_id) &&
+		//	((desc->info.dir & info->dir) == info->dir) &&
+		//	(desc->info.pt == info->pt) &&
+		//	(desc->info.packings & info->packings))
+		//{
+		//	return desc;
+		//}
 		if (desc->enabled &&
 			(desc->info.fmt_id == info->fmt_id) &&
-			((desc->info.dir & info->dir) == info->dir) &&
 			(desc->info.pt == info->pt) &&
 			(desc->info.packings & info->packings))
 		{
+			//pjmedia_dir codec_not_can = info->dir ^ desc->info.dir;
 			return desc;
 		}
 	}
@@ -670,6 +678,11 @@ static pj_status_t x264_test_alloc( pjmedia_vid_codec_factory *factory, const pj
 		return PJMEDIA_CODEC_EUNSUP;
 	}
 
+	if(desc->info.dir == PJMEDIA_DIR_ENCODING)
+		return PJMEDIA_CODEC_DIR_ENCODE;
+	if(desc->info.dir == PJMEDIA_DIR_DECODING)
+		return PJMEDIA_CODEC_DIR_DECODE;
+
 	return PJ_SUCCESS;
 }
 
@@ -715,10 +728,10 @@ static pj_status_t x264_default_attr( pjmedia_vid_codec_factory *factory, const 
 	/* Encoded format */
 	pjmedia_format_init_video(&attr->enc_fmt, desc->info.fmt_id, 720, 480, 30000, 1001);
 
-	///////////* Decoded format */
-	//////////pjmedia_format_init_video(&attr->dec_fmt, desc->info.dec_fmt_id[0],
-	//////////	//352, 288, 30000, 1001);
-	//////////	720, 576, 30000, 1001);
+	/* Decoded format */
+	pjmedia_format_init_video(&attr->dec_fmt, desc->info.dec_fmt_id[0],
+		//352, 288, 30000, 1001);
+		720, 576, 30000, 1001);
 
 	///* Decoding fmtp */
 	attr->dec_fmtp = desc->dec_fmtp;
@@ -876,7 +889,9 @@ static pj_status_t open_x264_codec(x264_private *x264, pj_mutex_t *x264_mutex)
 		x264_param_t *ctx;
 		x264->enc_ctx = PJ_POOL_ZALLOC_T(x264->pool, x264_param_t);
 		//x264->enc_ctx = new x264_param_t();
-		x264_param_default( x264->enc_ctx );
+		//x264_param_default( x264->enc_ctx );
+
+		x264_param_default_preset(x264->enc_ctx, "ultrafast", "zerolatency");
 
 		if (x264->enc_ctx == NULL)
 			goto on_error;
@@ -1263,10 +1278,15 @@ static pj_status_t x264_codec_encode_begin(pjmedia_vid_codec *codec,
 																						 pjmedia_frame *output,
 																						 pj_bool_t *has_more)
 {
+	
+
 	x264_private *x264 = (x264_private*)codec->codec_data;
 	pj_status_t status;
 
 	*has_more = PJ_FALSE;
+
+
+	return PJ_SUCCESS; // Убрать
 
 	if (x264->whole)
 	{

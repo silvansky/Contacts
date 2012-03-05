@@ -344,9 +344,7 @@ return 0;
 */
 
 /* Outgoing call callback when media transport creation is completed. */
-static pj_status_t
-on_make_call_med_tp_complete(pjsua_call_id call_id,
-														 const pjsua_med_tp_state_info *info)
+static pj_status_t on_make_call_med_tp_complete(pjsua_call_id call_id, const pjsua_med_tp_state_info *info)
 {
 	pjmedia_sdp_session *offer;
 	pjsip_inv_session *inv = NULL;
@@ -378,8 +376,7 @@ on_make_call_med_tp_complete(pjsua_call_id call_id,
 		goto on_error;
 
 	/* Create offer */
-	status = pjsua_media_channel_create_sdp(call->index, dlg->pool, NULL,
-		&offer, NULL);
+	status = pjsua_media_channel_create_sdp(call->index, dlg->pool, NULL, &offer, NULL);
 	if (status != PJ_SUCCESS)
 	{
 		pjsua_perror(THIS_FILE, "Error initializing media channel", status);
@@ -488,16 +485,20 @@ on_error:
 	if (inv == NULL && call_id != -1 && pjsua_var.ua_cfg.cb.on_call_state)
 		(*pjsua_var.ua_cfg.cb.on_call_state)(call_id, NULL);
 
-	if (dlg) {
+	if (dlg)
+	{
+		pjsip_dlg_inc_lock(dlg); // ПОПОВ. Предотвращаем вылет в будущем. НАХРЕНА???
 		/* This may destroy the dialog */
 		pjsip_dlg_dec_lock(dlg);
 	}
 
-	if (inv != NULL) {
+	if (inv != NULL)
+	{
 		pjsip_inv_terminate(inv, PJSIP_SC_OK, PJ_FALSE);
 	}
 
-	if (call_id != -1) {
+	if (call_id != -1)
+	{
 		reset_call(call_id);
 		pjsua_media_channel_deinit(call_id);
 	}

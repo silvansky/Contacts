@@ -346,7 +346,8 @@ static pj_status_t h264_preopen(ffmpeg_private *ff)
 			return status;
 	}
 
-	if (ff->param.dir & PJMEDIA_DIR_ENCODING)
+	//if (ff->param.dir & PJMEDIA_DIR_ENCODING)
+	if (ff->enc && ff->param.dir & PJMEDIA_DIR_ENCODING)
 	{
 		pjmedia_video_format_detail *vfd;
 		AVCodecContext *ctx = ff->enc_ctx;
@@ -475,42 +476,6 @@ static pj_status_t h264_preopen(ffmpeg_private *ff)
 		///////////////////////////////////////////////////////////////////////////////////
 
 
-		//if (!av_set_double(ctx->priv_data, "fps", 15))
-		//{
-		//	PJ_LOG(3, (THIS_FILE, "Failed to set x264 fps"));
-		//}
-
-		//if (!av_set_double(ctx->priv_data, "crf", 20))
-		//{
-		//	PJ_LOG(3, (THIS_FILE, "Failed to set x264 crf"));
-		//}
-
-		//if (!av_set_double(ctx->priv_data, "crf_max", 25))
-		//{
-		//	PJ_LOG(3, (THIS_FILE, "Failed to set x264 crf_max"));
-		//}
-
-		//if (!av_set_double(ctx->priv_data, "level-idc", 13))
-		//{
-		//	PJ_LOG(3, (THIS_FILE, "Failed to set x264 level-idc"));
-		//}
-
-		
-
-		//if (!av_set_int(ctx->priv_data, "scenecut", 40))
-		//{
-		//	PJ_LOG(3, (THIS_FILE, "Failed to set x264 scenecut"));
-		//}
-		////av_set_double
-		//if (!av_set_int(ctx->priv_data, "keyint", (int)(vfd->fps.num / 3)))
-		//{
-		//	PJ_LOG(3, (THIS_FILE, "Failed to set x264 level-idc"));
-		//}
-
-		
-		
-		
-
 	}
 
 	if (ff->param.dir & PJMEDIA_DIR_DECODING)
@@ -618,17 +583,25 @@ static FUNC_UNPACKETIZE(h263_unpacketize)
 #endif /* PJMEDIA_HAS_FFMPEG_CODEC_H263P */
 
 
-static const ffmpeg_codec_desc* find_codec_desc_by_info(
-	const pjmedia_vid_codec_info *info)
+static const ffmpeg_codec_desc* find_codec_desc_by_info(const pjmedia_vid_codec_info *info)
 {
 	int i;
 
-	for (i=0; i<PJ_ARRAY_SIZE(codec_desc); ++i) {
+	for (i=0; i<PJ_ARRAY_SIZE(codec_desc); ++i)
+	{
 		ffmpeg_codec_desc *desc = &codec_desc[i];
 
+		// ÏÎÏÎÂ
+		//if (desc->enabled &&
+		//	(desc->info.fmt_id == info->fmt_id) &&
+		//	((desc->info.dir & info->dir) == info->dir) &&
+		//	(desc->info.pt == info->pt) &&
+		//	(desc->info.packings & info->packings))
+		//{
+		//	return desc;
+		//}
 		if (desc->enabled &&
 			(desc->info.fmt_id == info->fmt_id) &&
-			((desc->info.dir & info->dir) == info->dir) &&
 			(desc->info.pt == info->pt) &&
 			(desc->info.packings & info->packings))
 		{
@@ -643,7 +616,8 @@ static const ffmpeg_codec_desc* find_codec_desc_by_info(
 static int find_codec_idx_by_fmt_id(pjmedia_format_id fmt_id)
 {
 	int i;
-	for (i=0; i<PJ_ARRAY_SIZE(codec_desc); ++i) {
+	for (i=0; i<PJ_ARRAY_SIZE(codec_desc); ++i)
+	{
 		if (codec_desc[i].info.fmt_id == fmt_id)
 			return i;
 	}
@@ -796,6 +770,21 @@ PJ_DEF(pj_status_t) pjmedia_codec_ffmpeg_init(pjmedia_vid_codec_mgr *mgr,
 			}
 		}
 
+#if defined PJMEDIA_HAS_X264_CODEC && PJMEDIA_HAS_X264_CODEC != 0
+		if( c->id == CODEC_ID_H264)
+		{
+			desc->enc = NULL;
+		}
+		else
+		{
+			/* Get ffmpeg encoder instance */
+			if (c->encode && !desc->enc)
+			{
+				desc->info.dir |= PJMEDIA_DIR_ENCODING;
+				desc->enc = c;
+			}
+		}
+#else
 		/* Get ffmpeg encoder instance */
 		if (c->encode && !desc->enc)
 		//if ((c->encode || c->encode2) && !desc->enc) // ÏÎÏÎÂ: äëÿ x264 èñïîëüçóåòñÿ c->encode2
@@ -803,6 +792,7 @@ PJ_DEF(pj_status_t) pjmedia_codec_ffmpeg_init(pjmedia_vid_codec_mgr *mgr,
 			desc->info.dir |= PJMEDIA_DIR_ENCODING;
 			desc->enc = c;
 		}
+#endif
 
 		/* Get ffmpeg decoder instance */
 		if (c->decode && !desc->dec) {
@@ -967,9 +957,16 @@ static pj_status_t ffmpeg_test_alloc( pjmedia_vid_codec_factory *factory,
 	PJ_ASSERT_RETURN(info, PJ_EINVAL);
 
 	desc = find_codec_desc_by_info(info);
-	if (!desc) {
+	if (!desc)
+	{
 		return PJMEDIA_CODEC_EUNSUP;
 	}
+
+	// ÏÎÏÎÂ
+	if(desc->info.dir == PJMEDIA_DIR_ENCODING)
+		return PJMEDIA_CODEC_DIR_ENCODE;
+	if(desc->info.dir == PJMEDIA_DIR_DECODING)
+		return PJMEDIA_CODEC_DIR_DECODE;
 
 	return PJ_SUCCESS;
 }
@@ -1170,8 +1167,7 @@ static pj_status_t open_ffmpeg_codec(ffmpeg_private *ff,
 	pj_status_t status;
 
 	/* Get decoded pixel format */
-	status = pjmedia_format_id_to_PixelFormat(ff->param.dec_fmt.id,
-		&pix_fmt);
+	status = pjmedia_format_id_to_PixelFormat(ff->param.dec_fmt.id, &pix_fmt);
 	if (status != PJ_SUCCESS)
 		return status;
 	ff->expected_dec_fmt = pix_fmt;
@@ -1202,8 +1198,12 @@ static pj_status_t open_ffmpeg_codec(ffmpeg_private *ff,
 			goto on_error;
 	}
 
+
+
+
 	/* Init generic encoder params */
-	if (ff->param.dir & PJMEDIA_DIR_ENCODING)
+	//if (ff->param.dir & PJMEDIA_DIR_ENCODING) // ÏÎÏÎÂ
+	if (ff->enc && ff->param.dir & PJMEDIA_DIR_ENCODING)
 	{
 		AVCodecContext *ctx = ff->enc_ctx;
 
@@ -1230,6 +1230,8 @@ static pj_status_t open_ffmpeg_codec(ffmpeg_private *ff,
 #endif
 	}
 
+
+
 	/* Init generic decoder params */
 	if (ff->param.dir & PJMEDIA_DIR_DECODING)
 	{
@@ -1253,8 +1255,11 @@ static pj_status_t open_ffmpeg_codec(ffmpeg_private *ff,
 			goto on_error;
 	}
 
+
+
 	/* Open encoder */
-	if (ff->param.dir & PJMEDIA_DIR_ENCODING)
+	//if (ff->param.dir & PJMEDIA_DIR_ENCODING)
+	if (ff->enc && ff->param.dir & PJMEDIA_DIR_ENCODING)
 	{
 		int err;
 
@@ -1269,6 +1274,8 @@ static pj_status_t open_ffmpeg_codec(ffmpeg_private *ff,
 		}
 		enc_opened = PJ_TRUE;
 	}
+
+
 
 	/* Open decoder */
 	if (ff->param.dir & PJMEDIA_DIR_DECODING)
@@ -1558,10 +1565,13 @@ static pj_status_t ffmpeg_codec_encode_begin(pjmedia_vid_codec *codec,
 
 	*has_more = PJ_FALSE;
 
-	if (ff->whole) {
+	if (ff->whole)
+	{
 		status = ffmpeg_codec_encode_whole(codec, opt, input, out_size,
 			output);
-	} else {
+	}
+	else
+	{
 		pjmedia_frame whole_frm;
 		const pj_uint8_t *payload;
 		pj_size_t payload_len;
@@ -1699,13 +1709,16 @@ static pj_status_t check_decode_result(pjmedia_vid_codec *codec,
 	}
 
 	/* Check for missing/found keyframe */
-	if (got_keyframe) {
+	if (got_keyframe)
+	{
 		pj_get_timestamp(&ff->last_dec_keyframe_ts);
 
 		/* Broadcast keyframe event */
 		pjmedia_event_init(&event, PJMEDIA_EVENT_KEYFRAME_FOUND, ts, codec);
 		pjmedia_event_publish(NULL, codec, &event, 0);
-	} else if (ff->last_dec_keyframe_ts.u64 == 0) {
+	}
+	else if (ff->last_dec_keyframe_ts.u64 == 0)
+	{
 		/* Broadcast missing keyframe event */
 		pjmedia_event_init(&event, PJMEDIA_EVENT_KEYFRAME_MISSING, ts, codec);
 		pjmedia_event_publish(NULL, codec, &event, 0);
@@ -1769,13 +1782,13 @@ static pj_status_t ffmpeg_codec_decode_whole(pjmedia_vid_codec *codec,
 #endif
 
 #if LIBAVCODEC_VER_AT_LEAST(52,72)
-	err = avcodec_decode_video2(ff->dec_ctx, &avframe, 
-		&got_picture, &avpacket);
+	err = avcodec_decode_video2(ff->dec_ctx, &avframe, &got_picture, &avpacket);
 #else
 	err = avcodec_decode_video(ff->dec_ctx, &avframe,
 		&got_picture, avpacket.data, avpacket.size);
 #endif
-	if (err < 0) {
+	if (err < 0)
+	{
 		pjmedia_event event;
 
 		output->type = PJMEDIA_FRAME_TYPE_NONE;
@@ -1788,7 +1801,9 @@ static pj_status_t ffmpeg_codec_decode_whole(pjmedia_vid_codec *codec,
 		pjmedia_event_publish(NULL, codec, &event, 0);
 
 		return PJMEDIA_CODEC_EBADBITSTREAM;
-	} else if (got_picture) {
+	}
+	else if (got_picture)
+	{
 		pjmedia_video_apply_fmt_param *vafp = &ff->dec_vafp;
 		pj_uint8_t *q = (pj_uint8_t*)output->buf;
 		unsigned i;
@@ -1830,7 +1845,9 @@ static pj_status_t ffmpeg_codec_decode_whole(pjmedia_vid_codec *codec,
 
 		output->type = PJMEDIA_FRAME_TYPE_VIDEO;
 		output->size = vafp->framebytes;
-	} else {
+	}
+	else
+	{
 		output->type = PJMEDIA_FRAME_TYPE_NONE;
 		output->size = 0;
 	}
