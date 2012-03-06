@@ -19,7 +19,7 @@ InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(ui.cbtClose,STS_MESSAGEWIDGETS_NOTICECLOSEBUTTON);
 
 	ui.wdtActions->setLayout(new QHBoxLayout);
-	ui.wdtActions->layout()->setContentsMargins(0, 0, 0, 8);
+	ui.wdtActions->layout()->setMargin(0);
 	ui.wdtActions->setProperty("ignoreFilter", true);
 
 	FActiveNotice = -1;
@@ -106,7 +106,7 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 	if (FActiveNotice != ANoticeId)
 	{
 		FActionWidgetsCleanup.clear();
-		static QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding);
+		static QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding);
 		ui.wdtActions->layout()->removeItem(spacer);
 		if (ANoticeId > 0)
 		{
@@ -131,50 +131,42 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 				switch (type)
 				{
 				case IInternalNotice::ImageAction:
-				{
-					QImage img = action->data(IInternalNotice::ImageRole).value<QImage>();
-					if (!img.isNull())
 					{
-						QLabel * imageLabel = new QLabel(ui.wdtActions);
-						imageLabel->setPixmap(QPixmap::fromImage(img));
-						imageLabel->setCursor(QCursor(Qt::PointingHandCursor));
-						imageLabel->setToolTip(action->text());
-						imageLabel->setProperty("ignoreFilter", true);
-						FActionLabels.insert(imageLabel, action);
-						imageLabel->installEventFilter(this);
-						ui.wdtActions->layout()->addWidget(imageLabel);
-						FActionWidgetsCleanup.add(imageLabel);
+						QImage img = action->data(IInternalNotice::ImageRole).value<QImage>();
+						if (!img.isNull())
+						{
+							QLabel *imageLabel = new QLabel(ui.wdtActions);
+							imageLabel->setPixmap(QPixmap::fromImage(img));
+							imageLabel->setCursor(QCursor(Qt::PointingHandCursor));
+							imageLabel->setToolTip(action->text());
+							imageLabel->setProperty("ignoreFilter", true);
+							FActionLabels.insert(imageLabel, action);
+							imageLabel->installEventFilter(this);
+							ui.wdtActions->layout()->addWidget(imageLabel);
+							FActionWidgetsCleanup.add(imageLabel);
+						}
+						break;
 					}
-					break;
-				}
 				case IInternalNotice::LinkAction:
-				{
-					// TODO: create a label with a link
-					break;
-				}
+					{
+						// TODO: create a label with a link
+						break;
+					}
 				case IInternalNotice::ButtonAction:
 				default:
-				{
-					ActionButton *button = new ActionButton(action, ui.wdtActions);
-					button->addTextFlag(TF_LIGHTSHADOW);
-					button->setText(action->text());
-					connect(action,SIGNAL(triggered()),SLOT(onNoticeActionTriggered()));
-					ui.wdtActions->layout()->addWidget(button);
-					FActionWidgetsCleanup.add(button);
-					break;
-				}
+					{
+						ActionButton *button = new ActionButton(action, ui.wdtActions);
+						button->addTextFlag(TF_LIGHTSHADOW);
+						button->setText(action->text());
+						connect(action,SIGNAL(triggered()),SLOT(onNoticeActionTriggered()));
+						ui.wdtActions->layout()->addWidget(button);
+						FActionWidgetsCleanup.add(button);
+						break;
+					}
 				}
 			}
 			ui.wdtActions->layout()->addItem(spacer);
 			ui.wdtActions->setVisible(!notice.actions.isEmpty());
-
-			if (!ui.lblIcon->isVisible())
-			{
-				int lm, tm, rm, bm;
-				layout()->getContentsMargins(&lm, &tm, &rm, &bm);
-				lm += 8;
-				layout()->setContentsMargins(lm, tm, rm, bm);
-			}
 
 			setVisible(true);
 			FReadyTimer.stop();
