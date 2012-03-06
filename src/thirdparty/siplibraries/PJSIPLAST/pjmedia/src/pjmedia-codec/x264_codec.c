@@ -144,7 +144,7 @@ typedef struct x264_private
 	x264_picture_t			pic_in;
 
 	/* The x264 codec states. */
-	struct SwsContext			*convertCtx;
+	//struct SwsContext			*convertCtx;
 	x264_t								*enc;
 	x264_param_t					*enc_ctx;
 	//AVCodec			    *enc;
@@ -380,7 +380,7 @@ static pj_status_t h264_preopen(x264_private *x264)
 		/* Apply profile level. */
 		//ctx->level    = data->fmtp.level;
 
-		x264->convertCtx = sws_getContext(ctx->i_width, ctx->i_height, PIX_FMT_RGB24, ctx->i_width, ctx->i_height, PIX_FMT_YUV420P, SWS_FAST_BILINEAR, NULL, NULL, NULL);
+		//x264->convertCtx = sws_getContext(ctx->i_width, ctx->i_height, PIX_FMT_RGB24, ctx->i_width, ctx->i_height, PIX_FMT_YUV420P, SWS_FAST_BILINEAR, NULL, NULL, NULL);
 		x264_picture_alloc(&x264->pic_in, X264_CSP_YV12, ctx->i_width, ctx->i_height);
 	}
 
@@ -1091,6 +1091,9 @@ static pj_status_t x264_codec_close( pjmedia_vid_codec *codec )
 	x264_mutex = ((struct x264_factory*)codec->factory)->mutex;
 
 	pj_mutex_lock(x264_mutex);
+
+	x264_picture_clean( &x264->pic_in );
+
 	if (x264->enc)
 	{
 		x264_encoder_close(x264->enc);
@@ -1099,6 +1102,8 @@ static pj_status_t x264_codec_close( pjmedia_vid_codec *codec )
 		//avcodec_close(x264->enc_ctx);
 		//av_free(ff->enc_ctx);
 	}
+
+
 	//if (x264->enc && x264->enc_ctx)
 	//{
 	//	x264_encoder_close(x264->enc);
@@ -1201,6 +1206,7 @@ static pj_status_t x264_codec_encode_whole(pjmedia_vid_codec *codec,
 	x264_nal_t *nals = 0;
 	int i_nals = 0;
 	
+	
 	//AVRational src_timebase;
 	/* For some reasons (e.g: SSE/MMX usage), the avcodec_encode_video() must
 	* have stack aligned to 16 bytes. Let's try to be safe by preparing the
@@ -1226,12 +1232,16 @@ static pj_status_t x264_codec_encode_whole(pjmedia_vid_codec *codec,
 	ff->enc_ctx->time_base);
 	*/
 
-	//////for (i[0] = 0; i[0] < x264->enc_vfi->plane_cnt; ++i[0])
-	//////{
-	//////	avframe.data[i[0]] = p;
-	//////	avframe.linesize[i[0]] = x264->enc_vafp.strides[i[0]];
-	//////	p += x264->enc_vafp.plane_bytes[i[0]];
-	//////}
+	for (i[0] = 0; i[0] < x264->enc_vfi->plane_cnt; ++i[0])
+	{
+		x264->pic_in.img.plane[i[0]] = p;//x264->enc_vafp.planes[i[0]];
+		x264->pic_in.img.i_stride[i[0]] = x264->enc_vafp.strides[i[0]];
+		//int     i_csp;       /* Colorspace */
+		//int     i_plane;     /* Number of image planes */
+		//int     i_stride[4]; /* Strides for each plane */
+		//uint8_t *plane[4];   /* Pointers to each plane */
+		p += x264->enc_vafp.plane_bytes[i[0]];
+	}
 
 	/* Force keyframe */
 //////	if (opt && opt->force_keyframe)
@@ -1245,14 +1255,42 @@ static pj_status_t x264_codec_encode_whole(pjmedia_vid_codec *codec,
 
 	//x264_encoder_encode( x264_t *, x264_nal_t **pp_nal, int *pi_nal, x264_picture_t *pic_in, x264_picture_t *pic_out );
 
-	
-	
+	//x264_picture_alloc(&pic_out, X264_CSP_I420, x264->enc_ctx->i_width, x264->enc_ctx->i_height);
 
-	srcstride = x264->enc_ctx->i_width*3; //RGB stride is just 3*width
-	sws_scale(x264->convertCtx, &p, &srcstride, 0, x264->enc_ctx->i_height, x264->pic_in.img.plane, x264->pic_in.img.i_stride);
+	//srcstride = x264->enc_ctx->i_width*3; //RGB stride is just 3*width
+	//sws_scale(x264->convertCtx, &p, &srcstride, 0, x264->enc_ctx->i_height, x264->pic_in.img.plane, x264->pic_in.img.i_stride);
 
+	{
+		int ret = 0;
+		int i = 0;
+		int nalsize = 0;
+		pj_int32_t left = out_buf_len;//input->size;
+		do 
+		{
+			ret = x264_encoder_encode(x264->enc, &nals, &i_nals, &x264->pic_in, &pic_out);
+			if(ret < 0)
+				return PJMEDIA_CODEC_EFAILED;
+			
+			
+			for (i = 0; i < i_nals; i++)
+			{
+				nalsize = nals[i].i_payload;
+				if (nalsize > left)
+					return input->size - left;
+				memcpy(out_buf, nals[i].p_payload, nalsize);
+				out_buf += nalsize;
+				left -= nalsize;
+			}
 
-	x264_encoder_encode(x264->enc, &nals, &i_nals, &x264->pic_in, &pic_out);
+			output->size += ret;
+
+		}
+		while (x264_encoder_delayed_frames(x264->enc));
+
+		output->bit_info = 0;
+		if (pic_out.b_keyframe)
+			output->bit_info |= PJMEDIA_VID_FRM_KEYFRAME;
+	}
 
 	//err = avcodec_encode_video(ff->enc_ctx, out_buf, out_buf_len, &avframe);
 	//if (err < 0)
@@ -1284,9 +1322,6 @@ static pj_status_t x264_codec_encode_begin(pjmedia_vid_codec *codec,
 	pj_status_t status;
 
 	*has_more = PJ_FALSE;
-
-
-	return PJ_SUCCESS; // Убрать
 
 	if (x264->whole)
 	{
@@ -1328,7 +1363,6 @@ static pj_status_t x264_codec_encode_begin(pjmedia_vid_codec *codec,
 	}
 
 	return status;
-	//return PJ_SUCCESS; // Убрать
 }
 
 static pj_status_t x264_codec_encode_more(pjmedia_vid_codec *codec,
@@ -1336,35 +1370,35 @@ static pj_status_t x264_codec_encode_more(pjmedia_vid_codec *codec,
 																						pjmedia_frame *output,
 																						pj_bool_t *has_more)
 {
-	//ffmpeg_private *ff = (ffmpeg_private*)codec->codec_data;
-	//const pj_uint8_t *payload;
-	//pj_size_t payload_len;
-	//pj_status_t status;
+	x264_private *x264 = (x264_private*)codec->codec_data;
+	const pj_uint8_t *payload;
+	pj_size_t payload_len;
+	pj_status_t status;
 
-	//*has_more = PJ_FALSE;
+	*has_more = PJ_FALSE;
 
-	//if (ff->enc_processed >= ff->enc_frame_len) {
-	//	/* No more frame */
-	//	return PJ_EEOF;
-	//}
+	if (x264->enc_processed >= x264->enc_frame_len) {
+		/* No more frame */
+		return PJ_EEOF;
+	}
 
-	//status = ffmpeg_packetize(codec, (pj_uint8_t*)ff->enc_buf,
-	//	ff->enc_frame_len, &ff->enc_processed,
-	//	&payload, &payload_len);
-	//if (status != PJ_SUCCESS)
-	//	return status;
+	status = x264_packetize(codec, (pj_uint8_t*)x264->enc_buf,
+		x264->enc_frame_len, &x264->enc_processed,
+		&payload, &payload_len);
+	if (status != PJ_SUCCESS)
+		return status;
 
-	//if (out_size < payload_len)
-	//	return PJMEDIA_CODEC_EFRMTOOSHORT;
+	if (out_size < payload_len)
+		return PJMEDIA_CODEC_EFRMTOOSHORT;
 
-	//output->type = PJMEDIA_FRAME_TYPE_VIDEO;
-	//pj_memcpy(output->buf, payload, payload_len);
-	//output->size = payload_len;
+	output->type = PJMEDIA_FRAME_TYPE_VIDEO;
+	pj_memcpy(output->buf, payload, payload_len);
+	output->size = payload_len;
 
-	//if (ff->enc_buf_is_keyframe)
-	//	output->bit_info |= PJMEDIA_VID_FRM_KEYFRAME;
+	if (x264->enc_buf_is_keyframe)
+		output->bit_info |= PJMEDIA_VID_FRM_KEYFRAME;
 
-	//*has_more = (ff->enc_processed < ff->enc_frame_len);
+	*has_more = (x264->enc_processed < x264->enc_frame_len);
 
 	return PJ_SUCCESS;
 }

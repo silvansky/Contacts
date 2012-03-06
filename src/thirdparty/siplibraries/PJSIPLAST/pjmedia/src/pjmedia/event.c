@@ -276,6 +276,7 @@ PJ_DEF(pj_status_t) pjmedia_event_subscribe( pjmedia_event_mgr *mgr,
 	}
 	else
 		sub = PJ_POOL_ZALLOC_T(mgr->pool, esub);
+
 	sub->cb = cb;
 	sub->user_data = user_data;
 	sub->epub = epub;
@@ -340,19 +341,25 @@ PJ_DEF(pj_status_t) pjmedia_event_publish( pjmedia_event_mgr *mgr,
 	event->epub = epub;
 
 	pj_mutex_lock(mgr->mutex);
-	if (flag & PJMEDIA_EVENT_PUBLISH_POST_EVENT) {
+	if (flag & PJMEDIA_EVENT_PUBLISH_POST_EVENT)
+	{
 		if (event_queue_add_event(&mgr->ev_queue, event) == PJ_SUCCESS)
 			pj_sem_post(mgr->sem);
-	} else {
+	}
+	else
+	{
 		/* For nested pjmedia_event_publish() calls, i.e. calling publish()
 		* inside the subscriber's callback, the function will only add
 		* the event to the event queue of the first publish() call. It
 		* is the first publish() call that will be responsible to
 		* distribute the events.
 		*/
-		if (mgr->pub_ev_queue) {
+		if (mgr->pub_ev_queue)
+		{
 			event_queue_add_event(mgr->pub_ev_queue, event);
-		} else {
+		}
+		else
+		{
 			static event_queue ev_queue;
 			pj_status_t status;
 
@@ -362,10 +369,9 @@ PJ_DEF(pj_status_t) pjmedia_event_publish( pjmedia_event_mgr *mgr,
 
 			event_queue_add_event(mgr->pub_ev_queue, event);
 
-			do {
-				status = event_mgr_distribute_events(mgr, mgr->pub_ev_queue,
-					&mgr->pub_next_sub,
-					PJ_FALSE);
+			do
+			{
+				status = event_mgr_distribute_events(mgr, mgr->pub_ev_queue, &mgr->pub_next_sub, PJ_FALSE);
 				if (status != PJ_SUCCESS && err == PJ_SUCCESS)
 					err = status;
 			} while(ev_queue.head != ev_queue.tail || ev_queue.is_full);

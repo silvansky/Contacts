@@ -1524,7 +1524,8 @@ static pj_status_t ffmpeg_codec_encode_whole(pjmedia_vid_codec *codec,
 	ff->enc_ctx->time_base);
 	*/
 
-	for (i[0] = 0; i[0] < ff->enc_vfi->plane_cnt; ++i[0]) {
+	for (i[0] = 0; i[0] < ff->enc_vfi->plane_cnt; ++i[0])
+	{
 		avframe.data[i[0]] = p;
 		avframe.linesize[i[0]] = ff->enc_vafp.strides[i[0]];
 		p += ff->enc_vafp.plane_bytes[i[0]];
@@ -1565,10 +1566,11 @@ static pj_status_t ffmpeg_codec_encode_begin(pjmedia_vid_codec *codec,
 
 	*has_more = PJ_FALSE;
 
+	//return 1; // ÓÁÐÀÒÜ
+
 	if (ff->whole)
 	{
-		status = ffmpeg_codec_encode_whole(codec, opt, input, out_size,
-			output);
+		status = ffmpeg_codec_encode_whole(codec, opt, input, out_size, output);
 	}
 	else
 	{
@@ -1579,18 +1581,14 @@ static pj_status_t ffmpeg_codec_encode_begin(pjmedia_vid_codec *codec,
 		pj_bzero(&whole_frm, sizeof(whole_frm));
 		whole_frm.buf = ff->enc_buf;
 		whole_frm.size = ff->enc_buf_size;
-		status = ffmpeg_codec_encode_whole(codec, opt, input,
-			whole_frm.size, &whole_frm);
+		status = ffmpeg_codec_encode_whole(codec, opt, input, whole_frm.size, &whole_frm);
 		if (status != PJ_SUCCESS)
 			return status;
 
-		ff->enc_buf_is_keyframe = (whole_frm.bit_info & 
-			PJMEDIA_VID_FRM_KEYFRAME);
+		ff->enc_buf_is_keyframe = (whole_frm.bit_info & PJMEDIA_VID_FRM_KEYFRAME);
 		ff->enc_frame_len = (unsigned)whole_frm.size;
 		ff->enc_processed = 0;
-		status = ffmpeg_packetize(codec, (pj_uint8_t*)whole_frm.buf,
-			whole_frm.size, &ff->enc_processed,
-			&payload, &payload_len);
+		status = ffmpeg_packetize(codec, (pj_uint8_t*)whole_frm.buf, whole_frm.size, &ff->enc_processed, &payload, &payload_len);
 		if (status != PJ_SUCCESS)
 			return status;
 
