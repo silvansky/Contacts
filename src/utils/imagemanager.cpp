@@ -164,6 +164,7 @@ QImage ImageManager::rotatedImage(const QImage & image, qreal angle)
 	if (!image.isNull())
 	{
 		QImage rotated(image.size(), QImage::Format_ARGB32_Premultiplied);
+		rotated.fill(Qt::transparent);
 		QPainter p(&rotated);
 		p.setRenderHint(QPainter::Antialiasing);
 		p.setRenderHint(QPainter::SmoothPixmapTransform);

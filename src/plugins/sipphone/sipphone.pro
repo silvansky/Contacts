@@ -1,4 +1,5 @@
-win32-msvc2008: {
+# works only on win and mac
+win32-msvc2008|macx: {
 	include(sipphone.pri)
 	include(../plugins.inc)
 
@@ -6,7 +7,17 @@ win32-msvc2008: {
 	USE_PHONON {
 	  QT  += phonon
 	}
+	INCLUDEPATH += ../../thirdparty/siplibraries/SipLib/inc
+	INCLUDEPATH += ../../thirdparty/siplibraries/SPEEX/include
+	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/Inc/iLBC
+	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/inc
+	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPVideoLib/inc
 
+} else: {
+	include(../nobuild.inc)
+}
+
+win32-msvc2008: {
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/baseclasses/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/ffmpeg/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/sdllib/lib
@@ -26,15 +37,6 @@ win32-msvc2008: {
 	} else {
 	  LIBS  += -llibpjproject-i386-Win32-vc8-Release
 	}
-
-	INCLUDEPATH += ../../thirdparty/siplibraries/SipLib/inc
-	INCLUDEPATH += ../../thirdparty/siplibraries/SPEEX/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/Inc/iLBC
-	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/inc
-	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPVideoLib/inc
-
-
-
 	INCLUDEPATH += ../../thirdparty/siplibraries/baseclasses/include
 	INCLUDEPATH += ../../thirdparty/siplibraries/ffmpeg/include
 	INCLUDEPATH += ../../thirdparty/siplibraries/sdllib/include
@@ -44,6 +46,48 @@ win32-msvc2008: {
 	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjnath/include
 	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjsip/include
 	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/x264/include
-} else {
-	include(../nobuild.inc)
+}
+macx: {
+	QMAKE_LFLAGS    += -framework Carbon -framework Cocoa -framework VideoDecodeAcceleration -framework QTKit -framework AVFoundation -framework CoreVideo -framework CoreMedia
+	LIBS += -L/usr/local/lib
+	INCLUDEPATH += /usr/local/include
+	INCLUDEPATH += /usr/local/include/SDL
+	# common
+	LIBS += -lm -lpthread -lcrypto
+	# openssl
+	LIBS += -lssl
+	# zlib
+	LIBS += -lzlib
+	# SDL
+	LIBS += -lSDL
+	# av
+	LIBS += -lavcodec -lavdevice -lavfilter -lavformat -lavutil
+	# swscale
+	LIBS += -lswscale -lswresample
+	# speex
+	LIBS += -lspeex-i386-apple-darwin11.3.0
+	# resample
+	LIBS += -lresample-i386-apple-darwin11.3.0
+	# iLBC
+	LIBS += -lilbc
+	# GSM
+	LIBS += -lgsm
+	# bz2
+	LIBS += -lbz2
+	# x264
+	LIBS += -lx264
+	# portaudio
+	LIBS += -lportaudio-i386-apple-darwin11.3.0
+	# pjsip
+	LIBS += -lpj-i386-apple-darwin11.3.0
+	LIBS += -lpjlib-util-i386-apple-darwin11.3.0
+	LIBS += -lpjmedia-audiodev-i386-apple-darwin11.3.0
+	LIBS += -lpjmedia-codec-i386-apple-darwin11.3.0
+	LIBS += -lpjmedia-i386-apple-darwin11.3.0
+	LIBS += -lpjmedia-videodev-i386-apple-darwin11.3.0
+	LIBS += -lpjnath-i386-apple-darwin11.3.0
+	LIBS += -lpjsip-i386-apple-darwin11.3.0
+	LIBS += -lpjsip-simple-i386-apple-darwin11.3.0
+	LIBS += -lpjsip-ua-i386-apple-darwin11.3.0
+	LIBS += -lpjsua-i386-apple-darwin11.3.0
 }

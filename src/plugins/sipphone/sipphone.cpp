@@ -1,6 +1,8 @@
 ﻿#include "sipphone.h"
 
-#include <winsock2.h>
+#ifdef Q_WS_WIN32
+# include <winsock2.h>
+#endif
 
 #include <QProcess>
 #include <QMessageBox>

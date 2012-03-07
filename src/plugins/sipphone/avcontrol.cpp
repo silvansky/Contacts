@@ -229,6 +229,7 @@ void AVControl::paintEvent(QPaintEvent *)
 
 void AVControl::onAudioSettings()
 {
+#ifdef Q_WS_WIN32
 	// ONLY FOR WINDOWS
 	OSVERSIONINFO m_osinfo;
 	ZeroMemory(&m_osinfo, sizeof(m_osinfo));
@@ -244,4 +245,8 @@ void AVControl::onAudioSettings()
 			QProcess::startDetached("sndvol.exe");
 		}
 	}
+#elif defined (Q_WS_MAC)
+	// TODO: open sound preferences pane
+	QProcess::startDetached("open -W \"/Applications/System Preferences.app\"");
+#endif
 }

@@ -5,7 +5,9 @@
 #include "VolumeOutMaster.h"
 
 #include <qglobal.h>
-#include <tchar.h>
+#ifdef Q_WS_WIN32
+# include <tchar.h>
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // 		Defines
@@ -18,7 +20,7 @@
 PCVolumeOutMaster g_pThis = NULL;
 
 ////////////////////////////////////////////////////////////
-
+#ifdef Q_WS_WIN32
 //{{{ Audio specific functions
 #define AUDFREQ			22050	// Frequency
 #define AUDCHANNELS		1		// Number of channels
@@ -37,6 +39,7 @@ void SetDeviceType( WAVEFORMATEX* pwfe )
 	pwfe->nAvgBytesPerSec = nSamplesPerSec*nBlockAlign;
 }
 //}}} Audio specific functions
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // 		Implementation
@@ -55,10 +58,12 @@ CVolumeOutMaster::CVolumeOutMaster()
 		//m_hWnd(NULL),
 
 		m_dwMinimalVolume(BAD_DWORD),
-		m_dwMaximalVolume(BAD_DWORD),
-
+		m_dwMaximalVolume(BAD_DWORD)
+#ifdef Q_WS_WIN32
+		,
 		m_pfUserSink(NULL),
 		m_dwUserValue(0L)
+#endif
 {
 	if ( m_bOK = Init() )
 	{
@@ -83,9 +88,104 @@ CVolumeOutMaster::~CVolumeOutMaster()
 		m_updateTimer = 0;
 	}
 }
+
+bool CVolumeOutMaster::isAvailable() const
+{
+#ifdef Q_WS_WIN32
+	return IsAvailable();
+#elif defined(Q_WS_MAC)
+	return true;
+#else
+	return false;
+#endif
+}
+
+ulong CVolumeOutMaster::volumeMetric()
+{
+#ifdef Q_WS_WIN32
+	return GetVolumeMetric();
+#else
+	return 0;
+#endif
+}
+
+ulong CVolumeOutMaster::minimalVolume()
+{
+#ifdef Q_WS_WIN32
+	return GetMinimalVolume();
+#elif defined (Q_WS_MAC)
+	return 0;
+#else
+	return 0;
+#endif
+}
+
+ulong CVolumeOutMaster::maximalVolume()
+{
+#ifdef Q_WS_WIN32
+	return GetMaximalVolume();
+#elif defined (Q_WS_MAC)
+	return 0;
+#else
+	return 0;
+#endif
+}
+
+ulong CVolumeOutMaster::currentVolume()
+{
+#ifdef Q_WS_WIN32
+	return GetCurrentVolume();
+#elif defined (Q_WS_MAC)
+	return 0;
+#else
+	return 0;
+#endif
+}
+
+bool CVolumeOutMaster::isMuted()
+{
+#ifdef Q_WS_WIN32
+	return isMute();
+#elif defined (Q_WS_MAC)
+	return true;
+#else
+	return true;
+#endif
+}
+
+void CVolumeOutMaster::enable()
+{
+#ifdef Q_WS_WIN32
+	Enable();
+#elif defined (Q_WS_MAC)
+#else
+#endif
+}
+
+void CVolumeOutMaster::disable()
+{
+#ifdef Q_WS_WIN32
+	Disable();
+#elif defined (Q_WS_MAC)
+#else
+#endif
+}
+
+void CVolumeOutMaster::setCurrentVolume(ulong vol)
+{
+#ifdef Q_WS_WIN32
+	SetCurrentVolume(vol);
+#elif defined (Q_WS_MAC)
+	Q_UNUSED(vol)
+#else
+	Q_UNUSED(vol)
+#endif
+}
+
 //////////////
 bool CVolumeOutMaster::Init()
 {
+#ifdef Q_WS_WIN32
 	if ( !mixerGetNumDevs() )
 		return false;
 	// Getting Mixer ID
@@ -134,11 +234,13 @@ bool CVolumeOutMaster::Init()
 		//////////////::DestroyWindow( m_hWnd );
 		return false;
 	}
+#endif
 	return true;
 }
 //////////////
 void CVolumeOutMaster::Done()
 {
+#ifdef Q_WS_WIN32
 	if ( mixerClose( (HMIXER)m_dwMixerHandle ) != MMSYSERR_NOERROR )
 	{
 		qDebug(".MasterOutputVolume: WARNING: Could not close Mixer.\n" );
@@ -146,6 +248,7 @@ void CVolumeOutMaster::Done()
 	//////////////::DestroyWindow( m_hWnd );
 	m_bInitialized = false;
 	m_bOK = false;
+#endif
 }
 //////////////
 //void CVolumeOutMaster::OnControlChanged( DWORD dwControlID )
@@ -159,7 +262,7 @@ void CVolumeOutMaster::Done()
 //		}
 //	}
 //}
-
+#ifdef Q_WS_WIN32
 bool CVolumeOutMaster::isMute()
 {
 	MMRESULT mmResult;
@@ -200,10 +303,12 @@ bool CVolumeOutMaster::isMute()
 		return true;
 	return false;
 }
+#endif
 
 //////////////
 bool CVolumeOutMaster::Initialize()
 {
+#ifdef Q_WS_WIN32
 	MMRESULT mmResult;
 	if ( !m_bOK )
 		return false;
@@ -254,11 +359,13 @@ bool CVolumeOutMaster::Initialize()
 	m_dwVolumeStep = Control.Metrics.cSteps;
 
 	m_bInitialized = true;
+#endif
 	return true;
 }
 //////////////
 void CVolumeOutMaster::EnableLine( bool bEnable )
 {
+#ifdef Q_WS_WIN32
 	if ( !m_bInitialized )
 		return;
 	bool bAnyEnabled = false;
@@ -431,7 +538,9 @@ void CVolumeOutMaster::EnableLine( bool bEnable )
 			qDebug(".MasterOutputVolume: WARNING: No controls were found for disabling the line.\n" );
 		}
 	}
+#endif
 }
+#ifdef Q_WS_WIN32
 //////////////////////////////////////////////
 // IVolume interface
 //////////////
@@ -527,6 +636,8 @@ void CVolumeOutMaster::SetCurrentVolume( DWORD dwValue )
 		qDebug(".MasterOutputVolume: FAILURE: Could not set volume(%d) mmResult=%d\n", dwValue, mmResult );
 	}
 }
+#endif
+
 //////////////
 //void CVolumeOutMaster::RegisterNotificationSink( PONMICVOULUMECHANGE pfUserSink, DWORD dwUserValue )
 //{
@@ -549,6 +660,7 @@ void CVolumeOutMaster::SetCurrentVolume( DWORD dwValue )
 void CVolumeOutMaster::timerEvent(QTimerEvent *evt)
 {
 	Q_UNUSED(evt);
+#ifdef Q_WS_WIN32
 	int newVolume = (int)(GetCurrentVolume() * 100 /65535);
 	if(m_currVolume	!= newVolume)
 	{
@@ -563,4 +675,5 @@ void CVolumeOutMaster::timerEvent(QTimerEvent *evt)
 		emit muteStateChangedExternaly(newMuteState);
 	}
 	//qDebug() << "Timer ID:" << evt->timerId();
+#endif
 }
