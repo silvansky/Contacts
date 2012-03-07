@@ -3,7 +3,7 @@
 
 #define CLIENT_GUID             "{9732304B-B640-4C54-B2CD-3C2297D649A1}"
 #define CLIENT_NAME             "Contacts"
-#define CLIENT_VERSION          "0.6.2"
+#define CLIENT_VERSION          "0.6.3"
 #define CLIENT_VERSION_SUFIX    "beta"
 #define CLIENT_HOME_PAGE        "http://contacts.rambler.ru"
 

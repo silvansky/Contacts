@@ -1265,6 +1265,8 @@ static pj_status_t x264_codec_encode_whole(pjmedia_vid_codec *codec,
 		int i = 0;
 		int nalsize = 0;
 		pj_int32_t left = out_buf_len;//input->size;
+		int realOutputSize = 0;
+		//output->size = 0;
 		do 
 		{
 			ret = x264_encoder_encode(x264->enc, &nals, &i_nals, &x264->pic_in, &pic_out);
@@ -1282,11 +1284,12 @@ static pj_status_t x264_codec_encode_whole(pjmedia_vid_codec *codec,
 				left -= nalsize;
 			}
 
-			output->size += ret;
+			realOutputSize += ret;
 
 		}
 		while (x264_encoder_delayed_frames(x264->enc));
 
+		output->size = realOutputSize;
 		output->bit_info = 0;
 		if (pic_out.b_keyframe)
 			output->bit_info |= PJMEDIA_VID_FRM_KEYFRAME;
@@ -1343,9 +1346,7 @@ static pj_status_t x264_codec_encode_begin(pjmedia_vid_codec *codec,
 		x264->enc_buf_is_keyframe = (whole_frm.bit_info & PJMEDIA_VID_FRM_KEYFRAME);
 		x264->enc_frame_len = (unsigned)whole_frm.size;
 		x264->enc_processed = 0;
-		status = x264_packetize(codec, (pj_uint8_t*)whole_frm.buf,
-			whole_frm.size, &x264->enc_processed,
-			&payload, &payload_len);
+		status = x264_packetize(codec, (pj_uint8_t*)whole_frm.buf, whole_frm.size, &x264->enc_processed, &payload, &payload_len);
 		if (status != PJ_SUCCESS)
 			return status;
 

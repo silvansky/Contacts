@@ -1,6 +1,9 @@
 #include "CrossDefine.h"
 #include <qtime>
-#include "winsock2.h"
+
+#ifdef Q_WS_WIN32
+# include "winsock2.h"
+#endif
 //#include "textedit.h"
 
 //#define WINDOWS_BLABLABLA

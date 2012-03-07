@@ -1,6 +1,8 @@
 #include "complexvideowidget.h"
 
-#include <windows.h>
+#ifdef Q_WS_WIN32
+# include <windows.h>
+#endif
 
 #include <QPainter>
 #include <QPaintEvent>

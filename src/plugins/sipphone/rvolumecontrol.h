@@ -4,16 +4,23 @@
 #include <QWidget>
 #include <QList>
 
-
-#include "winsock2.h"
-//#include <stdio.h>
-//#include <windows.h>
-#include <mmdeviceapi.h>
-#include <endpointvolume.h>
+#ifdef Q_WS_WIN32
+# include "winsock2.h"
+//# include <stdio.h>
+//# include <windows.h>
+# include <mmdeviceapi.h>
+# include <endpointvolume.h>
+#else
+typedef long LONG;
+typedef int BOOL;
+#endif
 
 #include "VolumeOutMaster.h"
 
-class CVolumeNotification : public QObject, public IAudioEndpointVolumeCallback
+class CVolumeNotification : public QObject
+#ifdef Q_WS_WIN32
+		, public IAudioEndpointVolumeCallback
+#endif
 {
 	Q_OBJECT
 	LONG m_RefCount;
@@ -24,6 +31,7 @@ public:
 		_currVolume = -1;
 		_mute = false;
 	}
+#ifdef Q_WS_WIN32
 	STDMETHODIMP_(ULONG)AddRef() { return InterlockedIncrement(&m_RefCount); }
 	STDMETHODIMP_(ULONG)Release()
 	{
@@ -45,6 +53,7 @@ public:
 	}
 
 	STDMETHODIMP OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA NotificationData);
+#endif
 
 signals:
 	//void volumeChanged(double);
@@ -132,9 +141,10 @@ private:
 	bool _isOn;
 	bool _isEnableSound;
 	bool _isDark;
-
+#ifdef Q_WS_WIN32
 	IAudioEndpointVolume *endpointVolume;
 	CVolumeNotification *volumeNotification;
+#endif
 	void setValueNoCycle(int);
 
 

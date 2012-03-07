@@ -1,8 +1,12 @@
 #include "rsipphone.h"
+
 //#include "vidwin.h"
 
 //#include "pjmedia\frame.h"
-#include <windows.h>
+
+#ifdef Q_WS_WIN32
+# include <windows.h>
+#endif
 
 #if defined(PJ_WIN32)
 #   define SDL_MAIN_HANDLED
@@ -488,8 +492,6 @@ void RSipPhone::onCallReleased()
 		_pPhoneWidget->deleteLater();
 		_pPhoneWidget = NULL;
 	}
-
-
 }
 
 
@@ -535,7 +537,7 @@ void RSipPhone::preview()
 		//_pVideoPrevWidget = new VidWin(&wi.hwnd);
 		//vbox_left->addWidget(video_prev_, 1);
 		//emit signalVideoPrevWidgetSet(_pVideoPrevWidget);
-		emit signalVideoPrevWidgetSet((HWND*)wi.hwnd.info.win.hwnd);
+		emit signalVideoPrevWidgetSet((void*)wi.hwnd.info.win.hwnd);
 
 
 
@@ -763,7 +765,9 @@ void RSipPhone::initVideoWindow()
 			//emit signalVideoInputWidgetSet(_pVideoInputWidget);
 			//emit signalVideoInputWidgetSet((HWND*)wi.hwnd.info.win.hwnd);
 			emit signalShowSipPhoneWidget(wi.hwnd.info.win.hwnd);
+#ifdef Q_WS_WIN32
 			ShowWindow((HWND)wi.hwnd.info.win.hwnd, SW_HIDE);
+#endif
 
 			//preview();
 
@@ -1046,15 +1050,23 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 
 	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(_pPhoneWidget, CBS_VIDEOCALL);
-	border->setMinimizeButtonVisible(false);
-	border->setMaximizeButtonVisible(false);
-	border->setCloseButtonVisible(false);
-	border->setMovable(true);
-	border->setResizable(true);
-	border->resize(621, 480);
-	//border->installEventFilter(this);
-	//border->setStaysOnTop(true);
-	WidgetManager::alignWindow(border, Qt::AlignCenter);
+	if (border)
+	{
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+		border->setMovable(true);
+		border->setResizable(true);
+		border->resize(621, 480);
+		//border->installEventFilter(this);
+		//border->setStaysOnTop(true);
+		WidgetManager::alignWindow(border, Qt::AlignCenter);
+	}
+	else
+	{
+		_pPhoneWidget->resize(621, 480);
+		WidgetManager::alignWindow(_pPhoneWidget, Qt::AlignCenter);
+	}
 
 	//if(!_pWorkWidgetContainer.isNull())
 	//	delete _pWorkWidgetContainer;
@@ -1065,7 +1077,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 	//widget->show();
 	updateCallerName();
-	WidgetManager::showActivateRaiseWindow(border); //!!!!!!!!!!!!!!!!!!!!
+	WidgetManager::showActivateRaiseWindow(_pPhoneWidget->window()); //!!!!!!!!!!!!!!!!!!!!
 }
 
 
@@ -1263,13 +1275,11 @@ on_error:
 }
 
 
-
-
-
 bool RSipPhone::initStack(const QString& sip_server, int sipPortNum, const QString& sip_username, const QString& sip_password, const QString& sip_domain)
 {
 	return RSipPhone::initStack(sip_server.toUtf8().data(), sipPortNum, sip_username.toUtf8().data(), sip_password.toUtf8().data(), sip_domain.toUtf8().data());
 }
+
 bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* sip_username, const char* sip_password, const char* sip_domain)
 {
 	if ( SDL_InitSubSystem(SDL_INIT_VIDEO) < 0 )

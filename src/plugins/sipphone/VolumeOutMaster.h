@@ -2,14 +2,26 @@
 // IVolume implementation for master audio volume
 // Developer : Alex Chmut
 // Created : 8/11/98
-#pragma once
-#include "IVolume.h"
+#ifndef VOLUMEOUTMASTER_H
+#define VOLUMEOUTMASTER_H
+
 #include <QObject>
 
+#ifndef Q_WS_WIN32
+#include "IVolume.h"
+typedef unsigned long DWORD;
+typedef unsigned int UINT;
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
-class CVolumeOutMaster : public QObject, public IVolume
+// TODO: implement volume functions for Mac OS X
+class CVolumeOutMaster : public QObject
+#ifdef Q_WS_WIN32
+		, public IVolume
+#endif
 {
 	Q_OBJECT
+#ifdef Q_WS_WIN32
 
 ////////////////////////
 // IVolume interface
@@ -25,11 +37,22 @@ public:
 	//virtual void	RegisterNotificationSink( PONMICVOULUMECHANGE, DWORD );
 
 	bool isMute();
-
+#endif
 
 public:
 	CVolumeOutMaster();
 	~CVolumeOutMaster();
+
+	bool isAvailable() const;
+	ulong volumeMetric();
+	ulong minimalVolume();
+	ulong maximalVolume();
+	ulong currentVolume();
+	bool isMuted();
+public slots:
+	void enable();
+	void disable();
+	void setCurrentVolume(ulong vol);
 
 signals:
 	void volumeChangedExternaly(int);
@@ -71,10 +94,14 @@ private:
 	DWORD	m_dwMaximalVolume;
 	DWORD	m_dwVolumeStep;
 
+#ifdef Q_WS_WIN32
 	// User Info
 	PONMICVOULUMECHANGE		m_pfUserSink;
 	DWORD					m_dwUserValue;
+#endif
 };
 
 typedef	CVolumeOutMaster*	PCVolumeOutMaster;
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif //VOLUMEOUTMASTER_H
