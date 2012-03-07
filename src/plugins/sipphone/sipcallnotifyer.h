@@ -2,7 +2,7 @@
 #define SIPCALLNOTIFYER_H
 
 #include <QWidget>
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 # include <Phonon/Phonon>
 #else
 # include <QSound>
@@ -38,7 +38,7 @@ protected slots:
 	void acceptClicked();
 	void rejectClicked();
 	void muteClicked();
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	void loopPlay();
 #endif
 protected:
@@ -48,7 +48,7 @@ private:
 	CustomBorderContainer * border;
 	bool _muted;
 	QString soundFile;
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	Phonon::MediaObject *FMediaObject;
 	Phonon::AudioOutput *FAudioOutput;
 #else

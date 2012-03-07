@@ -1,7 +1,7 @@
 #ifndef NOTIFICATIONS_H
 #define NOTIFICATIONS_H
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 #	include <Phonon/Phonon>
 #else
 #	include <QSound>
@@ -139,7 +139,7 @@ private:
 	ISystemIntegration * FSystemIntegration;
 	IMainWindowPlugin * FMainWindow;
 private:
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	Phonon::MediaObject *FMediaObject;
 	Phonon::AudioOutput *FAudioOutput;
 #else

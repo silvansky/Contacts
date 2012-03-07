@@ -40,7 +40,7 @@ Notifications::Notifications()
 	FTestNotifyId = -1;
 	FActivateAll = NULL;
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	FMediaObject = NULL;
 	FAudioOutput = NULL;
 #else
@@ -55,7 +55,7 @@ Notifications::Notifications()
 Notifications::~Notifications()
 {
 	delete FActivateAll;
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	delete FMediaObject;
 	delete FAudioOutput;
 #else
@@ -361,7 +361,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
 		if (!soundFile.isEmpty())
 		{
-# ifdef QT_PHONON_LIB
+# ifdef USE_PHONON
 			if (!FMediaObject)
 			{
 				FMediaObject = new Phonon::MediaObject(this);
