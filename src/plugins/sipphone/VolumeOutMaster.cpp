@@ -89,7 +89,7 @@ CVolumeOutMaster::~CVolumeOutMaster()
 	}
 }
 
-bool CVolumeOutMaster::isAvailable() const
+bool CVolumeOutMaster::isAvailable()
 {
 #ifdef Q_WS_WIN32
 	return IsAvailable();
