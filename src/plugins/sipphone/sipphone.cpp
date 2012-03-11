@@ -565,6 +565,7 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 		
 		if (FStreams.contains(sid))
 		{
+			AAccept = true;
 			if (type == "accept")
 			{
 				LogDetail(QString("[SipPhone] Call accepted by '%1', sid='%2'").arg(AStanza.from()).arg(sid));
@@ -577,6 +578,14 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 			else
 			{
 				LogDetail(QString("[SipPhone] Call rejected by '%1', sid='%2'").arg(AStanza.from()).arg(sid));
+
+				Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
+				FStanzaProcessor->sendStanzaOut(AStreamJid,result);
+
+				ISipStream &stream = FStreams[sid];
+				stream.state = ISipStream::SS_CLOSE;
+				emit streamStateChanged(sid,stream.state);
+
 				removeStream(sid);
 			}
 		}
@@ -626,61 +635,6 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 			}
 		}
 	}
-
-	/*
-	if (FSHISipRequest == AHandleId)
-	{
-		QDomElement actionElem = AStanza.firstElement("query",NS_RAMBLER_SIP_PHONE).firstChildElement();
-		QString sid = actionElem.attribute("sid");
-		if (actionElem.tagName() == "open")
-		{
-			AAccept = true;
-			// Здесь проверяем возможность установки соединения
-			if (FStreams.contains(sid))
-			{
-				LogError(QString("[SipPhone] Duplicate session id request received from '%1', sid='%2'").arg(AStanza.from()).arg(sid));
-				Stanza error = FStanzaProcessor->makeReplyError(AStanza,ErrorHandler(ErrorHandler::CONFLICT));
-				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
-			}
-			else if (!findStream(AStreamJid,AStanza.from()).isEmpty())
-			{
-				LogError(QString("[SipPhone] Second session request received from '%1', sid='%2'").arg(AStanza.from()).arg(sid));
-				Stanza error = FStanzaProcessor->makeReplyError(AStanza,ErrorHandler(ErrorHandler::NOT_ACCEPTABLE));
-				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
-			}
-			else
-			{
-				LogDetail(QString("[SipPhone] Incoming call request received from '%1', sid='%2'").arg(AStanza.from()).arg(sid));
-				//Здесь все проверки пройдены, заводим сессию и уведомляем пользователя о входящем звонке
-				ISipStream stream;
-				stream.sid = sid;
-				stream.streamJid = AStreamJid;
-				stream.contactJid = AStanza.from();
-				stream.kind = ISipStream::SK_RESPONDER;
-				stream.state = ISipStream::SS_OPEN;
-				stream.timeout = true;
-				FStreams.insert(sid,stream);
-				FPendingRequests.insert(sid,AStanza.id());
-				insertIncomingNotify(stream);
-				showCallControlTab(sid);
-				emit streamCreated(sid);
-				emit streamStateChanged(sid,stream.state);
-			}
-		}
-		else if (actionElem.tagName() == "close")
-		{
-			LogDetail(QString("[SipPhone] Close call request received from '%1', sid='%2'").arg(AStanza.from()).arg(sid));
-			AAccept = true;
-			FPendingRequests.insert(sid, AStanza.id());
-			// Тут надо добавить в ISipStream причину закрытия, если есть и код ошибки.
-			ISipStream &stream = FStreams[sid];
-			if(actionElem.hasAttribute("reason"))
-				stream.failReason = actionElem.attribute("reason");
-			
-			closeStream(sid);
-		}
-	}
-	*/
 	return false;
 }
 
@@ -716,81 +670,6 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			removeStream(sid);
 		}
 	}
-
-
-	/*
-	if (FOpenRequests.contains(AStanza.id()))
-	{
-		QString sid = FOpenRequests.take(AStanza.id());
-		QDomElement actionElem = AStanza.firstElement("query",NS_RAMBLER_SIP_PHONE).firstChildElement();
-		if (AStanza.type() == "result")
-		{
-			if (actionElem.tagName()=="opened" && actionElem.attribute("sid")==sid)
-			{
-				LogDetail(QString("[SipPhone] Call accepted by '%1', sid='%2', id='%3'").arg(AStanza.from()).arg(sid).arg(AStanza.id()));
-				tmpSid = sid;
-				// Удаленный пользователь принял звонок, устанавливаем соединение
-				// Для протокола SIP это означает следующие действия в этом месте:
-				// -1) Регистрация на сарвере SIP уже должна быть выполнена!
-				// 1) Отправка запроса INVITE
-				Jid juri(AStanza.from());
-				//QString uri = Jid(AStanza.from()).pBare();
-				//QString uri = Jid(AStanza.from()).eNode();
-				QString uri = juri.eNode() + "@" + juri.pDomain();
-				//QString uri = juri.eNode() + "@vsip.rambler.ru";
-				emit sipSendInvite(uri);
-				// 2) Получение акцепта на запрос INVITE
-				// 3) Установка соединения
-				//////////ISipStream &stream = FStreams[sid];
-				//////////stream.state = ISipStream::SS_OPENED;
-				//////////emit streamStateChanged(sid, stream.state);
-			}
-			else if (actionElem.tagName()=="closed" && actionElem.attribute("sid")==sid)
-			{
-				LogDetail(QString("[SipPhone] Call rejected by '%1', sid='%2', id='%3', reason='%4'").arg(AStanza.from()).arg(sid).arg(AStanza.id()).arg(actionElem.attribute("reason")));
-				if ( actionElem.hasAttribute("reason"))
-					FStreams[sid].failReason = actionElem.attribute("reason");
-				removeStream(sid);
-			}
-			else if (actionElem.tagName()=="close" && actionElem.attribute("sid")==sid && actionElem.hasAttribute("reason"))
-			{
-				ISipStream& stream = FStreams[sid];
-				stream.failReason = actionElem.attribute("reason");
-				//removeStream(sid);
-			}
-			else // Пользователь отказался принимать звонок
-			{
-				LogError(QString("[SipPhone] Unexpected response received from '%1', sid='%2', id='%3'").arg(AStanza.from()).arg(sid).arg(AStanza.id()));
-				removeStream(sid);
-			}
-		}
-		else
-		{
-			// Получили ошибку, по её коду можно определить причину, уведомляем пользоователя в окне звонка и закрываем сессию
-			ErrorHandler err(AStanza.element());
-			if (err.code() == ErrorHandler::REQUEST_TIMEOUT)
-			{
-				LogError(QString("[SipPhone] Open session timeout received from '%1', sid='%2', id='3'").arg(AStanza.from()).arg(sid).arg(AStanza.id()));
-				// Если нет ответа от принимающей стороны, то устанавливаем соответствующий флаг и зкрываем соединение
-				ISipStream& stream = FStreams[sid];
-				stream.timeout = true;
-				closeStream(sid);
-			}
-			else
-			{
-				LogError(QString("[SipPhone] Failed to open session with '%1', sid='%2', id='3', error='4'").arg(AStanza.from()).arg(sid).arg(AStanza.id()).arg(ErrorHandler(AStanza.element()).message()));
-				removeStream(sid);
-			}
-		}
-	}
-	else if (FCloseRequests.contains(AStanza.id()))
-	{
-		// Получили ответ на закрытие сессии, есть ошибка или нет уже не важно
-		QString sid = FCloseRequests.take(AStanza.id());
-		LogDetail(QString("[SipPhone] Close response received from '%1', sid='%2', id='%3'").arg(AStanza.from()).arg(sid).arg(AStanza.id()));
-		removeStream(sid);
-	}
-	*/
 }
 
 void SipPhone::onStreamCreated(const QString& sid)
@@ -1004,11 +883,8 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 			if(pCallControl->status() == RCallControl::Ringing) 
 			{
 				pCallControl->callStatusChange(RCallControl::Hangup); // Говорим что пользователь не захотел брать трубку.
-				showNotifyInChatWindow(sid,tr("%1 is not responding.").arg(userNick));
 				if(!stream.failReason.isEmpty())
-				{
 					showNotifyInChatWindow(sid, tr("%1 is not responding. Reason: %2").arg(userNick).arg(stream.failReason));
-				}
 				else
 					showNotifyInChatWindow(sid,tr("%1 is not responding.").arg(userNick));
 			}
@@ -1139,9 +1015,6 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult/*,
 			if (FStanzaProcessor->sendStanzaOut(stream.streamJid,result))
 			{
 				emit sipSendInvite(stream.contactJid.prepared().eBare());
-
-				stream.state = ISipStream::SS_OPENED;
-				emit streamStateChanged(sid,stream.state);
 			}
 			else
 			{
@@ -1213,8 +1086,8 @@ void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult/*,
 		if (FStanzaProcessor->sendStanzaRequest(this,stream.streamJid,accept,CLOSE_TIMEOUT))
 		{
 			FAcceptRequests.insert(accept.id(),sid);
-			stream.state = ISipStream::SS_OPENED;
 			removeIncomingNotify(sid);
+			stream.state = ISipStream::SS_OPENED;
 			emit streamStateChanged(sid, stream.state);
 		}
 	}
@@ -1242,49 +1115,26 @@ void SipPhone::closeStream(const QString &AStreamId)
 	if (FStanzaProcessor && FStreams.contains(AStreamId))
 	{
 		ISipStream &stream = FStreams[AStreamId];
-		bool isResult = FPendingRequests.contains(AStreamId);
-		if (stream.state!=ISipStream::SS_CLOSE || isResult)
+		if (stream.state == ISipStream::SS_OPEN)
 		{
 			LogDetail(QString("[SipPhone] Closing SIP stream, sid='%1'").arg(AStreamId));
 
-			Stanza close("iq");
-			QDomElement closeElem;
-			if (isResult)
-			{
-				close.setType("result").setId(FPendingRequests.value(AStreamId)).setTo(stream.contactJid.eFull());
-				closeElem = close.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(close.createElement("closed")).toElement();
-			}
-			else
-			{
-				close.setType("set").setId(FStanzaProcessor->newId()).setTo(stream.contactJid.eFull());
-				closeElem = close.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(close.createElement("close")).toElement();
-			}
-			closeElem.setAttribute("sid",stream.sid);
+			Stanza deny("iq");
+			deny.setType("set").setId(FStanzaProcessor->newId()).setTo(stream.contactJid.eFull());
+			QDomElement queryElem = deny.addElement("query",NS_RAMBLER_PHONE);
+			queryElem.setAttribute("sid",AStreamId);
+			queryElem.setAttribute("type","deny");
 
-			if(stream.errFlag == ISipStream::EF_REGFAIL)
-				closeElem.setAttribute("reason", tr("Registration on SIP server has failed."));
-			else if(stream.errFlag == ISipStream::EF_DEVERR)
-				closeElem.setAttribute("reason", stream.failReason);
-
-			stream.state = ISipStream::SS_CLOSE;
+			stream.state = ISipStream::SS_CLOSED;
 			emit streamStateChanged(AStreamId,stream.state);
 
-			if (isResult ? FStanzaProcessor->sendStanzaOut(stream.streamJid,close) : FStanzaProcessor->sendStanzaRequest(this,stream.streamJid,close,CLOSE_TIMEOUT))
-			{
-				LogDetail(QString("[SipPhone] Close request sent to '%1', sid='%2', id='%3'").arg(stream.contactJid.full()).arg(stream.sid).arg(close.id()));
-				if (!isResult)
-					FCloseRequests.insert(close.id(),AStreamId);
-				else
-					removeStream(AStreamId);
-			}
+			if (FStanzaProcessor->sendStanzaOut(stream.streamJid,deny))
+				LogDetail(QString("[SipPhone] Deny request sent to '%1', sid='%2', id='%3'").arg(stream.contactJid.full()).arg(stream.sid).arg(deny.id()));
 			else
-			{
-				//Не удалось отправить запрос, возможно связь с сервером прервалась, считаем сессию закрытой
 				LogError(QString("[SipPhone] Failed to send close request to '%1', sid='%2'").arg(stream.contactJid.full()).arg(stream.sid));
-				removeStream(AStreamId);
-			}
-			FPendingRequests.remove(AStreamId);
+
 			removeIncomingNotify(AStreamId);
+			removeStream(AStreamId);
 		}
 	}
 }
