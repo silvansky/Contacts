@@ -1134,8 +1134,8 @@ void SipPhone::closeStream(const QString &AStreamId)
 				LogError(QString("[SipPhone] Failed to send close request to '%1', sid='%2'").arg(stream.contactJid.full()).arg(stream.sid));
 
 			removeIncomingNotify(AStreamId);
-			removeStream(AStreamId);
 		}
+		removeStream(AStreamId);
 	}
 }
 
