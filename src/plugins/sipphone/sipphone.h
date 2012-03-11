@@ -149,8 +149,9 @@ private:
 	IMessageProcessor *FMessageProcessor;
 	IMessageStyles *FMessageStyles;
 private:
-	int FSHISipRequest;
+	int FSHISipQuery;
 	QMap<QString, QString> FOpenRequests;
+	QMap<QString, QString> FAcceptRequests;
 	QMap<QString, QString> FCloseRequests;
 	QMap<QString, QString> FPendingRequests;
 private:
@@ -161,9 +162,6 @@ private:
 	QMap<QString, Action *> FCallActions;
 private:
 	RSipPhone* FSipPhone;
-	Jid tempStreamJid;
-	Jid tempContactJid;
-	QString tempStreamId;
 	QString tmpSid;
 private:
 	QString FStreamId;
