@@ -1,4 +1,4 @@
-/* $Id: pjsua_call.c 3925 2011-12-27 12:47:52Z bennylp $ */
+/* $Id: pjsua_call.c 3966 2012-03-07 03:09:33Z ming $ */
 /* 
 * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
 * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -251,22 +251,26 @@ static pjsua_call_id alloc_call_id(void)
 		pjsua_var.next_call_id = 0;
 	}
 
-	for (cid=pjsua_var.next_call_id; 
-		cid<(int)pjsua_var.ua_cfg.max_calls; 
-		++cid) 
-	{
-		if (pjsua_var.calls[cid].inv == NULL) {
-			++pjsua_var.next_call_id;
-			return cid;
-		}
+    for (cid=pjsua_var.next_call_id; 
+	 cid<(int)pjsua_var.ua_cfg.max_calls; 
+	 ++cid) 
+    {
+	if (pjsua_var.calls[cid].inv == NULL &&
+            pjsua_var.calls[cid].async_call.dlg == NULL)
+        {
+	    ++pjsua_var.next_call_id;
+	    return cid;
 	}
+    }
 
-	for (cid=0; cid < pjsua_var.next_call_id; ++cid) {
-		if (pjsua_var.calls[cid].inv == NULL) {
-			++pjsua_var.next_call_id;
-			return cid;
-		}
+    for (cid=0; cid < pjsua_var.next_call_id; ++cid) {
+	if (pjsua_var.calls[cid].inv == NULL &&
+            pjsua_var.calls[cid].async_call.dlg == NULL)
+        {
+	    ++pjsua_var.next_call_id;
+	    return cid;
 	}
+    }
 
 #else
 	/* Old algorithm */
@@ -487,7 +491,7 @@ on_error:
 
 	if (dlg)
 	{
-		pjsip_dlg_inc_lock(dlg); // ПОПОВ. Предотвращаем вылет в будущем. НАХРЕНА???
+		//pjsip_dlg_inc_lock(dlg); // ПОПОВ. Предотвращаем вылет в будущем. НАХРЕНА???
 		/* This may destroy the dialog */
 		pjsip_dlg_dec_lock(dlg);
 	}
@@ -703,10 +707,10 @@ PJ_DEF(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 		goto on_error;
 	}
 
-	/* Increment the dialog's lock otherwise when invite session creation
-	* fails the dialog will be destroyed prematurely.
-	*/
-	//    pjsip_dlg_inc_lock(dlg);
+    /* Increment the dialog's lock otherwise when invite session creation
+     * fails the dialog will be destroyed prematurely.
+     */
+    pjsip_dlg_inc_lock(dlg);
 
 	/* Calculate call's secure level */
 	call->secure_level = get_secure_level(acc_id, dest_uri);
@@ -748,7 +752,9 @@ PJ_DEF(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 		goto on_error;
 	}
 
-	/* Done. */
+    pjsip_dlg_dec_lock(dlg);
+    pj_pool_release(tmp_pool);
+    PJSUA_UNLOCK();
 
 	if (p_call_id)
 		*p_call_id = call_id;
@@ -762,12 +768,10 @@ PJ_DEF(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 
 
 on_error:
-	if (dlg)
-	{
-		pjsip_dlg_inc_lock(dlg);
-		/* This may destroy the dialog */
-		pjsip_dlg_dec_lock(dlg);
-	}
+    if (dlg) {
+	/* This may destroy the dialog */
+	pjsip_dlg_dec_lock(dlg);
+    }
 
 	if (call_id != -1)
 	{
@@ -1530,8 +1534,7 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 	pjsip_dialog *dlg;
 	unsigned mi;
 
-	PJ_ASSERT_RETURN(call_id>=0 && call_id<(int)pjsua_var.ua_cfg.max_calls,
-		PJ_EINVAL);
+	PJ_ASSERT_RETURN(call_id>=0 && call_id<(int)pjsua_var.ua_cfg.max_calls, PJ_EINVAL);
 
 	pj_bzero(info, sizeof(*info));
 
@@ -1539,10 +1542,13 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 	*  https://trac.pjsip.org/repos/ticket/1371
 	*/
 	PJSUA_LOCK();
+	//if(PJSUA_TRY_LOCK() != PJ_SUCCESS)
+	//	return PJ_SUCCESS;
 
 	call = &pjsua_var.calls[call_id];
 	dlg = (call->inv ? call->inv->dlg : call->async_call.dlg);
-	if (!dlg) {
+	if (!dlg)
+	{
 		PJSUA_UNLOCK();
 		return PJSIP_ESESSIONTERMINATED;
 	}
@@ -1554,8 +1560,7 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 
 	/* local info */
 	info->local_info.ptr = info->buf_.local_info;
-	pj_strncpy(&info->local_info, &dlg->local.info_str,
-		sizeof(info->buf_.local_info));
+	pj_strncpy(&info->local_info, &dlg->local.info_str, sizeof(info->buf_.local_info));
 
 	/* local contact */
 	info->local_contact.ptr = info->buf_.local_contact;
@@ -1570,7 +1575,8 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 		sizeof(info->buf_.remote_info));
 
 	/* remote contact */
-	if (dlg->remote.contact) {
+	if (dlg->remote.contact)
+	{
 		int len;
 		info->remote_contact.ptr = info->buf_.remote_contact;
 		len = pjsip_uri_print(PJSIP_URI_IN_CONTACT_HDR,
@@ -1579,14 +1585,15 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 			sizeof(info->buf_.remote_contact));
 		if (len < 0) len = 0;
 		info->remote_contact.slen = len;
-	} else {
+	}
+	else
+	{
 		info->remote_contact.slen = 0;
 	}
 
 	/* call id */
 	info->call_id.ptr = info->buf_.call_id;
-	pj_strncpy(&info->call_id, &dlg->call_id->id,
-		sizeof(info->buf_.call_id));
+	pj_strncpy(&info->call_id, &dlg->call_id->id, sizeof(info->buf_.call_id));
 
 	/* call setting */
 	pj_memcpy(&info->setting, &call->opt, sizeof(call->opt));
@@ -1603,26 +1610,27 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 		info->last_status_text.ptr = info->buf_.last_status_text;
 		pj_strncpy(&info->last_status_text, &call->inv->cause_text,
 			sizeof(info->buf_.last_status_text));
-	} else {
+	}
+	else
+	{
 		/* last_status, last_status_text */
 		info->last_status = call->last_code;
 
 		info->last_status_text.ptr = info->buf_.last_status_text;
-		pj_strncpy(&info->last_status_text, &call->last_text,
-			sizeof(info->buf_.last_status_text));
+		pj_strncpy(&info->last_status_text, &call->last_text, sizeof(info->buf_.last_status_text));
 	}
 
 	/* Audio & video count offered by remote */
 	info->rem_offerer   = call->rem_offerer;
-	if (call->rem_offerer) {
+	if (call->rem_offerer)
+	{
 		info->rem_aud_cnt = call->rem_aud_cnt;
 		info->rem_vid_cnt = call->rem_vid_cnt;
 	}
 
 	/* Build array of media status and dir */
 	info->media_cnt = 0;
-	for (mi=0; mi < call->med_cnt &&
-		info->media_cnt < PJ_ARRAY_SIZE(info->media); ++mi)
+	for (mi=0; mi < call->med_cnt && info->media_cnt < PJ_ARRAY_SIZE(info->media); ++mi)
 	{
 		pjsua_call_media *call_med = &call->media[mi];
 
@@ -1631,43 +1639,52 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 		info->media[info->media_cnt].dir = call_med->dir;
 		info->media[info->media_cnt].type = call_med->type;
 
-		if (call_med->type == PJMEDIA_TYPE_AUDIO) {
-			info->media[info->media_cnt].stream.aud.conf_slot =
-				call_med->strm.a.conf_slot;
-		} else if (call_med->type == PJMEDIA_TYPE_VIDEO) {
+		if (call_med->type == PJMEDIA_TYPE_AUDIO)
+		{
+			info->media[info->media_cnt].stream.aud.conf_slot = call_med->strm.a.conf_slot;
+		}
+		else if (call_med->type == PJMEDIA_TYPE_VIDEO)
+		{
 			pjmedia_vid_dev_index cap_dev = PJMEDIA_VID_INVALID_DEV;
 
-			info->media[info->media_cnt].stream.vid.win_in = 
-				call_med->strm.v.rdr_win_id;
+			info->media[info->media_cnt].stream.vid.win_in = call_med->strm.v.rdr_win_id;
 
-			if (call_med->strm.v.cap_win_id != PJSUA_INVALID_ID) {
+			if (call_med->strm.v.cap_win_id != PJSUA_INVALID_ID)
+			{
 				cap_dev = call_med->strm.v.cap_dev;
 			}
 			info->media[info->media_cnt].stream.vid.cap_dev = cap_dev;
-		} else {
+		}
+		else
+		{
 			continue;
 		}
 		++info->media_cnt;
 	}
 
-	if (call->audio_idx != -1) {
+	if (call->audio_idx != -1)
+	{
 		info->media_status = call->media[call->audio_idx].state;
 		info->media_dir = call->media[call->audio_idx].dir;
 		info->conf_slot = call->media[call->audio_idx].strm.a.conf_slot;
 	}
 
 	/* calculate duration */
-	if (info->state >= PJSIP_INV_STATE_DISCONNECTED) {
+	if (info->state >= PJSIP_INV_STATE_DISCONNECTED)
+	{
 
 		info->total_duration = call->dis_time;
 		PJ_TIME_VAL_SUB(info->total_duration, call->start_time);
 
-		if (call->conn_time.sec) {
+		if (call->conn_time.sec)
+		{
 			info->connect_duration = call->dis_time;
 			PJ_TIME_VAL_SUB(info->connect_duration, call->conn_time);
 		}
 
-	} else if (info->state == PJSIP_INV_STATE_CONFIRMED) {
+	}
+	else if (info->state == PJSIP_INV_STATE_CONFIRMED)
+	{
 
 		pj_gettimeofday(&info->total_duration);
 		PJ_TIME_VAL_SUB(info->total_duration, call->start_time);
@@ -1675,7 +1692,9 @@ PJ_DEF(pj_status_t) pjsua_call_get_info( pjsua_call_id call_id,
 		pj_gettimeofday(&info->connect_duration);
 		PJ_TIME_VAL_SUB(info->connect_duration, call->conn_time);
 
-	} else {
+	}
+	else
+	{
 		pj_gettimeofday(&info->total_duration);
 		PJ_TIME_VAL_SUB(info->total_duration, call->start_time);
 	}

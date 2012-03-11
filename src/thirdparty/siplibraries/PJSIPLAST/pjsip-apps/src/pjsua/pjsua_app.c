@@ -1,4 +1,4 @@
-/* $Id: pjsua_app.c 3925 2011-12-27 12:47:52Z bennylp $ */
+/* $Id: pjsua_app.c 3971 2012-03-09 03:03:10Z nanang $ */
 /* 
  * Copyright (C) 2008-2011 Teluu Inc. (http://www.teluu.com)
  * Copyright (C) 2003-2008 Benny Prijono <benny@prijono.org>
@@ -2825,7 +2825,7 @@ static void arrange_window(pjsua_vid_win_id wid)
     int i, last;
 
     pos.x = 0;
-    pos.y = 0;
+    pos.y = 10;
     last = (wid == PJSUA_INVALID_ID) ? PJSUA_MAX_VID_WINS : wid;
 
     for (i=0; i<last; ++i) {
@@ -2839,7 +2839,8 @@ static void arrange_window(pjsua_vid_win_id wid)
 	if (wid == PJSUA_INVALID_ID)
 	    pjsua_vid_win_set_pos(i, &pos);
 
-	pos.y += wi.size.h;
+	if (wi.show)
+	    pos.y += wi.size.h;
     }
 
     if (wid != PJSUA_INVALID_ID)
@@ -3287,6 +3288,9 @@ static void on_call_media_event(pjsua_call_id call_id,
 	    size = event->data.fmt_changed.new_fmt.det.vid.size;
 	    pjsua_vid_win_set_size(wid, &size);
 	}
+
+	/* Re-arrange video windows */
+	arrange_window(PJSUA_INVALID_ID);
     }
 #endif
 }

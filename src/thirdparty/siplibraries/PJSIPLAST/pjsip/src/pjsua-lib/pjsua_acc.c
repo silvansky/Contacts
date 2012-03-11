@@ -2006,7 +2006,13 @@ PJ_DEF(pj_status_t) pjsua_acc_set_registration( pjsua_acc_id acc_id, pj_bool_t r
 		acc_id, (renew? "" : "un")));
 	pj_log_push_indent();
 
-	PJSUA_LOCK();
+	//PJSUA_LOCK();
+	if(PJSUA_TRY_LOCK() != PJ_SUCCESS)
+	{
+		pj_log_pop_indent();
+		return status;
+	}
+
 
 	/* Cancel any re-registration timer */
 	pjsua_cancel_timer(&pjsua_var.acc[acc_id].auto_rereg.timer);
