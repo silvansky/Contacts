@@ -7,7 +7,7 @@
 
 #include <QObject>
 
-#ifndef Q_WS_WIN32
+#ifdef Q_WS_WIN32
 #include "IVolume.h"
 typedef unsigned long DWORD;
 typedef unsigned int UINT;
@@ -43,7 +43,7 @@ public:
 	CVolumeOutMaster();
 	~CVolumeOutMaster();
 
-	bool isAvailable() const;
+	bool isAvailable();
 	ulong volumeMetric();
 	ulong minimalVolume();
 	ulong maximalVolume();
