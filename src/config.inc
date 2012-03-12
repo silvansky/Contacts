@@ -9,6 +9,10 @@ CONFIG(debug, debug|release) {
   # release definitions
 }
 
+!contains(DEFINES, WITHOUT_PHONON) {
+  DEFINES               += USE_PHONON
+}
+
 macx: {
   TARGET_LOADER          = Contacts
 } else {

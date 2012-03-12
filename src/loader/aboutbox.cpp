@@ -1,9 +1,9 @@
 #include "aboutbox.h"
+#include "aboutqtdialog.h"
 
 #include <QShowEvent>
 #include <QColor>
 #include <QDesktopServices>
-#include "aboutqtdialog.h"
 #include <utils/customborderstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/iconstorage.h>
@@ -24,7 +24,6 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->setSpacing(16);
-	//ui.buttonsLayout->addWidget(ui.pbtSendComment);
 	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
@@ -32,7 +31,6 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 	QString styleBegin = QString("<html><style>a { color: %1; }</style><body><font color=%1>").arg(textColor, textColor);
 	QString styleEnd = "</font></body></html>";
 
-	//ui.lblName->setText(tr("Contacts"));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblName, MNI_OPTIONS_LOGIN_LOGO, 0, 0, "pixmap");
 	ui.lblVersion->setText(styleBegin + tr("Version: %1.%2 %3").arg(APluginManager->version()).arg(APluginManager->revision()).arg(CLIENT_VERSION_SUFIX).trimmed() + styleEnd);
 	ui.lblVersion->setProperty("ignoreFilter", true);

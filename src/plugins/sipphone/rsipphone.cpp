@@ -1467,6 +1467,7 @@ on_error:
 
 void RSipPhone::registerAccount(bool rstatus)
 {
+	//if (rstatus)
 	pjsua_acc_set_registration(_accountId, rstatus);
 }
 

@@ -32,12 +32,12 @@ void generateSegfaultReport(int ASigNum)
 
 int main(int argc, char *argv[])
 {
-#ifndef DEBUG_ENABLED // Позволяем отладчику обрабатывать эти ошибки
+#ifndef DEBUG_ENABLED // Catching these signals for release build
 	foreach(int sig, QList<int>() << SIGSEGV << SIGILL << SIGFPE << SIGTERM << SIGABRT)
 		signal(sig, generateSegfaultReport);
 #endif
 
-	// Генерируем уникальный идентификатор системы
+	// Generating system UUID
 	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"Rambler");
 	QUuid systemUuid = settings.value("system/uuid").toString();
 	if (systemUuid.isNull())
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 	}
 	Log::setStaticReportParam(ARP_SYSTEM_UUID,systemUuid.toString());
 
-	//Ищем наличие ключа -checkinstall
+	// Checking for "--checkinstall" argument
 	for (int i=1; i<argc; i++)
 	{
 		if (!strcmp(argv[i],CLO_CHECK_INSTALL))
@@ -95,11 +95,6 @@ int main(int argc, char *argv[])
 	QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, false);
 	QApplication::setEffectEnabled(Qt::UI_FadeMenu, false);
 	QApplication::setEffectEnabled(Qt::UI_FadeTooltip, false);
-
-	// This should be done in Style Sheet
-//	QPalette pal = QApplication::palette();
-//	pal.setColor(QPalette::Link,QColor(Qt::white));
-//	QApplication::setPalette(pal);
 
 	// utils
 	app.addLibraryPath(app.applicationDirPath());
