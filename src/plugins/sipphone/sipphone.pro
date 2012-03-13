@@ -57,6 +57,9 @@ macx: {
 	LIBS += -L/usr/local/lib
 	INCLUDEPATH += /usr/local/include
 	INCLUDEPATH += /usr/local/include/SDL
+	DARWIN_VER = $$system("uname -r")
+	PLATFORM = $$system("uname -p")
+	LIB_SUFIX = $${PLATFORM}-apple-darwin$${DARWIN_VER}
 	# common
 	LIBS += -lm -lpthread -lcrypto
 	# openssl
@@ -72,9 +75,9 @@ macx: {
 	# swscale
 	LIBS += -lswscale -lswresample
 	# speex
-	LIBS += -lspeex-i386-apple-darwin11.3.0
+	LIBS += -lspeex-$${LIB_SUFIX}
 	# resample
-	LIBS += -lresample-i386-apple-darwin11.3.0
+	LIBS += -lresample-$${LIB_SUFIX}
 	# iLBC
 	LIBS += -lilbc
 	# GSM
@@ -86,17 +89,17 @@ macx: {
 	# D-Bus
 	LIBS += -ldbus-1
 	# portaudio
-	LIBS += -lportaudio-i386-apple-darwin11.3.0
+	LIBS += -lportaudio-$${LIB_SUFIX}
 	# pjsip
-	LIBS += -lpj-i386-apple-darwin11.3.0
-	LIBS += -lpjlib-util-i386-apple-darwin11.3.0
-	LIBS += -lpjmedia-audiodev-i386-apple-darwin11.3.0
-	LIBS += -lpjmedia-codec-i386-apple-darwin11.3.0
-	LIBS += -lpjmedia-i386-apple-darwin11.3.0
-	LIBS += -lpjmedia-videodev-i386-apple-darwin11.3.0
-	LIBS += -lpjnath-i386-apple-darwin11.3.0
-	LIBS += -lpjsip-i386-apple-darwin11.3.0
-	LIBS += -lpjsip-simple-i386-apple-darwin11.3.0
-	LIBS += -lpjsip-ua-i386-apple-darwin11.3.0
-	LIBS += -lpjsua-i386-apple-darwin11.3.0
+	LIBS += -lpj-$${LIB_SUFIX}
+	LIBS += -lpjlib-util-$${LIB_SUFIX}
+	LIBS += -lpjmedia-audiodev-$${LIB_SUFIX}
+	LIBS += -lpjmedia-codec-$${LIB_SUFIX}
+	LIBS += -lpjmedia-$${LIB_SUFIX}
+	LIBS += -lpjmedia-videodev-$${LIB_SUFIX}
+	LIBS += -lpjnath-$${LIB_SUFIX}
+	LIBS += -lpjsip-$${LIB_SUFIX}
+	LIBS += -lpjsip-simple-$${LIB_SUFIX}
+	LIBS += -lpjsip-ua-$${LIB_SUFIX}
+	LIBS += -lpjsua-$${LIB_SUFIX}
 }
