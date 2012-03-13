@@ -359,26 +359,31 @@ static pj_status_t h264_preopen(x264_private *x264)
 		}
 
 		/* Limit NAL unit size as we prefer single NAL unit packetization */
-		ctx->i_slice_max_size = x264->param.enc_mtu;
-
-		/*x264_param_default_preset(ctx, "ultrafast", "zerolatency");*/
+		ctx->i_slice_max_size = 1300;//x264->param.enc_mtu;
 		ctx->b_sliced_threads = 0;
 		//param.i_slice_max_size = 1300;
 		ctx->i_bframe = 0;
 		ctx->i_threads = 0;
 		ctx->i_fps_num = x264->desc->fps.num; //15; 
-		ctx->i_fps_den = x264->desc->fps.denum; //1; 
+		ctx->i_fps_den = 1;//x264->desc->fps.denum; //1; 
 		//ctx->i_keyint_max = 12;
 		// Intra refres:
-		//ctx->i_keyint_max = 18 / 2;
+		ctx->i_keyint_max = ctx->i_fps_num / 2;
 		ctx->b_intra_refresh = 1;
 		//Rate control:
 		ctx->rc.i_rc_method = X264_RC_CRF;
-		ctx->rc.f_rf_constant = 20;
+		ctx->rc.f_rf_constant = 25;
 		ctx->rc.f_rf_constant_max = 30;
 		//For streaming:
 		//param.b_repeat_headers = 1;
 		//param.b_annexb = 1;
+		//ctx->analyse.b_dct_decimate = 0;
+		//ctx->analyse.b_fast_pskip = 0;
+		//ctx->analyse.i_direct_mv_pred = X264_DIRECT_PRED_SPATIAL;
+
+		ctx->b_repeat_headers = 1; 
+		ctx->b_annexb = 1; 
+
 
 		x264_param_apply_profile(ctx, "baseline"); // ононб
 		//x264_param_apply_profile( ctx, profile );
