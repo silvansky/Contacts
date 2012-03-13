@@ -49,7 +49,11 @@ win32-msvc2008: {
 	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/x264/include
 }
 macx: {
-	QMAKE_LFLAGS    += -framework Carbon -framework Cocoa -framework VideoDecodeAcceleration -framework QTKit -framework AVFoundation -framework CoreVideo -framework CoreMedia
+	QMAKE_LFLAGS    += -framework Carbon -framework Cocoa
+	QMAKE_LFLAGS    += -framework ForceFeedback -framework IOKit
+	QMAKE_LFLAGS    += -framework VideoDecodeAcceleration -framework QTKit
+	QMAKE_LFLAGS    += -framework AVFoundation -framework CoreVideo
+	QMAKE_LFLAGS    += -framework CoreMedia -framework OpenGL
 	LIBS += -L/usr/local/lib
 	INCLUDEPATH += /usr/local/include
 	INCLUDEPATH += /usr/local/include/SDL
@@ -61,6 +65,8 @@ macx: {
 	LIBS += -lzlib
 	# SDL
 	LIBS += -lSDL
+	# iconv
+	LIBS += -liconv
 	# av
 	LIBS += -lavcodec -lavdevice -lavfilter -lavformat -lavutil
 	# swscale
