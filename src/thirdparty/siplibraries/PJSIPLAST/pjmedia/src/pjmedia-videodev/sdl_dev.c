@@ -851,30 +851,32 @@ static pj_status_t put_frame(void *data)
 	if(myframe.put_frame_callback)
 		myframe.put_frame_callback(stream->frame, stream->rect.w, stream->rect.h, stream->pitch);
 
-	if (stream->scr_tex) {
-		SDL_UpdateTexture(stream->scr_tex, NULL, frame->buf, stream->pitch);
-		SDL_RenderClear(stream->renderer);
-		SDL_RenderCopy(stream->renderer, stream->scr_tex,
-			&stream->rect, &stream->dstrect);
-		SDL_RenderPresent(stream->renderer);
-	}
+
+	// POPOV: SDL not needed as is
+	//if (stream->scr_tex) {
+	//	SDL_UpdateTexture(stream->scr_tex, NULL, frame->buf, stream->pitch);
+	//	SDL_RenderClear(stream->renderer);
+	//	SDL_RenderCopy(stream->renderer, stream->scr_tex,
+	//		&stream->rect, &stream->dstrect);
+	//	SDL_RenderPresent(stream->renderer);
+	//}
 #if PJMEDIA_VIDEO_DEV_SDL_HAS_OPENGL
-	else if (stream->param.rend_id == OPENGL_DEV_IDX && stream->texture) {
-		glBindTexture(GL_TEXTURE_2D, stream->texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-			stream->rect.w, stream->rect.h, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, frame->buf);
-		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(0, 0); glVertex2i(0, 0);
-		glTexCoord2f(1, 0); glVertex2i(stream->param.disp_size.w, 0);
-		glTexCoord2f(0, 1); glVertex2i(0, stream->param.disp_size.h);
-		glTexCoord2f(1, 1);
-		glVertex2i(stream->param.disp_size.w, stream->param.disp_size.h);
-		glEnd();
-		SDL_GL_SwapWindow(stream->window);
-	}
+	//else if (stream->param.rend_id == OPENGL_DEV_IDX && stream->texture) {
+	//	glBindTexture(GL_TEXTURE_2D, stream->texture);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	//		stream->rect.w, stream->rect.h, 0,
+	//		GL_RGBA, GL_UNSIGNED_BYTE, frame->buf);
+	//	glBegin(GL_TRIANGLE_STRIP);
+	//	glTexCoord2f(0, 0); glVertex2i(0, 0);
+	//	glTexCoord2f(1, 0); glVertex2i(stream->param.disp_size.w, 0);
+	//	glTexCoord2f(0, 1); glVertex2i(0, stream->param.disp_size.h);
+	//	glTexCoord2f(1, 1);
+	//	glVertex2i(stream->param.disp_size.w, stream->param.disp_size.h);
+	//	glEnd();
+	//	SDL_GL_SwapWindow(stream->window);
+	//}
 #endif /* PJMEDIA_VIDEO_DEV_SDL_HAS_OPENGL */
 
 	return PJ_SUCCESS;

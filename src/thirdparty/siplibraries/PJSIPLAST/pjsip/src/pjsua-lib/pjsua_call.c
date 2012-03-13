@@ -245,32 +245,28 @@ static pjsua_call_id alloc_call_id(void)
 
 #if 1
 	/* New algorithm: round-robin */
-	if (pjsua_var.next_call_id >= (int)pjsua_var.ua_cfg.max_calls || 
-		pjsua_var.next_call_id < 0)
+	if (pjsua_var.next_call_id >= (int)pjsua_var.ua_cfg.max_calls || pjsua_var.next_call_id < 0)
 	{
 		pjsua_var.next_call_id = 0;
 	}
 
-    for (cid=pjsua_var.next_call_id; 
-	 cid<(int)pjsua_var.ua_cfg.max_calls; 
-	 ++cid) 
+  for (cid=pjsua_var.next_call_id; cid<(int)pjsua_var.ua_cfg.max_calls; ++cid) 
+  {
+		if (pjsua_var.calls[cid].inv == NULL && pjsua_var.calls[cid].async_call.dlg == NULL)
     {
-	if (pjsua_var.calls[cid].inv == NULL &&
-            pjsua_var.calls[cid].async_call.dlg == NULL)
-        {
-	    ++pjsua_var.next_call_id;
-	    return cid;
-	}
-    }
+			++pjsua_var.next_call_id;
+			return cid;
+		}
+  }
 
-    for (cid=0; cid < pjsua_var.next_call_id; ++cid) {
-	if (pjsua_var.calls[cid].inv == NULL &&
-            pjsua_var.calls[cid].async_call.dlg == NULL)
-        {
-	    ++pjsua_var.next_call_id;
-	    return cid;
-	}
-    }
+  for (cid=0; cid < pjsua_var.next_call_id; ++cid)
+	{
+		if (pjsua_var.calls[cid].inv == NULL && pjsua_var.calls[cid].async_call.dlg == NULL)
+    {
+			++pjsua_var.next_call_id;
+			return cid;
+		}
+  }
 
 #else
 	/* Old algorithm */
@@ -752,13 +748,10 @@ PJ_DEF(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 		goto on_error;
 	}
 
-    pjsip_dlg_dec_lock(dlg);
-    pj_pool_release(tmp_pool);
-    PJSUA_UNLOCK();
-
 	if (p_call_id)
 		*p_call_id = call_id;
 
+	pjsip_dlg_dec_lock(dlg);
 	pj_pool_release(tmp_pool);
 	PJSUA_UNLOCK();
 

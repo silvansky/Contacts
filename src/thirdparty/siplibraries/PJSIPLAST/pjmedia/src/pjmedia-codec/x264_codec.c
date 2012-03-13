@@ -202,6 +202,10 @@ struct x264_codec_desc
 	//																	will tell the initializer
 	//																	to copy this codec desc
 	//																	from its base format   */
+
+	pjmedia_rect_size            size;
+	pjmedia_ratio                fps;
+
 	pj_uint32_t			 avg_bps;
 	pj_uint32_t			 max_bps;
 	func_packetize		 packetize;
@@ -249,7 +253,7 @@ static x264_codec_desc codec_desc[] =
 		{
 		{PJMEDIA_FORMAT_H264, PJMEDIA_RTP_PT_H264, {"H264",4},
 		{"Constrained Baseline (level=30, pack=1)", 39}},
-		256000,    512000,
+		{720, 480},	{30, 1}, 256000,    512000,
 		&h264_packetize, &h264_unpacketize, &h264_preopen, &h264_postopen,
 		&pjmedia_vid_codec_h264_match_sdp,
 		/* Leading space for better compatibility (strange indeed!) */
@@ -272,9 +276,15 @@ static pj_status_t h264_preopen(x264_private *x264)
 	h264_data *data;
 	pjmedia_h264_packetizer_cfg pktz_cfg;
 	pj_status_t status;
+	pj_mutex_t *x264_mutex;
+
 
 	data = PJ_POOL_ZALLOC_T(x264->pool, h264_data);
 	x264->data = data;
+
+
+	x264_mutex = ((struct x264_factory*)x264->pool->factory)->mutex;
+
 
 	/* Parse remote fmtp */
 	status = pjmedia_vid_codec_h264_parse_fmtp(&x264->param.enc_fmtp, &data->fmtp);
@@ -315,7 +325,7 @@ static pj_status_t h264_preopen(x264_private *x264)
 
 	if (x264->param.dir & PJMEDIA_DIR_ENCODING)
 	{
-		pjmedia_video_format_detail *vfd;
+		//////////pjmedia_video_format_detail *vfd;
 		const char *profile = NULL;
 		//AVCodecContext *ctx = x264->enc_ctx;
 		x264_param_t *ctx = x264->enc_ctx;
@@ -356,22 +366,23 @@ static pj_status_t h264_preopen(x264_private *x264)
 		//param.i_slice_max_size = 1300;
 		ctx->i_bframe = 0;
 		ctx->i_threads = 0;
-		ctx->i_fps_num = 18;
-		ctx->i_fps_den = 1;
+		ctx->i_fps_num = x264->desc->fps.num; //15; 
+		ctx->i_fps_den = x264->desc->fps.denum; //1; 
+		//ctx->i_keyint_max = 12;
 		// Intra refres:
-		ctx->i_keyint_max = 18 / 2;
-		//param.b_intra_refresh = 1;
+		//ctx->i_keyint_max = 18 / 2;
+		ctx->b_intra_refresh = 1;
 		//Rate control:
 		ctx->rc.i_rc_method = X264_RC_CRF;
-		ctx->rc.f_rf_constant = 25;
-		ctx->rc.f_rf_constant_max = 35;
+		ctx->rc.f_rf_constant = 20;
+		ctx->rc.f_rf_constant_max = 30;
 		//For streaming:
 		//param.b_repeat_headers = 1;
 		//param.b_annexb = 1;
 
-		//x264_param_apply_profile(ctx, "baseline"); // ононб
-		x264_param_apply_profile( ctx, profile );
-		ctx->i_level_idc = 13;
+		x264_param_apply_profile(ctx, "baseline"); // ононб
+		//x264_param_apply_profile( ctx, profile );
+		//ctx->i_level_idc = 13;
 
 		//x264_encoder_reconfig( x264->enc, ctx );
 		//enc = x264_encoder_open(ctx);
@@ -381,7 +392,13 @@ static pj_status_t h264_preopen(x264_private *x264)
 		//ctx->level    = data->fmtp.level;
 
 		//x264->convertCtx = sws_getContext(ctx->i_width, ctx->i_height, PIX_FMT_RGB24, ctx->i_width, ctx->i_height, PIX_FMT_YUV420P, SWS_FAST_BILINEAR, NULL, NULL, NULL);
-		x264_picture_alloc(&x264->pic_in, X264_CSP_YV12, ctx->i_width, ctx->i_height);
+		//x264_picture_alloc(&x264->pic_in, X264_CSP_YV12, ctx->i_width, ctx->i_height);
+		//pj_mutex_lock(x264_mutex);
+		x264_picture_alloc(&x264->pic_in, X264_CSP_I420, ctx->i_width, ctx->i_height);
+		//pj_mutex_unlock(x264_mutex);
+		//x264_picture_alloc(&pic_in_test, X264_CSP_I420, ctx->i_width, ctx->i_height);
+		//x264_picture_clean(&pic_in_test);
+		
 	}
 
 	if (x264->param.dir & PJMEDIA_DIR_DECODING)
@@ -726,12 +743,16 @@ static pj_status_t x264_default_attr( pjmedia_vid_codec_factory *factory, const 
 	attr->dir = desc->info.dir;
 
 	/* Encoded format */
-	pjmedia_format_init_video(&attr->enc_fmt, desc->info.fmt_id, 720, 480, 30000, 1001);
+	//pjmedia_format_init_video(&attr->enc_fmt, desc->info.fmt_id, 720, 480, 30000, 1001);
+	pjmedia_format_init_video(&attr->enc_fmt, desc->info.fmt_id, desc->size.w, desc->size.h, desc->fps.num, desc->fps.denum);
 
 	/* Decoded format */
+	//pjmedia_format_init_video(&attr->dec_fmt, desc->info.dec_fmt_id[0],
+	//	//352, 288, 30000, 1001);
+	//	720, 576, 30000, 1001);
 	pjmedia_format_init_video(&attr->dec_fmt, desc->info.dec_fmt_id[0],
-		//352, 288, 30000, 1001);
-		720, 576, 30000, 1001);
+		desc->size.w, desc->size.h,
+		desc->fps.num*3/2, desc->fps.denum);
 
 	///* Decoding fmtp */
 	attr->dec_fmtp = desc->dec_fmtp;
@@ -891,13 +912,14 @@ static pj_status_t open_x264_codec(x264_private *x264, pj_mutex_t *x264_mutex)
 		//x264->enc_ctx = new x264_param_t();
 		//x264_param_default( x264->enc_ctx );
 
-		x264_param_default_preset(x264->enc_ctx, "ultrafast", "zerolatency");
-
+		ctx = x264->enc_ctx;
 		if (x264->enc_ctx == NULL)
 			goto on_error;
 
+
+		x264_param_default_preset(ctx, "ultrafast", "zerolatency");
+
 		/* Init generic encoder params */
-		ctx = x264->enc_ctx;
 
 		//ctx->pix_fmt = pix_fmt;
 		ctx->i_width = vfd->size.w;
@@ -1092,16 +1114,23 @@ static pj_status_t x264_codec_close( pjmedia_vid_codec *codec )
 
 	pj_mutex_lock(x264_mutex);
 
-	x264_picture_clean( &x264->pic_in );
 
 	if (x264->enc)
 	{
 		x264_encoder_close(x264->enc);
+		x264->enc = NULL;
+
 		//av_free(ff->enc_ctx);
 		//delete x264->enc_ctx;
 		//avcodec_close(x264->enc_ctx);
 		//av_free(ff->enc_ctx);
 	}
+
+	//x264_free( x264->pic_in.img.plane[0] );
+	//x264_picture_clean( &x264->pic_in );
+	pj_mutex_unlock(x264_mutex);
+
+	//x264_picture_clean( &x264->pic_in );
 
 
 	//if (x264->enc && x264->enc_ctx)
@@ -1119,7 +1148,7 @@ static pj_status_t x264_codec_close( pjmedia_vid_codec *codec )
 	//}
 	x264->enc_ctx = NULL;
 	//ff->dec_ctx = NULL;
-	pj_mutex_unlock(x264_mutex);
+	//pj_mutex_unlock(x264_mutex);
 
 	return PJ_SUCCESS;
 }
@@ -1219,8 +1248,10 @@ static pj_status_t x264_codec_encode_whole(pjmedia_vid_codec *codec,
 		PJ_LOG(2,(THIS_FILE, "Stack alignment fails"));
 	}
 
+	
 	/* Check if encoder has been opened */
 	PJ_ASSERT_RETURN(x264->enc_ctx, PJ_EINVALIDOP);
+	PJ_ASSERT_RETURN(x264->enc, PJ_EINVALIDOP);
 
 	//avcodec_get_frame_defaults(&avframe);
 
@@ -1323,8 +1354,13 @@ static pj_status_t x264_codec_encode_begin(pjmedia_vid_codec *codec,
 
 	x264_private *x264 = (x264_private*)codec->codec_data;
 	pj_status_t status;
+	//pj_mutex_t *x264_mutex;
 
 	*has_more = PJ_FALSE;
+
+	//x264_mutex = ((struct x264_factory*)codec->factory)->mutex;
+
+	//pj_mutex_lock(x264_mutex);
 
 	if (x264->whole)
 	{
@@ -1341,17 +1377,26 @@ static pj_status_t x264_codec_encode_begin(pjmedia_vid_codec *codec,
 		whole_frm.size = x264->enc_buf_size;
 		status = x264_codec_encode_whole(codec, opt, input, whole_frm.size, &whole_frm);
 		if (status != PJ_SUCCESS)
+		{
+			//pj_mutex_unlock(x264_mutex);
 			return status;
+		}
 
 		x264->enc_buf_is_keyframe = (whole_frm.bit_info & PJMEDIA_VID_FRM_KEYFRAME);
 		x264->enc_frame_len = (unsigned)whole_frm.size;
 		x264->enc_processed = 0;
 		status = x264_packetize(codec, (pj_uint8_t*)whole_frm.buf, whole_frm.size, &x264->enc_processed, &payload, &payload_len);
 		if (status != PJ_SUCCESS)
+		{
+			//pj_mutex_unlock(x264_mutex);
 			return status;
+		}
 
 		if (out_size < payload_len)
+		{
+			//pj_mutex_unlock(x264_mutex);
 			return PJMEDIA_CODEC_EFRMTOOSHORT;
+		}
 
 		output->type = PJMEDIA_FRAME_TYPE_VIDEO;
 		pj_memcpy(output->buf, payload, payload_len);
@@ -1362,6 +1407,8 @@ static pj_status_t x264_codec_encode_begin(pjmedia_vid_codec *codec,
 
 		*has_more = (x264->enc_processed < x264->enc_frame_len);
 	}
+
+	//pj_mutex_unlock(x264_mutex);
 
 	return status;
 }
