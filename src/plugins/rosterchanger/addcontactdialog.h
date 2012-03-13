@@ -123,8 +123,8 @@ private:
 	Jid FGatewayJid;
 	int FDialogState;
 	bool FResolveNick;
-	bool FCreateBaseContact;
 	QString FParentMetaId;
+	QString FContactMetaId;
 	QList<Jid> FLinkedContacts;
 	IGateServiceDescriptor FDescriptor;
 	SelectProfileWidget *FSelectProfileWidget;
