@@ -1409,7 +1409,7 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 	if (FDiscovery)
 	{
 		foreach(IRosterItem ritem, ARoster->rosterItems())
-			if (ritem.itemJid.node().isEmpty() && !FDiscovery->hasDiscoInfo(ARoster->streamJid(),ritem.itemJid))
+			if (ritem.itemJid.node().isEmpty())
 				FDiscovery->requestDiscoInfo(ARoster->streamJid(),ritem.itemJid);
 	}
 	if (FPrivateStorage)
