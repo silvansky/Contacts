@@ -1,11 +1,12 @@
 # works only on win and mac
 win32-msvc2008|macx: {
+	TARGET = sipphone
 	include(sipphone.pri)
 	include(../plugins.inc)
 
 	QT    += multimedia
 	contains(DEFINES, USE_PHONON){
-	  QT  += phonon dbus
+	  QT  += phonon
 	}
 
 	INCLUDEPATH += ../../thirdparty/siplibraries/SipLib/inc
@@ -49,6 +50,10 @@ win32-msvc2008: {
 	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/x264/include
 }
 macx: {
+	contains(DEFINES, USE_PHONON){
+	  QT  += dbus
+	}
+
 	QMAKE_LFLAGS    += -framework Carbon -framework Cocoa
 	QMAKE_LFLAGS    += -framework ForceFeedback -framework IOKit
 	QMAKE_LFLAGS    += -framework VideoDecodeAcceleration -framework QTKit
