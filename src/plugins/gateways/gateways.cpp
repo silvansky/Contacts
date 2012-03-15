@@ -742,6 +742,11 @@ QString Gateways::formattedContactLogin(const IGateServiceDescriptor &ADescripto
 			for(int pos=3; contact.length()-pos>=2; pos+=4)
 				contact.insert(pos,"-");
 	}
+	else if (ADescriptor.id == GSID_FACEBOOK)
+	{
+		QString node = Jid(contact).node();
+		contact = QString("ID: %1").arg(node.right(node.length()-1));
+	}
 	else if (ADescriptor.type == "xmpp")
 	{
 		contact = Jid(contact).full();
