@@ -641,7 +641,7 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
 		QString pageId = insertPage(descriptor.metaOrder,descriptor.combine);
 		setPageIcon(pageId,descriptor.icon);
-		setPageName(pageId,FMetaContacts->itemHint(itemJid));
+		setPageName(pageId,FMetaContacts->itemFormattedLogin(itemJid));
 
 		FItemPages.insert(itemJid,pageId);
 		FItemTypeCount[descriptor.metaOrder]++;
@@ -1024,7 +1024,7 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 	if (action)
 	{
 		Jid itemJid = action->data(ADR_ITEM_JID).toString();
-		QString title = tr("Remove contact '%1'").arg(Qt::escape(FMetaContacts->itemHint(itemJid)));
+		QString title = tr("Remove contact '%1'").arg(Qt::escape(FMetaContacts->itemFormattedLogin(itemJid)));
 		QString message = tr("All contacts and communication history with that person will be removed. Operation can not be undone.");
 
 		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::None);
