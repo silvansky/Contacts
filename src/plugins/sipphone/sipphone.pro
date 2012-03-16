@@ -26,10 +26,10 @@ win32-msvc2008: {
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/SipLib/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPMediaLib/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPVideoLib/lib
-
-	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/pjsiplast/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/x264/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/directxsdk/lib
+	
+	LIBS  += -L$${_PRO_FILE_PWD_}/../../../../pjsip_mod/lib
 
 	LIBS  += -lWs2_32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32 -lwinmm
 	LIBS  += -lIphlpapi -lIphlpapi -ldsound -ldxguid -lnetapi32 -lmswsock -luser32 -lgdi32 -ladvapi32
@@ -42,12 +42,14 @@ win32-msvc2008: {
 	INCLUDEPATH += ../../thirdparty/siplibraries/baseclasses/include
 	INCLUDEPATH += ../../thirdparty/siplibraries/ffmpeg/include
 	INCLUDEPATH += ../../thirdparty/siplibraries/sdllib/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjlib/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjlib-util/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjmedia/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjnath/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjsip/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/x264/include
+	INCLUDEPATH += ../../thirdparty/siplibraries/x264/include
+	
+	INCLUDEPATH += ../../../../pjsip_mod/pjlib/include
+	INCLUDEPATH += ../../../../pjsip_mod/pjlib-util/include
+	INCLUDEPATH += ../../../../pjsip_mod/pjmedia/include
+	INCLUDEPATH += ../../../../pjsip_mod/pjnath/include
+	INCLUDEPATH += ../../../../pjsip_mod/pjsip/include
+	
 }
 macx: {
 	contains(DEFINES, USE_PHONON){
