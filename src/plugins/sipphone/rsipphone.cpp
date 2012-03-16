@@ -1120,9 +1120,9 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 	ua_cfg.cb.on_call_media_state = &::on_call_media_state;
 	ua_cfg.cb.on_call_tsx_state = &::on_call_tsx_state;
 
-	ua_cfg.stun_srv_cnt = 1;
+	//ua_cfg.stun_srv_cnt = 1;
 	//ua_cfg.stun_srv[0] = pj_str((char*)"talkpad.ru:5065");
-	ua_cfg.stun_srv[0] = pj_str((char*)"vsip.rambler.ru:5065");
+	//ua_cfg.stun_srv[0] = pj_str((char*)"vsip.rambler.ru:5065");
 	
 
 	pjsua_logging_config log_cfg;
@@ -1131,7 +1131,7 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 
 	pjsua_media_config med_cfg;
 	pjsua_media_config_default(&med_cfg);
-	med_cfg.enable_ice = true;
+	//med_cfg.enable_ice = true;
 
 	
 
@@ -1323,9 +1323,9 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 	//acc_cfg.proxy[0] = pj_str((char*)reg_uritmp);
 	ua_cfg.outbound_proxy[0] = pj_str((char*)proxyTmp);
 
-	ua_cfg.stun_srv_cnt = 1;
+	//ua_cfg.stun_srv_cnt = 1;
 	//ua_cfg.stun_srv[0] = pj_str((char*)"talkpad.ru:5065");
-	ua_cfg.stun_srv[0] = pj_str((char*)"vsip.rambler.ru:5065");
+	//ua_cfg.stun_srv[0] = pj_str((char*)"vsip.rambler.ru:5065");
 
 
 
