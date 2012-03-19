@@ -7,6 +7,7 @@
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
 #include <interfaces/iroster.h>
+#include <interfaces/igateways.h>
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/idefaultconnection.h>
 #include <utils/jid.h>
@@ -21,7 +22,7 @@ class ViewHistoryWindow :
 {
 	Q_OBJECT;
 public:
-	ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, QWidget *AParent = NULL);
+	ViewHistoryWindow(IRoster *ARoster, IGateways *AGateways, const Jid &AContactJid, QWidget *AParent = NULL);
 	~ViewHistoryWindow();
 	Jid streamJid() const;
 	Jid contactJid() const;
@@ -39,6 +40,7 @@ private:
 	Ui::ViewHistoryWindowClass ui;
 private:
 	IRoster *FRoster;
+	IGateways *FGateways;
 	CustomBorderContainer *FBorder;
 private:
 	int FProgress;

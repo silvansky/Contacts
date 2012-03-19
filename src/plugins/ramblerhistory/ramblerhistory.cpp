@@ -5,6 +5,7 @@
 
 RamblerHistory::RamblerHistory()
 {
+	FGateways = NULL;
 	FDiscovery = NULL;
 	FXmppStreams = NULL;
 	FRosterPlugin = NULL;
@@ -69,6 +70,10 @@ bool RamblerHistory::initConnections(IPluginManager *APluginManager, int &AInitO
 			connect(FDiscovery->instance(),SIGNAL(discoInfoReceived(const IDiscoInfo &)),SLOT(onDiscoInfoReceived(const IDiscoInfo &)));
 		}
 	}
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
 
 	return FStanzaProcessor!=NULL;
 }
@@ -356,7 +361,7 @@ QWidget *RamblerHistory::showViewHistoryWindow(const Jid &AStreamJid, const Jid 
 			window = findViewWindow(roster,AContactJid);
 			if (!window)
 			{
-				window = new ViewHistoryWindow(roster,AContactJid);
+				window = new ViewHistoryWindow(roster,FGateways,AContactJid);
 				connect(window,SIGNAL(windowDestroyed()),SLOT(onViewHistoryWindowDestroyed()));
 				FViewWindows.insertMulti(roster,window);
 			}

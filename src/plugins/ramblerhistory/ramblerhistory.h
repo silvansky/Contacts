@@ -12,6 +12,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/iservicediscovery.h>
 #include <interfaces/iroster.h>
+#include <interfaces/igateways.h>
 #include <utils/log.h>
 #include <utils/stanza.h>
 #include <utils/datetime.h>
@@ -74,6 +75,7 @@ protected slots:
 	void onRosterRemoved(IRoster *ARoster);
 	void onViewHistoryWindowDestroyed();
 private:
+	IGateways *FGateways;
 	IXmppStreams *FXmppStreams;
 	IRosterPlugin *FRosterPlugin;
 	IServiceDiscovery *FDiscovery;
