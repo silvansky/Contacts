@@ -47,26 +47,13 @@ static void updateFSTimer(QTimer*& timer)
 	}
 }
 
-
-SipPhoneWidget::SipPhoneWidget(QWidget *parent)
-	: QWidget(parent)
-{
-	ui.setupUi(this);
-	setObjectName("SipPhoneWidget");
-
-	setMinimumSize(250, 90);
-	curPicAlign = Qt::AlignBottom|Qt::AlignLeft;
-
-	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
-}
-
-//SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, SipCall *initCall, SipPhoneProxy *parent, const char *name) : QWidget(NULL), _pSipCall(initCall)
 SipPhoneWidget::SipPhoneWidget( RSipPhone *parent, const char *name) : QWidget(NULL)
 {
-	Q_UNUSED(parent);
 	Q_UNUSED(name);
+
 	ui.setupUi(this);
+
+	phone = parent;
 
 	setObjectName("SipPhoneWidget");
 	setMinimumSize(250, 90);
@@ -103,6 +90,8 @@ SipPhoneWidget::SipPhoneWidget( RSipPhone *parent, const char *name) : QWidget(N
 		_pShowCurrPic->setMouseTracking(true);
 
 		_pControls = new FullScreenControls(this);//ui.wgtRemoteImage);
+		connect(phone, SIGNAL(callStarted(int)), _pControls->volumeControl(), SLOT(onCallStarted(int)));
+		connect(phone, SIGNAL(callEnded(int)), _pControls->volumeControl(), SLOT(onCallEnded(int)));
 
 		// Issue 2264. ¬ случае когда нет камеры, нодо заблокировать кнопку камеры с соответствующим значком
 		//if(callAudio != NULL && callAudio->videoControl() != NULL)
@@ -223,7 +212,7 @@ SipPhoneWidget::~SipPhoneWidget()
 }
 
 
-QSize SipPhoneWidget::sizeHint()
+QSize SipPhoneWidget::sizeHint() const
 {
 	// TODO: small when no video, big when video is active
 	return minimumSize();

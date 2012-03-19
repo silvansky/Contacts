@@ -44,28 +44,29 @@ void SetDeviceType( WAVEFORMATEX* pwfe )
 /////////////////////////////////////////////////////////////////////////////
 // 		Implementation
 //////////////
-CVolumeOutMaster::CVolumeOutMaster()
-	:	m_bOK(false),
-		m_bInitialized(false),
-		m_bAvailable(false),
+CVolumeOutMaster::CVolumeOutMaster():
+	m_bOK(false),
+	m_bInitialized(false),
+	m_bAvailable(false),
 
-		m_updateTimer(0),
-		m_currVolume(0),
-		m_isMute(false),
+	m_updateTimer(0),
+	m_currVolume(0),
+	m_isMute(false),
 
-		m_uMixerID(0L),
-		m_dwMixerHandle(0L),
-		//m_hWnd(NULL),
+	m_uMixerID(0L),
+	m_dwMixerHandle(0L),
+	//m_hWnd(NULL),
 
-		m_dwMinimalVolume(BAD_DWORD),
-		m_dwMaximalVolume(BAD_DWORD)
+	m_dwMinimalVolume(BAD_DWORD),
+	m_dwMaximalVolume(BAD_DWORD),
+	_currentCall(-1)
 #ifdef Q_WS_WIN32
-		,
-		m_pfUserSink(NULL),
-		m_dwUserValue(0L)
+      ,
+	m_pfUserSink(NULL),
+	m_dwUserValue(0L)
 #endif
 {
-	if ( m_bOK = Init() )
+	if ( (m_bOK = Init()) )
 	{
 		g_pThis = this;
 		if ( !Initialize() )
@@ -109,37 +110,40 @@ ulong CVolumeOutMaster::volumeMetric()
 #endif
 }
 
-ulong CVolumeOutMaster::minimalVolume()
+float CVolumeOutMaster::minimalVolume()
 {
-#ifdef Q_WS_WIN32
-	return GetMinimalVolume();
-#elif defined (Q_WS_MAC)
-	return 0;
-#else
-	return 0;
-#endif
+	return _minVolume;
+//#ifdef Q_WS_WIN32
+//	return GetMinimalVolume();
+//#elif defined (Q_WS_MAC)
+//	return 0;
+//#else
+//	return 0;
+//#endif
 }
 
-ulong CVolumeOutMaster::maximalVolume()
+float CVolumeOutMaster::maximalVolume()
 {
-#ifdef Q_WS_WIN32
-	return GetMaximalVolume();
-#elif defined (Q_WS_MAC)
-	return 0;
-#else
-	return 0;
-#endif
+	return _maxVolume;
+//#ifdef Q_WS_WIN32
+//	return GetMaximalVolume();
+//#elif defined (Q_WS_MAC)
+//	return 0;
+//#else
+//	return 0;
+//#endif
 }
 
-ulong CVolumeOutMaster::currentVolume()
+float CVolumeOutMaster::currentVolume()
 {
-#ifdef Q_WS_WIN32
-	return GetCurrentVolume();
-#elif defined (Q_WS_MAC)
-	return 0;
-#else
-	return 0;
-#endif
+	return _currentVolume;
+//#ifdef Q_WS_WIN32
+//	return GetCurrentVolume();
+//#elif defined (Q_WS_MAC)
+//	return 0;
+//#else
+//	return 0;
+//#endif
 }
 
 bool CVolumeOutMaster::isMuted()
@@ -147,7 +151,7 @@ bool CVolumeOutMaster::isMuted()
 #ifdef Q_WS_WIN32
 	return isMute();
 #elif defined (Q_WS_MAC)
-	return true;
+	return _muted;
 #else
 	return true;
 #endif
@@ -158,6 +162,7 @@ void CVolumeOutMaster::enable()
 #ifdef Q_WS_WIN32
 	Enable();
 #elif defined (Q_WS_MAC)
+	_enabled = true;
 #else
 #endif
 }
@@ -167,19 +172,27 @@ void CVolumeOutMaster::disable()
 #ifdef Q_WS_WIN32
 	Disable();
 #elif defined (Q_WS_MAC)
+	_enabled = false;
 #else
 #endif
 }
 
-void CVolumeOutMaster::setCurrentVolume(ulong vol)
+void CVolumeOutMaster::setCurrentVolume(float vol)
 {
-#ifdef Q_WS_WIN32
-	SetCurrentVolume(vol);
-#elif defined (Q_WS_MAC)
-	Q_UNUSED(vol)
-#else
-	Q_UNUSED(vol)
-#endif
+	if (_currentCall != -1)
+	{
+		pjsua_call_info ci;
+		pjsua_call_get_info(_currentCall, &ci);
+		pjsua_conf_adjust_rx_level(ci.conf_slot, vol);
+	}
+
+//#ifdef Q_WS_WIN32
+//	SetCurrentVolume(vol);
+//#elif defined (Q_WS_MAC)
+//	Q_UNUSED(vol)
+//#else
+//	Q_UNUSED(vol)
+//#endif
 }
 
 //////////////
@@ -538,8 +551,11 @@ void CVolumeOutMaster::EnableLine( bool bEnable )
 			qDebug(".MasterOutputVolume: WARNING: No controls were found for disabling the line.\n" );
 		}
 	}
+#else
+	Q_UNUSED(bEnable)
 #endif
 }
+
 #ifdef Q_WS_WIN32
 //////////////////////////////////////////////
 // IVolume interface

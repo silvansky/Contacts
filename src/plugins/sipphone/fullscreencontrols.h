@@ -10,6 +10,7 @@ class FullScreenControls : public QWidget
 public:
 	FullScreenControls(QWidget *parent = 0);
 	~FullScreenControls();
+	AVControl * volumeControl();
 public slots:
 	void setCameraEnabled(bool isEnabled);
 	void SetCameraOn(bool);

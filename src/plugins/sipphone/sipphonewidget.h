@@ -20,12 +20,12 @@ class SipPhoneWidget : public QWidget
 	Q_OBJECT
 
 public:
-	SipPhoneWidget(QWidget *parent = 0);
+	//SipPhoneWidget(QWidget *parent = 0);
 	//SipPhoneWidget(KSipAuthentication *auth, CallAudio *callaudio, SipCall *initcall, SipPhoneProxy *parent, const char *name = 0);
 	SipPhoneWidget( RSipPhone *parent, const char *name = 0);
 	~SipPhoneWidget();
 
-	QSize sizeHint();
+	virtual QSize sizeHint() const;
 
 protected:
 	bool eventFilter(QObject *, QEvent *);
@@ -41,14 +41,14 @@ public:
 public slots:
 	//void pleaseDial( const SipUri &dialuri );
 	//void callDeletedSlot( bool );
-		//
+	//
 signals:
-		void callDeleted( bool );
-		void hangupCall();
-		//void redirectCall( const SipUri &calluri, const QString &subject );
-		//void statusChanged(const QString&);
-		//void audioStatusChanged(const QString&);
-		//void callWasHangup();
+	void callDeleted( bool );
+	void hangupCall();
+	//void redirectCall( const SipUri &calluri, const QString &subject );
+	//void statusChanged(const QString&);
+	//void audioStatusChanged(const QString&);
+	//void callWasHangup();
 
 private slots:
 	//void hangupCall( void );
@@ -140,6 +140,7 @@ private:
 	QToolButton* _pShowCurrPic;
 	FullScreenControls* _pControls;
 	QTimer* _fsTimer;
+	RSipPhone * phone;
 
 private:
 	Ui::SipPhoneWidget ui;

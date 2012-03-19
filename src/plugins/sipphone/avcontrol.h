@@ -49,8 +49,10 @@ public slots:
 	void setCameraEnabled(bool);
 	void setResolutionHigh(bool);
 	void setMicOn(bool);
-	void setMicEnabled( bool );
-	void setVolumeEnabled( bool );
+	void setMicEnabled(bool);
+	void setVolumeEnabled(bool);
+	void onCallStarted(int slot);
+	void onCallEnded(int slot);
 
 signals:
 	void camStateChange(bool);

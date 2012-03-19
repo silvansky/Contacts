@@ -43,6 +43,11 @@ FullScreenControls::~FullScreenControls()
 
 }
 
+AVControl * FullScreenControls::volumeControl()
+{
+	return ui.wgtAVControl;
+}
+
 void FullScreenControls::setCameraEnabled(bool isEnabled)
 {
 	ui.wgtAVControl->setCameraEnabled(isEnabled);

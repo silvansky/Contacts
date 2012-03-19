@@ -78,6 +78,7 @@ signals:
 	void streamStateChanged(const QString &AStreamId, int AState);
 	void streamRemoved(const QString &AStreamId);
 	void hideCallNotifyer();
+	void callStarted(int slot);
 signals:
 	// —игналы относ€щиес€ к взаимодействию с SIP протоколом
 	void sipSendRegisterAsInitiator(const Jid &AStreamJid, const Jid &AContactJid);

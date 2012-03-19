@@ -24,7 +24,7 @@ class CVolumeNotification : public QObject
 {
 	Q_OBJECT
 	LONG m_RefCount;
-	~CVolumeNotification(void) {};
+	~CVolumeNotification(void) {}
 public:
 	CVolumeNotification(void) : m_RefCount(1)
 	{
@@ -65,9 +65,6 @@ private:
 	BOOL _mute;
 };
 
-
-
-
 class RVolumeControl : public QWidget
 {
 	Q_OBJECT
@@ -97,6 +94,9 @@ public:
 	void setMaximum(int);
 
 	int value() const;
+
+	void setCallSlot(int slot);
+	void resetCallSlot(int slot);
 
 public slots:
 	void setValue(int);

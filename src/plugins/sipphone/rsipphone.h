@@ -52,6 +52,8 @@ public:
 
 signals:
 	void signalNewCall(int, bool);
+	void callStarted(int);
+	void callEnded(int);
 	void signalCallReleased();
 	void signalInitVideoWindow();
 	void signalShowStatus(const QString&);
@@ -87,23 +89,23 @@ signals:
 
 
 public slots:
-		void preview();
-		void call();
-		void call(const char* uri);
-		void call(const QString& uri);
+	void preview();
+	void call();
+	void call(const char* uri);
+	void call(const QString& uri);
 
-		void hangup();
-		void onShowSipPhoneWidget(void* hwnd);
-		void cleanup();
-		//void quit();
-		bool sendVideo(bool isSending);
+	void hangup();
+	void onShowSipPhoneWidget(void* hwnd);
+	void cleanup();
+	//void quit();
+	bool sendVideo(bool isSending);
 
 private slots:
-		void onNewCall(int cid, bool incoming);
-		void onCallReleased();
-		void initVideoWindow();
-		
-		//void doShowStatus(const QString& msg);
+	void onNewCall(int cid, bool incoming);
+	void onCallReleased();
+	void initVideoWindow();
+
+	//void doShowStatus(const QString& msg);
 
 private:
 	bool isCameraReady() const;

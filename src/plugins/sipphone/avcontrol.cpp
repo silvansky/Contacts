@@ -219,6 +219,16 @@ void AVControl::setVolumeEnabled( bool isEnabled )
 	emit volumePresentChanged(isEnabled);
 }
 
+void AVControl::onCallStarted(int slot)
+{
+	ui.hslSoundVolume->setCallSlot(slot);
+}
+
+void AVControl::onCallEnded(int slot)
+{
+	ui.hslSoundVolume->resetCallSlot(slot);
+}
+
 void AVControl::paintEvent(QPaintEvent *)
 {
 	QStyleOption opt;

@@ -58,7 +58,7 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 
 
 RVolumeControl::RVolumeControl(QWidget *parent)
-	: QWidget(parent), _value(0), _min(0), _max(100), _isEnableSound(true), _isOn(true), _isDark(true), _isWinXP(false)
+	: QWidget(parent), _value(0), _min(0), _max(100), _isOn(true), _isEnableSound(true), _isDark(true), _isWinXP(false)
 {
 #ifdef Q_WS_WIN32
 	endpointVolume = NULL;
@@ -124,17 +124,18 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 		}
 	}
 	else
+#endif
 	{
 		pMasterVolume = new CVolumeOutMaster();
-		if ( !pMasterVolume || !pMasterVolume->IsAvailable() )
+		if ( !pMasterVolume || !pMasterVolume->isAvailable() )
 		{
 			// обработка ошибки
 		}
-		pMasterVolume->Enable();
+		pMasterVolume->enable();
 		connect(pMasterVolume, SIGNAL(volumeChangedExternaly(int)), this, SLOT(setValue(int)));
 		connect(pMasterVolume, SIGNAL(muteStateChangedExternaly(bool)), this, SLOT(setMute(bool)));
 	}
-#endif
+
 
 	//////////////////QString path = "D:\\CONCEPT\\VolumeControl\\VolumeControl\\icons\\";
 	////////////////QString path = "D:\\icons\\";
@@ -184,6 +185,7 @@ RVolumeControl::~RVolumeControl()
 		CoUninitialize();
 	}
 	else
+#endif
 	{
 		if(pMasterVolume)
 		{
@@ -191,9 +193,7 @@ RVolumeControl::~RVolumeControl()
 			pMasterVolume = NULL;
 		}
 	}
-#endif
 }
-
 
 void RVolumeControl::setDark(bool isDark)
 {
@@ -229,6 +229,17 @@ void RVolumeControl::setDark(bool isDark)
 int RVolumeControl::value() const
 {
 	return _value;
+}
+
+void RVolumeControl::setCallSlot(int slot)
+{
+	pMasterVolume->setCurrentCall(slot);
+}
+
+void RVolumeControl::resetCallSlot(int slot)
+{
+	if (pMasterVolume->currentCall() == slot)
+		pMasterVolume->setCurrentCall(-1);
 }
 
 /*slot*/
@@ -281,40 +292,41 @@ void RVolumeControl::setMute(bool mute)
 
 void RVolumeControl::setOff()
 {
-#ifdef Q_WS_WIN32
 	_isOn = false;
-	if(_isWinXP)
-	{
-		pMasterVolume->Disable();
-		//pMasterVolume->Mute(true);
-	}
-	else
+#ifdef Q_WS_WIN32
+	if(!_isWinXP)
 	{
 		if(endpointVolume)
 			endpointVolume->SetMute(true, NULL);
+
+	}
+	else
+#endif
+	{
+		pMasterVolume->disable();
+		//pMasterVolume->Mute(true);
 	}
 
 	updatePixmap(volumeOff);
-#endif
 	emit stateChanged(false);
 }
 
 void RVolumeControl::setOn()
 {
-#ifdef Q_WS_WIN32
 	_isOn = true;
-	if(_isWinXP)
-	{
-		pMasterVolume->Enable();
-	}
-	else
+#ifdef Q_WS_WIN32
+	if(!_isWinXP)
 	{
 		if(endpointVolume)
 			endpointVolume->SetMute(false, NULL);
 	}
+	else
+#endif
+	{
+		pMasterVolume->enable();
+	}
 
 	updatePixmap(volumeToIndex(_value));
-#endif
 	emit stateChanged(true);
 }
 
@@ -545,30 +557,31 @@ void RVolumeControl::switchStateOnOff()
 void RVolumeControl::onValueChange(int newVolumeInt)
 {
 #ifdef Q_WS_WIN32
-	double newVolume = ((double)newVolumeInt)/100;
-
-	if(_isWinXP)
+	if (!_isWinXP)
 	{
-		DWORD val;
-		int val65 = (int)(65535 * newVolumeInt / 100);
-		if(pMasterVolume)
-		{
-			val = pMasterVolume->GetCurrentVolume();
-			pMasterVolume->SetCurrentVolume(val65);
-			val = pMasterVolume->GetCurrentVolume();
-		}
-	}
-	else
-	{
+		double newVolume = ((double)newVolumeInt)/100;
 		if(endpointVolume)
 			endpointVolume->SetMasterVolumeLevelScalar((float)newVolume, NULL);
+	}
+	else
+#endif
+	{
+
+		//DWORD val;
+		//int val65 = (int)(65535 * newVolumeInt / 100);
+		if(pMasterVolume)
+		{
+			//val = pMasterVolume->currentVolume();
+			pMasterVolume->setCurrentVolume(newVolumeInt / 100.0f);
+			//val = pMasterVolume->currentVolume();
+		}
 	}
 
 	//////////////double newVolume = ((double)newVolumeInt)/100;
 
 	//////////////if(endpointVolume)
 	//////////////	endpointVolume->SetMasterVolumeLevelScalar((float)newVolume, NULL);
-#endif
+
 }
 
 void RVolumeControl::onVolumeChange(double val)

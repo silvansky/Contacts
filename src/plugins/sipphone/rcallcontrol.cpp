@@ -5,7 +5,7 @@
 #include <utils/log.h>
 
 RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
-: QWidget(parent), _callStatus(Undefined), _sid(sid)
+	: QWidget(parent), _sid(sid), _callStatus(Undefined)
 {
 	ui.setupUi(this);
 

@@ -340,10 +340,14 @@ void YUYV422PtoRGB32(int width, int height, const unsigned char *src, unsigned c
 
 RSipPhone *RSipPhone::_pInstance;
 
-RSipPhone::RSipPhone(QObject *parent) : QObject(parent), _uri(""),
-											//_pVideoInputWidget(NULL), _pVideoPrevWidget(NULL),
-											_is_preview_on(false), _pPhoneWidget(NULL), _initialized(false),
-											_currentCall(-1), _accountId(-1), _currentRegisterStatus(false)
+RSipPhone::RSipPhone(QObject *parent) : QObject(parent),
+	_accountId(-1),
+	_currentCall(-1),
+	_is_preview_on(false),
+	_currentRegisterStatus(false),
+	_uri(""),
+	_pPhoneWidget(NULL),
+	_initialized(false)
 {
 	_pInstance = this;
 
@@ -421,6 +425,7 @@ void RSipPhone::showError(const char *title, pj_status_t status)
 
 void RSipPhone::onNewCall(int cid, bool incoming)
 {
+	Q_UNUSED(incoming)
 	myframe.put_frame_callback = &my_put_frame_callback;
 	myframe.preview_frame_callback = &my_preview_frame_callback;
 
@@ -428,6 +433,8 @@ void RSipPhone::onNewCall(int cid, bool incoming)
 
 	pj_assert(_currentCall == -1);
 	_currentCall = cid;
+
+	emit callStarted(_currentCall);
 
 	pjsua_call_get_info(cid, &ci);
 
@@ -468,6 +475,7 @@ void RSipPhone::onCallReleased()
 	if(_currentCall == -1)
 		return;
 
+	emit callEnded(_currentCall);
 	_currentCall = -1;
 
 	//if(_pVideoInputWidget)
@@ -559,6 +567,7 @@ void RSipPhone::preview()
 void RSipPhone::call()
 {
 	pjsua_call_setting call_setting;
+	Q_UNUSED(call_setting)
 
 	if (_currentRole == INCOMMING)// (callButton_->text() == "Answer")
 	{
@@ -779,6 +788,7 @@ void RSipPhone::initVideoWindow()
 
 void RSipPhone::on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
 {
+	Q_UNUSED(acc_id)
 	int i;
 	i = info->cbparam->code;
 	i++;
@@ -940,6 +950,8 @@ void RSipPhone::on_call_media_state(pjsua_call_id call_id)
 
 void RSipPhone::on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_event *e)
 {
+	Q_UNUSED(call_id)
+	Q_UNUSED(e)
 	if(tsx->state == PJSIP_TSX_STATE_TRYING)
 	{
 		//pjsua_call_answer(call_id, 200, NULL, NULL);
@@ -990,10 +1002,10 @@ bool RSipPhone::sendVideo(bool isSending)
 	if(!_initialized || _currentCall == -1)
 		return false;
 
-  pjsua_call_setting_default(&call_setting);
+	pjsua_call_setting_default(&call_setting);
 	call_setting.vid_cnt = isSending ? 1 : 0;
 
-  pjsua_call_reinvite2(_currentCall, &call_setting, NULL);
+	pjsua_call_reinvite2(_currentCall, &call_setting, NULL);
 
 	return true;
 }
@@ -1002,6 +1014,7 @@ bool RSipPhone::sendVideo(bool isSending)
 
 void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 {
+	Q_UNUSED(hwnd)
 	//if(_pPhoneWidget)
 	//{
 	//	delete _pPhoneWidget;
@@ -1016,9 +1029,6 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 		_pPhoneWidget = NULL;
 	}
 
-
-
-
 	_pPhoneWidget = new SipPhoneWidget( this );
 
 	connect(_pPhoneWidget, SIGNAL(hangupCall()), this, SLOT(hangup()));
@@ -1029,6 +1039,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 
 	bool camera = isCameraReady();
+	Q_UNUSED(camera)
 	//_pPhoneWidget->show();
 	//return;
 
