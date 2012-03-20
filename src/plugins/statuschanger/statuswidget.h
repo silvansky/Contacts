@@ -46,6 +46,7 @@ protected slots:
 	void onProfileMenuAboutToShow();
 	void onVCardReceived(const Jid &AContactJid);
 	void onStatusChanged(const Jid &AStreamJid, int AStatusId);
+	void onMoodChanged();
 private:
 	Ui::StatusWidgetClass ui;
 private:

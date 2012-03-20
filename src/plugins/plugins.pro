@@ -47,16 +47,8 @@ SUBDIRS += ramblermailnotify
 SUBDIRS += messagecarbons
 SUBDIRS += console
 SUBDIRS += multiuserchat
-CONFIG(debug, debug|release) {
-  SUBDIRS += stylesheeteditor
-}
-
-# platform specific plugins
-
-win32-msvc2008: {
-  SUBDIRS += sipphone
-}
-
-macx: {
-  SUBDIRS += macintegration
-}
+SUBDIRS += stylesheeteditor
+SUBDIRS += sipphone
+SUBDIRS += macintegration
+SUBDIRS += win7integration
+SUBDIRS += systemintegration

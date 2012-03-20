@@ -44,6 +44,9 @@ protected slots:
 	void onTextChanged(const QString &);
 private:
 	void initLayout();
+protected:
+	bool eventFilter(QObject * obj, QEvent * evt);
+	void showEvent(QShowEvent * evt);
 private:
 	CustomBorderContainer * border;
 	InputType inputType;

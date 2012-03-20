@@ -1,20 +1,17 @@
-FORMS = notifywidget.ui \
-	  notifykindswidget.ui
+FORMS =   notifywidget.ui \
+	  notifykindswidget.ui \
+	  systemnotifypreferences.ui
 
 HEADERS = notifications.h \
 	  notifywidget.h \
 	  notifytextbrowser.h \
 	  notifykindswidget.h \
-	  notifykindswidgets.h
+	  notifykindswidgets.h \
+	  systemnotifypreferences.h
 
 SOURCES = notifications.cpp \
 	  notifywidget.cpp \
 	  notifytextbrowser.cpp \
 	  notifykindswidget.cpp \
-	  notifykindswidgets.cpp
-
-macx: {
-	HEADERS += growlpreferences.h
-	SOURCES += growlpreferences.cpp
-	FORMS += growlpreferences.ui
-}
+	  notifykindswidgets.cpp \
+	  systemnotifypreferences.cpp

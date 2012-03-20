@@ -13,6 +13,7 @@
 #include <interfaces/iavatars.h>
 #include <interfaces/ivcard.h>
 #include <interfaces/iroster.h>
+#include <interfaces/igateways.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/istatusicons.h>
 #include <utils/message.h>
@@ -64,6 +65,7 @@ protected slots:
 	void onApplyPendingChanges();
 private:
 	IAvatars *FAvatars;
+	IGateways *FGateways;
 	IStatusIcons *FStatusIcons;
 	IVCardPlugin *FVCardPlugin;
 	IRosterPlugin *FRosterPlugin;

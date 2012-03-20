@@ -163,7 +163,12 @@ MacIntegrationPrivate::MacIntegrationPrivate() :
 	[sparkleUpdater setAutomaticallyChecksForUpdates: YES];
 	[sparkleUpdater setSendsSystemProfile: YES];
 	[sparkleUpdater setUpdateCheckInterval: UPDATE_CHECK_INTERVAL];
-	[sparkleUpdater setFeedURL: [NSURL URLWithString: @"https://update.rambler.ru/contacts/mac.xml"]];
+	SInt32 majVer = 0, minVer = 0, fixVer = 0;
+	Gestalt(gestaltSystemVersionMajor, &majVer);
+	Gestalt(gestaltSystemVersionMinor, &minVer);
+	Gestalt(gestaltSystemVersionBugFix, &fixVer);
+	NSString * feedUrl = [NSString stringWithFormat:@"https://update.rambler.ru/contacts/mac.xml?ver=%d.%d.%d", majVer, minVer, fixVer];
+	[sparkleUpdater setFeedURL: [NSURL URLWithString: feedUrl]];
 
 	// dock overlay
 	dockOverlay = [[DockOverlayHelper alloc] init];

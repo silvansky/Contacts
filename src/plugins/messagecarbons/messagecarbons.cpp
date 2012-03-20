@@ -195,11 +195,6 @@ void MessageCarbons::onXmppStreamOpened(IXmppStream *AXmppStream)
 		shandle.conditions.append(SHC_FORWARDED_MESSAGE);
 		FSHIForwards.insert(shandle.streamJid,FStanzaProcessor->insertStanzaHandle(shandle));
 	}
-
-	if (FDiscovery)
-	{
-		FDiscovery->requestDiscoInfo(AXmppStream->streamJid(),AXmppStream->streamJid().domain());
-	}
 }
 
 void MessageCarbons::onXmppStreamClosed(IXmppStream *AXmppStream)

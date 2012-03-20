@@ -40,6 +40,7 @@ ChatMessageHandler::ChatMessageHandler()
 	FRostersView = NULL;
 	FRostersModel = NULL;
 	FAvatars = NULL;
+	FGateways = NULL;
 	FStatusIcons = NULL;
 	FStatusChanger = NULL;
 	FXmppUriQueries = NULL;
@@ -162,6 +163,10 @@ bool ChatMessageHandler::initConnections(IPluginManager *APluginManager, int &AI
 	if (plugin)
 		FAvatars = qobject_cast<IAvatars *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+
 	plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
 	if (plugin)
 		FStatusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
@@ -203,11 +208,7 @@ bool ChatMessageHandler::initObjects()
 		INotificationType notifyType;
 		notifyType.order = OWO_NOTIFICATIONS_CHAT_MESSAGES;
 		notifyType.title = tr("New messages");
-#ifdef Q_WS_MAC
 		notifyType.kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::TrayNotify|INotification::SoundPlay|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge|INotification::AutoActivate;
-#else
-		notifyType.kindMask = INotification::RosterNotify|INotification::PopupWindow|INotification::TrayNotify|INotification::SoundPlay|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::AutoActivate;
-#endif
 		notifyType.kindDefs = notifyType.kindMask & ~(INotification::AutoActivate);
 		FNotifications->registerNotificationType(NNT_CHAT_MESSAGE,notifyType);
 	}
@@ -344,13 +345,8 @@ bool ChatMessageHandler::messageDisplay(const Message &AMessage, int ADirection)
 {
 	bool displayed = false;
 
-	IChatWindow *window = NULL;
-	if (ADirection == IMessageProcessor::MessageIn)
-		window = AMessage.type()!=Message::Error ? getWindow(AMessage.to(),AMessage.from()) : findWindow(AMessage.to(),AMessage.from());
-	else
-		window = AMessage.type()!=Message::Error ? getWindow(AMessage.from(),AMessage.to()) : findWindow(AMessage.from(),AMessage.to());
-
-	if (window && AMessage.type()!=Message::Error)
+	IChatWindow *window = ADirection==IMessageProcessor::MessageIn ? getWindow(AMessage.to(),AMessage.from()) : getWindow(AMessage.from(),AMessage.to());
+	if (window)
 	{
 		StyleExtension extension;
 		WindowStatus &wstatus = FWindowStatus[window];
@@ -379,17 +375,14 @@ bool ChatMessageHandler::messageDisplay(const Message &AMessage, int ADirection)
 			wstatus.pending.append(AMessage);
 		}
 	}
-	else if (AMessage.type() == Message::Error)
-	{
-		LogError(QString("[ChatMessageHandler] Received error message:\n%1").arg(AMessage.stanza().toString()));
-	}
+
 	return displayed;
 }
 
 INotification ChatMessageHandler::messageNotify(INotifications *ANotifications, const Message &AMessage, int ADirection)
 {
 	INotification notify;
-	if (ADirection == IMessageProcessor::MessageIn)
+	if (ADirection==IMessageProcessor::MessageIn && AMessage.type()!=Message::Error)
 	{
 		IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
 		if (!window->isActiveTabPage())
@@ -656,7 +649,7 @@ void ChatMessageHandler::updateWindow(IChatWindow *AWindow)
 	else if (FStatusIcons)
 		icon = FStatusIcons->iconByJid(AWindow->streamJid(),AWindow->contactJid());
 
-	QString name = FMetaContacts!=NULL ? FMetaContacts->itemHint(AWindow->contactJid()) : AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
+	QString name = FMetaContacts!=NULL ? FMetaContacts->itemFormattedLogin(AWindow->contactJid()) : AWindow->infoWidget()->field(IInfoWidget::ContactName).toString();
 	QString show = FStatusChanger ? FStatusChanger->nameByShow(AWindow->infoWidget()->field(IInfoWidget::ContactShow).toInt()) : QString::null;
 	//QString title = name + (!show.isEmpty() ? QString(" (%1)").arg(show) : QString::null);
 	QString title = name;
@@ -917,12 +910,19 @@ QUuid ChatMessageHandler::showStyledStatus(IChatWindow *AWindow, const QString &
 
 QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message &AMessage, const StyleExtension &AExtension)
 {
+	Message message = AMessage;
+
 	IMessageContentOptions options;
 	options.kind = IMessageContentOptions::Message;
-	options.time = AMessage.dateTime();
+	options.time = message.dateTime();
 	options.timeFormat = FMessageStyles->timeFormat(options.time);
+	
+	options.action = AExtension.action;
+	options.notice = AExtension.notice;
+	options.extensions = AExtension.extensions;
+	options.contentId = AExtension.contentId;
 
-	if (AWindow->streamJid() && AWindow->contactJid() ? AWindow->contactJid() != AMessage.to() : !(AWindow->contactJid() && AMessage.to()))
+	if (AWindow->streamJid() && AWindow->contactJid() ? AWindow->contactJid() != message.to() : !(AWindow->contactJid() && message.to()))
 		options.direction = IMessageContentOptions::DirectionIn;
 	else
 		options.direction = IMessageContentOptions::DirectionOut;
@@ -933,13 +933,44 @@ QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message 
 		options.type |= IMessageContentOptions::History;
 	}
 
-	options.action = AExtension.action;
-	options.extensions = AExtension.extensions;
-	options.contentId = AExtension.contentId;
+	if (message.type() == Message::Error)
+	{
+		ErrorHandler err(message.stanza().element());
+		options.status = IMessageContentOptions::ErrorMessage;
+
+		QUuid uid = AWindow->viewWidget()->contentIdByMessageId(message.id());
+		if (!uid.isNull())
+		{
+			options.contentId = uid;
+			options.action = IMessageContentOptions::Replace;
+			options.extensions |= IMessageContentOptions::ErrorReceipt;
+			message = AWindow->viewWidget()->messageByContentId(uid);
+			options.direction = message.data(MDR_MESSAGE_DIRECTION).toInt()==IMessageProcessor::MessageIn ? IMessageContentOptions::DirectionIn : IMessageContentOptions::DirectionOut;
+			
+			if (FGateways && FGateways->streamServices(AWindow->streamJid()).contains(AWindow->contactJid().domain()) && !FGateways->isServiceEnabled(AWindow->streamJid(),AWindow->contactJid()))
+			{
+				IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(AWindow->streamJid(),AWindow->contactJid().domain());
+				options.notice = tr("Not sent. Use settings to switch on your %1 account.").arg(descriptor.name);
+			}
+			else if (err.type() == ErrorHandler::WAIT)
+			{
+				options.notice = tr("Not sent. Try again a bit later.");
+			}
+			else
+			{
+				options.notice = tr("Not sent. Check whether the contact's address is correct.");
+			}
+		}
+		else
+		{
+			options.extensions |= IMessageContentOptions::Error;
+			options.notice = tr("An error message received: %1").arg(err.message());
+		}
+	}
 
 	fillContentOptions(AWindow,options);
-	showDateSeparator(AWindow,AMessage.dateTime().date());
-	return AWindow->viewWidget()->changeContentMessage(AMessage,options);
+	showDateSeparator(AWindow,message.dateTime().date());
+	return AWindow->viewWidget()->changeContentMessage(message,options);
 }
 
 bool ChatMessageHandler::eventFilter(QObject *AObject, QEvent *AEvent)

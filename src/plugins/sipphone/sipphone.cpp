@@ -1,6 +1,8 @@
 ﻿#include "sipphone.h"
 
-#include <winsock2.h>
+#ifdef Q_WS_WIN32
+# include <winsock2.h>
+#endif
 
 #include <QProcess>
 #include <QMessageBox>
@@ -190,19 +192,13 @@ bool SipPhone::initObjects()
 	{
 		INotificationType incomingNotifyType;
 		incomingNotifyType.order = OWO_NOTIFICATIONS_SIPPHONE;
-		incomingNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify;
-#ifdef Q_WS_MAC
-		incomingNotifyType.kindMask |= INotification::DockBadge;
-#endif
+		incomingNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge;
 		incomingNotifyType.kindDefs = incomingNotifyType.kindMask;
 		FNotifications->registerNotificationType(NNT_SIPPHONE_CALL,incomingNotifyType);
 
 		INotificationType missedNotifyType;
 		missedNotifyType.order = OWO_NOTIFICATIONS_SIPPHONE_MISSED;
-		missedNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify;
-#ifdef Q_WS_MAC
-		missedNotifyType.kindMask |= INotification::DockBadge;
-#endif
+		missedNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge;
 		missedNotifyType.kindDefs = incomingNotifyType.kindMask;
 		FNotifications->registerNotificationType(NNT_SIPPHONE_MISSEDCALL,missedNotifyType);
 	}
@@ -637,6 +633,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 				//QString uri = Jid(AStanza.from()).pBare();
 				//QString uri = Jid(AStanza.from()).eNode();
 				QString uri = juri.eNode() + "@" + juri.pDomain();
+				//QString uri = juri.eNode() + "@vsip.rambler.ru";
 				emit sipSendInvite(uri);
 				// 2) Получение акцепта на запрос INVITE
 				// 3) Установка соединения
@@ -1128,11 +1125,11 @@ void SipPhone::closeStream(const QString &AStreamId)
 	if (FStanzaProcessor && FStreams.contains(AStreamId))
 	{
 		ISipStream &stream = FStreams[AStreamId];
-		if (stream.state != ISipStream::SS_CLOSE)
+		bool isResult = FPendingRequests.contains(AStreamId);
+		if (stream.state!=ISipStream::SS_CLOSE || isResult)
 		{
 			LogDetail(QString("[SipPhone] Closing SIP stream, sid='%1'").arg(AStreamId));
 
-			bool isResult = FPendingRequests.contains(AStreamId);
 
 			Stanza close("iq");
 			QDomElement closeElem;
@@ -1395,15 +1392,18 @@ void SipPhone::showNotifyInChatWindow(const QString &AStreamId, const QString &A
 			IChatWindow *window = FMessageWidgets->findChatWindow(stream.streamJid,stream.contactJid);
 			if (window)
 			{
+				if (!stream.contentId.isNull())
+				{
+					IMessageContentOptions options;
+					options.action = IMessageContentOptions::Remove;
+					options.contentId = stream.contentId;
+					window->viewWidget()->changeContentHtml(QString::null,options);
+				}
+
 				IMessageContentOptions options;
 				options.kind = IMessageContentOptions::Status;
 				options.type |= IMessageContentOptions::Notification;
 				options.direction = IMessageContentOptions::DirectionIn;
-				if (!stream.contentId.isNull())
-				{
-					options.action = IMessageContentOptions::Replace;
-					options.contentId = stream.contentId;
-				}
 				options.time = QDateTime::currentDateTime();
 				options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
 

@@ -112,7 +112,7 @@ public:
 	virtual QList<IMetaItemDescriptor> metaDescriptors() const;
 	virtual IMetaItemDescriptor metaDescriptorByOrder(int APageOrder) const;
 	virtual IMetaItemDescriptor metaDescriptorByItem(const Jid &AItemJid) const;
-	virtual QString itemHint(const Jid &AItemJid) const;
+	virtual QString itemFormattedLogin(const Jid &AItemJid) const;
 	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const;
 	virtual QString metaContactName(const IMetaContact &AContact) const;
 	virtual IMetaRoster *getMetaRoster(IRoster *ARoster);

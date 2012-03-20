@@ -13,6 +13,18 @@
 
 struct IInternalNotice
 {
+	enum ActionType
+	{
+		ButtonAction,
+		ImageAction,
+		LinkAction
+	};
+	enum ActionRoles
+	{
+		TypeRole = Action::DR_UserDefined + 100,
+		ImageRole = Action::DR_UserDefined + 101
+	};
+
 	IInternalNotice() {
 		priority = -1;
 	}

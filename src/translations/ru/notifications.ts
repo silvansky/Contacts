@@ -2,13 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
-    <name>GrowlPreferences</name>
-    <message>
-        <source>Configure Notifications...</source>
-        <translation>Настроить уведомления...</translation>
-    </message>
-</context>
-<context>
     <name>Notifications</name>
     <message>
         <source>Notifications</source>
@@ -51,8 +44,8 @@
         <translation>Скрывать все уведомления при просмотре полноэкранных фильмов или игр</translation>
     </message>
     <message>
-        <source>Growl Notifications</source>
-        <translation>Уведомления Growl</translation>
+        <source>%1 Notifications</source>
+        <translation>Уведомления %1</translation>
     </message>
 </context>
 <context>
@@ -72,6 +65,13 @@
     <message>
         <source>Sound</source>
         <translation>Звук</translation>
+    </message>
+</context>
+<context>
+    <name>SystemNotifyPreferences</name>
+    <message>
+        <source>Configure Notifications...</source>
+        <translation>Настроить уведомления...</translation>
     </message>
 </context>
 </TS>

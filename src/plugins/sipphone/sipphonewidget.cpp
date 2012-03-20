@@ -22,6 +22,7 @@
 #include <definitions/menuicons.h>
 #include <utils/stylestorage.h>
 #include <definitions/stylesheets.h>
+#include <utils/custombordercontainer.h>
 
 #include "complexvideowidget.h"
 
@@ -332,14 +333,20 @@ void SipPhoneWidget::fullScreenStateChange(bool state)
 {
 	if(state)
 	{
-		//showFullScreen();
-		//setCursor(QCursor( Qt::BlankCursor ));
+		CustomBorderContainer *border = qobject_cast<CustomBorderContainer *>(window());
+		if (border)
+			border->showFullScreen();
+		else
+			window()->showFullScreen();
 		_fsTimer->start(fstimerInterval);
 	}
 	else
 	{
-		//showNormal();
-		unsetCursor();
+		CustomBorderContainer *border = qobject_cast<CustomBorderContainer *>(window());
+		if (border)
+			border->showFullScreen();
+		else
+			window()->showNormal();
 		_fsTimer->stop();
 	}
 }

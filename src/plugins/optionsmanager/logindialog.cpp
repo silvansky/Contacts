@@ -94,7 +94,9 @@ public:
 			QAbstractTextDocumentLayout::PaintContext context;
 			context.palette = option.palette;
 			QRect rect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignLeft|Qt::AlignVCenter,docSize,option.rect);
-			APainter->translate(rect.topLeft() + QPoint(6,0));
+			static const int hOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_COMPLETER_H_OFFSET);
+			static const int vOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_COMPLETER_V_OFFSET);
+			APainter->translate(rect.topLeft() + QPoint(hOffset, vOffset));
 			doc.documentLayout()->draw(APainter, context);
 			APainter->restore();
 		}
@@ -107,8 +109,9 @@ public:
 	}
 	virtual QSize sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 	{
+		static const int minHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_COMPLETER_MIN_ROW_HEIGHT);
 		QSize hint = drawIndex(NULL,AOption,AIndex);
-		hint.setHeight(qMax(hint.height(),27));
+		hint.setHeight(qMax(hint.height(), minHeight));
 		return hint;
 	}
 };
@@ -225,19 +228,20 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
 	ui.lblLogo->setFixedHeight(43);
 
-	int fontSize = 9;
-#ifdef Q_WS_MAC
-	fontSize = 12;
-#endif
+	int fontSize = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_LABEL_FONT_SIZE);
+
 	ui.lblRegister->setText(tr("Enter your Rambler login and password or %1.")
-		.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:%1pt; text-decoration: underline; color:#ffffff;'>%2</span></a>")
+		.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
 		.arg(fontSize)
+		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR).name())
 		.arg(tr("register")));
-	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:%1pt; text-decoration: underline; color:#acacac;'>%2</span></a>")
+	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
 		.arg(fontSize)
+		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_LOGIN_LINK_COLOR).name())
 		.arg(tr("Forgot your password?")));
-	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'><span style='font-size:%1pt; text-decoration: underline; color:#acacac;'>%2</span></a>")
+	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'><span style='font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
 		.arg(fontSize)
+		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_LOGIN_LINK_COLOR).name())
 		.arg(tr("Connection settings")));
 
 	//ui.lblConnectSettings->setFocusPolicy(Qt::StrongFocus);
@@ -521,11 +525,6 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			ui.lneNode->completer()->popup()->setFixedWidth(ui.frmLogin->width()-2);
 			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos() + QPoint(1,1));
-		}
-		else if (FMainWindowPlugin && (AWatched==FMainWindowPlugin->mainWindowTopWidget()))
-		{
-			FMainWindowVisible = true;
-			FMainWindowPlugin->mainWindowTopWidget()->close();
 		}
 	}
 
@@ -1035,6 +1034,8 @@ void LoginDialog::onAbortTimerTimeout()
 
 void LoginDialog::onXmppStreamOpened()
 {
+	hide();
+
 	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
 	if (account && FConnectionSettings!=CS_DEFAULT)
 	{
@@ -1050,8 +1051,8 @@ void LoginDialog::onXmppStreamOpened()
 		FMainWindowPlugin->mainWindowTopWidget()->removeEventFilter(this);
 		if (FMainWindowVisible || Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
 			FMainWindowPlugin->showMainWindow();
-		else if (!FMainWindowPlugin->isMinimizeToTray())
-			FMainWindowPlugin->mainWindowTopWidget()->showMinimized();
+		else 
+			FMainWindowPlugin->hideMainWindow();
 	}
 
 	saveCurrentProfileSettings();

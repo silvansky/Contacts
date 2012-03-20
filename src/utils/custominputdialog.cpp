@@ -198,8 +198,10 @@ void CustomInputDialog::initLayout()
 	QHBoxLayout * buttonsLayout = new QHBoxLayout;
 	buttonsLayout->addStretch();
 	acceptButton = new QPushButton;
+	acceptButton->installEventFilter(this);
 	acceptButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	rejectButton = new QPushButton;
+	rejectButton->installEventFilter(this);
 #ifdef Q_WS_MAC
 	buttonsLayout->addWidget(rejectButton);
 	buttonsLayout->addWidget(acceptButton);
@@ -244,4 +246,22 @@ void CustomInputDialog::initLayout()
 	setRejectButtonText(inputType == String ? tr("Cancel") : tr("No"));
 	rejectButton->setVisible(inputType != Info);
 	acceptButton->setEnabled(inputType != String);
+}
+
+bool CustomInputDialog::eventFilter(QObject * obj, QEvent * evt)
+{
+	if (evt->type() == QEvent::FocusIn)
+	{
+		bool accept = (obj == acceptButton);
+		acceptButton->setDefault(accept);
+		rejectButton->setDefault(!accept);
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->updateStyle(this);
+	}
+	return QDialog::eventFilter(obj, evt);
+}
+
+void CustomInputDialog::showEvent(QShowEvent * evt)
+{
+	(rejectButton->isDefault() ? rejectButton : acceptButton)->setFocus();
+	QDialog::showEvent(evt);
 }

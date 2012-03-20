@@ -103,6 +103,10 @@
         <source>Could not find such address.</source>
         <translation>Не удалось найти такой адрес.</translation>
     </message>
+    <message>
+        <source>Currently you cant add %1 contacts.</source>
+        <translation>Добавление контактов %1 временно недоступно.</translation>
+    </message>
 </context>
 <context>
     <name>AddContactDialogClass</name>
@@ -295,10 +299,6 @@
         <translation>Авторизовать</translation>
     </message>
     <message>
-        <source>Don`t Authorize</source>
-        <translation>Не авторизовывать</translation>
-    </message>
-    <message>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
@@ -324,7 +324,7 @@
     </message>
     <message>
         <source>Requests authorization</source>
-        <translation>Запрос авторизации</translation>
+        <translation>Запрашивает авторизацию</translation>
     </message>
     <message>
         <source>Sent an authorization request</source>
@@ -355,10 +355,6 @@
         <translation>&lt;font size=+2&gt;Переименовать группу&lt;/font&gt;&lt;br&gt;Введите новое имя группы:</translation>
     </message>
     <message>
-        <source>Refused authorization</source>
-        <translation>Отказано в авторизации</translation>
-    </message>
-    <message>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
@@ -383,12 +379,36 @@
         <translation>Создать новый контакт...</translation>
     </message>
     <message>
-        <source>Added you in contact list</source>
-        <translation>Добавил Вас в список контактов</translation>
+        <source>Reject</source>
+        <translation>Отказать</translation>
     </message>
     <message>
-        <source>Removed you from contact list</source>
-        <translation>Удалил Вас из списка контактов</translation>
+        <source>%1 requests authorization (permission to see your status and mood).</source>
+        <translation>%1 запрашивает авторизацию (разрешение видеть ваш статус и настроение).</translation>
+    </message>
+    <message>
+        <source>Refused to authorize you</source>
+        <translation>Отказал вам в авторизации</translation>
+    </message>
+    <message>
+        <source>%1 has confirmed your authorization request, now you can see its status and mood.</source>
+        <translation>%1 подтвердил ваш запрос авторизации, теперь вы можете видеть его статус и настроение.</translation>
+    </message>
+    <message>
+        <source>%1 has declined from your authorization, now he can&apos;t see your status ans mood.</source>
+        <translation>%1 отказался от вашей авторизации, теперь он не может видеть ваш статус и настроение.</translation>
+    </message>
+    <message>
+        <source>%1 refused to authorize you, now you can&apos;t see its status and mood.</source>
+        <translation>%1 отказал вам в авторизации, теперь вы не можете видеть его статус и настроение.</translation>
+    </message>
+    <message>
+        <source>Confirmed authorization</source>
+        <translation>Подтвердил авторизацию</translation>
+    </message>
+    <message>
+        <source>Declined authorization</source>
+        <translation>Отказался от авторизации</translation>
     </message>
 </context>
 <context>
@@ -417,8 +437,31 @@
 <context>
     <name>SelectProfileWidgetClass</name>
     <message>
-        <source>To contact-list:</source>
-        <translation>В список контактов:</translation>
+        <source>Save in the contact list of the following account:</source>
+        <translation>Сохранить в списке контактов учетной записи:</translation>
+    </message>
+</context>
+<context>
+    <name>WelcomeScreenWidget</name>
+    <message>
+        <source>Address of a new contact:</source>
+        <translation>Адрес нового контакта:</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message utf8="true">
+        <source>• Rambler address
+• Google Talk, Ya.Online, Jabber.ru login
+• ICQ number or Mail.ru Agent address
+• e-mail
+• phone number (starting with a + sign)</source>
+        <translation>• адрес на Рамблере
+• логин Google Talk, Я.Онлайн, Jabber.ru
+• номер ICQ или адрес Mail.ru Агент
+• электронная почта
+• телефон (на +7 или 8)</translation>
     </message>
 </context>
 </TS>

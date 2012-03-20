@@ -2,6 +2,7 @@
 #define SIPPHONEWIDGET_H
 
 #include <QWidget>
+#include <QToolButton>
 //#include <QDialog>
 #include "ui_sipphonewidget.h"
 

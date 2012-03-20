@@ -192,14 +192,12 @@ typedef struct pjmedia_vid_codec_op
     /** 
      * See #pjmedia_vid_codec_init().
      */
-    pj_status_t	(*init)(pjmedia_vid_codec *codec, 
-			pj_pool_t *pool );
+    pj_status_t	(*init)(pjmedia_vid_codec *codec, pj_pool_t *pool );
 
     /** 
      * See #pjmedia_vid_codec_open().
      */
-    pj_status_t	(*open)(pjmedia_vid_codec *codec, 
-			pjmedia_vid_codec_param *param );
+    pj_status_t	(*open)(pjmedia_vid_codec *codec, pjmedia_vid_codec_param *param );
 
     /** 
      * See #pjmedia_vid_codec_close().
@@ -209,14 +207,12 @@ typedef struct pjmedia_vid_codec_op
     /** 
      * See #pjmedia_vid_codec_modify().
      */
-    pj_status_t	(*modify)(pjmedia_vid_codec *codec,
-			  const pjmedia_vid_codec_param *param);
+    pj_status_t	(*modify)(pjmedia_vid_codec *codec, const pjmedia_vid_codec_param *param);
 
     /** 
      * See #pjmedia_vid_codec_get_param().
      */
-    pj_status_t	(*get_param)(pjmedia_vid_codec *codec,
-			     pjmedia_vid_codec_param *param);
+    pj_status_t	(*get_param)(pjmedia_vid_codec *codec, pjmedia_vid_codec_param *param);
 
     /**
      * See #pjmedia_vid_codec_encode_begin().

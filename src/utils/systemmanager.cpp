@@ -17,12 +17,208 @@ static const int dummy = (wv >= QSysInfo::WV_2000) ?
 	      0 : 1;
 # endif
 # include <windows.h>
+# ifndef __MINGW32__
+#  include <comutil.h>
+# endif
+typedef BOOL (WINAPI *IW64PFP)(HANDLE, BOOL *);
 #endif
 
 #if defined(Q_WS_X11)
 # include <sys/utsname.h>
 #elif defined(Q_WS_MAC)
 # include <Carbon/Carbon.h>
+#endif
+
+#ifdef Q_WS_X11
+static QString resolveXVersion()
+{
+	// TODO: resolve DE type (Gnome/Unity/KDE/etc...) and version
+	QStringList path;
+	foreach(QString env, QProcess::systemEnvironment())
+	{
+		if (env.startsWith("PATH="))
+			path = env.split('=').value(1).split(':');
+	}
+
+	QString found;
+	foreach(QString dirname, path)
+	{
+		QDir dir(dirname);
+		QFileInfo cand(dir.filePath("lsb_release"));
+		if (cand.isExecutable())
+		{
+			found = cand.absoluteFilePath();
+			break;
+		}
+	}
+
+	if (!found.isEmpty())
+	{
+		QProcess process;
+		process.start(found, QStringList()<<"--description" << "--short", QIODevice::ReadOnly);
+		if (process.waitForStarted())
+		{
+			QTextStream stream(&process);
+			while (process.waitForReadyRead())
+				osver += stream.readAll();
+			process.close();
+			osver = osver.trimmed();
+		}
+	}
+
+	if (osver.isEmpty())
+	{
+		utsname buf;
+		if (uname(&buf) != -1)
+		{
+			osver.append(buf.release).append(QLatin1Char(' '));
+			osver.append(buf.sysname).append(QLatin1Char(' '));
+			osver.append(buf.machine).append(QLatin1Char(' '));
+			osver.append(QLatin1String(" (")).append(buf.machine).append(QLatin1Char(')'));
+		}
+		else
+		{
+			osver = ("Linux/Unix Unknown");
+		}
+	}
+}
+#endif
+
+#ifdef Q_WS_WIN
+static QString windowsLanguage()
+{
+#ifndef __MINGW32__
+	LANGID lid = GetUserDefaultUILanguage();
+#else
+	LANGID lid = 0x0409; // debug only! TODO: fix this function to fit mingw
+#endif
+	LCID lcid = MAKELCID(lid, SORT_DEFAULT);
+	wchar_t * buff = new wchar_t[10];
+	int size = GetLocaleInfo(lcid, LOCALE_SLANGUAGE, 0, 0);
+	if (size)
+	{
+		buff = new wchar_t[size];
+		int ret = GetLocaleInfo(lcid, LOCALE_SLANGUAGE, buff, size);
+		QString res = QString::fromWCharArray(buff);
+		delete buff;
+		return ret ? res : QString::null;
+	}
+	return QString::null;
+}
+
+static QString windowsSP()
+{
+	OSVERSIONINFO ovi;
+	ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+	if (GetVersionEx(&ovi))
+	{
+		if (ovi.szCSDVersion == L"")
+			return "no SP";
+		else
+			return QString::fromWCharArray(ovi.szCSDVersion);
+	}
+	else
+		return QString::null;
+}
+
+static QString windowsBitness()
+{
+	IW64PFP IW64P = (IW64PFP)GetProcAddress(GetModuleHandle(L"kernel32"), "IsWow64Process");
+	BOOL res = FALSE;
+	if (IW64P != NULL)
+	{
+		IW64P(GetCurrentProcess(), &res);
+	}
+	return res ? "64" : "32";
+}
+
+static QString resolveWidowsVersion(QSysInfo::WinVersion ver)
+{
+	QString win("Windows %1 %2 %3 %4-bit");
+	QString version;
+	switch (ver)
+	{
+	case QSysInfo::WV_32s:
+		version = "32s";
+		break;
+	case QSysInfo::WV_95:
+		version = "95";
+		break;
+	case QSysInfo::WV_98:
+		version = "98";
+		break;
+	case QSysInfo::WV_Me:
+		version = "Me";
+		break;
+	case QSysInfo::WV_DOS_based:
+		version = "DOS based";
+		break;
+	case QSysInfo::WV_NT:
+		version = "NT";
+		break;
+	case QSysInfo::WV_2000:
+		version = "2000";
+		break;
+	case QSysInfo::WV_XP:
+		version = "XP";
+		break;
+	case QSysInfo::WV_2003:
+		version = "2003/XP64";
+		break;
+	case QSysInfo::WV_VISTA:
+		version = "Vista";
+		break;
+	case QSysInfo::WV_WINDOWS7:
+		version = "Seven";
+		break;
+	case QSysInfo::WV_NT_based:
+		version = "NT Based";
+		break;
+	default:
+		version = "Unknown";
+		break;
+	}
+	return win.arg(version, windowsSP(), windowsLanguage(), windowsBitness());
+}
+#endif
+
+#ifdef Q_WS_MAC
+static QString resolveMacVersion(QSysInfo::MacVersion ver)
+{
+	Q_UNUSED(ver)
+	QString mac("Mac OS X %1.%2.%3 (%4)");
+	QString version;
+	SInt32 majVer = 0, minVer = 0, fixVer = 0;
+	Gestalt(gestaltSystemVersionMajor, &majVer);
+	Gestalt(gestaltSystemVersionMinor, &minVer);
+	Gestalt(gestaltSystemVersionBugFix, &fixVer);
+	switch(minVer)
+	{
+	case 3:
+		version = "Panther";
+		break;
+	case 4:
+		version = "Tiger";
+		break;
+	case 5:
+		version = "Leopard";
+		break;
+	case 6:
+		version = "Snow Leopard";
+		break;
+	case 7:
+		version = "Lion";
+		break;
+	case 8:
+		version = "Mountain Lion";
+		break;
+	default:
+		version = "Unknown";
+		break;
+	}
+	return mac.arg(majVer).arg(minVer).arg(fixVer).arg(version);
+}
 #endif
 
 struct SystemManager::SystemManagerData
@@ -88,6 +284,7 @@ bool SystemManager::isWorkstationLocked()
 	CloseDesktop(hDesk);
 	return bLocked;
 #endif
+	// TODO: Linux and MacOSX implementations
 	return false;
 }
 
@@ -98,6 +295,7 @@ bool SystemManager::isScreenSaverRunning()
 	if (SystemParametersInfo(SPI_GETSCREENSAVERRUNNING,0,&aRunning,0))
 		return aRunning;
 #endif
+	// TODO: Linux and MacOSX implementations
 	return false;
 }
 
@@ -121,132 +319,30 @@ bool SystemManager::isFullScreenMode()
 	}
 # endif
 #endif
+	// TODO: Linux and MacOSX implementations
 	return false;
 }
 
 QString SystemManager::systemOSVersion()
 {
-	QString osver = "System Unknown";
+	QString osver;
 
 #ifdef Q_WS_X11
 
-	QStringList path;
-	foreach(QString env, QProcess::systemEnvironment())
-	{
-		if (env.startsWith("PATH="))
-			path = env.split('=').value(1).split(':');
-	}
-
-	QString found;
-	foreach(QString dirname, path)
-	{
-		QDir dir(dirname);
-		QFileInfo cand(dir.filePath("lsb_release"));
-		if (cand.isExecutable())
-		{
-			found = cand.absoluteFilePath();
-			break;
-		}
-	}
-
-	if (!found.isEmpty())
-	{
-		QProcess process;
-		process.start(found, QStringList()<<"--description"<<"--short", QIODevice::ReadOnly);
-		if (process.waitForStarted())
-		{
-			QTextStream stream(&process);
-			while (process.waitForReadyRead())
-				osver += stream.readAll();
-			process.close();
-			osver = osver.trimmed();
-		}
-	}
-
-	if (osver.isEmpty())
-	{
-		utsname buf;
-		if (uname(&buf) != -1)
-		{
-			osver.append(buf.release).append(QLatin1Char(' '));
-			osver.append(buf.sysname).append(QLatin1Char(' '));
-			osver.append(buf.machine).append(QLatin1Char(' '));
-			osver.append(QLatin1String(" (")).append(buf.machine).append(QLatin1Char(')'));
-		}
-		else
-		{
-			osver = ("Linux/Unix Unknown");
-		}
-	}
+	osver = resolveXVersion();
 
 #elif defined(Q_WS_WIN) || defined(Q_OS_CYGWIN)
 
-	static const struct { int ver; QString name; } versions[] = 
-	{
-		{ QSysInfo::WV_NT,          "Windows NT" },
-		{ QSysInfo::WV_2000,        "Windows 2000" },
-		{ QSysInfo::WV_XP,          "Windows XP" },
-		{ QSysInfo::WV_2003,        "Windows 2003" },
-		{ QSysInfo::WV_VISTA,       "Windows Vista" },
-		{ QSysInfo::WV_WINDOWS7,    "Windows 7" },
-		{ -1,                       "Windows Unknown" },
-	};
-
-	int index = 0;
-	while (versions[index].ver>0 && versions[index].ver!=QSysInfo::WindowsVersion)
-		index++;
-	osver = versions[index].name;
+	osver = resolveWidowsVersion(QSysInfo::windowsVersion());
 
 #elif defined(Q_WS_MAC)
 
-//	static const struct { int ver; QString name; } versions[] =
-//	{
-//		{ QSysInfo::MV_LION,        "Mac OS 10.6 (Lion)"},
-//		{ QSysInfo::MV_SNOWLEOPARD, "Mac OS 10.6 (SnowLeopard)" },
-//		{ QSysInfo::MV_LEOPARD,     "Mac OS 10.5 (Leopard)" },
-//		{ QSysInfo::MV_TIGER,       "Mac OS 10.4 (Tiger)" },
-//		{ QSysInfo::MV_PANTHER,     "Mac OS 10.3 (Panther)" },
-//		{ QSysInfo::MV_JAGUAR,      "Mac OS 10.2 (Jaguar)" },
-//		{ QSysInfo::MV_PUMA,        "Mac OS 10.1 (Puma)" },
-//		{ QSysInfo::MV_CHEETAH,     "Mac OS 10.0 (Cheetah)" },
-//		{ QSysInfo::MV_9,           "Mac OS 9" },
-//		{ -1,                       "Mac OS Unknown" }
-//	};
-
-//	int index = 0;
-//	while (versions[index].ver>0 && versions[index].ver!=QSysInfo::MacintoshVersion)
-//		index++;
-//	osver = versions[index].name;
-	QString mac("Mac OS X %1.%2.%3 (%4)");
-	QString version;
-	SInt32 majVer = 0, minVer = 0, fixVer = 0;
-	Gestalt(gestaltSystemVersionMajor, &majVer);
-	Gestalt(gestaltSystemVersionMinor, &minVer);
-	Gestalt(gestaltSystemVersionBugFix, &fixVer);
-	switch(minVer)
-	{
-	case 3:
-		version = "Panther";
-		break;
-	case 4:
-		version = "Tiger";
-		break;
-	case 5:
-		version = "Leopard";
-		break;
-	case 6:
-		version = "Snow Leopard";
-		break;
-	case 7:
-		version = "Lion";
-		break;
-	default:
-		version = "Unknown";
-		break;
-	}
-	osver = mac.arg(majVer).arg(minVer).arg(fixVer).arg(version);
+	osver = resolveMacVersion(QSysInfo::MacintoshVersion);
 
 #endif
+
+	if (osver.isEmpty())
+		 osver = "Unknown OS";
 
 	return osver;
 }

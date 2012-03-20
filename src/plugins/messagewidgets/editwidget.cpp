@@ -7,6 +7,8 @@
 #include <QTextDocument>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <utils/stylestorage.h>
+#include <definitions/resources.h>
 
 #define MAX_BUFFERED_MESSAGES     10
 
@@ -209,8 +211,9 @@ bool EditWidget::eventFilter(QObject *AWatched, QEvent *AEvent)
 	}
 	else if (AWatched==ui.medEditor && AEvent->type()==QEvent::Resize)
 	{
+		static const int rightMargin = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MW_EDIT_RIGHT_MARGIN);
 		QResizeEvent * resEvent = (QResizeEvent*)AEvent;
-		ui.medEditor->setLineWrapColumnOrWidth(resEvent->size().width() - 50); // 50 is a magic number
+		ui.medEditor->setLineWrapColumnOrWidth(resEvent->size().width() - rightMargin);
 	}
 	return hooked || QWidget::eventFilter(AWatched,AEvent);
 }
@@ -288,6 +291,10 @@ void EditWidget::onOptionsChanged(const OptionsNode &ANode)
 	}
 	else if (ANode.path() == OPV_MESSAGES_EDITORSENDKEY)
 	{
-		setSendKey(ANode.value().value<QKeySequence>());
+		QKeySequence key = ANode.value().value<QKeySequence>();
+		if (key.isEmpty())
+			key = Options::defaultValue(OPV_MESSAGES_EDITORSENDKEY).value<QKeySequence>();
+		setSendKey(key);
+		;
 	}
 }

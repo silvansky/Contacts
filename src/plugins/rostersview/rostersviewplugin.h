@@ -15,6 +15,7 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/iroster.h>
+#include <interfaces/igateways.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/iaccountmanager.h>
@@ -93,6 +94,7 @@ protected slots:
 	void onShowOfflinesAction(bool AChecked);
 	void onGroupContactsAction(bool AChecked);
 private:
+	IGateways *FGateways;
 	IRosterPlugin *FRosterPlugin;
 	IRostersModel *FRostersModel;
 	IMainWindowPlugin *FMainWindowPlugin;

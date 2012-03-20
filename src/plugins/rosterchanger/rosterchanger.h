@@ -42,6 +42,7 @@
 #include <utils/iconstorage.h>
 #include "addcontactdialog.h"
 #include "addmetacontactdialog.h"
+#include "welcomescreenwidget.h"
 
 struct AutoSubscription {
 	AutoSubscription() {
@@ -126,22 +127,27 @@ public:
 	virtual bool keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 	virtual bool keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRosterIndex*> ASelected, int AOrder, Qt::Key key, Qt::KeyboardModifiers modifiers);
 	//IRosterChanger
+	virtual bool isWelcomeScreenVisible() const;
 	virtual bool isAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual bool isAutoUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
-	virtual bool isSilentSubsctiption(const Jid &AStreamJid, const Jid &AContactJid) const;
-	virtual void insertAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid, bool ASilently, bool ASubscr, bool AUnsubscr);
-	virtual void removeAutoSubscribe(const Jid &AStreamJid, const Jid &AContactJid);
-	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
-	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = "", bool ASilently = false);
+	virtual bool isSilentSubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
+	virtual bool isSilentUnsubscribe(const Jid &AStreamJid, const Jid &AContactJid) const;
+	virtual void insertAutoSubscribtion(const Jid &AStreamJid, const Jid &AContactJid, bool ASilently, bool ASubscr, bool AUnsubscr);
+	virtual void removeAutoSubscribtion(const Jid &AStreamJid, const Jid &AContactJid);
+	virtual void subscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = QString::null, bool ASilently = false);
+	virtual void unsubscribeContact(const Jid &AStreamJid, const Jid &AContactJid, const QString &AMessage = QString::null, bool ASilently = false);
 	virtual IAddMetaItemWidget *newAddMetaItemWidget(const Jid &AStreamJid, const QString &AGateDescriptorId, QWidget *AParent);
 	virtual QWidget *showAddContactDialog(const Jid &AStreamJid);
 signals:
 	void addMetaItemWidgetCreated(IAddMetaItemWidget *AWidget);
 	void addContactDialogCreated(IAddContactDialog *ADialog);
+	void welcomeScreenVisibleChanged(bool AVisible);
 	//IRosterDataHolder
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = 0);
 protected:
+	QString contactName(const Jid &AStreamJid, const Jid &AContactJid) const;
 	QString subscriptionNotify(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const;
+	QString subscriptionNotice(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const;
 	IChatWindow *findChatNoticeWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	IChatNotice createChatNotice(int APriority, int AActions, const QString &ANotify, const QString &AText) const;
 	int insertChatNotice(IChatWindow *AWindow, const IChatNotice &ANotice);
@@ -153,6 +159,7 @@ protected:
 	void removeNotifies(IChatWindow *AWindow);
 	void removeObsoleteNotifies(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType, bool ASent);
 	void showNotifyInChatWindow(IChatWindow *AWindow, const QString &ANotify, const QString &AText) const;
+	void showWelcomeScreenIfNeeded(IRoster *ARoster);
 protected slots:
 	//Operations on subscription
 	void onContactSubscription(bool);
@@ -175,11 +182,14 @@ protected slots:
 	void onRemoveGroup(bool);
 	void onRemoveGroupItems(bool);
 protected slots:
+	void onWelcomeScreenAddressEntered(const QString & address);
+	void onNoticeWidgetAction();
 	void onShowAddContactDialog(bool);
 	void onShowAddGroupDialog(bool);
 	void onRenameGroupDialogAccepted(QString);
 	void onShowAddAccountDialog(bool);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
+	void onRosterOpened(IRoster *ARoster);
 	void onRosterClosed(IRoster *ARoster);
 	void onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterIndex *> ASelected, Menu *AMenu);
 	void onEmptyGroupChildInserted(IRosterIndex *AIndex);
@@ -216,7 +226,7 @@ private:
 	QMap<int, int> FChatNoticeActions;
 	QMap<int, IChatWindow *> FChatNoticeWindow;
 	QList<IChatWindow *> FPendingChatWindows;
-	QMultiMap<Jid, Jid> FSubscriptionRequests;
+	WelcomeScreenWidget *FWelcomeScreenWidget;
 	QMap<Jid, QMap<Jid, PendingChatNotice> > FPendingChatNotices;
 	QMap<Jid, QMap<Jid, AutoSubscription> > FAutoSubscriptions;
 };

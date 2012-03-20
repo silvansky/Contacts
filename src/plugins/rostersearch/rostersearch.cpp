@@ -412,7 +412,7 @@ bool RosterSearch::eventFilter(QObject *AWatched, QEvent *AEvent)
 	}
 	else if (AWatched==(FMainWindow ? FMainWindow->instance() : NULL) || AWatched==(FRostersViewPlugin ? FRostersViewPlugin->rostersView()->instance() : NULL))
 	{
-		if ( AEvent->type() == QEvent::KeyPress)
+		if (AEvent->type() == QEvent::KeyPress)
 		{
 			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(AEvent);
 			if ((keyEvent->key() >= Qt::Key_Space && keyEvent->key() <= Qt::Key_AsciiTilde) || (keyEvent->key() == Qt::Key_F && keyEvent->modifiers() == Qt::ShiftModifier))
@@ -475,19 +475,47 @@ QVariant RosterSearch::prepareFieldValue(int AFieldRole, const QVariant &AValue)
 		if (AFieldRole == RDR_PREP_BARE_JID)
 		{
 			Jid itemJid = AValue.toString();
-			if (FStreamServices.contains(itemJid.domain()))
-				return FGateways->legacyIdFromUserJid(itemJid);
+			return preparedItemJidValue(itemJid,FStreamServices.value(itemJid.domain()));
 		}
 		else if (AFieldRole == RDR_METACONTACT_ITEMS)
 		{
 			QStringList itemJidList;
 			foreach(Jid itemJid, AValue.toStringList())
-				if (FStreamServices.contains(itemJid.domain()))
-					itemJidList.append(FGateways->legacyIdFromUserJid(itemJid));
+			{
+				QVariant prepValue = preparedItemJidValue(itemJid,FStreamServices.value(itemJid.domain()));
+				if (prepValue.type()==QVariant::StringList)
+					itemJidList += prepValue.toStringList();
+				else
+					itemJidList.append(prepValue.toString());
+			}
 			return itemJidList;
 		}
 	}
 	return AValue;
+}
+
+QVariant RosterSearch::preparedItemJidValue(const Jid &AItemJid, const IGateServiceDescriptor &ADescriptor) const
+{
+	if (FGateways && !ADescriptor.id.isEmpty())
+	{
+		if (ADescriptor.id == GSID_SMS)
+		{
+			QString legacyId = FGateways->legacyIdFromUserJid(AItemJid);
+			if (legacyId.startsWith("+7"))
+			{
+				QStringList values;
+				values.append(legacyId);
+				values.append(legacyId.replace("+7","8"));
+				return values;
+			}
+			return legacyId;
+		}
+		else
+		{
+			return FGateways->legacyIdFromUserJid(AItemJid);
+		}
+	}
+	return AItemJid.full();
 }
 
 void RosterSearch::createSearchLinks()
@@ -617,7 +645,12 @@ void RosterSearch::onRosterStreamRemoved(const Jid &AStreamJid)
 
 void RosterSearch::onStreamServicesChanged(const Jid &AStreamJid)
 {
-	FStreamServices = FGateways->streamServices(AStreamJid);
+	FStreamServices.clear();
+	foreach(Jid serviceJid, FGateways->streamServices(AStreamJid))
+	{
+		IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(AStreamJid,serviceJid);
+		FStreamServices.insert(serviceJid,descriptor);
+	}
 }
 
 void RosterSearch::onOptionsChanged(const OptionsNode &ANode)

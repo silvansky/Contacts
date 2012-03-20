@@ -23,6 +23,7 @@
 #include <interfaces/itraymanager.h>
 #include <interfaces/iroster.h>
 #include <interfaces/iavatars.h>
+#include <interfaces/igateways.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/ipresence.h>
@@ -31,9 +32,7 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
-#ifdef Q_WS_MAC
-# include <interfaces/imacintegration.h>
-#endif
+#include <interfaces/isystemintegration.h>
 #include <utils/options.h>
 #include <utils/systemmanager.h>
 #include "notifywidget.h"
@@ -105,7 +104,7 @@ protected:
 	int notifyIdByRosterId(int ARosterId) const;
 	int notifyIdByTrayId(int ATrayId) const;
 	int notifyIdByWidget(NotifyWidget *AWidget) const;
-	void activateAllNotifications();
+	void activateAllNotifications(uint kinds = INotification::TabPageNotify);
 	void removeAllNotifications();
 	void removeInvisibleNotification(int ANotifyId);
 protected slots:
@@ -122,14 +121,13 @@ protected slots:
 	void onWindowNotifyOptions();
 	void onWindowNotifyDestroyed();
 	void onTestNotificationTimerTimedOut();
-#ifdef Q_WS_MAC
-	void onGrowlNotifyClicked(int ANotifyId);
-	void onShowGrowlPreferences();
+	void onSystemNotifyClicked(int ANotifyId);
+	void onShowSystemNotificationsSettings();
 	void onNotifyCountChanged();
 	void onDockClicked();
-#endif
 private:
 	IAvatars *FAvatars;
+	IGateways *FGateways;
 	IRosterPlugin *FRosterPlugin;
 	IMetaContacts *FMetaContacts;
 	IStatusIcons *FStatusIcons;
@@ -138,10 +136,8 @@ private:
 	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IOptionsManager *FOptionsManager;
-#ifdef Q_WS_MAC
-	IMacIntegration * FMacIntegration;
+	ISystemIntegration * FSystemIntegration;
 	IMainWindowPlugin * FMainWindow;
-#endif
 private:
 #ifdef QT_PHONON_LIB
 	Phonon::MediaObject *FMediaObject;

@@ -141,6 +141,10 @@
         <source>Call to %1</source>
         <translation>Звонок к %1</translation>
     </message>
+    <message>
+        <source>Failed to find default audio device</source>
+        <translation>Не удалось найти найти аудио устройство</translation>
+    </message>
 </context>
 <context>
     <name>RVolumeControl</name>

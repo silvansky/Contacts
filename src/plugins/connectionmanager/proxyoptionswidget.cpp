@@ -14,7 +14,6 @@ ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode
 	FManager = AManager;
 	FConnectionNode = ANode;
 
-	ui.spbProxyPort->setVisible(false);
 	ui.lneProxyPort->setValidator(new QIntValidator(1, 65535, ui.lneProxyPort));
 
 	connect(ui.rdbAutoProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
@@ -22,7 +21,6 @@ ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode
 	connect(ui.rdbFireFoxProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.rdbManualProxy,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.lneProxyHost,SIGNAL(textChanged(const QString &)),SIGNAL(modified()));
-	connect(ui.spbProxyPort,SIGNAL(valueChanged(int)),SIGNAL(modified()));
 	connect(ui.lneProxyPort,SIGNAL(textChanged(const QString&)),SIGNAL(modified()));
 	connect(ui.chbProxyUserPassword,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	connect(ui.lneProxyUser,SIGNAL(textChanged(const QString &)),SIGNAL(modified()));
@@ -33,6 +31,9 @@ ProxyOptionsWidget::ProxyOptionsWidget(IConnectionManager *AManager, OptionsNode
 
 void ProxyOptionsWidget::apply()
 {
+	if (ui.rdbManualProxy->isChecked() && (ui.lneProxyHost->text().isEmpty() || ui.lneProxyPort->text().toInt()==0))
+		ui.rdbAutoProxy->setChecked(true);
+
 	if (ui.rdbAutoProxy->isChecked())
 		FConnectionNode.setValue(APPLICATION_PROXY_REF_UUID, "proxy");
 	else if (ui.rdbExplorerProxy->isChecked())
@@ -46,7 +47,6 @@ void ProxyOptionsWidget::apply()
 	proxy.name = tr("Manual Proxy");
 	proxy.proxy.setType(QNetworkProxy::HttpProxy);
 	proxy.proxy.setHostName(ui.lneProxyHost->text());
-	//proxy.proxy.setPort(ui.spbProxyPort->value());
 	proxy.proxy.setPort(ui.lneProxyPort->text().toInt());
 	proxy.proxy.setUser(ui.chbProxyUserPassword->isChecked() ? ui.lneProxyUser->text() : QString::null);
 	proxy.proxy.setPassword(ui.chbProxyUserPassword->isChecked() ? ui.lneProxyPassword->text() : QString::null);
@@ -73,8 +73,7 @@ void ProxyOptionsWidget::reset()
 
 	IConnectionProxy proxy = FManager->proxyById(MANUAL_PROXY_REF_UUID);
 	ui.lneProxyHost->setText(proxy.proxy.hostName());
-	ui.spbProxyPort->setValue(proxy.proxy.port());
-	ui.lneProxyPort->setText(QString::number(proxy.proxy.port()));
+	ui.lneProxyPort->setText(proxy.proxy.port()>0 ? QString::number(proxy.proxy.port()) : QString::null);
 	ui.lneProxyUser->setText(proxy.proxy.user());
 	ui.lneProxyPassword->setText(proxy.proxy.password());
 	ui.chbProxyUserPassword->setChecked(!ui.lneProxyUser->text().isEmpty());

@@ -178,5 +178,9 @@
         <source>Show previous messages</source>
         <translation>Показать предыдущие сообщения</translation>
     </message>
+    <message>
+        <source>An error message received: %1</source>
+        <translation>Получено сообщение об ошибке: %1</translation>
+    </message>
 </context>
 </TS>

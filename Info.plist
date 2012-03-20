@@ -15,13 +15,21 @@
 	<key>CFBundleExecutable</key>
 	<string>Contacts</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.rambler.contacts</string>
+	<string>ru.rambler.contacts</string>
 	<key>NOTE</key>
 	<string>Good news, everyone!</string>
 	<key>CFBundleVersion</key>
-	<string>0.5.2.1315</string>
+	<string>0.6.3.1518</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2010-2011 Rambler Internet Holding LLC.
 All Rights Reserved.</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.6.0</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en_US</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.social-networking</string>
+	<key>CFBundleName</key>
+	<string>Contacts</string>
 </dict>
 </plist>

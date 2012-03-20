@@ -18,8 +18,7 @@ double round(double x)
 	return ((x - floor(x)) >= 0.5) ? ceil(x) : floor(x);
 }
 
-
-
+#ifdef Q_WS_WIN32
 STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA NotificationData)
 {
 	int volumeValue = (int)round(NotificationData->fMasterVolume*100);
@@ -55,16 +54,17 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 
 	return S_OK;
 }
-
+#endif
 
 
 RVolumeControl::RVolumeControl(QWidget *parent)
 	: QWidget(parent), _value(0), _min(0), _max(100), _isEnableSound(true), _isOn(true), _isDark(true), _isWinXP(false)
 {
+#ifdef Q_WS_WIN32
 	endpointVolume = NULL;
 	volumeNotification = NULL;
+#endif
 
-	// ÕÀÊ ÎÒ ÂÀËÅÍÒÈÍÀ
 	setProperty("ignoreFilter", true);
 	setToolTip(tr("Volume control"));
 
@@ -72,6 +72,7 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 	float currVolume = 0.;
 
 	// Îïðåäåëÿåì âåðñèþ ÎÑ (xp èëè ñòàðøå?)
+#ifdef Q_WS_WIN32
 	OSVERSIONINFO m_osinfo;
 	ZeroMemory(&m_osinfo, sizeof(m_osinfo));
 	m_osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -133,6 +134,7 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 		connect(pMasterVolume, SIGNAL(volumeChangedExternaly(int)), this, SLOT(setValue(int)));
 		connect(pMasterVolume, SIGNAL(muteStateChangedExternaly(bool)), this, SLOT(setMute(bool)));
 	}
+#endif
 
 	//////////////////QString path = "D:\\CONCEPT\\VolumeControl\\VolumeControl\\icons\\";
 	////////////////QString path = "D:\\icons\\";
@@ -170,6 +172,7 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 
 RVolumeControl::~RVolumeControl()
 {
+#ifdef Q_WS_WIN32
 	if(!_isWinXP)
 	{
 		if(endpointVolume && volumeNotification)
@@ -188,6 +191,7 @@ RVolumeControl::~RVolumeControl()
 			pMasterVolume = NULL;
 		}
 	}
+#endif
 }
 
 
@@ -277,6 +281,7 @@ void RVolumeControl::setMute(bool mute)
 
 void RVolumeControl::setOff()
 {
+#ifdef Q_WS_WIN32
 	_isOn = false;
 	if(_isWinXP)
 	{
@@ -290,11 +295,13 @@ void RVolumeControl::setOff()
 	}
 
 	updatePixmap(volumeOff);
+#endif
 	emit stateChanged(false);
 }
 
 void RVolumeControl::setOn()
 {
+#ifdef Q_WS_WIN32
 	_isOn = true;
 	if(_isWinXP)
 	{
@@ -307,6 +314,7 @@ void RVolumeControl::setOn()
 	}
 
 	updatePixmap(volumeToIndex(_value));
+#endif
 	emit stateChanged(true);
 }
 
@@ -536,6 +544,7 @@ void RVolumeControl::switchStateOnOff()
 
 void RVolumeControl::onValueChange(int newVolumeInt)
 {
+#ifdef Q_WS_WIN32
 	double newVolume = ((double)newVolumeInt)/100;
 
 	if(_isWinXP)
@@ -559,6 +568,7 @@ void RVolumeControl::onValueChange(int newVolumeInt)
 
 	//////////////if(endpointVolume)
 	//////////////	endpointVolume->SetMasterVolumeLevelScalar((float)newVolume, NULL);
+#endif
 }
 
 void RVolumeControl::onVolumeChange(double val)

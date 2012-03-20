@@ -6,6 +6,7 @@ SelectProfileWidget::SelectProfileWidget(IRoster *ARoster, IGateways *AGateways,
 	ui.setupUi(this);
 
 	FVisible = true;
+	FAutoSelect = true;
 	FRoster = ARoster;
 	FGateways = AGateways;
 	FOptionsManager = AOptionsManager;
@@ -49,7 +50,7 @@ QList<Jid> SelectProfileWidget::profiles() const
 Jid SelectProfileWidget::selectedProfile() const
 {
 	for (QMap<Jid, QRadioButton *>::const_iterator it = FProfiles.constBegin(); it!=FProfiles.constEnd(); it++)
-		if (it.value()->isChecked())
+		if (it.value()->isChecked() && it.value()->isEnabled())
 			return it.key();
 	return Jid::null;
 }
@@ -66,20 +67,44 @@ void SelectProfileWidget::setSelectedProfile(const Jid &AServiceJid)
 	}
 }
 
+bool SelectProfileWidget::autoSelectProfile() const
+{
+	return FAutoSelect;
+}
+
+void SelectProfileWidget::setAutoSelectProfile(bool AAuto)
+{
+	if (FAutoSelect != AAuto)
+	{
+		FAutoSelect = AAuto;
+		updateProfiles();
+	}
+}
+
 void SelectProfileWidget::updateProfiles()
 {
 	IDiscoIdentity identity;
 	identity.category = "gateway";
 	identity.type = FDescriptor.type;
 
+	QList<Jid> nativeGates;
+	if (FDescriptor.id == GSID_RAMBLER)
+		nativeGates.append(streamJid());
+
 	QList<Jid> gates = FGateways->gateDescriptorServices(streamJid(),FDescriptor,FDescriptor.needLogin);
 	for (QList<Jid>::iterator it=gates.begin(); it!=gates.end(); )
 	{
 		IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(streamJid(),*it);
-		if (descriptor.readOnly)
-			it = gates.erase(it);
-		else
+		if (!descriptor.readOnly)
+		{
+			if (FDescriptor.id == descriptor.id)
+				nativeGates.append(*it);
 			it++;
+		}
+		else
+		{
+			it = gates.erase(it);
+		}
 	}
 
 	Jid oldSelected = selectedProfile();
@@ -175,6 +200,13 @@ void SelectProfileWidget::updateProfiles()
 		}
 	}
 
+	bool autoSelected = false;
+	if (FAutoSelect && nativeGates.count()==1)
+	{
+		setSelectedProfile(nativeGates.first());
+		autoSelected = selectedProfile()==nativeGates.first();
+	}
+
 	Jid newSelected = selectedProfile();
 	if (newSelected.isEmpty())
 	{
@@ -187,7 +219,7 @@ void SelectProfileWidget::updateProfiles()
 	}
 
 	bool adjustSize = hasChangedProfiles;
-	bool newVisible = hasDisabledProfiles || FProfiles.count()>1;
+	bool newVisible = !autoSelected && (hasDisabledProfiles || FProfiles.count()>1);
 	if (FVisible != newVisible)
 	{
 		adjustSize = true;

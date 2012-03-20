@@ -33,7 +33,7 @@ OptionsManager::OptionsManager()
 	FOptionsDialog = NULL;
 	FOptionsDialogBorder = NULL;
 	FLoginDialog = NULL;
-	FMacIntegration = NULL;
+	FSystemIntegration = NULL;
 
 	FAutoSaveTimer.setInterval(30*1000);
 	FAutoSaveTimer.setSingleShot(true);
@@ -90,17 +90,12 @@ bool OptionsManager::initConnections(IPluginManager *APluginManager, int &AInitO
 			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorageAboutToClose(const Jid &)));
 		}
 	}
-#ifdef Q_WS_MAC
-	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+
+	plugin = APluginManager->pluginInterface("ISystemIntegration").value(0,NULL);
 	if (plugin)
 	{
-		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
-		if (FMacIntegration)
-		{
-
-		}
+		FSystemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
 	}
-#endif
 
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
@@ -126,19 +121,18 @@ bool OptionsManager::initObjects()
 	FShowOptionsDialogAction->setData(Action::DR_SortString,QString("300"));
 	connect(FShowOptionsDialogAction,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
 
-#ifdef Q_WS_MAC
-	if (FMacIntegration)
+	if (FSystemIntegration)
 	{
 		Action * menuBarSettings = new Action;
 		menuBarSettings->setText("settings");
 		menuBarSettings->setShortcut(tr("Ctrl+,"));
 		connect(menuBarSettings,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
 		menuBarSettings->setMenuRole(QAction::PreferencesRole);
-		FMacIntegration->fileMenu()->addAction(menuBarSettings);
+		FSystemIntegration->addAction(ISystemIntegration::FileRole, menuBarSettings);
 
-	FMacIntegration->fileMenu()->addAction(FChangeProfileAction, 700);
+		FChangeProfileAction->setMenuRole(QAction::ApplicationSpecificRole);
+		FSystemIntegration->addAction(ISystemIntegration::FileRole, FChangeProfileAction);
 	}
-#endif
 
 	if (FMainWindowPlugin)
 	{
@@ -146,12 +140,12 @@ bool OptionsManager::initObjects()
 		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FChangeProfileAction,AG_MMENU_OPTIONS_CHANGEPROFILE,true);
 	}
 
+#ifndef Q_WS_MAC
 	if (FTrayManager)
 	{
-#ifndef Q_WS_MAC
 		FTrayManager->contextMenu()->addAction(FShowOptionsDialogAction,AG_TMTM_OPTIONS_DIALOG,true);
-#endif
 	}
+#endif
 
 	return true;
 }
@@ -159,23 +153,19 @@ bool OptionsManager::initObjects()
 bool OptionsManager::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
-	bool customBorder =
-#ifdef Q_WS_MAC
-			false;
-#else
-			true;
-#endif
-	Options::setDefaultValue(OPV_MISC_CUSTOMBORDER, customBorder);
 	Options::setDefaultValue(OPV_MISC_OPTIONS_SAVE_ON_SERVER, true);
 #ifdef Q_WS_MAC
+	Options::setDefaultValue(OPV_MISC_CUSTOMBORDER, false);
 	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_GATEWAYS));
 #else
+	Options::setDefaultValue(OPV_MISC_CUSTOMBORDER, true);
 	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_COMMON));
 #endif
 
-	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), MNI_OPTIONS_DIALOG };
 #ifdef Q_WS_MAC
-	dnode.name = tr("Synchronization");
+	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Synchronization"), MNI_OPTIONS_DIALOG };
+#else
+	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), MNI_OPTIONS_DIALOG };
 #endif
 	insertOptionsDialogNode(dnode);
 	insertOptionsHolder(this);
@@ -805,8 +795,8 @@ void OptionsManager::onOptionsChanged(const OptionsNode &ANode)
 	}
 	else if (ANode.path() == OPV_MISC_CUSTOMBORDER)
 	{
-		QTimer::singleShot(20, FPluginManager->instance(), SLOT(restart()));
 		saveOptions();
+		QTimer::singleShot(20, FPluginManager->instance(), SLOT(restart()));
 	}
 	FAutoSaveTimer.start();
 }

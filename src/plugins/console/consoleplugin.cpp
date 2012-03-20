@@ -4,9 +4,8 @@ ConsolePlugin::ConsolePlugin()
 {
 	FPluginManager = NULL;
 	FMainWindowPlugin = NULL;
-#ifdef Q_WS_MAC
-	FMacIntegration = NULL;
-#endif
+	FSystemIntegration = NULL;
+	showConsoleShortcut = NULL;
 }
 
 ConsolePlugin::~ConsolePlugin()
@@ -23,9 +22,7 @@ void ConsolePlugin::pluginInfo(IPluginInfo *APluginInfo)
 	APluginInfo->homePage = "http://contacts.rambler.ru";
 	APluginInfo->dependences.append(XMPPSTREAMS_UUID);
 	APluginInfo->dependences.append(MAINWINDOW_UUID);
-#ifdef Q_WS_MAC
-	APluginInfo->dependences.append(MACINTEGRATION_UUID);
-#endif
+	APluginInfo->dependences.append(SYSTEMINTEGRATION_UUID);
 }
 
 bool ConsolePlugin::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*/)
@@ -34,29 +31,33 @@ bool ConsolePlugin::initConnections(IPluginManager *APluginManager, int &/*AInit
 
 	IPlugin *plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
 	if (plugin)
+	{
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+	}
 
-#ifdef Q_WS_MAC
-	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+	plugin = APluginManager->pluginInterface("ISystemIntegration").value(0,NULL);
 	if (plugin)
-		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
-#endif
+		FSystemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
 
-	return FMainWindowPlugin!=NULL;
+	return FMainWindowPlugin && FSystemIntegration;
 }
 
 bool ConsolePlugin::initObjects()
 {
 	if (FMainWindowPlugin)
 	{
+		showConsoleShortcut = new QShortcut(FMainWindowPlugin->mainWindow()->instance());
+		showConsoleShortcut->setKey(QKeySequence("Ctrl+Alt+Shift+C"));
+		showConsoleShortcut->setEnabled(true);
+		connect(showConsoleShortcut, SIGNAL(activated()), SLOT(onShowXMLConsole()));
+#ifdef DEBUG_ENABLED
 		Action *action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
 		action->setText(tr("XML Console"));
-		//action->setIcon(RSR_STORAGE_MENUICONS,MNI_CONSOLE);
-		connect(action,SIGNAL(triggered(bool)),SLOT(onShowXMLConsole(bool)));
-#ifdef Q_WS_MAC
-		FMacIntegration->windowMenu()->addAction(action, 510);
-#else
-		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_CONSOLE_SHOW,true);
+		connect(action,SIGNAL(triggered()),SLOT(onShowXMLConsole()));
+		if (FSystemIntegration && FSystemIntegration->isGlobalMenuPresent())
+			FSystemIntegration->addAction(ISystemIntegration::WindowRole, action, 510);
+		else
+			FMainWindowPlugin->mainWindow()->mainMenu()->addAction(action,AG_MMENU_CONSOLE_SHOW,true);
 #endif
 	}
 	return true;
@@ -70,7 +71,7 @@ bool ConsolePlugin::initSettings()
 	return true;
 }
 
-void ConsolePlugin::onShowXMLConsole(bool)
+void ConsolePlugin::onShowXMLConsole()
 {
 	ConsoleWidget *widget = new ConsoleWidget(FPluginManager,NULL);
 	FCleanupHandler.add(widget);

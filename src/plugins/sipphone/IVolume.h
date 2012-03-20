@@ -3,7 +3,10 @@
 // Created : 8/11/98
 #pragma once
 
+#ifdef Q_WS_WIN32
+
 #include <Windows.h>
+
 
 // User-defined callback for volume change notification
 typedef void (CALLBACK *PONMICVOULUMECHANGE)( DWORD dwCurrentVolume, DWORD dwUserValue );
@@ -27,3 +30,4 @@ public:
 
 	//virtual void	RegisterNotificationSink( PONMICVOULUMECHANGE, DWORD ) = 0;
 };
+#endif

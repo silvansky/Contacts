@@ -1,6 +1,6 @@
 TARGET = stylesheeteditor
 include(stylesheeteditor.pri)
 include(../plugins.inc)
-!macx: {
+!contains(DEFINES, WITH_SSEDITOR) {
 	INSTALLS =
 }

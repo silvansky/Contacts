@@ -1,6 +1,7 @@
 #include "aboutbox.h"
 
 #include <QShowEvent>
+#include <QColor>
 #include <QDesktopServices>
 #include "aboutqtdialog.h"
 #include <utils/customborderstorage.h>
@@ -27,12 +28,14 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
-	QString styleBegin = "<html><style>a { color: #acacac; }</style><body><font color=#acacac>";
+	QString textColor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_ABOUT_TEXT_COLOR).name();
+	QString styleBegin = QString("<html><style>a { color: %1; }</style><body><font color=%1>").arg(textColor, textColor);
 	QString styleEnd = "</font></body></html>";
 
 	//ui.lblName->setText(tr("Contacts"));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblName, MNI_OPTIONS_LOGIN_LOGO, 0, 0, "pixmap");
 	ui.lblVersion->setText(styleBegin + tr("Version: %1.%2 %3").arg(APluginManager->version()).arg(APluginManager->revision()).arg(CLIENT_VERSION_SUFIX).trimmed() + styleEnd);
+	ui.lblVersion->setProperty("ignoreFilter", true);
 	ui.lblHomePage->setText(styleBegin + tr("Site: %1").arg("<a href='http://contacts.rambler.ru'>contacts.rambler.ru</a>") + "</font>");
 	ui.lblCopyright->setText(styleBegin + tr("© 2011, \"Rambler Internet Holding LLC\".<br>%1").arg(QString("<a href='http://help.rambler.ru/legal/?s=44761'>%1</a>").arg(tr("Terms of Use"))) + styleEnd);
 	ui.lblFontInfo->setText(styleBegin + tr("The program uses the Segoe UI font on the license granted Monotype Imaging Inc. %1").arg("<a href=\'http://www.fonts.com\'>www.fonts.com</a>") + styleEnd);

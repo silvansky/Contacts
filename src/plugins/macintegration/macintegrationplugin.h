@@ -4,6 +4,7 @@
 #include <QObject>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imacintegration.h>
+#include <interfaces/isystemintegration.h>
 #include <interfaces/iaccountmanager.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/ioptionsmanager.h>
@@ -20,10 +21,11 @@ class ITabWindow;
 class MacIntegrationPlugin :
 		public QObject,
 		public IPlugin,
-		public IMacIntegration
+		public IMacIntegration,
+		public ISystemIntegrationImplementation
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin IMacIntegration)
+	Q_INTERFACES(IPlugin IMacIntegration ISystemIntegrationImplementation)
 public:
 	MacIntegrationPlugin();
 	~MacIntegrationPlugin();
@@ -36,6 +38,19 @@ public:
 	virtual bool initSettings();
 	virtual bool startPlugin() { return true; }
 	//IMacIntegration
+	virtual void setCustomBorderColor(const QColor & color);
+	virtual void setCustomTitleColor(const QColor & color);
+	virtual void setWindowMovableByBackground(QWidget * window, bool movable);
+	virtual bool isDockAnimationRunning() const;
+	//ISystemIntegrationImplementation
+	virtual void init();
+	virtual void finalize();
+	virtual bool isGlobalMenuPresent() const { return true; }
+	virtual bool isDockMenuPresent() const { return true; }
+	virtual bool isDockPresent() const { return true; }
+	virtual bool isSystemNotificationsAccessible() const;
+	virtual QString systemNotificationsSystemName() const;
+	virtual bool isSystemNotificationsSettingsAccessible() const;
 	virtual Menu * dockMenu();
 	virtual QMenuBar * menuBar();
 	virtual Menu * fileMenu();
@@ -46,22 +61,19 @@ public:
 	virtual Menu * helpMenu();
 	virtual void setDockBadge(const QString & badgeText);
 	virtual void setDockOverlayImage(const QImage & image, Qt::Alignment alignment = Qt::AlignCenter, bool showAppIcon = true);
+	virtual bool isRequestUserAttentionPresent() const { return true; }
 	virtual void requestUserAttention();
-	virtual void postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
-	virtual void showGrowlPreferencePane();
-	virtual void setCustomBorderColor(const QColor & color);
-	virtual void setCustomTitleColor(const QColor & color);
-	virtual void setWindowMovableByBackground(QWidget * window, bool movable);
+	virtual void postSystemNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id);
+	virtual void showSystemNotificationsSettings();
 public slots:
+	//IMacIntegration
 	virtual void startDockAnimation();
 	virtual void startDockAnimation(const QImage & imageToRotate, Qt::Alignment align = Qt::AlignCenter);
 	virtual void startDockAnimation(QList<QImage> imageSequence, Qt::Alignment align = Qt::AlignCenter);
 	virtual void stopDockAnimation();
-public:
-	virtual bool isDockAnimationRunning() const;
 signals:
 	void dockClicked();
-	void growlNotifyClicked(int);
+	void systemNotificationClicked(int);
 private:
 	void initMenus();
 	void initDock();

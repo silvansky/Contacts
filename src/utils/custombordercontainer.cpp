@@ -27,6 +27,7 @@
 #include "log.h"
 #include "iconstorage.h"
 #include "custombordercontainer_p.h"
+#include "imagemanager.h"
 
 #ifdef DEBUG_ENABLED
 # include <QDebug>
@@ -34,9 +35,12 @@
 
 #ifdef Q_WS_WIN
 # include <qt_windows.h>
+# include <shellapi.h>
 #elif defined Q_WS_MAC
 # include "macwidgets.h"
 #endif
+
+#define SHOW_IN_TASKBAR_FLAG (Qt::SplashScreen)
 
 // internal functions
 static void repaintRecursive(QWidget *widget, const QRect & globalRect)
@@ -233,28 +237,7 @@ void CustomBorderContainerPrivate::setAllDefaults()
 
 QColor CustomBorderContainerPrivate::parseColor(const QString & name)
 {
-	QColor color;
-	if (QColor::isValidColor(name))
-		color.setNamedColor(name);
-	else
-	{
-		// trying to parse "#RRGGBBAA" color
-		if (name.length() == 9)
-		{
-			QString solidColor = name.left(7);
-			if (QColor::isValidColor(solidColor))
-			{
-				color.setNamedColor(solidColor);
-				int alpha = name.right(2).toInt(0, 16);
-				color.setAlpha(alpha);
-			}
-		}
-	}
-
-	if (!color.isValid())
-		LogError(QString("[CustomBorderContainerPrivate] Can\'t parse color: %1").arg(name));
-
-	return color;
+	return ImageManager::resolveColor(name);
 }
 
 // HINT: only linear gradients are supported for now
@@ -789,7 +772,7 @@ void CustomBorderContainer::setResizable(bool resizable)
 
 bool CustomBorderContainer::isShowInTaskBarEnabled() const
 {
-	return !(windowFlags() & (Qt::Tool ^ Qt::Window));
+	return !(windowFlags() & (SHOW_IN_TASKBAR_FLAG ^ Qt::Window));
 }
 
 void CustomBorderContainer::setShowInTaskBar(bool show)
@@ -800,11 +783,11 @@ void CustomBorderContainer::setShowInTaskBar(bool show)
 	if (show)
 	{
 		if (!isShowInTaskBarEnabled())
-			setWindowFlags((windowFlags() ^ Qt::Tool) | Qt::Window);
+			setWindowFlags((windowFlags() ^ SHOW_IN_TASKBAR_FLAG) | Qt::Window);
 	}
 	else if (isShowInTaskBarEnabled())
 	{
-		setWindowFlags(windowFlags() | Qt::Tool);
+		setWindowFlags(windowFlags() | SHOW_IN_TASKBAR_FLAG);
 	}
 	if (wasVisible)
 		this->show();
@@ -1125,21 +1108,6 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 
 	//static QStringList exceptions;
 	// TODO: make this list customizable
-//	if (exceptions.isEmpty())
-//		exceptions << "QAbstractButton"
-//			   << "QLineEdit"
-//			   << "QTextEdit"
-//			   << "QScrollBar"
-//			   << "QWebView"
-//			   << "QAbstractItemView";
-//	foreach (QString item, exceptions)
-//	{
-//		if (obj->inherits(item.toLatin1()))
-//		{
-//			filter = false;
-//			break;
-//		}
-//	}
 	// TODO: optimize
 	if (qobject_cast<QAbstractButton*>(obj) ||
 			qobject_cast<QLineEdit*>(obj) ||
@@ -2445,7 +2413,18 @@ void CustomBorderContainer::maximizeWidget()
 	{
 		normalGeometry = geometry();
 		setLayoutMargins();
-		setGeometry(qApp->desktop()->availableGeometry(this));
+		QRect availGeometry = qApp->desktop()->availableGeometry(this);
+#ifdef Q_WS_WIN
+		APPBARDATA pabd;
+		memset(&pabd, 0, sizeof(APPBARDATA));
+		pabd.cbSize = sizeof(APPBARDATA);
+		UINT state = SHAppBarMessage(ABM_GETSTATE, &pabd);
+		if (state & ABS_AUTOHIDE)
+		{
+			availGeometry.moveBottom(availGeometry.bottom() - 1);
+		}
+#endif
+		setGeometry(availGeometry);
 		//updateShape();
 	}
 }

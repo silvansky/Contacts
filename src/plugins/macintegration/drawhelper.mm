@@ -112,10 +112,6 @@ static NSColor * gTitleColor = nil;
 		[str drawWithRect:textRect options: NSStringDrawingUsesLineFragmentOrigin];
 		[str release];
 	}
-	else
-	{
-		//NSLog(@"system text color: %@", color);
-	}
 }
 
 - (NSRect)_titlebarTitleRect

@@ -2,6 +2,7 @@
 
 #include <QPainter>
 #include <QPaintEvent>
+#include <QImage>
 #include <QHBoxLayout>
 #include <utils/actionbutton.h>
 #include <utils/graphicseffectsstorage.h>
@@ -19,6 +20,7 @@ InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 
 	ui.wdtActions->setLayout(new QHBoxLayout);
 	ui.wdtActions->layout()->setMargin(0);
+	ui.wdtActions->setProperty("ignoreFilter", true);
 
 	FActiveNotice = -1;
 
@@ -87,7 +89,9 @@ void InternalNoticeWidget::removeNotice(int ANoticeId)
 	{
 		IInternalNotice notice = FNotices.take(ANoticeId);
 		FNoticeQueue.remove(notice.priority,ANoticeId);
+		FActionLabels.clear();
 		qDeleteAll(notice.actions);
+		notice.actions.clear();
 		emit noticeRemoved(ANoticeId);
 		updateNotice();
 	}
@@ -101,8 +105,8 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 {
 	if (FActiveNotice != ANoticeId)
 	{
-		FButtonsCleanup.clear();
-		static QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding);
+		FActionWidgetsCleanup.clear();
+		static QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding);
 		ui.wdtActions->layout()->removeItem(spacer);
 		if (ANoticeId > 0)
 		{
@@ -117,16 +121,49 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 				ui.lblIcon->setVisible(false);
 
 			ui.lblCaption->setText(notice.caption);
+			ui.lblCaption->setVisible(!notice.caption.isEmpty());
 			ui.lblMessage->setText(notice.message);
+			ui.lblMessage->setVisible(!notice.message.isEmpty());
 
 			foreach(Action *action, notice.actions)
 			{
-				ActionButton *button = new ActionButton(action, ui.wdtActions);
-				button->addTextFlag(TF_LIGHTSHADOW);
-				button->setText(action->text());
-				connect(action,SIGNAL(triggered()),SLOT(onNoticeActionTriggered()));
-				ui.wdtActions->layout()->addWidget(button);
-				FButtonsCleanup.add(button);
+				IInternalNotice::ActionType type = (IInternalNotice::ActionType)action->data(IInternalNotice::TypeRole).toInt();
+				switch (type)
+				{
+				case IInternalNotice::ImageAction:
+					{
+						QImage img = action->data(IInternalNotice::ImageRole).value<QImage>();
+						if (!img.isNull())
+						{
+							QLabel *imageLabel = new QLabel(ui.wdtActions);
+							imageLabel->setPixmap(QPixmap::fromImage(img));
+							imageLabel->setCursor(QCursor(Qt::PointingHandCursor));
+							imageLabel->setToolTip(action->text());
+							imageLabel->setProperty("ignoreFilter", true);
+							FActionLabels.insert(imageLabel, action);
+							imageLabel->installEventFilter(this);
+							ui.wdtActions->layout()->addWidget(imageLabel);
+							FActionWidgetsCleanup.add(imageLabel);
+						}
+						break;
+					}
+				case IInternalNotice::LinkAction:
+					{
+						// TODO: create a label with a link
+						break;
+					}
+				case IInternalNotice::ButtonAction:
+				default:
+					{
+						ActionButton *button = new ActionButton(action, ui.wdtActions);
+						button->addTextFlag(TF_LIGHTSHADOW);
+						button->setText(action->text());
+						connect(action,SIGNAL(triggered()),SLOT(onNoticeActionTriggered()));
+						ui.wdtActions->layout()->addWidget(button);
+						FActionWidgetsCleanup.add(button);
+						break;
+					}
+				}
 			}
 			ui.wdtActions->layout()->addItem(spacer);
 			ui.wdtActions->setVisible(!notice.actions.isEmpty());
@@ -155,6 +192,19 @@ void InternalNoticeWidget::paintEvent(QPaintEvent *AEvent)
 	QPainter p(this);
 	p.setClipRect(AEvent->rect());
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+bool InternalNoticeWidget::eventFilter(QObject * obj, QEvent * evt)
+{
+	if (evt->type() == QEvent::MouseButtonRelease)
+	{
+		if (QLabel * lbl = qobject_cast<QLabel*>(obj))
+		{
+			Action * a = FActionLabels.value(lbl);
+			a->trigger();
+		}
+	}
+	return QWidget::eventFilter(obj, evt);
 }
 
 void InternalNoticeWidget::onReadyTimerTimeout()

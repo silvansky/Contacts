@@ -18,13 +18,13 @@ unix:DESTDIR        = ../../../plugins
 #Windows resources
 win32:RC_FILE       = plugin_resources.rc
 
-#Translation
-TRANS_SOURCE_ROOT   = ../..
-include(../translations.inc)
-
 #Install
 target.path         = $$INSTALL_PLUGINS
 INSTALLS           += target
+
+#Translation
+TRANS_SOURCE_ROOT   = ../..
+include(../translations.inc)
 
 #MaxOS Install
 macx {

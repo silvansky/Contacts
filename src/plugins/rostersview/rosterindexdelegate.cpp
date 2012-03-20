@@ -7,13 +7,15 @@
 #include <QLineEdit>
 #include <utils/iconstorage.h>
 #include <utils/imagemanager.h>
+#include <utils/stylestorage.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/textflags.h>
+#include <definitions/resources.h>
 #include <interfaces/ipresence.h>
 #include "rostersviewplugin.h"
 
-#define BRANCH_WIDTH  10
+//#define branchWidth  10
 
 RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QStyledItemDelegate(AParent)
 {
@@ -23,7 +25,6 @@ RosterIndexDelegate::RosterIndexDelegate(QObject *AParent) : QStyledItemDelegate
 
 RosterIndexDelegate::~RosterIndexDelegate()
 {
-
 }
 
 void RosterIndexDelegate::paint(QPainter *APainter, const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
@@ -34,8 +35,14 @@ void RosterIndexDelegate::paint(QPainter *APainter, const QStyleOptionViewItem &
 QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const QModelIndex &AIndex) const
 {
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
-	const int hMargin = 7;
-	const int vMargin = 2;
+
+	static const int hMargin = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DELEGATE_MARGIN_H);
+	static const int vMargin = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DELEGATE_MARGIN_V);
+
+	static const int groupHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DELEGATE_GROUP_HEIGHT);
+	static const int contactFullHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DELEGATE_CONTACT_FULL_HEIGHT);
+	static const int contactMiniHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DELEGATE_CONTACT_MINI_HEIGHT);
+	static const int branchWidth = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DELEGATE_BRANCH_WIDTH);
 
 	QSize leftCenter(0,0);
 	QSize middleTop(0,0);
@@ -44,8 +51,8 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 
 	if (AIndex.parent().isValid() && AIndex.model()->hasChildren(AIndex))
 	{
-		leftCenter.rwidth() += BRANCH_WIDTH;
-		leftCenter.rheight() += BRANCH_WIDTH;
+		leftCenter.rwidth() += branchWidth;
+		leftCenter.rheight() += branchWidth;
 	}
 
 	QList<LabelItem> labels = itemLabels(AIndex);
@@ -93,14 +100,14 @@ QSize RosterIndexDelegate::sizeHint(const QStyleOptionViewItem &AOption, const Q
 	case RIT_GROUP_NOT_IN_ROSTER:
 	case RIT_GROUP_MY_RESOURCES:
 	case RIT_GROUP_AGENTS:
-		hint.setHeight(18);
+		hint.setHeight(groupHeight);
 		break;
 	case RIT_CONTACT:
 	case RIT_METACONTACT:
 		if (Options::node(OPV_ROSTER_SHOWSTATUSTEXT).value().toBool() && Options::node(OPV_AVATARS_SHOW).value().toBool())
-			hint.setHeight(42);
+			hint.setHeight(contactFullHeight);
 		else
-			hint.setHeight(30);
+			hint.setHeight(contactMiniHeight);
 		break;
 	case RIT_SEARCH_EMPTY:
 		hint.setHeight(hint.height() * 2);
@@ -183,8 +190,12 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 
 	QStyleOptionViewItemV4 option = indexOptions(AIndex,AOption);
 
-	int hMargin = 7;
-	int vMargin = 1;
+	static const int hMargin = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DELEGATE_MARGIN_DRAW_H);
+	static const int vMarginBase = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DELEGATE_MARGIN_DRAW_V);
+	static const int branchWidth = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DELEGATE_BRANCH_WIDTH);
+	static const qreal dragBorderWidth = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleReal(SV_RV_DELEGATE_DRAG_BORDER_WIDTH);
+
+	int vMargin = vMarginBase;
 
 	int labelFlags = TF_NOSHADOW;
 
@@ -237,9 +248,8 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 			// draw dragging background
 			APainter->save();
 			APainter->translate(paintRect.topLeft());
-			qreal border = 10.0; // yao magic number
 			QImage bg = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_DRAGGED_ITEM);
-			ImageManager::drawNinePartImage(bg, paintRect, border, APainter);
+			ImageManager::drawNinePartImage(bg, paintRect, dragBorderWidth, APainter);
 			APainter->restore();
 		}
 	}
@@ -248,13 +258,13 @@ QHash<int,QRect> RosterIndexDelegate::drawIndex(QPainter *APainter, const QStyle
 	{
 		QStyleOptionViewItemV4 brachOption(option);
 		brachOption.state |= QStyle::State_Children;
-		brachOption.rect = QStyle::alignedRect(option.direction, Qt::AlignVCenter | Qt::AlignLeft, QSize(BRANCH_WIDTH, BRANCH_WIDTH), paintRect);
+		brachOption.rect = QStyle::alignedRect(option.direction, Qt::AlignVCenter | Qt::AlignLeft, QSize(branchWidth, branchWidth), paintRect);
 		brachOption.rect.moveTop(brachOption.rect.top() - 1);
 		if (APainter && !isDragged)
 		{
 			APainter->drawImage(brachOption.rect, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(brachOption.state & QStyle::State_Open ? MNI_ROSTERVIEW_GROUP_OPENED : MNI_ROSTERVIEW_GROUP_CLOSED));
 		}
-		removeWidth(paintRect, BRANCH_WIDTH, AOption.direction == Qt::LeftToRight);
+		removeWidth(paintRect, branchWidth, AOption.direction == Qt::LeftToRight);
 		rectHash.insert(RLID_INDICATORBRANCH, brachOption.rect);
 		vMargin += 1;
 	}

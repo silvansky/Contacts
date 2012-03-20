@@ -7,6 +7,7 @@ const QList<int> GroupsWithCounter = QList<int>() << RIT_GROUP << RIT_GROUP_BLAN
 
 RostersViewPlugin::RostersViewPlugin()
 {
+	FGateways = NULL;
 	FRostersModel = NULL;
 	FMainWindowPlugin = NULL;
 	FOptionsManager = NULL;
@@ -93,6 +94,12 @@ bool RostersViewPlugin::initConnections(IPluginManager *APluginManager, int &/*A
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
 	}
 
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+	{
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+	}
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
@@ -131,6 +138,7 @@ bool RostersViewPlugin::initObjects()
 		//FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
 
 		FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0,FRostersView);
+		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(FRostersView);
 	}
 
 	if (FRostersModel)
@@ -260,10 +268,17 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		{
 		case Qt::DisplayRole:
 			{
-				Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
-					display = indexJid.bare();
+				{
+					Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
+					if (FGateways)
+					{
+						Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+						contactJid = FGateways->legacyIdFromUserJid(streamJid,contactJid);
+					}
+					display = contactJid.bare();
+				}
 				return display;
 			}
 		}

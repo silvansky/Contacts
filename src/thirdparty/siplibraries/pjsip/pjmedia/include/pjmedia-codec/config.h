@@ -404,6 +404,11 @@
 #   define PJMEDIA_HAS_FFMPEG_CODEC_H264	0
 #endif
 
+
+#ifndef PJMEDIA_HAS_X264_CODEC
+#   define PJMEDIA_HAS_X264_CODEC	0
+#endif
+
 /**
  * @}
  */

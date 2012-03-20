@@ -62,5 +62,21 @@
         <source>Name and password is required to connect</source>
         <translation>Для подключения требуются логин и пароль</translation>
     </message>
+    <message>
+        <source>Host</source>
+        <translation>Хост</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>Порт</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Логин</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
 </context>
 </TS>

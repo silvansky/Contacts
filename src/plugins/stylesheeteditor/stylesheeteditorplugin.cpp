@@ -34,13 +34,11 @@ bool StyleSheetEditorPlugin::initConnections(IPluginManager *APluginManager, int
 		mainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
 	}
 
-#ifdef Q_WS_MAC
-	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+	plugin = APluginManager->pluginInterface("ISystemIntegration").value(0,NULL);
 	if (plugin)
 	{
-		macIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
+		systemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
 	}
-#endif
 	return (pluginManager);
 }
 
@@ -54,10 +52,8 @@ bool StyleSheetEditorPlugin::initObjects()
 	connect(showDialog, SIGNAL(triggered()), SLOT(showEditDialog()));
 	if (mainWindowPlugin)
 		mainWindowPlugin->mainWindow()->mainMenu()->addAction(showDialog);
-#ifdef Q_WS_MAC
-	if (macIntegration)
-		macIntegration->windowMenu()->addAction(showDialog, 510);
-#endif
+	if (systemIntegration)
+		systemIntegration->addAction(ISystemIntegration::WindowRole, showDialog, 510);
 	return true;
 }
 

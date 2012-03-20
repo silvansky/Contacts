@@ -598,18 +598,22 @@ QIcon MetaTabWindow::createNotifyBalloon(int ACount) const
 {
 	QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON, 0));
 	QPainter painter(&balloon);
-	// TODO: make this customizable through style sheets/properties
 	QFont f = painter.font();
-	f.setPointSize(7);
-	f.setBold(true);
+	f.setPointSize(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MTW_NOTIFY_BALLOON_FONT_SIZE));
+	f.setBold(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleBool(SV_MTW_NOTIFY_BALLOON_FONT_BOLD));
 	painter.setFont(f);
 	QPen pen = painter.pen();
-	pen.setColor(QColor::fromRgb(55, 61, 67));
+	pen.setColor(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_MTW_NOTIFY_BALLOON_COLOR));
 	painter.setPen(pen);
 	QString text = QString::number(ACount);
 	QSize textSize = painter.fontMetrics().size(Qt::TextSingleLine, text);
 	QRect textRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, textSize, balloon.rect());
-	textRect.moveTopLeft(textRect.topLeft() + QPoint(0, -1)); // some magic numbers... may change
+
+	// reading offset from style...
+	static const int xOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MTW_NOTIFY_BALLOON_TEXT_OFFSET_X);
+	static const int yOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MTW_NOTIFY_BALLOON_TEXT_OFFSET_Y);
+
+	textRect.moveTopLeft(textRect.topLeft() + QPoint(xOffset, yOffset));
 	painter.drawText(textRect,text);
 	QIcon icon;
 	icon.addPixmap(balloon);
@@ -637,7 +641,7 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 		IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
 		QString pageId = insertPage(descriptor.metaOrder,descriptor.combine);
 		setPageIcon(pageId,descriptor.icon);
-		setPageName(pageId,FMetaContacts->itemHint(itemJid));
+		setPageName(pageId,FMetaContacts->itemFormattedLogin(itemJid));
 
 		FItemPages.insert(itemJid,pageId);
 		FItemTypeCount[descriptor.metaOrder]++;
@@ -1020,7 +1024,7 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 	if (action)
 	{
 		Jid itemJid = action->data(ADR_ITEM_JID).toString();
-		QString title = tr("Remove contact '%1'").arg(Qt::escape(FMetaContacts->itemHint(itemJid)));
+		QString title = tr("Remove contact '%1'").arg(Qt::escape(FMetaContacts->itemFormattedLogin(itemJid)));
 		QString message = tr("All contacts and communication history with that person will be removed. Operation can not be undone.");
 
 		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::None);

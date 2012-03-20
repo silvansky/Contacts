@@ -18,8 +18,10 @@
 #include <utils/imagemanager.h>
 #include <utils/options.h>
 #include <utils/custominputdialog.h>
+#include <utils/stylestorage.h>
 #include <definitions/optionnodes.h>
 #include <definitions/optionvalues.h>
+#include <definitions/resources.h>
 
 #ifdef DEBUG_ENABLED
 # include <QDebug>
@@ -77,6 +79,16 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	_dockMenu = _fileMenu = _editMenu = _viewMenu = _statusMenu = _windowMenu = _helpMenu = NULL;
 	_menuBar = NULL;
 	lastFocusedWidget = NULL;
+	pluginManager = NULL;
+	accountManager = NULL;
+	rosterChanger = NULL;
+	optionsManager = NULL;
+	rosterSearch = NULL;
+	mainWindow = NULL;
+	metaContacts = NULL;
+	statusChanger = NULL;
+	emoticons = NULL;
+	messageWidgets = NULL;
 	// dummi translations
 	tr("New Message");
 	tr("New E-Mail");
@@ -86,11 +98,9 @@ MacIntegrationPlugin::MacIntegrationPlugin()
 	tr("Error");
 	tr("Subscription Message");
 	// custom window frame
-	// TODO: read these colors from style
 	MacIntegrationPrivate::installCustomFrame();
-	setCustomBorderColor(QColor(65, 70, 77, 255).lighter());
-	setCustomTitleColor(QColor(240, 240, 240, 255));
-	//setCustomTitleColor(QColor(0, 0, 0, 255));
+	setCustomBorderColor(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_MAC_CUSTOM_HEADER_COLOR));
+	setCustomTitleColor(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_MAC_CUSTOM_HEADER_TEXT_COLOR));
 }
 
 MacIntegrationPlugin::~MacIntegrationPlugin()
@@ -112,88 +122,8 @@ bool MacIntegrationPlugin::initConnections(IPluginManager *APluginManager, int &
 {
 	Q_UNUSED(AInitOrder)
 
-	// init menus and dock
-	initMenus();
-	initDock();
-
 	pluginManager = APluginManager;
 
-	if (APluginManager)
-	{
-		connect(APluginManager->instance(),SIGNAL(aboutToQuit()),SLOT(onAboutToQuit()));
-
-		IPlugin *plugin = APluginManager->pluginInterface("IAccountManager").value(0,NULL);
-		if (plugin)
-		{
-			accountManager = qobject_cast<IAccountManager *>(plugin->instance());
-		}
-
-		plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
-		if (plugin)
-		{
-			rosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
-		}
-
-		plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
-		if (plugin)
-		{
-			optionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-			if (optionsManager)
-			{
-				connect(optionsManager->instance(), SIGNAL(profileOpened(const QString &)), SLOT(onProfileOpened(const QString &)));
-				connect(optionsManager->instance(), SIGNAL(profileClosed(const QString &)), SLOT(onProfileClosed(const QString &)));
-			}
-		}
-
-		plugin = APluginManager->pluginInterface("IRosterSearch").value(0,NULL);
-		if (plugin)
-		{
-			rosterSearch = qobject_cast<IRosterSearch *>(plugin->instance());
-		}
-
-		plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
-		if (plugin)
-		{
-			mainWindow = qobject_cast<IMainWindowPlugin *>(plugin->instance());
-		}
-
-		plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
-		if (plugin)
-		{
-			metaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
-			if (metaContacts)
-			{
-				connect(metaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow *)), SLOT(onMetaTabWindowCreated(IMetaTabWindow *)));
-			}
-		}
-
-		plugin = APluginManager->pluginInterface("IStatusChanger").value(0,NULL);
-		if (plugin)
-		{
-			statusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
-			if (statusChanger)
-			{
-				connect(statusChanger->instance(), SIGNAL(statusChanged(const Jid&, int)), SLOT(onStatusChanged(const Jid&,int)));
-				connect(statusChanger->instance(), SIGNAL(statusItemAdded(int)), SLOT(onStatusItemAdded(int)));
-				connect(statusChanger->instance(), SIGNAL(statusItemChanged(int)), SLOT(onStatusItemChanged(int)));
-				connect(statusChanger->instance(), SIGNAL(statusItemRemoved(int)), SLOT(onStatusItemRemoved(int)));
-			}
-		}
-
-		plugin = APluginManager->pluginInterface("IEmoticons").value(0,NULL);
-		if (plugin)
-		{
-			emoticons = qobject_cast<IEmoticons *>(plugin->instance());
-		}
-
-		plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
-		if (plugin)
-		{
-			messageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
-		}
-	}
-
-	connect(Options::instance(), SIGNAL(optionsChanged(const OptionsNode&)), SLOT(onOptionsChanged(const OptionsNode&)));
 	return true;
 }
 
@@ -205,6 +135,21 @@ bool MacIntegrationPlugin::initObjects()
 bool MacIntegrationPlugin::initSettings()
 {
 	return true;
+}
+
+bool MacIntegrationPlugin::isSystemNotificationsAccessible() const
+{
+	return MacIntegrationPrivate::isGrowlInstalled();
+}
+
+QString MacIntegrationPlugin::systemNotificationsSystemName() const
+{
+	return "Growl";
+}
+
+bool MacIntegrationPlugin::isSystemNotificationsSettingsAccessible() const
+{
+	return MacIntegrationPrivate::isGrowlInstalled();
 }
 
 Menu * MacIntegrationPlugin::dockMenu()
@@ -262,7 +207,7 @@ void MacIntegrationPlugin::requestUserAttention()
 	MacIntegrationPrivate::requestAttention();
 }
 
-void MacIntegrationPlugin::postGrowlNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)
+void MacIntegrationPlugin::postSystemNotify(const QImage & icon, const QString & title, const QString & text, const QString & type, int id)
 {
 	QString croppedText = text;
 	if (croppedText.length() > 140)
@@ -270,7 +215,7 @@ void MacIntegrationPlugin::postGrowlNotify(const QImage & icon, const QString & 
 	MacIntegrationPrivate::postGrowlNotify(icon, title, croppedText, type, id);
 }
 
-void MacIntegrationPlugin::showGrowlPreferencePane()
+void MacIntegrationPlugin::showSystemNotificationsSettings()
 {
 	if (MacIntegrationPrivate::isGrowlInstalled())
 		MacIntegrationPrivate::showGrowlPrefPane();
@@ -324,6 +269,95 @@ void MacIntegrationPlugin::stopDockAnimation()
 bool MacIntegrationPlugin::isDockAnimationRunning() const
 {
 	return MacIntegrationPrivate::instance()->isDockAnimationRunning();
+}
+
+void MacIntegrationPlugin::init()
+{
+	// init menus and dock
+	initMenus();
+	initDock();
+
+	if (pluginManager)
+	{
+		connect(pluginManager->instance(),SIGNAL(aboutToQuit()),SLOT(onAboutToQuit()));
+
+		IPlugin *plugin = pluginManager->pluginInterface("IAccountManager").value(0,NULL);
+		if (plugin)
+		{
+			accountManager = qobject_cast<IAccountManager *>(plugin->instance());
+		}
+
+		plugin = pluginManager->pluginInterface("IRosterChanger").value(0,NULL);
+		if (plugin)
+		{
+			rosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+		}
+
+		plugin = pluginManager->pluginInterface("IOptionsManager").value(0,NULL);
+		if (plugin)
+		{
+			optionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+			if (optionsManager)
+			{
+				connect(optionsManager->instance(), SIGNAL(profileOpened(const QString &)), SLOT(onProfileOpened(const QString &)));
+				connect(optionsManager->instance(), SIGNAL(profileClosed(const QString &)), SLOT(onProfileClosed(const QString &)));
+			}
+		}
+
+		plugin = pluginManager->pluginInterface("IRosterSearch").value(0,NULL);
+		if (plugin)
+		{
+			rosterSearch = qobject_cast<IRosterSearch *>(plugin->instance());
+		}
+
+		plugin = pluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+		if (plugin)
+		{
+			mainWindow = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+		}
+
+		plugin = pluginManager->pluginInterface("IMetaContacts").value(0,NULL);
+		if (plugin)
+		{
+			metaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
+			if (metaContacts)
+			{
+				connect(metaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow *)), SLOT(onMetaTabWindowCreated(IMetaTabWindow *)));
+			}
+		}
+
+		plugin = pluginManager->pluginInterface("IStatusChanger").value(0,NULL);
+		if (plugin)
+		{
+			statusChanger = qobject_cast<IStatusChanger *>(plugin->instance());
+			if (statusChanger)
+			{
+				connect(statusChanger->instance(), SIGNAL(statusChanged(const Jid&, int)), SLOT(onStatusChanged(const Jid&,int)));
+				connect(statusChanger->instance(), SIGNAL(statusItemAdded(int)), SLOT(onStatusItemAdded(int)));
+				connect(statusChanger->instance(), SIGNAL(statusItemChanged(int)), SLOT(onStatusItemChanged(int)));
+				connect(statusChanger->instance(), SIGNAL(statusItemRemoved(int)), SLOT(onStatusItemRemoved(int)));
+			}
+		}
+
+		plugin = pluginManager->pluginInterface("IEmoticons").value(0,NULL);
+		if (plugin)
+		{
+			emoticons = qobject_cast<IEmoticons *>(plugin->instance());
+		}
+
+		plugin = pluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
+		if (plugin)
+		{
+			messageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
+		}
+	}
+
+	connect(Options::instance(), SIGNAL(optionsChanged(const OptionsNode&)), SLOT(onOptionsChanged(const OptionsNode&)));
+}
+
+void MacIntegrationPlugin::finalize()
+{
+
 }
 
 void MacIntegrationPlugin::initMenus()
@@ -576,7 +610,7 @@ void MacIntegrationPlugin::initMenus()
 
 	funAction = new Action;
 	connect(funAction, SIGNAL(triggered()), SLOT(onFunAction()));
-	_helpMenu->addAction(funAction, 900);
+	//_helpMenu->addAction(funAction, 900);
 
 	funLinks.insert("http://eda.ru/", tr("What to cook for dinner?"));
 	funLinks.insert("http://avia.rambler.ru/anytime?f=MOW&t=TR&min_days=7&max_days=14&one_way=&week_days=&stops=&airlines=", tr("When is it cheaper to fly to Turkey?"));
@@ -615,7 +649,7 @@ void MacIntegrationPlugin::initDock()
 	connect(_dockMenu, SIGNAL(aboutToShow()), SLOT(onDockMenuAboutToShow()));
 
 	connect(MacIntegrationPrivate::instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
-	connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(growlNotifyClicked(int)));
+	connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(systemNotificationClicked(int)));
 	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
 }
 

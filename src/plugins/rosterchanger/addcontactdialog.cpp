@@ -52,7 +52,6 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	FRoster = ARoster;
 	FRosterChanger = ARosterChanger;
 
-	FServiceFailed = false;
 	FDialogState = -1;
 	FSelectProfileWidget = NULL;
 
@@ -72,7 +71,7 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 
 	connect(ui.pbtBack, SIGNAL(clicked()), SLOT(onBackButtonclicked()));
 	connect(ui.pbtContinue, SIGNAL(clicked()), SLOT(onContinueButtonClicked()));
-	connect(ui.pbtCancel, SIGNAL(clicked()), SLOT(onCancelButtonclicked()));
+	connect(ui.pbtCancel, SIGNAL(clicked()), SLOT(onCancelButtonClicked()));
 
 	ui.lblError->setVisible(false);
 	ui.lblErrorIcon->setVisible(false);
@@ -121,6 +120,7 @@ void AddContactDialog::setContactJid(const Jid &AContactJid)
 	{
 		QString contact = FGateways!=NULL ? FGateways->legacyIdFromUserJid(streamJid(),AContactJid) : AContactJid.bare();
 		setContactText(contact);
+		setGatewayJid(AContactJid.domain());
 	}
 }
 
@@ -167,13 +167,21 @@ void AddContactDialog::setGroup(const QString &AGroup)
 
 Jid AddContactDialog::gatewayJid() const
 {
-	return FSelectProfileWidget!=NULL ? FSelectProfileWidget->selectedProfile() : Jid::null;
+	return FSelectProfileWidget!=NULL ? FSelectProfileWidget->selectedProfile() : FGatewayJid;
 }
 
 void AddContactDialog::setGatewayJid(const Jid &AGatewayJid)
 {
-	if (FSelectProfileWidget)
-		FSelectProfileWidget->setSelectedProfile(AGatewayJid);
+	if (AGatewayJid == streamJid())
+	{
+		FGatewayJid = AGatewayJid;
+	}
+	else if (FGateways && FGateways->streamServices(streamJid()).contains(AGatewayJid))
+	{
+		if (FSelectProfileWidget)
+			FSelectProfileWidget->setSelectedProfile(AGatewayJid);
+		FGatewayJid = AGatewayJid;
+	}
 }
 
 QString AddContactDialog::parentMetaContactId() const
@@ -186,6 +194,12 @@ void AddContactDialog::setParentMetaContactId(const QString &AMetaId)
 	FParentMetaId = AMetaId;
 	ui.lneParamsNick->setVisible(FParentMetaId.isEmpty());
 	ui.cmbParamsGroup->setVisible(FParentMetaId.isEmpty());
+}
+
+void AddContactDialog::executeRequiredContactChecks()
+{
+	if (FDialogState==STATE_ADDRESS && ui.pbtContinue->isEnabled())
+		QTimer::singleShot(0,this,SLOT(onContinueButtonClicked()));
 }
 
 void AddContactDialog::initialize(IPluginManager *APluginManager)
@@ -262,7 +276,7 @@ void AddContactDialog::initGroups()
 		ui.cmbParamsGroup->setCurrentIndex(last);
 }
 
-void AddContactDialog::selectRosterIndex()
+void AddContactDialog::selectRosterIndex() const
 {
 	if (FRostersView)
 	{
@@ -271,7 +285,7 @@ void AddContactDialog::selectRosterIndex()
 		if (sroot)
 		{
 			QMultiMap<int, QVariant> findData;
-			if (FMetaRoster!=NULL)
+			if (FMetaRoster!=NULL && FMetaRoster->isEnabled())
 			{
 				findData.insert(RDR_TYPE,RIT_METACONTACT);
 				findData.insert(RDR_META_ID,FMetaRoster->itemMetaContact(contactJid()));
@@ -293,6 +307,29 @@ void AddContactDialog::selectRosterIndex()
 			}
 		}
 	}
+}
+
+void AddContactDialog::showChatDialogAndAccept()
+{
+	selectRosterIndex();
+	if (FMessageProcessor)
+		FMessageProcessor->createMessageWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+	accept();
+}
+
+bool AddContactDialog::isContactPresentInRoster() const
+{
+	if (contactJid().isValid())
+	{
+		IRosterItem ritem = FRoster->rosterItem(contactJid());
+		if (ritem.isValid && !FLinkedContacts.isEmpty())
+		{
+			if (FParentMetaId.isEmpty() || FParentMetaId==FContactMetaId)
+				return false;
+		}
+		return ritem.isValid;
+	}
+	return false;
 }
 
 QString AddContactDialog::defaultContactNick(const Jid &AContactJid) const
@@ -386,6 +423,7 @@ void AddContactDialog::updatePageParams(const IGateServiceDescriptor &ADescripto
 		connect(FSelectProfileWidget,SIGNAL(profilesChanged()),SLOT(onSelectedProfileChanched()));
 		connect(FSelectProfileWidget,SIGNAL(selectedProfileChanged()),SLOT(onSelectedProfileChanched()));
 		ui.wdtSelectProfile->layout()->addWidget(FSelectProfileWidget);
+		FSelectProfileWidget->setSelectedProfile(FGatewayJid);
 	}
 }
 
@@ -393,6 +431,7 @@ void AddContactDialog::setDialogState(int AState)
 {
 	if (AState != FDialogState)
 	{
+		FDialogState = AState;
 		if (AState == STATE_ADDRESS)
 		{
 			ui.wdtPageAddress->setVisible(true);
@@ -420,13 +459,9 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtPageParams->setVisible(true);
 			ui.wdtSelectProfile->setVisible(true);
 			ui.pbtBack->setVisible(true);
-			ui.pbtContinue->setText(tr("Add Contact"));
-
-			resolveContactJid();
 			resolveLinkedContactsJid();
+			resolveContactJid();
 		}
-
-		FDialogState = AState;
 	}
 }
 
@@ -445,6 +480,7 @@ void AddContactDialog::setRealContactJid(const Jid &AContactJid)
 	if (FAvatars)
 		FAvatars->insertAutoAvatar(ui.lblParamsPhoto,AContactJid,QSize(48, 48),"pixmap");
 	FContactJid = AContactJid.bare();
+	FContactMetaId = FMetaRoster!=NULL ? FMetaRoster->itemMetaContact(FContactJid) : QString::null;
 }
 
 void AddContactDialog::setResolveNickState(bool AResolve)
@@ -481,11 +517,12 @@ void AddContactDialog::resolveDescriptor()
 	QList<QString> confirmBlocked;
 	IGateServiceDescriptor readOnlyDescriptor;
 	QList<IGateServiceDescriptor> confirmDescriptors;
+
 	foreach(const IGateServiceDescriptor &descriptor, FGateways!=NULL ? FGateways->gateHomeDescriptorsByContact(contactText()) : confirmDescriptors)
 	{
 		if (!confirmTypes.contains(descriptor.type) && !confirmLinked.contains(descriptor.id) && !confirmBlocked.contains(descriptor.id))
 		{
-			if (!(descriptor.needGate && descriptor.readOnly))
+			if (!descriptor.needGate || !descriptor.readOnly)
 				confirmDescriptors.append(descriptor);
 			else
 				readOnlyDescriptor = descriptor;
@@ -495,9 +532,12 @@ void AddContactDialog::resolveDescriptor()
 		}
 	}
 
+	IGateServiceDescriptor gateDescriptor = FGateways!=NULL && FGatewayJid.isValid() ? FGateways->serviceDescriptor(streamJid(),FGatewayJid) : IGateServiceDescriptor();
 	for (QList<IGateServiceDescriptor>::iterator it=confirmDescriptors.begin(); it!=confirmDescriptors.end(); )
 	{
-		if (confirmLinked.contains(it->id) || confirmBlocked.contains(it->id))
+		if (!gateDescriptor.id.isEmpty() && it->type!=gateDescriptor.type)
+			it = confirmDescriptors.erase(it);
+		else if (confirmLinked.contains(it->id) || confirmBlocked.contains(it->id))
 			it = confirmDescriptors.erase(it);
 		else
 			it++;
@@ -519,7 +559,10 @@ void AddContactDialog::resolveDescriptor()
 	}
 	else if (!readOnlyDescriptor.id.isEmpty())
 	{
-		setErrorMessage(tr("You can add this contact only on %1 site.").arg(readOnlyDescriptor.name),false);
+		if (readOnlyDescriptor.id == GSID_ICQ)
+			setErrorMessage(tr("Currently you can’t add %1 contacts.").arg(readOnlyDescriptor.name),false);
+		else
+			setErrorMessage(tr("You can add this contact only on %1 site.").arg(readOnlyDescriptor.name),false);
 	}
 	else
 	{
@@ -533,9 +576,10 @@ void AddContactDialog::resolveContactJid()
 	bool nextResolve = false;
 
 	setRealContactJid(Jid::null);
+	ui.pbtContinue->setText(tr("Add Contact"));
 	QString contact = FGateways!=NULL ? FGateways->normalizedContactLogin(FDescriptor,contactText()) : contactText().trimmed();
 
-	Jid gateJid = FSelectProfileWidget->selectedProfile();
+	Jid gateJid = gatewayJid();
 	if (gateJid == streamJid())
 	{
 		nextResolve = true;
@@ -566,26 +610,12 @@ void AddContactDialog::resolveContactJid()
 
 void AddContactDialog::resolveContactName()
 {
-	if (contactJid().isValid())
+	if (FVcardPlugin && contactJid().isValid())
 	{
-		QString errMessage;
-		IRosterItem ritem = FRoster->rosterItem(contactJid());
-		if (!ritem.isValid)
-		{
-			if (FVcardPlugin)
-				FVcardPlugin->requestVCard(streamJid(), contactJid());
-			setResolveNickState(true);
-		}
-		else
-		{
-			ui.pbtContinue->setText(tr("Open"));
-			setNickName(!ritem.name.isEmpty() ? ritem.name : defaultContactNick(contactText()));
-			setGroup(ritem.groups.toList().value(0));
-			errMessage = tr("This contact is already present in your contact-list.");
-		}
-		setErrorMessage(errMessage,false);
+		FVcardPlugin->requestVCard(streamJid(), contactJid());
+		setResolveNickState(true);
 	}
-	ui.pbtContinue->setEnabled(contactJid().isValid());
+	resolveReady();
 }
 
 void AddContactDialog::resolveLinkedContactsJid()
@@ -629,6 +659,22 @@ void AddContactDialog::resolveLinkedContactsJid()
 	}
 }
 
+void AddContactDialog::resolveReady()
+{
+	if (FDialogState == STATE_PARAMS)
+	{
+		if (FLinkedJidRequests.isEmpty() && isContactPresentInRoster())
+		{
+			IRosterItem ritem = FRoster->rosterItem(contactJid());
+			ui.pbtContinue->setText(tr("Open"));
+			setNickName(!ritem.name.isEmpty() ? ritem.name : defaultContactNick(contactText()));
+			setGroup(ritem.groups.toList().value(0));
+			setErrorMessage(tr("This contact is already present in your contact-list."),false);
+		}
+		ui.pbtContinue->setEnabled(contactJid().isValid() && FLinkedJidRequests.isEmpty());
+	}
+}
+
 bool AddContactDialog::event(QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::LayoutRequest)
@@ -668,20 +714,19 @@ void AddContactDialog::onContinueButtonClicked()
 	{
 		if (contactJid().isValid())
 		{
-			if (FRoster->rosterItem(contactJid()).isValid)
+			if (isContactPresentInRoster())
 			{
-				selectRosterIndex();
-				if (FMessageProcessor)
-					FMessageProcessor->createMessageWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
-				accept();
+				showChatDialogAndAccept();
 			}
 			else if (FMetaRoster && FMetaRoster->isEnabled())
 			{
 				IMetaContact contact;
 				contact.name = nickName();
 				contact.groups += group();
-				contact.items += contactJid();
-				contact.items += FLinkedContacts.toSet();
+				contact.items = FLinkedContacts.toSet();
+
+				if (FContactMetaId.isEmpty())
+					contact.items += contactJid();
 
 				FContactCreateRequest = FMetaRoster->createContact(contact);
 				if (!FContactCreateRequest.isEmpty())
@@ -692,6 +737,7 @@ void AddContactDialog::onContinueButtonClicked()
 				}
 				else
 				{
+					FContactCreateRequest = "createError";
 					onMetaActionResult(FContactCreateRequest,ErrorHandler::conditionByCode(ErrorHandler::INTERNAL_SERVER_ERROR),tr("Failed to send request to the server"));
 				}
 			}
@@ -705,16 +751,14 @@ void AddContactDialog::onContinueButtonClicked()
 						FRosterChanger->subscribeContact(streamJid(),linkedJid,QString::null);
 					}
 				}
-
 				FRoster->setItem(contactJid(),nickName(),QSet<QString>()<<group());
 				FRosterChanger->subscribeContact(streamJid(),contactJid(),QString::null);
-				accept();
 			}
 		}
 	}
 }
 
-void AddContactDialog::onCancelButtonclicked()
+void AddContactDialog::onCancelButtonClicked()
 {
 	reject();
 }
@@ -773,9 +817,7 @@ void AddContactDialog::onNewGroupNameSelected(const QString &AGroup)
 void AddContactDialog::onSelectedProfileChanched()
 {
 	if (FDialogState == STATE_PARAMS)
-	{
 		resolveContactJid();
-	}
 }
 
 void AddContactDialog::onVCardReceived(const Jid &AContactJid)
@@ -809,6 +851,7 @@ void AddContactDialog::onLegacyContactJidReceived(const QString &AId, const Jid 
 		if (!FRoster->rosterItem(AUserJid).isValid)
 			FLinkedContacts.append(AUserJid);
 		FLinkedJidRequests.remove(AId);
+		resolveReady();
 	}
 }
 
@@ -823,6 +866,7 @@ void AddContactDialog::onGatewayErrorReceived(const QString &AId, const QString 
 	else if (FLinkedJidRequests.contains(AId))
 	{
 		FLinkedJidRequests.remove(AId);
+		resolveReady();
 	}
 }
 
@@ -832,12 +876,7 @@ void AddContactDialog::onRosterItemReceived(const IRosterItem &AItem, const IRos
 	if (AItem.itemJid == contactJid())
 	{
 		if (FMetaRoster==NULL || !FMetaRoster->isEnabled())
-		{
-			selectRosterIndex();
-			if (FMessageProcessor)
-				FMessageProcessor->createMessageWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
-			accept();
-		}
+			showChatDialogAndAccept();
 	}
 }
 
@@ -846,24 +885,27 @@ void AddContactDialog::onMetaActionResult(const QString &AActionId, const QStrin
 	Q_UNUSED(AErrCond);
 	if (FContactCreateRequest == AActionId)
 	{
-		QString metaId = FMetaRoster->itemMetaContact(contactJid());
+		QString metaId = FMetaRoster->itemMetaContact(FContactMetaId.isEmpty() ? contactJid() : FLinkedContacts.value(0));
 		if (!metaId.isEmpty())
 		{
-			if (!FParentMetaId.isEmpty() && !FMetaRoster->metaContact(FParentMetaId).id.isEmpty())
-			{
-				FMetaRoster->mergeContacts(FParentMetaId,QList<QString>()<<metaId);
-			}
-			else if (FMessageProcessor)
-			{
-				selectRosterIndex();
-				FMessageProcessor->createMessageWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
-			}
-			accept();
+			if (!FContactMetaId.isEmpty())
+				FContactMergeRequest = FMetaRoster->mergeContacts(FContactMetaId,QList<QString>()<<metaId);
+			else if (!FParentMetaId.isEmpty() && !FMetaRoster->metaContact(FParentMetaId).id.isEmpty())
+				FContactMergeRequest = FMetaRoster->mergeContacts(FParentMetaId,QList<QString>()<<metaId);
+			else
+				FContactMergeRequest = QString::null;
+
+			if (FContactMergeRequest.isEmpty())
+				showChatDialogAndAccept();
 		}
 		else
 		{
 			setErrorMessage(tr("Failed to add contact due to an error: %1").arg(AErrMessage),false);
 			setDialogEnabled(true);
 		}
+	}
+	else if (FContactMergeRequest == AActionId)
+	{
+		showChatDialogAndAccept();
 	}
 }

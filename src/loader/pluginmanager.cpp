@@ -12,7 +12,7 @@
 #include <definitions/fonts.h>
 #include <definitions/resources.h>
 #include <interfaces/imainwindow.h>
-#include <interfaces/imacintegration.h>
+#include <interfaces/isystemintegration.h>
 #include <utils/log.h>
 #include <utils/networking.h>
 #include <utils/custominputdialog.h>
@@ -347,6 +347,10 @@ void PluginManager::loadSettings()
 	FileStorage::setResourcesDirs(FileStorage::resourcesDirs()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");
+
+	QPalette pal = QApplication::palette();
+	pal.setColor(QPalette::Link, StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR));
+	QApplication::setPalette(pal);
 
 #ifdef Q_WS_MAC
 	//qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO512));
@@ -808,20 +812,22 @@ void PluginManager::createMenuActions()
 #endif
 	}
 
-	plugin = pluginInterface("IMacIntegration").value(0);
-	IMacIntegration *macIntegrationPligin = plugin ? qobject_cast<IMacIntegration *>(plugin->instance()) : NULL;
+	plugin = pluginInterface("ISystemIntegration").value(0);
+	ISystemIntegration *systemIntegrationPligin = plugin ? qobject_cast<ISystemIntegration *>(plugin->instance()) : NULL;
 
-	if (macIntegrationPligin)
+	if (systemIntegrationPligin)
 	{
 		Action *about = new Action();
 		about->setText("about.*");
 		connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
-		macIntegrationPligin->fileMenu()->addAction(about);
+		systemIntegrationPligin->addAction(ISystemIntegration::FileRole, about);
 
+#ifdef DEBUG_ENABLED
 		Action *pluginsDialog = new Action;
 		pluginsDialog->setText(tr("Setup plugins"));
 		connect(pluginsDialog,SIGNAL(triggered(bool)),SLOT(onShowSetupPluginsDialog(bool)));
-		macIntegrationPligin->windowMenu()->addAction(pluginsDialog, 510);
+		systemIntegrationPligin->addAction(ISystemIntegration::WindowRole, pluginsDialog, 510);
+#endif
 	}
 
 }

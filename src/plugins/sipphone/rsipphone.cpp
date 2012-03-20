@@ -1,8 +1,12 @@
 #include "rsipphone.h"
+
 //#include "vidwin.h"
 
 //#include "pjmedia\frame.h"
-#include <windows.h>
+
+#ifdef Q_WS_WIN32
+# include <windows.h>
+#endif
 
 #if defined(PJ_WIN32)
 #   define SDL_MAIN_HANDLED
@@ -488,8 +492,6 @@ void RSipPhone::onCallReleased()
 		_pPhoneWidget->deleteLater();
 		_pPhoneWidget = NULL;
 	}
-
-
 }
 
 
@@ -535,7 +537,7 @@ void RSipPhone::preview()
 		//_pVideoPrevWidget = new VidWin(&wi.hwnd);
 		//vbox_left->addWidget(video_prev_, 1);
 		//emit signalVideoPrevWidgetSet(_pVideoPrevWidget);
-		emit signalVideoPrevWidgetSet((HWND*)wi.hwnd.info.win.hwnd);
+		emit signalVideoPrevWidgetSet((void*)wi.hwnd.info.win.hwnd);
 
 
 
@@ -625,7 +627,12 @@ void RSipPhone::call(const char* uriToCall)
 	//pjsua_call_setting_default(&call_setting);
 	//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 
-	//status = pjsua_set_null_snd_dev();
+	// NULL SOUND
+	//int capture_dev = -99;
+	//int playback_dev = -99;
+	//pjsua_get_snd_dev(&capture_dev, &playback_dev);
+	////status = pjsua_set_null_snd_dev();
+	//pjsua_set_snd_dev(-99, playback_dev);
 
 
 	status = pjsua_call_make_call(_accountId, &uri, 0, NULL, NULL, &_currentCall);
@@ -635,7 +642,7 @@ void RSipPhone::call(const char* uriToCall)
 		if(status == PJMEDIA_EAUD_NODEFDEV)
 		{
 			//emit signal_DeviceError();
-			emit signal_InviteStatus(false, 2, "Some device initialization error");
+			emit signal_InviteStatus(false, 2, tr("Failed to find default audio device"));
 		}
 		showError("make call", status);
 		return;
@@ -758,7 +765,9 @@ void RSipPhone::initVideoWindow()
 			//emit signalVideoInputWidgetSet(_pVideoInputWidget);
 			//emit signalVideoInputWidgetSet((HWND*)wi.hwnd.info.win.hwnd);
 			emit signalShowSipPhoneWidget(wi.hwnd.info.win.hwnd);
+#ifdef Q_WS_WIN32
 			ShowWindow((HWND)wi.hwnd.info.win.hwnd, SW_HIDE);
+#endif
 
 			//preview();
 
@@ -1041,15 +1050,23 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 
 	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(_pPhoneWidget, CBS_VIDEOCALL);
-	border->setMinimizeButtonVisible(false);
-	border->setMaximizeButtonVisible(false);
-	border->setCloseButtonVisible(false);
-	border->setMovable(true);
-	border->setResizable(true);
-	border->resize(621, 480);
-	//border->installEventFilter(this);
-	//border->setStaysOnTop(true);
-	WidgetManager::alignWindow(border, Qt::AlignCenter);
+	if (border)
+	{
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+		border->setMovable(true);
+		border->setResizable(true);
+		border->resize(621, 480);
+		//border->installEventFilter(this);
+		//border->setStaysOnTop(true);
+		WidgetManager::alignWindow(border, Qt::AlignCenter);
+	}
+	else
+	{
+		_pPhoneWidget->resize(621, 480);
+		WidgetManager::alignWindow(_pPhoneWidget, Qt::AlignCenter);
+	}
 
 	//if(!_pWorkWidgetContainer.isNull())
 	//	delete _pWorkWidgetContainer;
@@ -1060,7 +1077,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 	//widget->show();
 	updateCallerName();
-	WidgetManager::showActivateRaiseWindow(border); //!!!!!!!!!!!!!!!!!!!!
+	WidgetManager::showActivateRaiseWindow(_pPhoneWidget->window()); //!!!!!!!!!!!!!!!!!!!!
 }
 
 
@@ -1146,16 +1163,15 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 		goto on_error;
 	}
 
-	pjsua_transport_config tcp_cfg;
-	pjsua_transport_config_default(&tcp_cfg);
-	tcp_cfg.port = 0;
-
-	status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
-	if (status != PJ_SUCCESS)
-	{
-		showError("TCP transport creation", status);
-		goto on_error;
-	}
+	//pjsua_transport_config tcp_cfg;
+	//pjsua_transport_config_default(&tcp_cfg);
+	//tcp_cfg.port = 0;
+	//status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
+	//if (status != PJ_SUCCESS)
+	//{
+	//	showError("TCP transport creation", status);
+	//	goto on_error;
+	//}
 
 	//
 	// Create account
@@ -1259,13 +1275,11 @@ on_error:
 }
 
 
-
-
-
 bool RSipPhone::initStack(const QString& sip_server, int sipPortNum, const QString& sip_username, const QString& sip_password, const QString& sip_domain)
 {
 	return RSipPhone::initStack(sip_server.toUtf8().data(), sipPortNum, sip_username.toUtf8().data(), sip_password.toUtf8().data(), sip_domain.toUtf8().data());
 }
+
 bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* sip_username, const char* sip_password, const char* sip_domain)
 {
 	if ( SDL_InitSubSystem(SDL_INIT_VIDEO) < 0 )
@@ -1298,7 +1312,13 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 	ua_cfg.cb.on_call_media_state = &::on_call_media_state;
 	ua_cfg.cb.on_call_tsx_state = &::on_call_tsx_state;
 
-	
+	ua_cfg.outbound_proxy_cnt = 1;
+	char proxyTmp[512];
+	//pj_ansi_strncpy(proxyTmp, sip_server, sizeof(proxyTmp));
+	pj_ansi_snprintf(proxyTmp, sizeof(proxyTmp), "sip:%s", sip_server);
+	//acc_cfg.proxy[0] = pj_str((char*)reg_uritmp);
+	ua_cfg.outbound_proxy[0] = pj_str((char*)proxyTmp);
+
 
 	pjsua_logging_config log_cfg;
 	pjsua_logging_config_default(&log_cfg);
@@ -1342,16 +1362,16 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 		goto on_error;
 	}
 
-	pjsua_transport_config tcp_cfg;
-	pjsua_transport_config_default(&tcp_cfg);
-	tcp_cfg.port = 0;
+	////pjsua_transport_config tcp_cfg;
+	////pjsua_transport_config_default(&tcp_cfg);
+	////tcp_cfg.port = 0;
 
-	status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
-	if (status != PJ_SUCCESS)
-	{
-		showError("TCP transport creation", status);
-		goto on_error;
-	}
+	////status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
+	////if (status != PJ_SUCCESS)
+	////{
+	////	showError("TCP transport creation", status);
+	////	goto on_error;
+	////}
 
 	//
 	// Create account
@@ -1374,12 +1394,12 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 		pj_ansi_snprintf(reg_uritmp, sizeof(reg_uritmp), "sip:%s", sip_domain);
 		acc_cfg.reg_uri = pj_str((char*)reg_uritmp);
 
-		acc_cfg.proxy_cnt = 1;
-		char proxyTmp[512];
-		//pj_ansi_strncpy(proxyTmp, sip_server, sizeof(proxyTmp));
-		pj_ansi_snprintf(proxyTmp, sizeof(proxyTmp), "sip:%s", sip_server);
-		//acc_cfg.proxy[0] = pj_str((char*)reg_uritmp);
-		acc_cfg.proxy[0] = pj_str((char*)proxyTmp);
+		//////////acc_cfg.proxy_cnt = 1;
+		//////////char proxyTmp[512];
+		////////////pj_ansi_strncpy(proxyTmp, sip_server, sizeof(proxyTmp));
+		//////////pj_ansi_snprintf(proxyTmp, sizeof(proxyTmp), "sip:%s", sip_server);
+		////////////acc_cfg.proxy[0] = pj_str((char*)reg_uritmp);
+		//////////acc_cfg.proxy[0] = pj_str((char*)proxyTmp);
 
 
 		acc_cfg.cred_count = 1;

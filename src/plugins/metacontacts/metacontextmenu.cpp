@@ -148,7 +148,7 @@ void MetaContextMenu::onCopyInfoAction()
 					itemLabel = tr("E-mail");
 				else
 					itemLabel = descriptor.name;
-				QString itemName = FMetaContacts->itemHint(jid);
+				QString itemName = FMetaContacts->itemFormattedLogin(jid);
 				text << QString("%1: %2").arg(itemLabel, itemName);
 			}
 		}

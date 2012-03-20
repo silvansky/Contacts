@@ -1,14 +1,17 @@
 #include "stylestorage.h"
 
+#include "imagemanager.h"
 #include <QDir>
 #include <QFile>
 #include <QWidget>
 #include <QVariant>
 #include <QFileInfo>
 #include <QApplication>
+#include <QtXml>
 
 #define FOLDER_DEFAULT         "images"
 #define IMAGES_FOLDER_PATH     "%IMAGES_PATH%"
+#define STYLEVALUES_FILE       "stylevalues.xml"
 
 QHash<QString, StyleStorage *> StyleStorage::FStaticStorages;
 QHash<QObject *, StyleStorage *> StyleStorage::FObjectStorage;
@@ -22,6 +25,7 @@ struct StyleStorage::StyleUpdateParams
 
 StyleStorage::StyleStorage(const QString &AStorage, const QString &ASubStorage, QObject *AParent) : FileStorage(AStorage,ASubStorage,AParent)
 {
+	FStyleValuesLoaded = false;
 	connect(this,SIGNAL(storageChanged()),SLOT(onStorageChanged()));
 }
 
@@ -108,6 +112,49 @@ QString StyleStorage::fileFullName(const QString AKey, int AIndex, const QString
 	return finfo.absoluteDir().absolutePath() + "/" +finfo.baseName() + suffix + "." + finfo.completeSuffix();
 }
 
+QVariant StyleStorage::getStyleValue(const QString & AKey)
+{
+	if (!FStyleValuesLoaded)
+		loadStyleValues();
+
+	QStringList keys;
+
+	foreach(QString suffix, systemStyleSuffixes())
+	{
+		keys += AKey + suffix;
+	}
+
+	keys += AKey;
+
+	foreach(QString key, keys)
+	{
+		if (FStyleValues.contains(key))
+			return FStyleValues.value(key);
+	}
+
+	return QVariant();
+}
+
+QColor StyleStorage::getStyleColor(const QString & AKey)
+{
+	return getStyleValue(AKey).value<QColor>();
+}
+
+int StyleStorage::getStyleInt(const QString & AKey)
+{
+	return getStyleValue(AKey).toInt();
+}
+
+qreal StyleStorage::getStyleReal(const QString & AKey)
+{
+	return getStyleValue(AKey).toReal();
+}
+
+bool StyleStorage::getStyleBool(const QString & AKey)
+{
+	return getStyleValue(AKey).toBool();
+}
+
 void StyleStorage::previewReset()
 {
 	onStorageChanged();
@@ -161,6 +208,53 @@ QStringList StyleStorage::systemStyleSuffixes()
 #endif
 	}
 	return _systemStyleSuffixes;
+}
+
+void StyleStorage::loadStyleValues()
+{
+	if (FStyleValuesLoaded)
+		return;
+
+	QStringList dirs = subStorageDirs(storage(), subStorage());
+
+	if (!dirs.count())
+		return;
+
+	QString dir = dirs.value(0);
+	QFile f(QString("%1/%2").arg(dir).arg(STYLEVALUES_FILE));
+
+	if (!f.open(QFile::ReadOnly))
+		return;
+
+	QDomDocument doc;
+	doc.setContent(f.readAll());
+	f.close();
+
+	QDomElement valueEl = doc.documentElement().firstChildElement("stylevalue");
+
+	QString key, type, value;
+
+	// TODO: add more types
+	while (!valueEl.isNull())
+	{
+		key = valueEl.attribute("key");
+		type = valueEl.attribute("type");
+		value = valueEl.attribute("value");
+		if (type == "color")
+		{
+			// parsing color
+			QColor c = ImageManager::resolveColor(value);
+			FStyleValues.insert(key, c);
+		}
+		else
+		{
+			// save as common variant
+			FStyleValues.insert(key, value);
+		}
+		valueEl = valueEl.nextSiblingElement("stylevalue");
+	}
+
+	FStyleValuesLoaded = true;
 }
 
 void StyleStorage::updateObject(QObject *AObject)

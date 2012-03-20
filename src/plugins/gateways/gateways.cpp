@@ -4,6 +4,9 @@
 #include <QTextDocument>
 #include <definitions/customborder.h>
 #include <utils/customborderstorage.h>
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_SERVICE_JID           Action::DR_Parametr1
@@ -37,7 +40,7 @@ Gateways::Gateways()
 	FMainWindowPlugin = NULL;
 	FNotifications = NULL;
 
-	FInternalNoticeId = -1;
+	FInternalServicesNoticeId = -1;
 
 	FKeepTimer.setSingleShot(false);
 	connect(&FKeepTimer,SIGNAL(timeout()),SLOT(onKeepTimerTimeout()));
@@ -147,7 +150,13 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 
 	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
 	if (plugin)
+	{
 		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+		if (FRosterChanger)
+		{
+			connect(FRosterChanger->instance(),SIGNAL(welcomeScreenVisibleChanged(bool)),SLOT(onWelcomeScreenVisibleChanged(bool)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
@@ -200,14 +209,13 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		}
 	}
 
-	return FStanzaProcessor!=NULL;
+	return FStanzaProcessor;
 }
 
 bool Gateways::initObjects()
 {
 	static const QString JabberContactPattern = "^"JID_NODE_PATTERN"@"JID_DOMAIN_PATTERN"$";
 
-	// !!    !!
 	IGateServiceDescriptor sms;
 	sms.id = GSID_SMS;
 	sms.needGate = true;
@@ -224,13 +232,14 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor icq;
 	icq.id = GSID_ICQ;
 	icq.needGate = true;
+	icq.readOnly = true;
 	icq.type = "icq";
 	icq.name = tr("ICQ");
 	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
 	icq.loginLabel = tr("Login");
 	icq.loginField = "username";
 	icq.passwordField = "password";
-	icq.homeContactPattern = "^\\d{5,10}$";
+	icq.homeContactPattern = "^(\\d{5,10}|"MAIL_NODE_PATTERN"@"JID_DOMAIN_PATTERN")$";
 	icq.availContactPattern = icq.homeContactPattern;
 	FGateDescriptors.append(icq);
 
@@ -419,7 +428,6 @@ bool Gateways::initObjects()
 	jabber.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(jabber);
 
-	//      ..   
 	IGateServiceDescriptor mail;
 	mail.id = GSID_MAIL;
 	mail.needGate = true;
@@ -730,8 +738,14 @@ QString Gateways::formattedContactLogin(const IGateServiceDescriptor &ADescripto
 	}
 	else if (ADescriptor.id == GSID_ICQ)
 	{
-		for(int pos=3; contact.length()-pos>=2; pos+=4)
-			contact.insert(pos,"-");
+		if (!contact.contains("@"))
+			for(int pos=3; contact.length()-pos>=2; pos+=4)
+				contact.insert(pos,"-");
+	}
+	else if (ADescriptor.id == GSID_FACEBOOK)
+	{
+		QString node = Jid(contact).node();
+		contact = QString("ID: %1").arg(node.right(node.length()-1));
 	}
 	else if (ADescriptor.type == "xmpp")
 	{
@@ -745,7 +759,6 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 	QString contact = AContact.trimmed();
 	if (!contact.isEmpty())
 	{
-		//    
 		if (ADescriptor.id == GSID_SMS)
 		{
 			QString number;
@@ -774,28 +787,25 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 		}
 		else if (ADescriptor.id == GSID_ICQ)
 		{
-			QString number;
-			for (int i=0; i<contact.length(); i++)
+			if (!contact.contains("@"))
 			{
-				QChar ch = contact.at(i);
-				if (ch.isDigit() || ch.isLetter())
-					number += ch;
+				QString number;
+				for (int i=0; i<contact.length(); i++)
+				{
+					QChar ch = contact.at(i);
+					if (ch.isDigit() || ch.isLetter())
+						number += ch;
+				}
+				contact = number;
 			}
-			contact = number;
 		}
 		else
 		{
-			//  ,   
 			if (AComplete && !ADescriptor.domainSeparator.isEmpty() && !contact.contains(ADescriptor.domainSeparator) && !ADescriptor.domains.isEmpty())
-			{
 				contact += ADescriptor.domainSeparator + ADescriptor.domains.value(0);
-			}
 
-			//  Jid Escaping
 			if (ADescriptor.type == "xmpp")
-			{
 				contact = Jid(contact).eFull();
-			}
 		}
 	}
 	return contact;
@@ -805,7 +815,6 @@ QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADes
 {
 	QString errMessage;
 
-	//    
 	if (ADescriptor.id == GSID_SMS)
 	{
 		bool validChars = true;
@@ -826,7 +835,6 @@ QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADes
 		}
 	}
 
-	//     
 	QRegExp availRegExp(ADescriptor.availContactPattern);
 	availRegExp.setCaseSensitivity(Qt::CaseInsensitive);
 	if (errMessage.isEmpty() && !availRegExp.exactMatch(AContact))
@@ -991,9 +999,9 @@ IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServ
 		}
 		if (login.isValid && !descriptor.domainSeparator.isEmpty() && login.domain.isEmpty())
 		{
-			QStringList parts = login.login.split(descriptor.domainSeparator);
-			login.login = parts.value(0);
-			login.domain = parts.value(1);
+			int sepPos = login.login.lastIndexOf(descriptor.domainSeparator);
+			login.domain = sepPos>=0 ? login.login.right(login.login.length()-sepPos-1) : QString::null;
+			login.login = sepPos>=0 ? login.login.left(sepPos) : login.login;
 			login.isValid = login.domain.isEmpty() || descriptor.domains.isEmpty() || descriptor.domains.contains(login.domain);
 		}
 	}
@@ -1074,7 +1082,7 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 		if (AEnabled)
 		{
 			if (FRosterChanger)
-				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,true,false);
+				FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,true,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Subscribe);
 			sendLogPresence(AStreamJid,AServiceJid,true);
@@ -1083,7 +1091,7 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 		else
 		{
 			if (FRosterChanger)
-				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
+				FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,false,true);
 			setKeepConnection(AStreamJid,AServiceJid,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribed);
@@ -1127,7 +1135,7 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 				if (ARemove)
 				{
 					oldItems.append(ritem);
-					FRosterChanger->insertAutoSubscribe(AStreamJid, ritem.itemJid, true, false, true);
+					FRosterChanger->insertAutoSubscribtion(AStreamJid, ritem.itemJid, true, false, true);
 				}
 			}
 		}
@@ -1138,8 +1146,8 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 		{
 			curItems+=newItems;
 			foreach(IRosterItem ritem, curItems)
-				FRosterChanger->insertAutoSubscribe(AStreamJid,ritem.itemJid, true, true, false);
-			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceTo,true,true,false);
+				FRosterChanger->insertAutoSubscribtion(AStreamJid,ritem.itemJid, true, true, false);
+			FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceTo,true,true,false);
 			roster->sendSubscription(AServiceTo,IRoster::Subscribe);
 		}
 
@@ -1156,7 +1164,7 @@ QString Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, b
 		LogDetail(QString("[Gateways] Removing service '%1', with_contacts='%2'").arg(AServiceJid.full()).arg(AWithContacts));
 
 		if (FRosterChanger)
-			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
+			FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,false,true);
 
 		QString requestId = FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid.full());
 		if (!requestId.isEmpty())
@@ -1256,13 +1264,12 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 			connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
 			connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
 			border->setResizable(false);
-			border->show();
-			border->adjustSize();
 		}
-		else
-		{
-			dialog->show();
-		}
+#ifdef Q_WS_MAC
+		setWindowGrowButtonEnabled(dialog->window(), false);
+#endif
+		dialog->window()->show();
+		dialog->window()->adjustSize();
 		return dialog;
 	}
 	return NULL;
@@ -1352,6 +1359,25 @@ void Gateways::removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJi
 		noticeWidget->removeNotice(FConflictNotices.value(AStreamJid).value(AServiceJid));
 }
 
+void Gateways::insertInternalServicesNotice()
+{
+	if (FMainWindowPlugin && FInternalServicesNoticeId==-1)
+	{
+		IInternalNotice notice;
+		notice.priority = INP_GATEWAYS_SERVICES;
+		notice.message = tr("Connect with other services to see all your friends in one place");
+
+		Action *action = new Action(this);
+		action->setData(IInternalNotice::TypeRole, IInternalNotice::ImageAction);
+		action->setData(IInternalNotice::ImageRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ALL_SERVICES));
+		action->setText(tr("Add my accounts..."));
+		connect(action, SIGNAL(triggered()), SLOT(onInternalServicesNoticeActionTriggered()));
+		notice.actions.append(action);
+
+		FInternalServicesNoticeId = FMainWindowPlugin->mainWindow()->noticeWidget()->insertNotice(notice);
+	}
+}
+
 void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
 {
 	if (FOptionsManager)
@@ -1388,7 +1414,7 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 	if (FDiscovery)
 	{
 		foreach(IRosterItem ritem, ARoster->rosterItems())
-			if (ritem.itemJid.node().isEmpty() && !FDiscovery->hasDiscoInfo(ARoster->streamJid(),ritem.itemJid))
+			if (ritem.itemJid.node().isEmpty())
 				FDiscovery->requestDiscoInfo(ARoster->streamJid(),ritem.itemJid);
 	}
 	if (FPrivateStorage)
@@ -1713,22 +1739,10 @@ void Gateways::onInternalNoticeReady()
 		if (streamServices(FOptionsStreamJid,identity).isEmpty() && !availServices(FOptionsStreamJid,identity).isEmpty())
 		{
 			int showCount = Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).value().toInt();
-			int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
 			QDateTime showLast = Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).value().toDateTime();
-			if (showCount <= 3 && (!showLast.isValid() || showLast.daysTo(QDateTime::currentDateTime())>=7*removeCount))
+			if (showCount<=3 && (!showLast.isValid() || showLast.daysTo(QDateTime::currentDateTime())>=7*showCount))
 			{
-				IInternalNotice notice;
-				notice.priority = INP_DEFAULT;
-				notice.iconStorage = RSR_STORAGE_MENUICONS;
-				notice.caption = tr("Add your accounts");
-				notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
-
-				Action *action = new Action(this);
-				action->setText(tr("Add my accounts..."));
-				connect(action,SIGNAL(triggered()),SLOT(onInternalAccountNoticeActionTriggered()));
-				notice.actions.append(action);
-
-				FInternalNoticeId = widget->insertNotice(notice);
+				insertInternalServicesNotice();
 				Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).setValue(showCount+1);
 				Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).setValue(QDateTime::currentDateTime());
 			}
@@ -1736,7 +1750,7 @@ void Gateways::onInternalNoticeReady()
 	}
 }
 
-void Gateways::onInternalAccountNoticeActionTriggered()
+void Gateways::onInternalServicesNoticeActionTriggered()
 {
 	if (FOptionsManager)
 	{
@@ -1755,11 +1769,9 @@ void Gateways::onInternalConflictNoticeActionTriggered()
 
 void Gateways::onInternalNoticeRemoved(int ANoticeId)
 {
-	if (ANoticeId>0 && ANoticeId==FInternalNoticeId)
+	if (ANoticeId == FInternalServicesNoticeId)
 	{
-		int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
-		Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).setValue(removeCount+1);
-		FInternalNoticeId = -1;
+		FInternalServicesNoticeId = -1;
 	}
 	else foreach(Jid streamJid, FConflictNotices.keys())
 	{
@@ -1790,5 +1802,12 @@ void Gateways::onNotificationRemoved(int ANotifyId)
 	}
 }
 
+void Gateways::onWelcomeScreenVisibleChanged(bool AVisible)
+{
+	if (AVisible)
+		insertInternalServicesNotice();
+	else if (FMainWindowPlugin)
+		FMainWindowPlugin->mainWindow()->noticeWidget()->removeNotice(FInternalServicesNoticeId);
+}
 
 Q_EXPORT_PLUGIN2(plg_gateways, Gateways)

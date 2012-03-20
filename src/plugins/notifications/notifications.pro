@@ -4,4 +4,3 @@ USE_PHONON {
 }
 include(notifications.pri)
 include(../plugins.inc)
-
