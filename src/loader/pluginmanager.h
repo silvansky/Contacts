@@ -29,6 +29,7 @@
 #include "commentdialog.h"
 
 enum ShutdownKind {
+	SK_START,
 	SK_WORK,
 	SK_QUIT,
 	SK_RESTART

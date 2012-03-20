@@ -63,7 +63,7 @@
 
 PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 {
-	FShutdownKind = SK_WORK;
+	FShutdownKind = SK_START;
 	FShutdownDelayCount = 0;
 
 	FQtTranslator = new QTranslator(this);
@@ -204,7 +204,11 @@ void PluginManager::quit()
 
 void PluginManager::restart()
 {
-	if (FShutdownKind == SK_WORK)
+	if (FShutdownKind == SK_START)
+	{
+		finishShutdown();
+	}
+	else if (FShutdownKind == SK_WORK)
 	{
 		FShutdownKind = SK_RESTART;
 		startShutdown();
@@ -560,9 +564,11 @@ void PluginManager::startShutdown()
 void PluginManager::finishShutdown()
 {
 	FShutdownTimer.stop();
-	if (FShutdownKind == SK_RESTART)
+	switch (FShutdownKind)
 	{
+	case SK_RESTART:
 		onApplicationAboutToQuit();
+	case SK_START:
 		FShutdownKind = SK_WORK;
 		FShutdownDelayCount = 0;
 
@@ -570,7 +576,6 @@ void PluginManager::finishShutdown()
 		loadPlugins();
 		if (initPlugins())
 		{
-			saveSettings();
 			createMenuActions();
 			startPlugins();
 			FBlockedPlugins.clear();
@@ -579,12 +584,13 @@ void PluginManager::finishShutdown()
 		{
 			QTimer::singleShot(0,this,SLOT(restart()));
 		}
-	}
-	else if (FShutdownKind == SK_QUIT)
-	{
+		break;
+	case SK_QUIT:
 		QTimer::singleShot(0,qApp,SLOT(quit()));
+		break;
+	default:
+		break;
 	}
-
 }
 
 void PluginManager::closeTopLevelWidgets()

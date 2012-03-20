@@ -13,7 +13,7 @@ CustomBorderStorage::~CustomBorderStorage()
 
 CustomBorderContainer * CustomBorderStorage::addBorder(QWidget *widget, const QString &key)
 {
-	if (isBordersEnabled() && !isBordered(widget))
+	if (isBordersEnabled() && widget->isWindow() && !isBordered(widget))
 	{
 		CustomBorderContainerPrivate * style = borderStyleCache.value(key, NULL);
 		if (!style)
@@ -64,12 +64,12 @@ void CustomBorderStorage::setBordersEnabled(bool enabled)
 
 bool CustomBorderStorage::isBordered(QWidget *widget)
 {
-	return borderCache.contains(widget);
+	return widgetBorder(widget)!=NULL;
 }
 
 CustomBorderContainer * CustomBorderStorage::widgetBorder(QWidget *widget)
 {
-	return borderCache.value(widget);
+	return qobject_cast<CustomBorderContainer *>(widget->window());
 }
 
 CustomBorderStorage * CustomBorderStorage::staticStorage(const QString & storage)
