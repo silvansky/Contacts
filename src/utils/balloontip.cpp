@@ -223,7 +223,7 @@ void BalloonTip::drawBalloon(const QPoint& pos, int msecs, bool showArrow, Arrow
 	updateGeometry();
 	sh  = sizeHint();
 
-	int ml, mr, mt, mb;
+  int ml=0, mr=0, mt=0, mb=0;
 	QSize sz = sh;
 	//qDebug() << "drawBalloon: sz = " << sz;
 	switch (arrowPosition)
