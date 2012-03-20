@@ -21,22 +21,23 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 {
 	ui.setupUi(this);
 
-#ifdef Q_WS_MAC
-	ui.lblName->setVisible(false);
-	QLayoutItem * spacer = ui.avatarLt->itemAt(0);
-	ui.avatarLt->removeItem(spacer);
-	ui.avatarLt->addItem(spacer);
-	ui.mainLt->removeItem(ui.avatarLt);
-	ui.mainLt->removeItem(ui.nameMoodLt);
-	ui.mainLt->removeItem(ui.statusLt);
-	ui.mainLt->insertLayout(0, ui.avatarLt);
-	ui.mainLt->insertLayout(1, ui.nameMoodLt);
-	ui.mainLt->insertLayout(2, ui.statusLt);
-	layout()->setContentsMargins(2, 0, 2, 0);
-	ui.avatarLt->setContentsMargins(0, 4, 0, 0);
-	ui.statusLt->setContentsMargins(0, 6, 0, 0);
-	ui.nameMoodLt->setContentsMargins(0, -10, 0, 0);
-#endif
+	if (!CustomBorderStorage::isBordered(this))
+	{
+		ui.lblName->setVisible(false);
+		QLayoutItem * spacer = ui.avatarLt->itemAt(0);
+		ui.avatarLt->removeItem(spacer);
+		ui.avatarLt->addItem(spacer);
+		ui.mainLt->removeItem(ui.avatarLt);
+		ui.mainLt->removeItem(ui.nameMoodLt);
+		ui.mainLt->removeItem(ui.statusLt);
+		ui.mainLt->insertLayout(0, ui.avatarLt);
+		ui.mainLt->insertLayout(1, ui.nameMoodLt);
+		ui.mainLt->insertLayout(2, ui.statusLt);
+		layout()->setContentsMargins(2, 0, 2, 0);
+		ui.avatarLt->setContentsMargins(0, 4, 0, 0);
+		ui.statusLt->setContentsMargins(0, 6, 0, 0);
+		ui.nameMoodLt->setContentsMargins(0, -10, 0, 0);
+	}
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_STATUSWIDGET);
 
@@ -153,11 +154,10 @@ void StatusWidget::setUserName(const QString &AName)
 {
 	FUserName = AName;
 	//ui.tlbStatus->setText(fitCaptionToWidth(FUserName, ui.tlbStatus->defaultAction()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
-#ifdef Q_WS_MAC
-	window()->setWindowTitle(AName);
-#else
-	ui.lblName->setText(AName);
-#endif
+	if (CustomBorderStorage::isBordered(this))
+		ui.lblName->setText(AName);
+	else
+		window()->setWindowTitle(AName);
 }
 
 void StatusWidget::setMoodText(const QString &AMood)
@@ -349,3 +349,4 @@ void StatusWidget::onMoodChanged()
 		ui.tedMood->setTextCursor(c);
 	}
 }
+

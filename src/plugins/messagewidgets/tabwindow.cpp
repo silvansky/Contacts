@@ -15,11 +15,6 @@
 TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 {
 	ui.setupUi(this);
-#ifdef Q_WS_MAC
-	ui.lblCaption->setVisible(false);
-	ui.lblStatusIcon->setVisible(false);
-	ui.centralWidget->layout()->removeItem(ui.captionLayout);
-#endif
 	setAttribute(Qt::WA_DeleteOnClose,false);
 	setMinimumSize(500, 400);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -30,6 +25,7 @@ TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 	FMessageWidgets = AMessageWidgets;
 
 	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MESSAGEWINDOW);
+	ui.wdtBorderCaption->setVisible(CustomBorderStorage::isBordered(this));
 	loadWindowStateAndGeometry();
 
 	FWindowMenu = new Menu(this);
@@ -53,11 +49,7 @@ TabWindow::~TabWindow()
 
 void TabWindow::showWindow()
 {
-//#ifdef Q_WS_MAC
-//	(FBorder ? (QWidget *)FBorder : (QWidget *)this)->show();
-//#else
 	WidgetManager::showActivateRaiseWindow(window());
-//#endif
 }
 
 void TabWindow::showMinimizedWindow()

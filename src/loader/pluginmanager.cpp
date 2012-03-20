@@ -16,6 +16,7 @@
 #include <utils/log.h>
 #include <utils/networking.h>
 #include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
 
 #define DELAYED_QUIT_TIMEOUT        5000
 #define DELAYED_COMMIT_TIMEOUT      2000
@@ -27,6 +28,7 @@
 
 #define SVN_DATA_PATH               "DataPath"
 #define SVN_LOCALE_NAME             "Locale"
+#define SVN_BORDERS_ENABLED         "BordersEnabled"
 
 #ifdef SVNINFO
 #  include "svninfo.h"
@@ -322,6 +324,14 @@ void PluginManager::loadSettings()
 		Log::setLogPath(logDir.absolutePath());
 	}
 #endif
+
+	// Borders
+#ifdef Q_WS_WIN
+	CustomBorderStorage::setBordersEnabled(settings.value(SVN_BORDERS_ENABLED,true).toBool());
+#else
+	CustomBorderStorage::setBordersEnabled(settings.value(SVN_BORDERS_ENABLED,false).toBool());
+#endif
+
 	QDir cookiesDir(FDataPath);
 	if (cookiesDir.exists() && (cookiesDir.exists(DIR_COOKIES) || cookiesDir.mkpath(DIR_COOKIES)) && cookiesDir.cd(DIR_COOKIES))
 	{
@@ -381,6 +391,9 @@ void PluginManager::loadSettings()
 
 void PluginManager::saveSettings()
 {
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, ORGANIZATION_NAME, APPLICATION_NAME);
+	settings.setValue(SVN_BORDERS_ENABLED,CustomBorderStorage::isBordersEnabled());
+
 	if (!FPluginsSetup.documentElement().isNull())
 	{
 		QDir homeDir(FDataPath);
@@ -848,6 +861,8 @@ void PluginManager::onApplicationAboutToQuit()
 
 	foreach(QUuid uid, FPluginItems.keys())
 		unloadPlugin(uid);
+
+	saveSettings();
 
 	QCoreApplication::removeTranslator(FQtTranslator);
 	QCoreApplication::removeTranslator(FUtilsTranslator);

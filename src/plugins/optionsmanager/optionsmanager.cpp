@@ -154,11 +154,11 @@ bool OptionsManager::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
 	Options::setDefaultValue(OPV_MISC_OPTIONS_SAVE_ON_SERVER, true);
+	Options::setDefaultValue(OPV_MISC_CUSTOMBORDERSENABLED, CustomBorderStorage::isBordersEnabled());
+
 #ifdef Q_WS_MAC
-	Options::setDefaultValue(OPV_MISC_CUSTOMBORDER, false);
 	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_GATEWAYS));
 #else
-	Options::setDefaultValue(OPV_MISC_CUSTOMBORDER, true);
 	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_COMMON));
 #endif
 
@@ -196,7 +196,7 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"), AParent));
 #endif
 #ifdef DEBUG_ENABLED
-		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDER), tr("Use custom window borders (restart needed)"), AParent));
+		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDERSENABLED), tr("Use custom window borders (restart needed)"), AParent));
 #endif
 		widgets.insertMulti(OWO_COMMON_SINC_OPTIONS, optionsNodeWidget(Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER), tr("Sync preferences on my several computers"), AParent));
 	}
@@ -663,6 +663,7 @@ void OptionsManager::openProfile(const QString &AProfile, const QString &APasswo
 		FProfile = AProfile;
 		FProfileKey = profileKey(AProfile, APassword);
 		Options::setOptions(FProfileOptions, profilePath(AProfile) + "/" DIR_BINARY, FProfileKey);
+		Options::node(OPV_MISC_CUSTOMBORDERSENABLED).setValue(CustomBorderStorage::isBordersEnabled());
 		FShowOptionsDialogAction->setVisible(true);
 		FChangeProfileAction->setText(tr("Change User (%1)").arg(Jid(Jid::decode(AProfile)).node()));
 		emit profileOpened(AProfile);
@@ -793,10 +794,13 @@ void OptionsManager::onOptionsChanged(const OptionsNode &ANode)
 		setProfileData(currentProfile(),"auto-run",ANode.value().toBool());
 #endif
 	}
-	else if (ANode.path() == OPV_MISC_CUSTOMBORDER)
+	else if (ANode.path() == OPV_MISC_CUSTOMBORDERSENABLED)
 	{
-		saveOptions();
-		QTimer::singleShot(20, FPluginManager->instance(), SLOT(restart()));
+		if (ANode.value().toBool() != CustomBorderStorage::isBordersEnabled())
+		{
+			CustomBorderStorage::setBordersEnabled(ANode.value().toBool());
+			QTimer::singleShot(0, FPluginManager->instance(), SLOT(restart()));
+		}
 	}
 	FAutoSaveTimer.start();
 }

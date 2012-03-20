@@ -1,8 +1,7 @@
 #include "customborderstorage.h"
-#include "custombordercontainer_p.h"
-#include "options.h"
-#include <definitions/optionvalues.h>
+
 #include <QApplication>
+#include "custombordercontainer_p.h"
 
 CustomBorderStorage::CustomBorderStorage(const QString &AStorage, const QString &ASubStorage, QObject *AParent) : FileStorage(AStorage,ASubStorage,AParent)
 {
@@ -14,9 +13,8 @@ CustomBorderStorage::~CustomBorderStorage()
 
 CustomBorderContainer * CustomBorderStorage::addBorder(QWidget *widget, const QString &key)
 {
-	if (Options::node(OPV_MISC_CUSTOMBORDER).value().toBool())
+	if (isBordersEnabled() && !isBordered(widget))
 	{
-//#ifndef Q_WS_MAC
 		CustomBorderContainerPrivate * style = borderStyleCache.value(key, NULL);
 		if (!style)
 		{
@@ -39,13 +37,8 @@ CustomBorderContainer * CustomBorderStorage::addBorder(QWidget *widget, const QS
 			borderCache.insert(widget, container);
 			return container;
 		}
-		else
-			return NULL;
 	}
-//#else
-	else
-		return NULL;
-//#endif
+	return NULL;
 }
 
 void CustomBorderStorage::removeBorder(QWidget *widget)
@@ -57,6 +50,26 @@ void CustomBorderStorage::removeBorder(QWidget *widget)
 		borderCache.remove(widget);
 		container->deleteLater();
 	}
+}
+
+bool CustomBorderStorage::isBordersEnabled()
+{
+	return bordersEnabled;
+}
+
+void CustomBorderStorage::setBordersEnabled(bool enabled)
+{
+	bordersEnabled = enabled;
+}
+
+bool CustomBorderStorage::isBordered(QWidget *widget)
+{
+	return borderCache.contains(widget);
+}
+
+CustomBorderContainer * CustomBorderStorage::widgetBorder(QWidget *widget)
+{
+	return borderCache.value(widget);
 }
 
 CustomBorderStorage * CustomBorderStorage::staticStorage(const QString & storage)
@@ -71,7 +84,7 @@ CustomBorderStorage * CustomBorderStorage::staticStorage(const QString & storage
 }
 
 // static vars
-
+bool CustomBorderStorage::bordersEnabled = false;
 QHash<QString, CustomBorderContainerPrivate *> CustomBorderStorage::borderStyleCache;
 QHash<QWidget *, CustomBorderContainer *> CustomBorderStorage::borderCache;
 QHash<QString, CustomBorderStorage *> CustomBorderStorage::staticStorages;
