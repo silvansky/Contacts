@@ -167,6 +167,25 @@ void Log::writeMessage(uint AType, const QString &AMessage)
 	}
 }
 
+QString Log::generateBacktrace()
+{
+#ifdef Q_OS_UNIX
+	// getting backtrace on *nix
+	void * callstack[128];
+	int i, frames = backtrace(callstack, 128);
+	char ** strs = backtrace_symbols(callstack, frames);
+	QStringList btItems;
+	for (i = 0; i < frames; ++i)
+	{
+		btItems << QString(strs[i]);
+	}
+	free(strs);
+	return btItems.join("\n");
+#else
+	return QString::null;
+#endif
+}
+
 void Log::setStaticReportParam(const QString &AKey, const QString &AValue)
 {
 	if (!AValue.isNull())
@@ -179,20 +198,7 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 {
 	QDomDocument report;
 
-#ifdef Q_OS_UNIX
-	// getting backtrace on *nix
-	void * callstack[128];
-	int i, frames = backtrace(callstack, 128);
-	char ** strs = backtrace_symbols(callstack, frames);
-	QStringList btItems;
-	for (i = 0; i < frames; ++i)
-	{
-		btItems << QString(strs[i]);
-		//printf("%s\n", strs[i]);
-	}
-	AParams.insert(ARP_APPLICATION_BACKTRACE, Qt::escape(btItems.join("\n")));
-	free(strs);
-#endif
+	AParams.insert(ARP_APPLICATION_BACKTRACE, Qt::escape(generateBacktrace()));
 
 	// Common data
 	AParams.insert(ARP_REPORT_TIME,DateTime(QDateTime::currentDateTime()).toX85DateTime());

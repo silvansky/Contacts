@@ -34,6 +34,8 @@ public:
 	static void setMaxLogSize(int AKBytes);
 	static void writeMessage(uint AType, const QString &AMessage);
 public:
+	static QString generateBacktrace();
+public:
 	static void setStaticReportParam(const QString &AKey, const QString &AValue);
 	static QDomDocument generateReport(QMap<QString, QString> &AParams, bool AIncludeLog = true);
 	static bool sendReport(QDomDocument AReport);

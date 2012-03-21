@@ -6,8 +6,6 @@
 
 #include <qglobal.h>
 
-
-
 #ifdef Q_WS_WIN32_NOTNEEDED
 # include <tchar.h>
 #include <Windows.h>
@@ -73,6 +71,8 @@ CVolumeOutMaster::CVolumeOutMaster():
 	if ( (m_bOK = Init()) )
 	{
 		_lastVolume = 0.0;
+		_currentVolume = 0.0;
+		_enabled = true;
 		g_pThis = this;
 		if ( !Initialize() )
 		{
@@ -158,20 +158,26 @@ bool CVolumeOutMaster::isMuted()
 
 void CVolumeOutMaster::enable()
 {
-	setCurrentVolume(_lastVolume);
-	_enabled = true;
+	if (!_enabled)
+	{
+		setCurrentVolume(_lastVolume);
+		_enabled = true;
+	}
 }
 
 void CVolumeOutMaster::disable()
 {
-	_lastVolume = currentVolume();
-	setCurrentVolume(0.0);
-	_enabled = false;
+	if (_enabled)
+	{
+		_lastVolume = currentVolume();
+		setCurrentVolume(0.0);
+		_enabled = false;
+	}
 }
 
 void CVolumeOutMaster::setCurrentVolume(float vol)
 {
-	_currentVolume = vol;
+	_lastVolume = _currentVolume = vol;
 	if (_currentCall != -1)
 	{
 		pjsua_call_info ci;

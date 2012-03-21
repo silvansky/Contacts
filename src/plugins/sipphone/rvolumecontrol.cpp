@@ -69,7 +69,7 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 	setToolTip(tr("Volume control"));
 
 	BOOL mute = false;
-	float currVolume = 0.;
+	float currVolume = 1.0;
 
 	// Определяем версию ОС (xp или старше?)
 #ifdef Q_WS_WIN32_NOTNEEDED
