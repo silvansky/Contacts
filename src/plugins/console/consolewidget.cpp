@@ -10,8 +10,20 @@ ConsoleWidget::ConsoleWidget(IPluginManager *APluginManager, QWidget *AParent) :
 	ui.cmbCondition->setView(new QListView);
 	ui.cmbContext->setView(new QListView);
 	ui.cmbStreamJid->setView(new QListView);
-	setAttribute(Qt::WA_DeleteOnClose,true);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_CONSOLE,0,0,"windowIcon");
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
+		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
 
 	FXmppStreams = NULL;
 	FStanzaProcessor = NULL;
@@ -110,8 +122,9 @@ void ConsoleWidget::loadContext(const QUuid &AContextId)
 	ui.chbWordWrap->setChecked(node.value("word-wrap").toBool());
 	ui.chbHilightXML->setCheckState((Qt::CheckState)node.value("highlight-xml").toInt());
 
-	if (!restoreGeometry(Options::fileValue("console.context.window-geometry",AContextId.toString()).toByteArray()))
-		setGeometry(WidgetManager::alignGeometry(QSize(640,640),this));
+	QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
+	if (!window()->restoreGeometry(Options::fileValue("console.context.window-geometry",AContextId.toString()+ns).toByteArray()))
+		window()->setGeometry(WidgetManager::alignGeometry(QSize(640,640),this));
 	ui.sptHSplitter->restoreState(Options::fileValue("console.context.hsplitter-state",AContextId.toString()).toByteArray());
 	ui.sptVSplitter->restoreState(Options::fileValue("console.context.vsplitter-state",AContextId.toString()).toByteArray());
 
@@ -132,7 +145,8 @@ void ConsoleWidget::saveContext(const QUuid &AContextId)
 	node.setValue(ui.chbWordWrap->isChecked(),"word-wrap");
 	node.setValue(ui.chbHilightXML->checkState(),"highlight-xml");
 
-	Options::setFileValue(saveGeometry(),"console.context.window-geometry",AContextId.toString());
+	QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
+	Options::setFileValue(window()->saveGeometry(),"console.context.window-geometry",AContextId.toString()+ns);
 	Options::setFileValue(ui.sptHSplitter->saveState(),"console.context.hsplitter-state",AContextId.toString());
 	Options::setFileValue(ui.sptVSplitter->saveState(),"console.context.vsplitter-state",AContextId.toString());
 }

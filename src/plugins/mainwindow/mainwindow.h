@@ -4,9 +4,11 @@
 #include <interfaces/imainwindow.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/customborder.h>
 #include <definitions/stylesheets.h>
 #include <definitions/toolbargroups.h>
 #include <utils/stylestorage.h>
+#include <utils/customborderstorage.h>
 #include "noticewidget.h"
 
 class MainWindow :

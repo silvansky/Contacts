@@ -26,27 +26,27 @@ QDesktopWidget *NotifyWidget::FDesktop = new QDesktopWidget;
 NotifyWidget::NotifyWidget(const INotification &ANotification) : QWidget(NULL, Qt::ToolTip | Qt::WindowStaysOnTopHint)
 {
 	ui.setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose, true);
+	setFocusPolicy(Qt::NoFocus);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_NOTIFICATION_NOTIFYWIDGET);
 
-	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_NOTIFICATION);
-	if (border)
+	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_NOTIFICATION);
+	if (FBorder)
 	{
-		border->setResizable(false);
-		border->setMovable(false);
-		border->setMinimizeButtonVisible(false);
-		border->setMaximizeButtonVisible(false);
-		//border->setWindowFlags(border->windowFlags() | Qt::ToolTip);
-		border->setShowInTaskBar(false);
-		border->setAttribute(Qt::WA_DeleteOnClose, true);
-		border->setStaysOnTop(true);
-		connect(border, SIGNAL(closeClicked()),border,SLOT(close()));
+		FBorder->setResizable(false);
+		FBorder->setMovable(false);
+		FBorder->setMinimizeButtonVisible(false);
+		FBorder->setMaximizeButtonVisible(false);
+		FBorder->setShowInTaskBar(false);
+		FBorder->setAttribute(Qt::WA_DeleteOnClose, true);
+		FBorder->setStaysOnTop(true);
+		connect(FBorder, SIGNAL(closeClicked()),FBorder,SLOT(close()));
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,true);
 	}
 
 	ui.wdtButtons->setVisible(ANotification.actions.count());
-
-	setFocusPolicy(Qt::NoFocus);
-	setAttribute(Qt::WA_DeleteOnClose,true);
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_NOTIFICATION_NOTIFYWIDGET);
 
 	ui.tbrText->setContentsMargins(0,0,0,0);
 	ui.tbrText->setMaxHeight(FDesktop->availableGeometry().height() / 6);
@@ -118,8 +118,8 @@ bool NotifyWidget::appear()
 		if (FTimeOut > 0)
 			FCloseTimer->start();
 
-		if (border)
-			border->setWindowOpacity(ANIMATE_OPACITY_START);
+		if (FBorder)
+			FBorder->setWindowOpacity(ANIMATE_OPACITY_START);
 		else
 			setWindowOpacity(ANIMATE_OPACITY_START);
 
@@ -127,8 +127,8 @@ bool NotifyWidget::appear()
 		layoutWidgets();
 		return true;
 	}
-	if (border)
-		border->deleteLater();
+	if (FBorder)
+		FBorder->deleteLater();
 	else
 		deleteLater();
 	return false;
@@ -230,8 +230,8 @@ void NotifyWidget::paintEvent(QPaintEvent * pe)
 
 void NotifyWidget::onAdjustHeight()
 {
-	if (border)
-		border->resize(border->width(),border->sizeHint().height());
+	if (FBorder)
+		FBorder->resize(FBorder->width(),FBorder->sizeHint().height());
 	else
 		resize(width(),sizeHint().height());
 }
@@ -241,11 +241,11 @@ void NotifyWidget::onAnimateStep()
 	if (FAnimateStep > 0)
 	{
 		int ypos;
-		if (border)
+		if (FBorder)
 		{
-			ypos = border->y()+(FYPos-border->y())/(FAnimateStep);
-			border->setWindowOpacity(qMin(border->windowOpacity()+ANIMATE_OPACITY_STEP, ANIMATE_OPACITY_END));
-			border->move(border->x(),ypos);
+			ypos = FBorder->y()+(FYPos-FBorder->y())/(FAnimateStep);
+			FBorder->setWindowOpacity(qMin(FBorder->windowOpacity()+ANIMATE_OPACITY_STEP, ANIMATE_OPACITY_END));
+			FBorder->move(FBorder->x(),ypos);
 		}
 		else
 		{
@@ -257,10 +257,10 @@ void NotifyWidget::onAnimateStep()
 	}
 	else if (FAnimateStep == 0)
 	{
-		if (border)
+		if (FBorder)
 		{
-			border->move(border->x(),FYPos);
-			border->setWindowOpacity(ANIMATE_OPACITY_END);
+			FBorder->move(FBorder->x(),FYPos);
+			FBorder->setWindowOpacity(ANIMATE_OPACITY_END);
 		}
 		else
 		{
@@ -275,8 +275,8 @@ void NotifyWidget::onCloseTimerTimeout()
 {
 	if (FTimeOut > 0)
 		FTimeOut--;
-	else if (border)
-		border->close();
+	else if (FBorder)
+		FBorder->close();
 	else
 		close();
 }
@@ -290,18 +290,18 @@ void NotifyWidget::layoutWidgets()
 		NotifyWidget *widget = FWidgets.at(i);
 		if (!widget->isVisible())
 		{
-			if (widget->border)
-				widget->border->show();
+			if (widget->FBorder)
+				widget->FBorder->show();
 			else
 				widget->show();
-			if (widget->border)
-				widget->border->move(display.right() - widget->border->geometry().width(), display.bottom());
+			if (widget->FBorder)
+				widget->FBorder->move(display.right() - widget->FBorder->geometry().width(), display.bottom());
 			else
 				widget->move(display.right() - widget->frameGeometry().width(), display.bottom());
 			QTimer::singleShot(100, widget, SLOT(onAdjustHeight()));
 		}
-		if (widget->border)
-			ypos -= widget->border->geometry().height();
+		if (widget->FBorder)
+			ypos -= widget->FBorder->geometry().height();
 		else
 			ypos -= widget->frameGeometry().height();
 		widget->animateTo(ypos--);

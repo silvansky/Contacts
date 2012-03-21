@@ -21,11 +21,11 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget 
 	inputType(type)
 {
 	initLayout();
-
-	setAttribute(Qt::WA_DeleteOnClose, false);
+	setMinimumWidth(250);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
 	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
-	setMinimumWidth(250);
 	if (border)
 	{
 		border->setParent(AParent);
@@ -37,22 +37,20 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget 
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose, false);
+	}
+
 #ifdef Q_WS_MAC
 	setWindowGrowButtonEnabled(this->window(), false);
 #endif
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
-	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 }
 
 CustomInputDialog::~CustomInputDialog()
 {
 	if (border)
 		border->deleteLater();
-}
-
-CustomBorderContainer * CustomInputDialog::windowBorder()
-{
-	return border;
 }
 
 void CustomInputDialog::show()
@@ -69,7 +67,9 @@ void CustomInputDialog::show()
 		border->adjustSize();
 	}
 	else
+	{
 		QDialog::show();
+	}
 }
 
 QString CustomInputDialog::defaultText() const

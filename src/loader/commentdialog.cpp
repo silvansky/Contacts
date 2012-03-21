@@ -17,6 +17,21 @@
 CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	setAttribute(Qt::WA_DeleteOnClose, true);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setWindowTitle(windowTitle());
+		border->setResizable(false);
+		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
+		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+	}
+
 	ui.lneYourName->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneEMail->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.tedComment->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -84,23 +99,6 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	ui.lneYourName->setText(fullName);
 	//connect(FStanzaProcessor->instance(), SIGNAL(stanzaSent(const Jid&, const Stanza&)), this, SLOT(stanzaSent(const Jid&, const Stanza&)));
 
-	// border
-	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
-	if (border)
-	{
-		// init...
-		border->setMinimizeButtonVisible(false);
-		border->setMaximizeButtonVisible(false);
-		border->setWindowTitle(windowTitle());
-		border->setResizable(false);
-		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
-		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
-		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
-		border->setAttribute(Qt::WA_DeleteOnClose, true);
-	}
-	else
-		setAttribute(Qt::WA_DeleteOnClose, true);
-
 	ui.tedComment->setFocus();
 	QTextCursor c = ui.tedComment->textCursor();
 	c.setPosition(0);
@@ -117,30 +115,17 @@ CommentDialog::~CommentDialog()
 
 }
 
-CustomBorderContainer * CommentDialog::windowBorder() const
-{
-	return border;
-}
-
 void CommentDialog::show()
 {
 	setFixedSize(sizeHint());
-	if (border)
-	{
-		WidgetManager::showActivateRaiseWindow(border);
-		border->adjustSize();
-	}
-	else
-		WidgetManager::showActivateRaiseWindow(this);
-	//setStyleSheet(styleSheet());
-	//QTimer::singleShot(1, StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SLOT(previewReset()));
+	WidgetManager::showActivateRaiseWindow(window());
+	window()->adjustSize();
 	QTimer::singleShot(1, this, SLOT(updateStyle()));
 }
 
 //void CommentDialog::stanzaSent(const Jid &AStreamJid, const Stanza &AStanza)
 void CommentDialog::SendComment()
 {
-
 	ui.pbtSendComment->setEnabled(false);
 	ui.tedComment->setEnabled(false);
 	ui.lneEMail->setEnabled(false);

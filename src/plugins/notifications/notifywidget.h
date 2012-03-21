@@ -51,9 +51,9 @@ private:
 	int FYPos;
 	int FTimeOut;
 	int FAnimateStep;
-	QTimer *FCloseTimer;
-	CustomBorderContainer * border;
 	bool canActivate;
+	QTimer *FCloseTimer;
+	CustomBorderContainer *FBorder;
 private:
 	QString FTitle;
 	QString FNotice;

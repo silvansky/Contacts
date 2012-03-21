@@ -1163,6 +1163,7 @@ void RosterChanger::onShowAddGroupDialog(bool)
 		dialog->setWindowTitle(tr("Add group"));
 		//QString newGroupName = QInputDialog::getText(NULL, tr("Add group"), tr("Enter new group name:"));
 		connect(dialog, SIGNAL(textValueSelected(QString)), SLOT(onRenameGroupDialogAccepted(QString)));
+
 		CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
 		if (border)
 		{

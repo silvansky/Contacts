@@ -13,8 +13,6 @@
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
 	ui.setupUi(this);
-	ui.cmbDomains->setView(new QListView);
-	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 
 	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
@@ -27,6 +25,10 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 		connect(this, SIGNAL(rejected()), border, SLOT(close()));
 		connect(this, SIGNAL(accepted()), border, SLOT(close()));
 		border->setResizable(false);
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,true);
 	}
 
 #ifdef Q_WS_MAC
@@ -93,12 +95,15 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 				ui.lblDomain->setText("@" + domain);
 			}
 		}
+
 		int domainsCount = FGateLabel.domains.count();
 		ui.cmbDomains->setVisible(domainsCount > 1);
 		ui.tlbDomains->setVisible(domainsCount > 1);
 		ui.lblDomain->setVisible(domainsCount == 1);
 		if (domainsCount == 1)
 			ui.loginLayout->setSpacing(0);
+		ui.cmbDomains->setView(new QListView);
+
 
 		LogDetail(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
 		FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);

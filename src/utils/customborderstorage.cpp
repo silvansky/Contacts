@@ -69,7 +69,7 @@ bool CustomBorderStorage::isBordered(QWidget *widget)
 
 CustomBorderContainer * CustomBorderStorage::widgetBorder(QWidget *widget)
 {
-	return qobject_cast<CustomBorderContainer *>(widget->window());
+	return borderCache.value(widget,qobject_cast<CustomBorderContainer *>(widget->window()));
 }
 
 CustomBorderStorage * CustomBorderStorage::staticStorage(const QString & storage)

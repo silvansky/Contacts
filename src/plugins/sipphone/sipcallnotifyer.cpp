@@ -15,20 +15,29 @@
 #include <definitions/customborder.h>
 #include <definitions/soundfiles.h>
 
-SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice, const QIcon & icon, const QImage & avatar) :
-	QWidget(NULL),
-	ui(new Ui::SipCallNotifyer),
+SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice, const QIcon & icon, const QImage & avatar) : QWidget(NULL),	ui(new Ui::SipCallNotifyer),
 #ifdef QT_PHONON_LIB
 	FMediaObject(NULL),
 	FAudioOutput(NULL)
 #else
 	FSound(NULL)
 #endif
-
 {
 	ui->setupUi(this);
 	ui->caption->setText(caption);
 	setWindowTitle(tr("%1 calling").arg(caption));
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE_CALL_NOTIFYER);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_NOTIFICATION);
+	if (border)
+	{
+		border->setResizable(false);
+		border->setMovable(false);
+		border->setMaximizeButtonVisible(false);
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		connect(border, SIGNAL(closeClicked()), SLOT(rejectClicked()));
+	}
+
 	ui->notice->setText(notice);
 	ui->icon->setPixmap(icon.pixmap(icon.availableSizes().at(0)));
 	ui->avatar->setPixmap(QPixmap::fromImage(avatar));
@@ -42,20 +51,6 @@ SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice
 	connect(ui->mute, SIGNAL(clicked()), SLOT(muteClicked()));
 
 	_muted = false;
-
-	// style
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE_CALL_NOTIFYER);
-
-	// border
-	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_NOTIFICATION);
-	if (border)
-	{
-		border->setResizable(false);
-		border->setMovable(false);
-		border->setMaximizeButtonVisible(false);
-		border->setAttribute(Qt::WA_DeleteOnClose, true);
-		connect(border, SIGNAL(closeClicked()), SLOT(rejectClicked()));
-	}
 }
 
 SipCallNotifyer::~SipCallNotifyer()
@@ -77,12 +72,12 @@ bool SipCallNotifyer::isMuted() const
 
 double SipCallNotifyer::opacity() const
 {
-	return (border ? (QWidget *)border : (QWidget *)this)->windowOpacity();
+	return window()->windowOpacity();
 }
 
 void SipCallNotifyer::setOpacity(double op)
 {
-	(border ? (QWidget *)border : (QWidget *)this)->setWindowOpacity(op);
+	window()->setWindowOpacity(op);
 }
 
 void SipCallNotifyer::appear()
@@ -93,7 +88,7 @@ void SipCallNotifyer::appear()
 	animation->setStartValue(0.0);
 	animation->setEndValue(1.0);
 
-	QWidget * w = (border ? (QWidget *)border : (QWidget *)this);
+	QWidget * w = window();
 	if (!w->isVisible())
 	{
 		w->setWindowOpacity(0.0);
@@ -113,7 +108,7 @@ void SipCallNotifyer::appear()
 
 void SipCallNotifyer::disappear()
 {
-	(border ? (QWidget *)border : (QWidget *)this)->close();
+	window()->close();
 }
 
 void SipCallNotifyer::startSound()

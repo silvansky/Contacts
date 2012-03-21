@@ -3,8 +3,6 @@
 #include <QKeyEvent>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <definitions/resources.h>
-#include <definitions/customborder.h>
 #ifdef Q_WS_MAC
 # include <utils/macwidgets.h>
 #endif
@@ -31,12 +29,9 @@ MainWindowPlugin::MainWindowPlugin()
 #endif
 	FMainWindow->setObjectName("mainWindow");
 	
-	FMainWindowBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FMainWindow, CBS_ROSTER);
+	FMainWindowBorder = CustomBorderStorage::widgetBorder(FMainWindow);
 	if (FMainWindowBorder)
 	{
-		FMainWindowBorder->setMaximizeButtonVisible(false);
-		FMainWindowBorder->setMinimizeButtonVisible(false);
-		FMainWindowBorder->setDockingEnabled(true);
 		FMainWindowBorder->installEventFilter(this);
 		connect(FMainWindowBorder, SIGNAL(closed()), SLOT(onMainWindowClosed()));
 	}

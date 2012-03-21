@@ -19,12 +19,12 @@
 # include <utils/macwidgets.h>
 #endif
 
-AboutQtDialog::AboutQtDialog() :
-	QWidget(NULL)
+AboutQtDialog::AboutQtDialog() : QWidget(NULL)
 {
-	// window border
+	setWindowTitle(tr("About Qt"));
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_ABOUT_QT);
 
-	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (border)
 	{
 		border->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -42,10 +42,7 @@ AboutQtDialog::AboutQtDialog() :
 	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
-	setWindowTitle(tr("About Qt"));
-
 	// creating layouts and items
-
 	// main layout
 	setLayout(new QVBoxLayout(this));
 
@@ -108,9 +105,6 @@ AboutQtDialog::AboutQtDialog() :
 
 	layout()->addItem(textLayout);
 	layout()->addItem(buttonLayout);
-
-	// style
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_ABOUT_QT);
 }
 
 void AboutQtDialog::paintEvent(QPaintEvent * pe)

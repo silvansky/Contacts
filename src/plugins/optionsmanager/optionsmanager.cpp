@@ -31,7 +31,6 @@ OptionsManager::OptionsManager()
 	FMainWindowPlugin = NULL;
 	FPrivateStorage = NULL;
 	FOptionsDialog = NULL;
-	FOptionsDialogBorder = NULL;
 	FLoginDialog = NULL;
 	FSystemIntegration = NULL;
 
@@ -44,10 +43,8 @@ OptionsManager::OptionsManager()
 
 OptionsManager::~OptionsManager()
 {
-	if (FOptionsDialogBorder)
-		FOptionsDialogBorder->deleteLater();
-	else
-		delete FOptionsDialog;
+	if (FOptionsDialog)
+		FOptionsDialog->window()->deleteLater();
 }
 
 void OptionsManager::pluginInfo(IPluginInfo *APluginInfo)
@@ -540,23 +537,7 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(accepted()),SLOT(onLoginDialogAccepted()));
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
-
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
-		if (border)
-		{
-			border->setAttribute(Qt::WA_DeleteOnClose, true);
-			border->setResizable(false);
-			border->setMinimizeButtonVisible(false);
-			border->setMaximizeButtonVisible(false);
-			connect(border, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
-			connect(FLoginDialog, SIGNAL(accepted()), border, SLOT(deleteLater()));
-			connect(FLoginDialog, SIGNAL(rejected()), border, SLOT(deleteLater()));
-			WidgetManager::showActivateRaiseWindow(border);
-		}
-		else
-		{
-			WidgetManager::showActivateRaiseWindow(FLoginDialog);
-		}
+		WidgetManager::showActivateRaiseWindow(FLoginDialog->window());
 	}
 	return FLoginDialog;
 }
@@ -620,29 +601,19 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 			FOptionsDialog = new OptionsDialog(this,AParent);
 			connect(FOptionsDialog, SIGNAL(applied()), SLOT(onOptionsDialogApplied()));
 			connect(FOptionsDialog, SIGNAL(dialogDestroyed()), SLOT(onOptionsDialogDestroyed()));
-			FOptionsDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FOptionsDialog, CBS_OPTIONSDIALOG);
-			if (FOptionsDialogBorder)
-			{
-				FOptionsDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
-				FOptionsDialogBorder->setMaximizeButtonVisible(false);
-				FOptionsDialogBorder->setResizable(false);
-				FOptionsDialogBorder->setMinimumSize(FOptionsDialog->minimumSize() + QSize(FOptionsDialogBorder->leftBorderWidth() + FOptionsDialogBorder->rightBorderWidth(), FOptionsDialogBorder->topBorderWidth() + FOptionsDialogBorder->bottomBorderWidth()));
-				connect(FOptionsDialog, SIGNAL(accepted()), FOptionsDialogBorder, SLOT(closeWidget()));
-				connect(FOptionsDialog, SIGNAL(rejected()), FOptionsDialogBorder, SLOT(closeWidget()));
-				connect(FOptionsDialogBorder, SIGNAL(closeClicked()), FOptionsDialog, SLOT(reject()));
-			}
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
-		WidgetManager::showActivateRaiseWindow(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog);
-		FOptionsDialog->adjustSize();
-		FOptionsDialog->layout()->update();
-		if (FOptionsDialogBorder)
-		{
-			FOptionsDialogBorder->layout()->update();
-			FOptionsDialogBorder->adjustSize();
-		}
+		WidgetManager::showActivateRaiseWindow(FOptionsDialog->window());
+		
+		//FOptionsDialog->adjustSize();
+		//FOptionsDialog->layout()->update();
+		//if (FOptionsDialogBorder)
+		//{
+		//	FOptionsDialogBorder->layout()->update();
+		//	FOptionsDialogBorder->adjustSize();
+		//}
 	}
-	return FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog;
+	return FOptionsDialog->window();
 }
 
 IOptionsWidget *OptionsManager::optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const
@@ -695,8 +666,8 @@ void OptionsManager::closeProfile()
 		FAutoSaveTimer.stop();
 		if (FOptionsDialog)
 		{
-			if (FOptionsDialogBorder)
-				FOptionsDialogBorder->closeWidget();
+			if (CustomBorderStorage::isBordered(FOptionsDialog))
+				CustomBorderStorage::widgetBorder(FOptionsDialog)->closeWidget();
 			else
 				FOptionsDialog->close();
 		}
@@ -813,7 +784,6 @@ void OptionsManager::onOptionsDialogApplied()
 void OptionsManager::onOptionsDialogDestroyed()
 {
 	FOptionsDialog = NULL;
-	FOptionsDialogBorder = NULL;
 }
 
 void OptionsManager::onChangeProfileByAction(bool)

@@ -16,9 +16,7 @@
 #include <QStyledItemDelegate>
 #include <QAbstractTextDocumentLayout>
 #include <definitions/customborder.h>
-#include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
-#include <definitions/menuicons.h>
 #include <utils/log.h>
 #include <utils/iconstorage.h>
 #include <utils/customlistview.h>
@@ -171,8 +169,25 @@ private:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-	//setWindowModality(Qt::WindowModal); // what for?
-	setAttribute(Qt::WA_DeleteOnClose, true);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		border->setResizable(false);
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(accepted()), border, SLOT(deleteLater()));
+		connect(this, SIGNAL(rejected()), border, SLOT(deleteLater()));
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose, true);
+	}
+
 #ifdef Q_WS_MAC
 	setWindowGrowButtonEnabled(this->window(), false);
 	ui.frmLogin->layout()->setSpacing(6);
@@ -217,10 +232,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.cmbDomain->setView(new QListView(ui.cmbDomain));
 	ui.cmbDomain->view()->setItemDelegate(new DomainComboDelegate(ui.cmbDomain->view(), ui.cmbDomain));
 
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
-	connect(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SIGNAL(stylePreviewReset()), SLOT(onStylePreviewReset()));
-	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 	FConnectionErrorWidget->setStyleSheet(styleSheet());
+	connect(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SIGNAL(stylePreviewReset()), SLOT(onStylePreviewReset()));
 
 	initialize(APluginManager);
 	FOptionsManager->setCurrentProfile(QString::null,QString::null);
