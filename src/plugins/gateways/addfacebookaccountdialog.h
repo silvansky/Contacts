@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
+#include <definitions/customborder.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/igateways.h>
 #include <interfaces/iregistraton.h>
@@ -12,6 +13,7 @@
 #include <utils/log.h>
 #include <utils/stylestorage.h>
 #include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
 #include "ui_addfacebookaccountdialog.h"
 
 class AddFacebookAccountDialog : 

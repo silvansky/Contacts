@@ -30,6 +30,7 @@ TrayManager::TrayManager()
 
 TrayManager::~TrayManager()
 {
+	FSystemIcon.hide();
 	while (FNotifyOrder.count() > 0)
 		removeNotify(FNotifyOrder.first());
 	delete FContextMenu;

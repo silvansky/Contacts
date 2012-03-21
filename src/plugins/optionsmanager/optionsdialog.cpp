@@ -29,6 +29,7 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 {
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_OPTIONSDIALOG);
 
 #ifdef Q_WS_MAC
 	setWindowGrowButtonEnabled(this->window(), false);
@@ -37,8 +38,6 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 	ui.trvNodes->installEventFilter(this);
 	setWindowTitle(tr("Options"));
 	FCurrentWidget = NULL;
-
-	restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry").toByteArray());
 
 	delete ui.scaScroll->takeWidget();
 	ui.trvNodes->sortByColumn(0,Qt::AscendingOrder);
@@ -79,7 +78,7 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 
 	ui.scaScroll->setVisible(false);
 
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_OPTIONSDIALOG);
+	restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry").toByteArray());
 }
 
 OptionsDialog::~OptionsDialog()

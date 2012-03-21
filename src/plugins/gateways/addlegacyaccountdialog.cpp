@@ -3,10 +3,12 @@
 #include <QTimer>
 #include <QListView>
 #include <QPushButton>
-#include <utils/graphicseffectsstorage.h>
-#include <definitions/graphicseffects.h>
 #include <definitions/resources.h>
+#include <definitions/customborder.h>
+#include <definitions/graphicseffects.h>
 #include <definitions/gateserviceidentifiers.h>
+#include <utils/customborderstorage.h>
+#include <utils/graphicseffectsstorage.h>
 
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
@@ -14,6 +16,18 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	ui.cmbDomains->setView(new QListView);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		border->setMaximizeButtonVisible(false);
+		border->setMinimizeButtonVisible(false);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(rejected()), border, SLOT(close()));
+		connect(this, SIGNAL(accepted()), border, SLOT(close()));
+		border->setResizable(false);
+	}
 
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->addWidget(ui.pbtOk);

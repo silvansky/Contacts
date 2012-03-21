@@ -14,10 +14,22 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_ADDFACEBOOKACCOUNTDIALOG);
 
-#ifdef Q_WS_MAC
-	ui.lblCaption->setVisible(false);
-	layout()->setContentsMargins(0, 0, 0, 0);
-#endif
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		border->setMaximizeButtonVisible(false);
+		border->setMinimizeButtonVisible(false);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(rejected()), border, SLOT(close()));
+		connect(this, SIGNAL(accepted()), border, SLOT(close()));
+		border->setResizable(false);
+	}
+	else
+	{
+		ui.lblCaption->setVisible(false);
+		layout()->setContentsMargins(0, 0, 0, 0);
+	}
 
 	FPresence = APresence;
 	FGateways = AGateways;

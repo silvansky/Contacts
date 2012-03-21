@@ -746,24 +746,8 @@ QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 			dialog = new AddContactDialog(roster,this,FPluginManager);
 		connect(roster->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
 		emit addContactDialogCreated(qobject_cast<IAddContactDialog *>(dialog));
-
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-		if (border)
-		{
-			border->setAttribute(Qt::WA_DeleteOnClose, true);
-			border->setMaximizeButtonVisible(false);
-			border->setMinimizeButtonVisible(false);
-			border->setResizable(false);
-			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-			connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-			connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-			border->show();
-		}
-		else
-		{
-			dialog->show();
-		}
-		return border ? (QWidget*)border : (QWidget*)dialog;
+		WidgetManager::showActivateRaiseWindow(dialog->window());
+		return dialog->window();
 	}
 	return NULL;
 }

@@ -8,6 +8,7 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/optionvalues.h>
+#include <definitions/customborder.h>
 #include <definitions/stylesheets.h>
 #include <definitions/vcardvaluenames.h>
 #include <definitions/rosterindextyperole.h>
@@ -28,6 +29,7 @@
 #include <utils/stylestorage.h>
 #include <utils/customlistview.h>
 #include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
 #include "selectprofilewidget.h"
 #include "ui_addcontactdialog.h"
 
