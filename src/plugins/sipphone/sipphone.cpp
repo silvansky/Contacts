@@ -1082,6 +1082,7 @@ void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult/*,
 		queryElem.setAttribute("sid",sid);
 		queryElem.setAttribute("type","accept");
 		queryElem.setAttribute("client","deskapp");
+		queryElem.setAttribute("peer",stream.streamJid.eBare());
 
 		if (FStanzaProcessor->sendStanzaRequest(this,stream.streamJid,accept,CLOSE_TIMEOUT))
 		{
