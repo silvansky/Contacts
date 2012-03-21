@@ -894,7 +894,7 @@ void PluginManager::onShowSetupPluginsDialog(bool)
 		FPluginsDialog = new SetupPluginsDialog(this,FPluginsSetup,NULL);
 		connect(FPluginsDialog, SIGNAL(accepted()),SLOT(onSetupPluginsDialogAccepted()));
 	}
-	WidgetManager::showActivateRaiseWindow(FPluginsDialog);
+	WidgetManager::showActivateRaiseWindow(FPluginsDialog->window());
 }
 
 void PluginManager::onSetupPluginsDialogAccepted()

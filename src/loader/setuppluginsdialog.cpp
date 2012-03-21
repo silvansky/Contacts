@@ -18,7 +18,7 @@ SetupPluginsDialog::SetupPluginsDialog(IPluginManager *APluginManager, QDomDocum
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_PLUGINMANAGER_SETUP,0,0,"windowIcon");
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_SETUPPLUGINSDIALOG);
 
-	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	CustomBorderContainer *border = NULL; //CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (border)
 	{
 		border->setAttribute(Qt::WA_DeleteOnClose, true);

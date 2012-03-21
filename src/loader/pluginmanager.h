@@ -65,7 +65,7 @@ public:
 	virtual const IPluginInfo *pluginInfo(const QUuid &AUuid) const;
 	virtual QList<QUuid> pluginDependencesOn(const QUuid &AUuid) const;
 	virtual QList<QUuid> pluginDependencesFor(const QUuid &AUuid) const;
-    virtual void showFeedbackDialog();
+	virtual void showFeedbackDialog();
 public slots:
 	virtual void quit();
 	virtual void restart();
