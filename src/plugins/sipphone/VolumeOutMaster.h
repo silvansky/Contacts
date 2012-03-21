@@ -4,6 +4,9 @@
 #include <QObject>
 #include <pjsua.h>
 
+
+//#define Q_WS_WIN32_NOTNEEDED
+
 #include "IVolume.h"
 #ifndef Q_WS_WIN32
 typedef unsigned long DWORD;
@@ -12,12 +15,12 @@ typedef unsigned int UINT;
 
 // TODO: implement volume functions for Mac OS X
 class CVolumeOutMaster : public QObject
-		#ifdef Q_WS_WIN32
+		#ifdef Q_WS_WIN32_NOTNEEDED
 		, public IVolume
 		#endif
 {
 	Q_OBJECT
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 
 	////////////////////////
 	// IVolume interface
@@ -94,7 +97,7 @@ private:
 	DWORD m_dwMaximalVolume;
 	DWORD m_dwVolumeStep;
 
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	// User Info
 	PONMICVOULUMECHANGE m_pfUserSink;
 	DWORD m_dwUserValue;

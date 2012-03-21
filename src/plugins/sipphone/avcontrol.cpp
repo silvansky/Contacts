@@ -239,7 +239,7 @@ void AVControl::paintEvent(QPaintEvent *)
 
 void AVControl::onAudioSettings()
 {
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	// ONLY FOR WINDOWS
 	OSVERSIONINFO m_osinfo;
 	ZeroMemory(&m_osinfo, sizeof(m_osinfo));

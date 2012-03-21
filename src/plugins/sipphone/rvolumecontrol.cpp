@@ -18,7 +18,7 @@ double round(double x)
 	return ((x - floor(x)) >= 0.5) ? ceil(x) : floor(x);
 }
 
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA NotificationData)
 {
 	int volumeValue = (int)round(NotificationData->fMasterVolume*100);
@@ -58,9 +58,9 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 
 
 RVolumeControl::RVolumeControl(QWidget *parent)
-	: QWidget(parent), _value(0), _min(0), _max(100), _isOn(true), _isEnableSound(true), _isDark(true), _isWinXP(false)
+	: QWidget(parent), _value(0), _min(0), _max(100), _isOn(true), _isEnableSound(true), _isDark(true), _isWinXP(false), pMasterVolume(NULL)
 {
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	endpointVolume = NULL;
 	volumeNotification = NULL;
 #endif
@@ -72,7 +72,7 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 	float currVolume = 0.;
 
 	// Определяем версию ОС (xp или старше?)
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	OSVERSIONINFO m_osinfo;
 	ZeroMemory(&m_osinfo, sizeof(m_osinfo));
 	m_osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -173,7 +173,7 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 
 RVolumeControl::~RVolumeControl()
 {
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	if(!_isWinXP)
 	{
 		if(endpointVolume && volumeNotification)
@@ -238,7 +238,7 @@ void RVolumeControl::setCallSlot(int slot)
 
 void RVolumeControl::resetCallSlot(int slot)
 {
-	if (pMasterVolume->currentCall() == slot)
+	if (pMasterVolume && pMasterVolume->currentCall() == slot)
 		pMasterVolume->setCurrentCall(-1);
 }
 
@@ -293,7 +293,7 @@ void RVolumeControl::setMute(bool mute)
 void RVolumeControl::setOff()
 {
 	_isOn = false;
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	if(!_isWinXP)
 	{
 		if(endpointVolume)
@@ -314,7 +314,7 @@ void RVolumeControl::setOff()
 void RVolumeControl::setOn()
 {
 	_isOn = true;
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	if(!_isWinXP)
 	{
 		if(endpointVolume)
@@ -556,7 +556,7 @@ void RVolumeControl::switchStateOnOff()
 
 void RVolumeControl::onValueChange(int newVolumeInt)
 {
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	if (!_isWinXP)
 	{
 		double newVolume = ((double)newVolumeInt)/100;

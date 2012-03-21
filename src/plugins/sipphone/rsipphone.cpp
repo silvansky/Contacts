@@ -434,7 +434,7 @@ void RSipPhone::onNewCall(int cid, bool incoming)
 	pj_assert(_currentCall == -1);
 	_currentCall = cid;
 
-	emit callStarted(_currentCall);
+	//emit callStarted(_currentCall);
 
 	pjsua_call_get_info(cid, &ci);
 
@@ -592,7 +592,12 @@ void RSipPhone::call()
 
 		pj_assert(_currentCall == -1);
 
-		status = pjsua_call_make_call(_accountId, &uri, 0, NULL, NULL, &_currentCall);
+		pjsua_call_setting call_setting;
+		pjsua_call_setting_default(&call_setting);
+		call_setting.vid_cnt = 1;//(vidEnabled_->checkState()==Qt::Checked);
+		call_setting.aud_cnt = 1;
+
+		status = pjsua_call_make_call(_accountId, &uri, &call_setting, NULL, NULL, &_currentCall);
 		if (status != PJ_SUCCESS)
 		{
 			showError("make call", status);
@@ -632,19 +637,20 @@ void RSipPhone::call(const char* uriToCall)
 	pj_assert(_currentCall == -1);
 
 
-	//pjsua_call_setting call_setting;
-	//pjsua_call_setting_default(&call_setting);
-	//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
+	pjsua_call_setting call_setting;
+	pjsua_call_setting_default(&call_setting);
+	call_setting.vid_cnt = 1;//(vidEnabled_->checkState()==Qt::Checked);
+	call_setting.aud_cnt = 1;
 
 	// NULL SOUND
 	//int capture_dev = -99;
 	//int playback_dev = -99;
 	//pjsua_get_snd_dev(&capture_dev, &playback_dev);
-	////status = pjsua_set_null_snd_dev();
+	//status = pjsua_set_null_snd_dev();
 	//pjsua_set_snd_dev(-99, playback_dev);
 
 
-	status = pjsua_call_make_call(_accountId, &uri, 0, NULL, NULL, &_currentCall);
+	status = pjsua_call_make_call(_accountId, &uri, &call_setting, NULL, NULL, &_currentCall);
 	//status = PJMEDIA_EAUD_NODEFDEV;
 	if (status != PJ_SUCCESS)
 	{
@@ -1031,6 +1037,8 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 	_pPhoneWidget = new SipPhoneWidget( this );
 
+	emit callStarted(_currentCall);
+
 	connect(_pPhoneWidget, SIGNAL(hangupCall()), this, SLOT(hangup()));
 	connect(this, SIGNAL(signal_SetRomoteImage(const QImage&)), _pPhoneWidget, SLOT(SetRemoteImage(const QImage&)), Qt::QueuedConnection);
 	connect(this, SIGNAL(signal_SetCurrentImage(const QImage&)), _pPhoneWidget, SLOT(SetCurrImage(const QImage&)), Qt::QueuedConnection);
@@ -1347,6 +1355,7 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 
 	pjsua_media_config med_cfg;
 	pjsua_media_config_default(&med_cfg);
+	med_cfg.thread_cnt = 1;
 	//med_cfg.enable_ice = true;
 
 

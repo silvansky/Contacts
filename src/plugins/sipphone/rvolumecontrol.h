@@ -31,7 +31,7 @@ public:
 		_currVolume = -1;
 		_mute = false;
 	}
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	STDMETHODIMP_(ULONG)AddRef() { return InterlockedIncrement(&m_RefCount); }
 	STDMETHODIMP_(ULONG)Release()
 	{
@@ -141,7 +141,7 @@ private:
 	bool _isOn;
 	bool _isEnableSound;
 	bool _isDark;
-#ifdef Q_WS_WIN32
+#ifdef Q_WS_WIN32_NOTNEEDED
 	IAudioEndpointVolume *endpointVolume;
 	CVolumeNotification *volumeNotification;
 #endif
