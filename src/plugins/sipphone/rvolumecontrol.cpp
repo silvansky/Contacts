@@ -58,7 +58,7 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 
 
 RVolumeControl::RVolumeControl(QWidget *parent)
-	: QWidget(parent), _value(0), _min(10), _max(100), _isOn(true), _isEnableSound(true), _isDark(true), _isWinXP(false), pMasterVolume(NULL)
+	: QWidget(parent), _value(0), _min(10), _max(200), _isOn(true), _isEnableSound(true), _isDark(true), _isWinXP(false), pMasterVolume(NULL)
 {
 #ifdef Q_WS_WIN32_NOTNEEDED
 	endpointVolume = NULL;
@@ -513,15 +513,21 @@ QSize RVolumeControl::minimumSizeHint() const
 
 RVolumeControl::VolumeIndexes RVolumeControl::volumeToIndex(int val)
 {
-	if(val >= 0 && val < 20)
+	int low = minimum();
+	int high = maximum();
+	int mark0 = int(low + (high - low) * 0.2);
+	int mark1 = int(low + (high - low) * 0.4);
+	int mark2 = int(low + (high - low) * 0.6);
+	int mark3 = int(low + (high - low) * 0.8);
+	if(val >= low && val < mark0)
 		return volume0;
-	if(val >= 20 && val < 40)
+	if(val >= mark0 && val < mark1)
 		return volume1;
-	if(val >= 40 && val < 60)
+	if(val >= mark1 && val < mark2)
 		return volume2;
-	if(val >= 60 && val < 80)
+	if(val >= mark2 && val < mark3)
 		return volume3;
-	if(val >= 80 && val <= 100)
+	if(val >= mark3 && val <= high)
 		return volume4;
 
 	return volumeOff;
