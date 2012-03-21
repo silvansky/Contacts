@@ -58,7 +58,7 @@ STDMETHODIMP CVolumeNotification::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA Notif
 
 
 RVolumeControl::RVolumeControl(QWidget *parent)
-	: QWidget(parent), _value(0), _min(0), _max(100), _isOn(true), _isEnableSound(true), _isDark(true), _isWinXP(false), pMasterVolume(NULL)
+	: QWidget(parent), _value(0), _min(10), _max(100), _isOn(true), _isEnableSound(true), _isDark(true), _isWinXP(false), pMasterVolume(NULL)
 {
 #ifdef Q_WS_WIN32_NOTNEEDED
 	endpointVolume = NULL;
@@ -127,7 +127,7 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 #endif
 	{
 		pMasterVolume = new CVolumeOutMaster();
-		if ( !pMasterVolume || !pMasterVolume->isAvailable() )
+		if (!pMasterVolume->isAvailable())
 		{
 			// обработка ошибки
 		}

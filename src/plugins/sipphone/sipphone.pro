@@ -14,7 +14,6 @@ win32-msvc2008|macx: {
 	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/Inc/iLBC
 	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/inc
 	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPVideoLib/inc
-
 } else: {
 	include(../nobuild.inc)
 }
@@ -51,8 +50,9 @@ win32-msvc2008: {
 	INCLUDEPATH += ../../../../pjsip_mod/pjsip/include
 	
 }
+
 macx: {
-	contains(DEFINES, USE_PHONON){
+	contains(DEFINES, USE_PHONON) {
 	  QT  += dbus
 	}
 

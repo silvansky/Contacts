@@ -523,7 +523,6 @@ void RCallControl::playSignalBusy(int loops)
 	}
 
 #ifdef USE_PHONON
-
 	if (!FMediaObject)
 	{
 		FMediaObject = new Phonon::MediaObject(this);
@@ -578,7 +577,6 @@ void RCallControl::playSignalRinging(int loops)
 	}
 
 #ifdef USE_PHONON
-
 	if (!FMediaObject)
 	{
 		FMediaObject = new Phonon::MediaObject(this);

@@ -72,6 +72,7 @@ CVolumeOutMaster::CVolumeOutMaster():
 {
 	if ( (m_bOK = Init()) )
 	{
+		_lastVolume = 0.0;
 		g_pThis = this;
 		if ( !Initialize() )
 		{
@@ -152,37 +153,25 @@ float CVolumeOutMaster::currentVolume()
 
 bool CVolumeOutMaster::isMuted()
 {
-#ifdef Q_WS_WIN32_NOTNEEDED
-	return isMute();
-#elif defined (Q_WS_MAC)
-	return _muted;
-#else
-	return true;
-#endif
+	return _enabled;
 }
 
 void CVolumeOutMaster::enable()
 {
-#ifdef Q_WS_WIN32_NOTNEEDED
-	Enable();
-#elif defined (Q_WS_MAC)
+	setCurrentVolume(_lastVolume);
 	_enabled = true;
-#else
-#endif
 }
 
 void CVolumeOutMaster::disable()
 {
-#ifdef Q_WS_WIN32_NOTNEEDED
-	Disable();
-#elif defined (Q_WS_MAC)
+	_lastVolume = currentVolume();
+	setCurrentVolume(0.0);
 	_enabled = false;
-#else
-#endif
 }
 
 void CVolumeOutMaster::setCurrentVolume(float vol)
 {
+	_currentVolume = vol;
 	if (_currentCall != -1)
 	{
 		pjsua_call_info ci;

@@ -9,9 +9,8 @@
 #endif
 
 #if defined(PJ_WIN32)
-#   define SDL_MAIN_HANDLED
+# define SDL_MAIN_HANDLED
 #endif
-
 
 #include <SDL.h>
 #include <assert.h>
@@ -23,13 +22,8 @@
 
 #include "sipphonewidget.h"
 
-//#include "complexvideowidget.h"
-
-
-
 #define LOG_FILE		"rsipphone.log"
 #define THIS_FILE		"rsipphone.cpp"
-
 
 // These configure SIP registration
 //#define SIP_DOMAIN		NULL
@@ -119,10 +113,10 @@ pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormod
 #define YUV422P_LEN(w,h)    ((w) * (h) * 2)
 
 // YUV --> RGB Conversion macros
-#define _S(a)		(a)>255 ? 255 : (a)<0 ? 0 : (a)
-#define _R(y,u,v) (0x2568*(y)  			       + 0x3343*(u)) /0x2000
-#define _G(y,u,v) (0x2568*(y) - 0x0c92*(v) - 0x1a1e*(u)) /0x2000
-#define _B(y,u,v) (0x2568*(y) + 0x40cf*(v))					     /0x2000
+#define _S(a)     ((a)>255 ? 255 : (a)<0 ? 0 : (a))
+#define _R(y,u,v) ((0x2568*(y) + 0x3343*(u)) / 0x2000)
+#define _G(y,u,v) ((0x2568*(y) - 0x0c92*(v) - 0x1a1e*(u)) / 0x2000)
+#define _B(y,u,v) ((0x2568*(y) + 0x40cf*(v)) / 0x2000)
 
 //#define _R(y,u,v) (1.164*(y)  			       + 1.596*(u))
 //#define _G(y,u,v) (1.164*(y) - 0.813*(v) - 0.391*(u))
@@ -336,9 +330,7 @@ void YUYV422PtoRGB32(int width, int height, const unsigned char *src, unsigned c
 	}
 }
 
-
-
-RSipPhone *RSipPhone::_pInstance;
+RSipPhone *RSipPhone::_pInstance = NULL;
 
 RSipPhone::RSipPhone(QObject *parent) : QObject(parent),
 	_accountId(-1),
@@ -442,56 +434,18 @@ void RSipPhone::onNewCall(int cid, bool incoming)
 		_currentRole = INCOMMING;
 	else if(ci.role == PJSIP_ROLE_UAC)
 		_currentRole = OUTGOING;
-	
-
-
-
-	//url_->setText(ci.remote_info.ptr);
-	//url_->setEnabled(false);
-	
-	//hangupButton_->setEnabled(true);
-
-	//if (incoming)
-	//{
-	//	callButton_->setText(tr("Answer"));
-	//	callButton_->setEnabled(true);
-	//}
-	//else
-	//{
-	//	callButton_->setEnabled(false);
-	//}
-
-	//////video_->setText(ci.remote_contact.ptr);
-	//////video_->setWindowTitle(ci.remote_contact.ptr);
 }
 
 void RSipPhone::onCallReleased()
 {
-	//url_->setEnabled(true);
-	//callButton_->setEnabled(true);
-	//callButton_->setText(tr("Call"));
-	//hangupButton_->setEnabled(false);
-	
 	if(_currentCall == -1)
 		return;
 
 	emit callEnded(_currentCall);
 	_currentCall = -1;
 
-	//if(_pVideoInputWidget)
-	//{
-	//	delete _pVideoInputWidget;
-	//	_pVideoInputWidget = NULL;
-	//}
-
 	myframe.put_frame_callback = NULL;
 	myframe.preview_frame_callback = NULL;
-
-	////////////////////////////////////////if(_pPhoneWidget)
-	////////////////////////////////////////{
-	////////////////////////////////////////	delete _pPhoneWidget;
-	////////////////////////////////////////	_pPhoneWidget = NULL;
-	////////////////////////////////////////}
 
 	if(_pPhoneWidget)
 	{
@@ -502,22 +456,13 @@ void RSipPhone::onCallReleased()
 	}
 }
 
-
 void RSipPhone::preview()
 {
 	if (_is_preview_on)
 	{
-		//delete video_prev_;
-		//video_prev_ = NULL;
-		//if(_pVideoPrevWidget)
-		//{
-		//	delete _pVideoPrevWidget;
-		//	_pVideoPrevWidget = NULL;
-		//}
 		pjsua_vid_preview_stop(DEFAULT_CAP_DEV);
 
 		showStatus("Preview stopped");
-		//previewButton_->setText(tr("Start &Preview"));
 	}
 	else
 	{
@@ -676,10 +621,6 @@ void RSipPhone::hangup()
 	emit signalCallReleased();
 }
 
-
-
-
-
 pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
 {
 	if(frame->type != PJMEDIA_FRAME_TYPE_VIDEO)
@@ -753,7 +694,6 @@ pj_status_t RSipPhone::on_my_put_frame_callback(pjmedia_frame *frame, int w, int
 	return 0;
 }
 
-
 void RSipPhone::initVideoWindow()
 {
 	//myframe.put_frame_callback = &my_put_frame_callback;
@@ -789,7 +729,6 @@ void RSipPhone::initVideoWindow()
 			break;
 		}
 	}
-	//emit signalShowSipPhoneWidget(0);
 }
 
 void RSipPhone::on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
@@ -969,7 +908,6 @@ void RSipPhone::on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx,
 	}
 }
 
-
 bool RSipPhone::isCameraReady() const
 {
 	if(!_initialized)
@@ -1015,8 +953,6 @@ bool RSipPhone::sendVideo(bool isSending)
 
 	return true;
 }
-
-
 
 void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 {
@@ -1096,26 +1032,22 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 	//widget->show();
 	updateCallerName();
-	WidgetManager::showActivateRaiseWindow(_pPhoneWidget->window()); //!!!!!!!!!!!!!!!!!!!!
+	WidgetManager::showActivateRaiseWindow(_pPhoneWidget->window());
 }
 
-
-
-//
-// initStack()
-//
 bool RSipPhone::initStack(const QString& sip_domain, int sipPortNum, const QString& sip_username, const QString& sip_password)
 {
 	return RSipPhone::initStack(sip_domain.toUtf8().data(), sipPortNum, sip_username.toUtf8().data(), sip_password.toUtf8().data());
 }
+
 bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* sip_username, const char* sip_password)
 {
+	// TODO: get rid of "goto on_error"
 	if ( SDL_InitSubSystem(SDL_INIT_VIDEO) < 0 )
 	{
 		printf("Unable to init SDL: %s\n", SDL_GetError());
 		return false;
 	}
-
 
 	pj_status_t status;
 
@@ -1142,7 +1074,6 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 	//ua_cfg.stun_srv_cnt = 1;
 	//ua_cfg.stun_srv[0] = pj_str((char*)"talkpad.ru:5065");
 	//ua_cfg.stun_srv[0] = pj_str((char*)"vsip.rambler.ru:5065");
-	
 
 	pjsua_logging_config log_cfg;
 	pjsua_logging_config_default(&log_cfg);
@@ -1151,8 +1082,6 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 	pjsua_media_config med_cfg;
 	pjsua_media_config_default(&med_cfg);
 	//med_cfg.enable_ice = true;
-
-	
 
 	status = pjsua_init(&ua_cfg, &log_cfg, &med_cfg);
 	//status = pjsua_init(&ua_cfg, NULL, &med_cfg);
@@ -1233,7 +1162,6 @@ bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* si
 	}
 
 
-
 //#ifdef SIP_DOMAIN
 //	acc_cfg.id = pj_str( "sip:" SIP_USERNAME "@" SIP_DOMAIN);
 //	acc_cfg.reg_uri = pj_str((char*) ("sip:" SIP_DOMAIN));
@@ -1297,7 +1225,6 @@ on_error:
 	return false;
 }
 
-
 bool RSipPhone::initStack(const QString& sip_server, int sipPortNum, const QString& sip_username, const QString& sip_password, const QString& sip_domain)
 {
 	return RSipPhone::initStack(sip_server.toUtf8().data(), sipPortNum, sip_username.toUtf8().data(), sip_password.toUtf8().data(), sip_domain.toUtf8().data());
@@ -1305,12 +1232,12 @@ bool RSipPhone::initStack(const QString& sip_server, int sipPortNum, const QStri
 
 bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* sip_username, const char* sip_password, const char* sip_domain)
 {
+	// TODO: get rid of "goto on_error"
 	if ( SDL_InitSubSystem(SDL_INIT_VIDEO) < 0 )
 	{
 		printf("Unable to init SDL: %s\n", SDL_GetError());
 		return false;
 	}
-
 
 	pj_status_t status;
 
@@ -1345,9 +1272,6 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 	//ua_cfg.stun_srv_cnt = 1;
 	//ua_cfg.stun_srv[0] = pj_str((char*)"talkpad.ru:5065");
 	//ua_cfg.stun_srv[0] = pj_str((char*)"vsip.rambler.ru:5065");
-
-
-
 
 	pjsua_logging_config log_cfg;
 	pjsua_logging_config_default(&log_cfg);

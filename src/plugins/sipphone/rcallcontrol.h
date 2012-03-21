@@ -2,12 +2,14 @@
 #define RCALLCONTROL_H
 
 #include <QWidget>
+
 #ifdef USE_PHONON
-#include <Phonon/Phonon>
-#include <Phonon/MediaSource>
+# include <Phonon/Phonon>
+# include <Phonon/MediaSource>
 #else
-#	include <QSound>
+# include <QSound>
 #endif
+
 #include "ui_rcallcontrol.h"
 
 #include <definitions/menuicons.h>
@@ -90,7 +92,6 @@ protected slots:
 	void onAccept();
 	void onHangup();
 	void onCamStateChange(bool);
-
 
 protected:
 	void closeEvent(QCloseEvent *);

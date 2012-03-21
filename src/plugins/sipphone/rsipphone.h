@@ -3,27 +3,20 @@
 
 #include <QObject>
 #include <QImage>
-//#include "sipphonewidget.h"
-
 #include <pjsua.h>
-
-
-//class VidWin;
 
 class SipPhoneWidget;
 
 class RSipPhone : public QObject
 {
 	Q_OBJECT
-
+public:
+	enum callrole { INCOMMING, OUTGOING, NONE};
+	static RSipPhone *instance() { return _pInstance; }
 public:
 	RSipPhone(QObject *parent = NULL);
 	~RSipPhone();
 
-	static RSipPhone *instance() { return _pInstance;}
-
-public:
-	//bool initStack();
 	bool initStack(const char* sip_domain, int sipPortNum, const char* sip_username, const char* sip_password);
 	bool initStack(const QString& sip_domain, int sipPortNum, const QString& sip_username, const QString& sip_password);
 
@@ -49,7 +42,6 @@ public:
 	pj_status_t on_my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride);
 	pj_status_t on_my_preview_frame_callback(pjmedia_frame *frame, const char*, int w, int h, int stride);
 
-
 signals:
 	void signalNewCall(int, bool);
 	void callStarted(int);
@@ -67,7 +59,6 @@ signals:
 
 	void signalVideoPrevWidgetSet(void*);
 	void signalVideoInputWidgetSet(void*);
-
 
 	// Сигналы для совместимости с прежней версией (Уберу)
 	void camPresentChanged(bool);
@@ -87,7 +78,6 @@ signals:
 	void signal_DeviceError();
 	void signal_InviteStatus(bool, int, const QString&);
 
-
 public slots:
 	void preview();
 	void call();
@@ -104,7 +94,6 @@ private slots:
 	void onNewCall(int cid, bool incoming);
 	void onCallReleased();
 	void initVideoWindow();
-
 	//void doShowStatus(const QString& msg);
 
 private:
@@ -119,39 +108,16 @@ private:
 
 	bool _currentRegisterStatus;
 
-
-	enum callrole { INCOMMING, OUTGOING, NONE};
 	callrole _currentRole;
 
 private:
-	//QPushButton *callButton_,
-	//	*hangupButton_,
-	//	*quitButton_,
-	//	*previewButton_;
-	//QLineEdit *url_;
-	//VidWin *video_;
-	//VidWin *video_prev_;
-	////QStatusBar *statusBar_;
-	//QLabel *statusBar_;
-	//QLabel *localUri_;
-
-	//QVBoxLayout *vbox_left;
-
-
-	//VidWin *_pVideoPrevWidget;
-	//VidWin *_pVideoInputWidget;
 	QString _uri;
 
-	//QWidget* _pParentWidgetForPreview;
-	//QWidget* _pParentWidgetForIncomingVideo;
-
-	//void initLayout();
 private:
 	QImage _img, _currimg;
-	SipPhoneWidget* _pPhoneWidget;
+	SipPhoneWidget * _pPhoneWidget;
 	bool _initialized;
 	QString _callerName;
-
 	//pjmedia_vid_dev_myframe myframe;
 };
 

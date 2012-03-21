@@ -50,7 +50,7 @@ public:
 	bool isMuted();
 
 	pjsua_call_id currentCall() const { return _currentCall; }
-	void setCurrentCall(pjsua_call_id call) { _currentCall = call; }
+	void setCurrentCall(pjsua_call_id call) { _currentCall = call; setCurrentVolume(_currentVolume); }
 
 public slots:
 	void enable();
@@ -106,6 +106,7 @@ private:
 	float _minVolume;
 	float _maxVolume;
 	float _currentVolume;
+	float _lastVolume;
 	bool _muted;
 	bool _enabled;
 };
