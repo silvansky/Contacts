@@ -33,7 +33,9 @@
 #define OWO_NOTIFICATIONS_GATEWAYS_CONFLICT       900
 
 //Node = OPN_COMMON
+#define OWO_COMMON                                200
 #define OWO_COMMON_AUTOSTART                      400
+#define OWO_COMMON_BORDERSENABLE                  450
 #define OWO_COMMON_AUTOSTATUS                     500
 #define OWO_COMMON_CLIENTINFO                     700
 #define OWO_COMMON_SINC                           800

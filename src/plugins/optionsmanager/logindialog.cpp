@@ -191,11 +191,12 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 #ifdef Q_WS_MAC
 	setWindowGrowButtonEnabled(this->window(), false);
 	ui.frmLogin->layout()->setSpacing(6);
+#endif
+
+#ifndef Q_WS_WIN
 	QVBoxLayout * lt = qobject_cast<QVBoxLayout*>(ui.wdtContent->layout());
 	if (lt)
-	{
 		lt->insertStretch(lt->indexOf(ui.chbAutoRun));
-	}
 	ui.chbAutoRun->setVisible(false);
 #endif
 

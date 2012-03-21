@@ -187,13 +187,17 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 	if (ANodeId == OPN_COMMON)
 	{
 #ifndef Q_WS_MAC
-		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsHeaderWidget(QString::null, tr("Common settings"), AParent));
+		widgets.insertMulti(OWO_COMMON, optionsHeaderWidget(QString::null, tr("Common settings"), AParent));
+#endif
+#ifdef Q_WS_WIN
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
-
-		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"), AParent));
 #endif
 #ifdef DEBUG_ENABLED
-		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDERSENABLED), tr("Use custom window borders (restart needed)"), AParent));
+		widgets.insertMulti(OWO_COMMON_BORDERSENABLE, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDERSENABLED), tr("Use custom window borders (restart needed)"), AParent));
+#endif
+
+#ifndef Q_WS_MAC
+		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"), AParent));
 #endif
 		widgets.insertMulti(OWO_COMMON_SINC_OPTIONS, optionsNodeWidget(Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER), tr("Sync preferences on my several computers"), AParent));
 	}

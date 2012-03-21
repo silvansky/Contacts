@@ -309,7 +309,7 @@ void MainWindowPlugin::onOptionsOpened()
 	FOpenAction->setVisible(true);
 	updateTitle();
 
-	QString ns = FMainWindowBorder ? QString("bordered") : QString::null;
+	QString ns = FMainWindowBorder ? QString::null : QString("system-border");
 	mainWindowTopWidget()->resize(Options::node(OPV_MAINWINDOW_SIZE,ns).value().toSize());
 	mainWindowTopWidget()->move(Options::node(OPV_MAINWINDOW_POSITION,ns).value().toPoint());
 
@@ -323,7 +323,7 @@ void MainWindowPlugin::onOptionsClosed()
 	FOpenAction->setVisible(false);
 	updateTitle();
 
-	QString ns = FMainWindowBorder ? QString("bordered") : QString::null;
+	QString ns = FMainWindowBorder ? QString::null : QString("system-border");
 	Options::node(OPV_MAINWINDOW_SIZE,ns).setValue(mainWindowTopWidget()->size());
 	Options::node(OPV_MAINWINDOW_POSITION,ns).setValue(mainWindowTopWidget()->pos());
 	mainWindowTopWidget()->hide();
