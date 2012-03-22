@@ -1514,6 +1514,7 @@ IChatWindow *MultiUserChatWindow::getChatWindow(const Jid &AContactJid)
 			UserContextMenu *menu = new UserContextMenu(this,window);
 			menu->menuAction()->setIcon(RSR_STORAGE_MENUICONS, MNI_MUC_USER_MENU);
 			QToolButton *button = window->toolBarWidget()->toolBarChanger()->insertAction(menu->menuAction(),TBG_CWTBW_USER_TOOLS);
+			menu->setParent(button);
 			button->setPopupMode(QToolButton::InstantPopup);
 
 			setChatMessageStyle(window);

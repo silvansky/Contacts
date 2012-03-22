@@ -853,47 +853,58 @@ bool MetaTabWindow::eventFilter(QObject *AObject, QEvent *AEvent)
 			QToolButton *button = FPageButtons.value(currentPage());
 			if (button)
 			{
+				ui.tlbToolBar->removeEventFilter(this);
+				QApplication::sendEvent(ui.tlbToolBar, AEvent);
+				ui.tlbToolBar->installEventFilter(this);
+
+				QImage triangle = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MESSAGEWIDGETS_TABWINDOW_TRIANGLE);
+
 				QPainter p(ui.tlbToolBar);
 				QSize sz = ui.tlbToolBar->size();
 				int buttonCenter = button->width() / 2 + button->geometry().left();
-				QImage triangle = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MESSAGEWIDGETS_TABWINDOW_TRIANGLE);
 				p.drawImage(buttonCenter - triangle.width() / 2, sz.height() - triangle.height(), triangle);
-				QRect targetRect(0, sz.height() - triangle.height(), buttonCenter - triangle.width() / 2, triangle.height());
-				QRect sourceRect(0, 0, 1, triangle.height());
-				p.drawImage(targetRect, triangle, sourceRect);
-				targetRect = QRect(buttonCenter + triangle.width() / 2, sz.height() - triangle.height(), sz.width() - buttonCenter - triangle.width() / 2, triangle.height());
-				sourceRect = QRect(triangle.width() - 1, 0, 1, triangle.height());
-				p.drawImage(targetRect, triangle, sourceRect);
+
+				//QRect sourceRect(0, 0, 1, triangle.height());
+				//QRect targetRect(0, sz.height() - triangle.height(), buttonCenter - triangle.width() / 2, triangle.height());
+				//p.drawImage(targetRect, triangle, sourceRect);
+
+				//sourceRect = QRect(triangle.width() - 1, 0, 1, triangle.height());
+				//targetRect = QRect(buttonCenter + triangle.width() / 2, sz.height() - triangle.height(), sz.width() - buttonCenter - triangle.width() / 2, triangle.height());
+				//p.drawImage(targetRect, triangle, sourceRect);
+
 				p.end();
+				return true;
 			}
 		}
-
-		QToolButton *button = qobject_cast<QToolButton *>(AObject);
-		if (button)
+		else
 		{
-			button->removeEventFilter(this);
-			QApplication::sendEvent(button, AEvent);
-			button->installEventFilter(this);
-
-			QIcon notifyBalloon = button->property("notifyBalloon").value<QIcon>();
-			QPainter p(button);
-			if (!notifyBalloon.isNull())
+			QToolButton *button = qobject_cast<QToolButton *>(AObject);
+			if (button)
 			{
-				QSize notifySize = notifyBalloon.availableSizes().at(0);
-				QRect notifyRect = QRect(button->width() - notifySize.width(), 0, notifySize.width(), notifySize.height());
-				p.drawPixmap(notifyRect, notifyBalloon.pixmap(notifySize));
-			}
+				button->removeEventFilter(this);
+				QApplication::sendEvent(button, AEvent);
+				button->installEventFilter(this);
 
-			QImage statusIcon = button->property("statusIcon").value<QImage>();
-			if (!statusIcon.isNull())
-			{
-				QSize iconSize = statusIcon.size();
-				QRect iconRect = QRect(button->width() - iconSize.width(), button->height() - iconSize.height(), iconSize.width(), iconSize.height());
-				p.drawImage(iconRect, statusIcon);
-			}
+				QIcon notifyBalloon = button->property("notifyBalloon").value<QIcon>();
+				QPainter p(button);
+				if (!notifyBalloon.isNull())
+				{
+					QSize notifySize = notifyBalloon.availableSizes().at(0);
+					QRect notifyRect = QRect(button->width() - notifySize.width(), 0, notifySize.width(), notifySize.height());
+					p.drawPixmap(notifyRect, notifyBalloon.pixmap(notifySize));
+				}
 
-			p.end();
-			return true;
+				QImage statusIcon = button->property("statusIcon").value<QImage>();
+				if (!statusIcon.isNull())
+				{
+					QSize iconSize = statusIcon.size();
+					QRect iconRect = QRect(button->width() - iconSize.width(), button->height() - iconSize.height(), iconSize.width(), iconSize.height());
+					p.drawImage(iconRect, statusIcon);
+				}
+
+				p.end();
+				return true;
+			}
 		}
 	}
 	return QMainWindow::eventFilter(AObject, AEvent);
