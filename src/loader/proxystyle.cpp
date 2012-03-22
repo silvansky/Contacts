@@ -43,3 +43,14 @@ int ProxyStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWid
 		return 0;
 	return QProxyStyle::styleHint(hint, option, widget, returnData);
 }
+
+void ProxyStyle::drawPrimitive(QStyle::PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
+{
+	switch (element)
+	{
+	case PE_FrameFocusRect:
+		break;
+	default:
+		QProxyStyle::drawPrimitive(element,option,painter,widget);
+	}
+}

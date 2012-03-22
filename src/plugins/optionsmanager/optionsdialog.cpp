@@ -51,7 +51,6 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 	ui.trvNodes->installEventFilter(this);
 	FCurrentWidget = NULL;
 
-	delete ui.scaScroll->takeWidget();
 	ui.trvNodes->sortByColumn(0,Qt::AscendingOrder);
 
 	FManager = AOptionsManager;
@@ -87,8 +86,6 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 
 	foreach (const IOptionsDialogNode &node, FManager->optionsDialogNodes()) {
 		onOptionsDialogNodeInserted(node); }
-
-	ui.scaScroll->setVisible(false);
 
 	QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
 	window()->restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry",ns).toByteArray());
