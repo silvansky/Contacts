@@ -15,6 +15,7 @@ public:
 	CustomBorderContainer *addBorder(QWidget *widget, const QString & key);
 	void removeBorder(QWidget * widget);
 public:
+	static bool isBordersAvail();
 	static bool isBordersEnabled();
 	static void setBordersEnabled(bool enabled);
 	static bool isBordered(QWidget *widget);

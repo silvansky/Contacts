@@ -193,7 +193,8 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
 #endif
 #ifdef DEBUG_ENABLED
-		widgets.insertMulti(OWO_COMMON_BORDERSENABLE, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDERSENABLED), tr("Use custom window borders (restart needed)"), AParent));
+		if (CustomBorderStorage::isBordersAvail())
+			widgets.insertMulti(OWO_COMMON_BORDERSENABLE, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDERSENABLED), tr("Use custom window borders (restart needed)"), AParent));
 #endif
 
 #ifndef Q_WS_MAC

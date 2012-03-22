@@ -1,5 +1,9 @@
 #include "customborderstorage.h"
 
+#ifdef Q_WS_X11
+#	include <QX11Info>
+#endif
+
 #include <QApplication>
 #include "custombordercontainer_p.h"
 
@@ -13,7 +17,7 @@ CustomBorderStorage::~CustomBorderStorage()
 
 CustomBorderContainer * CustomBorderStorage::addBorder(QWidget *widget, const QString &key)
 {
-	if (isBordersEnabled() && widget->isWindow() && !isBordered(widget))
+	if (isBordersAvail() && isBordersEnabled() && widget->isWindow() && !isBordered(widget))
 	{
 		CustomBorderContainerPrivate * style = borderStyleCache.value(key, NULL);
 		if (!style)
@@ -52,6 +56,14 @@ void CustomBorderStorage::removeBorder(QWidget *widget)
 	}
 }
 
+bool CustomBorderStorage::isBordersAvail()
+{
+#ifdef Q_WS_X11
+	return QX11Info::isCompositingManagerRunning();
+#endif
+	return true;
+}
+
 bool CustomBorderStorage::isBordersEnabled()
 {
 	return bordersEnabled;
@@ -88,3 +100,4 @@ bool CustomBorderStorage::bordersEnabled = false;
 QHash<QString, CustomBorderContainerPrivate *> CustomBorderStorage::borderStyleCache;
 QHash<QWidget *, CustomBorderContainer *> CustomBorderStorage::borderCache;
 QHash<QString, CustomBorderStorage *> CustomBorderStorage::staticStorages;
+
