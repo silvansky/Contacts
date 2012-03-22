@@ -820,7 +820,8 @@ void LoginDialog::showConnectionSettings()
 
 		dialog->setWindowTitle(tr("Connection settings"));
 
-		WidgetManager::showActivateRaiseWindow(dialogBorder ? (QWidget*)dialogBorder : (QWidget*)dialog);
+		WidgetManager::showActivateRaiseWindow(dialog->window());
+		WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 	}
 }
 

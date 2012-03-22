@@ -1,20 +1,22 @@
 #include "custominputdialog.h"
 
-#include "customborderstorage.h"
-#include <definitions/customborder.h>
-#include <definitions/resources.h>
-#include "stylestorage.h"
-#include <definitions/stylesheets.h>
-#include "graphicseffectsstorage.h"
-#include <definitions/graphicseffects.h>
-#ifdef Q_WS_MAC
-# include "macwidgets.h"
-#endif
-
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QEvent>
 #include <QKeyEvent>
+
+#include <definitions/customborder.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
+#include <definitions/graphicseffects.h>
+
+#ifdef Q_WS_MAC
+# include "macwidgets.h"
+#endif
+#include "stylestorage.h"
+#include "widgetmanager.h"
+#include "customborderstorage.h"
+#include "graphicseffectsstorage.h"
 
 CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget *AParent) :
 	QDialog(AParent),
@@ -71,6 +73,7 @@ void CustomInputDialog::show()
 	{
 		QDialog::show();
 	}
+	WidgetManager::alignWindow(window(),Qt::AlignCenter);
 }
 
 QString CustomInputDialog::defaultText() const

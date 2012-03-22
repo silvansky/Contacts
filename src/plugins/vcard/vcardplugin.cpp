@@ -388,6 +388,7 @@ void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AConta
 			connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onSimpleVCardDialogDestroyed(QObject *)));
 			FSimpleVCardDialogs.insert(AContactJid, dialog);
 			WidgetManager::showActivateRaiseWindow(dialog->window());
+			WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 		}
 	}
 }

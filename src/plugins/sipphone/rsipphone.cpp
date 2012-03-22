@@ -1019,7 +1019,6 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 	_pPhoneWidget = new SipPhoneWidget( this );
 	_pPhoneWidget->window()->resize(621, 480);
-	WidgetManager::alignWindow(_pPhoneWidget->window(), Qt::AlignCenter);
 
 	connect(_pPhoneWidget, SIGNAL(hangupCall()), this, SLOT(hangup()));
 	connect(this, SIGNAL(signal_SetRomoteImage(const QImage&)), _pPhoneWidget, SLOT(SetRemoteImage(const QImage&)), Qt::QueuedConnection);
@@ -1059,6 +1058,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	//widget->show();
 	updateCallerName();
 	WidgetManager::showActivateRaiseWindow(_pPhoneWidget->window()); //!!!!!!!!!!!!!!!!!!!!
+	WidgetManager::alignWindow(_pPhoneWidget->window(), Qt::AlignCenter);
 }
 
 

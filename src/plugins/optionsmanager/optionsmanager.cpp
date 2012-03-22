@@ -543,6 +543,7 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		connect(FLoginDialog,SIGNAL(accepted()),SLOT(onLoginDialogAccepted()));
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
 		WidgetManager::showActivateRaiseWindow(FLoginDialog->window());
+		WidgetManager::alignWindow(FLoginDialog->window(),Qt::AlignCenter);
 	}
 	return FLoginDialog;
 }
@@ -609,14 +610,6 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
 		WidgetManager::showActivateRaiseWindow(FOptionsDialog->window());
-		
-		//FOptionsDialog->adjustSize();
-		//FOptionsDialog->layout()->update();
-		//if (FOptionsDialogBorder)
-		//{
-		//	FOptionsDialogBorder->layout()->update();
-		//	FOptionsDialogBorder->adjustSize();
-		//}
 	}
 	return FOptionsDialog->window();
 }

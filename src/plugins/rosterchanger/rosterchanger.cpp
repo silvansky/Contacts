@@ -747,6 +747,7 @@ QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 		connect(roster->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
 		emit addContactDialogCreated(qobject_cast<IAddContactDialog *>(dialog));
 		WidgetManager::showActivateRaiseWindow(dialog->window());
+		WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 		return dialog->window();
 	}
 	return NULL;

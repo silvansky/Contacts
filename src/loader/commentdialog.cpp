@@ -120,6 +120,7 @@ void CommentDialog::show()
 	setFixedSize(sizeHint());
 	WidgetManager::showActivateRaiseWindow(window());
 	window()->adjustSize();
+	WidgetManager::alignWindow(window(),Qt::AlignCenter);
 	QTimer::singleShot(1, this, SLOT(updateStyle()));
 }
 

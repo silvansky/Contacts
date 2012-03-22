@@ -125,7 +125,7 @@ void AboutQtDialog::keyPressEvent(QKeyEvent * ke)
 void AboutQtDialog::aboutQt()
 {
 	AboutQtDialog * dialog = new AboutQtDialog;
-	WidgetManager::showActivateRaiseWindow(dialog->parentWidget() ? dialog->parentWidget() : (QWidget*)dialog);
-	(dialog->parentWidget() ? dialog->parentWidget() : (QWidget*)dialog)->adjustSize();
-	WidgetManager::alignWindow((dialog->parentWidget() ? dialog->parentWidget() : (QWidget*)dialog), Qt::AlignCenter);
+	WidgetManager::showActivateRaiseWindow(dialog->window());
+	dialog->window()->adjustSize();
+	WidgetManager::alignWindow(dialog->window(), Qt::AlignCenter);
 }

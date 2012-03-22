@@ -906,7 +906,8 @@ void PluginManager::onShowAboutBoxDialog()
 {
 	if (FAboutDialog.isNull())
 		FAboutDialog = new AboutBox(this);
-	WidgetManager::showActivateRaiseWindow(FAboutDialog->parentWidget() ? FAboutDialog->parentWidget() : FAboutDialog);
+	WidgetManager::showActivateRaiseWindow(FAboutDialog->window());
+	WidgetManager::alignWindow(FAboutDialog->window(),Qt::AlignCenter);
 }
 
 void PluginManager::onShowCommentsDialog()
@@ -917,7 +918,10 @@ void PluginManager::onShowCommentsDialog()
 	if (accManager)
 	{
 		if (accManager->accounts().count())
+		{
 			WidgetManager::showActivateRaiseWindow(FCommentDialog->window());
+			WidgetManager::alignWindow(FCommentDialog->window(),Qt::AlignCenter);
+		}
 		else
 		{
 			CustomInputDialog * cid = new CustomInputDialog(CustomInputDialog::Info);
