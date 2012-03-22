@@ -15,8 +15,8 @@
 TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 {
 	ui.setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose,false);
 	setMinimumSize(500, 400);
+	setAttribute(Qt::WA_DeleteOnClose,false);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_TABWINDOW);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
