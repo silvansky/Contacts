@@ -1,6 +1,5 @@
 #include "traymanager.h"
 
-#include <QtDebug>
 #include <QSysInfo>
 #include <QApplication>
 
@@ -220,7 +219,6 @@ void TrayManager::updateTrayVisibility()
 
 void TrayManager::onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason)
 {
-	qDebug() << AReason;
 	if (AReason != QSystemTrayIcon::Trigger)
 	{
 		if (VersionParser(qVersion()) >= VersionParser("4.6.0"))
