@@ -330,7 +330,7 @@ void PluginManager::loadSettings()
 #endif
 
 	// Borders
-#ifdef Q_WS_WIN
+#ifndef Q_WS_MAC
 	CustomBorderStorage::setBordersEnabled(settings.value(SVN_BORDERS_ENABLED,true).toBool());
 #else
 	CustomBorderStorage::setBordersEnabled(settings.value(SVN_BORDERS_ENABLED,false).toBool());

@@ -279,6 +279,7 @@ void NotifyWidget::layoutWidgets()
 			widget->window()->show();
 		ypos -= widget->window()->geometry().height();
 		widget->animateTo(ypos);
+		ypos -= 2;
 	}
 }
 

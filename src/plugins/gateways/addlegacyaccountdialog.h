@@ -49,10 +49,10 @@ private:
 	QString FRegisterId;
 	IGateServiceLabel FGateLabel;
 	IGateServiceLogin FGateLogin;
-	Menu * domainsMenu;
 private:
 	Jid FStreamJid;
 	Jid FServiceJid;
+	Menu *FDomainsMenu;
 	QString FAbortMessage;
 };
 

@@ -864,13 +864,13 @@ bool MetaTabWindow::eventFilter(QObject *AObject, QEvent *AEvent)
 				int buttonCenter = button->width() / 2 + button->geometry().left();
 				p.drawImage(buttonCenter - triangle.width() / 2, sz.height() - triangle.height(), triangle);
 
-				//QRect sourceRect(0, 0, 1, triangle.height());
-				//QRect targetRect(0, sz.height() - triangle.height(), buttonCenter - triangle.width() / 2, triangle.height());
-				//p.drawImage(targetRect, triangle, sourceRect);
+				QRect sourceRect(0, 0, 1, triangle.height());
+				QRect targetRect(0, sz.height() - triangle.height(), buttonCenter - triangle.width() / 2, triangle.height());
+				p.drawImage(targetRect, triangle, sourceRect);
 
-				//sourceRect = QRect(triangle.width() - 1, 0, 1, triangle.height());
-				//targetRect = QRect(buttonCenter + triangle.width() / 2, sz.height() - triangle.height(), sz.width() - buttonCenter - triangle.width() / 2, triangle.height());
-				//p.drawImage(targetRect, triangle, sourceRect);
+				sourceRect = QRect(triangle.width() - 1, 0, 1, triangle.height());
+				targetRect = QRect(buttonCenter + triangle.width() / 2, sz.height() - triangle.height(), sz.width() - buttonCenter - triangle.width() / 2, triangle.height());
+				p.drawImage(targetRect, triangle, sourceRect);
 
 				p.end();
 				return true;

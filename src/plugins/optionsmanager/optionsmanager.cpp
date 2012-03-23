@@ -192,9 +192,10 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 #ifdef Q_WS_WIN
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
 #endif
-#ifdef DEBUG_ENABLED
+
+#if defined(Q_WS_X11) || defined(DEBUG_ENABLED)
 		if (CustomBorderStorage::isBordersAvail())
-			widgets.insertMulti(OWO_COMMON_BORDERSENABLE, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDERSENABLED), tr("Use custom window borders (restart needed)"), AParent));
+			widgets.insertMulti(OWO_COMMON_BORDERSENABLE, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDERSENABLED), tr("Enable windows customization (restart required)"), AParent));
 #endif
 
 #ifndef Q_WS_MAC
@@ -543,7 +544,6 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		connect(FLoginDialog,SIGNAL(accepted()),SLOT(onLoginDialogAccepted()));
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
 		WidgetManager::showActivateRaiseWindow(FLoginDialog->window());
-		WidgetManager::alignWindow(FLoginDialog->window(),Qt::AlignCenter);
 	}
 	return FLoginDialog;
 }

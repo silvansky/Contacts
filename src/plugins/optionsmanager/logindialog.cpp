@@ -449,6 +449,7 @@ void LoginDialog::showEvent(QShowEvent *AEvent)
 		FMainWindowPlugin->mainWindowTopWidget()->installEventFilter(this);
 		FMainWindowPlugin->mainWindowTopWidget()->close();
 	}
+	WidgetManager::alignWindow(window(),Qt::AlignCenter);
 }
 
 void LoginDialog::keyPressEvent(QKeyEvent *AEvent)

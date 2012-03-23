@@ -1256,8 +1256,8 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 #ifdef Q_WS_MAC
 		setWindowGrowButtonEnabled(dialog->window(), false);
 #endif
-		dialog->window()->show();
-		dialog->window()->adjustSize();
+		WidgetManager::showActivateRaiseWindow(dialog->window());
+		WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 		return dialog;
 	}
 	return NULL;
