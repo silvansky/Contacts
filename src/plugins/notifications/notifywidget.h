@@ -40,7 +40,8 @@ protected:
 	virtual void leaveEvent(QEvent *AEvent);
 	virtual void mouseReleaseEvent(QMouseEvent *AEvent);
 	virtual void resizeEvent(QResizeEvent *AEvent);
-	virtual void paintEvent(QPaintEvent *);
+	virtual void paintEvent(QPaintEvent *AEvent);
+	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected slots:
 	void onAdjustHeight();
 	void onAnimateStep();
@@ -51,7 +52,8 @@ private:
 	int FYPos;
 	int FTimeOut;
 	int FAnimateStep;
-	bool canActivate;
+	bool FCanActivate;
+	bool FFirstLayout;
 	QTimer *FCloseTimer;
 	CustomBorderContainer *FBorder;
 private:
