@@ -56,17 +56,24 @@ macx: {
 	  QT  += dbus
 	}
 
-	QMAKE_LFLAGS    += -framework Carbon -framework Cocoa
-	QMAKE_LFLAGS    += -framework ForceFeedback -framework IOKit
-	QMAKE_LFLAGS    += -framework VideoDecodeAcceleration -framework QTKit
-	QMAKE_LFLAGS    += -framework AVFoundation -framework CoreVideo
-	QMAKE_LFLAGS    += -framework CoreMedia -framework OpenGL
-	LIBS += -L/usr/local/lib
-	INCLUDEPATH += /usr/local/include
-	INCLUDEPATH += /usr/local/include/SDL
 	DARWIN_VER = $$system("uname -r")
 	PLATFORM = $$system("uname -p")
 	LIB_SUFIX = $${PLATFORM}-apple-darwin$${DARWIN_VER}
+	DARWIN10 = $$system("[ `uname -r` \\< \"11.0.0\" ] && echo true || echo false")
+
+	QMAKE_LFLAGS    += -framework Carbon -framework Cocoa
+	QMAKE_LFLAGS    += -framework ForceFeedback -framework IOKit
+	QMAKE_LFLAGS    += -framework VideoDecodeAcceleration -framework QTKit
+	QMAKE_LFLAGS    += -framework CoreVideo -framework OpenGL
+	contains(DARWIN10, "true") {
+		# Mac OS X 10.6+ frameworks
+	} else {
+		# Mac OS X 10.7+ frameworks
+		QMAKE_LFLAGS    += -framework AVFoundation -framework CoreMedia
+	}
+	LIBS += -L/usr/local/lib
+	INCLUDEPATH += /usr/local/include
+	INCLUDEPATH += /usr/local/include/SDL
 	# common
 	LIBS += -lm -lpthread -lcrypto
 	# openssl
