@@ -125,14 +125,7 @@ bool MainWindowPlugin::initObjects()
 
 bool MainWindowPlugin::initSettings()
 {
-	const QSize defSize(300, 550);
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect ps = desktop->availableGeometry(desktop->primaryScreen());
-	QRect defRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignRight | Qt::AlignTop, defSize, ps);
-
 	Options::setDefaultValue(OPV_MAINWINDOW_SHOW,true);
-	Options::setDefaultValue(OPV_MAINWINDOW_SIZE, defSize);
-	Options::setDefaultValue(OPV_MAINWINDOW_POSITION, defRect.topLeft());
 	Options::setDefaultValue(OPV_MAINWINDOW_STAYONTOP,false);
 	Options::setDefaultValue(OPV_MAINWINDOW_MINIMIZETOTRAY_W7,false);
 	Options::setDefaultValue(OPV_MAINWINDOW_MINIMIZENOTIFY_SHOWCOUNT,0);
@@ -310,8 +303,8 @@ void MainWindowPlugin::onOptionsOpened()
 	updateTitle();
 
 	QString ns = FMainWindowBorder ? QString::null : QString("system-border");
-	mainWindowTopWidget()->resize(Options::node(OPV_MAINWINDOW_SIZE,ns).value().toSize());
-	mainWindowTopWidget()->move(Options::node(OPV_MAINWINDOW_POSITION,ns).value().toPoint());
+	if (!mainWindowTopWidget()->restoreGeometry(Options::fileValue("mainwindow.geometry",ns).toByteArray()))
+		mainWindowTopWidget()->setGeometry(WidgetManager::alignGeometry(QSize(300,550),mainWindowTopWidget(),Qt::AlignRight | Qt::AlignTop));
 
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7));
@@ -324,8 +317,8 @@ void MainWindowPlugin::onOptionsClosed()
 	updateTitle();
 
 	QString ns = FMainWindowBorder ? QString::null : QString("system-border");
-	Options::node(OPV_MAINWINDOW_SIZE,ns).setValue(mainWindowTopWidget()->size());
-	Options::node(OPV_MAINWINDOW_POSITION,ns).setValue(mainWindowTopWidget()->pos());
+	Options::setFileValue(mainWindowTopWidget()->saveGeometry(),"mainwindow.geometry",ns);
+
 	mainWindowTopWidget()->hide();
 }
 

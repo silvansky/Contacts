@@ -124,7 +124,7 @@ void ConsoleWidget::loadContext(const QUuid &AContextId)
 
 	QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
 	if (!window()->restoreGeometry(Options::fileValue("console.context.window-geometry",AContextId.toString()+ns).toByteArray()))
-		window()->setGeometry(WidgetManager::alignGeometry(QSize(640,640),this));
+		window()->setGeometry(WidgetManager::alignGeometry(QSize(800,640),this));
 	ui.sptHSplitter->restoreState(Options::fileValue("console.context.hsplitter-state",AContextId.toString()).toByteArray());
 	ui.sptVSplitter->restoreState(Options::fileValue("console.context.vsplitter-state",AContextId.toString()).toByteArray());
 

@@ -265,7 +265,7 @@ void NotifyWidget::onCloseTimerTimeout()
 	if (FTimeOut > 0)
 		FTimeOut--;
 	else
-		window()->close();
+		window()->deleteLater();
 }
 
 void NotifyWidget::layoutWidgets()
@@ -276,7 +276,10 @@ void NotifyWidget::layoutWidgets()
 	{
 		NotifyWidget *widget = FWidgets.at(i);
 		if (!widget->isVisible())
+		{
 			widget->window()->show();
+			widget->window()->move(display.right() - widget->window()->geometry().width(), display.bottom());
+		}
 		ypos -= widget->window()->geometry().height();
 		widget->animateTo(ypos);
 		ypos -= 2;

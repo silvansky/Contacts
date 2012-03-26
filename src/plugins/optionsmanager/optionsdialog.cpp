@@ -88,7 +88,8 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 		onOptionsDialogNodeInserted(node); }
 
 	QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
-	window()->restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry",ns).toByteArray());
+	if (!window()->restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry",ns).toByteArray()))
+		window()->setGeometry(WidgetManager::alignGeometry(QSize(700,500),window()));
 }
 
 OptionsDialog::~OptionsDialog()

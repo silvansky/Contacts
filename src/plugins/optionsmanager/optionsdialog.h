@@ -12,8 +12,9 @@
 #include <definitions/graphicseffects.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
-#include <utils/stylestorage.h>
 #include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
+#include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>
 #include <utils/graphicseffectsstorage.h>
 #include "ui_optionsdialog.h"
