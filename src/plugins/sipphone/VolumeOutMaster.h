@@ -7,8 +7,8 @@
 
 #include <QObject>
 
-#ifdef Q_WS_WIN32
 #include "IVolume.h"
+#ifndef Q_WS_WIN32
 typedef unsigned long DWORD;
 typedef unsigned int UINT;
 #endif
