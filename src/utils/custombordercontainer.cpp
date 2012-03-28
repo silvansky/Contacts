@@ -40,7 +40,7 @@
 # include "macwidgets.h"
 #endif
 
-#define SHOW_IN_TASKBAR_FLAG (Qt::SplashScreen)
+#define SHOW_IN_TASKBAR_FLAG (Qt::ToolTip)
 
 // internal functions
 static void repaintRecursive(QWidget *widget, const QRect & globalRect)
