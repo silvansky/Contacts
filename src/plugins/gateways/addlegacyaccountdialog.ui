@@ -65,7 +65,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="loginLayout" stretch="0,0,0,0">
+    <layout class="QHBoxLayout" name="loginLayout" stretch="0,0,0">
      <property name="spacing">
       <number>3</number>
      </property>
@@ -83,13 +83,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="cmbDomains"/>
-     </item>
-     <item>
       <widget class="QPushButton" name="tlbDomains">
-       <property name="text">
-        <string notr="true">...</string>
-       </property>
        <property name="autoDefault">
         <bool>false</bool>
        </property>
@@ -218,7 +212,6 @@
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>lneLogin</tabstop>
-  <tabstop>cmbDomains</tabstop>
   <tabstop>lnePassword</tabstop>
   <tabstop>chbShowPassword</tabstop>
  </tabstops>

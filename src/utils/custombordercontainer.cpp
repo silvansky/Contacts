@@ -678,7 +678,7 @@ CustomBorderContainer::CustomBorderContainer(const CustomBorderContainerPrivate 
 CustomBorderContainer::~CustomBorderContainer()
 {
 	delete borderStyle;
-	setWidget(NULL);
+	delete releaseWidget(); // Important for widgets to see border in destructor
 }
 
 QWidget * CustomBorderContainer::widget() const

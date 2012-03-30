@@ -5,9 +5,13 @@
 #include <QDomDocument>
 #include <definitions/menuicons.h>
 #include <definitions/resources.h>
+#include <definitions/stylesheets.h>
+#include <definitions/customborder.h>
 #include <interfaces/ipluginmanager.h>
-#include <utils/iconstorage.h>
 #include <utils/options.h>
+#include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
+#include <utils/customborderstorage.h>
 #include "ui_setuppluginsdialog.h"
 
 class SetupPluginsDialog :

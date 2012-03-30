@@ -74,8 +74,8 @@ bool ConsolePlugin::initSettings()
 void ConsolePlugin::onShowXMLConsole()
 {
 	ConsoleWidget *widget = new ConsoleWidget(FPluginManager,NULL);
-	FCleanupHandler.add(widget);
-	widget->show();
+	FCleanupHandler.add(widget->window());
+	widget->window()->show();
 }
 
 Q_EXPORT_PLUGIN2(plg_console, ConsolePlugin)

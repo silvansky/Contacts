@@ -42,6 +42,7 @@
 #include <utils/stanza.h>
 #include <utils/action.h>
 #include <utils/options.h>
+#include <utils/widgetmanager.h>
 #include "addlegacyaccountdialog.h"
 #include "addlegacyaccountoptions.h"
 #include "addfacebookaccountdialog.h"

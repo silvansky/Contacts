@@ -8,10 +8,15 @@
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <definitions/optionvalues.h>
+#include <definitions/customborder.h>
+#include <definitions/graphicseffects.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
-#include <utils/stylestorage.h>
 #include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
+#include <utils/widgetmanager.h>
+#include <utils/customborderstorage.h>
+#include <utils/graphicseffectsstorage.h>
 #include "ui_optionsdialog.h"
 
 class SortFilterProxyModel :

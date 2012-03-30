@@ -1253,23 +1253,11 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 		else
 			dialog = new AddLegacyAccountDialog(this,FRegistration,presence,AServiceJid,AParent);
 		connect(presence->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
-
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-		if (border)
-		{
-			border->setAttribute(Qt::WA_DeleteOnClose, true);
-			border->setMaximizeButtonVisible(false);
-			border->setMinimizeButtonVisible(false);
-			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-			connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-			connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-			border->setResizable(false);
-		}
 #ifdef Q_WS_MAC
 		setWindowGrowButtonEnabled(dialog->window(), false);
 #endif
-		dialog->window()->show();
-		dialog->window()->adjustSize();
+		WidgetManager::showActivateRaiseWindow(dialog->window());
+		WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 		return dialog;
 	}
 	return NULL;

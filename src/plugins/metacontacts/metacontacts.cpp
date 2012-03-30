@@ -720,7 +720,7 @@ QString MetaContacts::itemFormattedLogin(const Jid &AItemJid) const
 
 QMultiMap<int, Jid> MetaContacts::itemOrders(QList<Jid> AItems) const
 {
-	qSort(AItems); // Порядок следования элементов не должен влиять на результат
+	qSort(AItems);
 	QMultiMap<int, Jid> orders;
 	foreach(Jid itemJid, AItems)
 	{
@@ -945,7 +945,8 @@ QDialog *MetaContacts::showMetaProfileDialog(const Jid &AStreamJid, const QStrin
 			connect(dialog,SIGNAL(dialogDestroyed()),SLOT(onMetaProfileDialogDestroyed()));
 			FMetaProfileDialogs.append(dialog);
 		}
-		WidgetManager::showActivateRaiseWindow(dialog->parentWidget()!=NULL ? dialog->parentWidget() : dialog);
+		WidgetManager::showActivateRaiseWindow(dialog->window());
+		WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 	}
 	return dialog;
 }

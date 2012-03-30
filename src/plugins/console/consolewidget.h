@@ -2,9 +2,10 @@
 #define CONSOLEWIDGET_H
 
 #include <QWidget>
-#include <definitions/optionvalues.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/optionvalues.h>
+#include <definitions/customborder.h>
 #include <definitions/xmppstanzahandlerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ixmppstreams.h>
@@ -12,6 +13,7 @@
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/widgetmanager.h>
+#include <utils/customborderstorage.h>
 #include "ui_consolewidget.h"
 
 class ConsoleWidget :

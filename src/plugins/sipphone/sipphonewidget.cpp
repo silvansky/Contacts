@@ -17,11 +17,13 @@
 
 #include <QResizeEvent>
 
-#include <utils/iconstorage.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
-#include <utils/stylestorage.h>
 #include <definitions/stylesheets.h>
+#include <definitions/customborder.h>
+#include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
+#include <utils/customborderstorage.h>
 #include <utils/custombordercontainer.h>
 
 #include "complexvideowidget.h"
@@ -48,17 +50,26 @@ static void updateFSTimer(QTimer*& timer)
 }
 
 
-SipPhoneWidget::SipPhoneWidget(QWidget *parent)
-	: QWidget(parent)
+SipPhoneWidget::SipPhoneWidget(QWidget *parent) : QWidget(parent)
 {
 	ui.setupUi(this);
 	setObjectName("SipPhoneWidget");
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_VIDEOCALL);
+	if (border)
+	{
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+		border->setMovable(true);
+		border->setResizable(true);
+	}
 
 	setMinimumSize(250, 90);
 	curPicAlign = Qt::AlignBottom|Qt::AlignLeft;
 
 	//connect(ui.btnHangup, SIGNAL(clicked()), this, SLOT(hangupCall()));
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 }
 
 //SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, SipCall *initCall, SipPhoneProxy *parent, const char *name) : QWidget(NULL), _pSipCall(initCall)
@@ -67,9 +78,20 @@ SipPhoneWidget::SipPhoneWidget( RSipPhone *parent, const char *name) : QWidget(N
 	Q_UNUSED(parent);
 	Q_UNUSED(name);
 	ui.setupUi(this);
-
-	setObjectName("SipPhoneWidget");
 	setMinimumSize(250, 90);
+	setObjectName("SipPhoneWidget");
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_VIDEOCALL);
+	if (border)
+	{
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+		border->setMovable(true);
+		border->setResizable(true);
+	}
+
 	curPicAlign = Qt::AlignBottom | Qt::AlignLeft;
 
 	ui.remote->hide();
@@ -125,8 +147,6 @@ SipPhoneWidget::SipPhoneWidget( RSipPhone *parent, const char *name) : QWidget(N
 		_pControls->setFixedSize(270, 40);
 		//_pControls->setMouseTracking(true);
 	}
-
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 
 	//_pSipCallMember = NULL;
 	//_pSipAuthentication = NULL;

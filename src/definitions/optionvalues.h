@@ -43,8 +43,6 @@
 
 // MainWindow
 #define OPV_MAINWINDOW_SHOW                             "mainwindow.show"
-#define OPV_MAINWINDOW_SIZE                             "mainwindow.size"
-#define OPV_MAINWINDOW_POSITION                         "mainwindow.position"
 #define OPV_MAINWINDOW_STAYONTOP                        "mainwindow.stay-on-top"
 #define OPV_MAINWINDOW_MINIMIZETOTRAY_W7                "mainwindow.minimize-to-tray-w7"
 #define OPV_MAINWINDOW_MINIMIZENOTIFY_SHOWCOUNT         "mainwindow.minimize-notify.show-count"
@@ -97,6 +95,7 @@
 #define OPV_MISC_ROOT                                   "misc"
 #define OPV_MISC_AUTOSTART                              "misc.autostart"
 #define OPV_MISC_SHAREOSVERSION                         "misc.share-os-version"
+#define OPV_MISC_CUSTOMBORDERSENABLED                   "misc.custom-borders-enabled"
 #define OPV_MISC_OPTIONS_SAVE_ON_SERVER                 "misc.options.save-on-server"
 #define OPV_MISC_OPTIONS_DIALOG_LASTNODE                "misc.options.dialog.last-node"
 

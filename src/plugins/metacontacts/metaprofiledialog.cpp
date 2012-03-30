@@ -20,16 +20,6 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 	ui.lblName->setElideMode(Qt::ElideRight);
 	setWindowIconText(tr("Contact Profile"));
 
-	FGateways = NULL;
-	FStatusIcons = NULL;
-	FStatusChanger = NULL;
-	FRosterChanger = NULL;
-	FVCardPlugin = NULL;
-
-	FMetaId = AMetaId;
-	FMetaRoster = AMetaRoster;
-	FMetaContacts = AMetaContacts;
-
 	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (FBorder)
 	{
@@ -44,7 +34,19 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
 	else
+	{
 		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
+
+	FGateways = NULL;
+	FStatusIcons = NULL;
+	FStatusChanger = NULL;
+	FRosterChanger = NULL;
+	FVCardPlugin = NULL;
+
+	FMetaId = AMetaId;
+	FMetaRoster = AMetaRoster;
+	FMetaContacts = AMetaContacts;
 
 	ui.sawContents->setLayout(new QVBoxLayout);
 	ui.sawContents->layout()->setSpacing(10);

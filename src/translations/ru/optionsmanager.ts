@@ -233,5 +233,9 @@ which is linked to Rambler</source>
         <source>Synchronization</source>
         <translation>Синхронизация</translation>
     </message>
+    <message>
+        <source>Enable windows customization (restart required)</source>
+        <translation>Включить стилизацию окон (требуется перезапуск)</translation>
+    </message>
 </context>
 </TS>

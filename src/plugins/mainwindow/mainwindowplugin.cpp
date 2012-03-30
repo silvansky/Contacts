@@ -3,8 +3,6 @@
 #include <QKeyEvent>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <definitions/resources.h>
-#include <definitions/customborder.h>
 #ifdef Q_WS_MAC
 # include <utils/macwidgets.h>
 #endif
@@ -30,13 +28,10 @@ MainWindowPlugin::MainWindowPlugin()
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 #endif
 	FMainWindow->setObjectName("mainWindow");
-
-	FMainWindowBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FMainWindow, CBS_ROSTER);
+	
+	FMainWindowBorder = CustomBorderStorage::widgetBorder(FMainWindow);
 	if (FMainWindowBorder)
 	{
-		FMainWindowBorder->setMaximizeButtonVisible(false);
-		FMainWindowBorder->setMinimizeButtonVisible(false);
-		FMainWindowBorder->setDockingEnabled(true);
 		FMainWindowBorder->installEventFilter(this);
 		connect(FMainWindowBorder, SIGNAL(closed()), SLOT(onMainWindowClosed()));
 	}
@@ -125,23 +120,12 @@ bool MainWindowPlugin::initObjects()
 	if (FTrayManager)
 		FTrayManager->contextMenu()->addAction(FOpenAction,AG_TMTM_MAINWINDOW_SHOW,true);
 
-//#ifdef Q_OS_MAC
-//	connect(MacDockHandler::instance(), SIGNAL(dockIconClicked()), SLOT(onDockIconClicked()));
-//#endif
-
 	return true;
 }
 
 bool MainWindowPlugin::initSettings()
 {
-	const QSize defSize(300, 550);
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect ps = desktop->availableGeometry(desktop->primaryScreen());
-	QRect defRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignRight | Qt::AlignTop, defSize, ps);
-
 	Options::setDefaultValue(OPV_MAINWINDOW_SHOW,true);
-	Options::setDefaultValue(OPV_MAINWINDOW_SIZE, defSize);
-	Options::setDefaultValue(OPV_MAINWINDOW_POSITION, defRect.topLeft());
 	Options::setDefaultValue(OPV_MAINWINDOW_STAYONTOP,false);
 	Options::setDefaultValue(OPV_MAINWINDOW_MINIMIZETOTRAY_W7,false);
 	Options::setDefaultValue(OPV_MAINWINDOW_MINIMIZENOTIFY_SHOWCOUNT,0);
@@ -190,8 +174,8 @@ bool MainWindowPlugin::isMinimizeToTray() const
 {
 #ifdef Q_WS_WIN
 	return !(QSysInfo::windowsVersion()==QSysInfo::WV_WINDOWS7) || Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool();
-#elif defined(Q_WS_X11)
-	return QString(getenv("XDG_CURRENT_DESKTOP"))!="Unity" && QString(getenv("DESKTOP_SESSION"))!="gnome";
+//#elif defined(Q_WS_X11)
+//	return QString(getenv("XDG_CURRENT_DESKTOP"))!="Unity" && QString(getenv("DESKTOP_SESSION"))!="gnome";
 #endif
 	return true;
 }
@@ -303,6 +287,11 @@ bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 		{
 			showMinimizeToTrayNotify();
 		}
+		else if (AEvent->type()==QEvent::Close && !isMinimizeToTray())
+		{
+			hideMainWindow();
+			return true;
+		}
 	}
 	return QObject::eventFilter(AWatched,AEvent);
 }
@@ -310,10 +299,12 @@ bool MainWindowPlugin::eventFilter(QObject *AWatched, QEvent *AEvent)
 void MainWindowPlugin::onOptionsOpened()
 {
 	FMinimizeNotifyId = -1; // Enable minimize notify
-	mainWindowTopWidget()->resize(Options::node(OPV_MAINWINDOW_SIZE).value().toSize());
-	mainWindowTopWidget()->move(Options::node(OPV_MAINWINDOW_POSITION).value().toPoint());
 	FOpenAction->setVisible(true);
 	updateTitle();
+
+	QString ns = FMainWindowBorder ? QString::null : QString("system-border");
+	if (!mainWindowTopWidget()->restoreGeometry(Options::fileValue("mainwindow.geometry",ns).toByteArray()))
+		mainWindowTopWidget()->setGeometry(WidgetManager::alignGeometry(QSize(300,550),mainWindowTopWidget(),Qt::AlignRight | Qt::AlignTop));
 
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_STAYONTOP));
 	onOptionsChanged(Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7));
@@ -322,11 +313,13 @@ void MainWindowPlugin::onOptionsOpened()
 void MainWindowPlugin::onOptionsClosed()
 {
 	FMinimizeNotifyId = 0; // Disable minimize notify
-	Options::node(OPV_MAINWINDOW_SIZE).setValue(mainWindowTopWidget()->size());
-	Options::node(OPV_MAINWINDOW_POSITION).setValue(mainWindowTopWidget()->pos());
 	FOpenAction->setVisible(false);
-	mainWindowTopWidget()->hide();
 	updateTitle();
+
+	QString ns = FMainWindowBorder ? QString::null : QString("system-border");
+	Options::setFileValue(mainWindowTopWidget()->saveGeometry(),"mainwindow.geometry",ns);
+
+	mainWindowTopWidget()->hide();
 }
 
 void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
@@ -351,7 +344,6 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 		if (FMainWindowBorder)
 		{
 			FMainWindowBorder->setMinimizeOnClose(!isMinimizeToTray());
-			//FMainWindowBorder->setShowInTaskBar(!isMinimizeToTray());
 		}
 		if (!isMinimizeToTray() && !mainWindowTopWidget()->isVisible())
 		{

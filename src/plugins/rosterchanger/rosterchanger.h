@@ -40,6 +40,7 @@
 #include <utils/action.h>
 #include <utils/message.h>
 #include <utils/iconstorage.h>
+#include <utils/widgetmanager.h>
 #include "addcontactdialog.h"
 #include "addmetacontactdialog.h"
 #include "welcomescreenwidget.h"

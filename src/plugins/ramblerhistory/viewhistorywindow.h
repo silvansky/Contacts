@@ -41,7 +41,6 @@ private:
 private:
 	IRoster *FRoster;
 	IGateways *FGateways;
-	CustomBorderContainer *FBorder;
 private:
 	int FProgress;
 	Jid FContactJid;

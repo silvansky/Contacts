@@ -4,8 +4,21 @@
 
 MainWindow::MainWindow(QWidget *AParent, Qt::WindowFlags AFlags) : QMainWindow(AParent,AFlags)
 {
-	setAttribute(Qt::WA_DeleteOnClose,false);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MAINWINDOW_WINDOW);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_ROSTER);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose,false);
+		border->setMaximizeButtonVisible(false);
+		border->setMinimizeButtonVisible(false);
+		border->setDockingEnabled(true);
+		border->installEventFilter(this);
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,false);
+	}
 	
 	QIcon icon;
 	IconStorage *iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);

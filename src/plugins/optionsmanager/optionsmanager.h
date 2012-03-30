@@ -135,11 +135,10 @@ private:
 	Action *FChangeProfileAction;
 	LoginDialog* FLoginDialog;
 private:
+	OptionsDialog *FOptionsDialog;
 	Action *FShowOptionsDialogAction;
 	QList<IOptionsHolder *> FOptionsHolders;
 	QMap<QString, IOptionsDialogNode> FOptionsDialogNodes;
-	OptionsDialog *FOptionsDialog;
-	CustomBorderContainer *FOptionsDialogBorder;
 };
 
 #endif // OPTIONSMANAGER_H

@@ -31,8 +31,23 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	setWindowTitle(tr("New contact"));
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDCONTACTDIALOG);
 
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		border->setMaximizeButtonVisible(false);
+		border->setMinimizeButtonVisible(false);
+		border->setResizable(false);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(rejected()), border, SLOT(close()));
+		connect(this, SIGNAL(accepted()), border, SLOT(close()));
+	}
+	else
+	{
+		ui.lblCaption->setVisible(false);
+	}
+
 #ifdef Q_WS_MAC
-	ui.lblCaption->setVisible(false);
 	ui.buttonsLayout->addWidget(ui.pbtContinue);
 	ui.buttonsLayout->setSpacing(16);
 	setWindowGrowButtonEnabled(this->window(), false);

@@ -15,6 +15,7 @@
 #include <utils/message.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/customborderstorage.h>
 #include "ui_statuswidget.h"
 #include "selectavatarwidget.h"
 

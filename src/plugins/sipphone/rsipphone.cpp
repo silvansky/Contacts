@@ -1010,9 +1010,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 	if(_pPhoneWidget)
 	{
-		if (_pPhoneWidget->parentWidget())
-			_pPhoneWidget->parentWidget()->deleteLater();
-		_pPhoneWidget->deleteLater();
+		_pPhoneWidget->window()->deleteLater();
 		_pPhoneWidget = NULL;
 	}
 
@@ -1020,6 +1018,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 
 	_pPhoneWidget = new SipPhoneWidget( this );
+	_pPhoneWidget->window()->resize(621, 480);
 
 	connect(_pPhoneWidget, SIGNAL(hangupCall()), this, SLOT(hangup()));
 	connect(this, SIGNAL(signal_SetRomoteImage(const QImage&)), _pPhoneWidget, SLOT(SetRemoteImage(const QImage&)), Qt::QueuedConnection);
@@ -1049,25 +1048,6 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	////}
 
 
-	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(_pPhoneWidget, CBS_VIDEOCALL);
-	if (border)
-	{
-		border->setMinimizeButtonVisible(false);
-		border->setMaximizeButtonVisible(false);
-		border->setCloseButtonVisible(false);
-		border->setMovable(true);
-		border->setResizable(true);
-		border->resize(621, 480);
-		//border->installEventFilter(this);
-		//border->setStaysOnTop(true);
-		WidgetManager::alignWindow(border, Qt::AlignCenter);
-	}
-	else
-	{
-		_pPhoneWidget->resize(621, 480);
-		WidgetManager::alignWindow(_pPhoneWidget, Qt::AlignCenter);
-	}
-
 	//if(!_pWorkWidgetContainer.isNull())
 	//	delete _pWorkWidgetContainer;
 	//_pWorkWidgetContainer = border;
@@ -1078,6 +1058,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	//widget->show();
 	updateCallerName();
 	WidgetManager::showActivateRaiseWindow(_pPhoneWidget->window()); //!!!!!!!!!!!!!!!!!!!!
+	WidgetManager::alignWindow(_pPhoneWidget->window(), Qt::AlignCenter);
 }
 
 

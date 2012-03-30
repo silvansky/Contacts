@@ -25,6 +25,11 @@ QToolBar#statusToolBar
 	padding: 2px;
 	spacing: 2px;
 	background-color: transparent;
+	min-height: 40px;
+}
+
+CustomBorderContainer QToolBar#statusToolBar
+{
 	min-height: 55px;
 }
 
