@@ -256,7 +256,6 @@ void AVControl::onAudioSettings()
 		}
 	}
 #elif defined (Q_WS_MAC)
-	// TODO: open sound preferences pane
-	QProcess::startDetached("open -W \"/Applications/System Preferences.app\"");
+	QProcess::startDetached("open -W \"/System/Library/PreferencePanes/Sound.prefPane\"");
 #endif
 }

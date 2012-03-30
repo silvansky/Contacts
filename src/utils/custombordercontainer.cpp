@@ -1108,7 +1108,6 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 
 	//static QStringList exceptions;
 	// TODO: make this list customizable
-	// TODO: optimize
 	if (qobject_cast<QAbstractButton*>(obj) ||
 			qobject_cast<QLineEdit*>(obj) ||
 			qobject_cast<QSpinBox*>(obj) ||

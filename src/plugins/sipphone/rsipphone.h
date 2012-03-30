@@ -17,9 +17,6 @@ public:
 	RSipPhone(QObject *parent = NULL);
 	~RSipPhone();
 
-	bool initStack(const char* sip_domain, int sipPortNum, const char* sip_username, const char* sip_password);
-	bool initStack(const QString& sip_domain, int sipPortNum, const QString& sip_username, const QString& sip_password);
-
 	bool initStack(const char* sip_server, int sipPortNum, const char* sip_username, const char* sip_password, const char* sip_domain);
 	bool initStack(const QString& sip_server, int sipPortNum, const QString& sip_username, const QString& sip_password, const QString& sip_domain);
 

@@ -20,67 +20,67 @@ class SipCallMember;
 
 enum AudioModeType
 {
-  alsa
+	alsa
 };
 
 
 class CallAudio : public QObject
 {
-  Q_OBJECT
+	Q_OBJECT
 public:
-  CallAudio( QObject* parent = 0 );
-  ~CallAudio( void );
-  void setAudiomode( QString str );
-  ////void setOSSFilename( const QString &devname );
-  ////void setOSSFilename2( const QString &devname );
-  ////const QString &getOSSFilename( void ) const { return ossfilename; }
-  ////const QString &getOSSFilename2( void ) const { return ossfilename2; }
-  void setALSADevicename( const QString &devname );
-  void setVideoSW( const QString &sw );
-  const QString &getVideoSW( void ) const { return _videoSW; }
+	CallAudio( QObject* parent = 0 );
+	~CallAudio( void );
+	void setAudiomode( QString str );
+	////void setOSSFilename( const QString &devname );
+	////void setOSSFilename2( const QString &devname );
+	////const QString &getOSSFilename( void ) const { return ossfilename; }
+	////const QString &getOSSFilename2( void ) const { return ossfilename2; }
+	void setALSADevicename( const QString &devname );
+	void setVideoSW( const QString &sw );
+	const QString &getVideoSW( void ) const { return _videoSW; }
 
-  // Call attachment
-  void attachToCallMember( SipCallMember *newmember );
-  void detachFromCall( void );
-  void toggleOnHold( void );
-  void renegotiateCall( void );
+	// Call attachment
+	void attachToCallMember( SipCallMember *newmember );
+	void detachFromCall( void );
+	void toggleOnHold( void );
+	void renegotiateCall( void );
 
-  void startDTMF(char code); // Start DTMF tone generation
-  void stopDTMF(void);  // Stop DTMF tone generation
+	void startDTMF(char code); // Start DTMF tone generation
+	void stopDTMF(void);  // Stop DTMF tone generation
 
-  // Returns a session description for sending in responses
-  SdpMessage audioOut( void );
+	// Returns a session description for sending in responses
+	SdpMessage audioOut( void );
 
-  // Call tracking
-  void setCurrentCall( SipCall *newcall );
-  SipCall *getCurrentCall( void ) const { return _pCurrentSipCall; }
+	// Call tracking
+	void setCurrentCall( SipCall *newcall );
+	SipCall *getCurrentCall( void ) const { return _pCurrentSipCall; }
 
-  bool isRemoteHold( void );
+	bool isRemoteHold( void );
 
-  // Settings
-  void saveAudioSettings( void );
-  void readAudioSettings( void );
-  void readVideoSettings( void );
-  void setPayload( int newPayload ) { _rtpPayloadSize = newPayload; }
-  bool isAudioOn( void );
+	// Settings
+	void saveAudioSettings( void );
+	void readAudioSettings( void );
+	void readVideoSettings( void );
+	void setPayload( int newPayload ) { _rtpPayloadSize = newPayload; }
+	bool isAudioOn( void );
 
-  // Set/reset symmetric mode
-  void setSymMediaMode( bool yesno ) { _symMedia = yesno; }
+	// Set/reset symmetric mode
+	void setSymMediaMode( bool yesno ) { _symMedia = yesno; }
 
-  void setCodec( codecType newCodec ) { _audioCodec = newCodec; }
-  void setRtpCodec( codecType newCodec ) { _rtpCodec = newCodec; }
-  void setVideoCodec( codecType newCodec ) { _videoCodec = newCodec; }
-  void setVideoRtpCodec( codecType newCodec ) { _videoRtpCodec = newCodec; }
-  codecType getRtpCodec( void );
-  int getRtpCodecNum( void );
-  short getRtpBlockLength( void );
-  codecType getVideoRtpCodec( void );
-  int getVideoRtpCodecNum( void );
-  QString getVideoRtpCodecName( void );
-  void setBodyMask( QString body ) { _bodyMask = body; }
-  QString getBodyMask( void ) { return _bodyMask; }
-  bool checkCodec( SipCallMember *member );
-  void setStunSrv( QString newStunSrv );
+	void setCodec( codecType newCodec ) { _audioCodec = newCodec; }
+	void setRtpCodec( codecType newCodec ) { _rtpCodec = newCodec; }
+	void setVideoCodec( codecType newCodec ) { _videoCodec = newCodec; }
+	void setVideoRtpCodec( codecType newCodec ) { _videoRtpCodec = newCodec; }
+	codecType getRtpCodec( void );
+	int getRtpCodecNum( void );
+	short getRtpBlockLength( void );
+	codecType getVideoRtpCodec( void );
+	int getVideoRtpCodecNum( void );
+	QString getVideoRtpCodecName( void );
+	void setBodyMask( QString body ) { _bodyMask = body; }
+	QString getBodyMask( void ) { return _bodyMask; }
+	bool checkCodec( SipCallMember *member );
+	void setStunSrv( QString newStunSrv );
 
 	VoIPVideo* videoControl() const;
 
@@ -92,8 +92,8 @@ public slots:
 
 
 signals:
-  void outputDead( void );
-  void statusUpdated( void );
+	void outputDead( void );
+	void statusUpdated( void );
 	void proxyPictureShow(const QImage&);
 	void proxyLocalPictureShow(const QImage&);
 	void proxyStopCamera();
@@ -105,14 +105,14 @@ signals:
 	void audioInputPresentChange(bool);
 
 private slots:
-  void memberStatusUpdated(SipCallMember *member);
+	void memberStatusUpdated(SipCallMember *member);
 	void onProxySuspendStateChange(bool);
 
 private:
-  void audioIn( void );
-  void stopListeningAudio( void );
-  void stopSendingAudio( void );
-  void detachAndHold( void );
+	void audioIn( void );
+	void stopListeningAudio( void );
+	void stopSendingAudio( void );
+	void detachAndHold( void );
 
 
 
@@ -120,48 +120,48 @@ protected:
 	void timerEvent(QTimerEvent *);
 
 private:
-  //KPhoneView *view;
-  DspAudio *_pAudioInput;
-  DspAudio *_pAudioOutput;
-  AudioModeType _audioMode;
+	//KPhoneView *view;
+	DspAudio *_pAudioInput;
+	DspAudio *_pAudioOutput;
+	AudioModeType _audioMode;
 
-  ////DspAudioJackOut *jack_audioout;
-  ////DspAudioJackIn  *jack_audioin;
-  //int audio_fd;
+	////DspAudioJackOut *jack_audioout;
+	////DspAudioJackIn  *jack_audioin;
+	//int audio_fd;
 
-  SdpMessage _localSDP;
-  SdpMessage _remoteSDP;
-  ////QString ossfilename;
-  ////QString ossfilename2;
-  QString _alsaDeviceName; //Added by bobosch
-  QString _videoSW;
-  SipCall *_pCurrentSipCall;
-  SipCallMember *_pCurrentSipCallMember;
+	SdpMessage _localSDP;
+	SdpMessage _remoteSDP;
+	////QString ossfilename;
+	////QString ossfilename2;
+	QString _alsaDeviceName; //Added by bobosch
+	QString _videoSW;
+	SipCall *_pCurrentSipCall;
+	SipCallMember *_pCurrentSipCallMember;
 
-  int _rtpPayloadSize;
-  codecType _audioCodec;
-  codecType _rtpCodec;
-  int _rtpCodecNum;
+	int _rtpPayloadSize;
+	codecType _audioCodec;
+	codecType _rtpCodec;
+	int _rtpCodecNum;
 
-  codecType _videoCodec;
-  codecType _videoRtpCodec;
-  int _videoRtpCodecNum;
+	codecType _videoCodec;
+	codecType _videoRtpCodec;
+	int _videoRtpCodecNum;
 
-  QString _bodyMask;
-  //pid_t pidVideo;
-  bool _useStun;
-  bool _symMedia;
-  QString _stunSrv;
+	QString _bodyMask;
+	//pid_t pidVideo;
+	bool _useStun;
+	bool _symMedia;
+	QString _stunSrv;
 
-  //QProcess *_pVideoProcess;
+	//QProcess *_pVideoProcess;
 	VoIPVideo* _pVideo;
 
 	int _incomingThreadTimeUpdateTimer;
 
-  /*
-  * Common socket for both streams, used only in symmetric mode
-  */
-  UDPMessageSocket _symmSocket;
+	/*
+	* Common socket for both streams, used only in symmetric mode
+	*/
+	UDPMessageSocket _symmSocket;
 };
 
 

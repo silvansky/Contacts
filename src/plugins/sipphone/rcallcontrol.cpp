@@ -701,7 +701,6 @@ void RCallControl::stopSignal()
 		FMediaObject->stop();
 	}
 
-
 #else
 
 	if (QSound::isAvailable())

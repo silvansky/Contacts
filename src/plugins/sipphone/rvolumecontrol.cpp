@@ -136,18 +136,6 @@ RVolumeControl::RVolumeControl(QWidget *parent)
 		connect(pMasterVolume, SIGNAL(muteStateChangedExternaly(bool)), this, SLOT(setMute(bool)));
 	}
 
-
-	//////////////////QString path = "D:\\CONCEPT\\VolumeControl\\VolumeControl\\icons\\";
-	////////////////QString path = "D:\\icons\\";
-
-	////////////////_pixList.append(QPixmap( path + "volume_0.png"));
-	////////////////_pixList.append(QPixmap( path + "volume_1.png"));
-	////////////////_pixList.append(QPixmap( path + "volume_2.png"));
-	////////////////_pixList.append(QPixmap( path + "volume_3.png"));
-	////////////////_pixList.append(QPixmap( path + "volume_4.png"));
-	////////////////_pixList.append(QPixmap( path + "soundoff.png"));
-	////////////////_pixList.append(QPixmap( path + "sounddisabled.png"));
-
 	IconStorage* iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 
 	QList<QString> data;

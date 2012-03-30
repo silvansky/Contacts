@@ -6,6 +6,8 @@
 
 #include <QPainter>
 #include <QResizeEvent>
+#include <QDebug>
+#include <QThread>
 
 int QImageLabel::spacing = 4;
 
@@ -106,7 +108,7 @@ void QImageLabel::leaveEvent(QEvent *)
 void QImageLabel::paintEvent(QPaintEvent *evt)
 {
 	Q_UNUSED(evt);
-
+	//qDebug() << "QImageLabel::paintEvent(): current thread: " << QThread::currentThread();
 	mutex.lock();
 
 	QPainter p(this);
@@ -160,6 +162,7 @@ void QImageLabel::setVisible(bool state)
 
 void QImageLabel::setPixmap(const QPixmap &pix)
 {
+	//qDebug() << "QImageLabel::setPixmap(): current thread: " << QThread::currentThread();
 	mutex.lock();
 
 	if (!pix.isNull() && (pixmap()==NULL || pix.cacheKey()!=pixmap()->cacheKey()))

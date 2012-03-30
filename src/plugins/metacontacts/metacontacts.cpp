@@ -1083,8 +1083,8 @@ void MetaContacts::initMetaItemDescriptors()
 	yonline.metaOrder = MIO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
 	yonline.gatePrefix = "yandex";
-	yonline.domains << "ya.ru" << "yandex.ru" << "yandex.net" << "yandex.com" << "yandex.by" << "yandex.kz" 
-      << "yandex.ua" << "yandex-co.ru" << "narod.ru";
+	yonline.domains << "ya.ru" << "yandex.ru" << "yandex.net" << "yandex.com" << "yandex.by" << "yandex.kz"
+			<< "yandex.ua" << "yandex-co.ru" << "narod.ru";
 	FMetaItemDescriptors.append(yonline);
 
 	IMetaItemDescriptor qip;
@@ -1097,10 +1097,10 @@ void MetaContacts::initMetaItemDescriptors()
 	qip.metaOrder = MIO_QIP;
 	qip.gateId = GSID_QIP;
 	qip.gatePrefix = "qip";
-   qip.domains << "qip.ru" << "pochta.ru" << "fromru.com" << "front.ru" << "hotbox.ru"	<< "hotmail.ru"
-      << "krovatka.su" << "land.ru"	<< "mail15.com" << "mail333.com" << "newmail.ru" << "nightmail.ru"
-      << "nm.ru" << "pisem.net"	<< "pochtamt.ru" << "pop3.ru" << "rbcmail.ru" << "smtp.ru" << "5ballov.ru"
-      << "aeterna.ru"<< "ziza.ru" << "memori.ru" << "photofile.ru" << "fotoplenka.ru";
+	qip.domains << "qip.ru" << "pochta.ru" << "fromru.com" << "front.ru" << "hotbox.ru"	<< "hotmail.ru"
+		    << "krovatka.su" << "land.ru"	<< "mail15.com" << "mail333.com" << "newmail.ru" << "nightmail.ru"
+		    << "nm.ru" << "pisem.net"	<< "pochtamt.ru" << "pop3.ru" << "rbcmail.ru" << "smtp.ru" << "5ballov.ru"
+		    << "aeterna.ru"<< "ziza.ru" << "memori.ru" << "photofile.ru" << "fotoplenka.ru";
 	FMetaItemDescriptors.append(qip);
 
 	IMetaItemDescriptor vkontakte;

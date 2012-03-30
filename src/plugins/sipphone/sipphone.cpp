@@ -550,7 +550,8 @@ void SipPhone::onCallActionTriggered(bool status)
 		{
 			RCallControl* pCallControl = FCallControls.value(metaId);
 			closeStream(pCallControl->getSessionID());
-			pCallControl->deleteLater();
+			//pCallControl->deleteLater();
+			delete pCallControl;
 		}
 	}
 }
@@ -766,7 +767,8 @@ void SipPhone::onAbortCall()
 		{
 			emit sipSendUnRegister();
 			FSipPhone->registerAccount(false);
-			pCallControl->deleteLater();
+			//pCallControl->deleteLater();
+			delete pCallControl;
 		}
 	}
 }
@@ -872,7 +874,8 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 			else if(stream.errFlag != 0)
 			{
 				showNotifyInChatWindow(sid,tr("Call to %1 has failed. Reason: %2").arg(userNick).arg(stream.failReason), MNI_SIPPHONE_CALL_HANGUP);
-				pCallControl->deleteLater();
+				//pCallControl->deleteLater();
+				delete pCallControl;
 			}
 			else
 			{
@@ -880,7 +883,13 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 					showNotifyInChatWindow(sid,tr("Call to %1 finished, duration %2.").arg(userNick).arg(callTime.toString()));
 				else
 					showNotifyInChatWindow(sid,tr("Call to %1 canceled.").arg(userNick));
-				pCallControl->deleteLater();
+				//pCallControl->deleteLater();
+				delete pCallControl;
+//				if(FSipPhone)
+//				{
+//					FSipPhone->hangup();
+//					//FSipPhone->registerAccount(false);
+//				}
 			}
 		}
 		else if(state == ISipStream::SS_CLOSED) // Удаленный пользователь повесил трубку
@@ -893,7 +902,8 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 					FStreams.remove(sid);
 				}
 				// Скрываем панель звонка
-				pCallControl->deleteLater();
+				//pCallControl->deleteLater();
+				delete pCallControl;
 				return;
 			}
 			if(pCallControl->status() == RCallControl::Ringing) 
@@ -909,7 +919,8 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 			}
 			else if(pCallControl->status() == RCallControl::Accepted) 
 			{
-				pCallControl->deleteLater(); // Удаленный пользователь повесил трубку во время разговора. Нам тоже надо.
+				//pCallControl->deleteLater();
+				delete pCallControl;// Удаленный пользователь повесил трубку во время разговора. Нам тоже надо.
 				showNotifyInChatWindow(sid,tr("Call to %1 finished, duration %2.").arg(userNick).arg(callTime.toString()));
 			}
 		}
@@ -946,7 +957,8 @@ void SipPhone::onStreamStateChanged(const QString& sid, int state)
 					showNotifyInChatWindow(sid,tr("Call from %1 finished, duration %2.").arg(userNick).arg(callTime.toString()));
 				else
 					showNotifyInChatWindow(sid,tr("Call from %1 canceled.").arg(userNick));
-				pCallControl->deleteLater();
+				//pCallControl->deleteLater();
+				delete pCallControl;
 			}
 			if(stream.errFlag == ISipStream::EF_REGFAIL)
 			{

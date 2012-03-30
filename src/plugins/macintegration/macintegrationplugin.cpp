@@ -795,6 +795,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 	if (now)
 	{
 #ifdef DEBUG_ENABLED
+#ifdef DEBUG_FOCUS
 		qDebug() << "focused: " << now->objectName()
 			 << " of class " << now->metaObject()->className();
 		QStringList hierarchy;
@@ -805,6 +806,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 			parent = parent->parentWidget();
 		}
 		qDebug() << "hierarchy: " << hierarchy.join(" -> ");
+#endif
 #endif
 		updateActions();
 		if (QLineEdit * le = qobject_cast<QLineEdit*>(now))

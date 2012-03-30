@@ -6,6 +6,8 @@
 
 #include <QPainter>
 #include <QPaintEvent>
+#include <QDebug>
+#include <QThread>
 
 ComplexVideoWidget::ComplexVideoWidget(QWidget *parent) : QWidget(parent), _noSignal(false), _pPixmap(NULL)
 {
@@ -15,6 +17,7 @@ ComplexVideoWidget::ComplexVideoWidget(QWidget *parent) : QWidget(parent), _noSi
 
 ComplexVideoWidget::~ComplexVideoWidget()
 {
+	//qDebug() << "ComplexVideoWidget::~ComplexVideoWidget(): current thread: " << QThread::currentThread();
 	mutex.lock();
 	if(_pPixmap)
 	{
@@ -47,6 +50,7 @@ void ComplexVideoWidget::setPicture(const QPixmap& pxmp)
 
 	//d->updateLabel();
 
+	//qDebug() << "ComplexVideoWidget::setPicture(): current thread: " << QThread::currentThread();
 	mutex.lock();
 
 	if(_noSignal)
@@ -74,10 +78,9 @@ void ComplexVideoWidget::setPicture(const QPixmap& pxmp)
 void ComplexVideoWidget::paintEvent(QPaintEvent *ev)
 {
 	Q_UNUSED(ev);
-	//QWidget::paintEvent(ev);
-
 	QPainter painter(this);
 
+	//qDebug() << "ComplexVideoWidget::paintEvent(): current thread: " << QThread::currentThread();
 	mutex.lock();
 
 	painter.fillRect(/*ev->*/rect(), Qt::black);

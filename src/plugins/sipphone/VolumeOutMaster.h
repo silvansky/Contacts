@@ -13,7 +13,6 @@ typedef unsigned long DWORD;
 typedef unsigned int UINT;
 #endif
 
-// TODO: implement volume functions for Mac OS X
 class CVolumeOutMaster : public QObject
 		#ifdef Q_WS_WIN32_NOTNEEDED
 		, public IVolume

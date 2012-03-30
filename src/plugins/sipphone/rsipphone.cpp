@@ -4,6 +4,8 @@
 
 //#include "pjmedia\frame.h"
 
+#define USE_SDL 0
+
 #ifdef Q_WS_WIN32
 # include <windows.h>
 #endif
@@ -12,13 +14,19 @@
 # define SDL_MAIN_HANDLED
 #endif
 
-#include <SDL.h>
+#if USE_SDL
+# include <SDL.h>
+#endif
 #include <assert.h>
 
 #include <utils/customborderstorage.h>
 #include <definitions/resources.h>
 #include <definitions/customborder.h>
 #include <utils/widgetmanager.h>
+
+#ifdef Q_WS_MAC
+# include <utils/macwidgets.h>
+#endif
 
 #include "sipphonewidget.h"
 
@@ -392,7 +400,9 @@ void RSipPhone::cleanup()
 {
 	pjsua_destroy();
 	//pjsua_destroy2(PJSUA_DESTROY_NO_RX_MSG);
+#if USE_SDL
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
 	//SDL_Quit();
 }
 
@@ -441,23 +451,24 @@ void RSipPhone::onCallReleased()
 	if(_currentCall == -1)
 		return;
 
-	emit callEnded(_currentCall);
-	_currentCall = -1;
-
 	myframe.put_frame_callback = NULL;
 	myframe.preview_frame_callback = NULL;
 
 	if(_pPhoneWidget)
 	{
-		if (_pPhoneWidget->parentWidget())
-			_pPhoneWidget->parentWidget()->deleteLater();
-		_pPhoneWidget->deleteLater();
+//		if (_pPhoneWidget->parentWidget())
+//			_pPhoneWidget->parentWidget()->deleteLater();
+		//_pPhoneWidget->deleteLater();
+		delete _pPhoneWidget;
 		_pPhoneWidget = NULL;
 	}
+	emit callEnded(_currentCall);
+	_currentCall = -1;
 }
 
 void RSipPhone::preview()
 {
+	//return;
 	if (_is_preview_on)
 	{
 		pjsua_vid_preview_stop(DEFAULT_CAP_DEV);
@@ -540,6 +551,7 @@ void RSipPhone::call()
 		pjsua_call_setting call_setting;
 		pjsua_call_setting_default(&call_setting);
 		call_setting.vid_cnt = 1;//(vidEnabled_->checkState()==Qt::Checked);
+		//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 		call_setting.aud_cnt = 1;
 
 		status = pjsua_call_make_call(_accountId, &uri, &call_setting, NULL, NULL, &_currentCall);
@@ -585,6 +597,7 @@ void RSipPhone::call(const char* uriToCall)
 	pjsua_call_setting call_setting;
 	pjsua_call_setting_default(&call_setting);
 	call_setting.vid_cnt = 1;//(vidEnabled_->checkState()==Qt::Checked);
+	//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 	call_setting.aud_cnt = 1;
 
 	// NULL SOUND
@@ -616,13 +629,15 @@ void RSipPhone::hangup()
 		return;
 	//pj_assert(_currentCall != -1);
 	//pjsua_call_hangup(_currentCall, PJSIP_SC_BUSY_HERE, NULL, NULL);
-	pjsua_call_hangup_all();
+	//pjsua_call_hangup_all();
+	pjsua_call_hangup(_currentCall, 0, NULL, NULL);
 
 	emit signalCallReleased();
 }
 
 pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
 {
+//	return 0;
 	if(frame->type != PJMEDIA_FRAME_TYPE_VIDEO)
 		return 0;
 
@@ -670,6 +685,7 @@ pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, const 
 
 pj_status_t RSipPhone::on_my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
 {
+//	return 0;
 	if(frame->type != PJMEDIA_FRAME_TYPE_VIDEO)
 		return 0;
 
@@ -720,8 +736,10 @@ void RSipPhone::initVideoWindow()
 			//emit signalVideoInputWidgetSet(_pVideoInputWidget);
 			//emit signalVideoInputWidgetSet((HWND*)wi.hwnd.info.win.hwnd);
 			emit signalShowSipPhoneWidget(wi.hwnd.info.win.hwnd);
-#ifdef Q_WS_WIN32
+#if defined(Q_WS_WIN32)
 			ShowWindow((HWND)wi.hwnd.info.win.hwnd, SW_HIDE);
+#elif defined(Q_WS_MAC)
+			hideWindow(wi.hwnd.info.cocoa.window);
 #endif
 
 			//preview();
@@ -948,6 +966,7 @@ bool RSipPhone::sendVideo(bool isSending)
 
 	pjsua_call_setting_default(&call_setting);
 	call_setting.vid_cnt = isSending ? 1 : 0;
+	//call_setting.vid_cnt = 0;
 
 	pjsua_call_reinvite2(_currentCall, &call_setting, NULL);
 
@@ -965,9 +984,10 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 
 	if(_pPhoneWidget)
 	{
-		if (_pPhoneWidget->parentWidget())
-			_pPhoneWidget->parentWidget()->deleteLater();
-		_pPhoneWidget->deleteLater();
+//		if (_pPhoneWidget->parentWidget())
+//			_pPhoneWidget->parentWidget()->deleteLater();
+		//_pPhoneWidget->deleteLater();
+		delete _pPhoneWidget;
 		_pPhoneWidget = NULL;
 	}
 
@@ -1035,196 +1055,6 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	WidgetManager::showActivateRaiseWindow(_pPhoneWidget->window());
 }
 
-bool RSipPhone::initStack(const QString& sip_domain, int sipPortNum, const QString& sip_username, const QString& sip_password)
-{
-	return RSipPhone::initStack(sip_domain.toUtf8().data(), sipPortNum, sip_username.toUtf8().data(), sip_password.toUtf8().data());
-}
-
-bool RSipPhone::initStack(const char* sip_domain, int sipPortNum, const char* sip_username, const char* sip_password)
-{
-	// TODO: get rid of "goto on_error"
-	if ( SDL_InitSubSystem(SDL_INIT_VIDEO) < 0 )
-	{
-		printf("Unable to init SDL: %s\n", SDL_GetError());
-		return false;
-	}
-
-	pj_status_t status;
-
-	//showStatus("Creating stack..");
-	status = pjsua_create();
-	if (status != PJ_SUCCESS)
-	{
-		showError("pjsua_create", status);
-		return false;
-	}
-
-	showStatus("Initializing stack..");
-
-	pjsua_config ua_cfg;
-	pjsua_config_default(&ua_cfg);
-	pjsua_callback ua_cb;
-	pj_bzero(&ua_cb, sizeof(ua_cb));
-	ua_cfg.cb.on_reg_state = &::on_reg_state;
-	ua_cfg.cb.on_call_state = &::on_call_state;
-	ua_cfg.cb.on_incoming_call = &::on_incoming_call;
-	ua_cfg.cb.on_call_media_state = &::on_call_media_state;
-	ua_cfg.cb.on_call_tsx_state = &::on_call_tsx_state;
-
-	//ua_cfg.stun_srv_cnt = 1;
-	//ua_cfg.stun_srv[0] = pj_str((char*)"talkpad.ru:5065");
-	//ua_cfg.stun_srv[0] = pj_str((char*)"vsip.rambler.ru:5065");
-
-	pjsua_logging_config log_cfg;
-	pjsua_logging_config_default(&log_cfg);
-	log_cfg.log_filename = pj_str((char*)LOG_FILE);
-
-	pjsua_media_config med_cfg;
-	pjsua_media_config_default(&med_cfg);
-	//med_cfg.enable_ice = true;
-
-	status = pjsua_init(&ua_cfg, &log_cfg, &med_cfg);
-	//status = pjsua_init(&ua_cfg, NULL, &med_cfg);
-	if (status != PJ_SUCCESS)
-	{
-		showError("pjsua_init", status);
-		goto on_error;
-	}
-
-	//
-	// Create UDP and TCP transports
-	//
-	pjsua_transport_config udp_cfg;
-	pjsua_transport_id udp_id;
-	pjsua_transport_config_default(&udp_cfg);
-	//udp_cfg.port =  SIP_PORT;
-	udp_cfg.port = sipPortNum;
-
-	status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &udp_cfg, &udp_id);
-	if (status != PJ_SUCCESS)
-	{
-		showError("UDP transport creation", status);
-		goto on_error;
-	}
-
-	pjsua_transport_info udp_info;
-	status = pjsua_transport_get_info(udp_id, &udp_info);
-	if (status != PJ_SUCCESS)
-	{
-		showError("UDP transport info", status);
-		goto on_error;
-	}
-
-	//pjsua_transport_config tcp_cfg;
-	//pjsua_transport_config_default(&tcp_cfg);
-	//tcp_cfg.port = 0;
-	//status = pjsua_transport_create(PJSIP_TRANSPORT_TCP, &tcp_cfg, NULL);
-	//if (status != PJ_SUCCESS)
-	//{
-	//	showError("TCP transport creation", status);
-	//	goto on_error;
-	//}
-
-	//
-	// Create account
-	//
-	pjsua_acc_config acc_cfg;
-	pjsua_acc_config_default(&acc_cfg);
-
-
-	//if(!sip_domain.isEmpty())
-	{
-		char idtmp[1024];
-		//pj_ansi_strncpy(idtmp, QString("sip:" + sip_username + "@" + sip_domain).toUtf8().data(), sizeof(idtmp));
-		pj_ansi_snprintf(idtmp, sizeof(idtmp), "sip:%s@%s",sip_username, sip_domain);
-
-		acc_cfg.id = pj_str((char*)idtmp);
-
-		char reg_uritmp[1024];
-		//pj_ansi_strncpy(reg_uritmp, QString("sip:" + sip_domain).toUtf8().data(), sizeof(reg_uritmp));
-		pj_ansi_snprintf(reg_uritmp, sizeof(reg_uritmp), "sip:%s", sip_domain);
-		acc_cfg.reg_uri = pj_str((char*)reg_uritmp);
-
-		acc_cfg.cred_count = 1;
-		acc_cfg.cred_info[0].realm = pj_str((char*)"*");
-		acc_cfg.cred_info[0].scheme = pj_str((char*)"digest");
-
-		char usernametmp[512];
-		//pj_ansi_strncpy(usernametmp, sip_username.toUtf8().data(), sizeof(usernametmp));
-		pj_ansi_strncpy(usernametmp, sip_username, sizeof(usernametmp));
-		//pj_ansi_vsnprintf(usernametmp, sizeof(usernametmp), "%s", sip_username);
-		acc_cfg.cred_info[0].username = pj_str((char*)usernametmp);
-
-		char passwordtmp[512];
-		//pj_ansi_strncpy(passwordtmp, sip_password.toUtf8().data(), sizeof(passwordtmp));
-		pj_ansi_strncpy(passwordtmp, sip_password, sizeof(passwordtmp));
-		acc_cfg.cred_info[0].data = pj_str((char*)passwordtmp);
-	}
-
-
-//#ifdef SIP_DOMAIN
-//	acc_cfg.id = pj_str( "sip:" SIP_USERNAME "@" SIP_DOMAIN);
-//	acc_cfg.reg_uri = pj_str((char*) ("sip:" SIP_DOMAIN));
-//	acc_cfg.cred_count = 1;
-//	acc_cfg.cred_info[0].realm = pj_str((char*)"*");
-//	acc_cfg.cred_info[0].scheme = pj_str((char*)"digest");
-//	acc_cfg.cred_info[0].username = pj_str((char*)SIP_USERNAME);
-//	acc_cfg.cred_info[0].data = pj_str((char*)SIP_PASSWORD);
-//#else
-//	char sip_id[80];
-//	snprintf(sip_id, sizeof(sip_id),
-//		"sip:%s@%.*s:%u", SIP_USERNAME,
-//		(int)udp_info.local_name.host.slen,
-//		udp_info.local_name.host.ptr,
-//		udp_info.local_name.port);
-//	acc_cfg.id = pj_str(sip_id);
-//#endif
-
-	//acc_cfg.max_video_cnt = 1;
-	acc_cfg.vid_cap_dev = DEFAULT_CAP_DEV;
-	acc_cfg.vid_rend_dev = DEFAULT_REND_DEV;
-	acc_cfg.vid_in_auto_show = PJ_TRUE;
-	acc_cfg.vid_out_auto_transmit = PJ_TRUE;
-	//acc_cfg.vid_out_auto_transmit = PJ_FALSE;
-	acc_cfg.register_on_acc_add = PJ_FALSE;
-
-	status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &_accountId);
-	if (status != PJ_SUCCESS)
-	{
-		showError("Account creation", status);
-		goto on_error;
-	}
-
-	//localUri_->setText(acc_cfg.id.ptr);
-
-	//
-	// Start pjsua!
-	//
-	showStatus("Starting stack..");
-	status = pjsua_start();
-	if (status != PJ_SUCCESS)
-	{
-		showError("pjsua_start", status);
-		goto on_error;
-	}
-
-	/* We want to be registrar too! */
-	if (pjsua_get_pjsip_endpt())
-	{
-		pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
-	}
-
-	showStatus("Ready");
-
-	_initialized = true;
-	return true;
-
-on_error:
-	pjsua_destroy();
-	_initialized = false;
-	return false;
-}
-
 bool RSipPhone::initStack(const QString& sip_server, int sipPortNum, const QString& sip_username, const QString& sip_password, const QString& sip_domain)
 {
 	return RSipPhone::initStack(sip_server.toUtf8().data(), sipPortNum, sip_username.toUtf8().data(), sip_password.toUtf8().data(), sip_domain.toUtf8().data());
@@ -1233,11 +1063,13 @@ bool RSipPhone::initStack(const QString& sip_server, int sipPortNum, const QStri
 bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* sip_username, const char* sip_password, const char* sip_domain)
 {
 	// TODO: get rid of "goto on_error"
+#if USE_SDL
 	if ( SDL_InitSubSystem(SDL_INIT_VIDEO) < 0 )
 	{
 		printf("Unable to init SDL: %s\n", SDL_GetError());
 		return false;
 	}
+#endif
 
 	pj_status_t status;
 

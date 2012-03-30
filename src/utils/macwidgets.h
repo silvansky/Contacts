@@ -15,5 +15,6 @@ NSView * nsViewFromWidget(QWidget * w);
 void setWindowShadowEnabled(QWidget * window, bool enabled);
 bool isWindowGrowButtonEnabled(QWidget * window);
 void setWindowGrowButtonEnabled(QWidget * window, bool enabled);
+void hideWindow(void * /* (NSWindow*) */ window);
 
 #endif // MACWIDGETS_H

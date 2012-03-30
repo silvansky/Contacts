@@ -38,3 +38,9 @@ void setWindowGrowButtonEnabled(QWidget * window, bool enabled)
     if (window)
         [[[nsViewFromWidget(window) window] standardWindowButton: NSWindowZoomButton] setEnabled: (enabled ? YES : NO)];
 }
+
+void hideWindow(void * /* (NSWindow*) */ window)
+{
+	NSWindow * nsWindow = (NSWindow*)window;
+	[nsWindow orderOut:nil];
+}

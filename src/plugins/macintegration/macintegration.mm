@@ -78,7 +78,7 @@ static QString resolveGrowlType(const QString & notifyType)
 	return self;
 }
 
-// TODO: make localized
+// TODO: make localized (and make it work...)
 //- (NSDictionary *) registrationDictionaryForGrowl
 //{
 //	NSLog(@"registrationDictionaryForGrowl");

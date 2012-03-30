@@ -6,19 +6,6 @@
 
 QImage ImageManager::grayscaled(const QImage & image)
 {
-	// TODO: test speed of both methods
-	/*static QVector<QRgb> monoTable;
-	if (monoTable.isEmpty())
-	{
-		for (int i = 0; i <= 255; i++)
-			monoTable.append(qRgb(i, i, i));
-	}
-	QImage gray(image.size(), QImage::Format_ARGB32);
-	QPainter p(&gray);
-	p.drawImage(0, 0, image.convertToFormat(QImage::Format_Indexed8, monoTable));
-	p.end();
-	return gray;*/
-
 	QImage img = image;
 	if (!image.isNull())
 	{

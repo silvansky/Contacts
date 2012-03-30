@@ -56,6 +56,9 @@ macx: {
 	  QT  += dbus
 	}
 
+	CONFIG += thread debug
+	QMAKE_CXXFLAGS += -DPJ_IS_BIG_ENDIAN=0 -DPJ_IS_LITTLE_ENDIAN=1 -DPJMEDIA_VIDEO_DEV_HAS_CALLBACK=1 -I/usr/local/include/SDL -D_THREAD_SAFE -DPJMEDIA_HAS_LIBAVDEVICE=1 -DPJMEDIA_HAS_LIBAVFORMAT=1 -DPJMEDIA_HAS_LIBAVCODEC=1 -DPJMEDIA_HAS_LIBSWSCALE=1 -DPJMEDIA_HAS_LIBAVUTIL=1 -DPJMEDIA_VIDEO_DEV_HAS_QT=1
+
 	DARWIN_VER = $$system("uname -r")
 	PLATFORM = $$system("uname -p")
 	LIB_SUFIX = $${PLATFORM}-apple-darwin$${DARWIN_VER}
@@ -81,7 +84,7 @@ macx: {
 	# zlib
 	LIBS += -lzlib
 	# SDL
-	LIBS += -lSDL
+	#LIBS += -lSDL
 	# iconv
 	LIBS += -liconv
 	# av

@@ -8,6 +8,7 @@
 #include <QScopedPointer>
 #include <definitions/commandline.h>
 #include <definitions/applicationreportparams.h>
+#include <definitions/version.h>
 #include <utils/log.h>
 #include <utils/networking.h>
 #include "pluginmanager.h"
@@ -75,6 +76,8 @@ int main(int argc, char *argv[])
 #endif
 
 	SingleApp app(argc, argv, "Rambler.Contacts");
+	app.setApplicationName(CLIENT_NAME);
+	app.setApplicationVersion(CLIENT_VERSION);
 
 #ifndef DEBUG_ENABLED
 	if (app.isRunning())
