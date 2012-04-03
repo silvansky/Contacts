@@ -6,7 +6,7 @@
 //#include "pjmedia\frame.h"
 
 #define USE_SDL 0
-#define HAS_VIDEO_SUPPORT 0 // Call video support. 0 - disable / 1 - enable
+#define HAS_VIDEO_SUPPORT 1 // Call video support. 0 - disable / 1 - enable
 
 #ifdef Q_WS_WIN32
 # include <windows.h>
@@ -602,7 +602,12 @@ void RSipPhone::call(const char* uriToCall)
 
 	pjsua_call_setting call_setting;
 	pjsua_call_setting_default(&call_setting);
-	call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
+
+#if defined(HAS_VIDEO_SUPPORT)
+	call_setting.vid_cnt = HAS_VIDEO_SUPPORT;
+#else
+	call_setting.vid_cnt = 0;
+#endif
 	//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 	call_setting.aud_cnt = 1;
 
