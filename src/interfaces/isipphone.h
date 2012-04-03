@@ -2,6 +2,7 @@
 #define ISIPPHONE_H
 
 #include <QUuid>
+#include <QDateTime>
 #include <utils/jid.h>
 
 #define SIPPHONE_UUID "{28686B71-6E29-4065-8D2E-6116F2491394}"
@@ -30,7 +31,7 @@ struct ISipStream
 		state = SS_CLOSED;
 		errFlag = EF_NO_ERROR;
 		timeout = false;
-	};
+	}
 	int kind;
 	int state;
 	int errFlag;
@@ -45,6 +46,7 @@ struct ISipStream
 
 class ISipPhone
 {
+public:
 	virtual QObject *instance() =0;
 	virtual bool isSupported(const Jid &AStreamJid, const Jid &AContactJid) const =0;
 	virtual QList<QString> streams() const =0;
@@ -59,6 +61,149 @@ protected:
 	virtual void streamRemoved(const QString &AStreamId) =0;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+struct ISipDevice
+{
+	enum Type
+	{
+		DT_CAMERA,
+		DT_VIDEO_IN,
+		DT_MICROPHONE,
+		DT_AUDIO_OUT
+	};
+
+	enum CameraProperty
+	{
+		CP_CURRENTFRAME, /* QPixmap */
+		CP_RESOLUTION, /* QSize */
+		CP_BRIGHTNESS /* float */
+	};
+
+	enum VideoInProperty
+	{
+		VP_CURRENTFRAME /* QPixmap */
+	};
+
+	enum MicrophoneProperty
+	{
+		MP_VOLUME /* float */
+	};
+
+	enum AudioOutProperty
+	{
+		AP_VOLUME /* float */
+	};
+
+	Type type;
+	int id;
+	QString name;
+};
+
+class ISipCall
+{
+public:
+	enum State
+	{
+		CS_NONE,
+		CS_CALLING,
+		CS_CONNECTING,
+		CS_TALKING,
+		CS_FINISHED,
+		CS_ERROR
+	};
+
+	enum ErrorCode
+	{
+		EC_NONE,
+		EC_BUSY,
+		EC_NOTAVAIL,
+		EC_NOANSWER,
+		EC_REJECTED,
+		EC_CONNECTIONERR
+	};
+
+	enum CallerRole
+	{
+		CR_INITIATOR,
+		CR_RESPONDER
+	};
+
+	enum RejectionCode
+	{
+		RC_BYUSER,
+		RC_BUSY
+	};
+
+	enum DeviceState
+	{
+		DS_UNAVAIL,
+		DS_ENABLED,
+		DS_DISABLED
+	};
+
+	virtual QObject *instance() = 0;
+	virtual Jid streamJid() const = 0;
+	virtual Jid contactJid() const = 0;
+	virtual QList<Jid> callDestinations() const = 0;
+	virtual void call(const Jid &AStreamJid, const QList<Jid> &AContacts) const = 0;
+	virtual void acceptCall() = 0;
+	virtual void rejectCall(RejectionCode ACode) = 0;
+	virtual State state() const = 0;
+	virtual ErrorCode errorCode() const = 0;
+	virtual QString errorString() const = 0;
+	virtual CallerRole role() const = 0;
+	virtual quint32 callTime() const = 0;
+	virtual QString callTimeString() const = 0;
+	virtual bool sendDTMFSignal(QChar ASignal) = 0;
+	// devices
+	virtual ISipDevice activeDevice(ISipDevice::Type AType) const = 0;
+	virtual bool setActiveDevice(ISipDevice::Type AType, int ADeviceId) = 0;
+	virtual DeviceState deviceState(ISipDevice::Type AType) const = 0;
+	virtual bool setDeviceState(ISipDevice::Type AType, DeviceState AState) const = 0;
+	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) = 0;
+	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue) = 0;
+protected:
+	virtual void stateChanged(int AState) = 0;
+	virtual void DTMFSignalReceived(QChar ASignal) = 0;
+	virtual void activeDeviceChanged(int ADeviceType) = 0;
+	virtual void deviceStateChanged(ISipDevice::Type AType, DeviceState AState) = 0;
+	virtual void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue) = 0;
+};
+
+class ISipCallHandler
+{
+public:
+	virtual bool checkCall(ISipCall * ACall);
+};
+
+class ISipManager
+{
+public:
+	virtual QObject *instance() = 0;
+	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const = 0;
+	// calls
+	virtual ISipCall * newCall() = 0;
+	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid = Jid::null) = 0;
+	// prices
+	// TODO
+	// devices
+	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const = 0;
+	virtual ISipDevice getDevice(ISipDevice::Type AType, int ADeviceId) const = 0;
+	// handlers
+	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler) = 0;
+	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler) = 0;
+protected:
+	virtual void sipCallCreated(ISipCall * ACall) = 0;
+	virtual void sipCallDestroyed(ISipCall * ACall) = 0;
+	virtual void availDevicesChanged(int ADeviceType) = 0;
+	virtual void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler) = 0;
+	virtual void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler) = 0;
+};
+
+Q_DECLARE_INTERFACE(ISipCall,"Virtus.Plugin.ISipCall/1.0")
+Q_DECLARE_INTERFACE(ISipCallHandler,"Virtus.Plugin.ISipCallHandler/1.0")
+Q_DECLARE_INTERFACE(ISipManager,"Virtus.Plugin.ISipManager/1.0")
 Q_DECLARE_INTERFACE(ISipPhone,"Virtus.Plugin.ISipPhone/1.0")
 
 #endif //ISIPPHONE_H
