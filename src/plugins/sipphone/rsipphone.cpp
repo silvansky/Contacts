@@ -1,10 +1,12 @@
 #include "rsipphone.h"
 
+#include <utils/log.h>
 //#include "vidwin.h"
 
 //#include "pjmedia\frame.h"
 
 #define USE_SDL 0
+#define HAS_VIDEO_SUPPORT 0 // Call video support. 0 - disable / 1 - enable
 
 #ifdef Q_WS_WIN32
 # include <windows.h>
@@ -234,7 +236,6 @@ void YUV420PtoRGB32(int width, int height, int stride, const unsigned char *src,
 	}
 }
 
-
 void YUV422PtoRGB32(int width, int height, const unsigned char *src, unsigned char *dst, int dstSize)
 {
 	int h, w;
@@ -428,8 +429,11 @@ void RSipPhone::showError(const char *title, pj_status_t status)
 void RSipPhone::onNewCall(int cid, bool incoming)
 {
 	Q_UNUSED(incoming)
+
+#if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
 	myframe.put_frame_callback = &my_put_frame_callback;
 	myframe.preview_frame_callback = &my_preview_frame_callback;
+#endif
 
 	pjsua_call_info ci;
 
@@ -451,8 +455,10 @@ void RSipPhone::onCallReleased()
 	if(_currentCall == -1)
 		return;
 
+#if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
 	myframe.put_frame_callback = NULL;
 	myframe.preview_frame_callback = NULL;
+#endif
 
 	if(_pPhoneWidget)
 	{
@@ -468,56 +474,56 @@ void RSipPhone::onCallReleased()
 
 void RSipPhone::preview()
 {
-	//return;
-	if (_is_preview_on)
-	{
-		pjsua_vid_preview_stop(DEFAULT_CAP_DEV);
+	////////////return;
+	//////////if (_is_preview_on)
+	//////////{
+	//////////	pjsua_vid_preview_stop(DEFAULT_CAP_DEV);
 
-		showStatus("Preview stopped");
-	}
-	else
-	{
-		pjsua_vid_win_id wid;
-		pjsua_vid_win_info wi;
-		pjsua_vid_preview_param pre_param;
-		pj_status_t status;
+	//////////	showStatus("Preview stopped");
+	//////////}
+	//////////else
+	//////////{
+	//////////	pjsua_vid_win_id wid;
+	//////////	pjsua_vid_win_info wi;
+	//////////	pjsua_vid_preview_param pre_param;
+	//////////	pj_status_t status;
 
-		pjsua_vid_preview_param_default(&pre_param);
-		pre_param.rend_id = DEFAULT_REND_DEV;
-		pre_param.show = PJ_FALSE;
-		//pre_param.wnd_flags = !PJMEDIA_VID_DEV_WND_BORDER;
+	//////////	pjsua_vid_preview_param_default(&pre_param);
+	//////////	pre_param.rend_id = DEFAULT_REND_DEV;
+	//////////	pre_param.show = PJ_FALSE;
+	//////////	//pre_param.wnd_flags = !PJMEDIA_VID_DEV_WND_BORDER;
 
-		status = pjsua_vid_preview_start(DEFAULT_CAP_DEV, &pre_param);
-		if (status != PJ_SUCCESS)
-		{
-			char errmsg[PJ_ERR_MSG_SIZE];
-			pj_strerror(status, errmsg, sizeof(errmsg));
-			//QMessageBox::critical(0, "Error creating preview", errmsg);
-			return;
-		}
-		wid = pjsua_vid_preview_get_win(DEFAULT_CAP_DEV);
-		pjsua_vid_win_get_info(wid, &wi);
+	//////////	status = pjsua_vid_preview_start(DEFAULT_CAP_DEV, &pre_param);
+	//////////	if (status != PJ_SUCCESS)
+	//////////	{
+	//////////		char errmsg[PJ_ERR_MSG_SIZE];
+	//////////		pj_strerror(status, errmsg, sizeof(errmsg));
+	//////////		//QMessageBox::critical(0, "Error creating preview", errmsg);
+	//////////		return;
+	//////////	}
+	//////////	wid = pjsua_vid_preview_get_win(DEFAULT_CAP_DEV);
+	//////////	pjsua_vid_win_get_info(wid, &wi);
 
-		//_pVideoPrevWidget = new VidWin(&wi.hwnd);
-		//vbox_left->addWidget(video_prev_, 1);
-		//emit signalVideoPrevWidgetSet(_pVideoPrevWidget);
-		emit signalVideoPrevWidgetSet((void*)wi.hwnd.info.win.hwnd);
+	//////////	//_pVideoPrevWidget = new VidWin(&wi.hwnd);
+	//////////	//vbox_left->addWidget(video_prev_, 1);
+	//////////	//emit signalVideoPrevWidgetSet(_pVideoPrevWidget);
+	//////////	emit signalVideoPrevWidgetSet((void*)wi.hwnd.info.win.hwnd);
 
 
 
-		//////Using this will cause SDL window to display blank
-		//////screen sometimes, probably because it's using different
-		//////X11 Display
-		//////status = pjsua_vid_win_set_show(wid, PJ_TRUE);
-		//////This is handled by VidWin now
-		//////video_prev_->show_sdl();
-		showStatus("Preview started");
+	//////////	//////Using this will cause SDL window to display blank
+	//////////	//////screen sometimes, probably because it's using different
+	//////////	//////X11 Display
+	//////////	//////status = pjsua_vid_win_set_show(wid, PJ_TRUE);
+	//////////	//////This is handled by VidWin now
+	//////////	//////video_prev_->show_sdl();
+	//////////	showStatus("Preview started");
 
-		//previewButton_->setText(tr("Stop &Preview"));
-	}
-	_is_preview_on = !_is_preview_on;
+	//////////	//previewButton_->setText(tr("Stop &Preview"));
+	//////////}
+	//////////_is_preview_on = !_is_preview_on;
 
-	emit previewStatusChanged(_is_preview_on);
+	//////////emit previewStatusChanged(_is_preview_on);
 }
 
 void RSipPhone::call()
@@ -550,7 +556,7 @@ void RSipPhone::call()
 
 		pjsua_call_setting call_setting;
 		pjsua_call_setting_default(&call_setting);
-		call_setting.vid_cnt = 1;//(vidEnabled_->checkState()==Qt::Checked);
+		call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 		//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 		call_setting.aud_cnt = 1;
 
@@ -596,7 +602,7 @@ void RSipPhone::call(const char* uriToCall)
 
 	pjsua_call_setting call_setting;
 	pjsua_call_setting_default(&call_setting);
-	call_setting.vid_cnt = 1;//(vidEnabled_->checkState()==Qt::Checked);
+	call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 	//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 	call_setting.aud_cnt = 1;
 
@@ -645,6 +651,7 @@ pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, const 
 	int dstSize = w * h * 3;
 	unsigned char * dst = new unsigned char[dstSize];
 
+
 	if(strstr(colormodelName, "RGB") != 0)
 	{
 		memcpy(dst, frame->buf, dstSize);
@@ -677,7 +684,7 @@ pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, const 
 	if(_pPhoneWidget)
 	{
 		//_pPhoneWidget->SetCurrImage(_currimg);
-		emit signal_SetCurrentImage(_currimg);
+	  emit signal_SetCurrentImage(_currimg);
 	}
 
 	return 0;
@@ -712,8 +719,7 @@ pj_status_t RSipPhone::on_my_put_frame_callback(pjmedia_frame *frame, int w, int
 
 void RSipPhone::initVideoWindow()
 {
-	//myframe.put_frame_callback = &my_put_frame_callback;
-	//myframe.preview_frame_callback = &my_preview_frame_callback;
+#if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
 
 	pjsua_call_info ci;
 	unsigned i;
@@ -729,9 +735,6 @@ void RSipPhone::initVideoWindow()
 			pjsua_vid_win_info wi;
 			pjsua_vid_win_get_info(ci.media[i].stream.vid.win_in, &wi);
 
-			//video_= new VidWin(&wi.hwnd);
-			//vbox_left->addWidget(video_, 1);
-
 			//_pVideoInputWidget = new VidWin(&wi.hwnd);
 			//emit signalVideoInputWidgetSet(_pVideoInputWidget);
 			//emit signalVideoInputWidgetSet((HWND*)wi.hwnd.info.win.hwnd);
@@ -742,11 +745,11 @@ void RSipPhone::initVideoWindow()
 			hideWindow(wi.hwnd.info.cocoa.window);
 #endif
 
-			//preview();
-
 			break;
 		}
 	}
+
+#endif
 }
 
 void RSipPhone::on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
@@ -928,6 +931,8 @@ void RSipPhone::on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx,
 
 bool RSipPhone::isCameraReady() const
 {
+#if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
+
 	if(!_initialized)
 		return false;
 
@@ -935,10 +940,13 @@ bool RSipPhone::isCameraReady() const
 	for (int id=0; id<devCount; id++)
 	{
 		pjmedia_vid_dev_info info;
-		pjmedia_vid_dev_get_info(id, &info);
-		if(info.dir == PJMEDIA_DIR_CAPTURE && !strstr(info.name, "Colorbar"))
-			return true;
+		if(pjmedia_vid_dev_get_info(id, &info) == PJ_SUCCESS)
+			if(info.dir == PJMEDIA_DIR_CAPTURE && !strstr(info.name, "Colorbar"))
+				return true;
 	}
+
+#endif
+
 	return false;
 }
 
@@ -1333,3 +1341,47 @@ static pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata)
 	return PJ_FALSE;
 }
 
+
+// For phone calls
+void RSipPhone::callOnPhone(const QString& phoneUri)
+{
+	pj_status_t status;
+	char uriTmp[512];
+
+	pj_ansi_sprintf(uriTmp, "sip:%s", phoneUri.toUtf8().data());
+	pj_str_t uri = pj_str((char*)uriTmp);
+
+	pj_assert(_currentCall == -1);
+
+	pjsua_call_setting call_setting;
+	pjsua_call_setting_default(&call_setting);
+	call_setting.vid_cnt = 0;
+	call_setting.aud_cnt = 1;
+
+	status = pjsua_call_make_call(_accountId, &uri, &call_setting, NULL, NULL, &_currentCall);
+	if (status != PJ_SUCCESS)
+	{
+		showError("make phone call", status);
+		LogError(QString("[SipPhone] Failed to call on phone '%1'").arg(uri.ptr));
+		return;
+	}
+}
+
+void RSipPhone::dtmfButtonPress(const char* dtmf)
+{
+	pj_status_t status;
+	pj_str_t digits;
+	char digits_tmp[128];
+
+	if(_currentCall == -1)
+		return;
+
+	pj_ansi_strncpy(digits_tmp, dtmf, sizeof(digits_tmp));
+	
+	digits = pj_str(digits_tmp);
+	status = pjsua_call_dial_dtmf(_currentCall, &digits);
+	if(status != PJ_SUCCESS)
+	{
+		LogError(QString("[SipPhone] Failed to dial dtmf '%1'").arg(dtmf));
+	}
+}

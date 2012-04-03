@@ -87,6 +87,10 @@ public slots:
 	//void quit();
 	bool sendVideo(bool isSending);
 
+	// For phone calls
+	void callOnPhone(const QString& phoneUri);
+	void dtmfButtonPress(const char* dtmf);
+
 private slots:
 	void onNewCall(int cid, bool incoming);
 	void onCallReleased();
