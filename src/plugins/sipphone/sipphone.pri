@@ -26,7 +26,9 @@ HEADERS = 	avcontrol.h\
 		VolumeOutMaster.h \
 		sipcallnotifyer.h\
 		contactselector.h\
-		rsipphone.h
+		rsipphone.h \
+    sipmanager.h \
+    sipcall.h
 
 SOURCES = 	avcontrol.cpp\ 
 		#callaudio.cpp\
@@ -45,4 +47,6 @@ SOURCES = 	avcontrol.cpp\
 		VolumeOutMaster.cpp \
 		sipcallnotifyer.cpp\
 		contactselector.cpp\
-		rsipphone.cpp
+		rsipphone.cpp \
+    sipmanager.cpp \
+    sipcall.cpp

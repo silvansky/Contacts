@@ -48,7 +48,6 @@ win32-msvc2008: {
 	INCLUDEPATH += ../../../../pjsip_mod/pjmedia/include
 	INCLUDEPATH += ../../../../pjsip_mod/pjnath/include
 	INCLUDEPATH += ../../../../pjsip_mod/pjsip/include
-	
 }
 
 macx: {
@@ -83,8 +82,6 @@ macx: {
 	LIBS += -lssl
 	# zlib
 	LIBS += -lzlib
-	# SDL
-	#LIBS += -lSDL
 	# iconv
 	LIBS += -liconv
 	# av

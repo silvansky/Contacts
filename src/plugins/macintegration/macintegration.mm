@@ -134,7 +134,7 @@ void dockClickHandler(id self, SEL _cmd)
 {
 	Q_UNUSED(self)
 	Q_UNUSED(_cmd)
-	NSLog(@"void dockClickHandler(id self, SEL _cmd)");
+	//NSLog(@"void dockClickHandler(id self, SEL _cmd)");
 	MacIntegrationPrivate::instance()->emitClick();
 }
 
@@ -266,7 +266,7 @@ bool MacIntegrationPrivate::isDockAnimationRunning() const
 
 void MacIntegrationPrivate::emitClick()
 {
-	NSLog(@"void MacIntegrationPrivate::emitClick()");
+	//NSLog(@"void MacIntegrationPrivate::emitClick()");
 	emit dockClicked();
 }
 

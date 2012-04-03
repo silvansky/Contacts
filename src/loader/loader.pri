@@ -7,8 +7,8 @@ HEADERS = pluginmanager.h \
 	  aboutbox.h \
 	  commentdialog.h \
 	  proxystyle.h \
-    singleapp.h \
-    aboutqtdialog.h
+	  singleapp.h \
+	  aboutqtdialog.h
 
 SOURCES = main.cpp \
 	  pluginmanager.cpp \
@@ -16,5 +16,5 @@ SOURCES = main.cpp \
 	  aboutbox.cpp \
 	  commentdialog.cpp \
 	  proxystyle.cpp \
-    singleapp.cpp \
-    aboutqtdialog.cpp
+	  singleapp.cpp \
+	  aboutqtdialog.cpp

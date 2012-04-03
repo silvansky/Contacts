@@ -219,8 +219,8 @@ void SipPhone::onXmppStreamOpened(IXmppStream * AXmppStream)
 			LogDetail(QString("[SipPhone] SIP stack initialized for '%1'").arg(AXmppStream->streamJid().full()));
 			connect(this, SIGNAL(sipSendInvite(const QString&)), FSipPhone, SLOT(call(const QString&)));
 			connect(FSipPhone, SIGNAL(signalCallReleased()), this, SLOT(onHangupCall()));
-			connect(FSipPhone, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
-			connect(FSipPhone, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
+//			connect(FSipPhone, SIGNAL(callDeletedProxy(bool)), this, SLOT(sipCallDeletedSlot(bool)));
+//			connect(FSipPhone, SIGNAL(incomingThreadTimeChange(qint64)), this, SLOT(onIncomingThreadTimeChanged(qint64)));
 
 			//connect(FSipPhone, SIGNAL(signal_DeviceError()), this, SLOT(onSomeInviteError()));
 			connect(FSipPhone, SIGNAL(signal_InviteStatus(bool, int, const QString&)), this, SLOT(onInviteStatus(bool, int, const QString&)));

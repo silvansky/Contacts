@@ -5,7 +5,8 @@
 #include <QDateTime>
 #include <utils/jid.h>
 
-#define SIPPHONE_UUID "{28686B71-6E29-4065-8D2E-6116F2491394}"
+#define SIPPHONE_UUID   "{28686B71-6E29-4065-8D2E-6116F2491394}"
+#define SIPMANAGER_UUID "{582D16F6-FDB1-4ADF-9555-17B99234179E}"
 
 struct ISipStream 
 {
@@ -67,6 +68,7 @@ struct ISipDevice
 {
 	enum Type
 	{
+		DT_UNDEFINED,
 		DT_CAMERA,
 		DT_VIDEO_IN,
 		DT_MICROPHONE,
@@ -76,24 +78,31 @@ struct ISipDevice
 	enum CameraProperty
 	{
 		CP_CURRENTFRAME, /* QPixmap */
-		CP_RESOLUTION, /* QSize */
-		CP_BRIGHTNESS /* float */
+		CP_RESOLUTION,   /* QSize */
+		CP_BRIGHTNESS    /* float */
 	};
 
 	enum VideoInProperty
 	{
-		VP_CURRENTFRAME /* QPixmap */
+		VP_CURRENTFRAME  /* QPixmap */
 	};
 
 	enum MicrophoneProperty
 	{
-		MP_VOLUME /* float */
+		MP_VOLUME        /* float */
 	};
 
 	enum AudioOutProperty
 	{
-		AP_VOLUME /* float */
+		AP_VOLUME        /* float */
 	};
+
+	ISipDevice()
+	{
+		type = DT_UNDEFINED;
+		id = -1;
+		name = QString::null;
+	}
 
 	Type type;
 	int id;
@@ -103,7 +112,7 @@ struct ISipDevice
 class ISipCall
 {
 public:
-	enum State
+	enum CallState
 	{
 		CS_NONE,
 		CS_CALLING,
@@ -149,7 +158,7 @@ public:
 	virtual void call(const Jid &AStreamJid, const QList<Jid> &AContacts) const = 0;
 	virtual void acceptCall() = 0;
 	virtual void rejectCall(RejectionCode ACode) = 0;
-	virtual State state() const = 0;
+	virtual CallState state() const = 0;
 	virtual ErrorCode errorCode() const = 0;
 	virtual QString errorString() const = 0;
 	virtual CallerRole role() const = 0;
