@@ -24,12 +24,12 @@
 #include <interfaces/idefaultconnection.h>
 #include <interfaces/itraymanager.h>
 #include <interfaces/inotifications.h>
+#include <utils/menu.h>
 #include <utils/options.h>
 #include <utils/balloontip.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
-#include <utils/menu.h>
 #include "ui_logindialog.h"
 
 class LoginDialog :

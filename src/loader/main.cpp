@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 			return 0;
 	}
 
-#ifdef Q_WS_WIN
+#ifndef Q_WS_MAC
 	// WARNING! DIRTY HACK!
 	// adding "-style windows" args
 	// don't know why only this works...
@@ -68,8 +68,9 @@ int main(int argc, char *argv[])
 		memcpy(newArgv[i],argv[i],argLen);
 		changeStyle = changeStyle && strcmp(argv[i],"-style")!=0;
 	}
-	newArgv[argc] = changeStyle ? "-style" : "";
-	newArgv[argc+1] = changeStyle ? "windows" : "";
+	char paramName[] = "-style", paramValue[] = "windows", paramEmpty[] = "";
+	newArgv[argc] = changeStyle ? paramName : paramEmpty;
+	newArgv[argc+1] = changeStyle ? paramValue : paramEmpty;
 
 	argc = argc+2;
 	argv = newArgv;

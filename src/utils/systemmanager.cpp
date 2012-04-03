@@ -32,6 +32,7 @@ typedef BOOL (WINAPI *IW64PFP)(HANDLE, BOOL *);
 #ifdef Q_WS_X11
 static QString resolveXVersion()
 {
+  QString osver;
 	// TODO: resolve DE type (Gnome/Unity/KDE/etc...) and version
 	QStringList path;
 	foreach(QString env, QProcess::systemEnvironment())
@@ -81,6 +82,7 @@ static QString resolveXVersion()
 			osver = ("Linux/Unix Unknown");
 		}
 	}
+  return osver;
 }
 #endif
 

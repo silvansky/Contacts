@@ -1032,25 +1032,6 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	////}
 
 
-	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(_pPhoneWidget, CBS_VIDEOCALL);
-	if (border)
-	{
-		border->setMinimizeButtonVisible(false);
-		border->setMaximizeButtonVisible(false);
-		border->setCloseButtonVisible(false);
-		border->setMovable(true);
-		border->setResizable(true);
-		border->resize(621, 480);
-		//border->installEventFilter(this);
-		//border->setStaysOnTop(true);
-		WidgetManager::alignWindow(border, Qt::AlignCenter);
-	}
-	else
-	{
-		_pPhoneWidget->resize(621, 480);
-		WidgetManager::alignWindow(_pPhoneWidget, Qt::AlignCenter);
-	}
-
 	//if(!_pWorkWidgetContainer.isNull())
 	//	delete _pWorkWidgetContainer;
 	//_pWorkWidgetContainer = border;
@@ -1061,6 +1042,7 @@ void RSipPhone::onShowSipPhoneWidget(void* hwnd)
 	//widget->show();
 	updateCallerName();
 	WidgetManager::showActivateRaiseWindow(_pPhoneWidget->window());
+	WidgetManager::alignWindow(_pPhoneWidget->window(), Qt::AlignCenter);
 }
 
 bool RSipPhone::initStack(const QString& sip_server, int sipPortNum, const QString& sip_username, const QString& sip_password, const QString& sip_domain)

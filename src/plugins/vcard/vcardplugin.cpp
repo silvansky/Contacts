@@ -380,25 +380,15 @@ void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AConta
 		if (FSimpleVCardDialogs.contains(AContactJid))
 		{
 			SimpleVCardDialog *dialog = FSimpleVCardDialogs.value(AContactJid);
-			WidgetManager::showActivateRaiseWindow(dialog);
+			WidgetManager::showActivateRaiseWindow(dialog->window());
 		}
 		else if (AStreamJid.isValid() && AContactJid.isValid())
 		{
 			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons, FStatusChanger, FRosterPlugin, FPresencePlugin, FRosterChanger, AStreamJid, AContactJid);
-			StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(dialog, STS_VCARDSIMPLEVCARDDIALOG);
-			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-			if (border)
-			{
-				border->setMinimizeButtonVisible(false);
-				border->setMaximizeButtonVisible(false);
-				border->setAttribute(Qt::WA_DeleteOnClose, true);
-				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-			}
 			connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onSimpleVCardDialogDestroyed(QObject *)));
 			FSimpleVCardDialogs.insert(AContactJid, dialog);
-			WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)dialog);
+			WidgetManager::showActivateRaiseWindow(dialog->window());
+			WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 		}
 	}
 }

@@ -5,9 +5,6 @@
 #include <QHeaderView>
 #include <QResizeEvent>
 #include <QTextDocument>
-#include <utils/graphicseffectsstorage.h>
-#include <definitions/resources.h>
-#include <definitions/graphicseffects.h>
 
 #ifdef Q_WS_MAC
 # include <utils/macwidgets.h>
@@ -28,19 +25,32 @@ bool SortFilterProxyModel::lessThan(const QModelIndex &ALeft, const QModelIndex 
 OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose,true);
+	setWindowTitle(tr("Options"));
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_OPTIONSDIALOG);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_OPTIONSDIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		border->setMaximizeButtonVisible(false);
+		border->setResizable(false);
+		border->setMinimumSize(minimumSize() + QSize(border->leftBorderWidth() + border->rightBorderWidth(), border->topBorderWidth() + border->bottomBorderWidth()));
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
+		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
 
 #ifdef Q_WS_MAC
 	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
 	ui.trvNodes->installEventFilter(this);
-	setWindowTitle(tr("Options"));
 	FCurrentWidget = NULL;
 
-	restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry").toByteArray());
-
-	delete ui.scaScroll->takeWidget();
 	ui.trvNodes->sortByColumn(0,Qt::AscendingOrder);
 
 	FManager = AOptionsManager;
@@ -77,14 +87,15 @@ OptionsDialog::OptionsDialog(IOptionsManager *AOptionsManager, QWidget *AParent)
 	foreach (const IOptionsDialogNode &node, FManager->optionsDialogNodes()) {
 		onOptionsDialogNodeInserted(node); }
 
-	ui.scaScroll->setVisible(false);
-
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_OPTIONSDIALOG);
+	QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
+	if (!window()->restoreGeometry(Options::fileValue("optionsmanager.optionsdialog.geometry",ns).toByteArray()))
+		window()->setGeometry(WidgetManager::alignGeometry(QSize(700,500),window()));
 }
 
 OptionsDialog::~OptionsDialog()
 {
-	Options::setFileValue(saveGeometry(),"optionsmanager.optionsdialog.geometry");
+	QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
+	Options::setFileValue(window()->saveGeometry(),"optionsmanager.optionsdialog.geometry",ns);
 	emit dialogDestroyed();
 }
 

@@ -3,9 +3,10 @@
 
 #include <QWidget>
 
-class AboutQtDialog : public QWidget
+class AboutQtDialog : 
+	public QWidget
 {
-	Q_OBJECT
+	Q_OBJECT;
 private:
 	AboutQtDialog();
 protected:
@@ -13,7 +14,6 @@ protected:
 	void keyPressEvent(QKeyEvent *);
 public:
 	static void aboutQt();
-
 };
 
 #endif // ABOUTQTDIALOG_H

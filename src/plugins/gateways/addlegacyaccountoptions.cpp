@@ -19,6 +19,9 @@ AddLegacyAccountOptions::AddLegacyAccountOptions(IGateways *AGateways, IServiceD
 	FLayout->setContentsMargins(20, 6, 20, 6);
 	FLayout->addStretch();
 
+	if (FDiscovery)
+		FDiscovery->requestDiscoItems(AStreamJid,AStreamJid.domain());
+
 	onServicesChanged(FStreamJid);
 }
 

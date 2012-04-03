@@ -5,6 +5,7 @@
 
 RamblerHistory::RamblerHistory()
 {
+	FGateways = NULL;
 	FDiscovery = NULL;
 	FXmppStreams = NULL;
 	FRosterPlugin = NULL;
@@ -69,6 +70,10 @@ bool RamblerHistory::initConnections(IPluginManager *APluginManager, int &AInitO
 			connect(FDiscovery->instance(),SIGNAL(discoInfoReceived(const IDiscoInfo &)),SLOT(onDiscoInfoReceived(const IDiscoInfo &)));
 		}
 	}
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
 
 	return FStanzaProcessor!=NULL;
 }
@@ -347,23 +352,24 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IHistory
 
 QWidget *RamblerHistory::showViewHistoryWindow(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	ViewHistoryWindow *window = NULL;
+	ViewHistoryWindow *viewWindow = NULL;
 	if (isSupported(AStreamJid))
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 		if (roster)
 		{
-			window = findViewWindow(roster,AContactJid);
-			if (!window)
+			viewWindow = findViewWindow(roster,AContactJid);
+			if (!viewWindow)
 			{
-				window = new ViewHistoryWindow(roster,AContactJid);
-				connect(window,SIGNAL(windowDestroyed()),SLOT(onViewHistoryWindowDestroyed()));
-				FViewWindows.insertMulti(roster,window);
+				viewWindow = new ViewHistoryWindow(roster,FGateways,AContactJid);
+				connect(viewWindow,SIGNAL(windowDestroyed()),SLOT(onViewHistoryWindowDestroyed()));
+				FViewWindows.insertMulti(roster,viewWindow);
 			}
-			WidgetManager::showActivateRaiseWindow(window->parentWidget()!=NULL ? window->parentWidget() : window);
+			WidgetManager::showActivateRaiseWindow(viewWindow->window());
+			WidgetManager::alignWindow(viewWindow->window(),Qt::AlignCenter);
 		}
 	}
-	return window;
+	return viewWindow;
 }
 
 QString RamblerHistory::loadServerPrefs(const Jid &AStreamJid)

@@ -16,6 +16,7 @@
 #include <utils/log.h>
 #include <utils/networking.h>
 #include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
 
 #define DELAYED_QUIT_TIMEOUT        5000
 #define DELAYED_COMMIT_TIMEOUT      2000
@@ -27,6 +28,7 @@
 
 #define SVN_DATA_PATH               "DataPath"
 #define SVN_LOCALE_NAME             "Locale"
+#define SVN_BORDERS_ENABLED         "BordersEnabled"
 
 #ifdef SVNINFO
 #  include "svninfo.h"
@@ -61,7 +63,7 @@
 
 PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 {
-	FShutdownKind = SK_WORK;
+	FShutdownKind = SK_START;
 	FShutdownDelayCount = 0;
 
 	FQtTranslator = new QTranslator(this);
@@ -202,7 +204,11 @@ void PluginManager::quit()
 
 void PluginManager::restart()
 {
-	if (FShutdownKind == SK_WORK)
+	if (FShutdownKind == SK_START)
+	{
+		finishShutdown();
+	}
+	else if (FShutdownKind == SK_WORK)
 	{
 		FShutdownKind = SK_RESTART;
 		startShutdown();
@@ -322,6 +328,14 @@ void PluginManager::loadSettings()
 		Log::setLogPath(logDir.absolutePath());
 	}
 #endif
+
+	// Borders
+#ifndef Q_WS_MAC
+	CustomBorderStorage::setBordersEnabled(settings.value(SVN_BORDERS_ENABLED,true).toBool());
+#else
+	CustomBorderStorage::setBordersEnabled(settings.value(SVN_BORDERS_ENABLED,false).toBool());
+#endif
+
 	QDir cookiesDir(FDataPath);
 	if (cookiesDir.exists() && (cookiesDir.exists(DIR_COOKIES) || cookiesDir.mkpath(DIR_COOKIES)) && cookiesDir.cd(DIR_COOKIES))
 	{
@@ -381,6 +395,9 @@ void PluginManager::loadSettings()
 
 void PluginManager::saveSettings()
 {
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, ORGANIZATION_NAME, APPLICATION_NAME);
+	settings.setValue(SVN_BORDERS_ENABLED,CustomBorderStorage::isBordersEnabled());
+
 	if (!FPluginsSetup.documentElement().isNull())
 	{
 		QDir homeDir(FDataPath);
@@ -547,9 +564,11 @@ void PluginManager::startShutdown()
 void PluginManager::finishShutdown()
 {
 	FShutdownTimer.stop();
-	if (FShutdownKind == SK_RESTART)
+	switch (FShutdownKind)
 	{
+	case SK_RESTART:
 		onApplicationAboutToQuit();
+	case SK_START:
 		FShutdownKind = SK_WORK;
 		FShutdownDelayCount = 0;
 
@@ -557,7 +576,6 @@ void PluginManager::finishShutdown()
 		loadPlugins();
 		if (initPlugins())
 		{
-			saveSettings();
 			createMenuActions();
 			startPlugins();
 			FBlockedPlugins.clear();
@@ -566,12 +584,13 @@ void PluginManager::finishShutdown()
 		{
 			QTimer::singleShot(0,this,SLOT(restart()));
 		}
-	}
-	else if (FShutdownKind == SK_QUIT)
-	{
+		break;
+	case SK_QUIT:
 		QTimer::singleShot(0,qApp,SLOT(quit()));
+		break;
+	default:
+		break;
 	}
-
 }
 
 void PluginManager::closeTopLevelWidgets()
@@ -849,6 +868,8 @@ void PluginManager::onApplicationAboutToQuit()
 	foreach(QUuid uid, FPluginItems.keys())
 		unloadPlugin(uid);
 
+	saveSettings();
+
 	QCoreApplication::removeTranslator(FQtTranslator);
 	QCoreApplication::removeTranslator(FUtilsTranslator);
 	QCoreApplication::removeTranslator(FLoaderTranslator);
@@ -873,7 +894,7 @@ void PluginManager::onShowSetupPluginsDialog(bool)
 		FPluginsDialog = new SetupPluginsDialog(this,FPluginsSetup,NULL);
 		connect(FPluginsDialog, SIGNAL(accepted()),SLOT(onSetupPluginsDialogAccepted()));
 	}
-	WidgetManager::showActivateRaiseWindow(FPluginsDialog);
+	WidgetManager::showActivateRaiseWindow(FPluginsDialog->window());
 }
 
 void PluginManager::onSetupPluginsDialogAccepted()
@@ -885,7 +906,8 @@ void PluginManager::onShowAboutBoxDialog()
 {
 	if (FAboutDialog.isNull())
 		FAboutDialog = new AboutBox(this);
-	WidgetManager::showActivateRaiseWindow(FAboutDialog->parentWidget() ? FAboutDialog->parentWidget() : FAboutDialog);
+	WidgetManager::showActivateRaiseWindow(FAboutDialog->window());
+	WidgetManager::alignWindow(FAboutDialog->window(),Qt::AlignCenter);
 }
 
 void PluginManager::onShowCommentsDialog()
@@ -896,7 +918,10 @@ void PluginManager::onShowCommentsDialog()
 	if (accManager)
 	{
 		if (accManager->accounts().count())
+		{
 			WidgetManager::showActivateRaiseWindow(FCommentDialog->window());
+			WidgetManager::alignWindow(FCommentDialog->window(),Qt::AlignCenter);
+		}
 		else
 		{
 			CustomInputDialog * cid = new CustomInputDialog(CustomInputDialog::Info);

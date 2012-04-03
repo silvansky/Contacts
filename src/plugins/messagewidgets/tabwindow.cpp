@@ -15,21 +15,17 @@
 TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 {
 	ui.setupUi(this);
-#ifdef Q_WS_MAC
-	ui.lblCaption->setVisible(false);
-	ui.lblStatusIcon->setVisible(false);
-	ui.centralWidget->layout()->removeItem(ui.captionLayout);
-#endif
-	setAttribute(Qt::WA_DeleteOnClose,false);
 	setMinimumSize(500, 400);
+	setAttribute(Qt::WA_DeleteOnClose,false);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_TABWINDOW);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MESSAGEWINDOW);
 
 	FWindowId = AWindowId;
 	FMessageWidgets = AMessageWidgets;
 
-	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MESSAGEWINDOW);
+	ui.wdtBorderCaption->setVisible(FBorder!=NULL);
 	loadWindowStateAndGeometry();
 
 	FWindowMenu = new Menu(this);
@@ -53,11 +49,7 @@ TabWindow::~TabWindow()
 
 void TabWindow::showWindow()
 {
-//#ifdef Q_WS_MAC
-//	(FBorder ? (QWidget *)FBorder : (QWidget *)this)->show();
-//#else
 	WidgetManager::showActivateRaiseWindow(window());
-//#endif
 }
 
 void TabWindow::showMinimizedWindow()
@@ -223,7 +215,8 @@ void TabWindow::saveWindowStateAndGeometry()
 			Options::setFileValue(FBorder ? FBorder->isMaximized() : isMaximized(),"messages.tabwindows.window.state-maximized",FWindowId.toString());
 			if (FBorder && FBorder->isMaximized())
 				FBorder->maximizeWidget();
-			Options::setFileValue(widget->saveGeometry(),"messages.tabwindows.window.geometry",FWindowId.toString());
+			QString ns = FBorder ? QString::null : QString("system-border");
+			Options::setFileValue(widget->saveGeometry(),"messages.tabwindows.window.geometry",FWindowId.toString()+ns);
 		}
 	}
 }
@@ -235,7 +228,8 @@ void TabWindow::loadWindowStateAndGeometry()
 		QWidget *widget = FBorder!=NULL ? (QWidget *)FBorder : (QWidget *)this;
 		if (widget->isWindow())
 		{
-			if (!widget->restoreGeometry(Options::fileValue("messages.tabwindows.window.geometry",FWindowId.toString()).toByteArray()))
+			QString ns = FBorder ? QString::null : QString("system-border");
+			if (!widget->restoreGeometry(Options::fileValue("messages.tabwindows.window.geometry",FWindowId.toString()+ns).toByteArray()))
 				widget->setGeometry(WidgetManager::alignGeometry(QSize(640,480),this));
 			if (Options::fileValue("messages.tabwindows.window.state-maximized",FWindowId.toString()).toBool())
 				FBorder ? FBorder->maximizeWidget() : widget->setWindowState(widget->windowState() | Qt::WindowMaximized);

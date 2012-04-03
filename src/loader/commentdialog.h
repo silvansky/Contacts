@@ -19,7 +19,6 @@ class CommentDialog :
 public:
 	CommentDialog(IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~CommentDialog();
-	CustomBorderContainer * windowBorder() const;
 public slots:
 	void show();
 protected slots:
@@ -30,14 +29,13 @@ protected slots:
 protected:
 	bool eventFilter(QObject *, QEvent *);
 private:
+	Ui::CommentDialogClass ui;
+private:
 	IStanzaProcessor * FStanzaProcessor;
 	IMessageProcessor * FMessageProcessor;
 	Jid streamJid;
 	QString fullName;
 	bool emailIsJid;
-private:
-	Ui::CommentDialogClass ui;
-	CustomBorderContainer * border;
 };
 
 #endif // COMMENTDIALOG_H

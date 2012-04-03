@@ -17,11 +17,14 @@
 
 #include <QResizeEvent>
 
-#include <utils/iconstorage.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
-#include <utils/stylestorage.h>
 #include <definitions/stylesheets.h>
+#include <definitions/customborder.h>
+#include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
+#include <utils/customborderstorage.h>
+#include <utils/custombordercontainer.h>
 #include <utils/custombordercontainer.h>
 
 #include "complexvideowidget.h"
@@ -47,16 +50,29 @@ static void updateFSTimer(QTimer*& timer)
 	}
 }
 
+
+//SipPhoneWidget::SipPhoneWidget(KSipAuthentication *auth, CallAudio *callAudio, SipCall *initCall, SipPhoneProxy *parent, const char *name) : QWidget(NULL), _pSipCall(initCall)
 SipPhoneWidget::SipPhoneWidget( RSipPhone *parent, const char *name) : QWidget(NULL)
 {
 	Q_UNUSED(name);
 
 	ui.setupUi(this);
+	setMinimumSize(250, 90);
+	setObjectName("SipPhoneWidget");
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 
 	phone = parent;
 
-	setObjectName("SipPhoneWidget");
-	setMinimumSize(250, 90);
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_VIDEOCALL);
+	if (border)
+	{
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+		border->setMovable(true);
+		border->setResizable(true);
+	}
+
 	curPicAlign = Qt::AlignBottom | Qt::AlignLeft;
 
 	ui.remote->hide();
@@ -114,8 +130,6 @@ SipPhoneWidget::SipPhoneWidget( RSipPhone *parent, const char *name) : QWidget(N
 		_pControls->setFixedSize(270, 40);
 		//_pControls->setMouseTracking(true);
 	}
-
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_SIPPHONE);
 
 	//_pSipCallMember = NULL;
 	//_pSipAuthentication = NULL;

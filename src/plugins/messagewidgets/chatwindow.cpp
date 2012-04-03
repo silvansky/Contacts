@@ -49,9 +49,10 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 	ui.wdtEdit->layout()->addWidget(FEditWidget->instance());
 	connect(FEditWidget->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
 
-	FMenuBarWidget = FMessageWidgets->newMenuBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
-	FMenuBarWidget->instance()->setObjectName("menuBarWidget");
-	setMenuBar(FMenuBarWidget->instance());
+	FMenuBarWidget = NULL; // MenuBar makes problems in metatabwindow with custom border on X11
+	//FMenuBarWidget = FMessageWidgets->newMenuBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
+	//FMenuBarWidget->instance()->setObjectName("menuBarWidget");
+	//setMenuBar(FMenuBarWidget->instance());
 
 	FToolBarWidget = FMessageWidgets->newToolBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
 	FToolBarWidget->instance()->setObjectName("toolBarWidget");
@@ -71,7 +72,6 @@ ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, 
 
 	FStatusBarWidget = FMessageWidgets->newStatusBarWidget(FInfoWidget,FViewWidget,FEditWidget,NULL);
 	FStatusBarWidget->instance()->setObjectName("statusBarWidget");
-	FStatusBarWidget->instance()->setVisible(false);
 	setStatusBar(FStatusBarWidget->instance());
 
 	initialize();
@@ -86,7 +86,7 @@ ChatWindow::~ChatWindow()
 	delete FViewWidget->instance();
 	delete FNoticeWidget->instance();
 	delete FEditWidget->instance();
-	delete FMenuBarWidget->instance();
+	//delete FMenuBarWidget->instance();
 	delete FToolBarWidget->instance();
 	delete FStatusBarWidget->instance();
 }

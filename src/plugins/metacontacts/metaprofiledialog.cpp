@@ -20,16 +20,6 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 	ui.lblName->setElideMode(Qt::ElideRight);
 	setWindowIconText(tr("Contact Profile"));
 
-	FGateways = NULL;
-	FStatusIcons = NULL;
-	FStatusChanger = NULL;
-	FRosterChanger = NULL;
-	FVCardPlugin = NULL;
-
-	FMetaId = AMetaId;
-	FMetaRoster = AMetaRoster;
-	FMetaContacts = AMetaContacts;
-
 	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (FBorder)
 	{
@@ -44,7 +34,19 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
 	else
+	{
 		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
+
+	FGateways = NULL;
+	FStatusIcons = NULL;
+	FStatusChanger = NULL;
+	FRosterChanger = NULL;
+	FVCardPlugin = NULL;
+
+	FMetaId = AMetaId;
+	FMetaRoster = AMetaRoster;
+	FMetaContacts = AMetaContacts;
 
 	ui.sawContents->setLayout(new QVBoxLayout);
 	ui.sawContents->layout()->setSpacing(10);
@@ -204,15 +206,18 @@ QString MetaProfileDialog::metaLabelText(const IMetaItemDescriptor &ADescriptor)
 
 QString MetaProfileDialog::metaItemLink(const Jid &AItemJid, const IMetaItemDescriptor &ADescriptor) const
 {
-	if (ADescriptor.metaOrder == MIO_VKONTAKTE)
+	if (FGateways)
 	{
-		QString userId = Jid(FMetaContacts->itemHint(AItemJid)).node();
-		return QString("http://vk.com/%1").arg(userId);
-	}
-	else if (ADescriptor.metaOrder == MIO_FACEBOOK)
-	{
-		QString userId = Jid(FMetaContacts->itemHint(AItemJid)).node();
-		return QString("http://www.facebook.com/profile.php?id=%1").arg(userId.right(userId.size()-1));
+		if (ADescriptor.metaOrder == MIO_VKONTAKTE)
+		{
+			QString userId = Jid(FGateways->legacyIdFromUserJid(streamJid(),AItemJid)).node();
+			return QString("http://vk.com/%1").arg(userId);
+		}
+		else if (ADescriptor.metaOrder == MIO_FACEBOOK)
+		{
+			QString userId = Jid(FGateways->legacyIdFromUserJid(streamJid(),AItemJid)).node();
+			return QString("http://www.facebook.com/profile.php?id=%1").arg(userId.right(userId.size()-1));
+		}
 	}
 	return QString::null;
 }
@@ -370,7 +375,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				container.itemsWidget->layout()->addWidget(wdtItem);
 				container.itemWidgets.insert(itemIt.value(),wdtItem);
 
-				QString itemName = FMetaContacts->itemHint(itemIt.value());
+				QString itemName = FMetaContacts->itemFormattedLogin(itemIt.value());
 				QString itemLink = metaItemLink(itemIt.value(),descriptor);
 				QLabel *lblItemName = new QLabel(wdtItem);
 				lblItemName->setTextFormat(Qt::RichText);

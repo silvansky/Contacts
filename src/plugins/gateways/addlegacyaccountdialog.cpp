@@ -3,17 +3,35 @@
 #include <QTimer>
 #include <QListView>
 #include <QPushButton>
-#include <utils/graphicseffectsstorage.h>
-#include <definitions/graphicseffects.h>
 #include <definitions/resources.h>
+#include <definitions/customborder.h>
+#include <definitions/graphicseffects.h>
+#include <definitions/gateserviceidentifiers.h>
+#include <utils/customborderstorage.h>
+#include <utils/graphicseffectsstorage.h>
 #include <definitions/gateserviceidentifiers.h>
 
 AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
 	ui.setupUi(this);
-	ui.cmbDomains->setView(new QListView);
-	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
+	//GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		border->setMaximizeButtonVisible(false);
+		border->setMinimizeButtonVisible(false);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(rejected()), border, SLOT(close()));
+		connect(this, SIGNAL(accepted()), border, SLOT(close()));
+		border->setResizable(false);
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
 
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->addWidget(ui.pbtOk);
@@ -51,9 +69,9 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &, const QString &)),
 		SLOT(onRegisterError(const QString &, const QString &, const QString &)));
 
-	domainsMenu = new Menu(this);
-	domainsMenu->setObjectName("domainsMenu");
-	ui.tlbDomains->setMenu(domainsMenu);
+	FDomainsMenu = new Menu(ui.tlbDomains);
+	FDomainsMenu->setObjectName("domainsMenu");
+	ui.tlbDomains->setMenu(FDomainsMenu);
 
 	FGateLabel = FGateways->serviceDescriptor(FPresence->streamJid(), FServiceJid);
 	if (!FGateLabel.id.isEmpty())
@@ -67,11 +85,10 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 		int i = 0;
 		foreach(QString domain, FGateLabel.domains)
 		{
-			ui.cmbDomains->addItem("@"+domain,domain);
-			Action * action = new Action(domainsMenu);
+			Action *action = new Action(FDomainsMenu);
 			action->setText("@"+domain);
 			action->setProperty("domain", domain);
-			domainsMenu->addAction(action);
+			FDomainsMenu->addAction(action);
 			connect(action, SIGNAL(triggered()), SLOT(onDomainsMenuActionTriggered()));
 			if (!i++)
 			{
@@ -79,8 +96,8 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 				ui.lblDomain->setText("@" + domain);
 			}
 		}
+
 		int domainsCount = FGateLabel.domains.count();
-		ui.cmbDomains->setVisible(domainsCount > 1);
 		ui.tlbDomains->setVisible(domainsCount > 1);
 		ui.lblDomain->setVisible(domainsCount == 1);
 		if (domainsCount == 1)
@@ -98,16 +115,11 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 		LogError(QString("[AddLegacyAccountDialog][%1] Failed to find service descriptor").arg(FServiceJid.full()));
 		abort(FAbortMessage);
 	}
-
-	//GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
-
-	//ui.tlbDomains->setVisible(false);
-	ui.cmbDomains->setVisible(false);
 }
 
 AddLegacyAccountDialog::~AddLegacyAccountDialog()
 {
-	domainsMenu->deleteLater();
+
 }
 
 void AddLegacyAccountDialog::showEvent(QShowEvent *AEvent)
@@ -142,7 +154,6 @@ void AddLegacyAccountDialog::setError(const QString &AMessage)
 
 		ui.lneLogin->setProperty("error", !AMessage.isEmpty());
 		ui.lnePassword->setProperty("error", !AMessage.isEmpty());
-		ui.cmbDomains->setProperty("error", !AMessage.isEmpty());
 		ui.tlbDomains->setProperty("error", !AMessage.isEmpty());
 		StyleStorage::updateStyle(this);
 
@@ -164,20 +175,13 @@ void AddLegacyAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
 	{
 		QString info;
 		if (FGateLabel.id == GSID_ODNOKLASNIKI)
-		{
 			info = tr("Please, enter your ID and password. You can find your ID on the <a href=\'http://www.odnoklassniki.ru/settings\'>Odnoklassniki settings page</a>.");
-		}
 		else
-		{
 			info = tr("Please, enter your login and password.");
-		}
-//		if (!FGateways->streamServices(FPresence->streamJid()).contains(FServiceJid))
-//			info = tr("Your account is not connected.") + " " + info;
 		ui.lblInfo->setText(info);
 		onLineEditTextChanged(QString::null);
 	}
 	ui.lneLogin->setEnabled(!AWait);
-	ui.cmbDomains->setEnabled(!AWait);
 	ui.tlbDomains->setEnabled(!AWait);
 	ui.lnePassword->setEnabled(!AWait);
 	ui.chbShowPassword->setEnabled(!AWait);
@@ -194,7 +198,6 @@ void AddLegacyAccountDialog::onAdjustDialogSize()
 void AddLegacyAccountDialog::onLineEditTextChanged(const QString &AText)
 {
 	Q_UNUSED(AText);
-	//ui.btbButtons->button(QDialogButtonBox::Ok)->setEnabled(!ui.lneLogin->text().isEmpty() && !ui.lnePassword->text().isEmpty());
 	ui.pbtOk->setEnabled(!ui.lneLogin->text().isEmpty() && !ui.lnePassword->text().isEmpty());
 }
 
@@ -223,7 +226,6 @@ void AddLegacyAccountDialog::onOkClicked()
 	FGateLogin.password = ui.lnePassword->text();
 	if (!FGateLabel.domains.isEmpty())
 	{
-		//FGateLogin.domain = ui.cmbDomains->itemData(ui.cmbDomains->currentIndex()).toString();
 		FGateLogin.domain = ui.tlbDomains->property("domain").toString();
 	}
 	else if (!FGateLogin.domainSeparator.isEmpty())
@@ -286,7 +288,6 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 			{
 				if (!FGateLogin.domain.isEmpty())
 				{
-					//ui.cmbDomains->setCurrentIndex(ui.cmbDomains->findData(FGateLogin.domain,Qt::UserRole,Qt::MatchExactly));
 					ui.tlbDomains->setText("@"+FGateLogin.domain);
 					ui.tlbDomains->setProperty("domain", FGateLogin.domain);
 				}

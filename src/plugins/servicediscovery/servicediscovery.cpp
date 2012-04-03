@@ -941,22 +941,7 @@ void ServiceDiscovery::onStreamOpened(IXmppStream *AXmppStream)
 	myCaps.hash = CAPS_HASH_SHA1;
 	myCaps.ver = calcCapsHash(selfDiscoInfo(myCaps.entityJid),myCaps.hash);
 
-	Jid streamDomane = AXmppStream->streamJid().domain();
-	requestDiscoInfo(AXmppStream->streamJid(),streamDomane);
-	requestDiscoItems(AXmppStream->streamJid(),streamDomane);
-
-	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AXmppStream->streamJid()) : NULL;
-	QList<IRosterItem> ritems = roster!=NULL ? roster->rosterItems() : QList<IRosterItem>();
-	foreach(IRosterItem ritem, ritems)
-	{
-		if (ritem.itemJid.node().isEmpty())
-		{
-			DiscoveryRequest request;
-			request.streamJid = AXmppStream->streamJid();
-			request.contactJid = ritem.itemJid;
-			appendQueuedRequest(QUEUE_REQUEST_START,request);
-		}
-	}
+	requestDiscoInfo(AXmppStream->streamJid(),AXmppStream->streamJid().domain());
 }
 
 void ServiceDiscovery::onStreamClosed(IXmppStream *AXmppStream)

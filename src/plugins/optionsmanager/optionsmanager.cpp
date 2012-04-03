@@ -31,7 +31,6 @@ OptionsManager::OptionsManager()
 	FMainWindowPlugin = NULL;
 	FPrivateStorage = NULL;
 	FOptionsDialog = NULL;
-	FOptionsDialogBorder = NULL;
 	FLoginDialog = NULL;
 	FSystemIntegration = NULL;
 
@@ -44,10 +43,8 @@ OptionsManager::OptionsManager()
 
 OptionsManager::~OptionsManager()
 {
-	if (FOptionsDialogBorder)
-		FOptionsDialogBorder->deleteLater();
-	else
-		delete FOptionsDialog;
+	if (FOptionsDialog)
+		FOptionsDialog->window()->deleteLater();
 }
 
 void OptionsManager::pluginInfo(IPluginInfo *APluginInfo)
@@ -90,14 +87,11 @@ bool OptionsManager::initConnections(IPluginManager *APluginManager, int &AInitO
 			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorageAboutToClose(const Jid &)));
 		}
 	}
+
 	plugin = APluginManager->pluginInterface("ISystemIntegration").value(0,NULL);
 	if (plugin)
 	{
 		FSystemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
-		if (FSystemIntegration)
-		{
-
-		}
 	}
 
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -143,12 +137,12 @@ bool OptionsManager::initObjects()
 		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FChangeProfileAction,AG_MMENU_OPTIONS_CHANGEPROFILE,true);
 	}
 
+#ifndef Q_WS_MAC
 	if (FTrayManager)
 	{
-#ifndef Q_WS_MAC
 		FTrayManager->contextMenu()->addAction(FShowOptionsDialogAction,AG_TMTM_OPTIONS_DIALOG,true);
-#endif
 	}
+#endif
 
 	return true;
 }
@@ -157,15 +151,18 @@ bool OptionsManager::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
 	Options::setDefaultValue(OPV_MISC_OPTIONS_SAVE_ON_SERVER, true);
+	Options::setDefaultValue(OPV_MISC_CUSTOMBORDERSENABLED, CustomBorderStorage::isBordersEnabled());
+
 #ifdef Q_WS_MAC
 	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_GATEWAYS));
 #else
 	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_COMMON));
 #endif
 
-	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), MNI_OPTIONS_DIALOG };
 #ifdef Q_WS_MAC
-	dnode.name = tr("Synchronization");
+	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Synchronization"), MNI_OPTIONS_DIALOG };
+#else
+	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), MNI_OPTIONS_DIALOG };
 #endif
 	insertOptionsDialogNode(dnode);
 	insertOptionsHolder(this);
@@ -190,9 +187,18 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 	if (ANodeId == OPN_COMMON)
 	{
 #ifndef Q_WS_MAC
-		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsHeaderWidget(QString::null, tr("Common settings"), AParent));
+		widgets.insertMulti(OWO_COMMON, optionsHeaderWidget(QString::null, tr("Common settings"), AParent));
+#endif
+#ifdef Q_WS_WIN
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
+#endif
 
+#if defined(Q_WS_X11) || defined(DEBUG_ENABLED)
+		if (CustomBorderStorage::isBordersAvail())
+			widgets.insertMulti(OWO_COMMON_BORDERSENABLE, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDERSENABLED), tr("Enable windows customization (restart required)"), AParent));
+#endif
+
+#ifndef Q_WS_MAC
 		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"), AParent));
 #endif
 		widgets.insertMulti(OWO_COMMON_SINC_OPTIONS, optionsNodeWidget(Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER), tr("Sync preferences on my several computers"), AParent));
@@ -537,23 +543,7 @@ QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
 		connect(FLoginDialog,SIGNAL(accepted()),SLOT(onLoginDialogAccepted()));
 		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
-
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
-		if (border)
-		{
-			border->setAttribute(Qt::WA_DeleteOnClose, true);
-			border->setResizable(false);
-			border->setMinimizeButtonVisible(false);
-			border->setMaximizeButtonVisible(false);
-			connect(border, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
-			connect(FLoginDialog, SIGNAL(accepted()), border, SLOT(deleteLater()));
-			connect(FLoginDialog, SIGNAL(rejected()), border, SLOT(deleteLater()));
-			WidgetManager::showActivateRaiseWindow(border);
-		}
-		else
-		{
-			WidgetManager::showActivateRaiseWindow(FLoginDialog);
-		}
+		WidgetManager::showActivateRaiseWindow(FLoginDialog->window());
 	}
 	return FLoginDialog;
 }
@@ -617,29 +607,11 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 			FOptionsDialog = new OptionsDialog(this,AParent);
 			connect(FOptionsDialog, SIGNAL(applied()), SLOT(onOptionsDialogApplied()));
 			connect(FOptionsDialog, SIGNAL(dialogDestroyed()), SLOT(onOptionsDialogDestroyed()));
-			FOptionsDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FOptionsDialog, CBS_OPTIONSDIALOG);
-			if (FOptionsDialogBorder)
-			{
-				FOptionsDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
-				FOptionsDialogBorder->setMaximizeButtonVisible(false);
-				FOptionsDialogBorder->setResizable(false);
-				FOptionsDialogBorder->setMinimumSize(FOptionsDialog->minimumSize() + QSize(FOptionsDialogBorder->leftBorderWidth() + FOptionsDialogBorder->rightBorderWidth(), FOptionsDialogBorder->topBorderWidth() + FOptionsDialogBorder->bottomBorderWidth()));
-				connect(FOptionsDialog, SIGNAL(accepted()), FOptionsDialogBorder, SLOT(closeWidget()));
-				connect(FOptionsDialog, SIGNAL(rejected()), FOptionsDialogBorder, SLOT(closeWidget()));
-				connect(FOptionsDialogBorder, SIGNAL(closeClicked()), FOptionsDialog, SLOT(reject()));
-			}
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
-		WidgetManager::showActivateRaiseWindow(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog);
-		FOptionsDialog->adjustSize();
-		FOptionsDialog->layout()->update();
-		if (FOptionsDialogBorder)
-		{
-			FOptionsDialogBorder->layout()->update();
-			FOptionsDialogBorder->adjustSize();
-		}
+		WidgetManager::showActivateRaiseWindow(FOptionsDialog->window());
 	}
-	return FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog;
+	return FOptionsDialog->window();
 }
 
 IOptionsWidget *OptionsManager::optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const
@@ -660,6 +632,7 @@ void OptionsManager::openProfile(const QString &AProfile, const QString &APasswo
 		FProfile = AProfile;
 		FProfileKey = profileKey(AProfile, APassword);
 		Options::setOptions(FProfileOptions, profilePath(AProfile) + "/" DIR_BINARY, FProfileKey);
+		Options::node(OPV_MISC_CUSTOMBORDERSENABLED).setValue(CustomBorderStorage::isBordersEnabled());
 		FShowOptionsDialogAction->setVisible(true);
 		FChangeProfileAction->setText(tr("Change User (%1)").arg(Jid(Jid::decode(AProfile)).node()));
 		emit profileOpened(AProfile);
@@ -691,8 +664,8 @@ void OptionsManager::closeProfile()
 		FAutoSaveTimer.stop();
 		if (FOptionsDialog)
 		{
-			if (FOptionsDialogBorder)
-				FOptionsDialogBorder->closeWidget();
+			if (CustomBorderStorage::isBordered(FOptionsDialog))
+				CustomBorderStorage::widgetBorder(FOptionsDialog)->closeWidget();
 			else
 				FOptionsDialog->close();
 		}
@@ -790,6 +763,14 @@ void OptionsManager::onOptionsChanged(const OptionsNode &ANode)
 		setProfileData(currentProfile(),"auto-run",ANode.value().toBool());
 #endif
 	}
+	else if (ANode.path() == OPV_MISC_CUSTOMBORDERSENABLED)
+	{
+		if (ANode.value().toBool() != CustomBorderStorage::isBordersEnabled())
+		{
+			CustomBorderStorage::setBordersEnabled(ANode.value().toBool());
+			QTimer::singleShot(0, FPluginManager->instance(), SLOT(restart()));
+		}
+	}
 	FAutoSaveTimer.start();
 }
 
@@ -801,7 +782,6 @@ void OptionsManager::onOptionsDialogApplied()
 void OptionsManager::onOptionsDialogDestroyed()
 {
 	FOptionsDialog = NULL;
-	FOptionsDialogBorder = NULL;
 }
 
 void OptionsManager::onChangeProfileByAction(bool)

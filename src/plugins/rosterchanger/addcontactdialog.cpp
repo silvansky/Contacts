@@ -31,8 +31,23 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	setWindowTitle(tr("New contact"));
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDCONTACTDIALOG);
 
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		border->setMaximizeButtonVisible(false);
+		border->setMinimizeButtonVisible(false);
+		border->setResizable(false);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(rejected()), border, SLOT(close()));
+		connect(this, SIGNAL(accepted()), border, SLOT(close()));
+	}
+	else
+	{
+		ui.lblCaption->setVisible(false);
+	}
+
 #ifdef Q_WS_MAC
-	ui.lblCaption->setVisible(false);
 	ui.buttonsLayout->addWidget(ui.pbtContinue);
 	ui.buttonsLayout->setSpacing(16);
 	setWindowGrowButtonEnabled(this->window(), false);
@@ -322,7 +337,12 @@ bool AddContactDialog::isContactPresentInRoster() const
 	if (contactJid().isValid())
 	{
 		IRosterItem ritem = FRoster->rosterItem(contactJid());
-		return ritem.isValid && (FLinkedContacts.isEmpty() || !FParentMetaId.isEmpty());
+		if (ritem.isValid && !FLinkedContacts.isEmpty())
+		{
+			if (FParentMetaId.isEmpty() || FParentMetaId==FContactMetaId)
+				return false;
+		}
+		return ritem.isValid;
 	}
 	return false;
 }
@@ -475,6 +495,7 @@ void AddContactDialog::setRealContactJid(const Jid &AContactJid)
 	if (FAvatars)
 		FAvatars->insertAutoAvatar(ui.lblParamsPhoto,AContactJid,QSize(48, 48),"pixmap");
 	FContactJid = AContactJid.bare();
+	FContactMetaId = FMetaRoster!=NULL ? FMetaRoster->itemMetaContact(FContactJid) : QString::null;
 }
 
 void AddContactDialog::setResolveNickState(bool AResolve)
@@ -719,15 +740,8 @@ void AddContactDialog::onContinueButtonClicked()
 				contact.groups += group();
 				contact.items = FLinkedContacts.toSet();
 
-				if (FMetaRoster->itemMetaContact(contactJid()).isEmpty())
-				{
-					FCreateBaseContact = true;
+				if (FContactMetaId.isEmpty())
 					contact.items += contactJid();
-				}
-				else
-				{
-					FCreateBaseContact = false;
-				}
 
 				FContactCreateRequest = FMetaRoster->createContact(contact);
 				if (!FContactCreateRequest.isEmpty())
@@ -886,11 +900,11 @@ void AddContactDialog::onMetaActionResult(const QString &AActionId, const QStrin
 	Q_UNUSED(AErrCond);
 	if (FContactCreateRequest == AActionId)
 	{
-		QString metaId = FMetaRoster->itemMetaContact(FCreateBaseContact ? contactJid() : FLinkedContacts.value(0));
+		QString metaId = FMetaRoster->itemMetaContact(FContactMetaId.isEmpty() ? contactJid() : FLinkedContacts.value(0));
 		if (!metaId.isEmpty())
 		{
-			if (!FCreateBaseContact)
-				FContactMergeRequest = FMetaRoster->mergeContacts(FMetaRoster->itemMetaContact(contactJid()),QList<QString>()<<metaId);
+			if (!FContactMetaId.isEmpty())
+				FContactMergeRequest = FMetaRoster->mergeContacts(FContactMetaId,QList<QString>()<<metaId);
 			else if (!FParentMetaId.isEmpty() && !FMetaRoster->metaContact(FParentMetaId).id.isEmpty())
 				FContactMergeRequest = FMetaRoster->mergeContacts(FParentMetaId,QList<QString>()<<metaId);
 			else

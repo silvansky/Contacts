@@ -627,9 +627,6 @@ void MessageWidgets::onTabWindowDestroyed()
 	ITabWindow *window = qobject_cast<ITabWindow *>(sender());
 	if (window)
 	{
-		CustomBorderContainer *border = qobject_cast<CustomBorderContainer *>(window->instance()->parentWidget());
-		if (border)
-			Options::setFileValue(border->saveGeometry(),"messages.tabwindows.window.border.geometry",window->windowId());
 		FTabWindows.removeAt(FTabWindows.indexOf(window));
 		emit tabWindowDestroyed(window);
 	}

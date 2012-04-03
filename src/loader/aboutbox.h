@@ -19,7 +19,6 @@ protected slots:
 	void onLabelLinkActivated(const QString &ALink);
 private:
 	Ui::AboutBoxClass ui;
-	CustomBorderContainer * border;
 };
 
 #endif // ABOUTBOX_H

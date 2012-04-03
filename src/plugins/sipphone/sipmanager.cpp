@@ -251,6 +251,7 @@ void SipManager::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 
 bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid)
 {
+	return false;
 }
 
 void SipManager::onCallDestroyed(QObject * object)

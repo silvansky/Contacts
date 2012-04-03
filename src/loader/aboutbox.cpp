@@ -20,7 +20,24 @@
 AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose,true);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_ABOUTBOX);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setResizable(false);
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
+		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
 
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->setSpacing(16);
@@ -28,7 +45,7 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 #endif
 
 	QString textColor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_ABOUT_TEXT_COLOR).name();
-	QString styleBegin = QString("<html><style>a { color: %1; }</style><body><font color=%1>").arg(textColor, textColor);
+	QString styleBegin = QString("<html><style>a { color: %1; }</style><body><font color=%1>").arg(textColor);
 	QString styleEnd = "</font></body></html>";
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblName, MNI_OPTIONS_LOGIN_LOGO, 0, 0, "pixmap");
@@ -43,35 +60,17 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 	connect(ui.lblHomePage,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.lblCopyright,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
 	connect(ui.pbtSendComment, SIGNAL(clicked()), APluginManager->instance(), SLOT(onShowCommentsDialog()));
-
-	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
-	if (border)
-	{
-		border->setResizable(false);
-		border->setMinimizeButtonVisible(false);
-		border->setMaximizeButtonVisible(false);
-		border->setAttribute(Qt::WA_DeleteOnClose, true);
-		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
-		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
-		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
-	}
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_ABOUTBOX);
-	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 }
 
 AboutBox::~AboutBox()
 {
-	if (border)
-		border->deleteLater();
+
 }
 
 void AboutBox::onLabelLinkActivated(const QString &ALink)
 {
 	if (ALink == "about:qt")
-	{
 		AboutQtDialog::aboutQt();
-	}
 	else
 		QDesktopServices::openUrl(ALink);
 }
-

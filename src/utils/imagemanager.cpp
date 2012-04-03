@@ -33,12 +33,14 @@ QImage ImageManager::squared(const QImage & image, int size)
 		squaredImage.fill(QColor(0, 0, 0, 0).rgba());
 		int w = image.width(), h = image.height();
 		QPainter p(&squaredImage);
-		QPoint offset;
-		QImage copy = (w > h) ? ((h == size) ? image : image.scaledToHeight(size, Qt::SmoothTransformation)) : ((w == size) ? image : image.scaledToWidth(size, Qt::SmoothTransformation));
+		QPoint offset(0,0);
+		QImage copy = (w < h) ? ((h == size) ? image : image.scaledToHeight(size, Qt::SmoothTransformation)) : ((w == size) ? image : image.scaledToWidth(size, Qt::SmoothTransformation));
 		w = copy.width();
 		h = copy.height();
-		offset.setX((w > h) ? (size - w) / 2 : 0);
-		offset.setY((w > h) ? 0 : (size - h) / 2);
+		if (w > h)
+			offset.setY((size - h) / 2);
+		else if (h > w)
+			offset.setX((size - w) / 2);
 		p.drawImage(offset, copy);
 		p.end();
 		return squaredImage;

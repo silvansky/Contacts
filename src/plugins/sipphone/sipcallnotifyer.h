@@ -45,7 +45,7 @@ protected:
 	void paintEvent(QPaintEvent *);
 private:
 	Ui::SipCallNotifyer *ui;
-	CustomBorderContainer * border;
+private:
 	bool _muted;
 	QString soundFile;
 #ifdef USE_PHONON

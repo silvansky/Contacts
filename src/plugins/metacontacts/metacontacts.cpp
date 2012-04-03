@@ -688,16 +688,15 @@ IMetaItemDescriptor MetaContacts::metaDescriptorByItem(const Jid &AItemJid) cons
 	return FDefaultItemDescriptor;
 }
 
-QString MetaContacts::itemHint(const Jid &AItemJid) const
+QString MetaContacts::itemFormattedLogin(const Jid &AItemJid) const
 {
-	QString hint = AItemJid.node();
-	if (!hint.isEmpty())
+	QString hint = AItemJid.bare();
+	if (FGateways)
 	{
-		if (FGateways)
+		IMetaItemDescriptor descriptor = metaDescriptorByItem(AItemJid);
+		IGateServiceDescriptor gateDescriptor = FGateways->gateDescriptorById(descriptor.gateId);
+		if (!gateDescriptor.type.isEmpty())
 		{
-			hint = AItemJid.bare();
-			IMetaItemDescriptor descriptor = metaDescriptorByItem(AItemJid);
-			IGateServiceDescriptor gateDescriptor = FGateways->gateDescriptorById(descriptor.gateId);
 			if (!gateDescriptor.needGate)
 			{
 				foreach (IMetaRoster *mroster, FMetaRosters)
@@ -716,16 +715,12 @@ QString MetaContacts::itemHint(const Jid &AItemJid) const
 			hint = FGateways->formattedContactLogin(gateDescriptor,hint);
 		}
 	}
-	else
-	{
-		hint = AItemJid.domain();
-	}
 	return hint;
 }
 
 QMultiMap<int, Jid> MetaContacts::itemOrders(QList<Jid> AItems) const
 {
-	qSort(AItems); // Порядок следования элементов не должен влиять на результат
+	qSort(AItems);
 	QMultiMap<int, Jid> orders;
 	foreach(Jid itemJid, AItems)
 	{
@@ -740,7 +735,7 @@ QString MetaContacts::metaContactName(const IMetaContact &AContact) const
 	if (AContact.name.isEmpty() && !AContact.items.isEmpty())
 	{
 		QMultiMap<int, Jid> orders = itemOrders(AContact.items.toList());
-		return itemHint(orders.constBegin().value());
+		return itemFormattedLogin(orders.constBegin().value());
 	}
 	return AContact.name;
 }
@@ -950,7 +945,8 @@ QDialog *MetaContacts::showMetaProfileDialog(const Jid &AStreamJid, const QStrin
 			connect(dialog,SIGNAL(dialogDestroyed()),SLOT(onMetaProfileDialogDestroyed()));
 			FMetaProfileDialogs.append(dialog);
 		}
-		WidgetManager::showActivateRaiseWindow(dialog->parentWidget()!=NULL ? dialog->parentWidget() : dialog);
+		WidgetManager::showActivateRaiseWindow(dialog->window());
+		WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 	}
 	return dialog;
 }
@@ -981,17 +977,12 @@ void MetaContacts::initMetaItemDescriptors()
 {
 	FDefaultItemDescriptor.name = tr("Jabber");
 	FDefaultItemDescriptor.icon = MNI_METACONTACTS_ITEM_JABBER;
-	FDefaultItemDescriptor.combine = false;
-	FDefaultItemDescriptor.detach = true;
-	FDefaultItemDescriptor.service = false;
-	FDefaultItemDescriptor.persistent = false;
 	FDefaultItemDescriptor.metaOrder = MIO_JABBER;
 	FDefaultItemDescriptor.gateId = GSID_JABBER;
 
 	IMetaItemDescriptor sms;
 	sms.name = tr("SMS");
 	sms.icon = MNI_METACONTACTS_ITEM_SMS;
-	sms.combine = false;
 	sms.detach = false;
 	sms.service = true;
 	sms.persistent = true;
@@ -1003,7 +994,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor mail;
 	mail.name = tr("E-mail");
 	mail.icon = MNI_METACONTACTS_ITEM_MAIL;
-	mail.combine = false;
 	mail.detach = false;
 	mail.service = true;
 	mail.persistent = true;
@@ -1015,10 +1005,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor icq;
 	icq.name = tr("ICQ");
 	icq.icon = MNI_METACONTACTS_ITEM_ICQ;
-	icq.combine = false;
-	icq.detach = true;
-	icq.service = false;
-	icq.persistent = false;
 	icq.metaOrder = MIO_ICQ;
 	icq.gateId = GSID_ICQ;
 	icq.gatePrefix = "icq";
@@ -1027,10 +1013,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor magent;
 	magent.name = tr("Agent@Mail.ru");
 	magent.icon = MNI_METACONTACTS_ITEM_MAGENT;
-	magent.combine = false;
-	magent.detach = true;
-	magent.service = false;
-	magent.persistent = false;
 	magent.metaOrder = MIO_MAGENT;
 	magent.gateId = GSID_MAGENT;
 	magent.gatePrefix = "mrim";
@@ -1039,10 +1021,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor twitter;
 	twitter.name = tr("Twitter");
 	twitter.icon = MNI_METACONTACTS_ITEM_TWITTER;
-	twitter.combine = false;
-	twitter.detach = true;
-	twitter.service = false;
-	twitter.persistent = false;
 	twitter.metaOrder = MIO_TWITTER;
 	twitter.gateId = GSID_TWITTER;
 	twitter.gatePrefix = "twitter";
@@ -1051,10 +1029,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor fring;
 	fring.name = tr("Fring");
 	fring.icon = MNI_METACONTACTS_ITEM_FRING;
-	fring.combine = false;
-	fring.detach = true;
-	fring.service = false;
-	fring.persistent = false;
 	fring.metaOrder = MIO_FRING;
 	fring.gateId = GSID_TWITTER;
 	fring.gatePrefix = "fring";
@@ -1063,10 +1037,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor gtalk;
 	gtalk.name = tr("GTalk");
 	gtalk.icon = MNI_METACONTACTS_ITEM_GTALK;
-	gtalk.combine = false;
-	gtalk.detach = true;
-	gtalk.service = false;
-	gtalk.persistent = false;
 	gtalk.metaOrder = MIO_GTALK;
 	gtalk.gateId = GSID_GTALK;
 	gtalk.gatePrefix = "gmail";
@@ -1076,40 +1046,28 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor yonline;
 	yonline.name = tr("Ya.Online");
 	yonline.icon = MNI_METACONTACTS_ITEM_YONLINE;
-	yonline.combine = false;
-	yonline.detach = true;
-	yonline.service = false;
-	yonline.persistent = false;
 	yonline.metaOrder = MIO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
 	yonline.gatePrefix = "yandex";
 	yonline.domains << "ya.ru" << "yandex.ru" << "yandex.net" << "yandex.com" << "yandex.by" << "yandex.kz"
-			<< "yandex.ua" << "yandex-co.ru" << "narod.ru";
+		<< "yandex.ua" << "yandex-co.ru" << "narod.ru";
 	FMetaItemDescriptors.append(yonline);
 
 	IMetaItemDescriptor qip;
 	qip.name = tr("QIP");
 	qip.icon = MNI_METACONTACTS_ITEM_QIP;
-	qip.combine = false;
-	qip.detach = true;
-	qip.service = false;
-	qip.persistent = false;
 	qip.metaOrder = MIO_QIP;
 	qip.gateId = GSID_QIP;
 	qip.gatePrefix = "qip";
 	qip.domains << "qip.ru" << "pochta.ru" << "fromru.com" << "front.ru" << "hotbox.ru"	<< "hotmail.ru"
-		    << "krovatka.su" << "land.ru"	<< "mail15.com" << "mail333.com" << "newmail.ru" << "nightmail.ru"
-		    << "nm.ru" << "pisem.net"	<< "pochtamt.ru" << "pop3.ru" << "rbcmail.ru" << "smtp.ru" << "5ballov.ru"
-		    << "aeterna.ru"<< "ziza.ru" << "memori.ru" << "photofile.ru" << "fotoplenka.ru";
+		<< "krovatka.su" << "land.ru"	<< "mail15.com" << "mail333.com" << "newmail.ru" << "nightmail.ru"
+		<< "nm.ru" << "pisem.net"	<< "pochtamt.ru" << "pop3.ru" << "rbcmail.ru" << "smtp.ru" << "5ballov.ru"
+		<< "aeterna.ru"<< "ziza.ru" << "memori.ru" << "photofile.ru" << "fotoplenka.ru";
 	FMetaItemDescriptors.append(qip);
 
 	IMetaItemDescriptor vkontakte;
 	vkontakte.name = tr("VKontakte");
 	vkontakte.icon = MNI_METACONTACTS_ITEM_VKONTAKTE;
-	vkontakte.combine = false;
-	vkontakte.detach = true;
-	vkontakte.service = false;
-	vkontakte.persistent = false;
 	vkontakte.metaOrder = MIO_VKONTAKTE;
 	vkontakte.gateId = GSID_VKONTAKTE;
 	vkontakte.gatePrefix = "vk";
@@ -1119,10 +1077,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor odnoklasniki;
 	odnoklasniki.name = tr("Odnoklassniki");
 	odnoklasniki.icon = MNI_METACONTACTS_ITEM_ODNOKLASNIKI;
-	odnoklasniki.combine = false;
-	odnoklasniki.detach = true;
-	odnoklasniki.service = false;
-	odnoklasniki.persistent = false;
 	odnoklasniki.metaOrder = MIO_ODNOKLASNIKI;
 	odnoklasniki.gateId = GSID_ODNOKLASNIKI;
 	odnoklasniki.gatePrefix = "ok";
@@ -1132,10 +1086,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor facebook;
 	facebook.name = tr("Facebook");
 	facebook.icon = MNI_METACONTACTS_ITEM_FACEBOOK;
-	facebook.combine = false;
-	facebook.detach = true;
-	facebook.service = false;
-	facebook.persistent = false;
 	facebook.metaOrder = MIO_FACEBOOK;
 	facebook.gateId = GSID_FACEBOOK;
 	facebook.gatePrefix = "fb";
@@ -1145,10 +1095,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor livejournal;
 	livejournal.name = tr("LiveJournal");
 	livejournal.icon = MNI_METACONTACTS_ITEM_LIVEJOURNAL;
-	livejournal.combine = false;
-	livejournal.detach = true;
-	livejournal.service = false;
-	livejournal.persistent = false;
 	livejournal.metaOrder = MIO_LIVEJOURNAL;
 	livejournal.gateId = GSID_LIVEJOURNAL;
 	livejournal.gatePrefix = "livejournal";
@@ -1158,10 +1104,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor rambler;
 	rambler.name = tr("Rambler");
 	rambler.icon = MNI_METACONTACTS_ITEM_RAMBLER;
-	rambler.combine = false;
-	rambler.detach = true;
-	rambler.service = false;
-	rambler.persistent = false;
 	rambler.metaOrder = MIO_RAMBLER;
 	rambler.gateId = GSID_RAMBLER;
 	rambler.gatePrefix = "rambler";
@@ -1991,7 +1933,7 @@ void MetaContacts::onChatWindowCreated(IChatWindow *AWindow)
 				IMetaItemDescriptor descriptor = metaDescriptorByItem(AWindow->contactJid());
 				QString pageId = window->insertPage(descriptor.metaOrder,descriptor.combine);
 				window->setPageIcon(pageId,descriptor.icon);
-				window->setPageName(pageId,itemHint(AWindow->contactJid()));
+				window->setPageName(pageId,itemFormattedLogin(AWindow->contactJid()));
 
 				if (AWindow->toolBarWidget())
 					AWindow->toolBarWidget()->instance()->hide();
@@ -2183,7 +2125,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 					{
 						IMetaItemDescriptor descriptor = metaDescriptorByItem(itemJid);
 						Action *releaseAction = new Action(releaseMenu);
-						releaseAction->setText(QString("%1 (%2)").arg(descriptor.name).arg(itemHint(itemJid)));
+						releaseAction->setText(QString("%1 (%2)").arg(descriptor.name).arg(itemFormattedLogin(itemJid)));
 						releaseAction->setIcon(RSR_STORAGE_MENUICONS,descriptor.icon);
 						releaseAction->setData(data);
 						releaseAction->setData(ADR_RELEASE_ITEMS,QList<QVariant>() << itemJid.pBare());

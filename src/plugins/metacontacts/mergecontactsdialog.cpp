@@ -13,6 +13,27 @@
 MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QList<QString> AMetaIds, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_MERGECONTACTSDIALOG);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+
+	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (FBorder)
+	{
+		FBorder->setResizable(false);
+		FBorder->setMinimizeButtonVisible(false);
+		FBorder->setMaximizeButtonVisible(false);
+		FBorder->setAttribute(Qt::WA_DeleteOnClose,true);
+		FBorder->setWindowTitle(ui.lblCaption->text());
+		connect(this, SIGNAL(accepted()), FBorder, SLOT(closeWidget()));
+		connect(this, SIGNAL(rejected()), FBorder, SLOT(closeWidget()));
+		connect(FBorder, SIGNAL(closeClicked()), SLOT(reject()));
+		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	}
+	else
+	{
+		ui.lblCaption->setVisible(false);
+		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
 
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->setSpacing(16);
@@ -89,28 +110,6 @@ MergeContactsDialog::MergeContactsDialog(IMetaContacts *AMetaContacts, IMetaRost
 		avatar = FMetaRoster->metaAvatarImage(FMetaIds.value(0),false,false);
 	ui.lblAvatar->setPixmap(QPixmap::fromImage(avatar.scaled(48, 48, Qt::KeepAspectRatio,Qt::SmoothTransformation)));
 
-	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
-	if (FBorder)
-	{
-		FBorder->setResizable(false);
-		FBorder->setMinimizeButtonVisible(false);
-		FBorder->setMaximizeButtonVisible(false);
-		FBorder->setAttribute(Qt::WA_DeleteOnClose,true);
-		FBorder->setWindowTitle(ui.lblCaption->text());
-		connect(this, SIGNAL(accepted()), FBorder, SLOT(closeWidget()));
-		connect(this, SIGNAL(rejected()), FBorder, SLOT(closeWidget()));
-		connect(FBorder, SIGNAL(closeClicked()), SLOT(reject()));
-		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-	}
-	else
-	{
-		ui.lblCaption->setVisible(false);
-		setAttribute(Qt::WA_DeleteOnClose,true);
-	}
-
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_MERGECONTACTSDIALOG);
-	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
-
 	ui.lneName->selectAll();
 	ui.lneName->setFocus();
 
@@ -138,7 +137,9 @@ void MergeContactsDialog::show()
 		FBorder->adjustSize();
 	}
 	else
+	{
 		QDialog::show();
+	}
 }
 
 void MergeContactsDialog::onContactNameChanged(const QString &AText)

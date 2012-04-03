@@ -27,12 +27,20 @@ struct IMetaContact
 
 struct IMetaItemDescriptor
 {
+	IMetaItemDescriptor() {
+		detach = true;
+		combine = false;
+		service = false;
+		persistent = false;
+		metaOrder = -1;
+	}
 	QString name;
 	QString icon;
 	bool detach;
 	bool combine;
 	bool service;
 	bool persistent;
+	bool hideLogin;
 	int metaOrder;
 	QString gateId;
 	QString gatePrefix;
@@ -49,8 +57,6 @@ public:
 	virtual bool isOpen() const =0;
 	virtual QList<QString> metaContacts() const =0;
 	virtual IMetaContact metaContact(const QString &AMetaId) const =0;
-	// Возвращает идентификатор метаконтакта metaId.
-	// AItemJid - это ContactJid может быть как с ресурсом так и без. Ресурс игнорируется.
 	virtual QString itemMetaContact(const Jid &AItemJid) const =0;
 	virtual IPresenceItem metaPresenceItem(const QString &AMetaId) const =0;
 	virtual QList<IPresenceItem> itemPresences(const Jid &AItemJid) const =0;
@@ -134,7 +140,7 @@ public:
 	virtual QList<IMetaItemDescriptor> metaDescriptors() const =0;
 	virtual IMetaItemDescriptor metaDescriptorByOrder(int APageOrder) const =0;
 	virtual IMetaItemDescriptor metaDescriptorByItem(const Jid &AItemJid) const =0;
-	virtual QString itemHint(const Jid &AItemJid) const =0;
+	virtual QString itemFormattedLogin(const Jid &AItemJid) const =0;
 	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const =0;
 	virtual QString metaContactName(const IMetaContact &AContact) const =0;
 	virtual IMetaRoster *getMetaRoster(IRoster *ARoster) =0;

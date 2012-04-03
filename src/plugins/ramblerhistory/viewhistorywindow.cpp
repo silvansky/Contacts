@@ -5,20 +5,16 @@
 #include <QNetworkRequest>
 #include <QDesktopServices>
 
-ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, QWidget *AParent) : QMainWindow(AParent)
+ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, IGateways *AGateways, const Jid &AContactJid, QWidget *AParent) : QMainWindow(AParent)
 {
 	ui.setupUi(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RAMBLERHISTORY_VIEWHISTORYWINDOW);
 
-	FProgress = 0;
-	FRoster = ARoster;
-	FContactJid = AContactJid;
-
-	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_WINDOW);
-	if (FBorder)
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_WINDOW);
+	if (border)
 	{
-		FBorder->setResizable(true);
-		FBorder->setAttribute(Qt::WA_DeleteOnClose,true);
+		border->setResizable(true);
+		border->setAttribute(Qt::WA_DeleteOnClose,true);
 	}
 	else
 	{
@@ -26,7 +22,11 @@ ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, Q
 		ui.centralWidget->layout()->setContentsMargins(0, 0, 0, 0);
 		setAttribute(Qt::WA_DeleteOnClose,true);
 	}
-	resize(650,500);
+
+	FProgress = 0;
+	FRoster = ARoster;
+	FGateways = AGateways;
+	FContactJid = AContactJid;
 
 	if (FRoster->xmppStream() && FRoster->xmppStream()->connection())
 	{
@@ -48,12 +48,11 @@ ViewHistoryWindow::ViewHistoryWindow(IRoster *ARoster, const Jid &AContactJid, Q
 
 	initViewHtml();
 	updateTitle();
+	window()->resize(650,500);
 }
 
 ViewHistoryWindow::~ViewHistoryWindow()
 {
-	if (FBorder)
-		FBorder->deleteLater();
 	emit windowDestroyed();
 }
 
@@ -112,16 +111,16 @@ void ViewHistoryWindow::initViewHtml()
 
 void ViewHistoryWindow::updateTitle()
 {
-	IRosterItem ritem = FRoster!=NULL ? FRoster->rosterItem(FContactJid) : IRosterItem();
-	QString title = tr("Chat history - %1").arg(!ritem.name.isEmpty() ? ritem.name : contactJid().bare());
+	IRosterItem ritem = FRoster!=NULL ? FRoster->rosterItem(contactJid()) : IRosterItem();
+	if (ritem.name.isEmpty())
+		ritem.name = FGateways!=NULL ? FGateways->legacyIdFromUserJid(streamJid(),contactJid()) : contactJid().bare();
+
+	QString title = tr("Chat history - %1").arg(ritem.name);
 	if (FProgress>0 && FProgress<100)
 		title += " - " + tr("Loading... %1%").arg(FProgress);
 
 	ui.lblCaption->setText(title);
-	if (FBorder)
-		FBorder->setWindowTitle(ui.lblCaption->text());
-	else
-		setWindowTitle(ui.lblCaption->text());
+	window()->setWindowTitle(ui.lblCaption->text());
 }
 
 void ViewHistoryWindow::onWebLoadProgress(int AProgress)

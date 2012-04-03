@@ -1,31 +1,32 @@
 #include "custominputdialog.h"
 
-#include "customborderstorage.h"
-#include <definitions/customborder.h>
-#include <definitions/resources.h>
-#include "stylestorage.h"
-#include <definitions/stylesheets.h>
-#include "graphicseffectsstorage.h"
-#include <definitions/graphicseffects.h>
-#ifdef Q_WS_MAC
-# include "macwidgets.h"
-#endif
-
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QEvent>
 #include <QKeyEvent>
 
+#include <definitions/customborder.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
+#include <definitions/graphicseffects.h>
+
+#ifdef Q_WS_MAC
+# include "macwidgets.h"
+#endif
+#include "stylestorage.h"
+#include "widgetmanager.h"
+#include "customborderstorage.h"
+#include "graphicseffectsstorage.h"
+
 CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget *AParent) :
 	QDialog(AParent),
 	inputType(type)
 {
-	initLayout();
-
-	setAttribute(Qt::WA_DeleteOnClose, false);
+	setMinimumWidth(250);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
 	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
-	setMinimumWidth(250);
 	if (border)
 	{
 		border->setParent(AParent);
@@ -37,22 +38,22 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget 
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose, false);
+	}
+
 #ifdef Q_WS_MAC
 	setWindowGrowButtonEnabled(this->window(), false);
 #endif
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
-	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+
+	initLayout();
 }
 
 CustomInputDialog::~CustomInputDialog()
 {
 	if (border)
 		border->deleteLater();
-}
-
-CustomBorderContainer * CustomInputDialog::windowBorder()
-{
-	return border;
 }
 
 void CustomInputDialog::show()
@@ -69,7 +70,10 @@ void CustomInputDialog::show()
 		border->adjustSize();
 	}
 	else
+	{
 		QDialog::show();
+	}
+	WidgetManager::alignWindow(window(),Qt::AlignCenter);
 }
 
 QString CustomInputDialog::defaultText() const
@@ -137,12 +141,12 @@ void CustomInputDialog::setAcceptIsDefault(bool accept)
 
 bool CustomInputDialog::deleteOnClose() const
 {
-	return (border ? (QWidget*)border : (QWidget*)this)->testAttribute(Qt::WA_DeleteOnClose);
+	return window()->testAttribute(Qt::WA_DeleteOnClose);
 }
 
 void CustomInputDialog::setDeleteOnClose(bool on)
 {
-	(border ? (QWidget*)border : (QWidget*)this)->setAttribute(Qt::WA_DeleteOnClose, on);
+	window()->setAttribute(Qt::WA_DeleteOnClose, on);
 }
 
 void CustomInputDialog::onAcceptButtonClicked()
@@ -150,10 +154,7 @@ void CustomInputDialog::onAcceptButtonClicked()
 	if (inputType == String)
 	{
 		emit stringAccepted(valueEdit->text());
-		if (border)
-			border->close();
-		else
-			close();
+		window()->close();
 	}
 	else
 		accept();
@@ -180,16 +181,19 @@ void CustomInputDialog::initLayout()
 	iconLabel->setMinimumSize(0, 0);
 	iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 	iconLabel->setVisible(false);
-#ifdef Q_WS_MAC
-	captionLayout->addWidget(infoLabel = new CustomLabel);
-	mainLayout->addLayout(captionLayout);
-	captionLabel = NULL;
-#else
-	captionLayout->addWidget(captionLabel = new CustomLabel);
-	captionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-	mainLayout->addLayout(captionLayout);
-	mainLayout->addWidget(infoLabel = new CustomLabel);
-#endif
+	if (border == NULL)
+	{
+		captionLayout->addWidget(infoLabel = new CustomLabel);
+		mainLayout->addLayout(captionLayout);
+		captionLabel = NULL;
+	}
+	else
+	{
+		captionLayout->addWidget(captionLabel = new CustomLabel);
+		captionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+		mainLayout->addLayout(captionLayout);
+		mainLayout->addWidget(infoLabel = new CustomLabel);
+	}
 	infoLabel->setVisible(false);
 	mainLayout->addWidget(valueEdit = new QLineEdit);
 	connect(valueEdit, SIGNAL(textChanged(const QString &)), SLOT(onTextChanged(const QString &)));

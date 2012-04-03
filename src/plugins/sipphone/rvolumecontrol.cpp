@@ -280,6 +280,7 @@ void RVolumeControl::setMute(bool mute)
 
 void RVolumeControl::setOff()
 {
+#ifdef Q_WS_WIN32
 	_isOn = false;
 #ifdef Q_WS_WIN32_NOTNEEDED
 	if(!_isWinXP)
@@ -296,11 +297,13 @@ void RVolumeControl::setOff()
 	}
 
 	updatePixmap(volumeOff);
+#endif
 	emit stateChanged(false);
 }
 
 void RVolumeControl::setOn()
 {
+#ifdef Q_WS_WIN32
 	_isOn = true;
 #ifdef Q_WS_WIN32_NOTNEEDED
 	if(!_isWinXP)
@@ -315,6 +318,7 @@ void RVolumeControl::setOn()
 	}
 
 	updatePixmap(volumeToIndex(_value));
+#endif
 	emit stateChanged(true);
 }
 
