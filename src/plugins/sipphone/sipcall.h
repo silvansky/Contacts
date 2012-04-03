@@ -54,6 +54,7 @@ private:
 	ErrorCode currentError;
 	CallerRole myRole;
 	quint32 currentCallTime;
+	// i/o devices
 	ISipDevice camera;
 	ISipDevice microphone;
 	ISipDevice videoInput;

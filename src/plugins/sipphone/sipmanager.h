@@ -21,11 +21,10 @@ class SipManager :
 		public QObject,
 		public IPlugin,
 		public ISipManager,
-		public IStanzaHandler,
-		public IStanzaRequestOwner
+		public IStanzaHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin ISipManager IStanzaHandler IStanzaRequestOwner)
+	Q_INTERFACES(IPlugin ISipManager IStanzaHandler)
 public:
 	explicit SipManager(QObject *parent);
 	// IPlugin
@@ -46,13 +45,12 @@ public:
 	// devices
 	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const;
 	virtual ISipDevice getDevice(ISipDevice::Type AType, int ADeviceId) const;
+	virtual void showSystemSoundPreferences() const;
 	// handlers
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	// IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
-	// IStanzaRequestOwner
-	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
 protected:
 	// SipManager internals
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid);

@@ -5,6 +5,11 @@
 #include <definitions/optionwidgetorders.h>
 #include <definitions/notificationtypes.h>
 #include <utils/log.h>
+#include <QProcess>
+
+#if defined (Q_WS_WIN)
+# include <windows.h>
+#endif
 
 #define SHC_SIP_REQUEST "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SIP_PHONE "']"
 
@@ -158,13 +163,11 @@ bool SipManager::initObjects()
 
 bool SipManager::initSettings()
 {
-	// TODO: implementation
 	return true;
 }
 
 bool SipManager::startPlugin()
 {
-	// TODO: implementation
 	return true;
 }
 
@@ -207,6 +210,28 @@ ISipDevice SipManager::getDevice(ISipDevice::Type AType, int ADeviceId) const
 	return ISipDevice();
 }
 
+void SipManager::showSystemSoundPreferences() const
+{
+#if defined(Q_WS_WIN)
+	OSVERSIONINFO m_osinfo;
+	ZeroMemory(&m_osinfo, sizeof(m_osinfo));
+	m_osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if (GetVersionEx((LPOSVERSIONINFO) &m_osinfo))
+	{
+		if(m_osinfo.dwMajorVersion < 6)
+		{
+			QProcess::startDetached("sndvol32.exe");
+		}
+		else
+		{
+			QProcess::startDetached("sndvol.exe");
+		}
+	}
+#elif defined (Q_WS_MAC)
+	QProcess::startDetached("open -W \"/System/Library/PreferencePanes/Sound.prefPane\"");
+#endif
+}
+
 void SipManager::insertSipCallHandler(int AOrder, ISipCallHandler *AHandler)
 {
 	handlers.insert(AOrder, AHandler);
@@ -228,30 +253,28 @@ bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &A
 		{
 			AAccept = true;
 			LogDetail(QString("[SipManager]: Incoming call from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
-			// TODO: check availability of call
-			SipCall * call = new SipCall(ISipCall::CR_RESPONDER);
-			call->setStreamJid(AStreamJid);
-			call->setContactJid(AStanza.from());
-			bool handled = false;
-			foreach (ISipCallHandler * handler, handlers.values())
-			{
-				if (handled = handler->checkCall(call))
-					break;
-			}
-			if (!handled)
-				call->rejectCall();
+
+			handleIncomingCall(AStreamJid, AStanza.from());
 		}
 	}
 	return false;
 }
 
-void SipManager::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
-{
-}
-
 bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	return false;
+	// TODO: check availability of answering the call (busy)
+	SipCall * call = new SipCall(ISipCall::CR_RESPONDER);
+	call->setStreamJid(AStreamJid);
+	call->setContactJid(AContactJid);
+	bool handled = false;
+	foreach (ISipCallHandler * handler, handlers.values())
+	{
+		if (handled = handler->checkCall(call))
+			break;
+	}
+	if (!handled)
+		call->rejectCall(ISipCall::RC_NOHANDLER);
+	return handled;
 }
 
 void SipManager::onCallDestroyed(QObject * object)

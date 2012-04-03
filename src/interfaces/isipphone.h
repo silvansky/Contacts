@@ -77,14 +77,14 @@ struct ISipDevice
 
 	enum CameraProperty
 	{
-		CP_CURRENTFRAME, /* QPixmap */
+		CP_CURRENTFRAME, /* QPixmap, readonly */
 		CP_RESOLUTION,   /* QSize */
 		CP_BRIGHTNESS    /* float */
 	};
 
 	enum VideoInProperty
 	{
-		VP_CURRENTFRAME  /* QPixmap */
+		VP_CURRENTFRAME  /* QPixmap, readonly */
 	};
 
 	enum MicrophoneProperty
@@ -141,7 +141,8 @@ public:
 	enum RejectionCode
 	{
 		RC_BYUSER,
-		RC_BUSY
+		RC_BUSY,
+		RC_NOHANDLER
 	};
 
 	enum DeviceState
@@ -199,6 +200,7 @@ public:
 	// devices
 	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const = 0;
 	virtual ISipDevice getDevice(ISipDevice::Type AType, int ADeviceId) const = 0;
+	virtual void showSystemSoundPreferences() const = 0;
 	// handlers
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler) = 0;
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler) = 0;

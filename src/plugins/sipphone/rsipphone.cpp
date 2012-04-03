@@ -556,7 +556,7 @@ void RSipPhone::call()
 
 		pjsua_call_setting call_setting;
 		pjsua_call_setting_default(&call_setting);
-		call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
+		call_setting.vid_cnt = 1;//(vidEnabled_->checkState()==Qt::Checked);
 		//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
 		call_setting.aud_cnt = 1;
 
