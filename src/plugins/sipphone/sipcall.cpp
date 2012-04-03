@@ -1,9 +1,10 @@
 #include "sipcall.h"
 #include <QVariant>
 
-SipCall::SipCall(QObject *parent) :
-	QObject(parent)
+SipCall::SipCall(CallerRole role) :
+	QObject(NULL)
 {
+	myRole = role;
 }
 
 QObject *SipCall::instance()
@@ -43,14 +44,12 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 
 ISipCall::CallState SipCall::state() const
 {
-	// TODO: implementation
-	return CS_NONE;
+	return currentState;
 }
 
 ISipCall::ErrorCode SipCall::errorCode() const
 {
-	// TODO: implementation
-	return EC_NONE;
+	return currentError;
 }
 
 QString SipCall::errorString() const
@@ -61,14 +60,12 @@ QString SipCall::errorString() const
 
 ISipCall::CallerRole SipCall::role() const
 {
-	// TODO: implementation
-	return CR_INITIATOR;
+	return myRole;
 }
 
 quint32 SipCall::callTime() const
 {
-	// TODO: implementation
-	return 0;
+	return currentCallTime;
 }
 
 QString SipCall::callTimeString() const
@@ -85,8 +82,19 @@ bool SipCall::sendDTMFSignal(QChar ASignal)
 
 ISipDevice SipCall::activeDevice(ISipDevice::Type AType) const
 {
-	// TODO: implementation
-	return ISipDevice();
+	switch (AType)
+	{
+	case ISipDevice::DT_CAMERA:
+		return camera;
+	case ISipDevice::DT_MICROPHONE:
+		return microphone;
+	case ISipDevice::DT_VIDEO_IN:
+		return videoInput;
+	case ISipDevice::DT_AUDIO_OUT:
+		return audioOutput;
+	default:
+		return ISipDevice();
+	}
 }
 
 bool SipCall::setActiveDevice(ISipDevice::Type AType, int ADeviceId)
@@ -117,4 +125,14 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 {
 	// TODO: implementation
 	return true;
+}
+
+void SipCall::setStreamJid(const Jid &AStreamJid)
+{
+	callStreamJid = AStreamJid;
+}
+
+void SipCall::setContactJid(const Jid &AContactJid)
+{
+	callContactJid = AContactJid;
 }

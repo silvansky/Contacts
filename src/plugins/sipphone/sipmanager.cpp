@@ -1,5 +1,13 @@
 #include "sipmanager.h"
 
+#include "sipcall.h"
+#include <definitions/namespaces.h>
+#include <definitions/optionwidgetorders.h>
+#include <definitions/notificationtypes.h>
+#include <utils/log.h>
+
+#define SHC_SIP_REQUEST "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SIP_PHONE "']"
+
 SipManager::SipManager(QObject *parent) :
 	QObject(parent)
 {
@@ -113,7 +121,38 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 
 bool SipManager::initObjects()
 {
-	// TODO: implementation
+	if (FDiscovery)
+	{
+		IDiscoFeature sipPhone;
+		sipPhone.active = true;
+		sipPhone.var = NS_RAMBLER_SIP_PHONE;
+		sipPhone.name = tr("SIP Phone");
+		sipPhone.description = tr("SIP voice and video calls");
+		FDiscovery->insertDiscoFeature(sipPhone);
+	}
+	if (FStanzaProcessor)
+	{
+		IStanzaHandle shandle;
+		shandle.handler = this;
+		shandle.order = SHO_DEFAULT;
+		shandle.direction = IStanzaHandle::DirectionIn;
+		shandle.conditions.append(SHC_SIP_REQUEST);
+		FSHISipRequest = FStanzaProcessor->insertStanzaHandle(shandle);
+	}
+	if (FNotifications)
+	{
+		INotificationType incomingNotifyType;
+		incomingNotifyType.order = OWO_NOTIFICATIONS_SIPPHONE;
+		incomingNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge;
+		incomingNotifyType.kindDefs = incomingNotifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_SIPPHONE_CALL,incomingNotifyType);
+
+		INotificationType missedNotifyType;
+		missedNotifyType.order = OWO_NOTIFICATIONS_SIPPHONE_MISSED;
+		missedNotifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge;
+		missedNotifyType.kindDefs = incomingNotifyType.kindMask;
+		FNotifications->registerNotificationType(NNT_SIPPHONE_MISSEDCALL,missedNotifyType);
+	}
 	return true;
 }
 
@@ -131,20 +170,29 @@ bool SipManager::startPlugin()
 
 bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	// TODO: implementation
-	return true;
+	return FDiscovery && FDiscovery->discoInfo(AStreamJid, AContactJid).features.contains(NS_RAMBLER_SIP_PHONE);
 }
 
 ISipCall *SipManager::newCall()
 {
-	// TODO: implementation
-	return NULL;
+	SipCall * call = new SipCall;
+	connect(call, SIGNAL(destroyed(QObject*)), SLOT(onCallDestroyed(QObject*)));
+	calls << call;
+	return call;
 }
 
 QList<ISipCall*> SipManager::findCalls(const Jid &AStreamJid)
 {
-	// TODO: implementation
-	return QList<ISipCall*>();
+	if (AStreamJid == Jid::null)
+		return calls;
+	else
+	{
+		QList<ISipCall*> found;
+		foreach (ISipCall * call, calls)
+			if (call->streamJid() == AStreamJid)
+				found << call;
+		return found;
+	}
 }
 
 QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType) const
@@ -161,10 +209,56 @@ ISipDevice SipManager::getDevice(ISipDevice::Type AType, int ADeviceId) const
 
 void SipManager::insertSipCallHandler(int AOrder, ISipCallHandler *AHandler)
 {
-	// TODO: implementation
+	handlers.insert(AOrder, AHandler);
 }
 
 void SipManager::removeSipCallHandler(int AOrder, ISipCallHandler *AHandler)
 {
-	// TODO: implementation
+	if (handlers.value(AOrder, NULL) == AHandler)
+		handlers.remove(AOrder);
+}
+
+bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
+{
+	if (FSHISipRequest == AHandleId)
+	{
+		QDomElement actionElem = AStanza.firstElement("query",NS_RAMBLER_SIP_PHONE).firstChildElement();
+		QString sid = actionElem.attribute("sid");
+		if (actionElem.tagName() == "open")
+		{
+			AAccept = true;
+			LogDetail(QString("[SipManager]: Incoming call from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+			// TODO: check availability of call
+			SipCall * call = new SipCall(ISipCall::CR_RESPONDER);
+			call->setStreamJid(AStreamJid);
+			call->setContactJid(AStanza.from());
+			bool handled = false;
+			foreach (ISipCallHandler * handler, handlers.values())
+			{
+				if (handled = handler->checkCall(call))
+					break;
+			}
+			if (!handled)
+				call->rejectCall();
+		}
+	}
+	return false;
+}
+
+void SipManager::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
+{
+}
+
+bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid)
+{
+}
+
+void SipManager::onCallDestroyed(QObject * object)
+{
+	ISipCall * call = qobject_cast<ISipCall*>(object);
+	if (call)
+	{
+		calls.removeAll(call);
+		emit sipCallDestroyed(call);
+	}
 }

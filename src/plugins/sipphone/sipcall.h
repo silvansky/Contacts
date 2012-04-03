@@ -11,7 +11,8 @@ class SipCall :
 	Q_OBJECT
 	Q_INTERFACES(ISipCall)
 public:
-	explicit SipCall(QObject *parent);
+	SipCall(CallerRole role = CR_INITIATOR);
+public:
 	// ISipCall
 	virtual QObject *instance();
 	virtual Jid streamJid() const;
@@ -19,7 +20,7 @@ public:
 	virtual QList<Jid> callDestinations() const;
 	virtual void call(const Jid &AStreamJid, const QList<Jid> &AContacts) const;
 	virtual void acceptCall();
-	virtual void rejectCall(RejectionCode ACode);
+	virtual void rejectCall(RejectionCode ACode = RC_BYUSER);
 	virtual CallState state() const;
 	virtual ErrorCode errorCode() const;
 	virtual QString errorString() const;
@@ -34,8 +35,16 @@ public:
 	virtual bool setDeviceState(ISipDevice::Type AType, DeviceState AState) const;
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty);
 	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
+public:
+	// SipCall internal
+	void setStreamJid(const Jid & AStreamJid);
+	void setContactJid(const Jid & AContactJid);
 signals:
-	
+	void stateChanged(int AState);
+	void DTMFSignalReceived(QChar ASignal);
+	void activeDeviceChanged(int ADeviceType);
+	void deviceStateChanged(ISipDevice::Type AType, DeviceState AState);
+	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 public slots:
 private:
 	Jid callStreamJid;

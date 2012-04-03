@@ -20,10 +20,12 @@
 class SipManager :
 		public QObject,
 		public IPlugin,
-		public ISipManager
+		public ISipManager,
+		public IStanzaHandler,
+		public IStanzaRequestOwner
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin ISipManager)
+	Q_INTERFACES(IPlugin ISipManager IStanzaHandler IStanzaRequestOwner)
 public:
 	explicit SipManager(QObject *parent);
 	// IPlugin
@@ -47,6 +49,13 @@ public:
 	// handlers
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler);
+	// IStanzaHandler
+	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
+	// IStanzaRequestOwner
+	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
+protected:
+	// SipManager internals
+	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid);
 signals:
 	void sipCallCreated(ISipCall * ACall);
 	void sipCallDestroyed(ISipCall * ACall);
@@ -54,7 +63,8 @@ signals:
 	void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler);
 	void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler);
 	
-public slots:
+protected slots:
+	void onCallDestroyed(QObject*);
 private:
 	IGateways *FGateways;
 	IServiceDiscovery *FDiscovery;
@@ -68,8 +78,16 @@ private:
 	IMessageProcessor *FMessageProcessor;
 	IMessageStyles *FMessageStyles;
 private:
+	QMap<int, QString> FIncomingNotifies;
+	QMap<int, IChatWindow *> FMissedNotifies;
+private:
+	int FSHISipRequest;
+	QMap<QString, QString> FOpenRequests;
+	QMap<QString, QString> FCloseRequests;
+	QMap<QString, QString> FPendingRequests;
+private:
 	QMap<int, ISipCallHandler*> handlers;
-	QList<ISipCall> calls;
+	QList<ISipCall*> calls;
 	
 };
 

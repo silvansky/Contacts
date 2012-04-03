@@ -157,7 +157,7 @@ public:
 	virtual QList<Jid> callDestinations() const = 0;
 	virtual void call(const Jid &AStreamJid, const QList<Jid> &AContacts) const = 0;
 	virtual void acceptCall() = 0;
-	virtual void rejectCall(RejectionCode ACode) = 0;
+	virtual void rejectCall(RejectionCode ACode = RC_BYUSER) = 0;
 	virtual CallState state() const = 0;
 	virtual ErrorCode errorCode() const = 0;
 	virtual QString errorString() const = 0;
