@@ -8,8 +8,6 @@ PROJECT_NAME="virtus.pro"
 
 TMP_DIR="./tmp"
 OSX_VER=`sw_vers -productVersion`
-DMG_NAME_TMP="contacts_${VERSION}_${OSX_VER}_tmp.dmg"
-DMG_NAME="contacts_${VERSION}_${OSX_VER}.dmg"
 VOL_NAME="Рамблер.Контакты"
 BG_IMG_NAME="contacts_bg.png"
 APP_BUNDLE_NAME="Contacts.app"
@@ -17,6 +15,9 @@ APP_BUNDLE_NAME="Contacts.app"
 [ -d .svn ] && REVISION=".$(sed -n -e '/^dir$/{n;p;q;}' .svn/entries 2>/dev/null)"||REVISION=""
 VER_NUMBER="$(grep 'CLIENT_VERSION ' src/definitions/version.h|awk -F'"' '{print $2}')"
 VERSION="${VER_NUMBER}${REVISION}"
+
+DMG_NAME_TMP="contacts_${VERSION}_${OSX_VER}_tmp.dmg"
+DMG_NAME="contacts_${VERSION}_${OSX_VER}.dmg"
 
 if [[ "$1" != "--nobuild" ]]
 then
