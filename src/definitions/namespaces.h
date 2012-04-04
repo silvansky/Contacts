@@ -67,5 +67,6 @@
 #define NS_RAMBLER_MAIL_NOTIFY                  "rambler:mail:notify"
 #define NS_RAMBLER_MAIL_NOTICE                  "rambler:mail:notice"
 #define NS_RAMBLER_GATEWAY_REGISTER             "rambler:gateway:register"
+#define NS_RAMBLER_TCPTUNNEL_CONNECT            "rambler:tcptunnel:connect"
 
 #endif // DEF_NAMESPACES_H
