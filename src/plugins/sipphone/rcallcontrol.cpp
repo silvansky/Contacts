@@ -9,7 +9,7 @@ RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 {
 	ui.setupUi(this);
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	FMediaObject = NULL;
 	FAudioOutput = NULL;
 #else
@@ -63,7 +63,7 @@ RCallControl::RCallControl(QString sid, CallSide callSide, QWidget *parent)
 RCallControl::~RCallControl()
 {
 	//close();
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	delete FMediaObject;
 	delete FAudioOutput;
 #else
@@ -466,7 +466,7 @@ void RCallControl::playSignalWait(int loops)
 		return;
 	}
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 
 	if (!FMediaObject)
 	{
@@ -522,7 +522,7 @@ void RCallControl::playSignalBusy(int loops)
 		return;
 	}
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 
 	if (!FMediaObject)
 	{
@@ -577,7 +577,7 @@ void RCallControl::playSignalRinging(int loops)
 		return;
 	}
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 
 	if (!FMediaObject)
 	{
@@ -683,7 +683,7 @@ void RCallControl::playSignal(CallStatus status, int loops)
 void RCallControl::stopSignal()
 {
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	//if (!FMediaObject)
 	//{
 	//	FMediaObject = new Phonon::MediaObject(this);

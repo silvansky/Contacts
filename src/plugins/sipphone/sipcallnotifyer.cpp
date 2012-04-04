@@ -16,7 +16,7 @@
 #include <definitions/soundfiles.h>
 
 SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice, const QIcon & icon, const QImage & avatar) : QWidget(NULL),	ui(new Ui::SipCallNotifyer),
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	FMediaObject(NULL),
 	FAudioOutput(NULL)
 #else
@@ -56,7 +56,7 @@ SipCallNotifyer::SipCallNotifyer(const QString & caption, const QString & notice
 SipCallNotifyer::~SipCallNotifyer()
 {
 	muteSound();
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	delete FMediaObject;
 	delete FAudioOutput;
 #else
@@ -115,7 +115,7 @@ void SipCallNotifyer::startSound()
 {
 	if (soundFile.isEmpty())
 		soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(SDF_SIPPHONE_CALL_RINGING);
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	if (!FMediaObject)
 	{
 		FMediaObject = new Phonon::MediaObject(this);
@@ -150,7 +150,7 @@ void SipCallNotifyer::startSound()
 
 void SipCallNotifyer::muteSound()
 {
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	if (FMediaObject)
 	{
 		FMediaObject->pause();
@@ -185,7 +185,7 @@ void SipCallNotifyer::muteClicked()
 	ui->mute->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(_muted ? MNI_SIPPHONE_UNMUTE : MNI_SIPPHONE_MUTE));
 }
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 void SipCallNotifyer::loopPlay()
 {
 	if (FMediaObject)

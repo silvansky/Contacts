@@ -2,7 +2,7 @@
 #define RCALLCONTROL_H
 
 #include <QWidget>
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 #include <Phonon/Phonon>
 #include <Phonon/MediaSource>
 #else
@@ -106,7 +106,7 @@ private:
 	QIcon acceptIcon;
 	QIcon hangupIcon;
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	Phonon::MediaObject *FMediaObject;
 	Phonon::AudioOutput *FAudioOutput;
 #else
