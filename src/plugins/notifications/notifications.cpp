@@ -632,30 +632,18 @@ int Notifications::notifyIdByWidget(NotifyWidget *AWidget) const
 	return -1;
 }
 
-void Notifications::activateAllNotifications(uint kinds)
+void Notifications::activateLastNotification(uint AKinds)
 {
-	foreach(int notifyId, FNotifyRecords.keys())
+	QList<int> notifyKeys = FNotifyRecords.keys();
+	for (int i=notifyKeys.count()-1; i>=0; i--)
 	{
+		int notifyId = notifyKeys.at(i);
 		const NotifyRecord &record = FNotifyRecords.value(notifyId);
-		if (record.notification.kinds & kinds)
-			activateNotification(notifyId);
-	}
-}
-
-void Notifications::activateFirstNotification(uint kinds)
-{
-	bool chatActivated = false;
-	foreach(int notifyId, FNotifyRecords.keys())
-	{
-		const NotifyRecord &record = FNotifyRecords.value(notifyId);
-		if (record.notification.kinds & kinds)
+		if (record.notification.kinds & AKinds)
 		{
-			if (!chatActivated)
-				activateNotification(notifyId);
-			chatActivated = true;
-		}
-		else
 			activateNotification(notifyId);
+			break;
+		}
 	}
 }
 
@@ -702,7 +690,7 @@ void Notifications::onTrayActionTriggered(bool)
 {
 	Action *action = qobject_cast<Action *>(sender());
 	if (action == FActivateAll)
-		activateAllNotifications();
+		activateLastNotification();
 }
 
 void Notifications::onRosterNotifyActivated(int ANotifyId)
@@ -730,7 +718,7 @@ void Notifications::onRosterNotifyRemoved(int ANotifyId)
 void Notifications::onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason)
 {
 	if (ANotifyId>0 && AReason==QSystemTrayIcon::DoubleClick)
-		activateAllNotifications();
+		activateLastNotification();
 }
 
 void Notifications::onTrayNotifyRemoved(int ANotifyId)
@@ -805,7 +793,7 @@ void Notifications::onDockClicked()
 			haveUnreadNotifications = true;
 			break;
 		}
-	activateFirstNotification(INotification::DockBadge);
+	activateLastNotification(INotification::DockBadge);
 	if (!haveUnreadNotifications && FMainWindow)
 		if (!FMainWindow->mainWindow()->instance()->isVisible())
 			FMainWindow->showMainWindow();
