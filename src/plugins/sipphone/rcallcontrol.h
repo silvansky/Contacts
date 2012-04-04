@@ -2,13 +2,14 @@
 #define RCALLCONTROL_H
 
 #include <QWidget>
-#ifdef USE_PHONON
-#include <Phonon/Phonon>
-#include <Phonon/MediaSource>
-#else
-#	include <QSound>
-#endif
 #include "ui_rcallcontrol.h"
+
+#ifdef USE_PHONON
+# include <Phonon/Phonon>
+# include <Phonon/MediaSource>
+#else
+# include <QSound>
+#endif
 
 #include <definitions/menuicons.h>
 #include <definitions/toolbargroups.h>
