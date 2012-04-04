@@ -1,12 +1,18 @@
 #!/bin/bash
 
 PROJECT_NAME="virtus.pro"
-TMP_DIR="./tmp"
-
 [ -e $PROJECT_NAME ] || {
 	echo "You must execute this script from trunk directory."
 	exit 1
 }
+
+TMP_DIR="./tmp"
+OSX_VER=`sw_vers -productVersion`
+DMG_NAME_TMP="contacts_${VERSION}_${OSX_VER}_tmp.dmg"
+DMG_NAME="contacts_${VERSION}_${OSX_VER}.dmg"
+VOL_NAME="Рамблер.Контакты"
+BG_IMG_NAME="contacts_bg.png"
+APP_BUNDLE_NAME="Contacts.app"
 
 [ -d .svn ] && REVISION=".$(sed -n -e '/^dir$/{n;p;q;}' .svn/entries 2>/dev/null)"||REVISION=""
 VER_NUMBER="$(grep 'CLIENT_VERSION ' src/definitions/version.h|awk -F'"' '{print $2}')"
@@ -25,16 +31,8 @@ cp -R /Applications/Contacts.app $TMP_DIR
 echo "done!"
 
 echo -n "*** Creating temporary dmg disk image..."
-OSX_VER=`sw_vers -productVersion`
-DMG_NAME_TMP="contacts_${VERSION}_${OSX_VER}_tmp.dmg"
-DMG_NAME="contacts_${VERSION}_${OSX_VER}.dmg"
-VOL_NAME="Рамблер.Контакты"
-BG_IMG_NAME="contacts_bg.png"
-APP_BUNDLE_NAME="Contacts.app"
-
 rm -f ${DMG_NAME_TMP}
 hdiutil create -ov -srcfolder $TMP_DIR -format UDRW -volname ${VOL_NAME} ${DMG_NAME_TMP}
-
 
 echo -n "*** Mounting temporary image... "
 device=$(hdiutil attach -readwrite -noverify -noautoopen ${DMG_NAME_TMP} | egrep '^/dev/' | sed 1q | awk '{print $1}')
@@ -109,4 +107,6 @@ echo -n "*** Cleaning up temp folder... "
 rm -rf $TMP_DIR
 echo "done!"
 
-echo "\n\n*** Everything done. DMG disk image is ready for distribution.\n"
+echo "
+*** Everything done. DMG disk image is ready for distribution.\n
+"
