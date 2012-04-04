@@ -135,7 +135,12 @@ void AddContactDialog::setContactJid(const Jid &AContactJid)
 	{
 		QString contact = FGateways!=NULL ? FGateways->legacyIdFromUserJid(streamJid(),AContactJid) : AContactJid.bare();
 		setContactText(contact);
-		setGatewayJid(AContactJid.domain());
+		if (FGateways && FGateways->streamServices(streamJid()).contains(AContactJid.domain()))
+			setGatewayJid(AContactJid.domain());
+		else if (AContactJid.isValid())
+			setGatewayJid(streamJid());
+		else
+			setGatewayJid(Jid::null);
 	}
 }
 
@@ -194,8 +199,17 @@ void AddContactDialog::setGatewayJid(const Jid &AGatewayJid)
 	else if (FGateways && FGateways->streamServices(streamJid()).contains(AGatewayJid))
 	{
 		if (FSelectProfileWidget)
+		{
+			FSelectProfileWidget->setAutoSelectProfile(false);
 			FSelectProfileWidget->setSelectedProfile(AGatewayJid);
+		}
 		FGatewayJid = AGatewayJid;
+	}
+	else if (!AGatewayJid.isValid())
+	{
+		if (FSelectProfileWidget)
+			FSelectProfileWidget->setAutoSelectProfile(true);
+		FGatewayJid = Jid::null;
 	}
 }
 
@@ -438,6 +452,8 @@ void AddContactDialog::updatePageParams(const IGateServiceDescriptor &ADescripto
 		connect(FSelectProfileWidget,SIGNAL(profilesChanged()),SLOT(onSelectedProfileChanched()));
 		connect(FSelectProfileWidget,SIGNAL(selectedProfileChanged()),SLOT(onSelectedProfileChanched()));
 		ui.wdtSelectProfile->layout()->addWidget(FSelectProfileWidget);
+
+		FSelectProfileWidget->setAutoSelectProfile(FGatewayJid.isEmpty());
 		FSelectProfileWidget->setSelectedProfile(FGatewayJid);
 	}
 }
@@ -472,7 +488,7 @@ void AddContactDialog::setDialogState(int AState)
 			ui.wdtPageAddress->setVisible(false);
 			ui.wdtPageConfirm->setVisible(false);
 			ui.wdtPageParams->setVisible(true);
-			ui.wdtSelectProfile->setVisible(true);
+			ui.wdtSelectProfile->setVisible(FGatewayJid.isEmpty());
 			ui.pbtBack->setVisible(true);
 			resolveLinkedContactsJid();
 			resolveContactJid();
