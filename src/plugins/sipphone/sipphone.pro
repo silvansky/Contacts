@@ -90,4 +90,7 @@ macx: {
 	LIBS += -lpjsip-simple-i386-apple-darwin11.3.0
 	LIBS += -lpjsip-ua-i386-apple-darwin11.3.0
 	LIBS += -lpjsua-i386-apple-darwin11.3.0
+	CONFIG(release) {
+		INSTALLS =
+	}
 }
