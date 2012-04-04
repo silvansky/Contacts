@@ -1,5 +1,5 @@
 TARGET = notifications 
-USE_PHONON {
+contains(DEFINES, USE_PHONON) {
   QT  += phonon
 }
 include(notifications.pri)
