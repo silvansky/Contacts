@@ -1,7 +1,7 @@
 #ifndef NOTIFICATIONS_H
 #define NOTIFICATIONS_H
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 #	include <Phonon/Phonon>
 #else
 #	include <QSound>
@@ -105,6 +105,7 @@ protected:
 	int notifyIdByTrayId(int ATrayId) const;
 	int notifyIdByWidget(NotifyWidget *AWidget) const;
 	void activateAllNotifications(uint kinds = INotification::TabPageNotify);
+	void activateFirstNotification(uint kinds = INotification::TabPageNotify);
 	void removeAllNotifications();
 	void removeInvisibleNotification(int ANotifyId);
 protected slots:
@@ -139,7 +140,7 @@ private:
 	ISystemIntegration * FSystemIntegration;
 	IMainWindowPlugin * FMainWindow;
 private:
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	Phonon::MediaObject *FMediaObject;
 	Phonon::AudioOutput *FAudioOutput;
 #else

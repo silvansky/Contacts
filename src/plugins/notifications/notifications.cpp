@@ -40,7 +40,7 @@ Notifications::Notifications()
 	FTestNotifyId = -1;
 	FActivateAll = NULL;
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	FMediaObject = NULL;
 	FAudioOutput = NULL;
 #else
@@ -55,7 +55,7 @@ Notifications::Notifications()
 Notifications::~Notifications()
 {
 	delete FActivateAll;
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	delete FMediaObject;
 	delete FAudioOutput;
 #else
@@ -361,7 +361,7 @@ int Notifications::appendNotification(const INotification &ANotification)
 		QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(soundName);
 		if (!soundFile.isEmpty())
 		{
-# ifdef QT_PHONON_LIB
+# ifdef USE_PHONON
 			if (!FMediaObject)
 			{
 				FMediaObject = new Phonon::MediaObject(this);
@@ -634,6 +634,16 @@ int Notifications::notifyIdByWidget(NotifyWidget *AWidget) const
 
 void Notifications::activateAllNotifications(uint kinds)
 {
+	foreach(int notifyId, FNotifyRecords.keys())
+	{
+		const NotifyRecord &record = FNotifyRecords.value(notifyId);
+		if (record.notification.kinds & kinds)
+			activateNotification(notifyId);
+	}
+}
+
+void Notifications::activateFirstNotification(uint kinds)
+{
 	bool chatActivated = false;
 	foreach(int notifyId, FNotifyRecords.keys())
 	{
@@ -795,7 +805,7 @@ void Notifications::onDockClicked()
 			haveUnreadNotifications = true;
 			break;
 		}
-	activateAllNotifications(INotification::DockBadge);
+	activateFirstNotification(INotification::DockBadge);
 	if (!haveUnreadNotifications && FMainWindow)
 		if (!FMainWindow->mainWindow()->instance()->isVisible())
 			FMainWindow->showMainWindow();
