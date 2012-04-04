@@ -4,7 +4,7 @@ win32-msvc2008|macx: {
 	include(../plugins.inc)
 
 	QT    += multimedia
-	USE_PHONON {
+	contains(DEFINES, USE_PHONON) {
 	  QT  += phonon
 	}
 	INCLUDEPATH += ../../thirdparty/siplibraries/SipLib/inc
