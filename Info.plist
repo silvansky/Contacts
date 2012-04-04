@@ -19,12 +19,12 @@
 	<key>NOTE</key>
 	<string>Good news, everyone!</string>
 	<key>CFBundleVersion</key>
-	<string>0.6.3.1518</string>
+	<string>0.6.3.1591</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2010-2011 Rambler Internet Holding LLC.
 All Rights Reserved.</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.6.0</string>
+	<string>10.6.7</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en_US</string>
 	<key>LSApplicationCategoryType</key>
