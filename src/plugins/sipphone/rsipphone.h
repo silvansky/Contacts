@@ -36,7 +36,7 @@ public:
 	void on_call_media_state(pjsua_call_id call_id);
 	void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_event *e);
 
-	pj_status_t on_my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride);
+	pj_status_t on_my_put_frame_callback(int call_id, pjmedia_frame *frame, int w, int h, int stride);
 	pj_status_t on_my_preview_frame_callback(pjmedia_frame *frame, const char*, int w, int h, int stride);
 
 signals:

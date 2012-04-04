@@ -107,9 +107,9 @@ static void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjs
 
 //pj_status_t (*put_frame_callback)(pjmedia_frame *frame, int, int);
 // ПОПОВ. callback ф-ия передающая кадр
-pj_status_t my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
+pj_status_t my_put_frame_callback(int call_id,pjmedia_frame *frame, int w, int h, int stride)
 {
-	return RSipPhone::instance()->on_my_put_frame_callback(frame, w, h, stride);
+	return RSipPhone::instance()->on_my_put_frame_callback(call_id, frame, w, h, stride);
 }
 pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
 {
@@ -695,8 +695,10 @@ pj_status_t RSipPhone::on_my_preview_frame_callback(pjmedia_frame *frame, const 
 	return 0;
 }
 
-pj_status_t RSipPhone::on_my_put_frame_callback(pjmedia_frame *frame, int w, int h, int stride)
+pj_status_t RSipPhone::on_my_put_frame_callback(int call_id, pjmedia_frame *frame, int w, int h, int stride)
 {
+	PJ_UNUSED_ARG(call_id);
+
 //	return 0;
 	if(frame->type != PJMEDIA_FRAME_TYPE_VIDEO)
 		return 0;
