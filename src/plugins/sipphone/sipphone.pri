@@ -1,5 +1,4 @@
 FORMS = 	sipphonewidget.ui\
-		#formIdentity.ui\
 		rcallcontrol.ui\
 		fullscreencontrols.ui\
 		avcontrol.ui\
@@ -8,7 +7,6 @@ FORMS = 	sipphonewidget.ui\
 		contactselector.ui
 
 HEADERS = 	avcontrol.h\ 
-		#callaudio.h\
 		complexvideowidget.h\
 		config.h\
 		CrossDefine.h\
@@ -16,37 +14,32 @@ HEADERS = 	avcontrol.h\
 		fullscreenform.h\
 		qimagelabel.h\
 		rcallcontrol.h\
-		#ridentityform.h\
-		#rsipauthentication.h\
 		rvolumecontrol.h\
 		sipphone.h\
-		#sipphoneproxy.h\
 		sipphonewidget.h\
 		IVolume.h\
 		VolumeOutMaster.h \
 		sipcallnotifyer.h\
 		contactselector.h\
 		rsipphone.h \
-    sipmanager.h \
-    sipcall.h
+		sipmanager.h \
+		sipcall.h \
+    frameconverter.h
 
 SOURCES = 	avcontrol.cpp\ 
-		#callaudio.cpp\
 		complexvideowidget.cpp\
 		CrossDefine.cpp\
 		fullscreencontrols.cpp\
 		fullscreenform.cpp\
 		qimagelabel.cpp\
 		rcallcontrol.cpp\
-		#ridentityform.cpp\
-		#rsipauthentication.cpp\
 		rvolumecontrol.cpp\
 		sipphone.cpp\
-		#sipphoneproxy.cpp\
 		sipphonewidget.cpp\
 		VolumeOutMaster.cpp \
 		sipcallnotifyer.cpp\
 		contactselector.cpp\
 		rsipphone.cpp \
-    sipmanager.cpp \
-    sipcall.cpp
+		sipmanager.cpp \
+		sipcall.cpp \
+    frameconverter.cpp

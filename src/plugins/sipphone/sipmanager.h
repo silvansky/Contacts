@@ -26,7 +26,8 @@ class SipManager :
 	Q_OBJECT
 	Q_INTERFACES(IPlugin ISipManager IStanzaHandler)
 public:
-	explicit SipManager(QObject *parent);
+	SipManager();
+	~SipManager();
 	// IPlugin
 	virtual QObject *instance();
 	virtual QUuid pluginUuid() const;
@@ -40,6 +41,10 @@ public:
 	// calls
 	virtual ISipCall * newCall();
 	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid = Jid::null);
+	// SIP registration
+	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
+	virtual bool registerAtServer(const Jid &AStreamJid, const QString & APassword);
+	virtual bool unregisterAtServer(const Jid &AStreamJid, const QString & APassword);
 	// prices
 	// TODO
 	// devices
@@ -51,16 +56,24 @@ public:
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	// IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
-protected:
-	// SipManager internals
-	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid);
 signals:
 	void sipCallCreated(ISipCall * ACall);
 	void sipCallDestroyed(ISipCall * ACall);
+	void registeredAtServer(const Jid &AStreamJid);
+	void unregisteredAtServer(const Jid &AStreamJid);
+	void failedToRegisterAtServer(const Jid &AStreamJid);
 	void availDevicesChanged(int ADeviceType);
 	void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler);
 	void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler);
-	
+public:
+	// SipManager internals
+	static SipManager * callbackInstance();
+	// pjsip callbacks
+	void onRegState(int acc_id);
+	void onRegState2(int acc_id, void */*pjsua_reg_info **/info);
+	void onIncomingCall(int acc_id, int call_id, void * /*pjsip_rx_data **/rdata);
+protected:
+	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid);
 protected slots:
 	void onCallDestroyed(QObject*);
 private:
@@ -86,6 +99,7 @@ private:
 private:
 	QMap<int, ISipCallHandler*> handlers;
 	QList<ISipCall*> calls;
+	static SipManager * inst;
 	
 };
 

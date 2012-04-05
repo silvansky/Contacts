@@ -11,7 +11,7 @@ class SipCall :
 	Q_OBJECT
 	Q_INTERFACES(ISipCall)
 public:
-	SipCall(CallerRole role = CR_INITIATOR);
+	SipCall(CallerRole role, ISipManager * manager);
 public:
 	// ISipCall
 	virtual QObject *instance();
@@ -39,6 +39,14 @@ public:
 	// SipCall internal
 	void setStreamJid(const Jid & AStreamJid);
 	void setContactJid(const Jid & AContactJid);
+	static SipCall * activeCallForId(int id);
+public:
+	// pjsip callbacks
+	void onCallState(int call_id, /*pjsip_event **/ void *e);
+	void onCallMediaState(int call_id);
+	void onCallTsxState(int call_id, /*pjsip_transaction **/void * tsx, /*pjsip_event **/ void *e);
+	int onMyPutFrameCallback(int call_id, /*pjmedia_frame **/void *frame, int w, int h, int stride);
+	int onMyPreviewFrameCallback(/*pjmedia_frame **/void *frame, const char* colormodelName, int w, int h, int stride);
 signals:
 	void stateChanged(int AState);
 	void DTMFSignalReceived(QChar ASignal);
@@ -54,11 +62,16 @@ private:
 	ErrorCode currentError;
 	CallerRole myRole;
 	quint32 currentCallTime;
+	ISipManager * sipManager;
+	static QMap<int, SipCall*> activeCalls;
 	// i/o devices
 	ISipDevice camera;
 	ISipDevice microphone;
 	ISipDevice videoInput;
 	ISipDevice audioOutput;
+	// pjsip
+	int currentCall;
+	int accountId;
 };
 
 #endif // SIPCALL_H

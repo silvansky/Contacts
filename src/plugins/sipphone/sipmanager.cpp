@@ -11,11 +11,108 @@
 # include <windows.h>
 #endif
 
+#include "frameconverter.h"
+
+////////////////////////////////////////////////////////////
+//                        PJSIP                           //
+////////////////////////////////////////////////////////////
+
+#include <pjsua.h>
+
+static pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata);
+
+/* The module instance. */
+static pjsip_module mod_default_handler =
+{
+	NULL, NULL,				/* prev, next.		*/
+	{ (char*)"mod-default-handler", 19 },	/* Name.		*/
+	-1,					/* Id			*/
+	PJSIP_MOD_PRIORITY_APPLICATION,		/* Priority	        */
+	NULL,					/* load()		*/
+	NULL,					/* start()		*/
+	NULL,					/* stop()		*/
+	NULL,					/* unload()		*/
+	&default_mod_on_rx_request,		/* on_rx_request()	*/
+	NULL,					/* on_rx_response()	*/
+	NULL,					/* on_tx_request.	*/
+	NULL,					/* on_tx_response()	*/
+	NULL,					/* on_tsx_state()	*/
+};
+
+// pjsip callbacks
+
+// callbacks for SipCall
+static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
+{
+	if (SipCall * call = SipCall::activeCallForId(call_id))
+		call->onCallState(call_id, e);
+}
+
+static void on_call_media_state(pjsua_call_id call_id)
+{
+	if (SipCall * call = SipCall::activeCallForId(call_id))
+		call->onCallMediaState(call_id);
+}
+
+static void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_event *e)
+{
+	if (SipCall * call = SipCall::activeCallForId(call_id))
+		call->onCallTsxState(call_id, tsx, e);
+}
+
+static pj_status_t my_put_frame_callback(int call_id, pjmedia_frame *frame, int w, int h, int stride)
+{
+	if (SipCall * call = SipCall::activeCallForId(call_id))
+		return call->onMyPutFrameCallback(call_id, frame, w, h, stride);
+	else
+		return -1;
+}
+
+static pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
+{
+	Q_UNUSED(frame)
+	Q_UNUSED(colormodelName)
+	Q_UNUSED(w)
+	Q_UNUSED(h)
+	Q_UNUSED(stride)
+	//return RSipPhone::instance()->on_my_preview_frame_callback(frame, colormodelName, w, h, stride);
+	// TODO: get here call_id too
+	return -1;
+}
+
+// callbacks for SipManager
+static void on_reg_state(pjsua_acc_id acc_id)
+{
+	SipManager::callbackInstance()->onRegState(acc_id);
+}
+
+static void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
+{
+	SipManager::callbackInstance()->onRegState2(acc_id, info);
+}
+
+static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_rx_data *rdata)
+{
+	SipManager::callbackInstance()->onIncomingCall(acc_id, call_id, rdata);
+}
+
+/**************
+ * SipManager *
+ **************/
+
 #define SHC_SIP_REQUEST "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SIP_PHONE "']"
 
-SipManager::SipManager(QObject *parent) :
-	QObject(parent)
+SipManager * SipManager::inst = NULL; // callback instance
+
+SipManager::SipManager() :
+	QObject(NULL)
 {
+	inst = this;
+}
+
+SipManager::~SipManager()
+{
+	pjsua_destroy();
 }
 
 QObject *SipManager::instance()
@@ -131,7 +228,7 @@ bool SipManager::initObjects()
 		IDiscoFeature sipPhone;
 		sipPhone.active = true;
 		sipPhone.var = NS_RAMBLER_SIP_PHONE;
-		sipPhone.name = tr("SIP Phone");
+		sipPhone.name = tr("SIP Phone 2");
 		sipPhone.description = tr("SIP voice and video calls");
 		FDiscovery->insertDiscoFeature(sipPhone);
 	}
@@ -178,7 +275,7 @@ bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) 
 
 ISipCall *SipManager::newCall()
 {
-	SipCall * call = new SipCall;
+	SipCall * call = new SipCall(ISipCall::CR_INITIATOR, this);
 	connect(call, SIGNAL(destroyed(QObject*)), SLOT(onCallDestroyed(QObject*)));
 	calls << call;
 	return call;
@@ -198,14 +295,40 @@ QList<ISipCall*> SipManager::findCalls(const Jid &AStreamJid)
 	}
 }
 
+bool SipManager::isRegisteredAtServer(const Jid &AStreamJid) const
+{
+	Q_UNUSED(AStreamJid)
+	// TODO: implementation
+	return false;
+}
+
+bool SipManager::registerAtServer(const Jid &AStreamJid, const QString &APassword)
+{
+	Q_UNUSED(AStreamJid)
+	Q_UNUSED(APassword)
+	// TODO: implementation
+	return false;
+}
+
+bool SipManager::unregisterAtServer(const Jid &AStreamJid, const QString &APassword)
+{
+	Q_UNUSED(AStreamJid)
+	Q_UNUSED(APassword)
+	// TODO: implementation
+	return false;
+}
+
 QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType) const
 {
+	Q_UNUSED(AType)
 	// TODO: implementation
 	return QList<ISipDevice>();
 }
 
 ISipDevice SipManager::getDevice(ISipDevice::Type AType, int ADeviceId) const
 {
+	Q_UNUSED(AType)
+	Q_UNUSED(ADeviceId)
 	// TODO: implementation
 	return ISipDevice();
 }
@@ -263,7 +386,7 @@ bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &A
 bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid)
 {
 	// TODO: check availability of answering the call (busy)
-	SipCall * call = new SipCall(ISipCall::CR_RESPONDER);
+	SipCall * call = new SipCall(ISipCall::CR_RESPONDER, this);
 	call->setStreamJid(AStreamJid);
 	call->setContactJid(AContactJid);
 	bool handled = false;
@@ -285,4 +408,30 @@ void SipManager::onCallDestroyed(QObject * object)
 		calls.removeAll(call);
 		emit sipCallDestroyed(call);
 	}
+}
+
+SipManager *SipManager::callbackInstance()
+{
+	return inst;
+}
+
+void SipManager::onRegState(int acc_id)
+{
+	Q_UNUSED(acc_id)
+	// TODO: implementation
+}
+
+void SipManager::onRegState2(int acc_id, void *info)
+{
+	Q_UNUSED(acc_id)
+	Q_UNUSED(info)
+	// TODO: implementation
+}
+
+void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
+{
+	Q_UNUSED(acc_id)
+	Q_UNUSED(call_id)
+	Q_UNUSED(rdata)
+	// TODO: implementation
 }

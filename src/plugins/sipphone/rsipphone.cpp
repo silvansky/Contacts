@@ -119,7 +119,7 @@ pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormod
 
 #define RGB24_LEN(w,h)      ((w) * (h) * 3)
 #define RGB32_LEN(w,h)      ((w) * (h) * 4)
-#define YUV420P_LEN(w,h)    (((w) * (h) * 3) / 2)
+#define YUV420P_LEN(w,h)   (((w) * (h) * 3) / 2)
 #define YUV422P_LEN(w,h)    ((w) * (h) * 2)
 
 // YUV --> RGB Conversion macros
