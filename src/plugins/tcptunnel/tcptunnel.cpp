@@ -42,6 +42,8 @@ bool TcpTunnel::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 	if (plugin)
 		FXmppStreams = qobject_cast<IXmppStreams *>(plugin->instance());
 
+	connect(FPluginManager->instance(),SIGNAL(shutdownStarted()),SLOT(onShutdownStarted()));
+
 	return FStanzaProcessor!=NULL && FGateways!=NULL;
 }
 

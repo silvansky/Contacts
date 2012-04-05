@@ -17,23 +17,8 @@ enum ThreadState {
 
 TunnelThread::TunnelThread(const ConnectRequest &ARequest, QObject *AParent)	: QThread(AParent)
 {
-	FAbort = false;
 	FRequest = ARequest;
 	FThreadState = TS_INIT;
-
-	FProxy.setProtocol(QSsl::AnyProtocol);
-	FProxy.setProxy(ARequest.connectProxy);
-	FProxy.setSocketOption(QSslSocket::KeepAliveOption,true);
-	connect(&FProxy, SIGNAL(readyRead()), SLOT(onProxyReadyRead()));
-	connect(&FProxy, SIGNAL(disconnected()), SLOT(onProxyDisconnected()));
-	connect(&FProxy, SIGNAL(sslErrors(const QList<QSslError> &)), SLOT(onProxySSLErrors(const QList<QSslError> &)));
-
-	FRemote.setProtocol(QSsl::AnyProtocol);
-	FRemote.setProxy(ARequest.connectProxy);
-	FRemote.setSocketOption(QSslSocket::KeepAliveOption,true);
-	connect(&FRemote, SIGNAL(readyRead()), SLOT(onRemoteReadyRead()));
-	connect(&FRemote, SIGNAL(disconnected()), SLOT(onRemoteDisconnected()));
-	connect(&FRemote, SIGNAL(sslErrors(const QList<QSslError> &)), SLOT(onRemoteSSLErrors(const QList<QSslError> &)));
 }
 
 TunnelThread::~TunnelThread()
@@ -43,28 +28,40 @@ TunnelThread::~TunnelThread()
 
 void TunnelThread::abort()
 {
-	FMutex.lock();
-	FAbort = true;
-	FMutex.unlock();
+	quit();
 }
 
 void TunnelThread::run()
 {
+	FProxySocket = new QSslSocket();
+	FProxySocket->setProtocol(QSsl::AnyProtocol);
+	FProxySocket->setProxy(FRequest.connectProxy);
+	FProxySocket->setSocketOption(QSslSocket::KeepAliveOption,true);
+	connect(FProxySocket,SIGNAL(disconnected()),this,SLOT(quit()));
+	connect(FProxySocket,SIGNAL(sslErrors(const QList<QSslError> &)),FProxySocket,SLOT(ignoreSslErrors()));
+
+	FRemoteSocket = new QSslSocket();
+	FRemoteSocket->setProtocol(QSsl::AnyProtocol);
+	FRemoteSocket->setProxy(FRequest.connectProxy);
+	FRemoteSocket->setSocketOption(QSslSocket::KeepAliveOption,true);
+	connect(FRemoteSocket,SIGNAL(disconnected()),this,SLOT(quit()));
+	connect(FRemoteSocket,SIGNAL(sslErrors(const QList<QSslError> &)),FRemoteSocket,SLOT(ignoreSslErrors()));
+
 	FThreadState = TS_PROXY_CONNECT;
 	if (!FRequest.proxyEncrypted)
-		FProxy.connectToHost(FRequest.proxyHost,FRequest.proxyPort);
+		FProxySocket->connectToHost(FRequest.proxyHost,FRequest.proxyPort);
 	else
-		FProxy.connectToHostEncrypted(FRequest.proxyHost,FRequest.proxyPort);
+		FProxySocket->connectToHostEncrypted(FRequest.proxyHost,FRequest.proxyPort);
 
-	if (FProxy.waitForConnected() && (!FRequest.proxyEncrypted || FProxy.waitForEncrypted()))
+	if (FProxySocket->waitForConnected() && (!FRequest.proxyEncrypted || FProxySocket->waitForEncrypted()))
 	{
 		FThreadState = TS_PROXY_GETKEY;
 
 		QStringList elemStack;
 		QXmlStreamReader reader;
-		while(FThreadState==TS_PROXY_GETKEY && FProxy.waitForReadyRead())
+		while(FThreadState==TS_PROXY_GETKEY && FProxySocket->waitForReadyRead())
 		{
-			reader.addData(FProxy.read(FProxy.bytesAvailable()));
+			reader.addData(FProxySocket->read(FProxySocket->bytesAvailable()));
 			while (!reader.atEnd())
 			{
 				QString elemPath = elemStack.join("/");
@@ -99,36 +96,22 @@ void TunnelThread::run()
 		if (FThreadState == TS_REMOTE_CONNECT)
 		{
 			if (!FRequest.remoteEncrypted)
-				FRemote.connectToHost(FRequest.remoteHost,FRequest.remotePort);
+				FRemoteSocket->connectToHost(FRequest.remoteHost,FRequest.remotePort);
 			else
-				FRemote.connectToHostEncrypted(FRequest.remoteHost,FRequest.remotePort);
+				FRemoteSocket->connectToHostEncrypted(FRequest.remoteHost,FRequest.remotePort);
 
-			if (FRemote.waitForConnected() && (!FRequest.remoteEncrypted || FRemote.waitForEncrypted()))
+			if (FRemoteSocket->waitForConnected() && (!FRequest.remoteEncrypted || FRemoteSocket->waitForEncrypted()))
 			{
 				FThreadState = TS_CONNECTED;
+				connect(FProxySocket,SIGNAL(readyRead()),SLOT(onProxyReadyRead()));
+				connect(FRemoteSocket,SIGNAL(readyRead()),SLOT(onRemoteReadyRead()));
 				emit connected(FSessionKey);
+				exec();
 			}
 			else
 			{
 				setErrorCondition("remote-connect-error");
 			}
-		}
-
-		while (FThreadState==TS_CONNECTED && FProxy.state()==QSslSocket::ConnectedState && FRemote.state()==QSslSocket::ConnectedState)
-		{
-			FMutex.lock();
-			FWakeup.wait(&FMutex);
-
-			if (FProxy.bytesAvailable() > 0)
-				FRemote.write(FProxy.read(FProxy.bytesAvailable()));
-
-			if (FRemote.bytesAvailable() > 0)
-				FProxy.write(FRemote.read(FRemote.bytesAvailable()));
-
-			if (FAbort)
-				FThreadState = TS_ABORTING;
-
-			FMutex.unlock();
 		}
 	}
 	else
@@ -137,15 +120,18 @@ void TunnelThread::run()
 	}
 
 	FThreadState = TS_DISCONNECTING;
-	FProxy.disconnectFromHost();
-	if (!FProxy.waitForDisconnected())
-		FProxy.abort();
+	FProxySocket->disconnectFromHost();
+	if (!FProxySocket->waitForDisconnected())
+		FProxySocket->abort();
 
-	FRemote.disconnectFromHost();
-	if (!FRemote.waitForDisconnected())
-		FRemote.abort();
+	FRemoteSocket->disconnectFromHost();
+	if (!FRemoteSocket->waitForDisconnected())
+		FRemoteSocket->abort();
 
 	FThreadState = TS_DISCONNECTED;
+	delete FProxySocket;
+	delete FRemoteSocket;
+
 	emit disconnected(FErrorCondition);
 	deleteLater();
 }
@@ -158,32 +144,12 @@ void TunnelThread::setErrorCondition(const QString &ACondition)
 
 void TunnelThread::onProxyReadyRead()
 {
-	FWakeup.wakeAll();
-}
-
-void TunnelThread::onProxySSLErrors(const QList<QSslError> &AErrors)
-{
-	Q_UNUSED(AErrors);
-	FProxy.ignoreSslErrors();
-}
-
-void TunnelThread::onProxyDisconnected()
-{
-	FWakeup.wakeAll();
+	FRemoteSocket->write(FProxySocket->read(FProxySocket->bytesAvailable()));
+	FRemoteSocket->flush();
 }
 
 void TunnelThread::onRemoteReadyRead()
 {
-	FWakeup.wakeAll();
-}
-
-void TunnelThread::onRemoteSSLErrors(const QList<QSslError> &AErrors)
-{
-	Q_UNUSED(AErrors);
-	FRemote.ignoreSslErrors();
-}
-
-void TunnelThread::onRemoteDisconnected()
-{
-	FWakeup.wakeAll();
+	FProxySocket->write(FRemoteSocket->read(FRemoteSocket->bytesAvailable()));
+	FProxySocket->flush();
 }

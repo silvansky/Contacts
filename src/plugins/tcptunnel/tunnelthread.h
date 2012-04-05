@@ -37,24 +37,15 @@ protected:
 	void setErrorCondition(const QString &ACondition); 
 protected slots:
 	void onProxyReadyRead();
-	void onProxySSLErrors(const QList<QSslError> &AErrors);
-	void onProxyDisconnected();
-protected slots:
 	void onRemoteReadyRead();
-	void onRemoteSSLErrors(const QList<QSslError> &AErrors);
-	void onRemoteDisconnected();
 private:
-	QSslSocket FProxy;
-	QSslSocket FRemote;
-	ConnectRequest FRequest;
-private:
-	bool FAbort;
 	int FThreadState;
 	QString FSessionKey;
 	QString FErrorCondition;
+	ConnectRequest FRequest;
 private:
-	QMutex FMutex;
-	QWaitCondition FWakeup;
+	QSslSocket *FProxySocket;
+	QSslSocket *FRemoteSocket;
 };
 
 #endif // TUNNELTHREAD_H

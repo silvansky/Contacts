@@ -36,7 +36,7 @@ public:
 	virtual bool startPlugin() { return true; }
 	//IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
-protected:
+protected slots:
 	void onShutdownStarted();
 	void onTunnelThreadConnected(const QString &AKey);
 	void onTunnelThreadDisconnected(const QString &ACondition);
