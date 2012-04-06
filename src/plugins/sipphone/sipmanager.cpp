@@ -1,8 +1,9 @@
 #include "sipmanager.h"
 
-#include "pjsipdefines.h"
 #include "sipcall.h"
 #include "frameconverter.h"
+#include "pjsipdefines.h"
+#include "pjsipcallbacks.h"
 
 #include <definitions/namespaces.h>
 #include <definitions/optionwidgetorders.h>
@@ -19,16 +20,7 @@
 # include <QDebug>
 #endif
 
-
-////////////////////////////////////////////////////////////
-//                        PJSIP                           //
-////////////////////////////////////////////////////////////
-
-#include <pjsua.h>
-
-static pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata);
-
-/* The module instance. */
+/* The PJSIP module instance. */
 static pjsip_module mod_default_handler =
 {
 	NULL, NULL,				/* prev, next.		*/
@@ -39,69 +31,12 @@ static pjsip_module mod_default_handler =
 	NULL,					/* start()		*/
 	NULL,					/* stop()		*/
 	NULL,					/* unload()		*/
-	&default_mod_on_rx_request,		/* on_rx_request()	*/
+	NULL,					/* on_rx_request()	*/
 	NULL,					/* on_rx_response()	*/
 	NULL,					/* on_tx_request.	*/
 	NULL,					/* on_tx_response()	*/
 	NULL,					/* on_tsx_state()	*/
 };
-
-// pjsip callbacks
-
-// callbacks for SipCall
-static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
-{
-	if (SipCall * call = SipCall::activeCallForId(call_id))
-		call->onCallState(call_id, e);
-}
-
-static void on_call_media_state(pjsua_call_id call_id)
-{
-	if (SipCall * call = SipCall::activeCallForId(call_id))
-		call->onCallMediaState(call_id);
-}
-
-static void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_event *e)
-{
-	if (SipCall * call = SipCall::activeCallForId(call_id))
-		call->onCallTsxState(call_id, tsx, e);
-}
-
-static pj_status_t my_put_frame_callback(int call_id, pjmedia_frame *frame, int w, int h, int stride)
-{
-	if (SipCall * call = SipCall::activeCallForId(call_id))
-		return call->onMyPutFrameCallback(call_id, frame, w, h, stride);
-	else
-		return -1;
-}
-
-static pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
-{
-	Q_UNUSED(frame)
-	Q_UNUSED(colormodelName)
-	Q_UNUSED(w)
-	Q_UNUSED(h)
-	Q_UNUSED(stride)
-	//return RSipPhone::instance()->on_my_preview_frame_callback(frame, colormodelName, w, h, stride);
-	// TODO: get here call_id too
-	return -1;
-}
-
-// callbacks for SipManager
-static void on_reg_state(pjsua_acc_id acc_id)
-{
-	SipManager::callbackInstance()->onRegState(acc_id);
-}
-
-static void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
-{
-	SipManager::callbackInstance()->onRegState2(acc_id, info);
-}
-
-static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_rx_data *rdata)
-{
-	SipManager::callbackInstance()->onIncomingCall(acc_id, call_id, rdata);
-}
 
 /**************
  * SipManager *
@@ -119,8 +54,7 @@ SipManager::SipManager() :
 #endif
 	inst = this;
 #if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
-	myframe.put_frame_callback = &my_put_frame_callback;
-	myframe.preview_frame_callback = &my_preview_frame_callback;
+	registerFrameCallbacks(myframe);
 #endif
 
 }
@@ -414,6 +348,116 @@ bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJi
 	if (!handled)
 		call->rejectCall(ISipCall::RC_NOHANDLER);
 	return handled;
+}
+
+bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &ASipUser, const QString &ASipPassword)
+{
+	// TODO: new implementation
+	pj_status_t status;
+
+	status = pjsua_create();
+	if (status != PJ_SUCCESS)
+	{
+		return false;
+	}
+
+	pjsua_config ua_cfg;
+	pjsua_config_default(&ua_cfg);
+	pjsua_callback ua_cb;
+	pj_bzero(&ua_cb, sizeof(ua_cb));
+
+	registerCallbacks(ua_cfg.cb);
+
+	ua_cfg.outbound_proxy_cnt = 1;
+
+	char proxyTmp[512];
+	pj_ansi_snprintf(proxyTmp, sizeof(proxyTmp), "sip:%s", ASipServer.toAscii().constData());
+	ua_cfg.outbound_proxy[0] = pj_str((char*)proxyTmp);
+
+	pjsua_logging_config log_cfg;
+	pjsua_logging_config_default(&log_cfg);
+	log_cfg.log_filename = pj_str((char*)"pjsip.log");
+
+	pjsua_media_config med_cfg;
+	pjsua_media_config_default(&med_cfg);
+	med_cfg.thread_cnt = 1;
+
+	status = pjsua_init(&ua_cfg, &log_cfg, &med_cfg);
+	if (status == PJ_SUCCESS)
+	{
+		pjsua_transport_config udp_cfg;
+		pjsua_transport_id udp_id;
+		pjsua_transport_config_default(&udp_cfg);
+		udp_cfg.port = ASipPort;
+
+		status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &udp_cfg, &udp_id);
+		if (status == PJ_SUCCESS)
+		{
+			pjsua_transport_info udp_info;
+			status = pjsua_transport_get_info(udp_id, &udp_info);
+			if (status == PJ_SUCCESS)
+			{
+				// Create account
+				pjsua_acc_config acc_cfg;
+				pjsua_acc_config_default(&acc_cfg);
+
+
+				char idtmp[1024];
+				QString idString = ASipUser.pBare();
+				pj_ansi_snprintf(idtmp, sizeof(idtmp), "sip:%s", idString.toAscii().constData());
+
+				acc_cfg.id = pj_str((char*)idtmp);
+
+				char reg_uritmp[1024];
+				pj_ansi_snprintf(reg_uritmp, sizeof(reg_uritmp), "sip:%s", ASipUser.pDomain().toAscii().constData());
+				acc_cfg.reg_uri = pj_str((char*)reg_uritmp);
+
+				acc_cfg.cred_count = 1;
+				acc_cfg.cred_info[0].realm = pj_str((char*)"*");
+				acc_cfg.cred_info[0].scheme = pj_str((char*)"digest");
+
+				char usernametmp[512];
+				pj_ansi_snprintf(usernametmp, sizeof(usernametmp), "%s", idString.toAscii().constData());
+				acc_cfg.cred_info[0].username = pj_str((char*)usernametmp);
+
+				char passwordtmp[512];
+				pj_ansi_strncpy(passwordtmp, ASipPassword.toAscii().constData(), sizeof(passwordtmp));
+				acc_cfg.cred_info[0].data = pj_str((char*)passwordtmp);
+
+
+				acc_cfg.vid_cap_dev = DEFAULT_CAP_DEV;
+				acc_cfg.vid_rend_dev = DEFAULT_REND_DEV;
+				acc_cfg.vid_in_auto_show = PJ_TRUE;
+				acc_cfg.vid_out_auto_transmit = PJ_TRUE;
+				acc_cfg.register_on_acc_add = PJ_FALSE;
+
+				pjsua_acc_id acc;
+
+				status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &acc);
+				if (status == PJ_SUCCESS)
+				{
+					accountIds.insert(ASipUser, acc);
+					// Start pjsua
+					status = pjsua_start();
+					if (status != PJ_SUCCESS)
+					{
+						/* We want to be registrar too! */
+						if (pjsua_get_pjsip_endpt())
+						{
+							pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
+						}
+
+//						_initialized = true;
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	pjsua_destroy();
+//	_initialized = false;
+	return false;
 }
 
 void SipManager::onCallDestroyed(QObject * object)

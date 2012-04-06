@@ -74,6 +74,7 @@ public:
 	void onIncomingCall(int acc_id, int call_id, void * /*pjsip_rx_data **/rdata);
 protected:
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid);
+	bool initStack(const QString &ASipServer, int ASipPort, const Jid &ASipUser, const QString &ASipPassword);
 protected slots:
 	void onCallDestroyed(QObject*);
 private:
@@ -99,6 +100,7 @@ private:
 private:
 	QMap<int, ISipCallHandler*> handlers;
 	QList<ISipCall*> calls;
+	QMap<Jid, int> accountIds;
 	static SipManager * inst;
 	bool accRegistered;
 };
