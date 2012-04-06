@@ -1,17 +1,24 @@
 #include "sipmanager.h"
 
+#include "pjsipdefines.h"
 #include "sipcall.h"
+#include "frameconverter.h"
+
 #include <definitions/namespaces.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/notificationtypes.h>
 #include <utils/log.h>
+
 #include <QProcess>
 
-#if defined (Q_WS_WIN)
+#if defined(Q_WS_WIN)
 # include <windows.h>
 #endif
 
-#include "frameconverter.h"
+#if defined(DEBUG_ENABLED)
+# include <QDebug>
+#endif
+
 
 ////////////////////////////////////////////////////////////
 //                        PJSIP                           //
@@ -107,7 +114,15 @@ SipManager * SipManager::inst = NULL; // callback instance
 SipManager::SipManager() :
 	QObject(NULL)
 {
+#ifdef DEBUG_ENABLED
+	qDebug() << "SipManager::SipManager()";
+#endif
 	inst = this;
+#if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
+	myframe.put_frame_callback = &my_put_frame_callback;
+	myframe.preview_frame_callback = &my_preview_frame_callback;
+#endif
+
 }
 
 SipManager::~SipManager()
@@ -389,6 +404,7 @@ bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJi
 	SipCall * call = new SipCall(ISipCall::CR_RESPONDER, this);
 	call->setStreamJid(AStreamJid);
 	call->setContactJid(AContactJid);
+	emit sipCallCreated(call);
 	bool handled = false;
 	foreach (ISipCallHandler * handler, handlers.values())
 	{
@@ -418,20 +434,42 @@ SipManager *SipManager::callbackInstance()
 void SipManager::onRegState(int acc_id)
 {
 	Q_UNUSED(acc_id)
-	// TODO: implementation
+	// TODO: new implementation
+	pjsua_acc_info info;
+
+	pjsua_acc_get_info(acc_id, &info);
+
+	accRegistered = (info.status == PJSIP_SC_OK);
+	QString accountId = QString("%1").arg(info.acc_uri.ptr);
+	if (accRegistered)
+		emit registeredAtServer(accountId);
+	else
+		emit failedToRegisterAtServer(accountId);
 }
 
 void SipManager::onRegState2(int acc_id, void *info)
 {
 	Q_UNUSED(acc_id)
-	Q_UNUSED(info)
-	// TODO: implementation
+	// TODO: check this MAGIC implementation
+	int i;
+	i = ((pjsua_reg_info*)info)->cbparam->code;
+	i++;
 }
 
 void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 {
 	Q_UNUSED(acc_id)
-	Q_UNUSED(call_id)
 	Q_UNUSED(rdata)
-	// TODO: implementation
+	// TODO: new implementation
+	if (SipCall::activeCallForId(call_id))
+	{
+		// busy
+		pjsua_call_answer(call_id, PJSIP_SC_BUSY_HERE, NULL, NULL);
+		return;
+	}
+	pjsua_call_info ci;
+	pjsua_call_get_info(call_id, &ci);
+	QString callerId = QString("%s").arg(ci.remote_info.ptr);
+	QString receiverId = QString("%s").arg(ci.local_info.ptr);
+	handleIncomingCall(receiverId, callerId);
 }

@@ -100,7 +100,7 @@ private:
 	QMap<int, ISipCallHandler*> handlers;
 	QList<ISipCall*> calls;
 	static SipManager * inst;
-	
+	bool accRegistered;
 };
 
 #endif // SIPMANAGER_H

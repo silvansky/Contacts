@@ -1,16 +1,15 @@
 #include "sipcall.h"
-#include <QVariant>
-#include <pjsua.h>
-#include <assert.h>
+
+#include "pjsipdefines.h"
+#include "frameconverter.h"
+
 #include <utils/log.h>
 
-// 0 - disable, 1 - enable
-#define HAS_VIDEO_SUPPORT	1
+#include <QVariant>
+#include <QImage>
 
-#define SIP_DOMAIN		"vsip.rambler.ru"
-
-#define DEFAULT_CAP_DEV		PJMEDIA_VID_DEFAULT_CAPTURE_DEV
-#define DEFAULT_REND_DEV	PJMEDIA_VID_DEFAULT_RENDER_DEV
+#include <pjsua.h>
+#include <assert.h>
 
 QMap<int, SipCall*> SipCall::activeCalls;
 
@@ -88,24 +87,43 @@ void SipCall::call(const Jid &AStreamJid, const QList<Jid> &AContacts) const
 			if(status == PJMEDIA_EAUD_NODEFDEV)
 			{
 				//emit signal_DeviceError();
-//				emit signal_InviteStatus(false, 2, tr("Failed to find default audio device"));
+				//				emit signal_InviteStatus(false, 2, tr("Failed to find default audio device"));
 			}
-//			showError("make call", status);
+			//			showError("make call", status);
 			return;
 		}
-//		emit signal_InviteStatus(true, 0, "");
+		//		emit signal_InviteStatus(true, 0, "");
 	}
 }
 
 void SipCall::acceptCall()
 {
-	// TODO: implementation
+	// TODO: check implementation
+	pjsua_call_answer(currentCall, PJSIP_SC_OK, NULL, NULL);
 }
 
 void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 {
-	Q_UNUSED(ACode)
-	// TODO: implementation
+	// TODO: check implementation
+	if (state() == CS_TALKING)
+	{
+		pjsua_call_hangup(currentCall, 0, NULL, NULL);
+	}
+	else if (state() == CS_CALLING)
+	{
+		switch (ACode)
+		{
+		case RC_BUSY:
+			pjsua_call_answer(currentCall, PJSIP_SC_BUSY_HERE, NULL, NULL);
+			break;
+		case RC_BYUSER:
+			pjsua_call_answer(currentCall, PJSIP_SC_DECLINE, NULL, NULL);
+			break;
+		default:
+			pjsua_call_answer(currentCall, PJSIP_SC_NOT_ACCEPTABLE_HERE, NULL, NULL);
+			break;
+		}
+	}
 }
 
 ISipCall::CallState SipCall::state() const
@@ -221,15 +239,63 @@ SipCall *SipCall::activeCallForId(int id)
 
 void SipCall::onCallState(int call_id, void *e)
 {
-	Q_UNUSED(call_id)
 	Q_UNUSED(e)
-	// TODO: implementation
+	// TODO: new implementation
+	pjsua_call_info ci;
+
+	pjsua_call_get_info(call_id, &ci);
+
+	if ( currentCall == -1 && ci.state < PJSIP_INV_STATE_DISCONNECTED && ci.state != PJSIP_INV_STATE_INCOMING)
+	{
+		//		emit signalNewCall(call_id, false);
+	}
+
+
+	if(ci.state == PJSIP_INV_STATE_CONFIRMED)
+	{
+		//emit signalShowSipPhoneWidget(NULL);
+	}
+
+	//char status[80];
+	if (ci.state == PJSIP_INV_STATE_DISCONNECTED)
+	{
+		//		snprintf(status, sizeof(status), "Call is %s (%s)", ci.state_text.ptr, ci.last_status_text.ptr);
+		//		showStatus(status);
+		//		emit signalCallReleased();
+	}
+	else
+	{
+		//		snprintf(status, sizeof(status), "Call is %s", pjsip_inv_state_name(ci.state));
+		//		showStatus(status);
+	}
 }
 
 void SipCall::onCallMediaState(int call_id)
 {
 	Q_UNUSED(call_id)
-	// TODO: implementation
+	// TODO: new implementation
+	pjsua_call_info ci;
+	pjsua_call_get_info(call_id, &ci);
+
+	for (unsigned i=0; i<ci.media_cnt; ++i)
+	{
+		if (ci.media[i].type == PJMEDIA_TYPE_AUDIO)
+		{
+			switch (ci.media[i].status)
+			{
+			case PJSUA_CALL_MEDIA_ACTIVE:
+				pjsua_conf_connect(ci.media[i].stream.aud.conf_slot, 0);
+				pjsua_conf_connect(0, ci.media[i].stream.aud.conf_slot);
+				break;
+			default:
+				break;
+			}
+		}
+		else if (ci.media[i].type == PJMEDIA_TYPE_VIDEO)
+		{
+			//			emit signalInitVideoWindow();
+		}
+	}
 }
 
 void SipCall::onCallTsxState(int call_id, void *tsx, void *e)
@@ -243,11 +309,18 @@ void SipCall::onCallTsxState(int call_id, void *tsx, void *e)
 int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int stride)
 {
 	Q_UNUSED(call_id)
-	Q_UNUSED(frame)
-	Q_UNUSED(w)
-	Q_UNUSED(h)
-	Q_UNUSED(stride)
-	// TODO: implementation
+	// TODO: new implementation
+	pjmedia_frame * _frame = (pjmedia_frame *)frame;
+	if(_frame->type == PJMEDIA_FRAME_TYPE_VIDEO)
+	{
+		int dstSize = w * h * 3;
+		unsigned char * dst = new unsigned char[dstSize];
+
+		FC::YUV420PtoRGB32(w, h, stride, (unsigned char *)_frame->buf, dst, dstSize);
+		QImage remoteImage((uchar*)dst, w, h, QImage::Format_RGB888);
+		// TODO: set image to device
+		Q_UNUSED(remoteImage)
+	}
 	return 0;
 }
 

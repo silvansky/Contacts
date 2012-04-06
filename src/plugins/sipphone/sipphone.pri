@@ -24,7 +24,8 @@ HEADERS = 	avcontrol.h\
 		rsipphone.h \
 		sipmanager.h \
 		sipcall.h \
-    frameconverter.h
+    frameconverter.h \
+    pjsipdefines.h
 
 SOURCES = 	avcontrol.cpp\ 
 		complexvideowidget.cpp\

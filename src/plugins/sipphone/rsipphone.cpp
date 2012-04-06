@@ -765,7 +765,6 @@ void RSipPhone::on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
 	int i;
 	i = info->cbparam->code;
 	i++;
-
 }
 
 void RSipPhone::on_reg_state(pjsua_acc_id acc_id)
@@ -885,7 +884,7 @@ void RSipPhone::on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjs
 	snprintf(status, sizeof(status), "Incoming call from %.*s", (int)ci.remote_info.slen, ci.remote_info.ptr);
 
 	// ВНИМАНИЕ! Автоматически акцептим входящий вызов !!!
-	pjsua_call_answer(call_id, 200, NULL, NULL);
+	pjsua_call_answer(call_id, PJSIP_SC_OK, NULL, NULL);
 
 	//pjsua_call_setting call_setting;
 	//pjsua_call_setting_default(&call_setting);
