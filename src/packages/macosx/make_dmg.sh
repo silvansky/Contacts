@@ -109,5 +109,5 @@ rm -rf $TMP_DIR
 echo "done!"
 
 echo "
-*** Everything done. DMG disk image is ready for distribution.\n
+*** Everything done. DMG disk image is ready for distribution.
 "
