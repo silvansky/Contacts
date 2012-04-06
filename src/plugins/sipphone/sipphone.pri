@@ -25,6 +25,7 @@ HEADERS = 	avcontrol.h\
 		sipmanager.h \
 		sipcall.h \
     frameconverter.h \
+    pjsipdefines.h \
     pjsipdefines.h
 
 SOURCES = 	avcontrol.cpp\ 
