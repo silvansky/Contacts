@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <interfaces/isipphone.h>
+#include <interfaces/istanzaprocessor.h>
 
 class SipCall :
 		public QObject,
@@ -11,21 +12,22 @@ class SipCall :
 	Q_OBJECT
 	Q_INTERFACES(ISipCall)
 public:
-	SipCall(CallerRole role, ISipManager * manager);
+	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor,  const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
+	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &AContacts, const QString &ASessionId);
 public:
 	// ISipCall
 	virtual QObject *instance();
-	virtual QString callId() const;
 	virtual Jid streamJid() const;
 	virtual Jid contactJid() const;
+	virtual QString sessionId() const;
 	virtual QList<Jid> callDestinations() const;
-	virtual void call(const Jid &AStreamJid, const QList<Jid> &AContacts) const;
+	virtual void startCall();
 	virtual void acceptCall();
 	virtual void rejectCall(RejectionCode ACode = RC_BYUSER);
+	virtual CallerRole role() const;
 	virtual CallState state() const;
 	virtual ErrorCode errorCode() const;
 	virtual QString errorString() const;
-	virtual CallerRole role() const;
 	virtual quint32 callTime() const;
 	virtual QString callTimeString() const;
 	virtual bool sendDTMFSignal(QChar ASignal);
@@ -36,11 +38,14 @@ public:
 	virtual bool setDeviceState(ISipDevice::Type AType, DeviceState AState) const;
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty);
 	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
+signals:
+	void stateChanged(int AState);
+	void DTMFSignalReceived(QChar ASignal);
+	void activeDeviceChanged(int ADeviceType);
+	void deviceStateChanged(ISipDevice::Type AType, DeviceState AState);
+	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 public:
 	// SipCall internal
-	void setCallId(const QString &ACallId);
-	void setStreamJid(const Jid & AStreamJid);
-	void setContactJid(const Jid & AContactJid);
 	static SipCall * activeCallForId(int id);
 public:
 	// pjsip callbacks
@@ -49,32 +54,32 @@ public:
 	void onCallTsxState(int call_id, /*pjsip_transaction **/void * tsx, /*pjsip_event **/ void *e);
 	int onMyPutFrameCallback(int call_id, /*pjmedia_frame **/void *frame, int w, int h, int stride);
 	int onMyPreviewFrameCallback(/*pjmedia_frame **/void *frame, const char* colormodelName, int w, int h, int stride);
-signals:
-	void stateChanged(int AState);
-	void DTMFSignalReceived(QChar ASignal);
-	void activeDeviceChanged(int ADeviceType);
-	void deviceStateChanged(ISipDevice::Type AType, DeviceState AState);
-	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
-public slots:
+protected:
+	void sipCallTo(const Jid &AContactJid);
 private:
-	Jid callStreamJid;
-	Jid callContactJid;
-	QString FCallId;
-	QList<Jid> destinations;
-	CallState currentState;
-	ErrorCode currentError;
-	CallerRole myRole;
-	quint32 currentCallTime;
-	ISipManager * sipManager;
-	static QMap<int, SipCall*> activeCalls;
+	ISipManager *FSipManager;
+	IStanzaProcessor *FStanzaProcessor;
+private:
 	// i/o devices
 	ISipDevice camera;
 	ISipDevice microphone;
 	ISipDevice videoInput;
 	ISipDevice audioOutput;
+private:
 	// pjsip
 	int currentCall;
 	int accountId;
+private:
+	Jid FStreamJid;
+	Jid FContactJid;
+	QString FSessionId;
+	CallerRole myRole;
+	QList<Jid> FDestinations;
+	CallState currentState;
+	ErrorCode currentError;
+	quint32 currentCallTime;
+private:
+	static QMap<int, SipCall*> activeCalls;
 };
 
 #endif // SIPCALL_H

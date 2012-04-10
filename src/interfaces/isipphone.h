@@ -153,17 +153,17 @@ public:
 	};
 
 	virtual QObject *instance() = 0;
-	virtual QString callId() const = 0;
 	virtual Jid streamJid() const = 0;
 	virtual Jid contactJid() const = 0;
+	virtual QString sessionId() const = 0;
 	virtual QList<Jid> callDestinations() const = 0;
-	virtual void call(const Jid &AStreamJid, const QList<Jid> &AContacts) const = 0;
+	virtual void startCall() = 0;
 	virtual void acceptCall() = 0;
 	virtual void rejectCall(RejectionCode ACode = RC_BYUSER) = 0;
+	virtual CallerRole role() const = 0;
 	virtual CallState state() const = 0;
 	virtual ErrorCode errorCode() const = 0;
 	virtual QString errorString() const = 0;
-	virtual CallerRole role() const = 0;
 	virtual quint32 callTime() const = 0;
 	virtual QString callTimeString() const = 0;
 	virtual bool sendDTMFSignal(QChar ASignal) = 0;
@@ -194,9 +194,8 @@ public:
 	virtual QObject *instance() = 0;
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const = 0;
 	// calls
-	virtual ISipCall * newCall() = 0;
-	virtual ISipCall *findCall(const QString &ACallId) const =0;
-	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid = Jid::null) = 0;
+	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &AContacts) = 0;
+	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid=Jid::null, const Jid AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const = 0;
 	virtual bool registerAtServer(const Jid &AStreamJid, const QString & APassword) = 0;

@@ -39,9 +39,8 @@ public:
 	// ISipManager
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
 	// calls
-	virtual ISipCall * newCall();
-	virtual ISipCall *findCall(const QString &ACallId) const;
-	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid = Jid::null) const;
+	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &AContacts);
+	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid=Jid::null, const Jid AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
 	virtual bool registerAtServer(const Jid &AStreamJid, const QString & APassword);
@@ -74,26 +73,17 @@ public:
 	void onRegState2(int acc_id, void * /* pjsua_reg_info * */info);
 	void onIncomingCall(int acc_id, int call_id, void * /* pjsip_rx_data * */rdata);
 protected:
-	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ACallId);
+	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 	bool initStack(const QString &ASipServer, int ASipPort, const Jid &ASipUser, const QString &ASipPassword);
 protected slots:
 	void onCallDestroyed(QObject*);
 private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
-	INotifications *FNotifications;
-	IRosterChanger *FRosterChanger;
 	IRostersView *FRostersView;
 	IMetaContacts *FMetaContacts;
-	IMessageProcessor *FMessageProcessor;
-private:
-	QMap<int, QString> FIncomingNotifies;
-	QMap<int, IChatWindow *> FMissedNotifies;
 private:
 	int FSHISipQuery;
-	QMap<QString, QString> FOpenRequests;
-	QMap<QString, QString> FCloseRequests;
-	QMap<QString, QString> FPendingRequests;
 private:
 	QMap<int, ISipCallHandler*> handlers;
 	QList<ISipCall*> calls;
