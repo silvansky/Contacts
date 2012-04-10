@@ -57,40 +57,46 @@ void TunnelThread::run()
 	{
 		FThreadState = TS_PROXY_GETKEY;
 
+		QByteArray readerData;
+		while (!readerData.endsWith('\0') && FProxySocket->waitForReadyRead())
+			readerData += FProxySocket->read(FProxySocket->bytesAvailable());
+
+		if (!readerData.endsWith('\0'))
+			setErrorCondition("proxy-invalid-session-data");
+		else
+			readerData.chop(1);
+
 		QStringList elemStack;
 		QXmlStreamReader reader;
-		while(FThreadState==TS_PROXY_GETKEY && FProxySocket->waitForReadyRead())
+		reader.addData(readerData);
+		while (FThreadState==TS_PROXY_GETKEY && !reader.atEnd() && !reader.hasError())
 		{
-			reader.addData(FProxySocket->read(FProxySocket->bytesAvailable()));
-			while (!reader.atEnd())
+			reader.readNext();
+			QString elemPath = elemStack.join("/");
+			if (reader.isStartElement())
 			{
-				QString elemPath = elemStack.join("/");
-				if (reader.isStartElement())
+				elemStack.append(reader.qualifiedName().toString());
+			}
+			else if (reader.isCharacters())
+			{
+				if (elemPath == "proxy/session-key")
 				{
-					elemStack.append(reader.qualifiedName().toString());
-				}
-				else if (reader.isCharacters())
-				{
-					if (elemPath == "proxy/sessionkey")
-					{
-						FSessionKey = reader.text().toString();
-					}
-				}
-				else if (reader.isEndElement())
-				{
-					elemStack.removeLast();
-				}
-				else if (reader.isEndDocument())
-				{
-					FThreadState = TS_REMOTE_CONNECT;
+					FSessionKey = reader.text().toString();
 				}
 			}
-
-			if (reader.hasError() && reader.error()!=QXmlStreamReader::PrematureEndOfDocumentError)
-				setErrorCondition("proxy-xml-not-well-formed");
+			else if (reader.isEndElement())
+			{
+				elemStack.removeLast();
+			}
+			else if (reader.isEndDocument())
+			{
+				FThreadState = TS_REMOTE_CONNECT;
+			}
 		}
 
-		if (FSessionKey.isEmpty())
+		if (reader.hasError())
+			setErrorCondition("proxy-xml-not-well-formed");
+		else if (FSessionKey.isEmpty())
 			setErrorCondition("proxy-invalid-session-key");
 
 		if (FThreadState == TS_REMOTE_CONNECT)
@@ -121,11 +127,11 @@ void TunnelThread::run()
 
 	FThreadState = TS_DISCONNECTING;
 	FProxySocket->disconnectFromHost();
-	if (!FProxySocket->waitForDisconnected())
+	if (FProxySocket->state()!=QAbstractSocket::UnconnectedState && !FProxySocket->waitForDisconnected())
 		FProxySocket->abort();
 
 	FRemoteSocket->disconnectFromHost();
-	if (!FRemoteSocket->waitForDisconnected())
+	if (FRemoteSocket->state()!=QAbstractSocket::UnconnectedState && !FRemoteSocket->waitForDisconnected())
 		FRemoteSocket->abort();
 
 	FThreadState = TS_DISCONNECTED;
@@ -138,8 +144,11 @@ void TunnelThread::run()
 
 void TunnelThread::setErrorCondition(const QString &ACondition)
 {
-	FThreadState = TS_ERROR;
-	FErrorCondition = ACondition;
+	if (FErrorCondition.isEmpty())
+	{
+		FThreadState = TS_ERROR;
+		FErrorCondition = ACondition;
+	}
 }
 
 void TunnelThread::onProxyReadyRead()

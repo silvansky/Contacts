@@ -138,7 +138,7 @@ void TcpTunnel::onTunnelThreadConnected(const QString &AKey)
 		Stanza request = FRequests.take(tunnel);
 		Stanza result = FStanzaProcessor->makeReplyResult(request);
 		QDomElement connectElem = result.addElement("connect",NS_RAMBLER_TCPTUNNEL_CONNECT);
-		connectElem.appendChild(result.createElement("sessionkey")).appendChild(result.createTextNode(AKey));
+		connectElem.appendChild(result.createElement("session-key")).appendChild(result.createTextNode(AKey));
 		if (FStanzaProcessor->sendStanzaOut(request.to(),result))
 		{
 			LogDetail(QString("[TcpTunnel][%1] TCP tunnel established with key=%2, id=%3").arg(request.to(),AKey,request.id()));
