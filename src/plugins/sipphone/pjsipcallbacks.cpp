@@ -1,7 +1,7 @@
 #include "pjsipcallbacks.h"
 
-#include <sipmanager.h>
-#include <sipcall.h>
+#include "sipmanager.h"
+#include "sipcall.h"
 
 #include <pjsua.h>
 

@@ -40,7 +40,8 @@ public:
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
 	// calls
 	virtual ISipCall * newCall();
-	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid = Jid::null);
+	virtual ISipCall *findCall(const QString &ACallId) const;
+	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid = Jid::null) const;
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
 	virtual bool registerAtServer(const Jid &AStreamJid, const QString & APassword);
@@ -70,30 +71,26 @@ public:
 	static SipManager * callbackInstance();
 	// pjsip callbacks
 	void onRegState(int acc_id);
-	void onRegState2(int acc_id, void */*pjsua_reg_info **/info);
-	void onIncomingCall(int acc_id, int call_id, void * /*pjsip_rx_data **/rdata);
+	void onRegState2(int acc_id, void * /* pjsua_reg_info * */info);
+	void onIncomingCall(int acc_id, int call_id, void * /* pjsip_rx_data * */rdata);
 protected:
-	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid);
+	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ACallId);
 	bool initStack(const QString &ASipServer, int ASipPort, const Jid &ASipUser, const QString &ASipPassword);
 protected slots:
 	void onCallDestroyed(QObject*);
 private:
-	IGateways *FGateways;
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
 	INotifications *FNotifications;
 	IRosterChanger *FRosterChanger;
 	IRostersView *FRostersView;
 	IMetaContacts *FMetaContacts;
-	IPresencePlugin *FPresencePlugin;
-	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
-	IMessageStyles *FMessageStyles;
 private:
 	QMap<int, QString> FIncomingNotifies;
 	QMap<int, IChatWindow *> FMissedNotifies;
 private:
-	int FSHISipRequest;
+	int FSHISipQuery;
 	QMap<QString, QString> FOpenRequests;
 	QMap<QString, QString> FCloseRequests;
 	QMap<QString, QString> FPendingRequests;

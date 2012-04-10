@@ -153,6 +153,7 @@ public:
 	};
 
 	virtual QObject *instance() = 0;
+	virtual QString callId() const = 0;
 	virtual Jid streamJid() const = 0;
 	virtual Jid contactJid() const = 0;
 	virtual QList<Jid> callDestinations() const = 0;
@@ -194,6 +195,7 @@ public:
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const = 0;
 	// calls
 	virtual ISipCall * newCall() = 0;
+	virtual ISipCall *findCall(const QString &ACallId) const =0;
 	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid = Jid::null) = 0;
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const = 0;

@@ -9,6 +9,7 @@
 #include <definitions/optionwidgetorders.h>
 #include <definitions/notificationtypes.h>
 #include <utils/log.h>
+#include <utils/errorhandler.h>
 
 #include <QProcess>
 
@@ -42,13 +43,21 @@ static pjsip_module mod_default_handler =
  * SipManager *
  **************/
 
-#define SHC_SIP_REQUEST "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SIP_PHONE "']"
+#define SHC_SIP_QUERY "/iq[@type='set']/query[@type='request'][@xmlns='" NS_RAMBLER_PHONE "']"
 
 SipManager * SipManager::inst = NULL; // callback instance
 
 SipManager::SipManager() :
 	QObject(NULL)
 {
+	FDiscovery = NULL;
+	FMetaContacts = NULL;
+	FStanzaProcessor = NULL;
+	FMessageProcessor = NULL;
+	FNotifications = NULL;
+
+	FSHISipQuery = -1;
+
 #ifdef DEBUG_ENABLED
 	qDebug() << "SipManager::SipManager()";
 #endif
@@ -92,17 +101,9 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
-	if (plugin)
-		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
-
 	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
-
-	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
-	if (plugin)
-		FGateways = qobject_cast<IGateways *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
 	if (plugin)
@@ -119,10 +120,6 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 		}
 	}
 
-	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
-	if (plugin)
-		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
-
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
 	{
@@ -137,10 +134,6 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)));
 		}
 	}
-
-	plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
-	if (plugin)
-		FPresencePlugin = qobject_cast<IPresencePlugin *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
 	if (plugin)
@@ -161,10 +154,6 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 		connect(plugin->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onXmppStreamClosed(IXmppStream *)));
 	}
 
-	plugin = APluginManager->pluginInterface("IMessageStyles").value(0,NULL);
-	if (plugin)
-		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
-
 	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
 
 	return FStanzaProcessor!=NULL;
@@ -176,7 +165,7 @@ bool SipManager::initObjects()
 	{
 		IDiscoFeature sipPhone;
 		sipPhone.active = true;
-		sipPhone.var = NS_RAMBLER_SIP_PHONE;
+		sipPhone.var = NS_RAMBLER_PHONE;
 		sipPhone.name = tr("SIP Phone 2");
 		sipPhone.description = tr("SIP voice and video calls");
 		FDiscovery->insertDiscoFeature(sipPhone);
@@ -187,8 +176,8 @@ bool SipManager::initObjects()
 		shandle.handler = this;
 		shandle.order = SHO_DEFAULT;
 		shandle.direction = IStanzaHandle::DirectionIn;
-		shandle.conditions.append(SHC_SIP_REQUEST);
-		FSHISipRequest = FStanzaProcessor->insertStanzaHandle(shandle);
+		shandle.conditions.append(SHC_SIP_QUERY);
+		FSHISipQuery = FStanzaProcessor->insertStanzaHandle(shandle);
 	}
 	if (FNotifications)
 	{
@@ -219,7 +208,7 @@ bool SipManager::startPlugin()
 
 bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	return FDiscovery && FDiscovery->discoInfo(AStreamJid, AContactJid).features.contains(NS_RAMBLER_SIP_PHONE);
+	return FDiscovery && FDiscovery->discoInfo(AStreamJid, AContactJid).features.contains(NS_RAMBLER_PHONE);
 }
 
 ISipCall *SipManager::newCall()
@@ -230,10 +219,20 @@ ISipCall *SipManager::newCall()
 	return call;
 }
 
-QList<ISipCall*> SipManager::findCalls(const Jid &AStreamJid)
+ISipCall *SipManager::findCall(const QString &ACallId) const
+{
+	foreach (ISipCall * call, calls)
+		if (call->callId() == ACallId)
+			return call;
+	return NULL;
+}
+
+QList<ISipCall*> SipManager::findCalls(const Jid &AStreamJid) const
 {
 	if (AStreamJid == Jid::null)
+	{
 		return calls;
+	}
 	else
 	{
 		QList<ISipCall*> found;
@@ -317,36 +316,60 @@ void SipManager::removeSipCallHandler(int AOrder, ISipCallHandler *AHandler)
 
 bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
 {
-	if (FSHISipRequest == AHandleId)
+	if (FSHISipQuery == AHandleId)
 	{
-		QDomElement actionElem = AStanza.firstElement("query",NS_RAMBLER_SIP_PHONE).firstChildElement();
-		QString sid = actionElem.attribute("sid");
-		if (actionElem.tagName() == "open")
+		AAccept = true;
+		QDomElement queryElem = AStanza.firstElement("query",NS_RAMBLER_PHONE);
+		QString id = queryElem.attribute("sid");
+		if (findCall(id) == NULL)
 		{
-			AAccept = true;
-			LogDetail(QString("[SipManager]: Incoming call from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
-
-			handleIncomingCall(AStreamJid, AStanza.from());
+			if (handleIncomingCall(AStreamJid, AStanza.from(), id))
+			{
+				LogDetail(QString("[SipManager]: Incoming call from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
+				FStanzaProcessor->sendStanzaOut(AStreamJid,result);
+			}
+			else
+			{
+				LogError(QString("[SipManager]: Failed to handle incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				ErrorHandler err(ErrorHandler::UNEXPECTED_REQUEST);
+				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
+				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
+			}
+		}
+		else
+		{
+			LogError(QString("[SipManager]: Duplicated sid in incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+			ErrorHandler err(ErrorHandler::CONFLICT);
+			Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
+			FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 		}
 	}
 	return false;
 }
 
-bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid)
+bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ACallId)
 {
-	// TODO: check availability of answering the call (busy)
+	// TODO: check availability of answering the call (busy) <- handler should do this
 	SipCall * call = new SipCall(ISipCall::CR_RESPONDER, this);
+	call->setCallId(ACallId);
 	call->setStreamJid(AStreamJid);
 	call->setContactJid(AContactJid);
 	emit sipCallCreated(call);
+
 	bool handled = false;
 	foreach (ISipCallHandler * handler, handlers.values())
 	{
 		if (handled = handler->checkCall(call))
 			break;
 	}
+	
 	if (!handled)
+	{
 		call->rejectCall(ISipCall::RC_NOHANDLER);
+		call->deleteLater();
+	}
+
 	return handled;
 }
 
@@ -515,5 +538,5 @@ void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 	pjsua_call_get_info(call_id, &ci);
 	QString callerId = QString("%s").arg(ci.remote_info.ptr);
 	QString receiverId = QString("%s").arg(ci.local_info.ptr);
-	handleIncomingCall(receiverId, callerId);
+	handleIncomingCall(receiverId, callerId, QUuid::createUuid().toString());
 }

@@ -15,6 +15,7 @@ public:
 public:
 	// ISipCall
 	virtual QObject *instance();
+	virtual QString callId() const;
 	virtual Jid streamJid() const;
 	virtual Jid contactJid() const;
 	virtual QList<Jid> callDestinations() const;
@@ -37,6 +38,7 @@ public:
 	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 public:
 	// SipCall internal
+	void setCallId(const QString &ACallId);
 	void setStreamJid(const Jid & AStreamJid);
 	void setContactJid(const Jid & AContactJid);
 	static SipCall * activeCallForId(int id);
@@ -57,6 +59,7 @@ public slots:
 private:
 	Jid callStreamJid;
 	Jid callContactJid;
+	QString FCallId;
 	QList<Jid> destinations;
 	CallState currentState;
 	ErrorCode currentError;

@@ -28,6 +28,11 @@ QObject *SipCall::instance()
 	return this;
 }
 
+QString SipCall::callId() const
+{
+	return FCallId;
+}
+
 Jid SipCall::streamJid() const
 {
 	return callStreamJid;
@@ -220,6 +225,11 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 	Q_UNUSED(AValue)
 	// TODO: implementation
 	return true;
+}
+
+void SipCall::setCallId(const QString &ACallId)
+{
+	FCallId = ACallId;
 }
 
 void SipCall::setStreamJid(const Jid &AStreamJid)

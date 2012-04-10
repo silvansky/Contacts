@@ -15,7 +15,7 @@
 #include "contactselector.h"
 #include "sipcallnotifyer.h"
 
-#define SHC_SIP_REQUEST "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SIP_PHONE "']"
+#define SHC_SIP_QUERY "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_PHONE "']"
 
 #define ADR_STREAM_JID    Action::DR_StreamJid
 #define ADR_CONTACT_JID   Action::DR_Parametr1
@@ -174,7 +174,7 @@ bool SipPhone::initObjects()
 	{
 		IDiscoFeature sipPhone;
 		sipPhone.active = true;
-		sipPhone.var = NS_RAMBLER_SIP_PHONE;
+		sipPhone.var = NS_RAMBLER_PHONE;
 		sipPhone.name = tr("SIP Phone");
 		sipPhone.description = tr("SIP voice and video calls");
 		FDiscovery->insertDiscoFeature(sipPhone);
@@ -185,7 +185,7 @@ bool SipPhone::initObjects()
 		shandle.handler = this;
 		shandle.order = SHO_DEFAULT;
 		shandle.direction = IStanzaHandle::DirectionIn;
-		shandle.conditions.append(SHC_SIP_REQUEST);
+		shandle.conditions.append(SHC_SIP_QUERY);
 		FSHISipRequest = FStanzaProcessor->insertStanzaHandle(shandle);
 	}
 	if (FNotifications)
@@ -560,7 +560,7 @@ bool SipPhone::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASt
 {
 	if (FSHISipRequest == AHandleId)
 	{
-		QDomElement actionElem = AStanza.firstElement("query",NS_RAMBLER_SIP_PHONE).firstChildElement();
+		QDomElement actionElem = AStanza.firstElement("query",NS_RAMBLER_PHONE).firstChildElement();
 		QString sid = actionElem.attribute("sid");
 		if (actionElem.tagName() == "open")
 		{
@@ -619,7 +619,7 @@ void SipPhone::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 	if (FOpenRequests.contains(AStanza.id()))
 	{
 		QString sid = FOpenRequests.take(AStanza.id());
-		QDomElement actionElem = AStanza.firstElement("query",NS_RAMBLER_SIP_PHONE).firstChildElement();
+		QDomElement actionElem = AStanza.firstElement("query",NS_RAMBLER_PHONE).firstChildElement();
 		if (AStanza.type() == "result")
 		{
 			if (actionElem.tagName()=="opened" && actionElem.attribute("sid")==sid)
@@ -708,7 +708,7 @@ void SipPhone::onStreamCreated(const QString& sid)
 
 bool SipPhone::isSupported(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	return FDiscovery==NULL || FDiscovery->discoInfo(AStreamJid, AContactJid).features.contains(NS_RAMBLER_SIP_PHONE);
+	return FDiscovery==NULL || FDiscovery->discoInfo(AStreamJid, AContactJid).features.contains(NS_RAMBLER_PHONE);
 }
 
 bool SipPhone::isSupported(const Jid &AStreamJid, const QString &AMetaId) const
@@ -1021,7 +1021,7 @@ void SipPhone::sipActionAfterRegistrationAsInitiator(bool ARegistrationResult/*,
 
 		Stanza open("iq");
 		open.setType("set").setId(FStanzaProcessor->newId()).setTo(AContactJid.eFull());
-		QDomElement openElem = open.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(open.createElement("open")).toElement();
+		QDomElement openElem = open.addElement("query",NS_RAMBLER_PHONE).appendChild(open.createElement("open")).toElement();
 
 		openElem.setAttribute("sid",sid);
 
@@ -1105,7 +1105,7 @@ void SipPhone::sipActionAfterRegistrationAsResponder(bool ARegistrationResult/*,
 
 		Stanza opened("iq");
 		opened.setType("result").setId(FPendingRequests.value(sid)).setTo(stream.contactJid.eFull());
-		QDomElement openedElem = opened.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(opened.createElement("opened")).toElement();
+		QDomElement openedElem = opened.addElement("query",NS_RAMBLER_PHONE).appendChild(opened.createElement("opened")).toElement();
 		openedElem.setAttribute("sid",sid);
 
 		// Открываем вкладку контакта
@@ -1148,12 +1148,12 @@ void SipPhone::closeStream(const QString &AStreamId)
 			if (isResult)
 			{
 				close.setType("result").setId(FPendingRequests.value(AStreamId)).setTo(stream.contactJid.eFull());
-				closeElem = close.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(close.createElement("closed")).toElement();
+				closeElem = close.addElement("query",NS_RAMBLER_PHONE).appendChild(close.createElement("closed")).toElement();
 			}
 			else
 			{
 				close.setType("set").setId(FStanzaProcessor->newId()).setTo(stream.contactJid.eFull());
-				closeElem = close.addElement("query",NS_RAMBLER_SIP_PHONE).appendChild(close.createElement("close")).toElement();
+				closeElem = close.addElement("query",NS_RAMBLER_PHONE).appendChild(close.createElement("close")).toElement();
 			}
 			closeElem.setAttribute("sid",stream.sid);
 
