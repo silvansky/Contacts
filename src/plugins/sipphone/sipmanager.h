@@ -75,6 +75,7 @@ public:
 protected:
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 	bool initStack(const QString &ASipServer, int ASipPort, const Jid &ASipUser, const QString &ASipPassword);
+	void setRegistration(const Jid & AStreamJid, bool ARenew);
 protected slots:
 	void onCallDestroyed(QObject*);
 private:

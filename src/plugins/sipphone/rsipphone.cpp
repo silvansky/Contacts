@@ -973,11 +973,10 @@ void RSipPhone::updateCallerName()
 
 bool RSipPhone::sendVideo(bool isSending)
 {
-	pjsua_call_setting call_setting;
-
 	if(!_initialized || _currentCall == -1)
 		return false;
 
+	pjsua_call_setting call_setting;
 	pjsua_call_setting_default(&call_setting);
 	call_setting.vid_cnt = isSending ? 1 : 0;
 	//call_setting.vid_cnt = 0;

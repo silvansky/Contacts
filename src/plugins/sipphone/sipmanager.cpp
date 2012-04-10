@@ -333,7 +333,7 @@ bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJi
 	bool handled = false;
 	foreach (ISipCallHandler * handler, handlers.values())
 	{
-		if (handled = handler->checkCall(call))
+		if ((handled = handler->checkCall(call)))
 			break;
 	}
 	
@@ -433,27 +433,58 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 				if (status == PJ_SUCCESS)
 				{
 					accountIds.insert(ASipUser, acc);
-					// Start pjsua
 					status = pjsua_start();
 					if (status != PJ_SUCCESS)
 					{
-						/* We want to be registrar too! */
 						if (pjsua_get_pjsip_endpt())
 						{
+							registerModuleCallbacks(mod_default_handler);
 							pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
+							return true;
+						} // pjsua_get_pjsip_endpt
+						else
+						{
+							LogError("[SipManager::initStack]: pjsua_get_pjsip_endpt() failed!");
 						}
-
-//						_initialized = true;
-						return true;
+					} // pjsua_start
+					else
+					{
+						LogError("[SipManager::initStack]: pjsua_start() failed!");
 					}
+				} // pjsua_acc_add
+				else
+				{
+					LogError("[SipManager::initStack]: pjsua_acc_add() failed!");
 				}
+			} // pjsua_transport_get_info
+			else
+			{
+				LogError("[SipManager::initStack]: pjsua_transport_get_info() failed!");
 			}
+		} // pjsua_transport_create
+		else
+		{
+			LogError("[SipManager::initStack]: pjsua_transport_create() failed!");
 		}
+	} // pjsua_init
+	else
+	{
+		LogError("[SipManager::initStack]: pjsua_init() failed!");
 	}
 
+	LogError("[SipManager::initStack]: calling pjsua_destroy()...");
+
 	pjsua_destroy();
-//	_initialized = false;
 	return false;
+}
+
+void SipManager::setRegistration(const Jid & AStreamJid, bool ARenew)
+{
+	int acc = accountIds.value(AStreamJid, -1);
+	if (acc != -1)
+		pjsua_acc_set_registration(acc, ARenew);
+	else
+		LogError(QString("[SipManager::setRegistration]: invalid stream jid - %1").arg(AStreamJid.full()));
 }
 
 void SipManager::onCallDestroyed(QObject * object)

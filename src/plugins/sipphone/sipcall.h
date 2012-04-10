@@ -46,6 +46,7 @@ signals:
 	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 public:
 	// SipCall internal
+public:
 	static SipCall * activeCallForId(int id);
 public:
 	// pjsip callbacks
