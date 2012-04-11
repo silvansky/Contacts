@@ -31,7 +31,7 @@ public:
 	virtual CallState state() const;
 	virtual ErrorCode errorCode() const;
 	virtual QString errorString() const;
-	virtual quint32 callTime() const;
+	virtual quint32 callTime() const; // in seconds
 	virtual QString callTimeString() const;
 	virtual bool sendDTMFSignal(QChar ASignal);
 	// devices
@@ -101,7 +101,6 @@ private:
 	QList<Jid> FDestinations;
 	CallState currentState;
 	ErrorCode currentError;
-	quint32 currentCallTime; // in seconds
 	QDateTime FStartCallTime;
 private:
 	int FSHICallAccept;

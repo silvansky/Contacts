@@ -165,7 +165,7 @@ public:
 	virtual CallState state() const = 0;
 	virtual ErrorCode errorCode() const = 0;
 	virtual QString errorString() const = 0;
-	virtual quint32 callTime() const = 0;
+	virtual quint32 callTime() const = 0; // in seconds
 	virtual QString callTimeString() const = 0;
 	virtual bool sendDTMFSignal(QChar ASignal) = 0;
 	// devices

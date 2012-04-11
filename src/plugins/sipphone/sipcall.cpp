@@ -192,43 +192,32 @@ ISipCall::ErrorCode SipCall::errorCode() const
 
 QString SipCall::errorString() const
 {
-	// TODO: put here correct strings
-//	switch (errorCode())
-//	{
-//	case EC_NONE:
-//		return tr("No error");
-//		break;
-//	case EC_BUSY:
-//		return tr("Busy");
-//		break;
-//	case EC_NOTAVAIL:
-//		return tr("Not available");
-//		break;
-//	case EC_NOANSWER:
-//		return tr("No answer");
-//		break;
-//	case EC_REJECTED:
-//		return tr("Call rejected");
-//		break;
-//	case EC_CONNECTIONERR:
-//		return tr("Connection error");
-//		break;
-//	default:
-//		return tr("Unknown error");
-//		break;
-//	}
 	return FErrorString;
 }
 
 quint32 SipCall::callTime() const
 {
-	return FStartCallTime.isValid() ? qAbs(FStartCallTime.secsTo(QDateTime::currentDateTime())) : 0;
+	if (FCallId != -1)
+	{
+		pjsua_call_info ci;
+		pjsua_call_get_info(FCallId, &ci);
+		return ci.connect_duration.sec;
+		//return FStartCallTime.isValid() ? qAbs(FStartCallTime.secsTo(QDateTime::currentDateTime())) : 0;
+	}
+	else
+		return 0;
 }
 
 QString SipCall::callTimeString() const
 {
-	QTime t;
-	t.addSecs(currentCallTime);
+	QTime t(0, 0, 0, 0);
+	if (FCallId != -1)
+	{
+		pjsua_call_info ci;
+		pjsua_call_get_info(FCallId, &ci);
+		t.addSecs(ci.connect_duration.sec);
+		t.addMSecs(ci.connect_duration.msec);
+	}
 	return t.toString("hh:mm:ss");
 }
 
