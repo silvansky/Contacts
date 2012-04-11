@@ -1,22 +1,25 @@
 #ifndef SIPCALL_H
 #define SIPCALL_H
 
-#include <QObject>
+#include <QMap>
+#include <QTimer>
 #include <interfaces/isipphone.h>
 #include <interfaces/istanzaprocessor.h>
 
 class SipCall :
 		public QObject,
-		public ISipCall
+		public ISipCall,
+		public IStanzaHandler,
+		public IStanzaRequestOwner
 {
-	Q_OBJECT
-	Q_INTERFACES(ISipCall)
+	Q_OBJECT;
+	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner);
 public:
 	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor,  const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
-	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &AContacts, const QString &ASessionId);
-public:
-	// ISipCall
+	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId);
+	~SipCall();
 	virtual QObject *instance();
+	// ISipCall
 	virtual Jid streamJid() const;
 	virtual Jid contactJid() const;
 	virtual QString sessionId() const;
@@ -45,9 +48,16 @@ signals:
 	void deviceStateChanged(ISipDevice::Type AType, DeviceState AState);
 	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 public:
-	// SipCall internal
+	// IStanzaRequestOwner
+	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
+	// IStanzaHandler
+	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 public:
-	static SipCall * activeCallForId(int id);
+	// SipCall internal
+	int callId() const;
+	int accountId() const;
+	void setCallParams(int AAccountId, int ACallId);
+	static SipCall *findCallById(int ACallId);
 public:
 	// pjsip callbacks
 	void onCallState(int call_id, /*pjsip_event **/ void *e);
@@ -56,7 +66,13 @@ public:
 	int onMyPutFrameCallback(int call_id, /*pjmedia_frame **/void *frame, int w, int h, int stride);
 	int onMyPreviewFrameCallback(/*pjmedia_frame **/void *frame, const char* colormodelName, int w, int h, int stride);
 protected:
+	void setCallState(CallState AState);
+	void setCallError(ErrorCode ACode, const QString &AMessage);
+	void continueAfterRegistration(bool ARegistered);
+	void notifyActiveDestinations(const QString &AType);
 	void sipCallTo(const Jid &AContactJid);
+protected slots: 
+	void onRingTimerTimeout();
 private:
 	ISipManager *FSipManager;
 	IStanzaProcessor *FStanzaProcessor;
@@ -68,19 +84,26 @@ private:
 	ISipDevice audioOutput;
 private:
 	// pjsip
-	int currentCall;
-	int accountId;
+	int FCallId;
+	int FAccountId;
 private:
 	Jid FStreamJid;
 	Jid FContactJid;
 	QString FSessionId;
-	CallerRole myRole;
+	CallerRole FRole;
+	CallState FState;
+	ErrorCode FErrorCode;
+	QString FErrorString;
 	QList<Jid> FDestinations;
-	CallState currentState;
-	ErrorCode currentError;
-	quint32 currentCallTime;
+	QDateTime FStartCallTime;
 private:
-	static QMap<int, SipCall*> activeCalls;
+	int FSHICallAccept;
+	QTimer FRingTimer;
+	Stanza FAcceptStanza;
+	QList<Jid> FActiveDestinations;
+	QMap<QString,Jid> FCallRequests;
+private:
+	static QList<SipCall *> FCallInstances;
 };
 
 #endif // SIPCALL_H

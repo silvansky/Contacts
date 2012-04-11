@@ -189,7 +189,7 @@ ISipCall *SipManager::newCall(const Jid &AStreamJid, const QList<Jid> &AContacts
 	return call;
 }
 
-QList<ISipCall*> SipManager::findCalls(const Jid & AStreamJid, const Jid AContactJid, const QString &ASessionId) const
+QList<ISipCall*> SipManager::findCalls(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId) const
 {
 	QList<ISipCall*> found;
 	foreach (ISipCall *call, calls)
@@ -285,40 +285,44 @@ bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &A
 	{
 		AAccept = true;
 		QDomElement queryElem = AStanza.firstElement("query",NS_RAMBLER_PHONE);
-		QString sessionId = queryElem.attribute("sid");
-		if (sessionId.isEmpty())
+		QString type = queryElem.attribute("type");
+		if (type == "request")
 		{
-			LogError(QString("[SipManager]: Invalid incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
-			ErrorHandler err(ErrorHandler::BAD_REQUEST);
-			Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
-			FStanzaProcessor->sendStanzaOut(AStreamJid,error);
-		}
-		else if (!findCalls(Jid::null,Jid::null,sessionId).isEmpty())
-		{
-			LogError(QString("[SipManager]: Duplicated sessionID in incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
-			ErrorHandler err(ErrorHandler::CONFLICT);
-			Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
-			FStanzaProcessor->sendStanzaOut(AStreamJid,error);
-		}
-		else if (!findCalls(Jid::null,AStanza.from()).isEmpty())
-		{
-			LogError(QString("[SipManager]: Duplicated incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
-			ErrorHandler err(ErrorHandler::FORBIDDEN);
-			Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
-			FStanzaProcessor->sendStanzaOut(AStreamJid,error);
-		}
-		else if (!handleIncomingCall(AStreamJid, AStanza.from(), sessionId))
-		{
-			LogError(QString("[SipManager]: Failed to handle incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
-			ErrorHandler err(ErrorHandler::UNEXPECTED_REQUEST);
-			Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
-			FStanzaProcessor->sendStanzaOut(AStreamJid,error);
-		}
-		else
-		{
-			LogDetail(QString("[SipManager]: Incoming call from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
-			Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
-			FStanzaProcessor->sendStanzaOut(AStreamJid,result);
+			QString sessionId = queryElem.attribute("sid");
+			if (sessionId.isEmpty())
+			{
+				LogError(QString("[SipManager]: Invalid incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				ErrorHandler err(ErrorHandler::BAD_REQUEST);
+				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
+				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
+			}
+			else if (!findCalls(Jid::null,Jid::null,sessionId).isEmpty())
+			{
+				LogError(QString("[SipManager]: Duplicated sessionID in incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				ErrorHandler err(ErrorHandler::CONFLICT);
+				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
+				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
+			}
+			else if (!findCalls(Jid::null,AStanza.from()).isEmpty())
+			{
+				LogError(QString("[SipManager]: Duplicated incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				ErrorHandler err(ErrorHandler::FORBIDDEN);
+				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
+				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
+			}
+			else if (!handleIncomingCall(AStreamJid, AStanza.from(), sessionId))
+			{
+				LogError(QString("[SipManager]: Failed to handle incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				ErrorHandler err(ErrorHandler::UNEXPECTED_REQUEST);
+				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
+				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
+			}
+			else
+			{
+				LogDetail(QString("[SipManager]: Incoming call from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
+				FStanzaProcessor->sendStanzaOut(AStreamJid,result);
+			}
 		}
 	}
 	return false;

@@ -195,7 +195,7 @@ public:
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const = 0;
 	// calls
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &AContacts) = 0;
-	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid=Jid::null, const Jid AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
+	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const = 0;
 	virtual bool registerAtServer(const Jid &AStreamJid, const QString & APassword) = 0;

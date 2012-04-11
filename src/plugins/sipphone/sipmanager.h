@@ -40,7 +40,7 @@ public:
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
 	// calls
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &AContacts);
-	virtual QList<ISipCall*> findCalls(const Jid & AStreamJid=Jid::null, const Jid AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
+	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
 	virtual bool registerAtServer(const Jid &AStreamJid, const QString & APassword);
@@ -67,7 +67,8 @@ signals:
 	void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler);
 public:
 	// SipManager internals
-	static SipManager * callbackInstance();
+	static SipManager *callbackInstance();
+public:
 	// pjsip callbacks
 	void onRegState(int acc_id);
 	void onRegState2(int acc_id, void * /* pjsua_reg_info * */info);

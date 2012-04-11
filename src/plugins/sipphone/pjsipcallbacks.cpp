@@ -8,25 +8,25 @@
 // callbacks for SipCall
 static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
 {
-	if (SipCall * call = SipCall::activeCallForId(call_id))
+	if (SipCall * call = SipCall::findCallById(call_id))
 		call->onCallState(call_id, e);
 }
 
 static void on_call_media_state(pjsua_call_id call_id)
 {
-	if (SipCall * call = SipCall::activeCallForId(call_id))
+	if (SipCall * call = SipCall::findCallById(call_id))
 		call->onCallMediaState(call_id);
 }
 
 static void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_event *e)
 {
-	if (SipCall * call = SipCall::activeCallForId(call_id))
+	if (SipCall * call = SipCall::findCallById(call_id))
 		call->onCallTsxState(call_id, tsx, e);
 }
 
 static pj_status_t my_put_frame_callback(int call_id, pjmedia_frame *frame, int w, int h, int stride)
 {
-	if (SipCall * call = SipCall::activeCallForId(call_id))
+	if (SipCall * call = SipCall::findCallById(call_id))
 		return call->onMyPutFrameCallback(call_id, frame, w, h, stride);
 	else
 		return -1;
