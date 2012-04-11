@@ -109,8 +109,8 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
 		if(FMetaContacts)
 		{
-			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow*)), SLOT(onMetaTabWindowCreated(IMetaTabWindow*)));
-			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowDestroyed(IMetaTabWindow*)), SLOT(onMetaTabWindowDestroyed(IMetaTabWindow*)));
+//			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow*)), SLOT(onMetaTabWindowCreated(IMetaTabWindow*)));
+//			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowDestroyed(IMetaTabWindow*)), SLOT(onMetaTabWindowDestroyed(IMetaTabWindow*)));
 		}
 	}
 
@@ -122,22 +122,22 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 		if (rostersViewPlugin)
 		{
 			FRostersView = rostersViewPlugin->rostersView();
-			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
-				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
-			connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)),
-				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)));
+//			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
+//				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
+//			connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)),
+//				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)));
 		}
 	}
 
 	plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
 	if (plugin)
 	{
-		connect(plugin->instance(), SIGNAL(opened(IXmppStream *)), SLOT(onXmppStreamOpened(IXmppStream *)));
-		connect(plugin->instance(), SIGNAL(aboutToClose(IXmppStream *)), SLOT(onXmppStreamAboutToClose(IXmppStream *)));
-		connect(plugin->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onXmppStreamClosed(IXmppStream *)));
+//		connect(plugin->instance(), SIGNAL(opened(IXmppStream *)), SLOT(onXmppStreamOpened(IXmppStream *)));
+//		connect(plugin->instance(), SIGNAL(aboutToClose(IXmppStream *)), SLOT(onXmppStreamAboutToClose(IXmppStream *)));
+//		connect(plugin->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onXmppStreamClosed(IXmppStream *)));
 	}
 
-	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
+//	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
 
 	return FStanzaProcessor!=NULL;
 }
@@ -210,24 +210,19 @@ QList<ISipCall*> SipManager::findCalls(const Jid &AStreamJid, const Jid &AContac
 
 bool SipManager::isRegisteredAtServer(const Jid &AStreamJid) const
 {
-	Q_UNUSED(AStreamJid)
-	// TODO: implementation
-	return false;
+	return accountIds.value(AStreamJid, -1) != -1;
 }
 
 bool SipManager::registerAtServer(const Jid &AStreamJid, const QString &APassword)
 {
-	Q_UNUSED(AStreamJid)
-	Q_UNUSED(APassword)
-	// TODO: implementation
-	return false;
+	// TODO: check implementation
+	return initStack(SIP_DOMAIN, SIP_PORT, AStreamJid, APassword);
 }
 
-bool SipManager::unregisterAtServer(const Jid &AStreamJid, const QString &APassword)
+bool SipManager::unregisterAtServer(const Jid &AStreamJid)
 {
-	Q_UNUSED(AStreamJid)
-	Q_UNUSED(APassword)
-	// TODO: implementation
+	// TODO: check implementation
+	setRegistration(AStreamJid, false);
 	return false;
 }
 
@@ -358,6 +353,7 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 	status = pjsua_create();
 	if (status != PJ_SUCCESS)
 	{
+		LogError(QString("[SipManager::initStack]: Failed to create pjsua! pjsua_crete() returned %1").arg(status));
 		return false;
 	}
 
@@ -448,32 +444,32 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 						} // pjsua_get_pjsip_endpt
 						else
 						{
-							LogError("[SipManager::initStack]: pjsua_get_pjsip_endpt() failed!");
+							LogError("[SipManager::initStack]: pjsua_get_pjsip_endpt() invalid!");
 						}
 					} // pjsua_start
 					else
 					{
-						LogError("[SipManager::initStack]: pjsua_start() failed!");
+						LogError(QString("[SipManager::initStack]: pjsua_start() failed with status %1!").arg(status));
 					}
 				} // pjsua_acc_add
 				else
 				{
-					LogError("[SipManager::initStack]: pjsua_acc_add() failed!");
+					LogError(QString("[SipManager::initStack]: pjsua_acc_add() failed with status %1!").arg(status));
 				}
 			} // pjsua_transport_get_info
 			else
 			{
-				LogError("[SipManager::initStack]: pjsua_transport_get_info() failed!");
+				LogError(QString("[SipManager::initStack]: pjsua_transport_get_info() failed with status %1!").arg(status));
 			}
 		} // pjsua_transport_create
 		else
 		{
-			LogError("[SipManager::initStack]: pjsua_transport_create() failed!");
+			LogError(QString("[SipManager::initStack]: pjsua_transport_create() failed with status %1!").arg(status));
 		}
 	} // pjsua_init
 	else
 	{
-		LogError("[SipManager::initStack]: pjsua_init() failed!");
+		LogError(QString("[SipManager::initStack]: pjsua_init() failed with status %1!").arg(status));
 	}
 
 	LogError("[SipManager::initStack]: calling pjsua_destroy()...");
@@ -488,7 +484,7 @@ void SipManager::setRegistration(const Jid & AStreamJid, bool ARenew)
 	if (acc != -1)
 		pjsua_acc_set_registration(acc, ARenew);
 	else
-		LogError(QString("[SipManager::setRegistration]: invalid stream jid - %1").arg(AStreamJid.full()));
+		LogError(QString("[SipManager::setRegistration]: Invalid stream jid - %1").arg(AStreamJid.full()));
 }
 
 void SipManager::onCallDestroyed(QObject * object)
@@ -562,3 +558,5 @@ void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 	//QString receiverId = QString("%s").arg(ci.local_info.ptr);
 	//handleIncomingCall(receiverId, callerId, QUuid::createUuid().toString());
 }
+
+Q_EXPORT_PLUGIN2(plg_sipmanager, SipManager)

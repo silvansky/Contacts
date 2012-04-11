@@ -44,8 +44,8 @@ public:
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
 	virtual bool registerAtServer(const Jid &AStreamJid, const QString & APassword);
-	virtual bool unregisterAtServer(const Jid &AStreamJid, const QString & APassword);
-	// prices
+	virtual bool unregisterAtServer(const Jid &AStreamJid);
+	// prices/balance
 	// TODO
 	// devices
 	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const;

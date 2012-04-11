@@ -77,24 +77,25 @@ struct ISipDevice
 
 	enum CameraProperty
 	{
-		CP_CURRENTFRAME, /* QPixmap, readonly */
-		CP_RESOLUTION,   /* QSize */
-		CP_BRIGHTNESS    /* float */
+		CP_CURRENTFRAME,		/* QPixmap, readonly */
+		CP_AVAIL_RESOLUTIONS,   /* QList<QSize> */
+		CP_RESOLUTION,			/* QSize */
+		CP_BRIGHTNESS			/* float */
 	};
 
 	enum VideoInProperty
 	{
-		VP_CURRENTFRAME  /* QPixmap, readonly */
+		VP_CURRENTFRAME			/* QPixmap, readonly */
 	};
 
 	enum MicrophoneProperty
 	{
-		MP_VOLUME        /* float */
+		MP_VOLUME				/* float */
 	};
 
 	enum AudioOutProperty
 	{
-		AP_VOLUME        /* float */
+		AP_VOLUME				/* float */
 	};
 
 	ISipDevice()
@@ -171,8 +172,8 @@ public:
 	virtual ISipDevice activeDevice(ISipDevice::Type AType) const = 0;
 	virtual bool setActiveDevice(ISipDevice::Type AType, int ADeviceId) = 0;
 	virtual DeviceState deviceState(ISipDevice::Type AType) const = 0;
-	virtual bool setDeviceState(ISipDevice::Type AType, DeviceState AState) const = 0;
-	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) = 0;
+	virtual bool setDeviceState(ISipDevice::Type AType, DeviceState AState) = 0;
+	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const = 0;
 	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue) = 0;
 protected:
 	virtual void stateChanged(int AState) = 0;
@@ -199,8 +200,8 @@ public:
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const = 0;
 	virtual bool registerAtServer(const Jid &AStreamJid, const QString & APassword) = 0;
-	virtual bool unregisterAtServer(const Jid &AStreamJid, const QString & APassword) = 0;
-	// prices
+	virtual bool unregisterAtServer(const Jid &AStreamJid) = 0;
+	// prices/balance
 	// TODO
 	// devices
 	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const = 0;

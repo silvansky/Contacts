@@ -12,8 +12,8 @@ class SipCall :
 		public IStanzaHandler,
 		public IStanzaRequestOwner
 {
-	Q_OBJECT;
-	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner);
+	Q_OBJECT
+	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner)
 public:
 	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor,  const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId);
@@ -38,8 +38,8 @@ public:
 	virtual ISipDevice activeDevice(ISipDevice::Type AType) const;
 	virtual bool setActiveDevice(ISipDevice::Type AType, int ADeviceId);
 	virtual DeviceState deviceState(ISipDevice::Type AType) const;
-	virtual bool setDeviceState(ISipDevice::Type AType, DeviceState AState) const;
-	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty);
+	virtual bool setDeviceState(ISipDevice::Type AType, DeviceState AState);
+	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const;
 	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 signals:
 	void stateChanged(int AState);
@@ -79,9 +79,13 @@ private:
 private:
 	// i/o devices
 	ISipDevice camera;
+	DeviceState cameraState;
 	ISipDevice microphone;
+	DeviceState microphoneState;
 	ISipDevice videoInput;
+	DeviceState videoInputState;
 	ISipDevice audioOutput;
+	DeviceState audioOutputState;
 private:
 	// pjsip
 	int FCallId;
@@ -95,6 +99,9 @@ private:
 	ErrorCode FErrorCode;
 	QString FErrorString;
 	QList<Jid> FDestinations;
+	CallState currentState;
+	ErrorCode currentError;
+	quint32 currentCallTime; // in seconds
 	QDateTime FStartCallTime;
 private:
 	int FSHICallAccept;

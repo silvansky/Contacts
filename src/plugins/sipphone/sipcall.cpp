@@ -192,6 +192,31 @@ ISipCall::ErrorCode SipCall::errorCode() const
 
 QString SipCall::errorString() const
 {
+	// TODO: put here correct strings
+//	switch (errorCode())
+//	{
+//	case EC_NONE:
+//		return tr("No error");
+//		break;
+//	case EC_BUSY:
+//		return tr("Busy");
+//		break;
+//	case EC_NOTAVAIL:
+//		return tr("Not available");
+//		break;
+//	case EC_NOANSWER:
+//		return tr("No answer");
+//		break;
+//	case EC_REJECTED:
+//		return tr("Call rejected");
+//		break;
+//	case EC_CONNECTIONERR:
+//		return tr("Connection error");
+//		break;
+//	default:
+//		return tr("Unknown error");
+//		break;
+//	}
 	return FErrorString;
 }
 
@@ -202,14 +227,32 @@ quint32 SipCall::callTime() const
 
 QString SipCall::callTimeString() const
 {
-	// TODO: implementation
-	return QString::null;
+	QTime t;
+	t.addSecs(currentCallTime);
+	return t.toString("hh:mm:ss");
 }
 
 bool SipCall::sendDTMFSignal(QChar ASignal)
 {
-	Q_UNUSED(ASignal)
-	// TODO: implementation
+	pj_status_t status;
+	pj_str_t digits;
+	char digits_tmp[128];
+
+	if (FCallId == -1)
+	{
+		LogError(QString("[SipCall::sendDTMFSignal]: Failed to send \'%1\' DTMF signal due to inactive call.").arg(ASignal));
+		return false;
+	}
+	QString tmpStr = QString("%1").arg(ASignal);
+
+	pj_ansi_strncpy(digits_tmp, tmpStr.toAscii().constData(), sizeof(digits_tmp));
+
+	digits = pj_str(digits_tmp);
+	status = pjsua_call_dial_dtmf(FCallId, &digits);
+	if(status != PJ_SUCCESS)
+	{
+		LogError(QString("[SipCall::sendDTMFSignal]: Failed to send DTMF \'%1\', pjsua_call_dial_dtmf() returned status %2 ").arg(ASignal).arg(status));
+	}
 	return true;
 }
 
@@ -232,10 +275,32 @@ ISipDevice SipCall::activeDevice(ISipDevice::Type AType) const
 
 bool SipCall::setActiveDevice(ISipDevice::Type AType, int ADeviceId)
 {
-	Q_UNUSED(AType)
-	Q_UNUSED(ADeviceId)
-	// TODO: implementation
-	return true;
+	bool deviceFound = true;
+	ISipDevice d = FSipManager->getDevice(AType, ADeviceId);
+	if ((deviceFound = (d.id != -1)))
+	{
+		switch (AType)
+		{
+		case ISipDevice::DT_CAMERA:
+			camera = d;
+			break;
+		case ISipDevice::DT_MICROPHONE:
+			microphone = d;
+			break;
+		case ISipDevice::DT_AUDIO_OUT:
+			audioOutput = d;
+			break;
+		case ISipDevice::DT_VIDEO_IN:
+			videoInput = d;
+			break;
+		default:
+			deviceFound = false;
+			break;
+		}
+		if (deviceFound)
+			emit activeDeviceChanged(AType);
+	}
+	return deviceFound;
 }
 
 ISipCall::DeviceState SipCall::deviceState(ISipDevice::Type AType) const
@@ -245,15 +310,58 @@ ISipCall::DeviceState SipCall::deviceState(ISipDevice::Type AType) const
 	return DS_ENABLED;
 }
 
-bool SipCall::setDeviceState(ISipDevice::Type AType, ISipCall::DeviceState AState) const
+bool SipCall::setDeviceState(ISipDevice::Type AType, ISipCall::DeviceState AState)
 {
-	Q_UNUSED(AType)
-	Q_UNUSED(AState)
-	// TODO: implementation
-	return true;
+	// TODO: complete implementation
+	bool status = false;
+	bool stateChanged = false;
+
+	switch (AType)
+	{
+	case ISipDevice::DT_CAMERA:
+	{
+		if (AState != cameraState)
+		{
+			pjsua_call_setting call_setting;
+			pjsua_call_setting_default(&call_setting);
+			call_setting.vid_cnt = (AState == DS_ENABLED) ? 1 : 0;
+			pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
+			if ((status = (pjstatus == PJ_SUCCESS)))
+			{
+				stateChanged = true;
+			}
+			else
+			{
+				LogError(QString("[SipCall::setDeviceState]: Camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+			}
+
+		}
+		break;
+	}
+	case ISipDevice::DT_MICROPHONE:
+	{
+		break;
+	}
+	case ISipDevice::DT_VIDEO_IN:
+	{
+		break;
+	}
+	case ISipDevice::DT_AUDIO_OUT:
+	{
+		break;
+	}
+	default:
+		status = false;
+		break;
+	}
+
+	if (stateChanged)
+		emit deviceStateChanged(AType, AState);
+
+	return status;
 }
 
-QVariant SipCall::deviceProperty(ISipDevice::Type AType, int AProperty)
+QVariant SipCall::deviceProperty(ISipDevice::Type AType, int AProperty) const
 {
 	Q_UNUSED(AType)
 	Q_UNUSED(AProperty)
@@ -627,40 +735,52 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 		pj_ansi_sprintf(uriTmp, "sip:%s", uriToCall);
 		pj_str_t uri = pj_str((char*)uriTmp);
 
-		pj_assert(FCallId == -1);
+		if (FCallId == -1)
+		{
+			pjsua_call_setting call_setting;
+			pjsua_call_setting_default(&call_setting);
 
-		pjsua_call_setting call_setting;
-		pjsua_call_setting_default(&call_setting);
+
+			if (AContactJid.domain() == PHONE_TRANSPORT_DOMAIN)
+			{
+				call_setting.vid_cnt = 0;
+			}
+			else
+			{
 
 #if defined(HAS_VIDEO_SUPPORT)
-		call_setting.vid_cnt = HAS_VIDEO_SUPPORT;
+				call_setting.vid_cnt = HAS_VIDEO_SUPPORT;
 #else
-		call_setting.vid_cnt = 0;
+				call_setting.vid_cnt = 0;
 #endif
-		//call_setting.vid_cnt = 0;//(vidEnabled_->checkState()==Qt::Checked);
-		call_setting.aud_cnt = 1;
-
-		// NULL SOUND
-		//int capture_dev = -99;
-		//int playback_dev = -99;
-		//pjsua_get_snd_dev(&capture_dev, &playback_dev);
-		//status = pjsua_set_null_snd_dev();
-		//pjsua_set_snd_dev(-99, playback_dev);
-
-		pjsua_call_id id = FCallId;
-		status = pjsua_call_make_call(FAccountId, &uri, &call_setting, NULL, NULL, &id);
-		//status = PJMEDIA_EAUD_NODEFDEV;
-		if (status != PJ_SUCCESS)
-		{
-			if(status == PJMEDIA_EAUD_NODEFDEV)
-			{
-				//emit signal_DeviceError();
-				//				emit signal_InviteStatus(false, 2, tr("Failed to find default audio device"));
+				call_setting.aud_cnt = 1;
 			}
-			//			showError("make call", status);
-			return;
+
+			pjsua_call_id id = -1;
+			status = pjsua_call_make_call(FAccountId, &uri, &call_setting, NULL, NULL, &id);
+			FCallId = id;
+			if (status != PJ_SUCCESS)
+			{
+				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status %1").arg(status));
+				if (status == PJMEDIA_EAUD_NODEFDEV)
+				{
+					LogError(QString("[SipCall::sipCallTo]: Default device not found!"));
+					//emit signal_DeviceError();
+					//				emit signal_InviteStatus(false, 2, tr("Failed to find default audio device"));
+				}
+				//			showError("make call", status);
+				//return;
+			}
+			//		emit signal_InviteStatus(true, 0, "");
 		}
-		//		emit signal_InviteStatus(true, 0, "");
+		else
+		{
+			LogError(QString("[SipCall::sipCallTo]: Call is already active with stream jid %1 and contact %2").arg(streamJid().full(), contactJid().full()));
+		}
+	}
+	else
+	{
+		LogError(QString("[SipCall::sipCallTo]: Stream jid %1 isn\'t registered at server!").arg(streamJid().full()));
 	}
 }
 

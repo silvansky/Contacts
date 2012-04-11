@@ -1679,4 +1679,4 @@ Jid SipPhone::getContactWithPresence(const Jid &AStreamJid, const QString &AMeta
 	return Jid::null;
 }
 
-Q_EXPORT_PLUGIN2(plg_sipphone, SipPhone)
+//Q_EXPORT_PLUGIN2(plg_sipphone, SipPhone)
