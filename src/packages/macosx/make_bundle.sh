@@ -172,6 +172,7 @@ for i in $(ls $APPNAME/Contents/PlugIns/); do
 	patchFile Plugins/$i QtWebKit 4
 	patchFile Plugins/$i QtXml 4
 	patchFile Plugins/$i QtXmlPatterns 4
+	patchFile Plugins/$i QtDBus 4
 	patchFile Plugins/$i phonon 4
 	patchFile Plugins/$i Growl A
 	patchFile Plugins/$i Sparkle A
