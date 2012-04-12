@@ -14,8 +14,10 @@ class SipCall :
 {
 	Q_OBJECT
 	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner)
+private:
+	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId);
 public:
-	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor,  const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
+	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId);
 	~SipCall();
 	virtual QObject *instance();
@@ -73,6 +75,9 @@ protected:
 	void sipCallTo(const Jid &AContactJid);
 protected slots: 
 	void onRingTimerTimeout();
+	void onRegisteredAtServer(const Jid & AStreamJid);
+	void onUnRegisteredAtServer(const Jid & AStreamJid);
+	void onRegistraitionAtServerFailed(const Jid & AStreamJid);
 private:
 	ISipManager *FSipManager;
 	IStanzaProcessor *FStanzaProcessor;

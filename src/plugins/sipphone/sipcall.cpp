@@ -19,23 +19,30 @@
 
 QList<SipCall *> SipCall::FCallInstances;
 
-SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
+void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId)
 {
-	FSipManager = ASipManager;
+	FSipManager = AManager;
+	connect(FSipManager->instance(), SIGNAL(registeredAtServer(const Jid &)), SLOT(onRegisteredAtServer(const Jid &)));
+	connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const Jid &)), SLOT(onUnRegisteredAtServer(const Jid &)));
+	connect(FSipManager->instance(), SIGNAL(registrationAtServerFailed(const Jid &)), SLOT(onRegistraitionAtServerFailed(const Jid &)));
 	FStanzaProcessor = AStanzaProcessor;
 
 	FSessionId = ASessionId;
 	FStreamJid = AStreamJid;
-	FContactJid = AContactJid;
-	
 	FCallId = -1;
 	FAccountId = -1;
-	FRole = CR_RESPONDER;
-	FState = CS_NONE;
-	FErrorCode = EC_NONE;
-
 	FSHICallAccept = -1;
 	FCallInstances.append(this);
+	FState = CS_NONE;
+	FErrorCode = EC_NONE;
+}
+
+SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
+{
+	init(ASipManager, AStanzaProcessor, AStreamJid, ASessionId);
+	FContactJid = AContactJid;
+	
+	FRole = CR_RESPONDER;
 
 	FRingTimer.setSingleShot(true);
 	connect(&FRingTimer,SIGNAL(timeout()),SLOT(onRingTimerTimeout()));
@@ -45,21 +52,10 @@ SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, c
 
 SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId)
 {
-	FSipManager = ASipManager;
-	FStanzaProcessor = AStanzaProcessor;
-
-	FSessionId = ASessionId;
-	FStreamJid = AStreamJid;
+	init(ASipManager, AStanzaProcessor, AStreamJid, ASessionId);
 	FDestinations = ADestinations;
 
-	FCallId = -1;
-	FAccountId = -1;
 	FRole = CR_INITIATOR;
-	FState = CS_NONE;
-	FErrorCode = EC_NONE;
-
-	FSHICallAccept = -1;
-	FCallInstances.append(this);
 
 	LogDetail(QString("[SipCall] Call created as INITIATOR sid='%1'").arg(sessionId()));
 }
@@ -792,4 +788,22 @@ void SipCall::onRingTimerTimeout()
 			setCallError(EC_NOANSWER,tr("Call was not accepted too long"));
 		}
 	}
+}
+
+void SipCall::onRegisteredAtServer(const Jid &AStreamJid)
+{
+	Q_UNUSED(AStreamJid)
+	// TODO: implementation
+}
+
+void SipCall::onUnRegisteredAtServer(const Jid &AStreamJid)
+{
+	Q_UNUSED(AStreamJid)
+	// TODO: implementation
+}
+
+void SipCall::onRegistraitionAtServerFailed(const Jid &AStreamJid)
+{
+	Q_UNUSED(AStreamJid)
+	// TODO: implementation
 }

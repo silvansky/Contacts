@@ -5,6 +5,8 @@
 #include "pjsipdefines.h"
 #include "pjsipcallbacks.h"
 
+#include "testcallwidget.h"
+
 #include <definitions/namespaces.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/notificationtypes.h>
@@ -117,7 +119,6 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
 	{
-
 		IRostersViewPlugin *rostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
 		if (rostersViewPlugin)
 		{
@@ -132,9 +133,13 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 	plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
 	if (plugin)
 	{
-//		connect(plugin->instance(), SIGNAL(opened(IXmppStream *)), SLOT(onXmppStreamOpened(IXmppStream *)));
-//		connect(plugin->instance(), SIGNAL(aboutToClose(IXmppStream *)), SLOT(onXmppStreamAboutToClose(IXmppStream *)));
-//		connect(plugin->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onXmppStreamClosed(IXmppStream *)));
+		FXmppStreams = qobject_cast<IXmppStreams*>(plugin->instance());
+		if (FXmppStreams)
+		{
+			connect(FXmppStreams->instance(), SIGNAL(opened(IXmppStream *)), SLOT(onXmppStreamOpened(IXmppStream *)));
+			connect(FXmppStreams->instance(), SIGNAL(aboutToClose(IXmppStream *)), SLOT(onXmppStreamAboutToClose(IXmppStream *)));
+			connect(FXmppStreams->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onXmppStreamClosed(IXmppStream *)));
+		}
 	}
 
 //	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
@@ -213,10 +218,10 @@ bool SipManager::isRegisteredAtServer(const Jid &AStreamJid) const
 	return accountIds.value(AStreamJid, -1) != -1;
 }
 
-bool SipManager::registerAtServer(const Jid &AStreamJid, const QString &APassword)
+bool SipManager::registerAtServer(const Jid &AStreamJid)
 {
 	// TODO: check implementation
-	return initStack(SIP_DOMAIN, SIP_PORT, AStreamJid, APassword);
+	return initStack(SIP_DOMAIN, SIP_PORT, AStreamJid, FXmppStreams->xmppStream(AStreamJid)->password());
 }
 
 bool SipManager::unregisterAtServer(const Jid &AStreamJid)
@@ -497,6 +502,29 @@ void SipManager::onCallDestroyed(QObject * object)
 	}
 }
 
+void SipManager::onXmppStreamOpened(IXmppStream *stream)
+{
+	TestCallWidget * w = new TestCallWidget(this, stream->streamJid());
+	testCallWidgets.insert(stream->streamJid(), w);
+	w->show();
+}
+
+void SipManager::onXmppStreamAboutToClose(IXmppStream *stream)
+{
+	TestCallWidget * w = testCallWidgets.value(stream->streamJid(), NULL);
+	if (w)
+	{
+		w->hide();
+		testCallWidgets.remove(stream->streamJid());
+		w->deleteLater();
+	}
+}
+
+void SipManager::onXmppStreamClosed(IXmppStream *stream)
+{
+	Q_UNUSED(stream)
+}
+
 SipManager *SipManager::callbackInstance()
 {
 	return inst;
@@ -515,7 +543,7 @@ void SipManager::onRegState(int acc_id)
 	if (accRegistered)
 		emit registeredAtServer(accountId);
 	else
-		emit failedToRegisterAtServer(accountId);
+		emit registrationAtServerFailed(accountId);
 }
 
 void SipManager::onRegState2(int acc_id, void *info)

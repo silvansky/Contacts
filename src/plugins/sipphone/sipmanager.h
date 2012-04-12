@@ -17,6 +17,8 @@
 #include <interfaces/irosterchanger.h>
 #include <interfaces/imessagestyles.h>
 
+class TestCallWidget;
+
 class SipManager :
 		public QObject,
 		public IPlugin,
@@ -43,7 +45,7 @@ public:
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
-	virtual bool registerAtServer(const Jid &AStreamJid, const QString & APassword);
+	virtual bool registerAtServer(const Jid &AStreamJid);
 	virtual bool unregisterAtServer(const Jid &AStreamJid);
 	// prices/balance
 	// TODO
@@ -61,7 +63,7 @@ signals:
 	void sipCallDestroyed(ISipCall * ACall);
 	void registeredAtServer(const Jid &AStreamJid);
 	void unregisteredAtServer(const Jid &AStreamJid);
-	void failedToRegisterAtServer(const Jid &AStreamJid);
+	void registrationAtServerFailed(const Jid &AStreamJid);
 	void availDevicesChanged(int ADeviceType);
 	void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler);
 	void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler);
@@ -79,17 +81,22 @@ protected:
 	void setRegistration(const Jid & AStreamJid, bool ARenew);
 protected slots:
 	void onCallDestroyed(QObject*);
+	void onXmppStreamOpened(IXmppStream * stream);
+	void onXmppStreamAboutToClose(IXmppStream * stream);
+	void onXmppStreamClosed(IXmppStream * stream);
 private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
 	IRostersView *FRostersView;
 	IMetaContacts *FMetaContacts;
+	IXmppStreams *FXmppStreams;
 private:
 	int FSHISipQuery;
 private:
 	QMap<int, ISipCallHandler*> handlers;
 	QList<ISipCall*> calls;
 	QMap<Jid, int> accountIds;
+	QMap<Jid, TestCallWidget*> testCallWidgets;
 	static SipManager * inst;
 	bool accRegistered;
 };
