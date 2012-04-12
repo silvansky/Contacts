@@ -202,10 +202,8 @@ quint32 SipCall::callTime() const
 		pjsua_call_info ci;
 		pjsua_call_get_info(FCallId, &ci);
 		return ci.connect_duration.sec;
-		//return FStartCallTime.isValid() ? qAbs(FStartCallTime.secsTo(QDateTime::currentDateTime())) : 0;
 	}
-	else
-		return 0;
+	return 0;
 }
 
 QString SipCall::callTimeString() const
@@ -408,6 +406,7 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 	{
 		bool sendResult = true;
 		QString type = AStanza.firstElement("query",NS_RAMBLER_PHONE).attribute("type");
+		LogDetail(QString("[SipCall] Action stanza received with type='%1' from='%2', sid='%3'").arg(type,AStanza.from(),sessionId()));
 		if (role()==CR_INITIATOR && FActiveDestinations.contains(AStanza.from()))
 		{
 			AAccept = true;
@@ -626,10 +625,6 @@ void SipCall::setCallState(CallState AState)
 		{
 			// TODO: Register on sip server and then call continueAfterRegistration
 		}
-		else if (AState == CS_TALKING)
-		{
-			FStartCallTime = QDateTime::currentDateTime();
-		}
 		FState = AState;
 		emit stateChanged(AState);
 	}
@@ -777,6 +772,7 @@ void SipCall::onRingTimerTimeout()
 {
 	if (state() == CS_CALLING)
 	{
+		LogDetail(QString("[SipCall] Ring timer timed out, sid='%1'").arg(sessionId()));
 		if (role() == CR_INITIATOR)
 		{
 			notifyActiveDestinations("timeout_error");

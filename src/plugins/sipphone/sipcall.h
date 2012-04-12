@@ -99,8 +99,6 @@ private:
 	ErrorCode FErrorCode;
 	QString FErrorString;
 	QList<Jid> FDestinations;
-	CallState currentState;
-	ErrorCode currentError;
 	QDateTime FStartCallTime;
 private:
 	int FSHICallAccept;
