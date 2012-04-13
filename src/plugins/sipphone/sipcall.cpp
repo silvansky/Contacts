@@ -315,8 +315,23 @@ bool SipCall::setActiveDevice(ISipDevice::Type AType, int ADeviceId)
 ISipDevice::State SipCall::deviceState(ISipDevice::Type AType) const
 {
 	Q_UNUSED(AType)
-	// TODO: implementation
-	return ISipDevice::DS_ENABLED;
+	switch (AType)
+	{
+	case ISipDevice::DT_CAMERA:
+		return cameraState;
+		break;
+	case ISipDevice::DT_MICROPHONE:
+		return microphoneState;
+		break;
+	case ISipDevice::DT_VIDEO_IN:
+		return videoInputState;
+		break;
+	case ISipDevice::DT_AUDIO_OUT:
+		return audioOutputState;
+		break;
+	default:
+		return ISipDevice::DS_UNAVAIL;
+	}
 }
 
 bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
@@ -375,16 +390,80 @@ QVariant SipCall::deviceProperty(ISipDevice::Type AType, int AProperty) const
 	Q_UNUSED(AType)
 	Q_UNUSED(AProperty)
 	// TODO: implementation
+	switch (AType)
+	{
+	case ISipDevice::DT_CAMERA:
+		return cameraProperties.value(AProperty, QVariant());
+		break;
+	case ISipDevice::DT_MICROPHONE:
+		return microphoneProperties.value(AProperty, QVariant());
+		break;
+	case ISipDevice::DT_VIDEO_IN:
+		return videoInputProperties.value(AProperty, QVariant());
+		break;
+	case ISipDevice::DT_AUDIO_OUT:
+		return audioOutputProperties.value(AProperty, QVariant());
+		break;
+	default:
+		break;
+	}
+
 	return QVariant();
 }
 
 bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant &AValue)
 {
-	Q_UNUSED(AType)
-	Q_UNUSED(AProperty)
-	Q_UNUSED(AValue)
-	// TODO: implementation
-	return true;
+	bool propertyChanged = false;
+	switch (AType)
+	{
+	case ISipDevice::DT_CAMERA:
+		if (AProperty == ISipDevice::CP_CURRENTFRAME) // readonly property
+			return false;
+		else
+		{
+			propertyChanged = (cameraProperties.value(AProperty, QVariant()) != AValue);
+			if (propertyChanged)
+			{
+				cameraProperties.insert(AProperty, AValue);
+				// TODO: handle property changes
+			}
+		}
+		break;
+	case ISipDevice::DT_MICROPHONE:
+		propertyChanged = (microphoneProperties.value(AProperty, QVariant()) != AValue);
+		if (propertyChanged)
+		{
+			microphoneProperties.insert(AProperty, AValue);
+			// TODO: handle property changes
+		}
+		break;
+	case ISipDevice::DT_VIDEO_IN:
+		if (AProperty == ISipDevice::VP_CURRENTFRAME) // readonly property
+			return false;
+		else
+		{
+			propertyChanged = (videoInputProperties.value(AProperty, QVariant()) != AValue);
+			if (propertyChanged)
+			{
+				videoInputProperties.insert(AProperty, AValue);
+				// TODO: handle property changes
+			}
+		}
+		break;
+	case ISipDevice::DT_AUDIO_OUT:
+		propertyChanged = (audioOutputProperties.value(AProperty, QVariant()) != AValue);
+		if (propertyChanged)
+		{
+			audioOutputProperties.insert(AProperty, AValue);
+			// TODO: handle property changes
+		}
+		break;
+	default:
+		break;
+	}
+	if (propertyChanged)
+		emit devicePropertyChanged(AType, AProperty, AValue);
+	return propertyChanged;
 }
 
 void SipCall::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
@@ -620,12 +699,36 @@ int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int st
 
 int SipCall::onMyPreviewFrameCallback(void *frame, const char *colormodelName, int w, int h, int stride)
 {
-	Q_UNUSED(frame)
-	Q_UNUSED(colormodelName)
-	Q_UNUSED(w)
-	Q_UNUSED(h)
-	Q_UNUSED(stride)
-	// TODO: implementation
+	pjmedia_frame * pjframe = (pjmedia_frame*)frame;
+	// TODO: check implementation
+	if (pjframe->type == PJMEDIA_FRAME_TYPE_VIDEO)
+	{
+		int dstSize = w * h * 3;
+		unsigned char * dst = new unsigned char[dstSize];
+
+		QImage previewImage;
+
+		if(strstr(colormodelName, "RGB") != 0)
+		{
+			memcpy(dst, pjframe->buf, dstSize);
+			previewImage = QImage((uchar*)dst, w, h, QImage::Format_RGB888).rgbSwapped();
+		}
+		else if(strstr(colormodelName, "YUY") != 0)
+		{
+			FC::YUYV422PtoRGB32(w, h, (unsigned char *)pjframe->buf, dst, dstSize);
+			previewImage = QImage((uchar*)dst, w, h, QImage::Format_RGB888).copy();
+		}
+		else
+		{
+			FC::YUV420PtoRGB32(w, h, stride, (unsigned char *)pjframe->buf, dst, dstSize);
+			previewImage = QImage((uchar*)dst, w, h, QImage::Format_RGB888).copy();
+		}
+		delete[] dst;
+
+		QPixmap previewPixmap = QPixmap::fromImage(previewImage);
+		cameraProperties[ISipDevice::CP_CURRENTFRAME] = previewPixmap;
+		emit devicePropertyChanged(ISipDevice::DT_CAMERA, ISipDevice::CP_CURRENTFRAME, previewPixmap);
+	}
 	return 0;
 }
 
@@ -633,6 +736,7 @@ void SipCall::setCallState(CallState AState)
 {
 	if (FState != AState)
 	{
+		FState = AState;
 		LogDetail(QString("[SipCall] Call state changed to '%1', sid='%2'").arg(AState).arg(sessionId()));
 		if (AState == CS_CALLING)
 		{
@@ -647,7 +751,6 @@ void SipCall::setCallState(CallState AState)
 		}
 		else if (AState == CS_CONNECTING)
 		{
-			// TODO: Register on sip server and then call continueAfterRegistration
 			if (FSipManager)
 			{
 				if (!FSipManager->isRegisteredAtServer(FStreamJid))
@@ -656,7 +759,6 @@ void SipCall::setCallState(CallState AState)
 				}
 			}
 		}
-		FState = AState;
 		emit stateChanged(AState);
 	}
 }
@@ -731,7 +833,7 @@ void SipCall::notifyActiveDestinations(const QString &AType)
 			queryElem.setAttribute("type",AType);
 			queryElem.setAttribute("sid",sessionId());
 			FStanzaProcessor->sendStanzaOut(streamJid(),reply);
-		}	
+		}
 	}
 }
 

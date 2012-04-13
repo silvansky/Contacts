@@ -972,13 +972,13 @@ IPresenceItem Gateways::servicePresence(const Jid &AStreamJid, const Jid &AServi
 
 IGateServiceDescriptor Gateways::serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
-	return FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
+	return FDiscovery ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
 }
 
 IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const
 {
 	IGateServiceLogin login;
-	IGateServiceDescriptor descriptor = FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
+	IGateServiceDescriptor descriptor = FDiscovery ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
 	if (!descriptor.id.isEmpty())
 	{
 		login.fields = AFields;
@@ -1568,7 +1568,7 @@ void Gateways::onDiscoInfoChanged(const IDiscoInfo &AInfo)
 {
 	if (AInfo.contactJid.node().isEmpty() && AInfo.node.isEmpty())
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AInfo.streamJid) : NULL;
+		IRoster *roster = FRosterPlugin ? FRosterPlugin->findRoster(AInfo.streamJid) : NULL;
 		if (roster && roster->isOpen())
 			startAutoLogin(roster->streamJid());
 		if (roster && roster->rosterItem(AInfo.contactJid).isValid)
