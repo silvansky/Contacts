@@ -75,6 +75,13 @@ struct ISipDevice
 		DT_AUDIO_OUT
 	};
 
+	enum State
+	{
+		DS_UNAVAIL,
+		DS_ENABLED,
+		DS_DISABLED
+	};
+
 	enum CameraProperty
 	{
 		CP_CURRENTFRAME,		/* QPixmap, readonly */
@@ -146,13 +153,6 @@ public:
 		RC_NOHANDLER
 	};
 
-	enum DeviceState
-	{
-		DS_UNAVAIL,
-		DS_ENABLED,
-		DS_DISABLED
-	};
-
 	virtual QObject *instance() = 0;
 	virtual Jid streamJid() const = 0;
 	virtual Jid contactJid() const = 0;
@@ -171,15 +171,15 @@ public:
 	// devices
 	virtual ISipDevice activeDevice(ISipDevice::Type AType) const = 0;
 	virtual bool setActiveDevice(ISipDevice::Type AType, int ADeviceId) = 0;
-	virtual DeviceState deviceState(ISipDevice::Type AType) const = 0;
-	virtual bool setDeviceState(ISipDevice::Type AType, DeviceState AState) = 0;
+	virtual ISipDevice::State deviceState(ISipDevice::Type AType) const = 0;
+	virtual bool setDeviceState(ISipDevice::Type AType, ISipDevice::State AState) = 0;
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const = 0;
 	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue) = 0;
 protected:
 	virtual void stateChanged(int AState) = 0;
 	virtual void DTMFSignalReceived(QChar ASignal) = 0;
 	virtual void activeDeviceChanged(int ADeviceType) = 0;
-	virtual void deviceStateChanged(ISipDevice::Type AType, DeviceState AState) = 0;
+	virtual void deviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState) = 0;
 	virtual void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue) = 0;
 };
 

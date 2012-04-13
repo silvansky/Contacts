@@ -2,6 +2,7 @@
 
 #include <QVariant>
 #include <QImage>
+#include <QPixmap>
 
 #include <pjsua.h>
 #include <assert.h>
@@ -22,9 +23,17 @@ QList<SipCall *> SipCall::FCallInstances;
 void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId)
 {
 	FSipManager = AManager;
-	connect(FSipManager->instance(), SIGNAL(registeredAtServer(const Jid &)), SLOT(onRegisteredAtServer(const Jid &)));
-	connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const Jid &)), SLOT(onUnRegisteredAtServer(const Jid &)));
-	connect(FSipManager->instance(), SIGNAL(registrationAtServerFailed(const Jid &)), SLOT(onRegistraitionAtServerFailed(const Jid &)));
+	if (FSipManager)
+	{
+		connect(FSipManager->instance(), SIGNAL(registeredAtServer(const Jid &)), SLOT(onRegisteredAtServer(const Jid &)));
+		connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const Jid &)), SLOT(onUnRegisteredAtServer(const Jid &)));
+		connect(FSipManager->instance(), SIGNAL(registrationAtServerFailed(const Jid &)), SLOT(onRegistraitionAtServerFailed(const Jid &)));
+	}
+	else
+	{
+		LogError("[SipCall::init]: SipManager is required to create SipCall correctly.");
+	}
+
 	FStanzaProcessor = AStanzaProcessor;
 
 	FSessionId = ASessionId;
@@ -136,14 +145,16 @@ void SipCall::acceptCall()
 
 void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 {
-	if (state() == CS_CALLING)
+	switch (state())
+	{
+	case CS_CALLING:
 	{
 		if (role() == CR_INITIATOR)
 		{
 			notifyActiveDestinations("cancel");
 			setCallState(CS_FINISHED);
 		}
-		else if (role() == CR_RESPONDER)
+		else //if (role() == CR_RESPONDER)
 		{
 			if (FStanzaProcessor)
 			{
@@ -159,15 +170,25 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 			}
 			setCallState(CS_FINISHED);
 		}
+		break;
 	}
-	else if (state() == CS_CONNECTING)
-	{
-		// TODO: implementation
-	}
-	else if (state() == CS_TALKING)
+	case CS_CONNECTING:
+	case CS_TALKING:
 	{
 		// TODO: check implementation
-		pjsua_call_hangup(FCallId, 0, NULL, NULL);
+		pj_status_t status = pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL);
+		if (status == PJ_SUCCESS)
+		{
+			setCallState(CS_FINISHED);
+		}
+		else
+		{
+			LogError(QString("[SipCall::rejectCall]: Failed to end call! pjsua_call_hangup() returned %1").arg(status));
+		}
+		break;
+	}
+	default:
+		break;
 	}
 }
 
@@ -258,42 +279,47 @@ ISipDevice SipCall::activeDevice(ISipDevice::Type AType) const
 
 bool SipCall::setActiveDevice(ISipDevice::Type AType, int ADeviceId)
 {
-	bool deviceFound = true;
-	ISipDevice d = FSipManager->getDevice(AType, ADeviceId);
-	if ((deviceFound = (d.id != -1)))
+	if (FSipManager)
 	{
-		switch (AType)
+		bool deviceFound = true;
+		ISipDevice d = FSipManager->getDevice(AType, ADeviceId);
+		if ((deviceFound = (d.id != -1)))
 		{
-		case ISipDevice::DT_CAMERA:
-			camera = d;
-			break;
-		case ISipDevice::DT_MICROPHONE:
-			microphone = d;
-			break;
-		case ISipDevice::DT_AUDIO_OUT:
-			audioOutput = d;
-			break;
-		case ISipDevice::DT_VIDEO_IN:
-			videoInput = d;
-			break;
-		default:
-			deviceFound = false;
-			break;
+			switch (AType)
+			{
+			case ISipDevice::DT_CAMERA:
+				camera = d;
+				break;
+			case ISipDevice::DT_MICROPHONE:
+				microphone = d;
+				break;
+			case ISipDevice::DT_AUDIO_OUT:
+				audioOutput = d;
+				break;
+			case ISipDevice::DT_VIDEO_IN:
+				videoInput = d;
+				break;
+			default:
+				deviceFound = false;
+				break;
+			}
+			if (deviceFound)
+				emit activeDeviceChanged(AType);
 		}
-		if (deviceFound)
-			emit activeDeviceChanged(AType);
+		return deviceFound;
 	}
-	return deviceFound;
+	else
+		return false;
 }
 
-ISipCall::DeviceState SipCall::deviceState(ISipDevice::Type AType) const
+ISipDevice::State SipCall::deviceState(ISipDevice::Type AType) const
 {
 	Q_UNUSED(AType)
 	// TODO: implementation
-	return DS_ENABLED;
+	return ISipDevice::DS_ENABLED;
 }
 
-bool SipCall::setDeviceState(ISipDevice::Type AType, ISipCall::DeviceState AState)
+bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 {
 	// TODO: complete implementation
 	bool status = false;
@@ -307,7 +333,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipCall::DeviceState AStat
 		{
 			pjsua_call_setting call_setting;
 			pjsua_call_setting_default(&call_setting);
-			call_setting.vid_cnt = (AState == DS_ENABLED) ? 1 : 0;
+			call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
 			pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
 			if ((status = (pjstatus == PJ_SUCCESS)))
 			{
@@ -575,7 +601,7 @@ void SipCall::onCallTsxState(int call_id, void *tsx, void *e)
 int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int stride)
 {
 	Q_UNUSED(call_id)
-	// TODO: new implementation
+	// TODO: check implementation
 	pjmedia_frame * _frame = (pjmedia_frame *)frame;
 	if(_frame->type == PJMEDIA_FRAME_TYPE_VIDEO)
 	{
@@ -584,8 +610,10 @@ int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int st
 
 		FC::YUV420PtoRGB32(w, h, stride, (unsigned char *)_frame->buf, dst, dstSize);
 		QImage remoteImage((uchar*)dst, w, h, QImage::Format_RGB888);
-		// TODO: set image to device
-		Q_UNUSED(remoteImage)
+
+		QPixmap remotePixmap = QPixmap::fromImage(remoteImage);
+		videoInputProperties[ISipDevice::VP_CURRENTFRAME] = remotePixmap;
+		emit devicePropertyChanged(ISipDevice::DT_VIDEO_IN, ISipDevice::VP_CURRENTFRAME, remotePixmap);
 	}
 	return 0;
 }
@@ -620,6 +648,13 @@ void SipCall::setCallState(CallState AState)
 		else if (AState == CS_CONNECTING)
 		{
 			// TODO: Register on sip server and then call continueAfterRegistration
+			if (FSipManager)
+			{
+				if (!FSipManager->isRegisteredAtServer(FStreamJid))
+				{
+					FSipManager->registerAtServer(FStreamJid);
+				}
+			}
 		}
 		FState = AState;
 		emit stateChanged(AState);
@@ -639,6 +674,7 @@ void SipCall::setCallError(ErrorCode ACode, const QString &AMessage)
 
 void SipCall::continueAfterRegistration(bool ARegistered)
 {
+	// TODO: add pjsua code
 	if (role() == CR_INITIATOR)
 	{
 		if (ARegistered)
@@ -647,7 +683,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 			{
 				notifyActiveDestinations("accepted");
 				Stanza result = FStanzaProcessor->makeReplyResult(FAcceptStanza);
-				FStanzaProcessor->sendStanzaOut(streamJid(),result);
+				FStanzaProcessor->sendStanzaOut(streamJid(), result);
 			}
 			// TODO: Call to responder
 		}
@@ -658,7 +694,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				notifyActiveDestinations("caller_error");
 				ErrorHandler err(ErrorHandler::RECIPIENT_UNAVAILABLE);
 				Stanza error = FStanzaProcessor->makeReplyError(FAcceptStanza,err);
-				FStanzaProcessor->sendStanzaOut(streamJid(),error);
+				FStanzaProcessor->sendStanzaOut(streamJid(), error);
 			}
 			setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 		}
@@ -670,13 +706,13 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 		{
 			Stanza accept("iq");
 			accept.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
-			QDomElement queryElem = accept.addElement("query",NS_RAMBLER_PHONE);
-			queryElem.setAttribute("type","accept");
-			queryElem.setAttribute("sid",sessionId());
-			if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),accept,CALL_REQUEST_TIMEOUT))
-				FCallRequests.insert(accept.id(),contactJid());
+			QDomElement queryElem = accept.addElement("query", NS_RAMBLER_PHONE);
+			queryElem.setAttribute("type", "accept");
+			queryElem.setAttribute("sid", sessionId());
+			if (FStanzaProcessor->sendStanzaRequest(this, streamJid(), accept, CALL_REQUEST_TIMEOUT))
+				FCallRequests.insert(accept.id(), contactJid());
 			else
-				setCallError(EC_CONNECTIONERR,tr("Failed to accept call"));
+				setCallError(EC_CONNECTIONERR, tr("Failed to accept call"));
 		}
 		// TODO: check implementation
 		//pjsua_call_answer(FCallId, PJSIP_SC_OK, NULL, NULL);
@@ -706,6 +742,9 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 	// step 2: ask SIP server to connect
 	// step 3:
 
+	if (!FSipManager)
+		return;
+
 	if (FSipManager->isRegisteredAtServer(streamJid()))
 	{
 		pj_status_t status;
@@ -720,14 +759,12 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 			pjsua_call_setting call_setting;
 			pjsua_call_setting_default(&call_setting);
 
-
 			if (AContactJid.domain() == PHONE_TRANSPORT_DOMAIN)
 			{
 				call_setting.vid_cnt = 0;
 			}
 			else
 			{
-
 #if defined(HAS_VIDEO_SUPPORT)
 				call_setting.vid_cnt = HAS_VIDEO_SUPPORT;
 #else
@@ -793,7 +830,11 @@ void SipCall::onRingTimerTimeout()
 void SipCall::onRegisteredAtServer(const Jid &AStreamJid)
 {
 	Q_UNUSED(AStreamJid)
-	// TODO: implementation
+	// TODO: check implementation
+	if (state() == CS_CONNECTING)
+	{
+		continueAfterRegistration(true);
+	}
 }
 
 void SipCall::onUnRegisteredAtServer(const Jid &AStreamJid)
@@ -805,5 +846,9 @@ void SipCall::onUnRegisteredAtServer(const Jid &AStreamJid)
 void SipCall::onRegistraitionAtServerFailed(const Jid &AStreamJid)
 {
 	Q_UNUSED(AStreamJid)
-	// TODO: implementation
+	// TODO: check implementation
+	if (state() == CS_CONNECTING)
+	{
+		continueAfterRegistration(false);
+	}
 }

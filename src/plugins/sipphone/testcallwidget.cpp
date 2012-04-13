@@ -36,7 +36,7 @@ void TestCallWidget::on_videoOn_stateChanged(int state)
 {
 	if (call)
 	{
-			call->setDeviceState(ISipDevice::DT_VIDEO_IN, (state == Qt::Checked) ? SipCall::DS_ENABLED : SipCall::DS_DISABLED);
+			call->setDeviceState(ISipDevice::DT_VIDEO_IN, (state == Qt::Checked) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
 	}
 }
 
@@ -44,7 +44,7 @@ void TestCallWidget::on_soundOn_stateChanged(int state)
 {
 	if (call)
 	{
-			call->setDeviceState(ISipDevice::DT_AUDIO_OUT, (state == Qt::Checked) ? SipCall::DS_ENABLED : SipCall::DS_DISABLED);
+			call->setDeviceState(ISipDevice::DT_AUDIO_OUT, (state == Qt::Checked) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
 	}
 }
 
@@ -52,7 +52,7 @@ void TestCallWidget::on_micOn_stateChanged(int state)
 {
 	if (call)
 	{
-			call->setDeviceState(ISipDevice::DT_MICROPHONE, (state == Qt::Checked) ? SipCall::DS_ENABLED : SipCall::DS_DISABLED);
+			call->setDeviceState(ISipDevice::DT_MICROPHONE, (state == Qt::Checked) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
 	}
 }
 
@@ -60,6 +60,6 @@ void TestCallWidget::on_cameraOn_stateChanged(int state)
 {
 	if (call)
 	{
-			call->setDeviceState(ISipDevice::DT_CAMERA, (state == Qt::Checked) ? SipCall::DS_ENABLED : SipCall::DS_DISABLED);
+			call->setDeviceState(ISipDevice::DT_CAMERA, (state == Qt::Checked) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
 	}
 }

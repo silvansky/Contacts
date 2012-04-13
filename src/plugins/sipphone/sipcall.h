@@ -39,15 +39,15 @@ public:
 	// devices
 	virtual ISipDevice activeDevice(ISipDevice::Type AType) const;
 	virtual bool setActiveDevice(ISipDevice::Type AType, int ADeviceId);
-	virtual DeviceState deviceState(ISipDevice::Type AType) const;
-	virtual bool setDeviceState(ISipDevice::Type AType, DeviceState AState);
+	virtual ISipDevice::State deviceState(ISipDevice::Type AType) const;
+	virtual bool setDeviceState(ISipDevice::Type AType, ISipDevice::State AState);
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const;
 	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 signals:
 	void stateChanged(int AState);
 	void DTMFSignalReceived(QChar ASignal);
 	void activeDeviceChanged(int ADeviceType);
-	void deviceStateChanged(ISipDevice::Type AType, DeviceState AState);
+	void deviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState);
 	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 public:
 	// IStanzaRequestOwner
@@ -83,14 +83,22 @@ private:
 	IStanzaProcessor *FStanzaProcessor;
 private:
 	// i/o devices
+	// camera (my video)
 	ISipDevice camera;
-	DeviceState cameraState;
+	ISipDevice::State cameraState;
+	QMap<int, QVariant> cameraProperties;
+	// microphone (my sound)
 	ISipDevice microphone;
-	DeviceState microphoneState;
+	ISipDevice::State microphoneState;
+	QMap<int, QVariant> microphoneProperties;
+	// video input (remote video)
 	ISipDevice videoInput;
-	DeviceState videoInputState;
+	ISipDevice::State videoInputState;
+	QMap<int, QVariant> videoInputProperties;
+	// audio output (remote sound)
 	ISipDevice audioOutput;
-	DeviceState audioOutputState;
+	ISipDevice::State audioOutputState;
+	QMap<int, QVariant> audioOutputProperties;
 private:
 	// pjsip
 	int FCallId;
