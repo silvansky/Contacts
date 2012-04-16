@@ -103,7 +103,7 @@ bool TcpTunnel::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &A
 			if (request.isValid())
 			{
 				AAccept = true;
-				LogDetail(QString("[TcpTunnel][%1] Connect request received from %2, id=%3, remote=%4:%5, proxy=%6:%7").arg(AStreamJid.full(),AStanza.from(),AStanza.id(),request.remoteHost).arg(request.remotePort).arg(request.proxyHost).arg(request.proxyPort));
+				LogDetail(QString("[TcpTunnel] Connect request received from %1, id=%2, remote=%3:%4 (enc=%7), proxy=%5:%6 (enc=%8)").arg(AStanza.from(),AStanza.id(),request.remoteHost).arg(request.remotePort).arg(request.proxyHost).arg(request.proxyPort).arg(request.proxyEncrypted).arg(request.remoteEncrypted));
 				TunnelThread *tunnel = new TunnelThread(request,this);
 				connect(tunnel,SIGNAL(connected(const QString &)),SLOT(onTunnelThreadConnected(const QString &)),Qt::QueuedConnection);
 				connect(tunnel,SIGNAL(disconnected(const QString &)),SLOT(onTunnelThreadDisconnected(const QString &)),Qt::QueuedConnection);
@@ -113,7 +113,7 @@ bool TcpTunnel::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &A
 			}
 			else
 			{
-				LogError(QString("[TcpTunnel][%1] Invalid connect request received from %2, id=%3, remote=%4:%5, proxy=%6:%7").arg(AStreamJid.full(),AStanza.from(),AStanza.id(),request.remoteHost).arg(request.remotePort).arg(request.proxyHost).arg(request.proxyPort));
+				LogError(QString("[TcpTunnel] Invalid connect request received from %1, id=%2, remote=%3:%4, proxy=%5:%6").arg(AStanza.from(),AStanza.id(),request.remoteHost).arg(request.remotePort).arg(request.proxyHost).arg(request.proxyPort));
 			}
 			return true;
 		}
@@ -141,12 +141,12 @@ void TcpTunnel::onTunnelThreadConnected(const QString &AKey)
 		connectElem.appendChild(result.createElement("session-key")).appendChild(result.createTextNode(AKey));
 		if (FStanzaProcessor->sendStanzaOut(request.to(),result))
 		{
-			LogDetail(QString("[TcpTunnel][%1] TCP tunnel established with key=%2, id=%3").arg(request.to(),AKey,request.id()));
+			LogDetail(QString("[TcpTunnel] TCP tunnel established, key=%1, id=%2").arg(AKey,request.id()));
 		}
 		else
 		{
 			tunnel->abort();
-			LogError(QString("[TcpTunnel][%1] Failed to send connected result key=%2, id=%3").arg(request.to(),AKey,request.id()));
+			LogError(QString("[TcpTunnel] Failed to send connected result, key=%1, id=%2").arg(AKey,request.id()));
 		}
 	}
 }
@@ -163,10 +163,15 @@ void TcpTunnel::onTunnelThreadDisconnected(const QString &ACondition)
 			Stanza error = FStanzaProcessor->makeReplyError(request,err);
 			error.firstElement("error").appendChild(error.createElement("recipient-unavailable",EHN_DEFAULT));
 			FStanzaProcessor->sendStanzaOut(request.to(),error);
-			LogError(QString("[TcpTunnel][%1] Failed to establish TCP tunnel error=%2, id=%3").arg(request.to(),ACondition,request.id()));
+			LogError(QString("[TcpTunnel] Failed to establish TCP tunnel, error=%1, id=%2").arg(ACondition,request.id()));
+		}
+		else
+		{
+			LogDetail(QString("[TcpTunnel] TCP tunnel closed, key=%1").arg(tunnel->sessionKey()));
 		}
 		FTunnels.removeAll(tunnel);
 		FPluginManager->continueShutdown();
+		tunnel->deleteLater();
 	}
 }
 

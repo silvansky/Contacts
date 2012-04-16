@@ -1,11 +1,9 @@
 #ifndef TUNNELTHREAD_H
 #define TUNNELTHREAD_H
 
-#include <QMutex>
 #include <QThread>
 #include <QSslSocket>
 #include <QNetworkProxy>
-#include <QWaitCondition>
 
 struct ConnectRequest
 {
@@ -29,23 +27,32 @@ public:
 	TunnelThread(const ConnectRequest &ARequest, QObject *AParent);
 	~TunnelThread();
 	void abort();
+	QString sessionKey() const; // !!Call only after connected or disconnected signals
 signals:
 	void connected(const QString &AKey);
 	void disconnected(const QString &ACondition);
 protected:
 	virtual void run();
 	void setErrorCondition(const QString &ACondition); 
-protected slots:
-	void onProxyReadyRead();
-	void onRemoteReadyRead();
 private:
 	int FThreadState;
 	QString FSessionKey;
 	QString FErrorCondition;
 	ConnectRequest FRequest;
+};
+
+class TunnelDataDispetcher :
+	public QObject
+{
+	Q_OBJECT;
+public:
+	TunnelDataDispetcher(QSslSocket *AProxy, QSslSocket *ARemote);
+public slots:
+	void onProxyReadyRead();
+	void onRemoteReadyRead();
 private:
-	QSslSocket *FProxySocket;
-	QSslSocket *FRemoteSocket;
+	QSslSocket *FProxy;
+	QSslSocket *FRemote;
 };
 
 #endif // TUNNELTHREAD_H
