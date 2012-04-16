@@ -757,6 +757,8 @@ void SipCall::setCallState(CallState AState)
 				{
 					FSipManager->registerAtServer(FStreamJid);
 				}
+				else
+					continueAfterRegistration(true);
 			}
 		}
 		emit stateChanged(AState);
@@ -776,7 +778,7 @@ void SipCall::setCallError(ErrorCode ACode, const QString &AMessage)
 
 void SipCall::continueAfterRegistration(bool ARegistered)
 {
-	// TODO: add pjsua code
+	// TODO: check/test code
 	if (role() == CR_INITIATOR)
 	{
 		if (ARegistered)
@@ -786,8 +788,8 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				notifyActiveDestinations("accepted");
 				Stanza result = FStanzaProcessor->makeReplyResult(FAcceptStanza);
 				FStanzaProcessor->sendStanzaOut(streamJid(), result);
+				sipCallTo(FContactJid);
 			}
-			// TODO: Call to responder
 		}
 		else
 		{
@@ -815,9 +817,8 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				FCallRequests.insert(accept.id(), contactJid());
 			else
 				setCallError(EC_CONNECTIONERR, tr("Failed to accept call"));
+			pjsua_call_answer(FCallId, PJSIP_SC_OK, NULL, NULL);
 		}
-		// TODO: check implementation
-		//pjsua_call_answer(FCallId, PJSIP_SC_OK, NULL, NULL);
 	}
 }
 
@@ -844,10 +845,7 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 	// step 2: ask SIP server to connect
 	// step 3:
 
-	if (!FSipManager)
-		return;
-
-	if (FSipManager->isRegisteredAtServer(streamJid()))
+	if (FSipManager && FSipManager->isRegisteredAtServer(streamJid()))
 	{
 		pj_status_t status;
 		char uriTmp[512];

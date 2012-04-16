@@ -1,3 +1,7 @@
+/*
+ * This file will be removed. I mean it.
+ */
+
 #include "testcallwidget.h"
 #include "ui_testcallwidget.h"
 

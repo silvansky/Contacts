@@ -186,7 +186,8 @@ protected:
 class ISipCallHandler
 {
 public:
-	virtual bool checkCall(ISipCall * ACall);
+	virtual bool canHandleCall(ISipCall * ACall) = 0;
+	virtual void handleCall(ISipCall * ACall) = 0;
 };
 
 class ISipManager

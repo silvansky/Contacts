@@ -58,6 +58,8 @@ SipManager::SipManager() :
 
 	FSHISipQuery = -1;
 
+	insertSipCallHandler(100, this);
+
 #ifdef DEBUG_ENABLED
 	qDebug() << "SipManager::SipManager()";
 #endif
@@ -279,6 +281,17 @@ void SipManager::removeSipCallHandler(int AOrder, ISipCallHandler *AHandler)
 		handlers.remove(AOrder);
 }
 
+bool SipManager::canHandleCall(ISipCall *ACall)
+{
+	Q_UNUSED(ACall)
+	return true;
+}
+
+void SipManager::handleCall(ISipCall *ACall)
+{
+	ACall->acceptCall();
+}
+
 bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
 {
 	if (FSHISipQuery == AHandleId)
@@ -337,7 +350,7 @@ bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJi
 	bool handled = false;
 	foreach (ISipCallHandler * handler, handlers.values())
 	{
-		if ((handled = handler->checkCall(call)))
+		if ((handled = handler->canHandleCall(call)))
 			break;
 	}
 	
@@ -559,19 +572,43 @@ void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 {
 	Q_UNUSED(acc_id)
 	Q_UNUSED(rdata)
-	// TODO: chaeck implementation
+	// TODO: check implementation
 	pjsua_call_info ci;
 	pjsua_call_get_info(call_id, &ci);
 	QString callerId = QString("%s").arg(ci.remote_info.ptr);
 	QString receiverId = QString("%s").arg(ci.local_info.ptr);
-	ISipCall *call = findCalls(receiverId,callerId).value(0); // TODO: ensure receiverId and callerId is full Jid
+	QList<ISipCall *> calls = findCalls(receiverId,callerId);
+	SipCall *call = calls.isEmpty() ? NULL : qobject_cast<SipCall *>(calls.value(0)->instance()); // TODO: ensure receiverId and callerId is full Jid
 	if (call && call->role()==ISipCall::CR_RESPONDER && call->state()==ISipCall::CS_CONNECTING)
 	{
-		// TODO: accept call here and send call_id to call
+		call->setCallParams(acc_id, call_id);
+
+		bool handled = false;
+		ISipCallHandler * handler = NULL;
+		foreach (handler, handlers.values())
+		{
+			if ((handled = handler->canHandleCall(call)))
+				break;
+		}
+
+		if (!handled)
+		{
+			call->rejectCall(ISipCall::RC_NOHANDLER);
+			call->deleteLater();
+		}
+		else
+		{
+			handler->handleCall(call);
+		}
 	}
 	else
 	{
 		// TODO: decline call here while we do not support direct incoming calls
+		pj_status_t status = pjsua_call_hangup(call_id, PJSIP_SC_DECLINE, NULL, NULL);
+		if (status != PJ_SUCCESS)
+		{
+			LogError(QString("[SipManager::onIncomingCall]: Failed to end call! pjsua_call_hangup() returned %1").arg(status));
+		}
 	}
 
 	//if (SipCall::activeCallForId(call_id))

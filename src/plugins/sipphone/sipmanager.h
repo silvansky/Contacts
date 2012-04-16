@@ -23,10 +23,11 @@ class SipManager :
 		public QObject,
 		public IPlugin,
 		public ISipManager,
+		public ISipCallHandler,
 		public IStanzaHandler
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin ISipManager IStanzaHandler)
+	Q_INTERFACES(IPlugin ISipManager ISipCallHandler IStanzaHandler)
 public:
 	SipManager();
 	~SipManager();
@@ -56,6 +57,9 @@ public:
 	// handlers
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler);
+	// ISipCallHandler
+	virtual bool canHandleCall(ISipCall * ACall);
+	virtual void handleCall(ISipCall * ACall);
 	// IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 signals:
@@ -70,11 +74,6 @@ signals:
 public:
 	// SipManager internals
 	static SipManager *callbackInstance();
-public:
-	// pjsip callbacks
-	void onRegState(int acc_id);
-	void onRegState2(int acc_id, void * /* pjsua_reg_info * */info);
-	void onIncomingCall(int acc_id, int call_id, void * /* pjsip_rx_data * */rdata);
 protected:
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 	bool initStack(const QString &ASipServer, int ASipPort, const Jid &ASipUser, const QString &ASipPassword);
@@ -84,6 +83,11 @@ protected slots:
 	void onXmppStreamOpened(IXmppStream * stream);
 	void onXmppStreamAboutToClose(IXmppStream * stream);
 	void onXmppStreamClosed(IXmppStream * stream);
+public:
+	// pjsip callbacks
+	void onRegState(int acc_id);
+	void onRegState2(int acc_id, void * /* pjsua_reg_info * */info);
+	void onIncomingCall(int acc_id, int call_id, void * /* pjsip_rx_data * */rdata);
 private:
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
