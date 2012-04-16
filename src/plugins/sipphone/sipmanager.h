@@ -83,6 +83,12 @@ protected slots:
 	void onXmppStreamOpened(IXmppStream * stream);
 	void onXmppStreamAboutToClose(IXmppStream * stream);
 	void onXmppStreamClosed(IXmppStream * stream);
+protected slots:
+	// for ISipCallHandler
+	void onCallStateChanged(int AState);
+	void onCallActiveDeviceChanged(int ADeviceType);
+	void onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState);
+	void onCallDevicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 public:
 	// pjsip callbacks
 	void onRegState(int acc_id);
@@ -103,6 +109,9 @@ private:
 	QMap<Jid, TestCallWidget*> testCallWidgets;
 	static SipManager * inst;
 	bool accRegistered;
+private:
+	// for ISipCallHandler
+	QList<ISipCall *> handledCalls;
 };
 
 #endif // SIPMANAGER_H

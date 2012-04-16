@@ -290,6 +290,11 @@ bool SipManager::canHandleCall(ISipCall *ACall)
 void SipManager::handleCall(ISipCall *ACall)
 {
 	ACall->acceptCall();
+	handledCalls << ACall;
+	connect(ACall->instance(), SIGNAL(stateChanged(int)), SLOT(onCallStateChanged(int)));
+	connect(ACall->instance(), SIGNAL(activeDeviceChanged(int)), SLOT(onCallActiveDeviceChanged(int)));
+	connect(ACall->instance(), SIGNAL(deviceStateChanged(ISipDevice::Type, ISipDevice::State)), SLOT(onCallDeviceStateChanged(ISipDevice::Type, ISipDevice::State)));
+	connect(ACall->instance(), SIGNAL(devicePropertyChanged(ISipDevice::Type, int, const QVariant &)), SLOT(onCallDevicePropertyChanged(ISipDevice::Type, int, const QVariant &)));
 }
 
 bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
@@ -452,13 +457,21 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 				{
 					accountIds.insert(ASipUser, acc);
 					status = pjsua_start();
-					if (status != PJ_SUCCESS)
+					if (status == PJ_SUCCESS)
 					{
 						if (pjsua_get_pjsip_endpt())
 						{
 							registerModuleCallbacks(mod_default_handler);
-							pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
-							return true;
+							status = pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
+							if (status == PJ_SUCCESS)
+							{
+								emit registeredAtServer(ASipUser);
+								return true;
+							}
+							else
+							{
+								LogError(QString("[SipManager::initStack]: Failed to register pjsip module! pjsip_endpt_register_module() returned %1.").arg(status));
+							}
 						} // pjsua_get_pjsip_endpt
 						else
 						{
@@ -493,6 +506,7 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 	LogError("[SipManager::initStack]: calling pjsua_destroy()...");
 
 	pjsua_destroy();
+	emit registrationAtServerFailed(ASipUser);
 	return false;
 }
 
@@ -500,7 +514,19 @@ void SipManager::setRegistration(const Jid & AStreamJid, bool ARenew)
 {
 	int acc = accountIds.value(AStreamJid, -1);
 	if (acc != -1)
-		pjsua_acc_set_registration(acc, ARenew);
+	{
+		pj_status_t status = pjsua_acc_set_registration(acc, ARenew);
+		if (status == PJ_SUCCESS)
+		{
+			if (!ARenew)
+			{
+				accountIds.remove(AStreamJid);
+				emit unregisteredAtServer(AStreamJid);
+			}
+		}
+		else
+			LogError(QString("[SipManager::setRegistration]: Error setting registration for stream %1, pjsua_acc_set_registration() returned %2").arg(AStreamJid.full()).arg(status));
+	}
 	else
 		LogError(QString("[SipManager::setRegistration]: Invalid stream jid - %1").arg(AStreamJid.full()));
 }
@@ -536,6 +562,61 @@ void SipManager::onXmppStreamAboutToClose(IXmppStream *stream)
 void SipManager::onXmppStreamClosed(IXmppStream *stream)
 {
 	Q_UNUSED(stream)
+}
+
+void SipManager::onCallStateChanged(int AState)
+{
+	Q_UNUSED(AState)
+	switch (AState)
+	{
+	case ISipCall::CS_FINISHED:
+		handledCalls.removeAll((ISipCall *)sender());
+		break;
+	case ISipCall::CS_TALKING:
+		break;
+	default:
+		break;
+	}
+}
+
+void SipManager::onCallActiveDeviceChanged(int ADeviceType)
+{
+	Q_UNUSED(ADeviceType)
+}
+
+void SipManager::onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState)
+{
+	Q_UNUSED(AState)
+	// TODO: show "no camera" in case of DS_UNAVAIL/DS_DISABLED state
+	if (AType == ISipDevice::DT_CAMERA)
+	{
+
+	}
+	else if (AType == ISipDevice::DT_VIDEO_IN)
+	{
+
+	}
+}
+
+void SipManager::onCallDevicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant &AValue)
+{
+	Q_UNUSED(AType)
+	Q_UNUSED(AProperty)
+	Q_UNUSED(AValue)
+	if (AType == ISipDevice::DT_CAMERA)
+	{
+		if (AProperty == ISipDevice::CP_CURRENTFRAME)
+		{
+			// TODO: set preview image to test widget
+		}
+	}
+	else if (AType == ISipDevice::DT_VIDEO_IN)
+	{
+		if (AProperty == ISipDevice::VP_CURRENTFRAME)
+		{
+			// TODO: set remote image to test widget
+		}
+	}
 }
 
 SipManager *SipManager::callbackInstance()
