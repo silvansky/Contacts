@@ -1,11 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <styledef>
   <file>
-    <key>sipphone</key>
-    <object mime='text/css'>sipphone.qss</object>
-  </file>
-  <file>
-    <key>sipCallNotifyer</key>
-    <object mime='text/css'>sipcallnotifyer.qss</object>
+    <key>sipphoneCallControlWidget</key>
+    <object mime='text/css'>sipphonecallcontrolwidget.qss</object>
   </file>
 </styledef>

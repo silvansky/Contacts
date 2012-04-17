@@ -69,8 +69,7 @@
 #define STS_ROSTERVIEW_TOOLTIP                                          "rosterviewToolTip"
 
 //SipPhone
-#define STS_SIPPHONE_TABBARITEM_CALL                                    "sipphoneTabBarItemCall"
-#define STS_SIPPHONE_NOTIFYWIDGET_CALL                                  "sipphoneNotifyWidgetCall"
+#define STS_SIPPHONE_CALLCONTROLWIDGET                                  "sipphoneCallControlWidget"
 
 //StatusChanger
 #define STS_SCHANGER_STATUSWIDGET                                       "schangerStatusWidget"

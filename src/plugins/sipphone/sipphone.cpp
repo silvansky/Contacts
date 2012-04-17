@@ -405,7 +405,7 @@ void SipPhone::onAboutToShowContactMenu()
 					contactAction->setData(ADR_CONTACT_JID,pitem.itemJid.full());
 					contactAction->setData(ADR_METAID_WINDOW,metaId);
 					connect(contactAction, SIGNAL(triggered(bool)), SLOT(onStartCallToContact()));
-					contactsMenu->addAction(contactAction, AG_SPCM_SIPPHONE_BASECONTACT);
+					contactsMenu->addAction(contactAction, AG_SPCM_SIPPHONE_CALL_LIST);
 				}
 			}
 		}
@@ -415,7 +415,7 @@ void SipPhone::onAboutToShowContactMenu()
 		addContactAction->setData(ADR_STREAM_JID, mroster->streamJid().full());
 		addContactAction->setData(ADR_METAID_WINDOW, metaId);
 		connect(addContactAction, SIGNAL(triggered(bool)), SLOT(onShowAddContactDialog()));
-		contactsMenu->addAction(addContactAction, AG_SPCM_SIPPHONE_BASECONTACT + 1);
+		contactsMenu->addAction(addContactAction, AG_SPCM_SIPPHONE_CALL_LIST + 1);
 	}
 }
 
@@ -1305,7 +1305,6 @@ void SipPhone::insertIncomingNotify(const ISipStream &AStream)
 			notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,0);
 			notify.data.insert(NDR_TABPAGE_ICONBLINK,true);
 			notify.data.insert(NDR_TABPAGE_TOOLTIP,message);
-			notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_SIPPHONE_TABBARITEM_CALL);
 		}
 
 		SipCallNotifyer *callNotifyer = new SipCallNotifyer(name, tr("Incoming call"), IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL), FNotifications->contactAvatar(AStream.streamJid,AStream.contactJid));
@@ -1378,7 +1377,6 @@ void SipPhone::insertMissedNotify(const ISipStream &AStream)
 			notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,callsCount);
 			notify.data.insert(NDR_TABPAGE_ICONBLINK,false);
 			notify.data.insert(NDR_TABPAGE_TOOLTIP,message);
-			notify.data.insert(NDR_TABPAGE_STYLEKEY,STS_SIPPHONE_TABBARITEM_CALL);
 
 			connect(winow->instance(),SIGNAL(tabPageActivated()),SLOT(onChatWindowActivated()));
 			connect(winow->instance(),SIGNAL(tabPageDestroyed()),SLOT(onChatWindowDestroyed()));

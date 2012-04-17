@@ -178,7 +178,7 @@ public:
 protected:
 	virtual void stateChanged(int AState) = 0;
 	virtual void DTMFSignalReceived(QChar ASignal) = 0;
-	virtual void activeDeviceChanged(int ADeviceType) = 0;
+	virtual void activeDeviceChanged(ISipDevice::Type ADeviceType) = 0;
 	virtual void deviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState) = 0;
 	virtual void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue) = 0;
 };
@@ -186,8 +186,7 @@ protected:
 class ISipCallHandler
 {
 public:
-	virtual bool canHandleCall(ISipCall * ACall) = 0;
-	virtual void handleCall(ISipCall * ACall) = 0;
+	virtual bool handleSipCall(int AOrder, ISipCall *ACall) = 0;
 };
 
 class ISipManager
@@ -196,7 +195,7 @@ public:
 	virtual QObject *instance() = 0;
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const = 0;
 	// calls
-	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &AContacts) = 0;
+	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations) = 0;
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const = 0;

@@ -1,19 +1,25 @@
 #include "sipmanager.h"
 
+#include <QLabel>
+#include <QProcess>
+
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/namespaces.h>
+#include <definitions/actiongroups.h>
+#include <definitions/toolbargroups.h>
+#include <definitions/sipcallhandlerorders.h>
+#include <utils/log.h>
+#include <utils/errorhandler.h>
+#include <utils/custombordercontainer.h>
+
 #include "sipcall.h"
 #include "frameconverter.h"
 #include "pjsipdefines.h"
 #include "pjsipcallbacks.h"
 
 #include "testcallwidget.h"
-
-#include <definitions/namespaces.h>
-#include <definitions/optionwidgetorders.h>
-#include <definitions/notificationtypes.h>
-#include <utils/log.h>
-#include <utils/errorhandler.h>
-
-#include <QProcess>
+#include "callcontrolwidget.h"
 
 #if defined(Q_WS_WIN)
 # include <windows.h>
@@ -22,6 +28,10 @@
 #if defined(DEBUG_ENABLED)
 # include <QDebug>
 #endif
+
+#define ADR_STREAM_JID           Action::DR_StreamJid
+#define ADR_DESTINATIONS         Action::DR_Parametr1
+#define ADR_WINDOW_METAID        Action::DR_Parametr2
 
 /* The PJSIP module instance. */
 static pjsip_module mod_default_handler =
@@ -53,8 +63,11 @@ SipManager::SipManager() :
 	QObject(NULL)
 {
 	FDiscovery = NULL;
+	FXmppStreams = NULL;
 	FMetaContacts = NULL;
+	FPluginManager = NULL;
 	FStanzaProcessor = NULL;
+	FRosterChanger = NULL;
 
 	FSHISipQuery = -1;
 
@@ -107,28 +120,18 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 	if (plugin)
 		FDiscovery = qobject_cast<IServiceDiscovery *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
+	if (plugin)
+		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+
 	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
 	if (plugin)
 	{
 		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
 		if(FMetaContacts)
 		{
-//			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow*)), SLOT(onMetaTabWindowCreated(IMetaTabWindow*)));
-//			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowDestroyed(IMetaTabWindow*)), SLOT(onMetaTabWindowDestroyed(IMetaTabWindow*)));
-		}
-	}
-
-	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
-	if (plugin)
-	{
-		IRostersViewPlugin *rostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
-		if (rostersViewPlugin)
-		{
-			FRostersView = rostersViewPlugin->rostersView();
-//			connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
-//				SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
-//			connect(FRostersView->instance(),SIGNAL(labelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)),
-//				SLOT(onRosterLabelToolTips(IRosterIndex *, int, QMultiMap<int,QString> &, ToolBarChanger *)));
+			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow *)), SLOT(onMetaTabWindowCreated(IMetaTabWindow *)));
+			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowDestroyed(IMetaTabWindow *)), SLOT(onMetaTabWindowDestroyed(IMetaTabWindow *)));
 		}
 	}
 
@@ -143,8 +146,6 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 			connect(FXmppStreams->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onXmppStreamClosed(IXmppStream *)));
 		}
 	}
-
-//	connect(this, SIGNAL(streamCreated(const QString&)), this, SLOT(onStreamCreated(const QString&)));
 
 	return FStanzaProcessor!=NULL;
 }
@@ -169,6 +170,9 @@ bool SipManager::initObjects()
 		shandle.conditions.append(SHC_SIP_QUERY);
 		FSHISipQuery = FStanzaProcessor->insertStanzaHandle(shandle);
 	}
+
+	insertSipCallHandler(SCHO_SIPMANAGER_VIDEOCALLS,this);
+
 	return true;
 }
 
@@ -187,9 +191,9 @@ bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) 
 	return FDiscovery && FDiscovery->discoInfo(AStreamJid, AContactJid).features.contains(NS_RAMBLER_PHONE);
 }
 
-ISipCall *SipManager::newCall(const Jid &AStreamJid, const QList<Jid> &AContacts)
+ISipCall *SipManager::newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations)
 {
-	SipCall *call = new SipCall(this,FStanzaProcessor,AStreamJid,AContacts,QUuid::createUuid().toString());
+	SipCall *call = new SipCall(this,FStanzaProcessor,AStreamJid,ADestinations,QUuid::createUuid().toString());
 	connect(call, SIGNAL(destroyed(QObject*)), SLOT(onCallDestroyed(QObject*)));
 	calls << call;
 	emit sipCallCreated(call);
@@ -281,20 +285,23 @@ void SipManager::removeSipCallHandler(int AOrder, ISipCallHandler *AHandler)
 		handlers.remove(AOrder);
 }
 
-bool SipManager::canHandleCall(ISipCall *ACall)
+bool SipManager::handleSipCall(int AOrder, ISipCall *ACall)
 {
-	Q_UNUSED(ACall)
-	return true;
-}
-
-void SipManager::handleCall(ISipCall *ACall)
-{
-	ACall->acceptCall();
-	handledCalls << ACall;
-	connect(ACall->instance(), SIGNAL(stateChanged(int)), SLOT(onCallStateChanged(int)));
-	connect(ACall->instance(), SIGNAL(activeDeviceChanged(int)), SLOT(onCallActiveDeviceChanged(int)));
-	connect(ACall->instance(), SIGNAL(deviceStateChanged(ISipDevice::Type, ISipDevice::State)), SLOT(onCallDeviceStateChanged(ISipDevice::Type, ISipDevice::State)));
-	connect(ACall->instance(), SIGNAL(devicePropertyChanged(ISipDevice::Type, int, const QVariant &)), SLOT(onCallDevicePropertyChanged(ISipDevice::Type, int, const QVariant &)));
+	if (AOrder == SCHO_SIPMANAGER_VIDEOCALLS)
+	{
+		// Just for test, later CallControlWidget will be replaced with VideoCallWindow and will be created in it
+		CallControlWidget *widget = new CallControlWidget(FPluginManager,ACall);
+		widget->show();
+		return true;
+	}
+	
+	//ACall->acceptCall();
+	//handledCalls << ACall;
+	//connect(ACall->instance(), SIGNAL(stateChanged(int)), SLOT(onCallStateChanged(int)));
+	//connect(ACall->instance(), SIGNAL(activeDeviceChanged(int)), SLOT(onCallActiveDeviceChanged(int)));
+	//connect(ACall->instance(), SIGNAL(deviceStateChanged(ISipDevice::Type, ISipDevice::State)), SLOT(onCallDeviceStateChanged(ISipDevice::Type, ISipDevice::State)));
+	//connect(ACall->instance(), SIGNAL(devicePropertyChanged(ISipDevice::Type, int, const QVariant &)), SLOT(onCallDevicePropertyChanged(ISipDevice::Type, int, const QVariant &)));
+	return false;
 }
 
 bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
@@ -344,6 +351,84 @@ bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &A
 		}
 	}
 	return false;
+}
+
+SipManager *SipManager::callbackInstance()
+{
+	return inst;
+}
+
+void SipManager::onRegState(int acc_id)
+{
+	Q_UNUSED(acc_id)
+		// TODO: new implementation
+		pjsua_acc_info info;
+
+	pjsua_acc_get_info(acc_id, &info);
+
+	accRegistered = (info.status == PJSIP_SC_OK);
+	QString accountId = QString("%1").arg(info.acc_uri.ptr);
+	if (accRegistered)
+		emit registeredAtServer(accountId);
+	else
+		emit registrationAtServerFailed(accountId);
+}
+
+void SipManager::onRegState2(int acc_id, void *info)
+{
+	Q_UNUSED(acc_id)
+		// TODO: check this MAGIC implementation
+		int i;
+	i = ((pjsua_reg_info*)info)->cbparam->code;
+	i++;
+}
+
+void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
+{
+	Q_UNUSED(acc_id);
+	Q_UNUSED(rdata);
+	// TODO: check implementation
+	pjsua_call_info ci;
+	pjsua_call_get_info(call_id, &ci);
+	QString callerId = QString("%s").arg(ci.remote_info.ptr);
+	QString receiverId = QString("%s").arg(ci.local_info.ptr);
+	QList<ISipCall *> calls = findCalls(receiverId,callerId);
+	SipCall *call = calls.isEmpty() ? NULL : qobject_cast<SipCall *>(calls.value(0)->instance()); // TODO: ensure receiverId and callerId is full Jid
+	if (call && call->role()==ISipCall::CR_RESPONDER && call->state()==ISipCall::CS_CONNECTING)
+	{
+		call->setCallParams(acc_id, call_id);
+
+		bool handled = false;
+		for (QMap<int,ISipCallHandler *>::const_iterator it=handlers.constBegin(); !handled && it!=handlers.constEnd(); it++)
+			handled = it.value()->handleSipCall(it.key(),call);
+
+		if (!handled)
+		{
+			call->rejectCall(ISipCall::RC_NOHANDLER);
+			call->deleteLater();
+		}
+	}
+	else
+	{
+		// TODO: decline call here while we do not support direct incoming calls
+		pj_status_t status = pjsua_call_hangup(call_id, PJSIP_SC_DECLINE, NULL, NULL);
+		if (status != PJ_SUCCESS)
+		{
+			LogError(QString("[SipManager::onIncomingCall]: Failed to end call! pjsua_call_hangup() returned %1").arg(status));
+		}
+	}
+
+	//if (SipCall::activeCallForId(call_id))
+	//{
+	//	// busy
+	//	pjsua_call_answer(call_id, PJSIP_SC_BUSY_HERE, NULL, NULL);
+	//	return;
+	//}
+	//pjsua_call_info ci;
+	//pjsua_call_get_info(call_id, &ci);
+	//QString callerId = QString("%s").arg(ci.remote_info.ptr);
+	//QString receiverId = QString("%s").arg(ci.local_info.ptr);
+	//handleIncomingCall(receiverId, callerId, QUuid::createUuid().toString());
 }
 
 bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
@@ -619,90 +704,133 @@ void SipManager::onCallDevicePropertyChanged(ISipDevice::Type AType, int AProper
 	}
 }
 
-SipManager *SipManager::callbackInstance()
+void SipManager::onStartVideoCall()
 {
-	return inst;
-}
-
-void SipManager::onRegState(int acc_id)
-{
-	Q_UNUSED(acc_id)
-	// TODO: new implementation
-	pjsua_acc_info info;
-
-	pjsua_acc_get_info(acc_id, &info);
-
-	accRegistered = (info.status == PJSIP_SC_OK);
-	QString accountId = QString("%1").arg(info.acc_uri.ptr);
-	if (accRegistered)
-		emit registeredAtServer(accountId);
-	else
-		emit registrationAtServerFailed(accountId);
-}
-
-void SipManager::onRegState2(int acc_id, void *info)
-{
-	Q_UNUSED(acc_id)
-	// TODO: check this MAGIC implementation
-	int i;
-	i = ((pjsua_reg_info*)info)->cbparam->code;
-	i++;
-}
-
-void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
-{
-	Q_UNUSED(acc_id)
-	Q_UNUSED(rdata)
-	// TODO: check implementation
-	pjsua_call_info ci;
-	pjsua_call_get_info(call_id, &ci);
-	QString callerId = QString("%s").arg(ci.remote_info.ptr);
-	QString receiverId = QString("%s").arg(ci.local_info.ptr);
-	QList<ISipCall *> calls = findCalls(receiverId,callerId);
-	SipCall *call = calls.isEmpty() ? NULL : qobject_cast<SipCall *>(calls.value(0)->instance()); // TODO: ensure receiverId and callerId is full Jid
-	if (call && call->role()==ISipCall::CR_RESPONDER && call->state()==ISipCall::CS_CONNECTING)
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
 	{
-		call->setCallParams(acc_id, call_id);
+		QList<Jid> destinations;
+		foreach(QString destination ,action->data(ADR_DESTINATIONS).toStringList())
+			destination.append(destination);
+		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 
-		bool handled = false;
-		ISipCallHandler * handler = NULL;
-		foreach (handler, handlers.values())
+		ISipCall *call = newCall(streamJid,destinations);
+		if (call)
 		{
-			if ((handled = handler->canHandleCall(call)))
-				break;
-		}
-
-		if (!handled)
-		{
-			call->rejectCall(ISipCall::RC_NOHANDLER);
-			call->deleteLater();
-		}
-		else
-		{
-			handler->handleCall(call);
+			// Just for test, later CallControlWidget will be replaced with VideoCallWindow and will be created in it
+			CallControlWidget *widget = new CallControlWidget(FPluginManager,call);
+			widget->sipCall()->startCall();
+			widget->show();
 		}
 	}
-	else
+}
+
+void SipManager::onShowAddContactDialog()
+{
+	Action *action = qobject_cast<Action*>(sender());
+	if (FRosterChanger && action)
 	{
-		// TODO: decline call here while we do not support direct incoming calls
-		pj_status_t status = pjsua_call_hangup(call_id, PJSIP_SC_DECLINE, NULL, NULL);
-		if (status != PJ_SUCCESS)
+		Jid streamJid = action->data(ADR_STREAM_JID).toString();
+		QString metaId = action->data(ADR_WINDOW_METAID).toString();
+
+		QWidget *widget = FRosterChanger->showAddContactDialog(streamJid);
+		if (widget)
 		{
-			LogError(QString("[SipManager::onIncomingCall]: Failed to end call! pjsua_call_hangup() returned %1").arg(status));
+			IAddContactDialog *dialog = NULL;
+			if (!(dialog = qobject_cast<IAddContactDialog*>(widget)))
+			{
+				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(widget))
+					dialog = qobject_cast<IAddContactDialog*>(border->widget());
+			}
+			if (dialog)
+			{
+				IMetaRoster* mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(streamJid) : NULL;
+				if (mroster)
+				{
+					IMetaContact contact = mroster->metaContact(metaId);
+					dialog->setGroup(contact.groups.toList().value(0));
+					dialog->setParentMetaContactId(metaId);
+				}
+			}
 		}
 	}
+}
 
-	//if (SipCall::activeCallForId(call_id))
-	//{
-	//	// busy
-	//	pjsua_call_answer(call_id, PJSIP_SC_BUSY_HERE, NULL, NULL);
-	//	return;
-	//}
-	//pjsua_call_info ci;
-	//pjsua_call_get_info(call_id, &ci);
-	//QString callerId = QString("%s").arg(ci.remote_info.ptr);
-	//QString receiverId = QString("%s").arg(ci.local_info.ptr);
-	//handleIncomingCall(receiverId, callerId, QUuid::createUuid().toString());
+void SipManager::onCallMenuAboutToShow()
+{
+	Menu *menu = qobject_cast<Menu *>(sender());
+	IMetaTabWindow *window = FCallMenus.key(menu);
+	if (menu && window)
+	{
+		menu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 1);
+
+		QStringList destinations;
+		IMetaContact contact = window->metaRoster()->metaContact(window->metaId());
+		foreach(Jid itemJid, contact.items)
+		{
+			foreach(IPresenceItem pitem, window->metaRoster()->itemPresences(itemJid)) 
+			{
+				if (isCallSupported(window->metaRoster()->streamJid(),pitem.itemJid))
+					destinations.append(pitem.itemJid.full());
+			}
+		}
+		if (!destinations.isEmpty())
+		{
+			Action *videoCallAction = new Action(menu);
+			videoCallAction->setText(FMetaContacts->metaContactName(contact));
+			videoCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
+			videoCallAction->setData(ADR_DESTINATIONS,destinations);
+			connect(videoCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
+			menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_CALL_LIST);
+		}
+
+		if (FRosterChanger)
+		{
+			Action *addContactAction = new Action(menu);
+			addContactAction->setText(tr("Add Number..."));
+			addContactAction->setData(ADR_STREAM_JID, window->metaRoster()->streamJid().full());
+			addContactAction->setData(ADR_WINDOW_METAID, window->metaId());
+			connect(addContactAction, SIGNAL(triggered(bool)), SLOT(onShowAddContactDialog()));
+			menu->addAction(addContactAction, AG_SPCM_SIPPHONE_ADDCONTACT);
+		}
+	}
+}
+
+void SipManager::onCallMenuAboutToHide()
+{
+	Menu *menu = qobject_cast<Menu *>(sender());
+	IMetaTabWindow *window = FCallMenus.key(menu);
+	if (menu && window)
+	{
+		menu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 0);
+		menu->clear();
+	}
+}
+
+void SipManager::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
+{
+	if(AWindow->isContactPage())
+	{
+		QLabel *separator = new QLabel;
+		separator->setFixedWidth(12);
+		separator->setPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_SEPARATOR)));
+		AWindow->toolBarChanger()->insertWidget(separator, TBG_MCMTW_P2P_CALL);
+
+		Menu *callMenu = new Menu(AWindow->toolBarChanger()->toolBar());
+		callMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 0);
+		connect(callMenu, SIGNAL(aboutToShow()), this, SLOT(onCallMenuAboutToShow()));
+		connect(callMenu, SIGNAL(aboutToHide()), this, SLOT(onCallMenuAboutToHide()));
+
+		QToolButton *callButton = AWindow->toolBarChanger()->insertAction(callMenu->menuAction(), TBG_MCMTW_P2P_CALL);
+		callButton->setObjectName("tbSipCall");
+		callButton->setPopupMode(QToolButton::InstantPopup);
+		FCallMenus.insert(AWindow, callMenu);
+	}
+}
+
+void SipManager::onMetaTabWindowDestroyed(IMetaTabWindow *AWindow)
+{
+	FCallMenus.remove(AWindow);
 }
 
 Q_EXPORT_PLUGIN2(plg_sipmanager, SipManager)

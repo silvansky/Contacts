@@ -46,7 +46,7 @@ public:
 signals:
 	void stateChanged(int AState);
 	void DTMFSignalReceived(QChar ASignal);
-	void activeDeviceChanged(int ADeviceType);
+	void activeDeviceChanged(ISipDevice::Type ADeviceType);
 	void deviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState);
 	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 public:

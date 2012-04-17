@@ -5,7 +5,8 @@ FORMS = 	sipphonewidget.ui\
 		fullscreenform.ui \
 		sipcallnotifyer.ui\
 		contactselector.ui \
-    testcallwidget.ui
+		testcallwidget.ui \
+		callcontrolwidget.ui
 
 HEADERS = 	avcontrol.h\ 
 		complexvideowidget.h\
@@ -25,11 +26,12 @@ HEADERS = 	avcontrol.h\
 		rsipphone.h \
 		sipmanager.h \
 		sipcall.h \
-    frameconverter.h \
-    pjsipdefines.h \
-    pjsipdefines.h \
-    pjsipcallbacks.h \
-    testcallwidget.h
+		frameconverter.h \
+		pjsipdefines.h \
+		pjsipdefines.h \
+		pjsipcallbacks.h \
+		testcallwidget.h \
+		callcontrolwidget.h
 
 SOURCES = 	avcontrol.cpp\ 
 		complexvideowidget.cpp\
@@ -47,6 +49,7 @@ SOURCES = 	avcontrol.cpp\
 		rsipphone.cpp \
 		sipmanager.cpp \
 		sipcall.cpp \
-    frameconverter.cpp \
-    pjsipcallbacks.cpp \
-    testcallwidget.cpp
+		frameconverter.cpp \
+		pjsipcallbacks.cpp \
+		testcallwidget.cpp \
+		callcontrolwidget.cpp

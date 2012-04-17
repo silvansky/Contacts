@@ -42,7 +42,7 @@ public:
 	// ISipManager
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
 	// calls
-	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &AContacts);
+	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations);
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
 	// SIP registration
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
@@ -58,8 +58,7 @@ public:
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	// ISipCallHandler
-	virtual bool canHandleCall(ISipCall * ACall);
-	virtual void handleCall(ISipCall * ACall);
+	virtual void handleSipCall(int AOrder, ISipCall * ACall);
 	// IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 signals:
@@ -74,6 +73,11 @@ signals:
 public:
 	// SipManager internals
 	static SipManager *callbackInstance();
+public:
+	// pjsip callbacks
+	void onRegState(int acc_id);
+	void onRegState2(int acc_id, void * /* pjsua_reg_info * */info);
+	void onIncomingCall(int acc_id, int call_id, void * /* pjsip_rx_data * */rdata);
 protected:
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 	bool initStack(const QString &ASipServer, int ASipPort, const Jid &ASipUser, const QString &ASipPassword);
@@ -89,17 +93,20 @@ protected slots:
 	void onCallActiveDeviceChanged(int ADeviceType);
 	void onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState);
 	void onCallDevicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
-public:
-	// pjsip callbacks
-	void onRegState(int acc_id);
-	void onRegState2(int acc_id, void * /* pjsua_reg_info * */info);
-	void onIncomingCall(int acc_id, int call_id, void * /* pjsip_rx_data * */rdata);
+protected slots:
+	void onStartVideoCall();
+	void onShowAddContactDialog();
+	void onCallMenuAboutToShow();
+	void onCallMenuAboutToHide();
+	void onMetaTabWindowCreated(IMetaTabWindow *AWindow);
+	void onMetaTabWindowDestroyed(IMetaTabWindow *AWindow);
 private:
+	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;
 	IStanzaProcessor *FStanzaProcessor;
-	IRostersView *FRostersView;
 	IMetaContacts *FMetaContacts;
 	IXmppStreams *FXmppStreams;
+	IRosterChanger *FRosterChanger;
 private:
 	int FSHISipQuery;
 private:
@@ -109,6 +116,7 @@ private:
 	QMap<Jid, TestCallWidget*> testCallWidgets;
 	static SipManager * inst;
 	bool accRegistered;
+	QMap<IMetaTabWindow *, Menu *> FCallMenus;
 private:
 	// for ISipCallHandler
 	QList<ISipCall *> handledCalls;

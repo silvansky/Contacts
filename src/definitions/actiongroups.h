@@ -68,7 +68,8 @@
 #define AG_VWCM_MESSAGEWIDGETS_QUOTE                            500
 #define AG_VWCM_MESSAGEWIDGETS_SEARCH                           700
 
-//SipPhone - Contact Menu
-#define AG_SPCM_SIPPHONE_BASECONTACT                            300
+//SipPhone - Call Menu
+#define AG_SPCM_SIPPHONE_CALL_LIST                              500
+#define AG_SPCM_SIPPHONE_ADDCONTACT                             800
 
 #endif // DEF_ACTIONGROUPS_H
