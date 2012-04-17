@@ -58,7 +58,7 @@ public:
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	// ISipCallHandler
-	virtual void handleSipCall(int AOrder, ISipCall * ACall);
+	virtual bool handleSipCall(int AOrder, ISipCall * ACall);
 	// IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 signals:

@@ -397,16 +397,7 @@ void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 	if (call && call->role()==ISipCall::CR_RESPONDER && call->state()==ISipCall::CS_CONNECTING)
 	{
 		call->setCallParams(acc_id, call_id);
-
-		bool handled = false;
-		for (QMap<int,ISipCallHandler *>::const_iterator it=handlers.constBegin(); !handled && it!=handlers.constEnd(); it++)
-			handled = it.value()->handleSipCall(it.key(),call);
-
-		if (!handled)
-		{
-			call->rejectCall(ISipCall::RC_NOHANDLER);
-			call->deleteLater();
-		}
+		call->acceptCall();
 	}
 	else
 	{
@@ -438,18 +429,15 @@ bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJi
 	emit sipCallCreated(call);
 
 	bool handled = false;
-	foreach (ISipCallHandler * handler, handlers.values())
-	{
-		if ((handled = handler->canHandleCall(call)))
-			break;
-	}
-	
+	for (QMap<int,ISipCallHandler *>::const_iterator it=handlers.constBegin(); !handled && it!=handlers.constEnd(); it++)
+		handled = it.value()->handleSipCall(it.key(),call);
+
 	if (!handled)
 	{
 		call->rejectCall(ISipCall::RC_NOHANDLER);
 		call->deleteLater();
 	}
-
+	
 	return handled;
 }
 
