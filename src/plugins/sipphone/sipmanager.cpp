@@ -699,7 +699,7 @@ void SipManager::onStartVideoCall()
 	{
 		QList<Jid> destinations;
 		foreach(QString destination ,action->data(ADR_DESTINATIONS).toStringList())
-			destination.append(destination);
+			destinations.append(destination);
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 
 		ISipCall *call = newCall(streamJid,destinations);
