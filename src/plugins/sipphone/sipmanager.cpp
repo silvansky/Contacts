@@ -111,7 +111,7 @@ void SipManager::pluginInfo(IPluginInfo *APluginInfo)
 bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
 	Q_UNUSED(AInitOrder);
-
+	FPluginManager = APluginManager;
 	IPlugin *plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0,NULL);
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
@@ -194,7 +194,7 @@ bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) 
 ISipCall *SipManager::newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations)
 {
 	SipCall *call = new SipCall(this,FStanzaProcessor,AStreamJid,ADestinations,QUuid::createUuid().toString());
-	connect(call, SIGNAL(destroyed(QObject*)), SLOT(onCallDestroyed(QObject*)));
+	connect(call, SIGNAL(callDestroyed()), SLOT(onCallDestroyed()));
 	calls << call;
 	emit sipCallCreated(call);
 	return call;
@@ -291,7 +291,8 @@ bool SipManager::handleSipCall(int AOrder, ISipCall *ACall)
 	{
 		// Just for test, later CallControlWidget will be replaced with VideoCallWindow and will be created in it
 		CallControlWidget *widget = new CallControlWidget(FPluginManager,ACall);
-		widget->show();
+		widget->window()->show();
+		ACall->startCall();
 		return true;
 	}
 	
@@ -426,6 +427,8 @@ bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJi
 {
 	// TODO: check availability of answering the call (busy) <- handler should do this
 	SipCall *call = new SipCall(this,FStanzaProcessor,AStreamJid,AContactJid,ASessionId);
+	connect(call, SIGNAL(callDestroyed()), SLOT(onCallDestroyed()));
+	calls << call;
 	emit sipCallCreated(call);
 
 	bool handled = false;
@@ -604,9 +607,9 @@ void SipManager::setRegistration(const Jid & AStreamJid, bool ARenew)
 		LogError(QString("[SipManager::setRegistration]: Invalid stream jid - %1").arg(AStreamJid.full()));
 }
 
-void SipManager::onCallDestroyed(QObject * object)
+void SipManager::onCallDestroyed()
 {
-	ISipCall * call = qobject_cast<ISipCall*>(object);
+	ISipCall * call = qobject_cast<ISipCall*>(sender());
 	if (call)
 	{
 		calls.removeAll(call);
@@ -661,11 +664,11 @@ void SipManager::onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::St
 {
 	Q_UNUSED(AState)
 	// TODO: show "no camera" in case of DS_UNAVAIL/DS_DISABLED state
-	if (AType == ISipDevice::DT_CAMERA)
+	if (AType == ISipDevice::DT_LOCAL_CAMERA)
 	{
 
 	}
-	else if (AType == ISipDevice::DT_VIDEO_IN)
+	else if (AType == ISipDevice::DT_REMOTE_CAMERA)
 	{
 
 	}
@@ -676,14 +679,14 @@ void SipManager::onCallDevicePropertyChanged(ISipDevice::Type AType, int AProper
 	Q_UNUSED(AType)
 	Q_UNUSED(AProperty)
 	Q_UNUSED(AValue)
-	if (AType == ISipDevice::DT_CAMERA)
+	if (AType == ISipDevice::DT_LOCAL_CAMERA)
 	{
 		if (AProperty == ISipDevice::CP_CURRENTFRAME)
 		{
 			// TODO: set preview image to test widget
 		}
 	}
-	else if (AType == ISipDevice::DT_VIDEO_IN)
+	else if (AType == ISipDevice::DT_REMOTE_CAMERA)
 	{
 		if (AProperty == ISipDevice::VP_CURRENTFRAME)
 		{
@@ -708,7 +711,7 @@ void SipManager::onStartVideoCall()
 			// Just for test, later CallControlWidget will be replaced with VideoCallWindow and will be created in it
 			CallControlWidget *widget = new CallControlWidget(FPluginManager,call);
 			widget->sipCall()->startCall();
-			widget->show();
+			widget->window()->show();
 		}
 	}
 }

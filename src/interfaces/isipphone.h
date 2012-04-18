@@ -69,10 +69,10 @@ struct ISipDevice
 	enum Type
 	{
 		DT_UNDEFINED,
-		DT_CAMERA,
-		DT_VIDEO_IN,
-		DT_MICROPHONE,
-		DT_AUDIO_OUT
+		DT_LOCAL_CAMERA,
+		DT_REMOTE_CAMERA,
+		DT_LOCAL_MICROPHONE,
+		DT_REMOTE_MICROPHONE
 	};
 
 	enum State
@@ -176,6 +176,7 @@ public:
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const = 0;
 	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue) = 0;
 protected:
+	virtual void callDestroyed() =0;
 	virtual void stateChanged(int AState) = 0;
 	virtual void DTMFSignalReceived(QChar ASignal) = 0;
 	virtual void activeDeviceChanged(ISipDevice::Type ADeviceType) = 0;

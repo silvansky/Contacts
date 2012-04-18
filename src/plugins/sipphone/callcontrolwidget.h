@@ -2,11 +2,11 @@
 #define CALLCONTROLWIDGET_H
 
 #include <QWidget>
-#include <definitions/resources.h>
-#include <definitions/stylesheets.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/isipphone.h>
-#include <utils/stylestorage.h>
+#include <interfaces/iavatars.h>
+#include <interfaces/igateways.h>
+#include <interfaces/imetacontacts.h>
 #include "ui_callcontrolwidget.h"
 
 class CallControlWidget : 
@@ -16,15 +16,32 @@ class CallControlWidget :
 public:
 	CallControlWidget(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent = NULL);
 	~CallControlWidget();
+	Jid streamJid() const;
+	Jid contactJid() const;
 	ISipCall *sipCall() const;
 protected:
 	void initialize(IPluginManager *APluginManager);
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState);
+protected slots:
+	void onAcceptButtonClicked();
+	void onRejectButtonClicked();
+	void onSilentButtonClicked();
+	void onLocalCameraStateButtonClicked(bool AChecked);
+	void onLocalMicrophoneStateButtonClicked(bool AChecked);
+	void onRemoteMicrophoneStateButtonClicked(bool AChecked);
+protected slots:
+	void onMetaAvatarChanged(const QString &AMetaId);
 private:
 	Ui::CallControlWidgetClass ui;
 private:
+	IAvatars *FAvatars;
+	IGateways *FGateways;
+	IMetaRoster *FMetaRoster;
+	IMetaContacts *FMetaContacts;
+private:
+	QString FMetaId;
 	ISipCall *FSipCall;
 };
 

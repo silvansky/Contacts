@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>695</width>
+    <width>570</width>
     <height>59</height>
    </rect>
   </property>
@@ -77,9 +77,9 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QToolButton" name="tlbAudioOut">
+          <widget class="QToolButton" name="tlbLocalMicrophone">
            <property name="text">
-            <string notr="true">AOT</string>
+            <string notr="true">LM</string>
            </property>
            <property name="checked">
             <bool>false</bool>
@@ -87,9 +87,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="tlbAudioIn">
+          <widget class="QToolButton" name="tlbRemoteMicrophone">
            <property name="text">
-            <string notr="true">AIN</string>
+            <string notr="true">RM</string>
            </property>
            <property name="checked">
             <bool>false</bool>
@@ -97,9 +97,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="tlbVideoOut">
+          <widget class="QToolButton" name="tlbLocalCamera">
            <property name="text">
-            <string notr="true">VOT</string>
+            <string notr="true">LC</string>
            </property>
            <property name="checked">
             <bool>false</bool>

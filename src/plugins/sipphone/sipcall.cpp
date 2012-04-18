@@ -20,32 +20,6 @@
 
 QList<SipCall *> SipCall::FCallInstances;
 
-void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId)
-{
-	FSipManager = AManager;
-	if (FSipManager)
-	{
-		connect(FSipManager->instance(), SIGNAL(registeredAtServer(const Jid &)), SLOT(onRegisteredAtServer(const Jid &)));
-		connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const Jid &)), SLOT(onUnRegisteredAtServer(const Jid &)));
-		connect(FSipManager->instance(), SIGNAL(registrationAtServerFailed(const Jid &)), SLOT(onRegistraitionAtServerFailed(const Jid &)));
-	}
-	else
-	{
-		LogError("[SipCall::init]: SipManager is required to create SipCall correctly.");
-	}
-
-	FStanzaProcessor = AStanzaProcessor;
-
-	FSessionId = ASessionId;
-	FStreamJid = AStreamJid;
-	FCallId = -1;
-	FAccountId = -1;
-	FSHICallAccept = -1;
-	FCallInstances.append(this);
-	FState = CS_NONE;
-	FErrorCode = EC_NONE;
-}
-
 SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
 {
 	init(ASipManager, AStanzaProcessor, AStreamJid, ASessionId);
@@ -74,6 +48,7 @@ SipCall::~SipCall()
 	if (FStanzaProcessor)
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
+	emit callDestroyed();
 }
 
 QObject *SipCall::instance()
@@ -88,7 +63,7 @@ Jid SipCall::streamJid() const
 
 Jid SipCall::contactJid() const
 {
-	return FContactJid;
+	return FContactJid.isEmpty() ? FDestinations.value(0) : FContactJid;
 }
 
 QString SipCall::sessionId() const
@@ -129,7 +104,7 @@ void SipCall::startCall()
 		else
 			setCallError(EC_NOTAVAIL,tr("The destinations is not available"));
 	}
-	else if (role()==CR_INITIATOR && state()==CS_NONE)
+	else if (role()==CR_RESPONDER && state()==CS_NONE)
 	{
 		setCallState(CS_CALLING);
 	}
@@ -264,13 +239,13 @@ ISipDevice SipCall::activeDevice(ISipDevice::Type AType) const
 {
 	switch (AType)
 	{
-	case ISipDevice::DT_CAMERA:
+	case ISipDevice::DT_LOCAL_CAMERA:
 		return camera;
-	case ISipDevice::DT_MICROPHONE:
+	case ISipDevice::DT_LOCAL_MICROPHONE:
 		return microphone;
-	case ISipDevice::DT_VIDEO_IN:
+	case ISipDevice::DT_REMOTE_CAMERA:
 		return videoInput;
-	case ISipDevice::DT_AUDIO_OUT:
+	case ISipDevice::DT_REMOTE_MICROPHONE:
 		return audioOutput;
 	default:
 		return ISipDevice();
@@ -287,16 +262,16 @@ bool SipCall::setActiveDevice(ISipDevice::Type AType, int ADeviceId)
 		{
 			switch (AType)
 			{
-			case ISipDevice::DT_CAMERA:
+			case ISipDevice::DT_LOCAL_CAMERA:
 				camera = d;
 				break;
-			case ISipDevice::DT_MICROPHONE:
+			case ISipDevice::DT_LOCAL_MICROPHONE:
 				microphone = d;
 				break;
-			case ISipDevice::DT_AUDIO_OUT:
+			case ISipDevice::DT_REMOTE_MICROPHONE:
 				audioOutput = d;
 				break;
-			case ISipDevice::DT_VIDEO_IN:
+			case ISipDevice::DT_REMOTE_CAMERA:
 				videoInput = d;
 				break;
 			default:
@@ -317,16 +292,16 @@ ISipDevice::State SipCall::deviceState(ISipDevice::Type AType) const
 	Q_UNUSED(AType)
 	switch (AType)
 	{
-	case ISipDevice::DT_CAMERA:
+	case ISipDevice::DT_LOCAL_CAMERA:
 		return cameraState;
 		break;
-	case ISipDevice::DT_MICROPHONE:
+	case ISipDevice::DT_LOCAL_MICROPHONE:
 		return microphoneState;
 		break;
-	case ISipDevice::DT_VIDEO_IN:
+	case ISipDevice::DT_REMOTE_CAMERA:
 		return videoInputState;
 		break;
-	case ISipDevice::DT_AUDIO_OUT:
+	case ISipDevice::DT_REMOTE_MICROPHONE:
 		return audioOutputState;
 		break;
 	default:
@@ -342,7 +317,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 
 	switch (AType)
 	{
-	case ISipDevice::DT_CAMERA:
+	case ISipDevice::DT_LOCAL_CAMERA:
 	{
 		if (AState != cameraState)
 		{
@@ -362,15 +337,15 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 		}
 		break;
 	}
-	case ISipDevice::DT_MICROPHONE:
+	case ISipDevice::DT_LOCAL_MICROPHONE:
 	{
 		break;
 	}
-	case ISipDevice::DT_VIDEO_IN:
+	case ISipDevice::DT_REMOTE_CAMERA:
 	{
 		break;
 	}
-	case ISipDevice::DT_AUDIO_OUT:
+	case ISipDevice::DT_REMOTE_MICROPHONE:
 	{
 		break;
 	}
@@ -392,16 +367,16 @@ QVariant SipCall::deviceProperty(ISipDevice::Type AType, int AProperty) const
 	// TODO: implementation
 	switch (AType)
 	{
-	case ISipDevice::DT_CAMERA:
+	case ISipDevice::DT_LOCAL_CAMERA:
 		return cameraProperties.value(AProperty, QVariant());
 		break;
-	case ISipDevice::DT_MICROPHONE:
+	case ISipDevice::DT_LOCAL_MICROPHONE:
 		return microphoneProperties.value(AProperty, QVariant());
 		break;
-	case ISipDevice::DT_VIDEO_IN:
+	case ISipDevice::DT_REMOTE_CAMERA:
 		return videoInputProperties.value(AProperty, QVariant());
 		break;
-	case ISipDevice::DT_AUDIO_OUT:
+	case ISipDevice::DT_REMOTE_MICROPHONE:
 		return audioOutputProperties.value(AProperty, QVariant());
 		break;
 	default:
@@ -416,7 +391,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 	bool propertyChanged = false;
 	switch (AType)
 	{
-	case ISipDevice::DT_CAMERA:
+	case ISipDevice::DT_LOCAL_CAMERA:
 		if (AProperty == ISipDevice::CP_CURRENTFRAME) // readonly property
 			return false;
 		else
@@ -429,7 +404,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 			}
 		}
 		break;
-	case ISipDevice::DT_MICROPHONE:
+	case ISipDevice::DT_LOCAL_MICROPHONE:
 		propertyChanged = (microphoneProperties.value(AProperty, QVariant()) != AValue);
 		if (propertyChanged)
 		{
@@ -437,7 +412,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 			// TODO: handle property changes
 		}
 		break;
-	case ISipDevice::DT_VIDEO_IN:
+	case ISipDevice::DT_REMOTE_CAMERA:
 		if (AProperty == ISipDevice::VP_CURRENTFRAME) // readonly property
 			return false;
 		else
@@ -450,7 +425,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 			}
 		}
 		break;
-	case ISipDevice::DT_AUDIO_OUT:
+	case ISipDevice::DT_REMOTE_MICROPHONE:
 		propertyChanged = (audioOutputProperties.value(AProperty, QVariant()) != AValue);
 		if (propertyChanged)
 		{
@@ -468,7 +443,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 
 void SipCall::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 {
-	Q_UNUSED(AStreamJid)
+	Q_UNUSED(AStreamJid);
 	if (FCallRequests.contains(AStanza.id()))
 	{
 		Jid destination = FCallRequests.take(AStanza.id());
@@ -486,7 +461,7 @@ void SipCall::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 					setCallError(EC_NOTAVAIL,tr("Call in not supported by destination"));
 			}
 		}
-		else if (role() == CR_INITIATOR)
+		else if (role() == CR_RESPONDER)
 		{
 			if (AStanza.type() == "result")
 			{
@@ -692,7 +667,7 @@ int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int st
 
 		QPixmap remotePixmap = QPixmap::fromImage(remoteImage);
 		videoInputProperties[ISipDevice::VP_CURRENTFRAME] = remotePixmap;
-		emit devicePropertyChanged(ISipDevice::DT_VIDEO_IN, ISipDevice::VP_CURRENTFRAME, remotePixmap);
+		emit devicePropertyChanged(ISipDevice::DT_REMOTE_CAMERA, ISipDevice::VP_CURRENTFRAME, remotePixmap);
 	}
 	return 0;
 }
@@ -727,9 +702,29 @@ int SipCall::onMyPreviewFrameCallback(void *frame, const char *colormodelName, i
 
 		QPixmap previewPixmap = QPixmap::fromImage(previewImage);
 		cameraProperties[ISipDevice::CP_CURRENTFRAME] = previewPixmap;
-		emit devicePropertyChanged(ISipDevice::DT_CAMERA, ISipDevice::CP_CURRENTFRAME, previewPixmap);
+		emit devicePropertyChanged(ISipDevice::DT_LOCAL_CAMERA, ISipDevice::CP_CURRENTFRAME, previewPixmap);
 	}
 	return 0;
+}
+
+void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId)
+{
+	FSipManager = AManager;
+	FStanzaProcessor = AStanzaProcessor;
+
+	FSessionId = ASessionId;
+	FStreamJid = AStreamJid;
+	FCallId = -1;
+	FAccountId = -1;
+	FSHICallAccept = -1;
+	FState = CS_NONE;
+	FErrorCode = EC_NONE;
+
+	connect(FSipManager->instance(), SIGNAL(registeredAtServer(const Jid &)), SLOT(onRegisteredAtServer(const Jid &)));
+	connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const Jid &)), SLOT(onUnRegisteredAtServer(const Jid &)));
+	connect(FSipManager->instance(), SIGNAL(registrationAtServerFailed(const Jid &)), SLOT(onRegistraitionAtServerFailed(const Jid &)));
+
+	FCallInstances.append(this);
 }
 
 void SipCall::setCallState(CallState AState)
@@ -754,14 +749,12 @@ void SipCall::setCallState(CallState AState)
 			if (FSipManager)
 			{
 				if (!FSipManager->isRegisteredAtServer(FStreamJid))
-				{
 					FSipManager->registerAtServer(FStreamJid);
-				}
 				else
 					continueAfterRegistration(true);
 			}
 		}
-		emit stateChanged(AState);
+		emit stateChanged(FState);
 	}
 }
 

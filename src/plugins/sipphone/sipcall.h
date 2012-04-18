@@ -14,8 +14,6 @@ class SipCall :
 {
 	Q_OBJECT
 	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner)
-private:
-	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId);
 public:
 	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId);
@@ -44,11 +42,12 @@ public:
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const;
 	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 signals:
+	void callDestroyed();
 	void stateChanged(int AState);
 	void DTMFSignalReceived(QChar ASignal);
 	void activeDeviceChanged(ISipDevice::Type ADeviceType);
 	void deviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState);
-	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
+	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant &AValue);
 public:
 	// IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
@@ -68,6 +67,7 @@ public:
 	int onMyPutFrameCallback(int call_id, /*pjmedia_frame **/void *frame, int w, int h, int stride);
 	int onMyPreviewFrameCallback(/*pjmedia_frame **/void *frame, const char* colormodelName, int w, int h, int stride);
 protected:
+	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId);
 	void setCallState(CallState AState);
 	void setCallError(ErrorCode ACode, const QString &AMessage);
 	void continueAfterRegistration(bool ARegistered);

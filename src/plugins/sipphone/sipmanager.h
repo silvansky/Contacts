@@ -83,7 +83,7 @@ protected:
 	bool initStack(const QString &ASipServer, int ASipPort, const Jid &ASipUser, const QString &ASipPassword);
 	void setRegistration(const Jid & AStreamJid, bool ARenew);
 protected slots:
-	void onCallDestroyed(QObject*);
+	void onCallDestroyed();
 	void onXmppStreamOpened(IXmppStream * stream);
 	void onXmppStreamAboutToClose(IXmppStream * stream);
 	void onXmppStreamClosed(IXmppStream * stream);
