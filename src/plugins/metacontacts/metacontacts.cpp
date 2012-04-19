@@ -300,7 +300,7 @@ bool MetaContacts::keyOnRosterIndexPressed(IRosterIndex *AIndex, int AOrder, Qt:
 		Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 		QString metaId = AIndex->data(RDR_META_ID).toString();
 		IMetaRoster *mroster = findMetaRoster(streamJid);
-		if (mroster && mroster->isOpen() && canEditMetaContact(streamJid,metaId))
+		if (mroster && mroster->isOpen() && !(editMetaContactRestrictions(streamJid,metaId) & GSR_RENAME_CONTACT))
 		{
 			QList<QVariant> selMetaIdList;
 			QHash<int,QVariant> data;
@@ -330,16 +330,16 @@ bool MetaContacts::keyOnRosterIndexesPressed(IRosterIndex *AIndex, QList<IRoster
 		IMetaRoster *mroster = findMetaRoster(streamJid);
 		if (mroster && mroster->isOpen())
 		{
-			bool canDelete = true;
+			quint32 restrictions = 0;
 			QList<QVariant> selMetaIdList;
 			foreach(IRosterIndex *index, ASelected)
 			{
 				if (index != AIndex)
 					selMetaIdList.append(index->data(RDR_META_ID));
-				canDelete = canDelete && canDeleteMetaContact(streamJid,index->data(RDR_META_ID).toString());
+				restrictions |= editMetaContactRestrictions(streamJid,index->data(RDR_META_ID).toString());
 			}
 
-			if (canDelete)
+			if (!(restrictions & GSR_DELETE_CONTACT))
 			{
 				QHash<int,QVariant> data;
 				data.insert(ADR_STREAM_JID,streamJid.full());
@@ -402,8 +402,7 @@ bool MetaContacts::rosterDragMove(const QDragMoveEvent *AEvent, const QModelInde
 			QMap<int, QVariant> indexData;
 			QDataStream stream(AEvent->mimeData()->data(DDT_ROSTERSVIEW_INDEX_DATA));
 			stream >> indexData;
-
-			return canEditMetaContact(mroster->streamJid(),indexData.value(RDR_META_ID).toString());
+			return !(editMetaContactRestrictions(mroster->streamJid(),indexData.value(RDR_META_ID).toString()) & GSR_CHANGE_GROUPS);
 		}
 	}
 	return false;
@@ -426,7 +425,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 		QString indexMetaId = indexData.value(RDR_META_ID).toString();
 		QString hoverGroup = AIndex.data(RDR_GROUP).toString();
 		QString indexGroup = indexData.value(RDR_GROUP).toString();
-		bool canEdit = canEditMetaContact(mroster->streamJid(),indexMetaId);
+		quint32 restrictions = editMetaContactRestrictions(mroster->streamJid(),indexMetaId);
 
 		if (AIndex.data(RDR_TYPE).toInt() == RIT_METACONTACT)
 		{
@@ -445,7 +444,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 					AMenu->setDefaultAction(mergeAction);
 					return true;
 				}
-				else if (canEdit && hoverGroup!=indexGroup && !indexGroup.isEmpty())
+				else if (!(restrictions & GSR_CHANGE_GROUPS) && hoverGroup!=indexGroup && !indexGroup.isEmpty())
 				{
 					Action *removeAction = new Action(AMenu);
 					removeAction->setText(tr("Remove from group"));
@@ -459,7 +458,7 @@ bool MetaContacts::rosterDropAction(const QDropEvent *AEvent, const QModelIndex 
 				}
 			}
 		}
-		else if (canEdit && DragGroups.contains(AIndex.data(RDR_TYPE).toInt()))
+		else if (!(restrictions & GSR_CHANGE_GROUPS) && DragGroups.contains(AIndex.data(RDR_TYPE).toInt()))
 		{
 			if (AEvent->dropAction() == Qt::MoveAction)
 			{
@@ -847,9 +846,9 @@ IMetaTabWindow *MetaContacts::findMetaTabWindow(const Jid &AStreamJid, const QSt
 	return NULL;
 }
 
-bool MetaContacts::canEditMetaContact(const Jid &AStreamJid, const QString &AMetaId) const
+quint32 MetaContacts::editMetaContactRestrictions(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid) const
 {
-	bool canEdit = true;
+	quint32 restrictions = 0;
 	if (FGateways)
 	{
 		IMetaRoster *mroster = findMetaRoster(AStreamJid);
@@ -858,58 +857,19 @@ bool MetaContacts::canEditMetaContact(const Jid &AStreamJid, const QString &AMet
 			const IMetaContact &contact = mroster->metaContact(AMetaId);
 			if (contact.items.count() == 1)
 			{
-				Jid itemJid = *contact.items.constBegin();
-				if (!FGateways->serviceDescriptor(AStreamJid,itemJid.domain()).readOnly)
-				{
-					if (!itemJid.node().isEmpty() && FGateways->streamServices(AStreamJid).contains(itemJid.domain()))
-					{
-						IPresenceItem pitem = FGateways->servicePresence(AStreamJid,itemJid.domain());
-						if (pitem.show==IPresence::Offline || pitem.show==IPresence::Error)
-							canEdit = false;
-					}
-				}
-				else
-				{
-					canEdit = false;
-				}
+				restrictions = FGateways->serviceRestrictions(AStreamJid,contact.items.toList().first().domain());
 			}
-		}
-	}
-	return canEdit;
-}
-
-bool MetaContacts::canDeleteMetaContact(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid) const
-{
-	bool canDelete = true;
-	if (FGateways)
-	{
-		IMetaRoster *mroster = findMetaRoster(AStreamJid);
-		if (mroster)
-		{
-			QList<Jid> streamServices = FGateways->streamServices(AStreamJid);
-			const IMetaContact &contact = mroster->metaContact(AMetaId);
-			for(QSet<Jid>::const_iterator it=contact.items.constBegin(); canDelete && it!=contact.items.constEnd();++it)
+			else if (!AItemJid.isEmpty())
 			{
-				if (AItemJid.isEmpty() || AItemJid==*it)
-				{
-					if (!FGateways->serviceDescriptor(AStreamJid,it->domain()).readOnly)
-					{
-						if (!it->node().isEmpty() && streamServices.contains(it->domain()))
-						{
-							IPresenceItem pitem = FGateways->servicePresence(AStreamJid,it->domain());
-							if (pitem.show==IPresence::Offline || pitem.show==IPresence::Error)
-								canDelete = false;
-						}
-					}
-					else
-					{
-						canDelete = false;
-					}
-				}
+				restrictions = FGateways->serviceRestrictions(AStreamJid,AItemJid.domain()) & GSR_DELETE_CONTACT;
+			}
+			else foreach(Jid itemJid, contact.items)
+			{
+				restrictions |= FGateways->serviceRestrictions(AStreamJid,itemJid.domain()) & GSR_DELETE_CONTACT;
 			}
 		}
 	}
-	return canDelete;
+	return restrictions;
 }
 
 QString MetaContacts::deleteContactWithNotify(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid)
@@ -1980,8 +1940,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			QList<QVariant> selMetaIdList;
 			QSet<Jid> commonItems = contact.items;
 			QSet<QString> commonGroups = contact.groups;
-			bool canEdit = canEditMetaContact(mroster->streamJid(),metaId);
-			bool canDelete = canDeleteMetaContact(mroster->streamJid(),metaId);
+			quint32 restrictions = editMetaContactRestrictions(mroster->streamJid(),metaId);
 			foreach(IRosterIndex *index, ASelected)
 			{
 				if (index != AIndex)
@@ -1991,8 +1950,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 					selMetaIdList.append(selMetaId);
 					commonItems += selContact.items;
 					commonGroups += selContact.groups;
-					canEdit = canEdit && canEditMetaContact(mroster->streamJid(),selMetaId.toString());
-					canDelete = canDelete && canDeleteMetaContact(mroster->streamJid(),selMetaId.toString());
+					restrictions |= editMetaContactRestrictions(mroster->streamJid(),selMetaId.toString());
 				}
 			}
 
@@ -2054,7 +2012,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			// Change group menu
 			GroupMenu *groupMenu = new GroupMenu(AMenu);
 			groupMenu->setTitle(tr("Group"));
-			groupMenu->setEnabled(canEdit);
+			groupMenu->setEnabled(!(restrictions & GSR_CHANGE_GROUPS));
 
 			Action *blankGroupAction = new Action(groupMenu);
 			blankGroupAction->setText(FRostersViewPlugin->rostersView()->rostersModel()->singleGroupName(RIT_GROUP_BLANK));
@@ -2089,7 +2047,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 			Action *deleteAction = new Action(AMenu);
 			deleteAction->setText(tr("Delete"));
 			deleteAction->setData(data);
-			deleteAction->setEnabled(canDelete);
+			deleteAction->setEnabled(!(restrictions & GSR_DELETE_CONTACT));
 			connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteContact(bool)));
 			AMenu->addAction(deleteAction,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 
@@ -2149,7 +2107,7 @@ void MetaContacts::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRosterI
 				renameAction->setText(tr("Rename..."));
 				renameAction->setData(data);
 				renameAction->setData(ADR_GROUP,AIndex->data(RDR_GROUP));
-				renameAction->setEnabled(canEdit);
+				renameAction->setEnabled(!(restrictions & GSR_RENAME_CONTACT));
 				connect(renameAction,SIGNAL(triggered(bool)),SLOT(onRenameContact(bool)));
 				AMenu->addAction(renameAction,AG_RVCM_ROSTERCHANGER_RENAME);
 

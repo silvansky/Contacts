@@ -294,6 +294,38 @@
         <source>Connect with other services to see all your friends in one place</source>
         <translation>Подключите другие сервисы и общайтесь со всеми друзьями в одной программе</translation>
     </message>
+    <message>
+        <source>Adding contacts is prohibited</source>
+        <translation>Добавление контактов запрещено</translation>
+    </message>
+    <message>
+        <source>Deleting contacts is prohibited</source>
+        <translation>Удаление контактов запрещено</translation>
+    </message>
+    <message>
+        <source>Renaming contacts is prohibited</source>
+        <translation>Переименование контактов запрещено</translation>
+    </message>
+    <message>
+        <source>Changing contacts groups is prohibited</source>
+        <translation>Изменение групп контактов запрещено</translation>
+    </message>
+    <message>
+        <source>Adding contacts through this gateway is prohibited</source>
+        <translation>Добавление контактов через этот транспорт запрещено</translation>
+    </message>
+    <message>
+        <source>Deleting contacts through this gateway is prohibited</source>
+        <translation>Удаление контактов через этот транспорт запрещено</translation>
+    </message>
+    <message>
+        <source>Renaming contacts through this gateway is prohibited</source>
+        <translation>Переименование контактов через этот транспорт запрещено</translation>
+    </message>
+    <message>
+        <source>Changing contacts groups through this gateway is prohibited</source>
+        <translation>Изменение групп контактов через этот транспорт запрещено</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptions</name>

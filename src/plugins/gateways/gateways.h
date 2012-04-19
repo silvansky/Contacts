@@ -98,10 +98,12 @@ public:
 	virtual QList<Jid> availRegistrators(const Jid &AStreamJid, bool AFree = true) const;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
+	virtual quint32 gateDescriptorRestrictions(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const;
 	virtual QList<Jid> gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly = false) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IGateServiceDescriptor serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	virtual quint32 serviceRestrictions(const Jid &AStreamJid, const Jid &AServiceJid, bool ACheckPresence = true) const;
 	virtual IGateServiceLogin serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const;
 	virtual IRegisterSubmit serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const;
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const;

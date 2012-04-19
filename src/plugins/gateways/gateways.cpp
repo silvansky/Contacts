@@ -232,7 +232,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor icq;
 	icq.id = GSID_ICQ;
 	icq.needGate = true;
-	icq.readOnly = true;
 	icq.type = "icq";
 	icq.name = tr("ICQ");
 	icq.iconKey = MNI_GATEWAYS_SERVICE_ICQ;
@@ -328,7 +327,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor vkontakte;
 	vkontakte.id = GSID_VKONTAKTE;
 	vkontakte.needGate = true;
-	vkontakte.readOnly = true;
 	vkontakte.type = "xmpp";
 	vkontakte.prefix = "vk";
 	vkontakte.name = tr("VKontakte");
@@ -344,7 +342,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor odnoklasniki;
 	odnoklasniki.id = GSID_ODNOKLASNIKI;
 	odnoklasniki.needGate = true;
-	odnoklasniki.readOnly = true;
 	odnoklasniki.type = "xmpp";
 	odnoklasniki.prefix = "ok";
 	odnoklasniki.name = tr("Odnoklassniki");
@@ -362,7 +359,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor facebook;
 	facebook.id = GSID_FACEBOOK;
 	facebook.needGate = true;
-	facebook.readOnly = true;
 	facebook.type = "xmpp";
 	facebook.prefix = "fb";
 	facebook.name = tr("Facebook");
@@ -933,18 +929,26 @@ QList<Jid> Gateways::streamServices(const Jid &AStreamJid, const IDiscoIdentity 
 	return services;
 }
 
+quint32 Gateways::gateDescriptorRestrictions(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const
+{
+	quint32 restrictions = 0;
+	foreach(Jid gateJid, gateDescriptorServices(AStreamJid,ADescriptor,false))
+		restrictions |= serviceRestrictions(AStreamJid,gateJid,false);
+	return restrictions;
+}
+
 QList<Jid> Gateways::gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly) const
 {
 	IDiscoIdentity identity;
 	identity.category = "gateway";
 	identity.type = ADescriptor.type;
 	QList<Jid> gates = AStreamOnly ? streamServices(AStreamJid,identity) : availServices(AStreamJid,identity);
-	if (ADescriptor.needGate && !ADescriptor.prefix.isEmpty())
+	if (!ADescriptor.prefix.isEmpty())
 	{
 		QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(ADescriptor.prefix));
 		for(QList<Jid>::iterator it = gates.begin(); it!=gates.end(); )
 		{
-			if (regexp.exactMatch(it->pDomain()))
+			if (!regexp.exactMatch(it->pDomain()))
 				it = gates.erase(it);
 			else
 				it++;
@@ -973,6 +977,32 @@ IPresenceItem Gateways::servicePresence(const Jid &AStreamJid, const Jid &AServi
 IGateServiceDescriptor Gateways::serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
 	return FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
+}
+
+quint32 Gateways::serviceRestrictions(const Jid &AStreamJid, const Jid &AServiceJid, bool ACheckPresence) const
+{
+	quint32 restrictions = 0;
+	if (FDiscovery && availServices(AStreamJid).contains(AServiceJid))
+	{
+		IPresenceItem pitem = servicePresence(AStreamJid,AServiceJid);
+		if (ACheckPresence && (pitem.show==IPresence::Offline || pitem.show==IPresence::Error))
+		{
+			restrictions = GSR_ADD_CONTACT|GSR_DELETE_CONTACT|GSR_RENAME_CONTACT|GSR_CHANGE_GROUPS;
+		}
+		else if (FDiscovery->hasDiscoInfo(AStreamJid,AServiceJid))
+		{
+			IDiscoInfo dinfo = FDiscovery->discoInfo(AStreamJid,AServiceJid);
+			if (dinfo.features.contains(NS_RAMBLER_GATEWAY_ROSTER_ADD_PROHIBITED))
+				restrictions |= GSR_ADD_CONTACT;
+			if (dinfo.features.contains(NS_RAMBLER_GATEWAY_ROSTER_DELETE_PROHIBITED))
+				restrictions |= GSR_DELETE_CONTACT;
+			if (dinfo.features.contains(NS_RAMBLER_GATEWAY_ROSTER_RENAME_PROHIBITED))
+				restrictions |= GSR_RENAME_CONTACT;
+			if (dinfo.features.contains(NS_RAMBLER_GATEWAY_ROSTER_GROUP_CHANGE_PROHIBITED))
+				restrictions |= GSR_CHANGE_GROUPS;
+		}
+	}
+	return restrictions;
 }
 
 IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const
@@ -1270,6 +1300,30 @@ void Gateways::registerDiscoFeatures()
 	dfeature.var = NS_JABBER_GATEWAY;
 	dfeature.name = tr("Gateway Interaction");
 	dfeature.description = tr("Supports the adding of the contact by the username of the legacy system");
+	FDiscovery->insertDiscoFeature(dfeature);
+
+	dfeature.active = false;
+	dfeature.var = NS_RAMBLER_GATEWAY_ROSTER_ADD_PROHIBITED;
+	dfeature.name = tr("Adding contacts is prohibited");
+	dfeature.description = tr("Adding contacts through this gateway is prohibited");
+	FDiscovery->insertDiscoFeature(dfeature);
+
+	dfeature.active = false;
+	dfeature.var = NS_RAMBLER_GATEWAY_ROSTER_DELETE_PROHIBITED;
+	dfeature.name = tr("Deleting contacts is prohibited");
+	dfeature.description = tr("Deleting contacts through this gateway is prohibited");
+	FDiscovery->insertDiscoFeature(dfeature);
+
+	dfeature.active = false;
+	dfeature.var = NS_RAMBLER_GATEWAY_ROSTER_RENAME_PROHIBITED;
+	dfeature.name = tr("Renaming contacts is prohibited");
+	dfeature.description = tr("Renaming contacts through this gateway is prohibited");
+	FDiscovery->insertDiscoFeature(dfeature);
+
+	dfeature.active = false;
+	dfeature.var = NS_RAMBLER_GATEWAY_ROSTER_GROUP_CHANGE_PROHIBITED;
+	dfeature.name = tr("Changing contacts groups is prohibited");
+	dfeature.description = tr("Changing contacts groups through this gateway is prohibited");
 	FDiscovery->insertDiscoFeature(dfeature);
 }
 

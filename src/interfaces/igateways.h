@@ -11,6 +11,14 @@
 
 #define GATE_PREFIX_PATTERN       "(^gw\\d+\\.|^)%1\\..*"
 
+enum IGateServiceRestrictions
+{
+	GSR_ADD_CONTACT    = 0x01,
+	GSR_DELETE_CONTACT = 0x02,
+	GSR_RENAME_CONTACT = 0x04,
+	GSR_CHANGE_GROUPS  = 0x08
+};
+
 struct IGateServiceLogin
 {
 	IGateServiceLogin() { 
@@ -40,12 +48,10 @@ struct IGateServiceDescriptor :
 		needGate = false;
 		needLogin = true;
 		autoLogin = false;
-		readOnly = false;
 	}
 	bool needGate;
 	bool needLogin;
 	bool autoLogin;
-	bool readOnly;
 	QString type;
 	QString prefix;
 	QString loginField;
@@ -86,10 +92,12 @@ public:
 	virtual QList<Jid> availRegistrators(const Jid &AStreamJid, bool AFree = true) const =0;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const =0;
+	virtual quint32 gateDescriptorRestrictions(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const =0;
 	virtual QList<Jid> gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly = false) const =0;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
 	virtual IGateServiceDescriptor serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const =0;
+	virtual quint32 serviceRestrictions(const Jid &AStreamJid, const Jid &AServiceJid, bool ACheckPresence = true) const =0;
 	virtual IGateServiceLogin serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const =0;
 	virtual IRegisterSubmit serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const =0;
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const =0;

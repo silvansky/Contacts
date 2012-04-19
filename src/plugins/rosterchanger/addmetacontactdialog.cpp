@@ -206,7 +206,7 @@ void AddMetaContactDialog::createGatewaysMenu()
 		Menu *menu = new Menu(ui.pbtAddItem);
 		foreach(const IGateServiceDescriptor &descriptor, FGateways->gateDescriptors())
 		{
-			if (!(descriptor.needGate && descriptor.readOnly) && FGateways->gateDescriptorStatus(streamJid(),descriptor) != IGateways::GDS_UNAVAILABLE)
+			if (FGateways->gateDescriptorStatus(streamJid(),descriptor) != IGateways::GDS_UNAVAILABLE)
 			{
 				Action *action = new Action(menu);
 				action->setText(descriptor.name);

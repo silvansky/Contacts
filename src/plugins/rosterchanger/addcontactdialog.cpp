@@ -553,7 +553,7 @@ void AddContactDialog::resolveDescriptor()
 	{
 		if (!confirmTypes.contains(descriptor.type) && !confirmLinked.contains(descriptor.id) && !confirmBlocked.contains(descriptor.id))
 		{
-			if (!descriptor.needGate || !descriptor.readOnly)
+			if (!(FGateways->gateDescriptorRestrictions(streamJid(),descriptor) & GSR_ADD_CONTACT))
 				confirmDescriptors.append(descriptor);
 			else
 				readOnlyDescriptor = descriptor;
@@ -670,7 +670,8 @@ void AddContactDialog::resolveLinkedContactsJid()
 					QList<Jid> gates = FGateways->streamServices(streamJid(),identity);
 					foreach(Jid gate, gates)
 					{
-						if (!FGateways->serviceDescriptor(streamJid(),gate).readOnly)
+						const IGateServiceDescriptor &descriptor = FGateways->serviceDescriptor(streamJid(),gate);
+						if (!(FGateways->gateDescriptorRestrictions(streamJid(),descriptor) & GSR_ADD_CONTACT))
 						{
 							QString requestId = FGateways->sendUserJidRequest(streamJid(),gate,contact);
 							if (!requestId.isEmpty())

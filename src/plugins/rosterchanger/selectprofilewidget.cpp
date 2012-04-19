@@ -94,9 +94,9 @@ void SelectProfileWidget::updateProfiles()
 	QList<Jid> gates = FGateways->gateDescriptorServices(streamJid(),FDescriptor,FDescriptor.needLogin);
 	for (QList<Jid>::iterator it=gates.begin(); it!=gates.end(); )
 	{
-		IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(streamJid(),*it);
-		if (!descriptor.readOnly)
+		if (!(FGateways->serviceRestrictions(streamJid(),*it) & GSR_ADD_CONTACT))
 		{
+			IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(streamJid(),*it);
 			if (FDescriptor.id == descriptor.id)
 				nativeGates.append(*it);
 			it++;

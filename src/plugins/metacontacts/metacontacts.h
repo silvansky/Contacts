@@ -122,8 +122,7 @@ public:
 	virtual QList<IMetaTabWindow *> metaTabWindows() const;
 	virtual IMetaTabWindow *getMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId);
 	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const;
-	virtual bool canEditMetaContact(const Jid &AStreamJid, const QString &AMetaId) const;
-	virtual bool canDeleteMetaContact(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid = Jid::null) const;
+	virtual quint32 editMetaContactRestrictions(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid = Jid::null) const;
 	virtual QString deleteContactWithNotify(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid = Jid::null);
 	virtual QDialog *showMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId);
 	virtual QDialog *showRenameContactDialog(const Jid &AStreamJid, const QString &AMetaId);

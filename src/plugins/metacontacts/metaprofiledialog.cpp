@@ -389,7 +389,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				cbtDelete->setVisible(false);
 				cbtDelete->setProperty("itemJid",itemIt->bare());
 				cbtDelete->setProperty("itemName",itemName);
-				cbtDelete->setProperty("canDelete",FMetaContacts->canDeleteMetaContact(FMetaRoster->streamJid(),FMetaId,itemIt->bare()));
+				cbtDelete->setProperty("canDelete",(FMetaContacts->editMetaContactRestrictions(FMetaRoster->streamJid(),FMetaId,itemIt->bare()) & GSR_DELETE_CONTACT)==0);
 
 				connect(cbtDelete,SIGNAL(clicked()),SLOT(onDeleteContactButtonClicked()));
 				wdtItem->layout()->addWidget(cbtDelete);

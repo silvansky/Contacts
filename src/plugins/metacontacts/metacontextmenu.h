@@ -1,8 +1,7 @@
 #ifndef METACONTEXTMENU_H
 #define METACONTEXTMENU_H
 
-#include <definitions/rosterindextyperole.h>
-#include <definitions/rosterlabelorders.h>
+#include <interfaces/igateways.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/imetacontacts.h>

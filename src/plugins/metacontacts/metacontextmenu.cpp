@@ -4,6 +4,8 @@
 #include <QClipboard>
 #include <QStringBuilder>
 #include <definitions/metaitemorders.h>
+#include <definitions/rosterindextyperole.h>
+#include <definitions/rosterlabelorders.h>
 
 MetaContextMenu::MetaContextMenu(IRostersModel *AModel, IMetaContacts *AMetaContacts, IMetaTabWindow *AWindow) : Menu(AWindow->instance())
 {
@@ -61,7 +63,7 @@ void MetaContextMenu::updateMenu()
 		QImage avatar = FRosterIndex->data(RDR_AVATAR_IMAGE_LARGE).value<QImage>();
 		setIcon(QIcon(QPixmap::fromImage(avatar)));
 
-		FRenameAction->setEnabled(FMetaContacts->canEditMetaContact(FRosterIndex->data(RDR_STREAM_JID).toString(),FRosterIndex->data(RDR_META_ID).toString()));
+		FRenameAction->setEnabled(!(FMetaContacts->editMetaContactRestrictions(FRosterIndex->data(RDR_STREAM_JID).toString(),FRosterIndex->data(RDR_META_ID).toString()) & GSR_RENAME_CONTACT));
 
 		menuAction()->setVisible(true);
 	}

@@ -724,7 +724,7 @@ IAddMetaItemWidget *RosterChanger::newAddMetaItemWidget(const Jid &AStreamJid, c
 	if (FGateways && roster)
 	{
 		IGateServiceDescriptor descriptor = FGateways->gateDescriptorById(AGateDescriptorId);
-		if (!descriptor.id.isEmpty() && !(descriptor.needGate && descriptor.readOnly))
+		if (!descriptor.id.isEmpty() && !(FGateways->gateDescriptorRestrictions(AStreamJid,descriptor) & GSR_ADD_CONTACT))
 		{
 			widget = new AddMetaItemWidget(FOptionsManager,roster,FGateways,descriptor,AParent);
 			emit addMetaItemWidgetCreated(widget);
@@ -1254,26 +1254,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 		if (itemType == RIT_CONTACT || itemType == RIT_AGENT)
 		{
 			QString contactJid = AIndex->data(RDR_FULL_JID).toString();
-
-			bool canEdit = true;
-			if (FGateways)
-			{
-				IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(streamJid,Jid(contactJid).domain());
-				if (!descriptor.readOnly)
-				{
-					Jid itemJid = contactJid;
-					if (!itemJid.node().isEmpty() && FGateways->streamServices(streamJid).contains(itemJid.domain()))
-					{
-						IPresenceItem pitem = FGateways->servicePresence(streamJid,itemJid.domain());
-						if (pitem.show==IPresence::Offline || pitem.show==IPresence::Error)
-							canEdit = false;
-					}
-				}
-				else
-				{
-					canEdit = false;
-				}
-			}
+			quint32 restrictions = FGateways!=NULL ? FGateways->serviceRestrictions(streamJid,Jid(contactJid).domain()) : 0;
 
 			QHash<int,QVariant> data;
 			data.insert(ADR_STREAM_JID,streamJid);
@@ -1309,7 +1290,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 			Action *action = new Action(AMenu);
 			action->setText(tr("Delete"));
 			action->setData(data);
-			action->setEnabled(canEdit);
+			action->setEnabled(!(restrictions & GSR_DELETE_CONTACT));
 			connect(action,SIGNAL(triggered(bool)),SLOT(onRemoveItemFromRoster(bool)));
 			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_REMOVE_CONTACT);
 
@@ -1321,7 +1302,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				action = new Action(AMenu);
 				action->setText(tr("Rename..."));
 				action->setData(data);
-				action->setEnabled(canEdit);
+				action->setEnabled(!(restrictions & GSR_RENAME_CONTACT));
 				connect(action,SIGNAL(triggered(bool)),SLOT(onRenameItem(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
 
@@ -1329,7 +1310,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				{
 					GroupMenu *groupMenu = new GroupMenu(AMenu);
 					groupMenu->setTitle(tr("Group"));
-					groupMenu->setEnabled(canEdit);
+					groupMenu->setEnabled(!(restrictions & GSR_CHANGE_GROUPS));
 
 					Action *blankGroupAction = new Action(groupMenu);
 					blankGroupAction->setText(FRostersModel->singleGroupName(RIT_GROUP_BLANK));
@@ -1367,7 +1348,7 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 				action->setText(tr("Add contact"));
 				action->setData(ADR_STREAM_JID,streamJid);
 				action->setData(ADR_CONTACT_JID,contactJid);
-				action->setEnabled(canEdit);
+				action->setEnabled(!(restrictions & GSR_ADD_CONTACT));
 				connect(action,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
 				AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_ADD_CONTACT);
 			}
@@ -1378,21 +1359,14 @@ void RosterChanger::onRosterIndexContextMenu(IRosterIndex *AIndex, QList<IRoster
 			data.insert(ADR_STREAM_JID,streamJid);
 			data.insert(ADR_GROUP,AIndex->data(RDR_GROUP));
 
-			bool canEdit = false;
+			quint32 restrictions = 0xFFFFFFFF;
 			foreach(IRosterItem groupItem, roster->groupItems(AIndex->data(RDR_GROUP).toString()))
-			{
-				IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->serviceDescriptor(streamJid,groupItem.itemJid.domain()) : IGateServiceDescriptor();
-				if (!descriptor.readOnly)
-				{
-					canEdit = true;
-					break;
-				}
-			}
+				restrictions &= FGateways!=NULL ? FGateways->serviceRestrictions(streamJid,groupItem.itemJid.domain()) : 0;
 
 			Action *action = new Action(AMenu);
 			action->setText(tr("Rename group..."));
 			action->setData(data);
-			action->setEnabled(canEdit);
+			action->setEnabled(!(restrictions & GSR_CHANGE_GROUPS));
 			connect(action,SIGNAL(triggered(bool)),SLOT(onRenameGroup(bool)));
 			AMenu->addAction(action,AG_RVCM_ROSTERCHANGER_RENAME);
 		}
@@ -2244,18 +2218,21 @@ void RosterChanger::onViewWidgetContextMenu(const QPoint &APosition, const QText
 		if (roster && roster->isOpen() && !roster->rosterItem(contact).isValid)
 		{
 			IGateServiceDescriptor descriptor = FGateways!=NULL ? FGateways->gateHomeDescriptorsByContact(contact).value(0) : IGateServiceDescriptor();
-			if (!descriptor.id.isEmpty() && !(descriptor.needGate && descriptor.readOnly))
+			if (!descriptor.id.isEmpty())
 			{
-				if (!descriptor.needGate || !FGateways->gateDescriptorServices(roster->streamJid(),descriptor).isEmpty())
+				if (!(FGateways->serviceRestrictions(roster->streamJid(),Jid(contact).domain()) & GSR_ADD_CONTACT))
 				{
-					Action *action = new Action(AMenu);
-					action->setText(tr("Create new contact..."));
-					action->setIcon(RSR_STORAGE_MENUICONS,descriptor.iconKey);
-					action->setData(ADR_STREAM_JID,roster->streamJid().full());
-					action->setData(ADR_CONTACT_TEXT,contact);
-					connect(action,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
-					AMenu->addAction(action,AG_VWCM_ROSTERCHANGER_ADD_CONTACT);
-					AMenu->setDefaultAction(action);
+					if (!descriptor.needGate || !FGateways->gateDescriptorServices(roster->streamJid(),descriptor).isEmpty())
+					{
+						Action *action = new Action(AMenu);
+						action->setText(tr("Create new contact..."));
+						action->setIcon(RSR_STORAGE_MENUICONS,descriptor.iconKey);
+						action->setData(ADR_STREAM_JID,roster->streamJid().full());
+						action->setData(ADR_CONTACT_TEXT,contact);
+						connect(action,SIGNAL(triggered(bool)),SLOT(onShowAddContactDialog(bool)));
+						AMenu->addAction(action,AG_VWCM_ROSTERCHANGER_ADD_CONTACT);
+						AMenu->setDefaultAction(action);
+					}
 				}
 			}
 		}

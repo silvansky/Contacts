@@ -13,7 +13,7 @@
 #define NS_JABBER_PRIVATE                                    "jabber:iq:private"
 #define NS_JABBER_VERSION                                    "jabber:iq:version"
 #define NS_JABBER_LAST                                       "jabber:iq:last"
-#define NS_JABBER_DATA                                                    "jabber:x:data"
+#define NS_JABBER_DATA                                       "jabber:x:data"
 #define NS_JABBER_REGISTER                                   "jabber:iq:register"
 #define NS_JABBER_OOB                                        "jabber:x:oob"
 #define NS_JABBER_GATEWAY                                    "jabber:iq:gateway"
@@ -68,8 +68,9 @@
 #define NS_RAMBLER_MAIL_NOTICE                               "rambler:mail:notice"
 #define NS_RAMBLER_GATEWAY_REGISTER                          "rambler:gateway:register"
 #define NS_RAMBLER_TCPTUNNEL_CONNECT                         "rambler:tcptunnel:connect"
-#define NS_RAMBLER_GATEWAY_ROSTER_DELETE_PROHIBITED          "rambler:gateway:roster:delete-prohibited"
+
 #define NS_RAMBLER_GATEWAY_ROSTER_ADD_PROHIBITED             "rambler:gateway:roster:add-prohibited"
+#define NS_RAMBLER_GATEWAY_ROSTER_DELETE_PROHIBITED          "rambler:gateway:roster:delete-prohibited"
 #define NS_RAMBLER_GATEWAY_ROSTER_RENAME_PROHIBITED          "rambler:gateway:roster:rename-prohibited"
 #define NS_RAMBLER_GATEWAY_ROSTER_GROUP_CHANGE_PROHIBITED    "rambler:gateway:roster:group-change-prohibited"
 

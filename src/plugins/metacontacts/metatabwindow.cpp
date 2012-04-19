@@ -712,7 +712,7 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 		Action *deleteAction = new Action(AMenu);
 		deleteAction->setText(tr("Delete"));
 		deleteAction->setData(ADR_ITEM_JID,AItemJid.pBare());
-		deleteAction->setEnabled(FMetaRoster->isOpen() && FMetaContacts->canDeleteMetaContact(FMetaRoster->streamJid(),FMetaId,AItemJid));
+		deleteAction->setEnabled(FMetaRoster->isOpen() && !(FMetaContacts->editMetaContactRestrictions(FMetaRoster->streamJid(),FMetaId,AItemJid) & GSR_DELETE_CONTACT));
 		connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteItemByAction(bool)));
 		AMenu->addAction(deleteAction,AG_MCICM_ITEM_ACTIONS);
 	}

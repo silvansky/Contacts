@@ -9,6 +9,7 @@
 #include <definitions/optionvalues.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/igateways.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/irosterchanger.h>
