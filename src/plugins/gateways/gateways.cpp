@@ -1408,7 +1408,7 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 	if (FPrivateStorage)
 	{
 		FPrivateStorage->loadData(ARoster->streamJid(),PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
-		FKeepTimer.start(KEEP_INTERVAL);
+		//FKeepTimer.start(KEEP_INTERVAL);
 	}
 	startAutoLogin(ARoster->streamJid());
 }
