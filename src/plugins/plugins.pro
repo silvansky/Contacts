@@ -48,8 +48,9 @@ SUBDIRS += messagecarbons
 SUBDIRS += console
 SUBDIRS += multiuserchat
 SUBDIRS += stylesheeteditor
-macx:!CONFIG(release) { SUBDIRS += sipphone }
 SUBDIRS += macintegration
 SUBDIRS += win7integration
 SUBDIRS += systemintegration
 SUBDIRS += tcptunnel
+
+win32-msvc2008: SUBDIRS += sipphone
