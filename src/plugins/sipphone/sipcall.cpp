@@ -799,18 +799,32 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 	}
 	else if (role() == CR_RESPONDER)
 	{
-		if (FStanzaProcessor)
+		if (ARegistered)
 		{
-			Stanza accept("iq");
-			accept.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
-			QDomElement queryElem = accept.addElement("query", NS_RAMBLER_PHONE);
-			queryElem.setAttribute("type", "accept");
-			queryElem.setAttribute("sid", sessionId());
-			if (FStanzaProcessor->sendStanzaRequest(this, streamJid(), accept, CALL_REQUEST_TIMEOUT))
-				FCallRequests.insert(accept.id(), contactJid());
-			else
-				setCallError(EC_CONNECTIONERR, tr("Failed to accept call"));
-			pjsua_call_answer(FCallId, PJSIP_SC_OK, NULL, NULL);
+			if (FStanzaProcessor)
+			{
+				Stanza accept("iq");
+				accept.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
+				QDomElement queryElem = accept.addElement("query", NS_RAMBLER_PHONE);
+				queryElem.setAttribute("type", "accept");
+				queryElem.setAttribute("sid", sessionId());
+				if (FStanzaProcessor->sendStanzaRequest(this, streamJid(), accept, CALL_REQUEST_TIMEOUT))
+					FCallRequests.insert(accept.id(), contactJid());
+				else
+					setCallError(EC_CONNECTIONERR, tr("Failed to accept call"));
+			}
+		}
+		else
+		{
+			if (FStanzaProcessor)
+			{
+				Stanza accept("iq");
+				accept.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
+				QDomElement queryElem = accept.addElement("query", NS_RAMBLER_PHONE);
+				queryElem.setAttribute("type", "callee_error");
+				queryElem.setAttribute("sid", sessionId());
+			}
+			setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 		}
 	}
 }
