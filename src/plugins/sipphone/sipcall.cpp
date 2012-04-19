@@ -818,11 +818,12 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 		{
 			if (FStanzaProcessor)
 			{
-				Stanza accept("iq");
-				accept.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
-				QDomElement queryElem = accept.addElement("query", NS_RAMBLER_PHONE);
+				Stanza error("iq");
+				error.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
+				QDomElement queryElem = error.addElement("query", NS_RAMBLER_PHONE);
 				queryElem.setAttribute("type", "callee_error");
 				queryElem.setAttribute("sid", sessionId());
+				FStanzaProcessor->sendStanzaOut(streamJid(),error);
 			}
 			setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 		}
