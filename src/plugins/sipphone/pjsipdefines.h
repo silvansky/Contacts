@@ -1,11 +1,11 @@
 #ifndef PJSIPDEFINES_H
 #define PJSIPDEFINES_H
 
-#define HAS_VIDEO_SUPPORT	1
+#define HAS_VIDEO_SUPPORT		1
 
-#define SIP_DOMAIN				"vsip.rambler.ru"
-#define SIP_PORT				5065
-#define PHONE_TRANSPORT_DOMAIN	"phone.rambler.ru"
+#define SIP_DOMAIN			"vsip.rambler.ru"
+#define SIP_PORT			5065
+#define PHONE_TRANSPORT_DOMAIN		"phone.rambler.ru"
 
 #define DEFAULT_CAP_DEV			PJMEDIA_VID_DEFAULT_CAPTURE_DEV
 #define DEFAULT_REND_DEV		PJMEDIA_VID_DEFAULT_RENDER_DEV

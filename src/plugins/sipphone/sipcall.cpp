@@ -82,16 +82,16 @@ void SipCall::startCall()
 	{
 		foreach(Jid destination, FDestinations)
 		{
-			Stanza reques("iq");
-			reques.setTo(destination.eFull()).setType("set").setId(FStanzaProcessor->newId());
-			QDomElement queryElem = reques.addElement("query",NS_RAMBLER_PHONE);
+			Stanza request("iq");
+			request.setTo(destination.eFull()).setType("set").setId(FStanzaProcessor->newId());
+			QDomElement queryElem = request.addElement("query",NS_RAMBLER_PHONE);
 			queryElem.setAttribute("type","request");
 			queryElem.setAttribute("sid",sessionId());
 			queryElem.setAttribute("client","deskapp");
-			if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,streamJid(),reques,CALL_REQUEST_TIMEOUT))
+			if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,streamJid(),request,CALL_REQUEST_TIMEOUT))
 			{
-				LogDetail(QString("[SipCall] Call request sent to '%1', id='%2', sid='%3'").arg(destination.full(),reques.id(),sessionId()));
-				FCallRequests.insert(reques.id(),destination);
+				LogDetail(QString("[SipCall] Call request sent to '%1', id='%2', sid='%3'").arg(destination.full(),request.id(),sessionId()));
+				FCallRequests.insert(request.id(),destination);
 			}
 			else
 			{
@@ -458,7 +458,7 @@ void SipCall::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			{
 				LogDetail(QString("[SipCall] Call request rejected by '%1', sid='%2").arg(destination.full(),sessionId()));
 				if (FCallRequests.isEmpty())
-					setCallError(EC_NOTAVAIL,tr("Call in not supported by destination"));
+					setCallError(EC_NOTAVAIL,tr("Call is not supported by destination"));
 			}
 		}
 		else if (role() == CR_RESPONDER)
@@ -774,19 +774,16 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 	// TODO: check/test code
 	if (role() == CR_INITIATOR)
 	{
-		if (ARegistered)
+		if (FStanzaProcessor)
 		{
-			if (FStanzaProcessor)
+			if (ARegistered)
 			{
 				notifyActiveDestinations("accepted");
 				Stanza result = FStanzaProcessor->makeReplyResult(FAcceptStanza);
 				FStanzaProcessor->sendStanzaOut(streamJid(), result);
 				sipCallTo(FContactJid);
 			}
-		}
-		else
-		{
-			if (FStanzaProcessor)
+			else
 			{
 				notifyActiveDestinations("caller_error");
 				ErrorHandler err(ErrorHandler::RECIPIENT_UNAVAILABLE);
@@ -799,9 +796,9 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 	}
 	else if (role() == CR_RESPONDER)
 	{
-		if (ARegistered)
+		if (FStanzaProcessor)
 		{
-			if (FStanzaProcessor)
+			if (ARegistered)
 			{
 				Stanza accept("iq");
 				accept.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
@@ -813,19 +810,16 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				else
 					setCallError(EC_CONNECTIONERR, tr("Failed to accept call"));
 			}
-		}
-		else
-		{
-			if (FStanzaProcessor)
+			else
 			{
 				Stanza error("iq");
 				error.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
 				QDomElement queryElem = error.addElement("query", NS_RAMBLER_PHONE);
 				queryElem.setAttribute("type", "callee_error");
 				queryElem.setAttribute("sid", sessionId());
+				setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 				FStanzaProcessor->sendStanzaOut(streamJid(),error);
 			}
-			setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 		}
 	}
 }
@@ -857,7 +851,7 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 	{
 		pj_status_t status;
 		char uriTmp[512];
-		const char* uriToCall = AContactJid.full().toUtf8().constData();
+		const char* uriToCall = AContactJid.eBare().toAscii().constData();
 
 		pj_ansi_sprintf(uriTmp, "sip:%s", uriToCall);
 		pj_str_t uri = pj_str((char*)uriTmp);
@@ -886,7 +880,7 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 			FCallId = id;
 			if (status != PJ_SUCCESS)
 			{
-				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status %1").arg(status));
+				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status %1, uri is \'%2\'").arg(status).arg(uriTmp));
 				if (status == PJMEDIA_EAUD_NODEFDEV)
 				{
 					LogError(QString("[SipCall::sipCallTo]: Default device not found!"));

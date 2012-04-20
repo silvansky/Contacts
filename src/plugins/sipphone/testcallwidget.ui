@@ -20,11 +20,11 @@
 	border: 1px solid grey;
 }</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0,0">
    <item>
     <layout class="QHBoxLayout" name="controlsLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="caption">
        <property name="text">
         <string>SIP Contact:</string>
        </property>
@@ -108,6 +108,13 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="status">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

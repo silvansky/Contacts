@@ -295,7 +295,7 @@ bool SipManager::handleSipCall(int AOrder, ISipCall *ACall)
 		ACall->startCall();
 		return true;
 	}
-	
+
 	//ACall->acceptCall();
 	//handledCalls << ACall;
 	//connect(ACall->instance(), SIGNAL(stateChanged(int)), SLOT(onCallStateChanged(int)));
@@ -425,7 +425,7 @@ void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 
 bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
 {
-	// TODO: check availability of answering the call (busy) <- handler should do this
+	// TODO: check implementation
 	SipCall *call = new SipCall(this,FStanzaProcessor,AStreamJid,AContactJid,ASessionId);
 	connect(call, SIGNAL(callDestroyed()), SLOT(onCallDestroyed()));
 	calls << call;
@@ -458,8 +458,8 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 
 	pjsua_config ua_cfg;
 	pjsua_config_default(&ua_cfg);
-	pjsua_callback ua_cb;
-	pj_bzero(&ua_cb, sizeof(ua_cb));
+//	pjsua_callback ua_cb;
+//	pj_bzero(&ua_cb, sizeof(ua_cb));
 
 	registerCallbacks(ua_cfg.cb);
 
@@ -495,7 +495,6 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 				// Create account
 				pjsua_acc_config acc_cfg;
 				pjsua_acc_config_default(&acc_cfg);
-
 
 				char idtmp[1024];
 				QString idString = ASipUser.pBare();
@@ -642,14 +641,26 @@ void SipManager::onXmppStreamClosed(IXmppStream *stream)
 
 void SipManager::onCallStateChanged(int AState)
 {
-	Q_UNUSED(AState)
+#ifdef DEBUG_ENABLED
+	qDebug() << "Call state changed to " << AState;
+#endif
+	ISipCall * call = (ISipCall *)sender();
 	switch (AState)
 	{
 	case ISipCall::CS_FINISHED:
-		handledCalls.removeAll((ISipCall *)sender());
+		handledCalls.removeAll(call);
 		break;
 	case ISipCall::CS_TALKING:
 		break;
+	case ISipCall::CS_ERROR:
+	{
+		TestCallWidget * w = testCallWidgets.values().at(0);
+		w->setStatusText(call->errorString());
+#ifdef DEBUG_ENABLED
+		qDebug() << "Call error:" + call->errorString();
+#endif
+		break;
+	}
 	default:
 		break;
 	}
@@ -676,14 +687,13 @@ void SipManager::onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::St
 
 void SipManager::onCallDevicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant &AValue)
 {
-	Q_UNUSED(AType)
-	Q_UNUSED(AProperty)
-	Q_UNUSED(AValue)
 	if (AType == ISipDevice::DT_LOCAL_CAMERA)
 	{
 		if (AProperty == ISipDevice::CP_CURRENTFRAME)
 		{
 			// TODO: set preview image to test widget
+			TestCallWidget * w = testCallWidgets.values().at(0);
+			w->setPreview(AValue.value<QPixmap>());
 		}
 	}
 	else if (AType == ISipDevice::DT_REMOTE_CAMERA)
@@ -691,6 +701,8 @@ void SipManager::onCallDevicePropertyChanged(ISipDevice::Type AType, int AProper
 		if (AProperty == ISipDevice::VP_CURRENTFRAME)
 		{
 			// TODO: set remote image to test widget
+			TestCallWidget * w = testCallWidgets.values().at(0);
+			w->setRemoteImage(AValue.value<QPixmap>());
 		}
 	}
 }

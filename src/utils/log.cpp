@@ -16,6 +16,10 @@
 #include "datetime.h"
 #include "systemmanager.h"
 
+#if defined(DEBUG_ENABLED) && defined(LOG_TO_CONSOLE)
+# include <QDebug>
+#endif
+
 #define APP_REPORT_VERSION         "1.0"
 #define DIR_HOLDEM_REPORTS         "Rambler/Holdem/Reports"
 
@@ -127,6 +131,9 @@ void Log::writeMessage(uint AType, const QString &AMessage)
 			QFile logFile(FLogPath + "/" + FLogFile + ".txt");
 			logFile.open(QFile::WriteOnly | QFile::Append);
 			logFile.write(QString("%1\t+%2\t[%3]\t%4\r\n").arg(timestamp).arg(timedelta).arg(AType).arg(AMessage).toUtf8());
+#if defined(LOG_TO_CONSOLE) && defined(DEBUG_ENABLED)
+			qDebug() << AMessage;
+#endif
 			logFile.close();
 		}
 
