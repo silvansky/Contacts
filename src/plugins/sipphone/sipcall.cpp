@@ -789,8 +789,8 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				ErrorHandler err(ErrorHandler::RECIPIENT_UNAVAILABLE);
 				Stanza error = FStanzaProcessor->makeReplyError(FAcceptStanza,err);
 				FStanzaProcessor->sendStanzaOut(streamJid(), error);
+				setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 			}
-			setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 		}
 		FActiveDestinations.clear();
 	}
@@ -881,6 +881,7 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 			if (status != PJ_SUCCESS)
 			{
 				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status %1, uri is \'%2\'").arg(status).arg(uriTmp));
+				setCallError(ISipCall::EC_CONNECTIONERR, QString("SIP call to %1 failed").arg(AContactJid.full()));
 				if (status == PJMEDIA_EAUD_NODEFDEV)
 				{
 					LogError(QString("[SipCall::sipCallTo]: Default device not found!"));
