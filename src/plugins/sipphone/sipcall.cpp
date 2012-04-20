@@ -935,6 +935,7 @@ void SipCall::onRegisteredAtServer(const Jid &AStreamJid)
 	// TODO: check implementation
 	if (state() == CS_CONNECTING)
 	{
+		LogDetail(QString("[SipCall] Successfully registered at SIP server, sid='%1'").arg(sessionId()));
 		continueAfterRegistration(true);
 	}
 }
@@ -951,6 +952,7 @@ void SipCall::onRegistraitionAtServerFailed(const Jid &AStreamJid)
 	// TODO: check implementation
 	if (state() == CS_CONNECTING)
 	{
+		LogError(QString("[SipCall] Failed to register at SIP server, sid='%1'").arg(sessionId()));
 		continueAfterRegistration(false);
 	}
 }

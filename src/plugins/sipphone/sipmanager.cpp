@@ -11,6 +11,7 @@
 #include <definitions/sipcallhandlerorders.h>
 #include <utils/log.h>
 #include <utils/errorhandler.h>
+#include <utils/widgetmanager.h>
 #include <utils/custombordercontainer.h>
 
 #include "sipcall.h"
@@ -291,7 +292,8 @@ bool SipManager::handleSipCall(int AOrder, ISipCall *ACall)
 	{
 		// Just for test, later CallControlWidget will be replaced with VideoCallWindow and will be created in it
 		CallControlWidget *widget = new CallControlWidget(FPluginManager,ACall);
-		widget->window()->show();
+		WidgetManager::showActivateRaiseWindow(widget->window());
+		WidgetManager::alignWindow(widget->window(),Qt::AlignCenter);
 		ACall->startCall();
 		return true;
 	}
@@ -317,35 +319,34 @@ bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &A
 			QString sessionId = queryElem.attribute("sid");
 			if (sessionId.isEmpty())
 			{
-				LogError(QString("[SipManager]: Invalid incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				LogError(QString("[SipManager]: Invalid incoming call request from %1 to %2, sid='%3'").arg(AStanza.from(), AStreamJid.full(), sessionId));
 				ErrorHandler err(ErrorHandler::BAD_REQUEST);
 				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else if (!findCalls(Jid::null,Jid::null,sessionId).isEmpty())
 			{
-				LogError(QString("[SipManager]: Duplicated sessionID in incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				LogError(QString("[SipManager]: Duplicated sessionID in incoming call request from %1 to %2, sid='%3'").arg(AStanza.from(), AStreamJid.full(), sessionId));
 				ErrorHandler err(ErrorHandler::CONFLICT);
 				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else if (!findCalls(Jid::null,AStanza.from()).isEmpty())
 			{
-				LogError(QString("[SipManager]: Duplicated incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				LogError(QString("[SipManager]: Duplicated incoming call request from %1 to %2, sid='%3'").arg(AStanza.from(), AStreamJid.full(), sessionId));
 				ErrorHandler err(ErrorHandler::FORBIDDEN);
 				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else if (!handleIncomingCall(AStreamJid, AStanza.from(), sessionId))
 			{
-				LogError(QString("[SipManager]: Failed to handle incoming call request from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
+				LogError(QString("[SipManager]: Failed to handle incoming call request from %1 to %2, sid='%3'").arg(AStanza.from(), AStreamJid.full(), sessionId));
 				ErrorHandler err(ErrorHandler::UNEXPECTED_REQUEST);
 				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
 			else
 			{
-				LogDetail(QString("[SipManager]: Incoming call from %1 to %2").arg(AStanza.from(), AStreamJid.full()));
 				Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
 				FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 			}
@@ -425,7 +426,9 @@ void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 
 bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
 {
-	// TODO: check implementation
+	LogDetail(QString("[SipManager]: Processing incoming call from %1 to %2, sid='%3'").arg(AContactJid.full(), AStreamJid.full(), ASessionId));
+
+	// TODO: check availability of answering the call (busy) <- handler should do this
 	SipCall *call = new SipCall(this,FStanzaProcessor,AStreamJid,AContactJid,ASessionId);
 	connect(call, SIGNAL(callDestroyed()), SLOT(onCallDestroyed()));
 	calls << call;
@@ -723,7 +726,8 @@ void SipManager::onStartVideoCall()
 			// Just for test, later CallControlWidget will be replaced with VideoCallWindow and will be created in it
 			CallControlWidget *widget = new CallControlWidget(FPluginManager,call);
 			widget->sipCall()->startCall();
-			widget->window()->show();
+			WidgetManager::showActivateRaiseWindow(widget->window());
+			WidgetManager::alignWindow(widget->window(),Qt::AlignCenter);
 		}
 	}
 }
