@@ -79,7 +79,7 @@ SipManager::SipManager() :
 #endif
 	inst = this;
 #if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
-	registerFrameCallbacks(myframe);
+	PJCallbacks::registerFrameCallbacks(myframe);
 #endif
 
 }
@@ -238,6 +238,11 @@ bool SipManager::unregisterAtServer(const Jid &AStreamJid)
 	return false;
 }
 
+int SipManager::accountId(const Jid &AStreamJid)
+{
+	return accountIds.value(AStreamJid, -1);
+}
+
 QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType) const
 {
 	Q_UNUSED(AType)
@@ -362,16 +367,21 @@ SipManager *SipManager::callbackInstance()
 
 void SipManager::onRegState(int acc_id)
 {
-	Q_UNUSED(acc_id)
-		// TODO: new implementation
-		pjsua_acc_info info;
+	// TODO: check implementation
+	pjsua_acc_info info;
 
 	pjsua_acc_get_info(acc_id, &info);
 
 	accRegistered = (info.status == PJSIP_SC_OK);
 	QString accountId = QString("%1").arg(info.acc_uri.ptr);
+
+	LogDetail(QString("[SipManager::onRegState]: Registered: %1, account: %2").arg(accRegistered).arg(accountId));
+
 	if (accRegistered)
+	{
+		accountIds.insert(accountId, acc_id);
 		emit registeredAtServer(accountId);
+	}
 	else
 		emit registrationAtServerFailed(accountId);
 }
@@ -379,8 +389,8 @@ void SipManager::onRegState(int acc_id)
 void SipManager::onRegState2(int acc_id, void *info)
 {
 	Q_UNUSED(acc_id)
-		// TODO: check this MAGIC implementation
-		int i;
+	// TODO: check this MAGIC implementation
+	int i;
 	i = ((pjsua_reg_info*)info)->cbparam->code;
 	i++;
 }
@@ -464,7 +474,8 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 //	pjsua_callback ua_cb;
 //	pj_bzero(&ua_cb, sizeof(ua_cb));
 
-	registerCallbacks(ua_cfg.cb);
+	pj_bzero(&ua_cfg.cb, sizeof(ua_cfg.cb));
+	PJCallbacks::registerCallbacks(ua_cfg.cb);
 
 	ua_cfg.outbound_proxy_cnt = 1;
 
@@ -533,17 +544,18 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 				status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &acc);
 				if (status == PJ_SUCCESS)
 				{
-					accountIds.insert(ASipUser, acc);
+					//accountIds.insert(ASipUser, acc);
 					status = pjsua_start();
 					if (status == PJ_SUCCESS)
 					{
 						if (pjsua_get_pjsip_endpt())
 						{
-							registerModuleCallbacks(mod_default_handler);
+							PJCallbacks::registerModuleCallbacks(mod_default_handler);
 							status = pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
 							if (status == PJ_SUCCESS)
 							{
 								//emit registeredAtServer(ASipUser);
+								LogDetail("[SipManager::initStack]: PJSUA Stack initialized.");
 								return true;
 							}
 							else

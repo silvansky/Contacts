@@ -202,6 +202,7 @@ public:
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const = 0;
 	virtual bool registerAtServer(const Jid &AStreamJid) = 0;
 	virtual bool unregisterAtServer(const Jid &AStreamJid) = 0;
+	virtual int accountId(const Jid &AStreamJid) = 0;
 	// prices/balance
 	// TODO
 	// devices

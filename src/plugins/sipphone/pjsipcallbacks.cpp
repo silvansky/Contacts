@@ -3,6 +3,8 @@
 #include "sipmanager.h"
 #include "sipcall.h"
 
+#include <utils/log.h>
+
 #include <pjsua.h>
 
 // callbacks for SipCall
@@ -122,13 +124,15 @@ static pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata)
 	return PJ_FALSE;
 }
 
-void registerModuleCallbacks(pjsip_module & module)
+void PJCallbacks::registerModuleCallbacks(pjsip_module & module)
 {
+	LogDetail(QString("[PJCallbacks::registerModuleCallbacks]: Registering pjsip module %1 callbacks...").arg(module.name.ptr));
 	module.on_rx_request = &default_mod_on_rx_request;
 }
 
-void registerCallbacks(pjsua_callback & cb)
+void PJCallbacks::registerCallbacks(pjsua_callback & cb)
 {
+	LogDetail(QString("[PJCallbacks::registerCallbacks]: Registering pjsip callbacks..."));
 	cb.on_reg_state = &on_reg_state;
 	cb.on_reg_state2 = &on_reg_state2;
 	cb.on_call_state = &on_call_state;
@@ -137,7 +141,7 @@ void registerCallbacks(pjsua_callback & cb)
 	cb.on_call_tsx_state = &on_call_tsx_state;
 }
 
-void registerFrameCallbacks(pjmedia_vid_dev_myframe & myframe)
+void PJCallbacks::registerFrameCallbacks(pjmedia_vid_dev_myframe & myframe)
 {
 	myframe.put_frame_callback = &my_put_frame_callback;
 	myframe.preview_frame_callback = &my_preview_frame_callback;

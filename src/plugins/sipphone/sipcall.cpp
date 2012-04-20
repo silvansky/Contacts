@@ -858,7 +858,7 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 	{
 		pj_status_t status;
 		char uriTmp[512];
-		const char* uriToCall = AContactJid.eBare().toAscii().constData();
+		const char* uriToCall = AContactJid.prepared().eBare().toAscii().constData();
 
 		pj_ansi_sprintf(uriTmp, "sip:%s", uriToCall);
 		pj_str_t uri = pj_str((char*)uriTmp);
