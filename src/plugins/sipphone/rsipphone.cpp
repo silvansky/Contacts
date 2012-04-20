@@ -7,6 +7,7 @@
 
 #define USE_SDL 0
 #define HAS_VIDEO_SUPPORT 1 // Call video support. 0 - disable / 1 - enable
+#define ENABLE_THIS 0
 
 #ifdef Q_WS_WIN32
 # include <windows.h>
@@ -52,6 +53,8 @@
 //#define DEFAULT_CAP_DEV		1
 #define DEFAULT_REND_DEV	PJMEDIA_VID_DEFAULT_RENDER_DEV
 
+
+#if ENABLE_THIS
 static pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata);
 
 /* The module instance. */
@@ -115,7 +118,7 @@ pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormod
 {
 	return RSipPhone::instance()->on_my_preview_frame_callback(frame, colormodelName, w, h, stride);
 }
-
+#endif
 
 #define RGB24_LEN(w,h)      ((w) * (h) * 3)
 #define RGB32_LEN(w,h)      ((w) * (h) * 4)
@@ -430,9 +433,11 @@ void RSipPhone::onNewCall(int cid, bool incoming)
 {
 	Q_UNUSED(incoming)
 
+#if ENABLE_THIS
 #if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
 	myframe.put_frame_callback = &my_put_frame_callback;
 	myframe.preview_frame_callback = &my_preview_frame_callback;
+#endif
 #endif
 
 	pjsua_call_info ci;
@@ -1082,12 +1087,14 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 	pjsua_config_default(&ua_cfg);
 	pjsua_callback ua_cb;
 	pj_bzero(&ua_cb, sizeof(ua_cb));
+#if ENABLE_THIS
 	ua_cfg.cb.on_reg_state = &::on_reg_state;
 	ua_cfg.cb.on_reg_state2 = &::on_reg_state2;
 	ua_cfg.cb.on_call_state = &::on_call_state;
 	ua_cfg.cb.on_incoming_call = &::on_incoming_call;
 	ua_cfg.cb.on_call_media_state = &::on_call_media_state;
 	ua_cfg.cb.on_call_tsx_state = &::on_call_tsx_state;
+#endif
 
 	ua_cfg.outbound_proxy_cnt = 1;
 	char proxyTmp[512];
@@ -1230,7 +1237,9 @@ bool RSipPhone::initStack(const char* sip_server, int sipPortNum, const char* si
 	/* We want to be registrar too! */
 	if (pjsua_get_pjsip_endpt())
 	{
+#if ENABLE_THIS
 		pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
+#endif
 	}
 
 	showStatus("Ready");
@@ -1263,6 +1272,7 @@ void RSipPhone::setCallerName( const QString &AName )
 	updateCallerName();
 }
 
+#if ENABLE_THIS
 /*
 * A simple registrar, invoked by default_mod_on_rx_request()
 */
@@ -1327,7 +1337,7 @@ static pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata)
 	}
 	return PJ_FALSE;
 }
-
+#endif
 
 // For phone calls
 void RSipPhone::callOnPhone(const QString& phoneUri)

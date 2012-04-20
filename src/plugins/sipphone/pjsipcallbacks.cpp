@@ -8,25 +8,25 @@
 #include <pjsua.h>
 
 // callbacks for SipCall
-static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
+void on_call_state(pjsua_call_id call_id, pjsip_event *e)
 {
 	if (SipCall * call = SipCall::findCallById(call_id))
 		call->onCallState(call_id, e);
 }
 
-static void on_call_media_state(pjsua_call_id call_id)
+void on_call_media_state(pjsua_call_id call_id)
 {
 	if (SipCall * call = SipCall::findCallById(call_id))
 		call->onCallMediaState(call_id);
 }
 
-static void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_event *e)
+void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_event *e)
 {
 	if (SipCall * call = SipCall::findCallById(call_id))
 		call->onCallTsxState(call_id, tsx, e);
 }
 
-static pj_status_t my_put_frame_callback(int call_id, pjmedia_frame *frame, int w, int h, int stride)
+pj_status_t my_put_frame_callback(int call_id, pjmedia_frame *frame, int w, int h, int stride)
 {
 	if (SipCall * call = SipCall::findCallById(call_id))
 		return call->onMyPutFrameCallback(call_id, frame, w, h, stride);
@@ -34,7 +34,7 @@ static pj_status_t my_put_frame_callback(int call_id, pjmedia_frame *frame, int 
 		return -1;
 }
 
-static pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
+pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
 {
 	Q_UNUSED(frame)
 	Q_UNUSED(colormodelName)
@@ -47,22 +47,22 @@ static pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* c
 }
 
 // callbacks for SipManager
-static void on_reg_state(pjsua_acc_id acc_id)
+void on_reg_state(pjsua_acc_id acc_id)
 {
 	SipManager::callbackInstance()->onRegState(acc_id);
 }
 
-static void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
+void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
 {
 	SipManager::callbackInstance()->onRegState2(acc_id, info);
 }
 
-static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_rx_data *rdata)
+void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_rx_data *rdata)
 {
 	SipManager::callbackInstance()->onIncomingCall(acc_id, call_id, rdata);
 }
 
-static void simple_registrar(pjsip_rx_data *rdata)
+void simple_registrar(pjsip_rx_data *rdata)
 {
 	pjsip_tx_data *tdata;
 	const pjsip_expires_hdr *exp;
@@ -113,7 +113,7 @@ static void simple_registrar(pjsip_rx_data *rdata)
 }
 
 /* Notification on incoming request */
-static pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata)
+pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata)
 {
 	/* Simple registrar */
 	if (pjsip_method_cmp(&rdata->msg_info.msg->line.req.method, &pjsip_register_method) == 0)

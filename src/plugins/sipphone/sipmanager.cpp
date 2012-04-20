@@ -368,6 +368,11 @@ SipManager *SipManager::callbackInstance()
 void SipManager::onRegState(int acc_id)
 {
 	// TODO: check implementation
+	if (acc_id == -1)
+	{
+		LogDetail("[SipManager::onRegState]: Invalid account Id!");
+		return;
+	}
 	pjsua_acc_info info;
 
 	pjsua_acc_get_info(acc_id, &info);
@@ -390,6 +395,7 @@ void SipManager::onRegState2(int acc_id, void *info)
 {
 	Q_UNUSED(acc_id)
 	// TODO: check this MAGIC implementation
+	LogDetail(QString("[SipManager::onRegState2]: Status: %1, account: %2").arg(((pjsua_reg_info*)info)->cbparam->status).arg(acc_id));
 	int i;
 	i = ((pjsua_reg_info*)info)->cbparam->code;
 	i++;
@@ -397,9 +403,9 @@ void SipManager::onRegState2(int acc_id, void *info)
 
 void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 {
-	Q_UNUSED(acc_id);
 	Q_UNUSED(rdata);
 	// TODO: check implementation
+	LogDetail(QString("[SipManager::onIncomingCall]: Incoming call for account %1 and call %2").arg(acc_id).arg(call_id));
 	pjsua_call_info ci;
 	pjsua_call_get_info(call_id, &ci);
 	QString callerId = QString("%s").arg(ci.remote_info.ptr);
@@ -476,6 +482,11 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 
 	pj_bzero(&ua_cfg.cb, sizeof(ua_cfg.cb));
 	PJCallbacks::registerCallbacks(ua_cfg.cb);
+
+#ifdef DEBUG_ENABLED
+	qDebug() << "On reg state: " << ua_cfg.cb.on_reg_state;
+	ua_cfg.cb.on_reg_state(-1);
+#endif
 
 	ua_cfg.outbound_proxy_cnt = 1;
 
