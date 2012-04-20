@@ -543,7 +543,7 @@ bool SipManager::initStack(const QString &ASipServer, int ASipPort, const Jid &A
 							status = pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
 							if (status == PJ_SUCCESS)
 							{
-								emit registeredAtServer(ASipUser);
+								//emit registeredAtServer(ASipUser);
 								return true;
 							}
 							else

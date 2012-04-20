@@ -45,10 +45,12 @@ SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, c
 
 SipCall::~SipCall()
 {
+	rejectCall(RC_BYUSER);
 	if (FStanzaProcessor)
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
 	emit callDestroyed();
+	LogDetail(QString("[SipCall] Call destroyed sid='%1'").arg(sessionId()));
 }
 
 QObject *SipCall::instance()
@@ -112,9 +114,12 @@ void SipCall::startCall()
 
 void SipCall::acceptCall()
 {
-	if (role()==CR_RESPONDER && state()==CS_CALLING)
+	if (role()==CR_RESPONDER)
 	{
-		setCallState(CS_CONNECTING);
+		if (state() == CS_CALLING)
+			setCallState(CS_CONNECTING);
+		else if (state() == CS_CONNECTING)
+			pjsua_call_answer(FCallId,PJSIP_SC_OK,NULL,NULL);
 	}
 }
 
@@ -600,6 +605,7 @@ void SipCall::onCallState(int call_id, void *e)
 	if(ci.state == PJSIP_INV_STATE_CONFIRMED)
 	{
 		//emit signalShowSipPhoneWidget(NULL);
+		setCallState(CS_TALKING);
 	}
 
 	//char status[80];
@@ -608,6 +614,7 @@ void SipCall::onCallState(int call_id, void *e)
 		//		snprintf(status, sizeof(status), "Call is %s (%s)", ci.state_text.ptr, ci.last_status_text.ptr);
 		//		showStatus(status);
 		//		emit signalCallReleased();
+		setCallState(CS_FINISHED);
 	}
 	else
 	{
