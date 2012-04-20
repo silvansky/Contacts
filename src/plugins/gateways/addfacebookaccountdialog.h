@@ -16,10 +16,10 @@
 #include <utils/customborderstorage.h>
 #include "ui_addfacebookaccountdialog.h"
 
-class AddFacebookAccountDialog : 
+class AddFacebookAccountDialog :
 	public QDialog
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	AddFacebookAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent = NULL);
 	~AddFacebookAccountDialog();

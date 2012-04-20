@@ -13,6 +13,8 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_ADDFACEBOOKACCOUNTDIALOG);
 
+	setMaximumSize(500,500);
+
 	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (border)
 	{
@@ -23,6 +25,7 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 		connect(this, SIGNAL(rejected()), border, SLOT(close()));
 		connect(this, SIGNAL(accepted()), border, SLOT(close()));
 		border->setResizable(false);
+
 	}
 	else
 	{
@@ -37,8 +40,6 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 
 	FServiceJid = AServiceJid;
 	FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
-
-	setMaximumSize(500,500);
 
 	if (FPresence->xmppStream() && FPresence->xmppStream()->connection())
 	{
