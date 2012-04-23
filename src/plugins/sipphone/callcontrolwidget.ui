@@ -81,6 +81,9 @@
            <property name="text">
             <string notr="true">LM</string>
            </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
            <property name="checked">
             <bool>false</bool>
            </property>
@@ -91,6 +94,9 @@
            <property name="text">
             <string notr="true">RM</string>
            </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
            <property name="checked">
             <bool>false</bool>
            </property>
@@ -100,6 +106,9 @@
           <widget class="QToolButton" name="tlbLocalCamera">
            <property name="text">
             <string notr="true">LC</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
            <property name="checked">
             <bool>false</bool>

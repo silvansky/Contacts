@@ -27,9 +27,6 @@ SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, c
 	
 	FRole = CR_RESPONDER;
 
-	FRingTimer.setSingleShot(true);
-	connect(&FRingTimer,SIGNAL(timeout()),SLOT(onRingTimerTimeout()));
-
 	LogDetail(QString("[SipCall] Call created as RESPONDER sid='%1'").arg(sessionId()));
 }
 
@@ -753,6 +750,9 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, co
 	FSHICallAccept = -1;
 	FState = CS_NONE;
 	FErrorCode = EC_NONE;
+
+	FRingTimer.setSingleShot(true);
+	connect(&FRingTimer,SIGNAL(timeout()),SLOT(onRingTimerTimeout()));
 
 	connect(FSipManager->instance(), SIGNAL(registeredAtServer(const QString &)), SLOT(onRegisteredAtServer(const QString &)));
 	connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const QString &)), SLOT(onUnRegisteredAtServer(const QString &)));
