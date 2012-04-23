@@ -59,6 +59,7 @@ public:
 	int accountId() const;
 	void setCallParams(int AAccountId, int ACallId);
 	static SipCall *findCallById(int ACallId);
+	static QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null);
 public:
 	// pjsip callbacks
 	void onCallState(int call_id, /*pjsip_event **/ void *e);
@@ -75,9 +76,9 @@ protected:
 	void sipCallTo(const Jid &AContactJid);
 protected slots: 
 	void onRingTimerTimeout();
-	void onRegisteredAtServer(const Jid & AStreamJid);
-	void onUnRegisteredAtServer(const Jid & AStreamJid);
-	void onRegistraitionAtServerFailed(const Jid & AStreamJid);
+	void onRegisteredAtServer(const QString &AAccount);
+	void onUnRegisteredAtServer(const QString &AAccount);
+	void onRegistraitionAtServerFailed(const QString &AAccount);
 private:
 	ISipManager *FSipManager;
 	IStanzaProcessor *FStanzaProcessor;

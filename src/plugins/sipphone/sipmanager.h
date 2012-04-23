@@ -45,10 +45,10 @@ public:
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations);
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
 	// SIP registration
+	virtual int registeredAccountId(const Jid &AStreamJid) const;
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
 	virtual bool registerAtServer(const Jid &AStreamJid);
 	virtual bool unregisterAtServer(const Jid &AStreamJid);
-	virtual int accountId(const Jid &AStreamJid);
 	// prices/balance
 	// TODO
 	// devices
@@ -63,11 +63,11 @@ public:
 	// IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 signals:
-	void sipCallCreated(ISipCall * ACall);
-	void sipCallDestroyed(ISipCall * ACall);
-	void registeredAtServer(const Jid &AStreamJid);
-	void unregisteredAtServer(const Jid &AStreamJid);
-	void registrationAtServerFailed(const Jid &AStreamJid);
+	void sipCallCreated(ISipCall *ACall);
+	void sipCallDestroyed(ISipCall *ACall);
+	void registeredAtServer(const QString &AAccount);
+	void unregisteredAtServer(const QString &AAccount);
+	void registrationAtServerFailed(const QString &AAccount);
 	void availDevicesChanged(int ADeviceType);
 	void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler);
 	void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler);
@@ -81,10 +81,7 @@ public:
 	void onIncomingCall(int acc_id, int call_id, void * /* pjsip_rx_data * */rdata);
 protected:
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
-	bool initStack(const QString &ASipServer, int ASipPort, const Jid &ASipUser, const QString &ASipPassword);
-	void setRegistration(const Jid & AStreamJid, bool ARenew);
 protected slots:
-	void onCallDestroyed();
 	void onXmppStreamOpened(IXmppStream * stream);
 	void onXmppStreamAboutToClose(IXmppStream * stream);
 	void onXmppStreamClosed(IXmppStream * stream);
@@ -111,16 +108,15 @@ private:
 private:
 	int FSHISipQuery;
 private:
-	QMap<int, ISipCallHandler*> handlers;
-	QList<ISipCall*> calls;
-	QMap<Jid, int> accountIds;
-	QMap<Jid, TestCallWidget*> testCallWidgets;
-	static SipManager * inst;
-	bool accRegistered;
+	QMap<Jid, int> FAccounts;
 	QMap<IMetaTabWindow *, Menu *> FCallMenus;
+	QMap<Jid, TestCallWidget*> testCallWidgets;
+	QMultiMap<int, ISipCallHandler*> FCallHandlers;
 private:
 	// for ISipCallHandler
 	QList<ISipCall *> handledCalls;
+private:
+	static SipManager * inst;
 };
 
 #endif // SIPMANAGER_H

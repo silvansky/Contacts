@@ -588,6 +588,25 @@ SipCall *SipCall::findCallById(int ACallId)
 	return NULL;
 }
 
+QList<ISipCall*> SipCall::findCalls( const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
+{
+	QList<ISipCall*> found;
+	foreach (ISipCall *call, FCallInstances)
+	{
+		if (AStreamJid.isEmpty() || call->streamJid()==AStreamJid)
+		{
+			if (AContactJid.isEmpty() || call->contactJid()==AContactJid)
+			{
+				if (ASessionId.isEmpty() || call->sessionId()==ASessionId)
+				{
+					found << call;
+				}
+			}
+		}
+	}
+	return found;
+}
+
 void SipCall::onCallState(int call_id, void *e)
 {
 	Q_UNUSED(e)
@@ -727,9 +746,9 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, co
 	FState = CS_NONE;
 	FErrorCode = EC_NONE;
 
-	connect(FSipManager->instance(), SIGNAL(registeredAtServer(const Jid &)), SLOT(onRegisteredAtServer(const Jid &)));
-	connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const Jid &)), SLOT(onUnRegisteredAtServer(const Jid &)));
-	connect(FSipManager->instance(), SIGNAL(registrationAtServerFailed(const Jid &)), SLOT(onRegistraitionAtServerFailed(const Jid &)));
+	connect(FSipManager->instance(), SIGNAL(registeredAtServer(const QString &)), SLOT(onRegisteredAtServer(const QString &)));
+	connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const QString &)), SLOT(onUnRegisteredAtServer(const QString &)));
+	connect(FSipManager->instance(), SIGNAL(registrationAtServerFailed(const QString &)), SLOT(onRegistraitionAtServerFailed(const QString &)));
 
 	FCallInstances.append(this);
 }
@@ -756,9 +775,14 @@ void SipCall::setCallState(CallState AState)
 			if (FSipManager)
 			{
 				if (!FSipManager->isRegisteredAtServer(FStreamJid))
-					FSipManager->registerAtServer(FStreamJid);
+				{
+					if (!FSipManager->registerAtServer(FStreamJid))
+						continueAfterRegistration(false);
+				}
 				else
+				{
 					continueAfterRegistration(true);
+				}
 			}
 		}
 		emit stateChanged(FState);
@@ -937,30 +961,32 @@ void SipCall::onRingTimerTimeout()
 	}
 }
 
-void SipCall::onRegisteredAtServer(const Jid &AStreamJid)
+void SipCall::onRegisteredAtServer(const QString &AAccount)
 {
-	Q_UNUSED(AStreamJid)
-	// TODO: check implementation
-	if (state() == CS_CONNECTING)
+	if (AAccount == streamJid().pBare())
 	{
-		LogDetail(QString("[SipCall] Successfully registered at SIP server, sid='%1'").arg(sessionId()));
-		continueAfterRegistration(true);
+		// TODO: check implementation
+		if (state() == CS_CONNECTING)
+		{
+			continueAfterRegistration(true);
+		}
 	}
 }
 
-void SipCall::onUnRegisteredAtServer(const Jid &AStreamJid)
+void SipCall::onUnRegisteredAtServer(const QString &AAccount)
 {
-	Q_UNUSED(AStreamJid)
+	Q_UNUSED(AAccount)
 	// TODO: implementation
 }
 
-void SipCall::onRegistraitionAtServerFailed(const Jid &AStreamJid)
+void SipCall::onRegistraitionAtServerFailed(const QString &AAccount)
 {
-	Q_UNUSED(AStreamJid)
-	// TODO: check implementation
-	if (state() == CS_CONNECTING)
+	if (AAccount == streamJid().pBare())
 	{
-		LogError(QString("[SipCall] Failed to register at SIP server, sid='%1'").arg(sessionId()));
-		continueAfterRegistration(false);
+		// TODO: check implementation
+		if (state() == CS_CONNECTING)
+		{
+			continueAfterRegistration(false);
+		}
 	}
 }

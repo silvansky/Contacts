@@ -199,10 +199,10 @@ public:
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations) = 0;
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
 	// SIP registration
+	virtual int registeredAccountId(const Jid &AStreamJid) const = 0;
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const = 0;
 	virtual bool registerAtServer(const Jid &AStreamJid) = 0;
 	virtual bool unregisterAtServer(const Jid &AStreamJid) = 0;
-	virtual int accountId(const Jid &AStreamJid) = 0;
 	// prices/balance
 	// TODO
 	// devices
@@ -215,9 +215,9 @@ public:
 protected:
 	virtual void sipCallCreated(ISipCall * ACall) = 0;
 	virtual void sipCallDestroyed(ISipCall * ACall) = 0;
-	virtual void registeredAtServer(const Jid &AStreamJid) = 0;
-	virtual void unregisteredAtServer(const Jid &AStreamJid) = 0;
-	virtual void registrationAtServerFailed(const Jid &AStreamJid) = 0;
+	virtual void registeredAtServer(const QString &AAccount) = 0;
+	virtual void unregisteredAtServer(const QString &AAccount) = 0;
+	virtual void registrationAtServerFailed(const QString &AAccount) = 0;
 	virtual void availDevicesChanged(int ADeviceType) = 0;
 	virtual void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler) = 0;
 	virtual void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler) = 0;
