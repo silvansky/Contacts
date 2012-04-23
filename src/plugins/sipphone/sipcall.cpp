@@ -156,7 +156,7 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 	case CS_TALKING:
 	{
 		// TODO: check implementation
-		pj_status_t status = pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL);
+		pj_status_t status = FCallId!=-1 ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
 		if (status == PJ_SUCCESS)
 		{
 			setCallState(CS_FINISHED);
@@ -803,6 +803,8 @@ void SipCall::setCallError(ErrorCode ACode, const QString &AMessage)
 void SipCall::continueAfterRegistration(bool ARegistered)
 {
 	// TODO: check/test code
+	FAccountId = FSipManager->registeredAccountId(streamJid());
+
 	if (role() == CR_INITIATOR)
 	{
 		if (FStanzaProcessor)
@@ -882,9 +884,8 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 	{
 		pj_status_t status;
 		char uriTmp[512];
-		const char* uriToCall = AContactJid.prepared().eBare().toAscii().constData();
 
-		pj_ansi_sprintf(uriTmp, "sip:%s", uriToCall);
+		pj_ansi_sprintf(uriTmp, "sip:%s", AContactJid.prepared().eBare().toAscii().constData());
 		pj_str_t uri = pj_str((char*)uriTmp);
 
 		if (FCallId == -1)
@@ -908,21 +909,19 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 
 			pjsua_call_id id = -1;
 			status = pjsua_call_make_call(FAccountId, &uri, &call_setting, NULL, NULL, &id);
-			FCallId = id;
-			if (status != PJ_SUCCESS)
+			if (status == PJ_SUCCESS)
 			{
-				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status %1, uri is \'%2\'").arg(status).arg(uriTmp));
-				setCallError(ISipCall::EC_CONNECTIONERR, QString("SIP call to %1 failed").arg(AContactJid.full()));
-				if (status == PJMEDIA_EAUD_NODEFDEV)
-				{
-					LogError(QString("[SipCall::sipCallTo]: Default device not found!"));
-					//emit signal_DeviceError();
-					//				emit signal_InviteStatus(false, 2, tr("Failed to find default audio device"));
-				}
-				//			showError("make call", status);
-				//return;
+				FCallId = id;
+				LogDetail(QString("[SipCall::sipCallTo]: SIP call to '%1'").arg(uriTmp));
 			}
-			//		emit signal_InviteStatus(true, 0, "");
+			else
+			{
+				if (status == PJMEDIA_EAUD_NODEFDEV)
+					LogError(QString("[SipCall::sipCallTo]: Default device not found!"));
+				else
+					LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status %1, uri is \'%2\'").arg(status).arg(uriTmp));
+				setCallError(ISipCall::EC_CONNECTIONERR, QString("SIP call to %1 failed").arg(AContactJid.full()));
+			}
 		}
 		else
 		{
