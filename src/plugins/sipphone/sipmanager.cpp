@@ -544,41 +544,31 @@ void SipManager::onRegState2(int acc_id, void *info)
 
 void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 {
+	Q_UNUSED(acc_id);
 	Q_UNUSED(rdata);
 	// TODO: check implementation
-	LogDetail(QString("[SipManager::onIncomingCall]: Incoming call for account %1 and call %2").arg(acc_id).arg(call_id));
+
 	pjsua_call_info ci;
 	pjsua_call_get_info(call_id, &ci);
 	QString callerId = QString("%s").arg(ci.remote_info.ptr);
 	QString receiverId = QString("%s").arg(ci.local_info.ptr);
+
+	callerId.remove(0,4); // remove "sip:"
+	receiverId.remove(0,4); // remove "sip:"
 	QList<ISipCall *> calls = findCalls(receiverId,callerId);
-	SipCall *call = calls.isEmpty() ? NULL : qobject_cast<SipCall *>(calls.value(0)->instance()); // TODO: ensure receiverId and callerId is full Jid
-	if (call && call->role()==ISipCall::CR_RESPONDER && call->state()==ISipCall::CS_CONNECTING)
+	SipCall *call = !calls.isEmpty() ? qobject_cast<SipCall *>(calls.value(0)->instance()) : NULL;
+	if (call && call->acceptIncomingCall(call_id))
 	{
-		call->setCallParams(acc_id, call_id);
-		call->acceptCall();
+		LogDetail(QString("[SipManager::onIncomingCall]: Incoming SIP call to '%1' from '%2' was accepted").arg(receiverId).arg(callerId));
 	}
 	else
 	{
 		// TODO: decline call here while we do not support direct incoming calls
+		LogError(QString("[SipManager] Unexpected incoming SIP call to='%1' from='%2'").arg(receiverId,callerId));
 		pj_status_t status = pjsua_call_hangup(call_id, PJSIP_SC_DECLINE, NULL, NULL);
 		if (status != PJ_SUCCESS)
-		{
 			LogError(QString("[SipManager::onIncomingCall]: Failed to end call! pjsua_call_hangup() returned %1").arg(status));
-		}
 	}
-
-	//if (SipCall::activeCallForId(call_id))
-	//{
-	//	// busy
-	//	pjsua_call_answer(call_id, PJSIP_SC_BUSY_HERE, NULL, NULL);
-	//	return;
-	//}
-	//pjsua_call_info ci;
-	//pjsua_call_get_info(call_id, &ci);
-	//QString callerId = QString("%s").arg(ci.remote_info.ptr);
-	//QString receiverId = QString("%s").arg(ci.local_info.ptr);
-	//handleIncomingCall(receiverId, callerId, QUuid::createUuid().toString());
 }
 
 bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)

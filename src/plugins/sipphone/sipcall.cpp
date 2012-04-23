@@ -574,10 +574,18 @@ int SipCall::accountId() const
 	return FAccountId;
 }
 
-void SipCall::setCallParams(int AAccountId, int ACallId)
+bool SipCall::acceptIncomingCall(int ACallId)
 {
-	FCallId = ACallId;
-	FAccountId = AAccountId;
+	if (role()==CR_RESPONDER)
+	{
+		if (state() == CS_CONNECTING)
+		{
+			FCallId = ACallId;
+			pjsua_call_answer(FCallId,PJSIP_SC_OK,NULL,NULL);
+			return true;
+		}
+	}
+	return false;
 }
 
 SipCall *SipCall::findCallById(int ACallId)
@@ -593,9 +601,9 @@ QList<ISipCall*> SipCall::findCalls( const Jid &AStreamJid, const Jid &AContactJ
 	QList<ISipCall*> found;
 	foreach (ISipCall *call, FCallInstances)
 	{
-		if (AStreamJid.isEmpty() || call->streamJid()==AStreamJid)
+		if (AStreamJid.isEmpty() || (call->streamJid() && AStreamJid))
 		{
-			if (AContactJid.isEmpty() || call->contactJid()==AContactJid)
+			if (AContactJid.isEmpty() || (call->contactJid() && AContactJid))
 			{
 				if (ASessionId.isEmpty() || call->sessionId()==ASessionId)
 				{

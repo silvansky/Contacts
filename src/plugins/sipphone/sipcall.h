@@ -57,7 +57,8 @@ public:
 	// SipCall internal
 	int callId() const;
 	int accountId() const;
-	void setCallParams(int AAccountId, int ACallId);
+	bool acceptIncomingCall(int ACallId);
+public:
 	static SipCall *findCallById(int ACallId);
 	static QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null);
 public:
