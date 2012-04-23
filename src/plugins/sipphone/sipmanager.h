@@ -80,6 +80,8 @@ public:
 	void onRegState2(int acc_id, void * /* pjsua_reg_info * */info);
 	void onIncomingCall(int acc_id, int call_id, void * /* pjsip_rx_data * */rdata);
 protected:
+	bool createSipStack();
+	void destroySipStack();
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 protected slots:
 	void onXmppStreamOpened(IXmppStream * stream);
@@ -108,6 +110,7 @@ private:
 private:
 	int FSHISipQuery;
 private:
+	bool FSipStackCreated;
 	QMap<Jid, int> FAccounts;
 	QMap<IMetaTabWindow *, Menu *> FCallMenus;
 	QMap<Jid, TestCallWidget*> testCallWidgets;
