@@ -1,6 +1,13 @@
 #ifndef CALLCONTROLWIDGET_H
 #define CALLCONTROLWIDGET_H
 
+#ifdef USE_PHONON
+# include <Phonon/Phonon>
+# include <Phonon/MediaSource>
+#else
+# include <QSound>
+#endif
+
 #include <QWidget>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/isipphone.h>
@@ -19,6 +26,7 @@ public:
 	Jid streamJid() const;
 	Jid contactJid() const;
 	ISipCall *sipCall() const;
+	void playSound(const QString &ASoundKey, int ALoops = 0);
 protected:
 	void initialize(IPluginManager *APluginManager);
 protected slots:
@@ -43,6 +51,13 @@ private:
 private:
 	QString FMetaId;
 	ISipCall *FSipCall;
+private:
+#ifdef USE_PHONON
+	Phonon::MediaObject *FMediaObject;
+	Phonon::AudioOutput *FAudioOutput;
+#else
+	QSound *FSound;
+#endif
 };
 
 #endif // CALLCONTROLWIDGET_H

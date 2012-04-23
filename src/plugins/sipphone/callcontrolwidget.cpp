@@ -1,7 +1,9 @@
 #include "callcontrolwidget.h"
 
+#include <QFile>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/soundfiles.h>
 #include <definitions/stylesheets.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
@@ -30,6 +32,13 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	connect(ui.tlbRemoteMicrophone,SIGNAL(clicked(bool)),SLOT(onRemoteMicrophoneStateButtonClicked(bool)));
 
 	initialize(APluginManager);
+
+#ifdef USE_PHONON
+	FMediaObject = NULL;
+	FAudioOutput = NULL;
+#else
+	FSound = NULL;
+#endif
 
 	FMetaRoster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(streamJid()) : NULL;
 	FMetaId = FMetaRoster!=NULL ? FMetaRoster->itemMetaContact(contactJid()) : QString::null;
@@ -88,6 +97,45 @@ Jid CallControlWidget::contactJid() const
 ISipCall *CallControlWidget::sipCall() const
 {
 	return FSipCall;
+}
+
+void CallControlWidget::playSound(const QString &ASoundKey, int ALoops)
+{
+	QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(ASoundKey);
+
+#ifdef USE_PHONON
+	if (!FMediaObject)
+	{
+		FMediaObject = new Phonon::MediaObject(this);
+		FAudioOutput = new Phonon::AudioOutput(Phonon::CommunicationCategory, this);
+		Phonon::createPath(FMediaObject, FAudioOutput);
+	}
+
+	FMediaObject->clear();
+	FMediaObject->stop();
+
+	if (!soundFile.isEmpty() && QFile::exists(soundFile))
+	{
+		Phonon::MediaSource ms(soundFile);
+		for(int i=0; i<ALoops; i++)
+			FMediaObject->enqueue(ms);
+		FMediaObject->play();
+	}
+#else
+	if(FSound)
+	{
+		FSound->stop();
+		qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
+		delete FSound;
+		FSound = NULL;
+	}
+	if (!soundFile.isEmpty() && QFile::exists(soundFile) && QSound::isAvailable())
+	{
+		FSound = new QSound(soundFile);
+		FSound->setLoops(ALoops);
+		FSound->play();
+	}
+#endif
 }
 
 void CallControlWidget::initialize(IPluginManager *APluginManager)
@@ -157,6 +205,17 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.lblNotice->setText(FSipCall->errorString());
 		break;
 	}
+
+	if (AState == ISipCall::CS_CALLING)
+		playSound(FSipCall->role()==ISipCall::CR_INITIATOR ? SDF_SIPPHONE_CALL_WAIT : SDF_SIPPHONE_CALL_RINGING, 30);
+	else if (AState==ISipCall::CS_ERROR && FSipCall->errorCode()==ISipCall::EC_BUSY)
+		playSound(SDF_SIPPHONE_CALL_BUSY,5);
+	else if (AState==ISipCall::CS_ERROR && FSipCall->errorCode()==ISipCall::EC_NOANSWER)
+		playSound(SDF_SIPPHONE_CALL_BUSY,5);
+	else if (AState==ISipCall::CS_ERROR && FSipCall->errorCode()==ISipCall::EC_REJECTED)
+		playSound(SDF_SIPPHONE_CALL_BUSY,5);
+	else
+		playSound(QString::null);
 }
 
 void CallControlWidget::onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState)
@@ -192,7 +251,7 @@ void CallControlWidget::onRejectButtonClicked()
 
 void CallControlWidget::onSilentButtonClicked()
 {
-
+	playSound(QString::null);
 }
 
 void CallControlWidget::onLocalCameraStateButtonClicked(bool AChecked)
