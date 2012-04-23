@@ -33,6 +33,8 @@
 #define SDF_RCHANGER_SUBSCRIPTION                         "rchangerSubscription"
 
 //SipPhone
+#define SDF_SIPPHONE_CALL_START                           "sipphoneCallStart"
+#define SDF_SIPPHONE_CALL_STOP                            "sipphoneCallStop"
 #define SDF_SIPPHONE_CALL_WAIT                            "sipphoneCallWait"
 #define SDF_SIPPHONE_CALL_BUSY                            "sipphoneCallBusy"
 #define SDF_SIPPHONE_CALL_RINGING                         "sipphoneCallRinging"

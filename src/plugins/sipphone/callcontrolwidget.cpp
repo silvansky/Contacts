@@ -208,12 +208,18 @@ void CallControlWidget::onCallStateChanged(int AState)
 
 	if (AState == ISipCall::CS_CALLING)
 		playSound(FSipCall->role()==ISipCall::CR_INITIATOR ? SDF_SIPPHONE_CALL_WAIT : SDF_SIPPHONE_CALL_RINGING, 30);
+	else if (AState == ISipCall::CS_TALKING)
+		playSound(SDF_SIPPHONE_CALL_START);
+	else if (AState == ISipCall::CS_FINISHED)
+		playSound(SDF_SIPPHONE_CALL_STOP);
 	else if (AState==ISipCall::CS_ERROR && FSipCall->errorCode()==ISipCall::EC_BUSY)
 		playSound(SDF_SIPPHONE_CALL_BUSY,5);
 	else if (AState==ISipCall::CS_ERROR && FSipCall->errorCode()==ISipCall::EC_NOANSWER)
 		playSound(SDF_SIPPHONE_CALL_BUSY,5);
 	else if (AState==ISipCall::CS_ERROR && FSipCall->errorCode()==ISipCall::EC_REJECTED)
 		playSound(SDF_SIPPHONE_CALL_BUSY,5);
+	else if(AState==ISipCall::CS_ERROR)
+		playSound(SDF_SIPPHONE_CALL_STOP);
 	else
 		playSound(QString::null);
 }

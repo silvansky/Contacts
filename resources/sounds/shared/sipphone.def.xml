@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sounddef>
+  <file>
+    <key>sipphoneCallStart</key>
+    <object mime='sound/wav'>sipphonecallstart.wav</object>
+  </file>
+  <file>
+    <key>sipphoneCallStop</key>
+    <object mime='sound/wav'>sipphonecallstop.wav</object>
+  </file>
+  <file>
+    <key>sipphoneCallWait</key>
+    <object mime='sound/wav'>sipphonecallwait.wav</object>
+  </file>
+  <file>
+    <key>sipphoneCallBusy</key>
+    <object mime='sound/wav'>sipphonecallbusy.wav</object>
+  </file>
+  <file>
+    <key>sipphoneCallRinging</key>
+    <object mime='sound/wav'>sipphonecallring.wav</object>
+  </file>
+</sounddef>
