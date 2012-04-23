@@ -550,11 +550,11 @@ void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 
 	pjsua_call_info ci;
 	pjsua_call_get_info(call_id, &ci);
-	QString callerId = QString("%s").arg(ci.remote_info.ptr);
-	QString receiverId = QString("%s").arg(ci.local_info.ptr);
+	QString callerId = QString("%1").arg(ci.remote_info.ptr);
+	QString receiverId = QString("%1").arg(ci.local_info.ptr);
 
-	callerId.remove(0,4); // remove "sip:"
-	receiverId.remove(0,4); // remove "sip:"
+	callerId.remove(0,5);callerId.chop(1); // remove "<sip:....>"
+	receiverId.remove(0,5);receiverId.chop(1); // remove "<sip:....>"
 	QList<ISipCall *> calls = findCalls(receiverId,callerId);
 	SipCall *call = !calls.isEmpty() ? qobject_cast<SipCall *>(calls.value(0)->instance()) : NULL;
 	if (call && call->acceptIncomingCall(call_id))
