@@ -27,7 +27,7 @@ SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, c
 	
 	FRole = CR_RESPONDER;
 
-	LogDetail(QString("[SipCall] Call created as RESPONDER sid='%1'").arg(sessionId()));
+	LogDetail(QString("[SipCall] Call created as RESPONDER, sid='%1'").arg(sessionId()));
 }
 
 SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId)
@@ -37,7 +37,7 @@ SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, c
 
 	FRole = CR_INITIATOR;
 
-	LogDetail(QString("[SipCall] Call created as INITIATOR sid='%1'").arg(sessionId()));
+	LogDetail(QString("[SipCall] Call created as INITIATOR, sid='%1'").arg(sessionId()));
 }
 
 SipCall::~SipCall()
@@ -47,7 +47,7 @@ SipCall::~SipCall()
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
 	emit callDestroyed();
-	LogDetail(QString("[SipCall] Call destroyed sid='%1'").arg(sessionId()));
+	LogDetail(QString("[SipCall] Call destroyed, sid='%1'").arg(sessionId()));
 }
 
 QObject *SipCall::instance()
@@ -77,33 +77,33 @@ QList<Jid> SipCall::callDestinations() const
 
 void SipCall::startCall()
 {
-	if (role()==CR_INITIATOR && state()==CS_NONE)
+	if ((role() == CR_INITIATOR) && (state() == CS_NONE))
 	{
 		foreach(Jid destination, FDestinations)
 		{
 			Stanza request("iq");
 			request.setTo(destination.eFull()).setType("set").setId(FStanzaProcessor->newId());
-			QDomElement queryElem = request.addElement("query",NS_RAMBLER_PHONE);
-			queryElem.setAttribute("type","request");
-			queryElem.setAttribute("sid",sessionId());
-			queryElem.setAttribute("client","deskapp");
-			if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,streamJid(),request,CALL_REQUEST_TIMEOUT))
+			QDomElement queryElem = request.addElement("query", NS_RAMBLER_PHONE);
+			queryElem.setAttribute("type", "request");
+			queryElem.setAttribute("sid", sessionId());
+			queryElem.setAttribute("client", "deskapp");
+			if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this, streamJid(), request, CALL_REQUEST_TIMEOUT))
 			{
-				LogDetail(QString("[SipCall] Call request sent to '%1', id='%2', sid='%3'").arg(destination.full(),request.id(),sessionId()));
-				FCallRequests.insert(request.id(),destination);
+				LogDetail(QString("[SipCall] Call request sent to '%1', id='%2', sid='%3'").arg(destination.full(), request.id(), sessionId()));
+				FCallRequests.insert(request.id(), destination);
 			}
 			else
 			{
-				LogError(QString("[SipCall] Failed to send call request to '%1', sid='%2'").arg(destination.full(),sessionId()));
+				LogError(QString("[SipCall] Failed to send call request to '%1', sid='%2'").arg(destination.full(), sessionId()));
 			}
 		}
 
 		if (!FCallRequests.isEmpty())
 			setCallState(CS_CALLING);
 		else
-			setCallError(EC_NOTAVAIL,tr("The destinations is not available"));
+			setCallError(EC_NOTAVAIL, tr("The destinations is not available"));
 	}
-	else if (role()==CR_RESPONDER && state()==CS_NONE)
+	else if ((role() == CR_RESPONDER) && (state() == CS_NONE))
 	{
 		setCallState(CS_CALLING);
 	}
@@ -116,7 +116,7 @@ void SipCall::acceptCall()
 		if (state() == CS_CALLING)
 			setCallState(CS_CONNECTING);
 		else if (state() == CS_CONNECTING)
-			pjsua_call_answer(FCallId,PJSIP_SC_OK,NULL,NULL);
+			pjsua_call_answer(FCallId, PJSIP_SC_OK, NULL, NULL);
 	}
 }
 
@@ -153,7 +153,7 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 	case CS_TALKING:
 		{
 			// TODO: check implementation
-			pj_status_t status = FCallId!=-1 ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
+			pj_status_t status = (FCallId != -1) ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
 			if (status == PJ_SUCCESS)
 			{
 				setCallState(CS_FINISHED);
@@ -209,8 +209,9 @@ QString SipCall::callTimeString() const
 		pjsua_call_get_info(FCallId, &ci);
 		t.addSecs(ci.connect_duration.sec);
 		t.addMSecs(ci.connect_duration.msec);
+		return t.toString("hh:mm:ss");
 	}
-	return t.toString("hh:mm:ss");
+	return QString::null;
 }
 
 bool SipCall::sendDTMFSignal(QChar ASignal)
@@ -242,13 +243,13 @@ ISipDevice SipCall::activeDevice(ISipDevice::Type AType) const
 	switch (AType)
 	{
 	case ISipDevice::DT_LOCAL_CAMERA:
-		return camera;
+		return localCamera;
 	case ISipDevice::DT_LOCAL_MICROPHONE:
-		return microphone;
+		return localMicrophone;
 	case ISipDevice::DT_REMOTE_CAMERA:
-		return videoInput;
+		return remoteCamera;
 	case ISipDevice::DT_REMOTE_MICROPHONE:
-		return audioOutput;
+		return remoteMicrophone;
 	default:
 		return ISipDevice();
 	}
@@ -265,16 +266,16 @@ bool SipCall::setActiveDevice(ISipDevice::Type AType, int ADeviceId)
 			switch (AType)
 			{
 			case ISipDevice::DT_LOCAL_CAMERA:
-				camera = d;
+				localCamera = d;
 				break;
 			case ISipDevice::DT_LOCAL_MICROPHONE:
-				microphone = d;
+				localMicrophone = d;
 				break;
 			case ISipDevice::DT_REMOTE_MICROPHONE:
-				audioOutput = d;
+				remoteMicrophone = d;
 				break;
 			case ISipDevice::DT_REMOTE_CAMERA:
-				videoInput = d;
+				remoteCamera = d;
 				break;
 			default:
 				deviceFound = false;
@@ -295,16 +296,16 @@ ISipDevice::State SipCall::deviceState(ISipDevice::Type AType) const
 	switch (AType)
 	{
 	case ISipDevice::DT_LOCAL_CAMERA:
-		return cameraState;
+		return localCameraState;
 		break;
 	case ISipDevice::DT_LOCAL_MICROPHONE:
-		return microphoneState;
+		return localMicrophoneState;
 		break;
 	case ISipDevice::DT_REMOTE_CAMERA:
-		return videoInputState;
+		return remoteCameraState;
 		break;
 	case ISipDevice::DT_REMOTE_MICROPHONE:
-		return audioOutputState;
+		return remoteMicrophoneState;
 		break;
 	default:
 		return ISipDevice::DS_UNAVAIL;
@@ -321,80 +322,108 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 	{
 	case ISipDevice::DT_LOCAL_CAMERA:
 		{
-			if (AState != cameraState)
+			if (AState != localCameraState)
 			{
-				pjsua_call_setting call_setting;
-				pjsua_call_setting_default(&call_setting);
-				call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
-				pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
-				if ((status = (pjstatus == PJ_SUCCESS)))
+				if (FCallId != -1)
 				{
-					stateChanged = true;
+					pjsua_call_setting call_setting;
+					pjsua_call_setting_default(&call_setting);
+					call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
+					pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
+					if ((status = (pjstatus == PJ_SUCCESS)))
+					{
+						stateChanged = true;
+					}
+					else
+					{
+						LogError(QString("[SipCall::setDeviceState]: Local camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+					}
 				}
 				else
 				{
-					LogError(QString("[SipCall::setDeviceState]: Local camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+					LogError(QString("[SipCall::setDeviceState]: Can\'t change local camera state for inactive call!"));
 				}
 			}
 			break;
 		}
 	case ISipDevice::DT_LOCAL_MICROPHONE:
 		{
-			if (AState != microphoneState)
+			if (AState != localMicrophoneState)
 			{
-				float newLocalMicVolume = 0.0f;
-				if (AState != ISipDevice::DS_DISABLED)
-					newLocalMicVolume = deviceProperty(AType, ISipDevice::LMP_VOLUME).toFloat();
-				pjsua_call_info ci;
-				pjsua_call_get_info(FCallId, &ci);
-				pj_status_t pjstatus = pjsua_conf_adjust_tx_level(ci.conf_slot, newLocalMicVolume);
-				if ((status = (pjstatus == PJ_SUCCESS)))
+				if (FCallId != -1)
 				{
-					stateChanged = true;
+					float newLocalMicVolume = 0.0f;
+					if (AState != ISipDevice::DS_DISABLED)
+						newLocalMicVolume = deviceProperty(AType, ISipDevice::LMP_VOLUME).toFloat();
+					pjsua_call_info ci;
+					pjsua_call_get_info(FCallId, &ci);
+					pj_status_t pjstatus = pjsua_conf_adjust_tx_level(ci.conf_slot, newLocalMicVolume);
+					if ((status = (pjstatus == PJ_SUCCESS)))
+					{
+						stateChanged = true;
+					}
+					else
+					{
+						LogError(QString("[SipCall::setDeviceState]: Local Microphone state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+					}
 				}
 				else
 				{
-					LogError(QString("[SipCall::setDeviceState]: Local Microphone state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+					LogError(QString("[SipCall::setDeviceState]: Can\'t change local microphone state for inactive call!"));
 				}
 			}
 			break;
 		}
 	case ISipDevice::DT_REMOTE_CAMERA:
 		{
-			if (AState != videoInputState)
+			if (AState != remoteCameraState)
 			{
-				pjsua_call_setting call_setting;
-				pjsua_call_setting_default(&call_setting);
-				call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
-				pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
-				if ((status = (pjstatus == PJ_SUCCESS)))
+				if (FCallId != -1)
 				{
-					stateChanged = true;
+					pjsua_call_setting call_setting;
+					pjsua_call_setting_default(&call_setting);
+					call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
+					pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
+					if ((status = (pjstatus == PJ_SUCCESS)))
+					{
+						stateChanged = true;
+					}
+					else
+					{
+						LogError(QString("[SipCall::setDeviceState]: Remote camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+					}
 				}
 				else
 				{
-					LogError(QString("[SipCall::setDeviceState]: Remote camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+					LogError(QString("[SipCall::setDeviceState]: Can\'t change remote camera state for inactive call!"));
 				}
 			}
 			break;
 		}
 	case ISipDevice::DT_REMOTE_MICROPHONE:
 		{
-			if (AState != audioOutputState)
+			if (AState != remoteMicrophoneState)
 			{
-				float newRemoteMicVolume = 0.0f;
-				if (AState != ISipDevice::DS_DISABLED)
-					newRemoteMicVolume = deviceProperty(AType, ISipDevice::RMP_VOLUME).toFloat();
-				pjsua_call_info ci;
-				pjsua_call_get_info(FCallId, &ci);
-				pj_status_t pjstatus = pjsua_conf_adjust_rx_level(ci.conf_slot, newRemoteMicVolume);
-				if ((status = (pjstatus == PJ_SUCCESS)))
+				if (FCallId != -1)
 				{
-					stateChanged = true;
+					float newRemoteMicVolume = 0.0f;
+					if (AState != ISipDevice::DS_DISABLED)
+						newRemoteMicVolume = deviceProperty(AType, ISipDevice::RMP_VOLUME).toFloat();
+					pjsua_call_info ci;
+					pjsua_call_get_info(FCallId, &ci);
+					pj_status_t pjstatus = pjsua_conf_adjust_rx_level(ci.conf_slot, newRemoteMicVolume);
+					if ((status = (pjstatus == PJ_SUCCESS)))
+					{
+						stateChanged = true;
+					}
+					else
+					{
+						LogError(QString("[SipCall::setDeviceState]: Remote Microphone state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+					}
 				}
 				else
 				{
-					LogError(QString("[SipCall::setDeviceState]: Remote Microphone state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+					LogError(QString("[SipCall::setDeviceState]: Can\'t change remote microphone state for inactive call!"));
 				}
 			}
 			break;
@@ -415,16 +444,16 @@ QVariant SipCall::deviceProperty(ISipDevice::Type AType, int AProperty) const
 	switch (AType)
 	{
 	case ISipDevice::DT_LOCAL_CAMERA:
-		return cameraProperties.value(AProperty, QVariant());
+		return localCameraProperties.value(AProperty, QVariant());
 		break;
 	case ISipDevice::DT_LOCAL_MICROPHONE:
-		return microphoneProperties.value(AProperty, QVariant());
+		return localMicrophoneProperties.value(AProperty, QVariant());
 		break;
 	case ISipDevice::DT_REMOTE_CAMERA:
-		return videoInputProperties.value(AProperty, QVariant());
+		return remoteCameraProperties.value(AProperty, QVariant());
 		break;
 	case ISipDevice::DT_REMOTE_MICROPHONE:
-		return audioOutputProperties.value(AProperty, QVariant());
+		return remoteMicrophoneProperties.value(AProperty, QVariant());
 		break;
 	default:
 		break;
@@ -443,18 +472,18 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 			return false;
 		else
 		{
-			propertyChanged = (cameraProperties.value(AProperty, QVariant()) != AValue);
+			propertyChanged = (localCameraProperties.value(AProperty, QVariant()) != AValue);
 			if (propertyChanged)
 			{
-				cameraProperties.insert(AProperty, AValue);
+				localCameraProperties.insert(AProperty, AValue);
 			}
 		}
 		break;
 	case ISipDevice::DT_LOCAL_MICROPHONE:
-		propertyChanged = (microphoneProperties.value(AProperty, QVariant()) != AValue);
+		propertyChanged = (localMicrophoneProperties.value(AProperty, QVariant()) != AValue);
 		if (propertyChanged)
 		{
-			microphoneProperties.insert(AProperty, AValue);
+			localMicrophoneProperties.insert(AProperty, AValue);
 			if (AProperty == ISipDevice::LMP_VOLUME)
 			{
 				bool ok = true;
@@ -488,18 +517,18 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 			return false;
 		else
 		{
-			propertyChanged = (videoInputProperties.value(AProperty, QVariant()) != AValue);
+			propertyChanged = (remoteCameraProperties.value(AProperty, QVariant()) != AValue);
 			if (propertyChanged)
 			{
-				videoInputProperties.insert(AProperty, AValue);
+				remoteCameraProperties.insert(AProperty, AValue);
 			}
 		}
 		break;
 	case ISipDevice::DT_REMOTE_MICROPHONE:
-		propertyChanged = (audioOutputProperties.value(AProperty, QVariant()) != AValue);
+		propertyChanged = (remoteMicrophoneProperties.value(AProperty, QVariant()) != AValue);
 		if (propertyChanged)
 		{
-			audioOutputProperties.insert(AProperty, AValue);
+			remoteMicrophoneProperties.insert(AProperty, AValue);
 			if (AProperty == ISipDevice::LMP_VOLUME)
 			{
 				bool ok = true;
@@ -790,7 +819,7 @@ int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int st
 		QImage remoteImage((uchar*)dst, w, h, QImage::Format_RGB888);
 
 		QPixmap remotePixmap = QPixmap::fromImage(remoteImage);
-		videoInputProperties[ISipDevice::RCP_CURRENTFRAME] = remotePixmap;
+		remoteCameraProperties[ISipDevice::RCP_CURRENTFRAME] = remotePixmap;
 		emit devicePropertyChanged(ISipDevice::DT_REMOTE_CAMERA, ISipDevice::RCP_CURRENTFRAME, remotePixmap);
 	}
 	return 0;
@@ -825,7 +854,7 @@ int SipCall::onMyPreviewFrameCallback(void *frame, const char *colormodelName, i
 		delete[] dst;
 
 		QPixmap previewPixmap = QPixmap::fromImage(previewImage);
-		cameraProperties[ISipDevice::LCP_CURRENTFRAME] = previewPixmap;
+		localCameraProperties[ISipDevice::LCP_CURRENTFRAME] = previewPixmap;
 		emit devicePropertyChanged(ISipDevice::DT_LOCAL_CAMERA, ISipDevice::LCP_CURRENTFRAME, previewPixmap);
 	}
 	return 0;
@@ -844,8 +873,10 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, co
 	FState = CS_NONE;
 	FErrorCode = EC_NONE;
 
+	localCameraState = localMicrophoneState = remoteCameraState = remoteMicrophoneState = ISipDevice::DS_UNAVAIL;
+
 	FRingTimer.setSingleShot(true);
-	connect(&FRingTimer,SIGNAL(timeout()),SLOT(onRingTimerTimeout()));
+	connect(&FRingTimer, SIGNAL(timeout()), SLOT(onRingTimerTimeout()));
 
 	connect(FSipManager->instance(), SIGNAL(registeredAtServer(const QString &)), SLOT(onRegisteredAtServer(const QString &)));
 	connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const QString &)), SLOT(onUnRegisteredAtServer(const QString &)));

@@ -86,21 +86,21 @@ private:
 private:
 	// i/o devices
 	// camera (my video)
-	ISipDevice camera;
-	ISipDevice::State cameraState;
-	QMap<int, QVariant> cameraProperties;
+	ISipDevice localCamera;
+	ISipDevice::State localCameraState;
+	QMap<int, QVariant> localCameraProperties;
 	// microphone (my sound)
-	ISipDevice microphone;
-	ISipDevice::State microphoneState;
-	QMap<int, QVariant> microphoneProperties;
+	ISipDevice localMicrophone;
+	ISipDevice::State localMicrophoneState;
+	QMap<int, QVariant> localMicrophoneProperties;
 	// video input (remote video)
-	ISipDevice videoInput;
-	ISipDevice::State videoInputState;
-	QMap<int, QVariant> videoInputProperties;
+	ISipDevice remoteCamera;
+	ISipDevice::State remoteCameraState;
+	QMap<int, QVariant> remoteCameraProperties;
 	// audio output (remote sound)
-	ISipDevice audioOutput;
-	ISipDevice::State audioOutputState;
-	QMap<int, QVariant> audioOutputProperties;
+	ISipDevice remoteMicrophone;
+	ISipDevice::State remoteMicrophoneState;
+	QMap<int, QVariant> remoteMicrophoneProperties;
 private:
 	// pjsip
 	int FCallId;
