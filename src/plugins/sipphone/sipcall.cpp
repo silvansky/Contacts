@@ -344,7 +344,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 			{
 				float newLocalMicVolume = 0.0f;
 				if (AState != ISipDevice::DS_DISABLED)
-					newLocalMicVolume = deviceProperty(AType, ISipDevice::MP_VOLUME).toFloat();
+					newLocalMicVolume = deviceProperty(AType, ISipDevice::LMP_VOLUME).toFloat();
 				pjsua_call_info ci;
 				pjsua_call_get_info(FCallId, &ci);
 				pj_status_t pjstatus = pjsua_conf_adjust_tx_level(ci.conf_slot, newLocalMicVolume);
@@ -384,7 +384,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 			{
 				float newRemoteMicVolume = 0.0f;
 				if (AState != ISipDevice::DS_DISABLED)
-					newRemoteMicVolume = deviceProperty(AType, ISipDevice::AP_VOLUME).toFloat();
+					newRemoteMicVolume = deviceProperty(AType, ISipDevice::RMP_VOLUME).toFloat();
 				pjsua_call_info ci;
 				pjsua_call_get_info(FCallId, &ci);
 				pj_status_t pjstatus = pjsua_conf_adjust_rx_level(ci.conf_slot, newRemoteMicVolume);
@@ -439,7 +439,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 	switch (AType)
 	{
 	case ISipDevice::DT_LOCAL_CAMERA:
-		if (AProperty == ISipDevice::CP_CURRENTFRAME) // readonly property
+		if (AProperty == ISipDevice::LCP_CURRENTFRAME) // readonly property
 			return false;
 		else
 		{
@@ -455,7 +455,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 		if (propertyChanged)
 		{
 			microphoneProperties.insert(AProperty, AValue);
-			if (AProperty == ISipDevice::MP_VOLUME)
+			if (AProperty == ISipDevice::LMP_VOLUME)
 			{
 				bool ok = true;
 				float newVolume = AValue.toFloat(&ok);
@@ -484,7 +484,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 		}
 		break;
 	case ISipDevice::DT_REMOTE_CAMERA:
-		if (AProperty == ISipDevice::VP_CURRENTFRAME) // readonly property
+		if (AProperty == ISipDevice::RCP_CURRENTFRAME) // readonly property
 			return false;
 		else
 		{
@@ -500,7 +500,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 		if (propertyChanged)
 		{
 			audioOutputProperties.insert(AProperty, AValue);
-			if (AProperty == ISipDevice::MP_VOLUME)
+			if (AProperty == ISipDevice::LMP_VOLUME)
 			{
 				bool ok = true;
 				float newVolume = AValue.toFloat(&ok);
@@ -671,7 +671,7 @@ bool SipCall::acceptIncomingCall(int ACallId)
 		if (state() == CS_CONNECTING)
 		{
 			FCallId = ACallId;
-			pjsua_call_answer(FCallId,PJSIP_SC_OK,NULL,NULL);
+			pjsua_call_answer(FCallId, PJSIP_SC_OK, NULL, NULL);
 			return true;
 		}
 	}
@@ -790,8 +790,8 @@ int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int st
 		QImage remoteImage((uchar*)dst, w, h, QImage::Format_RGB888);
 
 		QPixmap remotePixmap = QPixmap::fromImage(remoteImage);
-		videoInputProperties[ISipDevice::VP_CURRENTFRAME] = remotePixmap;
-		emit devicePropertyChanged(ISipDevice::DT_REMOTE_CAMERA, ISipDevice::VP_CURRENTFRAME, remotePixmap);
+		videoInputProperties[ISipDevice::RCP_CURRENTFRAME] = remotePixmap;
+		emit devicePropertyChanged(ISipDevice::DT_REMOTE_CAMERA, ISipDevice::RCP_CURRENTFRAME, remotePixmap);
 	}
 	return 0;
 }
@@ -825,8 +825,8 @@ int SipCall::onMyPreviewFrameCallback(void *frame, const char *colormodelName, i
 		delete[] dst;
 
 		QPixmap previewPixmap = QPixmap::fromImage(previewImage);
-		cameraProperties[ISipDevice::CP_CURRENTFRAME] = previewPixmap;
-		emit devicePropertyChanged(ISipDevice::DT_LOCAL_CAMERA, ISipDevice::CP_CURRENTFRAME, previewPixmap);
+		cameraProperties[ISipDevice::LCP_CURRENTFRAME] = previewPixmap;
+		emit devicePropertyChanged(ISipDevice::DT_LOCAL_CAMERA, ISipDevice::LCP_CURRENTFRAME, previewPixmap);
 	}
 	return 0;
 }

@@ -82,31 +82,31 @@ struct ISipDevice
 		DS_DISABLED
 	};
 
-	enum CameraProperty
+	enum LocalCameraProperty
 	{
-		CP_CURRENTFRAME,		/* QPixmap, readonly */
-		CP_AVAIL_RESOLUTIONS,		/* QList<QSize>, readonly */	/* unused */
-		CP_RESOLUTION,			/* QSize */			/* unused */
-		CP_BRIGHTNESS,			/* float */			/* unused */
-		CP_USER				/* for user defined properties, add new before this */
+		LCP_CURRENTFRAME,		/* QPixmap, readonly */
+		LCP_AVAIL_RESOLUTIONS,		/* QList<QSize>, readonly */	/* unused */
+		LCP_RESOLUTION,			/* QSize */			/* unused */
+		LCP_BRIGHTNESS,			/* float */			/* unused */
+		LCP_USER			/* for user defined properties, add new before this */
 	};
 
-	enum VideoInProperty
+	enum RemoteCameraProperty
 	{
-		VP_CURRENTFRAME,		/* QPixmap, readonly */
-		VP_USER				/* for user defined properties, add new before this */
+		RCP_CURRENTFRAME,		/* QPixmap, readonly */
+		RCP_USER			/* for user defined properties, add new before this */
 	};
 
-	enum MicrophoneProperty
+	enum LocalMicrophoneProperty
 	{
-		MP_VOLUME,			/* float > 0.0 */
-		MP_USER				/* for user defined properties, add new before this */
+		LMP_VOLUME,			/* float > 0.0 */
+		LMP_USER			/* for user defined properties, add new before this */
 	};
 
-	enum AudioOutProperty
+	enum RemoteMicrophoneProperty
 	{
-		AP_VOLUME,			/* float > 0.0 */
-		AP_USER				/* for user defined properties, add new before this */
+		RMP_VOLUME,			/* float > 0.0 */
+		RMP_USER			/* for user defined properties, add new before this */
 	};
 
 	ISipDevice()

@@ -668,7 +668,7 @@ void SipManager::onCallDevicePropertyChanged(ISipDevice::Type AType, int AProper
 {
 	if (AType == ISipDevice::DT_LOCAL_CAMERA)
 	{
-		if (AProperty == ISipDevice::CP_CURRENTFRAME)
+		if (AProperty == ISipDevice::LCP_CURRENTFRAME)
 		{
 			// TODO: set preview image to test widget
 			TestCallWidget * w = testCallWidgets.values().at(0);
@@ -677,7 +677,7 @@ void SipManager::onCallDevicePropertyChanged(ISipDevice::Type AType, int AProper
 	}
 	else if (AType == ISipDevice::DT_REMOTE_CAMERA)
 	{
-		if (AProperty == ISipDevice::VP_CURRENTFRAME)
+		if (AProperty == ISipDevice::RCP_CURRENTFRAME)
 		{
 			// TODO: set remote image to test widget
 			TestCallWidget * w = testCallWidgets.values().at(0);

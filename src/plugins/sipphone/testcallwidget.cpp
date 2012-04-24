@@ -131,14 +131,14 @@ void TestCallWidget::onCallDevicePropertyChanged(ISipDevice::Type AType, int APr
 {
 	if (AType == ISipDevice::DT_LOCAL_CAMERA)
 	{
-		if (AProperty == ISipDevice::CP_CURRENTFRAME)
+		if (AProperty == ISipDevice::LCP_CURRENTFRAME)
 		{
 			setPreview(AValue.value<QPixmap>());
 		}
 	}
 	else if (AType == ISipDevice::DT_REMOTE_CAMERA)
 	{
-		if (AProperty == ISipDevice::VP_CURRENTFRAME)
+		if (AProperty == ISipDevice::RCP_CURRENTFRAME)
 		{
 			setRemoteImage(AValue.value<QPixmap>());
 		}
