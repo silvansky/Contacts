@@ -85,24 +85,28 @@ struct ISipDevice
 	enum CameraProperty
 	{
 		CP_CURRENTFRAME,		/* QPixmap, readonly */
-		CP_AVAIL_RESOLUTIONS,   /* QList<QSize> */
-		CP_RESOLUTION,			/* QSize */
-		CP_BRIGHTNESS			/* float */
+		CP_AVAIL_RESOLUTIONS,		/* QList<QSize>, readonly */	/* unused */
+		CP_RESOLUTION,			/* QSize */			/* unused */
+		CP_BRIGHTNESS,			/* float */			/* unused */
+		CP_USER				/* for user defined properties, add new before this */
 	};
 
 	enum VideoInProperty
 	{
-		VP_CURRENTFRAME			/* QPixmap, readonly */
+		VP_CURRENTFRAME,		/* QPixmap, readonly */
+		VP_USER				/* for user defined properties, add new before this */
 	};
 
 	enum MicrophoneProperty
 	{
-		MP_VOLUME				/* float */
+		MP_VOLUME,			/* float > 0.0 */
+		MP_USER				/* for user defined properties, add new before this */
 	};
 
 	enum AudioOutProperty
 	{
-		AP_VOLUME				/* float */
+		AP_VOLUME,			/* float > 0.0 */
+		AP_USER				/* for user defined properties, add new before this */
 	};
 
 	ISipDevice()

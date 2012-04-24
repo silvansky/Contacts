@@ -125,45 +125,45 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 	switch (state())
 	{
 	case CS_CALLING:
-	{
-		if (role() == CR_INITIATOR)
 		{
-			notifyActiveDestinations("cancel");
-			setCallState(CS_FINISHED);
-		}
-		else //if (role() == CR_RESPONDER)
-		{
-			if (FStanzaProcessor)
+			if (role() == CR_INITIATOR)
 			{
-				Stanza deny("iq");
-				deny.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
-				QDomElement queryElem = deny.addElement("query",NS_RAMBLER_PHONE);
-				if (ACode == RC_BUSY)
-					queryElem.setAttribute("type","busy");
-				else
-					queryElem.setAttribute("type","deny");
-				queryElem.setAttribute("sid",sessionId());
-				FStanzaProcessor->sendStanzaOut(streamJid(),deny);
+				notifyActiveDestinations("cancel");
+				setCallState(CS_FINISHED);
 			}
-			setCallState(CS_FINISHED);
+			else //if (role() == CR_RESPONDER)
+			{
+				if (FStanzaProcessor)
+				{
+					Stanza deny("iq");
+					deny.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
+					QDomElement queryElem = deny.addElement("query",NS_RAMBLER_PHONE);
+					if (ACode == RC_BUSY)
+						queryElem.setAttribute("type","busy");
+					else
+						queryElem.setAttribute("type","deny");
+					queryElem.setAttribute("sid",sessionId());
+					FStanzaProcessor->sendStanzaOut(streamJid(),deny);
+				}
+				setCallState(CS_FINISHED);
+			}
+			break;
 		}
-		break;
-	}
 	case CS_CONNECTING:
 	case CS_TALKING:
-	{
-		// TODO: check implementation
-		pj_status_t status = FCallId!=-1 ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
-		if (status == PJ_SUCCESS)
 		{
-			setCallState(CS_FINISHED);
+			// TODO: check implementation
+			pj_status_t status = FCallId!=-1 ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
+			if (status == PJ_SUCCESS)
+			{
+				setCallState(CS_FINISHED);
+			}
+			else
+			{
+				LogError(QString("[SipCall::rejectCall]: Failed to end call! pjsua_call_hangup() returned %1").arg(status));
+			}
+			break;
 		}
-		else
-		{
-			LogError(QString("[SipCall::rejectCall]: Failed to end call! pjsua_call_hangup() returned %1").arg(status));
-		}
-		break;
-	}
 	default:
 		break;
 	}
@@ -313,44 +313,92 @@ ISipDevice::State SipCall::deviceState(ISipDevice::Type AType) const
 
 bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 {
-	// TODO: complete implementation
+	// TODO: enable/disable only local or remote camera, not the whole video stream
 	bool status = false;
 	bool stateChanged = false;
 
 	switch (AType)
 	{
 	case ISipDevice::DT_LOCAL_CAMERA:
-	{
-		if (AState != cameraState)
 		{
-			pjsua_call_setting call_setting;
-			pjsua_call_setting_default(&call_setting);
-			call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
-			pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
-			if ((status = (pjstatus == PJ_SUCCESS)))
+			if (AState != cameraState)
 			{
-				stateChanged = true;
+				pjsua_call_setting call_setting;
+				pjsua_call_setting_default(&call_setting);
+				call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
+				pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
+				if ((status = (pjstatus == PJ_SUCCESS)))
+				{
+					stateChanged = true;
+				}
+				else
+				{
+					LogError(QString("[SipCall::setDeviceState]: Local camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+				}
 			}
-			else
-			{
-				LogError(QString("[SipCall::setDeviceState]: Camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
-			}
-
+			break;
 		}
-		break;
-	}
 	case ISipDevice::DT_LOCAL_MICROPHONE:
-	{
-		break;
-	}
+		{
+			if (AState != microphoneState)
+			{
+				float newLocalMicVolume = 0.0f;
+				if (AState != ISipDevice::DS_DISABLED)
+					newLocalMicVolume = deviceProperty(AType, ISipDevice::MP_VOLUME).toFloat();
+				pjsua_call_info ci;
+				pjsua_call_get_info(FCallId, &ci);
+				pj_status_t pjstatus = pjsua_conf_adjust_tx_level(ci.conf_slot, newLocalMicVolume);
+				if ((status = (pjstatus == PJ_SUCCESS)))
+				{
+					stateChanged = true;
+				}
+				else
+				{
+					LogError(QString("[SipCall::setDeviceState]: Local Microphone state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+				}
+			}
+			break;
+		}
 	case ISipDevice::DT_REMOTE_CAMERA:
-	{
-		break;
-	}
+		{
+			if (AState != videoInputState)
+			{
+				pjsua_call_setting call_setting;
+				pjsua_call_setting_default(&call_setting);
+				call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
+				pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
+				if ((status = (pjstatus == PJ_SUCCESS)))
+				{
+					stateChanged = true;
+				}
+				else
+				{
+					LogError(QString("[SipCall::setDeviceState]: Remote camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+				}
+			}
+			break;
+		}
 	case ISipDevice::DT_REMOTE_MICROPHONE:
-	{
-		break;
-	}
+		{
+			if (AState != audioOutputState)
+			{
+				float newRemoteMicVolume = 0.0f;
+				if (AState != ISipDevice::DS_DISABLED)
+					newRemoteMicVolume = deviceProperty(AType, ISipDevice::AP_VOLUME).toFloat();
+				pjsua_call_info ci;
+				pjsua_call_get_info(FCallId, &ci);
+				pj_status_t pjstatus = pjsua_conf_adjust_rx_level(ci.conf_slot, newRemoteMicVolume);
+				if ((status = (pjstatus == PJ_SUCCESS)))
+				{
+					stateChanged = true;
+				}
+				else
+				{
+					LogError(QString("[SipCall::setDeviceState]: Remote Microphone state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+				}
+			}
+			break;
+		}
 	default:
 		status = false;
 		break;
@@ -364,9 +412,6 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 
 QVariant SipCall::deviceProperty(ISipDevice::Type AType, int AProperty) const
 {
-	Q_UNUSED(AType)
-	Q_UNUSED(AProperty)
-	// TODO: implementation
 	switch (AType)
 	{
 	case ISipDevice::DT_LOCAL_CAMERA:
@@ -402,7 +447,6 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 			if (propertyChanged)
 			{
 				cameraProperties.insert(AProperty, AValue);
-				// TODO: handle property changes
 			}
 		}
 		break;
@@ -411,7 +455,32 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 		if (propertyChanged)
 		{
 			microphoneProperties.insert(AProperty, AValue);
-			// TODO: handle property changes
+			if (AProperty == ISipDevice::MP_VOLUME)
+			{
+				bool ok = true;
+				float newVolume = AValue.toFloat(&ok);
+				if ((propertyChanged = ok))
+				{
+					if ((propertyChanged = (FCallId != -1)))
+					{
+						pjsua_call_info ci;
+						pjsua_call_get_info(FCallId, &ci);
+						pj_status_t pjstatus = pjsua_conf_adjust_tx_level(ci.conf_slot, newVolume);
+						if (!(propertyChanged = (pjstatus == PJ_SUCCESS)))
+						{
+							LogError(QString("[SipCall::setDeviceProperty]: Error setting local mic volume! pjsua_conf_adjust_tx_level() returned %1.").arg(pjstatus));
+						}
+					}
+					else
+					{
+						LogError(QString("[SipCall::setDeviceProperty]: Error setting local mic volume to %1! Call is inactive!").arg(newVolume));
+					}
+				}
+				else
+				{
+					LogError(QString("[SipCall::setDeviceProperty]: Error setting local mic volume! %1 is not a float value.").arg(AValue.typeName()));
+				}
+			}
 		}
 		break;
 	case ISipDevice::DT_REMOTE_CAMERA:
@@ -423,7 +492,6 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 			if (propertyChanged)
 			{
 				videoInputProperties.insert(AProperty, AValue);
-				// TODO: handle property changes
 			}
 		}
 		break;
@@ -432,7 +500,32 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 		if (propertyChanged)
 		{
 			audioOutputProperties.insert(AProperty, AValue);
-			// TODO: handle property changes
+			if (AProperty == ISipDevice::MP_VOLUME)
+			{
+				bool ok = true;
+				float newVolume = AValue.toFloat(&ok);
+				if ((propertyChanged = ok))
+				{
+					if ((propertyChanged = (FCallId != -1)))
+					{
+						pjsua_call_info ci;
+						pjsua_call_get_info(FCallId, &ci);
+						pj_status_t pjstatus = pjsua_conf_adjust_rx_level(ci.conf_slot, newVolume);
+						if (!(propertyChanged = (pjstatus == PJ_SUCCESS)))
+						{
+							LogError(QString("[SipCall::setDeviceProperty]: Error setting remote mic volume! pjsua_conf_adjust_tx_level() returned %1.").arg(pjstatus));
+						}
+					}
+					else
+					{
+						LogError(QString("[SipCall::setDeviceProperty]: Error setting remote mic volume to %1! Call is inactive!").arg(newVolume));
+					}
+				}
+				else
+				{
+					LogError(QString("[SipCall::setDeviceProperty]: Error setting remote mic volume! %1 is not a float value.").arg(AValue.typeName()));
+				}
+			}
 		}
 		break;
 	default:
