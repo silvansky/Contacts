@@ -12,16 +12,19 @@
 CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose,true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SIPPHONE_CALLCONTROLWIDGET);
 
 	FAvatars = NULL;
 	FGateways = NULL;
 	FMetaContacts = NULL;
 
+	FCallTimer.setInterval(1000);
+	FCallTimer.setSingleShot(false);
+	connect(&FCallTimer,SIGNAL(timeout()),SLOT(onCallTimerTimeout()));
+
 	FSipCall = ASipCall;
 	connect(FSipCall->instance(),SIGNAL(stateChanged(int)),SLOT(onCallStateChanged(int)));
-	connect(FSipCall->instance(),SIGNAL(deviceStateChanged(ISipDevice::Type, ISipDevice::State)),SLOT(onCallDeviceStateChanged(ISipDevice::Type, ISipDevice::State)));
+	connect(FSipCall->instance(),SIGNAL(deviceStateChanged(int, int)),SLOT(onCallDeviceStateChanged(int, int)));
 
 	connect(ui.pbtAccept,SIGNAL(clicked()),SLOT(onAcceptButtonClicked()));
 	connect(ui.pbtReject,SIGNAL(clicked()),SLOT(onRejectButtonClicked()));
@@ -206,6 +209,11 @@ void CallControlWidget::onCallStateChanged(int AState)
 		break;
 	}
 
+	if (AState == ISipCall::CS_TALKING)
+		FCallTimer.start();
+	else
+		FCallTimer.stop();
+
 	if (AState == ISipCall::CS_CALLING)
 		playSound(FSipCall->role()==ISipCall::CR_INITIATOR ? SDF_SIPPHONE_CALL_WAIT : SDF_SIPPHONE_CALL_RINGING, 30);
 	else if (AState == ISipCall::CS_TALKING)
@@ -224,7 +232,7 @@ void CallControlWidget::onCallStateChanged(int AState)
 		playSound(QString::null);
 }
 
-void CallControlWidget::onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState)
+void CallControlWidget::onCallDeviceStateChanged(int AType, int AState)
 {
 	switch (AType)
 	{
@@ -273,6 +281,11 @@ void CallControlWidget::onLocalMicrophoneStateButtonClicked(bool AChecked)
 void CallControlWidget::onRemoteMicrophoneStateButtonClicked(bool AChecked)
 {
 	FSipCall->setDeviceState(ISipDevice::DT_REMOTE_MICROPHONE, AChecked ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+}
+
+void CallControlWidget::onCallTimerTimeout()
+{
+	ui.lblNotice->setText(FSipCall->callTimeString());
 }
 
 void CallControlWidget::onMetaAvatarChanged(const QString &AMetaId)

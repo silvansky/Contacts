@@ -20,7 +20,7 @@
 #include "pjsipcallbacks.h"
 
 #include "testcallwidget.h"
-#include "callcontrolwidget.h"
+#include "videocallwindow.h"
 
 #if defined(Q_WS_WIN)
 # include <windows.h>
@@ -314,21 +314,6 @@ bool SipManager::unregisterAtServer(const Jid &AStreamJid)
 	return false;
 }
 
-QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType) const
-{
-	Q_UNUSED(AType)
-	// TODO: implementation
-	return QList<ISipDevice>();
-}
-
-ISipDevice SipManager::getDevice(ISipDevice::Type AType, int ADeviceId) const
-{
-	Q_UNUSED(AType)
-	Q_UNUSED(ADeviceId)
-	// TODO: implementation
-	return ISipDevice();
-}
-
 void SipManager::showSystemSoundPreferences() const
 {
 #if defined(Q_WS_WIN)
@@ -351,6 +336,21 @@ void SipManager::showSystemSoundPreferences() const
 #endif
 }
 
+QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType) const
+{
+	Q_UNUSED(AType)
+	// TODO: implementation
+	return QList<ISipDevice>();
+}
+
+ISipDevice SipManager::getDevice(ISipDevice::Type AType, int ADeviceId) const
+{
+	Q_UNUSED(AType)
+	Q_UNUSED(ADeviceId)
+	// TODO: implementation
+	return ISipDevice();
+}
+
 void SipManager::insertSipCallHandler(int AOrder, ISipCallHandler *AHandler)
 {
 	FCallHandlers.insertMulti(AOrder, AHandler);
@@ -365,10 +365,9 @@ bool SipManager::handleSipCall(int AOrder, ISipCall *ACall)
 {
 	if (AOrder == SCHO_SIPMANAGER_VIDEOCALLS)
 	{
-		// Just for test, later CallControlWidget will be replaced with VideoCallWindow and will be created in it
-		CallControlWidget *widget = new CallControlWidget(FPluginManager,ACall);
-		WidgetManager::showActivateRaiseWindow(widget->window());
-		WidgetManager::alignWindow(widget->window(),Qt::AlignCenter);
+		VideoCallWindow *window = new VideoCallWindow(FPluginManager,ACall);
+		WidgetManager::showActivateRaiseWindow(window->window());
+		WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
 		ACall->startCall();
 		return true;
 	}
@@ -700,10 +699,10 @@ void SipManager::onStartVideoCall()
 		if (call)
 		{
 			// Just for test, later CallControlWidget will be replaced with VideoCallWindow and will be created in it
-			CallControlWidget *widget = new CallControlWidget(FPluginManager,call);
-			widget->sipCall()->startCall();
-			WidgetManager::showActivateRaiseWindow(widget->window());
-			WidgetManager::alignWindow(widget->window(),Qt::AlignCenter);
+			VideoCallWindow *window = new VideoCallWindow(FPluginManager,call);
+			window->sipCall()->startCall();
+			WidgetManager::showActivateRaiseWindow(window->window());
+			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
 		}
 	}
 }

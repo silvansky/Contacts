@@ -195,23 +195,14 @@ quint32 SipCall::callTime() const
 	{
 		pjsua_call_info ci;
 		pjsua_call_get_info(FCallId, &ci);
-		return ci.connect_duration.sec;
+		return ci.connect_duration.sec*1000 + ci.connect_duration.msec;
 	}
 	return 0;
 }
 
 QString SipCall::callTimeString() const
 {
-	QTime t(0, 0, 0, 0);
-	if (FCallId != -1)
-	{
-		pjsua_call_info ci;
-		pjsua_call_get_info(FCallId, &ci);
-		t.addSecs(ci.connect_duration.sec);
-		t.addMSecs(ci.connect_duration.msec);
-		return t.toString("hh:mm:ss");
-	}
-	return QString::null;
+	return QTime(0,0,0,0).addMSecs(callTime()).toString("hh:mm:ss");
 }
 
 bool SipCall::sendDTMFSignal(QChar ASignal)
@@ -817,10 +808,12 @@ int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int st
 
 		FC::YUV420PtoRGB32(w, h, stride, (unsigned char *)_frame->buf, dst, dstSize);
 		QImage remoteImage((uchar*)dst, w, h, QImage::Format_RGB888);
+		delete [] dst;
 
-		QPixmap remotePixmap = QPixmap::fromImage(remoteImage);
-		remoteCameraProperties[ISipDevice::RCP_CURRENTFRAME] = remotePixmap;
-		emit devicePropertyChanged(ISipDevice::DT_REMOTE_CAMERA, ISipDevice::RCP_CURRENTFRAME, remotePixmap);
+		QVariant &value = remoteCameraProperties[ISipDevice::RCP_CURRENTFRAME];
+		value = remoteImage;
+
+		emit devicePropertyChanged(ISipDevice::DT_REMOTE_CAMERA, ISipDevice::RCP_CURRENTFRAME, value);
 	}
 	return 0;
 }
@@ -853,9 +846,10 @@ int SipCall::onMyPreviewFrameCallback(void *frame, const char *colormodelName, i
 		}
 		delete[] dst;
 
-		QPixmap previewPixmap = QPixmap::fromImage(previewImage);
-		localCameraProperties[ISipDevice::LCP_CURRENTFRAME] = previewPixmap;
-		emit devicePropertyChanged(ISipDevice::DT_LOCAL_CAMERA, ISipDevice::LCP_CURRENTFRAME, previewPixmap);
+		QVariant &value = localCameraProperties[ISipDevice::LCP_CURRENTFRAME];
+		value = previewImage;
+
+		emit devicePropertyChanged(ISipDevice::DT_LOCAL_CAMERA, ISipDevice::LCP_CURRENTFRAME, value);
 	}
 	return 0;
 }

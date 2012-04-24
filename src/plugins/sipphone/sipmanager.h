@@ -49,28 +49,27 @@ public:
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
 	virtual bool registerAtServer(const Jid &AStreamJid);
 	virtual bool unregisterAtServer(const Jid &AStreamJid);
-	// prices/balance
-	// TODO
 	// devices
+	virtual void showSystemSoundPreferences() const;
 	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const;
 	virtual ISipDevice getDevice(ISipDevice::Type AType, int ADeviceId) const;
-	virtual void showSystemSoundPreferences() const;
 	// handlers
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler);
-	// ISipCallHandler
-	virtual bool handleSipCall(int AOrder, ISipCall * ACall);
-	// IStanzaHandler
-	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 signals:
+	void availDevicesChanged(int AType);
 	void sipCallCreated(ISipCall *ACall);
 	void sipCallDestroyed(ISipCall *ACall);
 	void registeredAtServer(const QString &AAccount);
 	void unregisteredAtServer(const QString &AAccount);
 	void registrationAtServerFailed(const QString &AAccount);
-	void availDevicesChanged(int ADeviceType);
 	void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler);
 	void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler);
+public:
+	// ISipCallHandler
+	virtual bool handleSipCall(int AOrder, ISipCall * ACall);
+	// IStanzaHandler
+	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 public:
 	// SipManager internals
 	static SipManager *callbackInstance();

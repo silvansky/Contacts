@@ -84,29 +84,29 @@ struct ISipDevice
 
 	enum LocalCameraProperty
 	{
-		LCP_CURRENTFRAME,		/* QPixmap, readonly */
-		LCP_AVAIL_RESOLUTIONS,		/* QList<QSize>, readonly */	/* unused */
-		LCP_RESOLUTION,			/* QSize */			/* unused */
-		LCP_BRIGHTNESS,			/* float */			/* unused */
-		LCP_USER			/* for user defined properties, add new before this */
+		LCP_CURRENTFRAME,         /* QPixmap, readonly */
+		LCP_AVAIL_RESOLUTIONS,    /* QList<QSize>, readonly */	/* unused */
+		LCP_RESOLUTION,           /* QSize */  /* unused */
+		LCP_BRIGHTNESS,           /* float */  /* unused */
+		LCP_USER                  /* for user defined properties, add new before this */
 	};
 
 	enum RemoteCameraProperty
 	{
-		RCP_CURRENTFRAME,		/* QPixmap, readonly */
-		RCP_USER			/* for user defined properties, add new before this */
+		RCP_CURRENTFRAME,         /* QPixmap, readonly */
+		RCP_USER                  /* for user defined properties, add new before this */
 	};
 
 	enum LocalMicrophoneProperty
 	{
-		LMP_VOLUME,			/* float > 0.0 */
-		LMP_USER			/* for user defined properties, add new before this */
+		LMP_VOLUME,               /* float > 0.0 */
+		LMP_USER                  /* for user defined properties, add new before this */
 	};
 
 	enum RemoteMicrophoneProperty
 	{
-		RMP_VOLUME,			/* float > 0.0 */
-		RMP_USER			/* for user defined properties, add new before this */
+		RMP_VOLUME,               /* float > 0.0 */
+		RMP_USER                  /* for user defined properties, add new before this */
 	};
 
 	ISipDevice()
@@ -178,14 +178,14 @@ public:
 	virtual ISipDevice::State deviceState(ISipDevice::Type AType) const = 0;
 	virtual bool setDeviceState(ISipDevice::Type AType, ISipDevice::State AState) = 0;
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const = 0;
-	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant & AValue) = 0;
+	virtual bool setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVariant &AValue) = 0;
 protected:
 	virtual void callDestroyed() =0;
 	virtual void stateChanged(int AState) = 0;
 	virtual void DTMFSignalReceived(QChar ASignal) = 0;
-	virtual void activeDeviceChanged(ISipDevice::Type ADeviceType) = 0;
-	virtual void deviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState) = 0;
-	virtual void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue) = 0;
+	virtual void activeDeviceChanged(int AType) = 0;
+	virtual void deviceStateChanged(int AType, int AState) = 0;
+	virtual void devicePropertyChanged(int AType, int AProperty, const QVariant &AValue) = 0;
 };
 
 class ISipCallHandler
@@ -207,24 +207,22 @@ public:
 	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const = 0;
 	virtual bool registerAtServer(const Jid &AStreamJid) = 0;
 	virtual bool unregisterAtServer(const Jid &AStreamJid) = 0;
-	// prices/balance
-	// TODO
 	// devices
+	virtual void showSystemSoundPreferences() const = 0;
 	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const = 0;
 	virtual ISipDevice getDevice(ISipDevice::Type AType, int ADeviceId) const = 0;
-	virtual void showSystemSoundPreferences() const = 0;
 	// handlers
-	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler) = 0;
-	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler) = 0;
+	virtual void insertSipCallHandler(int AOrder, ISipCallHandler *AHandler) = 0;
+	virtual void removeSipCallHandler(int AOrder, ISipCallHandler *AHandler) = 0;
 protected:
-	virtual void sipCallCreated(ISipCall * ACall) = 0;
-	virtual void sipCallDestroyed(ISipCall * ACall) = 0;
+	virtual void availDevicesChanged(int AType) = 0;
+	virtual void sipCallCreated(ISipCall *ACall) = 0;
+	virtual void sipCallDestroyed(ISipCall *ACall) = 0;
 	virtual void registeredAtServer(const QString &AAccount) = 0;
 	virtual void unregisteredAtServer(const QString &AAccount) = 0;
 	virtual void registrationAtServerFailed(const QString &AAccount) = 0;
-	virtual void availDevicesChanged(int ADeviceType) = 0;
-	virtual void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler) = 0;
-	virtual void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler) = 0;
+	virtual void sipCallHandlerInserted(int AOrder, ISipCallHandler *AHandler) = 0;
+	virtual void sipCallHandlerRemoved(int AOrder, ISipCallHandler *AHandler) = 0;
 };
 
 Q_DECLARE_INTERFACE(ISipCall,"Virtus.Plugin.ISipCall/1.0")

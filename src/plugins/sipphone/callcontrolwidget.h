@@ -31,7 +31,7 @@ protected:
 	void initialize(IPluginManager *APluginManager);
 protected slots:
 	void onCallStateChanged(int AState);
-	void onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState);
+	void onCallDeviceStateChanged(int AType, int AState);
 protected slots:
 	void onAcceptButtonClicked();
 	void onRejectButtonClicked();
@@ -40,6 +40,7 @@ protected slots:
 	void onLocalMicrophoneStateButtonClicked(bool AChecked);
 	void onRemoteMicrophoneStateButtonClicked(bool AChecked);
 protected slots:
+	void onCallTimerTimeout();
 	void onMetaAvatarChanged(const QString &AMetaId);
 private:
 	Ui::CallControlWidgetClass ui;
@@ -50,6 +51,7 @@ private:
 	IMetaContacts *FMetaContacts;
 private:
 	QString FMetaId;
+	QTimer FCallTimer;
 	ISipCall *FSipCall;
 private:
 #ifdef USE_PHONON

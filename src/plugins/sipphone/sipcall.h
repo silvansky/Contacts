@@ -45,9 +45,9 @@ signals:
 	void callDestroyed();
 	void stateChanged(int AState);
 	void DTMFSignalReceived(QChar ASignal);
-	void activeDeviceChanged(ISipDevice::Type ADeviceType);
-	void deviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState);
-	void devicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant &AValue);
+	void activeDeviceChanged(int AType);
+	void deviceStateChanged(int AType, int AState);
+	void devicePropertyChanged(int AType, int AProperty, const QVariant &AValue);
 public:
 	// IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
