@@ -807,7 +807,7 @@ int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int st
 		unsigned char * dst = new unsigned char[dstSize];
 
 		FC::YUV420PtoRGB32(w, h, stride, (unsigned char *)_frame->buf, dst, dstSize);
-		QImage remoteImage((uchar*)dst, w, h, QImage::Format_RGB888);
+		QImage remoteImage = QImage((uchar*)dst, w, h, QImage::Format_RGB888).copy();
 		delete [] dst;
 
 		QVariant &value = remoteCameraProperties[ISipDevice::RCP_CURRENTFRAME];
