@@ -202,5 +202,8 @@
 #define MNI_SIPPHONE_CALL_ANSWER                 "sipCallAnswer"
 #define MNI_SIPPHONE_CALL_HANGUP                 "sipCallHangup"
 #define MNI_SIPPHONE_CALL_MISSED                 "sipCallMissed"
+// Used after refactoring
+#define MNI_SIPPHONE_VIDEO_WAIT                  "sipVideoWait"
+#define MNI_SIPPHONE_VIDEO_RESIZE                "sipVideoResize"
 
 #endif //DEF_MENUICONS_H

@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <interfaces/isipphone.h>
 #include <interfaces/ipluginmanager.h>
+#include "videolabel.h"
+#include "videolayout.h"
 #include "callcontrolwidget.h"
 #include "ui_videocallwindow.h"
 
@@ -17,6 +19,8 @@ public:
 	ISipCall *sipCall() const;
 protected:
 	void initialize(IPluginManager *APluginManager);
+	void closeWindowWithAnimation();
+	void restoreGeometryWithAnimation();
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);
@@ -24,8 +28,9 @@ protected slots:
 private:
 	Ui::VideoCallWindowClass ui;
 private:
-	QLabel *FLocalCamera;
-	QLabel *FRemoteCamera;
+	bool FVideoVisible;
+	VideoLabel *FLocalCamera;
+	VideoLabel *FRemoteCamera;
 	CallControlWidget *FCtrlWidget;
 };
 

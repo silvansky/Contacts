@@ -1,11 +1,14 @@
 #include "videocallwindow.h"
 
 #include <QTimer>
+#include <QPropertyAnimation>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <definitions/customborder.h>
+#include <utils/options.h>
 #include <utils/stylestorage.h>
+#include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>
 
 #define CLOSE_WINDOW_TIMEOUT    2000
@@ -32,19 +35,20 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 	}
 
+	FVideoVisible = false;
 	initialize(APluginManager);
 
-	ui.wdtVideo->setLayout(new QHBoxLayout);
+	FRemoteCamera = new VideoLabel(ui.wdtVideo);
+	FRemoteCamera->setObjectName("vlbRemoteCamera");
 
-	FRemoteCamera = new QLabel(ui.wdtVideo);
-	FRemoteCamera->setScaledContents(true);
-	FRemoteCamera->setObjectName("lblRemoteCamera");
-	ui.wdtVideo->layout()->addWidget(FRemoteCamera);
-
-	FLocalCamera = new QLabel(ui.wdtVideo);
-	FLocalCamera->setScaledContents(true);
-	FLocalCamera->setObjectName("lblLocalCamera");
-	ui.wdtVideo->layout()->addWidget(FLocalCamera);
+	FLocalCamera = new VideoLabel(ui.wdtVideo);
+	FLocalCamera->setMoveEnabled(true);
+	FLocalCamera->setResizeEnabled(true);
+	FLocalCamera->setFrameShape(QLabel::Box);
+	FLocalCamera->setObjectName("vlbLocalCamera");
+	
+	ui.wdtVideo->setLayout(new VideoLayout(FRemoteCamera,FLocalCamera,ui.wdtVideo));
+	ui.wdtVideo->setVisible(false);
 
 	FCtrlWidget = new CallControlWidget(APluginManager,ASipCall,ui.wdtControls);
 	ui.wdtControls->setLayout(new QHBoxLayout);
@@ -60,7 +64,8 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 
 VideoCallWindow::~VideoCallWindow()
 {
-
+	if (FVideoVisible)
+		Options::setFileValue(window()->geometry(),"sipphone.videocall-window.geometry");
 }
 
 ISipCall *VideoCallWindow::sipCall() const
@@ -73,13 +78,46 @@ void VideoCallWindow::initialize(IPluginManager *APluginManager)
 
 }
 
+void VideoCallWindow::closeWindowWithAnimation()
+{
+	QPropertyAnimation *animation = new QPropertyAnimation(window(),"windowOpacity");
+	animation->setDuration(500);
+	animation->setStartValue(1.0);
+	animation->setEndValue(0.0);
+	connect(animation,SIGNAL(finished()),window(),SLOT(close()));
+	animation->start();		
+}
+
+void VideoCallWindow::restoreGeometryWithAnimation()
+{
+	if (true/*sipCall()->deviceState(ISipDevice::DT_REMOTE_CAMERA) == ISipDevice::DS_ENABLED*/)
+	{
+		FVideoVisible = true;
+		ui.wdtVideo->setVisible(true);
+
+		QRect newGeometry = Options::fileValue("sipphone.videocall-window.geometry").toRect();
+		if (newGeometry.isEmpty())
+			newGeometry = WidgetManager::alignGeometry(QSize(640,480),window());
+
+		QPropertyAnimation *animation = new QPropertyAnimation(window(),"geometry");
+		animation->setDuration(200);
+		animation->setStartValue(window()->geometry());
+		animation->setEndValue(newGeometry);
+		connect(animation,SIGNAL(finished()),animation,SLOT(deleteLater()));
+		animation->start();		
+	}
+}
+
 void VideoCallWindow::onCallStateChanged(int AState)
 {
 	switch (AState)
 	{
+	case ISipCall::CS_TALKING:
+		restoreGeometryWithAnimation();
+		break;
 	case ISipCall::CS_FINISHED:
 	case ISipCall::CS_ERROR:
-		QTimer::singleShot(CLOSE_WINDOW_TIMEOUT,window(),SLOT(close()));
+		closeWindowWithAnimation();
 		break;
 	default:
 		break;
@@ -88,7 +126,14 @@ void VideoCallWindow::onCallStateChanged(int AState)
 
 void VideoCallWindow::onCallDeviceStateChanged(int AType, int AState)
 {
-
+	if (AType==ISipDevice::DT_REMOTE_CAMERA && AState!=ISipDevice::DS_ENABLED)
+	{
+		FRemoteCamera->clear();
+	}
+	else if (AType==ISipDevice::DT_LOCAL_CAMERA && AState!=ISipDevice::DS_ENABLED)
+	{
+		FLocalCamera->clear();
+	}
 }
 
 void VideoCallWindow::onCallDevicePropertyChanged(int AType, int AProperty, const QVariant &AValue)

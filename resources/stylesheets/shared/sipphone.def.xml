@@ -4,4 +4,8 @@
     <key>sipphoneCallControlWidget</key>
     <object mime='text/css'>sipphonecallcontrolwidget.qss</object>
   </file>
+  <file>
+    <key>sipphoneVideoCallWindow</key>
+    <object mime='text/css'>sipphonevideocallwindow.qss</object>
+  </file>
 </styledef>
