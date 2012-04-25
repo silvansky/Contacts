@@ -14,7 +14,7 @@
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imainwindow.h>
 #include <utils/custombordercontainer.h>
-#include <utils/macwidgets.h>
+#include <utils/macutils.h>
 #include <utils/imagemanager.h>
 #include <utils/options.h>
 #include <utils/custominputdialog.h>

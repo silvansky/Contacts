@@ -76,10 +76,8 @@ SOURCES = jid.cpp \
 
 macx: {
 
-HEADERS += \
-	macwidgets.h
+HEADERS += macutils.h
 
-OBJECTIVE_SOURCES += \
-	macwidgets.mm
+OBJECTIVE_SOURCES += macutils.mm
 
 }

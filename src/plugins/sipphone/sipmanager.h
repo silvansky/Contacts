@@ -30,7 +30,7 @@ class SipManager :
 	Q_INTERFACES(IPlugin ISipManager ISipCallHandler IStanzaHandler)
 public:
 	SipManager();
-	~SipManager();
+	virtual ~SipManager();
 	// IPlugin
 	virtual QObject *instance();
 	virtual QUuid pluginUuid() const;

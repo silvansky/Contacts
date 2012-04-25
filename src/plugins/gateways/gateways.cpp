@@ -5,7 +5,7 @@
 #include <definitions/customborder.h>
 #include <utils/customborderstorage.h>
 #ifdef Q_WS_MAC
-# include <utils/macwidgets.h>
+# include <utils/macutils.h>
 #endif
 
 #define ADR_STREAM_JID            Action::DR_StreamJid

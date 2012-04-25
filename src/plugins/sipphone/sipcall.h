@@ -17,7 +17,7 @@ class SipCall :
 public:
 	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId);
-	~SipCall();
+	virtual ~SipCall();
 	virtual QObject *instance();
 	// ISipCall
 	virtual Jid streamJid() const;
@@ -31,7 +31,7 @@ public:
 	virtual CallState state() const;
 	virtual ErrorCode errorCode() const;
 	virtual QString errorString() const;
-	virtual quint32 callTime() const; // in seconds
+	virtual quint32 callTime() const; // in milliseconds
 	virtual QString callTimeString() const;
 	virtual bool sendDTMFSignal(QChar ASignal);
 	// devices
@@ -65,7 +65,7 @@ public:
 	// pjsip callbacks
 	void onCallState(int call_id, /*pjsip_event **/ void *e);
 	void onCallMediaState(int call_id);
-	void onCallTsxState(int call_id, /*pjsip_transaction **/void * tsx, /*pjsip_event **/ void *e);
+	void onCallTsxState(int call_id, /*pjsip_transaction **/void *tsx, /*pjsip_event **/ void *e);
 	int onMyPutFrameCallback(int call_id, /*pjmedia_frame **/void *frame, int w, int h, int stride);
 	int onMyPreviewFrameCallback(/*pjmedia_frame **/void *frame, const char* colormodelName, int w, int h, int stride);
 protected:
@@ -85,19 +85,19 @@ private:
 	IStanzaProcessor *FStanzaProcessor;
 private:
 	// i/o devices
-	// camera (my video)
+	// local camera
 	ISipDevice localCamera;
 	ISipDevice::State localCameraState;
 	QMap<int, QVariant> localCameraProperties;
-	// microphone (my sound)
+	// local microphone
 	ISipDevice localMicrophone;
 	ISipDevice::State localMicrophoneState;
 	QMap<int, QVariant> localMicrophoneProperties;
-	// video input (remote video)
+	// remote camera
 	ISipDevice remoteCamera;
 	ISipDevice::State remoteCameraState;
 	QMap<int, QVariant> remoteCameraProperties;
-	// audio output (remote sound)
+	// remote microphone
 	ISipDevice remoteMicrophone;
 	ISipDevice::State remoteMicrophoneState;
 	QMap<int, QVariant> remoteMicrophoneProperties;

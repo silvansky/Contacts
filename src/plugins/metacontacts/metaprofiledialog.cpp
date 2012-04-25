@@ -8,7 +8,7 @@
 #include <definitions/graphicseffects.h>
 #include <definitions/menuicons.h>
 #ifdef Q_WS_MAC
-# include <utils/macwidgets.h>
+# include <utils/macutils.h>
 #endif
 
 #define BIRTHDAY_META_ORDER     -10

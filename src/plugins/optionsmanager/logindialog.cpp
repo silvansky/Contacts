@@ -25,7 +25,7 @@
 #include <utils/graphicseffectsstorage.h>
 
 #ifdef Q_WS_MAC
-# include <utils/macwidgets.h>
+# include <utils/macutils.h>
 # include <Carbon/Carbon.h>
 #endif
 

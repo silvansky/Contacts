@@ -195,14 +195,14 @@ quint32 SipCall::callTime() const
 	{
 		pjsua_call_info ci;
 		pjsua_call_get_info(FCallId, &ci);
-		return ci.connect_duration.sec*1000 + ci.connect_duration.msec;
+		return ci.connect_duration.sec * 1000 + ci.connect_duration.msec;
 	}
 	return 0;
 }
 
 QString SipCall::callTimeString() const
 {
-	return QTime(0,0,0,0).addMSecs(callTime()).toString("hh:mm:ss");
+	return QTime(0, 0, 0, 0).addMSecs(callTime()).toString("hh:mm:ss");
 }
 
 bool SipCall::sendDTMFSignal(QChar ASignal)

@@ -4,7 +4,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #ifdef Q_WS_MAC
-# include <utils/macwidgets.h>
+# include <utils/macutils.h>
 #endif
 
 #define MINIMIZENOTIFY_MAX_SHOWCOUNT    3

@@ -12,7 +12,7 @@
 #include <utils/log.h>
 
 #ifdef Q_WS_MAC
-# include <utils/macwidgets.h>
+# include <utils/macutils.h>
 #endif
 
 #define GROUP_NEW                ":group_new:"

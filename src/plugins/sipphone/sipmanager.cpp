@@ -2,6 +2,7 @@
 
 #include <QLabel>
 #include <QProcess>
+#include <QTextCodec>
 
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
@@ -24,6 +25,8 @@
 
 #if defined(Q_WS_WIN)
 # include <windows.h>
+#elif defined(Q_WS_MAC)
+# include <utils/macutils.h>
 #endif
 
 #if defined(DEBUG_ENABLED)
@@ -167,7 +170,7 @@ bool SipManager::initObjects()
 		FSHISipQuery = FStanzaProcessor->insertStanzaHandle(shandle);
 	}
 
-	insertSipCallHandler(SCHO_SIPMANAGER_VIDEOCALLS,this);
+	insertSipCallHandler(SCHO_SIPMANAGER_VIDEOCALLS, this);
 
 	return true;
 }
@@ -189,14 +192,14 @@ bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) 
 
 ISipCall *SipManager::newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations)
 {
-	SipCall *call = new SipCall(this,FStanzaProcessor,AStreamJid,ADestinations,QUuid::createUuid().toString());
+	SipCall *call = new SipCall(this, FStanzaProcessor, AStreamJid, ADestinations, QUuid::createUuid().toString());
 	emit sipCallCreated(call);
 	return call;
 }
 
 QList<ISipCall*> SipManager::findCalls(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId) const
 {
-	return SipCall::findCalls(AStreamJid,AContactJid,ASessionId);
+	return SipCall::findCalls(AStreamJid, AContactJid, ASessionId);
 }
 
 int SipManager::registeredAccountId(const Jid &AStreamJid) const
@@ -211,7 +214,7 @@ bool SipManager::isRegisteredAtServer(const Jid &AStreamJid) const
 
 bool SipManager::registerAtServer(const Jid &AStreamJid)
 {
-	IXmppStream *stream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
+	IXmppStream *stream = FXmppStreams ? FXmppStreams->xmppStream(AStreamJid) : NULL;
 	if (stream && !isRegisteredAtServer(AStreamJid) && createSipStack())
 	{
 		// Create account
@@ -340,7 +343,107 @@ QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType) const
 {
 	Q_UNUSED(AType)
 	// TODO: implementation
-	return QList<ISipDevice>();
+	static QList<ISipDevice> localAudioDevices;
+	static QList<ISipDevice> remoteAudioDevices;
+	static QList<ISipDevice> localVideoDevices;
+	static QList<ISipDevice> remoteVideoDevices;
+	if (localAudioDevices.isEmpty() || remoteAudioDevices.isEmpty())
+	{
+		localAudioDevices.clear();
+		remoteAudioDevices.clear();
+		pjmedia_aud_dev_refresh();
+		uint numDevices = pjmedia_aud_dev_count();
+		for (uint i = 0; i < numDevices; i++)
+		{
+			pjmedia_aud_dev_info info;
+			pj_status_t pjstatus = pjmedia_aud_dev_get_info(i, &info);
+			if (pjstatus == PJ_SUCCESS)
+			{
+				if (info.input_count)
+				{
+					ISipDevice d;
+					d.type = ISipDevice::DT_LOCAL_MICROPHONE;
+					d.id = i;
+					d.name = QString::fromUtf8(info.name);
+					localAudioDevices << d;
+					LogDetail(QString("[SipManager::availDevices]: Found INPUT audio device with id %1 and name %2. Driver is %3").arg(i).arg(d.name).arg(info.driver));
+				}
+				if (info.output_count)
+				{
+					ISipDevice d;
+					d.type = ISipDevice::DT_REMOTE_MICROPHONE;
+					d.id = i;
+					d.name = QString::fromUtf8(info.name);
+					remoteAudioDevices << d;
+					LogDetail(QString("[SipManager::availDevices]: Found OUTPUT audio device with id %1 and name %2. Driver is %3").arg(i).arg(d.name).arg(info.driver));
+				}
+			}
+			else
+			{
+				LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_aud_dev_get_info() returned %2").arg(i).arg(pjstatus));
+			}
+		}
+	}
+	if (localVideoDevices.isEmpty() || remoteVideoDevices.isEmpty())
+	{
+		localVideoDevices.clear();
+		remoteVideoDevices.clear();
+		uint numDevices = pjmedia_vid_dev_count();
+		for (uint i = 0; i < numDevices; i++)
+		{
+			pjmedia_vid_dev_info info;
+			pj_status_t pjstatus = pjmedia_vid_dev_get_info(i, &info);
+			if (pjstatus == PJ_SUCCESS)
+			{
+#if defined(Q_WS_MAC)
+				QString name = convertFromMacCyrillic(info.name);
+#else
+				QString name(info.name);
+#endif
+				if (info.dir == PJMEDIA_DIR_CAPTURE)
+				{
+					ISipDevice d;
+					d.type = ISipDevice::DT_LOCAL_CAMERA;
+					d.id = i;
+					d.name = name;
+					localVideoDevices << d;
+					LogDetail(QString("[SipManager::availDevices]: Found INPUT video device with id %1 and name %2. Driver is %3").arg(i).arg(name).arg(info.driver));
+				}
+				else if (info.dir == PJMEDIA_DIR_PLAYBACK)
+				{
+					ISipDevice d;
+					d.type = ISipDevice::DT_REMOTE_CAMERA;
+					d.id = i;
+					d.name = name;
+					remoteVideoDevices << d;
+					LogDetail(QString("[SipManager::availDevices]: Found OUTPUT video device with id %1 and name %2. Driver is %3").arg(i).arg(name).arg(info.driver));
+				}
+				else if (info.dir == PJMEDIA_DIR_ENCODING_DECODING)
+				{
+					ISipDevice d;
+					d.type = ISipDevice::DT_LOCAL_CAMERA;
+					d.id = i;
+					d.name = name;
+					localVideoDevices << d;
+					d.type = ISipDevice::DT_LOCAL_CAMERA;
+					remoteVideoDevices << d;
+					LogDetail(QString("[SipManager::availDevices]: Found INPUT/OUTPUT video device with id %1 and name %2. Driver is %3").arg(i).arg(name).arg(info.driver));
+				}
+			}
+			else
+			{
+				LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_vid_dev_get_info() returned %2").arg(i).arg(pjstatus));
+			}
+		}
+	}
+	switch (AType)
+	{
+	case ISipDevice::DT_LOCAL_MICROPHONE:
+		return localAudioDevices;
+		break;
+	default:
+		return QList<ISipDevice>();
+	}
 }
 
 ISipDevice SipManager::getDevice(ISipDevice::Type AType, int ADeviceId) const
@@ -440,11 +543,12 @@ void SipManager::onRegState(int acc_id)
 	pjsua_acc_get_info(acc_id, &info);
 
 	QString account = QString("%1").arg(info.acc_uri.ptr);
-	account.remove(0,4); // remove "sip:"
+	account.remove(0, 4); // remove "sip:"
 	if (info.status == PJSIP_SC_OK)
 	{
-		LogDetail(QString("[SipManager]: Successfully registered on SIP server account '%1'").arg(account));
+		LogDetail(QString("[SipManager]: Successfully registered on SIP server account \'%1\', online: %2, has registration: %3").arg(account).arg(info.online_status).arg(info.has_registration));
 		FAccounts.insert(account, acc_id);
+		//availDevices(ISipDevice::DT_LOCAL_MICROPHONE);
 		emit registeredAtServer(account);
 	}
 	else
