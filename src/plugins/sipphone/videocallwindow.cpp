@@ -122,6 +122,7 @@ void VideoCallWindow::onCallStateChanged(int AState)
 	default:
 		break;
 	}
+	setWindowTitle(FCtrlWidget->windowTitle());
 }
 
 void VideoCallWindow::onCallDeviceStateChanged(int AType, int AState)

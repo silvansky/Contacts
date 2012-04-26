@@ -17,8 +17,16 @@ public:
 	void setResizeEnabled(bool AEnabled);
 	Qt::Alignment alignment() const;
 	void setAlignment(Qt::Alignment AAlign);
+	QSize minimumVideoSize() const;
+	void setMinimumVideoSize(const QSize &ASize);
+	QSize maximumVideoSize() const;
+	void setMaximumVideoSize(const QSize &ASize);
+signals:
+	void moveTo(const QPoint &APos);
+	void resizeTo(Qt::Corner ACorner, const QPoint &APos);
 public:
 	QSize sizeHint() const;
+	QSize minimumSizeHint() const;
 public slots:
 	void setPixmap(const QPixmap &APixmap);
 protected:
@@ -35,6 +43,10 @@ private:
 	bool FMoveEnabled;
 	bool FResizeEnabled;
 	QPixmap FResizeIcon;
+	QPoint FPressedPos;
+	int FCursorCorner;
+	QSize FMinimumSize;
+	QSize FMaximumSize;
 	Qt::Alignment FAlignment;
 };
 
