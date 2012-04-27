@@ -3,9 +3,10 @@
 #include <QtDebug>
 
 #include <QStyle>
+#include <utils/options.h>
 #include <utils/widgetmanager.h>
 
-VideoLayout::VideoLayout(VideoLabel *ARemoteVideo, VideoLabel *ALocalVideo, QWidget *AParent) : QLayout(AParent)
+VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWidget *AParent) : QLayout(AParent)
 {
 	FLocalMargin = 4;
 	FLocalStickDelta = 9;
@@ -79,12 +80,26 @@ void VideoLayout::setLocalVideoMargin(int AMargin)
 
 void VideoLayout::saveLocalVideoGeometry()
 {
-
+	if (!FLocalScale.isNull())
+	{
+		Options::setFileValue(FLocalScale,"sipphone.videocallwindow.videolayout.localvideo.scale");
+		Options::setFileValue((int)FLocalVideo->alignment(),"sipphone.videocallwindow.videolayout.localvideo.alignment");
+	}
 }
 
 void VideoLayout::restoreLocalVideoGeometry()
 {
-
+	FLocalScale = Options::fileValue("sipphone.videocallwindow.videolayout.localvideo.scale").toRectF();
+	if (FLocalScale.isNull())
+	{
+		FLocalScale = QRectF(0.75,0.75,0.25,0.25);
+		FLocalVideo->setAlignment(Qt::AlignRight|Qt::AlignBottom);
+	}
+	else
+	{
+		FLocalVideo->setAlignment((Qt::Alignment)Options::fileValue("sipphone.videocallwindow.videolayout.localvideo.alignment").toInt());
+	}
+	update();
 }
 
 void VideoLayout::saveLocalVideoGeometryScale()
@@ -102,6 +117,27 @@ void VideoLayout::saveLocalVideoGeometryScale()
 
 Qt::Alignment VideoLayout::remoteVideoAlignment() const
 {
+	if (!FRemoteVideo->isEmpty())
+	{
+		Qt::Alignment remoteAlign = 0;
+		Qt::Alignment localAlign = FLocalVideo->alignment();
+
+		if (localAlign & Qt::AlignLeft)
+			remoteAlign |= Qt::AlignRight;
+		else if (localAlign & Qt::AlignRight)
+			remoteAlign |= Qt::AlignLeft;
+		else
+			remoteAlign |= Qt::AlignHCenter;
+
+		if (localAlign & Qt::AlignTop)
+			remoteAlign |= Qt::AlignBottom;
+		else if (localAlign & Qt::AlignBottom)
+			remoteAlign |= Qt::AlignTop;
+		else
+			remoteAlign |= Qt::AlignVCenter;
+
+		return remoteAlign;
+	}
 	return Qt::AlignCenter;
 }
 
@@ -263,6 +299,7 @@ void VideoLayout::onMoveLocalVideo(const QPoint &APos)
 		FLocalVideo->setAlignment(geometryAlignment(newGeometry));
 
 		saveLocalVideoGeometryScale();
+		update();
 	}
 }
 
@@ -286,5 +323,6 @@ void VideoLayout::onResizeLocalVideo(Qt::Corner ACorner, const QPoint &APos)
 		FLocalVideo->setAlignment(geometryAlignment(newGeometry));
 
 		saveLocalVideoGeometryScale();
+		update();
 	}
 }

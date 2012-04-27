@@ -1,0 +1,4 @@
+QWidget#wdtVideo 
+{
+	background-color: black;
+}

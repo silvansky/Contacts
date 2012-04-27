@@ -20,11 +20,12 @@ static const struct {
 	{ Qt::BottomRightCorner, 180.0, Qt::AlignRight|Qt::AlignBottom, Qt::SizeFDiagCursor }
 };
 
-VideoLabel::VideoLabel(QWidget *AParent) : QLabel(AParent)
+VideoFrame::VideoFrame(QWidget *AParent) : QFrame(AParent)
 {
 	setMouseTracking(true);
 
 	FCursorCorner = -1;
+	FCollapsed = false;
 	FMoveEnabled = false;
 	FResizeEnabled = false;
 	FMinimumSize = QSize(50,50);
@@ -34,23 +35,45 @@ VideoLabel::VideoLabel(QWidget *AParent) : QLabel(AParent)
 	QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_VIDEO_RESIZE);
 	FResizeIcon = icon.pixmap(icon.availableSizes().value(0));
 
+	icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_VIDEO_COLLAPSED);
+	FCollapsedIcon = icon.pixmap(icon.availableSizes().value(0));
+
 	FWaitMovie = new QMovie(this);
 	FWaitMovie->setFileName(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_SIPPHONE_VIDEO_WAIT));
 	connect(FWaitMovie,SIGNAL(frameChanged(int)),SLOT(onWaitMovieFrameChanged(int)));
 	FWaitMovie->start();
 }
 
-VideoLabel::~VideoLabel()
+VideoFrame::~VideoFrame()
 {
 
 }
 
-bool VideoLabel::isMoveEnabled() const
+bool VideoFrame::isEmpty() const
+{
+	return FVideoFrame.isNull();
+}
+
+bool VideoFrame::isCollapsed() const
+{
+	return FCollapsed;
+}
+
+void VideoFrame::setCollapsed(bool ACollapsed)
+{
+	if (FCollapsed != ACollapsed)
+	{
+		FCollapsed = ACollapsed;
+		update();
+	}
+}
+
+bool VideoFrame::isMoveEnabled() const
 {
 	return FMoveEnabled;
 }
 
-void VideoLabel::setMoveEnabled(bool AEnabled)
+void VideoFrame::setMoveEnabled(bool AEnabled)
 {
 	if (FMoveEnabled != AEnabled)
 	{
@@ -59,12 +82,12 @@ void VideoLabel::setMoveEnabled(bool AEnabled)
 	}
 }
 
-bool VideoLabel::isResizeEnabled() const
+bool VideoFrame::isResizeEnabled() const
 {
 	return FResizeEnabled;
 }
 
-void VideoLabel::setResizeEnabled(bool AEnabled)
+void VideoFrame::setResizeEnabled(bool AEnabled)
 {
 	if (FResizeEnabled != AEnabled)
 	{
@@ -73,12 +96,12 @@ void VideoLabel::setResizeEnabled(bool AEnabled)
 	}
 }
 
-Qt::Alignment VideoLabel::alignment() const
+Qt::Alignment VideoFrame::alignment() const
 {
 	return FAlignment;
 }
 
-void VideoLabel::setAlignment(Qt::Alignment AAlign)
+void VideoFrame::setAlignment(Qt::Alignment AAlign)
 {
 	if (FAlignment != AAlign)
 	{
@@ -87,63 +110,84 @@ void VideoLabel::setAlignment(Qt::Alignment AAlign)
 	}
 }
 
-QSize VideoLabel::minimumVideoSize() const
+QSize VideoFrame::minimumVideoSize() const
 {
 	return FMinimumSize;
 }
 
-void VideoLabel::setMinimumVideoSize(const QSize &ASize)
+void VideoFrame::setMinimumVideoSize(const QSize &ASize)
 {
 	FMinimumSize = ASize;
 }
 
-QSize VideoLabel::maximumVideoSize() const
+QSize VideoFrame::maximumVideoSize() const
 {
 	return FMaximumSize;
 }
 
-void VideoLabel::setMaximumVideoSize(const QSize &ASize)
+void VideoFrame::setMaximumVideoSize(const QSize &ASize)
 {
 	FMaximumSize = ASize;
 }
 
-QSize VideoLabel::sizeHint() const
+const QPixmap *VideoFrame::pixmap() const
 {
-	const QPixmap *frame = pixmap();
-	return frame!=NULL && !frame->isNull() ? frame->size() : FMinimumSize;
+	return &FVideoFrame;
 }
 
-QSize VideoLabel::minimumSizeHint() const
+void VideoFrame::setPixmap(const QPixmap &APixmap)
+{
+	if (FVideoFrame.cacheKey() != APixmap.cacheKey())
+	{
+		if (FVideoFrame.isNull() != APixmap.isNull())
+		{
+			if (APixmap.isNull())
+				FWaitMovie->start();
+			else
+				FWaitMovie->stop();
+		}
+		if (FVideoFrame.size() != APixmap.size())
+		{
+			FVideoFrame = APixmap;
+			updateGeometry();
+		}
+		else
+		{
+			FVideoFrame = APixmap;
+		}
+		update();
+	}
+}
+
+QSize VideoFrame::sizeHint() const
+{
+	if (FCollapsed)
+		return !FCollapsedIcon.isNull() ? FCollapsedIcon.size() : QSize(15,15);
+	return !isEmpty() ? pixmap()->size() : FMinimumSize;
+}
+
+QSize VideoFrame::minimumSizeHint() const
 {
 	return FMinimumSize;
 }
 
-void VideoLabel::setPixmap(const QPixmap &APixmap)
-{
-	if (APixmap.isNull())
-		FWaitMovie->start();
-	else
-		FWaitMovie->stop();
-	QLabel::setPixmap(APixmap);
-}
-
-void VideoLabel::enterEvent(QEvent *AEvent)
+void VideoFrame::enterEvent(QEvent *AEvent)
 {
 	if (FResizeEnabled)
 		update();
-	QLabel::enterEvent(AEvent);
+	QFrame::enterEvent(AEvent);
 }
 
-void VideoLabel::leaveEvent(QEvent *AEvent)
+void VideoFrame::leaveEvent(QEvent *AEvent)
 {
 	if (FResizeEnabled)
 		update();
 	FCursorCorner = -1;
 	setCursor(Qt::ArrowCursor);
-	QLabel::leaveEvent(AEvent);
+	QFrame::leaveEvent(AEvent);
 }
 
-void VideoLabel::mouseMoveEvent(QMouseEvent *AEvent)
+void VideoFrame::mouseMoveEvent(QMouseEvent *AEvent)
 {
 	static const QSize cornerSize = QSize(10,10);
 
@@ -168,10 +212,10 @@ void VideoLabel::mouseMoveEvent(QMouseEvent *AEvent)
 		emit moveTo(mapToParent(AEvent->pos())-FPressedPos);
 	}
 
-	QLabel::mouseMoveEvent(AEvent);
+	QFrame::mouseMoveEvent(AEvent);
 }
 
-void VideoLabel::mousePressEvent(QMouseEvent *AEvent)
+void VideoFrame::mousePressEvent(QMouseEvent *AEvent)
 {
 	if (FResizeEnabled && FCursorCorner>=0)
 	{
@@ -184,11 +228,11 @@ void VideoLabel::mousePressEvent(QMouseEvent *AEvent)
 	}
 	else
 	{
-		QLabel::mousePressEvent(AEvent);
+		QFrame::mousePressEvent(AEvent);
 	}
 }
 
-void VideoLabel::mouseReleaseEvent(QMouseEvent *AEvent)
+void VideoFrame::mouseReleaseEvent(QMouseEvent *AEvent)
 {
 	if (!FPressedPos.isNull())
 	{
@@ -198,19 +242,19 @@ void VideoLabel::mouseReleaseEvent(QMouseEvent *AEvent)
 	}
 	else
 	{
-		QLabel::mousePressEvent(AEvent);
+		QFrame::mousePressEvent(AEvent);
 	}
 }
 
-void VideoLabel::paintEvent(QPaintEvent *AEvent)
+void VideoFrame::paintEvent(QPaintEvent *AEvent)
 {
 	Q_UNUSED(AEvent);
 	QPainter p(this);
 	p.fillRect(rect(),Qt::black);
 	
-	const QPixmap *frame = pixmap();
-	if (frame && !frame->isNull())
+	if (!isEmpty())
 	{
+		const QPixmap *frame = pixmap();
 		QSize frameSize = frame->size();
 		frameSize.scale(size(),Qt::KeepAspectRatio);
 		QRect frameRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,frameSize,rect());
@@ -242,7 +286,7 @@ void VideoLabel::paintEvent(QPaintEvent *AEvent)
 	QFrame::paintEvent(AEvent);
 }
 
-void VideoLabel::onWaitMovieFrameChanged(int AFrameNumber)
+void VideoFrame::onWaitMovieFrameChanged(int AFrameNumber)
 {
 	Q_UNUSED(AFrameNumber);
 	update();

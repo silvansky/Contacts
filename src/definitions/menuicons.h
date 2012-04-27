@@ -205,5 +205,6 @@
 // Used after refactoring
 #define MNI_SIPPHONE_VIDEO_WAIT                  "sipVideoWait"
 #define MNI_SIPPHONE_VIDEO_RESIZE                "sipVideoResize"
+#define MNI_SIPPHONE_VIDEO_COLLAPSED             "sipVideoCollapsed"
 
 #endif //DEF_MENUICONS_H

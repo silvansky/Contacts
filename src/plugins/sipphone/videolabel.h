@@ -4,13 +4,16 @@
 #include <QLabel>
 #include <QMovie>
 
-class VideoLabel : 
-	public QLabel
+class VideoFrame : 
+	public QFrame
 {
 	Q_OBJECT;
 public:
-	VideoLabel(QWidget *AParent = NULL);
-	~VideoLabel();
+	VideoFrame(QWidget *AParent = NULL);
+	~VideoFrame();
+	bool isEmpty() const;
+	bool isCollapsed() const;
+	void setCollapsed(bool ACollapsed);
 	bool isMoveEnabled() const;
 	void setMoveEnabled(bool AEnabled);
 	bool isResizeEnabled() const;
@@ -21,14 +24,14 @@ public:
 	void setMinimumVideoSize(const QSize &ASize);
 	QSize maximumVideoSize() const;
 	void setMaximumVideoSize(const QSize &ASize);
+	const QPixmap *pixmap() const;
+	void setPixmap(const QPixmap &APixmap);
 signals:
 	void moveTo(const QPoint &APos);
 	void resizeTo(Qt::Corner ACorner, const QPoint &APos);
 public:
 	QSize sizeHint() const;
 	QSize minimumSizeHint() const;
-public slots:
-	void setPixmap(const QPixmap &APixmap);
 protected:
 	void enterEvent(QEvent *AEvent);
 	void leaveEvent(QEvent *AEvent);
@@ -39,14 +42,17 @@ protected:
 protected slots:
 	void onWaitMovieFrameChanged(int AFrameNumber);
 private:
-	QMovie *FWaitMovie;
+	bool FCollapsed;
 	bool FMoveEnabled;
 	bool FResizeEnabled;
-	QPixmap FResizeIcon;
-	QPoint FPressedPos;
 	int FCursorCorner;
+	QPoint FPressedPos;
 	QSize FMinimumSize;
 	QSize FMaximumSize;
+	QMovie *FWaitMovie;
+	QPixmap FVideoFrame;
+	QPixmap FResizeIcon;
+	QPixmap FCollapsedIcon;
 	Qt::Alignment FAlignment;
 };
 

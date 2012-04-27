@@ -24,8 +24,8 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 		border->setMovable(true);
 		border->setResizable(true);
 		border->setStaysOnTop(true);
-		border->setCloseButtonVisible(true);
-		border->setMinimizeButtonVisible(false);
+		border->setCloseButtonVisible(false);
+		border->setMinimizeButtonVisible(true);
 		border->setMaximizeButtonVisible(false);
 		border->setAttribute(Qt::WA_DeleteOnClose,true);
 	}
@@ -38,16 +38,17 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	FVideoVisible = false;
 	initialize(APluginManager);
 
-	FRemoteCamera = new VideoLabel(ui.wdtVideo);
+	FRemoteCamera = new VideoFrame(ui.wdtVideo);
 	FRemoteCamera->setObjectName("vlbRemoteCamera");
 
-	FLocalCamera = new VideoLabel(ui.wdtVideo);
+	FLocalCamera = new VideoFrame(ui.wdtVideo);
 	FLocalCamera->setMoveEnabled(true);
 	FLocalCamera->setResizeEnabled(true);
 	FLocalCamera->setFrameShape(QLabel::Box);
 	FLocalCamera->setObjectName("vlbLocalCamera");
 	
-	ui.wdtVideo->setLayout(new VideoLayout(FRemoteCamera,FLocalCamera,ui.wdtVideo));
+	FVideoLayout = new VideoLayout(FRemoteCamera,FLocalCamera,ui.wdtVideo);
+	ui.wdtVideo->setLayout(FVideoLayout);
 	ui.wdtVideo->setVisible(false);
 
 	FCtrlWidget = new CallControlWidget(APluginManager,ASipCall,ui.wdtControls);
@@ -80,6 +81,8 @@ void VideoCallWindow::initialize(IPluginManager *APluginManager)
 
 void VideoCallWindow::closeWindowWithAnimation()
 {
+	FVideoLayout->saveLocalVideoGeometry();
+
 	QPropertyAnimation *animation = new QPropertyAnimation(window(),"windowOpacity");
 	animation->setDuration(500);
 	animation->setStartValue(1.0);
@@ -104,6 +107,7 @@ void VideoCallWindow::restoreGeometryWithAnimation()
 		animation->setStartValue(window()->geometry());
 		animation->setEndValue(newGeometry);
 		connect(animation,SIGNAL(finished()),animation,SLOT(deleteLater()));
+		connect(animation,SIGNAL(finished()),FVideoLayout,SLOT(restoreLocalVideoGeometry()));
 		animation->start();		
 	}
 }
@@ -129,11 +133,11 @@ void VideoCallWindow::onCallDeviceStateChanged(int AType, int AState)
 {
 	if (AType==ISipDevice::DT_REMOTE_CAMERA && AState!=ISipDevice::DS_ENABLED)
 	{
-		FRemoteCamera->clear();
+		FRemoteCamera->setPixmap(QPixmap());
 	}
 	else if (AType==ISipDevice::DT_LOCAL_CAMERA && AState!=ISipDevice::DS_ENABLED)
 	{
-		FLocalCamera->clear();
+		FLocalCamera->setPixmap(QPixmap());
 	}
 }
 

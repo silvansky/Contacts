@@ -29,8 +29,9 @@ private:
 	Ui::VideoCallWindowClass ui;
 private:
 	bool FVideoVisible;
-	VideoLabel *FLocalCamera;
-	VideoLabel *FRemoteCamera;
+	VideoFrame *FLocalCamera;
+	VideoFrame *FRemoteCamera;
+	VideoLayout *FVideoLayout;
 	CallControlWidget *FCtrlWidget;
 };
 

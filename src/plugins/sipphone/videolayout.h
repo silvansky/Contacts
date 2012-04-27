@@ -11,7 +11,7 @@ class VideoLayout :
 {
 	Q_OBJECT;
 public:
-	VideoLayout(VideoLabel *ARemoteVideo, VideoLabel *ALocalVideo, QWidget *AParent);
+	VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWidget *AParent);
 	~VideoLayout();
 	// QLayout
 	int count() const;
@@ -24,6 +24,7 @@ public:
 	// VideoLayout
 	int locaVideoMargin() const;
 	void setLocalVideoMargin(int AMargin);
+public slots:
 	void saveLocalVideoGeometry();
 	void restoreLocalVideoGeometry();
 protected:
@@ -42,8 +43,8 @@ private:
 	int FLocalMargin;
 	int FLocalStickDelta;
 	QWidget *FControlls;
-	VideoLabel *FLocalVideo;
-	VideoLabel *FRemoteVideo;
+	VideoFrame *FLocalVideo;
+	VideoFrame *FRemoteVideo;
 };
 
 #endif // VIDEOLAYOUT_H
