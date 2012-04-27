@@ -4,7 +4,7 @@
 #include <QRectF>
 #include <QLayout>
 #include <QWidget>
-#include "videolabel.h"
+#include "videoframe.h"
 
 class VideoLayout : 
 	public QLayout

@@ -35,7 +35,7 @@ HEADERS = 	avcontrol.h\
 		callcontrolwidget.h \
                 videocallwindow.h \
                 videolayout.h \
-                videolabel.h
+                videoframe.h
 
 SOURCES = 	avcontrol.cpp\ 
 		complexvideowidget.cpp\
@@ -59,4 +59,4 @@ SOURCES = 	avcontrol.cpp\
 		callcontrolwidget.cpp \
                 videocallwindow.cpp \
                 videolayout.cpp \
-                videolabel.cpp
+                videoframe.cpp

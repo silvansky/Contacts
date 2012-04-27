@@ -1,4 +1,4 @@
-#include "videolabel.h"
+#include "videoframe.h"
 
 #include <QStyle>
 #include <QPainter>

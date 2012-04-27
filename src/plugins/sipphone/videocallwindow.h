@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <interfaces/isipphone.h>
 #include <interfaces/ipluginmanager.h>
-#include "videolabel.h"
+#include "videoframe.h"
 #include "videolayout.h"
 #include "callcontrolwidget.h"
 #include "ui_videocallwindow.h"
