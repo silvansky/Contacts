@@ -27,6 +27,9 @@ Avatars::Avatars()
 	FXmppStreams = NULL;
 	FStanzaProcessor = NULL;
 	FVCardPlugin = NULL;
+	FGateways = NULL;
+	FDiscovery = NULL;
+	FRosterPlugin = NULL;
 	FPresencePlugin = NULL;
 	FRostersModel = NULL;
 	FRostersViewPlugin = NULL;
@@ -35,6 +38,11 @@ Avatars::Avatars()
 	FRosterLabelId = -1;
 	FAvatarsVisible = false;
 	FShowEmptyAvatars = true;
+
+	FLoadQueueTimer.setInterval(500);
+	FLoadQueueTimer.setSingleShot(false);
+	connect(&FLoadQueueTimer,SIGNAL(timeout()),SLOT(onLoadAvatarQueueTimerTimeout()));
+	FLoadQueueTimer.start();
 }
 
 Avatars::~Avatars()
@@ -79,6 +87,29 @@ bool Avatars::initConnections(IPluginManager *APluginManager, int &/*AInitOrder*
 		{
 			connect(FVCardPlugin->instance(),SIGNAL(vcardReceived(const Jid &)),SLOT(onVCardChanged(const Jid &)));
 			connect(FVCardPlugin->instance(),SIGNAL(vcardPublished(const Jid &)),SLOT(onVCardChanged(const Jid &)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+	{
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
+	if (plugin)
+	{
+		FDiscovery = qobject_cast<IServiceDiscovery *>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IRosterPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FRosterPlugin = qobject_cast<IRosterPlugin *>(plugin->instance());
+		if (FRosterPlugin)
+		{
+			connect(FRosterPlugin->instance(),SIGNAL(rosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)),
+				SLOT(onRosterItemReceived(IRoster *, const IRosterItem &, const IRosterItem &)));
 		}
 	}
 
@@ -724,6 +755,14 @@ void Avatars::onStreamOpened(IXmppStream *AXmppStream)
 	{
 		FVCardPlugin->requestVCard(AXmppStream->streamJid(),AXmppStream->streamJid().bare());
 	}
+
+	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AXmppStream->streamJid()) : NULL;
+	if (FVCardPlugin && roster)
+	{
+		foreach(IRosterItem ritem, roster->rosterItems())
+			if (!FVCardPlugin->hasVCard(ritem.itemJid))
+				FLoadAvatarQueue.insertMulti(roster->streamJid(),ritem.itemJid);
+	}
 }
 
 void Avatars::onStreamClosed(IXmppStream *AXmppStream)
@@ -736,6 +775,7 @@ void Avatars::onStreamClosed(IXmppStream *AXmppStream)
 	}
 	FStreamAvatars.remove(AXmppStream->streamJid());
 	FBlockingResources.remove(AXmppStream->streamJid());
+	FLoadAvatarQueue.remove(AXmppStream->streamJid());
 }
 
 void Avatars::onVCardChanged(const Jid &AContactJid)
@@ -769,6 +809,23 @@ void Avatars::onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMa
 			imageSize.scale(ALabelId==FRosterLabelId ? QSize(128,128) : QSize(64,64), Qt::KeepAspectRatio);
 			QString avatarMask = "<img src='%1' width=%2 height=%3>";
 			AToolTips.insert(RTTO_AVATAR_IMAGE,avatarMask.arg(fileName).arg(imageSize.width()).arg(imageSize.height()));
+		}
+	}
+}
+
+void Avatars::onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore)
+{
+	Q_UNUSED(ABefore);
+	if (FVCardPlugin && ARoster->xmppStream()->isOpen())
+	{
+		if (AItem.subscription != SUBSCRIPTION_REMOVE)
+		{
+			if (!FVCardPlugin->hasVCard(AItem.itemJid) && !FLoadAvatarQueue.contains(ARoster->streamJid(),AItem.itemJid))
+				FLoadAvatarQueue.insertMulti(ARoster->streamJid(),AItem.itemJid);
+		}
+		else
+		{
+			FLoadAvatarQueue.remove(ARoster->streamJid(),AItem.itemJid);
 		}
 	}
 }
@@ -868,18 +925,53 @@ void Avatars::onAvatarObjectDestroyed(QObject *AObject)
 	removeAutoAvatar(AObject);
 }
 
-void Avatars::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline)
+void Avatars::onLoadAvatarQueueTimerTimeout()
 {
-	Q_UNUSED(AStreamJid);
-	Q_UNUSED(AStateOnline);
-	updateDataHolder(AContactJid);
-	emit avatarChanged(AContactJid);
+	bool requested = false;
+	QMultiMap<Jid,Jid>::iterator it = FLoadAvatarQueue.begin();
+	while (!requested && it != FLoadAvatarQueue.end())
+	{
+		if (FVCardPlugin && !it->node().isEmpty() && !FVCardPlugin->hasVCard(it.value()))
+		{
+			if (FGateways!=NULL && FGateways->streamServices(it.key()).contains(it->domain()))
+			{
+				IPresenceItem pitem = FGateways->servicePresence(it.key(),it->domain());
+				if (pitem.show!=IPresence::Offline && pitem.show!=IPresence::Error)
+				{
+					if (FDiscovery==NULL || !FDiscovery->hasDiscoInfo(it.key(),it->domain()) || FDiscovery->discoInfo(it.key(),it->domain()).features.contains(NS_VCARD_TEMP))
+						requested = FVCardPlugin->requestVCard(it.key(),it.value());
+					it = FLoadAvatarQueue.erase(it);
+				}
+				else
+				{
+					it++;
+				}
+			}
+			else
+			{
+				requested = FVCardPlugin->requestVCard(it.key(),it.value());
+				it = FLoadAvatarQueue.erase(it);
+			}
+		}
+		else
+		{
+			it = FLoadAvatarQueue.erase(it);
+		}
+	}
 }
 
 void Avatars::onStreamStateChanged(const Jid &AStreamJid, bool AStateOnline)
 {
 	Q_UNUSED(AStateOnline);
 	emit avatarChanged(AStreamJid);
+}
+
+void Avatars::onContactStateChanged(const Jid &AStreamJid, const Jid &AContactJid, bool AStateOnline)
+{
+	Q_UNUSED(AStreamJid);
+	Q_UNUSED(AStateOnline);
+	updateDataHolder(AContactJid);
+	emit avatarChanged(AContactJid);
 }
 
 Q_EXPORT_PLUGIN2(plg_avatars, Avatars)
