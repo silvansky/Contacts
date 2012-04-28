@@ -341,109 +341,133 @@ void SipManager::showSystemSoundPreferences() const
 
 QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType, bool ARefresh) const
 {
-	Q_UNUSED(AType)
-	// TODO: implementation
-	static QList<ISipDevice> localAudioDevices;
-	static QList<ISipDevice> remoteAudioDevices;
-	static QList<ISipDevice> localVideoDevices;
-	static QList<ISipDevice> remoteVideoDevices;
-	if (localAudioDevices.isEmpty() || remoteAudioDevices.isEmpty())
+	static QList<ISipDevice> audioInputDevices;
+	static QList<ISipDevice> audioOutputDevices;
+	static QList<ISipDevice> videoInputDevices;
+	static QList<ISipDevice> videoOutputDevices;
+	if (FSipStackCreated)
 	{
-		localAudioDevices.clear();
-		remoteAudioDevices.clear();
-		pjmedia_aud_dev_refresh();
-		uint numDevices = pjmedia_aud_dev_count();
-		for (uint i = 0; i < numDevices; i++)
+		if (ARefresh)
 		{
-			pjmedia_aud_dev_info info;
-			pj_status_t pjstatus = pjmedia_aud_dev_get_info(i, &info);
-			if (pjstatus == PJ_SUCCESS)
+			pj_status_t status = pjmedia_aud_dev_refresh();
+			if (status != PJ_SUCCESS)
 			{
-				if (info.input_count)
-				{
-					ISipDevice d;
-					d.type = ISipDevice::DT_LOCAL_MICROPHONE;
-					d.id = i;
-					d.name = QString::fromUtf8(info.name);
-					localAudioDevices << d;
-					LogDetail(QString("[SipManager::availDevices]: Found INPUT audio device with id %1 and name %2. Driver is %3").arg(i).arg(d.name).arg(info.driver));
-				}
-				if (info.output_count)
-				{
-					ISipDevice d;
-					d.type = ISipDevice::DT_REMOTE_MICROPHONE;
-					d.id = i;
-					d.name = QString::fromUtf8(info.name);
-					remoteAudioDevices << d;
-					LogDetail(QString("[SipManager::availDevices]: Found OUTPUT audio device with id %1 and name %2. Driver is %3").arg(i).arg(d.name).arg(info.driver));
-				}
+				LogError(QString("[SipManager::availDevices]: Failed to refresh audio devices! pjmedia_aud_dev_refresh() returned %1").arg(status));
 			}
-			else
+			status = pjmedia_vid_dev_refresh();
+			if (status != PJ_SUCCESS)
 			{
-				LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_aud_dev_get_info() returned %2").arg(i).arg(pjstatus));
+				LogError(QString("[SipManager::availDevices]: Failed to refresh video devices! pjmedia_vid_dev_refresh() returned %1").arg(status));
 			}
 		}
-	}
-	if (localVideoDevices.isEmpty() || remoteVideoDevices.isEmpty())
-	{
-		localVideoDevices.clear();
-		remoteVideoDevices.clear();
-		uint numDevices = pjmedia_vid_dev_count();
-		for (uint i = 0; i < numDevices; i++)
+
+		if (ARefresh || audioInputDevices.isEmpty() || audioOutputDevices.isEmpty())
 		{
-			pjmedia_vid_dev_info info;
-			pj_status_t pjstatus = pjmedia_vid_dev_get_info(i, &info);
-			if (pjstatus == PJ_SUCCESS)
+			audioInputDevices.clear();
+			audioOutputDevices.clear();
+			uint numDevices = pjmedia_aud_dev_count();
+			for (uint i = 0; i < numDevices; i++)
 			{
+				pjmedia_aud_dev_info info;
+				pj_status_t pjstatus = pjmedia_aud_dev_get_info(i, &info);
+				if (pjstatus == PJ_SUCCESS)
+				{
+					if (info.input_count)
+					{
+						ISipDevice d;
+						d.type = ISipDevice::DT_LOCAL_MICROPHONE;
+						d.id = i;
+						d.name = QString::fromUtf8(info.name);
+						audioInputDevices << d;
+						LogDetail(QString("[SipManager::availDevices]: Found INPUT audio device with id %1 and name %2. Driver is %3").arg(i).arg(d.name).arg(info.driver));
+					}
+					if (info.output_count)
+					{
+						ISipDevice d;
+						d.type = ISipDevice::DT_REMOTE_MICROPHONE;
+						d.id = i;
+						d.name = QString::fromUtf8(info.name);
+						audioOutputDevices << d;
+						LogDetail(QString("[SipManager::availDevices]: Found OUTPUT audio device with id %1 and name %2. Driver is %3").arg(i).arg(d.name).arg(info.driver));
+					}
+				}
+				else
+				{
+					LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_aud_dev_get_info() returned %2").arg(i).arg(pjstatus));
+				}
+			}
+		}
+		if (ARefresh || videoInputDevices.isEmpty() || videoOutputDevices.isEmpty())
+		{
+			videoInputDevices.clear();
+			videoOutputDevices.clear();
+			uint numDevices = pjmedia_vid_dev_count();
+			for (uint i = 0; i < numDevices; i++)
+			{
+				pjmedia_vid_dev_info info;
+				pj_status_t pjstatus = pjmedia_vid_dev_get_info(i, &info);
+				if (pjstatus == PJ_SUCCESS)
+				{
 #if defined(Q_WS_MAC)
-				QString name = convertFromMacCyrillic(info.name);
+					QString name = convertFromMacCyrillic(info.name);
 #else
-				QString name(info.name);
+					QString name(info.name);
 #endif
-				if (info.dir == PJMEDIA_DIR_CAPTURE)
-				{
-					ISipDevice d;
-					d.type = ISipDevice::DT_LOCAL_CAMERA;
-					d.id = i;
-					d.name = name;
-					localVideoDevices << d;
-					LogDetail(QString("[SipManager::availDevices]: Found INPUT video device with id %1 and name %2. Driver is %3").arg(i).arg(name).arg(info.driver));
+					if (info.dir == PJMEDIA_DIR_CAPTURE)
+					{
+						ISipDevice d;
+						d.type = ISipDevice::DT_LOCAL_CAMERA;
+						d.id = i;
+						d.name = name;
+						videoInputDevices << d;
+						LogDetail(QString("[SipManager::availDevices]: Found INPUT video device with id %1 and name %2. Driver is %3").arg(i).arg(name).arg(info.driver));
+					}
+					else if (info.dir == PJMEDIA_DIR_PLAYBACK)
+					{
+						ISipDevice d;
+						d.type = ISipDevice::DT_REMOTE_CAMERA;
+						d.id = i;
+						d.name = name;
+						videoOutputDevices << d;
+						LogDetail(QString("[SipManager::availDevices]: Found OUTPUT video device with id %1 and name %2. Driver is %3").arg(i).arg(name).arg(info.driver));
+					}
+					else if (info.dir == PJMEDIA_DIR_ENCODING_DECODING)
+					{
+						ISipDevice d;
+						d.type = ISipDevice::DT_LOCAL_CAMERA;
+						d.id = i;
+						d.name = name;
+						videoInputDevices << d;
+						d.type = ISipDevice::DT_LOCAL_CAMERA;
+						videoOutputDevices << d;
+						LogDetail(QString("[SipManager::availDevices]: Found INPUT/OUTPUT video device with id %1 and name %2. Driver is %3").arg(i).arg(name).arg(info.driver));
+					}
 				}
-				else if (info.dir == PJMEDIA_DIR_PLAYBACK)
+				else
 				{
-					ISipDevice d;
-					d.type = ISipDevice::DT_REMOTE_CAMERA;
-					d.id = i;
-					d.name = name;
-					remoteVideoDevices << d;
-					LogDetail(QString("[SipManager::availDevices]: Found OUTPUT video device with id %1 and name %2. Driver is %3").arg(i).arg(name).arg(info.driver));
+					LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_vid_dev_get_info() returned %2").arg(i).arg(pjstatus));
 				}
-				else if (info.dir == PJMEDIA_DIR_ENCODING_DECODING)
-				{
-					ISipDevice d;
-					d.type = ISipDevice::DT_LOCAL_CAMERA;
-					d.id = i;
-					d.name = name;
-					localVideoDevices << d;
-					d.type = ISipDevice::DT_LOCAL_CAMERA;
-					remoteVideoDevices << d;
-					LogDetail(QString("[SipManager::availDevices]: Found INPUT/OUTPUT video device with id %1 and name %2. Driver is %3").arg(i).arg(name).arg(info.driver));
-				}
-			}
-			else
-			{
-				LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_vid_dev_get_info() returned %2").arg(i).arg(pjstatus));
 			}
 		}
+		switch (AType)
+		{
+		case ISipDevice::DT_LOCAL_MICROPHONE:
+			return audioInputDevices;
+			break;
+		case ISipDevice::DT_REMOTE_MICROPHONE:
+			return audioOutputDevices;
+			break;
+		case ISipDevice::DT_LOCAL_CAMERA:
+			return videoInputDevices;
+			break;
+		case ISipDevice::DT_REMOTE_CAMERA:
+			return videoOutputDevices;
+			break;
+		default:
+			break;
+		}
 	}
-	switch (AType)
-	{
-	case ISipDevice::DT_LOCAL_MICROPHONE:
-		return localAudioDevices;
-		break;
-	default:
-		return QList<ISipDevice>();
-	}
+	return QList<ISipDevice>();
 }
 
 ISipDevice SipManager::getDevice(ISipDevice::Type AType, int ADeviceId) const

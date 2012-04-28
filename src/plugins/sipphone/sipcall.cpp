@@ -15,6 +15,7 @@
 
 #define RING_TIMEOUT            90000
 #define CALL_REQUEST_TIMEOUT    10000
+#define MAX_VOLUME              4.0f
 
 #define SHC_CALL_ACCEPT         "/iq[@type='set']/query[@sid='%1'][@xmlns='" NS_RAMBLER_PHONE "']"
 
@@ -46,6 +47,8 @@ SipCall::~SipCall()
 	if (FStanzaProcessor)
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
+	if (findCalls(FStreamJid).isEmpty())
+		FSipManager->unregisterAtServer(FStreamJid);
 	emit callDestroyed();
 	LogDetail(QString("[SipCall] Call destroyed, sid='%1'").arg(sessionId()));
 }
@@ -472,7 +475,9 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 		break;
 	case ISipDevice::DT_LOCAL_MICROPHONE:
 		propertyChanged = (localMicrophoneProperties.value(AProperty, QVariant()) != AValue);
-		if (propertyChanged)
+		if (AProperty == ISipDevice::LMP_MAX_VOLUME)
+			return false;
+		else if (propertyChanged)
 		{
 			localMicrophoneProperties.insert(AProperty, AValue);
 			if (AProperty == ISipDevice::LMP_VOLUME)
@@ -517,7 +522,9 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 		break;
 	case ISipDevice::DT_REMOTE_MICROPHONE:
 		propertyChanged = (remoteMicrophoneProperties.value(AProperty, QVariant()) != AValue);
-		if (propertyChanged)
+		if (AProperty == ISipDevice::RMP_MAX_VOLUME)
+			return false;
+		else if (propertyChanged)
 		{
 			remoteMicrophoneProperties.insert(AProperty, AValue);
 			if (AProperty == ISipDevice::LMP_VOLUME)
@@ -692,6 +699,7 @@ bool SipCall::acceptIncomingCall(int ACallId)
 		{
 			FCallId = ACallId;
 			pjsua_call_answer(FCallId, PJSIP_SC_OK, NULL, NULL);
+			initDevices();
 			return true;
 		}
 	}
@@ -879,6 +887,55 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, co
 	FCallInstances.append(this);
 }
 
+void SipCall::initDevices()
+{
+	QList<ISipDevice> localCameras = FSipManager->availDevices(ISipDevice::DT_LOCAL_CAMERA);
+	if (!localCameras.isEmpty())
+	{
+		localCamera = localCameras.first();
+		localCameraState = ISipDevice::DS_ENABLED;
+	}
+	else
+	{
+		LogError("[SipCall::initDevices]: No local camera found!");
+	}
+
+	QList<ISipDevice> remoteCameras = FSipManager->availDevices(ISipDevice::DT_REMOTE_CAMERA);
+	if (!remoteCameras.isEmpty())
+	{
+		remoteCamera = remoteCameras.first();
+		remoteCameraState = ISipDevice::DS_ENABLED;
+	}
+	else
+	{
+		LogError("[SipCall::initDevices]: No remote camera found!");
+	}
+
+	QList<ISipDevice> localMicrophones = FSipManager->availDevices(ISipDevice::DT_LOCAL_MICROPHONE);
+	if (!localMicrophones.isEmpty())
+	{
+		localMicrophone = localMicrophones.first();
+		localMicrophoneProperties.insert(ISipDevice::LMP_MAX_VOLUME, MAX_VOLUME);
+		localMicrophoneState = ISipDevice::DS_ENABLED;
+	}
+	else
+	{
+		LogError("[SipCall::initDevices]: No local microphone found!");
+	}
+
+	QList<ISipDevice> remoteMicrophones = FSipManager->availDevices(ISipDevice::DT_REMOTE_MICROPHONE);
+	if (!remoteMicrophones.isEmpty())
+	{
+		remoteMicrophone = remoteMicrophones.first();
+		remoteMicrophoneProperties.insert(ISipDevice::RMP_MAX_VOLUME, MAX_VOLUME);
+		remoteMicrophoneState = ISipDevice::DS_ENABLED;
+	}
+	else
+	{
+		LogError("[SipCall::initDevices]: No remote microphone found!");
+	}
+}
+
 void SipCall::setCallState(CallState AState)
 {
 	if (FState != AState)
@@ -1038,6 +1095,7 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 			if (status == PJ_SUCCESS)
 			{
 				FCallId = id;
+				initDevices();
 				LogDetail(QString("[SipCall::sipCallTo]: SIP call to '%1'").arg(uriTmp));
 			}
 			else

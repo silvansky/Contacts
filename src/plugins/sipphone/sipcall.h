@@ -70,6 +70,7 @@ public:
 	int onMyPreviewFrameCallback(/*pjmedia_frame **/void *frame, const char* colormodelName, int w, int h, int stride);
 protected:
 	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId);
+	void initDevices();
 	void setCallState(CallState AState);
 	void setCallError(ErrorCode ACode, const QString &AMessage);
 	void continueAfterRegistration(bool ARegistered);
