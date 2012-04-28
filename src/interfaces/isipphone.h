@@ -100,12 +100,14 @@ struct ISipDevice
 	enum LocalMicrophoneProperty
 	{
 		LMP_VOLUME,               /* float > 0.0 */
+		LMP_MAX_VOLUME,           /* float, readonly */
 		LMP_USER                  /* for user defined properties, add new before this */
 	};
 
 	enum RemoteMicrophoneProperty
 	{
 		RMP_VOLUME,               /* float > 0.0 */
+		RMP_MAX_VOLUME,           /* float, readonly */
 		RMP_USER                  /* for user defined properties, add new before this */
 	};
 
@@ -209,7 +211,7 @@ public:
 	virtual bool unregisterAtServer(const Jid &AStreamJid) = 0;
 	// devices
 	virtual void showSystemSoundPreferences() const = 0;
-	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const = 0;
+	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType, bool ARefresh = false) const = 0;
 	virtual ISipDevice getDevice(ISipDevice::Type AType, int ADeviceId) const = 0;
 	// handlers
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler *AHandler) = 0;
