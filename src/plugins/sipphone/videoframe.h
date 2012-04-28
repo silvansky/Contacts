@@ -27,6 +27,7 @@ public:
 	const QPixmap *pixmap() const;
 	void setPixmap(const QPixmap &APixmap);
 signals:
+	void doubleClicked();
 	void moveTo(const QPoint &APos);
 	void resizeTo(Qt::Corner ACorner, const QPoint &APos);
 public:
@@ -38,6 +39,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent *AEvent);
 	void mousePressEvent(QMouseEvent *AEvent);
 	void mouseReleaseEvent(QMouseEvent *AEvent);
+	void mouseDoubleClickEvent(QMouseEvent *AEvent);
 	void paintEvent(QPaintEvent *AEvent);
 protected slots:
 	void onWaitMovieFrameChanged(int AFrameNumber);

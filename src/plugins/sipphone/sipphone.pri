@@ -7,7 +7,7 @@ FORMS = 	sipphonewidget.ui\
 		contactselector.ui \
 		testcallwidget.ui \
 		callcontrolwidget.ui \
-                videocallwindow.ui
+		videocallwindow.ui
 
 HEADERS = 	avcontrol.h\ 
 		complexvideowidget.h\
@@ -33,9 +33,10 @@ HEADERS = 	avcontrol.h\
 		pjsipcallbacks.h \
 		testcallwidget.h \
 		callcontrolwidget.h \
-                videocallwindow.h \
-                videolayout.h \
-                videoframe.h
+		videocallwindow.h \
+		videolayout.h \
+		videoframe.h \
+		volumecontrol.h
 
 SOURCES = 	avcontrol.cpp\ 
 		complexvideowidget.cpp\
@@ -57,6 +58,7 @@ SOURCES = 	avcontrol.cpp\
 		pjsipcallbacks.cpp \
 		testcallwidget.cpp \
 		callcontrolwidget.cpp \
-                videocallwindow.cpp \
-                videolayout.cpp \
-                videoframe.cpp
+		videocallwindow.cpp \
+		videolayout.cpp \
+		videoframe.cpp \
+		volumecontrol.cpp

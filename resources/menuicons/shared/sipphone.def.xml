@@ -168,12 +168,31 @@
     <key>sipCallMissed</key>
     <object mime="image/png">sipcallmissed.png</object>
   </icon>
+
+
+
   <icon>
     <key>sipVideoWait</key>
-    <object mime="image/png">sipphonevideowait.gif</object>
+    <object mime="image/gif">sipphonevideowait.gif</object>
   </icon>
   <icon>
     <key>sipVideoResize</key>
     <object mime="image/png">sipphonevideoresize.png</object>
+  </icon>
+  <icon>
+    <key>sipVideoCollapsed</key>
+    <object mime="image/png">sipphonevideocollapsed.png</object>
+  </icon>
+  <icon>
+    <key>sipVolumeControlVolume</key>
+    <object mime="image/png">sipphonevolumecontrolvolume0.png</object>
+    <object mime="image/png">sipphonevolumecontrolvolume1.png</object>
+    <object mime="image/png">sipphonevolumecontrolvolume2.png</object>
+    <object mime="image/png">sipphonevolumecontrolvolume3.png</object>
+    <object mime="image/png">sipphonevolumecontrolvolume4.png</object>
+  </icon>
+  <icon>
+    <key>sipVolumeControlDisabled</key>
+    <object mime="image/png">sipphonevolumecontroldisabled.png</object>
   </icon>
 </icondef>

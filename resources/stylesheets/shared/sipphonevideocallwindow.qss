@@ -2,3 +2,8 @@ QWidget#wdtVideo
 {
 	background-color: black;
 }
+
+VideoFrame
+{
+	color: white;
+}

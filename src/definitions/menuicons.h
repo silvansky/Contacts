@@ -206,5 +206,7 @@
 #define MNI_SIPPHONE_VIDEO_WAIT                  "sipVideoWait"
 #define MNI_SIPPHONE_VIDEO_RESIZE                "sipVideoResize"
 #define MNI_SIPPHONE_VIDEO_COLLAPSED             "sipVideoCollapsed"
+#define MNI_SIPPHONE_VOLUMECONTROL_VOLUME        "sipVolumeControlVolume"
+#define MNI_SIPPHONE_VOLUMECONTROL_DISABLED      "sipVolumeControlDisabled"
 
 #endif //DEF_MENUICONS_H

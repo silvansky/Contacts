@@ -15,8 +15,9 @@ VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWid
 	FRemoteVideo = ARemoteVideo;
 	FLocalVideo = ALocalVideo;
 
-	connect(FLocalVideo,SIGNAL(moveTo(const QPoint &)),SLOT(onMoveLocalVideo(const QPoint &)));
-	connect(FLocalVideo,SIGNAL(resizeTo(Qt::Corner, const QPoint &)),SLOT(onResizeLocalVideo(Qt::Corner, const QPoint &)));
+	connect(FLocalVideo,SIGNAL(doubleClicked()),SLOT(onLocalVideoDoubleClicked()));
+	connect(FLocalVideo,SIGNAL(moveTo(const QPoint &)),SLOT(onLocalVideoMove(const QPoint &)));
+	connect(FLocalVideo,SIGNAL(resizeTo(Qt::Corner, const QPoint &)),SLOT(onLocalVideoResize(Qt::Corner, const QPoint &)));
 }
 
 VideoLayout::~VideoLayout()
@@ -60,11 +61,19 @@ void VideoLayout::setGeometry(const QRect &ARect)
 	remoteSize.scale(ARect.size(),Qt::KeepAspectRatio);
 	FRemoteVideo->setGeometry(QStyle::alignedRect(Qt::LeftToRight,remoteVideoAlignment(),remoteSize,ARect));
 
-	QRect localRect = adjustLocalVideoSize(FLocalVideo->geometry());
-	localRect =	adjustLocalVideoPosition(localRect);
-	FLocalVideo->setGeometry(localRect);
-	FLocalVideo->setMaximumVideoSize(ARect.size()/2);
-	FLocalVideo->setAlignment(geometryAlignment(localRect));
+	if (!FLocalVideo->isCollapsed())
+	{
+		QRect localRect = adjustLocalVideoSize(FLocalVideo->geometry());
+		localRect =	adjustLocalVideoPosition(localRect);
+		FLocalVideo->setGeometry(localRect);
+		FLocalVideo->setMaximumVideoSize(ARect.size()/2);
+		FLocalVideo->setAlignment(geometryAlignment(localRect));
+	}
+	else
+	{
+		QRect availRect = ARect.adjusted(FLocalMargin,FLocalMargin,-FLocalMargin,-FLocalMargin);
+		FLocalVideo->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignRight|Qt::AlignBottom,FLocalVideo->sizeHint(),availRect));
+	}
 }
 
 int VideoLayout::locaVideoMargin() const
@@ -105,7 +114,7 @@ void VideoLayout::restoreLocalVideoGeometry()
 void VideoLayout::saveLocalVideoGeometryScale()
 {
 	QRect availRect = geometry();
-	if (availRect.width()>0 && availRect.height()>0)
+	if (!FLocalVideo->isCollapsed() && availRect.width()>0 && availRect.height()>0)
 	{
 		QRect localRect = FLocalVideo->geometry();
 		FLocalScale.setLeft((qreal)localRect.left()/availRect.width());
@@ -117,7 +126,7 @@ void VideoLayout::saveLocalVideoGeometryScale()
 
 Qt::Alignment VideoLayout::remoteVideoAlignment() const
 {
-	if (!FRemoteVideo->isEmpty())
+	if (!FRemoteVideo->isEmpty() && !FLocalVideo->isCollapsed())
 	{
 		Qt::Alignment remoteAlign = 0;
 		Qt::Alignment localAlign = FLocalVideo->alignment();
@@ -287,7 +296,16 @@ QRect VideoLayout::correctLocalVideoSize(Qt::Corner ACorner, const QRect &AGeome
 	return newGeometry;
 }
 
-void VideoLayout::onMoveLocalVideo(const QPoint &APos)
+void VideoLayout::onLocalVideoDoubleClicked()
+{
+	if (!FLocalVideo->isCollapsed())
+		saveLocalVideoGeometry();
+	else
+		restoreLocalVideoGeometry();
+	FLocalVideo->setCollapsed(!FLocalVideo->isCollapsed());
+}
+
+void VideoLayout::onLocalVideoMove(const QPoint &APos)
 {
 	if (!geometry().isEmpty())
 	{
@@ -303,7 +321,7 @@ void VideoLayout::onMoveLocalVideo(const QPoint &APos)
 	}
 }
 
-void VideoLayout::onResizeLocalVideo(Qt::Corner ACorner, const QPoint &APos)
+void VideoLayout::onLocalVideoResize(Qt::Corner ACorner, const QPoint &APos)
 {
 	QRect availRect = geometry();
 	if (!availRect.isEmpty())

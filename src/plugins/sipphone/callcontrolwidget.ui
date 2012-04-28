@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>570</width>
-    <height>59</height>
+    <width>486</width>
+    <height>56</height>
    </rect>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -15,8 +15,8 @@
     <widget class="QLabel" name="lblAvatar">
      <property name="minimumSize">
       <size>
-       <width>32</width>
-       <height>32</height>
+       <width>38</width>
+       <height>38</height>
       </size>
      </property>
      <property name="maximumSize">
@@ -32,50 +32,63 @@
    </item>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>3</number>
+     </property>
      <item>
-      <widget class="QLabel" name="lblName">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QLabel" name="lblNotice">
        <property name="text">
-        <string notr="true">Name</string>
+        <string notr="true">Notice</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblAddress">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QLabel" name="lblName">
        <property name="text">
-        <string notr="true">Address</string>
+        <string notr="true">Name</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
+    <spacer name="hspSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>5</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <widget class="QWidget" name="wdtControlls" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QLabel" name="lblNotice">
-        <property name="text">
-         <string notr="true">Notice</string>
-        </property>
-       </widget>
-      </item>
+      <property name="margin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QWidget" name="wdtDeviceControls" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="margin">
           <number>0</number>
          </property>
+         <item>
+          <widget class="QToolButton" name="tlbLocalCamera">
+           <property name="text">
+            <string notr="true">LC</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QToolButton" name="tlbLocalMicrophone">
            <property name="text">
@@ -90,30 +103,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="tlbRemoteMicrophone">
-           <property name="text">
-            <string notr="true">RM</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="tlbLocalCamera">
-           <property name="text">
-            <string notr="true">LC</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
+          <widget class="VolumeControl" name="vlcRemoteMicrophome" native="true"/>
          </item>
         </layout>
        </widget>
@@ -133,9 +123,32 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pbtSilent">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tlbReject">
         <property name="text">
-         <string notr="true">Silent</string>
+         <string notr="true">R</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tlbSilent">
+        <property name="text">
+         <string notr="true">S</string>
         </property>
        </widget>
       </item>
@@ -145,6 +158,14 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>VolumeControl</class>
+   <extends>QWidget</extends>
+   <header>volumecontrol.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

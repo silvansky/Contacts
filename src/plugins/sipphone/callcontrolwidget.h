@@ -32,13 +32,14 @@ protected:
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);
+	void onCallDevicePropertyChanged(int AType, int AProperty, const QVariant &AValue);
 protected slots:
 	void onAcceptButtonClicked();
 	void onRejectButtonClicked();
 	void onSilentButtonClicked();
 	void onLocalCameraStateButtonClicked(bool AChecked);
 	void onLocalMicrophoneStateButtonClicked(bool AChecked);
-	void onRemoteMicrophoneStateButtonClicked(bool AChecked);
+	void onRemoteMicrophoneVolumeChanged(qreal AVolume);
 protected slots:
 	void onCallTimerTimeout();
 	void onMetaAvatarChanged(const QString &AMetaId);

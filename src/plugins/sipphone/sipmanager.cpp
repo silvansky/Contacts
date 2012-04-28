@@ -339,7 +339,7 @@ void SipManager::showSystemSoundPreferences() const
 #endif
 }
 
-QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType) const
+QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType, bool ARefresh) const
 {
 	Q_UNUSED(AType)
 	// TODO: implementation

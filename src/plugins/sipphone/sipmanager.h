@@ -51,7 +51,7 @@ public:
 	virtual bool unregisterAtServer(const Jid &AStreamJid);
 	// devices
 	virtual void showSystemSoundPreferences() const;
-	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const;
+	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType, bool ARefresh = false) const;
 	virtual ISipDevice getDevice(ISipDevice::Type AType, int ADeviceId) const;
 	// handlers
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler);

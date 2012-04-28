@@ -64,6 +64,7 @@ void VideoFrame::setCollapsed(bool ACollapsed)
 	if (FCollapsed != ACollapsed)
 	{
 		FCollapsed = ACollapsed;
+		updateGeometry();
 		update();
 	}
 }
@@ -173,14 +174,14 @@ QSize VideoFrame::minimumSizeHint() const
 
 void VideoFrame::enterEvent(QEvent *AEvent)
 {
-	if (FResizeEnabled)
+	if (!FCollapsed && FResizeEnabled)
 		update();
 	QFrame::enterEvent(AEvent);
 }
 
 void VideoFrame::leaveEvent(QEvent *AEvent)
 {
-	if (FResizeEnabled)
+	if (!FCollapsed && FResizeEnabled)
 		update();
 	FCursorCorner = -1;
 	setCursor(Qt::ArrowCursor);
@@ -198,7 +199,9 @@ void VideoFrame::mouseMoveEvent(QMouseEvent *AEvent)
 			if ((Corners[i].align & FAlignment)==0 && QStyle::alignedRect(Qt::LeftToRight,Corners[i].align,cornerSize,rect()).contains(AEvent->pos()))
 				FCursorCorner = i;
 
-		if (FResizeEnabled && FCursorCorner>=0)
+		if (FCollapsed)
+			setCursor(Qt::ArrowCursor);
+		else if (FResizeEnabled && FCursorCorner>=0)
 			setCursor(Corners[FCursorCorner].cursor);
 		else if (FMoveEnabled)
 			setCursor(Qt::OpenHandCursor);
@@ -217,7 +220,11 @@ void VideoFrame::mouseMoveEvent(QMouseEvent *AEvent)
 
 void VideoFrame::mousePressEvent(QMouseEvent *AEvent)
 {
-	if (FResizeEnabled && FCursorCorner>=0)
+	if (FCollapsed)
+	{
+		QFrame::mousePressEvent(AEvent);
+	}
+	else if (FResizeEnabled && FCursorCorner>=0)
 	{
 		FPressedPos = AEvent->pos();
 	}
@@ -246,13 +253,24 @@ void VideoFrame::mouseReleaseEvent(QMouseEvent *AEvent)
 	}
 }
 
+void VideoFrame::mouseDoubleClickEvent(QMouseEvent *AEvent)
+{
+	emit doubleClicked();
+	QFrame::mouseDoubleClickEvent(AEvent);
+}
+
 void VideoFrame::paintEvent(QPaintEvent *AEvent)
 {
 	Q_UNUSED(AEvent);
 	QPainter p(this);
 	p.fillRect(rect(),Qt::black);
 	
-	if (!isEmpty())
+	if (FCollapsed)
+	{
+		QRect iconRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,sizeHint(),rect());
+		p.drawPixmap(iconRect, FCollapsedIcon);
+	}
+	else if (!isEmpty())
 	{
 		const QPixmap *frame = pixmap();
 		QSize frameSize = frame->size();
@@ -266,7 +284,7 @@ void VideoFrame::paintEvent(QPaintEvent *AEvent)
 		p.drawPixmap(waitRect, FWaitMovie->currentPixmap());
 	}
 
-	if (FResizeEnabled && underMouse())
+	if (!FCollapsed && FResizeEnabled && underMouse())
 	{
 		QRect iconRect = QRect(rect().topLeft(),FResizeIcon.size());
 		iconRect.moveCenter(QPoint(0,0));
