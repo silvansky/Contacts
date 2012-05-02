@@ -66,7 +66,7 @@ public:
 	void onCallState(int call_id, /*pjsip_event **/ void *e);
 	void onCallMediaState(int call_id);
 	void onCallTsxState(int call_id, /*pjsip_transaction **/void *tsx, /*pjsip_event **/ void *e);
-	int onMyPutFrameCallback(int call_id, /*pjmedia_frame **/void *frame, int w, int h, int stride);
+	int onMyPutFrameCallback(/*pjmedia_frame **/void *frame, int w, int h, int stride);
 	int onMyPreviewFrameCallback(/*pjmedia_frame **/void *frame, const char* colormodelName, int w, int h, int stride);
 protected:
 	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId);

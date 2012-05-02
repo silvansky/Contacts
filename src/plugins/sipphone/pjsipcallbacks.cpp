@@ -29,21 +29,23 @@ void on_call_tsx_state(pjsua_call_id call_id, pjsip_transaction *tsx, pjsip_even
 pj_status_t my_put_frame_callback(int call_id, pjmedia_frame *frame, int w, int h, int stride)
 {
 	if (SipCall * call = SipCall::findCallById(call_id))
-		return call->onMyPutFrameCallback(call_id, frame, w, h, stride);
+		return call->onMyPutFrameCallback(frame, w, h, stride);
 	else
 		return -1;
 }
 
-pj_status_t my_preview_frame_callback(pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
+pj_status_t my_preview_frame_callback(int call_id, pjmedia_frame *frame, const char* colormodelName, int w, int h, int stride)
 {
 	Q_UNUSED(frame)
 	Q_UNUSED(colormodelName)
 	Q_UNUSED(w)
 	Q_UNUSED(h)
 	Q_UNUSED(stride)
-	//return RSipPhone::instance()->on_my_preview_frame_callback(frame, colormodelName, w, h, stride);
-	// TODO: get here call_id too
-	return -1;
+
+	if (SipCall * call = SipCall::findCallById(call_id))
+		return call->onMyPreviewFrameCallback(frame, colormodelName, w, h, stride);
+	else
+		return -1;
 }
 
 // callbacks for SipManager

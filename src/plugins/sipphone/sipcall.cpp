@@ -47,8 +47,8 @@ SipCall::~SipCall()
 	if (FStanzaProcessor)
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
-	if (findCalls(FStreamJid).isEmpty())
-		FSipManager->unregisterAtServer(FStreamJid);
+//	if (findCalls(FStreamJid).isEmpty())
+//		FSipManager->unregisterAtServer(FStreamJid);
 	emit callDestroyed();
 	LogDetail(QString("[SipCall] Call destroyed, sid='%1'").arg(sessionId()));
 }
@@ -804,9 +804,8 @@ void SipCall::onCallTsxState(int call_id, void *tsx, void *e)
 	// TODO: implementation
 }
 
-int SipCall::onMyPutFrameCallback(int call_id, void *frame, int w, int h, int stride)
+int SipCall::onMyPutFrameCallback(void *frame, int w, int h, int stride)
 {
-	Q_UNUSED(call_id)
 	// TODO: check implementation
 	pjmedia_frame * _frame = (pjmedia_frame *)frame;
 	if(_frame->type == PJMEDIA_FRAME_TYPE_VIDEO)
