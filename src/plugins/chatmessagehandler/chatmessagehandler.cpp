@@ -706,11 +706,12 @@ void ChatMessageHandler::sendOfflineMessages(IChatWindow *AWindow)
 		extension.action = IMessageContentOptions::Replace;
 		while (!wstatus.offline.isEmpty())
 		{
-			Message message = wstatus.offline.at(0);
+			Message message = wstatus.offline.takeAt(0);
 			message.setTo(AWindow->contactJid().eFull());
 			if (!FMessageProcessor->sendMessage(AWindow->streamJid(),message,IMessageProcessor::MessageOut))
 			{
-				LogError(QString("[ChatMessageHandler] Failed to send %1 stored offline messages").arg(wstatus.offline.count()));
+				wstatus.offline.clear();
+				LogError(QString("[ChatMessageHandler] Failed to send stored offline messages to %1").arg(AWindow->contactJid().full()));
 				break;
 			}
 		}
@@ -994,20 +995,25 @@ void ChatMessageHandler::onMessageReady()
 		FMessageProcessor->textToMessage(message,window->editWidget()->document());
 		if (!message.body().isEmpty())
 		{
-			if (!FMessageProcessor->sendMessage(window->streamJid(),message,IMessageProcessor::MessageOut))
-			{
-				StyleExtension extension;
-				extension.extensions = IMessageContentOptions::Offline;
-				QUuid contentId = showStyledMessage(window, message, extension);
-				if (!contentId.isNull())
-				{
-					message.setData(MDR_STYLE_CONTENT_ID, contentId.toString());
-					FWindowStatus[window].offline.append(message);
-				}
-			}
-
+			if (FMessageProcessor->sendMessage(window->streamJid(),message,IMessageProcessor::MessageOut))
+				window->editWidget()->clearEditor();
 			replaceUnreadMessages(window);
-			window->editWidget()->clearEditor();
+
+			//Offline messages do not have well formed html template
+			//if (!FMessageProcessor->sendMessage(window->streamJid(),message,IMessageProcessor::MessageOut))
+			//{
+			//	StyleExtension extension;
+			//	extension.extensions = IMessageContentOptions::Offline;
+			//	QUuid contentId = showStyledMessage(window, message, extension);
+			//	if (!contentId.isNull())
+			//	{
+			//		message.setData(MDR_STYLE_CONTENT_ID, contentId.toString());
+			//		FWindowStatus[window].offline.append(message);
+			//	}
+			//}
+
+			//replaceUnreadMessages(window);
+			//window->editWidget()->clearEditor();
 		}
 	}
 }
