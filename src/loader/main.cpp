@@ -102,6 +102,10 @@ int main(int argc, char *argv[])
 	QLibrary utils(app.applicationDirPath()+"/utils",&app);
 	utils.load();
 
+#ifdef Q_WS_MAC
+	app.addLibraryPath(app.applicationDirPath() + "/../PlugIns");
+#endif
+
 	// plugin manager
 	PluginManager pm(&app);
 
