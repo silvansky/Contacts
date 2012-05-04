@@ -7,6 +7,10 @@
         <source>Disconnection timed out</source>
         <translation>Превышено время ожидания</translation>
     </message>
+    <message>
+        <source>Connection timed out</source>
+        <translation>Превышено время установки подключения</translation>
+    </message>
 </context>
 <context>
     <name>DefaultConnectionPlugin</name>

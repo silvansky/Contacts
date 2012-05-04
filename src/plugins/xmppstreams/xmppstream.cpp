@@ -90,7 +90,6 @@ bool XmppStream::open()
 		if (FConnection->connectToHost())
 		{
 			FStreamState = SS_CONNECTING;
-			FKeepAliveTimer.start(KEEP_ALIVE_TIMEOUT);
 			return true;
 		}
 		else
@@ -410,6 +409,7 @@ QByteArray XmppStream::receiveData(qint64 ABytes)
 
 void XmppStream::onConnectionConnected()
 {
+	FKeepAliveTimer.start(KEEP_ALIVE_TIMEOUT);
 	insertXmppStanzaHandler(this,XSHO_XMPP_STREAM);
 	startStream();
 }

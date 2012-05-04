@@ -6,6 +6,7 @@
 #define START_QUERY_ID        0
 #define STOP_QUERY_ID         -1
 
+#define CONNECT_TIMEOUT       15000
 #define DISCONNECT_TIMEOUT    5000
 
 DefaultConnection::DefaultConnection(IConnectionPlugin *APlugin, QObject *AParent) : QObject(AParent)
@@ -25,6 +26,10 @@ DefaultConnection::DefaultConnection(IConnectionPlugin *APlugin, QObject *AParen
 	connect(&FSocket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(onSocketError(QAbstractSocket::SocketError)));
 	connect(&FSocket, SIGNAL(sslErrors(const QList<QSslError> &)), SLOT(onSocketSSLErrors(const QList<QSslError> &)));
 	connect(&FSocket, SIGNAL(disconnected()), SLOT(onSocketDisconnected()));
+
+	FConnectTimer.setSingleShot(true);
+	FConnectTimer.setInterval(CONNECT_TIMEOUT);
+	connect(&FConnectTimer,SIGNAL(timeout()),SLOT(onConnectTimerTimeout()));
 }
 
 DefaultConnection::~DefaultConnection()
@@ -181,9 +186,9 @@ QNetworkProxy DefaultConnection::proxy() const
 
 void DefaultConnection::setProxy(const QNetworkProxy &AProxy)
 {
-	if (AProxy!= FSocket.proxy())
+	if (AProxy != FSocket.proxy())
 	{
-		LogDetail(QString("[DefaultConnection] Connection proxy changed, host='%1', port='%2', type='%3'").arg(AProxy.hostName()).arg(AProxy.port()).arg(AProxy.type()));
+		LogDetail(QString("[DefaultConnection] Connection proxy changed, type='%1', host='%2', port='%3'").arg(AProxy.type()).arg(AProxy.hostName()).arg(AProxy.port()));
 		FSocket.setProxy(AProxy);
 		emit proxyChanged(AProxy);
 	}
@@ -232,14 +237,15 @@ void DefaultConnection::connectSocketToHost(const QString &AHost, quint16 APort)
 	FHost = AHost;
 	FPort = APort;
 
+	FConnectTimer.start();
 	if (FSSLConnection)
 	{
-		LogDetail(QString("[DefaultConnection] Connecting socket to host with legacy-SSL, host='%1', port='%2'").arg(AHost).arg(APort));
+		LogDetail(QString("[DefaultConnection] Connecting socket to host with legacy-SSL, host='%1', port='%2', proxy-type='%3', proxy-host='%4', proxy-port='%5'").arg(AHost).arg(APort).arg(proxy().type()).arg(proxy().hostName()).arg(proxy().port()));
 		FSocket.connectToHostEncrypted(FHost, FPort);
 	}
 	else
 	{
-		LogDetail(QString("[DefaultConnection] Connecting socket to host, host='%1', port='%2'").arg(AHost).arg(APort));
+		LogDetail(QString("[DefaultConnection] Connecting socket to host, host='%1', port='%2', proxy-type='%3', proxy-host='%4', proxy-port='%5'").arg(AHost).arg(APort).arg(proxy().type()).arg(proxy().hostName()).arg(proxy().port()));
 		FSocket.connectToHost(FHost, FPort);
 	}
 }
@@ -248,6 +254,33 @@ void DefaultConnection::setError(const QString &AError)
 {
 	FErrorString = AError;
 	emit error(FErrorString);
+}
+
+void DefaultConnection::processConnectionError(const QString &AError)
+{
+	if (FChangeProxyType && FSocket.proxy().type()==QNetworkProxy::HttpProxy)
+	{
+		QNetworkProxy socksProxy = FSocket.proxy();
+		socksProxy.setType(QNetworkProxy::Socks5Proxy);
+		FSocket.setProxy(socksProxy);
+		connectSocketToHost(FHost,FPort);
+	}
+	else if (FRecords.isEmpty())
+	{
+		if (FSocket.state()!=QSslSocket::ConnectedState || FSSLError)
+		{
+			setError(AError);
+			emit disconnected();
+		}
+		else
+		{
+			setError(AError);
+		}
+	}
+	else
+	{
+		connectToNextHost();
+	}
 }
 
 void DefaultConnection::onDnsResultsReady(int AId, const QJDns::Response &AResults)
@@ -290,6 +323,7 @@ void DefaultConnection::onDnsShutdownFinished()
 
 void DefaultConnection::onSocketConnected()
 {
+	FConnectTimer.stop();
 	LogDetail(QString("[DefaultConnection] Socket connected to host"));
 	if (!FSSLConnection)
 	{
@@ -326,34 +360,21 @@ void DefaultConnection::onSocketSSLErrors(const QList<QSslError> &AErrors)
 void DefaultConnection::onSocketError(QAbstractSocket::SocketError AError)
 {
 	Q_UNUSED(AError);
+	FConnectTimer.stop();
 	LogError(QString("[DefaultConnection] Socket connection error: %1").arg(FSocket.errorString()));
-	if (FChangeProxyType && FSocket.proxy().type()==QNetworkProxy::HttpProxy)
-	{
-		QNetworkProxy socksProxy = FSocket.proxy();
-		socksProxy.setType(QNetworkProxy::Socks5Proxy);
-		FSocket.setProxy(socksProxy);
-		connectSocketToHost(FHost,FPort);
-	}
-	else if (FRecords.isEmpty())
-	{
-		if (FSocket.state()!=QSslSocket::ConnectedState || FSSLError)
-		{
-			setError(FSocket.errorString());
-			emit disconnected();
-		}
-		else
-		{
-			setError(FSocket.errorString());
-		}
-	}
-	else
-	{
-		connectToNextHost();
-	}
+	processConnectionError(FSocket.errorString());
 }
 
 void DefaultConnection::onSocketDisconnected()
 {
+	FConnectTimer.stop();
 	LogDetail(QString("[DefaultConnection] Socket disconnected from host"));
 	emit disconnected();
+}
+
+void DefaultConnection::onConnectTimerTimeout()
+{
+	LogError(QString("[DefaultConnection] Socket connection timed out"));
+	FSocket.abort();
+	processConnectionError(tr("Connection timed out"));
 }

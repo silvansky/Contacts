@@ -57,6 +57,7 @@ protected:
 	void connectToNextHost();
 	void connectSocketToHost(const QString &AHost, quint16 APort);
 	void setError(const QString &AError);
+	void processConnectionError(const QString &AError);
 protected slots:
 	void onDnsResultsReady(int AId, const QJDns::Response &AResults);
 	void onDnsError(int AId, QJDns::Error AError);
@@ -67,6 +68,7 @@ protected slots:
 	void onSocketSSLErrors(const QList<QSslError> &AErrors);
 	void onSocketError(QAbstractSocket::SocketError AError);
 	void onSocketDisconnected();
+	void onConnectTimerTimeout();
 private:
 	IConnectionPlugin *FPlugin;
 private:
@@ -79,6 +81,7 @@ private:
 	bool FIgnoreSSLErrors;
 	bool FChangeProxyType;
 	QSslSocket FSocket;
+	QTimer FConnectTimer;
 private:
 	int FPort;
 	QString FHost;
